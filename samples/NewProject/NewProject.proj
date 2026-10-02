@@ -1,0 +1,11 @@
+{
+  "name": "NewProject",
+  "files": [
+    {
+      "type": "file",
+      "name": "main.asm",
+      "path": "main.asm"
+    }
+  ],
+  "startupFile": "main.asm"
+}

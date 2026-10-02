@@ -32,6 +32,7 @@ programok vizuális, drag-and-drop szerkesztéséhez. Nincs UI framework — Van
 | `src-tauri/tauri.conf.json` | Tauri konfiguráció, verzió |
 | `package.json` | Tauri CLI dev/build scriptek |
 | `samples/*.json` | Beépített mintaprogramok |
+| `templates/*.asm` | Projekt sablonok (Menu → Új projekt sablonból…), lásd 8. szakasz vége |
 | `samples/*.sid` `samples/*.bin` | SID zenék, sprite-ok, egyéb assetek |
 | `.github/copilot-instructions.md` | Teljes referencia (1600 sor) |
 | `.github/copilot-plugin/` | C64AssemblyExpert plugin (agents + skills) |
@@ -240,6 +241,24 @@ Teljes lista: [copilot-instructions.md#meglévő-mintaprogramok](.github/copilot
 > Ha új `<option>`-t szúrsz be a közepébe, az összes utána lévő `sampleOptions[N]` sort manuálisan
 > fel kell számozni +1-gyel. Ellenőrizd a teljes listát a [copilot-instructions.md](.github/copilot-instructions.md)
 > „Sample program translációk" szekciójában.
+
+### Projekt sablonok — `templates/`
+
+**Menu → File → Új projekt sablonból…** (`#menu-new-from-template` → `_openTemplateDialog`, `#template-dialog`).
+Egy sablon = egy `.asm` fájl; nincs manifest, a mappába bedobott fájl magától megjelenik.
+
+- **Fejléc:** a fájl elején `; @kulcs érték` kommentsorok (`@name`, `@category`, `@desc`, `@order`),
+  nyelvi változat `; @name.hu …`; fallback: aktuális nyelv → nyelv nélküli → `en`. Az első nem-fejléc
+  sortól kezdve minden a projekt `main.asm`-jébe kerül (`_parseTemplateSource`).
+- **`{{PROJECT}}`** a törzsben a projekt nevére cserélődik — csak kommentben használd, hogy a sablon
+  önmagában is forduljon.
+- **Források:** beépített `templates/` (Tauri resource, `list_templates`) + saját sablonok az app config
+  mappa `templates/` almappájában (`open_templates_folder`); kategória nélküli saját sablon → „Saját sablonok”.
+- **Létrehozás** (`_templateCreateProject`): `<hely>/<név>/<név>.proj` + `main.asm`, meglévő projektet nem ír
+  felül, a nyitott fülekre rákérdez (`_confirmCloseAllTabs`), Expert módra vált és megnyitja a projektet.
+- **Új beépített sablon:** `templates/xxx.asm` EN + HU fejléccel és `@order`-rel — a
+  `tests/project-template.test.js` ezt ellenőrzi. `.text` makrók ne írjanak azonos képernyő-pozícióra
+  (a memóriatérkép átfedésnek jelzi).
 
 ---
 

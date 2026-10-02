@@ -59,6 +59,7 @@
                 <button id="save-project-as" class="secondary menu-item-tooltip" type="button">Save Program As</button>
                 <button id="load-project" class="secondary menu-item-tooltip" type="button">Load program</button>
                 <button id="set-working-folder" class="secondary menu-item-tooltip" type="button">Set working folder</button>
+                <button id="menu-new-from-template" class="secondary menu-item-tooltip" type="button">New project from template…</button>
                 <button id="menu-open-project" class="secondary menu-item-tooltip" type="button">Open project</button>
                 <button id="menu-save-project" class="secondary menu-item-tooltip" type="button">Save project</button>
                 <button id="menu-close-project" class="secondary menu-item-tooltip" type="button">Close project</button>
@@ -854,6 +855,43 @@ PRINTABLE CHARACTERS
       </div>
       <p id="project-snapshot-empty" class="project-snapshot-empty">No snapshots yet.</p>
       <div id="project-snapshot-list" class="project-snapshot-list"></div>
+    </div>
+  </dialog>
+
+  <dialog id="template-dialog" class="template-dialog" aria-labelledby="template-dialog-title">
+    <div class="template-card">
+      <div class="template-hdr">
+        <h2 class="template-title" id="template-dialog-title">New project from template</h2>
+        <button id="template-dialog-close" class="project-snapshot-xbtn" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="template-body">
+        <div id="template-list" class="template-list"></div>
+        <div class="template-detail">
+          <h3 id="template-detail-name" class="template-detail-name"></h3>
+          <p id="template-detail-desc" class="template-detail-desc"></p>
+          <pre id="template-preview" class="template-preview" tabindex="0"></pre>
+        </div>
+      </div>
+      <div class="template-form">
+        <label class="template-field">
+          <span id="template-name-label">Project name</span>
+          <input id="template-project-name" type="text" maxlength="64" spellcheck="false" autocomplete="off">
+        </label>
+        <label class="template-field template-field--grow">
+          <span id="template-location-label">Location</span>
+          <span class="template-location-row">
+            <input id="template-location" type="text" spellcheck="false" autocomplete="off">
+            <button id="template-browse" class="secondary" type="button">Browse…</button>
+          </span>
+        </label>
+      </div>
+      <p id="template-target" class="template-target"></p>
+      <div class="template-footer">
+        <button id="template-open-folder" class="template-link-btn" type="button">Open templates folder</button>
+        <span class="template-footer-spacer"></span>
+        <button id="template-cancel" class="secondary" type="button">Cancel</button>
+        <button id="template-create" class="primary" type="button">Create project</button>
+      </div>
     </div>
   </dialog>
 

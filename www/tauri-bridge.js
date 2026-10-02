@@ -77,6 +77,8 @@
     writeBinFile: (path, bytes, sidecars = null) => invoke("write_bin_file", { path, bytes, sidecars }),
     deleteBinFile: (path) => invoke("delete_bin_file", { path }),
     loadSample: (sampleName) => invoke("load_sample", { sampleName }),
+    listTemplates: () => invoke("list_templates"),
+    openTemplatesFolder: () => invoke("open_templates_folder"),
     openManual: () => invoke("open_manual"),
     openUltimateBasicManual: () => invoke("open_ultimate_basic_manual"),
   runOnUltimate: (host, password, prgBytes) => invoke("run_on_ultimate", { host, password, prgBytes }),

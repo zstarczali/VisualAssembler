@@ -1992,6 +1992,10 @@ function initPalette() {
     await _openProjectSnapshotDialog();
     document.querySelector(".control-menu")?.removeAttribute("open");
   });
+  document.getElementById("menu-new-from-template")?.addEventListener("click", async () => {
+    document.querySelector(".control-menu")?.removeAttribute("open");
+    await _openTemplateDialog();
+  });
   document.getElementById("menu-open-project")?.addEventListener("click", async () => {
     if (ultimateBasicMode) await _ubOpenProject();
     else if (expertMode) await _openProjectFromMenu();
@@ -3238,6 +3242,16 @@ function applyTranslations() {
     document.getElementById("save-project")?.setAttribute("aria-label", t("saveProjectTip"));
     setText("#save-project-as", t("saveProgramAs"));
     document.getElementById("save-project-as")?.setAttribute("aria-label", t("saveProgramAsTip"));
+    setText("#menu-new-from-template", t("menuNewFromTemplate"));
+    document.getElementById("menu-new-from-template")?.setAttribute("aria-label", t("menuNewFromTemplateTip"));
+    setText("#template-dialog-title", t("templateDialogTitle"));
+    setText("#template-name-label", t("templateProjectName"));
+    setText("#template-location-label", t("templateLocation"));
+    setText("#template-browse", t("templateBrowse"));
+    setText("#template-open-folder", t("templateOpenFolder"));
+    setText("#template-cancel", t("cancel"));
+    setText("#template-create", t("templateCreate"));
+    document.getElementById("template-dialog-close")?.setAttribute("aria-label", t("close"));
     setText("#menu-open-project", t("menuOpenProject"));
     document.getElementById("menu-open-project")?.setAttribute("aria-label", t("menuOpenProjectTip"));
     setText("#menu-save-project", t("menuSaveProject"));
@@ -12662,7 +12676,7 @@ function _expertTouchProject() {
   _projUpdateSaveBtn("expert-project-save-btn", !!_expertProjectData, _expertProjectDirty);
 }
 
-async function _closeAllTabsWithConfirm() {
+async function _confirmCloseAllTabs() {
   // For each tab that has content, ask user. If user cancels any, stop and return false.
   for (const tab of [...tabs]) {
     if (_tabHasContent(tab)) {
@@ -12671,7 +12685,11 @@ async function _closeAllTabsWithConfirm() {
       if (!await _showConfirm(msg)) return false;
     }
   }
-  // All confirmed — clear all tabs, leave one blank
+  return true;
+}
+
+function _closeAllTabsNow() {
+  // Clear all tabs, leave one blank
   tabs.length = 0;
   const blank = _tabCreate();
   blank.program = [makeDefaultOrgBlock()];
@@ -12692,6 +12710,11 @@ async function _closeAllTabsWithConfirm() {
   if (expertFileName) expertFileName.textContent = "";
   updateWindowTitle("");
   renderTabBar();
+}
+
+async function _closeAllTabsWithConfirm() {
+  if (!await _confirmCloseAllTabs()) return false;
+  _closeAllTabsNow();
   return true;
 }
 
@@ -12914,6 +12937,274 @@ async function _expertSaveProject() {
   _expertRenderProjectTree();
   _expertSetStatus(t("projSaved"), "ok");
 }
+
+// ── Project templates ───────────────────────────────────────────────────────
+// A template is one .asm file. Its leading "; @key value" comment lines describe
+// it ("; @name.hu ..." is a per-language variant), everything after them becomes
+// the new project's main.asm. Built-in templates ship in templates/, user ones
+// live in the app config folder: dropping a file there is enough to add one.
+let _templateList = [];
+let _templateSelectedId = "";
+
+function _parseTemplateSource(fileName, content, source) {
+  const lines = String(content || "").replace(/\r\n?/g, "\n").split("\n");
+  const meta = {};
+  let i = 0;
+  for (; i < lines.length; i++) {
+    const m = lines[i].match(/^\s*;\s*@([a-z]+)(?:\.([a-z]{2}))?\s+(.+?)\s*$/i);
+    if (!m) break;
+    const key = m[1].toLowerCase();
+    (meta[key] ||= {})[(m[2] || "").toLowerCase()] = m[3];
+  }
+  while (i < lines.length && !lines[i].trim()) i++;
+  return {
+    id: `${source}:${fileName}`,
+    fileName,
+    source,
+    meta,
+    order: Number.parseInt(meta.order?.[""] ?? "", 10) || 1000,
+    body: lines.slice(i).join("\n").replace(/\s*$/, "\n")
+  };
+}
+
+function _templateText(tpl, key, lang = currentLanguage) {
+  const values = tpl?.meta?.[key];
+  if (!values) return "";
+  return values[lang] || values[""] || values.en || Object.values(values)[0] || "";
+}
+
+function _templateSanitizeName(name) {
+  return String(name || "")
+    .replace(/[<>:"/\\|?*\u0000-\u001f]/g, "")
+    .replace(/\s+/g, " ")
+    .replace(/^[ .]+|[ .]+$/g, "");
+}
+
+function _templateJoinPath(dir, name) {
+  return `${String(dir || "").replace(/\\/g, "/").replace(/\/+$/, "")}/${name}`;
+}
+
+function _templateTargetPaths(projectName, location) {
+  const name = _templateSanitizeName(projectName);
+  const base = String(location || "").trim();
+  if (!name || !base) return null;
+  const dir = _templateJoinPath(base, name);
+  return { name, dir, projPath: `${dir}/${name}.proj`, mainPath: `${dir}/main.asm` };
+}
+
+function _templateSelected() {
+  return _templateList.find(tpl => tpl.id === _templateSelectedId) || null;
+}
+
+function _templateFormPaths() {
+  return _templateTargetPaths(
+    document.getElementById("template-project-name")?.value,
+    document.getElementById("template-location")?.value
+  );
+}
+
+// Paths are built with "/" internally; show them the way the user typed the location.
+function _templateDisplayPath(path) {
+  const location = document.getElementById("template-location")?.value || "";
+  return location.includes("\\") ? path.replace(/\//g, "\\") : path;
+}
+
+async function _templateLoadList() {
+  const res = await window.electronAPI?.listTemplates?.();
+  const raw = res?.ok && Array.isArray(res.templates) ? res.templates : [];
+  _templateList = raw
+    .map(item => _parseTemplateSource(item.fileName, item.content, item.source === "user" ? "user" : "builtin"))
+    .sort((a, b) => (a.source === b.source ? 0 : a.source === "user" ? 1 : -1)
+      || a.order - b.order
+      || a.fileName.localeCompare(b.fileName));
+  if (!_templateSelected()) _templateSelectedId = _templateList[0]?.id || "";
+}
+
+function _templateUpdateTarget(error = "") {
+  const targetEl = document.getElementById("template-target");
+  const createBtn = document.getElementById("template-create");
+  const paths = _templateFormPaths();
+  if (targetEl) {
+    targetEl.classList.toggle("template-target--error", !!error);
+    targetEl.textContent = error
+      || (paths ? tf("templateWillCreate", { path: _templateDisplayPath(paths.projPath) }) : "");
+  }
+  if (createBtn) createBtn.disabled = !paths || !_templateSelected();
+}
+
+// The preview shows the source as it will be written, project name filled in.
+function _templateRenderPreview() {
+  const previewEl = document.getElementById("template-preview");
+  if (!previewEl) return;
+  const tpl = _templateSelected();
+  const name = _templateSanitizeName(document.getElementById("template-project-name")?.value) || "{{PROJECT}}";
+  previewEl.innerHTML = tpl
+    ? tpl.body.replace(/\n$/, "").replaceAll("{{PROJECT}}", name).split("\n").map(line => {
+        try { return _expertHighlightLine(line); } catch { return _escHtml(line); }
+      }).join("\n")
+    : "";
+}
+
+function _templateRenderDetail() {
+  const tpl = _templateSelected();
+  const nameEl = document.getElementById("template-detail-name");
+  const descEl = document.getElementById("template-detail-desc");
+  const previewEl = document.getElementById("template-preview");
+  if (nameEl) nameEl.textContent = tpl ? (_templateText(tpl, "name") || tpl.fileName) : "";
+  if (descEl) descEl.textContent = tpl ? _templateText(tpl, "desc") : "";
+  _templateRenderPreview();
+  if (previewEl) previewEl.scrollTop = 0;
+  document.querySelectorAll("#template-list .template-item").forEach(btn => {
+    const active = btn.dataset.templateId === _templateSelectedId;
+    btn.classList.toggle("template-item--active", active);
+    btn.setAttribute("aria-pressed", String(active));
+  });
+  _templateUpdateTarget();
+}
+
+function _templateRenderList() {
+  const listEl = document.getElementById("template-list");
+  if (!listEl) return;
+  listEl.innerHTML = "";
+  if (!_templateList.length) {
+    const empty = document.createElement("p");
+    empty.className = "template-empty";
+    empty.textContent = t("templateNoTemplates");
+    listEl.appendChild(empty);
+  }
+  const groups = new Map();
+  for (const tpl of _templateList) {
+    const category = _templateText(tpl, "category")
+      || t(tpl.source === "user" ? "templateCategoryUser" : "templateCategoryOther");
+    if (!groups.has(category)) groups.set(category, []);
+    groups.get(category).push(tpl);
+  }
+  for (const [category, items] of groups) {
+    const group = document.createElement("div");
+    group.className = "template-category";
+    const label = document.createElement("div");
+    label.className = "template-category-label";
+    label.textContent = category;
+    group.appendChild(label);
+    for (const tpl of items) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "template-item";
+      btn.dataset.templateId = tpl.id;
+      btn.textContent = _templateText(tpl, "name") || tpl.fileName.replace(/\.asm$/i, "");
+      btn.addEventListener("click", () => {
+        _templateSelectedId = tpl.id;
+        _templateRenderDetail();
+      });
+      group.appendChild(btn);
+    }
+    listEl.appendChild(group);
+  }
+  _templateRenderDetail();
+}
+
+async function _openTemplateDialog() {
+  const dialog = document.getElementById("template-dialog");
+  if (!dialog) return;
+  const nameInput = document.getElementById("template-project-name");
+  const locationInput = document.getElementById("template-location");
+  await _templateLoadList();
+  if (nameInput) nameInput.value = "NewProject";
+  if (locationInput && !locationInput.value.trim()) {
+    let location = localStorage.getItem("templateProjectLocation") || "";
+    if (!location) location = (await window.electronAPI?.getWorkingFolder?.())?.workingFolder || "";
+    locationInput.value = location;
+  }
+  _templateRenderList();
+  dialog.showModal();
+  setTimeout(() => { nameInput?.focus(); nameInput?.select(); }, 0);
+}
+
+async function _templateCreateProject() {
+  const api = window.electronAPI;
+  const tpl = _templateSelected();
+  const paths = _templateFormPaths();
+  if (!tpl || !paths || !api?.saveTextFile || !api?.saveProjFile) return;
+
+  // Never write into a folder that already holds a project.
+  for (const path of [paths.projPath, paths.mainPath]) {
+    if ((await api.readTextFile?.(path))?.ok) {
+      _templateUpdateTarget(tf("templateExists", { path: _templateDisplayPath(paths.dir) }));
+      return;
+    }
+  }
+  if (!await _confirmCloseAllTabs()) return;
+
+  const fileEntry = { type: "file", name: "main.asm", path: "main.asm" };
+  const payload = JSON.stringify({ name: paths.name, files: [fileEntry], startupFile: fileEntry.path }, null, 2);
+  const asmRes = await api.saveTextFile(paths.mainPath, tpl.body.replaceAll("{{PROJECT}}", paths.name));
+  const projRes = asmRes?.ok ? await api.saveProjFile(paths.projPath, payload) : null;
+  if (!asmRes?.ok || !projRes?.ok) {
+    _templateUpdateTarget(`${t("templateWriteError")}: ${asmRes?.error || projRes?.error || _templateDisplayPath(paths.dir)}`);
+    return;
+  }
+  localStorage.setItem("templateProjectLocation", document.getElementById("template-location")?.value.trim() || "");
+  document.getElementById("template-dialog")?.close();
+
+  if (ultimateBasicMode) {
+    if (ubEditor) ubEditor.value = "";
+    _ubFilePath = "";
+    _ubDirty = false;
+  }
+  _closeAllTabsNow();
+  // .proj projects live in the Expert editor (this also leaves UltimateBasic mode).
+  if (!expertMode) setExpertMode(true);
+  _expertProjectData = {
+    name: paths.name,
+    files: [{ ...fileEntry }],
+    _projPath: projRes.filePath || paths.projPath,
+    startupFile: fileEntry.path
+  };
+  _expertProjectDirty = false;
+  await _expertProjectOpenFile(_expertProjectData.files[0]);
+
+  const opened = _findTabByPath(paths.mainPath);
+  if (opened) {
+    opened.editorMode = "expert";
+    // Drop the blank placeholder tab left behind by _closeAllTabsNow().
+    const blankIdx = tabs.findIndex(tab => tab !== opened && !_tabHasContent(tab));
+    if (blankIdx >= 0) {
+      tabs.splice(blankIdx, 1);
+      renderTabBar();
+    }
+  }
+  if (!_expertProjectVisible) expertProjectBtn?.click();
+  else _expertRenderProjectTree();
+  _expertSetStatus(`${t("templateCreated")}: ${paths.name}`, "ok");
+}
+
+document.getElementById("template-dialog-close")?.addEventListener("click", () => {
+  document.getElementById("template-dialog")?.close();
+});
+document.getElementById("template-cancel")?.addEventListener("click", () => {
+  document.getElementById("template-dialog")?.close();
+});
+document.getElementById("template-create")?.addEventListener("click", _templateCreateProject);
+document.getElementById("template-project-name")?.addEventListener("input", () => {
+  _templateRenderPreview();
+  _templateUpdateTarget();
+});
+document.getElementById("template-location")?.addEventListener("input", () => _templateUpdateTarget());
+document.getElementById("template-project-name")?.addEventListener("keydown", (e) => {
+  if (e.key !== "Enter") return;
+  e.preventDefault();
+  _templateCreateProject();
+});
+document.getElementById("template-browse")?.addEventListener("click", async () => {
+  const res = await window.electronAPI?.chooseProjFolder?.();
+  if (!res || res.canceled || !res.folderPath) return;
+  const locationInput = document.getElementById("template-location");
+  if (locationInput) locationInput.value = res.folderPath;
+  _templateUpdateTarget();
+});
+document.getElementById("template-open-folder")?.addEventListener("click", async () => {
+  try { await window.electronAPI?.openTemplatesFolder?.(); } catch { /* the folder may not be reachable */ }
+});
 
 async function _expertAddProjMember() {
   const res = await window.electronAPI?.chooseProjMember?.();

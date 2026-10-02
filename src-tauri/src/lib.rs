@@ -3199,6 +3199,68 @@ async fn open_ultimate_basic_manual(app: AppHandle) -> Result<(), String> {
     app.opener().open_path(manual_path.to_string_lossy().as_ref(), None::<String>).map_err(|e| e.to_string())
 }
 
+// ── Project templates ────────────────────────────────────────────────────────
+// Every *.asm file in the bundled templates/ folder and in the user's own
+// templates folder is a template; the frontend reads the "; @name ..." header.
+
+fn user_templates_dir(app: &AppHandle) -> Option<PathBuf> {
+    app.path().app_config_dir().ok().map(|dir| dir.join("templates"))
+}
+
+fn collect_templates(dir: &Path, source: &str, out: &mut Vec<serde_json::Value>) {
+    let entries = match fs::read_dir(dir) {
+        Ok(entries) => entries,
+        Err(_) => return,
+    };
+    let mut paths: Vec<PathBuf> = entries
+        .filter_map(|entry| entry.ok())
+        .map(|entry| entry.path())
+        .filter(|path| {
+            path.is_file()
+                && path
+                    .extension()
+                    .and_then(|ext| ext.to_str())
+                    .map(|ext| ext.eq_ignore_ascii_case("asm"))
+                    .unwrap_or(false)
+        })
+        .collect();
+    paths.sort();
+    for path in paths {
+        let file_name = match path.file_name().and_then(|name| name.to_str()) {
+            Some(name) => name.to_string(),
+            None => continue,
+        };
+        if let Ok(content) = fs::read_to_string(&path) {
+            out.push(serde_json::json!({ "fileName": file_name, "source": source, "content": content }));
+        }
+    }
+}
+
+#[tauri::command]
+fn list_templates(app: AppHandle) -> serde_json::Value {
+    let mut templates: Vec<serde_json::Value> = Vec::new();
+    if let Ok(dir) = resolve_resource_file(&app, "templates") {
+        collect_templates(&dir, "builtin", &mut templates);
+    }
+    let user_dir = user_templates_dir(&app);
+    if let Some(dir) = &user_dir {
+        collect_templates(dir, "user", &mut templates);
+    }
+    serde_json::json!({
+        "ok": true,
+        "templates": templates,
+        "userDir": user_dir.map(|dir| dir.to_string_lossy().to_string()).unwrap_or_default()
+    })
+}
+
+#[tauri::command]
+async fn open_templates_folder(app: AppHandle) -> Result<(), String> {
+    let dir = user_templates_dir(&app).ok_or_else(|| "No config folder".to_string())?;
+    fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    app.opener().open_path(dir.to_string_lossy().as_ref(), None::<String>)
+        .map_err(|e| e.to_string())
+}
+
 #[tauri::command]
 async fn load_sample(app: AppHandle, sample_name: String) -> serde_json::Value {
     let file_path = match resolve_resource_file(&app, &format!("samples/{}.json", sample_name)) {
@@ -3742,6 +3804,8 @@ pub fn run() {
             choose_proj_member,
             choose_proj_folder,
             load_sample,
+            list_templates,
+            open_templates_folder,
             open_manual,
             open_ultimate_basic_manual,
             run_on_ultimate,
