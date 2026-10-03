@@ -1,51 +1,45 @@
 * = $0801
-; LEVEL demo — move around a 2x5 screen level with the joystick
-; Data: level.bin (Level Editor project: grid 2x5, multicolor, ROM charset)
-;   payload = 14 library screens x 2000 bytes (1000 screen codes + 1000 colors)
-;   slot -> screen: 0,1 / 3,4 / 6,7 / 9,10 / 12,13   (row-major, 2 columns)
-; The level is 80x125 chars. Joystick (port 2 or 1) moves the camera pixel
-; by pixel in all directions: XSCROLL/YSCROLL ($D016/$D011, 38 columns /
-; 24 rows) for the fine part, double-buffered screens for the char steps.
+; LEVEL demo — move around a Level Editor level with the joystick
+; .level loads level.bin (2x5 screens, multicolor, ROM charset): only the placed
+; screens + pointer tables, and defines LEVEL_* labels/constants.
+; .level_row copies one 40-char level row (screen codes or colors) to a buffer.
 ;
-; Joystick: the .joystick macro moves sprite 0's X/Y registers ($D000/$D001).
-; The sprite is off; both registers are reset to $80 every frame, so after
-; the macro they hold the joystick direction (-1 / 0 / +1).
+; Joystick (port 2 or 1) moves the camera pixel by pixel in all directions:
+; XSCROLL/YSCROLL ($D016/$D011, 38 columns / 24 rows) for the fine part,
+; double-buffered screens ($0400 / $0C00) for the char steps.
+; Char steps without stalls: the camera is predicted two frames ahead; when it
+; will cross into a new char cell, the hidden buffer is built in two halves
+; (13 + 12 rows, one per frame). Color RAM is copied in two halves too: rows
+; 0..12 during the last old frame behind the beam, then the swap at line $FA
+; and rows 13..24 ahead of the beam.
 ;
-; Char steps without stalls: the camera is predicted two frames ahead; when
-; it will cross into a new char cell, the hidden buffer ($0400 / $0C00) is
-; built for that cell in two halves (13 + 12 rows, one per frame). Color RAM
-; is copied in two halves too: rows 0..12 during the last old frame, behind
-; the beam, then the buffers swap at line $FA and rows 13..24 follow ahead of
-; the beam. A direction change rebuilds (1-2 frame stall).
-
-.const LEVEL     = $2000         ; level.bin loaded here
-.const ROWL_LO   = $9000         ; per level row: left screen row pointer
-.const ROWL_HI   = $9080
-.const ROWR_LO   = $9100         ; per level row: right screen row pointer
-.const ROWR_HI   = $9180
-.const MAX_X     = 320           ; camera X range in pixels: (80 - 40) * 8
-.const MAX_Y     = 800           ; camera Y range in pixels: (125 - 25) * 8
-.const JOY_X     = $D000         ; sprite 0 X/Y: moved by .joystick
-.const JOY_Y     = $D001
+; Room for the game:
+;   - all 8 sprites are free; the joystick is read into vx / vy / fire
+;   - $2000-$3FFF (VIC bank 0) is free for a custom charset and sprite data,
+;     $C000-$CFFF for game code / music; zero page is not used
+;   - game_frame is called once per frame, after the camera moved: keep it
+;     under ~7000 cycles (~110 raster lines). vx / vy (-1..1) drive the
+;     camera; a game can set them from the player instead of the joystick
 
 ; $0400 and $0C00 are the two screen buffers, so the code lives at $9200
     JMP init
+
+.level "level.bin", $4000
+.assert LEVEL_END <= $9200, "level data runs into the code"
 
 * = $9200
 .region init
 init:
     SEI
     .set_border 0
-    .set_bg 6                    ; level bgColor
-    LDA #$05                     ; mc1
+    LDA #LEVEL_BG
+    STA $D021
+    LDA #LEVEL_MC1
     STA $D022
-    LDA #$0D                     ; mc2
+    LDA #LEVEL_MC2
     STA $D023
-    LDA #$00                     ; sprites off: sprite 0 X/Y only carry the joystick
-    STA $D015
     LDA #$FF                     ; no keyboard column selected -> clean joystick read
     STA $DC00
-    JSR build_tables
 
 ; camera at 0,0: draw the first view into $0400 + color RAM
     LDA #$00
@@ -82,13 +76,12 @@ init:
 
 .region main_loop
 ; Each frame: at line $FA apply what the previous frame decided (fine scroll,
-; or buffer swap + color copy), then read the joystick and decide the next
-; frame. Building the hidden buffer never shares a frame with a color copy.
+; or buffer swap + color copy), then read the input, decide the next frame and
+; run the game. Building the hidden buffer never shares a frame with a color copy.
 main_loop:
     LDA do_swap
     BEQ ml_wait
-; color RAM of a swap is split: rows 0..12 now, behind the beam (it has
-; already drawn them in this last old frame), rows 13..24 after the swap
+; rows 0..12 of the color RAM now, behind the beam (already drawn this frame)
     .wait_raster $46             ; line 70: the beam is below row 0
     LDA #$00
     STA cc_row
@@ -123,26 +116,29 @@ ml_wait:
     STA shy
     LDA #$00
     STA bstate
-    JMP decide
+    JMP frame_work
 ml_fine:
     JSR set_fine
+frame_work:
+    JSR read_input
+    JSR decide
+    JSR game_frame
+    JMP main_loop
 
+; game_frame: the game's per-frame work (player, enemies, sprites, music ...)
+game_frame:
+    RTS
+.endregion
+
+.region camera
+; read_input: vx / vy = joystick direction (-1, 0, +1), fire = 1 while pressed
+read_input:
+    .joystick 3, vx, vy, fire    ; port 3 = both ports, whichever is used
+    RTS
+
+; decide: move the camera by (vx, vy) inside the current char cell, or swap to
+; the next cell when its buffer is ready; prepare the cell two frames ahead
 decide:
-    LDA #$80
-    STA JOY_X
-    STA JOY_Y
-    .joystick 2, 0               ; up/down -> DEC/INC $D001, left/right -> $D000
-    .joystick 1, 0               ; port 1 too, whichever the emulator uses
-    LDA JOY_X
-    SEC
-    SBC #$80
-    STA vx
-    LDA JOY_Y
-    SEC
-    SBC #$80
-    STA vy
-
-; new camera = clamp(camera + v)
     JSR load_cam
     JSR step_xy
     LDA ncx
@@ -151,11 +147,10 @@ decide:
     LDA ncy
     CMP shy
     BNE crossing
-
 ; same char cell: move (shown at the next $FA), prepare the next cell if needed
     JSR store_cam
     LDA swapped                  ; no building after a color copy
-    LBNE main_loop
+    BNE dc_done
     JSR step_xy                  ; one frame ahead
     LDA ncx
     CMP shx
@@ -169,12 +164,10 @@ decide:
     BNE prepare
     LDA ncy
     CMP shy
-    LBEQ main_loop
+    BEQ dc_done
 prepare:
-    JSR want_cell
-    JMP main_loop
-
-; new char cell: swap if the hidden buffer is ready for it, else build it
+    JMP want_cell
+; new char cell: swap at the next $FA if the hidden buffer is ready, else build
 crossing:
     LDA bstate
     CMP #$02
@@ -186,18 +179,16 @@ crossing:
     CMP ncy
     BNE cross_build
     JSR store_cam
-    LDA #$01                     ; swap at the next $FA
+    LDA #$01
     STA do_swap
-    JMP main_loop
+    RTS
 cross_build:
     LDA swapped                  ; after a color copy the camera just waits
-    LBNE main_loop
-    JSR want_cell                ; camera waits until the buffer is ready
-    JMP main_loop
-.endregion
+    BNE dc_done
+    JMP want_cell                ; camera waits until the buffer is ready
+dc_done:
+    RTS
 
-.region camera
-; load_cam: work position (wx, wy) = camera
 load_cam:
     LDA camx_lo
     STA wx_lo
@@ -220,7 +211,7 @@ store_cam:
     STA camy_hi
     RTS
 
-; step_xy: (wx, wy) += (vx, vy), clamped; ncx/ncy = char cell of the result
+; step_xy: (wx, wy) += (vx, vy), clamped to the level; ncx/ncy = its char cell
 step_xy:
     LDA wx_lo
     STA t_lo
@@ -228,9 +219,9 @@ step_xy:
     STA t_hi
     LDA vx
     STA t_v
-    LDA #<MAX_X
+    LDA #<LEVEL_MAX_X
     STA max_lo
-    LDA #>MAX_X
+    LDA #>LEVEL_MAX_X
     STA max_hi
     JSR add_clamp
     LDA t_lo
@@ -245,9 +236,9 @@ step_xy:
     STA t_hi
     LDA vy
     STA t_v
-    LDA #<MAX_Y
+    LDA #<LEVEL_MAX_Y
     STA max_lo
-    LDA #>MAX_Y
+    LDA #>LEVEL_MAX_Y
     STA max_hi
     JSR add_clamp
     LDA t_lo
@@ -315,7 +306,7 @@ set_fine:
     LDA camx_lo
     AND #$07
     EOR #$07
-    ORA #$D0                     ; multicolor, 38 columns
+    ORA #LEVEL_MULTICOLOR*16     ; multicolor bit, 38 columns
     STA $D016
     LDA camy_lo
     AND #$07
@@ -364,18 +355,12 @@ wc_done:
 .endregion
 
 .region drawing
-; build_rows: draw hidden-buffer rows build_row .. build_end-1
+; build_rows: hidden-buffer rows build_row .. build_end-1 for cell (view_x, next_y)
 build_rows:
     LDA build_row
     CMP build_end
-    BEQ br_done
-    JSR draw_back_row
-    JMP build_rows
-br_done:
-    RTS
-
-draw_back_row:
-    LDY build_row
+    LBEQ br_done                 ; .level_row is 132 bytes: long branch
+    TAY
     LDA MUL40_LO,Y
     STA dst_lo
     CLC
@@ -385,21 +370,15 @@ draw_back_row:
     TYA
     CLC
     ADC next_y
-    TAX
-    LDA #$00
-    STA src_add_lo
-    STA src_add_hi
-    JSR copy_row
+    TAX                          ; level row
+    .level_row dst_lo, view_x
     INC build_row
+    JMP build_rows
+br_done:
     RTS
 
 ; copy_colors: color RAM rows cc_row .. cc_end-1 for cell (view_x, next_y)
 copy_colors:
-    LDA #$E8                     ; colors follow the 1000 screen codes
-    STA src_add_lo
-    LDA #$03
-    STA src_add_hi
-cc_loop:
     LDY cc_row
     LDA MUL40_LO,Y
     STA dst_lo
@@ -410,138 +389,16 @@ cc_loop:
     TYA
     CLC
     ADC next_y
-    TAX
-    JSR copy_row
+    TAX                          ; level row
+    .level_row dst_lo, view_x, color
     INC cc_row
     LDA cc_row
     CMP cc_end
-    BNE cc_loop
-    RTS
-
-; copy_row: 40 bytes of level row X, from column view_x, to dst
-;   left part  = left screen,  columns view_x..39  (n1 = 40 - view_x bytes)
-;   right part = right screen, columns 0..view_x-1 (to dst + n1)
-; Source/target addresses are patched into the LDA/STA operands.
-copy_row:
-    LDA #40
-    SEC
-    SBC view_x
-    STA n1
-    BEQ cr_right_setup
-    CLC
-    LDA ROWL_LO,X
-    ADC view_x
-    STA cr_lsrc+1
-    LDA ROWL_HI,X
-    ADC #$00
-    STA cr_lsrc+2
-    CLC
-    LDA cr_lsrc+1
-    ADC src_add_lo
-    STA cr_lsrc+1
-    LDA cr_lsrc+2
-    ADC src_add_hi
-    STA cr_lsrc+2
-    LDA dst_lo
-    STA cr_ldst+1
-    LDA dst_hi
-    STA cr_ldst+2
-    LDY n1
-    DEY
-cr_lsrc:
-    LDA $FFFF,Y
-cr_ldst:
-    STA $FFFF,Y
-    DEY
-    BPL cr_lsrc
-cr_right_setup:
-    LDA view_x
-    BEQ cr_done
-    CLC
-    LDA ROWR_LO,X
-    ADC src_add_lo
-    STA cr_rsrc+1
-    LDA ROWR_HI,X
-    ADC src_add_hi
-    STA cr_rsrc+2
-    CLC
-    LDA dst_lo
-    ADC n1
-    STA cr_rdst+1
-    LDA dst_hi
-    ADC #$00
-    STA cr_rdst+2
-    LDY view_x
-    DEY
-cr_rsrc:
-    LDA $FFFF,Y
-cr_rdst:
-    STA $FFFF,Y
-    DEY
-    BPL cr_rsrc
-cr_done:
-    RTS
-
-; build_tables: row pointers for all 125 level rows (5 slot rows x 25)
-build_tables:
-    LDX #$00
-    LDA #$00
-    STA slot_row
-bt_slot:
-    LDY slot_row
-    LDA SLOTL_LO,Y
-    STA lp_lo
-    LDA SLOTL_HI,Y
-    STA lp_hi
-    LDA SLOTR_LO,Y
-    STA rp_lo
-    LDA SLOTR_HI,Y
-    STA rp_hi
-    LDA #25
-    STA bt_count
-bt_row:
-    LDA lp_lo
-    STA ROWL_LO,X
-    LDA lp_hi
-    STA ROWL_HI,X
-    LDA rp_lo
-    STA ROWR_LO,X
-    LDA rp_hi
-    STA ROWR_HI,X
-    CLC
-    LDA lp_lo
-    ADC #40
-    STA lp_lo
-    LDA lp_hi
-    ADC #$00
-    STA lp_hi
-    CLC
-    LDA rp_lo
-    ADC #40
-    STA rp_lo
-    LDA rp_hi
-    ADC #$00
-    STA rp_hi
-    INX
-    DEC bt_count
-    BNE bt_row
-    INC slot_row
-    LDA slot_row
-    CMP #5
-    BNE bt_slot
+    LBNE copy_colors
     RTS
 .endregion
 
 .region data
-; screen base = LEVEL + index * 2000 (left column: 0,3,6,9,12 / right: 1,4,7,10,13)
-SLOTL_LO:
-    .byte $00, $70, $E0, $50, $C0
-SLOTL_HI:
-    .byte $20, $37, $4E, $66, $7D
-SLOTR_LO:
-    .byte $D0, $40, $B0, $20, $90
-SLOTR_HI:
-    .byte $27, $3F, $56, $6E, $85
 ; r * 40, r = 0..24
 MUL40_LO:
     .byte $00, $28, $50, $78, $A0, $C8, $F0, $18, $40, $68, $90, $B8, $E0
@@ -561,6 +418,7 @@ wy_lo:      .byte $00
 wy_hi:      .byte $00
 vx:         .byte $00
 vy:         .byte $00
+fire:       .byte $00
 ncx:        .byte $00
 ncy:        .byte $00
 shx:        .byte $00
@@ -583,19 +441,8 @@ back_hi:    .byte $00
 back_d018:  .byte $00
 cc_row:     .byte $00
 cc_end:     .byte $00
-n1:         .byte $00
 dst_lo:     .byte $00
 dst_hi:     .byte $00
-src_add_lo: .byte $00
-src_add_hi: .byte $00
-slot_row:   .byte $00
-bt_count:   .byte $00
-lp_lo:      .byte $00
-lp_hi:      .byte $00
-rp_lo:      .byte $00
-rp_hi:      .byte $00
 .endregion
 
 .assert * <= $A000, "code runs into the BASIC ROM area"
-
-.incbin "level.bin", $2000

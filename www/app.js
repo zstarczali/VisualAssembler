@@ -230,6 +230,8 @@ const mnemonicLibrary = {
     { mnemonic: "BOX_HIT", description: "AABB (tengely-igazitott) tegla utkozes teszt ket 4-byte ZP struktura kozott (L,T,R,B). Eredmeny A regiszterben: 1=talalt, 0=nincs. ~31 byte inline asm.", modes: ["implied"], isBoxHitMacro: true },
     { mnemonic: "INCBIN", description: "Kulso binarfajl beillesztese megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isIncBinMacro: true },
     { mnemonic: "KOALA", description: "Koala Painter kep (.koa) betoltese es megjelenitese: a bitmap $6000-ra (vagy $2000-ra) kerul, a blokk helyen futo kod bemasolja a screen/color RAM-ot, beallitja a hatterszint es a multicolor bitmap modot.", modes: ["implied"], isIncBinMacro: true, incBinKoala: true },
+    { mnemonic: "LEVEL", description: "Palya szerkeszto (Level Editor) projektfajl betoltese: csak az elhelyezett kepernyok kerulnek a memoriaba (hely-sorrendben, 2000 byte/kepernyo: screen + color), utanuk sor/oszlop/hely pointer-tablak. Cimkeket (LEVEL_SLOT_LO, LEVEL_ROW_SLOT ...) es konstansokat (LEVEL_COLS, LEVEL_MAX_X, LEVEL_BG ...) ad. 0 byte kod.", modes: ["implied"], isIncBinMacro: true, incBinLevel: true },
+    { mnemonic: "LEVEL_ROW", description: "Palya sor masolasa: az X-ben megadott palyasor 40 byte-jat a col valtozoban levo oszloptol a dst pointer (lo/hi) altal mutatott cimre masolja; color eseten a szinadatot. Ket kepernyon atnyulo ablakot is kezel, onmodosito ciklussal (~14 ciklus/byte). X megmarad, A/Y elvesz. .level kell hozza.", modes: ["implied"], isLevelRowMacro: true },
     { mnemonic: "SID", description: "SID zenefajl betoltese kozvetlenul a memoriaba. A fejlecet automatikusan eltavolitja, a Load/Init/Play cimeket kinyeri.", modes: ["implied"], isSidMacro: true },
     { mnemonic: "INCLUDE", description: "Masik projekt JSON fajl blokkjainak beillesztese erre a helyre (csak olvasható).", modes: ["implied"], isIncludeMacro: true },
     { mnemonic: "LOOP", description: "Szamlalo ciklus: LD* #count, majd cimke a body elejere. NEXT blokkal zarjuk.", modes: ["implied"], isLoopMacro: true },
@@ -246,7 +248,7 @@ const mnemonicLibrary = {
     { mnemonic: "SPRITE_POS", description: "Sprite pozicio beallitasa: X (0-319) es Y (0-255), kezeli a $D010 felso bitet X>255 eseten.", modes: ["implied"], isSpritePosMacro: true },
     { mnemonic: "WAIT_RASTER", description: "Rasztervonal varakozas: LDA $D012 / CMP #sor / BNE -7. Inline, 7 byte, nincs JSR.", modes: ["implied"], isWaitRasterMacro: true },
     { mnemonic: "DELAY", description: "Frame-kesesztetes: kozos helper rutinra epul, amely N frame-et varakozik. `.delay N` vagy `.wait N` formatum.", modes: ["implied"], isDelayMacro: true },
-    { mnemonic: "JOYSTICK", description: "Joystick olvasas es sprite mozgatasa: UP/DOWN/LEFT/RIGHT bitek LSR+BCS+DEC/INC-cel. Port 1=$DC01, Port 2=$DC00 (alap). 27 byte inline.", modes: ["implied"], isJoystickMacro: true },
+    { mnemonic: "JOYSTICK", description: "Joystick olvasas: UP/DOWN/LEFT/RIGHT bitek LSR+BCS+DEC/INC-cel. `.joystick port, sprite` a sprite-ot mozgatja ($D000/$D001+2N, 27 byte). `.joystick port, vx, vy[, fire]` az iranyt valtozokba irja: vx/vy = -1/0/+1 ($FF/$00/$01), fire = 1 ha lenyomva (35/42 byte) — kamera, jatekos, menu vezerlesre. Port 1=$DC01, 2=$DC00 (alap), 3=mindketto ($DC00 AND $DC01, +3 byte).", modes: ["implied"], isJoystickMacro: true },
     { mnemonic: "MOUSE", description: "C64 1351 arányos egér vezérlése: SID POTX/POTY olvasás, standard 1351-szeru 7 bites delta dekódolással, CIA $DC00 felső 2 bitjével portválasztás, 512-ciklusos SID settle wait, X oldalon a klasszikus $D010 toggle mintával, Y oldalon invertált mozgatással. 142 byte inline.", modes: ["implied"], isMouseMacro: true },
     { mnemonic: "SPRITE_COL", description: "Sprite utkozes detektalas: LDA $D01E/$D01F + AND #bitMask. Eredmeny A-ban: nem nulla = utkozes. Utana BEQ/BNE-vel ugri. 5 byte.", modes: ["implied"], isSpriteColMacro: true },
     { mnemonic: "MAP_COPY", description: "Terkep masolasa screen RAM-ba (es opcionalisan Color RAM-ba) tobb 256 byte-os LDX/LDA abs,X/STA abs,X ciklussal. Forras, cel, meret es szin-forras parameterezheto.", modes: ["implied"], isMapCopyMacro: true },
@@ -917,6 +919,8 @@ const mnemonicExpertHints = {
   ELSE: ".else",
   ENDIF: ".endif",
   ASSERT: `.assert end - start <= 256, "too big"`,
+  LEVEL: `.level "level.bin", $2000`,
+  LEVEL_ROW: ".level_row dst_ptr, view_col[, color]",
   LBNE: "LBNE target", LBEQ: "LBEQ target", LBCC: "LBCC target", LBCS: "LBCS target",
   LBMI: "LBMI target", LBPL: "LBPL target", LBVC: "LBVC target", LBVS: "LBVS target",
   CONST: ".const color = $0",
@@ -947,7 +951,7 @@ const mnemonicExpertHints = {
   SPRITE_POS: mnemonicSyntax("sprite_pos", "0", "120", "80"),
   WAIT_RASTER: mnemonicSyntax("wait_raster", "$FA"),
   DELAY: mnemonicSyntax("delay", "30"),
-  JOYSTICK: mnemonicSyntax("joystick", "2", "sprite=0"),
+  JOYSTICK: ".joystick 2, 0  |  .joystick 3, vx, vy[, fire]",
   MOUSE: mnemonicSyntax("mouse", "0", "sprite=0"),
   SPRITE_COL: mnemonicSyntax("sprite_col", "0", "1"),
   MAP_COPY: mnemonicSyntax("map_copy", "src=$C000", "dst=$0400", "size=$0280"),
@@ -4150,6 +4154,20 @@ function renderMnemonicDescription() {
     });
     return;
   }
+  if (item.isIncBinMacro && item.incBinLevel) {
+    mnemonicDescription.innerHTML = buildMnemonicDescriptionMarkup(item, {
+      lines: [t("macroAddrLevel"), t("macroAddrLevelLabels"), t("macroAddrBrowseAfter")],
+      example: '.level "level.bin", $2000'
+    });
+    return;
+  }
+  if (item.isLevelRowMacro) {
+    mnemonicDescription.innerHTML = buildMnemonicDescriptionMarkup(item, {
+      lines: [t("macroAddrLevelRow")],
+      example: ".level_row dst_ptr, view_col, color"
+    });
+    return;
+  }
   if (item.isIncBinMacro) {
     mnemonicDescription.innerHTML = buildMnemonicDescriptionMarkup(item, {
       lines: [t("macroAddrIncbin"), t("macroAddrBrowseAfter")]
@@ -4222,7 +4240,7 @@ function renderPaletteItems() {
               : item.isRawTextMacro
                 ? `${t("paletteRawText")} | ${preview.preview}`
                 : item.isIncBinMacro
-                  ? `${t(item.incBinKoala ? "paletteKoala" : "paletteBinAtAddr")}`
+                  ? `${t(item.incBinKoala ? "paletteKoala" : item.incBinLevel ? "paletteLevel" : "paletteBinAtAddr")}`
                   : item.isIncludeMacro
                   ? `${t("paletteIncludeProj")}`
                   : item.isSidMacro
@@ -4628,13 +4646,14 @@ function createBlockFromMnemonic(item) {
       description: item.description,
       addressingMode: "implied",
       base: "hex",
-      validationError: t(item.incBinKoala ? "koalaMacroNeedsFile" : "incbinMacroNeedsFile"),
+      validationError: t(item.incBinKoala ? "koalaMacroNeedsFile" : item.incBinLevel ? "levelMacroNeedsFile" : "incbinMacroNeedsFile"),
       collapsed: true,
       isIncBinMacro: true,
       ...(item.incBinKoala ? { incBinKoala: true } : {}),
+      ...(item.incBinLevel ? { incBinLevel: true } : {}),
       incBinFile: "",
       incBinFileName: "",
-      incBinAddress: item.incBinKoala ? "$6000" : "$C000",
+      incBinAddress: item.incBinKoala ? "$6000" : item.incBinLevel ? "$2000" : "$C000",
       incBinBytes: []
     };
   }
@@ -4772,7 +4791,10 @@ function createBlockFromMnemonic(item) {
       collapsed: true,
       isJoystickMacro: true,
       joyPort: "2",
-      joySpriteNum: "0"
+      joySpriteNum: "0",
+      joyVarX: "",
+      joyVarY: "",
+      joyVarFire: ""
     };
   }
 
@@ -5638,6 +5660,23 @@ function createBlockFromMnemonic(item) {
     };
   }
 
+  if (item.isLevelRowMacro) {
+    const raw = operandInput.value.trim() || "dst_ptr, view_col";
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: "LEVEL_ROW",
+      operand: raw,
+      rawOperand: raw,
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: _levelRowParse(raw) ? "" : t("levelRowSyntax"),
+      collapsed: true,
+      isLevelRowMacro: true
+    };
+  }
+
   if (item.isLongBranchMacro) {
     const target = operandInput.value.trim() || "target";
     return {
@@ -5794,6 +5833,7 @@ function _blockToExpertLine(block) {
   }
   if (block.isFillMacro)      return `.fill ${fmtRaw(block.rawOperand, block.base)}`;
   if (block.isAlignMacro)     return `.align ${block.rawOperand || "64"}`;
+  if (block.isIncBinMacro && block.incBinLevel) return `.level "${block.incBinFileName || "level.bin"}"${block.incBinAddress && parseAddressValue(block.incBinAddress) !== 0x2000 ? ", $" + block.incBinAddress.replace(/^\$/, "") : ""}`;
   if (block.isIncBinMacro && block.incBinKoala) return `.koala "${block.incBinFileName || "picture.koa"}"${block.incBinAddress && parseAddressValue(block.incBinAddress) !== 0x6000 ? ", $" + block.incBinAddress.replace(/^\$/, "") : ""}`;
   if (block.isIncBinMacro)    return `.incbin "${block.incBinFileName || "data.bin"}"${block.incBinAddress && block.incBinAddress !== "$C000" ? ", $" + block.incBinAddress.replace(/^\$/,"") : ""}`;
   if (block.isPetsciiMacro)   return `.petscii ${fmtAddr(block.petsciiAddress)}, "${block.rawOperand || "HELLO"}"${block.petsciiCharset === "lower" ? ", lower" : ""}${block.petsciiNullTerminated ? ", null" : ""}${fmtMacroLabel(block.macroLabel)}`;
@@ -5938,6 +5978,7 @@ if (block.isSpritePosMacro) return `.sprite_pos ${block.spriteNum || 0}, ${block
   if (block.isTurboSetMacro) return `.turbo_set ${block.turboSpeed || "7"},${block.turboBadline || "0"}`;
   if (block.isSuperCpuDetectMacro) return `.supercpu_detect`;
   if (block.isTurboEnableMacro)    return `.turbo_enable ${block.turboEnableMode || "on"}`;
+  if (block.isJoystickMacro && _joyIsVarMode(block)) return `.joystick ${block.joyPort || 2}, ${String(block.joyVarX || "").trim()}, ${String(block.joyVarY || "").trim()}${String(block.joyVarFire || "").trim() ? ", " + block.joyVarFire.trim() : ""}`;
   if (block.isJoystickMacro)  return `.joystick ${block.joyPort || 2}, ${block.joySpriteNum || 0}`;
   if (block.isMouseMacro)     return `.mouse ${block.mousePort || 2}, ${block.mouseSpriteNum || 0}, ${(block.mousePotXZP || "FD").toUpperCase()}, ${(block.mousePotYZP || "FE").toUpperCase()}`;
   if (block.isSpriteColMacro) return `.sprite_col ${block.spriteNum || 0}, ${block.colType || "background"}`;
@@ -5965,6 +6006,9 @@ if (block.isSpritePosMacro) return `.sprite_pos ${block.spriteNum || 0}, ${block
   }
   if (block.isLongBranchMacro) {
     return `    ${block.mnemonic || "LBNE"} ${block.rawOperand || "target"}`;
+  }
+  if (block.isLevelRowMacro) {
+    return `.level_row ${(block.rawOperand || "dst_ptr, view_col").trim()}`;
   }
   if (block.isAssertMacro) {
     const expr = (block.assertExpr || block.rawOperand || "1").trim();
@@ -8560,6 +8604,7 @@ const _EXPERT_MNEM_SET = new Set([
 const _DIRECTIVE_TO_MNEM = {
   text:"TEXT", string:"STRING", rawtext:"RAWTEXT", rawbytes:"RAWBYTES", data:"DATA",
   byte:"BYTE", word:"WORD", fill:"FILL", align:"ALIGN", incbin:"INCBIN", koala:"KOALA",
+  level:"LEVEL", level_row:"LEVEL_ROW",
   petscii:"PETSCII", table:"TABLE", loadfile:"LOADFILE", sid:"SID", include:"INCLUDE",
   loop:"LOOP", next:"NEXT", for:"FOR", endf:"ENDF", push:"PUSH", pull:"PULL",
   macro:"MACRO", endm:"ENDM", invoke:"INVOKE", call:"INVOKE",
@@ -8617,7 +8662,8 @@ const _AC_DIRECTIVE_DESC = {
   ".reu_check":"detect REU", ".reu_stash":"C64→REU DMA", ".reu_fetch":"REU→C64 DMA", ".reu_swap":"C64↔REU DMA",
   ".region":"visual region", ".endregion":"end region",
   ".map_copy":"copy map to screen RAM", ".sprite_anim":"sprite animation frames", ".score_bcd":"BCD score update+display",
-  ".chardef":"define RAM charset char", ".box_hit":"AABB collision test"
+  ".chardef":"define RAM charset char", ".box_hit":"AABB collision test",
+  ".level":"Level Editor level data + tables", ".level_row":"copy a level row"
 };
 
 let _acActive = -1;
@@ -9225,7 +9271,7 @@ function _expertHighlightLine(raw) {
   if (!code.trim()) return esc(code) + commentHtml;
 
   // Token regex (order matters)
-  const TOKEN_RE = /("(?:[^"\\]|\\.)*")|(\*\s*=)|(\.(?:text|string|rawtext|rawbytes|data|byte|word|fill|align|assert|loop|next|for|endf|push|pull|endif|endregion|region|macro|endm|endw|repeat|until|while|memcpy|memset|print|print_char|print_hex|clear_screen|wait_key|delay|wait|set_border|set_bg|irq_setup|sprite_init|sprite_pos|wait_raster|joystick|mouse|sprite_col|map_copy16x16|map_copy|sprite_anim|score_bcd|define|else|if|const|end|var|incbin|koala|include|sid|petscii|charset|table|loadfile|invoke|call|rand|exodecrunch|reu_check|reu_stash|reu_fetch|reu_swap|turbo_set|turbo_enable|supercpu_detect|chardef|box_hit)\b)|(#?\$[0-9A-Fa-f]+|#\d+\b)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*\s*:)|([A-Za-z_][A-Za-z0-9_]*)|(\{[A-Za-z_][A-Za-z0-9_]*\})|(:[A-Za-z_][A-Za-z0-9_]*)/gi;
+  const TOKEN_RE = /("(?:[^"\\]|\\.)*")|(\*\s*=)|(\.(?:text|string|rawtext|rawbytes|data|byte|word|fill|align|assert|loop|next|for|endf|push|pull|endif|endregion|region|macro|endm|endw|repeat|until|while|memcpy|memset|print|print_char|print_hex|clear_screen|wait_key|delay|wait|set_border|set_bg|irq_setup|sprite_init|sprite_pos|wait_raster|joystick|mouse|sprite_col|map_copy16x16|map_copy|sprite_anim|score_bcd|define|else|if|const|end|var|incbin|koala|include|sid|petscii|charset|table|loadfile|invoke|call|rand|exodecrunch|reu_check|reu_stash|reu_fetch|reu_swap|turbo_set|turbo_enable|supercpu_detect|chardef|box_hit|level_row|level)\b)|(#?\$[0-9A-Fa-f]+|#\d+\b)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*\s*:)|([A-Za-z_][A-Za-z0-9_]*)|(\{[A-Za-z_][A-Za-z0-9_]*\})|(:[A-Za-z_][A-Za-z0-9_]*)/gi;
 
   let result = "";
   let lastIdx = 0;
@@ -10191,7 +10237,7 @@ function _expertDrawMinimap() {
       color = cComment;
     } else if (/^[A-Za-z_][A-Za-z0-9_]*:/.test(trimmed)) {
       color = cLabel;
-    } else if (/^\.(const|if|else|endif|macro|endm|invoke|region|endregion|define|org|byte|word|fill|text|string|data|rawbytes|rawtext|align|table|push|pull|for|endf|loop|next|blank|incbin|koala|sid|include|loadfile|sprite|wait|joystick|mouse|reu|turbo|supercpu)\b/i.test(trimmed)) {
+    } else if (/^\.(const|if|else|endif|macro|endm|invoke|region|endregion|define|org|byte|word|fill|text|string|data|rawbytes|rawtext|align|table|push|pull|for|endf|loop|next|blank|incbin|koala|level|sid|include|loadfile|sprite|wait|joystick|mouse|reu|turbo|supercpu)\b/i.test(trimmed)) {
       color = cDirective;
     } else if (/^\d|#\$|^\$[0-9A-Fa-f]/.test(trimmed)) {
       color = cNumber;
@@ -10754,6 +10800,29 @@ function parseExpertText(text) {
       continue;
     }
 
+    // .level "level.bin" [, $ADDR]  (INCBIN variant: Level Editor project → screens + tables)
+    const levelM = line.match(/^\.level\s+"([^"]*)"\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*$/i);
+    if (levelM) {
+      blocks.push(_importMakeLevel(levelM[1], levelM[2] ? levelM[2].toUpperCase() : ""));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .level_row dst, col[, color]
+    const levelRowM = line.match(/^\.level_row\b\s*(.*)$/i);
+    if (levelRowM) {
+      const raw = levelRowM[1].trim();
+      blocks.push({
+        id: crypto.randomUUID(), category: "Makrok", mnemonic: "LEVEL_ROW",
+        operand: raw, rawOperand: raw, description: "",
+        addressingMode: "implied", base: "hex",
+        validationError: _levelRowParse(raw) ? "" : t("levelRowSyntax"),
+        collapsed: true, isLevelRowMacro: true
+      });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
     // .incbin "filename" [, $ADDR]
     const incbinM = line.match(/^\.incbin\s+"([^"]*)"\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*$/i);
     if (incbinM) {
@@ -10785,7 +10854,7 @@ function parseExpertText(text) {
     // Malformed asset directives — `.include`, `.incbin`, `.sid` without a
     // quoted filename must still surface as an error instead of silently
     // becoming a comment via the fallback path.
-    const bareAssetDirM = line.match(/^\.(include|incbin|koala|sid)\b(.*)$/i);
+    const bareAssetDirM = line.match(/^\.(include|incbin|koala|level|sid)\b(.*)$/i);
     if (bareAssetDirM) {
       const kind = bareAssetDirM[1].toLowerCase();
       if (kind === "include") {
@@ -10794,6 +10863,8 @@ function parseExpertText(text) {
         blocks.push(_importMakeIncBin("", ""));
       } else if (kind === "koala") {
         blocks.push(_importMakeKoala("", ""));
+      } else if (kind === "level") {
+        blocks.push(_importMakeLevel("", ""));
       } else {
         blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "SID", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: t("sidMacroNeedsFile"), collapsed: true, isSidMacro: true, sidFile: "", sidFileName: "", sidTitle: "", sidAuthor: "", sidLoadAddress: 0, sidInitAddress: 0, sidPlayAddress: 0, sidBytes: [], sidCustomAddress: "" });
       }
@@ -10896,10 +10967,16 @@ function parseExpertText(text) {
       continue;
     }
 
-    // .joystick port, spriteNum
-    const joyM = line.match(/^\.joystick\s+([12]|[A-Za-z_][A-Za-z0-9_]*)\s*,\s*([A-Za-z_][A-Za-z0-9_]*|\d)\s*$/i);
+    // .joystick port, spriteNum   |   .joystick port, vx, vy[, fire]
+    const joyM = line.match(/^\.joystick\s+([123]|[A-Za-z_][A-Za-z0-9_]*)\s*,\s*([A-Za-z_][A-Za-z0-9_]*|\d)\s*$/i);
     if (joyM) {
       blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "JOYSTICK", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isJoystickMacro: true, joyPort: joyM[1], joySpriteNum: joyM[2] });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+    const joyVarM = line.match(/^\.joystick\s+([123]|[A-Za-z_][A-Za-z0-9_]*)\s*,\s*([^,]+?)\s*,\s*([^,]+?)\s*(?:,\s*([^,]+?)\s*)?$/i);
+    if (joyVarM) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "JOYSTICK", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isJoystickMacro: true, joyPort: joyVarM[1], joySpriteNum: "0", joyVarX: joyVarM[2], joyVarY: joyVarM[3], joyVarFire: joyVarM[4] || "" });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -12119,7 +12196,7 @@ function _buildDisasmHTML(originOverride, basicStubSection = null) {
 
       // INCBIN: deferred binary file — show hex dump at incBinAddress
       if (block.isIncBinMacro && !block.incBinKoala) {
-        const incBytes = Array.isArray(block.incBinBytes) ? block.incBinBytes : [];
+        const incBytes = Array.from(_incBinPayload(block));
         const incAddr = parseMacroAddress(block.incBinAddress || "$C000", labelMap) ?? 0xC000;
         const incAddrHex = incAddr.toString(16).toUpperCase().padStart(4, "0");
         if (incBytes.length === 0) {
@@ -13745,7 +13822,7 @@ function updateProgramBlock(index, field, value) {
       block.operand = block.rawOperand.trim();
       block.validationError = validateDataMacro(block.rawOperand, block.rawBytesAddress, block.base);
     } else if (block.isIncBinMacro) {
-      block.validationError = validateIncBinMacro(block.incBinBytes, block.incBinAddress) || (block.incBinKoala ? _koalaError(block) : "");
+      block.validationError = validateIncBinMacro(block.incBinBytes, block.incBinAddress) || (block.incBinKoala ? _koalaError(block) : block.incBinLevel ? _levelError(block) : "");
     } else if (block.isRawTextMacro) {
       block.operand = block.rawOperand.trim();
       block.validationError = validateStringMacroAddress(block.rawTextAddress);
@@ -13805,6 +13882,9 @@ function updateProgramBlock(index, field, value) {
       block.operand = block.rawOperand.trim();
       block.ifCondition = block.rawOperand.trim();
       block.validationError = validateIfMacro(block.rawOperand);
+    } else if (block.isLevelRowMacro) {
+      block.operand = block.rawOperand.trim();
+      block.validationError = _levelRowParse(block.rawOperand) ? "" : t("levelRowSyntax");
     } else if (block.isAssertMacro) {
       block.operand = block.rawOperand.trim();
       block.assertExpr = block.rawOperand.trim();
@@ -13905,12 +13985,15 @@ function updateProgramBlock(index, field, value) {
     return;
   }
 
-  if (block.isJoystickMacro && (field === "joyPort" || field === "joySpriteNum")) {
+  if (block.isJoystickMacro && ["joyPort", "joySpriteNum", "joyVarX", "joyVarY", "joyVarFire"].includes(field)) {
     const port = resolveProgramNumericValue(field === "joyPort" ? value : block.joyPort, null, "dec");
     const num = resolveProgramNumericValue(field === "joySpriteNum" ? value : block.joySpriteNum, null, "dec");
+    const varMode = _joyIsVarMode(block);
+    const bothVars = !!String(block.joyVarX || "").trim() && !!String(block.joyVarY || "").trim();
     block.validationError =
-      (port !== 1 && port !== 2) ? (t("portMustBe1Or2")) :
-      (isNaN(num) || num < 0 || num > 7) ? (t("spriteNumberMustBe07")) :
+      (port !== 1 && port !== 2 && port !== 3) ? (t("joyPortRange")) :
+      varMode && !bothVars ? (t("joyVarsNeeded")) :
+      !varMode && (isNaN(num) || num < 0 || num > 7) ? (t("spriteNumberMustBe07")) :
       "";
     renderBlockPreview(index);
     renderAsmOutput();
@@ -15219,7 +15302,7 @@ function validateAssetMacroHasFile(block) {
     }
   } else if (block.isIncBinMacro) {
     if (!nonEmpty(block.incBinFile) && !nonEmpty(block.incBinFileName)) {
-      return t(block.incBinKoala ? "koalaMacroNeedsFile" : "incbinMacroNeedsFile");
+      return t(block.incBinKoala ? "koalaMacroNeedsFile" : block.incBinLevel ? "levelMacroNeedsFile" : "incbinMacroNeedsFile");
     }
   } else if (block.isSidMacro) {
     if (!nonEmpty(block.sidFile) && !nonEmpty(block.sidFileName)) {
@@ -20128,6 +20211,207 @@ function _koalaShowBytes(addr) {
   return out;
 }
 
+/* LEVEL = INCBIN variant (incBinLevel) for a Level Editor project file (.bin with
+   an "lv-level" manifest). Only the placed screens go into memory, in slot order
+   (a screen used twice is stored once, empty slots share one blank screen), each
+   2000 bytes (1000 screen codes + 1000 colors), followed by lookup tables:
+     LEVEL_SLOT_LO/HI[slot]   screen base, slot = row-major, + 1 pad entry
+     LEVEL_ROW_SLOT[row]      (row / 25) * LEVEL_W
+     LEVEL_ROW_LO/HI[row]     (row % 25) * 40
+     LEVEL_CROW_LO/HI[row]    (row % 25) * 40 + 1000   (color RAM data)
+     LEVEL_COL_SLOT[col]      col / 40      (col = 0 .. LEVEL_COLS - 40)
+     LEVEL_COL_OFS[col]       col % 40
+   Rows and columns are 8-bit indices: at most 10 screens tall and 7 wide. */
+const _LEVEL_SCREEN = 2000;
+const _LEVEL_ROW_TABLES = ["LEVEL_SLOT_LO", "LEVEL_SLOT_HI", "LEVEL_ROW_SLOT", "LEVEL_ROW_LO", "LEVEL_ROW_HI",
+  "LEVEL_CROW_LO", "LEVEL_CROW_HI", "LEVEL_COL_SLOT", "LEVEL_COL_OFS"];
+const _levelCache = new WeakMap();
+
+function _importMakeLevel(fileName, addressHex) {
+  return {
+    ..._importMakeIncBin(fileName, addressHex || "2000"),
+    mnemonic: "LEVEL",
+    incBinLevel: true,
+    validationError: (fileName || "").trim() ? "" : t("levelMacroNeedsFile")
+  };
+}
+
+function _levelInfo(block) {
+  const src = block?.incBinBytes;
+  const addr = parseAddressValue(block?.incBinAddress) ?? 0x2000;
+  const hit = _levelCache.get(block);
+  if (hit && hit.src === src && hit.addr === addr) return hit.info;
+  const info = _levelBuild(src, addr);
+  if (block) _levelCache.set(block, { src, addr, info });
+  return info;
+}
+
+function _levelBuild(src, addr) {
+  const empty = { ok: false, error: "", data: [], labels: {} };
+  if (!src || !src.length) return empty;
+  const parsed = _vaReadBinWithMeta(src instanceof Uint8Array ? src : Uint8Array.from(src));
+  if (parsed.manifest?.kind !== "lv-level") return { ...empty, error: t("levelMacroNotLevel") };
+  const ms = parsed.manifest.settings || {};
+  const w = ms.w | 0, h = ms.h | 0;
+  const cells = Array.isArray(ms.cells) ? ms.cells : [];
+  const count = Math.floor(parsed.payload.length / _LEVEL_SCREEN);
+  if (w < 1 || h < 1 || !cells.some(c => c >= 0 && c < count)) return { ...empty, error: t("levelMacroEmpty") };
+  if (w > 7 || h > 10) return { ...empty, error: tf("levelMacroTooLarge", { w, h }) };
+  const slots = w * h, rows = h * 25, cols = w * 40, nCols = cols - 39;
+  const screens = [], slotScreen = [], seen = new Map();
+  for (let s = 0; s < slots; s++) {
+    const key = cells[s] >= 0 && cells[s] < count ? cells[s] : -1;
+    if (!seen.has(key)) { seen.set(key, screens.length); screens.push(key); }
+    slotScreen.push(seen.get(key));
+  }
+  const size = screens.length * _LEVEL_SCREEN + (slots + 1) * 2 + rows * 5 + nCols * 2;
+  if (addr + size > 0x10000) return { ...empty, error: tf("levelMacroTooBig", { size }) };
+  const data = new Uint8Array(size);
+  screens.forEach((key, i) => {
+    const o = i * _LEVEL_SCREEN;
+    if (key < 0) data.fill(0x20, o, o + 1000);
+    else data.set(parsed.payload.subarray(key * _LEVEL_SCREEN, (key + 1) * _LEVEL_SCREEN), o);
+  });
+  let p = screens.length * _LEVEL_SCREEN;
+  const labels = { LEVEL_DATA: addr };
+  const table = (name, n, fn) => { labels[name] = addr + p; for (let i = 0; i < n; i++) data[p++] = fn(i) & 0xFF; };
+  const slotAddr = (s) => s < slots ? addr + slotScreen[s] * _LEVEL_SCREEN : 0;
+  table("LEVEL_SLOT_LO", slots + 1, s => slotAddr(s));
+  table("LEVEL_SLOT_HI", slots + 1, s => slotAddr(s) >> 8);
+  table("LEVEL_ROW_SLOT", rows, r => Math.floor(r / 25) * w);
+  table("LEVEL_ROW_LO", rows, r => (r % 25) * 40);
+  table("LEVEL_ROW_HI", rows, r => ((r % 25) * 40) >> 8);
+  table("LEVEL_CROW_LO", rows, r => (r % 25) * 40 + 1000);
+  table("LEVEL_CROW_HI", rows, r => ((r % 25) * 40 + 1000) >> 8);
+  table("LEVEL_COL_SLOT", nCols, c => Math.floor(c / 40));
+  table("LEVEL_COL_OFS", nCols, c => c % 40);
+  Object.assign(labels, {
+    LEVEL_W: w, LEVEL_H: h, LEVEL_COLS: cols, LEVEL_ROWS: rows,
+    LEVEL_MAX_X: (cols - 40) * 8, LEVEL_MAX_Y: (rows - 25) * 8,
+    LEVEL_MULTICOLOR: ms.multicolor ? 1 : 0,
+    LEVEL_BG: (ms.bgColor ?? 6) & 15, LEVEL_MC1: (ms.mc1Color ?? 5) & 15, LEVEL_MC2: (ms.mc2Color ?? 13) & 15,
+    LEVEL_SIZE: size, LEVEL_END: (addr + size) & 0xFFFF
+  });
+  return { ok: true, error: "", data: Array.from(data), labels, screens: screens.length };
+}
+
+function _levelError(block) {
+  return _levelInfo(block).error;
+}
+
+/* Data bytes an INCBIN-family block places at incBinAddress. */
+function _incBinPayload(block) {
+  if (block?.incBinKoala) return _koalaData(block);
+  if (block?.incBinLevel) return _levelInfo(block).data;
+  return block?.incBinBytes || [];
+}
+
+/* .level_row dst, col[, color] — copies the 40 bytes of level row X (screen codes,
+   or colors with "color") starting at level column [col] to the address held in
+   the pointer [dst]/[dst+1]. X is kept, A/Y are destroyed. The window spans at most
+   two screens: left part (40 - ofs bytes) and right part (ofs bytes); source and
+   target addresses are patched into the copy loops (~14 cycles per byte). */
+function _levelRowParse(raw) {
+  const parts = String(raw || "").split(",").map(s => s.trim()).filter(Boolean);
+  if (parts.length < 2 || parts.length > 3) return null;
+  if (parts.length === 3 && !/^colou?r$/i.test(parts[2])) return null;
+  return { dst: parts[0], col: parts[1], color: parts.length === 3 };
+}
+
+function _levelRowBytes(org, dst, col, color, tab) {
+  const out = [], fix = [], at = {};
+  const lo = v => v & 0xFF, hi = v => (v >> 8) & 0xFF;
+  const abs = (op, a) => out.push(op, lo(a), hi(a));
+  const ref = (op, name, plus) => { out.push(op, 0, 0); fix.push([out.length - 2, name, plus]); };
+  const mark = (name) => { at[name] = org + out.length; };
+  const rowLo = color ? tab.LEVEL_CROW_LO : tab.LEVEL_ROW_LO;
+  const rowHi = color ? tab.LEVEL_CROW_HI : tab.LEVEL_ROW_HI;
+  abs(0xAC, col);                                   // LDY col
+  abs(0xB9, tab.LEVEL_COL_OFS);                     // LDA LEVEL_COL_OFS,Y
+  ref(0x8D, "ofs", 1);                              // STA ofs (ADC #)
+  ref(0x8D, "cntR", 1);                             // STA cntR (LDY #)
+  out.push(0x49, 0xFF, 0x18, 0x69, 41);             // EOR #$FF / CLC / ADC #41 -> 40 - ofs
+  ref(0x8D, "cntL", 1);
+  ref(0x8D, "n1", 1);
+  abs(0xBD, tab.LEVEL_ROW_SLOT);                    // LDA LEVEL_ROW_SLOT,X
+  out.push(0x18);
+  abs(0x79, tab.LEVEL_COL_SLOT);                    // ADC LEVEL_COL_SLOT,Y
+  out.push(0xA8);                                   // TAY (slot)
+  for (const [side, plus] of [["lsrc", 0], ["rsrc", 1]]) {
+    abs(0xB9, tab.LEVEL_SLOT_LO + plus);            // LDA LEVEL_SLOT_LO(+1),Y
+    out.push(0x18);
+    abs(0x7D, rowLo);                               // ADC row_lo,X
+    ref(0x8D, side, 1);
+    abs(0xB9, tab.LEVEL_SLOT_HI + plus);            // LDA LEVEL_SLOT_HI(+1),Y
+    abs(0x7D, rowHi);                               // ADC row_hi,X
+    ref(0x8D, side, 2);
+  }
+  ref(0xAD, "lsrc", 1);                             // left source += ofs
+  out.push(0x18);
+  mark("ofs"); out.push(0x69, 0x00);
+  ref(0x8D, "lsrc", 1);
+  out.push(0x90, 0x03);
+  ref(0xEE, "lsrc", 2);
+  abs(0xAD, dst);                                   // left target = (dst), right = (dst) + n1
+  ref(0x8D, "ldst", 1);
+  out.push(0x18);
+  mark("n1"); out.push(0x69, 0x00);
+  ref(0x8D, "rdst", 1);
+  abs(0xAD, (dst + 1) & 0xFFFF);
+  ref(0x8D, "ldst", 2);
+  out.push(0x69, 0x00);
+  ref(0x8D, "rdst", 2);
+  mark("cntL"); out.push(0xA0, 0x00, 0x88);         // LDY #n1 / DEY
+  mark("lsrc"); abs(0xB9, 0xFFFF);
+  mark("ldst"); abs(0x99, 0xFFFF);
+  out.push(0x88, 0x10, 0xF7);                       // DEY / BPL lsrc
+  mark("cntR"); out.push(0xA0, 0x00, 0xF0, 0x0A, 0x88); // LDY #ofs / BEQ done / DEY
+  mark("rsrc"); abs(0xB9, 0xFFFF);
+  mark("rdst"); abs(0x99, 0xFFFF);
+  out.push(0x88, 0x10, 0xF7);                       // DEY / BPL rsrc
+  for (const [pos, name, plus] of fix) {
+    const a = (at[name] + plus) & 0xFFFF;
+    out[pos] = lo(a); out[pos + 1] = hi(a);
+  }
+  return out;
+}
+
+const _LEVEL_ROW_SIZE = _levelRowBytes(0, 0, 0, false, new Proxy({}, { get: () => 0 })).length;
+
+/* JOYSTICK: `.joystick port, sprite` moves sprite N (DEC/INC $D000/$D001+2N);
+   `.joystick port, vx, vy[, fire]` writes the direction to variables instead:
+   vx / vy = -1 / 0 / +1 ($FF / $00 / $01), fire = 1 while pressed.
+   Port 1 = $DC01, 2 = $DC00, 3 = both (LDA $DC00 / AND $DC01). */
+function _joyIsVarMode(block) {
+  return !!String(block?.joyVarX || "").trim() || !!String(block?.joyVarY || "").trim();
+}
+
+function _joyPortValue(block) {
+  const port = resolveProgramNumericValue(block?.joyPort || "2", null, "dec");
+  return port === 1 || port === 3 ? port : 2;
+}
+
+function _joyReadBytes(port) {
+  if (port === 3) return [0xAD, 0x00, 0xDC, 0x2D, 0x01, 0xDC];   // LDA $DC00 / AND $DC01
+  return port === 1 ? [0xAD, 0x01, 0xDC] : [0xAD, 0x00, 0xDC];
+}
+
+function _joyVarBytes(port, vx, vy, fire) {
+  const lo = v => v & 0xFF, hi = v => (v >> 8) & 0xFF;
+  const out = [0xA9, 0x00, 0x8D, lo(vx), hi(vx), 0x8D, lo(vy), hi(vy), ..._joyReadBytes(port)];
+  for (const [op, addr] of [[0xCE, vy], [0xEE, vy], [0xCE, vx], [0xEE, vx]]) {
+    out.push(0x4A, 0xB0, 0x03, op, lo(addr), hi(addr));            // LSR / BCS +3 / DEC|INC var
+  }
+  if (fire !== undefined) out.push(0x29, 0x01, 0x49, 0x01, 0x8D, lo(fire), hi(fire)); // AND #1 / EOR #1 / STA fire
+  return out;
+}
+
+function _joystickSize(block) {
+  const read = _joyReadBytes(_joyPortValue(block)).length;
+  if (!_joyIsVarMode(block)) return read + 24;
+  return 8 + read + 24 + (String(block.joyVarFire || "").trim() ? 7 : 0);
+}
+
 function _importMakeConst(name, rawValue) {
   const scalar = _importParseScalar(rawValue);
   return {
@@ -20857,6 +21141,10 @@ function addLayoutLabels(labelMap, line) {
     }
   };
   if (block.isLabel && block.labelName) labelMap.set(block.labelName, line.address);
+  if (block.isIncBinMacro && block.incBinLevel) {
+    const info = _levelInfo(block);
+    if (info.ok) for (const [name, value] of Object.entries(info.labels)) labelMap.set(name, value);
+  }
   // Self-modifying-code label: points at the first operand byte of the instruction.
   if (block.smcLabel) labelMap.set(block.smcLabel, (line.address + 1) & 0xFFFF);
   if (block.isLoopMacro && block.loopLabel) labelMap.set(block.loopLabel, line.address + 2);
@@ -21706,7 +21994,7 @@ function _getPlainAsmSourceText() {
 
     if (block.isIncBinMacro) {
       const address = parseAddressValue(block.incBinAddress, labels) ?? 0xC000;
-      const bytes = Array.from(block.incBinBytes || []);
+      const bytes = Array.from(_incBinPayload(block));
       const byteLines = _formatPlainByteLines(bytes);
       if (byteLines.length) {
         pushLine(_commentifyAsmLines(byteLines).join("\n"));
@@ -22165,7 +22453,7 @@ function assembleProgramToPrg(originOverride) {
       const addr = parseAddressValue(block.petsciiAddress, labels) ?? 0xC000;
       if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: chunkBytes });
     } else if (block.isIncBinMacro) {
-      const chunkBytes = block.incBinKoala ? _koalaData(block) : (block.incBinBytes || []);
+      const chunkBytes = _incBinPayload(block);
       const addr = parseAddressValue(block.incBinAddress) ?? 0xC000;
       if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: Array.from(chunkBytes) });
     } else if (block.isSidMacro) {
@@ -22381,6 +22669,37 @@ function compileLineBytes(line, labels) {
     };
   }
 
+  if (block.isIncBinMacro && block.incBinLevel) {
+    const info = _levelInfo(block);
+    if (info.error) return { ok: false, error: info.error };
+    const addr = parseAddressValue(block.incBinAddress) ?? 0x2000;
+    return {
+      ok: true,
+      bytes: [],
+      comment: `LEVEL "${block.incBinFileName || block.incBinFile || ""}" (${info.data.length} bytes, ${info.screens || 0} screens) @ ${formatAddress(addr)}`
+    };
+  }
+
+  if (block.isLevelRowMacro) {
+    const p = _levelRowParse(block.rawOperand);
+    if (!p) return { ok: false, error: t("levelRowSyntax") };
+    const tab = {};
+    for (const name of _LEVEL_ROW_TABLES) {
+      const value = labels?.get?.(name);
+      if (value === undefined || value === null) return { ok: false, error: t("levelRowNeedsLevel") };
+      tab[name] = value;
+    }
+    const dst = _evalAsmExpr(_substituteStarPc(p.dst, line.address), labels);
+    const col = _evalAsmExpr(_substituteStarPc(p.col, line.address), labels);
+    if (dst === null || dst === undefined || Number.isNaN(dst)) return { ok: false, error: tf("assertUnresolved", { expr: p.dst }) };
+    if (col === null || col === undefined || Number.isNaN(col)) return { ok: false, error: tf("assertUnresolved", { expr: p.col }) };
+    return {
+      ok: true,
+      bytes: _levelRowBytes(line.address, dst & 0xFFFF, col & 0xFFFF, p.color, tab),
+      comment: `LEVEL_ROW ${block.rawOperand.trim()}`
+    };
+  }
+
   if (block.isIncBinMacro) {
     const size = (block.incBinBytes || []).length;
     const addr = parseAddressValue(block.incBinAddress) ?? 0xC000;
@@ -22564,25 +22883,36 @@ function compileLineBytes(line, labels) {
     return { ok: true, bytes, comment: `MOUSE port${port} → sprite#${num} ZP:$${zpXStr.toUpperCase()}/$${zpYStr.toUpperCase()} std1351` };
   }
 
+  if (block.isJoystickMacro && _joyIsVarMode(block)) {
+    const port = resolveProgramNumericValue(block.joyPort || "2", labels, "dec");
+    if (port !== 1 && port !== 2 && port !== 3) return { ok: false, error: t("joyPortRange") };
+    const resolve = (expr) => {
+      const v = _evalAsmExpr(_substituteStarPc(String(expr || "").trim(), line.address), labels);
+      return v === null || v === undefined || Number.isNaN(v) ? null : v & 0xFFFF;
+    };
+    const vx = resolve(block.joyVarX), vy = resolve(block.joyVarY);
+    const fire = String(block.joyVarFire || "").trim() ? resolve(block.joyVarFire) : undefined;
+    if (vx === null || vy === null || fire === null) return { ok: false, error: t("joyVarsUnresolved") };
+    return { ok: true, bytes: _joyVarBytes(port, vx, vy, fire), comment: `JOYSTICK port${port} → ${block.joyVarX}, ${block.joyVarY}${fire !== undefined ? ", " + block.joyVarFire : ""}` };
+  }
+
   if (block.isJoystickMacro) {
     const port = resolveProgramNumericValue(block.joyPort || "2", labels, "dec");
-    if (port !== 1 && port !== 2) {
-      return { ok: false, error: t("compileJoystickPortRange") };
+    if (port !== 1 && port !== 2 && port !== 3) {
+      return { ok: false, error: t("joyPortRange") };
     }
     const num = resolveProgramNumericValue(block.joySpriteNum || "0", labels, "dec");
     if (isNaN(num) || num < 0 || num > 7) {
       return { ok: false, error: t("compileJoystickSpriteRange") };
     }
-    const portAddr = port === 2 ? 0xDC00 : 0xDC01;
     const xAddr = 0xD000 + num * 2;
     const yAddr = 0xD001 + num * 2;
     const xLo = xAddr & 0xFF, xHi = xAddr >> 8;
     const yLo = yAddr & 0xFF, yHi = yAddr >> 8;
-    const pLo = portAddr & 0xFF, pHi = portAddr >> 8;
     // Each direction: LSR (1) + BCS +3 (2) + DEC/INC abs (3) = 6 bytes
     // BCS offset 3 = skip the following 3-byte DEC/INC
     const bytes = [
-      0xAD, pLo, pHi,        // LDA $DCxx
+      ..._joyReadBytes(port), // LDA $DCxx (port 3: LDA $DC00 / AND $DC01)
       0x4A,                  // LSR  → bit0 (UP) → carry
       0xB0, 0x03,            // BCS +3 (not pressed)
       0xCE, yLo, yHi,        // DEC $D001+N*2  (Y--)
@@ -24802,6 +25132,10 @@ function getInstructionSize(block) {
     return 0;  // compile-time check, emits nothing
   }
 
+  if (block.isLevelRowMacro) {
+    return _LEVEL_ROW_SIZE;
+  }
+
   if (block.isTextMacro) {
     return encodeTextMacro(block.rawOperand).length * 5;
   }
@@ -24855,7 +25189,7 @@ function getInstructionSize(block) {
   }
 
   if (block.isJoystickMacro) {
-    return 27;  // LDA port + 4×(LSR + BCS+3 + DEC/INC)
+    return _joystickSize(block);
   }
 
   if (block.isMouseMacro) {
@@ -25608,7 +25942,7 @@ function getDeferredMemorySections(layout) {
       }
 
       if (line.block.isIncBinMacro) {
-        const bytes = line.block.incBinKoala ? _koalaData(line.block) : (line.block.incBinBytes || []);
+        const bytes = _incBinPayload(line.block);
         const startAddress = parseAddressValue(line.block.incBinAddress) ?? 0xC000;
         return {
           type: "incbin",
@@ -26155,6 +26489,10 @@ function getBlockDescription(block) {
     return block.validationError || `.assert ${block.assertExpr || block.rawOperand || "?"}`;
   }
 
+  if (block.isLevelRowMacro) {
+    return block.validationError || `.level_row ${block.rawOperand || "?"}  (${_LEVEL_ROW_SIZE} byte)`;
+  }
+
   if (block.isLongBranchMacro) {
     return block.validationError || `${block.mnemonic} ${block.rawOperand || "?"}`;
   }
@@ -26565,6 +26903,7 @@ function getCollapsedOperandText(block) {
   }
 
   if (block.isJoystickMacro) {
+    if (_joyIsVarMode(block)) return `port${block.joyPort || "2"} → ${block.joyVarX || "?"}, ${block.joyVarY || "?"}${block.joyVarFire ? ", " + block.joyVarFire : ""}`;
     return `port${block.joyPort || "2"} → sprite#${block.joySpriteNum || "0"}`;
   }
 
@@ -27812,11 +28151,24 @@ function renderProgram() {
               <select class="joy-port">
                 <option value="2"${(block.joyPort || "2") === "2" ? " selected" : ""}>2 ($DC00)</option>
                 <option value="1"${block.joyPort === "1" ? " selected" : ""}>1 ($DC01)</option>
+                <option value="3"${block.joyPort === "3" ? " selected" : ""}>1+2 ($DC00 & $DC01)</option>
               </select>
             </label>
-            <label class="mini-field">
+            <label class="mini-field"${_joyIsVarMode(block) ? " hidden" : ""}>
               <span>${t("fieldJoySpriteNum")}</span>
               <input class="joy-sprite-num block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.joySpriteNum || "0"}" placeholder="0 / CONST">
+            </label>
+            <label class="mini-field">
+              <span>${t("fieldJoyVarX")}</span>
+              <input class="joy-var-x block-operand" type="text" autocomplete="off" spellcheck="false" value="${escapeHtmlAttribute(block.joyVarX || "")}" placeholder="vx">
+            </label>
+            <label class="mini-field">
+              <span>${t("fieldJoyVarY")}</span>
+              <input class="joy-var-y block-operand" type="text" autocomplete="off" spellcheck="false" value="${escapeHtmlAttribute(block.joyVarY || "")}" placeholder="vy">
+            </label>
+            <label class="mini-field">
+              <span>${t("fieldJoyVarFire")}</span>
+              <input class="joy-var-fire block-operand" type="text" autocomplete="off" spellcheck="false" value="${escapeHtmlAttribute(block.joyVarFire || "")}" placeholder="fire">
             </label>
           </div>
         `
@@ -28296,6 +28648,12 @@ function renderProgram() {
       inlineField.hidden = false;
       operandField.value = block.assertExpr || block.rawOperand || "";
       operandField.placeholder = 'end - start <= 256, "message"';
+      operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
+    } else if (block.isLevelRowMacro) {
+      inlineField.querySelector("span").textContent = t("levelRowOperand");
+      inlineField.hidden = false;
+      operandField.value = block.rawOperand || "";
+      operandField.placeholder = "dst_ptr, view_col, color";
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
     } else if (block.isConstMacro) {
       inlineField.hidden = true;
@@ -28997,7 +29355,7 @@ function renderProgram() {
     blockControls.insertAdjacentHTML(
       "beforeend",
       `
-          ${(mode.needsOperand && !block.isLabel && !block.isAnonymousLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isPetsciiMacro && !block.isIncBinMacro && !block.isIncludeMacro && !block.isLoopMacro && !block.isNextMacro && !block.isForMacro && !block.isEndfMacro && !block.isWordMacro && !block.isFillMacro && !block.isAlignMacro && !block.isTableMacro && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro && !block.isMacroInvoke && !block.isRegionMacro && !block.isEndRegionMacro && !block.isLoadFileMacro && !block.isDelayMacro && !block.isLongBranchMacro && !block.isAssertMacro) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro ? `
+          ${(mode.needsOperand && !block.isLabel && !block.isAnonymousLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isPetsciiMacro && !block.isIncBinMacro && !block.isIncludeMacro && !block.isLoopMacro && !block.isNextMacro && !block.isForMacro && !block.isEndfMacro && !block.isWordMacro && !block.isFillMacro && !block.isAlignMacro && !block.isTableMacro && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro && !block.isMacroInvoke && !block.isRegionMacro && !block.isEndRegionMacro && !block.isLoadFileMacro && !block.isDelayMacro && !block.isLongBranchMacro && !block.isAssertMacro && !block.isLevelRowMacro) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro ? `
           <label class="mini-field">
             <span>${t("fieldFormat")}</span>
           <div class="mini-toggle" role="radiogroup" aria-label="${t("fieldFormat")}">
@@ -29222,6 +29580,15 @@ function renderProgram() {
     const joySpriteNumInput = node.querySelector(".joy-sprite-num");
     if (joySpriteNumInput) {
       joySpriteNumInput.addEventListener("input", (event) => updateProgramBlock(index, "joySpriteNum", event.target.value));
+    }
+    for (const [cls, field] of [[".joy-var-x", "joyVarX"], [".joy-var-y", "joyVarY"], [".joy-var-fire", "joyVarFire"]]) {
+      const joyVarInput = node.querySelector(cls);
+      if (!joyVarInput) continue;
+      joyVarInput.addEventListener("input", (event) => {
+        updateProgramBlock(index, field, event.target.value.trim());
+        const spriteField = node.querySelector(".joy-sprite-num")?.closest(".mini-field");
+        if (spriteField) spriteField.hidden = _joyIsVarMode(program[index]);
+      });
     }
     const mousePortSelect = node.querySelector(".mouse-port");
     if (mousePortSelect) {
@@ -29887,7 +30254,7 @@ function renderAsmOutput() {
     }
 
     if (line.block.isIncBinMacro) {
-      const bytes = line.block.incBinBytes || [];
+      const bytes = _incBinPayload(line.block);
       const startAddress = parseAddressValue(line.block.incBinAddress) ?? 0xC000;
       const fileName = line.block.incBinFileName || line.block.incBinFile || "?";
       if (bytes.length > 0) {
@@ -30213,6 +30580,7 @@ function renderAsmOutput() {
     }
 
     if (line.block.isJoystickMacro) {
+      if (_joyIsVarMode(line.block)) return `; ${_blockToExpertLine(line.block).trim()}`;
       return `; .joystick port=${line.block.joyPort || "2"} sprite=${line.block.joySpriteNum || "0"}`;
     }
 

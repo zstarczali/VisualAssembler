@@ -340,7 +340,16 @@
       "Bash(timeout 120 python grab.py vx0.prg 10)",
       "Bash(taskkill //IM x64sc.exe //F)",
       "Bash(/d/Development/VICE/bin/x64sc.exe -default -warp -autostartprgmode 1 -limitcycles 8000000 -exitscreenshot __TRACKED_VAR__/t4.png -sounddev dummy test4.prg)",
-      "Bash(rm -f /f/Development/VisualAssembler/www/_tmp_level_demo.asm)"
+      "Bash(rm -f /f/Development/VisualAssembler/www/_tmp_level_demo.asm)",
+      "Bash(grep -o \"chardef.\\\\{0,30\\\\}\")",
+      "Bash(awk 'NR<22520 && /^function /{l=NR\": \"$0} END{}; NR==22520{print l}' www/app.js)",
+      "Bash(awk 'NR<=22625 && /^function /{l=NR\": \"$0} NR==22625{print l}' www/app.js)",
+      "Bash(python \"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/254699c3-ab61-43ae-a379-d9c1dc5dcdfe/scratchpad/lvmacro_i18n.py\")",
+      "Bash(node --test tests/build-project-includes.test.js tests/export-import-regression.test.js)",
+      "Bash(node --test tests/level-macro.test.js)",
+      "Bash(grep -n 'return `port${block.joyPort || \"2\"} → sprite#\\\\|; .joystick port=' www/app.js)",
+      "Bash(python \"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/254699c3-ab61-43ae-a379-d9c1dc5dcdfe/scratchpad/joy_i18n.py\")",
+      "Bash(node --test tests/joystick-macro.test.js)"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"
