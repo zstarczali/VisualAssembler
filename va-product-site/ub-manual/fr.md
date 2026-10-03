@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.9 — Manuel de langue
+# Ultimate Basic v1.6.0 — Manuel de langue
 
 Référence complète du langage et de l'interface de ligne de commande pour
 Ultimate Basic, un langage de type BASIC qui se compile directement en code
@@ -145,17 +145,34 @@ var x = 5 : var y = 6  # colon separates statements on one line
 
 ```basic
 x = x + 1
+
 y = a * b - c / 2
-z = x and 15             # bitwise AND
-w = a or b               # bitwise OR
-v = a xor b              # bitwise XOR
-m = x shl 3              # shift left
-n = x shr 2              # shift right
-r = x mod 40             # 8-bit modulo (remainder); SEC/SBC/BCS loop
-b = bnot x               # bitwise NOT: x XOR 255 (complement all 8 bits)
+
+z = x et 15 # ET bit à bit
+
+w = a ou b # OU bit à bit
+
+v = a ou b # OU exclusif bit à bit
+
+m = x décalage à gauche 3 # décalage à droite
+
+n = x décalage à droite 2 # décalage à droite
+
+r = x mod 40 # modulo 8 bits (reste) ; x mod 0 = x, x / 0 = 255
+
+b = bnot x # NON bit à bit : x OU exclusif 255 (complément sur les 8 bits)
 ```
 
 Comparaisons : `==` `!=` `<` `>` `<=` `>=` (retourne 1/0)
+
+Code arithmétique (1.6.0) : `*` multiplié par une constante se compile en
+décalages / addition avec décalage (`x * 8` → 3× `ASL`), sinon en une boucle
+d'addition avec décalage d'au maximum 8 tours. `/` et `mod` multiplié par une
+puissance de deux se compilent en `LSR` / `AND #(n-1)`, sinon en une boucle de
+soustraction avec décalage de 8 tours dont le temps d'exécution ne dépend plus
+du quotient. La division par zéro est définie comme suit : x / 0 = 255, x mod 0
+= x (avant la version 1.6.0, le programme se bloquait). x = x + 1 / x = x - 1
+(et ±2) sont compilés en INC / DEC.
 
 ### Incrémenter / Décrémenter
 
@@ -287,23 +304,24 @@ until x == 100       # exits when condition is true
 
 **Règles de direction pour `for`/`loop` :**
 
-| Case                                                   | Comportement                                                                                                                                      |
-| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `for i = 1 to 10` (par défaut `step +1`, `from ≤ to`)  | compte à rebours, standard                                                                                                                        |
-| `for i = 0 to 20 step 2` (étape positive, `from ≤ to`) | compte de 2                                                                                                                                       |
-| `for i = 10 to 1 step -1` (pas constant négatif)       | compte à rebours ; le corps s'exécute pour i = 10, 9, ..., 1                                                                                      |
-| `for i = 20 to 0 step -2` (jusqu'à zéro)               | L'algorithme s'arrête à i = 0 en détectant le sous-dépassement de capacité du CAN (C=0) après la décrémentation ; il n'y a pas de boucle infinie. |
-| `for i = 10 to 1` (pas d'étape, `from > to`)           | **Erreur de compilation** : `for-loop: from (10) > to (1) with default step +1 loops 0 times — use 'step -1' to count down`                       |
+| Case                                                   | Comportement                                                                                                                   |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
+| `for i = 1 to 10` (par défaut `step +1`, `from ≤ to`)  | compte à rebours, standard                                                                                                     |
+| `for i = 0 to 20 step 2` (étape positive, `from ≤ to`) | compte de 2                                                                                                                    |
+| `for i = 10 to 1 step -1` (pas constant négatif)       | compte à rebours ; le corps s'exécute pour i = 10, 9, ..., 1                                                                   |
+| `for i = 20 to 0 step -2` (jusqu'à zéro)               | L'exécution s'arrête à i = 0 en détectant le passage en dessous de 0 après la décrémentation ; il n'y a pas de boucle infinie. |
+| `for i = 10 to 1` (pas d'étape, `from > to`)           | **Erreur de compilation** : `for-loop: from (10) > to (1) with default step +1 loops 0 times — use 'step -1' to count down`    |
 
-Le compilateur choisit l'encodage de la branche de sortie au moment de la
-compilation en fonction du signe d'une constante `step` :
-
-- Étape positive (ou valeur par défaut `+1`) → sortie lorsque `var > to` (non
-  signé `CMP` + `BCC`/`BEQ` bascule vers `JMP exit`).
-- Pas constant négatif → sortie lorsque `var < to` (unsigned `CMP` + `BCS` au
-  corps), **plus** un post-incrément `BCS loop_top ; JMP exit` qui intercepte le
-  dépassement lorsque `var` passe en dessous de 0. Cette paire d'instructions
-  supplémentaires est ce qui permet à `for i = N to 0 step -k` d'être fini.
+Forme du code (1.6.0) : la boucle est *rotée* — `JMP test` (omis lorsque les
+limites constantes garantissent un premier passage), le corps, `var += étape`,
+puis le test en bas se ramifiant vers le corps, il n'y a donc pas de `JMP`
+supplémentaire par itération. Le pas détecte le dépassement de capacité de 8
+bits dans les deux sens (`INC`/`BEQ` ou `ADC`/`BCS` en incrémentant, `BEQ`/`DEC`
+ou `SBC`/`BCC` en décrémentant), de sorte que `pour i = 0 à 255` s'exécute 256
+fois et s'arrête, et `pour i = N à 0, le pas -k` est toujours fini. Les limites
+et les pas constants sont utilisés comme immédiats (pas de page de zéros) ; Une
+limite ou un pas non constant est évalué une seule fois et conservé dans une
+page zéro permanente.
 
 Les valeurs non constantes `step` (par exemple, provenant d'une variable ou
 d'une expression) sont traitées comme positives au moment de la compilation ; si
@@ -1308,9 +1326,9 @@ ignoré). (Corrigé dans la version 1.5.9 — auparavant, les deux étaient inve
 #### Enchaînement avec un autre programme — `chaîne` (nouveauté de la version 1.5.9)
 
 ```basic
-chaîne "GAME" # charge le jeu depuis le lecteur où il a été lancé et l'exécute
-chaîne "GAME", 9 # depuis le lecteur 9 (expression quelconque)
-print "LOAD ERROR" # uniquement si le fichier n'a pas pu être chargé
+chain "GAME"             # load GAME from the drive we were started from and RUN it
+chain "GAME", 9          # from drive 9 (any expression)
+print "LOAD ERROR"       # only reached if the file could not be loaded
 ```
 
 La commande `chain` charge un autre programme à sa propre adresse de chargement
@@ -2014,6 +2032,25 @@ demo.ub → demo.prg  (386 bytes)
 
 Avec `-v`, la sortie affiche en plus les allocations ZP internes et un dump
 hexadécimal complet.
+
+### Code généré (optimisé en version 1.6.0)
+
+Le générateur de code produit un code 6502 plus concis pour les cas courants ;
+les programmes ne nécessitent aucune modification :
+
+- Les conditions dans `if` / `while` / `until` / `select` sont un `CMP` suivi
+  d'une branche (aucune valeur 0/1 n'est construite ni testée à nouveau). `x
+  &gt; n` est compilé comme `x &gt;= n+1` ; les comparaisons `and` / `or` sont
+  court-circuitées lorsque le membre de droite n'a pas d'effets de bord ;
+  `while` effectue des tests à la fin de la boucle.
+- Les constantes et les variables d'octet sont des opérandes directs (`ADC #n`,
+  `CMP zp`); `poke` à une constante ou `word` stockent directement l'adresse.
+- Les tableaux avec un index variable utilisent l'adressage `base,Y` au lieu
+  d'un pointeur de page zéro.
+- Lorsqu'une instruction commence par charger la variable que l'instruction
+  précédente vient de stocker, le `LDA` redondant est ignoré.
+
+Utilisez `--asm` pour voir le code généré pour votre propre programme.
 
 ## Limitations connues
 

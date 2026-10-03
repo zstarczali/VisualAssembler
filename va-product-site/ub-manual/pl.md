@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.9 — Podręcznik językowy
+# Ultimate Basic v1.6.0 — Podręcznik językowy
 
 Kompletny podręcznik języka i interfejsu wiersza poleceń dla Ultimate Basic,
 języka podobnego do BASIC-a, który kompiluje się bezpośrednio do kodu
@@ -140,16 +140,25 @@ var x = 5 : var y = 6  # colon separates statements on one line
 ```basic
 x = x + 1
 y = a * b - c / 2
-z = x and 15             # bitwise AND
-w = a or b               # bitwise OR
-v = a xor b              # bitwise XOR
-m = x shl 3              # shift left
-n = x shr 2              # shift right
-r = x mod 40             # 8-bit modulo (remainder); SEC/SBC/BCS loop
-b = bnot x               # bitwise NOT: x XOR 255 (complement all 8 bits)
+z = x i 15 # bitowe AND
+w = a lub b # bitowe LUB
+v = a xor b # bitowe XOR
+m = x shl 3 # przesunięcie w lewo
+n = x shr 2 # przesunięcie w prawo
+r = x mod 40 # 8-bitowy modulo (reszta); x mod 0 = x, x / 0 = 255
+b = bwęzeł x # bitowe NOT: x XOR 255 (uzupełnienie wszystkich 8 bitów)
 ```
 
 Porównania: `==` `!=` `<` `>` `<=` `>=` (zwróć 1/0)
+
+Kod arytmetyczny (1.6.0): `*` przez stałą kompiluje się do przesunięć/dodawania
+z przesunięciem (`x * 8` → 3× `ASL`), w przeciwnym razie do pętli dodawania z
+przesunięciem o maksymalnie 8 rundach. `/` i `mod` przez potęgę dwóch to `LSR` /
+`AND #(n-1)`, w przeciwnym razie do 8-rundowej pętli przesunięcia z
+odejmowaniem, której czas wykonania nie zależy już od ilorazu. Dzielenie przez
+zero jest zdefiniowane: `x / 0 = 255`, `x mod 0 = x` (przed wersją 1.6.0
+zawieszało się). `x = x + 1` / `x = x - 1` (i ±2) kompiluje się do `INC` /
+`DEC`.
 
 ### Zwiększanie/zmniejszanie
 
@@ -286,18 +295,18 @@ until x == 100       # exits when condition is true
 | `for i = 1 to 10` (domyślnie `step +1`, `from ≤ to`)   | liczy się, standard                                                                                                  |
 | `for i = 0 to 20 step 2` (krok pozytywny, `from ≤ to`) | liczy do 2                                                                                                           |
 | `for i = 10 to 1 step -1` (ujemny stały krok)          | odlicza; ciało biegnie dla i = 10, 9, ..., 1                                                                         |
-| `for i = 20 to 0 step -2` (do zera)                    | kończy się przy i = 0 po wykryciu niedomiaru ADC (C=0) po dekrementacji; brak pętli nieskończonej                    |
+| `for i = 20 to 0 step -2` (do zera)                    | kończy się przy i = 0 po wykryciu zawinięcia poniżej 0 po dekrementacji; brak pętli nieskończonej                    |
 | `for i = 10 to 1` (bez kroku, `from > to`)             | **błąd kompilacji**: `for-loop: from (10) > to (1) with default step +1 loops 0 times — use 'step -1' to count down` |
 
-Kompilator wybiera kodowanie gałęzi wyjściowej w czasie kompilacji na podstawie
-znaku stałej `step`:
-
-- Krok pozytywny (lub domyślny `+1`) → wyjście, gdy `var > to` (niepodpisany
-  `CMP` + `BCC`/`BEQ` przejście do `JMP exit`).
-- Ujemny stały krok → wyjście, gdy `var < to` (niepodpisany `CMP` + `BCS` do
-  treści), **plus** post-inkrementacja `BCS loop_top ; JMP exit`, która
-  wychwytuje zawijanie, gdy `var` spadnie poniżej 0. Ta dodatkowa para
-  instrukcji sprawia, że `for i = N to 0 step -k` jest skończony.
+Kształt kodu (1.6.0): pętla jest *obrócona* — `test JMP` (pominięte, gdy stałe
+ograniczenia gwarantują pierwsze przejście), ciało, `var += krok`, następnie
+test na dole rozgałęziający się z powrotem do ciała, więc nie ma dodatkowego
+`JMP` na iterację. Krok wykrywa 8-bitowe zawijanie w obu kierunkach (`INC`/`BEQ`
+lub `ADC`/`BCS` zliczanie w górę, `BEQ`/`DEC` lub `SBC`/`BCC` zliczanie w dół),
+więc `dla i = 0 do 255` wykonuje się 256 razy i zatrzymuje, a `dla i = N do 0
+krok -k` jest zawsze skończony. Stałe limity i kroki są używane jako
+natychmiastowe (bez strony zerowej); Limit lub krok, który nie jest stały, jest
+oceniany raz i przechowywany na trwałej stronie zerowej.
 
 Wartości `step` inne niż stałe (np. pochodzące ze zmiennej lub wyrażenia) są
 traktowane jako dodatnie w czasie kompilacji. Jeśli potrzebujesz odliczania przy
@@ -1269,9 +1278,9 @@ były zamienione: `load "F"` loaded to `$0000`.) `save` wywołuje
 #### Łączenie z innym programem — `łańcuch` (nowość w wersji 1.5.9)
 
 ```basic
-łańcuch "GRA" # załaduj GRĘ z dysku, z którego została uruchomiona i URUCHOM ją
-łańcuch "GRA", 9 # z dysku 9 (dowolne wyrażenie)
-drukuj "BŁĄD WCZYTANIA" # osiągnięty tylko wtedy, gdy nie można załadować pliku
+chain "GAME"             # load GAME from the drive we were started from and RUN it
+chain "GAME", 9          # from drive 9 (any expression)
+print "LOAD ERROR"       # only reached if the file could not be loaded
 ```
 
 `łańcuch` ładuje inny program pod swój własny adres ładowania — normalnie
@@ -1957,6 +1966,24 @@ demo.ub → demo.prg  (386 bytes)
 
 W przypadku `-v` na wyjściu dodatkowo pokazywane są wewnętrzne przydziały ZP i
 pełny zrzut szesnastkowy.
+
+### Wygenerowany kod (zoptymalizowany w wersji 1.6.0)
+
+Generator kodu emituje ściślejsze 6502 w typowych przypadkach; programy nie
+wymagają żadnych zmian:
+
+- Warunki w `if` / `while` / `until` / `select` to `CMP` plus gałąź (nie jest
+  budowana i ponownie testowana żadna wartość 0/1). `x &gt; n` jest kompilowane
+  jako `x &gt;= n+1`; `and` / `lub` porównań powodują zwarcie, gdy prawa strona
+  nie ma efektów ubocznych; `while` jest testowane na dole pętli.
+- Stałe i zmienne bajtowe to bezpośrednie operandy (`ADC #n`, `CMP zp`); `poke`
+  do stałej lub `słowo` przechowuje adresy bezpośrednio.
+- Tablice ze zmiennym indeksem używają adresowania `base,Y` zamiast wskaźnika
+  zerowej strony.
+- Jeśli polecenie rozpoczyna się od załadowania zmiennej, którą poprzednie
+  polecenie właśnie zapisało, zbędny `LDA` jest pomijany.
+
+Użyj `--asm`, aby zobaczyć wygenerowany kod własnego programu.
 
 ## Znane ograniczenia
 

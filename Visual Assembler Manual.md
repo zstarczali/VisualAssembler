@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.4.8**
+**Version 2.4.9**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -9,6 +9,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
+    - [Version 2.4.9 Highlights](#version-249-highlights)
     - [Version 2.4.8 Highlights](#version-248-highlights)
     - [Version 2.4.7 Highlights](#version-247-highlights)
     - [Version 2.4.6 Highlights](#version-246-highlights)
@@ -31,6 +32,8 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [ASM line numbers](#asm-line-numbers)
     - [Compile progress modal](#compile-progress-modal)
   - [5. Settings \& Toolbar](#5-settings--toolbar)
+    - [Project templates](#project-templates)
+    - [Build project](#build-project)
     - [Load .asm file (quick reference)](#load-asm-file-quick-reference)
       - [Import parsing notes and best practices](#import-parsing-notes-and-best-practices)
   - [UltimateBasic Mode](#ultimatebasic-mode)
@@ -160,6 +163,17 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [Map Editor (Multilayer Tilemaps)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Curve Editor](#curve-editor)
+
+---
+
+## Version 2.4.9 Highlights
+
+- **Project templates** — **Menu → File → New project from template…**, or the new toolbar button between **Menu** and **Tutorials**, creates a ready-to-build `.proj` project in its own folder. The dialog has an **Assembler** section (empty program, game skeleton, hires and multicolor bitmap) and an **UltimateBasic** section (empty program, game skeleton, hires bitmap, raster IRQ), with a syntax-highlighted preview. Your own `.asm` / `.ub` templates are picked up from the user templates folder. See [Project templates](#project-templates).
+- **Build project** — **Menu → Build → Build project** compiles every buildable file of the open project (or of the open tabs) to a `.prg` next to its source, writes debugger symbol files where available, skips include-only modules and shows a per-file report. See [Build project](#build-project).
+- **Ctrl + mouse wheel zoom** in the Expert and Ultimate Basic editors (`Cmd` + wheel on macOS; touchpad pinch works too).
+- **Workspaces remember projects** — the Expert and Ultimate Basic project trees, the startup file and unsaved project changes are saved into the `.vaws` workspace and restored with it. Older workspaces still open.
+- **Ultimate Basic** — the bundled compiler generates faster, smaller 6502 code; the memory map now tells real code and data apart from padding and long `org` gaps.
+- **File dialogs start in the active working folder** — the Block/Expert or the Ultimate Basic one, depending on the current mode.
 
 ---
 
@@ -407,12 +421,14 @@ The modal closes automatically when the action completes or fails.
 | **Save Workspace As** | Save the current workspace using a new file dialog every time |
 | **Open Workspace** | Close all open tabs and reopen the set of files stored in a `.vaws` workspace file |
 | **Set working folder** | Choose the default folder used by file pickers and save dialogs. The path is stored in the app config, and menu previews keep the end of the path visible. |
+| **New project from template…** (`Menu → File`, or the toolbar button next to **Menu**) | Create a new `.proj` project from an Assembler or UltimateBasic template in its own folder — see [Project templates](#project-templates) |
 | **Open Project** (`Menu → File`) | Open a multi-file `.proj` project and open all source files as tabs |
 | **Save Project** (`Menu → File`) | Save the current `.proj` project (project panel must be open) |
 | **Close Project** (`Menu → File`) | Close the currently open project and all its file tabs. Prompts to save unsaved changes. The project panel resets to its empty state. |
 | **Load .asm file** | Opens a `.asm` file in Expert mode and imports textual 6502 ASM into the current tab |
 | **Save PRG** | Export the compiled binary as a `.prg` file |
 | **Build CRT** | Export the program as a 64K Magic Desk (`.crt`, cartridge type 19) file. See [Section 12b](#12b-crt-export-magic-desk-64k-cartridge). |
+| **Build project** (`Menu → Build`) | Compile every buildable file of the project (or of the open tabs) to a `.prg` next to its source — see [Build project](#build-project) |
 | **Run (split button)** | The main **▶ Run** button runs the current mode; click the **▾** arrow to switch between: **Run as PRG** (compile and launch VICE directly), **Run via D64** (package into a .d64 disk image and launch VICE), **Run on hardware** (send PRG to a C64 Ultimate / 1541 Ultimate device), or **Kung Fu Flash 2** (upload the PRG over USB to a real C64/C128 with a Kung Fu Flash 2 cartridge). See [Section 12](#12-d64-export--run) and [Section 13](#13-hardware-settings). |
 | **Debug (RetroDebugger)** | Compile and launch in RetroDebugger with breakpoints, symbols, and autostart flags (see [Section 9](#9-debugger-integration)) |
 | **Run with Exomizer** | Checkbox in the Settings menu — when enabled, all Run and Build operations crunch the PRG through `exomizer sfx sys` before launching or saving. Works with Run as PRG, Run via D64, Run on Hardware, Build PRG, and Build D64. Configure the Exomizer executable in **Hardware Settings** first. |
@@ -461,6 +477,44 @@ A **workspace** (`.vaws` file) remembers which real, on-disk files were open acr
 - Only tabs backed by a real file on disk are saved into the workspace; a tab holding an unsaved sample or an in-memory-only program has nothing to persist and is skipped (with a notice if none of the open tabs qualify).
 - Opening a workspace closes all currently open tabs first — you are asked to confirm before it proceeds.
 - If a workspace references a file that has since been moved or deleted, that entry is skipped and reported by name after loading.
+- The open Expert and Ultimate Basic **projects** are stored too: the project tree (including unsaved additions and removals), the startup file and the `.proj` save target come back with the workspace. Workspaces saved by older versions open without them.
+
+### Project templates
+
+**Menu → File → New project from template…** — or the toolbar button between **Menu** and **Tutorials** — opens the template dialog:
+
+1. Pick a section at the top: **Assembler** or **UltimateBasic** (the dialog opens on the section that matches the current editor mode).
+2. Choose a template from the list; the right side shows its description and a syntax-highlighted preview with your project name filled in.
+3. Enter the **project name** and the **location** (**Browse…**). The line below the form shows the exact `.proj` path that will be created.
+4. Click **Create project**.
+
+| Section | Built-in templates |
+|---|---|
+| **Assembler** | Empty program, Empty game (title / play / game over states, joystick, player sprite), Hires bitmap, Multicolor bitmap |
+| **UltimateBasic** | Empty program, Empty game (same state machine in UB), Hires bitmap (`line` / `rect` / `circle` with `color pen`), Raster IRQ (a `sub` called every frame from the raster interrupt) |
+
+The project is created in its own folder: `<location>/<name>/<name>.proj` plus `main.asm` (Assembler) or `main.ub` (UltimateBasic, the `.proj` is marked as an Ultimate Basic project). An existing project is never overwritten — the dialog reports it instead. Open tabs are closed first (you are asked about unsaved changes), then the new project opens in Expert mode or Ultimate Basic mode with the project panel visible and the main file set as the startup file.
+
+**Your own templates:** **My templates folder** (bottom left of the dialog) opens the user templates folder in the app config directory. Every `.asm` or `.ub` file dropped there appears in the matching section (under *My templates* unless it names a category). A template is an ordinary source file with an optional header of comment lines at the top — `;` in assembler, `#` in Ultimate Basic:
+
+```asm
+; @name Raster bars
+; @name.hu Raszter csíkok
+; @category Effects
+; @desc Two raster bars in the border.
+; @order 50
+```
+
+`@name`, `@category` and `@desc` may have per-language variants (`@name.hu`, `@desc.de`, …); `@order` sorts the list. Everything after the header becomes the new main file, and `{{PROJECT}}` is replaced with the project name (use it in a comment so the template itself still compiles).
+
+### Build project
+
+**Menu → Build → Build project** compiles a whole project in one step. The files of the open `.proj` project are built — or, without a project, the open file tabs:
+
+- every buildable source (`.asm`, block `.json`, `.ub`) is compiled to a `.prg` **next to its source** with the same name; with **Run with Exomizer** enabled the output is crunched;
+- debugger sidecar files (symbols / source map) are written alongside the PRG where available;
+- modules that another file pulls in with `.include` / `include` (and `.inc` files) are skipped, as are tabs that were never saved;
+- a report lists every file with its size, *skipped* reason or compiler error, and the status bar shows *N / M files built*.
 
 ### Load .asm file (quick reference)
 
@@ -524,7 +578,7 @@ The UB toolbar follows the same visual language and custom tooltips as Expert mo
 
 - syntax highlighting based on the current Ultimate Basic language reference;
 - line numbers that remain synchronized with long files;
-- a minimap and editor zoom controls; click the minimap to jump or drag its viewport selection for continuous scrolling;
+- a minimap and editor zoom controls (`Ctrl` + mouse wheel also zooms); click the minimap to jump or drag its viewport selection for continuous scrolling;
 - Find (`Ctrl+F` / `Cmd+F`) using the Expert-style search bar;
 - source formatting with structure-aware indentation;
 - autocomplete for commands and built-in functions;
@@ -538,7 +592,7 @@ The command list is intentionally height-limited so the command-detail card can 
 
 ### Projects, tabs, and startup files
 
-Ultimate Basic projects use `.proj` files and can contain multiple `.ub` sources. The Project panel lists open files, marks unsaved tabs, and shows discovered labels, functions, and subroutines. Project actions let you create, open, save, and close a project or add another source file.
+Ultimate Basic projects use `.proj` files and can contain multiple `.ub` sources. The Project panel lists open files, marks unsaved tabs, and shows discovered labels, functions, and subroutines. Project actions let you create, open, save, and close a project or add another source file. A new project can also start from an UltimateBasic template — see [Project templates](#project-templates).
 
 Click the star beside a project file to mark it as the **startup file**. Build, Run, D64, C64 Ultimate, and Debug commands compile that startup source even if a different tab is currently active. Without a startup selection, the active UB tab is used.
 
@@ -642,7 +696,7 @@ Expert Mode is a full-featured direct-text 6502 assembly editor that lives along
 | **Collapse / expand all regions** | `#expert-region-fold-all-btn` | Fold or unfold every `.region` block in one click. If any region is currently open, the button collapses them all; if every region is already collapsed, the next click expands them all. The button lights up when all regions are collapsed. |
 | **Line numbers** | `#expert-line-numbers-btn` | Toggle the line number gutter on the left side of the editor. The gutter stays in sync with the scroll position and updates live as you type. |
 | **Find** | `#expert-find-btn` | Open the floating Find bar (`Ctrl+F`). Type to search; matches are highlighted in the overlay. `Enter` / `Shift+Enter` navigate between matches. `Escape` closes the bar. |
-| **Zoom out / in** | `#expert-zoom-out-btn` / `#expert-zoom-in-btn` | Decrease / increase the editor font size (8–28 px). The setting is persisted. |
+| **Zoom out / in** | `#expert-zoom-out-btn` / `#expert-zoom-in-btn` | Decrease / increase the editor font size (8–28 px). `Ctrl` + mouse wheel (`Cmd` + wheel on macOS, or a touchpad pinch) over the editor does the same. The setting is persisted. |
 | **Palette** | `#expert-palette-btn` | Show/hide the left mnemonic palette |
 | **Disasm** | `#expert-disasm-btn` | Show/hide the disassembly panel (pure 6502, macros expanded) |
 | **Monitor** | `#expert-monitor-btn` | Show/hide the monitor hex-dump panel |

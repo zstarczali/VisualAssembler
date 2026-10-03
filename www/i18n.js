@@ -47,6 +47,26 @@ const translations = {
     "workProgressSuccessDebug": "Build sikeres, debugger indítva.",
     "workProgressSuccessImport": "Import sikeres.",
     "savePrg": "Build PRG",
+
+    "buildProject": "Build projekt",
+
+    "buildProjectTitle": "Projekt fordítása",
+
+    "buildProjectNothing": "Nincs fordítható fájl a projektben (vagy a nyitott füleken).",
+
+    "buildProjectSummary": "{ok} / {total} fájl lefordítva",
+
+    "buildProjectUntitled": "nincs mentve — kihagyva",
+
+    "buildProjectIncluded": "include — kihagyva",
+
+    "workProgressBuildProject": "Projekt fájlok fordítása…",
+
+    "workProgressSuccessBuildProject": "Minden fájl lefordítva.",
+
+    "buildProjectFile": "Fájl",
+
+    "buildProjectResult": "Eredmény",
     "saveCrt": "Build CRT",
     "buildSection": "Build",
     "versioningSection": "Verziókezelés",
@@ -379,6 +399,24 @@ const translations = {
     "menuOpenProjectTip": "Egy többfájlos .proj projektet nyit meg. Minden forrásfájlja saját fülként nyílik meg.",
     "menuSaveProjectTip": "A jelenleg megnyitott .proj projektet menti, az összes fájl-fülével együtt.",
     "menuCloseProjectTip": "Bezárja a jelenlegi .proj projektet és annak összes fájl-fülét.",
+    "menuNewFromTemplate": "Új projekt sablonból…",
+    "menuNewFromTemplateTip": "Új .proj projektet hoz létre egy sablonból (üres játék, bitmap grafika stb.), saját mappában.",
+    "templateDialogTitle": "Új projekt sablonból",
+    "templateProjectName": "Projekt neve",
+    "templateLocation": "Hely",
+    "templateBrowse": "Tallózás…",
+    "templateOpenFolder": "Saját sablonok mappája",
+    "templateCreate": "Projekt létrehozása",
+    "templateNoTemplates": "Nincs sablon. Tegyél .asm fájlt a sablonok mappájába.",
+    "templateCategoryUser": "Saját sablonok",
+    "templateCategoryOther": "Egyéb",
+    "templateKindAsm": "Assembler",
+    "templateKindUb": "UltimateBasic",
+    "templateNoTemplatesUb": "Nincs UltimateBasic sablon. Tegyél .ub fájlt a sablonok mappájába.",
+    "templateWillCreate": "Létrejön: {path}",
+    "templateExists": "Itt már van projekt: {path}",
+    "templateWriteError": "A projekt fájljait nem sikerült létrehozni",
+    "templateCreated": "Projekt létrehozva",
     "menuSaveWorkspaceTip": "A megnyitott, fájlhoz kötött fülek pontos halmazát menti egy .vaws munkaterület fájlba, az aktív füllel és minden fül szerkesztőmódjával együtt.",
     "menuSaveWorkspaceAsTip": "A jelenlegi munkaterületet új .vaws fájlba menti. Mindig fájldialógust nyit.",
     "menuOpenWorkspaceTip": "Bezárja az összes nyitott fület, majd újranyitja a .vaws munkaterület fájlban tárolt fájlokat.",
@@ -1348,6 +1386,26 @@ const translations = {
     "workProgressSuccessDebug": "Build successful, debugger launched.",
     "workProgressSuccessImport": "Import successful.",
     "savePrg": "Build PRG",
+
+    "buildProject": "Build project",
+
+    "buildProjectTitle": "Build project",
+
+    "buildProjectNothing": "No buildable file in the project (or in the open tabs).",
+
+    "buildProjectSummary": "{ok} / {total} files built",
+
+    "buildProjectUntitled": "not saved — skipped",
+
+    "buildProjectIncluded": "include — skipped",
+
+    "workProgressBuildProject": "Building project files…",
+
+    "workProgressSuccessBuildProject": "All files built.",
+
+    "buildProjectFile": "File",
+
+    "buildProjectResult": "Result",
     "buildSection": "Build",
     "versioningSection": "Versioning",
     "savePrgFailed": "PRG save failed",
@@ -1676,6 +1734,24 @@ const translations = {
     "menuOpenProjectTip": "Open a multi-file .proj project. Every source file in it opens as its own tab.",
     "menuSaveProjectTip": "Save the currently open .proj project, including all of its file tabs.",
     "menuCloseProjectTip": "Close the current .proj project and all of its file tabs.",
+    "menuNewFromTemplate": "New project from template…",
+    "menuNewFromTemplateTip": "Create a new .proj project from a template (empty game, bitmap graphics, etc.) in its own folder.",
+    "templateDialogTitle": "New project from template",
+    "templateProjectName": "Project name",
+    "templateLocation": "Location",
+    "templateBrowse": "Browse…",
+    "templateOpenFolder": "My templates folder",
+    "templateCreate": "Create project",
+    "templateNoTemplates": "No templates found. Put an .asm file into the templates folder.",
+    "templateCategoryUser": "My templates",
+    "templateCategoryOther": "Other",
+    "templateKindAsm": "Assembler",
+    "templateKindUb": "UltimateBasic",
+    "templateNoTemplatesUb": "No UltimateBasic templates. Put a .ub file into the templates folder.",
+    "templateWillCreate": "Will create: {path}",
+    "templateExists": "A project already exists here: {path}",
+    "templateWriteError": "Could not create the project files",
+    "templateCreated": "Project created",
     "menuSaveWorkspaceTip": "Save the exact set of open file-backed tabs to a .vaws workspace file, including the active tab and each tab's editor mode.",
     "menuSaveWorkspaceAsTip": "Save the current workspace as a new .vaws file. Always shows a file dialog.",
     "menuOpenWorkspaceTip": "Close all open tabs and reopen the set of files stored in a .vaws workspace file.",
@@ -2809,6 +2885,26 @@ const translations = {
     "workProgressSuccessDebug": "Build exitoso, depurador iniciado.",
     "workProgressSuccessImport": "Importación exitosa.",
     "savePrg": "Build PRG",
+
+    "buildProject": "Compilar proyecto",
+
+    "buildProjectTitle": "Compilar proyecto",
+
+    "buildProjectNothing": "No hay archivos compilables en el proyecto (ni en las pestañas abiertas).",
+
+    "buildProjectSummary": "{ok} / {total} archivos compilados",
+
+    "buildProjectUntitled": "no guardado — omitido",
+
+    "buildProjectIncluded": "include — omitido",
+
+    "workProgressBuildProject": "Compilando archivos del proyecto…",
+
+    "workProgressSuccessBuildProject": "Todos los archivos compilados.",
+
+    "buildProjectFile": "Archivo",
+
+    "buildProjectResult": "Resultado",
     "buildSection": "Build",
     "versioningSection": "Control de versiones",
     "savePrgFailed": "Error al guardar PRG",
@@ -3137,6 +3233,24 @@ const translations = {
     "menuOpenProjectTip": "Abre un proyecto .proj de varios archivos. Cada archivo fuente se abre en su propia pestaña.",
     "menuSaveProjectTip": "Guarda el proyecto .proj actualmente abierto, incluidas todas sus pestañas de archivo.",
     "menuCloseProjectTip": "Cierra el proyecto .proj actual y todas sus pestañas de archivo.",
+    "menuNewFromTemplate": "Nuevo proyecto desde plantilla…",
+    "menuNewFromTemplateTip": "Crea un nuevo proyecto .proj a partir de una plantilla (juego vacío, gráficos bitmap, etc.) en su propia carpeta.",
+    "templateDialogTitle": "Nuevo proyecto desde plantilla",
+    "templateProjectName": "Nombre del proyecto",
+    "templateLocation": "Ubicación",
+    "templateBrowse": "Examinar…",
+    "templateOpenFolder": "Carpeta de mis plantillas",
+    "templateCreate": "Crear proyecto",
+    "templateNoTemplates": "No hay plantillas. Coloca un archivo .asm en la carpeta de plantillas.",
+    "templateCategoryUser": "Mis plantillas",
+    "templateCategoryOther": "Otros",
+    "templateKindAsm": "Ensamblador",
+    "templateKindUb": "UltimateBasic",
+    "templateNoTemplatesUb": "No hay plantillas de UltimateBasic. Coloca un archivo .ub en la carpeta de plantillas.",
+    "templateWillCreate": "Se creará: {path}",
+    "templateExists": "Ya existe un proyecto aquí: {path}",
+    "templateWriteError": "No se pudieron crear los archivos del proyecto",
+    "templateCreated": "Proyecto creado",
     "menuSaveWorkspaceTip": "Guarda el conjunto exacto de pestañas abiertas vinculadas a archivos en un archivo de espacio de trabajo .vaws, junto con la pestaña activa y el modo de edición de cada una.",
     "menuSaveWorkspaceAsTip": "Guarda el espacio de trabajo actual como un nuevo archivo .vaws. Siempre muestra un diálogo de archivo.",
     "menuOpenWorkspaceTip": "Cierra todas las pestañas abiertas y vuelve a abrir el conjunto de archivos guardado en un archivo de espacio de trabajo .vaws.",
@@ -4270,6 +4384,26 @@ const translations = {
     "workProgressSuccessDebug": "Build erfolgreich, Debugger gestartet.",
     "workProgressSuccessImport": "Import erfolgreich.",
     "savePrg": "PRG erstellen",
+
+    "buildProject": "Projekt erstellen",
+
+    "buildProjectTitle": "Projekt erstellen",
+
+    "buildProjectNothing": "Keine übersetzbare Datei im Projekt (oder in den offenen Tabs).",
+
+    "buildProjectSummary": "{ok} / {total} Dateien erstellt",
+
+    "buildProjectUntitled": "nicht gespeichert — übersprungen",
+
+    "buildProjectIncluded": "Include — übersprungen",
+
+    "workProgressBuildProject": "Projektdateien werden erstellt…",
+
+    "workProgressSuccessBuildProject": "Alle Dateien erstellt.",
+
+    "buildProjectFile": "Datei",
+
+    "buildProjectResult": "Ergebnis",
     "buildSection": "Build",
     "versioningSection": "Versionierung",
     "savePrgFailed": "PRG-Speicherung fehlgeschlagen",
@@ -4598,6 +4732,24 @@ const translations = {
     "menuOpenProjectTip": "Öffnet ein mehrteiliges .proj-Projekt. Jede Quelldatei öffnet sich als eigener Tab.",
     "menuSaveProjectTip": "Speichert das aktuell geöffnete .proj-Projekt samt aller Datei-Tabs.",
     "menuCloseProjectTip": "Schließt das aktuelle .proj-Projekt und alle seine Datei-Tabs.",
+    "menuNewFromTemplate": "Neues Projekt aus Vorlage…",
+    "menuNewFromTemplateTip": "Erstellt ein neues .proj-Projekt aus einer Vorlage (leeres Spiel, Bitmap-Grafik usw.) in einem eigenen Ordner.",
+    "templateDialogTitle": "Neues Projekt aus Vorlage",
+    "templateProjectName": "Projektname",
+    "templateLocation": "Speicherort",
+    "templateBrowse": "Durchsuchen…",
+    "templateOpenFolder": "Ordner für eigene Vorlagen",
+    "templateCreate": "Projekt erstellen",
+    "templateNoTemplates": "Keine Vorlagen gefunden. Lege eine .asm-Datei in den Vorlagenordner.",
+    "templateCategoryUser": "Eigene Vorlagen",
+    "templateCategoryOther": "Sonstiges",
+    "templateKindAsm": "Assembler",
+    "templateKindUb": "UltimateBasic",
+    "templateNoTemplatesUb": "Keine UltimateBasic-Vorlagen. Lege eine .ub-Datei in den Vorlagenordner.",
+    "templateWillCreate": "Wird erstellt: {path}",
+    "templateExists": "Hier existiert bereits ein Projekt: {path}",
+    "templateWriteError": "Die Projektdateien konnten nicht erstellt werden",
+    "templateCreated": "Projekt erstellt",
     "menuSaveWorkspaceTip": "Speichert die genaue Menge der geöffneten, dateigebundenen Tabs in einer .vaws-Arbeitsbereichsdatei, samt aktivem Tab und Editor-Modus jedes Tabs.",
     "menuSaveWorkspaceAsTip": "Speichert den aktuellen Arbeitsbereich als neue .vaws-Datei. Öffnet immer einen Dateidialog.",
     "menuOpenWorkspaceTip": "Schließt alle geöffneten Tabs und öffnet die in einer .vaws-Arbeitsbereichsdatei gespeicherten Dateien erneut.",
@@ -5731,6 +5883,26 @@ const translations = {
     "workProgressSuccessDebug": "RetroDebugger succesvol gestart.",
     "workProgressSuccessImport": "ASM-broncode succesvol geïmporteerd.",
     "savePrg": "PRG opslaan",
+
+    "buildProject": "Project bouwen",
+
+    "buildProjectTitle": "Project bouwen",
+
+    "buildProjectNothing": "Geen bouwbaar bestand in het project (of in de open tabbladen).",
+
+    "buildProjectSummary": "{ok} / {total} bestanden gebouwd",
+
+    "buildProjectUntitled": "niet opgeslagen — overgeslagen",
+
+    "buildProjectIncluded": "include — overgeslagen",
+
+    "workProgressBuildProject": "Projectbestanden bouwen…",
+
+    "workProgressSuccessBuildProject": "Alle bestanden gebouwd.",
+
+    "buildProjectFile": "Bestand",
+
+    "buildProjectResult": "Resultaat",
     "buildSection": "Bouwen",
     "versioningSection": "Versiebeheer",
     "savePrgFailed": "Fout bij opslaan van PRG: {error}",
@@ -6059,6 +6231,24 @@ const translations = {
     "menuOpenProjectTip": "Opent een meerbestands .proj-project. Elk bronbestand opent in een eigen tabblad.",
     "menuSaveProjectTip": "Slaat het momenteel geopende .proj-project op, inclusief alle bestandstabbladen.",
     "menuCloseProjectTip": "Sluit het huidige .proj-project en alle bijbehorende bestandstabbladen.",
+    "menuNewFromTemplate": "Nieuw project van sjabloon…",
+    "menuNewFromTemplateTip": "Maakt een nieuw .proj-project van een sjabloon (leeg spel, bitmapgraphics, enz.) in een eigen map.",
+    "templateDialogTitle": "Nieuw project van sjabloon",
+    "templateProjectName": "Projectnaam",
+    "templateLocation": "Locatie",
+    "templateBrowse": "Bladeren…",
+    "templateOpenFolder": "Map met mijn sjablonen",
+    "templateCreate": "Project maken",
+    "templateNoTemplates": "Geen sjablonen gevonden. Zet een .asm-bestand in de sjablonenmap.",
+    "templateCategoryUser": "Mijn sjablonen",
+    "templateCategoryOther": "Overig",
+    "templateKindAsm": "Assembler",
+    "templateKindUb": "UltimateBasic",
+    "templateNoTemplatesUb": "Geen UltimateBasic-sjablonen. Plaats een .ub-bestand in de sjablonenmap.",
+    "templateWillCreate": "Wordt gemaakt: {path}",
+    "templateExists": "Hier bestaat al een project: {path}",
+    "templateWriteError": "De projectbestanden konden niet worden gemaakt",
+    "templateCreated": "Project gemaakt",
     "menuSaveWorkspaceTip": "Slaat de exacte set geopende, aan bestanden gekoppelde tabbladen op in een .vaws-werkruimtebestand, samen met het actieve tabblad en de editormodus van elk tabblad.",
     "menuSaveWorkspaceAsTip": "Slaat de huidige werkruimte op als nieuw .vaws-bestand. Toont altijd een bestandsdialoog.",
     "menuOpenWorkspaceTip": "Sluit alle geopende tabbladen en heropent de set bestanden uit een .vaws-werkruimtebestand.",
@@ -7203,6 +7393,26 @@ const translations = {
     "workProgressSuccessDebug": "Kompilacja zakończona sukcesem, debuger uruchomiony.",
     "workProgressSuccessImport": "Import zakończony sukcesem.",
     "savePrg": "Zbuduj PRG",
+
+    "buildProject": "Zbuduj projekt",
+
+    "buildProjectTitle": "Zbuduj projekt",
+
+    "buildProjectNothing": "Brak plików do zbudowania w projekcie (ani w otwartych kartach).",
+
+    "buildProjectSummary": "Zbudowano {ok} / {total} plików",
+
+    "buildProjectUntitled": "niezapisany — pominięty",
+
+    "buildProjectIncluded": "include — pominięty",
+
+    "workProgressBuildProject": "Budowanie plików projektu…",
+
+    "workProgressSuccessBuildProject": "Wszystkie pliki zbudowane.",
+
+    "buildProjectFile": "Plik",
+
+    "buildProjectResult": "Wynik",
     "buildSection": "Budowanie",
     "versioningSection": "Wersjonowanie",
     "savePrgFailed": "Zapis PRG nie powiódł się",
@@ -7531,6 +7741,24 @@ const translations = {
     "menuOpenProjectTip": "Otwórz wieloplikowy projekt .proj. Każdy plik źródłowy w nim otwiera się jako osobna karta.",
     "menuSaveProjectTip": "Zapisz aktualnie otwarty projekt .proj, wraz ze wszystkimi jego kartami plików.",
     "menuCloseProjectTip": "Zamknij bieżący projekt .proj i wszystkie jego karty plików.",
+    "menuNewFromTemplate": "Nowy projekt z szablonu…",
+    "menuNewFromTemplateTip": "Tworzy nowy projekt .proj z szablonu (pusta gra, grafika bitmapowa itp.) we własnym folderze.",
+    "templateDialogTitle": "Nowy projekt z szablonu",
+    "templateProjectName": "Nazwa projektu",
+    "templateLocation": "Lokalizacja",
+    "templateBrowse": "Przeglądaj…",
+    "templateOpenFolder": "Folder moich szablonów",
+    "templateCreate": "Utwórz projekt",
+    "templateNoTemplates": "Nie znaleziono szablonów. Umieść plik .asm w folderze szablonów.",
+    "templateCategoryUser": "Moje szablony",
+    "templateCategoryOther": "Inne",
+    "templateKindAsm": "Asembler",
+    "templateKindUb": "UltimateBasic",
+    "templateNoTemplatesUb": "Brak szablonów UltimateBasic. Umieść plik .ub w folderze szablonów.",
+    "templateWillCreate": "Zostanie utworzony: {path}",
+    "templateExists": "Tutaj już istnieje projekt: {path}",
+    "templateWriteError": "Nie udało się utworzyć plików projektu",
+    "templateCreated": "Projekt utworzony",
     "menuSaveWorkspaceTip": "Zapisz dokładny zestaw otwartych kart powiązanych z plikami do pliku obszaru roboczego .vaws, wraz z aktywną kartą i trybem edytora każdej karty.",
     "menuSaveWorkspaceAsTip": "Zapisz bieżący obszar roboczy jako nowy plik .vaws. Zawsze pokazuje okno dialogowe pliku.",
     "menuOpenWorkspaceTip": "Zamknij wszystkie otwarte karty i otwórz ponownie zestaw plików zapisany w pliku obszaru roboczego .vaws.",
@@ -8675,6 +8903,26 @@ const translations = {
     "workProgressSuccessDebug": "Compilazione riuscita, debugger avviato.",
     "workProgressSuccessImport": "Importazione riuscita.",
     "savePrg": "Crea PRG",
+
+    "buildProject": "Crea progetto",
+
+    "buildProjectTitle": "Crea progetto",
+
+    "buildProjectNothing": "Nessun file compilabile nel progetto (o nelle schede aperte).",
+
+    "buildProjectSummary": "{ok} / {total} file compilati",
+
+    "buildProjectUntitled": "non salvato — saltato",
+
+    "buildProjectIncluded": "include — saltato",
+
+    "workProgressBuildProject": "Compilazione dei file del progetto…",
+
+    "workProgressSuccessBuildProject": "Tutti i file compilati.",
+
+    "buildProjectFile": "File",
+
+    "buildProjectResult": "Risultato",
     "buildSection": "Compilazione",
     "versioningSection": "Versionamento",
     "savePrgFailed": "Salvataggio PRG non riuscito",
@@ -9003,6 +9251,24 @@ const translations = {
     "menuOpenProjectTip": "Apri un progetto .proj multi-file. Ogni file sorgente al suo interno si apre come scheda separata.",
     "menuSaveProjectTip": "Salva il progetto .proj attualmente aperto, incluse tutte le sue schede file.",
     "menuCloseProjectTip": "Chiudi il progetto .proj corrente e tutte le sue schede file.",
+    "menuNewFromTemplate": "Nuovo progetto da modello…",
+    "menuNewFromTemplateTip": "Crea un nuovo progetto .proj da un modello (gioco vuoto, grafica bitmap, ecc.) in una cartella dedicata.",
+    "templateDialogTitle": "Nuovo progetto da modello",
+    "templateProjectName": "Nome del progetto",
+    "templateLocation": "Posizione",
+    "templateBrowse": "Sfoglia…",
+    "templateOpenFolder": "Cartella dei miei modelli",
+    "templateCreate": "Crea progetto",
+    "templateNoTemplates": "Nessun modello trovato. Metti un file .asm nella cartella dei modelli.",
+    "templateCategoryUser": "I miei modelli",
+    "templateCategoryOther": "Altro",
+    "templateKindAsm": "Assembler",
+    "templateKindUb": "UltimateBasic",
+    "templateNoTemplatesUb": "Nessun modello UltimateBasic. Metti un file .ub nella cartella dei modelli.",
+    "templateWillCreate": "Verrà creato: {path}",
+    "templateExists": "Qui esiste già un progetto: {path}",
+    "templateWriteError": "Impossibile creare i file del progetto",
+    "templateCreated": "Progetto creato",
     "menuSaveWorkspaceTip": "Salva l'esatto insieme di schede aperte collegate a file in un file di area di lavoro .vaws, inclusa la scheda attiva e la modalità editor di ciascuna scheda.",
     "menuSaveWorkspaceAsTip": "Salva l'area di lavoro corrente come nuovo file .vaws. Mostra sempre una finestra di dialogo file.",
     "menuOpenWorkspaceTip": "Chiudi tutte le schede aperte e riapri l'insieme di file salvato in un file di area di lavoro .vaws.",

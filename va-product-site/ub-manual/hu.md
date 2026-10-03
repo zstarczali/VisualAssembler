@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.9 — Nyelvi kézikönyv
+# Ultimate Basic v1.6.0 — Nyelvi kézikönyv
 
 Teljes nyelvi és parancssori felület (CLI) referencia az Ultimate Basichez, egy
 BASIC-szerű nyelvhez, amely közvetlenül 6502-es gépi kóddá fordul Commodore
@@ -143,16 +143,23 @@ var x = 5 : var y = 6  # colon separates statements on one line
 ```basic
 x = x + 1
 y = a * b - c / 2
-z = x and 15             # bitwise AND
-w = a or b               # bitwise OR
-v = a xor b              # bitwise XOR
-m = x shl 3              # shift left
-n = x shr 2              # shift right
-r = x mod 40             # 8-bit modulo (remainder); SEC/SBC/BCS loop
-b = bnot x               # bitwise NOT: x XOR 255 (complement all 8 bits)
+z = x és 15 # bitenkénti ÉS
+w = a vagy b # bitenkénti VAGY
+v = a xor b # bitenkénti XOR
+m = x shl 3 # eltolás balra
+n = x shr 2 # eltolás jobbra
+r = x mod 40 # 8 bites modulo (maradék); x mod 0 = x, x / 0 = 255
+b = bnot x # bitenkénti NEM: x XOR 255 (mind a 8 bit komplementuma)
 ```
 
 Összehasonlítások: `==` `!=` `<` `>` `<=` `>=` (visszaadás 1/0)
+
+Számtani kód (1.6.0): Az `*` egy konstans hatására shifts / shift-add (`x * 8` →
+3× `ASL`) lesz, egyébként egy legfeljebb 8 körös shift-add ciklus. Az `/` és a
+`mod` kettő hatványán `LSR` / `ÉS #(n-1)`, egyébként egy 8 körös shift-subtract
+ciklus, amelynek futási ideje már nem függ a hányadostól. A nullával való osztás
+definíciója: `x / 0 = 255`, `x mod 0 = x` (1.6.0 előtt lefagyott). Az `x = x +
+1` / `x = x - 1` (és ±2) függvények `INC` / `DEC` formátumúra fordíthatók.
 
 ### Növelés / Csökkentés
 
@@ -288,18 +295,18 @@ until x == 100       # exits when condition is true
 | `for i = 1 to 10` (alapértelmezett `step +1`, `from ≤ to`) | számol felfelé, standard                                                                                                  |
 | `for i = 0 to 20 step 2` (pozitív lépés, `from ≤ to`)      | 2-vel felszámol                                                                                                           |
 | `for i = 10 to 1 step -1` (negatív állandó lépésköz)       | visszaszámol; a test i = 10, 9, ..., 1-ig fut                                                                             |
-| `for i = 20 to 0 step -2` (nulláig)                        | i = 0-nál ér véget az ADC alulcsordulás (C=0) észlelésével a csökkentés után; nincs végtelen ciklus                       |
+| `for i = 20 to 0 step -2` (nulláig)                        | i = 0-nál ér véget a csökkentés utáni 0 alatti körbefordulás észlelésével; nincs végtelen ciklus                          |
 | `for i = 10 to 1` (nincs lépés, `from > to`)               | **fordítási idejű hiba**: `for-loop: from (10) > to (1) with default step +1 loops 0 times — use 'step -1' to count down` |
 
-A fordító a kilépési ág kódolását fordítási időben választja ki a `step`
-konstans előjele alapján:
-
-- Pozitív lépés (vagy alapértelmezett `+1`) → kilépés, amikor `var > to` (előjel
-  nélküli `CMP` + `BCC`/`BEQ` átmenet `JMP exit`-ra).
-- Negatív konstans lépés → kilépés, amikor `var < to` (előjel nélküli `CMP` +
-  `BCS` a törzshöz), **plusz** egy utólagos inkrementáció `BCS loop_top ; JMP
-  exit`, amely elkapja a csomagolást, amikor a `var` 0 alá csökken. Ez a plusz
-  utasításpár az, ami miatt a `for i = N to 0 step -k` véges marad.
+Kód alakja (1.6.0): a ciklus *rotated* — `JMP test` (elhagyva, ha az állandó
+korlátok garantálják az első menetet), a törzs, `var += step`, majd az alsó
+teszt visszaágazik a törzsre, így nincs extra `JMP` iterációnként. A lépés
+mindkét irányban 8 bites körbefuttatást észlel (`INC`/`BEQ` vagy `ADC`/`BCS`
+felfelé számol, `BEQ`/`DEC` vagy `SBC`/`BCC` lefelé számol), így az `i = 0 és
+255 között ` 256-szor lefut és megáll, a `i = N és 0 között pedig a -k lépés `
+mindig véges. Azonnali értékként konstans határértékeket és lépéseket használunk
+(nincs nulla oldal); Egy nem konstans határérték vagy lépés egyszer kerül
+kiértékelésre, és állandó nulla oldalon marad.
 
 A nem konstans `step` értékeket (például egy változóból vagy kifejezésből)
 fordítási időben pozitívként kezeli a rendszer; ha futásidejű lépésértékkel
@@ -1283,9 +1290,9 @@ Szükséges mind az `addr`, mind a `len` metódus.
 #### Láncolás egy másik programhoz — `lánc` (újdonság az 1.5.9-es verzióban)
 
 ```basic
-chain "GAME" # betöltjük a GAME-et arról a meghajtóról, amelyről elindítottuk, és FUTJUK
-chain "GAME", 9 # a 9-es meghajtóról (bármilyen kifejezés)
-print "BETÖLTÉSI HIBA" # csak akkor érhető el, ha a fájlt nem sikerült betölteni
+chain "GAME"             # load GAME from the drive we were started from and RUN it
+chain "GAME", 9          # from drive 9 (any expression)
+print "LOAD ERROR"       # only reached if the file could not be loaded
 ```
 
 Az `chain` parancs betölt egy másik programot a saját betöltési címére —
@@ -1972,6 +1979,25 @@ demo.ub → demo.prg  (386 bytes)
 
 A `-v` beállítással a kimenet ezen felül mutatja a belső ZP-foglalásokat és egy
 teljes hexadecimális kiírást.
+
+### Generált kód (1.6.0-ban optimalizálva)
+
+A kódgenerátor szigorúbb 6502-es kódot bocsát ki a gyakori esetekben; a
+programoknak nincs szükségük változtatásokra:
+
+- Az `if` / `while` / `until` / `select` feltételek egy `CMP` plusz egy elágazás
+  (nincs 0/1 érték felépítve és újra tesztelve). Az `x &gt; n` a következőképpen
+  fordul elő: `x &gt;= n+1`; az összehasonlítások `és` / `vagy` zárlatosak, ha a
+  jobb oldalnak nincsenek mellékhatásai; a `while` tesztek a ciklus alján
+  találhatók.
+- A konstansok és a bájtváltozók közvetlen operandusok (`ADC #n`, `CMP zp`); a
+  `poke` egy konstansra vagy `szó` címre közvetlenül tárolódnak.
+- A változó indexű tömbök az `base,Y` címzést használják a nulla oldalas mutató
+  helyett.
+- Amikor egy utasítás az előző utasításban tárolt változó betöltésével kezdődik,
+  a redundáns `LDA` kimarad.
+
+Használd az `--asm` kapcsolót a saját programodhoz generált kód megtekintéséhez.
 
 ## Ismert korlátozások
 

@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.9 — Sprachhandbuch
+# Ultimate Basic v1.6.0 — Sprachhandbuch
 
 Vollständige Sprach- und CLI-Referenz für Ultimate Basic, eine BASIC-ähnliche
 Sprache, die direkt in 6502-Maschinencode für den Commodore 64 kompiliert wird.
@@ -145,16 +145,25 @@ var x = 5 : var y = 6  # colon separates statements on one line
 ```basic
 x = x + 1
 y = a * b - c / 2
-z = x and 15             # bitwise AND
-w = a or b               # bitwise OR
-v = a xor b              # bitwise XOR
-m = x shl 3              # shift left
-n = x shr 2              # shift right
-r = x mod 40             # 8-bit modulo (remainder); SEC/SBC/BCS loop
-b = bnot x               # bitwise NOT: x XOR 255 (complement all 8 bits)
+z = x und 15 # bitweises UND
+w = a oder b # bitweises ODER
+v = a xor b # bitweises XOR
+m = x shl 3 # Linksverschiebung
+n = x shr 2 # Rechtsverschiebung
+r = x mod 40 # 8-Bit-Modulo (Rest); x mod 0 = x, x / 0 = 255
+b = bnot x # bitweises NICHT: x XOR 255 (Komplement aller 8 Bits)
 ```
 
 Vergleiche: `==` `!=` `<` `>` `<=` `>=` (Rückgabewert 1/0)
+
+Arithmetischer Code (1.6.0): `*` multipliziert mit einer Konstanten wird zu
+Schiebeoperationen/Schiebe-Addition kompiliert (`x * 8` → 3× `ASL`), andernfalls
+zu einer Schiebe-Additionsschleife mit maximal 8 Durchläufen. `/` und `mod`
+multipliziert mit einer Zweierpotenz ergeben `LSR` / `AND #(n-1)`, andernfalls
+zu einer Schiebe-Subtraktionsschleife mit 8 Durchläufen, deren Laufzeit nicht
+mehr vom Quotienten abhängt. Die Division durch Null ist definiert: `x / 0 =
+255`, `x mod 0 = x` (vor Version 1.6.0 führte dies zu einem Programmabsturz). `x
+= x + 1` / `x = x - 1` (und ±2) kompilieren zu `INC` / `DEC`.
 
 ### Inkrementieren / Verringern
 
@@ -286,23 +295,24 @@ until x == 100       # exits when condition is true
 
 **Richtungsregeln für `for`/`loop`:**
 
-| Case                                                      | Verhalten                                                                                                                      |
-| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `for i = 1 to 10` (Standardwert `step +1`, `from ≤ to`)   | zählt hoch, Standard                                                                                                           |
-| `for i = 0 to 20 step 2` (positiver Schritt, `from ≤ to`) | Zählt um 2 erhöht                                                                                                              |
-| `for i = 10 to 1 step -1` (negativer konstanter Schritt)  | zählt herunter; Körper läuft für i = 10, 9, ..., 1                                                                             |
-| `for i = 20 to 0 step -2` (bis auf Null herunter)         | Die Schleife wird bei i = 0 beendet, indem nach der Dekrementierung ein ADC-Unterlauf (C=0) erkannt wird; keine Endlosschleife |
-| `for i = 10 to 1` (kein Schritt, `from > to`)             | **Kompilierfehler**: `for-loop: from (10) > to (1) with default step +1 loops 0 times — use 'step -1' to count down`           |
+| Case                                                      | Verhalten                                                                                                            |
+| --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `for i = 1 to 10` (Standardwert `step +1`, `from ≤ to`)   | zählt hoch, Standard                                                                                                 |
+| `for i = 0 to 20 step 2` (positiver Schritt, `from ≤ to`) | Zählt um 2 erhöht                                                                                                    |
+| `for i = 10 to 1 step -1` (negativer konstanter Schritt)  | zählt herunter; Körper läuft für i = 10, 9, ..., 1                                                                   |
+| `for i = 20 to 0 step -2` (bis auf Null herunter)         | Die Schleife endet bei i = 0, indem der Überlauf unter 0 nach der Dekrementierung erkannt wird; keine Endlosschleife |
+| `for i = 10 to 1` (kein Schritt, `from > to`)             | **Kompilierfehler**: `for-loop: from (10) > to (1) with default step +1 loops 0 times — use 'step -1' to count down` |
 
-Der Compiler wählt die Exit-Branch-Codierung zur Kompilierzeit anhand des
-Vorzeichens einer Konstanten `step`:
-
-- Positiver Schritt (oder Standardwert `+1`) → Abbruch bei `var > to` (unsigned
-  `CMP` + `BCC`/`BEQ` Fall-Through zu `JMP exit`).
-- Negativer konstanter Schritt → Abbruch bei `var < to` (unsigned `CMP` + `BCS`
-  zum Rumpf), **plus** ein Postinkrement `BCS loop_top ; JMP exit`, das den
-  Überlauf abfängt, wenn `var` unter 0 fällt. Dieses zusätzliche Befehlspaar
-  sorgt dafür, dass `for i = N to 0 step -k` endlich bleibt.
+Codestruktur (1.6.0): Die Schleife ist *rotated* — `JMP test` (wird weggelassen,
+wenn konstante Grenzen einen ersten Durchlauf garantieren), der Rumpf, `var +=
+step`, dann der Test am Ende, der zurück zum Rumpf verzweigt, sodass kein
+zusätzliches `JMP` pro Iteration erfolgt. Der Schritt erkennt einen
+8-Bit-Überlauf in beide Richtungen (`INC`/`BEQ` oder `ADC`/`BCS` beim
+Aufwärtszählen, `BEQ`/`DEC` oder `SBC`/`BCC` beim Abwärtszählen), sodass `for i
+= 0 to 255` 256 Mal ausgeführt wird und stoppt, und `for i = N to 0 step -k`
+immer endlich ist. Konstante Grenzwerte und Schritte werden als unmittelbare
+Werte verwendet (keine Nullseite); Ein nicht konstanter Grenzwert oder Schritt
+wird einmal ausgewertet und auf der permanenten Nullseite gespeichert.
 
 Nicht-konstante `step` Werte (z. B. aus einer Variablen oder einem Ausdruck)
 werden zur Kompilierzeit als positiv behandelt; wenn Sie einen Countdown mit
@@ -1296,9 +1306,9 @@ Benötigt sowohl `addr` als auch `len`.
 #### Verkettung mit einem anderen Programm — `chain` (neu in 1.5.9)
 
 ```basic
-chain "GAME" # Lädt das Spiel vom Startlaufwerk und führt es aus
-chain "GAME", 9 # von Laufwerk 9 (beliebiger Ausdruck)
-print "LOAD ERROR" # Wird nur erreicht, wenn die Datei nicht geladen werden konnte
+chain "GAME"             # load GAME from the drive we were started from and RUN it
+chain "GAME", 9          # from drive 9 (any expression)
+print "LOAD ERROR"       # only reached if the file could not be loaded
 ```
 
 `chain` lädt ein anderes Programm an seine eigene Ladeadresse – normalerweise
@@ -1993,6 +2003,26 @@ demo.ub → demo.prg  (386 bytes)
 
 Mit `-v` werden zusätzlich die internen ZP-Zuweisungen und ein vollständiger
 Hex-Dump angezeigt.
+
+### Generierter Code (optimiert in 1.6.0)
+
+Der Codegenerator erzeugt für die häufigsten Fälle einen engeren 6502-Code; die
+Programme müssen nicht geändert werden:
+
+- Die Bedingungen in `if` / `while` / `until` / `select` sind ein `CMP` plus
+  eine Verzweigung (es wird kein 0/1-Wert gebildet und erneut geprüft). `x &gt;
+  n` wird als `x &gt;= n+1` kompiliert; `and` / `or` von Vergleichen werden
+  abgebrochen, wenn die rechte Seite keine Seiteneffekte hat; `while` prüft am
+  Ende der Schleife.
+- Konstanten und Byte-Variablen sind direkte Operanden (`ADC #n`, `CMP zp`);
+  `poke` speichert direkt eine konstante oder `word` Adresse.
+- Arrays mit variablem Index verwenden die Adressierung `base,Y` anstelle eines
+  Nullseitenzeigers.
+- Wenn eine Anweisung mit dem Laden der Variable beginnt, die die vorherige
+  Anweisung gerade gespeichert hat, wird das redundante `LDA` übersprungen.
+
+Verwenden Sie `--asm`, um den generierten Code für Ihr eigenes Programm
+anzuzeigen.
 
 ## Bekannte Einschränkungen
 

@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.9 — Språkmanual
+# Ultimate Basic v1.6.0 — Språkmanual
 
 Komplett språk- och CLI-referens för Ultimate Basic, ett BASIC-liknande språk
 som kompilerar direkt till 6502-maskinkod för Commodore 64. Utdata: `.prg` filer
@@ -141,16 +141,23 @@ var x = 5 : var y = 6  # colon separates statements on one line
 ```basic
 x = x + 1
 y = a * b - c / 2
-z = x and 15             # bitwise AND
-w = a or b               # bitwise OR
-v = a xor b              # bitwise XOR
-m = x shl 3              # shift left
-n = x shr 2              # shift right
-r = x mod 40             # 8-bit modulo (remainder); SEC/SBC/BCS loop
-b = bnot x               # bitwise NOT: x XOR 255 (complement all 8 bits)
+z = x och 15 # bitvis OCH
+w = a eller b # bitvis ELLER
+v = a xor b # bitvis XOR
+m = x shl 3 # skift åt vänster
+n = x shr 2 # skift åt höger
+r = x mod 40 # 8-bitars modulo (resten); x mod 0 = x, x / 0 = 255
+b = bnot x # bitvis INTE: x XOR 255 (komplementera alla 8 bitar)
 ```
 
 Jämförelser: `==` `!=` `<` `>` `<=` `>=` (retur 1/0)
+
+Aritmetisk kod (1.6.0): `*` med en konstant kompilerar till shifts / shift-add
+(`x * 8` → 3× `ASL`), annars till en shift-add-loop på högst 8 rundor. `/` och
+`mod` med tvåpotens är `LSR` / `OCH #(n-1)`, annars en 8-rundors
+shift-subtract-loop vars körtid inte längre beror på kvoten. Division med noll
+definieras: `x / 0 = 255`, `x mod 0 = x` (före 1.6.0 hängde den sig). `x = x +
+1` / `x = x - 1` (och ±2) kompilerar till `INC` / `DEC`.
 
 ### Ökning / Minskning
 
@@ -286,18 +293,18 @@ until x == 100       # exits when condition is true
 | `for i = 1 to 10` (standard `step +1`, `from ≤ to`)   | räknar uppåt, standard                                                                                               |
 | `for i = 0 to 20 step 2` (positivt steg, `from ≤ to`) | räknar upp med 2                                                                                                     |
 | `for i = 10 to 1 step -1` (negativt konstant steg)    | räknar ner; kroppen körs för i = 10, 9, ..., 1                                                                       |
-| `for i = 20 to 0 step -2` (ner till noll)             | avslutas vid i = 0 genom att detektera ADC-underflödet (C=0) efter minskningen; ingen oändlig loop                   |
+| `for i = 20 to 0 step -2` (ner till noll)             | avslutas vid i = 0 genom att detektera omslaget under 0 efter minskningen; ingen oändlig loop                        |
 | `for i = 10 to 1` (inget steg, `from > to`)           | **kompileringsfel**: `for-loop: from (10) > to (1) with default step +1 loops 0 times — use 'step -1' to count down` |
 
-Kompilatorn väljer exit-branch-kodningen vid kompileringstid baserat på tecknet
-för en konstant `step`:
-
-- Positivt steg (eller standard `+1`) → avsluta när `var > to` (osignerad `CMP`
-  + `BCC`/`BEQ` faller igenom till `JMP exit`).
-- Negativt konstant steg → avsluta när `var < to` (osignerad `CMP` + `BCS` till
-  brödtext), **plus** en efterökning `BCS loop_top ; JMP exit` som fångar
-  detaljerna när `var` flödar under 0. Det extra instruktionerparet är det som
-  håller `for i = N to 0 step -k` ändlig.
+Kodform (1.6.0): loopen *roteras* — `JMP test` (utelämnas när konstanta gränser
+garanterar ett första pass), kroppen, `var += step`, sedan förgrenar sig testet
+längst ner tillbaka till kroppen, så det finns ingen extra `JMP` per iteration.
+Steget detekterar 8-bitars omslutning i båda riktningarna (`INC`/`BEQ` eller
+`ADC`/`BCS` räknar uppåt, `BEQ`/`DEC` eller `SBC`/`BCC` räknar nedåt), så `för i
+= 0 till 255` körs 256 gånger och stoppar, och `för i = N till 0 steg -k` är
+alltid ändligt. Konstanta gränser och steg används som omedelbara värden (ingen
+nollasida); En icke-konstant gräns eller ett steg utvärderas en gång och sparas
+på en permanent nollsida.
 
 Icke-konstanta `step`-värden (t.ex. från en variabel eller ett uttryck)
 behandlas som positiva vid kompileringstillfället; om du behöver nedräkning med
@@ -1249,9 +1256,9 @@ Kräver både `addr` och `len`.
 #### Kedja till ett annat program — `kedja` (nytt i 1.5.9)
 
 ```basic
-kedja "GAME" # ladda GAME från den enhet vi startades från och KÖR det
-kedja "GAME", 9 # från enhet 9 (valfritt uttryck)
-print "LOAD ERROR" # nåddes endast om filen inte kunde laddas
+chain "GAME"             # load GAME from the drive we were started from and RUN it
+chain "GAME", 9          # from drive 9 (any expression)
+print "LOAD ERROR"       # only reached if the file could not be loaded
 ```
 
 `chain` laddar ett annat program till sin egen laddningsadress — normalt
@@ -1922,6 +1929,24 @@ demo.ub → demo.prg  (386 bytes)
 
 Med `-v` visar utdata dessutom de interna ZP-allokeringarna och en fullständig
 hex-dump.
+
+### Genererad kod (optimerad i 1.6.0)
+
+Kodgeneratorn avger en strängare 6502 för vanliga fall; programmen behöver inga
+ändringar:
+
+- Villkoren i `if` / `while` / `until` / `select` är en `CMP` plus en gren
+  (inget 0/1-värde byggs och testas om). `x &gt; n` kompileras som `x &gt;=
+  n+1`; `och` / `eller` av jämförelser kortsluter när höger sida inte har några
+  biverkningar; `while` testar längst ner i loopen.
+- Konstanter och bytevariabler är direkta operander (`ADC #n`, `CMP zp`); `poke`
+  till en konstant eller `ord`adress lagras direkt.
+- Arrayer med ett variabelt index använder `base,Y`-adressering istället för en
+  nollsidig pekare.
+- När en sats börjar med att ladda variabeln som den föregående satsen just
+  lagrade, hoppas den redundanta `LDA` över.
+
+Använd `--asm` för att se den genererade koden för ditt eget program.
 
 ## Kända begränsningar
 

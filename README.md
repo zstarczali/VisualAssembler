@@ -2,9 +2,18 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.4.8**
+**Current version: v2.4.9**
 
-## What's New in v2.4.8
+## What's New in v2.4.9
+
+- **Project templates** — **Menu → File → New project from template…**, or the new toolbar button between **Menu** and **Tutorials**, creates a ready-to-build `.proj` project in its own folder. The dialog has an **Assembler** section (empty program, game skeleton, hires and multicolor bitmap) and an **UltimateBasic** section (empty program, game skeleton, hires bitmap, raster IRQ) with a syntax-highlighted preview. Drop your own `.asm` / `.ub` files into the user templates folder to add templates; a `; @name …` / `# @name …` comment header names and sorts them.
+- **Build project** — **Menu → Build → Build project** compiles every buildable file of the open project (or of the open tabs) to a `.prg` next to its source, writes debugger symbol files where available, skips include-only modules and shows a per-file report.
+- **Ctrl + mouse wheel zoom** in the Expert and Ultimate Basic editors (`Cmd` + wheel on macOS, touchpad pinch too).
+- **Workspaces remember projects** — the Expert and Ultimate Basic project trees, the startup file and unsaved project changes are saved into the `.vaws` workspace and restored with it.
+- **Ultimate Basic** — the bundled compiler generates faster, smaller 6502 code, and the memory map tells real code and data apart from padding and long `org` gaps.
+- **File dialogs start in the active working folder** (Block/Expert or Ultimate Basic, depending on the mode).
+
+## Earlier: v2.4.8
 
 - **New KOALA macro** — `.koala "picture.koa"` (optionally `, $2000`) loads a Koala Painter picture and shows it. The picture data is placed at `$6000` (Koala native, VIC bank 1) or `$2000` (VIC bank 0) with the file's load address stripped, and the block compiles to an 86-byte display routine: it copies screen and color RAM, sets the background colour, selects the VIC bank and switches on multicolor bitmap mode. Available in the block palette next to INCBIN, with its own description, syntax hint and validation (address and file size).
 - **Koala import/export in the Hires editor** — **Files → Import Koala (.koa)…** / **Export Koala (.koa)…**. Export writes the standard 10003-byte file (`$6000` load address, bitmap, screen RAM, color RAM, background); a hi-res picture is reduced to multicolor on export. Import accepts files with or without the load address; `.koa` / `.kla` are also recognised by **Import image / .bin**.

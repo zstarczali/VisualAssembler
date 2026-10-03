@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.4.8">
+  <link rel="stylesheet" href="style.css?v=2.4.9">
 </head>
 
 <body>
@@ -59,6 +59,7 @@
                 <button id="save-project-as" class="secondary menu-item-tooltip" type="button">Save Program As</button>
                 <button id="load-project" class="secondary menu-item-tooltip" type="button">Load program</button>
                 <button id="set-working-folder" class="secondary menu-item-tooltip" type="button">Set working folder</button>
+                <button id="menu-new-from-template" class="secondary menu-item-tooltip" type="button">New project from template…</button>
                 <button id="menu-open-project" class="secondary menu-item-tooltip" type="button">Open project</button>
                 <button id="menu-save-project" class="secondary menu-item-tooltip" type="button">Save project</button>
                 <button id="menu-close-project" class="secondary menu-item-tooltip" type="button">Close project</button>
@@ -116,6 +117,7 @@
                 <button id="save-prg" class="secondary" type="button">Build PRG</button>
                 <button id="save-d64" class="secondary" type="button">Build D64</button>
                 <button id="save-crt" class="secondary" type="button">Build CRT</button>
+                <button id="build-project" class="secondary" type="button">Build project</button>
                 <button id="build-info-btn" class="secondary" type="button">Build Info</button>
                 <h3 class="control-menu-label control-menu-label--section" id="versioning-section-label">Versioning</h3>
                 <button id="save-snapshot" class="secondary" type="button">Save snapshot</button>
@@ -186,6 +188,10 @@
               </section>
             </div>
           </details>
+          <div class="main-tb-sep" aria-hidden="true"></div>
+          <button id="new-project-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="New project from template">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" width="15" height="15" aria-hidden="true"><path d="M1.5 4.5v8.5a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H8L6.5 3h-4a1 1 0 0 0-1 1.5Z" stroke-linejoin="round"/><path d="M8 7.5v4M6 9.5h4" stroke-linecap="round"/></svg>
+          </button>
           <div class="main-tb-sep" aria-hidden="true"></div>
           <button id="tutorial-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="Tutorials">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" width="16" height="16" aria-hidden="true"><path d="M1.5 5.5 8 2.5l6.5 3L8 8.5l-6.5-3Z" stroke-linejoin="round"/><path d="M4.5 7.1v2.1c0 .9 1.7 1.8 3.5 1.8s3.5-.9 3.5-1.8V7.1" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.6 6.2v3.2" stroke-linecap="round"/><path d="M12.6 9.9c.5.2.9.7.9 1.3 0 .2 0 .4-.1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.2 13.3c.5-.8 1.6-1.3 2.8-1.3s2.3.5 2.8 1.3" stroke-linecap="round"/></svg>
@@ -856,6 +862,47 @@ PRINTABLE CHARACTERS
     </div>
   </dialog>
 
+  <dialog id="template-dialog" class="template-dialog" aria-labelledby="template-dialog-title">
+    <div class="template-card">
+      <div class="template-hdr">
+        <h2 class="template-title" id="template-dialog-title">New project from template</h2>
+        <button id="template-dialog-close" class="project-snapshot-xbtn" type="button" aria-label="Close">×</button>
+      </div>
+      <div id="template-kinds" class="template-kinds" role="tablist">
+        <button id="template-kind-asm" class="template-kind" data-template-kind="asm" role="tab" type="button">Assembler</button>
+        <button id="template-kind-ub" class="template-kind" data-template-kind="ub" role="tab" type="button">UltimateBasic</button>
+      </div>
+      <div class="template-body">
+        <div id="template-list" class="template-list"></div>
+        <div class="template-detail">
+          <h3 id="template-detail-name" class="template-detail-name"></h3>
+          <p id="template-detail-desc" class="template-detail-desc"></p>
+          <pre id="template-preview" class="template-preview" tabindex="0"></pre>
+        </div>
+      </div>
+      <div class="template-form">
+        <label class="template-field">
+          <span id="template-name-label">Project name</span>
+          <input id="template-project-name" type="text" maxlength="64" spellcheck="false" autocomplete="off">
+        </label>
+        <label class="template-field template-field--grow">
+          <span id="template-location-label">Location</span>
+          <span class="template-location-row">
+            <input id="template-location" type="text" spellcheck="false" autocomplete="off">
+            <button id="template-browse" class="secondary" type="button">Browse…</button>
+          </span>
+        </label>
+      </div>
+      <p id="template-target" class="template-target"></p>
+      <div class="template-footer">
+        <button id="template-open-folder" class="template-link-btn" type="button">Open templates folder</button>
+        <span class="template-footer-spacer"></span>
+        <button id="template-cancel" class="secondary" type="button">Cancel</button>
+        <button id="template-create" class="primary" type="button">Create project</button>
+      </div>
+    </div>
+  </dialog>
+
   <dialog id="app-confirm-dialog" class="app-confirm-dialog">
     <div class="app-confirm-card">
       <p id="app-confirm-msg" class="app-confirm-msg"></p>
@@ -1115,7 +1162,7 @@ PRINTABLE CHARACTERS
           <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
         </div>
         <h2 class="about-title">C64 Visual Assembler</h2>
-        <p class="about-version" id="about-version">v2.4.8</p>
+        <p class="about-version" id="about-version">v2.4.9</p>
         <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
       </div>
       <div class="about-columns">
@@ -1141,25 +1188,22 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.4.8</p>
+      <p class="whats-new-version">v2.4.9</p>
       <ul class="whats-new-list">
         <li>
-          <strong>New: KOALA macro:</strong> <code>.koala "picture.koa"</code> (optionally <code>, $2000</code>) loads a Koala Painter picture and shows it. The data goes to <code>$6000</code> (VIC bank 1) or <code>$2000</code> (VIC bank 0) with the load address stripped, and the block compiles to an 86-byte display routine that copies screen and color RAM, sets the background colour, selects the VIC bank and switches on multicolor bitmap mode. Find it in the block palette next to INCBIN.
+          <strong>New: project templates:</strong> <strong>Menu &rarr; File &rarr; New project from template&hellip;</strong> or the new toolbar button between Menu and Tutorials creates a ready-to-build project in its own folder. The dialog has an <strong>Assembler</strong> section (empty program, game skeleton, hires and multicolor bitmap) and an <strong>UltimateBasic</strong> section (empty program, game skeleton, hires bitmap, raster IRQ), with a highlighted preview. Your own <code>.asm</code> / <code>.ub</code> templates go into the folder opened by <em>Open templates folder</em>.
         </li>
         <li>
-          <strong>New: Koala import/export in the Hires editor:</strong> <strong>Files &rarr; Import Koala (.koa)&hellip;</strong> and <strong>Export Koala (.koa)&hellip;</strong> read and write the standard 10003-byte Koala file; a hi-res picture is reduced to multicolor on export. <code>.koa</code> / <code>.kla</code> files are also recognised by <strong>Import image / .bin</strong>.
+          <strong>New: Build project:</strong> <strong>Menu &rarr; Build &rarr; Build project</strong> compiles every buildable file of the open project (or of the open tabs) to a <code>.prg</code> next to its source, with debugger symbol files where available; include-only modules are skipped and a report lists the result of each file.
         </li>
         <li>
-          <strong>New: Ultimate Basic 1.5.9:</strong> <code>chain "FILE" [, device]</code> loads another program over the running one and RUNs it (boot / title programs); <code>load "FILE"</code> now loads to the file's own address and <code>load "FILE", addr</code> to <code>addr</code>; D64 directory and sector allocation fixes. <code>chain</code> is highlighted in the UB editor and listed in the command reference.
+          <strong>New: Ctrl + mouse wheel zoom</strong> in the Expert and Ultimate Basic editors (touchpad pinch works too).
         </li>
         <li>
-          <strong>Improved: update status in Expert mode:</strong> the Expert status bar shows the same <em>Up to date</em> / clickable <em>Update available</em> indicator as Ultimate Basic mode.
+          <strong>Improved: workspaces remember projects:</strong> the Expert and Ultimate Basic project trees, the startup file and unsaved project changes are restored with the workspace.
         </li>
         <li>
-          <strong>Improved: save dialogs:</strong> they offer the file's own type (e.g. <em>KOA</em>) instead of <em>Binary (*.bin)</em>.
-        </li>
-        <li>
-          <strong>Fixed: update check with the new download page:</strong> the installer list is now published at c64va.tech/downloads/VA/, so <em>Check for Update</em> works again; the Linux update helper no longer inherits the AppImage library paths.
+          <strong>Improved: Ultimate Basic:</strong> faster, smaller generated 6502 code; the memory map tells real code and data apart from padding and long ORG gaps; file dialogs start in the active working folder.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -2448,13 +2492,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.4.8"></script>
-  <script src="i18n.js?v=2.4.8"></script>
-  <script src="tutorial-data.js?v=2.4.8"></script>
+  <script src="tauri-bridge.js?v=2.4.9"></script>
+  <script src="i18n.js?v=2.4.9"></script>
+  <script src="tutorial-data.js?v=2.4.9"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.4.8"></script>
+  <script src="app.js?v=2.4.9"></script>
 
 </body>
 

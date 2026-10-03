@@ -1,0 +1,114 @@
+# @name Empty game
+# @name.hu Üres játék
+# @category Game
+# @category.hu Játék
+# @desc Game skeleton in UltimateBasic: title / play / game over states, frame-synced main loop, joystick (port 2) and one sprite as the player.
+# @desc.hu Játék váz UltimateBasicben: cím / játék / vége állapotok, képkockához szinkronizált főciklus, joystick (2-es port) és egy sprite játékosnak.
+# @order 20
+
+# {{PROJECT}}
+# Joystick in port 2 (VICE: numpad or joy2). Fire starts the game,
+# fire again ends it, fire on the game over screen returns to the title.
+
+sprdef 0
+  0,126,0
+  0,255,0
+  1,255,128
+  3,255,192
+  7,255,224
+  15,255,240
+  31,255,248
+  31,255,248
+  31,255,248
+  31,255,248
+  31,255,248
+  15,255,240
+  7,255,224
+  3,255,192
+  1,255,128
+  0,255,0
+  0,126,0
+  0,0,0
+  0,0,0
+  0,0,0
+  0,0,0
+end
+
+var state = 0      # 0 = title, 1 = play, 2 = game over
+var fire = 0       # 1 only on the frame the fire button goes down
+var fire_prev = 0
+var j = 0
+var px = 172
+var py = 140
+
+sub enter_title()
+  state = 0
+  sprite off 0
+  cls
+  print at 16, 9, "NEW GAME"
+  print at 15, 12, "PRESS FIRE"
+end
+
+sub enter_play()
+  state = 1
+  cls
+  px = 172
+  py = 140
+  sprite 0, px, py
+  sprite color 0, 7
+  sprite on 0
+end
+
+sub enter_over()
+  state = 2
+  sprite off 0
+  cls
+  print at 15, 10, "GAME OVER"
+  print at 15, 14, "PRESS FIRE"
+end
+
+sub read_fire()
+  var down = j and 16
+  fire = 0
+  if down then
+    if fire_prev == 0 then fire = 1 end
+  end
+  fire_prev = down
+end
+
+sub update_play()
+  if j and 1 then
+    if py > 50 then py = py - 2 end
+  end
+  if j and 2 then
+    if py < 229 then py = py + 2 end
+  end
+  if j and 4 then
+    if px > 24 then px = px - 2 end
+  end
+  if j and 8 then
+    if px < 254 then px = px + 2 end
+  end
+  sprite 0, px, py
+  # TODO: enemies, collisions, score. For now fire ends the game.
+  if fire then enter_over() end
+end
+
+color border 0
+color bg 0
+color text 1
+enter_title()
+
+loop
+  wait raster 255
+  j = joy(2)
+  read_fire()
+  select state
+    case 0:
+      if fire then enter_play() end
+    case 1:
+      update_play()
+    else:
+      if fire then enter_title() end
+  end
+end

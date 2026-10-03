@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "koala-248",
+  id: "templates-249",
   url: "https://www.c64va.tech/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.4.8-ban",
+    eyebrow: "Újdonság a 2.4.9-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>Új KOALA makró:</strong> a <code>.koala "kep.koa"</code> betölt és megjelenít egy Koala Painter képet (adat $6000-on vagy $2000-on, 86 bájtos megjelenítő rutin).</li><li><strong>Koala a Hires szerkesztőben:</strong> <em>Files → Koala betöltés / Koala mentés</em>, szabványos .koa fájllal.</li><li><strong>Frissítés-jelző Expert módban is:</strong> a statusbarban <em>Naprakész</em>, vagy kattintható <em>Frissítés elérhető</em>.</li><li><strong>Megbízhatóbb frissítés-ellenőrzés:</strong> az új letöltési oldallal is működik.</li></ul>`,
+    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>Projekt sablonok:</strong> <em>Menu → File → Új projekt sablonból…</em> vagy az új toolbar gomb — Assembler és UltimateBasic sablonok, saját mappában létrejövő, azonnal fordítható projekttel.</li><li><strong>Build projekt:</strong> <em>Menu → Build → Build projekt</em> a projekt minden fájlját a forrás mellé fordítja <code>.prg</code>-be.</li><li><strong>Ctrl + egérgörgő zoom</strong> az Expert és az Ultimate Basic szerkesztőben.</li><li><strong>A munkaterület a projekteket is megjegyzi</strong>, a mentetlen projektváltozásokkal együtt.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.4.8",
+    eyebrow: "New in 2.4.9",
     title: "Welcome to Visual Assembler",
-    body: `<p>What's new in this release:</p><ul><li><strong>New KOALA macro:</strong> <code>.koala "picture.koa"</code> loads and shows a Koala Painter picture (data at $6000 or $2000, 86-byte display routine).</li><li><strong>Koala in the Hires editor:</strong> <em>Files → Import Koala / Export Koala</em> with the standard .koa file.</li><li><strong>Update status in Expert mode too:</strong> the status bar shows <em>Up to date</em> or a clickable <em>Update available</em>.</li><li><strong>Sturdier update check:</strong> works with the new download page.</li></ul>`,
+    body: `<p>What's new in this release:</p><ul><li><strong>Project templates:</strong> <em>Menu → File → New project from template…</em> or the new toolbar button — Assembler and UltimateBasic templates that create a ready-to-build project in its own folder.</li><li><strong>Build project:</strong> <em>Menu → Build → Build project</em> compiles every file of the project to a <code>.prg</code> next to its source.</li><li><strong>Ctrl + mouse wheel zoom</strong> in the Expert and Ultimate Basic editors.</li><li><strong>Workspaces remember projects</strong>, including unsaved project changes.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.4.8",
+    eyebrow: "Novedad en la 2.4.9",
     title: "Bienvenido a Visual Assembler",
-    body: `<p>Novedades de esta versión:</p><ul><li><strong>Nueva macro KOALA:</strong> <code>.koala "imagen.koa"</code> carga y muestra una imagen Koala Painter (datos en $6000 o $2000, rutina de 86 bytes).</li><li><strong>Koala en el editor Hires:</strong> <em>Files → Importar Koala / Exportar Koala</em> con el archivo .koa estándar.</li><li><strong>Estado de actualización también en modo Expert:</strong> la barra de estado muestra <em>Actualizado</em> o un <em>Actualización disponible</em> clicable.</li><li><strong>Comprobación de actualizaciones más robusta:</strong> funciona con la nueva página de descargas.</li></ul>`,
+    body: `<p>Novedades de esta versión:</p><ul><li><strong>Plantillas de proyecto:</strong> <em>Menu → File → Nuevo proyecto desde plantilla…</em> o el nuevo botón de la barra — plantillas de Assembler y UltimateBasic que crean un proyecto listo para compilar en su propia carpeta.</li><li><strong>Compilar proyecto:</strong> <em>Menu → Build → Build project</em> compila cada archivo del proyecto a un <code>.prg</code> junto a su fuente.</li><li><strong>Zoom con Ctrl + rueda del ratón</strong> en los editores Expert y Ultimate Basic.</li><li><strong>Los espacios de trabajo recuerdan los proyectos</strong>, incluidos los cambios sin guardar.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.4.8",
+    eyebrow: "Neu in 2.4.9",
     title: "Willkommen bei Visual Assembler",
-    body: `<p>Neu in dieser Version:</p><ul><li><strong>Neues KOALA-Makro:</strong> <code>.koala "bild.koa"</code> lädt und zeigt ein Koala-Painter-Bild (Daten bei $6000 oder $2000, 86-Byte-Anzeigeroutine).</li><li><strong>Koala im Hires-Editor:</strong> <em>Files → Koala importieren / Koala exportieren</em> mit der Standard-.koa-Datei.</li><li><strong>Update-Status auch im Expert-Modus:</strong> die Statusleiste zeigt <em>Aktuell</em> oder ein anklickbares <em>Update verfügbar</em>.</li><li><strong>Robustere Update-Prüfung:</strong> funktioniert mit der neuen Download-Seite.</li></ul>`,
+    body: `<p>Neu in dieser Version:</p><ul><li><strong>Projektvorlagen:</strong> <em>Menu → File → Neues Projekt aus Vorlage…</em> oder die neue Toolbar-Schaltfläche — Assembler- und UltimateBasic-Vorlagen, die ein sofort übersetzbares Projekt in einem eigenen Ordner anlegen.</li><li><strong>Projekt bauen:</strong> <em>Menu → Build → Build project</em> übersetzt jede Datei des Projekts in eine <code>.prg</code> neben der Quelle.</li><li><strong>Zoom mit Strg + Mausrad</strong> im Expert- und Ultimate-Basic-Editor.</li><li><strong>Arbeitsbereiche merken sich Projekte</strong>, auch ungespeicherte Projektänderungen.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.4.8",
+    eyebrow: "Nieuw in 2.4.9",
     title: "Welkom bij Visual Assembler",
-    body: `<p>Nieuw in deze versie:</p><ul><li><strong>Nieuwe KOALA-macro:</strong> <code>.koala "plaatje.koa"</code> laadt en toont een Koala Painter-afbeelding (data op $6000 of $2000, weergaveroutine van 86 bytes).</li><li><strong>Koala in de Hires-editor:</strong> <em>Files → Koala importeren / Koala exporteren</em> met het standaard .koa-bestand.</li><li><strong>Updatestatus ook in Expert-modus:</strong> de statusbalk toont <em>Up-to-date</em> of een klikbare <em>Update beschikbaar</em>.</li><li><strong>Robuustere updatecontrole:</strong> werkt met de nieuwe downloadpagina.</li></ul>`,
+    body: `<p>Nieuw in deze versie:</p><ul><li><strong>Projectsjablonen:</strong> <em>Menu → File → Nieuw project van sjabloon…</em> of de nieuwe werkbalkknop — Assembler- en UltimateBasic-sjablonen die een direct bouwbaar project in een eigen map aanmaken.</li><li><strong>Project bouwen:</strong> <em>Menu → Build → Build project</em> compileert elk bestand van het project naar een <code>.prg</code> naast de bron.</li><li><strong>Zoomen met Ctrl + muiswiel</strong> in de Expert- en Ultimate Basic-editor.</li><li><strong>Werkruimtes onthouden projecten</strong>, inclusief niet-opgeslagen projectwijzigingen.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.4.8",
+    eyebrow: "Nowość w 2.4.9",
     title: "Witamy w Visual Assembler",
-    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>Nowe makro KOALA:</strong> <code>.koala "obraz.koa"</code> wczytuje i wyświetla obraz Koala Painter (dane pod $6000 lub $2000, 86-bajtowa procedura wyświetlania).</li><li><strong>Koala w edytorze Hires:</strong> <em>Files → Importuj Koala / Eksportuj Koala</em> ze standardowym plikiem .koa.</li><li><strong>Stan aktualizacji także w trybie Expert:</strong> pasek stanu pokazuje <em>Aktualna wersja</em> lub klikalne <em>Dostępna aktualizacja</em>.</li><li><strong>Pewniejsze sprawdzanie aktualizacji:</strong> działa z nową stroną pobierania.</li></ul>`,
+    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>Szablony projektów:</strong> <em>Menu → File → Nowy projekt z szablonu…</em> lub nowy przycisk na pasku — szablony Assembler i UltimateBasic tworzące gotowy do kompilacji projekt we własnym folderze.</li><li><strong>Budowanie projektu:</strong> <em>Menu → Build → Build project</em> kompiluje każdy plik projektu do <code>.prg</code> obok źródła.</li><li><strong>Powiększanie Ctrl + kółko myszy</strong> w edytorach Expert i Ultimate Basic.</li><li><strong>Obszary robocze pamiętają projekty</strong>, także niezapisane zmiany projektu.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.4.8",
+    eyebrow: "Novità nella 2.4.9",
     title: "Benvenuto in Visual Assembler",
-    body: `<p>Novità di questa versione:</p><ul><li><strong>Nuova macro KOALA:</strong> <code>.koala "immagine.koa"</code> carica e mostra un'immagine Koala Painter (dati a $6000 o $2000, routine di visualizzazione da 86 byte).</li><li><strong>Koala nell'editor Hires:</strong> <em>Files → Importa Koala / Esporta Koala</em> con il file .koa standard.</li><li><strong>Stato aggiornamento anche in modalità Expert:</strong> la barra di stato mostra <em>Aggiornato</em> o un <em>Aggiornamento disponibile</em> cliccabile.</li><li><strong>Controllo aggiornamenti più robusto:</strong> funziona con la nuova pagina di download.</li></ul>`,
+    body: `<p>Novità di questa versione:</p><ul><li><strong>Modelli di progetto:</strong> <em>Menu → File → Nuovo progetto da modello…</em> o il nuovo pulsante della barra — modelli Assembler e UltimateBasic che creano un progetto pronto da compilare in una cartella dedicata.</li><li><strong>Compila progetto:</strong> <em>Menu → Build → Build project</em> compila ogni file del progetto in un <code>.prg</code> accanto al sorgente.</li><li><strong>Zoom con Ctrl + rotella del mouse</strong> negli editor Expert e Ultimate Basic.</li><li><strong>Gli spazi di lavoro ricordano i progetti</strong>, comprese le modifiche non salvate.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -1455,6 +1455,7 @@ function initPalette() {
   });
   document.getElementById("ub-zoom-in-btn")?.addEventListener("click", () => _ubZoom(1));
   document.getElementById("ub-zoom-out-btn")?.addEventListener("click", () => _ubZoom(-1));
+  _bindCtrlWheelZoom(document.querySelector(".ub-editor-wrap"), _ubZoom);
   ubEditor?.addEventListener("input", () => { _ubDirty = true; markTabDirty(); _ubRefreshEditor(); _ubAcUpdate(); });
   ubEditor?.addEventListener("keyup", _ubUpdateCursor);
   ubEditor?.addEventListener("click", _ubUpdateCursor);
@@ -1645,6 +1646,7 @@ function initPalette() {
   // Zoom
   expertZoomInBtn?.addEventListener("click",  () => _expertZoom(1));
   expertZoomOutBtn?.addEventListener("click", () => _expertZoom(-1));
+  _bindCtrlWheelZoom(document.querySelector(".expert-editor-wrap"), _expertZoom);
 
   // Line numbers
   document.getElementById("expert-line-numbers-btn")?.addEventListener("click", () => {
@@ -1990,6 +1992,14 @@ function initPalette() {
     await _openProjectSnapshotDialog();
     document.querySelector(".control-menu")?.removeAttribute("open");
   });
+  document.getElementById("menu-new-from-template")?.addEventListener("click", async () => {
+    document.querySelector(".control-menu")?.removeAttribute("open");
+    await _openTemplateDialog();
+  });
+  document.getElementById("new-project-btn")?.addEventListener("click", async () => {
+    document.querySelector(".control-menu")?.removeAttribute("open");
+    await _openTemplateDialog();
+  });
   document.getElementById("menu-open-project")?.addEventListener("click", async () => {
     if (ultimateBasicMode) await _ubOpenProject();
     else if (expertMode) await _openProjectFromMenu();
@@ -2031,6 +2041,10 @@ function initPalette() {
   savePrgButton?.addEventListener("click", savePrgToFile);
   saveD64Button?.addEventListener("click", saveD64ToFile);
   saveCrtButton?.addEventListener("click", saveCrtToFile);
+  document.getElementById("build-project")?.addEventListener("click", async () => {
+    document.querySelector(".control-menu")?.removeAttribute("open");
+    await buildProjectToFiles();
+  });
 
   // Global Ctrl+S / Cmd+S — works in both block mode and expert mode
   document.addEventListener("keydown", (e) => {
@@ -3232,6 +3246,19 @@ function applyTranslations() {
     document.getElementById("save-project")?.setAttribute("aria-label", t("saveProjectTip"));
     setText("#save-project-as", t("saveProgramAs"));
     document.getElementById("save-project-as")?.setAttribute("aria-label", t("saveProgramAsTip"));
+    setText("#menu-new-from-template", t("menuNewFromTemplate"));
+    document.getElementById("menu-new-from-template")?.setAttribute("aria-label", t("menuNewFromTemplateTip"));
+    document.getElementById("new-project-btn")?.setAttribute("aria-label", t("menuNewFromTemplate").replace(/…$/, ""));
+    setText("#template-dialog-title", t("templateDialogTitle"));
+    setText("#template-kind-asm", t("templateKindAsm"));
+    setText("#template-kind-ub", t("templateKindUb"));
+    setText("#template-name-label", t("templateProjectName"));
+    setText("#template-location-label", t("templateLocation"));
+    setText("#template-browse", t("templateBrowse"));
+    setText("#template-open-folder", t("templateOpenFolder"));
+    setText("#template-cancel", t("cancel"));
+    setText("#template-create", t("templateCreate"));
+    document.getElementById("template-dialog-close")?.setAttribute("aria-label", t("close"));
     setText("#menu-open-project", t("menuOpenProject"));
     document.getElementById("menu-open-project")?.setAttribute("aria-label", t("menuOpenProjectTip"));
     setText("#menu-save-project", t("menuSaveProject"));
@@ -3254,6 +3281,7 @@ function applyTranslations() {
     setText("#versioning-section-label", t("versioningSection"));
     setText("#save-d64", t("saveD64"));
     setText("#save-crt", t("saveCrt"));
+    setText("#build-project", t("buildProject"));
     setText("#d64-export-title", t("d64ExportTitle"));
     setText("#d64-export-diskname-label", t("d64ExportDiskName"));
     setText("#d64-export-progname-label", t("d64ExportProgName"));
@@ -7127,6 +7155,7 @@ function setUltimateBasicMode(on) {
     _ubRenderProjectFiles();
     _ubRenderCommandReference();
   }
+  renderMemoryMap();
   _historySyncCurrent();
   saveUiSettings();
 }
@@ -8220,8 +8249,11 @@ async function _ubCompile(showProgress = false, options = {}) {
     return null;
   }
   _ubLastResult = result;
+  const buildTab = _getActiveTab();
+  if (buildTab) buildTab._ubBuildResult = result;
   _ubRenderDisassembly(result);
   _ubRenderMonitor(result);
+  renderMemoryMap();
   if (!result?.ok) {
     if (showProgress) hideWorkProgress();
     const errors = result?.errors || [result?.error || "Compilation failed"];
@@ -8310,8 +8342,11 @@ async function _ubCompileSource(source, sourcePath, label = "startup file", opti
   _ubSetStatus(`Building ${label}…`);
   const result = await window.electronAPI?.compileUltimateBasic?.(source, _ubCompileSourcePath(sourcePath), _ubExplicit);
   _ubLastResult = result;
+  const sourceTab = sourcePath ? _findTabByPath(sourcePath) : null;
+  if (sourceTab) sourceTab._ubBuildResult = result;
   _ubRenderDisassembly(result);
   _ubRenderMonitor(result);
+  renderMemoryMap();
   if (!result?.ok) {
     const errors = result?.errors || [result?.error || "Compilation failed"];
     _ubSetBuildOutput(errors.join("\n"), true);
@@ -10012,6 +10047,23 @@ function _expertZoom(delta) {
   _applyExpertFontSize();
   if (_expertLineNumbersEnabled) _expertUpdateLineNumbers();
   saveUiSettings();
+}
+
+// Ctrl(/Cmd)+görgő → zoomFn(±1). Touchpad pinch sok apró deltát küld, ezért
+// gyűjtjük, és ~egy egér-notch-nyi (50 px) összegenként lépünk.
+function _bindCtrlWheelZoom(el, zoomFn) {
+  if (!el) return;
+  let acc = 0;
+  el.addEventListener("wheel", (e) => {
+    if (!e.ctrlKey && !e.metaKey) return;
+    e.preventDefault();
+    acc += e.deltaMode === 1 ? e.deltaY * 50 : e.deltaY;
+    while (Math.abs(acc) >= 50) {
+      const step = acc < 0 ? 1 : -1;
+      zoomFn(step);
+      acc += step * 50;
+    }
+  }, { passive: false });
 }
 
 // ── Minimap ───────────────────────────────────────────────────────────────────
@@ -12631,7 +12683,7 @@ function _expertTouchProject() {
   _projUpdateSaveBtn("expert-project-save-btn", !!_expertProjectData, _expertProjectDirty);
 }
 
-async function _closeAllTabsWithConfirm() {
+async function _confirmCloseAllTabs() {
   // For each tab that has content, ask user. If user cancels any, stop and return false.
   for (const tab of [...tabs]) {
     if (_tabHasContent(tab)) {
@@ -12640,7 +12692,11 @@ async function _closeAllTabsWithConfirm() {
       if (!await _showConfirm(msg)) return false;
     }
   }
-  // All confirmed — clear all tabs, leave one blank
+  return true;
+}
+
+function _closeAllTabsNow() {
+  // Clear all tabs, leave one blank
   tabs.length = 0;
   const blank = _tabCreate();
   blank.program = [makeDefaultOrgBlock()];
@@ -12661,6 +12717,11 @@ async function _closeAllTabsWithConfirm() {
   if (expertFileName) expertFileName.textContent = "";
   updateWindowTitle("");
   renderTabBar();
+}
+
+async function _closeAllTabsWithConfirm() {
+  if (!await _confirmCloseAllTabs()) return false;
+  _closeAllTabsNow();
   return true;
 }
 
@@ -12883,6 +12944,331 @@ async function _expertSaveProject() {
   _expertRenderProjectTree();
   _expertSetStatus(t("projSaved"), "ok");
 }
+
+// ── Project templates ───────────────────────────────────────────────────────
+// A template is one .asm (assembler) or .ub (UltimateBasic) file. Its leading
+// "; @key value" / "# @key value" comment lines describe it ("; @name.hu ..." is a
+// per-language variant), everything after them becomes the new project's main.asm
+// or main.ub. Built-in templates ship in templates/, user ones live in the app
+// config folder: dropping a file there is enough to add one.
+let _templateList = [];
+let _templateSelectedId = "";
+let _templateKind = "asm";
+
+function _parseTemplateSource(fileName, content, source) {
+  const lines = String(content || "").replace(/\r\n?/g, "\n").split("\n");
+  const meta = {};
+  let i = 0;
+  for (; i < lines.length; i++) {
+    const m = lines[i].match(/^\s*[;#]\s*@([a-z]+)(?:\.([a-z]{2}))?\s+(.+?)\s*$/i);
+    if (!m) break;
+    const key = m[1].toLowerCase();
+    (meta[key] ||= {})[(m[2] || "").toLowerCase()] = m[3];
+  }
+  while (i < lines.length && !lines[i].trim()) i++;
+  return {
+    id: `${source}:${fileName}`,
+    fileName,
+    source,
+    kind: /\.ub$/i.test(fileName) ? "ub" : "asm",
+    meta,
+    order: Number.parseInt(meta.order?.[""] ?? "", 10) || 1000,
+    body: lines.slice(i).join("\n").replace(/\s*$/, "\n")
+  };
+}
+
+function _templateText(tpl, key, lang = currentLanguage) {
+  const values = tpl?.meta?.[key];
+  if (!values) return "";
+  return values[lang] || values[""] || values.en || Object.values(values)[0] || "";
+}
+
+function _templateSanitizeName(name) {
+  return String(name || "")
+    .replace(/[<>:"/\\|?*\u0000-\u001f]/g, "")
+    .replace(/\s+/g, " ")
+    .replace(/^[ .]+|[ .]+$/g, "");
+}
+
+function _templateJoinPath(dir, name) {
+  return `${String(dir || "").replace(/\\/g, "/").replace(/\/+$/, "")}/${name}`;
+}
+
+function _templateTargetPaths(projectName, location, kind = "asm") {
+  const name = _templateSanitizeName(projectName);
+  const base = String(location || "").trim();
+  if (!name || !base) return null;
+  const dir = _templateJoinPath(base, name);
+  return { name, dir, projPath: `${dir}/${name}.proj`, mainPath: `${dir}/main.${kind === "ub" ? "ub" : "asm"}` };
+}
+
+function _templateSelected() {
+  return _templateList.find(tpl => tpl.id === _templateSelectedId && tpl.kind === _templateKind) || null;
+}
+
+function _templateFormPaths() {
+  return _templateTargetPaths(
+    document.getElementById("template-project-name")?.value,
+    document.getElementById("template-location")?.value,
+    _templateKind
+  );
+}
+
+// Paths are built with "/" internally; show them the way the user typed the location.
+function _templateDisplayPath(path) {
+  const location = document.getElementById("template-location")?.value || "";
+  return location.includes("\\") ? path.replace(/\//g, "\\") : path;
+}
+
+async function _templateLoadList() {
+  const res = await window.electronAPI?.listTemplates?.();
+  const raw = res?.ok && Array.isArray(res.templates) ? res.templates : [];
+  _templateList = raw
+    .map(item => _parseTemplateSource(item.fileName, item.content, item.source === "user" ? "user" : "builtin"))
+    .sort((a, b) => (a.source === b.source ? 0 : a.source === "user" ? 1 : -1)
+      || a.order - b.order
+      || a.fileName.localeCompare(b.fileName));
+}
+
+function _templateUpdateTarget(error = "") {
+  const targetEl = document.getElementById("template-target");
+  const createBtn = document.getElementById("template-create");
+  const paths = _templateFormPaths();
+  if (targetEl) {
+    targetEl.classList.toggle("template-target--error", !!error);
+    targetEl.textContent = error
+      || (paths ? tf("templateWillCreate", { path: _templateDisplayPath(paths.projPath) }) : "");
+  }
+  if (createBtn) createBtn.disabled = !paths || !_templateSelected();
+}
+
+// The preview shows the source as it will be written, project name filled in.
+function _templateRenderPreview() {
+  const previewEl = document.getElementById("template-preview");
+  if (!previewEl) return;
+  const tpl = _templateSelected();
+  const name = _templateSanitizeName(document.getElementById("template-project-name")?.value) || "{{PROJECT}}";
+  const source = tpl ? tpl.body.replace(/\n$/, "").replaceAll("{{PROJECT}}", name) : "";
+  if (tpl?.kind === "ub") {
+    previewEl.innerHTML = _ubHighlightSource(source).replace(/\n$/, "");
+    return;
+  }
+  previewEl.innerHTML = source.split("\n").map(line => {
+    try { return _expertHighlightLine(line); } catch { return _escHtml(line); }
+  }).join("\n");
+}
+
+function _templateRenderDetail() {
+  const tpl = _templateSelected();
+  const nameEl = document.getElementById("template-detail-name");
+  const descEl = document.getElementById("template-detail-desc");
+  const previewEl = document.getElementById("template-preview");
+  if (nameEl) nameEl.textContent = tpl ? (_templateText(tpl, "name") || tpl.fileName) : "";
+  if (descEl) descEl.textContent = tpl ? _templateText(tpl, "desc") : "";
+  _templateRenderPreview();
+  if (previewEl) previewEl.scrollTop = 0;
+  document.querySelectorAll("#template-list .template-item").forEach(btn => {
+    const active = btn.dataset.templateId === _templateSelectedId;
+    btn.classList.toggle("template-item--active", active);
+    btn.setAttribute("aria-pressed", String(active));
+  });
+  _templateUpdateTarget();
+}
+
+function _templateRenderList() {
+  const listEl = document.getElementById("template-list");
+  if (!listEl) return;
+  const visible = _templateList.filter(tpl => tpl.kind === _templateKind);
+  if (!_templateSelected()) _templateSelectedId = visible[0]?.id || "";
+  document.querySelectorAll("#template-kinds .template-kind").forEach(btn => {
+    const active = btn.dataset.templateKind === _templateKind;
+    btn.classList.toggle("template-kind--active", active);
+    btn.setAttribute("aria-selected", String(active));
+  });
+  listEl.innerHTML = "";
+  if (!visible.length) {
+    const empty = document.createElement("p");
+    empty.className = "template-empty";
+    empty.textContent = t(_templateKind === "ub" ? "templateNoTemplatesUb" : "templateNoTemplates");
+    listEl.appendChild(empty);
+  }
+  const groups = new Map();
+  for (const tpl of visible) {
+    const category = _templateText(tpl, "category")
+      || t(tpl.source === "user" ? "templateCategoryUser" : "templateCategoryOther");
+    if (!groups.has(category)) groups.set(category, []);
+    groups.get(category).push(tpl);
+  }
+  for (const [category, items] of groups) {
+    const group = document.createElement("div");
+    group.className = "template-category";
+    const label = document.createElement("div");
+    label.className = "template-category-label";
+    label.textContent = category;
+    group.appendChild(label);
+    for (const tpl of items) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "template-item";
+      btn.dataset.templateId = tpl.id;
+      btn.textContent = _templateText(tpl, "name") || tpl.fileName.replace(/\.(asm|ub)$/i, "");
+      btn.addEventListener("click", () => {
+        _templateSelectedId = tpl.id;
+        _templateRenderDetail();
+      });
+      group.appendChild(btn);
+    }
+    listEl.appendChild(group);
+  }
+  _templateRenderDetail();
+}
+
+async function _openTemplateDialog() {
+  const dialog = document.getElementById("template-dialog");
+  if (!dialog) return;
+  const nameInput = document.getElementById("template-project-name");
+  const locationInput = document.getElementById("template-location");
+  await _templateLoadList();
+  _templateKind = ultimateBasicMode ? "ub" : "asm";
+  if (nameInput) nameInput.value = "NewProject";
+  if (locationInput && !locationInput.value.trim()) {
+    let location = localStorage.getItem("templateProjectLocation") || "";
+    if (!location) location = (await window.electronAPI?.getWorkingFolder?.())?.workingFolder || "";
+    locationInput.value = location;
+  }
+  _templateRenderList();
+  dialog.showModal();
+  setTimeout(() => { nameInput?.focus(); nameInput?.select(); }, 0);
+}
+
+async function _templateCreateProject() {
+  const api = window.electronAPI;
+  const tpl = _templateSelected();
+  const paths = _templateFormPaths();
+  if (!tpl || !paths || !api?.createTemplateProject) return;
+
+  // Early check so the open tabs are not closed for nothing; the backend
+  // re-checks with create-new semantics when it writes.
+  for (const path of [paths.projPath, paths.mainPath]) {
+    if ((await api.readTextFile?.(path))?.ok) {
+      _templateUpdateTarget(tf("templateExists", { path: _templateDisplayPath(paths.dir) }));
+      return;
+    }
+  }
+  if (!await _confirmCloseAllTabs()) return;
+
+  const isUb = tpl.kind === "ub";
+  const mainName = isUb ? "main.ub" : "main.asm";
+  const fileEntry = { type: "file", name: mainName, path: mainName };
+  const payload = JSON.stringify({ ...(isUb ? { app: "ultimate-basic" } : {}), name: paths.name, files: [fileEntry], startupFile: fileEntry.path }, null, 2);
+  // Both files are written in one backend call that rolls back on failure.
+  const res = await api.createTemplateProject(paths.projPath, payload, paths.mainPath, tpl.body.replaceAll("{{PROJECT}}", paths.name));
+  if (!res?.ok) {
+    _templateUpdateTarget(res?.exists
+      ? tf("templateExists", { path: _templateDisplayPath(paths.dir) })
+      : `${t("templateWriteError")}: ${res?.error || _templateDisplayPath(paths.dir)}`);
+    return;
+  }
+  localStorage.setItem("templateProjectLocation", document.getElementById("template-location")?.value.trim() || "");
+  document.getElementById("template-dialog")?.close();
+
+  if (isUb) {
+    _closeAllTabsNow();
+    const blankId = activeTabId;
+    if (!ultimateBasicMode) setUltimateBasicMode(true);
+    // setUltimateBasicMode() seeds an empty editor with demo code; the blank tab must stay empty.
+    if (ubEditor) ubEditor.value = "";
+    _ubFilePath = "";
+    _ubDirty = false;
+    _ubProjectData = {
+      name: paths.name,
+      files: [{ ...fileEntry }],
+      startupFile: fileEntry.path,
+      _projPath: paths.projPath
+    };
+    _ubProjectDirty = false;
+    const opened = await _ubOpenProjectFile(_ubProjectData.files[0]);
+    _ubStartupTabId = opened?.id || null;
+    const blankIdx = tabs.findIndex(tab => tab.id === blankId && tab !== opened);
+    if (blankIdx >= 0) {
+      tabs.splice(blankIdx, 1);
+      renderTabBar();
+    }
+    if (!_ubProjectVisible) {
+      _ubProjectVisible = true;
+      _ubApplyLeftViews();
+    }
+    _ubRenderProjectFiles();
+    _ubSetStatus(`${t("templateCreated")}: ${paths.name}`);
+    return;
+  }
+
+  if (ultimateBasicMode) {
+    if (ubEditor) ubEditor.value = "";
+    _ubFilePath = "";
+    _ubDirty = false;
+  }
+  _closeAllTabsNow();
+  // .proj projects live in the Expert editor (this also leaves UltimateBasic mode).
+  if (!expertMode) setExpertMode(true);
+  _expertProjectData = {
+    name: paths.name,
+    files: [{ ...fileEntry }],
+    _projPath: paths.projPath,
+    startupFile: fileEntry.path
+  };
+  _expertProjectDirty = false;
+  await _expertProjectOpenFile(_expertProjectData.files[0]);
+
+  const opened = _findTabByPath(paths.mainPath);
+  if (opened) {
+    opened.editorMode = "expert";
+    // Drop the blank placeholder tab left behind by _closeAllTabsNow().
+    const blankIdx = tabs.findIndex(tab => tab !== opened && !_tabHasContent(tab));
+    if (blankIdx >= 0) {
+      tabs.splice(blankIdx, 1);
+      renderTabBar();
+    }
+  }
+  if (!_expertProjectVisible) expertProjectBtn?.click();
+  else _expertRenderProjectTree();
+  _expertSetStatus(`${t("templateCreated")}: ${paths.name}`, "ok");
+}
+
+document.getElementById("template-dialog-close")?.addEventListener("click", () => {
+  document.getElementById("template-dialog")?.close();
+});
+document.getElementById("template-cancel")?.addEventListener("click", () => {
+  document.getElementById("template-dialog")?.close();
+});
+document.getElementById("template-create")?.addEventListener("click", _templateCreateProject);
+document.querySelectorAll("#template-kinds .template-kind").forEach(btn => {
+  btn.addEventListener("click", () => {
+    if (btn.dataset.templateKind === _templateKind) return;
+    _templateKind = btn.dataset.templateKind === "ub" ? "ub" : "asm";
+    _templateRenderList();
+  });
+});
+document.getElementById("template-project-name")?.addEventListener("input", () => {
+  _templateRenderPreview();
+  _templateUpdateTarget();
+});
+document.getElementById("template-location")?.addEventListener("input", () => _templateUpdateTarget());
+document.getElementById("template-project-name")?.addEventListener("keydown", (e) => {
+  if (e.key !== "Enter") return;
+  e.preventDefault();
+  _templateCreateProject();
+});
+document.getElementById("template-browse")?.addEventListener("click", async () => {
+  const res = await window.electronAPI?.chooseProjFolder?.();
+  if (!res || res.canceled || !res.folderPath) return;
+  const locationInput = document.getElementById("template-location");
+  if (locationInput) locationInput.value = res.folderPath;
+  _templateUpdateTarget();
+});
+document.getElementById("template-open-folder")?.addEventListener("click", async () => {
+  try { await window.electronAPI?.openTemplatesFolder?.(); } catch { /* the folder may not be reachable */ }
+});
 
 async function _expertAddProjMember() {
   const res = await window.electronAPI?.chooseProjMember?.();
@@ -16323,6 +16709,7 @@ function _tabActivate(tabId) {
   renderTabBar();
   renderProgram();
   renderAsmOutput();
+  if (ultimateBasicMode) renderMemoryMap();
   _historySyncCurrent();
   if (_expertProjectVisible && _expertProjectData) _expertRenderProjectTree();
 }
@@ -16635,8 +17022,48 @@ function _workspaceBuildPayload(name = "") {
     version: 2,
     name: name || _currentWorkspaceName || "",
     activeIndex,
-    tabs: entries
+    tabs: entries,
+    projects: {
+      expert: _workspaceProjectSnapshot(_expertProjectData, _expertProjectDirty),
+      ub: _workspaceProjectSnapshot(_ubProjectData, _ubProjectDirty)
+    }
   };
+}
+
+// A projekt (.proj) teljes állapota a workspace-be ágyazva — a mentetlen
+// projektfa-változások is visszajönnek, a _projPath pedig a Save célja marad.
+function _workspaceProjectSnapshot(data, dirty) {
+  if (!data) return null;
+  const cleanNodes = (nodes) => (nodes || [])
+    .filter(n => !n.type || n.type === "file" || n.type === "folder")
+    .map(n => n.type === "folder"
+      ? { type: "folder", name: n.name, path: n.path, children: cleanNodes(n.children), ...(n._collapsed ? { _collapsed: true } : {}) }
+      : { type: "file", name: n.name, path: n.path });
+  return {
+    name: data.name || "",
+    files: cleanNodes(data.files),
+    startupFile: data.startupFile || null,
+    projPath: data._projPath || null,
+    dirty: !!dirty
+  };
+}
+
+function _workspaceRestoreProjects(projects) {
+  const toData = (snap) => snap && typeof snap === "object"
+    ? { name: snap.name || "", files: Array.isArray(snap.files) ? snap.files : [], startupFile: snap.startupFile || null, _projPath: snap.projPath || null }
+    : null;
+  _expertProjectData = toData(projects?.expert);
+  _expertProjectDirty = !!projects?.expert?.dirty;
+  _ubProjectData = toData(projects?.ub);
+  _ubProjectDirty = !!projects?.ub?.dirty;
+
+  _ubStartupTabId = null;
+  if (_ubProjectData?.startupFile) {
+    const startupTab = _findTabByPath(_ubResolveProjectPath(_ubProjectData.startupFile));
+    _ubStartupTabId = startupTab?.id ?? null;
+  }
+  _expertRenderProjectTree();
+  _ubRenderProjectFiles();
 }
 
 async function _workspaceSaveAs() {
@@ -16795,6 +17222,11 @@ async function _workspaceRestoreFromPayload(workspace, workspacePath, { silent =
   // activeTabId first makes that internal flush a no-op.
   activeTabId = null;
   _tabActivate(newActiveTabId || createdTabIds[0]);
+
+  // Régi (projekt nélküli) workspace-nél nincs `projects` kulcs → a nyitott projekt marad.
+  if (workspace.projects && typeof workspace.projects === "object") {
+    _workspaceRestoreProjects(workspace.projects);
+  }
 
   _currentWorkspacePath = workspacePath;
   _currentWorkspaceName = (workspacePath.replace(/\\/g, "/").split("/").pop() || "").replace(/\.(vaws|json)$/i, "");
@@ -17148,6 +17580,204 @@ async function savePrgToFile() {
     const fileName = result.filePath.split(/[\\/]/).pop();
     emulatorStatus.textContent = `${t("savePrgSuccess")}: ${fileName}`;
   }
+}
+
+// ── Build project — minden projekt-fájl (vagy projekt híján minden nyitott fül)
+// lefordítása; a PRG a forrás mellé kerül azonos néven (.prg).
+function _flattenProjectFiles(nodes, out = []) {
+  for (const node of nodes || []) {
+    if (node.type === "folder") _flattenProjectFiles(node.children, out);
+    else if (node.path) out.push(node);
+  }
+  return out;
+}
+
+function _findTabByPath(path) {
+  const norm = _normFilePath(path);
+  return tabs.find(tab => _normFilePath(tab.ubFilePath || tab.filePath) === norm) || null;
+}
+
+// Resolves an include like the compilers do: relative paths against the folder of
+// the including source, "." / ".." collapsed, so lib/common.asm and
+// tools/common.asm stay different files. Returns "" when it cannot be resolved.
+function _resolveIncludePath(sourcePath, includePath) {
+  const inc = String(includePath || "").trim().replace(/\\/g, "/");
+  if (!inc) return "";
+  const isAbsolute = /^[A-Za-z]:\//.test(inc) || inc.startsWith("/");
+  const src = String(sourcePath || "").replace(/\\/g, "/");
+  if (!isAbsolute && !src.includes("/")) return "";
+  const full = isAbsolute ? inc : `${src.slice(0, src.lastIndexOf("/") + 1)}${inc}`;
+  const parts = [];
+  full.split("/").forEach((seg, i) => {
+    if (seg === "." || (seg === "" && i > 0)) return;
+    const last = parts[parts.length - 1];
+    if (seg === ".." && parts.length > 1 && last !== "..") parts.pop();
+    else parts.push(seg);
+  });
+  return _normFilePath(parts.join("/"));
+}
+
+function _collectIncludedPaths(sourcePath, text, blocks) {
+  const paths = new Set();
+  const add = (p) => { const resolved = _resolveIncludePath(sourcePath, p); if (resolved) paths.add(resolved); };
+  for (const m of String(text || "").matchAll(/(?:^|[\s.#])(?:include|import)\s+"([^"]+)"/gim)) add(m[1]);
+  for (const block of blocks || []) {
+    if (block?.isIncludeMacro && block.includeFile) add(block.includeFile);
+  }
+  return paths;
+}
+
+function _collectBuildProjectTargets() {
+  if (ultimateBasicMode && _ubProjectData) {
+    return _flattenProjectFiles(_ubProjectData.files)
+      .filter(f => /\.ub$/i.test(f.path))
+      .map(f => ({ name: f.name, path: _ubResolveProjectPath(f.path), kind: "ub", entry: f }));
+  }
+  if (!ultimateBasicMode && _expertProjectData) {
+    return _flattenProjectFiles(_expertProjectData.files)
+      .filter(f => /\.(asm|s|a65|json)$/i.test(f.path))
+      .map(f => ({ name: f.name, path: _projResolveAbsPath(f.path), kind: "asm", entry: f }));
+  }
+  return tabs.filter(_tabHasContent).map(tab => ({
+    name: tab.name,
+    path: tab.ubFilePath || tab.filePath || "",
+    kind: tab.editorMode === "ub" ? "ub" : "asm",
+    tabId: tab.id
+  }));
+}
+
+async function _buildProjectAsmTarget(target) {
+  let tab = target.tabId ? tabs.find(tb => tb.id === target.tabId) : _findTabByPath(target.path);
+  if (!tab && target.entry) {
+    await _expertProjectOpenFile(target.entry);
+    tab = _findTabByPath(target.path);
+  }
+  if (!tab) return { ok: false, error: `${t("projError")}: ${target.path}` };
+  if (tab.id !== activeTabId) _tabActivate(tab.id);
+
+  const savedProgram = program;
+  const savedUserMacros = userMacros;
+  let prg;
+  let sidecars = null;
+  try {
+    if (expertMode) program = _expertBuildProgram();
+    parseUserMacros();
+    prg = _buildAutostartPrgCore();
+    // A layout a swap-olt program[]-ból számol, ezért még a visszaállítás előtt.
+    if (prg.ok) sidecars = _buildDebuggerSidecarPayload(prg, { sourcePath: target.path });
+  } finally {
+    program = savedProgram;
+    userMacros = savedUserMacros;
+  }
+  if (!prg.ok) {
+    const errors = prg.errors?.length ? prg.errors.map(e => e?.text || String(e)) : [prg.error || t("savePrgFailed")];
+    return { ok: false, error: errors.join("\n") };
+  }
+  const packed = await _applyExomizerToPrg(prg);
+  return packed.ok ? { ...packed, sidecars } : packed;
+}
+
+async function _buildProjectUbTarget(target, text) {
+  let result;
+  try {
+    result = await window.electronAPI?.compileUltimateBasic?.(text, _ubCompileSourcePath(target.path), _ubExplicit);
+  } catch (error) {
+    return { ok: false, error: error?.message || String(error) };
+  }
+  if (!result?.ok) return { ok: false, error: (result?.errors || [result?.error || "Compilation failed"]).join("\n") };
+  if (!(await _ubApplyExomizer(result, target.name))) return { ok: false, error: "Exomizer" };
+  return { ok: true, bytes: Uint8Array.from(result.outputPrg || result.prg || []), sidecars: _ubBuildSidecars(result) };
+}
+
+async function buildProjectToFiles() {
+  _tabSaveCurrent();
+  const targets = _collectBuildProjectTargets();
+  if (!targets.length) {
+    showViceToast(t("buildProjectNothing"), true);
+    return;
+  }
+
+  const originalTabId = activeTabId;
+  const results = [];
+  await showWorkProgress("workProgressBuildProject");
+  try {
+    // Forrásszöveg / blokkok előzetes begyűjtése, hogy a más fájlba include-olt
+    // modulokat ne fordítsuk önálló PRG-vé.
+    for (const target of targets) {
+      const tab = target.tabId ? tabs.find(tb => tb.id === target.tabId) : _findTabByPath(target.path);
+      if (tab) {
+        target.text = target.kind === "ub" ? tab.ubText || "" : tab.expertText || "";
+        target.blocks = tab.program;
+      } else if (target.path) {
+        const res = await window.electronAPI?.readTextFile?.(target.path);
+        target.text = res?.ok ? res.content || "" : "";
+        if (/\.json$/i.test(target.path)) {
+          try { target.blocks = JSON.parse(target.text).program; } catch (_) { target.blocks = null; }
+          target.text = "";
+        }
+      }
+    }
+    const included = new Set();
+    targets.forEach(target => _collectIncludedPaths(target.path, target.text, target.blocks).forEach(p => included.add(p)));
+
+    for (const [i, target] of targets.entries()) {
+      setWorkProgress(Math.round((i / targets.length) * 95));
+      if (!target.path) { results.push({ name: target.name, skipped: t("buildProjectUntitled") }); continue; }
+      const fileName = target.path.replace(/\\/g, "/").split("/").pop();
+      if (/\.inc$/i.test(fileName) || included.has(_resolveIncludePath("", target.path))) {
+        results.push({ name: fileName, skipped: t("buildProjectIncluded") });
+        continue;
+      }
+
+      const prg = target.kind === "ub"
+        ? await _buildProjectUbTarget(target, target.text)
+        : await _buildProjectAsmTarget(target);
+      if (!prg?.ok) { results.push({ name: fileName, error: prg?.error || t("savePrgFailed") }); continue; }
+
+      const outPath = target.path.replace(/\.[^./\\]+$/, "") + ".prg";
+      const write = await window.electronAPI?.writeBinFile?.(outPath, Array.from(prg.bytes), prg.sidecars || null);
+      if (!write?.ok) { results.push({ name: fileName, error: write?.error || t("savePrgFailed") }); continue; }
+      results.push({ name: fileName, outPath, size: prg.bytes.length });
+    }
+  } finally {
+    if (originalTabId && activeTabId !== originalTabId && tabs.some(tb => tb.id === originalTabId)) {
+      _tabActivate(originalTabId);
+    }
+  }
+
+  const built = results.filter(r => r.outPath).length;
+  const failed = results.filter(r => r.error).length;
+  const compiledTotal = built + failed;
+  if (failed === 0 && built > 0) await completeWorkProgress("workProgressSuccessBuildProject", 600);
+  else hideWorkProgress();
+
+  const summary = tf("buildProjectSummary", { ok: built, total: compiledTotal });
+  if (emulatorStatus) emulatorStatus.textContent = summary;
+  if (ultimateBasicMode) _ubSetStatus(summary, failed > 0);
+  _showBuildProjectReport(results, summary);
+}
+
+function _showBuildProjectReport(results, summary) {
+  const dialog = document.getElementById("build-info-dialog");
+  const content = document.getElementById("build-info-content");
+  const title = document.getElementById("build-info-title");
+  if (!dialog || !content) return;
+  const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  const rows = results.map(r => {
+    const cls = r.error ? " build-info-err" : "";
+    const val = r.error
+      ? esc(r.error).replace(/\n/g, "<br>")
+      : r.skipped ? esc(r.skipped) : `${r.size} bytes`;
+    const note = r.outPath ? esc(r.outPath.replace(/\\/g, "/").split("/").pop()) : "";
+    return `<tr class="build-info-row${cls}"><th class="build-info-row-key">${esc(r.name)}</th><td class="build-info-row-val">${val}</td><td class="build-info-row-note">${note}</td></tr>`;
+  });
+  if (title) title.textContent = t("buildProjectTitle");
+  content.innerHTML = `
+    <section class="build-info-section">
+      <div class="build-info-section-label">${esc(summary)}</div>
+      <table class="build-info-table"><tbody>${rows.join("")}</tbody></table>
+    </section>`;
+  dialog.showModal();
 }
 
 // ── Magic Desk CRT (type 19) — 8 x 8K banks at $8000 ─────────────────────────
@@ -18336,14 +18966,40 @@ function defaultDiskName() {
   return "DISK";
 }
 
+// A D64 dialógus (Build D64 / Run via D64 / Ultimate D64) mindig az aktív
+// szerkesztő-mód working folderét használja: UB → ubWorkingFolder, Block/Expert → workingFolder.
+function _d64ModeWorkingFolder() {
+  return (ultimateBasicMode ? ubWorkingFolder : workingFolder) || "";
+}
+
+function _d64SettingsKey() {
+  return ultimateBasicMode ? "d64LastSettingsUb" : "d64LastSettings";
+}
+
+// Módváltáskor a másik mód extráit/neveit eldobjuk, hogy a dialógus az aktív
+// mód mentett beállításaiból (és working folderéből) töltsön újra.
+function _d64SyncModeState() {
+  const mode = ultimateBasicMode ? "ub" : "va";
+  if (d64ExportState.mode && d64ExportState.mode !== mode) {
+    d64ExportState.extras = [];
+    d64ExportState.diskName = "";
+    d64ExportState.progName = "";
+  }
+  d64ExportState.mode = mode;
+}
+
+function d64ReadSavedSettings() {
+  try { return JSON.parse(localStorage.getItem(_d64SettingsKey()) || "null"); } catch (_) { return null; }
+}
+
 function d64SaveSettings(diskName, progName) {
   d64ExportState.diskName = diskName;
   d64ExportState.progName = progName;
   const meta = d64ExportState.extras.map(e => ({ name: e.name, sourcePath: e.sourcePath, loadAddress: e.loadAddress, decompressAddress: e.decompressAddress || "", crunch: e.crunch || false }));
-  try { localStorage.setItem("d64LastSettings", JSON.stringify({ diskName, progName, extras: meta })); } catch (_) {}
+  try { localStorage.setItem(_d64SettingsKey(), JSON.stringify({ diskName, progName, extras: meta })); } catch (_) {}
 }
 
-async function d64LoadSavedExtras(savedExtras, baseDir = "") {
+async function d64LoadSavedExtras(savedExtras, baseDir = _d64ModeWorkingFolder()) {
   if (!window.electronAPI?.readBinFile) return [];
   const restored = [];
   for (const meta of savedExtras) {
@@ -18369,6 +19025,7 @@ async function openD64ExportDialog(prgBytes, sidecars = null, runModeOverride = 
   const progInput = document.getElementById("d64-export-progname");
   const errorBox = document.getElementById("d64-export-error");
 
+  _d64SyncModeState();
   let diskName = d64ExportState.diskName || defaultDiskName();
   let progName = d64ExportState.progName || defaultDiskName();
   if (d64ExportState.extras.length === 0) {
@@ -18378,7 +19035,7 @@ async function openD64ExportDialog(prgBytes, sidecars = null, runModeOverride = 
       d64ExportState._pendingExtrasBaseDir = "";
     } else {
       try {
-        const saved = JSON.parse(localStorage.getItem("d64LastSettings") || "null");
+        const saved = d64ReadSavedSettings();
         if (saved) {
           if (!d64ExportState.diskName && saved.diskName) diskName = saved.diskName;
           if (!d64ExportState.progName && saved.progName) progName = saved.progName;
@@ -18455,7 +19112,7 @@ function renderD64ExtraFiles() {
 
 async function pickD64ExtraFile() {
   if (!window.electronAPI?.chooseIncBinFile) return;
-  const result = await window.electronAPI.chooseIncBinFile();
+  const result = await window.electronAPI.chooseIncBinFile(_d64ModeWorkingFolder());
   if (result?.canceled || !result?.bytes) return;
 
   // Default name = uppercase basename without extension, max 16 chars.
@@ -18606,7 +19263,7 @@ async function confirmD64Export() {
     } else if (isRunMode) {
       result = await window.electronAPI.runD64({ diskName, files, sidecars: d64ExportState.sidecars });
     } else {
-      result = await window.electronAPI.saveD64({ diskName, files, sidecars: d64ExportState.sidecars });
+      result = await window.electronAPI.saveD64({ diskName, files, sidecars: d64ExportState.sidecars, directory: _d64ModeWorkingFolder() || null });
     }
   } finally {
     if (confirmBtn) {
@@ -18754,6 +19411,7 @@ async function runViaD64() {
   const errorBox = document.getElementById("d64-export-error");
   const confirmBtn = document.getElementById("d64-export-confirm");
 
+  _d64SyncModeState();
   let diskName = d64ExportState.diskName || defaultDiskName();
   let progName = d64ExportState.progName || defaultDiskName();
   if (d64ExportState.extras.length === 0) {
@@ -18763,7 +19421,7 @@ async function runViaD64() {
       d64ExportState._pendingExtrasBaseDir = "";
     } else {
       try {
-        const saved = JSON.parse(localStorage.getItem("d64LastSettings") || "null");
+        const saved = d64ReadSavedSettings();
         if (saved) {
           if (!d64ExportState.diskName && saved.diskName) diskName = saved.diskName;
           if (!d64ExportState.progName && saved.progName) progName = saved.progName;
@@ -18863,7 +19521,10 @@ async function buildRunPrgForCurrentMode() {
 
   const prg = buildAutostartPrgForEmulator();
   if (!prg.ok) return prg;
+  return _applyExomizerToPrg(prg);
+}
 
+async function _applyExomizerToPrg(prg) {
   if (!exomizerEnabled) return { ...prg, sysAddress: prg.sysAddress };
 
   if (!exomizerPath) {
@@ -19105,6 +19766,7 @@ async function runUltimateD64() {
   const errorBox = document.getElementById("d64-export-error");
   const confirmBtn = document.getElementById("d64-export-confirm");
 
+  _d64SyncModeState();
   let diskName = d64ExportState.diskName || defaultDiskName();
   let progName = d64ExportState.progName || defaultDiskName();
   if (d64ExportState.extras.length === 0) {
@@ -19114,7 +19776,7 @@ async function runUltimateD64() {
       d64ExportState._pendingExtrasBaseDir = "";
     } else {
       try {
-        const saved = JSON.parse(localStorage.getItem("d64LastSettings") || "null");
+        const saved = d64ReadSavedSettings();
         if (saved) {
           if (!d64ExportState.diskName && saved.diskName) diskName = saved.diskName;
           if (!d64ExportState.progName && saved.progName) progName = saved.progName;
@@ -24992,7 +25654,119 @@ function countRangeBytes(ranges, start, end) {
   }, 0);
 }
 
-function getMemoryUsage(layout = getProgramLayout()) {
+// UB módban a memória panel / overlay csík az utolsó UB build map-jéből számol.
+// A PRG egy összefüggő, nullákkal kitöltött blokk: a `ub_*padding*` régiók és az
+// `org` által hagyott (a fordító által nem jelentett) hosszú nulla-futások szabadnak számítanak.
+const _UB_FREE_ZERO_RUN = 256;
+
+function _ubRegionLabel(name) {
+  const n = String(name || "");
+  if (n.startsWith("incbin_")) return `INCBIN ${n.slice(7)}`;
+  if (n === "ub_koala_data") return "KOALA";
+  if (n === "ub_sid_data") return "SID";
+  return n.replace(/^ub_/, "").toUpperCase();
+}
+
+function _ubMemoryUsage(result = _getActiveTab()?._ubBuildResult || null) {
+  const occupiedRanges = [];
+  const regions = [];
+  const map = result?.ok ? result.map : null;
+  const prg = map ? (result.prg || []) : [];
+
+  if (prg.length > 2) {
+    const prgStart = prg[0] | (prg[1] << 8);
+    const prgEnd = Math.min(0xFFFF, prgStart + prg.length - 3);
+    const codeBase = Number(map.loadAddress) || prgStart;
+    const kind = new Uint8Array(0x10000); // 0 = szabad, 1 = kód, 2 = beágyazott adat
+    kind.fill(1, prgStart, prgEnd + 1);
+
+    const dataRegions = (map.dataRegions || [])
+      .filter(r => r.end > r.start)
+      .map(r => ({ start: codeBase + r.start, end: Math.min(0xFFFF, codeBase + r.end - 1), name: r.name }));
+    const payload = dataRegions.filter(r => !/padding/i.test(r.name));
+    payload.forEach(r => kind.fill(2, r.start, r.end + 1));
+    dataRegions.filter(r => /padding/i.test(r.name)).forEach(r => kind.fill(0, r.start, r.end + 1));
+
+    let runStart = -1;
+    for (let addr = prgStart; addr <= prgEnd + 1; addr++) {
+      const zero = addr <= prgEnd && kind[addr] === 1 && prg[addr - prgStart + 2] === 0;
+      if (zero && runStart < 0) runStart = addr;
+      else if (!zero && runStart >= 0) {
+        if (addr - runStart >= _UB_FREE_ZERO_RUN) kind.fill(0, runStart, addr);
+        runStart = -1;
+      }
+    }
+
+    let segStart = -1;
+    for (let addr = prgStart; addr <= prgEnd + 1; addr++) {
+      const isCode = addr <= prgEnd && kind[addr] === 1;
+      if (isCode && segStart < 0) segStart = addr;
+      else if (!isCode && segStart >= 0) {
+        regions.push({ start: segStart, end: addr - 1, type: "code", label: `${t("memoryOverlapCode")} ${formatAddress(segStart)}–${formatAddress(addr - 1)}` });
+        segStart = -1;
+      }
+    }
+    payload.forEach(r => regions.push({ start: r.start, end: r.end, type: "data", label: `${_ubRegionLabel(r.name)} ${formatAddress(r.start)}–${formatAddress(r.end)}` }));
+  }
+
+  if (map) {
+    (map.arrays || []).filter(a => Number(a.size) > 0).forEach(a => {
+      const start = Number(a.address);
+      const end = Math.min(0xFFFF, start + Number(a.size) - 1);
+      regions.push({ start, end, type: "array", label: `ARRAY ${a.name} ${formatAddress(start)}–${formatAddress(end)}` });
+    });
+
+    const internal = map.internal || {};
+    const zpEnds = [
+      ...(map.variables || []).map(v => Number(v.address) + 1),
+      internal.plotZp != null ? internal.plotZp + 5 : null,
+      internal.lineZp != null ? internal.lineZp + 14 : null,
+      internal.rectZp != null ? internal.rectZp + 8 : null,
+      internal.dataZp != null ? internal.dataZp + 1 : null
+    ].filter(Number.isFinite);
+    if (zpEnds.length) {
+      const zpEnd = Math.min(0xFF, Math.max(...zpEnds));
+      regions.push({ start: 0x02, end: zpEnd, type: "zp", label: `UB zero page ${formatAddress(0x02)}–${formatAddress(zpEnd)}` });
+    }
+  }
+
+  regions.forEach(r => occupiedRanges.push({ start: r.start, end: r.end, type: r.type, label: r.label }));
+
+  // Ütközés: a futásidejű tömbök (heap, $C000+) rálóghatnak a kódra / beágyazott adatra / egymásra.
+  const overlaps = [];
+  for (let i = 0; i < regions.length; i++) {
+    for (let j = i + 1; j < regions.length; j++) {
+      const a = regions[i];
+      const b = regions[j];
+      if (a.type !== "array" && b.type !== "array") continue;
+      const overlapStart = Math.max(a.start, b.start);
+      const overlapEnd = Math.min(a.end, b.end);
+      if (overlapStart <= overlapEnd) {
+        overlaps.push({ regionA: a, regionB: b, overlapStart, overlapEnd, bytes: overlapEnd - overlapStart + 1 });
+      }
+    }
+  }
+
+  const mergedOccupied = mergeMemoryRanges(occupiedRanges);
+  const ramSegments = memorySegments.filter((segment) => segment.kind === "ram");
+  const totalRamBytes = ramSegments.reduce((sum, segment) => sum + (segment.end - segment.start + 1), 0);
+  const occupiedRamBytes = ramSegments.reduce((sum, segment) => sum + countRangeBytes(mergedOccupied, segment.start, segment.end), 0);
+
+  return {
+    layout: { lines: [] },
+    deferredSections: [],
+    occupiedRanges,
+    mergedOccupied,
+    totalRamBytes,
+    occupiedRamBytes,
+    freeRamBytes: Math.max(0, totalRamBytes - occupiedRamBytes),
+    overlaps
+  };
+}
+
+function getMemoryUsage(layout) {
+  if (ultimateBasicMode) return _ubMemoryUsage();
+  layout = layout || getProgramLayout();
   const occupiedRanges = [];
 
   if (program.length && layout.start <= layout.end) {

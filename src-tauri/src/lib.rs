@@ -1007,11 +1007,13 @@ async fn launch_debugger(app: AppHandle, payload: LaunchDebuggerPayload) -> serd
 }
 
 #[tauri::command]
-async fn choose_incbin_file(app: AppHandle) -> serde_json::Value {
-    let working_folder = {
-        let cfg = read_config(&app);
-        get_working_folder_path(&cfg)
-    };
+async fn choose_incbin_file(app: AppHandle, directory: Option<String>) -> serde_json::Value {
+    // Explicit directory (e.g. the UB working folder while in UB mode) wins over the VA working folder.
+    let working_folder = directory
+        .map(|d| d.trim().to_string())
+        .filter(|d| !d.is_empty())
+        .map(PathBuf::from)
+        .or_else(|| get_working_folder_path(&read_config(&app)));
     let mut dialog = app.dialog().file()
         .add_filter("Binary files", &["bin", "prg", "sid", "raw"])
         .add_filter("All files", &["*"])
@@ -1481,14 +1483,20 @@ fn read_bin_file(path: String) -> serde_json::Value {
 // the Rust side at all; track/sector offset math and the BAM parse both
 // live in JS, same as the block editor's read path.
 #[tauri::command]
-fn write_bin_file(path: String, bytes: Vec<u8>) -> serde_json::Value {
+fn write_bin_file(path: String, bytes: Vec<u8>, sidecars: Option<DebuggerSidecars>) -> serde_json::Value {
     if path.is_empty() {
         return serde_json::json!({ "ok": false, "error": "Empty path" });
     }
-    match fs::write(&path, &bytes) {
-        Ok(_) => serde_json::json!({ "ok": true }),
-        Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+    if let Err(e) = fs::write(&path, &bytes) {
+        return serde_json::json!({ "ok": false, "error": e.to_string() });
     }
+    // Build project: .dbg/.sym/.vs/.asm a PRG mellé, ha a "Generate debug files" be van kapcsolva.
+    if let Some(sidecars) = &sidecars {
+        if let Err(e) = write_debugger_sidecars(Path::new(&path), sidecars) {
+            return serde_json::json!({ "ok": false, "error": e });
+        }
+    }
+    serde_json::json!({ "ok": true })
 }
 
 // Deletes a plain file at an explicit path, no confirmation/trash — used
@@ -1690,6 +1698,9 @@ struct SaveD64Payload {
     disk_name: Option<String>,
     #[serde(default)]
     sidecars: Option<DebuggerSidecars>,
+    /// Start folder of the save dialog — the working folder of the active editor mode (VA or UB).
+    #[serde(default)]
+    directory: Option<String>,
 }
 
 #[tauri::command]
@@ -1714,7 +1725,11 @@ async fn save_d64(app: AppHandle, payload: SaveD64Payload) -> serde_json::Value 
     };
 
     // 2. Ask user where to save
-    let working_folder = get_working_folder_path(&cfg);
+    let working_folder = payload.directory.as_deref()
+        .map(str::trim)
+        .filter(|d| !d.is_empty())
+        .map(PathBuf::from)
+        .or_else(|| get_working_folder_path(&cfg));
     let mut dialog = app.dialog().file()
         .add_filter("Commodore 64 disk image", &["d64"])
         .add_filter("All files", &["*"]);
@@ -3042,7 +3057,9 @@ fn compile_ultimate_basic(source: String, source_path: Option<String>, explicit:
                     "variables": map.variables.iter().map(|v| serde_json::json!({"name": v.name, "address": v.zp_addr, "type": v.type_str})).collect::<Vec<_>>(),
                     "subroutines": map.subroutines.iter().map(|s| serde_json::json!({"name": s.name, "address": s.addr})).collect::<Vec<_>>(),
                     "labels": map.labels.iter().map(|label| serde_json::json!({"name": label.name, "address": label.addr})).collect::<Vec<_>>(),
-                    "arrays": map.arrays.iter().map(|a| serde_json::json!({"name": a.name, "address": a.base_addr, "size": a.size})).collect::<Vec<_>>()
+                    "arrays": map.arrays.iter().map(|a| serde_json::json!({"name": a.name, "address": a.base_addr, "size": a.size})).collect::<Vec<_>>(),
+                    // Kód-relatív [start, end) byte-tartományok: `ub_*padding*` = üres kitöltés, a többi beágyazott adat (incbin/koala/sid/sprite).
+                    "dataRegions": map.data_regions.iter().map(|r| serde_json::json!({"start": r.start, "end": r.end, "name": r.name})).collect::<Vec<_>>()
                     ,"internal": {
                         "plotZp": map.plot_zp,
                         "lineZp": map.line_zp,
@@ -3182,6 +3199,127 @@ async fn open_ultimate_basic_manual(app: AppHandle) -> Result<(), String> {
     app.opener().open_path(manual_path.to_string_lossy().as_ref(), None::<String>).map_err(|e| e.to_string())
 }
 
+// ── Project templates ────────────────────────────────────────────────────────
+// Every *.asm (assembler) and *.ub (UltimateBasic) file in the bundled templates/
+// folder and in the user's own templates folder is a template; the frontend reads
+// the "; @name ..." / "# @name ..." header.
+
+fn user_templates_dir(app: &AppHandle) -> Option<PathBuf> {
+    app.path().app_config_dir().ok().map(|dir| dir.join("templates"))
+}
+
+fn collect_templates(dir: &Path, source: &str, out: &mut Vec<serde_json::Value>) {
+    let entries = match fs::read_dir(dir) {
+        Ok(entries) => entries,
+        Err(_) => return,
+    };
+    let mut paths: Vec<PathBuf> = entries
+        .filter_map(|entry| entry.ok())
+        .map(|entry| entry.path())
+        .filter(|path| {
+            path.is_file()
+                && path
+                    .extension()
+                    .and_then(|ext| ext.to_str())
+                    .map(|ext| ext.eq_ignore_ascii_case("asm") || ext.eq_ignore_ascii_case("ub"))
+                    .unwrap_or(false)
+        })
+        .collect();
+    paths.sort();
+    for path in paths {
+        let file_name = match path.file_name().and_then(|name| name.to_str()) {
+            Some(name) => name.to_string(),
+            None => continue,
+        };
+        if let Ok(content) = fs::read_to_string(&path) {
+            out.push(serde_json::json!({ "fileName": file_name, "source": source, "content": content }));
+        }
+    }
+}
+
+#[tauri::command]
+fn list_templates(app: AppHandle) -> serde_json::Value {
+    let mut templates: Vec<serde_json::Value> = Vec::new();
+    if let Ok(dir) = resolve_resource_file(&app, "templates") {
+        collect_templates(&dir, "builtin", &mut templates);
+    }
+    let user_dir = user_templates_dir(&app);
+    if let Some(dir) = &user_dir {
+        collect_templates(dir, "user", &mut templates);
+    }
+    serde_json::json!({
+        "ok": true,
+        "templates": templates,
+        "userDir": user_dir.map(|dir| dir.to_string_lossy().to_string()).unwrap_or_default()
+    })
+}
+
+fn create_new_file(path: &Path, content: &str) -> std::io::Result<()> {
+    let mut file = fs::OpenOptions::new().write(true).create_new(true).open(path)?;
+    file.write_all(content.as_bytes())?;
+    file.sync_all()
+}
+
+// Writes a new project's main source and .proj together: both are created with
+// create-new semantics (an existing file is never touched), and if the second
+// write fails the first file is removed again, so no orphaned half project stays.
+#[tauri::command]
+fn create_template_project(
+    proj_path: String,
+    proj_content: String,
+    main_path: String,
+    main_content: String,
+) -> serde_json::Value {
+    let proj = PathBuf::from(&proj_path);
+    let main = PathBuf::from(&main_path);
+    if proj_path.is_empty() || main_path.is_empty() {
+        return serde_json::json!({ "ok": false, "error": "Empty path" });
+    }
+    if proj.exists() || main.exists() {
+        return serde_json::json!({ "ok": false, "exists": true, "error": "Project already exists" });
+    }
+    let dir = match proj.parent() {
+        Some(dir) => dir.to_path_buf(),
+        None => return serde_json::json!({ "ok": false, "error": "Invalid project path" }),
+    };
+    let created_dir = !dir.exists();
+    if let Err(e) = fs::create_dir_all(&dir) {
+        return serde_json::json!({ "ok": false, "error": e.to_string() });
+    }
+    // A file that already existed (AlreadyExists) is someone else's and is never removed.
+    let fail = |e: std::io::Error, written: &[&Path]| {
+        let exists = e.kind() == ErrorKind::AlreadyExists;
+        for path in written {
+            let _ = fs::remove_file(path);
+        }
+        if created_dir {
+            let _ = fs::remove_dir(&dir);
+        }
+        serde_json::json!({ "ok": false, "exists": exists, "error": e.to_string() })
+    };
+    if let Err(e) = create_new_file(&main, &main_content) {
+        let partial: &[&Path] = if e.kind() == ErrorKind::AlreadyExists { &[] } else { &[main.as_path()] };
+        return fail(e, partial);
+    }
+    if let Err(e) = create_new_file(&proj, &proj_content) {
+        let written: Vec<&Path> = if e.kind() == ErrorKind::AlreadyExists {
+            vec![main.as_path()]
+        } else {
+            vec![main.as_path(), proj.as_path()]
+        };
+        return fail(e, &written);
+    }
+    serde_json::json!({ "ok": true, "projPath": proj_path, "mainPath": main_path })
+}
+
+#[tauri::command]
+async fn open_templates_folder(app: AppHandle) -> Result<(), String> {
+    let dir = user_templates_dir(&app).ok_or_else(|| "No config folder".to_string())?;
+    fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    app.opener().open_path(dir.to_string_lossy().as_ref(), None::<String>)
+        .map_err(|e| e.to_string())
+}
+
 #[tauri::command]
 async fn load_sample(app: AppHandle, sample_name: String) -> serde_json::Value {
     let file_path = match resolve_resource_file(&app, &format!("samples/{}.json", sample_name)) {
@@ -3241,6 +3379,44 @@ mod tests {
             .unwrap()
             .as_nanos();
         std::env::temp_dir().join(format!("{}-{}-{}", prefix, std::process::id(), stamp))
+    }
+
+    fn create_project(dir: &Path, proj_name: &str) -> serde_json::Value {
+        create_template_project(
+            dir.join(proj_name).to_string_lossy().to_string(),
+            "{}".to_string(),
+            dir.join("main.asm").to_string_lossy().to_string(),
+            "RTS".to_string(),
+        )
+    }
+
+    #[test]
+    fn template_project_writes_both_files_and_never_overwrites() {
+        let dir = unique_temp_dir("va-template-ok").join("Demo");
+        let res = create_project(&dir, "Demo.proj");
+        assert_eq!(res["ok"], true);
+        assert_eq!(fs::read_to_string(dir.join("main.asm")).unwrap(), "RTS");
+        assert_eq!(fs::read_to_string(dir.join("Demo.proj")).unwrap(), "{}");
+
+        fs::write(dir.join("main.asm"), "KEEP").unwrap();
+        let again = create_project(&dir, "Demo.proj");
+        assert_eq!(again["ok"], false);
+        assert_eq!(again["exists"], true);
+        assert_eq!(fs::read_to_string(dir.join("main.asm")).unwrap(), "KEEP");
+        let _ = fs::remove_dir_all(dir.parent().unwrap());
+    }
+
+    #[test]
+    fn template_project_rolls_back_main_file_when_proj_write_fails() {
+        let root = unique_temp_dir("va-template-rollback");
+        let dir = root.join("Demo");
+        // A NUL byte makes the .proj open fail after main.asm was written.
+        let res = create_project(&dir, "De\0mo.proj");
+        assert_eq!(res["ok"], false);
+        assert_eq!(res["exists"], false);
+        assert!(!dir.join("main.asm").exists());
+        assert!(!dir.exists());
+        let _ = fs::remove_dir_all(&root);
     }
 
     #[test]
@@ -3725,6 +3901,9 @@ pub fn run() {
             choose_proj_member,
             choose_proj_folder,
             load_sample,
+            list_templates,
+            open_templates_folder,
+            create_template_project,
             open_manual,
             open_ultimate_basic_manual,
             run_on_ultimate,

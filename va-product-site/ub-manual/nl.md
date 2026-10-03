@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.9 — Taalhandleiding
+# Ultimate Basic v1.6.0 — Taalhandleiding
 
 Complete taal- en CLI-referentie voor Ultimate Basic, een BASIC-achtige taal die
 direct compileert naar 6502-machinecode voor de Commodore 64. Uitvoer: `.prg`
@@ -144,16 +144,24 @@ var x = 5 : var y = 6  # colon separates statements on one line
 ```basic
 x = x + 1
 y = a * b - c / 2
-z = x and 15             # bitwise AND
-w = a or b               # bitwise OR
-v = a xor b              # bitwise XOR
-m = x shl 3              # shift left
-n = x shr 2              # shift right
-r = x mod 40             # 8-bit modulo (remainder); SEC/SBC/BCS loop
-b = bnot x               # bitwise NOT: x XOR 255 (complement all 8 bits)
+z = x en 15 # bitwise AND
+w = a of b # bitwise OR
+v = a xor b # bitwise XOR
+m = x shl 3 # naar links verschuiven
+n = x shr 2 # naar rechts verschuiven
+r = x modulo 40 # 8-bits modulo (rest); x mod 0 = x, x / 0 = 255
+b = bnot x # bitwise NOT: x XOR 255 (complementeer alle 8 bits)
 ```
 
 Vergelijkingen: `==` `!=` `<` `>` `<=` `>=` (retourneer 1/0)
+
+Rekenkundige code (1.6.0): `*` gedeeld door een constante compileert naar shifts
+/ shift-add (`x * 8` → 3× `ASL`), anders naar een shift-add lus van maximaal 8
+rondes. `/` en `mod` gedeeld door een macht van twee zijn `LSR` / `AND #(n-1)`,
+anders een shift-subtract lus van 8 rondes waarvan de looptijd niet langer
+afhangt van het quotiënt. Delen door nul is gedefinieerd: `x / 0 = 255`, `x mod
+0 = x` (vóór 1.6.0 liep het vast). `x = x + 1` / `x = x - 1` (en ±2) compileren
+naar `INC` / `DEC`.
 
 ### Verhogen / Verlagen
 
@@ -284,23 +292,23 @@ until x == 100       # exits when condition is true
 
 **Richtingsregels voor `for`/`loop`:**
 
-| Case                                                   | Gedrag                                                                                                                 |
-| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
-| `for i = 1 to 10` (standaard `step +1`, `from ≤ to`)   | telt omhoog, standaard                                                                                                 |
-| `for i = 0 to 20 step 2` (positieve stap, `from ≤ to`) | telt met 2 omhoog                                                                                                      |
-| `for i = 10 to 1 step -1` (negatieve constante stap)   | telt af; het lichaam loopt voor i = 10, 9, ..., 1                                                                      |
-| `for i = 20 to 0 step -2` (naar nul)                   | Het programma stopt bij i = 0 door de ADC-onderloop (C=0) na de decrementatie te detecteren; er is geen oneindige lus. |
-| `for i = 10 to 1` (geen stap, `from > to`)             | **compilatiefout**: `for-loop: from (10) > to (1) with default step +1 loops 0 times — use 'step -1' to count down`    |
+| Case                                                   | Gedrag                                                                                                              |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| `for i = 1 to 10` (standaard `step +1`, `from ≤ to`)   | telt omhoog, standaard                                                                                              |
+| `for i = 0 to 20 step 2` (positieve stap, `from ≤ to`) | telt met 2 omhoog                                                                                                   |
+| `for i = 10 to 1 step -1` (negatieve constante stap)   | telt af; het lichaam loopt voor i = 10, 9, ..., 1                                                                   |
+| `for i = 20 to 0 step -2` (naar nul)                   | Het programma stopt bij i = 0 door de terugloop onder 0 na de verlaging te detecteren; er is geen oneindige lus.    |
+| `for i = 10 to 1` (geen stap, `from > to`)             | **compilatiefout**: `for-loop: from (10) > to (1) with default step +1 loops 0 times — use 'step -1' to count down` |
 
-De compiler kiest de exit-branch-codering tijdens het compileren op basis van
-het teken van een constante `step`:
-
-- Positieve stap (of standaard `+1`) → afsluiten wanneer `var > to`
-  (niet-ondertekende `CMP` + `BCC`/`BEQ` vallen door naar `JMP exit`).
-- Negatieve constante stap → afsluiten wanneer `var < to` (ongetekende `CMP` +
-  `BCS` naar de body), **plus** een post-increment `BCS loop_top ; JMP exit` die
-  de wrap opvangt wanneer `var` onder 0 komt. Dat extra paar instructies zorgt
-  ervoor dat `for i = N to 0 step -k` eindig blijft.
+Codestructuur (1.6.0): de lus is *rotated* — `JMP test` (weggelaten wanneer
+constante grenzen een eerste doorgang garanderen), de body, `var += step`, dan
+de test onderaan die terugspringt naar de body, zodat er geen extra `JMP` per
+iteratie is. De stap detecteert 8-bits wrap-around in beide richtingen
+(`INC`/`BEQ` of `ADC`/`BCS` bij optellen, `BEQ`/`DEC` of `SBC`/`BCC` bij
+aftellen), dus `for i = 0 to 255` wordt 256 keer uitgevoerd en stopt, en `for i
+= N to 0 step -k` is altijd eindig. Constante limieten en stappen worden
+gebruikt als directe waarden (geen nulpagina); Een niet-constante limiet of stap
+wordt eenmaal geëvalueerd en opgeslagen in de permanente nulpagina.
 
 Niet-constante `step`-waarden (bijvoorbeeld van een variabele of expressie)
 worden tijdens het compileren als positief behandeld; als u een aftelling met
@@ -1273,9 +1281,9 @@ waren de twee verwisseld: `load "F"` geladen naar `$0000`.) `save` roept
 #### Doorverbinden naar een ander programma — `chain` (nieuw in 1.5.9)
 
 ```basic
-chain "GAME" # laad GAME vanaf de schijf waar we begonnen zijn en VOER het UIT
-chain "GAME", 9 # vanaf schijf 9 (willekeurige expressie)
-print "LAADFOUT" # wordt alleen bereikt als het bestand niet kon worden geladen
+chain "GAME"             # load GAME from the drive we were started from and RUN it
+chain "GAME", 9          # from drive 9 (any expression)
+print "LOAD ERROR"       # only reached if the file could not be loaded
 ```
 
 `chain` laadt een ander programma naar zijn eigen laadadres — normaal gesproken
@@ -1963,6 +1971,25 @@ demo.ub → demo.prg  (386 bytes)
 
 Met `-v` toont de uitvoer bovendien de interne ZP-toewijzingen en een volledige
 hex-dump.
+
+### Gegenereerde code (geoptimaliseerd in 1.6.0)
+
+De codegenerator genereert een strakkere 6502-code voor de meest voorkomende
+gevallen; programma's hoeven niet te worden aangepast.
+
+- Voorwaarden in `if` / `while` / `until` / `select` zijn een `CMP` plus een
+  sprong (er wordt geen 0/1-waarde geconstrueerd en opnieuw getest). `x &gt; n`
+  wordt gecompileerd als `x &gt;= n+1`; `and` / `or` van vergelijkingen worden
+  afgebroken wanneer de rechterkant geen neveneffecten heeft; `while` test
+  onderaan de lus.
+- Constanten en bytevariabelen zijn directe operanden (`ADC #n`, `CMP zp`);
+  `poke` naar een constante of `word` adresopslagen direct.
+- Arrays met een variabele index gebruiken `base,Y`-adressering in plaats van
+  een nulpagina-pointer.
+- Wanneer een instructie begint met het laden van de variabele die de vorige
+  instructie zojuist heeft opgeslagen, wordt de overbodige `LDA` overgeslagen.
+
+Gebruik `--asm` om de gegenereerde code voor je eigen programma te bekijken.
 
 ## Bekende beperkingen
 
