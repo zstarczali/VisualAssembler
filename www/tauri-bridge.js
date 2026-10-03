@@ -79,6 +79,7 @@
     loadSample: (sampleName) => invoke("load_sample", { sampleName }),
     listTemplates: () => invoke("list_templates"),
     openTemplatesFolder: () => invoke("open_templates_folder"),
+    createTemplateProject: (projPath, projContent, mainPath, mainContent) => invoke("create_template_project", { projPath, projContent, mainPath, mainContent }),
     openManual: () => invoke("open_manual"),
     openUltimateBasicManual: () => invoke("open_ultimate_basic_manual"),
   runOnUltimate: (host, password, prgBytes) => invoke("run_on_ultimate", { host, password, prgBytes }),

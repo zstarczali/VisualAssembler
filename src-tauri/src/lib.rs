@@ -3254,6 +3254,64 @@ fn list_templates(app: AppHandle) -> serde_json::Value {
     })
 }
 
+fn create_new_file(path: &Path, content: &str) -> std::io::Result<()> {
+    let mut file = fs::OpenOptions::new().write(true).create_new(true).open(path)?;
+    file.write_all(content.as_bytes())?;
+    file.sync_all()
+}
+
+// Writes a new project's main source and .proj together: both are created with
+// create-new semantics (an existing file is never touched), and if the second
+// write fails the first file is removed again, so no orphaned half project stays.
+#[tauri::command]
+fn create_template_project(
+    proj_path: String,
+    proj_content: String,
+    main_path: String,
+    main_content: String,
+) -> serde_json::Value {
+    let proj = PathBuf::from(&proj_path);
+    let main = PathBuf::from(&main_path);
+    if proj_path.is_empty() || main_path.is_empty() {
+        return serde_json::json!({ "ok": false, "error": "Empty path" });
+    }
+    if proj.exists() || main.exists() {
+        return serde_json::json!({ "ok": false, "exists": true, "error": "Project already exists" });
+    }
+    let dir = match proj.parent() {
+        Some(dir) => dir.to_path_buf(),
+        None => return serde_json::json!({ "ok": false, "error": "Invalid project path" }),
+    };
+    let created_dir = !dir.exists();
+    if let Err(e) = fs::create_dir_all(&dir) {
+        return serde_json::json!({ "ok": false, "error": e.to_string() });
+    }
+    // A file that already existed (AlreadyExists) is someone else's and is never removed.
+    let fail = |e: std::io::Error, written: &[&Path]| {
+        let exists = e.kind() == ErrorKind::AlreadyExists;
+        for path in written {
+            let _ = fs::remove_file(path);
+        }
+        if created_dir {
+            let _ = fs::remove_dir(&dir);
+        }
+        serde_json::json!({ "ok": false, "exists": exists, "error": e.to_string() })
+    };
+    if let Err(e) = create_new_file(&main, &main_content) {
+        let partial: &[&Path] = if e.kind() == ErrorKind::AlreadyExists { &[] } else { &[main.as_path()] };
+        return fail(e, partial);
+    }
+    if let Err(e) = create_new_file(&proj, &proj_content) {
+        let written: Vec<&Path> = if e.kind() == ErrorKind::AlreadyExists {
+            vec![main.as_path()]
+        } else {
+            vec![main.as_path(), proj.as_path()]
+        };
+        return fail(e, &written);
+    }
+    serde_json::json!({ "ok": true, "projPath": proj_path, "mainPath": main_path })
+}
+
 #[tauri::command]
 async fn open_templates_folder(app: AppHandle) -> Result<(), String> {
     let dir = user_templates_dir(&app).ok_or_else(|| "No config folder".to_string())?;
@@ -3321,6 +3379,44 @@ mod tests {
             .unwrap()
             .as_nanos();
         std::env::temp_dir().join(format!("{}-{}-{}", prefix, std::process::id(), stamp))
+    }
+
+    fn create_project(dir: &Path, proj_name: &str) -> serde_json::Value {
+        create_template_project(
+            dir.join(proj_name).to_string_lossy().to_string(),
+            "{}".to_string(),
+            dir.join("main.asm").to_string_lossy().to_string(),
+            "RTS".to_string(),
+        )
+    }
+
+    #[test]
+    fn template_project_writes_both_files_and_never_overwrites() {
+        let dir = unique_temp_dir("va-template-ok").join("Demo");
+        let res = create_project(&dir, "Demo.proj");
+        assert_eq!(res["ok"], true);
+        assert_eq!(fs::read_to_string(dir.join("main.asm")).unwrap(), "RTS");
+        assert_eq!(fs::read_to_string(dir.join("Demo.proj")).unwrap(), "{}");
+
+        fs::write(dir.join("main.asm"), "KEEP").unwrap();
+        let again = create_project(&dir, "Demo.proj");
+        assert_eq!(again["ok"], false);
+        assert_eq!(again["exists"], true);
+        assert_eq!(fs::read_to_string(dir.join("main.asm")).unwrap(), "KEEP");
+        let _ = fs::remove_dir_all(dir.parent().unwrap());
+    }
+
+    #[test]
+    fn template_project_rolls_back_main_file_when_proj_write_fails() {
+        let root = unique_temp_dir("va-template-rollback");
+        let dir = root.join("Demo");
+        // A NUL byte makes the .proj open fail after main.asm was written.
+        let res = create_project(&dir, "De\0mo.proj");
+        assert_eq!(res["ok"], false);
+        assert_eq!(res["exists"], false);
+        assert!(!dir.join("main.asm").exists());
+        assert!(!dir.exists());
+        let _ = fs::remove_dir_all(&root);
     }
 
     #[test]
@@ -3807,6 +3903,7 @@ pub fn run() {
             load_sample,
             list_templates,
             open_templates_folder,
+            create_template_project,
             open_manual,
             open_ultimate_basic_manual,
             run_on_ultimate,

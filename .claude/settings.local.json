@@ -323,7 +323,10 @@
       "Bash(CARGO_TARGET_DIR=\"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/80e92741-b04d-4840-9598-18412605ba75/scratchpad/ubtarget\" cargo build --release --bin ub)",
       "Bash(grep -v \"^\\\\s*$\")",
       "Bash(\"D:/Development/VICE/bin/x64sc.exe\" -help)",
-      "Bash(node \"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/80e92741-b04d-4840-9598-18412605ba75/scratchpad/agents249.js\")"
+      "Bash(node \"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/80e92741-b04d-4840-9598-18412605ba75/scratchpad/agents249.js\")",
+      "Bash(curl -s https://api.github.com/repos/zstarczali/VisualAssembler/pulls/comments/4169091063)",
+      "Bash(grep -n \"^\\\\s*create_template_project,$\\\\|^\\\\s*open_templates_folder,$\" src-tauri/src/lib.rs)",
+      "Bash(sed -i 's|^\\\\\\(\\\\s*\\\\\\)openTemplatesFolder: \\(\\) => invoke\\(\"open_templates_folder\"\\),|&\\\\n\\\\1createTemplateProject: \\(projPath, projContent, mainPath, mainContent\\) => invoke\\(\"create_template_project\", { projPath, projContent, mainPath, mainContent }\\),|' www/tauri-bridge.js)"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"

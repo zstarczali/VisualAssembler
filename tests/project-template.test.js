@@ -122,5 +122,8 @@ test("template menu item, dialog and backend commands are wired up", () => {
   assert.ok(bridge.includes('invoke("open_templates_folder")'));
   assert.ok(/fn list_templates\(/.test(rust) && /^\s*list_templates,\s*$/m.test(rust));
   assert.ok(/fn open_templates_folder\(/.test(rust) && /^\s*open_templates_folder,\s*$/m.test(rust));
+  assert.ok(bridge.includes('invoke("create_template_project"'));
+  assert.ok(/fn create_template_project\(/.test(rust) && /^\s*create_template_project,\s*$/m.test(rust));
+  assert.ok(appJs.includes("api.createTemplateProject("), "project creation must go through the atomic backend call");
   assert.equal(conf.bundle.resources["../templates/*"], "templates/");
 });

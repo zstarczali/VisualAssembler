@@ -13145,9 +13145,10 @@ async function _templateCreateProject() {
   const api = window.electronAPI;
   const tpl = _templateSelected();
   const paths = _templateFormPaths();
-  if (!tpl || !paths || !api?.saveTextFile || !api?.saveProjFile) return;
+  if (!tpl || !paths || !api?.createTemplateProject) return;
 
-  // Never write into a folder that already holds a project.
+  // Early check so the open tabs are not closed for nothing; the backend
+  // re-checks with create-new semantics when it writes.
   for (const path of [paths.projPath, paths.mainPath]) {
     if ((await api.readTextFile?.(path))?.ok) {
       _templateUpdateTarget(tf("templateExists", { path: _templateDisplayPath(paths.dir) }));
@@ -13160,10 +13161,12 @@ async function _templateCreateProject() {
   const mainName = isUb ? "main.ub" : "main.asm";
   const fileEntry = { type: "file", name: mainName, path: mainName };
   const payload = JSON.stringify({ ...(isUb ? { app: "ultimate-basic" } : {}), name: paths.name, files: [fileEntry], startupFile: fileEntry.path }, null, 2);
-  const mainRes = await api.saveTextFile(paths.mainPath, tpl.body.replaceAll("{{PROJECT}}", paths.name));
-  const projRes = mainRes?.ok ? await api.saveProjFile(paths.projPath, payload) : null;
-  if (!mainRes?.ok || !projRes?.ok) {
-    _templateUpdateTarget(`${t("templateWriteError")}: ${mainRes?.error || projRes?.error || _templateDisplayPath(paths.dir)}`);
+  // Both files are written in one backend call that rolls back on failure.
+  const res = await api.createTemplateProject(paths.projPath, payload, paths.mainPath, tpl.body.replaceAll("{{PROJECT}}", paths.name));
+  if (!res?.ok) {
+    _templateUpdateTarget(res?.exists
+      ? tf("templateExists", { path: _templateDisplayPath(paths.dir) })
+      : `${t("templateWriteError")}: ${res?.error || _templateDisplayPath(paths.dir)}`);
     return;
   }
   localStorage.setItem("templateProjectLocation", document.getElementById("template-location")?.value.trim() || "");
@@ -13181,7 +13184,7 @@ async function _templateCreateProject() {
       name: paths.name,
       files: [{ ...fileEntry }],
       startupFile: fileEntry.path,
-      _projPath: projRes.filePath || paths.projPath
+      _projPath: paths.projPath
     };
     _ubProjectDirty = false;
     const opened = await _ubOpenProjectFile(_ubProjectData.files[0]);
@@ -13211,7 +13214,7 @@ async function _templateCreateProject() {
   _expertProjectData = {
     name: paths.name,
     files: [{ ...fileEntry }],
-    _projPath: projRes.filePath || paths.projPath,
+    _projPath: paths.projPath,
     startupFile: fileEntry.path
   };
   _expertProjectDirty = false;
@@ -17594,16 +17597,34 @@ function _findTabByPath(path) {
   return tabs.find(tab => _normFilePath(tab.ubFilePath || tab.filePath) === norm) || null;
 }
 
-function _collectIncludedNames(text, blocks) {
-  const names = new Set();
-  const baseName = (p) => String(p || "").replace(/\\/g, "/").split("/").pop().toLowerCase();
-  for (const m of String(text || "").matchAll(/(?:^|[\s.#])(?:include|import)\s+"([^"]+)"/gim)) {
-    names.add(baseName(m[1]));
-  }
+// Resolves an include like the compilers do: relative paths against the folder of
+// the including source, "." / ".." collapsed, so lib/common.asm and
+// tools/common.asm stay different files. Returns "" when it cannot be resolved.
+function _resolveIncludePath(sourcePath, includePath) {
+  const inc = String(includePath || "").trim().replace(/\\/g, "/");
+  if (!inc) return "";
+  const isAbsolute = /^[A-Za-z]:\//.test(inc) || inc.startsWith("/");
+  const src = String(sourcePath || "").replace(/\\/g, "/");
+  if (!isAbsolute && !src.includes("/")) return "";
+  const full = isAbsolute ? inc : `${src.slice(0, src.lastIndexOf("/") + 1)}${inc}`;
+  const parts = [];
+  full.split("/").forEach((seg, i) => {
+    if (seg === "." || (seg === "" && i > 0)) return;
+    const last = parts[parts.length - 1];
+    if (seg === ".." && parts.length > 1 && last !== "..") parts.pop();
+    else parts.push(seg);
+  });
+  return _normFilePath(parts.join("/"));
+}
+
+function _collectIncludedPaths(sourcePath, text, blocks) {
+  const paths = new Set();
+  const add = (p) => { const resolved = _resolveIncludePath(sourcePath, p); if (resolved) paths.add(resolved); };
+  for (const m of String(text || "").matchAll(/(?:^|[\s.#])(?:include|import)\s+"([^"]+)"/gim)) add(m[1]);
   for (const block of blocks || []) {
-    if (block?.isIncludeMacro && block.includeFile) names.add(baseName(block.includeFile));
+    if (block?.isIncludeMacro && block.includeFile) add(block.includeFile);
   }
-  return names;
+  return paths;
 }
 
 function _collectBuildProjectTargets() {
@@ -17697,13 +17718,13 @@ async function buildProjectToFiles() {
       }
     }
     const included = new Set();
-    targets.forEach(target => _collectIncludedNames(target.text, target.blocks).forEach(n => included.add(n)));
+    targets.forEach(target => _collectIncludedPaths(target.path, target.text, target.blocks).forEach(p => included.add(p)));
 
     for (const [i, target] of targets.entries()) {
       setWorkProgress(Math.round((i / targets.length) * 95));
       if (!target.path) { results.push({ name: target.name, skipped: t("buildProjectUntitled") }); continue; }
       const fileName = target.path.replace(/\\/g, "/").split("/").pop();
-      if (/\.inc$/i.test(fileName) || included.has(fileName.toLowerCase())) {
+      if (/\.inc$/i.test(fileName) || included.has(_resolveIncludePath("", target.path))) {
         results.push({ name: fileName, skipped: t("buildProjectIncluded") });
         continue;
       }
