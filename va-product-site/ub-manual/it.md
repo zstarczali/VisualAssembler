@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.9 — Manuale della lingua
+# Ultimate Basic v1.6.0 — Manuale della lingua
 
 Manuale completo del linguaggio e della riga di comando per Ultimate Basic, un
 linguaggio simile al BASIC che compila direttamente in codice macchina 6502 per
@@ -143,16 +143,24 @@ var x = 5 : var y = 6  # colon separates statements on one line
 ```basic
 x = x + 1
 y = a * b - c / 2
-z = x and 15             # bitwise AND
-w = a or b               # bitwise OR
-v = a xor b              # bitwise XOR
-m = x shl 3              # shift left
-n = x shr 2              # shift right
-r = x mod 40             # 8-bit modulo (remainder); SEC/SBC/BCS loop
-b = bnot x               # bitwise NOT: x XOR 255 (complement all 8 bits)
+z = x e 15 # AND bit a bit
+w = a o b # OR bit a bit
+v = a x o b # XOR bit a bit
+m = x shl 3 # shift a sinistra
+n = x shr 2 # shift a destra
+r = x mod 40 # modulo a 8 bit (resto); x mod 0 = x, x / 0 = 255
+b = bnot x # NOT bit a bit: x XOR 255 (complementa tutti gli 8 bit)
 ```
 
 Confronti: `==` `!=` `<` `>` `<=` `>=` (ritorno 1/0)
+
+Codice aritmetico (1.6.0): `*` per una costante si compila in shift / shift-add
+(`x * 8` → 3× `ASL`), altrimenti in un ciclo shift-add di al massimo 8 round.
+`/` e `mod` per una potenza di due sono `LSR` / `AND #(n-1)`, altrimenti un
+ciclo shift-sottrazione di 8 round il cui tempo di esecuzione non dipende più
+dal quoziente. La divisione per zero è definita come: `x / 0 = 255`, `x mod 0 =
+x` (prima della 1.6.0 si bloccava). `x = x + 1` / `x = x - 1` (e ±2) compilano
+in `INC` / `DEC`.
 
 ### Incremento / Decremento
 
@@ -288,18 +296,19 @@ until x == 100       # exits when condition is true
 | `for i = 1 to 10` (predefinito `step +1`, `from ≤ to`) | conta in avanti, standard                                                                                                           |
 | `for i = 0 to 20 step 2` (passo positivo, `from ≤ to`) | conta in avanti di 2                                                                                                                |
 | `for i = 10 to 1 step -1` (passo costante negativo)    | conto alla rovescia; il corpo corre per i = 10, 9, ..., 1                                                                           |
-| `for i = 20 to 0 step -2` (fino a zero)                | termina a i = 0 rilevando il sottoflusso ADC (C=0) dopo il decremento; nessun ciclo infinito                                        |
+| `for i = 20 to 0 step -2` (fino a zero)                | termina in i = 0 rilevando il wrap-around al di sotto di 0 dopo il decremento; nessun ciclo infinito                                |
 | `for i = 10 to 1` (nessun passo, `from > to`)          | **errore in fase di compilazione**: `for-loop: from (10) > to (1) with default step +1 loops 0 times — use 'step -1' to count down` |
 
-Il compilatore sceglie la codifica del ramo di uscita in fase di compilazione in
-base al segno di una costante `step`:
-
-- Passo positivo (o predefinito `+1`) → esci quando `var > to` (unsigned `CMP` +
-  `BCC`/`BEQ` fall-through a `JMP exit`).
-- Passo costante negativo → esci quando `var < to` (unsigned `CMP` + `BCS` al
-  corpo), **più** un post-incremento `BCS loop_top ; JMP exit` che cattura il
-  wrap quando `var` è in underflow sotto 0. Quella coppia extra di istruzioni è
-  ciò che mantiene `for i = N to 0 step -k` finito.
+Forma del codice (1.6.0): il ciclo è *ruotato* — `test JMP` (omesso quando i
+limiti costanti garantiscono un primo passaggio), il corpo, `var += step`,
+quindi il test in basso che si dirama di nuovo verso il corpo, quindi non c'è
+`JMP` extra per iterazione. Il passo rileva il wrap-around a 8 bit in entrambe
+le direzioni (`INC`/`BEQ` o `ADC`/`BCS` contando in avanti, `BEQ`/`DEC` o
+`SBC`/`BCC` contando all'indietro), quindi `per i = 0 a 255` viene eseguito 256
+volte e si ferma, e `per i = N a 0 passo -k` è sempre finito. I limiti e i passi
+costanti vengono utilizzati come immediati (nessuna pagina zero); Un limite o un
+passo non costante viene valutato una sola volta e memorizzato nella pagina zero
+permanente.
 
 I valori non costanti `step` (ad esempio da una variabile o un'espressione)
 vengono trattati come positivi in fase di compilazione; se è necessario un conto
@@ -1288,9 +1297,9 @@ caricato in `$0000`.) `save` chiama `SETNAM`+`SETLFS`+`SAVE`
 #### Collegamento a un altro programma — `chain` (novità nella versione 1.5.9)
 
 ```basic
-catena "GIOCO" # carica GIOCO dall'unità da cui è stato avviato ed eseguilo
-catena "GIOCO", 9 # dall'unità 9 (qualsiasi espressione)
-stampa "ERRORE DI CARICAMENTO" # viene raggiunto solo se il file non può essere caricato
+chain "GAME"             # load GAME from the drive we were started from and RUN it
+chain "GAME", 9          # from drive 9 (any expression)
+print "LOAD ERROR"       # only reached if the file could not be loaded
 ```
 
 `chain` carica un altro programma al proprio indirizzo di caricamento —
@@ -1983,6 +1992,25 @@ demo.ub → demo.prg  (386 bytes)
 
 Con `-v` l'output mostra inoltre le allocazioni interne ZP e un dump esadecimale
 completo.
+
+### Codice generato (ottimizzato nella versione 1.6.0)
+
+Il generatore di codice emette un codice 6502 più restrittivo per i casi comuni;
+i programmi non necessitano di modifiche:
+
+- Le condizioni in `if` / `while` / `until` / `select` sono un `CMP` più un
+  salto (nessun valore 0/1 viene costruito e ricontrollato). `x &gt; n` viene
+  compilato come `x &gt;= n+1`; `and` / `or` dei confronti vanno in
+  cortocircuito quando il lato destro non ha effetti collaterali; `while` esegue
+  i test in fondo al ciclo.
+- Le costanti e le variabili byte sono operandi diretti (`ADC #n`, `CMP zp`);
+  `poke` a una costante o `word` memorizza direttamente l'indirizzo.
+- Gli array con indice variabile utilizzano l'indirizzamento `base,Y` invece di
+  un puntatore a pagina zero.
+- Quando un'istruzione inizia caricando la variabile che l'istruzione precedente
+  ha appena memorizzato, l'LDA ` ridondante ` viene saltato.
+
+Utilizza `--asm` per visualizzare il codice generato per il tuo programma.
 
 ## Limitazioni note
 

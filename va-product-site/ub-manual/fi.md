@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.9 — Kieliopas
+# Ultimate Basic v1.6.0 — Kieliopas
 
 Täydellinen kieli- ja komentoriviviite Ultimate Basicille, BASICin kaltaiselle
 kielelle, joka kääntyy suoraan 6502-konekoodiksi Commodore 64:lle. Tuloste:
@@ -142,16 +142,24 @@ var x = 5 : var y = 6  # colon separates statements on one line
 ```basic
 x = x + 1
 y = a * b - c / 2
-z = x and 15             # bitwise AND
-w = a or b               # bitwise OR
-v = a xor b              # bitwise XOR
-m = x shl 3              # shift left
-n = x shr 2              # shift right
-r = x mod 40             # 8-bit modulo (remainder); SEC/SBC/BCS loop
-b = bnot x               # bitwise NOT: x XOR 255 (complement all 8 bits)
+z = x ja 15 # bittikohtainen JA
+w = a tai b # bittikohtainen TAI
+v = a xor b # bittikohtainen XOR
+m = x shl 3 # siirto vasemmalle
+n = x shr 2 # siirto oikealle
+r = x mod 40 # 8-bittinen modulo (jäännös); x mod 0 = x, x / 0 = 255
+b = bnot x # bittikohtainen EI: x XOR 255 (komplementoi kaikki 8 bittiä)
 ```
 
 Vertailut: `==` `!=` `<` `>` `<=` `>=` (palauta 1/0)
+
+Aritmeettinen koodi (1.6.0): Vakioarvolla `*` kääntyy muotoon shifts / shift-add
+(`x * 8` → 3× `ASL`), muuten enintään 8 kierroksen shift-add-silmukaksi. `/` ja
+kahden potenssilla korotettu `mod` ovat `LSR` / `AND #(n-1)`, muuten 8
+kierroksen shift-subtract-silmukka, jonka suoritusaika ei enää riipu
+osamäärästä. Nollalla jakaminen määritellään seuraavasti: `x / 0 = 255`, `x mod
+0 = x` (ennen versiota 1.6.0 se jumiutui). `x = x + 1` / `x = x - 1` (ja ±2)
+käännetään muotoon `INC` / `DEC`.
 
 ### Lisäys / Vähennys
 
@@ -287,18 +295,18 @@ until x == 100       # exits when condition is true
 | `for i = 1 to 10` (oletus `step +1`, `from ≤ to`)          | laskee ylöspäin, vakio                                                                                                        |
 | `for i = 0 to 20 step 2` (positiivinen askel, `from ≤ to`) | laskee kahdella ylöspäin                                                                                                      |
 | `for i = 10 to 1 step -1` (negatiivinen vakioaskel)        | laskee alaspäin; kappale juoksee ajan i = 10, 9, ..., 1                                                                       |
-| `for i = 20 to 0 step -2` (nollasta ylöspäin)              | päättyy kohtaan i = 0 havaitsemalla ADC-alivuoto (C=0) vähennyksen jälkeen; ei loputonta silmukkaa                            |
+| `for i = 20 to 0 step -2` (nollasta ylöspäin)              | päättyy kohtaan i = 0 havaitsemalla kiertymisen 0:n alapuolelle vähennyksen jälkeen; ei loputonta silmukkaa                   |
 | `for i = 10 to 1` (ei askelta, `from > to`)                | **käännöksenaikainen virhe**: `for-loop: from (10) > to (1) with default step +1 loops 0 times — use 'step -1' to count down` |
 
-Kääntäjä valitsee lopetushaaran koodauksen käännösaikana vakion `step` etumerkin
-perusteella:
-
-- Positiivinen askel (tai oletusarvo `+1`) → poistutaan, kun `var > to`
-  (etumerkitön `CMP` + `BCC`/`BEQ` läpimenoaika arvoon `JMP exit`).
-- Negatiivinen vakioaskel → poistutaan kun `var < to` (etumerkitön `CMP` + `BCS`
-  runkoon), **sekä** jälki-inkrementti `BCS loop_top ; JMP exit`, joka nappaa
-  kierroksen, kun `var` alivuodossa on alle 0. Tämä ylimääräinen käskypari pitää
-  `for i = N to 0 step -k` äärellisenä.
+Koodin muoto (1.6.0): silmukka *kierretään* — `JMP-testi` (jätetään pois, kun
+vakiorajat takaavat ensimmäisen läpimenon), runko, `var += step`, sitten
+alhaalla oleva testi haarautuu takaisin runkoon, joten iteraatiota kohden ei ole
+ylimääräistä `JMP`:tä. Askel havaitsee 8-bittisen kiertoliikkeen molempiin
+suuntiin (`INC`/`BEQ` tai `ADC`/`BCS` laskee ylöspäin, `BEQ`/`DEC` tai
+`SBC`/`BCC` laskee alaspäin), joten ` i = 0 - 255 ` suoritetaan 256 kertaa ja
+pysähtyy, ja ` i = N - 0 askel -k` on aina äärellinen. Vakioita rajoja ja
+askeleita käytetään välittöminä (ei nollasivua); Ei-vakio raja-arvo tai askel
+lasketaan kerran ja säilytetään pysyvästi nollasivulla.
 
 Muuttuvat `step`-arvot (esim. muuttujasta tai lausekkeesta) käsitellään
 positiivisina käännösaikana; jos tarvitset lähtölaskentaa ajonaikaisella
@@ -1271,9 +1279,9 @@ kohteeseen `$0000`.) `save` kutsuu funktiota `SETNAM`+`SETLFS`+`SAVE`
 #### Ketjuttaminen toiseen ohjelmaan — `ketju` (uusi versiossa 1.5.9)
 
 ```basic
-chain "GAME" # lataa GAME käynnistysasemalta ja SUORITA se
-chain "GAME", 9 # asemalta 9 (mikä tahansa lauseke)
-print "LOAD ERROR" # saavutetaan vain, jos tiedostoa ei voitu ladata
+chain "GAME"             # load GAME from the drive we were started from and RUN it
+chain "GAME", 9          # from drive 9 (any expression)
+print "LOAD ERROR"       # only reached if the file could not be loaded
 ```
 
 `chain` lataa toisen ohjelman omaan latausosoitteeseensa — normaalisti `$0801`,
@@ -1952,6 +1960,24 @@ demo.ub → demo.prg  (386 bytes)
 
 `-v`-merkillä tuloste näyttää lisäksi sisäiset ZP-allokoinnit ja täyden
 heksaedrisen vedoksen.
+
+### Luotu koodi (optimoitu versiossa 1.6.0)
+
+Koodigeneraattori tuottaa tiukemman 6502-koodin yleisimmissä tapauksissa;
+ohjelmiin ei tarvitse tehdä muutoksia:
+
+- Ehdot `if` / `while` / `until` / `select` -lausekkeissa ovat `CMP` ja haara
+  (0/1-arvoa ei rakenneta eikä testata uudelleen). `x &gt; n` käännetään
+  muodossa `x &gt;= n+1`; vertailujen ` ja ` / ` tai ` oikosulkevat, kun
+  oikealla puolella ei ole sivuvaikutuksia; `while` testaa silmukan lopussa.
+- Vakiot ja tavumuuttujat ovat suoria operandeja (`ADC #n`, `CMP zp`); `poke`
+  vakioon tai `sana`-osoite tallentuu suoraan.
+- Muuttuvan indeksin omaavat taulukot käyttävät `base,Y` -osoitusta
+  nollasivuisen osoittimen sijaan.
+- Kun lauseke alkaa lataamalla muuttujaa, jonka edellinen lauseke juuri
+  tallensi, redundantti `LDA` ohitetaan.
+
+Käytä `--asm` nähdäksesi oman ohjelmasi luoman koodin.
 
 ## Tunnetut rajoitukset
 
