@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Gebruikershandleiding
 
-**Versie 2.4.9**
+**Versie 2.5.0**
 
 Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma's door instructieblokken te slepen en neer te zetten, en bekijk de gegenereerde assembly- en machinecode in realtime.
 
@@ -9,6 +9,7 @@ Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma'
 ## Inhoudsopgave
 
 - [C64 Visual Assembler — Gebruikershandleiding](#c64-visual-assembler--user-manual)
+    - [Hoogtepunten van versie 2.5.0](#version-250-highlights)
     - [Hoogtepunten van versie 2.4.9](#version-249-highlights)
     - [Hoogtepunten van versie 2.4.8](#version-248-highlights)
     - [Hoogtepunten van versie 2.4.7](#version-247-highlights)
@@ -34,6 +35,7 @@ Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma'
   - [5. Instellingen & Werkbalk](#5-settings--toolbar)
     - [Projecttemplates](#project-templates)
     - [Project bouwen](#build-project)
+    - [Voorbeeldprogramma's](#example-programs)
     - [Laad .asm-bestand (snelle referentie)](#load-asm-file-quick-reference)
       - [Import parsing notes and best practices](#import-parsing-notes-and-best-practices)
   - [Ultieme Basismodus](#ultimatebasic-mode)
@@ -87,6 +89,9 @@ Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma'
     - [BOX_HIT](#box_hit)
     - [INCBIN](#incbin)
     - [KOALA](#koala)
+    - [NIVEAU / NIVEAU_RIJ](#level--level_row)
+      - [NIVEAU](#level)
+      - [NIVEAU_RIJ](#level_row)
     - [SID](#sid)
     - [INCLUDE](#include)
     - [TABLE](#table)
@@ -161,8 +166,22 @@ Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma'
     - [Tekeneditor (Tekenset)](#character-editor-charset)
     - [Tekenset Canvas Editor](#charset-canvas-editor)
     - [Kaarteditor (Meerlaagse tegelkaarten)](#map-editor-multilayer-tilemaps)
+    - [Niveau-editor](#level-editor)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Curve-editor](#curve-editor)
+    - [Nummeromzetter](#number-converter)
+
+---
+
+## Hoogtepunten van versie 2.5.0
+
+- **Niveau-editor** — een nieuwe werkbalk-editor rangschikt de schermen van de kaarteditor verticaal, horizontaal of in een 2D-raster en toont een voorbeeld van het hele niveau met vloeiend scrollen. Zie [Niveau-editor](#level-editor).
+- **LEVEL / LEVEL_ROW macro's** — `.level "level.bin"[, $addr]` plaatst alleen de geplaatste schermen van een Level Editor-project plus pointertabellen en definieert `LEVEL_*` labels en constanten; `.level_row dst, col[, color]` kopieert één levelrij van 40 tekens naar een buffer. Zie [LEVEL / LEVEL_ROW](#level--level_row).
+- **JOYSTICK variabele modus** — `.joystickpoort, vx, vy[, vuur]` schrijft de richting naar variabelen (−1 / 0 / +1) in plaats van een sprite te verplaatsen; poort `3` leest beide joystickpoorten. Zie [JOYSTICK](#joystick).
+- **Level scroll demo** — `samples/level-demo.asm` laat een level van 2×5 schermen pixel voor pixel in elke richting scrollen met de joystick, zonder tearing, met ruimte over voor sprites en spelcode.
+- **Getalomzetter** — een niet-modaal DEC/HEX/BIN-dialoogvenster op de werkbalk. Zie [Getalomzetter](#number-converter).
+- **Dialoogvenster met voorbeelden** — **Menu → Voorbeelden…** opent een doorzoekbare, gecategoriseerde lijst van de ingebouwde voorbeeldprogramma's. Zie [Voorbeeldprogramma's](#example-programs).
+- **Ultimate Basic 1.6.1 gebundeld** — `map load "level.bin"[, addr]` leest een Level Editor-project direct in, en de nieuwe `map view px, py` scrollt de kaart soepel en zonder tearing op een pixelpositie (voorbeeld: `level_scroll_demo.ub`). Een byteproduct binnen een 16-bits som wordt niet langer afgekapt tot 8 bits. De UB-opdrachtreferentie vermeldt `map view`, en de zoekopdracht plaatst overeenkomsten met de opdrachtnaam eerst.
 
 ---
 
@@ -412,7 +431,7 @@ Het modale venster sluit automatisch wanneer de actie is voltooid of mislukt.
 | **CRT retro-modus**                                                                             | Schakelt een CRT-filter voor het volledige scherm in of uit: scanlijnen, fosforvignettering, flikkering en tonvormige vertekening. De instelling wordt tussen sessies bewaard.                                                                                                                                                                                                                                                                                                                                    |
 | **Geheugenpaneel weergeven**                                                                    | Globale schakelaar waarmee het volledige C64-geheugenpaneel kan worden weergegeven of verborgen.                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | **BASIC SYS stub**                                                                              | Voegt een BASIC-regel die SYS aanroept toe aan het begin van uw programma.                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| **Voorbeeld**                                                                                   | Een ingebouwd voorbeeldprogramma laden                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| **Voorbeelden…**                                                                                | Open de voorbeeldbrowser en laad een ingebouwd voorbeeldprogramma — zie [Voorbeeldprogramma's](#example-programs)                                                                                                                                                                                                                                                                                                                                                                                                 |
 | **In-/uitzoomen**                                                                               | Schaal de gebruikersinterface van het blok (dit heeft invloed op alle elementen van het blok)                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | **Project opslaan**                                                                             | Sla het huidige programma op als een `.json` projectbestand                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | **Programma opslaan als**                                                                       | Sla het huidige programma elke keer op als een `.json`-projectbestand met behulp van een nieuw bestandsdialoogvenster.                                                                                                                                                                                                                                                                                                                                                                                            |
@@ -513,6 +532,14 @@ Het project wordt aangemaakt in een eigen map: `<locatie>/<naam>/<naam>.proj` pl
 - Debugger-sidecarbestanden (symbolen/bronkaart) worden, indien mogelijk, samen met het PRG-bestand geschreven;
 - Modules die door een ander bestand worden ingevoegd met `.include` / `include` (en `.inc`-bestanden) worden overgeslagen, evenals tabbladen die nooit zijn opgeslagen;
 - Een rapport geeft een lijst van elk bestand met de grootte, *overgeslagen* reden of compilerfout, en de statusbalk toont *N / M gebouwde bestanden*.
+
+### Voorbeeldprogramma's
+
+**Menu → Voorbeelden…** opent de voorbeeldbrowser: de ingebouwde voorbeeldprogramma's gegroepeerd per onderwerp (Basisprincipes, Macro's en besturingsstroom, Grafische elementen, Sprites en invoer, Bestanden en laden, Muziek, IRQ en hardware) in twee kolommen.
+
+- Typ in het zoekvak om te filteren op naam of categorie; in de voettekst wordt weergegeven hoeveel voorbeelden overeenkomen.
+- Klik op een voorbeeld om het te selecteren, **↑ / ↓** verplaats de selectie; **dubbelklik**, **Enter** of **Load** laadt het.
+- Het dialoogvenster wordt geopend met het voorbeeld dat u als laatste hebt geladen.
 
 ### Laad een .asm-bestand (snel naslagwerk)
 
@@ -1291,7 +1318,7 @@ Net als **DATA die direct in het geheugen wordt geladen** — helemaal geen runt
 .rawbytes $0C50, $00, $00 :nev      ; with macroLabel — other code can use LDA nev,X
 ```
 
-**Grootte in code:** 0 bytes. De gegevens worden op het opgegeven adres in de uitvoer geplaatst.
+**Grootte in code: ** 0 bytes. De gegevens worden op het opgegeven adres in de uitvoer geplaatst.
 
 > **DATA vs RAWBYTES:** DATA genereert LDA/STA-code die bytes tijdens de uitvoering kopieert (langzamer, maar werkt als de data dynamisch moet zijn). RAWBYTES plaatst de bytes direct — geen code, direct, geen kosten.
 
@@ -1329,7 +1356,7 @@ Net als RAWBYTES, maar dan voor tekst: de tekenreeks wordt gecodeerd als schermc
     .byte $48, $45, $4C, $4C, $4F   ; h e l l o (lowercase screen codes $41–$5A range)
 ```
 
-**Grootte in code:** 0 bytes. De gegevens worden op het opgegeven adres in de uitvoer geplaatst.
+**Grootte in code: ** 0 bytes. De gegevens worden op het opgegeven adres in de uitvoer geplaatst.
 
 > **STRING vs RAWTEXT:**STRING genereert LDA/STA-code die de tekst tijdens runtime kopieert. RAWTEXT bakt de bytes in de PRG tijdens het laden — geen code, geen wachttijd.
 
@@ -1618,7 +1645,7 @@ Net als **BLOAD in BASIC** — pakt een extern binair bestand (`.bin`, `.prg`, `
 .incbin "music.bin", $C000
 ```
 
-**Gegenereerde ASM-opmerking:**
+**Gegenereerde ASM-opmerking: **
 ```
     ; INCBIN "music.bin" @ $C000 (2048 bytes)
     .byte $01, $02, ...
@@ -1657,6 +1684,48 @@ wait:
 
 ---
 
+### NIVEAU / NIVEAU_RIJ
+
+Voegt een **Level Editor**-project toe aan je programma en kopieert levelrijen naar een schermbuffer — de bouwstenen van een scrollend spel. Zie `samples/level-demo.asm` voor een compleet level dat met een joystick wordt gescrolld.
+
+#### NIVEAU
+
+Een INCBIN-achtig blok dat **0 bytes code** uitzendt. Alleen de **geplaatste** schermen van het Level Editor-project (de `.bin` die is opgeslagen met **Bestanden → Level opslaan**) worden in het geheugen geladen vanaf het opgegeven adres (standaard `$2000`), in volgorde van de slots, 2000 bytes per scherm (1000 schermcodes + 1000 kleuren). Identieke schermen worden één keer opgeslagen en alle lege slots delen één leeg scherm. De pointertabellen volgen de schermen. Een level kan maximaal 7 × 10 schermen bevatten.
+
+**Expert syntax:**
+```
+.level "level.bin"
+.level "level.bin", $4000
+```
+
+| Gedefinieerd                                             | Betekenis                                                                                  |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `LEVEL_SLOT_LO` / `LEVEL_SLOT_HI`                        | Adres van het scherm in elk slot (rij-georiënteerd, `LEVEL_W` slots per rij)               |
+| `NIVEAU_RIJ_SLOT`                                        | Niveaukarakterrij → eerste positie van de bijbehorende schermrij                           |
+| `NIVEAU_RIJ_LAAG/HOOG`, `NIVEAU_KRAAIEN_LAAG/HOOG`       | Niveau tekenrij → offset van de bijbehorende schermcode-rij / kleurenrij binnen een scherm |
+| `LEVEL_COL_SLOT`, `LEVEL_COL_OFS`                        | Bekijk de beginkolom → schermkolom en de kolom binnen het scherm                           |
+| `NIVEAU_W`, `NIVEAU_H`                                   | Niveaugrootte in schermen                                                                  |
+| `NIVEAU_KOLOMMEN`, `NIVEAU_RIJEN`                        | Grootte van het level in tekens                                                            |
+| `LEVEL_MAX_X`, `LEVEL_MAX_Y`                             | Grootste scrollpositie in pixels van een 40×25-weergave                                    |
+| `LEVEL_BG`, `LEVEL_MC1`, `LEVEL_MC2`, `LEVEL_MULTICOLOR` | Achtergrond / meerkleurige kleuren en modus van het level                                  |
+| `NIVEAU_GEGEVENS`, `NIVEAU_GROOTTE`, `NIVEAU_EINDE`      | Start, grootte en eerste vrije adres na de niveaugegevens                                  |
+
+Typische beveiliging: `.assert LEVEL_END &lt;= $9200, "niveaugegevens komen in de code terecht"`.
+
+#### NIVEAU_RIJ
+
+Kopieert één rij van 40 tekens van het niveau naar een buffer: de niveaurij in **X**, beginnend bij de niveaukolom die wordt bewaard in de variabele `col`, naar het adres dat wordt bewaard in de pointer `dst` (`dst` / `dst+1`, laag/hoog). Met het derde argument `color` worden de kleuren gekopieerd in plaats van de schermcodes (voor kleuren-RAM). Een venster van 40 tekens dat zich over twee schermen uitstrekt, wordt verwerkt met een zelfmodificerende kopieerlus (~14 cycli per byte). X wordt behouden, A en Y worden vernietigd. Vereist een `.level`-blok in het programma.
+
+**Expert syntax:**
+```
+.level_row dst_lo, view_x
+.level_row dst_lo, view_x, color
+```
+
+**Grootte in code:** 132 bytes — gebruik `LBEQ` / `LBNE` wanneer een sprong eroverheen moet gaan.
+
+---
+
 ### SID
 
 Net als **BLOAD voor muziek** — laadt een `.sid`-bestand in je PRG en leest automatisch de Init- en Play-adressen uit de header. Roep Init eenmaal aan bij het opstarten en roep vervolgens Play aan vanuit je IRQ-handler in elk frame.
@@ -1679,7 +1748,7 @@ Het blok toont:
 .sid "Ikari_Warriors.sid", $1000
 ```
 
-**Gegenereerde ASM-opmerking:**
+**Gegenereerde ASM-opmerking: **
 ```
     ; SID "Ikari_Warriors.sid" @ $1000  Init:$1000  Play:$1006  (4096 bytes)
 ```
@@ -2699,6 +2768,13 @@ skip_right:
 | 4      | Vuur     | (wordt niet door deze macro afgehandeld) |
 
 **Grootte:** 27 bytes. De `BCS`-offset is altijd `+3` (slaat de volgende 3-byte `DEC`/`INC abs`-instructie over).
+
+**Variabele modus — `.joystickpoort, vx, vy[, vuur]`:** In plaats van een sprite te bewegen, wordt de richting in variabelen geschreven: `vx` / `vy` = `-1` / `0` / `+1` (`$FF` / `$00` / `$01`), en de optionele `vuur` = `1` terwijl de knop wordt ingedrukt, `0` anders. Gebruik het voor een scrollende camera, een speler met eigen fysica of menu's. Poort `3` leest beide joystickpoorten tegelijk (`LDA $DC00` / `AND $DC01`), dus beide poorten werken.
+
+```
+.joystick 2, vx, vy          ; 35 bytes
+.joystick 3, vx, vy, fire    ; both ports + fire: 45 bytes
+```
 
 > **Typisch gebruik:** Plaats binnen een `gameloop` label met `WAIT_RASTER` eerst:
 > ```
@@ -3757,6 +3833,28 @@ Gelaagde tegelkaarteditor voor statische omgevingen, sprite-spawnmaps, botsingsg
 | Schermgeheugen opslaan (.bin)…                   | Slaat alleen de schermcodes op voor de huidige kaartlaag (40 × 25 = 1000 bytes).                                                                                                                                                                                                           |
 | Scherm-RAM + Kleur-RAM opslaan (.bin)…           | Slaat schermcodes, gecombineerd met kleur-RAM-waarden, op als één bestand van 2000 bytes (`screen[0..999]` gevolgd door `color[0..999]`). Gebruik dit met de macro **MAP_COPY** (gecombineerde .bin-modus) om zowel scherm als kleur in één bewerking tijdens de uitvoering te herstellen. |
 
+### Niveau-editor
+
+Hiermee kunnen de **Map Editor-schermen** in één level worden gerangschikt — een verticale shooter, een autospel met scrollende neerwaartse beweging, een side-scroller of een 2D-kaart — en wordt het hele level met vloeiend scrollen weergegeven. Open het met de **Level Editor**-knop in de werkbalk naast de Map Editor.
+
+| Functie   | Beschrijving                                                                                                                                                                                                                                             |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Indeling  | **Verticaal**, **Horizontaal** of **Raster** (rijen × kolommen, met knoppen voor het toevoegen/verwijderen van rijen en kolommen).                                                                                                                       |
+| Schermen  | **Nieuw leeg scherm**, **Toevoegen vanuit Kaarteditor** (de momenteel geopende kaart) of **Kaart(en) laden (.bin)…** (meerdere Kaarteditor-exports tegelijk). Sleep een scherm uit de lijst naar een slot; sleep slots naar elkaar om ze te verwisselen. |
+| Bewerken  | **Bewerken in kaarteditor** opent het geselecteerde scherm in de kaarteditor en brengt de wijzigingen terug; dupliceren, omhoog/links of omlaag/rechts verplaatsen, verwijderen; ongedaan maken/opnieuw doen.                                            |
+| Voorbeeld | Sleep de preview of gebruik de pijltjes toetsen om pixel voor pixel te scrollen; **Afspelen** scrollt automatisch (richting, snelheid 1–8, herhalen), Spatie = afspelen/stoppen. *Randen* markeert de schermranden.                                      |
+| Controles | Informatie over de tekenset en een waarschuwing wanneer schermen een andere tekenset of kleuren gebruiken (het level gebruikt de instellingen van het eerste scherm).                                                                                    |
+
+**Bestandenmenu:**
+| Actie                                                                  | Wat het doet                                                                                                                    |
+| ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| **Nieuw level** / **Level openen (.bin)…** / **Level opslaan (.bin)…** | Het levelproject: alle schermen plus de lay-out. Dit is het bestand dat de macro `.level` en Ultimate Basic's `map load` lezen. |
+| **Sla het levelscherm-RAM (.bin) op…**                                 | Het hele level als één personagekaart (alleen schermcodes).                                                                     |
+| **Sla het levelscherm + kleuren-RAM (.bin) op…**                       | De schermcodes van het hele level, gevolgd door de bijbehorende kleuren.                                                        |
+| **Exporteren naar blokken** / **Asm kopiëren**                         | De niveaugegevens als blokken of als samengestelde tekst (klembord).                                                            |
+
+**Gebruikmakend van het niveau:** in assembler, `.level "level.bin"` + `.level_row` (zie [LEVEL / LEVEL_ROW](#level--level_row) en `samples/level-demo.asm`); in Ultimate Basic 1.6.1+, `map load "level.bin", $4000` en `map view px, py` (voorbeeld `level_scroll_demo.ub`).
+
 ### SID-editor (3-stemmen tracker)
 
 Multi-instrumentele 3-stemmige tracker met een Web Audio-previewengine. Openen via Toolkit → SID Editor.
@@ -3861,6 +3959,19 @@ Elke uitvoer van kopiëren/invoegen begint met een koptekstcommentaar waarin de 
 | **Exporteer UltimateBasic demo**  | Produceert een compleet, direct uitvoerbaar UB-programma: een bal-sprite (`sprdef 0`), de tafel en een raster-gesynchroniseerde lus die één tafel-item per frame afspeelt. 8-bits tafels sturen sprite **Y** aan terwijl X van 0 tot 320 loopt; 16-bits (0 tot 320) tafels sturen sprite **X** aan terwijl Y van 0 tot 200 loopt. Tafels met meer dan 256 items spelen de eerste 256 af.                                      |
 
 **Overeenkomend met de preview op de C64:** de preview leest de tabel **lineair, in een lus van 0 → N-1 → 0, één waarde per frame**. Om dit exact te reproduceren, moet u de tabel op dezelfde manier aansturen (de index één keer per frame verhogen, terugspringen bij de lengte van de tabel). Een pingpong- of gedeeltelijke weergave zal anders bewegen, ook al zijn de byte-waarden identiek. Zie `samples/curve-new-demo.asm` voor een werkend 16-bits sprite-X-voorbeeld.
+
+---
+
+### Getallenomzetter
+
+Een kleine **niet-modale** DEC/HEX/BIN-converter, die u kunt openen met de knop in de werkbalk naast de D64 Editor (klik nogmaals of druk op Esc om te sluiten). Deze blijft open terwijl u het programma in elke modus bewerkt.
+
+- Voer in een van de velden **DEC**, **HEX** of **BIN** een regel in. De andere twee velden volgen. Voorvoegsels `$`, `0x`, `%`, `0b` en scheidingstekens (spatie, `_`) worden geaccepteerd; een negatief decimaal getal wordt omgezet naar tweevoudig complement in de huidige breedte; ongeldige invoer wordt rood gemarkeerd.
+- **8 / 16 bit** breedte — een waarde boven 255 schakelt automatisch over naar 16 bit.
+- **Bitsrij** — klik op een bit om deze te wisselen.
+- De info-regel toont de **signed**-waarde en, in 16-bits modus, de **low**- en **high**-byte.
+- **Kopieer** knoppen kopiëren de waarde met het bijbehorende voorvoegsel (`53280`, `$D020`, `%1101000000100000`).
+- Sleep het venster aan de koptekst; het onthoudt de waarde, breedte en positie en wordt na een herstart opnieuw geopend als het open was toen je het venster afsloot.
 
 ---
 

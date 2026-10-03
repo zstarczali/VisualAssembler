@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.0 — Manuel de langue
+# Ultimate Basic v1.6.1 — Manuel de langue
 
 Référence complète du langage et de l'interface de ligne de commande pour
 Ultimate Basic, un langage de type BASIC qui se compile directement en code
@@ -549,6 +549,12 @@ score += 300 * level # 900 (avant la version 1.5.7, cette valeur était tronqué
 score = score + 100 * level
 var big: word = 100 * level + 900
 ```
+
+Depuis la version 1.6.1, cela s'applique également aux sommes internes et aux
+expressions `shl`, ainsi qu'aux multiplicateurs constants supérieurs à 255 : `py
+= cy * 8 + fy`, `py = (cy shl 3) + fy` et `w = cy * 300` conservent les 16 bits
+(auparavant, les sommes étaient tronquées à 8 bits). Les cibles d'octets
+conservent les résultats sur 8 bits.
 
 ### Graphiques bitmap
 
@@ -1130,13 +1136,16 @@ poke $07F9, pg         # copy to sprites 1–7
 
 ```basic
 map load "levels/world.ubmap"
-map draw map_x, map_y       # draw a 40x25 viewport to screen/color RAM
+map load "level.bin", $4000 # Projet Level Editor, données à l'adresse $4000 (1.6.1)
+map draw map_x, map_y # Dessine une zone de 40x25 pixels sur l'écran/la mémoire RAM couleur
+map view px, py # Vue double tamponnée lissée à l'adresse pixel px, py (1.6.1)
 
-var tile = map_tile(x, y)   # read character code from the map
-map set x, y, 42            # change character code in writable map data
+var tile = map_tile(x, y) # Lit le code des caractères depuis la carte
 
-var shade = map_color(x, y) # read cell color (0 when map has no color data)
-map color x, y, 7           # change cell color when color data is present
+map set x, y, 42 # Modifie le code des caractères dans les données de carte modifiables
+
+var shade = map_color(x, y) # Lit la couleur des cellules (0 si la carte ne contient pas de données de couleur)
+map color x, y, 7 # Modifie la couleur des cellules lorsque des données de couleur sont présentes
 ```
 
 `map load` résout le nom de fichier par rapport au fichier source `.ub`, le
@@ -1155,6 +1164,85 @@ Les 1 000 premiers octets constituent la table de caractères 40×25 et les 1 00
 suivants, les couleurs des cellules. Le mode multicolore et `$D021-$D023` sont
 lus à partir de la balise de métadonnées VisualAssembler ; aucune conversion de
 `.ubmap` n’est donc nécessaire.
+
+**Projets de l'éditeur de niveaux (nouveauté de la version 1.6.1).** `Chargement
+de la carte` lit également un projet de l'éditeur de niveaux VisualAssembler
+(`Sauvegarde du niveau (.bin)`) et compose ses écrans en une seule carte : un
+niveau de L × H écrans devient une carte de (L × 40) × (H × 25) avec des
+couleurs, les emplacements vides étant des espaces. Les cartes sont limitées à
+255 × 255 cellules, un niveau ne peut donc pas dépasser 6 écrans de large et 10
+écrans de haut.
+
+```basic
+charger la carte « level.bin » # 2x5 écrans -&gt; une carte 80x125
+```
+
+**Placement des données de la carte (nouveauté de la version 1.6.1).** `map load
+"file", addr` stocke la carte à une adresse fixe au lieu de l'intégrer
+directement dans le code, comme `incbin "file", addr` (l'adresse doit se trouver
+au-dessus du code généré ou à l'intérieur d'un intervalle `org`). Les caractères
+précèdent les couleurs.
+
+```basic
+chargement de la carte « level.bin », $4000 # Carte 80x125 : caractères $4000-$6713, couleurs $6714-$8E1F
+```
+
+#### Défilement fluide — `vue de carte` (nouveauté de la version 1.6.1)
+
+```basic
+Chargement de la carte « level.bin », $4000
+var px: word = 0
+var py: word = 0
+boucle
+
+vue de la carte px, py # une fois par image, au lieu de `wait raster`
+
+# lecture du joystick, modification de px / py, logique du jeu ...
+end
+```
+
+`map view x, y` affiche la carte à la position de pixel `x, y` (expressions
+verbales ; `0..(largeur-40)*8` et `0..(hauteur-25)*8`, les valeurs hors plage
+sont écrêtées). Appelez cette fonction une fois par image : elle attend la
+limite de l’image (ligne raster 250), affiche la position donnée par l’appel
+précédent, puis prend la nouvelle position, de sorte qu’une nouvelle position
+apparaît une image plus tard.
+
+Fonctionnement : la partie fine utilise XSCROLL / YSCROLL dans `$D016` / `$D011`
+avec 38 colonnes et 24 lignes (le bord défilé reste masqué) ; les changements de
+caractère permutent deux tampons d’écran, `$0400` et `$3C00`. La position est
+prédite deux images à l’avance et le tampon caché est construit pour la cellule
+de caractère suivante en deux moitiés avant que la vue n’atteigne cette
+position, de sorte que la permutation ne soit jamais interrompue. La mémoire RAM
+couleur ne peut pas être doublement tamponnée : sa moitié supérieure est copiée
+dans la dernière image précédente, juste avant le balayage, et sa moitié
+inférieure juste après la permutation (les deux avec des interruptions masquées
+pendant quelques lignes de balayage), ce qui évite les déchirures d’image. Un
+changement de direction juste au moment d’un changement de caractère peut
+bloquer la vue pendant une ou deux images, le temps que le tampon soit
+reconstruit.
+
+Règles:
+
+- Le code du programme et les données en ligne doivent rester en dehors de
+  `$3C00-$3FFF` (deuxième tampon) ; chargez les grandes cartes avec une adresse
+  (`map load "file", $4000`), sinon la compilation s'arrête avec une erreur.
+- La première commande `map view` dessine la vue complète dans `$0400`. Ensuite,
+  l'écran appartient à `map view` : `print` / `screen` / `cls` n'écrivent que
+  dans `$0400` et les données sont écrasées.
+- Les sprites fonctionnent comme d'habitude : la vue de la carte copie les
+  pointeurs de sprite `$07F8-$07FF` vers `$3FF8-$3FFF` à chaque image, de sorte
+  que `sprdef` / `sprite_frame` s'affichent dans les deux tampons. Conservez les
+  données de sprite dans la banque VIC 0 (`$0000-$3FFF`, et non `$1000-$1FFF`),
+  par exemple en plaçant `sprdef` avant un gros chargement de carte en ligne ``.
+- Les bits de jeu de caractères de `$D018` sont conservés (`charset on`
+  fonctionne) ; le bit multicolore de `$D016` est conservé car `map load` l'a
+  défini.
+- Laissez environ 6000 cycles (~95 lignes raster) de logique de jeu par image ;
+  une image plus longue permet à la vue de tenir pendant une image sans jamais
+  se déchirer.
+- Exemple : `examples/level_scroll_demo.ub` (piloté par joystick, avec un sprite
+  de joueur).
 
 La commande `map draw map_x, map_y` copie une zone d'affichage de 40×25 pixels,
 commençant à la cellule de carte spécifiée, dans la mémoire RAM écran `$0400`

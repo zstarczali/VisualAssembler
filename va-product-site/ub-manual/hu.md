@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.0 — Nyelvi kézikönyv
+# Ultimate Basic v1.6.1 — Nyelvi kézikönyv
 
 Teljes nyelvi és parancssori felület (CLI) referencia az Ultimate Basichez, egy
 BASIC-szerű nyelvhez, amely közvetlenül 6502-es gépi kóddá fordul Commodore
@@ -528,6 +528,11 @@ pontszám += 300 * szint # 900 (1.5.7 előtt ez 8 bitre volt csonkítva: 44)
 pontszám = pontszám + 100 * szint
 változó nagy: szó = 100 * szint + 900
 ```
+
+Az 1.6.1 óta ez az összegeken belül is érvényes, valamint `shl` esetén, és 255
+feletti konstans szorzók esetén: `py = cy * 8 + fy`, `py = (cy shl 3) + fy` és
+`w = cy * 300` megtartják mind a 16 bitet (korábban az összegzési alakokat 8
+bitre csonkították). A bájtcélok 8 bites eredményeket tartanak meg.
 
 ### Bittérképes grafika
 
@@ -1101,13 +1106,15 @@ poke $07F9, pg         # copy to sprites 1–7
 
 ```basic
 map load "levels/world.ubmap"
-map draw map_x, map_y       # draw a 40x25 viewport to screen/color RAM
+map load "level.bin", $4000 # Pályaszerkesztő projekt, adatok $4000-on (1.6.1)
+map draw map_x, map_y # 40x25-ös nézetablak rajzolása a képernyő/színes RAM-ba
+map view px, py # sima dupla pufferelt nézet pixel px-nél, py (1.6.1)
 
-var tile = map_tile(x, y)   # read character code from the map
-map set x, y, 42            # change character code in writable map data
+var tile = map_tile(x, y) # karakterkód beolvasása a térképről
+map set x, y, 42 # karakterkód módosítása írható térképadatokban
 
-var shade = map_color(x, y) # read cell color (0 when map has no color data)
-map color x, y, 7           # change cell color when color data is present
+var shade = map_color(x, y) # cellaszín beolvasása (0, ha a térképnek nincs színadata)
+map color x, y, 7 # cellaszín módosítása, ha van színadat
 ```
 
 A `map load` függvény a fájlnevet a `.ub` forrásfájlhoz képest oldja fel,
@@ -1124,6 +1131,78 @@ térkép betöltése "map-multicolor.bin"
 Az első 1000 bájtból lesz a 40×25-ös karaktertérkép, a következő 1000 bájt pedig
 a cellaszínek. A többszínű mód és a `$D021-$D023` a VisualAssembler
 metaadat-előzeteséből olvasható ki, így nincs szükség `.ubmap` konverzióra.
+
+**Pályaszerkesztő projektek (újdonság az 1.6.1-es verzióban).** `térkép
+betöltése` beolvassa a VisualAssembler Pályaszerkesztő projektet (`Level mentése
+(.bin)`) és a képernyőit egyetlen térképpé állítja össze: egy Sz×M képernyőkből
+álló szint egy (Sz·40)×(M·25) térképpé válik színekkel, az üres helyek pedig
+szóközök. A térképek mérete 255×255 cellára korlátozódik, így egy szint
+legfeljebb 6 képernyő széles és 10 magas lehet.
+
+```basic
+térkép betöltés "level.bin" # 2x5 képernyő -&gt; egy 80x125-ös térkép
+```
+
+**A térképadatok elhelyezése (újdonság az 1.6.1-es verzióban).** A `map load
+"file", addr` függvény a térképet fix címen tárolja a kódban lévő helyett,
+például az `incbin "file", addr` címen (a címnek a generált kód felett vagy egy
+`org` résen belül kell lennie). A karakterek először jönnek, a színek pedig
+utánuk:
+
+```basic
+térkép betöltés "level.bin", $4000 # 80x125 térkép: karakterek $4000-$6713, színek $6714-$8E1F
+```
+
+#### Sima görgetés — `térkép nézet` (új az 1.6.1-es verzióban)
+
+```basic
+map load "level.bin", $4000
+var px: word = 0
+var py: word = 0
+loop
+map view px, py # képkockánként egyszer, a `wait raster` helyett
+# joystick olvasása, px / py módosítása, játéklogika ...
+end
+```
+
+Az `térkép nézet x, y` a térképet az `x, y` pixelpozícióban mutatja
+(szókifejezések; `0..(szélesség-40)*8` és `0..(magasság-25)*8`, a tartományon
+kívüli értékek rögzítve vannak). Képkockánként egyszer hívódik meg: megvárja a
+képkockahatárt (250. rasztervonal), megjeleníti az előző hívás által megadott
+pozíciót, majd átveszi az újat, így a pozíció egy képkockával később jelenik
+meg.
+
+Hogyan működik: a finom rész az XSCROLL / YSCROLL metódust használja a `$D016` /
+`$D011` mappában 38 oszloppal és 24 sorral (a begörgetett él rejtve marad); a
+karakter lépések két képernyőpuffert cserélnek, `$0400` és `$3C00`. A pozíciót
+két képkockával előre jósolják meg, és a rejtett puffer a következő karakter
+cellához két részben épül fel, mielőtt a nézet odaérne, így a csere soha nem
+vár. A színes RAM nem pufferelhető duplán: a felső felét a rasztersugár mögötti
+utolsó régi képkockába, az alsó felét pedig közvetlenül az előtte lévő csere
+után másolja (mindkettőt néhány rasztervonalra maszkolt megszakításokkal), így
+semmi sem szakad el. Egy karakter lépésnél közvetlenül egy irányváltás egy vagy
+két képkockáig visszatarthatja a nézetet, amíg a puffer újjáépül.
+
+Szabályok:
+
+- A programkódnak és az inline adatoknak a `$3C00-$3FFF` (második puffer)
+  tartományon kívül kell maradniuk; a nagy térképeket címmel kell betölteni
+  (`map load "file", $4000`), különben a fordítás hibával leáll.
+- Az első `térképnézet` a teljes nézetet kirajzolja az `$0400`-be. Ezután a
+  képernyő a `térképnézethez` tartozik: `print` / `screen` / `cls` csak a
+  `$0400` fájlokat írja ki, és felülírja őket.
+- A sprite-ok a szokásos módon működnek: az `map view` minden képkockán
+  átmásolja a `$07F8-$07FF` sprite-mutatókat az `$3FF8-$3FFF`-re, így az
+  `sprdef` / `sprite_frame` mindkét pufferben megjelenik. A sprite adatokat a
+  VIC 0. bankban kell tartani (`$0000-$3FFF`, nem pedig az `$1000-$1FFF`), pl.
+  az `sprdef` beállítással egy nagy beágyazott `map load` elé.
+- Az `$D018` karakterkészlet bitjei megmaradnak (az ` karakterkészlet az `-en
+  működik); az `$D016` többszínű bitje megmarad, ahogy a `map load` beállította.
+- Hagyj körülbelül 6000 ciklust (~95 raszteres sort) a játék logikájából
+  képkockánként; egy hosszabb képkocka megtartja a nézetet egy képkockáig, de
+  soha nem szakad el.
+- Példa: `examples/level_scroll_demo.ub` (joystick-kal vezérelt, játékos
+  sprite-tal).
 
 A `map draw map_x, map_y` egy 40×25-ös nézetablakot másol a megadott
 térképcellától kezdve a képernyő RAM-ba `$0400`, és ha van ilyen, a színes

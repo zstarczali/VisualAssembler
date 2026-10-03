@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.0 — Podręcznik językowy
+# Ultimate Basic v1.6.1 — Podręcznik językowy
 
 Kompletny podręcznik języka i interfejsu wiersza poleceń dla Ultimate Basic,
 języka podobnego do BASIC-a, który kompiluje się bezpośrednio do kodu
@@ -529,6 +529,11 @@ score += 300 * poziom nr 900 (przed wersją 1.5.7 było to skrócone do 8 bitów
 score = score + 100 * poziom
 var big: word = 100 * level + 900
 ```
+
+Od wersji 1.6.1 dotyczy to również sum wewnętrznych i dla `shl`, a także dla
+mnożników stałych powyżej 255: `py = cy * 8 + fy`, `py = (cy shl 3) + fy` i `w =
+cy * 300` – zachowują wszystkie 16 bitów (wcześniej formy sum były obcinane do 8
+bitów). Cele bajtowe zachowują wyniki 8-bitowe.
 
 ### Grafika bitmapowa
 
@@ -1092,14 +1097,16 @@ poke $07F9, pg         # copy to sprites 1–7
 ### Mapy kafelków postaci (`.ubmap`)
 
 ```basic
-map load "levels/world.ubmap"
-map draw map_x, map_y       # draw a 40x25 viewport to screen/color RAM
+Załaduj mapę "levels/world.ubmap"
+Załaduj mapę "level.bin", $4000 # Projekt edytora poziomów, dane $4000 (1.6.1)
+Map draw map_x, map_y # Narysuj widok 40x25 do pamięci RAM ekranu/koloru
+Map view px, py # Wygładzony widok z podwójnym buforowaniem dla piksela px, py (1.6.1)
 
-var tile = map_tile(x, y)   # read character code from the map
-map set x, y, 42            # change character code in writable map data
+var tile = map_tile(x, y) # Odczytaj kod znaku z mapy
+Map set x, y, 42 # Zmień kod znaku w zapisywalnych danych mapy
 
-var shade = map_color(x, y) # read cell color (0 when map has no color data)
-map color x, y, 7           # change cell color when color data is present
+var shade = map_color(x, y) # Odczytaj kolor komórki (0, gdy mapa nie zawiera danych o kolorze)
+Map color x, y, 7 # Zmień kolor komórki, gdy dane o kolorze są obecne
 ```
 
 `map load` rozwiązuje nazwę pliku względem pliku źródłowego `.ub`, weryfikuje ją
@@ -1117,6 +1124,76 @@ załadowanie mapy "map-multicolor.bin"
 Pierwsze 1000 bajtów staje się mapą znaków 40×25, a kolejne 1000 bajtów kolorami
 komórek. Tryb wielokolorowy i `$D021-$D023` są odczytywane z metadanych
 VisualAssembler, więc konwersja `.ubmap` nie jest wymagana.
+
+**Projekty Edytora Poziomów (nowość w wersji 1.6.1).** `Wczytywanie mapy`
+odczytuje również projekt Edytora Poziomów VisualAssembler (`Zapisywanie poziomu
+(.bin)`) i łączy jego ekrany w jedną mapę: poziom ekranów W×H staje się mapą
+(W·40)×(H·25) z kolorami, puste pola to spacje. Rozmiar map jest ograniczony do
+255×255 komórek, więc poziom może mieć maksymalnie 6 ekranów szerokości i 10
+wysokości.
+
+```basic
+wczytaj mapę "level.bin" # ekrany 2x5 -&gt; jedna mapa 80x125
+```
+
+**Umieszczanie danych mapy (nowość w wersji 1.6.1). ** `mapa wczytuje „plik”,
+adres` zapisuje mapę pod stałym adresem, a nie w linii kodu, jak `incbin „plik”,
+adres` (adres musi znajdować się nad wygenerowanym kodem lub w przerwie `org`).
+Najpierw znaki, potem kolory:
+
+```basic
+ładowanie mapy „level.bin”, mapa $4000 # 80x125: znaki $4000-$6713, kolory $6714-$8E1F
+```
+
+#### Płynne przewijanie — `widok mapy` (nowość w wersji 1.6.1)
+
+```basic
+Ładowanie mapy "level.bin", $4000
+var px: word = 0
+var py: word = 0
+pętla
+widok mapy px, py # raz na klatkę, zamiast `czekaj raster`
+# odczytaj joystick, zmień px / py, logikę gry...
+koniec
+```
+
+`widok mapy x, y` pokazuje mapę w pozycji piksela `x, y` (wyrażenia słowne;
+`0..(szerokość-40)*8` i `0..(wysokość-25)*8`, wartości poza zakresem są
+obcinane). Wywołuje się go raz na klatkę: czeka na granicę klatki (linia
+rastrowa 250), pokazuje pozycję podaną w poprzednim wywołaniu, a następnie
+przyjmuje nową, więc pozycja pojawia się jedną klatkę później.
+
+Jak to działa: drobna część używa XSCROLL / YSCROLL w `$D016` / `$D011` z 38
+kolumnami i 24 wierszami (przewijana krawędź pozostaje ukryta); kroki znaku
+zamieniają dwa bufory ekranu, `$0400` i `$3C00`. Pozycja jest przewidywana dwie
+klatki wcześniej, a ukryty bufor jest budowany dla następnej komórki znaku w
+dwóch połowach, zanim widok tam dotrze, więc zamiana nigdy nie czeka. Pamięć RAM
+kolorów nie może być podwójnie buforowana: jej górna połowa jest kopiowana w
+ostatniej starej klatce za belką rastra, dolna połowa zaraz po zamianie przed
+nią (obie z przerwaniami zamaskowanymi dla kilku linii rastra), więc nic się nie
+rozrywa. Zmiana kierunku dokładnie w kroku znaku może utrzymać widok przez jedną
+lub dwie klatki, podczas gdy bufor jest przebudowywany.
+
+Zasady:
+
+- Kod programu i dane inline muszą znajdować się poza `$3C00-$3FFF` (drugi
+  bufor); załaduj duże mapy z adresem (`map load "file", $4000`), w przeciwnym
+  razie kompilacja zakończy się błędem.
+- Pierwszy `widok mapy` rysuje cały widok w `$0400`. Następnie ekran należy do
+  `widoku mapy`: `drukuj` / `ekran` / `cls` zapisz tylko `$0400` i zostaną
+  nadpisane.
+- Sprite'y działają normalnie: `widok mapy` kopiuje wskaźniki sprite'ów
+  `$07F8-$07FF` do `$3FF8-$3FFF` w każdej klatce, więc `sprdef` / `sprite_frame`
+  są wyświetlane w obu buforach. Dane sprite'ów przechowuj w banku VIC 0
+  (`$0000-$3FFF`, a nie `$1000-$1FFF`), np. poprzez umieszczenie `sprdef` przed
+  dużym, wbudowanym `ładowaniem mapy`.
+- Bity zestawu znaków `$D018` są zachowywane (zestaw znaków `na` działa); bit
+  wielokolorowy `$D016` jest zachowywany tak, jak ustawiono w `map load`.
+- Pozostaw około 6000 cykli (~95 linii rastrowych) logiki gry na klatkę; dłuższa
+  klatka sprawia, że widok jest utrzymywany przez jedną klatkę, ale nigdy się
+  nie rozrywa.
+- Przykład: `examples/level_scroll_demo.ub` (sterowany joystickiem, ze sprite'em
+  gracza).
 
 `map draw map_x, map_y` kopiuje obszar widoku 40×25, zaczynając od wskazanej
 komórki mapy, do pamięci RAM ekranu `$0400` i, jeśli jest dostępna, do pamięci

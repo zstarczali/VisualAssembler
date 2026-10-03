@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.0 — Kieliopas
+# Ultimate Basic v1.6.1 — Kieliopas
 
 Täydellinen kieli- ja komentoriviviite Ultimate Basicille, BASICin kaltaiselle
 kielelle, joka kääntyy suoraan 6502-konekoodiksi Commodore 64:lle. Tuloste:
@@ -526,6 +526,11 @@ pistemäärä += 300 * taso # 900 (ennen versiota 1.5.7 tämä katkaistiin 8 bit
 pistemäärä = pistemäärä + 100 * taso
 muuttujan iso: sana = 100 * taso + 900
 ```
+
+Versiosta 1.6.1 lähtien tämä pätee myös summien sisällä ja `shl`:lle sekä yli
+255:n vakiokertoimille: `py = cy * 8 + fy`, `py = (cy shl 3) + fy` ja `w = cy *
+300` säilyttävät kaikki 16 bittiä (ennen summamuodot katkaistiin 8 bittiin).
+Tavukohteet säilyttävät 8-bittiset tulokset.
 
 ### Bittikarttagrafiikka
 
@@ -1091,13 +1096,15 @@ poke $07F9, pg         # copy to sprites 1–7
 
 ```basic
 map load "levels/world.ubmap"
-map draw map_x, map_y       # draw a 40x25 viewport to screen/color RAM
+map load "level.bin", $4000 # Kenttäeditoriprojekti, data $4000 (1.6.1)
+map draw map_x, map_y # piirtää 40x25 näkymän näyttö-/väri-RAM-muistiin
+map view px, py # tasoittaa kaksoispuskuroitua näkymää pikselin pikselikoossa, py (1.6.1)
 
-var tile = map_tile(x, y)   # read character code from the map
-map set x, y, 42            # change character code in writable map data
+var tile = map_tile(x, y) # lukee merkkikoodin kartalta
+map set x, y, 42 # muuttaa merkkikoodia kirjoitettavassa karttadatassa
 
-var shade = map_color(x, y) # read cell color (0 when map has no color data)
-map color x, y, 7           # change cell color when color data is present
+var shade = map_color(x, y) # lukee solun värin (0, kun kartalla ei ole väridataa)
+map color x, y, 7 # muuttaa solun väriä, kun väridata on läsnä
 ```
 
 `map load` selvittää tiedostonimen suhteessa `.ub`-lähdetiedostoon, validoi sen
@@ -1114,6 +1121,76 @@ kartan lataus "map-multicolor.bin"
 Ensimmäisistä 1000 tavusta tulee 40×25 merkistökartta ja seuraavista 1000
 tavusta tulee solujen värejä. Monivärinen tila ja `$D021-$D023` luetaan
 VisualAssemblerin metadatan trailerista, joten `.ubmap`-muunnosta ei tarvita.
+
+**Kehänmuokkausohjelman projektit (uusi versiossa 1.6.1).** `kartan lataus`
+lukee myös VisualAssembler-kehänmuokkausohjelman projektin (`Tallenna taso
+(.bin)`) ja kokoaa sen näytöt yhdeksi kartaksi: L×K-näyttöjen tasosta tulee
+(L·40)×(K·25)-kartta väreillä, tyhjät kohdat ovat välilyöntejä. Kartat ovat
+rajoitettu 255×255 soluun, joten taso voi olla enintään 6 näyttöä leveä ja 10
+näyttöä korkea.
+
+```basic
+kartan lataus "level.bin" # 2x5 näyttöä -&gt; yksi 80x125 kartta
+```
+
+**Karttadatan sijoittaminen (uusi versiossa 1.6.1).** `map load "file", addr`
+tallentaa kartan kiinteään osoitteeseen koodin sisäisen osoitteen sijaan, kuten
+`incbin "file", addr` (osoitteen on oltava luodun koodin yläpuolella tai
+`org`-välin sisällä). Merkit tulevat ensin, värit seuraavat:
+
+```basic
+kartan lataus "level.bin", $4000 # 80x125 kartta: merkit $4000-$6713, värit $6714-$8E1F
+```
+
+#### Tasainen vieritys — `karttanäkymä` (uusi versiossa 1.6.1)
+
+```basic
+kartan lataus "level.bin", $4000
+muuttuja px: sana = 0
+muuttuja py: sana = 0
+silmukka
+karttanäkymä px, py # kerran kehystä kohden, `wait raster` sijaan
+# lue ohjainsauva, muuta px / py, pelilogiikka ...
+loppu
+```
+
+`karttanäkymä x, y` näyttää kartan pikselikohdassa `x, y` (sanalausekkeet;
+`0..(leveys-40)*8` ja `0..(korkeus-25)*8`, alueen ulkopuoliset arvot on
+lukittu). Kutsutaan kerran kehystä kohden: se odottaa kehyksen reunaa
+(rasteririvi 250), näyttää edellisen kutsun antaman sijainnin ja ottaa sitten
+uuden, joten sijainti ilmestyy yhden kehyksen myöhemmin.
+
+Toimintaperiaate: hieno-osainen osa käyttää XSCROLL / YSCROLL-metodia kohdassa
+`$D016` / `$D011` 38 sarakkeella ja 24 rivillä (sisään vieritetty reuna pysyy
+piilossa); merkkivaiheet vaihtavat kaksi näyttöpuskuria, `$0400` ja `$3C00`.
+Sijainti ennustetaan kaksi kehystä eteenpäin ja piilotettu puskuri rakennetaan
+seuraavalle merkkisolulle kahteen osaan ennen kuin näkymä saapuu sinne, joten
+vaihto ei koskaan odota. Väri-RAMia ei voida puskuroida kahdesti: sen yläosa
+kopioidaan viimeiseen vanhaan kehykseen rasterisäteen taakse, alaosa heti sen
+edessä olevan vaihdon jälkeen (molemmissa keskeytykset on peitetty muutamalla
+rasteririvillä), joten mikään ei repeä. Suunnanmuutos juuri merkkivaiheessa
+saattaa pitää näkymää paikallaan yhden tai kahden kehyksen ajan, kun puskuri
+rakennetaan uudelleen.
+
+Säännöt:
+
+- Ohjelmakoodin ja inline-datan on pysyttävä `$3C00-$3FFF` (toinen puskuri)
+  ulkopuolella; lataa suuret kartat osoitteella (`map load "file", $4000`),
+  muuten kääntäminen pysähtyy virheeseen.
+- Ensimmäinen `karttanäkymä` piirtää koko näkymän kohteeseen `$0400`. Tämän
+  jälkeen näyttö kuuluu karttanäkymään `: `print` / `screen` / `cls` kirjoittaa
+  vain `$0400` ja ne korvataan.
+- Spritet toimivat normaalisti: `map view` kopioi sprite-osoittimet
+  `$07F8-$07FF` pisteisiin `$3FF8-$3FFF` joka ruudussa, joten `sprdef` /
+  `sprite_frame` näkyvät molemmissa puskureissa. Pidä sprite-tiedot VIC-pankissa
+  0 (`$0000-$3FFF`, ei `$1000-$1FFF`), esim. asettamalla `sprdef` ennen suurta
+  `map load` -komentoa.
+- Muodon `$D018` merkistöbitit säilytetään (` merkistö toimii kohdassa `);
+  muodon `$D016` moniväribitti säilytetään, koska `map load` sen asettaa.
+- Jätä noin 6000 sykliä (~95 rasteririviä) pelilogiikkaa kehystä kohden; pidempi
+  kehys pitää näkymän samana yhden ruudun ajan, mutta ei koskaan repeä.
+- Esimerkki: `examples/level_scroll_demo.ub` (ohjaussauvalla ohjattava,
+  pelaajakuvalla).
 
 `map draw map_x, map_y` kopioi 40×25-kokoisen näyttöalueen määritetystä
 karttasolusta alkaen näyttömuistiin `$0400` ja värimuistiin, jos sellainen on,

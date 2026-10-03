@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**2.4.9-es verzió**
+**2.5.0 verzió**
 
 Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat létre húzással és elengedéssel (fogd és vidd) utasításblokkokkal, és valós időben tekintheti meg a létrehozott assembly és gépi kódot.
 
@@ -9,6 +9,7 @@ Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat l�
 ## Tartalomjegyzék
 
 - [C64 Visual Assembler — Felhasználói kézikönyv](#c64-visual-assembler--user-manual)
+    - [2.5.0 verzió – kiemelt funkciók](#version-250-highlights)
     - [2.4.9-es verzió – kiemelt funkciók](#version-249-highlights)
     - [2.4.8-as verzió kiemelt funkciói](#version-248-highlights)
     - [2.4.7-es verzió – kiemelt funkciók](#version-247-highlights)
@@ -34,6 +35,7 @@ Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat l�
   - [5. Beállítások \&amp; Eszköztár](#5-settings--toolbar)
     - [Projektsablonok](#project-templates)
     - [Projekt építése](#build-project)
+    - [Példaprogramok](#example-programs)
     - [.asm fájl betöltése (gyors útmutató)](#load-asm-file-quick-reference)
       - [Import elemzési megjegyzések és ajánlott eljárások](#import-parsing-notes-and-best-practices)
   - [UltimateBasic mód](#ultimatebasic-mode)
@@ -87,6 +89,9 @@ Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat l�
     - [BOX_HIT](#box_hit)
     - [INCBIN](#incbin)
     - [KOALA](#koala)
+    - [SZINT / SZINT\_SOR](#level--level_row)
+      - [SZINT](#level)
+      - [SZINT\SOR](#level_row)
     - [SID](#sid)
     - [INCLUDE](#include)
     - [TABLE](#table)
@@ -161,8 +166,22 @@ Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat l�
     - [Karakterszerkesztő (Karakterkészlet)](#character-editor-charset)
     - [Karakterkészlet-vászonszerkesztő](#charset-canvas-editor)
     - [Térképszerkesztő (Többrétegű csempetérképek)](#map-editor-multilayer-tilemaps)
+    - [Pályaszerkesztő](#level-editor)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Görbeszerkesztő](#curve-editor)
+    - [Számátváltó](#number-converter)
+
+---
+
+## A 2.5.0 verzió legfontosabb elemei
+
+- **Pályaszerkesztő** — egy új eszköztár-szerkesztő, amely függőlegesen, vízszintesen vagy 2D-s rácsban rendezi el a Térképszerkesztő képernyőit, és folyamatos görgetéssel előnézetben jeleníti meg a teljes pályát. Lásd: [Pályaszerkesztő](#level-editor).
+- **LEVEL / LEVEL_ROW makrók** — `.level "level.bin"[, $addr]` csak a Level Editor projekt elhelyezett képernyőit helyezi el, plusz a pointer táblákat, és definiálja a `LEVEL_*` címkéket és konstansokat; `.level_row dst, col[, color]` egy 40 karakteres szintsort másol egy pufferbe. Lásd: [LEVEL / LEVEL_ROW]{1].
+- **JOYSTICK változó mód** — `.joystick port, vx, vy[, fire]` az irányt változókba írja (−1 / 0 / +1) sprite mozgatása helyett; az `3` port mindkét joystick portot beolvassa. Lásd: [JOYSTICK]{1].
+- **Szintgörgetési demó** — `samples/level-demo.asm` görget egy 2×5-ös képernyőszintet pixelről pixelre minden irányba a joystick segítségével, szakadásmentesen, elegendő hellyel a sprite-oknak és a játékkódnak.
+- **Számátalakító** — egy nem modális DEC / HEX / BIN párbeszédpanel az eszköztáron. Lásd: [Számátalakító](#number-converter).
+- **Példák párbeszédpanel** — **Menü → Példák…** megnyitja a beépített példaprogramok kereshető, kategorizált listáját. Lásd: [Példaprogramok](#example-programs).
+- **Ultimate Basic 1.6.1 csomagban** — `map load "level.bin"[, addr]` közvetlenül beolvassa a Level Editor projektet, és az új `map view px, py` görgeti a térképet simán és szakadásmentesen egy pixel pozícióban (példa: `level_scroll_demo.ub`). Egy 16 bites összegen belüli bájtszorzat már nem csonkolódik 8 bitre. Az UB parancsreferencia felsorolja a `map view`-et, és a keresése a parancsnév-találatokat helyezi előtérbe.
 
 ---
 
@@ -412,7 +431,7 @@ A modális ablak automatikusan bezárul, ha a művelet befejeződik vagy sikerte
 | **CRT retró mód**                                                                      | Teljes képernyős CRT szűrő ki-/bekapcsolása: pásztázási vonalak, foszforvignettálás, villogás és hordótorzítás. Az állapot a munkamenetek között mentésre kerül.                                                                                                                                                                                                                                                                                                                                                                                              |
 | **Memória panel megjelenítése**                                                        | Globális kapcsoló, amely megjeleníti vagy elrejti a teljes C64 memóriapanelt                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | **ALAP RENDSZER csonk**                                                                | Egy SYS-t meghívó BASIC sort illeszt a program eredete elé.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| **Minta**                                                                              | Beépített példaprogram betöltése                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| **Példák…**                                                                            | Nyisd meg a példa böngészőt, és tölts be egy beépített példa programot — lásd: [Példa programok](#example-programs)                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | **Nagyítás / Kicsinyítés**                                                             | A blokk felhasználói felületének skálázása (az összes blokkelemet érinti)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | **Projekt mentése**                                                                    | Mentse el az aktuális programot `.json` projektfájlként                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | **Program mentése más néven**                                                          | Mentse el az aktuális programot `.json` projektfájlként, minden alkalommal új fájl párbeszédablakot használva.                                                                                                                                                                                                                                                                                                                                                                                                                                                |
@@ -513,6 +532,14 @@ Az **Menü → Build → Build project** parancs egyetlen lépésben lefordítja
 - A hibakereső mellékfájlok (szimbólumok / forráskódtérkép) a PRG mellett vannak írva, ahol elérhetők;
 - Az `.include` / `include` (és az `.inc` fájlokkal) egy másik fájl által behívott modulok kimaradnak, akárcsak a soha nem mentett fülek;
 - Egy jelentés felsorolja az összes fájlt méretével, a *kihagyás* okával vagy fordítási hibával együtt, az állapotsor pedig a *N / M felépített fájlt mutatja.*
+
+### Példaprogramok
+
+**Menü → Példák…** megnyitja a példa böngészőt: a beépített példaprogramok témakörök szerint csoportosítva (Alapok, Makrók és vezérlési folyamat, Grafika, Sprite-ok és bevitel, Fájlok és betöltés, Zene, IRQ és hardver) két oszlopban.
+
+- Írj be egy keresőmezőbe név vagy kategória szerinti szűréshez; a láblécben láthatod, hogy hány példa egyezik a kereséssel.
+- Kattintson egy példára a kiválasztásához, **↑ / ↓** mozgassa a kijelölés helyét; **kattintson duplán az** gombra, majd töltse be az **Enter** vagy a **Load** billentyűkombinációval.
+- A párbeszédpanel az utoljára betöltött példán nyílik meg.
 
 ### .asm fájl betöltése (gyors útmutató)
 
@@ -626,7 +653,7 @@ A fő **Futtatás** gomb minden normál célhelyen támogatja az Ultimate Basic-
 | **Futtatás a D64-en keresztül** | Fordítsd le, nyisd meg a szokásos D64 csomagolási párbeszédablakot, majd indítsd el a lemezt a VICE-ban.                                                                 |
 | **Futtatás Ultimate-on**        | Töltse fel és futtassa a PRG-t a konfigurált C64 Ultimate REST kapcsolaton keresztül.                                                                                    |
 | **D64 futtatása hardveren**     | Csomagolj be egy D64-et, és küldd el a konfigurált C64 Ultimate-nek.                                                                                                     |
-| **Kung Fu Flash 2**             | Fordítsd le az UB indító forráskódját, és töltsd fel a PRG-t USB-n keresztül egy valódi C64/C128-ra, amely Kung Fu Flash 2 kazettát használ. Lásd: [Kung Fu Flash 2]{1]. |
+| Kung Fu Flash 2 **              | Fordítsd le az UB indító forráskódját, és töltsd fel a PRG-t USB-n keresztül egy valódi C64/C128-ra, amely Kung Fu Flash 2 kazettát használ. Lásd: [Kung Fu Flash 2]{1]. |
 
 A globális **Beállítások → Exomizer** opció az UB buildekre és a normál futtatású célpontokra is vonatkozik; nincs szükség külön UB eszköztár kapcsolóra. A hibakereső indításai szándékosan a tömörítetlen PRG-t használják, így a fordító címei és szimbólumai továbbra is megegyeznek a végrehajtott programmal.
 
@@ -1654,6 +1681,48 @@ wait:
 ```
 
 **Méret a kódban:** 86 bájt (megjelenítési rutin); az 10001 bájtnyi képadat a megadott címre kerül. A Hires szerkesztő **Fájlok → Koala exportálása (.koa)…** menüpontja kompatibilis fájlt hoz létre.
+
+---
+
+### SZINT / SZINT_SOR
+
+Egy **Level Editor** projektet helyez a programodba, és a pálya sorait egy képernyőpufferbe másolja – egy görgetős játék építőelemei. Lásd a `samples/level-demo.asm` fájlt egy teljes joystick-os görgetős pálya megtekintéséhez.
+
+#### SZINT
+
+Egy INCBIN stílusú blokk, amely **0 bájtnyi kódot bocsát ki**. Csak a Level Editor projekt **elhelyezett** képernyői (a **Fájlok → Szint mentése** paranccsal mentett `.bin`) kerülnek a memóriába a megadott címről (alapértelmezett: `$2000`), slot sorrendben, képernyőnként 2000 bájt (1000 képernyőkód + 1000 szín). Az azonos képernyők egyszer tárolódnak, és minden üres slot egy üres képernyőn osztozik. A pointer táblák a képernyőket követik. Egy szint legfeljebb 7 × 10 képernyő lehet.
+
+**Szakértői szintaxis:**
+```
+.level "level.bin"
+.level "level.bin", $4000
+```
+
+| Meghatározott                                             | Jelentés                                                                           |
+| --------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `ALACSONY_SZINT` / `MAGAS_SZINT`                          | A képernyő címe minden slotban (sor-fő, `LEVEL_W` slot soronként)                  |
+| `SZINT_SOR_HELY`                                          | Szint karakter sor → a képernyő sorának első helye                                 |
+| `SZINT_SOR_ALACSONY/MAGAS`, `SZINT_VARÁZS_ALACSONY/MAGAS` | Szint karaktersor → a képernyőkód sorának / színsorának eltolása a képernyőn belül |
+| `SZINT_SZÍN_RÉSZ`, `SZINT_SZÍN_FELÜLET`                   | Nézet kezdő oszlopa → képernyő oszlop és a képernyőn belüli oszlop                 |
+| `SZINT_SZINT`, `SZINT_M`                                  | Szintméret a képernyőkön                                                           |
+| `SZINT_SZÉLEK`, `SZINT_SOROK`                             | Szintméret karakterekben                                                           |
+| `SZINT_MAX_X`, `SZINT_MAX_Y`                              | 40×25-ös nézet legnagyobb görgetési pozíciója pixelenként                          |
+| `SZINT_BG`, `SZINT_MC1`, `SZINT_MC2`, `SZINT_MULTICOLOR`  | Háttér / többszínű színek és a szint módja                                         |
+| `SZINT_ADATOK`, `SZINT_MÉRET`, `SZINT_VÉGE`               | Kezdő, méret és az első szabad cím a szintadatok után                              |
+
+Tipikus őr: `.assert LEVEL_END &lt;= $9200, "szintadatok futnak a kódba"`.
+
+#### SZINT_SORBAN
+
+A szint egy 40 karakteres sorát egy pufferbe másolja: az **X** változóban lévő szint sorát, a `col` változóban lévő szint oszloptól kezdve, a `dst` mutatóban lévő címre (`dst` / `dst+1`, lo/hi). A harmadik argumentummal, az `color`-tel a képernyőkódok helyett a színeket másolja (színes RAM esetén). Egy két képernyőt átfogó 40 karakteres ablakot egy önmódosító másolási ciklus kezel (~14 ciklus bájtonként). X megmarad, A és Y törlődik. Szükséges hozzá egy `.level` blokk a programban.
+
+**Szakértői szintaxis:**
+```
+.level_row dst_lo, view_x
+.level_row dst_lo, view_x, color
+```
+
+**Méret a kódban:** 132 bájt — `LBEQ` / `LBNE` használható, ha egy ágnak át kell ugrania rajta.
 
 ---
 
@@ -2700,6 +2769,13 @@ skip_right:
 
 **Méret:** 27 bájt. Az `BCS` eltolás mindig `+3` (kihagyja a következő 3 bájtos `DEC`/`INC abs` utasítást).
 
+**Változó mód — `.joystick port, vx, vy[, fire]`:** sprite mozgatása helyett az irányt változókba írjuk: `vx` / `vy` = `-1` / `0` / `+1` (`$FF` / `$00` / `$01`), és az opcionális `fire` = `1`, miközben a gomb le van nyomva, `0` egyébként. Használd görgetős kamerához, saját fizikával rendelkező lejátszóhoz vagy menükhöz. A `3` port egyszerre olvassa mindkét joystick portot (`LDA $DC00` / `ÉS $DC01`), így bármelyik port működik.
+
+```
+.joystick 2, vx, vy          ; 35 bytes
+.joystick 3, vx, vy, fire    ; both ports + fire: 45 bytes
+```
+
 > **Tipikus használat:** Elhelyezzük egy `gameloop` címkén belül, először a `WAIT_RASTER` címkével:
 > ```
 > gameloop:
@@ -3441,7 +3517,7 @@ Az eszköztár **Futtatás** gombját egy **osztott gomb** váltotta fel:
 | **Futtatás PRG-ként**           | Összegyűjtjük egy ideiglenes `.prg` fájlt, és közvetlenül elindítjuk a VICE-t. Klasszikus viselkedés.                                                                                                                                     |
 | **Futtatás a D64-en keresztül** | Állítsd össze, készíts egy `.d64` lemezképet (c1541 használatával), add hozzá a konfigurált extra fájlokat, majd indítsd el a VICE-t a lemezről. Használd ezt, amikor a programod futásidőben fájlokat tölt be (pl. a LOADFILE makróval). |
 | **Hardveren futtatva**          | Gyűjtsd össze PRG-re, és küldd el egy **1541 Ultimate / Ultimate 64** eszközre a helyi hálózaton keresztül. Lásd: [13. szakasz](#13-hardware-settings).                                                                                   |
-| **Kung Fu Flash 2**             | Rakd össze PRG-re, majd töltsd fel USB soros porton keresztül egy igazi C64/C128-ra egy **Kung Fu Flash 2** patronnal. Lásd: [Kung Fu Flash 2]{1].                                                                                        |
+| Kung Fu Flash 2 **              | Rakd össze PRG-re, majd töltsd fel USB soros porton keresztül egy igazi C64/C128-ra egy **Kung Fu Flash 2** patronnal. Lásd: [Kung Fu Flash 2]{1].                                                                                        |
 
 A kiválasztott mód a munkamenetek között mentésre kerül.
 
@@ -3757,6 +3833,28 @@ Réteges csempetérkép-szerkesztő statikus tájképekhez, sprite-alapú spawn-
 | Képernyő RAM mentése (.bin)…              | Csak az aktuális térképréteg képernyőkódjait menti el (40×25 = 1000 bájt).                                                                                                                                                                                                          |
 | Képernyő RAM + Színes RAM (.bin) mentése… | A színes RAM-értékekkel összefűzött képernyőkódokat egyetlen 2000 bájtos fájlba menti (`screen[0..999]`, majd `color[0..999]`). Használja ezt az **MAP_COPY** makróval (kombinált .bin mód) a képernyő és a színek egyetlen művelettel történő visszaállításához futásidejű módban. |
 
+### Szintszerkesztő
+
+A(z) **Térképszerkesztő képernyőit** egy szintbe rendezi – függőleges lövöldözős, lefelé görgető autós játék, oldalra görgető vagy 2D-s térkép –, és a teljes pálya előnézetét sima görgetéssel jeleníti meg. Nyissa meg a(z) **Pályaszerkesztő** eszköztárgombbal a Térképszerkesztő mellett.
+
+| Jellemző    | Leírás                                                                                                                                                                                                                                                     |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Elrendezés  | **Függőleges**, **Vízszintes** vagy **Rács** (sorok × oszlopok, sorok és oszlopok hozzáadása/eltávolítása gombokkal).                                                                                                                                      |
+| Képernyők   | **Új üres képernyő**, **Hozzáadás a Térképszerkesztőből** (a jelenleg megnyitott térkép) vagy **Térkép(ek) betöltése (.bin)…** (több Térképszerkesztő export egyszerre). Húzzon egy képernyőt a listából egy helyre; húzza a helyeket egymásra a cseréhez. |
+| Szerkesztés | **Szerkesztés a Térképszerkesztőben** megnyitja a kijelölt képernyőt a Térképszerkesztőben, és visszaállítja a módosításokat; duplikálás, mozgatás fel/balra vagy le/jobbra, eltávolítás; visszavonás/ismétlés.                                            |
+| Előnézet    | Húzd az előnézetet, vagy használd a nyílbillentyűket a pixelenkénti görgetéshez; az **Lejátszás** automatikusan görget (irány, sebesség 1–8, ismétlés), Szóköz = lejátszás / leállítás. Az *Szegélyek* a képernyő határait jelöli.                         |
+| Csekkek     | Karakterkészlet-információk, valamint figyelmeztetés, ha a képernyők eltérő karakterkészletet vagy színeket használnak (a szint az első képernyő beállításait használja).                                                                                  |
+
+**Fájlok menü:**
+| Akció                                                                   | Mit csinál                                                                                                                         |
+| ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| **Új szint** / **Szint megnyitása (.bin)…** / **Szint mentése (.bin)…** | A pályaprojekt: az összes képernyő plusz az elrendezés. Ez a fájl, amit az `.level` makró és az Ultimate Basic `map load` beolvas. |
+| **Képernyő RAM mentési szintje (.bin)…**                                | Az egész pálya egyetlen karaktertérképként (csak képernyőkódok).                                                                   |
+| **Mentési szint Képernyő + Szín RAM (.bin)…**                           | A teljes szint képernyőkódjai, majd a színei.                                                                                      |
+| **Exportálás blokkokba** / **asm másolása**                             | A szintadatok blokkokként vagy asm szövegként (vágólap).                                                                           |
+
+**A level:** használata az assemblerben, `.level "level.bin"` + `.level_row` (lásd [LEVEL / LEVEL_ROW](#level--level_row) és `samples/level-demo.asm`); az Ultimate Basic 1.6.1+ verziójában, `map load "level.bin", $4000` és `map view px, py` (példa: `level_scroll_demo.ub`).
+
 ### SID-szerkesztő (3 hangos követő)
 
 Többhangú, 3 hangú követő Web Audio előnézeti motorral. Megnyitás a Toolkit → SID Editor menüpontban.
@@ -3861,6 +3959,19 @@ Minden másolási/beszúrási kimenet egy fejlécommenttel kezdődik, amely doku
 | **UltimateBasic demó exportálása** | Egy teljes, futtatásra kész UB programot hoz létre: egy golyós sprite-ot (`sprdef 0`), a táblázatot és egy raszterrel szinkronizált ciklust, amely képkockánként egy táblázatbejegyzést játszik le. A 8 bites táblázatok a **Y** sprite-ot hajtják végre, míg az X 0..320-at söpri; a 16 bites (0..320) táblázatok a **X** sprite-ot hajtják végre, míg az Y 0..200-at söpri. A 256 bejegyzésnél hosszabb táblázatok az első 256-ot játsszák le. |
 
 **A C64 előnézetének megfelelően:** az előnézet lineárisan olvassa a táblázatot **, 0 → N-1 → 0 ciklusokban, képkockánként egy értékkel**. A pontos reprodukáláshoz ugyanúgy kell futtatni a táblázatot (az indexet képkockánként egyszer növelni, a táblázat hosszánál sortöréssel). Egy pingpong vagy részleges tartományú lejátszás másképp fog mozogni, még akkor is, ha a bájtértékek azonosak. Lásd a `samples/curve-new-demo.asm` fájlt egy működő 16 bites sprite-X példáért.
+
+---
+
+### Számátalakító
+
+Egy kis **nem modális** DEC / HEX / BIN konverter, amely a D64 szerkesztő melletti eszköztár gombbal nyitható meg (kattintson ismét, vagy nyomja meg az Esc billentyűt a bezáráshoz). A program szerkesztése közben bármilyen módban nyitva marad.
+
+- Írj be egy értéket az **DEC**, **HEX** vagy **BIN** mezők bármelyikébe, majd a másik kettő következik. Az `$`, `0x`, `%`, `0b` előtagok és elválasztók (szóköz, `_`) elfogadottak; a negatív tizedesjegy kettes komplemens lesz az aktuális szélességben; az érvénytelen bemenet pirossal van jelölve.
+- **8 / 16 bit** szélesség — 255 feletti érték esetén a rendszer automatikusan 16 bitre vált.
+- **Bitek sor** — kattintson egy bitre a ki-/bekapcsoláshoz.
+- Az információs sor az **előjeles** értéket, 16 bites módban pedig az **alacsony** és **magas** bájtot mutatja.
+- Az **Másolás** gombok az előtagjával együtt másolják az értéket (`53280`, `$D020`, `%1101000000100000`).
+- Húzd a fejlécénél fogva; megjegyzi az értékét, szélességét és pozícióját, és újraindítás után újra megnyílik, ha kilépéskor nyitva volt.
 
 ---
 

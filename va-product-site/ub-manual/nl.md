@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.0 — Taalhandleiding
+# Ultimate Basic v1.6.1 — Taalhandleiding
 
 Complete taal- en CLI-referentie voor Ultimate Basic, een BASIC-achtige taal die
 direct compileert naar 6502-machinecode voor de Commodore 64. Uitvoer: `.prg`
@@ -529,6 +529,11 @@ score += 300 * level # 900 (vóór 1.5.7 werd dit afgekapt tot 8 bits: 44)
 score = score + 100 * level
 var big: word = 100 * level + 900
 ```
+
+Sinds versie 1.6.1 geldt dit ook voor sommen binnenin en voor `shl`, en voor
+constante vermenigvuldigers boven 255: `py = cy * 8 + fy`, `py = (cy shl 3) +
+fy` en `w = cy * 300` behouden alle 16 bits (voorheen werden de somvormen
+afgekapt tot 8 bits). Byte-targets behouden 8-bits resultaten.
 
 ### Bitmapafbeeldingen
 
@@ -1093,13 +1098,14 @@ poke $07F9, pg         # copy to sprites 1–7
 
 ```basic
 map load "levels/world.ubmap"
-map draw map_x, map_y       # draw a 40x25 viewport to screen/color RAM
+map load "level.bin", $4000 # Level Editor-project, data op $4000 (1.6.1)
+map draw map_x, map_y # teken een viewport van 40x25 naar scherm/kleur-RAM
+map view px, py # vloeiende dubbelgebufferde weergave op pixel px, py (1.6.1)
 
-var tile = map_tile(x, y)   # read character code from the map
-map set x, y, 42            # change character code in writable map data
-
-var shade = map_color(x, y) # read cell color (0 when map has no color data)
-map color x, y, 7           # change cell color when color data is present
+var tile = map_tile(x, y) # lees tekencode van de kaart
+map set x, y, 42 # verander tekencode in beschrijfbare kaartgegevens
+var shade = map_color(x, y) # lees celkleur (0 wanneer de kaart geen kleurgegevens heeft)
+map color x, y, 7 # verander celkleur wanneer kleurgegevens aanwezig zijn
 ```
 
 `map load` lost de bestandsnaam op ten opzichte van het `.ub` bronbestand,
@@ -1116,6 +1122,80 @@ kaart laden "map-multicolor.bin"
 De eerste 1000 bytes vormen de 40×25 tekenkaart en de volgende 1000 bytes worden
 celkleuren. De meerkleurenmodus en `$D021-$D023` worden gelezen uit de
 VisualAssembler-metadatatrailer, dus er is geen `.ubmap`-conversie nodig.
+
+**Level Editor-projecten (nieuw in 1.6.1).** `kaart laden` leest ook een
+VisualAssembler Level Editor-project (`Level opslaan (.bin)`) en combineert de
+schermen tot één kaart: een level van W×H schermen wordt een (W·40)×(H·25) kaart
+met kleuren, lege plekken zijn ruimtes. Kaarten zijn beperkt tot 255×255 cellen,
+dus een level kan maximaal 6 schermen breed en 10 hoog zijn.
+
+```basic
+kaart laden "level.bin" # 2x5 schermen -&gt; één kaart van 80x125
+```
+
+**Plaatsen van de kaartgegevens (nieuw in 1.6.1).** `map load "file", addr`
+slaat de kaart op een vast adres op in plaats van inline in de code, zoals
+`incbin "file", addr` (het adres moet boven de gegenereerde code staan of binnen
+een `org` gap). Tekens komen eerst, kleuren volgen:
+
+```basic
+kaart laden "level.bin", $4000 # 80x125 kaart: tekens $4000-$6713, kleuren $6714-$8E1F
+```
+
+#### Vloeiend scrollen — `kaartweergave` (nieuw in 1.6.1)
+
+```basic
+kaart laden "level.bin", $4000
+var px: woord = 0
+var py: woord = 0
+loop
+
+kaartweergave px, py # eenmaal per frame, in plaats van `wacht raster`
+
+# lees de joystick, verander px / py, spellogica ...
+einde
+```
+
+`kaartweergave x, y` toont de kaart op pixelpositie `x, y` (woorduitdrukkingen;
+`0..(breedte-40)*8` en `0..(hoogte-25)*8`, waarden buiten het bereik worden
+begrensd). Roep deze functie één keer per frame aan: hij wacht op de framegrens
+(rasterlijn 250), toont de positie die door de vorige aanroep is gegeven en
+neemt vervolgens de nieuwe positie, zodat een positie één frame later
+verschijnt.
+
+Hoe het werkt: het fijne gedeelte gebruikt XSCROLL / YSCROLL in `$D016` /
+`$D011` met 38 kolommen en 24 rijen (de ingescrollde rand blijft verborgen); de
+tekenstappen wisselen twee schermbuffers, `$0400` en `$3C00`. De positie wordt
+twee frames vooruit voorspeld en de verborgen buffer wordt in twee helften
+opgebouwd voor de volgende tekencel voordat de weergave daar aankomt, zodat de
+wisseling nooit hoeft te wachten. Kleur-RAM kan niet dubbel gebufferd worden: de
+bovenste helft wordt gekopieerd in het laatste oude frame achter de
+rasterstraal, de onderste helft direct na de wisseling ervoor (beide met
+interrupts gemaskeerd voor een paar rasterlijnen), zodat er geen scheurtjes
+ontstaan. Een richtingsverandering precies tijdens een tekenstap kan de weergave
+één of twee frames vasthouden terwijl de buffer opnieuw wordt opgebouwd.
+
+Regels:
+
+- De programmacode en inline data moeten buiten `$3C00-$3FFF` (tweede buffer)
+  blijven; laad grote maps met een adres (`map load "file", $4000`), anders
+  stopt de compilatie met een fout.
+- De eerste `kaartweergave` tekent de hele weergave in `$0400`. Daarna behoort
+  het scherm tot `kaartweergave`: `print` / `scherm` / `cls` schrijven `$0400`
+  alleen en worden overschreven.
+- Sprites werken zoals gebruikelijk: `map view` kopieert de spritepointers
+  `$07F8-$07FF` naar `$3FF8-$3FFF` elke frame, zodat `sprdef` / `sprite_frame`
+  in beide buffers worden weergegeven. Bewaar spritegegevens in VIC-bank 0
+  (`$0000-$3FFF`, niet `$1000-$1FFF`), bijvoorbeeld door `sprdef` vóór een grote
+  inline `map load` te plaatsen.
+- De charset-bits van `$D018` blijven behouden (`charset on` werkt); de
+  multicolor-bit van `$D016` blijft behouden omdat `map load` deze heeft
+  ingesteld.
+- Laat ongeveer 6000 cycli (~95 rasterlijnen) aan spellogica per frame over; een
+  langer frame zorgt ervoor dat het beeld een frame lang behouden blijft, maar
+  nooit vervormt.
+- Voorbeeld: `examples/level_scroll_demo.ub` (gestuurd met een joystick, met een
+  speler-sprite).
 
 `map draw map_x, map_y` kopieert een 40×25 viewport, beginnend bij de opgegeven
 kaartcel, naar scherm-RAM `$0400` en, indien aanwezig, kleur-RAM `$D800`. De

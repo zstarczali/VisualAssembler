@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.0 — Sprachhandbuch
+# Ultimate Basic v1.6.1 — Sprachhandbuch
 
 Vollständige Sprach- und CLI-Referenz für Ultimate Basic, eine BASIC-ähnliche
 Sprache, die direkt in 6502-Maschinencode für den Commodore 64 kompiliert wird.
@@ -536,6 +536,11 @@ score += 300 * level # 900 (vor Version 1.5.7 wurde dies auf 8 Bit gekürzt: 44)
 score = score + 100 * level
 var big: word = 100 * level + 900
 ```
+
+Seit Version 1.6.1 gilt dies auch innerhalb von Summen und für `shl` sowie für
+konstante Multiplikatoren über 255: `py = cy * 8 + fy`, `py = (cy shl 3) + fy`
+und `w = cy * 300` behalten alle 16 Bit bei (zuvor wurden die Summenformen auf 8
+Bit gekürzt). Byte-Ziele behalten 8-Bit-Ergebnisse.
 
 ### Bitmap-Grafiken
 
@@ -1113,13 +1118,15 @@ poke $07F9, pg         # copy to sprites 1–7
 
 ```basic
 map load "levels/world.ubmap"
-map draw map_x, map_y       # draw a 40x25 viewport to screen/color RAM
+map load "level.bin", $4000 # Level-Editor-Projekt, Daten bei $4000 (1.6.1)
+map draw map_x, map_y # Zeichnet einen 40x25-Viewport auf den Bildschirm/Farbspeicher
+map view px, py # Glatte, doppelt gepufferte Ansicht bei Pixel px, py (1.6.1)
 
-var tile = map_tile(x, y)   # read character code from the map
-map set x, y, 42            # change character code in writable map data
+var tile = map_tile(x, y) # Zeichencode aus der Karte lesen
+map set x, y, 42 # Zeichencode in beschreibbaren Kartendaten ändern
 
-var shade = map_color(x, y) # read cell color (0 when map has no color data)
-map color x, y, 7           # change cell color when color data is present
+var shade = map_color(x, y) # Zellenfarbe lesen (0, wenn die Karte keine Farbdaten hat)
+map color x, y, 7 # Zellenfarbe ändern, wenn Farbdaten vorhanden sind
 ```
 
 `map load` löst den Dateinamen relativ zur Quelldatei `.ub` auf, validiert ihn
@@ -1138,6 +1145,82 @@ Die ersten 1000 Bytes bilden die 40×25-Zeichentabelle, die nächsten 1000 Bytes
 die Zellfarben. Mehrfarbenmodus und `$D021-$D023` werden aus dem
 Metadaten-Trailer von VisualAssembler gelesen, daher ist keine
 `.ubmap`-Konvertierung erforderlich.
+
+**Level-Editor-Projekte (neu in 1.6.1).** `Map laden` liest auch ein
+VisualAssembler-Level-Editor-Projekt (`Level speichern (.bin)`) und setzt dessen
+Bildschirme zu einer Karte zusammen: Ein Level mit W×H Bildschirmen wird zu
+einer (W·40)×(H·25) Karte mit Farben, leere Felder werden als Leerzeichen
+dargestellt. Karten sind auf 255×255 Zellen begrenzt, sodass ein Level maximal 6
+Bildschirme breit und 10 hoch sein kann.
+
+```basic
+map load "level.bin" # 2x5 screens -&gt; one 80x125 map
+```
+
+**Platzieren der Kartendaten (neu in 1.6.1).** `map load "file", addr` speichert
+die Karte an einer festen Adresse anstatt direkt im Code, wie `incbin "file",
+addr` (die Adresse muss oberhalb des generierten Codes oder innerhalb einer
+`org` Lücke liegen). Zeichen werden zuerst angezeigt, Farben folgen:
+
+```basic
+map load "level.bin", $4000 # 80x125 map: characters $4000-$6713, colors $6714-$8E1F
+```
+
+#### Sanftes Scrollen — `Kartenansicht` (neu in 1.6.1)
+
+```basic
+map load "level.bin", $4000
+var px: word = 0
+var py: word = 0
+loop
+map view px, py # einmal pro Frame, anstatt `wait raster`
+
+# Joystick auslesen, px/py ändern, Spiellogik ...
+end
+```
+
+Die Funktion ``map view x, y`` zeigt die Karte an der Pixelposition ``x, y`` an
+(Wortausdrücke: ``0..(width-40)*8`` und ``0..(height-25)*8``, Werte außerhalb
+des gültigen Bereichs werden begrenzt). Sie wird einmal pro Frame aufgerufen:
+Die Funktion wartet auf die Framegrenze (Rasterzeile 250), zeigt die Position
+des vorherigen Aufrufs an und übernimmt dann die neue Position, sodass eine
+Position einen Frame später angezeigt wird.
+
+Funktionsweise: Der Feinteil verwendet XSCROLL / YSCROLL in `$D016` / `$D011`
+mit 38 Spalten und 24 Zeilen (der eingescrollte Rand bleibt verborgen). Die
+Zeichenschritte tauschen zwei Bildschirmpuffer, `$0400` und `$3C00`. Die
+Position wird zwei Frames im Voraus berechnet, und der verborgene Puffer für die
+nächste Zeichenzelle wird in zwei Hälften aufgebaut, bevor die Ansicht diese
+erreicht. Dadurch wird der Tauschvorgang nicht unterbrochen. Farb-RAM kann nicht
+doppelt gepuffert werden: Seine obere Hälfte wird im letzten alten Frame hinter
+dem Rasterstrahl kopiert, die untere Hälfte direkt nach dem Tausch davor
+(jeweils mit für einige Rasterzeilen maskierten Interrupts), sodass keine
+Bildfehler auftreten. Ein Richtungswechsel direkt bei einem Zeichenschritt kann
+die Ansicht für ein oder zwei Frames anhalten, während der Puffer neu aufgebaut
+wird.
+
+Regeln:
+
+- Der Programmcode und die Inline-Daten dürfen nicht in `$3C00-$3FFF` (zweiter
+  Puffer) gelangen; große Maps müssen mit einer Adresse geladen werden (`map
+  load "file", $4000`), andernfalls wird die Kompilierung mit einem Fehler
+  abgebrochen.
+- Die erste `map view` zeichnet die gesamte Ansicht in `$0400`. Danach gehört
+  der Bildschirm zur `map view`: `print` / `screen` / `cls` schreiben nur in
+  `$0400` und werden überschrieben.
+- Sprites funktionieren wie gewohnt: `map view` kopiert die Sprite-Pointer
+  `$07F8-$07FF` nach `$3FF8-$3FFF` in jedem Frame, sodass `sprdef` /
+  `sprite_frame` in beiden Puffern angezeigt werden. Die Sprite-Daten werden in
+  VIC-Bank 0 (`$0000-$3FFF`, nicht `$1000-$1FFF`) gespeichert, z. B. durch
+  Einfügen von `sprdef` vor einem großen Inline-Befehl `map load`.
+- Die Zeichensatzbits von `$D018` bleiben erhalten (`charset on` funktioniert);
+  das Mehrfarbenbit von `$D016` bleibt erhalten, da es von `map load` gesetzt
+  wurde.
+- Pro Frame sollten etwa 6000 Zyklen (~95 Rasterzeilen) Spiellogik verbleiben;
+  ein längerer Frame sorgt dafür, dass die Ansicht für einen Frame gehalten
+  wird, aber niemals reißt.
+- Beispiel: `examples/level_scroll_demo.ub` (Joystick-gesteuert, mit einem
+  Spieler-Sprite).
 
 `map draw map_x, map_y` kopiert einen 40×25-Ansichtsausschnitt, beginnend mit
 der angegebenen Kartenzelle, in den Bildschirmspeicher `$0400` und, falls

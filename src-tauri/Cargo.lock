@@ -4682,7 +4682,7 @@ dependencies = [
 [[package]]
 name = "ultimate-basic"
 version = "1.6.1"
-source = "git+https://github.com/zstarczali/UltimateBasic.git?branch=dev#5d972182b969bbd04527a1e0ea61fcd2ea31664b"
+source = "git+https://github.com/zstarczali/UltimateBasic.git?branch=dev#1a22d74a86413b5cdc1fc11cb2c32e72f2e519df"
 dependencies = [
  "winresource",
 ]
