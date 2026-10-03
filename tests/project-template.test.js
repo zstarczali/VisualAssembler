@@ -78,9 +78,24 @@ test("project name is sanitised and the target paths live in their own folder", 
   assert.equal(out.noLocation, null);
 });
 
+test("UltimateBasic templates use # headers and create main.ub", () => {
+  const out = run(`
+    const tpl = _parseTemplateSource("ub-game.ub", "# @name Game\\n# @name.hu Játék\\n# @order 5\\n\\n# {{PROJECT}}\\ncls\\n", "builtin");
+    this.out = { tpl, paths: _templateTargetPaths("demo", "D:/Work", tpl.kind), asm: _parseTemplateSource("x.asm", "; @name X", "user").kind };
+  `);
+  assert.equal(out.tpl.kind, "ub");
+  assert.equal(out.tpl.meta.name.hu, "Játék");
+  assert.equal(out.tpl.order, 5);
+  assert.equal(out.tpl.body, "# {{PROJECT}}\ncls\n");
+  assert.equal(out.paths.mainPath, "D:/Work/demo/main.ub");
+  assert.equal(out.asm, "asm");
+});
+
 test("every built-in template has a name, category and description in EN and HU", () => {
-  const files = fs.readdirSync(templatesDir).filter(f => f.toLowerCase().endsWith(".asm"));
-  assert.ok(files.length >= 4, `Expected at least 4 templates, got ${files.length}`);
+  const all = fs.readdirSync(templatesDir);
+  const files = all.filter(f => /\.(asm|ub)$/i.test(f));
+  assert.ok(all.filter(f => /\.asm$/i.test(f)).length >= 4, "Expected at least 4 assembler templates");
+  assert.ok(all.filter(f => /\.ub$/i.test(f)).length >= 3, "Expected at least 3 UltimateBasic templates");
   for (const file of files) {
     const out = run(`
       const tpl = _parseTemplateSource(${JSON.stringify(file)}, ${JSON.stringify(fs.readFileSync(path.join(templatesDir, file), "utf8"))}, "builtin");
@@ -89,8 +104,8 @@ test("every built-in template has a name, category and description in EN and HU"
     assert.ok(out.texts.every(Boolean), `${file}: missing @name / @category / @desc`);
     assert.ok(out.tpl.meta.name.hu && out.tpl.meta.desc.hu && out.tpl.meta.category.hu, `${file}: missing Hungarian header`);
     assert.ok(out.tpl.order < 1000, `${file}: missing @order`);
-    assert.ok(!/^\s*;\s*@/m.test(out.tpl.body), `${file}: header line left in the body`);
-    assert.ok(out.tpl.body.includes("* = $0801"), `${file}: no origin`);
+    assert.ok(!/^\s*[;#]\s*@/m.test(out.tpl.body), `${file}: header line left in the body`);
+    if (out.tpl.kind === "asm") assert.ok(out.tpl.body.includes("* = $0801"), `${file}: no origin`);
   }
 });
 
@@ -99,7 +114,7 @@ test("template menu item, dialog and backend commands are wired up", () => {
   const bridge = fs.readFileSync(path.join(root, "www", "tauri-bridge.js"), "utf8");
   const rust = fs.readFileSync(path.join(root, "src-tauri", "src", "lib.rs"), "utf8");
   const conf = JSON.parse(fs.readFileSync(path.join(root, "src-tauri", "tauri.conf.json"), "utf8"));
-  for (const id of ["menu-new-from-template", "template-dialog", "template-list", "template-preview", "template-project-name", "template-location", "template-create"]) {
+  for (const id of ["menu-new-from-template", "template-dialog", "template-list", "template-preview", "template-project-name", "template-location", "template-create", "template-kinds", "template-kind-asm", "template-kind-ub", "new-project-btn"]) {
     assert.ok(html.includes(`id="${id}"`), `index.html is missing #${id}`);
   }
   assert.ok(appJs.includes('getElementById("menu-new-from-template")?.addEventListener'));

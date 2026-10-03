@@ -1,0 +1,32 @@
+# @name Hires bitmap
+# @name.hu Hires bitmap
+# @category Graphics
+# @category.hu Grafika
+# @desc 320×200 hires bitmap mode with line, rectangle and circle drawing in several pen colors. A key press returns to text mode.
+# @desc.hu 320×200-as hires bitmap mód vonal-, téglalap- és körrajzolással több tollszínnel. Billentyűre visszavált szöveges módba.
+# @order 30
+
+# {{PROJECT}}
+
+graphics on
+gcls
+color border 0
+color bg 0
+
+color pen 1
+rect 0, 0, 319, 199
+color pen 2
+line 0, 0, 319, 199
+line 319, 0, 0, 199
+color pen 7
+circle 160, 100, 60
+color pen 14
+circle 160, 100, 30
+display on
+
+# TODO: your drawing code goes here
+
+var k = getch()
+graphics off
+cls
+bye

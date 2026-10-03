@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "koala-248",
+  id: "templates-249",
   url: "https://www.c64va.tech/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.4.8-ban",
+    eyebrow: "Újdonság a 2.4.9-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>Új KOALA makró:</strong> a <code>.koala "kep.koa"</code> betölt és megjelenít egy Koala Painter képet (adat $6000-on vagy $2000-on, 86 bájtos megjelenítő rutin).</li><li><strong>Koala a Hires szerkesztőben:</strong> <em>Files → Koala betöltés / Koala mentés</em>, szabványos .koa fájllal.</li><li><strong>Frissítés-jelző Expert módban is:</strong> a statusbarban <em>Naprakész</em>, vagy kattintható <em>Frissítés elérhető</em>.</li><li><strong>Megbízhatóbb frissítés-ellenőrzés:</strong> az új letöltési oldallal is működik.</li></ul>`,
+    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>Projekt sablonok:</strong> <em>Menu → File → Új projekt sablonból…</em> vagy az új toolbar gomb — Assembler és UltimateBasic sablonok, saját mappában létrejövő, azonnal fordítható projekttel.</li><li><strong>Build projekt:</strong> <em>Menu → Build → Build projekt</em> a projekt minden fájlját a forrás mellé fordítja <code>.prg</code>-be.</li><li><strong>Ctrl + egérgörgő zoom</strong> az Expert és az Ultimate Basic szerkesztőben.</li><li><strong>A munkaterület a projekteket is megjegyzi</strong>, a mentetlen projektváltozásokkal együtt.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.4.8",
+    eyebrow: "New in 2.4.9",
     title: "Welcome to Visual Assembler",
-    body: `<p>What's new in this release:</p><ul><li><strong>New KOALA macro:</strong> <code>.koala "picture.koa"</code> loads and shows a Koala Painter picture (data at $6000 or $2000, 86-byte display routine).</li><li><strong>Koala in the Hires editor:</strong> <em>Files → Import Koala / Export Koala</em> with the standard .koa file.</li><li><strong>Update status in Expert mode too:</strong> the status bar shows <em>Up to date</em> or a clickable <em>Update available</em>.</li><li><strong>Sturdier update check:</strong> works with the new download page.</li></ul>`,
+    body: `<p>What's new in this release:</p><ul><li><strong>Project templates:</strong> <em>Menu → File → New project from template…</em> or the new toolbar button — Assembler and UltimateBasic templates that create a ready-to-build project in its own folder.</li><li><strong>Build project:</strong> <em>Menu → Build → Build project</em> compiles every file of the project to a <code>.prg</code> next to its source.</li><li><strong>Ctrl + mouse wheel zoom</strong> in the Expert and Ultimate Basic editors.</li><li><strong>Workspaces remember projects</strong>, including unsaved project changes.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.4.8",
+    eyebrow: "Novedad en la 2.4.9",
     title: "Bienvenido a Visual Assembler",
-    body: `<p>Novedades de esta versión:</p><ul><li><strong>Nueva macro KOALA:</strong> <code>.koala "imagen.koa"</code> carga y muestra una imagen Koala Painter (datos en $6000 o $2000, rutina de 86 bytes).</li><li><strong>Koala en el editor Hires:</strong> <em>Files → Importar Koala / Exportar Koala</em> con el archivo .koa estándar.</li><li><strong>Estado de actualización también en modo Expert:</strong> la barra de estado muestra <em>Actualizado</em> o un <em>Actualización disponible</em> clicable.</li><li><strong>Comprobación de actualizaciones más robusta:</strong> funciona con la nueva página de descargas.</li></ul>`,
+    body: `<p>Novedades de esta versión:</p><ul><li><strong>Plantillas de proyecto:</strong> <em>Menu → File → Nuevo proyecto desde plantilla…</em> o el nuevo botón de la barra — plantillas de Assembler y UltimateBasic que crean un proyecto listo para compilar en su propia carpeta.</li><li><strong>Compilar proyecto:</strong> <em>Menu → Build → Build project</em> compila cada archivo del proyecto a un <code>.prg</code> junto a su fuente.</li><li><strong>Zoom con Ctrl + rueda del ratón</strong> en los editores Expert y Ultimate Basic.</li><li><strong>Los espacios de trabajo recuerdan los proyectos</strong>, incluidos los cambios sin guardar.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.4.8",
+    eyebrow: "Neu in 2.4.9",
     title: "Willkommen bei Visual Assembler",
-    body: `<p>Neu in dieser Version:</p><ul><li><strong>Neues KOALA-Makro:</strong> <code>.koala "bild.koa"</code> lädt und zeigt ein Koala-Painter-Bild (Daten bei $6000 oder $2000, 86-Byte-Anzeigeroutine).</li><li><strong>Koala im Hires-Editor:</strong> <em>Files → Koala importieren / Koala exportieren</em> mit der Standard-.koa-Datei.</li><li><strong>Update-Status auch im Expert-Modus:</strong> die Statusleiste zeigt <em>Aktuell</em> oder ein anklickbares <em>Update verfügbar</em>.</li><li><strong>Robustere Update-Prüfung:</strong> funktioniert mit der neuen Download-Seite.</li></ul>`,
+    body: `<p>Neu in dieser Version:</p><ul><li><strong>Projektvorlagen:</strong> <em>Menu → File → Neues Projekt aus Vorlage…</em> oder die neue Toolbar-Schaltfläche — Assembler- und UltimateBasic-Vorlagen, die ein sofort übersetzbares Projekt in einem eigenen Ordner anlegen.</li><li><strong>Projekt bauen:</strong> <em>Menu → Build → Build project</em> übersetzt jede Datei des Projekts in eine <code>.prg</code> neben der Quelle.</li><li><strong>Zoom mit Strg + Mausrad</strong> im Expert- und Ultimate-Basic-Editor.</li><li><strong>Arbeitsbereiche merken sich Projekte</strong>, auch ungespeicherte Projektänderungen.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.4.8",
+    eyebrow: "Nieuw in 2.4.9",
     title: "Welkom bij Visual Assembler",
-    body: `<p>Nieuw in deze versie:</p><ul><li><strong>Nieuwe KOALA-macro:</strong> <code>.koala "plaatje.koa"</code> laadt en toont een Koala Painter-afbeelding (data op $6000 of $2000, weergaveroutine van 86 bytes).</li><li><strong>Koala in de Hires-editor:</strong> <em>Files → Koala importeren / Koala exporteren</em> met het standaard .koa-bestand.</li><li><strong>Updatestatus ook in Expert-modus:</strong> de statusbalk toont <em>Up-to-date</em> of een klikbare <em>Update beschikbaar</em>.</li><li><strong>Robuustere updatecontrole:</strong> werkt met de nieuwe downloadpagina.</li></ul>`,
+    body: `<p>Nieuw in deze versie:</p><ul><li><strong>Projectsjablonen:</strong> <em>Menu → File → Nieuw project van sjabloon…</em> of de nieuwe werkbalkknop — Assembler- en UltimateBasic-sjablonen die een direct bouwbaar project in een eigen map aanmaken.</li><li><strong>Project bouwen:</strong> <em>Menu → Build → Build project</em> compileert elk bestand van het project naar een <code>.prg</code> naast de bron.</li><li><strong>Zoomen met Ctrl + muiswiel</strong> in de Expert- en Ultimate Basic-editor.</li><li><strong>Werkruimtes onthouden projecten</strong>, inclusief niet-opgeslagen projectwijzigingen.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.4.8",
+    eyebrow: "Nowość w 2.4.9",
     title: "Witamy w Visual Assembler",
-    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>Nowe makro KOALA:</strong> <code>.koala "obraz.koa"</code> wczytuje i wyświetla obraz Koala Painter (dane pod $6000 lub $2000, 86-bajtowa procedura wyświetlania).</li><li><strong>Koala w edytorze Hires:</strong> <em>Files → Importuj Koala / Eksportuj Koala</em> ze standardowym plikiem .koa.</li><li><strong>Stan aktualizacji także w trybie Expert:</strong> pasek stanu pokazuje <em>Aktualna wersja</em> lub klikalne <em>Dostępna aktualizacja</em>.</li><li><strong>Pewniejsze sprawdzanie aktualizacji:</strong> działa z nową stroną pobierania.</li></ul>`,
+    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>Szablony projektów:</strong> <em>Menu → File → Nowy projekt z szablonu…</em> lub nowy przycisk na pasku — szablony Assembler i UltimateBasic tworzące gotowy do kompilacji projekt we własnym folderze.</li><li><strong>Budowanie projektu:</strong> <em>Menu → Build → Build project</em> kompiluje każdy plik projektu do <code>.prg</code> obok źródła.</li><li><strong>Powiększanie Ctrl + kółko myszy</strong> w edytorach Expert i Ultimate Basic.</li><li><strong>Obszary robocze pamiętają projekty</strong>, także niezapisane zmiany projektu.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.4.8",
+    eyebrow: "Novità nella 2.4.9",
     title: "Benvenuto in Visual Assembler",
-    body: `<p>Novità di questa versione:</p><ul><li><strong>Nuova macro KOALA:</strong> <code>.koala "immagine.koa"</code> carica e mostra un'immagine Koala Painter (dati a $6000 o $2000, routine di visualizzazione da 86 byte).</li><li><strong>Koala nell'editor Hires:</strong> <em>Files → Importa Koala / Esporta Koala</em> con il file .koa standard.</li><li><strong>Stato aggiornamento anche in modalità Expert:</strong> la barra di stato mostra <em>Aggiornato</em> o un <em>Aggiornamento disponibile</em> cliccabile.</li><li><strong>Controllo aggiornamenti più robusto:</strong> funziona con la nuova pagina di download.</li></ul>`,
+    body: `<p>Novità di questa versione:</p><ul><li><strong>Modelli di progetto:</strong> <em>Menu → File → Nuovo progetto da modello…</em> o il nuovo pulsante della barra — modelli Assembler e UltimateBasic che creano un progetto pronto da compilare in una cartella dedicata.</li><li><strong>Compila progetto:</strong> <em>Menu → Build → Build project</em> compila ogni file del progetto in un <code>.prg</code> accanto al sorgente.</li><li><strong>Zoom con Ctrl + rotella del mouse</strong> negli editor Expert e Ultimate Basic.</li><li><strong>Gli spazi di lavoro ricordano i progetti</strong>, comprese le modifiche non salvate.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -1996,6 +1996,10 @@ function initPalette() {
     document.querySelector(".control-menu")?.removeAttribute("open");
     await _openTemplateDialog();
   });
+  document.getElementById("new-project-btn")?.addEventListener("click", async () => {
+    document.querySelector(".control-menu")?.removeAttribute("open");
+    await _openTemplateDialog();
+  });
   document.getElementById("menu-open-project")?.addEventListener("click", async () => {
     if (ultimateBasicMode) await _ubOpenProject();
     else if (expertMode) await _openProjectFromMenu();
@@ -3244,7 +3248,10 @@ function applyTranslations() {
     document.getElementById("save-project-as")?.setAttribute("aria-label", t("saveProgramAsTip"));
     setText("#menu-new-from-template", t("menuNewFromTemplate"));
     document.getElementById("menu-new-from-template")?.setAttribute("aria-label", t("menuNewFromTemplateTip"));
+    document.getElementById("new-project-btn")?.setAttribute("aria-label", t("menuNewFromTemplate").replace(/…$/, ""));
     setText("#template-dialog-title", t("templateDialogTitle"));
+    setText("#template-kind-asm", t("templateKindAsm"));
+    setText("#template-kind-ub", t("templateKindUb"));
     setText("#template-name-label", t("templateProjectName"));
     setText("#template-location-label", t("templateLocation"));
     setText("#template-browse", t("templateBrowse"));
@@ -12939,19 +12946,21 @@ async function _expertSaveProject() {
 }
 
 // ── Project templates ───────────────────────────────────────────────────────
-// A template is one .asm file. Its leading "; @key value" comment lines describe
-// it ("; @name.hu ..." is a per-language variant), everything after them becomes
-// the new project's main.asm. Built-in templates ship in templates/, user ones
-// live in the app config folder: dropping a file there is enough to add one.
+// A template is one .asm (assembler) or .ub (UltimateBasic) file. Its leading
+// "; @key value" / "# @key value" comment lines describe it ("; @name.hu ..." is a
+// per-language variant), everything after them becomes the new project's main.asm
+// or main.ub. Built-in templates ship in templates/, user ones live in the app
+// config folder: dropping a file there is enough to add one.
 let _templateList = [];
 let _templateSelectedId = "";
+let _templateKind = "asm";
 
 function _parseTemplateSource(fileName, content, source) {
   const lines = String(content || "").replace(/\r\n?/g, "\n").split("\n");
   const meta = {};
   let i = 0;
   for (; i < lines.length; i++) {
-    const m = lines[i].match(/^\s*;\s*@([a-z]+)(?:\.([a-z]{2}))?\s+(.+?)\s*$/i);
+    const m = lines[i].match(/^\s*[;#]\s*@([a-z]+)(?:\.([a-z]{2}))?\s+(.+?)\s*$/i);
     if (!m) break;
     const key = m[1].toLowerCase();
     (meta[key] ||= {})[(m[2] || "").toLowerCase()] = m[3];
@@ -12961,6 +12970,7 @@ function _parseTemplateSource(fileName, content, source) {
     id: `${source}:${fileName}`,
     fileName,
     source,
+    kind: /\.ub$/i.test(fileName) ? "ub" : "asm",
     meta,
     order: Number.parseInt(meta.order?.[""] ?? "", 10) || 1000,
     body: lines.slice(i).join("\n").replace(/\s*$/, "\n")
@@ -12984,22 +12994,23 @@ function _templateJoinPath(dir, name) {
   return `${String(dir || "").replace(/\\/g, "/").replace(/\/+$/, "")}/${name}`;
 }
 
-function _templateTargetPaths(projectName, location) {
+function _templateTargetPaths(projectName, location, kind = "asm") {
   const name = _templateSanitizeName(projectName);
   const base = String(location || "").trim();
   if (!name || !base) return null;
   const dir = _templateJoinPath(base, name);
-  return { name, dir, projPath: `${dir}/${name}.proj`, mainPath: `${dir}/main.asm` };
+  return { name, dir, projPath: `${dir}/${name}.proj`, mainPath: `${dir}/main.${kind === "ub" ? "ub" : "asm"}` };
 }
 
 function _templateSelected() {
-  return _templateList.find(tpl => tpl.id === _templateSelectedId) || null;
+  return _templateList.find(tpl => tpl.id === _templateSelectedId && tpl.kind === _templateKind) || null;
 }
 
 function _templateFormPaths() {
   return _templateTargetPaths(
     document.getElementById("template-project-name")?.value,
-    document.getElementById("template-location")?.value
+    document.getElementById("template-location")?.value,
+    _templateKind
   );
 }
 
@@ -13017,7 +13028,6 @@ async function _templateLoadList() {
     .sort((a, b) => (a.source === b.source ? 0 : a.source === "user" ? 1 : -1)
       || a.order - b.order
       || a.fileName.localeCompare(b.fileName));
-  if (!_templateSelected()) _templateSelectedId = _templateList[0]?.id || "";
 }
 
 function _templateUpdateTarget(error = "") {
@@ -13038,11 +13048,14 @@ function _templateRenderPreview() {
   if (!previewEl) return;
   const tpl = _templateSelected();
   const name = _templateSanitizeName(document.getElementById("template-project-name")?.value) || "{{PROJECT}}";
-  previewEl.innerHTML = tpl
-    ? tpl.body.replace(/\n$/, "").replaceAll("{{PROJECT}}", name).split("\n").map(line => {
-        try { return _expertHighlightLine(line); } catch { return _escHtml(line); }
-      }).join("\n")
-    : "";
+  const source = tpl ? tpl.body.replace(/\n$/, "").replaceAll("{{PROJECT}}", name) : "";
+  if (tpl?.kind === "ub") {
+    previewEl.innerHTML = _ubHighlightSource(source).replace(/\n$/, "");
+    return;
+  }
+  previewEl.innerHTML = source.split("\n").map(line => {
+    try { return _expertHighlightLine(line); } catch { return _escHtml(line); }
+  }).join("\n");
 }
 
 function _templateRenderDetail() {
@@ -13065,15 +13078,22 @@ function _templateRenderDetail() {
 function _templateRenderList() {
   const listEl = document.getElementById("template-list");
   if (!listEl) return;
+  const visible = _templateList.filter(tpl => tpl.kind === _templateKind);
+  if (!_templateSelected()) _templateSelectedId = visible[0]?.id || "";
+  document.querySelectorAll("#template-kinds .template-kind").forEach(btn => {
+    const active = btn.dataset.templateKind === _templateKind;
+    btn.classList.toggle("template-kind--active", active);
+    btn.setAttribute("aria-selected", String(active));
+  });
   listEl.innerHTML = "";
-  if (!_templateList.length) {
+  if (!visible.length) {
     const empty = document.createElement("p");
     empty.className = "template-empty";
-    empty.textContent = t("templateNoTemplates");
+    empty.textContent = t(_templateKind === "ub" ? "templateNoTemplatesUb" : "templateNoTemplates");
     listEl.appendChild(empty);
   }
   const groups = new Map();
-  for (const tpl of _templateList) {
+  for (const tpl of visible) {
     const category = _templateText(tpl, "category")
       || t(tpl.source === "user" ? "templateCategoryUser" : "templateCategoryOther");
     if (!groups.has(category)) groups.set(category, []);
@@ -13091,7 +13111,7 @@ function _templateRenderList() {
       btn.type = "button";
       btn.className = "template-item";
       btn.dataset.templateId = tpl.id;
-      btn.textContent = _templateText(tpl, "name") || tpl.fileName.replace(/\.asm$/i, "");
+      btn.textContent = _templateText(tpl, "name") || tpl.fileName.replace(/\.(asm|ub)$/i, "");
       btn.addEventListener("click", () => {
         _templateSelectedId = tpl.id;
         _templateRenderDetail();
@@ -13109,6 +13129,7 @@ async function _openTemplateDialog() {
   const nameInput = document.getElementById("template-project-name");
   const locationInput = document.getElementById("template-location");
   await _templateLoadList();
+  _templateKind = ultimateBasicMode ? "ub" : "asm";
   if (nameInput) nameInput.value = "NewProject";
   if (locationInput && !locationInput.value.trim()) {
     let location = localStorage.getItem("templateProjectLocation") || "";
@@ -13135,16 +13156,49 @@ async function _templateCreateProject() {
   }
   if (!await _confirmCloseAllTabs()) return;
 
-  const fileEntry = { type: "file", name: "main.asm", path: "main.asm" };
-  const payload = JSON.stringify({ name: paths.name, files: [fileEntry], startupFile: fileEntry.path }, null, 2);
-  const asmRes = await api.saveTextFile(paths.mainPath, tpl.body.replaceAll("{{PROJECT}}", paths.name));
-  const projRes = asmRes?.ok ? await api.saveProjFile(paths.projPath, payload) : null;
-  if (!asmRes?.ok || !projRes?.ok) {
-    _templateUpdateTarget(`${t("templateWriteError")}: ${asmRes?.error || projRes?.error || _templateDisplayPath(paths.dir)}`);
+  const isUb = tpl.kind === "ub";
+  const mainName = isUb ? "main.ub" : "main.asm";
+  const fileEntry = { type: "file", name: mainName, path: mainName };
+  const payload = JSON.stringify({ ...(isUb ? { app: "ultimate-basic" } : {}), name: paths.name, files: [fileEntry], startupFile: fileEntry.path }, null, 2);
+  const mainRes = await api.saveTextFile(paths.mainPath, tpl.body.replaceAll("{{PROJECT}}", paths.name));
+  const projRes = mainRes?.ok ? await api.saveProjFile(paths.projPath, payload) : null;
+  if (!mainRes?.ok || !projRes?.ok) {
+    _templateUpdateTarget(`${t("templateWriteError")}: ${mainRes?.error || projRes?.error || _templateDisplayPath(paths.dir)}`);
     return;
   }
   localStorage.setItem("templateProjectLocation", document.getElementById("template-location")?.value.trim() || "");
   document.getElementById("template-dialog")?.close();
+
+  if (isUb) {
+    _closeAllTabsNow();
+    const blankId = activeTabId;
+    if (!ultimateBasicMode) setUltimateBasicMode(true);
+    // setUltimateBasicMode() seeds an empty editor with demo code; the blank tab must stay empty.
+    if (ubEditor) ubEditor.value = "";
+    _ubFilePath = "";
+    _ubDirty = false;
+    _ubProjectData = {
+      name: paths.name,
+      files: [{ ...fileEntry }],
+      startupFile: fileEntry.path,
+      _projPath: projRes.filePath || paths.projPath
+    };
+    _ubProjectDirty = false;
+    const opened = await _ubOpenProjectFile(_ubProjectData.files[0]);
+    _ubStartupTabId = opened?.id || null;
+    const blankIdx = tabs.findIndex(tab => tab.id === blankId && tab !== opened);
+    if (blankIdx >= 0) {
+      tabs.splice(blankIdx, 1);
+      renderTabBar();
+    }
+    if (!_ubProjectVisible) {
+      _ubProjectVisible = true;
+      _ubApplyLeftViews();
+    }
+    _ubRenderProjectFiles();
+    _ubSetStatus(`${t("templateCreated")}: ${paths.name}`);
+    return;
+  }
 
   if (ultimateBasicMode) {
     if (ubEditor) ubEditor.value = "";
@@ -13185,6 +13239,13 @@ document.getElementById("template-cancel")?.addEventListener("click", () => {
   document.getElementById("template-dialog")?.close();
 });
 document.getElementById("template-create")?.addEventListener("click", _templateCreateProject);
+document.querySelectorAll("#template-kinds .template-kind").forEach(btn => {
+  btn.addEventListener("click", () => {
+    if (btn.dataset.templateKind === _templateKind) return;
+    _templateKind = btn.dataset.templateKind === "ub" ? "ub" : "asm";
+    _templateRenderList();
+  });
+});
 document.getElementById("template-project-name")?.addEventListener("input", () => {
   _templateRenderPreview();
   _templateUpdateTarget();

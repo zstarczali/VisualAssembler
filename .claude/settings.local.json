@@ -311,7 +311,19 @@
       "Bash(grep -o '^ *\"[a-z_$#0-9]*\" => Token::' src/compiler/lexer.rs)",
       "Bash(node \"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/125a6b5a-0e68-4ee6-a2ba-dd09f059c686/scratchpad/add-i18n.js\")",
       "Bash(node --check www/tauri-bridge.js)",
-      "Bash(cd /f/Development/VisualAssembler; head -40 VICE-WEB-INTEGRATION-PLAN.md; echo ----; grep -n \"ultimate\\\\|basic\" src-tauri/Cargo.toml; echo ----; ls ..; echo ----; grep -n \"x64sc\\\\|\\\\\"x64\\\\|xplus4\\\\|fn launch_vice\\\\|machine\" src-tauri/src/lib.rs | head -40)"
+      "Bash(cd /f/Development/VisualAssembler; head -40 VICE-WEB-INTEGRATION-PLAN.md; echo ----; grep -n \"ultimate\\\\|basic\" src-tauri/Cargo.toml; echo ----; ls ..; echo ----; grep -n \"x64sc\\\\|\\\\\"x64\\\\|xplus4\\\\|fn launch_vice\\\\|machine\" src-tauri/src/lib.rs | head -40)",
+      "Bash(ls; ls *)",
+      "Bash(./target/release/ub.exe --help)",
+      "Bash(node --test tests/project-template.test.js)",
+      "Bash(node -e \"new Function\\(require\\('fs'\\).readFileSync\\('www/app.js','utf8'\\)\\)\")",
+      "Bash(node -e \"require\\('vm'\\).runInNewContext\\(require\\('fs'\\).readFileSync\\('www/i18n.js','utf8'\\),{window:{}}\\)\")",
+      "Bash(grep -n \"^#\\\\{2,4\\\\} \" \"Visual Assembler Manual.md\")",
+      "Bash(node \"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/80e92741-b04d-4840-9598-18412605ba75/scratchpad/cm.js\")",
+      "Bash(cd ~/.cargo/git/checkouts/ultimatebasic-2223cf473531f139/f0ac8d6 && grep -n '\"key\"' src/compiler/parser.rs | head; sed -n '/Token::Wait =>/,/+40p' src/compiler/parser.rs | head -60)",
+      "Bash(CARGO_TARGET_DIR=\"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/80e92741-b04d-4840-9598-18412605ba75/scratchpad/ubtarget\" cargo build --release --bin ub)",
+      "Bash(grep -v \"^\\\\s*$\")",
+      "Bash(\"D:/Development/VICE/bin/x64sc.exe\" -help)",
+      "Bash(node \"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/80e92741-b04d-4840-9598-18412605ba75/scratchpad/agents249.js\")"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"

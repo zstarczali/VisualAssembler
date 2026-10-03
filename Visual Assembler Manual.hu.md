@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.4.8**
+**Verzió: 2.4.9**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -26,6 +26,17 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - [12b. CRT export (Magic Desk 64K cartridge)](#12b-crt-export-magic-desk-64k-cartridge)
 - [13. Hardver beállítások](#13-hardver-beállítások)
 - [14. Vizuális szerkesztők (Toolkit)](#14-vizuális-szerkesztők-toolkit)
+
+---
+
+## A 2.4.9 verzió újdonságai
+
+- **Projekt sablonok** — a **Menu → File → Új projekt sablonból…**, vagy az új toolbar gomb a **Menu** és a **Tutorials** között, egy azonnal fordítható `.proj` projektet hoz létre saját mappában. A dialógusnak van egy **Assembler** szekciója (üres program, játék váz, hires és multicolor bitmap) és egy **UltimateBasic** szekciója (üres program, játék váz, hires bitmap, raszter IRQ), szintaxiskiemelt előnézettel. A saját `.asm` / `.ub` sablonjaidat a saját sablonok mappájából veszi. Lásd: [Projekt sablonok](#projekt-sablonok).
+- **Build projekt** — a **Menu → Build → Build projekt** a nyitott projekt (vagy a nyitott fülek) minden fordítható fájlját a forrás mellé fordítja `.prg`-be, ahol lehet, debugger szimbólumfájlokat is ír, az include-olt modulokat kihagyja, és fájlonkénti jelentést mutat. Lásd: [Build projekt](#build-projekt).
+- **Ctrl + egérgörgő zoom** az Expert és az Ultimate Basic szerkesztőben (macOS-en `Cmd` + görgő; touchpad csippentés is működik).
+- **A munkaterület a projekteket is megjegyzi** — az Expert és az Ultimate Basic projektfa, a startup fájl és a mentetlen projektváltozások a `.vaws` munkaterületbe kerülnek, és vele együtt állnak vissza. A régebbi munkaterületek továbbra is megnyílnak.
+- **Ultimate Basic** — a beépített fordító gyorsabb, kisebb 6502 kódot generál; a memóriatérkép megkülönbözteti a valódi kódot és adatot a kitöltéstől és a hosszú `org` résektől.
+- **A fájl-dialógusok az aktív munkamappában nyílnak** — módtól függően a Block/Expert vagy az Ultimate Basic munkamappában.
 
 ---
 
@@ -273,12 +284,14 @@ A modal automatikusan bezárul, amikor a művelet befejeződik vagy meghiúsul.
 | **Save Workspace As** | Az aktuális munkaterület mentése, minden alkalommal új fájl-dialógussal |
 | **Open Workspace** | Minden nyitott fül bezárása és a `.vaws` munkaterület-fájlban tárolt fájlkészlet újranyitása |
 | **Set working folder** | A fájlválasztók és mentés-dialógusok alapértelmezett mappájának kiválasztása. Az útvonal az app konfigjában tárolódik, és a menü-előnézetek az útvonal végét tartják láthatóan. |
+| **Új projekt sablonból…** (`Menu → File`, vagy a **Menu** melletti toolbar gomb) | Új `.proj` projekt létrehozása Assembler vagy UltimateBasic sablonból, saját mappában — lásd: [Projekt sablonok](#projekt-sablonok) |
 | **Open Project** (`Menu → File`) | Több-fájlos `.proj` projekt megnyitása, minden forrásfájl fülként megnyitva |
 | **Save Project** (`Menu → File`) | Az aktuális `.proj` projekt mentése (a projekt panelnek nyitva kell lennie) |
 | **Close Project** (`Menu → File`) | A jelenleg nyitott projekt és minden fájlfülének bezárása. Rákérdez a nem mentett változtatások mentésére. A projekt panel visszaáll üres állapotba. |
 | **Load .asm file** | `.asm` fájl megnyitása Expert módban, és szöveges 6502 ASM importja az aktuális fülbe |
 | **Save PRG** | A lefordított bináris exportja `.prg` fájlként |
 | **Build CRT** | A program exportja 64K Magic Desk (`.crt`, cartridge type 19) fájlként. Lásd a [12b. szakaszt](#12b-crt-export-magic-desk-64k-cartridge). |
+| **Build projekt** (`Menu → Build`) | A projekt (vagy a nyitott fülek) minden fordítható fájlját a forrás mellé fordítja `.prg`-be — lásd: [Build projekt](#build-projekt) |
 | **Run (osztott gomb)** | A fő **▶ Run** gomb az aktuális módot futtatja; a **▾** nyíllal válthatsz: **Run as PRG** (fordítás és VICE közvetlen indítása), **Run via D64** (.d64 lemezképbe csomagolás és VICE indítása), **Run on hardware** (PRG küldése egy C64 Ultimate / 1541 Ultimate eszközre), vagy **Kung Fu Flash 2** (a PRG feltöltése USB-n egy Kung Fu Flash 2 cartridge-dzsel felszerelt valódi C64/C128-ra). Lásd a [12.](#12-d64-export-és-futtatás) és [13. szakaszt](#13-hardver-beállítások). |
 | **Debug (RetroDebugger)** | Fordítás és indítás RetroDebuggerben breakpointokkal, szimbólumokkal és autostart flag-ekkel (lásd a [10. szakaszt](#10-debugger-integráció)) |
 | **Run with Exomizer** | Jelölőnégyzet a Settings menüben — bekapcsolva minden Run és Build művelet `exomizer sfx sys`-szel tömöríti a PRG-t indítás vagy mentés előtt. Működik a Run as PRG, Run via D64, Run on Hardware, Build PRG és Build D64 műveletekkel. Először állítsd be az Exomizer futtathatót a **Hardware Settings**-ben. |
@@ -327,6 +340,44 @@ Egy **munkaterület** (`.vaws` fájl) megjegyzi, mely valós, lemezen lévő fá
 - Csak a lemezen lévő valós fájlhoz kötött fülek mentődnek a munkaterületbe; egy nem mentett mintát vagy csak memóriában lévő programot tartalmazó fülnek nincs mit megőriznie, így az kihagyódik (értesítéssel, ha egyik nyitott fül sem alkalmas).
 - Egy munkaterület megnyitása először bezár minden jelenleg nyitott fület — a folytatás előtt megerősítést kér.
 - Ha egy munkaterület olyan fájlra hivatkozik, amelyet azóta áthelyeztek vagy töröltek, az a bejegyzés kihagyódik, és betöltés után név szerint jelentődik.
+- A nyitott Expert és Ultimate Basic **projektek** is mentődnek: a projektfa (a mentetlen hozzáadásokkal és törlésekkel együtt), a startup fájl és a `.proj` mentési célja a munkaterülettel együtt áll vissza. A régebbi verzióval mentett munkaterületek ezek nélkül nyílnak meg.
+
+### Projekt sablonok
+
+A **Menu → File → Új projekt sablonból…** — vagy a **Menu** és a **Tutorials** közötti toolbar gomb — megnyitja a sablon dialógust:
+
+1. Fent válassz szekciót: **Assembler** vagy **UltimateBasic** (a dialógus az aktuális szerkesztőmódnak megfelelő szekción nyílik).
+2. Válassz sablont a listából; jobb oldalon a leírása és a szintaxiskiemelt előnézete látszik, a projekt nevével kitöltve.
+3. Add meg a **projekt nevét** és a **helyet** (**Tallózás…**). Az űrlap alatti sor mutatja a pontos `.proj` útvonalat, ami létrejön.
+4. Kattints a **Projekt létrehozása** gombra.
+
+| Szekció | Beépített sablonok |
+|---|---|
+| **Assembler** | Üres program, Üres játék (cím / játék / vége állapotok, joystick, játékos sprite), Hires bitmap, Multicolor bitmap |
+| **UltimateBasic** | Üres program, Üres játék (ugyanaz az állapotgép UB-ben), Hires bitmap (`line` / `rect` / `circle` `color pen`-nel), Raszter IRQ (egy `sub`, amit a raszter megszakítás minden képkockában meghív) |
+
+A projekt saját mappában jön létre: `<hely>/<név>/<név>.proj`, mellette `main.asm` (Assembler) vagy `main.ub` (UltimateBasic; a `.proj` Ultimate Basic projektként van jelölve). Meglévő projektet sosem ír felül — ilyenkor a dialógus jelez. A nyitott fülek előbb bezáródnak (mentetlen változásnál rákérdez), majd az új projekt Expert vagy Ultimate Basic módban nyílik meg, látható projekt panellel, a fő fájl startup fájlként beállítva.
+
+**Saját sablonok:** a **Saját sablonok mappája** (a dialógus bal alsó sarkában) megnyitja a felhasználói sablonok mappáját az app config könyvtárában. Minden oda bedobott `.asm` vagy `.ub` fájl megjelenik a megfelelő szekcióban (a *Saját sablonok* alatt, hacsak nem ad meg kategóriát). A sablon egy közönséges forrásfájl, a tetején opcionális, kommentsorokból álló fejléccel — assemblerben `;`, Ultimate Basicben `#`:
+
+```asm
+; @name Raster bars
+; @name.hu Raszter csíkok
+; @category Effects
+; @desc Two raster bars in the border.
+; @order 50
+```
+
+A `@name`, `@category` és `@desc` nyelvenként is megadható (`@name.hu`, `@desc.de`, …); az `@order` a lista sorrendjét adja. A fejléc utáni rész lesz az új fő fájl, a `{{PROJECT}}` helyére a projekt neve kerül (kommentben használd, hogy maga a sablon is forduljon).
+
+### Build projekt
+
+A **Menu → Build → Build projekt** egy lépésben lefordítja a teljes projektet. A nyitott `.proj` projekt fájljai fordulnak — projekt nélkül a nyitott fájl-fülek:
+
+- minden fordítható forrás (`.asm`, blokk `.json`, `.ub`) azonos nevű `.prg`-be fordul **a forrása mellé**; bekapcsolt **Run with Exomizer** esetén a kimenet tömörített;
+- ahol elérhető, a debugger sidecar fájlok (szimbólumok / source map) a PRG mellé íródnak;
+- a más fájlba `.include` / `include` által behúzott modulok (és a `.inc` fájlok) kimaradnak, ahogy a soha nem mentett fülek is;
+- a jelentés minden fájlt felsorol a méretével, a kihagyás okával vagy a fordítási hibával, a statusbar pedig *N / M fájl lefordítva*-t mutat.
 
 ### .asm fájl betöltése (gyorsreferencia)
 
@@ -390,7 +441,7 @@ A UB eszköztár ugyanazt a vizuális nyelvet és egyéni tooltipeket követi, m
 
 - szintaxiskiemelést az aktuális Ultimate Basic nyelvi referencia alapján;
 - sorszámokat, amelyek hosszú fájloknál is szinkronban maradnak;
-- minimapot és szerkesztő zoom vezérlőket; kattints a minimapra az ugráshoz, vagy húzd a viewport-jelölőjét folyamatos görgetéshez;
+- minimapot és szerkesztő zoom vezérlőket (a `Ctrl` + egérgörgő is nagyít); kattints a minimapra az ugráshoz, vagy húzd a viewport-jelölőjét folyamatos görgetéshez;
 - Keresést (`Ctrl+F` / `Cmd+F`) az Expert-stílusú keresősávval;
 - forrásformázást szerkezet-tudatos behúzással;
 - autocomplete-ot parancsokhoz és beépített függvényekhez;
@@ -404,7 +455,7 @@ A parancslista szándékosan magasság-korlátozott, hogy a parancs-részlet ká
 
 ### Projektek, fülek és startup fájlok
 
-Az Ultimate Basic projektek `.proj` fájlokat használnak, és több `.ub` forrást tartalmazhatnak. A Project panel listázza a nyitott fájlokat, jelöli a nem mentett füleket, és mutatja a felfedezett címkéket, függvényeket és szubrutinokat. A projekt-műveletekkel létrehozhatsz, megnyithatsz, menthetsz és bezárhatsz egy projektet, vagy hozzáadhatsz egy újabb forrásfájlt.
+Az Ultimate Basic projektek `.proj` fájlokat használnak, és több `.ub` forrást tartalmazhatnak. A Project panel listázza a nyitott fájlokat, jelöli a nem mentett füleket, és mutatja a felfedezett címkéket, függvényeket és szubrutinokat. A projekt-műveletekkel létrehozhatsz, megnyithatsz, menthetsz és bezárhatsz egy projektet, vagy hozzáadhatsz egy újabb forrásfájlt. Új projekt UltimateBasic sablonból is indulhat — lásd: [Projekt sablonok](#projekt-sablonok).
 
 Kattints egy projektfájl melletti csillagra, hogy **startup fájlnak** jelöld. A Build, Run, D64, C64 Ultimate és Debug parancsok azt a startup forrást fordítják, még akkor is, ha éppen egy másik fül aktív. Startup-választás nélkül az aktív UB fül használódik.
 
@@ -508,7 +559,7 @@ Az Expert mód egy teljes értékű, közvetlen szöveges 6502 assembly szerkesz
 | **Collapse / expand all regions** | `#expert-region-fold-all-btn` | Minden `.region` blokk becsukása vagy kinyitása egy kattintással. Ha bármelyik régió nyitva van, a gomb mindet becsukja; ha minden régió már csukva van, a következő kattintás mindet kinyitja. A gomb világít, ha minden régió becsukott. |
 | **Line numbers** | `#expert-line-numbers-btn` | A sorszám-margó kapcsolása a szerkesztő bal oldalán. A margó szinkronban marad a görgetési pozícióval, és élőben frissül gépelés közben. |
 | **Find** | `#expert-find-btn` | A lebegő Keresés sáv megnyitása (`Ctrl+F`). Gépelj a kereséshez; a találatok kiemelődnek az overlay-ben. `Enter` / `Shift+Enter` navigál a találatok között. `Escape` bezárja a sávot. |
-| **Zoom out / in** | `#expert-zoom-out-btn` / `#expert-zoom-in-btn` | A szerkesztő betűmérete csökken / nő (8–28 px). A beállítás megőrződik. |
+| **Zoom out / in** | `#expert-zoom-out-btn` / `#expert-zoom-in-btn` | A szerkesztő betűmérete csökken / nő (8–28 px). A szerkesztő fölött a `Ctrl` + egérgörgő (macOS-en `Cmd` + görgő, vagy touchpad csippentés) ugyanezt teszi. A beállítás megőrződik. |
 | **Palette** | `#expert-palette-btn` | A bal oldali mnemonik-paletta megjelenítése/elrejtése |
 | **Disasm** | `#expert-disasm-btn` | A disassembly panel megjelenítése/elrejtése (tiszta 6502, makrók kifejtve) |
 | **Monitor** | `#expert-monitor-btn` | A monitor hex-dump panel megjelenítése/elrejtése |

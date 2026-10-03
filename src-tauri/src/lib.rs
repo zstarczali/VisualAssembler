@@ -3200,8 +3200,9 @@ async fn open_ultimate_basic_manual(app: AppHandle) -> Result<(), String> {
 }
 
 // ── Project templates ────────────────────────────────────────────────────────
-// Every *.asm file in the bundled templates/ folder and in the user's own
-// templates folder is a template; the frontend reads the "; @name ..." header.
+// Every *.asm (assembler) and *.ub (UltimateBasic) file in the bundled templates/
+// folder and in the user's own templates folder is a template; the frontend reads
+// the "; @name ..." / "# @name ..." header.
 
 fn user_templates_dir(app: &AppHandle) -> Option<PathBuf> {
     app.path().app_config_dir().ok().map(|dir| dir.join("templates"))
@@ -3220,7 +3221,7 @@ fn collect_templates(dir: &Path, source: &str, out: &mut Vec<serde_json::Value>)
                 && path
                     .extension()
                     .and_then(|ext| ext.to_str())
-                    .map(|ext| ext.eq_ignore_ascii_case("asm"))
+                    .map(|ext| ext.eq_ignore_ascii_case("asm") || ext.eq_ignore_ascii_case("ub"))
                     .unwrap_or(false)
         })
         .collect();

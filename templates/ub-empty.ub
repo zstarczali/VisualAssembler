@@ -1,0 +1,25 @@
+# @name Empty program
+# @name.hu Üres program
+# @category Basics
+# @category.hu Alapok
+# @desc Minimal UltimateBasic program: screen setup, a title line and a frame-synced main loop that exits on a key press.
+# @desc.hu Minimális UltimateBasic program: képernyő beállítás, címsor és képkockához szinkronizált főciklus, ami billentyűre kilép.
+# @order 10
+
+# {{PROJECT}}
+
+color border 0
+color bg 0
+color text 1
+cls
+
+print at 2, 2, "HELLO FROM ULTIMATE BASIC"
+print at 2, 4, "PRESS ANY KEY TO EXIT"
+
+loop
+  wait raster 255
+  # TODO: per-frame work goes here
+  if inkey() then break end
+end
+
+bye

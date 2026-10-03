@@ -1,0 +1,51 @@
+# @name Raster IRQ
+# @name.hu Raszter IRQ
+# @category Basics
+# @category.hu Alapok
+# @desc Raster interrupt skeleton: a sub runs once per frame from the IRQ (border color split), while the main program keeps running.
+# @desc.hu Raszter megszakítás váz: egy sub képkockánként egyszer fut az IRQ-ból (keretszín váltás), közben a főprogram tovább fut.
+# @order 40
+
+# {{PROJECT}}
+
+var frames = 0
+
+# Called once per frame at raster line 100
+sub frame_irq()
+  poke $D019, $FF      # ACK the VIC raster IRQ first
+  inc frames
+  color border frames shr 4
+  # TODO: music player, sprite updates, ...
+  # Leave through the KERNAL IRQ ($EA31: keyboard scan, then RTI).
+  # Not "sys $EA31": sys is a JSR and its return address would break the RTI.
+  asm {
+    JMP $EA31
+  }
+end
+
+color bg 0
+color text 1
+cls
+print at 2, 2, "RASTER IRQ RUNNING"
+print at 2, 4, "PRESS ANY KEY TO EXIT"
+
+irq frame_irq, 100
+
+# getch() reads the keyboard buffer, which the IRQ above keeps filling
+var k = getch()
+
+# Back to the KERNAL IRQ: raster IRQ off, vector $EA31, CIA1 timer IRQ on
+asm {
+    SEI
+    LDA #$00
+    STA $D01A
+    LDA #$31
+    STA $0314
+    LDA #$EA
+    STA $0315
+    LDA #$81
+    STA $DC0D
+    CLI
+}
+color border 14
+bye
