@@ -1891,6 +1891,7 @@ function initPalette() {
   setupCharsetCanvasEditor();
   setupMapEditor();
   setupLevelEditor();
+  setupNumberConverter();
   setupHiresEditor();
   setupSpriteEditor();
   setupSidEditor();
@@ -2349,6 +2350,7 @@ function setupDraggableEditorDialogs() {
     ["charset-canvas-dialog", ".cc-hdr"],
     ["map-editor-dialog", ".me-hdr"],
     ["level-editor-dialog", ".me-hdr"],
+    ["numconv-dialog", ".nc-hdr"],
     ["hires-editor-dialog", ".hg-hdr"],
     ["sprite-editor-dialog", ".se-hdr"],
     ["sid-editor-dialog", ".sid-hdr"],
@@ -3610,6 +3612,16 @@ function _applyEditorTranslations() {
   setAttr("#me-clear", t("meClearMap"));
   // Level Editor
   setAttr("#level-editor-btn", t("lvBtnTitle"));
+  // Number converter
+  setAttr("#numconv-btn", t("ncBtnTitle"));
+  setText("#nc-title", t("ncTitle"));
+  setAttr('#numconv-dialog [data-nc-copy="dec"]', t("ncCopyDec"));
+  setAttr('#numconv-dialog [data-nc-copy="hex"]', t("ncCopyHex"));
+  setAttr('#numconv-dialog [data-nc-copy="bin"]', t("ncCopyBin"));
+  setAttr('#numconv-dialog .nc-width-btn[data-bits="8"]', t("ncWidth8"));
+  setAttr('#numconv-dialog .nc-width-btn[data-bits="16"]', t("ncWidth16"));
+  setText("#nc-bits-label", t("ncBitsLabel"));
+  try { if (document.getElementById("numconv-dialog")?.open) _ncRender(null); } catch (_) {}
   setText("#lv-title", t("lvTitle"));
   setText("#lv-new", t("lvNew"));
   setText("#lv-open", t("lvOpen"));
@@ -3618,7 +3630,6 @@ function _applyEditorTranslations() {
   setText('[data-lv-export="screen-color"]', t("lvSaveScreenColor"));
   setText('[data-lv-export="blocks"]', t("lvExportBlocks"));
   setText('[data-lv-export="asm"]', t("lvCopyAsm"));
-  setText('[data-lv-export="ubmap"]', t("lvExportUbMap"));
   setAttr("#lv-add-empty", t("lvAddEmpty"));
   setAttr("#lv-add-map", t("lvAddFromMap"));
   setAttr("#lv-load-maps", t("lvLoadMaps"));
@@ -6319,7 +6330,7 @@ const ubCommandDescriptionsEn = {
   "chain": "Loads another program to its own load address (normally $0801, over the running program) and RUNs it, as if LOAD\"FILE\",8,1 and RUN had been typed; for boot / title programs. The I/O is reset first (VIC IRQs off, SID volume 0, IOINIT, RESTOR), so music and custom IRQs stop, while the screen stays as it is. Without a device the drive the program came from is used. If the file cannot be loaded, the program continues after chain. The file name must be a string literal of 1-16 characters.",
   "memcopy": "Copies a block of memory.",
   "drawmem": "Copies a packed 2-D rectangle to strided destination memory.",
-  "map": "Loads, draws, and modifies character tile maps.",
+  "map": "Loads, draws, scrolls and modifies character tile maps. map load reads a VisualAssembler Level Editor project (.bin, composed into one map, max 255x255 cells) or a Map Editor export (.bin); map load \"f\", addr places the data at a fixed address (e.g. $4000). map draw x, y copies a 40x25 view at a char cell; map view px, py scrolls smoothly at a pixel position (UB 1.6.1+); map set / map color change cells.",
   "map view": "Shows the loaded map at pixel position px, py, once per frame instead of wait raster: smooth XSCROLL/YSCROLL scrolling with two screen buffers ($0400/$3C00) and raster-timed color RAM copies, so char steps do not tear in any direction. Sprites keep working. Keep code out of $3C00-$3FFF: load big maps with an address (map load \"f\", $4000). map load also reads Level Editor projects (.bin) directly. UB 1.6.1+.",
   "map query": "Reads a tile code or cell color from the active map.",
   "koala": "Loads and displays a Koala Painter image.",
@@ -6440,7 +6451,7 @@ const ubCommandDescriptionsHu = {
   "chain": "Egy másik programot tölt be a saját betöltési címére (általában $0801, a futó program fölé), és elindítja, mintha LOAD\"FILE\",8,1 és RUN lett volna begépelve; boot / címképernyő programokhoz. Előtte alaphelyzetbe állítja az I/O-t (VIC IRQ ki, SID hangerő 0, IOINIT, RESTOR), így a zene és az egyedi IRQ-k leállnak, a képernyő viszont megmarad. Eszközszám nélkül arról a meghajtóról tölt, ahonnan a program indult. Ha a fájl nem tölthető be, a program a chain utáni utasítással folytatódik. A fájlnév 1-16 karakteres string literál.",
   "memcopy": "Átmásol egy memóriablokkot a forráscímről a célcímre.",
   "drawmem": "Tömör 2D téglalap alakú memóriaterületet másol át sorléptetéses (strided) célmemóriába.",
-  "map": "Karakteres csempetérképeket tölt be, rajzol ki és módosít (.ubmap).",
+  "map": "Karakteres csempetérképeket tölt be, rajzol ki, görget és módosít. A map load a VisualAssembler Pálya szerkesztő projektjét (.bin, egy térképpé összefűzve, max. 255x255 cella) vagy Map Editor exportját (.bin) olvassa; a map load \"f\", cím az adatot fix címre teszi (pl. $4000). A map draw x, y egy 40x25-ös nézetet másol karaktercellától; a map view px, py pixelpozícióra görget simán (UB 1.6.1+); a map set / map color cellákat módosít.",
   "map view": "A betöltött térképet a px, py pixelpozícióban mutatja, képkockánként egyszer hívva (a wait raster helyett): finom XSCROLL/YSCROLL görgetés két képernyő-bufferrel ($0400/$3C00) és raszterhez időzített Color RAM másolással, így a karakterlépések egyik irányban sem szakadnak. A sprite-ok működnek. A kód ne nyúljon $3C00-$3FFF-be: nagy térképet címmel tölts be (map load \"f\", $4000). A map load a Pálya szerkesztő projektjét (.bin) is közvetlenül beolvassa. UB 1.6.1+.",
   "map query": "Lekérdezi egy cella csempekódját vagy színét az aktív térképből (map_tile, map_color).",
   "koala": "Koala Painter (.kla) többszínű képet tölt be és jelenít meg.",
@@ -6561,7 +6572,7 @@ const ubCommandDescriptionsEs = {
   "chain": "Carga otro programa en su propia dirección de carga (normalmente $0801, sobre el programa en ejecución) y lo ejecuta con RUN, como si se hubiera tecleado LOAD\"FILE\",8,1 y RUN; para programas de arranque / título. Antes reinicia la E/S (IRQ del VIC desactivadas, volumen del SID a 0, IOINIT, RESTOR), así que la música y las IRQ propias se detienen, mientras la pantalla se conserva. Sin dispositivo usa la unidad desde la que se cargó el programa. Si el archivo no se puede cargar, el programa continúa tras chain. El nombre debe ser un literal de 1-16 caracteres.",
   "memcopy": "Copia un bloque de memoria.",
   "drawmem": "Copia un rectángulo 2D empaquetado a una memoria de destino con paso (stride).",
-  "map": "Carga, dibuja y modifica mapas de casillas de caracteres.",
+  "map": "Carga, dibuja, desplaza y modifica mapas de casillas de caracteres. map load lee un proyecto del editor de niveles de VisualAssembler (.bin, unido en un solo mapa, máx. 255x255 celdas) o una exportación del editor de mapas (.bin); map load \"f\", dir coloca los datos en una dirección fija (p. ej. $4000). map draw x, y copia una vista de 40x25 desde una celda; map view px, py desplaza suavemente a una posición en píxeles (UB 1.6.1+); map set / map color cambian celdas.",
   "map view": "Muestra el mapa cargado en la posición de píxel px, py, una vez por fotograma en lugar de wait raster: scroll suave XSCROLL/YSCROLL con dos búferes de pantalla ($0400/$3C00) y copias de la RAM de color sincronizadas con el ráster, sin cortes en ninguna dirección. Los sprites siguen funcionando. Mantén el código fuera de $3C00-$3FFF: carga los mapas grandes con dirección (map load \"f\", $4000). map load también lee proyectos del editor de niveles (.bin). UB 1.6.1+.",
   "map query": "Lee un código de casilla o color de celda del mapa activo.",
   "koala": "Carga y muestra una imagen de Koala Painter.",
@@ -6682,7 +6693,7 @@ const ubCommandDescriptionsDe = {
   "chain": "Lädt ein anderes Programm an seine eigene Ladeadresse (meist $0801, über das laufende Programm) und startet es mit RUN, als wären LOAD\"FILE\",8,1 und RUN eingetippt worden; für Boot-/Titelprogramme. Vorher wird die I/O zurückgesetzt (VIC-IRQs aus, SID-Lautstärke 0, IOINIT, RESTOR), Musik und eigene IRQs stoppen, der Bildschirm bleibt erhalten. Ohne Geräteangabe wird das Laufwerk benutzt, von dem das Programm kam. Lässt sich die Datei nicht laden, läuft das Programm nach chain weiter. Der Dateiname muss ein String-Literal mit 1-16 Zeichen sein.",
   "memcopy": "Kopiert einen Speicherblock.",
   "drawmem": "Kopiert ein gepacktes 2D-Rechteck in Zielspeicher mit Zeilensprung (Stride).",
-  "map": "Lädt, zeichnet und ändert Zeichen-Tilemaps.",
+  "map": "Lädt, zeichnet, scrollt und ändert Zeichen-Tilemaps. map load liest ein VisualAssembler-Level-Editor-Projekt (.bin, zu einer Karte zusammengesetzt, max. 255x255 Zellen) oder einen Karteneditor-Export (.bin); map load \"f\", adr legt die Daten an eine feste Adresse (z. B. $4000). map draw x, y kopiert eine 40x25-Ansicht ab einer Zelle; map view px, py scrollt weich auf eine Pixelposition (UB 1.6.1+); map set / map color ändern Zellen.",
   "map view": "Zeigt die geladene Karte an der Pixelposition px, py, einmal pro Frame statt wait raster: weiches XSCROLL/YSCROLL-Scrollen mit zwei Bildschirmpuffern ($0400/$3C00) und rastergetakteten Farb-RAM-Kopien, ohne Reißen in jeder Richtung. Sprites funktionieren weiter. Code nicht in $3C00-$3FFF legen: große Karten mit Adresse laden (map load \"f\", $4000). map load liest auch Level-Editor-Projekte (.bin). UB 1.6.1+.",
   "map query": "Liest einen Tile-Code oder eine Zellenfarbe aus der aktiven Map.",
   "koala": "Lädt und zeigt ein Koala Painter-Bild an.",
@@ -6803,7 +6814,7 @@ const ubCommandDescriptionsNl = {
   "chain": "Laadt een ander programma op zijn eigen laadadres (meestal $0801, over het lopende programma) en start het met RUN, alsof LOAD\"FILE\",8,1 en RUN waren ingetypt; voor boot-/titelprogramma's. Eerst wordt de I/O gereset (VIC-IRQ's uit, SID-volume 0, IOINIT, RESTOR), dus muziek en eigen IRQ's stoppen, terwijl het scherm blijft staan. Zonder apparaat wordt de drive gebruikt waarvan het programma kwam. Kan het bestand niet worden geladen, dan gaat het programma verder na chain. De bestandsnaam moet een string-literal van 1-16 tekens zijn.",
   "memcopy": "Kopieert een geheugenblok.",
   "drawmem": "Kopiert een compacte 2D-rechthoek naar bestemmingsgeheugen met rijstap (stride).",
-  "map": "Laadt, tekent en bewerkt teken-tilemaps.",
+  "map": "Laadt, tekent, scrollt en bewerkt teken-tilemaps. map load leest een VisualAssembler-leveleditor-project (.bin, samengevoegd tot één kaart, max. 255x255 cellen) of een tegelkaartexport (.bin); map load \"f\", adres plaatst de data op een vast adres (bv. $4000). map draw x, y kopieert een 40x25-weergave vanaf een cel; map view px, py scrollt vloeiend naar een pixelpositie (UB 1.6.1+); map set / map color wijzigen cellen.",
   "map view": "Toont de geladen kaart op pixelpositie px, py, eenmaal per frame in plaats van wait raster: vloeiend XSCROLL/YSCROLL-scrollen met twee schermbuffers ($0400/$3C00) en rastergetimede kleuren-RAM-kopieën, zonder scheuren in elke richting. Sprites blijven werken. Houd code buiten $3C00-$3FFF: laad grote kaarten met een adres (map load \"f\", $4000). map load leest ook leveleditor-projecten (.bin). UB 1.6.1+.",
   "map query": "Leest een tile-code of celkleur uit de actieve map.",
   "koala": "Laadt en toont een Koala Painter-afbeelding.",
@@ -6924,7 +6935,7 @@ const ubCommandDescriptionsPl = {
   "chain": "Wczytuje inny program pod jego własny adres ładowania (zwykle $0801, na miejsce działającego programu) i uruchamia go przez RUN, jakby wpisano LOAD\"FILE\",8,1 i RUN; do programów startowych / ekranów tytułowych. Najpierw resetuje I/O (przerwania VIC wyłączone, głośność SID 0, IOINIT, RESTOR), więc muzyka i własne przerwania się zatrzymują, a ekran zostaje. Bez numeru urządzenia używa napędu, z którego program został wczytany. Jeśli pliku nie da się wczytać, program działa dalej po chain. Nazwa pliku musi być literałem tekstowym o długości 1-16 znaków.",
   "memcopy": "Kopiuje blok pamięci.",
   "drawmem": "Kopiuje spakowany prostokąt 2D do pamięci docelowej z krokiem (stride).",
-  "map": "Wczytuje, rysuje i modyfikuje mapy kafelków znaków.",
+  "map": "Wczytuje, rysuje, przewija i modyfikuje mapy kafelków znaków. map load czyta projekt edytora poziomów VisualAssemblera (.bin, złączony w jedną mapę, maks. 255x255 komórek) lub eksport edytora map (.bin); map load \"f\", adres umieszcza dane pod stałym adresem (np. $4000). map draw x, y kopiuje widok 40x25 od komórki; map view px, py płynnie przewija do pozycji w pikselach (UB 1.6.1+); map set / map color zmieniają komórki.",
   "map view": "Pokazuje wczytaną mapę w pozycji pikselowej px, py, raz na klatkę zamiast wait raster: płynne przewijanie XSCROLL/YSCROLL z dwoma buforami ekranu ($0400/$3C00) i kopiowaniem pamięci kolorów zsynchronizowanym z rastrem, bez rwania w każdym kierunku. Sprite'y nadal działają. Trzymaj kod poza $3C00-$3FFF: duże mapy wczytuj z adresem (map load \"f\", $4000). map load czyta też projekty edytora poziomów (.bin). UB 1.6.1+.",
   "map query": "Odczytuje kod kafelka lub kolor komórki z aktywnej mapy.",
   "koala": "Wczytuje i wyświetla obraz Koala Painter.",
@@ -7045,7 +7056,7 @@ const ubCommandDescriptionsIt = {
   "chain": "Carica un altro programma al suo indirizzo di caricamento (di solito $0801, sopra il programma in esecuzione) e lo avvia con RUN, come se si fossero digitati LOAD\"FILE\",8,1 e RUN; per programmi di boot / schermate iniziali. Prima reimposta l'I/O (IRQ del VIC disattivati, volume SID a 0, IOINIT, RESTOR), quindi musica e IRQ personalizzati si fermano, mentre lo schermo resta com'è. Senza dispositivo usa l'unità da cui è stato caricato il programma. Se il file non si può caricare, il programma prosegue dopo chain. Il nome del file deve essere un letterale di 1-16 caratteri.",
   "memcopy": "Copia un blocco di memoria.",
   "drawmem": "Copia un rettangolo 2D compattato in memoria di destinazione con passo (stride).",
-  "map": "Carica, disegna e modifica mappe di tile di caratteri.",
+  "map": "Carica, disegna, scorre e modifica mappe di tile di caratteri. map load legge un progetto dell'editor livelli di VisualAssembler (.bin, unito in un'unica mappa, max 255x255 celle) o un'esportazione dell'editor mappe (.bin); map load \"f\", indirizzo mette i dati a un indirizzo fisso (es. $4000). map draw x, y copia una vista 40x25 da una cella; map view px, py scorre in modo fluido a una posizione in pixel (UB 1.6.1+); map set / map color modificano le celle.",
   "map view": "Mostra la mappa caricata alla posizione in pixel px, py, una volta per frame al posto di wait raster: scorrimento fluido XSCROLL/YSCROLL con due buffer schermo ($0400/$3C00) e copie della RAM colore sincronizzate col raster, senza strappi in nessuna direzione. Gli sprite continuano a funzionare. Tieni il codice fuori da $3C00-$3FFF: carica le mappe grandi con un indirizzo (map load \"f\", $4000). map load legge anche i progetti dell'editor livelli (.bin). UB 1.6.1+.",
   "map query": "Legge un codice tile o il colore di una cella dalla mappa attiva.",
   "koala": "Carica e visualizza un'immagine Koala Painter.",
@@ -7180,7 +7191,7 @@ const _UB_COMMAND_REFERENCE = [
   ["chain", "chain \"GAME\"             # load GAME from the drive we were started from and RUN it\nchain \"GAME\", 9          # from drive 9 (any expression)\nprint \"LOAD ERROR\"       # only reached if the file could not be loaded", "Loads another program over this one and RUNs it (UB 1.5.9+)."],
   ["memcopy", "memcopy source, destination, length", "Copies a block of memory."],
   ["drawmem", "drawmem source, destination, width, height, stride", "Copies a packed 2-D rectangle to strided destination memory."],
-  ["map", "map load \"file.ubmap\"\nmap load \"level.bin\", $4000\nmap draw x, y\nmap view px, py\nmap set x, y, tile\nmap color x, y, color", "Loads, draws, and modifies character tile maps."],
+  ["map", "map load \"level.bin\"\nmap load \"level.bin\", $4000\nmap draw x, y\nmap view px, py\nmap set x, y, tile\nmap color x, y, color", "Loads (Level Editor project, Map Editor export), draws, scrolls and modifies character tile maps."],
   ["map view", "map load \"level.bin\", $4000   # Level Editor project, data at $4000\nvar px: word = 0\nvar py: word = 0\nloop\n  map view px, py   # once per frame, instead of wait raster\n  # joystick -> px / py, game logic\nend", "Smooth, tear-free scrolling of the loaded map at a pixel position (UB 1.6.1+)."],
   ["map query", "map_tile(x, y)\nmap_color(x, y)", "Reads a tile code or cell color from the active map."],
   ["koala", "koala load \"picture.kla\"\nkoala show\nkoala hide", "Loads and displays a Koala Painter image."],
@@ -8007,10 +8018,22 @@ function _ubRenderCommandReference() {
   const detail = document.getElementById("ub-command-detail");
   if (!list || !detail) return;
   const term = (document.getElementById("ub-command-search")?.value || "").trim().toLowerCase();
-  const matches = _UB_COMMAND_REFERENCE.filter(([name, syntax, description]) => {
+  // Command names first (prefix, then substring); syntax and descriptions only on a
+  // word start, so "map" does not list everything that mentions "bitmap".
+  const wordStart = term ? new RegExp("(^|[^a-z0-9_])" + term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")) : null;
+  const rank = ([name, syntax, description]) => {
+    if (!term) return 0;
+    if (name.startsWith(term)) return 0;
+    if (name.includes(term)) return 1;
+    if (wordStart.test(syntax.toLowerCase())) return 2;
     const desc = _ubGetCommandDescription(name) || description;
-    return !term || name.includes(term) || syntax.toLowerCase().includes(term) || desc.toLowerCase().includes(term);
-  });
+    return wordStart.test(desc.toLowerCase()) ? 3 : -1;
+  };
+  const matches = _UB_COMMAND_REFERENCE
+    .map((entry, index) => ({ entry, index, score: rank(entry) }))
+    .filter((item) => item.score >= 0)
+    .sort((a, b) => a.score - b.score || a.index - b.index)
+    .map((item) => item.entry);
   list.innerHTML = "";
   matches.forEach(([name]) => {
     const button = document.createElement("button");
@@ -8052,7 +8075,8 @@ function _ubRenderCommandReference() {
   noteLabel.className = "mnemonic-field-label";
   noteLabel.textContent = t("ubUsageLabel");
   const note = document.createElement("small");
-  const isBlock = selected[1].includes("\n");
+  // a block has a closing line (end / next / until / endtype ...), not just several examples
+  const isBlock = /\n\s*(end|next|until|endtype|endw)\b/i.test(selected[1]);
   note.textContent = isBlock ? t("ubBlockCommandHint") : t("ubSingleCommandHint");
   detail.append(title, descriptionLabel, description, syntaxLabel, syntax, noteLabel, note);
 }
@@ -35308,22 +35332,6 @@ function _lvComposeMap() {
   return { map, cmap, cols, rows };
 }
 
-/* UltimateBasic `map load` file (UBMP v1): "UBMP", version 1, flags (bit 0 = colors,
-   bit 1 = multicolor), width/height (16-bit LE, 1..255), $D021-$D023, chars, colors. */
-function _lvBuildUbMap() {
-  const m = _lvComposeMap();
-  if (!m) return { error: t("lvNothing") };
-  if (m.cols > 255 || m.rows > 255) return { error: tf("lvUbMapTooLarge", { cols: m.cols, rows: m.rows }) };
-  const s = _lvSettings || _lvDefaultSettings();
-  const n = m.cols * m.rows;
-  const out = new Uint8Array(13 + n * 2);
-  out.set([0x55, 0x42, 0x4D, 0x50, 1, 1 | (s.multicolor ? 2 : 0), m.cols, 0, m.rows, 0,
-    s.bgColor & 15, s.mc1Color & 15, s.mc2Color & 15]);
-  out.set(m.map, 13);
-  out.set(m.cmap, 13 + n);
-  return { bytes: out };
-}
-
 function _lvExportData() {
   const composed = _lvComposeMap();
   if (!composed) return null;
@@ -35383,12 +35391,6 @@ function _lvFlash(msg) {
 
 function _lvExport(kind) {
   if (kind === "save-level") { _saveBinFile(_lvBuildLevelFile(), "level.bin"); return; }
-  if (kind === "ubmap") {
-    const ub = _lvBuildUbMap();
-    if (ub.error) { _lvFlash(ub.error); return; }
-    _saveBinFile(ub.bytes, "level.ubmap");
-    return;
-  }
   const d = _lvExportData();
   if (!d) { _lvFlash(t("lvNothing")); return; }
   if (kind === "screen") { _saveBinFile(d.screen, "level-screen.bin"); return; }
@@ -35606,6 +35608,166 @@ function setupLevelEditor() {
       _lvRenderPreview(); _lvRenderOverview(); _lvUpdateStatus();
       e.preventDefault();
     }
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   NUMBER CONVERTER — non-modal dec / hex / bin tool (8 or 16 bit)
+   ═══════════════════════════════════════════════════════ */
+let _ncValue = 0;
+let _ncBits = 8;
+
+/* Parse one field. Returns { value } (0..65535), { empty }, or { error }.
+   dec: 123, -1 (two's complement in the current width); hex: $1F, 0x1F, 1F;
+   bin: %1010, 0b1010, 1010 — spaces and underscores are ignored. */
+function _ncParse(kind, text, bits) {
+  let s = String(text || "").trim().replace(/[\s_]/g, "");
+  if (!s) return { empty: true };
+  let value;
+  if (kind === "dec") {
+    if (!/^-?\d+$/.test(s)) return { error: true };
+    value = parseInt(s, 10);
+    if (value < 0) {
+      if (value < -32768) return { error: true };
+      value = (value + (value < -128 || bits === 16 ? 0x10000 : 0x100)) & 0xFFFF;
+    }
+  } else if (kind === "hex") {
+    s = s.replace(/^(\$|0x|&h)/i, "");
+    if (!/^[0-9a-f]+$/i.test(s)) return { error: true };
+    value = parseInt(s, 16);
+  } else {
+    s = s.replace(/^(%|0b)/i, "");
+    if (!/^[01]+$/.test(s)) return { error: true };
+    value = parseInt(s, 2);
+  }
+  if (!Number.isFinite(value) || value > 0xFFFF) return { error: true };
+  return { value };
+}
+
+function _ncFormat(kind, value, bits, prefix) {
+  if (kind === "dec") return String(value);
+  if (kind === "hex") return (prefix ? "$" : "") + value.toString(16).toUpperCase().padStart(bits / 4, "0");
+  const bin = value.toString(2).padStart(bits, "0");
+  return prefix ? "%" + bin : bin.replace(/(.{4})(?=.)/g, "$1 ");
+}
+
+function _ncSigned(value, bits) {
+  const top = bits === 16 ? 0x8000 : 0x80;
+  return value & top ? value - top * 2 : value;
+}
+
+function _ncSave() {
+  const open = !!document.getElementById("numconv-dialog")?.open;
+  try { localStorage.setItem("c64va-numconv", JSON.stringify({ value: _ncValue, bits: _ncBits, open })); } catch (_) {}
+}
+
+function _ncRender(skipField) {
+  for (const kind of ["dec", "hex", "bin"]) {
+    const input = document.getElementById("nc-" + kind);
+    if (!input) continue;
+    if (kind !== skipField) input.value = _ncFormat(kind, _ncValue, _ncBits, false);
+    if (kind !== skipField) input.classList.remove("nc-input--error");
+  }
+  document.querySelectorAll("#numconv-dialog .nc-width-btn").forEach(function(btn) {
+    btn.classList.toggle("nc-width-btn--active", Number(btn.dataset.bits) === _ncBits);
+  });
+  const bitsBox = document.getElementById("nc-bits");
+  if (bitsBox) {
+    bitsBox.innerHTML = "";
+    for (let b = _ncBits - 1; b >= 0; b--) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "nc-bit" + ((_ncValue >> b) & 1 ? " nc-bit--on" : "") + (b % 4 === 0 && b ? " nc-bit--group" : "");
+      btn.dataset.bit = String(b);
+      btn.setAttribute("aria-label", tf("ncBit", { n: b }));
+      btn.innerHTML = '<span class="nc-bit-val">' + ((_ncValue >> b) & 1) + '</span><span class="nc-bit-idx">' + b + "</span>";
+      bitsBox.appendChild(btn);
+    }
+  }
+  const info = document.getElementById("nc-info");
+  if (info) {
+    const parts = [tf("ncSigned", { v: _ncSigned(_ncValue, _ncBits) })];
+    if (_ncBits === 16) {
+      parts.push(tf("ncLowByte", { v: _ncFormat("hex", _ncValue & 0xFF, 8, true) }));
+      parts.push(tf("ncHighByte", { v: _ncFormat("hex", _ncValue >> 8, 8, true) }));
+    }
+    info.textContent = parts.join("   ");
+  }
+}
+
+function _ncSetValue(value, skipField) {
+  _ncValue = value & 0xFFFF;
+  if (_ncValue > 0xFF && _ncBits === 8) _ncBits = 16;
+  _ncRender(skipField);
+  _ncSave();
+}
+
+function _ncOpen(focus = true) {
+  const dialog = document.getElementById("numconv-dialog");
+  if (!dialog) return;
+  if (dialog.open) { dialog.close(); return; }
+  _ncRender(null);
+  dialog._applyPosition?.();
+  dialog.show();
+  if (!focus) return;
+  const dec = document.getElementById("nc-dec");
+  dec?.focus();
+  dec?.select();
+}
+
+function setupNumberConverter() {
+  const dialog = document.getElementById("numconv-dialog");
+  if (!dialog) return;
+  // runs before the _nc* state is declared (TDZ), so restore after the script has loaded
+  setTimeout(function() {
+    let reopen = false;
+    try {
+      const saved = JSON.parse(localStorage.getItem("c64va-numconv") || "null");
+      if (saved && Number.isFinite(saved.value)) {
+        _ncValue = saved.value & 0xFFFF;
+        _ncBits = saved.bits === 16 ? 16 : 8;
+      }
+      reopen = !!saved?.open;
+    } catch (_) {}
+    dialog.addEventListener("toggle", _ncSave);
+    if (reopen && !dialog.open) _ncOpen(false);
+  }, 0);
+  document.getElementById("numconv-btn")?.addEventListener("click", function() { _ncOpen(); });
+  document.getElementById("nc-close")?.addEventListener("click", function() { dialog.close(); });
+  dialog.addEventListener("keydown", function(e) {
+    if (e.key === "Escape") { e.preventDefault(); dialog.close(); }
+  });
+  for (const kind of ["dec", "hex", "bin"]) {
+    const input = document.getElementById("nc-" + kind);
+    input?.addEventListener("input", function() {
+      const r = _ncParse(kind, input.value, _ncBits);
+      input.classList.toggle("nc-input--error", !!r.error);
+      if (r.value !== undefined) _ncSetValue(r.value, kind);
+    });
+    // on leaving the field show its normalised form
+    input?.addEventListener("blur", function() { _ncRender(null); });
+  }
+  dialog.querySelectorAll(".nc-width-btn").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      _ncBits = Number(btn.dataset.bits) === 16 ? 16 : 8;
+      if (_ncBits === 8) _ncValue &= 0xFF;
+      _ncRender(null);
+      _ncSave();
+    });
+  });
+  document.getElementById("nc-bits")?.addEventListener("click", function(e) {
+    const btn = e.target.closest(".nc-bit");
+    if (!btn) return;
+    _ncSetValue(_ncValue ^ (1 << Number(btn.dataset.bit)), null);
+  });
+  dialog.querySelectorAll("[data-nc-copy]").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      const text = _ncFormat(btn.dataset.ncCopy, _ncValue, _ncBits, true);
+      navigator.clipboard?.writeText(text).then(function() {
+        btn.classList.add("nc-copy--done");
+        setTimeout(function() { btn.classList.remove("nc-copy--done"); }, 900);
+      }).catch(function() {});
+    });
   });
 }
 

@@ -362,7 +362,23 @@
       "Bash(rm -f log8.txt)",
       "Bash(\"/d/Development/VICE/bin/x64sc.exe\" -default -warp -autostartprgmode 1 -limitcycles 12000000 -moncommands mon8.txt -monlog -monlogname log8.txt -sounddev dummy lsdt.prg)",
       "Bash(./target/release/ub.exe)",
-      "Bash(python \"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/254699c3-ab61-43ae-a379-d9c1dc5dcdfe/scratchpad/ub_ref.py\")"
+      "Bash(python \"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/254699c3-ab61-43ae-a379-d9c1dc5dcdfe/scratchpad/ub_ref.py\")",
+      "Bash(awk 'NR>=3260 && NR<=3520' src/compiler/codegen.rs)",
+      "Bash(grep -n \"Expr::BinOp\\\\|=> {\\\\|// ──\\\\|_ =>\\\\|false$\")",
+      "Bash(awk 'NR>=8770 && NR<=9400 && /BinOp::Mul|_ => false|^            _ =>/ {print NR\": \"$0}' src/compiler/codegen.rs)",
+      "Bash(awk 'NR>=8770 && NR<=9600 && \\(/^            [A-Za-z_]/ \\) {print NR\": \"$0}' src/compiler/codegen.rs)",
+      "Bash(awk 'NR>=9537 && NR<=9900 && \\(/^            [A-Za-z_]/ || /^    fn /\\) {print NR\": \"$0}' src/compiler/codegen.rs)",
+      "Bash(awk 'NR>=9877 && NR<=10000 && \\(/^            [A-Za-z_]/ || /^    fn / || /^        \\\\}/\\) {print NR\": \"$0}' src/compiler/codegen.rs)",
+      "Bash(awk 'NR>=9877 && /^            _ =>/ {print NR; exit}' src/compiler/codegen.rs)",
+      "Bash(sed -n \"$\\(awk 'NR>=9877 && /^            _ =>/ {print NR; exit}' src/compiler/codegen.rs\\),+12p\" src/compiler/codegen.rs)",
+      "Bash(python \"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/254699c3-ab61-43ae-a379-d9c1dc5dcdfe/scratchpad/rm_ubmap.py\")",
+      "Bash(python \"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/254699c3-ab61-43ae-a379-d9c1dc5dcdfe/scratchpad/map_desc.py\")",
+      "Bash(python \"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/254699c3-ab61-43ae-a379-d9c1dc5dcdfe/scratchpad/nc_i18n.py\")",
+      "Bash(python \"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/254699c3-ab61-43ae-a379-d9c1dc5dcdfe/scratchpad/map_desc2.py\")",
+      "Bash(sed -i 's/\"file.ubmap\", \"map_tile\\(x, y\\)\"/\"map load \\\\\\\\\"level.bin\\\\\\\\\"\", \"map view px, py\", \"map_tile\\(x, y\\)\"/' tests/ultimate-basic-highlight.test.js)",
+      "Bash(sed -i 's/\"map load \\\\\\\\\"level.bin\\\\\\\\\"\", \"map view px, py\"/\"level.bin\", \"map view px, py\"/' tests/ultimate-basic-highlight.test.js)",
+      "Bash(node --test tests/number-converter.test.js)",
+      "PowerShell(npm test 2>&1)"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"

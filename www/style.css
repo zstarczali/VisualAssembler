@@ -8646,6 +8646,161 @@ html[data-theme="commodore77"] .splash-image {
   white-space: pre;
 }
 
+/* ═══ Number converter (non-modal) ═════════════════════════ */
+.nc-dialog {
+  border: none;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  width: min(440px, 96vw);
+  overflow: visible;
+}
+/* show() does not center or lift a dialog like showModal() does */
+.nc-dialog[open] {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9980;
+}
+.nc-card {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+}
+.nc-hdr {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--panel-border);
+  background: var(--panel-strong);
+}
+.nc-title {
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text);
+  white-space: nowrap;
+}
+.nc-width {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  background: var(--control-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 2px;
+}
+.nc-width-btn {
+  min-height: 0;
+  height: 22px;
+  padding: 0 8px;
+  border: none;
+  border-radius: 2px;
+  background: transparent;
+  color: var(--secondary);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+.nc-width-btn:hover { background: color-mix(in srgb, var(--secondary) 18%, transparent); color: var(--text); }
+.nc-width-btn--active,
+.nc-width-btn--active:hover { background: color-mix(in srgb, var(--primary) 22%, transparent); color: var(--primary); }
+.nc-xbtn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--secondary);
+  font-size: 1.3rem;
+  line-height: 1;
+  width: 28px;
+  height: 28px;
+  min-height: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.nc-xbtn:hover { color: var(--text); }
+.nc-body { display: flex; flex-direction: column; gap: 8px; padding: 12px; }
+.nc-row { display: flex; align-items: center; gap: 8px; }
+.nc-lbl {
+  width: 30px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--secondary);
+}
+.nc-input {
+  flex: 1;
+  min-width: 0;
+  height: 30px;
+  min-height: 0;
+  padding: 3px 8px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.86rem;
+  color: var(--text);
+  background: var(--control-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 2px;
+  box-shadow: none;
+}
+.nc-input:focus { outline: none; border-color: var(--primary); }
+.nc-input--error, .nc-input--error:focus { border-color: #d9534f; }
+.nc-copy {
+  width: 28px;
+  height: 26px;
+  min-height: 0;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 2px;
+  background: transparent;
+  color: var(--secondary);
+  cursor: pointer;
+}
+.nc-copy svg { width: 15px; height: 15px; }
+.nc-copy:hover { background: color-mix(in srgb, var(--secondary) 18%, transparent); color: var(--text); }
+.nc-copy--done { color: var(--primary); }
+.nc-section-lbl {
+  margin-top: 4px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--secondary);
+}
+.nc-bits { display: grid; grid-template-columns: repeat(8, 1fr); gap: 3px; }
+.nc-bit {
+  min-height: 0;
+  height: 34px;
+  padding: 2px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  border: 1px solid var(--panel-border);
+  border-radius: 2px;
+  background: var(--control-bg);
+  color: var(--secondary);
+  font-family: "IBM Plex Mono", monospace;
+  cursor: pointer;
+}
+.nc-bit:hover { border-color: var(--secondary); }
+.nc-bit--on { background: color-mix(in srgb, var(--primary) 26%, transparent); color: var(--primary); border-color: var(--primary); }
+.nc-bit-val { font-size: 0.86rem; line-height: 1; }
+.nc-bit-idx { font-size: 0.56rem; line-height: 1; opacity: 0.75; }
+.nc-info {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.7rem;
+  color: var(--secondary);
+  white-space: pre;
+}
+
 /* ═══ Level Editor (builds on the Map Editor .me-* classes) ═══ */
 .lv-dialog { width: min(1320px, 97vw); }
 .lv-select {
@@ -9949,6 +10104,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 #char-editor-dialog button[aria-label],
 #map-editor-dialog button[aria-label],
 #level-editor-dialog button[aria-label],
+#numconv-dialog button[aria-label],
 #hires-editor-dialog button[aria-label],
 #sprite-editor-dialog button[aria-label],
 #sid-editor-dialog button[aria-label],
@@ -9977,6 +10133,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 #char-editor-dialog button[aria-label]::after,
 #map-editor-dialog button[aria-label]::after,
 #level-editor-dialog button[aria-label]::after,
+#numconv-dialog button[aria-label]::after,
 #hires-editor-dialog button[aria-label]::after,
 #sprite-editor-dialog button[aria-label]::after,
 #sid-editor-dialog button[aria-label]::after,
@@ -10007,6 +10164,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 #char-editor-dialog button:hover[aria-label]::after,
 #map-editor-dialog button:hover[aria-label]::after,
 #level-editor-dialog button:hover[aria-label]::after,
+#numconv-dialog button:hover[aria-label]::after,
 #hires-editor-dialog button:hover[aria-label]::after,
 #sprite-editor-dialog button:hover[aria-label]::after,
 #sid-editor-dialog button:hover[aria-label]::after,
@@ -10018,6 +10176,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 #char-editor-dialog button:focus-visible[aria-label]::after,
 #map-editor-dialog button:focus-visible[aria-label]::after,
 #level-editor-dialog button:focus-visible[aria-label]::after,
+#numconv-dialog button:focus-visible[aria-label]::after,
 #hires-editor-dialog button:focus-visible[aria-label]::after,
 #sprite-editor-dialog button:focus-visible[aria-label]::after,
 #sid-editor-dialog button:focus-visible[aria-label]::after,

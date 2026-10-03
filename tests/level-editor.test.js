@@ -34,7 +34,7 @@ function loadLv() {
     " make: (fill, color) => { const s = _lvNewScreen('s', new Uint8Array(1000).fill(fill), new Uint8Array(1000).fill(color ?? 1), null); _lvScreens.push(s); return s.id; }," +
     " add: function(fill, color) { const id = this.make(fill, color); _lvPlace(id); return id; }," +
     " place: _lvPlace, setLayout: _lvSetLayout, swap: _lvSwapSlots, remove: _lvRemoveSlot, grid: _lvGridResize," +
-    " exportData: _lvExportData, exportAsm: _lvExportAsm, ubmap: _lvBuildUbMap, save: _lvBuildLevelFile, load: _lvLoadLevelFile," +
+    " exportData: _lvExportData, exportAsm: _lvExportAsm, save: _lvBuildLevelFile, load: _lvLoadLevelFile," +
     " setDir: (d) => { _lvDir = d; }, setSel: (i) => { _lvSel = i; }," +
     " state: () => ({ w: _lvW, h: _lvH, cells: JSON.parse(JSON.stringify(_lvCells)), layout: _lvLayout, dir: _lvDir, screens: _lvScreens.length }) };",
     context);
@@ -152,20 +152,4 @@ test("switching vertical → grid makes a near-square grid that fills sideways",
   st = JSON.parse(JSON.stringify(lv.state()));
   assert.deepEqual([st.w, st.h], [3, 2]);
   assert.equal(st.cells.filter(Boolean).length, 6);
-});
-
-test("UB map export: UBMP v1 header + row-major chars and colors", () => {
-  const lv = loadLv();
-  lv.setLayout("grid");
-  lv.place(lv.make(0x41, 3), 1);              // 2x1 grid: right slot filled, left empty
-  const r = lv.ubmap();
-  assert.equal(r.error, undefined);
-  const b = Array.from(r.bytes);
-  assert.deepEqual(b.slice(0, 13), [0x55, 0x42, 0x4D, 0x50, 1, 1, 80, 0, 25, 0, 6, 5, 13]);
-  assert.equal(b.length, 13 + 80 * 25 * 2);
-  assert.equal(b[13 + 0], 0x20);              // empty left slot = spaces
-  assert.equal(b[13 + 40], 0x41);             // row 0, column 40 = right screen
-  assert.equal(b[13 + 80 * 25 + 40], 3);      // its color
-  lv.grid(5, 0);                               // 7 screens wide = 280 columns > 255
-  assert.match(lv.ubmap().error, /^lvUbMapTooLarge/);
 });
