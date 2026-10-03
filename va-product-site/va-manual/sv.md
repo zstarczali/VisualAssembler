@@ -1,6 +1,6 @@
 # C64 Visuell Assembler — Användarmanual
 
-**Version 2.4.9**
+**Version 2.5.0**
 
 En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom att dra och släppa instruktionsblock och se den genererade assemblern och maskinkoden i realtid.
 
@@ -9,6 +9,7 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
 ## Innehållsförteckning
 
 - [C64 Visual Assembler — Användarmanual](#c64-visual-assembler--user-manual)
+    - [Höjdpunkter i version 2.5.0](#version-250-highlights)
     - [Höjdpunkter i version 2.4.9](#version-249-highlights)
     - [Höjdpunkter i version 2.4.8](#version-248-highlights)
     - [Höjdpunkter i version 2.4.7](#version-247-highlights)
@@ -34,6 +35,7 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
   - [5. Inställningar \&amp; Verktygsfält](#5-settings--toolbar)
     - [Projektmallar](#project-templates)
     - [Byggprojekt](#build-project)
+    - [Exempelprogram](#example-programs)
     - [Ladda .asm-fil (snabbreferens)](#load-asm-file-quick-reference)
       - [Importera parsningsanteckningar och bästa praxis](#import-parsing-notes-and-best-practices)
   - [UltimateBasic-läge](#ultimatebasic-mode)
@@ -87,6 +89,9 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
     - [BOX_HIT](#box_hit)
     - [INCBIN](#incbin)
     - [KOALA](#koala)
+    - [NIVÅ / NIVÅ\RAD](#level--level_row)
+      - [NIVÅ](#level)
+      - [NIVÅ\RAD](#level_row)
     - [SID](#sid)
     - [INCLUDE](#include)
     - [TABLE](#table)
@@ -161,8 +166,22 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
     - [Teckenredigerare (teckenuppsättning)](#character-editor-charset)
     - [Teckenuppsättning Canvas-redigerare](#charset-canvas-editor)
     - [Kartredigerare (Flerskiktade kakelkartor)](#map-editor-multilayer-tilemaps)
+    - [Nivåredigerare](#level-editor)
     - [SID-redigerare (3-röstsspårare)](#sid-editor-3-voice-tracker)
     - [Kurvredigerare](#curve-editor)
+    - [Nummeromvandlare](#number-converter)
+
+---
+
+## Höjdpunkter i version 2.5.0
+
+- **Nivåredigerare** — en ny verktygsradsredigerare arrangerar kartredigerarens skärmar vertikalt, horisontellt eller i ett 2D-rutnät och förhandsgranskar hela nivån med smidig rullning. Se [Nivåredigerare](#level-editor).
+- **LEVEL / LEVEL_ROW-makron** — `.level "level.bin"[, $addr]` placerar endast de placerade skärmarna i ett Level Editor-projekt plus pektabeller och definierar `LEVEL_*` etiketter och konstanter; `.level_row dst, col[, color]` kopierar en nivårad på 40 tecken till en buffert. Se [LEVEL / LEVEL_ROW](#level--level_row).
+- **JOYSTICK variabelläge** — `.joystickport, vx, vy[, fire]` skriver riktningen till variabler (−1 / 0 / +1) istället för att flytta en sprite; port `3` läser båda joystickportarna. Se [JOYSTICK](#joystick).
+- **Nivåskrollningsdemo** — `samples/level-demo.asm` skrollar en 2×5-skärm pixel för pixel i alla riktningar med joysticken, utan tearing, med plats kvar för sprites och spelkod.
+- **Talkonverterare** — en icke-modal DEC / HEX / BIN-dialogruta i verktygsfältet. Se [Talkonverterare](#number-converter).
+- **Exempeldialogruta ** — **Meny → Exempel… ** öppnar en sökbar, kategoriserad lista över de inbyggda exempelprogrammen. Se [Exempelprogram](#example-programs).
+- **Ultimate Basic 1.6.1 medföljer** — `map load "level.bin"[, addr]` läser ett Level Editor-projekt direkt, och den nya `map view px, py` rullar kartan smidigt och utan tearing vid en pixelposition (exempel: `level_scroll_demo.ub`). En byteprodukt inuti en 16-bitars summa trunkeras inte längre till 8 bitar. UB-kommandoreferensen listar `map view`, och dess sökning placerar matchningar av kommandonamn först.
 
 ---
 
@@ -412,7 +431,7 @@ Modalfönstret stängs automatiskt när åtgärden är slutförd eller misslycka
 | **CRT retroläge**                                                                         | Växlar ett helskärms-CRT-filter: skanningslinjer, fosforvinjett, flimmer och tunnformad distorsion. Tillståndet sparas mellan sessioner.                                                                                                                                                                                                                                                                                                                                                  |
 | **Visa minnespanelen**                                                                    | Global växlingsknapp som visar eller döljer hela C64-minnespanelen                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | **GRUNDLÄGGANDE SYS-stub**                                                                | Lägger till en BASIC-rad som anropar SYS före programmets ursprung.                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| **Exempel**                                                                               | Ladda ett inbyggt exempelprogram                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| **Exempel…**                                                                              | Öppna exempelwebbläsaren och ladda ett inbyggt exempelprogram — se [Exempelprogram](#example-programs)                                                                                                                                                                                                                                                                                                                                                                                    |
 | **Zooma in/ut**                                                                           | Skala blockgränssnittet (påverkar alla blockelement)                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | **Spara projekt**                                                                         | Spara det aktuella programmet som en `.json`-projektfil                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | **Spara program som**                                                                     | Spara det aktuella programmet som en `.json`-projektfil med hjälp av en ny fildialogruta varje gång                                                                                                                                                                                                                                                                                                                                                                                       |
@@ -513,6 +532,14 @@ Projektet skapas i en egen mapp: `<plats>/<namn>/<namn>.proj` plus `main.asm` (A
 - felsökarens sidofiler (symboler / källkodskarta) skrivs bredvid PRG där sådana finns tillgängliga;
 - moduler som en annan fil hämtar med `.include` / `include` (och `.inc`-filer) hoppas över, liksom flikar som aldrig sparades;
 - En rapport listar varje fil med dess storlek, *överhoppad* orsak eller kompileringsfel, och statusfältet visar *N/M skapade filer*.
+
+### Exempelprogram
+
+**Meny → Exempel…** öppnar exempelwebbläsaren: de inbyggda exempelprogrammen grupperade efter ämne (Grunder, Makron och kontrollflöde, Grafik, Sprites och inmatning, Filer och inläsning, Musik, IRQ och hårdvara) i två kolumner.
+
+- Skriv i sökrutan för att filtrera efter namn eller kategori; sidfoten visar hur många exempel som matchar.
+- Klicka på ett exempel för att markera det, **↑ / ↓** flytta markeringen; ** dubbelklicka på **, ** Enter ** eller ** Ladda ** laddar det.
+- Dialogrutan öppnas i det exempel du laddade senast.
 
 ### Ladda .asm-fil (snabbreferens)
 
@@ -1134,7 +1161,7 @@ Liksom `FOR I=1 TO N: POKE addr+I, val: NEXT` — fyller ett minnesblock med sam
 | `40*25, 0`                    | inline-multiplikation                     |
 | `runda(sin(PI/4)*255), 80 kr` | trigonometri                              |
 
-**Inbyggda funktioner:** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, konstant `PI`
+**Inbyggda funktioner: ** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, konstant `PI`
 
 Operatorer: `+ - * /` Literaler: `$FF` (hex), `%10110000` (binär) Låg/hög byte: `lo(expr)`, `hi(expr)`
 
@@ -1179,7 +1206,7 @@ Liksom **PRINT AT** — skriver text direkt till C64-skärmen vid en given kolum
 | Etikett (valfritt)        | Tilldelar en etikett som pekar på den beräknade skärmadressen |
 | Gemener teckenuppsättning | Kryssruta — se nedan                                          |
 
-**Teckenuppsättningslägen:**
+**Teckenuppsättningslägen: **
 
 C64 har två teckenuppsättningar som kan väljas vid körning:
 
@@ -1348,7 +1375,7 @@ Liksom **RAWBYTES men för KERNAL-utdata** — kodar strängen som PETSCII-byte 
 | Etikett (valfritt)  | Tilldelar en etikett som pekar mot måladressen              |
 | PETSCII med gemener | Kryssruta — se nedan                                        |
 
-**Teckenuppsättningslägen:**
+**Teckenuppsättningslägen: **
 
 | Läge                                | Stora bokstäver (`A`–`Z`)                                                                                                | Gemener (`a`–`z`)            |
 | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ---------------------------- |
@@ -1654,6 +1681,48 @@ wait:
 ```
 
 **Storlek i kod:** 86 byte (visningsrutin); de 10001 byten med bilddata går till den angivna adressen. Hires-redigerarens **Filer → Exportera Koala (.koa)…** producerar en kompatibel fil.
+
+---
+
+### NIVÅ / NIVÅRAD
+
+Lägger in ett **Level Editor**-projekt i ditt program och kopierar nivårader till en skärmbuffert — byggstenarna i ett skrollande spel. Se `samples/level-demo.asm` för en komplett joystick-skrollad nivå.
+
+#### NIVÅ
+
+Ett INCBIN-liknande block som avger **0 byte kod**. Endast de **placerade**-skärmarna i Level Editor-projektet (`.bin` som sparats med **Filer → Spara nivå**) sparas i minnet från den angivna adressen (standard `$2000`), i slotordning, 2000 byte per skärm (1000 skärmkoder + 1000 färger). Identiska skärmar lagras en gång, och alla tomma slots delar en tom skärm. Pektabellarna följer skärmarna. En nivå kan vara upp till 7 × 10 skärmar.
+
+**Expertsyntax:**
+```
+.level "level.bin"
+.level "level.bin", $4000
+```
+
+| Definierad                                         | Menande                                                                     |
+| -------------------------------------------------- | --------------------------------------------------------------------------- |
+| `NIVÅ_PLACERING_LÅG` / `NIVÅ_PLACERING_HÖG`        | Skärmens adress i varje plats (huvudrad, `NIVÅ_W` platser per rad)          |
+| `NIVÅ_RAD_PLATS`                                   | Nivå teckenrad → första platsen på dess skärmrad                            |
+| `NIVÅ_ROD_LÅG/HÖG`, `NIVÅ_KRÅ_LÅG/HÖG`             | Nivå teckenrad → förskjutning av dess skärmkodsrad / färgrad inuti en skärm |
+| `NIVÅKOLUMNPLATS`, `NIVÅKOLUMNOFS`                 | Visa startkolumn → skärmkolumn och kolumn inuti skärmen                     |
+| `NIVÅ_W`, `NIVÅ_H`                                 | Nivåstorlek på skärmar                                                      |
+| `NIVÅKOLMER`, `NIVÅRADER`                          | Nivåstorlek i tecken                                                        |
+| `NIVÅ_MAX_X`, `NIVÅ_MAX_Y`                         | Största pixelrullningsposition i en 40×25-vy                                |
+| `NIVÅ_BG`, `NIVÅ_MC1`, `NIVÅ_MC2`, `NIVÅ_FLERFÄRG` | Bakgrunds-/flerfärgade färger och nivåläge                                  |
+| `NIVÅDATA`, `NIVÅSTORLEK`, `NIVÅSLUT`              | Start, storlek och första fria adress efter nivådata                        |
+
+Typisk skydd: `.assert LEVEL_END &lt;= $9200, "nivådata körs in i koden"`.
+
+#### NIVÅ_RAD
+
+Kopierar en 40-teckensrad av nivån till en buffert: nivåraden i **X**, med början vid nivåkolumnen som finns i variabeln `col`, till adressen som finns i pekaren `dst` (`dst` / `dst+1`, låg/hög). Med det tredje argumentet `color` kopieras färgerna istället för skärmkoderna (för färg-RAM). Ett 40-teckensfönster som sträcker sig över två skärmar hanteras med en självmodifierande kopieringsslinga (~14 cykler per byte). X behålls, A och Y förstörs. Behöver ett `.level`-block i programmet.
+
+**Expertsyntax:**
+```
+.level_row dst_lo, view_x
+.level_row dst_lo, view_x, color
+```
+
+**Storlek i kod:** 132 byte — använd `LBEQ` / `LBNE` när en gren måste hoppa över den.
 
 ---
 
@@ -2293,7 +2362,7 @@ Värdefältet accepterar allmän aritmetik, inklusive referenser till tidigare d
 .const SIN_TABLE   = round(sin(PI/8) * 127)   ; pre-computed sine value
 ```
 
-**Inbyggda funktioner:** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, konstant `PI`
+**Inbyggda funktioner: ** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, konstant `PI`
 
 Operatorer: `+ - * /` Literaler: `$FF` (hex), `%10110000` (binär) Låg/hög byte: `lo(expr)`, `hi(expr)`
 
@@ -2699,6 +2768,13 @@ skip_right:
 | 4   | Brand    | (hanteras inte av detta makro)  |
 
 **Storlek:** 27 byte. `BCS`-offsetet är alltid `+3` (hoppar över följande 3-byte `DEC`/`INC abs`-instruktion).
+
+**Variabelläge — `.joystickport, vx, vy[, fire]`:** istället för att flytta en sprite skrivs riktningen in i variabler: `vx` / `vy` = `-1` / `0` / `+1` (`$FF` / `$00` / `$01`), och det valfria `fire` = `1` medan knappen hålls nedtryckt, `0` annars. Använd den för en rullande kamera, en spelare med egen fysik eller menyer. Port `3` läser båda joystickportarna samtidigt (`LDA $DC00` / `OCH $DC01`), så båda portarna fungerar.
+
+```
+.joystick 2, vx, vy          ; 35 bytes
+.joystick 3, vx, vy, fire    ; both ports + fire: 45 bytes
+```
 
 > **Typisk användning:** Placera inuti en `gameloop`-etikett med `WAIT_RASTER` först:
 > ```
@@ -3757,6 +3833,28 @@ Skiktad tilemap-redigerare för statiska landskap, sprite-spawnkartor, kollision
 | Spara skärm-RAM (.bin)…            | Sparar endast skärmkoderna för det aktuella kartlagret (40×25 = 1000 byte).                                                                                                                                                                               |
 | Spara skärm-RAM + färg-RAM (.bin)… | Sparar skärmkoder sammanfogade med Color RAM-värden som en enda 2000-byte-fil (`screen[0..999]` följt av `color[0..999]`). Använd detta med makrot **MAP_COPY** (kombinerat .bin-läge) för att återställa både skärm och färg i en operation vid körning. |
 
+### Nivåredigerare
+
+Ordnar **Kartredigerarens skärmar** i en nivå — ett vertikalt skjutspel, ett bilspel som skrollar nedåt, en sidoskrollare eller en 2D-karta — och förhandsgranskar hela nivån med smidig skrollning. Öppna den med verktygsfältsknappen **Nivåredigerare** bredvid kartredigeraren.
+
+| Särdrag         | Beskrivning                                                                                                                                                                                                                                                      |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Layout          | **Vertikal**, **Horisontell** eller **Rutnät** (rader × kolumner, med knappar för att lägga till/ta bort rader och kolumner).                                                                                                                                    |
+| Skärmar         | **Ny tom skärm**, **Lägg till från kartredigeraren** (den karta som för närvarande är öppen) eller **Ladda karta(or) (.bin)…** (flera kartredigerarexporter samtidigt). Dra en skärm från listan till en plats; dra platserna till varandra för att byta ut dem. |
+| Redigering      | **Redigera i kartredigeraren** öppnar den valda skärmen i kartredigeraren och återställer ändringarna; duplicera, flytta upp/vänster eller ned/höger, ta bort; ångra/gör om.                                                                                     |
+| Förhandsvisning | Dra förhandsgranskningen eller använd piltangenterna för att bläddra pixel för pixel; **Spela upp** bläddrar automatiskt (riktning, hastighet 1–8, loop), Mellanslag = spela upp / stopp. *Kantlinjer* markerar skärmens gränser.                                |
+| Checkar         | Teckenuppsättningsinformation och en varning när skärmar använder en annan teckenuppsättning eller färger (nivån använder den första skärmens inställningar).                                                                                                    |
+
+**Filmeny: **
+| Handling                                                      | Vad den gör                                                                                                             |
+| ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| **Ny nivå** / **Öppna nivå (.bin)…** / **Spara nivå (.bin)…** | Nivåprojektet: alla skärmar plus layouten. Detta är filen som makrot `.level` och Ultimate Basics `kartladdning` läser. |
+| **Spara nivå Skärm-RAM (.bin)…**                              | Hela nivån som en karaktärskarta (endast skärmkoder).                                                                   |
+| ** Spara nivå Skärm + Färg RAM (.bin)…**                      | Hela nivåns skärmkoder följt av dess färger.                                                                            |
+| **Exportera till block** / **Kopiera asm**                    | Nivådata som block eller som asm-text (urklipp).                                                                        |
+
+**Med hjälp av nivån:** i assemblern, `.level "level.bin"` + `.level_row` (se [LEVEL / LEVEL_ROW](#level--level_row) och `samples/level-demo.asm`); i Ultimate Basic 1.6.1+, `map load "level.bin", $4000` och `map view px, py` (exempel `level_scroll_demo.ub`).
+
 ### SID-redigerare (3-röstsspårare)
 
 Tracker för flera instrument, 3 röster och en förhandsgranskningsmotor för webbljud. Öppna via Toolkit → SID Editor.
@@ -3851,7 +3949,7 @@ Varje kopierings-/infogningsutdata börjar med en rubrikkommentar som dokumenter
 
 **Kopiera / Infoga:** verktygsfältets två ikoner — **Kopiera** placerar tabellen på urklipp; **Infoga i redigerare** lägger till tabellen (och läsaren, om aktiverad) som block i det aktuella programmet. Om du infogar **ersätts** den tidigare kurvredigerarinfogningen istället för att stapla dubbletter (fungerar i block- och expertläge).
 
-**Filmeny:**
+**Filmeny: **
 | Handling                         | Vad den gör                                                                                                                                                                                                                                                                                                                                                                 |
 | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Spara kurva (.bin)…**          | Sparar de råa tabellbytena exakt som C64 skulle läsa dem via `INCBIN`. 16-bitars: N låga byte följt av N höga byte.                                                                                                                                                                                                                                                         |
@@ -3861,6 +3959,19 @@ Varje kopierings-/infogningsutdata börjar med en rubrikkommentar som dokumenter
 | **Exportera UltimateBasic-demo** | Producerar ett komplett, körklart UB-program: en bollsprite (`sprdef 0`), tabellen och en rastersynkroniserad loop som spelar upp en tabellpost per bildruta. 8-bitarstabeller driver spriten **Y** medan X sveper 0..320; 16-bitarstabeller (0..320) driver spriten **X** medan Y sveper 0..200. Tabeller längre än 256 poster spelar upp sina första 256.                 |
 
 **Matcha förhandsgranskningen på C64:** förhandsgranskningen läser tabellen **linjärt, loopande 0 → N-1 → 0, ett värde per bildruta**. För att reproducera det exakt, kör tabellen på samma sätt (öka indexet en gång per bildruta, radbryt vid tabellens längd). En pingis- eller partiell uppspelning kommer att röra sig olika även om bytevärdena är identiska. Se `samples/curve-new-demo.asm` för ett fungerande 16-bitars sprite-X-exempel.
+
+---
+
+### Nummerkonverterare
+
+En liten **icke-modal** DEC / HEX / BIN-konverterare, öppnad med verktygsfältsknappen bredvid D64-editorn (klicka igen eller tryck på Esc för att stänga). Den förblir öppen medan du fortsätter att redigera programmet i valfritt läge.
+
+- Skriv in i något av fälten **DEC**, **HEX** eller **BIN** så följer de andra två. Prefixen `$`, `0x`, `%`, `0b` och avgränsare (mellanslag, `_`) accepteras; ett negativt decimaltal blir tvåkomplement i den aktuella bredden; ogiltig inmatning markeras med rött.
+- **8 / 16 bitars** bredd — ett värde över 255 växlar automatiskt till 16 bitar.
+- **Bitsrad** — klicka på en bit för att växla mellan den.
+- Inforaden visar värdet **signed** och, i 16-bitarsläge, bytevärdet **low** och **high**.
+- **Kopiera**-knapparna kopierar värdet med dess prefix (`53280`, `$D020`, `%1101000000100000`).
+- Dra den i rubriken; den kommer ihåg dess värde, bredd och position och öppnas igen efter en omstart om den var öppen när du avslutade.
 
 ---
 

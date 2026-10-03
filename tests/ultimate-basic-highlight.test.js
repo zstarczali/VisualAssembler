@@ -64,7 +64,7 @@ test("UltimateBasic command reference contains current manual features", () => {
     "color text value", "irq handler [, raster_line]", "reu stash|fetch|swap c64_address, bank, reu_address, length",
     "drawmem source, destination, width, height, stride", "sprite_hit()", "reu_present()",
     "numstr value, destination_address", "dec(value, width)", "scroll row row_number left",
-    "file.ubmap", "map_tile(x, y)", "picture.kla", "box_hit(left1"
+    "level.bin", "map view px, py", "map_tile(x, y)", "picture.kla", "box_hit(left1"
   ];
   const refStart = appJs.indexOf("const _UB_COMMAND_REFERENCE");
   const refEnd = appJs.indexOf("\n];", refStart);

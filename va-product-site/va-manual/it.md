@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Manuale utente
 
-**Versione 2.4.9**
+**Versione 2.5.0**
 
 Un assembler visuale a blocchi per il Commodore 64, basato sul processore 6502. Crea programmi trascinando e rilasciando blocchi di istruzioni e visualizza in tempo reale il codice assembly e il codice macchina generati.
 
@@ -9,6 +9,7 @@ Un assembler visuale a blocchi per il Commodore 64, basato sul processore 6502. 
 ## Sommario
 
 - [C64 Visual Assembler — Manuale utente](#c64-visual-assembler--user-manual)
+    - [Punti salienti della versione 2.5.0](#version-250-highlights)
     - [Punti salienti della versione 2.4.9](#version-249-highlights)
     - [Punti salienti della versione 2.4.8](#version-248-highlights)
     - [Punti salienti della versione 2.4.7](#version-247-highlights)
@@ -34,6 +35,7 @@ Un assembler visuale a blocchi per il Commodore 64, basato sul processore 6502. 
   - [5. Impostazioni e barra degli strumenti](#5-settings--toolbar)
     - [Modelli di progetto](#project-templates)
     - [Progetto di costruzione](#build-project)
+    - [Esempi di programmi](#example-programs)
     - [Carica il file .asm (riferimento rapido)](#load-asm-file-quick-reference)
       - [Note e best practice sull'analisi dell'importazione](#import-parsing-notes-and-best-practices)
   - [Modalità UltimateBasic](#ultimatebasic-mode)
@@ -87,6 +89,9 @@ Un assembler visuale a blocchi per il Commodore 64, basato sul processore 6502. 
     - [BOX_HIT](#box_hit)
     - [INCBIN](#incbin)
     - [KOALA](#koala)
+    - [LIVELLO / LIVELLO_RIGA](#level--level_row)
+      - [LIVELLO](#level)
+      - [LIVELLO_RIGA](#level_row)
     - [SID](#sid)
     - [INCLUDE](#include)
     - [TABLE](#table)
@@ -161,8 +166,22 @@ Un assembler visuale a blocchi per il Commodore 64, basato sul processore 6502. 
     - [Editor di caratteri (Charset)](#character-editor-charset)
     - [Editor di tela Charset](#charset-canvas-editor)
     - [Editor di mappe (mappe a tessere multilivello)](#map-editor-multilayer-tilemaps)
+    - [Editor di livelli](#level-editor)
     - [Editor SID (Tracker a 3 voci)](#sid-editor-3-voice-tracker)
     - [Editor di curve](#curve-editor)
+    - [Convertitore di numeri](#number-converter)
+
+---
+
+## Punti salienti della versione 2.5.0
+
+- **Editor di livelli** — un nuovo editor della barra degli strumenti che dispone le schermate dell'Editor di mappe verticalmente, orizzontalmente o in una griglia 2D e visualizza in anteprima l'intero livello con scorrimento fluido. Vedi [Editor di livelli](#level-editor).
+- **Macro LEVEL / LEVEL_ROW** — `.level "level.bin"[, $addr]` posiziona solo le schermate posizionate di un progetto di Editor di livelli più tabelle puntatori e definisce etichette e costanti `LEVEL_*`; `.level_row dst, col[, color]` copia una riga di livello di 40 caratteri in un buffer. Vedi [LEVEL / LEVEL_ROW](#level--level_row).
+- **Modalità variabile JOYSTICK** — `.Porta joystick, vx, vy[, fuoco]` scrive la direzione nelle variabili (−1 / 0 / +1) invece di muovere uno sprite; la porta `3` legge entrambe le porte joystick. Vedi [JOYSTICK](#joystick).
+- **Demo di scorrimento del livello** — `samples/level-demo.asm` fa scorrere un livello 2×5 pixel per pixel in ogni direzione con il joystick, senza tearing, lasciando spazio per sprite e codice di gioco.
+- **Convertitore di numeri** — una finestra di dialogo non modale DEC / HEX / BIN sulla barra degli strumenti. Vedi [Convertitore di numeri](#number-converter).
+- **Finestra di dialogo Esempi** — **Menu → Esempi…** apre un elenco ricercabile e categorizzato dei programmi di esempio integrati. Vedere [Programmi di esempio](#example-programs).
+- **Ultimate Basic 1.6.1 incluso** — `map load "level.bin"[, addr]` legge direttamente un progetto di Level Editor e il nuovo `map view px, py` scorre la mappa in modo fluido e senza strappi in una posizione di pixel (esempio: `level_scroll_demo.ub`). Un prodotto di byte all'interno di una somma a 16 bit non viene più troncato a 8 bit. Il riferimento ai comandi UB elenca `map view` e la sua ricerca mette per prime le corrispondenze del nome del comando.
 
 ---
 
@@ -412,7 +431,7 @@ La finestra modale si chiude automaticamente al termine dell'azione o in caso di
 | **Modalità retro CRT**                                                                                           | Attiva/disattiva un filtro CRT a schermo intero: linee di scansione, vignettatura del fosforo, sfarfallio e distorsione a barilotto. Lo stato viene salvato tra una sessione e l'altra.                                                                                                                                                                                                                                                                                                                                        |
 | **Mostra pannello memoria**                                                                                      | Interruttore globale che mostra o nasconde il pannello completo della memoria del C64.                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | **Stub BASIC SYS**                                                                                               | Aggiunge una riga BASIC che richiama SYS all'origine del programma.                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| **Esempio**                                                                                                      | Carica un programma di esempio integrato                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| **Esempi…**                                                                                                      | Apri il browser di esempio e carica un programma di esempio integrato — vedi [Programmi di esempio](#example-programs)                                                                                                                                                                                                                                                                                                                                                                                                         |
 | **Zoom avanti/indietro**                                                                                         | Ridimensiona l'interfaccia utente del blocco (influisce su tutti gli elementi del blocco)                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | **Salva progetto**                                                                                               | Salva il programma corrente come file di progetto `.json`                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | **Salva programma come**                                                                                         | Salva il programma corrente come file di progetto `.json` utilizzando una nuova finestra di dialogo file ogni volta                                                                                                                                                                                                                                                                                                                                                                                                            |
@@ -513,6 +532,14 @@ Il progetto viene creato nella propria cartella: `<posizione>/<nome>/<nome>.proj
 - I file sidecar del debugger (simboli/mappa sorgente) vengono scritti insieme al PRG, ove disponibili;
 - I moduli che un altro file include con `.include` / `include` (e i file `.inc`) vengono ignorati, così come le schede che non sono mai state salvate;
 - un report elenca ogni file con la sua dimensione, *saltato* motivo o errore del compilatore e la barra di stato mostra *N / M file creati*.
+
+### Esempi di programmi
+
+**Menu → Esempi…** apre il browser degli esempi: i programmi di esempio integrati sono raggruppati per argomento (Nozioni di base, Macro e flusso di controllo, Grafica, Sprite e input, File e caricamento, Musica, IRQ e hardware) in due colonne.
+
+- Digita nella casella di ricerca per filtrare per nome o categoria; il piè di pagina mostra quanti esempi corrispondono.
+- Fai clic su un esempio per selezionarlo, **↑ / ↓** sposta la selezione; **doppio clic**, **Invio** o **Carica** lo carica.
+- La finestra di dialogo si apre sull'esempio caricato per ultimo.
 
 ### Carica il file .asm (guida rapida)
 
@@ -1657,6 +1684,48 @@ wait:
 
 ---
 
+### LIVELLO / LIVELLO_RIGA
+
+Inserisce un progetto **Level Editor** nel tuo programma e copia le righe del livello in un buffer dello schermo: i blocchi di costruzione di un gioco a scorrimento. Vedi `samples/level-demo.asm` per un livello completo a scorrimento tramite joystick.
+
+#### LIVELLO
+
+Un blocco in stile INCBIN che emette **0 byte di codice**. Solo le schermate **posizionate** del progetto dell'Editor di Livello (il `.bin` salvato con **File → Salva livello**) vanno in memoria dall'indirizzo specificato (predefinito `$2000`), in ordine di slot, 2000 byte per schermata (1000 codici schermata + 1000 colori). Le schermate identiche vengono memorizzate una sola volta e tutti gli slot vuoti condividono una schermata vuota. Le tabelle dei puntatori seguono le schermate. Un livello può avere fino a 7 × 10 schermate.
+
+**Sintassi esperta:**
+```
+.level "level.bin"
+.level "level.bin", $4000
+```
+
+| Definizione                                              | Senso                                                                                                               |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `LIVELLO_SLOT_BASSO` / `LIVELLO_SLOT ALTO`               | Indirizzo dello schermo in ogni slot (per riga, `LEVEL_W` slot per riga)                                            |
+| `LIVEL_ROW_SLOT`                                         | Riga del personaggio di livello → primo slot della sua riga dello schermo                                           |
+| `LIVELLO_RIGA_BASSO/ALTO`, `LIVELLO_RIGA_BASSO/ALTO`     | Riga del carattere di livello → offset della sua riga di codice schermo / riga di colore all'interno di uno schermo |
+| `LEVEL_COL_SLOT`, `LEVEL_COL_OFS`                        | Visualizza la colonna iniziale → colonna dello schermo e colonna all'interno dello schermo                          |
+| `LIVELLO_O`, `LIVELLO_ALTO`                              | Livello di dimensione negli schermi                                                                                 |
+| `LEVEL_COLS`, `LEVEL_ROWS`                               | Dimensione del livello in caratteri                                                                                 |
+| `LIVELLO_MAX_X`, `LIVELLO_MAX_Y`                         | Posizione di scorrimento massima in pixel di una vista 40×25                                                        |
+| `LIVEL_BG`, `LIVEL_MC1`, `LIVEL_MC2`, `LIVEL_MULTICOLOR` | Sfondo / colori multicolore e modalità del livello                                                                  |
+| `DATI_LIVELLO`, `DIMENSIONE_LIVELLO`, `FINE_LIVELLO`     | Inizio, dimensione e primo indirizzo libero dopo i dati di livello                                                  |
+
+Guardia tipica: `.assert LEVEL_END &lt;= $9200, "i dati di livello vengono eseguiti nel codice"`.
+
+#### LIVELLO_RIGA
+
+Copia una riga di 40 caratteri del livello in un buffer: la riga del livello in **X**, a partire dalla colonna del livello contenuta nella variabile `col`, fino all'indirizzo contenuto nel puntatore `dst` (`dst` / `dst+1`, basso/alto). Con il terzo argomento `color` copia i colori invece dei codici schermo (per la RAM dei colori). Una finestra di 40 caratteri che si estende su due schermi viene gestita con un ciclo di copia auto-modificante (~14 cicli per byte). X viene mantenuto, A e Y vengono distrutti. Richiede un blocco `.level` nel programma.
+
+**Sintassi esperta:**
+```
+.level_row dst_lo, view_x
+.level_row dst_lo, view_x, color
+```
+
+**Dimensione nel codice:** 132 byte — utilizzare `LBEQ` / `LBNE` quando un ramo deve saltarlo.
+
+---
+
 ### SID
 
 Come **BLOAD per la musica** — carica un file `.sid` nel tuo PRG e legge automaticamente i suoi indirizzi Init e Play dall'intestazione. Chiama Init una volta all'avvio, quindi chiama Play dal tuo gestore IRQ a ogni frame.
@@ -2700,6 +2769,13 @@ skip_right:
 
 **Dimensione:** 27 byte. L'offset `BCS` è sempre `+3` (salta la successiva istruzione `DEC`/`INC abs` di 3 byte).
 
+**Modalità variabile — `.porta joystick, vx, vy[, fuoco]`:** invece di muovere uno sprite, la direzione viene scritta nelle variabili: `vx` / `vy` = `-1` / `0` / `+1` (`$FF` / `$00` / `$01`), e l'opzionale `fuoco` = `1` mentre il pulsante è premuto, `0` altrimenti. Usalo per una telecamera scorrevole, un giocatore con la propria fisica o menu. La porta `3` legge entrambe le porte joystick contemporaneamente (`LDA $DC00` / `AND $DC01`), quindi entrambe le porte funzionano.
+
+```
+.joystick 2, vx, vy          ; 35 bytes
+.joystick 3, vx, vy, fire    ; both ports + fire: 45 bytes
+```
+
 > **Uso tipico:** Inserire all'interno di un'etichetta `gameloop` con `WAIT_RASTER` per primo:
 > ```
 > gameloop:
@@ -3026,7 +3102,7 @@ Trasferimento di blocchi DMA tra la RAM del C64 e la memoria di espansione REU: 
 | `REU_FETCH` | REU → RAM C64 | `$91`           |
 | `REU_SWAP`  | RAM C64 ↔ REU | `$92`           |
 
-**Campi:**
+** Campi:**
 
 | Campo         | Descrizione                                          | Esempio |
 | ------------- | ---------------------------------------------------- | ------- |
@@ -3064,7 +3140,7 @@ LDA #cmd      STA $DF01    ; execute DMA ($90/$91/$92 = stash/fetch/swap, immedi
 
 Imposta la velocità della CPU **Ultimate-64 (U64)** tramite il registro `$D031`. Nessun effetto su un vero C64 o altri emulatori.
 
-**Campi:**
+** Campi:**
 
 | Campo            | Descrizione                  | Allineare                                            |
 | ---------------- | ---------------------------- | ---------------------------------------------------- |
@@ -3757,6 +3833,28 @@ Editor di tilemap a livelli per scenari statici, mappe di generazione sprite, da
 | Salvataggio della RAM dello schermo (.bin)…                  | Salva solo i codici schermo per il livello mappa corrente (40×25 = 1000 byte).                                                                                                                                                                                                                                                  |
 | Salvataggio della RAM dello schermo + RAM dei colori (.bin)… | Salva i codici dello schermo concatenati con i valori della RAM del colore come un singolo file da 2000 byte (`schermo[0..999]` seguito da `colore[0..999]`). Utilizzare questo con la macro **MAP_COPY** (modalità .bin combinata) per ripristinare sia lo schermo che il colore in un'unica operazione in fase di esecuzione. |
 
+### Editor di livelli
+
+Organizza le schermate dell'Editor di mappe in un unico livello, che si tratti di uno sparatutto verticale, un gioco di auto a scorrimento verticale, un gioco a scorrimento laterale o una mappa 2D, e ne visualizza l'anteprima con uno scorrimento fluido. Aprilo con il pulsante della barra degli strumenti Editor di livelli accanto all'Editor di mappe.
+
+| Caratteristica | Descrizione                                                                                                                                                                                                                                                                       |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Disposizione   | **Verticale**, **Orizzontale** o **Griglia** (righe × colonne, con pulsanti per aggiungere/rimuovere righe e colonne).                                                                                                                                                            |
+| Schermate      | **Nuova schermata vuota**, **Aggiungi dall'Editor mappe** (la mappa attualmente aperta) o **Carica mappa(e) (.bin)...** (più esportazioni dell'Editor mappe contemporaneamente). Trascina una schermata dall'elenco su uno slot; trascina gli slot uno sull'altro per scambiarli. |
+| Modifica       | **Modifica nell'editor di mappe** apre la schermata selezionata nell'editor di mappe e riporta indietro le modifiche; duplica, sposta in alto/sinistra o in basso/destra, rimuovi; annulla/ripristina.                                                                            |
+| Anteprima      | Trascina l'anteprima o usa i tasti freccia per scorrere pixel per pixel; **Riproduci** scorre automaticamente (direzione, velocità 1–8, loop), Spazio = riproduci / interrompi. *Bordi* contrassegna i bordi dello schermo.                                                       |
+| Assegni        | Informazioni sul set di caratteri e un avviso quando le schermate utilizzano un set di caratteri o colori diversi (il livello utilizza le impostazioni della prima schermata).                                                                                                    |
+
+**Menu file:**
+| Azione                                                                   | Cosa fa                                                                                                                                   |
+| ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| **Nuovo livello** / **Apri livello (.bin)…** / **Salva livello (.bin)…** | Il progetto del livello: tutte le schermate più il layout. Questo è il file letto dalla macro `.level` e da `map load` di Ultimate Basic. |
+| **Salva il livello della RAM dello schermo (.bin)...**                   | L'intero livello rappresentato come un'unica mappa dei personaggi (solo codici a schermo).                                                |
+| **Salva livello Schermo + RAM colore (.bin)…**                           | L'intero livello è rappresentato dai codici a schermo e dai relativi colori.                                                              |
+| **Esporta in blocchi** / **Copia asm**                                   | I dati di livello come blocchi o come testo assembly (appunti).                                                                           |
+
+**Utilizzo del livello:** in assembler, `.level "level.bin"` + `.level_row` (vedere [LEVEL / LEVEL_ROW](#level--level_row) e `samples/level-demo.asm`); in Ultimate Basic 1.6.1+, `map load "level.bin", $4000` e `map view px, py` (esempio `level_scroll_demo.ub`).
+
 ### Editor SID (Tracker a 3 voci)
 
 Tracker multi-strumento a 3 voci con motore di anteprima Web Audio. Apribile tramite Toolkit → Editor SID.
@@ -3861,6 +3959,19 @@ Ogni output di copia/inserimento inizia con un commento di intestazione che docu
 | **Esporta la demo di UltimateBasic** | Produce un programma UB completo e pronto per l'esecuzione: uno sprite della palla (`sprdef 0`), la tabella e un ciclo sincronizzato a raster che riproduce una voce della tabella per fotogramma. Le tabelle a 8 bit pilotano lo sprite **Y** mentre X varia da 0 a 320; le tabelle a 16 bit (da 0 a 320) pilotano lo sprite **X** mentre Y varia da 0 a 200. Le tabelle più lunghe di 256 voci riproducono le prime 256.                                      |
 
 **Corrispondendo all'anteprima sul C64:** l'anteprima legge la tabella **linearmente, eseguendo un ciclo 0 → N-1 → 0, un valore per frame**. Per riprodurla esattamente, pilotare la tabella nello stesso modo (incrementare l'indice una volta per frame, tornare alla lunghezza della tabella). Una riproduzione ping-pong o a intervallo parziale si muoverà in modo diverso anche se i valori dei byte sono identici. Vedere `samples/curve-new-demo.asm` per un esempio funzionante di sprite-X a 16 bit.
+
+---
+
+### Convertitore di numeri
+
+Un piccolo convertitore DEC/HEX/BIN **non-modale**, apribile con il pulsante della barra degli strumenti accanto all'Editor D64 (clicca di nuovo o premi Esc per chiuderlo). Rimane aperto mentre continui a modificare il programma in qualsiasi modalità.
+
+- Digita in uno qualsiasi dei campi **DEC**, **HEX** o **BIN** e gli altri due seguiranno. Sono accettati i prefissi `$`, `0x`, `%`, `0b` e i separatori (spazio, `_`); un numero decimale negativo viene convertito in complemento a due nella larghezza corrente; l'input non valido viene evidenziato in rosso.
+- ** Larghezza a 8/16 bit ** — un valore superiore a 255 passa automaticamente a 16 bit.
+- **Riga di bit** — clicca su un bit per attivarlo/disattivarlo.
+- La riga informativa mostra il valore **signed** e, in modalità a 16 bit, il byte **low** e **high**.
+- **I pulsanti Copia** copiano il valore con il suo prefisso (`53280`, `$D020`, `%1101000000100000`).
+- Trascinalo dall'intestazione; memorizzerà il suo valore, la larghezza e la posizione e si riaprirà dopo un riavvio se era aperto quando lo hai chiuso.
 
 ---
 

@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Podręcznik użytkownika
 
-**Wersja 2.4.9**
+**Wersja 2.5.0**
 
 Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągając i upuszczając bloki instrukcji, i oglądaj generowany kod assemblera i maszynowy w czasie rzeczywistym.
 
@@ -9,6 +9,7 @@ Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągaj�
 ## Spis treści
 
 - [C64 Visual Assembler — Podręcznik użytkownika](#c64-visual-assembler--user-manual)
+    - [Najważniejsze cechy wersji 2.5.0](#version-250-highlights)
     - [Najważniejsze cechy wersji 2.4.9](#version-249-highlights)
     - [Najważniejsze cechy wersji 2.4.8](#version-248-highlights)
     - [Najważniejsze cechy wersji 2.4.7](#version-247-highlights)
@@ -34,6 +35,7 @@ Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągaj�
   - [5. Ustawienia i pasek narzędzi](#5-settings--toolbar)
     - [Szablony projektów](#project-templates)
     - [Budowanie projektu](#build-project)
+    - [Przykładowe programy](#example-programs)
     - [Załaduj plik .asm (szybkie odniesienie)](#load-asm-file-quick-reference)
       - [Importuj notatki dotyczące analizy i najlepsze praktyki](#import-parsing-notes-and-best-practices)
   - [Tryb Ultimate Basic](#ultimatebasic-mode)
@@ -87,6 +89,9 @@ Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągaj�
     - [BOX_HIT](#box_hit)
     - [INCBIN](#incbin)
     - [KOALA](#koala)
+    - [POZIOM / POZIOM\_RZĄD](#level--level_row)
+      - [POZIOM](#level)
+      - [POZIOM\_RZĄD](#level_row)
     - [SID](#sid)
     - [INCLUDE](#include)
     - [TABLE](#table)
@@ -161,8 +166,22 @@ Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągaj�
     - [Edytor znaków (zestaw znaków)](#character-editor-charset)
     - [Edytor kanwy znaków](#charset-canvas-editor)
     - [Edytor map (mapy kafelkowe wielowarstwowe)](#map-editor-multilayer-tilemaps)
+    - [Edytor poziomów](#level-editor)
     - [Edytor SID (śledzenie 3-głosowe)](#sid-editor-3-voice-tracker)
     - [Edytor krzywych](#curve-editor)
+    - [Konwerter liczb](#number-converter)
+
+---
+
+## Najważniejsze cechy wersji 2.5.0
+
+- **Edytor poziomów** — nowy edytor pasków narzędzi, który rozmieszcza ekrany Edytora Map w pionie, poziomie lub w siatce 2D i umożliwia podgląd całego poziomu za pomocą płynnego przewijania. Zobacz [Edytor poziomów](#level-editor).
+- Makra **LEVEL / LEVEL_ROW** — `.level "level.bin"[, $addr]` umieszcza tylko umieszczone ekrany projektu edytora poziomów oraz tabele wskaźników i definiuje etykiety i stałe `LEVEL_*`; `.level_row dst, col[, color]` kopiuje jeden wiersz poziomu składający się z 40 znaków do bufora. Zobacz [LEVEL / LEVEL_ROW](#level--level_row).
+- **Zmienny tryb JOYSTICKA** — `.port joysticka, vx, vy[, fire]` zapisuje kierunek do zmiennych (−1 / 0 / +1) zamiast przesuwać duszka; port `3` odczytuje oba porty joysticka. Zobacz [JOYSTICK](#joystick).
+- **Demo przewijania poziomów** — `samples/level-demo.asm` przewija poziom ekranu 2×5 piksel po pikselu w każdym kierunku za pomocą joysticka, bez efektu rozrywania obrazu, z pozostawieniem miejsca na sprite'y i kod gry.
+- **Konwerter liczb** — niemodalne okno dialogowe DEC / HEX / BIN na pasku narzędzi. Zobacz [Konwerter liczb](#number-converter).
+- **Okno dialogowe „Przykłady”** — **Menu → „Przykłady…”** otwiera przeszukiwalną, skategoryzowaną listę wbudowanych programów przykładowych. Zobacz [Programy przykładowe](#example-programs).
+- **Dołączony Ultimate Basic 1.6.1 ** — `map load "level.bin" [, addr]` odczytuje projekt Level Editor bezpośrednio, a nowy `map view px, py` przewija mapę płynnie i bez rozrywania obrazu w pozycji piksela (przykład: `level_scroll_demo.ub`). Iloczyn bajtów w 16-bitowej sumie nie jest już obcinany do 8 bitów. W dokumentacji poleceń UB wymieniono `map view`, a wyszukiwanie w tym programie najpierw umieszcza dopasowania do nazw poleceń.
 
 ---
 
@@ -412,7 +431,7 @@ Okno modalne zamyka się automatycznie po zakończeniu akcji lub jej niepowodzen
 | **Tryb retro CRT**                                                                     | Przełącza pełnoekranowy filtr CRT: linie skanowania, winietę fosforową, migotanie i zniekształcenie beczkowate. Stan jest zapisywany między sesjami.                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | **Pokaż panel pamięci**                                                                | Globalny przełącznik pokazujący lub ukrywający cały panel pamięci C64                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | **Podstawowy schemat systemu**                                                         | Dodaje wiersz języka BASIC, który wywołuje SYS do źródła programu                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| **Próbka**                                                                             | Załaduj wbudowany przykładowy program                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| **Przykłady…**                                                                         | Otwórz przykładową przeglądarkę i załaduj wbudowany przykładowy program — zobacz [Przykładowe programy](#example-programs)                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | **Powiększ / pomniejsz**                                                               | Skalowanie interfejsu użytkownika bloku (dotyczy wszystkich elementów bloku)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | **Zapisz projekt**                                                                     | Zapisz bieżący program jako plik projektu `.json`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | **Zapisz program jako**                                                                | Zapisz bieżący program jako plik projektu `.json` za każdym razem, korzystając z nowego okna dialogowego pliku                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
@@ -513,6 +532,14 @@ Projekt jest tworzony w osobnym folderze: `<lokalizacja>/<nazwa>/<nazwa>.proj` p
 - pliki pomocnicze debugera (symbole/mapa źródłowa) są zapisywane obok PRG, jeśli są dostępne;
 - moduły pobierane przez inny plik za pomocą plików `.include` / `include` (i `.inc`) są pomijane, podobnie jak zakładki, które nigdy nie zostały zapisane;
 - raport wyświetla wszystkie pliki wraz z ich rozmiarem, *powodem pominięcia* lub błędem kompilatora, a pasek stanu pokazuje *N/M utworzonych plików*.
+
+### Przykładowe programy
+
+**Menu → Przykłady…** otwiera przeglądarkę przykładów: wbudowane przykładowe programy pogrupowane tematycznie (Podstawy, Makra i przepływ sterowania, Grafika, Sprite'y i dane wejściowe, Pliki i ładowanie, Muzyka, IRQ i sprzęt) w dwóch kolumnach.
+
+- Wpisz w polu wyszukiwania, aby filtrować według nazwy lub kategorii. Stopka pokazuje, ile przykładów pasuje.
+- Kliknij przykład, aby go wybrać, **↑ / ↓** przesuń wybór; **kliknij dwukrotnie**, **Enter** lub **Załaduj** ładuje go.
+- Okno dialogowe otworzy się na ostatnio załadowanym przykładzie.
 
 ### Załaduj plik .asm (szybki przewodnik)
 
@@ -1134,7 +1161,7 @@ Podobnie jak `FOR I=1 TO N : POKE addr+I, val : NEXT` — wypełnia blok pamięc
 | `40*25, 0`                    | mnożenie liniowe                                 |
 | `okrągły(sin(PI/4)*255), 80$` | trygonometria                                    |
 
-**Funkcje wbudowane:** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, constant `PI`
+**Funkcje wbudowane: ** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, constant `PI`
 
 Operatorzy: `+ - * /` Literały: `$FF` (szesnastkowy), `%10110000` (binarny) Bajt młodszy/starszy: `lo(wyrażenie)`, `hi(wyrażenie)`
 
@@ -1291,7 +1318,7 @@ Podobnie jak **DATA, które ładuje się bezpośrednio do pamięci** — bez ża
 .rawbytes $0C50, $00, $00 :nev      ; with macroLabel — other code can use LDA nev,X
 ```
 
-**Rozmiar w kodzie:** 0 bajtów. Dane są umieszczane pod podanym adresem na wyjściu.
+**Rozmiar w kodzie: ** 0 bajtów. Dane są umieszczane pod podanym adresem na wyjściu.
 
 > **DATA kontra RAWBYTES:** DATA generuje kod LDA/STA, który kopiuje bajty w czasie wykonywania (wolniej, ale działa, jeśli dane muszą być dynamiczne). RAWBYTES po prostu umieszcza bajty bezpośrednio — bez kodu, natychmiast, bez kosztów.
 
@@ -1329,7 +1356,7 @@ Podobnie jak RAWBYTES, ale dla tekstu — koduje ciąg jako kody ekranowe i umie
     .byte $48, $45, $4C, $4C, $4F   ; h e l l o (lowercase screen codes $41–$5A range)
 ```
 
-**Rozmiar w kodzie:** 0 bajtów. Dane są umieszczane pod podanym adresem na wyjściu.
+**Rozmiar w kodzie: ** 0 bajtów. Dane są umieszczane pod podanym adresem na wyjściu.
 
 > **STRING kontra RAWTEXT:** STRING generuje kod LDA/STA, który kopiuje tekst w czasie wykonywania. RAWTEXT wczytuje bajty do PRG w momencie ładowania — bez kodu i czekania.
 
@@ -1654,6 +1681,48 @@ wait:
 ```
 
 **Rozmiar w kodzie:** 86 bajtów (program wyświetlania); 10001 bajtów danych obrazu trafia pod podany adres. Edytor Hires, polecenie **Pliki → Eksportuj Koala (.koa)…** generuje zgodny plik.
+
+---
+
+### POZIOM / RZĄD_POZIOMU
+
+Dodaje projekt **Edytora poziomów** do programu i kopiuje wiersze poziomów do bufora ekranu — elementy składowe gry przewijanej. Zobacz `samples/level-demo.asm`, aby zapoznać się z kompletnym poziomem przewijanym joystickiem.
+
+#### POZIOM
+
+Blok w stylu INCBIN, który emituje **0 bajtów kodu**. Tylko **umieszczone** ekrany projektu Edytora Poziomów (`.bin` zapisane poleceniem **Pliki → Zapisz poziom**) trafiają do pamięci z podanego adresu (domyślnie `$2000`), w kolejności slotów, po 2000 bajtów na ekran (1000 kodów ekranów + 1000 kolorów). Identyczne ekrany są zapisywane raz, a wszystkie puste sloty współdzielą jeden pusty ekran. Tabele wskaźników odpowiadają ekranom. Poziom może mieć maksymalnie 7 × 10 ekranów.
+
+**Składnia ekspercka:**
+```
+.level "level.bin"
+.level "level.bin", $4000
+```
+
+| Zdefiniowany                                                    | Oznaczający                                                                            |
+| --------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `POZIOM_SLOTU_NISKI` / `POZIOM_SLOTU_WYSOKI`                    | Adres ekranu w każdym slocie (główny wiersz, `LEVEL_W` slotów na wiersz)               |
+| `SLOT_WIELU_POZIOMÓW`                                           | Rząd postaci poziomu → pierwszy slot rzędu ekranu                                      |
+| `POZIOM_ROW_NIŻSZY/WYŻSZY`, `POZIOM_ROW_NIŻSZY/WYŻSZY`          | Wiersz znaku poziomu → przesunięcie wiersza kodu ekranu/wiersza koloru wewnątrz ekranu |
+| `GNIAZDO_KOLEK_POZIOMU`, `GNIAZDO_KOLEK_POZIOMU`                | Widok kolumny początkowej → kolumna ekranu i kolumna wewnątrz ekranu                   |
+| `POZIOM_W`, `POZIOM_W`                                          | Rozmiar poziomu na ekranach                                                            |
+| `KOLUMBIA_POZIOMU`, `WIERZE_POZIOMU`                            | Rozmiar poziomu w znakach                                                              |
+| `POZIOM_MAX_X`, `POZIOM_MAX_Y`                                  | Największa pozycja przewijania pikseli w widoku 40×25                                  |
+| `POZIOM_BG`, `POZIOM_MC1`, `POZIOM_MC2`, `POZIOM_WIELOKOLOROWY` | Tło / kolory wielokolorowe i tryb poziomu                                              |
+| `DANE_POZIOMU`, `ROZMIAR_POZIOMU`, `KONIEC_POZIOMU`             | Początek, rozmiar i pierwszy wolny adres po danych poziomu                             |
+
+Typowy strażnik: `.assert LEVEL_END &lt;= $9200, „dane poziomu trafiają do kodu”`.
+
+#### POZIOM_WIERZA
+
+Kopiuje jeden 40-znakowy wiersz poziomu do bufora: wiersz poziomu w **X**, zaczynając od kolumny poziomu przechowywanej w zmiennej `col`, do adresu przechowywanego we wskaźniku `dst` (`dst` / `dst+1`, lo/hi). Z trzecim argumentem `color` kopiuje kolory zamiast kodów ekranu (dla pamięci kolorów RAM). Okno 40-znakowe obejmujące dwa ekrany jest obsługiwane przez samomodyfikującą pętlę kopiowania (~14 cykli na bajt). X jest zachowywane, A i Y są niszczone. Wymaga bloku `.level` w programie.
+
+**Składnia ekspercka:**
+```
+.level_row dst_lo, view_x
+.level_row dst_lo, view_x, color
+```
+
+**Rozmiar w kodzie:** 132 bajty — użyj `LBEQ` / `LBNE`, gdy gałąź musi nad nią przeskoczyć.
 
 ---
 
@@ -2293,7 +2362,7 @@ Pole wartości akceptuje ogólne działania arytmetyczne, w tym odwołania do wc
 .const SIN_TABLE   = round(sin(PI/8) * 127)   ; pre-computed sine value
 ```
 
-**Funkcje wbudowane:** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, constant `PI`
+**Funkcje wbudowane: ** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, constant `PI`
 
 Operatorzy: `+ - * /` Literały: `$FF` (szesnastkowy), `%10110000` (binarny) Bajt młodszy/starszy: `lo(wyrażenie)`, `hi(wyrażenie)`
 
@@ -2700,6 +2769,13 @@ skip_right:
 
 **Rozmiar:** 27 bajtów. Przesunięcie `BCS` zawsze wynosi `+3` (pomija następującą 3-bajtową instrukcję `DEC`/`INC abs`).
 
+**Tryb zmienny — `.port joysticka, vx, vy[, fire]`:** zamiast przesuwać duszka, kierunek zapisywany jest w zmiennych: `vx` / `vy` = `-1` / `0` / `+1` (`$FF` / `$00` / `$01`), a opcjonalnie `fire` = `1` podczas naciskania przycisku, W przeciwnym razie użyj `0`. Użyj go do przewijania kamery, odtwarzacza z własną fizyką lub menu. Port `3` odczytuje oba porty joysticka jednocześnie (`LDA $DC00` / `AND $DC01`), więc oba porty działają.
+
+```
+.joystick 2, vx, vy          ; 35 bytes
+.joystick 3, vx, vy, fire    ; both ports + fire: 45 bytes
+```
+
 > **Typowe zastosowanie:** Umieść w etykiecie `gameloop` najpierw `WAIT_RASTER`:
 > ```
 > gameloop:
@@ -3000,7 +3076,7 @@ done:
 .reu_check
 ```
 
-**Wynik we flagach:**
+**Wynik we flagach: **
 - **Z = 0** (wynik ≠ 0) → obecność REU → użycie `BNE`
 - **Z = 1** (wynik = 0) → brak REU → użyj `BEQ`
 
@@ -3026,7 +3102,7 @@ Transfer bloku DMA między pamięcią RAM komputera C64 a pamięcią rozszerzeń
 | `REU_FETCH` | REU → Pamięć RAM C64 | `91 dolarów`      |
 | `REU_SWAP`  | Pamięć RAM C64 ↔ REU | `92 dolary`       |
 
-**Pola:**
+**Pola: **
 
 | Pole      | Opis                                               | Przykład |
 | --------- | -------------------------------------------------- | -------- |
@@ -3064,7 +3140,7 @@ LDA #cmd      STA $DF01    ; execute DMA ($90/$91/$92 = stash/fetch/swap, immedi
 
 Ustawia prędkość procesora **Ultimate-64 (U64)** za pomocą rejestru `$D031`. Nie ma to wpływu na prawdziwy C64 ani inne emulatory.
 
-**Pola:**
+**Pola: **
 
 | Pole      | Opis                         | Zakres                                      |
 | --------- | ---------------------------- | ------------------------------------------- |
@@ -3099,7 +3175,7 @@ AD B8 D0   LDA $D0B8
 C9 FF      CMP #$FF
 ```
 
-**Wynik we flagach:**
+**Wynik we flagach: **
 - **Z = 0** → obecny SuperCPU → użyj `BNE`
 - **Z = 1** → Nie znaleziono SuperCPU → użyj `BEQ`
 
@@ -3579,7 +3655,7 @@ VICE jest wymagany do **Uruchom jako PRG**, **Uruchom przez D64** i **Eksportu d
 | **Błysk obramowania podczas dekompresji** | Po włączeniu skompresowane pliki PRG SFX korzystają ze wbudowanego w exomizer szybkiego efektu flashowania obramowania `-x1`; po wyłączeniu, w celu cichej dekompresji przekazywany jest efekt `-n` |
 | **Status**                                | Pokazuje, czy ścieżka wykonywalna jest prawidłowa i dostępna                                                                                                                                        |
 
-**Przepływ pracy:**
+**Przepływ pracy: **
 1. Zainstaluj plik binarny Exomizera:
    - **Windows:** pobierz wstępnie skompilowany plik `win32/exomizer.exe` ze strony https://bitbucket.org/magli143/exomizer/wiki/Home lub https://csdb.dk/release/?id=244342.
    - **macOS:** `brew install exomizer` (instaluje oficjalną kompilację 3.1.2 Magnusa Linda).
@@ -3619,7 +3695,7 @@ Uruchamiaj złożone programy PRG bezpośrednio na prawdziwym sprzęcie za pośr
 | **Hasło**           | Opcjonalnie — jeśli urządzenie wymaga uwierzytelnienia                        |
 | **Test połączenia** | Wysyła żądanie testowe do `/v3/runners/info`; wyświetla komunikat OK lub błąd |
 
-**Przepływ pracy:**
+**Przepływ pracy: **
 1. Podłącz urządzenie 1541 Ultimate / Ultimate 64 do sieci lokalnej.
 2. Wprowadź adres IP (i hasło, jeśli zostało ustawione) w Ustawieniach sprzętu.
 3. Wybierz **Uruchom na sprzęcie** z menu podzielonego uruchamiania.
@@ -3640,7 +3716,7 @@ Uruchamiaj asemblowane programy na **prawdziwym Commodore 64 lub C128** — bez 
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **Port szeregowy** | Port szeregowy USB kartridża, np. `COM4` (Windows), `/dev/cu.usbmodem…` (macOS) lub `/dev/ttyACM0` (Linux). Wykrywany automatycznie po identyfikatorze USB (`0483:5740`) podczas uruchamiania aplikacji; w wierszu stanu pod polem wyświetla się `KFF2: <port>` lub, jeśli port nie został znaleziony, pojawia się prośba o ręczne wpisanie. Wartość jest zapisywana między sesjami. |
 
-**Przepływ pracy:**
+**Przepływ pracy: **
 1. Umieść kartę Kung Fu Flash 2 w porcie kartridża w C64, włącz komputer i podłącz kabel USB do komputera PC/Mac.
 2. Otwórz **Ustawienia sprzętu** i sprawdź sekcję **Kung Fu Flash 2** — port powinien być już wypełniony.
 3. Wybierz **Kung Fu Flash 2** z menu podzielonego przebiegu (wybór zostanie zapamiętany i zapisany także w plikach projektu).
@@ -3757,6 +3833,28 @@ Warstwowy edytor map kafelkowych do statycznych scenerii, map pojawiania się sp
 | Zapisz pamięć RAM ekranu (.bin)…                      | Zapisuje tylko kody ekranowe dla bieżącej warstwy mapy (40×25 = 1000 bajtów).                                                                                                                                                                                                                              |
 | Zapisz pamięć RAM ekranu + pamięć RAM kolorów (.bin)… | Zapisuje kody ekranowe połączone z wartościami pamięci RAM kolorów jako pojedynczy plik o rozmiarze 2000 bajtów (`screen[0..999]`, a następnie `color[0..999]`). Użyj tego z makrem **MAP_COPY** (połączony tryb .bin), aby przywrócić zarówno ekran, jak i kolory w jednej operacji w czasie wykonywania. |
 
+### Edytor poziomów
+
+Łączy ekrany **Edytora Map** w jeden poziom – strzelankę pionową, grę samochodową z przewijaniem w dół, grę z widokiem z boku lub mapę 2D – i wyświetla podgląd całego poziomu za pomocą płynnego przewijania. Otwórz go przyciskiem **Edytora Poziomów** na pasku narzędzi obok Edytora Map.
+
+| Funkcja     | Opis                                                                                                                                                                                                                                |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Układ       | **Pionowo**, **Poziomo** lub **Siatka** (wiersze × kolumny, z przyciskami dodawania/usuwania wierszy i kolumn).                                                                                                                     |
+| Ekrany      | **Nowy pusty ekran**, **Dodaj z Edytora Map** (aktualnie otwarta mapa) lub **Załaduj mapę(y) (.bin)…** (kilka eksportów Edytora Map jednocześnie). Przeciągnij ekran z listy na slot; przeciągnij sloty na siebie, aby je zamienić. |
+| Redagowanie | **Edytuj w Edytorze map** otwiera wybrany ekran w Edytorze map i przywraca zmiany: duplikuj, przesuń w górę/lewo lub w dół/prawo, usuń; cofnij/ponów.                                                                               |
+| Zapowiedź   | Przeciągnij podgląd lub użyj klawiszy strzałek, aby przewijać piksel po pikselu; **Odtwórz** przewija automatycznie (kierunek, prędkość 1–8, pętla), spacja = odtwarzanie / zatrzymanie. *Granice* oznaczają granice ekranu.        |
+| Czeki       | Informacje o zestawie znaków i ostrzeżenie, gdy ekrany używają innego zestawu znaków lub kolorów (poziom korzysta z ustawień pierwszego ekranu).                                                                                    |
+
+**Menu Pliki: **
+| Działanie                                                               | Co to robi                                                                                                               |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| **Nowy poziom** / **Otwórz poziom (.bin)…** / **Zapisz poziom (.bin)…** | Projekt poziomu: wszystkie ekrany plus układ. To jest plik odczytany przez makro `.level` i `map load` z Ultimate Basic. |
+| **Zapisz poziom Ekran RAM (.bin)…**                                     | Cały poziom jako jedna mapa postaci (tylko kody ekranowe).                                                               |
+| **Zapisz poziom Ekran + Kolor RAM (.bin)…**                             | Cały kod ekranu poziomu wraz z jego kolorami.                                                                            |
+| **Eksportuj do bloków** / **Kopiuj asm**                                | Dane poziomu jako bloki lub jako tekst asm (schowek).                                                                    |
+
+**Używanie poziomu:** w asemblerze, `.level "level.bin"` + `.level_row` (patrz [LEVEL / LEVEL_ROW](#level--level_row) i `samples/level-demo.asm`); w Ultimate Basic 1.6.1+, `ładowanie mapy "level.bin", $4000` i `widok mapy px, py` (przykład `level_scroll_demo.ub`).
+
 ### Edytor SID (śledzenie 3-głosowe)
 
 Wieloinstrumentalny, 3-głosowy tracker z silnikiem podglądu Web Audio. Otwórz przez Toolkit → Edytor SID.
@@ -3851,7 +3949,7 @@ Każde wyjście Kopiuj/Wstaw rozpoczyna się komentarzem nagłówkowym dokumentu
 
 **Kopiuj/Wstaw:** dwie ikony paska narzędzi — **Kopiuj** umieszcza tabelę w schowku; **Wstaw do edytora** dołącza tabelę (i czytnik, jeśli jest włączony) jako bloki do bieżącego programu. Ponowne wstawienie **zastępuje** poprzednią operację wstawiania w Edytorze krzywych zamiast układania duplikatów (działa w trybie blokowym i eksperckim).
 
-**Menu Pliki:**
+**Menu Pliki: **
 | Działanie                                         | Co to robi                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Zapisz krzywą (.bin)…**                         | Zapisuje surowe bajty tabeli dokładnie tak, jak C64 odczytałby je za pomocą `INCBIN`. 16-bit: N bajtów niskich, po których następuje N bajtów wysokich.                                                                                                                                                                                                                                                                            |
@@ -3861,6 +3959,19 @@ Każde wyjście Kopiuj/Wstaw rozpoczyna się komentarzem nagłówkowym dokumentu
 | **Eksportuj wersję demonstracyjną UltimateBasic** | Tworzy kompletny, gotowy do uruchomienia program UB: sprite'a piłki (`sprdef 0`), tabelę oraz pętlę zsynchronizowaną z rastrem, która odtwarza jeden wpis tabeli na klatkę. Tabele 8-bitowe sterują sprite'em **Y**, podczas gdy X wykonuje ruch od 0 do 320; tablice 16-bitowe (0 do 320) sterują sprite'em **X**, podczas gdy Y wykonuje ruch od 0 do 200. Tabele dłuższe niż 256 wpisów odtwarzają swoje pierwsze 256.          |
 
 **Dopasowanie podglądu na C64:** podgląd odczytuje tabelę **liniowo, zapętlając 0 → N-1 → 0, jedna wartość na klatkę**. Aby odtworzyć to dokładnie, należy sterować tabelą w ten sam sposób (zwiększać indeks raz na klatkę, przewijać na całej długości tabeli). Odtwarzanie ping-pongowe lub częściowe będzie przebiegać inaczej, mimo że wartości bajtów są identyczne. Zobacz `samples/curve-new-demo.asm`, aby uzyskać działający 16-bitowy przykład sprite-X.
+
+---
+
+### Konwerter liczb
+
+Mały konwerter DEC/HEX/BIN **niemodalny **, otwierany przyciskiem na pasku narzędzi obok edytora D64 (kliknij ponownie lub naciśnij Esc, aby zamknąć). Pozostaje otwarty podczas edycji programu w dowolnym trybie.
+
+- Wpisz w dowolne z pól **DEC**, **HEX** lub **BIN**, a pozostałe dwa zostaną wypełnione. Akceptowane są prefiksy `$`, `0x`, `%`, `0b` oraz separatory (spacja, `_`); ujemna liczba dziesiętna staje się uzupełnieniem do dwóch w bieżącej szerokości; nieprawidłowe dane są oznaczone na czerwono.
+- Szerokość **8 / 16 bitów** — wartość powyżej 255 automatycznie przełącza się na 16 bitów.
+- **Wiersz bitów** — kliknij bit, aby go przełączyć.
+- Wiersz informacyjny pokazuje wartość **signed**, a w trybie 16-bitowym bajt **low** i **high**.
+- Przyciski **Kopiuj** kopiują wartość z jej prefiksem (`53280`, `$D020`, `%1101000000100000`).
+- Przeciągnij go za nagłówek. Zapamiętuje on swoją wartość, szerokość i pozycję i otwiera się ponownie po ponownym uruchomieniu, jeśli był otwarty w momencie zamykania.
 
 ---
 

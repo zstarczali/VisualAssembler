@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.0 — Språkmanual
+# Ultimate Basic v1.6.1 — Språkmanual
 
 Komplett språk- och CLI-referens för Ultimate Basic, ett BASIC-liknande språk
 som kompilerar direkt till 6502-maskinkod för Commodore 64. Utdata: `.prg` filer
@@ -519,6 +519,11 @@ poäng += 300 * nivå # 900 (före 1.5.7 var detta avkortat till 8 bitar: 44)
 poäng = poäng + 100 * nivå
 var stor: ord = 100 * nivå + 900
 ```
+
+Sedan 1.6.1 gäller detta även inom summor och för `shl`, och för konstanta
+multiplikatorer över 255: `py = cy * 8 + fy`, `py = (cy shl 3) + fy` och `w = cy
+* 300` behåller alla 16 bitar (tidigare trunkerades summan till 8 bitar).
+Bytemål behåller 8-bitarsresultat.
 
 ### Bitmappsgrafik
 
@@ -1073,14 +1078,16 @@ poke $07F9, pg         # copy to sprites 1–7
 ### Karaktärsrutekartor (`.ubmap`)
 
 ```basic
-map load "levels/world.ubmap"
-map draw map_x, map_y       # draw a 40x25 viewport to screen/color RAM
+karta ladda "levels/world.ubmap"
+karta ladda "level.bin", $4000 # Nivåredigeringsprojekt, data vid $4000 (1.6.1)
+karta rita map_x, map_y # rita en 40x25-vyport till skärm/färg-RAM
+karta vy px, py # jämn dubbelbuffrad vy vid pixel px, py (1.6.1)
 
-var tile = map_tile(x, y)   # read character code from the map
-map set x, y, 42            # change character code in writable map data
+var tile = map_tile(x, y) # läs teckenkod från kartan
+karta uppsättning x, y, 42 # ändra teckenkod i skrivbar kartdata
 
-var shade = map_color(x, y) # read cell color (0 when map has no color data)
-map color x, y, 7           # change cell color when color data is present
+var shade = map_color(x, y) # läs cellfärg (0 när kartan inte har någon färgdata)
+karta färg x, y, 7 # ändra cellfärg när färgdata finns
 ```
 
 `map load` löser filnamnet relativt till `.ub` källfilen, validerar den vid
@@ -1097,6 +1104,72 @@ kartläsning "map-multicolor.bin"
 De första 1000 byten blir 40×25-teckenmappningen och de kommande 1000 byten blir
 cellfärger. Flerfärgsläge och `$D021-$D023` läses från
 VisualAssembler-metadatatrailern, så ingen `.ubmap`-konvertering krävs.
+
+**Level Editor-projekt (nytt i 1.6.1).** `map load` läser också ett
+VisualAssembler Level Editor-projekt (`Save level (.bin)`) och komponerar dess
+skärmar till en karta: en nivå av B×H-skärmar blir en (B·40)×(H·25)-karta med
+färger, tomma platser är mellanslag. Kartor är begränsade till 255×255 celler,
+så en nivå får vara högst 6 skärmar bred och 10 hög.
+
+```basic
+kartladdning "level.bin" # 2x5 skärmar -&gt; en 80x125 karta
+```
+
+**Placera kartdata (nytt i 1.6.1).** `map load "file", addr` lagrar kartan på en
+fast adress istället för inbäddad i koden, som `incbin "file", addr` (adressen
+måste vara ovanför den genererade koden eller inuti ett `org` mellanrum). Tecken
+kommer först, färger följer:
+
+```basic
+karta laddas "level.bin", $4000 # 80x125 karta: tecken $4000-$6713, färger $6714-$8E1F
+```
+
+#### Smidig rullning — `kartvy` (nytt i 1.6.1)
+
+```basic
+kartladdning "level.bin", $4000
+var px: word = 0
+var py: word = 0
+loop
+kartvy px, py # en gång per bildruta, istället för `vänta raster`
+# läs joysticken, ändra px / py, spellogik ...
+slut
+```
+
+`kartvy x, y` visar kartan vid pixelposition `x, y` (orduttryck;
+`0..(bredd-40)*8` och `0..(höjd-25)*8`, värden utanför intervallet är
+begränsade). Anropar den en gång per bildruta: den väntar på bildrutans gräns
+(rasterlinje 250), visar positionen som angavs av föregående anrop och tar sedan
+den nya, så en position visas en bildruta senare.
+
+Så här fungerar det: den fina delen använder XSCROLL / YSCROLL i `$D016` /
+`$D011` med 38 kolumner och 24 rader (den inskrollade kanten förblir dold);
+teckenstegen byter två skärmbuffertar, `$0400` och `$3C00`. Positionen förutsägs
+två bildrutor framåt och den dolda bufferten byggs för nästa teckencell i två
+halvor innan vyn kommer dit, så bytet väntar aldrig. Färg-RAM kan inte
+dubbelbuffras: dess övre halva kopieras i den sista gamla bildrutan bakom
+rasterstrålen, den nedre halvan precis efter bytet framför den (båda med avbrott
+maskerade för några rasterlinjer), så ingenting rivs. En riktningsändring precis
+vid ett teckensteg kan hålla vyn i en eller två bildrutor medan bufferten byggs
+om.
+
+Regler:
+
+- Programkoden och inline-data måste hålla sig utanför `$3C00-$3FFF` (andra
+  bufferten); ladda stora kartor med en adress (`karta ladda "fil", $4000`),
+  annars stoppas kompileringen med ett fel.
+- Den första `kartvyn` ritar hela vyn till `$0400`. Därefter tillhör skärmen
+  `kartvyn`: `print` / `screen` / `cls` write `$0400` endast och skrivs över.
+- Sprites fungerar som vanligt: `map view` kopierar sprite-pekarna `$07F8-$07FF`
+  till `$3FF8-$3FFF` i varje bildruta, så att `sprdef` / `sprite_frame` visas i
+  båda buffertarna. Behåll sprite-data i VIC-bank 0 (`$0000-$3FFF`, inte
+  `$1000-$1FFF`), t.ex. genom att placera `sprdef` före en stor inline `map
+  load`.
+- Teckenuppsättningsbitarna i `$D018` behålls (`teckenuppsättning på` fungerar);
+  flerfärgsbiten i `$D016` behålls eftersom `map load` satte den.
+- Lämna cirka 6000 cykler (~95 rasterlinjer) spellogik per bildruta; en längre
+  bildruta gör att vyn håller i en bildruta men aldrig rivs.
+- Exempel: `examples/level_scroll_demo.ub` (joystickstyrd, med en spelarsprite).
 
 `map draw map_x, map_y` kopierar en 40×25-vyport med början vid den angivna
 kartcellen till skärm-RAM `$0400` och, om sådan finns, färg-RAM `$D800`. Kartan

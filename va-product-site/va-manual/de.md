@@ -1,6 +1,6 @@
 # C64 Visual Assembler – Benutzerhandbuch
 
-**Version 2.4.9**
+**Version 2.5.0**
 
 Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Sie Programme durch Ziehen und Ablegen von Befehlsblöcken und sehen Sie den generierten Assembler- und Maschinencode in Echtzeit.
 
@@ -9,6 +9,7 @@ Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Si
 ## Inhaltsverzeichnis
 
 - [C64 Visual Assembler — Benutzerhandbuch](#c64-visual-assembler--user-manual)
+    - [Version 2.5.0 Highlights](#version-250-highlights)
     - [Version 2.4.9 Highlights](#version-249-highlights)
     - [Version 2.4.8 Highlights](#version-248-highlights)
     - [Version 2.4.7 Highlights](#version-247-highlights)
@@ -34,6 +35,7 @@ Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Si
   - [5. Einstellungen & Symbolleiste](#5-settings--toolbar)
     - [Projektvorlagen](#project-templates)
     - [Build project](#build-project)
+    - [Beispielprogramme](#example-programs)
     - [Lade .asm-Datei (Kurzanleitung)](#load-asm-file-quick-reference)
       - [Hinweise und Best Practices zum Importieren von Daten](#import-parsing-notes-and-best-practices)
   - [Ultimativer Basismodus](#ultimatebasic-mode)
@@ -87,6 +89,9 @@ Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Si
     - [BOX_HIT](#box_hit)
     - [INCBIN](#incbin)
     - [KOALA](#koala)
+    - [LEVEL / LEVEL\_ROW](#level--level_row)
+      - [LEVEL](#level)
+      - [LEVEL\_ROW](#level_row)
     - [SID](#sid)
     - [INCLUDE](#include)
     - [TABLE](#table)
@@ -161,8 +166,22 @@ Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Si
     - [Zeicheneditor (Zeichensatz)](#character-editor-charset)
     - [Charset Canvas Editor](#charset-canvas-editor)
     - [Karteneditor (Mehrschichtige Kachelkarten)](#map-editor-multilayer-tilemaps)
+    - [Level Editor](#level-editor)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Kurveneditor](#curve-editor)
+    - [Zahlenkonverter](#number-converter)
+
+---
+
+## Highlights der Version 2.5.0
+
+- **Level-Editor** – Ein neuer Toolbar-Editor ordnet die Karteneditor-Bildschirme vertikal, horizontal oder in einem 2D-Raster an und zeigt eine Vorschau des gesamten Levels mit flüssigem Scrollen. Siehe [Level-Editor](#level-editor).
+- **LEVEL / LEVEL_ROW-Makros** — `.level "level.bin"[, $addr]` platziert nur die platzierten Bildschirme eines Level-Editor-Projekts sowie Zeigertabellen und definiert `LEVEL_*`-Labels und -Konstanten; `.level_row dst, col[, color]` kopiert eine 40 Zeichen lange Levelzeile in einen Puffer. Siehe [LEVEL / LEVEL_ROW](#level--level_row).
+- **JOYSTICK-Variablenmodus** — `.joystick-Port, vx, vy[, fire]` schreibt die Richtung in Variablen (−1 / 0 / +1), anstatt einen Sprite zu bewegen; Port `3` liest beide Joystick-Ports. Siehe [JOYSTICK](#joystick).
+- **Level scroll demo** — `samples/level-demo.asm` scrollt ein 2×5-Bildschirm-Level Pixel für Pixel in jede Richtung mit dem Joystick, ohne Tearing, und lässt Platz für Sprites und Spielcode.
+- **Zahlenkonverter** – ein nicht-modaler DEC/HEX/BIN-Dialog in der Symbolleiste. Siehe [Zahlenkonverter](#number-converter).
+- **Beispieldialog** — **Menü → Beispiele…** öffnet eine durchsuchbare, kategorisierte Liste der integrierten Beispielprogramme. Siehe [Beispielprogramme](#example-programs).
+- **Ultimate Basic 1.6.1 mitgeliefert** — `map load "level.bin"[, addr]` liest ein Level-Editor-Projekt direkt ein, und der neue Befehl `map view px, py` scrollt die Karte flüssig und ruckelfrei an einer Pixelposition (Beispiel: `level_scroll_demo.ub`). Ein Byte-Produkt innerhalb einer 16-Bit-Summe wird nicht mehr auf 8 Bit abgeschnitten. Die UB-Befehlsreferenz listet `map view` auf, und die Suche sortiert Treffer nach Befehlsnamen zuerst aus.
 
 ---
 
@@ -412,7 +431,7 @@ Das Modal schließt sich automatisch, wenn die Aktion abgeschlossen ist oder feh
 | **CRT-Retromodus**                                                                                       | Aktiviert/Deaktiviert einen Vollbild-CRT-Filter: Scanlines, Phosphorvignettierung, Flimmern und tonnenförmige Verzeichnung. Der Status wird zwischen den Sitzungen gespeichert.                                                                                                                                                                                                                                                                                                                                                                                 |
 | **Speicherpanel anzeigen**                                                                               | Globaler Schalter zum Ein- oder Ausblenden des gesamten C64-Speicherpanels                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | **BASIC SYS stub**                                                                                       | Fügt dem Ursprung Ihres Programms eine BASIC-Zeile voran, die SYS aufruft.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| **Sample**                                                                                               | Laden Sie ein integriertes Beispielprogramm                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| **Beispiele…**                                                                                           | Öffnen Sie den Beispielbrowser und laden Sie ein integriertes Beispielprogramm – siehe [Beispielprogramme](#example-programs)                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | **Vergrößern / Verkleinern**                                                                             | Skaliert die Block-UI (betrifft alle Blockelemente)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | **Projekt speichern**                                                                                    | Speichern Sie das aktuelle Programm als `.json`-Projektdatei                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | **Programm speichern unter**                                                                             | Speichern Sie das aktuelle Programm jedes Mal als `.json`-Projektdatei über einen neuen Dateidialog.                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
@@ -513,6 +532,14 @@ Das Projekt wird in einem eigenen Ordner erstellt: `<Speicherort>/<Name>/<Name>.
 - Debugger-Sidecar-Dateien (Symbole / Quellzuordnung) werden, sofern verfügbar, zusammen mit der PRG geschrieben;
 - Module, die von einer anderen Datei mit `.include` / `include` (und `.inc` Dateien) eingebunden werden, werden übersprungen, ebenso wie Tabulatoren, die nie gespeichert wurden;
 - Ein Bericht listet jede Datei mit ihrer Größe, dem Grund für das Überspringen oder einem Compilerfehler auf, und die Statusleiste zeigt die Anzahl der erstellten Dateien an.
+
+### Beispielprogramme
+
+**Menü → Beispiele…** öffnet den Beispielbrowser: die integrierten Beispielprogramme, gruppiert nach Thema (Grundlagen, Makros & Kontrollfluss, Grafik, Sprites & Eingabe, Dateien & Laden, Musik, IRQ & Hardware) in zwei Spalten.
+
+- Geben Sie im Suchfeld einen Suchbegriff ein, um nach Name oder Kategorie zu filtern; in der Fußzeile wird die Anzahl der übereinstimmenden Beispiele angezeigt.
+- Klicken Sie auf ein Beispiel, um es auszuwählen; **↑ / ↓** verschieben Sie die Auswahl; **Doppelklick**, **Enter** oder **Load** laden es.
+- Der Dialog öffnet sich mit dem zuletzt geladenen Beispiel.
 
 ### Laden der .asm-Datei (Kurzanleitung)
 
@@ -1657,6 +1684,48 @@ wait:
 
 ---
 
+### Ebene / Ebene_Zeile
+
+Fügt ein **Level-Editor**-Projekt in Ihr Programm ein und kopiert Levelzeilen in einen Bildschirmpuffer – die Bausteine eines Scrolling-Spiels. Unter `samples/level-demo.asm` finden Sie ein vollständiges, per Joystick scrollbares Level.
+
+#### EBENE
+
+Ein INCBIN-Block, der **0 Bytes Code** ausgibt. Nur die **platzierten** Bildschirme des Level-Editor-Projekts (die `.bin`, gespeichert mit **Dateien → Level speichern**) werden ab der angegebenen Adresse (Standard: `$2000`) in Slot-Reihenfolge in den Speicher geladen, 2000 Bytes pro Bildschirm (1000 Bildschirmcodes + 1000 Farben). Identische Bildschirme werden nur einmal gespeichert, und alle leeren Slots teilen sich einen leeren Bildschirm. Die Zeigertabellen folgen den Bildschirmen. Ein Level kann bis zu 7 × 10 Bildschirme umfassen.
+
+**Expertensyntax:**
+```
+.level "level.bin"
+.level "level.bin", $4000
+```
+
+| Definition                                               | Bedeutung                                                                                                 |
+| -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `LEVEL_SLOT_LO` / `LEVEL_SLOT_HI`                        | Adresse des Bildschirms in jedem Slot (zeilenweise, `LEVEL_W` Slots pro Zeile)                            |
+| `LEVEL_ROW_SLOT`                                         | Level-Charakterzeile → erster Platz der zugehörigen Bildschirmzeile                                       |
+| `LEVEL_ROW_LO/HI`, `LEVEL_CROW_LO/HI`                    | Level-Zeichenzeile → Versatz der zugehörigen Bildschirmcode-Zeile / Farbzeile innerhalb eines Bildschirms |
+| `LEVEL_COL_SLOT`, `LEVEL_COL_OFS`                        | Ansicht Startspalte → Bildschirmspalte und Spalte innerhalb des Bildschirms                               |
+| `LEVEL_W`, `LEVEL_H`                                     | Levelgröße in Bildschirmen                                                                                |
+| `LEVEL_COLS`, `LEVEL_ROWS`                               | Levelgröße in Zeichen                                                                                     |
+| `LEVEL_MAX_X`, `LEVEL_MAX_Y`                             | Größte Scrollposition in Pixeln einer 40×25-Ansicht                                                       |
+| `LEVEL_BG`, `LEVEL_MC1`, `LEVEL_MC2`, `LEVEL_MULTICOLOR` | Hintergrund / Mehrfarbigkeit und Modus des Levels                                                         |
+| `LEVEL_DATA`, `LEVEL_SIZE`, `LEVEL_END`                  | Start-, Größen- und erste freie Adresse nach den Leveldaten                                               |
+
+Typischer Schutz: `.assert LEVEL_END &lt;= $9200, "Level-Daten laufen in den Code"`.
+
+#### LEVEL_ROW
+
+Kopiert eine 40 Zeichen lange Zeile des Levels in einen Puffer: die Level-Zeile in **X**, beginnend an der in der Variable `col` gespeicherten Level-Spalte, bis zur Adresse im Zeiger `dst` (`dst` / `dst+1`, lo/hi). Mit dem dritten Argument `color` werden die Farben anstelle der Bildschirmcodes kopiert (für Farb-RAM). Ein 40 Zeichen langes Fenster, das sich über zwei Bildschirme erstreckt, wird mit einer selbstmodifizierenden Kopierschleife verarbeitet (~14 Zyklen pro Byte). X bleibt erhalten, A und Y werden zerstört. Benötigt einen `.level`-Block im Programm.
+
+**Expertensyntax:**
+```
+.level_row dst_lo, view_x
+.level_row dst_lo, view_x, color
+```
+
+**Größe im Code:** 132 Bytes — Verwenden Sie `LBEQ` / `LBNE`, wenn ein Zweig darüber springen muss.
+
+---
+
 ### SID
 
 Wie **BLOAD für Musik** – lädt eine `.sid`-Datei in Ihren PRG und liest automatisch deren Init- und Play-Adressen aus dem Header. Rufen Sie Init einmal beim Start auf und anschließend Play in jedem Frame über Ihren IRQ-Handler.
@@ -2699,6 +2768,13 @@ skip_right:
 | 4        | Feuer    | (wird von diesem Makro nicht verarbeitet) |
 
 **Größe:** 27 Bytes. Der Offset `BCS` ist immer `+3` (überspringt die folgende 3-Byte-Anweisung `DEC`/`INC abs`).
+
+**Variabler Modus — `.Joystick-Port, vx, vy[, fire]`:** Anstatt einen Sprite zu bewegen, wird die Richtung in Variablen geschrieben: `vx` / `vy` = `-1` / `0` / `+1` (`$FF` / `$00` / `$01`), und das optionale `fire` = `1`, solange die Taste gedrückt ist. Andernfalls `0`. Verwenden Sie es für eine scrollende Kamera, einen Spieler mit eigener Physik oder Menüs. Port `3` liest beide Joystick-Ports gleichzeitig (`LDA $DC00` / `AND $DC01`), daher funktioniert jeder Port.
+
+```
+.joystick 2, vx, vy          ; 35 bytes
+.joystick 3, vx, vy, fire    ; both ports + fire: 45 bytes
+```
 
 > **Typische Verwendung:** Platzieren Sie es innerhalb eines `gameloop` Labels mit `WAIT_RASTER` zuerst:
 > ```
@@ -3757,6 +3833,28 @@ Layered Tilemap Editor für statische Szenerien, Sprite-Spawn-Maps, Kollisionsda
 | Bildschirmspeicher (.bin) speichern…        | Speichert nur die Bildschirmcodes für die aktuelle Kartenebene (40×25 = 1000 Bytes).                                                                                                                                                                                                                           |
 | Bildschirm-RAM + Farb-RAM speichern (.bin)… | Speichert Bildschirmcodes, verkettet mit Farb-RAM-Werten, in einer einzigen 2000-Byte-Datei (`screen[0..999]` gefolgt von `color[0..999]`). Verwenden Sie diese Datei zusammen mit dem Makro **MAP_COPY** (kombinierter .bin-Modus), um Bildschirm und Farbe in einem Schritt zur Laufzeit wiederherzustellen. |
 
+### Level-Editor
+
+Ordnet die Bildschirme des **Karteneditors** zu einem Level an – beispielsweise einem vertikalen Shooter, einem scrollenden Autospiel, einem Side-Scroller oder einer 2D-Karte – und zeigt den gesamten Level in flüssiger Scroll-Vorschau an. Öffnen Sie ihn über die Schaltfläche **Level-Editor** in der Symbolleiste neben dem Karteneditor.
+
+| Besonderheit | Beschreibung                                                                                                                                                                                                                                                                     |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Layout       | **Vertikal**, **Horizontal** oder **Raster** (Zeilen × Spalten, mit Schaltflächen zum Hinzufügen/Entfernen von Zeilen und Spalten).                                                                                                                                              |
+| Bildschirme  | **Neuer leerer Bildschirm**, **Aus dem Karteneditor hinzufügen** (die aktuell geöffnete Karte) oder **Karte(n) laden (.bin)…** (mehrere Kartenexporte gleichzeitig). Ziehen Sie einen Bildschirm aus der Liste auf einen Slot; ziehen Sie Slots aufeinander, um sie zu tauschen. |
+| Bearbeitung  | **Im Karteneditor bearbeiten** öffnet den ausgewählten Bildschirm im Karteneditor und stellt die Änderungen wieder her; duplizieren, nach oben/links oder unten/rechts verschieben, entfernen; rückgängig machen / wiederherstellen.                                             |
+| Vorschau     | Ziehen Sie die Vorschau oder verwenden Sie die Pfeiltasten, um pixelweise zu scrollen; **Wiedergabe** scrollt automatisch (Richtung, Geschwindigkeit 1–8, Schleife), Leertaste = Wiedergabe/Stopp. *Rahmen* markiert die Bildschirmränder.                                       |
+| Schecks      | Informationen zum Zeichensatz und eine Warnung, wenn Bildschirme einen anderen Zeichensatz oder andere Farben verwenden (das Level verwendet die Einstellungen des ersten Bildschirms).                                                                                          |
+
+**Menü „Dateien“:**
+| Aktion                                                                   | Was es tut                                                                                                                                       |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Neues Level** / **Level öffnen (.bin)…** / **Level speichern (.bin)…** | Das Levelprojekt: alle Bildschirme plus das Layout. Dies ist die Datei, die das Makro `.level` und Ultimate Basics Map-Ladeprogramm `` einlesen. |
+| **Speichern des Bildschirm-RAM-Levels (.bin)…**                          | Das gesamte Level als eine einzige Zeichenkarte (nur Bildschirmcodes).                                                                           |
+| **Speichern des Levels Bildschirm + Farb-RAM (.bin)…**                   | Die gesamten Bildschirmcodes des Levels, gefolgt von den zugehörigen Farben.                                                                     |
+| **Export nach Blöcken** / **Assembler kopieren**                         | Die Leveldaten als Blöcke oder als ASM-Text (Zwischenablage).                                                                                    |
+
+**Verwendung des Levels:** im Assembler, `.level "level.bin"` + `.level_row` (siehe [LEVEL / LEVEL_ROW](#level--level_row) und `samples/level-demo.asm`); in Ultimate Basic 1.6.1+, `map load "level.bin", $4000` und `map view px, py` (Beispiel `level_scroll_demo.ub`).
+
 ### SID-Editor (3-Stimmen-Tracker)
 
 Multiinstrumentaler 3-stimmiger Tracker mit Web-Audio-Vorschau. Öffnen über Toolkit → SID-Editor.
@@ -3861,6 +3959,19 @@ Jede Kopier-/Einfügeausgabe beginnt mit einem Kopfzeilenkommentar, der die Kurv
 | **Export UltimateBasic Demo**  | Erzeugt ein vollständiges, sofort ausführbares UB-Programm: einen Ball-Sprite (`sprdef 0`), die Tabelle und eine rastersynchronisierte Schleife, die pro Frame einen Tabelleneintrag abspielt. 8-Bit-Tabellen steuern den Sprite **Y**, während X den Bereich von 0 bis 320 durchläuft; 16-Bit-Tabellen (0 bis 320) steuern den Sprite **X**, während Y den Bereich von 0 bis 200 durchläuft. Tabellen mit mehr als 256 Einträgen spielen ihre ersten 256 Einträge ab. |
 
 **Entsprechend der Vorschau auf dem C64:** Die Vorschau liest die Tabelle **linear, in einer Schleife von 0 → N-1 → 0, ein Wert pro Frame**. Um dies exakt zu reproduzieren, muss die Tabelle auf dieselbe Weise angesteuert werden (Index einmal pro Frame inkrementieren, Überlauf bei Tabellenlänge). Eine Ping-Pong- oder Teilbereichswiedergabe verhält sich anders, obwohl die Bytewerte identisch sind. Ein funktionierendes 16-Bit-Sprite-X-Beispiel finden Sie unter `samples/curve-new-demo.asm`.
+
+---
+
+### Zahlenkonverter
+
+Ein kleiner **nicht-modaler** DEC/HEX/BIN-Konverter, der über die Schaltfläche in der Symbolleiste neben dem D64-Editor geöffnet wird (erneut klicken oder Esc drücken zum Schließen). Er bleibt geöffnet, solange Sie das Programm in einem beliebigen Modus bearbeiten.
+
+- Geben Sie einen Wert in eines der Felder **DEC**, **HEX** oder **BIN** ein; die beiden anderen Felder werden automatisch aktualisiert. Präfixe `$`, `0x`, `%`, `0b` und Trennzeichen (Leerzeichen, `_`) sind zulässig. Negative Dezimalzahlen werden im aktuellen Format als Zweierkomplement dargestellt. Ungültige Eingaben werden rot markiert.
+- **8 / 16 Bit** Breite — ein Wert über 255 schaltet automatisch auf 16 Bit um.
+- **Bits row** — click a bit to switch it.
+- Die Infozeile zeigt den **signed**-Wert und im 16-Bit-Modus das **low**- und das **high**-Byte an.
+- Die Schaltflächen **Copy** kopieren den Wert mit seinem Präfix (`53280`, `$D020`, `%1101000000100000`).
+- Ziehen Sie es an der Kopfzeile; es merkt sich seinen Wert, seine Breite und seine Position und öffnet sich nach einem Neustart wieder, wenn es beim Beenden geöffnet war.
 
 ---
 

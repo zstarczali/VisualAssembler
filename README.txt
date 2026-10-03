@@ -1,7 +1,9 @@
 C64 Visual Assembler - Installation Guide
-Version 2.4.9
+Version 2.5.0
 Support: https://zstarczali.itch.io/visual-assembler-commodore-64
 ==========================================================================
+
+2.5.0: Level Editor — a new toolbar editor arranges Map Editor screens vertically, horizontally or in a 2D grid and previews the whole level with smooth scrolling (drag, arrow keys or Play); it saves a level project (.bin), the full level Screen / Screen + Color RAM, blocks or asm. New .level "level.bin" [, $addr] macro places only the placed screens of a level plus pointer tables and defines LEVEL_* labels and constants; .level_row dst, col [, color] copies one 40-character level row (screen codes or colors) to a buffer. .joystick port, vx, vy [, fire] now writes the direction into variables (-1/0/+1, fire) instead of moving a sprite, and port 3 reads both joystick ports. New sample samples/level-demo.asm scrolls a 2x5-screen level pixel by pixel in every direction with the joystick, tear-free, with room left for a game. Number converter — a non-modal DEC / HEX / BIN dialog on the toolbar (8/16 bit, clickable bits, signed value, low/high byte, copy buttons) that remembers its position and stays open across restarts. Menu → Examples… opens a searchable, categorised list of the built-in example programs. Bundled Ultimate Basic 1.6.1: map load reads a Level Editor project directly (map load "level.bin", $4000) and the new map view px, py scrolls the map smoothly and tear-free at a pixel position; a byte product inside a 16-bit sum is no longer truncated to 8 bits. The UB command reference lists map view and its search puts command names first.
 
 2.4.9: Project templates — Menu → File → New project from template… (or the new toolbar button between Menu and Tutorials) creates a ready-to-build .proj project in its own folder from an Assembler template (empty program, game skeleton, hires / multicolor bitmap) or an UltimateBasic template (empty program, game skeleton, hires bitmap, raster IRQ); own .asm / .ub templates can be dropped into the user templates folder. Build project — Menu → Build → Build project compiles every buildable file of the project (or of the open tabs) to a .prg next to its source, with debugger symbol files, and shows a per-file report. Ctrl + mouse wheel zooms the Expert and Ultimate Basic editors. Workspaces now also remember the open Expert / Ultimate Basic projects, including unsaved project changes. The bundled Ultimate Basic generates faster, smaller code and its memory map tells code and data apart from padding; file dialogs start in the active working folder.
 
@@ -39,7 +41,7 @@ Tested on Ubuntu 22.04 and 24.04.
 -----------------------
 Download the .deb package from the releases page and install:
 
-  sudo dpkg -i "c64-visual-assembler_2.4.9_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.5.0_amd64.deb"
   sudo apt-get install -f   # fix any missing dependencies
 
 Launch from the Applications menu or:
@@ -132,7 +134,7 @@ Requirements: macOS 11.0+, Apple Silicon (M1/M2/M3)
 
 1. C64 Visual Assembler
 -----------------------
-1. Download the 2.4.9 DMG for your architecture from the releases page
+1. Download the 2.5.0 DMG for your architecture from the releases page
 2. Mount the DMG and drag the app to /Applications
 3. First launch: Right-click the app -> "Open" (macOS will block double-click)
 4. Click "Open" in the security dialog

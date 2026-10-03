@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.4.9**
+**Version 2.5.0**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -9,6 +9,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
+    - [Version 2.5.0 Highlights](#version-250-highlights)
     - [Version 2.4.9 Highlights](#version-249-highlights)
     - [Version 2.4.8 Highlights](#version-248-highlights)
     - [Version 2.4.7 Highlights](#version-247-highlights)
@@ -34,6 +35,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
   - [5. Settings \& Toolbar](#5-settings--toolbar)
     - [Project templates](#project-templates)
     - [Build project](#build-project)
+    - [Example programs](#example-programs)
     - [Load .asm file (quick reference)](#load-asm-file-quick-reference)
       - [Import parsing notes and best practices](#import-parsing-notes-and-best-practices)
   - [UltimateBasic Mode](#ultimatebasic-mode)
@@ -87,6 +89,9 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [BOX_HIT](#box_hit)
     - [INCBIN](#incbin)
     - [KOALA](#koala)
+    - [LEVEL / LEVEL\_ROW](#level--level_row)
+      - [LEVEL](#level)
+      - [LEVEL\_ROW](#level_row)
     - [SID](#sid)
     - [INCLUDE](#include)
     - [TABLE](#table)
@@ -161,8 +166,22 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [Character Editor (Charset)](#character-editor-charset)
     - [Charset Canvas Editor](#charset-canvas-editor)
     - [Map Editor (Multilayer Tilemaps)](#map-editor-multilayer-tilemaps)
+    - [Level Editor](#level-editor)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Curve Editor](#curve-editor)
+    - [Number Converter](#number-converter)
+
+---
+
+## Version 2.5.0 Highlights
+
+- **Level Editor** — a new toolbar editor arranges Map Editor screens vertically, horizontally or in a 2D grid and previews the whole level with smooth scrolling. See [Level Editor](#level-editor).
+- **LEVEL / LEVEL_ROW macros** — `.level "level.bin"[, $addr]` places only the placed screens of a Level Editor project plus pointer tables and defines `LEVEL_*` labels and constants; `.level_row dst, col[, color]` copies one 40-character level row to a buffer. See [LEVEL / LEVEL_ROW](#level--level_row).
+- **JOYSTICK variable mode** — `.joystick port, vx, vy[, fire]` writes the direction into variables (−1 / 0 / +1) instead of moving a sprite; port `3` reads both joystick ports. See [JOYSTICK](#joystick).
+- **Level scroll demo** — `samples/level-demo.asm` scrolls a 2×5-screen level pixel by pixel in every direction with the joystick, tear-free, with room left for sprites and game code.
+- **Number converter** — a non-modal DEC / HEX / BIN dialog on the toolbar. See [Number Converter](#number-converter).
+- **Examples dialog** — **Menu → Examples…** opens a searchable, categorised list of the built-in example programs. See [Example programs](#example-programs).
+- **Ultimate Basic 1.6.1 bundled** — `map load "level.bin"[, addr]` reads a Level Editor project directly, and the new `map view px, py` scrolls the map smoothly and tear-free at a pixel position (example: `level_scroll_demo.ub`). A byte product inside a 16-bit sum is no longer truncated to 8 bits. The UB command reference lists `map view`, and its search puts command-name matches first.
 
 ---
 
@@ -412,7 +431,7 @@ The modal closes automatically when the action completes or fails.
 | **CRT retro mode** | Toggles a full-screen CRT filter: scanlines, phosphor vignette, flicker, and barrel distortion. State is saved between sessions. |
 | **Show memory panel** | Global toggle that shows or hides the full C64 memory panel |
 | **BASIC SYS stub** | Prepends a BASIC line that calls SYS to your program's origin |
-| **Sample** | Load a built-in example program |
+| **Examples…** | Open the example browser and load a built-in example program — see [Example programs](#example-programs) |
 | **Zoom in / out** | Scale the block UI (affects all block elements) |
 | **Save Project** | Save the current program as a `.json` project file |
 | **Save Program As** | Save the current program as a `.json` project file using a new file dialog every time |
@@ -515,6 +534,14 @@ The project is created in its own folder: `<location>/<name>/<name>.proj` plus `
 - debugger sidecar files (symbols / source map) are written alongside the PRG where available;
 - modules that another file pulls in with `.include` / `include` (and `.inc` files) are skipped, as are tabs that were never saved;
 - a report lists every file with its size, *skipped* reason or compiler error, and the status bar shows *N / M files built*.
+
+### Example programs
+
+**Menu → Examples…** opens the example browser: the built-in example programs grouped by topic (Basics, Macros & control flow, Graphics, Sprites & input, Files & loading, Music, IRQ & hardware) in two columns.
+
+- Type into the search box to filter by name or category; the footer shows how many examples match.
+- Click an example to select it, **↑ / ↓** move the selection; **double-click**, **Enter** or **Load** loads it.
+- The dialog opens on the example you loaded last.
 
 ### Load .asm file (quick reference)
 
@@ -1682,6 +1709,48 @@ wait:
 
 ---
 
+### LEVEL / LEVEL_ROW
+
+Puts a **Level Editor** project into your program and copies level rows to a screen buffer — the building blocks of a scrolling game. See `samples/level-demo.asm` for a complete joystick-scrolled level.
+
+#### LEVEL
+
+An INCBIN-style block that emits **0 bytes of code**. Only the **placed** screens of the Level Editor project (the `.bin` saved with **Files → Save level**) go into memory from the given address (default `$2000`), in slot order, 2000 bytes per screen (1000 screen codes + 1000 colors). Identical screens are stored once, and all empty slots share one blank screen. The pointer tables follow the screens. A level can be up to 7 × 10 screens.
+
+**Expert syntax:**
+```
+.level "level.bin"
+.level "level.bin", $4000
+```
+
+| Defined | Meaning |
+|---|---|
+| `LEVEL_SLOT_LO` / `LEVEL_SLOT_HI` | Address of the screen in each slot (row-major, `LEVEL_W` slots per row) |
+| `LEVEL_ROW_SLOT` | Level character row → first slot of its screen row |
+| `LEVEL_ROW_LO/HI`, `LEVEL_CROW_LO/HI` | Level character row → offset of its screen-code row / color row inside a screen |
+| `LEVEL_COL_SLOT`, `LEVEL_COL_OFS` | View start column → screen column and column inside the screen |
+| `LEVEL_W`, `LEVEL_H` | Level size in screens |
+| `LEVEL_COLS`, `LEVEL_ROWS` | Level size in characters |
+| `LEVEL_MAX_X`, `LEVEL_MAX_Y` | Largest pixel scroll position of a 40×25 view |
+| `LEVEL_BG`, `LEVEL_MC1`, `LEVEL_MC2`, `LEVEL_MULTICOLOR` | Background / multicolor colors and mode of the level |
+| `LEVEL_DATA`, `LEVEL_SIZE`, `LEVEL_END` | Start, size and first free address after the level data |
+
+Typical guard: `.assert LEVEL_END <= $9200, "level data runs into the code"`.
+
+#### LEVEL_ROW
+
+Copies one 40-character row of the level to a buffer: the level row in **X**, starting at the level column held in the `col` variable, to the address held in the `dst` pointer (`dst` / `dst+1`, lo/hi). With the third argument `color` it copies the colors instead of the screen codes (for color RAM). A 40-character window that spans two screens is handled with a self-modifying copy loop (~14 cycles per byte). X is kept, A and Y are destroyed. Needs a `.level` block in the program.
+
+**Expert syntax:**
+```
+.level_row dst_lo, view_x
+.level_row dst_lo, view_x, color
+```
+
+**Size in code:** 132 bytes — use `LBEQ` / `LBNE` when a branch has to jump over it.
+
+---
+
 ### SID
 
 Like **BLOAD for music** — loads a `.sid` file into your PRG and automatically reads its Init and Play addresses from the header. Call Init once at startup, then call Play from your IRQ handler every frame.
@@ -2729,6 +2798,13 @@ skip_right:
 | 4 | Fire | (not handled by this macro) |
 
 **Size:** 27 bytes. The `BCS` offset is always `+3` (skips the following 3-byte `DEC`/`INC abs` instruction).
+
+**Variable mode — `.joystick port, vx, vy[, fire]`:** instead of moving a sprite, the direction is written into variables: `vx` / `vy` = `-1` / `0` / `+1` (`$FF` / `$00` / `$01`), and the optional `fire` = `1` while the button is pressed, `0` otherwise. Use it for a scrolling camera, a player with its own physics, or menus. Port `3` reads both joystick ports at once (`LDA $DC00` / `AND $DC01`), so either port works.
+
+```
+.joystick 2, vx, vy          ; 35 bytes
+.joystick 3, vx, vy, fire    ; both ports + fire: 45 bytes
+```
 
 > **Typical usage:** Place inside a `gameloop` label with `WAIT_RASTER` first:
 > ```
@@ -3787,6 +3863,28 @@ Layered tilemap editor for static scenery, sprite spawn maps, collision data, an
 | Save Screen RAM (.bin)… | Saves only the screen codes for the current map layer (40×25 = 1000 bytes). |
 | Save Screen RAM + Color RAM (.bin)… | Saves screen codes concatenated with Color RAM values as a single 2000-byte file (`screen[0..999]` followed by `color[0..999]`). Use this with the **MAP_COPY** macro (Combined .bin mode) to restore both screen and color in one operation at runtime. |
 
+### Level Editor
+
+Arranges **Map Editor screens** into one level — a vertical shooter, a car game scrolling down, a side-scroller or a 2D map — and previews the whole level with smooth scrolling. Open it with the **Level Editor** toolbar button next to the Map Editor.
+
+| Feature | Description |
+|---|---|
+| Layout | **Vertical**, **Horizontal** or **Grid** (rows × columns, with add / remove row and column buttons). |
+| Screens | **New empty screen**, **Add from Map Editor** (the map currently open) or **Load map(s) (.bin)…** (several Map Editor exports at once). Drag a screen from the list onto a slot; drag slots onto each other to swap them. |
+| Editing | **Edit in Map Editor** opens the selected screen in the Map Editor and brings the changes back; duplicate, move up/left or down/right, remove; undo / redo. |
+| Preview | Drag the preview or use the arrow keys to scroll pixel by pixel; **Play** scrolls automatically (direction, speed 1–8, loop), Space = play / stop. *Borders* marks the screen boundaries. |
+| Checks | Charset info, and a warning when screens use a different charset or colors (the level uses the first screen's settings). |
+
+**Files menu:**
+| Action | What it does |
+|---|---|
+| **New level** / **Open level (.bin)…** / **Save level (.bin)…** | The level project: all screens plus the layout. This is the file the `.level` macro and Ultimate Basic's `map load` read. |
+| **Save level Screen RAM (.bin)…** | The whole level as one character map (screen codes only). |
+| **Save level Screen + Color RAM (.bin)…** | The whole level's screen codes followed by its colors. |
+| **Export to blocks** / **Copy asm** | The level data as blocks or as asm text (clipboard). |
+
+**Using the level:** in assembler, `.level "level.bin"` + `.level_row` (see [LEVEL / LEVEL_ROW](#level--level_row) and `samples/level-demo.asm`); in Ultimate Basic 1.6.1+, `map load "level.bin", $4000` and `map view px, py` (example `level_scroll_demo.ub`).
+
 ### SID Editor (3-Voice Tracker)
 
 Multi-instrument 3-voice tracker with a Web Audio preview engine. Open via Toolkit → SID Editor.
@@ -3893,6 +3991,19 @@ Every Copy / Insert output starts with a header comment documenting the curve, a
 | **Export UltimateBasic demo** | Produces a complete, ready-to-run UB program: a ball sprite (`sprdef 0`), the table, and a raster-synced loop that plays one table entry per frame. 8-bit tables drive sprite **Y** while X sweeps 0..320; 16-bit (0..320) tables drive sprite **X** while Y sweeps 0..200. Tables longer than 256 entries play their first 256. |
 
 **Matching the preview on the C64:** the preview reads the table **linearly, looping 0 → N-1 → 0, one value per frame**. To reproduce it exactly, drive the table the same way (increment the index once per frame, wrap at the table length). A ping-pong or partial-range playback will move differently even though the byte values are identical. See `samples/curve-new-demo.asm` for a working 16-bit sprite-X example.
+
+---
+
+### Number Converter
+
+A small **non-modal** DEC / HEX / BIN converter, opened with the toolbar button next to the D64 Editor (click again or press Esc to close). It stays open while you keep editing the program in any mode.
+
+- Type into any of the **DEC**, **HEX** or **BIN** fields and the other two follow. Prefixes `$`, `0x`, `%`, `0b` and separators (space, `_`) are accepted; a negative decimal becomes two's complement in the current width; invalid input is marked red.
+- **8 / 16 bit** width — a value above 255 switches to 16 bit automatically.
+- **Bits row** — click a bit to toggle it.
+- The info line shows the **signed** value and, in 16-bit mode, the **low** and **high** byte.
+- **Copy** buttons copy the value with its prefix (`53280`, `$D020`, `%1101000000100000`).
+- Drag it by the header; it remembers its value, width and position, and reopens after a restart if it was open when you quit.
 
 ---
 

@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.4.9">
+  <link rel="stylesheet" href="style.css?v=2.5.0">
 </head>
 
 <body>
@@ -71,7 +71,7 @@
               </section>
               <section id="sample-programs-group" class="control-menu-group">
                 <h3 class="control-menu-label" id="menu-examples-label">Peldak</h3>
-                <label class="sample-picker">
+                <label class="sample-picker" hidden>
                   <span class="sr-only">Mintaprogram</span>
                   <select id="sample-select">
                     <option value="basic-colors">Mintaprogram</option>
@@ -112,7 +112,7 @@
                     <option value="macro-showcase">Új makrók bemutató</option>
                   </select>
                 </label>
-                <button id="load-sample" class="secondary" type="button">Betoltes</button>
+                <button id="load-sample" class="secondary" type="button">Példák…</button>
                 <h3 class="control-menu-label control-menu-label--section" id="build-section-label">Build</h3>
                 <button id="save-prg" class="secondary" type="button">Build PRG</button>
                 <button id="save-d64" class="secondary" type="button">Build D64</button>
@@ -210,6 +210,9 @@
           <button id="map-editor-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="Map Editor">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" width="15" height="15" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" rx="1"/><path d="M1.5 6h13M1.5 10.5h13M6 1.5v13M10.5 1.5v13" stroke-width="0.9"/><rect x="6" y="6" width="4.5" height="4.5" fill="currentColor" stroke="none" opacity="0.7"/></svg>
           </button>
+          <button id="level-editor-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="Level Editor">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.15" width="15" height="15" aria-hidden="true"><rect x="3.5" y="1" width="9" height="4.2" rx="0.6"/><rect x="3.5" y="5.9" width="9" height="4.2" rx="0.6"/><rect x="3.5" y="10.8" width="9" height="4.2" rx="0.6" opacity="0.55"/><path d="M14.6 4.5v7.5M13.4 10.6l1.2 1.4 1.2-1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
           <button id="hires-editor-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="Hi-Res Graphics Editor">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" width="15" height="15" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="11" rx="1"/><path d="M3 11l3-3 2 2 3-4 2 2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="5.5" cy="5.5" r="1" fill="currentColor" stroke="none"/></svg>
           </button>
@@ -225,6 +228,9 @@
           <div class="main-tb-sep" aria-hidden="true"></div>
           <button id="d64-editor-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="D64 Editor">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" width="15" height="15" aria-hidden="true"><circle cx="8" cy="8" r="6.5"/><circle cx="8" cy="8" r="1.6" fill="currentColor" stroke="none"/><path d="M8 1.5v2.1M8 12.4v2.1" stroke-linecap="round"/></svg>
+          </button>
+          <button id="numconv-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="Number converter">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true"><path d="M2 4.5h7M6.5 2 9 4.5 6.5 7"/><path d="M14 11.5H7M9.5 9 7 11.5 9.5 14"/><text x="11" y="6.2" font-size="5" font-family="monospace" fill="currentColor" stroke="none">$</text><text x="1.6" y="13.4" font-size="5" font-family="monospace" fill="currentColor" stroke="none">%</text></svg>
           </button>
           <div class="main-tb-sep" aria-hidden="true"></div>
           <button id="expert-mode-tb-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="Expert mode" aria-pressed="false">
@@ -903,6 +909,23 @@ PRINTABLE CHARACTERS
     </div>
   </dialog>
 
+  <dialog id="sample-dialog" class="template-dialog sample-dialog" aria-labelledby="sample-dialog-title">
+    <div class="template-card">
+      <div class="template-hdr">
+        <h2 class="template-title" id="sample-dialog-title">Examples</h2>
+        <button id="sample-dialog-close" class="project-snapshot-xbtn" type="button" aria-label="Close">×</button>
+      </div>
+      <input id="sample-search" class="sample-search" type="search" spellcheck="false" autocomplete="off">
+      <div id="sample-list" class="template-list sample-list" role="listbox"></div>
+      <div class="template-footer">
+        <span id="sample-count" class="sample-count"></span>
+        <span class="template-footer-spacer"></span>
+        <button id="sample-cancel" class="secondary" type="button">Cancel</button>
+        <button id="sample-load" class="primary" type="button">Load</button>
+      </div>
+    </div>
+  </dialog>
+
   <dialog id="app-confirm-dialog" class="app-confirm-dialog">
     <div class="app-confirm-card">
       <p id="app-confirm-msg" class="app-confirm-msg"></p>
@@ -1162,7 +1185,7 @@ PRINTABLE CHARACTERS
           <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
         </div>
         <h2 class="about-title">C64 Visual Assembler</h2>
-        <p class="about-version" id="about-version">v2.4.9</p>
+        <p class="about-version" id="about-version">v2.5.0</p>
         <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
       </div>
       <div class="about-columns">
@@ -1188,22 +1211,25 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.4.9</p>
+      <p class="whats-new-version">v2.5.0</p>
       <ul class="whats-new-list">
         <li>
-          <strong>New: project templates:</strong> <strong>Menu &rarr; File &rarr; New project from template&hellip;</strong> or the new toolbar button between Menu and Tutorials creates a ready-to-build project in its own folder. The dialog has an <strong>Assembler</strong> section (empty program, game skeleton, hires and multicolor bitmap) and an <strong>UltimateBasic</strong> section (empty program, game skeleton, hires bitmap, raster IRQ), with a highlighted preview. Your own <code>.asm</code> / <code>.ub</code> templates go into the folder opened by <em>Open templates folder</em>.
+          <strong>New: Level Editor:</strong> the toolbar button next to the Map Editor arranges Map Editor screens <strong>vertically, horizontally or in a 2D grid</strong> into one level and previews it with smooth scrolling (drag, arrow keys or <em>Play</em>). Screens come from the Map Editor or from map <code>.bin</code> files and can be edited back in the Map Editor; <strong>Files</strong> saves the level project, the full level Screen / Screen + Color RAM, blocks or asm.
         </li>
         <li>
-          <strong>New: Build project:</strong> <strong>Menu &rarr; Build &rarr; Build project</strong> compiles every buildable file of the open project (or of the open tabs) to a <code>.prg</code> next to its source, with debugger symbol files where available; include-only modules are skipped and a report lists the result of each file.
+          <strong>New: LEVEL / LEVEL_ROW macros:</strong> <code>.level "level.bin"[, $4000]</code> places only the placed screens of a level plus pointer tables and defines <code>LEVEL_*</code> labels and constants; <code>.level_row dst, col[, color]</code> copies one 40-character level row (screen codes or colors) to a buffer, across screen boundaries.
         </li>
         <li>
-          <strong>New: Ctrl + mouse wheel zoom</strong> in the Expert and Ultimate Basic editors (touchpad pinch works too).
+          <strong>New: JOYSTICK variable mode:</strong> <code>.joystick port, vx, vy[, fire]</code> writes the direction into variables (&minus;1 / 0 / +1) instead of moving a sprite; port <code>3</code> reads both joystick ports. The <code>samples/level-demo.asm</code> sample scrolls a 2&times;5-screen level pixel by pixel in every direction with the joystick, tear-free.
         </li>
         <li>
-          <strong>Improved: workspaces remember projects:</strong> the Expert and Ultimate Basic project trees, the startup file and unsaved project changes are restored with the workspace.
+          <strong>New: Number converter:</strong> a non-modal DEC / HEX / BIN dialog on the toolbar &mdash; 8 / 16 bit, clickable bits, signed value, low / high byte and copy buttons. It remembers its position and reopens after a restart if it was open.
         </li>
         <li>
-          <strong>Improved: Ultimate Basic:</strong> faster, smaller generated 6502 code; the memory map tells real code and data apart from padding and long ORG gaps; file dialogs start in the active working folder.
+          <strong>New: Examples dialog:</strong> <strong>Menu &rarr; Examples&hellip;</strong> lists the built-in example programs by topic, with search and keyboard navigation.
+        </li>
+        <li>
+          <strong>Ultimate Basic 1.6.1:</strong> <code>map load "level.bin", $4000</code> reads a Level Editor project directly, and the new <code>map view px, py</code> scrolls the map smoothly and tear-free at a pixel position. A byte product inside a 16-bit sum is no longer truncated. The command reference lists <code>map view</code> and its search puts command names first.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -1612,6 +1638,161 @@ PRINTABLE CHARACTERS
       </div>
       <div class="me-footer">
         <span id="me-status" class="me-status">Col: 0   Row: 0   Tile: $20   Offset: $0000</span>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Number converter: non-modal dec / hex / bin tool -->
+  <dialog id="numconv-dialog" class="nc-dialog">
+    <div class="nc-card">
+      <div class="nc-hdr">
+        <span id="nc-title" class="nc-title">NUMBER CONVERTER</span>
+        <div class="nc-width" role="group">
+          <button class="nc-width-btn" data-bits="8" type="button" aria-label="8 bit">8</button>
+          <button class="nc-width-btn" data-bits="16" type="button" aria-label="16 bit">16</button>
+        </div>
+        <button id="nc-close" class="nc-xbtn" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="nc-body">
+        <label class="nc-row">
+          <span class="nc-lbl">DEC</span>
+          <input id="nc-dec" class="nc-input" type="text" inputmode="numeric" autocomplete="off" spellcheck="false">
+          <button class="nc-copy" data-nc-copy="dec" type="button" aria-label="Copy decimal"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1"/><path d="M10.5 5.5V3.5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2"/></svg></button>
+        </label>
+        <label class="nc-row">
+          <span class="nc-lbl">HEX</span>
+          <input id="nc-hex" class="nc-input" type="text" autocomplete="off" spellcheck="false">
+          <button class="nc-copy" data-nc-copy="hex" type="button" aria-label="Copy hex"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1"/><path d="M10.5 5.5V3.5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2"/></svg></button>
+        </label>
+        <label class="nc-row">
+          <span class="nc-lbl">BIN</span>
+          <input id="nc-bin" class="nc-input" type="text" autocomplete="off" spellcheck="false">
+          <button class="nc-copy" data-nc-copy="bin" type="button" aria-label="Copy binary"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1"/><path d="M10.5 5.5V3.5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2"/></svg></button>
+        </label>
+        <div class="nc-section-lbl" id="nc-bits-label">Bits</div>
+        <div id="nc-bits" class="nc-bits"></div>
+        <div id="nc-info" class="nc-info"></div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Level Editor: map screens arranged into a scrolling level -->
+  <dialog id="level-editor-dialog" class="me-dialog lv-dialog">
+    <div class="me-card">
+      <div class="me-hdr">
+        <div class="ed-file">
+          <button class="ed-file-btn" type="button">Files ▾</button>
+          <div class="ed-file-menu" hidden>
+            <button id="lv-new" type="button">New level</button>
+            <button id="lv-open" type="button">Open level (.bin)…</button>
+            <button data-lv-export="save-level" type="button">Save level (.bin)…</button>
+            <div class="ed-file-sep"></div>
+            <button data-lv-export="screen" type="button">Save level Screen RAM (.bin)…</button>
+            <button data-lv-export="screen-color" type="button">Save level Screen + Color RAM (.bin)…</button>
+            <button data-lv-export="blocks" type="button">Export to blocks</button>
+            <button data-lv-export="asm" type="button">Copy asm (→ clipboard)</button>
+          </div>
+        </div>
+        <span id="lv-title" class="me-title">LEVEL EDITOR</span>
+        <button id="lv-close" class="me-xbtn" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="me-toolbar">
+        <div class="me-tool-group">
+          <button class="me-tool" id="lv-add-empty" type="button" aria-label="New empty screen">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" aria-hidden="true"><rect x="2" y="3" width="12" height="10" rx="1"/><path d="M8 6v4M6 8h4"/></svg>
+          </button>
+          <button class="me-tool" id="lv-add-map" type="button" aria-label="Add from Map Editor">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" rx="1"/><path d="M1.5 6h13M1.5 10.5h13M6 1.5v13M10.5 1.5v13" stroke-width="0.8"/><rect x="6" y="6" width="4.5" height="4.5" fill="currentColor" stroke="none" opacity="0.7"/></svg>
+          </button>
+          <button class="me-tool" id="lv-load-maps" type="button" aria-label="Load map(s) (.bin)…">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 5h4.5l1.5 1.5H14V13H2z"/><path d="M8 9v3M6.5 10.5L8 12l1.5-1.5"/></svg>
+          </button>
+        </div>
+        <div class="me-tool-group">
+          <button class="me-tool" id="lv-edit" type="button" aria-label="Edit in Map Editor">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 14l1.2-3.5L10.5 3.2l2.3 2.3-7.3 7.3z"/><path d="M9.5 4.2l2.3 2.3"/></svg>
+          </button>
+          <button class="me-tool" id="lv-duplicate" type="button" aria-label="Duplicate screen">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1"/><path d="M10.5 5.5V3.5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2"/></svg>
+          </button>
+          <button class="me-tool" id="lv-move-back" type="button" aria-label="Move up / left">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 13V3M4 7l4-4 4 4"/></svg>
+          </button>
+          <button class="me-tool" id="lv-move-fwd" type="button" aria-label="Move down / right">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3v10M4 9l4 4 4-4"/></svg>
+          </button>
+          <button class="me-tool" id="lv-remove" type="button" aria-label="Remove from level">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4.5h10M6.2 4.5V3h3.6v1.5M5 4.5l.7 8.5h4.6l.7-8.5"/></svg>
+          </button>
+        </div>
+        <div class="me-tool-group" id="lv-grid-group" hidden>
+          <button class="me-tool" id="lv-add-row" type="button" aria-label="Add row">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" aria-hidden="true"><rect x="2" y="2" width="12" height="6" rx="0.6"/><path d="M8 10v4M6 12h4"/></svg>
+          </button>
+          <button class="me-tool" id="lv-add-col" type="button" aria-label="Add column">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" aria-hidden="true"><rect x="2" y="2" width="6" height="12" rx="0.6"/><path d="M12 6v4M10 8h4"/></svg>
+          </button>
+          <button class="me-tool" id="lv-del-row" type="button" aria-label="Remove last row">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" aria-hidden="true"><rect x="2" y="2" width="12" height="6" rx="0.6"/><path d="M6 12h4"/></svg>
+          </button>
+          <button class="me-tool" id="lv-del-col" type="button" aria-label="Remove last column">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" aria-hidden="true"><rect x="2" y="2" width="6" height="12" rx="0.6"/><path d="M10 8h4"/></svg>
+          </button>
+        </div>
+        <div class="me-tool-group">
+          <button class="me-tool" id="lv-undo" type="button" aria-label="Undo">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 5L3 7.5 5.5 10"/><path d="M3 7.5h7a3.5 3.5 0 010 7H8"/></svg>
+          </button>
+          <button class="me-tool" id="lv-redo" type="button" aria-label="Redo">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 5L13 7.5 10.5 10"/><path d="M13 7.5H6a3.5 3.5 0 000 7H8"/></svg>
+          </button>
+        </div>
+        <div class="me-tool-group">
+          <button class="me-tool" id="lv-play" type="button" aria-label="Play scroll">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.5v9l7-4.5z" fill="currentColor"/></svg>
+          </button>
+          <button class="me-tool" id="lv-rewind" type="button" aria-label="Back to start">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 3.5v9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M12.5 3.5v9l-7-4.5z" fill="currentColor"/></svg>
+          </button>
+        </div>
+        <input type="file" id="lv-map-files" accept=".bin,application/octet-stream" multiple hidden>
+        <input type="file" id="lv-level-file" accept=".bin,application/octet-stream" hidden>
+        <div class="me-tb-right">
+          <select id="lv-layout" class="lv-select">
+            <option value="vertical">Vertical</option>
+            <option value="horizontal">Horizontal</option>
+            <option value="grid">Grid</option>
+          </select>
+          <select id="lv-dir" class="lv-select">
+            <option value="up">↑ Up</option>
+            <option value="down">↓ Down</option>
+            <option value="right">→ Right</option>
+            <option value="left">← Left</option>
+          </select>
+          <label class="lv-speed"><span id="lv-speed-label">Speed</span><input type="number" id="lv-speed" class="lv-num-in" min="1" max="8" value="1"></label>
+          <label class="me-check"><input type="checkbox" id="lv-loop" checked> <span id="lv-loop-label">Loop</span></label>
+          <label class="me-check"><input type="checkbox" id="lv-borders" checked> <span id="lv-borders-label">Borders</span></label>
+          <input type="range" id="lv-zoom" min="25" max="100" step="25" value="50" class="me-zoom" title="Zoom">
+        </div>
+      </div>
+      <div class="me-body">
+        <div class="me-sidebar lv-sidebar">
+          <div class="me-section-lbl" id="lv-screens-label">Screens</div>
+          <div id="lv-charset-info" class="lv-charset-info"></div>
+          <div id="lv-warning" class="lv-warning" hidden></div>
+          <div id="lv-library" class="lv-library"></div>
+        </div>
+        <div class="me-canvas-wrap lv-canvas-wrap" id="lv-canvas-wrap">
+          <canvas id="lv-canvas" class="me-canvas lv-canvas"></canvas>
+        </div>
+        <div class="lv-preview-pane">
+          <div class="me-section-lbl" id="lv-preview-label">Preview</div>
+          <canvas id="lv-preview" class="lv-preview" width="320" height="200"></canvas>
+          <div id="lv-hint" class="lv-hint">Drag a screen from the list onto a slot; drag slots to swap them. Drag the preview (or use the arrow keys) to scroll, Space = play / stop.</div>
+        </div>
+      </div>
+      <div class="me-footer">
+        <span id="lv-status" class="me-status"></span>
       </div>
     </div>
   </dialog>
@@ -2492,13 +2673,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.4.9"></script>
-  <script src="i18n.js?v=2.4.9"></script>
-  <script src="tutorial-data.js?v=2.4.9"></script>
+  <script src="tauri-bridge.js?v=2.5.0"></script>
+  <script src="i18n.js?v=2.5.0"></script>
+  <script src="tutorial-data.js?v=2.5.0"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.4.9"></script>
+  <script src="app.js?v=2.5.0"></script>
 
 </body>
 

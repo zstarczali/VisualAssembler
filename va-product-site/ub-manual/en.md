@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.0 — Language Manual
+# Ultimate Basic v1.6.1 — Language Manual
 
 Complete language and CLI reference for Ultimate Basic, a BASIC-like language that
 compiles directly to 6502 machine code for the Commodore 64. Output: `.prg` files
@@ -511,6 +511,10 @@ score = score + 100 * level
 var big: word = 100 * level + 900
 ```
 
+Since 1.6.1 this also holds inside sums and for `shl`, and for constant multipliers above
+255: `py = cy * 8 + fy`, `py = (cy shl 3) + fy` and `w = cy * 300` keep all 16 bits (before,
+the sum forms were truncated to 8 bits). Byte targets keep 8-bit results.
+
 ### Bitmap graphics
 
 ```basic
@@ -1019,7 +1023,9 @@ poke $07F9, pg         # copy to sprites 1–7
 
 ```basic
 map load "levels/world.ubmap"
+map load "level.bin", $4000 # Level Editor project, data at $4000 (1.6.1)
 map draw map_x, map_y       # draw a 40x25 viewport to screen/color RAM
+map view px, py             # smooth double-buffered view at pixel px, py (1.6.1)
 
 var tile = map_tile(x, y)   # read character code from the map
 map set x, y, 42            # change character code in writable map data
@@ -1041,6 +1047,66 @@ map load "map-multicolor.bin"
 The first 1000 bytes become the 40×25 character map and the next 1000 bytes become
 cell colors. Multicolor mode and `$D021-$D023` are read from the VisualAssembler
 metadata trailer, so no `.ubmap` conversion is required.
+
+**Level Editor projects (new in 1.6.1).** `map load` also reads a VisualAssembler Level
+Editor project (`Save level (.bin)`) and composes its screens into one map: a level of
+W×H screens becomes a (W·40)×(H·25) map with colors, empty slots are spaces. Maps are
+limited to 255×255 cells, so a level may be at most 6 screens wide and 10 tall.
+
+```basic
+map load "level.bin"            # 2x5 screens -> one 80x125 map
+```
+
+**Placing the map data (new in 1.6.1).** `map load "file", addr` stores the map at a fixed
+address instead of inline in the code, like `incbin "file", addr` (the address must be
+above the generated code or inside an `org` gap). Characters come first, colors follow:
+
+```basic
+map load "level.bin", $4000     # 80x125 map: characters $4000-$6713, colors $6714-$8E1F
+```
+
+#### Smooth scrolling — `map view` (new in 1.6.1)
+
+```basic
+map load "level.bin", $4000
+var px: word = 0
+var py: word = 0
+loop
+  map view px, py               # once per frame, instead of `wait raster`
+  # read the joystick, change px / py, game logic ...
+end
+```
+
+`map view x, y` shows the map at pixel position `x, y` (word expressions; `0..(width-40)*8`
+and `0..(height-25)*8`, out-of-range values are clamped). Call it once per frame: it waits
+for the frame boundary (raster line 250), shows the position given by the previous call,
+then takes the new one, so a position appears one frame later.
+
+How it works: the fine part uses XSCROLL / YSCROLL in `$D016` / `$D011` with 38 columns and
+24 rows (the scrolled-in edge stays hidden); the char steps swap two screen buffers,
+`$0400` and `$3C00`. The position is predicted two frames ahead and the hidden buffer is
+built for the next char cell in two halves before the view gets there, so the swap never
+waits. Color RAM cannot be double-buffered: its top half is copied in the last old frame
+behind the raster beam, the bottom half right after the swap ahead of it (both with
+interrupts masked for a few raster lines), so nothing tears. A direction change right at
+a char step may hold the view for one or two frames while the buffer is rebuilt.
+
+Rules:
+
+- The program code and inline data must stay out of `$3C00-$3FFF` (second buffer);
+  load big maps with an address (`map load "file", $4000`), otherwise compiling stops
+  with an error.
+- The first `map view` draws the whole view into `$0400`. After that the screen belongs
+  to `map view`: `print` / `screen` / `cls` write `$0400` only and are overwritten.
+- Sprites work as usual: `map view` copies the sprite pointers `$07F8-$07FF` to
+  `$3FF8-$3FFF` every frame, so `sprdef` / `sprite_frame` show in both buffers. Keep sprite
+  data in VIC bank 0 (`$0000-$3FFF`, not `$1000-$1FFF`), e.g. by putting `sprdef` before
+  a big inline `map load`.
+- The charset bits of `$D018` are kept (`charset on` works); the multicolor bit of `$D016`
+  is kept as `map load` set it.
+- Leave about 6000 cycles (~95 raster lines) of game logic per frame; a longer frame makes
+  the view hold for a frame but never tears.
+- Example: `examples/level_scroll_demo.ub` (joystick-driven, with a player sprite).
 
 `map draw map_x, map_y` copies a 40×25 viewport beginning at the specified map cell
 to screen RAM `$0400` and, when present, color RAM `$D800`. The map must contain the

@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Käyttöopas
 
-**Versio 2.4.9**
+**Versio 2.5.0**
 
 Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia vetämällä ja pudottamalla käskylohkoja ja nähdä luodun assemblerin ja konekoodin reaaliajassa.
 
@@ -9,6 +9,7 @@ Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
 ## Sisällysluettelo
 
 - [C64 Visual Assembler — Käyttöopas](#c64-visual-assembler--user-manual)
+    - [Version 2.5.0 kohokohdat](#version-250-highlights)
     - [Version 2.4.9 kohokohdat](#version-249-highlights)
     - [Version 2.4.8 kohokohdat](#version-248-highlights)
     - [Version 2.4.7 kohokohdat](#version-247-highlights)
@@ -34,6 +35,7 @@ Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
   - [5. Asetukset \&amp; Työkalupalkki](#5-settings--toolbar)
     - [Projektimallit](#project-templates)
     - [Rakenna projekti](#build-project)
+    - [Esimerkkiohjelmia](#example-programs)
     - [Lataa .asm-tiedosto (pikaopas)](#load-asm-file-quick-reference)
       - [Tuonnin jäsentämisen huomautukset ja parhaat käytännöt](#import-parsing-notes-and-best-practices)
   - [UltimateBasic-tila](#ultimatebasic-mode)
@@ -87,6 +89,9 @@ Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
     - [BOX_HIT](#box_hit)
     - [INCBIN](#incbin)
     - [KOALA](#koala)
+    - [TASO / TASO\RIVI](#level--level_row)
+      - [TASO](#level)
+      - [TASO\RIVI](#level_row)
     - [SID](#sid)
     - [INCLUDE](#include)
     - [TABLE](#table)
@@ -161,8 +166,22 @@ Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
     - [Merkkieditori (merkistö)](#character-editor-charset)
     - [Merkkijonojen muokkausohjelma](#charset-canvas-editor)
     - [Karttaeditori (monikerroksiset laattakartat)](#map-editor-multilayer-tilemaps)
+    - [Kenttäeditori](#level-editor)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Käyränmuokkausohjelma](#curve-editor)
+    - [Numeronmuunnin](#number-converter)
+
+---
+
+## Version 2.5.0 kohokohdat
+
+- **Kenttäeditori** — uusi työkalupalkkieditori järjestää karttaeditorin näytöt pystysuunnassa, vaakasuunnassa tai 2D-ruudukkoon ja esikatselee koko kentän tasaisella vierityksellä. Katso [Kenttäeditori]{1].
+- **LEVEL / LEVEL_ROW-makrot** — `.level "level.bin"[, $addr]` sijoittaa vain Level Editor -projektin sijoitetut näytöt sekä osoitintaulukot ja määrittelee `LEVEL_*`-otsikot ja vakiot; `.level_row dst, col[, color]` kopioi yhden 40-merkkisen tasorivin puskuriin. Katso [LEVEL / LEVEL_ROW]{1].
+- **JOYSTICK-muuttujatila** — `.joystick-portti, vx, vy[, fire]` kirjoittaa suunnan muuttujiin (−1 / 0 / +1) спрайtin siirtämisen sijaan; portti `3` lukee molemmat joystick-portit. Katso [JOYSTICK]{1].
+- **Level scroll demo** — `samples/level-demo.asm` vierittää 2×5-kokoista näyttöä pikseli pikseliltä joka suuntaan joystickin avulla, repeytymättä ja jättäen tilaa spriteille ja pelikoodille.
+- **Lukumuunnin** — ei-modaalinen DEC / HEX / BIN -valintaikkuna työkalupalkissa. Katso [Lukumuunnin](#number-converter).
+- **Esimerkki-valintaikkuna** — **Valikko → Esimerkkejä…** avaa haettavan, luokitellun luettelon sisäänrakennetuista esimerkkiohjelmista. Katso [Esimerkkiohjelmat](#example-programs).
+- **Ultimate Basic 1.6.1 mukana** — `map load "level.bin"[, addr]` lukee Level Editor -projektin suoraan, ja uusi `map view px, py` vierittää karttaa sujuvasti ja repeytymättä pikselin kohdalla (esimerkki: `level_scroll_demo.ub`). 16-bittisen summan sisällä olevaa tavutuloa ei enää katkaista 8 bittiin. UB-komentoviitauksessa luetellaan `map view`, ja sen haku asettaa komennon nimen osumat etusijalle.
 
 ---
 
@@ -412,7 +431,7 @@ Modaaliikkuna sulkeutuu automaattisesti, kun toiminto on suoritettu loppuun tai 
 | **CRT-retrotila**                                                                                        | Ottaa käyttöön koko näytön CRT-suodattimen: skannausviivat, fosforivinjetointi, välkkyminen ja tynnyrivääristymä. Tila tallennetaan istuntojen välillä.                                                                                                                                                                                                                                                                                                                              |
 | **Näytä muistipaneeli**                                                                                  | Globaali kytkin, joka näyttää tai piilottaa koko C64-muistipaneelin                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | **PERUSJÄRJESTELMÄN tynkä**                                                                              | Lisää ohjelman alkuun BASIC-rivin, joka kutsuu SYS-komentoa.                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| **Näyte**                                                                                                | Lataa sisäänrakennettu esimerkkiohjelma                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| **Esimerkkejä…**                                                                                         | Avaa esimerkkiselain ja lataa sisäänrakennettu esimerkkiohjelma — katso [Esimerkkiohjelmat](#example-programs)                                                                                                                                                                                                                                                                                                                                                                       |
 | **Lähennä/loitonna**                                                                                     | Skaalaa lohkon käyttöliittymää (vaikuttaa kaikkiin lohkoelementteihin)                                                                                                                                                                                                                                                                                                                                                                                                               |
 | **Tallenna projekti**                                                                                    | Tallenna nykyinen ohjelma `.json`-projektitiedostona                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | **Tallenna ohjelma nimellä**                                                                             | Tallenna nykyinen ohjelma `.json`-projektitiedostona käyttämällä uuden tiedoston valintaikkunaa joka kerta                                                                                                                                                                                                                                                                                                                                                                           |
@@ -513,6 +532,14 @@ Projekti luodaan omaan kansioonsa: `<sijainti>/<nimi>/<nimi>.proj` sekä `main.a
 - virheenjäljitysohjelman sivutiedostot (symbolit / lähdekoodikartta) kirjoitetaan PRG:n rinnalle, jos niitä on saatavilla;
 - Moduulit, jotka toinen tiedosto hakee komennolla `.include` / `include` (ja `.inc` -tiedostot), ohitetaan, samoin kuin välilehdet, joita ei koskaan tallennettu;
 - Raportissa luetellaan jokainen tiedosto koostuen sen koosta, *ohitetusta* syystä tai kääntäjävirheestä, ja tilarivillä näkyy *N / M rakennettua tiedostoa*.
+
+### Esimerkkiohjelmia
+
+**Valikko → Esimerkkejä…** avaa esimerkkiselaimen: sisäänrakennetut esimerkkiohjelmat ryhmiteltyinä aiheen mukaan (Perusteet, Makrot ja ohjaus, Grafiikka, Spritet ja syöttö, Tiedostot ja lataus, Musiikki, IRQ ja laitteisto) kahdessa sarakkeessa.
+
+- Kirjoita hakukenttään suodattaaksesi nimen tai luokan mukaan; alatunnisteessa näkyy, kuinka monta esimerkkiä vastaa hakua.
+- Valitse esimerkki napsauttamalla sitä, siirrä valintaa **↑ / ↓**; lataa sen kaksoisnapsauttamalla ****, painamalla **Enter** tai painamalla **Load**.
+- Valintaikkuna avautuu viimeksi lataamaasi esimerkkiin.
 
 ### Lataa .asm-tiedosto (pikaopas)
 
@@ -1179,7 +1206,7 @@ Kuten **PRINT AT** — kirjoittaa tekstiä suoraan C64-näytölle tiettyyn sarak
 | Tarra (valinnainen)         | Määrittää laskettuun näyttöosoitteeseen osoittavan otsikon |
 | Pienten kirjainten merkistö | Valintaruutu – katso alla                                  |
 
-**Merkistötilat:**
+** Merkistötilat:**
 
 C64:ssä on kaksi merkistöä, jotka voidaan valita ajonaikana:
 
@@ -1348,7 +1375,7 @@ Kuten **RAWBYTES, mutta KERNAL-tulosteelle** — koodaa merkkijonon PETSCII-tavu
 | Tarra (valinnainen)      | Määrittää kohdeosoitteeseen osoittavan tunnisteen                |
 | Pienet PETSCII-kirjaimet | Valintaruutu – katso alla                                        |
 
-**Merkistötilat:**
+** Merkistötilat:**
 
 | Tila                                    | Isojen kirjainten syöttö (`A`–`Z`)                                                                                        | Pienten kirjainten syöttö (`a`–`z`) |
 | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
@@ -1654,6 +1681,48 @@ wait:
 ```
 
 **Koko koodissa:** 86 tavua (näyttörutiini); 10001 tavua kuvadataa menee annettuun osoitteeseen. Hires-editorin **Tiedostot → Vie Koala (.koa)…** tuottaa yhteensopivan tiedoston.
+
+---
+
+### TASO / TASO_RIVI
+
+Lisää **Level Editor** -projektin ohjelmaasi ja kopioi tason rivit näyttöpuskuriin – vierityspelin rakennuspalikoita. Katso täydellinen joystick-vieritystason esitys tiedostosta `samples/level-demo.asm`.
+
+#### TASO
+
+INCBIN-tyylinen lohko, joka tuottaa **0 tavua koodia**. Vain **sijoitetut** ruudut tasoeditoriprojektista (`.bin`, jotka on tallennettu komennolla **Files → Save level**) menevät muistiin annetusta osoitteesta (oletusarvo `$2000`), korttipaikassa, 2000 tavua ruutua kohden (1000 näyttökoodia + 1000 väriä). Identtiset ruudut tallennetaan kerran, ja kaikki tyhjät paikat jakavat yhden tyhjän näytön. Osoitintaulukot seuraavat näyttöjä. Taso voi olla jopa 7 × 10 näyttöä.
+
+**Asiantuntijan syntaksi:**
+```
+.level "level.bin"
+.level "level.bin", $4000
+```
+
+| Määritelty                                                 | Merkitys                                                                    |
+| ---------------------------------------------------------- | --------------------------------------------------------------------------- |
+| `TASO_PAIKKA_ALHAINEN` / `TASO_PAIKKA_KORKEIN`             | Kunkin paikan näytön osoite (rivikohtainen, `LEVEL_W` paikkaa riviä kohden) |
+| `TASO_RIVI_PAIKKA`                                         | Tasomerkkirivi → sen näyttörivin ensimmäinen paikka                         |
+| `TASO_RIVI_ALHAINEN/KORKEA`, `TASO_VARREN_ALHAINEN/KORKEA` | Tasomerkkirivi → sen näyttökoodirivin / väririvin siirtymä näytön sisällä   |
+| `TASO_KOLON_PAIKKA`, `TASO_KOLON_MUKAISET`                 | Näkymän aloitussarake → näytön sarake ja näytön sisällä oleva sarake        |
+| `TASO_V`, `TASO_K`                                         | Tason koko näytöillä                                                        |
+| `TASO_SARAKKEET`, `TASO_RIVIT`                             | Tason koko merkeinä                                                         |
+| `LEVEL_MAX_X`, `LEVEL_MAX_Y`                               | 40×25-näkymän suurin pikselin vierityskohta                                 |
+| `TASO_BG`, `TASO_MC1`, `TASO_MC2`, `TASO_MONIVÄRINEN`      | Tausta-/moniväriset värit ja tason tila                                     |
+| `TASOTIEDOT`, `TASOKO`, `TASOLOPPUTAS`                     | Aloitus, koko ja ensimmäinen vapaa osoite tasotietojen jälkeen              |
+
+Tyypillinen vartija: `.assert LEVEL_END &lt;= $9200, "tasodata törmää koodiin"`.
+
+#### TASO_RIVI
+
+Kopioi yhden 40-merkkisen rivin tasosta puskuriin: tasorivin muuttujassa **X** alkaen `col`-muuttujassa olevasta tasosarakkeesta, `dst`-osoittimessa olevaan osoitteeseen (`dst` / `dst+1`, lo/hi). Kolmannella argumentilla `color` kopioidaan värit näyttökoodien sijaan (väri-RAMia varten). Kahden näytön yli ulottuvaa 40-merkkistä ikkunaa käsitellään itseään muokkaavalla kopiointisilmukalla (~14 sykliä tavua kohden). X säilytetään, A ja Y tuhotaan. Ohjelmassa tarvitaan `.level`-lohko.
+
+**Asiantuntijan syntaksi:**
+```
+.level_row dst_lo, view_x
+.level_row dst_lo, view_x, color
+```
+
+**Koko koodissa:** 132 tavua — käytä `LBEQ` / `LBNE`, kun haaran on hypättävä sen yli.
 
 ---
 
@@ -2699,6 +2768,13 @@ skip_right:
 | 4     | Palo   | (tämä makro ei käsittele)           |
 
 **Koko:** 27 tavua. `BCS`-offset on aina `+3` (ohittaa seuraavan 3-tavuisen `DEC`/`INC abs` -käskyn).
+
+**Muuttujatila — `.joystick port, vx, vy[, fire]`:** Spriten siirtämisen sijaan suunta kirjoitetaan muuttujiin: `vx` / `vy` = `-1` / `0` / `+1` (`$FF` / `$00` / `$01`), ja valinnainen `fire` = `1`, kun painiketta painetaan, `0` muuten. Käytä sitä vieritettävään kameraan, pelaajaan, jolla on oma fysiikka, tai valikoihin. Portti `3` lukee molemmat joystick-portit samanaikaisesti (`LDA $DC00` / `AND $DC01`), joten kumpi tahansa portti toimii.
+
+```
+.joystick 2, vx, vy          ; 35 bytes
+.joystick 3, vx, vy, fire    ; both ports + fire: 45 bytes
+```
 
 > **Tyypillinen käyttö:** Sijoita `gameloop`-otsikon sisään ensin `WAIT_RASTER`:
 > ```
@@ -3757,6 +3833,28 @@ Kerrostettu karttaeditori staattisille maisemille, sprite-spawn-kartoille, törm
 | Tallenna näytön RAM-muistia (.bin)…                        | Tallentaa vain nykyisen karttatason näyttökoodit (40 × 25 = 1000 tavua).                                                                                                                                                                                                           |
 | Tallenna näytön RAM-muisti + värillinen RAM-muisti (.bin)… | Tallentaa näyttökoodit yhdistettynä väri-RAM-arvoihin yhdeksi 2000 tavun tiedostoksi (`screen[0..999]` ja sen jälkeen `color[0..999]`). Käytä tätä **MAP_COPY**-makron kanssa (yhdistetty .bin-tila) palauttaaksesi sekä näytön että värit yhdellä toiminnolla suorituksen aikana. |
 
+### Tasoeditori
+
+Järjestää **Karttaeditorin näytöt** yhdeksi tasoksi — pystysuuntainen ammuntapeli, alaspäin vierittävä autopeli, sivuttaisvieritys tai 2D-kartta — ja esikatselee koko tasoa tasaisesti vierittämällä. Avaa se karttaeditorin vieressä olevalla **Kenttäeditori**-työkalurivin painikkeella.
+
+| Ominaisuus   | Kuvaus                                                                                                                                                                                                                                 |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Layout       | **Pystysuora**, **Vaakasuora** tai **Ruudukko** (rivit × sarakkeet, rivin ja sarakkeen lisäys-/poistopainikkeilla).                                                                                                                    |
+| Näytöt       | **Uusi tyhjä näyttö**, **Lisää karttaeditorista** (auki oleva kartta) tai **Lataa kartta(t) (.bin)…** (useita karttaeditorin vientitiedostoja kerralla). Vedä näyttö luettelosta paikkaan; vedä paikat päällekkäin vaihtaaksesi niitä. |
+| Muokkaus     | **Muokkaa karttaeditorissa** avaa valitun näytön karttaeditorissa ja palauttaa muutokset; kopioi, siirrä ylös/vasemmalle tai alas/oikealle, poista; kumoa/tee uudelleen.                                                               |
+| Esikatselu   | Vedä esikatselua tai käytä nuolinäppäimiä vierittääksesi pikseli pikseliltä; **Toista** vierittää automaattisesti (suunta, nopeus 1–8, silmukka), Välilyönti = toisto/pysäytys. *Reunat* merkitsevät näytön rajat.                     |
+| Tarkastukset | Merkistötiedot ja varoitus, kun näytöt käyttävät eri merkistöä tai värejä (taso käyttää ensimmäisen näytön asetuksia).                                                                                                                 |
+
+**Tiedostot-valikko:**
+| Toiminta                                                          | Mitä se tekee                                                                                                          |
+| ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| **Uusi taso** / **Avaa taso (.bin)…** / **Tallenna taso (.bin)…** | Tasoprojekti: kaikki näytöt ja asettelu. Tämä on tiedosto, jonka `.level`-makro ja Ultimate Basicin `map load` luivat. |
+| **Näytön RAM-muistin tallennustaso (.bin)…**                      | Koko taso yhtenä hahmokarttana (vain ruutukoodit).                                                                     |
+| **Tallennetun näytön taso + väri RAM (.bin)…**                    | Koko tason näyttökoodit ja niiden värit.                                                                               |
+| **Vie lohkoiksi** / **Kopioi asm**                                | Tasotiedot lohkoina tai asm-tekstinä (leikepöytä).                                                                     |
+
+**Käytetään assemblerissa tasoa **, `.level "level.bin"` + `.level_row` (katso [LEVEL / LEVEL_ROW](#level--level_row) ja `samples/level-demo.asm`); Ultimate Basic 1.6.1+:ssa, `map load "level.bin", $4000` ja `map view px, py` (esimerkki `level_scroll_demo.ub`).
+
 ### SID-editori (3-ääninen seuranta)
 
 Moniinstrumenttinen kolmiääninen seurantaohjelma Web Audion esikatselumoottorilla. Avaa Toolkit → SID Editor -komennolla.
@@ -3861,6 +3959,19 @@ Jokainen kopiointi-/lisäystuloste alkaa otsikkokommentilla, joka dokumentoi kä
 | **Vie UltimateBasic-demo** | Tuottaa täydellisen, käyttövalmiin UB-ohjelman: pallospriten (`sprdef 0`), taulukon ja rasterisynkronoidun silmukan, joka toistaa yhden taulukkomerkinnän kehystä kohden. 8-bittiset taulukot ohjaavat spriteä **Y**, kun X pyyhkäisee väliä 0..320; 16-bittiset (0..320) taulukot ohjaavat spriteä **X**, kun Y pyyhkäisee väliä 0..200. Yli 256 merkintää sisältävät taulukot toistavat ensimmäiset 256 merkintää.                       |
 
 **Vastaa C64:n esikatselua:** esikatselu lukee taulukon **lineaarisesti, toistaen 0 → N-1 → 0, yksi arvo kehystä kohden**. Tarkan toiston aikaansaamiseksi taulukkoa on ajettava samalla tavalla (indeksiä lisätään kerran kehystä kohden, ja jaetaan taulukon pituus). Ping-pong- tai osittaisen alueen toisto liikkuu eri tavalla, vaikka tavuarvot ovat identtiset. Katso toimivan 16-bittisen sprite-X-esimerkin tiedostosta `samples/curve-new-demo.asm`.
+
+---
+
+### Numeromuunnin
+
+Pieni **ei-modaalinen** DEC / HEX / BIN-muunnin, joka avataan D64-editorin vieressä olevalla työkalupalkin painikkeella (napsauta uudelleen tai paina Esc sulkeaksesi). Se pysyy auki, kun jatkat ohjelman muokkaamista missä tahansa tilassa.
+
+- Kirjoita mihin tahansa kentistä **DEC**, **HEX** tai **BIN** ja kaksi muuta perässä. Etuliitteet `$`, `0x`, `%`, `0b` ja erotinmerkit (välilyönti, `_`) hyväksytään; negatiivisesta desimaaliluvusta tulee kahden komplementti nykyisessä leveydessä; virheellinen syöte on merkitty punaisella.
+- **8 / 16 bittiä** leveys — arvo yli 255 vaihtaa automaattisesti 16-bittiseksi.
+- **Bittien rivi** — napsauta bittiä sen näyttämiseksi.
+- Inforivi näyttää **merkityn** arvon ja 16-bittisessä tilassa **low** ja **high** tavut.
+- **Kopioi**-painikkeet kopioivat arvon etuliitteineen (`53280`, `$D020`, `%1101000000100000`).
+- Vedä sitä otsikosta; se muistaa arvon, leveyden ja sijainnin ja avautuu uudelleen uudelleenkäynnistyksen jälkeen, jos se oli auki sulkeessasi.
 
 ---
 

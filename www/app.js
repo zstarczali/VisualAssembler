@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "templates-249",
+  id: "level-250",
   url: "https://www.c64va.tech/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.4.9-ben",
+    eyebrow: "Újdonság a 2.5.0-ban",
     title: "Üdvözöl a Visual Assembler",
-    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>Projekt sablonok:</strong> <em>Menu → File → Új projekt sablonból…</em> vagy az új toolbar gomb — Assembler és UltimateBasic sablonok, saját mappában létrejövő, azonnal fordítható projekttel.</li><li><strong>Build projekt:</strong> <em>Menu → Build → Build projekt</em> a projekt minden fájlját a forrás mellé fordítja <code>.prg</code>-be.</li><li><strong>Ctrl + egérgörgő zoom</strong> az Expert és az Ultimate Basic szerkesztőben.</li><li><strong>A munkaterület a projekteket is megjegyzi</strong>, a mentetlen projektváltozásokkal együtt.</li></ul>`,
+    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>Pálya szerkesztő:</strong> a Map Editor képernyőit egymás alá, egymás mellé vagy rácsba rendezi, és sima görgetéssel végig mutatja a pályát.</li><li><strong>Új makrók:</strong> <code>.level</code> / <code>.level_row</code> a pályához, a <code>.joystick</code> pedig változókba is tudja írni az irányt — minta: <code>level-demo.asm</code>.</li><li><strong>Számrendszer-átváltó:</strong> nem modális DEC / HEX / BIN dialógus a toolbaron.</li><li><strong>Példák dialógus:</strong> <em>Menu → Példák…</em> kereshető, kategóriákba sorolt példalista.</li><li><strong>Ultimate Basic 1.6.1:</strong> <code>map load "level.bin"</code> és sima, tépésmentes <code>map view px, py</code> görgetés.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.4.9",
+    eyebrow: "New in 2.5.0",
     title: "Welcome to Visual Assembler",
-    body: `<p>What's new in this release:</p><ul><li><strong>Project templates:</strong> <em>Menu → File → New project from template…</em> or the new toolbar button — Assembler and UltimateBasic templates that create a ready-to-build project in its own folder.</li><li><strong>Build project:</strong> <em>Menu → Build → Build project</em> compiles every file of the project to a <code>.prg</code> next to its source.</li><li><strong>Ctrl + mouse wheel zoom</strong> in the Expert and Ultimate Basic editors.</li><li><strong>Workspaces remember projects</strong>, including unsaved project changes.</li></ul>`,
+    body: `<p>What's new in this release:</p><ul><li><strong>Level Editor:</strong> arranges Map Editor screens vertically, horizontally or in a grid and previews the whole level with smooth scrolling.</li><li><strong>New macros:</strong> <code>.level</code> / <code>.level_row</code> for levels, and <code>.joystick</code> can write the direction into variables — see <code>level-demo.asm</code>.</li><li><strong>Number converter:</strong> a non-modal DEC / HEX / BIN dialog on the toolbar.</li><li><strong>Examples dialog:</strong> <em>Menu → Examples…</em> — a searchable, categorised example list.</li><li><strong>Ultimate Basic 1.6.1:</strong> <code>map load "level.bin"</code> and smooth, tear-free <code>map view px, py</code> scrolling.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.4.9",
+    eyebrow: "Novedad en la 2.5.0",
     title: "Bienvenido a Visual Assembler",
-    body: `<p>Novedades de esta versión:</p><ul><li><strong>Plantillas de proyecto:</strong> <em>Menu → File → Nuevo proyecto desde plantilla…</em> o el nuevo botón de la barra — plantillas de Assembler y UltimateBasic que crean un proyecto listo para compilar en su propia carpeta.</li><li><strong>Compilar proyecto:</strong> <em>Menu → Build → Build project</em> compila cada archivo del proyecto a un <code>.prg</code> junto a su fuente.</li><li><strong>Zoom con Ctrl + rueda del ratón</strong> en los editores Expert y Ultimate Basic.</li><li><strong>Los espacios de trabajo recuerdan los proyectos</strong>, incluidos los cambios sin guardar.</li></ul>`,
+    body: `<p>Novedades de esta versión:</p><ul><li><strong>Editor de niveles:</strong> ordena las pantallas del editor de mapas en vertical, en horizontal o en cuadrícula y muestra todo el nivel con desplazamiento suave.</li><li><strong>Nuevas macros:</strong> <code>.level</code> / <code>.level_row</code> para niveles, y <code>.joystick</code> puede escribir la dirección en variables — ver <code>level-demo.asm</code>.</li><li><strong>Conversor numérico:</strong> un diálogo no modal DEC / HEX / BIN en la barra.</li><li><strong>Diálogo de ejemplos:</strong> <em>Menu → Ejemplos…</em> — lista de ejemplos con búsqueda y categorías.</li><li><strong>Ultimate Basic 1.6.1:</strong> <code>map load "level.bin"</code> y desplazamiento suave sin cortes con <code>map view px, py</code>.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.4.9",
+    eyebrow: "Neu in 2.5.0",
     title: "Willkommen bei Visual Assembler",
-    body: `<p>Neu in dieser Version:</p><ul><li><strong>Projektvorlagen:</strong> <em>Menu → File → Neues Projekt aus Vorlage…</em> oder die neue Toolbar-Schaltfläche — Assembler- und UltimateBasic-Vorlagen, die ein sofort übersetzbares Projekt in einem eigenen Ordner anlegen.</li><li><strong>Projekt bauen:</strong> <em>Menu → Build → Build project</em> übersetzt jede Datei des Projekts in eine <code>.prg</code> neben der Quelle.</li><li><strong>Zoom mit Strg + Mausrad</strong> im Expert- und Ultimate-Basic-Editor.</li><li><strong>Arbeitsbereiche merken sich Projekte</strong>, auch ungespeicherte Projektänderungen.</li></ul>`,
+    body: `<p>Neu in dieser Version:</p><ul><li><strong>Level-Editor:</strong> ordnet Karteneditor-Bildschirme untereinander, nebeneinander oder im Raster an und zeigt das ganze Level mit weichem Scrolling.</li><li><strong>Neue Makros:</strong> <code>.level</code> / <code>.level_row</code> für Levels, und <code>.joystick</code> kann die Richtung in Variablen schreiben — siehe <code>level-demo.asm</code>.</li><li><strong>Zahlenumrechner:</strong> ein nicht-modaler DEC / HEX / BIN-Dialog in der Toolbar.</li><li><strong>Beispiele-Dialog:</strong> <em>Menu → Beispiele…</em> — durchsuchbare Beispielliste nach Kategorien.</li><li><strong>Ultimate Basic 1.6.1:</strong> <code>map load "level.bin"</code> und weiches, rissfreies Scrolling mit <code>map view px, py</code>.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.4.9",
+    eyebrow: "Nieuw in 2.5.0",
     title: "Welkom bij Visual Assembler",
-    body: `<p>Nieuw in deze versie:</p><ul><li><strong>Projectsjablonen:</strong> <em>Menu → File → Nieuw project van sjabloon…</em> of de nieuwe werkbalkknop — Assembler- en UltimateBasic-sjablonen die een direct bouwbaar project in een eigen map aanmaken.</li><li><strong>Project bouwen:</strong> <em>Menu → Build → Build project</em> compileert elk bestand van het project naar een <code>.prg</code> naast de bron.</li><li><strong>Zoomen met Ctrl + muiswiel</strong> in de Expert- en Ultimate Basic-editor.</li><li><strong>Werkruimtes onthouden projecten</strong>, inclusief niet-opgeslagen projectwijzigingen.</li></ul>`,
+    body: `<p>Nieuw in deze versie:</p><ul><li><strong>Leveleditor:</strong> zet schermen uit de tegelkaarteditor onder elkaar, naast elkaar of in een raster en toont het hele level met vloeiend scrollen.</li><li><strong>Nieuwe macro's:</strong> <code>.level</code> / <code>.level_row</code> voor levels, en <code>.joystick</code> kan de richting in variabelen schrijven — zie <code>level-demo.asm</code>.</li><li><strong>Getalomzetter:</strong> een niet-modaal DEC / HEX / BIN-venster in de werkbalk.</li><li><strong>Voorbeeldenvenster:</strong> <em>Menu → Voorbeelden…</em> — doorzoekbare voorbeeldlijst per categorie.</li><li><strong>Ultimate Basic 1.6.1:</strong> <code>map load "level.bin"</code> en vloeiend, scheurvrij scrollen met <code>map view px, py</code>.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.4.9",
+    eyebrow: "Nowość w 2.5.0",
     title: "Witamy w Visual Assembler",
-    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>Szablony projektów:</strong> <em>Menu → File → Nowy projekt z szablonu…</em> lub nowy przycisk na pasku — szablony Assembler i UltimateBasic tworzące gotowy do kompilacji projekt we własnym folderze.</li><li><strong>Budowanie projektu:</strong> <em>Menu → Build → Build project</em> kompiluje każdy plik projektu do <code>.prg</code> obok źródła.</li><li><strong>Powiększanie Ctrl + kółko myszy</strong> w edytorach Expert i Ultimate Basic.</li><li><strong>Obszary robocze pamiętają projekty</strong>, także niezapisane zmiany projektu.</li></ul>`,
+    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>Edytor poziomów:</strong> układa ekrany z edytora map pionowo, poziomo lub w siatkę i pokazuje cały poziom z płynnym przewijaniem.</li><li><strong>Nowe makra:</strong> <code>.level</code> / <code>.level_row</code> dla poziomów, a <code>.joystick</code> może zapisywać kierunek do zmiennych — zob. <code>level-demo.asm</code>.</li><li><strong>Konwerter liczb:</strong> niemodalne okno DEC / HEX / BIN na pasku narzędzi.</li><li><strong>Okno przykładów:</strong> <em>Menu → Przykłady…</em> — lista przykładów z wyszukiwaniem i kategoriami.</li><li><strong>Ultimate Basic 1.6.1:</strong> <code>map load "level.bin"</code> i płynne przewijanie bez rwania z <code>map view px, py</code>.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.4.9",
+    eyebrow: "Novità nella 2.5.0",
     title: "Benvenuto in Visual Assembler",
-    body: `<p>Novità di questa versione:</p><ul><li><strong>Modelli di progetto:</strong> <em>Menu → File → Nuovo progetto da modello…</em> o il nuovo pulsante della barra — modelli Assembler e UltimateBasic che creano un progetto pronto da compilare in una cartella dedicata.</li><li><strong>Compila progetto:</strong> <em>Menu → Build → Build project</em> compila ogni file del progetto in un <code>.prg</code> accanto al sorgente.</li><li><strong>Zoom con Ctrl + rotella del mouse</strong> negli editor Expert e Ultimate Basic.</li><li><strong>Gli spazi di lavoro ricordano i progetti</strong>, comprese le modifiche non salvate.</li></ul>`,
+    body: `<p>Novità di questa versione:</p><ul><li><strong>Editor livelli:</strong> dispone le schermate dell'editor mappe in verticale, in orizzontale o in griglia e mostra tutto il livello con scorrimento fluido.</li><li><strong>Nuove macro:</strong> <code>.level</code> / <code>.level_row</code> per i livelli, e <code>.joystick</code> può scrivere la direzione in variabili — vedi <code>level-demo.asm</code>.</li><li><strong>Convertitore numerico:</strong> una finestra non modale DEC / HEX / BIN nella barra.</li><li><strong>Finestra esempi:</strong> <em>Menu → Esempi…</em> — elenco degli esempi con ricerca e categorie.</li><li><strong>Ultimate Basic 1.6.1:</strong> <code>map load "level.bin"</code> e scorrimento fluido senza strappi con <code>map view px, py</code>.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -230,6 +230,8 @@ const mnemonicLibrary = {
     { mnemonic: "BOX_HIT", description: "AABB (tengely-igazitott) tegla utkozes teszt ket 4-byte ZP struktura kozott (L,T,R,B). Eredmeny A regiszterben: 1=talalt, 0=nincs. ~31 byte inline asm.", modes: ["implied"], isBoxHitMacro: true },
     { mnemonic: "INCBIN", description: "Kulso binarfajl beillesztese megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isIncBinMacro: true },
     { mnemonic: "KOALA", description: "Koala Painter kep (.koa) betoltese es megjelenitese: a bitmap $6000-ra (vagy $2000-ra) kerul, a blokk helyen futo kod bemasolja a screen/color RAM-ot, beallitja a hatterszint es a multicolor bitmap modot.", modes: ["implied"], isIncBinMacro: true, incBinKoala: true },
+    { mnemonic: "LEVEL", description: "Palya szerkeszto (Level Editor) projektfajl betoltese: csak az elhelyezett kepernyok kerulnek a memoriaba (hely-sorrendben, 2000 byte/kepernyo: screen + color), utanuk sor/oszlop/hely pointer-tablak. Cimkeket (LEVEL_SLOT_LO, LEVEL_ROW_SLOT ...) es konstansokat (LEVEL_COLS, LEVEL_MAX_X, LEVEL_BG ...) ad. 0 byte kod.", modes: ["implied"], isIncBinMacro: true, incBinLevel: true },
+    { mnemonic: "LEVEL_ROW", description: "Palya sor masolasa: az X-ben megadott palyasor 40 byte-jat a col valtozoban levo oszloptol a dst pointer (lo/hi) altal mutatott cimre masolja; color eseten a szinadatot. Ket kepernyon atnyulo ablakot is kezel, onmodosito ciklussal (~14 ciklus/byte). X megmarad, A/Y elvesz. .level kell hozza.", modes: ["implied"], isLevelRowMacro: true },
     { mnemonic: "SID", description: "SID zenefajl betoltese kozvetlenul a memoriaba. A fejlecet automatikusan eltavolitja, a Load/Init/Play cimeket kinyeri.", modes: ["implied"], isSidMacro: true },
     { mnemonic: "INCLUDE", description: "Masik projekt JSON fajl blokkjainak beillesztese erre a helyre (csak olvasható).", modes: ["implied"], isIncludeMacro: true },
     { mnemonic: "LOOP", description: "Szamlalo ciklus: LD* #count, majd cimke a body elejere. NEXT blokkal zarjuk.", modes: ["implied"], isLoopMacro: true },
@@ -246,7 +248,7 @@ const mnemonicLibrary = {
     { mnemonic: "SPRITE_POS", description: "Sprite pozicio beallitasa: X (0-319) es Y (0-255), kezeli a $D010 felso bitet X>255 eseten.", modes: ["implied"], isSpritePosMacro: true },
     { mnemonic: "WAIT_RASTER", description: "Rasztervonal varakozas: LDA $D012 / CMP #sor / BNE -7. Inline, 7 byte, nincs JSR.", modes: ["implied"], isWaitRasterMacro: true },
     { mnemonic: "DELAY", description: "Frame-kesesztetes: kozos helper rutinra epul, amely N frame-et varakozik. `.delay N` vagy `.wait N` formatum.", modes: ["implied"], isDelayMacro: true },
-    { mnemonic: "JOYSTICK", description: "Joystick olvasas es sprite mozgatasa: UP/DOWN/LEFT/RIGHT bitek LSR+BCS+DEC/INC-cel. Port 1=$DC01, Port 2=$DC00 (alap). 27 byte inline.", modes: ["implied"], isJoystickMacro: true },
+    { mnemonic: "JOYSTICK", description: "Joystick olvasas: UP/DOWN/LEFT/RIGHT bitek LSR+BCS+DEC/INC-cel. `.joystick port, sprite` a sprite-ot mozgatja ($D000/$D001+2N, 27 byte). `.joystick port, vx, vy[, fire]` az iranyt valtozokba irja: vx/vy = -1/0/+1 ($FF/$00/$01), fire = 1 ha lenyomva (35/42 byte) — kamera, jatekos, menu vezerlesre. Port 1=$DC01, 2=$DC00 (alap), 3=mindketto ($DC00 AND $DC01, +3 byte).", modes: ["implied"], isJoystickMacro: true },
     { mnemonic: "MOUSE", description: "C64 1351 arányos egér vezérlése: SID POTX/POTY olvasás, standard 1351-szeru 7 bites delta dekódolással, CIA $DC00 felső 2 bitjével portválasztás, 512-ciklusos SID settle wait, X oldalon a klasszikus $D010 toggle mintával, Y oldalon invertált mozgatással. 142 byte inline.", modes: ["implied"], isMouseMacro: true },
     { mnemonic: "SPRITE_COL", description: "Sprite utkozes detektalas: LDA $D01E/$D01F + AND #bitMask. Eredmeny A-ban: nem nulla = utkozes. Utana BEQ/BNE-vel ugri. 5 byte.", modes: ["implied"], isSpriteColMacro: true },
     { mnemonic: "MAP_COPY", description: "Terkep masolasa screen RAM-ba (es opcionalisan Color RAM-ba) tobb 256 byte-os LDX/LDA abs,X/STA abs,X ciklussal. Forras, cel, meret es szin-forras parameterezheto.", modes: ["implied"], isMapCopyMacro: true },
@@ -917,6 +919,8 @@ const mnemonicExpertHints = {
   ELSE: ".else",
   ENDIF: ".endif",
   ASSERT: `.assert end - start <= 256, "too big"`,
+  LEVEL: `.level "level.bin", $2000`,
+  LEVEL_ROW: ".level_row dst_ptr, view_col[, color]",
   LBNE: "LBNE target", LBEQ: "LBEQ target", LBCC: "LBCC target", LBCS: "LBCS target",
   LBMI: "LBMI target", LBPL: "LBPL target", LBVC: "LBVC target", LBVS: "LBVS target",
   CONST: ".const color = $0",
@@ -947,7 +951,7 @@ const mnemonicExpertHints = {
   SPRITE_POS: mnemonicSyntax("sprite_pos", "0", "120", "80"),
   WAIT_RASTER: mnemonicSyntax("wait_raster", "$FA"),
   DELAY: mnemonicSyntax("delay", "30"),
-  JOYSTICK: mnemonicSyntax("joystick", "2", "sprite=0"),
+  JOYSTICK: ".joystick 2, 0  |  .joystick 3, vx, vy[, fire]",
   MOUSE: mnemonicSyntax("mouse", "0", "sprite=0"),
   SPRITE_COL: mnemonicSyntax("sprite_col", "0", "1"),
   MAP_COPY: mnemonicSyntax("map_copy", "src=$C000", "dst=$0400", "size=$0280"),
@@ -1886,6 +1890,8 @@ function initPalette() {
   setupCharEditor();
   setupCharsetCanvasEditor();
   setupMapEditor();
+  setupLevelEditor();
+  setupNumberConverter();
   setupHiresEditor();
   setupSpriteEditor();
   setupSidEditor();
@@ -1969,8 +1975,8 @@ function initPalette() {
 
   sampleSelect?.addEventListener("change", saveUiSettings);
   loadSampleButton.addEventListener("click", () => {
-    const ok = loadSelectedSample();
-    if (ok !== false) document.querySelector(".control-menu")?.removeAttribute("open");
+    document.querySelector(".control-menu")?.removeAttribute("open");
+    _openSampleDialog();
   });
   saveProjectButton?.addEventListener("click", async () => {
     await saveProjectToFile();
@@ -2343,6 +2349,8 @@ function setupDraggableEditorDialogs() {
     ["char-editor-dialog", ".ce-hdr"],
     ["charset-canvas-dialog", ".cc-hdr"],
     ["map-editor-dialog", ".me-hdr"],
+    ["level-editor-dialog", ".me-hdr"],
+    ["numconv-dialog", ".nc-hdr"],
     ["hires-editor-dialog", ".hg-hdr"],
     ["sprite-editor-dialog", ".se-hdr"],
     ["sid-editor-dialog", ".sid-hdr"],
@@ -3369,8 +3377,8 @@ function applyTranslations() {
     loadProjectButton?.setAttribute("aria-label", t("loadProjectTip"));
     addSelectedButton?.setAttribute("title", t("addSelected"));
     addSelectedButton?.setAttribute("aria-label", t("addSelected"));
-    loadSampleButton?.setAttribute("title", t("loadSample"));
-    loadSampleButton?.setAttribute("aria-label", t("loadSample"));
+    loadSampleButton?.setAttribute("title", t("sampleBrowse"));
+    loadSampleButton?.setAttribute("aria-label", t("sampleBrowse"));
     clearProgramButton?.setAttribute("title", t("clearProgram"));
     clearProgramButton?.setAttribute("aria-label", t("clearProgram"));
     if (runEmulatorButton) {
@@ -3442,7 +3450,7 @@ function applyTranslations() {
   if (legendItems[3]) legendItems[3].lastChild.textContent = t("memoryLegendIo");
   memoryStrip?.setAttribute("aria-label", t("memoryAxisLabel"));
 
-  loadSampleButton.textContent = t("loadSample");
+  loadSampleButton.textContent = t("sampleBrowse");
   clearProgramButton.textContent = t("clearProgram");
     themeToggleButton.lastElementChild.textContent = t("themeToggle");
     updateThemeToggleLabel();
@@ -3602,6 +3610,55 @@ function _applyEditorTranslations() {
   setAttr("#me-layer-flatten", t("meMergeLayersTitle"));
   setAttr("#me-layer-add", t("meAddLayerTitle"));
   setAttr("#me-clear", t("meClearMap"));
+  // Level Editor
+  setAttr("#level-editor-btn", t("lvBtnTitle"));
+  // Number converter
+  setAttr("#numconv-btn", t("ncBtnTitle"));
+  setText("#nc-title", t("ncTitle"));
+  setAttr('#numconv-dialog [data-nc-copy="dec"]', t("ncCopyDec"));
+  setAttr('#numconv-dialog [data-nc-copy="hex"]', t("ncCopyHex"));
+  setAttr('#numconv-dialog [data-nc-copy="bin"]', t("ncCopyBin"));
+  setAttr('#numconv-dialog .nc-width-btn[data-bits="8"]', t("ncWidth8"));
+  setAttr('#numconv-dialog .nc-width-btn[data-bits="16"]', t("ncWidth16"));
+  setText("#nc-bits-label", t("ncBitsLabel"));
+  try { if (document.getElementById("numconv-dialog")?.open) _ncRender(null); } catch (_) {}
+  setText("#lv-title", t("lvTitle"));
+  setText("#lv-new", t("lvNew"));
+  setText("#lv-open", t("lvOpen"));
+  setText('[data-lv-export="save-level"]', t("lvSave"));
+  setText('[data-lv-export="screen"]', t("lvSaveScreen"));
+  setText('[data-lv-export="screen-color"]', t("lvSaveScreenColor"));
+  setText('[data-lv-export="blocks"]', t("lvExportBlocks"));
+  setText('[data-lv-export="asm"]', t("lvCopyAsm"));
+  setAttr("#lv-add-empty", t("lvAddEmpty"));
+  setAttr("#lv-add-map", t("lvAddFromMap"));
+  setAttr("#lv-load-maps", t("lvLoadMaps"));
+  setAttr("#lv-edit", t("lvEditInMap"));
+  setAttr("#lv-duplicate", t("lvDuplicate"));
+  setAttr("#lv-move-back", t("lvMoveBack"));
+  setAttr("#lv-move-fwd", t("lvMoveFwd"));
+  setAttr("#lv-remove", t("lvRemoveSlot"));
+  setAttr("#lv-add-row", t("lvAddRow"));
+  setAttr("#lv-add-col", t("lvAddCol"));
+  setAttr("#lv-del-row", t("lvDelRow"));
+  setAttr("#lv-del-col", t("lvDelCol"));
+  setAttr("#lv-undo", t("hgUndo"));
+  setAttr("#lv-redo", t("hgRedo"));
+  setAttr("#lv-rewind", t("lvRewind"));
+  setText('#lv-layout option[value="vertical"]', t("lvLayoutVertical"));
+  setText('#lv-layout option[value="horizontal"]', t("lvLayoutHorizontal"));
+  setText('#lv-layout option[value="grid"]', t("lvLayoutGrid"));
+  setText('#lv-dir option[value="up"]', t("lvDirUp"));
+  setText('#lv-dir option[value="down"]', t("lvDirDown"));
+  setText('#lv-dir option[value="right"]', t("lvDirRight"));
+  setText('#lv-dir option[value="left"]', t("lvDirLeft"));
+  setText("#lv-speed-label", t("lvSpeed"));
+  setText("#lv-loop-label", t("lvLoop"));
+  setText("#lv-borders-label", t("lvBorders"));
+  setText("#lv-screens-label", t("lvScreens"));
+  setText("#lv-preview-label", t("lvPreview"));
+  setText("#lv-hint", t("lvHint"));
+  try { if (document.getElementById("level-editor-dialog")?.open) _lvRenderAll(); } catch (_) {}
   // Hires Editor
   setText(".hg-title", t("hgTitle"));
   setText("#hg-import", t("hgImport"));
@@ -4109,6 +4166,20 @@ function renderMnemonicDescription() {
     });
     return;
   }
+  if (item.isIncBinMacro && item.incBinLevel) {
+    mnemonicDescription.innerHTML = buildMnemonicDescriptionMarkup(item, {
+      lines: [t("macroAddrLevel"), t("macroAddrLevelLabels"), t("macroAddrBrowseAfter")],
+      example: '.level "level.bin", $2000'
+    });
+    return;
+  }
+  if (item.isLevelRowMacro) {
+    mnemonicDescription.innerHTML = buildMnemonicDescriptionMarkup(item, {
+      lines: [t("macroAddrLevelRow")],
+      example: ".level_row dst_ptr, view_col, color"
+    });
+    return;
+  }
   if (item.isIncBinMacro) {
     mnemonicDescription.innerHTML = buildMnemonicDescriptionMarkup(item, {
       lines: [t("macroAddrIncbin"), t("macroAddrBrowseAfter")]
@@ -4181,7 +4252,7 @@ function renderPaletteItems() {
               : item.isRawTextMacro
                 ? `${t("paletteRawText")} | ${preview.preview}`
                 : item.isIncBinMacro
-                  ? `${t(item.incBinKoala ? "paletteKoala" : "paletteBinAtAddr")}`
+                  ? `${t(item.incBinKoala ? "paletteKoala" : item.incBinLevel ? "paletteLevel" : "paletteBinAtAddr")}`
                   : item.isIncludeMacro
                   ? `${t("paletteIncludeProj")}`
                   : item.isSidMacro
@@ -4587,13 +4658,14 @@ function createBlockFromMnemonic(item) {
       description: item.description,
       addressingMode: "implied",
       base: "hex",
-      validationError: t(item.incBinKoala ? "koalaMacroNeedsFile" : "incbinMacroNeedsFile"),
+      validationError: t(item.incBinKoala ? "koalaMacroNeedsFile" : item.incBinLevel ? "levelMacroNeedsFile" : "incbinMacroNeedsFile"),
       collapsed: true,
       isIncBinMacro: true,
       ...(item.incBinKoala ? { incBinKoala: true } : {}),
+      ...(item.incBinLevel ? { incBinLevel: true } : {}),
       incBinFile: "",
       incBinFileName: "",
-      incBinAddress: item.incBinKoala ? "$6000" : "$C000",
+      incBinAddress: item.incBinKoala ? "$6000" : item.incBinLevel ? "$2000" : "$C000",
       incBinBytes: []
     };
   }
@@ -4731,7 +4803,10 @@ function createBlockFromMnemonic(item) {
       collapsed: true,
       isJoystickMacro: true,
       joyPort: "2",
-      joySpriteNum: "0"
+      joySpriteNum: "0",
+      joyVarX: "",
+      joyVarY: "",
+      joyVarFire: ""
     };
   }
 
@@ -5597,6 +5672,23 @@ function createBlockFromMnemonic(item) {
     };
   }
 
+  if (item.isLevelRowMacro) {
+    const raw = operandInput.value.trim() || "dst_ptr, view_col";
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: "LEVEL_ROW",
+      operand: raw,
+      rawOperand: raw,
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: _levelRowParse(raw) ? "" : t("levelRowSyntax"),
+      collapsed: true,
+      isLevelRowMacro: true
+    };
+  }
+
   if (item.isLongBranchMacro) {
     const target = operandInput.value.trim() || "target";
     return {
@@ -5753,6 +5845,7 @@ function _blockToExpertLine(block) {
   }
   if (block.isFillMacro)      return `.fill ${fmtRaw(block.rawOperand, block.base)}`;
   if (block.isAlignMacro)     return `.align ${block.rawOperand || "64"}`;
+  if (block.isIncBinMacro && block.incBinLevel) return `.level "${block.incBinFileName || "level.bin"}"${block.incBinAddress && parseAddressValue(block.incBinAddress) !== 0x2000 ? ", $" + block.incBinAddress.replace(/^\$/, "") : ""}`;
   if (block.isIncBinMacro && block.incBinKoala) return `.koala "${block.incBinFileName || "picture.koa"}"${block.incBinAddress && parseAddressValue(block.incBinAddress) !== 0x6000 ? ", $" + block.incBinAddress.replace(/^\$/, "") : ""}`;
   if (block.isIncBinMacro)    return `.incbin "${block.incBinFileName || "data.bin"}"${block.incBinAddress && block.incBinAddress !== "$C000" ? ", $" + block.incBinAddress.replace(/^\$/,"") : ""}`;
   if (block.isPetsciiMacro)   return `.petscii ${fmtAddr(block.petsciiAddress)}, "${block.rawOperand || "HELLO"}"${block.petsciiCharset === "lower" ? ", lower" : ""}${block.petsciiNullTerminated ? ", null" : ""}${fmtMacroLabel(block.macroLabel)}`;
@@ -5897,6 +5990,7 @@ if (block.isSpritePosMacro) return `.sprite_pos ${block.spriteNum || 0}, ${block
   if (block.isTurboSetMacro) return `.turbo_set ${block.turboSpeed || "7"},${block.turboBadline || "0"}`;
   if (block.isSuperCpuDetectMacro) return `.supercpu_detect`;
   if (block.isTurboEnableMacro)    return `.turbo_enable ${block.turboEnableMode || "on"}`;
+  if (block.isJoystickMacro && _joyIsVarMode(block)) return `.joystick ${block.joyPort || 2}, ${String(block.joyVarX || "").trim()}, ${String(block.joyVarY || "").trim()}${String(block.joyVarFire || "").trim() ? ", " + block.joyVarFire.trim() : ""}`;
   if (block.isJoystickMacro)  return `.joystick ${block.joyPort || 2}, ${block.joySpriteNum || 0}`;
   if (block.isMouseMacro)     return `.mouse ${block.mousePort || 2}, ${block.mouseSpriteNum || 0}, ${(block.mousePotXZP || "FD").toUpperCase()}, ${(block.mousePotYZP || "FE").toUpperCase()}`;
   if (block.isSpriteColMacro) return `.sprite_col ${block.spriteNum || 0}, ${block.colType || "background"}`;
@@ -5924,6 +6018,9 @@ if (block.isSpritePosMacro) return `.sprite_pos ${block.spriteNum || 0}, ${block
   }
   if (block.isLongBranchMacro) {
     return `    ${block.mnemonic || "LBNE"} ${block.rawOperand || "target"}`;
+  }
+  if (block.isLevelRowMacro) {
+    return `.level_row ${(block.rawOperand || "dst_ptr, view_col").trim()}`;
   }
   if (block.isAssertMacro) {
     const expr = (block.assertExpr || block.rawOperand || "1").trim();
@@ -6233,7 +6330,8 @@ const ubCommandDescriptionsEn = {
   "chain": "Loads another program to its own load address (normally $0801, over the running program) and RUNs it, as if LOAD\"FILE\",8,1 and RUN had been typed; for boot / title programs. The I/O is reset first (VIC IRQs off, SID volume 0, IOINIT, RESTOR), so music and custom IRQs stop, while the screen stays as it is. Without a device the drive the program came from is used. If the file cannot be loaded, the program continues after chain. The file name must be a string literal of 1-16 characters.",
   "memcopy": "Copies a block of memory.",
   "drawmem": "Copies a packed 2-D rectangle to strided destination memory.",
-  "map": "Loads, draws, and modifies character tile maps.",
+  "map": "Loads, draws, scrolls and modifies character tile maps. map load reads a VisualAssembler Level Editor project (.bin, composed into one map, max 255x255 cells) or a Map Editor export (.bin); map load \"f\", addr places the data at a fixed address (e.g. $4000). map draw x, y copies a 40x25 view at a char cell; map view px, py scrolls smoothly at a pixel position (UB 1.6.1+); map set / map color change cells.",
+  "map view": "Shows the loaded map at pixel position px, py, once per frame instead of wait raster: smooth XSCROLL/YSCROLL scrolling with two screen buffers ($0400/$3C00) and raster-timed color RAM copies, so char steps do not tear in any direction. Sprites keep working. Keep code out of $3C00-$3FFF: load big maps with an address (map load \"f\", $4000). map load also reads Level Editor projects (.bin) directly. UB 1.6.1+.",
   "map query": "Reads a tile code or cell color from the active map.",
   "koala": "Loads and displays a Koala Painter image.",
   "collision": "Tests two inclusive bounding boxes for overlap.",
@@ -6353,7 +6451,8 @@ const ubCommandDescriptionsHu = {
   "chain": "Egy másik programot tölt be a saját betöltési címére (általában $0801, a futó program fölé), és elindítja, mintha LOAD\"FILE\",8,1 és RUN lett volna begépelve; boot / címképernyő programokhoz. Előtte alaphelyzetbe állítja az I/O-t (VIC IRQ ki, SID hangerő 0, IOINIT, RESTOR), így a zene és az egyedi IRQ-k leállnak, a képernyő viszont megmarad. Eszközszám nélkül arról a meghajtóról tölt, ahonnan a program indult. Ha a fájl nem tölthető be, a program a chain utáni utasítással folytatódik. A fájlnév 1-16 karakteres string literál.",
   "memcopy": "Átmásol egy memóriablokkot a forráscímről a célcímre.",
   "drawmem": "Tömör 2D téglalap alakú memóriaterületet másol át sorléptetéses (strided) célmemóriába.",
-  "map": "Karakteres csempetérképeket tölt be, rajzol ki és módosít (.ubmap).",
+  "map": "Karakteres csempetérképeket tölt be, rajzol ki, görget és módosít. A map load a VisualAssembler Pálya szerkesztő projektjét (.bin, egy térképpé összefűzve, max. 255x255 cella) vagy Map Editor exportját (.bin) olvassa; a map load \"f\", cím az adatot fix címre teszi (pl. $4000). A map draw x, y egy 40x25-ös nézetet másol karaktercellától; a map view px, py pixelpozícióra görget simán (UB 1.6.1+); a map set / map color cellákat módosít.",
+  "map view": "A betöltött térképet a px, py pixelpozícióban mutatja, képkockánként egyszer hívva (a wait raster helyett): finom XSCROLL/YSCROLL görgetés két képernyő-bufferrel ($0400/$3C00) és raszterhez időzített Color RAM másolással, így a karakterlépések egyik irányban sem szakadnak. A sprite-ok működnek. A kód ne nyúljon $3C00-$3FFF-be: nagy térképet címmel tölts be (map load \"f\", $4000). A map load a Pálya szerkesztő projektjét (.bin) is közvetlenül beolvassa. UB 1.6.1+.",
   "map query": "Lekérdezi egy cella csempekódját vagy színét az aktív térképből (map_tile, map_color).",
   "koala": "Koala Painter (.kla) többszínű képet tölt be és jelenít meg.",
   "collision": "Két befoglaló téglalap átfedését (ütközését) vizsgálja (box_hit).",
@@ -6473,7 +6572,8 @@ const ubCommandDescriptionsEs = {
   "chain": "Carga otro programa en su propia dirección de carga (normalmente $0801, sobre el programa en ejecución) y lo ejecuta con RUN, como si se hubiera tecleado LOAD\"FILE\",8,1 y RUN; para programas de arranque / título. Antes reinicia la E/S (IRQ del VIC desactivadas, volumen del SID a 0, IOINIT, RESTOR), así que la música y las IRQ propias se detienen, mientras la pantalla se conserva. Sin dispositivo usa la unidad desde la que se cargó el programa. Si el archivo no se puede cargar, el programa continúa tras chain. El nombre debe ser un literal de 1-16 caracteres.",
   "memcopy": "Copia un bloque de memoria.",
   "drawmem": "Copia un rectángulo 2D empaquetado a una memoria de destino con paso (stride).",
-  "map": "Carga, dibuja y modifica mapas de casillas de caracteres.",
+  "map": "Carga, dibuja, desplaza y modifica mapas de casillas de caracteres. map load lee un proyecto del editor de niveles de VisualAssembler (.bin, unido en un solo mapa, máx. 255x255 celdas) o una exportación del editor de mapas (.bin); map load \"f\", dir coloca los datos en una dirección fija (p. ej. $4000). map draw x, y copia una vista de 40x25 desde una celda; map view px, py desplaza suavemente a una posición en píxeles (UB 1.6.1+); map set / map color cambian celdas.",
+  "map view": "Muestra el mapa cargado en la posición de píxel px, py, una vez por fotograma en lugar de wait raster: scroll suave XSCROLL/YSCROLL con dos búferes de pantalla ($0400/$3C00) y copias de la RAM de color sincronizadas con el ráster, sin cortes en ninguna dirección. Los sprites siguen funcionando. Mantén el código fuera de $3C00-$3FFF: carga los mapas grandes con dirección (map load \"f\", $4000). map load también lee proyectos del editor de niveles (.bin). UB 1.6.1+.",
   "map query": "Lee un código de casilla o color de celda del mapa activo.",
   "koala": "Carga y muestra una imagen de Koala Painter.",
   "collision": "Comprueba si dos cajas delimitadoras se superponen.",
@@ -6593,7 +6693,8 @@ const ubCommandDescriptionsDe = {
   "chain": "Lädt ein anderes Programm an seine eigene Ladeadresse (meist $0801, über das laufende Programm) und startet es mit RUN, als wären LOAD\"FILE\",8,1 und RUN eingetippt worden; für Boot-/Titelprogramme. Vorher wird die I/O zurückgesetzt (VIC-IRQs aus, SID-Lautstärke 0, IOINIT, RESTOR), Musik und eigene IRQs stoppen, der Bildschirm bleibt erhalten. Ohne Geräteangabe wird das Laufwerk benutzt, von dem das Programm kam. Lässt sich die Datei nicht laden, läuft das Programm nach chain weiter. Der Dateiname muss ein String-Literal mit 1-16 Zeichen sein.",
   "memcopy": "Kopiert einen Speicherblock.",
   "drawmem": "Kopiert ein gepacktes 2D-Rechteck in Zielspeicher mit Zeilensprung (Stride).",
-  "map": "Lädt, zeichnet und ändert Zeichen-Tilemaps.",
+  "map": "Lädt, zeichnet, scrollt und ändert Zeichen-Tilemaps. map load liest ein VisualAssembler-Level-Editor-Projekt (.bin, zu einer Karte zusammengesetzt, max. 255x255 Zellen) oder einen Karteneditor-Export (.bin); map load \"f\", adr legt die Daten an eine feste Adresse (z. B. $4000). map draw x, y kopiert eine 40x25-Ansicht ab einer Zelle; map view px, py scrollt weich auf eine Pixelposition (UB 1.6.1+); map set / map color ändern Zellen.",
+  "map view": "Zeigt die geladene Karte an der Pixelposition px, py, einmal pro Frame statt wait raster: weiches XSCROLL/YSCROLL-Scrollen mit zwei Bildschirmpuffern ($0400/$3C00) und rastergetakteten Farb-RAM-Kopien, ohne Reißen in jeder Richtung. Sprites funktionieren weiter. Code nicht in $3C00-$3FFF legen: große Karten mit Adresse laden (map load \"f\", $4000). map load liest auch Level-Editor-Projekte (.bin). UB 1.6.1+.",
   "map query": "Liest einen Tile-Code oder eine Zellenfarbe aus der aktiven Map.",
   "koala": "Lädt und zeigt ein Koala Painter-Bild an.",
   "collision": "Prüft zwei Begrenzungsrahmen auf Überlappung.",
@@ -6713,7 +6814,8 @@ const ubCommandDescriptionsNl = {
   "chain": "Laadt een ander programma op zijn eigen laadadres (meestal $0801, over het lopende programma) en start het met RUN, alsof LOAD\"FILE\",8,1 en RUN waren ingetypt; voor boot-/titelprogramma's. Eerst wordt de I/O gereset (VIC-IRQ's uit, SID-volume 0, IOINIT, RESTOR), dus muziek en eigen IRQ's stoppen, terwijl het scherm blijft staan. Zonder apparaat wordt de drive gebruikt waarvan het programma kwam. Kan het bestand niet worden geladen, dan gaat het programma verder na chain. De bestandsnaam moet een string-literal van 1-16 tekens zijn.",
   "memcopy": "Kopieert een geheugenblok.",
   "drawmem": "Kopiert een compacte 2D-rechthoek naar bestemmingsgeheugen met rijstap (stride).",
-  "map": "Laadt, tekent en bewerkt teken-tilemaps.",
+  "map": "Laadt, tekent, scrollt en bewerkt teken-tilemaps. map load leest een VisualAssembler-leveleditor-project (.bin, samengevoegd tot één kaart, max. 255x255 cellen) of een tegelkaartexport (.bin); map load \"f\", adres plaatst de data op een vast adres (bv. $4000). map draw x, y kopieert een 40x25-weergave vanaf een cel; map view px, py scrollt vloeiend naar een pixelpositie (UB 1.6.1+); map set / map color wijzigen cellen.",
+  "map view": "Toont de geladen kaart op pixelpositie px, py, eenmaal per frame in plaats van wait raster: vloeiend XSCROLL/YSCROLL-scrollen met twee schermbuffers ($0400/$3C00) en rastergetimede kleuren-RAM-kopieën, zonder scheuren in elke richting. Sprites blijven werken. Houd code buiten $3C00-$3FFF: laad grote kaarten met een adres (map load \"f\", $4000). map load leest ook leveleditor-projecten (.bin). UB 1.6.1+.",
   "map query": "Leest een tile-code of celkleur uit de actieve map.",
   "koala": "Laadt en toont een Koala Painter-afbeelding.",
   "collision": "Controleert twee selectiekaders op overlap.",
@@ -6833,7 +6935,8 @@ const ubCommandDescriptionsPl = {
   "chain": "Wczytuje inny program pod jego własny adres ładowania (zwykle $0801, na miejsce działającego programu) i uruchamia go przez RUN, jakby wpisano LOAD\"FILE\",8,1 i RUN; do programów startowych / ekranów tytułowych. Najpierw resetuje I/O (przerwania VIC wyłączone, głośność SID 0, IOINIT, RESTOR), więc muzyka i własne przerwania się zatrzymują, a ekran zostaje. Bez numeru urządzenia używa napędu, z którego program został wczytany. Jeśli pliku nie da się wczytać, program działa dalej po chain. Nazwa pliku musi być literałem tekstowym o długości 1-16 znaków.",
   "memcopy": "Kopiuje blok pamięci.",
   "drawmem": "Kopiuje spakowany prostokąt 2D do pamięci docelowej z krokiem (stride).",
-  "map": "Wczytuje, rysuje i modyfikuje mapy kafelków znaków.",
+  "map": "Wczytuje, rysuje, przewija i modyfikuje mapy kafelków znaków. map load czyta projekt edytora poziomów VisualAssemblera (.bin, złączony w jedną mapę, maks. 255x255 komórek) lub eksport edytora map (.bin); map load \"f\", adres umieszcza dane pod stałym adresem (np. $4000). map draw x, y kopiuje widok 40x25 od komórki; map view px, py płynnie przewija do pozycji w pikselach (UB 1.6.1+); map set / map color zmieniają komórki.",
+  "map view": "Pokazuje wczytaną mapę w pozycji pikselowej px, py, raz na klatkę zamiast wait raster: płynne przewijanie XSCROLL/YSCROLL z dwoma buforami ekranu ($0400/$3C00) i kopiowaniem pamięci kolorów zsynchronizowanym z rastrem, bez rwania w każdym kierunku. Sprite'y nadal działają. Trzymaj kod poza $3C00-$3FFF: duże mapy wczytuj z adresem (map load \"f\", $4000). map load czyta też projekty edytora poziomów (.bin). UB 1.6.1+.",
   "map query": "Odczytuje kod kafelka lub kolor komórki z aktywnej mapy.",
   "koala": "Wczytuje i wyświetla obraz Koala Painter.",
   "collision": "Testuje przecięcie dwóch prostokątów ograniczających.",
@@ -6953,7 +7056,8 @@ const ubCommandDescriptionsIt = {
   "chain": "Carica un altro programma al suo indirizzo di caricamento (di solito $0801, sopra il programma in esecuzione) e lo avvia con RUN, come se si fossero digitati LOAD\"FILE\",8,1 e RUN; per programmi di boot / schermate iniziali. Prima reimposta l'I/O (IRQ del VIC disattivati, volume SID a 0, IOINIT, RESTOR), quindi musica e IRQ personalizzati si fermano, mentre lo schermo resta com'è. Senza dispositivo usa l'unità da cui è stato caricato il programma. Se il file non si può caricare, il programma prosegue dopo chain. Il nome del file deve essere un letterale di 1-16 caratteri.",
   "memcopy": "Copia un blocco di memoria.",
   "drawmem": "Copia un rettangolo 2D compattato in memoria di destinazione con passo (stride).",
-  "map": "Carica, disegna e modifica mappe di tile di caratteri.",
+  "map": "Carica, disegna, scorre e modifica mappe di tile di caratteri. map load legge un progetto dell'editor livelli di VisualAssembler (.bin, unito in un'unica mappa, max 255x255 celle) o un'esportazione dell'editor mappe (.bin); map load \"f\", indirizzo mette i dati a un indirizzo fisso (es. $4000). map draw x, y copia una vista 40x25 da una cella; map view px, py scorre in modo fluido a una posizione in pixel (UB 1.6.1+); map set / map color modificano le celle.",
+  "map view": "Mostra la mappa caricata alla posizione in pixel px, py, una volta per frame al posto di wait raster: scorrimento fluido XSCROLL/YSCROLL con due buffer schermo ($0400/$3C00) e copie della RAM colore sincronizzate col raster, senza strappi in nessuna direzione. Gli sprite continuano a funzionare. Tieni il codice fuori da $3C00-$3FFF: carica le mappe grandi con un indirizzo (map load \"f\", $4000). map load legge anche i progetti dell'editor livelli (.bin). UB 1.6.1+.",
   "map query": "Legge un codice tile o il colore di una cella dalla mappa attiva.",
   "koala": "Carica e visualizza un'immagine Koala Painter.",
   "collision": "Verifica la sovrapposizione tra due bounding box inclusivi.",
@@ -7087,7 +7191,8 @@ const _UB_COMMAND_REFERENCE = [
   ["chain", "chain \"GAME\"             # load GAME from the drive we were started from and RUN it\nchain \"GAME\", 9          # from drive 9 (any expression)\nprint \"LOAD ERROR\"       # only reached if the file could not be loaded", "Loads another program over this one and RUNs it (UB 1.5.9+)."],
   ["memcopy", "memcopy source, destination, length", "Copies a block of memory."],
   ["drawmem", "drawmem source, destination, width, height, stride", "Copies a packed 2-D rectangle to strided destination memory."],
-  ["map", "map load \"file.ubmap\"\nmap draw x, y\nmap set x, y, tile\nmap color x, y, color", "Loads, draws, and modifies character tile maps."],
+  ["map", "map load \"level.bin\"\nmap load \"level.bin\", $4000\nmap draw x, y\nmap view px, py\nmap set x, y, tile\nmap color x, y, color", "Loads (Level Editor project, Map Editor export), draws, scrolls and modifies character tile maps."],
+  ["map view", "map load \"level.bin\", $4000   # Level Editor project, data at $4000\nvar px: word = 0\nvar py: word = 0\nloop\n  map view px, py   # once per frame, instead of wait raster\n  # joystick -> px / py, game logic\nend", "Smooth, tear-free scrolling of the loaded map at a pixel position (UB 1.6.1+)."],
   ["map query", "map_tile(x, y)\nmap_color(x, y)", "Reads a tile code or cell color from the active map."],
   ["koala", "koala load \"picture.kla\"\nkoala show\nkoala hide", "Loads and displays a Koala Painter image."],
   ["collision", "box_hit(left1, top1, right1, bottom1, left2, top2, right2, bottom2)", "Tests two inclusive bounding boxes for overlap."],
@@ -7913,10 +8018,22 @@ function _ubRenderCommandReference() {
   const detail = document.getElementById("ub-command-detail");
   if (!list || !detail) return;
   const term = (document.getElementById("ub-command-search")?.value || "").trim().toLowerCase();
-  const matches = _UB_COMMAND_REFERENCE.filter(([name, syntax, description]) => {
+  // Command names first (prefix, then substring); syntax and descriptions only on a
+  // word start, so "map" does not list everything that mentions "bitmap".
+  const wordStart = term ? new RegExp("(^|[^a-z0-9_])" + term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")) : null;
+  const rank = ([name, syntax, description]) => {
+    if (!term) return 0;
+    if (name.startsWith(term)) return 0;
+    if (name.includes(term)) return 1;
+    if (wordStart.test(syntax.toLowerCase())) return 2;
     const desc = _ubGetCommandDescription(name) || description;
-    return !term || name.includes(term) || syntax.toLowerCase().includes(term) || desc.toLowerCase().includes(term);
-  });
+    return wordStart.test(desc.toLowerCase()) ? 3 : -1;
+  };
+  const matches = _UB_COMMAND_REFERENCE
+    .map((entry, index) => ({ entry, index, score: rank(entry) }))
+    .filter((item) => item.score >= 0)
+    .sort((a, b) => a.score - b.score || a.index - b.index)
+    .map((item) => item.entry);
   list.innerHTML = "";
   matches.forEach(([name]) => {
     const button = document.createElement("button");
@@ -7958,7 +8075,8 @@ function _ubRenderCommandReference() {
   noteLabel.className = "mnemonic-field-label";
   noteLabel.textContent = t("ubUsageLabel");
   const note = document.createElement("small");
-  const isBlock = selected[1].includes("\n");
+  // a block has a closing line (end / next / until / endtype ...), not just several examples
+  const isBlock = /\n\s*(end|next|until|endtype|endw)\b/i.test(selected[1]);
   note.textContent = isBlock ? t("ubBlockCommandHint") : t("ubSingleCommandHint");
   detail.append(title, descriptionLabel, description, syntaxLabel, syntax, noteLabel, note);
 }
@@ -8519,6 +8637,7 @@ const _EXPERT_MNEM_SET = new Set([
 const _DIRECTIVE_TO_MNEM = {
   text:"TEXT", string:"STRING", rawtext:"RAWTEXT", rawbytes:"RAWBYTES", data:"DATA",
   byte:"BYTE", word:"WORD", fill:"FILL", align:"ALIGN", incbin:"INCBIN", koala:"KOALA",
+  level:"LEVEL", level_row:"LEVEL_ROW",
   petscii:"PETSCII", table:"TABLE", loadfile:"LOADFILE", sid:"SID", include:"INCLUDE",
   loop:"LOOP", next:"NEXT", for:"FOR", endf:"ENDF", push:"PUSH", pull:"PULL",
   macro:"MACRO", endm:"ENDM", invoke:"INVOKE", call:"INVOKE",
@@ -8576,7 +8695,8 @@ const _AC_DIRECTIVE_DESC = {
   ".reu_check":"detect REU", ".reu_stash":"C64→REU DMA", ".reu_fetch":"REU→C64 DMA", ".reu_swap":"C64↔REU DMA",
   ".region":"visual region", ".endregion":"end region",
   ".map_copy":"copy map to screen RAM", ".sprite_anim":"sprite animation frames", ".score_bcd":"BCD score update+display",
-  ".chardef":"define RAM charset char", ".box_hit":"AABB collision test"
+  ".chardef":"define RAM charset char", ".box_hit":"AABB collision test",
+  ".level":"Level Editor level data + tables", ".level_row":"copy a level row"
 };
 
 let _acActive = -1;
@@ -9184,7 +9304,7 @@ function _expertHighlightLine(raw) {
   if (!code.trim()) return esc(code) + commentHtml;
 
   // Token regex (order matters)
-  const TOKEN_RE = /("(?:[^"\\]|\\.)*")|(\*\s*=)|(\.(?:text|string|rawtext|rawbytes|data|byte|word|fill|align|assert|loop|next|for|endf|push|pull|endif|endregion|region|macro|endm|endw|repeat|until|while|memcpy|memset|print|print_char|print_hex|clear_screen|wait_key|delay|wait|set_border|set_bg|irq_setup|sprite_init|sprite_pos|wait_raster|joystick|mouse|sprite_col|map_copy16x16|map_copy|sprite_anim|score_bcd|define|else|if|const|end|var|incbin|koala|include|sid|petscii|charset|table|loadfile|invoke|call|rand|exodecrunch|reu_check|reu_stash|reu_fetch|reu_swap|turbo_set|turbo_enable|supercpu_detect|chardef|box_hit)\b)|(#?\$[0-9A-Fa-f]+|#\d+\b)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*\s*:)|([A-Za-z_][A-Za-z0-9_]*)|(\{[A-Za-z_][A-Za-z0-9_]*\})|(:[A-Za-z_][A-Za-z0-9_]*)/gi;
+  const TOKEN_RE = /("(?:[^"\\]|\\.)*")|(\*\s*=)|(\.(?:text|string|rawtext|rawbytes|data|byte|word|fill|align|assert|loop|next|for|endf|push|pull|endif|endregion|region|macro|endm|endw|repeat|until|while|memcpy|memset|print|print_char|print_hex|clear_screen|wait_key|delay|wait|set_border|set_bg|irq_setup|sprite_init|sprite_pos|wait_raster|joystick|mouse|sprite_col|map_copy16x16|map_copy|sprite_anim|score_bcd|define|else|if|const|end|var|incbin|koala|include|sid|petscii|charset|table|loadfile|invoke|call|rand|exodecrunch|reu_check|reu_stash|reu_fetch|reu_swap|turbo_set|turbo_enable|supercpu_detect|chardef|box_hit|level_row|level)\b)|(#?\$[0-9A-Fa-f]+|#\d+\b)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*\s*:)|([A-Za-z_][A-Za-z0-9_]*)|(\{[A-Za-z_][A-Za-z0-9_]*\})|(:[A-Za-z_][A-Za-z0-9_]*)/gi;
 
   let result = "";
   let lastIdx = 0;
@@ -10150,7 +10270,7 @@ function _expertDrawMinimap() {
       color = cComment;
     } else if (/^[A-Za-z_][A-Za-z0-9_]*:/.test(trimmed)) {
       color = cLabel;
-    } else if (/^\.(const|if|else|endif|macro|endm|invoke|region|endregion|define|org|byte|word|fill|text|string|data|rawbytes|rawtext|align|table|push|pull|for|endf|loop|next|blank|incbin|koala|sid|include|loadfile|sprite|wait|joystick|mouse|reu|turbo|supercpu)\b/i.test(trimmed)) {
+    } else if (/^\.(const|if|else|endif|macro|endm|invoke|region|endregion|define|org|byte|word|fill|text|string|data|rawbytes|rawtext|align|table|push|pull|for|endf|loop|next|blank|incbin|koala|level|sid|include|loadfile|sprite|wait|joystick|mouse|reu|turbo|supercpu)\b/i.test(trimmed)) {
       color = cDirective;
     } else if (/^\d|#\$|^\$[0-9A-Fa-f]/.test(trimmed)) {
       color = cNumber;
@@ -10713,6 +10833,29 @@ function parseExpertText(text) {
       continue;
     }
 
+    // .level "level.bin" [, $ADDR]  (INCBIN variant: Level Editor project → screens + tables)
+    const levelM = line.match(/^\.level\s+"([^"]*)"\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*$/i);
+    if (levelM) {
+      blocks.push(_importMakeLevel(levelM[1], levelM[2] ? levelM[2].toUpperCase() : ""));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .level_row dst, col[, color]
+    const levelRowM = line.match(/^\.level_row\b\s*(.*)$/i);
+    if (levelRowM) {
+      const raw = levelRowM[1].trim();
+      blocks.push({
+        id: crypto.randomUUID(), category: "Makrok", mnemonic: "LEVEL_ROW",
+        operand: raw, rawOperand: raw, description: "",
+        addressingMode: "implied", base: "hex",
+        validationError: _levelRowParse(raw) ? "" : t("levelRowSyntax"),
+        collapsed: true, isLevelRowMacro: true
+      });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
     // .incbin "filename" [, $ADDR]
     const incbinM = line.match(/^\.incbin\s+"([^"]*)"\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*$/i);
     if (incbinM) {
@@ -10744,7 +10887,7 @@ function parseExpertText(text) {
     // Malformed asset directives — `.include`, `.incbin`, `.sid` without a
     // quoted filename must still surface as an error instead of silently
     // becoming a comment via the fallback path.
-    const bareAssetDirM = line.match(/^\.(include|incbin|koala|sid)\b(.*)$/i);
+    const bareAssetDirM = line.match(/^\.(include|incbin|koala|level|sid)\b(.*)$/i);
     if (bareAssetDirM) {
       const kind = bareAssetDirM[1].toLowerCase();
       if (kind === "include") {
@@ -10753,6 +10896,8 @@ function parseExpertText(text) {
         blocks.push(_importMakeIncBin("", ""));
       } else if (kind === "koala") {
         blocks.push(_importMakeKoala("", ""));
+      } else if (kind === "level") {
+        blocks.push(_importMakeLevel("", ""));
       } else {
         blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "SID", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: t("sidMacroNeedsFile"), collapsed: true, isSidMacro: true, sidFile: "", sidFileName: "", sidTitle: "", sidAuthor: "", sidLoadAddress: 0, sidInitAddress: 0, sidPlayAddress: 0, sidBytes: [], sidCustomAddress: "" });
       }
@@ -10855,10 +11000,16 @@ function parseExpertText(text) {
       continue;
     }
 
-    // .joystick port, spriteNum
-    const joyM = line.match(/^\.joystick\s+([12]|[A-Za-z_][A-Za-z0-9_]*)\s*,\s*([A-Za-z_][A-Za-z0-9_]*|\d)\s*$/i);
+    // .joystick port, spriteNum   |   .joystick port, vx, vy[, fire]
+    const joyM = line.match(/^\.joystick\s+([123]|[A-Za-z_][A-Za-z0-9_]*)\s*,\s*([A-Za-z_][A-Za-z0-9_]*|\d)\s*$/i);
     if (joyM) {
       blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "JOYSTICK", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isJoystickMacro: true, joyPort: joyM[1], joySpriteNum: joyM[2] });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+    const joyVarM = line.match(/^\.joystick\s+([123]|[A-Za-z_][A-Za-z0-9_]*)\s*,\s*([^,]+?)\s*,\s*([^,]+?)\s*(?:,\s*([^,]+?)\s*)?$/i);
+    if (joyVarM) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "JOYSTICK", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isJoystickMacro: true, joyPort: joyVarM[1], joySpriteNum: "0", joyVarX: joyVarM[2], joyVarY: joyVarM[3], joyVarFire: joyVarM[4] || "" });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -12078,7 +12229,7 @@ function _buildDisasmHTML(originOverride, basicStubSection = null) {
 
       // INCBIN: deferred binary file — show hex dump at incBinAddress
       if (block.isIncBinMacro && !block.incBinKoala) {
-        const incBytes = Array.isArray(block.incBinBytes) ? block.incBinBytes : [];
+        const incBytes = Array.from(_incBinPayload(block));
         const incAddr = parseMacroAddress(block.incBinAddress || "$C000", labelMap) ?? 0xC000;
         const incAddrHex = incAddr.toString(16).toUpperCase().padStart(4, "0");
         if (incBytes.length === 0) {
@@ -13235,6 +13386,133 @@ async function _templateCreateProject() {
   _expertSetStatus(`${t("templateCreated")}: ${paths.name}`, "ok");
 }
 
+// ── Példaprogram-választó dialógus (a rejtett #sample-select az adatforrás) ──
+const _SAMPLE_CATEGORIES = [
+  ["sampleCatBasics", ["basic-colors", "clear-screen", "label-border", "text-demo", "lowercase-text-demo", "name-input-demo", "10-print"]],
+  ["sampleCatMacros", ["macro-demo", "macro-test", "macro-showcase", "loop-demo", "hello-loop-demo", "push-pull-demo", "if-else", "user-macro-demo"]],
+  ["sampleCatGraphics", ["setpixel-demo", "bitmap-demo", "rand-lines-demo", "box", "scroll-text-demo", "map-copy-demo"]],
+  ["sampleCatSprites", ["sprite-demo", "sprite-macro-demo", "joystick-demo", "mouse-demo", "collision-demo"]],
+  ["sampleCatFiles", ["incbin-demo", "loadfile-demo", "exo-multicolor-demo", "include-demo"]],
+  ["sampleCatMusic", ["sid-demo", "sid-direct-demo"]],
+  ["sampleCatHardware", ["irq-demo", "overlapping-raster-demo", "memory-overlap-demo", "reu-demo"]]
+];
+let _sampleDlgSelected = "";
+
+function _sampleDlgVisible() {
+  const term = (document.getElementById("sample-search")?.value || "").trim().toLowerCase();
+  const options = [...(sampleSelect?.options || [])];
+  const known = new Set(_SAMPLE_CATEGORIES.flatMap(([, ids]) => ids));
+  const groups = _SAMPLE_CATEGORIES.map(([key, ids]) => [t(key), ids.map(id => options.find(o => o.value === id)).filter(Boolean)]);
+  groups.push([t("sampleCatOther"), options.filter(o => !known.has(o.value))]);
+  return groups
+    .map(([label, opts]) => [label, opts.filter(o => !term || o.textContent.toLowerCase().includes(term) || label.toLowerCase().includes(term))])
+    .filter(([, opts]) => opts.length);
+}
+
+function _sampleDlgRender() {
+  const listEl = document.getElementById("sample-list");
+  if (!listEl) return;
+  const groups = _sampleDlgVisible();
+  const ids = groups.flatMap(([, opts]) => opts.map(o => o.value));
+  if (!ids.includes(_sampleDlgSelected)) _sampleDlgSelected = ids[0] || "";
+  listEl.innerHTML = "";
+  if (!ids.length) {
+    const empty = document.createElement("p");
+    empty.className = "template-empty";
+    empty.textContent = t("sampleNoMatch");
+    listEl.appendChild(empty);
+  }
+  const cols = document.createElement("div");
+  cols.className = "sample-cols";
+  listEl.appendChild(cols);
+  for (const [label, opts] of groups) {
+    const group = document.createElement("div");
+    group.className = "template-category";
+    const head = document.createElement("div");
+    head.className = "template-category-label";
+    head.textContent = label;
+    group.appendChild(head);
+    for (const opt of opts) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "template-item" + (opt.value === _sampleDlgSelected ? " template-item--active" : "");
+      btn.dataset.sample = opt.value;
+      btn.setAttribute("role", "option");
+      btn.setAttribute("aria-selected", String(opt.value === _sampleDlgSelected));
+      btn.textContent = opt.textContent;
+      group.appendChild(btn);
+    }
+    cols.appendChild(group);
+  }
+  const countEl = document.getElementById("sample-count");
+  if (countEl) countEl.textContent = tf("sampleCount", { n: ids.length });
+  const loadBtn = document.getElementById("sample-load");
+  if (loadBtn) loadBtn.disabled = !_sampleDlgSelected;
+}
+
+function _sampleDlgSelect(id) {
+  _sampleDlgSelected = id;
+  document.querySelectorAll("#sample-list .template-item").forEach(btn => {
+    const active = btn.dataset.sample === id;
+    btn.classList.toggle("template-item--active", active);
+    btn.setAttribute("aria-selected", String(active));
+    if (active) btn.scrollIntoView({ block: "nearest" });
+  });
+}
+
+function _openSampleDialog() {
+  const dialog = document.getElementById("sample-dialog");
+  if (!dialog) return;
+  document.getElementById("sample-dialog-title").textContent = t("sampleDialogTitle");
+  document.getElementById("sample-dialog-close")?.setAttribute("aria-label", t("close"));
+  const search = document.getElementById("sample-search");
+  search.placeholder = t("sampleSearchPlaceholder");
+  search.value = "";
+  document.getElementById("sample-cancel").textContent = t("sampleCancel");
+  document.getElementById("sample-load").textContent = t("sampleLoadBtn");
+  _sampleDlgSelected = sampleSelect?.value || "";
+  _sampleDlgRender();
+  dialog.showModal();
+  _sampleDlgSelect(_sampleDlgSelected);
+  setTimeout(() => search.focus(), 0);
+}
+
+function _sampleDlgLoad() {
+  if (!_sampleDlgSelected || !sampleSelect) return;
+  sampleSelect.value = _sampleDlgSelected;
+  saveUiSettings();
+  document.getElementById("sample-dialog")?.close();
+  loadSelectedSample();
+}
+
+document.getElementById("sample-list")?.addEventListener("click", (e) => {
+  const btn = e.target.closest(".template-item");
+  if (btn) _sampleDlgSelect(btn.dataset.sample);
+});
+document.getElementById("sample-list")?.addEventListener("dblclick", (e) => {
+  const btn = e.target.closest(".template-item");
+  if (!btn) return;
+  _sampleDlgSelect(btn.dataset.sample);
+  _sampleDlgLoad();
+});
+document.getElementById("sample-search")?.addEventListener("input", _sampleDlgRender);
+document.getElementById("sample-dialog")?.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.target.closest("button")) {
+    e.preventDefault();
+    _sampleDlgLoad();
+    return;
+  }
+  if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+  const ids = [...document.querySelectorAll("#sample-list .template-item")].map(btn => btn.dataset.sample);
+  if (!ids.length) return;
+  e.preventDefault();
+  const i = ids.indexOf(_sampleDlgSelected);
+  _sampleDlgSelect(ids[Math.max(0, Math.min(ids.length - 1, i + (e.key === "ArrowDown" ? 1 : -1)))]);
+});
+document.getElementById("sample-load")?.addEventListener("click", _sampleDlgLoad);
+document.getElementById("sample-cancel")?.addEventListener("click", () => document.getElementById("sample-dialog")?.close());
+document.getElementById("sample-dialog-close")?.addEventListener("click", () => document.getElementById("sample-dialog")?.close());
+
 document.getElementById("template-dialog-close")?.addEventListener("click", () => {
   document.getElementById("template-dialog")?.close();
 });
@@ -13704,7 +13982,7 @@ function updateProgramBlock(index, field, value) {
       block.operand = block.rawOperand.trim();
       block.validationError = validateDataMacro(block.rawOperand, block.rawBytesAddress, block.base);
     } else if (block.isIncBinMacro) {
-      block.validationError = validateIncBinMacro(block.incBinBytes, block.incBinAddress) || (block.incBinKoala ? _koalaError(block) : "");
+      block.validationError = validateIncBinMacro(block.incBinBytes, block.incBinAddress) || (block.incBinKoala ? _koalaError(block) : block.incBinLevel ? _levelError(block) : "");
     } else if (block.isRawTextMacro) {
       block.operand = block.rawOperand.trim();
       block.validationError = validateStringMacroAddress(block.rawTextAddress);
@@ -13764,6 +14042,9 @@ function updateProgramBlock(index, field, value) {
       block.operand = block.rawOperand.trim();
       block.ifCondition = block.rawOperand.trim();
       block.validationError = validateIfMacro(block.rawOperand);
+    } else if (block.isLevelRowMacro) {
+      block.operand = block.rawOperand.trim();
+      block.validationError = _levelRowParse(block.rawOperand) ? "" : t("levelRowSyntax");
     } else if (block.isAssertMacro) {
       block.operand = block.rawOperand.trim();
       block.assertExpr = block.rawOperand.trim();
@@ -13864,12 +14145,15 @@ function updateProgramBlock(index, field, value) {
     return;
   }
 
-  if (block.isJoystickMacro && (field === "joyPort" || field === "joySpriteNum")) {
+  if (block.isJoystickMacro && ["joyPort", "joySpriteNum", "joyVarX", "joyVarY", "joyVarFire"].includes(field)) {
     const port = resolveProgramNumericValue(field === "joyPort" ? value : block.joyPort, null, "dec");
     const num = resolveProgramNumericValue(field === "joySpriteNum" ? value : block.joySpriteNum, null, "dec");
+    const varMode = _joyIsVarMode(block);
+    const bothVars = !!String(block.joyVarX || "").trim() && !!String(block.joyVarY || "").trim();
     block.validationError =
-      (port !== 1 && port !== 2) ? (t("portMustBe1Or2")) :
-      (isNaN(num) || num < 0 || num > 7) ? (t("spriteNumberMustBe07")) :
+      (port !== 1 && port !== 2 && port !== 3) ? (t("joyPortRange")) :
+      varMode && !bothVars ? (t("joyVarsNeeded")) :
+      !varMode && (isNaN(num) || num < 0 || num > 7) ? (t("spriteNumberMustBe07")) :
       "";
     renderBlockPreview(index);
     renderAsmOutput();
@@ -15178,7 +15462,7 @@ function validateAssetMacroHasFile(block) {
     }
   } else if (block.isIncBinMacro) {
     if (!nonEmpty(block.incBinFile) && !nonEmpty(block.incBinFileName)) {
-      return t(block.incBinKoala ? "koalaMacroNeedsFile" : "incbinMacroNeedsFile");
+      return t(block.incBinKoala ? "koalaMacroNeedsFile" : block.incBinLevel ? "levelMacroNeedsFile" : "incbinMacroNeedsFile");
     }
   } else if (block.isSidMacro) {
     if (!nonEmpty(block.sidFile) && !nonEmpty(block.sidFileName)) {
@@ -20087,6 +20371,207 @@ function _koalaShowBytes(addr) {
   return out;
 }
 
+/* LEVEL = INCBIN variant (incBinLevel) for a Level Editor project file (.bin with
+   an "lv-level" manifest). Only the placed screens go into memory, in slot order
+   (a screen used twice is stored once, empty slots share one blank screen), each
+   2000 bytes (1000 screen codes + 1000 colors), followed by lookup tables:
+     LEVEL_SLOT_LO/HI[slot]   screen base, slot = row-major, + 1 pad entry
+     LEVEL_ROW_SLOT[row]      (row / 25) * LEVEL_W
+     LEVEL_ROW_LO/HI[row]     (row % 25) * 40
+     LEVEL_CROW_LO/HI[row]    (row % 25) * 40 + 1000   (color RAM data)
+     LEVEL_COL_SLOT[col]      col / 40      (col = 0 .. LEVEL_COLS - 40)
+     LEVEL_COL_OFS[col]       col % 40
+   Rows and columns are 8-bit indices: at most 10 screens tall and 7 wide. */
+const _LEVEL_SCREEN = 2000;
+const _LEVEL_ROW_TABLES = ["LEVEL_SLOT_LO", "LEVEL_SLOT_HI", "LEVEL_ROW_SLOT", "LEVEL_ROW_LO", "LEVEL_ROW_HI",
+  "LEVEL_CROW_LO", "LEVEL_CROW_HI", "LEVEL_COL_SLOT", "LEVEL_COL_OFS"];
+const _levelCache = new WeakMap();
+
+function _importMakeLevel(fileName, addressHex) {
+  return {
+    ..._importMakeIncBin(fileName, addressHex || "2000"),
+    mnemonic: "LEVEL",
+    incBinLevel: true,
+    validationError: (fileName || "").trim() ? "" : t("levelMacroNeedsFile")
+  };
+}
+
+function _levelInfo(block) {
+  const src = block?.incBinBytes;
+  const addr = parseAddressValue(block?.incBinAddress) ?? 0x2000;
+  const hit = _levelCache.get(block);
+  if (hit && hit.src === src && hit.addr === addr) return hit.info;
+  const info = _levelBuild(src, addr);
+  if (block) _levelCache.set(block, { src, addr, info });
+  return info;
+}
+
+function _levelBuild(src, addr) {
+  const empty = { ok: false, error: "", data: [], labels: {} };
+  if (!src || !src.length) return empty;
+  const parsed = _vaReadBinWithMeta(src instanceof Uint8Array ? src : Uint8Array.from(src));
+  if (parsed.manifest?.kind !== "lv-level") return { ...empty, error: t("levelMacroNotLevel") };
+  const ms = parsed.manifest.settings || {};
+  const w = ms.w | 0, h = ms.h | 0;
+  const cells = Array.isArray(ms.cells) ? ms.cells : [];
+  const count = Math.floor(parsed.payload.length / _LEVEL_SCREEN);
+  if (w < 1 || h < 1 || !cells.some(c => c >= 0 && c < count)) return { ...empty, error: t("levelMacroEmpty") };
+  if (w > 7 || h > 10) return { ...empty, error: tf("levelMacroTooLarge", { w, h }) };
+  const slots = w * h, rows = h * 25, cols = w * 40, nCols = cols - 39;
+  const screens = [], slotScreen = [], seen = new Map();
+  for (let s = 0; s < slots; s++) {
+    const key = cells[s] >= 0 && cells[s] < count ? cells[s] : -1;
+    if (!seen.has(key)) { seen.set(key, screens.length); screens.push(key); }
+    slotScreen.push(seen.get(key));
+  }
+  const size = screens.length * _LEVEL_SCREEN + (slots + 1) * 2 + rows * 5 + nCols * 2;
+  if (addr + size > 0x10000) return { ...empty, error: tf("levelMacroTooBig", { size }) };
+  const data = new Uint8Array(size);
+  screens.forEach((key, i) => {
+    const o = i * _LEVEL_SCREEN;
+    if (key < 0) data.fill(0x20, o, o + 1000);
+    else data.set(parsed.payload.subarray(key * _LEVEL_SCREEN, (key + 1) * _LEVEL_SCREEN), o);
+  });
+  let p = screens.length * _LEVEL_SCREEN;
+  const labels = { LEVEL_DATA: addr };
+  const table = (name, n, fn) => { labels[name] = addr + p; for (let i = 0; i < n; i++) data[p++] = fn(i) & 0xFF; };
+  const slotAddr = (s) => s < slots ? addr + slotScreen[s] * _LEVEL_SCREEN : 0;
+  table("LEVEL_SLOT_LO", slots + 1, s => slotAddr(s));
+  table("LEVEL_SLOT_HI", slots + 1, s => slotAddr(s) >> 8);
+  table("LEVEL_ROW_SLOT", rows, r => Math.floor(r / 25) * w);
+  table("LEVEL_ROW_LO", rows, r => (r % 25) * 40);
+  table("LEVEL_ROW_HI", rows, r => ((r % 25) * 40) >> 8);
+  table("LEVEL_CROW_LO", rows, r => (r % 25) * 40 + 1000);
+  table("LEVEL_CROW_HI", rows, r => ((r % 25) * 40 + 1000) >> 8);
+  table("LEVEL_COL_SLOT", nCols, c => Math.floor(c / 40));
+  table("LEVEL_COL_OFS", nCols, c => c % 40);
+  Object.assign(labels, {
+    LEVEL_W: w, LEVEL_H: h, LEVEL_COLS: cols, LEVEL_ROWS: rows,
+    LEVEL_MAX_X: (cols - 40) * 8, LEVEL_MAX_Y: (rows - 25) * 8,
+    LEVEL_MULTICOLOR: ms.multicolor ? 1 : 0,
+    LEVEL_BG: (ms.bgColor ?? 6) & 15, LEVEL_MC1: (ms.mc1Color ?? 5) & 15, LEVEL_MC2: (ms.mc2Color ?? 13) & 15,
+    LEVEL_SIZE: size, LEVEL_END: (addr + size) & 0xFFFF
+  });
+  return { ok: true, error: "", data: Array.from(data), labels, screens: screens.length };
+}
+
+function _levelError(block) {
+  return _levelInfo(block).error;
+}
+
+/* Data bytes an INCBIN-family block places at incBinAddress. */
+function _incBinPayload(block) {
+  if (block?.incBinKoala) return _koalaData(block);
+  if (block?.incBinLevel) return _levelInfo(block).data;
+  return block?.incBinBytes || [];
+}
+
+/* .level_row dst, col[, color] — copies the 40 bytes of level row X (screen codes,
+   or colors with "color") starting at level column [col] to the address held in
+   the pointer [dst]/[dst+1]. X is kept, A/Y are destroyed. The window spans at most
+   two screens: left part (40 - ofs bytes) and right part (ofs bytes); source and
+   target addresses are patched into the copy loops (~14 cycles per byte). */
+function _levelRowParse(raw) {
+  const parts = String(raw || "").split(",").map(s => s.trim()).filter(Boolean);
+  if (parts.length < 2 || parts.length > 3) return null;
+  if (parts.length === 3 && !/^colou?r$/i.test(parts[2])) return null;
+  return { dst: parts[0], col: parts[1], color: parts.length === 3 };
+}
+
+function _levelRowBytes(org, dst, col, color, tab) {
+  const out = [], fix = [], at = {};
+  const lo = v => v & 0xFF, hi = v => (v >> 8) & 0xFF;
+  const abs = (op, a) => out.push(op, lo(a), hi(a));
+  const ref = (op, name, plus) => { out.push(op, 0, 0); fix.push([out.length - 2, name, plus]); };
+  const mark = (name) => { at[name] = org + out.length; };
+  const rowLo = color ? tab.LEVEL_CROW_LO : tab.LEVEL_ROW_LO;
+  const rowHi = color ? tab.LEVEL_CROW_HI : tab.LEVEL_ROW_HI;
+  abs(0xAC, col);                                   // LDY col
+  abs(0xB9, tab.LEVEL_COL_OFS);                     // LDA LEVEL_COL_OFS,Y
+  ref(0x8D, "ofs", 1);                              // STA ofs (ADC #)
+  ref(0x8D, "cntR", 1);                             // STA cntR (LDY #)
+  out.push(0x49, 0xFF, 0x18, 0x69, 41);             // EOR #$FF / CLC / ADC #41 -> 40 - ofs
+  ref(0x8D, "cntL", 1);
+  ref(0x8D, "n1", 1);
+  abs(0xBD, tab.LEVEL_ROW_SLOT);                    // LDA LEVEL_ROW_SLOT,X
+  out.push(0x18);
+  abs(0x79, tab.LEVEL_COL_SLOT);                    // ADC LEVEL_COL_SLOT,Y
+  out.push(0xA8);                                   // TAY (slot)
+  for (const [side, plus] of [["lsrc", 0], ["rsrc", 1]]) {
+    abs(0xB9, tab.LEVEL_SLOT_LO + plus);            // LDA LEVEL_SLOT_LO(+1),Y
+    out.push(0x18);
+    abs(0x7D, rowLo);                               // ADC row_lo,X
+    ref(0x8D, side, 1);
+    abs(0xB9, tab.LEVEL_SLOT_HI + plus);            // LDA LEVEL_SLOT_HI(+1),Y
+    abs(0x7D, rowHi);                               // ADC row_hi,X
+    ref(0x8D, side, 2);
+  }
+  ref(0xAD, "lsrc", 1);                             // left source += ofs
+  out.push(0x18);
+  mark("ofs"); out.push(0x69, 0x00);
+  ref(0x8D, "lsrc", 1);
+  out.push(0x90, 0x03);
+  ref(0xEE, "lsrc", 2);
+  abs(0xAD, dst);                                   // left target = (dst), right = (dst) + n1
+  ref(0x8D, "ldst", 1);
+  out.push(0x18);
+  mark("n1"); out.push(0x69, 0x00);
+  ref(0x8D, "rdst", 1);
+  abs(0xAD, (dst + 1) & 0xFFFF);
+  ref(0x8D, "ldst", 2);
+  out.push(0x69, 0x00);
+  ref(0x8D, "rdst", 2);
+  mark("cntL"); out.push(0xA0, 0x00, 0x88);         // LDY #n1 / DEY
+  mark("lsrc"); abs(0xB9, 0xFFFF);
+  mark("ldst"); abs(0x99, 0xFFFF);
+  out.push(0x88, 0x10, 0xF7);                       // DEY / BPL lsrc
+  mark("cntR"); out.push(0xA0, 0x00, 0xF0, 0x0A, 0x88); // LDY #ofs / BEQ done / DEY
+  mark("rsrc"); abs(0xB9, 0xFFFF);
+  mark("rdst"); abs(0x99, 0xFFFF);
+  out.push(0x88, 0x10, 0xF7);                       // DEY / BPL rsrc
+  for (const [pos, name, plus] of fix) {
+    const a = (at[name] + plus) & 0xFFFF;
+    out[pos] = lo(a); out[pos + 1] = hi(a);
+  }
+  return out;
+}
+
+const _LEVEL_ROW_SIZE = _levelRowBytes(0, 0, 0, false, new Proxy({}, { get: () => 0 })).length;
+
+/* JOYSTICK: `.joystick port, sprite` moves sprite N (DEC/INC $D000/$D001+2N);
+   `.joystick port, vx, vy[, fire]` writes the direction to variables instead:
+   vx / vy = -1 / 0 / +1 ($FF / $00 / $01), fire = 1 while pressed.
+   Port 1 = $DC01, 2 = $DC00, 3 = both (LDA $DC00 / AND $DC01). */
+function _joyIsVarMode(block) {
+  return !!String(block?.joyVarX || "").trim() || !!String(block?.joyVarY || "").trim();
+}
+
+function _joyPortValue(block) {
+  const port = resolveProgramNumericValue(block?.joyPort || "2", null, "dec");
+  return port === 1 || port === 3 ? port : 2;
+}
+
+function _joyReadBytes(port) {
+  if (port === 3) return [0xAD, 0x00, 0xDC, 0x2D, 0x01, 0xDC];   // LDA $DC00 / AND $DC01
+  return port === 1 ? [0xAD, 0x01, 0xDC] : [0xAD, 0x00, 0xDC];
+}
+
+function _joyVarBytes(port, vx, vy, fire) {
+  const lo = v => v & 0xFF, hi = v => (v >> 8) & 0xFF;
+  const out = [0xA9, 0x00, 0x8D, lo(vx), hi(vx), 0x8D, lo(vy), hi(vy), ..._joyReadBytes(port)];
+  for (const [op, addr] of [[0xCE, vy], [0xEE, vy], [0xCE, vx], [0xEE, vx]]) {
+    out.push(0x4A, 0xB0, 0x03, op, lo(addr), hi(addr));            // LSR / BCS +3 / DEC|INC var
+  }
+  if (fire !== undefined) out.push(0x29, 0x01, 0x49, 0x01, 0x8D, lo(fire), hi(fire)); // AND #1 / EOR #1 / STA fire
+  return out;
+}
+
+function _joystickSize(block) {
+  const read = _joyReadBytes(_joyPortValue(block)).length;
+  if (!_joyIsVarMode(block)) return read + 24;
+  return 8 + read + 24 + (String(block.joyVarFire || "").trim() ? 7 : 0);
+}
+
 function _importMakeConst(name, rawValue) {
   const scalar = _importParseScalar(rawValue);
   return {
@@ -20816,6 +21301,10 @@ function addLayoutLabels(labelMap, line) {
     }
   };
   if (block.isLabel && block.labelName) labelMap.set(block.labelName, line.address);
+  if (block.isIncBinMacro && block.incBinLevel) {
+    const info = _levelInfo(block);
+    if (info.ok) for (const [name, value] of Object.entries(info.labels)) labelMap.set(name, value);
+  }
   // Self-modifying-code label: points at the first operand byte of the instruction.
   if (block.smcLabel) labelMap.set(block.smcLabel, (line.address + 1) & 0xFFFF);
   if (block.isLoopMacro && block.loopLabel) labelMap.set(block.loopLabel, line.address + 2);
@@ -21665,7 +22154,7 @@ function _getPlainAsmSourceText() {
 
     if (block.isIncBinMacro) {
       const address = parseAddressValue(block.incBinAddress, labels) ?? 0xC000;
-      const bytes = Array.from(block.incBinBytes || []);
+      const bytes = Array.from(_incBinPayload(block));
       const byteLines = _formatPlainByteLines(bytes);
       if (byteLines.length) {
         pushLine(_commentifyAsmLines(byteLines).join("\n"));
@@ -22124,7 +22613,7 @@ function assembleProgramToPrg(originOverride) {
       const addr = parseAddressValue(block.petsciiAddress, labels) ?? 0xC000;
       if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: chunkBytes });
     } else if (block.isIncBinMacro) {
-      const chunkBytes = block.incBinKoala ? _koalaData(block) : (block.incBinBytes || []);
+      const chunkBytes = _incBinPayload(block);
       const addr = parseAddressValue(block.incBinAddress) ?? 0xC000;
       if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: Array.from(chunkBytes) });
     } else if (block.isSidMacro) {
@@ -22340,6 +22829,37 @@ function compileLineBytes(line, labels) {
     };
   }
 
+  if (block.isIncBinMacro && block.incBinLevel) {
+    const info = _levelInfo(block);
+    if (info.error) return { ok: false, error: info.error };
+    const addr = parseAddressValue(block.incBinAddress) ?? 0x2000;
+    return {
+      ok: true,
+      bytes: [],
+      comment: `LEVEL "${block.incBinFileName || block.incBinFile || ""}" (${info.data.length} bytes, ${info.screens || 0} screens) @ ${formatAddress(addr)}`
+    };
+  }
+
+  if (block.isLevelRowMacro) {
+    const p = _levelRowParse(block.rawOperand);
+    if (!p) return { ok: false, error: t("levelRowSyntax") };
+    const tab = {};
+    for (const name of _LEVEL_ROW_TABLES) {
+      const value = labels?.get?.(name);
+      if (value === undefined || value === null) return { ok: false, error: t("levelRowNeedsLevel") };
+      tab[name] = value;
+    }
+    const dst = _evalAsmExpr(_substituteStarPc(p.dst, line.address), labels);
+    const col = _evalAsmExpr(_substituteStarPc(p.col, line.address), labels);
+    if (dst === null || dst === undefined || Number.isNaN(dst)) return { ok: false, error: tf("assertUnresolved", { expr: p.dst }) };
+    if (col === null || col === undefined || Number.isNaN(col)) return { ok: false, error: tf("assertUnresolved", { expr: p.col }) };
+    return {
+      ok: true,
+      bytes: _levelRowBytes(line.address, dst & 0xFFFF, col & 0xFFFF, p.color, tab),
+      comment: `LEVEL_ROW ${block.rawOperand.trim()}`
+    };
+  }
+
   if (block.isIncBinMacro) {
     const size = (block.incBinBytes || []).length;
     const addr = parseAddressValue(block.incBinAddress) ?? 0xC000;
@@ -22523,25 +23043,36 @@ function compileLineBytes(line, labels) {
     return { ok: true, bytes, comment: `MOUSE port${port} → sprite#${num} ZP:$${zpXStr.toUpperCase()}/$${zpYStr.toUpperCase()} std1351` };
   }
 
+  if (block.isJoystickMacro && _joyIsVarMode(block)) {
+    const port = resolveProgramNumericValue(block.joyPort || "2", labels, "dec");
+    if (port !== 1 && port !== 2 && port !== 3) return { ok: false, error: t("joyPortRange") };
+    const resolve = (expr) => {
+      const v = _evalAsmExpr(_substituteStarPc(String(expr || "").trim(), line.address), labels);
+      return v === null || v === undefined || Number.isNaN(v) ? null : v & 0xFFFF;
+    };
+    const vx = resolve(block.joyVarX), vy = resolve(block.joyVarY);
+    const fire = String(block.joyVarFire || "").trim() ? resolve(block.joyVarFire) : undefined;
+    if (vx === null || vy === null || fire === null) return { ok: false, error: t("joyVarsUnresolved") };
+    return { ok: true, bytes: _joyVarBytes(port, vx, vy, fire), comment: `JOYSTICK port${port} → ${block.joyVarX}, ${block.joyVarY}${fire !== undefined ? ", " + block.joyVarFire : ""}` };
+  }
+
   if (block.isJoystickMacro) {
     const port = resolveProgramNumericValue(block.joyPort || "2", labels, "dec");
-    if (port !== 1 && port !== 2) {
-      return { ok: false, error: t("compileJoystickPortRange") };
+    if (port !== 1 && port !== 2 && port !== 3) {
+      return { ok: false, error: t("joyPortRange") };
     }
     const num = resolveProgramNumericValue(block.joySpriteNum || "0", labels, "dec");
     if (isNaN(num) || num < 0 || num > 7) {
       return { ok: false, error: t("compileJoystickSpriteRange") };
     }
-    const portAddr = port === 2 ? 0xDC00 : 0xDC01;
     const xAddr = 0xD000 + num * 2;
     const yAddr = 0xD001 + num * 2;
     const xLo = xAddr & 0xFF, xHi = xAddr >> 8;
     const yLo = yAddr & 0xFF, yHi = yAddr >> 8;
-    const pLo = portAddr & 0xFF, pHi = portAddr >> 8;
     // Each direction: LSR (1) + BCS +3 (2) + DEC/INC abs (3) = 6 bytes
     // BCS offset 3 = skip the following 3-byte DEC/INC
     const bytes = [
-      0xAD, pLo, pHi,        // LDA $DCxx
+      ..._joyReadBytes(port), // LDA $DCxx (port 3: LDA $DC00 / AND $DC01)
       0x4A,                  // LSR  → bit0 (UP) → carry
       0xB0, 0x03,            // BCS +3 (not pressed)
       0xCE, yLo, yHi,        // DEC $D001+N*2  (Y--)
@@ -24761,6 +25292,10 @@ function getInstructionSize(block) {
     return 0;  // compile-time check, emits nothing
   }
 
+  if (block.isLevelRowMacro) {
+    return _LEVEL_ROW_SIZE;
+  }
+
   if (block.isTextMacro) {
     return encodeTextMacro(block.rawOperand).length * 5;
   }
@@ -24814,7 +25349,7 @@ function getInstructionSize(block) {
   }
 
   if (block.isJoystickMacro) {
-    return 27;  // LDA port + 4×(LSR + BCS+3 + DEC/INC)
+    return _joystickSize(block);
   }
 
   if (block.isMouseMacro) {
@@ -25567,7 +26102,7 @@ function getDeferredMemorySections(layout) {
       }
 
       if (line.block.isIncBinMacro) {
-        const bytes = line.block.incBinKoala ? _koalaData(line.block) : (line.block.incBinBytes || []);
+        const bytes = _incBinPayload(line.block);
         const startAddress = parseAddressValue(line.block.incBinAddress) ?? 0xC000;
         return {
           type: "incbin",
@@ -26114,6 +26649,10 @@ function getBlockDescription(block) {
     return block.validationError || `.assert ${block.assertExpr || block.rawOperand || "?"}`;
   }
 
+  if (block.isLevelRowMacro) {
+    return block.validationError || `.level_row ${block.rawOperand || "?"}  (${_LEVEL_ROW_SIZE} byte)`;
+  }
+
   if (block.isLongBranchMacro) {
     return block.validationError || `${block.mnemonic} ${block.rawOperand || "?"}`;
   }
@@ -26524,6 +27063,7 @@ function getCollapsedOperandText(block) {
   }
 
   if (block.isJoystickMacro) {
+    if (_joyIsVarMode(block)) return `port${block.joyPort || "2"} → ${block.joyVarX || "?"}, ${block.joyVarY || "?"}${block.joyVarFire ? ", " + block.joyVarFire : ""}`;
     return `port${block.joyPort || "2"} → sprite#${block.joySpriteNum || "0"}`;
   }
 
@@ -27771,11 +28311,24 @@ function renderProgram() {
               <select class="joy-port">
                 <option value="2"${(block.joyPort || "2") === "2" ? " selected" : ""}>2 ($DC00)</option>
                 <option value="1"${block.joyPort === "1" ? " selected" : ""}>1 ($DC01)</option>
+                <option value="3"${block.joyPort === "3" ? " selected" : ""}>1+2 ($DC00 & $DC01)</option>
               </select>
             </label>
-            <label class="mini-field">
+            <label class="mini-field"${_joyIsVarMode(block) ? " hidden" : ""}>
               <span>${t("fieldJoySpriteNum")}</span>
               <input class="joy-sprite-num block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.joySpriteNum || "0"}" placeholder="0 / CONST">
+            </label>
+            <label class="mini-field">
+              <span>${t("fieldJoyVarX")}</span>
+              <input class="joy-var-x block-operand" type="text" autocomplete="off" spellcheck="false" value="${escapeHtmlAttribute(block.joyVarX || "")}" placeholder="vx">
+            </label>
+            <label class="mini-field">
+              <span>${t("fieldJoyVarY")}</span>
+              <input class="joy-var-y block-operand" type="text" autocomplete="off" spellcheck="false" value="${escapeHtmlAttribute(block.joyVarY || "")}" placeholder="vy">
+            </label>
+            <label class="mini-field">
+              <span>${t("fieldJoyVarFire")}</span>
+              <input class="joy-var-fire block-operand" type="text" autocomplete="off" spellcheck="false" value="${escapeHtmlAttribute(block.joyVarFire || "")}" placeholder="fire">
             </label>
           </div>
         `
@@ -28255,6 +28808,12 @@ function renderProgram() {
       inlineField.hidden = false;
       operandField.value = block.assertExpr || block.rawOperand || "";
       operandField.placeholder = 'end - start <= 256, "message"';
+      operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
+    } else if (block.isLevelRowMacro) {
+      inlineField.querySelector("span").textContent = t("levelRowOperand");
+      inlineField.hidden = false;
+      operandField.value = block.rawOperand || "";
+      operandField.placeholder = "dst_ptr, view_col, color";
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
     } else if (block.isConstMacro) {
       inlineField.hidden = true;
@@ -28956,7 +29515,7 @@ function renderProgram() {
     blockControls.insertAdjacentHTML(
       "beforeend",
       `
-          ${(mode.needsOperand && !block.isLabel && !block.isAnonymousLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isPetsciiMacro && !block.isIncBinMacro && !block.isIncludeMacro && !block.isLoopMacro && !block.isNextMacro && !block.isForMacro && !block.isEndfMacro && !block.isWordMacro && !block.isFillMacro && !block.isAlignMacro && !block.isTableMacro && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro && !block.isMacroInvoke && !block.isRegionMacro && !block.isEndRegionMacro && !block.isLoadFileMacro && !block.isDelayMacro && !block.isLongBranchMacro && !block.isAssertMacro) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro ? `
+          ${(mode.needsOperand && !block.isLabel && !block.isAnonymousLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isPetsciiMacro && !block.isIncBinMacro && !block.isIncludeMacro && !block.isLoopMacro && !block.isNextMacro && !block.isForMacro && !block.isEndfMacro && !block.isWordMacro && !block.isFillMacro && !block.isAlignMacro && !block.isTableMacro && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro && !block.isMacroInvoke && !block.isRegionMacro && !block.isEndRegionMacro && !block.isLoadFileMacro && !block.isDelayMacro && !block.isLongBranchMacro && !block.isAssertMacro && !block.isLevelRowMacro) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro ? `
           <label class="mini-field">
             <span>${t("fieldFormat")}</span>
           <div class="mini-toggle" role="radiogroup" aria-label="${t("fieldFormat")}">
@@ -29181,6 +29740,15 @@ function renderProgram() {
     const joySpriteNumInput = node.querySelector(".joy-sprite-num");
     if (joySpriteNumInput) {
       joySpriteNumInput.addEventListener("input", (event) => updateProgramBlock(index, "joySpriteNum", event.target.value));
+    }
+    for (const [cls, field] of [[".joy-var-x", "joyVarX"], [".joy-var-y", "joyVarY"], [".joy-var-fire", "joyVarFire"]]) {
+      const joyVarInput = node.querySelector(cls);
+      if (!joyVarInput) continue;
+      joyVarInput.addEventListener("input", (event) => {
+        updateProgramBlock(index, field, event.target.value.trim());
+        const spriteField = node.querySelector(".joy-sprite-num")?.closest(".mini-field");
+        if (spriteField) spriteField.hidden = _joyIsVarMode(program[index]);
+      });
     }
     const mousePortSelect = node.querySelector(".mouse-port");
     if (mousePortSelect) {
@@ -29846,7 +30414,7 @@ function renderAsmOutput() {
     }
 
     if (line.block.isIncBinMacro) {
-      const bytes = line.block.incBinBytes || [];
+      const bytes = _incBinPayload(line.block);
       const startAddress = parseAddressValue(line.block.incBinAddress) ?? 0xC000;
       const fileName = line.block.incBinFileName || line.block.incBinFile || "?";
       if (bytes.length > 0) {
@@ -30172,6 +30740,7 @@ function renderAsmOutput() {
     }
 
     if (line.block.isJoystickMacro) {
+      if (_joyIsVarMode(line.block)) return `; ${_blockToExpertLine(line.block).trim()}`;
       return `; .joystick port=${line.block.joyPort || "2"} sprite=${line.block.joySpriteNum || "0"}`;
     }
 
@@ -34159,6 +34728,1174 @@ function setupMapEditor() {
     canvas.addEventListener("pointerup", function(e) { endPaint(e, true); });
     canvas.addEventListener("pointercancel", function(e) { endPaint(e, false); });
   }
+}
+
+/* ═══════════════════════════════════════════════════════
+   LEVEL EDITOR — 40×25 map screens arranged into a scrolling level
+   ═══════════════════════════════════════════════════════ */
+const _LV_SW = 320, _LV_SH = 200;           // one screen in C64 pixels
+const _LV_DIRS = { vertical: ["up", "down"], horizontal: ["right", "left"], grid: ["up", "down", "right", "left"] };
+// Screen arrays are never mutated in place (edits replace them), so undo
+// snapshots may share them.
+let _lvScreens = [];        // library: [{ id, name, screen, color, sig, cache }]
+let _lvLayout = "vertical"; // vertical | horizontal | grid
+let _lvW = 1, _lvH = 0;     // arrangement size in screens
+let _lvCells = [];          // _lvW*_lvH screen ids, row-major; null = empty slot
+let _lvSel = -1;            // selected slot
+let _lvLibSel = null;       // selected library screen id
+let _lvSettings = null;     // shared charset / colours of the level
+let _lvDir = "up";
+let _lvSpeed = 1;
+let _lvLoop = true;
+let _lvBorders = true;
+let _lvScale = 0.5;
+let _lvCamX = 0, _lvCamY = 0;
+let _lvPlaying = false, _lvRaf = 0, _lvLastTs = 0, _lvAcc = 0;
+let _lvRomCache = null, _lvCustomCache = null;
+let _lvUndo = [], _lvRedo = [];
+let _lvEditingId = null, _lvMeBackup = null;
+let _lvDrag = null;         // { kind: "slot"|"lib", from, x, y, active, over }
+
+function _lvDefaultSettings() {
+  return { multicolor: false, bgColor: 6, mc1Color: 5, mc2Color: 13, charSource: "rom", charset: null, charColors: null };
+}
+
+function _lvSigOf(s) {
+  if (!s) return "";
+  let h = 0x811c9dc5;
+  if (s.charSource === "custom" && s.charset) {
+    for (let i = 0; i < s.charset.length; i++) h = Math.imul(h ^ s.charset[i], 16777619) >>> 0;
+  }
+  return [s.multicolor ? 1 : 0, s.bgColor, s.mc1Color, s.mc2Color, s.charSource, h].join("|");
+}
+
+function _lvSettingsFromMe() {
+  return {
+    multicolor: !!_meMulticolor, bgColor: _meBgColor, mc1Color: _meMc1Color, mc2Color: _meMc2Color,
+    charSource: _meCharSource,
+    charset: _meCharSource === "custom" && _meCustomData ? _meCustomData.slice(0) : null,
+    charColors: _meCharSource === "custom" && _meCustomColors ? _meCustomColors.slice(0) : null
+  };
+}
+
+function _lvSetSettings(s) {
+  _lvSettings = s;
+  _lvCustomCache = null;
+  _lvScreens.forEach(function(scr) { scr.cache = null; });
+}
+
+function _lvNewScreen(name, screen, color, settings) {
+  const scr = {
+    id: crypto.randomUUID(),
+    name: name,
+    screen: screen || new Uint8Array(_ME_COLS * _ME_ROWS).fill(_ME_EMPTY),
+    color: color || new Uint8Array(_ME_COLS * _ME_ROWS).fill(14),
+    sig: "",
+    cache: null
+  };
+  // The first screen defines the level's charset/colours; a raw .bin without
+  // settings simply follows the level.
+  if (settings && !_lvScreens.length && !_lvCells.some(Boolean)) _lvSetSettings(settings);
+  if (!_lvSettings) _lvSetSettings(_lvDefaultSettings());
+  scr.sig = settings ? _lvSigOf(settings) : _lvSigOf(_lvSettings);
+  return scr;
+}
+
+function _lvScreenById(id) { return _lvScreens.find(function(s) { return s.id === id; }) || null; }
+function _lvNextName() { return t("lvScreenName") + " " + (_lvScreens.length + 1); }
+
+/* ── Arrangement ── */
+function _lvSlotCount() { return _lvW * _lvH; }
+
+function _lvSetLayout(layout) {
+  if (layout === _lvLayout) return;
+  if (layout === "vertical" || layout === "horizontal") {
+    const list = _lvCells.filter(Boolean);
+    _lvCells = list;
+    if (layout === "vertical") { _lvW = 1; _lvH = list.length; }
+    else { _lvW = list.length; _lvH = list.length ? 1 : 0; }
+  } else {
+    // A sequence becomes a near-square grid (min. 2 columns) so new screens
+    // fill sideways instead of stacking under each other.
+    const list = _lvCells.filter(Boolean);
+    _lvW = Math.max(2, Math.ceil(Math.sqrt(list.length)));
+    _lvH = Math.max(1, Math.ceil(list.length / _lvW));
+    _lvCells = new Array(_lvW * _lvH).fill(null);
+    list.forEach(function(id, i) { _lvCells[i] = id; });
+  }
+  _lvLayout = layout;
+  if (_lvLayout === "horizontal" && !_lvH && _lvW) _lvH = 1;
+  if (!_LV_DIRS[_lvLayout].includes(_lvDir)) _lvDir = _LV_DIRS[_lvLayout][0];
+  _lvSel = Math.min(_lvSel, _lvSlotCount() - 1);
+}
+
+/* Place a screen into the level: into the selected slot (grid), after the
+   selected slot (vertical/horizontal), or at the end. */
+function _lvPlace(id, slot) {
+  if (_lvLayout === "grid") {
+    if (!_lvSlotCount()) { _lvW = Math.max(2, _lvW); _lvH = 1; _lvCells = new Array(_lvW).fill(null); }
+    let target = slot != null && slot >= 0 ? slot : (_lvSel >= 0 && !_lvCells[_lvSel] ? _lvSel : _lvCells.indexOf(null));
+    if (target < 0) {
+      _lvCells = _lvCells.concat(new Array(_lvW).fill(null));
+      _lvH++;
+      target = (_lvH - 1) * _lvW;
+    }
+    _lvCells[target] = id;
+    _lvSel = target;
+    return;
+  }
+  if (slot != null && slot >= 0 && slot < _lvCells.length) {
+    _lvCells[slot] = id;
+    _lvSel = slot;
+  } else {
+    const at = slot != null && slot >= _lvCells.length ? _lvCells.length
+      : (_lvSel >= 0 ? _lvSel + 1 : _lvCells.length);
+    _lvCells.splice(at, 0, id);
+    _lvSel = at;
+  }
+  if (_lvLayout === "vertical") { _lvW = 1; _lvH = _lvCells.length; }
+  else { _lvW = _lvCells.length; _lvH = 1; }
+}
+
+function _lvRemoveSlot(slot) {
+  if (slot < 0 || slot >= _lvSlotCount()) return;
+  if (_lvLayout === "grid") { _lvCells[slot] = null; return; }
+  _lvCells.splice(slot, 1);
+  if (_lvLayout === "vertical") { _lvW = 1; _lvH = _lvCells.length; }
+  else { _lvW = _lvCells.length; _lvH = _lvCells.length ? 1 : 0; }
+  _lvSel = Math.min(slot, _lvCells.length - 1);
+}
+
+function _lvSwapSlots(a, b) {
+  const n = _lvSlotCount();
+  if (a < 0 || b < 0 || a >= n || b >= n || a === b) return false;
+  const tmp = _lvCells[a]; _lvCells[a] = _lvCells[b]; _lvCells[b] = tmp;
+  return true;
+}
+
+function _lvGridResize(dw, dh) {
+  const nw = Math.max(1, _lvW + dw), nh = Math.max(0, _lvH + dh);
+  const cells = new Array(nw * nh).fill(null);
+  for (let y = 0; y < Math.min(nh, _lvH); y++)
+    for (let x = 0; x < Math.min(nw, _lvW); x++) cells[y * nw + x] = _lvCells[y * _lvW + x];
+  _lvW = nw; _lvH = nh; _lvCells = cells;
+  if (_lvSel >= cells.length) _lvSel = cells.length - 1;
+}
+
+function _lvDeleteScreen(id) {
+  _lvScreens = _lvScreens.filter(function(s) { return s.id !== id; });
+  if (_lvLayout === "grid") {
+    _lvCells = _lvCells.map(function(c) { return c === id ? null : c; });
+  } else {
+    for (let i = _lvCells.length - 1; i >= 0; i--) if (_lvCells[i] === id) _lvRemoveSlot(i);
+  }
+  if (_lvLibSel === id) _lvLibSel = null;
+}
+
+/* ── Undo ── */
+function _lvSnapshot() {
+  return {
+    screens: _lvScreens.map(function(s) { return { id: s.id, name: s.name, screen: s.screen, color: s.color, sig: s.sig }; }),
+    layout: _lvLayout, w: _lvW, h: _lvH, cells: _lvCells.slice(0), sel: _lvSel, settings: _lvSettings
+  };
+}
+function _lvRestore(snap) {
+  _lvScreens = snap.screens.map(function(s) { return Object.assign({ cache: null }, s); });
+  _lvLayout = snap.layout; _lvW = snap.w; _lvH = snap.h; _lvCells = snap.cells.slice(0);
+  _lvSel = Math.min(snap.sel, _lvSlotCount() - 1);
+  _lvSetSettings(snap.settings);
+  if (!_LV_DIRS[_lvLayout].includes(_lvDir)) _lvDir = _LV_DIRS[_lvLayout][0];
+}
+function _lvPushUndo() {
+  _lvUndo.push(_lvSnapshot());
+  if (_lvUndo.length > 40) _lvUndo.shift();
+  _lvRedo = [];
+}
+function _lvUndoOp() {
+  if (!_lvUndo.length) return;
+  _lvRedo.push(_lvSnapshot());
+  _lvRestore(_lvUndo.pop());
+  _lvRenderAll();
+}
+function _lvRedoOp() {
+  if (!_lvRedo.length) return;
+  _lvUndo.push(_lvSnapshot());
+  _lvRestore(_lvRedo.pop());
+  _lvRenderAll();
+}
+
+/* ── Rendering ── */
+let _lvRgbCache = null;
+function _lvRgb(ci) {
+  if (!_lvRgbCache) _lvRgbCache = _CE_COLORS.map(function(h) {
+    return [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+  });
+  return _lvRgbCache[ci & 0x0F];
+}
+
+function _lvTileBits(sc) {
+  const s = _lvSettings;
+  if (s.charSource === "custom" && s.charset) {
+    if (!_lvCustomCache) {
+      _lvCustomCache = [];
+      for (let c = 0; c < 256; c++) {
+        const bits = [];
+        for (let r = 0; r < 8; r++) {
+          const byte = s.charset[c * 8 + r] || 0;
+          for (let b = 7; b >= 0; b--) bits.push((byte >> b) & 1);
+        }
+        _lvCustomCache.push(bits);
+      }
+    }
+    return _lvCustomCache[sc & 0xFF];
+  }
+  if (!_lvRomCache) {
+    _lvRomCache = [];
+    for (let c = 0; c < 256; c++) _lvRomCache.push(_c64RomBitmapData(c, 1));
+  }
+  return _lvRomCache[sc & 0xFF];
+}
+
+function _lvScreenCanvas(scr) {
+  if (scr.cache) return scr.cache;
+  const cv = document.createElement("canvas");
+  cv.width = _LV_SW; cv.height = _LV_SH;
+  const ctx = cv.getContext("2d");
+  const img = ctx.createImageData(_LV_SW, _LV_SH);
+  const d = img.data, s = _lvSettings;
+  const mcColors = [s.bgColor, s.mc1Color, s.mc2Color, 0];
+  for (let row = 0; row < _ME_ROWS; row++) {
+    for (let col = 0; col < _ME_COLS; col++) {
+      const i = row * _ME_COLS + col;
+      const bits = _lvTileBits(scr.screen[i]);
+      const c = scr.color[i] & 0x0F;
+      const multi = s.multicolor && (c & 8);
+      mcColors[3] = c & 7;
+      for (let py = 0; py < 8; py++) {
+        for (let px = 0; px < 8; px++) {
+          let ci;
+          if (multi) {
+            const p = py * 8 + (px & 6);
+            ci = mcColors[(bits[p] << 1) | bits[p + 1]];
+          } else {
+            ci = bits[py * 8 + px] ? c : s.bgColor;
+          }
+          const rgb = _lvRgb(ci);
+          const o = ((row * 8 + py) * _LV_SW + col * 8 + px) * 4;
+          d[o] = rgb[0]; d[o + 1] = rgb[1]; d[o + 2] = rgb[2]; d[o + 3] = 255;
+        }
+      }
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+  scr.cache = cv;
+  return cv;
+}
+
+function _lvLevelPx() { return { w: _lvW * _LV_SW, h: _lvH * _LV_SH }; }
+
+function _lvClampCam() {
+  const L = _lvLevelPx();
+  _lvCamX = Math.max(0, Math.min(_lvCamX, Math.max(0, L.w - _LV_SW)));
+  _lvCamY = Math.max(0, Math.min(_lvCamY, Math.max(0, L.h - _LV_SH)));
+}
+
+function _lvRenderOverview() {
+  const canvas = document.getElementById("lv-canvas");
+  if (!canvas) return;
+  const S = _lvScale;
+  const sw = Math.round(_LV_SW * S), sh = Math.round(_LV_SH * S);
+  const W = Math.max(sw, _lvW * sw), H = Math.max(sh, _lvH * sh);
+  if (canvas.width !== W || canvas.height !== H) { canvas.width = W; canvas.height = H; }
+  const ctx = canvas.getContext("2d");
+  ctx.imageSmoothingEnabled = false;
+  ctx.fillStyle = "#1b1b24";
+  ctx.fillRect(0, 0, W, H);
+  ctx.font = "11px 'IBM Plex Mono', monospace";
+  ctx.textBaseline = "top";
+  for (let i = 0; i < _lvSlotCount(); i++) {
+    const x = (i % _lvW) * sw, y = Math.floor(i / _lvW) * sh;
+    const scr = _lvScreenById(_lvCells[i]);
+    if (scr) {
+      ctx.drawImage(_lvScreenCanvas(scr), x, y, sw, sh);
+    } else {
+      ctx.strokeStyle = "rgba(170,160,225,0.35)";
+      ctx.setLineDash([4, 3]);
+      ctx.strokeRect(x + 3.5, y + 3.5, sw - 7, sh - 7);
+      ctx.setLineDash([]);
+      ctx.fillStyle = "rgba(170,160,225,0.6)";
+      ctx.fillText(t("lvEmptySlot"), x + 8, y + 8);
+    }
+    if (_lvBorders) {
+      ctx.strokeStyle = "rgba(255,255,255,0.35)";
+      ctx.strokeRect(x + 0.5, y + 0.5, sw - 1, sh - 1);
+      if (scr) {
+        const label = (i + 1) + " " + scr.name;
+        ctx.fillStyle = "rgba(0,0,0,0.6)";
+        ctx.fillRect(x + 2, y + 2, ctx.measureText(label).width + 8, 15);
+        ctx.fillStyle = "#fff";
+        ctx.fillText(label, x + 6, y + 4);
+      }
+    }
+  }
+  if (_lvDrag && _lvDrag.active && _lvDrag.over >= 0) {
+    const x = (_lvDrag.over % _lvW) * sw, y = Math.floor(_lvDrag.over / _lvW) * sh;
+    ctx.fillStyle = "rgba(120,200,255,0.25)";
+    ctx.fillRect(x, y, sw, sh);
+  }
+  if (_lvSel >= 0 && _lvSel < _lvSlotCount()) {
+    const x = (_lvSel % _lvW) * sw, y = Math.floor(_lvSel / _lvW) * sh;
+    ctx.strokeStyle = "#ffd84a";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x + 1, y + 1, sw - 2, sh - 2);
+    ctx.lineWidth = 1;
+  }
+  if (_lvSlotCount()) {
+    ctx.strokeStyle = "#ff5a5a";
+    ctx.setLineDash([5, 3]);
+    ctx.strokeRect(_lvCamX * S + 0.5, _lvCamY * S + 0.5, sw - 1, sh - 1);
+    ctx.setLineDash([]);
+  }
+}
+
+function _lvRenderPreview() {
+  const canvas = document.getElementById("lv-preview");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  ctx.imageSmoothingEnabled = false;
+  const s = _lvSettings || _lvDefaultSettings();
+  ctx.fillStyle = _CE_COLORS[s.bgColor & 0x0F];
+  ctx.fillRect(0, 0, _LV_SW, _LV_SH);
+  for (let i = 0; i < _lvSlotCount(); i++) {
+    const scr = _lvScreenById(_lvCells[i]);
+    if (!scr) continue;
+    const x = (i % _lvW) * _LV_SW, y = Math.floor(i / _lvW) * _LV_SH;
+    const ix = Math.max(x, _lvCamX), iy = Math.max(y, _lvCamY);
+    const ex = Math.min(x + _LV_SW, _lvCamX + _LV_SW), ey = Math.min(y + _LV_SH, _lvCamY + _LV_SH);
+    if (ex <= ix || ey <= iy) continue;
+    ctx.drawImage(_lvScreenCanvas(scr), ix - x, iy - y, ex - ix, ey - iy, ix - _lvCamX, iy - _lvCamY, ex - ix, ey - iy);
+  }
+}
+
+function _lvRenderLibrary() {
+  const list = document.getElementById("lv-library");
+  if (!list) return;
+  list.innerHTML = "";
+  _lvScreens.forEach(function(scr) {
+    const uses = _lvCells.filter(function(c) { return c === scr.id; }).length;
+    const item = document.createElement("div");
+    item.className = "lv-lib-item" + (scr.id === _lvLibSel ? " lv-lib-item--sel" : "");
+    item.dataset.id = scr.id;
+    const thumb = document.createElement("canvas");
+    thumb.width = 80; thumb.height = 50;
+    thumb.className = "lv-lib-thumb";
+    const tctx = thumb.getContext("2d");
+    tctx.imageSmoothingEnabled = false;
+    tctx.drawImage(_lvScreenCanvas(scr), 0, 0, 80, 50);
+    const meta = document.createElement("div");
+    meta.className = "lv-lib-meta";
+    const nm = document.createElement("span");
+    nm.className = "lv-lib-name";
+    nm.textContent = scr.name;
+    const info = document.createElement("span");
+    info.className = "lv-lib-info";
+    info.textContent = (uses ? "×" + uses : "—") + (scr.sig !== _lvSigOf(_lvSettings) ? "  ⚠" : "");
+    meta.appendChild(nm); meta.appendChild(info);
+    const del = document.createElement("button");
+    del.type = "button"; del.className = "me-layer-del lv-lib-del"; del.textContent = "×";
+    del.setAttribute("aria-label", t("lvDeleteScreen"));
+    del.addEventListener("pointerdown", function(e) { e.stopPropagation(); });
+    del.addEventListener("click", function(e) {
+      e.stopPropagation();
+      _lvPushUndo(); _lvDeleteScreen(scr.id); _lvRenderAll();
+    });
+    nm.addEventListener("dblclick", function(e) {
+      e.stopPropagation();
+      const v = prompt(t("lvRenamePrompt"), scr.name);
+      if (v != null && v.trim()) { _lvPushUndo(); scr.name = v.trim(); _lvRenderAll(); }
+    });
+    item.appendChild(thumb); item.appendChild(meta); item.appendChild(del);
+    item.addEventListener("pointerdown", function(e) {
+      if (e.button !== 0) return;
+      _lvLibSel = scr.id;
+      _lvDrag = { kind: "lib", from: scr.id, x: e.clientX, y: e.clientY, active: false, over: -1 };
+      try { item.setPointerCapture(e.pointerId); } catch (_) {}
+      list.querySelectorAll(".lv-lib-item").forEach(function(el) { el.classList.toggle("lv-lib-item--sel", el === item); });
+    });
+    item.addEventListener("pointermove", function(e) { _lvDragMove(e); });
+    item.addEventListener("pointerup", function(e) { _lvDragEnd(e); });
+    item.addEventListener("pointercancel", function() { _lvDrag = null; _lvRenderOverview(); });
+    item.addEventListener("dblclick", function() { _lvEditInMapEditor(scr.id); });
+    list.appendChild(item);
+  });
+  const mismatch = _lvScreens.filter(function(s) { return s.sig !== _lvSigOf(_lvSettings); }).length;
+  const warn = document.getElementById("lv-warning");
+  if (warn) { warn.hidden = !mismatch; warn.textContent = mismatch ? tf("lvMismatch", { n: mismatch }) : ""; }
+  const cs = document.getElementById("lv-charset-info");
+  if (cs && _lvSettings) {
+    cs.textContent = (_lvSettings.charSource === "custom" ? t("lvCharsetCustom") : t("lvCharsetRom")) +
+      (_lvSettings.multicolor ? " · " + t("meMulticolor") : "");
+  }
+}
+
+function _lvUpdateStatus() {
+  const st = document.getElementById("lv-status");
+  if (!st) return;
+  const parts = [];
+  if (_lvSel >= 0 && _lvSel < _lvSlotCount()) {
+    const scr = _lvScreenById(_lvCells[_lvSel]);
+    parts.push(tf("lvStatusSlot", { n: _lvSel + 1, total: _lvSlotCount() }) + (scr ? " · " + scr.name : ""));
+  }
+  parts.push("X:" + _lvCamX + " Y:" + _lvCamY);
+  parts.push(tf("lvInfo", {
+    w: _lvW, h: _lvH, cols: _lvW * _ME_COLS, rows: _lvH * _ME_ROWS,
+    bytes: _lvSlotCount() * _ME_COLS * _ME_ROWS * 2
+  }));
+  st.textContent = parts.join("   ");
+}
+
+function _lvSyncControls() {
+  const layoutSel = document.getElementById("lv-layout");
+  if (layoutSel) layoutSel.value = _lvLayout;
+  const dirSel = document.getElementById("lv-dir");
+  if (dirSel) {
+    const allowed = _LV_DIRS[_lvLayout];
+    Array.from(dirSel.options).forEach(function(o) { o.hidden = o.disabled = !allowed.includes(o.value); });
+    dirSel.value = _lvDir;
+  }
+  document.getElementById("lv-grid-group")?.toggleAttribute("hidden", _lvLayout !== "grid");
+  const play = document.getElementById("lv-play");
+  if (play) {
+    play.classList.toggle("me-tool--active", _lvPlaying);
+    play.setAttribute("aria-label", _lvPlaying ? t("lvStop") : t("lvPlay"));
+    play.innerHTML = _lvPlaying
+      ? '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="4" width="8" height="8" rx="0.5" fill="currentColor"/></svg>'
+      : '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.5v9l7-4.5z" fill="currentColor"/></svg>';
+  }
+}
+
+function _lvRenderAll() {
+  _lvClampCam();
+  _lvSyncControls();
+  _lvRenderLibrary();
+  _lvRenderOverview();
+  _lvRenderPreview();
+  _lvUpdateStatus();
+}
+
+/* ── Playback ── */
+function _lvRewind() {
+  const L = _lvLevelPx();
+  if (_lvDir === "up") _lvCamY = L.h;
+  else if (_lvDir === "down") _lvCamY = 0;
+  else if (_lvDir === "right") _lvCamX = 0;
+  else _lvCamX = L.w;
+  _lvClampCam();
+}
+
+function _lvAtEnd() {
+  const L = _lvLevelPx();
+  if (_lvDir === "up") return _lvCamY <= 0;
+  if (_lvDir === "down") return _lvCamY >= L.h - _LV_SH;
+  if (_lvDir === "right") return _lvCamX >= L.w - _LV_SW;
+  return _lvCamX <= 0;
+}
+
+function _lvStep() {
+  if (_lvAtEnd()) {
+    if (!_lvLoop) { _lvStop(); return; }
+    _lvRewind();
+    return;
+  }
+  if (_lvDir === "up") _lvCamY -= _lvSpeed;
+  else if (_lvDir === "down") _lvCamY += _lvSpeed;
+  else if (_lvDir === "right") _lvCamX += _lvSpeed;
+  else _lvCamX -= _lvSpeed;
+  _lvClampCam();
+}
+
+function _lvTick(ts) {
+  if (!_lvPlaying) return;
+  if (!_lvLastTs) _lvLastTs = ts;
+  _lvAcc += Math.min(200, ts - _lvLastTs);
+  _lvLastTs = ts;
+  let stepped = false;
+  while (_lvAcc >= 20 && _lvPlaying) { _lvAcc -= 20; _lvStep(); stepped = true; }   // 50 Hz (PAL frame)
+  if (stepped) { _lvRenderPreview(); _lvRenderOverview(); _lvUpdateStatus(); }
+  if (_lvPlaying) _lvRaf = requestAnimationFrame(_lvTick);
+}
+
+function _lvPlay() {
+  if (_lvPlaying || !_lvSlotCount()) return;
+  if (_lvAtEnd()) _lvRewind();
+  _lvPlaying = true; _lvLastTs = 0; _lvAcc = 0;
+  _lvSyncControls();
+  _lvRaf = requestAnimationFrame(_lvTick);
+}
+
+function _lvStop() {
+  _lvPlaying = false;
+  if (_lvRaf) cancelAnimationFrame(_lvRaf);
+  _lvRaf = 0;
+  _lvSyncControls();
+}
+
+/* ── Drag (library → slot, slot ↔ slot) ── */
+function _lvSlotAt(clientX, clientY) {
+  const canvas = document.getElementById("lv-canvas");
+  if (!canvas) return -1;
+  const r = canvas.getBoundingClientRect();
+  if (clientX < r.left || clientY < r.top || clientX >= r.right || clientY >= r.bottom) return -1;
+  const sw = r.width / Math.max(1, _lvW), sh = r.height / Math.max(1, _lvH);
+  const sx = Math.floor((clientX - r.left) / sw), sy = Math.floor((clientY - r.top) / sh);
+  if (!_lvSlotCount()) return 0;
+  if (sx < 0 || sy < 0 || sx >= _lvW || sy >= _lvH) return -1;
+  return sy * _lvW + sx;
+}
+
+function _lvDragMove(e) {
+  if (!_lvDrag) return;
+  if (!_lvDrag.active && Math.hypot(e.clientX - _lvDrag.x, e.clientY - _lvDrag.y) > 4) {
+    _lvDrag.active = true;
+    document.body.classList.add("lv-dragging");
+  }
+  if (!_lvDrag.active) return;
+  const over = _lvSlotAt(e.clientX, e.clientY);
+  if (over !== _lvDrag.over) { _lvDrag.over = over; _lvRenderOverview(); }
+}
+
+function _lvDragEnd(e) {
+  const d = _lvDrag;
+  _lvDrag = null;
+  document.body.classList.remove("lv-dragging");
+  if (!d) return;
+  if (!d.active) {
+    // A plain click on a library item must not rebuild the list, or its dblclick never fires.
+    if (d.kind === "slot") _lvSelectSlot(d.from);
+    else { _lvRenderOverview(); _lvUpdateStatus(); }
+    return;
+  }
+  const over = _lvSlotAt(e.clientX, e.clientY);
+  if (d.kind === "slot") {
+    if (over >= 0 && over !== d.from) { _lvPushUndo(); _lvSwapSlots(d.from, over); _lvSel = over; }
+  } else if (over >= 0 || _lvIsOverCanvas(e)) {
+    _lvPushUndo();
+    _lvPlace(d.from, over >= 0 && over < _lvSlotCount() ? over : _lvSlotCount());
+  }
+  _lvRenderAll();
+}
+
+function _lvIsOverCanvas(e) {
+  const wrap = document.getElementById("lv-canvas-wrap");
+  if (!wrap) return false;
+  const r = wrap.getBoundingClientRect();
+  return e.clientX >= r.left && e.clientX < r.right && e.clientY >= r.top && e.clientY < r.bottom;
+}
+
+function _lvSelectSlot(slot) {
+  _lvSel = slot;
+  const id = _lvCells[slot];
+  if (id) _lvLibSel = id;
+  if (!_lvPlaying && slot >= 0) {
+    _lvCamX = (slot % _lvW) * _LV_SW;
+    _lvCamY = Math.floor(slot / _lvW) * _LV_SH;
+  }
+  _lvRenderAll();
+}
+
+/* ── Map Editor round trip ── */
+function _lvEditInMapEditor(id) {
+  const scr = _lvScreenById(id);
+  if (!scr) return;
+  _lvStop();
+  _meInit();
+  _lvMeBackup = { snap: _meSnapshot(), undo: _meUndo, redo: _meRedo };
+  _meUndo = []; _meRedo = [];
+  const s = _lvSettings || _lvDefaultSettings();
+  _meRestore({
+    activeLayer: 0, charSource: s.charSource, customData: s.charset, customColors: s.charColors,
+    multicolor: s.multicolor, bgColor: s.bgColor, mc1Color: s.mc1Color, mc2Color: s.mc2Color,
+    layers: [{ name: t("meBackground"), visible: true, screen: scr.screen, color: scr.color }]
+  });
+  _lvEditingId = id;
+  document.getElementById("map-editor-btn")?.click();
+}
+
+function _lvFinishMapEdit() {
+  if (!_lvEditingId) return;
+  const scr = _lvScreenById(_lvEditingId);
+  _lvEditingId = null;
+  if (scr) {
+    _lvPushUndo();
+    const comp = _meComposite();
+    scr.screen = comp.screen;
+    scr.color = comp.color;
+    const s = _lvSettingsFromMe();
+    if (_lvSigOf(s) !== _lvSigOf(_lvSettings)) _lvSetSettings(s);
+    scr.sig = _lvSigOf(_lvSettings);
+    scr.cache = null;
+  }
+  if (_lvMeBackup) {
+    _meRestore(_lvMeBackup.snap);
+    _meUndo = _lvMeBackup.undo; _meRedo = _lvMeBackup.redo;
+    _lvMeBackup = null;
+  }
+  _lvRenderAll();
+}
+
+/* ── Import ── */
+function _lvScreenFromBin(bytes, name) {
+  const parsed = _vaReadBinWithMeta(bytes);
+  const src = parsed.payload, n = _ME_COLS * _ME_ROWS;
+  const screen = new Uint8Array(n).fill(_ME_EMPTY), color = new Uint8Array(n).fill(14);
+  for (let i = 0; i < n && i < src.length; i++) screen[i] = src[i];
+  if (src.length >= n * 2) for (let i = 0; i < n; i++) color[i] = src[n + i] & 0x0F;
+  else if (parsed.extras.color && parsed.extras.color.length >= n) for (let i = 0; i < n; i++) color[i] = parsed.extras.color[i] & 0x0F;
+  let settings = null;
+  if (parsed.manifest?.kind === "me-map" || parsed.manifest?.kind === "cc-map") {
+    const ms = parsed.manifest.settings || {};
+    const custom = !!parsed.extras.charset && (ms.charSource === "custom" || parsed.manifest.kind === "cc-map");
+    settings = {
+      multicolor: !!ms.multicolor,
+      bgColor: ms.bgColor == null ? 6 : ms.bgColor & 0x0F,
+      mc1Color: ms.mc1Color == null ? 5 : ms.mc1Color & 0x0F,
+      mc2Color: ms.mc2Color == null ? 13 : ms.mc2Color & 0x0F,
+      charSource: custom ? "custom" : "rom",
+      charset: custom ? (function() { const cs = new Uint8Array(2048); cs.set(parsed.extras.charset.subarray(0, 2048)); return cs; })() : null,
+      charColors: custom && parsed.extras.charColors ? parsed.extras.charColors.slice(0) : null
+    };
+  }
+  return _lvNewScreen(name, screen, color, settings);
+}
+
+/* ── Level project file (.bin + VA meta) ── */
+function _lvBuildLevelFile() {
+  const n = _ME_COLS * _ME_ROWS;
+  const payload = new Uint8Array(_lvScreens.length * n * 2);
+  _lvScreens.forEach(function(s, i) { payload.set(s.screen, i * n * 2); payload.set(s.color, i * n * 2 + n); });
+  const ids = _lvScreens.map(function(s) { return s.id; });
+  const st = _lvSettings || _lvDefaultSettings();
+  const meta = {
+    kind: "lv-level",
+    settings: {
+      layout: _lvLayout, w: _lvW, h: _lvH,
+      cells: _lvCells.map(function(c) { return c ? ids.indexOf(c) : -1; }),
+      names: _lvScreens.map(function(s) { return s.name; }),
+      dir: _lvDir, speed: _lvSpeed, loop: _lvLoop,
+      multicolor: st.multicolor, bgColor: st.bgColor, mc1Color: st.mc1Color, mc2Color: st.mc2Color,
+      charSource: st.charSource
+    },
+    extras: {}
+  };
+  if (st.charSource === "custom" && st.charset) meta.extras.charset = st.charset.slice(0);
+  if (st.charSource === "custom" && st.charColors) meta.extras.charColors = st.charColors.slice(0);
+  return _vaBuildBinWithMeta(payload, meta);
+}
+
+function _lvLoadLevelFile(bytes) {
+  const parsed = _vaReadBinWithMeta(bytes);
+  if (parsed.manifest?.kind !== "lv-level") return false;
+  const ms = parsed.manifest.settings || {};
+  const n = _ME_COLS * _ME_ROWS;
+  const count = Math.floor(parsed.payload.length / (n * 2));
+  const custom = ms.charSource === "custom" && !!parsed.extras.charset;
+  const settings = {
+    multicolor: !!ms.multicolor,
+    bgColor: (ms.bgColor ?? 6) & 0x0F, mc1Color: (ms.mc1Color ?? 5) & 0x0F, mc2Color: (ms.mc2Color ?? 13) & 0x0F,
+    charSource: custom ? "custom" : "rom",
+    charset: custom ? parsed.extras.charset.slice(0) : null,
+    charColors: custom && parsed.extras.charColors ? parsed.extras.charColors.slice(0) : null
+  };
+  _lvPushUndo();
+  _lvScreens = [];
+  _lvCells = [];
+  _lvSetSettings(settings);
+  const names = Array.isArray(ms.names) ? ms.names : [];
+  for (let i = 0; i < count; i++) {
+    const base = i * n * 2;
+    _lvScreens.push(_lvNewScreen(names[i] || (t("lvScreenName") + " " + (i + 1)),
+      parsed.payload.slice(base, base + n), parsed.payload.slice(base + n, base + n * 2), null));
+  }
+  _lvLayout = ["vertical", "horizontal", "grid"].includes(ms.layout) ? ms.layout : "vertical";
+  _lvW = Math.max(1, ms.w | 0); _lvH = Math.max(0, ms.h | 0);
+  const cells = Array.isArray(ms.cells) ? ms.cells : [];
+  _lvCells = new Array(_lvW * _lvH).fill(null).map(function(_, i) {
+    const k = cells[i];
+    return k >= 0 && k < _lvScreens.length ? _lvScreens[k].id : null;
+  });
+  _lvDir = _LV_DIRS[_lvLayout].includes(ms.dir) ? ms.dir : _LV_DIRS[_lvLayout][0];
+  _lvSpeed = Math.max(1, Math.min(8, ms.speed | 0 || 1));
+  _lvLoop = ms.loop !== false;
+  _lvSel = _lvSlotCount() ? 0 : -1;
+  _lvLibSel = null;
+  const speedIn = document.getElementById("lv-speed");
+  if (speedIn) speedIn.value = String(_lvSpeed);
+  const loopIn = document.getElementById("lv-loop");
+  if (loopIn) loopIn.checked = _lvLoop;
+  _lvRewind();
+  return true;
+}
+
+/* ── Export: level data in the order a scroller consumes it ──
+   vertical   → rows of 40 bytes (scroll up: bottom row first)
+   horizontal → columns of 25 bytes (scroll left: rightmost column first)
+   grid       → full map, row-major */
+/* The whole level as one row-major char map + color map (empty slots: spaces). */
+function _lvComposeMap() {
+  if (!_lvCells.some(Boolean)) return null;
+  const cols = _lvW * _ME_COLS, rows = _lvH * _ME_ROWS;
+  const map = new Uint8Array(cols * rows).fill(_ME_EMPTY);
+  const cmap = new Uint8Array(cols * rows).fill(14);
+  for (let i = 0; i < _lvSlotCount(); i++) {
+    const scr = _lvScreenById(_lvCells[i]);
+    if (!scr) continue;
+    const ox = (i % _lvW) * _ME_COLS, oy = Math.floor(i / _lvW) * _ME_ROWS;
+    for (let r = 0; r < _ME_ROWS; r++)
+      for (let c = 0; c < _ME_COLS; c++) {
+        map[(oy + r) * cols + ox + c] = scr.screen[r * _ME_COLS + c];
+        cmap[(oy + r) * cols + ox + c] = scr.color[r * _ME_COLS + c] & 0x0F;
+      }
+  }
+  return { map, cmap, cols, rows };
+}
+
+function _lvExportData() {
+  const composed = _lvComposeMap();
+  if (!composed) return null;
+  const { map, cmap, cols, rows } = composed;
+  const screen = new Uint8Array(cols * rows), color = new Uint8Array(cols * rows);
+  let unit = "map", chunk = cols, k = 0;
+  if (_lvLayout === "vertical") {
+    unit = "row";
+    for (let n = 0; n < rows; n++) {
+      const r = _lvDir === "up" ? rows - 1 - n : n;
+      screen.set(map.subarray(r * cols, (r + 1) * cols), n * cols);
+      color.set(cmap.subarray(r * cols, (r + 1) * cols), n * cols);
+    }
+  } else if (_lvLayout === "horizontal") {
+    unit = "col"; chunk = rows;
+    for (let n = 0; n < cols; n++) {
+      const c = _lvDir === "left" ? cols - 1 - n : n;
+      for (let r = 0; r < rows; r++) { screen[k] = map[r * cols + c]; color[k] = cmap[r * cols + c]; k++; }
+    }
+  } else {
+    screen.set(map); color.set(cmap);
+  }
+  return { screen: screen, color: color, cols: cols, rows: rows, unit: unit, chunk: chunk };
+}
+
+function _lvExportAsm() {
+  const d = _lvExportData();
+  if (!d) return "";
+  const hex = function(v) { return "$" + v.toString(16).toUpperCase().padStart(2, "0"); };
+  const order = d.unit === "row" ? (_lvDir === "up" ? "rows of 40 bytes, bottom row first" : "rows of 40 bytes, top row first")
+    : d.unit === "col" ? (_lvDir === "left" ? "columns of 25 bytes, rightmost column first" : "columns of 25 bytes, leftmost column first")
+    : "row-major map";
+  const lines = [
+    "; Level: " + _lvW + "x" + _lvH + " screens, " + d.cols + "x" + d.rows + " chars",
+    "; level_screen / level_color: " + order,
+    ".const LEVEL_COLS = " + d.cols,
+    ".const LEVEL_ROWS = " + d.rows
+  ];
+  const dump = function(label, bytes) {
+    lines.push(label + ":");
+    for (let i = 0; i < bytes.length; i += d.chunk) {
+      lines.push("    .byte " + Array.from(bytes.subarray(i, i + d.chunk), hex).join(", "));
+    }
+  };
+  dump("level_screen", d.screen);
+  dump("level_color", d.color);
+  return lines.join("\n") + "\n";
+}
+
+function _lvFlash(msg) {
+  const btn = document.querySelector("#level-editor-dialog .ed-file-btn");
+  if (!btn) return;
+  const o = btn.textContent;
+  btn.textContent = msg;
+  setTimeout(function() { btn.textContent = o; }, 1400);
+}
+
+function _lvExport(kind) {
+  if (kind === "save-level") { _saveBinFile(_lvBuildLevelFile(), "level.bin"); return; }
+  const d = _lvExportData();
+  if (!d) { _lvFlash(t("lvNothing")); return; }
+  if (kind === "screen") { _saveBinFile(d.screen, "level-screen.bin"); return; }
+  if (kind === "screen-color") {
+    const out = new Uint8Array(d.screen.length * 2);
+    out.set(d.screen, 0); out.set(d.color, d.screen.length);
+    _saveBinFile(out, "level-screen-color.bin");
+    return;
+  }
+  if (kind === "blocks") {
+    const n = exportAsmToBlocks(_lvExportAsm());
+    _lvFlash(n > 0 ? tf("lvExportDone", { n: n }) : t("lvNothing"));
+    return;
+  }
+  if (kind === "asm") {
+    navigator.clipboard.writeText(_lvExportAsm()).then(function() { _lvFlash(t("copied")); }).catch(function() {});
+  }
+}
+
+function _lvReset() {
+  _lvStop();
+  _lvScreens = []; _lvCells = []; _lvW = 1; _lvH = 0;
+  _lvSel = -1; _lvLibSel = null;
+  _lvSetSettings(_lvDefaultSettings());
+  _lvCamX = _lvCamY = 0;
+}
+
+function setupLevelEditor() {
+  const dialog = document.getElementById("level-editor-dialog");
+  if (!dialog) return;
+
+  // Runs during init, before the `let _lv*` declarations above are reached
+  // (TDZ) — so state is only touched lazily, from event handlers.
+  document.getElementById("level-editor-btn")?.addEventListener("click", function() {
+    document.querySelector(".control-menu")?.removeAttribute("open");
+    if (!_lvSettings) _lvSetSettings(_lvDefaultSettings());
+    _lvRenderAll();
+    dialog._applyPosition?.();
+    dialog.showModal();
+    _meEnsureRomFont(function() {
+      _lvRomCache = null;
+      _lvScreens.forEach(function(s) { s.cache = null; });
+      _lvRenderAll();
+    });
+  });
+  document.getElementById("lv-close")?.addEventListener("click", function() { dialog.close(); });
+  dialog.addEventListener("close", _lvStop);
+  document.getElementById("map-editor-dialog")?.addEventListener("close", _lvFinishMapEdit);
+
+  dialog.querySelectorAll("button[data-lv-export]").forEach(function(b) {
+    b.addEventListener("click", function() { _lvExport(b.dataset.lvExport); });
+  });
+  document.getElementById("lv-new")?.addEventListener("click", function() {
+    _lvPushUndo(); _lvReset(); _lvRenderAll();
+  });
+
+  const levelFile = document.getElementById("lv-level-file");
+  document.getElementById("lv-open")?.addEventListener("click", function() { levelFile?.click(); });
+  levelFile?.addEventListener("change", function(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function() {
+      _lvStop();
+      if (!_lvLoadLevelFile(new Uint8Array(reader.result))) _lvFlash(t("lvNotLevel"));
+      _lvRenderAll();
+    };
+    reader.readAsArrayBuffer(file);
+    e.target.value = "";
+  });
+
+  document.getElementById("lv-add-empty")?.addEventListener("click", function() {
+    _lvPushUndo();
+    const scr = _lvNewScreen(_lvNextName(), null, null, null);
+    _lvScreens.push(scr);
+    _lvLibSel = scr.id;
+    _lvPlace(scr.id);
+    _lvSelectSlot(_lvSel);
+  });
+  document.getElementById("lv-add-map")?.addEventListener("click", function() {
+    _meInit();
+    _lvPushUndo();
+    const comp = _meComposite();
+    const scr = _lvNewScreen(_lvNextName(), comp.screen, comp.color, _lvSettingsFromMe());
+    _lvScreens.push(scr);
+    _lvLibSel = scr.id;
+    _lvPlace(scr.id);
+    _lvSelectSlot(_lvSel);
+  });
+  const mapFiles = document.getElementById("lv-map-files");
+  document.getElementById("lv-load-maps")?.addEventListener("click", function() { mapFiles?.click(); });
+  mapFiles?.addEventListener("change", async function(e) {
+    const files = Array.from(e.target.files || []);
+    e.target.value = "";
+    if (!files.length) return;
+    _lvPushUndo();
+    for (const file of files) {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      const scr = _lvScreenFromBin(bytes, file.name.replace(/\.[^.]+$/, ""));
+      _lvScreens.push(scr);
+      _lvLibSel = scr.id;
+      _lvPlace(scr.id);
+    }
+    _lvSelectSlot(_lvSel);
+  });
+
+  const currentScreenId = function() {
+    return (_lvSel >= 0 && _lvCells[_lvSel]) || _lvLibSel;
+  };
+  document.getElementById("lv-edit")?.addEventListener("click", function() {
+    const id = currentScreenId();
+    if (id) _lvEditInMapEditor(id);
+  });
+  document.getElementById("lv-duplicate")?.addEventListener("click", function() {
+    const src = _lvScreenById(currentScreenId());
+    if (!src) return;
+    _lvPushUndo();
+    const scr = _lvNewScreen(src.name + " +", src.screen, src.color, null);
+    scr.sig = src.sig;
+    _lvScreens.push(scr);
+    _lvLibSel = scr.id;
+    _lvPlace(scr.id);
+    _lvSelectSlot(_lvSel);
+  });
+  document.getElementById("lv-move-back")?.addEventListener("click", function() {
+    if (_lvSel <= 0) return;
+    _lvPushUndo();
+    if (_lvSwapSlots(_lvSel, _lvSel - 1)) _lvSelectSlot(_lvSel - 1);
+  });
+  document.getElementById("lv-move-fwd")?.addEventListener("click", function() {
+    if (_lvSel < 0 || _lvSel >= _lvSlotCount() - 1) return;
+    _lvPushUndo();
+    if (_lvSwapSlots(_lvSel, _lvSel + 1)) _lvSelectSlot(_lvSel + 1);
+  });
+  document.getElementById("lv-remove")?.addEventListener("click", function() {
+    if (_lvSel < 0) return;
+    _lvPushUndo(); _lvRemoveSlot(_lvSel); _lvRenderAll();
+  });
+  document.getElementById("lv-add-row")?.addEventListener("click", function() { _lvPushUndo(); _lvGridResize(0, 1); _lvRenderAll(); });
+  document.getElementById("lv-add-col")?.addEventListener("click", function() { _lvPushUndo(); _lvGridResize(1, 0); _lvRenderAll(); });
+  document.getElementById("lv-del-row")?.addEventListener("click", function() { if (_lvH > 1) { _lvPushUndo(); _lvGridResize(0, -1); _lvRenderAll(); } });
+  document.getElementById("lv-del-col")?.addEventListener("click", function() { if (_lvW > 1) { _lvPushUndo(); _lvGridResize(-1, 0); _lvRenderAll(); } });
+  document.getElementById("lv-undo")?.addEventListener("click", _lvUndoOp);
+  document.getElementById("lv-redo")?.addEventListener("click", _lvRedoOp);
+
+  document.getElementById("lv-play")?.addEventListener("click", function() { if (_lvPlaying) _lvStop(); else _lvPlay(); });
+  document.getElementById("lv-rewind")?.addEventListener("click", function() { _lvRewind(); _lvRenderAll(); });
+  document.getElementById("lv-layout")?.addEventListener("change", function(e) {
+    const layout = e.target.value;   // read first: _lvStop() re-syncs the select
+    _lvStop(); _lvPushUndo(); _lvSetLayout(layout); _lvRewind(); _lvRenderAll();
+  });
+  document.getElementById("lv-dir")?.addEventListener("change", function(e) {
+    _lvDir = e.target.value;
+    if (!_lvPlaying) _lvRewind();
+    _lvRenderAll();
+  });
+  document.getElementById("lv-speed")?.addEventListener("input", function(e) {
+    _lvSpeed = Math.max(1, Math.min(8, parseInt(e.target.value, 10) || 1));
+  });
+  document.getElementById("lv-loop")?.addEventListener("change", function(e) { _lvLoop = !!e.target.checked; });
+  document.getElementById("lv-borders")?.addEventListener("change", function(e) { _lvBorders = !!e.target.checked; _lvRenderOverview(); });
+  document.getElementById("lv-zoom")?.addEventListener("input", function(e) {
+    _lvScale = (parseInt(e.target.value, 10) || 50) / 100;
+    _lvRenderOverview();
+  });
+
+  // Overview: click selects, drag swaps, double-click edits in the Map Editor
+  const canvas = document.getElementById("lv-canvas");
+  canvas?.addEventListener("pointerdown", function(e) {
+    if (e.button !== 0) return;
+    const slot = _lvSlotAt(e.clientX, e.clientY);
+    if (slot < 0 || slot >= _lvSlotCount()) return;
+    _lvDrag = { kind: "slot", from: slot, x: e.clientX, y: e.clientY, active: false, over: -1 };
+    try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+  });
+  canvas?.addEventListener("pointermove", _lvDragMove);
+  canvas?.addEventListener("pointerup", _lvDragEnd);
+  canvas?.addEventListener("pointercancel", function() { _lvDrag = null; _lvRenderOverview(); });
+  canvas?.addEventListener("dblclick", function(e) {
+    const slot = _lvSlotAt(e.clientX, e.clientY);
+    if (slot >= 0 && _lvCells[slot]) _lvEditInMapEditor(_lvCells[slot]);
+  });
+
+  // Preview: drag to pan the camera
+  const preview = document.getElementById("lv-preview");
+  let pan = null;
+  preview?.addEventListener("pointerdown", function(e) {
+    if (e.button !== 0) return;
+    pan = { x: e.clientX, y: e.clientY, cx: _lvCamX, cy: _lvCamY, k: _LV_SW / preview.getBoundingClientRect().width };
+    try { preview.setPointerCapture(e.pointerId); } catch (_) {}
+  });
+  preview?.addEventListener("pointermove", function(e) {
+    if (!pan) return;
+    _lvCamX = Math.round(pan.cx - (e.clientX - pan.x) * pan.k);
+    _lvCamY = Math.round(pan.cy - (e.clientY - pan.y) * pan.k);
+    _lvClampCam();
+    _lvRenderPreview(); _lvRenderOverview(); _lvUpdateStatus();
+  });
+  const endPan = function() { pan = null; };
+  preview?.addEventListener("pointerup", endPan);
+  preview?.addEventListener("pointercancel", endPan);
+
+  dialog.addEventListener("keydown", function(e) {
+    if (e.target.closest("input, select, textarea")) return;
+    const mod = e.ctrlKey || e.metaKey;
+    if (mod && e.key.toLowerCase() === "z") { if (e.shiftKey) _lvRedoOp(); else _lvUndoOp(); e.preventDefault(); return; }
+    if (mod && e.key.toLowerCase() === "y") { _lvRedoOp(); e.preventDefault(); return; }
+    if (e.key === " ") { if (_lvPlaying) _lvStop(); else _lvPlay(); e.preventDefault(); return; }
+    if (e.key === "Delete" && _lvSel >= 0) { _lvPushUndo(); _lvRemoveSlot(_lvSel); _lvRenderAll(); e.preventDefault(); return; }
+    const step = e.shiftKey ? 8 : 1;
+    const moves = { ArrowUp: [0, -step], ArrowDown: [0, step], ArrowLeft: [-step, 0], ArrowRight: [step, 0] };
+    if (moves[e.key]) {
+      _lvCamX += moves[e.key][0]; _lvCamY += moves[e.key][1];
+      _lvClampCam();
+      _lvRenderPreview(); _lvRenderOverview(); _lvUpdateStatus();
+      e.preventDefault();
+    }
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   NUMBER CONVERTER — non-modal dec / hex / bin tool (8 or 16 bit)
+   ═══════════════════════════════════════════════════════ */
+let _ncValue = 0;
+let _ncBits = 8;
+
+/* Parse one field. Returns { value } (0..65535), { empty }, or { error }.
+   dec: 123, -1 (two's complement in the current width); hex: $1F, 0x1F, 1F;
+   bin: %1010, 0b1010, 1010 — spaces and underscores are ignored. */
+function _ncParse(kind, text, bits) {
+  let s = String(text || "").trim().replace(/[\s_]/g, "");
+  if (!s) return { empty: true };
+  let value;
+  if (kind === "dec") {
+    if (!/^-?\d+$/.test(s)) return { error: true };
+    value = parseInt(s, 10);
+    if (value < 0) {
+      if (value < -32768) return { error: true };
+      value = (value + (value < -128 || bits === 16 ? 0x10000 : 0x100)) & 0xFFFF;
+    }
+  } else if (kind === "hex") {
+    s = s.replace(/^(\$|0x|&h)/i, "");
+    if (!/^[0-9a-f]+$/i.test(s)) return { error: true };
+    value = parseInt(s, 16);
+  } else {
+    s = s.replace(/^(%|0b)/i, "");
+    if (!/^[01]+$/.test(s)) return { error: true };
+    value = parseInt(s, 2);
+  }
+  if (!Number.isFinite(value) || value > 0xFFFF) return { error: true };
+  return { value };
+}
+
+function _ncFormat(kind, value, bits, prefix) {
+  if (kind === "dec") return String(value);
+  if (kind === "hex") return (prefix ? "$" : "") + value.toString(16).toUpperCase().padStart(bits / 4, "0");
+  const bin = value.toString(2).padStart(bits, "0");
+  return prefix ? "%" + bin : bin.replace(/(.{4})(?=.)/g, "$1 ");
+}
+
+function _ncSigned(value, bits) {
+  const top = bits === 16 ? 0x8000 : 0x80;
+  return value & top ? value - top * 2 : value;
+}
+
+function _ncSave() {
+  const open = !!document.getElementById("numconv-dialog")?.open;
+  try { localStorage.setItem("c64va-numconv", JSON.stringify({ value: _ncValue, bits: _ncBits, open })); } catch (_) {}
+}
+
+function _ncRender(skipField) {
+  for (const kind of ["dec", "hex", "bin"]) {
+    const input = document.getElementById("nc-" + kind);
+    if (!input) continue;
+    if (kind !== skipField) input.value = _ncFormat(kind, _ncValue, _ncBits, false);
+    if (kind !== skipField) input.classList.remove("nc-input--error");
+  }
+  document.querySelectorAll("#numconv-dialog .nc-width-btn").forEach(function(btn) {
+    btn.classList.toggle("nc-width-btn--active", Number(btn.dataset.bits) === _ncBits);
+  });
+  const bitsBox = document.getElementById("nc-bits");
+  if (bitsBox) {
+    bitsBox.innerHTML = "";
+    for (let b = _ncBits - 1; b >= 0; b--) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "nc-bit" + ((_ncValue >> b) & 1 ? " nc-bit--on" : "") + (b % 4 === 0 && b ? " nc-bit--group" : "");
+      btn.dataset.bit = String(b);
+      btn.setAttribute("aria-label", tf("ncBit", { n: b }));
+      btn.innerHTML = '<span class="nc-bit-val">' + ((_ncValue >> b) & 1) + '</span><span class="nc-bit-idx">' + b + "</span>";
+      bitsBox.appendChild(btn);
+    }
+  }
+  const info = document.getElementById("nc-info");
+  if (info) {
+    const parts = [tf("ncSigned", { v: _ncSigned(_ncValue, _ncBits) })];
+    if (_ncBits === 16) {
+      parts.push(tf("ncLowByte", { v: _ncFormat("hex", _ncValue & 0xFF, 8, true) }));
+      parts.push(tf("ncHighByte", { v: _ncFormat("hex", _ncValue >> 8, 8, true) }));
+    }
+    info.textContent = parts.join("   ");
+  }
+}
+
+function _ncSetValue(value, skipField) {
+  _ncValue = value & 0xFFFF;
+  if (_ncValue > 0xFF && _ncBits === 8) _ncBits = 16;
+  _ncRender(skipField);
+  _ncSave();
+}
+
+function _ncOpen(focus = true) {
+  const dialog = document.getElementById("numconv-dialog");
+  if (!dialog) return;
+  if (dialog.open) { dialog.close(); return; }
+  _ncRender(null);
+  dialog._applyPosition?.();
+  dialog.show();
+  if (!focus) return;
+  const dec = document.getElementById("nc-dec");
+  dec?.focus();
+  dec?.select();
+}
+
+function setupNumberConverter() {
+  const dialog = document.getElementById("numconv-dialog");
+  if (!dialog) return;
+  // runs before the _nc* state is declared (TDZ), so restore after the script has loaded
+  setTimeout(function() {
+    let reopen = false;
+    try {
+      const saved = JSON.parse(localStorage.getItem("c64va-numconv") || "null");
+      if (saved && Number.isFinite(saved.value)) {
+        _ncValue = saved.value & 0xFFFF;
+        _ncBits = saved.bits === 16 ? 16 : 8;
+      }
+      reopen = !!saved?.open;
+    } catch (_) {}
+    dialog.addEventListener("toggle", _ncSave);
+    if (reopen && !dialog.open) _ncOpen(false);
+  }, 0);
+  document.getElementById("numconv-btn")?.addEventListener("click", function() { _ncOpen(); });
+  document.getElementById("nc-close")?.addEventListener("click", function() { dialog.close(); });
+  dialog.addEventListener("keydown", function(e) {
+    if (e.key === "Escape") { e.preventDefault(); dialog.close(); }
+  });
+  for (const kind of ["dec", "hex", "bin"]) {
+    const input = document.getElementById("nc-" + kind);
+    input?.addEventListener("input", function() {
+      const r = _ncParse(kind, input.value, _ncBits);
+      input.classList.toggle("nc-input--error", !!r.error);
+      if (r.value !== undefined) _ncSetValue(r.value, kind);
+    });
+    // on leaving the field show its normalised form
+    input?.addEventListener("blur", function() { _ncRender(null); });
+  }
+  dialog.querySelectorAll(".nc-width-btn").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      _ncBits = Number(btn.dataset.bits) === 16 ? 16 : 8;
+      if (_ncBits === 8) _ncValue &= 0xFF;
+      _ncRender(null);
+      _ncSave();
+    });
+  });
+  document.getElementById("nc-bits")?.addEventListener("click", function(e) {
+    const btn = e.target.closest(".nc-bit");
+    if (!btn) return;
+    _ncSetValue(_ncValue ^ (1 << Number(btn.dataset.bit)), null);
+  });
+  dialog.querySelectorAll("[data-nc-copy]").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      const text = _ncFormat(btn.dataset.ncCopy, _ncValue, _ncBits, true);
+      navigator.clipboard?.writeText(text).then(function() {
+        btn.classList.add("nc-copy--done");
+        setTimeout(function() { btn.classList.remove("nc-copy--done"); }, 900);
+      }).catch(function() {});
+    });
+  });
 }
 
 /* ═══════════════════════════════════════════════════════

@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.0 — Manuale della lingua
+# Ultimate Basic v1.6.1 — Manuale della lingua
 
 Manuale completo del linguaggio e della riga di comando per Ultimate Basic, un
 linguaggio simile al BASIC che compila direttamente in codice macchina 6502 per
@@ -531,6 +531,11 @@ score += 300 * level # 900 (prima della 1.5.7 questo veniva troncato a 8 bit: 44
 score = score + 100 * level
 var big: word = 100 * level + 900
 ```
+
+Dalla versione 1.6.1 questo vale anche all'interno delle somme e per `shl`, e
+per i moltiplicatori costanti superiori a 255: `py = cy * 8 + fy`, `py = (cy shl
+3) + fy` e `w = cy * 300` mantengono tutti i 16 bit (prima, le forme di somma
+venivano troncate a 8 bit). I target di byte mantengono i risultati a 8 bit.
 
 ### Grafica bitmap
 
@@ -1105,13 +1110,15 @@ poke $07F9, pg         # copy to sprites 1–7
 
 ```basic
 map load "levels/world.ubmap"
-map draw map_x, map_y       # draw a 40x25 viewport to screen/color RAM
+map load "level.bin", $4000 # Progetto Editor di livelli, dati in $4000 (1.6.1)
+map draw map_x, map_y # disegna una viewport 40x25 su schermo/RAM colore
+map view px, py # visualizzazione fluida con doppio buffer a livello di pixel px, py (1.6.1)
 
-var tile = map_tile(x, y)   # read character code from the map
-map set x, y, 42            # change character code in writable map data
+var tile = map_tile(x, y) # legge il codice del carattere dalla mappa
+map set x, y, 42 # cambia il codice del carattere nei dati della mappa scrivibili
 
-var shade = map_color(x, y) # read cell color (0 when map has no color data)
-map color x, y, 7           # change cell color when color data is present
+var shade = map_color(x, y) # legge il colore della cella (0 quando la mappa non ha dati di colore)
+map color x, y, 7 # cambia il colore della cella quando sono presenti dati di colore
 ```
 
 `map load` risolve il nome del file relativo al file sorgente `.ub`, lo
@@ -1130,6 +1137,80 @@ I primi 1000 byte diventano la mappa dei caratteri 40×25 e i successivi 1000
 byte diventano i colori delle celle. La modalità multicolore e `$D021-$D023`
 vengono letti dal trailer dei metadati di VisualAssembler, quindi non è
 necessaria alcuna conversione `.ubmap`.
+
+**Progetti dell'editor di livelli (novità nella versione 1.6.1).** `Caricamento
+mappa` legge anche un progetto dell'editor di livelli VisualAssembler (`Salva
+livello (.bin)`) e compone le sue schermate in una mappa: un livello di
+schermate W×H diventa una mappa (W·40)×(H·25) con colori, gli slot vuoti sono
+spazi. Le mappe sono limitate a 255×255 celle, quindi un livello può essere al
+massimo largo 6 schermate e alto 10.
+
+```basic
+caricamento mappa "level.bin" # 2x5 schermate -&gt; una mappa 80x125
+```
+
+**Posizionamento dei dati della mappa (novità nella 1.6.1).** `map load "file",
+addr` memorizza la mappa a un indirizzo fisso invece che in linea nel codice,
+come `incbin "file", addr` (l'indirizzo deve essere sopra il codice generato o
+all'interno di uno spazio `org`). I caratteri vengono prima, i colori seguono:
+
+```basic
+caricamento mappa "level.bin", $4000 # mappa 80x125: caratteri $4000-$6713, colori $6714-$8E1F
+```
+
+#### Scorrimento fluido — `Visualizzazione mappa` (novità nella versione 1.6.1)
+
+```basic
+Carica la mappa "level.bin", $4000
+var px: word = 0
+var py: word = 0
+ciclo
+Visualizza la mappa px, py # una volta per frame, invece di `attendi raster`
+
+Leggi il joystick, cambia px / py, logica di gioco ...
+fine
+```
+
+`vista mappa x, y` mostra la mappa nella posizione pixel `x, y` (espressioni di
+parole; `0..(larghezza-40)*8` e `0..(altezza-25)*8`, i valori fuori intervallo
+vengono limitati). Chiamala una volta per frame: attende il limite del frame
+(linea raster 250), mostra la posizione fornita dalla chiamata precedente,
+quindi prende quella nuova, in modo che una posizione appaia un frame dopo.
+
+Come funziona: la parte fine utilizza XSCROLL / YSCROLL in `$D016` / `$D011` con
+38 colonne e 24 righe (il bordo scorrevole rimane nascosto); i passi dei
+caratteri scambiano due buffer dello schermo, `$0400` e `$3C00`. La posizione
+viene prevista due fotogrammi in anticipo e il buffer nascosto viene costruito
+per la cella del carattere successiva in due metà prima che la vista la
+raggiunga, quindi lo scambio non attende mai. La RAM del colore non può essere a
+doppio buffer: la sua metà superiore viene copiata nell'ultimo vecchio
+fotogramma dietro il raggio raster, la metà inferiore subito dopo lo scambio
+davanti ad esso (entrambe con interruzioni mascherate per alcune linee raster),
+quindi non si verificano tearing. Un cambio di direzione proprio in
+corrispondenza di un passo del carattere può bloccare la vista per uno o due
+fotogrammi mentre il buffer viene ricostruito.
+
+Regole:
+
+- Il codice del programma e i dati inline devono rimanere fuori da `$3C00-$3FFF`
+  (secondo buffer); caricare mappe di grandi dimensioni con un indirizzo (`map
+  load "file", $4000`), altrimenti la compilazione si interrompe con un errore.
+- La prima `vista mappa` disegna l'intera vista in `$0400`. Dopodiché lo schermo
+  appartiene alla `vista mappa`: `stampa` / `schermo` / `cls` scrivono solo
+  `$0400` e vengono sovrascritti.
+- Gli sprite funzionano come al solito: `map view` copia i puntatori sprite
+  `$07F8-$07FF` in `$3FF8-$3FFF` ad ogni frame, quindi `sprdef` / `sprite_frame`
+  vengono visualizzati in entrambi i buffer. Mantieni i dati sprite nel banco
+  VIC 0 (`$0000-$3FFF`, non `$1000-$1FFF`), ad esempio inserendo `sprdef` prima
+  di un grande `map load` inline.
+- I bit del set di caratteri di `$D018` vengono mantenuti (`charset su`
+  funziona); il bit multicolore di `$D016` viene mantenuto come impostato da
+  `map load`.
+- Lascia circa 6000 cicli (~95 linee raster) di logica di gioco per fotogramma;
+  un fotogramma più lungo fa sì che la visuale rimanga stabile per un fotogramma
+  senza mai presentare tearing.
+- Esempio: `examples/level_scroll_demo.ub` (controllato tramite joystick, con
+  uno sprite del giocatore).
 
 `map draw map_x, map_y` copia una viewport 40×25 a partire dalla cella di mappa
 specificata nella RAM dello schermo `$0400` e, se presente, nella RAM dei colori
