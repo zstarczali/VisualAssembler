@@ -173,7 +173,7 @@ Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat l�
 - **Ctrl + egérgörgő zoom** az Expert és Ultimate Basic szerkesztőkben (`Cmd` + görgő macOS-en; az érintőpad csippentése is működik).
 - **A munkaterületek megjegyzik a projekteket** — az Expert és az Ultimate Basic projektfák, az indítófájl és a nem mentett projektmódosítások a `.vaws` munkaterületre kerülnek mentésre, és azzal együtt kerülnek visszaállításra. A régebbi munkaterületek továbbra is nyitva maradnak.
 - **Ultimate Basic** — a mellékelt fordító gyorsabb, kisebb 6502-es kódot generál; a memóriatérkép mostantól megkülönbözteti a valódi kódot és adatokat a kitöltéstől és a hosszú `org` hézagoktól.
-- ** A fájl párbeszédablakok az aktív munkamappában** indulnak – a Blokk/Szakértő vagy az Ultimate Basic mappában, az aktuális módtól függően.
+- **A fájl párbeszédablakok az aktív munkamappában** indulnak – a Blokk/Szakértő vagy az Ultimate Basic mappában, az aktuális módtól függően.
 
 ---
 
@@ -381,7 +381,7 @@ Az **Beállítások** fül tartalmazza a kódgenerálást és a kimenet megjelen
 
 ### ASM sorra kattintás
 
-Kattintson az ASM nézet bármelyik sorára a megfelelő blokk ** kiemeléséhez a programterületen. Ha több blokk van kijelölve, az összes ASM sora együtt jelenik meg kiemelve.
+Kattintson az ASM nézet bármelyik sorára a megfelelő blokk **kiemeléséhez a programterületen**. Ha több blokk van kijelölve, az összes ASM sora együtt jelenik meg kiemelve.
 
 ### ASM sorszámok
 
@@ -462,7 +462,7 @@ A letöltés után az alkalmazás telepíti a frissítést, majd újraindul:
 | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Ablakok** | A telepítő passzív módban fut (csak folyamatban lévő műveletek), és a befejezése után elindítja az új verziót. A gépenkénti telepítés rendszergazdai jogosultságokat (UAC) kér.         |
 | **macOS**   | A DMG csatolásra kerül, az alkalmazáscsomag a helyére kerül, majd elindul az új verzió. Ha az alkalmazásmappa nem írható, a DMG egyszerűen megnyílik, így áthúzhatja az alkalmazást.    |
-| Linux       | Egy AppImage fájl kicserélődik az újra. Egy `.deb` / `.rpm` telepítés frissül a `pkexec` fájllal (jelszót kér a rendszer); a `pkexec` nélkül a csomag a szoftvertelepítőben nyílik meg. |
+| **Linux**   | Egy AppImage fájl kicserélődik az újra. Egy `.deb` / `.rpm` telepítés frissül a `pkexec` fájllal (jelszót kér a rendszer); a `pkexec` nélkül a csomag a szoftvertelepítőben nyílik meg. |
 
 Ha vannak mentetlen lapok, az alkalmazás bezárás előtt rákérdez. Ugyanez az ellenőrzés minden indítás után néhány másodperccel csendben lefut: semmi sem jelenik meg, hacsak nincs újabb verzió. Az eredmény az Ultimate Basic állapotsorában is megjelenik — **Up to date (vX)**, vagy egy kiemelt **Frissítés elérhető: vY** szöveg, amely megnyitja a frissítési párbeszédablakot.
 
@@ -509,7 +509,7 @@ Az `@name`, `@category` és `@desc` fájloknak lehetnek nyelvenként eltérő v�
 
 Az **Menü → Build → Build project** parancs egyetlen lépésben lefordítja a teljes projektet. A megnyitott `.proj` projekt fájljai kerülnek felépítésre – vagy projekt nélkül a megnyitott fájl fülek:
 
-- minden felépíthető forráskód (`.asm`, `.json` blokk, `.ub`) egy `.prg` ** fájllá fordul a forráskódja mellett ** fájlnévvel; a **Run with Exomizer** engedélyezésével a kimenet feldolgozásra kerül;
+- minden felépíthető forráskód (`.asm`, `.json` blokk, `.ub`) egy `.prg` **fájllá fordul a forráskódja mellett** fájlnévvel; a **Run with Exomizer** engedélyezésével a kimenet feldolgozásra kerül;
 - A hibakereső mellékfájlok (szimbólumok / forráskódtérkép) a PRG mellett vannak írva, ahol elérhetők;
 - Az `.include` / `include` (és az `.inc` fájlokkal) egy másik fájl által behívott modulok kimaradnak, akárcsak a soha nem mentett fülek;
 - Egy jelentés felsorolja az összes fájlt méretével, a *kihagyás* okával vagy fordítási hibával együtt, az állapotsor pedig a *N / M felépített fájlt mutatja.*
@@ -626,7 +626,7 @@ A fő **Futtatás** gomb minden normál célhelyen támogatja az Ultimate Basic-
 | **Futtatás a D64-en keresztül** | Fordítsd le, nyisd meg a szokásos D64 csomagolási párbeszédablakot, majd indítsd el a lemezt a VICE-ban.                                                                 |
 | **Futtatás Ultimate-on**        | Töltse fel és futtassa a PRG-t a konfigurált C64 Ultimate REST kapcsolaton keresztül.                                                                                    |
 | **D64 futtatása hardveren**     | Csomagolj be egy D64-et, és küldd el a konfigurált C64 Ultimate-nek.                                                                                                     |
-| Kung Fu Flash 2 **              | Fordítsd le az UB indító forráskódját, és töltsd fel a PRG-t USB-n keresztül egy valódi C64/C128-ra, amely Kung Fu Flash 2 kazettát használ. Lásd: [Kung Fu Flash 2]{1]. |
+| **Kung Fu Flash 2**             | Fordítsd le az UB indító forráskódját, és töltsd fel a PRG-t USB-n keresztül egy valódi C64/C128-ra, amely Kung Fu Flash 2 kazettát használ. Lásd: [Kung Fu Flash 2]{1]. |
 
 A globális **Beállítások → Exomizer** opció az UB buildekre és a normál futtatású célpontokra is vonatkozik; nincs szükség külön UB eszköztár kapcsolóra. A hibakereső indításai szándékosan a tömörítetlen PRG-t használják, így a fordító címei és szimbólumai továbbra is megegyeznek a végrehajtott programmal.
 
@@ -3441,7 +3441,7 @@ Az eszköztár **Futtatás** gombját egy **osztott gomb** váltotta fel:
 | **Futtatás PRG-ként**           | Összegyűjtjük egy ideiglenes `.prg` fájlt, és közvetlenül elindítjuk a VICE-t. Klasszikus viselkedés.                                                                                                                                     |
 | **Futtatás a D64-en keresztül** | Állítsd össze, készíts egy `.d64` lemezképet (c1541 használatával), add hozzá a konfigurált extra fájlokat, majd indítsd el a VICE-t a lemezről. Használd ezt, amikor a programod futásidőben fájlokat tölt be (pl. a LOADFILE makróval). |
 | **Hardveren futtatva**          | Gyűjtsd össze PRG-re, és küldd el egy **1541 Ultimate / Ultimate 64** eszközre a helyi hálózaton keresztül. Lásd: [13. szakasz](#13-hardware-settings).                                                                                   |
-| Kung Fu Flash 2 **              | Rakd össze PRG-re, majd töltsd fel USB soros porton keresztül egy igazi C64/C128-ra egy **Kung Fu Flash 2** patronnal. Lásd: [Kung Fu Flash 2]{1].                                                                                        |
+| **Kung Fu Flash 2**             | Rakd össze PRG-re, majd töltsd fel USB soros porton keresztül egy igazi C64/C128-ra egy **Kung Fu Flash 2** patronnal. Lásd: [Kung Fu Flash 2]{1].                                                                                        |
 
 A kiválasztott mód a munkamenetek között mentésre kerül.
 

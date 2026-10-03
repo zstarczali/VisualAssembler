@@ -204,16 +204,16 @@ Un assembleur 6502 visuel et basé sur des blocs pour le Commodore 64. Créez de
 - **Éditeur SID → Exportation UltimateBasic** — **Fichiers → Exporter vers UltimateBasic** écrit le morceau sous forme de bloc `morceau… fin` (instruments, liste d'ordre et lignes de motifs sous forme de texte), suivi de `lecture de la musique`, et l'insère au niveau du curseur de l'éditeur Ultimate Basic (hors mode UB, il est copié dans le presse-papiers). Le compilateur UltimateBasic génère un lecteur sans page vide à partir de ce bloc lors de la compilation, de sorte que `lecture de la musique` / `arrêt de la musique` contrôlent le morceau et qu'aucun conflit n'interfère avec les variables UB. Les effets de vibrato, de glissando, de coupure de notes et de vitesse sont pris en charge ; jusqu'à 8 motifs, avec une liste d'ordre de longueur quelconque. Nécessite un compilateur UltimateBasic avec prise en charge de `tune`.
 - **Mise à jour du langage Ultimate Basic** — La coloration syntaxique et la référence des commandes couvrent désormais **`sfx`** (effet SID non bloquant : `sfx canal, fréquence, trames [, onde]`), **`org`** (continuer le code sub/fn à une adresse, en laissant un espace rempli de zéros pouvant contenir des données `incbin`), **`charset on` / `charset off`** (basculer le VIC-II vers le jeu de caractères RAM et inversement) et **`incbin` slicing** (`incbin "font.prg", $3C00, 2` ignore les premiers octets, un quatrième argument optionnel limite la longueur).
 - **Surlignage de plusieurs blocs dans la vue ASM** — la sélection de plusieurs blocs met en surbrillance toutes leurs lignes ASM à la fois, la position de défilement reste stable pendant la sélection et les numéros de ligne sont plus doux avec une subtile ligne de séparation verticale.
-- ** Le mode assembleur est conservé lors des changements de mode dans Ultimate Basic. ** L'ouverture d'un projet ou d'un exemple intégré lorsque Ultimate Basic est actif quitte d'abord UB et revient à votre dernier mode Bloc/Expert. Ainsi, le tampon UB ne peut plus écraser le mode ou le titre du nouvel onglet. Les nouveaux onglets sont créés dans le mode approprié.
+- **Le mode assembleur est conservé lors des changements de mode dans Ultimate Basic.** L'ouverture d'un projet ou d'un exemple intégré lorsque Ultimate Basic est actif quitte d'abord UB et revient à votre dernier mode Bloc/Expert. Ainsi, le tampon UB ne peut plus écraser le mode ou le titre du nouvel onglet. Les nouveaux onglets sont créés dans le mode approprié.
 - **Paramètres Kung Fu Flash 2** — un bouton **Détecter USB** dans les paramètres matériels effectue une nouvelle recherche du port série de la cartouche, et les prérequis de KFF2 indiquent désormais le firmware Kung Fu Flash requis (v2.07+).
 
 ---
 
 ## Points forts de la version 2.4.5
 
-- **Prise en charge de Kung Fu Flash 2 — exécutez vos programmes sur un véritable Commodore 64/128. ** Une nouvelle entrée **Kung Fu Flash 2** dans le menu **Exécuter** permet de compiler le programme et de le transférer via USB directement sur un véritable C64 (ou C128) allumé, équipé d'une cartouche Kung Fu Flash 2 — sans image disque, sans copie sur carte SD, sans émulateur. Fonctionne en modes Block, Expert et Ultimate Basic. Le port série USB de la cartouche est détecté automatiquement (et peut être saisi manuellement) ; consultez [Kung Fu Flash 2](#kung-fu-flash-2) pour la configuration et le déroulement précis.
+- **Prise en charge de Kung Fu Flash 2 — exécutez vos programmes sur un véritable Commodore 64/128.** Une nouvelle entrée **Kung Fu Flash 2** dans le menu **Exécuter** permet de compiler le programme et de le transférer via USB directement sur un véritable C64 (ou C128) allumé, équipé d'une cartouche Kung Fu Flash 2 — sans image disque, sans copie sur carte SD, sans émulateur. Fonctionne en modes Block, Expert et Ultimate Basic. Le port série USB de la cartouche est détecté automatiquement (et peut être saisi manuellement) ; consultez [Kung Fu Flash 2](#kung-fu-flash-2) pour la configuration et le déroulement précis.
 - **Panneaux Programme/ASM redimensionnables** — Une fine barre verticale de séparation entre le panneau Programme et le panneau ASM/Sortie permet de déplacer la bordure vers la gauche ou la droite (minimum 260 px par panneau). Les touches fléchées permettent de la déplacer, un double-clic rétablit une répartition 50/50, et la position est mémorisée d'une session à l'autre. La barre de séparation est masquée en mode Expert et Ultimate Basic, ainsi que dans la disposition empilée étroite.
-- ** Lignes de macro plus claires dans la vue ASM ** — Les blocs de macro sont désormais listés sans le marqueur de commentaire initial (`.print "HELLO" `, `.if A == 1 `, `.sprite_init … ` au lieu de `; .print … `), et le surligneur de syntaxe ASM les colore comme des macros. Les blocs COMMENT et les marqueurs de région ordinaires commencent toujours par `;`.
+- **Lignes de macro plus claires dans la vue ASM** — Les blocs de macro sont désormais listés sans le marqueur de commentaire initial (`.print "HELLO" `, `.if A == 1 `, `.sprite_init … ` au lieu de `; .print … `), et le surligneur de syntaxe ASM les colore comme des macros. Les blocs COMMENT et les marqueurs de région ordinaires commencent toujours par `;`.
 - **Mise en évidence personnalisée des macros dans l'éditeur Expert** — le nom de la macro après `.macro`, `.invoke` et `.call` (et les appels de style Kick `:name(...)`) a sa propre couleur, de même que les substitutions `{param}` à l'intérieur du corps de la macro et les noms des paramètres dans l'en-tête `.macro`, dans chaque thème.
 - **Boîte de dialogue À propos rafraîchie** — une mise en page plus large sur deux colonnes avec des liens groupés vers le projet, la licence et les crédits, et la bannière Ultimate Basic a désormais un fond transparent pour qu'elle s'intègre à tous les thèmes.
 - **Web64 sur le site du produit** — une nouvelle section IDE Web64 sur [c64va.tech](https://www.c64va.tech).
@@ -243,7 +243,7 @@ Un assembleur 6502 visuel et basé sur des blocs pour le Commodore 64. Créez de
 
 - **Langues d'interface utilisateur polonaises et italiennes** — traduction complète de l'interface (menus, boîtes de dialogue, descriptions mnémotechniques, référence de commande Ultimate Basic) en plus des langues hongroises, anglaises, espagnoles, allemandes et néerlandaises existantes.
 - **Bouton de la barre d'outils d'aide en ligne** — un nouveau bouton d'icône après le débogage ouvre le site de documentation multilingue ([c64va.tech/docs.html](https://www.c64va.tech/docs.html)) directement depuis l'application.
-- **Descriptions mnémoniques centralisées : ** les descriptions mnémoniques par langue ont été déplacées dans le fichier de traduction partagé avec le reste des chaînes d'interface utilisateur. Ce correctif résout également un bug persistant où les descriptions anglaises des commandes `PRINT`, `PRINT_HEX`, `CLEAR_SCREEN`, `WAIT_KEY`, `SET_BORDER`, `SET_BG`, `IRQ_SETUP` et `RAND` étaient silencieusement écrasées par du texte espagnol résiduel.
+- **Descriptions mnémoniques centralisées :** les descriptions mnémoniques par langue ont été déplacées dans le fichier de traduction partagé avec le reste des chaînes d'interface utilisateur. Ce correctif résout également un bug persistant où les descriptions anglaises des commandes `PRINT`, `PRINT_HEX`, `CLEAR_SCREEN`, `WAIT_KEY`, `SET_BORDER`, `SET_BG`, `IRQ_SETUP` et `RAND` étaient silencieusement écrasées par du texte espagnol résiduel.
 
 ---
 
@@ -509,7 +509,7 @@ Les blocs `@name`, `@category` et `@desc` peuvent avoir des variantes selon la l
 
 **Menu → Compiler → Compiler le projet** compile un projet entier en une seule étape. Les fichiers du projet `.proj` ouvert sont compilés — ou, sans projet, les onglets des fichiers ouverts :
 
-- chaque source compilable (`.asm`, bloc `.json`, `.ub`) est compilée en un `.prg` ** à côté de sa source** avec le même nom ; avec **Exécuter avec Exomizer** activé, la sortie est compressée ;
+- chaque source compilable (`.asm`, bloc `.json`, `.ub`) est compilée en un `.prg` **à côté de sa source** avec le même nom ; avec **Exécuter avec Exomizer** activé, la sortie est compressée ;
 - Les fichiers annexes du débogueur (symboles / carte source) sont écrits en même temps que le PRG lorsqu'ils sont disponibles ;
 - Les modules qu'un autre fichier importe avec `.include` / `include` (et les fichiers `.inc`) sont ignorés, de même que les onglets qui n'ont jamais été enregistrés ;
 - un rapport répertorie chaque fichier avec sa taille, *skipped* raison ou erreur du compilateur, et la barre d'état affiche *N / M fichiers construits*.
@@ -838,7 +838,7 @@ clear:
 
 ### Étiquettes locales (en pointillés)
 
-*(Nouveau dans la version 2.3.9.)* Une étiquette dont le nom commence par un point — `.loop`, `.skip`, `.done` — est une étiquette locale.** Elle appartient à la portée de l'étiquette globale (sans point) précédente la plus proche et devient en interne <global>.<nom>.` Deux étiquettes locales portant le même nom court et appartenant à des étiquettes globales différentes ne sont pas en conflit.
+*(Nouveau dans la version 2.3.9.)* Une étiquette dont le nom commence par un point — `.loop`, `.skip`, `.done` — est une étiquette locale.**Elle appartient à la portée de l'étiquette globale (sans point) précédente la plus proche et devient en interne <global>.<nom>.` Deux étiquettes locales portant le même nom court et appartenant à des étiquettes globales différentes ne sont pas en conflit.
 
 ```
 DrawSprite:
@@ -1026,12 +1026,12 @@ Comme un numéro de ligne **en BASIC** — mais avec un nom au lieu d'un numéro
 | ------------------ | -------------------------------------------------- |
 | Nom de l'étiquette | Identifiant utilisé dans `JMP`, `JSR`, `BNE`, etc. |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 loop:
 ```
 
-**ASM généré : **
+**ASM généré :**
 ```
 loop:  ; $0820
 ```
@@ -1044,12 +1044,12 @@ L'adresse actuelle est affichée en commentaire. Les étiquettes ont une taille 
 
 Comme **REM en BASIC** — une note pour vous-même que l'assembleur ignore complètement.
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 ; Your comment text here
 ```
 
-**ASM généré : **
+**ASM généré :**
 ```
 ; Your comment text here
 ```
@@ -1064,12 +1064,12 @@ Comme **DATA en BASIC** — stocke une liste de valeurs d'octets bruts directeme
 | -------- | --------------------------------------------------------------------------------------- |
 | Opérande | Valeurs d'octets séparées par des virgules (par exemple `$01, $02, $FF` ou `1, 2, 255`) |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .byte $01, $02, $FF
 ```
 
-**ASM généré : **
+**ASM généré :**
 ```
     .byte $01, $02, $FF
 ```
@@ -1094,12 +1094,12 @@ Comme **DATA en BASIC mais pour les nombres de 16 bits**. Chaque valeur est stoc
 | -------- | -------------------------------------------------------------------------- |
 | Opérande | Valeurs de 16 bits séparées par des virgules (par exemple, `$0400, $C000`) |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .word $0400, $C000
 ```
 
-**ASM généré : **
+**ASM généré :**
 ```
     .word $0400, $C000
 ```
@@ -1116,12 +1116,12 @@ Comme `FOR I=1 TO N : POKE addr+I, val : NEXT` — remplit un bloc de mémoire a
 | -------- | ---------------------------------------------------------------------- |
 | Opérande | `count,value` — par exemple, `256,0` remplit 256 octets avec des zéros |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .fill 256, $00
 ```
 
-**ASM généré : **
+**ASM généré :**
 ```
     .fill 256, $00
 ```
@@ -1134,7 +1134,7 @@ Comme `FOR I=1 TO N : POKE addr+I, val : NEXT` — remplit un bloc de mémoire a
 | `40*25, 0`                    | multiplication en ligne               |
 | `arrondi(sin(PI/4)*255), $80` | trigonométrie                         |
 
-**Fonctions intégrées : ** `sin() `, `cos() `, `round() `, `max(a,b) `, `min(a,b) `, `abs() `, constante `PI `
+**Fonctions intégrées :** `sin() `, `cos() `, `round() `, `max(a,b) `, `min(a,b) `, `abs() `, constante `PI `
 
 Opérateurs : `+ - * /` Littéraux : `$FF` (hexadécimal), `%10110000` (binaire) Octet de poids faible/de poids fort : `lo(expr)`, `hi(expr)`
 
@@ -1150,13 +1150,13 @@ Décale l'adresse actuelle jusqu'à la prochaine limite libre en insérant des o
 | ------ | ----------------------------------------------------------------------------------------- |
 | Limite | Valeur d'alignement — par exemple `64` (limite du sprite), `256` (page), `$2000` (bitmap) |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .align 64
 .align $2000
 ```
 
-**ASM généré : **
+**ASM généré :**
 ```
     ; ALIGN 64 → $0840 (12 bytes padding)
 ```
@@ -1179,7 +1179,7 @@ Comme **PRINT AT** — écrit du texte directement sur l'écran du C64 à une co
 | Étiquette (facultatif)       | Attribue une étiquette pointant vers l'adresse d'écran calculée |
 | jeu de caractères minuscules | Case à cocher — voir ci-dessous                                 |
 
-**Modes de jeu de caractères : **
+**Modes de jeu de caractères :**
 
 Le C64 possède deux jeux de caractères sélectionnables lors de l'exécution :
 
@@ -1200,7 +1200,7 @@ Le C64 possède deux jeux de caractères sélectionnables lors de l'exécution :
     ...
 ```
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .text 0, 2, "HELLO"           ; uppercase charset (default)
 .text 0, 2, "hello", lower    ; lowercase charset
@@ -1222,7 +1222,7 @@ Comme **POKEing une chaîne** dans n'importe quelle adresse mémoire à l'exécu
 | Changement                   | Valeur hexadécimale (00–FF) ajoutée à chaque octet de code d'écran (par exemple `$80` = vidéo inversée) |
 | jeu de caractères minuscules | Case à cocher — même sémantique que TEXTE (voir la section TEXTE)                                       |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .string $C000, "HELLO"                  ; uppercase charset (default)
 .string $C000, "hello", lower           ; lowercase charset
@@ -1231,7 +1231,7 @@ Comme **POKEing une chaîne** dans n'importe quelle adresse mémoire à l'exécu
 .string $C000, "HELLO" :my_string      ; with macroLabel
 ```
 
-**ASM généré : **
+**ASM généré :**
 ```
     LDA #$08      ; 'H' screen code
     STA $C000
@@ -1254,14 +1254,14 @@ Comme une boucle **POKE** — écrit une liste d'octets bruts à une adresse mé
 | Adresse                | Adresse mémoire cible — `$C000` hexadécimal ou un **nom d'étiquette** |
 | Étiquette (facultatif) | Attribue une étiquette pointant vers l'adresse cible                  |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .data $C000, $01, $02, $03          ; hex address
 .data my_buf, $01, $02, $03         ; label address
 .data $C000, $01, $02, $03 :mydata  ; with macroLabel
 ```
 
-**ASM généré : **
+**ASM généré :**
 ```
     LDA #$01
     STA $C000
@@ -1284,14 +1284,14 @@ Like **DATA that loads directly into memory** — no runtime code at all. The by
 | Adresse                | Adresse mémoire cible — `$C000` hexadécimal ou un **nom d'étiquette** |
 | Étiquette (facultatif) | Attribue une étiquette pointant vers l'adresse cible                  |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .rawbytes $C000, $00, $00, $00      ; hex address
 .rawbytes sprite_data, $00, $00     ; label address
 .rawbytes $0C50, $00, $00 :nev      ; with macroLabel — other code can use LDA nev,X
 ```
 
-**Taille en code : ** 0 octets. Les données sont placées à l’adresse indiquée dans la sortie.
+**Taille en code :** 0 octets. Les données sont placées à l’adresse indiquée dans la sortie.
 
 > **DATA vs RAWBYTES :** DATA génère du code LDA/STA qui copie les octets à l’exécution (plus lent, mais fonctionne si les données doivent être dynamiques). RAWBYTES place directement les octets : sans code, instantané et sans coût.
 
@@ -1309,7 +1309,7 @@ Similaire à RAWBYTES, mais pour le texte : encode la chaîne en caractères d�
 | Changement                   | Valeur hexadécimale (00–FF) ajoutée à chaque octet de code d'écran (par exemple `$80` = vidéo inversée) |
 | jeu de caractères minuscules | Case à cocher — même sémantique que TEXTE (voir la section TEXTE)                                       |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .rawtext $C000, "HELLO"                 ; uppercase charset (default)
 .rawtext $C000, "hello", lower          ; lowercase charset
@@ -1318,7 +1318,7 @@ Similaire à RAWBYTES, mais pour le texte : encode la chaîne en caractères d�
 .rawtext $0400, "HELLO" :my_text       ; with macroLabel
 ```
 
-**ASM généré : **
+**ASM généré :**
 ```
 ; .rawtext "HELLO" -> $C000
 ; $C000
@@ -1329,7 +1329,7 @@ Similaire à RAWBYTES, mais pour le texte : encode la chaîne en caractères d�
     .byte $48, $45, $4C, $4C, $4F   ; h e l l o (lowercase screen codes $41–$5A range)
 ```
 
-**Taille en code : ** 0 octets. Les données sont placées à l’adresse indiquée dans la sortie.
+**Taille en code :** 0 octets. Les données sont placées à l’adresse indiquée dans la sortie.
 
 > **STRING vs RAWTEXT :** STRING génère du code LDA/STA qui copie le texte à l’exécution. RAWTEXT intègre les octets dans le PRG au moment du chargement — sans code, sans attente.
 
@@ -1348,14 +1348,14 @@ Comme **RAWBYTES mais pour la sortie KERNAL** — encode la chaîne en octets PE
 | Étiquette (facultatif) | Attribue une étiquette pointant vers l'adresse cible                  |
 | PETSCII minuscule      | Case à cocher — voir ci-dessous                                       |
 
-**Modes de jeu de caractères : **
+**Modes de jeu de caractères :**
 
 | Mode                                   | Entrée en majuscules (`A`–`Z`)                                                                                                            | Entrée en minuscules (`a`–`z`) |
 | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------ |
 | **Majuscules (par défaut, non coché)** | `$41`–`$5A` (PETSCII majuscules via CHROUT)                                                                                               | également mappé à `$41`–`$5A`  |
 | **Minuscules (coché)**                 | Les lettres alphabétiques sont réattribuées afin que la casse visible reste cohérente sur l'ensemble de caractères minuscules/majuscules. | Même règle                     |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .petscii $C000, "HELLO"              ; uppercase PETSCII (default)
 .petscii $C000, "hello", lower       ; lowercase PETSCII ($61–$7A)
@@ -1408,13 +1408,13 @@ Bascule la ROM de caractères VIC-II entre le mode majuscules/graphiques (par d�
 | ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Mode  | **Minuscules** — active le jeu de caractères minuscules/majuscules ; **Majuscules** — rétablit le jeu de caractères majuscules/graphiques par défaut |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .charset lower    ; switch to lowercase charset
 .charset upper    ; switch back to uppercase/graphics charset
 ```
 
-**ASM généré : **
+**ASM généré :**
 
 Mode minuscules :
 ```
@@ -1466,7 +1466,7 @@ Définit un seul caractère personnalisé 8×8 dans un jeu de caractères basé 
 | Index des caractères | Quel emplacement de caractère redéfinir, 0–255. `65` = 'A' dans la disposition de code d'écran par défaut.                                  |
 | 8 octets             | Lignes d'image bitmap séparées par des virgules, de haut en bas. Le bit 7 de chaque octet correspond au pixel le plus à gauche.             |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .chardef $3800, 65, $18,$3C,$66,$7E,$66,$66,$66,$00
 ```
@@ -1539,7 +1539,7 @@ Test de collision de boîtes englobantes alignées sur les axes (AABB) entre deu
 | `+2`      | Droite |
 | `+3`      | Bas    |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .box_hit $FB, $F7
 ```
@@ -1613,12 +1613,12 @@ Comme **BLOAD en BASIC** — récupère un fichier binaire externe (`.bin`, `.pr
 | Déposer | Sélectionnez un fichier `.bin`, `.prg`, `.sid` ou `.raw`. |
 | Adresse | Adresse de chargement cible (par exemple `$C000`)         |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .incbin "music.bin", $C000
 ```
 
-**Commentaire ASM généré : **
+**Commentaire ASM généré :**
 ```
     ; INCBIN "music.bin" @ $C000 (2048 bytes)
     .byte $01, $02, ...
@@ -1639,7 +1639,7 @@ Charge une image Koala Painter (160×200 multicolore) et l'affiche. Les données
 
 La routine d'affichage copie la partie RAM écran sur l'écran et la partie RAM couleur dans `$D800`, écrit l'octet d'arrière-plan dans `$D021`, sélectionne la banque VIC dans `$DD00` (en conservant les autres bits de port) et active le mode bitmap multicolore (`$D011 = $3B`, `$D016 = $18`, `$D018 = $18`). Les autres adresses sont rejetées : les 8 Ko restants se trouvent sous la ROM BASIC/KERNAL (la boucle de copie lirait la ROM) ou chevauchent l'ombre de la ROM de caractères.
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .koala "picture.koa"
 .koala "picture.koa", $2000
@@ -1653,7 +1653,7 @@ wait:
     JMP wait
 ```
 
-**Taille en code : ** 86 octets (routine d'affichage) ; les 10 001 octets de données d'image sont envoyés à l'adresse indiquée. La fonction **Fichiers → Exporter au format Koala (.koa)…** de l'éditeur haute résolution produit un fichier compatible.
+**Taille en code :** 86 octets (routine d'affichage) ; les 10 001 octets de données d'image sont envoyés à l'adresse indiquée. La fonction **Fichiers → Exporter au format Koala (.koa)…** de l'éditeur haute résolution produit un fichier compatible.
 
 ---
 
@@ -1673,13 +1673,13 @@ Le bloc affiche :
 - **Adresse de lecture** — appelez ceci avec JSR sur chaque trame dans un gestionnaire d'IRQ (ajusté pour la relocalisation)
 - Un badge **(relocalisé)** apparaît lorsqu'une adresse personnalisée déplace les données de leur position d'origine.
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .sid "Ikari_Warriors.sid"
 .sid "Ikari_Warriors.sid", $1000
 ```
 
-**Commentaire ASM généré : **
+**Commentaire ASM généré :**
 ```
     ; SID "Ikari_Warriors.sid" @ $1000  Init:$1000  Play:$1006  (4096 bytes)
 ```
@@ -1741,19 +1741,19 @@ Comme **DIM à une adresse spécifique** — nomme une table de consultation et 
 | Nom     | Identifiant de l'étiquette du tableau (par exemple, `color_table`) |
 | Adresse | Adresse fixe où commence le tableau (par exemple `$C000`)          |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .table color_table, $C000
 ```
 
-**ASM généré : **
+**ASM généré :**
 ```
 color_table:
 ```
 
 Le compteur de programme saute à l'adresse spécifiée. Placez des blocs BYTE/WORD/FILL après TABLE pour remplir le contenu.
 
-**Taille : ** 0 octets.
+**Taille :** 0 octets.
 
 ---
 
@@ -1766,12 +1766,12 @@ Définit l'emplacement en mémoire du programme (ou d'une partie de celui-ci), u
 | Adresse   | La nouvelle adresse d'origine (par exemple `0801` en HEX, ou `2049` en DEC)   |
 | HEX / DEC | Basculer l'affichage de la saisie d'adresse entre l'hexadécimal et le décimal |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 * = $C000
 ```
 
-**ASM généré : **
+**ASM généré :**
 ```
 * = $C000
 ```
@@ -1811,12 +1811,12 @@ Comme **`FOR X=N TO 1 STEP -1 : ... : NEXT X`** en BASIC — effectue un décomp
 | Compter   | Nombre d'itérations de la boucle (hexadécimal ou décimal, par exemple `0A` = 10) |
 | Étiquette | Étiquette de boucle générée automatiquement (par exemple, `boucle0`)             |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .loop X, 10, loop0
 ```
 
-**ASM généré : **
+**ASM généré :**
 ```
     LDX #$0A
 loop0:
@@ -1831,12 +1831,12 @@ loop0:
 | Registre  | Correspondance automatique avec le registre LOOP |
 | Étiquette | Lié automatiquement à l'étiquette LOOP           |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .next loop0
 ```
 
-**ASM généré : **
+**ASM généré :**
 ```
     DEX
     BNE loop0
@@ -1868,12 +1868,12 @@ Comme **`FOR X=0 TO N-1 : ... : NEXT X`** en BASIC — compte *up* à partir de 
 | Compter   | Limite de boucle (hexadécimal ou décimal, par exemple `$12` = 18). X/Y varie de 0 à la limite-1. |
 | Étiquette | Étiquette de boucle générée automatiquement (par exemple, `pour0`)                               |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .for X, $12, for0
 ```
 
-**ASM généré : **
+**ASM généré :**
 ```
     LDX #$00
 for0:
@@ -1889,12 +1889,12 @@ for0:
 | Étiquette | Automatically linked to the FOR label           |
 | Compter   | Copie automatique à partir du FOR apparié       |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .endf for0
 ```
 
-**ASM généré : **
+**ASM généré :**
 ```
     INX
     CPX #$12
@@ -1933,7 +1933,7 @@ Empile un ou plusieurs registres. L'ordre est toujours A → X → Y (du plus in
 | --------- | ---------------------------------------------------------- |
 | Registres | Toute combinaison : `A`, `X`, `Y`, `AX`, `AY`, `XY`, `AXY` |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .push AXY
 ```
@@ -1955,7 +1955,7 @@ Restores registers from the stack in **reverse order** (Y → X → A).
 | --------- | --------------------------------------------------------------- |
 | Registres | Identique à PUSH — doit correspondre au bloc PUSH correspondant |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .pull AXY
 ```
@@ -1975,12 +1975,12 @@ Restores registers from the stack in **reverse order** (Y → X → A).
 
 Comme **RTS avec un nom de macro plus convivial** — `.end` émet un seul octet `RTS` et se comporte comme un terminateur de sous-routine court en mode expert.
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .end
 ```
 
-**ASM généré : **
+**ASM généré :**
 ```
     RTS
 ```
@@ -2004,14 +2004,14 @@ Like **a named GOSUB with parameters** — define a reusable chunk of code once 
 
 Marque le début de la définition d'une macro. Les blocs entre MACRO et ENDM constituent le corps de la macro ; ils ne génèrent aucun code à l'endroit où se trouve la définition. Utilisez {paramName} comme espace réservé pour les arguments.
 
-**ASM généré : **
+**ASM généré :**
 ```
 ; .MACRO setColor (color)
     ... (body blocks)
 ; .ENDM
 ```
 
-**Syntaxe du mode expert : **
+**Syntaxe du mode expert :**
 ```
 .macro setColor color
     LDA {color}
@@ -2032,14 +2032,14 @@ Appelle une macro définie à cette position et remplace les valeurs d'argument 
 | Nom de la macro | Sélectionnez une macro définie dans la liste déroulante.                                                                  |
 | Arguments       | Valeurs des arguments séparées par des virgules correspondant à la liste des paramètres de la macro (par exemple, `#$07`) |
 
-**ASM généré : **
+**ASM généré :**
 ```
 ; .invoke setColor(#$07)
     LDA #$07
     STA $D020
 ```
 
-**Syntaxe du mode expert : **
+**Syntaxe du mode expert :**
 ```
 ; single argument:
 .invoke setColor(#$07)
@@ -2076,7 +2076,7 @@ Regroupement purement visuel — **zéro octet**, aucun impact sur le code assem
 | ---------------- | ------------------------------------------------------------------------------------------- |
 | Nom de la région | Étiquette en texte libre pour la section (par exemple, `init`, `game_loop`, `sprite_setup`) |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .region init
     ; blocks...
@@ -2090,7 +2090,7 @@ Regroupement purement visuel — **zéro octet**, aucun impact sur le code assem
 - **⧉ Copier la région** — copie le bloc REGION, tous ses blocs enfants et l'ENDREGION correspondant dans le presse-papiers. Un clignotement ✓ confirme la copie.
 - **⎘ Paste region** — inserts the copied region as a new region immediately after the current region's ENDREGION and scrolls to it. The button is dimmed until a region has been copied.
 
-**ASM généré : **
+**ASM généré :**
 ```
 ; region init
     SEI
@@ -2121,12 +2121,12 @@ Tout comme **est un interrupteur, l'assembleur interprète** — `DEFINE DEBUG` 
 | ------- | ----------------------------------------------------------------------------------------------------- |
 | Symbole | Un ou plusieurs identifiants séparés par des virgules à activer (par exemple `DEBUG` ou `DEBUG, PAL`) |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .define DEBUG, PAL
 ```
 
-**ASM généré : **
+**ASM généré :**
 ```
 ; .DEFINE DEBUG
 ; .DEFINE DEBUG, PAL
@@ -2140,12 +2140,12 @@ Un bloc `DEFINE` permet d'activer plusieurs symboles simultanément (séparés p
 | --------- | ------------------------------------------------------------------------------ |
 | Condition | Identifiant à tester (doit correspondre à un symbole `DEFINE` pour être actif) |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .if DEBUG
 ```
 
-**ASM généré : **
+**ASM généré :**
 ```
 ; .IF DEBUG
 ```
@@ -2156,12 +2156,12 @@ Les blocs compris entre `IF` et `ENDIF` (ou `ELSE`) sont inclus ou ignorés selo
 
 Aucun champ. Marque la branche alternative — assemblée lorsque la condition `IF` n'est *pas* active.
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .else
 ```
 
-**ASM généré : **
+**ASM généré :**
 ```
 ; .ELSE
 ```
@@ -2170,12 +2170,12 @@ Aucun champ. Marque la branche alternative — assemblée lorsque la condition `
 
 Aucun champ. Ferme le bloc conditionnel.
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .endif
 ```
 
-**ASM généré : **
+**ASM généré :**
 ```
 ; .ENDIF
 ```
@@ -2219,7 +2219,7 @@ Les blocs `IF` imbriqués sont pris en charge. Si un bloc externe est ignoré, l
 | Expression | Toute expression assembleur : étiquettes, `CONST`, `*` (compteur de programme), arithmétique et comparaisons (`&lt;`, `&lt;=`, `&gt;`, `&gt;=`, `==`, `!=`) |
 | Message    | Texte facultatif ajouté à l'erreur d'échec                                                                                                                  |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .assert spriteData < $C000
 .assert * < $A000
@@ -2228,7 +2228,7 @@ Les blocs `IF` imbriqués sont pris en charge. Si un bloc externe est ignoré, l
 
 **Comportement :**
 
-- **Taille : ** 0 octets.
+- **Taille :** 0 octets.
 - Une assertion fausse interrompt l'assemblage : `` `.assert end - start &lt;= 256` est faux (valeur : 0). La table des sprites a dépassé d'une page ``.
 - Une assertion qui ne peut pas être évaluée (étiquette non définie, etc.) échoue également, avec *"ne peut pas être évaluée au moment de l'assemblage"*.
 - Les comparaisons donnent `1` / `0`; placez `.assert` n'importe où dans le flux du programme — il est vérifié à l'adresse sur laquelle il se trouve, donc `.assert * &lt; $D000` teste la position de sortie actuelle.
@@ -2255,13 +2255,13 @@ Comme **, une variable nommée qui ne change jamais,** — `SCREEN = $0400`. Uti
 | Valeur | Valeur numérique dans la base sélectionnée (par exemple `0400` en HEX = adresse $0400), ou une expression relative au PC (voir ci-dessous) |
 | Format | HEX ou DEC — détermine la façon dont la valeur est saisie et affichée                                                                      |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .const SCREEN = $0400
 .const FRAMES_1S = 60
 ```
 
-**ASM généré : **
+**ASM généré :**
 ```
 ; .CONST SCREEN = $0400
 ```
@@ -2293,11 +2293,11 @@ Le champ de valeur accepte les opérations arithmétiques générales, y compris
 .const SIN_TABLE   = round(sin(PI/8) * 127)   ; pre-computed sine value
 ```
 
-**Fonctions intégrées : ** `sin() `, `cos() `, `round() `, `max(a,b) `, `min(a,b) `, `abs() `, constante `PI `
+**Fonctions intégrées :** `sin() `, `cos() `, `round() `, `max(a,b) `, `min(a,b) `, `abs() `, constante `PI `
 
 Opérateurs : `+ - * /` Littéraux : `$FF` (hexadécimal), `%10110000` (binaire) Octet de poids faible/de poids fort : `lo(expr)`, `hi(expr)`
 
-**Taille : ** 0 octets.
+**Taille :** 0 octets.
 
 ---
 
@@ -2310,7 +2310,7 @@ Comme **CONST, mais à allocation automatique** — `VAR` réserve de l'espace m
 | Nom                 | Nom/étiquette de la variable                            |
 | Taille (facultatif) | Nombre d'octets à réserver. Omettre pour un seul octet. |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .var counter
 .var timer, 2
@@ -2328,7 +2328,7 @@ LDA #$00
 STA counter
 ```
 
-**ASM généré : **
+**ASM généré :**
 ```
 ; .var counter
 ```
@@ -2349,7 +2349,7 @@ Tout comme **est un véritable modèle de branchement (**), cette version foncti
 | Opérateur | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
 | Valeur    | Valeur immédiate au format HEX ou DEC        |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .if A == #$10
     LDA #$07
@@ -2374,14 +2374,14 @@ Comme **une boucle d'exécution avec un test au sommet** — le corps s'exécute
 | Opérateur | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
 | Valeur    | Valeur immédiate au format HEX ou DEC        |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .while A != #$00
     JSR getchar
 .endw
 ```
 
-**Taille : ** Dépend du corps de la boucle et de la forme de comparaison.
+**Taille :** Dépend du corps de la boucle et de la forme de comparaison.
 
 Utilisez `WHILE` lorsque la boucle risque de se terminer avant la fin de la première itération. Il s'agit de l'équivalent, en termes d'exécution, de l'utilitaire `LOOP / NEXT` basé sur le comptage.
 
@@ -2397,14 +2397,14 @@ Comme **une boucle d'exécution avec un test à la fin** — le corps s'exécute
 | Opérateur | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
 | Valeur    | Valeur immédiate au format HEX ou DEC        |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .repeat
     JSR getchar
 .until A == #$00
 ```
 
-**Taille : ** Dépend du corps de la boucle et de la forme de comparaison.
+**Taille :** Dépend du corps de la boucle et de la forme de comparaison.
 
 Utilisez `REPEAT / UNTIL` lorsque vous souhaitez que le corps s'exécute au moins une fois avant la vérification de sortie.
 
@@ -2419,7 +2419,7 @@ Tout comme les **petites routines de mémoire que vous utilisez constamment** �
 | `MEMCPY` | `src`, `dst`, `size`    |
 | `MEMSET` | `addr`, `value`, `size` |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .memcpy src=$C000, dst=$D000, size=$0100
 .memset addr=$0400, value=#$20, size=$03E8
@@ -2437,7 +2437,7 @@ Les données jusqu'à 256 octets utilisent une boucle courte de 8 bits. Au-delà
 
 Comme la sortie PETSCII **sans le code répétitif** — affiche une chaîne de caractères via `CHROUT ` avec la même gestion des majuscules et minuscules que le bloc PETSCII. La case à cocher « minuscules » est partagée avec l’encodeur PETSCII, le chemin du texte reste donc cohérent.
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .print "HELLO"
 .print "hello", lower
@@ -2447,7 +2447,7 @@ Comme la sortie PETSCII **sans le code répétitif** — affiche une chaîne de 
 
 Imprime un octet PETSCII sous forme de code numérique et l'envoie via `CHROUT`. La valeur peut également être une constante nommée ou une étiquette qui est résolue en un octet lors de l'assemblage, aussi bien en mode Bloc qu'en mode Expert.
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .print_char 65
 .print_char $41
@@ -2458,7 +2458,7 @@ Imprime un octet PETSCII sous forme de code numérique et l'envoie via `CHROUT`.
 
 Imprime une valeur 8 bits sous forme de texte hexadécimal via le chemin de sortie normal du KERNAL.
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .print_hex A
 ```
@@ -2467,7 +2467,7 @@ Imprime une valeur 8 bits sous forme de texte hexadécimal via le chemin de sort
 
 Raccourci pour le code de contrôle standard de l'écran transparent du C64.
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .clear_screen
 ```
@@ -2476,7 +2476,7 @@ Raccourci pour le code de contrôle standard de l'écran transparent du C64.
 
 Attend qu'une touche soit pressée, vous n'avez donc pas à parcourir manuellement la boucle `GETIN` à chaque fois.
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .wait_key
 ```
@@ -2485,7 +2485,7 @@ Attend qu'une touche soit pressée, vous n'avez donc pas à parcourir manuelleme
 
 Attend le nombre d'images demandé via une routine auxiliaire partagée. Utilisez cette fonction pour les pauses courtes et les intervalles de temps lorsqu'une boucle personnalisée complète serait excessive. Le nombre d'images peut être un nombre brut ou une constante nommée, et `.wait` est simplement un alias de `.delay`.
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .delay 29
 .wait 29
@@ -2498,7 +2498,7 @@ En mode Bloc, le champ de délai utilise un sélecteur de constante compact lors
 
 Fonctions d'encapsulation simplifiées pour les registres de couleur VIC-II. La valeur de couleur peut être un nombre brut ou une constante nommée comprise entre 0 et 15. Les modes Bloc et Expert acceptent tous deux les noms de constantes symboliques.
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .set_border 6
 .set_bg 0
@@ -2521,7 +2521,7 @@ Configure un gestionnaire d'IRQ raster en une seule étape. La macro écrit le v
 | Gestionnaire | Étiquette de routine IRQ (par exemple `my_irq`)               |
 | Raster       | Ligne raster en hexadécimal ou en décimal (par exemple `$FA`) |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .irq_setup handler=my_irq, raster=$FA
 ```
@@ -2540,7 +2540,7 @@ Comme **un minuscule PRNG intégré** — renvoie une valeur pseudo-aléatoire d
 | ------ | ----------------------------------------------------------------------------- |
 | Graine | Octet ou étiquette d'initialisation de page zéro optionnel (par défaut `$FB`) |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .rand
 ```
@@ -2563,14 +2563,14 @@ Configure un sprite VIC-II en un seul bloc : au lieu d’écrire environ six ins
 | page de données | Adresse des données Sprite / 64 (par exemple `$21` si les données se trouvent à `$0840`) |
 | Multicolore     | Active ou désactive le bit multicolore du sprite (`$D01C`)                               |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .sprite_init 0, 7, $21
 .sprite_init 0, 7, $21, multicolor
 .sprite_init 0, 7, $21, mono
 ```
 
-**ASM généré : **
+**ASM généré :**
 ```
     LDA #$21
     STA $07F8       ; sprite pointer register ($07F8 + N)
@@ -2601,7 +2601,7 @@ Comme **`POKE 53248, x : POKE 53249, y`** en BASIC — définit la position de d
 | X        | Position horizontale 0–319 |
 | Y        | Position verticale 0–255   |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .sprite_pos 0, 152, 100
 ```
@@ -2634,12 +2634,12 @@ Attend que le faisceau d'électrons du VIC-II atteigne une ligne de balayage sp�
 | ------------ | ---------------------------------------------------------------- |
 | Ligne raster | Ligne raster cible en hexadécimal (par exemple `FF` = ligne 255) |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .wait_raster $FF
 ```
 
-**ASM généré : **
+**ASM généré :**
 ```
 wait:
     LDA $D012       ; current raster line
@@ -2662,7 +2662,7 @@ Comme lire **`PEEK($DC00)`** puis modifier la position du sprite — mais en une
 | Port     | `1` = port 1 (`$DC01`) ou `2` = port 2 (`$DC00`)                           |
 | Sprite # | Sprite numéro 0–7 (contrôle quelle paire de registres X/Y est mise à jour) |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .joystick 2, 0
 ```
@@ -2810,7 +2810,7 @@ ydone:
 
 **Taille :** 142 octets.
 
-**Syntaxe du mode expert : **
+**Syntaxe du mode expert :**
 ```
 .mouse port, spriteNum, zpX, zpY
 ; example:
@@ -2839,7 +2839,7 @@ Comme **`PEEK($D01E)`** en BASIC — vérifie les registres de collision matéri
 | Sprite #          | Sprite numéro 0–7 (quel sprite vérifier)                                                                                                      |
 | Type de collision | `Sprite-Sprite ($D01E)` — collision avec un autre sprite ; `Sprite-Arrière-plan ($D01F)` — collision avec un élément graphique d'arrière-plan |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .sprite_col 0, sprite
 .sprite_col 0, background
@@ -2887,7 +2887,7 @@ Comme **`LOAD "fichier",8`** en BASIC, cette commande charge un fichier depuis u
 | Adresse de remplacement (facultatif) | Adresse de chargement hexadécimale (par exemple, `C000`). Si cette option est définie, le fichier est chargé à cette adresse (`sec=0`, l'en-tête PRG étant ignoré). Laissez ce champ vide pour utiliser l'en-tête PRG de 2 octets propre au fichier (`sec=1`). |
 | Étiquette d'erreur (facultatif)      | Si cette option est activée, une instruction `BCS` est générée après JSR LOAD. Si le KERNAL renvoie une retenue (erreur), l'exécution saute à cette étiquette.                                                                                                 |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .loadfile "DEMO-COLORS", 8
 .loadfile "DEMO-COLORS", 8, $C000
@@ -2930,7 +2930,7 @@ Décompression Exomizer en cours de programme ****. Utilisez cette macro juste a
 | -------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | Adresse du déballeur | Emplacement en mémoire du code de décompression (par défaut : `B000`). Doit être une adresse hexadécimale de 16 bits. |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .exodecrunch
 .exodecrunch depacker=$B000
@@ -2995,12 +2995,12 @@ done:
 ```
 > La macro normalise le résultat afin que la branche suivante reste simple : `BNE` signifie REU présent, `BEQ` signifie REU manquant.
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .reu_check
 ```
 
-**Résultat dans les drapeaux : **
+**Résultat dans les drapeaux :**
 - **Z = 0** (résultat ≠ 0) → REU présent → utiliser `BNE`
 - **Z = 1** (résultat = 0) → pas de REU → utiliser `BEQ`
 
@@ -3026,7 +3026,7 @@ Le transfert de blocs DMA entre la RAM du C64 et la mémoire d'extension REU s'a
 | `REU_FETCH` | REU → RAM C64 | `$91`            |
 | `REU_SWAP`  | RAM C64 ↔ REU | `$92`            |
 
-**Champs : **
+**Champs :**
 
 | Champ       | Description                                         | Exemple |
 | ----------- | --------------------------------------------------- | ------- |
@@ -3035,7 +3035,7 @@ Le transfert de blocs DMA entre la RAM du C64 et la mémoire d'extension REU s'a
 | Banque REU  | banque de mémoire REU (0–7)                         | `0`     |
 | Longueur    | Nombre d'octets à transférer (hexadécimal, 16 bits) | `1000`  |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .reu_stash $C000, $0000, 0, $1000
 .reu_fetch $C000, $0000, 0, $1000
@@ -3064,7 +3064,7 @@ LDA #cmd      STA $DF01    ; execute DMA ($90/$91/$92 = stash/fetch/swap, immedi
 
 Configure la vitesse du processeur **Ultimate-64 (U64)** via le registre `$D031`. Sans effet sur un véritable C64 ou d'autres émulateurs.
 
-**Champs : **
+**Champs :**
 
 | Champ   | Description                     | Gamme                                       |
 | ------- | ------------------------------- | ------------------------------------------- |
@@ -3073,13 +3073,13 @@ Configure la vitesse du processeur **Ultimate-64 (U64)** via le registre `$D031`
 
 L'octet de vitesse est calculé comme suit : `(speedIndex &amp; 0x0F) | (badline_disabled ? 0x80 : 0x00)`.
 
-**Code généré (5 octets) : **
+**Code généré (5 octets) :**
 ```
 A9 xx   LDA #speed_byte
 8D 31 D0   STA $D031
 ```
 
-**Syntaxe du mode expert : **
+**Syntaxe du mode expert :**
 ```
 .turbo_set 7,0    ; speed=7 (~10 MHz), badline enabled
 .turbo_set 15,1   ; speed=15 (~48 MHz), badline disabled
@@ -3093,19 +3093,19 @@ A9 xx   LDA #speed_byte
 
 Vérifie si un accélérateur **CMD SuperCPU** est installé — comme `PEEK($D0B8)` pour voir s'il renvoie quelque chose d'autre que `$FF`.
 
-**Code généré (5 octets) : **
+**Code généré (5 octets) :**
 ```
 AD B8 D0   LDA $D0B8
 C9 FF      CMP #$FF
 ```
 
-**Résultat dans les drapeaux : **
+**Résultat dans les drapeaux :**
 - **Z = 0** → SuperCPU présent → utiliser `BNE`
 - **Z = 1** → SuperCPU introuvable → utiliser `BEQ`
 
 **Aucun champ configurable.**
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .supercpu_detect
 ```
@@ -3129,13 +3129,13 @@ Active ou désactive le mode turbo SuperCPU **CMD**. Appelez d'abord `SUPERCPU_D
 | Activer    | `$D07A`  | Activer le mode turbo (jusqu'à 20 MHz avec SuperCPU) |
 | Désactiver | `$D07B`  | Retour au mode de compatibilité 1 MHz                |
 
-**Code généré (5 octets) : **
+**Code généré (5 octets) :**
 ```
 A9 00         LDA #$00
 8D 7A D0      STA $D07A    ; (or $D07B for disable)
 ```
 
-**Syntaxe du mode expert : **
+**Syntaxe du mode expert :**
 ```
 .turbo_enable on
 .turbo_enable off
@@ -3194,7 +3194,7 @@ L'éditeur de cartes, via **Fichiers → Enregistrer la carte + RAM couleur (.bi
     MAP_COPY src=$C000 dst=$0400 size=1000 combined color_dst=$D800
 ```
 
-**Syntaxe du mode expert : **
+**Syntaxe du mode expert :**
 ```
 .map_copy $C000, $0400, 1000               ; screen only
 .map_copy $C000, $0400, 1000, auto, $D800  ; combined (color at src+size)
@@ -3217,7 +3217,7 @@ Copie une zone de caractères de 16×16 à partir d'un bloc de code écran compa
 | destination de la RAM de l'écran | `$0400 + ligne×40 + col` |
 | destination de la RAM couleur    | `$D800 + ligne×40 + col` |
 
-**Syntaxe du mode expert : **
+**Syntaxe du mode expert :**
 ```
 .map_copy16x16 $3000, 12, 4
 .map_copy16x16 $3000, 12, 4, $0400, $3100, $D800
@@ -3291,7 +3291,7 @@ gameloop:
     JMP gameloop
 ```
 
-**Syntaxe du mode expert : **
+**Syntaxe du mode expert :**
 ```
 .sprite_anim spriteNum, frameListAddr, frameCount, zpByte
 ; example:
@@ -3314,7 +3314,7 @@ Ajoute une valeur à virgule fixe à un score BCD multi-octets stocké en mémoi
 | Ajouter des points | Valeur décimale à ajouter par appel (par exemple `100`).                                                               |
 | Adresse de l'écran | Où écrire les codes numériques de l'écran (par exemple `0400`). Un octet par chiffre (octet de poids fort en premier). |
 
-**Syntaxe experte : **
+**Syntaxe experte :**
 ```
 .score_bcd $C200, 4, 100, $0400
 ```
@@ -3356,7 +3356,7 @@ digit_loop:
 
 **Taille :** `3 + chiffres×8` octets (SED + CLC + surcharge CLD + 8 octets par octet BCD pour ADC + boucle d’affichage).
 
-**Syntaxe du mode expert : **
+**Syntaxe du mode expert :**
 ```
 .score_bcd $C200, 4, 100, $0400
 ```
@@ -3499,11 +3499,11 @@ L'icône de la barre d'outils située après l'Éditeur de courbes ouvre l'Édit
 
 La liste des répertoires affiche les noms de fichiers dans la même police et le même style de majuscules qu'une véritable liste C64 `LOAD"$",8`.
 
-Flux de travail **Enregistrement : ** chaque modification (ajout, extraction, renommage, suppression et modifications d'octets dans l'éditeur de blocs) est appliquée à une copie de travail privée de l'image disque, et non à votre fichier principal. Le bouton **Enregistrer** de la barre d'outils (activé en présence de modifications non enregistrées) réécrit la copie de travail par-dessus le fichier `.d64` principal, après avoir effectué une sauvegarde automatique. L'en-tête affiche un marqueur **•** tant que les modifications ne sont pas enregistrées. La fermeture de l'éditeur ou l'ouverture d'un autre disque contenant des modifications non enregistrées demande une confirmation au lieu de les supprimer. **Enregistrer sous…** (menu Fichiers ▾) enregistre la copie de travail dans un nouveau répertoire et permet de poursuivre la modification à cet emplacement.
+Flux de travail **Enregistrement :** chaque modification (ajout, extraction, renommage, suppression et modifications d'octets dans l'éditeur de blocs) est appliquée à une copie de travail privée de l'image disque, et non à votre fichier principal. Le bouton **Enregistrer** de la barre d'outils (activé en présence de modifications non enregistrées) réécrit la copie de travail par-dessus le fichier `.d64` principal, après avoir effectué une sauvegarde automatique. L'en-tête affiche un marqueur **•** tant que les modifications ne sont pas enregistrées. La fermeture de l'éditeur ou l'ouverture d'un autre disque contenant des modifications non enregistrées demande une confirmation au lieu de les supprimer. **Enregistrer sous…** (menu Fichiers ▾) enregistre la copie de travail dans un nouveau répertoire et permet de poursuivre la modification à cet emplacement.
 
-**Éditeur de blocs : ** L’icône de grille de la barre d’outils permet d’afficher une vue brute des pistes/secteurs sous le répertoire : une carte des blocs cliquable, colorée selon l’espace libre/utilisé du fichier BAM (le fichier BAM et la chaîne de répertoires étant marqués séparément), une grille hexadécimale par octet pour le bloc de 256 octets sélectionné et une navigation entre les secteurs (Précédent/Suivant). Les modifications de blocs suivent le même processus de copie de travail/enregistrement que les actions sur les répertoires décrites ci-dessus.
+**Éditeur de blocs :** L’icône de grille de la barre d’outils permet d’afficher une vue brute des pistes/secteurs sous le répertoire : une carte des blocs cliquable, colorée selon l’espace libre/utilisé du fichier BAM (le fichier BAM et la chaîne de répertoires étant marqués séparément), une grille hexadécimale par octet pour le bloc de 256 octets sélectionné et une navigation entre les secteurs (Précédent/Suivant). Les modifications de blocs suivent le même processus de copie de travail/enregistrement que les actions sur les répertoires décrites ci-dessus.
 
-> **Exigence : ** comme l’exportation vers D64, l’éditeur D64 nécessite VICE (`c1541`) configuré dans [Paramètres matériels](#13-hardware-settings).
+> **Exigence :** comme l’exportation vers D64, l’éditeur D64 nécessite VICE (`c1541`) configuré dans [Paramètres matériels](#13-hardware-settings).
 
 ---
 
@@ -3579,7 +3579,7 @@ VICE est requis pour **Exécuter en tant que PRG**, **Exécuter via D64** et **E
 | **Flash de bordure pendant la décompression** | Lorsque cette option est activée, les fichiers PRG compressés SFX utilisent l'effet de flash rapide intégré à exomizer `-x1` ; lorsqu'elle est désactivée, `-n` est utilisé pour la décompression silencieuse. |
 | **Statut**                                    | Indique si le chemin d'accès à l'exécutable est valide et accessible.                                                                                                                                          |
 
-**Flux de travail : **
+**Flux de travail :**
 1. Installez le fichier binaire Exomizer :
    - **Windows:** Téléchargez le fichier précompilé `win32/exomizer.exe` depuis https://bitbucket.org/magli143/exomizer/wiki/Home ou https://csdb.dk/release/?id=244342.
    - **macOS:** `brew install exomizer` (installe la version officielle 3.1.2 de Magnus Lind).
@@ -3619,7 +3619,7 @@ Exécutez les PRG assemblés directement sur du matériel réel via le réseau l
 | **Mot de passe**      | Facultatif — si l'appareil nécessite une authentification                       |
 | **Test de connexion** | Envoie une requête de test à `/v3/runners/info` ; affiche « OK » ou « erreur ». |
 
-**Flux de travail : **
+**Flux de travail :**
 1. Connectez le 1541 Ultimate / Ultimate 64 à votre réseau local.
 2. Saisissez son adresse IP (et le mot de passe s'il en a un) dans les paramètres matériels.
 3. Sélectionnez **Exécuter sur le matériel** dans le menu d'exécution fractionnée.
@@ -3629,7 +3629,7 @@ Exécutez les PRG assemblés directement sur du matériel réel via le réseau l
 
 ### Kung Fu Flash 2
 
-Exécutez des programmes assemblés sur un véritable Commodore 64 ou C128 ** : aucun lecteur de disquettes, image disque, copie de carte SD ou émulateur n'est nécessaire. Visual Assembler communique avec le port série USB de la cartouche, la redémarre sur son chargeur de menu et charge le fichier PRG, qui s'exécute ensuite sur la machine.
+Exécutez des programmes assemblés sur un véritable Commodore 64 ou C128 **: aucun lecteur de disquettes, image disque, copie de carte SD ou émulateur n'est nécessaire. Visual Assembler communique avec le port série USB de la cartouche, la redémarre sur son chargeur de menu et charge le fichier PRG, qui s'exécute ensuite sur la machine.
 
 **Ce dont vous avez besoin :**
 - un Commodore 64 / C128 avec une cartouche **Kung Fu Flash 2** installée, allumé ;
@@ -3640,15 +3640,15 @@ Exécutez des programmes assemblés sur un véritable Commodore 64 ou C128 ** : 
 | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Port série** | Le port série USB de la cartouche, par exemple COM4 (Windows), /dev/cu.usbmodem… (macOS) ou /dev/ttyACM0 (Linux). Il est détecté automatiquement par son identifiant USB (0483:5740) au démarrage de l'application ; la ligne d'état sous le champ affiche KFF2 : <port> ou vous invite à saisir le port manuellement si aucun n'est trouvé. La valeur est conservée entre les sessions. |
 
-**Flux de travail : **
+**Flux de travail :**
 1. Insérez la carte Kung Fu Flash 2 dans le port cartouche du C64, allumez l'ordinateur et branchez le câble USB à votre PC/Mac.
 2. Ouvrez **Paramètres matériels** et vérifiez la section **Kung Fu Flash 2** — le port devrait déjà être renseigné.
 3. Sélectionnez **Kung Fu Flash 2** dans le menu d'exécution fractionnée (le choix est mémorisé et est également stocké dans les fichiers de projet).
-4. Cliquez sur **▶ Exécuter **. Le programme est compilé, la cartouche redémarre sur son chargeur de menu (une brève connexion à 1200 bauds via le port série), une brève synchronisation a lieu et le fichier PRG est transféré. Une fois le transfert terminé, le programme s'exécute sur la machine.
+4. Cliquez sur **▶ Exécuter**. Le programme est compilé, la cartouche redémarre sur son chargeur de menu (une brève connexion à 1200 bauds via le port série), une brève synchronisation a lieu et le fichier PRG est transféré. Une fois le transfert terminé, le programme s'exécute sur la machine.
 
 Fonctionne de la même manière en mode **Block**, **Expert** et **Ultimate Basic** ; les programmes Ultimate Basic sont compilés à partir du fichier de démarrage du projet.
 
-> **Limites et vérifications : ** Le PRG doit contenir l’adresse de chargement de deux octets plus au moins un octet de données, doit tenir dans l’espace d’adressage de 64 Kio du C64 et ne doit pas dépasser la taille acceptée par le chargeur de la cartouche. Les échecs (port non configuré, port impossible à ouvrir, cartouche ne revenant pas du MENU ou chargement refusé) sont signalés par une notification indiquant la raison exacte.
+> **Limites et vérifications :** Le PRG doit contenir l’adresse de chargement de deux octets plus au moins un octet de données, doit tenir dans l’espace d’adressage de 64 Kio du C64 et ne doit pas dépasser la taille acceptée par le chargeur de la cartouche. Les échecs (port non configuré, port impossible à ouvrir, cartouche ne revenant pas du MENU ou chargement refusé) sont signalés par une notification indiquant la raison exacte.
 
 > **Conseil :** si vous préférez une image de cartouche plutôt qu’un téléchargement en direct, **Build CRT** (Magic Desk 64K) fonctionne également sur Kung Fu Flash — voir [Section 12b](#12b-crt-export-magic-desk-64k-cartridge).
 
@@ -3778,7 +3778,7 @@ Tracker multi-instrumental à 3 voix avec moteur de prévisualisation Web Audio.
 - Le collage par plage de cellules commence désormais à la cellule de début de la plage sélectionnée et s'arrête proprement aux limites de la ligne et de la colonne au lieu de passer à la ligne ou à la colonne suivante.
 - Le curseur de vitesse définit le diviseur de tick IRQ (images entre les lignes).
 
-**Liste des chansons / ordre : **
+**Liste des chansons / ordre :**
 - Les motifs sont organisés via une liste de chansons/ordres superposée à la banque de motifs bruts — le même motif peut se répéter et la chanson peut être plus longue que le nombre de motifs stockés.
 - Ajoutez, supprimez et réorganisez les étapes depuis le panneau de la liste des chansons ; l’étape en cours est mise en surbrillance pendant la lecture.
 - La lecture dans l'application et chaque exportation parcourent cette liste, et non l'ordre brut du motif ; les exportations effectuées avant l'existence de la liste d'ordre se chargent toujours correctement comme une simple chanson 0..N-1.
@@ -3810,7 +3810,7 @@ Les effets sont mis à jour une fois par ligne (correspondant au timing du lecte
 | `Exporter asm (presse-papiers)`           | Copie l'intégralité du code source de l'assembly dans le presse-papiers.                                                                                                                                                                                                                                                                                           |
 | `Exporter vers UltimateBasic`             | Écrit un bloc `tune ... end` (instruments, liste d'ordre, lignes de motifs sous forme de texte) plus `music play` et l'insère au niveau du curseur de l'éditeur Ultimate Basic ; hors du mode UB, il copie le texte dans le presse-papiers. Le compilateur UltimateBasic génère le lecteur ; les commandes `music play` / `music stop` permettent de le contrôler. |
 
-Utilisation du lecteur ZP : ** `$02`–`$2F` (tables de pointeurs, décalage de motif et état des effets par voix), plus `$FB`–`$FE` (compteur de ticks, index de ligne, position dans la liste d'ordre, temp. set_voice). Ces éléments peuvent entrer en conflit s'ils sont utilisés par votre code principal ; déplacez-les via le mode Expert si nécessaire.
+Utilisation du lecteur ZP : **`$02`–`$2F` (tables de pointeurs, décalage de motif et état des effets par voix), plus `$FB`–`$FE` (compteur de ticks, index de ligne, position dans la liste d'ordre, temp. set_voice). Ces éléments peuvent entrer en conflit s'ils sont utilisés par votre code principal ; déplacez-les via le mode Expert si nécessaire.
 
 **Limites connues :**
 - Le compteur de lignes 8 bits limite chaque motif à 7 motifs × 32 lignes dans la banque brute (la liste des chansons/ordres peut toujours être arbitrairement longue en répétant les motifs).

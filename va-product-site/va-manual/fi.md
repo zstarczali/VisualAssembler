@@ -381,7 +381,7 @@ Toolkit on nopein tapa etsiä väri-indeksi tai PETSCII-ohjaustavu poistumatta e
 
 ### ASM-rivin napsauttaminen
 
-Napsauta mitä tahansa riviä ASM-näkymässä korostaaksesi ** vastaavan lohkon ** ohjelma-alueella. Kun useita lohkoja on valittu, kaikkien niiden ASM-rivit korostetaan yhdessä.
+Napsauta mitä tahansa riviä ASM-näkymässä korostaaksesi **vastaavan lohkon** ohjelma-alueella. Kun useita lohkoja on valittu, kaikkien niiden ASM-rivit korostetaan yhdessä.
 
 ### ASM-rivinumerot
 
@@ -475,7 +475,7 @@ Jos tallentamattomia välilehtiä on, sovellus kysyy niitä ennen sulkemista. Sa
 - Työtilaan tallennetaan vain levyllä olevaan oikeaan tiedostoon perustuvat välilehdet; tallentamatonta esimerkkiä tai vain muistissa olevaa ohjelmaa sisältävällä välilehdellä ei ole mitään säilytettävää, ja se ohitetaan (ja näytetään ilmoitus, jos mikään avoimista välilehdistä ei täytä vaatimuksia).
 - Työtilan avaaminen sulkee ensin kaikki avoimet välilehdet – sinua pyydetään vahvistamaan se ennen kuin työtila avautuu.
 - Jos työtila viittaa tiedostoon, joka on sittemmin siirretty tai poistettu, kyseinen merkintä ohitetaan ja ilmoitetaan nimellä latauksen jälkeen.
-- Avoimet Expert- ja Ultimate Basic ** -projektit ** tallennetaan myös: projektipuu (mukaan lukien tallentamattomat lisäykset ja poistot), käynnistystiedosto ja `.proj` -tallennuskohde palautetaan työtilan mukana. Vanhempien versioiden tallentamat työtilat avautuvat ilman niitä.
+- Avoimet Expert- ja Ultimate Basic **-projektit** tallennetaan myös: projektipuu (mukaan lukien tallentamattomat lisäykset ja poistot), käynnistystiedosto ja `.proj` -tallennuskohde palautetaan työtilan mukana. Vanhempien versioiden tallentamat työtilat avautuvat ilman niitä.
 
 ### Projektimallit
 
@@ -509,7 +509,7 @@ Projekti luodaan omaan kansioonsa: `<sijainti>/<nimi>/<nimi>.proj` sekä `main.a
 
 **Valikko → Rakenna → Rakenna projekti** kääntää koko projektin yhdessä vaiheessa. Avoimen `.proj`-projektin tiedostot rakennetaan — tai ilman projektia, avoimen tiedoston välilehdet:
 
-- Jokainen rakennettava lähdekoodi (`.asm`, lohko `.json`, `.ub`) käännetään `.prg` ** -tiedostoon samannimisen lähdekoodinsa** viereen; kun **Run with Exomizer** on käytössä, tuloste analysoidaan;
+- Jokainen rakennettava lähdekoodi (`.asm`, lohko `.json`, `.ub`) käännetään `.prg` **-tiedostoon samannimisen lähdekoodinsa** viereen; kun **Run with Exomizer** on käytössä, tuloste analysoidaan;
 - virheenjäljitysohjelman sivutiedostot (symbolit / lähdekoodikartta) kirjoitetaan PRG:n rinnalle, jos niitä on saatavilla;
 - Moduulit, jotka toinen tiedosto hakee komennolla `.include` / `include` (ja `.inc` -tiedostot), ohitetaan, samoin kuin välilehdet, joita ei koskaan tallennettu;
 - Raportissa luetellaan jokainen tiedosto koostuen sen koosta, *ohitetusta* syystä tai kääntäjävirheestä, ja tilarivillä näkyy *N / M rakennettua tiedostoa*.
@@ -756,7 +756,7 @@ Asiantuntijatila tukee **projektipaneelia** (`#expert-project-panel`) monitiedos
 - **Sulje projekti** (`Valikko → Tiedosto → Sulje projekti` / `#menu-close-project`) sulkee nykyisen projektin ja kaikki sen tiedostovälilehdet kerralla. Kehottaa tallentamaan tallentamattomat muutokset ennen sulkemista. Projektipaneeli palautuu tyhjään tilaansa ja `_expertProjectData` tyhjennetään.
 - Jokainen tiedosto voidaan merkitä **käynnistystiedostoksi** (★ tähtikuvake). Kun käynnistystiedosto on asetettu, **Suorita** -painike (PRG, D64, Ultimate) kokoaa ja suorittaa aina kyseisen tiedoston koodin – riippumatta siitä, mikä välilehti on kulloinkin aktiivinen. Tämä toimii sekä lohkotilassa että asiantuntijatilassa.
 - Työkalupalkin **Lisää**-painike valitsee kerralla yhden tai useamman tiedoston (minkä tahansa tyyppisen, ei vain `.json`/`.asm`) ja viittaa niihin projektissa avaamatta niitä – käytä sitä binääriresursseille, kuten `incbin`-datalle. Sen valintaikkuna on oletusarvoisesti VA-työkansio. Viereinen **Lisää kansio**-painike viittaa koko kansioon (esim. resurssihakemistoon) samalla tavalla. Vain viittauksiin tarkoitetuissa merkinnöissä näkyy poistopainike (✕), mutta niitä ei avata napsauttamalla niitä.
-- Puun kansioilla on kutistus-/laajennusnuoli, ja **napsauta kansiota hiiren kakkospainikkeella ** lisätäksesi yhden tai useamman tiedoston sen alle (näkyy sisennettynä).
+- Puun kansioilla on kutistus-/laajennusnuoli, ja **napsauta kansiota hiiren kakkospainikkeella** lisätäksesi yhden tai useamman tiedoston sen alle (näkyy sisennettynä).
 - **Tallenna projekti** -painike poistuu käytöstä ja näyttää tilan "Tallennettu", kun projektissa ei ole odottavia muutoksia, ja se palautuu automaattisesti käyttöön heti, kun lisäät, poistat tai järjestelet tiedoston tai kansion.
 - Projektipaneelin alareunassa olevan **symbols**-osion kokoa voidaan muuttaa pystysuunnassa tiedostopuun ja symboliluettelon välisellä jakajalla, joten pitkät symboliluettelot voivat viedä enemmän tilaa tarvittaessa.
 
@@ -1179,7 +1179,7 @@ Kuten **PRINT AT** — kirjoittaa tekstiä suoraan C64-näytölle tiettyyn sarak
 | Tarra (valinnainen)         | Määrittää laskettuun näyttöosoitteeseen osoittavan otsikon |
 | Pienten kirjainten merkistö | Valintaruutu – katso alla                                  |
 
-** Merkistötilat:**
+**Merkistötilat:**
 
 C64:ssä on kaksi merkistöä, jotka voidaan valita ajonaikana:
 
@@ -1348,7 +1348,7 @@ Kuten **RAWBYTES, mutta KERNAL-tulosteelle** — koodaa merkkijonon PETSCII-tavu
 | Tarra (valinnainen)      | Määrittää kohdeosoitteeseen osoittavan tunnisteen                |
 | Pienet PETSCII-kirjaimet | Valintaruutu – katso alla                                        |
 
-** Merkistötilat:**
+**Merkistötilat:**
 
 | Tila                                    | Isojen kirjainten syöttö (`A`–`Z`)                                                                                        | Pienten kirjainten syöttö (`a`–`z`) |
 | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- |

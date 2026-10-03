@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.4.6**
+**Version 2.4.9**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -9,6 +9,9 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
+    - [Version 2.4.9 Highlights](#version-249-highlights)
+    - [Version 2.4.8 Highlights](#version-248-highlights)
+    - [Version 2.4.7 Highlights](#version-247-highlights)
     - [Version 2.4.6 Highlights](#version-246-highlights)
     - [Version 2.4.5 Highlights](#version-245-highlights)
     - [Version 2.4.3 Highlights](#version-243-highlights)
@@ -29,6 +32,8 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [ASM line numbers](#asm-line-numbers)
     - [Compile progress modal](#compile-progress-modal)
   - [5. Settings \& Toolbar](#5-settings--toolbar)
+    - [Project templates](#project-templates)
+    - [Build project](#build-project)
     - [Load .asm file (quick reference)](#load-asm-file-quick-reference)
       - [Import parsing notes and best practices](#import-parsing-notes-and-best-practices)
   - [UltimateBasic Mode](#ultimatebasic-mode)
@@ -81,6 +86,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [CHARDEF](#chardef)
     - [BOX_HIT](#box_hit)
     - [INCBIN](#incbin)
+    - [KOALA](#koala)
     - [SID](#sid)
     - [INCLUDE](#include)
     - [TABLE](#table)
@@ -157,6 +163,39 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [Map Editor (Multilayer Tilemaps)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Curve Editor](#curve-editor)
+
+---
+
+## Version 2.4.9 Highlights
+
+- **Project templates** — **Menu → File → New project from template…**, or the new toolbar button between **Menu** and **Tutorials**, creates a ready-to-build `.proj` project in its own folder. The dialog has an **Assembler** section (empty program, game skeleton, hires and multicolor bitmap) and an **UltimateBasic** section (empty program, game skeleton, hires bitmap, raster IRQ), with a syntax-highlighted preview. Your own `.asm` / `.ub` templates are picked up from the user templates folder. See [Project templates](#project-templates).
+- **Build project** — **Menu → Build → Build project** compiles every buildable file of the open project (or of the open tabs) to a `.prg` next to its source, writes debugger symbol files where available, skips include-only modules and shows a per-file report. See [Build project](#build-project).
+- **Ctrl + mouse wheel zoom** in the Expert and Ultimate Basic editors (`Cmd` + wheel on macOS; touchpad pinch works too).
+- **Workspaces remember projects** — the Expert and Ultimate Basic project trees, the startup file and unsaved project changes are saved into the `.vaws` workspace and restored with it. Older workspaces still open.
+- **Ultimate Basic** — the bundled compiler generates faster, smaller 6502 code; the memory map now tells real code and data apart from padding and long `org` gaps.
+- **File dialogs start in the active working folder** — the Block/Expert or the Ultimate Basic one, depending on the current mode.
+
+---
+
+## Version 2.4.8 Highlights
+
+- **New KOALA macro** — `.koala "picture.koa"` (optionally `, $2000`) loads a Koala Painter picture and shows it with an 86-byte display routine. See [KOALA](#koala).
+- **Koala import/export in the Hires editor** — **Files → Import Koala (.koa)…** / **Export Koala (.koa)…** (standard 10003-byte file; hi-res pictures are reduced to multicolor on export). `.koa` / `.kla` are also recognised by **Import image / .bin**.
+- **Ultimate Basic 1.5.9 bundled** — new `chain "FILE" [, device]` (load another program over the running one and RUN it); `load "FILE"` loads to the file's own address, `load "FILE", addr` to `addr`; D64 fixes. `chain` is highlighted and listed in the command reference.
+- **Update status in the Expert status bar** — the same *Up to date* / clickable *Update available* indicator as in Ultimate Basic mode.
+- **Save dialogs** offer the file's own type (e.g. *KOA*) instead of *Binary (\*.bin)*.
+- **More robust update check** — the installer list is published at c64va.tech/downloads/VA/, so the check works with the new download page; the Linux update helper no longer inherits the AppImage library paths.
+
+---
+
+## Version 2.4.7 Highlights
+
+- **In-app updates** — **Menu → Check for Update** checks c64va.tech for a newer release and, on confirmation, downloads the installer for your platform with a progress bar and installs it. See [In-app updates](#in-app-updates). The check also runs quietly at every start.
+- **Update status in the Ultimate Basic status bar** — shows **Up to date (vX)**, or a highlighted **Update available: vY** that opens the update dialog when clicked.
+- **Curve Editor → UltimateBasic export** — **Files → Export to UltimateBasic** writes the table as an initialised UB array; **Files → Export UltimateBasic demo** produces a ready-to-run UB sprite demo. See [Curve Editor](#curve-editor).
+- **Ultimate Basic 1.5.8 bundled** — the new **`data <array>: v, …`** form fills a declared `array` / `array_word` at program start (further lines continue where the previous one stopped, word arrays take 16-bit values) without touching the `read` stream.
+- **Layout fits the window** — the editor panels take exactly the remaining window height, so the app no longer shows a page-level vertical scrollbar; the ASM output panel keeps a 440 px minimum width; the working-folder path sits in a subtle badge above the ASM view title and uses the same badge in the Expert and Ultimate Basic toolbars. Dialog button labels no longer wrap.
+- **Ultimate Basic command reference** — `tune` and `music` show full, commented examples (cell format, effects, player notes, `music play N`); `inst`, `order`, `pat` and the tune `speed` have their own entries; `data` shows the new array form; the `load sid` syntax is corrected (`load sid "tune.sid", $2000`).
 
 ---
 
@@ -382,12 +421,14 @@ The modal closes automatically when the action completes or fails.
 | **Save Workspace As** | Save the current workspace using a new file dialog every time |
 | **Open Workspace** | Close all open tabs and reopen the set of files stored in a `.vaws` workspace file |
 | **Set working folder** | Choose the default folder used by file pickers and save dialogs. The path is stored in the app config, and menu previews keep the end of the path visible. |
+| **New project from template…** (`Menu → File`, or the toolbar button next to **Menu**) | Create a new `.proj` project from an Assembler or UltimateBasic template in its own folder — see [Project templates](#project-templates) |
 | **Open Project** (`Menu → File`) | Open a multi-file `.proj` project and open all source files as tabs |
 | **Save Project** (`Menu → File`) | Save the current `.proj` project (project panel must be open) |
 | **Close Project** (`Menu → File`) | Close the currently open project and all its file tabs. Prompts to save unsaved changes. The project panel resets to its empty state. |
 | **Load .asm file** | Opens a `.asm` file in Expert mode and imports textual 6502 ASM into the current tab |
 | **Save PRG** | Export the compiled binary as a `.prg` file |
 | **Build CRT** | Export the program as a 64K Magic Desk (`.crt`, cartridge type 19) file. See [Section 12b](#12b-crt-export-magic-desk-64k-cartridge). |
+| **Build project** (`Menu → Build`) | Compile every buildable file of the project (or of the open tabs) to a `.prg` next to its source — see [Build project](#build-project) |
 | **Run (split button)** | The main **▶ Run** button runs the current mode; click the **▾** arrow to switch between: **Run as PRG** (compile and launch VICE directly), **Run via D64** (package into a .d64 disk image and launch VICE), **Run on hardware** (send PRG to a C64 Ultimate / 1541 Ultimate device), or **Kung Fu Flash 2** (upload the PRG over USB to a real C64/C128 with a Kung Fu Flash 2 cartridge). See [Section 12](#12-d64-export--run) and [Section 13](#13-hardware-settings). |
 | **Debug (RetroDebugger)** | Compile and launch in RetroDebugger with breakpoints, symbols, and autostart flags (see [Section 9](#9-debugger-integration)) |
 | **Run with Exomizer** | Checkbox in the Settings menu — when enabled, all Run and Build operations crunch the PRG through `exomizer sfx sys` before launching or saving. Works with Run as PRG, Run via D64, Run on Hardware, Build PRG, and Build D64. Configure the Exomizer executable in **Hardware Settings** first. |
@@ -408,7 +449,24 @@ Project snapshots are stored as on-disk sidecar JSON files, not in localStorage.
 - **Hardware Settings → Snapshot → Automatic snapshot saving** controls whether the app creates snapshots automatically after edits. The default delay is about 2.5 seconds, and the setting applies per tab.
 - If a project has not been saved yet, snapshots are stored in the app config directory until the project gets a file path.
 | **Knowledge Base** | Reference links (6502 opcodes, C64 KERNAL, memory map, colors) |
-| **Check for Update** | Open the itch.io page to check for a newer release |
+| **Check for Update** | Check c64va.tech for a newer release and download / install it — see [In-app updates](#in-app-updates) |
+
+### In-app updates
+
+**Menu → Check for Update** looks up the newest release on c64va.tech (it reads the download links for your platform) and compares it with the running version:
+
+- **Up to date** — the dialog says so.
+- **Update available** — choose **Update now** to download the installer (a progress bar shows the download), **Later** to close the dialog, or **Skip this version** to stop the automatic check from offering that release again.
+
+After the download the app installs the update and restarts:
+
+| Platform | What happens |
+|---|---|
+| **Windows** | The setup runs in passive mode (progress only) and starts the new version when it finishes. A per-machine install asks for administrator rights (UAC). |
+| **macOS** | The DMG is mounted and the app bundle is replaced in place, then the new version starts. If the app folder is not writable, the DMG is simply opened so you can drag the app over. |
+| **Linux** | An AppImage is swapped for the new one. A `.deb` / `.rpm` installation is updated with `pkexec` (you are asked for your password); without `pkexec` the package is opened in your software installer. |
+
+If there are unsaved tabs, the app asks before closing. The same check runs quietly a few seconds after every start: nothing is shown unless a newer version exists. The result also appears in the Ultimate Basic status bar — **Up to date (vX)**, or a highlighted **Update available: vY** that opens the update dialog.
 
 ### Workspaces
 
@@ -419,6 +477,44 @@ A **workspace** (`.vaws` file) remembers which real, on-disk files were open acr
 - Only tabs backed by a real file on disk are saved into the workspace; a tab holding an unsaved sample or an in-memory-only program has nothing to persist and is skipped (with a notice if none of the open tabs qualify).
 - Opening a workspace closes all currently open tabs first — you are asked to confirm before it proceeds.
 - If a workspace references a file that has since been moved or deleted, that entry is skipped and reported by name after loading.
+- The open Expert and Ultimate Basic **projects** are stored too: the project tree (including unsaved additions and removals), the startup file and the `.proj` save target come back with the workspace. Workspaces saved by older versions open without them.
+
+### Project templates
+
+**Menu → File → New project from template…** — or the toolbar button between **Menu** and **Tutorials** — opens the template dialog:
+
+1. Pick a section at the top: **Assembler** or **UltimateBasic** (the dialog opens on the section that matches the current editor mode).
+2. Choose a template from the list; the right side shows its description and a syntax-highlighted preview with your project name filled in.
+3. Enter the **project name** and the **location** (**Browse…**). The line below the form shows the exact `.proj` path that will be created.
+4. Click **Create project**.
+
+| Section | Built-in templates |
+|---|---|
+| **Assembler** | Empty program, Empty game (title / play / game over states, joystick, player sprite), Hires bitmap, Multicolor bitmap |
+| **UltimateBasic** | Empty program, Empty game (same state machine in UB), Hires bitmap (`line` / `rect` / `circle` with `color pen`), Raster IRQ (a `sub` called every frame from the raster interrupt) |
+
+The project is created in its own folder: `<location>/<name>/<name>.proj` plus `main.asm` (Assembler) or `main.ub` (UltimateBasic, the `.proj` is marked as an Ultimate Basic project). An existing project is never overwritten — the dialog reports it instead. Open tabs are closed first (you are asked about unsaved changes), then the new project opens in Expert mode or Ultimate Basic mode with the project panel visible and the main file set as the startup file.
+
+**Your own templates:** **My templates folder** (bottom left of the dialog) opens the user templates folder in the app config directory. Every `.asm` or `.ub` file dropped there appears in the matching section (under *My templates* unless it names a category). A template is an ordinary source file with an optional header of comment lines at the top — `;` in assembler, `#` in Ultimate Basic:
+
+```asm
+; @name Raster bars
+; @name.hu Raszter csíkok
+; @category Effects
+; @desc Two raster bars in the border.
+; @order 50
+```
+
+`@name`, `@category` and `@desc` may have per-language variants (`@name.hu`, `@desc.de`, …); `@order` sorts the list. Everything after the header becomes the new main file, and `{{PROJECT}}` is replaced with the project name (use it in a comment so the template itself still compiles).
+
+### Build project
+
+**Menu → Build → Build project** compiles a whole project in one step. The files of the open `.proj` project are built — or, without a project, the open file tabs:
+
+- every buildable source (`.asm`, block `.json`, `.ub`) is compiled to a `.prg` **next to its source** with the same name; with **Run with Exomizer** enabled the output is crunched;
+- debugger sidecar files (symbols / source map) are written alongside the PRG where available;
+- modules that another file pulls in with `.include` / `include` (and `.inc` files) are skipped, as are tabs that were never saved;
+- a report lists every file with its size, *skipped* reason or compiler error, and the status bar shows *N / M files built*.
 
 ### Load .asm file (quick reference)
 
@@ -482,7 +578,7 @@ The UB toolbar follows the same visual language and custom tooltips as Expert mo
 
 - syntax highlighting based on the current Ultimate Basic language reference;
 - line numbers that remain synchronized with long files;
-- a minimap and editor zoom controls; click the minimap to jump or drag its viewport selection for continuous scrolling;
+- a minimap and editor zoom controls (`Ctrl` + mouse wheel also zooms); click the minimap to jump or drag its viewport selection for continuous scrolling;
 - Find (`Ctrl+F` / `Cmd+F`) using the Expert-style search bar;
 - source formatting with structure-aware indentation;
 - autocomplete for commands and built-in functions;
@@ -496,7 +592,7 @@ The command list is intentionally height-limited so the command-detail card can 
 
 ### Projects, tabs, and startup files
 
-Ultimate Basic projects use `.proj` files and can contain multiple `.ub` sources. The Project panel lists open files, marks unsaved tabs, and shows discovered labels, functions, and subroutines. Project actions let you create, open, save, and close a project or add another source file.
+Ultimate Basic projects use `.proj` files and can contain multiple `.ub` sources. The Project panel lists open files, marks unsaved tabs, and shows discovered labels, functions, and subroutines. Project actions let you create, open, save, and close a project or add another source file. A new project can also start from an UltimateBasic template — see [Project templates](#project-templates).
 
 Click the star beside a project file to mark it as the **startup file**. Build, Run, D64, C64 Ultimate, and Debug commands compile that startup source even if a different tab is currently active. Without a startup selection, the active UB tab is used.
 
@@ -600,7 +696,7 @@ Expert Mode is a full-featured direct-text 6502 assembly editor that lives along
 | **Collapse / expand all regions** | `#expert-region-fold-all-btn` | Fold or unfold every `.region` block in one click. If any region is currently open, the button collapses them all; if every region is already collapsed, the next click expands them all. The button lights up when all regions are collapsed. |
 | **Line numbers** | `#expert-line-numbers-btn` | Toggle the line number gutter on the left side of the editor. The gutter stays in sync with the scroll position and updates live as you type. |
 | **Find** | `#expert-find-btn` | Open the floating Find bar (`Ctrl+F`). Type to search; matches are highlighted in the overlay. `Enter` / `Shift+Enter` navigate between matches. `Escape` closes the bar. |
-| **Zoom out / in** | `#expert-zoom-out-btn` / `#expert-zoom-in-btn` | Decrease / increase the editor font size (8–28 px). The setting is persisted. |
+| **Zoom out / in** | `#expert-zoom-out-btn` / `#expert-zoom-in-btn` | Decrease / increase the editor font size (8–28 px). `Ctrl` + mouse wheel (`Cmd` + wheel on macOS, or a touchpad pinch) over the editor does the same. The setting is persisted. |
 | **Palette** | `#expert-palette-btn` | Show/hide the left mnemonic palette |
 | **Disasm** | `#expert-disasm-btn` | Show/hide the disassembly panel (pure 6502, macros expanded) |
 | **Monitor** | `#expert-monitor-btn` | Show/hide the monitor hex-dump panel |
@@ -1554,6 +1650,35 @@ Like **BLOAD in BASIC** — picks up an external binary file (`.bin`, `.prg`, `.
 ```
 
 **Size in code:** 0 bytes (deferred data section). The binary is embedded at the given address.
+
+---
+
+### KOALA
+
+Loads a **Koala Painter** picture (`.koa` / `.kla`, 160×200 multicolor) and shows it. The picture data is embedded at a fixed address like `INCBIN` (the file's 2-byte `$6000` load address is stripped), and the block itself compiles to an 86-byte display routine that runs where the block sits.
+
+| Field | Description |
+|---|---|
+| File | Browse to select a `.koa` / `.kla` file (10003 bytes, or 10001 without load address) |
+| Address | Bitmap address: `$6000` (default, Koala native, VIC bank 1, screen RAM `$4400`) or `$2000` (VIC bank 0, screen RAM `$0400`) |
+
+The display routine copies the screen RAM part to the screen and the color RAM part to `$D800`, writes the background byte to `$D021`, selects the VIC bank in `$DD00` (keeping the other port bits) and switches on multicolor bitmap mode (`$D011 = $3B`, `$D016 = $18`, `$D018 = $18`). Other addresses are rejected: the remaining 8K slots are under the BASIC/KERNAL ROM (the copy loop would read ROM) or overlap the character-ROM shadow.
+
+**Expert syntax:**
+```
+.koala "picture.koa"
+.koala "picture.koa", $2000
+```
+
+**Example — show a picture and wait:**
+```
+* = $0801
+.koala "picture.koa"
+wait:
+    JMP wait
+```
+
+**Size in code:** 86 bytes (display routine); the 10001 bytes of picture data go to the given address. The Hires editor's **Files → Export Koala (.koa)…** produces a compatible file.
 
 ---
 
@@ -3764,6 +3889,8 @@ Every Copy / Insert output starts with a header comment documenting the curve, a
 | **Save curve (.bin)…** | Saves the raw table bytes exactly as the C64 would read them via `INCBIN`. 16-bit: N lo bytes followed by N hi bytes. |
 | **Load curve (.bin)…** | Loads raw table bytes back into the editor, interpreted per the current bit depth (16-bit: first half lo, second half hi). The loaded table is shown as-is until any curve control regenerates a fresh curve. |
 | **Export demo to blocks** | Appends a complete, runnable sprite demo: sprite init, raster-synced main loop, the embedded table, and ball sprite data. X sweeps 0..320 in 8.8 fixed point with the `$D010` MSB while the table drives sprite Y — exactly matching the editor preview. Re-export replaces the previous Curve Editor insert. |
+| **Export to UltimateBasic** | Writes the table as an initialised Ultimate Basic array — `var name = array(N)` (or `array_word(N)` for 16-bit) followed by `data name: …` lines — and inserts it at the UB editor cursor (outside UB mode it is copied to the clipboard). The label becomes a valid, lower-case UB name; index the table as `name[i]`. Needs Ultimate Basic 1.5.8+ (bundled). |
+| **Export UltimateBasic demo** | Produces a complete, ready-to-run UB program: a ball sprite (`sprdef 0`), the table, and a raster-synced loop that plays one table entry per frame. 8-bit tables drive sprite **Y** while X sweeps 0..320; 16-bit (0..320) tables drive sprite **X** while Y sweeps 0..200. Tables longer than 256 entries play their first 256. |
 
 **Matching the preview on the C64:** the preview reads the table **linearly, looping 0 → N-1 → 0, one value per frame**. To reproduce it exactly, drive the table the same way (increment the index once per frame, wrap at the table length). A ping-pong or partial-range playback will move differently even though the byte values are identical. See `samples/curve-new-demo.asm` for a working 16-bit sprite-X example.
 
