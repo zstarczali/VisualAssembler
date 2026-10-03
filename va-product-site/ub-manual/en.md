@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.7 — Language Manual
+# Ultimate Basic v1.6.0 — Language Manual
 
 Complete language and CLI reference for Ultimate Basic, a BASIC-like language that
 compiles directly to 6502 machine code for the Commodore 64. Output: `.prg` files
@@ -66,7 +66,7 @@ confusing error (a `var` line silently fails to declare, or an expression like
 
 **Print & I/O**
 `print`, `spc`, `tab`, `at`, `input`, `chr$`, `str$`, `hex`, `bin`,
-`open`, `close`, `load`, `save`, `data`, `read`, `include`, `incbin`
+`open`, `close`, `load`, `save`, `chain`, `data`, `read`, `include`, `incbin`
 (also `dec` — listed above as the decrement statement; the same token
 is used for the `dec(n, width)` print format)
 
@@ -151,11 +151,17 @@ w = a or b               # bitwise OR
 v = a xor b              # bitwise XOR
 m = x shl 3              # shift left
 n = x shr 2              # shift right
-r = x mod 40             # 8-bit modulo (remainder); SEC/SBC/BCS loop
+r = x mod 40             # 8-bit modulo (remainder); x mod 0 = x, x / 0 = 255
 b = bnot x               # bitwise NOT: x XOR 255 (complement all 8 bits)
 ```
 
 Comparisons: `==`  `!=`  `<`  `>`  `<=`  `>=`  (return 1/0)
+
+Arithmetic code (1.6.0): `*` by a constant compiles to shifts / shift-add (`x * 8` → 3× `ASL`),
+otherwise to a shift-add loop of at most 8 rounds. `/` and `mod` by a power of two are `LSR` /
+`AND #(n-1)`, otherwise an 8-round shift-subtract loop whose run time no longer depends on the
+quotient. Division by zero is defined: `x / 0 = 255`, `x mod 0 = x` (before 1.6.0 it hung).
+`x = x + 1` / `x = x - 1` (and ±2) compile to `INC` / `DEC`.
 
 ### Increment / Decrement
 
@@ -287,13 +293,16 @@ until x == 100       # exits when condition is true
 | `for i = 1 to 10` (default `step +1`, `from ≤ to`) | counts up, standard |
 | `for i = 0 to 20 step 2` (positive step, `from ≤ to`) | counts up by 2 |
 | `for i = 10 to 1 step -1` (negative constant step) | counts down; body runs for i = 10, 9, ..., 1 |
-| `for i = 20 to 0 step -2` (down to zero) | terminates at i = 0 by detecting the ADC underflow (C=0) after the decrement; no infinite loop |
+| `for i = 20 to 0 step -2` (down to zero) | terminates at i = 0 by detecting the wrap-around below 0 after the decrement; no infinite loop |
 | `for i = 10 to 1` (no step, `from > to`) | **compile-time error**: `for-loop: from (10) > to (1) with default step +1 loops 0 times — use 'step -1' to count down` |
 
-The compiler picks the exit-branch encoding at compile time based on the sign of a constant `step`:
-
-- Positive step (or default `+1`) → exit when `var > to` (unsigned `CMP` + `BCC`/`BEQ` fall-through to `JMP exit`).
-- Negative constant step → exit when `var < to` (unsigned `CMP` + `BCS` to body), **plus** a post-increment `BCS loop_top ; JMP exit` that catches the wrap when `var` underflows below 0. That extra pair of instructions is what keeps `for i = N to 0 step -k` finite.
+Code shape (1.6.0): the loop is *rotated* — `JMP test` (omitted when constant bounds guarantee a
+first pass), the body, `var += step`, then the test at the bottom branching back to the body, so
+there is no extra `JMP` per iteration. The step detects 8-bit wrap-around in both directions
+(`INC`/`BEQ` or `ADC`/`BCS` counting up, `BEQ`/`DEC` or `SBC`/`BCC` counting down), so
+`for i = 0 to 255` runs 256 times and stops, and `for i = N to 0 step -k` is always finite.
+Constant limits and steps are used as immediates (no zero page); a non-constant limit or step is
+evaluated once and kept in permanent zero page.
 
 Non-constant `step` values (e.g. from a variable or expression) are treated as positive at compile time; if you need count-down with a runtime step value, split the loop or use a `while` construct.
 
@@ -808,10 +817,92 @@ each call (gate off, then on) and sets master volume `$0F`.
 `channel` (0-2), `frames` (1-255) and `wave` must be compile-time constants.
 
 
+### SID Music
+
+```basic
+load sid "tune.sid"            # embed SID music at its native load address
+load sid "tune.sid", $2000     # override: embed at $2000 regardless of SID header
+```
+
+`load sid` reads a PSID or RSID file at **compile time**, strips the header, and appends the raw music bytes to the output `.prg`. After `load sid`, two compile-time constants become available:
+
+| Constant   | Description |
+|---|---|
+| `sid_init` | Init routine address — call once with A = song number (0-based) |
+| `sid_play` | Play routine address — call every frame (50 Hz PAL) from an IRQ handler |
+
+Both constants work anywhere a constant address is accepted: `sys`, `irq`, `poke`, expressions.
+
+**Typical usage:**
+
+```basic
+load sid "music.sid"
+
+sub music_irq()
+  poke $D019, $FF       # ACK VIC raster IRQ
+  sys sid_play          # advance one frame of music
+  irq_exit              # JMP $EA81: restore A/X/Y + RTI (proper IRQ exit)
+end
+
+sys sid_init, 0         # initialise SID chip: A=0 → first sub-tune
+irq music_irq, $C0      # raster IRQ at line $C0 → 50 Hz on PAL
+
+sid volume 15           # master volume on
+```
+
+**Notes:**
+- SID data is placed **after** all generated code, padded with zeros up to the load address. The compiler warns if the SID load address would overlap generated code.
+- PSID v1 and v2 are supported. If the SID header's load address is 0, the first two data bytes are used as the address (PRG-style, little-endian).
+- Only one `load sid` per program is meaningful (the last one wins).
+
+### Tracker tunes (`tune`)
+
+```basic
+tune                       # optional: tune at $C800  (default $8000)
+  speed 6                  # frames per row (50 Hz PAL)
+  inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
+  inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
+  order 0, 1, 0            # pattern order (patterns may repeat)
+  pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
+  pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
+end
+music play                 # or: sys sid_init / irq handler calling sys sid_play
+```
+
+`tune ... end` describes a 3-voice tracker tune in plain text (the same cell notation the
+Visual Assembler SID editor shows) and builds the player **at compile time**. It defines
+`sid_init` / `sid_play` exactly like `load sid`, so `music play`, `music stop`,
+`music pause` and `music resume` (and a manual `irq` handler calling `sys sid_play`) work
+unchanged.
+
+| Line | Meaning |
+|---|---|
+| `speed N` | Frames per tracker row (1-255). |
+| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol` | One instrument: control register (waveform bits; the gate bit is added by the player), attack/decay, sustain/release, 12-bit pulse width, 11-bit filter cutoff, resonance/filter-routing byte (`$D417`) and mode/volume byte (`$D418`). |
+| `order p, p, ...` | Pattern order. Lines accumulate, up to 255 steps. |
+| `pat p, v, "cell", ...` | Up to 32 rows for voice `v` (0-2) of pattern `p` (0-7). Missing rows are empty. |
+
+A **cell** is `NOTE INST FX`: `C-4`, `D#3`, `Eb2` or `...` for no note, a two-digit hex
+instrument (`..` to leave it), and an optional effect - `Vxy` vibrato (x = hold rows,
+y = depth), `Uxx` / `Dxx` slide up / down, `C` note cut, `Fxx` set speed. An effect-only cell
+can be written as `"... .. F06"` or just `"F06"`.
+
+Notes on the player:
+
+- All player state lives **inside the blob** (absolute addressing) - it uses no zero page, so it
+  cannot collide with UltimateBasic variables or temporaries, and it keeps working when the
+  program returns to BASIC.
+- The blob is placed at a fixed address (default `$8000`, or `tune at $addr`) and the `.prg` is
+  padded up to it, like `load sid`. Keep it clear of your code, arrays (`$C000+`) and any
+  bitmap/charset memory. A tune needs about 1.3 KB plus 12 bytes per row-column of data.
+- At most 8 patterns (32 rows each); the order list can repeat them freely.
+- `music play` uses the CIA1 timer at 50 Hz; do not combine it with another `load sid`/`tune`
+  (the last one wins).
+
 ### Music playback
 
 `music play/stop/pause/resume` is a high-level alternative to the manual `sys sid_init` / `cia_timer` setup.
-Requires a prior `load sid` statement (defines `sid_init` / `sid_play`).
+Requires a prior `load sid` statement or a `tune ... end` block (both define `sid_init` / `sid_play`).
 
 ```basic
 load sid "tune.sid"         # embed SID file (defines sid_init / sid_play)
@@ -1082,6 +1173,7 @@ poke16 ptr, w                 # word var as address; word var as value
 ```basic
 load "PROGRAM"           # KERNAL LOAD: loads file from device 8 to its native address
 load "DATA", $C000       # loads file to a specific address
+chain "GAME"             # load another program over this one and RUN it (see below)
 load "DATA", ptr         # addr from word variable
 
 save "DATA", $C000, 4096 # KERNAL SAVE from $C000, 4096 bytes → device 8
@@ -1089,91 +1181,43 @@ save "PROG", start, len  # addr and len from word/int variables
 ```
 
 `load` calls KERNAL `SETNAM`+`SETLFS`+`LOAD` (`$FFBD`/`$FFBA`/`$FFD5`).
-Without address: secondary address 0 (file's own 2-byte header used as load address).
-With address: secondary address 1 (file loaded to specified location).
+Without address: secondary address 1 (the file's own 2-byte header is the load address).
+With address: secondary address 0 (the file is loaded to the given address, its header is skipped).
+(Fixed in 1.5.9 — before, the two were swapped: `load "F"` loaded to `$0000`.)
 `save` calls `SETNAM`+`SETLFS`+`SAVE` (`$FFBD`/`$FFBA`/`$FFD8`). Requires both `addr` and `len`.
 
-### Tracker tunes (`tune`)
+#### Chaining to another program — `chain` (new in 1.5.9)
 
 ```basic
-tune                       # optional: tune at $C800  (default $8000)
-  speed 6                  # frames per row (50 Hz PAL)
-  inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
-  inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
-  order 0, 1, 0            # pattern order (patterns may repeat)
-  pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
-  pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
-end
-music play                 # or: sys sid_init / irq handler calling sys sid_play
+chain "GAME"             # load GAME from the drive we were started from and RUN it
+chain "GAME", 9          # from drive 9 (any expression)
+print "LOAD ERROR"       # only reached if the file could not be loaded
 ```
 
-`tune ... end` describes a 3-voice tracker tune in plain text (the same cell notation the
-Visual Assembler SID editor shows) and builds the player **at compile time**. It defines
-`sid_init` / `sid_play` exactly like `load sid`, so `music play`, `music stop`,
-`music pause` and `music resume` (and a manual `irq` handler calling `sys sid_play`) work
-unchanged.
+`chain` loads another program to its own load address — normally `$0801`, right over the
+running program — and starts it exactly as if `LOAD"GAME",8,1` and `RUN` had been typed. This
+is what a boot / title program needs. A plain `load` cannot do it: the loaded file would
+overwrite the code that is executing the `load`.
 
-| Line | Meaning |
-|---|---|
-| `speed N` | Frames per tracker row (1-255). |
-| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol` | One instrument: control register (waveform bits; the gate bit is added by the player), attack/decay, sustain/release, 12-bit pulse width, 11-bit filter cutoff, resonance/filter-routing byte (`$D417`) and mode/volume byte (`$D418`). |
-| `order p, p, ...` | Pattern order. Lines accumulate, up to 255 steps. |
-| `pat p, v, "cell", ...` | Up to 32 rows for voice `v` (0-2) of pattern `p` (0-7). Missing rows are empty. |
+How it works:
 
-A **cell** is `NOTE INST FX`: `C-4`, `D#3`, `Eb2` or `...` for no note, a two-digit hex
-instrument (`..` to leave it), and an optional effect - `Vxy` vibrato (x = hold rows,
-y = depth), `Uxx` / `Dxx` slide up / down, `C` note cut, `Fxx` set speed. An effect-only cell
-can be written as `"... .. F06"` or just `"F06"`.
+- A 46-byte, position-independent loader plus the file name is copied to the cassette buffer
+  (`$033C`), which neither an Ultimate Basic program nor an Exomizer-packed file loads over.
+- Before that the machine is put back into a clean state: VIC IRQs off, SID volume 0, `IOINIT`
+  (`$FDA3`: CIA timers, keyboard IRQ, serial bus), `RESTOR` (`$FF8A`: default IRQ/BRK/NMI and
+  I/O vectors), `$01 = $37`. Custom raster IRQs, `music play` and `nmi` handlers stop. Screen,
+  colours and VIC bank registers other than `$DD00` are left as they are, so a picture can stay
+  on screen while the next program loads (`IOINIT` selects VIC bank 0).
+- The loader calls `SETNAM` / `SETLFS` (secondary 1) / `LOAD`. Without a device argument it
+  uses the drive the program itself was loaded from (`$BA`), or drive 8.
+- After a successful load it sets the end-of-program pointer (`$2D/$2E`), re-initialises
+  BASIC (`$E453`, `$E3BF` — a self-extracting cruncher such as Exomizer `sfx` may have used
+  BASIC's zero page) and RUNs the program (`$A659`, `$A7AE`). It works for Ultimate Basic
+  programs, crunched (`exomizer sfx sys`) files and ordinary BASIC programs alike.
+- If the file cannot be loaded (not found, no drive), `chain` returns and the program continues
+  with the next statement.
 
-Notes on the player:
-
-- All player state lives **inside the blob** (absolute addressing) - it uses no zero page, so it
-  cannot collide with UltimateBasic variables or temporaries, and it keeps working when the
-  program returns to BASIC.
-- The blob is placed at a fixed address (default `$8000`, or `tune at $addr`) and the `.prg` is
-  padded up to it, like `load sid`. Keep it clear of your code, arrays (`$C000+`) and any
-  bitmap/charset memory. A tune needs about 1.3 KB plus 12 bytes per row-column of data.
-- At most 8 patterns (32 rows each); the order list can repeat them freely.
-- `music play` uses the CIA1 timer at 50 Hz; do not combine it with another `load sid`/`tune`
-  (the last one wins).
-
-### SID Music
-
-```basic
-load sid "tune.sid"            # embed SID music at its native load address
-load sid "tune.sid", $2000     # override: embed at $2000 regardless of SID header
-```
-
-`load sid` reads a PSID or RSID file at **compile time**, strips the header, and appends the raw music bytes to the output `.prg`. After `load sid`, two compile-time constants become available:
-
-| Constant   | Description |
-|---|---|
-| `sid_init` | Init routine address — call once with A = song number (0-based) |
-| `sid_play` | Play routine address — call every frame (50 Hz PAL) from an IRQ handler |
-
-Both constants work anywhere a constant address is accepted: `sys`, `irq`, `poke`, expressions.
-
-**Typical usage:**
-
-```basic
-load sid "music.sid"
-
-sub music_irq()
-  poke $D019, $FF       # ACK VIC raster IRQ
-  sys sid_play          # advance one frame of music
-  irq_exit              # JMP $EA81: restore A/X/Y + RTI (proper IRQ exit)
-end
-
-sys sid_init, 0         # initialise SID chip: A=0 → first sub-tune
-irq music_irq, $C0      # raster IRQ at line $C0 → 50 Hz on PAL
-
-sid volume 15           # master volume on
-```
-
-**Notes:**
-- SID data is placed **after** all generated code, padded with zeros up to the load address. The compiler warns if the SID load address would overlap generated code.
-- PSID v1 and v2 are supported. If the SID header's load address is 0, the first two data bytes are used as the address (PRG-style, little-endian).
-- Only one `load sid` per program is meaningful (the last one wins).
+The file name must be a string literal of 1–16 characters.
 
 ### Serial channel file I/O
 
@@ -1436,6 +1480,24 @@ read varname             # load next byte into varname (auto-declares if needed)
 
 All `data` values are collected at compile time. A 2-byte ZP pointer is automatically
 allocated and initialised at program start. Each `read` advances the pointer.
+
+**Initialised arrays — `data <array>: …` (new in 1.5.8)**
+
+```basic
+var sinus = array(8)
+data sinus: 128, 218, 255, 218
+data sinus: 128, 37, 0, 37      # further lines continue where the previous one stopped
+print sinus[i]                  # random access, like any array
+
+var xpos = array_word(2)
+data xpos: 24, 300              # word arrays take 16-bit values (stored lo, hi)
+```
+
+A `data` line whose first item is `name:` fills a declared `array` / `array_word` instead of
+the `read` stream. The values are stored after the code and copied into the array once at
+program start (right after the arrays are zeroed), so the table is fully writable and indexed
+like any other array. More values than the array holds, or an undeclared name, is a compile
+error. These lines do not affect `read`.
 
 ### Inline assembly
 
@@ -1752,6 +1814,21 @@ demo.ub → demo.prg  (386 bytes)
 
 With `-v` the output additionally shows the internal ZP allocations and a full hex dump.
 
+### Generated code (optimised in 1.6.0)
+
+The code generator emits tighter 6502 for the common cases; programs need no changes:
+
+- Conditions in `if` / `while` / `until` / `select` are a `CMP` plus a branch (no 0/1 value is
+  built and re-tested). `x > n` is compiled as `x >= n+1`; `and` / `or` of comparisons
+  short-circuit when the right side has no side effects; `while` tests at the bottom of the loop.
+- Constants and byte variables are direct operands (`ADC #n`, `CMP zp`); `poke` to a constant or
+  `word` address stores directly.
+- Arrays with a variable index use `base,Y` addressing instead of a zero-page pointer.
+- When a statement starts by loading the variable the previous statement just stored, the
+  redundant `LDA` is skipped.
+
+Use `--asm` to see the generated code for your own program.
+
 ## Known limitations
 
 | Feature | Limitation |
@@ -1773,6 +1850,6 @@ With `-v` the output additionally shows the internal ZP allocations and a full h
 | `plot4` | No bounds checking — x must be 0–79, y must be 0–49 (block mode) |
 | `circle4` | Clips off-screen block pixels; useful radius is roughly 0–49 in 80×50 block mode |
 | `chr$` | No PETSCII↔ASCII mapping — n is passed as-is to CHROUT |
-| `music play` | Requires `load sid`; only one CIA1 wrapper is emitted (last `music play` wins) |
+| `music play` | Requires `load sid` or a `tune` block; only one CIA1 wrapper is emitted (last `music play` wins) |
 | `graphics on double` | Hires only; uses `$4000–$7FFF` for the back buffer, so program code must stay below `$4400`; not combinable with sprites or multicolor |
 | Error reporting | Compile-time only; `onerr goto` handles KERNAL I/O errors at runtime |

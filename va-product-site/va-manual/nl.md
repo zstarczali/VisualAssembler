@@ -509,7 +509,7 @@ Het project wordt aangemaakt in een eigen map: `<locatie>/<naam>/<naam>.proj` pl
 
 **Menu → Bouwen → Project bouwen** compileert een volledig project in één stap. De bestanden van het geopende `.proj` project worden gebouwd — of, zonder project, de geopende bestandstabbladen:
 
-- elke compileerbare bron (`.asm`, blok `.json`, `.ub`) wordt gecompileerd naar een `.prg` ** naast de bron** met dezelfde naam; met **Uitvoeren met Exomizer** ingeschakeld wordt de uitvoer gekraakt;
+- elke compileerbare bron (`.asm`, blok `.json`, `.ub`) wordt gecompileerd naar een `.prg` **naast de bron** met dezelfde naam; met **Uitvoeren met Exomizer** ingeschakeld wordt de uitvoer gekraakt;
 - Debugger-sidecarbestanden (symbolen/bronkaart) worden, indien mogelijk, samen met het PRG-bestand geschreven;
 - Modules die door een ander bestand worden ingevoegd met `.include` / `include` (en `.inc`-bestanden) worden overgeslagen, evenals tabbladen die nooit zijn opgeslagen;
 - Een rapport geeft een lijst van elk bestand met de grootte, *overgeslagen* reden of compilerfout, en de statusbalk toont *N / M gebouwde bestanden*.
@@ -1291,7 +1291,7 @@ Net als **DATA die direct in het geheugen wordt geladen** — helemaal geen runt
 .rawbytes $0C50, $00, $00 :nev      ; with macroLabel — other code can use LDA nev,X
 ```
 
-**Grootte in code: ** 0 bytes. De gegevens worden op het opgegeven adres in de uitvoer geplaatst.
+**Grootte in code:** 0 bytes. De gegevens worden op het opgegeven adres in de uitvoer geplaatst.
 
 > **DATA vs RAWBYTES:** DATA genereert LDA/STA-code die bytes tijdens de uitvoering kopieert (langzamer, maar werkt als de data dynamisch moet zijn). RAWBYTES plaatst de bytes direct — geen code, direct, geen kosten.
 
@@ -1329,7 +1329,7 @@ Net als RAWBYTES, maar dan voor tekst: de tekenreeks wordt gecodeerd als schermc
     .byte $48, $45, $4C, $4C, $4F   ; h e l l o (lowercase screen codes $41–$5A range)
 ```
 
-**Grootte in code: ** 0 bytes. De gegevens worden op het opgegeven adres in de uitvoer geplaatst.
+**Grootte in code:** 0 bytes. De gegevens worden op het opgegeven adres in de uitvoer geplaatst.
 
 > **STRING vs RAWTEXT:**STRING genereert LDA/STA-code die de tekst tijdens runtime kopieert. RAWTEXT bakt de bytes in de PRG tijdens het laden — geen code, geen wachttijd.
 
@@ -1618,7 +1618,7 @@ Net als **BLOAD in BASIC** — pakt een extern binair bestand (`.bin`, `.prg`, `
 .incbin "music.bin", $C000
 ```
 
-**Gegenereerde ASM-opmerking: **
+**Gegenereerde ASM-opmerking:**
 ```
     ; INCBIN "music.bin" @ $C000 (2048 bytes)
     .byte $01, $02, ...
@@ -1679,7 +1679,7 @@ Het blok toont:
 .sid "Ikari_Warriors.sid", $1000
 ```
 
-**Gegenereerde ASM-opmerking: **
+**Gegenereerde ASM-opmerking:**
 ```
     ; SID "Ikari_Warriors.sid" @ $1000  Init:$1000  Play:$1006  (4096 bytes)
 ```
@@ -3778,7 +3778,7 @@ Multi-instrumentele 3-stemmige tracker met een Web Audio-previewengine. Openen v
 - Het plakken binnen een celbereik begint nu bij de geselecteerde begincel van het bereik en stopt netjes bij de grenzen van stemmen en rijen, in plaats van door te lopen naar de volgende kolom of rij.
 - Met de snelheidsregelaar wordt de IRQ-tickdeler ingesteld (het aantal frames tussen rijen).
 
-** Nummer / volgordelijst: **
+**Nummer / volgordelijst:**
 - De patronen worden geordend via een lijst met nummers/volgordes die bovenop de ruwe patroonbank is geplaatst. Hetzelfde patroon kan zich herhalen en het nummer kan langer zijn dan het aantal opgeslagen patronen.
 - Voeg stappen toe aan, verwijder ze uit en wijzig de volgorde van de stappen in het paneel met de liedjeslijst; de huidige stap wordt tijdens het afspelen gemarkeerd.
 - Zowel bij het afspelen binnen de app als bij elke export wordt deze lijst gebruikt, niet de oorspronkelijke patroonvolgorde. Exports die zijn gemaakt voordat de volgordelijst bestond, laden nog steeds correct als een gewoon 0..N-1 nummer.
@@ -3810,7 +3810,7 @@ Effecten worden één keer per regel bijgewerkt (overeenkomend met de timing van
 | `Exporteer asm (klembord)`             | Kopieert de volledige broncode van de assembly naar het klembord.                                                                                                                                                                                                                                                                |
 | `Exporteren naar UltimateBasic`        | Schrijft een `tune ... end` blok (instrumenten, volgordelijst, patroonrijen als tekst) plus `music play` en voegt dit in op de cursorpositie van de Ultimate Basic-editor; buiten de UB-modus kopieert het de tekst naar het klembord. De UltimateBasic-compiler bouwt de speler, dus `music play` / `music stop` besturen deze. |
 
-**Gebruik van speler-ZP: ** `$02`–`$2F` (pointertabellen, patroonoffset en per-stem effectstatus), plus `$FB`–`$FE` (tickteller, rij-index, positie in de orderlijst, set_voice temp). Deze conflicteren als uw hoofdcode ze gebruikt — verplaats ze indien nodig via de Expert-modus.
+**Gebruik van speler-ZP:** `$02`–`$2F` (pointertabellen, patroonoffset en per-stem effectstatus), plus `$FB`–`$FE` (tickteller, rij-index, positie in de orderlijst, set_voice temp). Deze conflicteren als uw hoofdcode ze gebruikt — verplaats ze indien nodig via de Expert-modus.
 
 **Bekende limieten:**
 - Een 8-bits rijteller beperkt elk patroon tot 7 patronen × 32 rijen in de ruwe databank (de lijst met nummers/volgordes kan nog steeds willekeurig lang zijn door herhalende patronen).

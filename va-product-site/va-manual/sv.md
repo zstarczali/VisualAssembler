@@ -170,10 +170,10 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
 
 - **Projektmallar** — **Meny → Arkiv → Nytt projekt från mall…**, eller den nya verktygsfältsknappen mellan **Meny** och **Handledningar**, skapar ett färdigt `.proj`-projekt i en egen mapp. Dialogrutan har en **Assembler**-sektion (tomt program, spelskelett, anställningar och flerfärgad bitmapp) och en **UltimateBasic**-sektion (tomt program, spelskelett, anställningsbitmapp, raster-IRQ), med en syntaxmarkerad förhandsvisning. Dina egna `.asm` / `.ub`-mallar hämtas från mappen för användarmallar. Se [Projektmallar](#project-templates).
 - **Bygg projekt** — **Meny → Bygg → Bygg projekt** kompilerar alla byggbara filer i det öppna projektet (eller i de öppna flikarna) till en `.prg` bredvid dess källkod, skriver felsökningssymbolfiler där sådana finns, hoppar över inkluderingsmoduler och visar en rapport per fil. Se [Bygg projekt](#build-project).
-- **Ctrl + zoomning med mushjulet ** i Expert- och Ultimate Basic-redigerarna (`Cmd ` + hjul på macOS; nypning med pekplattan fungerar också).
+- **Ctrl + zoomning med mushjulet** i Expert- och Ultimate Basic-redigerarna (`Cmd ` + hjul på macOS; nypning med pekplattan fungerar också).
 - **Arbetsytor kommer ihåg projekt** — Expert- och Ultimate Basic-projektträden, startfilen och osparade projektändringar sparas i `.vaws`-arbetsytan och återställs med den. Äldre arbetsytor är fortfarande öppna.
 - **Ultimate Basic** — den medföljande kompilatorn genererar snabbare, mindre 6502-kod; minneskartan skiljer nu åt riktig kod och data förutom utfyllnad och långa `org`-gap.
-- **Fildialogrutor startar i den aktiva arbetsmappen ** — Block/Expert-mappen eller Ultimate Basic-mappen, beroende på aktuellt läge.
+- **Fildialogrutor startar i den aktiva arbetsmappen** — Block/Expert-mappen eller Ultimate Basic-mappen, beroende på aktuellt läge.
 
 ---
 
@@ -182,7 +182,7 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
 - **Nytt KOALA-makro** — `.koala "picture.koa"` (valfritt `, $2000`) laddar en Koala Painter-bild och visar den med en 86-byte-visningsrutin. Se [KOALA](#koala).
 - **Koala import/export i Hires-redigeraren** — **Filer → Importera Koala (.koa)…** / **Exportera Koala (.koa)…** (standard 10003-byte-fil; högupplösta bilder reduceras till flerfärgade vid export). `.koa` / `.kla` känns också igen av **Importera bild / .bin**.
 - **Ultimate Basic 1.5.9 medföljer** — ny `kedja "FIL" [, enhet]` (ladda ett annat program över det som körs och KÖR det); `ladda "FIL"` laddar till filens egen adress, `ladda "FIL", addr` till `addr`; D64 åtgärdar. `kedja` är markerad och listad i kommandoreferensen.
-- **Uppdateringsstatus i expertstatusfältet ** — samma *Uppdaterad * / klickbara *Uppdatering tillgänglig *-indikator som i Ultimate Basic-läget.
+- **Uppdateringsstatus i expertstatusfältet** — samma *Uppdaterad * / klickbara *Uppdatering tillgänglig *-indikator som i Ultimate Basic-läget.
 - **Spara-dialogrutor** erbjuder filens egen typ (t.ex. *KOA*) istället för *Binär (\*.bin)*.
 - **Mer robust uppdateringskontroll** — installationslistan publiceras på c64va.tech/downloads/VA/, så kontrollen fungerar med den nya nedladdningssidan; Linux-uppdateringshjälpen ärver inte längre AppImage-bibliotekets sökvägar.
 
@@ -381,7 +381,7 @@ Fliken **Alternativ** innehåller inställningarna som påverkar kodgenerering o
 
 ### Klicka på en ASM-linje
 
-Klicka på valfri rad i ASM-vyn för att **markera motsvarande block ** i programområdet. När flera block är valda markeras ASM-linjerna för alla tillsammans.
+Klicka på valfri rad i ASM-vyn för att **markera motsvarande block** i programområdet. När flera block är valda markeras ASM-linjerna för alla tillsammans.
 
 ### ASM-linjenummer
 
@@ -475,7 +475,7 @@ En **arbetsyta** (`.vaws`-fil) kommer ihåg vilka riktiga filer på disken som v
 - Endast flikar som backas upp av en riktig fil på disk sparas i arbetsytan; en flik som innehåller ett osparat exempel eller ett program som endast finns i minnet har inget att spara och hoppas över (med ett meddelande om ingen av de öppna flikarna kvalificerar sig).
 - Om du öppnar en arbetsyta stängs först alla öppna flikar – du ombeds att bekräfta innan det fortsätter.
 - Om en arbetsyta refererar till en fil som sedan dess har flyttats eller tagits bort, hoppas den posten över och rapporteras med namn efter inläsning.
-- De öppna Expert- och Ultimate Basic-projekten ** ** lagras också: projektträdet (inklusive osparade tillägg och borttagningar), startfilen och `.proj `-sparmålet återställs med arbetsytan. Arbetsytor som sparats av äldre versioner öppnas utan dem.
+- De öppna Expert- och Ultimate Basic-projekten **** lagras också: projektträdet (inklusive osparade tillägg och borttagningar), startfilen och `.proj `-sparmålet återställs med arbetsytan. Arbetsytor som sparats av äldre versioner öppnas utan dem.
 
 ### Projektmallar
 
@@ -509,7 +509,7 @@ Projektet skapas i en egen mapp: `<plats>/<namn>/<namn>.proj` plus `main.asm` (A
 
 **Meny → Bygg → Bygg projekt** kompilerar ett helt projekt i ett steg. Filerna i det öppna `.proj`-projektet byggs — eller, utan ett projekt, de öppna filflikarna:
 
-- varje byggbar källkod (`.asm`, block `.json`, `.ub`) kompileras till en `.prg` ** bredvid dess källkod** med samma namn; med **Kör med Exomizer** aktiverad bearbetas utdata;
+- varje byggbar källkod (`.asm`, block `.json`, `.ub`) kompileras till en `.prg` **bredvid dess källkod** med samma namn; med **Kör med Exomizer** aktiverad bearbetas utdata;
 - felsökarens sidofiler (symboler / källkodskarta) skrivs bredvid PRG där sådana finns tillgängliga;
 - moduler som en annan fil hämtar med `.include` / `include` (och `.inc`-filer) hoppas över, liksom flikar som aldrig sparades;
 - En rapport listar varje fil med dess storlek, *överhoppad* orsak eller kompileringsfel, och statusfältet visar *N/M skapade filer*.
@@ -756,7 +756,7 @@ Expertläget stöder en **projektpanel** (`#expert-project-panel`) för projekt 
 - **Stäng projekt** (`Meny → Arkiv → Stäng projekt` / `#menu-close-project`) stänger det aktuella projektet och alla dess filmlikar samtidigt. Uppmanar dig att spara eventuella osparade ändringar innan stängning. Projektpanelen återställs till sitt tomma tillstånd och `_expertProjectData` rensas.
 - Varje fil kan markeras som **startfilen** (★ stjärnikon). När en startfil är inställd, samlar och kör knappen **Kör** (PRG, D64, Ultimate) alltid filens kod – oavsett vilken flik som är aktiv för närvarande. Detta fungerar i både blockläge och expertläge.
 - Verktygsfältets knapp **Lägg till** väljer en eller flera filer samtidigt (valfri typ, inte bara `.json`/`.asm`) och refererar till dem i projektet utan att öppna dem — använd den för binära resurser som `incbin` data. Dess dialogruta är som standard VA-arbetsmappen. Den intilliggande knappen **Lägg till mapp** refererar till en hel mapp (t.ex. en resurskatalog) på samma sätt. Referensposter visar en raderingsknapp (✕) men öppnas inte genom att klicka på dem.
-- Mappar i trädet har en pil för att fälla/expandera, och **högerklicka på en mapp ** för att lägga till en eller flera filer kapslade under den (visas indragna).
+- Mappar i trädet har en pil för att fälla/expandera, och **högerklicka på en mapp** för att lägga till en eller flera filer kapslade under den (visas indragna).
 - Knappen **Spara projekt** inaktiverar sig själv och visar statusen "Sparad" när projektet inte har några väntande ändringar, och återaktiveras automatiskt i det ögonblick du lägger till, tar bort eller omorganiserar en fil eller mapp.
 - Avsnittet **symboler** längst ner i projektpanelen kan ändras i storlek vertikalt med avdelaren mellan filträdet och symbollistan, så långa symbollistor kan ta upp mer plats vid behov.
 
@@ -1134,7 +1134,7 @@ Liksom `FOR I=1 TO N: POKE addr+I, val: NEXT` — fyller ett minnesblock med sam
 | `40*25, 0`                    | inline-multiplikation                     |
 | `runda(sin(PI/4)*255), 80 kr` | trigonometri                              |
 
-**Inbyggda funktioner: ** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, konstant `PI`
+**Inbyggda funktioner:** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, konstant `PI`
 
 Operatorer: `+ - * /` Literaler: `$FF` (hex), `%10110000` (binär) Låg/hög byte: `lo(expr)`, `hi(expr)`
 
@@ -1179,7 +1179,7 @@ Liksom **PRINT AT** — skriver text direkt till C64-skärmen vid en given kolum
 | Etikett (valfritt)        | Tilldelar en etikett som pekar på den beräknade skärmadressen |
 | Gemener teckenuppsättning | Kryssruta — se nedan                                          |
 
-**Teckenuppsättningslägen: **
+**Teckenuppsättningslägen:**
 
 C64 har två teckenuppsättningar som kan väljas vid körning:
 
@@ -1348,7 +1348,7 @@ Liksom **RAWBYTES men för KERNAL-utdata** — kodar strängen som PETSCII-byte 
 | Etikett (valfritt)  | Tilldelar en etikett som pekar mot måladressen              |
 | PETSCII med gemener | Kryssruta — se nedan                                        |
 
-**Teckenuppsättningslägen: **
+**Teckenuppsättningslägen:**
 
 | Läge                                | Stora bokstäver (`A`–`Z`)                                                                                                | Gemener (`a`–`z`)            |
 | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ---------------------------- |
@@ -2293,7 +2293,7 @@ Värdefältet accepterar allmän aritmetik, inklusive referenser till tidigare d
 .const SIN_TABLE   = round(sin(PI/8) * 127)   ; pre-computed sine value
 ```
 
-**Inbyggda funktioner: ** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, konstant `PI`
+**Inbyggda funktioner:** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, konstant `PI`
 
 Operatorer: `+ - * /` Literaler: `$FF` (hex), `%10110000` (binär) Låg/hög byte: `lo(expr)`, `hi(expr)`
 
@@ -3633,7 +3633,7 @@ Kör assemblerade program på en **riktig Commodore 64 eller C128** — ingen h�
 
 **Vad du behöver:**
 - en Commodore 64 / C128 med en **Kung Fu Flash 2**-pickup monterad, påslagen;
-- **Kung Fu Flash firmware v2.07 eller senare ** på kassetten — tidigare firmwareversioner stöder inte uppladdningsprotokollet som används av Visual Assembler. Firmwareversioner: <https://codeberg.org/KimJorgensen/KungFuFlash2/releases/>;
+- **Kung Fu Flash firmware v2.07 eller senare** på kassetten — tidigare firmwareversioner stöder inte uppladdningsprotokollet som används av Visual Assembler. Firmwareversioner: <https://codeberg.org/KimJorgensen/KungFuFlash2/releases/>;
 - en **USB-kabel** som ansluter kassetten till datorn som kör Visual Assembler (den visas som en virtuell serieport).
 
 | Miljö            | Beskrivning                                                                                                                                                                                                                                                                                                                  |
@@ -3769,7 +3769,7 @@ Tracker för flera instrument, 3 röster och en förhandsgranskningsmotor för w
 
 **Spårningsrutnät:**
 - 3 röster × upp till 7 mönster × 32 rader = 7 × 32 = max 224 rader (8-bitars radräknare begränsar det).
-- Per rad: not + instrumentindex, plus en valfri effekt (se **Effektkolumnen ** nedan). Tomma rader innehåller föregående not.
+- Per rad: not + instrumentindex, plus en valfri effekt (se **Effektkolumnen** nedan). Tomma rader innehåller föregående not.
 - Markera en cell normalt, eller håll ned **Shift** medan du klickar eller använder piltangenterna för att utöka en rektangulär markering över rader och någon av de tre rösterna. Om du högerklickar inuti det markerade området behålls området intakt.
 - Kopiera, Klipp ut, Klistra in och Rensa är tillgängliga från ikonverktygsfältet och den ikonbaserade snabbmenyn. `Ctrl/Cmd+C` och `Ctrl/Cmd+V` fungerar på samma rektangulära markering.
 - Harmonihjälp: välj en grundton, ackordtyp och oktav, förhandsgranska ackordet med det aktuella instrumentet och infoga sedan instämmandet direkt i spåraren. Tillgängliga typer inkluderar dur, moll, förminskad, förstärkt, sus2, sus4, dominant 7, dur 7, moll 7, 6, moll 6, 9, b9, #9, dim7 och 7sus4.
@@ -3852,13 +3852,13 @@ Varje kopierings-/infogningsutdata börjar med en rubrikkommentar som dokumenter
 **Kopiera / Infoga:** verktygsfältets två ikoner — **Kopiera** placerar tabellen på urklipp; **Infoga i redigerare** lägger till tabellen (och läsaren, om aktiverad) som block i det aktuella programmet. Om du infogar **ersätts** den tidigare kurvredigerarinfogningen istället för att stapla dubbletter (fungerar i block- och expertläge).
 
 **Filmeny:**
-| Handling                          | Vad den gör                                                                                                                                                                                                                                                                                                                                                                 |
-| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Spara kurva (.bin)…**           | Sparar de råa tabellbytena exakt som C64 skulle läsa dem via `INCBIN`. 16-bitars: N låga byte följt av N höga byte.                                                                                                                                                                                                                                                         |
-| **Lastkurva (.bin)…**             | Läser in råa tabellbyte tillbaka till editorn, tolkade enligt det aktuella bitdjupet (16-bitars: första halvan låg, andra halvan hög). Den inlästa tabellen visas som den är tills någon kurvkontroll genererar en ny kurva.                                                                                                                                                |
-| **Exportera demo till block**     | Lägger till en komplett, körbar sprite-demo: sprite-init, rastersynkroniserad huvudloop, den inbäddade tabellen och boll-sprite-data. X sveper 0..320 i 8.8 fixpunkt med `$D010` MSB medan tabellen driver sprite Y — vilket exakt matchar editorns förhandsgranskning. Återexport ersätter den tidigare Curve Editor-insättningen.                                         |
-| **Exportera till UltimateBasic**  | Skriver tabellen som en initialiserad Ultimate Basic-array — `var name = array(N)` (eller `array_word(N)` för 16-bitars) följt av `data name: …` rader — och infogar den vid UB-redigerarens markör (utanför UB-läge kopieras den till urklipp). Etiketten blir ett giltigt UB-namn med gemener; indexera tabellen som `name[i]`. Kräver Ultimate Basic 1.5.8+ (medföljer). |
-| **Exportera UltimateBasic-demo ** | Producerar ett komplett, körklart UB-program: en bollsprite (`sprdef 0`), tabellen och en rastersynkroniserad loop som spelar upp en tabellpost per bildruta. 8-bitarstabeller driver spriten **Y** medan X sveper 0..320; 16-bitarstabeller (0..320) driver spriten **X** medan Y sveper 0..200. Tabeller längre än 256 poster spelar upp sina första 256.                 |
+| Handling                         | Vad den gör                                                                                                                                                                                                                                                                                                                                                                 |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Spara kurva (.bin)…**          | Sparar de råa tabellbytena exakt som C64 skulle läsa dem via `INCBIN`. 16-bitars: N låga byte följt av N höga byte.                                                                                                                                                                                                                                                         |
+| **Lastkurva (.bin)…**            | Läser in råa tabellbyte tillbaka till editorn, tolkade enligt det aktuella bitdjupet (16-bitars: första halvan låg, andra halvan hög). Den inlästa tabellen visas som den är tills någon kurvkontroll genererar en ny kurva.                                                                                                                                                |
+| **Exportera demo till block**    | Lägger till en komplett, körbar sprite-demo: sprite-init, rastersynkroniserad huvudloop, den inbäddade tabellen och boll-sprite-data. X sveper 0..320 i 8.8 fixpunkt med `$D010` MSB medan tabellen driver sprite Y — vilket exakt matchar editorns förhandsgranskning. Återexport ersätter den tidigare Curve Editor-insättningen.                                         |
+| **Exportera till UltimateBasic** | Skriver tabellen som en initialiserad Ultimate Basic-array — `var name = array(N)` (eller `array_word(N)` för 16-bitars) följt av `data name: …` rader — och infogar den vid UB-redigerarens markör (utanför UB-läge kopieras den till urklipp). Etiketten blir ett giltigt UB-namn med gemener; indexera tabellen som `name[i]`. Kräver Ultimate Basic 1.5.8+ (medföljer). |
+| **Exportera UltimateBasic-demo** | Producerar ett komplett, körklart UB-program: en bollsprite (`sprdef 0`), tabellen och en rastersynkroniserad loop som spelar upp en tabellpost per bildruta. 8-bitarstabeller driver spriten **Y** medan X sveper 0..320; 16-bitarstabeller (0..320) driver spriten **X** medan Y sveper 0..200. Tabeller längre än 256 poster spelar upp sina första 256.                 |
 
 **Matcha förhandsgranskningen på C64:** förhandsgranskningen läser tabellen **linjärt, loopande 0 → N-1 → 0, ett värde per bildruta**. För att reproducera det exakt, kör tabellen på samma sätt (öka indexet en gång per bildruta, radbryt vid tabellens längd). En pingis- eller partiell uppspelning kommer att röra sig olika även om bytevärdena är identiska. Se `samples/curve-new-demo.asm` för ett fungerande 16-bitars sprite-X-exempel.
 

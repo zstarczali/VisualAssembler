@@ -3026,7 +3026,7 @@ Trasferimento di blocchi DMA tra la RAM del C64 e la memoria di espansione REU: 
 | `REU_FETCH` | REU → RAM C64 | `$91`           |
 | `REU_SWAP`  | RAM C64 ↔ REU | `$92`           |
 
-** Campi:**
+**Campi:**
 
 | Campo         | Descrizione                                          | Esempio |
 | ------------- | ---------------------------------------------------- | ------- |
@@ -3064,7 +3064,7 @@ LDA #cmd      STA $DF01    ; execute DMA ($90/$91/$92 = stash/fetch/swap, immedi
 
 Imposta la velocità della CPU **Ultimate-64 (U64)** tramite il registro `$D031`. Nessun effetto su un vero C64 o altri emulatori.
 
-** Campi:**
+**Campi:**
 
 | Campo            | Descrizione                  | Allineare                                            |
 | ---------------- | ---------------------------- | ---------------------------------------------------- |
@@ -3644,7 +3644,7 @@ Esegui programmi assemblati su un **vero Commodore 64 o C128** — senza unità 
 1. Inserisci la cartuccia di Kung Fu Flash 2 nello slot del C64, accendi il computer e collega il cavo USB al tuo PC/Mac.
 2. Apri **Impostazioni hardware** e controlla la sezione **Kung Fu Flash 2**: la porta dovrebbe essere già compilata.
 3. Seleziona **Kung Fu Flash 2** dal menu di esecuzione divisa (la scelta viene memorizzata e salvata anche nei file di progetto).
-4. Fare clic su **▶ Esegui **. Il programma viene compilato, la cartuccia viene riavviata nel suo caricatore MENU (un breve "tocco" a 1200 baud della porta seriale), segue un breve handshake e il PRG viene caricato. Al termine del trasferimento, il programma è in esecuzione sulla macchina reale.
+4. Fare clic su **▶ Esegui**. Il programma viene compilato, la cartuccia viene riavviata nel suo caricatore MENU (un breve "tocco" a 1200 baud della porta seriale), segue un breve handshake e il PRG viene caricato. Al termine del trasferimento, il programma è in esecuzione sulla macchina reale.
 
 Funziona sia in modalità **Blocco**, **Esperto** che **Ultimate Basic**; i programmi Ultimate Basic vengono compilati dal file di avvio del progetto.
 

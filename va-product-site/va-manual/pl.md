@@ -173,7 +173,7 @@ Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągaj�
 - **Ctrl + kółko myszy – powiększenie** w edytorach Expert i Ultimate Basic (`Cmd` + kółko w systemie macOS; działa również szczypanie za pomocą touchpada).
 - **Obszary robocze zapamiętują projekty** — drzewa projektów Expert i Ultimate Basic, plik startowy i niezapisane zmiany projektu są zapisywane w obszarze roboczym `.vaws` i przywracane z nim. Starsze obszary robocze są nadal otwarte.
 - **Ultimate Basic** — dołączony kompilator generuje szybszy, mniejszy kod 6502; mapa pamięci teraz rozróżnia prawdziwy kod i dane, pomijając wypełnienia i długie `org` przerwy.
-- **Okna dialogowe plików rozpoczynają się w aktywnym folderze roboczym ** — Blokowym/Eksperckim lub Podstawowym, w zależności od bieżącego trybu.
+- **Okna dialogowe plików rozpoczynają się w aktywnym folderze roboczym** — Blokowym/Eksperckim lub Podstawowym, w zależności od bieżącego trybu.
 
 ---
 
@@ -181,7 +181,7 @@ Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągaj�
 
 - **Nowe makro KOALA** — `.koala "picture.koa"` (opcjonalnie `, $2000`) ładuje obrazek Koala Painter i wyświetla go za pomocą 86-bajtowej procedury wyświetlania. Zobacz [KOALA](#koala).
 - **Import/eksport plików Koala w edytorze Hires** — **Pliki → Importuj pliki Koala (.koa)…** / **Eksportuj pliki Koala (.koa)…** (standardowy plik 10003-bajtowy; zdjęcia w wysokiej rozdzielczości są podczas eksportu redukowane do wielokolorowych). Pliki `.koa` / `.kla` są również rozpoznawane przez **Importuj obraz / .bin**.
-- **W pakiecie Ultimate Basic 1.5.9 ** — nowy `łańcuch „PLIK” [, urządzenie]` (ładuje inny program nad działającym i URUCHOM go); `ładowanie „PLIK”` ładuje pod adres pliku, `ładowanie „PLIK”, addr` do `addr`; poprawki błędów D64. `łańcuch` jest podświetlony i wymieniony w odniesieniu do poleceń.
+- **W pakiecie Ultimate Basic 1.5.9** — nowy `łańcuch „PLIK” [, urządzenie]` (ładuje inny program nad działającym i URUCHOM go); `ładowanie „PLIK”` ładuje pod adres pliku, `ładowanie „PLIK”, addr` do `addr`; poprawki błędów D64. `łańcuch` jest podświetlony i wymieniony w odniesieniu do poleceń.
 - **Status aktualizacji na pasku stanu eksperta** — ten sam wskaźnik *Aktualny* / klikalny *Dostępna aktualizacja* co w trybie Ultimate Basic.
 - **Okna dialogowe zapisu** oferują własny typ pliku (np. *KOA*) zamiast *Binarny (\*.bin)*.
 - **Bardziej kompleksowa kontrola aktualizacji** — lista instalatorów jest opublikowana na stronie c64va.tech/downloads/VA/, więc kontrola działa z nową stroną pobierania; pomocnik aktualizacji systemu Linux nie dziedziczy już ścieżek bibliotek AppImage.
@@ -226,7 +226,7 @@ Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągaj�
 - **Edytor SID: Lista utworów/kolejności** — wzory są teraz układane za pomocą odpowiedniej listy utworów/kolejności, umieszczonej na banku surowych wzorów, dzięki czemu wzór może się powtarzać, a utwór może być dłuższy niż liczba zapisanych wzorów. Dodawaj, usuwaj i zmieniaj kolejność kroków bezpośrednio z Edytora SID; odtwarzanie i wyeksportowany odtwarzacz korzystają z tej listy, a nie z surowej kolejności wzorów.
 - **Edytor SID: Kolumna efektów** — każda komórka śledząca może teraz zawierać efekt obok swojej nuty: **V**ibrato, slajd **U**p / **D**own, nuta-**C**ut i zmiana tempa (**F**). Wpisz go bezpośrednio do komórki, np. `C-4 01 V24` (nuta + instrument + vibrato) lub `F06` (tylko zmiana tempa). Efekty są uruchamiane raz na wiersz, zgodnie z eksportowanym odtwarzaczem, i teraz są odtwarzane prawidłowo zarówno w podglądzie Web Audio w aplikacji, jak i w skompilowanym eksporcie 6502 — to prawdziwy, grywalny silnik efektów, a nie tylko rusztowanie eksportu.
 - **Format zapisu SID zgodny z poprzednimi wersjami** — zapisy SID zawierają teraz znacznik wersji, więc starsze zapisy `.bin` wykonane przed powstaniem kolumny efektów są wczytywane dokładnie tak samo jak wcześniej, a efekty są po prostu nieobecne.
-- **Edytor D64: jawny obieg zapisu ** — każda edycja (dodawanie/wyodrębnianie/zmiana nazwy/usuwanie, a teraz także edycja bajtów w Edytorze Bloków) odbywa się na prywatnej kopii roboczej; nic nie ma wpływu na Twój prawdziwy plik `.d64`, dopóki nie klikniesz przycisku **Zapisz**, który również najpierw zapisuje automatyczną kopię zapasową. Zamknięcie edytora lub otwarcie innego dysku z niezapisanymi zmianami teraz wyświetla prośbę o potwierdzenie, zamiast bezgłośnie je odrzucać.
+- **Edytor D64: jawny obieg zapisu** — każda edycja (dodawanie/wyodrębnianie/zmiana nazwy/usuwanie, a teraz także edycja bajtów w Edytorze Bloków) odbywa się na prywatnej kopii roboczej; nic nie ma wpływu na Twój prawdziwy plik `.d64`, dopóki nie klikniesz przycisku **Zapisz**, który również najpierw zapisuje automatyczną kopię zapasową. Zamknięcie edytora lub otwarcie innego dysku z niezapisanymi zmianami teraz wyświetla prośbę o potwierdzenie, zamiast bezgłośnie je odrzucać.
 - **Edytor D64: Siatka heksadecymalna edytora bloków** — surowy widok bajtów dla wybranego bloku 256 bajtów jest teraz poprawną siatką heksadecymalną dla każdego bajtu, a nie zwykłym polem tekstowym, a jego okno dialogowe nie przyciemnia już reszty aplikacji znajdującej się za nim po otwarciu.
 
 ---
@@ -243,7 +243,7 @@ Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągaj�
 
 - **Języki interfejsu użytkownika: polski i włoski** — pełne tłumaczenie interfejsu (menu, okna dialogowe, opisy mnemotechniczne, odnośniki do poleceń Ultimate Basic) obok istniejących wersji: węgierskiej, angielskiej, hiszpańskiej, niemieckiej i holenderskiej.
 - **Przycisk paska narzędzi Pomocy online** — nowy przycisk ikony po uruchomieniu Debug, który otwiera wielojęzyczną witrynę dokumentacji ([c64va.tech/docs.html](https://www.c64va.tech/docs.html)) bezpośrednio z aplikacji.
-- **Centralne opisy mnemoników: ** Opisy mnemoników dla poszczególnych języków zostały przeniesione do współdzielonego pliku tłumaczenia wraz z pozostałymi ciągami interfejsu użytkownika. Naprawiono również długotrwały błąd, w wyniku którego angielskie opisy poleceń `PRINT`, `PRINT_HEX`, `CLEAR_SCREEN`, `WAIT_KEY`, `SET_BORDER`, `SET_BG`, `IRQ_SETUP` i `RAND` były po cichu nadpisywane resztkami tekstu hiszpańskiego.
+- **Centralne opisy mnemoników:** Opisy mnemoników dla poszczególnych języków zostały przeniesione do współdzielonego pliku tłumaczenia wraz z pozostałymi ciągami interfejsu użytkownika. Naprawiono również długotrwały błąd, w wyniku którego angielskie opisy poleceń `PRINT`, `PRINT_HEX`, `CLEAR_SCREEN`, `WAIT_KEY`, `SET_BORDER`, `SET_BG`, `IRQ_SETUP` i `RAND` były po cichu nadpisywane resztkami tekstu hiszpańskiego.
 
 ---
 
@@ -284,7 +284,7 @@ Aplikacja jest podzielona na trzy główne panele:
 
 Etykieta trybu po prawej stronie nagłówka identyfikuje aktywny edytor **Block**, **Expert** lub **Ultimate Basic**. Jest ona aktualizowana natychmiast po zmianie trybu edycji.
 
-W trybie blokowym cienki **pionowy separator ** znajduje się między panelami Program i Wyjście. Przeciągnij go, aby dać każdemu panelowi więcej miejsca (każdy zachowa co najmniej 260 px), użyj klawiszy ← / →, aby przesuwać go o 16 px, lub kliknij go dwukrotnie, aby przywrócić podział do proporcji 50/50. Pozycja jest zapisywana w ustawieniach interfejsu użytkownika. Separator jest ukryty w trybach Ekspert i Ultimate Basic oraz gdy okno jest wystarczająco wąskie, aby panele mogły się układać.
+W trybie blokowym cienki **pionowy separator** znajduje się między panelami Program i Wyjście. Przeciągnij go, aby dać każdemu panelowi więcej miejsca (każdy zachowa co najmniej 260 px), użyj klawiszy ← / →, aby przesuwać go o 16 px, lub kliknij go dwukrotnie, aby przywrócić podział do proporcji 50/50. Pozycja jest zapisywana w ustawieniach interfejsu użytkownika. Separator jest ukryty w trybach Ekspert i Ultimate Basic oraz gdy okno jest wystarczająco wąskie, aby panele mogły się układać.
 
 ---
 
@@ -381,7 +381,7 @@ Karta **Opcje** zawiera ustawienia wpływające na generowanie kodu i wyświetla
 
 ### Kliknięcie linii ASM
 
-Kliknij dowolny wiersz w widoku ASM, aby **podświetlić odpowiadający mu blok ** w obszarze programu. Po zaznaczeniu kilku bloków, wiersze ASM wszystkich z nich zostaną podświetlone razem.
+Kliknij dowolny wiersz w widoku ASM, aby **podświetlić odpowiadający mu blok** w obszarze programu. Po zaznaczeniu kilku bloków, wiersze ASM wszystkich z nich zostaną podświetlone razem.
 
 ### Numery linii ASM
 
@@ -493,7 +493,7 @@ Obszar roboczy **** (plik `.vaws`) zapamiętuje, które rzeczywiste pliki na dys
 
 Projekt jest tworzony w osobnym folderze: `<lokalizacja>/<nazwa>/<nazwa>.proj` plus `main.asm` (Assembler) lub `main.ub` (UltimateBasic, plik `.proj` jest oznaczony jako projekt Ultimate Basic). Istniejący projekt nigdy nie jest nadpisywany — zamiast tego pojawia się o tym komunikat w oknie dialogowym. Najpierw zamykane są otwarte karty (wyświetlane są pytania o niezapisane zmiany), a następnie nowy projekt otwiera się w trybie eksperta lub Ultimate Basic z widocznym panelem projektu i plikiem głównym ustawionym jako plik startowy.
 
-**Twoje własne szablony: ** **Folder „Moje szablony”** (w lewym dolnym rogu okna dialogowego) otwiera folder „Szablony użytkownika” w katalogu konfiguracji aplikacji. Każdy plik `.asm` lub `.ub` umieszczony w tym folderze pojawia się w odpowiedniej sekcji (w sekcji *Moje szablony*, chyba że zawiera nazwę kategorii). Szablon to zwykły plik źródłowy z opcjonalnym nagłówkiem z wierszami komentarza na górze — `;` w asemblerze, `#` w Ultimate Basic:
+**Twoje własne szablony:** **Folder „Moje szablony”** (w lewym dolnym rogu okna dialogowego) otwiera folder „Szablony użytkownika” w katalogu konfiguracji aplikacji. Każdy plik `.asm` lub `.ub` umieszczony w tym folderze pojawia się w odpowiedniej sekcji (w sekcji *Moje szablony*, chyba że zawiera nazwę kategorii). Szablon to zwykły plik źródłowy z opcjonalnym nagłówkiem z wierszami komentarza na górze — `;` w asemblerze, `#` w Ultimate Basic:
 
 ```asm
 ; @name Raster bars
@@ -1134,7 +1134,7 @@ Podobnie jak `FOR I=1 TO N : POKE addr+I, val : NEXT` — wypełnia blok pamięc
 | `40*25, 0`                    | mnożenie liniowe                                 |
 | `okrągły(sin(PI/4)*255), 80$` | trygonometria                                    |
 
-**Funkcje wbudowane: ** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, constant `PI`
+**Funkcje wbudowane:** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, constant `PI`
 
 Operatorzy: `+ - * /` Literały: `$FF` (szesnastkowy), `%10110000` (binarny) Bajt młodszy/starszy: `lo(wyrażenie)`, `hi(wyrażenie)`
 
@@ -1291,7 +1291,7 @@ Podobnie jak **DATA, które ładuje się bezpośrednio do pamięci** — bez ża
 .rawbytes $0C50, $00, $00 :nev      ; with macroLabel — other code can use LDA nev,X
 ```
 
-**Rozmiar w kodzie: ** 0 bajtów. Dane są umieszczane pod podanym adresem na wyjściu.
+**Rozmiar w kodzie:** 0 bajtów. Dane są umieszczane pod podanym adresem na wyjściu.
 
 > **DATA kontra RAWBYTES:** DATA generuje kod LDA/STA, który kopiuje bajty w czasie wykonywania (wolniej, ale działa, jeśli dane muszą być dynamiczne). RAWBYTES po prostu umieszcza bajty bezpośrednio — bez kodu, natychmiast, bez kosztów.
 
@@ -1329,7 +1329,7 @@ Podobnie jak RAWBYTES, ale dla tekstu — koduje ciąg jako kody ekranowe i umie
     .byte $48, $45, $4C, $4C, $4F   ; h e l l o (lowercase screen codes $41–$5A range)
 ```
 
-**Rozmiar w kodzie: ** 0 bajtów. Dane są umieszczane pod podanym adresem na wyjściu.
+**Rozmiar w kodzie:** 0 bajtów. Dane są umieszczane pod podanym adresem na wyjściu.
 
 > **STRING kontra RAWTEXT:** STRING generuje kod LDA/STA, który kopiuje tekst w czasie wykonywania. RAWTEXT wczytuje bajty do PRG w momencie ładowania — bez kodu i czekania.
 
@@ -1653,7 +1653,7 @@ wait:
     JMP wait
 ```
 
-**Rozmiar w kodzie: ** 86 bajtów (program wyświetlania); 10001 bajtów danych obrazu trafia pod podany adres. Edytor Hires, polecenie **Pliki → Eksportuj Koala (.koa)…** generuje zgodny plik.
+**Rozmiar w kodzie:** 86 bajtów (program wyświetlania); 10001 bajtów danych obrazu trafia pod podany adres. Edytor Hires, polecenie **Pliki → Eksportuj Koala (.koa)…** generuje zgodny plik.
 
 ---
 
@@ -2293,7 +2293,7 @@ Pole wartości akceptuje ogólne działania arytmetyczne, w tym odwołania do wc
 .const SIN_TABLE   = round(sin(PI/8) * 127)   ; pre-computed sine value
 ```
 
-**Funkcje wbudowane: ** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, constant `PI`
+**Funkcje wbudowane:** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, constant `PI`
 
 Operatorzy: `+ - * /` Literały: `$FF` (szesnastkowy), `%10110000` (binarny) Bajt młodszy/starszy: `lo(wyrażenie)`, `hi(wyrażenie)`
 
@@ -3000,7 +3000,7 @@ done:
 .reu_check
 ```
 
-**Wynik we flagach: **
+**Wynik we flagach:**
 - **Z = 0** (wynik ≠ 0) → obecność REU → użycie `BNE`
 - **Z = 1** (wynik = 0) → brak REU → użyj `BEQ`
 
@@ -3026,7 +3026,7 @@ Transfer bloku DMA między pamięcią RAM komputera C64 a pamięcią rozszerzeń
 | `REU_FETCH` | REU → Pamięć RAM C64 | `91 dolarów`      |
 | `REU_SWAP`  | Pamięć RAM C64 ↔ REU | `92 dolary`       |
 
-**Pola: **
+**Pola:**
 
 | Pole      | Opis                                               | Przykład |
 | --------- | -------------------------------------------------- | -------- |
@@ -3064,7 +3064,7 @@ LDA #cmd      STA $DF01    ; execute DMA ($90/$91/$92 = stash/fetch/swap, immedi
 
 Ustawia prędkość procesora **Ultimate-64 (U64)** za pomocą rejestru `$D031`. Nie ma to wpływu na prawdziwy C64 ani inne emulatory.
 
-**Pola: **
+**Pola:**
 
 | Pole      | Opis                         | Zakres                                      |
 | --------- | ---------------------------- | ------------------------------------------- |
@@ -3099,7 +3099,7 @@ AD B8 D0   LDA $D0B8
 C9 FF      CMP #$FF
 ```
 
-**Wynik we flagach: **
+**Wynik we flagach:**
 - **Z = 0** → obecny SuperCPU → użyj `BNE`
 - **Z = 1** → Nie znaleziono SuperCPU → użyj `BEQ`
 
@@ -3501,9 +3501,9 @@ W spisie katalogów nazwy plików są wyświetlane w tej samej czcionce i wielki
 
 **Zapisywanie przepływu pracy:** każda edycja — dodawanie, wyodrębnianie, zmiana nazwy, usuwanie i edycja bajtów w Edytorze Bloków — jest stosowana do prywatnej kopii roboczej obrazu dysku, a nie do rzeczywistego pliku. Przycisk **Zapisz** na pasku narzędzi (aktywny po pojawieniu się niezapisanych zmian) zapisuje kopię roboczą z powrotem na rzeczywistym pliku `.d64`, tworząc najpierw automatyczną kopię zapasową; w nagłówku wyświetla się znacznik **•**, gdy zmiany są niezapisane, a zamknięcie edytora lub otwarcie innego dysku z niezapisanymi zmianami powoduje wyświetlenie monitu o potwierdzenie zamiast ich odrzucenia. **Zapisz jako…** (menu Pliki ▾) zapisuje kopię roboczą w nowej ścieżce i kontynuuje tam edycję.
 
-**Edytor bloków: ** ikona siatki na pasku narzędzi przełącza się na surowy widok ścieżki/sektora pod katalogiem — klikalną mapę bloków pokolorowaną na podstawie bitmapy wolnych/używanych danych BAM (z łańcuchem BAM i katalogów oznaczonym oddzielnie), siatką heksadecymalną dla każdego bajtu dla wybranego bloku 256-bajtowego oraz nawigacją w sektorach Poprzedni/Następny. Edycja bloków przechodzi przez ten sam proces tworzenia kopii roboczej/zapisu, co opisane powyżej czynności katalogowe.
+**Edytor bloków:** ikona siatki na pasku narzędzi przełącza się na surowy widok ścieżki/sektora pod katalogiem — klikalną mapę bloków pokolorowaną na podstawie bitmapy wolnych/używanych danych BAM (z łańcuchem BAM i katalogów oznaczonym oddzielnie), siatką heksadecymalną dla każdego bajtu dla wybranego bloku 256-bajtowego oraz nawigacją w sektorach Poprzedni/Następny. Edycja bloków przechodzi przez ten sam proces tworzenia kopii roboczej/zapisu, co opisane powyżej czynności katalogowe.
 
-> **Wymagania: ** Podobnie jak w przypadku eksportu do formatu D64, edytor D64 wymaga skonfigurowania opcji VICE (`c1541`) w [Ustawieniach sprzętu](#13-hardware-settings).
+> **Wymagania:** Podobnie jak w przypadku eksportu do formatu D64, edytor D64 wymaga skonfigurowania opcji VICE (`c1541`) w [Ustawieniach sprzętu](#13-hardware-settings).
 
 ---
 
@@ -3579,7 +3579,7 @@ VICE jest wymagany do **Uruchom jako PRG**, **Uruchom przez D64** i **Eksportu d
 | **Błysk obramowania podczas dekompresji** | Po włączeniu skompresowane pliki PRG SFX korzystają ze wbudowanego w exomizer szybkiego efektu flashowania obramowania `-x1`; po wyłączeniu, w celu cichej dekompresji przekazywany jest efekt `-n` |
 | **Status**                                | Pokazuje, czy ścieżka wykonywalna jest prawidłowa i dostępna                                                                                                                                        |
 
-**Przepływ pracy: **
+**Przepływ pracy:**
 1. Zainstaluj plik binarny Exomizera:
    - **Windows:** pobierz wstępnie skompilowany plik `win32/exomizer.exe` ze strony https://bitbucket.org/magli143/exomizer/wiki/Home lub https://csdb.dk/release/?id=244342.
    - **macOS:** `brew install exomizer` (instaluje oficjalną kompilację 3.1.2 Magnusa Linda).
@@ -3619,7 +3619,7 @@ Uruchamiaj złożone programy PRG bezpośrednio na prawdziwym sprzęcie za pośr
 | **Hasło**           | Opcjonalnie — jeśli urządzenie wymaga uwierzytelnienia                        |
 | **Test połączenia** | Wysyła żądanie testowe do `/v3/runners/info`; wyświetla komunikat OK lub błąd |
 
-**Przepływ pracy: **
+**Przepływ pracy:**
 1. Podłącz urządzenie 1541 Ultimate / Ultimate 64 do sieci lokalnej.
 2. Wprowadź adres IP (i hasło, jeśli zostało ustawione) w Ustawieniach sprzętu.
 3. Wybierz **Uruchom na sprzęcie** z menu podzielonego uruchamiania.
@@ -3640,15 +3640,15 @@ Uruchamiaj asemblowane programy na **prawdziwym Commodore 64 lub C128** — bez 
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **Port szeregowy** | Port szeregowy USB kartridża, np. `COM4` (Windows), `/dev/cu.usbmodem…` (macOS) lub `/dev/ttyACM0` (Linux). Wykrywany automatycznie po identyfikatorze USB (`0483:5740`) podczas uruchamiania aplikacji; w wierszu stanu pod polem wyświetla się `KFF2: <port>` lub, jeśli port nie został znaleziony, pojawia się prośba o ręczne wpisanie. Wartość jest zapisywana między sesjami. |
 
-**Przepływ pracy: **
+**Przepływ pracy:**
 1. Umieść kartę Kung Fu Flash 2 w porcie kartridża w C64, włącz komputer i podłącz kabel USB do komputera PC/Mac.
 2. Otwórz **Ustawienia sprzętu** i sprawdź sekcję **Kung Fu Flash 2** — port powinien być już wypełniony.
 3. Wybierz **Kung Fu Flash 2** z menu podzielonego przebiegu (wybór zostanie zapamiętany i zapisany także w plikach projektu).
-4. Kliknij **▶ Uruchom **. Program zostaje skompilowany, kaseta zostaje ponownie uruchomiona w programie ładującym MENU (krótkie „dotknięcie” portu szeregowego z prędkością 1200 bodów), następuje krótkie uzgadnianie i przesłanie pliku PRG. Po zakończeniu transferu program działa na komputerze fizycznym.
+4. Kliknij **▶ Uruchom**. Program zostaje skompilowany, kaseta zostaje ponownie uruchomiona w programie ładującym MENU (krótkie „dotknięcie” portu szeregowego z prędkością 1200 bodów), następuje krótkie uzgadnianie i przesłanie pliku PRG. Po zakończeniu transferu program działa na komputerze fizycznym.
 
 Działa w trybach **Block**, **Expert** i **Ultimate Basic**; programy Ultimate Basic kompilują się z pliku startowego projektu.
 
-> **Ograniczenia i kontrole: ** PRG musi zawierać dwubajtowy adres ładowania plus co najmniej jeden bajt danych, musi mieścić się w 64-kilobajtowej przestrzeni adresowej C64 i nie może przekraczać rozmiaru akceptowanego przez moduł ładujący kartridża. Błędy — brak konfiguracji portu, brak możliwości otwarcia portu, brak powrotu kartridża z MENU lub odrzucenie przesłania — są zgłaszane w komunikacie z dokładną przyczyną.
+> **Ograniczenia i kontrole:** PRG musi zawierać dwubajtowy adres ładowania plus co najmniej jeden bajt danych, musi mieścić się w 64-kilobajtowej przestrzeni adresowej C64 i nie może przekraczać rozmiaru akceptowanego przez moduł ładujący kartridża. Błędy — brak konfiguracji portu, brak możliwości otwarcia portu, brak powrotu kartridża z MENU lub odrzucenie przesłania — są zgłaszane w komunikacie z dokładną przyczyną.
 
 > **Wskazówka:** jeśli wolisz obraz kartridża zamiast przesyłania na żywo, **Build CRT** (Magic Desk 64K) również działa na Kung Fu Flash — zobacz [Sekcję 12b](#12b-crt-export-magic-desk-64k-cartridge).
 
@@ -3810,7 +3810,7 @@ Efekty aktualizują się raz na wiersz (zgodnie z synchronizacją eksportowanego
 | `Eksportuj asm (schowek)`         | Kopiuje cały kod źródłowy zestawu do schowka.                                                                                                                                                                                                                                                                                      |
 | `Eksportuj do UltimateBasic`      | Zapisuje blok `muzyka... koniec` (instrumenty, lista kolejności, wiersze wzorców jako tekst) oraz `odtwarzanie muzyki` i wstawia go w miejscu kursora edytora Ultimate Basic; poza trybem UB kopiuje tekst do schowka. Kompilator UltimateBasic buduje odtwarzacz, więc steruje nim `odtwarzanie muzyki` / `zatrzymywanie muzyki`. |
 
-**Użycie ZP gracza: ** `$02`–`$2F` (tabele wskaźników, przesunięcie wzorca i stan efektu na głos), plus `$FB`–`$FE` (licznik taktów, indeks wiersza, pozycja na liście zamówień, temp. set_voice). Wywołują one konflikt, jeśli korzysta z nich kod główny — w razie potrzeby przenieś je w trybie eksperckim.
+**Użycie ZP gracza:** `$02`–`$2F` (tabele wskaźników, przesunięcie wzorca i stan efektu na głos), plus `$FB`–`$FE` (licznik taktów, indeks wiersza, pozycja na liście zamówień, temp. set_voice). Wywołują one konflikt, jeśli korzysta z nich kod główny — w razie potrzeby przenieś je w trybie eksperckim.
 
 **Znane limity:**
 - 8-bitowy licznik wierszy ogranicza każdy wzór do 7 wzorów × 32 wierszy w banku danych (lista utworów/kolejności może być nadal dowolnie długa poprzez powtarzanie wzorów).
