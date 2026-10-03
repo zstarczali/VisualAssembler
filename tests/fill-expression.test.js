@@ -45,6 +45,7 @@ function makeExprCtx(extraProgram = []) {
       "resolveProgramValueWithConst",
       "resolveProgramNumericValue",
       "parseFillMacro",
+      "_evalJsExprSafe",
       "evaluateFillExpression"
     ],
     { program: extraProgram }
@@ -70,6 +71,7 @@ function createFillCtx(extraContext = {}) {
       "parseMacroCountOrSize",
       "resolveProgramConstValue",
       "lookupProgramConstValue",
+      "_evalJsExprSafe",
       "evaluateFillExpression",
       "addLayoutLabels",
       "buildOperandPreview",

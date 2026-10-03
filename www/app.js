@@ -15189,10 +15189,7 @@ function parseFillMacro(raw, base = "dec", labels = null, vars = null) {
     text = text.replace(/__CONST_PI__/g, "Math.PI");
 
     try {
-      const result = Function("lo", "hi", `"use strict"; return (${text});`)(
-        (value) => value & 0xFF,
-        (value) => (value >> 8) & 0xFF
-      );
+      const result = _evalJsExprSafe(text);
       return Number.isFinite(result) ? Number(result) : null;
     } catch (_) {
       return null;
@@ -21291,10 +21288,7 @@ function addLayoutLabels(labelMap, line) {
     text = text.replace(/__CONST_PI__/g, "Math.PI");
 
     try {
-      const result = Function("lo", "hi", `"use strict"; return (${text});`)(
-        (value) => value & 0xFF,
-        (value) => (value >> 8) & 0xFF
-      );
+      const result = _evalJsExprSafe(text);
       return Number.isFinite(result) ? Number(result) : null;
     } catch (_) {
       return null;
@@ -22703,10 +22697,7 @@ function compileLineBytes(line, labels) {
     text = text.replace(/__FUNC_ABS__/g, "Math.abs");
     text = text.replace(/__CONST_PI__/g, "Math.PI");
     try {
-      const result = Function("lo", "hi", `"use strict"; return (${text});`)(
-        (value) => value & 0xFF,
-        (value) => (value >> 8) & 0xFF
-      );
+      const result = _evalJsExprSafe(text);
       return Number.isFinite(result) ? Number(result) : null;
     } catch (_) {
       return null;
@@ -24351,10 +24342,7 @@ function resolveNumericOperand(block, labels) {
     text = text.replace(/__FUNC_ABS__/g, "Math.abs");
     text = text.replace(/__CONST_PI__/g, "Math.PI");
     try {
-      const result = Function("lo", "hi", `"use strict"; return (${text});`)(
-        (value) => value & 0xFF,
-        (value) => (value >> 8) & 0xFF
-      );
+      const result = _evalJsExprSafe(text);
       return Number.isFinite(result) ? Number(result) : null;
     } catch (_) {
       return null;
@@ -24451,6 +24439,105 @@ function _hasStarPcRef(expr) {
   return /(?:^|[(,+\-/%&|^~<>=\s])\*(?!\*)/.test(s);
 }
 
+// Evaluates the JS-style arithmetic the expression evaluators produce (numbers,
+// lo()/hi(), Math.*, JS operators with JS precedence). The release build's CSP
+// has no 'unsafe-eval', so Function()/eval() would throw there.
+function _evalJsExprSafe(src) {
+  const FUNCS = {
+    lo: (v) => v & 0xFF,
+    hi: (v) => (v >> 8) & 0xFF,
+    "Math.round": Math.round, "Math.sin": Math.sin, "Math.cos": Math.cos, "Math.max": Math.max,
+    "Math.min": Math.min, "Math.abs": Math.abs, "Math.floor": Math.floor, "Math.ceil": Math.ceil
+  };
+  const LEVELS = [["||"], ["&&"], ["|"], ["^"], ["&"], ["==", "!=", "===", "!=="],
+    ["<", "<=", ">", ">="], ["<<", ">>", ">>>"], ["+", "-"], ["*", "/", "%"]];
+  const toks = [];
+  const re = /\s*(?:(0[xX][0-9A-Fa-f]+|0[bB][01]+|0[oO][0-7]+|(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?)|([A-Za-z_][\w]*(?:\.[A-Za-z_]\w*)?)|(>>>|===|!==|\*\*|<<|>>|<=|>=|==|!=|&&|\|\||[-+*/%<>&|^~!?:(),]))/y;
+  const text = String(src);
+  let pos = 0;
+  while (pos < text.length) {
+    if (/^\s*$/.test(text.slice(pos))) break;
+    re.lastIndex = pos;
+    const m = re.exec(text);
+    if (!m) throw new Error("bad token");
+    pos = re.lastIndex;
+    toks.push(m[1] !== undefined ? Number(m[1]) : (m[2] ?? m[3]));
+  }
+  let i = 0;
+  const peek = () => toks[i];
+  const eat = (t) => { if (toks[i] !== t) throw new Error("expected " + t); i++; };
+  const apply = (op, a, b) => {
+    switch (op) {
+      case "||": return a || b;   case "&&": return a && b;
+      case "|": return a | b;     case "^": return a ^ b;     case "&": return a & b;
+      case "==": case "===": return a === b;
+      case "!=": case "!==": return a !== b;
+      case "<": return a < b;     case "<=": return a <= b;
+      case ">": return a > b;     case ">=": return a >= b;
+      case "<<": return a << b;   case ">>": return a >> b;   case ">>>": return a >>> b;
+      case "+": return a + b;     case "-": return a - b;
+      case "*": return a * b;     case "/": return a / b;     case "%": return a % b;
+    }
+    throw new Error("bad operator");
+  };
+  const ternary = () => {
+    const cond = binary(0);
+    if (peek() !== "?") return cond;
+    i++;
+    const a = ternary();
+    eat(":");
+    const b = ternary();
+    return cond ? a : b;
+  };
+  const binary = (level) => {
+    if (level === LEVELS.length) return power();
+    let left = binary(level + 1);
+    while (LEVELS[level].includes(peek())) {
+      const op = toks[i++];
+      left = apply(op, left, binary(level + 1));
+    }
+    return left;
+  };
+  const power = () => {
+    const base = unary();
+    if (peek() !== "**") return base;
+    i++;
+    return base ** power();
+  };
+  const unary = () => {
+    const t = peek();
+    if (t === "-" || t === "+" || t === "!" || t === "~") {
+      i++;
+      const v = unary();
+      return t === "-" ? -v : t === "+" ? +v : t === "!" ? !v : ~v;
+    }
+    return primary();
+  };
+  const primary = () => {
+    const t = toks[i++];
+    if (typeof t === "number") return t;
+    if (t === "(") {
+      const v = ternary();
+      eat(")");
+      return v;
+    }
+    if (t === "Math.PI") return Math.PI;
+    const fn = typeof t === "string" && Object.prototype.hasOwnProperty.call(FUNCS, t) ? FUNCS[t] : undefined;
+    if (!fn) throw new Error("unexpected " + t);
+    eat("(");
+    const args = [];
+    if (peek() !== ")") {
+      args.push(ternary());
+      while (peek() === ",") { i++; args.push(ternary()); }
+    }
+    eat(")");
+    return fn(...args);
+  };
+  const result = ternary();
+  if (i !== toks.length) throw new Error("trailing input");
+  return result;
+}
+
 // Shared arithmetic-expression evaluator (label + const aware). Mirrors the
 // inline evalAsmExpression copies used elsewhere; kept module-level so the
 // long-branch / .assert / relative-branch paths can reuse it.
@@ -24490,10 +24577,7 @@ function _evalAsmExpr(expr, labels = null) {
   text = text.replace(/__FUNC_ABS__/g, "Math.abs");
   text = text.replace(/__CONST_PI__/g, "Math.PI");
   try {
-    const result = Function("lo", "hi", `"use strict"; return (${text});`)(
-      (value) => value & 0xFF,
-      (value) => (value >> 8) & 0xFF
-    );
+    const result = _evalJsExprSafe(text);
     // Comparisons (`<`, `>=`, `==`, …) evaluate to a boolean — normalise to 1/0
     // so callers such as `.assert` can treat the outcome numerically.
     if (typeof result === "boolean") return result ? 1 : 0;
@@ -24725,10 +24809,7 @@ function _evalAsmExpression(expr, labels = null, vars = null) {
   text = text.replace(/__CONST_PI__/g, "Math.PI");
 
   try {
-    const result = Function("lo", "hi", `"use strict"; return (${text});`)(
-      (value) => value & 0xFF,
-      (value) => (value >> 8) & 0xFF
-    );
+    const result = _evalJsExprSafe(text);
     return Number.isFinite(result) ? Number(result) : null;
   } catch (_) {
     return null;
@@ -24808,10 +24889,7 @@ function parseMacroNumber(raw, labels = null, fallbackBase = "hex") {
     expr = expr.replace(/__FUNC_ABS__/g, "Math.abs");
     expr = expr.replace(/__CONST_PI__/g, "Math.PI");
     try {
-      const result = Function("lo", "hi", `"use strict"; return (${expr});`)(
-        (value) => value & 0xFF,
-        (value) => (value >> 8) & 0xFF
-      );
+      const result = _evalJsExprSafe(expr);
       return Number.isFinite(result) ? Number(result) : null;
     } catch (_) {
       return null;
@@ -24903,10 +24981,7 @@ function evaluateFillExpression(expr, labels = null, vars = null) {
   text = text.replace(/__CONST_PI__/g, "Math.PI");
 
   try {
-    const result = Function("lo", "hi", `"use strict"; return (${text});`)(
-      (value) => value & 0xFF,
-      (value) => (value >> 8) & 0xFF
-    );
+    const result = _evalJsExprSafe(text);
     return Number.isFinite(result) ? Number(result) : null;
   } catch (_) {
     return null;
