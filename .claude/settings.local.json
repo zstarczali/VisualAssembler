@@ -333,7 +333,14 @@
       "Bash(python \"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/254699c3-ab61-43ae-a379-d9c1dc5dcdfe/scratchpad/lv_i18n.py\")",
       "Bash(node --test tests/level-editor.test.js tests/i18n-completeness.test.js)",
       "Bash(sed -i 's/assert.equal\\(st.cells.filter\\(Boolean\\).length, 2\\);/assert.equal\\(st.cells.filter\\(Boolean\\).length, 1\\);/' tests/level-editor.test.js)",
-      "Bash(grep -i \"regex\\\\|match\\\\|offset\\\\|const m\\\\|/\\\\^\")"
+      "Bash(grep -i \"regex\\\\|match\\\\|offset\\\\|const m\\\\|/\\\\^\")",
+      "Bash(rm -f log.txt)",
+      "Bash(\"/d/Development/VICE/bin/x64sc.exe\" -default -warp -autostartprgmode 1 -limitcycles 6500000 -moncommands mon.txt -monlog -monlogname log.txt -sounddev dummy vx0.prg)",
+      "Bash(rm -f g*.png)",
+      "Bash(timeout 120 python grab.py vx0.prg 10)",
+      "Bash(taskkill //IM x64sc.exe //F)",
+      "Bash(/d/Development/VICE/bin/x64sc.exe -default -warp -autostartprgmode 1 -limitcycles 8000000 -exitscreenshot __TRACKED_VAR__/t4.png -sounddev dummy test4.prg)",
+      "Bash(rm -f /f/Development/VisualAssembler/www/_tmp_level_demo.asm)"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"
