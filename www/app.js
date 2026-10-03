@@ -1886,6 +1886,7 @@ function initPalette() {
   setupCharEditor();
   setupCharsetCanvasEditor();
   setupMapEditor();
+  setupLevelEditor();
   setupHiresEditor();
   setupSpriteEditor();
   setupSidEditor();
@@ -2343,6 +2344,7 @@ function setupDraggableEditorDialogs() {
     ["char-editor-dialog", ".ce-hdr"],
     ["charset-canvas-dialog", ".cc-hdr"],
     ["map-editor-dialog", ".me-hdr"],
+    ["level-editor-dialog", ".me-hdr"],
     ["hires-editor-dialog", ".hg-hdr"],
     ["sprite-editor-dialog", ".se-hdr"],
     ["sid-editor-dialog", ".sid-hdr"],
@@ -3602,6 +3604,45 @@ function _applyEditorTranslations() {
   setAttr("#me-layer-flatten", t("meMergeLayersTitle"));
   setAttr("#me-layer-add", t("meAddLayerTitle"));
   setAttr("#me-clear", t("meClearMap"));
+  // Level Editor
+  setAttr("#level-editor-btn", t("lvBtnTitle"));
+  setText("#lv-title", t("lvTitle"));
+  setText("#lv-new", t("lvNew"));
+  setText("#lv-open", t("lvOpen"));
+  setText('[data-lv-export="save-level"]', t("lvSave"));
+  setText('[data-lv-export="screen"]', t("lvSaveScreen"));
+  setText('[data-lv-export="screen-color"]', t("lvSaveScreenColor"));
+  setText('[data-lv-export="blocks"]', t("lvExportBlocks"));
+  setText('[data-lv-export="asm"]', t("lvCopyAsm"));
+  setAttr("#lv-add-empty", t("lvAddEmpty"));
+  setAttr("#lv-add-map", t("lvAddFromMap"));
+  setAttr("#lv-load-maps", t("lvLoadMaps"));
+  setAttr("#lv-edit", t("lvEditInMap"));
+  setAttr("#lv-duplicate", t("lvDuplicate"));
+  setAttr("#lv-move-back", t("lvMoveBack"));
+  setAttr("#lv-move-fwd", t("lvMoveFwd"));
+  setAttr("#lv-remove", t("lvRemoveSlot"));
+  setAttr("#lv-add-row", t("lvAddRow"));
+  setAttr("#lv-add-col", t("lvAddCol"));
+  setAttr("#lv-del-row", t("lvDelRow"));
+  setAttr("#lv-del-col", t("lvDelCol"));
+  setAttr("#lv-undo", t("hgUndo"));
+  setAttr("#lv-redo", t("hgRedo"));
+  setAttr("#lv-rewind", t("lvRewind"));
+  setText('#lv-layout option[value="vertical"]', t("lvLayoutVertical"));
+  setText('#lv-layout option[value="horizontal"]', t("lvLayoutHorizontal"));
+  setText('#lv-layout option[value="grid"]', t("lvLayoutGrid"));
+  setText('#lv-dir option[value="up"]', t("lvDirUp"));
+  setText('#lv-dir option[value="down"]', t("lvDirDown"));
+  setText('#lv-dir option[value="right"]', t("lvDirRight"));
+  setText('#lv-dir option[value="left"]', t("lvDirLeft"));
+  setText("#lv-speed-label", t("lvSpeed"));
+  setText("#lv-loop-label", t("lvLoop"));
+  setText("#lv-borders-label", t("lvBorders"));
+  setText("#lv-screens-label", t("lvScreens"));
+  setText("#lv-preview-label", t("lvPreview"));
+  setText("#lv-hint", t("lvHint"));
+  try { if (document.getElementById("level-editor-dialog")?.open) _lvRenderAll(); } catch (_) {}
   // Hires Editor
   setText(".hg-title", t("hgTitle"));
   setText("#hg-import", t("hgImport"));
@@ -34159,6 +34200,1006 @@ function setupMapEditor() {
     canvas.addEventListener("pointerup", function(e) { endPaint(e, true); });
     canvas.addEventListener("pointercancel", function(e) { endPaint(e, false); });
   }
+}
+
+/* ═══════════════════════════════════════════════════════
+   LEVEL EDITOR — 40×25 map screens arranged into a scrolling level
+   ═══════════════════════════════════════════════════════ */
+const _LV_SW = 320, _LV_SH = 200;           // one screen in C64 pixels
+const _LV_DIRS = { vertical: ["up", "down"], horizontal: ["right", "left"], grid: ["up", "down", "right", "left"] };
+// Screen arrays are never mutated in place (edits replace them), so undo
+// snapshots may share them.
+let _lvScreens = [];        // library: [{ id, name, screen, color, sig, cache }]
+let _lvLayout = "vertical"; // vertical | horizontal | grid
+let _lvW = 1, _lvH = 0;     // arrangement size in screens
+let _lvCells = [];          // _lvW*_lvH screen ids, row-major; null = empty slot
+let _lvSel = -1;            // selected slot
+let _lvLibSel = null;       // selected library screen id
+let _lvSettings = null;     // shared charset / colours of the level
+let _lvDir = "up";
+let _lvSpeed = 1;
+let _lvLoop = true;
+let _lvBorders = true;
+let _lvScale = 0.5;
+let _lvCamX = 0, _lvCamY = 0;
+let _lvPlaying = false, _lvRaf = 0, _lvLastTs = 0, _lvAcc = 0;
+let _lvRomCache = null, _lvCustomCache = null;
+let _lvUndo = [], _lvRedo = [];
+let _lvEditingId = null, _lvMeBackup = null;
+let _lvDrag = null;         // { kind: "slot"|"lib", from, x, y, active, over }
+
+function _lvDefaultSettings() {
+  return { multicolor: false, bgColor: 6, mc1Color: 5, mc2Color: 13, charSource: "rom", charset: null, charColors: null };
+}
+
+function _lvSigOf(s) {
+  if (!s) return "";
+  let h = 0x811c9dc5;
+  if (s.charSource === "custom" && s.charset) {
+    for (let i = 0; i < s.charset.length; i++) h = Math.imul(h ^ s.charset[i], 16777619) >>> 0;
+  }
+  return [s.multicolor ? 1 : 0, s.bgColor, s.mc1Color, s.mc2Color, s.charSource, h].join("|");
+}
+
+function _lvSettingsFromMe() {
+  return {
+    multicolor: !!_meMulticolor, bgColor: _meBgColor, mc1Color: _meMc1Color, mc2Color: _meMc2Color,
+    charSource: _meCharSource,
+    charset: _meCharSource === "custom" && _meCustomData ? _meCustomData.slice(0) : null,
+    charColors: _meCharSource === "custom" && _meCustomColors ? _meCustomColors.slice(0) : null
+  };
+}
+
+function _lvSetSettings(s) {
+  _lvSettings = s;
+  _lvCustomCache = null;
+  _lvScreens.forEach(function(scr) { scr.cache = null; });
+}
+
+function _lvNewScreen(name, screen, color, settings) {
+  const scr = {
+    id: crypto.randomUUID(),
+    name: name,
+    screen: screen || new Uint8Array(_ME_COLS * _ME_ROWS).fill(_ME_EMPTY),
+    color: color || new Uint8Array(_ME_COLS * _ME_ROWS).fill(14),
+    sig: "",
+    cache: null
+  };
+  // The first screen defines the level's charset/colours; a raw .bin without
+  // settings simply follows the level.
+  if (settings && !_lvScreens.length && !_lvCells.some(Boolean)) _lvSetSettings(settings);
+  if (!_lvSettings) _lvSetSettings(_lvDefaultSettings());
+  scr.sig = settings ? _lvSigOf(settings) : _lvSigOf(_lvSettings);
+  return scr;
+}
+
+function _lvScreenById(id) { return _lvScreens.find(function(s) { return s.id === id; }) || null; }
+function _lvNextName() { return t("lvScreenName") + " " + (_lvScreens.length + 1); }
+
+/* ── Arrangement ── */
+function _lvSlotCount() { return _lvW * _lvH; }
+
+function _lvSetLayout(layout) {
+  if (layout === _lvLayout) return;
+  if (layout === "vertical" || layout === "horizontal") {
+    const list = _lvCells.filter(Boolean);
+    _lvCells = list;
+    if (layout === "vertical") { _lvW = 1; _lvH = list.length; }
+    else { _lvW = list.length; _lvH = list.length ? 1 : 0; }
+  } else {
+    // A sequence becomes a near-square grid (min. 2 columns) so new screens
+    // fill sideways instead of stacking under each other.
+    const list = _lvCells.filter(Boolean);
+    _lvW = Math.max(2, Math.ceil(Math.sqrt(list.length)));
+    _lvH = Math.max(1, Math.ceil(list.length / _lvW));
+    _lvCells = new Array(_lvW * _lvH).fill(null);
+    list.forEach(function(id, i) { _lvCells[i] = id; });
+  }
+  _lvLayout = layout;
+  if (_lvLayout === "horizontal" && !_lvH && _lvW) _lvH = 1;
+  if (!_LV_DIRS[_lvLayout].includes(_lvDir)) _lvDir = _LV_DIRS[_lvLayout][0];
+  _lvSel = Math.min(_lvSel, _lvSlotCount() - 1);
+}
+
+/* Place a screen into the level: into the selected slot (grid), after the
+   selected slot (vertical/horizontal), or at the end. */
+function _lvPlace(id, slot) {
+  if (_lvLayout === "grid") {
+    if (!_lvSlotCount()) { _lvW = Math.max(2, _lvW); _lvH = 1; _lvCells = new Array(_lvW).fill(null); }
+    let target = slot != null && slot >= 0 ? slot : (_lvSel >= 0 && !_lvCells[_lvSel] ? _lvSel : _lvCells.indexOf(null));
+    if (target < 0) {
+      _lvCells = _lvCells.concat(new Array(_lvW).fill(null));
+      _lvH++;
+      target = (_lvH - 1) * _lvW;
+    }
+    _lvCells[target] = id;
+    _lvSel = target;
+    return;
+  }
+  if (slot != null && slot >= 0 && slot < _lvCells.length) {
+    _lvCells[slot] = id;
+    _lvSel = slot;
+  } else {
+    const at = slot != null && slot >= _lvCells.length ? _lvCells.length
+      : (_lvSel >= 0 ? _lvSel + 1 : _lvCells.length);
+    _lvCells.splice(at, 0, id);
+    _lvSel = at;
+  }
+  if (_lvLayout === "vertical") { _lvW = 1; _lvH = _lvCells.length; }
+  else { _lvW = _lvCells.length; _lvH = 1; }
+}
+
+function _lvRemoveSlot(slot) {
+  if (slot < 0 || slot >= _lvSlotCount()) return;
+  if (_lvLayout === "grid") { _lvCells[slot] = null; return; }
+  _lvCells.splice(slot, 1);
+  if (_lvLayout === "vertical") { _lvW = 1; _lvH = _lvCells.length; }
+  else { _lvW = _lvCells.length; _lvH = _lvCells.length ? 1 : 0; }
+  _lvSel = Math.min(slot, _lvCells.length - 1);
+}
+
+function _lvSwapSlots(a, b) {
+  const n = _lvSlotCount();
+  if (a < 0 || b < 0 || a >= n || b >= n || a === b) return false;
+  const tmp = _lvCells[a]; _lvCells[a] = _lvCells[b]; _lvCells[b] = tmp;
+  return true;
+}
+
+function _lvGridResize(dw, dh) {
+  const nw = Math.max(1, _lvW + dw), nh = Math.max(0, _lvH + dh);
+  const cells = new Array(nw * nh).fill(null);
+  for (let y = 0; y < Math.min(nh, _lvH); y++)
+    for (let x = 0; x < Math.min(nw, _lvW); x++) cells[y * nw + x] = _lvCells[y * _lvW + x];
+  _lvW = nw; _lvH = nh; _lvCells = cells;
+  if (_lvSel >= cells.length) _lvSel = cells.length - 1;
+}
+
+function _lvDeleteScreen(id) {
+  _lvScreens = _lvScreens.filter(function(s) { return s.id !== id; });
+  if (_lvLayout === "grid") {
+    _lvCells = _lvCells.map(function(c) { return c === id ? null : c; });
+  } else {
+    for (let i = _lvCells.length - 1; i >= 0; i--) if (_lvCells[i] === id) _lvRemoveSlot(i);
+  }
+  if (_lvLibSel === id) _lvLibSel = null;
+}
+
+/* ── Undo ── */
+function _lvSnapshot() {
+  return {
+    screens: _lvScreens.map(function(s) { return { id: s.id, name: s.name, screen: s.screen, color: s.color, sig: s.sig }; }),
+    layout: _lvLayout, w: _lvW, h: _lvH, cells: _lvCells.slice(0), sel: _lvSel, settings: _lvSettings
+  };
+}
+function _lvRestore(snap) {
+  _lvScreens = snap.screens.map(function(s) { return Object.assign({ cache: null }, s); });
+  _lvLayout = snap.layout; _lvW = snap.w; _lvH = snap.h; _lvCells = snap.cells.slice(0);
+  _lvSel = Math.min(snap.sel, _lvSlotCount() - 1);
+  _lvSetSettings(snap.settings);
+  if (!_LV_DIRS[_lvLayout].includes(_lvDir)) _lvDir = _LV_DIRS[_lvLayout][0];
+}
+function _lvPushUndo() {
+  _lvUndo.push(_lvSnapshot());
+  if (_lvUndo.length > 40) _lvUndo.shift();
+  _lvRedo = [];
+}
+function _lvUndoOp() {
+  if (!_lvUndo.length) return;
+  _lvRedo.push(_lvSnapshot());
+  _lvRestore(_lvUndo.pop());
+  _lvRenderAll();
+}
+function _lvRedoOp() {
+  if (!_lvRedo.length) return;
+  _lvUndo.push(_lvSnapshot());
+  _lvRestore(_lvRedo.pop());
+  _lvRenderAll();
+}
+
+/* ── Rendering ── */
+let _lvRgbCache = null;
+function _lvRgb(ci) {
+  if (!_lvRgbCache) _lvRgbCache = _CE_COLORS.map(function(h) {
+    return [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+  });
+  return _lvRgbCache[ci & 0x0F];
+}
+
+function _lvTileBits(sc) {
+  const s = _lvSettings;
+  if (s.charSource === "custom" && s.charset) {
+    if (!_lvCustomCache) {
+      _lvCustomCache = [];
+      for (let c = 0; c < 256; c++) {
+        const bits = [];
+        for (let r = 0; r < 8; r++) {
+          const byte = s.charset[c * 8 + r] || 0;
+          for (let b = 7; b >= 0; b--) bits.push((byte >> b) & 1);
+        }
+        _lvCustomCache.push(bits);
+      }
+    }
+    return _lvCustomCache[sc & 0xFF];
+  }
+  if (!_lvRomCache) {
+    _lvRomCache = [];
+    for (let c = 0; c < 256; c++) _lvRomCache.push(_c64RomBitmapData(c, 1));
+  }
+  return _lvRomCache[sc & 0xFF];
+}
+
+function _lvScreenCanvas(scr) {
+  if (scr.cache) return scr.cache;
+  const cv = document.createElement("canvas");
+  cv.width = _LV_SW; cv.height = _LV_SH;
+  const ctx = cv.getContext("2d");
+  const img = ctx.createImageData(_LV_SW, _LV_SH);
+  const d = img.data, s = _lvSettings;
+  const mcColors = [s.bgColor, s.mc1Color, s.mc2Color, 0];
+  for (let row = 0; row < _ME_ROWS; row++) {
+    for (let col = 0; col < _ME_COLS; col++) {
+      const i = row * _ME_COLS + col;
+      const bits = _lvTileBits(scr.screen[i]);
+      const c = scr.color[i] & 0x0F;
+      const multi = s.multicolor && (c & 8);
+      mcColors[3] = c & 7;
+      for (let py = 0; py < 8; py++) {
+        for (let px = 0; px < 8; px++) {
+          let ci;
+          if (multi) {
+            const p = py * 8 + (px & 6);
+            ci = mcColors[(bits[p] << 1) | bits[p + 1]];
+          } else {
+            ci = bits[py * 8 + px] ? c : s.bgColor;
+          }
+          const rgb = _lvRgb(ci);
+          const o = ((row * 8 + py) * _LV_SW + col * 8 + px) * 4;
+          d[o] = rgb[0]; d[o + 1] = rgb[1]; d[o + 2] = rgb[2]; d[o + 3] = 255;
+        }
+      }
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+  scr.cache = cv;
+  return cv;
+}
+
+function _lvLevelPx() { return { w: _lvW * _LV_SW, h: _lvH * _LV_SH }; }
+
+function _lvClampCam() {
+  const L = _lvLevelPx();
+  _lvCamX = Math.max(0, Math.min(_lvCamX, Math.max(0, L.w - _LV_SW)));
+  _lvCamY = Math.max(0, Math.min(_lvCamY, Math.max(0, L.h - _LV_SH)));
+}
+
+function _lvRenderOverview() {
+  const canvas = document.getElementById("lv-canvas");
+  if (!canvas) return;
+  const S = _lvScale;
+  const sw = Math.round(_LV_SW * S), sh = Math.round(_LV_SH * S);
+  const W = Math.max(sw, _lvW * sw), H = Math.max(sh, _lvH * sh);
+  if (canvas.width !== W || canvas.height !== H) { canvas.width = W; canvas.height = H; }
+  const ctx = canvas.getContext("2d");
+  ctx.imageSmoothingEnabled = false;
+  ctx.fillStyle = "#1b1b24";
+  ctx.fillRect(0, 0, W, H);
+  ctx.font = "11px 'IBM Plex Mono', monospace";
+  ctx.textBaseline = "top";
+  for (let i = 0; i < _lvSlotCount(); i++) {
+    const x = (i % _lvW) * sw, y = Math.floor(i / _lvW) * sh;
+    const scr = _lvScreenById(_lvCells[i]);
+    if (scr) {
+      ctx.drawImage(_lvScreenCanvas(scr), x, y, sw, sh);
+    } else {
+      ctx.strokeStyle = "rgba(170,160,225,0.35)";
+      ctx.setLineDash([4, 3]);
+      ctx.strokeRect(x + 3.5, y + 3.5, sw - 7, sh - 7);
+      ctx.setLineDash([]);
+      ctx.fillStyle = "rgba(170,160,225,0.6)";
+      ctx.fillText(t("lvEmptySlot"), x + 8, y + 8);
+    }
+    if (_lvBorders) {
+      ctx.strokeStyle = "rgba(255,255,255,0.35)";
+      ctx.strokeRect(x + 0.5, y + 0.5, sw - 1, sh - 1);
+      if (scr) {
+        const label = (i + 1) + " " + scr.name;
+        ctx.fillStyle = "rgba(0,0,0,0.6)";
+        ctx.fillRect(x + 2, y + 2, ctx.measureText(label).width + 8, 15);
+        ctx.fillStyle = "#fff";
+        ctx.fillText(label, x + 6, y + 4);
+      }
+    }
+  }
+  if (_lvDrag && _lvDrag.active && _lvDrag.over >= 0) {
+    const x = (_lvDrag.over % _lvW) * sw, y = Math.floor(_lvDrag.over / _lvW) * sh;
+    ctx.fillStyle = "rgba(120,200,255,0.25)";
+    ctx.fillRect(x, y, sw, sh);
+  }
+  if (_lvSel >= 0 && _lvSel < _lvSlotCount()) {
+    const x = (_lvSel % _lvW) * sw, y = Math.floor(_lvSel / _lvW) * sh;
+    ctx.strokeStyle = "#ffd84a";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x + 1, y + 1, sw - 2, sh - 2);
+    ctx.lineWidth = 1;
+  }
+  if (_lvSlotCount()) {
+    ctx.strokeStyle = "#ff5a5a";
+    ctx.setLineDash([5, 3]);
+    ctx.strokeRect(_lvCamX * S + 0.5, _lvCamY * S + 0.5, sw - 1, sh - 1);
+    ctx.setLineDash([]);
+  }
+}
+
+function _lvRenderPreview() {
+  const canvas = document.getElementById("lv-preview");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  ctx.imageSmoothingEnabled = false;
+  const s = _lvSettings || _lvDefaultSettings();
+  ctx.fillStyle = _CE_COLORS[s.bgColor & 0x0F];
+  ctx.fillRect(0, 0, _LV_SW, _LV_SH);
+  for (let i = 0; i < _lvSlotCount(); i++) {
+    const scr = _lvScreenById(_lvCells[i]);
+    if (!scr) continue;
+    const x = (i % _lvW) * _LV_SW, y = Math.floor(i / _lvW) * _LV_SH;
+    const ix = Math.max(x, _lvCamX), iy = Math.max(y, _lvCamY);
+    const ex = Math.min(x + _LV_SW, _lvCamX + _LV_SW), ey = Math.min(y + _LV_SH, _lvCamY + _LV_SH);
+    if (ex <= ix || ey <= iy) continue;
+    ctx.drawImage(_lvScreenCanvas(scr), ix - x, iy - y, ex - ix, ey - iy, ix - _lvCamX, iy - _lvCamY, ex - ix, ey - iy);
+  }
+}
+
+function _lvRenderLibrary() {
+  const list = document.getElementById("lv-library");
+  if (!list) return;
+  list.innerHTML = "";
+  _lvScreens.forEach(function(scr) {
+    const uses = _lvCells.filter(function(c) { return c === scr.id; }).length;
+    const item = document.createElement("div");
+    item.className = "lv-lib-item" + (scr.id === _lvLibSel ? " lv-lib-item--sel" : "");
+    item.dataset.id = scr.id;
+    const thumb = document.createElement("canvas");
+    thumb.width = 80; thumb.height = 50;
+    thumb.className = "lv-lib-thumb";
+    const tctx = thumb.getContext("2d");
+    tctx.imageSmoothingEnabled = false;
+    tctx.drawImage(_lvScreenCanvas(scr), 0, 0, 80, 50);
+    const meta = document.createElement("div");
+    meta.className = "lv-lib-meta";
+    const nm = document.createElement("span");
+    nm.className = "lv-lib-name";
+    nm.textContent = scr.name;
+    const info = document.createElement("span");
+    info.className = "lv-lib-info";
+    info.textContent = (uses ? "×" + uses : "—") + (scr.sig !== _lvSigOf(_lvSettings) ? "  ⚠" : "");
+    meta.appendChild(nm); meta.appendChild(info);
+    const del = document.createElement("button");
+    del.type = "button"; del.className = "me-layer-del lv-lib-del"; del.textContent = "×";
+    del.setAttribute("aria-label", t("lvDeleteScreen"));
+    del.addEventListener("pointerdown", function(e) { e.stopPropagation(); });
+    del.addEventListener("click", function(e) {
+      e.stopPropagation();
+      _lvPushUndo(); _lvDeleteScreen(scr.id); _lvRenderAll();
+    });
+    nm.addEventListener("dblclick", function(e) {
+      e.stopPropagation();
+      const v = prompt(t("lvRenamePrompt"), scr.name);
+      if (v != null && v.trim()) { _lvPushUndo(); scr.name = v.trim(); _lvRenderAll(); }
+    });
+    item.appendChild(thumb); item.appendChild(meta); item.appendChild(del);
+    item.addEventListener("pointerdown", function(e) {
+      if (e.button !== 0) return;
+      _lvLibSel = scr.id;
+      _lvDrag = { kind: "lib", from: scr.id, x: e.clientX, y: e.clientY, active: false, over: -1 };
+      try { item.setPointerCapture(e.pointerId); } catch (_) {}
+      list.querySelectorAll(".lv-lib-item").forEach(function(el) { el.classList.toggle("lv-lib-item--sel", el === item); });
+    });
+    item.addEventListener("pointermove", function(e) { _lvDragMove(e); });
+    item.addEventListener("pointerup", function(e) { _lvDragEnd(e); });
+    item.addEventListener("pointercancel", function() { _lvDrag = null; _lvRenderOverview(); });
+    item.addEventListener("dblclick", function() { _lvEditInMapEditor(scr.id); });
+    list.appendChild(item);
+  });
+  const mismatch = _lvScreens.filter(function(s) { return s.sig !== _lvSigOf(_lvSettings); }).length;
+  const warn = document.getElementById("lv-warning");
+  if (warn) { warn.hidden = !mismatch; warn.textContent = mismatch ? tf("lvMismatch", { n: mismatch }) : ""; }
+  const cs = document.getElementById("lv-charset-info");
+  if (cs && _lvSettings) {
+    cs.textContent = (_lvSettings.charSource === "custom" ? t("lvCharsetCustom") : t("lvCharsetRom")) +
+      (_lvSettings.multicolor ? " · " + t("meMulticolor") : "");
+  }
+}
+
+function _lvUpdateStatus() {
+  const st = document.getElementById("lv-status");
+  if (!st) return;
+  const parts = [];
+  if (_lvSel >= 0 && _lvSel < _lvSlotCount()) {
+    const scr = _lvScreenById(_lvCells[_lvSel]);
+    parts.push(tf("lvStatusSlot", { n: _lvSel + 1, total: _lvSlotCount() }) + (scr ? " · " + scr.name : ""));
+  }
+  parts.push("X:" + _lvCamX + " Y:" + _lvCamY);
+  parts.push(tf("lvInfo", {
+    w: _lvW, h: _lvH, cols: _lvW * _ME_COLS, rows: _lvH * _ME_ROWS,
+    bytes: _lvSlotCount() * _ME_COLS * _ME_ROWS * 2
+  }));
+  st.textContent = parts.join("   ");
+}
+
+function _lvSyncControls() {
+  const layoutSel = document.getElementById("lv-layout");
+  if (layoutSel) layoutSel.value = _lvLayout;
+  const dirSel = document.getElementById("lv-dir");
+  if (dirSel) {
+    const allowed = _LV_DIRS[_lvLayout];
+    Array.from(dirSel.options).forEach(function(o) { o.hidden = o.disabled = !allowed.includes(o.value); });
+    dirSel.value = _lvDir;
+  }
+  document.getElementById("lv-grid-group")?.toggleAttribute("hidden", _lvLayout !== "grid");
+  const play = document.getElementById("lv-play");
+  if (play) {
+    play.classList.toggle("me-tool--active", _lvPlaying);
+    play.setAttribute("aria-label", _lvPlaying ? t("lvStop") : t("lvPlay"));
+    play.innerHTML = _lvPlaying
+      ? '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="4" width="8" height="8" rx="0.5" fill="currentColor"/></svg>'
+      : '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.5v9l7-4.5z" fill="currentColor"/></svg>';
+  }
+}
+
+function _lvRenderAll() {
+  _lvClampCam();
+  _lvSyncControls();
+  _lvRenderLibrary();
+  _lvRenderOverview();
+  _lvRenderPreview();
+  _lvUpdateStatus();
+}
+
+/* ── Playback ── */
+function _lvRewind() {
+  const L = _lvLevelPx();
+  if (_lvDir === "up") _lvCamY = L.h;
+  else if (_lvDir === "down") _lvCamY = 0;
+  else if (_lvDir === "right") _lvCamX = 0;
+  else _lvCamX = L.w;
+  _lvClampCam();
+}
+
+function _lvAtEnd() {
+  const L = _lvLevelPx();
+  if (_lvDir === "up") return _lvCamY <= 0;
+  if (_lvDir === "down") return _lvCamY >= L.h - _LV_SH;
+  if (_lvDir === "right") return _lvCamX >= L.w - _LV_SW;
+  return _lvCamX <= 0;
+}
+
+function _lvStep() {
+  if (_lvAtEnd()) {
+    if (!_lvLoop) { _lvStop(); return; }
+    _lvRewind();
+    return;
+  }
+  if (_lvDir === "up") _lvCamY -= _lvSpeed;
+  else if (_lvDir === "down") _lvCamY += _lvSpeed;
+  else if (_lvDir === "right") _lvCamX += _lvSpeed;
+  else _lvCamX -= _lvSpeed;
+  _lvClampCam();
+}
+
+function _lvTick(ts) {
+  if (!_lvPlaying) return;
+  if (!_lvLastTs) _lvLastTs = ts;
+  _lvAcc += Math.min(200, ts - _lvLastTs);
+  _lvLastTs = ts;
+  let stepped = false;
+  while (_lvAcc >= 20 && _lvPlaying) { _lvAcc -= 20; _lvStep(); stepped = true; }   // 50 Hz (PAL frame)
+  if (stepped) { _lvRenderPreview(); _lvRenderOverview(); _lvUpdateStatus(); }
+  if (_lvPlaying) _lvRaf = requestAnimationFrame(_lvTick);
+}
+
+function _lvPlay() {
+  if (_lvPlaying || !_lvSlotCount()) return;
+  if (_lvAtEnd()) _lvRewind();
+  _lvPlaying = true; _lvLastTs = 0; _lvAcc = 0;
+  _lvSyncControls();
+  _lvRaf = requestAnimationFrame(_lvTick);
+}
+
+function _lvStop() {
+  _lvPlaying = false;
+  if (_lvRaf) cancelAnimationFrame(_lvRaf);
+  _lvRaf = 0;
+  _lvSyncControls();
+}
+
+/* ── Drag (library → slot, slot ↔ slot) ── */
+function _lvSlotAt(clientX, clientY) {
+  const canvas = document.getElementById("lv-canvas");
+  if (!canvas) return -1;
+  const r = canvas.getBoundingClientRect();
+  if (clientX < r.left || clientY < r.top || clientX >= r.right || clientY >= r.bottom) return -1;
+  const sw = r.width / Math.max(1, _lvW), sh = r.height / Math.max(1, _lvH);
+  const sx = Math.floor((clientX - r.left) / sw), sy = Math.floor((clientY - r.top) / sh);
+  if (!_lvSlotCount()) return 0;
+  if (sx < 0 || sy < 0 || sx >= _lvW || sy >= _lvH) return -1;
+  return sy * _lvW + sx;
+}
+
+function _lvDragMove(e) {
+  if (!_lvDrag) return;
+  if (!_lvDrag.active && Math.hypot(e.clientX - _lvDrag.x, e.clientY - _lvDrag.y) > 4) {
+    _lvDrag.active = true;
+    document.body.classList.add("lv-dragging");
+  }
+  if (!_lvDrag.active) return;
+  const over = _lvSlotAt(e.clientX, e.clientY);
+  if (over !== _lvDrag.over) { _lvDrag.over = over; _lvRenderOverview(); }
+}
+
+function _lvDragEnd(e) {
+  const d = _lvDrag;
+  _lvDrag = null;
+  document.body.classList.remove("lv-dragging");
+  if (!d) return;
+  if (!d.active) {
+    // A plain click on a library item must not rebuild the list, or its dblclick never fires.
+    if (d.kind === "slot") _lvSelectSlot(d.from);
+    else { _lvRenderOverview(); _lvUpdateStatus(); }
+    return;
+  }
+  const over = _lvSlotAt(e.clientX, e.clientY);
+  if (d.kind === "slot") {
+    if (over >= 0 && over !== d.from) { _lvPushUndo(); _lvSwapSlots(d.from, over); _lvSel = over; }
+  } else if (over >= 0 || _lvIsOverCanvas(e)) {
+    _lvPushUndo();
+    _lvPlace(d.from, over >= 0 && over < _lvSlotCount() ? over : _lvSlotCount());
+  }
+  _lvRenderAll();
+}
+
+function _lvIsOverCanvas(e) {
+  const wrap = document.getElementById("lv-canvas-wrap");
+  if (!wrap) return false;
+  const r = wrap.getBoundingClientRect();
+  return e.clientX >= r.left && e.clientX < r.right && e.clientY >= r.top && e.clientY < r.bottom;
+}
+
+function _lvSelectSlot(slot) {
+  _lvSel = slot;
+  const id = _lvCells[slot];
+  if (id) _lvLibSel = id;
+  if (!_lvPlaying && slot >= 0) {
+    _lvCamX = (slot % _lvW) * _LV_SW;
+    _lvCamY = Math.floor(slot / _lvW) * _LV_SH;
+  }
+  _lvRenderAll();
+}
+
+/* ── Map Editor round trip ── */
+function _lvEditInMapEditor(id) {
+  const scr = _lvScreenById(id);
+  if (!scr) return;
+  _lvStop();
+  _meInit();
+  _lvMeBackup = { snap: _meSnapshot(), undo: _meUndo, redo: _meRedo };
+  _meUndo = []; _meRedo = [];
+  const s = _lvSettings || _lvDefaultSettings();
+  _meRestore({
+    activeLayer: 0, charSource: s.charSource, customData: s.charset, customColors: s.charColors,
+    multicolor: s.multicolor, bgColor: s.bgColor, mc1Color: s.mc1Color, mc2Color: s.mc2Color,
+    layers: [{ name: t("meBackground"), visible: true, screen: scr.screen, color: scr.color }]
+  });
+  _lvEditingId = id;
+  document.getElementById("map-editor-btn")?.click();
+}
+
+function _lvFinishMapEdit() {
+  if (!_lvEditingId) return;
+  const scr = _lvScreenById(_lvEditingId);
+  _lvEditingId = null;
+  if (scr) {
+    _lvPushUndo();
+    const comp = _meComposite();
+    scr.screen = comp.screen;
+    scr.color = comp.color;
+    const s = _lvSettingsFromMe();
+    if (_lvSigOf(s) !== _lvSigOf(_lvSettings)) _lvSetSettings(s);
+    scr.sig = _lvSigOf(_lvSettings);
+    scr.cache = null;
+  }
+  if (_lvMeBackup) {
+    _meRestore(_lvMeBackup.snap);
+    _meUndo = _lvMeBackup.undo; _meRedo = _lvMeBackup.redo;
+    _lvMeBackup = null;
+  }
+  _lvRenderAll();
+}
+
+/* ── Import ── */
+function _lvScreenFromBin(bytes, name) {
+  const parsed = _vaReadBinWithMeta(bytes);
+  const src = parsed.payload, n = _ME_COLS * _ME_ROWS;
+  const screen = new Uint8Array(n).fill(_ME_EMPTY), color = new Uint8Array(n).fill(14);
+  for (let i = 0; i < n && i < src.length; i++) screen[i] = src[i];
+  if (src.length >= n * 2) for (let i = 0; i < n; i++) color[i] = src[n + i] & 0x0F;
+  else if (parsed.extras.color && parsed.extras.color.length >= n) for (let i = 0; i < n; i++) color[i] = parsed.extras.color[i] & 0x0F;
+  let settings = null;
+  if (parsed.manifest?.kind === "me-map" || parsed.manifest?.kind === "cc-map") {
+    const ms = parsed.manifest.settings || {};
+    const custom = !!parsed.extras.charset && (ms.charSource === "custom" || parsed.manifest.kind === "cc-map");
+    settings = {
+      multicolor: !!ms.multicolor,
+      bgColor: ms.bgColor == null ? 6 : ms.bgColor & 0x0F,
+      mc1Color: ms.mc1Color == null ? 5 : ms.mc1Color & 0x0F,
+      mc2Color: ms.mc2Color == null ? 13 : ms.mc2Color & 0x0F,
+      charSource: custom ? "custom" : "rom",
+      charset: custom ? (function() { const cs = new Uint8Array(2048); cs.set(parsed.extras.charset.subarray(0, 2048)); return cs; })() : null,
+      charColors: custom && parsed.extras.charColors ? parsed.extras.charColors.slice(0) : null
+    };
+  }
+  return _lvNewScreen(name, screen, color, settings);
+}
+
+/* ── Level project file (.bin + VA meta) ── */
+function _lvBuildLevelFile() {
+  const n = _ME_COLS * _ME_ROWS;
+  const payload = new Uint8Array(_lvScreens.length * n * 2);
+  _lvScreens.forEach(function(s, i) { payload.set(s.screen, i * n * 2); payload.set(s.color, i * n * 2 + n); });
+  const ids = _lvScreens.map(function(s) { return s.id; });
+  const st = _lvSettings || _lvDefaultSettings();
+  const meta = {
+    kind: "lv-level",
+    settings: {
+      layout: _lvLayout, w: _lvW, h: _lvH,
+      cells: _lvCells.map(function(c) { return c ? ids.indexOf(c) : -1; }),
+      names: _lvScreens.map(function(s) { return s.name; }),
+      dir: _lvDir, speed: _lvSpeed, loop: _lvLoop,
+      multicolor: st.multicolor, bgColor: st.bgColor, mc1Color: st.mc1Color, mc2Color: st.mc2Color,
+      charSource: st.charSource
+    },
+    extras: {}
+  };
+  if (st.charSource === "custom" && st.charset) meta.extras.charset = st.charset.slice(0);
+  if (st.charSource === "custom" && st.charColors) meta.extras.charColors = st.charColors.slice(0);
+  return _vaBuildBinWithMeta(payload, meta);
+}
+
+function _lvLoadLevelFile(bytes) {
+  const parsed = _vaReadBinWithMeta(bytes);
+  if (parsed.manifest?.kind !== "lv-level") return false;
+  const ms = parsed.manifest.settings || {};
+  const n = _ME_COLS * _ME_ROWS;
+  const count = Math.floor(parsed.payload.length / (n * 2));
+  const custom = ms.charSource === "custom" && !!parsed.extras.charset;
+  const settings = {
+    multicolor: !!ms.multicolor,
+    bgColor: (ms.bgColor ?? 6) & 0x0F, mc1Color: (ms.mc1Color ?? 5) & 0x0F, mc2Color: (ms.mc2Color ?? 13) & 0x0F,
+    charSource: custom ? "custom" : "rom",
+    charset: custom ? parsed.extras.charset.slice(0) : null,
+    charColors: custom && parsed.extras.charColors ? parsed.extras.charColors.slice(0) : null
+  };
+  _lvPushUndo();
+  _lvScreens = [];
+  _lvCells = [];
+  _lvSetSettings(settings);
+  const names = Array.isArray(ms.names) ? ms.names : [];
+  for (let i = 0; i < count; i++) {
+    const base = i * n * 2;
+    _lvScreens.push(_lvNewScreen(names[i] || (t("lvScreenName") + " " + (i + 1)),
+      parsed.payload.slice(base, base + n), parsed.payload.slice(base + n, base + n * 2), null));
+  }
+  _lvLayout = ["vertical", "horizontal", "grid"].includes(ms.layout) ? ms.layout : "vertical";
+  _lvW = Math.max(1, ms.w | 0); _lvH = Math.max(0, ms.h | 0);
+  const cells = Array.isArray(ms.cells) ? ms.cells : [];
+  _lvCells = new Array(_lvW * _lvH).fill(null).map(function(_, i) {
+    const k = cells[i];
+    return k >= 0 && k < _lvScreens.length ? _lvScreens[k].id : null;
+  });
+  _lvDir = _LV_DIRS[_lvLayout].includes(ms.dir) ? ms.dir : _LV_DIRS[_lvLayout][0];
+  _lvSpeed = Math.max(1, Math.min(8, ms.speed | 0 || 1));
+  _lvLoop = ms.loop !== false;
+  _lvSel = _lvSlotCount() ? 0 : -1;
+  _lvLibSel = null;
+  const speedIn = document.getElementById("lv-speed");
+  if (speedIn) speedIn.value = String(_lvSpeed);
+  const loopIn = document.getElementById("lv-loop");
+  if (loopIn) loopIn.checked = _lvLoop;
+  _lvRewind();
+  return true;
+}
+
+/* ── Export: level data in the order a scroller consumes it ──
+   vertical   → rows of 40 bytes (scroll up: bottom row first)
+   horizontal → columns of 25 bytes (scroll left: rightmost column first)
+   grid       → full map, row-major */
+function _lvExportData() {
+  if (!_lvCells.some(Boolean)) return null;
+  const cols = _lvW * _ME_COLS, rows = _lvH * _ME_ROWS;
+  const map = new Uint8Array(cols * rows).fill(_ME_EMPTY);
+  const cmap = new Uint8Array(cols * rows).fill(14);
+  for (let i = 0; i < _lvSlotCount(); i++) {
+    const scr = _lvScreenById(_lvCells[i]);
+    if (!scr) continue;
+    const ox = (i % _lvW) * _ME_COLS, oy = Math.floor(i / _lvW) * _ME_ROWS;
+    for (let r = 0; r < _ME_ROWS; r++)
+      for (let c = 0; c < _ME_COLS; c++) {
+        map[(oy + r) * cols + ox + c] = scr.screen[r * _ME_COLS + c];
+        cmap[(oy + r) * cols + ox + c] = scr.color[r * _ME_COLS + c] & 0x0F;
+      }
+  }
+  const screen = new Uint8Array(cols * rows), color = new Uint8Array(cols * rows);
+  let unit = "map", chunk = cols, k = 0;
+  if (_lvLayout === "vertical") {
+    unit = "row";
+    for (let n = 0; n < rows; n++) {
+      const r = _lvDir === "up" ? rows - 1 - n : n;
+      screen.set(map.subarray(r * cols, (r + 1) * cols), n * cols);
+      color.set(cmap.subarray(r * cols, (r + 1) * cols), n * cols);
+    }
+  } else if (_lvLayout === "horizontal") {
+    unit = "col"; chunk = rows;
+    for (let n = 0; n < cols; n++) {
+      const c = _lvDir === "left" ? cols - 1 - n : n;
+      for (let r = 0; r < rows; r++) { screen[k] = map[r * cols + c]; color[k] = cmap[r * cols + c]; k++; }
+    }
+  } else {
+    screen.set(map); color.set(cmap);
+  }
+  return { screen: screen, color: color, cols: cols, rows: rows, unit: unit, chunk: chunk };
+}
+
+function _lvExportAsm() {
+  const d = _lvExportData();
+  if (!d) return "";
+  const hex = function(v) { return "$" + v.toString(16).toUpperCase().padStart(2, "0"); };
+  const order = d.unit === "row" ? (_lvDir === "up" ? "rows of 40 bytes, bottom row first" : "rows of 40 bytes, top row first")
+    : d.unit === "col" ? (_lvDir === "left" ? "columns of 25 bytes, rightmost column first" : "columns of 25 bytes, leftmost column first")
+    : "row-major map";
+  const lines = [
+    "; Level: " + _lvW + "x" + _lvH + " screens, " + d.cols + "x" + d.rows + " chars",
+    "; level_screen / level_color: " + order,
+    ".const LEVEL_COLS = " + d.cols,
+    ".const LEVEL_ROWS = " + d.rows
+  ];
+  const dump = function(label, bytes) {
+    lines.push(label + ":");
+    for (let i = 0; i < bytes.length; i += d.chunk) {
+      lines.push("    .byte " + Array.from(bytes.subarray(i, i + d.chunk), hex).join(", "));
+    }
+  };
+  dump("level_screen", d.screen);
+  dump("level_color", d.color);
+  return lines.join("\n") + "\n";
+}
+
+function _lvFlash(msg) {
+  const btn = document.querySelector("#level-editor-dialog .ed-file-btn");
+  if (!btn) return;
+  const o = btn.textContent;
+  btn.textContent = msg;
+  setTimeout(function() { btn.textContent = o; }, 1400);
+}
+
+function _lvExport(kind) {
+  if (kind === "save-level") { _saveBinFile(_lvBuildLevelFile(), "level.bin"); return; }
+  const d = _lvExportData();
+  if (!d) { _lvFlash(t("lvNothing")); return; }
+  if (kind === "screen") { _saveBinFile(d.screen, "level-screen.bin"); return; }
+  if (kind === "screen-color") {
+    const out = new Uint8Array(d.screen.length * 2);
+    out.set(d.screen, 0); out.set(d.color, d.screen.length);
+    _saveBinFile(out, "level-screen-color.bin");
+    return;
+  }
+  if (kind === "blocks") {
+    const n = exportAsmToBlocks(_lvExportAsm());
+    _lvFlash(n > 0 ? tf("lvExportDone", { n: n }) : t("lvNothing"));
+    return;
+  }
+  if (kind === "asm") {
+    navigator.clipboard.writeText(_lvExportAsm()).then(function() { _lvFlash(t("copied")); }).catch(function() {});
+  }
+}
+
+function _lvReset() {
+  _lvStop();
+  _lvScreens = []; _lvCells = []; _lvW = 1; _lvH = 0;
+  _lvSel = -1; _lvLibSel = null;
+  _lvSetSettings(_lvDefaultSettings());
+  _lvCamX = _lvCamY = 0;
+}
+
+function setupLevelEditor() {
+  const dialog = document.getElementById("level-editor-dialog");
+  if (!dialog) return;
+
+  // Runs during init, before the `let _lv*` declarations above are reached
+  // (TDZ) — so state is only touched lazily, from event handlers.
+  document.getElementById("level-editor-btn")?.addEventListener("click", function() {
+    document.querySelector(".control-menu")?.removeAttribute("open");
+    if (!_lvSettings) _lvSetSettings(_lvDefaultSettings());
+    _lvRenderAll();
+    dialog._applyPosition?.();
+    dialog.showModal();
+    _meEnsureRomFont(function() {
+      _lvRomCache = null;
+      _lvScreens.forEach(function(s) { s.cache = null; });
+      _lvRenderAll();
+    });
+  });
+  document.getElementById("lv-close")?.addEventListener("click", function() { dialog.close(); });
+  dialog.addEventListener("close", _lvStop);
+  document.getElementById("map-editor-dialog")?.addEventListener("close", _lvFinishMapEdit);
+
+  dialog.querySelectorAll("button[data-lv-export]").forEach(function(b) {
+    b.addEventListener("click", function() { _lvExport(b.dataset.lvExport); });
+  });
+  document.getElementById("lv-new")?.addEventListener("click", function() {
+    _lvPushUndo(); _lvReset(); _lvRenderAll();
+  });
+
+  const levelFile = document.getElementById("lv-level-file");
+  document.getElementById("lv-open")?.addEventListener("click", function() { levelFile?.click(); });
+  levelFile?.addEventListener("change", function(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function() {
+      _lvStop();
+      if (!_lvLoadLevelFile(new Uint8Array(reader.result))) _lvFlash(t("lvNotLevel"));
+      _lvRenderAll();
+    };
+    reader.readAsArrayBuffer(file);
+    e.target.value = "";
+  });
+
+  document.getElementById("lv-add-empty")?.addEventListener("click", function() {
+    _lvPushUndo();
+    const scr = _lvNewScreen(_lvNextName(), null, null, null);
+    _lvScreens.push(scr);
+    _lvLibSel = scr.id;
+    _lvPlace(scr.id);
+    _lvSelectSlot(_lvSel);
+  });
+  document.getElementById("lv-add-map")?.addEventListener("click", function() {
+    _meInit();
+    _lvPushUndo();
+    const comp = _meComposite();
+    const scr = _lvNewScreen(_lvNextName(), comp.screen, comp.color, _lvSettingsFromMe());
+    _lvScreens.push(scr);
+    _lvLibSel = scr.id;
+    _lvPlace(scr.id);
+    _lvSelectSlot(_lvSel);
+  });
+  const mapFiles = document.getElementById("lv-map-files");
+  document.getElementById("lv-load-maps")?.addEventListener("click", function() { mapFiles?.click(); });
+  mapFiles?.addEventListener("change", async function(e) {
+    const files = Array.from(e.target.files || []);
+    e.target.value = "";
+    if (!files.length) return;
+    _lvPushUndo();
+    for (const file of files) {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      const scr = _lvScreenFromBin(bytes, file.name.replace(/\.[^.]+$/, ""));
+      _lvScreens.push(scr);
+      _lvLibSel = scr.id;
+      _lvPlace(scr.id);
+    }
+    _lvSelectSlot(_lvSel);
+  });
+
+  const currentScreenId = function() {
+    return (_lvSel >= 0 && _lvCells[_lvSel]) || _lvLibSel;
+  };
+  document.getElementById("lv-edit")?.addEventListener("click", function() {
+    const id = currentScreenId();
+    if (id) _lvEditInMapEditor(id);
+  });
+  document.getElementById("lv-duplicate")?.addEventListener("click", function() {
+    const src = _lvScreenById(currentScreenId());
+    if (!src) return;
+    _lvPushUndo();
+    const scr = _lvNewScreen(src.name + " +", src.screen, src.color, null);
+    scr.sig = src.sig;
+    _lvScreens.push(scr);
+    _lvLibSel = scr.id;
+    _lvPlace(scr.id);
+    _lvSelectSlot(_lvSel);
+  });
+  document.getElementById("lv-move-back")?.addEventListener("click", function() {
+    if (_lvSel <= 0) return;
+    _lvPushUndo();
+    if (_lvSwapSlots(_lvSel, _lvSel - 1)) _lvSelectSlot(_lvSel - 1);
+  });
+  document.getElementById("lv-move-fwd")?.addEventListener("click", function() {
+    if (_lvSel < 0 || _lvSel >= _lvSlotCount() - 1) return;
+    _lvPushUndo();
+    if (_lvSwapSlots(_lvSel, _lvSel + 1)) _lvSelectSlot(_lvSel + 1);
+  });
+  document.getElementById("lv-remove")?.addEventListener("click", function() {
+    if (_lvSel < 0) return;
+    _lvPushUndo(); _lvRemoveSlot(_lvSel); _lvRenderAll();
+  });
+  document.getElementById("lv-add-row")?.addEventListener("click", function() { _lvPushUndo(); _lvGridResize(0, 1); _lvRenderAll(); });
+  document.getElementById("lv-add-col")?.addEventListener("click", function() { _lvPushUndo(); _lvGridResize(1, 0); _lvRenderAll(); });
+  document.getElementById("lv-del-row")?.addEventListener("click", function() { if (_lvH > 1) { _lvPushUndo(); _lvGridResize(0, -1); _lvRenderAll(); } });
+  document.getElementById("lv-del-col")?.addEventListener("click", function() { if (_lvW > 1) { _lvPushUndo(); _lvGridResize(-1, 0); _lvRenderAll(); } });
+  document.getElementById("lv-undo")?.addEventListener("click", _lvUndoOp);
+  document.getElementById("lv-redo")?.addEventListener("click", _lvRedoOp);
+
+  document.getElementById("lv-play")?.addEventListener("click", function() { if (_lvPlaying) _lvStop(); else _lvPlay(); });
+  document.getElementById("lv-rewind")?.addEventListener("click", function() { _lvRewind(); _lvRenderAll(); });
+  document.getElementById("lv-layout")?.addEventListener("change", function(e) {
+    const layout = e.target.value;   // read first: _lvStop() re-syncs the select
+    _lvStop(); _lvPushUndo(); _lvSetLayout(layout); _lvRewind(); _lvRenderAll();
+  });
+  document.getElementById("lv-dir")?.addEventListener("change", function(e) {
+    _lvDir = e.target.value;
+    if (!_lvPlaying) _lvRewind();
+    _lvRenderAll();
+  });
+  document.getElementById("lv-speed")?.addEventListener("input", function(e) {
+    _lvSpeed = Math.max(1, Math.min(8, parseInt(e.target.value, 10) || 1));
+  });
+  document.getElementById("lv-loop")?.addEventListener("change", function(e) { _lvLoop = !!e.target.checked; });
+  document.getElementById("lv-borders")?.addEventListener("change", function(e) { _lvBorders = !!e.target.checked; _lvRenderOverview(); });
+  document.getElementById("lv-zoom")?.addEventListener("input", function(e) {
+    _lvScale = (parseInt(e.target.value, 10) || 50) / 100;
+    _lvRenderOverview();
+  });
+
+  // Overview: click selects, drag swaps, double-click edits in the Map Editor
+  const canvas = document.getElementById("lv-canvas");
+  canvas?.addEventListener("pointerdown", function(e) {
+    if (e.button !== 0) return;
+    const slot = _lvSlotAt(e.clientX, e.clientY);
+    if (slot < 0 || slot >= _lvSlotCount()) return;
+    _lvDrag = { kind: "slot", from: slot, x: e.clientX, y: e.clientY, active: false, over: -1 };
+    try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+  });
+  canvas?.addEventListener("pointermove", _lvDragMove);
+  canvas?.addEventListener("pointerup", _lvDragEnd);
+  canvas?.addEventListener("pointercancel", function() { _lvDrag = null; _lvRenderOverview(); });
+  canvas?.addEventListener("dblclick", function(e) {
+    const slot = _lvSlotAt(e.clientX, e.clientY);
+    if (slot >= 0 && _lvCells[slot]) _lvEditInMapEditor(_lvCells[slot]);
+  });
+
+  // Preview: drag to pan the camera
+  const preview = document.getElementById("lv-preview");
+  let pan = null;
+  preview?.addEventListener("pointerdown", function(e) {
+    if (e.button !== 0) return;
+    pan = { x: e.clientX, y: e.clientY, cx: _lvCamX, cy: _lvCamY, k: _LV_SW / preview.getBoundingClientRect().width };
+    try { preview.setPointerCapture(e.pointerId); } catch (_) {}
+  });
+  preview?.addEventListener("pointermove", function(e) {
+    if (!pan) return;
+    _lvCamX = Math.round(pan.cx - (e.clientX - pan.x) * pan.k);
+    _lvCamY = Math.round(pan.cy - (e.clientY - pan.y) * pan.k);
+    _lvClampCam();
+    _lvRenderPreview(); _lvRenderOverview(); _lvUpdateStatus();
+  });
+  const endPan = function() { pan = null; };
+  preview?.addEventListener("pointerup", endPan);
+  preview?.addEventListener("pointercancel", endPan);
+
+  dialog.addEventListener("keydown", function(e) {
+    if (e.target.closest("input, select, textarea")) return;
+    const mod = e.ctrlKey || e.metaKey;
+    if (mod && e.key.toLowerCase() === "z") { if (e.shiftKey) _lvRedoOp(); else _lvUndoOp(); e.preventDefault(); return; }
+    if (mod && e.key.toLowerCase() === "y") { _lvRedoOp(); e.preventDefault(); return; }
+    if (e.key === " ") { if (_lvPlaying) _lvStop(); else _lvPlay(); e.preventDefault(); return; }
+    if (e.key === "Delete" && _lvSel >= 0) { _lvPushUndo(); _lvRemoveSlot(_lvSel); _lvRenderAll(); e.preventDefault(); return; }
+    const step = e.shiftKey ? 8 : 1;
+    const moves = { ArrowUp: [0, -step], ArrowDown: [0, step], ArrowLeft: [-step, 0], ArrowRight: [step, 0] };
+    if (moves[e.key]) {
+      _lvCamX += moves[e.key][0]; _lvCamY += moves[e.key][1];
+      _lvClampCam();
+      _lvRenderPreview(); _lvRenderOverview(); _lvUpdateStatus();
+      e.preventDefault();
+    }
+  });
 }
 
 /* ═══════════════════════════════════════════════════════

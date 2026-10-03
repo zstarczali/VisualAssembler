@@ -8646,6 +8646,59 @@ html[data-theme="commodore77"] .splash-image {
   white-space: pre;
 }
 
+/* ═══ Level Editor (builds on the Map Editor .me-* classes) ═══ */
+.lv-dialog { width: min(1320px, 97vw); }
+.lv-select {
+  height: 28px; min-height: 0; padding: 3px 26px 3px 8px;
+  font-family: inherit; font-size: 0.78rem;
+  border: 1px solid var(--panel-border); border-radius: 2px;
+  background-color: var(--control-bg); color: var(--text);
+}
+.lv-speed { display: flex; align-items: center; gap: 5px; font-size: 0.8rem; color: var(--secondary); }
+.lv-num-in { width: 52px; height: 26px; min-height: 0; padding: 3px 6px; font-size: 0.78rem; }
+.lv-sidebar { gap: 8px; width: 210px; }
+.lv-sidebar .me-section-lbl { margin-bottom: 0; }
+.lv-charset-info { font-size: 0.68rem; color: var(--secondary); }
+.lv-warning {
+  font-size: 0.68rem; line-height: 1.35; color: var(--text);
+  padding: 6px 8px; border-radius: 2px;
+  background: color-mix(in srgb, #e0a020 22%, transparent);
+  border: 1px solid color-mix(in srgb, #e0a020 55%, transparent);
+}
+.lv-library { display: flex; flex-direction: column; gap: 4px; }
+.lv-lib-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px; border-radius: 2px; cursor: grab;
+  border: 1px solid transparent; user-select: none; touch-action: none;
+}
+.lv-lib-item:hover { background: var(--surface-soft); }
+.lv-lib-item--sel { background: var(--surface-soft); border-color: var(--primary); }
+.lv-lib-thumb {
+  width: 64px; height: 40px; flex-shrink: 0;
+  image-rendering: pixelated; image-rendering: crisp-edges;
+  border: 1px solid var(--panel-border);
+}
+.lv-lib-meta { display: flex; flex-direction: column; min-width: 0; flex: 1; gap: 2px; }
+.lv-lib-name { font-size: 0.78rem; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lv-lib-info { font-family: "IBM Plex Mono", monospace; font-size: 0.64rem; color: var(--secondary); white-space: pre; }
+.lv-lib-del { align-self: center; }
+.lv-canvas { cursor: pointer; touch-action: none; }
+body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
+.lv-preview-pane {
+  width: 500px; flex-shrink: 0; box-sizing: border-box;
+  padding: 14px 14px 14px 0;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.lv-preview-pane .me-section-lbl { margin-bottom: 0; }
+.lv-preview {
+  width: 480px; height: 300px; display: block;
+  image-rendering: pixelated; image-rendering: crisp-edges;
+  border: 1px solid var(--panel-border); background: #000;
+  cursor: grab; touch-action: none;
+}
+.lv-preview:active { cursor: grabbing; }
+.lv-hint { font-size: 0.68rem; line-height: 1.45; color: var(--secondary); }
+
 /* ═══ Hi-Res Graphics Editor ═══════════════════════════════ */
 .hg-dialog {
   position: fixed;
@@ -9895,6 +9948,7 @@ html[data-theme="commodore77"] .splash-image {
 #c64-chrrom-dialog button[aria-label],
 #char-editor-dialog button[aria-label],
 #map-editor-dialog button[aria-label],
+#level-editor-dialog button[aria-label],
 #hires-editor-dialog button[aria-label],
 #sprite-editor-dialog button[aria-label],
 #sid-editor-dialog button[aria-label],
@@ -9907,6 +9961,7 @@ html[data-theme="commodore77"] .splash-image {
 #char-editor-dialog .ce-hdr,
 #char-editor-dialog .ce-tool-row,
 #map-editor-dialog .me-toolbar,
+#level-editor-dialog .me-toolbar,
 #hires-editor-dialog .hg-toolbar,
 #hires-editor-dialog .hg-footer,
 #sprite-editor-dialog .se-toolbar,
@@ -9921,6 +9976,7 @@ html[data-theme="commodore77"] .splash-image {
 #c64-chrrom-dialog button[aria-label]::after,
 #char-editor-dialog button[aria-label]::after,
 #map-editor-dialog button[aria-label]::after,
+#level-editor-dialog button[aria-label]::after,
 #hires-editor-dialog button[aria-label]::after,
 #sprite-editor-dialog button[aria-label]::after,
 #sid-editor-dialog button[aria-label]::after,
@@ -9950,6 +10006,7 @@ html[data-theme="commodore77"] .splash-image {
 #c64-chrrom-dialog button:hover[aria-label]::after,
 #char-editor-dialog button:hover[aria-label]::after,
 #map-editor-dialog button:hover[aria-label]::after,
+#level-editor-dialog button:hover[aria-label]::after,
 #hires-editor-dialog button:hover[aria-label]::after,
 #sprite-editor-dialog button:hover[aria-label]::after,
 #sid-editor-dialog button:hover[aria-label]::after,
@@ -9960,6 +10017,7 @@ html[data-theme="commodore77"] .splash-image {
 #c64-chrrom-dialog button:focus-visible[aria-label]::after,
 #char-editor-dialog button:focus-visible[aria-label]::after,
 #map-editor-dialog button:focus-visible[aria-label]::after,
+#level-editor-dialog button:focus-visible[aria-label]::after,
 #hires-editor-dialog button:focus-visible[aria-label]::after,
 #sprite-editor-dialog button:focus-visible[aria-label]::after,
 #sid-editor-dialog button:focus-visible[aria-label]::after,
