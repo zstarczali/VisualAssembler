@@ -378,7 +378,21 @@
       "Bash(sed -i 's/\"file.ubmap\", \"map_tile\\(x, y\\)\"/\"map load \\\\\\\\\"level.bin\\\\\\\\\"\", \"map view px, py\", \"map_tile\\(x, y\\)\"/' tests/ultimate-basic-highlight.test.js)",
       "Bash(sed -i 's/\"map load \\\\\\\\\"level.bin\\\\\\\\\"\", \"map view px, py\"/\"level.bin\", \"map view px, py\"/' tests/ultimate-basic-highlight.test.js)",
       "Bash(node --test tests/number-converter.test.js)",
-      "PowerShell(npm test 2>&1)"
+      "PowerShell(npm test 2>&1)",
+      "PowerShell(python \"C:\\\\Users\\\\rlung\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\F--Development-VisualAssembler\\\\254699c3-ab61-43ae-a379-d9c1dc5dcdfe\\\\scratchpad\\\\sample_i18n.py\")",
+      "PowerShell(git -C F:\\\\Development\\\\UltimateBasic log --oneline -4)",
+      "PowerShell(git -C F:\\\\Development\\\\UltimateBasic status --short)",
+      "PowerShell(Select-String -Path \"Visual Assembler Manual.md\" -Pattern '^#{2,4} ' | ForEach-Object { \"$\\($_.LineNumber\\): $\\($_.Line\\)\" } | Select-Object -Skip 10)",
+      "PowerShell(Get-ChildItem va-product-site -File | Select-Object Name; Get-ChildItem va-product-site\\\\downloads -Recurse -File | Where-Object { $_.Extension -in '.txt','.md','.html','.php' } | Select-Object FullName; fc.exe /b README.txt va-product-site\\\\downloads\\\\VA\\\\README.txt | Select-Object -First 3; Get-Content F:\\\\Development\\\\UltimateBasic\\\\whatnews.txt -TotalCount 30)",
+      "PowerShell(\\(Get-Content INSTALL-MAC.md\\)[3]; '---'; \\(Get-Content INSTALL-LINUX.md\\)[3]; '---'; \\(Get-Content README.txt -TotalCount 12\\) -join \"`n\")",
+      "PowerShell(python \"C:\\\\Users\\\\rlung\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\F--Development-VisualAssembler\\\\254699c3-ab61-43ae-a379-d9c1dc5dcdfe\\\\scratchpad\\\\bump250.py\"; Select-String -Path INSTALL-MAC.md,INSTALL-LINUX.md,README.txt -Pattern '2\\\\.4\\\\.9' | ForEach-Object { \"$\\($_.Filename\\):$\\($_.LineNumber\\): $\\($_.Line.Substring\\(0, [Math]::Min\\(60, $_.Line.Length\\)\\)\\)\" })",
+      "PowerShell($a = Get-Content AGENTS.md; $a[383..389] | ForEach-Object { $_.Substring\\(0, [Math]::Min\\(400, $_.Length\\)\\) }; '=== COPILOT'; $c = Get-Content .github\\\\copilot-instructions.md; $c[690..696] | ForEach-Object { $_.Substring\\(0, [Math]::Min\\(400, $_.Length\\)\\) }; '=== CLAUDE'; $d = Get-Content CLAUDE.md; $d[775..790] | ForEach-Object { $_.Substring\\(0, [Math]::Min\\(200, $_.Length\\)\\) })",
+      "PowerShell(Select-String -Path \"Visual Assembler Manual.md\" -Pattern '^\\\\s+- \\\\[\\(KOALA|SID|Build project|Map Editor|Curve Editor|JOYSTICK\\)' | ForEach-Object { \"$\\($_.LineNumber\\): [$\\($_.Line\\)]\" })",
+      "PowerShell(python \"C:\\\\Users\\\\rlung\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\F--Development-VisualAssembler\\\\254699c3-ab61-43ae-a379-d9c1dc5dcdfe\\\\scratchpad\\\\notes250.py\")",
+      "PowerShell(node --test tests/manual-sync.test.js 2>&1)",
+      "PowerShell(python \"C:\\\\Users\\\\rlung\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\F--Development-VisualAssembler\\\\254699c3-ab61-43ae-a379-d9c1dc5dcdfe\\\\scratchpad\\\\notes250b.py\")",
+      "PowerShell(python scripts\\\\build-manual-pdf.py; $src = Get-Content scripts\\\\build-manual-pdf.py -Raw; $hu = $src.Replace\\('\"Visual Assembler Manual.md\"', '\"Visual Assembler Manual.hu.md\"'\\).Replace\\('\"Visual Assembler Manual.pdf\"', '\"Visual Assembler Manual.hu.pdf\"'\\).Replace\\('Path\\(__file__\\).resolve\\(\\).parent.parent', 'Path\\(r\"F:\\\\Development\\\\VisualAssembler\"\\)'\\); $tmp = \"C:\\\\Users\\\\rlung\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\F--Development-VisualAssembler\\\\254699c3-ab61-43ae-a379-d9c1dc5dcdfe\\\\scratchpad\\\\build-hu-pdf.py\"; Set-Content -Path $tmp -Value $hu -Encoding utf8; python $tmp; Get-ChildItem docs | Select-Object Name, Length, LastWriteTime; npm test 2>&1 | Select-Object -Last 6)",
+      "PowerShell(git checkout -- \"docs/Visual Assembler Manual.pdf\" \"docs/Visual Assembler Manual.hu.pdf\")"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"

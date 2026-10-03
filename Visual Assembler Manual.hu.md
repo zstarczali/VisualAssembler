@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.4.9**
+**Verzió: 2.5.0**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -26,6 +26,18 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - [12b. CRT export (Magic Desk 64K cartridge)](#12b-crt-export-magic-desk-64k-cartridge)
 - [13. Hardver beállítások](#13-hardver-beállítások)
 - [14. Vizuális szerkesztők (Toolkit)](#14-vizuális-szerkesztők-toolkit)
+
+---
+
+## A 2.5.0 verzió újdonságai
+
+- **Pálya szerkesztő (Level Editor)** — új toolbar szerkesztő, ami a Map Editor képernyőit egymás alá, egymás mellé vagy 2D rácsba rendezi, és sima görgetéssel végig mutatja a teljes pályát. Lásd: [Pálya szerkesztő](#pálya-szerkesztő-level-editor).
+- **LEVEL / LEVEL_ROW makrók** — a `.level "level.bin"[, $cím]` egy Pálya szerkesztő projektből csak az elhelyezett képernyőket és a pointer-táblákat teszi a memóriába, és `LEVEL_*` címkéket, konstansokat ad; a `.level_row dst, col[, color]` egy 40 karakteres pályasort másol egy pufferbe. Lásd: [LEVEL / LEVEL_ROW](#level--level_row).
+- **JOYSTICK változós mód** — a `.joystick port, vx, vy[, fire]` sprite mozgatása helyett változókba írja az irányt (−1 / 0 / +1); a `3`-as port mindkét joystick portot olvassa. Lásd: [JOYSTICK](#joystick).
+- **Pályagörgető demó** — a `samples/level-demo.asm` egy 2×5 képernyős pályát görget joystickkal pixelenként, minden irányban, tépésmentesen, és helyet hagy sprite-oknak és játékkódnak.
+- **Számrendszer-átváltó** — nem modális DEC / HEX / BIN dialógus a toolbaron. Lásd: [Számrendszer-átváltó](#számrendszer-átváltó).
+- **Példák dialógus** — a **Menu → Példák…** kereshető, kategóriákba sorolt listában mutatja a beépített példaprogramokat. Lásd: [Példaprogramok](#példaprogramok).
+- **Beépített Ultimate Basic 1.6.1** — a `map load "level.bin"[, cím]` közvetlenül olvassa a Pálya szerkesztő projektet, az új `map view px, py` pedig simán, tépésmentesen görgeti a térképet egy pixelpozícióra (minta: `level_scroll_demo.ub`). Egy 16 bites összegben álló bájt-szorzat már nem csonkul 8 bitre. Az UB parancsreferenciában szerepel a `map view`, a keresés pedig elöl hozza a parancsnév-találatokat.
 
 ---
 
@@ -275,7 +287,7 @@ A modal automatikusan bezárul, amikor a művelet befejeződik vagy meghiúsul.
 | **CRT retro mód** | Teljes képernyős CRT szűrőt kapcsol: scanline-ok, foszfor vignettálás, villódzás és hordódisztorzió. Az állapot munkamenetek között mentődik. |
 | **Show memory panel** | Globális kapcsoló, amely megjeleníti vagy elrejti a teljes C64 memória panelt |
 | **BASIC SYS stub** | Egy BASIC sort tesz a program elé, amely SYS-szel hívja a program originjét |
-| **Sample** | Beépített mintaprogram betöltése |
+| **Példák…** | Megnyitja a példaböngészőt, és betölt egy beépített példaprogramot — lásd [Példaprogramok](#példaprogramok) |
 | **Zoom in / out** | A blokk-felület méretezése (minden blokk-elemre hat) |
 | **Save Project** | Az aktuális program mentése `.json` projektfájlként |
 | **Save Program As** | Az aktuális program mentése `.json` projektfájlként, minden alkalommal új fájl-dialógussal |
@@ -378,6 +390,14 @@ A **Menu → Build → Build projekt** egy lépésben lefordítja a teljes proje
 - ahol elérhető, a debugger sidecar fájlok (szimbólumok / source map) a PRG mellé íródnak;
 - a más fájlba `.include` / `include` által behúzott modulok (és a `.inc` fájlok) kimaradnak, ahogy a soha nem mentett fülek is;
 - a jelentés minden fájlt felsorol a méretével, a kihagyás okával vagy a fordítási hibával, a statusbar pedig *N / M fájl lefordítva*-t mutat.
+
+### Példaprogramok
+
+A **Menu → Példák…** megnyitja a példaböngészőt: a beépített példaprogramok témák szerint csoportosítva (Alapok, Makrók és vezérlés, Grafika, Sprite-ok és bemenet, Fájlok és betöltés, Zene, IRQ és hardver), két hasábban.
+
+- A keresőmezőbe gépelve név vagy kategória szerint szűrhetsz; alul látszik a találatok száma.
+- Kattintás kijelöl, a **↑ / ↓** lépteti a kijelölést; **dupla kattintás**, **Enter** vagy a **Betöltés** gomb betölti a példát.
+- A dialógus a legutóbb betöltött példán nyílik meg.
 
 ### .asm fájl betöltése (gyorsreferencia)
 
@@ -1545,6 +1565,48 @@ wait:
 
 ---
 
+### LEVEL / LEVEL_ROW
+
+Egy **Pálya szerkesztő** projektet tesz a programba, és pályasorokat másol egy képernyő-pufferbe — ezek egy görgetős játék építőkövei. Teljes, joystickkal görgetett pályáért lásd a `samples/level-demo.asm`-et.
+
+#### LEVEL
+
+INCBIN-szerű blokk, ami **0 byte kódot** generál. A Pálya szerkesztő projektből (a **Files → Pálya mentése** által mentett `.bin`) csak az **elhelyezett** képernyők kerülnek a memóriába a megadott címtől (alapértelmezés `$2000`), hely-sorrendben, képernyőnként 2000 bájt (1000 screen code + 1000 szín). Az azonos képernyők egyszer tárolódnak, az üres helyek egy közös üres képernyőn osztoznak. A képernyők után jönnek a pointer-táblák. Egy pálya legfeljebb 7 × 10 képernyős lehet.
+
+**Expert szintaxis:**
+```
+.level "level.bin"
+.level "level.bin", $4000
+```
+
+| Definiált név | Jelentés |
+|---|---|
+| `LEVEL_SLOT_LO` / `LEVEL_SLOT_HI` | Az egyes helyek képernyőjének címe (soronként, soronként `LEVEL_W` hely) |
+| `LEVEL_ROW_SLOT` | Pálya karaktersor → a képernyősorának első helye |
+| `LEVEL_ROW_LO/HI`, `LEVEL_CROW_LO/HI` | Pálya karaktersor → a screen code / szín sorának eltolása a képernyőn belül |
+| `LEVEL_COL_SLOT`, `LEVEL_COL_OFS` | Nézet kezdőoszlop → képernyőoszlop és oszlop a képernyőn belül |
+| `LEVEL_W`, `LEVEL_H` | Pályaméret képernyőkben |
+| `LEVEL_COLS`, `LEVEL_ROWS` | Pályaméret karakterekben |
+| `LEVEL_MAX_X`, `LEVEL_MAX_Y` | Egy 40×25-ös nézet legnagyobb pixeles görgetési pozíciója |
+| `LEVEL_BG`, `LEVEL_MC1`, `LEVEL_MC2`, `LEVEL_MULTICOLOR` | A pálya háttér- és multicolor színei, módja |
+| `LEVEL_DATA`, `LEVEL_SIZE`, `LEVEL_END` | A pályaadat kezdete, mérete és az utána következő első szabad cím |
+
+Tipikus védelem: `.assert LEVEL_END <= $9200, "level data runs into the code"`.
+
+#### LEVEL_ROW
+
+A pálya egy 40 karakteres sorát másolja egy pufferbe: az **X**-ben megadott pályasort, a `col` változóban tárolt pályaoszloptól kezdve, a `dst` pointerben (`dst` / `dst+1`, lo/hi) tárolt címre. A harmadik, `color` argumentummal a screen code-ok helyett a színeket másolja (color RAM-hoz). A két képernyőre átnyúló 40 karakteres ablakot önmódosító másolóciklus kezeli (~14 ciklus/bájt). Az X megmarad, az A és az Y elvész. Kell hozzá egy `.level` blokk a programban.
+
+**Expert szintaxis:**
+```
+.level_row dst_lo, view_x
+.level_row dst_lo, view_x, color
+```
+
+**Méret a kódban:** 132 byte — ha egy elágazásnak át kell ugrania, használj `LBEQ` / `LBNE`-t.
+
+---
+
 ### SID
 
 Mint a **BLOAD zenéhez** — betölt egy `.sid` fájlt a PRG-be, és automatikusan kiolvassa az Init és Play címeket a fejlécből. Hívd az Init-et egyszer induláskor, majd hívd a Play-t az IRQ kezelődből minden frame-ben.
@@ -2591,6 +2653,13 @@ skip_right:
 | 4 | Tűz | (ez a makró nem kezeli) |
 
 **Méret:** 27 byte. A `BCS` offset mindig `+3` (átugorja a következő 3 byte-os `DEC`/`INC abs` utasítást).
+
+**Változós mód — `.joystick port, vx, vy[, fire]`:** sprite mozgatása helyett az irányt változókba írja: `vx` / `vy` = `-1` / `0` / `+1` (`$FF` / `$00` / `$01`), az opcionális `fire` = `1`, amíg a gomb le van nyomva, egyébként `0`. Görgetett kamerához, saját fizikájú játékoshoz vagy menükhöz. A `3`-as port egyszerre olvassa mindkét joystick portot (`LDA $DC00` / `AND $DC01`), így bármelyik port működik.
+
+```
+.joystick 2, vx, vy          ; 35 byte
+.joystick 3, vx, vy, fire    ; mindkét port + tűz: 45 byte
+```
 
 > **Tipikus használat:** tedd egy `gameloop` címke belsejébe, elöl `WAIT_RASTER`-rel:
 > ```
@@ -3649,6 +3718,28 @@ Réteges tilemap szerkesztő statikus díszlethez, sprite spawn map-ekhez, ütk�
 | Save Screen RAM (.bin)… | Csak az aktuális map réteg screen code-jait menti (40×25 = 1000 byte). |
 | Save Screen RAM + Color RAM (.bin)… | Screen code-okat a Color RAM értékekkel összefűzve ment egyetlen 2000 byte-os fájlba (`screen[0..999]`, majd `color[0..999]`). Ezt a **MAP_COPY** makróval használd (Combined .bin mód) mindkettő egy művelettel való visszaállításához futásidőben. |
 
+### Pálya szerkesztő (Level Editor)
+
+**Map Editor képernyőket** rendez egyetlen pályába — függőleges lövöldözőshöz, lefelé görgő autós játékhoz, oldalra görgetőshöz vagy 2D térképhez —, és sima görgetéssel végig mutatja a teljes pályát. A Map Editor melletti **Pálya szerkesztő** toolbar gombbal nyílik.
+
+| Funkció | Leírás |
+|---|---|
+| Elrendezés | **Függőleges**, **Vízszintes** vagy **Rács** (sorok × oszlopok, sor/oszlop hozzáadása és törlése gombokkal). |
+| Képernyők | **Új üres képernyő**, **Hozzáadás a Map Editorból** (az éppen nyitott map) vagy **Map(ok) betöltése (.bin)…** (több Map Editor export egyszerre). Húzz egy képernyőt a listából egy helyre; a helyeket egymásra húzva felcserélheted. |
+| Szerkesztés | A **Szerkesztés a Map Editorban** megnyitja a kijelölt képernyőt a Map Editorban, és visszahozza a változásokat; duplikálás, mozgatás fel/balra vagy le/jobbra, eltávolítás; visszavonás / újra. |
+| Előnézet | Az előnézetet húzva vagy a nyilakkal pixelenként görgethetsz; a **Lejátszás** automatikusan görget (irány, sebesség 1–8, ismétlés), Szóköz = lejátszás / leállítás. A *Határok* jelöli a képernyőhatárokat. |
+| Ellenőrzések | Karakterkészlet-infó, és figyelmeztetés, ha a képernyők eltérő karakterkészletet vagy színeket használnak (a pálya az első képernyő beállításait használja). |
+
+**Files menü:**
+| Művelet | Mit csinál |
+|---|---|
+| **Új pálya** / **Pálya megnyitása (.bin)…** / **Pálya mentése (.bin)…** | A pályaprojekt: minden képernyő és az elrendezés. Ezt a fájlt olvassa a `.level` makró és az Ultimate Basic `map load`-ja. |
+| **Pálya Screen RAM mentése (.bin)…** | A teljes pálya egyetlen karaktertérképként (csak screen code-ok). |
+| **Pálya Screen + Color RAM mentése (.bin)…** | A teljes pálya screen code-jai, utánuk a színei. |
+| **Exportálás blokkokba** / **Asm másolása** | A pályaadat blokkokként vagy asm szövegként (vágólapra). |
+
+**A pálya használata:** assemblerben `.level "level.bin"` + `.level_row` (lásd [LEVEL / LEVEL_ROW](#level--level_row) és `samples/level-demo.asm`); Ultimate Basic 1.6.1+ alatt `map load "level.bin", $4000` és `map view px, py` (minta: `level_scroll_demo.ub`).
+
 ### SID Editor (3-voice tracker)
 
 Több-hangszeres 3-voice tracker Web Audio előnézet-motorral. Toolkit → SID Editor menüvel nyílik.
@@ -3755,6 +3846,19 @@ Minden Copy / Insert kimenet egy fejléc-megjegyzéssel kezdődik, amely dokumen
 | **Export UltimateBasic demo** | Kész, futtatható UB programot készít: labda sprite (`sprdef 0`), a tábla, és egy raszterhez szinkronizált hurok, ami frame-enként egy táblaelemet játszik le. 8 bites táblánál a tábla a sprite **Y**-t vezérli, az X 0..320-at söpör; 16 bites (0..320) táblánál a tábla a sprite **X**-et vezérli, az Y 0..200-at söpör. 256-nál hosszabb táblánál az első 256 elem játszódik le. |
 
 **Az előnézet reprodukálása a C64-en:** az előnézet **lineárisan, 0 → N-1 → 0 hurokban, frame-enként egy értéket** olvas a táblából. Ennek pontos reprodukálásához vezéreld a táblát ugyanígy (növeld az indexet frame-enként egyszer, fordulj körbe a tábla hosszánál). Egy ping-pong vagy részleges tartományú lejátszás máshogy mozog, még ha a byte-értékek azonosak is. Egy működő 16 bites sprite-X példáért lásd a `samples/curve-new-demo.asm`-et.
+
+---
+
+### Számrendszer-átváltó
+
+Kis, **nem modális** DEC / HEX / BIN átváltó, a D64 Editor melletti toolbar gombbal nyílik (újabb kattintás vagy Esc zárja). Nyitva maradhat, miközben bármelyik módban tovább szerkeszted a programot.
+
+- Bármelyik mezőbe (**DEC**, **HEX**, **BIN**) írsz, a másik kettő követi. Elfogadja a `$`, `0x`, `%`, `0b` előtagot és az elválasztókat (szóköz, `_`); a negatív decimális érték kettes komplemens lesz az aktuális szélességben; a hibás bevitel pirosan jelölődik.
+- **8 / 16 bit** szélesség — 255 fölötti érték automatikusan 16 bitre vált.
+- **Bitsor** — egy bitre kattintva átbillented.
+- Az infósor az **előjeles** értéket, 16 bites módban az **alsó** és **felső** bájtot mutatja.
+- A **másolás** gombok előtaggal másolnak (`53280`, `$D020`, `%1101000000100000`).
+- A fejlécénél fogva húzható; megjegyzi az értéket, a szélességet és a pozíciót, és újraindítás után is megnyílik, ha kilépéskor nyitva volt.
 
 ---
 

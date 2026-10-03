@@ -10572,3 +10572,49 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
   opacity: 0.5;
   cursor: default;
 }
+
+.sample-picker[hidden] {
+  display: none;
+}
+
+.sample-dialog {
+  width: min(680px, 94vw);
+}
+
+.sample-search {
+  box-sizing: border-box;
+  min-height: unset;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--panel-border);
+  border-radius: 2px;
+  background: var(--input-bg);
+  color: var(--text);
+  font: inherit;
+  outline: none;
+}
+
+.sample-search:focus {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+.sample-list {
+  flex: none;
+  height: min(460px, 58vh);
+  border: 1px solid var(--panel-border);
+  border-radius: 2px;
+}
+
+.sample-cols {
+  columns: 2 260px;
+  column-gap: 12px;
+}
+
+.sample-list .template-category {
+  break-inside: avoid;
+}
+
+.sample-count {
+  font-size: 0.75rem;
+  color: var(--muted);
+}

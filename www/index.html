@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.4.9">
+  <link rel="stylesheet" href="style.css?v=2.5.0">
 </head>
 
 <body>
@@ -71,7 +71,7 @@
               </section>
               <section id="sample-programs-group" class="control-menu-group">
                 <h3 class="control-menu-label" id="menu-examples-label">Peldak</h3>
-                <label class="sample-picker">
+                <label class="sample-picker" hidden>
                   <span class="sr-only">Mintaprogram</span>
                   <select id="sample-select">
                     <option value="basic-colors">Mintaprogram</option>
@@ -112,7 +112,7 @@
                     <option value="macro-showcase">Új makrók bemutató</option>
                   </select>
                 </label>
-                <button id="load-sample" class="secondary" type="button">Betoltes</button>
+                <button id="load-sample" class="secondary" type="button">Példák…</button>
                 <h3 class="control-menu-label control-menu-label--section" id="build-section-label">Build</h3>
                 <button id="save-prg" class="secondary" type="button">Build PRG</button>
                 <button id="save-d64" class="secondary" type="button">Build D64</button>
@@ -909,6 +909,23 @@ PRINTABLE CHARACTERS
     </div>
   </dialog>
 
+  <dialog id="sample-dialog" class="template-dialog sample-dialog" aria-labelledby="sample-dialog-title">
+    <div class="template-card">
+      <div class="template-hdr">
+        <h2 class="template-title" id="sample-dialog-title">Examples</h2>
+        <button id="sample-dialog-close" class="project-snapshot-xbtn" type="button" aria-label="Close">×</button>
+      </div>
+      <input id="sample-search" class="sample-search" type="search" spellcheck="false" autocomplete="off">
+      <div id="sample-list" class="template-list sample-list" role="listbox"></div>
+      <div class="template-footer">
+        <span id="sample-count" class="sample-count"></span>
+        <span class="template-footer-spacer"></span>
+        <button id="sample-cancel" class="secondary" type="button">Cancel</button>
+        <button id="sample-load" class="primary" type="button">Load</button>
+      </div>
+    </div>
+  </dialog>
+
   <dialog id="app-confirm-dialog" class="app-confirm-dialog">
     <div class="app-confirm-card">
       <p id="app-confirm-msg" class="app-confirm-msg"></p>
@@ -1168,7 +1185,7 @@ PRINTABLE CHARACTERS
           <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
         </div>
         <h2 class="about-title">C64 Visual Assembler</h2>
-        <p class="about-version" id="about-version">v2.4.9</p>
+        <p class="about-version" id="about-version">v2.5.0</p>
         <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
       </div>
       <div class="about-columns">
@@ -1194,22 +1211,25 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.4.9</p>
+      <p class="whats-new-version">v2.5.0</p>
       <ul class="whats-new-list">
         <li>
-          <strong>New: project templates:</strong> <strong>Menu &rarr; File &rarr; New project from template&hellip;</strong> or the new toolbar button between Menu and Tutorials creates a ready-to-build project in its own folder. The dialog has an <strong>Assembler</strong> section (empty program, game skeleton, hires and multicolor bitmap) and an <strong>UltimateBasic</strong> section (empty program, game skeleton, hires bitmap, raster IRQ), with a highlighted preview. Your own <code>.asm</code> / <code>.ub</code> templates go into the folder opened by <em>Open templates folder</em>.
+          <strong>New: Level Editor:</strong> the toolbar button next to the Map Editor arranges Map Editor screens <strong>vertically, horizontally or in a 2D grid</strong> into one level and previews it with smooth scrolling (drag, arrow keys or <em>Play</em>). Screens come from the Map Editor or from map <code>.bin</code> files and can be edited back in the Map Editor; <strong>Files</strong> saves the level project, the full level Screen / Screen + Color RAM, blocks or asm.
         </li>
         <li>
-          <strong>New: Build project:</strong> <strong>Menu &rarr; Build &rarr; Build project</strong> compiles every buildable file of the open project (or of the open tabs) to a <code>.prg</code> next to its source, with debugger symbol files where available; include-only modules are skipped and a report lists the result of each file.
+          <strong>New: LEVEL / LEVEL_ROW macros:</strong> <code>.level "level.bin"[, $4000]</code> places only the placed screens of a level plus pointer tables and defines <code>LEVEL_*</code> labels and constants; <code>.level_row dst, col[, color]</code> copies one 40-character level row (screen codes or colors) to a buffer, across screen boundaries.
         </li>
         <li>
-          <strong>New: Ctrl + mouse wheel zoom</strong> in the Expert and Ultimate Basic editors (touchpad pinch works too).
+          <strong>New: JOYSTICK variable mode:</strong> <code>.joystick port, vx, vy[, fire]</code> writes the direction into variables (&minus;1 / 0 / +1) instead of moving a sprite; port <code>3</code> reads both joystick ports. The <code>samples/level-demo.asm</code> sample scrolls a 2&times;5-screen level pixel by pixel in every direction with the joystick, tear-free.
         </li>
         <li>
-          <strong>Improved: workspaces remember projects:</strong> the Expert and Ultimate Basic project trees, the startup file and unsaved project changes are restored with the workspace.
+          <strong>New: Number converter:</strong> a non-modal DEC / HEX / BIN dialog on the toolbar &mdash; 8 / 16 bit, clickable bits, signed value, low / high byte and copy buttons. It remembers its position and reopens after a restart if it was open.
         </li>
         <li>
-          <strong>Improved: Ultimate Basic:</strong> faster, smaller generated 6502 code; the memory map tells real code and data apart from padding and long ORG gaps; file dialogs start in the active working folder.
+          <strong>New: Examples dialog:</strong> <strong>Menu &rarr; Examples&hellip;</strong> lists the built-in example programs by topic, with search and keyboard navigation.
+        </li>
+        <li>
+          <strong>Ultimate Basic 1.6.1:</strong> <code>map load "level.bin", $4000</code> reads a Level Editor project directly, and the new <code>map view px, py</code> scrolls the map smoothly and tear-free at a pixel position. A byte product inside a 16-bit sum is no longer truncated. The command reference lists <code>map view</code> and its search puts command names first.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -2653,13 +2673,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.4.9"></script>
-  <script src="i18n.js?v=2.4.9"></script>
-  <script src="tutorial-data.js?v=2.4.9"></script>
+  <script src="tauri-bridge.js?v=2.5.0"></script>
+  <script src="i18n.js?v=2.5.0"></script>
+  <script src="tutorial-data.js?v=2.5.0"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.4.9"></script>
+  <script src="app.js?v=2.5.0"></script>
 
 </body>
 

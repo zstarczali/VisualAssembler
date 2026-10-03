@@ -1874,7 +1874,7 @@
       </div>
     </div>
     <div class="hero-left">
-      <div class="badge">V2.4.9 — LATEST RELEASE</div>
+      <div class="badge">V2.5.0 — LATEST RELEASE</div>
       <h1 class="hero-title">WRITE C64 PROGRAMS<br><span>BLOCKS, MACRO-ASM OR ULTIMATE BASIC.</span></h1>
       <p class="hero-sub">A modern Commodore 64 IDE: drag-and-drop 6502 assembly blocks or switch to a full text editor
         — see real-time ASM output and run directly in VICE.</p>
@@ -1887,6 +1887,42 @@
       <img class="hero-box-img" src="uploads/visual_assembler_transparent.webp" alt="Visual Assembler logo" width="900" height="900">
     </div>
   </section>
+
+  <!-- V2.5.0: LEVEL EDITOR, LEVEL MACROS & NUMBER CONVERTER -->
+  <div id="release-250" style="background:var(--scr-darker);padding:80px 0">
+    <div class="sec about-grid" style="padding-top:0;padding-bottom:0">
+      <div>
+        <div class="ub-tag">NEW IN V2.5.0</div>
+        <div class="sec-s">// BUILD A SCROLLING WORLD</div>
+        <h2 class="sec-t">LEVEL EDITOR<br><span style="color:var(--ylw)">FROM SCREENS TO A SMOOTH-SCROLLING LEVEL</span></h2>
+        <p class="sec-d">Version 2.5.0 turns Map Editor screens into whole levels &mdash; and scrolls them smoothly on the C64, in assembler or Ultimate Basic.</p>
+        <div class="feature-list">
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
+            <div><b>Level Editor</b> <span>&mdash; arrange Map Editor screens vertically, horizontally or in a 2D grid, edit them back in the Map Editor, and preview the whole level with smooth scrolling. Save the level project, the full Screen / Color RAM, blocks or asm.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
+            <div><b>LEVEL / LEVEL_ROW macros</b> <span>&mdash; <code>.level "level.bin"</code> places only the placed screens plus pointer tables and defines <code>LEVEL_*</code> labels; <code>.level_row</code> copies a 40-character level row to a buffer, across screen boundaries.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
+            <div><b>Joystick into variables</b> <span>&mdash; <code>.joystick port, vx, vy, fire</code> gives &minus;1 / 0 / +1 for a camera or a player; port 3 reads both ports. The <code>level-demo</code> sample scrolls a 2&times;5-screen level pixel by pixel, tear-free.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
+            <div><b>Ultimate Basic 1.6.1</b> <span>&mdash; <code>map load "level.bin"</code> reads a Level Editor project and the new <code>map view px, py</code> scrolls it smoothly in every direction.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
+            <div><b>Number converter &amp; Examples dialog</b> <span>&mdash; a non-modal DEC / HEX / BIN converter with clickable bits, and a searchable, categorised example browser.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div">
 
   <!-- V2.4.9: PROJECT TEMPLATES & BUILD PROJECT -->
   <div id="release-249" style="background:var(--scr-darker);padding:80px 0">

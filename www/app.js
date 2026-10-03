@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "templates-249",
+  id: "level-250",
   url: "https://www.c64va.tech/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.4.9-ben",
+    eyebrow: "Újdonság a 2.5.0-ban",
     title: "Üdvözöl a Visual Assembler",
-    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>Projekt sablonok:</strong> <em>Menu → File → Új projekt sablonból…</em> vagy az új toolbar gomb — Assembler és UltimateBasic sablonok, saját mappában létrejövő, azonnal fordítható projekttel.</li><li><strong>Build projekt:</strong> <em>Menu → Build → Build projekt</em> a projekt minden fájlját a forrás mellé fordítja <code>.prg</code>-be.</li><li><strong>Ctrl + egérgörgő zoom</strong> az Expert és az Ultimate Basic szerkesztőben.</li><li><strong>A munkaterület a projekteket is megjegyzi</strong>, a mentetlen projektváltozásokkal együtt.</li></ul>`,
+    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>Pálya szerkesztő:</strong> a Map Editor képernyőit egymás alá, egymás mellé vagy rácsba rendezi, és sima görgetéssel végig mutatja a pályát.</li><li><strong>Új makrók:</strong> <code>.level</code> / <code>.level_row</code> a pályához, a <code>.joystick</code> pedig változókba is tudja írni az irányt — minta: <code>level-demo.asm</code>.</li><li><strong>Számrendszer-átváltó:</strong> nem modális DEC / HEX / BIN dialógus a toolbaron.</li><li><strong>Példák dialógus:</strong> <em>Menu → Példák…</em> kereshető, kategóriákba sorolt példalista.</li><li><strong>Ultimate Basic 1.6.1:</strong> <code>map load "level.bin"</code> és sima, tépésmentes <code>map view px, py</code> görgetés.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.4.9",
+    eyebrow: "New in 2.5.0",
     title: "Welcome to Visual Assembler",
-    body: `<p>What's new in this release:</p><ul><li><strong>Project templates:</strong> <em>Menu → File → New project from template…</em> or the new toolbar button — Assembler and UltimateBasic templates that create a ready-to-build project in its own folder.</li><li><strong>Build project:</strong> <em>Menu → Build → Build project</em> compiles every file of the project to a <code>.prg</code> next to its source.</li><li><strong>Ctrl + mouse wheel zoom</strong> in the Expert and Ultimate Basic editors.</li><li><strong>Workspaces remember projects</strong>, including unsaved project changes.</li></ul>`,
+    body: `<p>What's new in this release:</p><ul><li><strong>Level Editor:</strong> arranges Map Editor screens vertically, horizontally or in a grid and previews the whole level with smooth scrolling.</li><li><strong>New macros:</strong> <code>.level</code> / <code>.level_row</code> for levels, and <code>.joystick</code> can write the direction into variables — see <code>level-demo.asm</code>.</li><li><strong>Number converter:</strong> a non-modal DEC / HEX / BIN dialog on the toolbar.</li><li><strong>Examples dialog:</strong> <em>Menu → Examples…</em> — a searchable, categorised example list.</li><li><strong>Ultimate Basic 1.6.1:</strong> <code>map load "level.bin"</code> and smooth, tear-free <code>map view px, py</code> scrolling.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.4.9",
+    eyebrow: "Novedad en la 2.5.0",
     title: "Bienvenido a Visual Assembler",
-    body: `<p>Novedades de esta versión:</p><ul><li><strong>Plantillas de proyecto:</strong> <em>Menu → File → Nuevo proyecto desde plantilla…</em> o el nuevo botón de la barra — plantillas de Assembler y UltimateBasic que crean un proyecto listo para compilar en su propia carpeta.</li><li><strong>Compilar proyecto:</strong> <em>Menu → Build → Build project</em> compila cada archivo del proyecto a un <code>.prg</code> junto a su fuente.</li><li><strong>Zoom con Ctrl + rueda del ratón</strong> en los editores Expert y Ultimate Basic.</li><li><strong>Los espacios de trabajo recuerdan los proyectos</strong>, incluidos los cambios sin guardar.</li></ul>`,
+    body: `<p>Novedades de esta versión:</p><ul><li><strong>Editor de niveles:</strong> ordena las pantallas del editor de mapas en vertical, en horizontal o en cuadrícula y muestra todo el nivel con desplazamiento suave.</li><li><strong>Nuevas macros:</strong> <code>.level</code> / <code>.level_row</code> para niveles, y <code>.joystick</code> puede escribir la dirección en variables — ver <code>level-demo.asm</code>.</li><li><strong>Conversor numérico:</strong> un diálogo no modal DEC / HEX / BIN en la barra.</li><li><strong>Diálogo de ejemplos:</strong> <em>Menu → Ejemplos…</em> — lista de ejemplos con búsqueda y categorías.</li><li><strong>Ultimate Basic 1.6.1:</strong> <code>map load "level.bin"</code> y desplazamiento suave sin cortes con <code>map view px, py</code>.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.4.9",
+    eyebrow: "Neu in 2.5.0",
     title: "Willkommen bei Visual Assembler",
-    body: `<p>Neu in dieser Version:</p><ul><li><strong>Projektvorlagen:</strong> <em>Menu → File → Neues Projekt aus Vorlage…</em> oder die neue Toolbar-Schaltfläche — Assembler- und UltimateBasic-Vorlagen, die ein sofort übersetzbares Projekt in einem eigenen Ordner anlegen.</li><li><strong>Projekt bauen:</strong> <em>Menu → Build → Build project</em> übersetzt jede Datei des Projekts in eine <code>.prg</code> neben der Quelle.</li><li><strong>Zoom mit Strg + Mausrad</strong> im Expert- und Ultimate-Basic-Editor.</li><li><strong>Arbeitsbereiche merken sich Projekte</strong>, auch ungespeicherte Projektänderungen.</li></ul>`,
+    body: `<p>Neu in dieser Version:</p><ul><li><strong>Level-Editor:</strong> ordnet Karteneditor-Bildschirme untereinander, nebeneinander oder im Raster an und zeigt das ganze Level mit weichem Scrolling.</li><li><strong>Neue Makros:</strong> <code>.level</code> / <code>.level_row</code> für Levels, und <code>.joystick</code> kann die Richtung in Variablen schreiben — siehe <code>level-demo.asm</code>.</li><li><strong>Zahlenumrechner:</strong> ein nicht-modaler DEC / HEX / BIN-Dialog in der Toolbar.</li><li><strong>Beispiele-Dialog:</strong> <em>Menu → Beispiele…</em> — durchsuchbare Beispielliste nach Kategorien.</li><li><strong>Ultimate Basic 1.6.1:</strong> <code>map load "level.bin"</code> und weiches, rissfreies Scrolling mit <code>map view px, py</code>.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.4.9",
+    eyebrow: "Nieuw in 2.5.0",
     title: "Welkom bij Visual Assembler",
-    body: `<p>Nieuw in deze versie:</p><ul><li><strong>Projectsjablonen:</strong> <em>Menu → File → Nieuw project van sjabloon…</em> of de nieuwe werkbalkknop — Assembler- en UltimateBasic-sjablonen die een direct bouwbaar project in een eigen map aanmaken.</li><li><strong>Project bouwen:</strong> <em>Menu → Build → Build project</em> compileert elk bestand van het project naar een <code>.prg</code> naast de bron.</li><li><strong>Zoomen met Ctrl + muiswiel</strong> in de Expert- en Ultimate Basic-editor.</li><li><strong>Werkruimtes onthouden projecten</strong>, inclusief niet-opgeslagen projectwijzigingen.</li></ul>`,
+    body: `<p>Nieuw in deze versie:</p><ul><li><strong>Leveleditor:</strong> zet schermen uit de tegelkaarteditor onder elkaar, naast elkaar of in een raster en toont het hele level met vloeiend scrollen.</li><li><strong>Nieuwe macro's:</strong> <code>.level</code> / <code>.level_row</code> voor levels, en <code>.joystick</code> kan de richting in variabelen schrijven — zie <code>level-demo.asm</code>.</li><li><strong>Getalomzetter:</strong> een niet-modaal DEC / HEX / BIN-venster in de werkbalk.</li><li><strong>Voorbeeldenvenster:</strong> <em>Menu → Voorbeelden…</em> — doorzoekbare voorbeeldlijst per categorie.</li><li><strong>Ultimate Basic 1.6.1:</strong> <code>map load "level.bin"</code> en vloeiend, scheurvrij scrollen met <code>map view px, py</code>.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.4.9",
+    eyebrow: "Nowość w 2.5.0",
     title: "Witamy w Visual Assembler",
-    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>Szablony projektów:</strong> <em>Menu → File → Nowy projekt z szablonu…</em> lub nowy przycisk na pasku — szablony Assembler i UltimateBasic tworzące gotowy do kompilacji projekt we własnym folderze.</li><li><strong>Budowanie projektu:</strong> <em>Menu → Build → Build project</em> kompiluje każdy plik projektu do <code>.prg</code> obok źródła.</li><li><strong>Powiększanie Ctrl + kółko myszy</strong> w edytorach Expert i Ultimate Basic.</li><li><strong>Obszary robocze pamiętają projekty</strong>, także niezapisane zmiany projektu.</li></ul>`,
+    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>Edytor poziomów:</strong> układa ekrany z edytora map pionowo, poziomo lub w siatkę i pokazuje cały poziom z płynnym przewijaniem.</li><li><strong>Nowe makra:</strong> <code>.level</code> / <code>.level_row</code> dla poziomów, a <code>.joystick</code> może zapisywać kierunek do zmiennych — zob. <code>level-demo.asm</code>.</li><li><strong>Konwerter liczb:</strong> niemodalne okno DEC / HEX / BIN na pasku narzędzi.</li><li><strong>Okno przykładów:</strong> <em>Menu → Przykłady…</em> — lista przykładów z wyszukiwaniem i kategoriami.</li><li><strong>Ultimate Basic 1.6.1:</strong> <code>map load "level.bin"</code> i płynne przewijanie bez rwania z <code>map view px, py</code>.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.4.9",
+    eyebrow: "Novità nella 2.5.0",
     title: "Benvenuto in Visual Assembler",
-    body: `<p>Novità di questa versione:</p><ul><li><strong>Modelli di progetto:</strong> <em>Menu → File → Nuovo progetto da modello…</em> o il nuovo pulsante della barra — modelli Assembler e UltimateBasic che creano un progetto pronto da compilare in una cartella dedicata.</li><li><strong>Compila progetto:</strong> <em>Menu → Build → Build project</em> compila ogni file del progetto in un <code>.prg</code> accanto al sorgente.</li><li><strong>Zoom con Ctrl + rotella del mouse</strong> negli editor Expert e Ultimate Basic.</li><li><strong>Gli spazi di lavoro ricordano i progetti</strong>, comprese le modifiche non salvate.</li></ul>`,
+    body: `<p>Novità di questa versione:</p><ul><li><strong>Editor livelli:</strong> dispone le schermate dell'editor mappe in verticale, in orizzontale o in griglia e mostra tutto il livello con scorrimento fluido.</li><li><strong>Nuove macro:</strong> <code>.level</code> / <code>.level_row</code> per i livelli, e <code>.joystick</code> può scrivere la direzione in variabili — vedi <code>level-demo.asm</code>.</li><li><strong>Convertitore numerico:</strong> una finestra non modale DEC / HEX / BIN nella barra.</li><li><strong>Finestra esempi:</strong> <em>Menu → Esempi…</em> — elenco degli esempi con ricerca e categorie.</li><li><strong>Ultimate Basic 1.6.1:</strong> <code>map load "level.bin"</code> e scorrimento fluido senza strappi con <code>map view px, py</code>.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -1975,8 +1975,8 @@ function initPalette() {
 
   sampleSelect?.addEventListener("change", saveUiSettings);
   loadSampleButton.addEventListener("click", () => {
-    const ok = loadSelectedSample();
-    if (ok !== false) document.querySelector(".control-menu")?.removeAttribute("open");
+    document.querySelector(".control-menu")?.removeAttribute("open");
+    _openSampleDialog();
   });
   saveProjectButton?.addEventListener("click", async () => {
     await saveProjectToFile();
@@ -3377,8 +3377,8 @@ function applyTranslations() {
     loadProjectButton?.setAttribute("aria-label", t("loadProjectTip"));
     addSelectedButton?.setAttribute("title", t("addSelected"));
     addSelectedButton?.setAttribute("aria-label", t("addSelected"));
-    loadSampleButton?.setAttribute("title", t("loadSample"));
-    loadSampleButton?.setAttribute("aria-label", t("loadSample"));
+    loadSampleButton?.setAttribute("title", t("sampleBrowse"));
+    loadSampleButton?.setAttribute("aria-label", t("sampleBrowse"));
     clearProgramButton?.setAttribute("title", t("clearProgram"));
     clearProgramButton?.setAttribute("aria-label", t("clearProgram"));
     if (runEmulatorButton) {
@@ -3450,7 +3450,7 @@ function applyTranslations() {
   if (legendItems[3]) legendItems[3].lastChild.textContent = t("memoryLegendIo");
   memoryStrip?.setAttribute("aria-label", t("memoryAxisLabel"));
 
-  loadSampleButton.textContent = t("loadSample");
+  loadSampleButton.textContent = t("sampleBrowse");
   clearProgramButton.textContent = t("clearProgram");
     themeToggleButton.lastElementChild.textContent = t("themeToggle");
     updateThemeToggleLabel();
@@ -13385,6 +13385,133 @@ async function _templateCreateProject() {
   else _expertRenderProjectTree();
   _expertSetStatus(`${t("templateCreated")}: ${paths.name}`, "ok");
 }
+
+// ── Példaprogram-választó dialógus (a rejtett #sample-select az adatforrás) ──
+const _SAMPLE_CATEGORIES = [
+  ["sampleCatBasics", ["basic-colors", "clear-screen", "label-border", "text-demo", "lowercase-text-demo", "name-input-demo", "10-print"]],
+  ["sampleCatMacros", ["macro-demo", "macro-test", "macro-showcase", "loop-demo", "hello-loop-demo", "push-pull-demo", "if-else", "user-macro-demo"]],
+  ["sampleCatGraphics", ["setpixel-demo", "bitmap-demo", "rand-lines-demo", "box", "scroll-text-demo", "map-copy-demo"]],
+  ["sampleCatSprites", ["sprite-demo", "sprite-macro-demo", "joystick-demo", "mouse-demo", "collision-demo"]],
+  ["sampleCatFiles", ["incbin-demo", "loadfile-demo", "exo-multicolor-demo", "include-demo"]],
+  ["sampleCatMusic", ["sid-demo", "sid-direct-demo"]],
+  ["sampleCatHardware", ["irq-demo", "overlapping-raster-demo", "memory-overlap-demo", "reu-demo"]]
+];
+let _sampleDlgSelected = "";
+
+function _sampleDlgVisible() {
+  const term = (document.getElementById("sample-search")?.value || "").trim().toLowerCase();
+  const options = [...(sampleSelect?.options || [])];
+  const known = new Set(_SAMPLE_CATEGORIES.flatMap(([, ids]) => ids));
+  const groups = _SAMPLE_CATEGORIES.map(([key, ids]) => [t(key), ids.map(id => options.find(o => o.value === id)).filter(Boolean)]);
+  groups.push([t("sampleCatOther"), options.filter(o => !known.has(o.value))]);
+  return groups
+    .map(([label, opts]) => [label, opts.filter(o => !term || o.textContent.toLowerCase().includes(term) || label.toLowerCase().includes(term))])
+    .filter(([, opts]) => opts.length);
+}
+
+function _sampleDlgRender() {
+  const listEl = document.getElementById("sample-list");
+  if (!listEl) return;
+  const groups = _sampleDlgVisible();
+  const ids = groups.flatMap(([, opts]) => opts.map(o => o.value));
+  if (!ids.includes(_sampleDlgSelected)) _sampleDlgSelected = ids[0] || "";
+  listEl.innerHTML = "";
+  if (!ids.length) {
+    const empty = document.createElement("p");
+    empty.className = "template-empty";
+    empty.textContent = t("sampleNoMatch");
+    listEl.appendChild(empty);
+  }
+  const cols = document.createElement("div");
+  cols.className = "sample-cols";
+  listEl.appendChild(cols);
+  for (const [label, opts] of groups) {
+    const group = document.createElement("div");
+    group.className = "template-category";
+    const head = document.createElement("div");
+    head.className = "template-category-label";
+    head.textContent = label;
+    group.appendChild(head);
+    for (const opt of opts) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "template-item" + (opt.value === _sampleDlgSelected ? " template-item--active" : "");
+      btn.dataset.sample = opt.value;
+      btn.setAttribute("role", "option");
+      btn.setAttribute("aria-selected", String(opt.value === _sampleDlgSelected));
+      btn.textContent = opt.textContent;
+      group.appendChild(btn);
+    }
+    cols.appendChild(group);
+  }
+  const countEl = document.getElementById("sample-count");
+  if (countEl) countEl.textContent = tf("sampleCount", { n: ids.length });
+  const loadBtn = document.getElementById("sample-load");
+  if (loadBtn) loadBtn.disabled = !_sampleDlgSelected;
+}
+
+function _sampleDlgSelect(id) {
+  _sampleDlgSelected = id;
+  document.querySelectorAll("#sample-list .template-item").forEach(btn => {
+    const active = btn.dataset.sample === id;
+    btn.classList.toggle("template-item--active", active);
+    btn.setAttribute("aria-selected", String(active));
+    if (active) btn.scrollIntoView({ block: "nearest" });
+  });
+}
+
+function _openSampleDialog() {
+  const dialog = document.getElementById("sample-dialog");
+  if (!dialog) return;
+  document.getElementById("sample-dialog-title").textContent = t("sampleDialogTitle");
+  document.getElementById("sample-dialog-close")?.setAttribute("aria-label", t("close"));
+  const search = document.getElementById("sample-search");
+  search.placeholder = t("sampleSearchPlaceholder");
+  search.value = "";
+  document.getElementById("sample-cancel").textContent = t("sampleCancel");
+  document.getElementById("sample-load").textContent = t("sampleLoadBtn");
+  _sampleDlgSelected = sampleSelect?.value || "";
+  _sampleDlgRender();
+  dialog.showModal();
+  _sampleDlgSelect(_sampleDlgSelected);
+  setTimeout(() => search.focus(), 0);
+}
+
+function _sampleDlgLoad() {
+  if (!_sampleDlgSelected || !sampleSelect) return;
+  sampleSelect.value = _sampleDlgSelected;
+  saveUiSettings();
+  document.getElementById("sample-dialog")?.close();
+  loadSelectedSample();
+}
+
+document.getElementById("sample-list")?.addEventListener("click", (e) => {
+  const btn = e.target.closest(".template-item");
+  if (btn) _sampleDlgSelect(btn.dataset.sample);
+});
+document.getElementById("sample-list")?.addEventListener("dblclick", (e) => {
+  const btn = e.target.closest(".template-item");
+  if (!btn) return;
+  _sampleDlgSelect(btn.dataset.sample);
+  _sampleDlgLoad();
+});
+document.getElementById("sample-search")?.addEventListener("input", _sampleDlgRender);
+document.getElementById("sample-dialog")?.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.target.closest("button")) {
+    e.preventDefault();
+    _sampleDlgLoad();
+    return;
+  }
+  if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+  const ids = [...document.querySelectorAll("#sample-list .template-item")].map(btn => btn.dataset.sample);
+  if (!ids.length) return;
+  e.preventDefault();
+  const i = ids.indexOf(_sampleDlgSelected);
+  _sampleDlgSelect(ids[Math.max(0, Math.min(ids.length - 1, i + (e.key === "ArrowDown" ? 1 : -1)))]);
+});
+document.getElementById("sample-load")?.addEventListener("click", _sampleDlgLoad);
+document.getElementById("sample-cancel")?.addEventListener("click", () => document.getElementById("sample-dialog")?.close());
+document.getElementById("sample-dialog-close")?.addEventListener("click", () => document.getElementById("sample-dialog")?.close());
 
 document.getElementById("template-dialog-close")?.addEventListener("click", () => {
   document.getElementById("template-dialog")?.close();

@@ -2,9 +2,19 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.4.9**
+**Current version: v2.5.0**
 
-## What's New in v2.4.9
+## What's New in v2.5.0
+
+- **Level Editor** — a new toolbar editor next to the Map Editor arranges Map Editor screens **vertically, horizontally or in a 2D grid** into one level. Add screens from the Map Editor or from map `.bin` files, drag them onto slots, duplicate, reorder, edit them back in the Map Editor, with undo/redo. The preview scrolls through the whole level (drag, arrow keys, or **Play** with direction, speed and loop). **Files** saves the level project (`.bin`), the full level Screen RAM or Screen + Color RAM, exports blocks or copies the asm.
+- **New LEVEL / LEVEL_ROW macros** — `.level "level.bin"[, $4000]` places only the placed screens of a Level Editor project (2000 bytes each, identical and empty screens shared) plus row/column/slot pointer tables, and defines `LEVEL_*` labels and constants (`LEVEL_COLS`, `LEVEL_MAX_X`, `LEVEL_BG`, `LEVEL_END` …); max 7 × 10 screens, 0 bytes of code. `.level_row dst, col[, color]` copies one 40-character level row (row in X, start column in `col`) to the address held in the `dst` pointer — screen codes, or with `color` the colors — across a screen boundary, ~14 cycles per byte (132 bytes).
+- **JOYSTICK variable mode** — `.joystick port, vx, vy[, fire]` writes the direction into variables (−1 / 0 / +1, `fire` = 1 while pressed) instead of moving a sprite — for a camera, a player or menus. Port `3` reads both joystick ports at once.
+- **Level scroll demo** — `samples/level-demo.asm` scrolls a 2×5-screen level pixel by pixel in every direction with the joystick: XSCROLL/YSCROLL, two screen buffers, the next char row/column built two frames ahead and color RAM copied in two halves around the raster beam — smooth and tear-free, with all sprites, `$2000-$3FFF` and a per-frame `game_frame` hook left free for a game.
+- **Number converter** — a new toolbar button opens a **non-modal** DEC / HEX / BIN converter: type into any field (`$`, `0x`, `%`, `0b` prefixes, negative decimals as two's complement), 8 / 16-bit width, clickable bits, signed value and low/high byte, copy buttons with prefix. It can stay open while you edit, remembers its value and position, and reopens after a restart if it was open.
+- **Examples dialog** — **Menu → Examples…** replaces the sample drop-down with a dialog: the built-in examples grouped by topic, a search box, keyboard navigation, double-click or Enter to load.
+- **Ultimate Basic 1.6.1 bundled** — `map load "level.bin"[, addr]` reads a Level Editor project directly (composed into one map) and can place the map data at a fixed address; the new **`map view px, py`** shows the map at a pixel position with smooth, tear-free scrolling in every direction (example: `level_scroll_demo.ub`). Fix: a byte product inside a 16-bit sum (`py = cy * 8 + fy`) is no longer truncated to 8 bits. The UB command reference has a `map view` entry, the `map` description no longer mentions `.ubmap`, and the reference search lists command-name matches first (searching *map* no longer finds every command that mentions a bitmap).
+
+## Earlier: v2.4.9
 
 - **Project templates** — **Menu → File → New project from template…**, or the new toolbar button between **Menu** and **Tutorials**, creates a ready-to-build `.proj` project in its own folder. The dialog has an **Assembler** section (empty program, game skeleton, hires and multicolor bitmap) and an **UltimateBasic** section (empty program, game skeleton, hires bitmap, raster IRQ) with a syntax-highlighted preview. Drop your own `.asm` / `.ub` files into the user templates folder to add templates; a `; @name …` / `# @name …` comment header names and sorts them.
 - **Build project** — **Menu → Build → Build project** compiles every buildable file of the open project (or of the open tabs) to a `.prg` next to its source, writes debugger symbol files where available, skips include-only modules and shows a per-file report.
