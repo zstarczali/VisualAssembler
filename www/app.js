@@ -3618,6 +3618,7 @@ function _applyEditorTranslations() {
   setText('[data-lv-export="screen-color"]', t("lvSaveScreenColor"));
   setText('[data-lv-export="blocks"]', t("lvExportBlocks"));
   setText('[data-lv-export="asm"]', t("lvCopyAsm"));
+  setText('[data-lv-export="ubmap"]', t("lvExportUbMap"));
   setAttr("#lv-add-empty", t("lvAddEmpty"));
   setAttr("#lv-add-map", t("lvAddFromMap"));
   setAttr("#lv-load-maps", t("lvLoadMaps"));
@@ -6319,6 +6320,7 @@ const ubCommandDescriptionsEn = {
   "memcopy": "Copies a block of memory.",
   "drawmem": "Copies a packed 2-D rectangle to strided destination memory.",
   "map": "Loads, draws, and modifies character tile maps.",
+  "map view": "Shows the loaded map at pixel position px, py, once per frame instead of wait raster: smooth XSCROLL/YSCROLL scrolling with two screen buffers ($0400/$3C00) and raster-timed color RAM copies, so char steps do not tear in any direction. Sprites keep working. Keep code out of $3C00-$3FFF: load big maps with an address (map load \"f\", $4000). map load also reads Level Editor projects (.bin) directly. UB 1.6.1+.",
   "map query": "Reads a tile code or cell color from the active map.",
   "koala": "Loads and displays a Koala Painter image.",
   "collision": "Tests two inclusive bounding boxes for overlap.",
@@ -6439,6 +6441,7 @@ const ubCommandDescriptionsHu = {
   "memcopy": "Átmásol egy memóriablokkot a forráscímről a célcímre.",
   "drawmem": "Tömör 2D téglalap alakú memóriaterületet másol át sorléptetéses (strided) célmemóriába.",
   "map": "Karakteres csempetérképeket tölt be, rajzol ki és módosít (.ubmap).",
+  "map view": "A betöltött térképet a px, py pixelpozícióban mutatja, képkockánként egyszer hívva (a wait raster helyett): finom XSCROLL/YSCROLL görgetés két képernyő-bufferrel ($0400/$3C00) és raszterhez időzített Color RAM másolással, így a karakterlépések egyik irányban sem szakadnak. A sprite-ok működnek. A kód ne nyúljon $3C00-$3FFF-be: nagy térképet címmel tölts be (map load \"f\", $4000). A map load a Pálya szerkesztő projektjét (.bin) is közvetlenül beolvassa. UB 1.6.1+.",
   "map query": "Lekérdezi egy cella csempekódját vagy színét az aktív térképből (map_tile, map_color).",
   "koala": "Koala Painter (.kla) többszínű képet tölt be és jelenít meg.",
   "collision": "Két befoglaló téglalap átfedését (ütközését) vizsgálja (box_hit).",
@@ -6559,6 +6562,7 @@ const ubCommandDescriptionsEs = {
   "memcopy": "Copia un bloque de memoria.",
   "drawmem": "Copia un rectángulo 2D empaquetado a una memoria de destino con paso (stride).",
   "map": "Carga, dibuja y modifica mapas de casillas de caracteres.",
+  "map view": "Muestra el mapa cargado en la posición de píxel px, py, una vez por fotograma en lugar de wait raster: scroll suave XSCROLL/YSCROLL con dos búferes de pantalla ($0400/$3C00) y copias de la RAM de color sincronizadas con el ráster, sin cortes en ninguna dirección. Los sprites siguen funcionando. Mantén el código fuera de $3C00-$3FFF: carga los mapas grandes con dirección (map load \"f\", $4000). map load también lee proyectos del editor de niveles (.bin). UB 1.6.1+.",
   "map query": "Lee un código de casilla o color de celda del mapa activo.",
   "koala": "Carga y muestra una imagen de Koala Painter.",
   "collision": "Comprueba si dos cajas delimitadoras se superponen.",
@@ -6679,6 +6683,7 @@ const ubCommandDescriptionsDe = {
   "memcopy": "Kopiert einen Speicherblock.",
   "drawmem": "Kopiert ein gepacktes 2D-Rechteck in Zielspeicher mit Zeilensprung (Stride).",
   "map": "Lädt, zeichnet und ändert Zeichen-Tilemaps.",
+  "map view": "Zeigt die geladene Karte an der Pixelposition px, py, einmal pro Frame statt wait raster: weiches XSCROLL/YSCROLL-Scrollen mit zwei Bildschirmpuffern ($0400/$3C00) und rastergetakteten Farb-RAM-Kopien, ohne Reißen in jeder Richtung. Sprites funktionieren weiter. Code nicht in $3C00-$3FFF legen: große Karten mit Adresse laden (map load \"f\", $4000). map load liest auch Level-Editor-Projekte (.bin). UB 1.6.1+.",
   "map query": "Liest einen Tile-Code oder eine Zellenfarbe aus der aktiven Map.",
   "koala": "Lädt und zeigt ein Koala Painter-Bild an.",
   "collision": "Prüft zwei Begrenzungsrahmen auf Überlappung.",
@@ -6799,6 +6804,7 @@ const ubCommandDescriptionsNl = {
   "memcopy": "Kopieert een geheugenblok.",
   "drawmem": "Kopiert een compacte 2D-rechthoek naar bestemmingsgeheugen met rijstap (stride).",
   "map": "Laadt, tekent en bewerkt teken-tilemaps.",
+  "map view": "Toont de geladen kaart op pixelpositie px, py, eenmaal per frame in plaats van wait raster: vloeiend XSCROLL/YSCROLL-scrollen met twee schermbuffers ($0400/$3C00) en rastergetimede kleuren-RAM-kopieën, zonder scheuren in elke richting. Sprites blijven werken. Houd code buiten $3C00-$3FFF: laad grote kaarten met een adres (map load \"f\", $4000). map load leest ook leveleditor-projecten (.bin). UB 1.6.1+.",
   "map query": "Leest een tile-code of celkleur uit de actieve map.",
   "koala": "Laadt en toont een Koala Painter-afbeelding.",
   "collision": "Controleert twee selectiekaders op overlap.",
@@ -6919,6 +6925,7 @@ const ubCommandDescriptionsPl = {
   "memcopy": "Kopiuje blok pamięci.",
   "drawmem": "Kopiuje spakowany prostokąt 2D do pamięci docelowej z krokiem (stride).",
   "map": "Wczytuje, rysuje i modyfikuje mapy kafelków znaków.",
+  "map view": "Pokazuje wczytaną mapę w pozycji pikselowej px, py, raz na klatkę zamiast wait raster: płynne przewijanie XSCROLL/YSCROLL z dwoma buforami ekranu ($0400/$3C00) i kopiowaniem pamięci kolorów zsynchronizowanym z rastrem, bez rwania w każdym kierunku. Sprite'y nadal działają. Trzymaj kod poza $3C00-$3FFF: duże mapy wczytuj z adresem (map load \"f\", $4000). map load czyta też projekty edytora poziomów (.bin). UB 1.6.1+.",
   "map query": "Odczytuje kod kafelka lub kolor komórki z aktywnej mapy.",
   "koala": "Wczytuje i wyświetla obraz Koala Painter.",
   "collision": "Testuje przecięcie dwóch prostokątów ograniczających.",
@@ -7039,6 +7046,7 @@ const ubCommandDescriptionsIt = {
   "memcopy": "Copia un blocco di memoria.",
   "drawmem": "Copia un rettangolo 2D compattato in memoria di destinazione con passo (stride).",
   "map": "Carica, disegna e modifica mappe di tile di caratteri.",
+  "map view": "Mostra la mappa caricata alla posizione in pixel px, py, una volta per frame al posto di wait raster: scorrimento fluido XSCROLL/YSCROLL con due buffer schermo ($0400/$3C00) e copie della RAM colore sincronizzate col raster, senza strappi in nessuna direzione. Gli sprite continuano a funzionare. Tieni il codice fuori da $3C00-$3FFF: carica le mappe grandi con un indirizzo (map load \"f\", $4000). map load legge anche i progetti dell'editor livelli (.bin). UB 1.6.1+.",
   "map query": "Legge un codice tile o il colore di una cella dalla mappa attiva.",
   "koala": "Carica e visualizza un'immagine Koala Painter.",
   "collision": "Verifica la sovrapposizione tra due bounding box inclusivi.",
@@ -7172,7 +7180,8 @@ const _UB_COMMAND_REFERENCE = [
   ["chain", "chain \"GAME\"             # load GAME from the drive we were started from and RUN it\nchain \"GAME\", 9          # from drive 9 (any expression)\nprint \"LOAD ERROR\"       # only reached if the file could not be loaded", "Loads another program over this one and RUNs it (UB 1.5.9+)."],
   ["memcopy", "memcopy source, destination, length", "Copies a block of memory."],
   ["drawmem", "drawmem source, destination, width, height, stride", "Copies a packed 2-D rectangle to strided destination memory."],
-  ["map", "map load \"file.ubmap\"\nmap draw x, y\nmap set x, y, tile\nmap color x, y, color", "Loads, draws, and modifies character tile maps."],
+  ["map", "map load \"file.ubmap\"\nmap load \"level.bin\", $4000\nmap draw x, y\nmap view px, py\nmap set x, y, tile\nmap color x, y, color", "Loads, draws, and modifies character tile maps."],
+  ["map view", "map load \"level.bin\", $4000   # Level Editor project, data at $4000\nvar px: word = 0\nvar py: word = 0\nloop\n  map view px, py   # once per frame, instead of wait raster\n  # joystick -> px / py, game logic\nend", "Smooth, tear-free scrolling of the loaded map at a pixel position (UB 1.6.1+)."],
   ["map query", "map_tile(x, y)\nmap_color(x, y)", "Reads a tile code or cell color from the active map."],
   ["koala", "koala load \"picture.kla\"\nkoala show\nkoala hide", "Loads and displays a Koala Painter image."],
   ["collision", "box_hit(left1, top1, right1, bottom1, left2, top2, right2, bottom2)", "Tests two inclusive bounding boxes for overlap."],
@@ -35280,7 +35289,8 @@ function _lvLoadLevelFile(bytes) {
    vertical   → rows of 40 bytes (scroll up: bottom row first)
    horizontal → columns of 25 bytes (scroll left: rightmost column first)
    grid       → full map, row-major */
-function _lvExportData() {
+/* The whole level as one row-major char map + color map (empty slots: spaces). */
+function _lvComposeMap() {
   if (!_lvCells.some(Boolean)) return null;
   const cols = _lvW * _ME_COLS, rows = _lvH * _ME_ROWS;
   const map = new Uint8Array(cols * rows).fill(_ME_EMPTY);
@@ -35295,6 +35305,29 @@ function _lvExportData() {
         cmap[(oy + r) * cols + ox + c] = scr.color[r * _ME_COLS + c] & 0x0F;
       }
   }
+  return { map, cmap, cols, rows };
+}
+
+/* UltimateBasic `map load` file (UBMP v1): "UBMP", version 1, flags (bit 0 = colors,
+   bit 1 = multicolor), width/height (16-bit LE, 1..255), $D021-$D023, chars, colors. */
+function _lvBuildUbMap() {
+  const m = _lvComposeMap();
+  if (!m) return { error: t("lvNothing") };
+  if (m.cols > 255 || m.rows > 255) return { error: tf("lvUbMapTooLarge", { cols: m.cols, rows: m.rows }) };
+  const s = _lvSettings || _lvDefaultSettings();
+  const n = m.cols * m.rows;
+  const out = new Uint8Array(13 + n * 2);
+  out.set([0x55, 0x42, 0x4D, 0x50, 1, 1 | (s.multicolor ? 2 : 0), m.cols, 0, m.rows, 0,
+    s.bgColor & 15, s.mc1Color & 15, s.mc2Color & 15]);
+  out.set(m.map, 13);
+  out.set(m.cmap, 13 + n);
+  return { bytes: out };
+}
+
+function _lvExportData() {
+  const composed = _lvComposeMap();
+  if (!composed) return null;
+  const { map, cmap, cols, rows } = composed;
   const screen = new Uint8Array(cols * rows), color = new Uint8Array(cols * rows);
   let unit = "map", chunk = cols, k = 0;
   if (_lvLayout === "vertical") {
@@ -35350,6 +35383,12 @@ function _lvFlash(msg) {
 
 function _lvExport(kind) {
   if (kind === "save-level") { _saveBinFile(_lvBuildLevelFile(), "level.bin"); return; }
+  if (kind === "ubmap") {
+    const ub = _lvBuildUbMap();
+    if (ub.error) { _lvFlash(ub.error); return; }
+    _saveBinFile(ub.bytes, "level.ubmap");
+    return;
+  }
   const d = _lvExportData();
   if (!d) { _lvFlash(t("lvNothing")); return; }
   if (kind === "screen") { _saveBinFile(d.screen, "level-screen.bin"); return; }

@@ -349,7 +349,20 @@
       "Bash(node --test tests/level-macro.test.js)",
       "Bash(grep -n 'return `port${block.joyPort || \"2\"} → sprite#\\\\|; .joystick port=' www/app.js)",
       "Bash(python \"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/254699c3-ab61-43ae-a379-d9c1dc5dcdfe/scratchpad/joy_i18n.py\")",
-      "Bash(node --test tests/joystick-macro.test.js)"
+      "Bash(node --test tests/joystick-macro.test.js)",
+      "Bash(cd /f/Development/VisualAssembler && grep -n \"ultimate\" src-tauri/Cargo.toml | head; ls src-tauri/target 2>/dev/null | head; find /c/Users/rlung/.cargo /f/Development -maxdepth 4 -iname \"*ultimate*basic*\" -o -maxdepth 4 -iname \"ubc*.exe\" 2>/dev/null | head)",
+      "Bash(cd /f/Development/UltimateBasic && head -5 MANUAL.md && wc -l MANUAL.md && ls target/release/*.exe target/debug/*.exe 2>/dev/null; grep -n \"^#\\\\+ \" MANUAL.md | grep -i \"incbin\\\\|map\\\\|asm\\\\|inline\\\\|scroll\\\\|org\\\\|memory\\\\|joy\\\\|limit\" )",
+      "Bash(node \"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/254699c3-ab61-43ae-a379-d9c1dc5dcdfe/scratchpad/mkubmap.js\")",
+      "Bash(/f/Development/UltimateBasic/target/release/ub.exe --version)",
+      "Bash(grep -iv \"^ *$\")",
+      "Bash(cp /f/Development/VisualAssembler/samples/level.bin /f/Development/UltimateBasic/examples/level.bin)",
+      "Bash(../target/release/ub.exe build *)",
+      "Bash(grep -o '\\\\$[0-9A-F]\\\\{4\\\\}')",
+      "Bash(printf 'trace exec 08e4\\\\nx\\\\n')",
+      "Bash(rm -f log8.txt)",
+      "Bash(\"/d/Development/VICE/bin/x64sc.exe\" -default -warp -autostartprgmode 1 -limitcycles 12000000 -moncommands mon8.txt -monlog -monlogname log8.txt -sounddev dummy lsdt.prg)",
+      "Bash(./target/release/ub.exe)",
+      "Bash(python \"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/254699c3-ab61-43ae-a379-d9c1dc5dcdfe/scratchpad/ub_ref.py\")"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"
