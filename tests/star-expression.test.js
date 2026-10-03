@@ -39,6 +39,7 @@ function makeContext(extra = {}) {
       "resolveProgramConstValue",
       "_substituteStarPc",
       "_hasStarPcRef",
+      "_evalJsExprSafe",
       "_evalAsmExpr",
       "_branchOffsetFromTarget",
       "resolveNumericOperand",
