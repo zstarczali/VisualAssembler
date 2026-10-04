@@ -2,18 +2,27 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.5.1**
+**Current version: v2.5.2**
 
-## What's New in v2.5.1
+## What's New in v2.5.2
+
+- **SID Editor previews on the real SID** — the instrument **Preview**, the virtual keyboard, note entry, chord and arpeggio previews, row preview and single-pattern playback now play through the WebSid emulator, not a synthesizer. A small stream player copies the SID registers that the JS engine (the frame-exact model of the exported player) writes every frame; up to three notes share the three voices. It is preloaded when the editor opens and after Stop, so notes sound at once. Without WebSid the small synthesizer remains as a fallback.
+- **Note-off in the tracker** — key **1** (or typing `===` / `OFF`) writes a note-off: the gate is released and the instrument's release runs. As in other trackers, a note otherwise sustains until the next note on its voice. **Enter** edits the selected cell as text.
+- **Detachable tracker** — a toolbar button moves the song, tracker and harmony rows with the grid into a floating, resizable panel (and back), so a long wave table leaves the tracker room; position, size and state are remembered.
+- **Wave / arpeggio presets** — the preset list keeps showing the chosen preset (per instrument) until the table is edited by hand.
+- **VA-VK** — the virtual keyboard has a new name on its Commodore 64 brand bar, **Play / Stop** buttons, and remembers its position, open state, octave and *Insert into tracker*. The SID editor's **master volume** is remembered.
+- **Knowledge Base** — new links: C64 OS development environment and the png2c64 image converter; the list is shown in two columns.
+
+## Earlier: v2.5.1
 
 - **SID Editor instruments like a real tracker** — every instrument now has:
   - **Filter:** *Route this voice through the filter*, **3 OFF**, and a cutoff **sweep** from Cut toward End by Sweep per frame, optionally **ping-pong** — resonant filter sweeps. The voice that starts a filter-routed instrument owns the filter; routing is per voice.
   - **Vibrato:** delay, speed and depth (scaled to the note's semitone), independent of the `V` effect.
   - **Pulse width modulation:** speed per frame, bouncing between min and max.
   - **Gate:** gate timer and **hard restart** before the next note, and the waveform of a note's first frame (e.g. `$09`).
-  - **Wave / arpeggio table:** up to 32 steps of waveform and note (relative or absolute), speed and loop, with presets (major / minor / octave arpeggio, kick, snare, hi-hat).
+  - **Wave / arpeggio table:** up to 32 steps of waveform and note (relative or absolute), speed and loop, with 25 presets: arpeggios (major, minor, 7th chords, sus4, diminished, augmented, power chord, octave, trill), drums (kick, snare, tom, clap, closed / open hi-hat), lead and bass attacks, and sound effects (laser, pickup, explosion).
   - **RING** and **SYNC** next to the waveforms.
-- **New SID player** — the exported 6502 player runs all of this every frame (`JSR sid_frame` from your own IRQ, less zero page, state in `sid_state`). The preview renders the same player through a small SID synthesizer (exact model, approximate chip), so edits are heard while playing and the row highlight follows `F` speed changes, also with WebSid. `.bin` saves keep instrument names and the speed; older saves still load.
+- **New SID player** — the exported 6502 player runs all of this every frame (`JSR sid_frame` from your own IRQ, less zero page, state in `sid_state`). The preview plays the same player model (since 2.5.2 on the real SID through WebSid), so edits are heard while playing and the row highlight follows `F` speed changes, also with WebSid. `.bin` saves keep instrument names and the speed; older saves still load.
 - **Virtual keyboard** — 2, 3 or 4 octaves (remembered) in a Commodore 64 synth look.
 - **Ultimate Basic 1.6.2 bundled** — `tune` blocks gain `imod`, `ifilt`, `igate` and `itab` lines with the same player algorithm; **Export to UltimateBasic** writes them, and the UB command reference lists them.
 - **Bookmarks and Go to line** in the Expert and Ultimate Basic editors — **Ctrl+F2** toggles (or Ctrl+click a line number), **F2** / **Shift+F2** jump, **Ctrl+G** goes to a line; toolbar buttons too. Bookmarks move with edited lines and are remembered per file.

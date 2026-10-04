@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.5.1">
+  <link rel="stylesheet" href="style.css?v=2.5.2">
 </head>
 
 <body>
@@ -1203,7 +1203,7 @@ PRINTABLE CHARACTERS
           <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
         </div>
         <h2 class="about-title">C64 Visual Assembler</h2>
-        <p class="about-version" id="about-version">v2.5.1</p>
+        <p class="about-version" id="about-version">v2.5.2</p>
         <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
       </div>
       <div class="about-columns">
@@ -1229,25 +1229,25 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.5.1</p>
+      <p class="whats-new-version">v2.5.2</p>
       <ul class="whats-new-list">
         <li>
-          <strong>New: SID Editor instruments like a real tracker:</strong> filter routing per voice, <strong>3 OFF</strong> and a resonant cutoff <strong>sweep</strong> (start, end, speed, ping-pong); instrument <strong>vibrato</strong> (delay, speed, depth); <strong>pulse width modulation</strong>; <strong>gate timer</strong>, <strong>hard restart</strong> and first-frame waveform; a <strong>wave / arpeggio table</strong> with presets (arpeggios, kick, snare, hi-hat); <strong>RING</strong> and <strong>SYNC</strong>.
+          <strong>New: SID Editor previews on the real SID:</strong> the instrument Preview, the virtual keyboard, note entry, chord and arpeggio previews, row preview and single-pattern playback now play through the WebSid emulator, streamed frame by frame from the same engine as the exported player. It is preloaded, so notes sound at once.
         </li>
         <li>
-          <strong>New SID player:</strong> the exported 6502 player runs all of this every frame (<code>JSR sid_frame</code> from your own IRQ, less zero page). The preview renders the same player through a small SID synthesizer, so edits are heard while playing; <code>.bin</code> saves keep instrument names and speed.
+          <strong>Note-off in the tracker:</strong> key <strong>1</strong> writes <code>===</code> — the gate is released and the instrument's release runs, like a key-off in other trackers. <strong>Enter</strong> edits the selected cell.
         </li>
         <li>
-          <strong>New: virtual keyboard</strong> with 2, 3 or 4 octaves in a Commodore 64 synth look.
+          <strong>Detachable tracker:</strong> the tracker can float in its own resizable panel and dock back, so a long wave table leaves it room.
         </li>
         <li>
-          <strong>Ultimate Basic 1.6.2:</strong> <code>tune</code> blocks gain <code>imod</code>, <code>ifilt</code>, <code>igate</code> and <code>itab</code> lines; <em>Export to UltimateBasic</em> writes them.
+          <strong>Wave / arpeggio presets:</strong> the preset list keeps the chosen preset until the table is edited by hand.
         </li>
         <li>
-          <strong>New: bookmarks and Go to line</strong> in the Expert and Ultimate Basic editors: <strong>Ctrl+F2</strong> toggles, <strong>F2</strong> / <strong>Shift+F2</strong> jump, <strong>Ctrl+G</strong> goes to a line.
+          <strong>VA-VK:</strong> the virtual keyboard has a new name and Play / Stop buttons, and remembers its position and settings; the SID editor remembers its master volume. <strong>Knowledge Base:</strong> C64 OS development environment and png2c64 links, in two columns.
         </li>
         <li>
-          <strong>Fixed:</strong> label expressions (<code>.assert</code>, <code>LEVEL_MULTICOLOR*16</code>, <code>*</code>) work in the installed app again. The D64 Editor dialogs open in the active working folder, and the Build project report names the output folder.
+          <strong>From 2.5.1:</strong> SID Editor instruments like a real tracker (resonant filter sweeps, vibrato, PWM, hard restart, wave / arpeggio tables, RING and SYNC), the new frame-based SID player, Ultimate Basic 1.6.2 <code>tune</code> lines, bookmarks and Go to line.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -2153,19 +2153,14 @@ PRINTABLE CHARACTERS
               <select id="sid-table-loop" class="sid-select"></select>
               <select id="sid-table-preset" class="sid-select">
                 <option value="">Presets…</option>
-                <option value="major">Arpeggio: major (0 4 7)</option>
-                <option value="minor">Arpeggio: minor (0 3 7)</option>
-                <option value="octave">Arpeggio: octave (0 12)</option>
-                <option value="kick">Drum: kick</option>
-                <option value="snare">Drum: snare</option>
-                <option value="hihat">Drum: hi-hat</option>
-                <option value="clear">Clear table</option>
               </select>
             </div>
             <div id="sid-table-steps" class="sid-table-steps"></div>
             <button id="sid-table-add" class="sid-mini-btn" type="button">+ Step</button>
           </div>
         </div>
+        <div id="sid-tracker-dock" class="sid-tracker-dock">
+        <div id="sid-tracker-section" class="sid-tracker-section">
         <!-- Song / order list: the arrangement of patterns that actually
              plays back (and gets exported) in "Play: All" mode. Patterns
              stay a reusable bank; this is the sequence that plays them. -->
@@ -2219,6 +2214,9 @@ PRINTABLE CHARACTERS
           </button>
           <button id="sid-clear" class="ce-tool-btn" type="button" aria-label="Clear selection">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4.5h10"/><path d="M6 4.5V3.4c0-.5.4-.9.9-.9h2.2c.5 0 .9.4.9.9v1.1"/><path d="M5 6.5v5.2"/><path d="M8 6.5v5.2"/><path d="M11 6.5v5.2"/><path d="M4.2 4.5l.5 8c0 .6.5 1 1.1 1h4.4c.6 0 1.1-.4 1.1-1l.5-8"/></svg>
+          </button>
+          <button id="sid-tracker-detach" class="ce-tool-btn" type="button" aria-label="Detach tracker">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3H3.5a1 1 0 00-1 1v8.5a1 1 0 001 1H12a1 1 0 001-1V9"/><path d="M9.5 2.5h4v4M13.5 2.5L8 8"/></svg>
           </button>
         </div>
         <div class="sid-row sid-harmony-row">
@@ -2277,7 +2275,18 @@ PRINTABLE CHARACTERS
         <div class="sid-tracker-wrap" id="sid-tracker-wrap" tabindex="0">
           <table class="sid-tracker" id="sid-tracker"></table>
         </div>
+        </div>
+        </div>
       </div>
+    </div>
+    <div id="sid-tracker-float" class="sid-trk-float" hidden>
+      <div class="sid-trk-float-hdr">
+        <span id="sid-trk-float-title" class="sid-title">TRACKER</span>
+        <button id="sid-tracker-attach" class="sid-xbtn sid-trk-attach" type="button" aria-label="Attach tracker">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11" rx="1"/><path d="M2.5 9.5h11"/><path d="M8 4v4M6 6.5L8 8.5l2-2"/></svg>
+        </button>
+      </div>
+      <div id="sid-trk-float-body" class="sid-trk-float-body"></div>
     </div>
     <div id="sid-virtual-keyboard-dialog" class="sid-vkbd-dialog" aria-labelledby="sid-vkbd-title" hidden>
       <div class="sid-vkbd-card">
@@ -2301,6 +2310,12 @@ PRINTABLE CHARACTERS
             <option value="3">3</option>
             <option value="4">4</option>
           </select>
+          <button id="sid-vkbd-play" class="ce-tool-btn sid-vkbd-tbtn" type="button" aria-label="Play">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.5l8 4.5-8 4.5z" fill="currentColor"/></svg>
+          </button>
+          <button id="sid-vkbd-stop" class="ce-tool-btn sid-vkbd-tbtn" type="button" aria-label="Stop">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="4" width="8" height="8" fill="currentColor"/></svg>
+          </button>
           <label class="sid-vkbd-insert-toggle me-check"><input type="checkbox" id="sid-vkbd-insert" checked> <span id="sid-vkbd-insert-label">Insert into tracker</span></label>
         </div>
         <div id="sid-vkbd-board" class="sid-vkbd-board"></div>
@@ -2771,13 +2786,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.5.1"></script>
-  <script src="i18n.js?v=2.5.1"></script>
-  <script src="tutorial-data.js?v=2.5.1"></script>
+  <script src="tauri-bridge.js?v=2.5.2"></script>
+  <script src="i18n.js?v=2.5.2"></script>
+  <script src="tutorial-data.js?v=2.5.2"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.5.1"></script>
+  <script src="app.js?v=2.5.2"></script>
 
 </body>
 

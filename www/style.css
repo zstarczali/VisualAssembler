@@ -9986,6 +9986,18 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-tracker .sid-cell-edit { user-select: text; -webkit-user-select: text; }
 .sid-tracker td.sid-cell--sel { background: var(--primary) !important; color: #fff; }
 .sid-tracker td.sid-cell--sel-range { background: color-mix(in srgb, var(--primary) 35%, transparent) !important; }
+.sid-tracker-dock,
+.sid-tracker-section { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 12px; }
+.sid-tracker-dock:empty { display: none; }
+.sid-dialog.sid-dialog--trk-detached { height: auto; bottom: auto; }
+.sid-dialog--trk-detached .sid-card { height: auto; max-height: 95vh; }
+.sid-dialog--trk-detached .sid-body { flex: 0 1 auto; }
+.sid-trk-float { position: fixed; left: 60px; top: 60px; width: 1044px; height: 560px; min-width: 1044px; min-height: 260px; max-width: calc(100vw - 16px); max-height: calc(100vh - 16px); z-index: 30; display: flex; flex-direction: column; background: var(--panel); border: 1px solid var(--panel-border); box-shadow: 0 2px 6px rgba(0,0,0,0.35), 0 18px 48px rgba(0,0,0,0.55); resize: both; overflow: hidden; box-sizing: border-box; }
+.sid-trk-float[hidden] { display: none; }
+.sid-trk-float-hdr { display: flex; align-items: center; gap: 12px; padding: 6px 12px; border-bottom: 1px solid var(--panel-border); background: var(--panel-strong); cursor: move; user-select: none; flex-shrink: 0; }
+.sid-trk-attach { margin-left: auto; display: inline-flex; align-items: center; justify-content: center; }
+.sid-trk-attach svg { width: 16px; height: 16px; }
+.sid-trk-float-body { flex: 1; min-height: 0; padding: 12px 14px 14px; display: flex; flex-direction: column; box-sizing: border-box; }
 .sid-vkbd-dialog { position: fixed; margin: 0; left: 120px; top: 120px; z-index: 40; border: none; padding: 0; background: transparent; color: inherit; max-width: none; overflow: visible; }
 .sid-vkbd-dialog[hidden] { display: none; }
 .sid-vkbd-card { width: fit-content; min-width: 720px; max-width: calc(100vw - 16px); background: linear-gradient(180deg, #3b3833 0%, #2a2825 55%, #1f1d1b 100%); border: 1px solid #5a554c; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.35), 0 18px 48px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.08); overflow: hidden; }
@@ -9993,6 +10005,9 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-vkbd-title { font-family: 'C64Pro', monospace; font-size: 0.9rem; letter-spacing: 0.08em; color: var(--text); }
 .sid-vkbd-meta { display: flex; align-items: center; gap: 8px; padding: 12px 14px 0; }
 .sid-vkbd-insert-toggle { margin-left: 10px; white-space: nowrap; }
+.sid-vkbd-tbtn { color: #d8d2c4; }
+#sid-vkbd-play { margin-left: 10px; }
+.sid-vkbd-tbtn:hover { color: #fff; background: rgba(255,255,255,0.1); }
 .sid-vkbd-insert-toggle input[type="checkbox"] { flex-shrink: 0; }
 .sid-vkbd-board { position: relative; margin: 12px 14px 16px; padding: 0; height: 190px; max-width: calc(100vw - 48px); background: #0c0c0e; border: 1px solid #000; border-radius: 3px; box-shadow: inset 0 6px 10px rgba(0,0,0,0.8); overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; }
 .sid-vkbd-brand { display: flex; align-items: center; gap: 14px; padding: 8px 14px; background: linear-gradient(180deg, #2c2a26, #24221f); border-bottom: 1px solid #14130f; }

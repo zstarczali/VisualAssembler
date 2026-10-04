@@ -112,9 +112,9 @@ test("Song list: moving past either end is a no-op", () => {
 
 function loadSerdeSandbox() {
   return loadFunctions(
-    ["_sidInstFields", "_sidInstNorm", "_sidInstCtrl", "_sidInstExtBytes", "_sidReadInstExt", "_sidWaStop", "_sidInstBytes", "_sidWaveByte", "_sidNewInst", "_sidNewPattern", "_sidSerialize", "_sidDeserialize", "_sidSyncPlayModeSel", "_sidBuildInstSel", "_sidLoadInstUI", "_sidBuildPatSel", "_sidBuildSongList", "_sidBuildTracker", "_sidStop", "_sidUpdatePauseButton", "_sidCurInst"],
+    ["_sidInstFields", "_sidInstNorm", "_sidInstCtrl", "_sidInstExtBytes", "_sidReadInstExt", "_sidWaStop", "_sidStreamSilence", "_sidStreamPreload", "_sidInstBytes", "_sidWaveByte", "_sidNewInst", "_sidNewPattern", "_sidSerialize", "_sidDeserialize", "_sidSyncPlayModeSel", "_sidBuildInstSel", "_sidLoadInstUI", "_sidBuildPatSel", "_sidBuildSongList", "_sidBuildTracker", "_sidStop", "_sidUpdatePauseButton", "_sidCurInst"],
     {
-      Uint8Array, Math, String, Array, TextEncoder, TextDecoder, _sidSpeed: 6, _sidWaPlay: null, _sidPreviewSources: new Set(), _sidRenderTable: () => {},
+      Uint8Array, Math, String, Array, TextEncoder, TextDecoder, _sidSpeed: 6, _sidWaPlay: null, _sidStream: null, _webSidLoadSeq: 0, setTimeout: () => 0, _sidPreviewSources: new Set(), _sidRenderTable: () => {},
       // _sidLoadInstUI assigns document.getElementById("sid-inst-name").value
       // directly with no null-guard (unlike its other fields, which all go
       // through a guarded helper) — give that one id a real object so the

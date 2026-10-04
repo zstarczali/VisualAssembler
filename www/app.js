@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "sid-251",
+  id: "sid-252",
   url: "https://www.c64va.tech/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.5.1-ben",
+    eyebrow: "Újdonság a 2.5.2-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>SID Editor hangszerek:</strong> rezonáló szűrő-söprés, vibrato, PWM, hard restart, wave / arpeggio tábla, RING és SYNC.</li><li><strong>Új SID lejátszó:</strong> frame-enként fut, az előnézet ugyanezt a lejátszót szólaltatja meg.</li><li><strong>Virtuális billentyűzet:</strong> 2, 3 vagy 4 oktáv, C64 szinti kinézettel.</li><li><strong>Könyvjelzők és Ugrás sorra</strong> (Ctrl+F2, F2, Ctrl+G) az Expert és UB szerkesztőben.</li><li><strong>Ultimate Basic 1.6.2:</strong> <code>imod</code>, <code>ifilt</code>, <code>igate</code>, <code>itab</code> a <code>tune</code> blokkban.</li></ul>`,
+    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>Előnézet a valódi SID-en:</strong> a hangszer-előnézet, a virtuális billentyűzet, az akkord, az arpeggio és a pattern-lejátszás is a WebSid emulátoron szól.</li><li><strong>Előbeállítások:</strong> a wave / arpeggio lista megtartja a választott előbeállítást.</li><li><strong>VA-VK</strong> a virtuális billentyűzet új neve; új Tudásbázis linkek két oszlopban.</li><li><strong>Tracker:</strong> note-off (<code>===</code>, 1-es billentyű), Enter-rel szerkesztés, leválasztható tracker ablak.</li><li><strong>A 2.5.1-ből:</strong> SID hangszerek szűrő-söpréssel, vibratóval, PWM-mel és arpeggio táblával, új lejátszó, könyvjelzők.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.5.1",
+    eyebrow: "New in 2.5.2",
     title: "Welcome to Visual Assembler",
-    body: `<p>What's new in this release:</p><ul><li><strong>SID Editor instruments:</strong> resonant filter sweeps, vibrato, PWM, hard restart, wave / arpeggio tables, RING and SYNC.</li><li><strong>New SID player:</strong> runs every frame, and the preview plays the same player.</li><li><strong>Virtual keyboard:</strong> 2, 3 or 4 octaves in a C64 synth look.</li><li><strong>Bookmarks and Go to line</strong> (Ctrl+F2, F2, Ctrl+G) in the Expert and UB editors.</li><li><strong>Ultimate Basic 1.6.2:</strong> <code>imod</code>, <code>ifilt</code>, <code>igate</code>, <code>itab</code> in <code>tune</code> blocks.</li></ul>`,
+    body: `<p>What's new in this release:</p><ul><li><strong>Previews on the real SID:</strong> the instrument preview, virtual keyboard, chords, arpeggios and pattern playback play on the WebSid emulator.</li><li><strong>Presets:</strong> the wave / arpeggio list keeps the chosen preset.</li><li><strong>VA-VK</strong> is the virtual keyboard's new name; new Knowledge Base links in two columns.</li><li><strong>Tracker:</strong> note-off (<code>===</code>, key 1), Enter to edit a cell, a detachable tracker window.</li><li><strong>From 2.5.1:</strong> SID instruments with filter sweeps, vibrato, PWM and arpeggio tables, a new player, bookmarks.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.5.1",
+    eyebrow: "Novedad en la 2.5.2",
     title: "Bienvenido a Visual Assembler",
-    body: `<p>Novedades de esta versión:</p><ul><li><strong>Instrumentos del editor SID:</strong> barridos de filtro resonantes, vibrato, PWM, hard restart, tablas de onda / arpegio, RING y SYNC.</li><li><strong>Nuevo reproductor SID:</strong> funciona en cada frame y la vista previa suena con el mismo reproductor.</li><li><strong>Teclado virtual:</strong> 2, 3 o 4 octavas con aspecto de sintetizador C64.</li><li><strong>Marcadores e Ir a la línea</strong> (Ctrl+F2, F2, Ctrl+G) en los editores Expert y UB.</li><li><strong>Ultimate Basic 1.6.2:</strong> <code>imod</code>, <code>ifilt</code>, <code>igate</code>, <code>itab</code> en bloques <code>tune</code>.</li></ul>`,
+    body: `<p>Novedades de esta versión:</p><ul><li><strong>Vistas previas en el SID real:</strong> la vista previa del instrumento, el teclado virtual, los acordes, los arpegios y la reproducción de patrones suenan en el emulador WebSid.</li><li><strong>Presets:</strong> la lista de onda / arpegio conserva el preset elegido.</li><li><strong>VA-VK</strong> es el nuevo nombre del teclado virtual; nuevos enlaces en la Base de conocimiento, en dos columnas.</li><li><strong>Tracker:</strong> note-off (<code>===</code>, tecla 1), Enter para editar una celda, ventana del tracker separable.</li><li><strong>De la 2.5.1:</strong> instrumentos SID con barridos de filtro, vibrato, PWM y tablas de arpegio, nuevo reproductor, marcadores.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.5.1",
+    eyebrow: "Neu in 2.5.2",
     title: "Willkommen bei Visual Assembler",
-    body: `<p>Neu in dieser Version:</p><ul><li><strong>SID-Editor-Instrumente:</strong> resonante Filter-Sweeps, Vibrato, PWM, Hard Restart, Wellen- / Arpeggio-Tabellen, RING und SYNC.</li><li><strong>Neuer SID-Player:</strong> läuft jeden Frame, die Vorschau spielt denselben Player.</li><li><strong>Virtuelle Tastatur:</strong> 2, 3 oder 4 Oktaven im C64-Synth-Look.</li><li><strong>Lesezeichen und Gehe zu Zeile</strong> (Strg+F2, F2, Strg+G) im Expert- und UB-Editor.</li><li><strong>Ultimate Basic 1.6.2:</strong> <code>imod</code>, <code>ifilt</code>, <code>igate</code>, <code>itab</code> in <code>tune</code>-Blöcken.</li></ul>`,
+    body: `<p>Neu in dieser Version:</p><ul><li><strong>Vorschau auf dem echten SID:</strong> Instrument-Vorschau, virtuelle Tastatur, Akkorde, Arpeggios und Pattern-Wiedergabe spielen auf dem WebSid-Emulator.</li><li><strong>Presets:</strong> die Wellen- / Arpeggio-Liste behält das gewählte Preset.</li><li><strong>VA-VK</strong> heißt die virtuelle Tastatur jetzt; neue Wissensdatenbank-Links in zwei Spalten.</li><li><strong>Tracker:</strong> Note-Off (<code>===</code>, Taste 1), Enter bearbeitet eine Zelle, abdockbares Tracker-Fenster.</li><li><strong>Aus 2.5.1:</strong> SID-Instrumente mit Filter-Sweeps, Vibrato, PWM und Arpeggio-Tabellen, neuer Player, Lesezeichen.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.5.1",
+    eyebrow: "Nieuw in 2.5.2",
     title: "Welkom bij Visual Assembler",
-    body: `<p>Nieuw in deze versie:</p><ul><li><strong>SID-editorinstrumenten:</strong> resonante filtersweeps, vibrato, PWM, hard restart, golf- / arpeggiotabellen, RING en SYNC.</li><li><strong>Nieuwe SID-speler:</strong> draait elk frame, de voorvertoning speelt dezelfde speler.</li><li><strong>Virtueel toetsenbord:</strong> 2, 3 of 4 octaven in een C64-synthlook.</li><li><strong>Bladwijzers en Ga naar regel</strong> (Ctrl+F2, F2, Ctrl+G) in de Expert- en UB-editor.</li><li><strong>Ultimate Basic 1.6.2:</strong> <code>imod</code>, <code>ifilt</code>, <code>igate</code>, <code>itab</code> in <code>tune</code>-blokken.</li></ul>`,
+    body: `<p>Nieuw in deze versie:</p><ul><li><strong>Voorvertoning op de echte SID:</strong> instrumentvoorvertoning, virtueel toetsenbord, akkoorden, arpeggio's en patroonweergave spelen op de WebSid-emulator.</li><li><strong>Presets:</strong> de golf- / arpeggiolijst onthoudt de gekozen preset.</li><li><strong>VA-VK</strong> is de nieuwe naam van het virtuele toetsenbord; nieuwe kennisbanklinks in twee kolommen.</li><li><strong>Tracker:</strong> note-off (<code>===</code>, toets 1), Enter bewerkt een cel, losmaakbaar trackervenster.</li><li><strong>Uit 2.5.1:</strong> SID-instrumenten met filtersweeps, vibrato, PWM en arpeggiotabellen, nieuwe speler, bladwijzers.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.5.1",
+    eyebrow: "Nowość w 2.5.2",
     title: "Witamy w Visual Assembler",
-    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>Instrumenty edytora SID:</strong> rezonansowe przemiatanie filtra, vibrato, PWM, hard restart, tabele fal / arpeggio, RING i SYNC.</li><li><strong>Nowy odtwarzacz SID:</strong> działa w każdej ramce, podgląd gra tym samym odtwarzaczem.</li><li><strong>Wirtualna klawiatura:</strong> 2, 3 lub 4 oktawy w stylu syntezatora C64.</li><li><strong>Zakładki i Przejdź do wiersza</strong> (Ctrl+F2, F2, Ctrl+G) w edytorach Expert i UB.</li><li><strong>Ultimate Basic 1.6.2:</strong> <code>imod</code>, <code>ifilt</code>, <code>igate</code>, <code>itab</code> w blokach <code>tune</code>.</li></ul>`,
+    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>Podgląd na prawdziwym SID:</strong> podgląd instrumentu, wirtualna klawiatura, akordy, arpeggia i odtwarzanie wzorców grają na emulatorze WebSid.</li><li><strong>Presety:</strong> lista fal / arpeggio zachowuje wybrany preset.</li><li><strong>VA-VK</strong> to nowa nazwa wirtualnej klawiatury; nowe linki w Bazie wiedzy, w dwóch kolumnach.</li><li><strong>Tracker:</strong> note-off (<code>===</code>, klawisz 1), Enter edytuje komórkę, odłączane okno trackera.</li><li><strong>Z 2.5.1:</strong> instrumenty SID z przemiataniem filtra, vibrato, PWM i tabelami arpeggio, nowy odtwarzacz, zakładki.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.5.1",
+    eyebrow: "Novità nella 2.5.2",
     title: "Benvenuto in Visual Assembler",
-    body: `<p>Novità di questa versione:</p><ul><li><strong>Strumenti dell'editor SID:</strong> sweep del filtro risonanti, vibrato, PWM, hard restart, tabelle onda / arpeggio, RING e SYNC.</li><li><strong>Nuovo player SID:</strong> gira a ogni frame, l'anteprima suona con lo stesso player.</li><li><strong>Tastiera virtuale:</strong> 2, 3 o 4 ottave con aspetto da synth C64.</li><li><strong>Segnalibri e Vai alla riga</strong> (Ctrl+F2, F2, Ctrl+G) negli editor Expert e UB.</li><li><strong>Ultimate Basic 1.6.2:</strong> <code>imod</code>, <code>ifilt</code>, <code>igate</code>, <code>itab</code> nei blocchi <code>tune</code>.</li></ul>`,
+    body: `<p>Novità di questa versione:</p><ul><li><strong>Anteprime sul vero SID:</strong> anteprima dello strumento, tastiera virtuale, accordi, arpeggi e riproduzione dei pattern suonano sull'emulatore WebSid.</li><li><strong>Preset:</strong> la lista onda / arpeggio mantiene il preset scelto.</li><li><strong>VA-VK</strong> è il nuovo nome della tastiera virtuale; nuovi link nella Knowledge Base, su due colonne.</li><li><strong>Tracker:</strong> note-off (<code>===</code>, tasto 1), Invio per modificare una cella, finestra del tracker staccabile.</li><li><strong>Dalla 2.5.1:</strong> strumenti SID con sweep del filtro, vibrato, PWM e tabelle di arpeggio, nuovo player, segnalibri.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -3821,11 +3821,8 @@ function _applyEditorTranslations() {
    ["#sid-gate-title", "sidGateTitle"], ["#sid-gate-timer-lbl", "sidGateTimer"], ["#sid-hr-lbl", "sidHardRestart"],
    ["#sid-first-wave-lbl", "sidFirstFrame"], ["#sid-gate-hint", "sidGateHint"], ["#sid-table-title", "sidTableTitle"],
    ["#sid-table-speed-lbl", "sidModSpeed"], ["#sid-table-loop-lbl", "sidTableLoop"], ["#sid-table-add", "sidTableAdd"],
-   ['#sid-first-wave option[value="0"]', "sidFirstOff"], ['#sid-table-preset option[value=""]', "sidTablePresets"],
-   ['#sid-table-preset option[value="major"]', "sidPresetMajor"], ['#sid-table-preset option[value="minor"]', "sidPresetMinor"],
-   ['#sid-table-preset option[value="octave"]', "sidPresetOctave"], ['#sid-table-preset option[value="kick"]', "sidPresetKick"],
-   ['#sid-table-preset option[value="snare"]', "sidPresetSnare"], ['#sid-table-preset option[value="hihat"]', "sidPresetHihat"],
-   ['#sid-table-preset option[value="clear"]', "sidPresetClear"]].forEach(function(p) { setText(p[0], t(p[1])); });
+   ['#sid-first-wave option[value="0"]', "sidFirstOff"]].forEach(function(p) { setText(p[0], t(p[1])); });
+  try { _sidBuildPresetSelect(); } catch (_) {}
   setText("#sid-filter-title", t("sidFilterLabel"));
   [["#sid-ring-wrap", "sidRingTip"], ["#sid-sync-wrap", "sidSyncTip"], ["#sid-off3-wrap", "sidOff3Tip"],
    ["#sid-cut-ping-wrap", "sidCutPingTip"], ["#sid-hr-wrap", "sidHardRestartTip"]].forEach(function(p) {
@@ -3851,6 +3848,7 @@ function _applyEditorTranslations() {
   setAttr("#sid-virtual-keyboard", t("sidVirtualKeyboard"));
   _sidUpdatePauseButton();
   setAttr("#sid-stop", t("sidStop"));
+  setAttr("#sid-vkbd-stop", t("sidStop"));
   _updateEditorModeIndicator();
   setAttr("#sid-voice-copy", t("sidVoiceCopy"));
   setAttr("#sid-voice-paste", t("sidVoicePaste"));
@@ -3862,6 +3860,8 @@ function _applyEditorTranslations() {
   setAttr("#sid-vkbd-oct-up", t("sidOctaveUp"));
   setText("#sid-vkbd-insert-label", t("sidVkbdInsert"));
   setText("#sid-vkbd-octaves-label", t("sidVkbdOctaves"));
+  setAttr("#sid-tracker-detach", t("sidTrackerDetach"));
+  setAttr("#sid-tracker-attach", t("sidTrackerAttach"));
   const sidCtxCopy = document.querySelector("#sid-ctx-menu .sid-ctx-copy");
   const sidCtxCut = document.querySelector("#sid-ctx-menu .sid-ctx-cut");
   const sidCtxPaste = document.querySelector("#sid-ctx-menu .sid-ctx-paste");
@@ -38042,16 +38042,130 @@ function _sidRenderVirtualKeyboard() {
     });
   });
 }
-function _sidOpenVirtualKeyboard() {
+/* Detachable tracker: the song / tracker / harmony rows and the grid move into
+   a floating, resizable panel (and back), so a long wave table leaves room. */
+function _sidTrackerFloatState() {
+  try { return JSON.parse(localStorage.getItem("c64va-sid-tracker-float") || "{}") || {}; } catch (_) { return {}; }
+}
+function _sidSaveTrackerFloat(patch) {
+  const st = Object.assign(_sidTrackerFloatState(), patch);
+  try { localStorage.setItem("c64va-sid-tracker-float", JSON.stringify(st)); } catch (_) {}
+}
+function _sidSetTrackerDetached(on) {
+  const section = document.getElementById("sid-tracker-section");
+  const dock = document.getElementById("sid-tracker-dock");
+  const float = document.getElementById("sid-tracker-float");
+  const body = document.getElementById("sid-trk-float-body");
+  if (!section || !dock || !float || !body) return;
+  document.getElementById("sid-editor-dialog")?.classList.toggle("sid-dialog--trk-detached", !!on);
+  if (on) {
+    const st = _sidTrackerFloatState();
+    if (Number.isFinite(st.width)) float.style.width = st.width + "px";
+    if (Number.isFinite(st.height)) float.style.height = st.height + "px";
+    body.appendChild(section);
+    float.hidden = false;
+    const x = Number.isFinite(st.left) ? st.left : 60, y = Number.isFinite(st.top) ? st.top : 60;
+    _sidPlaceTrackerFloat(x, y);
+    // the editor shrinks once laid out (and moves when centered): place it again
+    requestAnimationFrame(function() { _sidPlaceTrackerFloat(x, y); });
+  } else {
+    dock.appendChild(section);
+    float.hidden = true;
+  }
+  const btn = document.getElementById("sid-tracker-detach");
+  if (btn) btn.hidden = !!on;
+  _sidSaveTrackerFloat({ detached: !!on });
+}
+/* x / y are viewport coordinates. The SID dialog is centered with a transform,
+   so it is the containing block of this fixed panel: subtract its origin. */
+function _sidPlaceTrackerFloat(x, y) {
+  return _sidPlaceFixed(document.getElementById("sid-tracker-float"), x, y);
+}
+function _sidPlaceFixed(float, x, y) {
+  // a closed dialog has no layout to measure; the open handler places it
+  if (!float || float.hidden || !document.getElementById("sid-editor-dialog")?.open) return;
+  const cs = getComputedStyle(float), r = float.getBoundingClientRect();
+  const ox = r.left - (parseFloat(cs.left) || 0), oy = r.top - (parseFloat(cs.top) || 0);
+  const vx = Math.max(8, Math.min(x, window.innerWidth - r.width - 8));
+  const vy = Math.max(8, Math.min(y, window.innerHeight - r.height - 8));
+  float.style.left = (vx - ox) + "px";
+  float.style.top = (vy - oy) + "px";
+  return { x: vx, y: vy };
+}
+function _sidRestoreTrackerFloat() {
+  const float = document.getElementById("sid-tracker-float");
+  if (!float || float.hidden) return;
+  const st = _sidTrackerFloatState();
+  _sidPlaceTrackerFloat(Number.isFinite(st.left) ? st.left : 60, Number.isFinite(st.top) ? st.top : 60);
+}
+function _sidClampTrackerFloat() {
+  const float = document.getElementById("sid-tracker-float");
+  if (!float || float.hidden) return;
+  const r = float.getBoundingClientRect();
+  _sidPlaceTrackerFloat(r.left, r.top);
+}
+function _sidSetupTrackerFloat() {
+  const float = document.getElementById("sid-tracker-float");
+  const hdr = float && float.querySelector(".sid-trk-float-hdr");
+  if (!float || !hdr) return;
+  let drag = null;
+  hdr.addEventListener("pointerdown", function(e) {
+    if (e.target.closest("button")) return;
+    const rect = float.getBoundingClientRect();
+    drag = { dx: e.clientX - rect.left, dy: e.clientY - rect.top };
+    try { hdr.setPointerCapture(e.pointerId); } catch (_) {}
+    e.preventDefault();
+  });
+  hdr.addEventListener("pointermove", function(e) {
+    if (!drag) return;
+    drag.at = _sidPlaceTrackerFloat(e.clientX - drag.dx, e.clientY - drag.dy);
+  });
+  const end = function(e) {
+    if (!drag) return;
+    const at = drag.at;
+    drag = null;
+    if (e && e.pointerId != null) { try { hdr.releasePointerCapture(e.pointerId); } catch (_) {} }
+    if (at) _sidSaveTrackerFloat({ left: at.x, top: at.y });
+  };
+  hdr.addEventListener("pointerup", end);
+  hdr.addEventListener("pointercancel", end);
+  // the CSS resize handle: save the size the user dragged to when the pointer is
+  // released (not on every layout change — a closed dialog would report 0 × 0)
+  let sizeAtDown = null;
+  float.addEventListener("pointerdown", function() {
+    sizeAtDown = { w: float.offsetWidth, h: float.offsetHeight };
+  });
+  window.addEventListener("pointerup", function() {
+    if (!sizeAtDown) return;
+    const w = float.offsetWidth, h = float.offsetHeight;
+    if (w > 0 && h > 0 && (w !== sizeAtDown.w || h !== sizeAtDown.h)) _sidSaveTrackerFloat({ width: w, height: h });
+    sizeAtDown = null;
+  });
+  window.addEventListener("resize", _sidClampTrackerFloat);
+}
+/* VA-VK settings (position, open, octave, insert mode) live in
+   c64va-sid-vkbd; the number of octaves in c64va-sid-vkbd-octaves. */
+function _sidVkbdState() {
+  try { return JSON.parse(localStorage.getItem("c64va-sid-vkbd") || "{}") || {}; } catch (_) { return {}; }
+}
+function _sidSaveVkbdState(patch) {
+  try { localStorage.setItem("c64va-sid-vkbd", JSON.stringify(Object.assign(_sidVkbdState(), patch))); } catch (_) {}
+}
+function _sidOpenVirtualKeyboard(remember = true) {
   const dlg = document.getElementById("sid-virtual-keyboard-dialog");
   if (!dlg) return;
   _sidRenderVirtualKeyboard();
   dlg.hidden = false;
+  const st = _sidVkbdState();
+  if (Number.isFinite(st.left) && Number.isFinite(st.top)) _sidPlaceFixed(dlg, st.left, st.top);
+  if (remember) _sidSaveVkbdState({ open: true });
 }
-function _sidCloseVirtualKeyboard() {
+/* remember = false: the SID editor closes, the keyboard reopens with it */
+function _sidCloseVirtualKeyboard(remember = true) {
   const dlg = document.getElementById("sid-virtual-keyboard-dialog");
   if (!dlg) return;
   dlg.hidden = true;
+  if (remember) _sidSaveVkbdState({ open: false });
 }
 function _sidFlashVirtualKeyboardNotes(notes) {
   const dlg = document.getElementById("sid-virtual-keyboard-dialog");
@@ -38169,15 +38283,54 @@ function _sidLoadInstUI() {
 /* ── Wave / arpeggio table editor ── */
 const _SID_TABLE_WAVES = [[0, "—"], [0x10, "TRI"], [0x20, "SAW"], [0x40, "PUL"], [0x80, "NOI"], [0x14, "TRI+RING"],
   [0x42, "PUL+SYNC"], [0x50, "TRI+PUL"], [0x60, "SAW+PUL"], [0x30, "TRI+SAW"], [0x08, "TEST"]];
+// steps: [waveform (0 = keep), note offset or absolute note, 1 = absolute]
 const _SID_TABLE_PRESETS = {
-  major: { steps: [[0, 0], [0, 4], [0, 7]], loop: 0, speed: 2 },
-  minor: { steps: [[0, 0], [0, 3], [0, 7]], loop: 0, speed: 2 },
-  octave: { steps: [[0, 0], [0, 12]], loop: 0, speed: 2 },
-  kick: { steps: [[0x80, 44, 1], [0x40, 30, 1], [0x40, 24, 1], [0x40, 20, 1], [0x40, 17, 1]], loop: -1, speed: 1 },
-  snare: { steps: [[0x80, 72, 1], [0x40, 38, 1], [0x80, 68, 1], [0x80, 66, 1]], loop: -1, speed: 1 },
-  hihat: { steps: [[0x80, 92, 1]], loop: -1, speed: 1 },
-  clear: { steps: [], loop: -1, speed: 1 }
+  major: { group: "arp", key: "sidTpMajor", steps: [[0, 0], [0, 4], [0, 7]], loop: 0, speed: 2 },
+  minor: { group: "arp", key: "sidTpMinor", steps: [[0, 0], [0, 3], [0, 7]], loop: 0, speed: 2 },
+  major7: { group: "arp", key: "sidTpMajor7", steps: [[0, 0], [0, 4], [0, 7], [0, 11]], loop: 0, speed: 2 },
+  minor7: { group: "arp", key: "sidTpMinor7", steps: [[0, 0], [0, 3], [0, 7], [0, 10]], loop: 0, speed: 2 },
+  dom7: { group: "arp", key: "sidTpDom7", steps: [[0, 0], [0, 4], [0, 7], [0, 10]], loop: 0, speed: 2 },
+  sus4: { group: "arp", key: "sidTpSus4", steps: [[0, 0], [0, 5], [0, 7]], loop: 0, speed: 2 },
+  dim: { group: "arp", key: "sidTpDim", steps: [[0, 0], [0, 3], [0, 6]], loop: 0, speed: 2 },
+  aug: { group: "arp", key: "sidTpAug", steps: [[0, 0], [0, 4], [0, 8]], loop: 0, speed: 2 },
+  power: { group: "arp", key: "sidTpPower", steps: [[0, 0], [0, 7], [0, 12]], loop: 0, speed: 2 },
+  octave: { group: "arp", key: "sidTpOctave", steps: [[0, 0], [0, 12]], loop: 0, speed: 2 },
+  fastmajor: { group: "arp", key: "sidTpFastMajor", steps: [[0, 0], [0, 4], [0, 7]], loop: 0, speed: 1 },
+  trill: { group: "arp", key: "sidTpTrill", steps: [[0, 0], [0, 1]], loop: 0, speed: 3 },
+  kick: { group: "drum", key: "sidTpKick", steps: [[0x80, 44, 1], [0x40, 30, 1], [0x40, 24, 1], [0x40, 20, 1], [0x40, 17, 1]], loop: -1, speed: 1 },
+  snare: { group: "drum", key: "sidTpSnare", steps: [[0x80, 72, 1], [0x40, 38, 1], [0x80, 68, 1], [0x80, 66, 1]], loop: -1, speed: 1 },
+  tom: { group: "drum", key: "sidTpTom", steps: [[0x80, 52, 1], [0x40, 38, 1], [0x40, 35, 1], [0x40, 33, 1], [0x40, 31, 1], [0x40, 30, 1]], loop: -1, speed: 1 },
+  clap: { group: "drum", key: "sidTpClap", steps: [[0x80, 80, 1], [0x80, 76, 1], [0x80, 80, 1], [0x80, 77, 1], [0x80, 74, 1]], loop: -1, speed: 1 },
+  hihat: { group: "drum", key: "sidTpHihat", steps: [[0x80, 92, 1]], loop: -1, speed: 1 },
+  openhat: { group: "drum", key: "sidTpOpenHat", steps: [[0x80, 93, 1], [0x80, 92, 1], [0x80, 91, 1], [0x80, 90, 1]], loop: -1, speed: 2 },
+  leadclick: { group: "lead", key: "sidTpLeadClick", steps: [[0x80, 0], [0x40, 0]], loop: -1, speed: 1 },
+  bite: { group: "lead", key: "sidTpBite", steps: [[0x20, 0], [0x40, 0]], loop: -1, speed: 3 },
+  pluck: { group: "lead", key: "sidTpPluck", steps: [[0, 12], [0, 0]], loop: -1, speed: 2 },
+  laser: { group: "fx", key: "sidTpLaser", steps: [[0x40, 24], [0x40, 20], [0x40, 16], [0x40, 12], [0x40, 8], [0x40, 4], [0x40, 0], [0x40, -4], [0x40, -8], [0x40, -12]], loop: -1, speed: 1 },
+  pickup: { group: "fx", key: "sidTpPickup", steps: [[0x40, 0], [0x40, 7], [0x40, 12], [0x40, 19], [0x40, 24]], loop: -1, speed: 3 },
+  explosion: { group: "fx", key: "sidTpExplosion", steps: [[0x80, 60, 1], [0x80, 56, 1], [0x80, 52, 1], [0x80, 48, 1], [0x80, 44, 1], [0x80, 40, 1], [0x80, 36, 1], [0x80, 32, 1]], loop: -1, speed: 2 },
+  clear: { group: "", key: "sidPresetClear", steps: [], loop: -1, speed: 1 }
 };
+function _sidBuildPresetSelect() {
+  const sel = document.getElementById("sid-table-preset");
+  if (!sel) return;
+  sel.innerHTML = "";
+  const first = document.createElement("option");
+  first.value = ""; first.textContent = t("sidTablePresets");
+  sel.appendChild(first);
+  [["arp", "sidTpGroupArp"], ["drum", "sidTpGroupDrums"], ["lead", "sidTpGroupLead"], ["fx", "sidTpGroupFx"], ["", ""]].forEach(function(g) {
+    const parent = g[0] ? document.createElement("optgroup") : sel;
+    if (g[0]) parent.label = t(g[1]);
+    Object.keys(_SID_TABLE_PRESETS).forEach(function(id) {
+      const p = _SID_TABLE_PRESETS[id];
+      if (p.group !== g[0]) return;
+      const o = document.createElement("option");
+      o.value = id; o.textContent = t(p.key);
+      parent.appendChild(o);
+    });
+    if (g[0]) sel.appendChild(parent);
+  });
+}
 function _sidRenderTable() {
   const inst = _sidCurInst();
   const box = document.getElementById("sid-table-steps");
@@ -38218,7 +38371,7 @@ function _sidRenderTable() {
       wave.appendChild(o);
     });
     wave.value = String(step.w);
-    wave.addEventListener("change", function(){ step.w = Number(wave.value) | 0; });
+    wave.addEventListener("change", function(){ step.w = Number(wave.value) | 0; _sidTableEdited(); });
     const note = document.createElement("input");
     note.type = "number"; note.className = "sid-input";
     note.min = step.abs ? "0" : "-96"; note.max = "95"; note.value = String(step.n);
@@ -38226,6 +38379,7 @@ function _sidRenderTable() {
     note.addEventListener("input", function(){
       const v = Number.parseInt(note.value, 10);
       if (Number.isFinite(v)) step.n = step.abs ? Math.max(0, Math.min(95, v)) : Math.max(-96, Math.min(95, v));
+      _sidTableEdited();
     });
     const absLbl = document.createElement("label");
     absLbl.className = "sid-check";
@@ -38234,6 +38388,7 @@ function _sidRenderTable() {
     abs.addEventListener("change", function(){
       step.abs = abs.checked;
       step.n = step.abs ? Math.max(0, Math.min(95, step.n + 48)) : 0;
+      _sidTableEdited();
       _sidRenderTable();
     });
     const absTxt = document.createElement("span");
@@ -38245,6 +38400,7 @@ function _sidRenderTable() {
     del.addEventListener("click", function(){
       table.splice(k, 1);
       if (inst.tableLoop >= table.length) inst.tableLoop = table.length - 1;
+      _sidTableEdited();
       _sidRenderTable();
     });
     row.append(idx, wave, note, absLbl, del);
@@ -38252,6 +38408,8 @@ function _sidRenderTable() {
   });
   const add = document.getElementById("sid-table-add");
   if (add) add.disabled = table.length >= 32;
+  const presetSel = document.getElementById("sid-table-preset");
+  if (presetSel) presetSel.value = inst._tablePreset || "";
 }
 function _sidApplyTablePreset(key) {
   const p = _SID_TABLE_PRESETS[key];
@@ -38260,8 +38418,16 @@ function _sidApplyTablePreset(key) {
   inst.table = p.steps.map(function(s){ return { w: s[0], n: s[1], abs: !!s[2] }; });
   inst.tableLoop = p.loop;
   inst.tableSpeed = p.speed;
+  // the preset name stays shown until the table is edited by hand (not saved)
+  inst._tablePreset = key === "clear" ? "" : key;
   const ts = document.getElementById("sid-table-speed"); if (ts) ts.value = p.speed;
   _sidRenderTable();
+}
+function _sidTableEdited() {
+  const inst = _sidCurInst();
+  if (inst) inst._tablePreset = "";
+  const sel = document.getElementById("sid-table-preset");
+  if (sel) sel.value = "";
 }
 function _sidBuildInstSel() {
   const sel = document.getElementById("sid-inst-sel"); if (!sel) return;
@@ -38311,6 +38477,15 @@ const _SID_FX_NAMES = [null, "V", "U", "D", "C", "F"];
 function _sidFxText(cell) {
   if (!cell.fx) return "...";
   return cell.fx + (cell.fxval < 16 ? "0" : "") + (cell.fxval & 0xFF).toString(16).toUpperCase();
+}
+/* A row with only the C effect is a note-off (gate off, the release runs), the
+   way trackers show a key-off: "===" in the note column. Display only — the
+   UB export and the saved data keep the C effect. */
+function _sidIsNoteOff(cell) {
+  return !!cell && cell.note == null && cell.fx === "C";
+}
+function _sidGridCellText(cell) {
+  return _sidIsNoteOff(cell) ? "=== .. ..." : _sidCellText(cell);
 }
 function _sidCellText(cell) {
   const notePart = cell.note == null ? "... .." : _sidNoteName(cell.note) + " " + (cell.inst<16?"0":"") + cell.inst.toString(16).toUpperCase();
@@ -38500,7 +38675,7 @@ function _sidBuildTracker() {
       const isCursor = _sidSel.voice === v && _sidSel.row === r;
       const inRange  = v >= rangeVoiceLo && v <= rangeVoiceHi && r >= rangeRowLo && r <= rangeRowHi && !isCursor;
       const selCls = isCursor ? " sid-cell--sel" : (inRange ? " sid-cell--sel-range" : "");
-      html += '<td class="sid-cell'+selCls+'" data-v="'+v+'" data-r="'+r+'">' + _sidCellText(pat[v][r]) + '</td>';
+      html += '<td class="sid-cell'+selCls+'" data-v="'+v+'" data-r="'+r+'">' + _sidGridCellText(pat[v][r]) + '</td>';
     }
     html += "</tr>";
   }
@@ -38549,6 +38724,7 @@ function _sidBuildTracker() {
 function _sidParseCellEntry(text) {
   const s = (text || "").trim();
   if (!s || s === "..." || s === "... .." || s === "... .. ...") return { clear: true };
+  if (/^(===|off)$/i.test(s.split(/\s+/)[0])) return { note: null, fx: "C", fxval: 0 };
   const tokens = s.split(/\s+/);
   const noteLetters = { c:0, d:2, e:4, f:5, g:7, a:9, b:11 };
   let note = undefined, inst = undefined, fx = null, fxval = 0;
@@ -38592,10 +38768,11 @@ function _sidBeginManualEdit(v, r, td) {
   _sidSel = { voice: v, row: r };
   const pat = _sidCurPat();
   const cell = pat[v][r];
-  const notePart = cell.note == null
+  const notePart = _sidIsNoteOff(cell) ? "==="
+    : cell.note == null
     ? ""
     : _sidNoteName(cell.note) + " " + (cell.inst < 16 ? "0" : "") + cell.inst.toString(16).toUpperCase();
-  const fxPart = cell.fx ? " " + _sidFxText(cell) : "";
+  const fxPart = cell.fx && !_sidIsNoteOff(cell) ? " " + _sidFxText(cell) : "";
   const initial = notePart + fxPart;
   const input = document.createElement("input");
   input.type = "text";
@@ -38605,7 +38782,7 @@ function _sidBeginManualEdit(v, r, td) {
   input.autocomplete = "off";
   input.setAttribute("maxlength", "12");
   input.placeholder = "C-4 01 V24";
-  input.title = "Format: note [instrument] [effect] (e.g. C-4 01, C#5, D3 0A V24). Effects: V=vibrato U/D=slide up/down C=note cut F=speed. \"F06\" or \"C\" alone applies an effect with no new note. Empty = clear.";
+  input.title = "Format: note [instrument] [effect] (e.g. C-4 01, C#5, D3 0A V24). Effects: V=vibrato U/D=slide up/down C=note cut F=speed. \"F06\" or \"C\" alone applies an effect with no new note; \"===\" (or OFF, key 1) = note-off. Empty = clear.";
   const original = td.innerHTML;
   td.innerHTML = "";
   td.appendChild(input);
@@ -38684,7 +38861,7 @@ function _sidRefreshSel() {
 function _sidSetCellText(v, r) {
   const t = document.getElementById("sid-tracker"); if (!t) return;
   const td = t.querySelector('td.sid-cell[data-v="'+v+'"][data-r="'+r+'"]');
-  if (td) td.textContent = _sidCellText(_sidCurPat()[v][r]);
+  if (td) td.textContent = _sidGridCellText(_sidCurPat()[v][r]);
 }
 
 function _sidPreviewSelectedRow() {
@@ -38745,10 +38922,12 @@ function _sidApplyMasterVolume() {
     }
   } catch(_) {}
 }
-/* Note preview: one voice of the engine plays `inst` for holdSec, then the gate
-   is released and the release tail is rendered too. */
+/* Note preview: `inst` plays for holdSec, then the gate is released. Through
+   the WebSid register stream when available; otherwise one engine voice is
+   rendered with the release tail by the synth. */
 function _sidPlayNote(inst, note, when, holdSec) {
   const ac = _sidEnsureAudio();
+  if (_sidStreamNote(inst, note, when - ac.currentTime, holdSec)) return { src: null };
   const td = _sidTuneData({ insts: [inst], patterns: [], song: [0], speed: 255 });
   const e = _sidEngineNew(td);
   const ins = td.insts[0];
@@ -38902,12 +39081,21 @@ async function _webSidPlayCurrent() {
   if (!prgBytes || prgBytes.length < 3) return false;
   // sid_init is hardcoded at $C000 by _sidExportAsmPlayable's `* = $C000` ORG;
   // playAddress=0 tells the PSID player to use the IRQ vector installed by init.
-  const psid = _buildPsidBytes(prgBytes, 0xC000, 0x0000, "VA SID preview");
+  return !!(await _webSidLoadPsid(_buildPsidBytes(prgBytes, 0xC000, 0x0000, "VA SID preview")));
+}
+
+/* Loads a PSID into WebSid and starts it; resolves to the load's sequence
+   number (truthy) or false. Every load replaces the previous tune, so the
+   register stream below only trusts the load it started itself. */
+let _webSidLoadSeq = 0;
+function _webSidLoadPsid(psid) {
+  const seq = ++_webSidLoadSeq;
+  if (_sidStream && _sidStream.state !== "loading") _sidStream.state = "idle";
   if (_webSidBlobUrl) { try { URL.revokeObjectURL(_webSidBlobUrl); } catch(_) {} }
   _webSidBlobUrl = URL.createObjectURL(new Blob([psid], { type: "application/octet-stream" }));
   return new Promise((resolve) => {
     let settled = false;
-    const done = (ok) => { if (settled) return; settled = true; resolve(ok); };
+    const done = (ok) => { if (settled) return; settled = true; resolve(ok ? seq : false); };
     try {
       const p = ScriptNodePlayer.loadMusicFromURL(
         _webSidBlobUrl,
@@ -38945,17 +39133,188 @@ function _webSidPause() {
   _webSidHideExternalDialog();
 }
 
+/* ── SID register stream: every editor preview through WebSid ─────────────
+ * A small PSID (JMP init / JMP play at $1000 / $1003) copies one 32-byte frame
+ * per play call from a 64-frame ring at $2000 to $D400: bytes 0-24 are the
+ * registers (written 24 → 0, so ADSR precedes each control register), byte 28
+ * masks the voices re-triggered in that frame and bytes 25-27 hold the gate-off
+ * control value written first for them, like sid_set_voice. Ring indices:
+ * rd = $1F00 (player), wr = $1F01 (JS). _sidStreamPump keeps the ring a few
+ * frames ahead from the JS engine: note previews (_sidStreamNote) or a
+ * pattern (_sidWaStart). */
+function _sidStreamPrg() {
+  return [0x00, 0x10,
+    0x4C, 0x06, 0x10, 0x4C, 0x17, 0x10,
+    // init: rd = wr = 0, clear $D400-$D418
+    0xA9, 0x00, 0x8D, 0x00, 0x1F, 0x8D, 0x01, 0x1F, 0xA2, 0x18, 0x9D, 0x00, 0xD4, 0xCA, 0x10, 0xFA, 0x60,
+    // play: empty ring → RTS; ($FB) = $2000 + rd * 32
+    0xAE, 0x00, 0x1F, 0xEC, 0x01, 0x1F, 0xF0, 0x49,
+    0x8A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x85, 0xFB, 0x8A, 0x4A, 0x4A, 0x4A, 0x18, 0x69, 0x20, 0x85, 0xFC,
+    // re-triggered voices: gate-off control value first
+    0xA0, 0x1C, 0xB1, 0xFB, 0x85, 0xFD,
+    0x46, 0xFD, 0x90, 0x07, 0xA0, 0x19, 0xB1, 0xFB, 0x8D, 0x04, 0xD4,
+    0x46, 0xFD, 0x90, 0x07, 0xA0, 0x1A, 0xB1, 0xFB, 0x8D, 0x0B, 0xD4,
+    0x46, 0xFD, 0x90, 0x07, 0xA0, 0x1B, 0xB1, 0xFB, 0x8D, 0x12, 0xD4,
+    // registers 24 → 0, then rd = (rd + 1) & 63
+    0xA0, 0x18, 0xB1, 0xFB, 0x99, 0x00, 0xD4, 0x88, 0x10, 0xF8,
+    0xE8, 0x8A, 0x29, 0x3F, 0x8D, 0x00, 0x1F, 0x60];
+}
+var _sidStream = null;
+function _sidStreamUsable() {
+  return _webSidAvailable() && !(_sidStream && _sidStream.failed);
+}
+function _sidStreamEnsure() {
+  if (!_sidStreamUsable()) return null;
+  if (!_sidStream) {
+    _sidStream = { state: "idle", failed: false, wr: 0, rd: 0, frame: 0, timer: null, idleSince: 0,
+      pv: null, events: [], owner: [null, null, null], vstart: [0, 0, 0], busyUntil: 0,
+      src: null, onRows: null, slotRows: new Array(64).fill(null), prev: new Uint8Array(25) };
+  }
+  const st = _sidStream;
+  st.idleSince = 0;
+  if (st.state === "ready" && !_webSidActive) {
+    try { ScriptNodePlayer.getInstance().resume(); _webSidActive = true; _sidApplyMasterVolume(); } catch (_) {}
+  } else if (st.state === "idle") {
+    st.state = "loading";
+    _webSidInit().then(function(ok) {
+      return ok ? _webSidLoadPsid(_buildPsidBytes(new Uint8Array(_sidStreamPrg()), 0x1000, 0x1003, "VA SID stream")) : false;
+    }).then(function(seq) {
+      if (!seq) {
+        st.failed = true; st.state = "idle";
+        // the pattern waiting for the stream falls back to the Web Audio synth
+        if (_sidWaPlay && _sidWaPlay.stream) { _sidWaStop(); _sidWaStart(true); }
+        return;
+      }
+      if (seq !== _webSidLoadSeq) { st.state = "idle"; return; }
+      st.state = "ready"; st.wr = 0; st.rd = 0; st.prev.fill(0); st.slotRows.fill(null);
+      _webSidActive = true;
+    }).catch(function() { st.failed = true; st.state = "idle"; });
+  }
+  if (!st.timer) st.timer = setInterval(_sidStreamPump, 10);
+  return st;
+}
+/* Loading the stream PSID takes a moment, and any other tune loaded into WebSid
+   replaces it: reload it in the background so the next preview sounds at once. */
+function _sidStreamPreload() {
+  const seq = _webSidLoadSeq;
+  setTimeout(function() {
+    const dlg = document.getElementById("sid-editor-dialog");
+    if (seq !== _webSidLoadSeq || !dlg || !dlg.open || _sidPlaybackUsingWebSid || _webSidActive) return;
+    if (_sidStream && _sidStream.state !== "idle") return;
+    _sidStreamEnsure();
+  }, 300);
+}
+function _sidStreamPump() {
+  const st = _sidStream, be = _webSidBackend;
+  if (!st || st.state !== "ready" || !be) return;
+  const rd = be.getRAM(0x1F00) & 63;
+  while (st.rd !== rd) {
+    const rows = st.slotRows[st.rd];
+    st.slotRows[st.rd] = null;
+    if (rows && st.onRows) rows.forEach(st.onRows);
+    st.rd = (st.rd + 1) & 63;
+  }
+  if (!st.src && !st.events.length && st.frame >= st.busyUntil) {
+    const now = performance.now();
+    if (!st.idleSince) st.idleSince = now;
+    else if (now - st.idleSince > 4000 && ((st.wr - rd) & 63) === 0) {
+      clearInterval(st.timer); st.timer = null;
+      _webSidPause();
+    }
+    return;
+  }
+  st.idleSince = 0;
+  let queued = (st.wr - rd) & 63;
+  while (queued < 5) {
+    const fr = st.src ? st.src(st) : _sidStreamPreviewFrame(st);
+    _sidStreamWrite(st, fr.regs, fr.mask, fr.rows);
+    queued++;
+  }
+  be.setRAM(0x1F01, st.wr);
+}
+function _sidStreamWrite(st, regs, mask, rows) {
+  const be = _webSidBackend, base = 0x2000 + st.wr * 32;
+  for (let k = 0; k < 25; k++) be.setRAM(base + k, regs[k]);
+  for (let v = 0; v < 3; v++) be.setRAM(base + 25 + v, st.prev[7 * v + 4] & 0xFE);
+  be.setRAM(base + 28, mask);
+  st.prev.set(regs);
+  st.slotRows[st.wr] = rows && rows.length ? rows : null;
+  st.wr = (st.wr + 1) & 63;
+}
+/* Drops the queued frames and releases every gate (the release tail sounds). */
+function _sidStreamSilence() {
+  const st = _sidStream;
+  if (!st) return;
+  st.src = null; st.onRows = null; st.events = []; st.pv = null; st.busyUntil = 0;
+  st.owner = [null, null, null];
+  if (st.state !== "ready" || !_webSidBackend) return;
+  st.wr = st.rd = _webSidBackend.getRAM(0x1F00) & 63;
+  st.slotRows.fill(null);
+  const regs = Uint8Array.from(st.prev);
+  for (let v = 0; v < 3; v++) regs[7 * v + 4] &= 0xFE;
+  _sidStreamWrite(st, regs, 0, null);
+  _webSidBackend.setRAM(0x1F01, st.wr);
+}
+function _sidStreamPreviewFrame(st) {
+  const e = st.pv || (st.pv = _sidEngineNew(_sidTuneData({ patterns: [], song: [0], speed: 255 })));
+  let mask = 0;
+  while (st.events.length && st.events[0].frame <= st.frame) {
+    const ev = st.events.shift();
+    if (ev.on) {
+      let insts = _sidInsts || [], idx = insts.indexOf(ev.inst);
+      if (idx < 0) { insts = insts.concat([ev.inst]); idx = insts.length - 1; }
+      const td = _sidTuneData({ insts: insts, patterns: [], song: [0], speed: 255 });
+      e.td = td; e.a = td.a;
+      // a free voice, else the longest released one, else the oldest note
+      const rank = function(k) { return e.v[k].on ? (e.v[k].gate ? 2 : 1) : 0; };
+      let v = 0;
+      for (let k = 1; k < 3; k++) {
+        if (rank(k) < rank(v) || (rank(k) === rank(v) && st.vstart[k] < st.vstart[v])) v = k;
+      }
+      _sidEngNoteOn(e, v, Math.max(0, Math.min(95, ev.note | 0)), idx);
+      mask |= 1 << v;
+      ev.v = v; st.owner[v] = ev; st.vstart[v] = st.frame;
+    } else if (ev.ref && ev.ref.v != null && st.owner[ev.ref.v] === ev.ref) {
+      e.v[ev.ref.v].gate = 0;
+    }
+  }
+  e.tick = 255; // no tracker rows: notes only come from the events
+  _sidEngFrame(e);
+  st.frame++;
+  return { regs: e.regs, mask: mask };
+}
+function _sidStreamNote(inst, note, delaySec, holdSec) {
+  // the real tune loaded in WebSid ("Play: All", even paused) must not be replaced
+  if (_sidPlaybackUsingWebSid) return false;
+  const st = _sidStreamEnsure();
+  if (!st || st.src) return false;
+  const at = st.frame + Math.max(0, Math.round(delaySec * 50));
+  const hold = Math.max(2, Math.round(Math.max(0.04, holdSec) * 50));
+  const on = { frame: at, on: true, note: note, inst: inst, v: null };
+  const add = function(ev) {
+    let k = st.events.length;
+    while (k > 0 && st.events[k - 1].frame > ev.frame) k--;
+    st.events.splice(k, 0, ev);
+  };
+  add(on);
+  add({ frame: at + hold, on: false, ref: on });
+  st.busyUntil = Math.max(st.busyUntil, at + hold + 150);
+  return true;
+}
+
 function _sidPauseBtnMarkup(isPlaying) {
   return isPlaying
     ? '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="3.5" width="2.5" height="9" fill="currentColor"/><rect x="9.5" y="3.5" width="2.5" height="9" fill="currentColor"/></svg>'
     : '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.5l8 4.5-8 4.5z" fill="currentColor"/></svg>';
 }
 function _sidUpdatePauseButton() {
-  const btn = document.getElementById("sid-play");
-  if (!btn) return;
   const isPlaying = !!(_sidTimer || _sidPlaybackUsingWebSid) && !_sidPaused;
-  btn.innerHTML = _sidPauseBtnMarkup(isPlaying);
-  btn.setAttribute("aria-label", _sidPaused ? t("sidResume") : isPlaying ? t("sidPause") : t("sidPlay"));
+  ["sid-play", "sid-vkbd-play"].forEach(function(id) {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    btn.innerHTML = _sidPauseBtnMarkup(isPlaying);
+    btn.setAttribute("aria-label", _sidPaused ? t("sidResume") : isPlaying ? t("sidPause") : t("sidPlay"));
+  });
 }
 
 function _webSidShowExternalDialog(filename) {
@@ -38995,6 +39354,8 @@ async function _webSidPlayFileBytes(bytes, filename) {
     showViceToast("WebSid nem elérhető ebben a WebView-ban.", true);
     return false;
   }
+  _webSidLoadSeq++;
+  if (_sidStream && _sidStream.state !== "loading") _sidStream.state = "idle";
   if (_webSidBlobUrl) { try { URL.revokeObjectURL(_webSidBlobUrl); } catch(_) {} }
   _webSidBlobUrl = URL.createObjectURL(new Blob([bytes], { type: "application/octet-stream" }));
   return new Promise((resolve) => {
@@ -39047,9 +39408,32 @@ function _sidWaStart(audio) {
     e.opos = Math.max(0, Math.min(td.song.length - 1, _sidSongPlayPos | 0));
     e.pat = td.song[e.opos] | 0;
   }
-  // the real player (WebSid) reads row 0 `speed` frames after init; the Web
-  // Audio preview starts the engine one frame before row 0 instead
+  // the real player (WebSid) reads row 0 `speed` frames after init; the
+  // previews start the engine one frame before row 0 instead
   if (audio) e.tick = 1;
+  if (audio) {
+    _sidStreamSilence();
+    const st = _sidStreamEnsure();
+    if (st) {
+      // the register stream plays the engine on the real SID; the rows of the
+      // frames the emulator has consumed drive the highlight
+      const w = _sidWaPlay = { e: e, audio: false, stream: true, events: [], next: 0, timer: null };
+      st.src = function() {
+        const td = _sidWaTune();
+        e.td = td; e.a = td.a;
+        if (e.opos >= td.song.length) { e.opos = 0; e.row = 0; }
+        if (_sidPlayMode !== "all") e.pat = td.song[0] | 0;
+        _sidEngFrame(e);
+        const rows = e.rows.splice(0);
+        return { regs: e.regs, mask: (e.trig[0] ? 1 : 0) | (e.trig[1] ? 2 : 0) | (e.trig[2] ? 4 : 0), rows: rows };
+      };
+      st.onRows = function(r) { if (_sidWaPlay === w) _sidWaShowRow(r); };
+      // _sidTimer only marks the playback as running; _sidStreamPump feeds it
+      w.timer = setInterval(function() {}, 1000);
+      _sidTimer = w.timer;
+      return;
+    }
+  }
   _sidWaPlay = { e: e, audio: !!audio, events: [], next: 0, timer: null };
   _sidWaPlay.next = _sidWaClock(_sidWaPlay) + 0.05;
   _sidWaSchedule();
@@ -39102,6 +39486,7 @@ function _sidWaShowRow(ev) {
 }
 function _sidWaStop() {
   if (_sidWaPlay && _sidWaPlay.timer) clearInterval(_sidWaPlay.timer);
+  if (_sidWaPlay && _sidWaPlay.stream) _sidStreamSilence();
   _sidWaPlay = null;
   _sidPreviewSources.forEach(function(src){ try { src.stop(); } catch (_) {} });
   _sidPreviewSources.clear();
@@ -39110,9 +39495,11 @@ function _sidWaStop() {
 function _sidStop() {
   if (_sidTimer) { clearInterval(_sidTimer); _sidTimer = null; }
   _sidWaStop();
+  _sidStreamSilence();
   _sidPaused = false;
   _sidPlaybackUsingWebSid = false;
   _webSidPause();
+  _sidStreamPreload();
   const t = document.getElementById("sid-tracker");
   if (t) t.querySelectorAll("tr.sid-playing").forEach(function(r){ r.classList.remove("sid-playing"); });
   _sidUpdatePauseButton();
@@ -39415,7 +39802,7 @@ function _sidEngFrame(e) {
   return e.regs;
 }
 
-/* ── Small SID synthesizer for the Web Audio preview ──────────────────────
+/* ── Small SID synthesizer: preview fallback without WebSid ───────────────
  * Renders one 50 Hz frame of register state: triangle/saw/pulse/noise with
  * the SID's AND-combined waveforms, test bit, ring modulation and hard sync
  * (voice 1 ← 3, 2 ← 1, 3 ← 2), an ADSR approximation and a resonant
@@ -40690,16 +41077,25 @@ function _sidInit() {
   _sidSongPlayPos = 0;
   _sidSyncPlayModeSel();
   _sidUpdateBpmDisplay();
+  try {
+    const saved = localStorage.getItem("c64va-sid-master-vol");
+    if (saved !== null && Number.isFinite(Number(saved))) _sidMasterVol = Math.max(0, Math.min(100, Number(saved))) / 100;
+  } catch (_) {}
   const volPct = Math.round(_sidMasterVol * 100);
   const volEl = document.getElementById("sid-master-vol");
   if (volEl) volEl.value = String(volPct);
   const volValEl = document.getElementById("sid-master-vol-val");
   if (volValEl) volValEl.textContent = String(volPct);
+  _sidBuildPresetSelect();
   _sidBuildInstSel();
   _sidLoadInstUI();
   _sidBuildPatSel();
   _sidBuildSongList();
   _sidBuildTracker();
+  // VA-VK settings (read here: setupSidEditor runs before these lets exist)
+  const vkSaved = _sidVkbdState();
+  if (typeof vkSaved.insert === "boolean") _sidVkbdInsertMode = vkSaved.insert;
+  if (Number.isFinite(vkSaved.octave)) _sidOctave = Math.max(0, Math.min(7, vkSaved.octave));
   _sidSetOctave(_sidOctave);
   _sidUpdatePauseButton();
   _sidRenderVirtualKeyboard();
@@ -40722,8 +41118,12 @@ function setupSidEditor() {
     const cm = document.querySelector(".control-menu"); if (cm) cm.removeAttribute("open");
     dialog._applyPosition?.();
     _sidInit(); dialog.showModal();
+    // place the detached tracker before the first paint (no jump from the default spot)
+    _sidRestoreTrackerFloat();
+    if (_sidVkbdState().open) _sidOpenVirtualKeyboard(false);
+    _sidStreamPreload();
   });
-  onId("sid-close", "click", function() { _sidCloseVirtualKeyboard(); _sidStop(); dialog.close(); });
+  onId("sid-close", "click", function() { _sidCloseVirtualKeyboard(false); _sidStop(); dialog.close(); });
 
   // instrument param bindings
   _sidInstFields().forEach(function(f) {
@@ -40743,14 +41143,16 @@ function setupSidEditor() {
   onId("sid-table-speed", "input", function(e){
     const v = parseInt(e.target.value, 10);
     if (Number.isFinite(v)) _sidCurInst().tableSpeed = Math.max(1, Math.min(15, v));
+    _sidTableEdited();
   });
-  onId("sid-table-loop", "change", function(e){ _sidCurInst().tableLoop = parseInt(e.target.value, 10); _sidRenderTable(); });
-  onId("sid-table-preset", "change", function(e){ _sidApplyTablePreset(e.target.value); e.target.value = ""; });
+  onId("sid-table-loop", "change", function(e){ _sidCurInst().tableLoop = parseInt(e.target.value, 10); _sidTableEdited(); _sidRenderTable(); });
+  onId("sid-table-preset", "change", function(e){ _sidApplyTablePreset(e.target.value); });
   onId("sid-table-add", "click", function(){
     const inst = _sidCurInst();
     if (inst.table.length >= 32) return;
     const last = inst.table[inst.table.length - 1];
     inst.table.push(last ? { w: 0, n: last.abs ? last.n : 0, abs: last.abs } : { w: 0, n: 0, abs: false });
+    _sidTableEdited();
     _sidRenderTable();
   });
   onId("sid-inst-name", "input", function(e){ _sidCurInst().name = e.target.value; _sidBuildInstSel(); });
@@ -40811,9 +41213,12 @@ function setupSidEditor() {
     const valEl = document.getElementById("sid-master-vol-val");
     if (valEl) valEl.textContent = String(pct);
     _sidApplyMasterVolume();
+    try { localStorage.setItem("c64va-sid-master-vol", String(pct)); } catch (_) {}
   });
   onId("sid-play", "click", _sidPauseToggle);
   onId("sid-stop", "click", _sidStop);
+  onId("sid-vkbd-play", "click", _sidPauseToggle);
+  onId("sid-vkbd-stop", "click", _sidStop);
   onId("sid-virtual-keyboard", "click", function(){
     _sidOpenVirtualKeyboard();
   });
@@ -40822,7 +41227,10 @@ function setupSidEditor() {
   });
   onId("sid-vkbd-oct-down", "click", function(){ _sidSetOctave(_sidOctave-1); });
   onId("sid-vkbd-oct-up", "click", function(){ _sidSetOctave(_sidOctave+1); });
-  onId("sid-vkbd-insert", "change", function(e){ _sidVkbdInsertMode = !!e.target.checked; });
+  onId("sid-vkbd-insert", "change", function(e){
+    _sidVkbdInsertMode = !!e.target.checked;
+    _sidSaveVkbdState({ insert: _sidVkbdInsertMode });
+  });
   onId("sid-vkbd-octaves", "change", function(e){
     try { localStorage.setItem("c64va-sid-vkbd-octaves", e.target.value); } catch (_) {}
     _sidRenderVirtualKeyboard();
@@ -40839,19 +41247,23 @@ function setupSidEditor() {
     });
     sidVkbdHdr.addEventListener("pointermove", function(e) {
       if (!_sidVkbdDrag) return;
-      const maxX = Math.max(8, window.innerWidth - sidVkbdDlg.offsetWidth - 8);
-      const maxY = Math.max(8, window.innerHeight - sidVkbdDlg.offsetHeight - 8);
-      sidVkbdDlg.style.left = Math.max(8, Math.min(e.clientX - _sidVkbdDrag.dx, maxX)) + "px";
-      sidVkbdDlg.style.top = Math.max(8, Math.min(e.clientY - _sidVkbdDrag.dy, maxY)) + "px";
+      _sidVkbdDrag.at = _sidPlaceFixed(sidVkbdDlg, e.clientX - _sidVkbdDrag.dx, e.clientY - _sidVkbdDrag.dy);
     });
     const endVkbdDrag = function(e) {
       if (!_sidVkbdDrag) return;
+      if (_sidVkbdDrag.at) _sidSaveVkbdState({ left: _sidVkbdDrag.at.x, top: _sidVkbdDrag.at.y });
       _sidVkbdDrag = null;
       if (e && e.pointerId != null) { try { sidVkbdHdr.releasePointerCapture(e.pointerId); } catch(_) {} }
     };
     sidVkbdHdr.addEventListener("pointerup", endVkbdDrag);
     sidVkbdHdr.addEventListener("pointercancel", endVkbdDrag);
   }
+  onId("sid-tracker-detach", "click", function(){ _sidSetTrackerDetached(true); });
+  onId("sid-tracker-attach", "click", function(){ _sidSetTrackerDetached(false); });
+  _sidSetupTrackerFloat();
+  let trkDetached = false;
+  try { trkDetached = !!(JSON.parse(localStorage.getItem("c64va-sid-tracker-float") || "{}").detached); } catch (_) {}
+  if (trkDetached) _sidSetTrackerDetached(true);
   // Files: save/load .bin + export blocks / export asm
   onId("sid-export-asm", "click", function(){ _sidCopyExport("asm"); });
   onId("sid-export-ub", "click", function(){
@@ -40906,6 +41318,18 @@ function setupSidEditor() {
       _sidSetCellText(_sidSel.voice, _sidSel.row);
       _sidSel.row = (_sidSel.row+1)%_SID_ROWS; _sidRefreshSel(); e.preventDefault(); return;
     }
+    if (e.key === "Enter") {
+      const td = document.querySelector('#sid-tracker td.sid-cell[data-v="' + _sidSel.voice + '"][data-r="' + _sidSel.row + '"]');
+      if (td) _sidBeginManualEdit(_sidSel.voice, _sidSel.row, td);
+      e.preventDefault(); return;
+    }
+    // note-off (key-off), like the key left of / on "1" in trackers
+    if (e.key === "1" || e.key === "`" || e.key === "=") {
+      _sidSelAnchor = null;
+      _sidCurPat()[_sidSel.voice][_sidSel.row] = { note: null, inst: 0, fx: "C", fxval: 0 };
+      _sidSetCellText(_sidSel.voice, _sidSel.row);
+      _sidSel.row = (_sidSel.row + 1) % _SID_ROWS; _sidRefreshSel(); e.preventDefault(); return;
+    }
     if (_SID_KEYMAP.hasOwnProperty(k)) {
       _sidInsertNoteAtSelection(_sidOctave*12 + _SID_KEYMAP[k], true);
       e.preventDefault(); return;
@@ -40944,6 +41368,7 @@ function _sidSetOctave(o) {
   if (el) el.textContent = _sidOctave;
   const vkEl = document.getElementById("sid-vkbd-octave-val");
   if (vkEl) vkEl.textContent = _sidOctave;
+  _sidSaveVkbdState({ octave: _sidOctave });
   _sidRenderVirtualKeyboard();
 }
 

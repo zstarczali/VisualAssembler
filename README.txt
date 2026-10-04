@@ -1,9 +1,11 @@
 C64 Visual Assembler - Installation Guide
-Version 2.5.1
+Version 2.5.2
 Support: https://zstarczali.itch.io/visual-assembler-commodore-64
 ==========================================================================
 
-2.5.1: SID Editor instruments like a real tracker — filter routing per voice, 3 OFF and a cutoff sweep (start, end, speed per frame, ping-pong) for resonant filter sweeps; instrument vibrato (delay, speed, depth); pulse width modulation (speed, min, max); gate timer, hard restart and first-frame waveform; a wave / arpeggio table with presets (major / minor / octave arpeggio, kick, snare, hi-hat); RING and SYNC. The exported 6502 player was rewritten to run these every frame (JSR sid_frame from your own IRQ, less zero page), and the preview renders the same player through a small SID synthesizer, so edits are heard while playing and the row highlight follows speed changes; .bin saves keep instrument names and speed. The virtual keyboard can show 2, 3 or 4 octaves in a Commodore 64 synth look. Bundled Ultimate Basic 1.6.2: the tune block gains imod / ifilt / igate / itab lines, and the SID editor exports them. Also: bookmarks (Ctrl+F2 / F2 / Shift+F2) and Go to line (Ctrl+G) in the Expert and Ultimate Basic editors; label expressions (.assert, LEVEL_MULTICOLOR*16 ...) work in the installed app again (no eval under the release CSP); the D64 Editor file dialogs open in the active working folder; the Build project report names the output folder.
+2.5.2: every SID Editor preview now plays on the real SID (WebSid) — instrument Preview, virtual keyboard, note entry, chord, arpeggio, row and single-pattern playback — through a register stream fed frame by frame by the same engine as the exported player (the small synthesizer remains only as a fallback without WebSid); the stream player is preloaded so notes sound at once. The wave / arpeggio preset list keeps the chosen preset until the table is edited by hand. Tracker: a note-off (===, key 1 or typing === / OFF) releases the gate so the instrument's release runs — a note otherwise sustains until the next note, as in other trackers; Enter edits the selected cell; the tracker can be detached into a floating, resizable panel and docked back. The virtual keyboard is now called VA-VK, has Play / Stop buttons and remembers its position and settings, and the SID editor remembers its master volume. Knowledge Base: new links (C64 OS development environment, png2c64 image converter) in a two-column list.
+
+2.5.1: SID Editor instruments like a real tracker — filter routing per voice, 3 OFF and a cutoff sweep (start, end, speed per frame, ping-pong) for resonant filter sweeps; instrument vibrato (delay, speed, depth); pulse width modulation (speed, min, max); gate timer, hard restart and first-frame waveform; a wave / arpeggio table with 25 presets (arpeggios, drums, lead / bass attacks, sound effects); RING and SYNC. The exported 6502 player was rewritten to run these every frame (JSR sid_frame from your own IRQ, less zero page), and the preview renders the same player through a small SID synthesizer, so edits are heard while playing and the row highlight follows speed changes; .bin saves keep instrument names and speed. The virtual keyboard can show 2, 3 or 4 octaves in a Commodore 64 synth look. Bundled Ultimate Basic 1.6.2: the tune block gains imod / ifilt / igate / itab lines, and the SID editor exports them. Also: bookmarks (Ctrl+F2 / F2 / Shift+F2) and Go to line (Ctrl+G) in the Expert and Ultimate Basic editors; label expressions (.assert, LEVEL_MULTICOLOR*16 ...) work in the installed app again (no eval under the release CSP); the D64 Editor file dialogs open in the active working folder; the Build project report names the output folder.
 
 2.5.0: Level Editor — a new toolbar editor arranges Map Editor screens vertically, horizontally or in a 2D grid and previews the whole level with smooth scrolling (drag, arrow keys or Play); it saves a level project (.bin), the full level Screen / Screen + Color RAM, blocks or asm. New .level "level.bin" [, $addr] macro places only the placed screens of a level plus pointer tables and defines LEVEL_* labels and constants; .level_row dst, col [, color] copies one 40-character level row (screen codes or colors) to a buffer. .joystick port, vx, vy [, fire] now writes the direction into variables (-1/0/+1, fire) instead of moving a sprite, and port 3 reads both joystick ports. New sample samples/level-demo.asm scrolls a 2x5-screen level pixel by pixel in every direction with the joystick, tear-free, with room left for a game. Number converter — a non-modal DEC / HEX / BIN dialog on the toolbar (8/16 bit, clickable bits, signed value, low/high byte, copy buttons) that remembers its position and stays open across restarts. Menu → Examples… opens a searchable, categorised list of the built-in example programs. Bundled Ultimate Basic 1.6.1: map load reads a Level Editor project directly (map load "level.bin", $4000) and the new map view px, py scrolls the map smoothly and tear-free at a pixel position; a byte product inside a 16-bit sum is no longer truncated to 8 bits. The UB command reference lists map view and its search puts command names first.
 
@@ -43,7 +45,7 @@ Tested on Ubuntu 22.04 and 24.04.
 -----------------------
 Download the .deb package from the releases page and install:
 
-  sudo dpkg -i "c64-visual-assembler_2.5.1_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.5.2_amd64.deb"
   sudo apt-get install -f   # fix any missing dependencies
 
 Launch from the Applications menu or:
@@ -136,7 +138,7 @@ Requirements: macOS 11.0+, Apple Silicon (M1/M2/M3)
 
 1. C64 Visual Assembler
 -----------------------
-1. Download the 2.5.1 DMG for your architecture from the releases page
+1. Download the 2.5.2 DMG for your architecture from the releases page
 2. Mount the DMG and drag the app to /Applications
 3. First launch: Right-click the app -> "Open" (macOS will block double-click)
 4. Click "Open" in the security dialog
