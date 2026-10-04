@@ -45,6 +45,7 @@
       "../docs/*": "docs/"
     },
     "macOS": {
+      "signingIdentity": "-",
       "dmg": {
         "windowSize": {
           "width": 660,
