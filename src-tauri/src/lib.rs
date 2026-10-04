@@ -2102,9 +2102,18 @@ fn parse_c1541_listing(text: &str) -> (String, Vec<serde_json::Value>, Option<u3
     (disk_name, entries, blocks_free)
 }
 
+// Explicit directory (the active mode's working folder) wins over the VA working folder.
+fn d64_dialog_folder(app: &AppHandle, directory: Option<String>) -> Option<PathBuf> {
+    directory
+        .map(|d| d.trim().to_string())
+        .filter(|d| !d.is_empty())
+        .map(PathBuf::from)
+        .or_else(|| get_working_folder_path(&read_config(app)))
+}
+
 #[tauri::command]
-async fn choose_d64_open(app: AppHandle) -> serde_json::Value {
-    let working_folder = { let cfg = read_config(&app); get_working_folder_path(&cfg) };
+async fn choose_d64_open(app: AppHandle, directory: Option<String>) -> serde_json::Value {
+    let working_folder = d64_dialog_folder(&app, directory);
     let mut dialog = app.dialog().file()
         .add_filter("Commodore 64 disk image", &["d64"])
         .add_filter("All files", &["*"]);
@@ -2116,8 +2125,8 @@ async fn choose_d64_open(app: AppHandle) -> serde_json::Value {
 }
 
 #[tauri::command]
-async fn choose_d64_new(app: AppHandle) -> serde_json::Value {
-    let working_folder = { let cfg = read_config(&app); get_working_folder_path(&cfg) };
+async fn choose_d64_new(app: AppHandle, directory: Option<String>) -> serde_json::Value {
+    let working_folder = d64_dialog_folder(&app, directory);
     let mut dialog = app.dialog().file()
         .add_filter("Commodore 64 disk image", &["d64"])
         .add_filter("All files", &["*"]);

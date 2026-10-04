@@ -1460,7 +1460,7 @@ function initPalette() {
   document.getElementById("ub-zoom-in-btn")?.addEventListener("click", () => _ubZoom(1));
   document.getElementById("ub-zoom-out-btn")?.addEventListener("click", () => _ubZoom(-1));
   _bindCtrlWheelZoom(document.querySelector(".ub-editor-wrap"), _ubZoom);
-  ubEditor?.addEventListener("input", () => { _ubDirty = true; markTabDirty(); _ubRefreshEditor(); _ubAcUpdate(); });
+  ubEditor?.addEventListener("input", () => { _ubDirty = true; markTabDirty(); _bmTrackEdit("ub"); _ubRefreshEditor(); _ubAcUpdate(); });
   ubEditor?.addEventListener("keyup", _ubUpdateCursor);
   ubEditor?.addEventListener("click", _ubUpdateCursor);
   ubEditor?.addEventListener("select", _ubUpdateCursor);
@@ -1522,6 +1522,7 @@ function initPalette() {
       if (e.key === "Escape") { _ubAcHide(); return; }
     }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "f") { e.preventDefault(); _ubOpenFind(); return; }
+    if (_bmHandleKey("ub", e)) return;
     if (e.key !== "Tab") return;
     e.preventDefault();
     ubEditor.setRangeText("  ", ubEditor.selectionStart, ubEditor.selectionEnd, "end");
@@ -1749,6 +1750,7 @@ function initPalette() {
     const pendingMeta = _expertPendingEditMeta;
     const mirroredSel = _expertSyncSourceTextFromEditor(pendingMeta);
     _expertPendingEditMeta = null;
+    _bmTrackEdit("expert");
     const sourceSelStart = mirroredSel?.start ?? _expertDisplayPosToSourcePos(displaySelStart);
     const sourceSelEnd = mirroredSel?.end ?? _expertDisplayPosToSourcePos(displaySelEnd);
     // Optimistically shift error line numbers so the red highlight tracks the
@@ -1775,6 +1777,7 @@ function initPalette() {
       _expertFindOpen();
       return;
     }
+    if (_bmHandleKey("expert", e)) return;
     const isCommentShortcut = e.key === "/" || e.key === "?" || e.code === "Slash";
     if ((e.ctrlKey || e.metaKey) && isCommentShortcut) {
       e.preventDefault();
@@ -1892,6 +1895,7 @@ function initPalette() {
   setupMapEditor();
   setupLevelEditor();
   setupNumberConverter();
+  setupBookmarks();
   setupHiresEditor();
   setupSpriteEditor();
   setupSidEditor();
@@ -3167,7 +3171,11 @@ function applyTranslations() {
     "ub-project-new-btn": "projNewProjectBtn", "ub-project-save-btn": "projSaveProjectBtn",
     "ub-project-add-btn": "projAddFileBtn", "ub-hl-btn": "ubSyntaxHighlight",
     "ub-lines-btn": "ubLineNumbers", "ub-minimap-btn": "ubMinimap",
-    "ub-find-btn": "ubFind", "ub-zoom-out-btn": "zoomOut", "ub-zoom-in-btn": "zoomIn"
+    "ub-find-btn": "ubFind", "ub-zoom-out-btn": "zoomOut", "ub-zoom-in-btn": "zoomIn",
+    "ub-goto-btn": "gotoLineBtn", "ub-bm-toggle-btn": "bmToggle", "ub-bm-prev-btn": "bmPrev",
+    "ub-bm-next-btn": "bmNext", "ub-bm-clear-btn": "bmClear",
+    "expert-goto-btn": "gotoLineBtn", "expert-bm-toggle-btn": "bmToggle", "expert-bm-prev-btn": "bmPrev",
+    "expert-bm-next-btn": "bmNext", "expert-bm-clear-btn": "bmClear"
   };
   Object.entries(ubLabels).forEach(([id, key]) => document.getElementById(id)?.setAttribute("aria-label", t(key)));
   setText("#ub-commands-title", t("ubCommands"));
@@ -7470,13 +7478,14 @@ function _ubRefreshEditor() {
   const gutter = document.getElementById("ub-line-numbers-content");
   if (gutter) {
     gutter.innerHTML = "";
+    const bookmarks = new Set(_bmLines("ub"));
     ubEditor.value.split("\n").forEach((_, line) => {
       const marker = document.createElement("button");
       marker.type = "button";
-      marker.className = "source-line-number bp-toggle" + (_getTabBreakpointLines("ub").includes(line) ? " bp-active" : "");
+      marker.className = "source-line-number bp-toggle" + (_getTabBreakpointLines("ub").includes(line) ? " bp-active" : "") + (bookmarks.has(line) ? " bm-active" : "");
       marker.textContent = String(line + 1);
       marker.setAttribute("aria-label", `${t("breakpointToggle")} ${line + 1}`);
-      marker.addEventListener("click", () => _setBreakpointLine("ub", line));
+      marker.addEventListener("click", (e) => (e.ctrlKey || e.metaKey) ? _bmToggle("ub", line) : _setBreakpointLine("ub", line));
       gutter.appendChild(marker);
     });
   }
@@ -7496,6 +7505,163 @@ function _ubGotoLine(lineIndex) {
   const lineHeight = parseFloat(getComputedStyle(ubEditor).lineHeight) || 21;
   const paddingTop = parseFloat(getComputedStyle(ubEditor).paddingTop) || 16;
   ubEditor.scrollTop = Math.max(0, paddingTop + lineIndex * lineHeight - ubEditor.clientHeight / 3);
+}
+
+// ── Könyvjelzők és ugrás sorra (Expert + UB) ──
+// Forrássor-indexek fülenként (tab.expertBookmarks / tab.ubBookmarks), fájlútvonal
+// szerint localStorage-ban is ("c64va-bookmarks"), hogy újraindítás után megmaradjanak.
+// Csak függvények: az init a szkript kiértékelése közben is renderelhet guttert (TDZ).
+function _bmPath(kind) {
+  const tab = _getActiveTab();
+  return kind === "ub" ? (_ubFilePath || tab?.ubFilePath || tab?.filePath || "") : (tab?.filePath || "");
+}
+
+function _bmStored() {
+  try { return JSON.parse(localStorage.getItem("c64va-bookmarks") || "{}") || {}; } catch (_) { return {}; }
+}
+
+function _bmLines(kind) {
+  const tab = _getActiveTab();
+  if (!tab) return [];
+  const key = kind + "Bookmarks";
+  const path = _bmPath(kind);
+  if (!Array.isArray(tab[key]) || tab[key + "Path"] !== path) {
+    const saved = path ? _bmStored()[path] : null;
+    // an untitled tab that just got its first path keeps its bookmarks
+    const keep = Array.isArray(tab[key]) && !tab[key + "Path"] && !Array.isArray(saved);
+    tab[key] = keep ? tab[key] : Array.isArray(saved) ? saved.filter(Number.isInteger) : [];
+    tab[key + "Path"] = path;
+    tab[kind + "BookmarkSnap"] = undefined;
+    if (keep && path) _bmSet(kind, tab[key], false);
+  }
+  return tab[key];
+}
+
+function _bmSet(kind, lines, refresh = true) {
+  const sorted = [...new Set(lines)].filter(n => Number.isInteger(n) && n >= 0).sort((a, b) => a - b);
+  const tab = _getActiveTab();
+  if (!tab) return;
+  tab[kind + "Bookmarks"] = sorted;
+  const path = _bmPath(kind);
+  if (path) {
+    const store = _bmStored();
+    if (sorted.length) store[path] = sorted; else delete store[path];
+    try { localStorage.setItem("c64va-bookmarks", JSON.stringify(store)); } catch (_) {}
+  }
+  if (refresh) {
+    if (kind === "ub") _ubRefreshEditor(); else _expertUpdateLineNumbers();
+  }
+}
+
+function _bmText(kind) {
+  return kind === "ub" ? (ubEditor?.value || "") : _expertGetSourceText();
+}
+
+function _bmCaretLine(kind) {
+  if (kind === "ub") return ubEditor.value.slice(0, ubEditor.selectionStart).split("\n").length - 1;
+  const sourcePos = _expertDisplayPosToSourcePos(expertEditor.selectionStart ?? 0);
+  return _expertGetSourceText().slice(0, sourcePos).split("\n").length - 1;
+}
+
+function _bmGoto(kind, line) {
+  if (kind === "ub") _ubGotoLine(line); else _expertGotoSourceLine(line);
+}
+
+function _bmToggle(kind, line = _bmCaretLine(kind)) {
+  const lines = _bmLines(kind);
+  _bmSet(kind, lines.includes(line) ? lines.filter(l => l !== line) : [...lines, line]);
+}
+
+function _bmJump(kind, dir) {
+  const lines = _bmLines(kind);
+  if (!lines.length) return;
+  const cur = _bmCaretLine(kind);
+  const target = dir > 0
+    ? (lines.find(l => l > cur) ?? lines[0])
+    : ([...lines].reverse().find(l => l < cur) ?? lines[lines.length - 1]);
+  _bmGoto(kind, target);
+}
+
+/* Moves the bookmarks with the edited text: lines above the changed block stay,
+   lines below it shift by the line delta, lines inside it are clamped into it. */
+function _bmTrackEdit(kind) {
+  const tab = _getActiveTab();
+  if (!tab) return;
+  const lines = _bmLines(kind);
+  const snapKey = kind + "BookmarkSnap";
+  const text = _bmText(kind);
+  const prev = tab[snapKey];
+  tab[snapKey] = text;
+  if (typeof prev !== "string" || prev === text || !lines.length) return;
+  const a = prev.split("\n"), b = text.split("\n");
+  let p = 0;
+  while (p < a.length && p < b.length && a[p] === b[p]) p++;
+  let s = 0;
+  while (s < a.length - p && s < b.length - p && a[a.length - 1 - s] === b[b.length - 1 - s]) s++;
+  const oldEnd = a.length - s, newEnd = b.length - s, delta = b.length - a.length;
+  const moved = lines.map(l => l < p ? l : l >= oldEnd ? l + delta : Math.min(l, Math.max(p, newEnd - 1)));
+  if (moved.some((l, i) => l !== lines[i])) _bmSet(kind, moved, false);
+}
+
+function _bmHandleKey(kind, e) {
+  if (e.key === "F2" && !e.altKey) {
+    e.preventDefault();
+    if (e.ctrlKey || e.metaKey) _bmToggle(kind); else _bmJump(kind, e.shiftKey ? -1 : 1);
+    return true;
+  }
+  if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === "g") {
+    e.preventDefault();
+    _gotoLineOpen(kind);
+    return true;
+  }
+  return false;
+}
+
+function _gotoLineOpen(kind) {
+  const dialog = document.getElementById("goto-line-dialog");
+  const input = document.getElementById("goto-line-input");
+  if (!dialog || !input) return;
+  dialog.dataset.kind = kind;
+  const max = _bmText(kind).split("\n").length;
+  document.getElementById("goto-line-title").textContent = t("gotoLine");
+  document.getElementById("goto-line-hint").textContent = tf("gotoLineHint", { max });
+  input.value = String(_bmCaretLine(kind) + 1);
+  input.classList.remove("goto-line-input--error");
+  dialog.showModal();
+  input.select();
+}
+
+function _gotoLineSubmit() {
+  const dialog = document.getElementById("goto-line-dialog");
+  const input = document.getElementById("goto-line-input");
+  const kind = dialog?.dataset.kind === "ub" ? "ub" : "expert";
+  const max = _bmText(kind).split("\n").length;
+  const line = /^\d+$/.test(String(input?.value || "").trim()) ? Number(input.value.trim()) : NaN;
+  if (!Number.isInteger(line) || line < 1 || line > max) {
+    input?.classList.add("goto-line-input--error");
+    return;
+  }
+  dialog?.close();
+  _bmGoto(kind, line - 1);
+}
+
+function setupBookmarks() {
+  document.getElementById("goto-line-form")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    _gotoLineSubmit();
+  });
+  document.getElementById("goto-line-input")?.addEventListener("input", (e) => e.target.classList.remove("goto-line-input--error"));
+  document.getElementById("goto-line-dialog")?.addEventListener("click", (e) => {
+    if (e.target.id === "goto-line-dialog") e.target.close();
+  });
+  for (const kind of ["expert", "ub"]) {
+    const on = (name, fn) => document.getElementById(`${kind}-${name}-btn`)?.addEventListener("click", fn);
+    on("goto", () => _gotoLineOpen(kind));
+    on("bm-toggle", () => { _bmToggle(kind); (kind === "ub" ? ubEditor : expertEditor)?.focus(); });
+    on("bm-prev", () => _bmJump(kind, -1));
+    on("bm-next", () => _bmJump(kind, 1));
+    on("bm-clear", () => _bmSet(kind, []));
+  }
 }
 
 function _ubRenderProjectSymbols() {
@@ -10580,14 +10746,15 @@ function _expertUpdateLineNumbers() {
     lines.push(String(sourceLine + 1));
   }
   inner.innerHTML = "";
+  const bookmarks = new Set(_bmLines("expert"));
   lines.forEach((number, displayLine) => {
     const sourceLine = _expertProjectionActive ? (_expertDisplayToSourceLines[displayLine] ?? displayLine) : displayLine;
     const marker = document.createElement("button");
     marker.type = "button";
-    marker.className = "source-line-number bp-toggle" + (_getTabBreakpointLines("expert").includes(sourceLine) ? " bp-active" : "");
+    marker.className = "source-line-number bp-toggle" + (_getTabBreakpointLines("expert").includes(sourceLine) ? " bp-active" : "") + (bookmarks.has(sourceLine) ? " bm-active" : "");
     marker.textContent = number;
     marker.setAttribute("aria-label", `${t("breakpointToggle")} ${number}`);
-    marker.addEventListener("click", () => _setBreakpointLine("expert", sourceLine));
+    marker.addEventListener("click", (e) => (e.ctrlKey || e.metaKey) ? _bmToggle("expert", sourceLine) : _setBreakpointLine("expert", sourceLine));
     inner.appendChild(marker);
   });
 
@@ -18044,18 +18211,25 @@ function _showBuildProjectReport(results, summary) {
   const title = document.getElementById("build-info-title");
   if (!dialog || !content) return;
   const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  const dirOf = (p) => p.slice(0, Math.max(p.lastIndexOf("/"), p.lastIndexOf("\\")));
+  const outDirs = [...new Set(results.filter(r => r.outPath).map(r => dirOf(r.outPath)))];
+  // one output folder: named once above the table; several: full path in every row
   const rows = results.map(r => {
     const cls = r.error ? " build-info-err" : "";
     const val = r.error
       ? esc(r.error).replace(/\n/g, "<br>")
       : r.skipped ? esc(r.skipped) : `${r.size} bytes`;
-    const note = r.outPath ? esc(r.outPath.replace(/\\/g, "/").split("/").pop()) : "";
+    const note = !r.outPath ? "" : outDirs.length > 1 ? esc(r.outPath) : esc(r.outPath.slice(outDirs[0].length + 1));
     return `<tr class="build-info-row${cls}"><th class="build-info-row-key">${esc(r.name)}</th><td class="build-info-row-val">${val}</td><td class="build-info-row-note">${note}</td></tr>`;
   });
+  const where = outDirs.length === 1
+    ? `<div class="build-info-outdir">${esc(t("buildProjectOutDir"))} <code>${esc(outDirs[0])}</code></div>`
+    : outDirs.length > 1 ? `<div class="build-info-outdir">${esc(t("buildProjectOutDirs"))}</div>` : "";
   if (title) title.textContent = t("buildProjectTitle");
   content.innerHTML = `
     <section class="build-info-section">
       <div class="build-info-section-label">${esc(summary)}</div>
+      ${where}
       <table class="build-info-table"><tbody>${rows.join("")}</tbody></table>
     </section>`;
   dialog.showModal();
@@ -18485,7 +18659,7 @@ function _d64EdPreparePanelForFile(bytes, fileName) {
 async function _d64EdShowAddPanel() {
   if (!_d64EdState.path) return;
   const api = window.electronAPI;
-  const picked = await api.chooseIncBinFile();
+  const picked = await api.chooseIncBinFile(_d64ModeWorkingFolder());
   if (!picked || picked.canceled) return;
   if (picked.error) { _d64EdSetError(picked.error); return; }
   _d64EdSetError("");
@@ -18718,7 +18892,7 @@ async function _d64EdBackupDisk(path) {
 async function _d64EdOpen() {
   if (_d64EdState.dirty && !await _showConfirm(t("d64EditorUnsavedConfirm"))) return;
   const api = window.electronAPI;
-  const picked = await api.chooseD64Open();
+  const picked = await api.chooseD64Open(_d64ModeWorkingFolder());
   if (!picked || picked.canceled) return;
   await _d64EdCleanupTemp();
   const tempPath = _d64EdTempPathFor(picked.filePath);
@@ -18742,7 +18916,7 @@ async function _d64EdOpen() {
 async function _d64EdNew() {
   if (_d64EdState.dirty && !await _showConfirm(t("d64EditorUnsavedConfirm"))) return;
   const api = window.electronAPI;
-  const picked = await api.chooseD64New();
+  const picked = await api.chooseD64New(_d64ModeWorkingFolder());
   if (!picked || picked.canceled) return;
   const stem = (picked.filePath.split(/[\\/]/).pop() || "disk").replace(/\.d64$/i, "");
   const res = await api.d64Format(picked.filePath, stem);
@@ -18770,7 +18944,7 @@ async function _d64EdNew() {
 async function _d64EdSaveAs() {
   if (!_d64EdState.path) return;
   const api = window.electronAPI;
-  const picked = await api.chooseD64New();
+  const picked = await api.chooseD64New(_d64ModeWorkingFolder());
   if (!picked || picked.canceled) return;
   // Copies the WORKING copy (with any unsaved edits) to the new path —
   // like Save, this is an explicit commit, so the new file is written
