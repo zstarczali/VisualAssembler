@@ -26,7 +26,10 @@ function buildBlock(patternCount = 1, song = [0]) {
     ${extractFunctionSource("_sidNoteName")}
     ${extractFunctionSource("_sidFxText")}
     ${extractFunctionSource("_sidCellText")}
-    function _sidWaveByte(i) { return (i.tri?0x10:0) | (i.saw?0x20:0) | (i.pul?0x40:0) | (i.noi?0x80:0) | 0x01; }
+    function t(k) { return k; }
+    ${extractFunctionSource("_sidWaveByte")}
+    ${extractFunctionSource("_sidNewInst")}
+    ${extractFunctionSource("_sidInstNorm")}
     let _sidInsts = [{ name: "Lead", a: 0, d: 9, s: 8, r: 4, pw: 2048, cut: 100, res: 2, lp: true, bp: false, hp: false, vol: 15, saw: true }];
     const mk = () => [0, 1, 2].map((v) => Array.from({ length: 32 }, (_, r) =>
       v === 0 && r === 0 ? { note: 48, inst: 0, fx: "V", fxval: 0x24 } : { note: null, inst: 0, fx: null, fxval: 0 }));

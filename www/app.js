@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "level-250",
+  id: "sid-251",
   url: "https://www.c64va.tech/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.5.0-ban",
+    eyebrow: "Újdonság a 2.5.1-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>Pálya szerkesztő:</strong> a Map Editor képernyőit egymás alá, egymás mellé vagy rácsba rendezi, és sima görgetéssel végig mutatja a pályát.</li><li><strong>Új makrók:</strong> <code>.level</code> / <code>.level_row</code> a pályához, a <code>.joystick</code> pedig változókba is tudja írni az irányt — minta: <code>level-demo.asm</code>.</li><li><strong>Számrendszer-átváltó:</strong> nem modális DEC / HEX / BIN dialógus a toolbaron.</li><li><strong>Példák dialógus:</strong> <em>Menu → Példák…</em> kereshető, kategóriákba sorolt példalista.</li><li><strong>Ultimate Basic 1.6.1:</strong> <code>map load "level.bin"</code> és sima, tépésmentes <code>map view px, py</code> görgetés.</li></ul>`,
+    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>SID Editor hangszerek:</strong> rezonáló szűrő-söprés, vibrato, PWM, hard restart, wave / arpeggio tábla, RING és SYNC.</li><li><strong>Új SID lejátszó:</strong> frame-enként fut, az előnézet ugyanezt a lejátszót szólaltatja meg.</li><li><strong>Virtuális billentyűzet:</strong> 2, 3 vagy 4 oktáv, C64 szinti kinézettel.</li><li><strong>Könyvjelzők és Ugrás sorra</strong> (Ctrl+F2, F2, Ctrl+G) az Expert és UB szerkesztőben.</li><li><strong>Ultimate Basic 1.6.2:</strong> <code>imod</code>, <code>ifilt</code>, <code>igate</code>, <code>itab</code> a <code>tune</code> blokkban.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.5.0",
+    eyebrow: "New in 2.5.1",
     title: "Welcome to Visual Assembler",
-    body: `<p>What's new in this release:</p><ul><li><strong>Level Editor:</strong> arranges Map Editor screens vertically, horizontally or in a grid and previews the whole level with smooth scrolling.</li><li><strong>New macros:</strong> <code>.level</code> / <code>.level_row</code> for levels, and <code>.joystick</code> can write the direction into variables — see <code>level-demo.asm</code>.</li><li><strong>Number converter:</strong> a non-modal DEC / HEX / BIN dialog on the toolbar.</li><li><strong>Examples dialog:</strong> <em>Menu → Examples…</em> — a searchable, categorised example list.</li><li><strong>Ultimate Basic 1.6.1:</strong> <code>map load "level.bin"</code> and smooth, tear-free <code>map view px, py</code> scrolling.</li></ul>`,
+    body: `<p>What's new in this release:</p><ul><li><strong>SID Editor instruments:</strong> resonant filter sweeps, vibrato, PWM, hard restart, wave / arpeggio tables, RING and SYNC.</li><li><strong>New SID player:</strong> runs every frame, and the preview plays the same player.</li><li><strong>Virtual keyboard:</strong> 2, 3 or 4 octaves in a C64 synth look.</li><li><strong>Bookmarks and Go to line</strong> (Ctrl+F2, F2, Ctrl+G) in the Expert and UB editors.</li><li><strong>Ultimate Basic 1.6.2:</strong> <code>imod</code>, <code>ifilt</code>, <code>igate</code>, <code>itab</code> in <code>tune</code> blocks.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.5.0",
+    eyebrow: "Novedad en la 2.5.1",
     title: "Bienvenido a Visual Assembler",
-    body: `<p>Novedades de esta versión:</p><ul><li><strong>Editor de niveles:</strong> ordena las pantallas del editor de mapas en vertical, en horizontal o en cuadrícula y muestra todo el nivel con desplazamiento suave.</li><li><strong>Nuevas macros:</strong> <code>.level</code> / <code>.level_row</code> para niveles, y <code>.joystick</code> puede escribir la dirección en variables — ver <code>level-demo.asm</code>.</li><li><strong>Conversor numérico:</strong> un diálogo no modal DEC / HEX / BIN en la barra.</li><li><strong>Diálogo de ejemplos:</strong> <em>Menu → Ejemplos…</em> — lista de ejemplos con búsqueda y categorías.</li><li><strong>Ultimate Basic 1.6.1:</strong> <code>map load "level.bin"</code> y desplazamiento suave sin cortes con <code>map view px, py</code>.</li></ul>`,
+    body: `<p>Novedades de esta versión:</p><ul><li><strong>Instrumentos del editor SID:</strong> barridos de filtro resonantes, vibrato, PWM, hard restart, tablas de onda / arpegio, RING y SYNC.</li><li><strong>Nuevo reproductor SID:</strong> funciona en cada frame y la vista previa suena con el mismo reproductor.</li><li><strong>Teclado virtual:</strong> 2, 3 o 4 octavas con aspecto de sintetizador C64.</li><li><strong>Marcadores e Ir a la línea</strong> (Ctrl+F2, F2, Ctrl+G) en los editores Expert y UB.</li><li><strong>Ultimate Basic 1.6.2:</strong> <code>imod</code>, <code>ifilt</code>, <code>igate</code>, <code>itab</code> en bloques <code>tune</code>.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.5.0",
+    eyebrow: "Neu in 2.5.1",
     title: "Willkommen bei Visual Assembler",
-    body: `<p>Neu in dieser Version:</p><ul><li><strong>Level-Editor:</strong> ordnet Karteneditor-Bildschirme untereinander, nebeneinander oder im Raster an und zeigt das ganze Level mit weichem Scrolling.</li><li><strong>Neue Makros:</strong> <code>.level</code> / <code>.level_row</code> für Levels, und <code>.joystick</code> kann die Richtung in Variablen schreiben — siehe <code>level-demo.asm</code>.</li><li><strong>Zahlenumrechner:</strong> ein nicht-modaler DEC / HEX / BIN-Dialog in der Toolbar.</li><li><strong>Beispiele-Dialog:</strong> <em>Menu → Beispiele…</em> — durchsuchbare Beispielliste nach Kategorien.</li><li><strong>Ultimate Basic 1.6.1:</strong> <code>map load "level.bin"</code> und weiches, rissfreies Scrolling mit <code>map view px, py</code>.</li></ul>`,
+    body: `<p>Neu in dieser Version:</p><ul><li><strong>SID-Editor-Instrumente:</strong> resonante Filter-Sweeps, Vibrato, PWM, Hard Restart, Wellen- / Arpeggio-Tabellen, RING und SYNC.</li><li><strong>Neuer SID-Player:</strong> läuft jeden Frame, die Vorschau spielt denselben Player.</li><li><strong>Virtuelle Tastatur:</strong> 2, 3 oder 4 Oktaven im C64-Synth-Look.</li><li><strong>Lesezeichen und Gehe zu Zeile</strong> (Strg+F2, F2, Strg+G) im Expert- und UB-Editor.</li><li><strong>Ultimate Basic 1.6.2:</strong> <code>imod</code>, <code>ifilt</code>, <code>igate</code>, <code>itab</code> in <code>tune</code>-Blöcken.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.5.0",
+    eyebrow: "Nieuw in 2.5.1",
     title: "Welkom bij Visual Assembler",
-    body: `<p>Nieuw in deze versie:</p><ul><li><strong>Leveleditor:</strong> zet schermen uit de tegelkaarteditor onder elkaar, naast elkaar of in een raster en toont het hele level met vloeiend scrollen.</li><li><strong>Nieuwe macro's:</strong> <code>.level</code> / <code>.level_row</code> voor levels, en <code>.joystick</code> kan de richting in variabelen schrijven — zie <code>level-demo.asm</code>.</li><li><strong>Getalomzetter:</strong> een niet-modaal DEC / HEX / BIN-venster in de werkbalk.</li><li><strong>Voorbeeldenvenster:</strong> <em>Menu → Voorbeelden…</em> — doorzoekbare voorbeeldlijst per categorie.</li><li><strong>Ultimate Basic 1.6.1:</strong> <code>map load "level.bin"</code> en vloeiend, scheurvrij scrollen met <code>map view px, py</code>.</li></ul>`,
+    body: `<p>Nieuw in deze versie:</p><ul><li><strong>SID-editorinstrumenten:</strong> resonante filtersweeps, vibrato, PWM, hard restart, golf- / arpeggiotabellen, RING en SYNC.</li><li><strong>Nieuwe SID-speler:</strong> draait elk frame, de voorvertoning speelt dezelfde speler.</li><li><strong>Virtueel toetsenbord:</strong> 2, 3 of 4 octaven in een C64-synthlook.</li><li><strong>Bladwijzers en Ga naar regel</strong> (Ctrl+F2, F2, Ctrl+G) in de Expert- en UB-editor.</li><li><strong>Ultimate Basic 1.6.2:</strong> <code>imod</code>, <code>ifilt</code>, <code>igate</code>, <code>itab</code> in <code>tune</code>-blokken.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.5.0",
+    eyebrow: "Nowość w 2.5.1",
     title: "Witamy w Visual Assembler",
-    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>Edytor poziomów:</strong> układa ekrany z edytora map pionowo, poziomo lub w siatkę i pokazuje cały poziom z płynnym przewijaniem.</li><li><strong>Nowe makra:</strong> <code>.level</code> / <code>.level_row</code> dla poziomów, a <code>.joystick</code> może zapisywać kierunek do zmiennych — zob. <code>level-demo.asm</code>.</li><li><strong>Konwerter liczb:</strong> niemodalne okno DEC / HEX / BIN na pasku narzędzi.</li><li><strong>Okno przykładów:</strong> <em>Menu → Przykłady…</em> — lista przykładów z wyszukiwaniem i kategoriami.</li><li><strong>Ultimate Basic 1.6.1:</strong> <code>map load "level.bin"</code> i płynne przewijanie bez rwania z <code>map view px, py</code>.</li></ul>`,
+    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>Instrumenty edytora SID:</strong> rezonansowe przemiatanie filtra, vibrato, PWM, hard restart, tabele fal / arpeggio, RING i SYNC.</li><li><strong>Nowy odtwarzacz SID:</strong> działa w każdej ramce, podgląd gra tym samym odtwarzaczem.</li><li><strong>Wirtualna klawiatura:</strong> 2, 3 lub 4 oktawy w stylu syntezatora C64.</li><li><strong>Zakładki i Przejdź do wiersza</strong> (Ctrl+F2, F2, Ctrl+G) w edytorach Expert i UB.</li><li><strong>Ultimate Basic 1.6.2:</strong> <code>imod</code>, <code>ifilt</code>, <code>igate</code>, <code>itab</code> w blokach <code>tune</code>.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.5.0",
+    eyebrow: "Novità nella 2.5.1",
     title: "Benvenuto in Visual Assembler",
-    body: `<p>Novità di questa versione:</p><ul><li><strong>Editor livelli:</strong> dispone le schermate dell'editor mappe in verticale, in orizzontale o in griglia e mostra tutto il livello con scorrimento fluido.</li><li><strong>Nuove macro:</strong> <code>.level</code> / <code>.level_row</code> per i livelli, e <code>.joystick</code> può scrivere la direzione in variabili — vedi <code>level-demo.asm</code>.</li><li><strong>Convertitore numerico:</strong> una finestra non modale DEC / HEX / BIN nella barra.</li><li><strong>Finestra esempi:</strong> <em>Menu → Esempi…</em> — elenco degli esempi con ricerca e categorie.</li><li><strong>Ultimate Basic 1.6.1:</strong> <code>map load "level.bin"</code> e scorrimento fluido senza strappi con <code>map view px, py</code>.</li></ul>`,
+    body: `<p>Novità di questa versione:</p><ul><li><strong>Strumenti dell'editor SID:</strong> sweep del filtro risonanti, vibrato, PWM, hard restart, tabelle onda / arpeggio, RING e SYNC.</li><li><strong>Nuovo player SID:</strong> gira a ogni frame, l'anteprima suona con lo stesso player.</li><li><strong>Tastiera virtuale:</strong> 2, 3 o 4 ottave con aspetto da synth C64.</li><li><strong>Segnalibri e Vai alla riga</strong> (Ctrl+F2, F2, Ctrl+G) negli editor Expert e UB.</li><li><strong>Ultimate Basic 1.6.2:</strong> <code>imod</code>, <code>ifilt</code>, <code>igate</code>, <code>itab</code> nei blocchi <code>tune</code>.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -3813,10 +3813,26 @@ function _applyEditorTranslations() {
   if (sidAdsrLbls[1]) sidAdsrLbls[1].textContent = t("sidDecay");
   if (sidAdsrLbls[2]) sidAdsrLbls[2].textContent = t("sidSustain");
   if (sidAdsrLbls[3]) sidAdsrLbls[3].textContent = t("sidRelease");
-  const sidFilterLbls = document.querySelectorAll(".sid-filter .sid-sl-lbl");
-  if (sidFilterLbls[0]) sidFilterLbls[0].textContent = t("sidCutoff");
-  if (sidFilterLbls[1]) sidFilterLbls[1].textContent = t("sidResonance");
-  if (sidFilterLbls[2]) sidFilterLbls[2].textContent = t("sidVolume");
+  [["#sid-cut-lbl", "sidCutoff"], ["#sid-res-lbl", "sidResonance"], ["#sid-vol-lbl", "sidVolume"],
+   ["#sid-filt-lbl", "sidRouteFilter"], ["#sid-cut-end-lbl", "sidCutEnd"], ["#sid-cut-speed-lbl", "sidCutSweep"],
+   ["#sid-cut-ping-lbl", "sidCutPing"], ["#sid-vib-title", "sidVibratoTitle"], ["#sid-vib-delay-lbl", "sidModDelay"],
+   ["#sid-vib-speed-lbl", "sidModSpeed"], ["#sid-vib-depth-lbl", "sidModDepth"], ["#sid-pwm-title", "sidPwmTitle"],
+   ["#sid-pwm-speed-lbl", "sidModSpeed"], ["#sid-pwm-min-lbl", "sidModMin"], ["#sid-pwm-max-lbl", "sidModMax"],
+   ["#sid-gate-title", "sidGateTitle"], ["#sid-gate-timer-lbl", "sidGateTimer"], ["#sid-hr-lbl", "sidHardRestart"],
+   ["#sid-first-wave-lbl", "sidFirstFrame"], ["#sid-gate-hint", "sidGateHint"], ["#sid-table-title", "sidTableTitle"],
+   ["#sid-table-speed-lbl", "sidModSpeed"], ["#sid-table-loop-lbl", "sidTableLoop"], ["#sid-table-add", "sidTableAdd"],
+   ['#sid-first-wave option[value="0"]', "sidFirstOff"], ['#sid-table-preset option[value=""]', "sidTablePresets"],
+   ['#sid-table-preset option[value="major"]', "sidPresetMajor"], ['#sid-table-preset option[value="minor"]', "sidPresetMinor"],
+   ['#sid-table-preset option[value="octave"]', "sidPresetOctave"], ['#sid-table-preset option[value="kick"]', "sidPresetKick"],
+   ['#sid-table-preset option[value="snare"]', "sidPresetSnare"], ['#sid-table-preset option[value="hihat"]', "sidPresetHihat"],
+   ['#sid-table-preset option[value="clear"]', "sidPresetClear"]].forEach(function(p) { setText(p[0], t(p[1])); });
+  setText("#sid-filter-title", t("sidFilterLabel"));
+  [["#sid-ring-wrap", "sidRingTip"], ["#sid-sync-wrap", "sidSyncTip"], ["#sid-off3-wrap", "sidOff3Tip"],
+   ["#sid-cut-ping-wrap", "sidCutPingTip"], ["#sid-hr-wrap", "sidHardRestartTip"]].forEach(function(p) {
+    document.querySelector(p[0])?.setAttribute("title", t(p[1]));
+  });
+  // the first translation pass runs before the SID state is declared (TDZ)
+  try { if (_sidInited) _sidRenderTable(); } catch (_) {}
   setText(".sid-tracker-row .sid-lbl", t("sidTrackerLabel"));
   setAttr("#sid-pat-add", t("sidAddPattern"));
   const sidTrackerMiniLbls = document.querySelectorAll(".sid-tracker-row .sid-mini-lbl");
@@ -3839,11 +3855,13 @@ function _applyEditorTranslations() {
   setAttr("#sid-voice-copy", t("sidVoiceCopy"));
   setAttr("#sid-voice-paste", t("sidVoicePaste"));
   setAttr("#sid-clear", t("sidClearSelection"));
-  setText("#sid-vkbd-title", t("sidVirtualKeyboardTitle"));
+  setText("#sid-vkbd-title", "VA-VK");
+  document.getElementById("sid-virtual-keyboard-dialog")?.setAttribute("aria-label", t("sidVirtualKeyboardTitle"));
   setText("#sid-vkbd-octave-label", t("sidOctave"));
   setAttr("#sid-vkbd-oct-down", t("sidOctaveDown"));
   setAttr("#sid-vkbd-oct-up", t("sidOctaveUp"));
   setText("#sid-vkbd-insert-label", t("sidVkbdInsert"));
+  setText("#sid-vkbd-octaves-label", t("sidVkbdOctaves"));
   const sidCtxCopy = document.querySelector("#sid-ctx-menu .sid-ctx-copy");
   const sidCtxCut = document.querySelector("#sid-ctx-menu .sid-ctx-cut");
   const sidCtxPaste = document.querySelector("#sid-ctx-menu .sid-ctx-paste");
@@ -6280,6 +6298,10 @@ const ubCommandDescriptionsEn = {
   "org": "Placed between sub/fn definitions: the next subs continue at the given address, the gap is zero-filled and can hold incbin data.",
   "tune": "Inline 3-voice SID tracker tune written as plain text, with the same cell notation the Visual Assembler SID editor shows. The compiler builds a self-contained player at compile time and defines sid_init / sid_play exactly like load sid, so music play, stop, pause and resume (and a manual irq handler calling sys sid_play) work unchanged. The player keeps all state inside the blob (no zero page), so it never collides with UltimateBasic variables and keeps running after the program returns to BASIC. The blob sits at a fixed address (default $8000, or tune at $addr) and needs about 1.3 KB plus 12 bytes per pattern row; keep it clear of your code, arrays ($C000+) and bitmap/charset memory. At most 8 patterns of 32 rows; the order list may repeat them (up to 255 steps). music play uses the CIA1 timer at 50 Hz; do not combine it with another load sid / tune (the last one wins).",
   "inst": "Defines one instrument inside a tune ... end block: control register (waveform bits; the player adds the gate bit), attack/decay, sustain/release, 12-bit pulse width, 11-bit filter cutoff, resonance/filter routing byte ($D417) and mode/volume byte ($D418).",
+  "imod": "Instrument vibrato (delay, speed, depth) and pulse width modulation (step per frame, min, max) inside a tune ... end block.",
+  "ifilt": "Filter cutoff sweep of an instrument: from its cutoff toward cutend by sweep per frame, optionally back and forth (pingpong).",
+  "igate": "Gate timer (release the gate n frames before the next note), hard restart (also zero ADSR) and the waveform of a note's first frame.",
+  "itab": "Wave / arpeggio table: steps of waveform (.. = keep) and note (+n, -n or =n absolute), speed frames per step, loop step (255 = stop).",
   "order": "Pattern order of a tune block. Patterns may repeat; several order lines accumulate, up to 255 steps.",
   "pat": "Up to 32 rows for voice v (0-2) in pattern p (0-7); missing rows are empty. A cell is NOTE INST FX: C-4, D#3, Eb2 or ... for no note, a two-digit hex instrument (.. to skip) and an optional effect - Vxy vibrato (x = rows held, y = depth), Uxx / Dxx slide up / down, C note cut, Fxx set speed. An effect-only cell can be written as \"... .. F06\" or just \"F06\".",
   "tune speed": "Frames per tracker row inside a tune ... end block (1-255, 50 Hz PAL). The Fxx effect changes it while playing.",
@@ -6401,6 +6423,10 @@ const ubCommandDescriptionsHu = {
   "org": "Sub/fn definíciók között áll: a következő subok a megadott címen folytatódnak, a rés nullákkal kitöltött és incbin adatot fogadhat.",
   "tune": "Beágyazott, 3 hangú SID tracker dal egyszerű szövegként, ugyanazzal a cellajelöléssel, amit a Visual Assembler SID szerkesztője mutat. A fordító fordítási időben önálló lejátszót épít, és a load sid-hez hasonlóan definiálja a sid_init / sid_play-t, így a music play, stop, pause és resume (és egy sys sid_play-t hívó kézi irq kezelő) változatlanul működik. A lejátszó minden állapotát a blobon belül tartja (nincs zero page), így nem ütközik az UltimateBasic változókkal, és tovább szól akkor is, ha a program visszatér a BASIC-be. A blob fix címen van (alap: $8000, vagy tune at $addr), kb. 1,3 KB + pattern soronként 12 bájt kell neki; tartsd távol a kódodtól, a tömböktől ($C000+) és a bitmap/charset memóriától. Legfeljebb 8 pattern, egyenként 32 sor; a sorrend lista ismételheti őket (max. 255 lépés). A music play a CIA1 időzítőt használja 50 Hz-en; ne kombináld másik load sid / tune paranccsal (az utolsó nyer).",
   "inst": "Egy hangszert definiál a tune ... end blokkon belül: vezérlőregiszter (hullámforma bitek; a gate bitet a lejátszó adja hozzá), attack/decay, sustain/release, 12 bites impulzusszélesség, 11 bites szűrő-levágás, rezonancia/szűrő-útválasztás bájt ($D417) és mód/hangerő bájt ($D418).",
+  "imod": "Hangszer-vibrato (késleltetés, sebesség, mélység) és pulzusszélesség-moduláció (lépés frame-enként, min, max) a tune ... end blokkon belül.",
+  "ifilt": "Egy hangszer szűrő-söprése: a cutoff-jától a cutend felé sweep lépéssel frame-enként, igény szerint oda-vissza (pingpong).",
+  "igate": "Gate időzítő (a gate elengedése n frame-mel a következő hang előtt), hard restart (az ADSR nullázása is) és a hang első frame-jének hullámformája.",
+  "itab": "Wave / arpeggio tábla: lépések hullámformával (.. = marad) és hanggal (+n, -n vagy =n abszolút), speed frame lépésenként, loop lépés (255 = megáll).",
   "order": "A tune blokk pattern-sorrendje. A patternek ismétlődhetnek; több order sor összeadódik, legfeljebb 255 lépésig.",
   "pat": "Legfeljebb 32 sor a v (0-2) hanghoz a p (0-7) patternben; a hiányzó sorok üresek. Egy cella NOTE INST FX: C-4, D#3, Eb2 vagy ... ha nincs hang, kétjegyű hex hangszer (.. ha kimarad) és opcionális effekt - Vxy vibrato (x = kitartott sorok, y = mélység), Uxx / Dxx csúszás fel / le, C hangvágás, Fxx sebesség beállítás. Csak effektet tartalmazó cella írható \"... .. F06\" vagy egyszerűen \"F06\" alakban.",
   "tune speed": "Képkockák száma tracker soronként a tune ... end blokkon belül (1-255, 50 Hz PAL). Az Fxx effekt lejátszás közben módosítja.",
@@ -6522,6 +6548,10 @@ const ubCommandDescriptionsEs = {
   "org": "Se coloca entre definiciones sub/fn: las siguientes subs continúan en la dirección dada; el hueco se rellena con ceros y puede contener datos incbin.",
   "tune": "Melodía tracker SID de 3 voces escrita como texto, con la misma notación de celdas que muestra el editor SID de Visual Assembler. El compilador construye un reproductor autónomo en tiempo de compilación y define sid_init / sid_play igual que load sid, así que music play, stop, pause y resume (y un manejador irq manual que llame a sys sid_play) funcionan sin cambios. El reproductor guarda todo su estado dentro del bloque (sin página cero), por lo que no choca con las variables de UltimateBasic y sigue sonando al volver a BASIC. El bloque está en una dirección fija (por defecto $8000, o tune at $addr) y necesita unos 1,3 KB más 12 bytes por fila de patrón; mantenlo lejos de tu código, de los arrays ($C000+) y de la memoria bitmap/charset. Como máximo 8 patrones de 32 filas; la lista de orden puede repetirlos (hasta 255 pasos). music play usa el temporizador CIA1 a 50 Hz; no lo combines con otro load sid / tune (gana el último).",
   "inst": "Define un instrumento dentro de un bloque tune ... end: registro de control (bits de forma de onda; el reproductor añade el bit gate), attack/decay, sustain/release, ancho de pulso de 12 bits, corte de filtro de 11 bits, byte de resonancia/enrutado de filtro ($D417) y byte de modo/volumen ($D418).",
+  "imod": "Vibrato del instrumento (retardo, velocidad, profundidad) y modulación de ancho de pulso (paso por frame, mín, máx) dentro de un bloque tune ... end.",
+  "ifilt": "Barrido del corte del filtro de un instrumento: desde su corte hacia cutend con sweep por frame, opcionalmente de ida y vuelta (pingpong).",
+  "igate": "Temporizador de gate (suelta el gate n frames antes de la siguiente nota), hard restart (también pone el ADSR a cero) y forma de onda del primer frame.",
+  "itab": "Tabla de onda / arpegio: pasos de forma de onda (.. = mantener) y nota (+n, -n o =n absoluta), speed frames por paso, paso de bucle (255 = parar).",
   "order": "Orden de patrones de un bloque tune. Los patrones pueden repetirse; varias líneas order se acumulan, hasta 255 pasos.",
   "pat": "Hasta 32 filas para la voz v (0-2) del patrón p (0-7); las filas que faltan quedan vacías. Una celda es NOTA INST FX: C-4, D#3, Eb2 o ... sin nota, un instrumento hex de dos dígitos (.. para omitirlo) y un efecto opcional - Vxy vibrato (x = filas mantenidas, y = profundidad), Uxx / Dxx deslizamiento arriba / abajo, C corte de nota, Fxx fijar velocidad. Una celda solo con efecto puede escribirse \"... .. F06\" o simplemente \"F06\".",
   "tune speed": "Fotogramas por fila del tracker dentro de un bloque tune ... end (1-255, 50 Hz PAL). El efecto Fxx la cambia durante la reproducción.",
@@ -6643,6 +6673,10 @@ const ubCommandDescriptionsDe = {
   "org": "Steht zwischen sub/fn-Definitionen: die folgenden Subs setzen sich an der Adresse fort; die Lücke wird mit Nullen gefüllt und kann incbin-Daten aufnehmen.",
   "tune": "Eingebettete 3-stimmige SID-Tracker-Melodie als Klartext, mit derselben Zellnotation wie im SID-Editor von Visual Assembler. Der Compiler baut zur Kompilierzeit einen eigenständigen Player und definiert sid_init / sid_play wie bei load sid, sodass music play, stop, pause und resume (und ein manueller irq-Handler mit sys sid_play) unverändert funktionieren. Der Player hält seinen gesamten Zustand im Blob (keine Zeropage), kollidiert also nicht mit UltimateBasic-Variablen und spielt weiter, wenn das Programm zu BASIC zurückkehrt. Der Blob liegt an einer festen Adresse (Standard $8000 oder tune at $addr) und braucht etwa 1,3 KB plus 12 Byte pro Pattern-Zeile; halte ihn von Code, Arrays ($C000+) und Bitmap-/Zeichensatzspeicher fern. Höchstens 8 Patterns mit je 32 Zeilen; die Reihenfolgeliste darf sie wiederholen (bis 255 Schritte). music play nutzt den CIA1-Timer mit 50 Hz; nicht mit einem weiteren load sid / tune kombinieren (das letzte gewinnt).",
   "inst": "Definiert ein Instrument in einem tune ... end-Block: Steuerregister (Wellenform-Bits; das Gate-Bit setzt der Player), Attack/Decay, Sustain/Release, 12-Bit-Pulsbreite, 11-Bit-Filtergrenzfrequenz, Resonanz-/Filterrouting-Byte ($D417) und Modus-/Lautstärke-Byte ($D418).",
+  "imod": "Instrument-Vibrato (Verzögerung, Tempo, Tiefe) und Pulsbreitenmodulation (Schritt pro Frame, Min, Max) in einem tune ... end-Block.",
+  "ifilt": "Filter-Cutoff-Sweep eines Instruments: von seinem Cutoff Richtung cutend um sweep pro Frame, wahlweise hin und her (pingpong).",
+  "igate": "Gate-Timer (Gate n Frames vor der nächsten Note lösen), Hard Restart (zusätzlich ADSR auf 0) und Wellenform des ersten Frames einer Note.",
+  "itab": "Wellen- / Arpeggio-Tabelle: Schritte aus Wellenform (.. = behalten) und Note (+n, -n oder =n absolut), speed Frames pro Schritt, Schleifenschritt (255 = Stopp).",
   "order": "Pattern-Reihenfolge eines tune-Blocks. Patterns dürfen sich wiederholen; mehrere order-Zeilen werden aneinandergehängt, bis zu 255 Schritte.",
   "pat": "Bis zu 32 Zeilen für Stimme v (0-2) in Pattern p (0-7); fehlende Zeilen sind leer. Eine Zelle ist NOTE INST FX: C-4, D#3, Eb2 oder ... ohne Note, ein zweistelliges Hex-Instrument (.. zum Auslassen) und ein optionaler Effekt - Vxy Vibrato (x = gehaltene Zeilen, y = Tiefe), Uxx / Dxx Slide auf / ab, C Note-Cut, Fxx Tempo setzen. Eine reine Effektzelle kann als \"... .. F06\" oder einfach \"F06\" geschrieben werden.",
   "tune speed": "Frames pro Tracker-Zeile in einem tune ... end-Block (1-255, 50 Hz PAL). Der Effekt Fxx ändert sie während der Wiedergabe.",
@@ -6764,6 +6798,10 @@ const ubCommandDescriptionsNl = {
   "org": "Staat tussen sub/fn-definities: de volgende subs gaan verder op het opgegeven adres; het gat wordt met nullen gevuld en kan incbin-data bevatten.",
   "tune": "Ingebouwde 3-stemmige SID-trackertune als platte tekst, met dezelfde celnotatie als de SID-editor van Visual Assembler. De compiler bouwt tijdens het compileren een zelfstandige speler en definieert sid_init / sid_play net als load sid, zodat music play, stop, pause en resume (en een handmatige irq-handler die sys sid_play aanroept) ongewijzigd werken. De speler houdt al zijn toestand binnen de blob (geen zero page), botst dus niet met UltimateBasic-variabelen en blijft spelen als het programma terugkeert naar BASIC. De blob staat op een vast adres (standaard $8000, of tune at $addr) en heeft ongeveer 1,3 KB plus 12 bytes per patroonrij nodig; houd hem weg van je code, arrays ($C000+) en bitmap-/tekensetgeheugen. Maximaal 8 patronen van 32 rijen; de volgordelijst mag ze herhalen (tot 255 stappen). music play gebruikt de CIA1-timer op 50 Hz; combineer het niet met een andere load sid / tune (de laatste wint).",
   "inst": "Definieert één instrument binnen een tune ... end-blok: besturingsregister (golfvormbits; de speler voegt de gatebit toe), attack/decay, sustain/release, 12-bits pulsbreedte, 11-bits filterafsnijding, resonantie-/filterrouteringsbyte ($D417) en modus-/volumebyte ($D418).",
+  "imod": "Instrumentvibrato (vertraging, snelheid, diepte) en pulsbreedtemodulatie (stap per frame, min, max) binnen een tune ... end-blok.",
+  "ifilt": "Filtercutoff-sweep van een instrument: van zijn cutoff naar cutend met sweep per frame, eventueel heen en weer (pingpong).",
+  "igate": "Gate-timer (gate n frames vóór de volgende noot loslaten), hard restart (ook ADSR op nul) en de golfvorm van het eerste frame van een noot.",
+  "itab": "Golf- / arpeggiotabel: stappen met golfvorm (.. = behouden) en noot (+n, -n of =n absoluut), speed frames per stap, lusstap (255 = stoppen).",
   "order": "Patroonvolgorde van een tune-blok. Patronen mogen herhalen; meerdere order-regels tellen op, tot 255 stappen.",
   "pat": "Maximaal 32 rijen voor stem v (0-2) in patroon p (0-7); ontbrekende rijen zijn leeg. Een cel is NOOT INST FX: C-4, D#3, Eb2 of ... zonder noot, een tweecijferig hex-instrument (.. om over te slaan) en een optioneel effect - Vxy vibrato (x = vastgehouden rijen, y = diepte), Uxx / Dxx slide omhoog / omlaag, C noot afkappen, Fxx snelheid instellen. Een cel met alleen een effect kan als \"... .. F06\" of gewoon \"F06\" worden geschreven.",
   "tune speed": "Frames per trackerrij binnen een tune ... end-blok (1-255, 50 Hz PAL). Het effect Fxx wijzigt dit tijdens het afspelen.",
@@ -6885,6 +6923,10 @@ const ubCommandDescriptionsPl = {
   "org": "Występuje między definicjami sub/fn: kolejne suby kontynuują pod podanym adresem; luka jest wypełniona zerami i może zawierać dane incbin.",
   "tune": "Wbudowany 3-głosowy utwór trackerowy SID zapisany zwykłym tekstem, w tej samej notacji komórek, którą pokazuje edytor SID Visual Assemblera. Kompilator buduje w czasie kompilacji samodzielny odtwarzacz i definiuje sid_init / sid_play tak jak load sid, więc music play, stop, pause i resume (oraz ręczny handler irq wywołujący sys sid_play) działają bez zmian. Odtwarzacz trzyma cały swój stan wewnątrz bloku (bez strony zerowej), więc nie koliduje ze zmiennymi UltimateBasic i gra dalej po powrocie programu do BASIC. Blok leży pod stałym adresem (domyślnie $8000 lub tune at $addr) i potrzebuje ok. 1,3 KB plus 12 bajtów na wiersz patternu; trzymaj go z dala od kodu, tablic ($C000+) i pamięci bitmapy/zestawu znaków. Najwyżej 8 patternów po 32 wiersze; lista kolejności może je powtarzać (do 255 kroków). music play używa timera CIA1 z częstotliwością 50 Hz; nie łącz go z innym load sid / tune (wygrywa ostatni).",
   "inst": "Definiuje jeden instrument w bloku tune ... end: rejestr sterujący (bity kształtu fali; bit gate dodaje odtwarzacz), attack/decay, sustain/release, 12-bitowa szerokość impulsu, 11-bitowa częstotliwość odcięcia filtra, bajt rezonansu/routingu filtra ($D417) i bajt trybu/głośności ($D418).",
+  "imod": "Vibrato instrumentu (opóźnienie, szybkość, głębokość) i modulacja szerokości impulsu (krok na ramkę, min, maks) w bloku tune ... end.",
+  "ifilt": "Przemiatanie odcięcia filtra instrumentu: od jego odcięcia do cutend o sweep na ramkę, opcjonalnie tam i z powrotem (pingpong).",
+  "igate": "Timer gate (zwolnienie gate n ramek przed następną nutą), hard restart (zeruje też ADSR) i przebieg pierwszej ramki nuty.",
+  "itab": "Tabela fal / arpeggio: kroki z przebiegiem (.. = bez zmian) i nutą (+n, -n lub =n bezwzględna), speed ramek na krok, krok pętli (255 = stop).",
   "order": "Kolejność patternów bloku tune. Patterny mogą się powtarzać; kilka wierszy order sumuje się, do 255 kroków.",
   "pat": "Do 32 wierszy dla głosu v (0-2) w patternie p (0-7); brakujące wiersze są puste. Komórka to NUTA INST FX: C-4, D#3, Eb2 lub ... bez nuty, dwucyfrowy instrument hex (.. aby pominąć) i opcjonalny efekt - Vxy vibrato (x = trzymane wiersze, y = głębokość), Uxx / Dxx poślizg w górę / w dół, C ucięcie nuty, Fxx ustawienie tempa. Komórkę tylko z efektem można zapisać jako \"... .. F06\" lub po prostu \"F06\".",
   "tune speed": "Liczba ramek na wiersz trackera w bloku tune ... end (1-255, 50 Hz PAL). Efekt Fxx zmienia ją podczas odtwarzania.",
@@ -7006,6 +7048,10 @@ const ubCommandDescriptionsIt = {
   "org": "Si trova tra le definizioni sub/fn: le sub successive continuano all'indirizzo indicato; il vuoto è riempito di zeri e può contenere dati incbin.",
   "tune": "Brano tracker SID a 3 voci scritto come testo, con la stessa notazione delle celle mostrata dall'editor SID di Visual Assembler. Il compilatore costruisce in fase di compilazione un player autonomo e definisce sid_init / sid_play come load sid, quindi music play, stop, pause e resume (e un gestore irq manuale che chiama sys sid_play) funzionano senza modifiche. Il player tiene tutto il suo stato dentro il blocco (niente pagina zero), quindi non entra in conflitto con le variabili di UltimateBasic e continua a suonare quando il programma torna al BASIC. Il blocco sta a un indirizzo fisso (predefinito $8000, oppure tune at $addr) e richiede circa 1,3 KB più 12 byte per riga di pattern; tienilo lontano dal codice, dagli array ($C000+) e dalla memoria bitmap/charset. Al massimo 8 pattern da 32 righe; la lista d'ordine può ripeterli (fino a 255 passi). music play usa il timer CIA1 a 50 Hz; non combinarlo con un altro load sid / tune (vince l'ultimo).",
   "inst": "Definisce uno strumento in un blocco tune ... end: registro di controllo (bit della forma d'onda; il bit gate lo aggiunge il player), attack/decay, sustain/release, ampiezza d'impulso a 12 bit, taglio del filtro a 11 bit, byte di risonanza/instradamento filtro ($D417) e byte modo/volume ($D418).",
+  "imod": "Vibrato dello strumento (ritardo, velocità, profondità) e modulazione dell'ampiezza d'impulso (passo per frame, min, max) in un blocco tune ... end.",
+  "ifilt": "Sweep del cutoff del filtro di uno strumento: dal suo cutoff verso cutend di sweep per frame, opzionalmente avanti e indietro (pingpong).",
+  "igate": "Timer del gate (rilascia il gate n frame prima della nota successiva), hard restart (azzera anche l'ADSR) e forma d'onda del primo frame della nota.",
+  "itab": "Tabella onda / arpeggio: passi con forma d'onda (.. = mantieni) e nota (+n, -n o =n assoluta), speed frame per passo, passo di loop (255 = stop).",
   "order": "Ordine dei pattern di un blocco tune. I pattern possono ripetersi; più righe order si sommano, fino a 255 passi.",
   "pat": "Fino a 32 righe per la voce v (0-2) nel pattern p (0-7); le righe mancanti sono vuote. Una cella è NOTA STRUM FX: C-4, D#3, Eb2 oppure ... senza nota, uno strumento esadecimale a due cifre (.. per saltarlo) e un effetto opzionale - Vxy vibrato (x = righe mantenute, y = profondità), Uxx / Dxx slide su / giù, C taglio nota, Fxx imposta velocità. Una cella con solo l'effetto si può scrivere \"... .. F06\" o semplicemente \"F06\".",
   "tune speed": "Frame per riga del tracker in un blocco tune ... end (1-255, 50 Hz PAL). L'effetto Fxx la cambia durante la riproduzione.",
@@ -7136,6 +7182,10 @@ const _UB_COMMAND_REFERENCE = [
   ["sfx", "sfx channel, frequency, frames [, wave]", "Starts a SID sound effect and returns immediately; the note decays by itself."],
   ["tune", "tune                       # optional: tune at $C800  (default $8000)\n  speed 6                  # frames per row (1-255, 50 Hz PAL)\n  inst 0, $41, $09, $F0, $0800, $0064, $27, $1F\n  inst 1, $10, $08, $A8, $0400, $0000, $00, $0F\n  order 0, 1, 0            # pattern order (patterns may repeat)\n  pat 0, 0, \"C-4 00\", \"...\", \"E-4 00 V24\", \"...\", \"G-4 00\", \"... .. C00\"\n  pat 0, 1, \"C-2 01\", \"...\", \"...\", \"...\", \"G-2 01 F03\"\nend\nmusic play                 # or: sys sid_init / irq handler calling sys sid_play\n\n# inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol\n#   ctrl = waveform bits (gate is added by the player), pw 12-bit,\n#   cutoff 11-bit, resfilt = $D417, modevol = $D418\n# pat p, v, cell...  p = pattern 0-7, v = voice 0-2, max 32 rows\n# cell = NOTE INST FX:  C-4 / D#3 / Eb2 / ... (no note), inst 00-FF or ..\n#   FX: Vxy vibrato (x = rows held, y = depth), Uxx / Dxx slide up/down,\n#       C note cut, Fxx set speed; effect-only cell: \"... .. F06\" or \"F06\"", "Inline SID tracker tune; the compiler builds a zero-page-free player, and music play/stop control it."],
   ["inst", "inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol   # inside tune ... end\ninst 0, $41, $09, $F0, $0800, $0064, $27, $1F\n#   ctrl    = waveform bits ($10 tri, $20 saw, $40 pulse, $80 noise; gate added by the player)\n#   ad / sr = attack/decay, sustain/release\n#   pw      = 12-bit pulse width, cutoff = 11-bit filter cutoff\n#   resfilt = resonance / filter routing ($D417), modevol = mode / volume ($D418)", "Defines one instrument of a tune block."],
+  ["imod", "imod id, vibdelay, vibspeed, vibdepth, pwmspeed, pwmmin, pwmmax   # inside tune ... end\nimod 0, 6, 3, 9, 40, $0200, $0E00\n#   vibrato: delay (frames), speed (frames per half wave, 0 = off), depth 0-15\n#   pulse width modulation: step per frame (0 = off), bounces between min and max", "Instrument vibrato and pulse width modulation (UB 1.6.2+)."],
+  ["ifilt", "ifilt id, cutend, sweep, pingpong   # inside tune ... end\nifilt 1, $05DC, 23, 1\n#   the cutoff sweeps from the inst cutoff toward cutend by sweep (0-127) per frame\n#   pingpong = 1: back and forth between the two", "Filter cutoff sweep of an instrument (UB 1.6.2+)."],
+  ["igate", "igate id, gatetimer, hardrestart, firstwave   # inside tune ... end\nigate 0, 2, 1, $09\n#   gatetimer: release the gate this many frames before the next note\n#   hardrestart = 1: also zero ADSR then; firstwave: waveform of the note's first frame ($09 = test + gate)", "Gate timer, hard restart and first-frame waveform (UB 1.6.2+)."],
+  ["itab", "itab id, speed, loop, \"step\", ...   # inside tune ... end\nitab 2, 2, 0, \".. +0\", \".. +4\", \".. +7\"\nitab 3, 1, 255, \"81 =60\", \"41 =30\", \"41 -12\"\n#   step = waveform (hex, .. = keep) + note: +n / -n semitones or =n absolute\n#   speed = frames per step, loop = step to jump back to (255 = stop on the last)", "Wave / arpeggio table of an instrument (UB 1.6.2+)."],
   ["order", "order p, p, ...            # inside tune ... end\norder 0, 1, 0, 2           # patterns may repeat\norder 3, 3                 # further order lines append (up to 255 steps)", "Pattern order of a tune block."],
   ["pat", "pat p, v, \"cell\", ...      # inside tune ... end; p = pattern 0-7, v = voice 0-2\npat 0, 0, \"C-4 00\", \"...\", \"E-4 00 V24\", \"... .. C00\"\npat 0, 1, \"C-2 01\", \"...\", \"G-2 01 F03\", \"F06\"\n# cell = NOTE INST FX: C-4 / D#3 / Eb2 / ... (no note), inst 00-FF or ..\n#   FX: Vxy vibrato (x = rows held, y = depth), Uxx / Dxx slide up / down,\n#       C note cut, Fxx set speed", "Rows of one voice in one pattern of a tune block."],
   ["tune speed", "speed n                    # inside tune ... end: frames per tracker row (1-255)\nspeed 6                    # 50 Hz PAL: 6 frames = 120 ms per row", "Tracker speed of a tune block."],
@@ -7431,7 +7481,7 @@ function _ubHighlightSource(source) {
     const trimmed = raw.trim().toLowerCase();
     if (/^asm\s*\{/.test(trimmed)) inAsm = true;
     if (!inAsm && /^tune\b/.test(trimmed)) inTune = true;
-    const tuneWord = inTune && /^\s*(inst|order|pat|speed)\b/i.test(raw) ? raw.match(/^\s*(\w+)/)[1].toLowerCase() : "";
+    const tuneWord = inTune && /^\s*(inst|imod|ifilt|igate|itab|order|pat|speed)\b/i.test(raw) ? raw.match(/^\s*(\w+)/)[1].toLowerCase() : "";
     let code = raw;
     let comment = "";
     if (!inAsm) {
@@ -37769,12 +37819,11 @@ let _sidClipboard = null;  // copied voice column: array of 32 {note, inst}
 let _sidCellClip = null;   // cell-range clipboard: [{note,inst},...] from Ctrl+C
 let _sidAudio = null;
 var _sidTimer = null, _sidRow = 0, _sidPlayPat = 0;
-// Per-voice Web Audio preview state, used only by the approximation path
-// (single-pattern loop mode, or WebSid unavailable) to apply the effect
-// column live: which oscillator/gain is currently sounding on each voice,
-// plus the running vibrato/slide state, mirroring the exported ASM's
-// per-voice zero-page fields (baseLo/baseHi, curLo/curHi, vibSign, vibCount).
-var _sidVoiceState = [null, null, null];
+// AudioBufferSourceNodes of the rendered preview (note previews and the
+// Web Audio pattern playback) — _sidStop stops them all.
+var _sidPreviewSources = new Set();
+// Web Audio pattern playback: engine kept across pattern passes + scheduling state
+var _sidWaPlay = null;
 // Song/order list: the arrangement layer on top of the raw pattern bank
 // (_sidPatterns). Playback and export walk THIS list, not _sidPatterns
 // directly, so a pattern can repeat and the song can be longer than the
@@ -37797,8 +37846,50 @@ const _SID_ATK = [2,8,16,24,38,56,68,80,100,250,500,800,1000,3000,5000,8000];
 const _SID_DCR = [6,24,48,72,114,168,204,240,300,750,1500,2400,3000,9000,15000,24000];
 
 function _sidNewInst(name) {
-  return { name: name || t("sidNewInstrumentName"), tri:false, saw:false, pul:true, noi:false,
-           pw:2048, a:2, d:8, s:6, r:4, lp:false, bp:false, hp:false, cut:1400, res:0, vol:15 };
+  return { name: name || t("sidNewInstrumentName"), tri:false, saw:false, pul:true, noi:false, ring:false, sync:false,
+           pw:2048, a:2, d:8, s:6, r:4, lp:false, bp:false, hp:false, cut:1400, res:0, vol:15,
+           // filter: route this voice, voice 3 off, cutoff sweep toward cutEnd (cutSpeed/frame, 0 = static)
+           filt:false, off3:false, cutEnd:1400, cutSpeed:0, cutPing:false,
+           // instrument vibrato (LFO) and pulse width modulation, both per frame
+           vibDelay:0, vibSpeed:0, vibDepth:0, pwmSpeed:0, pwmMin:512, pwmMax:3584,
+           // gate timer / hard restart before the next note, waveform of the note's first frame
+           gateTimer:0, hr:false, firstWave:0,
+           // wave / arpeggio table: steps {w: waveform (0 = keep), n: note offset, abs: absolute note}
+           table:[], tableLoop:-1, tableSpeed:1 };
+}
+
+/* Fills in missing fields (older saves / exports) and clamps every value to
+   what the player can store. Instruments from before the filter routing flag
+   routed through the filter whenever a filter mode was set. */
+function _sidInstNorm(ins) {
+  const src = ins || {};
+  const o = Object.assign(_sidNewInst(src.name), src);
+  // a partial waveform spec means "only these": no default pulse added
+  if (["tri", "saw", "pul", "noi"].some(function(k){ return src[k] !== undefined; })) {
+    ["tri", "saw", "pul", "noi"].forEach(function(k){ o[k] = !!src[k]; });
+  }
+  if (src.filt === undefined) o.filt = !!(o.lp || o.bp || o.hp);
+  if (src.cutEnd === undefined) o.cutEnd = o.cut;
+  const cl = function(v, lo, hi) { v = Number(v) | 0; return v < lo ? lo : v > hi ? hi : v; };
+  ["tri","saw","pul","noi","ring","sync","lp","bp","hp","filt","off3","cutPing","hr"].forEach(function(k){ o[k] = !!o[k]; });
+  o.pw = cl(o.pw, 0, 4095); o.a = cl(o.a, 0, 15); o.d = cl(o.d, 0, 15); o.s = cl(o.s, 0, 15); o.r = cl(o.r, 0, 15);
+  o.cut = cl(o.cut, 0, 2047); o.cutEnd = cl(o.cutEnd, 0, 2047); o.cutSpeed = cl(o.cutSpeed, 0, 127);
+  o.res = cl(o.res, 0, 15); o.vol = cl(o.vol, 0, 15);
+  o.vibDelay = cl(o.vibDelay, 0, 255); o.vibSpeed = cl(o.vibSpeed, 0, 15); o.vibDepth = cl(o.vibDepth, 0, 15);
+  o.pwmSpeed = cl(o.pwmSpeed, 0, 255); o.pwmMin = cl(o.pwmMin, 0, 4095); o.pwmMax = cl(o.pwmMax, 0, 4095);
+  o.gateTimer = cl(o.gateTimer, 0, 15); o.firstWave = cl(o.firstWave, 0, 255);
+  o.tableSpeed = cl(o.tableSpeed, 1, 15);
+  o.table = (Array.isArray(o.table) ? o.table : []).slice(0, 32).map(function(s) {
+    const abs = !!(s && s.abs);
+    return { w: cl(s && s.w, 0, 255), n: abs ? cl(s && s.n, 0, 95) : cl(s && s.n, -96, 95), abs: abs };
+  });
+  o.tableLoop = cl(o.tableLoop, -1, o.table.length - 1);
+  return o;
+}
+
+/* Control register without the gate bit: waveform, ring mod, sync. */
+function _sidInstCtrl(ins) {
+  return (ins.tri?0x10:0) | (ins.saw?0x20:0) | (ins.pul?0x40:0) | (ins.noi?0x80:0) | (ins.ring?0x04:0) | (ins.sync?0x02:0);
 }
 function _sidNewPattern() {
   const p = [];
@@ -37905,25 +37996,37 @@ function _sidRenderVirtualKeyboard() {
   if (!board) return;
   if (octVal) octVal.textContent = _sidOctave;
   if (insertToggle) insertToggle.checked = _sidVkbdInsertMode;
-  const whiteOrder = [0, 2, 4, 5, 7, 9, 11, 12, 14, 16, 17, 19, 21, 23];
-  const blackOrder = [
-    { semi: 1, left: 34 }, { semi: 3, left: 82 }, { semi: 6, left: 178 }, { semi: 8, left: 226 }, { semi: 10, left: 274 },
-    { semi: 13, left: 370 }, { semi: 15, left: 418 }, { semi: 18, left: 514 }, { semi: 20, left: 562 }, { semi: 22, left: 610 }
-  ];
+  let octaves = 2;
+  try { octaves = Number(localStorage.getItem("c64va-sid-vkbd-octaves")) || 2; } catch (_) {}
+  octaves = Math.max(2, Math.min(4, octaves));
+  const octSel = document.getElementById("sid-vkbd-octaves");
+  if (octSel) octSel.value = String(octaves);
+  // same key size for every range: more octaves make a wider instrument
+  const W = 48, B = 30, label = true;
+  const whites = [], blacks = [];
+  for (let o = 0; o < octaves; o++) {
+    [0, 2, 4, 5, 7, 9, 11].forEach(function(semi){ whites.push(o * 12 + semi); });
+    [1, 3, 6, 8, 10].forEach(function(semi){ blacks.push(o * 12 + semi); });
+  }
+  // keep the whole range inside C-0..B-7; the closing C (like a real keyboard) only if it exists
+  const baseOct = Math.max(0, Math.min(_sidOctave, 8 - octaves));
+  if ((baseOct + octaves) * 12 < 96) whites.push(octaves * 12);
   let html = "";
-  whiteOrder.forEach(function(semi, index) {
-    const note = _sidOctave * 12 + semi;
-    if (note >= 96) return;
-    html += '<button type="button" class="sid-vkbd-key sid-vkbd-key--white" data-note="' + note + '" style="left:' + (index * 48) + 'px">'
-      + '<span class="sid-vkbd-note">' + _sidNoteName(note) + '</span></button>';
+  whites.forEach(function(semi, index) {
+    const note = baseOct * 12 + semi;
+    const name = label || semi % 12 === 0 ? _sidNoteName(note) : "";
+    html += '<button type="button" class="sid-vkbd-key sid-vkbd-key--white" data-note="' + note + '" style="left:' + (index * W) + 'px;width:' + W + 'px">'
+      + '<span class="sid-vkbd-note">' + name + '</span></button>';
   });
-  blackOrder.forEach(function(key) {
-    const note = _sidOctave * 12 + key.semi;
-    if (note >= 96) return;
-    html += '<button type="button" class="sid-vkbd-key sid-vkbd-key--black" data-note="' + note + '" style="left:' + key.left + 'px">'
-      + '<span class="sid-vkbd-note">' + _sidNoteName(note) + '</span></button>';
+  blacks.forEach(function(semi) {
+    const note = baseOct * 12 + semi;
+    // a black key sits on the boundary after the white key below it
+    const whiteBelow = whites.indexOf(semi - 1);
+    html += '<button type="button" class="sid-vkbd-key sid-vkbd-key--black" data-note="' + note + '" style="left:' + ((whiteBelow + 1) * W - B / 2) + 'px;width:' + B + 'px">'
+      + '<span class="sid-vkbd-note">' + (label ? _sidNoteName(note) : "") + '</span></button>';
   });
   board.innerHTML = html;
+  board.style.width = (whites.length * W + 2) + "px";
   board.querySelectorAll(".sid-vkbd-key").forEach(function(btn) {
     btn.addEventListener("click", function() {
       const note = parseInt(btn.dataset.note, 10);
@@ -38023,19 +38126,141 @@ function _sidInsertArpeggio() {
 }
 
 /* ── Instrument panel binding ── */
+// instrument field ↔ control: [element id, property, kind ("check" | "range"), value label id]
+function _sidInstFields() { return [
+  ["sid-tri", "tri", "check"], ["sid-saw", "saw", "check"], ["sid-pul", "pul", "check"], ["sid-noi", "noi", "check"],
+  ["sid-ring", "ring", "check"], ["sid-sync", "sync", "check"],
+  ["sid-pw", "pw", "range", "sid-pw-val"],
+  ["sid-a", "a", "range", "sid-a-val"], ["sid-d", "d", "range", "sid-d-val"], ["sid-s", "s", "range", "sid-s-val"], ["sid-r", "r", "range", "sid-r-val"],
+  ["sid-filt", "filt", "check"], ["sid-lp", "lp", "check"], ["sid-bp", "bp", "check"], ["sid-hp", "hp", "check"], ["sid-off3", "off3", "check"],
+  ["sid-cut", "cut", "range", "sid-cut-val"], ["sid-cut-end", "cutEnd", "range", "sid-cut-end-val"],
+  ["sid-cut-speed", "cutSpeed", "range", "sid-cut-speed-val"], ["sid-cut-ping", "cutPing", "check"],
+  ["sid-res", "res", "range", "sid-res-val"], ["sid-vol", "vol", "range", "sid-vol-val"],
+  ["sid-vib-delay", "vibDelay", "range", "sid-vib-delay-val"], ["sid-vib-speed", "vibSpeed", "range", "sid-vib-speed-val"],
+  ["sid-vib-depth", "vibDepth", "range", "sid-vib-depth-val"],
+  ["sid-pwm-speed", "pwmSpeed", "range", "sid-pwm-speed-val"], ["sid-pwm-min", "pwmMin", "range", "sid-pwm-min-val"],
+  ["sid-pwm-max", "pwmMax", "range", "sid-pwm-max-val"],
+  ["sid-gate-timer", "gateTimer", "range", "sid-gate-timer-val"], ["sid-hr", "hr", "check"]
+]; }
 function _sidLoadInstUI() {
   const inst = _sidCurInst();
-  const set = function(id, prop, isCheck) {
-    const el = document.getElementById(id); if (!el) return;
-    if (isCheck) el.checked = !!inst[prop]; else el.value = inst[prop];
-  };
+  Object.assign(inst, _sidInstNorm(inst));
   document.getElementById("sid-inst-name").value = inst.name;
-  set("sid-tri","tri",true); set("sid-saw","saw",true); set("sid-pul","pul",true); set("sid-noi","noi",true);
-  set("sid-pw","pw"); set("sid-a","a"); set("sid-d","d"); set("sid-s","s"); set("sid-r","r");
-  set("sid-lp","lp",true); set("sid-bp","bp",true); set("sid-hp","hp",true);
-  set("sid-cut","cut"); set("sid-res","res"); set("sid-vol","vol");
-  ["pw","a","d","s","r"].forEach(function(k){ const v=document.getElementById("sid-"+k+"-val"); if(v) v.textContent = inst[k]; });
+  _sidInstFields().forEach(function(f) {
+    const el = document.getElementById(f[0]); if (!el) return;
+    if (f[2] === "check") el.checked = !!inst[f[1]]; else el.value = inst[f[1]];
+    const v = f[3] && document.getElementById(f[3]); if (v) v.textContent = inst[f[1]];
+  });
+  const fw = document.getElementById("sid-first-wave");
+  if (fw) {
+    if (![...fw.options].some(function(o){ return Number(o.value) === inst.firstWave; })) {
+      const o = document.createElement("option");
+      o.value = String(inst.firstWave); o.textContent = "$" + inst.firstWave.toString(16).toUpperCase().padStart(2, "0");
+      fw.appendChild(o);
+    }
+    fw.value = String(inst.firstWave);
+  }
+  const ts = document.getElementById("sid-table-speed"); if (ts) ts.value = inst.tableSpeed;
+  _sidRenderTable();
   _sidDrawADSR();
+}
+
+/* ── Wave / arpeggio table editor ── */
+const _SID_TABLE_WAVES = [[0, "—"], [0x10, "TRI"], [0x20, "SAW"], [0x40, "PUL"], [0x80, "NOI"], [0x14, "TRI+RING"],
+  [0x42, "PUL+SYNC"], [0x50, "TRI+PUL"], [0x60, "SAW+PUL"], [0x30, "TRI+SAW"], [0x08, "TEST"]];
+const _SID_TABLE_PRESETS = {
+  major: { steps: [[0, 0], [0, 4], [0, 7]], loop: 0, speed: 2 },
+  minor: { steps: [[0, 0], [0, 3], [0, 7]], loop: 0, speed: 2 },
+  octave: { steps: [[0, 0], [0, 12]], loop: 0, speed: 2 },
+  kick: { steps: [[0x80, 44, 1], [0x40, 30, 1], [0x40, 24, 1], [0x40, 20, 1], [0x40, 17, 1]], loop: -1, speed: 1 },
+  snare: { steps: [[0x80, 72, 1], [0x40, 38, 1], [0x80, 68, 1], [0x80, 66, 1]], loop: -1, speed: 1 },
+  hihat: { steps: [[0x80, 92, 1]], loop: -1, speed: 1 },
+  clear: { steps: [], loop: -1, speed: 1 }
+};
+function _sidRenderTable() {
+  const inst = _sidCurInst();
+  const box = document.getElementById("sid-table-steps");
+  const loopSel = document.getElementById("sid-table-loop");
+  if (!box || !inst) return;
+  const table = inst.table || (inst.table = []);
+  if (loopSel) {
+    loopSel.innerHTML = "";
+    const none = document.createElement("option");
+    none.value = "-1"; none.textContent = t("sidTableNoLoop");
+    loopSel.appendChild(none);
+    table.forEach(function(_, k) {
+      const o = document.createElement("option");
+      o.value = String(k); o.textContent = tf("sidTableLoopTo", { n: k + 1 });
+      loopSel.appendChild(o);
+    });
+    loopSel.value = String(inst.tableLoop >= 0 && inst.tableLoop < table.length ? inst.tableLoop : -1);
+  }
+  box.innerHTML = "";
+  if (!table.length) {
+    const p = document.createElement("div");
+    p.className = "sid-table-empty"; p.textContent = t("sidTableEmpty");
+    box.appendChild(p);
+  }
+  table.forEach(function(step, k) {
+    const row = document.createElement("div");
+    row.className = "sid-tstep" + (k === inst.tableLoop ? " sid-tstep--loop" : "");
+    const idx = document.createElement("span");
+    idx.className = "sid-tstep-idx"; idx.textContent = String(k + 1);
+    const wave = document.createElement("select");
+    wave.className = "sid-select";
+    wave.setAttribute("aria-label", t("sidTableWave"));
+    const waves = _SID_TABLE_WAVES.slice();
+    if (!waves.some(function(w){ return w[0] === step.w; })) waves.push([step.w, "$" + step.w.toString(16).toUpperCase().padStart(2, "0")]);
+    waves.forEach(function(w) {
+      const o = document.createElement("option");
+      o.value = String(w[0]); o.textContent = w[0] ? w[1] : t("sidTableKeepWave");
+      wave.appendChild(o);
+    });
+    wave.value = String(step.w);
+    wave.addEventListener("change", function(){ step.w = Number(wave.value) | 0; });
+    const note = document.createElement("input");
+    note.type = "number"; note.className = "sid-input";
+    note.min = step.abs ? "0" : "-96"; note.max = "95"; note.value = String(step.n);
+    note.setAttribute("aria-label", step.abs ? t("sidTableAbsNote") : t("sidTableNoteOffset"));
+    note.addEventListener("input", function(){
+      const v = Number.parseInt(note.value, 10);
+      if (Number.isFinite(v)) step.n = step.abs ? Math.max(0, Math.min(95, v)) : Math.max(-96, Math.min(95, v));
+    });
+    const absLbl = document.createElement("label");
+    absLbl.className = "sid-check";
+    const abs = document.createElement("input");
+    abs.type = "checkbox"; abs.checked = !!step.abs;
+    abs.addEventListener("change", function(){
+      step.abs = abs.checked;
+      step.n = step.abs ? Math.max(0, Math.min(95, step.n + 48)) : 0;
+      _sidRenderTable();
+    });
+    const absTxt = document.createElement("span");
+    absTxt.textContent = t("sidTableAbs");
+    absLbl.append(abs, absTxt);
+    const del = document.createElement("button");
+    del.type = "button"; del.className = "sid-mini-btn sid-tstep-del"; del.textContent = "×";
+    del.setAttribute("aria-label", t("sidTableDelStep"));
+    del.addEventListener("click", function(){
+      table.splice(k, 1);
+      if (inst.tableLoop >= table.length) inst.tableLoop = table.length - 1;
+      _sidRenderTable();
+    });
+    row.append(idx, wave, note, absLbl, del);
+    box.appendChild(row);
+  });
+  const add = document.getElementById("sid-table-add");
+  if (add) add.disabled = table.length >= 32;
+}
+function _sidApplyTablePreset(key) {
+  const p = _SID_TABLE_PRESETS[key];
+  if (!p) return;
+  const inst = _sidCurInst();
+  inst.table = p.steps.map(function(s){ return { w: s[0], n: s[1], abs: !!s[2] }; });
+  inst.tableLoop = p.loop;
+  inst.tableSpeed = p.speed;
+  const ts = document.getElementById("sid-table-speed"); if (ts) ts.value = p.speed;
+  _sidRenderTable();
 }
 function _sidBuildInstSel() {
   const sel = document.getElementById("sid-inst-sel"); if (!sel) return;
@@ -38519,105 +38744,24 @@ function _sidApplyMasterVolume() {
     }
   } catch(_) {}
 }
-let _sidNoiseBuf = null;
-function _sidNoise(ac) {
-  if (!_sidNoiseBuf) {
-    _sidNoiseBuf = ac.createBuffer(1, ac.sampleRate, ac.sampleRate);
-    const d = _sidNoiseBuf.getChannelData(0);
-    for (let i = 0; i < d.length; i++) d[i] = Math.random()*2-1;
-  }
-  const s = ac.createBufferSource(); s.buffer = _sidNoiseBuf; s.loop = true; return s;
+/* Note preview: one voice of the engine plays `inst` for holdSec, then the gate
+   is released and the release tail is rendered too. */
+function _sidPlayNote(inst, note, when, holdSec) {
+  const ac = _sidEnsureAudio();
+  const td = _sidTuneData({ insts: [inst], patterns: [], song: [0], speed: 255 });
+  const e = _sidEngineNew(td);
+  const ins = td.insts[0];
+  const hold = Math.max(2, Math.round(Math.max(0.04, holdSec) * 50));
+  const tail = Math.min(150, Math.ceil(_SID_DCR[ins.r] / 20) + 6);
+  const data = _sidRenderEngine(e, hold + tail, ac.sampleRate, function(eng, k) {
+    if (k === 0) _sidEngNoteOn(eng, 0, Math.max(0, Math.min(95, note | 0)), 0);
+    if (k === hold) eng.v[0].gate = 0;
+  });
+  return { src: _sidPlayBuffer(data, when) };
 }
 function _sidPlayInst(inst, freq, when, holdSec) {
-  const ac = _sidEnsureAudio();
-  let src;
-  if (inst.noi) { src = _sidNoise(ac); }
-  else {
-    src = ac.createOscillator();
-    src.type = inst.pul ? "square" : inst.saw ? "sawtooth" : inst.tri ? "triangle" : "square";
-    src.frequency.value = freq;
-  }
-  const gain = ac.createGain();
-  const atk = _SID_ATK[inst.a]/1000, dec = _SID_DCR[inst.d]/1000, rel = _SID_DCR[inst.r]/1000;
-  const peak = (inst.vol/15) * 0.22;
-  const sus = peak * (inst.s/15);
-  gain.gain.setValueAtTime(0.0001, when);
-  gain.gain.linearRampToValueAtTime(peak, when + Math.max(0.002, atk));
-  gain.gain.linearRampToValueAtTime(Math.max(0.0001, sus), when + Math.max(0.002, atk) + Math.max(0.002, dec));
-  const relStart = when + Math.max(0.05, holdSec);
-  gain.gain.setValueAtTime(Math.max(0.0001, sus), relStart);
-  gain.gain.linearRampToValueAtTime(0.0001, relStart + Math.max(0.01, rel));
-  let node = src;
-  node.connect(gain);
-  let out = gain;
-  if (inst.lp || inst.bp || inst.hp) {
-    const filt = ac.createBiquadFilter();
-    filt.type = inst.hp ? "highpass" : inst.bp ? "bandpass" : "lowpass";
-    filt.frequency.value = 30 + (inst.cut/2047) * 9000;
-    filt.Q.value = 0.5 + (inst.res/15) * 8;
-    gain.connect(filt); out = filt;
-  }
-  out.connect(_sidMasterGain || ac.destination);
-  src.start(when);
-  src.stop(relStart + Math.max(0.01, rel) + 0.05);
-  return { src, gain };
-}
-
-/* ── Web Audio preview: effect-column live steering ─────────────────────
- * Only used on the approximation playback path (WebSid unavailable, or the
- * single-pattern loop mode which never goes through WebSid). Mirrors the
- * exported ASM player's per-row effect dispatch: vibrato/slide update once
- * per row around a stable "base" frequency captured at note-on, note-cut
- * silences the voice without retriggering, and speed-change reschedules the
- * tick interval. `tick` is passed in so the F effect can restart the timer
- * at the new rate without this helper needing to know about _sidPlay's
- * closure directly. */
-function _sidApplyRowEffect(v, cell, tick) {
-  const vs = _sidVoiceState[v];
-  if (!cell || !cell.fx) return;
-  if (cell.fx === "F") {
-    if (cell.fxval > 0) {
-      _sidSpeed = cell.fxval;
-      _sidUpdateBpmDisplay();
-      if (_sidTimer) {
-        clearInterval(_sidTimer);
-        _sidTimer = setInterval(tick, Math.max(0.04, _sidSpeed / 50) * 1000);
-      }
-    }
-    return;
-  }
-  if (!vs || !vs.src || !vs.gain) return; // nothing currently sounding on this voice
-  const ac = _sidAudio;
-  if (!ac) return;
-  const now = ac.currentTime;
-  if (cell.fx === "C") {
-    try {
-      vs.gain.gain.cancelScheduledValues(now);
-      vs.gain.gain.setValueAtTime(Math.max(0.0001, vs.gain.gain.value), now);
-      vs.gain.gain.linearRampToValueAtTime(0.0001, now + 0.01);
-    } catch (_) {}
-    return;
-  }
-  if (cell.fx === "U" || cell.fx === "D") {
-    const step = (cell.fxval || 0) * 2;
-    vs.curFreq = Math.max(20, vs.curFreq + (cell.fx === "U" ? step : -step));
-    if (vs.src.frequency) {
-      try { vs.src.frequency.setValueAtTime(vs.curFreq, now); } catch (_) {}
-    }
-    return;
-  }
-  if (cell.fx === "V") {
-    const depth = ((cell.fxval || 0) & 0x0F) * 4;
-    const holdLen = ((cell.fxval || 0) >> 4) & 0x0F;
-    vs.vibCount = (vs.vibCount || 0) + 1;
-    if (vs.vibCount > holdLen) { vs.vibCount = 0; vs.vibSign = vs.vibSign ? 0 : 1; }
-    const wob = vs.vibSign ? depth : -depth;
-    const f = Math.max(20, vs.baseFreq + wob);
-    if (vs.src.frequency) {
-      try { vs.src.frequency.setValueAtTime(f, now); } catch (_) {}
-    }
-    return;
-  }
+  const note = Math.round(57 + 12 * Math.log2(Math.max(1, freq) / 440));
+  return _sidPlayNote(inst, note, when, holdSec);
 }
 
 /* ── Metronome + BPM helpers ─────────────────────────────────────────────
@@ -38882,11 +39026,91 @@ async function _webSidPlayFileBytes(bytes, filename) {
   });
 }
 
+/* Tracker playback driven by the JS engine. The engine yields the frame of
+ * every row; those become timed highlight events. With `audio` the frames are
+ * also rendered through the synth (Web Audio path); without it WebSid plays the
+ * real player and the engine only keeps the highlight (and F speed changes) in
+ * step. Tune data is re-read for every chunk, so edits are heard while playing. */
+function _sidWaClock(w) {
+  return w.audio ? _sidAudio.currentTime : performance.now() / 1000;
+}
+function _sidWaTune() {
+  const playAll = _sidPlayMode === "all";
+  return _sidTuneData({ song: playAll ? ((_sidSong && _sidSong.length) ? _sidSong : [0]) : [_sidPat] });
+}
+function _sidWaStart(audio) {
+  if (audio) _sidEnsureAudio();
+  const td = _sidWaTune();
+  const e = _sidEngineNew(td);
+  if (_sidPlayMode === "all") {
+    e.opos = Math.max(0, Math.min(td.song.length - 1, _sidSongPlayPos | 0));
+    e.pat = td.song[e.opos] | 0;
+  }
+  // the real player (WebSid) reads row 0 `speed` frames after init; the Web
+  // Audio preview starts the engine one frame before row 0 instead
+  if (audio) e.tick = 1;
+  _sidWaPlay = { e: e, audio: !!audio, events: [], next: 0, timer: null };
+  _sidWaPlay.next = _sidWaClock(_sidWaPlay) + 0.05;
+  _sidWaSchedule();
+  _sidWaPlay.timer = setInterval(_sidWaSchedule, 20);
+  _sidTimer = _sidWaPlay.timer;
+}
+function _sidWaSchedule() {
+  const w = _sidWaPlay;
+  if (!w) return;
+  const now = _sidWaClock(w);
+  const chunk = 20; // frames (0.4 s)
+  while (w.next - now < 0.5) {
+    const e = w.e;
+    const td = _sidWaTune();
+    e.td = td; e.a = td.a;
+    if (e.opos >= td.song.length) { e.opos = 0; e.row = 0; }
+    if (_sidPlayMode !== "all") e.pat = td.song[0] | 0;
+    const first = e.frame, from = e.rows.length;
+    if (w.audio) {
+      _sidPlayBuffer(_sidRenderEngine(e, chunk, _sidAudio.sampleRate), w.next);
+    } else {
+      for (let k = 0; k < chunk; k++) _sidEngFrame(e);
+    }
+    for (let k = from; k < e.rows.length; k++) {
+      const r = e.rows[k];
+      w.events.push({ time: w.next + (r.frame - first) / 50, row: r.row, opos: r.opos, pat: r.pat });
+    }
+    e.rows.length = 0;
+    w.next += chunk / 50;
+  }
+  while (w.events.length && w.events[0].time <= now) _sidWaShowRow(w.events.shift());
+}
+function _sidWaShowRow(ev) {
+  _sidRow = ev.row;
+  if (_sidPlayMode === "all") {
+    _sidSongPlayPos = ev.opos;
+    _sidPlayPat = ev.pat;
+    if (_sidPat !== ev.pat) _sidSetPattern(ev.pat, true);
+    if (ev.row === 0) _sidBuildSongList();
+  }
+  if (_sidMetronomeEnabled && (ev.row % _SID_ROWS_PER_BEAT) === 0) {
+    _sidPlayMetronomeClick(((ev.row / _SID_ROWS_PER_BEAT) | 0) % _SID_BEATS_PER_BAR === 0);
+  }
+  const t = document.getElementById("sid-tracker");
+  if (t) {
+    t.querySelectorAll("tr.sid-playing").forEach(function(r){ r.classList.remove("sid-playing"); });
+    const tr = t.querySelector('tr.sid-trow[data-row="' + ev.row + '"]');
+    if (tr) { tr.classList.add("sid-playing"); tr.scrollIntoView({ block: "nearest" }); }
+  }
+}
+function _sidWaStop() {
+  if (_sidWaPlay && _sidWaPlay.timer) clearInterval(_sidWaPlay.timer);
+  _sidWaPlay = null;
+  _sidPreviewSources.forEach(function(src){ try { src.stop(); } catch (_) {} });
+  _sidPreviewSources.clear();
+}
+
 function _sidStop() {
   if (_sidTimer) { clearInterval(_sidTimer); _sidTimer = null; }
+  _sidWaStop();
   _sidPaused = false;
   _sidPlaybackUsingWebSid = false;
-  _sidVoiceState = [null, null, null];
   _webSidPause();
   const t = document.getElementById("sid-tracker");
   if (t) t.querySelectorAll("tr.sid-playing").forEach(function(r){ r.classList.remove("sid-playing"); });
@@ -38895,23 +39119,24 @@ function _sidStop() {
 }
 async function _sidPlay(resetPosition = true) {
   if (_sidTimer) { clearInterval(_sidTimer); _sidTimer = null; }
+  _sidWaStop();
+  const playAll = _sidPlayMode === "all";
   if (resetPosition) {
     _webSidPause();
-    _sidVoiceState = [null, null, null];
-    _sidSongPlayPos = 0;
-    _sidPlayPat = (_sidSong && _sidSong.length) ? _sidSong[0] : 0;
-    _sidSetPattern(_sidPlayPat, true);
+      _sidSongPlayPos = 0;
+    if (playAll) {
+      _sidPlayPat = (_sidSong && _sidSong.length) ? _sidSong[0] : 0;
+      _sidSetPattern(_sidPlayPat, true);
+    } else {
+      _sidPlayPat = _sidPat;
+    }
     _sidRow = 0;
     _sidBuildSongList();
   }
   _sidPaused = false;
-  const playAll = _sidPlayMode === "all";
-  const rowSec = Math.max(0.04, _sidSpeed / 50);
-  const t = document.getElementById("sid-tracker");
 
   // Try WebSid first (real cycle-exact SID). Only "all" mode maps to the exported
-  // tune; for single-pattern loop we fall back to the Web Audio approximation so
-  // the user still gets the isolated-pattern preview they asked for.
+  // tune; the single-pattern loop is rendered by the JS engine + synth.
   let usingWebSid = false;
   if (playAll) {
     if (resetPosition || !_sidPlaybackUsingWebSid) {
@@ -38929,46 +39154,8 @@ async function _sidPlay(resetPosition = true) {
     }
   }
   _sidPlaybackUsingWebSid = usingWebSid;
-  if (!usingWebSid) _sidEnsureAudio();
-
-  const tick = function() {
-    const pat = _sidPatterns[_sidPlayPat] || _sidCurPat();
-    if (!usingWebSid) {
-      const ac = _sidAudio, when = ac.currentTime + 0.02;
-      for (let v = 0; v < 3; v++) {
-        const cell = pat[v][_sidRow];
-        if (cell.note != null) {
-          const freq = _sidNoteFreq(cell.note);
-          const nodes = _sidPlayInst(_sidInsts[cell.inst] || _sidCurInst(), freq, when, rowSec);
-          _sidVoiceState[v] = { src: nodes.src, gain: nodes.gain, baseFreq: freq, curFreq: freq, vibSign: 0, vibCount: 0 };
-        }
-        if (cell.fx) _sidApplyRowEffect(v, cell, tick);
-      }
-    }
-    if (_sidMetronomeEnabled && (_sidRow % _SID_ROWS_PER_BEAT) === 0) {
-      // Accent on the downbeat of every bar (4 beats = 16 rows).
-      const beatIndex = (_sidRow / _SID_ROWS_PER_BEAT) | 0;
-      _sidPlayMetronomeClick(beatIndex % _SID_BEATS_PER_BAR === 0);
-    }
-    if (t) {
-      t.querySelectorAll("tr.sid-playing").forEach(function(r){ r.classList.remove("sid-playing"); });
-      const tr = t.querySelector('tr.sid-trow[data-row="'+_sidRow+'"]');
-      if (tr) { tr.classList.add("sid-playing"); tr.scrollIntoView({ block: "nearest" }); }
-    }
-    _sidRow++;
-    if (_sidRow >= _SID_ROWS) {
-      _sidRow = 0;
-      if (playAll && _sidSong && _sidSong.length) {
-        _sidSongPlayPos = (_sidSongPlayPos + 1) % _sidSong.length;
-        _sidPlayPat = _sidSong[_sidSongPlayPos];
-        if (_sidPat !== _sidPlayPat) _sidSetPattern(_sidPlayPat, true);
-        _sidBuildSongList();
-      }
-    }
-  };
-  _sidSetPattern(_sidPlayPat, true);
-  tick();
-  _sidTimer = setInterval(tick, rowSec * 1000);
+  // resuming WebSid continues the emulator; restart the highlight from this pattern
+  _sidWaStart(!usingWebSid);
   _sidUpdatePauseButton();
 }
 function _sidPauseToggle() {
@@ -38978,6 +39165,7 @@ function _sidPauseToggle() {
   }
   if (_sidTimer || _sidPlaybackUsingWebSid) {
     if (_sidTimer) { clearInterval(_sidTimer); _sidTimer = null; }
+    _sidWaStop();
     if (_sidPlaybackUsingWebSid) _webSidPause();
     _sidPaused = true;
     _sidUpdatePauseButton();
@@ -38986,9 +39174,361 @@ function _sidPauseToggle() {
   _sidPlay(true);
 }
 
+/* ── Tune data shared by the 6502 player, the JS engine and the UB export ──
+ * Per-instrument parameters are flattened into one byte array per parameter
+ * (indexed by instrument number), the wave/arpeggio tables are concatenated
+ * (at most 255 steps in all). */
+function _sidFreqTables() {
+  if (_sidFreqTables.cache) return _sidFreqTables.cache;
+  const f = [], semi = [];
+  for (let n = 0; n < 96; n++) {
+    const hz = 440 * Math.pow(2, (n - 57) / 12);
+    f.push(Math.min(0xFFFF, Math.round(hz * 16777216 / 985248)));
+  }
+  for (let n = 0; n < 96; n++) semi.push(Math.max(0, f[Math.min(95, n + 1)] - f[n]) || (n ? semi[n - 1] : 0));
+  _sidFreqTables.cache = { f: f, semi: semi };
+  return _sidFreqTables.cache;
+}
+
+function _sidTuneData(opts) {
+  opts = opts || {};
+  const insts = (opts.insts || _sidInsts || []).map(_sidInstNorm);
+  if (!insts.length) insts.push(_sidInstNorm(null));
+  const patterns = opts.patterns || _sidPatterns || [];
+  const songSrc = opts.song || ((_sidSong && _sidSong.length) ? _sidSong : [0]);
+  const song = songSrc.map(function(idx){ return Math.max(0, Math.min(Math.max(0, patterns.length - 1), idx | 0)); });
+  const speed = Math.max(1, Math.min(255, (opts.speed !== undefined ? opts.speed : _sidSpeed) | 0));
+  const a = { ictl:[], iad:[], isr:[], ipwl:[], ipwh:[], icul:[], icuh:[], icel:[], iceh:[], icsp:[], ifl:[], ires:[],
+    imode:[], ivol:[], ivdl:[], ivsp:[], ivdp:[], ipms:[], ipmnl:[], ipmnh:[], ipmxl:[], ipmxh:[], igt:[], ihr:[],
+    iffw:[], itst:[], itln:[], itlp:[], itsp:[], tw:[], tn:[], ta:[] };
+  insts.forEach(function(o) {
+    a.ictl.push(_sidInstCtrl(o)); a.iad.push((o.a << 4) | o.d); a.isr.push((o.s << 4) | o.r);
+    a.ipwl.push(o.pw & 0xFF); a.ipwh.push(o.pw >> 8);
+    a.icul.push(o.cut & 0xFF); a.icuh.push(o.cut >> 8); a.icel.push(o.cutEnd & 0xFF); a.iceh.push(o.cutEnd >> 8);
+    // the sweep runs from cut toward cutEnd: the sign of the per-frame step follows the direction
+    a.icsp.push(!o.cutSpeed ? 0 : o.cutEnd >= o.cut ? o.cutSpeed : (256 - o.cutSpeed) & 0xFF);
+    a.ifl.push((o.filt ? 1 : 0) | (o.cutPing ? 2 : 0)); a.ires.push(o.res << 4);
+    a.imode.push((o.lp?0x10:0) | (o.bp?0x20:0) | (o.hp?0x40:0) | (o.off3?0x80:0)); a.ivol.push(o.vol);
+    a.ivdl.push(o.vibDelay); a.ivsp.push(o.vibSpeed); a.ivdp.push(o.vibDepth);
+    const pmin = Math.min(o.pwmMin, o.pwmMax), pmax = Math.max(o.pwmMin, o.pwmMax);
+    a.ipms.push(o.pwmSpeed); a.ipmnl.push(pmin & 0xFF); a.ipmnh.push(pmin >> 8); a.ipmxl.push(pmax & 0xFF); a.ipmxh.push(pmax >> 8);
+    a.igt.push(o.gateTimer); a.ihr.push(o.hr ? 1 : 0); a.iffw.push(o.firstWave);
+    const steps = o.table.slice(0, Math.max(0, 255 - a.tw.length));
+    a.itst.push(a.tw.length); a.itln.push(steps.length);
+    a.itlp.push(o.tableLoop >= 0 && o.tableLoop < steps.length ? o.tableLoop : 0xFF);
+    a.itsp.push(o.tableSpeed);
+    steps.forEach(function(s){ a.tw.push(s.w & 0xFF); a.tn.push(s.n & 0xFF); a.ta.push(s.abs ? 1 : 0); });
+  });
+  return { speed: speed, insts: insts, patterns: patterns, song: song.length ? song : [0], a: a };
+}
+
+/* Cell → player bytes: note 1..96 (0 = none), instrument (out-of-range → 0), fx code, fx value. */
+function _sidCellBytes(c, instCount) {
+  const note = c && c.note != null ? Math.max(0, Math.min(95, c.note | 0)) + 1 : 0;
+  const inst = c ? (c.inst | 0) & 0xFF : 0;
+  const fx = c && c.fx ? ({ V: 1, U: 2, D: 3, C: 4, F: 5 })[c.fx] || 0 : 0;
+  return [note, inst < instCount ? inst : 0, fx, c ? (c.fxval | 0) & 0xFF : 0];
+}
+
+/* ── JS engine: a frame-exact model of the exported 6502 player ─────────────
+ * One _sidEngFrame call = one IRQ of the player (sid_frame). It keeps the SID
+ * registers the player has written in e.regs; the Web Audio preview renders
+ * them with _sidSynthRender, and the tests compare them with the 6502 code. */
+function _sidEngineNew(td) {
+  const voice = function() {
+    return { on:0, inst:0, note:0, gate:0, jon:0, ffr:0, ctl:0, sl:0, fvo:0, fvs:0, fvc:0,
+      vdl:0, vcn:0, vdr:0, vof:0, vst:0, pw:0, pwd:0, tpos:0, tcnt:0, wav:0, nof:0, nab:0 };
+  };
+  return { td: td, a: td.a, ft: _sidFreqTables(), regs: new Uint8Array(25), trig: [false, false, false],
+    tick: td.speed, spd: td.speed, row: 0, opos: 0, pat: td.song[0] | 0, frame: 0, rows: [],
+    v: [voice(), voice(), voice()], vol: 0,
+    f: { own: 0xFF, cut: 0, spd: 0, tgt: 0, start: 0, end: 0, ping: 0, res: 0, mode: 0, route: 0 } };
+}
+
+function _sidEngTab(e, s, k) {
+  const w = e.a.tw[k] | 0;
+  if (w) s.wav = w & 0xFE;
+  s.nof = e.a.tn[k] | 0;
+  s.nab = e.a.ta[k] | 0;
+}
+
+function _sidEngNoteOn(e, v, n, i) {
+  const a = e.a, s = e.v[v], f = e.f, base = 7 * v;
+  s.ctl &= 0xFE;
+  e.regs[base + 4] = s.ctl;
+  e.trig[v] = true;
+  s.note = n; s.inst = i; s.on = 1; s.gate = 1; s.jon = 1;
+  s.sl = 0; s.fvo = 0; s.fvs = 0; s.fvc = 0; s.pwd = 0; s.vof = 0; s.tpos = 0; s.nof = 0; s.nab = 0; s.vdr = 1;
+  s.ffr = a.iffw[i];
+  s.pw = a.ipwl[i] | (a.ipwh[i] << 8);
+  s.vdl = a.ivdl[i];
+  s.vcn = ((a.ivsp[i] + 1) & 0xFF) >> 1 || 1;
+  s.tcnt = a.itsp[i];
+  s.wav = a.ictl[i];
+  let m = e.ft.semi[n], mul = a.ivdp[i], acc = 0;
+  while (mul) { if (mul & 1) acc = (acc + m) & 0xFFFF; m = (m << 1) & 0xFFFF; mul >>= 1; }
+  s.vst = acc >> 5;
+  if (a.itln[i]) _sidEngTab(e, s, a.itst[i]);
+  e.regs[base + 5] = a.iad[i];
+  e.regs[base + 6] = a.isr[i];
+  e.vol = a.ivol[i];
+  if (a.ifl[i] & 1) {
+    f.own = v;
+    f.cut = f.start = a.icul[i] | (a.icuh[i] << 8);
+    f.end = f.tgt = a.icel[i] | (a.iceh[i] << 8);
+    f.spd = a.icsp[i]; f.ping = a.ifl[i] & 2; f.res = a.ires[i]; f.mode = a.imode[i];
+    f.route |= 1 << v;
+  } else {
+    f.route &= ~(1 << v) & 0xFF;
+  }
+}
+
+function _sidEngRow(e) {
+  const td = e.td, pat = td.patterns[e.pat];
+  e.rows.push({ frame: e.frame, row: e.row, opos: e.opos, pat: e.pat });
+  for (let v = 0; v < 3; v++) {
+    const b = _sidCellBytes(pat ? pat[v][e.row] : null, td.insts.length);
+    const s = e.v[v];
+    if (b[0]) _sidEngNoteOn(e, v, b[0] - 1, b[1]);
+    const fx = b[2], val = b[3];
+    if (fx !== 1) s.fvo = 0;
+    if (fx === 4) s.gate = 0;
+    else if (fx === 5) { if (val) e.spd = val; }
+    else if (fx === 1) {
+      const hold = (val >> 4) || 1;
+      if (hold === s.fvc) { s.fvc = 0; s.fvs ^= 0xFF; } else s.fvc = (s.fvc + 1) & 0xFF;
+      const d = (val & 0x0F) * 4;
+      s.fvo = s.fvs ? d : (0x10000 - d) & 0xFFFF;
+    }
+    else if (fx === 2) s.sl = (s.sl + val) & 0xFFFF;
+    else if (fx === 3) s.sl = (s.sl - val) & 0xFFFF;
+  }
+  e.row++;
+  if (e.row >= _SID_ROWS) {
+    e.row = 0;
+    e.opos++;
+    if (e.opos >= td.song.length) e.opos = 0;
+    e.pat = td.song[e.opos] | 0;
+  }
+}
+
+/* Gate timer / hard restart: gt frames before a row that starts a new note on
+   this voice the gate is cleared (and with hard restart ADSR is zeroed). */
+function _sidEngHr(e) {
+  const a = e.a;
+  for (let v = 0; v < 3; v++) {
+    const s = e.v[v];
+    if (!s.on) continue;
+    const gt = a.igt[s.inst];
+    if (!gt || gt !== e.tick || gt === e.spd) continue;
+    const pat = e.td.patterns[e.pat];
+    if (!_sidCellBytes(pat ? pat[v][e.row] : null, e.td.insts.length)[0]) continue;
+    s.gate = 0;
+    if (a.ihr[s.inst]) { e.regs[7 * v + 5] = 0; e.regs[7 * v + 6] = 0; }
+  }
+}
+
+function _sidEngUpdate(e) {
+  const a = e.a, f = e.f;
+  for (let v = 0; v < 3; v++) {
+    const s = e.v[v];
+    if (!s.on) continue;
+    const i = s.inst, base = 7 * v;
+    let ctl;
+    if (s.jon) {
+      s.jon = 0;
+      if (s.ffr) { ctl = s.ffr; s.ffr = 0; } else ctl = s.wav | s.gate;
+    } else {
+      if (a.itln[i]) {
+        s.tcnt = (s.tcnt - 1) & 0xFF;
+        if (!s.tcnt) {
+          s.tcnt = a.itsp[i];
+          s.tpos = (s.tpos + 1) & 0xFF;
+          if (s.tpos >= a.itln[i]) s.tpos = a.itlp[i] === 0xFF ? a.itln[i] - 1 : a.itlp[i];
+          _sidEngTab(e, s, (s.tpos + a.itst[i]) & 0xFF);
+        }
+      }
+      ctl = s.wav | s.gate;
+    }
+    s.ctl = ctl;
+    e.regs[base + 4] = ctl;
+    let n;
+    if (s.nab) n = s.nof;
+    else if (s.nof & 0x80) { const sum = s.nof + s.note; n = sum >= 256 ? sum - 256 : 0; }
+    else n = s.nof + s.note;
+    if (n >= 96) n = 95;
+    const fr = (e.ft.f[n] + s.sl + s.fvo + s.vof) & 0xFFFF;
+    e.regs[base] = fr & 0xFF;
+    e.regs[base + 1] = fr >> 8;
+    if (a.ivsp[i] && a.ivdp[i]) {
+      if (s.vdl) s.vdl--;
+      else {
+        s.vof = s.vdr ? (s.vof + s.vst) & 0xFFFF : (s.vof - s.vst) & 0xFFFF;
+        s.vcn = (s.vcn - 1) & 0xFF;
+        if (!s.vcn) { s.vcn = a.ivsp[i]; s.vdr ^= 1; }
+      }
+    }
+    e.regs[base + 2] = s.pw & 0xFF;
+    e.regs[base + 3] = (s.pw >> 8) & 0xFF;
+    const ps = a.ipms[i];
+    if (ps) {
+      const mx = a.ipmxl[i] | (a.ipmxh[i] << 8), mn = a.ipmnl[i] | (a.ipmnh[i] << 8);
+      if (!s.pwd) {
+        s.pw = (s.pw + ps) & 0xFFFF;
+        if (s.pw >= mx) { s.pw = mx; s.pwd = 1; }
+      } else {
+        const p = s.pw - ps;
+        if (p < 0 || p <= mn) { s.pw = mn; s.pwd = 0; } else s.pw = p;
+      }
+    }
+  }
+  e.regs[0x15] = f.cut & 7;
+  e.regs[0x16] = (f.cut >> 3) & 0xFF;
+  e.regs[0x17] = (f.res | f.route) & 0xFF;
+  e.regs[0x18] = (f.mode | e.vol) & 0xFF;
+  if (f.own !== 0xFF && f.spd) {
+    let reach;
+    if (f.spd < 0x80) {
+      f.cut = (f.cut + f.spd) & 0xFFFF;
+      reach = f.cut >= f.tgt;
+    } else {
+      const c = f.cut + f.spd - 256;
+      f.cut = c & 0xFFFF;
+      reach = c < 0 || c <= f.tgt;
+    }
+    if (reach) {
+      f.cut = f.tgt;
+      if (f.ping) { f.tgt = f.tgt === f.end ? f.start : f.end; f.spd = (256 - f.spd) & 0xFF; }
+      else f.spd = 0;
+    }
+  }
+}
+
+function _sidEngFrame(e) {
+  e.trig[0] = e.trig[1] = e.trig[2] = false;
+  e.tick = (e.tick - 1) & 0xFF;
+  if (!e.tick) { e.tick = e.spd; _sidEngRow(e); }
+  _sidEngHr(e);
+  _sidEngUpdate(e);
+  e.frame++;
+  return e.regs;
+}
+
+/* ── Small SID synthesizer for the Web Audio preview ──────────────────────
+ * Renders one 50 Hz frame of register state: triangle/saw/pulse/noise with
+ * the SID's AND-combined waveforms, test bit, ring modulation and hard sync
+ * (voice 1 ← 3, 2 ← 1, 3 ← 2), an ADSR approximation and a resonant
+ * state-variable filter with routing, LP/BP/HP and 3 OFF. Not cycle exact —
+ * the WebSid path ("Play: All") runs the real player for that. */
+function _sidSynthNew(sr) {
+  return { sr: sr, ph: [0, 0, 0], env: [0, 0, 0], st: [0, 0, 0], gate: [0, 0, 0], nz: [0, 0, 0], nzc: [0, 0, 0], lp: 0, bp: 0, hp: 0 };
+}
+
+function _sidSynthRender(sy, regs, trig, out, off, count) {
+  const sr = sy.sr, dt = 1 / sr, clk = 985248 / 16777216 / sr;
+  const fr = [0, 0, 0], pw = [0, 0, 0], ctl = [0, 0, 0], at = [0, 0, 0], kd = [1, 1, 1], su = [0, 0, 0], kr = [1, 1, 1];
+  for (let v = 0; v < 3; v++) {
+    const b = 7 * v;
+    fr[v] = (regs[b] | (regs[b + 1] << 8)) * clk;
+    pw[v] = (regs[b + 2] | ((regs[b + 3] & 15) << 8)) / 4096;
+    ctl[v] = regs[b + 4];
+    at[v] = dt / Math.max(0.002, _SID_ATK[regs[b + 5] >> 4] / 1000);
+    kd[v] = Math.exp(-dt * 4.6 / Math.max(0.006, _SID_DCR[regs[b + 5] & 15] / 1000));
+    su[v] = (regs[b + 6] >> 4) / 15;
+    kr[v] = Math.exp(-dt * 4.6 / Math.max(0.006, _SID_DCR[regs[b + 6] & 15] / 1000));
+    const g = ctl[v] & 1;
+    if (g && (!sy.gate[v] || (trig && trig[v]))) sy.st[v] = 1;
+    else if (!g && sy.gate[v]) sy.st[v] = 0;
+    sy.gate[v] = g;
+  }
+  const cut = (regs[0x15] & 7) | (regs[0x16] << 3);
+  const fc = Math.min(30 + cut * 5.8, sr * 0.4);
+  const fk = 2 * Math.sin(Math.PI * fc / (2 * sr));
+  const q = 1 / (0.707 + (regs[0x17] >> 4) * 0.3);
+  const route = regs[0x17] & 7, mode = regs[0x18], vol = (mode & 15) / 15;
+  const wrapped = [false, false, false];
+  for (let i = 0; i < count; i++) {
+    for (let v = 0; v < 3; v++) {
+      wrapped[v] = false;
+      if (ctl[v] & 8) { sy.ph[v] = 0; continue; }
+      sy.ph[v] += fr[v];
+      if (sy.ph[v] >= 1) { sy.ph[v] -= Math.floor(sy.ph[v]); wrapped[v] = true; }
+    }
+    for (let v = 0; v < 3; v++) if ((ctl[v] & 2) && wrapped[(v + 2) % 3]) sy.ph[v] = 0;
+    let direct = 0, filt = 0;
+    for (let v = 0; v < 3; v++) {
+      let e = sy.env[v];
+      if (sy.st[v] === 1) { e += at[v]; if (e >= 1) { e = 1; sy.st[v] = 2; } }
+      else if (sy.st[v] === 2) e = su[v] + (e - su[v]) * kd[v];
+      else e *= kr[v];
+      sy.env[v] = e;
+      if (e < 1e-5) continue;
+      const p = sy.ph[v], c = ctl[v];
+      let w = 0xFFF, any = false;
+      if (c & 0x10) {
+        let tri = p < 0.5 ? p * 2 : 2 - p * 2;
+        if ((c & 4) && sy.ph[(v + 2) % 3] >= 0.5) tri = 1 - tri;
+        w &= (tri * 4095) | 0; any = true;
+      }
+      if (c & 0x20) { w &= (p * 4095) | 0; any = true; }
+      if (c & 0x40) { w &= p >= pw[v] ? 4095 : 0; any = true; }
+      if (c & 0x80) {
+        const k = (p * 16) | 0;
+        if (k !== sy.nzc[v]) { sy.nzc[v] = k; sy.nz[v] = (Math.random() * 4096) | 0; }
+        w &= sy.nz[v]; any = true;
+      }
+      if (!any) continue;
+      const smp = (w / 4095 - 0.5) * 2 * e;
+      if (route & (1 << v)) filt += smp;
+      else if (!(v === 2 && (mode & 0x80))) direct += smp;
+    }
+    for (let k = 0; k < 2; k++) {
+      sy.lp += fk * sy.bp;
+      sy.hp = filt - sy.lp - q * sy.bp;
+      sy.bp += fk * sy.hp;
+    }
+    if (!Number.isFinite(sy.lp) || !Number.isFinite(sy.bp)) { sy.lp = 0; sy.bp = 0; sy.hp = 0; }
+    let fo = 0;
+    if (mode & 0x10) fo += sy.lp;
+    if (mode & 0x20) fo += sy.bp;
+    if (mode & 0x40) fo += sy.hp;
+    out[off + i] = (direct + fo) * vol * 0.22;
+  }
+}
+
+/* Runs the engine for `frames` frames and renders the audio. hook(e, frame)
+   runs before each frame (note previews trigger notes / release from it). */
+function _sidRenderEngine(e, frames, sr, hook) {
+  const sy = e.synth || (e.synth = _sidSynthNew(sr));
+  const total = Math.ceil(frames * sr / 50);
+  const out = new Float32Array(total);
+  let pos = 0, acc = 0;
+  for (let k = 0; k < frames; k++) {
+    if (hook) hook(e, k);
+    _sidEngFrame(e);
+    acc += sr / 50;
+    const n = Math.min(total - pos, Math.floor(acc) - pos);
+    if (n > 0) { _sidSynthRender(sy, e.regs, e.trig, out, pos, n); pos += n; }
+  }
+  return out;
+}
+
+function _sidPlayBuffer(data, when) {
+  const ac = _sidEnsureAudio();
+  const buf = ac.createBuffer(1, Math.max(1, data.length), ac.sampleRate);
+  buf.copyToChannel(data, 0);
+  const src = ac.createBufferSource();
+  src.buffer = buf;
+  src.connect(_sidMasterGain || ac.destination);
+  src.start(Math.max(ac.currentTime, when));
+  _sidPreviewSources.add(src);
+  src.onended = function() { _sidPreviewSources.delete(src); };
+  return src;
+}
+
 /* ── Export ── */
 function _sidWaveByte(inst) {
-  return (inst.tri?0x10:0) | (inst.saw?0x20:0) | (inst.pul?0x40:0) | (inst.noi?0x80:0) | 0x01;
+  return (inst.tri?0x10:0) | (inst.saw?0x20:0) | (inst.pul?0x40:0) | (inst.noi?0x80:0) | (inst.ring?0x04:0) | (inst.sync?0x02:0) | 0x01;
 }
 function _sidInstBytes(ins) {
   return [_sidWaveByte(ins), (ins.a<<4)|ins.d, (ins.s<<4)|ins.r,
@@ -39002,9 +39542,48 @@ function _sidInstBytes(ins) {
  * is always its instrument count, and nobody builds a 254-instrument bank
  * in this editor, 0xFE is safe to use as an unambiguous "new format" flag.
  * _sidDeserialize below reads the marker and picks the matching cell size. */
+/* 0xFD format (current): [0xFD][ni][np][speed], per instrument the 9 classic
+ * bytes + the extension below + its name, then the 4-byte cells and the song.
+ * 0xFE (effect column, no extension) and the unmarked legacy layout still load. */
+function _sidInstExtBytes(ins) {
+  const o = _sidInstNorm(ins);
+  const flags = (o.filt?0x04:0) | (o.off3?0x08:0) | (o.hr?0x10:0) | (o.cutPing?0x20:0);
+  const out = [flags, o.cutEnd & 0xFF, o.cutEnd >> 8, o.cutSpeed, o.vibDelay, o.vibSpeed, o.vibDepth,
+    o.pwmSpeed, o.pwmMin & 0xFF, o.pwmMin >> 8, o.pwmMax & 0xFF, o.pwmMax >> 8,
+    o.gateTimer, o.firstWave, o.tableSpeed, o.tableLoop < 0 ? 0xFF : o.tableLoop, o.table.length];
+  o.table.forEach(function(s){ out.push(s.w, s.n & 0xFF, s.abs ? 1 : 0); });
+  const name = Array.from(new TextEncoder().encode(String(o.name || ""))).slice(0, 255);
+  out.push(name.length);
+  return out.concat(name);
+}
+function _sidReadInstExt(ins, src, p) {
+  const flags = src[p++] || 0;
+  ins.filt = !!(flags & 0x04); ins.off3 = !!(flags & 0x08); ins.hr = !!(flags & 0x10); ins.cutPing = !!(flags & 0x20);
+  ins.cutEnd = (src[p++] || 0) | ((src[p++] || 0) << 8);
+  ins.cutSpeed = src[p++] || 0;
+  ins.vibDelay = src[p++] || 0; ins.vibSpeed = src[p++] || 0; ins.vibDepth = src[p++] || 0;
+  ins.pwmSpeed = src[p++] || 0;
+  ins.pwmMin = (src[p++] || 0) | ((src[p++] || 0) << 8);
+  ins.pwmMax = (src[p++] || 0) | ((src[p++] || 0) << 8);
+  ins.gateTimer = src[p++] || 0; ins.firstWave = src[p++] || 0; ins.tableSpeed = src[p++] || 1;
+  const loop = src[p++]; ins.tableLoop = loop === 0xFF || loop === undefined ? -1 : loop;
+  const len = src[p++] || 0;
+  ins.table = [];
+  for (let k = 0; k < len; k++) {
+    const w = src[p++] || 0, n = src[p++] || 0, abs = !!src[p++];
+    ins.table.push({ w: w, n: abs ? n : (n > 127 ? n - 256 : n), abs: abs });
+  }
+  const nameLen = src[p++] || 0;
+  const name = new TextDecoder().decode(Uint8Array.from(Array.from(src.slice(p, p + nameLen))));
+  if (name) ins.name = name;
+  return p + nameLen;
+}
 function _sidSerialize() {
-  const out = [0xFE, _sidInsts.length, _sidPatterns.length];
-  _sidInsts.forEach(function(ins){ _sidInstBytes(ins).forEach(function(b){ out.push(b & 0xFF); }); });
+  const out = [0xFD, _sidInsts.length, _sidPatterns.length, Math.max(1, Math.min(255, _sidSpeed | 0))];
+  _sidInsts.forEach(function(ins){
+    _sidInstBytes(ins).forEach(function(b){ out.push(b & 0xFF); });
+    _sidInstExtBytes(ins).forEach(function(b){ out.push(b & 0xFF); });
+  });
   _sidPatterns.forEach(function(pat){
     for (let v=0;v<3;v++) for (let r=0;r<_SID_ROWS;r++) {
       const c = pat[v][r];
@@ -39026,17 +39605,28 @@ function _sidSerialize() {
 function _sidDeserialize(src) {
   _sidStop();
   let p = 0;
-  const versioned = src[0] === 0xFE; // see the format comment above _sidSerialize
+  const extended = src[0] === 0xFD; // see the format comment above _sidSerialize
+  const versioned = extended || src[0] === 0xFE;
   if (versioned) p = 1;
   const ni = src[p++] || 0, np = src[p++] || 0;
+  if (extended) {
+    _sidSpeed = src[p++] || 6;
+    const speedEl = document.getElementById("sid-speed");
+    if (speedEl) speedEl.value = String(_sidSpeed);
+  }
   _sidInsts = [];
   for (let i=0;i<ni;i++) {
     const ctrl=src[p++], ad=src[p++], sr=src[p++], pwlo=src[p++], pwhi=src[p++], cutlo=src[p++], cuthi=src[p++], resfilt=src[p++], mv=src[p++];
-    _sidInsts.push({ name:"Sound "+i,
+    const ins = { name:"Sound "+i,
       tri:!!(ctrl&0x10), saw:!!(ctrl&0x20), pul:!!(ctrl&0x40), noi:!!(ctrl&0x80),
       pw:(pwlo|((pwhi&0x0F)<<8)), a:(ad>>4)&0x0F, d:ad&0x0F, s:(sr>>4)&0x0F, r:sr&0x0F,
       lp:!!(mv&0x10), bp:!!(mv&0x20), hp:!!(mv&0x40),
-      cut:((cutlo&0x07)|((cuthi&0xFF)<<3)), res:(resfilt>>4)&0x0F, vol:mv&0x0F });
+      cut:((cutlo&0x07)|((cuthi&0xFF)<<3)), res:(resfilt>>4)&0x0F, vol:mv&0x0F };
+    if (extended) {
+      ins.ring = !!(ctrl & 0x04); ins.sync = !!(ctrl & 0x02);
+      p = _sidReadInstExt(ins, src, p);
+    }
+    _sidInsts.push(_sidInstNorm(ins));
   }
   if (!_sidInsts.length) _sidInsts = [_sidNewInst()];
   _sidPatterns = [];
@@ -39161,391 +39751,822 @@ function _sidExportDataOnly() {
 
 function _sidExportAsmPlayable() {
   const lines = [];
+  const L = function() { for (let i = 0; i < arguments.length; i++) lines.push(arguments[i].startsWith(";") || arguments[i].startsWith("*") || arguments[i].endsWith(":") || !arguments[i] ? arguments[i] : "    " + arguments[i]); };
   const hx = function(n){ return "$" + (n&0xFF).toString(16).toUpperCase().padStart(2,"0"); };
   const dh = function(arr){ return arr.map(hx).join(", "); };
   const chunk = function(label, arr, perLine) {
     perLine = perLine || 16;
     lines.push(label + ":");
+    if (!arr.length) lines.push("    .byte $00");
     for (let i = 0; i < arr.length; i += perLine) {
       lines.push("    .byte " + dh(arr.slice(i, i + perLine)));
     }
   };
 
-  const speed = Math.max(1, Math.min(255, _sidSpeed|0));
   // Each pattern is addressed via a 16-bit pointer (base + patternIndex*32,
-  // computed once per pattern by sid_load_pattern) rather than a single
-  // 8-bit index across the whole song — so, unlike the old exporter, the
-  // pattern count isn't bounded by fitting into one byte. 256 is still a
-  // defensive cap (pattern index and the order-list length are each one
-  // byte), way beyond what anyone will hand-build in the tracker.
+  // computed once per pattern by sid_load_pattern), so the pattern count is
+  // not bounded by one 8-bit index across the song; 256 is a defensive cap.
   const exportedPatterns = Math.min(_sidPatterns.length, 256);
-  const song = ((_sidSong && _sidSong.length) ? _sidSong : [0])
-    .map(function(idx){ return Math.max(0, Math.min(exportedPatterns - 1, idx|0)); });
-  const exportedSong = song.slice(0, 255);
+  const td = _sidTuneData({ patterns: _sidPatterns.slice(0, exportedPatterns) });
+  const speed = td.speed;
+  const exportedSong = td.song.slice(0, 255);
+  const a = td.a;
 
-  lines.push("; =========================================================");
-  lines.push("; SID player + tune (generated by Visual Assembler SID editor)");
-  lines.push("; PAL 50 Hz IRQ-driven, 3 voices, " + _SID_ROWS + "-row patterns");
-  lines.push("; Call JSR sid_init once to start playback; JSR sid_stop to silence.");
-  lines.push("; Speed: " + speed + " frames/row. " + exportedPatterns + " pattern(s) in the bank, " +
-             exportedSong.length + " step(s) in the song/order list (patterns may repeat).");
+  L("; =========================================================",
+    "; SID player + tune (generated by Visual Assembler SID editor)",
+    "; PAL 50 Hz IRQ-driven, 3 voices, " + _SID_ROWS + "-row patterns",
+    "; Call JSR sid_init once to start playback; JSR sid_stop to silence.",
+    "; Own IRQ instead: skip sid_init's IRQ setup and JSR sid_frame once per frame.",
+    "; Speed: " + speed + " frames/row. " + exportedPatterns + " pattern(s) in the bank, " +
+      exportedSong.length + " step(s) in the song/order list (patterns may repeat).");
   if (exportedPatterns < _sidPatterns.length) {
-    lines.push("; NOTE: only the first " + exportedPatterns + " patterns are exported (" +
-               _sidPatterns.length + " present).");
+    L("; NOTE: only the first " + exportedPatterns + " patterns are exported (" + _sidPatterns.length + " present).");
   }
-  if (exportedSong.length < song.length) {
-    lines.push("; NOTE: only the first " + exportedSong.length + " song steps are exported (" +
-               song.length + " present); order-list player uses an 8-bit position counter.");
+  if (exportedSong.length < td.song.length) {
+    L("; NOTE: only the first " + exportedSong.length + " song steps are exported (" + td.song.length +
+      " present); order-list player uses an 8-bit position counter.");
   }
-  lines.push(";");
-  lines.push("; Zero page usage (avoid these if combining with other code):");
-  lines.push(";   $FB SID_TICK  $FC SID_ROW  $FD SID_ORDERPOS  $FE SID_TMP");
-  lines.push(";   $02-$19  twelve pattern-relative pointers (v0/v1/v2 x notes/insts/fx/fxval)");
-  lines.push(";   $1A SID_TMP2   $1B/$1C SID_OFFSET (pattern-index*32, 16-bit)");
-  lines.push(";   $1D-$2E  per-voice effect state (base/current freq, vibrato phase)");
-  lines.push(";   $2F SID_SPEED_CUR (current frames/row; changed at runtime by the F effect)");
-  lines.push(";");
-  lines.push("; Effect column (one per row per voice): V=vibrato, U/D=slide up/down,");
-  lines.push("; C=note cut, F=speed change. Effects are row-granular — they update once");
-  lines.push("; per row, not on every IRQ frame, so a fast row rate (low Speed) gives the");
-  lines.push("; smoothest slides/vibrato. An empty effect column stops whatever continuous");
-  lines.push("; effect (vibrato/slide) was previously running on that voice.");
-  lines.push("; =========================================================");
-  lines.push("");
-  lines.push("* = $080D");
-  lines.push("");
-  lines.push("sid_main:");
-  lines.push("    JSR sid_init");
-  lines.push("sid_main_loop:");
-  lines.push("    JMP sid_main_loop");
-  lines.push("");
-  lines.push("* = $C000");
-  lines.push("");
+  L(";",
+    "; Zero page usage (avoid these if combining with other code):",
+    ";   $FB SID_TICK  $FC SID_ROW  $FD SID_ORDERPOS",
+    ";   $02-$19  twelve pattern-relative pointers (v0/v1/v2 x notes/insts/fx/fxval)",
+    ";   $1A SID_TMP2   $1B/$1C SID_OFFSET (pattern-index*32, 16-bit)",
+    ";   $2F SID_SPEED_CUR (current frames/row; changed at runtime by the F effect)",
+    "; Everything else (voice, modulation and filter state) lives in sid_state.",
+    ";",
+    "; Every frame: per voice the wave/arpeggio table, instrument vibrato,",
+    "; pulse width modulation, gate timer / hard restart; the filter cutoff sweep",
+    "; of the voice that last started a filter-routed instrument.",
+    "; Effect column (once per row): V=vibrato, U/D=slide up/down, C=note cut,",
+    "; F=speed change.",
+    "; =========================================================",
+    "",
+    "* = $080D",
+    "",
+    "sid_main:",
+    "JSR sid_init",
+    "sid_main_loop:",
+    "JMP sid_main_loop",
+    "",
+    "* = $C000",
+    "");
 
-  // ---- sid_init ----------------------------------------------------------
-  lines.push("sid_init:");
-  lines.push("    SEI");
-  lines.push("    LDA #$00");
-  lines.push("    STA $D418");
-  lines.push("    LDX #$18");
-  lines.push("sid_clr:");
-  lines.push("    STA $D400,X");
-  lines.push("    DEX");
-  lines.push("    BPL sid_clr");
-  lines.push("    LDA #" + hx(speed));
-  lines.push("    STA $FB");           // SID_TICK
-  lines.push("    STA $2F");           // SID_SPEED_CUR = initial speed (the F effect can change it later)
-  lines.push("    LDA #$00");
-  lines.push("    STA $FC");           // SID_ROW
-  lines.push("    STA $FD");           // SID_ORDERPOS = 0
-  lines.push("    LDX #$00");
-  lines.push("    STX $1D"); lines.push("    STX $1E"); lines.push("    STX $1F"); lines.push("    STX $20"); lines.push("    STX $21"); lines.push("    STX $22"); // v0 effect state
-  lines.push("    STX $23"); lines.push("    STX $24"); lines.push("    STX $25"); lines.push("    STX $26"); lines.push("    STX $27"); lines.push("    STX $28"); // v1 effect state
-  lines.push("    STX $29"); lines.push("    STX $2A"); lines.push("    STX $2B"); lines.push("    STX $2C"); lines.push("    STX $2D"); lines.push("    STX $2E"); // v2 effect state
-  lines.push("    LDX sid_order");     // X = pattern index for order slot 0
-  lines.push("    JSR sid_load_pattern");
-  lines.push("    LDA #<sid_irq");
-  lines.push("    STA $0314");
-  lines.push("    LDA #>sid_irq");
-  lines.push("    STA $0315");
-  lines.push("    LDA #$01");
-  lines.push("    STA $D01A");         // enable raster IRQ
-  lines.push("    LDA #$80");
-  lines.push("    STA $D012");         // trigger raster line $80
-  lines.push("    LDA $D011");
-  lines.push("    AND #$7F");
-  lines.push("    STA $D011");         // clear bit 8 of raster
-  lines.push("    LDA #$7F");
-  lines.push("    STA $DC0D");         // CIA1 ints off
-  lines.push("    STA $DD0D");         // CIA2 ints off
-  lines.push("    LDA $DC0D");         // ack pending CIA1
-  lines.push("    LDA $DD0D");         // ack pending CIA2
-  lines.push("    CLI");
-  lines.push("    RTS");
-  lines.push("");
+  const STATE_V = ["on", "inst", "note", "gate", "jon", "ffr", "ctl", "sll", "slh", "fvol", "fvoh", "fvs", "fvc",
+    "vdl", "vcn", "vdr", "vofl", "vofh", "vstl", "vsth", "pwl", "pwh", "pwd", "tpos", "tcnt", "wav", "nof", "nab"];
+  const STATE_G = ["fown", "fcl", "fch", "fspd", "ftl", "fth", "fsl", "fsh", "fel", "feh", "fping", "fres", "fmode",
+    "froute", "vol", "cv", "ci", "fxv", "tmp", "t0", "t1", "t3", "m0", "m1"];
+  const stateSize = STATE_V.length * 3 + STATE_G.length;
 
-  // ---- sid_stop ----------------------------------------------------------
-  lines.push("sid_stop:");
-  lines.push("    SEI");
-  lines.push("    LDA #$00");
-  lines.push("    STA $D01A");         // disable raster IRQ
-  lines.push("    STA $D404");         // voice 1 gate off
-  lines.push("    STA $D40B");         // voice 2 gate off
-  lines.push("    STA $D412");         // voice 3 gate off
-  lines.push("    STA $D418");         // master vol = 0
-  lines.push("    LDA #$81");
-  lines.push("    STA $DC0D");         // restore CIA1 timer A IRQ
-  lines.push("    LDA #$31");
-  lines.push("    STA $0314");
-  lines.push("    LDA #$EA");
-  lines.push("    STA $0315");         // restore KERNAL IRQ vector
-  lines.push("    CLI");
-  lines.push("    RTS");
-  lines.push("");
+  // ---- sid_init / sid_stop / sid_irq -------------------------------------
+  L("sid_init:",
+    "SEI",
+    "LDA #$00",
+    "STA $D418",
+    "LDX #$18",
+    "sid_clr:",
+    "STA $D400,X",
+    "DEX",
+    "BPL sid_clr",
+    "LDX #" + hx(stateSize - 1),
+    "sid_clr_state:",
+    "STA sid_state,X",
+    "DEX",
+    "BPL sid_clr_state",
+    "LDA #$FF",
+    "STA sid_fown",            // no voice owns the filter yet
+    "LDA #" + hx(speed),
+    "STA $FB",                 // SID_TICK
+    "STA $2F",                 // SID_SPEED_CUR (the F effect can change it later)
+    "LDA #$00",
+    "STA $FC",                 // SID_ROW
+    "STA $FD",                 // SID_ORDERPOS = 0
+    "LDX sid_order",           // X = pattern index for order slot 0
+    "JSR sid_load_pattern",
+    "LDA #<sid_irq",
+    "STA $0314",
+    "LDA #>sid_irq",
+    "STA $0315",
+    "LDA #$01",
+    "STA $D01A",               // enable raster IRQ
+    "LDA #$80",
+    "STA $D012",               // trigger raster line $80
+    "LDA $D011",
+    "AND #$7F",
+    "STA $D011",               // clear bit 8 of raster
+    "LDA #$7F",
+    "STA $DC0D",               // CIA1 ints off
+    "STA $DD0D",               // CIA2 ints off
+    "LDA $DC0D",
+    "LDA $DD0D",
+    "CLI",
+    "RTS",
+    "",
+    "sid_stop:",
+    "SEI",
+    "LDA #$00",
+    "STA $D01A",
+    "STA $D404",
+    "STA $D40B",
+    "STA $D412",
+    "STA $D418",
+    "LDA #$81",
+    "STA $DC0D",               // restore CIA1 timer A IRQ
+    "LDA #$31",
+    "STA $0314",
+    "LDA #$EA",
+    "STA $0315",               // restore KERNAL IRQ vector
+    "CLI",
+    "RTS",
+    "",
+    "sid_irq:",
+    "LDA #$01",
+    "STA $D019",               // ack raster
+    "JSR sid_frame",
+    "JMP $EA31",
+    "",
+    "; One frame of the player: row step every SID_SPEED_CUR frames, then the",
+    "; per-frame instrument work.",
+    "sid_frame:",
+    "DEC $FB",
+    "BNE sid_frame_norow",
+    "LDA $2F",
+    "STA $FB",
+    "JSR sid_play_row",
+    "sid_frame_norow:",
+    "JSR sid_hr_check",
+    "JMP sid_update",
+    "");
 
-  // ---- sid_irq -----------------------------------------------------------
-  lines.push("sid_irq:");
-  lines.push("    LDA #$01");
-  lines.push("    STA $D019");         // ack raster
-  lines.push("    DEC $FB");           // SID_TICK
-  lines.push("    BNE sid_irq_done");
-  lines.push("    LDA $2F");           // SID_SPEED_CUR (may have been changed by an F effect)
-  lines.push("    STA $FB");
-  lines.push("    JSR sid_play_row");
-  lines.push("sid_irq_done:");
-  lines.push("    JMP $EA31");
-  lines.push("");
-
-  // ---- sid_play_row -------------------------------------------------------
-  // Notes/insts are read via (ptr),Y — SID_PTR{V}{N,I} point at "row 0 of
-  // the CURRENT pattern" for that voice/column, set up by sid_load_pattern
-  // whenever the order position advances to a new pattern. Y = SID_ROW
-  // (0..31) indexes within that pattern, same as the old flat design, just
-  // relative to a pointer instead of a fixed table base.
-  // Per-voice constants for the note dispatch and the effect-column block
-  // below it: zero-page pointer pairs for notes/insts/fx/fxval, the $D400
-  // voice base offset, and the per-voice effect-state bytes (base/current
-  // frequency + vibrato phase) that sid_set_voice and the fx routines share.
+  // ---- sid_play_row ------------------------------------------------------
   const voiceInfo = [
-    { n: "v0", notesPtr: "$02", instsPtr: "$04", fxPtr: "$0E", fxvalPtr: "$10", base: "$00", gate: "$D404",
-      freqLo: "$D400", freqHi: "$D401",
-      baseLo: "$1D", baseHi: "$1E", curLo: "$1F", curHi: "$20", vibSign: "$21", vibCount: "$22" },
-    { n: "v1", notesPtr: "$06", instsPtr: "$08", fxPtr: "$12", fxvalPtr: "$14", base: "$07", gate: "$D40B",
-      freqLo: "$D407", freqHi: "$D408",
-      baseLo: "$23", baseHi: "$24", curLo: "$25", curHi: "$26", vibSign: "$27", vibCount: "$28" },
-    { n: "v2", notesPtr: "$0A", instsPtr: "$0C", fxPtr: "$16", fxvalPtr: "$18", base: "$0E", gate: "$D412",
-      freqLo: "$D40E", freqHi: "$D40F",
-      baseLo: "$29", baseHi: "$2A", curLo: "$2B", curHi: "$2C", vibSign: "$2D", vibCount: "$2E" }
+    { n: "v0", i: 0, notesPtr: "$02", instsPtr: "$04", fxPtr: "$0E", fxvalPtr: "$10", sid: 0xD400 },
+    { n: "v1", i: 1, notesPtr: "$06", instsPtr: "$08", fxPtr: "$12", fxvalPtr: "$14", sid: 0xD407 },
+    { n: "v2", i: 2, notesPtr: "$0A", instsPtr: "$0C", fxPtr: "$16", fxvalPtr: "$18", sid: 0xD40E }
   ];
-
-  lines.push("sid_play_row:");
+  const h4 = function(n){ return "$" + n.toString(16).toUpperCase().padStart(4, "0"); };
+  L("sid_play_row:");
   voiceInfo.forEach(function(vi) {
-    lines.push("    LDY $FC");           // Y = row within current pattern (0..31)
-    lines.push("    LDA (" + vi.notesPtr + "),Y");       // note
-    lines.push("    STA $1A");           // SID_TMP2 = note (0 = no note)
-    lines.push("    BEQ sid_skip_" + vi.n);
-    lines.push("    LDA (" + vi.instsPtr + "),Y");       // inst
-    lines.push("    TAX");
-    lines.push("    LDA $1A");
-    lines.push("    LDY #" + vi.base);   // voice base offset
-    lines.push("    JSR sid_set_voice");
-    lines.push("sid_skip_" + vi.n + ":");
-    // Effect column: read once per row regardless of whether a new note
-    // just triggered (a note + effect can share the same row, e.g. a note
-    // followed by vibrato; a slide/vibrato can also continue on a row with
-    // no new note).
-    lines.push("    LDY $FC");
-    lines.push("    LDA (" + vi.fxPtr + "),Y");
-    lines.push("    STA $1A");           // SID_TMP2 = fx code (0=none,1=V,2=U,3=D,4=C,5=F)
-    lines.push("    BEQ sid_fxdone_" + vi.n);
-    lines.push("    LDY $FC");
-    lines.push("    LDA (" + vi.fxvalPtr + "),Y");
-    lines.push("    TAX");               // X = fx value, kept across the dispatch below
-    lines.push("    LDA $1A");
-    lines.push("    CMP #$04");          // C = note cut
-    lines.push("    BNE sid_fxnc_" + vi.n);
-    lines.push("    LDA " + vi.gate);
-    lines.push("    AND #$FE");
-    lines.push("    STA " + vi.gate);
-    lines.push("    JMP sid_fxdone_" + vi.n);
-    lines.push("sid_fxnc_" + vi.n + ":");
-    lines.push("    CMP #$05");          // F = speed change
-    lines.push("    BNE sid_fxnf_" + vi.n);
-    lines.push("    STX $2F");           // SID_SPEED_CUR = fx value
-    lines.push("    JMP sid_fxdone_" + vi.n);
-    lines.push("sid_fxnf_" + vi.n + ":");
-    lines.push("    CMP #$01");          // V = vibrato
-    lines.push("    BNE sid_fxnv_" + vi.n);
-    lines.push("    JSR sid_vib_" + vi.n);
-    lines.push("    JMP sid_fxdone_" + vi.n);
-    lines.push("sid_fxnv_" + vi.n + ":");
-    lines.push("    CMP #$02");          // U = slide up
-    lines.push("    BNE sid_fxnu_" + vi.n);
-    lines.push("    JSR sid_slideup_" + vi.n);
-    lines.push("    JMP sid_fxdone_" + vi.n);
-    lines.push("sid_fxnu_" + vi.n + ":"); // only D (3) remains
-    lines.push("    JSR sid_slidedown_" + vi.n);
-    lines.push("sid_fxdone_" + vi.n + ":");
+    L("LDY $FC",
+      "LDA (" + vi.notesPtr + "),Y",
+      "BEQ sid_skip_" + vi.n,
+      "STA $1A",               // note 1..96
+      "LDA (" + vi.instsPtr + "),Y",
+      "TAX",
+      "LDA #" + hx(vi.i),
+      "STA sid_cv",
+      "LDA $1A",
+      "JSR sid_set_voice",
+      "sid_skip_" + vi.n + ":",
+      // effect column: any effect but V stops the effect vibrato
+      "LDY $FC",
+      "LDA (" + vi.fxvalPtr + "),Y",
+      "TAX",                   // X = fx value
+      "LDA (" + vi.fxPtr + "),Y",
+      "STA $1A",               // fx code (0=none,1=V,2=U,3=D,4=C,5=F)
+      "CMP #$01",
+      "BEQ sid_fxv_" + vi.n,
+      "LDA #$00",
+      "STA sid_fvol+" + vi.i,
+      "STA sid_fvoh+" + vi.i,
+      "LDA $1A",
+      "BEQ sid_fxdone_" + vi.n,
+      "CMP #$04",              // C = note cut
+      "BNE sid_fxnc_" + vi.n,
+      "LDA #$00",
+      "STA sid_gate+" + vi.i,
+      "JMP sid_fxdone_" + vi.n,
+      "sid_fxnc_" + vi.n + ":",
+      "CMP #$05",              // F = speed change
+      "BNE sid_fxnf_" + vi.n,
+      "TXA",
+      "BEQ sid_fxdone_" + vi.n,
+      "STA $2F",
+      "JMP sid_fxdone_" + vi.n,
+      "sid_fxnf_" + vi.n + ":",
+      "CMP #$02",              // U = slide up
+      "BNE sid_fxnu_" + vi.n,
+      "JSR sid_slideup_" + vi.n,
+      "JMP sid_fxdone_" + vi.n,
+      "sid_fxnu_" + vi.n + ":",
+      "CMP #$03",              // D = slide down
+      "BNE sid_fxdone_" + vi.n,
+      "JSR sid_slidedown_" + vi.n,
+      "JMP sid_fxdone_" + vi.n,
+      "sid_fxv_" + vi.n + ":",
+      "JSR sid_vib_" + vi.n,
+      "sid_fxdone_" + vi.n + ":");
   });
-  lines.push("    INC $FC");
-  lines.push("    LDA $FC");
-  lines.push("    CMP #" + hx(_SID_ROWS));
-  lines.push("    BCC sid_row_done");
-  lines.push("    JSR sid_next_order_step");
-  lines.push("sid_row_done:");
-  lines.push("    RTS");
-  lines.push("");
-
-  // ---- sid_next_order_step: pattern finished, advance the order list ----
-  lines.push("sid_next_order_step:");
-  lines.push("    LDA #$00");
-  lines.push("    STA $FC");           // SID_ROW = 0 (new pattern starts at its own row 0)
-  lines.push("    INC $FD");           // SID_ORDERPOS++
-  lines.push("    LDX $FD");
-  lines.push("    CPX #" + hx(exportedSong.length));
-  lines.push("    BCC sid_order_ok");
-  lines.push("    LDX #$00");
-  lines.push("    STX $FD");           // wrap the song back to its first step
-  lines.push("sid_order_ok:");
-  lines.push("    LDX $FD");
-  lines.push("    LDA sid_order,X");   // A = pattern index for the new order slot
-  lines.push("    TAX");
-  lines.push("    JMP sid_load_pattern");
-  lines.push("");
-
-  // ---- sid_load_pattern (X = pattern index) — points the twelve per-voice --
-  // notes/insts/fx/fxval pointers at that pattern's row 0. offset = X*32,
-  // computed as a 16-bit value ($1B/$1C, SID_OFFSET) since X*32 can exceed
-  // 255 (i.e. more than 7 patterns) the moment there's more than a handful
-  // of patterns. $1B/$1C (not $0F/$10) so it never overlaps the fx/fxval
-  // pointer pairs this routine is about to write into $0E-$19.
-  lines.push("sid_load_pattern:");
-  lines.push("    TXA");
-  lines.push("    STA $1B");           // SID_OFFSET lo = pattern index
-  lines.push("    LDA #$00");
-  lines.push("    STA $1C");           // SID_OFFSET hi = 0
-  lines.push("    ASL $1B");
-  lines.push("    ROL $1C");
-  lines.push("    ASL $1B");
-  lines.push("    ROL $1C");
-  lines.push("    ASL $1B");
-  lines.push("    ROL $1C");
-  lines.push("    ASL $1B");
-  lines.push("    ROL $1C");
-  lines.push("    ASL $1B");
-  lines.push("    ROL $1C");           // $1B/$1C = pattern_index * 32
-  const ptrTable = [
-    ["$02", "sid_v0_notes"], ["$04", "sid_v0_insts"], ["$0E", "sid_v0_fx"], ["$10", "sid_v0_fxval"],
-    ["$06", "sid_v1_notes"], ["$08", "sid_v1_insts"], ["$12", "sid_v1_fx"], ["$14", "sid_v1_fxval"],
-    ["$0A", "sid_v2_notes"], ["$0C", "sid_v2_insts"], ["$16", "sid_v2_fx"], ["$18", "sid_v2_fxval"]
-  ];
-  ptrTable.forEach(function(entry) {
-    const zp = entry[0], table = entry[1];
-    const zpHi = "$" + (parseInt(zp.slice(1), 16) + 1).toString(16).toUpperCase().padStart(2, "0");
-    lines.push("    CLC");
-    lines.push("    LDA #<" + table);
-    lines.push("    ADC $1B");
-    lines.push("    STA " + zp);
-    lines.push("    LDA #>" + table);
-    lines.push("    ADC $1C");
-    lines.push("    STA " + zpHi);
+  L("INC $FC",
+    "LDA $FC",
+    "CMP #" + hx(_SID_ROWS),
+    "BCC sid_row_done",
+    "JSR sid_next_order_step",
+    "sid_row_done:",
+    "RTS",
+    "",
+    "sid_next_order_step:",
+    "LDA #$00",
+    "STA $FC",
+    "INC $FD",
+    "LDX $FD",
+    "CPX #" + hx(exportedSong.length),
+    "BCC sid_order_ok",
+    "LDX #$00",
+    "STX $FD",
+    "sid_order_ok:",
+    "LDX $FD",
+    "LDA sid_order,X",
+    "TAX",
+    "JMP sid_load_pattern",
+    "",
+    "; X = pattern index: point the twelve per-voice column pointers at its row 0",
+    "sid_load_pattern:",
+    "TXA",
+    "STA $1B",
+    "LDA #$00",
+    "STA $1C");
+  for (let k = 0; k < 5; k++) L("ASL $1B", "ROL $1C");
+  [["$02", "sid_v0_notes"], ["$04", "sid_v0_insts"], ["$0E", "sid_v0_fx"], ["$10", "sid_v0_fxval"],
+   ["$06", "sid_v1_notes"], ["$08", "sid_v1_insts"], ["$12", "sid_v1_fx"], ["$14", "sid_v1_fxval"],
+   ["$0A", "sid_v2_notes"], ["$0C", "sid_v2_insts"], ["$16", "sid_v2_fx"], ["$18", "sid_v2_fxval"]].forEach(function(entry) {
+    const zpHi = "$" + (parseInt(entry[0].slice(1), 16) + 1).toString(16).toUpperCase().padStart(2, "0");
+    L("CLC", "LDA #<" + entry[1], "ADC $1B", "STA " + entry[0], "LDA #>" + entry[1], "ADC $1C", "STA " + zpHi);
   });
-  lines.push("    RTS");
-  lines.push("");
+  L("RTS", "");
 
-  // ---- sid_set_voice (A=note 1..96, X=inst index, Y=voice base 0/7/14) --
-  lines.push("sid_set_voice:");
-  lines.push("    PHA");               // save note
-  lines.push("    TXA");
-  lines.push("    PHA");               // save inst
-  lines.push("    LDA $D404,Y");
-  lines.push("    AND #$FE");
-  lines.push("    STA $D404,Y");       // gate off
-  lines.push("    PLA");               // A = inst
-  lines.push("    TAX");
-  lines.push("    ASL");
-  lines.push("    ASL");
-  lines.push("    ASL");               // A = inst*8
-  lines.push("    STA $FE");           // SID_TMP
-  lines.push("    TXA");
-  lines.push("    CLC");
-  lines.push("    ADC $FE");           // A = inst*9
-  lines.push("    TAX");               // X = offset into sid_instruments
-  lines.push("    LDA sid_instruments+3,X");
-  lines.push("    STA $D402,Y");       // PW lo
-  lines.push("    LDA sid_instruments+4,X");
-  lines.push("    STA $D403,Y");       // PW hi
-  lines.push("    LDA sid_instruments+1,X");
-  lines.push("    STA $D405,Y");       // AD
-  lines.push("    LDA sid_instruments+2,X");
-  lines.push("    STA $D406,Y");       // SR
-  lines.push("    LDA sid_instruments,X");
-  lines.push("    STA $FE");           // stash ctrl (gate-on byte) for later
-  lines.push("    LDA sid_instruments+5,X");
-  lines.push("    STA $D415");         // filter cutoff lo
-  lines.push("    LDA sid_instruments+6,X");
-  lines.push("    STA $D416");         // filter cutoff hi
-  lines.push("    LDA sid_instruments+7,X");
-  lines.push("    STA $D417");         // resonance / filter route
-  lines.push("    LDA sid_instruments+8,X");
-  lines.push("    STA $D418");         // mode + master volume
-  lines.push("    PLA");               // A = note (1..96)
-  lines.push("    SEC");
-  lines.push("    SBC #$01");          // note-1 → 0-based freq table index
-  lines.push("    TAX");
-  lines.push("    LDA sid_freq_lo,X");
-  lines.push("    STA $D400,Y");
-  lines.push("    PHA");               // save freq lo for the per-voice stash below
-  lines.push("    LDA sid_freq_hi,X");
-  lines.push("    STA $D401,Y");
-  lines.push("    TAX");               // X = freq hi (inst offset no longer needed past this point)
-  lines.push("    PLA");               // A = freq lo
-  // A fresh note becomes each voice's stable "base" frequency (what vibrato
-  // wiggles around) and also resets "current" (what slide walks from) and
-  // the vibrato phase — dispatched on Y, the voice-base offset (0/7/14)
-  // already sitting in the register from this call's entry.
-  lines.push("    CPY #$00");
-  lines.push("    BNE sid_setv_not0");
-  lines.push("    STA $1D"); lines.push("    STX $1E");
-  lines.push("    STA $1F"); lines.push("    STX $20");
-  lines.push("    LDA #$00"); lines.push("    STA $21"); lines.push("    STA $22");
-  lines.push("    JMP sid_setv_stashed");
-  lines.push("sid_setv_not0:");
-  lines.push("    CPY #$07");
-  lines.push("    BNE sid_setv_not1");
-  lines.push("    STA $23"); lines.push("    STX $24");
-  lines.push("    STA $25"); lines.push("    STX $26");
-  lines.push("    LDA #$00"); lines.push("    STA $27"); lines.push("    STA $28");
-  lines.push("    JMP sid_setv_stashed");
-  lines.push("sid_setv_not1:");
-  lines.push("    STA $29"); lines.push("    STX $2A");
-  lines.push("    STA $2B"); lines.push("    STX $2C");
-  lines.push("    LDA #$00"); lines.push("    STA $2D"); lines.push("    STA $2E");
-  lines.push("sid_setv_stashed:");
-  lines.push("    LDA $FE");
-  lines.push("    STA $D404,Y");       // gate on with full ctrl byte
-  lines.push("    RTS");
-  lines.push("");
+  // ---- effect column routines (X = fx value on entry) ---------------------
+  voiceInfo.forEach(function(vi) {
+    L("sid_vib_" + vi.n + ":", "STX sid_fxv", "LDX #" + hx(vi.i), "JMP sid_fx_vib",
+      "sid_slideup_" + vi.n + ":", "STX sid_fxv", "LDX #" + hx(vi.i), "JMP sid_fx_up",
+      "sid_slidedown_" + vi.n + ":", "STX sid_fxv", "LDX #" + hx(vi.i), "JMP sid_fx_down");
+  });
+  L("; V: square wobble of +-depth*4 around the pitch, flipping every hold rows",
+    "sid_fx_vib:",
+    "LDA sid_fxv",
+    "LSR", "LSR", "LSR", "LSR",
+    "BNE sid_fxvib_sp",
+    "LDA #$01",
+    "sid_fxvib_sp:",
+    "CMP sid_fvc,X",
+    "BNE sid_fxvib_hold",
+    "LDA #$00",
+    "STA sid_fvc,X",
+    "LDA sid_fvs,X",
+    "EOR #$FF",
+    "STA sid_fvs,X",
+    "JMP sid_fxvib_apply",
+    "sid_fxvib_hold:",
+    "INC sid_fvc,X",
+    "sid_fxvib_apply:",
+    "LDA sid_fxv",
+    "AND #$0F",
+    "ASL", "ASL",
+    "STA sid_tmp",
+    "LDA sid_fvs,X",
+    "BEQ sid_fxvib_neg",
+    "LDA sid_tmp",
+    "STA sid_fvol,X",
+    "LDA #$00",
+    "STA sid_fvoh,X",
+    "RTS",
+    "sid_fxvib_neg:",
+    "LDA #$00",
+    "SEC",
+    "SBC sid_tmp",
+    "STA sid_fvol,X",
+    "LDA #$00",
+    "SBC #$00",
+    "STA sid_fvoh,X",
+    "RTS",
+    "sid_fx_up:",
+    "CLC",
+    "LDA sid_sll,X",
+    "ADC sid_fxv",
+    "STA sid_sll,X",
+    "LDA sid_slh,X",
+    "ADC #$00",
+    "STA sid_slh,X",
+    "RTS",
+    "sid_fx_down:",
+    "SEC",
+    "LDA sid_sll,X",
+    "SBC sid_fxv",
+    "STA sid_sll,X",
+    "LDA sid_slh,X",
+    "SBC #$00",
+    "STA sid_slh,X",
+    "RTS",
+    "");
 
-  // ---- Song / order list (one byte per step: which pattern plays there) -
-  lines.push("; Song/order list: which pattern (index into sid_instruments'");
-  lines.push("; sibling pattern tables below) plays at each step; a pattern");
-  lines.push("; may appear more than once.");
+  // ---- sid_set_voice: note on (A = note 1..96, X = instrument, sid_cv = voice)
+  L("sid_set_voice:",
+    "SEC",
+    "SBC #$01",
+    "STA sid_tmp",             // note 0..95
+    "STX sid_ci",
+    "LDX sid_cv",
+    "LDY sid_vbase,X",
+    "LDA sid_ctl,X",
+    "AND #$FE",
+    "STA sid_ctl,X",
+    "STA $D404,Y",             // gate off: the gate on below retriggers the envelope
+    "LDA sid_tmp",
+    "STA sid_note,X",
+    "LDA sid_ci",
+    "STA sid_inst,X",
+    "LDA #$01",
+    "STA sid_on,X",
+    "STA sid_gate,X",
+    "STA sid_jon,X",
+    "STA sid_vdr,X",
+    "LDA #$00",
+    "STA sid_sll,X",
+    "STA sid_slh,X",
+    "STA sid_fvol,X",
+    "STA sid_fvoh,X",
+    "STA sid_fvs,X",
+    "STA sid_fvc,X",
+    "STA sid_pwd,X",
+    "STA sid_vofl,X",
+    "STA sid_vofh,X",
+    "STA sid_tpos,X",
+    "STA sid_nof,X",
+    "STA sid_nab,X",
+    "LDY sid_ci",
+    "LDA sid_iffw,Y",
+    "STA sid_ffr,X",
+    "LDA sid_ipwl,Y",
+    "STA sid_pwl,X",
+    "LDA sid_ipwh,Y",
+    "STA sid_pwh,X",
+    "LDA sid_ivdl,Y",
+    "STA sid_vdl,X",
+    "LDA sid_ivsp,Y",
+    "CLC",
+    "ADC #$01",
+    "LSR",
+    "BNE sid_sv_vcn",
+    "LDA #$01",
+    "sid_sv_vcn:",
+    "STA sid_vcn,X",
+    "LDA sid_itsp,Y",
+    "STA sid_tcnt,X",
+    "LDA sid_ictl,Y",
+    "STA sid_wav,X",
+    // vibrato step = (semitone(note) * depth) >> 5
+    "LDA sid_ivdp,Y",
+    "STA sid_t3",
+    "LDA #$00",
+    "STA sid_vstl,X",
+    "STA sid_vsth,X",
+    "LDY sid_tmp",
+    "LDA sid_semi_lo,Y",
+    "STA sid_m0",
+    "LDA sid_semi_hi,Y",
+    "STA sid_m1",
+    "sid_sv_mul:",
+    "LSR sid_t3",
+    "BCC sid_sv_noadd",
+    "CLC",
+    "LDA sid_vstl,X",
+    "ADC sid_m0",
+    "STA sid_vstl,X",
+    "LDA sid_vsth,X",
+    "ADC sid_m1",
+    "STA sid_vsth,X",
+    "sid_sv_noadd:",
+    "ASL sid_m0",
+    "ROL sid_m1",
+    "LDA sid_t3",
+    "BNE sid_sv_mul",
+    "LDY #$05",
+    "sid_sv_shr:",
+    "LSR sid_vsth,X",
+    "ROR sid_vstl,X",
+    "DEY",
+    "BNE sid_sv_shr",
+    "LDY sid_ci",
+    "LDA sid_itln,Y",
+    "BEQ sid_sv_notab",
+    "LDA sid_itst,Y",
+    "JSR sid_tab_apply",
+    "LDY sid_ci",
+    "sid_sv_notab:",
+    "LDA sid_iad,Y",
+    "STA sid_t0",
+    "LDA sid_isr,Y",
+    "LDY sid_vbase,X",
+    "STA $D406,Y",
+    "LDA sid_t0",
+    "STA $D405,Y",
+    "LDY sid_ci",
+    "LDA sid_ivol,Y",
+    "STA sid_vol",
+    "LDA sid_ifl,Y",
+    "AND #$01",
+    "BEQ sid_sv_nofilt",
+    // this voice takes over the filter: cutoff sweep, resonance, mode
+    "STX sid_fown",
+    "LDA sid_icul,Y",
+    "STA sid_fcl",
+    "STA sid_fsl",
+    "LDA sid_icuh,Y",
+    "STA sid_fch",
+    "STA sid_fsh",
+    "LDA sid_icel,Y",
+    "STA sid_fel",
+    "STA sid_ftl",
+    "LDA sid_iceh,Y",
+    "STA sid_feh",
+    "STA sid_fth",
+    "LDA sid_icsp,Y",
+    "STA sid_fspd",
+    "LDA sid_ifl,Y",
+    "AND #$02",
+    "STA sid_fping",
+    "LDA sid_ires,Y",
+    "STA sid_fres",
+    "LDA sid_imode,Y",
+    "STA sid_fmode",
+    "LDA sid_vbit,X",
+    "ORA sid_froute",
+    "STA sid_froute",
+    "RTS",
+    "sid_sv_nofilt:",
+    "LDA sid_vbit,X",
+    "EOR #$FF",
+    "AND sid_froute",
+    "STA sid_froute",
+    "RTS",
+    "",
+    "; A = table step, X = voice: waveform (0 = keep) and note offset",
+    "sid_tab_apply:",
+    "TAY",
+    "LDA sid_tw,Y",
+    "BEQ sid_ta_keep",
+    "AND #$FE",
+    "STA sid_wav,X",
+    "sid_ta_keep:",
+    "LDA sid_tn,Y",
+    "STA sid_nof,X",
+    "LDA sid_ta,Y",
+    "STA sid_nab,X",
+    "RTS",
+    "");
+
+  // ---- gate timer / hard restart: gt frames before the next new note -----
+  L("sid_hr_check:");
+  voiceInfo.forEach(function(vi) {
+    L("LDA sid_on+" + vi.i,
+      "BEQ sid_hr_" + vi.n,
+      "LDY sid_inst+" + vi.i,
+      "LDA sid_igt,Y",
+      "BEQ sid_hr_" + vi.n,
+      "CMP $FB",
+      "BNE sid_hr_" + vi.n,
+      "CMP $2F",
+      "BEQ sid_hr_" + vi.n,
+      "LDY $FC",
+      "LDA (" + vi.notesPtr + "),Y",
+      "BEQ sid_hr_" + vi.n,
+      "LDA #$00",
+      "STA sid_gate+" + vi.i,
+      "LDY sid_inst+" + vi.i,
+      "LDA sid_ihr,Y",
+      "BEQ sid_hr_" + vi.n,
+      "LDA #$00",
+      "STA " + h4(vi.sid + 5),
+      "STA " + h4(vi.sid + 6),
+      "sid_hr_" + vi.n + ":");
+  });
+  L("RTS", "");
+
+  // ---- per-frame update: table, pitch, vibrato, pulse width, filter -------
+  L("sid_update:",
+    "LDX #$00",
+    "sid_up_loop:",
+    "LDA sid_on,X",
+    "BNE sid_up_on",
+    "JMP sid_up_next",
+    "sid_up_on:",
+    "LDY sid_inst,X",
+    "STY sid_ci",
+    "LDA sid_jon,X",
+    "BEQ sid_up_tab",
+    "LDA #$00",
+    "STA sid_jon,X",
+    "LDA sid_ffr,X",
+    "BEQ sid_up_wgate",
+    "PHA",
+    "LDA #$00",
+    "STA sid_ffr,X",
+    "PLA",
+    "JMP sid_up_wctl",
+    "sid_up_tab:",
+    "LDA sid_itln,Y",
+    "BEQ sid_up_wgate",
+    "DEC sid_tcnt,X",
+    "BNE sid_up_wgate",
+    "LDA sid_itsp,Y",
+    "STA sid_tcnt,X",
+    "INC sid_tpos,X",
+    "LDA sid_tpos,X",
+    "CMP sid_itln,Y",
+    "BCC sid_up_tstep",
+    "LDA sid_itlp,Y",
+    "CMP #$FF",
+    "BNE sid_up_tloop",
+    "LDA sid_itln,Y",
+    "SEC",
+    "SBC #$01",
+    "sid_up_tloop:",
+    "STA sid_tpos,X",
+    "sid_up_tstep:",
+    "LDA sid_tpos,X",
+    "CLC",
+    "ADC sid_itst,Y",
+    "JSR sid_tab_apply",
+    "LDY sid_ci",
+    "sid_up_wgate:",
+    "LDA sid_wav,X",
+    "ORA sid_gate,X",
+    "sid_up_wctl:",
+    "STA sid_ctl,X",
+    "LDY sid_vbase,X",
+    "STA $D404,Y",
+    // note index: absolute table note, or note + signed offset, clamped 0..95
+    "LDA sid_nab,X",
+    "BEQ sid_up_rel",
+    "LDA sid_nof,X",
+    "JMP sid_up_nclamp",
+    "sid_up_rel:",
+    "LDA sid_nof,X",
+    "BMI sid_up_nneg",
+    "CLC",
+    "ADC sid_note,X",
+    "JMP sid_up_nclamp",
+    "sid_up_nneg:",
+    "CLC",
+    "ADC sid_note,X",
+    "BCS sid_up_nclamp",
+    "LDA #$00",
+    "sid_up_nclamp:",
+    "CMP #$60",
+    "BCC sid_up_nok",
+    "LDA #$5F",
+    "sid_up_nok:",
+    "TAY",
+    // frequency = table + slide + effect vibrato + instrument vibrato
+    "CLC",
+    "LDA sid_freq_lo,Y",
+    "ADC sid_sll,X",
+    "STA sid_t0",
+    "LDA sid_freq_hi,Y",
+    "ADC sid_slh,X",
+    "STA sid_t1",
+    "CLC",
+    "LDA sid_t0",
+    "ADC sid_fvol,X",
+    "STA sid_t0",
+    "LDA sid_t1",
+    "ADC sid_fvoh,X",
+    "STA sid_t1",
+    "CLC",
+    "LDA sid_t0",
+    "ADC sid_vofl,X",
+    "STA sid_t0",
+    "LDA sid_t1",
+    "ADC sid_vofh,X",
+    "LDY sid_vbase,X",
+    "STA $D401,Y",
+    "LDA sid_t0",
+    "STA $D400,Y",
+    // instrument vibrato: after the delay a triangle LFO, flipping every speed frames
+    "LDY sid_ci",
+    "LDA sid_ivsp,Y",
+    "BEQ sid_up_novib",
+    "LDA sid_ivdp,Y",
+    "BEQ sid_up_novib",
+    "LDA sid_vdl,X",
+    "BEQ sid_up_vrun",
+    "DEC sid_vdl,X",
+    "JMP sid_up_novib",
+    "sid_up_vrun:",
+    "LDA sid_vdr,X",
+    "BEQ sid_up_vdown",
+    "CLC",
+    "LDA sid_vofl,X",
+    "ADC sid_vstl,X",
+    "STA sid_vofl,X",
+    "LDA sid_vofh,X",
+    "ADC sid_vsth,X",
+    "STA sid_vofh,X",
+    "JMP sid_up_vcnt",
+    "sid_up_vdown:",
+    "SEC",
+    "LDA sid_vofl,X",
+    "SBC sid_vstl,X",
+    "STA sid_vofl,X",
+    "LDA sid_vofh,X",
+    "SBC sid_vsth,X",
+    "STA sid_vofh,X",
+    "sid_up_vcnt:",
+    "DEC sid_vcn,X",
+    "BNE sid_up_novib",
+    "LDA sid_ivsp,Y",
+    "STA sid_vcn,X",
+    "LDA sid_vdr,X",
+    "EOR #$01",
+    "STA sid_vdr,X",
+    "sid_up_novib:",
+    // pulse width out, then the PWM sweep bouncing between min and max
+    "LDY sid_vbase,X",
+    "LDA sid_pwl,X",
+    "STA $D402,Y",
+    "LDA sid_pwh,X",
+    "STA $D403,Y",
+    "LDY sid_ci",
+    "LDA sid_ipms,Y",
+    "BEQ sid_up_next",
+    "STA sid_t0",
+    "LDA sid_pwd,X",
+    "BNE sid_up_pwdn",
+    "CLC",
+    "LDA sid_pwl,X",
+    "ADC sid_t0",
+    "STA sid_pwl,X",
+    "LDA sid_pwh,X",
+    "ADC #$00",
+    "STA sid_pwh,X",
+    "CMP sid_ipmxh,Y",
+    "BCC sid_up_next",
+    "BNE sid_up_pwtop",
+    "LDA sid_pwl,X",
+    "CMP sid_ipmxl,Y",
+    "BCC sid_up_next",
+    "sid_up_pwtop:",
+    "LDA sid_ipmxl,Y",
+    "STA sid_pwl,X",
+    "LDA sid_ipmxh,Y",
+    "STA sid_pwh,X",
+    "LDA #$01",
+    "STA sid_pwd,X",
+    "JMP sid_up_next",
+    "sid_up_pwdn:",
+    "SEC",
+    "LDA sid_pwl,X",
+    "SBC sid_t0",
+    "STA sid_pwl,X",
+    "LDA sid_pwh,X",
+    "SBC #$00",
+    "STA sid_pwh,X",
+    "BCC sid_up_pwbot",
+    "CMP sid_ipmnh,Y",
+    "BCC sid_up_pwbot",
+    "BNE sid_up_next",
+    "LDA sid_pwl,X",
+    "CMP sid_ipmnl,Y",
+    "BEQ sid_up_pwbot",
+    "BCS sid_up_next",
+    "sid_up_pwbot:",
+    "LDA sid_ipmnl,Y",
+    "STA sid_pwl,X",
+    "LDA sid_ipmnh,Y",
+    "STA sid_pwh,X",
+    "LDA #$00",
+    "STA sid_pwd,X",
+    "sid_up_next:",
+    "INX",
+    "CPX #$03",
+    "BCS sid_up_filter",
+    "JMP sid_up_loop",
+    // filter registers, then the cutoff sweep (bounce with ping-pong)
+    "sid_up_filter:",
+    "LDA sid_fcl",
+    "AND #$07",
+    "STA $D415",
+    "LDA sid_fch",
+    "STA sid_t1",
+    "LDA sid_fcl",
+    "LSR sid_t1",
+    "ROR",
+    "LSR sid_t1",
+    "ROR",
+    "LSR sid_t1",
+    "ROR",
+    "STA $D416",
+    "LDA sid_fres",
+    "ORA sid_froute",
+    "STA $D417",
+    "LDA sid_fmode",
+    "ORA sid_vol",
+    "STA $D418",
+    "LDA sid_fown",
+    "BMI sid_fl_ret",
+    "LDA sid_fspd",
+    "BNE sid_fl_go",
+    "sid_fl_ret:",
+    "RTS",
+    "sid_fl_go:",
+    "BMI sid_fl_neg",
+    "CLC",
+    "ADC sid_fcl",
+    "STA sid_fcl",
+    "LDA sid_fch",
+    "ADC #$00",
+    "STA sid_fch",
+    "CMP sid_fth",
+    "BCC sid_fl_ret",
+    "BNE sid_fl_reach",
+    "LDA sid_fcl",
+    "CMP sid_ftl",
+    "BCC sid_fl_ret",
+    "JMP sid_fl_reach",
+    "sid_fl_neg:",
+    "CLC",
+    "ADC sid_fcl",
+    "STA sid_fcl",
+    "LDA sid_fch",
+    "ADC #$FF",
+    "STA sid_fch",
+    "BMI sid_fl_reach",
+    "CMP sid_fth",
+    "BCC sid_fl_reach",
+    "BNE sid_fl_ret",
+    "LDA sid_fcl",
+    "CMP sid_ftl",
+    "BEQ sid_fl_reach",
+    "BCS sid_fl_ret",
+    "sid_fl_reach:",
+    "LDA sid_ftl",
+    "STA sid_fcl",
+    "LDA sid_fth",
+    "STA sid_fch",
+    "LDA sid_fping",
+    "BNE sid_fl_bounce",
+    "LDA #$00",
+    "STA sid_fspd",
+    "RTS",
+    "sid_fl_bounce:",
+    "LDA sid_ftl",
+    "CMP sid_fel",
+    "BNE sid_fl_toend",
+    "LDA sid_fth",
+    "CMP sid_feh",
+    "BNE sid_fl_toend",
+    "LDA sid_fsl",
+    "STA sid_ftl",
+    "LDA sid_fsh",
+    "STA sid_fth",
+    "JMP sid_fl_flip",
+    "sid_fl_toend:",
+    "LDA sid_fel",
+    "STA sid_ftl",
+    "LDA sid_feh",
+    "STA sid_fth",
+    "sid_fl_flip:",
+    "LDA #$00",
+    "SEC",
+    "SBC sid_fspd",
+    "STA sid_fspd",
+    "sid_fl_done:",
+    "RTS",
+    "");
+
+  // ---- data ----------------------------------------------------------------
+  chunk("sid_vbase", [0, 7, 14]);
+  chunk("sid_vbit", [1, 2, 4]);
+  L("; Song/order list: which pattern plays at each step; a pattern may",
+    "; appear more than once.");
   chunk("sid_order", exportedSong);
-  lines.push("");
-
-  // ---- Instrument table (9 bytes per instrument, contiguous) ------------
-  lines.push("; Instruments: ctrl, AD, SR, PWlo, PWhi, cut_lo, cut_hi, res/filt, mode/vol");
-  lines.push("sid_instruments:");
-  _sidInsts.forEach(function(ins, i) {
-    const ctrl = _sidWaveByte(ins);
-    const ad = (ins.a<<4) | ins.d;
-    const sr = (ins.s<<4) | ins.r;
-    const filterActive = ins.lp || ins.bp || ins.hp;
-    const resFilt = (ins.res<<4) | (filterActive ? 0x07 : 0x00);
-    const modeVol = ((ins.lp?0x10:0)|(ins.bp?0x20:0)|(ins.hp?0x40:0)) | ins.vol;
-    const bytes = [ctrl, ad, sr, ins.pw&0xFF, (ins.pw>>8)&0x0F, ins.cut&0x07, (ins.cut>>3)&0xFF, resFilt, modeVol];
-    lines.push("    .byte " + dh(bytes) + "   ; #" + i + " " + ins.name);
+  L("",
+    "; Instruments: one table per parameter, indexed by instrument number",
+    "; (ctrl w/o gate, AD, SR, PW, cutoff start/end/step, flags 1=filter 2=ping-pong,",
+    "; resonance, mode+3off, volume, vibrato delay/speed/depth, PWM step/min/max,",
+    "; gate timer, hard restart, first-frame wave, wave table start/len/loop/speed)",
+    "sid_instruments:");
+  [["sid_ictl", "ictl"], ["sid_iad", "iad"], ["sid_isr", "isr"], ["sid_ipwl", "ipwl"], ["sid_ipwh", "ipwh"],
+   ["sid_icul", "icul"], ["sid_icuh", "icuh"], ["sid_icel", "icel"], ["sid_iceh", "iceh"], ["sid_icsp", "icsp"],
+   ["sid_ifl", "ifl"], ["sid_ires", "ires"], ["sid_imode", "imode"], ["sid_ivol", "ivol"],
+   ["sid_ivdl", "ivdl"], ["sid_ivsp", "ivsp"], ["sid_ivdp", "ivdp"],
+   ["sid_ipms", "ipms"], ["sid_ipmnl", "ipmnl"], ["sid_ipmnh", "ipmnh"], ["sid_ipmxl", "ipmxl"], ["sid_ipmxh", "ipmxh"],
+   ["sid_igt", "igt"], ["sid_ihr", "ihr"], ["sid_iffw", "iffw"],
+   ["sid_itst", "itst"], ["sid_itln", "itln"], ["sid_itlp", "itlp"], ["sid_itsp", "itsp"]].forEach(function(p) {
+    chunk(p[0], a[p[1]]);
   });
-  lines.push("");
+  L("; Wave/arpeggio table steps: waveform (0 = keep), note offset, 1 = absolute note");
+  chunk("sid_tw", a.tw);
+  chunk("sid_tn", a.tn);
+  chunk("sid_ta", a.ta);
+  L("");
 
-  // ---- Notes + instrument + effect columns per voice, all patterns ------
-  // concatenated (one contiguous table per voice/column with every
-  // pattern's 32 rows back to back); sid_load_pattern computes a pointer
-  // into each rather than indexing the whole thing with one register.
+  // notes + instrument + effect columns per voice, all patterns concatenated
   for (let v = 0; v < 3; v++) {
-    const notes = [];
-    const insts = [];
-    const fxs = [];
-    const fxvals = [];
+    const notes = [], insts = [], fxs = [], fxvals = [];
     for (let pi = 0; pi < exportedPatterns; pi++) {
-      const pat = _sidPatterns[pi];
       for (let r = 0; r < _SID_ROWS; r++) {
-        const c = pat[v][r];
-        notes.push(c.note == null ? 0 : (c.note + 1));
-        insts.push((c.inst|0) & 0xFF);
-        fxs.push(c.fx ? (_SID_FX_CODES[c.fx]||0) : 0);
-        fxvals.push((c.fxval|0) & 0xFF);
+        const b = _sidCellBytes(_sidPatterns[pi][v][r], td.insts.length);
+        notes.push(b[0]); insts.push(b[1]); fxs.push(b[2]); fxvals.push(b[3]);
       }
     }
     chunk("sid_v" + v + "_notes", notes);
@@ -39553,111 +40574,17 @@ function _sidExportAsmPlayable() {
     chunk("sid_v" + v + "_fx", fxs);
     chunk("sid_v" + v + "_fxval", fxvals);
   }
-  lines.push("");
+  L("");
 
-  // ---- Effect routines (vibrato, slide up/down) — one small subroutine --
-  // per voice, called once per row from sid_play_row. Row-granular: they
-  // recompute the voice's live frequency once per row (not every IRQ
-  // frame), so lower Speed values (more rows/sec) give smoother motion.
-  voiceInfo.forEach(function(vi) {
-    // Vibrato: A 2-row-period wobble around the note's original ("base")
-    // frequency — fxval's low nibble is depth (×4 units), high nibble is
-    // "hold" length in rows before the wobble flips direction.
-    lines.push("sid_vib_" + vi.n + ":");
-    lines.push("    STX $FE");             // SID_TMP = fxval
-    lines.push("    LDA $FE");
-    lines.push("    LSR"); lines.push("    LSR"); lines.push("    LSR"); lines.push("    LSR");
-    lines.push("    BNE sid_vib_" + vi.n + "_sp");
-    lines.push("    LDA #$01");
-    lines.push("sid_vib_" + vi.n + "_sp:");
-    lines.push("    CMP " + vi.vibCount);
-    lines.push("    BNE sid_vib_" + vi.n + "_hold");
-    lines.push("    LDA #$00");
-    lines.push("    STA " + vi.vibCount);
-    lines.push("    LDA " + vi.vibSign);
-    lines.push("    EOR #$FF");
-    lines.push("    STA " + vi.vibSign);
-    lines.push("    JMP sid_vib_" + vi.n + "_apply");
-    lines.push("sid_vib_" + vi.n + "_hold:");
-    lines.push("    INC " + vi.vibCount);
-    lines.push("sid_vib_" + vi.n + "_apply:");
-    lines.push("    LDA $FE");
-    lines.push("    AND #$0F");
-    lines.push("    ASL"); lines.push("    ASL");   // depth*4
-    lines.push("    STA $FE");
-    lines.push("    LDA " + vi.vibSign);
-    lines.push("    BEQ sid_vib_" + vi.n + "_neg");
-    lines.push("    CLC");
-    lines.push("    LDA " + vi.baseLo);
-    lines.push("    ADC $FE");
-    lines.push("    STA " + vi.curLo);
-    lines.push("    LDA " + vi.baseHi);
-    lines.push("    ADC #$00");
-    lines.push("    STA " + vi.curHi);
-    lines.push("    JMP sid_vib_" + vi.n + "_write");
-    lines.push("sid_vib_" + vi.n + "_neg:");
-    lines.push("    SEC");
-    lines.push("    LDA " + vi.baseLo);
-    lines.push("    SBC $FE");
-    lines.push("    STA " + vi.curLo);
-    lines.push("    LDA " + vi.baseHi);
-    lines.push("    SBC #$00");
-    lines.push("    STA " + vi.curHi);
-    lines.push("sid_vib_" + vi.n + "_write:");
-    lines.push("    LDA " + vi.curLo);
-    lines.push("    STA " + vi.freqLo);
-    lines.push("    LDA " + vi.curHi);
-    lines.push("    STA " + vi.freqHi);
-    lines.push("    RTS");
-    lines.push("");
-
-    // Slide up/down: add or subtract fxval (16-bit, hi byte 0) from the
-    // voice's running "current" frequency every row while the effect stays
-    // active, so pitch keeps moving for as long as the column keeps saying so.
-    lines.push("sid_slideup_" + vi.n + ":");
-    lines.push("    CLC");
-    lines.push("    TXA");
-    lines.push("    ADC " + vi.curLo);
-    lines.push("    STA " + vi.curLo);
-    lines.push("    LDA " + vi.curHi);
-    lines.push("    ADC #$00");
-    lines.push("    STA " + vi.curHi);
-    lines.push("    LDA " + vi.curLo);
-    lines.push("    STA " + vi.freqLo);
-    lines.push("    LDA " + vi.curHi);
-    lines.push("    STA " + vi.freqHi);
-    lines.push("    RTS");
-    lines.push("");
-    lines.push("sid_slidedown_" + vi.n + ":");
-    lines.push("    SEC");
-    lines.push("    LDA " + vi.curLo);
-    lines.push("    STX $FE");
-    lines.push("    SBC $FE");
-    lines.push("    STA " + vi.curLo);
-    lines.push("    LDA " + vi.curHi);
-    lines.push("    SBC #$00");
-    lines.push("    STA " + vi.curHi);
-    lines.push("    LDA " + vi.curLo);
-    lines.push("    STA " + vi.freqLo);
-    lines.push("    LDA " + vi.curHi);
-    lines.push("    STA " + vi.freqHi);
-    lines.push("    RTS");
-    lines.push("");
-  });
-
-  // ---- PAL frequency tables (96 notes: C-0..B-7) -------------------------
-  const freqLo = [], freqHi = [];
-  const Fclk = 985248; // PAL
-  for (let n = 0; n < 96; n++) {
-    const hz = 440 * Math.pow(2, (n - 57) / 12);
-    let f = Math.round(hz * 16777216 / Fclk);
-    if (f > 0xFFFF) f = 0xFFFF;
-    freqLo.push(f & 0xFF);
-    freqHi.push((f >> 8) & 0xFF);
-  }
-  lines.push("; PAL frequency table (note 0 = C-0, note 95 = B-7)");
-  chunk("sid_freq_lo", freqLo);
-  chunk("sid_freq_hi", freqHi);
+  const ft = _sidFreqTables();
+  L("; PAL frequency table (note 0 = C-0, note 95 = B-7) and semitone steps");
+  chunk("sid_freq_lo", ft.f.map(function(x){ return x & 0xFF; }));
+  chunk("sid_freq_hi", ft.f.map(function(x){ return x >> 8; }));
+  chunk("sid_semi_lo", ft.semi.map(function(x){ return x & 0xFF; }));
+  chunk("sid_semi_hi", ft.semi.map(function(x){ return x >> 8; }));
+  L("", "; Player state (cleared by sid_init)", "sid_state:");
+  STATE_V.forEach(function(n){ L("sid_" + n + ":", ".byte $00, $00, $00"); });
+  STATE_G.forEach(function(n){ L("sid_" + n + ":", ".byte $00"); });
 
   return lines.join("\n");
 }
@@ -39680,13 +40607,30 @@ function _sidExportUbBlock() {
   }
   lines.push("tune");
   lines.push("  speed " + speed);
-  _sidInsts.forEach(function(ins, i) {
-    const filterActive = ins.lp || ins.bp || ins.hp;
-    const resFilt = (ins.res<<4) | (filterActive ? 0x07 : 0x00);
-    const modeVol = ((ins.lp?0x10:0)|(ins.bp?0x20:0)|(ins.hp?0x40:0)) | ins.vol;
+  _sidInsts.forEach(function(raw, i) {
+    const ins = _sidInstNorm(raw);
+    // any routing bit in resfilt = "route the voice that plays this instrument"
+    const resFilt = (ins.res<<4) | (ins.filt ? 0x07 : 0x00);
+    const modeVol = ((ins.lp?0x10:0)|(ins.bp?0x20:0)|(ins.hp?0x40:0)|(ins.off3?0x80:0)) | ins.vol;
     lines.push("  inst " + [i, hx(_sidWaveByte(ins), 2), hx((ins.a<<4)|ins.d, 2), hx((ins.s<<4)|ins.r, 2),
       hx(ins.pw & 0xFFF, 4), hx(ins.cut & 0x7FF, 4), hx(resFilt, 2), hx(modeVol, 2)].join(", ") +
       "   # " + String(ins.name || "").replace(/[\r\n]+/g, " "));
+    if (ins.vibDelay || ins.vibSpeed || ins.vibDepth || ins.pwmSpeed) {
+      lines.push("  imod " + [i, ins.vibDelay, ins.vibSpeed, ins.vibDepth, ins.pwmSpeed, hx(ins.pwmMin, 4), hx(ins.pwmMax, 4)].join(", "));
+    }
+    if (ins.cutSpeed || ins.cutPing || ins.cutEnd !== ins.cut) {
+      lines.push("  ifilt " + [i, hx(ins.cutEnd, 4), ins.cutSpeed, ins.cutPing ? 1 : 0].join(", "));
+    }
+    if (ins.gateTimer || ins.hr || ins.firstWave) {
+      lines.push("  igate " + [i, ins.gateTimer, ins.hr ? 1 : 0, hx(ins.firstWave, 2)].join(", "));
+    }
+    if (ins.table.length) {
+      const steps = ins.table.map(function(s) {
+        const w = s.w ? (s.w & 0xFF).toString(16).toUpperCase().padStart(2, "0") : "..";
+        return '"' + w + " " + (s.abs ? "=" + s.n : (s.n < 0 ? "-" : "+") + Math.abs(s.n)) + '"';
+      });
+      lines.push("  itab " + [i, ins.tableSpeed, ins.tableLoop < 0 ? 255 : ins.tableLoop].join(", ") + ", " + steps.join(", "));
+    }
   });
   for (let i = 0; i < song.length; i += 16) lines.push("  order " + song.slice(i, i + 16).join(", "));
   for (let pi = 0; pi < exportedPatterns; pi++) {
@@ -39781,13 +40725,33 @@ function setupSidEditor() {
   onId("sid-close", "click", function() { _sidCloseVirtualKeyboard(); _sidStop(); dialog.close(); });
 
   // instrument param bindings
-  const bindCheck = function(id, prop) { onId(id, "change", function(e){ _sidCurInst()[prop] = e.target.checked; _sidDrawADSR(); }); };
-  const bindRange = function(id, prop, valId) { onId(id, "input", function(e){ _sidCurInst()[prop] = parseInt(e.target.value,10); if(valId){const v=document.getElementById(valId); if(v) v.textContent = e.target.value;} _sidDrawADSR(); }); };
-  bindCheck("sid-tri","tri"); bindCheck("sid-saw","saw"); bindCheck("sid-pul","pul"); bindCheck("sid-noi","noi");
-  bindRange("sid-pw","pw","sid-pw-val");
-  bindRange("sid-a","a","sid-a-val"); bindRange("sid-d","d","sid-d-val"); bindRange("sid-s","s","sid-s-val"); bindRange("sid-r","r","sid-r-val");
-  bindCheck("sid-lp","lp"); bindCheck("sid-bp","bp"); bindCheck("sid-hp","hp");
-  bindRange("sid-cut","cut"); bindRange("sid-res","res"); bindRange("sid-vol","vol");
+  _sidInstFields().forEach(function(f) {
+    const check = f[2] === "check";
+    onId(f[0], check ? "change" : "input", function(e) {
+      _sidCurInst()[f[1]] = check ? e.target.checked : parseInt(e.target.value, 10);
+      if (f[3]) { const v = document.getElementById(f[3]); if (v) v.textContent = e.target.value; }
+      // choosing a filter mode routes the voice through the filter (it would be silent otherwise)
+      if (check && e.target.checked && (f[1] === "lp" || f[1] === "bp" || f[1] === "hp")) {
+        _sidCurInst().filt = true;
+        const route = document.getElementById("sid-filt"); if (route) route.checked = true;
+      }
+      _sidDrawADSR();
+    });
+  });
+  onId("sid-first-wave", "change", function(e){ _sidCurInst().firstWave = parseInt(e.target.value, 10) || 0; });
+  onId("sid-table-speed", "input", function(e){
+    const v = parseInt(e.target.value, 10);
+    if (Number.isFinite(v)) _sidCurInst().tableSpeed = Math.max(1, Math.min(15, v));
+  });
+  onId("sid-table-loop", "change", function(e){ _sidCurInst().tableLoop = parseInt(e.target.value, 10); _sidRenderTable(); });
+  onId("sid-table-preset", "change", function(e){ _sidApplyTablePreset(e.target.value); e.target.value = ""; });
+  onId("sid-table-add", "click", function(){
+    const inst = _sidCurInst();
+    if (inst.table.length >= 32) return;
+    const last = inst.table[inst.table.length - 1];
+    inst.table.push(last ? { w: 0, n: last.abs ? last.n : 0, abs: last.abs } : { w: 0, n: 0, abs: false });
+    _sidRenderTable();
+  });
   onId("sid-inst-name", "input", function(e){ _sidCurInst().name = e.target.value; _sidBuildInstSel(); });
   onId("sid-inst-sel", "change", function(e){ _sidInst = parseInt(e.target.value,10); _sidLoadInstUI(); });
   onId("sid-inst-add", "click", function(){ _sidInsts.push(_sidNewInst(t("sidNewInstrumentName") + " " + (_sidInsts.length+1))); _sidInst = _sidInsts.length-1; _sidBuildInstSel(); _sidLoadInstUI(); });
@@ -39858,6 +40822,10 @@ function setupSidEditor() {
   onId("sid-vkbd-oct-down", "click", function(){ _sidSetOctave(_sidOctave-1); });
   onId("sid-vkbd-oct-up", "click", function(){ _sidSetOctave(_sidOctave+1); });
   onId("sid-vkbd-insert", "change", function(e){ _sidVkbdInsertMode = !!e.target.checked; });
+  onId("sid-vkbd-octaves", "change", function(e){
+    try { localStorage.setItem("c64va-sid-vkbd-octaves", e.target.value); } catch (_) {}
+    _sidRenderVirtualKeyboard();
+  });
   const sidVkbdHdr = document.querySelector("#sid-virtual-keyboard-dialog .sid-vkbd-hdr");
   const sidVkbdDlg = document.getElementById("sid-virtual-keyboard-dialog");
   if (sidVkbdHdr && sidVkbdDlg) {

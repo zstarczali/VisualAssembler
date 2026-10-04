@@ -106,11 +106,11 @@ test("cell text renders the effect column alongside note+instrument", () => {
 
 function loadSerdeSandbox() {
   return loadFunctions(
-    ["_sidInstBytes", "_sidWaveByte", "_sidNewInst", "_sidNewPattern", "_sidSerialize", "_sidDeserialize",
+    ["_sidInstFields", "_sidInstNorm", "_sidInstCtrl", "_sidInstExtBytes", "_sidReadInstExt", "_sidWaStop", "_sidInstBytes", "_sidWaveByte", "_sidNewInst", "_sidNewPattern", "_sidSerialize", "_sidDeserialize",
      "_sidSyncPlayModeSel", "_sidBuildInstSel", "_sidLoadInstUI", "_sidBuildPatSel", "_sidBuildSongList",
      "_sidBuildTracker", "_sidStop", "_sidUpdatePauseButton", "_sidCurInst"],
     {
-      Uint8Array, Math, String, Array,
+      Uint8Array, Math, String, Array, TextEncoder, TextDecoder, _sidSpeed: 6, _sidWaPlay: null, _sidPreviewSources: new Set(), _sidRenderTable: () => {},
       document: { getElementById: (id) => (id === "sid-inst-name" ? {} : null), querySelectorAll: () => [] },
       t: (k) => k,
       tf: () => "",
@@ -137,7 +137,7 @@ test("serialize/deserialize round-trips per-cell effect data", () => {
   ctx._sidSong = [0];
 
   const bytes = ctx._sidSerialize();
-  assert.equal(bytes[0], 0xFE, "new saves carry the versioned-format marker");
+  assert.equal(bytes[0], 0xFD, "new saves carry the extended-format marker");
   ctx._sidPatterns = null; ctx._sidInsts = null; ctx._sidSong = null;
   ctx._sidDeserialize(bytes);
 
@@ -174,8 +174,8 @@ test("deserialize reads pre-effect-column saves (no marker, 2 bytes/cell) with n
 
 function loadExportSandbox() {
   return loadFunctions(
-    ["_sidExportAsmPlayable", "_sidWaveByte"],
-    { Math, String, Array },
+    ["_sidNewInst", "_sidInstNorm", "_sidInstCtrl", "_sidFreqTables", "_sidTuneData", "_sidCellBytes", "_sidExportAsmPlayable", "_sidWaveByte"],
+    { Math, String, Array, t: (k) => k },
     `${extractConstLine("_SID_ROWS")}\n${extractConstLine("_SID_FX_CODES")}\n${extractConstLine("_SID_FX_NAMES")}`
   );
 }

@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.5.0">
+  <link rel="stylesheet" href="style.css?v=2.5.1">
 </head>
 
 <body>
@@ -1203,7 +1203,7 @@ PRINTABLE CHARACTERS
           <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
         </div>
         <h2 class="about-title">C64 Visual Assembler</h2>
-        <p class="about-version" id="about-version">v2.5.0</p>
+        <p class="about-version" id="about-version">v2.5.1</p>
         <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
       </div>
       <div class="about-columns">
@@ -1229,25 +1229,25 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.5.0</p>
+      <p class="whats-new-version">v2.5.1</p>
       <ul class="whats-new-list">
         <li>
-          <strong>New: Level Editor:</strong> the toolbar button next to the Map Editor arranges Map Editor screens <strong>vertically, horizontally or in a 2D grid</strong> into one level and previews it with smooth scrolling (drag, arrow keys or <em>Play</em>). Screens come from the Map Editor or from map <code>.bin</code> files and can be edited back in the Map Editor; <strong>Files</strong> saves the level project, the full level Screen / Screen + Color RAM, blocks or asm.
+          <strong>New: SID Editor instruments like a real tracker:</strong> filter routing per voice, <strong>3 OFF</strong> and a resonant cutoff <strong>sweep</strong> (start, end, speed, ping-pong); instrument <strong>vibrato</strong> (delay, speed, depth); <strong>pulse width modulation</strong>; <strong>gate timer</strong>, <strong>hard restart</strong> and first-frame waveform; a <strong>wave / arpeggio table</strong> with presets (arpeggios, kick, snare, hi-hat); <strong>RING</strong> and <strong>SYNC</strong>.
         </li>
         <li>
-          <strong>New: LEVEL / LEVEL_ROW macros:</strong> <code>.level "level.bin"[, $4000]</code> places only the placed screens of a level plus pointer tables and defines <code>LEVEL_*</code> labels and constants; <code>.level_row dst, col[, color]</code> copies one 40-character level row (screen codes or colors) to a buffer, across screen boundaries.
+          <strong>New SID player:</strong> the exported 6502 player runs all of this every frame (<code>JSR sid_frame</code> from your own IRQ, less zero page). The preview renders the same player through a small SID synthesizer, so edits are heard while playing; <code>.bin</code> saves keep instrument names and speed.
         </li>
         <li>
-          <strong>New: JOYSTICK variable mode:</strong> <code>.joystick port, vx, vy[, fire]</code> writes the direction into variables (&minus;1 / 0 / +1) instead of moving a sprite; port <code>3</code> reads both joystick ports. The <code>samples/level-demo.asm</code> sample scrolls a 2&times;5-screen level pixel by pixel in every direction with the joystick, tear-free.
+          <strong>New: virtual keyboard</strong> with 2, 3 or 4 octaves in a Commodore 64 synth look.
         </li>
         <li>
-          <strong>New: Number converter:</strong> a non-modal DEC / HEX / BIN dialog on the toolbar &mdash; 8 / 16 bit, clickable bits, signed value, low / high byte and copy buttons. It remembers its position and reopens after a restart if it was open.
+          <strong>Ultimate Basic 1.6.2:</strong> <code>tune</code> blocks gain <code>imod</code>, <code>ifilt</code>, <code>igate</code> and <code>itab</code> lines; <em>Export to UltimateBasic</em> writes them.
         </li>
         <li>
-          <strong>New: Examples dialog:</strong> <strong>Menu &rarr; Examples&hellip;</strong> lists the built-in example programs by topic, with search and keyboard navigation.
+          <strong>New: bookmarks and Go to line</strong> in the Expert and Ultimate Basic editors: <strong>Ctrl+F2</strong> toggles, <strong>F2</strong> / <strong>Shift+F2</strong> jump, <strong>Ctrl+G</strong> goes to a line.
         </li>
         <li>
-          <strong>Ultimate Basic 1.6.1:</strong> <code>map load "level.bin", $4000</code> reads a Level Editor project directly, and the new <code>map view px, py</code> scrolls the map smoothly and tear-free at a pixel position. A byte product inside a 16-bit sum is no longer truncated. The command reference lists <code>map view</code> and its search puts command names first.
+          <strong>Fixed:</strong> label expressions (<code>.assert</code>, <code>LEVEL_MULTICOLOR*16</code>, <code>*</code>) work in the installed app again. The D64 Editor dialogs open in the active working folder, and the Build project report names the output folder.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -1323,6 +1323,18 @@ PRINTABLE CHARACTERS
           <a class="knowledge-base-link" href="#" data-url="https://csdb.dk/release/?id=238365">
             <span class="knowledge-base-link-title">Exomizer</span>
             <span class="knowledge-base-link-url">csdb.dk</span>
+          </a>
+        </li>
+        <li>
+          <a class="knowledge-base-link" href="#" data-url="https://www.c64os.com/c64os/programmersguide/?s=devenvironment">
+            <span class="knowledge-base-link-title">C64 OS Programmer's Guide: Development Environment</span>
+            <span class="knowledge-base-link-url">c64os.com</span>
+          </a>
+        </li>
+        <li>
+          <a class="knowledge-base-link" href="#" data-url="https://png2c64.app/">
+            <span class="knowledge-base-link-title">png2c64 Image Converter</span>
+            <span class="knowledge-base-link-url">png2c64.app</span>
           </a>
         </li>
       </ul>
@@ -2071,6 +2083,8 @@ PRINTABLE CHARACTERS
           <label class="sid-check"><input type="checkbox" id="sid-saw"> <span>SAW</span></label>
           <label class="sid-check"><input type="checkbox" id="sid-pul" checked> <span>PUL</span></label>
           <label class="sid-check"><input type="checkbox" id="sid-noi"> <span>NOI</span></label>
+          <label class="sid-check sid-check--mod" id="sid-ring-wrap"><input type="checkbox" id="sid-ring"> <span>RING</span></label>
+          <label class="sid-check sid-check--mod" id="sid-sync-wrap"><input type="checkbox" id="sid-sync"> <span>SYNC</span></label>
           <span class="sid-mini-lbl">PW:</span>
           <input type="range" id="sid-pw" min="0" max="4095" value="2048" class="sid-range">
           <span id="sid-pw-val" class="sid-num">2048</span>
@@ -2086,15 +2100,70 @@ PRINTABLE CHARACTERS
           </div>
           <canvas id="sid-adsr-canvas" class="sid-adsr-canvas" width="280" height="170"></canvas>
           <div class="sid-filter">
-            <span class="sid-section">FILTER</span>
+            <span class="sid-section" id="sid-filter-title">FILTER</span>
+            <label class="sid-check sid-filt-route"><input type="checkbox" id="sid-filt"> <span id="sid-filt-lbl">Route this voice through the filter</span></label>
             <div class="sid-filter-types">
               <label class="sid-check"><input type="checkbox" id="sid-lp"> <span>LP</span></label>
               <label class="sid-check"><input type="checkbox" id="sid-bp"> <span>BP</span></label>
               <label class="sid-check"><input type="checkbox" id="sid-hp"> <span>HP</span></label>
+              <label class="sid-check sid-check--mod" id="sid-off3-wrap"><input type="checkbox" id="sid-off3"> <span>3 OFF</span></label>
             </div>
-            <div class="sid-slider-row"><span class="sid-sl-lbl">Cut:</span><input type="range" id="sid-cut" min="0" max="2047" value="1400" class="sid-range"></div>
-            <div class="sid-slider-row"><span class="sid-sl-lbl">Res:</span><input type="range" id="sid-res" min="0" max="15" value="0" class="sid-range"></div>
-            <div class="sid-slider-row"><span class="sid-sl-lbl">Vol:</span><input type="range" id="sid-vol" min="0" max="15" value="15" class="sid-range"></div>
+            <div class="sid-slider-row"><span class="sid-sl-lbl" id="sid-cut-lbl">Cut:</span><input type="range" id="sid-cut" min="0" max="2047" value="1400" class="sid-range"><span id="sid-cut-val" class="sid-num sid-num--w">1400</span></div>
+            <div class="sid-slider-row"><span class="sid-sl-lbl" id="sid-cut-end-lbl">End:</span><input type="range" id="sid-cut-end" min="0" max="2047" value="1400" class="sid-range"><span id="sid-cut-end-val" class="sid-num sid-num--w">1400</span></div>
+            <div class="sid-slider-row"><span class="sid-sl-lbl" id="sid-cut-speed-lbl">Sweep:</span><input type="range" id="sid-cut-speed" min="0" max="127" value="0" class="sid-range"><span id="sid-cut-speed-val" class="sid-num sid-num--w">0</span>
+              <label class="sid-check sid-check--mini" id="sid-cut-ping-wrap"><input type="checkbox" id="sid-cut-ping"> <span id="sid-cut-ping-lbl">Ping-pong</span></label></div>
+            <div class="sid-slider-row"><span class="sid-sl-lbl" id="sid-res-lbl">Res:</span><input type="range" id="sid-res" min="0" max="15" value="0" class="sid-range"><span id="sid-res-val" class="sid-num sid-num--w">0</span></div>
+            <div class="sid-slider-row"><span class="sid-sl-lbl" id="sid-vol-lbl">Vol:</span><input type="range" id="sid-vol" min="0" max="15" value="15" class="sid-range"><span id="sid-vol-val" class="sid-num sid-num--w">15</span></div>
+          </div>
+        </div>
+        <!-- Modulation, gate / hard restart, wave + arpeggio table -->
+        <div class="sid-mid sid-adv">
+          <div class="sid-adv-col">
+            <span class="sid-section" id="sid-vib-title">VIBRATO</span>
+            <div class="sid-slider-row"><span class="sid-sl-lbl sid-sl-lbl--w" id="sid-vib-delay-lbl">Delay:</span><input type="range" id="sid-vib-delay" min="0" max="255" value="0" class="sid-range"><span id="sid-vib-delay-val" class="sid-num sid-num--w">0</span></div>
+            <div class="sid-slider-row"><span class="sid-sl-lbl sid-sl-lbl--w" id="sid-vib-speed-lbl">Speed:</span><input type="range" id="sid-vib-speed" min="0" max="15" value="0" class="sid-range"><span id="sid-vib-speed-val" class="sid-num sid-num--w">0</span></div>
+            <div class="sid-slider-row"><span class="sid-sl-lbl sid-sl-lbl--w" id="sid-vib-depth-lbl">Depth:</span><input type="range" id="sid-vib-depth" min="0" max="15" value="0" class="sid-range"><span id="sid-vib-depth-val" class="sid-num sid-num--w">0</span></div>
+            <span class="sid-section sid-section--sub" id="sid-pwm-title">PULSE WIDTH MODULATION</span>
+            <div class="sid-slider-row"><span class="sid-sl-lbl sid-sl-lbl--w" id="sid-pwm-speed-lbl">Speed:</span><input type="range" id="sid-pwm-speed" min="0" max="255" value="0" class="sid-range"><span id="sid-pwm-speed-val" class="sid-num sid-num--w">0</span></div>
+            <div class="sid-slider-row"><span class="sid-sl-lbl sid-sl-lbl--w" id="sid-pwm-min-lbl">Min:</span><input type="range" id="sid-pwm-min" min="0" max="4095" value="512" class="sid-range"><span id="sid-pwm-min-val" class="sid-num sid-num--w">512</span></div>
+            <div class="sid-slider-row"><span class="sid-sl-lbl sid-sl-lbl--w" id="sid-pwm-max-lbl">Max:</span><input type="range" id="sid-pwm-max" min="0" max="4095" value="3584" class="sid-range"><span id="sid-pwm-max-val" class="sid-num sid-num--w">3584</span></div>
+          </div>
+          <div class="sid-adv-col sid-adv-col--gate">
+            <span class="sid-section" id="sid-gate-title">GATE</span>
+            <div class="sid-slider-row"><span class="sid-sl-lbl sid-sl-lbl--w" id="sid-gate-timer-lbl">Gate timer:</span><input type="range" id="sid-gate-timer" min="0" max="15" value="0" class="sid-range"><span id="sid-gate-timer-val" class="sid-num sid-num--w">0</span></div>
+            <label class="sid-check" id="sid-hr-wrap"><input type="checkbox" id="sid-hr"> <span id="sid-hr-lbl">Hard restart</span></label>
+            <div class="sid-slider-row sid-first-row"><span class="sid-sl-lbl sid-sl-lbl--w" id="sid-first-wave-lbl">First frame:</span>
+              <select id="sid-first-wave" class="sid-select">
+                <option value="0">Off</option>
+                <option value="9">$09 Test + gate</option>
+                <option value="8">$08 Test</option>
+                <option value="129">$81 Noise</option>
+                <option value="65">$41 Pulse</option>
+                <option value="33">$21 Saw</option>
+                <option value="17">$11 Triangle</option>
+              </select></div>
+            <p class="sid-adv-hint" id="sid-gate-hint">Gate timer: the gate is released this many frames before the next note (keep it below Speed). Hard restart also zeroes ADSR then, for a clean, click-free attack.</p>
+          </div>
+          <div class="sid-adv-col sid-adv-col--table">
+            <span class="sid-section" id="sid-table-title">WAVE / ARPEGGIO TABLE</span>
+            <div class="sid-table-ctl">
+              <span class="sid-mini-lbl" id="sid-table-speed-lbl">Speed:</span>
+              <input id="sid-table-speed" class="sid-input sid-table-num" type="number" min="1" max="15" value="1">
+              <span class="sid-mini-lbl" id="sid-table-loop-lbl">Loop:</span>
+              <select id="sid-table-loop" class="sid-select"></select>
+              <select id="sid-table-preset" class="sid-select">
+                <option value="">Presets…</option>
+                <option value="major">Arpeggio: major (0 4 7)</option>
+                <option value="minor">Arpeggio: minor (0 3 7)</option>
+                <option value="octave">Arpeggio: octave (0 12)</option>
+                <option value="kick">Drum: kick</option>
+                <option value="snare">Drum: snare</option>
+                <option value="hihat">Drum: hi-hat</option>
+                <option value="clear">Clear table</option>
+              </select>
+            </div>
+            <div id="sid-table-steps" class="sid-table-steps"></div>
+            <button id="sid-table-add" class="sid-mini-btn" type="button">+ Step</button>
           </div>
         </div>
         <!-- Song / order list: the arrangement of patterns that actually
@@ -2213,14 +2282,25 @@ PRINTABLE CHARACTERS
     <div id="sid-virtual-keyboard-dialog" class="sid-vkbd-dialog" aria-labelledby="sid-vkbd-title" hidden>
       <div class="sid-vkbd-card">
         <div class="sid-vkbd-hdr">
-          <span id="sid-vkbd-title" class="sid-vkbd-title">VIRTUAL KEYBOARD</span>
+          <span id="sid-vkbd-title" class="sid-vkbd-title">VA-VK</span>
           <button id="sid-vkbd-close" class="sid-xbtn" type="button" aria-label="Close">×</button>
+        </div>
+        <div class="sid-vkbd-brand" aria-hidden="true">
+          <span class="sid-vkbd-brand-name">Commodore <b>64</b></span>
+          <span class="sid-vkbd-brand-chip">SID 6581</span>
+          <span class="sid-vkbd-stripes"><i></i><i></i><i></i><i></i><i></i></span>
         </div>
         <div class="sid-vkbd-meta">
           <span id="sid-vkbd-octave-label" class="sid-mini-lbl">Oct:</span>
           <button id="sid-vkbd-oct-down" class="sid-mini-btn" type="button" aria-label="Octave down">−</button>
           <span id="sid-vkbd-octave-val" class="sid-num">4</span>
           <button id="sid-vkbd-oct-up" class="sid-mini-btn" type="button" aria-label="Octave up">+</button>
+          <span id="sid-vkbd-octaves-label" class="sid-mini-lbl sid-vkbd-octaves-lbl">Octaves:</span>
+          <select id="sid-vkbd-octaves" class="sid-select sid-vkbd-octaves">
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+          </select>
           <label class="sid-vkbd-insert-toggle me-check"><input type="checkbox" id="sid-vkbd-insert" checked> <span id="sid-vkbd-insert-label">Insert into tracker</span></label>
         </div>
         <div id="sid-vkbd-board" class="sid-vkbd-board"></div>
@@ -2691,13 +2771,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.5.0"></script>
-  <script src="i18n.js?v=2.5.0"></script>
-  <script src="tutorial-data.js?v=2.5.0"></script>
+  <script src="tauri-bridge.js?v=2.5.1"></script>
+  <script src="i18n.js?v=2.5.1"></script>
+  <script src="tutorial-data.js?v=2.5.1"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.5.0"></script>
+  <script src="app.js?v=2.5.1"></script>
 
 </body>
 
