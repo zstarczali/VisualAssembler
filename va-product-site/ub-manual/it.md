@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.1 — Manuale della lingua
+# Ultimate Basic v1.6.2 — Manuale della lingua
 
 Manuale completo del linguaggio e della riga di comando per Ultimate Basic, un
 linguaggio simile al BASIC che compila direttamente in codice macchina 6502 per
@@ -937,9 +937,14 @@ tune                       # optional: tune at $C800  (default $8000)
   speed 6                  # frames per row (50 Hz PAL)
   inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
   inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
+  imod 0, 6, 3, 9, 40, $0200, $0E00   # vibrato + pulse width modulation (1.6.2)
+  ifilt 0, $0500, 20, 1               # cutoff sweep up to $500, back and forth (1.6.2)
+  igate 1, 2, 1, $09                  # gate timer, hard restart, first frame $09 (1.6.2)
+  itab 1, 2, 0, ".. +0", ".. +4", ".. +7"   # arpeggio table (1.6.2)
   order 0, 1, 0            # pattern order (patterns may repeat)
   pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
   pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
+  pat 1, 0, "G-4 00", "...", "E-4 00", "...", "C-4 00"
 end
 music play                 # or: sys sid_init / irq handler calling sys sid_play
 ```
@@ -951,12 +956,16 @@ costruisce il lettore **in fase di compilazione**. Definisce `sid_init` /
 `music pause` e `music resume` (e un gestore manuale `irq` che chiama `sys
 sid_play`) funzionano senza modifiche.
 
-| Linea                                                 | Senso                                                                                                                                                                                                                                                                                                                  |
-| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `speed N`                                             | Fotogrammi per riga del tracker (1-255).                                                                                                                                                                                                                                                                               |
-| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol` | Uno strumento: registro di controllo (bit della forma d'onda; il bit di gate viene aggiunto dal musicista), attacco/decadimento, sustain/rilascio, larghezza dell'impulso a 12 bit, frequenza di taglio del filtro a 11 bit, byte di risonanza/instradamento del filtro (`$D417`) e byte di modalità/volume (`$D418`). |
-| `order p, p, ...`                                     | Ordine del modello. Le linee si accumulano, fino a 255 passaggi.                                                                                                                                                                                                                                                       |
-| `pat p, v, "cell", ...`                               | Fino a 32 righe per la voce `v` (0-2) del modello `p` (0-7). Le righe mancanti sono vuote.                                                                                                                                                                                                                             |
+| Linea                                                              | Senso                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `speed N`                                                          | Fotogrammi per riga del tracker (1-255).                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol`              | Uno strumento: registro di controllo (bit della forma d'onda più modulazione ad anello `$04` / sincronizzazione `$02`; il bit di gate viene aggiunto dal giocatore), attacco/decadimento, sustain/rilascio, larghezza dell'impulso a 12 bit, cutoff del filtro a 11 bit, byte di risonanza/instradamento del filtro (`$D417` stile: qualsiasi bit di instradamento = instrada la voce che suona questo strumento) e byte di modalità/volume (`$D418` stile, bit 7 = 3 OFF). |
+| `imod id, vibdelay, vibspeed, vib Depth, pwmspeed, pwmmin, pwmmax` | (1.6.2) Vibrato dello strumento: dopo `vibdelay` frame un LFO triangolare che gira ogni `vibspeed` frame (1-15, 0 = spento), profondità 0-15 (scalata al semitono della nota). Modulazione della larghezza dell'impulso: `pwmspeed` aggiunto per frame (0 = spento), rimbalzando tra `pwmmin` e `pwmmax`.                                                                                                                                                                   |
+| `ifilt id, cutend, sweep, pingpong`                                | (1.6.2) Scansione del cutoff del filtro: dal cutoff `inst` verso il cutoff `cutend` tramite `sweep` (0-127) per fotogramma; `pingpong` 1 = avanti e indietro.                                                                                                                                                                                                                                                                                                               |
+| `ID gate, timer gate, hardrestart, firstwave`                      | (1.6.2) Il gate viene rilasciato `gatetimer` frame prima della nota successiva sulla voce (mantienilo al di sotto di `speed`); `hardrestart` 1 imposta anche ADSR a 0. `firstwave` (ad esempio `$09` = test + gate) viene scritto sul primo frame della nota.                                                                                                                                                                                                               |
+| `itab id, velocità, ciclo, "passo", ...`                           | (1.6.2) Tabella delle onde/arpeggi, fino a 32 passi: `"WW +n"`, `".. -n"` o `"WW =n"` - forma d'onda in esadecimale (`..` la mantiene) e un offset di nota in semitoni o una nota assoluta (`=60`). Un passo ogni `speed` fotogrammi, poi si torna al passo `loop` (255 = resta sull'ultimo passo).                                                                                                                                                                         |
+| `order p, p, ...`                                                  | Ordine del modello. Le linee si accumulano, fino a 255 passaggi.                                                                                                                                                                                                                                                                                                                                                                                                            |
+| `pat p, v, "cell", ...`                                            | Fino a 32 righe per la voce `v` (0-2) del modello `p` (0-7). Le righe mancanti sono vuote.                                                                                                                                                                                                                                                                                                                                                                                  |
 
 Una **cella** è `NOTE INST FX`: `C-4`, `D#3`, `Eb2` o `...` per nessuna nota,
 uno strumento esadecimale a due cifre (`..` per lasciarlo), e un effetto
@@ -970,10 +979,17 @@ Note sul lettore:
   assoluto) - non utilizza pagine zero, quindi non può entrare in conflitto con
   le variabili o i temporanei di UltimateBasic e continua a funzionare quando il
   programma ritorna a BASIC.
-- Il blob viene posizionato a un indirizzo fisso (predefinito `$8000` o `tune at
+- Ad ogni frame (1.6.2) il player esegue la tabella delle onde/arpeggi, il
+  vibrato, la modulazione di larghezza d'impulso e il timer gate/hard restart di
+  ogni voce, e lo sweep di cutoff della voce che ha avviato per ultima uno
+  strumento instradato dal filtro (possiede il cutoff, la risonanza e la
+  modalità del filtro; `$D417` instrada ogni voce il cui strumento corrente è
+  instradato dal filtro). È lo stesso algoritmo del player e dell'anteprima
+  esportati dall'editor SID di Visual Assembler, frame per frame.
+- Il blob viene posizionato a un indirizzo fisso (predefinito `$8000` o `tune a
   $addr`) e il `.prg` viene riempito fino ad esso, come `load sid`. Mantienilo
   libero dal tuo codice, dagli array (`$C000+`) e da qualsiasi memoria
-  bitmap/charset. Una tune richiede circa 1,3 KB più 12 byte per riga-colonna di
+  bitmap/charset. Una tune richiede circa 2,5 KB più 12 byte per riga-colonna di
   dati.
 - Massimo 8 modelli (32 righe ciascuno); l'elenco degli ordini può ripeterli
   liberamente.

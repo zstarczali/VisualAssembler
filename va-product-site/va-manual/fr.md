@@ -1,6 +1,6 @@
 # Manuel d'utilisation de l'assembleur visuel C64
 
-**Version 2.5.0**
+**Version 2.5.1**
 
 Un assembleur 6502 visuel et basé sur des blocs pour le Commodore 64. Créez des programmes en faisant glisser et en déposant des blocs d'instructions, et visualisez en temps réel le code assembleur et le code machine générés.
 
@@ -9,6 +9,7 @@ Un assembleur 6502 visuel et basé sur des blocs pour le Commodore 64. Créez de
 ## Table des matières
 
 - [C64 Visual Assembler — Manuel de l'utilisateur](#c64-visual-assembler--user-manual)
+    - [Points saillants de la version 2.5.1](#version-251-highlights)
     - [Points saillants de la version 2.5.0](#version-250-highlights)
     - [Points saillants de la version 2.4.9](#version-249-highlights)
     - [Points saillants de la version 2.4.8](#version-248-highlights)
@@ -170,6 +171,18 @@ Un assembleur 6502 visuel et basé sur des blocs pour le Commodore 64. Créez de
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Éditeur de courbes](#curve-editor)
     - [Convertisseur de nombres](#number-converter)
+
+---
+
+## Points saillants de la version 2.5.1
+
+- **Éditeur SID Instruments** — routage des filtres par voix, **3 OFF** et une coupure résonante **balayage** (début, fin, vitesse, ping-pong) ; instrument **vibrato** (délai, vitesse, profondeur) ; **modulation de largeur d'impulsion** ; **minuterie de porte**, **redémarrage forcé** et forme d'onde de la première trame ; une **table d'ondes/arpèges** avec préréglages ; **RING** et **SYNC**. Voir [Éditeur SID](#sid-editor-3-voice-tracker).
+- **Nouveau lecteur SID** — le lecteur exporté exécute la modulation de l'instrument à chaque image (`JSR sid_frame` pour votre propre IRQ) ; l'aperçu affiche le même lecteur via un petit synthétiseur SID. `.bin` conserve les noms et la vitesse des instruments.
+- **Clavier virtuel** — 2, 3 ou 4 octaves dans un style synthétiseur Commodore 64.
+- **Ultimate Basic 1.6.2 inclus** — `tune` gagne `imod`, `ifilt`, `igate` et `itab`; **Exporter vers UltimateBasic** les écrit.
+- **Signets et Aller à la ligne** dans les éditeurs Expert et Ultimate Basic — Ctrl+F2 / F2 / Shift+F2, Ctrl+G.
+- **Corrigé : ** les expressions d'étiquette (`.assert`, `LEVEL_MULTICOLOR*16`, `*`) fonctionnent à nouveau dans l'application installée (pas de `eval` sous la CSP de publication).
+- **D64 Editor** Les boîtes de dialogue s'ouvrent dans le dossier de travail actif ; le **Build project** indique le dossier de sortie.
 
 ---
 
@@ -1058,7 +1071,7 @@ Comme un numéro de ligne **en BASIC** — mais avec un nom au lieu d'un numéro
 loop:
 ```
 
-**ASM généré :**
+**ASM généré : **
 ```
 loop:  ; $0820
 ```
@@ -1076,7 +1089,7 @@ Comme **REM en BASIC** — une note pour vous-même que l'assembleur ignore comp
 ; Your comment text here
 ```
 
-**ASM généré :**
+**ASM généré : **
 ```
 ; Your comment text here
 ```
@@ -1096,7 +1109,7 @@ Comme **DATA en BASIC** — stocke une liste de valeurs d'octets bruts directeme
 .byte $01, $02, $FF
 ```
 
-**ASM généré :**
+**ASM généré : **
 ```
     .byte $01, $02, $FF
 ```
@@ -1126,7 +1139,7 @@ Comme **DATA en BASIC mais pour les nombres de 16 bits**. Chaque valeur est stoc
 .word $0400, $C000
 ```
 
-**ASM généré :**
+**ASM généré : **
 ```
     .word $0400, $C000
 ```
@@ -1148,7 +1161,7 @@ Comme `FOR I=1 TO N : POKE addr+I, val : NEXT` — remplit un bloc de mémoire a
 .fill 256, $00
 ```
 
-**ASM généré :**
+**ASM généré : **
 ```
     .fill 256, $00
 ```
@@ -1183,7 +1196,7 @@ Décale l'adresse actuelle jusqu'à la prochaine limite libre en insérant des o
 .align $2000
 ```
 
-**ASM généré :**
+**ASM généré : **
 ```
     ; ALIGN 64 → $0840 (12 bytes padding)
 ```
@@ -1258,7 +1271,7 @@ Comme **POKEing une chaîne** dans n'importe quelle adresse mémoire à l'exécu
 .string $C000, "HELLO" :my_string      ; with macroLabel
 ```
 
-**ASM généré :**
+**ASM généré : **
 ```
     LDA #$08      ; 'H' screen code
     STA $C000
@@ -1288,7 +1301,7 @@ Comme une boucle **POKE** — écrit une liste d'octets bruts à une adresse mé
 .data $C000, $01, $02, $03 :mydata  ; with macroLabel
 ```
 
-**ASM généré :**
+**ASM généré : **
 ```
     LDA #$01
     STA $C000
@@ -1345,7 +1358,7 @@ Similaire à RAWBYTES, mais pour le texte : encode la chaîne en caractères d�
 .rawtext $0400, "HELLO" :my_text       ; with macroLabel
 ```
 
-**ASM généré :**
+**ASM généré : **
 ```
 ; .rawtext "HELLO" -> $C000
 ; $C000
@@ -1441,7 +1454,7 @@ Bascule la ROM de caractères VIC-II entre le mode majuscules/graphiques (par d�
 .charset upper    ; switch back to uppercase/graphics charset
 ```
 
-**ASM généré :**
+**ASM généré : **
 
 Mode minuscules :
 ```
@@ -1815,7 +1828,7 @@ Comme **DIM à une adresse spécifique** — nomme une table de consultation et 
 .table color_table, $C000
 ```
 
-**ASM généré :**
+**ASM généré : **
 ```
 color_table:
 ```
@@ -1840,7 +1853,7 @@ Définit l'emplacement en mémoire du programme (ou d'une partie de celui-ci), u
 * = $C000
 ```
 
-**ASM généré :**
+**ASM généré : **
 ```
 * = $C000
 ```
@@ -1885,7 +1898,7 @@ Comme **`FOR X=N TO 1 STEP -1 : ... : NEXT X`** en BASIC — effectue un décomp
 .loop X, 10, loop0
 ```
 
-**ASM généré :**
+**ASM généré : **
 ```
     LDX #$0A
 loop0:
@@ -1905,7 +1918,7 @@ loop0:
 .next loop0
 ```
 
-**ASM généré :**
+**ASM généré : **
 ```
     DEX
     BNE loop0
@@ -1942,7 +1955,7 @@ Comme **`FOR X=0 TO N-1 : ... : NEXT X`** en BASIC — compte *up* à partir de 
 .for X, $12, for0
 ```
 
-**ASM généré :**
+**ASM généré : **
 ```
     LDX #$00
 for0:
@@ -1963,7 +1976,7 @@ for0:
 .endf for0
 ```
 
-**ASM généré :**
+**ASM généré : **
 ```
     INX
     CPX #$12
@@ -2049,7 +2062,7 @@ Comme **RTS avec un nom de macro plus convivial** — `.end` émet un seul octet
 .end
 ```
 
-**ASM généré :**
+**ASM généré : **
 ```
     RTS
 ```
@@ -2073,7 +2086,7 @@ Like **a named GOSUB with parameters** — define a reusable chunk of code once 
 
 Marque le début de la définition d'une macro. Les blocs entre MACRO et ENDM constituent le corps de la macro ; ils ne génèrent aucun code à l'endroit où se trouve la définition. Utilisez {paramName} comme espace réservé pour les arguments.
 
-**ASM généré :**
+**ASM généré : **
 ```
 ; .MACRO setColor (color)
     ... (body blocks)
@@ -2101,7 +2114,7 @@ Appelle une macro définie à cette position et remplace les valeurs d'argument 
 | Nom de la macro | Sélectionnez une macro définie dans la liste déroulante.                                                                  |
 | Arguments       | Valeurs des arguments séparées par des virgules correspondant à la liste des paramètres de la macro (par exemple, `#$07`) |
 
-**ASM généré :**
+**ASM généré : **
 ```
 ; .invoke setColor(#$07)
     LDA #$07
@@ -2159,7 +2172,7 @@ Regroupement purement visuel — **zéro octet**, aucun impact sur le code assem
 - **⧉ Copier la région** — copie le bloc REGION, tous ses blocs enfants et l'ENDREGION correspondant dans le presse-papiers. Un clignotement ✓ confirme la copie.
 - **⎘ Paste region** — inserts the copied region as a new region immediately after the current region's ENDREGION and scrolls to it. The button is dimmed until a region has been copied.
 
-**ASM généré :**
+**ASM généré : **
 ```
 ; region init
     SEI
@@ -2195,7 +2208,7 @@ Tout comme **est un interrupteur, l'assembleur interprète** — `DEFINE DEBUG` 
 .define DEBUG, PAL
 ```
 
-**ASM généré :**
+**ASM généré : **
 ```
 ; .DEFINE DEBUG
 ; .DEFINE DEBUG, PAL
@@ -2214,7 +2227,7 @@ Un bloc `DEFINE` permet d'activer plusieurs symboles simultanément (séparés p
 .if DEBUG
 ```
 
-**ASM généré :**
+**ASM généré : **
 ```
 ; .IF DEBUG
 ```
@@ -2230,7 +2243,7 @@ Aucun champ. Marque la branche alternative — assemblée lorsque la condition `
 .else
 ```
 
-**ASM généré :**
+**ASM généré : **
 ```
 ; .ELSE
 ```
@@ -2244,7 +2257,7 @@ Aucun champ. Ferme le bloc conditionnel.
 .endif
 ```
 
-**ASM généré :**
+**ASM généré : **
 ```
 ; .ENDIF
 ```
@@ -2330,7 +2343,7 @@ Comme **, une variable nommée qui ne change jamais,** — `SCREEN = $0400`. Uti
 .const FRAMES_1S = 60
 ```
 
-**ASM généré :**
+**ASM généré : **
 ```
 ; .CONST SCREEN = $0400
 ```
@@ -2397,7 +2410,7 @@ LDA #$00
 STA counter
 ```
 
-**ASM généré :**
+**ASM généré : **
 ```
 ; .var counter
 ```
@@ -2639,7 +2652,7 @@ Configure un sprite VIC-II en un seul bloc : au lieu d’écrire environ six ins
 .sprite_init 0, 7, $21, mono
 ```
 
-**ASM généré :**
+**ASM généré : **
 ```
     LDA #$21
     STA $07F8       ; sprite pointer register ($07F8 + N)
@@ -2708,7 +2721,7 @@ Attend que le faisceau d'électrons du VIC-II atteigne une ligne de balayage sp�
 .wait_raster $FF
 ```
 
-**ASM généré :**
+**ASM généré : **
 ```
 wait:
     LDA $D012       ; current raster line
@@ -3857,13 +3870,17 @@ Organise les écrans de l'éditeur de cartes en un seul niveau (jeu de tir verti
 
 ### Éditeur SID (Traqueur à 3 voix)
 
-Tracker multi-instrumental à 3 voix avec moteur de prévisualisation Web Audio. Ouvrir via Toolkit → Éditeur SID.
+Tracker multi-instrument à 3 voix. Ouverture via Toolkit → Éditeur SID. **Lecture : Tout** exécute le lecteur 6502 exporté dans l’émulateur WebSid ; les aperçus des notes, des lignes et des motifs sont rendus par un modèle JS du même lecteur (image par image) via un petit synthétiseur SID.
 
 **Commandes par instrument :**
-- Cases à cocher de forme d'onde (TRI / SAW / PUL / NOI) — plusieurs formes d'onde peuvent être combinées par OU.
+- Cases à cocher de forme d'onde (TRI / SAW / PUL / NOI) — plusieurs formes d'onde sont combinées par ET comme sur le SID — plus **RING** (modulation en anneau du triangle par la voix précédente : 1 ← 3, 2 ← 1, 3 ← 2) et **SYNC** (synchronisation dure avec la voix précédente).
 - ADSR (attaque / déclin / maintien / relâchement) représenté sous forme de graphique glissant au-dessus des quatre curseurs.
-- Curseur de largeur d'impulsion (0-4095) avec indicateurs de sonnerie/synchronisation en option.
-- Case à cocher de routage du filtre par voix ; coupure/résonance/volume/mode du filtre global (LP/BP/HP).
+- Curseur de largeur d'impulsion (0-4095).
+- **Filtre : ** *Acheminer cette voix à travers le filtre *, passe-bas/passe-haut et **3 OFF ** (couper le son de la voix 3 lorsqu'elle n'est pas routée), fréquence de coupure, résonance, volume. **Fin ** + **Balayage ** : déplacer la fréquence de coupure de Cut vers End par balayage à chaque image ; **Ping-pong ** : rebondir entre les deux — c'est ce qui crée les balayages de filtre résonants. La voix qui lance un instrument routé vers le filtre contrôle ce dernier (fréquence de coupure, résonance, mode) ; chaque voix dont l'instrument est routé le traverse.
+- **Vibrato:** après **Délai** images un LFO triangulaire qui tourne toutes les **Vitesse** images, **Profondeur** 0-15 mis à l'échelle au demi-ton de la note (indépendamment de l'effet `V`).
+- **Modulation de largeur d'impulsion : ** **Vitesse ** ajoutée à la largeur d'impulsion à chaque image, oscillant entre **Min ** et **Max **.
+- **Gate:** **Gate timer** libère la porte ce nombre d'images avant la prochaine note sur la voix (gardez-le en dessous de la vitesse); **Hard restart** met également l'ADSR à zéro, pour une attaque propre; **First frame** écrit une forme d'onde sur la première image de la note (par exemple `$09` test + porte).
+- **Tableau d'ondes/arpèges : ** jusqu'à 32 pas de forme d'onde (— = conserver) et de note (décalage en demi-tons, ou **abs** = note absolue), un pas toutes les **Vitesse** images, **Boucle** retour au pas précédent ou arrêt sur le dernier. Préréglages : arpège majeur/mineur/octave, grosse caisse, caisse claire, charleston.
 
 **Grille de suivi :**
 - 3 voix × jusqu'à 7 motifs × 32 lignes = 7 × 32 = 224 lignes max (le compteur de lignes 8 bits le limite).
@@ -3895,25 +3912,25 @@ Les effets sont mis à jour une fois par ligne (correspondant au timing du lecte
 
 **Lecture et clavier virtuel :**
 - Le bouton Lecture de la barre d'outils se transforme en Pause pendant la lecture et en Reprendre lorsqu'il est en pause ; le bouton Arrêter met fin à la lecture et réinitialise l'état.
-- Le bouton de la barre d'outils du clavier ouvre un piano non modal qui reste utilisable pendant que l'éditeur SID est actif. Faites glisser son en-tête pour le placer n'importe où au-dessus de l'application principale.
+- Le bouton de la barre d'outils du clavier ouvre un piano non modal (2, 3 ou 4 octaves, mémorisé) qui reste utilisable pendant que l'éditeur SID est actif. Faites glisser son en-tête pour le placer n'importe où au-dessus de l'application principale.
 - Activez l'option **Insérer dans le tracker** pour inscrire chaque note jouée à l'emplacement actuel du curseur du tracker et passer à la ligne suivante. Désactivez-la pour écouter les notes sans les modifier.
 - Les aperçus d'accords et d'arpèges illuminent les touches correspondantes du piano lorsque le clavier est ouvert.
 
 **Exportations du menu Fichiers :**
-| Exporter                                  | Ce que cela fait                                                                                                                                                                                                                                                                                                                                                   |
-| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `Enregistrer .bin…`                       | Écrit au format sérialisé natif de l'éditeur (instruments + motifs + séquence).                                                                                                                                                                                                                                                                                    |
-| `Exporter les blocs (données uniquement)` | Ajoute la table d'instruments + les blocs de motifs au programme à `* = $C000`.                                                                                                                                                                                                                                                                                    |
-| `Exporter les blocs + mini-joueur`        | Ajoute le lecteur complet (sid_init / sid_irq / sid_play_row / sid_set_voice) ainsi que les tables de fréquences PAL. Après l'exportation, insérez un `JSR sid_init` dans votre code principal, à l'endroit où la musique doit démarrer.                                                                                                                           |
-| `Exporter asm (presse-papiers)`           | Copie l'intégralité du code source de l'assembly dans le presse-papiers.                                                                                                                                                                                                                                                                                           |
-| `Exporter vers UltimateBasic`             | Écrit un bloc `tune ... end` (instruments, liste d'ordre, lignes de motifs sous forme de texte) plus `music play` et l'insère au niveau du curseur de l'éditeur Ultimate Basic ; hors du mode UB, il copie le texte dans le presse-papiers. Le compilateur UltimateBasic génère le lecteur ; les commandes `music play` / `music stop` permettent de le contrôler. |
+| Exporter                                  | Ce que cela fait                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Enregistrer .bin…`                       | Enregistre les données au format sérialisé natif de l'éditeur (instruments avec tous leurs réglages et noms de modulation, vitesse, motifs, morceau). Les anciennes sauvegardes restent compatibles.                                                                                                                                                                                                                                                                                             |
+| `Exporter les blocs (données uniquement)` | Ajoute la table d'instruments + les blocs de motifs au programme à `* = $C000`.                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| `Exporter les blocs + mini-joueur`        | Ajoute le lecteur complet (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) ainsi que les tables de fréquences PAL. Après l'exportation, insérez une instruction `JSR sid_init` dans votre code principal, à l'endroit où la musique doit démarrer, en remplaçant l'appel d'interruption `JSR sid_frame` par votre propre appel d'interruption `JSR sid_frame`.                                                                                                                    |
+| `Exporter asm (presse-papiers)`           | Copie l'intégralité du code source de l'assembly dans le presse-papiers.                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `Exporter vers UltimateBasic`             | Écrit un bloc `tune ... end` (instruments, liste d'ordre, lignes de motif sous forme de texte) plus `music play` et l'insère au niveau du curseur de l'éditeur Ultimate Basic ; hors du mode UB, il copie le texte dans le presse-papiers. Le compilateur Ultimate Basic génère le lecteur, que les commandes `music play` / `music stop` contrôlent. La modulation des instruments est gérée par les lignes `imod` / `ifilt` / `igate` / `itab` (Ultimate Basic 1.6.2 et versions ultérieures). |
 
-Utilisation du lecteur ZP : **`$02`–`$2F` (tables de pointeurs, décalage de motif et état des effets par voix), plus `$FB`–`$FE` (compteur de ticks, index de ligne, position dans la liste d'ordre, temp. set_voice). Ces éléments peuvent entrer en conflit s'ils sont utilisés par votre code principal ; déplacez-les via le mode Expert si nécessaire.
+Utilisation du ZP du lecteur : ** `$02`–`$1C` (pointeurs de motif, décalage de motif, temp) et `$2F` (vitesse actuelle), plus `$FB`–`$FD` (compteur de ticks, index de ligne, position dans la liste de commandes). L’état de la voix, de la modulation et du filtre se trouve dans `sid_state` après les données. Les octets ZP peuvent entrer en conflit si votre code principal les utilise ; déplacez-les via le mode Expert si nécessaire.
 
 **Limites connues :**
 - Le compteur de lignes 8 bits limite chaque motif à 7 motifs × 32 lignes dans la banque brute (la liste des chansons/ordres peut toujours être arbitrairement longue en répétant les motifs).
 - Le volume global C64 `$D418` est partagé entre les voix — le curseur de volume par instrument est informatif ; le niveau de sustain (`S` d'ADSR) est le volume effectif par voix.
-- L'aperçu audio Web est approximatif : la mise à jour du vibrato/glissement se fait une fois par ligne (correspondant au lecteur exporté), mais la modulation PWM, la synchronisation en anneau et le caractère du filtre SID diffèrent toujours de la puce réelle.
+- L'aperçu Web Audio modélise exactement le lecteur, mais son synthétiseur n'approxime que la puce SID (courbe de filtre, formes d'onde combinées, timing d'enveloppe) ; **Play: All** via WebSid est la référence exacte.
 
 ---
 

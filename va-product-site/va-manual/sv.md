@@ -1,6 +1,6 @@
 # C64 Visuell Assembler — Användarmanual
 
-**Version 2.5.0**
+**Version 2.5.1**
 
 En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom att dra och släppa instruktionsblock och se den genererade assemblern och maskinkoden i realtid.
 
@@ -9,6 +9,7 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
 ## Innehållsförteckning
 
 - [C64 Visual Assembler — Användarmanual](#c64-visual-assembler--user-manual)
+    - [Höjdpunkter i version 2.5.1](#version-251-highlights)
     - [Höjdpunkter i version 2.5.0](#version-250-highlights)
     - [Höjdpunkter i version 2.4.9](#version-249-highlights)
     - [Höjdpunkter i version 2.4.8](#version-248-highlights)
@@ -170,6 +171,18 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
     - [SID-redigerare (3-röstsspårare)](#sid-editor-3-voice-tracker)
     - [Kurvredigerare](#curve-editor)
     - [Nummeromvandlare](#number-converter)
+
+---
+
+## Höjdpunkter i version 2.5.1
+
+- **SID Editor-instrument** — filterrouting per röst, **3 OFF** och en resonant cutoff **sweep** (start, slut, hastighet, ping-pong); instrument **vibrato** (delay, hastighet, djup); **pulsbreddsmodulering**; **gatetimer**, **hård omstart** och första bildrutans vågform; en **våg-/arpeggiotabell** med förinställningar; **RING** och **SYNC**. Se [SID Editor](#sid-editor-3-voice-tracker).
+- **Ny SID-spelare** — den exporterade spelaren kör instrumentmoduleringen varje bildruta (`JSR sid_frame` för din egen IRQ); förhandsgranskningen renderar samma spelare genom en liten SID-synthesizer. `.bin` sparar instrumentnamn och hastighet.
+- ** Virtuellt tangentbord ** — 2, 3 eller 4 oktaver i ett Commodore 64-syntutseende.
+- **Ultimate Basic 1.6.2 medföljer** — `tune` får `imod`, `ifilt`, `igate` och `itab`; **Export till UltimateBasic** skriver dem.
+- **Bokmärken och Gå till rad** i Expert- och Ultimate Basic-redigerarna — Ctrl+F2 / F2 / Shift+F2, Ctrl+G.
+- **Åtgärdat: ** etikettuttryck (`.assert`, `LEVEL_MULTICOLOR*16`, `*`) fungerar igen i den installerade appen (ingen `eval` under den utgivna CSP:n).
+- Dialogrutorna **D64 Editor** öppnas i den aktiva arbetsmappen; rapporten **Bygg projekt** namnger utdatamappen.
 
 ---
 
@@ -3857,13 +3870,17 @@ Ordnar **Kartredigerarens skärmar** i en nivå — ett vertikalt skjutspel, ett
 
 ### SID-redigerare (3-röstsspårare)
 
-Tracker för flera instrument, 3 röster och en förhandsgranskningsmotor för webbljud. Öppna via Toolkit → SID Editor.
+Tracker för flera instrument med 3 röster. Öppna via Toolkit → SID Editor. **Spela: All** kör den exporterade 6502-spelaren i WebSid-emulatorn; förhandsvisningar av noter, rader och mönster renderas av en JS-modell av samma spelare (bildruta för bildruta) genom en liten SID-synthesizer.
 
 **Kontroller per instrument:**
-- Kryssrutor för vågformer (TRI / SAW / PUL / NOI) — flera vågformer kan OR:as tillsammans.
+- Kryssrutor för vågformer (TRI / SAW / PUL / NOI) — flera vågformer AND-behandlas som på SID — plus **RING** (ringmodulering av triangeln av föregående röst: 1 ← 3, 2 ← 1, 3 ← 2) och **SYNC** (hård synkronisering till föregående röst).
 - ADSR (attack / decay / sustain / release) visas som en draggraf ovanför de fyra reglagen.
-- Pulsbreddsreglage (0-4095) med valfria ring-/synkroniseringsflaggor.
-- Kryssruta för filterrouting per röst; global filteravstängning / resonans / volym / läge (LP/BP/HP).
+- Pulsbreddsreglage (0-4095).
+- **Filter:** *Routera den här rösten genom filtret*, LP / BP / HP och **3 OFF** (dämpa röst 3 när den inte är routad), cutoff, resonans, volym. **End** + **Sweep** flyttar cutoff från Cut mot End per Sweep per bildruta; **Ping-pong** studsar mellan de två — det är detta som skapar resonanta filtersvep. Rösten som startar ett filterroutat instrument äger filtret (cutoff, resonans, läge); varje röst vars instrument är routad går igenom det.
+- **Vibrato:** efter **Delay** ramar in en triangel-LFO som vrider varje **Speed** ram, **Depth** 0-15 skalad till notens halvton (oberoende av `V`-effekten).
+- **Pulsbreddsmodulering: ** **Hastighet** läggs till pulsbredden varje bildruta, och studsar mellan **Min** och **Max**.
+- **Gate:** **Gate-timern** släpper gaten så många bildrutor före nästa ton på rösten (håll den under Speed); **Hård omstart** nollställer även ADSR då, för en ren attack; **Första bildrutan** skriver en vågform på tonens första bildruta (t.ex. `$09` test + gate).
+- **Våg-/arpeggiotabell:** upp till 32 steg av vågform (— = behåll) och ton (offset i halvtoner, eller **abs** = absolut ton), ett steg varje **Hastighet** bildruta, **Loop** tillbaka till ett steg eller stopp på det sista. Förinställningar: dur/moll/oktav arpeggio, bastrumma, virveltrumma, hi-hat.
 
 **Spårningsrutnät:**
 - 3 röster × upp till 7 mönster × 32 rader = 7 × 32 = max 224 rader (8-bitars radräknare begränsar det).
@@ -3895,25 +3912,25 @@ Effekter uppdateras en gång per rad (matchar den exporterade spelarens timing),
 
 **Uppspelning och virtuellt tangentbord:**
 - Knappen Spela upp i verktygsfältet ändras till Paus under uppspelning och till Återuppta under paus; Stopp avslutar uppspelningen och återställer läget.
-- Knappen på tangentbordsverktygsfältet öppnar ett icke-modalt piano som fortfarande kan användas medan SID-redigeraren är aktiv. Dra dess rubrik för att placera det var som helst över huvudprogrammet.
+- Knappen i verktygsfältet för tangentbordet öppnar ett icke-modalt piano (2, 3 eller 4 oktaver, ihågkomna) som fortfarande kan användas medan SID-redigeraren är aktiv. Dra dess rubrik för att placera den var som helst över huvudprogrammet.
 - Aktivera **Insert into tracker** för att skriva varje spelad not vid den aktuella tracker-markören och gå vidare till nästa rad. Inaktivera den för att lyssna på noter utan att redigera.
 - Förhandsvisningar av ackord och arpeggio lyser upp motsvarande pianotangenter när klaviaturen är öppet.
 
 **Export av filer-menyn:**
-| Exportera                       | Vad den gör                                                                                                                                                                                                                                                                                                   |
-| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Spara .bin…`                   | Skriver redigerarens ursprungliga serialiserade format (instrument + mönster + sekvens).                                                                                                                                                                                                                      |
-| `Exportera block (endast data)` | Lägger till instrumenttabell + mönsterblock till programmet vid `* = $C000`.                                                                                                                                                                                                                                  |
-| `Exportera block + minispelare` | Lägger till hela spelaren (sid_init / sid_irq / sid_play_row / sid_set_voice) plus PAL-frekvenstabeller. Efter exporten, placera en `JSR sid_init` i din huvudkod där musiken ska börja.                                                                                                                      |
-| `Exportera asm (urklipp)`       | Kopierar hela assembly-källkoden till urklipp.                                                                                                                                                                                                                                                                |
-| `Exportera till UltimateBasic`  | Skriver ett `melodi ... slut`-block (instrument, ordningslista, mönsterrader som text) plus `musikuppspelning` och infogar det vid markören i Ultimate Basic-editorn; utanför UB-läge kopieras texten till urklipp. UltimateBasic-kompilatorn bygger spelaren, så `musikuppspelning` / `musikstopp` styr den. |
+| Exportera                       | Vad den gör                                                                                                                                                                                                                                                                                                                                                                                                    |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Spara .bin…`                   | Skriver editorns ursprungliga serialiserade format (instrument med alla moduleringsinställningar och namn, hastighet, mönster, låt). Äldre sparade filer laddas fortfarande.                                                                                                                                                                                                                                   |
+| `Exportera block (endast data)` | Lägger till instrumenttabell + mönsterblock till programmet vid `* = $C000`.                                                                                                                                                                                                                                                                                                                                   |
+| `Exportera block + minispelare` | Lägger till hela spelaren (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) plus PAL-frekvenstabeller. Efter export, placera en `JSR sid_init` i din huvudkod där musiken ska börja; med ditt eget IRQ-anrop `JSR sid_frame` en gång per bildruta istället.                                                                                                                                      |
+| `Exportera asm (urklipp)`       | Kopierar hela assembly-källkoden till urklipp.                                                                                                                                                                                                                                                                                                                                                                 |
+| `Exportera till UltimateBasic`  | Skriver ett `melodi ... slut`-block (instrument, ordningslista, mönsterrader som text) plus `musikuppspelning` och infogar det vid markören i Ultimate Basic-editorn; utanför UB-läge kopieras texten till urklipp. UltimateBasic-kompilatorn bygger spelaren, så `musikuppspelning` / `musikstopp` styr den. Instrumentmodulering går in i `imod` / `ifilt` / `igate` / `itab`-rader (Ultimate Basic 1.6.2+). |
 
-**Användning av spelarens ZP:** `$02`–`$2F` (pektabeller, mönsterförskjutning och effektstatus per röst), plus `$FB`–`$FE` (tickräknare, radindex, ordningslistaposition, set_voice-temp). Dessa står i konflikt om din huvudkod använder dem — flytta via expertläge om det behövs.
+**Användning av spelarens ZP:** `$02`–`$1C` (mönsterpekare, mönsterförskjutning, temp) och `$2F` (nuvarande hastighet), plus `$FB`–`$FD` (tickräknare, radindex, position i orderlistan). Röst, modulering och filtertillstånd finns i `sid_state` efter data. ZP-bytena kolliderar om din huvudkod använder dem — flytta via expertläge om det behövs.
 
 **Kända gränser:**
 - 8-bitars radräknare begränsar varje mönster till 7 mönster × 32 rader i råbanken (låt-/ordningslistan kan fortfarande bli godtyckligt lång genom att mönstren upprepas).
 - C64 `$D418` global volym delas mellan röster — volymreglaget per instrument är informativt; sustainnivån (`S` för ADSR) är den effektiva volymen per röst.
-- Förhandsvisningen av webbljudet är ungefärlig: vibrato/slide-uppdatering en gång per rad (matchar den exporterade spelaren), men PWM-modulering, ring/synkronisering och SID-filterkaraktären skiljer sig fortfarande från det verkliga chipet.
+- Förhandsvisningen av Web Audio modellerar spelaren exakt, men dess synthesizer approximerar bara SID-chippet (filterkurva, kombinerade vågformer, envelopptiming); **Play: All** till WebSid är den exakta referensen.
 
 ---
 

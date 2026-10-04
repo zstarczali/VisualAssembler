@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Podręcznik użytkownika
 
-**Wersja 2.5.0**
+**Wersja 2.5.1**
 
 Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągając i upuszczając bloki instrukcji, i oglądaj generowany kod assemblera i maszynowy w czasie rzeczywistym.
 
@@ -9,6 +9,7 @@ Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągaj�
 ## Spis treści
 
 - [C64 Visual Assembler — Podręcznik użytkownika](#c64-visual-assembler--user-manual)
+    - [Najważniejsze cechy wersji 2.5.1](#version-251-highlights)
     - [Najważniejsze cechy wersji 2.5.0](#version-250-highlights)
     - [Najważniejsze cechy wersji 2.4.9](#version-249-highlights)
     - [Najważniejsze cechy wersji 2.4.8](#version-248-highlights)
@@ -170,6 +171,18 @@ Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągaj�
     - [Edytor SID (śledzenie 3-głosowe)](#sid-editor-3-voice-tracker)
     - [Edytor krzywych](#curve-editor)
     - [Konwerter liczb](#number-converter)
+
+---
+
+## Najważniejsze cechy wersji 2.5.1
+
+- **Instrumenty edytora SID** — routing filtrów na głos, **3 WYŁ.** i rezonansowy **przemiatanie** (start, koniec, prędkość, ping-pong); instrument **wibrato** (opóźnienie, prędkość, głębokość); **modulacja szerokości impulsu**; **timer bramki**, **twardy restart** i przebieg pierwszej klatki; **tabela fal/arpeggio** z presetami; **PIERŚCIEŃ** i **SYNC**. Zobacz [Edytor SID](#sid-editor-3-voice-tracker).
+- **Nowy odtwarzacz SID** — wyeksportowany odtwarzacz uruchamia modulację instrumentu co klatkę (`JSR sid_frame` dla własnego IRQ); podgląd renderuje tego samego odtwarzacza przez mały syntezator SID. `.bin` zapisuje, zachowując nazwy instrumentów i szybkość.
+- **Klawiatura wirtualna** — 2, 3 lub 4 oktawy o wyglądzie syntezatora Commodore 64.
+- **Ultimate Basic 1.6.2 w pakiecie** — `tune` zyskuje `imod`, `ifilt`, `igate` i `itab`; **Eksport do UltimateBasic** je zapisuje.
+- **Zakładki i Przejdź do wiersza** w edytorach Expert i Ultimate Basic — Ctrl+F2 / F2 / Shift+F2, Ctrl+G.
+- **Naprawiono: wyrażenia etykiet ** (`.assert`, `LEVEL_MULTICOLOR*16`, `*`) działają ponownie w zainstalowanej aplikacji (brak `eval` w ramach wersji CSP).
+- Okna dialogowe **Edytora D64** otwierają się w aktywnym folderze roboczym; raport **Projektu kompilacji** podaje nazwę folderu wyjściowego.
 
 ---
 
@@ -3857,13 +3870,17 @@ Warstwowy edytor map kafelkowych do statycznych scenerii, map pojawiania się sp
 
 ### Edytor SID (śledzenie 3-głosowe)
 
-Wieloinstrumentalny, 3-głosowy tracker z silnikiem podglądu Web Audio. Otwórz przez Toolkit → Edytor SID.
+Wieloinstrumentalny, 3-głosowy tracker. Otwórz przez Toolkit → Edytor SID. **Odtwórz: Wszystko** uruchamia wyeksportowany odtwarzacz 6502 w emulatorze WebSid; podglądy nut, wierszy i wzorów są renderowane przez model JS tego samego odtwarzacza (klatka po klatce) za pomocą małego syntezatora SID.
 
 **Sterowanie na instrument:**
-- Pola wyboru przebiegów (TRI / SAW / PUL / NOI) — można połączyć ze sobą wiele przebiegów za pomocą operacji OR.
+- Pola wyboru przebiegów (TRI / SAW / PUL / NOI) — wiele przebiegów jest łączonych logicznie jak w SID — plus **RING** (modulacja pierścieniowa trójkąta przez poprzedni głos: 1 ← 3, 2 ← 1, 3 ← 2) i **SYNC** (twarda synchronizacja z poprzednim głosem).
 - ADSR (atak / zanik / podtrzymanie / uwolnienie) wyświetlane w formie wykresu przeciąganego nad czterema suwakami.
-- Suwak szerokości impulsu (0-4095) z opcjonalnymi flagami dzwonienia/synchronizacji.
-- Pole wyboru routingu filtrów dla każdego głosu; globalne odcięcie filtra / rezonans / głośność / tryb (LP/BP/HP).
+- Suwak szerokości impulsu (0-4095).
+- **Filtr: ** *Przeprowadź ten głos przez filtr *, LP / BP / HP i **3 WYŁ. ** (wycisz głos 3, gdy nie jest przekierowywany), odcięcie, rezonans, głośność. **Koniec ** + **Przemiatanie ** Przesuń odcięcie z cięcia do końca o przemiatanie na klatkę; **Ping-pong ** odbija się między nimi — to właśnie powoduje rezonansowe przemiatanie filtra. Głos, który uruchamia instrument przekierowywany przez filtr, posiada filtr (odcięcie, rezonans, mod); każdy głos, którego instrument jest przekierowywany, przechodzi przez niego.
+- **Vibrato:** po ramkach **Delay** trójkątny LFO obraca się co **Speed** ramek, **Depth** 0-15 skalowane do półtonu nuty (niezależnie od efektu `V`).
+- **Modulacja szerokości impulsu: ** **Prędkość ** dodawana do szerokości impulsu w każdej klatce, zmieniająca się między **Min** a **Maks.**.
+- **Bramka:** **Czasomierz bramki** zwalnia bramkę o tyle klatek przed następną nutą w głosie (utrzymuje ją poniżej prędkości); **Twardy restart** zeruje wtedy ADSR, zapewniając czysty atak; **Pierwsza klatka** zapisuje przebieg na pierwszej klatce nuty (np. `$09` test + bramka).
+- **Tabela fal/arpeggio:** do 32 kroków przebiegu (— = zachowaj) i nuty (przesunięcie w półtonach lub **abs** = nuta absolutna), jeden krok co **Prędkość** klatek, **Pętla** powrót do kroku lub zatrzymanie na ostatnim kroku. Ustawienia wstępne: arpeggio durowe / molowe / oktawowe, kopnięcie, werbel, hi-hat.
 
 **Siatka śledzenia:**
 - 3 głosy × do 7 wzorów × 32 wiersze = 7 × 32 = maksymalnie 224 wiersze (ograniczenie stanowi 8-bitowy licznik wierszy).
@@ -3895,25 +3912,25 @@ Efekty aktualizują się raz na wiersz (zgodnie z synchronizacją eksportowanego
 
 **Odtwarzanie i klawiatura wirtualna:**
 - Przycisk Odtwórz na pasku narzędzi zmienia się na Wstrzymaj podczas odtwarzania i na Wznów po wstrzymaniu. Przycisk Zatrzymaj kończy odtwarzanie i resetuje stan.
-- Przycisk na pasku narzędzi klawiatury otwiera niemodalny fortepian, z którego można korzystać, gdy edytor SID jest aktywny. Przeciągnij jego nagłówek, aby umieścić go w dowolnym miejscu nad główną aplikacją.
+- Przycisk na pasku narzędzi klawiatury otwiera niemodalny fortepian (zapamiętywany w 2, 3 lub 4 oktawach), który pozostaje dostępny, gdy edytor SID jest aktywny. Przeciągnij jego nagłówek, aby umieścić go w dowolnym miejscu nad główną aplikacją.
 - Włącz opcję **Wstaw do trackera**, aby zapisać każdą zagraną nutę przy aktualnym kursorze trackera i przejść do następnego wiersza. Wyłącz tę opcję, aby odsłuchiwać nuty bez edycji.
 - Podgląd akordów i arpeggio podświetla odpowiadające im klawisze fortepianu, gdy klawiatura jest otwarta.
 
 **Eksportowanie menu Pliki:**
-| Eksport                           | Co to robi                                                                                                                                                                                                                                                                                                                         |
-| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Zapisz .bin…`                    | Zapisuje natywny format serializowany edytora (instrumenty + wzorce + sekwencja).                                                                                                                                                                                                                                                  |
-| `Eksportuj bloki (tylko dane)`    | Dodaje do programu tabelę instrumentów + bloki wzorców w punkcie `* = $C000`.                                                                                                                                                                                                                                                      |
-| `Eksport bloków + miniodtwarzacz` | Dodaje pełny odtwarzacz (sid_init / sid_irq / sid_play_row / sid_set_voice) oraz tabele częstotliwości PAL. Po wyeksportowaniu umieść `JSR sid_init` w kodzie głównym w miejscu, w którym ma się zaczynać muzyka.                                                                                                                  |
-| `Eksportuj asm (schowek)`         | Kopiuje cały kod źródłowy zestawu do schowka.                                                                                                                                                                                                                                                                                      |
-| `Eksportuj do UltimateBasic`      | Zapisuje blok `muzyka... koniec` (instrumenty, lista kolejności, wiersze wzorców jako tekst) oraz `odtwarzanie muzyki` i wstawia go w miejscu kursora edytora Ultimate Basic; poza trybem UB kopiuje tekst do schowka. Kompilator UltimateBasic buduje odtwarzacz, więc steruje nim `odtwarzanie muzyki` / `zatrzymywanie muzyki`. |
+| Eksport                           | Co to robi                                                                                                                                                                                                                                                                                                                                                                                                        |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Zapisz .bin…`                    | Zapisuje natywny format serializowany edytora (instrumenty ze wszystkimi ustawieniami modulacji i nazwami, prędkością, wzorcami i melodią). Starsze zapisy nadal się ładują.                                                                                                                                                                                                                                      |
+| `Eksportuj bloki (tylko dane)`    | Dodaje do programu tabelę instrumentów + bloki wzorców w punkcie `* = $C000`.                                                                                                                                                                                                                                                                                                                                     |
+| `Eksport bloków + miniodtwarzacz` | Dodaje pełny odtwarzacz (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) oraz tabele częstotliwości PAL. Po wyeksportowaniu umieść `JSR sid_init` w kodzie głównym w miejscu, w którym ma się zaczynać muzyka; zamiast tego użyj własnego wywołania IRQ `JSR sid_frame` raz na klatkę.                                                                                                             |
+| `Eksportuj asm (schowek)`         | Kopiuje cały kod źródłowy zestawu do schowka.                                                                                                                                                                                                                                                                                                                                                                     |
+| `Eksportuj do UltimateBasic`      | Zapisuje blok `tune ... end` (instrumenty, lista zamówień, wiersze wzorców jako tekst) oraz `music play` i wstawia go w miejscu kursora edytora Ultimate Basic; poza trybem UB kopiuje tekst do schowka. Kompilator UltimateBasic buduje odtwarzacz, więc steruje nim za pomocą `music play` / `music stop`. Modulacja instrumentu trafia do wierszy `imod` / `ifilt` / `igate` / `itab` (Ultimate Basic 1.6.2+). |
 
-**Użycie ZP gracza:** `$02`–`$2F` (tabele wskaźników, przesunięcie wzorca i stan efektu na głos), plus `$FB`–`$FE` (licznik taktów, indeks wiersza, pozycja na liście zamówień, temp. set_voice). Wywołują one konflikt, jeśli korzysta z nich kod główny — w razie potrzeby przenieś je w trybie eksperckim.
+**Użycie ZP gracza: ** `$02`–`$1C` (wskaźniki wzorców, przesunięcie wzorca, temperatura) i `$2F` (bieżąca prędkość), plus `$FB`–`$FD` (licznik taktów, indeks wiersza, pozycja na liście zleceń). Stan głosu, modulacji i filtra znajduje się w `sid_state` po danych. Bajty ZP powodują konflikt, jeśli korzysta z nich kod główny — w razie potrzeby przenieś je w trybie eksperckim.
 
 **Znane limity:**
 - 8-bitowy licznik wierszy ogranicza każdy wzór do 7 wzorów × 32 wierszy w banku danych (lista utworów/kolejności może być nadal dowolnie długa poprzez powtarzanie wzorów).
 - Globalna głośność C64 `$D418` jest współdzielona przez wszystkie głosy — suwak głośności dla każdego instrumentu ma charakter informacyjny; poziom podtrzymania (`S` ADSR) to efektywna głośność dla każdego głosu.
-- Podgląd Web Audio jest przybliżony: wibrato/slajd aktualizowany raz na wiersz (zgodnie z eksportowanym odtwarzaczem), ale modulacja PWM, dzwonek/synchronizacja i charakter filtru SID nadal różnią się od rzeczywistego układu.
+- Podgląd Web Audio dokładnie modeluje odtwarzacz, ale jego syntezator tylko przybliża układ SID (krzywa filtra, połączone przebiegi, synchronizacja obwiedni); **Odtwarzanie: Wszystko** przez WebSid stanowi dokładne odniesienie.
 
 ---
 

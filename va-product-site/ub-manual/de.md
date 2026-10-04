@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.1 — Sprachhandbuch
+# Ultimate Basic v1.6.2 — Sprachhandbuch
 
 Vollständige Sprach- und CLI-Referenz für Ultimate Basic, eine BASIC-ähnliche
 Sprache, die direkt in 6502-Maschinencode für den Commodore 64 kompiliert wird.
@@ -942,9 +942,14 @@ tune                       # optional: tune at $C800  (default $8000)
   speed 6                  # frames per row (50 Hz PAL)
   inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
   inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
+  imod 0, 6, 3, 9, 40, $0200, $0E00   # vibrato + pulse width modulation (1.6.2)
+  ifilt 0, $0500, 20, 1               # cutoff sweep up to $500, back and forth (1.6.2)
+  igate 1, 2, 1, $09                  # gate timer, hard restart, first frame $09 (1.6.2)
+  itab 1, 2, 0, ".. +0", ".. +4", ".. +7"   # arpeggio table (1.6.2)
   order 0, 1, 0            # pattern order (patterns may repeat)
   pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
   pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
+  pat 1, 0, "G-4 00", "...", "E-4 00", "...", "C-4 00"
 end
 music play                 # or: sys sid_init / irq handler calling sys sid_play
 ```
@@ -956,12 +961,16 @@ genau wie `load sid`, sodass `music play`, `music stop`, `music pause` und
 `music resume` (und ein manueller `irq`-Handler, der `sys sid_play` aufruft)
 unverändert funktionieren.
 
-| Linie                                                 | Bedeutung                                                                                                                                                                                                                                         |
-| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `speed N`                                             | Frames pro Tracker-Zeile (1-255).                                                                                                                                                                                                                 |
-| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol` | Ein Instrument: Steuerregister (Wellenformbits; das Gate-Bit wird vom Spieler hinzugefügt), Attack/Decay, Sustain/Release, 12-Bit-Pulsbreite, 11-Bit-Filter-Cutoff, Resonanz-/Filter-Routing-Byte (`$D417`) und Modus-/Lautstärke-Byte (`$D418`). |
-| `order p, p, ...`                                     | Musterreihenfolge. Die Linien akkumulieren sich, bis zu 255 Schritte.                                                                                                                                                                             |
-| `pat p, v, "cell", ...`                               | Bis zu 32 Zeilen für Stimme `v` (0-2) des Musters `p` (0-7). Fehlende Zeilen sind leer.                                                                                                                                                           |
+| Linie                                                              | Bedeutung                                                                                                                                                                                                                                                                                                                                                                                        |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `speed N`                                                          | Frames pro Tracker-Zeile (1-255).                                                                                                                                                                                                                                                                                                                                                                |
+| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol`              | Ein Instrument: Steuerregister (Wellenformbits plus Ringmodulator `$04` / Synchronisation `$02`; das Gate-Bit wird vom Spieler hinzugefügt), Attack/Decay, Sustain/Release, 12-Bit-Pulsbreite, 11-Bit-Filter-Cutoff, Resonanz-/Filter-Routing-Byte (`$D417`-Stil: jedes Routing-Bit = routet die Stimme, die dieses Instrument spielt) und Modus-/Lautstärke-Byte (`$D418`-Stil, Bit 7 = 3 AUS). |
+| `imod id, vibdelay, vibspeed, vib Depth, pwmspeed, pwmmin, pwmmax` | (1.6.2) Instrumenten-Vibrato: Nach `vibdelay` Frames wird ein Dreieck-LFO aktiviert, der alle `vibspeed` Frames (1–15, 0 = aus) aktiv ist. Die Tiefe beträgt 0–15 (skaliert auf den Halbton der Note). Pulsweitenmodulation: `pwmspeed` wird pro Frame addiert (0 = aus) und wechselt zwischen `pwmmin` und `pwmmax`.                                                                            |
+| `ifilt id, cutend, sweep, pingpong`                                | (1.6.2) Filter-Cutoff-Sweep: vom `inst`-Cutoff in Richtung `cutend` durch `sweep` (0-127) pro Frame; `pingpong` 1 = hin und her.                                                                                                                                                                                                                                                                 |
+| `igate id, gatetimer, hardrestart, firstwave`                      | (1.6.2) Das Gate wird `gatetimer` Frames vor der nächsten Note der Stimme freigegeben (unterhalb von `speed` halten); `hardrestart` 1 setzt ADSR dann auf 0. `firstwave` (z. B. `$09` = test + gate) wird im ersten Frame der Note geschrieben.                                                                                                                                                  |
+| `itab id, speed, loop, "step", ...`                                | (1.6.2) Wellenform-/Arpeggio-Tabelle, bis zu 32 Schritte: `"WW +n"`, `".. -n"` oder `"WW =n"` - Wellenform in Hexadezimaldarstellung (`..` behält sie bei) und ein Notenversatz in Halbtonschritten oder eine absolute Note (`=60`). Ein Schritt alle `speed` Frames, dann zurück zu Schritt `loop` (255 = auf dem letzten Schritt bleiben).                                                     |
+| `order p, p, ...`                                                  | Musterreihenfolge. Die Linien akkumulieren sich, bis zu 255 Schritte.                                                                                                                                                                                                                                                                                                                            |
+| `pat p, v, "cell", ...`                                            | Bis zu 32 Zeilen für Stimme `v` (0-2) des Musters `p` (0-7). Fehlende Zeilen sind leer.                                                                                                                                                                                                                                                                                                          |
 
 Eine **Zelle** ist `NOTE INST FX`: `C-4`, `D#3`, `Eb2` oder `...` für keine
 Note, ein zweistelliges Hex-Instrument (`..`, um es beizubehalten) und ein
@@ -976,10 +985,17 @@ Hinweise zum Player:
   Adressierung) - er verwendet keine Nullseite, sodass er nicht mit
   UltimateBasic-Variablen oder temporären Objekten kollidieren kann und auch
   dann noch funktioniert, wenn das Programm zu BASIC zurückkehrt.
+- In jedem Frame (1.6.2) führt der Player die Wellenform-/Arpeggio-Tabelle, das
+  Vibrato, die Pulsweitenmodulation und den Gate-Timer/Hard-Restart jeder Stimme
+  sowie den Cutoff-Sweep der Stimme aus, die zuletzt ein filtergeroutetes
+  Instrument gestartet hat (sie besitzt Cutoff, Resonanz und Modus des Filters;
+  `$D417` routet jede Stimme, deren aktuelles Instrument filtergeroutet ist). Es
+  handelt sich um denselben Algorithmus wie im exportierten Player und der
+  Vorschau des Visual Assembler SID-Editors, Frame für Frame.
 - Der Blob wird an einer festen Adresse abgelegt (standardmäßig `$8000` oder
   `tune at $addr`), und `.prg` wird entsprechend aufgefüllt, z. B. `load sid`.
   Halten Sie ihn von Ihrem Code, Arrays (`$C000+`) und jeglichem
-  Bitmap-/Zeichensatzspeicher fern. Ein Tune benötigt etwa 1,3 KB plus 12 Byte
+  Bitmap-/Zeichensatzspeicher fern. Ein Tune benötigt etwa 2,5 KB plus 12 Byte
   pro Datenzeile und -spalte.
 - Höchstens 8 Muster (jeweils 32 Zeilen); die Reihenfolgeliste kann diese
   beliebig wiederholen.

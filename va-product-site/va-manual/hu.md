@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**2.5.0 verzió**
+**2.5.1-es verzió**
 
 Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat létre húzással és elengedéssel (fogd és vidd) utasításblokkokkal, és valós időben tekintheti meg a létrehozott assembly és gépi kódot.
 
@@ -9,6 +9,7 @@ Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat l�
 ## Tartalomjegyzék
 
 - [C64 Visual Assembler — Felhasználói kézikönyv](#c64-visual-assembler--user-manual)
+    - [2.5.1-es verzió – kiemelt funkciók](#version-251-highlights)
     - [2.5.0 verzió – kiemelt funkciók](#version-250-highlights)
     - [2.4.9-es verzió – kiemelt funkciók](#version-249-highlights)
     - [2.4.8-as verzió kiemelt funkciói](#version-248-highlights)
@@ -170,6 +171,18 @@ Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat l�
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Görbeszerkesztő](#curve-editor)
     - [Számátváltó](#number-converter)
+
+---
+
+## A 2.5.1-es verzió legfontosabb elemei
+
+- **SID Editor hangszerek** — szűrőválasztás hangonként, **3 OFF** és rezonáns vágási ** sweep** (start, end, speed, ping-pong); hangszer **vibrato** (delay, speed, depth); **impulzusszélesség-moduláció**; **kapu időzítő**, **hard restart** és első képkocka hullámforma; **hullám/arpeggio táblázat** előre beállított értékekkel; **RING** és **SYNC**. Lásd: [SID Editor](#sid-editor-3-voice-tracker).
+- **Új SID lejátszó** — az exportált lejátszó minden képkockán lefuttatja a hangszer modulációját (`JSR sid_frame` a saját IRQ-dhoz); az előnézet ugyanazt a lejátszót rendereli egy kis SID szintetizátoron keresztül. Az `.bin` mentései megőrzik a hangszerek nevét és sebességét.
+- **Virtuális billentyűzet** — 2, 3 vagy 4 oktáv Commodore 64 szintetizátor kinézetben.
+- **Az Ultimate Basic 1.6.2 csomagban** — A `tune` tartalmazza a következő funkciókat: `imod`, `ifilt`, `igate` és `itab`; az **Exportálás az UltimateBasic-be** kiírja ezeket.
+- **Könyvjelzők és Ugrás a sorra** az Expert és az Ultimate Basic szerkesztőkben — Ctrl+F2 / F2 / Shift+F2, Ctrl+G.
+- **Javítva:** A címkekifejezések (`.assert`, `LEVEL_MULTICOLOR*16`, `*`) ismét működnek a telepített alkalmazásban (a kiadási CSP alatt nincs `eval`).
+- Az **D64 Editor** párbeszédablakok az aktív munkamappában nyílnak meg; a **Build projekt** jelentés megnevezi a kimeneti mappát.
 
 ---
 
@@ -3857,13 +3870,17 @@ A(z) **Térképszerkesztő képernyőit** egy szintbe rendezi – függőleges l
 
 ### SID-szerkesztő (3 hangos követő)
 
-Többhangú, 3 hangú követő Web Audio előnézeti motorral. Megnyitás a Toolkit → SID Editor menüpontban.
+Többhangú, 3 hangú követő. Megnyitás a Toolkit → SID Editor menüpontban. Az **Lejátszás: Az Összes** a WebSid emulátorban futtatja az exportált 6502-es lejátszót; a hangjegy-, sor- és minta-előnézeteket ugyanazon lejátszó JS-modellje rendereli (képkockánként) egy kis SID szintetizátoron keresztül.
 
 **Eszközönkénti vezérlők:**
-- Hullámforma jelölőnégyzetek (TRI / SAW / PUL / NOI) – több hullámforma VAGY művelettel összekapcsolható.
+- Hullámforma jelölőnégyzetek (TRI / SAW / PUL / NOI) – több hullámforma ÉS kapcsolattal van összekapcsolva, mint a SID-en – plusz **RING** (a háromszög gyűrűmodulációja az előző hangszerhang által: 1 ← 3, 2 ← 1, 3 ← 2) és **SYNC** (hard szinkron az előző hangszerhanggal).
 - Az ADSR (támadás / lecsengés / fenntartás / felszabadulás) húzásdiagramként látható a négy csúszka felett.
-- Impulzusszélesség-csúszka (0-4095) opcionális csengetési/szinkronizációs jelzőkkel.
-- Szűrőútvonal-jelölő jelölőnégyzet hangszínenként; globális szűrő levágás / rezonancia / hangerő / mód (LP/BP/HP).
+- Impulzusszélesség csúszka (0-4095).
+- **Szűrő:** *Írja át ezt a hangot a szűrőn*, LP / BP / HP és **3 OFF** (a 3-as hang némítása, ha nincs átirányítva), vágási frekvencia, rezonancia, hangerő. **End** + **Sweep** mozgassa a vágási frekvenciát a Cut-tól az End felé képkockánként sweeppeléssel; a **Ping-pong** pattog a kettő között – ez hozza létre a rezonáns szűrő sweepeket. A szűrővel irányított hangszert elindító hang birtokolja a szűrőt (vágási frekvencia, rezonancia, módus); minden hang, amelynek a hangszere átirányítva van, áthalad rajta.
+- **Vibrato:** a **Delay** effekt után egy háromszög alakú LFO-t keretez, amely **Speed** képkockánként megfordul, **Depth** 0-15-tel skálázva a hang félhangjára (függetlenül az `V` effekttől).
+- **Impulzusszélesség-moduláció:** **Sebesség** hozzáadódik az impulzusszélességhez minden képkockán, **Min** és **Max** között ingadozva.
+- **Kapu:** **A Kapu időzítő** annyi képkockával engedi el a kaput, ahány képkockával a következő hang előtt a hangon lesz (tartsa a Sebesség alatt); A **Hard restart** szintén lenullázza az ADSR-t, hogy tiszta attackot kapjon; az **First frame** egy hullámformát ír a hang első képkockájára (pl. `$09` teszt + kapu).
+- **Hullámforma / arpeggio táblázat:** akár 32 hullámforma lépés (— = megtartva) és hangjegy (félhanggal eltolva, vagy **abs** = abszolút hangjegy), egy lépés minden **Speed** képkockán, **Loop** vissza egy lépésre vagy megállás az utolsón. Előre beállított értékek: dúr / moll / oktáv arpeggio, lábdob, pergő, hi-hat.
 
 **Követőrács:**
 - 3 hang × maximum 7 minta × 32 sor = 7 × 32 = max. 224 sor (a 8 bites sorszámláló korlátozza).
@@ -3895,25 +3912,25 @@ Az effektek soronként egyszer frissülnek (az exportált lejátszó időzítés
 
 **Lejátszás és virtuális billentyűzet:**
 - A Lejátszás eszköztár gombja lejátszás közben Szünetre, szüneteltetés közben pedig Folytatásra vált; a Leállítás gomb leállítja a lejátszást és visszaállítja az eredeti állapotot.
-- A billentyűzet eszköztár gombja egy nem modális zongorát nyit meg, amely használható marad, amíg az SID-szerkesztő aktív. Húzza a fejlécét, hogy a fő alkalmazás tetszőleges pontjára helyezze.
+- A billentyűzet eszköztár gombja egy nem modális zongorát nyit meg (2, 3 vagy 4 oktáv, memorizálva), amely használható marad, amíg az SID-szerkesztő aktív. Húzza a fejlécét, hogy a fő alkalmazás tetszőleges pontjára helyezze.
 - Engedélyezd az **Beszúrás a követőbe** funkciót, hogy minden lejátszott hangot az aktuális követőkurzornál írj, és a következő sorra lépj. Kapcsold ki, ha szerkesztés nélkül szeretnél meghallgatni hangokat.
 - Az akkord- és arpeggio-előnézetek megvilágítják a megfelelő zongorabillentyűket, amikor a billentyűzet nyitva van.
 
 **Fájlok menü exportálása:**
-| Export                               | Mit csinál                                                                                                                                                                                                                                                                                                                   |
-| ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ` .bin mentése…`                     | A szerkesztő natív szerializált formátumát írja (hangszerek + minták + szekvencia).                                                                                                                                                                                                                                          |
-| `Blokkok exportálása (csak adatok)`  | A `* = $C000` helyen hozzáfűzi a műszertáblázatot + minta blokkokat a programhoz.                                                                                                                                                                                                                                            |
-| `Blokkok exportálása + minilejátszó` | Hozzáadja a teljes lejátszót (sid_init / sid_irq / sid_play_row / sid_set_voice) plusz PAL frekvenciatáblázatokat. Exportálás után illessz be egy `JSR sid_init` fájlt a fő kódodba, ahol a zenének kezdődnie kell.                                                                                                          |
-| ` ASM exportálása (vágólap)`         | A teljes assembly forráskódot a vágólapra másolja.                                                                                                                                                                                                                                                                           |
-| `Exportálás UltimateBasic-be`        | Kiír egy `tune ... end` blokkot (hangszerek, sorrendlista, pattern sorok szövegként) plusz a `music play` szöveget, és beszúrja azt az Ultimate Basic szerkesztő kurzorához; UB módon kívül a vágólapra másolja a szöveget. Az UltimateBasic fordítója építi fel a lejátszót, így a `music play` / `music stop` vezérli azt. |
+| Export                               | Mit csinál                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| ` .bin mentése…`                     | A szerkesztő natív szerializált formátumát írja ki (hangszerek az összes modulációs beállítással és névvel, sebességgel, patternekkel, dallal). A régebbi mentések továbbra is betöltődnek.                                                                                                                                                                                                                                    |
+| `Blokkok exportálása (csak adatok)`  | A `* = $C000` helyen hozzáfűzi a műszertáblázatot + minta blokkokat a programhoz.                                                                                                                                                                                                                                                                                                                                              |
+| `Blokkok exportálása + minilejátszó` | Hozzáadja a teljes lejátszót (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) plusz PAL frekvenciatáblázatokat. Exportálás után helyezz el egy `JSR sid_init` függvényt a fő kódodban, ahol a zenének kezdődnie kell; ehelyett képkockánként egyszer használd a saját `JSR sid_frame` IRQ hívásodat.                                                                                                            |
+| ` ASM exportálása (vágólap)`         | A teljes assembly forráskódot a vágólapra másolja.                                                                                                                                                                                                                                                                                                                                                                             |
+| `Exportálás UltimateBasic-be`        | Kiír egy `tune ... end` blokkot (hangszerek, sorrendlista, pattern sorok szövegként) plusz a `music play` parancsot, és beszúrja azt az Ultimate Basic szerkesztő kurzorához; UB módon kívül a vágólapra másolja a szöveget. Az UltimateBasic fordítója építi fel a lejátszót, így a `music play` / `music stop` vezérli azt. A hangszermoduláció a `imod` / `ifilt` / `igate` / `itab` sorokba kerül (Ultimate Basic 1.6.2+). |
 
-**Player ZP használat:** `$02`–`$2F` (pointer táblázatok, minta eltolás és hangonkénti effektus állapot), valamint `$FB`–`$FE` (tick számláló, sorindex, order-list pozíció, set_voice temp). Ezek ütköznek, ha a fő kódod használja őket — szükség esetén áthelyezheted Expert módban.
+**Player ZP használat:** `$02`–`$1C` (mintamutatók, minta eltolás, hőmérséklet) és `$2F` (aktuális sebesség), plusz `$FB`–`$FD` (tick számláló, sorindex, sorrendlista pozíció). A hang, a moduláció és a szűrőállapot az adatok után, az `sid_state` részben található. A ZP bájtok ütköznek, ha a fő kódod használja őket – szükség esetén Szakértő módban helyezheted át őket.
 
 **Ismert korlátok:**
 - A 8 bites sorszámláló minden mintát 7 mintára × 32 sorra korlátoz a nyers bankban (a dal/sorrend lista továbbra is tetszőlegesen hosszú lehet a minták ismétlésével).
 - A C64 `$D418` globális hangerő több hangszerhang között megoszlik – a hangszerenkénti hangerőcsúszka tájékoztató jellegű; a kitartási szint (az ADSR `S` értéke) a hangszerhangonkénti effektív hangerő.
-- A Web Audio előzetese hozzávetőleges: a vibrato/dia soronként egyszer frissül (megfelel az exportált lejátszónak), de a PWM moduláció, a csengetés/szinkronizálás és az SID szűrő karaktere továbbra is eltér a valódi chiptől.
+- A Web Audio előnézete pontosan modellezi a lejátszót, de a szintetizátora csak közelíti a SID chipet (szűrőgörbe, kombinált hullámformák, burkológörbe időzítése); a **Lejátszás: A WebSid-en keresztüli összes** a pontos referencia.
 
 ---
 

@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Gebruikershandleiding
 
-**Versie 2.5.0**
+**Versie 2.5.1**
 
 Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma's door instructieblokken te slepen en neer te zetten, en bekijk de gegenereerde assembly- en machinecode in realtime.
 
@@ -9,6 +9,7 @@ Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma'
 ## Inhoudsopgave
 
 - [C64 Visual Assembler — Gebruikershandleiding](#c64-visual-assembler--user-manual)
+    - [Hoogtepunten van versie 2.5.1](#version-251-highlights)
     - [Hoogtepunten van versie 2.5.0](#version-250-highlights)
     - [Hoogtepunten van versie 2.4.9](#version-249-highlights)
     - [Hoogtepunten van versie 2.4.8](#version-248-highlights)
@@ -170,6 +171,18 @@ Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma'
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Curve-editor](#curve-editor)
     - [Nummeromzetter](#number-converter)
+
+---
+
+## Hoogtepunten van versie 2.5.1
+
+- **SID Editor-instrumenten** — filterroutering per stem, **3 UIT** en een resonantie-afsnijding **sweep** (start, einde, snelheid, pingpong); instrument **vibrato** (vertraging, snelheid, diepte); **pulsbreedtemodulatie**; **gatetimer**, **harde herstart** en golfvorm van het eerste frame; een **golf-/arpeggiotabel** met presets; **RING** en **SYNC**. Zie [SID Editor](#sid-editor-3-voice-tracker).
+- **Nieuwe SID-speler** — de geëxporteerde speler voert de instrumentmodulatie elke frame uit (`JSR sid_frame` voor je eigen IRQ); de preview geeft dezelfde speler weer via een kleine SID-synthesizer. `.bin` bewaart instrumentnamen en snelheid.
+- **Virtueel toetsenbord** — 2, 3 of 4 octaven in een Commodore 64 synth-look.
+- **Ultimate Basic 1.6.2 gebundeld** — `tune` krijgt `imod`, `ifilt`, `igate` en `itab`; **Exporteren naar UltimateBasic** schrijft ze weg.
+- **Bladwijzers en Ga naar regel** in de Expert- en Ultimate Basic-editors — Ctrl+F2 / F2 / Shift+F2, Ctrl+G.
+- **Opgelost:** labeluitdrukkingen (`.assert`, `LEVEL_MULTICOLOR*16`, `*`) werken weer in de geïnstalleerde app (geen `eval` onder de release CSP).
+- **D64 Editor**-dialoogvensters worden geopend in de actieve werkmap; het **Build-project**-rapport geeft de uitvoermap aan.
 
 ---
 
@@ -3857,13 +3870,17 @@ Hiermee kunnen de **Map Editor-schermen** in één level worden gerangschikt —
 
 ### SID-editor (3-stemmen tracker)
 
-Multi-instrumentele 3-stemmige tracker met een Web Audio-previewengine. Openen via Toolkit → SID Editor.
+Multi-instrument 3-stemmige tracker. Openen via Toolkit → SID Editor. **Play: All** voert de geëxporteerde 6502-speler uit in de WebSid-emulator; noot-, rij- en patroonvoorbeelden worden weergegeven door een JS-model van dezelfde speler (frame voor frame) via een kleine SID-synthesizer.
 
 **Bedieningselementen per instrument:**
-- Selectievakjes voor golfvormen (TRI / SAW / PUL / NOI) — meerdere golfvormen kunnen met elkaar worden gecombineerd via een OR-bewerking.
+- Golfvormselectievakjes (TRI / SAW / PUL / NOI) — meerdere golfvormen worden gecombineerd met een AND-bewerking zoals op de SID — plus **RING** (ringmodulatie van de driehoek door de vorige stem: 1 ← 3, 2 ← 1, 3 ← 2) en **SYNC** (harde synchronisatie met de vorige stem).
 - ADSR (attack / decay / sustain / release) wordt weergegeven als een sleepgrafiek boven de vier schuifregelaars.
-- Pulsbreedte-schuifregelaar (0-4095) met optionele ring-/synchronisatievlaggen.
-- Selectievakje voor filterroutering per stem; globale filterafsnijding / resonantie / volume / modus (LP/BP/HP).
+- Pulsbreedte-schuifregelaar (0-4095).
+- **Filter:** *Leid deze stem door het filter*, LP / BP / HP en **3 UIT** (dempen stem 3 wanneer deze niet wordt geleid), cutoff, resonantie, volume. **Einde** + **Sweep** verplaats de cutoff van Cut naar End met Sweep per frame; **Pingpong** stuitert tussen de twee — dit is wat resonante filter sweeps mogelijk maakt. De stem die een filter-geleid instrument start, is eigenaar van het filter (cutoff, resonantie, modus); elke stem waarvan het instrument wordt geleid, gaat erdoorheen.
+- **Vibrato:** na **Delay** frames een driehoekige LFO die elke **Speed** frames draait, **Depth** 0-15 geschaald naar de halve toon van de noot (onafhankelijk van het `V` effect).
+- **Pulsbreedtemodulatie:** **Snelheid** wordt elke frame aan de pulsbreedte toegevoegd, waarbij deze schommelt tussen **Min** en **Max**.
+- **Gate:** **Gate timer** laat de gate los zoveel frames voor de volgende noot op de stem (houd deze onder Speed); **Hard restart** zet ADSR dan ook op nul, voor een zuivere attack; **Eerste frame** schrijft een golfvorm op het eerste frame van de noot (bijv. `$09` test + gate).
+- **Golf-/arpeggiotabel: ** tot 32 stappen van golfvorm (— = behouden) en noot (offset in halve tonen, of **abs** = absolute noot), één stap elke **Snelheid** frames, **Loop** terug naar een stap of stop op de laatste. Voorinstellingen: majeur/mineur/octaaf arpeggio, kick, snare, hi-hat.
 
 **Tracker raster:**
 - 3 stemmen × tot 7 patronen × 32 rijen = 7 × 32 = maximaal 224 rijen (beperking door een 8-bits rijteller).
@@ -3895,25 +3912,25 @@ Effecten worden één keer per regel bijgewerkt (overeenkomend met de timing van
 
 **Afspelen en virtueel toetsenbord:**
 - De knop 'Afspelen' in de werkbalk verandert in 'Pauze' tijdens het afspelen en in 'Hervatten' wanneer het afspelen gepauzeerd is; 'Stop' beëindigt het afspelen en zet de status terug naar de beginstand.
-- De knop in de toetsenbordwerkbalk opent een niet-modaal pianovenster dat bruikbaar blijft terwijl de SID-editor actief is. Versleep de koptekst om het venster overal boven de hoofdapplicatie te plaatsen.
+- De knop in de toetsenbordwerkbalk opent een niet-modaal pianovenster (2, 3 of 4 octaven, onthouden) dat bruikbaar blijft zolang de SID-editor actief is. Versleep de koptekst om het venster overal boven de hoofdapplicatie te plaatsen.
 - Schakel **Invoegen in tracker** in om elke gespeelde noot op de huidige trackercursor te schrijven en naar de volgende regel te gaan. Schakel deze functie uit om noten te beluisteren zonder ze te bewerken.
 - Bij het openen van het klavier lichten de bijbehorende pianotoetsen op als de akkoord- en arpeggiovoorbeelden worden weergegeven.
 
 **Exporteren via het menu Bestanden:**
-| Exporteren                             | Wat het doet                                                                                                                                                                                                                                                                                                                     |
-| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Sla .bin op…`                         | Schrijft het eigen geserialiseerde formaat van de editor (instrumenten + patronen + sequentie).                                                                                                                                                                                                                                  |
-| `Blokken exporteren (alleen gegevens)` | Voegt de instrumenttabel + patroonblokken toe aan het programma op `* = $C000`.                                                                                                                                                                                                                                                  |
-| `Blokken exporteren + miniplayer`      | Voegt de volledige speler (sid_init / sid_irq / sid_play_row / sid_set_voice) plus PAL-frequentietabellen toe. Plaats na het exporteren een `JSR sid_init` in uw hoofdcode op de plek waar de muziek moet beginnen.                                                                                                              |
-| `Exporteer asm (klembord)`             | Kopieert de volledige broncode van de assembly naar het klembord.                                                                                                                                                                                                                                                                |
-| `Exporteren naar UltimateBasic`        | Schrijft een `tune ... end` blok (instrumenten, volgordelijst, patroonrijen als tekst) plus `music play` en voegt dit in op de cursorpositie van de Ultimate Basic-editor; buiten de UB-modus kopieert het de tekst naar het klembord. De UltimateBasic-compiler bouwt de speler, dus `music play` / `music stop` besturen deze. |
+| Exporteren                             | Wat het doet                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Sla .bin op…`                         | Schrijft de eigen geserialiseerde indeling van de editor (instrumenten met alle modulatie-instellingen en namen, snelheid, patronen, nummer). Oudere saves kunnen nog steeds worden geladen.                                                                                                                                                                                                                                     |
+| `Blokken exporteren (alleen gegevens)` | Voegt de instrumenttabel + patroonblokken toe aan het programma op `* = $C000`.                                                                                                                                                                                                                                                                                                                                                  |
+| `Blokken exporteren + miniplayer`      | Voegt de volledige speler (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) plus PAL-frequentietabellen toe. Plaats na het exporteren een `JSR sid_init` in uw hoofdcode waar de muziek moet beginnen; gebruik in plaats daarvan uw eigen IRQ-aanroep `JSR sid_frame` eenmaal per frame.                                                                                                                           |
+| `Exporteer asm (klembord)`             | Kopieert de volledige broncode van de assembly naar het klembord.                                                                                                                                                                                                                                                                                                                                                                |
+| `Exporteren naar UltimateBasic`        | Schrijft een `tune ... end` blok (instrumenten, volgordelijst, patroonrijen als tekst) plus `music play` en voegt dit in op de cursorpositie van de Ultimate Basic-editor; buiten de UB-modus kopieert het de tekst naar het klembord. De UltimateBasic-compiler bouwt de speler, dus `music play` / `music stop` besturen deze. Instrumentmodulatie komt in `imod` / `ifilt` / `igate` / `itab` regels (Ultimate Basic 1.6.2+). |
 
-**Gebruik van speler-ZP:** `$02`–`$2F` (pointertabellen, patroonoffset en per-stem effectstatus), plus `$FB`–`$FE` (tickteller, rij-index, positie in de orderlijst, set_voice temp). Deze conflicteren als uw hoofdcode ze gebruikt — verplaats ze indien nodig via de Expert-modus.
+**Gebruik van de speler-ZP: ** `$02`–`$1C` (patroonpointers, patroonoffset, temp) en `$2F` (huidige snelheid), plus `$FB`–`$FD` (tickteller, rij-index, positie in de orderlijst). De stem-, modulatie- en filterstatus bevinden zich in `sid_state` na de data. De ZP-bytes conflicteren als uw hoofdcode ze gebruikt — verplaats ze indien nodig via de Expert-modus.
 
 **Bekende limieten:**
 - Een 8-bits rijteller beperkt elk patroon tot 7 patronen × 32 rijen in de ruwe databank (de lijst met nummers/volgordes kan nog steeds willekeurig lang zijn door herhalende patronen).
 - C64 `$D418` Het globale volume wordt gedeeld over alle stemmen — de volumeregelaar per instrument is informatief; het sustainniveau (`S` van ADSR) is het effectieve volume per stem.
-- De preview van Web Audio is bij benadering: vibrato/slide wordt één keer per regel bijgewerkt (overeenkomend met de geëxporteerde speler), maar PWM-modulatie, ring/sync en het SID-filterkarakter verschillen nog steeds van de daadwerkelijke chip.
+- De Web Audio-preview modelleert de speler exact, maar de synthesizer benadert slechts de SID-chip (filtercurve, gecombineerde golfvormen, envelope-timing); **Play: All** via WebSid is de exacte referentie.
 
 ---
 

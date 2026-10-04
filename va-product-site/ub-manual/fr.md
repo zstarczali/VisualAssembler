@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.1 — Manuel de langue
+# Ultimate Basic v1.6.2 — Manuel de langue
 
 Référence complète du langage et de l'interface de ligne de commande pour
 Ultimate Basic, un langage de type BASIC qui se compile directement en code
@@ -961,9 +961,14 @@ tune                       # optional: tune at $C800  (default $8000)
   speed 6                  # frames per row (50 Hz PAL)
   inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
   inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
+  imod 0, 6, 3, 9, 40, $0200, $0E00   # vibrato + pulse width modulation (1.6.2)
+  ifilt 0, $0500, 20, 1               # cutoff sweep up to $500, back and forth (1.6.2)
+  igate 1, 2, 1, $09                  # gate timer, hard restart, first frame $09 (1.6.2)
+  itab 1, 2, 0, ".. +0", ".. +4", ".. +7"   # arpeggio table (1.6.2)
   order 0, 1, 0            # pattern order (patterns may repeat)
   pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
   pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
+  pat 1, 0, "G-4 00", "...", "E-4 00", "...", "C-4 00"
 end
 music play                 # or: sys sid_init / irq handler calling sys sid_play
 ```
@@ -975,12 +980,16 @@ exactement comme `load sid`, de sorte que `music play`, `music stop`, `music
 pause` et `music resume` (et un gestionnaire d'interruption `irq` appelant `sys
 sid_play`) fonctionnent sans modification.
 
-| Doubler                                               | Signification                                                                                                                                                                                                                                                                                 |
-| ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `speed N`                                             | Images par rangée de suivi (1-255).                                                                                                                                                                                                                                                           |
-| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol` | Un instrument : registre de contrôle (bits de forme d'onde ; le bit de porte est ajouté par le joueur), attaque/décroissance, maintien/relâchement, largeur d'impulsion 12 bits, coupure de filtre 11 bits, octet de résonance/routage de filtre (`$D417`) et octet de mode/volume (`$D418`). |
-| `order p, p, ...`                                     | Ordre du motif. Les lignes s'accumulent, jusqu'à 255 étapes.                                                                                                                                                                                                                                  |
-| `pat p, v, "cell", ...`                               | Jusqu'à 32 lignes pour la voix `v` (0-2) du motif `p` (0-7). Les lignes manquantes sont vides.                                                                                                                                                                                                |
+| Doubler                                                                       | Signification                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `speed N`                                                                     | Images par rangée de suivi (1-255).                                                                                                                                                                                                                                                                                                                                                                                                               |
+| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol`                         | Un instrument : registre de contrôle (bits de forme d'onde plus modulation en anneau `$04` / sync `$02` ; le bit de porte est ajouté par le joueur), attaque/décroissance, maintien/relâchement, largeur d'impulsion 12 bits, coupure de filtre 11 bits, octet de résonance/routage de filtre (style `$D417` : n'importe quel bit de routage = acheminer la voix qui joue cet instrument) et octet de mode/volume (style `$D418`, bit 7 = 3 OFF). |
+| `identifiant imod, vibdelay, vibspeed, vibdegree, pwmspeed, pwmmin, pwmmax`   | (1.6.2) Vibrato de l'instrument : après `vibdelay` images, un LFO triangulaire tourne toutes les `vibspeed` images (1-15, 0 = désactivé), profondeur 0-15 (proportionnelle au demi-ton de la note). Modulation de largeur d'impulsion : `pwmspeed` est ajouté par image (0 = désactivé), oscillant entre `pwmmin` et `pwmmax`.                                                                                                                    |
+| `ifilt id, cutend, sweep, pingpong`                                           | (1.6.2) Balayage de la coupure du filtre : de la coupure `inst` vers la coupure `cutend` par `sweep` (0-127) par image ; `pingpong` 1 = aller-retour.                                                                                                                                                                                                                                                                                             |
+| `Identifiant de porte, minuterie de porte, redémarrage forcé, première vague` | (1.6.2) La porte est relâchée `gatetimer` images avant la note suivante de la voix (maintenez-la en dessous de `speed`) ; `hardrestart` 1 réinitialise également l'ADSR à 0. `firstwave` (par exemple, `$09` = test + porte) est écrit sur la première image de la note.                                                                                                                                                                          |
+| `itab id, vitesse, boucle, "pas", ...`                                        | (1.6.2) Table d'ondes/arpèges, jusqu'à 32 pas : `"WW +n"`, `".. -n"` ou `"WW =n"` - forme d'onde en hexadécimal (`..` la conserve) et décalage de note en demi-tons ou note absolue (`=60`). Un pas toutes les `vitesse` images, puis retour au pas `boucle` (255 = rester sur le dernier pas).                                                                                                                                                   |
+| `order p, p, ...`                                                             | Ordre du motif. Les lignes s'accumulent, jusqu'à 255 étapes.                                                                                                                                                                                                                                                                                                                                                                                      |
+| `pat p, v, "cell", ...`                                                       | Jusqu'à 32 lignes pour la voix `v` (0-2) du motif `p` (0-7). Les lignes manquantes sont vides.                                                                                                                                                                                                                                                                                                                                                    |
 
 Une cellule **** est `NOTE INST FX` : `C-4`, `D#3`, `Eb2` ou `...` pour aucune
 note, un instrument hexadécimal à deux chiffres (`..` pour le quitter), et un
@@ -995,11 +1004,20 @@ Remarques sur le joueur :
   n'utilise pas de page zéro, il ne peut donc pas entrer en collision avec les
   variables ou les temporaires UltimateBasic, et il continue de fonctionner
   lorsque le programme revient à BASIC.
-- Le blob est placé à une adresse fixe (par défaut `$8000`, ou `tune at $addr`)
+- À chaque image (1.6.2), le lecteur exécute la table d'ondes/arpèges, le
+  vibrato, la modulation de largeur d'impulsion et le temporisateur de
+  porte/redémarrage forcé de chaque voix, ainsi que le balayage de la fréquence
+  de coupure de la voix ayant activé en dernier un instrument routé par filtre
+  (elle contrôle la fréquence de coupure, la résonance et le mode du filtre ;
+  `$D417` route chaque voix dont l'instrument actuel est routé par filtre). Il
+  s'agit du même algorithme que celui utilisé pour le lecteur et l'aperçu
+  exportés de l'éditeur SID de Visual Assembler, image par image.
+- Le blob est placé à une adresse fixe (par défaut `$8000`, ou `tune à $addr`)
   et le fichier `.prg` est complété jusqu'à cette adresse, comme avec `load
-  sid`. Veillez à ce qu'il ne chevauche pas votre code, les tableaux (`$C000+`)
-  ni la mémoire bitmap/charset. Une configuration nécessite environ 1,3 Ko plus
-  12 octets par ligne-colonne de données.
+  sid`. Veillez à ce qu'il ne se trouve pas au même niveau que votre code, les
+  tableaux (`$C000+`) et toute zone mémoire contenant des bitmaps ou des
+  caractères. Un réglage nécessite environ 2,5 Ko plus 12 octets par ligne et
+  colonne de données.
 - Au maximum 8 motifs (32 lignes chacun) ; la liste d'ordre peut les répéter
   librement.
 - `music play` utilise la minuterie CIA1 à 50 Hz ; ne le combinez pas avec un

@@ -1,6 +1,6 @@
 # C64 Visual Assembler – Benutzerhandbuch
 
-**Version 2.5.0**
+**Version 2.5.1**
 
 Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Sie Programme durch Ziehen und Ablegen von Befehlsblöcken und sehen Sie den generierten Assembler- und Maschinencode in Echtzeit.
 
@@ -9,6 +9,7 @@ Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Si
 ## Inhaltsverzeichnis
 
 - [C64 Visual Assembler — Benutzerhandbuch](#c64-visual-assembler--user-manual)
+    - [Version 2.5.1 Highlights](#version-251-highlights)
     - [Version 2.5.0 Highlights](#version-250-highlights)
     - [Version 2.4.9 Highlights](#version-249-highlights)
     - [Version 2.4.8 Highlights](#version-248-highlights)
@@ -170,6 +171,18 @@ Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Si
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Kurveneditor](#curve-editor)
     - [Zahlenkonverter](#number-converter)
+
+---
+
+## Highlights der Version 2.5.1
+
+- **SID-Editor-Instrumente** – Filterrouting pro Stimme, **3 OFF** und ein Resonanz-Cutoff **Sweep** (Start, Ende, Geschwindigkeit, Ping-Pong); Instrument **Vibrato** (Verzögerung, Geschwindigkeit, Tiefe); **Pulsweitenmodulation**; **Gate-Timer**, **Hard Restart** und First-Frame-Wellenform; eine **Wellen-/Arpeggio-Tabelle** mit Presets; **RING** und **SYNC**. Siehe [SID-Editor](#sid-editor-3-voice-tracker).
+- **Neuer SID-Player** – Der exportierte Player führt die Instrumentenmodulation in jedem Frame aus (`JSR sid_frame` für Ihre eigene IRQ); die Vorschau rendert denselben Player über einen kleinen SID-Synthesizer. `.bin` speichert die Instrumentennamen und die Geschwindigkeit.
+- **Virtuelle Tastatur** — 2, 3 oder 4 Oktaven im Commodore 64 Synthesizer-Look.
+- **Ultimate Basic 1.6.2 mitgeliefert** — `tune` erhält `imod`, `ifilt`, `igate` und `itab`; **Export nach UltimateBasic** schreibt sie.
+- **Lesezeichen und Gehe zu Zeile** in den Editoren Expert und Ultimate Basic — Strg+F2 / F2 / Umschalt+F2, Strg+G.
+- **Fixiert:** Label-Ausdrücke (`.assert`, `LEVEL_MULTICOLOR*16`, `*`) funktionieren in der installierten App wieder (kein `eval` unter dem Release-CSP).
+- **D64 Editor** Dialoge werden im aktiven Arbeitsordner geöffnet; der **Projekt erstellen** Bericht benennt den Ausgabeordner.
 
 ---
 
@@ -3857,13 +3870,17 @@ Ordnet die Bildschirme des **Karteneditors** zu einem Level an – beispielsweis
 
 ### SID-Editor (3-Stimmen-Tracker)
 
-Multiinstrumentaler 3-stimmiger Tracker mit Web-Audio-Vorschau. Öffnen über Toolkit → SID-Editor.
+Multiinstrumentaler 3-stimmiger Tracker. Öffnen über Toolkit → SID-Editor. **Play: All** startet den exportierten 6502-Player im WebSid-Emulator; Noten-, Zeilen- und Pattern-Vorschauen werden von einem JS-Modell desselben Players (Frame für Frame) über einen kleinen SID-Synthesizer gerendert.
 
 **Instrumentenspezifische Steuerung:**
-- Kontrollkästchen für Wellenformen (TRI / SAW / PUL / NOI) — mehrere Wellenformen können miteinander verknüpft werden.
+- Wellenform-Kontrollkästchen (TRI / SAW / PUL / NOI) — mehrere Wellenformen werden wie beim SID mit UND verknüpft — plus **RING** (Ringmodulation der Dreieckswelle durch die vorherige Stimme: 1 ← 3, 2 ← 1, 3 ← 2) und **SYNC** (harte Synchronisierung mit der vorherigen Stimme).
 - ADSR (Attack / Decay / Sustain / Release) wird als Drag-Diagramm über den vier Schiebereglern dargestellt.
-- Impulsbreitenregler (0-4095) mit optionalen Klingel-/Synchronisationsflags.
-- Filterrouting-Kontrollkästchen pro Stimme; globaler Filter-Cutoff / Resonanz / Lautstärke / Modus (LP/BP/HP).
+- Schieberegler für die Pulsbreite (0-4095).
+- **Filter:** *Diese Stimme durch den Filter leiten*, LP / BP / HP und **3 AUS** (Stimme 3 stummschalten, wenn sie nicht geroutet ist), Cutoff, Resonanz, Lautstärke. **Ende** + **Sweep** verschiebt den Cutoff pro Frame um Sweep von Cut in Richtung End; **Ping-Pong** springt zwischen den beiden hin und her – dies erzeugt resonante Filter-Sweeps. Die Stimme, die ein durch den Filter geroutetes Instrument startet, bestimmt den Filter (Cutoff, Resonanz, Modus); jede Stimme, deren Instrument geroutet ist, durchläuft ihn.
+- **Vibrato:** nach **Delay** Frames ein Dreieck-LFO, der alle **Speed** Frames, **Depth** 0-15 skaliert auf den Halbton der Note (unabhängig vom `V` Effekt) gedreht wird.
+- **Pulsweitenmodulation:** **Geschwindigkeit** wird in jedem Frame zur Pulsbreite addiert und schwankt zwischen **Min** und **Max**.
+- **Gate:** **Gate-Timer** gibt das Gate so viele Frames vor der nächsten Note der Stimme frei (unterhalb von Speed halten); **Harter Neustart** setzt ADSR ebenfalls auf Null, um einen sauberen Anschlag zu gewährleisten; **Erster Frame** schreibt eine Wellenform in den ersten Frame der Note (z. B. `$09` Test + Gate).
+- **Wellenform-/Arpeggio-Tabelle: ** Bis zu 32 Wellenformschritte (— = beibehalten) und Notenwerte (Offset in Halbtonschritten oder **abs** = absolute Note), ein Schritt alle **Speed** Frames, **Loop** Zurück zum vorherigen Schritt oder Stopp beim letzten Schritt. Voreinstellungen: Dur-/Moll-/Oktav-Arpeggio, Bassdrum, Snare, Hi-Hat.
 
 **Tracker-Gitter:**
 - 3 Stimmen × bis zu 7 Muster × 32 Zeilen = 7 × 32 = maximal 224 Zeilen (begrenzt durch einen 8-Bit-Zeilenzähler).
@@ -3895,25 +3912,25 @@ Die Effekte werden einmal pro Zeile aktualisiert (entsprechend dem Timing des ex
 
 **Wiedergabe und virtuelle Tastatur:**
 - Die Schaltfläche „Wiedergabe“ in der Symbolleiste ändert sich während der Wiedergabe zu „Pause“ und während der Pause zu „Fortsetzen“; „Stopp“ beendet die Wiedergabe und setzt den Status zurück.
-- Die Schaltfläche in der Tastatur-Symbolleiste öffnet ein nicht-modales Piano, das auch während der Nutzung des SID-Editors verwendet werden kann. Ziehen Sie dessen Kopfzeile, um sie an einer beliebigen Stelle über der Hauptanwendung zu platzieren.
+- Die Schaltfläche in der Tastatur-Symbolleiste öffnet ein nicht-modales Klavier (2, 3 oder 4 Oktaven, gespeichert), das während der Nutzung des SID-Editors verfügbar bleibt. Ziehen Sie die Kopfzeile an eine beliebige Stelle innerhalb der Hauptanwendung.
 - Aktivieren Sie **In Tracker einfügen**, um jede gespielte Note an der aktuellen Tracker-Cursorposition zu speichern und zur nächsten Zeile zu wechseln. Deaktivieren Sie diese Funktion, um Noten ohne Bearbeitung anzuhören.
 - Akkord- und Arpeggio-Vorschauen leuchten die entsprechenden Klaviertasten auf, wenn die Tastatur geöffnet ist.
 
 **Dateien-Menü-Exporte:**
-| Export                                   | Was es tut                                                                                                                                                                                                                                                                                                                                           |
-| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Speichern .bin…`                        | Schreibt das vom Editor bereitgestellte serialisierte Format (Instrumente + Muster + Sequenz).                                                                                                                                                                                                                                                       |
-| `Exportblöcke (nur Daten)`               | Fügt Instrumententabelle + Musterblöcke an das Programm an der Stelle `* = $C000` an.                                                                                                                                                                                                                                                                |
-| `Exportblöcke + Minispieler`             | Fügt den vollständigen Player (sid_init / sid_irq / sid_play_row / sid_set_voice) sowie PAL-Frequenztabellen hinzu. Nach dem Export fügen Sie in Ihrem Hauptcode an der Stelle, an der die Musikwiedergabe starten soll, eine `JSR sid_init`-Anweisung ein.                                                                                          |
-| `Assembler exportieren (Zwischenablage)` | Kopiert den vollständigen Assembler-Quelltext in die Zwischenablage.                                                                                                                                                                                                                                                                                 |
-| `Export nach UltimateBasic`              | Schreibt einen `tune ... end`-Block (Instrumente, Reihenfolgeliste, Patternzeilen als Text) plus `music play` und fügt ihn an der Cursorposition des Ultimate Basic-Editors ein; außerhalb des UB-Modus wird der Text in die Zwischenablage kopiert. Der Ultimate Basic-Compiler erstellt den Player, daher steuern `music play` / `music stop` ihn. |
+| Export                                   | Was es tut                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Speichern .bin…`                        | Schreibt das vom Editor bereitgestellte serialisierte Format (Instrumente mit allen Modulationseinstellungen und -namen, Geschwindigkeit, Patterns, Song). Ältere Spielstände werden weiterhin geladen.                                                                                                                                                                                                                                                            |
+| `Exportblöcke (nur Daten)`               | Fügt Instrumententabelle + Musterblöcke an das Programm an der Stelle `* = $C000` an.                                                                                                                                                                                                                                                                                                                                                                              |
+| `Exportblöcke + Minispieler`             | Fügt den vollständigen Player (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) sowie PAL-Frequenztabellen hinzu. Nach dem Export fügen Sie in Ihrem Hauptcode an der Stelle, an der die Musik starten soll, einen `JSR sid_init`-Aufruf ein; verwenden Sie stattdessen Ihren eigenen IRQ-Aufruf `JSR sid_frame` einmal pro Frame.                                                                                                                   |
+| `Assembler exportieren (Zwischenablage)` | Kopiert den vollständigen Assembler-Quelltext in die Zwischenablage.                                                                                                                                                                                                                                                                                                                                                                                               |
+| `Export nach UltimateBasic`              | Schreibt einen `tune ... end`-Block (Instrumente, Reihenfolgeliste, Patternzeilen als Text) plus `music play` und fügt ihn an der Cursorposition des Ultimate Basic-Editors ein; außerhalb des UB-Modus wird der Text in die Zwischenablage kopiert. Der Ultimate Basic-Compiler erstellt den Player, daher steuern `music play` / `music stop` ihn. Die Instrumentenmodulation erfolgt in den Zeilen `imod` / `ifilt` / `igate` / `itab` (Ultimate Basic 1.6.2+). |
 
-**Player ZP-Nutzung:** `$02`–`$2F` (Zeigertabellen, Pattern-Offset und Effektstatus pro Stimme) sowie `$FB`–`$FE` (Tickzähler, Zeilenindex, Position in der Orderliste, set_voice temp). Diese können in Konflikt geraten, wenn Ihr Hauptcode sie verwendet – verschieben Sie sie gegebenenfalls im Expertenmodus.
+**ZP-Nutzung des Spielers: ** `$02`–`$1C` (Pattern-Zeiger, Pattern-Offset, temp) und `$2F` (aktuelle Geschwindigkeit) sowie `$FB`–`$FD` (Tick-Zähler, Zeilenindex, Position in der Orderliste). Stimme, Modulations- und Filterstatus befinden sich nach den Daten in `sid_state`. Die ZP-Bytes können in Konflikt geraten, wenn Ihr Hauptcode sie verwendet – verschieben Sie sie gegebenenfalls im Expertenmodus.
 
 **Bekannte Grenzwerte:**
 - Ein 8-Bit-Zeilenzähler begrenzt jedes Muster auf 7 Muster × 32 Zeilen im Rohdatenspeicher (die Song-/Reihenfolgeliste kann durch Wiederholung von Mustern beliebig lang sein).
 - C64 `$D418` Die globale Lautstärke wird über alle Stimmen hinweg geteilt – der Lautstärkeregler pro Instrument dient nur der Information; der Sustain-Pegel (`S` von ADSR) ist die effektive Lautstärke pro Stimme.
-- Die Web-Audio-Vorschau ist nur annähernd korrekt: Vibrato/Slide-Aktualisierung einmal pro Zeile (entsprechend dem exportierten Player), aber PWM-Modulation, Ring/Synchronisation und der Charakter des SID-Filters unterscheiden sich immer noch vom realen Chip.
+- Die Web-Audio-Vorschau bildet den Player exakt nach, aber ihr Synthesizer nähert sich dem SID-Chip nur an (Filterkurve, kombinierte Wellenformen, Hüllkurven-Timing); **Play: All** über WebSid ist die exakte Referenz.
 
 ---
 

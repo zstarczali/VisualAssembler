@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.1 — Taalhandleiding
+# Ultimate Basic v1.6.2 — Taalhandleiding
 
 Complete taal- en CLI-referentie voor Ultimate Basic, een BASIC-achtige taal die
 direct compileert naar 6502-machinecode voor de Commodore 64. Uitvoer: `.prg`
@@ -926,9 +926,14 @@ tune                       # optional: tune at $C800  (default $8000)
   speed 6                  # frames per row (50 Hz PAL)
   inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
   inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
+  imod 0, 6, 3, 9, 40, $0200, $0E00   # vibrato + pulse width modulation (1.6.2)
+  ifilt 0, $0500, 20, 1               # cutoff sweep up to $500, back and forth (1.6.2)
+  igate 1, 2, 1, $09                  # gate timer, hard restart, first frame $09 (1.6.2)
+  itab 1, 2, 0, ".. +0", ".. +4", ".. +7"   # arpeggio table (1.6.2)
   order 0, 1, 0            # pattern order (patterns may repeat)
   pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
   pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
+  pat 1, 0, "G-4 00", "...", "E-4 00", "...", "C-4 00"
 end
 music play                 # or: sys sid_init / irq handler calling sys sid_play
 ```
@@ -939,12 +944,16 @@ celnotatie die de Visual Assembler SID-editor laat zien) en bouwt de speler
 `load sid`, dus `music play`, `music stop`, `music pause` en `music resume` (en
 een handmatige `irq` handler die `sys sid_play` aanroept) werken ongewijzigd.
 
-| Lijn                                                  | Betekenis                                                                                                                                                                                                                                       |
-| ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `speed N`                                             | Frames per trackerrij (1-255).                                                                                                                                                                                                                  |
-| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol` | Eén instrument: controleregister (golfvormbits; de gate-bit wordt door de speler toegevoegd), attack/decay, sustain/release, 12-bits pulsbreedte, 11-bits filtercutoff, resonantie-/filterroutingbyte (`$D417`) en modus-/volumebyte (`$D418`). |
-| `order p, p, ...`                                     | Patroonvolgorde. Lijnen stapelen zich op, tot 255 stappen.                                                                                                                                                                                      |
-| `pat p, v, "cell", ...`                               | Maximaal 32 rijen voor stem `v` (0-2) van patroon `p` (0-7). Ontbrekende rijen zijn leeg.                                                                                                                                                       |
+| Lijn                                                               | Betekenis                                                                                                                                                                                                                                                                                                                                                                             |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `speed N`                                                          | Frames per trackerrij (1-255).                                                                                                                                                                                                                                                                                                                                                        |
+| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol`              | Eén instrument: controleregister (golfvormbits plus ringmodulatie `$04` / sync `$02`; de gate-bit wordt door de speler toegevoegd), attack/decay, sustain/release, 12-bits pulsbreedte, 11-bits filtercutoff, resonantie-/filterrouteringsbyte (`$D417`-stijl: elke routeringsbit = routeer de stem die dit instrument bespeelt) en modus-/volumebyte (`$D418`-stijl, bit 7 = 3 UIT). |
+| `imod id, vibdelay, vibspeed, vibdiepte, pwmspeed, pwmmin, pwmmax` | (1.6.2) Instrumentvibrato: na `vibdelay` frames wordt een driehoekige LFO geactiveerd die elke `vibspeed` frames (1-15, 0 = uit) draait, diepte 0-15 (geschaald naar de halve toon van de noot). Pulsbreedtemodulatie: `pwmspeed` wordt per frame toegevoegd (0 = uit), stuiterend tussen `pwmmin` en `pwmmax`.                                                                       |
+| ` filter id, cutend, sweep, pingpong`                              | (1.6.2) Filter cutoff sweep: van de `inst` cutoff naar `cutend` door `sweep` (0-127) per frame; `pingpong` 1 = heen en weer.                                                                                                                                                                                                                                                          |
+| `igate id, gatetimer, hardrestart, firstwave`                      | (1.6.2) De gate wordt vrijgegeven `gatetimer` frames vóór de volgende noot op de stem (houd deze onder `speed`); `hardrestart` 1 zet ADSR dan ook op 0. `firstwave` (bijv. `$09` = test + gate) wordt geschreven op het eerste frame van de noot.                                                                                                                                     |
+| `itab id, snelheid, lus, "stap", ...`                              | (1.6.2) Golf-/arpeggiotabel, tot 32 stappen: `"WW +n"`, `".. -n"` of `"WW =n"` - golfvorm in hexadecimaal (`..` behoudt deze) en een nootverschuiving in halve tonen of een absolute noot (`=60`). Eén stap elke `snelheid` frames, dan terug naar stap `lus` (255 = blijf op de laatste stap).                                                                                       |
+| `order p, p, ...`                                                  | Patroonvolgorde. Lijnen stapelen zich op, tot 255 stappen.                                                                                                                                                                                                                                                                                                                            |
+| `pat p, v, "cell", ...`                                            | Maximaal 32 rijen voor stem `v` (0-2) van patroon `p` (0-7). Ontbrekende rijen zijn leeg.                                                                                                                                                                                                                                                                                             |
 
 Een **cel** is `NOTE INST FX`: `C-4`, `D#3`, `Eb2` of `...` voor geen noot, een
 twee-cijferig hexadecimaal instrument (`..` om het zo te laten), en een
@@ -959,10 +968,17 @@ Opmerkingen over de speler:
   het gebruikt geen nulpagina, dus het kan niet botsen met
   UltimateBasic-variabelen of tijdelijke gegevens, en het blijft werken wanneer
   het programma terugkeert naar BASIC.
-- De blob wordt op een vast adres geplaatst (standaard `$8000`, of `tune at
+- Elke frame (1.6.2) voert de speler de golf-/arpeggiotabel, vibrato,
+  pulsbreedtemodulatie en gatetimer/harde herstart van elke stem uit, evenals de
+  cutoff-sweep van de stem die als laatste een filter-gerouteerd instrument
+  startte (deze stem beheert de cutoff, resonantie en modus van het filter;
+  `$D417` routeert elke stem waarvan het huidige instrument filter-gerouteerd
+  is). Het is hetzelfde algoritme als de geëxporteerde speler en preview van de
+  Visual Assembler SID-editor, frame voor frame.
+- De blob wordt op een vast adres geplaatst (standaard `$8000`, of `tune op
   $addr`) en de `.prg` wordt aangevuld tot dat adres, zoals `load sid`. Houd het
   uit de buurt van je code, arrays (`$C000+`) en eventueel
-  bitmap-/charsetgeheugen. Een tune heeft ongeveer 1,3 KB plus 12 bytes per
+  bitmap-/charsetgeheugen. Een tune heeft ongeveer 2,5 KB plus 12 bytes per
   rij-kolom aan gegevens nodig.
 - Maximaal 8 patronen (32 rijen elk); de volgordelijst kan ze vrij herhalen.
 - `music play` gebruikt de CIA1-timer op 50 Hz; combineer dit niet met een

@@ -112,9 +112,9 @@ test("Song list: moving past either end is a no-op", () => {
 
 function loadSerdeSandbox() {
   return loadFunctions(
-    ["_sidInstBytes", "_sidWaveByte", "_sidNewInst", "_sidNewPattern", "_sidSerialize", "_sidDeserialize", "_sidSyncPlayModeSel", "_sidBuildInstSel", "_sidLoadInstUI", "_sidBuildPatSel", "_sidBuildSongList", "_sidBuildTracker", "_sidStop", "_sidUpdatePauseButton", "_sidCurInst"],
+    ["_sidInstFields", "_sidInstNorm", "_sidInstCtrl", "_sidInstExtBytes", "_sidReadInstExt", "_sidWaStop", "_sidInstBytes", "_sidWaveByte", "_sidNewInst", "_sidNewPattern", "_sidSerialize", "_sidDeserialize", "_sidSyncPlayModeSel", "_sidBuildInstSel", "_sidLoadInstUI", "_sidBuildPatSel", "_sidBuildSongList", "_sidBuildTracker", "_sidStop", "_sidUpdatePauseButton", "_sidCurInst"],
     {
-      Uint8Array, Math, String, Array,
+      Uint8Array, Math, String, Array, TextEncoder, TextDecoder, _sidSpeed: 6, _sidWaPlay: null, _sidPreviewSources: new Set(), _sidRenderTable: () => {},
       // _sidLoadInstUI assigns document.getElementById("sid-inst-name").value
       // directly with no null-guard (unlike its other fields, which all go
       // through a guarded helper) — give that one id a real object so the
@@ -167,17 +167,12 @@ test("SID deserialize falls back to a 0..N-1 song for saves made before the orde
   const ctx = loadSerdeSandbox();
   ctx._sidInsts = [ctx._sidNewInst("Lead")];
   ctx._sidPatterns = [ctx._sidNewPattern(), ctx._sidNewPattern(), ctx._sidNewPattern()];
-  // Build a legacy-shaped byte array by calling the real serializer, then
-  // truncating off the song-list tail this version appends.
-  const full = ctx._sidSerialize();
-  let legacyLen = 2; // ni, np headers
-  legacyLen += ctx._sidInsts.length * 9;
-  // ctx._SID_ROWS is not a real property: it's a top-level `const` inside
-  // the vm script, which never becomes a property of the sandbox object, so
-  // referencing it from out here would silently read undefined -> NaN. Use
-  // the same literal the rest of this file already hardcodes (_SID_ROWS = 32).
-  legacyLen += ctx._sidPatterns.length * 3 * 32 * 2;
-  const legacyBytes = full.slice(0, legacyLen);
+  // A 0xFE save from before the song list: marker, counts, 9 bytes per
+  // instrument and 4 bytes per cell, with no song-list tail.
+  const legacy = [0xFE, ctx._sidInsts.length, ctx._sidPatterns.length];
+  ctx._sidInsts.forEach((ins) => ctx._sidInstBytes(ins).forEach((b) => legacy.push(b & 0xFF)));
+  for (let i = 0; i < ctx._sidPatterns.length * 3 * 32; i++) legacy.push(0, 0, 0, 0);
+  const legacyBytes = Uint8Array.from(legacy);
 
   ctx._sidPatterns = null; ctx._sidInsts = null; ctx._sidSong = null;
   ctx._sidDeserialize(legacyBytes);
@@ -188,8 +183,8 @@ test("SID deserialize falls back to a 0..N-1 song for saves made before the orde
 
 function loadExportSandbox() {
   return loadFunctions(
-    ["_sidExportAsmPlayable", "_sidWaveByte"],
-    { Math, String, Array },
+    ["_sidNewInst", "_sidInstNorm", "_sidInstCtrl", "_sidFreqTables", "_sidTuneData", "_sidCellBytes", "_sidExportAsmPlayable", "_sidWaveByte"],
+    { Math, String, Array, t: (k) => k },
     `${extractConstLine("_SID_ROWS")}\n${extractConstLine("_SID_FX_CODES")}\n${extractConstLine("_SID_FX_NAMES")}`
   );
 }

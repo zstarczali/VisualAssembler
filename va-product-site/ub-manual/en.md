@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.1 — Language Manual
+# Ultimate Basic v1.6.2 — Language Manual
 
 Complete language and CLI reference for Ultimate Basic, a BASIC-like language that
 compiles directly to 6502 machine code for the Commodore 64. Output: `.prg` files
@@ -866,9 +866,14 @@ tune                       # optional: tune at $C800  (default $8000)
   speed 6                  # frames per row (50 Hz PAL)
   inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
   inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
+  imod 0, 6, 3, 9, 40, $0200, $0E00   # vibrato + pulse width modulation (1.6.2)
+  ifilt 0, $0500, 20, 1               # cutoff sweep up to $500, back and forth (1.6.2)
+  igate 1, 2, 1, $09                  # gate timer, hard restart, first frame $09 (1.6.2)
+  itab 1, 2, 0, ".. +0", ".. +4", ".. +7"   # arpeggio table (1.6.2)
   order 0, 1, 0            # pattern order (patterns may repeat)
   pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
   pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
+  pat 1, 0, "G-4 00", "...", "E-4 00", "...", "C-4 00"
 end
 music play                 # or: sys sid_init / irq handler calling sys sid_play
 ```
@@ -882,7 +887,11 @@ unchanged.
 | Line | Meaning |
 |---|---|
 | `speed N` | Frames per tracker row (1-255). |
-| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol` | One instrument: control register (waveform bits; the gate bit is added by the player), attack/decay, sustain/release, 12-bit pulse width, 11-bit filter cutoff, resonance/filter-routing byte (`$D417`) and mode/volume byte (`$D418`). |
+| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol` | One instrument: control register (waveform bits plus ring mod `$04` / sync `$02`; the gate bit is added by the player), attack/decay, sustain/release, 12-bit pulse width, 11-bit filter cutoff, resonance/filter-routing byte (`$D417` style: any routing bit = route the voice that plays this instrument) and mode/volume byte (`$D418` style, bit 7 = 3 OFF). |
+| `imod id, vibdelay, vibspeed, vibdepth, pwmspeed, pwmmin, pwmmax` | (1.6.2) Instrument vibrato: after `vibdelay` frames a triangle LFO that turns every `vibspeed` frames (1-15, 0 = off), depth 0-15 (scaled to the note's semitone). Pulse width modulation: `pwmspeed` added per frame (0 = off), bouncing between `pwmmin` and `pwmmax`. |
+| `ifilt id, cutend, sweep, pingpong` | (1.6.2) Filter cutoff sweep: from the `inst` cutoff toward `cutend` by `sweep` (0-127) per frame; `pingpong` 1 = back and forth. |
+| `igate id, gatetimer, hardrestart, firstwave` | (1.6.2) The gate is released `gatetimer` frames before the next note on the voice (keep it below `speed`); `hardrestart` 1 also sets ADSR to 0 then. `firstwave` (e.g. `$09` = test + gate) is written on the note's first frame. |
+| `itab id, speed, loop, "step", ...` | (1.6.2) Wave / arpeggio table, up to 32 steps: `"WW +n"`, `".. -n"` or `"WW =n"` - waveform in hex (`..` keeps it) and a note offset in semitones or an absolute note (`=60`). One step every `speed` frames, then back to step `loop` (255 = stay on the last step). |
 | `order p, p, ...` | Pattern order. Lines accumulate, up to 255 steps. |
 | `pat p, v, "cell", ...` | Up to 32 rows for voice `v` (0-2) of pattern `p` (0-7). Missing rows are empty. |
 
@@ -896,9 +905,14 @@ Notes on the player:
 - All player state lives **inside the blob** (absolute addressing) - it uses no zero page, so it
   cannot collide with UltimateBasic variables or temporaries, and it keeps working when the
   program returns to BASIC.
+- Every frame (1.6.2) the player runs each voice's wave/arpeggio table, vibrato, pulse width
+  modulation and gate timer / hard restart, and the cutoff sweep of the voice that last started
+  a filter-routed instrument (it owns the filter's cutoff, resonance and mode; `$D417` routes
+  every voice whose current instrument is filter-routed). It is the same algorithm as the
+  Visual Assembler SID editor's exported player and preview, frame for frame.
 - The blob is placed at a fixed address (default `$8000`, or `tune at $addr`) and the `.prg` is
   padded up to it, like `load sid`. Keep it clear of your code, arrays (`$C000+`) and any
-  bitmap/charset memory. A tune needs about 1.3 KB plus 12 bytes per row-column of data.
+  bitmap/charset memory. A tune needs about 2.5 KB plus 12 bytes per row-column of data.
 - At most 8 patterns (32 rows each); the order list can repeat them freely.
 - `music play` uses the CIA1 timer at 50 Hz; do not combine it with another `load sid`/`tune`
   (the last one wins).

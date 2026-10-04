@@ -2,9 +2,26 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.5.0**
+**Current version: v2.5.1**
 
-## What's New in v2.5.0
+## What's New in v2.5.1
+
+- **SID Editor instruments like a real tracker** — every instrument now has:
+  - **Filter:** *Route this voice through the filter*, **3 OFF**, and a cutoff **sweep** from Cut toward End by Sweep per frame, optionally **ping-pong** — resonant filter sweeps. The voice that starts a filter-routed instrument owns the filter; routing is per voice.
+  - **Vibrato:** delay, speed and depth (scaled to the note's semitone), independent of the `V` effect.
+  - **Pulse width modulation:** speed per frame, bouncing between min and max.
+  - **Gate:** gate timer and **hard restart** before the next note, and the waveform of a note's first frame (e.g. `$09`).
+  - **Wave / arpeggio table:** up to 32 steps of waveform and note (relative or absolute), speed and loop, with presets (major / minor / octave arpeggio, kick, snare, hi-hat).
+  - **RING** and **SYNC** next to the waveforms.
+- **New SID player** — the exported 6502 player runs all of this every frame (`JSR sid_frame` from your own IRQ, less zero page, state in `sid_state`). The preview renders the same player through a small SID synthesizer (exact model, approximate chip), so edits are heard while playing and the row highlight follows `F` speed changes, also with WebSid. `.bin` saves keep instrument names and the speed; older saves still load.
+- **Virtual keyboard** — 2, 3 or 4 octaves (remembered) in a Commodore 64 synth look.
+- **Ultimate Basic 1.6.2 bundled** — `tune` blocks gain `imod`, `ifilt`, `igate` and `itab` lines with the same player algorithm; **Export to UltimateBasic** writes them, and the UB command reference lists them.
+- **Bookmarks and Go to line** in the Expert and Ultimate Basic editors — **Ctrl+F2** toggles (or Ctrl+click a line number), **F2** / **Shift+F2** jump, **Ctrl+G** goes to a line; toolbar buttons too. Bookmarks move with edited lines and are remembered per file.
+- **Fixed: label expressions in the installed app** — `.assert`, `LEVEL_MULTICOLOR*16`, `*`-expressions and `.level_row` operands failed in the release build (its CSP blocks `eval`); expressions are now evaluated without `eval`.
+- **D64 Editor** — the Add program, Open and New dialogs open in the active mode's working folder.
+- **Build project** — the report shows where the files were written.
+
+## Earlier: v2.5.0
 
 - **Level Editor** — a new toolbar editor next to the Map Editor arranges Map Editor screens **vertically, horizontally or in a 2D grid** into one level. Add screens from the Map Editor or from map `.bin` files, drag them onto slots, duplicate, reorder, edit them back in the Map Editor, with undo/redo. The preview scrolls through the whole level (drag, arrow keys, or **Play** with direction, speed and loop). **Files** saves the level project (`.bin`), the full level Screen RAM or Screen + Color RAM, exports blocks or copies the asm.
 - **New LEVEL / LEVEL_ROW macros** — `.level "level.bin"[, $4000]` places only the placed screens of a Level Editor project (2000 bytes each, identical and empty screens shared) plus row/column/slot pointer tables, and defines `LEVEL_*` labels and constants (`LEVEL_COLS`, `LEVEL_MAX_X`, `LEVEL_BG`, `LEVEL_END` …); max 7 × 10 screens, 0 bytes of code. `.level_row dst, col[, color]` copies one 40-character level row (row in X, start column in `col`) to the address held in the `dst` pointer — screen codes, or with `color` the colors — across a screen boundary, ~14 cycles per byte (132 bytes).

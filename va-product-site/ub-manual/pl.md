@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.1 — Podręcznik językowy
+# Ultimate Basic v1.6.2 — Podręcznik językowy
 
 Kompletny podręcznik języka i interfejsu wiersza poleceń dla Ultimate Basic,
 języka podobnego do BASIC-a, który kompiluje się bezpośrednio do kodu
@@ -927,9 +927,14 @@ tune                       # optional: tune at $C800  (default $8000)
   speed 6                  # frames per row (50 Hz PAL)
   inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
   inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
+  imod 0, 6, 3, 9, 40, $0200, $0E00   # vibrato + pulse width modulation (1.6.2)
+  ifilt 0, $0500, 20, 1               # cutoff sweep up to $500, back and forth (1.6.2)
+  igate 1, 2, 1, $09                  # gate timer, hard restart, first frame $09 (1.6.2)
+  itab 1, 2, 0, ".. +0", ".. +4", ".. +7"   # arpeggio table (1.6.2)
   order 0, 1, 0            # pattern order (patterns may repeat)
   pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
   pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
+  pat 1, 0, "G-4 00", "...", "E-4 00", "...", "C-4 00"
 end
 music play                 # or: sys sid_init / irq handler calling sys sid_play
 ```
@@ -941,12 +946,16 @@ tak samo, jak `load sid`, więc `music play`, `music stop`, `music pause` i
 `music resume` (oraz ręczny `irq` handler wywołujący `sys sid_play`) działają
 bez zmian.
 
-| Linia                                                 | Oznaczający                                                                                                                                                                                                                                                            |
-| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `speed N`                                             | Liczba klatek na rząd modułu śledzącego (1–255).                                                                                                                                                                                                                       |
-| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol` | Jeden instrument: rejestr sterujący (bity przebiegu; bit bramki jest dodawany przez gracza), atak/zanik, podtrzymanie/zwolnienie, 12-bitowa szerokość impulsu, 11-bitowe odcięcie filtra, bajt rezonansu/trasowania filtra (`$D417`) i bajt trybu/głośności (`$D418`). |
-| `order p, p, ...`                                     | Kolejność wzorów. Linie kumulują się, do 255 kroków.                                                                                                                                                                                                                   |
-| `pat p, v, "cell", ...`                               | Do 32 wierszy dla głosu `v` (0-2) wzoru `p` (0-7). Brakujące wiersze są puste.                                                                                                                                                                                         |
+| Linia                                                                  | Oznaczający                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `speed N`                                                              | Liczba klatek na rząd modułu śledzącego (1–255).                                                                                                                                                                                                                                                                                                                                                                                   |
+| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol`                  | Jeden instrument: rejestr sterujący (bity przebiegu plus mod. pierścienia `$04` / synchronizacja `$02`; bit bramki jest dodawany przez gracza), atak/zanik, podtrzymanie/zwolnienie, 12-bitowa szerokość impulsu, 11-bitowe odcięcie filtra, bajt rezonansu/trasowania filtra (w stylu `$D417`: dowolny bit trasowania = trasowanie głosu grającego na tym instrumencie) i bajt trybu/głośności (w stylu `$D418`, bit 7 = 3 WYŁ.). |
+| `imod id, vibdelay, vibspeed, vib głębokość, pwmspeed, pwmmin, pwmmax` | (1.6.2) Wibrato instrumentu: po ramkach `vibdelay` trójkątny LFO obraca się co `vibspeed` ramek (1–15, 0 = wyłączony), głębokość 0–15 (skalowana do półtonu nuty). Modulacja szerokości impulsu: `pwmspeed` dodawane na każdą ramkę (0 = wyłączony), zmieniające się między `pwmmin` a `pwmmax`.                                                                                                                                   |
+| `ifilt id, cutend, sweep, pingpong`                                    | (1.6.2) Przemiatanie odcięcia filtra: od odcięcia `inst` w kierunku `cutend` o `sweep` (0–127) na klatkę; `pingpong` 1 = w tę i z powrotem.                                                                                                                                                                                                                                                                                        |
+| `identyfikator bramki, gatetimer, twardy restart, pierwsza fala`       | (1.6.2) Bramka jest zwalniana `gatetimer` klatek przed następną nutą w głosie (utrzymuj ją poniżej `speed`); `hardrestart` 1 ustawia wtedy ADSR na 0. `firstwave` (np. `$09` = test + gate) jest zapisywane na pierwszej klatce nuty.                                                                                                                                                                                              |
+| `itab id, prędkość, pętla, "krok", ...`                                | (1.6.2) Tabela fal/arpeggio, do 32 kroków: `"WW +n"`, `".. -n"` lub `"WW =n"` – przebieg w formacie szesnastkowym (`..` go zachowuje) oraz przesunięcie nuty w półtonach lub nuta absolutna (`=60`). Jeden krok co `szybkość` klatek, a następnie powrót do kroku `pętli` (255 = pozostanie na ostatnim kroku).                                                                                                                    |
+| `order p, p, ...`                                                      | Kolejność wzorów. Linie kumulują się, do 255 kroków.                                                                                                                                                                                                                                                                                                                                                                               |
+| `pat p, v, "cell", ...`                                                | Do 32 wierszy dla głosu `v` (0-2) wzoru `p` (0-7). Brakujące wiersze są puste.                                                                                                                                                                                                                                                                                                                                                     |
 
 Komórka **** to `NOTE INST FX`: `C-4`, `D#3`, `Eb2` lub `...` dla braku nuty,
 dwucyfrowy instrument szesnastkowy (`..` dla jego pozostawienia) i opcjonalny
@@ -960,10 +969,17 @@ Uwagi dotyczące odtwarzacza:
   bezwzględne) — nie używa on strony zerowej, więc nie może kolidować ze
   zmiennymi ani elementami tymczasowymi UltimateBasic i działa dalej, gdy
   program powraca do języka BASIC.
-- Blob jest umieszczany pod stałym adresem (domyślnie `$8000` lub `tune at
-  $addr`), a `.prg` jest do niego dopasowywany, np. `load sid`. Nie umieszczaj w
-  nim kodu, tablic (`$C000+`) ani pamięci bitmap/zestawów znaków. Dodanie
-  zajmuje około 1,3 KB plus 12 bajtów na wiersz/kolumnę danych.
+- W każdej klatce (1.6.2) odtwarzacz uruchamia tabelę wave/arpeggio każdego
+  głosu, vibrato, modulację szerokości impulsu i timer bramki/twardy restart, a
+  także przebieg odcięcia głosu, który ostatnio uruchomił instrument kierowany
+  przez filtr (ma on przypisane odcięcie, rezonans i tryb filtru; `$D417`
+  kieruje przebiegiem każdego głosu, którego bieżący instrument jest kierowany
+  przez filtr). Jest to ten sam algorytm, który jest używany w eksportowanym
+  odtwarzaczu i podglądzie edytora SID Visual Assembler, klatka po klatce.
+- Blob jest umieszczany pod stałym adresem (domyślnie `$8000` lub `tune pod
+  adresem $addr`), a `.prg` jest do niego dopasowywany, np. `load sid`. Nie
+  umieszczaj w nim kodu, tablic (`$C000+`) ani pamięci bitmap/zestawów znaków.
+  Dodanie zajmuje około 2,5 KB plus 12 bajtów na wiersz/kolumnę danych.
 - Maksymalnie 8 wzorów (po 32 rzędy każdy); lista zamówień może się dowolnie
   powtarzać.
 - `music play` używa timera CIA1 o częstotliwości 50 Hz; nie należy go łączyć z
