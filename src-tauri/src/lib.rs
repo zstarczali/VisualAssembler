@@ -2336,6 +2336,30 @@ async fn d64_run(app: AppHandle, path: String) -> serde_json::Value {
 
 // ── 1541 Ultimate REST API ────────────────────────────────────────────────────
 
+// reqwest's Display only says "error sending request for url (...)"; the real
+// reason (connection refused, no route to host, timeout...) lives in the source
+// chain, so append it. On macOS a connect error to a LAN address that fails
+// instantly is almost always the Local Network privacy permission being denied
+// for this app (System Settings > Privacy & Security > Local Network).
+fn describe_ultimate_error(error: &reqwest::Error) -> String {
+    let mut message = error.to_string();
+    let mut source = std::error::Error::source(error);
+    while let Some(inner) = source {
+        let text = inner.to_string();
+        if !text.is_empty() && !message.contains(&text) {
+            message.push_str(": ");
+            message.push_str(&text);
+        }
+        source = std::error::Error::source(inner);
+    }
+    if cfg!(target_os = "macos") && error.is_connect() {
+        message.push_str(
+            " — macOS may be blocking local network access for this app: enable it under System Settings > Privacy & Security > Local Network, then restart the app.",
+        );
+    }
+    message
+}
+
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct RunD64UltimatePayload {
@@ -2474,7 +2498,7 @@ async fn run_d64_on_ultimate(app: AppHandle, payload: RunD64UltimatePayload) -> 
                 return serde_json::json!({ "ok": false, "error": format!("D64 mount HTTP {}: {}", status, text.trim()) });
             }
         }
-        Err(e) => return serde_json::json!({ "ok": false, "error": format!("D64 mount: {}", e) }),
+        Err(e) => return serde_json::json!({ "ok": false, "error": format!("D64 mount: {}", describe_ultimate_error(&e)) }),
     }
 
     // Step 2: Run the main PRG (first file) via DMA
@@ -2506,7 +2530,7 @@ async fn run_d64_on_ultimate(app: AppHandle, payload: RunD64UltimatePayload) -> 
                 serde_json::json!({ "ok": false, "error": format!("HTTP {}: {}", status, text.trim()) })
             }
         }
-        Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+        Err(e) => serde_json::json!({ "ok": false, "error": describe_ultimate_error(&e) }),
     }
 }
 
@@ -2540,7 +2564,7 @@ async fn run_on_ultimate(host: String, password: Option<String>, prg_bytes: Vec<
                 serde_json::json!({ "ok": false, "error": format!("HTTP {}: {}", status, text.trim()) })
             }
         }
-        Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+        Err(e) => serde_json::json!({ "ok": false, "error": describe_ultimate_error(&e) }),
     }
 }
 
@@ -2696,7 +2720,7 @@ async fn test_ultimate_connection(host: String, password: Option<String>) -> ser
                 serde_json::json!({ "ok": false, "error": format!("HTTP {}", status) })
             }
         }
-        Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+        Err(e) => serde_json::json!({ "ok": false, "error": describe_ultimate_error(&e) }),
     }
 }
 

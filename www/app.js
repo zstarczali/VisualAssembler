@@ -20189,6 +20189,7 @@ async function testUltimateConnection() {
   } else {
     if (statusEl) statusEl.textContent = `✗ ${result?.error || t("ultimateConnectFailed")}`;
   }
+  if (statusEl) statusEl.title = statusEl.textContent;
 }
 
 async function runOnUltimate() {
