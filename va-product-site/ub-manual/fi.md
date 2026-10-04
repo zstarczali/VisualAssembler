@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.1 — Kieliopas
+# Ultimate Basic v1.6.2 — Kieliopas
 
 Täydellinen kieli- ja komentoriviviite Ultimate Basicille, BASICin kaltaiselle
 kielelle, joka kääntyy suoraan 6502-konekoodiksi Commodore 64:lle. Tuloste:
@@ -924,9 +924,14 @@ tune                       # optional: tune at $C800  (default $8000)
   speed 6                  # frames per row (50 Hz PAL)
   inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
   inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
+  imod 0, 6, 3, 9, 40, $0200, $0E00   # vibrato + pulse width modulation (1.6.2)
+  ifilt 0, $0500, 20, 1               # cutoff sweep up to $500, back and forth (1.6.2)
+  igate 1, 2, 1, $09                  # gate timer, hard restart, first frame $09 (1.6.2)
+  itab 1, 2, 0, ".. +0", ".. +4", ".. +7"   # arpeggio table (1.6.2)
   order 0, 1, 0            # pattern order (patterns may repeat)
   pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
   pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
+  pat 1, 0, "G-4 00", "...", "E-4 00", "...", "C-4 00"
 end
 music play                 # or: sys sid_init / irq handler calling sys sid_play
 ```
@@ -938,12 +943,16 @@ tavalla kuin `load sid`, joten `music play`, `music stop`, `music pause` ja
 `music resume` (ja manuaalinen `irq`-käsittelijä, joka kutsuu `sys sid_play`)
 toimivat muuttumattomina.
 
-| Linja                                                 | Merkitys                                                                                                                                                                                                                                                               |
-| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `speed N`                                             | Kehyksiä seurantariviä kohden (1–255).                                                                                                                                                                                                                                 |
-| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol` | Yksi instrumentti: ohjausrekisteri (aaltomuodon bitit; soittaja lisää porttibitin), attack/decay, sustain/release, 12-bittinen pulssinleveys, 11-bittinen suodattimen katkaisu, resonanssi-/suodattimen reititystavu (`$D417`) ja tila-/äänenvoimakkuustavu (`$D418`). |
-| `order p, p, ...`                                     | Kuviojärjestys. Viivat kasautuvat, jopa 255 askelta.                                                                                                                                                                                                                   |
-| `pat p, v, "cell", ...`                               | Jopa 32 riviä äänelle `v` (0-2) kuviossa `p` (0-7). Puuttuvat rivit ovat tyhjiä.                                                                                                                                                                                       |
+| Linja                                                             | Merkitys                                                                                                                                                                                                                                                                                                                                                                                                           |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `speed N`                                                         | Kehyksiä seurantariviä kohden (1–255).                                                                                                                                                                                                                                                                                                                                                                             |
+| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol`             | Yksi instrumentti: ohjausrekisteri (aaltomuotobitit sekä rengasmodaus `$04` / sync `$02`; soittaja lisää gate-bitin), attack/decay, sustain/release, 12-bittinen pulssinleveys, 11-bittinen suodattimen katkaisu, resonanssi-/suodatinreititystavu (`$D417` -tyyliin: mikä tahansa reititysbitti = reitittää tätä instrumenttia soittavan äänen) ja tila-/äänenvoimakkuustavu (`$D418` -tyyliin, bitti 7 = 3 OFF). |
+| `imod id, vibdelay, vibspeed, vibdepth, pwmspeed, pwmmin, pwmmax` | (1.6.2) Instrumenttivibrato: `vibdelay`-kehysten jälkeen kolmio-LFO, joka kääntyy joka `vibspeed`-kehys (1-15, 0 = pois päältä), syvyys 0-15 (skaalattu nuotin puolisävelaskeleeseen). Pulssinleveysmodulaatio: `pwmspeed` lisätään kehystä kohden (0 = pois päältä), pomppii `pwmmin` ja `pwmmax` välillä.                                                                                                        |
+| `ifilt id, cutend, sweep, pingpong`                               | (1.6.2) Suodattimen katkaisupyyhkäisy: `inst`-katkaisusta `cutend`-katkaisuun `-pyyhkäisyllä` (0-127) kehystä kohden; `pingpong` 1 = edestakaisin.                                                                                                                                                                                                                                                                 |
+| `igate id, gatetimer, hardrestart, firstwave`                     | (1.6.2) Portti vapautetaan `gatetimer` kehystä ennen äänen seuraavaa nuottia (pidä se alle `speed`-nopeuden); `hardrestart` 1 asettaa myös ADSR:n arvoon 0. `firstwave` (esim. `$09` = test + gate) kirjoitetaan nuotin ensimmäiseen kehytykseen.                                                                                                                                                                  |
+| `itab-tunnus, nopeus, silmukka, "askel", ...`                     | (1.6.2) Aaltomuoto-/arpeggiotaulukko, jopa 32 askelta: `"WW +n"`, `".. -n"` tai `"WW =n"` - aaltomuoto heksadesimaalina (`..` säilyttää sen) ja nuotin siirtymä puolisävelaskelissa tai absoluuttinen nuotti (`=60`). Yksi askel joka `nopeus` ruudulla, sitten takaisin askeleeseen `silmukka` (255 = pysy viimeisellä askeleella).                                                                               |
+| `order p, p, ...`                                                 | Kuviojärjestys. Viivat kasautuvat, jopa 255 askelta.                                                                                                                                                                                                                                                                                                                                                               |
+| `pat p, v, "cell", ...`                                           | Jopa 32 riviä äänelle `v` (0-2) kuviossa `p` (0-7). Puuttuvat rivit ovat tyhjiä.                                                                                                                                                                                                                                                                                                                                   |
 
 **solu** on `NOTE INST FX`: `C-4`, `D#3`, `Eb2` tai `...` ei nuottia,
 kaksinumeroinen heksadecimal-instrumentti (`..` sen jättämiseksi) ja valinnainen
@@ -957,11 +966,19 @@ Huomioita soittimesta:
   osoitus) - se ei käytä nollasivua, joten se ei voi törmätä
   UltimateBasic-muuttujiin tai väliaikaisiin muuttujiin, ja se jatkaa
   toimintaansa, kun ohjelma palaa BASIC-tilaan.
+- Joka ruudulla (1.6.2) soittaja suorittaa kunkin äänen
+  aalto-/arpeggio-taulukon, vibraton, pulssinleveysmodulaation ja
+  porttiajastimen / kovan uudelleenkäynnistyksen sekä sen äänen
+  katkaisutaajuuden pyyhkäisyn, joka viimeksi käynnisti suodinreititetyn
+  instrumentin (se omistaa suotimen katkaisutaajuuden, resonanssin ja tilan;
+  `$D417` reitittää jokaisen äänen, jonka nykyinen instrumentti on
+  suodinreititetty). Se on sama algoritmi kuin Visual Assembler SID -editorin
+  viedyn soittimen ja esikatselun, ruutu ruudulta.
 - Blob-objekti sijoitetaan kiinteään osoitteeseen (oletusarvo `$8000` tai `tune
-  at $addr`) ja `.prg`-tiedosto täytetään siihen, kuten `load sid`. Pidä se
-  erillään koodistasi, taulukoistasi (`$C000+`) ja kaikesta
-  bittikartta-/merkistömuistista. Yksi lohko tarvitsee noin 1,3 kt + 12 tavua
-  riviä ja saraketta kohden.
+  osoitteessa $addr`) ja `.prg`-tiedosto täytetään siihen, kuten `load sid`.
+  Pidä se erillään koodistasi, taulukoistasi (`$C000+`) ja kaikesta
+  bittikartta-/merkistömuistista. Yksi lohko tarvitsee noin 2,5 kt + 12 tavua
+  rivi-saraketta kohden.
 - Enintään 8 kuviota (32 riviä kukin); järjestysluettelo voi toistaa niitä
   vapaasti.
 - `music play` käyttää CIA1-ajastinta 50 Hz:n taajuudella; älä yhdistä sitä

@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Käyttöopas
 
-**Versio 2.5.0**
+**Versio 2.5.1**
 
 Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia vetämällä ja pudottamalla käskylohkoja ja nähdä luodun assemblerin ja konekoodin reaaliajassa.
 
@@ -9,6 +9,7 @@ Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
 ## Sisällysluettelo
 
 - [C64 Visual Assembler — Käyttöopas](#c64-visual-assembler--user-manual)
+    - [Version 2.5.1 kohokohdat](#version-251-highlights)
     - [Version 2.5.0 kohokohdat](#version-250-highlights)
     - [Version 2.4.9 kohokohdat](#version-249-highlights)
     - [Version 2.4.8 kohokohdat](#version-248-highlights)
@@ -170,6 +171,18 @@ Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Käyränmuokkausohjelma](#curve-editor)
     - [Numeronmuunnin](#number-converter)
+
+---
+
+## Version 2.5.1 kohokohdat
+
+- **SID Editor -instrumentit** — äänikohtainen filtterien reititys, **3 OFF** ja resonanssikatkaisu **pyyhkäisy ** (alku, loppu, nopeus, ping-pong); instrumentti **vibrato** (viive, nopeus, syvyys); **pulssinleveysmodulaatio **; **porttiajastin **, **kova uudelleenkäynnistys ** ja ensimmäisen kehyksen aaltomuoto; **aalto-/arpeggio-taulukko ** esiasetuksilla; **RING** ja **SYNC**. Katso [SID Editor]{1].
+- **Uusi SID-soitin** — viety soitin suorittaa instrumentin modulaation joka ruudulla (`JSR sid_frame` omaa IRQ:tasi varten); esikatselu renderöi saman soittimen pienen SID-syntetisaattorin kautta. `.bin` tallentaa instrumenttien nimet ja nopeuden.
+- **Virtuaalikosketinsoittimet** — 2, 3 tai 4 oktaavia Commodore 64 -syntetisaattorin ulkoasussa.
+- **Ultimate Basic 1.6.2 mukana** — `tune` lisää `imod`, `ifilt`, `igate` ja `itab`; **Export to UltimateBasiciin** kirjoittaa ne.
+- **Kirjanmerkit ja Siirry riville** Expert- ja Ultimate Basic -editoreissa — Ctrl+F2 / F2 / Shift+F2, Ctrl+G.
+- **Korjattu:** otsikkolausekkeet (`.assert`, `LEVEL_MULTICOLOR*16`, `*`) toimivat taas asennetussa sovelluksessa (ei `eval` julkaisun CSP:n alla).
+- **D64 Editor** -valintaikkunat avautuvat aktiivisessa työkansiossa; **Build-projekti** -raportti nimeää tulostuskansion.
 
 ---
 
@@ -3857,13 +3870,17 @@ Järjestää **Karttaeditorin näytöt** yhdeksi tasoksi — pystysuuntainen amm
 
 ### SID-editori (3-ääninen seuranta)
 
-Moniinstrumenttinen kolmiääninen seurantaohjelma Web Audion esikatselumoottorilla. Avaa Toolkit → SID Editor -komennolla.
+Moniinstrumenttinen 3-ääninen seuranta. Avaa Toolkit → SID Editor -valikosta. **Play: All** suorittaa viedyn 6502-soittimen WebSid-emulaattorissa; nuottien, rivien ja kuvioiden esikatselut renderöidään saman soittimen JS-mallilla (ruutu ruudulta) pienen SID-syntetisaattorin kautta.
 
 **Laitekohtaiset säätimet:**
-- Aaltomuotojen valintaruudut (TRI / SAW / PUL / NOI) — useita aaltomuotoja voidaan TAI-operaatiolla yhdistää.
+- Aaltomuodon valintaruudut (TRI / SAW / PUL / NOI) — useat aaltomuodot yhdistetään JA-operaattorilla kuten SID:ssä — sekä **RING** (kolmion rengasmodulaatio edellisellä äänellä: 1 ← 3, 2 ← 1, 3 ← 2) ja **SYNC** (kiinteä synkronointi edelliseen ääneen).
 - ADSR (hyökkäys / rappeutuminen / ylläpito / vapautus) näkyy vetämällä kuvaajana neljän liukusäätimen yläpuolella.
-- Pulssinleveyden liukusäädin (0–4095) ja valinnaiset soitto-/synkronointiliput.
-- Äänikohtainen suodinreitityksen valintaruutu; globaali suodinkatkaisu / resonanssi / äänenvoimakkuus / tila (LP/BP/HP).
+- Pulssinleveyden liukusäädin (0–4095).
+- **Suodatin:** *Reititä tämä ääni suodattimen läpi*, LP / BP / HP ja **3 OFF** (mykistä ääni 3, kun sitä ei reititetä), katkaisu, resonanssi, äänenvoimakkuus. **End** + **Sweep** siirtävät katkaisua Cutista Endiin pyyhkäisyllä kehystä kohden; **Ping-pong** pomppii näiden kahden välillä – tämä luo resonanssipyyhkäisyjä suodattimessa. Ääni, joka käynnistää suodattimella reititetyn soittimen, omistaa suodattimen (katkaisu, resonanssi, tila); jokainen ääni, jonka soittimeen on reititetty, kulkee sen läpi.
+- **Vibrato:**-efektin **Delay** jälkeen muodostaa kolmio-LFO:n, joka kääntyy **Speed** kehyksen välein, **Depth** 0-15 skaalattuna nuotin puolisävelaskeleen mukaan (riippumatta `V`-efektistä).
+- **Pulssinleveysmodulaatio:** **Nopeus** lisätään pulssinleveyteen joka ruudussa, vaihdellen **Min** ja **Max** välillä.
+- **Portti:** **Porttiajastin** vapauttaa portin niin monta kehystä ennen äänen seuraavaa nuottia (pidä se nopeuden alapuolella); **Kova uudelleenkäynnistys** nollaa myös ADSR:n puhtaan hyökkäyksen aikaansaamiseksi; **Ensimmäinen kehys** kirjoittaa aaltomuodon nuotin ensimmäiseen kehykseen (esim. `$09` testi + portti).
+- **Aaltomuoto-/arpeggiotaulukko:** jopa 32 aaltomuotoaskelta (— = säilytä) ja nuotti (puolisävelaskeleen siirtymä tai **abs** = absoluuttinen nuotti), yksi askel joka **Nopeus** kehyksen välein, **Silmukka** takaisin edelliseen askeleeseen tai pysäytys viimeisessä kehyksessä. Esiasetukset: duuri-/molli-/oktaavi-arpeggio, bassokaiutin, virveli, hi-hat.
 
 **Seurantaruudukko:**
 - 3 ääntä × jopa 7 kuviota × 32 riviä = 7 × 32 = enintään 224 riviä (8-bittinen rivilaskuri rajoittaa sitä).
@@ -3895,25 +3912,25 @@ Tehosteet päivittyvät kerran riviä kohden (vastaamaan viedyn soittimen ajoitu
 
 **Toisto ja virtuaalinäppäimistö:**
 - Toista-työkalurivin painike muuttuu Tauko-painikkeeksi toiston aikana ja Jatka-painikkeeksi tauon aikana; Pysäytä-painike lopettaa toiston ja palauttaa tilan.
-- Näppäimistön työkalupalkin painike avaa ei-modaalisen pianon, jota voi käyttää SID-editorin ollessa aktiivinen. Vedä sen otsikkoa sijoittaaksesi sen mihin tahansa pääsovelluksen päälle.
+- Näppäimistötyökalurivin painike avaa ei-modaalisen pianon (2, 3 tai 4 oktaavia, muistissa), jota voi käyttää SID-editorin ollessa aktiivinen. Vedä sen otsikkoa sijoittaaksesi sen mihin tahansa pääsovelluksen päälle.
 - Ota käyttöön **Lisää seurantaan** kirjoittaaksesi jokaisen soitetun nuotin nykyiseen seurantakursoriin ja siirtyäksesi seuraavalle riville. Poista se käytöstä kuunnellaksesi nuotteja ilman muokkausta.
 - Sointujen ja arpeggioiden esikatselut valaisevat vastaavat pianonäppäimet, kun koskettimet ovat auki.
 
 **Tiedostovalikon viennit:**
-| Viedä                      | Mitä se tekee                                                                                                                                                                                                                                                                                                  |
-| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Tallenna .bin…`           | Kirjoittaa editorin natiivin sarjoitetun muodon (instrumentit + patternit + sekvenssi).                                                                                                                                                                                                                        |
-| `Vie lohkot (vain tiedot)` | Liittää instrumenttitaulukon + kuviolohkot ohjelmaan kohtaan `* = $C000`.                                                                                                                                                                                                                                      |
-| `Vie lohkot + minipelaaja` | Lisää koko soittimen (sid_init / sid_irq / sid_play_row / sid_set_voice) sekä PAL-taajuustaulukot. Viennin jälkeen sijoita `JSR sid_init` pääkoodiisi kohtaan, josta musiikin pitäisi alkaa.                                                                                                                   |
-| `Vie asm (leikepöytä)`     | Kopioi koko kokoonpanon lähdekoodin leikepöydälle.                                                                                                                                                                                                                                                             |
-| `Vie UltimateBasiciin`     | Kirjoittaa `tune ... end` -lohkon (instrumentit, järjestysluettelo, pattern-rivit tekstinä) sekä `music play` ja lisää sen Ultimate Basic -editorin kursoriin; UB-tilan ulkopuolella se kopioi tekstin leikepöydälle. UltimateBasic-kääntäjä rakentaa soittimen, joten `music play` / `music stop` ohjaa sitä. |
+| Viedä                      | Mitä se tekee                                                                                                                                                                                                                                                                                                                                                                                                        |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Tallenna .bin…`           | Kirjoittaa editorin natiivin serialisoidun formaatin (instrumentit kaikilla modulaatioasetuksilla ja nimillä, nopeudella, patterneilla, kappaleella). Vanhemmat tallennukset latautuvat edelleen.                                                                                                                                                                                                                    |
+| `Vie lohkot (vain tiedot)` | Liittää instrumenttitaulukon + kuviolohkot ohjelmaan kohtaan `* = $C000`.                                                                                                                                                                                                                                                                                                                                            |
+| `Vie lohkot + minipelaaja` | Lisää koko soittimen (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) sekä PAL-taajuustaulukot. Viennin jälkeen sijoita `JSR sid_init` pääkoodiisi kohtaan, josta musiikin tulisi alkaa; käytä omaa IRQ-kutsua `JSR sid_frame` kerran kehystä kohden.                                                                                                                                                 |
+| `Vie asm (leikepöytä)`     | Kopioi koko kokoonpanon lähdekoodin leikepöydälle.                                                                                                                                                                                                                                                                                                                                                                   |
+| `Vie UltimateBasiciin`     | Kirjoittaa `tune ... end` -lohkon (instrumentit, järjestysluettelo, pattern-rivit tekstinä) sekä `music play` ja lisää sen Ultimate Basic -editorin kursoriin; UB-tilan ulkopuolella se kopioi tekstin leikepöydälle. UltimateBasic-kääntäjä rakentaa soittimen, joten `music play` / `music stop` ohjaa sitä. Instrumenttien modulointi menee `imod` / `ifilt` / `igate` / `itab` -riville (Ultimate Basic 1.6.2+). |
 
-**Player ZP:n käyttö:** `$02`–`$2F` (osoitintaulukot, kuvion offset ja äänikohtainen tehostetila), sekä `$FB`–`$FE` (tick-laskuri, rivi-indeksi, järjestyslistan sijainti, set_voice temp). Nämä ovat ristiriidassa, jos pääkoodisi käyttää niitä – siirrä tarvittaessa Expert-tilan kautta.
+**Soittimen ZP-käyttö:** `$02`–`$1C` (kuvio-osoittimet, kuvion offset, lämpötila) ja `$2F` (nykyinen nopeus), sekä `$FB`–`$FD` (tick-laskuri, rivi-indeksi, järjestyslistan sijainti). Ääni, modulaatio ja suodattimen tila sijaitsevat `sid_state` -tiedostossa datan jälkeen. ZP-tavut ovat ristiriidassa, jos pääkoodisi käyttää niitä – siirrä tarvittaessa Expert-tilassa.
 
 **Tunnetut rajat:**
 - 8-bittinen rivilaskuri rajoittaa jokaisen kuvion 7 kuvioon × 32 riviin raakapankissa (kappale-/järjestysluettelo voi silti olla mielivaltaisen pitkä toistamalla kuvioita).
 - C64 `$D418` globaali äänenvoimakkuus jaetaan eri äänien kesken — instrumenttikohtainen äänenvoimakkuuden liukusäädin on informatiivinen; sustain-taso (ADSR:n `S`) on efektiivinen äänenvoimakkuus äänittäin.
-- Web Audion esikatselu on likimääräinen: vibrato/dia päivittyy kerran riviä kohden (vastaa vietyä soitinta), mutta PWM-modulaatio, soitto/synkronointi ja SID-suodattimen luonne eroavat silti todellisesta sirusta.
+- Web Audion esikatselu mallintaa soittimen tarkasti, mutta sen syntetisaattori vain approksimoi SID-sirun (suodatinkäyrä, yhdistetyt aaltomuodot, verhokäyrän ajoitus); **Play: All** WebSidin kautta on tarkka referenssi.
 
 ---
 

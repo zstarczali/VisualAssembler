@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.5.0**
+**Version 2.5.1**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -9,6 +9,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
+    - [Version 2.5.1 Highlights](#version-251-highlights)
     - [Version 2.5.0 Highlights](#version-250-highlights)
     - [Version 2.4.9 Highlights](#version-249-highlights)
     - [Version 2.4.8 Highlights](#version-248-highlights)
@@ -170,6 +171,18 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Curve Editor](#curve-editor)
     - [Number Converter](#number-converter)
+
+---
+
+## Version 2.5.1 Highlights
+
+- **SID Editor instruments** — filter routing per voice, **3 OFF** and a resonant cutoff **sweep** (start, end, speed, ping-pong); instrument **vibrato** (delay, speed, depth); **pulse width modulation**; **gate timer**, **hard restart** and first-frame waveform; a **wave / arpeggio table** with presets; **RING** and **SYNC**. See [SID Editor](#sid-editor-3-voice-tracker).
+- **New SID player** — the exported player runs the instrument modulation every frame (`JSR sid_frame` for your own IRQ); the preview renders the same player through a small SID synthesizer. `.bin` saves keep instrument names and speed.
+- **Virtual keyboard** — 2, 3 or 4 octaves in a Commodore 64 synth look.
+- **Ultimate Basic 1.6.2 bundled** — `tune` gains `imod`, `ifilt`, `igate` and `itab`; **Export to UltimateBasic** writes them.
+- **Bookmarks and Go to line** in the Expert and Ultimate Basic editors — Ctrl+F2 / F2 / Shift+F2, Ctrl+G.
+- **Fixed:** label expressions (`.assert`, `LEVEL_MULTICOLOR*16`, `*`) work in the installed app again (no `eval` under the release CSP).
+- **D64 Editor** dialogs open in the active working folder; the **Build project** report names the output folder.
 
 ---
 
@@ -3887,13 +3900,17 @@ Arranges **Map Editor screens** into one level — a vertical shooter, a car gam
 
 ### SID Editor (3-Voice Tracker)
 
-Multi-instrument 3-voice tracker with a Web Audio preview engine. Open via Toolkit → SID Editor.
+Multi-instrument 3-voice tracker. Open via Toolkit → SID Editor. **Play: All** runs the exported 6502 player in the WebSid emulator; note, row and pattern previews are rendered by a JS model of the same player (frame for frame) through a small SID synthesizer.
 
 **Per-instrument controls:**
-- Waveform checkboxes (TRI / SAW / PUL / NOI) — multiple waveforms can be ORed together.
+- Waveform checkboxes (TRI / SAW / PUL / NOI) — multiple waveforms are ANDed like on the SID — plus **RING** (ring modulation of the triangle by the previous voice: 1 ← 3, 2 ← 1, 3 ← 2) and **SYNC** (hard sync to the previous voice).
 - ADSR (attack / decay / sustain / release) shown as a drag-graph above the four sliders.
-- Pulse width slider (0-4095) with optional ring/sync flags.
-- Filter routing checkbox per voice; global filter cutoff / resonance / volume / mode (LP/BP/HP).
+- Pulse width slider (0-4095).
+- **Filter:** *Route this voice through the filter*, LP / BP / HP and **3 OFF** (mute voice 3 when it is not routed), cutoff, resonance, volume. **End** + **Sweep** move the cutoff from Cut toward End by Sweep per frame; **Ping-pong** bounces between the two — this is what makes resonant filter sweeps. The voice that starts a filter-routed instrument owns the filter (cutoff, resonance, mode); every voice whose instrument is routed goes through it.
+- **Vibrato:** after **Delay** frames a triangle LFO that turns every **Speed** frames, **Depth** 0-15 scaled to the note's semitone (independent of the `V` effect).
+- **Pulse width modulation:** **Speed** added to the pulse width every frame, bouncing between **Min** and **Max**.
+- **Gate:** **Gate timer** releases the gate that many frames before the next note on the voice (keep it below Speed); **Hard restart** also zeroes ADSR then, for a clean attack; **First frame** writes a waveform on the note's first frame (e.g. `$09` test + gate).
+- **Wave / arpeggio table:** up to 32 steps of waveform (— = keep) and note (offset in semitones, or **abs** = absolute note), one step every **Speed** frames, **Loop** back to a step or stop on the last one. Presets: major / minor / octave arpeggio, kick, snare, hi-hat.
 
 **Tracker grid:**
 - 3 voices × up to 7 patterns × 32 rows = 7 × 32 = 224 rows max (8-bit row counter constrains it).
@@ -3926,25 +3943,25 @@ Effects update once per row (matching the exported player's timing), run identic
 
 **Playback and virtual keyboard:**
 - The Play toolbar button changes to Pause during playback and to Resume while paused; Stop ends playback and resets the state.
-- The keyboard toolbar button opens a non-modal piano that remains usable while the SID editor is active. Drag its header to place it anywhere over the main application.
+- The keyboard toolbar button opens a non-modal piano (2, 3 or 4 octaves, remembered) that remains usable while the SID editor is active. Drag its header to place it anywhere over the main application.
 - Enable **Insert into tracker** to write each played note at the current tracker cursor and advance to the next row. Disable it to audition notes without editing.
 - Chord and arpeggio previews illuminate the corresponding piano keys when the keyboard is open.
 
 **Files menu exports:**
 | Export | What it does |
 |---|---|
-| `Save .bin…` | Writes the editor's native serialized format (instruments + patterns + sequence). |
+| `Save .bin…` | Writes the editor's native serialized format (instruments with all modulation settings and names, speed, patterns, song). Older saves still load. |
 | `Export blocks (data only)` | Appends instrument table + pattern blocks to the program at `* = $C000`. |
-| `Export blocks + miniplayer` | Adds the full player (sid_init / sid_irq / sid_play_row / sid_set_voice) plus PAL frequency tables. After export, place a `JSR sid_init` in your main code where the music should start. |
+| `Export blocks + miniplayer` | Adds the full player (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) plus PAL frequency tables. After export, place a `JSR sid_init` in your main code where the music should start; with your own IRQ call `JSR sid_frame` once per frame instead. |
 | `Export asm (clipboard)` | Copies the full assembly source to the clipboard. |
-| `Export to UltimateBasic` | Writes a `tune ... end` block (instruments, order list, pattern rows as text) plus `music play` and inserts it at the cursor of the Ultimate Basic editor; outside UB mode it copies the text to the clipboard. The UltimateBasic compiler builds the player, so `music play` / `music stop` control it. |
+| `Export to UltimateBasic` | Writes a `tune ... end` block (instruments, order list, pattern rows as text) plus `music play` and inserts it at the cursor of the Ultimate Basic editor; outside UB mode it copies the text to the clipboard. The UltimateBasic compiler builds the player, so `music play` / `music stop` control it. Instrument modulation goes into `imod` / `ifilt` / `igate` / `itab` lines (Ultimate Basic 1.6.2+). |
 
-**Player ZP usage:** `$02`–`$2F` (pointer tables, pattern offset, and per-voice effect state), plus `$FB`–`$FE` (tick counter, row index, order-list position, set_voice temp). These conflict if your main code uses them — relocate via Expert mode if needed.
+**Player ZP usage:** `$02`–`$1C` (pattern pointers, pattern offset, temp) and `$2F` (current speed), plus `$FB`–`$FD` (tick counter, row index, order-list position). Voice, modulation and filter state lives in `sid_state` after the data. The ZP bytes conflict if your main code uses them — relocate via Expert mode if needed.
 
 **Known limits:**
 - 8-bit row counter limits each pattern to 7 patterns × 32 rows in the raw bank (the song/order list can still be arbitrarily long by repeating patterns).
 - C64 `$D418` global volume is shared across voices — the per-instrument volume slider is informational; sustain level (`S` of ADSR) is the effective per-voice volume.
-- Web Audio preview is approximate: vibrato/slide update once per row (matching the exported player), but PWM modulation, ring/sync, and the SID filter character still differ from the real chip.
+- The Web Audio preview models the player exactly, but its synthesizer only approximates the SID chip (filter curve, combined waveforms, envelope timing); **Play: All** through WebSid is the exact reference.
 
 ---
 

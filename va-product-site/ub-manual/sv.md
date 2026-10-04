@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.1 — Språkmanual
+# Ultimate Basic v1.6.2 — Språkmanual
 
 Komplett språk- och CLI-referens för Ultimate Basic, ett BASIC-liknande språk
 som kompilerar direkt till 6502-maskinkod för Commodore 64. Utdata: `.prg` filer
@@ -910,9 +910,14 @@ tune                       # optional: tune at $C800  (default $8000)
   speed 6                  # frames per row (50 Hz PAL)
   inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
   inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
+  imod 0, 6, 3, 9, 40, $0200, $0E00   # vibrato + pulse width modulation (1.6.2)
+  ifilt 0, $0500, 20, 1               # cutoff sweep up to $500, back and forth (1.6.2)
+  igate 1, 2, 1, $09                  # gate timer, hard restart, first frame $09 (1.6.2)
+  itab 1, 2, 0, ".. +0", ".. +4", ".. +7"   # arpeggio table (1.6.2)
   order 0, 1, 0            # pattern order (patterns may repeat)
   pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
   pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
+  pat 1, 0, "G-4 00", "...", "E-4 00", "...", "C-4 00"
 end
 music play                 # or: sys sid_init / irq handler calling sys sid_play
 ```
@@ -923,12 +928,16 @@ kompileringstid**. Den definierar `sid_init` / `sid_play` exakt som `load sid`,
 så `music play`, `music stop`, `music pause` och `music resume` (och en manuell
 `irq`-hanterare som anropar `sys sid_play`) fungerar oförändrat.
 
-| Linje                                                 | Menande                                                                                                                                                                                                                                      |
-| ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `speed N`                                             | Bildrutor per spårningsrad (1–255).                                                                                                                                                                                                          |
-| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol` | Ett instrument: kontrollregister (vågformsbitar; gate-biten läggs till av spelaren), attack/decay, sustain/release, 12-bitars pulsbredd, 11-bitars filteravstängning, resonans-/filterrouting-byte (`$D417`) och mode-/volym-byte (`$D418`). |
-| `order p, p, ...`                                     | Mönsterordning. Linjerna ackumuleras, upp till 255 steg.                                                                                                                                                                                     |
-| `pat p, v, "cell", ...`                               | Upp till 32 rader för röst `v` (0-2) av mönster `p` (0-7). Saknade rader är tomma.                                                                                                                                                           |
+| Linje                                                             | Menande                                                                                                                                                                                                                                                                                                                                                             |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `speed N`                                                         | Bildrutor per spårningsrad (1–255).                                                                                                                                                                                                                                                                                                                                 |
+| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol`             | Ett instrument: kontrollregister (vågformsbitar plus ringmod `$04` / synk `$02`; gate-biten läggs till av spelaren), attack/decay, sustain/release, 12-bitars pulsbredd, 11-bitars filteravstängning, resonans-/filterrouting-byte (`$D417`-stil: valfri routing-bit = routa rösten som spelar detta instrument) och mode/volym-byte (`$D418`-stil, bit 7 = 3 OFF). |
+| `imod id, vibdelay, vibspeed, vibdepth, pwmspeed, pwmmin, pwmmax` | (1.6.2) Instrumentvibrato: efter `vibdelay`-ramar en triangel-LFO som vrider varje `vibspeed`-ram (1-15, 0 = av), djup 0-15 (skalat till notens halvton). Pulsbreddsmodulering: `pwmspeed` tillagd per ram (0 = av), studsar mellan `pwmmin` och `pwmmax`.                                                                                                          |
+| `iFilt-id, cutend, svep, pingis`                                  | (1.6.2) Filtergränssvep: från `instant`-gränsen mot `cutend` med `svep` (0-127) per bildruta; `pingpong` 1 = fram och tillbaka.                                                                                                                                                                                                                                     |
+| `igate-id, gatetimer, hård omstart, firstwave`                    | (1.6.2) Grinden släpps `gatetimer` ramar före nästa ton på rösten (håll den under `speed`); `hardrestart` 1 sätter även ADSR till 0 då. `firstwave` (t.ex. `$09` = test + gate) skrivs på tonens första ram.                                                                                                                                                        |
+| `itab-id, hastighet, loop, "steg", ...`                           | (1.6.2) Vågform/arpeggio-tabell, upp till 32 steg: `"WW +n"`, `".. -n"` eller `"WW =n"` - vågform i hexagonal (`..` behåller den) och en tonförskjutning i halvtoner eller en absolut ton (`=60`). Ett steg varje `hastighets` bildruta, sedan tillbaka till steg `loop` (255 = stanna på sista steget).                                                            |
+| `order p, p, ...`                                                 | Mönsterordning. Linjerna ackumuleras, upp till 255 steg.                                                                                                                                                                                                                                                                                                            |
+| `pat p, v, "cell", ...`                                           | Upp till 32 rader för röst `v` (0-2) av mönster `p` (0-7). Saknade rader är tomma.                                                                                                                                                                                                                                                                                  |
 
 En **cell** är `NOTE INST FX`: `C-4`, `D#3`, `Eb2` eller `...` för ingen not,
 ett tvåsiffrigt hexagonalt instrument (`..` för att lämna det), och en valfri
@@ -942,10 +951,16 @@ Anteckningar om spelaren:
   använder ingen nollasida, så den kan inte kollidera med
   UltimateBasic-variabler eller temporära variabler, och den fortsätter att
   fungera när programmet återgår till BASIC.
-- Blobben placeras på en fast adress (standard `$8000`, eller `tune at $addr`)
+- Varje bildruta (1.6.2) kör spelaren varje rösts wave/arpeggio-tabell, vibrato,
+  pulsbreddsmodulation och gate-timer/hård omstart, samt cutoff-svepet för den
+  röst som senast startade ett filterdirigerat instrument (den äger filtrets
+  cutoff, resonans och läge; `$D417` dirigerar varje röst vars nuvarande
+  instrument är filterdirigerat). Det är samma algoritm som Visual Assembler
+  SID-editorns exporterade spelare och förhandsvisning, bildruta för bildruta.
+- Blobben placeras på en fast adress (standard `$8000`, eller `tune på $addr`)
   och `.prg` utfylls upp till den, som `load sid`. Håll den fri från din kod,
   arrayer (`$C000+`) och eventuellt bitmapps-/teckenuppsättningsminne. En tune
-  behöver cirka 1,3 KB plus 12 byte per rad-kolumn med data.
+  behöver cirka 2,5 KB plus 12 byte per rad-kolumn med data.
 - Högst 8 mönster (32 rader vardera); beställningslistan kan upprepa dem fritt.
 - `music play` använder CIA1-timern vid 50 Hz; kombinera den inte med en annan
   `load sid`/`tune` (den sista vinner).

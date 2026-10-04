@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.1 — Nyelvi kézikönyv
+# Ultimate Basic v1.6.2 — Nyelvi kézikönyv
 
 Teljes nyelvi és parancssori felület (CLI) referencia az Ultimate Basichez, egy
 BASIC-szerű nyelvhez, amely közvetlenül 6502-es gépi kóddá fordul Commodore
@@ -932,9 +932,14 @@ tune                       # optional: tune at $C800  (default $8000)
   speed 6                  # frames per row (50 Hz PAL)
   inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
   inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
+  imod 0, 6, 3, 9, 40, $0200, $0E00   # vibrato + pulse width modulation (1.6.2)
+  ifilt 0, $0500, 20, 1               # cutoff sweep up to $500, back and forth (1.6.2)
+  igate 1, 2, 1, $09                  # gate timer, hard restart, first frame $09 (1.6.2)
+  itab 1, 2, 0, ".. +0", ".. +4", ".. +7"   # arpeggio table (1.6.2)
   order 0, 1, 0            # pattern order (patterns may repeat)
   pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
   pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
+  pat 1, 0, "G-4 00", "...", "E-4 00", "...", "C-4 00"
 end
 music play                 # or: sys sid_init / irq handler calling sys sid_play
 ```
@@ -946,12 +951,16 @@ paramétert pontosan úgy definiálja, mint a `load sid` paramétert, így a `mu
 play`, `music stop`, `music pause` és `music resume` (és egy manuális `irq`
 kezelő, amely a `sys sid_play` függvényt hívja meg) változatlanul működik.
 
-| Vonal                                                 | Jelentés                                                                                                                                                                                                                                             |
-| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `speed N`                                             | Keretek követő soronként (1-255).                                                                                                                                                                                                                    |
-| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol` | Egy hangszer: vezérlőregiszter (hullámforma bitek; a gate bitet a játékos adja hozzá), attack/decay, sustain/release, 12 bites impulzusszélesség, 11 bites szűrő levágás, rezonancia/szűrő-útválasztás bájt (`$D417`) és mód/hangerő bájt (`$D418`). |
-| `order p, p, ...`                                     | Minta sorrend. A vonalak felhalmozódnak, akár 255 lépésben.                                                                                                                                                                                          |
-| `pat p, v, "cell", ...`                               | Legfeljebb 32 sor a `v` (0-2) hanghoz, amely a `p` (0-7) mintában található. A hiányzó sorok üresek.                                                                                                                                                 |
+| Vonal                                                                                                   | Jelentés                                                                                                                                                                                                                                                                                                                                                                                         |
+| ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `speed N`                                                                                               | Keretek követő soronként (1-255).                                                                                                                                                                                                                                                                                                                                                                |
+| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol`                                                   | Egy hangszer: vezérlőregiszter (hullámforma bitek plusz gyűrű mod `$04` / szinkron `$02`; a gate bitet a játékos adja hozzá), attack/decay, sustain/release, 12 bites impulzusszélesség, 11 bites szűrő levágás, rezonancia/szűrő-útválasztó bájt (`$D417` stílus: bármelyik útvonalválasztó bit = a hangszeren játszó hang útvonalát adja) és mód/hangerő bájt (`$D418` stílus, 7. bit = 3 KI). |
+| `imod azonosító, vibrációs késleltetés, vibrációs sebesség, vibrációmélység, pwmspeed, pwmmin, pwmmax ` | (1.6.2) Hangszer vibrato: az `vibdelay` keretek után egy háromszög alakú LFO, amely minden `vibspeed` keretben (1-15, 0 = kikapcsolva) bekapcsol, mélység 0-15 (a hangjegy félhangjára skálázva). Impulzusszélesség-moduláció: keretenként hozzáadott `pwmspeed` (0 = kikapcsolva), `pwmmin` és `pwmmax` között ugrál.                                                                           |
+| `ifilt azonosító, cutend, sweep, pingpong`                                                              | (1.6.2) Szűrő levágási sweep: az `inst` levágástól a `cutend` felé `sweep` (0-127) lépésekben képkockánként; `pingpong` 1 = oda-vissza.                                                                                                                                                                                                                                                          |
+| `igate azonosító, kapuidőzítő, hardrestart, első hullám`                                                | (1.6.2) A kapu a következő hangjegy előtt `gatetimer` képkockával feloldódik (tartsa a `speed` alatt); a `hardrestart` 1 parancs az ADSR-t is 0-ra állítja. A hangjegy első képkockájára a `firstwave` (pl. `$09` = test + gate) kerül írásra.                                                                                                                                                   |
+| `itab azonosító, sebesség, ciklus, "lépés", ...`                                                        | (1.6.2) Hullámforma / arpeggio táblázat, akár 32 lépésben: `"WW +n"`, `".. -n"` vagy `"WW =n"` - hullámforma hexadecimálisban (`..` megtartja) és egy hangjegy eltolás félhangokban vagy egy abszolút hangjegy (`=60`). Egy lépés minden `sebesség` képkockánként, majd vissza a `hurok` lépéshez (255 = marad az utolsó lépésen).                                                               |
+| `order p, p, ...`                                                                                       | Minta sorrend. A vonalak felhalmozódnak, akár 255 lépésben.                                                                                                                                                                                                                                                                                                                                      |
+| `pat p, v, "cell", ...`                                                                                 | Legfeljebb 32 sor a `v` (0-2) hanghoz, amely a `p` (0-7) mintában található. A hiányzó sorok üresek.                                                                                                                                                                                                                                                                                             |
 
 Egy **cell** a `NOTE INST FX`: `C-4`, `D#3`, `Eb2` vagy `...` ha nincs hang, egy
 kétjegyű hex hangszer (`..` ha ki akarja hagyni), és egy opcionális effekt -
@@ -965,11 +974,19 @@ Megjegyzések a lejátszóról:
   használ nulla oldalt, így nem ütközik az UltimateBasic változókkal vagy
   ideiglenes értékekkel, és akkor is működik tovább, amikor a program visszatér
   BASIC-be.
-- A blob egy fix címen található (alapértelmezett: `$8000`, vagy `tune at $addr`
+- Minden képkockán (1.6.2) a lejátszó lefuttatja az egyes hangszínek
+  hullámforma/arpeggio táblázatát, vibrato-ját, impulzusszélesség-modulációját
+  és kapuidőzítőjét/hard újraindítását, valamint annak a hangszínnek a
+  vágófrekvenciás sweepjét, amelyik utoljára indította el a szűrővel irányított
+  hangszert (ez birtokolja a szűrő vágófrekvenciáját, rezonanciáját és módját;
+  az `$D417` minden olyan hangszínt lefuttat, amelynek aktuális hangszere
+  szűrővel irányított). Ez ugyanaz az algoritmus, mint a Visual Assembler SID
+  szerkesztő exportált lejátszójában és előnézetében, képkockánként.
+- A blob egy fix címen található (alapértelmezett: `$8000`, vagy `tune a $addr`
   címen), és az `.prg` fájlt ehhez igazítják, például: `load sid`. Tartsd távol
   a kódodtól, tömböktől (`$C000+`) és bármilyen bitképes/karakterkészletes
-  memóriától. Egy blobnak körülbelül 1,3 KB-ra van szüksége, plusz
-  soronként-oszloponként 12 bájtra.
+  memóriától. Egy blobnak körülbelül 2,5 KB-ra van szüksége, plusz soronként és
+  oszloponként 12 bájtra.
 - Legfeljebb 8 minta (egyenként 32 sor); a rendezési lista szabadon ismételheti
   őket.
 - Az `music play` a CIA1 időzítőt használja 50 Hz-en; ne kombináld másik `load
