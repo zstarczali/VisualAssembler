@@ -1,7 +1,9 @@
 # Linux Installation Guide (Ubuntu / Debian)
-Version 2.5.1
+Version 2.5.2
 
-2.5.1: SID Editor instruments like a real tracker — filter routing per voice, 3 OFF and a cutoff sweep (start, end, speed per frame, ping-pong) for resonant filter sweeps; instrument vibrato (delay, speed, depth); pulse width modulation (speed, min, max); gate timer, hard restart and first-frame waveform; a wave / arpeggio table with presets (major / minor / octave arpeggio, kick, snare, hi-hat); RING and SYNC. The exported 6502 player was rewritten to run these every frame (JSR sid_frame from your own IRQ, less zero page), and the preview renders the same player through a small SID synthesizer, so edits are heard while playing and the row highlight follows speed changes; .bin saves keep instrument names and speed. The virtual keyboard can show 2, 3 or 4 octaves in a Commodore 64 synth look. Bundled Ultimate Basic 1.6.2: the tune block gains imod / ifilt / igate / itab lines, and the SID editor exports them. Also: bookmarks (Ctrl+F2 / F2 / Shift+F2) and Go to line (Ctrl+G) in the Expert and Ultimate Basic editors; label expressions (.assert, LEVEL_MULTICOLOR*16 ...) work in the installed app again (no eval under the release CSP); the D64 Editor file dialogs open in the active working folder; the Build project report names the output folder.
+2.5.2: every SID Editor preview now plays on the real SID (WebSid) — instrument Preview, virtual keyboard, note entry, chord, arpeggio, row and single-pattern playback — through a register stream fed frame by frame by the same engine as the exported player (the small synthesizer remains only as a fallback without WebSid); the stream player is preloaded so notes sound at once. The wave / arpeggio preset list keeps the chosen preset until the table is edited by hand. Tracker: a note-off (===, key 1 or typing === / OFF) releases the gate so the instrument's release runs — a note otherwise sustains until the next note, as in other trackers; Enter edits the selected cell; the tracker can be detached into a floating, resizable panel and docked back. The virtual keyboard is now called VA-VK, has Play / Stop buttons and remembers its position and settings, and the SID editor remembers its master volume. Knowledge Base: new links (C64 OS development environment, png2c64 image converter) in a two-column list.
+
+2.5.1: SID Editor instruments like a real tracker — filter routing per voice, 3 OFF and a cutoff sweep (start, end, speed per frame, ping-pong) for resonant filter sweeps; instrument vibrato (delay, speed, depth); pulse width modulation (speed, min, max); gate timer, hard restart and first-frame waveform; a wave / arpeggio table with 25 presets (arpeggios, drums, lead / bass attacks, sound effects); RING and SYNC. The exported 6502 player was rewritten to run these every frame (JSR sid_frame from your own IRQ, less zero page), and the preview renders the same player through a small SID synthesizer, so edits are heard while playing and the row highlight follows speed changes; .bin saves keep instrument names and speed. The virtual keyboard can show 2, 3 or 4 octaves in a Commodore 64 synth look. Bundled Ultimate Basic 1.6.2: the tune block gains imod / ifilt / igate / itab lines, and the SID editor exports them. Also: bookmarks (Ctrl+F2 / F2 / Shift+F2) and Go to line (Ctrl+G) in the Expert and Ultimate Basic editors; label expressions (.assert, LEVEL_MULTICOLOR*16 ...) work in the installed app again (no eval under the release CSP); the D64 Editor file dialogs open in the active working folder; the Build project report names the output folder.
 
 2.4.8: New KOALA macro — .koala "picture.koa" [, $2000] loads a Koala Painter picture and shows it: the data goes to $6000 (or $2000) and the block compiles to an 86-byte display routine (screen/color RAM copy, background colour, VIC bank, multicolor bitmap mode). The Hires editor can import and export Koala pictures (Files → Import Koala / Export Koala, standard 10003-byte .koa; hi-res pictures are converted to multicolor on export). Bundled Ultimate Basic 1.5.9 adds chain "FILE" [, device] (load another program over the running one and RUN it) and fixes load's secondary address and D64 writing. The update status now also shows in the Expert status bar, save dialogs offer the file's own type (e.g. .koa), and the update check reads the installer list from c64va.tech/downloads/VA/ so it keeps working with the new download page.
 
@@ -36,7 +38,7 @@ Tested on Ubuntu 22.04 and 24.04.
 Download the `.deb` package from the releases page and install:
 
 ```bash
-  sudo dpkg -i "c64-visual-assembler_2.5.1_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.5.2_amd64.deb"
 sudo apt-get install -f   # fix any missing dependencies
 ```
 
@@ -150,4 +152,4 @@ The app propagates `DISPLAY`, `WAYLAND_DISPLAY`, `XDG_RUNTIME_DIR`, `DBUS_SESSIO
 
 ---
 
-**Version:** 2.5.1 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.5.2 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64

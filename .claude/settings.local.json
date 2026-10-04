@@ -411,7 +411,11 @@
       "PowerShell($f = \"F:\\\\Development\\\\UltimateBasic\\\\examples\\\\level_scroll_demo.ub\"; $s = [IO.File]::ReadAllText\\($f\\); $s = $s.Replace\\(\"const SPEED = 2        # pixels per frame \\(1-7\\)\", \"const SCROLL_SPEED = 2 # pixels per frame \\(1-7\\)\"\\).Replace\\(\"  for k = 1 to SPEED                # SPEED one-pixel steps per frame, edges stay exact\", \"  for k = 1 to SCROLL_SPEED         # one-pixel steps per frame, so the edges stay exact\"\\); [IO.File]::WriteAllText\\($f, $s, \\(New-Object Text.UTF8Encoding $false\\)\\); cd F:\\\\Development\\\\UltimateBasic; cargo test --release --quiet 2>&1 | Select-String -Pattern 'test result|FAILED|panicked' | Select-Object -First 20; cd F:\\\\Development\\\\VisualAssembler)",
       "PowerShell(python \"C:\\\\Users\\\\rlung\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\F--Development-VisualAssembler\\\\254699c3-ab61-43ae-a379-d9c1dc5dcdfe\\\\scratchpad\\\\claude_sid.py\")",
       "PowerShell(python \"C:\\\\Users\\\\rlung\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\F--Development-VisualAssembler\\\\254699c3-ab61-43ae-a379-d9c1dc5dcdfe\\\\scratchpad\\\\bump251.py\")",
-      "PowerShell($l = Get-Content F:\\\\Development\\\\VisualAssembler\\\\src-tauri\\\\Cargo.lock; foreach \\($n in 63,118,338,490,4852\\) { \"$\\($n+1\\): $\\($l[$n-1]\\) / $\\($l[$n]\\)\" })"
+      "PowerShell($l = Get-Content F:\\\\Development\\\\VisualAssembler\\\\src-tauri\\\\Cargo.lock; foreach \\($n in 63,118,338,490,4852\\) { \"$\\($n+1\\): $\\($l[$n-1]\\) / $\\($l[$n]\\)\" })",
+      "Bash(node --test tests/sid-stream.test.js)",
+      "Bash(sed -i 's/^  \\\\\\(ASL\\\\|LSR\\\\\\) A$/  \\\\1/' tests/sid-stream.test.js)",
+      "Bash(python \"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/254699c3-ab61-43ae-a379-d9c1dc5dcdfe/scratchpad/bump252.py\")",
+      "Bash(grep -n -A6 \"^\\\\.sid-dialog,$\" www/style.css)"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"

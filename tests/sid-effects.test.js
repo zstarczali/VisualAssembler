@@ -106,11 +106,11 @@ test("cell text renders the effect column alongside note+instrument", () => {
 
 function loadSerdeSandbox() {
   return loadFunctions(
-    ["_sidInstFields", "_sidInstNorm", "_sidInstCtrl", "_sidInstExtBytes", "_sidReadInstExt", "_sidWaStop", "_sidInstBytes", "_sidWaveByte", "_sidNewInst", "_sidNewPattern", "_sidSerialize", "_sidDeserialize",
+    ["_sidInstFields", "_sidInstNorm", "_sidInstCtrl", "_sidInstExtBytes", "_sidReadInstExt", "_sidWaStop", "_sidStreamSilence", "_sidStreamPreload", "_sidInstBytes", "_sidWaveByte", "_sidNewInst", "_sidNewPattern", "_sidSerialize", "_sidDeserialize",
      "_sidSyncPlayModeSel", "_sidBuildInstSel", "_sidLoadInstUI", "_sidBuildPatSel", "_sidBuildSongList",
      "_sidBuildTracker", "_sidStop", "_sidUpdatePauseButton", "_sidCurInst"],
     {
-      Uint8Array, Math, String, Array, TextEncoder, TextDecoder, _sidSpeed: 6, _sidWaPlay: null, _sidPreviewSources: new Set(), _sidRenderTable: () => {},
+      Uint8Array, Math, String, Array, TextEncoder, TextDecoder, _sidSpeed: 6, _sidWaPlay: null, _sidStream: null, _webSidLoadSeq: 0, setTimeout: () => 0, _sidPreviewSources: new Set(), _sidRenderTable: () => {},
       document: { getElementById: (id) => (id === "sid-inst-name" ? {} : null), querySelectorAll: () => [] },
       t: (k) => k,
       tf: () => "",

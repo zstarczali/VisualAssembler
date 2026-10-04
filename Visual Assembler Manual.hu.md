@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.5.1**
+**Verzió: 2.5.2**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -26,6 +26,17 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - [12b. CRT export (Magic Desk 64K cartridge)](#12b-crt-export-magic-desk-64k-cartridge)
 - [13. Hardver beállítások](#13-hardver-beállítások)
 - [14. Vizuális szerkesztők (Toolkit)](#14-vizuális-szerkesztők-toolkit)
+
+---
+
+## A 2.5.2 verzió újdonságai
+
+- **SID Editor előnézetek a valódi SID-en** — a hangszer-előnézet, a virtuális billentyűzet, a hangbeírás, az akkord / arpeggio, a sor- és az egy patternes lejátszás a WebSid-en szól; a szintetizátor csak tartalék. Lásd: [SID Editor](#sid-editor-3-voice-tracker).
+- **Note-off** — az **1** billentyű `===`-t ír a trackerbe: elengedi a gate-et, és lefut a hangszer release-e, mint más trackerek key-off-ja; az **Enter** szerkeszti a kijelölt cellát.
+- **Leválasztható tracker** — a tracker (song, tracker és harmony sorok, rács) külön, átméretezhető lebegő panelbe tehető, és vissza.
+- **Wave / arpeggio előbeállítások** — a lista mutatja a választott előbeállítást, amíg a táblát kézzel nem szerkeszted.
+- **VA-VK** — a virtuális billentyűzet új neve, Play / Stop gombokkal; megjegyzi a helyét, a nyitott állapotát, az oktávot és az *Insert into tracker*-t; a SID szerkesztő **master hangereje** megmarad.
+- **Tudásbázis** — C64 OS fejlesztői környezet és png2c64 linkek, kétoszlopos lista. Lásd: [Tudásbázis linkek](#11-tudásbázis-linkek).
 
 ---
 
@@ -3391,6 +3402,8 @@ Gyorsreferencia linkek az appban a **Knowledge Base** alatt:
 | C64 Codebase | https://codebase.c64.org/ |
 | The Turbo Assembler | https://turbo.style64.org/ |
 | RetroDebugger | https://github.com/slajerek/RetroDebugger/ |
+| C64 OS Development Environment | https://www.c64os.com/c64os/programmersguide/?s=devenvironment |
+| png2c64 Image Converter | https://png2c64.app/ |
 
 ---
 
@@ -3754,7 +3767,7 @@ Réteges tilemap szerkesztő statikus díszlethez, sprite spawn map-ekhez, ütk�
 
 ### SID Editor (3-voice tracker)
 
-Több-hangszeres 3-voice tracker. Toolkit → SID Editor menüvel nyílik. A **Play: All** az exportált 6502 lejátszót futtatja a WebSid emulátorban; a hang-, sor- és pattern-előnézetet ugyanannak a lejátszónak a frame-pontos JS modellje rendereli egy kis SID-szintetizátoron át.
+Több-hangszeres 3-voice tracker. Toolkit → SID Editor menüvel nyílik. A **Play: All** az exportált 6502 lejátszót futtatja a WebSid emulátorban; minden más előnézet (hangszer-előnézet, virtuális billentyűzet, hangbeírás, akkord / arpeggio, sor- és egy patternes lejátszás) is az emulált SID-en szól: ugyanannak a lejátszónak a frame-pontos JS modellje frame-enként a WebSid-be küldi a SID-regisztereit, és legfeljebb három előnézeti hang osztozik a három voice-on. A stream-lejátszó a szerkesztő megnyitásakor és Stop után betöltődik, így a hang azonnal szól; WebSid nélkül egy kis SID-szintetizátor szól helyette.
 
 **Hangszerenkénti vezérlők:**
 - Hullámforma jelölőnégyzetek (TRI / SAW / PUL / NOI) — több hullámforma a SID-hez hasonlóan ÉS-elődik —, plusz **RING** (a háromszög gyűrűmodulációja az előző hanggal: 1 ← 3, 2 ← 1, 3 ← 2) és **SYNC** (hard sync az előző hanghoz).
@@ -3764,11 +3777,13 @@ Több-hangszeres 3-voice tracker. Toolkit → SID Editor menüvel nyílik. A **P
 - **Vibrato:** **Késleltetés** frame után háromszög LFO, ami **Sebesség** frame-enként fordul, a **Mélység** 0-15 a hang félhangjához skálázva (független a `V` effekttől).
 - **Pulzusszélesség-moduláció:** frame-enként **Sebesség** adódik a pulzusszélességhez, **Min** és **Max** között pattogva.
 - **Gate:** a **Gate időzítő** ennyi frame-mel a hang következő hangja előtt elengedi a gate-et (legyen kisebb a Speednél); a **Hard restart** ekkor az ADSR-t is nullázza a tiszta indításhoz; az **Első frame** a hang első frame-jén hullámformát ír (pl. `$09` test + gate).
-- **Wave / arpeggio tábla:** legfeljebb 32 lépés hullámformával (— = marad) és hanggal (eltolás félhangban, vagy **abs** = abszolút hang), lépésenként **Sebesség** frame, **Ismétlés** egy lépésre vissza, vagy megáll az utolsón. Előbeállítások: dúr / moll / oktáv arpeggio, lábdob, pergő, lábcin.
+- **Wave / arpeggio tábla:** legfeljebb 32 lépés hullámformával (— = marad) és hanggal (eltolás félhangban, vagy **abs** = abszolút hang), lépésenként **Sebesség** frame, **Ismétlés** egy lépésre vissza, vagy megáll az utolsón. **Előbeállítások** (25, csoportosítva; a lista mutatja a választottat, amíg a táblát kézzel nem szerkeszted): arpeggiók (dúr, moll, szeptimakkordok, sus4, szűkített, bővített, power akkord, oktáv, trilla), dobok (lábdob, pergő, tam, taps, zárt / nyitott lábcin), lead- és basszus-indítások, hangeffektek (lézer, felvétel, robbanás).
 
 **Tracker rács:**
 - 3 voice × akár 7 pattern × 32 sor = 7 × 32 = max 224 sor (a 8 bites sor-számláló korlátozza).
-- Soronként: note + hangszer-index, plusz egy opcionális effekt (lásd lentebb az **Effekt-oszlop**-ot). Az üres sorok az előző note-ot tartják.
+- Soronként: note + hangszer-index, plusz egy opcionális effekt (lásd lentebb az **Effekt-oszlop**-ot). Az üres sorok az előző note-ot tartják: más trackerekhez hasonlóan (GoatTracker, SID-Wizard) a hang gate-je nyitva marad (sustain szint) a voice következő hangjáig vagy egy **note-off**-ig.
+- Az **Enter** (vagy dupla kattintás) szövegként szerkeszti a kijelölt cellát (`C-4 01 V24`); az **Enter** ment és a következő sorra lép, az **Esc** elvet.
+- **Note-off** (`===`): **1** billentyű (vagy `` ` `` / `=`), vagy `===` / `OFF` a cellába írva. Elengedi a gate-et, így lefut a hangszer release-e — ugyanaz, mint a hang nélküli `C` effekt (`C00`-ként mentődik és exportálódik).
 - Válassz egy cellát normálisan, vagy tartsd a **Shift**-et kattintás vagy nyílbillentyű közben egy téglalap-kijelölés kiterjesztéséhez sorokon és a három voice bármelyikén át. A kijelölt területen belüli jobbklikk megőrzi a tartományt.
 - A Copy, Cut, Paste és Clear elérhető az ikon-eszköztárból és az ikon-alapú context menüből. A `Ctrl/Cmd+C` és `Ctrl/Cmd+V` ugyanazon a téglalap-kijelölésen működik.
 - Harmónia segéd: válassz alaphangot, akkord-típust és oktávot, hallgasd meg az akkordot az aktuális hangszerrel, majd szúrd be a hangzatot közvetlenül a trackerbe. Az elérhető típusok: Major, Minor, Diminished, Augmented, Sus2, Sus4, Dominant 7, Major 7, Minor 7, 6, Minor 6, 9, b9, #9, Dim7, 7sus4.
@@ -3797,7 +3812,7 @@ Az effektek soronként egyszer frissülnek (megegyezően az exportált lejátsz�
 
 **Lejátszás és virtuális billentyűzet:**
 - A Play eszköztár-gomb lejátszás közben Pause-ra, szüneteltetve Resume-ra vált; a Stop leállítja a lejátszást és visszaállítja az állapotot.
-- A billentyűzet eszköztár-gomb egy nem-modális zongorát nyit (2, 3 vagy 4 oktáv, megjegyzi), amely használható marad, míg a SID szerkesztő aktív. Húzd a fejlécét a fő alkalmazás fölé bárhova.
+- A billentyűzet eszköztár-gomb a **VA-VK**-t, egy nem-modális zongorát nyit (2, 3 vagy 4 oktáv; a helyét, a nyitott állapotát, az oktávot és az *Insert into tracker*-t megjegyzi) saját **Play / Stop** gombokkal, amely használható marad, míg a SID szerkesztő aktív. Húzd a fejlécét a fő alkalmazás fölé bárhova.
 - Engedélyezd az **Insert into tracker**-t, hogy minden lejátszott note az aktuális tracker-kurzorra íródjon, és a következő sorra lépjen. Kapcsold ki a note-ok meghallgatásához szerkesztés nélkül.
 - Az akkord- és arpeggio-előnézetek megvilágítják a megfelelő zongorabillentyűket, amikor a billentyűzet nyitva van.
 
@@ -3815,7 +3830,7 @@ Az effektek soronként egyszer frissülnek (megegyezően az exportált lejátsz�
 **Ismert korlátok:**
 - A 8 bites sor-számláló a nyers bankban 7 pattern × 32 sorra korlátoz (a song/sorrend lista patternek ismétlésével még mindig tetszőlegesen hosszú lehet).
 - A C64 `$D418` globális hangerő megosztott a voice-ok közt — a hangszerenkénti hangerő-csúszka informatív; a sustain szint (az ADSR `S`-e) a tényleges per-voice hangerő.
-- A Web Audio előnézet pontosan modellezi a lejátszót, de a szintetizátora csak közelíti a SID chipet (szűrőgörbe, kombinált hullámformák, burkológörbe-időzítés); a WebSid-es **Play: All** a pontos referencia.
+- Amíg a **Play: All** valódi dala be van töltve (szüneteltetve is), a hang-előnézet a kis szintetizátoron szól, ami csak közelíti a SID chipet. Az előnézet kb. 0,1 mp-cel a hang előtt jut a WebSid-be.
 
 ---
 
