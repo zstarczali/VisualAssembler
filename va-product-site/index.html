@@ -1449,6 +1449,39 @@
       flex-wrap: wrap
     }
 
+    .ai-development-note {
+      flex: 0 0 100%;
+      display: block;
+      padding: 0 0 26px;
+      border-bottom: 1px solid rgba(126, 181, 255, .18);
+      color: var(--txt-dim)
+    }
+
+    .ai-development-note img {
+      width: 150px;
+      height: auto;
+      object-fit: contain;
+      float: left;
+      margin: 2px 20px 10px 0
+    }
+
+    .ai-development-note p {
+      max-width: 940px;
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.65
+    }
+
+    .ai-development-note p + p {
+      margin-top: 8px
+    }
+
+    .ai-development-note::after {
+      content: '';
+      display: block;
+      clear: both
+    }
+
     .foot-brand {
       font-family: 'C64Pro', monospace;
       font-size: 12px;
@@ -1828,6 +1861,16 @@
       footer {
         padding-left: 24px;
         padding-right: 24px
+      }
+
+      .ai-development-note {
+        display: block
+      }
+
+      .ai-development-note img {
+        float: left;
+        width: 110px;
+        margin: 2px 16px 8px 0
       }
     }
 
@@ -3181,6 +3224,13 @@
   <!-- FOOTER -->
   <footer>
     <div class="foot-inner">
+      <div class="ai-development-note">
+        <img src="uploads/aid-white.png" alt="AI-driven development">
+        <div>
+          <p>AI-driven development means using AI as a force multiplier for your own knowledge and experience. On my own, I wouldn&rsquo;t be able to build a product like Visual Assembler/Ultimate Basic at this scale. But with AI, I can turn my ideas, technical expertise, and understanding of the problem into something much more ambitious.</p>
+          <p>AI doesn&rsquo;t replace the expertise behind the product, it gives me the ability to apply that expertise faster, across more areas, and build things that would otherwise be out of reach for a single developer.</p>
+        </div>
+      </div>
       <div class="foot-brand">C64 VISUAL ASSEMBLER — © 2026</div>
       <div class="foot-links">
         <a href="https://github.com/zstarczali/VisualAssembler" target="_blank">GITHUB</a>
