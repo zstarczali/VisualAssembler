@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Käyttöopas
 
-**Versio 2.5.1**
+**Versio 2.5.2**
 
 Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia vetämällä ja pudottamalla käskylohkoja ja nähdä luodun assemblerin ja konekoodin reaaliajassa.
 
@@ -9,6 +9,7 @@ Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
 ## Sisällysluettelo
 
 - [C64 Visual Assembler — Käyttöopas](#c64-visual-assembler--user-manual)
+    - [Version 2.5.2 kohokohdat](#version-252-highlights)
     - [Version 2.5.1 kohokohdat](#version-251-highlights)
     - [Version 2.5.0 kohokohdat](#version-250-highlights)
     - [Version 2.4.9 kohokohdat](#version-249-highlights)
@@ -171,6 +172,17 @@ Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Käyränmuokkausohjelma](#curve-editor)
     - [Numeronmuunnin](#number-converter)
+
+---
+
+## Version 2.5.2 kohokohdat
+
+- **SID Editorin esikatselut oikealla SID:llä** — instrumentin esikatselu, virtuaalinen koskettimisto, nuotin syöttö, sointu/arpeggio, rivi- ja yksittäisten kuvioiden toisto toistetaan WebSidin kautta; syntetisaattori jää vain varalta. Katso [SID Editor]{1].
+- **Note-off** — näppäin **1** kirjoittaa `===` seurantalaitteeseen: portti vapautetaan ja instrumentin vapautus tapahtuu kuten näppäin-off muissa seurantalaitteissa; **Enter** muokkaa valittua solua.
+- **Irrotettava seurantalaite** — seurantalaite (kappale-, seuranta- ja harmoniarivit, ruudukko) voi kellua omassa, muokattavan kokoisessa paneelissaan ja telakoitua takaisin.
+- **Wave-/arpeggio-esiasetukset** — esiasetusten luettelo säilyttää valitun esiasetuksen, kunnes taulukkoa muokataan käsin.
+- **VA-VK** — virtuaalisen koskettimiston uusi nimi, jossa on Toista/Pysäytä-painikkeet; se muistaa sijaintinsa, avoimen tilansa, oktaavin ja *Lisää seurantaan*; SID-editorin **päääänenvoimakkuus** muistetaan.
+- **Tietokanta** — C64-käyttöjärjestelmän kehitysympäristö ja png2c64-linkit, kaksisarakkeinen luettelo. Katso [Tietokannan linkit](#11-knowledge-base-links).
 
 ---
 
@@ -3497,16 +3509,18 @@ Napsauta minkä tahansa käskylohkon keskeytyskohdan kuvaketta (●) vaihtaakses
 
 Pikalinkit löytyvät sovelluksesta kohdasta **Tietokannasta**:
 
-| Resurssi               | URL-osoite                                     |
-| ---------------------- | ---------------------------------------------- |
-| 6502 Opcodes Reference | http://www.6502.org/tutorials/6502opcodes.html |
-| C64 KERNAL-funktiot    | https://sta.c64.org/cbm64krnfunc.html          |
-| C64-muistikartta       | https://sta.c64.org/cbm64mem.html              |
-| C64-värikoodit         | https://sta.c64.org/cbm64col.html              |
-| VIC-II-artikkeli       | https://www.cebix.net/VIC-Article.txt          |
-| C64-koodikanta         | https://codebase.c64.org/                      |
-| Turbo-kokoonpanija     | https://turbo.style64.org/                     |
-| RetroDebugger          | https://github.com/slajerek/RetroDebugger/     |
+| Resurssi                                | URL-osoite                                                     |
+| --------------------------------------- | -------------------------------------------------------------- |
+| 6502 Opcodes Reference                  | http://www.6502.org/tutorials/6502opcodes.html                 |
+| C64 KERNAL-funktiot                     | https://sta.c64.org/cbm64krnfunc.html                          |
+| C64-muistikartta                        | https://sta.c64.org/cbm64mem.html                              |
+| C64-värikoodit                          | https://sta.c64.org/cbm64col.html                              |
+| VIC-II-artikkeli                        | https://www.cebix.net/VIC-Article.txt                          |
+| C64-koodikanta                          | https://codebase.c64.org/                                      |
+| Turbo-kokoonpanija                      | https://turbo.style64.org/                                     |
+| RetroDebugger                           | https://github.com/slajerek/RetroDebugger/                     |
+| C64-käyttöjärjestelmän kehitysympäristö | https://www.c64os.com/c64os/programmersguide/?s=devenvironment |
+| png2c64-kuvamuunnin                     | https://png2c64.app/                                           |
 
 ---
 
@@ -3870,7 +3884,7 @@ Järjestää **Karttaeditorin näytöt** yhdeksi tasoksi — pystysuuntainen amm
 
 ### SID-editori (3-ääninen seuranta)
 
-Moniinstrumenttinen 3-ääninen seuranta. Avaa Toolkit → SID Editor -valikosta. **Play: All** suorittaa viedyn 6502-soittimen WebSid-emulaattorissa; nuottien, rivien ja kuvioiden esikatselut renderöidään saman soittimen JS-mallilla (ruutu ruudulta) pienen SID-syntetisaattorin kautta.
+Usean instrumentin 3-ääninen seuranta. Avaa Toolkit → SID Editor -komennolla. **Toisto: Kaikki ** ajaa viedyn 6502-soittimen WebSid-emulaattorissa; kaikki muut esikatselut (instrumentin esikatselu, virtuaalinäppäimistö, nuotin syöttö, sointu/arpeggio, rivi- ja yksittäisten kuvioiden toisto) toistetaan myös emuloidulla SID:llä: saman soittimen JS-malli (kehys kehykseltä) suoratoistaa SID-rekisterinsä WebSidiin joka kehys, ja jopa kolme esikatselunuottia jakaa kolme ääntä. Suoratoistosoitin latautuu, kun editori avautuu, ja uudelleen pysäytysnäppäimen jälkeen, joten nuotit soivat kerralla; ilman WebSidiä pieni SID-syntetisaattori soittaa sen sijaan.
 
 **Laitekohtaiset säätimet:**
 - Aaltomuodon valintaruudut (TRI / SAW / PUL / NOI) — useat aaltomuodot yhdistetään JA-operaattorilla kuten SID:ssä — sekä **RING** (kolmion rengasmodulaatio edellisellä äänellä: 1 ← 3, 2 ← 1, 3 ← 2) ja **SYNC** (kiinteä synkronointi edelliseen ääneen).
@@ -3880,11 +3894,13 @@ Moniinstrumenttinen 3-ääninen seuranta. Avaa Toolkit → SID Editor -valikosta
 - **Vibrato:**-efektin **Delay** jälkeen muodostaa kolmio-LFO:n, joka kääntyy **Speed** kehyksen välein, **Depth** 0-15 skaalattuna nuotin puolisävelaskeleen mukaan (riippumatta `V`-efektistä).
 - **Pulssinleveysmodulaatio:** **Nopeus** lisätään pulssinleveyteen joka ruudussa, vaihdellen **Min** ja **Max** välillä.
 - **Portti:** **Porttiajastin** vapauttaa portin niin monta kehystä ennen äänen seuraavaa nuottia (pidä se nopeuden alapuolella); **Kova uudelleenkäynnistys** nollaa myös ADSR:n puhtaan hyökkäyksen aikaansaamiseksi; **Ensimmäinen kehys** kirjoittaa aaltomuodon nuotin ensimmäiseen kehykseen (esim. `$09` testi + portti).
-- **Aaltomuoto-/arpeggiotaulukko:** jopa 32 aaltomuotoaskelta (— = säilytä) ja nuotti (puolisävelaskeleen siirtymä tai **abs** = absoluuttinen nuotti), yksi askel joka **Nopeus** kehyksen välein, **Silmukka** takaisin edelliseen askeleeseen tai pysäytys viimeisessä kehyksessä. Esiasetukset: duuri-/molli-/oktaavi-arpeggio, bassokaiutin, virveli, hi-hat.
+- **Aaltomuoto-/arpeggiotaulukko:** jopa 32 aaltomuodon askelta (— = säilytä) ja nuottia (puolisävelaskeleen siirtymä tai **abs** = absoluuttinen nuotti), yksi askel joka **Nopeus** ruudulla, **Silmukka** takaisin askeleeseen tai pysäytys edellisessä. **Presetit** (25, ryhmissä; lista säilyttää valitun presetin, kunnes taulukkoa muokataan käsin): arpeggiot (duuri, molli, septimisoinnut, sus4, dimensoitu, augmentoitu, power-sointu, oktaavi, trilli), rummut (basso, virveli, tomi, taputus, suljettu/avoin hi-hat), soolo- ja bassoiskut sekä äänitehosteet (laser, mikrofoni, explosion).
 
 **Seurantaruudukko:**
 - 3 ääntä × jopa 7 kuviota × 32 riviä = 7 × 32 = enintään 224 riviä (8-bittinen rivilaskuri rajoittaa sitä).
-- Riviä kohden: nuotti + instrumenttinumero sekä valinnainen efekti (katso **Efektisarake** alla). Tyhjät rivit sisältävät edellisen nuotin.
+- Rivikohtainen: nuotti + instrumenttiindeksi sekä valinnainen efekti (katso **Efektisarake** alla). Tyhjät rivit sisältävät edellisen nuotin: kuten muissakin seurantalaitteissa (GoatTracker, SID-Wizard), nuotti pitää porttinsa päällä (pitotasolla), kunnes äänen seuraava nuotti on tai **nuotti pois päältä**.
+- **Enter** (tai kaksoisnapsautus) muokkaa valitun solun tekstiksi (`C-4 01 V24`); **Enter** tallentaa ja siirtyy seuraavalle riville, **Esc** peruu toiminnon.
+- **Note-off** (`===`): näppäile **1** (tai `` ` `` / `=`), tai kirjoita `===` / `OFF` soluun. Se vapauttaa portin, joten instrumentin vapautus tapahtuu samalla tavalla kuin `C` -efekti ilman nuottia (tallennettu ja viety nimellä `C00`).
 - Valitse yksi solu normaalisti tai pidä **Shift**-näppäintä pohjassa samalla, kun napsautat tai käytät nuolinäppäimiä suorakulmaisen valinnan laajentamiseksi rivien ja minkä tahansa kolmen äänen yli. Hiiren kakkospainikkeella napsauttaminen valitun alueen sisällä pitää alueen ennallaan.
 - Kopioi, Leikkaa, Liitä ja Tyhjennä ovat käytettävissä kuvaketyökalurivillä ja kuvakepohjaisessa kontekstivalikosta. `Ctrl/Cmd+C` ja `Ctrl/Cmd+V` käyttävät samaa suorakaiteen muotoista valintaa.
 - Harmonia-apu: valitse perussävel, sointutyyppi ja oktaavi, esikuuntele sointu nykyisellä instrumentilla ja lisää sitten sointu suoraan seurantaan. Saatavilla olevia tyyppejä ovat duuri, molli, dimensoitu, augmentoitu, Sus2, Sus4, dominantti 7, duuri 7, molli 7, 6, molli 6, 9, b9, #9, dim7 ja 7sus4.
@@ -3912,7 +3928,7 @@ Tehosteet päivittyvät kerran riviä kohden (vastaamaan viedyn soittimen ajoitu
 
 **Toisto ja virtuaalinäppäimistö:**
 - Toista-työkalurivin painike muuttuu Tauko-painikkeeksi toiston aikana ja Jatka-painikkeeksi tauon aikana; Pysäytä-painike lopettaa toiston ja palauttaa tilan.
-- Näppäimistötyökalurivin painike avaa ei-modaalisen pianon (2, 3 tai 4 oktaavia, muistissa), jota voi käyttää SID-editorin ollessa aktiivinen. Vedä sen otsikkoa sijoittaaksesi sen mihin tahansa pääsovelluksen päälle.
+- Näppäimistön työkalupalkin painike avaa **VA-VK**, ei-modaalisen pianon (2, 3 tai 4 oktaavia; asento, avoin tila, oktaavi ja *Lisää seurantaan* muistetaan) omilla **Toista / Pysäytä** -painikkeillaan, jotka pysyvät käytettävissä SID-editorin ollessa aktiivinen. Vedä sen otsikkoa sijoittaaksesi sen mihin tahansa pääsovelluksen päälle.
 - Ota käyttöön **Lisää seurantaan** kirjoittaaksesi jokaisen soitetun nuotin nykyiseen seurantakursoriin ja siirtyäksesi seuraavalle riville. Poista se käytöstä kuunnellaksesi nuotteja ilman muokkausta.
 - Sointujen ja arpeggioiden esikatselut valaisevat vastaavat pianonäppäimet, kun koskettimet ovat auki.
 
@@ -3930,7 +3946,7 @@ Tehosteet päivittyvät kerran riviä kohden (vastaamaan viedyn soittimen ajoitu
 **Tunnetut rajat:**
 - 8-bittinen rivilaskuri rajoittaa jokaisen kuvion 7 kuvioon × 32 riviin raakapankissa (kappale-/järjestysluettelo voi silti olla mielivaltaisen pitkä toistamalla kuvioita).
 - C64 `$D418` globaali äänenvoimakkuus jaetaan eri äänien kesken — instrumenttikohtainen äänenvoimakkuuden liukusäädin on informatiivinen; sustain-taso (ADSR:n `S`) on efektiivinen äänenvoimakkuus äänittäin.
-- Web Audion esikatselu mallintaa soittimen tarkasti, mutta sen syntetisaattori vain approksimoi SID-sirun (suodatinkäyrä, yhdistetyt aaltomuodot, verhokäyrän ajoitus); **Play: All** WebSidin kautta on tarkka referenssi.
+- Vaikka **Play: All** lataa oikean sävelmän (myös tauolla), nuottien esikatselut palautuvat pieneen syntetisaattoriin, joka vain likimääräisesti vastaa SID-sirua. Esikatselut saapuvat WebSidiin noin 0,1 sekuntia ennen ääntä.
 
 ---
 

@@ -1,6 +1,6 @@
 # C64 Visuell Assembler — Användarmanual
 
-**Version 2.5.1**
+**Version 2.5.2**
 
 En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom att dra och släppa instruktionsblock och se den genererade assemblern och maskinkoden i realtid.
 
@@ -9,6 +9,7 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
 ## Innehållsförteckning
 
 - [C64 Visual Assembler — Användarmanual](#c64-visual-assembler--user-manual)
+    - [Höjdpunkter i version 2.5.2](#version-252-highlights)
     - [Höjdpunkter i version 2.5.1](#version-251-highlights)
     - [Höjdpunkter i version 2.5.0](#version-250-highlights)
     - [Höjdpunkter i version 2.4.9](#version-249-highlights)
@@ -171,6 +172,17 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
     - [SID-redigerare (3-röstsspårare)](#sid-editor-3-voice-tracker)
     - [Kurvredigerare](#curve-editor)
     - [Nummeromvandlare](#number-converter)
+
+---
+
+## Höjdpunkter i version 2.5.2
+
+- **SID Editor förhandsgranskningar på det riktiga SID:et** — instrumentförhandsgranskning, virtuellt tangentbord, notinmatning, ackord/arpeggio, rad- och enkelmönsteruppspelning via WebSid; synthesizern finns bara kvar som reserv. Se [SID Editor](#sid-editor-3-voice-tracker).
+- **Note-off** — tangent **1** skriver `===` in i spåraren: grinden släpps och instrumentets släppning sker, som en key-off i andra spårare; **Enter** redigerar den valda cellen.
+- **Avtagbar spårare** — spåraren (låt-, spårar- och harmonirader, rutnät) kan flyta i sin egen anpassningsbara panel och docka tillbaka.
+- **Våg-/arpeggioförinställningar** — förinställningslistan behåller den valda förinställningen tills tabellen redigeras manuellt.
+- **VA-VK** — det nya namnet på det virtuella tangentbordet, med knappar för uppspelning/stopp; det kommer ihåg dess position, öppet tillstånd, oktav och *Insert into tracker*; SID-redigerarens **mastervolym** kommer ihåg.
+- **Kunskapsbas** — C64 OS-utvecklingsmiljö och png2c64-länkar, lista med två kolumner. Se [Kunskapsbaslänkar](#11-knowledge-base-links).
 
 ---
 
@@ -3497,16 +3509,18 @@ Klicka på brytpunktsikonen (●) på valfritt instruktionsblock för att växla
 
 Snabblänkar finns i appen under **Kunskapsbas**:
 
-| Resurs                | URL                                            |
-| --------------------- | ---------------------------------------------- |
-| 6502 Opkoder Referens | http://www.6502.org/tutorials/6502opcodes.html |
-| C64 KERNAL-funktioner | https://sta.c64.org/cbm64krnfunc.html          |
-| C64 Minneskarta       | https://sta.c64.org/cbm64mem.html              |
-| C64 Färgkoder         | https://sta.c64.org/cbm64col.html              |
-| VIC-II-artikel        | https://www.cebix.net/VIC-Article.txt          |
-| C64-kodbas            | https://codebase.c64.org/                      |
-| Turbomonteraren       | https://turbo.style64.org/                     |
-| RetroDebugger         | https://github.com/slajerek/RetroDebugger/     |
+| Resurs                   | URL                                                            |
+| ------------------------ | -------------------------------------------------------------- |
+| 6502 Opkoder Referens    | http://www.6502.org/tutorials/6502opcodes.html                 |
+| C64 KERNAL-funktioner    | https://sta.c64.org/cbm64krnfunc.html                          |
+| C64 Minneskarta          | https://sta.c64.org/cbm64mem.html                              |
+| C64 Färgkoder            | https://sta.c64.org/cbm64col.html                              |
+| VIC-II-artikel           | https://www.cebix.net/VIC-Article.txt                          |
+| C64-kodbas               | https://codebase.c64.org/                                      |
+| Turbomonteraren          | https://turbo.style64.org/                                     |
+| RetroDebugger            | https://github.com/slajerek/RetroDebugger/                     |
+| C64 OS-utvecklingsmiljö  | https://www.c64os.com/c64os/programmersguide/?s=devenvironment |
+| png2c64 Bildkonverterare | https://png2c64.app/                                           |
 
 ---
 
@@ -3870,7 +3884,7 @@ Ordnar **Kartredigerarens skärmar** i en nivå — ett vertikalt skjutspel, ett
 
 ### SID-redigerare (3-röstsspårare)
 
-Tracker för flera instrument med 3 röster. Öppna via Toolkit → SID Editor. **Spela: All** kör den exporterade 6502-spelaren i WebSid-emulatorn; förhandsvisningar av noter, rader och mönster renderas av en JS-modell av samma spelare (bildruta för bildruta) genom en liten SID-synthesizer.
+Multiinstrument 3-rösters tracker. Öppna via Toolkit → SID Editor. **Spela: All** kör den exporterade 6502-spelaren i WebSid-emulatorn; alla andra förhandsvisningar (instrumentförhandsvisning, virtuellt tangentbord, notinmatning, ackord/arpeggio, rad- och enkelmönsteruppspelning) spelas också upp på det emulerade SID:et: en JS-modell av samma spelare (bildruta för bildruta) streamar sina SID-register till WebSid varje bildruta, och upp till tre förhandsvisningsnoter delar de tre rösterna. Streamspelaren laddas när editorn öppnas och igen efter Stopp, så noterna ljuder samtidigt; utan WebSid spelas en liten SID-synthesizer istället.
 
 **Kontroller per instrument:**
 - Kryssrutor för vågformer (TRI / SAW / PUL / NOI) — flera vågformer AND-behandlas som på SID — plus **RING** (ringmodulering av triangeln av föregående röst: 1 ← 3, 2 ← 1, 3 ← 2) och **SYNC** (hård synkronisering till föregående röst).
@@ -3880,11 +3894,13 @@ Tracker för flera instrument med 3 röster. Öppna via Toolkit → SID Editor. 
 - **Vibrato:** efter **Delay** ramar in en triangel-LFO som vrider varje **Speed** ram, **Depth** 0-15 skalad till notens halvton (oberoende av `V`-effekten).
 - **Pulsbreddsmodulering: ** **Hastighet** läggs till pulsbredden varje bildruta, och studsar mellan **Min** och **Max**.
 - **Gate:** **Gate-timern** släpper gaten så många bildrutor före nästa ton på rösten (håll den under Speed); **Hård omstart** nollställer även ADSR då, för en ren attack; **Första bildrutan** skriver en vågform på tonens första bildruta (t.ex. `$09` test + gate).
-- **Våg-/arpeggiotabell:** upp till 32 steg av vågform (— = behåll) och ton (offset i halvtoner, eller **abs** = absolut ton), ett steg varje **Hastighet** bildruta, **Loop** tillbaka till ett steg eller stopp på det sista. Förinställningar: dur/moll/oktav arpeggio, bastrumma, virveltrumma, hi-hat.
+- **Våg-/arpeggiotabell:** upp till 32 steg av vågform (— = behåll) och not (offset i halvtoner, eller **abs** = absolut not), ett steg varje **Hastighet** bildruta, **Loop** tillbaka till ett steg eller stopp på det sista. **Förinställningar** (25, i grupper; listan behåller den valda förinställningen tills tabellen redigeras manuellt): arpeggion (dur, moll, 7:e ackord, sus4, förminskat, förstärkt, powerackord, oktav, drill), trummor (bas, virveltrumma, puka, klapp, stängd/öppen hi-hat), lead- och basattacker och ljudeffekter (laser, pickup, explosion).
 
 **Spårningsrutnät:**
 - 3 röster × upp till 7 mönster × 32 rader = 7 × 32 = max 224 rader (8-bitars radräknare begränsar det).
-- Per rad: not + instrumentindex, plus en valfri effekt (se **Effektkolumnen** nedan). Tomma rader innehåller föregående not.
+- Per rad: not + instrumentindex, plus en valfri effekt (se **Effektkolumnen** nedan). Tomma rader innehåller föregående not: precis som i andra trackers (GoatTracker, SID-Wizard) behåller en not sin gate på (sustainnivå) tills nästa not på den rösten eller en **not-off**.
+- **Enter** (eller ett dubbelklick) redigerar den markerade cellen som text (`C-4 01 V24`); **Enter** sparar och flyttar till nästa rad, **Esc** avbryter.
+- **Note-off** (`===`): tangent **1** (eller `` ` `` / `=`), eller skriv `===` / `OFF` i en cell. Det frigör grinden, så instrumentets frigöring sker — på samma sätt som `C`-effekten utan en not (sparad och exporterad som `C00`).
 - Markera en cell normalt, eller håll ned **Shift** medan du klickar eller använder piltangenterna för att utöka en rektangulär markering över rader och någon av de tre rösterna. Om du högerklickar inuti det markerade området behålls området intakt.
 - Kopiera, Klipp ut, Klistra in och Rensa är tillgängliga från ikonverktygsfältet och den ikonbaserade snabbmenyn. `Ctrl/Cmd+C` och `Ctrl/Cmd+V` fungerar på samma rektangulära markering.
 - Harmonihjälp: välj en grundton, ackordtyp och oktav, förhandsgranska ackordet med det aktuella instrumentet och infoga sedan instämmandet direkt i spåraren. Tillgängliga typer inkluderar dur, moll, förminskad, förstärkt, sus2, sus4, dominant 7, dur 7, moll 7, 6, moll 6, 9, b9, #9, dim7 och 7sus4.
@@ -3912,7 +3928,7 @@ Effekter uppdateras en gång per rad (matchar den exporterade spelarens timing),
 
 **Uppspelning och virtuellt tangentbord:**
 - Knappen Spela upp i verktygsfältet ändras till Paus under uppspelning och till Återuppta under paus; Stopp avslutar uppspelningen och återställer läget.
-- Knappen i verktygsfältet för tangentbordet öppnar ett icke-modalt piano (2, 3 eller 4 oktaver, ihågkomna) som fortfarande kan användas medan SID-redigeraren är aktiv. Dra dess rubrik för att placera den var som helst över huvudprogrammet.
+- Knappen i verktygsfältet på tangentbordet öppnar **VA-VK**, ett icke-modalt piano (2, 3 eller 4 oktaver; position, öppet tillstånd, oktav och *Insert into tracker* kommer ihåg) med egna **Play / Stop**-knappar som förblir användbara medan SID-redigeraren är aktiv. Dra dess rubrik för att placera den var som helst över huvudapplikationen.
 - Aktivera **Insert into tracker** för att skriva varje spelad not vid den aktuella tracker-markören och gå vidare till nästa rad. Inaktivera den för att lyssna på noter utan att redigera.
 - Förhandsvisningar av ackord och arpeggio lyser upp motsvarande pianotangenter när klaviaturen är öppet.
 
@@ -3930,7 +3946,7 @@ Effekter uppdateras en gång per rad (matchar den exporterade spelarens timing),
 **Kända gränser:**
 - 8-bitars radräknare begränsar varje mönster till 7 mönster × 32 rader i råbanken (låt-/ordningslistan kan fortfarande bli godtyckligt lång genom att mönstren upprepas).
 - C64 `$D418` global volym delas mellan röster — volymreglaget per instrument är informativt; sustainnivån (`S` för ADSR) är den effektiva volymen per röst.
-- Förhandsvisningen av Web Audio modellerar spelaren exakt, men dess synthesizer approximerar bara SID-chippet (filterkurva, kombinerade vågformer, envelopptiming); **Play: All** till WebSid är den exakta referensen.
+- Medan **Play: All** har den riktiga melodin laddad (även när den är pausad), återgår tonförhandsvisningar till den lilla synthesizern, som bara approximerar SID-chippet. Förhandsvisningar når WebSid cirka 0,1 s före ljudet.
 
 ---
 

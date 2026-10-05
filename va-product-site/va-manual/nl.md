@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Gebruikershandleiding
 
-**Versie 2.5.1**
+**Versie 2.5.2**
 
 Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma's door instructieblokken te slepen en neer te zetten, en bekijk de gegenereerde assembly- en machinecode in realtime.
 
@@ -9,6 +9,7 @@ Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma'
 ## Inhoudsopgave
 
 - [C64 Visual Assembler — Gebruikershandleiding](#c64-visual-assembler--user-manual)
+    - [Hoogtepunten van versie 2.5.2](#version-252-highlights)
     - [Hoogtepunten van versie 2.5.1](#version-251-highlights)
     - [Hoogtepunten van versie 2.5.0](#version-250-highlights)
     - [Hoogtepunten van versie 2.4.9](#version-249-highlights)
@@ -171,6 +172,17 @@ Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma'
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Curve-editor](#curve-editor)
     - [Nummeromzetter](#number-converter)
+
+---
+
+## Hoogtepunten van versie 2.5.2
+
+- **SID Editor-voorbeelden op de echte SID** — instrumentvoorbeeld, virtueel toetsenbord, noteninvoer, akkoord/arpeggio, rij- en enkelpatroonweergave worden via WebSid afgespeeld; de synthesizer blijft alleen als terugvaloptie beschikbaar. Zie [SID Editor](#sid-editor-3-voice-tracker).
+- **Note-off** — toets **1** schrijft `===` in de tracker: de gate wordt vrijgegeven en de release van het instrument wordt uitgevoerd, zoals een key-off in andere trackers; **Enter** bewerkt de geselecteerde cel.
+- **Afneembare tracker** — de tracker (lied, tracker- en harmonierijen, raster) kan zweven in zijn eigen, in grootte aanpasbare paneel en weer vastgezet worden.
+- **Golf-/arpeggio-presets** — de presetlijst bewaart de gekozen preset totdat de tabel handmatig wordt bewerkt.
+- **VA-VK** — de nieuwe naam van het virtuele toetsenbord, met afspeel-/stopknoppen; het onthoudt zijn positie, open status, octaaf en *Invoegen in tracker*; het **hoofdvolume** van de SID-editor wordt onthouden.
+- **Kennisbank** — Links naar de C64 OS-ontwikkelomgeving en png2c64, lijst met twee kolommen. Zie [Links naar de kennisbank](#11-knowledge-base-links).
 
 ---
 
@@ -3497,16 +3509,18 @@ Klik op het breakpoint-pictogram (●) bij een instructieblok om dit als breakpo
 
 Snelkoppelingen zijn beschikbaar in de app onder **Kennisbank**:
 
-| Bron                    | URL                                            |
-| ----------------------- | ---------------------------------------------- |
-| 6502 Opcodes Referentie | http://www.6502.org/tutorials/6502opcodes.html |
-| C64 kernelfuncties      | https://sta.c64.org/cbm64krnfunc.html          |
-| C64-geheugenkaart       | https://sta.c64.org/cbm64mem.html              |
-| C64-kleurcodes          | https://sta.c64.org/cbm64col.html              |
-| VIC-II Artikel          | https://www.cebix.net/VIC-Article.txt          |
-| C64-codebasis           | https://codebase.c64.org/                      |
-| De Turbo Assembler      | https://turbo.style64.org/                     |
-| RetroDebugger           | https://github.com/slajerek/RetroDebugger/     |
+| Bron                         | URL                                                            |
+| ---------------------------- | -------------------------------------------------------------- |
+| 6502 Opcodes Referentie      | http://www.6502.org/tutorials/6502opcodes.html                 |
+| C64 kernelfuncties           | https://sta.c64.org/cbm64krnfunc.html                          |
+| C64-geheugenkaart            | https://sta.c64.org/cbm64mem.html                              |
+| C64-kleurcodes               | https://sta.c64.org/cbm64col.html                              |
+| VIC-II Artikel               | https://www.cebix.net/VIC-Article.txt                          |
+| C64-codebasis                | https://codebase.c64.org/                                      |
+| De Turbo Assembler           | https://turbo.style64.org/                                     |
+| RetroDebugger                | https://github.com/slajerek/RetroDebugger/                     |
+| C64 OS-ontwikkelomgeving     | https://www.c64os.com/c64os/programmersguide/?s=devenvironment |
+| png2c64 Afbeeldingsconverter | https://png2c64.app/                                           |
 
 ---
 
@@ -3870,7 +3884,7 @@ Hiermee kunnen de **Map Editor-schermen** in één level worden gerangschikt —
 
 ### SID-editor (3-stemmen tracker)
 
-Multi-instrument 3-stemmige tracker. Openen via Toolkit → SID Editor. **Play: All** voert de geëxporteerde 6502-speler uit in de WebSid-emulator; noot-, rij- en patroonvoorbeelden worden weergegeven door een JS-model van dezelfde speler (frame voor frame) via een kleine SID-synthesizer.
+Multi-instrument 3-stemmige tracker. Openen via Toolkit → SID Editor. **Play: All** voert de geëxporteerde 6502-speler uit in de WebSid-emulator; elke andere preview (instrumentpreview, virtueel toetsenbord, nootinvoer, akkoord/arpeggio, rij- en enkelpatroonweergave) wordt ook afgespeeld op de geëmuleerde SID: een JS-model van dezelfde speler (frame voor frame) streamt zijn SID-registers elke frame naar WebSid, en maximaal drie previewnoten delen de drie stemmen. De streamspeler wordt geladen wanneer de editor wordt geopend en opnieuw na Stop, zodat noten direct klinken; zonder WebSid speelt er in plaats daarvan een kleine SID-synthesizer.
 
 **Bedieningselementen per instrument:**
 - Golfvormselectievakjes (TRI / SAW / PUL / NOI) — meerdere golfvormen worden gecombineerd met een AND-bewerking zoals op de SID — plus **RING** (ringmodulatie van de driehoek door de vorige stem: 1 ← 3, 2 ← 1, 3 ← 2) en **SYNC** (harde synchronisatie met de vorige stem).
@@ -3880,11 +3894,13 @@ Multi-instrument 3-stemmige tracker. Openen via Toolkit → SID Editor. **Play: 
 - **Vibrato:** na **Delay** frames een driehoekige LFO die elke **Speed** frames draait, **Depth** 0-15 geschaald naar de halve toon van de noot (onafhankelijk van het `V` effect).
 - **Pulsbreedtemodulatie:** **Snelheid** wordt elke frame aan de pulsbreedte toegevoegd, waarbij deze schommelt tussen **Min** en **Max**.
 - **Gate:** **Gate timer** laat de gate los zoveel frames voor de volgende noot op de stem (houd deze onder Speed); **Hard restart** zet ADSR dan ook op nul, voor een zuivere attack; **Eerste frame** schrijft een golfvorm op het eerste frame van de noot (bijv. `$09` test + gate).
-- **Golf-/arpeggiotabel: ** tot 32 stappen van golfvorm (— = behouden) en noot (offset in halve tonen, of **abs** = absolute noot), één stap elke **Snelheid** frames, **Loop** terug naar een stap of stop op de laatste. Voorinstellingen: majeur/mineur/octaaf arpeggio, kick, snare, hi-hat.
+- **Golf-/arpeggiotabel: ** tot 32 stappen golfvorm (— = behouden) en noot (offset in halve tonen, of **abs** = absolute noot), één stap per **Speed** frames, **Loop** terug naar een stap of stop op de laatste. **Presets** (25, in groepen; de lijst bewaart de gekozen preset totdat de tabel handmatig wordt bewerkt): arpeggio's (majeur, mineur, septiemakkoorden, sus4, verminderd, verhoogd, powerchord, octaaf, triller), drums (kick, snare, tom, clap, gesloten/open hi-hat), lead- en basaanvallen en geluidseffecten (laser, pickup, explosie).
 
 **Tracker raster:**
 - 3 stemmen × tot 7 patronen × 32 rijen = 7 × 32 = maximaal 224 rijen (beperking door een 8-bits rijteller).
-- Per rij: noot + instrumentindex, plus een optioneel effect (zie **Effectkolom** hieronder). Lege rijen bevatten de vorige noot.
+- Per rij: noot + instrumentindex, plus een optioneel effect (zie **Effectkolom** hieronder). Lege rijen bevatten de vorige noot: net als in andere trackers (GoatTracker, SID-Wizard) houdt een noot zijn gate aan (sustainniveau) tot de volgende noot op die stem of een **noot-uit**.
+- **Enter** (of een dubbelklik) bewerkt de geselecteerde cel als tekst (`C-4 01 V24`); **Enter** slaat op en gaat naar de volgende rij, **Esc** annuleert.
+- **Noot-uit** (`===`): toets **1** (of `` ` `` / `=`), of typ `===` / `UIT` in een cel. Het laat de gate los, zodat de release van het instrument wordt uitgevoerd — hetzelfde als het `C`-effect zonder noot (opgeslagen en geëxporteerd als `C00`).
 - Selecteer een cel op de normale manier, of houd **Shift** ingedrukt terwijl u klikt of de pijltjestoetsen gebruikt om een rechthoekige selectie uit te breiden over rijen en elk van de drie stemmen. Door met de rechtermuisknop binnen het geselecteerde gebied te klikken, blijft het bereik intact.
 - Kopiëren, knippen, plakken en wissen zijn beschikbaar via de iconenwerkbalk en het contextmenu met pictogrammen. `Ctrl/Cmd+C` en `Ctrl/Cmd+V` werken op dezelfde rechthoekige selectie.
 - Harmoniehulpmiddel: kies een grondtoon, akkoordtype en octaaf, beluister het akkoord met het huidige instrument en voeg de stemvoering vervolgens direct in de tracker in. Beschikbare typen zijn onder andere majeur, mineur, verminderd, verhoogd, sus2, sus4, dominant septiem, majeur septiem, mineur septiem, sext, mineur sext, none, b9, #9, verminderd septiem en 7sus4.
@@ -3912,7 +3928,7 @@ Effecten worden één keer per regel bijgewerkt (overeenkomend met de timing van
 
 **Afspelen en virtueel toetsenbord:**
 - De knop 'Afspelen' in de werkbalk verandert in 'Pauze' tijdens het afspelen en in 'Hervatten' wanneer het afspelen gepauzeerd is; 'Stop' beëindigt het afspelen en zet de status terug naar de beginstand.
-- De knop in de toetsenbordwerkbalk opent een niet-modaal pianovenster (2, 3 of 4 octaven, onthouden) dat bruikbaar blijft zolang de SID-editor actief is. Versleep de koptekst om het venster overal boven de hoofdapplicatie te plaatsen.
+- De knop in de toetsenbordwerkbalk opent **VA-VK**, een niet-modaal piano (2, 3 of 4 octaven; positie, open status, octaaf en *Invoegen in tracker* worden onthouden) met eigen **Afspelen/Stoppen**-knoppen die bruikbaar blijft terwijl de SID-editor actief is. Sleep de koptekst om deze overal boven de hoofdapplicatie te plaatsen.
 - Schakel **Invoegen in tracker** in om elke gespeelde noot op de huidige trackercursor te schrijven en naar de volgende regel te gaan. Schakel deze functie uit om noten te beluisteren zonder ze te bewerken.
 - Bij het openen van het klavier lichten de bijbehorende pianotoetsen op als de akkoord- en arpeggiovoorbeelden worden weergegeven.
 
@@ -3930,7 +3946,7 @@ Effecten worden één keer per regel bijgewerkt (overeenkomend met de timing van
 **Bekende limieten:**
 - Een 8-bits rijteller beperkt elk patroon tot 7 patronen × 32 rijen in de ruwe databank (de lijst met nummers/volgordes kan nog steeds willekeurig lang zijn door herhalende patronen).
 - C64 `$D418` Het globale volume wordt gedeeld over alle stemmen — de volumeregelaar per instrument is informatief; het sustainniveau (`S` van ADSR) is het effectieve volume per stem.
-- De Web Audio-preview modelleert de speler exact, maar de synthesizer benadert slechts de SID-chip (filtercurve, gecombineerde golfvormen, envelope-timing); **Play: All** via WebSid is de exacte referentie.
+- Terwijl **Play: All** de echte melodie geladen heeft (ook wanneer gepauzeerd), vallen de notenvoorbeelden terug op de kleine synthesizer, die slechts een benadering is van de SID-chip. De voorbeelden bereiken WebSid ongeveer 0,1 seconde eerder dan het geluid.
 
 ---
 

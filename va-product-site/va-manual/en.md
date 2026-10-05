@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.5.1**
+**Version 2.5.2**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -9,6 +9,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
+    - [Version 2.5.2 Highlights](#version-252-highlights)
     - [Version 2.5.1 Highlights](#version-251-highlights)
     - [Version 2.5.0 Highlights](#version-250-highlights)
     - [Version 2.4.9 Highlights](#version-249-highlights)
@@ -171,6 +172,17 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Curve Editor](#curve-editor)
     - [Number Converter](#number-converter)
+
+---
+
+## Version 2.5.2 Highlights
+
+- **SID Editor previews on the real SID** — instrument Preview, virtual keyboard, note entry, chord / arpeggio, row and single-pattern playback play through WebSid; the synthesizer remains only as a fallback. See [SID Editor](#sid-editor-3-voice-tracker).
+- **Note-off** — key **1** writes `===` into the tracker: the gate is released and the instrument's release runs, like a key-off in other trackers; **Enter** edits the selected cell.
+- **Detachable tracker** — the tracker (song, tracker and harmony rows, grid) can float in its own resizable panel and dock back.
+- **Wave / arpeggio presets** — the preset list keeps the chosen preset until the table is edited by hand.
+- **VA-VK** — the new name of the virtual keyboard, with Play / Stop buttons; it remembers its position, open state, octave and *Insert into tracker*; the SID editor's **master volume** is remembered.
+- **Knowledge Base** — C64 OS development environment and png2c64 links, two-column list. See [Knowledge Base Links](#11-knowledge-base-links).
 
 ---
 
@@ -3537,6 +3549,8 @@ Quick reference links available in the app under **Knowledge Base**:
 | C64 Codebase | https://codebase.c64.org/ |
 | The Turbo Assembler | https://turbo.style64.org/ |
 | RetroDebugger | https://github.com/slajerek/RetroDebugger/ |
+| C64 OS Development Environment | https://www.c64os.com/c64os/programmersguide/?s=devenvironment |
+| png2c64 Image Converter | https://png2c64.app/ |
 
 ---
 
@@ -3900,7 +3914,7 @@ Arranges **Map Editor screens** into one level — a vertical shooter, a car gam
 
 ### SID Editor (3-Voice Tracker)
 
-Multi-instrument 3-voice tracker. Open via Toolkit → SID Editor. **Play: All** runs the exported 6502 player in the WebSid emulator; note, row and pattern previews are rendered by a JS model of the same player (frame for frame) through a small SID synthesizer.
+Multi-instrument 3-voice tracker. Open via Toolkit → SID Editor. **Play: All** runs the exported 6502 player in the WebSid emulator; every other preview (instrument Preview, virtual keyboard, note entry, chord / arpeggio, row and single-pattern playback) also plays on the emulated SID: a JS model of the same player (frame for frame) streams its SID registers to WebSid every frame, and up to three preview notes share the three voices. The stream player is loaded when the editor opens and again after Stop, so notes sound at once; without WebSid a small SID synthesizer plays instead.
 
 **Per-instrument controls:**
 - Waveform checkboxes (TRI / SAW / PUL / NOI) — multiple waveforms are ANDed like on the SID — plus **RING** (ring modulation of the triangle by the previous voice: 1 ← 3, 2 ← 1, 3 ← 2) and **SYNC** (hard sync to the previous voice).
@@ -3910,11 +3924,13 @@ Multi-instrument 3-voice tracker. Open via Toolkit → SID Editor. **Play: All**
 - **Vibrato:** after **Delay** frames a triangle LFO that turns every **Speed** frames, **Depth** 0-15 scaled to the note's semitone (independent of the `V` effect).
 - **Pulse width modulation:** **Speed** added to the pulse width every frame, bouncing between **Min** and **Max**.
 - **Gate:** **Gate timer** releases the gate that many frames before the next note on the voice (keep it below Speed); **Hard restart** also zeroes ADSR then, for a clean attack; **First frame** writes a waveform on the note's first frame (e.g. `$09` test + gate).
-- **Wave / arpeggio table:** up to 32 steps of waveform (— = keep) and note (offset in semitones, or **abs** = absolute note), one step every **Speed** frames, **Loop** back to a step or stop on the last one. Presets: major / minor / octave arpeggio, kick, snare, hi-hat.
+- **Wave / arpeggio table:** up to 32 steps of waveform (— = keep) and note (offset in semitones, or **abs** = absolute note), one step every **Speed** frames, **Loop** back to a step or stop on the last one. **Presets** (25, in groups; the list keeps the chosen preset until the table is edited by hand): arpeggios (major, minor, 7th chords, sus4, diminished, augmented, power chord, octave, trill), drums (kick, snare, tom, clap, closed / open hi-hat), lead and bass attacks, and sound effects (laser, pickup, explosion).
 
 **Tracker grid:**
 - 3 voices × up to 7 patterns × 32 rows = 7 × 32 = 224 rows max (8-bit row counter constrains it).
-- Per-row: note + instrument index, plus an optional effect (see **Effect column** below). Empty rows hold the previous note.
+- Per-row: note + instrument index, plus an optional effect (see **Effect column** below). Empty rows hold the previous note: like in other trackers (GoatTracker, SID-Wizard), a note keeps its gate on (sustain level) until the next note on that voice or a **note-off**.
+- **Enter** (or a double-click) edits the selected cell as text (`C-4 01 V24`); **Enter** saves and moves to the next row, **Esc** cancels.
+- **Note-off** (`===`): key **1** (or `` ` `` / `=`), or type `===` / `OFF` into a cell. It releases the gate, so the instrument's release runs — the same as the `C` effect without a note (saved and exported as `C00`).
 - Select one cell normally, or hold **Shift** while clicking or using the arrow keys to extend a rectangular selection across rows and any of the three voices. Right-clicking inside the selected area keeps the range intact.
 - Copy, Cut, Paste, and Clear are available from the icon toolbar and the icon-based context menu. `Ctrl/Cmd+C` and `Ctrl/Cmd+V` operate on the same rectangular selection.
 - Harmony helper: choose a root note, chord type, and octave, preview the chord with the current instrument, then insert the voicing directly into the tracker. Available types include Major, Minor, Diminished, Augmented, Sus2, Sus4, Dominant 7, Major 7, Minor 7, 6, Minor 6, 9, b9, #9, Dim7, and 7sus4.
@@ -3943,7 +3959,7 @@ Effects update once per row (matching the exported player's timing), run identic
 
 **Playback and virtual keyboard:**
 - The Play toolbar button changes to Pause during playback and to Resume while paused; Stop ends playback and resets the state.
-- The keyboard toolbar button opens a non-modal piano (2, 3 or 4 octaves, remembered) that remains usable while the SID editor is active. Drag its header to place it anywhere over the main application.
+- The keyboard toolbar button opens **VA-VK**, a non-modal piano (2, 3 or 4 octaves; position, open state, octave and *Insert into tracker* are remembered) with its own **Play / Stop** buttons that remains usable while the SID editor is active. Drag its header to place it anywhere over the main application.
 - Enable **Insert into tracker** to write each played note at the current tracker cursor and advance to the next row. Disable it to audition notes without editing.
 - Chord and arpeggio previews illuminate the corresponding piano keys when the keyboard is open.
 
@@ -3961,7 +3977,7 @@ Effects update once per row (matching the exported player's timing), run identic
 **Known limits:**
 - 8-bit row counter limits each pattern to 7 patterns × 32 rows in the raw bank (the song/order list can still be arbitrarily long by repeating patterns).
 - C64 `$D418` global volume is shared across voices — the per-instrument volume slider is informational; sustain level (`S` of ADSR) is the effective per-voice volume.
-- The Web Audio preview models the player exactly, but its synthesizer only approximates the SID chip (filter curve, combined waveforms, envelope timing); **Play: All** through WebSid is the exact reference.
+- While **Play: All** has the real tune loaded (also when paused), note previews fall back to the small synthesizer, which only approximates the SID chip. Previews reach WebSid about 0.1 s ahead of the sound.
 
 ---
 

@@ -531,6 +531,16 @@
       content: 'C64VA  ●  PROGRAM BLOCKS + ASM VIEW'
     }
 
+    .release-sid-shot .screen-wrap {
+      overflow: hidden
+    }
+
+    .release-sid-shot .screen-wrap img {
+      height: clamp(180px, 28vw, 360px);
+      object-fit: cover;
+      object-position: top center
+    }
+
     .cartridge-shot .screen-wrap::before {
       content: 'C64VA  ●  MAGIC DESK 64K CARTRIDGE'
     }
@@ -1913,6 +1923,11 @@
             <div class="fi-dot">&#9658;</div>
             <div><b>VA-VK, presets, Knowledge Base</b> <span>&mdash; the virtual keyboard gets its name, the arpeggio preset list keeps your choice, and the Knowledge Base gains C64 OS and png2c64 links in two columns.</span></div>
           </div>
+        </div>
+      </div>
+      <div class="about-right release-sid-shot">
+        <div class="screen-wrap">
+          <img src="uploads/newsid.png" alt="New SID Editor in Visual Assembler version 2.5.2" width="2099" height="1392">
         </div>
       </div>
     </div>

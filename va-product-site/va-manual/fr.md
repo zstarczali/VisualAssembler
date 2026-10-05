@@ -1,6 +1,6 @@
 # Manuel d'utilisation de l'assembleur visuel C64
 
-**Version 2.5.1**
+**Version 2.5.2**
 
 Un assembleur 6502 visuel et basé sur des blocs pour le Commodore 64. Créez des programmes en faisant glisser et en déposant des blocs d'instructions, et visualisez en temps réel le code assembleur et le code machine générés.
 
@@ -9,6 +9,7 @@ Un assembleur 6502 visuel et basé sur des blocs pour le Commodore 64. Créez de
 ## Table des matières
 
 - [C64 Visual Assembler — Manuel de l'utilisateur](#c64-visual-assembler--user-manual)
+    - [Points saillants de la version 2.5.2](#version-252-highlights)
     - [Points saillants de la version 2.5.1](#version-251-highlights)
     - [Points saillants de la version 2.5.0](#version-250-highlights)
     - [Points saillants de la version 2.4.9](#version-249-highlights)
@@ -171,6 +172,17 @@ Un assembleur 6502 visuel et basé sur des blocs pour le Commodore 64. Créez de
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Éditeur de courbes](#curve-editor)
     - [Convertisseur de nombres](#number-converter)
+
+---
+
+## Points saillants de la version 2.5.2
+
+- **L'éditeur SID permet de prévisualiser l'instrument sur le SID réel** : prévisualisation, clavier virtuel, saisie de notes, accords/arpèges, lecture de séquences et de motifs individuels via WebSid ; le synthétiseur n'est utilisé qu'en dernier recours. Voir [Éditeur SID](#sid-editor-3-voice-tracker).
+- **Note-off** — touche **1** écrit `===` dans le tracker : la porte est relâchée et le relâchement de l'instrument se déroule, comme une key-off dans d'autres trackers ; **Entrée** modifie la cellule sélectionnée.
+- **Suivi détachable** — le suivi (chanson, lignes de suivi et d'harmonie, grille) peut flotter dans son propre panneau redimensionnable et s'ancrer à nouveau.
+- **Préréglages Wave / arpège** — la liste des préréglages conserve le préréglage choisi jusqu'à ce que le tableau soit modifié manuellement.
+- **VA-VK** — le nouveau nom du clavier virtuel, avec des boutons Play / Stop ; il se souvient de sa position, de son état ouvert, de son octave et *Insérer dans le tracker* ; le volume principal de l'éditeur SID **** est mémorisé.
+- **Base de connaissances** — Environnement de développement C64 OS et liens png2c64, liste à deux colonnes. Voir [Liens de la base de connaissances](#11-knowledge-base-links).
 
 ---
 
@@ -3497,16 +3509,18 @@ Cliquez sur l'icône de point d'arrêt (●) sur un bloc d'instructions pour le 
 
 Liens de référence rapide disponibles dans l'application sous **Base de connaissances** :
 
-| Ressource                            | URL                                            |
-| ------------------------------------ | ---------------------------------------------- |
-| Référence des codes d'opération 6502 | http://www.6502.org/tutorials/6502opcodes.html |
-| Fonctions du noyau C64               | https://sta.c64.org/cbm64krnfunc.html          |
-| Carte mémoire du C64                 | https://sta.c64.org/cbm64mem.html              |
-| Codes couleur C64                    | https://sta.c64.org/cbm64col.html              |
-| Article VIC-II                       | https://www.cebix.net/VIC-Article.txt          |
-| Base de code C64                     | https://codebase.c64.org/                      |
-| Le Turbo Assembleur                  | https://turbo.style64.org/                     |
-| RetroDebugger                        | https://github.com/slajerek/RetroDebugger/     |
+| Ressource                                                    | URL                                                            |
+| ------------------------------------------------------------ | -------------------------------------------------------------- |
+| Référence des codes d'opération 6502                         | http://www.6502.org/tutorials/6502opcodes.html                 |
+| Fonctions du noyau C64                                       | https://sta.c64.org/cbm64krnfunc.html                          |
+| Carte mémoire du C64                                         | https://sta.c64.org/cbm64mem.html                              |
+| Codes couleur C64                                            | https://sta.c64.org/cbm64col.html                              |
+| Article VIC-II                                               | https://www.cebix.net/VIC-Article.txt                          |
+| Base de code C64                                             | https://codebase.c64.org/                                      |
+| Le Turbo Assembleur                                          | https://turbo.style64.org/                                     |
+| RetroDebugger                                                | https://github.com/slajerek/RetroDebugger/                     |
+| Environnement de développement du système d'exploitation C64 | https://www.c64os.com/c64os/programmersguide/?s=devenvironment |
+| Convertisseur d'images png2c64                               | https://png2c64.app/                                           |
 
 ---
 
@@ -3870,7 +3884,7 @@ Organise les écrans de l'éditeur de cartes en un seul niveau (jeu de tir verti
 
 ### Éditeur SID (Traqueur à 3 voix)
 
-Tracker multi-instrument à 3 voix. Ouverture via Toolkit → Éditeur SID. **Lecture : Tout** exécute le lecteur 6502 exporté dans l’émulateur WebSid ; les aperçus des notes, des lignes et des motifs sont rendus par un modèle JS du même lecteur (image par image) via un petit synthétiseur SID.
+Tracker multi-instrumental à 3 voix. Ouverture via Toolkit → Éditeur SID. **Lecture : Tout** exécute le lecteur 6502 exporté dans l’émulateur WebSID ; toutes les autres prévisualisations (prévisualisation d’instrument, clavier virtuel, saisie de notes, accords/arpèges, lecture de lignes et de motifs uniques) sont également jouées sur le SID émulé : un modèle JS du même lecteur (image par image) transmet ses registres SID à WebSID à chaque image, et jusqu’à trois notes de prévisualisation partagent les trois voix. Le lecteur de flux est chargé à l’ouverture de l’éditeur et à nouveau après l’arrêt, de sorte que les notes sonnent simultanément ; sans WebSID, un petit synthétiseur SID est utilisé.
 
 **Commandes par instrument :**
 - Cases à cocher de forme d'onde (TRI / SAW / PUL / NOI) — plusieurs formes d'onde sont combinées par ET comme sur le SID — plus **RING** (modulation en anneau du triangle par la voix précédente : 1 ← 3, 2 ← 1, 3 ← 2) et **SYNC** (synchronisation dure avec la voix précédente).
@@ -3880,11 +3894,13 @@ Tracker multi-instrument à 3 voix. Ouverture via Toolkit → Éditeur SID. **Le
 - **Vibrato:** après **Délai** images un LFO triangulaire qui tourne toutes les **Vitesse** images, **Profondeur** 0-15 mis à l'échelle au demi-ton de la note (indépendamment de l'effet `V`).
 - **Modulation de largeur d'impulsion : ** **Vitesse ** ajoutée à la largeur d'impulsion à chaque image, oscillant entre **Min ** et **Max **.
 - **Gate:** **Gate timer** libère la porte ce nombre d'images avant la prochaine note sur la voix (gardez-le en dessous de la vitesse); **Hard restart** met également l'ADSR à zéro, pour une attaque propre; **First frame** écrit une forme d'onde sur la première image de la note (par exemple `$09` test + porte).
-- **Tableau d'ondes/arpèges : ** jusqu'à 32 pas de forme d'onde (— = conserver) et de note (décalage en demi-tons, ou **abs** = note absolue), un pas toutes les **Vitesse** images, **Boucle** retour au pas précédent ou arrêt sur le dernier. Préréglages : arpège majeur/mineur/octave, grosse caisse, caisse claire, charleston.
+- **Tableau d'ondes/arpèges : ** jusqu'à 32 pas de forme d'onde (— = conserver) et de note (décalage en demi-tons, ou **abs** = note absolue), un pas toutes les **Vitesse** images, **Boucle** retour au pas précédent ou arrêt sur le dernier. **Préréglages** (25, en groupes ; la liste conserve le préréglage choisi jusqu'à ce que le tableau soit modifié manuellement) : arpèges (majeur, mineur, accords de septième, sus4, diminué, augmenté, power chord, octave, trille), batterie (grosse caisse, caisse claire, tom, clap, charleston fermé/ouvert), attaques de lead et de basse, et effets sonores (laser, micro, explosion).
 
 **Grille de suivi :**
 - 3 voix × jusqu'à 7 motifs × 32 lignes = 7 × 32 = 224 lignes max (le compteur de lignes 8 bits le limite).
-- Par ligne : note + index de l’instrument, plus un effet optionnel (voir **Colonne Effet** ci-dessous). Les lignes vides contiennent la note précédente.
+- Par ligne : note + index de l’instrument, plus un effet optionnel (voir la colonne Effet ci-dessous). Les lignes vides contiennent la note précédente : comme dans d’autres trackers (GoatTracker, SID-Wizard), une note conserve son niveau de sustain jusqu’à la note suivante de cette voix ou jusqu’à l’arrêt de la note.
+- **Entrée** (ou un double-clic) modifie la cellule sélectionnée en tant que texte (`C-4 01 V24`); **Entrée** enregistre et passe à la ligne suivante, **Échap** annule.
+- **Note-off** (`===`) : appuyez sur **1** (ou `` ` `` / `=`), ou saisissez `===` / `OFF` dans une cellule. Cela libère le gate, et le relâchement de l'instrument s'exécute — de la même manière que l'effet `C` sans note (enregistré et exporté sous le nom `C00`).
 - Sélectionnez une cellule normalement, ou maintenez les touches **Maj** enfoncées tout en cliquant ou en utilisant les flèches directionnelles pour étendre une sélection rectangulaire sur plusieurs lignes et l'une des trois voix. Un clic droit à l'intérieur de la zone sélectionnée permet de conserver la plage intacte.
 - Les fonctions Copier, Couper, Coller et Effacer sont accessibles depuis la barre d'outils et le menu contextuel. Les codes `Ctrl/Cmd+C` et `Ctrl/Cmd+V` s'appliquent à la même sélection rectangulaire.
 - Assistant d'harmonie : choisissez une note fondamentale, un type d'accord et une octave, prévisualisez l'accord avec l'instrument actuel, puis insérez l'harmonisation directement dans le tracker. Les types disponibles incluent : Majeur, Mineur, Diminué, Augmenté, Sus2, Sus4, Dominant 7, Majeur 7, Mineur 7, 6, Mineur 6, 9, b9, #9, Dim7 et 7sus4.
@@ -3912,7 +3928,7 @@ Les effets sont mis à jour une fois par ligne (correspondant au timing du lecte
 
 **Lecture et clavier virtuel :**
 - Le bouton Lecture de la barre d'outils se transforme en Pause pendant la lecture et en Reprendre lorsqu'il est en pause ; le bouton Arrêter met fin à la lecture et réinitialise l'état.
-- Le bouton de la barre d'outils du clavier ouvre un piano non modal (2, 3 ou 4 octaves, mémorisé) qui reste utilisable pendant que l'éditeur SID est actif. Faites glisser son en-tête pour le placer n'importe où au-dessus de l'application principale.
+- Le bouton de la barre d'outils du clavier ouvre VA-VK, un piano non modal (2, 3 ou 4 octaves ; la position, l'état ouvert, l'octave et l'insertion dans le tracker sont mémorisés) doté de ses propres boutons Lecture/Arrêt qui restent utilisables pendant l'utilisation de l'éditeur SID. Faites glisser son en-tête pour le placer où vous le souhaitez au-dessus de l'application principale.
 - Activez l'option **Insérer dans le tracker** pour inscrire chaque note jouée à l'emplacement actuel du curseur du tracker et passer à la ligne suivante. Désactivez-la pour écouter les notes sans les modifier.
 - Les aperçus d'accords et d'arpèges illuminent les touches correspondantes du piano lorsque le clavier est ouvert.
 
@@ -3930,7 +3946,7 @@ Utilisation du ZP du lecteur : ** `$02`–`$1C` (pointeurs de motif, décalage d
 **Limites connues :**
 - Le compteur de lignes 8 bits limite chaque motif à 7 motifs × 32 lignes dans la banque brute (la liste des chansons/ordres peut toujours être arbitrairement longue en répétant les motifs).
 - Le volume global C64 `$D418` est partagé entre les voix — le curseur de volume par instrument est informatif ; le niveau de sustain (`S` d'ADSR) est le volume effectif par voix.
-- L'aperçu Web Audio modélise exactement le lecteur, mais son synthétiseur n'approxime que la puce SID (courbe de filtre, formes d'onde combinées, timing d'enveloppe) ; **Play: All** via WebSid est la référence exacte.
+- Lorsque **Play: All** charge la mélodie réelle (même en pause), les prévisualisations des notes utilisent le petit synthétiseur, qui ne fait qu'approximer la puce SID. Les prévisualisations atteignent WebSid environ 0,1 s avant le son.
 
 ---
 

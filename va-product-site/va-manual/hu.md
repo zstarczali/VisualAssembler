@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**2.5.1-es verzió**
+**2.5.2-es verzió**
 
 Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat létre húzással és elengedéssel (fogd és vidd) utasításblokkokkal, és valós időben tekintheti meg a létrehozott assembly és gépi kódot.
 
@@ -9,6 +9,7 @@ Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat l�
 ## Tartalomjegyzék
 
 - [C64 Visual Assembler — Felhasználói kézikönyv](#c64-visual-assembler--user-manual)
+    - [2.5.2-es verzió – kiemelt funkciók](#version-252-highlights)
     - [2.5.1-es verzió – kiemelt funkciók](#version-251-highlights)
     - [2.5.0 verzió – kiemelt funkciók](#version-250-highlights)
     - [2.4.9-es verzió – kiemelt funkciók](#version-249-highlights)
@@ -171,6 +172,17 @@ Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat l�
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Görbeszerkesztő](#curve-editor)
     - [Számátváltó](#number-converter)
+
+---
+
+## A 2.5.2-es verzió legfontosabb elemei
+
+- **A SID szerkesztő előnézetei a valódi SID-en** — hangszer előnézet, virtuális billentyűzet, hangjegybevitel, akkord/arpeggio, sor és egyetlen pattern lejátszása a WebSid-en keresztül történik; a szintetizátor csak tartalékként marad meg. Lásd: [SID szerkesztő](#sid-editor-3-voice-tracker).
+- **Note-off** — a(z) **1** billentyű beírja a(z) `===` értéket a követőbe: a kapu kiold, és a hangszer kioldása lefut, mint egy key-off más követőkben; az **Enter** szerkeszti a kijelölt cellát.
+- **Levehető nyomkövető** — a nyomkövető (dal, nyomkövető és harmónia sorok, rács) lebeghet a saját, átméretezhető paneljén, majd vissza is dokkolható.
+- **Wave / arpeggio presetek** — az előbeállítások listája a kiválasztott presetet addig tárolja, amíg a táblázatot kézzel nem szerkesztik.
+- **VA-VK** — a virtuális billentyűzet új neve, Lejátszás / Stop gombokkal; megjegyzi a pozícióját, nyitott állapotát, oktávját és az *Insert into tracker* gombot; a SID szerkesztő **master hangerőjét** megjegyzi a rendszer.
+- **Tudásbázis** — C64 operációs rendszer fejlesztői környezet és png2c64 linkek, kétoszlopos lista. Lásd: [Tudásbázis linkek](#11-knowledge-base-links).
 
 ---
 
@@ -3497,16 +3509,18 @@ Kattintson a töréspont ikonra (●) bármelyik utasításblokkon, ha azt tör�
 
 Gyorsreferencia linkek érhetők el az alkalmazásban a **Tudásbázis** alatt:
 
-| Forrás                  | URL-cím                                        |
-| ----------------------- | ---------------------------------------------- |
-| 6502 Opkódok referencia | http://www.6502.org/tutorials/6502opcodes.html |
-| C64 KERNAL függvények   | https://sta.c64.org/cbm64krnfunc.html          |
-| C64 memóriatérkép       | https://sta.c64.org/cbm64mem.html              |
-| C64 színkódok           | https://sta.c64.org/cbm64col.html              |
-| VIC-II cikk             | https://www.cebix.net/VIC-Article.txt          |
-| C64 kódbázis            | https://codebase.c64.org/                      |
-| A turbóösszeszerelő     | https://turbo.style64.org/                     |
-| RetroDebugger           | https://github.com/slajerek/RetroDebugger/     |
+| Forrás                                      | URL-cím                                                        |
+| ------------------------------------------- | -------------------------------------------------------------- |
+| 6502 Opkódok referencia                     | http://www.6502.org/tutorials/6502opcodes.html                 |
+| C64 KERNAL függvények                       | https://sta.c64.org/cbm64krnfunc.html                          |
+| C64 memóriatérkép                           | https://sta.c64.org/cbm64mem.html                              |
+| C64 színkódok                               | https://sta.c64.org/cbm64col.html                              |
+| VIC-II cikk                                 | https://www.cebix.net/VIC-Article.txt                          |
+| C64 kódbázis                                | https://codebase.c64.org/                                      |
+| A turbóösszeszerelő                         | https://turbo.style64.org/                                     |
+| RetroDebugger                               | https://github.com/slajerek/RetroDebugger/                     |
+| C64 operációs rendszer fejlesztői környezet | https://www.c64os.com/c64os/programmersguide/?s=devenvironment |
+| png2c64 képkonverter                        | https://png2c64.app/                                           |
 
 ---
 
@@ -3870,7 +3884,7 @@ A(z) **Térképszerkesztő képernyőit** egy szintbe rendezi – függőleges l
 
 ### SID-szerkesztő (3 hangos követő)
 
-Többhangú, 3 hangú követő. Megnyitás a Toolkit → SID Editor menüpontban. Az **Lejátszás: Az Összes** a WebSid emulátorban futtatja az exportált 6502-es lejátszót; a hangjegy-, sor- és minta-előnézeteket ugyanazon lejátszó JS-modellje rendereli (képkockánként) egy kis SID szintetizátoron keresztül.
+Többhangszeres, 3 hangú követő. Megnyitás a Toolkit → SID Editor menüpontban. **Lejátszás: Az összes ** az exportált 6502 lejátszót futtatja a WebSid emulátorban; minden más előnézet (hangszer előnézet, virtuális billentyűzet, hangjegy bevitel, akkord/arpeggio, sor és egyetlen pattern lejátszása) szintén az emulált SID-en játszik le: ugyanazon lejátszó JS modellje (képkockánként) minden képkockán streameli a SID regisztereit a WebSid-re, és legfeljebb három előnézeti hangjegy osztozik a három hangon. A stream lejátszó a szerkesztő megnyitásakor, majd a Stop gomb megnyomásakor töltődik be, így a hangjegyek egyszerre szólalnak meg; WebSid nélkül egy kis SID szintetizátor játszik le.
 
 **Eszközönkénti vezérlők:**
 - Hullámforma jelölőnégyzetek (TRI / SAW / PUL / NOI) – több hullámforma ÉS kapcsolattal van összekapcsolva, mint a SID-en – plusz **RING** (a háromszög gyűrűmodulációja az előző hangszerhang által: 1 ← 3, 2 ← 1, 3 ← 2) és **SYNC** (hard szinkron az előző hangszerhanggal).
@@ -3880,11 +3894,13 @@ Többhangú, 3 hangú követő. Megnyitás a Toolkit → SID Editor menüpontban
 - **Vibrato:** a **Delay** effekt után egy háromszög alakú LFO-t keretez, amely **Speed** képkockánként megfordul, **Depth** 0-15-tel skálázva a hang félhangjára (függetlenül az `V` effekttől).
 - **Impulzusszélesség-moduláció:** **Sebesség** hozzáadódik az impulzusszélességhez minden képkockán, **Min** és **Max** között ingadozva.
 - **Kapu:** **A Kapu időzítő** annyi képkockával engedi el a kaput, ahány képkockával a következő hang előtt a hangon lesz (tartsa a Sebesség alatt); A **Hard restart** szintén lenullázza az ADSR-t, hogy tiszta attackot kapjon; az **First frame** egy hullámformát ír a hang első képkockájára (pl. `$09` teszt + kapu).
-- **Hullámforma / arpeggio táblázat:** akár 32 hullámforma lépés (— = megtartva) és hangjegy (félhanggal eltolva, vagy **abs** = abszolút hangjegy), egy lépés minden **Speed** képkockán, **Loop** vissza egy lépésre vagy megállás az utolsón. Előre beállított értékek: dúr / moll / oktáv arpeggio, lábdob, pergő, hi-hat.
+- **Hullámforma / arpeggio táblázat:** akár 32 hullámforma lépés (— = megtartva) és hang (félhanggal eltolva, vagy **abs** = abszolút hang), egy lépés minden **Speed** képkockánként, **Loop** vissza egy lépésre vagy megállás az utolsón. **Presetek** (25, csoportokban; a lista a kiválasztott presetet tartja meg, amíg a táblázatot kézzel nem szerkesztik): arpeggiók (dúr, moll, septum akkordok, sus4, csökkentett, növelt, power akkord, oktáv, trilla), dobok (lábdob, pergő, tam, taps, zárt / nyitott hi-hat), szóló és basszus attackek, valamint hangeffektek (lézer, hangszedő, explosion).
 
 **Követőrács:**
 - 3 hang × maximum 7 minta × 32 sor = 7 × 32 = max. 224 sor (a 8 bites sorszámláló korlátozza).
-- Soronként: hangjegy + hangszerindex, plusz egy opcionális effekt (lásd az **Effekt oszlopot** alább). Az üres sorok az előző hangjegyet tartalmazzák.
+- Soronként: hangjegy + hangszerindex, plusz egy opcionális effekt (lásd az **Effekt oszlopot** alább). Az üres sorok az előző hangjegyet tartalmazzák: más követőkhöz (GoatTracker, SID-Wizard) hasonlóan egy hangjegy a következő hangjegyig, vagy egy **hangjegy-eltávolításig** tartja a kapuját bekapcsolva.
+- Az **Enter** (vagy dupla kattintás) szövegként szerkeszti a kijelölt cellát (`C-4 01 V24`); az **Enter** menti és a következő sorra ugrik, az **Esc** megszakítja a műveletet.
+- **Note-off** (`===`): billentyűzd be a **1** (vagy `` ` `` / `=`) parancsot, vagy írd be egy cellába a `===` / `OFF` parancsot. Ez feloldja a kaput, így a hangszer kioldása lefut – ugyanúgy, mint az `C` effekt hangjegy nélkül (`C00` néven mentve és exportálva).
 - Jelöljön ki egy cellát a szokásos módon, vagy tartsa lenyomva a **Shift** billentyűt kattintás közben, illetve a nyílbillentyűkkel bővítse ki a téglalap alakú kijelölés sorokon és a három hang bármelyikén át. A kijelölt területen belül a jobb gombbal kattintva a tartomány érintetlen marad.
 - A Másolás, Kivágás, Beillesztés és Törlés parancsok elérhetők az ikon eszköztáron és az ikon alapú helyi menüben. A `Ctrl/Cmd+C` és a `Ctrl/Cmd+V` billentyűkombinációk ugyanazon a téglalap alakú kijelölésen működnek.
 - Harmónia segéd: válassz alaphangot, akkordtípust és oktávot, hallgasd meg az akkordot az aktuális hangszerrel, majd illeszd be a hangmintát közvetlenül a követőbe. Az elérhető típusok: dúr, moll, csökkentett, kiterjesztett, sus2, sus4, domináns 7, dúr 7, moll 7, 6, moll 6, 9, b9, #9, dim7 és 7sus4.
@@ -3912,7 +3928,7 @@ Az effektek soronként egyszer frissülnek (az exportált lejátszó időzítés
 
 **Lejátszás és virtuális billentyűzet:**
 - A Lejátszás eszköztár gombja lejátszás közben Szünetre, szüneteltetés közben pedig Folytatásra vált; a Leállítás gomb leállítja a lejátszást és visszaállítja az eredeti állapotot.
-- A billentyűzet eszköztár gombja egy nem modális zongorát nyit meg (2, 3 vagy 4 oktáv, memorizálva), amely használható marad, amíg az SID-szerkesztő aktív. Húzza a fejlécét, hogy a fő alkalmazás tetszőleges pontjára helyezze.
+- A billentyűzet eszköztár gombja megnyitja a **VA-VK** nevű, nem modális zongorát (2, 3 vagy 4 oktáv; pozíció, nyitott állapot, oktáv és *Beszúrás a követőbe* megjegyződik) saját **Lejátszás / Leállítás** gombokkal, amelyek a SID-szerkesztő aktív állapotában is használhatók. A fejlécét húzással a fő alkalmazás bármely pontjára helyezheti.
 - Engedélyezd az **Beszúrás a követőbe** funkciót, hogy minden lejátszott hangot az aktuális követőkurzornál írj, és a következő sorra lépj. Kapcsold ki, ha szerkesztés nélkül szeretnél meghallgatni hangokat.
 - Az akkord- és arpeggio-előnézetek megvilágítják a megfelelő zongorabillentyűket, amikor a billentyűzet nyitva van.
 
@@ -3930,7 +3946,7 @@ Az effektek soronként egyszer frissülnek (az exportált lejátszó időzítés
 **Ismert korlátok:**
 - A 8 bites sorszámláló minden mintát 7 mintára × 32 sorra korlátoz a nyers bankban (a dal/sorrend lista továbbra is tetszőlegesen hosszú lehet a minták ismétlésével).
 - A C64 `$D418` globális hangerő több hangszerhang között megoszlik – a hangszerenkénti hangerőcsúszka tájékoztató jellegű; a kitartási szint (az ADSR `S` értéke) a hangszerhangonkénti effektív hangerő.
-- A Web Audio előnézete pontosan modellezi a lejátszót, de a szintetizátora csak közelíti a SID chipet (szűrőgörbe, kombinált hullámformák, burkológörbe időzítése); a **Lejátszás: A WebSid-en keresztüli összes** a pontos referencia.
+- Míg a **Play: All** a valódi dallamot tölti be (szüneteltetett állapotban is), a hangjegy-előnézetek a kis szintetizátorra vonatkoznak, amely csak megközelíti a SID chipet. Az előnézetek a WebSid-re körülbelül 0,1 másodperccel a hang előtt érnek el.
 
 ---
 
