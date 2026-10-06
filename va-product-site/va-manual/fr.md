@@ -1,6 +1,6 @@
 # Manuel d'utilisation de l'assembleur visuel C64
 
-**Version 2.5.2**
+**Version 2.5.3**
 
 Un assembleur 6502 visuel et basé sur des blocs pour le Commodore 64. Créez des programmes en faisant glisser et en déposant des blocs d'instructions, et visualisez en temps réel le code assembleur et le code machine générés.
 
@@ -9,6 +9,7 @@ Un assembleur 6502 visuel et basé sur des blocs pour le Commodore 64. Créez de
 ## Table des matières
 
 - [C64 Visual Assembler — Manuel de l'utilisateur](#c64-visual-assembler--user-manual)
+    - [Points saillants de la version 2.5.3](#version-253-highlights)
     - [Points saillants de la version 2.5.2](#version-252-highlights)
     - [Points saillants de la version 2.5.1](#version-251-highlights)
     - [Points saillants de la version 2.5.0](#version-250-highlights)
@@ -172,6 +173,12 @@ Un assembleur 6502 visuel et basé sur des blocs pour le Commodore 64. Créez de
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Éditeur de courbes](#curve-editor)
     - [Convertisseur de nombres](#number-converter)
+
+---
+
+## Points forts de la version 2.5.3
+
+- **Corrigé : l’exécution dans VICE/RetroDebugger sous Windows** ne génère plus d’erreur *programme introuvable* lorsque PowerShell est absent du PATH ; VICE démarre depuis son propre dossier (un lien symbolique `x64sc.exe` est résolu en l’exécutable réel), et les chemins contenant des espaces sont désormais entre guillemets. Indiquez à VICE le chemin vers `x64sc.exe` situé dans le dossier `bin` de VICE, à côté de ses DLL.
 
 ---
 

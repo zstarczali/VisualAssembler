@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Käyttöopas
 
-**Versio 2.5.2**
+**Versio 2.5.3**
 
 Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia vetämällä ja pudottamalla käskylohkoja ja nähdä luodun assemblerin ja konekoodin reaaliajassa.
 
@@ -9,6 +9,7 @@ Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
 ## Sisällysluettelo
 
 - [C64 Visual Assembler — Käyttöopas](#c64-visual-assembler--user-manual)
+    - [Version 2.5.3 kohokohdat](#version-253-highlights)
     - [Version 2.5.2 kohokohdat](#version-252-highlights)
     - [Version 2.5.1 kohokohdat](#version-251-highlights)
     - [Version 2.5.0 kohokohdat](#version-250-highlights)
@@ -172,6 +173,12 @@ Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Käyränmuokkausohjelma](#curve-editor)
     - [Numeronmuunnin](#number-converter)
+
+---
+
+## Version 2.5.3 kohokohdat
+
+- **Korjattu: VICE / RetroDebuggerissa Windowsissa suoritettaessa ** ei enää ilmene virheilmoitusta *ohjelmaa ei löydy*, kun PowerShell puuttuu polusta; VICE käynnistyy omasta kansiostaan (linkitetty `x64sc.exe` ratkaistaan oikeaksi kansioksi), ja välilyönneillä varustetut polut ovat lainausmerkeissä. Osoita VICE-poluksi `x64sc.exe` VICE:n `bin`-kansiossa, sen DLL-tiedostojen vieressä.
 
 ---
 

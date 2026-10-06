@@ -1,6 +1,6 @@
 # C64 Visuell Assembler — Användarmanual
 
-**Version 2.5.2**
+**Version 2.5.3**
 
 En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom att dra och släppa instruktionsblock och se den genererade assemblern och maskinkoden i realtid.
 
@@ -9,6 +9,7 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
 ## Innehållsförteckning
 
 - [C64 Visual Assembler — Användarmanual](#c64-visual-assembler--user-manual)
+    - [Höjdpunkter i version 2.5.3](#version-253-highlights)
     - [Höjdpunkter i version 2.5.2](#version-252-highlights)
     - [Höjdpunkter i version 2.5.1](#version-251-highlights)
     - [Höjdpunkter i version 2.5.0](#version-250-highlights)
@@ -172,6 +173,12 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
     - [SID-redigerare (3-röstsspårare)](#sid-editor-3-voice-tracker)
     - [Kurvredigerare](#curve-editor)
     - [Nummeromvandlare](#number-converter)
+
+---
+
+## Höjdpunkter i version 2.5.3
+
+- **Åtgärdat: körning i VICE / RetroDebugger på Windows** misslyckas inte längre med *programmet hittades inte* när PowerShell saknas i PATH; VICE startar från sin egen mapp (en länkad `x64sc.exe` är upplöst till den riktiga mappen), och sökvägar med mellanslag anges i citat. Peka VICE-sökvägen till `x64sc.exe` i VICEs `bin`-mapp, bredvid dess DLL-filer.
 
 ---
 

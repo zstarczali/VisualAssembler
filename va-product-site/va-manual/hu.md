@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**2.5.2-es verzió**
+**2.5.3-as verzió**
 
 Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat létre húzással és elengedéssel (fogd és vidd) utasításblokkokkal, és valós időben tekintheti meg a létrehozott assembly és gépi kódot.
 
@@ -9,6 +9,7 @@ Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat l�
 ## Tartalomjegyzék
 
 - [C64 Visual Assembler — Felhasználói kézikönyv](#c64-visual-assembler--user-manual)
+    - [2.5.3-as verzió kiemelt funkciói](#version-253-highlights)
     - [2.5.2-es verzió – kiemelt funkciók](#version-252-highlights)
     - [2.5.1-es verzió – kiemelt funkciók](#version-251-highlights)
     - [2.5.0 verzió – kiemelt funkciók](#version-250-highlights)
@@ -172,6 +173,12 @@ Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat l�
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Görbeszerkesztő](#curve-editor)
     - [Számátváltó](#number-converter)
+
+---
+
+## A 2.5.3-as verzió legfontosabb elemei
+
+- **Javítva: a VICE / RetroDebuggerben Windows rendszeren futtatva** már nem okoz *program nem található* hibát, ha a PowerShell hiányzik a PATH elérési útból; a VICE a saját mappájából indul (egy csatolt `x64sc.exe` mappára van feloldva), és a szóközökkel ellátott elérési utak idézőjelek között vannak. A VICE elérési útját a VICE `bin` mappájában található `x64sc.exe` mappára kell irányítani, a DLL-ek mellett.
 
 ---
 

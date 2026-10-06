@@ -132,6 +132,82 @@ fn resolve_vice_launch_path(vice_path: &str) -> Result<String, String> {
     Ok(vice_path.to_string())
 }
 
+/// Full path of Windows PowerShell. Spawning plain "powershell" relies on PATH;
+/// on machines where an installer rewrote PATH it fails with "program not found"
+/// although VICE itself starts fine by hand.
+#[cfg(target_os = "windows")]
+fn windows_powershell_path() -> String {
+    let root = std::env::var("SystemRoot").unwrap_or_else(|_| r"C:\Windows".to_string());
+    let full = std::path::Path::new(&root).join(r"System32\WindowsPowerShell\v1.0\powershell.exe");
+    if full.exists() { full.to_string_lossy().to_string() } else { "powershell".to_string() }
+}
+
+/// One Start-Process argument: Start-Process joins -ArgumentList with spaces
+/// without quoting, so a path with a space must carry its own double quotes.
+#[cfg(target_os = "windows")]
+fn windows_ps_arg(arg: &str) -> String {
+    let a = if arg.contains(' ') && !arg.starts_with('"') { format!("\"{}\"", arg) } else { arg.to_string() };
+    format!("'{}'", a.replace('\'', "''"))
+}
+
+/// Starts a GUI program detached from this process on Windows.
+/// First via PowerShell Start-Process (ShellExecuteEx → outside the `tauri dev`
+/// Job Object, see spawn_vice_with_file); if PowerShell cannot be started or the
+/// Start-Process fails, the program is spawned directly.
+#[cfg(target_os = "windows")]
+fn windows_spawn_detached(program: &str, args: &[String]) -> std::io::Result<()> {
+    // A symlinked exe (e.g. winget's %LOCALAPPDATA%\Microsoft\WinGet\Links\x64sc.exe)
+    // searches its DLLs (libcairo-2.dll …) next to the link, not next to the real
+    // binary: launch the resolved target, from its own folder, with that folder on PATH.
+    let resolved = std::fs::canonicalize(program)
+        .map(|p| {
+            let s = p.to_string_lossy().to_string();
+            if let Some(rest) = s.strip_prefix(r"\\?\UNC\") { format!(r"\\{}", rest) }
+            else if let Some(rest) = s.strip_prefix(r"\\?\") { rest.to_string() }
+            else { s }
+        })
+        .unwrap_or_else(|_| program.to_string());
+    let program = resolved.as_str();
+    let exe_dir = std::path::Path::new(program).parent().map(|d| d.to_path_buf());
+    let arg_list = if args.is_empty() {
+        String::new()
+    } else {
+        format!(" -ArgumentList {}", args.iter().map(|a| windows_ps_arg(a)).collect::<Vec<_>>().join(","))
+    };
+    let work_dir = exe_dir.as_ref()
+        .map(|d| format!(" -WorkingDirectory '{}'", d.to_string_lossy().replace('\'', "''")))
+        .unwrap_or_default();
+    let ps_cmd = format!("Start-Process -FilePath '{}'{}{}", program.replace('\'', "''"), arg_list, work_dir);
+    let via_ps = Command::new(windows_powershell_path())
+        .args(["-NoProfile", "-NonInteractive", "-WindowStyle", "Hidden", "-Command", &ps_cmd])
+        .stdin(std::process::Stdio::null())
+        .creation_flags(0x08000000) // CREATE_NO_WINDOW
+        .output();
+    if let Ok(out) = &via_ps {
+        if out.status.success() {
+            return Ok(());
+        }
+    }
+    let mut cmd = Command::new(program);
+    if let Some(dir) = &exe_dir {
+        cmd.current_dir(dir);
+        let path = std::env::var_os("PATH").unwrap_or_default();
+        let mut dirs = vec![dir.clone()];
+        dirs.extend(std::env::split_paths(&path));
+        if let Ok(joined) = std::env::join_paths(dirs) {
+            cmd.env("PATH", joined);
+        }
+    }
+    // DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP
+    cmd.args(args)
+        .stdin(std::process::Stdio::null())
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .creation_flags(0x00000008 | 0x00000200)
+        .spawn()
+        .map(|_| ())
+}
+
 fn spawn_vice_with_file(vice_path: &str, file_path: &std::path::Path) -> Result<(), String> {
     let binary = resolve_vice_launch_path(vice_path)?;
 
@@ -142,7 +218,7 @@ fn spawn_vice_with_file(vice_path: &str, file_path: &std::path::Path) -> Result<
             .stdin(std::process::Stdio::null())
             .stdout(std::process::Stdio::null())
             .stderr(std::process::Stdio::null())
-            .spawn()
+            .spawn().map(|_| ())
     } else {
         #[cfg(target_os = "windows")]
         {
@@ -158,23 +234,7 @@ fn spawn_vice_with_file(vice_path: &str, file_path: &std::path::Path) -> Result<
             // process is outside Tauri's Job Object entirely, so VICE is never assigned
             // to it and survives hot-reload independently. This is only an issue in
             // `tauri dev` mode; production builds do not use a KILL_ON_JOB_CLOSE job.
-            let ps_cmd = format!(
-                "Start-Process -FilePath '{}' -ArgumentList '{}'",
-                binary.replace('\'', "''"),
-                file_path.to_str().unwrap().replace('\'', "''"),
-            );
-            Command::new("powershell")
-                .args([
-                    "-NoProfile",
-                    "-NonInteractive",
-                    "-WindowStyle", "Hidden",
-                    "-Command", &ps_cmd,
-                ])
-                .stdin(std::process::Stdio::null())
-                .stdout(std::process::Stdio::null())
-                .stderr(std::process::Stdio::null())
-                .creation_flags(0x08000000) // CREATE_NO_WINDOW
-                .spawn()
+            windows_spawn_detached(&binary, &[file_path.to_string_lossy().to_string()])
         }
         #[cfg(not(target_os = "windows"))]
         {
@@ -193,7 +253,7 @@ fn spawn_vice_with_file(vice_path: &str, file_path: &std::path::Path) -> Result<
                 .stdin(std::process::Stdio::null())
                 .stdout(std::process::Stdio::null())
                 .stderr(std::process::Stdio::null())
-                .spawn()
+                .spawn().map(|_| ())
         }
     };
 
@@ -958,36 +1018,16 @@ async fn launch_debugger(app: AppHandle, payload: LaunchDebuggerPayload) -> serd
         cmd.stdin(std::process::Stdio::null())
             .stdout(std::process::Stdio::null())
             .stderr(std::process::Stdio::null())
-            .spawn()
+            .spawn().map(|_| ())
     } else {
         #[cfg(target_os = "windows")]
         {
-            let args_ps = all_args.iter()
-                .map(|a| format!("'{}'", a.replace('\'', "''")))
-                .collect::<Vec<_>>()
-                .join(",");
-            let ps_cmd = format!(
-                "Start-Process -FilePath '{}' -ArgumentList {}",
-                debugger_path.replace('\'', "''"),
-                args_ps,
-            );
             let _ = fs::write(
                 temp_dir.join("debug.launch.log"),
-                format!("CMD: {}\nARGS: {:?}\nBREAKPOINTS: {:?}\nAUTO_JMP: {:?}\n",
-                    ps_cmd, all_args, payload.breakpoints, payload.auto_jmp),
+                format!("PROGRAM: {}\nARGS: {:?}\nBREAKPOINTS: {:?}\nAUTO_JMP: {:?}\n",
+                    debugger_path, all_args, payload.breakpoints, payload.auto_jmp),
             );
-            Command::new("powershell")
-                .args([
-                    "-NoProfile",
-                    "-NonInteractive",
-                    "-WindowStyle", "Hidden",
-                    "-Command", &ps_cmd,
-                ])
-                .stdin(std::process::Stdio::null())
-                .stdout(std::process::Stdio::null())
-                .stderr(std::process::Stdio::null())
-                .creation_flags(0x08000000)
-                .spawn()
+            windows_spawn_detached(&debugger_path, &all_args)
         }
         #[cfg(not(target_os = "windows"))]
         {
@@ -996,7 +1036,7 @@ async fn launch_debugger(app: AppHandle, payload: LaunchDebuggerPayload) -> serd
             cmd.stdin(std::process::Stdio::null())
                 .stdout(std::process::Stdio::null())
                 .stderr(std::process::Stdio::null())
-                .spawn()
+                .spawn().map(|_| ())
         }
     };
 
@@ -1972,20 +2012,11 @@ async fn run_d64(app: AppHandle, payload: RunD64Payload) -> serde_json::Value {
         }
         Command::new("bash").arg(&binary).arg(&d64_str)
             .stdin(std::process::Stdio::null()).stdout(std::process::Stdio::null()).stderr(std::process::Stdio::null())
-            .spawn()
+            .spawn().map(|_| ())
     } else {
         #[cfg(target_os = "windows")]
         {
-            let ps_cmd = format!(
-                "Start-Process -FilePath '{}' -ArgumentList '{}'",
-                vice_path.replace('\'', "''"),
-                d64_str.replace('\'', "''"),
-            );
-            Command::new("powershell")
-                .args(["-NoProfile", "-NonInteractive", "-WindowStyle", "Hidden", "-Command", &ps_cmd])
-                .stdin(std::process::Stdio::null()).stdout(std::process::Stdio::null()).stderr(std::process::Stdio::null())
-                .creation_flags(0x08000000)
-                .spawn()
+            windows_spawn_detached(&vice_path, &[d64_str.clone()])
         }
         #[cfg(not(target_os = "windows"))]
         {
@@ -1997,7 +2028,7 @@ async fn run_d64(app: AppHandle, payload: RunD64Payload) -> serde_json::Value {
             cmd.arg("-drive8type").arg("1541")
                 .arg(&d64_str)
                 .stdin(std::process::Stdio::null()).stdout(std::process::Stdio::null()).stderr(std::process::Stdio::null())
-                .spawn()
+                .spawn().map(|_| ())
         }
     };
 
@@ -2299,20 +2330,11 @@ async fn d64_run(app: AppHandle, path: String) -> serde_json::Value {
         }
         Command::new("bash").arg(&binary).arg(&path)
             .stdin(std::process::Stdio::null()).stdout(std::process::Stdio::null()).stderr(std::process::Stdio::null())
-            .spawn()
+            .spawn().map(|_| ())
     } else {
         #[cfg(target_os = "windows")]
         {
-            let ps_cmd = format!(
-                "Start-Process -FilePath '{}' -ArgumentList '{}'",
-                vice_path.replace('\'', "''"),
-                path.replace('\'', "''"),
-            );
-            Command::new("powershell")
-                .args(["-NoProfile", "-NonInteractive", "-WindowStyle", "Hidden", "-Command", &ps_cmd])
-                .stdin(std::process::Stdio::null()).stdout(std::process::Stdio::null()).stderr(std::process::Stdio::null())
-                .creation_flags(0x08000000)
-                .spawn()
+            windows_spawn_detached(&vice_path, &[path.clone()])
         }
         #[cfg(not(target_os = "windows"))]
         {
@@ -2324,7 +2346,7 @@ async fn d64_run(app: AppHandle, path: String) -> serde_json::Value {
             cmd.arg("-drive8type").arg("1541")
                 .arg(&path)
                 .stdin(std::process::Stdio::null()).stdout(std::process::Stdio::null()).stderr(std::process::Stdio::null())
-                .spawn()
+                .spawn().map(|_| ())
         }
     };
 
@@ -3676,7 +3698,7 @@ fn launch_update_installer(app: &AppHandle, file: &Path) -> Result<bool, String>
             "Start-Process -FilePath '{}' -ArgumentList '/P','/R'",
             file_str.replace('\'', "''")
         );
-        let out = Command::new("powershell")
+        let out = Command::new(windows_powershell_path())
             .args(["-NoProfile", "-NonInteractive", "-WindowStyle", "Hidden", "-Command", &ps_cmd])
             .stdin(std::process::Stdio::null())
             .creation_flags(0x08000000) // CREATE_NO_WINDOW

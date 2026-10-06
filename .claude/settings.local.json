@@ -415,7 +415,11 @@
       "Bash(node --test tests/sid-stream.test.js)",
       "Bash(sed -i 's/^  \\\\\\(ASL\\\\|LSR\\\\\\) A$/  \\\\1/' tests/sid-stream.test.js)",
       "Bash(python \"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/254699c3-ab61-43ae-a379-d9c1dc5dcdfe/scratchpad/bump252.py\")",
-      "Bash(grep -n -A6 \"^\\\\.sid-dialog,$\" www/style.css)"
+      "Bash(grep -n -A6 \"^\\\\.sid-dialog,$\" www/style.css)",
+      "PowerShell($cfg = Get-ChildItem \"$env:APPDATA\" -Recurse -Filter \"config.json\" -ErrorAction SilentlyContinue | Where-Object { $_.FullName -match \"visual|c64\" } | Select-Object -First 3; $cfg | ForEach-Object { $_.FullName; \\(Get-Content $_.FullName -Raw | ConvertFrom-Json\\).vicePath })",
+      "Bash(python \"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/254699c3-ab61-43ae-a379-d9c1dc5dcdfe/scratchpad/bump253.py\")",
+      "Read(//c/Users/rlung/.claude/projects/F--Development-VisualAssembler/memory/**)",
+      "Bash(printf -- \"- [Verzióemelés javított build után]\\(feedback_version_bump_on_fix_build.md\\) — kiküldött build után a javítás új patch-verzióba megy\\\\n\")"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"

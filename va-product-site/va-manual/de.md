@@ -1,6 +1,6 @@
 # C64 Visual Assembler – Benutzerhandbuch
 
-**Version 2.5.2**
+**Version 2.5.3**
 
 Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Sie Programme durch Ziehen und Ablegen von Befehlsblöcken und sehen Sie den generierten Assembler- und Maschinencode in Echtzeit.
 
@@ -9,6 +9,7 @@ Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Si
 ## Inhaltsverzeichnis
 
 - [C64 Visual Assembler — Benutzerhandbuch](#c64-visual-assembler--user-manual)
+    - [Version 2.5.3 Highlights](#version-253-highlights)
     - [Version 2.5.2 Highlights](#version-252-highlights)
     - [Version 2.5.1 Highlights](#version-251-highlights)
     - [Version 2.5.0 Highlights](#version-250-highlights)
@@ -172,6 +173,12 @@ Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Si
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Kurveneditor](#curve-editor)
     - [Zahlenkonverter](#number-converter)
+
+---
+
+## Highlights der Version 2.5.3
+
+- **Behoben: Die Ausführung in VICE/RetroDebugger unter Windows** schlägt nicht mehr mit *Programm nicht gefunden* fehl, wenn PowerShell im PATH fehlt; VICE startet aus seinem eigenen Ordner (eine verknüpfte `x64sc.exe` wird zur tatsächlichen Datei aufgelöst), und Pfade mit Leerzeichen werden in Anführungszeichen gesetzt. Der VICE-Pfad verweist auf `x64sc.exe` im `bin`-Ordner von VICE, neben den zugehörigen DLLs.
 
 ---
 
