@@ -2,9 +2,14 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.5.2**
+**Current version: v2.5.3**
 
-## What's New in v2.5.2
+## What's New in v2.5.3
+
+- **Fixed: running in VICE on Windows** — VICE, RetroDebugger and D64 runs failed with *program not found* when PowerShell was missing from PATH. PowerShell is now called by its full path, and the program is started directly if that fails. VICE starts from its own folder (a linked `x64sc.exe`, e.g. from winget, is resolved to the real one), and paths with spaces are quoted.
+- **Knowledge Base** — new link to the VICE emulator homepage.
+
+## Earlier: v2.5.2
 
 - **SID Editor previews on the real SID** — the instrument **Preview**, the virtual keyboard, note entry, chord and arpeggio previews, row preview and single-pattern playback now play through the WebSid emulator, not a synthesizer. A small stream player copies the SID registers that the JS engine (the frame-exact model of the exported player) writes every frame; up to three notes share the three voices. It is preloaded when the editor opens and after Stop, so notes sound at once. Without WebSid the small synthesizer remains as a fallback.
 - **Note-off in the tracker** — key **1** (or typing `===` / `OFF`) writes a note-off: the gate is released and the instrument's release runs. As in other trackers, a note otherwise sustains until the next note on its voice. **Enter** edits the selected cell as text.

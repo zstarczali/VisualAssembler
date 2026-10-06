@@ -1,6 +1,6 @@
 # C64 Visual Assembler – Benutzerhandbuch
 
-**Version 2.5.1**
+**Version 2.5.3**
 
 Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Sie Programme durch Ziehen und Ablegen von Befehlsblöcken und sehen Sie den generierten Assembler- und Maschinencode in Echtzeit.
 
@@ -9,6 +9,8 @@ Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Si
 ## Inhaltsverzeichnis
 
 - [C64 Visual Assembler — Benutzerhandbuch](#c64-visual-assembler--user-manual)
+    - [Version 2.5.3 Highlights](#version-253-highlights)
+    - [Version 2.5.2 Highlights](#version-252-highlights)
     - [Version 2.5.1 Highlights](#version-251-highlights)
     - [Version 2.5.0 Highlights](#version-250-highlights)
     - [Version 2.4.9 Highlights](#version-249-highlights)
@@ -171,6 +173,23 @@ Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Si
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Kurveneditor](#curve-editor)
     - [Zahlenkonverter](#number-converter)
+
+---
+
+## Highlights der Version 2.5.3
+
+- **Behoben: Die Ausführung in VICE/RetroDebugger unter Windows** schlägt nicht mehr mit *Programm nicht gefunden* fehl, wenn PowerShell im PATH fehlt; VICE startet aus seinem eigenen Ordner (eine verknüpfte `x64sc.exe` wird zur tatsächlichen Datei aufgelöst), und Pfade mit Leerzeichen werden in Anführungszeichen gesetzt. Der VICE-Pfad verweist auf `x64sc.exe` im `bin`-Ordner von VICE, neben den zugehörigen DLLs.
+
+---
+
+## Highlights der Version 2.5.2
+
+- **SID Editor-Vorschauen auf dem realen SID** – Instrumentenvorschau, virtuelle Tastatur, Noteneingabe, Akkord-/Arpeggio-, Zeilen- und Einzelmusterwiedergabe über WebSID; der Synthesizer dient nur als Ausweichmöglichkeit. Siehe [SID Editor](#sid-editor-3-voice-tracker).
+- **Note-off** — key **1** schreibt `===` in den Tracker: Das Gate wird freigegeben und die Release-Funktion des Instruments läuft, wie ein Key-off in anderen Trackern; **Enter** bearbeitet die ausgewählte Zelle.
+- **Abnehmbarer Tracker** — der Tracker (Song-, Tracker- und Harmoniezeilen, Raster) kann in einem eigenen, skalierbaren Panel schweben und wieder andocken.
+- **Wave-/Arpeggio-Voreinstellungen** — Die Voreinstellungsliste behält die ausgewählte Voreinstellung bei, bis die Tabelle manuell bearbeitet wird.
+- **VA-VK** — der neue Name der virtuellen Tastatur mit Play/Stop-Tasten; sie merkt sich ihre Position, ihren geöffneten Zustand, ihre Oktave und *In Tracker einfügen*; die **Master-Lautstärke** des SID-Editors wird gespeichert.
+- **Wissensdatenbank** – Links zur C64-Betriebssystem-Entwicklungsumgebung und zu png2c64, zweispaltige Liste. Siehe [Wissensdatenbank-Links](#11-knowledge-base-links).
 
 ---
 
@@ -3497,16 +3516,18 @@ Klicken Sie auf das Haltepunktsymbol (●) in einem beliebigen Anweisungsblock, 
 
 Schnellzugriffslinks sind in der App unter **Wissensdatenbank** verfügbar:
 
-| Ressource             | URL                                            |
-| --------------------- | ---------------------------------------------- |
-| 6502 Opcodes-Referenz | http://www.6502.org/tutorials/6502opcodes.html |
-| C64-Kernelfunktionen  | https://sta.c64.org/cbm64krnfunc.html          |
-| C64 Speicherbelegung  | https://sta.c64.org/cbm64mem.html              |
-| C64-Farbcodes         | https://sta.c64.org/cbm64col.html              |
-| VIC-II Artikel        | https://www.cebix.net/VIC-Article.txt          |
-| C64-Codebasis         | https://codebase.c64.org/                      |
-| Der Turbo-Monteur     | https://turbo.style64.org/                     |
-| RetroDebugger         | https://github.com/slajerek/RetroDebugger/     |
+| Ressource                               | URL                                                            |
+| --------------------------------------- | -------------------------------------------------------------- |
+| 6502 Opcodes-Referenz                   | http://www.6502.org/tutorials/6502opcodes.html                 |
+| C64-Kernelfunktionen                    | https://sta.c64.org/cbm64krnfunc.html                          |
+| C64 Speicherbelegung                    | https://sta.c64.org/cbm64mem.html                              |
+| C64-Farbcodes                           | https://sta.c64.org/cbm64col.html                              |
+| VIC-II Artikel                          | https://www.cebix.net/VIC-Article.txt                          |
+| C64-Codebasis                           | https://codebase.c64.org/                                      |
+| Der Turbo-Monteur                       | https://turbo.style64.org/                                     |
+| RetroDebugger                           | https://github.com/slajerek/RetroDebugger/                     |
+| C64-Betriebssystem-Entwicklungsumgebung | https://www.c64os.com/c64os/programmersguide/?s=devenvironment |
+| png2c64 Bildkonverter                   | https://png2c64.app/                                           |
 
 ---
 
@@ -3870,7 +3891,7 @@ Ordnet die Bildschirme des **Karteneditors** zu einem Level an – beispielsweis
 
 ### SID-Editor (3-Stimmen-Tracker)
 
-Multiinstrumentaler 3-stimmiger Tracker. Öffnen über Toolkit → SID-Editor. **Play: All** startet den exportierten 6502-Player im WebSid-Emulator; Noten-, Zeilen- und Pattern-Vorschauen werden von einem JS-Modell desselben Players (Frame für Frame) über einen kleinen SID-Synthesizer gerendert.
+Multiinstrument-Tracker mit 3 Stimmen. Öffnen über Toolkit → SID-Editor. **Play: All** startet den exportierten 6502-Player im WebSid-Emulator; alle anderen Vorschauen (Instrumentenvorschau, virtuelle Tastatur, Noteneingabe, Akkord/Arpeggio, Zeilen- und Einzelmusterwiedergabe) werden ebenfalls über das emulierte SID wiedergegeben: Ein JS-Modell desselben Players (Frame für Frame) streamt seine SID-Register in jedem Frame an WebSid, und bis zu drei Vorschau-Noten teilen sich die drei Stimmen. Der Stream-Player wird beim Öffnen des Editors und nach dem Stoppen erneut geladen, sodass die Noten gleichzeitig erklingen; ohne WebSid wird stattdessen ein kleiner SID-Synthesizer verwendet.
 
 **Instrumentenspezifische Steuerung:**
 - Wellenform-Kontrollkästchen (TRI / SAW / PUL / NOI) — mehrere Wellenformen werden wie beim SID mit UND verknüpft — plus **RING** (Ringmodulation der Dreieckswelle durch die vorherige Stimme: 1 ← 3, 2 ← 1, 3 ← 2) und **SYNC** (harte Synchronisierung mit der vorherigen Stimme).
@@ -3880,11 +3901,13 @@ Multiinstrumentaler 3-stimmiger Tracker. Öffnen über Toolkit → SID-Editor. *
 - **Vibrato:** nach **Delay** Frames ein Dreieck-LFO, der alle **Speed** Frames, **Depth** 0-15 skaliert auf den Halbton der Note (unabhängig vom `V` Effekt) gedreht wird.
 - **Pulsweitenmodulation:** **Geschwindigkeit** wird in jedem Frame zur Pulsbreite addiert und schwankt zwischen **Min** und **Max**.
 - **Gate:** **Gate-Timer** gibt das Gate so viele Frames vor der nächsten Note der Stimme frei (unterhalb von Speed halten); **Harter Neustart** setzt ADSR ebenfalls auf Null, um einen sauberen Anschlag zu gewährleisten; **Erster Frame** schreibt eine Wellenform in den ersten Frame der Note (z. B. `$09` Test + Gate).
-- **Wellenform-/Arpeggio-Tabelle: ** Bis zu 32 Wellenformschritte (— = beibehalten) und Notenwerte (Offset in Halbtonschritten oder **abs** = absolute Note), ein Schritt alle **Speed** Frames, **Loop** Zurück zum vorherigen Schritt oder Stopp beim letzten Schritt. Voreinstellungen: Dur-/Moll-/Oktav-Arpeggio, Bassdrum, Snare, Hi-Hat.
+- **Wellenform-/Arpeggio-Tabelle: ** Bis zu 32 Wellenformschritte (— = beibehalten) und Notenwerte (Offset in Halbtonschritten oder **abs** = absolute Note), ein Schritt alle **Speed** Frames, **Loop** Zurück zum vorherigen Schritt oder Stopp beim letzten Schritt. **Presets** (25, in Gruppen; die Liste behält das ausgewählte Preset bei, bis die Tabelle manuell bearbeitet wird): Arpeggien (Dur, Moll, Septakkorde, Sus4, vermindert, übermäßig, Powerchord, Oktave, Triller), Drums (Bassdrum, Snare, Tom, Clap, geschlossene/offene Hi-Hat), Lead- und Bass-Attacks sowie Soundeffekte (Laser, Pickup, Explosion).
 
 **Tracker-Gitter:**
 - 3 Stimmen × bis zu 7 Muster × 32 Zeilen = 7 × 32 = maximal 224 Zeilen (begrenzt durch einen 8-Bit-Zeilenzähler).
-- Pro Zeile: Note + Instrumentenindex, plus optionaler Effekt (siehe **Spalte „Effekt“** unten). Leere Zeilen enthalten die vorherige Note.
+- Pro Zeile: Note + Instrumentenindex, plus ein optionaler Effekt (siehe **Effektspalte** unten). Leere Zeilen enthalten die vorherige Note: Wie bei anderen Trackern (GoatTracker, SID-Wizard) behält eine Note ihren Haltepegel (Sustain-Pegel) bis zur nächsten Note dieser Stimme oder bis zu einem **Note-Off**.
+- **Enter** (oder ein Doppelklick) bearbeitet die ausgewählte Zelle als Text (`C-4 01 V24`); **Enter** speichert und wechselt zur nächsten Zeile, **Esc** bricht ab.
+- **Note-off** (`===`): Taste **1** (oder `` ` `` / `=`) oder `===` / `OFF` in eine Zelle eingeben. Dadurch wird das Gate freigegeben, sodass die Release-Funktion des Instruments läuft – genau wie beim Effekt `C` ohne Note (gespeichert und exportiert als `C00`).
 - Wählen Sie eine Zelle wie gewohnt aus oder halten Sie **Shift** gedrückt und klicken Sie mit den Pfeiltasten, um eine rechteckige Auswahl über mehrere Zeilen und eine der drei Stimmen zu erweitern. Ein Rechtsklick innerhalb des ausgewählten Bereichs erhält die Auswahl aufrecht.
 - Kopieren, Ausschneiden, Einfügen und Löschen sind über die Symbolleiste und das Kontextmenü verfügbar. `Strg/Cmd+C` und `Strg/Cmd+V` wirken auf dieselbe rechteckige Auswahl.
 - Harmoniehilfe: Wählen Sie Grundton, Akkordtyp und Oktave, hören Sie sich den Akkord mit dem aktuellen Instrument an und fügen Sie die Voicings direkt in den Tracker ein. Verfügbare Typen: Dur, Moll, Vermindert, Übermäßig, Sus2, Sus4, Dominantseptakkord, Durseptakkord, Mollseptakkord, Sextakkord, Mollsextakkord, None, kleine None, übermäßige None, Verminderter Septakkord und Septakkord-sus4.
@@ -3912,7 +3935,7 @@ Die Effekte werden einmal pro Zeile aktualisiert (entsprechend dem Timing des ex
 
 **Wiedergabe und virtuelle Tastatur:**
 - Die Schaltfläche „Wiedergabe“ in der Symbolleiste ändert sich während der Wiedergabe zu „Pause“ und während der Pause zu „Fortsetzen“; „Stopp“ beendet die Wiedergabe und setzt den Status zurück.
-- Die Schaltfläche in der Tastatur-Symbolleiste öffnet ein nicht-modales Klavier (2, 3 oder 4 Oktaven, gespeichert), das während der Nutzung des SID-Editors verfügbar bleibt. Ziehen Sie die Kopfzeile an eine beliebige Stelle innerhalb der Hauptanwendung.
+- Die Schaltfläche in der Tastaturleiste öffnet **VA-VK**, ein nicht-modales Piano (2, 3 oder 4 Oktaven; Position, Öffnungszustand, Oktave und *In Tracker einfügen* werden gespeichert) mit eigenen **Wiedergabe-/Stopp-Schaltflächen**, das auch während der Nutzung des SID-Editors verwendet werden kann. Ziehen Sie die Kopfzeile an eine beliebige Stelle innerhalb der Hauptanwendung.
 - Aktivieren Sie **In Tracker einfügen**, um jede gespielte Note an der aktuellen Tracker-Cursorposition zu speichern und zur nächsten Zeile zu wechseln. Deaktivieren Sie diese Funktion, um Noten ohne Bearbeitung anzuhören.
 - Akkord- und Arpeggio-Vorschauen leuchten die entsprechenden Klaviertasten auf, wenn die Tastatur geöffnet ist.
 
@@ -3930,7 +3953,7 @@ Die Effekte werden einmal pro Zeile aktualisiert (entsprechend dem Timing des ex
 **Bekannte Grenzwerte:**
 - Ein 8-Bit-Zeilenzähler begrenzt jedes Muster auf 7 Muster × 32 Zeilen im Rohdatenspeicher (die Song-/Reihenfolgeliste kann durch Wiederholung von Mustern beliebig lang sein).
 - C64 `$D418` Die globale Lautstärke wird über alle Stimmen hinweg geteilt – der Lautstärkeregler pro Instrument dient nur der Information; der Sustain-Pegel (`S` von ADSR) ist die effektive Lautstärke pro Stimme.
-- Die Web-Audio-Vorschau bildet den Player exakt nach, aber ihr Synthesizer nähert sich dem SID-Chip nur an (Filterkurve, kombinierte Wellenformen, Hüllkurven-Timing); **Play: All** über WebSid ist die exakte Referenz.
+- Während **Play: All** die eigentliche Melodie lädt (auch im Pausenmodus), greifen die Notenvorschauen auf den kleinen Synthesizer zurück, der den SID-Chip nur annähernd simuliert. Die Vorschauen erreichen WebSID etwa 0,1 Sekunden vor dem eigentlichen Ton.
 
 ---
 

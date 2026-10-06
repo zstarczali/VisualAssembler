@@ -531,6 +531,16 @@
       content: 'C64VA  ●  PROGRAM BLOCKS + ASM VIEW'
     }
 
+    .release-sid-shot .screen-wrap {
+      overflow: hidden
+    }
+
+    .release-sid-shot .screen-wrap img {
+      height: clamp(180px, 28vw, 360px);
+      object-fit: cover;
+      object-position: top center
+    }
+
     .cartridge-shot .screen-wrap::before {
       content: 'C64VA  ●  MAGIC DESK 64K CARTRIDGE'
     }
@@ -1426,17 +1436,123 @@
     footer {
       background: #050510;
       border-top: 1px solid var(--brd);
-      padding: 32px 80px
+      padding: 18px 80px
     }
 
     .foot-inner {
       max-width: 1280px;
       margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 20px;
-      flex-wrap: wrap
+      text-align: center
+    }
+
+    .ai-development-note {
+      display: inline-block;
+      margin-bottom: 12px
+    }
+
+    .ai-development-trigger {
+      display: block;
+      width: fit-content;
+      margin: 0 auto;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      cursor: pointer
+    }
+
+    .ai-development-trigger img {
+      display: block;
+      width: 116px;
+      height: auto;
+      opacity: .8;
+      transition: opacity .15s, transform .15s
+    }
+
+    .ai-development-trigger:hover img,
+    .ai-development-trigger:focus-visible img {
+      opacity: 1;
+      transform: translateY(-2px)
+    }
+
+    .ai-development-credit {
+      margin-top: 6px;
+      color: var(--txt-dim);
+      font-size: 10px;
+      letter-spacing: 1px;
+      text-align: center
+    }
+
+    .ai-development-modal[hidden] {
+      display: none
+    }
+
+    .ai-development-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 10050;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: rgba(0, 0, 0, .72)
+    }
+
+    .ai-development-card {
+      position: relative;
+      width: min(100%, 720px);
+      max-height: calc(100dvh - 48px);
+      overflow-y: auto;
+      padding: 34px;
+      border: 2px solid var(--brd-hi);
+      background: var(--scr-darker);
+      box-shadow: 0 20px 80px rgba(0, 0, 0, .6);
+      text-align: center
+    }
+
+    .ai-development-card img {
+      width: 150px;
+      height: auto;
+      margin-bottom: 20px
+    }
+
+    .ai-development-card h2 {
+      margin-bottom: 16px;
+      color: var(--txt-hi);
+      font-family: 'C64Pro', monospace;
+      font-size: clamp(18px, 3vw, 26px);
+      letter-spacing: 2px
+    }
+
+    .ai-development-card p {
+      margin: 0;
+      color: var(--txt);
+      font-size: 13px;
+      line-height: 1.7;
+      text-align: left
+    }
+
+    .ai-development-card p + p {
+      margin-top: 12px
+    }
+
+    .ai-development-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      border: 1px solid var(--brd);
+      background: transparent;
+      color: var(--txt-dim);
+      cursor: pointer;
+      font-size: 22px;
+      line-height: 1
+    }
+
+    .ai-development-close:hover,
+    .ai-development-close:focus-visible {
+      border-color: var(--ylw);
+      color: var(--ylw)
     }
 
     .foot-brand {
@@ -1449,6 +1565,18 @@
     .foot-links {
       display: flex;
       gap: 24px
+    }
+
+    .visitor-counter {
+      white-space: nowrap
+    }
+
+    .footer-meta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px 24px;
+      flex-wrap: wrap
     }
 
     .foot-links a {
@@ -1819,6 +1947,11 @@
         padding-left: 24px;
         padding-right: 24px
       }
+
+      .ai-development-trigger img {
+        width: 110px;
+        margin: 0
+      }
     }
 
     @media(max-width:520px) {
@@ -1874,7 +2007,7 @@
       </div>
     </div>
     <div class="hero-left">
-      <div class="badge">V2.5.2 — LATEST RELEASE</div>
+      <div class="badge">V2.5.3 — LATEST RELEASE</div>
       <h1 class="hero-title">WRITE C64 PROGRAMS<br><span>BLOCKS, MACRO-ASM OR ULTIMATE BASIC.</span></h1>
       <p class="hero-sub">A modern Commodore 64 IDE: drag-and-drop 6502 assembly blocks or switch to a full text editor
         — see real-time ASM output and run directly in VICE.</p>
@@ -1911,8 +2044,17 @@
           </div>
           <div class="fi">
             <div class="fi-dot">&#9658;</div>
+            <div><b>V2.5.3: Windows VICE launch fix</b> <span>&mdash; running in VICE works even when PowerShell is missing from PATH, and VICE starts from its own folder.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
             <div><b>VA-VK, presets, Knowledge Base</b> <span>&mdash; the virtual keyboard gets its name, the arpeggio preset list keeps your choice, and the Knowledge Base gains C64 OS and png2c64 links in two columns.</span></div>
           </div>
+        </div>
+      </div>
+      <div class="about-right release-sid-shot">
+        <div class="screen-wrap">
+          <img src="uploads/newsid.png" alt="New SID Editor in Visual Assembler version 2.5.2" width="2099" height="1392">
         </div>
       </div>
     </div>
@@ -3151,6 +3293,17 @@
     </div>
   </section>
 
+  <div class="ai-development-modal" id="ai-development-modal" role="dialog" aria-modal="true" aria-labelledby="ai-development-title" hidden>
+    <div class="ai-development-card">
+      <button class="ai-development-close" type="button" aria-label="Close AI development note" data-ai-development-close>&times;</button>
+      <img src="uploads/aid-white.png" alt="AI-driven development">
+      <div class="sec-s" style="margin-bottom:12px">// AI-DRIVEN DEVELOPMENT</div>
+      <h2 id="ai-development-title">A FORCE MULTIPLIER</h2>
+      <p>AI-driven development means using AI as a force multiplier for your own knowledge and experience. On my own, I wouldn&rsquo;t be able to build a product like Visual Assembler/Ultimate Basic at this scale. But with AI, I can turn my ideas, technical expertise, and understanding of the problem into something much more ambitious.</p>
+      <p>AI doesn&rsquo;t replace the expertise behind the product, it gives me the ability to apply that expertise faster, across more areas, and build things that would otherwise be out of reach for a single developer.</p>
+    </div>
+  </div>
+
   <div class="download-support-modal" id="download-support-modal" role="dialog" aria-modal="true" aria-labelledby="download-support-title" hidden>
     <div class="download-support-card">
       <div class="sec-s" style="margin-bottom:12px">// SUPPORT DEVELOPMENT</div>
@@ -3166,16 +3319,24 @@
   <!-- FOOTER -->
   <footer>
     <div class="foot-inner">
-      <div class="foot-brand">C64 VISUAL ASSEMBLER — © 2026</div>
-      <div class="foot-links">
-        <a href="https://github.com/zstarczali/VisualAssembler" target="_blank">GITHUB</a>
-        <a href="https://www.facebook.com/groups/4435397303367080/" target="_blank" rel="noopener">FACEBOOK</a>
-        <a href="#docs">DOCS</a>
-        <a href="https://github.com/zstarczali/VisualAssembler/blob/main/LICENSE" target="_blank">LICENSE</a>
-        <a href="#editors">SAMPLES</a>
+      <div class="ai-development-note">
+        <button class="ai-development-trigger" type="button" aria-haspopup="dialog" aria-controls="ai-development-modal" aria-label="Read about AI-driven development" data-ai-development-open>
+          <img src="uploads/aid-white.png" alt="AI-driven development">
+        </button>
+        <div class="ai-development-credit">ZSOLT TARCZALI © 2026</div>
       </div>
-      <div class="visitor-counter" aria-live="polite">VISITORS <strong id="visitor-count">—</strong></div>
-      <div class="foot-copy">MIT LICENSE — FREE & OPEN SOURCE</div>
+      <div class="footer-meta">
+        <div class="foot-brand">C64 VISUAL ASSEMBLER — © 2026</div>
+        <div class="foot-links">
+          <a href="https://github.com/zstarczali/VisualAssembler" target="_blank">GITHUB</a>
+          <a href="https://www.facebook.com/groups/4435397303367080/" target="_blank" rel="noopener">FACEBOOK</a>
+          <a href="#docs">DOCS</a>
+          <a href="https://github.com/zstarczali/VisualAssembler/blob/main/LICENSE" target="_blank">LICENSE</a>
+          <a href="#editors">SAMPLES</a>
+        </div>
+        <div class="visitor-counter" aria-live="polite">VISITORS <strong id="visitor-count">—</strong></div>
+        <div class="foot-copy">MIT LICENSE — FREE &amp; OPEN SOURCE</div>
+      </div>
     </div>
   </footer>
 
@@ -3207,6 +3368,21 @@
         });
       });
     });
+
+    (() => {
+      const modal = document.getElementById('ai-development-modal');
+      const opener = document.querySelector('[data-ai-development-open]');
+      const closeButton = modal.querySelector('[data-ai-development-close]');
+      const close = () => { modal.hidden = true; opener.focus(); };
+
+      opener.addEventListener('click', () => {
+        modal.hidden = false;
+        closeButton.focus();
+      });
+      closeButton.addEventListener('click', close);
+      modal.addEventListener('click', event => { if (event.target === modal) close(); });
+      document.addEventListener('keydown', event => { if (event.key === 'Escape' && !modal.hidden) close(); });
+    })();
 
     (() => {
       const modal = document.getElementById('download-support-modal');

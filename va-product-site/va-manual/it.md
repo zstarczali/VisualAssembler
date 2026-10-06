@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Manuale utente
 
-**Versione 2.5.1**
+**Versione 2.5.3**
 
 Un assembler visuale a blocchi per il Commodore 64, basato sul processore 6502. Crea programmi trascinando e rilasciando blocchi di istruzioni e visualizza in tempo reale il codice assembly e il codice macchina generati.
 
@@ -9,6 +9,8 @@ Un assembler visuale a blocchi per il Commodore 64, basato sul processore 6502. 
 ## Sommario
 
 - [C64 Visual Assembler — Manuale utente](#c64-visual-assembler--user-manual)
+    - [Punti salienti della versione 2.5.3](#version-253-highlights)
+    - [Punti salienti della versione 2.5.2](#version-252-highlights)
     - [Punti salienti della versione 2.5.1](#version-251-highlights)
     - [Punti salienti della versione 2.5.0](#version-250-highlights)
     - [Punti salienti della versione 2.4.9](#version-249-highlights)
@@ -171,6 +173,23 @@ Un assembler visuale a blocchi per il Commodore 64, basato sul processore 6502. 
     - [Editor SID (Tracker a 3 voci)](#sid-editor-3-voice-tracker)
     - [Editor di curve](#curve-editor)
     - [Convertitore di numeri](#number-converter)
+
+---
+
+## Novità principali della versione 2.5.3
+
+- **Risolto: l'esecuzione in VICE / RetroDebugger su Windows** non fallisce più con *programma non trovato* quando PowerShell non è presente nel PATH; VICE si avvia dalla propria cartella (un `x64sc.exe` collegato viene risolto in quello reale) e i percorsi con spazi sono racchiusi tra virgolette. Puntare il percorso di VICE a `x64sc.exe` nella cartella `bin` di VICE, accanto alle sue DLL.
+
+---
+
+## Punti salienti della versione 2.5.2
+
+- **Anteprime dell'editor SID sul SID reale**: anteprima dello strumento, tastiera virtuale, immissione di note, accordi/arpeggi, riproduzione di righe e pattern singoli tramite WebSid; il sintetizzatore rimane solo come soluzione di ripiego. Vedi [Editor SID](#sid-editor-3-voice-tracker).
+- **Note-off** — il tasto **1** scrive `===` nel tracker: il gate viene rilasciato e il rilascio dello strumento viene eseguito, come un key-off in altri tracker; **Invio** modifica la cella selezionata.
+- **Tracker staccabile** — il tracker (canzone, tracker e righe di armonia, griglia) può fluttuare nel proprio pannello ridimensionabile e agganciarsi nuovamente.
+- **Preset di forme d'onda/arpeggi** — l'elenco dei preset mantiene il preset scelto finché la tabella non viene modificata manualmente.
+- **VA-VK** — il nuovo nome della tastiera virtuale, con pulsanti Play/Stop; ricorda la sua posizione, lo stato di apertura, l'ottava e *Inserisci nel tracker*; viene ricordato il **volume master** dell'editor SID.
+- **Base di conoscenza** — Ambiente di sviluppo del sistema operativo C64 e collegamenti png2c64, elenco a due colonne. Vedi [Collegamenti alla base di conoscenza](#11-knowledge-base-links).
 
 ---
 
@@ -3497,16 +3516,18 @@ Fai clic sull'icona del punto di interruzione (●) su un blocco di istruzioni q
 
 Collegamenti di riferimento rapido disponibili nell'app alla voce **Base di conoscenza**:
 
-| Risorsa                              | URL                                            |
-| ------------------------------------ | ---------------------------------------------- |
-| Riferimento ai codici operativi 6502 | http://www.6502.org/tutorials/6502opcodes.html |
-| Funzioni del kernel C64              | https://sta.c64.org/cbm64krnfunc.html          |
-| Mappa della memoria del C64          | https://sta.c64.org/cbm64mem.html              |
-| Codici colore C64                    | https://sta.c64.org/cbm64col.html              |
-| Articolo VIC-II                      | https://www.cebix.net/VIC-Article.txt          |
-| Codice sorgente C64                  | https://codebase.c64.org/                      |
-| Il Turbo Assembler                   | https://turbo.style64.org/                     |
-| RetroDebugger                        | https://github.com/slajerek/RetroDebugger/     |
+| Risorsa                                        | URL                                                            |
+| ---------------------------------------------- | -------------------------------------------------------------- |
+| Riferimento ai codici operativi 6502           | http://www.6502.org/tutorials/6502opcodes.html                 |
+| Funzioni del kernel C64                        | https://sta.c64.org/cbm64krnfunc.html                          |
+| Mappa della memoria del C64                    | https://sta.c64.org/cbm64mem.html                              |
+| Codici colore C64                              | https://sta.c64.org/cbm64col.html                              |
+| Articolo VIC-II                                | https://www.cebix.net/VIC-Article.txt                          |
+| Codice sorgente C64                            | https://codebase.c64.org/                                      |
+| Il Turbo Assembler                             | https://turbo.style64.org/                                     |
+| RetroDebugger                                  | https://github.com/slajerek/RetroDebugger/                     |
+| Ambiente di sviluppo del sistema operativo C64 | https://www.c64os.com/c64os/programmersguide/?s=devenvironment |
+| Convertitore di immagini png2c64               | https://png2c64.app/                                           |
 
 ---
 
@@ -3870,7 +3891,7 @@ Organizza le schermate dell'Editor di mappe in un unico livello, che si tratti d
 
 ### Editor SID (Tracker a 3 voci)
 
-Tracker multi-strumento a 3 voci. Apri tramite Toolkit → SID Editor. **Riproduci: Tutto** esegue il player 6502 esportato nell'emulatore WebSid; le anteprime di note, righe e pattern vengono renderizzate da un modello JS dello stesso player (frame per frame) tramite un piccolo sintetizzatore SID.
+Tracker multi-strumento a 3 voci. Apri tramite Toolkit → SID Editor. **Riproduci: Tutto** esegue il player 6502 esportato nell'emulatore WebSid; ogni altra anteprima (anteprima strumento, tastiera virtuale, immissione nota, accordo/arpeggio, riproduzione riga e pattern singolo) viene riprodotta anche sul SID emulato: un modello JS dello stesso player (frame per frame) trasmette in streaming i suoi registri SID a WebSid ad ogni frame e fino a tre note di anteprima condividono le tre voci. Il player di streaming viene caricato all'apertura dell'editor e di nuovo dopo Stop, quindi le note suonano contemporaneamente; senza WebSid viene invece riprodotto un piccolo sintetizzatore SID.
 
 **Comandi per strumento:**
 - Caselle di controllo della forma d'onda (TRI / SAW / PUL / NOI) — più forme d'onda sono combinate tramite AND come nel SID — più **RING** (modulazione ad anello del triangolo da parte della voce precedente: 1 ← 3, 2 ← 1, 3 ← 2) e **SYNC** (sincronizzazione rigida con la voce precedente).
@@ -3880,11 +3901,13 @@ Tracker multi-strumento a 3 voci. Apri tramite Toolkit → SID Editor. **Riprodu
 - **Vibrato:** dopo **Delay** frame un LFO triangolare che ruota ogni **Speed** frame, **Depth** 0-15 scalato al semitono della nota (indipendentemente dall'effetto `V`.
 - **Modulazione di larghezza dell'impulso:** **Velocità** aggiunta alla larghezza dell'impulso ad ogni frame, oscillando tra **Min** e **Max**.
 - **Gate:** **Il timer del gate** rilascia il gate tanti frame prima della nota successiva sulla voce (mantienilo al di sotto di Speed); **Hard restart** azzera anche ADSR, per un attacco pulito; **Primo frame** scrive una forma d'onda sul primo frame della nota (ad esempio `$09` test + gate).
-- **Tabella delle forme d'onda/arpeggi:** fino a 32 passi di forma d'onda (— = mantieni) e nota (offset in semitoni, o **abs** = nota assoluta), un passo ogni **Speed** frame, **Loop** torna a un passo o fermati all'ultimo. Preset: arpeggio maggiore/minore/ottava, cassa, rullante, charleston.
+- **Tabella delle forme d'onda/arpeggi:** fino a 32 passi di forma d'onda (— = mantieni) e nota (offset in semitoni, o **abs** = nota assoluta), un passo ogni **Speed** frame, **Loop** torna a un passo o fermati all'ultimo. **Preset** (25, in gruppi; l'elenco mantiene il preset scelto finché la tabella non viene modificata manualmente): arpeggi (maggiori, minori, accordi di settima, sus4, diminuiti, aumentati, power chord, ottava, trillo), batteria (cassa, rullante, tom, clap, hi-hat chiuso/aperto), attacchi lead e basso ed effetti sonori (laser, pickup, esplosione).
 
 **Griglia di tracciamento:**
 - 3 voci × fino a 7 pattern × 32 righe = 7 × 32 = 224 righe massime (il contatore di righe a 8 bit ne limita il numero).
-- Per riga: nota + indice dello strumento, più un effetto opzionale (vedi **Colonna Effetti** qui sotto). Le righe vuote contengono la nota precedente.
+- Per riga: nota + indice dello strumento, più un effetto opzionale (vedi **Colonna Effetti** qui sotto). Le righe vuote contengono la nota precedente: come in altri tracker (GoatTracker, SID-Wizard), una nota mantiene il suo gate attivo (livello di sustain) fino alla nota successiva su quella voce o a una **nota-off**.
+- **Invio** (o un doppio clic) modifica la cella selezionata come testo (`C-4 01 V24`); **Invio** salva e passa alla riga successiva, **Esc** annulla.
+- **Note-off** (`===`): premere **1** (o `` ` `` / `=`), oppure digitare `===` / `OFF` in una cella. Rilascia il gate, quindi il rilascio dello strumento viene eseguito — lo stesso dell'effetto `C` senza una nota (salvato ed esportato come `C00`).
 - Seleziona una cella normalmente oppure tieni premuto **Maiusc** mentre fai clic o usi i tasti freccia per estendere una selezione rettangolare su più righe e su una qualsiasi delle tre voci. Facendo clic con il pulsante destro del mouse all'interno dell'area selezionata, l'intervallo rimane invariato.
 - Le funzioni Copia, Taglia, Incolla e Cancella sono disponibili dalla barra degli strumenti delle icone e dal menu contestuale basato sulle icone. `Ctrl/Cmd+C` e `Ctrl/Cmd+V` operano sulla stessa selezione rettangolare.
 - Strumento per l'armonia: scegli una nota fondamentale, un tipo di accordo e un'ottava, ascolta in anteprima l'accordo con lo strumento corrente, quindi inserisci la disposizione delle voci direttamente nel tracker. I tipi disponibili includono Maggiore, Minore, Diminuito, Aumentato, Sus2, Sus4, Dominante 7, Maggiore 7, Minore 7, 6, Minore 6, 9, b9, #9, Dim7 e 7sus4.
@@ -3912,7 +3935,7 @@ Gli effetti si aggiornano una volta per riga (in base alla temporizzazione del l
 
 **Riproduzione e tastiera virtuale:**
 - Il pulsante Riproduci nella barra degli strumenti cambia in Pausa durante la riproduzione e in Riprendi quando è in pausa; Interrompi termina la riproduzione e ripristina lo stato.
-- Il pulsante nella barra degli strumenti della tastiera apre un pianoforte non modale (2, 3 o 4 ottave, memorizzato) che rimane utilizzabile mentre l'editor SID è attivo. Trascina la sua intestazione per posizionarlo in qualsiasi punto sopra l'applicazione principale.
+- Il pulsante della barra degli strumenti della tastiera apre **VA-VK**, un pianoforte non modale (2, 3 o 4 ottave; posizione, stato di apertura, ottava e *Inserisci nel tracker* vengono memorizzati) con i propri pulsanti **Riproduci / Interrompi** che rimangono utilizzabili mentre l'editor SID è attivo. Trascina la sua intestazione per posizionarlo ovunque sopra l'applicazione principale.
 - Abilita **Inserisci nel tracker** per scrivere ogni nota suonata nella posizione corrente del cursore del tracker e passare alla riga successiva. Disabilitalo per ascoltare le note senza modificarle.
 - Le anteprime di accordi e arpeggi illuminano i tasti corrispondenti del pianoforte quando la tastiera è aperta.
 
@@ -3930,7 +3953,7 @@ Gli effetti si aggiornano una volta per riga (in base alla temporizzazione del l
 **Limiti noti:**
 - Il contatore di righe a 8 bit limita ogni pattern a 7 pattern × 32 righe nel banco raw (l'elenco dei brani/ordini può comunque essere arbitrariamente lungo ripetendo i pattern).
 - Il volume globale del C64 `$D418` è condiviso tra le voci: il cursore del volume per strumento è informativo; il livello di sustain (`S` di ADSR) è il volume effettivo per voce.
-- L'anteprima Web Audio modella il lettore in modo esatto, ma il suo sintetizzatore approssima soltanto il chip SID (curva del filtro, forme d'onda combinate, temporizzazione dell'inviluppo); **Play: All** tramite WebSid è il riferimento esatto.
+- Mentre **Play: All** ha la melodia reale caricata (anche in pausa), le anteprime delle note tornano al piccolo sintetizzatore, che approssima solo il chip SID. Le anteprime raggiungono WebSid circa 0,1 s prima del suono.
 
 ---
 

@@ -1,5 +1,7 @@
 # macOS Installation Guide
-Version 2.5.2
+Version 2.5.3
+
+2.5.3: Fixed running in VICE / RetroDebugger on Windows: it failed with "program not found" when PowerShell was missing from PATH. PowerShell is now called by its full path, the program is started directly if that fails, VICE starts from its own folder, and paths with spaces are quoted.
 
 2.5.2: every SID Editor preview now plays on the real SID (WebSid) — instrument Preview, virtual keyboard, note entry, chord, arpeggio, row and single-pattern playback — through a register stream fed frame by frame by the same engine as the exported player (the small synthesizer remains only as a fallback without WebSid); the stream player is preloaded so notes sound at once. The wave / arpeggio preset list keeps the chosen preset until the table is edited by hand. Tracker: a note-off (===, key 1 or typing === / OFF) releases the gate so the instrument's release runs — a note otherwise sustains until the next note, as in other trackers; Enter edits the selected cell; the tracker can be detached into a floating, resizable panel and docked back. The virtual keyboard is now called VA-VK, has Play / Stop buttons and remembers its position and settings, and the SID editor remembers its master volume. Knowledge Base: new links (C64 OS development environment, png2c64 image converter) in a two-column list.
 
@@ -31,7 +33,7 @@ Version 2.5.2
 
 ## Quick Install
 
-1. **Download** the 2.5.2 DMG for your architecture from the releases page
+1. **Download** the 2.5.3 DMG for your architecture from the releases page
 2. **Mount** the DMG and drag the app to `/Applications`
 3. **First launch**: Right-click the app → **"Open"** (macOS will block double-click)
 4. Click **"Open"** in the security dialog
@@ -79,4 +81,4 @@ Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in 
 
 ---
 
-**Version:** 2.5.2 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.5.3 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64

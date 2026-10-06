@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Podręcznik użytkownika
 
-**Wersja 2.5.1**
+**Wersja 2.5.3**
 
 Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągając i upuszczając bloki instrukcji, i oglądaj generowany kod assemblera i maszynowy w czasie rzeczywistym.
 
@@ -9,6 +9,8 @@ Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągaj�
 ## Spis treści
 
 - [C64 Visual Assembler — Podręcznik użytkownika](#c64-visual-assembler--user-manual)
+    - [Najważniejsze cechy wersji 2.5.3](#version-253-highlights)
+    - [Najważniejsze cechy wersji 2.5.2](#version-252-highlights)
     - [Najważniejsze cechy wersji 2.5.1](#version-251-highlights)
     - [Najważniejsze cechy wersji 2.5.0](#version-250-highlights)
     - [Najważniejsze cechy wersji 2.4.9](#version-249-highlights)
@@ -171,6 +173,23 @@ Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągaj�
     - [Edytor SID (śledzenie 3-głosowe)](#sid-editor-3-voice-tracker)
     - [Edytor krzywych](#curve-editor)
     - [Konwerter liczb](#number-converter)
+
+---
+
+## Najważniejsze cechy wersji 2.5.3
+
+- **Naprawiono: uruchomienie w VICE / RetroDebugger w systemie Windows** nie powoduje już błędu *program nie został znaleziony*, gdy w zmiennej PATH brakuje programu PowerShell; VICE uruchamia się z własnego folderu (powiązany plik `x64sc.exe` jest kojarzony z rzeczywistym), a ścieżki ze spacjami są ujęte w cudzysłów. Wskaż ścieżkę VICE do pliku `x64sc.exe` w folderze `bin` programu VICE, obok jego bibliotek DLL.
+
+---
+
+## Najważniejsze cechy wersji 2.5.2
+
+- **Podgląd edytora SID na prawdziwym SID** — podgląd instrumentu, wirtualna klawiatura, wprowadzanie nut, odtwarzanie akordów/arpeggio, wierszy i pojedynczych wzorców przez WebSid; syntezator pozostaje jedynie opcją zapasową. Zobacz [Edytor SID](#sid-editor-3-voice-tracker).
+- **Note-off** — klawisz **1** zapisuje `===` do trackera: bramka zostaje zwolniona, a zwolnienie instrumentu jest wykonywane, podobnie jak wyłączenie klawisza w innych trackerach; **Enter** edytuje wybraną komórkę.
+- **Odłączany tracker** — tracker (wiersze utworu, trackera i harmonii, siatka) może być umieszczony w osobnym, skalowalnym panelu i dokowany z powrotem.
+- **Predefiniowane ustawienia Wave/arpeggio** — lista presetów zachowuje wybrany preset do momentu ręcznej edycji tabeli.
+- **VA-VK** — nowa nazwa wirtualnej klawiatury z przyciskami Play/Stop; zapamiętuje swoją pozycję, stan otwarcia, oktawę i *Insert do trackera*; zapamiętywana jest **główna głośność** edytora SID.
+- **Baza wiedzy** — środowisko programistyczne systemu operacyjnego C64 i linki do png2c64, lista dwukolumnowa. Zobacz [Linki do bazy wiedzy](#11-knowledge-base-links).
 
 ---
 
@@ -3497,16 +3516,18 @@ Kliknij ikonę punktu przerwania (●) w dowolnym bloku instrukcji, aby przełą
 
 Szybkie łącza referencyjne dostępne w aplikacji w zakładce **Baza wiedzy**:
 
-| Ratunek                            | Adres URL                                      |
-| ---------------------------------- | ---------------------------------------------- |
-| Odniesienie do kodów operacji 6502 | http://www.6502.org/tutorials/6502opcodes.html |
-| Funkcje jądra C64                  | https://sta.c64.org/cbm64krnfunc.html          |
-| Mapa pamięci C64                   | https://sta.c64.org/cbm64mem.html              |
-| Kody kolorów C64                   | https://sta.c64.org/cbm64col.html              |
-| Artykuł VIC-II                     | https://www.cebix.net/VIC-Article.txt          |
-| Baza kodów C64                     | https://codebase.c64.org/                      |
-| Turbomontażysta                    | https://turbo.style64.org/                     |
-| RetroDebugger                      | https://github.com/slajerek/RetroDebugger/     |
+| Ratunek                                             | Adres URL                                                      |
+| --------------------------------------------------- | -------------------------------------------------------------- |
+| Odniesienie do kodów operacji 6502                  | http://www.6502.org/tutorials/6502opcodes.html                 |
+| Funkcje jądra C64                                   | https://sta.c64.org/cbm64krnfunc.html                          |
+| Mapa pamięci C64                                    | https://sta.c64.org/cbm64mem.html                              |
+| Kody kolorów C64                                    | https://sta.c64.org/cbm64col.html                              |
+| Artykuł VIC-II                                      | https://www.cebix.net/VIC-Article.txt                          |
+| Baza kodów C64                                      | https://codebase.c64.org/                                      |
+| Turbomontażysta                                     | https://turbo.style64.org/                                     |
+| RetroDebugger                                       | https://github.com/slajerek/RetroDebugger/                     |
+| Środowisko programistyczne systemu operacyjnego C64 | https://www.c64os.com/c64os/programmersguide/?s=devenvironment |
+| Konwerter obrazów png2c64                           | https://png2c64.app/                                           |
 
 ---
 
@@ -3870,7 +3891,7 @@ Warstwowy edytor map kafelkowych do statycznych scenerii, map pojawiania się sp
 
 ### Edytor SID (śledzenie 3-głosowe)
 
-Wieloinstrumentalny, 3-głosowy tracker. Otwórz przez Toolkit → Edytor SID. **Odtwórz: Wszystko** uruchamia wyeksportowany odtwarzacz 6502 w emulatorze WebSid; podglądy nut, wierszy i wzorów są renderowane przez model JS tego samego odtwarzacza (klatka po klatce) za pomocą małego syntezatora SID.
+Wieloinstrumentalny, 3-głosowy tracker. Otwórz przez Toolkit → Edytor SID. **Odtwarzanie: Wszystkie** uruchamia wyeksportowany odtwarzacz 6502 w emulatorze WebSid; każdy inny podgląd (podgląd instrumentu, klawiatura wirtualna, wprowadzanie nut, akord/arpeggio, wiersz i odtwarzanie pojedynczego wzorca) również odtwarzany jest na emulowanym SID: model JS tego samego odtwarzacza (klatka po klatce) przesyła strumieniowo swoje rejestry SID do WebSid w każdej klatce, a maksymalnie trzy nuty podglądu współdzielą trzy głosy. Odtwarzacz strumieniowy jest ładowany po otwarciu edytora i ponownie po zatrzymaniu, więc nuty brzmią jednocześnie; bez WebSid odtwarzany jest mały syntezator SID.
 
 **Sterowanie na instrument:**
 - Pola wyboru przebiegów (TRI / SAW / PUL / NOI) — wiele przebiegów jest łączonych logicznie jak w SID — plus **RING** (modulacja pierścieniowa trójkąta przez poprzedni głos: 1 ← 3, 2 ← 1, 3 ← 2) i **SYNC** (twarda synchronizacja z poprzednim głosem).
@@ -3880,11 +3901,13 @@ Wieloinstrumentalny, 3-głosowy tracker. Otwórz przez Toolkit → Edytor SID. *
 - **Vibrato:** po ramkach **Delay** trójkątny LFO obraca się co **Speed** ramek, **Depth** 0-15 skalowane do półtonu nuty (niezależnie od efektu `V`).
 - **Modulacja szerokości impulsu: ** **Prędkość ** dodawana do szerokości impulsu w każdej klatce, zmieniająca się między **Min** a **Maks.**.
 - **Bramka:** **Czasomierz bramki** zwalnia bramkę o tyle klatek przed następną nutą w głosie (utrzymuje ją poniżej prędkości); **Twardy restart** zeruje wtedy ADSR, zapewniając czysty atak; **Pierwsza klatka** zapisuje przebieg na pierwszej klatce nuty (np. `$09` test + bramka).
-- **Tabela fal/arpeggio:** do 32 kroków przebiegu (— = zachowaj) i nuty (przesunięcie w półtonach lub **abs** = nuta absolutna), jeden krok co **Prędkość** klatek, **Pętla** powrót do kroku lub zatrzymanie na ostatnim kroku. Ustawienia wstępne: arpeggio durowe / molowe / oktawowe, kopnięcie, werbel, hi-hat.
+- **Tabela fal/arpeggio:** do 32 kroków przebiegu (— = zachowaj) i nuty (przesunięcie w półtonach lub **abs** = nuta absolutna), jeden krok co **Prędkość** klatek, **Pętla** powrót do kroku lub zatrzymanie na ostatnim kroku. **Presety** (25, w grupach; lista zachowuje wybrany preset, dopóki tabela nie zostanie ręcznie edytowana): arpeggia (durowe, molowe, septymowe, sus4, zmniejszone, zwiększone, akord mocy, oktawa, trel), perkusje (stopa, werbel, tom, klaskanie, zamknięty/otwarty hi-hat), ataki ołowiane i basowe oraz efekty dźwiękowe (laser, pickup, wybuch).
 
 **Siatka śledzenia:**
 - 3 głosy × do 7 wzorów × 32 wiersze = 7 × 32 = maksymalnie 224 wiersze (ograniczenie stanowi 8-bitowy licznik wierszy).
-- Na wiersz: nuta + indeks instrumentu, plus opcjonalny efekt (patrz **Kolumna efektów** poniżej). Puste wiersze zawierają poprzednią nutę.
+- Na wiersz: nuta + indeks instrumentu, plus opcjonalny efekt (patrz **Kolumna efektów** poniżej). Puste wiersze zawierają poprzednią nutę: podobnie jak w innych trackerach (GoatTracker, SID-Wizard), nuta utrzymuje swoją bramkę (poziom podtrzymania) do następnej nuty w tym samym głosie lub **wyłączenia nuty**.
+- **Enter** (lub dwukrotne kliknięcie) edytuje wybraną komórkę jako tekst (`C-4 01 V24`); **Enter** zapisuje i przechodzi do następnego wiersza, **Esc** anuluje.
+- **Note-off** (`===`): klawisz **1** (lub `` ` `` / `=`), albo wpisz `===` / `OFF` w komórce. Zwalnia bramkę, więc zwolnienie instrumentu działa — tak samo jak efekt `C` bez nuty (zapisany i wyeksportowany jako `C00`).
 - Zaznacz jedną komórkę normalnie lub przytrzymaj klawisze **Shift** podczas klikania lub używania klawiszy strzałek, aby rozszerzyć prostokątne zaznaczenie na wiersze i dowolny z trzech głosów. Kliknięcie prawym przyciskiem myszy w zaznaczonym obszarze zachowuje zakres.
 - Kopiuj, Wytnij, Wklej i Wyczyść są dostępne na pasku narzędzi ikon i w menu kontekstowym opartym na ikonach. `Ctrl/Cmd+C` i `Ctrl/Cmd+V` działają na tym samym prostokątnym zaznaczeniu.
 - Pomocnik harmonii: wybierz nutę podstawową, rodzaj akordu i oktawę, odsłuchaj akord z bieżącym instrumentem, a następnie wstaw brzmienie bezpośrednio do trackera. Dostępne typy to: dur, mol, zmniejszony, zwiększony, Sus2, Sus4, dominanta 7, dur 7, mol 7, 6, mol 6, 9, b9, #9, Dim7 i 7sus4.
@@ -3912,7 +3935,7 @@ Efekty aktualizują się raz na wiersz (zgodnie z synchronizacją eksportowanego
 
 **Odtwarzanie i klawiatura wirtualna:**
 - Przycisk Odtwórz na pasku narzędzi zmienia się na Wstrzymaj podczas odtwarzania i na Wznów po wstrzymaniu. Przycisk Zatrzymaj kończy odtwarzanie i resetuje stan.
-- Przycisk na pasku narzędzi klawiatury otwiera niemodalny fortepian (zapamiętywany w 2, 3 lub 4 oktawach), który pozostaje dostępny, gdy edytor SID jest aktywny. Przeciągnij jego nagłówek, aby umieścić go w dowolnym miejscu nad główną aplikacją.
+- Przycisk na pasku narzędzi klawiatury otwiera **VA-VK**, pianino niemodalne (2, 3 lub 4 oktawy; pozycja, stan otwarcia, oktawa i *Wstaw do trackera* są zapamiętywane) z własnymi przyciskami **Odtwarzaj/Stop**, które pozostają dostępne, gdy edytor SID jest aktywny. Przeciągnij jego nagłówek, aby umieścić go w dowolnym miejscu w aplikacji głównej.
 - Włącz opcję **Wstaw do trackera**, aby zapisać każdą zagraną nutę przy aktualnym kursorze trackera i przejść do następnego wiersza. Wyłącz tę opcję, aby odsłuchiwać nuty bez edycji.
 - Podgląd akordów i arpeggio podświetla odpowiadające im klawisze fortepianu, gdy klawiatura jest otwarta.
 
@@ -3930,7 +3953,7 @@ Efekty aktualizują się raz na wiersz (zgodnie z synchronizacją eksportowanego
 **Znane limity:**
 - 8-bitowy licznik wierszy ogranicza każdy wzór do 7 wzorów × 32 wierszy w banku danych (lista utworów/kolejności może być nadal dowolnie długa poprzez powtarzanie wzorów).
 - Globalna głośność C64 `$D418` jest współdzielona przez wszystkie głosy — suwak głośności dla każdego instrumentu ma charakter informacyjny; poziom podtrzymania (`S` ADSR) to efektywna głośność dla każdego głosu.
-- Podgląd Web Audio dokładnie modeluje odtwarzacz, ale jego syntezator tylko przybliża układ SID (krzywa filtra, połączone przebiegi, synchronizacja obwiedni); **Odtwarzanie: Wszystko** przez WebSid stanowi dokładne odniesienie.
+- Podczas gdy w trybie **Play: All** wczytany jest prawdziwy utwór (również w trybie pauzy), podglądy nut są przekierowywane do małego syntezatora, który jedynie przybliża układ SID. Podglądy docierają do WebSid około 0,1 s przed dźwiękiem.
 
 ---
 

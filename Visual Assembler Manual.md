@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.5.2**
+**Version 2.5.3**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -9,6 +9,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
+    - [Version 2.5.3 Highlights](#version-253-highlights)
     - [Version 2.5.2 Highlights](#version-252-highlights)
     - [Version 2.5.1 Highlights](#version-251-highlights)
     - [Version 2.5.0 Highlights](#version-250-highlights)
@@ -172,6 +173,12 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Curve Editor](#curve-editor)
     - [Number Converter](#number-converter)
+
+---
+
+## Version 2.5.3 Highlights
+
+- **Fixed: running in VICE / RetroDebugger on Windows** no longer fails with *program not found* when PowerShell is missing from PATH; VICE starts from its own folder (a linked `x64sc.exe` is resolved to the real one), and paths with spaces are quoted. Point the VICE path to `x64sc.exe` in VICE's `bin` folder, next to its DLLs.
 
 ---
 

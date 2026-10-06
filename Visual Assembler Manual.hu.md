@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.5.2**
+**Verzió: 2.5.3**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -26,6 +26,12 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - [12b. CRT export (Magic Desk 64K cartridge)](#12b-crt-export-magic-desk-64k-cartridge)
 - [13. Hardver beállítások](#13-hardver-beállítások)
 - [14. Vizuális szerkesztők (Toolkit)](#14-vizuális-szerkesztők-toolkit)
+
+---
+
+## A 2.5.3 verzió újdonságai
+
+- **Javítva: VICE / RetroDebugger indítása Windowson** — nem bukik el *program not found* hibával, ha a PowerShell hiányzik a PATH-ból; a VICE a saját mappájából indul (a linkelt `x64sc.exe`-t a valódira oldja fel), és a szóközös útvonalak idézőjelezve mennek át. A VICE útvonala a VICE `bin` mappájában lévő `x64sc.exe` legyen, a DLL-ek mellett.
 
 ---
 

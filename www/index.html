@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.5.2">
+  <link rel="stylesheet" href="style.css?v=2.5.3">
 </head>
 
 <body>
@@ -1203,7 +1203,7 @@ PRINTABLE CHARACTERS
           <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
         </div>
         <h2 class="about-title">C64 Visual Assembler</h2>
-        <p class="about-version" id="about-version">v2.5.2</p>
+        <p class="about-version" id="about-version">v2.5.3</p>
         <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
       </div>
       <div class="about-columns">
@@ -1229,10 +1229,13 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.5.2</p>
+      <p class="whats-new-version">v2.5.3</p>
       <ul class="whats-new-list">
         <li>
-          <strong>New: SID Editor previews on the real SID:</strong> the instrument Preview, the virtual keyboard, note entry, chord and arpeggio previews, row preview and single-pattern playback now play through the WebSid emulator, streamed frame by frame from the same engine as the exported player. It is preloaded, so notes sound at once.
+          <strong>Fixed: running in VICE on Windows</strong> no longer fails with <em>program not found</em> when PowerShell is missing from PATH; VICE starts from its own folder, and paths with spaces are handled.
+        </li>
+        <li>
+          <strong>From 2.5.2 — SID Editor previews on the real SID:</strong> the instrument Preview, the virtual keyboard, note entry, chord and arpeggio previews, row preview and single-pattern playback now play through the WebSid emulator, streamed frame by frame from the same engine as the exported player. It is preloaded, so notes sound at once.
         </li>
         <li>
           <strong>Note-off in the tracker:</strong> key <strong>1</strong> writes <code>===</code> — the gate is released and the instrument's release runs, like a key-off in other trackers. <strong>Enter</strong> edits the selected cell.
@@ -1335,6 +1338,12 @@ PRINTABLE CHARACTERS
           <a class="knowledge-base-link" href="#" data-url="https://png2c64.app/">
             <span class="knowledge-base-link-title">png2c64 Image Converter</span>
             <span class="knowledge-base-link-url">png2c64.app</span>
+          </a>
+        </li>
+        <li>
+          <a class="knowledge-base-link" href="#" data-url="https://vice-emu.sourceforge.io/">
+            <span class="knowledge-base-link-title">VICE Emulator</span>
+            <span class="knowledge-base-link-url">vice-emu.sourceforge.io</span>
           </a>
         </li>
       </ul>
@@ -2786,13 +2795,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.5.2"></script>
-  <script src="i18n.js?v=2.5.2"></script>
-  <script src="tutorial-data.js?v=2.5.2"></script>
+  <script src="tauri-bridge.js?v=2.5.3"></script>
+  <script src="i18n.js?v=2.5.3"></script>
+  <script src="tutorial-data.js?v=2.5.3"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.5.2"></script>
+  <script src="app.js?v=2.5.3"></script>
 
 </body>
 
