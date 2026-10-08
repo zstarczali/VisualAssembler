@@ -615,6 +615,12 @@
       gap: 12px
     }
 
+    .feature-list.fl-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px 56px
+    }
+
     .fi {
       display: flex;
       gap: 14px;
@@ -1869,6 +1875,10 @@
         grid-template-columns: 1fr
       }
 
+      .feature-list.fl-2col {
+        grid-template-columns: 1fr
+      }
+
       .tut-grid {
         grid-template-columns: 1fr
       }
@@ -2029,11 +2039,45 @@
     </div>
   </section>
 
+  <!-- V2.5.5: HI-RES PIXEL GRID, RIGHT-CLICK COPY / PASTE -->
+  <div id="release-255" style="background:var(--scr-darker);padding:80px 0">
+    <div class="sec" style="padding-top:0;padding-bottom:0">
+      <div class="ub-tag">NEW IN V2.5.5</div>
+      <div class="sec-s">// EVERY PIXEL IN ITS PLACE</div>
+      <h2 class="sec-t">HI-RES PIXEL GRID<br><span style="color:var(--ylw)">AND RIGHT-CLICK COPY / PASTE</span></h2>
+      <p class="sec-d" style="max-width:680px">Version 2.5.5 is for precise pixel work: the Hi-Res Editor shows every single pixel when you zoom in, and the graphics editors get a right-click menu for copy and paste.</p>
+      <div class="feature-list fl-2col">
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Pixel grid:</b> <span>with Grid on, from 4&times; zoom every pixel of the Hi-Res Editor gets its own grid line, stronger on the character-cell borders.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Visible on every colour:</b> <span>each line is shaded from the colour under it, darker on light pixels and lighter on dark ones, so it shows on all 16 C64 colours.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>16&times; zoom:</b> <span>the Hi-Res Editor zoom now goes from 1&times; to 16&times;.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Right-click Copy / Paste:</b> <span>Copy, Paste and Transparent paste on the canvas of the Hi-Res and Map editors, Copy frame and Paste frame in the Sprite Editor. A paste started from the menu previews where you clicked.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Fixes:</b> <span>the multicolor cell grid is one character cell wide again, the Hi-Res Paste button pastes normally, and the SID Editor right-click menu opens at the cursor.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div">
+
   <!-- V2.5.4: ULTIMATE BASIC 1.6.3, QBASIC-STYLE SYNTAX -->
   <div id="release-254" style="background:var(--scr-darker);padding:80px 0">
     <div class="sec about-grid" style="padding-top:0;padding-bottom:0">
       <div>
-        <div class="ub-tag">NEW IN V2.5.4</div>
+        <div class="ub-tag">V2.5.4</div>
         <div class="sec-s">// WRITE IT LIKE QBASIC</div>
         <h2 class="sec-t">ULTIMATE BASIC 1.6.3<br><span style="color:var(--ylw)">QBASIC-STYLE SYNTAX</span></h2>
         <p class="sec-d">Version 2.5.4 bundles Ultimate Basic 1.6.3: programs written the way BASIC books show them now compile to native C64 code &mdash; and the UB editor highlights, completes and explains every new word.</p>
@@ -2061,14 +2105,6 @@
           <div class="fi">
             <div class="fi-dot">&#9658;</div>
             <div><b>Window relaunch fix</b> <span>&mdash; the main window always appears at startup, even if the app was quit with its window minimized or hidden.</span></div>
-          </div>
-          <div class="fi">
-            <div class="fi-dot">&#9658;</div>
-            <div><b>V2.5.5: Hi-Res pixel grid and 16&times; zoom</b> <span>&mdash; from 4&times; zoom every pixel gets its own grid line, visible on all 16 colours, and the Hi-Res Editor now zooms up to 16&times;.</span></div>
-          </div>
-          <div class="fi">
-            <div class="fi-dot">&#9658;</div>
-            <div><b>V2.5.5: right-click Copy / Paste</b> <span>&mdash; a context menu on the canvas of the Hi-Res, Map and Sprite editors, plus a Number Converter button that shows when the converter is open.</span></div>
           </div>
         </div>
       </div>

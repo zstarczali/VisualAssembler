@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Manuale utente
 
-**Versione 2.5.4**
+**Versione 2.5.5**
 
 Un assembler visuale a blocchi per il Commodore 64, basato sul processore 6502.
 Crea programmi trascinando e rilasciando blocchi di istruzioni e visualizza in
@@ -11,77 +11,80 @@ tempo reale il codice assembly e il codice macchina generati.
 ## Sommario
 
 - [C64 Visual Assembler — Manuale utente](#c64-visual-assembler--user-manual)
+    - [Punti salienti della versione 2.5.5](#version-255-highlights)
     - [Punti salienti della versione 2.5.4](#version-254-highlights)
-    - [Punti salienti della versione 2.5.2](#version-253-highlights)
-    - [Punti salienti della versione 2.5.1](#version-252-highlights)
-    - [Punti salienti della versione 2.5.0](#version-251-highlights)
-    - [Punti salienti della versione 2.4.9](#version-250-highlights)
-    - [Punti salienti della versione 2.4.8](#version-249-highlights)
-    - [Punti salienti della versione 2.4.7](#version-248-highlights)
-    - [Punti salienti della versione 2.4.6](#version-247-highlights)
-    - [Punti salienti della versione 2.4.5](#version-246-highlights)
-    - [Punti salienti della versione 2.4.3](#version-245-highlights)
-    - [Punti salienti della versione 2.4.2](#version-243-highlights)
-    - [Punti salienti della versione 2.4.1](#version-242-highlights)
-    - [Punti salienti della versione 2.4.0](#version-241-highlights)
-    - [Punti salienti della versione 2.3.9](#version-240-highlights)
-    - [Indice](#version-239-highlights)
-  - [1. Panoramica dell'interfaccia](#table-of-contents)
-  - [2. Tavolozza a blocchi](#1-interface-overview)
-  - [3. Area del programma](#2-block-palette)
-  - [4. Vista ASM](#3-program-area)
-    - [Modalità di uscita](#operand-input)
-  - [5. Impostazioni e barra degli strumenti](#4-asm-view)
-    - [Modelli di progetto](#output-modes)
-    - [Progetto di costruzione](#toolkit-tab)
-    - [Esempi di programmi](#options-tab)
-    - [Carica il file .asm (riferimento rapido)](#clicking-an-asm-line)
+    - [Punti salienti della versione 2.5.3](#version-253-highlights)
+    - [Punti salienti della versione 2.5.2](#version-252-highlights)
+    - [Punti salienti della versione 2.5.1](#version-251-highlights)
+    - [Punti salienti della versione 2.5.0](#version-250-highlights)
+    - [Punti salienti della versione 2.4.9](#version-249-highlights)
+    - [Punti salienti della versione 2.4.8](#version-248-highlights)
+    - [Punti salienti della versione 2.4.7](#version-247-highlights)
+    - [Punti salienti della versione 2.4.6](#version-246-highlights)
+    - [Punti salienti della versione 2.4.5](#version-245-highlights)
+    - [Punti salienti della versione 2.4.3](#version-243-highlights)
+    - [Punti salienti della versione 2.4.2](#version-242-highlights)
+    - [Punti salienti della versione 2.4.1](#version-241-highlights)
+    - [Punti salienti della versione 2.4.0](#version-240-highlights)
+    - [Punti salienti della versione 2.3.9](#version-239-highlights)
+  - [Indice](#table-of-contents)
+  - [1. Panoramica dell'interfaccia](#1-interface-overview)
+  - [2. Tavolozza a blocchi](#2-block-palette)
+  - [3. Area del programma](#3-program-area)
+    - [Input operando](#operand-input)
+  - [4. Vista ASM](#4-asm-view)
+    - [Modalità di uscita](#output-modes)
+    - [Scheda Strumenti](#toolkit-tab)
+    - [Scheda Opzioni](#options-tab)
+    - [Cliccando su una riga ASM](#clicking-an-asm-line)
     - [Numeri di riga ASSM](#asm-line-numbers)
     - [Modulo di avanzamento della compilazione](#compile-progress-modal)
-  - [Modalità UltimateBasic](#5-settings--toolbar)
-    - [Apertura dell'editor UB](#project-templates)
-    - [Strumenti dell'editor](#build-project)
-    - [Progetti, schede e file di avvio](#example-programs)
-    - [Edificio e diagnostica](#load-asm-file-quick-reference)
+  - [5. Impostazioni e barra degli strumenti](#5-settings--toolbar)
+    - [Modelli di progetto](#project-templates)
+    - [Progetto di costruzione](#build-project)
+    - [Esempi di programmi](#example-programs)
+    - [Carica il file .asm (riferimento rapido)](#load-asm-file-quick-reference)
       - [Note e best practice sull'analisi
         dell'importazione](#import-parsing-notes-and-best-practices)
-  - [6. Modalità esperto](#ultimatebasic-mode)
-    - [Cambio modalità](#opening-the-ub-editor)
-    - [Layout dell'editor](#editor-tools)
-    - [Pulsanti della barra degli strumenti](#projects-tabs-and-startup-files)
-    - [Evidenziazione degli errori](#building-and-diagnostics)
-    - [Evidenziazione della sintassi](#running-d64-and-exomizer)
-    - [Formattatore sorgente](#debugger-symbols-and-disassembly)
-    - [Pannello e schede del progetto](#ultimate-basic-manual-and-source)
-  - [7. Modalità di indirizzamento](#6-expert-mode)
-    - [Etichetta le espressioni come operandi](#switching-modes)
-    - [Il contatore di programma `*` nelle espressioni](#editor-layout)
-    - [Etichette locali (tratteggiate)](#toolbar-buttons)
-    - [Etichette degli operandi del codice automodificante](#error-highlighting)
+  - [Modalità UltimateBasic](#ultimatebasic-mode)
+    - [Apertura dell'editor UB](#opening-the-ub-editor)
+    - [Strumenti dell'editor](#editor-tools)
+    - [Progetti, schede e file di avvio](#projects-tabs-and-startup-files)
+    - [Edificio e diagnostica](#building-and-diagnostics)
+    - [Running, D64, ed Exomizer](#running-d64-and-exomizer)
+    - [Simboli di debug e disassemblaggio](#debugger-symbols-and-disassembly)
+    - [Manuale e fonte di Ultimate Basic](#ultimate-basic-manual-and-source)
+  - [6. Modalità esperto](#6-expert-mode)
+    - [Cambio modalità](#switching-modes)
+    - [Layout dell'editor](#editor-layout)
+    - [Pulsanti della barra degli strumenti](#toolbar-buttons)
+    - [Evidenziazione degli errori](#error-highlighting)
     - [Evidenziazione della sintassi](#syntax-highlight)
     - [Formattatore sorgente](#source-formatter)
     - [Pannello e schede del progetto](#project-panel--tabs)
     - [Barra delle schede](#tab-bar)
-  - [8. Istruzioni standard 6502](#7-addressing-modes)
-    - [Movimento dati](#label-expressions-as-operands)
-    - [Aritmetica](#the--program-counter-in-expressions)
-    - [Logica](#local-dotted-labels)
-    - [Salti e ramificazioni](#self-modifying-code-operand-labels)
-  - [9. Blocchi macro — Riferimento](#8-standard-6502-instructions)
-    - [LABEL](#data-movement)
-    - [COMMENT](#arithmetic)
-    - [BYTE](#logic)
-    - [WORD](#jumps--branches)
-    - [FILL](#lbne--lbeq---long-branches)
-    - [ALIGN](#register-operations)
-    - [TEXT](#shift--rotate)
-    - [STRING](#stack)
-    - [DATA](#system--flags)
-    - [RAWBYTES](#illegal--undocumented-instructions)
-  - [10. Integrazione del debugger](#9-macro-blocks--reference)
-    - [RetroDebugger](#label)
-    - [Blocchi di interruzione](#comment)
-    - [Flag di debug (scheda Opzioni)](#byte)
+  - [7. Modalità di indirizzamento](#7-addressing-modes)
+    - [Etichetta le espressioni come operandi](#label-expressions-as-operands)
+    - [Il contatore di programma `*` nelle
+      espressioni](#the--program-counter-in-expressions)
+    - [Etichette locali (tratteggiate)](#local-dotted-labels)
+    - [Etichette degli operandi del codice
+      automodificante](#self-modifying-code-operand-labels)
+  - [8. Istruzioni standard 6502](#8-standard-6502-instructions)
+    - [Movimento dati](#data-movement)
+    - [Aritmetica](#arithmetic)
+    - [Logica](#logic)
+    - [Salti e ramificazioni](#jumps--branches)
+    - [LBNE / LBEQ / … (Rami lunghi)](#lbne--lbeq---long-branches)
+    - [Operazioni di registro](#register-operations)
+    - [Shift & Rotate](#shift--rotate)
+    - [Stack](#stack)
+    - [Sistema / Flag](#system--flags)
+    - [Istruzioni illegali/non documentate](#illegal--undocumented-instructions)
+  - [9. Blocchi macro — Riferimento](#9-macro-blocks--reference)
+    - [ETICHETTA](#label)
+    - [COMMENTO](#comment)
+    - [BYTE](#byte)
     - [PAROLA](#word)
     - [RIEMPIMENTO](#fill)
     - [ALIGN](#align)
@@ -152,22 +155,23 @@ tempo reale il codice assembly e il codice macchina generati.
     - [MAP\_COPY16X16](#map_copy16x16)
     - [SPRITE\_ANIM](#sprite_anim)
     - [SCORE_BCD](#score_bcd)
-  - [11. Collegamenti alla base di conoscenza](#10-debugger-integration)
+  - [10. Integrazione del debugger](#10-debugger-integration)
     - [RetroDebugger](#retrodebugger)
     - [Blocchi di interruzione](#breakpoint-blocks)
     - [Flag di debug (scheda Opzioni)](#debugger-flags-options-tab)
-  - [12. Esportazione ed esecuzione D64](#11-knowledge-base-links)
-  - [12b. Esportazione CRT (cartuccia Magic Desk 64K)](#12-d64-export--run)
+  - [11. Collegamenti alla base di conoscenza](#11-knowledge-base-links)
+  - [12. Esportazione ed esecuzione D64](#12-d64-export--run)
     - [Pulsante Split Run](#split-run-button)
     - [Finestra di dialogo Esporta in D64](#export-to-d64-dialog)
     - [Metadati D64 nei progetti](#d64-metadata-in-projects)
-  - [13. Impostazioni hardware](#12b-crt-export-magic-desk-64k-cartridge)
-  - [14. Editor visivi (Toolkit)](#13-hardware-settings)
-    - [Editor ad alta risoluzione/multicolore](#vice-emulator)
-    - [Editor di sprite](#exomizer)
-    - [C64 Character ROM Browser (“Char map”)](#retro-debugger)
-    - [Editor di caratteri (Charset)](#c64-ultimate--1541-ultimate)
-    - [Editor di tela Charset](#kung-fu-flash-2)
+  - [12b. Esportazione CRT (cartuccia Magic Desk
+    64K)](#12b-crt-export-magic-desk-64k-cartridge)
+  - [13. Impostazioni hardware](#13-hardware-settings)
+    - [Emulatore VICE](#vice-emulator)
+    - [Esoizer](#exomizer)
+    - [Retro Debugger](#retro-debugger)
+    - [C64 Ultimate / 1541 Ultimate](#c64-ultimate--1541-ultimate)
+    - [Kung Fu Flash 2](#kung-fu-flash-2)
   - [14. Editor visivi (Toolkit)](#14-visual-editors-toolkit)
     - [Editor ad alta risoluzione / multicolore](#hi-res--multicolor-editor)
     - [Editor di sprite](#sprite-editor)
@@ -181,6 +185,29 @@ tempo reale il codice assembly e il codice macchina generati.
     - [Editor SID (Tracker a 3 voci)](#sid-editor-3-voice-tracker)
     - [Editor di curve](#curve-editor)
     - [Convertitore di numeri](#number-converter)
+
+---
+
+## Punti salienti della versione 2.5.5
+
+- **Editor ad alta risoluzione: griglia di pixel e zoom 16×** — con **Griglia**
+  attiva, dallo zoom 4× ogni pixel ottiene la propria linea di griglia, più
+  marcata sui bordi delle celle dei caratteri e ombreggiata per rimanere
+  visibile su tutti i 16 colori. Il cursore dello zoom ora arriva fino a 16×.
+  Vedi [Editor ad alta risoluzione / multicolore](#hi-res--multicolor-editor).
+- **Fare clic con il pulsante destro del mouse sul menu Copia/Incolla** — sulla
+  tela degli editor Hi-Res e Mappa (Copia, Incolla, Incolla trasparente) e
+  nell'Editor Sprite (Copia frame, Incolla frame, anche sulla striscia frame).
+  L'incolla è stato avviato dalle anteprime del menu in cui si è fatto clic.
+- **Convertitore numerico** — il relativo pulsante nella barra degli strumenti
+  rimane evidenziato mentre il convertitore è visualizzato.
+- **Corretto** — la griglia di celle multicolore dell'Editor ad alta risoluzione
+  era larga il doppio di una cella di carattere; il pulsante **Incolla** della
+  barra degli strumenti ad alta risoluzione incollava sempre in modo
+  trasparente; il menu contestuale dell'Editor SID si apriva lontano dal cursore
+  mentre la finestra di dialogo era centrata.
+- **In questo manuale** vengono ora descritte le funzioni di selezione,
+  copia/incolla e incolla trasparente dell'Editor ad alta risoluzione.
 
 ---
 
@@ -695,9 +722,9 @@ un marcatore di commento (`.print "HELLO"`, `.wait_raster $FF`, `.invoke
 setColor(blue)`) e sono colorati come macro; solo i veri blocchi COMMENT, i
 marcatori di regione e gli avvisi mantengono il loro iniziale `;`.
 
-| Modalità            | Descrizione                                                                                                                                                                                                                                                                                                                  |
+| Colore della barra  | Descrizione                                                                                                                                                                                                                                                                                                                  |
 | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **ASM**             | Codice sorgente di assemblaggio 6502 con indirizzi ed etichette                                                                                                                                                                                                                                                              |
+| Ciano               | Codice sorgente di assemblaggio 6502 con indirizzi ed etichette                                                                                                                                                                                                                                                              |
 | **Monitor**         | Dump esadecimale/byte (stile monitor C64)                                                                                                                                                                                                                                                                                    |
 | **Disastro**        | Disassemblaggio puro del 6502: indirizzo · byte esadecimali · mnemonici con operandi numerici risolti. Le macro sono espanse in singole istruzioni (TEXT → coppie LDA/STA, LOOP → LDX, ecc.). I dati BYTE/WORD/FILL sono mostrati come dump esadecimale a blocchi. Nessun nome di macro, commento o annotazione nell'output. |
 | **Entrambi**        | ASM in alto, monitor in basso                                                                                                                                                                                                                                                                                                |
@@ -746,7 +773,7 @@ in modo che la cronologia sopravviva ai riavvii e segua il progetto.
 (legge i link di download per la tua piattaforma) e la confronta con la versione
 in esecuzione:
 
-| Piattaforma | Che succede                                                                                                                                                                                                                                         |
+| Sezione     | Che succede                                                                                                                                                                                                                                         |
 | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Windows** | Il programma di installazione viene eseguito in modalità passiva (solo avanzamento) e avvia la nuova versione al termine. L'installazione per singolo computer richiede i diritti di amministratore (UAC).                                          |
 | **macOS**   | Il file DMG viene montato e il pacchetto dell'applicazione viene sostituito al suo posto, dopodiché si avvia la nuova versione. Se la cartella dell'applicazione non è scrivibile, è sufficiente aprire il file DMG per trascinarvi l'applicazione. |
@@ -946,7 +973,7 @@ codice generato.
 4. errori contenenti una riga sorgente seleziona quella riga nell'editor UB
    attivo.
 
-| Piattaforma       | Modelli predefiniti                                                                                                                                                                                                     |
+| Sezione           | Modelli predefiniti                                                                                                                                                                                                     |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Assemblatore**  | Programma vuoto, Gioco vuoto (stati titolo/gioca/fine partita, joystick, sprite del giocatore), Bitmap ad alta risoluzione, Bitmap multicolore                                                                          |
 | **UltimateBasic** | Programma vuoto, gioco vuoto (stessa macchina a stati in UB), bitmap ad alta risoluzione (`linea` / `rettangolo` / `cerchio` con `penna colorata`), IRQ raster (una `sub` chiamata ad ogni frame dall'interrupt raster) |
@@ -1298,11 +1325,11 @@ selettore di modalità è presente su ciascun blocco.
 └────────────┴────────────────────────────┴────────────┘
 ```
 
-| Pannello      | Esempio              | Descrizione                                      |
-| ------------- | -------------------- | ------------------------------------------------ |
-| `*`           | `BNE *`              | Salto a se stesso (ciclo infinito, offset `$FE`) |
-| `*-n` / `*+n` | `BNE *-5`, `BEQ *+4` | Salto relativo al PC corrente di *n* byte        |
-| `JMP *+n`     | `JMP *+20`           | Salto assoluto calcolato dal PC attuale          |
+| Pannello      | Attiva/disattiva      | Descrizione                                      |
+| ------------- | --------------------- | ------------------------------------------------ |
+| **Tavolozza** | `#expert-palette-btn` | Salto a se stesso (ciclo infinito, offset `$FE`) |
+| `*-n` / `*+n` | `BNE *-5`, `BEQ *+4`  | Salto relativo al PC corrente di *n* byte        |
+| `JMP *+n`     | `#expert-disasm-btn`  | Salto assoluto calcolato dal PC attuale          |
 
 ### Etichette locali (tratteggiate)
 
@@ -1319,8 +1346,8 @@ selettore di modalità è presente su ciascun blocco.
 | **Numeri di riga**                      | `#expert-line-numbers-btn`                     | Attiva o disattiva la spaziatura tra i numeri di riga sul lato sinistro dell'editor. La spaziatura si sincronizza con la posizione di scorrimento e si aggiorna in tempo reale mentre digiti.                                                                                    |
 | **Trova**                               | `#pulsante-per-trova-esperto`                  | Apri la barra di ricerca mobile (`Ctrl+F`). Digita per cercare; i risultati vengono evidenziati nella sovrapposizione. `Invio` / `Maiusc+Invio` per navigare tra i risultati. `Esc` chiude la barra.                                                                             |
 | **Zoom indietro / avanti**              | `#expert-zoom-out-btn` / `#expert-zoom-in-btn` | Diminuisci/aumenta la dimensione del carattere dell'editor (da 8 a 28 px). `Ctrl` + rotellina del mouse (`Cmd` + rotellina su macOS o pizzicando il touchpad) sull'editor ha lo stesso effetto. L'impostazione viene salvata.                                                    |
-| `*`                                     | `BNE *`                                        | Mostra/nascondi la tavolozza mnemonica sinistra                                                                                                                                                                                                                                  |
-| **Disastro**                            | `JMP *+20`                                     | Mostra/nascondi il pannello di smontaggio (puro 6502, macro espanse)                                                                                                                                                                                                             |
+| **Tavolozza**                           | `#expert-palette-btn`                          | Mostra/nascondi la tavolozza mnemonica sinistra                                                                                                                                                                                                                                  |
+| **Disastro**                            | `#expert-disasm-btn`                           | Mostra/nascondi il pannello di smontaggio (puro 6502, macro espanse)                                                                                                                                                                                                             |
 | **Monitor**                             | `#pulsante-monitor-esperto`                    | Mostra/nascondi il pannello del dump esadecimale del monitor                                                                                                                                                                                                                     |
 | **Minimappa**                           | `#expert-minimap-btn`                          | Mostra/nascondi la minimappa del codice sul lato destro dell'editor                                                                                                                                                                                                              |
 
@@ -1336,7 +1363,7 @@ breve sotto etichette globali diverse **non** entrano in conflitto.
 un'istruzione per posizionare un'etichetta sul **byte dell'operando** anziché
 sull'opcode. L'istruzione viene assemblata da ciò che segue i due punti.
 
-| Modalità               | Tipo di token                                           |
+| Colore della barra     | Tipo di token                                           |
 | ---------------------- | ------------------------------------------------------- |
 | Commento colore        | Righe che iniziano con `;`                              |
 | Colore dell'etichetta  | Linee con una definizione `etichetta:`                  |
@@ -1368,7 +1395,7 @@ prestazioni in programmi molto grandi.
 | Giallo-verde | Mnemotecniche (`LDA`, `STA`, `JMP`, …) e pseudo-operazioni a lungo ramo (`LBNE`, `LBEQ`, …)                                                                             |
 | Blu          | Direttive (`.byte`, `.word`, `.fill`, `.assert`, `*=`, …)                                                                                                               |
 | Arancia      | Numeri (`$FF`, `%1010`, `255`)                                                                                                                                          |
-| **ASM**      | Etichette — righe che terminano con `:`, incluse le etichette locali (`.loop:`) e le etichette degli operandi del codice automodificante (`value:` in `LDA value:#$00`) |
+| Ciano        | Etichette — righe che terminano con `:`, incluse le etichette locali (`.loop:`) e le etichette degli operandi del codice automodificante (`value:` in `LDA value:#$00`) |
 | Verde acqua  | Letterali stringa                                                                                                                                                       |
 | Viola        | Nomi macro personalizzati: il nome dopo `.macro`, `.invoke` e `.call`, e chiamate in stile Kick `:name(...)`                                                            |
 | Sabato       | Parametri macro: i nomi dei parametri nell'intestazione `.macro` e le sostituzioni `{param}` nel corpo della macro                                                      |
@@ -1483,15 +1510,15 @@ Inoltre, è possibile utilizzare le espressioni **label+offset** o
 **label−offset** per fare riferimento a un indirizzo relativo a una costante
 denominata:
 
-| Mnemonico | Esempio                             | Descrizione                                                                                                                   |
-| --------- | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `LDA`     | Accumulatore di carico              | immediato, zeroPage, assoluto, assolutoX, assolutoY, indirettoX, indirettoY                                                   |
-| `LDX`     | Carica il registro X                | immediato, zeroPage, zeroPageY, assoluto, assolutoY                                                                           |
-| `LDY`     | Caricare il registro Y              | immediato, zeroPage, assoluto, assolutoX                                                                                      |
-| `STA`     | Accumulatore di magazzino           | zeroPage, assoluto, assolutoX, assolutoY, indirettoX, indirettoY                                                              |
-| `STX`     | Registrati al negozio X             | zeroPage, zeroPageY, assoluto                                                                                                 |
-| `STY`     | Registratore di cassa del negozio Y | zeroPage, assoluto                                                                                                            |
-| `*`       | `BNE *`                             | Contatore di programma corrente (indirizzo dell'istruzione stessa); i salti con `*` generano un ciclo infinito (offset `$FE`) |
+| Sintassi | Esempio                             | Descrizione                                                                                                                   |
+| -------- | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `LDA`    | Accumulatore di carico              | immediato, zeroPage, assoluto, assolutoX, assolutoY, indirettoX, indirettoY                                                   |
+| `LDX`    | Carica il registro X                | immediato, zeroPage, zeroPageY, assoluto, assolutoY                                                                           |
+| `LDY`    | Caricare il registro Y              | immediato, zeroPage, assoluto, assolutoX                                                                                      |
+| `STA`    | Accumulatore di magazzino           | zeroPage, assoluto, assolutoX, assolutoY, indirettoX, indirettoY                                                              |
+| `STX`    | Registrati al negozio X             | zeroPage, zeroPageY, assoluto                                                                                                 |
+| `STY`    | Registratore di cassa del negozio Y | zeroPage, assoluto                                                                                                            |
+| `*`      | `BNE *`                             | Contatore di programma corrente (indirizzo dell'istruzione stessa); i salti con `*` generano un ciclo infinito (offset `$FE`) |
 
 **Esempio: cancellare due pagine dello schermo usando una COSTANTE:**
 ```
@@ -1517,7 +1544,7 @@ di assemblaggio rispetto all'indirizzo reale di tale istruzione, quindi non è
 necessaria alcuna etichetta per brevi salti relativi o letture di dati relative
 al PC.
 
-| Mnemonico  | Esempio               | Note                                                                         |
+| Sintassi   | Esempio               | Senso                                                                        |
 | ---------- | --------------------- | ---------------------------------------------------------------------------- |
 | `*`        | `BNE *`               | Impostare il trasporto con `SEC` prima dell'uso nella maggior parte dei casi |
 | `SBC`      | Sottrarre con riporto | Imposta il riporto con `SEC` prima della sottrazione                         |
@@ -1607,7 +1634,7 @@ Blocco ⇄ Esperto (il campo dell'operando mantiene il prefisso `etichetta:`).
 
 ### LABEL
 
-| Campo               | Descrizione                                            | Modalità                                                                    |
+| Mnemonico           | Descrizione                                            | Modalità                                                                    |
 | ------------------- | ------------------------------------------------------ | --------------------------------------------------------------------------- |
 | Nome dell'etichetta | Identificatore utilizzato in `JMP`, `JSR`, `BNE`, ecc. | immediato, zeroPage, assoluto, assolutoX, assolutoY, indirettoX, indirettoY |
 | `LDX`               | Carica il registro X                                   | immediato, zeroPage, zeroPageY, assoluto, assolutoY                         |
@@ -1618,7 +1645,7 @@ Blocco ⇄ Esperto (il campo dell'operando mantiene il prefisso `etichetta:`).
 
 ### COMMENT
 
-| Campo      | Descrizione            | Note                                                                         |
+| Mnemonico  | Descrizione            | Note                                                                         |
 | ---------- | ---------------------- | ---------------------------------------------------------------------------- |
 | `ADC`      | Aggiungi con trasporto | Impostare il trasporto con `SEC` prima dell'uso nella maggior parte dei casi |
 | `SBC`      | Sottrarre con riporto  | Imposta il riporto con `SEC` prima della sottrazione                         |
@@ -1630,29 +1657,29 @@ Blocco ⇄ Esperto (il campo dell'operando mantiene il prefisso `etichetta:`).
 
 ### BYTE
 
-| Campo    | Descrizione                                                                   |
-| -------- | ----------------------------------------------------------------------------- |
-| Operando | Valori di byte separati da virgole (ad esempio `$01, $02, $FF` o `1, 2, 255`) |
-| `ORA`    | OR logico con accumulatore                                                    |
-| `EOR`    | OR esclusivo con accumulatore                                                 |
-| `BIT`    | Verifica i bit in memoria rispetto ad A (imposta i flag N, V, Z)              |
+| Mnemonico | Descrizione                                                                   |
+| --------- | ----------------------------------------------------------------------------- |
+| Operando  | Valori di byte separati da virgole (ad esempio `$01, $02, $FF` o `1, 2, 255`) |
+| `ORA`     | OR logico con accumulatore                                                    |
+| `EOR`     | OR esclusivo con accumulatore                                                 |
+| `BIT`     | Verifica i bit in memoria rispetto ad A (imposta i flag N, V, Z)              |
 
 ### WORD
 
-| Campo    | Descrizione                                                      |
-| -------- | ---------------------------------------------------------------- |
-| Operando | Valori a 16 bit separati da virgole (ad esempio `$0400, $C000`)  |
-| `JSR`    | Salta alla subroutine (salva l'indirizzo di ritorno sullo stack) |
-| `RTS`    | Ritorno dalla subroutine                                         |
-| `RTI`    | Ritorno dall'interruzione                                        |
-| `BNE`    | Salta se diverso da (Z=0)                                        |
-| `BEQ`    | Salta se uguale (Z=1)                                            |
-| `BCC`    | Salta se il riporto è azzerato (C=0)                             |
-| `BCS`    | Salta se il set di riporto (C=1)                                 |
-| `BMI`    | Salta se meno (N=1)                                              |
-| `BPL`    | Salta se più (N=0)                                               |
-| `BVC`    | Salta se l'overflow è a zero (V=0)                               |
-| `BVS`    | Salta se è impostato l'overflow (V=1)                            |
+| Mnemonico | Descrizione                                                      |
+| --------- | ---------------------------------------------------------------- |
+| Operando  | Valori a 16 bit separati da virgole (ad esempio `$0400, $C000`)  |
+| `JSR`     | Salta alla subroutine (salva l'indirizzo di ritorno sullo stack) |
+| `RTS`     | Ritorno dalla subroutine                                         |
+| `RTI`     | Ritorno dall'interruzione                                        |
+| `BNE`     | Salta se diverso da (Z=0)                                        |
+| `BEQ`     | Salta se uguale (Z=1)                                            |
+| `BCC`     | Salta se il riporto è azzerato (C=0)                             |
+| `BCS`     | Salta se il set di riporto (C=1)                                 |
+| `BMI`     | Salta se meno (N=1)                                              |
+| `BPL`     | Salta se più (N=0)                                               |
+| `BVC`     | Salta se l'overflow è a zero (V=0)                               |
+| `BVS`     | Salta se è impostato l'overflow (V=1)                            |
 
 #### LBNE / LBEQ / … (Rami lunghi)
 
@@ -1690,31 +1717,31 @@ LBEQ completato; assembla in: BNE *+3 ($D0 $03)
 
 ### FILL
 
-| Campo    | Descrizione                                                  |
-| -------- | ------------------------------------------------------------ |
-| Operando | `count,value` — ad esempio `256,0` riempie 256 byte con zero |
-| `TAY`    | Trasferimento A → Y                                          |
-| `TXA`    | Trasferimento X → A                                          |
-| `TYA`    | Trasferimento Y → A                                          |
-| `TSX`    | Puntatore dello stack di trasferimento → X                   |
-| `TXS`    | Trasferimento X → Puntatore dello stack                      |
-| `INX`    | Incremento X                                                 |
-| `DEX`    | Decrementare X                                               |
-| `INY`    | Incremento Y                                                 |
-| `DEY`    | Decrementare Y                                               |
+| Mnemonico | Descrizione                                                  |
+| --------- | ------------------------------------------------------------ |
+| Operando  | `count,value` — ad esempio `256,0` riempie 256 byte con zero |
+| `TAY`     | Trasferimento A → Y                                          |
+| `TXA`     | Trasferimento X → A                                          |
+| `TYA`     | Trasferimento Y → A                                          |
+| `TSX`     | Puntatore dello stack di trasferimento → X                   |
+| `TXS`     | Trasferimento X → Puntatore dello stack                      |
+| `INX`     | Incremento X                                                 |
+| `DEX`     | Decrementare X                                               |
+| `INY`     | Incremento Y                                                 |
+| `DEY`     | Decrementare Y                                               |
 
 ### ALIGN
 
-| Campo   | Descrizione                                                                                  |
-| ------- | -------------------------------------------------------------------------------------------- |
-| Confine | Valore di allineamento — ad esempio `64` (contorno sprite), `256` (pagina), `$2000` (bitmap) |
-| `LSR`   | Spostamento logico a destra                                                                  |
-| `ROL`   | Ruotare a sinistra attraverso il trasporto                                                   |
-| `ROR`   | Ruotare a destra attraverso il trasporto                                                     |
+| Mnemonico | Descrizione                                                                                  |
+| --------- | -------------------------------------------------------------------------------------------- |
+| Confine   | Valore di allineamento — ad esempio `64` (contorno sprite), `256` (pagina), `$2000` (bitmap) |
+| `LSR`     | Spostamento logico a destra                                                                  |
+| `ROL`     | Ruotare a sinistra attraverso il trasporto                                                   |
+| `ROR`     | Ruotare a destra attraverso il trasporto                                                     |
 
 ### TEXT
 
-| Campo                   | Descrizione                                                          |
+| Mnemonico               | Descrizione                                                          |
 | ----------------------- | -------------------------------------------------------------------- |
 | Testo                   | La stringa da visualizzare                                           |
 | X                       | Colonna (0–39)                                                       |
@@ -1723,7 +1750,7 @@ LBEQ completato; assembla in: BNE *+3 ($D0 $03)
 
 ### STRING
 
-| Campo                   | Descrizione                                                                                                |
+| Mnemonico               | Descrizione                                                                                                |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------- |
 | Testo                   | La stringa da scrivere                                                                                     |
 | Indirizzo               | Indirizzo di memoria di destinazione — `$C000` esadecimale o un **nome dell'etichetta**                    |
@@ -1762,14 +1789,12 @@ delle etichette.
 | ------------------- | ------------------------------------------------------ |
 | Nome dell'etichetta | Identificatore utilizzato in `JMP`, `JSR`, `BNE`, ecc. |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 ciclo continuo:
 ```
 
-**Avvia:** Fai clic su **Debug (RetroDebugger)** nella barra degli strumenti.
-L'app:
+**Assembly generato:**
 ```
 ciclo: ; $0820
 ```
@@ -1786,14 +1811,12 @@ qualsiasi per attivarlo come punto di interruzione. I blocchi con punto di
 interruzione vengono evidenziati in rosso. I loro indirizzi vengono scritti nel
 file dei punti di interruzione ad ogni avvio del debugger.
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 Il tuo commento qui
 ```
 
-**Avvia:** Fai clic su **Debug (RetroDebugger)** nella barra degli strumenti.
-L'app:
+**Assembly generato:**
 ```
 Il tuo commento qui
 ```
@@ -1805,18 +1828,16 @@ Il tuo commento qui
 Come **DATA in BASIC** — memorizza un elenco di valori di byte grezzi in linea
 nel programma.
 
-| Campo           | Descrizione    |
-| --------------- | -------------- |
-| `-salto` ATTIVO | `-salta $ADDR` |
+| Campo    | Descrizione    |
+| -------- | -------------- |
+| Operando | `-salta $ADDR` |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .byte $01, $02, $FF
 ```
 
-**Avvia:** Fai clic su **Debug (RetroDebugger)** nella barra degli strumenti.
-L'app:
+**Assembly generato:**
 ```
 .byte $01, $02, $FF
 ```
@@ -1844,18 +1865,16 @@ Come **DATA in BASIC ma per numeri a 16 bit **. Ogni valore è memorizzato come
 due byte (prima il byte meno significativo, poi il byte più significativo -
 ordine little-endian 6502).
 
-| Campo           | Descrizione                                                     |
-| --------------- | --------------------------------------------------------------- |
-| `-salto` ATTIVO | Valori a 16 bit separati da virgole (ad esempio `$0400, $C000`) |
+| Campo    | Descrizione                                                     |
+| -------- | --------------------------------------------------------------- |
+| Operando | Valori a 16 bit separati da virgole (ad esempio `$0400, $C000`) |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .word $0400, $C000
 ```
 
-**Avvia:** Fai clic su **Debug (RetroDebugger)** nella barra degli strumenti.
-L'app:
+**Assembly generato:**
 ```
 .word $0400, $C000
 ```
@@ -1870,18 +1889,16 @@ Come `FOR I=1 TO N : POKE addr+I, val : NEXT` — riempie un blocco di memoria c
 lo stesso byte, ma in un unico blocco. Ottimo per liberare aree o pre-riempire
 tabelle.
 
-| Campo           | Descrizione                                                  |
-| --------------- | ------------------------------------------------------------ |
-| `-salto` ATTIVO | `count,value` — ad esempio `256,0` riempie 256 byte con zero |
+| Campo    | Descrizione                                                  |
+| -------- | ------------------------------------------------------------ |
+| Operando | `count,value` — ad esempio `256,0` riempie 256 byte con zero |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .riempi 256, $00
 ```
 
-**Avvia:** Fai clic su **Debug (RetroDebugger)** nella barra degli strumenti.
-L'app:
+**Assembly generato:**
 ```
 .riempi 256, $00
 ```
@@ -1890,7 +1907,7 @@ Sintassi dell'espressione: **Sia **count` che `value` accettano espressioni
 aritmetiche. È possibile fare riferimento a nomi CONST, utilizzare letterali
 esadecimali/binari e chiamare funzioni matematiche integrate:
 
-| Espressione                       | Note                                                    |
+| Espressione                       | Senso                                                   |
 | --------------------------------- | ------------------------------------------------------- |
 | `NUMERO_TESSERE, $00`             | conteggio da una COSTANTE, valore letterale esadecimale |
 | `40*25, 0`                        | moltiplicazione in linea                                |
@@ -1916,15 +1933,13 @@ un limite di 64 byte: `ALIGN 64` lo gestisce automaticamente.
 | ------- | -------------------------------------------------------------------------------------------- |
 | Confine | Valore di allineamento — ad esempio `64` (contorno sprite), `256` (pagina), `$2000` (bitmap) |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .align 64
 .align $2000
 ```
 
-**Avvia:** Fai clic su **Debug (RetroDebugger)** nella barra degli strumenti.
-L'app:
+**Assembly generato:**
 ```
 ; ALLINEA 64 → $0840 (12 byte di riempimento)
 ```
@@ -1983,8 +1998,7 @@ STA $0401
 ...
 ```
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .text 0, 2, "HELLO" ; set di caratteri maiuscoli (predefinito)
 .text 0, 2, "hello", lower ; set di caratteri minuscoli
@@ -2009,8 +2023,7 @@ carattere in indirizzi consecutivi.
 | Spostare                | Valore esadecimale (00–FF) aggiunto a ciascun byte del codice schermo (ad esempio `$80` = video invertito) |
 | caratteri minuscoli     | Casella di controllo — stessa semantica di TESTO (vedi sezione TESTO)                                      |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .string $C000, "HELLO" ; set di caratteri maiuscoli (predefinito)
 .string $C000, "hello", lower ; set di caratteri minuscoli
@@ -2019,8 +2032,7 @@ RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
 .string $C000, "HELLO" :my_string ; con macroLabel
 ```
 
-**Avvia:** Fai clic su **Debug (RetroDebugger)** nella barra degli strumenti.
-L'app:
+**Assembly generato:**
 ```
 LDA #$08; codice schermo 'H'
 
@@ -2051,16 +2063,14 @@ memoria in fase di esecuzione, una coppia LDA/STA per byte.
 | Indirizzo               | Indirizzo di memoria di destinazione — `$C000` esadecimale o un **nome dell'etichetta** |
 | Etichetta (facoltativa) | Assegna un'etichetta che punta all'indirizzo di destinazione                            |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .data $C000, $01, $02, $03 ; indirizzo esadecimale
 .data my_buf, $01, $02, $03 ; indirizzo dell'etichetta
 .data $C000, $01, $02, $03 :mydata ; con macroLabel
 ```
 
-**Avvia:** Fai clic su **Debug (RetroDebugger)** nella barra degli strumenti.
-L'app:
+**Assembly generato:**
 ```
 LDA #$01
     STA$C000
@@ -2087,8 +2097,7 @@ semplicemente trovarsi a un indirizzo specifico.
 | Indirizzo               | Indirizzo di memoria di destinazione — `$C000` esadecimale o un **nome dell'etichetta** |
 | Etichetta (facoltativa) | Assegna un'etichetta che punta all'indirizzo di destinazione                            |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .rawbytes $C000, $00, $00, $00 ; indirizzo esadecimale
 .rawbytes sprite_data, $00, $00 ; indirizzo dell'etichetta
@@ -2119,8 +2128,7 @@ pronto in memoria nell'istante in cui il PRG viene caricato.
 | Spostare                | Valore esadecimale (00–FF) aggiunto a ciascun byte del codice schermo (ad esempio `$80` = video invertito) |
 | caratteri minuscoli     | Casella di controllo — stessa semantica di TESTO (vedi sezione TESTO)                                      |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .rawtext $C000, "HELLO" ; set di caratteri maiuscoli (predefinito)
 .rawtext $C000, "hello", lower ; set di caratteri minuscoli
@@ -2129,8 +2137,7 @@ RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
 .rawtext $0400, "HELLO" :my_text ; con macroLabel
 ```
 
-**Avvia:** Fai clic su **Debug (RetroDebugger)** nella barra degli strumenti.
-L'app:
+**Assembly generato:**
 ```
 ; .rawtext "HELLO" -&gt; $C000
 ; $C000
@@ -2180,8 +2187,7 @@ stesso comportamento della casella di controllo minuscolo.
 | **Maiuscolo (predefinito, non selezionato)** | `$41`–`$5A` (PETSCII maiuscolo tramite CHROUT)                                                                                       | mappato anche a `$41`–`$5A`  |
 | **Minuscolo (selezionato)**                  | Le lettere dell'alfabeto vengono rimappate in modo che la visualizzazione rimanga coerente nel set di caratteri minuscolo/maiuscolo. | Stessa regola                |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .petscii $C000, "HELLO" ; PETSCII maiuscolo (predefinito)
 .petscii $C000, "hello", lower ; PETSCII minuscolo ($61–$7A)
@@ -2242,15 +2248,13 @@ modificando il bit 1 di `$D018` in fase di esecuzione.
 | -------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | Modalità | **Minuscolo** — abilita il set di caratteri minuscolo/maiuscolo; **Maiuscolo** — ripristina il set di caratteri predefinito maiuscolo/grafico |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .charset lower ; passa al set di caratteri minuscolo
 .charset upper ; torna al set di caratteri maiuscolo/grafico
 ```
 
-**Avvia:** Fai clic su **Debug (RetroDebugger)** nella barra degli strumenti.
-L'app:
+**Assembly generato:**
 
 Modalità minuscolo:
 ```
@@ -2316,8 +2320,7 @@ fase di esecuzione, senza bisogno di un'etichetta precedente o di `ORG`.
 | Indice dei caratteri | Quale slot carattere ridefinire, 0–255. `65` = 'A' nel layout predefinito del codice schermo.                                          |
 | 8 byte               | Righe di bitmap separate da virgole, dall'alto verso il basso. Il bit 7 di ciascun byte corrisponde al pixel più a sinistra.           |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .chardef $3800, 65, $18,$3C,$66,$7E,$66,$66,$66,$00
 ```
@@ -2403,8 +2406,7 @@ segno):
 | `+2`   | Giusto            |
 | `+3`   | Metter il fondo a |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .box_hit $FB, $F7
 ```
@@ -2492,8 +2494,7 @@ specificato.
 | File      | Sfoglia per selezionare un file `.bin`, `.prg`, `.sid` o `.raw` |
 | Indirizzo | Indirizzo di caricamento di destinazione (ad esempio `$C000`)   |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .incbin "music.bin", $C000
 ```
@@ -2531,8 +2532,7 @@ $18`). Altri indirizzi vengono rifiutati: gli slot 8K rimanenti si trovano sotto
 la ROM BASIC/KERNAL (il ciclo di copia leggerebbe la ROM) o si sovrappongono
 all'ombra della ROM dei caratteri.
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .koala "immagine.koa"
 .koala "picture.koa", $ 2000
@@ -2569,14 +2569,13 @@ schermata + 1000 colori). Le schermate identiche vengono memorizzate una sola
 volta e tutti gli slot vuoti condividono una schermata vuota. Le tabelle dei
 puntatori seguono le schermate. Un livello può avere fino a 7 × 10 schermate.
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .level "level.bin"
 .level "level.bin", $4000
 ```
 
-| Definizione                                              | Note                                                                                                                |
+| Definizione                                              | Senso                                                                                                               |
 | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
 | `LIVELLO_SLOT_BASSO` / `LIVELLO_SLOT ALTO`               | Indirizzo dello schermo in ogni slot (per riga, `LEVEL_W` slot per riga)                                            |
 | `LIVEL_ROW_SLOT`                                         | Riga del personaggio di livello → primo slot della sua riga dello schermo                                           |
@@ -2601,8 +2600,7 @@ dei colori). Una finestra di 40 caratteri che si estende su due schermi viene
 gestita con un ciclo di copia auto-modificante (~14 cicli per byte). X viene
 mantenuto, A e Y vengono distrutti. Richiede un blocco `.level` nel programma.
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .level_row dst_lo, view_x
 .level_row dst_lo, view_x, color
@@ -2636,8 +2634,7 @@ Il blocco mostra:
 - Un badge **(ricollocato)** appare quando un indirizzo personalizzato sposta i
   dati dalla sua posizione originale
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .sid "Ikari_Warriors.sid"
 .sid "Ikari_Warriors.sid", $1000
@@ -2731,14 +2728,12 @@ di esso per definire il contenuto della tabella.
 | Nome      | Identificatore dell'etichetta per la tabella (ad esempio `color_table`) |
 | Indirizzo | Indirizzo fisso in cui inizia la tabella (ad esempio `$C000`)           |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .tabella tabella_colori, $C000
 ```
 
-**Avvia:** Fai clic su **Debug (RetroDebugger)** nella barra degli strumenti.
-L'app:
+**Assembly generato:**
 ```
 tabella_colori:
 ```
@@ -2762,14 +2757,12 @@ standard caricabile in BASIC per C64 è `$0801`.
 | Indirizzo              | Il nuovo indirizzo di origine (ad esempio `0801` in esadecimale o `2049` in decimale)       |
 | ESADECIMALE / DECIMALE | Consente di alternare la visualizzazione dell'indirizzo tra formato esadecimale e decimale. |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 * = $C000
 ```
 
-**Avvia:** Fai clic su **Debug (RetroDebugger)** nella barra degli strumenti.
-L'app:
+**Assembly generato:**
 ```
 * = $C000
 ```
@@ -2821,14 +2814,12 @@ numero corretto di volte.
 | Contare   | Numero di iterazioni del ciclo (esadecimale o decimale, ad esempio `0A` = 10) |
 | Etichetta | Etichetta del ciclo generata automaticamente (ad esempio `loop0`)             |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .ciclo X, 10, ciclo0
 ```
 
-**Avvia:** Fai clic su **Debug (RetroDebugger)** nella barra degli strumenti.
-L'app:
+**Assembly generato:**
 ```
 LDX #$0A
 loop0:
@@ -2843,14 +2834,12 @@ loop0:
 | Registro  | Abbinamento automatico al registro LOOP    |
 | Etichetta | Collegamento automatico all'etichetta LOOP |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .next loop0
 ```
 
-**Avvia:** Fai clic su **Debug (RetroDebugger)** nella barra degli strumenti.
-L'app:
+**Assembly generato:**
 ```
 DEX
 BNE loop0
@@ -2887,14 +2876,12 @@ un array.
 | Contare   | Limite del ciclo (esadecimale o decimale, ad esempio `$12` = 18). X/Y va da 0 a limit-1. |
 | Etichetta | Etichetta del ciclo generata automaticamente (ad esempio `for0`)                         |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .per X, $12, per0
 ```
 
-**Avvia:** Fai clic su **Debug (RetroDebugger)** nella barra degli strumenti.
-L'app:
+**Assembly generato:**
 ```
 LDX #$00
 per0:
@@ -2910,14 +2897,12 @@ per0:
 | Etichetta | Collegamento automatico all'etichetta FOR  |
 | Contare   | Copiato automaticamente dal FOR accoppiato |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .endf per0
 ```
 
-**Avvia:** Fai clic su **Debug (RetroDebugger)** nella barra degli strumenti.
-L'app:
+**Assembly generato:**
 ```
 INX
 CPX #$12
@@ -2962,8 +2947,7 @@ interno al più esterno).
 | -------- | -------------------------------------------------------------- |
 | Registri | Qualsiasi combinazione: `A`, `X`, `Y`, `AX`, `AY`, `XY`, `AXY` |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .push AXY
 ```
@@ -2987,8 +2971,7 @@ Ripristina i registri dallo stack in ordine inverso** (Y → X → A).
 | -------- | ----------------------------------------------------------- |
 | Registri | Come PUSH: deve corrispondere al blocco PUSH corrispondente |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .tira AXY
 ```
@@ -3011,14 +2994,12 @@ PLA
 Come **RTS con un nome macro più amichevole** — `.end` emette un singolo byte
 `RTS` e si comporta come un terminatore di subroutine breve in modalità esperto.
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .FINE
 ```
 
-**Avvia:** Fai clic su **Debug (RetroDebugger)** nella barra degli strumenti.
-L'app:
+**Assembly generato:**
 ```
 RTS
 ```
@@ -3048,8 +3029,7 @@ Segna l'inizio di una definizione di macro. I blocchi tra MACRO e ENDM
 costituiscono il corpo della macro: non generano alcun codice dove si trova la
 definizione. Utilizzare {paramName} come segnaposto per gli argomenti.
 
-**Avvia:** Fai clic su **Debug (RetroDebugger)** nella barra degli strumenti.
-L'app:
+**Assembly generato:**
 ```
 ; .MACRO setColor (colore)
 
@@ -3081,8 +3061,7 @@ argomenti forniti ai segnaposto `{paramName}` nel corpo.
 | Nome Macro     | Seleziona dal menu a tendina le macro definite                                                                        |
 | Argomentazioni | Valori degli argomenti separati da virgole che corrispondono all'elenco dei parametri della macro (ad esempio `#$07`) |
 
-**Avvia:** Fai clic su **Debug (RetroDebugger)** nella barra degli strumenti.
-L'app:
+**Assembly generato:**
 ```
 ; .invoca setColor(#$07)
     LDA #$07
@@ -3134,8 +3113,7 @@ denominato in modo da poterlo comprimere e concentrarsi su qualcos'altro.
 | ------------------ | ----------------------------------------------------------------------------------------- |
 | Nome della regione | Etichetta di testo libero per la sezione (ad esempio `init`, `game_loop`, `sprite_setup`) |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .region init
 
@@ -3158,8 +3136,7 @@ endregion
   immediatamente dopo l'ENDREGION della regione corrente e scorre fino ad essa.
   Il pulsante è oscurato finché non è stata copiata una regione.
 
-**Avvia:** Fai clic su **Debug (RetroDebugger)** nella barra degli strumenti.
-L'app:
+**Assembly generato:**
 ```
 ; regione init
     SEI
@@ -3196,14 +3173,12 @@ necessario eliminare il codice per le build di rilascio.
 | ------- | -------------------------------------------------------------------------------------------- |
 | Simbolo | Uno o più identificatori separati da virgole da attivare (ad esempio `DEBUG` o `DEBUG, PAL`) |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .define DEBUG, PAL
 ```
 
-**Avvia:** Fai clic su **Debug (RetroDebugger)** nella barra degli strumenti.
-L'app:
+**Assembly generato:**
 ```
 ; .DEFINE DEBUG
 ; .DEFINE DEBUG, PAL
@@ -3219,14 +3194,12 @@ blocco disattiva istantaneamente tutti i suoi simboli.
 | ---------- | -------------------------------------------------------------------------------------- |
 | Condizione | Identificatore da testare (deve corrispondere a un simbolo `DEFINE` per essere attivo) |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .if DEBUG
 ```
 
-**Avvia:** Fai clic su **Debug (RetroDebugger)** nella barra degli strumenti.
-L'app:
+**Assembly generato:**
 ```
 ; .SE DEBUG
 ```
@@ -3241,14 +3214,12 @@ generano **zero byte**.
 Nessun campo. Contrassegna il ramo alternativo — assemblato quando la condizione
 `IF` non è *attiva.
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .altro
 ```
 
-**Avvia:** Fai clic su **Debug (RetroDebugger)** nella barra degli strumenti.
-L'app:
+**Assembly generato:**
 ```
 ; .ALTRO
 ```
@@ -3257,14 +3228,12 @@ L'app:
 
 Nessun campo. Chiude il blocco condizionale.
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .endif
 ```
 
-**Avvia:** Fai clic su **Debug (RetroDebugger)** nella barra degli strumenti.
-L'app:
+**Assembly generato:**
 ```
 ; .ENDIF
 ```
@@ -3315,8 +3284,7 @@ valore effettivo. Se è vera (diversa da zero), non emette nulla.
 | Espressione | Qualsiasi espressione assembler: etichette, `CONST`, `*` (contatore di programma), aritmetica e confronti (`&lt;`, `&lt;=`, `&gt;`, `&gt;=`, `==`, `!=`) |
 | Messaggio   | Testo facoltativo aggiunto all'errore di errore                                                                                                          |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .assert spriteData &lt; $C000
 .assert * &lt; $A000
@@ -3361,15 +3329,13 @@ da leggere e modificare in seguito.
 | Valore  | Valore numerico nella base selezionata (ad esempio `0400` in esadecimale = indirizzo $0400) o un'espressione relativa al PC (vedi sotto) |
 | Formato | ESA o DEC — controlla come viene inserito e visualizzato il valore                                                                       |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .const SCREEN = $0400
 .const FRAMES_1S = 60
 ```
 
-**Avvia:** Fai clic su **Debug (RetroDebugger)** nella barra degli strumenti.
-L'app:
+**Assembly generato:**
 ```
 ; .CONST SCREEN = $0400
 ```
@@ -3428,8 +3394,7 @@ contatori, puntatori e stati di breve durata che appartengono a ZP.
 | Nome                 | Nome/etichetta della variabile                             |
 | Taglia (facoltativa) | Numero di byte da riservare. Omettere per un singolo byte. |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 contatore .var
 .var timer, 2
@@ -3447,8 +3412,7 @@ LDA #$00
 Contatore STA
 ```
 
-**Avvia:** Fai clic su **Debug (RetroDebugger)** nella barra degli strumenti.
-L'app:
+**Assembly generato:**
 ```
 ; .var contatore
 ```
@@ -3475,8 +3439,7 @@ te.
 | Operatore | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
 | Valore    | Valore immediato in formato HEX o DEC        |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .if A == #$10
 
@@ -3506,8 +3469,7 @@ finché la condizione rimane vera.
 | Operatore | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
 | Valore    | Valore immediato in formato HEX o DEC        |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .mentre A != #$00
 
@@ -3534,8 +3496,7 @@ eseguito almeno una volta, poi la condizione decide se fermarsi.
 | Operatore | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
 | Valore    | Valore immediato in formato HEX o DEC        |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .repeat
 JSR getchar
@@ -3559,8 +3520,7 @@ Come le **piccole routine di memoria a cui fai ricorso costantemente** —
 | `MEMCPY` | `src`, `dst`, `size`                |
 | `MEMSET` | `indirizzo`, `valore`, `dimensione` |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .memcpy src=$C000, dst=$D000, size=$0100
 .memset addr=$0400, value=#$20, size=$03E8
@@ -3584,8 +3544,7 @@ Come l'output **PETSCII senza il boilerplate** — stampa una stringa tramite
 casella di controllo delle minuscole è condivisa con il codificatore PETSCII,
 quindi il percorso del testo rimane coerente.
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .print "CIAO"
 .print "ciao", minuscolo
@@ -3597,8 +3556,7 @@ Stampa un byte PETSCII tramite codice numerico e lo invia tramite `CHROUT`. Il
 valore può anche essere una costante denominata o un'etichetta che si risolve in
 un byte in fase di assemblaggio, sia in modalità Blocco che in modalità Esperto.
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .print_char 65
 .print_char $41
@@ -3610,8 +3568,7 @@ RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
 Stampa un valore a 8 bit come testo esadecimale attraverso il normale percorso
 di output del KERNAL.
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .print_hex A
 ```
@@ -3621,8 +3578,7 @@ RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
 Scorciatoia per il codice di controllo standard per cancellare lo schermo del
 C64.
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .clear_screen
 ```
@@ -3632,8 +3588,7 @@ RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
 Attende che venga premuto un tasto, così non è necessario eseguire manualmente
 il ciclo `GETIN` ogni volta.
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .wait_key
 ```
@@ -3646,8 +3601,7 @@ temporizzazione quando un ciclo personalizzato completo sarebbe eccessivo. Il
 conteggio dei fotogrammi può essere un numero grezzo o una costante denominata,
 e `.wait` è semplicemente un alias di `.delay`.
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .ritardo 29
 .attesa 29
@@ -3665,8 +3619,7 @@ può essere un numero grezzo o una costante denominata che si risolve in un
 intervallo da 0 a 15. Sia la modalità Blocco che la modalità Esperto accettano
 nomi di costanti simboliche.
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .set_border 6
 .set_bg 0
@@ -3694,8 +3647,7 @@ comuni e ritorna all'esecuzione normale con `CLI`.
 | Manutentore | Etichetta della routine IRQ (ad esempio `my_irq`)                 |
 | Raster      | Linea raster in formato esadecimale o decimale (ad esempio `$FA`) |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .irq_setup handler=my_irq, raster=$FA
 ```
@@ -3717,8 +3669,7 @@ bit da un seme compatto a pagina zero.
 | ----- | --------------------------------------------------------------------- |
 | Seme  | Byte o etichetta di seed di pagina zero opzionale (predefinito `$FB`) |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .random
 ```
@@ -3747,16 +3698,14 @@ imposta il colore.
 | Pagina dati | Indirizzo dati sprite / 64 (ad esempio `$21` se i dati si trovano in `$0840`) |
 | Multicolore | Attiva/disattiva il bit multicolore dello sprite (`$D01C`)                    |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .sprite_init 0, 7, $21
 .sprite_init 0, 7, $21, multicolore
 .sprite_init 0, 7, $21, monocromatico
 ```
 
-**Avvia:** Fai clic su **Debug (RetroDebugger)** nella barra degli strumenti.
-L'app:
+**Assembly generato:**
 ```
 LDA #$21
 
@@ -3801,8 +3750,7 @@ utilizzare `INC`/`DEC` direttamente sul registro dello sprite.
 | X        | Posizione orizzontale 0–319 |
 | Y        | Posizione verticale 0–255   |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .sprite_pos 0, 152, 100
 ```
@@ -3847,14 +3795,12 @@ nessuna etichetta necessaria.
 | ------------ | ----------------------------------------------------------------------- |
 | Linea raster | Riga raster di destinazione in esadecimale (ad esempio `FF` = riga 255) |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .wait_raster $FF
 ```
 
-**Avvia:** Fai clic su **Debug (RetroDebugger)** nella barra degli strumenti.
-L'app:
+**Assembly generato:**
 ```
 Attendi:
 
@@ -3883,8 +3829,7 @@ X/Y di uno sprite. Interamente inline, non è necessario JSR.
 | Porta    | `1` = porta 1 (`$DC01`) oppure `2` = porta 2 (`$DC00`)                                 |
 | Sprite # | Numero dello sprite da 0 a 7 (controlla quale coppia di registri X/Y viene aggiornata) |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 joystick 2, 0
 ```
@@ -4105,8 +4050,7 @@ Interamente inline, non è necessario JSR.
 | Sprite #           | Numero dello sprite 0–7 (quale bit dello sprite controllare)                                                            |
 | Tipo di collisione | `Sprite-Sprite ($D01E)` — collisione con un altro sprite; `Sprite-Sfondo ($D01F)` — collisione con la grafica di sfondo |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .sprite_col 0, sprite
 .sprite_col 0, sfondo
@@ -4170,8 +4114,7 @@ codice aggiuntivo dal disco mentre il tuo programma è in esecuzione.
 | Indirizzo di override (facoltativo) | Indirizzo di caricamento esadecimale (ad esempio `C000`). Se impostato, il file viene caricato a questo indirizzo (`sec=0`, ignorando l'intestazione PRG). Lasciare vuoto per utilizzare l'intestazione PRG a 2 byte del file stesso (`sec=1`). |
 | Etichetta di errore (facoltativa)   | Se impostato, dopo JSR LOAD viene generata un'istruzione `BCS`. Se il KERNAL restituisce con carry impostato (errore), l'esecuzione salta a questa etichetta.                                                                                   |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .loadfile "DEMO-COLORS", 8
 .loadfile "DEMO-COLORS", 8, $C000
@@ -4234,8 +4177,7 @@ EXODECRUNCH lo decomprime all'indietro nell'indirizzo incorporato nel flusso.
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | Indirizzo del disimballatore | Indirizzo in cui risiede il codice del decompressore in memoria (predefinito `B000`). Deve essere un indirizzo esadecimale a 16 bit. |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .exodecrunch
 .exodecrunch depacker=$B000
@@ -4330,8 +4272,7 @@ Fatto:
 > La macro normalizza il risultato in modo che il ramo seguente rimanga
 > semplice: `BNE` significa REU presente, `BEQ` significa REU mancante.
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .reu_check
 ```
@@ -4374,8 +4315,7 @@ praticamente istantaneo.
 | banca REU     | Banca di memoria REU (0–7)                           | `0`     |
 | Lunghezza     | Numero di byte da trasferire (esadecimale, 16 bit)   | `1000`  |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .reu_stash $C000, $0000, 0, $1000
 .reu_fetch $C000, $0000, 0, $1000
@@ -4452,8 +4392,7 @@ C9 FF CMP #$FF
 
 ** Nessun campo configurabile.**
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .supercpu_detect
 ```
@@ -4722,8 +4661,7 @@ l'aritmetica BCD sicura al riporto: non è necessario alcun riporto manuale.
 | Aggiungi punti          | Valore decimale da aggiungere per ogni chiamata (ad esempio `100`).                                                        |
 | Indirizzo dello schermo | Dove scrivere i codici numerici dello schermo (ad esempio `0400`). Un byte per cifra (nibble più significativo per primo). |
 
-**Configurazione:** Apri **Impostazioni → Configura l'eseguibile di
-RetroDebugger** e indicagli il percorso del binario di `RetroDebugger`.
+**Sintassi esperta:**
 ```
 .score_bcd $C200, 4, 100, $0400
 ```
@@ -4847,7 +4785,7 @@ file dei punti di interruzione ad ogni avvio del debugger.
 
 ### Flag di debug (scheda Opzioni)
 
-| Esempio            | Bandiera          | Effetto                                                                     |
+| Attiva/disattiva   | Bandiera          | Effetto                                                                     |
 | ------------------ | ----------------- | --------------------------------------------------------------------------- |
 | `-salto` ATTIVO    | `-salta $ADDR`    | Passa direttamente all'indirizzo di avvio del programma dopo il caricamento |
 | `-riprendi` ATTIVO | `-riprendi`       | Riattivare immediatamente il debugger al caricamento                        |
@@ -5126,7 +5064,7 @@ direttamente a un disco D64 tramite la voce **Salva su D64**.
 | Caratteristica        | Descrizione                                                                                                                        |
 | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
 | Interruttore modalità | **Multicolore** La casella di controllo commuta tra alta risoluzione (monocromatico per cella) e multicolore (4 colori per cella). |
-| Utensili              | Matita, gomma, linea, rettangolo, rettangolo pieno, ovale, ovale pieno, riempimento a inondazione.                                 |
+| **Stato**             | Indica se il percorso del file eseguibile è valido e accessibile.                                                                  |
 
 Editor di bitmap a livello di pixel con modalità ad alta risoluzione 320×200 e
 modalità multicolore 160×200. Apribile tramite Toolkit → Editor ad alta
@@ -5134,14 +5072,13 @@ risoluzione.
 
 ### Editor di sprite
 
-| Caratteristica | Descrizione                                                                                        |
-| -------------- | -------------------------------------------------------------------------------------------------- |
-| Cornici        | Aggiungi/rimuovi/riordina le cornici; la striscia di cornici è mostrata in basso.                  |
-| Modalità       | Interruttore monocromatico/multicolore.                                                            |
-| Utensili       | Matita, gomma, linea, rettangolo, rettangolo pieno, ovale, ovale pieno, riempimento a inondazione. |
+| Caratteristica | Descrizione                                                                       |
+| -------------- | --------------------------------------------------------------------------------- |
+| Cornici        | Aggiungi/rimuovi/riordina le cornici; la striscia di cornici è mostrata in basso. |
+| Modalità       | Interruttore monocromatico/multicolore.                                           |
+| **Stato**      | Indica se il percorso del file eseguibile è valido e accessibile.                 |
 
-Editor di sprite da 24×21 pixel con animazione multi-frame. Apri tramite Toolkit
-→ Editor di sprite.
+**Flusso di lavoro:**
 1. Installa il file binario di Exomizer:
    - **Windows:** Scarica il file precompilato `win32/exomizer.exe` da
      https://bitbucket.org/magli143/exomizer/wiki/Home o da
@@ -5180,7 +5117,7 @@ specifica per una singola piattaforma.
 | Caratteristica       | Descrizione                                                                                                                                                                                                                                           |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Due set di caratteri | Scheda 1: **Set 1 — Superiore/Grafica** (modalità predefinita dopo l'accensione). Scheda 2: **Set 2 — Inferiore/Superiore** (dopo lo switch `$0E`).                                                                                                   |
-| Utensili             | Griglia 16×16 di tutti i 256 caratteri. Clicca su un glifo per visualizzare il pannello dei dettagli: vista ingrandita 8×8 pixel, codice schermo (decimale + esadecimale), codici PETSCII (sia predefiniti che traslati) e la bitmap grezza a 8 byte. |
+| **Stato**            | Griglia 16×16 di tutti i 256 caratteri. Clicca su un glifo per visualizzare il pannello dei dettagli: vista ingrandita 8×8 pixel, codice schermo (decimale + esadecimale), codici PETSCII (sia predefiniti che traslati) e la bitmap grezza a 8 byte. |
 
 Visualizzatore di sola lettura della ROM dei caratteri del C64 (il font PETSCII
 integrato). Si apre tramite la voce **C64 chargen** nel menu Toolkit. Utile per
@@ -5198,8 +5135,7 @@ Editor di caratteri 8×8 con supporto per 256 caratteri. Apribile tramite Toolki
 | Carica `.bin`           | Importa un file binario esterno con set di caratteri da 2048 byte.                            |
 | Anteprima per carattere | Griglia di 16 caselle con tutti i 256 glifi, con la cella corrente evidenziata.               |
 
-Editor di sprite da 24×21 pixel con animazione multi-frame. Apri tramite Toolkit
-→ Editor di sprite.
+**Flusso di lavoro:**
 1. Collega il 1541 Ultimate / Ultimate 64 alla tua rete locale.
 2. Inserisci il suo indirizzo IP (e la password, se impostata) nelle
    Impostazioni hardware.
@@ -5233,8 +5169,7 @@ regole di stampa multicolore dei caratteri del C64.
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Monocromatico/multicolore | La modalità monocromatica memorizza glifi 8×8 a 1 bit. La modalità multicolore memorizza coppie di pixel orizzontali a due bit e contrassegna le celle utilizzate con il bit 3 della RAM Colore. |
 
-Editor di sprite da 24×21 pixel con animazione multi-frame. Apri tramite Toolkit
-→ Editor di sprite.
+**Flusso di lavoro:**
 1. Inserisci la cartuccia di Kung Fu Flash 2 nello slot del C64, accendi il
    computer e collega il cavo USB al tuo PC/Mac.
 2. Apri **Impostazioni hardware** e controlla la sezione **Kung Fu Flash 2**: la
@@ -5284,18 +5219,22 @@ Editor di bitmap a livello di pixel con modalità ad alta risoluzione 320×200 e
 modalità multicolore 160×200. Apribile tramite Toolkit → Editor ad alta
 risoluzione.
 
-| Caratteristica          | Descrizione                                                                                                                        |
-| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| Interruttore modalità   | **Multicolore** La casella di controllo commuta tra alta risoluzione (monocromatico per cella) e multicolore (4 colori per cella). |
-| Utensili                | Matita, gomma, linea, rettangolo, rettangolo pieno, ovale, ovale pieno, riempimento a inondazione.                                 |
-| Strumento a spruzzo     | Un programma di pittura in stile aerografo che sparge pixel intorno al cursore durante il disegno.                                 |
-| Intensità dello spruzzo | Il menu a tendina accanto allo strumento spray controlla la densità di ogni spruzzo.                                               |
-| Tavolozza di colori     | Selettori per primo piano (inchiostro) e carta (sfondo). La modalità multicolore traccia automaticamente 3 colori extra per cella. |
-| Annulla / Ripeti        | Cronologia per ogni singolo colpo, ctrl-Z / ctrl-Y.                                                                                |
-| Griglia + raster        | Griglia 8×8 opzionale e sovrapposizione di righe raster per l'allineamento delle celle.                                            |
-| Immagine G              | I file PNG/JPEG/GIF trascinati sull'area di lavoro vengono automaticamente quantizzati alla tavolozza a 16 colori del C64.         |
-| Blocchi di esportazione | Aggiunge al programma blocchi BYTE/RAWBYTES contenenti i dati codificati relativi a bitmap, schermo e colore.                      |
-| Esporta `.bin`          | Salva il formato multicolore nativo (10000 byte: 8000 bitmap + 1000 schermo + 1000 colore) pronto per LOADFILE a $2000.            |
+| Caratteristica          | Descrizione                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Interruttore modalità   | **Multicolore** La casella di controllo commuta tra alta risoluzione (monocromatico per cella) e multicolore (4 colori per cella).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Utensili                | Matita, gomma, linea, rettangolo, rettangolo pieno, ovale, ovale pieno, riempimento a inondazione, seleziona.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Strumento a spruzzo     | Un programma di pittura in stile aerografo che sparge pixel intorno al cursore durante il disegno.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Intensità dello spruzzo | Il menu a tendina accanto allo strumento spray controlla la densità di ogni spruzzo.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Tavolozza di colori     | Selettori per primo piano (inchiostro) e carta (sfondo). La modalità multicolore traccia automaticamente 3 colori extra per cella.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Annulla / Ripeti        | Cronologia per ogni singolo colpo, ctrl-Z / ctrl-Y.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Selezionare             | Lo strumento quadrato tratteggiato: trascina sulla tela per selezionare un'area rettangolare. **Esc** cancella la selezione.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Copia/Incolla           | **Copia** (`Ctrl/Cmd+C`) copia la regione selezionata. **Incolla** (`Ctrl/Cmd+V`) mostra un'anteprima che segue il cursore: fai clic sulla tela per posizionarla, **Esc** annulla. La copia viene mantenuta, quindi premendo `Ctrl/Cmd+V` e facendo di nuovo clic la si posiziona tutte le volte necessarie. In modalità ad alta risoluzione i pixel incollati rispettano ancora il limite di due colori per cella, quindi allinea la regione con la griglia delle celle per mantenerne i colori. Copia, Incolla e Incolla trasparente sono presenti anche nel menu contestuale del tasto destro del mouse sulla tela; un'operazione di incolla avviata da lì viene visualizzata in anteprima nel punto in cui si fa clic. |
+| Pasta trasparente       | `Ctrl/Cmd+Shift+V` (o il relativo pulsante nella barra degli strumenti) salta i pixel color carta della copia, in modo che l'immagine sottostante sia visibile.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Griglia + raster        | **Griglia** mostra la griglia delle celle dei caratteri: 8×8 pixel in alta risoluzione, 4×8 pixel a doppia larghezza in multicolore. Con uno zoom 4× disegna anche una linea più sottile attorno a ogni singolo pixel, in modo che ogni pixel possa essere posizionato con precisione. **Raster** aggiunge una sovrapposizione di righe raster.                                                                                                                                                                                                                                                                                                                                                                            |
+| Zoom                    | Cursore da 1× a 16×.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Immagine G              | I file PNG/JPEG/GIF trascinati sull'area di lavoro vengono automaticamente quantizzati alla tavolozza a 16 colori del C64.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Blocchi di esportazione | Aggiunge al programma blocchi BYTE/RAWBYTES contenenti i dati codificati relativi a bitmap, schermo e colore.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Esporta `.bin`          | Salva il formato multicolore nativo (10000 byte: 8000 bitmap + 1000 schermo + 1000 colore) pronto per LOADFILE a $2000.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 
 ### Editor di sprite
 
@@ -5304,7 +5243,7 @@ Editor di sprite da 24×21 pixel con animazione multi-frame. Apri tramite Toolki
 
 | Caratteristica            | Descrizione                                                                                                                                                                                                                                                                           |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Cornici                   | Aggiungi/rimuovi/riordina le cornici; la striscia di cornici è mostrata in basso.                                                                                                                                                                                                     |
+| Cornici                   | Aggiungi / rimuovi / riordina i frame; la striscia di frame viene visualizzata in basso. **Copia** / **Incolla** nella riga del frame copia l'intero frame corrente; le stesse due voci sono presenti nel menu contestuale del canvas e della striscia di frame.                      |
 | Modalità                  | Interruttore monocromatico/multicolore.                                                                                                                                                                                                                                               |
 | Utensili                  | Matita, riempimento, linea, rettangolo, cerchio — più capovolgi orizzontalmente, capovolgi verticalmente, sposta a sinistra/destra/su/giù (con ritorno a capo opzionale). Gli strumenti Forma mostrano un'anteprima in tempo reale durante il trascinamento; rilascia per confermare. |
 | Annulla / Ripeti          | Stack completo di annulla/ripristina per ogni fotogramma. Ctrl/Cmd+Z / Ctrl/Cmd+Y o i pulsanti della barra degli strumenti.                                                                                                                                                           |
@@ -5381,7 +5320,7 @@ dati di collisione e simili. Apribile tramite Toolkit → Editor di mappe.
 | Annulla / Ripeti                                             | Funzione completa di annulla/ripristina per ogni livello. Ctrl/Cmd+Z / Ctrl/Cmd+Y o i pulsanti della barra degli strumenti.                                                                                                                                                                                                     |
 | Cancella menu                                                | Cancellazione per singolo strato o dell'intera mappa con conferma.                                                                                                                                                                                                                                                              |
 | Importazione immagini                                        | Trascina un file PNG di una mappa a tessere; l'editor la suddividerà automaticamente in tessere.                                                                                                                                                                                                                                |
-| Copia/incolla                                                | Copia una porzione di piastrella selezionata, quindi incollala normalmente oppure usa la funzione incolla trasparente per mantenere trasparenti le piastrelle vuote.                                                                                                                                                            |
+| Copia/incolla                                                | Copia una porzione di riquadro selezionata, quindi incollala normalmente oppure usa l'incolla trasparente per mantenere trasparenti i riquadri vuoti. Le stesse voci sono presenti nel menu contestuale che si apre cliccando con il tasto destro del mouse sull'area di lavoro.                                                |
 | Colorazione delle piastrelle con sensibilità ai colori       | Con metadati charset compatibili, il disegno utilizza le impostazioni predefinite della RAM dei colori memorizzate nella tile (inclusa la codifica relativa ai colori multipli) anziché un colore piatto generico.                                                                                                              |
 | Colori personalizzati dei caratteri                          | Quando un charset contiene metadati `charColors`, l'editor di mappe utilizza il valore predefinito di Color RAM della tessera selezionata durante la fase di disegno.                                                                                                                                                           |
 | Blocchi di esportazione                                      | Emette blocchi RAWBYTES per la grafica dei tileset e i dati della mappa.                                                                                                                                                                                                                                                        |
@@ -5647,8 +5586,9 @@ esempio funzionante di sprite-X a 16 bit.
 ### Convertitore di numeri
 
 Un piccolo convertitore DEC/HEX/BIN **non-modale**, apribile con il pulsante
-della barra degli strumenti accanto all'Editor D64 (clicca di nuovo o premi Esc
-per chiuderlo). Rimane aperto mentre continui a modificare il programma in
+della barra degli strumenti accanto all'Editor D64 (fare nuovamente clic o
+premere Esc per chiudere). Il pulsante rimane evidenziato finché il convertitore
+è visualizzato. Rimane aperto anche durante la modifica del programma in
 qualsiasi modalità.
 
 - Digita in uno qualsiasi dei campi **DEC**, **HEX** o **BIN** e gli altri due
