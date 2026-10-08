@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.2 — Kieliopas
+# Ultimate Basic v1.6.3 — Kieliopas
 
 Täydellinen kieli- ja komentoriviviite Ultimate Basicille, BASICin kaltaiselle
 kielelle, joka kääntyy suoraan 6502-konekoodiksi Commodore 64:lle. Tuloste:
@@ -23,14 +23,14 @@ Määrittämättömän muuttujan käyttäminen lausekkeessa, sijoituksessa,
 käännösaikaisen virheen.
 
 ```basic
-var x = 10               # 8-bit integer (default)
-var ptr: word = $0400    # 16-bit — two zero-page bytes, usable as 16-bit address
-var f: float = 3.5       # Q8.8 fixed-point — hi byte = integer, lo byte = fraction
-var msg = "HELLO"        # string variable (pointer to inline PETSCII data)
-var s: string = "TEXT"   # string with explicit type
-var scores = array(10)   # byte array, 10 elements stored at $C000+
-var moments  = array_word(8) # word array, 8 word elements stored at $C000+
-const BORDER_ADDR = $D020 # compile-time constant (substituted inline, no ZP slot)
+var x = 10 # 8-bittinen kokonaisluku (oletus)
+var ptr: word = $0400 # 16-bittinen — kaksi nollasivuista tavua, käytettävissä 16-bittisenä osoitteena
+var f: float = 3.5 # Q8.8 fixed-point — hi byte = kokonaisluku, low byte = murtoluku
+var msg = "HELLO" # merkkijonomuuttuja (osoitin inline-PETSCII-dataan)
+var s: string = "TEXT" # merkkijono, jolla on eksplisiittinen tyyppi
+var scores = array(10) # tavutaulukko, 10 alkiota tallennettuna kohtaan $C000+
+var moments = array_word(8) # sanataulukko, 8 sanaelementtiä tallennettuna kohtaan $C000+
+const BORDER_ADDR = $D020 # käännösaikainen vakio (korvattu inline-muodossa, ei ZP-paikkaa)
 ```
 
 Avainsanat ja tunnisteet **kirjainkokoa ei erotella**: `PRINT`, `Print` ja
@@ -39,13 +39,79 @@ Avainsanat ja tunnisteet **kirjainkokoa ei erotella**: `PRINT`, `Print` ja
 | Tyyppi                | Leveys           | Muistiinpanoja                                                              |
 | --------------------- | ---------------- | --------------------------------------------------------------------------- |
 | `int`                 | 8-bittinen       | oletusarvo numeerisille literaaleille                                       |
-| `word`                | 16-bittinen      | kaksi ZP-tavua; voidaan käyttää osoitteena `poke`/`peek`-muodossa           |
-| `float`               | 16-bittinen Q8.8 | hi-tavu = kokonaislukuosa (0–255), lo-tavu = murtolukuosa                   |
-| `string`              | osoitin          | ZP-pari → nollapäätteinen PETSCII koodisegmentissä                          |
-| `array(N)`            | N tavua          | tavuelementit; sijaitsee `$C000+`-kohdassa, ei ZP:ssä                       |
-| `array_word(N)`       | N×2 tavua        | sanaelementit (16-bittiset); sijaitsee `$C000+`-merkillä, ei ZP-tiedostossa |
+| `sana`                | 16-bittinen      | kaksi ZP-tavua; voidaan käyttää osoitteena `poke`/`peek`-muodossa           |
+| `kelluva`             | 16-bittinen Q8.8 | hi-tavu = kokonaislukuosa (0–255), lo-tavu = murtolukuosa                   |
+| `merkkijono`          | osoitin          | ZP-pari → nollapäätteinen PETSCII koodisegmentissä                          |
+| `taulukko(N)`         | N tavua          | tavuelementit; sijaitsee `$C000+`-kohdassa, ei ZP:ssä                       |
+| `taulukon_sana(N)`    | N×2 tavua        | sanaelementit (16-bittiset); sijaitsee `$C000+`-merkillä, ei ZP-tiedostossa |
 | `array(R, C, …)`      | ∏dims tavua      | moniulotteinen (rivi-pääaine); indeksi `arr[r, c]`                          |
 | `array_word(R, C, …)` | ∏dims×2 tavua    | moniulotteinen sanataulukko (rivi-pääaine)                                  |
+
+#### BASIC-tyyliset määrittelyt: `dim … as …`
+
+`dim-nimi tyyppinä` on `var-nimen vaihtoehtoinen kirjoitusasu: tyyppi` — sama
+tallennustila, sama koodi:
+
+```basic
+DIM kor AS INTEGER # etumerkillinen 16-bittinen, alkaa merkistä 0
+DIM nev AS STRING # merkkijono, alkaa merkillä ""
+DIM fizetes AS DOUBLE # Q8.8 kiintopiste, alkaa merkistä 0.00
+DIM x, y AS BYTE # useita nimiä, kaikki saavat tyypin
+DIM pont AS INTEGER = 1000, cim AS STRING = "C64" # alustusfunktiot, sekalaiset tyypit
+```
+
+| `kuten …`                                   | Ultimate Basic -tyyppi                                       |
+| ------------------------------------------- | ------------------------------------------------------------ |
+| `tavu`, `kokonaisluku`                      | `int` (8-bittinen, 0–255)                                    |
+| `kokonaisluku`                              | etumerkillinen 16-bittinen (−32768 … 32767) — QBasic INTEGER |
+| `sana`                                      | `sana` (etumerkitön 16-bittinen, 0–65535)                    |
+| `yksittäinen`, `kaksinkertainen`, `kelluva` | `liukuluku` (Q8.8 — 0–255.99, **ei** IEEE-liukuluku)         |
+| `merkkijono`                                | `merkkijono`                                                 |
+
+- Ilman `= value`, luvut alkavat nollasta ja merkkijonot kohdasta `""`.
+- `dim a, b as integer` antaa **both** nimille tyypin (VB.NET-tyyliin, ei
+  QBasic). Vain yhdellä nimellä voi olla alustaja.
+- `as` ja BASIC-tyyppinimet ovat kontekstisanoja, eivät varattuja – ne ovat
+  edelleen käyttökelpoisia niminä.
+- Ei tuettuja: `as long`, rakennetyypit (käytä `muuttujan nimeä: TName =
+  array(N)`) — käännösaikaisia virheitä.
+- Kun käytössä on `--explicit`, `dim` ilman `as` on virhe.
+- Merkkijonojen sijoituksella on arvon semantiikkaa: `s = "TEXT"` osoittaa
+  literaaliin, `t = s` ja lasketut arvot kopioidaan `t`:n omaan puskuriin (katso
+  *Strings at runtime*). Ennen versiota 1.6.3 `s = "TEXT"` tallensi määrittelyn
+  jälkeen roskatavun osoittimeen.
+
+#### Taulukot, joiden tyyppi on `dim`: `dim nimi(u1, u2, …) `
+
+```basic
+DIM tabla(2, 3) AS INTEGER ' 3 × 4 elementtiä: tabla(0..2, 0..3)
+DIM kocka(1, 2, 3) AS BYTE ' mikä tahansa määrä ulottuvuuksia
+DIM ar(9) AS DOUBLE ' 10 Q8.8-arvoa
+DIM nevek(4) AS STRING ' 5 merkkijonoa, kaikki alkavat merkillä ""
+DIM v(9) ' ei AS → tavutaulukkoa
+
+tabla(2, 3) = 999 ' QBasic-tyylinen indeksi ( )-metodilla
+tabla[2, 3] = 999 ' … tai tavallinen [ ]
+nevek(0) = "ZSOLT"
+PRINT tabla(2, 3); " "; nevek(0); " "; ar(1)
+```
+
+- Jokainen raja on **korkein indeksi** (PERUSSääntö): `dim t(2, 3)` sisältää 3 ×
+  4 alkiota. (`var t = array(3, 4)` ottaa huomioon alkioiden lukumäärän — sama
+  taulukko.)
+- Elementtityypit: `byte`/`int` → 1 tavu, `integer` (etumerkillinen) / `word` →
+  2 tavua, `single`/`double`/`float` → 2-tavuinen Q8.8, `string` → 2-tavuinen
+  osoitin. Rajojen on oltava käännösaikaisia vakioita; taulukot sijaitsevat
+  hakemistossa `$C000-$CFFF` (4096 tavua, tarkistettu).
+- Merkkijonotaulukon alkiot alkavat muodossa `""`; `nevek(i) = "TEXT"` / `= s` /
+  `= a + b`, `n = nevek(i)`, tulostus, `+`, välitys `string` -parametrille ja
+  `input nevek(i)` toimivat kaikki (ei-literaaliarvot kopioidaan 31 merkin
+  paikkaan elementtiä kohden).
+- `name(i)`-indeksointi toimii myös taulukoille, jotka on ilmoitettu funktiolla
+  `var a = array(…)`.
+- Yksi taulukko per `dim`-ryhmä: `dim a(3) tavuna, n kokonaislukuna` on
+  hyväksyttävä, `dim n, a(3) kokonaislukuna` on virhe. Ei alustajaa — käytä
+  `-datan nimeä: …`.
 
 ### Varatut sanat
 
@@ -110,20 +176,20 @@ varautuneita**
 Nämä yleiset englanninkieliset sanat näyttävät viattomilta tunnisteilta, mutta
 lekseri on jo poiminut ne. Nimeä uudelleen välttääksesi hiljaisen katkoksen:
 
-| Varattu                                     | Ehdotettu uudelleennimeäminen       |
-| ------------------------------------------- | ----------------------------------- |
-| `end`                                       | `stop_at`, `finish`, `last`         |
-| `stop`                                      | `stop_at`, `halt`                   |
-| `times`                                     | `count`, `n`, `iters`               |
-| `screen`                                    | `scraddr`, `screen_addr`            |
-| `border`, `bg`, `text`                      | `border_addr`, `bg_col`, `text_col` |
-| `clamp`                                     | `cap`, `bound`                      |
-| `line`, `circle`, `rect`                    | `ln`, `circ`, `box_r`               |
-| `data`, `read`                              | `bytes`, `next_byte`                |
-| `load`, `save`, `open`, `close`             | `load_file`, ...                    |
-| `map`, `show`, `hide`                       | `tilemap`, `reveal`, `conceal`      |
-| `play`, `pause`, `resume`, `stop`, `volume` | `play_song`, `vol`                  |
-| `int`, `float`, `word`, `string`            | `n_int`, `speed_f`, `addr`, `msg`   |
+| Varattu                                                   | Ehdotettu uudelleennimeäminen                  |
+| --------------------------------------------------------- | ---------------------------------------------- |
+| `loppu`                                                   | `lopea_kohdassa`, `lopea`, `viimeinen`         |
+| `lopeta`                                                  | `pysähdy_kohdassa`, `pysäytys`                 |
+| ` kertaa`                                                 | `määrä`, `n`, `itteriä`                        |
+| `näyttö`                                                  | `näyttö`, `näyttöosoite`                       |
+| `reunus`, `tausta`, `teksti`                              | `reunuksen_osoite`, `taus_väri`, `teksti_väri` |
+| `puristin`                                                | `korkki`, `sidottu`                            |
+| `viiva`, `ympyrä`, `suorakulma`                           | `ln`, `ympyrä`, `laatikko_r`                   |
+| `tiedot`, `lue`                                           | `tavua`, `seuraava_tavu`                       |
+| `lataa`, `tallenna`, `avaa`, `sulje`                      | `lataustiedosto`, ...                          |
+| `kartta`, `näytä`, `piilota`                              | `laattakartta`, `paljasta`, `piilota`          |
+| `toisto`, `tauko`, `jatka`, `pysäytys`, `äänenvoimakkuus` | `soita_kappale`, `äänenvoimakkuus`             |
+| `int`, `liukuväritys`, `sana`, `merkkijono`               | `n_int`, `nopeus_f`, `osoite`, `viesti`        |
 
 Symbolisia tokeneita (`+ - * / = == != < > <= >= : , ; ( ) [ ] # $ % @`) ei
 luonnollisestikaan voida käyttää tunnisteissa.
@@ -164,74 +230,72 @@ käännetään muotoon `INC` / `DEC`.
 ### Lisäys / Vähennys
 
 ```basic
-inc x                    # x = x + 1  (INC zp — single instruction)
-dec x                    # x = x - 1  (DEC zp — single instruction)
+inc x # x = x + 1 (INC zp — yksittäinen käsky)
+dec x # x = x - 1 (DEC zp — yksittäinen käsky)
 ```
 
-For `word` variables carry is handled: `inc` uses `INC lo; BNE skip; INC hi`;
-`dec` uses `LDA lo; BNE skip; DEC hi; DEC lo`.
+`sanalle` muuttujien siirto käsitellään seuraavasti: `inc` käyttää `INC lo; BNE
+skip; INC hi`; `dec` käyttää `LDA lo; BNE skip; DEC hi; DEC lo`.
 
 ### Yhdistelmätehtävät
 
 ```basic
-x += 5                   # x = x + 5
-x -= 3                   # x = x - 3
-x *= 2                   # x = x * 2
-x /= 4                   # x = x / 4
-x and= 15                # x = x and 15   (bitwise AND)
-x or= 64                 # x = x or 64    (bitwise OR)
-x xor= 255               # x = x xor 255  (bitwise XOR)
-x shl= 2                 # x = x shl 2
-x shr= 1                 # x = x shr 1
+x += 5 # x = x + 5
+x -= 3 # x = x - 3
+x *= 2 # x = x * 2
+x /= 4 # x = x / 4
+x ja = 15 # x = x ja 15 (bittikohtainen JA)
+x tai = 64 # x = x tai 64 (bittikohtainen TAI)
+x x tai = 255 # x = x x tai 255 (bittikohtainen XOR)
+x shl = 2 # x = x shl 2
+x shr = 1 # x = x shr 1
 ```
 
 ### Painaa
 
 ```basic
-print "HELLO"
-print x
-print x, y, "text"
-print                     # blank line
+tulosta "HEI"
+tulosta x
+tulosta x, y, "teksti"
+tulosta # tyhjä rivi
 
-print spc(5)             # print 5 space characters
-print tab(20), "VALUE"  # move cursor to column 20, then print
-print "A", spc(3), "B" # mix freely
+tulosta spc(5) # tulosta 5 välilyöntiä
+tulosta tab(20), "ARVO" # siirrä kohdistin sarakkeeseen 20 ja tulosta
+tulosta "A", spc(3), "B" # sekoita vapaasti
 
-print "A=" + a           # string + numeric var
-print s1 + s2            # two string vars → sequential print
-print "Hello " + "World" # two literals → compile-time fold
-print chr$(13)           # print by PETSCII code
+tulosta "A=" + a # merkkijono + numeerinen muuttuja
+tulosta s1 + s2 # kaksi merkkijonomuuttujaa → peräkkäinen tulostus
+tulosta "Hei " + "Maailma" # kaksi literaalia → käännösaikainen taitto
+tulosta chr$(13) # tulosta PETSCII-koodilla
 ```
 
 ### chr$
 
 ```basic
-print chr$(65)           # output character with PETSCII code 65 ('A')
-var c = chr$(n)          # store byte value n in variable c
-print ">" + chr$(42)     # usable in string concat
+print chr$(65) # tulostetaan merkki PETSCII-koodilla 65 ('A')
+var c = chr$(n) # tallennetaan tavuarvo n muuttujaan c
+print "&gt;" + chr$(42) # voidaan käyttää merkkijonossa concat
 ```
 
 ### Haarautuminen
 
 ```basic
-if x == 1 then
-  print "YES"
-else
-  print "NO"
-end
+jos x == 1, niin tulosta "KYLLÄ"
+muuten tulosta "EI"
+loppu
 ```
 
-### Select / Case
+### Valitse / Tapaus
 
 ```basic
-select x
-  case 1:
-    print "ONE"
-  case 2:
-    print "TWO"
-  else:
-    print "OTHER"
-end
+valitse x
+tapaus 1:
+tulosta "YKSI"
+tapaus 2:
+tulosta "KAKSI"
+muuten:
+tulosta "MUU"
+loppu
 ```
 
 `select expr` laskee lausekkeen kerran ja vertaa sitä järjestyksessä kaikkiin
@@ -242,55 +306,56 @@ ei täsmää. Kaikkien arvojen on oltava 8-bittisiä (0–255).
 ### Silmukat
 
 ```basic
-loop 5               # counted loop (5 iterations)
-  print "HI"
+silmukka 5 # laskettu silmukka (5 iteraatiota)
+print "HI"
 end
 
-times 5              # alias for loop N ... end
-  print "HI"
+times 5 # silmukan N alias ... end
+print "HI"
 end
 
-loop                 # infinite loop
-  x = x + 1
-  if x == 5 then continue end  # skip to next iteration
-  if x == 100 then break end
+silmukka # ääretön silmukka
+x = x + 1
+jos x == 5, jatka end # siirry seuraavaan iteraatioon
+jos x == 100, keskeytä end
 end
 
 var i = 0
-for i = 1 to 10      # for..next (preferred)
-  if i == 5 then continue end  # skip to increment step
-  print i
+for i = 1 to 10 # for..next (suositeltu)
+jos i == 5, jatka end # siirry lisäysaskeleeseen
+print i
 next
 
 for i = 0 to 20 step 2
-  print i
-next i               # variable name after 'next' is optional
+print i
+next i # muuttujan nimi 'next'-sanan jälkeen on valinnainen
 
-for i = 10 to 1 step -1     # counting down — negative constant step is supported
-  print i
+for i = 10 to 1 step -1 # laskee alaspäin — negatiivinen vakio step on tuettu
+
+print i
 next
 
-for i = 20 to 0 step -2     # terminates correctly at i = 0 (11 iterations)
-  print i
+for i = 20 to 0 step -2 # päättyy oikein kohdassa i = 0 (11 iteraatiota)
+print i
 next i
 
 var i = 0
-loop i = 1 to 10     # legacy loop..end syntax — identical code
-  print i
+silmukka i = 1 to 10 # vanha silmukka..end syntaksi — identtinen koodi
+print i
 end
 
-while x < 100
-  x = x + 1
+while x &lt; 100
+x = x + 1
 end
 
-repeat               # do-while: body runs at least once
-  x = x + 1
-until x == 100       # exits when condition is true
+repeat # do-while: runko suoritetaan ainakin kerran
+x = x + 1
+kunnes x == 100 # poistuu, kun ehto on tosi
 ```
 
 **Suuntasäännöt `for`/`loop`:**
 
-| Case                                                       | Käyttäytyminen                                                                                                                |
+| Tapaus                                                     | Käyttäytyminen                                                                                                                |
 | ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | `for i = 1 to 10` (oletus `step +1`, `from ≤ to`)          | laskee ylöspäin, vakio                                                                                                        |
 | `for i = 0 to 20 step 2` (positiivinen askel, `from ≤ to`) | laskee kahdella ylöspäin                                                                                                      |
@@ -315,9 +380,9 @@ askelarvolla, jaa silmukka tai käytä `while`-rakennetta.
 ### Otsikot ja siirtyminen
 
 ```basic
-label main_loop
-  x = x + 1
-  if x < 10 then goto main_loop end
+otsikko pää_silmukka
+x = x + 1
+jos x &lt; 10, niin mene pää_silmukan loppuun
 ```
 
 Eteenpäin `goto` (tunniste määritellään myöhemmin) on täysin tuettu.
@@ -329,27 +394,27 @@ eteenpäin suuntautuvia viittauksia (otsikko on määritelty `gosub`-merkin
 jälkeen).
 
 ```basic
-gosub draw_border
+gosub piirto_reunus
 ...
-label draw_border
-  # ... draw something ...
-  return               # RTS — returns to the instruction after gosub
+label piirto_reunus
+# ... piirrä jotain ...
+return # RTS — palaa gosub-käskyn jälkeiseen käskyyn
 ```
 
 ### Aliohjelmat
 
 ```basic
 sub greet()
-  print "HELLO!"
-end
+tulosta "HEI!"
+loppu
 
 sub set_color(col)
-  color border col
-  color text   col
-end
+reunuksen väricol
+tekstin väricol
+loppu
 
-greet()              # call with parens
-call greet           # call keyword (no parens)
+greet() # kutsu sulkeilla
+kutsu greet # kutsu avainsanaa (ei sulkeita)
 set_color(6)
 ```
 
@@ -362,40 +427,186 @@ kautta.
 ### Funktiot (paluuarvot)
 
 ```basic
-fn square(x)
-  return x * x
+fn neliö(x)
+return x * x
 end
 
-fn add(a, b)
-  return a + b
+fn lisää(a, b)
+return a + b
 end
 
-fn clamp(val, lo, hi)
-  if val < lo then return lo end
-  if val > hi then return hi end
-  return val
+fn clamp(arvo, lo, hi)
+jos arvo &lt; lo, niin palauta lo end
+jos arvo &gt; hi, niin palauta hi end
+return arvo
 end
 
-var s = square(9)         # s = 81  — fn call as expression
-var c = clamp(joy, 0, 39) # c = clamped value
-print add(10, 20)         # 30  — usable inline in print
+muuttuja s = neliö(9) # s = 81 — fn-funktion kutsu lausekkeena
+muuttuja c = clamp(joy, 0, 39) # c = lukittu arvo
+tulosta lisää(10, 20) # 30 — käytettävissä tulosteen sisäisesti
 ```
 
 Funktiot tukevat valinnaista `: word`-paluutyyppiä 16-bittisille arvoille:
 
 ```basic
 fn get_addr(): word
-  return $C000
+return $C000
 end
 
-var ptr: word = get_addr()  # ptr = $C000
-poke ptr, 42                 # STA (ptr),Y — valid indirect addressing
-var v = peek(ptr)            # LDA (ptr),Y
+var ptr: word = get_addr() # ptr = $C000
+poke ptr, 42 # STA (ptr),Y — kelvollinen epäsuora osoitus
+var v = peek(ptr) # LDA (ptr),Y
 ```
 
 `fn` lähetetään toisella kierroksella (sama kuin `sub`), joten funktion runkoa
 ei koskaan suoriteta käynnistyksen yhteydessä. Eteenpäin suuntautuvia
 viittauksia tuetaan täysin.
+
+
+#### QBasic-tyylinen `FUNCTION` / `SUB`
+
+```basic
+TOIMINTO Negyzet (szam AS INTEGER) AS INTEGER
+    Negyzet = szam * szam ' paluuarvo = määritä funktion nimi
+LOPPUTOIMINTO
+
+TOIMINTO Nagyobb (a AS BYTE, b AS BYTE) AS BYTE
+    Nagyobb = a
+    JOS b &gt; a NIIN
+        Nagyobb = b
+        EXIT FUNCTION ' palaa nyt tähän mennessä määritetyllä arvolla
+    LOPETA JOS
+LOPPUTOIMINTO
+
+SUB Koszont (nev AS STRING)
+    PRINT "Üdvözöllek, "; nev; "!"
+LOPETA SUB
+
+n = Negyzet(30)
+Koszont "Zsolt" kutsu ilman sulkeita
+Koszont("Zsolt") ' ... tai heidän kanssaan
+SOITA Koszont("Zsolt")
+```
+
+- `function` on synonyymi funktiolle `fn`; `p AS type` toimii parametrilistoissa
+  ja `AS type` (`:n jälkeen)` antaa paluuarvon tyypin (samat tyyppinimet kuin
+  `dim`). `: type` toimii edelleen.
+- Funktion nimen määrittäminen tallentaa piilotettuun
+  `<nimi>__tulos`-muuttujaan, joka palautetaan kohdassa `END FUNCTION` / `EXIT
+  FUNCTION`; `return lauseke` toimii myös edelleen.
+- `END SUB`, `END FUNCTION`, `END IF`, `END SELECT` hyväksytään (toinen sana on
+  valinnainen); `EXIT SUB` / `EXIT FUNCTION` return (tavallinen `exit` on
+  edelleen `bye`).
+- Sub/fn voidaan kutsua ilman sulkeita: `Koszont "Zsolt"`, `Rajzol x, y`.
+- `PRINT a; b; c` — `;` yhdistää alkiot ilman välilyöntejä; lopussa oleva `;`
+  poistaa rivinvaihdon. Merkki `;`, jota seuraa lauseke (`print x; y = 1`),
+  erottaa edelleen lausekkeet.
+- Merkkijonoliteraalien aksenttiset kirjaimet tulostuvat peruskirjaimikseen (`ü`
+  → `u`, `ő` → `o`); C64-merkistössä ei ole aksenttisia kirjaimia.
+- Sana-/liukumalukuparametrit vastaanottavat nyt molemmat tavut, ja
+  `string`-parametrille annettu merkkijonoliteraali toimii (aiemmin vain lo-tavu
+  / merkkijonomuuttuja toimi).
+- Ei rekursiota (parametrit sijaitsevat staattisissa nollasivuisissa paikoissa);
+  versiosta 1.6.3 lähtien rekursiivinen kutsu on käännösvirhe eikä hiljainen
+  virheellinen tulos.
+
+#### Lisää QBasic-syntaksia (1.6.3)
+
+Alla olevat QBasic-lomakkeet kääntyvät alkuperäisen syntaksin viereen (kommentit
+`==`, `end`, `loop`, `#` toimivat kaikki edelleen).
+
+```basic
+' kommentti (QBasic-tyyliin, kuten #)
+JOS x = 3 NIIN TULOSTA "kolme" ' yksirivinen JOS: ei LOPPU JOS tarvitaan
+JOS x &lt;&gt; 3 NIIN TULOSTA "ei" MUUTEN TULOSTA "kyllä"
+JOS n &lt; 0 NIIN
+TULOSTA "negatiivinen"
+JOS n = 0 NIIN
+TULOSTA "nolla"
+MUUTEN TULOSTA "positiivinen"
+LOPPU JOS
+
+DO WHILE i &lt; 10 : i = i + 1 : SILMUKKA ' myös DO UNTIL c … SILMUKKA,
+DO : i = i - 1 : SILMUKKA KUNNES i = 0 ' DO … SILMUKKA WHILE c, DO … SILMUKKA (loputon)
+WHILE k &lt;&gt; 5 : k = k + 1 : WEND
+FOR i = 1 TO 100
+JOS i = 12 NIIN POISTU FOR ' POISTU DO / POISTU FOR / POISTU WHILE
+NEXT
+
+SELECT CASE n CASE 1, 2, 3: TULOSTA "pieni"
+CASE 10 TO 20: TULOSTA "teini"
+CASE IS &gt; 1000: TULOSTA "iso"
+CASE ELSE: TULOSTA "muu"
+END SELECT
+
+END ' lopettaa ohjelman (näyttö säilyy)
+```
+
+- **Ehdot:** merkinnän `IF` / `ELSEIF` / `WHILE` / `UNTIL` / `LOOP WHILE|UNTIL`
+  sisällä yksi `=` vertailee. `&lt;&gt;` tarkoittaa, ettei kaikkialla ole yhtä
+  suuri (sama kuin `!=`).
+- **Yksirivinen JOS:** heti `THEN` jälkeen oleva lauseke muodostaa yksirivisen
+  JOS-lausekkeen, joka päättyy riviin tai `end`-lauseeseen samalla rivillä (`if
+  c then x = 1 end`, kuten ennenkin). Monirivinen JOS-lauseke tarvitsee
+  rivinvaihdon `THEN`-lausekkeen jälkeen. Kuten QBasicissa, kaikki
+  `THEN`-lausekkeen jälkeen kyseisellä rivillä kuuluu JOS-lausekkeelle (`… THEN
+  EXIT FOR : NEXT` nielaisi `NEXT`-lausekkeen).
+- **`END` yksinään:** `END`, joka ei sulje lohkoa, lopettaa ohjelman, kuten
+  QBasic. Ylimääräinen `end` ei siis enää näy virheenä.
+- **`DO` -lohkot: ** rivin `DO` sisällä rivin lopussa oleva `LOOP` sulkee sen
+  (alkuperäiset `silmukka N … end` / `silmukka i = … end` silmukat toimivat
+  edelleen rivin sisällä).
+- **`SELECT CASE`:** vanha `select x` / `case n:` -muoto ei muutu. `SELECT CASE`
+  alennetaan JOS-ketjuksi piilotetun `select__N`-muuttujan kautta.
+
+#### Merkkijonot suorituksen aikana (1.6.3)
+
+```basic
+DIM s AS STRING, t AS STRING
+s = "Pont: " + pont + "!" ' luvuista tulee tekstiä (16-bittinen, etumerkillinen INTEGER)
+t = s ' kopio: s:n muuttaminen myöhemmin ei muuta t:tä
+s = s + "?"
+PRINT LEFT$(s, 4); RIGHT$(s, 2); MID$(s, 7, 3); MID$(s, 7)
+PRINT LEN(s + t), VAL("1234") + 1, STR$(pont)
+JOS s = "ABC" TAI t &lt;&gt; "" NIIN PRINT "vertaa = / &lt;&gt;"
+```
+
+- **Puskurit:** merkkijonomuuttuja, joka saa lasketun arvon (`+`, `left$`,
+  `right$`, `mid$`, luvut, toinen muuttuja), omistaa 80 merkin puskurin;
+  pidemmät tulokset katkaistaan 80 merkin kohdalla. Literaalin osoittaminen
+  osoittaa edelleen siihen.
+- **Merkkijonotaulukot:**-elementit, jotka saavat ei-literaalisen arvon (tai
+  `input`), saavat oman 32-tavuisen paikan (31 merkkiä), joten `input nevek(i)`
+  säilyttää kaikki nimet silmukassa.
+- **`STR$` / `VAL`:** 16-bittisen tai etumerkillisen arvon `STR$`:ssä ei ole
+  etunollia (`"-42"`). Yhteensopivuuden vuoksi tavun `STR$` säilyttää
+  kolminumeroisen muodon (`"007"`). `VAL` lukee 16-bittiset etumerkilliset luvut
+  (`VAL("1234") + 1` = 1235).
+- **Vertailu:** vain `=` / `&lt;&gt;` (ja `==` / `!=`); merkkijonoilla ei ole
+  `&lt;` / `&gt;` järjestystä.
+
+#### Etumerkillinen KOKONAISLUKU, SYÖTE, KAKSINKERTAINEN (1.6.3)
+
+- **INTEGER on etumerkillinen:** `DIM x AS INTEGER` on etumerkillinen
+  16-bittinen (−32768 … 32767, kuten QBasic): tulostus, `&lt;` `&gt;` vertailut,
+  `/` (katkaistuu kohti nollaa), `ABS`, tekstimuunnos, `INPUT` ja `FOR` silmukat
+  nollan läpi (`FOR i = 3 TO -3 STEP -2`) seuraavat kaikki etumerkkiä. `WORD`
+  pysyy etumerkittömänä 0 … 65535. Unaarinen miinus-merkki toimii missä tahansa
+  (`a &lt; -10`, `x * -2`).
+- **`FOR` 16-bittisellä laskurilla** (`INTEGER` / `WORD`) on todellinen
+  16-bittinen silmukka. Se kietoutui aiemmin 256 bitin kohdalle, joten `FOR k =
+  0 TO 300` suoritettiin 45 kertaa.
+- **`INPUT`:** lukee INTEGER / WORD -muotoon enintään 6 merkkiä (`-`
+  INTEGER-muotoon), DOUBLE-muotoon hyväksyy `12.5` (kaksi desimaalia). `INPUT
+  t(i)` lukee taulukkoelementin ja `INPUT "kehote"; x` toimii myös.
+- **DOUBLE ÷ DOUBLE** on nyt tarkka (`7.5 / 2.5 = 3.00`); ennen käytettiin vain
+  jakajan kokonaislukuosaa. DOUBLE × DOUBLE oli jo tuettu.
+- **Yli 256 tavun taulukot** (`DIM t(200) AS INTEGER`, `DIM g(19, 19)`) toimivat
+  muuttuvien indeksien kanssa; indeksiä käytetään rivittämiseen 256 tavuun ja
+  kirjoittamiseen väärään elementtiin.
+- **Rekursio** (ali-/funktio, joka kutsuu itseään, suoraan tai muiden kautta) on
+  käännösvirhe. Se aiemmin aiheutti virheellisiä tuloksia, koska parametrit
+  sijaitsivat kiinteissä nollasivupaikoissa.
 
 ### Taulukot
 
@@ -422,18 +633,17 @@ tallennetaan **rivi-pää**-muodossa ja indeksoidaan pilkulla erotetulla
 alaindeksiluettelolla. Kokonaiskoko on kaikkien ulottuvuuksien tulo.
 
 ```basic
-var grid = array(8, 8)     # 8×8 = 64 bytes at $C000
-grid[1, 0] = 11            # row 1, col 0 → flat index 1*8+0 = 8 → STA $C008
-grid[0, 1] = 22            # row 0, col 1 → flat index 1       → STA $C001
-grid[r, c] = 33            # variable → computes r*8 + c, then STA (ptr),Y
-var v = grid[r, c]         # LDA (ptr),Y
+muuttuja grid = array(8, 8) # 8×8 = 64 tavua kohdassa $C000
+grid[1, 0] = 11 # rivi 1, sarake 0 → tasainen indeksi 1*8+0 = 8 → STA $C008
+grid[0, 1] = 22 # rivi 0, sarake 1 → tasainen indeksi 1 → STA $C001
+grid[r, c] = 33 # muuttuja → laskee r*8 + c, sitten STA (ptr),Y
+muuttuja v = grid[r, c] # LDA (ptr),Y
 
-var wm = array_word(4, 4)  # 4×4 word array = 32 bytes
-wm[1, 2] = $ABCD           # element 1*4+2 = 6 → bytes $C00C/$C00D
+muuttuja wm = array_word(4, 4) # 4×4 sanan taulukko = 32 tavua
+wm[1, 2] = $ABCD # elementti 1*4+2 = 6 → tavut $C00C/$C00D
 
-const ROWS = 3
-const COLS = 5
-var m = array(ROWS, COLS)  # dimensions may be compile-time constants
+vakio RIVIT = 3
+vakio SARAKKEET = 5}var m = array(ROWS, COLS) # ulottuvuudet voivat olla käännösaikaisia vakioita
 ```
 
 Rivi-pääasettelu tarkoittaa, että viimeinen alaindeksi on yhtenäinen: `grid[r,
@@ -454,34 +664,34 @@ käyttö käyttää `arr[idx].field`-metodia ja toimii sekä vakio- että muuttu
 indeksien kanssa.
 
 ```basic
-type TEntity
-  var x:  int      # 1 byte
-  var y:  int      # 1 byte
-  var hp: word     # 2 bytes  → element size = 4
-endtype
+tyyppi TEntity
+muuttuja x: int # 1 tavu
+muuttuja y: int # 1 tavu
+muuttuja hp: sana # 2 tavua → elementin koko = 4
+lopputyyppi
 
-const N = 8
-var enemies: TEntity = array(N)   # allocates N × 4 = 32 bytes at $C000
+vakio N = 8
+muuttuja enemies: TEntity = array(N) # varaa N × 4 = 32 tavua kohdassa $C000
 
-enemies[0].x  = 5
-enemies[0].y  = 10
+enemies[0].x = 5
+enemies[0].y = 10
 enemies[0].hp = $0100
-var v = enemies[0].hp             # read back — LDA $C002 / LDA $C003
+muuttuja v = enemies[0].hp # lue takaisin — LDA $C002 / LDA $C003
 
-var i: int = 2
-enemies[i].x = 42                 # variable index → idx * elem_size + offset
+muuttuja i: int = 2
+enemies[i].x = 42 # muuttujan indeksi → idx * elem_size + offset
 
-# Float field (Q8.8 fixed-point)
-type TBall
-  var bx:  int     # 1 byte
-  var by:  int     # 1 byte
-  var vel: float   # 2 bytes Q8.8  → element size = 4
+# Liukulukukenttä (Q8.8 kiinteäpisteinen)
+tyyppi TBall
+muuttuja bx: int # 1 tavu
+muuttuja by: int # 1 tavu
+muuttuja vel: liukuluku # 2 tavua K8.8 → elementin koko = 4
 endtype
 
 var balls: TBall = array(3)
-balls[0].vel = 1.5                # stores Q8.8: hi=1, lo=128
-var f: float = balls[0].vel       # read float field into float variable
-print balls[0].vel                # prints "1.50"
+balls[0].vel = 1.5 # tallentaa K8.8: hi=1, lo=128
+var f: float = balls[0].vel # lukee float-kentän float-muuttujaan
+print balls[0].vel # tulostaa "1.50"
 ```
 
 Säännöt ja rajoitukset:
@@ -511,9 +721,9 @@ Katso `examples/type_demo.ub`.
 ### 16-bittiset (sana)muuttujat
 
 ```basic
-var ptr: word = $0400    # two ZP bytes: lo=$00 hi=$04
-poke ptr, 6              # STA (ptr),Y
-var v = peek(ptr)        # LDA (ptr),Y
+var ptr: sana = 0400 dollaria # kaksi ZP-tavua: lo = 00 dollaria hi = 04 dollaria
+poke ptr, 6 # STA (ptr),Y
+var v = peek(ptr) # LDA (ptr),Y
 ```
 
 **16-bittiset tulot (korjattu versiossa 1.5.7).** Sanalle `` osoitettu tulo
@@ -535,31 +745,31 @@ Tavukohteet säilyttävät 8-bittiset tulokset.
 ### Bittikarttagrafiikka
 
 ```basic
-graphics on              # VIC-II hires bitmap mode (320×200, 1bpp); bitmap at $2000
-graphics on multi        # VIC-II multicolor bitmap mode (160×200, 2bpp, 4 colours/cell)
-graphics off             # return to text mode
+grafiikka päällä # VIC-II käyttää bittikarttatilaa (320×200, 1 bittiä sivua); bittikartta hintaan $2000
+grafiikka päällä moni # VIC-II monivärinen bittikarttatila (160×200, 2 bittiä sivua sivua kohden, 4 väriä/solu)
+grafiikka pois päältä # paluu tekstitilaan
 
-gcls                     # clear bitmap (fills $2000-$3FFF) + set video matrix colors
+gcls # tyhjennä bittikartta (täyttää $2000-$3FFF) + aseta videomatriisin värit
 
-plot x, y                # set pixel at (x, y);  x: 0-319,  y: 0-199
-plot erase x, y          # clear pixel (AND ~mask)
-plot xor x, y            # toggle pixel (EOR mask) — flicker-free animation
-circle x, y, r           # midpoint circle centered at (x, y) with radius r; clips off-screen points
-line x1, y1, x2, y2      # Bresenham line from (x1,y1) to (x2,y2); x: 0-319, y: 0-199
-line erase x1, y1, x2, y2  # clear pixels along the line (AND ~mask)
-line xor x1, y1, x2, y2    # toggle pixels along the line (EOR mask)
-rect x1, y1, x2, y2      # draw rectangle outline (4 edges); x: 0-319, y: 0-199
-rect erase x1, y1, x2, y2  # clear rectangle outline (AND ~mask)
-rect xor x1, y1, x2, y2    # XOR rectangle outline (EOR mask)
-paint x, y               # 4-connected flood fill from (x, y); fills clear pixels bounded by set ones
+plot x, y # aseta pikseli kohtaan (x, y); x: 0-319, y: 0-199
+plot erase x, y # tyhjennä pikseli (AND ~mask)
+plot xor x, y # kytke pikseli päälle/pois (EOR mask) — välkkymätön animaatio
+circle x, y, r # keskipisteympyrä keskitettynä kohtaan (x, y) säteellä r; leikkaa näytön ulkopuolisia pisteitä
+viiva x1, y1, x2, y2 # Bresenham-viiva pisteestä (x1,y1) pisteeseen (x2,y2); x: 0-319, y: 0-199
+viivan poisto x1, y1, x2, y2 # pikselien poistaminen viivalta (JA ~maski)
+viiva xor x1, y1, x2, y2 # pikselien poistaminen viivalta (EOR-maski)
+rect x1, y1, x2, y2 # suorakulmion ääriviivan piirtäminen (4 reunaa); x: 0-319, y: 0-199
+rect erase x1, y1, x2, y2 # suorakulmion ääriviivan poistaminen (JA ~maski)
+rect xor x1, y1, x2, y2 # suorakulmion ääriviivan poistaminen (EOR-maski)
+maalaa x, y # 4-yhteinen täyttö pisteestä (x, y); täyttää tyhjät pikselit, jotka on rajattu ykkösten avulla
 
-color pen c              # set the hires drawing color (0-15); see below
+color pen c # aseta piirustusvärin väri (0-15); katso alla
 
-# ── Multicolor bitmap (graphics on multi, 160×200) ──
-mplot x, y, color        # set multicolor pixel (x: 0-159, y: 0-199, color: 0-3)
-mline x1, y1, x2, y2, color   # multicolor line
-mrect x1, y1, x2, y2, color   # multicolor rectangle outline
-mcircle x, y, r, color        # multicolor circle
+# ── Monivärinen bittikartta (grafiikka monivärisellä, 160×200) ──
+mplot x, y, color # aseta monivärinen pikseli (x: 0-159, y: 0-199, color: 0-3)
+mline x1, y1, x2, y2, color # monivärinen viiva
+mrect x1, y1, x2, y2, color # monivärisen suorakulmion ääriviiva
+mcircle x, y, r, color # monivärinen ympyrä
 ```
 
 Molemmat `graphics on`-variantit tyhjentävät näytön (`LDA $D011 / AND #$EF / STA
@@ -582,13 +792,13 @@ pen`-kertoihin asti. Oletusarvo on valkoinen (1), joten ohjelmat, jotka eivät
 koskaan kutsu `color pen`-funktiota, näyttävät täsmälleen samalta kuin ennen.
 
 ```basic
-graphics on
+grafiikka päällä
 gcls
-color pen 2              # red
-line 0, 0, 100, 100
-color pen 6              # blue
-circle 160, 100, 40
-display on
+värikynä 2 # punainen
+viiva 0, 0, 100, 100
+värikynä 6 # sininen
+ympyrä 160, 100, 40
+näyttö päällä
 ```
 
 #### Moniväriset muodot — `mline` / `mrect` / `mcircle`
@@ -602,12 +812,12 @@ varsinaiset värit tulevat solupaletista (screen / color RAM) täsmälleen kuten
 `mplot`-tilassa.
 
 ```basic
-graphics on multi
+grafiikka useilla
 gcls
 mcircle 80, 100, 40, 1
 mrect 10, 10, 150, 190, 2
 mline 0, 0, 159, 199, 3
-display on
+näyttö päällä
 ```
 
 `mline`/`mrect`/`mcircle` käyttävät samoja Bresenham / keskipiste -rutiineja
@@ -617,21 +827,21 @@ ulkopuoliset pisteet (x ≥ 160 tai y ≥ 200) ohitetaan.
 ### Kaksoispuskuroitu bittikartta (välkkymätön)
 
 ```basic
-graphics on double       # double-buffered hires bitmap (320×200)
-gcls                     # clears the HIDDEN back buffer
-line 0, 0, 319, 199      # all drawing (plot/line/circle/rect/paint/gcls) goes to the back buffer
-flip                     # show the drawn buffer; redirect drawing to the other one
-graphics off             # back to text mode (restores VIC bank 0)
+grafiikka päällä kaksinkertaisesti # kaksinkertaisesti puskuroitu palkattu bittikartta (320×200)
+gcls # tyhjentää PIILOTETUN takapuskurin
+rivi 0, 0, 319, 199 # kaikki piirustukset (kuvaaja/viiva/ympyrä/suoraviiva/maalaus/gcls) siirtyvät takapuskuriin
+käännä # näytä piirretty puskuri; ohjaa piirustuksen toiseen
+grafiikka pois päältä # takaisin tekstitilaan (palauttaa VIC-pankin 0)
 ```
 
 `graphics on double` säilyttää **kaksi** valmista palkattua bittikarttaa ja
 näyttää vain valmiit ruudut, mikä poistaa välkkymisen ilman XOR-kikkoja —
 jokaisen ruudun `gcls` piirrät ja sitten `flip`.
 
-| Puskuri                       | Bittikartta | Videomatriisi | VIC-pankki | `$DD00` matalat bitit |
-| ----------------------------- | ----------- | ------------- | ---------- | --------------------- |
-| A (edestä, ensin kuvassa)     | `$2000`     | `$0400`       | pankki 0   | `%11`                 |
-| B (takaosa, piirretään ensin) | `$6000`     | `$4400`       | pankki 1   | `%10`                 |
+| Puskuri                       | Bittikartta     | Videomatriisi   | VIC-pankki | `$DD00` matalat bitit |
+| ----------------------------- | --------------- | --------------- | ---------- | --------------------- |
+| A (edestä, ensin kuvassa)     | `2000 dollaria` | `0400 dollaria` | pankki 0   | `%11`                 |
+| B (takaosa, piirretään ensin) | `6000 dollaria` | `4400 dollaria` | pankki 1   | `%10`                 |
 
 * Kaikki pikselikomennot kirjoittavat ajonaikaisen **piirtokanta-asteikon**
   (nollasivutavun) kautta, joten ne kohdistavat automaattisesti siihen
@@ -660,13 +870,13 @@ välkkymättömäksi.
 ### Lohkografiikka (80×50)
 
 ```basic
-graphics on block        # 80×50 block-pixel mode (text mode + custom 4-pixel charset @ $2800)
-graphics off             # return to text mode
-gcls                     # clear block playfield: screen RAM $0400-$07FF + color RAM $D800-$DBFF
+grafiikka lohkossa # 80×50 lohkopikselitila (tekstitila + mukautettu 4 pikselin merkistö @ $2800)
+grafiikka pois päältä # palaa tekstitilaan
+gcls # tyhjennä lohkon pelikenttä: näytön RAM $0400-$07FF + väri-RAM $D800-$DBFF
 
-plot4 x, y               # set block pixel at (x, y);  x: 0-79, y: 0-49
-plot4 erase x, y         # clear block pixel at (x, y)
-circle4 x, y, r          # draw midpoint circle in block pixels; clips to 80×50
+plot4 x, y # aseta lohkon pikseli kohtaan (x, y); x: 0-79, y: 0-49
+plot4 pyyhi x, y # tyhjennä lohkon pikseli kohdassa (x, y)
+circle4 x, y, r # piirrä keskipisteympyrä lohkon pikseleihin; leikkaa kokoon 80×50
 ```
 
 Paksu, matalan resoluution tila kerrostettuna standardin 40×25 tekstin päälle.
@@ -683,38 +893,41 @@ Katso `examples/block_demo.ub`.
 ### Näyttö ja väri
 
 ```basic
-cls                      # clear screen (KERNAL $E544)
-cls fast                 # fast fill: screen RAM + color RAM + HOME
+cls # näytön tyhjennys (KERNAL $E544)
+cls fast # nopea täyttö: näytön RAM + väri-RAM + HOME
 
-color text 14            # text color register $0286
-color border 6           # $D020
-color bg 0               # $D021
-color pen 2              # hires drawing color (0-15) for plot/line/rect/circle/paint
+tekstin väri 14 # tekstin värirekisteri $0286
+reunuksen väri 6 # $D020
+taustan väri 0 # $D021
+värikynä 2 # palkkaa piirustusvärin (0-15) kuvaajalle/viivalle/suorakulmiolle/ympyrälle/maalaukselle
 
-screen 0, 0, 65          # write char 65 ('A') to screen RAM at col 0, row 0 ($0400)
-screen 10, 5, ch         # col 10, row 5 — col/row can be variables
-screen 5, 3, 42, 7       # char 42 at col 5, row 3, color 7 (writes color RAM $D800 too)
-screen x, y, ch, col     # all four arguments as variables
+näyttö 0, 0, 65 # kirjoita merkki 65 ('A') näytön RAM-muistiin sarakkeeseen 0, riville 0 ($0400)
+näyttö 10, 5, ketju # sarake 10, rivi 5 — sarake/rivi voi olla muuttujia
+näyttö 5, 3, 42, 7 # merkki 42 sarakkeeseen 5, riville 3, väri 7 (kirjoittaa myös väri-RAM-muistiin $D800)
+näyttö x, y, ketju, sarake # kaikki neljä argumenttia muuttujina
 
-display on               # re-enable VIC display ($D011 DEN bit)
-display off              # blank display
+näyttö päällä # ota VIC-näyttö uudelleen käyttöön ($D011 DEN-bitti)
+näyttö pois päältä # tyhjä näyttö
 
-lowercase                # CHR$(14) → switch VIC-II to lowercase/uppercase charset
-uppercase                # CHR$(142) → switch VIC-II back to uppercase/graphics charset
+pienet kirjaimet # CHR$(14) → vaihda VIC-II pieniin/isoihin kirjaimiin
+isot kirjaimet # CHR$(142) → vaihda VIC-II takaisin isoihin/grafiikkamerkistöön
 
-cursor 20, 10            # move cursor to col 20, row 10 (KERNAL PLOT $FFF0)
-cursor x, y              # column from variable x (0–39), row from y (0–24)
+kursori 20, 10 # siirrä kohdistin sarakkeeseen 20, riville 10 (KERNAL PLOT $FFF0)
 
-print at 20, 10, "HELLO" # cursor(20,10) + print in one statement (no trailing newline)
-print at x, y, "Score:", score  # any mix of exprs
-print at 0, 0            # position only (no text, no newline)
+kursori x, y # sarake muuttujasta x (0–39), rivi y:stä (0–24)
 
-scroll x 3               # set horizontal fine scroll: $D016 bits 0-2 = 3 (0-7)
-scroll y 2               # set vertical fine scroll:   $D011 bits 0-2 = 2 (0-7)
-scroll x n               # value can be a variable or expression (masked to bits 0-2)
-scroll x 7 narrow        # set fine scroll and force 38-column mode (hide edge column)
-scroll x 0 wide          # set fine scroll and restore 40-column mode
-scroll row 12 left       # shift screen RAM row 12 left by one character
+tulosta kohdassa 20, 10, "HEI" # kohdistin(20,10) + tulosta yhdessä lausekkeessa (ei rivinvaihtoa lopussa)
+
+tulosta kohdassa x, y, "Pisteet:", pisteet # mikä tahansa lausekkeiden yhdistelmä
+tulosta kohdassa 0, 0 # vain kohta (ei tekstiä, ei rivinvaihtoa)
+
+vieritä x 3 # aseta vaakasuora hienovieritys: $D016 bitit 0-2 = 3 (0-7)
+
+vieritä y 2 # aseta pystysuora hienovieritys: $D011 bitit 0-2 = 2 (0-7)
+scroll x n # arvo voi olla muuttuja tai lauseke (maskattu biteille 0-2)
+scroll x 7 narrow # aseta hienovieritys ja pakota 38 sarakkeen tila (piilota reunasarake)
+scroll x 0 wide # aseta hienovieritys ja palauta 40 sarakkeen tila
+scroll row 12 left # siirrä näytön RAM-riviä 12 vasemmalle yhden merkin verran
 ```
 
 `lowercase` lähettää `LDA #$0E; JSR $FFD2` ajonaikana. `lowercase` jälkeen
@@ -742,15 +955,15 @@ sara/rivi: osoite lasketaan käännösaikana.
 ### Ultimate 64 — Suorittimen nopeus
 
 ```basic
-speed 4              # set CPU to 4 MHz  (reads $D031, updates bits 0-3, writes back)
-speed 48             # 48 MHz  (maximum speed on U64)
-speed max            # same as speed 48  (alias)
-speed off            # back to 1 MHz  (alias for speed 1)
+speed 4 # aseta suorittimen taajuuteen 4 MHz (lukee $D031:n, päivittää bitit 0-3, kirjoittaa takaisin)
+speed 48 # 48 MHz (maksiminopeus U64:llä)
+speed max # sama kuin nopeus 48 (alias)
+speed off # takaisin 1 MHz:iin (alias nopeudelle 1)
 
-badlines on          # enable badline timing  ($D031 bit 7 = 0, default C64 behaviour)
-badlines off         # disable badline timing ($D031 bit 7 = 1, more CPU cycles)
+badlines on # ota käyttöön huonon viivan ajoitus ($D031 bitti 7 = 0, oletusarvoinen C64-toiminta)
+badlines off # poista käytöstä huonon viivan ajoitus ($D031 bitti 7 = 1, lisää suorittimen syklejä)
 
-var t = turbo()      # 1 if turbo is active (bits 0-3 of $D031 != 0), 0 if at 1 MHz
+var t = turbo() # 1, jos turbo on aktiivinen ($D031:n bitit 0-3 != 0), 0, jos taajuudella 1 MHz
 ```
 
 Käytettävissä olevat MHz-arvot: `1, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 20, 24,
@@ -758,13 +971,13 @@ Käytettävissä olevat MHz-arvot: `1, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 20, 24,
 olevaan nopeuteen. Muuttujien arvoja käsitellään raakana nopeusindeksinä (0–15)
 ja ne TAI-operaattorilla lisätään `$D031`-muuttujan biteille 0–3.
 
-| $D031 index | MHz (U64) | MHz (U64 Elite-II) |
-| ----------- | --------- | ------------------ |
-| 0           | 1         | 1                  |
-| 3           | 4         | 4                  |
-| 6           | 8         | 10                 |
-| 11          | 20        | 24                 |
-| 15          | 48        | 64                 |
+| $D031-indeksi | MHz (U64) | MHz (U64 Elite-II) |
+| ------------- | --------- | ------------------ |
+| 0             | 1         | 1                  |
+| 3             | 4         | 4                  |
+| 6             | 8         | 10                 |
+| 11            | 20        | 24                 |
+| 15            | 48        | 64                 |
 
 Vaatii **U64 Turbo Control** -asetuksen olevan `U64 Turbo Registers` tai `Turbo
 Enable Bit` U64-määritysvalikossa. Tavallisessa C64:ssä tai emulaattorissa,
@@ -773,16 +986,16 @@ jossa ei ole rekisteriä, `poke` - `$D031` ohitetaan hiljaa.
 ### Näppäimistö
 
 ```basic
-var key = getch()        # busy-wait on $FFE4 until key; returns PETSCII code
-var k   = inkey()        # non-blocking: returns PETSCII code, or 0 if no key pressed
-waitkey                  # wait until any key is pressed (CIA1 matrix scan; works during IRQ)
-var k   = waitkey()      # same but returns raw $DC01 column bits (0 bit = key pressed)
-var j = joy(2)           # read joystick port 2; returns inverted bits 0-4
-var j = joy(1)           # read joystick port 1
-                         # bit0=up(1) bit1=down(2) bit2=left(4) bit3=right(8) bit4=fire(16)
-var mx = mouse_x()       # 1351 mouse: accumulated X position (helper: charge+delay+delta)
-var my = mouse_y()       # 1351 mouse: accumulated Y position (EOR #$FF inverted)
-var mb = mouse_btn()     # mouse buttons: reads $DC01 — bit0=left (fire), bit1=right (up pin)
+var key = getch() # varattu - odota $FFE4:ää, kunnes näppäintä painetaan; palauttaa PETSCII-koodin
+var k = inkey() # ei-estävä: palauttaa PETSCII-koodin tai 0, jos näppäintä ei paineta
+waitkey # odota, kunnes mitä tahansa näppäintä painetaan (CIA1-matriisin skannaus; toimii IRQ:n aikana)
+var k = waitkey() # sama, mutta palauttaa raakat $DC01-sarakkeen bitit (0 bittiä = näppäintä painettu)
+var j = joy(2) # lue joystickin portti 2; palauttaa käänteiset bitit 0-4
+var j = joy(1) # lue joystick-portti 1
+# bit0=up(1) bit1=down(2) bit2=left(4) bit3=right(8) bit4=fire(16)
+var mx = mouse_x() # 1351 mouse: kertynyt X-sijainti (apu: charge+delay+delta)
+var my = mouse_y() # 1351 mouse: kertynyt Y-sijainti (EOR #$FF käänteinen)
+var mb = mouse_btn() # hiiren painikkeet: lukee $DC01 — bit0=left (fire), bit1=right (yläpinni)
 ```
 
 `mouse_x()` / `mouse_y()` ajavat sisäisesti apuohjelman, joka käsittelee: CIA1
@@ -810,17 +1023,17 @@ sprite-seuranta ja painikepalaute.
 ### Uloskäynti
 
 ```basic
-bye                      # JSR $E544 (clear screen), clear STOP flag, RTS to BASIC
-exit                     # alias for bye
+hei # JSR $E544 (tyhjennä näyttö), tyhjennä STOP-lippu, RTS BASICiin
+exit # alias heille
 ```
 
 ### Ajoitus
 
 ```basic
-wait 50                  # wait 50 raster-line transitions (~3.2 ms)
-wait raster 100          # spin until $D012 == 100 (raster-split effects)
-delay 1                  # wait 1 PAL frame (1/50 s ≈ 20 ms)
-delay 20                 # wait 20 frames ≈ 0.4 s; n can be a variable (0–255)
+odota 50 # odota 50 rasteririvisiirtymää (~3,2 ms)
+odota rasteria 100 # pyöritä kunnes $D012 == 100 (rasterijakotehosteet)
+viive 1 # odota 1 PAL-kehys (1/50 s ≈ 20 ms)
+viive 20 # odota 20 kehystä ≈ 0,4 s; n voi olla muuttuja (0–255)
 ```
 
 `delay N` laskee N kokonaista PAL-kehystä käyttäen rasteriviivaa 200 kehyksen
@@ -829,13 +1042,13 @@ rajana.
 ### SID-ääni
 
 ```basic
-sound 0, $1CAD, 25       # voice 0, freq $1CAD (≈ middle C PAL), 25 frames duration
-sound 1, freq_word, 50   # voice 1, freq from word var, 50 frames (1 s at 50 Hz)
-sound 2, 0, 0            # voice 2, silence
+ääni 0, $1CAD, 25 # ääni 0, taajuus $1CAD (≈ keskimmäinen C PAL), 25 ruudun kesto
+ääni 1, taajuussana, 50 # ääni 1, taajuus sanamuuttujasta, 50 ruutua (1 s 50 Hz:ssä)
+ääni 2, 0, 0 # ääni 2, hiljaisuus
 
-sid volume 15            # master volume full ($D418 = $0F); range 0-15
-sid volume 0             # silence (master volume = 0)
-sid stop                 # zero all 25 SID registers ($D400–$D418) — complete silence
+sid-äänenvoimakkuus 15 # päääänenvoimakkuus täysi ($D418 = $0F); alue 0-15
+sid-äänenvoimakkuus 0 # hiljaisuus (päääänenvoimakkuus = 0)
+sid-pysäytys # nollaa kaikki 25 SID-rekisteriä ($D400–$D418) — täydellinen hiljaisuus
 ```
 
 `sound <channel>, <freq>, <duration>` — kesto PAL-kehyksissä (1/50 s kukin).
@@ -856,10 +1069,10 @@ nollatäyttösilmukan – nopeammin kuin 25 yksittäistä työntöä.
 ### Ei-estävät äänitehosteet (`sfx`) — uutta versiossa 1.5.7
 
 ```basic
-sound 0, $2000, 25            # BLOCKS: the program waits 25 frames here
-sfx 0, $2000, 25              # returns at once; the note fades out by itself
-sfx 1, $0500, 8, 128          # optional wave: 16 triangle, 32 saw (default), 64 pulse, 128 noise
-sfx 0, freq_word, 4, 16       # freq may be a constant, a word var or an 8-bit expression
+ääni 0, $2000, 25 # LOHKOJA: ohjelma odottaa tässä 25 kehystä
+sfx 0, $2000, 25 # palaa heti; nuotti vaimenee itsestään
+sfx 1, $0500, 8, 128 # valinnainen aalto: 16 kolmio, 32 saha (oletus), 64 pulssi, 128 kohina
+sfx 0, freq_word, 4, 16 # freq voi olla vakio, sanamuuttuja tai 8-bittinen lauseke
 ```
 
 `sfx <channel>, <freq>, <frames> [, <wave>]` ohjelmoi yhden SID-äänen ja
@@ -876,18 +1089,18 @@ ja `wave` on oltava käännösaikavakioita.
 ### SID-musiikki
 
 ```basic
-load sid "tune.sid"            # embed SID music at its native load address
-load sid "tune.sid", $2000     # override: embed at $2000 regardless of SID header
+load sid "tune.sid" # upota SID-musiikki sen alkuperäiseen latausosoitteeseen
+load sid "tune.sid", $2000 # ohitus: upota kohtaan $2000 riippumatta SID-otsikosta
 ```
 
 `load sid` lukee PSID- tai RSID-tiedoston **käännöksen aikana**, poistaa otsikon
 ja lisää raakatuota musiikkiin tulosteen `.prg` jälkeen. `load sid` jälkeen
 käytettävissä on kaksi käännösaikaista vakiota:
 
-| Vakio      | Kuvaus                                                                         |
-| ---------- | ------------------------------------------------------------------------------ |
-| `sid_init` | Init-rutiinin osoite — kutsu kerran, jossa A = kappaleen numero (0-pohjainen)  |
-| `sid_play` | Toista rutiinin osoite — kutsu jokaista kehystä (50 Hz PAL) IRQ-käsittelijältä |
+| Vakio           | Kuvaus                                                                         |
+| --------------- | ------------------------------------------------------------------------------ |
+| `sivun_aloitus` | Init-rutiinin osoite — kutsu kerran, jossa A = kappaleen numero (0-pohjainen)  |
+| `sid_play`      | Toista rutiinin osoite — kutsu jokaista kehystä (50 Hz PAL) IRQ-käsittelijältä |
 
 Molemmat vakiot toimivat kaikkialla, missä vakio-osoite hyväksytään: `sys`,
 `irq`, `poke`, lausekkeet.
@@ -895,18 +1108,18 @@ Molemmat vakiot toimivat kaikkialla, missä vakio-osoite hyväksytään: `sys`,
 **Tyypillinen käyttö:**
 
 ```basic
-load sid "music.sid"
+lataa sid "music.sid"
 
 sub music_irq()
-  poke $D019, $FF       # ACK VIC raster IRQ
-  sys sid_play          # advance one frame of music
-  irq_exit              # JMP $EA81: restore A/X/Y + RTI (proper IRQ exit)
+poke $D019, $FF # ACK VIC rasteri-IRQ
+sys sid_play # siirrä musiikkia yhden ruudun eteenpäin
+irq_exit # JMP $EA81: palauta A/X/Y + RTI (oikea IRQ-lähtö)
 end
 
-sys sid_init, 0         # initialise SID chip: A=0 → first sub-tune
-irq music_irq, $C0      # raster IRQ at line $C0 → 50 Hz on PAL
+sys sid_init, 0 # alusta SID-piiri: A=0 → ensimmäinen aliviritys
+irq music_irq, $C0 # rasteri-IRQ linjalla $C0 → 50 Hz PAL:ssa
 
-sid volume 15           # master volume on
+sid volume 15 # päääänenvoimakkuus päällä
 ```
 
 **Huomautuksia:**
@@ -920,20 +1133,13 @@ sid volume 15           # master volume on
 ### Seurantamelodiat (`tune`)
 
 ```basic
-tune                       # optional: tune at $C800  (default $8000)
-  speed 6                  # frames per row (50 Hz PAL)
-  inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
-  inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
-  imod 0, 6, 3, 9, 40, $0200, $0E00   # vibrato + pulse width modulation (1.6.2)
-  ifilt 0, $0500, 20, 1               # cutoff sweep up to $500, back and forth (1.6.2)
-  igate 1, 2, 1, $09                  # gate timer, hard restart, first frame $09 (1.6.2)
-  itab 1, 2, 0, ".. +0", ".. +4", ".. +7"   # arpeggio table (1.6.2)
-  order 0, 1, 0            # pattern order (patterns may repeat)
-  pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
-  pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
-  pat 1, 0, "G-4 00", "...", "E-4 00", "...", "C-4 00"
+viritys # valinnainen: viritys taajuudella $C800 (oletus $8000) nopeus 6 # kehyksiä rivillä (50 Hz PAL) inst 0, $41, $09, $F0, $0800, $0064, $27, $1F inst 1, $10, $08, $A8, $0400, $0000, $00, $0F imod 0, 6, 3, 9, 40, $0200, $0E00 # vibrato + pulssinleveysmodulaatio (1.6.2) ifilt 0, $0500, 20, 1 # katkaisupyyhkäisy jopa $500:aan asti, edestakaisin (1.6.2) igate 1, 2, 1, $09 # portin ajastin, kova uudelleenkäynnistys, ensimmäinen kehys $09 (1.6.2) itab 1, 2, 0, ".. +0", ".. +4", ".. +7" # arpeggio-taulukko (1.6.2)
+järjestys 0, 1, 0 # kuvioiden järjestys (kuviot voivat toistua)
+pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
+pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
+pat 1, 0, "G-4 00", "...", "E-4 00", "...", "C-4 00"
 end
-music play                 # or: sys sid_init / irq handler calling sys sid_play
+musiikin toisto # tai: sys sid_init / irq-käsittelijä kutsuu sys sid_play:tä
 ```
 
 `tune ... end` kuvaa kolmiäänisen seurantasävelmän selkokielellä (sama
@@ -945,14 +1151,14 @@ toimivat muuttumattomina.
 
 | Linja                                                             | Merkitys                                                                                                                                                                                                                                                                                                                                                                                                           |
 | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `speed N`                                                         | Kehyksiä seurantariviä kohden (1–255).                                                                                                                                                                                                                                                                                                                                                                             |
+| `nopeus N`                                                        | Kehyksiä seurantariviä kohden (1–255).                                                                                                                                                                                                                                                                                                                                                                             |
 | `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol`             | Yksi instrumentti: ohjausrekisteri (aaltomuotobitit sekä rengasmodaus `$04` / sync `$02`; soittaja lisää gate-bitin), attack/decay, sustain/release, 12-bittinen pulssinleveys, 11-bittinen suodattimen katkaisu, resonanssi-/suodatinreititystavu (`$D417` -tyyliin: mikä tahansa reititysbitti = reitittää tätä instrumenttia soittavan äänen) ja tila-/äänenvoimakkuustavu (`$D418` -tyyliin, bitti 7 = 3 OFF). |
 | `imod id, vibdelay, vibspeed, vibdepth, pwmspeed, pwmmin, pwmmax` | (1.6.2) Instrumenttivibrato: `vibdelay`-kehysten jälkeen kolmio-LFO, joka kääntyy joka `vibspeed`-kehys (1-15, 0 = pois päältä), syvyys 0-15 (skaalattu nuotin puolisävelaskeleeseen). Pulssinleveysmodulaatio: `pwmspeed` lisätään kehystä kohden (0 = pois päältä), pomppii `pwmmin` ja `pwmmax` välillä.                                                                                                        |
 | `ifilt id, cutend, sweep, pingpong`                               | (1.6.2) Suodattimen katkaisupyyhkäisy: `inst`-katkaisusta `cutend`-katkaisuun `-pyyhkäisyllä` (0-127) kehystä kohden; `pingpong` 1 = edestakaisin.                                                                                                                                                                                                                                                                 |
 | `igate id, gatetimer, hardrestart, firstwave`                     | (1.6.2) Portti vapautetaan `gatetimer` kehystä ennen äänen seuraavaa nuottia (pidä se alle `speed`-nopeuden); `hardrestart` 1 asettaa myös ADSR:n arvoon 0. `firstwave` (esim. `$09` = test + gate) kirjoitetaan nuotin ensimmäiseen kehytykseen.                                                                                                                                                                  |
 | `itab-tunnus, nopeus, silmukka, "askel", ...`                     | (1.6.2) Aaltomuoto-/arpeggiotaulukko, jopa 32 askelta: `"WW +n"`, `".. -n"` tai `"WW =n"` - aaltomuoto heksadesimaalina (`..` säilyttää sen) ja nuotin siirtymä puolisävelaskelissa tai absoluuttinen nuotti (`=60`). Yksi askel joka `nopeus` ruudulla, sitten takaisin askeleeseen `silmukka` (255 = pysy viimeisellä askeleella).                                                                               |
-| `order p, p, ...`                                                 | Kuviojärjestys. Viivat kasautuvat, jopa 255 askelta.                                                                                                                                                                                                                                                                                                                                                               |
-| `pat p, v, "cell", ...`                                           | Jopa 32 riviä äänelle `v` (0-2) kuviossa `p` (0-7). Puuttuvat rivit ovat tyhjiä.                                                                                                                                                                                                                                                                                                                                   |
+| `järjestys p, p, ...`                                             | Kuviojärjestys. Viivat kasautuvat, jopa 255 askelta.                                                                                                                                                                                                                                                                                                                                                               |
+| `pat p, v, "solu", ...`                                           | Jopa 32 riviä äänelle `v` (0-2) kuviossa `p` (0-7). Puuttuvat rivit ovat tyhjiä.                                                                                                                                                                                                                                                                                                                                   |
 
 **solu** on `NOTE INST FX`: `C-4`, `D#3`, `Eb2` tai `...` ei nuottia,
 kaksinumeroinen heksadecimal-instrumentti (`..` sen jättämiseksi) ja valinnainen
@@ -991,21 +1197,21 @@ sid_init` / `cia_timer` -asennukselle. Vaatii aiemman `load sid` -lausekkeen tai
 `tune ... end` -lohkon (molemmat määrittelevät `sid_init` / `sid_play`).
 
 ```basic
-load sid "tune.sid"         # embed SID file (defines sid_init / sid_play)
+lataa sid "tune.sid" # upota SID-tiedosto (määrittelee sid_init / sid_play)
 
-music play                  # initialise sub-tune 0 + start CIA1 50 Hz IRQ
-music play 1                # start from sub-tune 1 (song number 0-based)
-music stop                  # stop playback + zero all 25 SID registers ($D400-$D418)
-music pause                 # disable CIA1 timer A IRQ (music freezes, SID unchanged)
-music resume                # re-enable CIA1 timer A IRQ (continues from pause point)
+musiikin toisto # alusta aliviritys 0 + käynnistä CIA1 50 Hz IRQ
+musiikin toisto 1 # aloita alivirityksestä 1 (kappalenumerosta 0 riippuen)
+musiikin pysäytys # pysäytä toisto + nollaa kaikki 25 SID-rekisteriä ($D400-$D418)
+musiikin tauko # poista CIA1-ajastin A:n IRQ käytöstä (musiikki jumiutuu, SID ei muutu)
+musiikin jatkaminen # ota CIA1-ajastin A:n IRQ uudelleen käyttöön (jatkuu taukokohdasta)
 ```
 
-| Lausunto         | Vaikutus                                                                                                  |
-| ---------------- | --------------------------------------------------------------------------------------------------------- |
-| `music play [n]` | Soita `sid_init(n)`-osoitteeseen, konfiguroi CIA1-ajastin A 19 656 sykliin (~50 Hz PAL), asenna IRQ-kääre |
-| `music stop`     | Poista CIA1 IRQ käytöstä + nollaa kaikki 25 SID-rekisteriä                                                |
-| `music pause`    | poista CIA1 IRQ käytöstä (SID-lähtö pysyy jäädytettynä)                                                   |
-| `music resume`   | ota CIA1 IRQ uudelleen käyttöön (jatkuu taukokohdasta)                                                    |
+| Lausunto                | Vaikutus                                                                                                  |
+| ----------------------- | --------------------------------------------------------------------------------------------------------- |
+| `musiikkisoiton [n]`    | Soita `sid_init(n)`-osoitteeseen, konfiguroi CIA1-ajastin A 19 656 sykliin (~50 Hz PAL), asenna IRQ-kääre |
+| `musiikkipysähdys`      | Poista CIA1 IRQ käytöstä + nollaa kaikki 25 SID-rekisteriä                                                |
+| `musiikin tauko`        | poista CIA1 IRQ käytöstä (SID-lähtö pysyy jäädytettynä)                                                   |
+| `musiikkiansioluettelo` | ota CIA1 IRQ uudelleen käyttöön (jatkuu taukokohdasta)                                                    |
 
 IRQ-kääre (lähetetään kerran ohjelman lopussa) tekee seuraavaa: ACK CIA1-ajastin
 A → `JSR sid_play` → `JMP $EA81`.
@@ -1013,32 +1219,32 @@ A → `JSR sid_play` → `JMP $EA81`.
 ### Spritet
 
 ```basic
-sprite 0, x, y, $2000    # sprite 0: set X, Y position and data pointer
-sprite 0, x, y           # without data pointer (keeps existing)
-sprite on  0             # enable sprite 0 ($D015 |= bit0)
-sprite off 0             # disable sprite 0 ($D015 &= ~bit0)
-sprite color 0, 7        # sprite 0 color = yellow ($D027)
-sprite multicolor 0, on  # enable multicolor mode for sprite 0 ($D01C |= bit0)
-sprite multicolor 0, off # disable multicolor mode ($D01C &= ~bit0)
-sprite expand x 0, on    # double width ($D01D |= bit0)
-sprite expand x 0, off   # normal width ($D01D &= ~bit0)
-sprite expand y 0, on    # double height ($D017 |= bit0)
-sprite expand y 0, off   # normal height ($D017 &= ~bit0)
-sprite priority 0, on    # behind background ($D01B |= bit0)
-sprite priority 0, off   # in front of background ($D01B &= ~bit0)
-var h = sprite_hit()     # sprite–sprite collision ($D01E, cleared on read)
-var b = sprite_bg_hit()  # sprite–background collision ($D01F, cleared on read)
-var x = sprite_x(0)      # read sprite 0 X position (lo byte, $D000)
-var y = sprite_y(0)      # read sprite 0 Y position ($D001)
-sprite_frame 0, $2000          # select one static sprite image
-sprite_frame 0, $2000, frame   # select an animation frame from a frame sequence
+sprite 0, x, y, $2000 # sprite 0: aseta X- ja Y-sijainnit sekä dataosoitin
+sprite 0, x, y # ilman dataosoitinta (säilyttää olemassa olevan)
+sprite päällä 0 # ota sprite 0 käyttöön ($D015 |= bitti0)
+sprite pois päältä 0 # poista sprite 0 käytöstä ($D015 &amp;= ~bitti0)
+spriten väri 0, 7 # sprite 0 väri = keltainen ($D027)
+sprite monivärinen 0, päällä # ota käyttöön monivärinen tila spritelle 0 ($D01C |= bitti0)
+sprite monivärinen 0, pois päältä # poista monivärinen tila käytöstä ($D01C &amp;= ~bitti0)
+spriten laajennus x 0, päällä # tuplaleveys ($D01D |= bitti0)
+spriten laajennus x 0, pois päältä # normaalileveys ($D01D &amp;= ~bitti0)
+spriten laajennus y 0, päällä # tuplakorkeus ($D017 |= bitti0)
+spriten laajennus y 0, pois # normaali korkeus ($D017 &amp;= ~bit0)
+sprite prioriteetti 0, päällä # taustan takana ($D01B |= bit0)
+sprite prioriteetti 0, pois # taustan edessä ($D01B &amp;= ~bit0)
+var h = sprite_hit() # sprite-sprite törmäys ($D01E, tyhjennetään luettaessa)
+var b = sprite_bg_hit() # sprite-tausta törmäys ($D01F, tyhjennetään luettaessa)
+var x = sprite_x(0) # lue sprite 0 X-sijainti (lo tavu, $D000)
+var y = sprite_y(0) # lue sprite 0 Y-sijainti ($D001)
+sprite_frame 0, $2000 # valitse yksi staattinen sprite-kuva
+sprite_frame 0, $2000, frame # valitse animaatiokehys kehyssekvenssistä
 ```
 
 X tukee koko 9-bittistä aluetta (0–319): käytä `word`-muuttujaa ajonaikaisille
 arvoille > 255. Sprite-dataosoitin: `data_addr` on oltava 64-tavuisesti tasattu;
 tallennetaan muodossa `addr >> 6` kohtaan `$07F8+id`.
 
-#### Sprite animation with `sprite_frame`
+#### Sprite-animaatio, jossa on `sprite_frame`
 
 `sprite_frame` on komento, jota käytetään спрайtin näytettävän kuvan
 muuttamiseen animaation aikana. Se muuttaa vain спрайtin dataosoitinta; se
@@ -1058,13 +1264,12 @@ käyttää `$2040`, kehys 2 käyttää `$2080` ja niin edelleen. Ohjelma ohjaa
 animaation ajoitusta ja rivitystä:
 
 ```basic
-var frame = 0
-loop
-  sprite_frame 0, $2000, frame
-  frame = frame + 1
-  if frame == 4 then frame = 0 end
-  delay 5
-end
+muuttuja kehys = 0
+silmukka
+sprite_kehys 0, $2000, kehys kehys = kehys + 1
+jos kehys == 4, niin kehys = 0 loppu
+viive 5
+loppu
 ```
 
 Kaksiargumenttinen muoto, `sprite_frame id, address`, valitsee yhden staattisen
@@ -1074,8 +1279,7 @@ edelleen `sprite id,x,y`.
 ### Ohjelmiston rajaavan laatikon törmäys
 
 ```basic
-var touching = box_hit(left1, top1, right1, bottom1,
-                       left2, top2, right2, bottom2)
+muuttuja touching = box_hit(vasen1, ylä1, oikea1, ala1, vasen2, ylä2, oikea2, ala2)
 ```
 
 `box_hit()` suorittaa akselin suuntaisen rajaavan laatikon (AABB) testin ja
@@ -1086,17 +1290,16 @@ mielivaltaisia 8-bittisiä lausekkeita, joten laatikot voivat olla pienempiä ku
 näkyvä sprite-kuvitus tai ne voivat kuvata muita kuin sprite-peliobjekteja.
 Koordinaatit ovat osallistavia; säilytä `left <= right` ja `top <= bottom`.
 
-### Sprite definition
+### Sprite-määritelmä
 
 ```basic
 sprdef 0
-  $00,$3C,$00,  $00,$FF,$00,  $03,$FF,$C0,  $07,$FF,$E0,
-  $0F,$FF,$F0,  $0F,$FF,$F0,  $1F,$FF,$F8,  $1F,$FF,$F8,
-  $1F,$FF,$F8,  $0F,$FF,$F0,  $0F,$FF,$F0,  $07,$FF,$E0,
-  $03,$FF,$C0,  $00,$FF,$00,  $00,$3C,$00,  $00,$00,$00,
-  $00,$00,$00,  $00,$00,$00,  $00,$00,$00,  $00,$00,$00,
-  $00,$00,$00
-end
+  $00,$3C,$00, $00,$FF,$00, $03,$FF,$C0, $07,$FF,$E0,
+  $0F,$FF,$F0, $0F,$FF,$F0, $1F,$FF,$F8, $1F,$FF,$F8,
+  $1F,$FF,$F8, $0F,$FF,$F0, $0F,$FF,$F0, $07,$FF,$E0,
+  03 $, $ FF, $ C0, $ 00, $ FF, $ 00, $ 00, $ 3C, $ 00, $ 00, $ 00, $ 00,
+  $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00,
+00 $, 00 $, 00 $ loppu
 ```
 
 `sprdef id ... end` upottaa 63 sprite-tavua koodisegmentin seuraavaan 64-tavun
@@ -1105,8 +1308,8 @@ automaattisesti `$07F8+id = data_addr >> 6`-merkin. Jos haluat käyttää samaa
 muotoa useille spriteille, lue osoitin takaisin:
 
 ```basic
-var pg = peek($07F8)   # pointer set by sprdef 0
-poke $07F9, pg         # copy to sprites 1–7
+var pg = peek($07F8) # sprdef:n asettama osoitin 0
+poke $07F9, pg # kopioi spritien luo 1–7
 ```
 
 ### Hahmolaattakartat (`.ubmap`)
@@ -1247,9 +1450,9 @@ käännösaikavirheen.
 ### Koala Painter -kuvien tuonti
 
 ```basic
-koala load "pictures/title.kla"  # validate and embed at compile time
-koala show                       # enter bitmap multicolor mode
-koala hide                       # return to the default text display
+koala lataa "pictures/title.kla" # validoi ja upota käännösaikana
+koala show # siirry bittikarttakuvan moniväritilaan
+koala hide # palaa oletusarvoiseen tekstinäyttöön
 ```
 
 `koala load` hyväksyy joko 10003 tavun pituisen Koala-tiedoston (`$6000`
@@ -1270,10 +1473,10 @@ ohjelmassa.
 ### Koodin asettelu: `org` — uutta versiossa 1.5.7
 
 ```basic
-sub a() ... end          # subs/fns are placed one after another from the end of the main body
-org $4000                # the next subs/fns continue at $4000; $xxxx-$3FFF stays zero-filled
+sub a() ... end # ali-/funktiot sijoitetaan peräkkäin pääosan lopusta
+org $4000 # seuraavat ali-/funktiot jatkuvat kohdasta $4000; $xxxx-$3FFF pysyy nollilla täytettynä
 sub b() ... end
-incbin "font.bin", $3800 # data can live in the gap ($3800-$3FFF is a whole VIC charset slot)
+incbin "font.bin", $3800 # tiedot voivat sijaita aukossa ($3800-$3FFF on kokonainen VIC-merkistöpaikka)
 ```
 
 `org addr` siirtyy **ali-/fn-määritelmien väliin** (sitä ei huomioida pääosiossa
@@ -1288,14 +1491,14 @@ sijoittuu aukon yläpuolelle.
 ### Mukautettu merkistö (`charset on` / `charset off`, uusi versiossa 1.5.7)
 
 ```basic
-charset $3800            # set base address for chardef (default $3800)
+charset $3800 # aseta chardefin perusosoite (oletusarvo $3800)
 
-chardef 65               # redefine character 65 ('A')
-  $18,$3C,$66,$7E,$66,$66,$66,$00
+chardef 65 # määrittele merkki 65 ('A') uudelleen
+$18,$3C,$66,$7E,$66,$66,$66,$00
 end
 
-chardef 66               # fewer than 8 bytes are zero-padded
-  $7C,$66,$7C,$66,$7C
+chardef 66 # alle 8 tavua on täytetty nollilla
+$7C,$66,$7C,$66,$7C
 end
 ```
 
@@ -1312,10 +1515,10 @@ VIC-II:n käyttämään joukkoa, kytke se päälle (ja pois päältä uudelleen,
 valmis):
 ```basic
 charset $3800
-chardef 1  $FF,$81,$81,$81,$81,$81,$81,$FF  end  # box border
-charset on          # VIC-II reads characters from $3800 (screen matrix untouched)
+chardef 1 $FF,$81,$81,$81,$81,$81,$81,$FF end # laatikon reuna
+charset on # VIC-II lukee merkkejä laatikosta $3800 (näyttömatriisi koskematon)
 ...
-charset off         # back to the ROM set ($1800 if `lowercase` is active, else $1000)
+charset off # takaisin ROM-joukkoon ($1800, jos `pienet kirjaimet` ovat aktiivisia, muuten $1000)
 ```
 
 `charset on` read-modify-writes `$D018` bitit 1-3 viimeisestä `charset addr`
@@ -1337,14 +1540,14 @@ koodi voi jatkua joukon yläpuolella. `org`-väliin sijoitettua dataa (`incbin
 ### Muisti
 
 ```basic
-poke $D020, 2            # STA $D020
-poke addr_var, 6         # STA (addr_var),Y  — if addr_var is word type
-var v = peek($D012)      # LDA $D012
-var v = peek(addr_var)   # LDA (addr_var),Y  — if addr_var is word type
+poke $D020, 2 # STA $D020
+poke addr_var, 6 # STA (addr_var),Y — jos addr_var on sanatyyppi
+var v = peek($D012) # LDA $D012
+var v = peek(addr_var) # LDA (addr_var),Y — jos addr_var on sanatyyppi
 
-var w: word = peek16($C000)   # read 16-bit little-endian: lo=$C000, hi=$C001
-poke16 $0314, $EA81           # write 16-bit little-endian: lo→$0314, hi→$0315
-poke16 ptr, w                 # word var as address; word var as value
+var w: word = peek16($C000) # lue 16-bittinen little-endian: lo=$C000, hi=$C001
+poke16 $0314, $EA81 # kirjoita 16-bittinen little-endian: lo→$0314, hi→$0315
+poke16 ptr, w # sanamuuttuja osoitteena; sanamuuttuja arvona
 ```
 
 `peek16(addr)` lukee kaksi peräkkäistä tavua (lo, hi) `word`-muodossa. `poke16`
@@ -1353,13 +1556,13 @@ kirjoittaa ensin lo ja sitten hi.
 ### Levyn I/O
 
 ```basic
-load "PROGRAM"           # KERNAL LOAD: loads file from device 8 to its native address
-load "DATA", $C000       # loads file to a specific address
-chain "GAME"             # load another program over this one and RUN it (see below)
-load "DATA", ptr         # addr from word variable
+load "PROGRAM" # KERNAL LOAD: lataa tiedoston laitteelta 8 sen alkuperäiseen osoitteeseen
+load "DATA", $C000 # lataa tiedoston tiettyyn osoitteeseen
+chain "GAME" # lataa toinen ohjelma tämän päälle ja SUORITA se (katso alla)
+load "DATA", ptr # osoite sanamuuttujasta
 
-save "DATA", $C000, 4096 # KERNAL SAVE from $C000, 4096 bytes → device 8
-save "PROG", start, len  # addr and len from word/int variables
+save "DATA", $C000, 4096 # KERNAL SAVE sanasta $C000, 4096 tavua → laite 8
+save "PROG", start, len # osoite ja pituus sana-/int-muuttujista
 ```
 
 `load` kutsuu KERNAL `SETNAM`+`SETLFS`+`LOAD` (`$FFBD`/`$FFBA`/`$FFD5`)
@@ -1373,9 +1576,9 @@ kohteeseen `$0000`.) `save` kutsuu funktiota `SETNAM`+`SETLFS`+`SAVE`
 #### Ketjuttaminen toiseen ohjelmaan — `ketju` (uusi versiossa 1.5.9)
 
 ```basic
-chain "GAME"             # load GAME from the drive we were started from and RUN it
-chain "GAME", 9          # from drive 9 (any expression)
-print "LOAD ERROR"       # only reached if the file could not be loaded
+chain "GAME" # lataa GAME käynnistysasemalta ja SUORITA se
+chain "GAME", 9 # asemalta 9 (mikä tahansa lauseke)
+print "LOAD ERROR" # saavutetaan vain, jos tiedostoa ei voitu ladata
 ```
 
 `chain` lataa toisen ohjelman omaan latausosoitteeseensa — normaalisti `$0801`,
@@ -1413,15 +1616,15 @@ Tiedostonimen on oltava merkkijono, jonka pituus on 1–16 merkkiä.
 ### Sarjakanavan tiedosto I/O
 
 ```basic
-open 1, 8, 2, "MYFILE"  # open logical file 1, device 8, secondary 2, name "MYFILE"
-open 2, 4, 7             # open printer (device 4), no filename
-open ch, dev, sec        # channel, device, secondary from variables
+open 1, 8, 2, "MYFILE" # avaa looginen tiedosto 1, laite 8, toissijainen 2, nimi "MYFILE"
+open 2, 4, 7 # avaa tulostin (laite 4), ei tiedostonimeä
+open ch, dev, sec # kanava, laite, toissijainen muuttujista
 
-print# 1, "HELLO"        # send "HELLO"+CR to logical file 1
-print# ch, x, "text"     # any mix of vars, strings — same as print but to file
+print# 1, "HELLO" # lähetä "HELLO"+CR loogiseen tiedostoon 1
+print# ch, x, "text" # mikä tahansa sekoitus muuttujia, merkkijonoja — sama kuin print, mutta tiedostoon
 
-close 1                  # close logical file 1
-close ch                 # channel from variable
+close 1 # sulje looginen tiedosto 1
+close ch # kanava muuttujasta
 ```
 
 `open` kutsuu `SETNAM` ($FFBD) + `SETLFS` ($FFBA) + `OPEN` ($FFC0). Ilman
@@ -1429,18 +1632,24 @@ tiedostonimeä kutsutaan SETNAM-metodia, jonka pituus on 0. `print#` reitittää
 tulosteen `CHKOUT` ($FFC9) kautta, CHROUT per merkki (+ lopun CR) ja sitten
 `CLRCHN` ($FFCC). `close` asettaa kanavanumeron A:han ja kutsuu `CLOSE` ($FFC3).
 
-### Input
+### Syöttö
 
 ```basic
-input score              # read up to 3 digits from keyboard → 8-bit int var
-input "Name: ", name     # optional prompt string, then read line → string var
-input "Score: ", score   # prompt + int input
+input score # lue jopa 3 numeroa näppäimistöltä → 8-bittinen kokonaisluku muuttuja
+input "Nimi: ", nimi # valinnainen kehotemerkkijono, sitten lue rivi → merkkijono muuttuja
+input "Pisteet: ", score # kehote + kokonaisluku input
 ```
 
 `input` käyttää KERNAL BASINia (`$FFCF`) kaiutetun linjatulon estoon DEL-tuella.
 - **Int-muuttuja**: hyväksyy vain `0`–`9`, enintään 3 merkkiä; muuntaa
   8-bittiseksi arvoksi CR:ssä.
 - **Merkkijonomuuttuja**: hyväksyy enintään 30 merkkiä; tallentaa
+  null-päätteisenä merkkijonona; ZP-pari päivitetään.
+- **DOUBLE-muuttuja** (1.6.3): numerot ja `.`, esim. `12,5` → 12,50 (kaksi
+  desimaalia).
+- **Taulukon elementti** (1.6.3): `input t(i)` / `input nevek(i)`; `input
+  "kehote"; x` toimii myös.
+- **Merkkijono muuttuja**: hyväksyy enintään 30 merkkiä; tallentaa
   null-päätteisenä merkkijonona; ZP-pari päivitetään.
 
 ### Liukuluku / Kiinteäpisteinen
@@ -1449,24 +1658,24 @@ input "Score: ", score   # prompt + int input
 kokonaislukuosa (0–255) ja alempi tavu on desimaaliosa (0/256 … 255/256).
 
 ```basic
-var f: float = 3.5       # 3.5 → hi=3, lo=128 (= 0x0380)
-var g: float = 0         # integer 0 is promoted to 0.0 automatically
+var f: float = 3.5 # 3.5 → hi=3, lo=128 (= 0x0380)
+var g: float = 0 # kokonaisluku 0 ylennetään automaattisesti arvoon 0.0
 
-f = 1.5                  # Q8.8 literal assignment
-f = f + 1.5              # 16-bit Q8.8 arithmetic (result: 3.0)
-f = f + g                # float + float
+f = 1.5 # Q8.8 literaalin osoitus
+f = f + 1.5 # 16-bittinen Q8.8 aritmeettinen laskutoimitus (tulos: 3.0)
+f = f + g # float + float
 
-var n = int(f)           # extract integer part (hi byte) → 8-bit int
-print f                  # prints as "N.DD" (e.g. 3.5 → "3.50", 1.25 → "1.25")
+var n = int(f) # kokonaislukuosan poimiminen (hi byte) → 8-bittinen int
+print f # tulostaa muodossa "N.DD" (esim. 3.5 → "3.50", 1.25 → "1.25")
 ```
 
 | Käyttö              | Esimerkki            | Muistiinpanoja                                |
 | ------------------- | -------------------- | --------------------------------------------- |
-| Kirjaimellinen      | `3.5`, `0.25`, `1.0` | jäsennetty Q8.8:ksi käännösaikana             |
+| Kirjaimellinen      | `3,5`, `0,25`, `1,0` | jäsennetty Q8.8:ksi käännösaikana             |
 | Kokonaislukuylennys | `f = 5`              | myymälät 5.0 (korkea=5, matala=0)             |
-| Lisää/tilaa         | `f + 1.5`, `f - g`   | 16-bittinen Q8.8-aritmeettinen                |
+| Lisää/tilaa         | `f + 1,5`, `f - g`   | 16-bittinen Q8.8-aritmeettinen                |
 | Poimi kokonaisluku  | `int(f)`             | palauttaa hi-tavun 8-bittisenä kokonaislukuna |
-| Painaa              | `print f`            | muoto "N.DD", aina 2 desimaalilukua           |
+| Painaa              | `tulosta f`          | muoto "N.DD", aina 2 desimaalilukua           |
 
 **Varoitus:** Aritmeettinen ylivuoto päättyy kohtaan 255.255 (ei saturaatiota).
 Kahden liukulukumuuttujan kerto- ja jakolaskuja ei vielä tueta – käytä näissä
@@ -1481,39 +1690,39 @@ Murtoluku katkaistaan, ei pyöristetä: 1/10 = 25/256 tulostuu muodossa `0.09`.
 ### Matemaattiset funktiot
 
 ```basic
-var a = abs(x - 20)      # two's-complement absolute value
-var b = min(x, 39)       # 8-bit minimum
-var c = max(x, 0)        # 8-bit maximum
-var s = sgn(score)       # 0 = zero, 1 = positive (1–127), $FF = negative (128–255)
-var r = rnd()            # LCG pseudo-random 0-255; seed from raster line
-var r = rnd(10)          # LCG pseudo-random 0-9 (rnd() mod n; result 0..n-1)
-var s = sin(angle)       # sine: angle 0-255 (full circle), returns 0-255 (center=128)
-var c = cos(angle)       # cosine = sin(angle+64)
-var v = clamp(x, 0, 39)  # 8-bit unsigned clamp: result = max(lo, min(hi, val))
+var a = abs(x - 20) # kahden komplementin itseisarvo
+var b = min(x, 39) # 8-bittinen minimi
+var c = max(x, 0) # 8-bittinen maksimi
+var s = sgn(pisteet) # 0 = nolla, 1 = positiivinen (1–127), $FF = negatiivinen (128–255)
+var r = rnd() # LCG pseudo-satunnainen 0-255; siemen rasteriviivalta
+var r = rnd(10) # LCG pseudo-satunnainen 0-9 (rnd() mod n; tulos 0..n-1)
+var s = sin(kulma) # sini: kulma 0-255 (täysi ympyrä), palauttaa 0-255 (keskipiste=128)
+var c = cos(kulma) # kosini = sin(kulma+64)
+var v = clamp(x, 0, 39) # 8-bittinen etumerkitön clamp: tulos = max(lo, min(hi, val))
 
-print hex(n)             # print as 2-digit uppercase hex
-print bin(n)             # print as 8-bit binary string
+print hex(n) # tulosta 2-numeroisena isona heksalukuna
+print bin(n) # tulosta 8-bittisenä binäärimerkkijonona
 ```
 
 ### Merkkijonofunktiot
 
 ```basic
-var n = len(msg)         # length of null-terminated string var (0–255)
-var c = asc(msg)         # PETSCII code of first character (0 if empty)
-var c = asc("A")         # compile-time: constant PETSCII code
-var n = val(s)           # runtime: parse decimal PETSCII string → 8-bit int (e.g. "042" → 42)
-var c = msg[i]           # string character at index i: PETSCII code of msg[i]
-msg[i] = c               # write PETSCII byte c to string at index i — STA (ptr),Y
-msg[0] = 72              # constant index → LDY #0; STA (ptr),Y
+var n = len(msg) # null-päätteisen merkkijonon pituus var (0–255)
+var c = asc(msg) # ensimmäisen merkin PETSCII-koodi (0, jos tyhjä)
+var c = asc("A") # käännösaikainen: vakio PETSCII-koodi
+var n = val(s) # suorituksenaikainen: desimaalimuotoisen PETSCII-merkkijonon jäsentäminen → 8-bittinen kokonaisluku (esim. "042" → 42)
+var c = msg[i] # merkkijonomerkki indeksissä i: msg[i]:n PETSCII-koodi
+msg[i] = c # kirjoita PETSCII-tavu c merkkijonoon indeksissä i — STA (ptr),Y
+msg[0] = 72 # vakioindeksi → LDY #0; STA (ptr),Y
 ```
 
 ### Numeroiden muotoilu
 
 ```basic
-print hex(n)             # print as 2-digit uppercase hex
-print bin(n)             # print as 8-bit binary string
-print dec(n, 4)          # right-justified decimal in a field of 4 chars (e.g. 42 → "  42")
-print dec(n, width)      # width can also be a variable
+print hex(n) # tulosta kaksinumeroisena isona heksalukuna
+print bin(n) # tulosta 8-bittisenä binäärimerkkijonona
+print dec(n, 4) # oikealle tasattu desimaaliluku neljän merkin kentässä (esim. 42 → " 42")
+print dec(n, width) # width voi olla myös muuttuja
 ```
 
 `dec(n, width)` täyttää vasemmalla olevan luvun välilyönneillä, jotka täyttävät
@@ -1524,12 +1733,12 @@ arvoksi saadaan `n` muuttumattomana (sama kuin `hex`/`bin`).
 ### REU (RAM-laajennusyksikkö)
 
 ```basic
-var ok = reu_present()   # 1 if REU detected, 0 if not (write/read test on $DF04)
-var ok = reudet()        # alias for reu_present()
+var ok = reu_present() # 1 jos REU havaittu, 0 jos ei (kirjoitus-/lukutesti $DF04:lle)
+var ok = reudet() # alias reu_present():lle
 
-reu stash c64addr, bank, reu_addr, len  # copy C64 → REU
-reu fetch c64addr, bank, reu_addr, len  # copy REU → C64
-reu swap  c64addr, bank, reu_addr, len  # swap between C64 and REU
+reu stash c64addr, bank, reu_addr, len # kopioi C64 → REU
+reu fetch c64addr, bank, reu_addr, len # kopioi REU → C64
+reu swap c64addr, bank, reu_addr, len # vaihto C64:n ja REU:n välillä
 ```
 
 `reu_present()` suorittaa kirjoitus-/lukutestin REU-rekisterille `$DF04`. Ilman
@@ -1537,12 +1746,12 @@ REU:ta kirjoitus menetetään (avoin väylä), joten luku toimii eri tavalla —
 havaitsee läsnäolon luotettavasti koskematta mihinkään sivuvaikutteiseen
 komentorekisteriin.
 
-| Parametri  | Leveys      | Muistiinpanoja                                                             |
-| ---------- | ----------- | -------------------------------------------------------------------------- |
-| `c64addr`  | 16-bittinen | C64 RAM-muistin käynnistys — vakio, `word` muuttuja tai 8-bittinen lauseke |
-| `bank`     | 8-bittinen  | REU-pankkinumero (0–7 512 kt:n yksikölle)                                  |
-| `reu_addr` | 16-bittinen | Vastasiirto REU-pankin sisällä                                             |
-| `len`      | 16-bittinen | Siirrettäviä tavuja (`0` = 65 536 REU-laitteistossa)                       |
+| Parametri    | Leveys      | Muistiinpanoja                                                             |
+| ------------ | ----------- | -------------------------------------------------------------------------- |
+| `c64osoite`  | 16-bittinen | C64 RAM-muistin käynnistys — vakio, `word` muuttuja tai 8-bittinen lauseke |
+| `pankki`     | 8-bittinen  | REU-pankkinumero (0–7 512 kt:n yksikölle)                                  |
+| `reu_osoite` | 16-bittinen | Vastasiirto REU-pankin sisällä                                             |
+| `pituus`     | 16-bittinen | Siirrettäviä tavuja (`0` = 65 536 REU-laitteistossa)                       |
 
 REU-rekisterit: `$DF01` komento (`$B0` stash / `$B1` fetch / `$B2` swap),
 `$DF02–$DF03` C64-osoite, `$DF04–$DF05` REU-offset, `$DF06` bank, `$DF07–$DF08`
@@ -1552,18 +1761,18 @@ oikean REU:n tai VICE:n: **Asetukset → Laitteisto → RAM-laajennusmoduuli**.
 ### Muistiapuohjelmat
 
 ```basic
-fill screen 32           # fill screen RAM $0400–$07FF with value 32 (space char)
-fill color 1             # fill color RAM $D800–$DBFF with value 1 (white)
+fill screen 32 # täytä näytön RAM-muisti $0400–$07FF arvolla 32 (välilyönti)
+täyttöväri 1 # täyttöväri RAM-muisti $D800–$DBFF arvolla 1 (valkoinen)
 
-fill $0400, 1000, 32     # fill 1000 bytes starting at $0400 with value 32
-fill addr, 256, 0        # addr can be word var
-fill ptr, len_word, val  # all operands can be expressions / word vars
+täytä $0400, 1000, 32 # täytä 1000 tavua alkaen kohdasta $0400 arvolla 32
+täytä osoite, 256, 0 # osoite voi olla sanamuuttuja
+täytä ptr, len_word, val # kaikki operandit voivat olla lausekkeita / sanamuuttujat
 
-memcopy $C000, $0400, 256   # copy 256 bytes from $C000 → $0400
-memcopy src_ptr, dst_ptr, 40 # word vars for source and destination
+memcopy $C000, $0400, 256 # kopioi 256 tavua kohteesta $C000 → $0400
+memcopy src_ptr, dst_ptr, 40 # sanamuuttujat lähteelle ja kohteelle
 
-drawmem $C000, $0400, 8, 10, 40 # blit 8×10 rect from $C000 → screen at $0400, stride 40
-drawmem src_ptr, dst_ptr, w, h, 40 # word vars for src/dst
+drawmem $C000, $0400, 8, 10, 40 # kopioi 8×10 suoraan kohteesta $C000 → näyttö kohdassa $0400, askelmäärä 40
+drawmem src_ptr, dst_ptr, w, h, 40 # sanamuuttujat src/dst:lle
 ```
 
 Sekä `fill` että `memcopy` tukevat 16-bittisiä pituuksia (0–65535). Käytä
@@ -1579,10 +1788,10 @@ väri-RAM-muistille (40 saraketta). Leveys, korkeus ja askelmäärä ovat kaikki
 ### Rasteri-IRQ
 
 ```basic
-irq my_handler           # raster IRQ at line 0, handler = sub name or address
-irq my_handler, 100      # raster IRQ at raster line 100
-irq $C800, 200           # handler at fixed address
-irq addr_word            # handler address from a word variable
+irq my_handler # rasterin IRQ rivillä 0, käsittelijä = alinimi tai osoite
+irq my_handler, 100 # rasterin IRQ rasteririvillä 100
+irq $C800, 200 # käsittelijä kiinteässä osoitteessa
+irq addr_word # käsittelijän osoite sanamuuttujasta
 ```
 
 Asettaa rasteri-IRQ:n BASIC-ohjelmistovektorin (`$0314`/`$0315`) kautta):
@@ -1595,9 +1804,9 @@ Käsittelijän **täytyy** päättyä `sys $EA81` (KERNAL-IRQ:n loppuosa) — pe
 
 ```basic
 sub my_handler()
-  poke $D019, $FF      # ACK VIC IRQ
-  # ... work here ...
-  sys $EA81            # JMP to KERNAL end-of-IRQ
+poke $D019, $FF # ACK VIC IRQ
+# ... toimii tässä ...
+sys $EA81 # JMP KERNALille IRQ:n loppu
 end
 ```
 
@@ -1606,11 +1815,11 @@ Eteenpäin viittauksia tuetaan (`irq my_handler` ennen kuin ali on määritelty)
 ### NMI-käsittelijä
 
 ```basic
-nmi my_nmi               # set NMI vector $0318/$0319 to handler sub or address
+nmi my_nmi # aseta NMI-vektori $0318/$0319 käsittelijän aliosoitteeseen tai osoitteeseen
 
 sub my_nmi()
-  # ... NMI work here ...
-  nmi_exit               # JMP $FE47 — proper NMI exit (restores A/X/Y + RTI)
+# ... NMI toimii tässä ...
+nmi_exit # JMP $FE47 — oikea NMI-exit (palauttaa A/X/Y + RTI)
 end
 ```
 
@@ -1623,15 +1832,15 @@ Eteenpäin viittaukset tuettuja.
 ### CIA1-ajastimen keskeytys
 
 ```basic
-cia_timer 19656, my_handler   # CIA1 timer A: fires every 19656 cycles (~50 Hz PAL)
-cia_timer period, handler      # period can be a variable or expression
+cia_timer 19656, my_handler # CIA1-ajastin A: laukeaa 19656 syklin välein (~50 Hz PAL)
+cia_timer period, handler # period voi olla muuttuja tai lauseke
 ```
 
 Asettaa CIA1-ajastimen A jaksolliseksi IRQ-lähteeksi BASIC-ohjelmistovektorin
 (`$0314`/`$0315`) kautta):
 1. SEI — poista keskeytykset käytöstä
 2. `$DC0D = $7F` — poista kaikki CIA1-IRQ:t käytöstä
-3. Load 16-bit period lo→`$DC04`, hi→`$DC05`
+3. Lataa 16-bittinen jakso lo→`$DC04`, hi→`$DC05`
 4. Kirjoita käsittelijän osoite osoitteeseen `$0314`/`$0315`
 5. `$DC0D = $81` — ota käyttöön CIA1-ajastimen A IRQ
 6. `$DC0E = $01` — käynnistä ajastin A jatkuvassa tilassa
@@ -1642,9 +1851,9 @@ CIA1-keskeytyksen:
 
 ```basic
 sub my_handler()
-  poke $DC0D, $01      # ACK CIA1 timer A IRQ (read also clears it)
-  # ... work here ...
-  irq_exit             # JMP $EA81: restore A/X/Y + RTI
+poke $DC0D, $01 # ACK CIA1-ajastimen A IRQ (lue myös tyhjentää sen)
+# ... toimii tässä ...
+irq_exit # JMP $EA81: palauta A/X/Y + RTI
 end
 ```
 
@@ -1654,13 +1863,13 @@ PAL-ajoitus: kello = 985 248 Hz. Jakso 50 Hz:llä = 985 248 / 50 = 19 705 sykli�
 ### Virheiden käsittely
 
 ```basic
-onerr goto err_handler   # set KERNAL I/O error vector ($0300/$0301) to a label
+onerr goto err_handler # aseta KERNAL I/O -virhevektorin ($0300/$0301) otsikkoon
 
 ...
 
-label err_handler
-  print "I/O ERROR"
-  bye
+otsikko err_handler
+tulosta "I/O-VIRHE"
+hei hei
 ```
 
 `onerr goto label` kirjoittaa otsikon osoitteen (lo, hi) KERNAL-sijainteihin
@@ -1672,11 +1881,11 @@ tuetaan.
 ### Käännösaikainen tiedostojen upottaminen (`incbin` skip / length, uusi versiossa 1.5.7)
 
 ```basic
-incbin "sprites.bin"            # embed raw binary bytes at current code position
-incbin "charset.bin", $2000     # embed at an absolute address, padding as needed
-incbin "font.prg", $3C00, 2       # ...skipping the first 2 bytes (e.g. a .prg load address)
-incbin "big.bin", $4000, 16, 256  # ...skip 16 bytes, then take at most 256 bytes
-include "defs.ub"        # inline another .ub source file (lexed+parsed in place)
+incbin "sprites.bin" # upottaa raakabinääritavut nykyiseen koodipaikkaan
+incbin "charset.bin", $2000 # upottaa absoluuttiseen osoitteeseen, täydentäen tarvittaessa
+incbin "font.prg", $3C00, 2 # ...ohita kaksi ensimmäistä tavua (esim. .prg-latausosoite)
+incbin "big.bin", $4000, 16, 256 # ...ohita 16 tavua, ota sitten enintään 256 tavua
+include "defs.ub" # upottaa toisen .ub-lähdekooditiedoston (leksattu ja jäsennetty paikalleen)
 ```
 
 `incbin "file", addr, skip [, length]` poistaa tiedostosta ensimmäiset `skip`
@@ -1685,11 +1894,11 @@ halutessaan ottaa enintään `length` tavua; `skip` ja `length` ovat vakioita, j
 `skip` tiedoston lopun jälkeen on virhe. Osoitemuoto vaatii, että kohde on
 luodun koodin yläpuolella — tai `org`-aukon sisällä.
 
-### Data / Read
+### Data / Luettu
 
 ```basic
-data 1, 2, 3, 255        # constant byte table
-read varname             # load next byte into varname (auto-declares if needed)
+data 1, 2, 3, 255 # vakio tavutaulukko
+lue muuttujan_nimi # lataa seuraavan tavun muuttujan_nimi-taulukkoon (automaattinen määrittely tarvittaessa)
 ```
 
 Kaikki `data`-arvot kerätään käännösaikana. Ohjelmalle varataan ja alustetaan
@@ -1701,11 +1910,11 @@ eteenpäin.
 ```basic
 var sinus = array(8)
 data sinus: 128, 218, 255, 218
-data sinus: 128, 37, 0, 37      # further lines continue where the previous one stopped
-print sinus[i]                  # random access, like any array
+data sinus: 128, 37, 0, 37 # seuraavat rivit jatkuvat edellisestä
+print sinus[i] # satunnaisluku, kuten mikä tahansa taulukko
 
 var xpos = array_word(2)
-data xpos: 24, 300              # word arrays take 16-bit values (stored lo, hi)
+data xpos: 24, 300 # sanataulukot ottavat 16-bittisiä arvoja (tallennettuna lo, hi)
 ```
 
 Rivi `data`, jonka ensimmäinen alkio on `name:`, täyttää ilmoitetun `array` /
@@ -1718,53 +1927,53 @@ nimi on käännösvirhe. Nämä rivit eivät vaikuta `read`-virtaan.
 ### Sisäänrakennettu kokoonpano
 
 ```basic
-sys $FFD2                # JSR $FFD2
-sys $FFD2, 7             # LDA #7 ; JSR $FFD2  (pass byte value in A register)
-irq_exit                 # JMP $EA81 — proper IRQ handler exit (restore A/X/Y + RTI)
-asm $EA, $EA             # inline raw bytes (NOP NOP) — legacy form
+sys $FFD2 # JSR $FFD2
+sys $FFD2, 7 # LDA #7 ; JSR $FFD2 (välitystavun arvo A-rekisterissä)
+irq_exit # JMP $EA81 — oikean IRQ-käsittelijän poistuminen (palauttaa A/X/Y + RTI)
+asm $EA, $EA # rivinsisäiset raakatavut (NOP NOP) — perinnemuoto
 asm {
-  ; Full 6502 mnemonics and addressing modes
-  LDA #$07               ; immediate
-  STA $0286              ; absolute
-  LDA $50                ; zero-page  ($50 ≤ $FF → ZP auto-selected)
-  STA $0400,X            ; absolute,X indexed
-  LDA ($50),Y            ; (indirect),Y
-  LDA ($50,X)            ; (indirect,X)
-  JSR $FFD2              ; subroutine call
-  JMP $C000              ; absolute jump
-  JMP ($FFFC)            ; indirect jump
+; Täydellinen 6502-mnemoniikka ja osoitustilat
+LDA #$07 ; välitön
+STA $0286 ; absoluuttinen
+LDA $50 ; nollasivu ($50 ≤ $FF → ZP automaattisesti valittu)
+STA $0400,X ; absoluuttinen,X indeksoitu
+LDA ($50),Y ; (epäsuora),Y
+LDA ($50,X) ; (epäsuora,X)
+JSR $FFD2 ; aliohjelman kutsu
+JMP $C000 ; absoluuttinen hyppy
+JMP ($FFFC); epäsuora hyppy
 
-  CLC
-  ADC #1
-  SEC
-  SBC #1
+CLC
+ADC #1
+SEC
+SBC #1
 
-  TAX                    ; implied / transfer
-  ASL A                  ; accumulator (also just: ASL)
-  LSR A
-  ROL
-  ROR
+VERO; implisiittinen / siirto
+ASL A; akkumulaattori (myös vain: ASL)
+LSR A
+ROL
+ROR
 
-  ; Branches — operand is an absolute address; offset is computed automatically
-  BNE loop               ; forward or backward branch to local label
-  BEQ done
+; Haarat — operandi on absoluuttinen osoite; siirtymä lasketaan automaattisesti
+BNE-silmukka; eteen- tai taaksepäin suuntautuva haarautuminen paikalliseen otsikkoon
+BEQ valmis
 
-loop:
-  NOP
-done:
-  RTS
+silmukka:
+NOP
+valmis:
+RTS
 
-  ; #<label / #>label — lo / hi byte of a label address
-  LDA #<handler
-  STA $0314
-  LDA #>handler
-  STA $0315
+; #<otsikko / #>otsikko — otsikkoosoitteen lo/hi-tavu
+LDA #<käsittelijä
+STA $0314
+LDA #>käsittelijä
+STA $0315
 
-  ; * — current assembly location
-  JMP *
+; * — nykyinen kokoonpanon sijainti
+JMP *
 
-  ; Raw hex bytes (backward-compatible with old asm { $xx ... } syntax)
-  $EA $EA                ; two NOP bytes
+; Raakat heksatavut (taaksepäin yhteensopiva vanhan asm { $xx ... } -syntaksin kanssa)
+$EA $EA; kaksi NOP-tavua
 }
 ```
 
@@ -1772,19 +1981,19 @@ done:
 
 | Syntaksi       | Tila             | Tavut | Esimerkki                    |
 | -------------- | ---------------- | ----- | ---------------------------- |
-| (ei operandia) | Implisiittinen   | 1     | `NOP`, `RTS`                 |
+| (ei operandia) | Implisiittinen   | 1     | `EI `, `RTS `                |
 | `A`            | Akkumulaattori   | 1     | `ASL A`, `LSR`               |
-| `#value`       | Välitön          | 2     | `LDA #$07`                   |
-| `$zz` (0–255)  | Nollasivu        | 2     | `LDA $50`                    |
+| `#arvo`        | Välitön          | 2     | `LDA #07`                    |
+| `$zz` (0–255)  | Nollasivu        | 2     | `LDA 50 dollaria`            |
 | `$zz,X`        | ZP,X             | 2     | `LDA $50,X`                  |
 | `$zz,Y`        | ZP,Y             | 2     | `LDX $50,Y`                  |
-| `$xxxx`        | Absoluuttinen    | 3     | `LDA $0400`                  |
+| `$xxxx`        | Absoluuttinen    | 3     | `LDA 0400 $`                 |
 | `$xxxx,X`      | Absoluuttinen, X | 3     | `LDA $0400,X`                |
 | `$xxxx,Y`      | Absoluuttinen, Y | 3     | `LDA $0400,Y`                |
 | `($xxxx)`      | Epäsuora         | 3     | `JMP ($FFFC)`                |
-| `($zz,X)`      | (Epäsuora, X)    | 2     | `LDA ($50,X)`                |
-| `($zz),Y`      | (Epäsuora), Y    | 2     | `LDA ($50),Y`                |
-| `label`        | Suhteellinen     | 2     | `BNE label` (vain konttorit) |
+| `($zz,X)`      | (Epäsuora, X)    | 2     | `LDA (50 dollaria,X)`        |
+| `($zz),Y`      | (Epäsuora), Y    | 2     | `LDA (50 dollaria),Y`        |
+| `tarra`        | Suhteellinen     | 2     | `BNE label` (vain konttorit) |
 
 - `$zz` (1–2 heksadesimaalinumeroa, arvo ≤ 255) valitsee nollasivuisen tilan,
   jos käsky tukee sitä; muuten päivittyy automaattisesti absoluuttiseksi
@@ -1809,12 +2018,12 @@ UltimateBasic-lauseita siirtääksesi arvoja tunnettuihin paikkoihin ennen `asm 
 
 ```basic
 sub set_colors(border_col, bg_col)
-  poke $D020, border_col   # UltimateBasic resolves the ZP address
-  poke $D021, bg_col
-  asm {
-    ; values are already in $D020 / $D021
-    LDA $D020
-  }
+poke $D020, border_col # UltimateBasic selvittää ZP-osoitteen
+poke $D021, bg_col
+asm { 
+; arvot ovat jo $D020 / $D021 -kohdassa
+LDA $D020
+}
 end
 ```
 
@@ -1827,12 +2036,12 @@ viitata toisiinsa vapaasti. Katso `examples/raster_irq_demo.ub`.
 ### Merkkijono ↔ kokonaisluku
 
 ```basic
-numstr score, $0340      # writes "042\0" at $0340 (always 3 digits, zero-padded)
-var n = str_to_int("42") # compile-time: Expr::Number(42)
+numstr score, $0340 # kirjoittaa "042\0" kohtaan $0340 (aina 3 numeroa, nollilla täytetty)
+var n = str_to_int("42") # käännösaikainen: Expr::Number(42)
 
-print str$(score)                # print 8-bit int as 3-digit decimal string ("000"–"255")
-print "Score: " + str$(score)   # usable in string concat print context
-var s: string = str$(n)          # assign str$() result to a string var (shared static buffer)
+print str$(score) # tulosta 8-bittinen kokonaisluku 3-numeroisena desimaalimerkkijonona ("000"–"255")
+print "Score: " + str$(score) # käytettävissä merkkijono concat-tulostuskontekstissa
+var s: string = str$(n) # määrittää str$()-funktion tuloksen merkkijonolle var (jaettu staattinen puskuri)
 ```
 
 `str$(n)` muuntaa 8-bittisen arvon 3-merkkiseksi desimaalimerkkijonoksi (aina 3
@@ -1847,43 +2056,44 @@ ZP-pariin, joka varataan käännösaikana.
 
 ## Esimerkkejä
 
-| Tiedosto                            | Kuvaus                                                                                       |
-| ----------------------------------- | -------------------------------------------------------------------------------------------- |
-| `examples/features.ub`              | vakio, label/goto, poke/peek, rnd, matemaattiset funktiot                                    |
-| `examples/new_features.ub`          | aliparametrit, taulukot, sanamuuttujat, merkkijonomuuttujat                                  |
-| `examples/bitmap_demo.ub`           | 320×200 bittikartta, juoni, grafiikka päällä/pois                                            |
-| `examples/block_demo.ub`            | 80×50 lohkografiikka, plot4, circle4, grafiikka lohkolla                                     |
-| `examples/joystick_demo.ub`         | joystick-lukeminen, sprite-liike                                                             |
-| `examples/mux_demo.ub`              | rasterisprite-multiplekseri (3 ikkunaa × 8 sprittiä = 24)                                    |
-| `examples/orbit_demo.ub`            | 24-sprite-kiertorata pulssisäteellä ja satunnaisilla väreillä                                |
-| `examples/plasma_demo.ub`           | plasmaefektinen bittikartta rasteripalkkireunuksen animaatiolla                              |
-| `examples/sprite_data.ub`           | sprdef-muototiedot (sisältyvät muihin demoihin)                                              |
-| `examples/sprite_mux_orbit.ub`      | 24-sprite-kiertoradan demo sprdefillä + esilasketuilla sijainneilla                          |
-| `examples/sprite_orbit_demo.ub`     | 8 laitteistosprittiä ympyräradalla sin/cos-taulukon kautta                                   |
-| `examples/reu_bitmap_demo.ub`       | REU-varasto/nouto bittikarttagrafiikalla                                                     |
-| `examples/sid_music_demo.ub`        | SID-musiikkisoitin rasteri-IRQ:lla ja näppäimistöuloskäynnillä                               |
-| `examples/tenprint.ub`              | 5 TENPRINT-sokkelototeutusta valikoilla; demoja `lowercase` merkistötilassa                  |
-| `examples/countdown_demo.ub`        | Lähtölaskenta `for..next` negatiivisella askeleella, mukaan lukien `for i = 20 to 0 step -2` |
-| `examples/countdown_errors_demo.ub` | Käännösaikainen virhe oletusvaiheelle `from > to`                                            |
-| `examples/explicit_demo.ub`         | `--explicit` CLI-lippudemo täysin kirjoitetuilla `var`, `sub`, `fn` -komennoilla             |
-| `examples/explicit_errors_demo.ub`  | Löyhä koodi, joka rakentuu ilman `--explicit`-koodia, aiheuttaa virheitä                     |
+| Tiedosto                                      | Kuvaus                                                                                       |
+| --------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `esimerkkejä/ominaisuuksia.ub`                | vakio, label/goto, poke/peek, rnd, matemaattiset funktiot                                    |
+| `esimerkkejä/uudet_ominaisuudet.ub`           | aliparametrit, taulukot, sanamuuttujat, merkkijonomuuttujat                                  |
+| `esimerkkejä/bitmap_demo.ub`                  | 320×200 bittikartta, juoni, grafiikka päällä/pois                                            |
+| `esimerkkejä/lohkon_demo.ub`                  | 80×50 lohkografiikka, plot4, circle4, grafiikka lohkolla                                     |
+| `esimerkkejä/joystick_demo.ub`                | joystick-lukeminen, sprite-liike                                                             |
+| `esimerkkejä/mux_demo.ub`                     | rasterisprite-multiplekseri (3 ikkunaa × 8 sprittiä = 24)                                    |
+| `esimerkkejä/orbit_demo.ub`                   | 24-sprite-kiertorata pulssisäteellä ja satunnaisilla väreillä                                |
+| `esimerkkejä/plasma_demo.ub`                  | plasmaefektinen bittikartta rasteripalkkireunuksen animaatiolla                              |
+| `esimerkkejä/sprite_data.ub`                  | sprdef-muototiedot (sisältyvät muihin demoihin)                                              |
+| `esimerkkejä/sprite_mux_orbit.ub`             | 24-sprite-kiertoradan demo sprdefillä + esilasketuilla sijainneilla                          |
+| `esimerkkejä/sprite_orbit_demo.ub`            | 8 laitteistosprittiä ympyräradalla sin/cos-taulukon kautta                                   |
+| `esimerkkejä/reu_bitmap_demo.ub`              | REU-varasto/nouto bittikarttagrafiikalla                                                     |
+| `esimerkkejä/sid_music_demo.ub`               | SID-musiikkisoitin rasteri-IRQ:lla ja näppäimistöuloskäynnillä                               |
+| `esimerkkejä/kymmenentuloste.ub`              | 5 TENPRINT-sokkelototeutusta valikoilla; demoja `lowercase` merkistötilassa                  |
+| `esimerkkejä/countdown_demo.ub`               | Lähtölaskenta `for..next` negatiivisella askeleella, mukaan lukien `for i = 20 to 0 step -2` |
+| `esimerkkejä/laskentavirheiden_demo.ub`       | Käännösaikainen virhe oletusvaiheelle `from > to`                                            |
+| `esimerkkejä/eksplisiittinen_demo.ub`         | `--explicit` CLI-lippudemo täysin kirjoitetuilla `var`, `sub`, `fn` -komennoilla             |
+| `esimerkkejä/eksplisiittiset_virheet_demo.ub` | Löyhä koodi, joka rakentuu ilman `--explicit`-koodia, aiheuttaa virheitä                     |
 
 ## CLI-viite
 
 ```
-ub build <input.ub> [OPTIONS]
+ub build <input.ub> [VALINNAT]
 
-  -o, --output <file>   Output .prg or .crt file (default: <input>.prg)
-  -v, --verbose         Show zero-page layout and code hex dump
-  --no-stub             Skip the BASIC SYS stub (code loads at $0801)
-  --debug               Also produce .sym, .dbg and .vs debugger files
-  --asm                 Also produce a readable 6502 codegen .asm listing
-  --d64 [file]          Also produce a .d64 disk image;
-                          without a filename defaults to <output>.d64
-  --add <file>          Add an extra file to the .d64 disk image;
-                          may be repeated for multiple files
-  --explicit            Require :type on every var / sub-param / fn-param
-  -h, --help            Show help
+-o, --output <tiedosto> Tulostaa .prg- tai .crt-tiedoston (oletus: <input>.prg)
+
+-v, --verbose Näytä nollasivuinen asettelu ja koodin heksadesimaalivedos
+--no-stub Ohita BASIC SYS -tynkä (koodi latautuu kohdassa $0801)
+--debug Luo myös .sym-, .dbg- ja .vs-virheenjäljitystiedostot
+--asm Luo myös luettava 6502-koodin luontia varten tarkoitettu .asm-listaus
+--d64 [tiedosto] Luo myös .d64-levykuvan;
+ilman tiedostonimeä oletusarvo on <output>.d64
+--add <tiedosto> Lisää ylimääräisen tiedoston .d64-levykuvaan;
+voidaan toistaa useille tiedostoille
+--explicit Vaatii :type jokaiselle muuttujalle / aliparametrille / fn-parametrille
+-h, --help Näytä ohje
 ```
 
 ### CRT-vienti
@@ -1916,17 +2126,19 @@ annotoitu muoto käännetään – irrallinen muoto aiheuttaa käännösaikaisen
 
 **Mitä se valvoo:**
 
-| Ilmoituslomake                                         | Ilman `--explicit`              | `--explicit` kanssa                     |
-| ------------------------------------------------------ | ------------------------------- | --------------------------------------- |
-| `var name = expr` (ei `:type`)                         | ok — tyyppi päätelty            | virhe                                   |
-| `var name: int = expr` (tai sana/liukuväri/merkkijono) | okei                            | okei                                    |
-| `var arr = array(N)`                                   | okei — epäsuorasti `array`      | okei — muuttumaton                      |
-| `var arr = array_word(N)`                              | okei — epäsuorasti `array_word` | okei — muuttumaton                      |
-| `const NAME = value`                                   | okei                            | okei — muuttumaton                      |
-| `sub foo(a, b)` (tyypittämättömät parametrit)          | okei                            | virhe tyypittämätöntä parametria kohden |
-| `sub foo(a: int, b: int)`                              | okei                            | okei                                    |
-| `fn foo(a): int` (tyypitön parametri)                  | okei                            | parametrissa oleva virhe                |
-| `fn foo(a: int): int`                                  | okei                            | okei                                    |
+| Ilmoituslomake                                         | Ilman `--explicit`   | `--explicit` kanssa      |
+| ------------------------------------------------------ | -------------------- | ------------------------ |
+| `var name = expr` (ei `:type`)                         | ok — tyyppi päätelty | virhe                    |
+| `var name: int = expr` (tai sana/liukuväri/merkkijono) | okei                 | okei                     |
+| `var arr = array(N)`                                   | ok — tyyppi päätelty | virhe                    |
+| `var arr = array_word(N)`                              | okei                 | okei                     |
+| `const NAME = value`                                   | okei                 | ok — muuttumaton         |
+| `sub foo(a, b)` (tyypittämättömät parametrit)          | okei                 | ok — muuttumaton         |
+| `sub foo(a: int, b: int)`                              | okei                 | ok — muuttumaton         |
+| `fn foo(a): int` (tyypitön parametri)                  | okei                 | parametrissa oleva virhe |
+| `fn foo(a: int): int`                                  | okei                 | okei                     |
+| `fn foo(a): int` (tyypitön parametri)                  | okei                 | parametrissa oleva virhe |
+| `fn foo(a: int): int`                                  | okei                 | okei                     |
 
 Vakiot ja taulukkomäärittelyt hyväksytään aina — niiden tyyppi määräytyy
 määrittelymuodon mukaan, joten `:type` olisi tarpeeton.
@@ -1935,9 +2147,9 @@ määrittelymuodon mukaan, joten `:type` olisi tarpeeton.
 
 ```
 $ ub build myprog.ub --explicit
-Compilation errors:
-  line 14: 'explicit' mode: 'var loose' has no type — use 'var loose: int|word|float|string'
-  line 16: 'explicit' mode: parameter 'a' has no type — use 'a: int|word|float|string'
+Käännösvirheet:
+rivi 14: 'explicit' tila: 'var loose':lla ei ole tyyppiä — käytä 'var loose: int|word|float|string'
+rivi 16: 'explicit' tila: parametrilla 'a' ei ole tyyppiä — käytä 'a: int|word|float|string'
 ```
 
 Lippu on koontiaikainen kytkin — lähdekoodissa ei tarvitse muuttua mitään
@@ -1961,7 +2173,7 @@ runkoa:
 | ---------- | ------------------------------------------------------------------------------------------------------- |
 | `demo.sym` | KickAssembler-yhteensopiva symbolilähdekoodi, soveltuu tuotavaksi assembler-lähdekoodiin                |
 | `demo.dbg` | C64Debugger/RetroDebugger KickAssembler -virheenkorjausvedos, joka sisältää ohjelmasegmentin ja otsikot |
-| `demo.vs`  | VICE-monitorin komentotiedosto, joka sisältää `al`-komennot osoitetarroille                             |
+| `demo.vs.` | VICE-monitorin komentotiedosto, joka sisältää `al`-komennot osoitetarroille                             |
 
 Kaikki kolme vientiä sisältävät `program_start`-, `program_end`-muuttujat,
 taulukot, aliohjelmat ja BASIC-tunnisteet, jotka tunnetaan koodin luomisen
@@ -1980,9 +2192,9 @@ Kirjoita luettava 6502-lähdeluettelo PRG:n viereen käyttämällä `--asm`-merk
 ub-koontitiedoston demo.ub --asm
 ```
 
-For an output named `demo.prg`, this creates `demo.asm`. The listing is produced
-from metadata collected while Ultimate Basic generates the machine code; it is
-not merely a disassembly of the completed PRG. It contains:
+Tulosteelle nimeltä `demo.prg` tämä luo tiedoston `demo.asm`. Listaus luodaan
+Ultimate Basicin konekielisen koodin luomisen aikana kerätyistä metatiedoista;
+se ei ole pelkkä valmiin PRG:n osittaista purkamista. Se sisältää:
 
 - `; UB:` kommentit, jotka merkitsevät kunkin lähettävän UB-lausekkeen
   generoidun tavualueen;
@@ -2010,15 +2222,16 @@ sprite- ja merkkimääritelmät, sinitaulukko, lataustiedostojen nimet, `incbin`
 Esimerkkiote:
 
 ```asm
-.label x                 = $02 ; int
+.label x = $02; int
 
 * = $080D
 
 ub_start:
-    cld                         ; $080D: D8
-    ; UB: var x
-    lda  #$01                   ; $080E: A9 01
-    sta  x                      ; $0810: 85 02
+cld; $080D: D8
+
+; UB: muuttuja x
+lda #$01; $080E: A9 01
+sta x; $0810: 85 02
 ```
 
 Osoite-/tavukommenttien avulla listausta on helppo vertailla `.prg`-luettelon
@@ -2034,22 +2247,22 @@ tiedostonimet johdetaan lähdetiedoston rungosta isoilla kirjaimilla (esim.
 Onnistuneen koonnin jälkeen kääntäjä tulostaa aina muistikartan:
 
 ```
-demo.ub → demo.prg  (386 bytes)
+demo.ub → demo.prg (386 tavua)
 
-  Load:    $080D – $0989
+Lataus: $080D – $0989
 
-  Variables (zero page):
-    score    ZP:$08   byte
-    lives    ZP:$0A   byte
-    msg      ZP:$0C   string
-    ptr      ZP:$0E   word
+Muuttujat (nollasivu):
+score ZP:$08 tavua
+lives ZP:$0A tavu
+msg ZP:$0C merkkijono
+ptr ZP:$0E sana
 
-  Subroutines:
-    greet    $0900
-    show     $0912
+Aliohjelmat:
+greet $0900
+show $0912
 
-  Arrays ($C000+):
-    sprites  $C000   8 bytes
+Taulukot ($C000+):
+sprites $C000 8 tavua
 ```
 
 `-v`-merkillä tuloste näyttää lisäksi sisäiset ZP-allokoinnit ja täyden
@@ -2085,15 +2298,15 @@ Käytä `--asm` nähdäksesi oman ohjelmasi luoman koodin.
 | Merkkijonojen yhdistämisen suoritusaikainen | `s1 + s2` tulostaa peräkkäin — ei keon allokointia tai pituuden seurantaa                                                                                                                                                                                                                                                                                                                                                  |
 | `rnd()` / `rnd(n)`                          | Yksinkertainen LCG, ei kryptografinen; jakso = 256                                                                                                                                                                                                                                                                                                                                                                         |
 | `abs()` / `sgn()` / `min()` / `max()`       | vain 8-bittisiä arvoja; `abs`/`sgn` käsittelee arvoja etumerkillisinä (bitti 7 = negatiivinen → `abs` kahden komplementit, `sgn` palauttaa `$FF`); `min`/`max` ovat etumerkittömiä (0–255)                                                                                                                                                                                                                                 |
-| `plot`                                      | Alueen ulkopuolella olevat pikselit rajataan äänettömästi (Y ≥ 200 tai X ≥ 320 → ei toimintoa)                                                                                                                                                                                                                                                                                                                             |
+| `kuvaaja`                                   | Alueen ulkopuolella olevat pikselit rajataan äänettömästi (Y ≥ 200 tai X ≥ 320 → ei toimintoa)                                                                                                                                                                                                                                                                                                                             |
 | `mplot`                                     | Ei rajojen tarkistusta — x:n on oltava 0–159, y:n on oltava 0–199                                                                                                                                                                                                                                                                                                                                                          |
 | `mline` / `mrect`                           | Monivärinen; x: 0–159, y: 0–199. Näytön ulkopuolisten pikselien rivitys (ei katkaisua) — pitää koordinaatit alueella                                                                                                                                                                                                                                                                                                       |
-| `mcircle`                                   | Monivärinen; leikkaa näytön ulkopuoliset pisteet (x ≥ 160 tai y ≥ 200 ohitetaan)                                                                                                                                                                                                                                                                                                                                           |
-| `color pen`                                 | Vain palkkaukset; asettaa kosketettujen solujen etualan näytteen (tausta säilyy). Ei vaikutusta lohkotilassa (`plot4`/`circle4`)                                                                                                                                                                                                                                                                                           |
-| `rect`                                      | Ei rajojen tarkistusta — x: 0–319, y: 0–199; x1≤x2 ja y1≤y2 eivät ole pakollisia (degeneroituneet/käänteiset suorakulmat tuottavat määrittelemättömän tulosteen)                                                                                                                                                                                                                                                           |
+| `mympyrä`                                   | Monivärinen; leikkaa näytön ulkopuoliset pisteet (x ≥ 160 tai y ≥ 200 ohitetaan)                                                                                                                                                                                                                                                                                                                                           |
+| `värikynä`                                  | Vain palkkaukset; asettaa kosketettujen solujen etualan näytteen (tausta säilyy). Ei vaikutusta lohkotilassa (`plot4`/`circle4`)                                                                                                                                                                                                                                                                                           |
+| `suora`                                     | Ei rajojen tarkistusta — x: 0–319, y: 0–199; x1≤x2 ja y1≤y2 eivät ole pakollisia (degeneroituneet/käänteiset suorakulmat tuottavat määrittelemättömän tulosteen)                                                                                                                                                                                                                                                           |
 | `plot4`                                     | Ei rajojen tarkistusta — x:n on oltava 0–79, y:n on oltava 0–49 (lohkotila)                                                                                                                                                                                                                                                                                                                                                |
-| `circle4`                                   | Leikkaa näytön ulkopuolisia lohkopikseleitä; hyödyllinen säde on noin 0–49 80×50-lohkotilassa                                                                                                                                                                                                                                                                                                                              |
-| `chr$`                                      | Ei PETSCII↔ASCII-määritystä — n välitetään sellaisenaan CHROUT-funktiolle                                                                                                                                                                                                                                                                                                                                                  |
-| `music play`                                | Vaatii `load sid`- tai `tune`-lohkon; vain yksi CIA1-kääre lähetetään (viimeinen `music play` voittaa)                                                                                                                                                                                                                                                                                                                     |
-| `graphics on double`                        | Vain palkattu; käyttää `$4000–$7FFF`-merkkiä takapuskurissa, joten ohjelmakoodin on pysyttävä `$4400`-merkkiä pienempänä; ei yhdistettävissä spritien tai moniväristen kanssa                                                                                                                                                                                                                                              |
+| `ympyrä4`                                   | Leikkaa näytön ulkopuolisia lohkopikseleitä; hyödyllinen säde on noin 0–49 80×50-lohkotilassa                                                                                                                                                                                                                                                                                                                              |
+| `merkkiä$`                                  | Ei PETSCII↔ASCII-määritystä — n välitetään sellaisenaan CHROUT-funktiolle                                                                                                                                                                                                                                                                                                                                                  |
+| `musiikin toisto`                           | Vaatii `load sid`- tai `tune`-lohkon; vain yksi CIA1-kääre lähetetään (viimeinen `music play` voittaa)                                                                                                                                                                                                                                                                                                                     |
+| `grafiikka tuplalla`                        | Vain palkattu; käyttää `$4000–$7FFF`-merkkiä takapuskurissa, joten ohjelmakoodin on pysyttävä `$4400`-merkkiä pienempänä; ei yhdistettävissä spritien tai moniväristen kanssa                                                                                                                                                                                                                                              |
 | Virheraportointi                            | Vain käännösaikana; `onerr goto` käsittelee KERNAL I/O -virheet ajonaikana                                                                                                                                                                                                                                                                                                                                                 |

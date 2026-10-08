@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.2 — Språkmanual
+# Ultimate Basic v1.6.3 — Språkmanual
 
 Komplett språk- och CLI-referens för Ultimate Basic, ett BASIC-liknande språk
 som kompilerar direkt till 6502-maskinkod för Commodore 64. Utdata: `.prg` filer
@@ -22,14 +22,14 @@ odeklarerad variabel i ett uttryck, en tilldelning, en `for`/`loop`-räknare, en
 `inc`/`dec`, `input` eller `read`-sats producerar ett kompileringsfel.
 
 ```basic
-var x = 10               # 8-bit integer (default)
-var ptr: word = $0400    # 16-bit — two zero-page bytes, usable as 16-bit address
-var f: float = 3.5       # Q8.8 fixed-point — hi byte = integer, lo byte = fraction
-var msg = "HELLO"        # string variable (pointer to inline PETSCII data)
-var s: string = "TEXT"   # string with explicit type
-var scores = array(10)   # byte array, 10 elements stored at $C000+
-var moments  = array_word(8) # word array, 8 word elements stored at $C000+
-const BORDER_ADDR = $D020 # compile-time constant (substituted inline, no ZP slot)
+var x = 10 # 8-bitars heltal (standard)
+var ptr: word = $0400 # 16-bitars — två nollsidiga byte, användbara som 16-bitarsadress
+var f: float = 3.5 # Q8.8 fixed-point — hi byte = heltal, lo byte = bråk
+var msg = "HELLO" # strängvariabel (pekare till inline PETSCII-data)
+var s: sträng = "TEXT" # sträng med explicit typ
+var scores = array(10) # byte-array, 10 element lagrade vid $C000+
+var moments = array_word(8) # ord-array, 8 ord-element lagrade vid $C000+
+const BORDER_ADDR = $D020 # kompileringstidskonstant (substituerad inline, ingen ZP-plats)
 ```
 
 Nyckelord och identifierare är **skiftlägesokänsliga**: `PRINT`, `Print` och
@@ -38,13 +38,77 @@ Nyckelord och identifierare är **skiftlägesokänsliga**: `PRINT`, `Print` och
 | Typ                   | Bredd          | Anteckningar                                         |
 | --------------------- | -------------- | ---------------------------------------------------- |
 | `int`                 | 8-bitars       | standard för numeriska literaler                     |
-| `word`                | 16-bitars      | två ZP-byte; kan användas som adress i `poke`/`peek` |
-| `float`               | 16-bitars Q8.8 | hi byte = heltalsdel (0–255), lo byte = bråkdel      |
-| `string`              | pekare         | ZP-par → nollterminerad PETSCII i kodsegment         |
-| `array(N)`            | N byte         | byte-element; finns på `$C000+`, inte i ZP           |
-| `array_word(N)`       | N×2 byte       | ordelement (16-bitars); finns på `$C000+`, inte i ZP |
+| `ord`                 | 16-bitars      | två ZP-byte; kan användas som adress i `poke`/`peek` |
+| `flyta`               | 16-bitars Q8.8 | hi byte = heltalsdel (0–255), lo byte = bråkdel      |
+| `sträng`              | pekare         | ZP-par → nollterminerad PETSCII i kodsegment         |
+| `matris(N)`           | N byte         | byte-element; finns på `$C000+`, inte i ZP           |
+| `array_ord(N)`        | N×2 byte       | ordelement (16-bitars); finns på `$C000+`, inte i ZP |
 | `array(R, C, …)`      | ∏dims byte     | flerdimensionell (rad-stor); index `arr[r, c]`       |
 | `array_word(R, C, …)` | ∏dims×2 byte   | flerdimensionell ordmatris (rad-stor)                |
+
+#### BASIC-deklarationer: `dim … som …`
+
+`dim namn som type` är en alternativ stavning av `var namn: type` — samma
+lagring, samma kod:
+
+```basic
+DIM kor AS INTEGER # signerad 16-bitars, börjar vid 0
+DIM nev AS STRING # sträng, börjar som ""
+DIM files AS DOUBLE # Q8.8 fixed point, börjar vid 0.00
+DIM x, y AS BYTE # flera namn, alla får typen
+DIM punkt AS INTEGER = 1000, cim AS STRING = "C64" # initialiseringar, blandade typer
+```
+
+| `som …`                       | Ultimat grundläggande typ                           |
+| ----------------------------- | --------------------------------------------------- |
+| `byte`, `helhet`              | `int` (8-bitars, 0–255)                             |
+| `heltal`                      | signerad 16-bitars (−32768 … 32767) — QBasic HELTAL |
+| `ord`                         | `ord` (osignerad 16-bitars, 0–65535)                |
+| `enkel`, `dubbel`, `flytande` | `flyttal` (Q8.8 — 0–255.99, **inte** IEEE-flyttal)  |
+| `sträng`                      | `sträng`                                            |
+
+- Utan `= värde` börjar tal på 0 och strängar på `""`.
+- `dim a, b som heltal` ger **båda** namnen av typen (VB.NET-stil, inte QBasic).
+  Endast ett enda namn får ha en initialisering.
+- `as` och BASIC-typnamnen är kontextord, inte reserverade — de kan fortfarande
+  användas som namn.
+- Stöds inte: `as long`, struct-typer (använd `var name: TName = array(N)`) —
+  kompileringsfel.
+- Med `--explicit` är en `dim` utan `as` ett fel.
+- Strängtilldelning har värdesemantik: `s = "TEXT"` pekar på literalen, `t = s`
+  och beräknade värden kopieras till `t`s egen buffert (se *Strings at
+  runtime*). Före 1.6.3 lagrade `s = "TEXT"` efter deklarationen en skräpbyte i
+  pekaren.
+
+#### Arrayer med `dim`: `dim name(u1, u2, …) som typ`
+
+```basic
+DIM tabla(2, 3) AS INTEGER ' 3 × 4 element: tabla(0..2, 0..3)
+DIM kocka(1, 2, 3) AS BYTE ' valfritt antal dimensioner
+DIM ar(9) AS DOUBLE ' 10 Q8.8-värden
+DIM nevek(4) AS STRING ' 5 strängar, alla börjar som ""
+DIM v(9) ' nej AS → byte-array
+
+tabla(2, 3) = 999 ' QBasic-stilindex med ( )
+tabla[2, 3] = 999 ' … eller den vanliga [ ]
+nevek(0) = "ZSOLT"
+PRINT tabla(2, 3); " "; nevek(0); " "; ar(1)
+```
+
+- Varje gräns är det **högsta indexet** (GRUNDLÄGGANDE regel): `dim t(2, 3)` har
+  3 × 4 element. (`var t = array(3, 4)` tar elementantal — samma array.)
+- Elementtyper: `byte`/`int` → 1 byte, `heltal` (med signatur) / `ord` → 2 byte,
+  `enkel`/`dubbel`/`flyttal` → 2-byte Q8.8, `sträng` → 2-bytepekare. Gränser
+  måste vara kompileringstidskonstanter; arrayer finns i `$C000-$CFFF` (4096
+  byte, kontrollerade).
+- String-array-element börjar som `""`; `nevek(i) = "TEXT"` / `= s` / `= a + b`,
+  `n = nevek(i)`, utskrift, `+`, överföring till en `string`-parameter och
+  `inmatning av nevek(i)` fungerar alla (icke-litterala värden kopieras till en
+  plats med 31 tecken per element).
+- `name(i)`-indexering fungerar även för arrayer deklarerade med `var a =
+  array(…)`.
+- En array per `dim`-grupp: `dim a(3) som byte, n som heltal` är okej, `dim n,
+  a(3) som heltal` är ett fel. Ingen initialisering — använd `datanamn: …`.
 
 ### Reserverade ord
 
@@ -109,20 +173,20 @@ token används för utskriftsformatet `dec(n, width)`)
 Dessa vanliga engelska ord ser ut som oskyldiga identifierare men är redan
 uppfattade av den som skriver texten. Byt namn för att undvika tysta brytningar:
 
-| Reserverad                                  | Föreslagen namnbyte                 |
-| ------------------------------------------- | ----------------------------------- |
-| `end`                                       | `stop_at`, `finish`, `last`         |
-| `stop`                                      | `stop_at`, `halt`                   |
-| `times`                                     | `count`, `n`, `iters`               |
-| `screen`                                    | `scraddr`, `screen_addr`            |
-| `border`, `bg`, `text`                      | `border_addr`, `bg_col`, `text_col` |
-| `clamp`                                     | `cap`, `bound`                      |
-| `line`, `circle`, `rect`                    | `ln`, `circ`, `box_r`               |
-| `data`, `read`                              | `bytes`, `next_byte`                |
-| `load`, `save`, `open`, `close`             | `load_file`, ...                    |
-| `map`, `show`, `hide`                       | `tilemap`, `reveal`, `conceal`      |
-| `play`, `pause`, `resume`, `stop`, `volume` | `play_song`, `vol`                  |
-| `int`, `float`, `word`, `string`            | `n_int`, `speed_f`, `addr`, `msg`   |
+| Reserverad                                           | Föreslagen namnbyte                 |
+| ---------------------------------------------------- | ----------------------------------- |
+| `slut`                                               | `stoppa_vid`, `mål`, `sista`        |
+| `stopp`                                              | `stoppa_vid`, `stoppa`              |
+| ` gånger `                                           | `antal`, `n`, `iter`                |
+| `skärm`                                              | `scraddr`, `screen_addr`            |
+| `kantlinje`, `bakgrund`, `text`                      | `border_addr`, `bg_col`, `text_col` |
+| `klämma`                                             | `lock`, `bunden`                    |
+| `linje`, `cirkel`, `rätlinje`                        | `ln`, `cirkel`, `box_r`             |
+| `data`, `läs`                                        | `byte`, `nästa_byte`                |
+| `ladda`, `spara`, `öppna`, `stäng`                   | `ladda_fil`, ...                    |
+| `karta`, `visa`, `dölj`                              | `kakelkarta`, `visa`, `dölj`        |
+| `spela upp`, `pausa`, `återuppta`, `stoppa`, `volym` | `spela_låt`, `volym`                |
+| `heltal`, `flyttal`, `ord`, `sträng`                 | `n_int`, `speed_f`, `addr`, `msg`   |
 
 Symboliska tokens (`+ - * / = == != < > <= >= : , ; ( ) [ ] # $ % @`) kan
 naturligtvis inte användas i identifierare.
@@ -162,25 +226,25 @@ definieras: `x / 0 = 255`, `x mod 0 = x` (före 1.6.0 hängde den sig). `x = x +
 ### Ökning / Minskning
 
 ```basic
-inc x                    # x = x + 1  (INC zp — single instruction)
-dec x                    # x = x - 1  (DEC zp — single instruction)
+inc x # x = x + 1 (INC zp — enskild instruktion)
+dec x # x = x - 1 (DEC zp — enskild instruktion)
 ```
 
-For `word` variables carry is handled: `inc` uses `INC lo; BNE skip; INC hi`;
-`dec` uses `LDA lo; BNE skip; DEC hi; DEC lo`.
+För variablerna `word` hanteras carry: `inc` använder `INC lo; BNE skip; INC
+hi`; `dec` använder `LDA lo; BNE skip; DEC hi; DEC lo`.
 
 ### Sammansatta uppgifter
 
 ```basic
-x += 5                   # x = x + 5
-x -= 3                   # x = x - 3
-x *= 2                   # x = x * 2
-x /= 4                   # x = x / 4
-x and= 15                # x = x and 15   (bitwise AND)
-x or= 64                 # x = x or 64    (bitwise OR)
-x xor= 255               # x = x xor 255  (bitwise XOR)
-x shl= 2                 # x = x shl 2
-x shr= 1                 # x = x shr 1
+x += 5 # x = x + 5
+x -= 3 # x = x - 3
+x *= 2 # x = x * 2
+x /= 4 # x = x / 4
+x och= 15 # x = x och 15 (bitvis OCH)
+x eller= 64 # x = x eller 64 (bitvis ELLER)
+x x eller= 255 # x = x x eller 255 (bitvis XELLER)
+x shl= 2 # x = x shl 2
+x shr= 1 # x = x shr 1
 ```
 
 ### Skriva ut
@@ -189,47 +253,39 @@ x shr= 1                 # x = x shr 1
 print "HELLO"
 print x
 print x, y, "text"
-print                     # blank line
+print # tom rad
 
-print spc(5)             # print 5 space characters
-print tab(20), "VALUE"  # move cursor to column 20, then print
-print "A", spc(3), "B" # mix freely
+print spc(5) # print 5 mellanslag
+print tab(20), "VÄRDE" # flytta markören till kolumn 20, print sedan
+print "A", spc(3), "B" # blanda fritt
 
-print "A=" + a           # string + numeric var
-print s1 + s2            # two string vars → sequential print
-print "Hello " + "World" # two literals → compile-time fold
-print chr$(13)           # print by PETSCII code
+print "A=" + a # sträng + numerisk variabel
+print s1 + s2 # två strängvariabler → sekventiell print
+print "Hello " + "Världen" # två literaler → kompileringstidsfold
+print chr$(13) # print med PETSCII-kod
 ```
 
 ### chr$
 
 ```basic
-print chr$(65)           # output character with PETSCII code 65 ('A')
-var c = chr$(n)          # store byte value n in variable c
-print ">" + chr$(42)     # usable in string concat
+print chr$(65) # utdatatecken med PETSCII-kod 65 ('A')
+var c = chr$(n) # lagra bytevärde n i variabel c
+print "&gt;" + chr$(42) # kan användas i strängen concat
 ```
 
 ### Förgrening
 
 ```basic
-if x == 1 then
-  print "YES"
-else
-  print "NO"
-end
+om x == 1 då skriv "JA"
+annars skriv "NEJ"
+slut
 ```
 
-### Select / Case
+### Välj / Ärende
 
 ```basic
-select x
-  case 1:
-    print "ONE"
-  case 2:
-    print "TWO"
-  else:
-    print "OTHER"
-end
+välj x fall 1: skriv ut "ETT" fall 2: skriv ut "TVÅ" annars: skriv ut "ANDRA"
+slut
 ```
 
 `select expr` utvärderar uttrycket en gång och jämför det med varje `case`-värde
@@ -240,55 +296,51 @@ värden måste vara 8-bitars (0–255).
 ### Loopar
 
 ```basic
-loop 5               # counted loop (5 iterations)
-  print "HI"
+loop 5 # räknad loop (5 iterationer)
+print "HI"
 end
 
-times 5              # alias for loop N ... end
-  print "HI"
+times 5 # alias för loop N ... end
+print "HI"
 end
 
-loop                 # infinite loop
-  x = x + 1
-  if x == 5 then continue end  # skip to next iteration
-  if x == 100 then break end
+loop # oändlig loop x = x + 1
+om x == 5 fortsätt slut # hoppa till nästa iteration om x == 100 bryt slut
 end
 
 var i = 0
-for i = 1 to 10      # for..next (preferred)
-  if i == 5 then continue end  # skip to increment step
-  print i
-next
+för i = 1 till 10 # för..nästa (föredraget) om i == 5 fortsätt slut # hoppa till steg print i
+nästa
 
-for i = 0 to 20 step 2
-  print i
-next i               # variable name after 'next' is optional
+för i = 0 till 20 steg 2
+print i
+nästa i # variabelnamn efter 'nästa' är valfritt
 
-for i = 10 to 1 step -1     # counting down — negative constant step is supported
-  print i
-next
+för i = 10 till 1 steg -1 # nedräkning — negativ konstant steg stöds
+print i
+nästa
 
-for i = 20 to 0 step -2     # terminates correctly at i = 0 (11 iterations)
-  print i
-next i
+för i = 20 till 0 steg -2 # avslutas korrekt vid i = 0 (11 iterationer)
+print i
+nästa i
 
 var i = 0
-loop i = 1 to 10     # legacy loop..end syntax — identical code
-  print i
+loop i = 1 till 10 # äldre loop..end syntax — identisk kod
+print i
 end
 
-while x < 100
-  x = x + 1
+while x &lt; 100
+x = x + 1
 end
 
-repeat               # do-while: body runs at least once
-  x = x + 1
-until x == 100       # exits when condition is true
+repeat # do-while: kroppen körs minst en gång
+x = x + 1
+tills x == 100 # avslutas när villkoret är sant
 ```
 
 **Riktningsregler för `for`/`loop`:**
 
-| Case                                                  | Beteende                                                                                                             |
+| Fall                                                  | Beteende                                                                                                             |
 | ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | `for i = 1 to 10` (standard `step +1`, `from ≤ to`)   | räknar uppåt, standard                                                                                               |
 | `for i = 0 to 20 step 2` (positivt steg, `from ≤ to`) | räknar upp med 2                                                                                                     |
@@ -313,9 +365,7 @@ ett körtidsstegvärde, dela loopen eller använd en `while`-konstruktion.
 ### Etiketter och gå till
 
 ```basic
-label main_loop
-  x = x + 1
-  if x < 10 then goto main_loop end
+etikett huvudloop x = x + 1 om x &lt; 10 så gå till huvudloop slut
 ```
 
 Vidarebefordra `goto` (etikett definieras senare) stöds fullt ut.
@@ -328,25 +378,23 @@ framåtriktade referenser (etikett definierad efter `gosub`).
 ```basic
 gosub draw_border
 ...
-label draw_border
-  # ... draw something ...
-  return               # RTS — returns to the instruction after gosub
+etikett draw_border
+# ... rita något ...
+returnera # RTS — återgår till instruktionen efter gosub
 ```
 
 ### Subrutiner
 
 ```basic
-sub greet()
-  print "HELLO!"
-end
+sub greet() print "HALLÅ!" end
 
 sub set_color(col)
-  color border col
-  color text   col
+color border col
+color text col
 end
 
-greet()              # call with parens
-call greet           # call keyword (no parens)
+greet() # ring med parenteser
+call greet # ring nyckelord (utan parenteser)
 set_color(6)
 ```
 
@@ -359,38 +407,175 @@ kan indexera källsträngen via `src[i]`.
 
 ```basic
 fn square(x)
-  return x * x
+returnera x * x
 end
 
 fn add(a, b)
-  return a + b
+returnera a + b
 end
 
-fn clamp(val, lo, hi)
-  if val < lo then return lo end
-  if val > hi then return hi end
-  return val
+fn clamp(värde, låg, hög)
+om värde &lt; låg returnera låg slut
+om värde &gt; hög returnera hög slut
+returnera värde
 end
 
-var s = square(9)         # s = 81  — fn call as expression
-var c = clamp(joy, 0, 39) # c = clamped value
-print add(10, 20)         # 30  — usable inline in print
+var s = square(9) # s = 81 — fn anropa som uttryck
+var c = clamp(glädje, 0, 39) # c = fastklämt värde
+print add(10, 20) # 30 — kan användas inline i print
 ```
 
 Funktioner stöder en valfri `: word` returtyp för 16-bitarsvärden:
 
 ```basic
 fn get_addr(): word
-  return $C000
+return $C000
 end
 
-var ptr: word = get_addr()  # ptr = $C000
-poke ptr, 42                 # STA (ptr),Y — valid indirect addressing
-var v = peek(ptr)            # LDA (ptr),Y
+var ptr: word = get_addr() # ptr = $C000
+poke ptr, 42 # STA(ptr),Y — giltig indirekt adressering
+var v = peek(ptr) # LDA(ptr),Y
 ```
 
 `fn` genereras i pass 2 (samma som `sub`), så funktionskroppar körs aldrig vid
 start. Framåtriktade referenser stöds fullt ut.
+
+
+#### QBasic-stil `FUNKTION` / `SUB`
+
+```basic
+FUNKTION Negyzet (szam SOM HELTAL) SOM HELTAL
+    Negyzet = szam * szam ' returvärde = tilldela funktionsnamnet
+AVSLUTA FUNKTION
+
+FUNKTION Nagyobb (a SOM BYTE, b SOM BYTE) SOM BYTE
+    Nagyobb = a
+    OM b &gt; a DÅ
+        Nagyobb = b
+        EXIT FUNCTION ' återvänder nu, med det värde som tilldelats hittills
+    SLUT OM
+AVSLUTA FUNKTION
+
+SUB Koszont (nev AS STRING)
+    SKRIV UT "Üdvözöllek, "; nev; "!"
+END SUB
+
+n = Negyzet(30)
+Koszont "Zsolt" ' anrop utan parentes
+Koszont("Zsolt") ' ... eller med dem
+RING Koszont("Zsolt")
+```
+
+- `function` är en synonym för `fn`; `p AS type` fungerar i parameterlistor och
+  `AS type` efter `)` ger returtypen (samma typnamn som `dim`). `: type`
+  fungerar fortfarande.
+- Att tilldela ett namn till funktionen lagras i en dold
+  `<namn>__result`-variabel som returneras vid `END FUNCTION` / `EXIT FUNCTION`;
+  `return expr` fungerar fortfarande också.
+- `END SUB`, `END FUNCTION`, `END IF`, `END SELECT` accepteras (det andra ordet
+  är valfritt); `EXIT SUB` / `EXIT FUNCTION` returnerar (vanlig `exit` är
+  fortfarande `bye`).
+- En sub/fn kan anropas utan parentes: `Koszont "Zsolt"`, `Rajzol x, y`.
+- `PRINT a; b; c` — `;` kopplar ihop objekt utan mellanslag; ett avslutande `;`
+  undertrycker nyradstecken. Ett `;` följt av en sats (`print x; y = 1`)
+  separerar fortfarande satser.
+- Accentbokstäver i strängliteraler skrivs ut som sin basbokstav (`ü` → `u`, `ő`
+  → `o`); C64-teckenuppsättningen har inga accenter.
+- Word/float-parametrar tar nu emot båda byten, och en strängliteral som skickas
+  till en `string`-parameter fungerar (tidigare fungerade bara lo byte / a
+  strängvariabel).
+- Ingen rekursion (parametrar finns i statiska nollsidiga platser); sedan 1.6.3
+  är ett rekursivt anrop ett kompileringsfel istället för tyst felaktiga
+  resultat.
+
+#### Mer QBasic-syntax (1.6.3)
+
+QBasic-formulären nedan kompileras bredvid den ursprungliga syntaxen
+(kommentarerna `==`, `end`, `loop`, `#` fortsätter alla att fungera).
+
+```basic
+' kommentar (QBasic-stil, som #)
+OM x = 3 SÅ SKRIV UT "tre" ' enkelrad OM: nej END OM behövs
+OM x &lt;&gt; 3 SÅ SKRIV UT "nej" ELSE SKRIV UT "ja"
+OM n &lt; 0 SÅ SKRIV UT "negativ"
+ANDRA OM n = 0 SÅ SKRIV UT "noll"
+ANDRA OM
+
+DO WHILE i &lt; 10 : i = i + 1 : LOOP ' även DO UNTIL c … LOOP,
+DO : i = i - 1 : LOOP UNTIL i = 0 ' DO … LOOP WHILE c, DO … LOOP (oändlig)
+WHILE k &lt;&gt; 5 : k = k + 1 : WEND
+FÖR i = 1 TILL 100
+OM i = 12 SÅ AVSLUTA FÖR ' AVSLUTA DO / AVSLUTA FÖR / AVSLUTA WHILE
+NÄSTA
+
+VÄLJ FALL n FALL 1, 2, 3 : SKRIV UT "liten" FALL 10 TILL 20 : SKRIV UT "tonåring" FALL ÄR &gt; 1000 : SKRIV UT "stor" FALL ANNAT : SKRIV UT "annan"
+END SELECT
+
+END ' avslutar programmet (skärmen behålls)
+```
+
+- **Villkor:** inuti `IF` / `ELSEIF` / `WHILE` / `UNTIL` / `LOOP WHILE|UNTIL`,
+  en enda `=` jämförs. `&lt;&gt;` betyder inte lika överallt (samma som `!=`).
+- **Enkelradig OM:** en sats direkt efter `THEN` skapar en enkelradig OM som
+  slutar med raden, eller med ett `end` på samma rad (`if c then x = 1 end`, som
+  tidigare). En flerradig OM behöver en radbrytning efter `THEN`. Precis som i
+  QBasic tillhör allt efter `THEN` på den raden OM (`… THEN EXIT FOR : NEXT`
+  skulle svälja `NEXT`).
+- **`END` på egen hand:** ett `END` som inte stänger ett block avslutar
+  programmet, som QBasic. Ett överskott av `end` visas därför inte längre som
+  ett fel.
+- **`DO`-block: ** inuti en `DO`, en `LOOP` i slutet av en rad avslutar den (de
+  ursprungliga `loopen N … end` / `loopen i = … end`-looparna fungerar
+  fortfarande inuti).
+- **`SELECT CASE`:** den gamla `select x` / `case n:` formen är oförändrad.
+  `SELECT CASE` sänks till en IF-kedja över en dold `select__N` variabel.
+
+#### Strängar vid körning (1.6.3)
+
+```basic
+DIM s AS STRING, t AS STRING
+s = "Pont: " + pont + "!" ' tal blir text (16-bitars, signerad för INTEGER)
+t = s ' en kopia: att ändra s senare ändrar inte t
+s = s + "?"
+PRINT LEFT$(s, 4); RIGHT$(s, 2); MID$(s, 7, 3); MID$(s, 7)
+PRINT LEN(s + t), VAL("1234") + 1, STR$(pont)
+IF s = "ABC" ELLER t &lt;&gt; "" THEN PRINT "jämför med = / &lt;&gt;"
+```
+
+- **Buffrar:** en strängvariabel som får ett beräknat värde (`+`, `left$`,
+  `right$`, `mid$`, numbers, en annan variabel) äger en buffert på 80 tecken;
+  längre resultat klipps bort vid 80. Att tilldela en literal pekar fortfarande
+  bara på den.
+- **Strängmatriser:** element som får ett icke-litteralt värde (eller `input`)
+  får sin egen 32-byte-plats (31 tecken), så `input nevek(i)` i en loop behåller
+  alla namn.
+- **`STR$` / `VAL`:** `STR$` för ett 16-bitars eller teckenförtecknat värde har
+  inga inledande nollor (`"-42"`). För kompatibilitet behåller `STR$` för en
+  byte den 3-siffriga formen (`"007"`). `VAL` läser 16-bitars teckenförtecknade
+  tal (`VAL("1234") + 1` = 1235).
+- **Jämförelse:** endast `=` / `&lt;&gt;` (och `==` / `!=`); det finns ingen
+  `&lt;` / `&gt;` ordning på strängarna.
+
+#### Signerat HELTAL, INMATNING, DUBBELT (1.6.3)
+
+- **INTEGER har tecken:** `DIM x AS INTEGER` har tecken 16-bitars (−32768 …
+  32767, som QBasic): utskrift, `&lt;` `&gt;` jämförelser, `/` (avkortas mot
+  noll), `ABS`, textkonvertering, `INPUT` och `FOR` loopar genom noll (`FOR i =
+  3 TO -3 STEP -2`) följer alla tecknet. `WORD` förblir osignerad 0 … 65535.
+  Unär minus fungerar var som helst (`a &lt; -10`, `x * -2`).
+- **`FOR` med en 16-bitars räknare** (`INTEGER` / `WORD`) är en riktig 16-bitars
+  loop. Den brukade varva vid 256, så `FOR k = 0 TO 300` kördes 45 gånger.
+- **`INPUT`:** i ett INTEGER / WORD läser upp till 6 tecken (med `-` för
+  INTEGER), i ett DOUBLE accepterar `12.5` (två decimaler). `INPUT t(i)` läser
+  in i ett arrayelement, och `INPUT "prompt"; x` fungerar också.
+- **DUBBELT ÷ DUBBELT** är nu exakt (`7,5 / 2,5 = 3,00`); tidigare användes
+  endast divisorns heltalsdel. DUBBELT × DUBBELT stöddes redan.
+- **Arrayer över 256 byte** (`DIM t(200) AS INTEGER`, `DIM g(19, 19)`) arbetar
+  med variabla index; indexet som används för att radbrytas vid 256 och skrivas
+  in i fel element.
+- **Rekursion** (en delfunktion som anropar sig själv, direkt eller via andra)
+  är ett kompileringsfel. Det brukade kompilera och returnera fel resultat,
+  eftersom parametrar finns i fasta noll-sidesplatser.
 
 ### Matriser
 
@@ -417,18 +602,18 @@ indexeras med en kommaseparerad nedsänkt lista. Den totala storleken är
 produkten av alla dimensioner.
 
 ```basic
-var grid = array(8, 8)     # 8×8 = 64 bytes at $C000
-grid[1, 0] = 11            # row 1, col 0 → flat index 1*8+0 = 8 → STA $C008
-grid[0, 1] = 22            # row 0, col 1 → flat index 1       → STA $C001
-grid[r, c] = 33            # variable → computes r*8 + c, then STA (ptr),Y
-var v = grid[r, c]         # LDA (ptr),Y
+var grid = array(8, 8) # 8×8 = 64 byte vid $C000
+grid[1, 0] = 11 # rad 1, kolumn 0 → flat index 1*8+0 = 8 → STA $C008
+grid[0, 1] = 22 # rad 0, kolumn 1 → flat index 1 → STA $C001
+grid[r, c] = 33 # variabel → beräknar r*8 + c, sedan STA(ptr),Y
+var v = grid[r, c] # LDA(ptr),Y
 
-var wm = array_word(4, 4)  # 4×4 word array = 32 bytes
-wm[1, 2] = $ABCD           # element 1*4+2 = 6 → bytes $C00C/$C00D
+var wm = array_word(4, 4) # 4×4 ord array = 32 byte
+wm[1, 2] = $ABCD # element 1*4+2 = 6 → byte $C00C/$C00D
 
 const ROWS = 3
 const COLS = 5
-var m = array(ROWS, COLS)  # dimensions may be compile-time constants
+var m = array(ROWS, COLS) # dimensioner kan vara kompileringstidskonstanter
 ```
 
 Row-major-layout innebär att det sista indexet är sammanhängande: `grid[r, c]`
@@ -448,34 +633,34 @@ av instanser på samma sätt som en vanlig array. Fältåtkomst använder
 `arr[idx].field` och fungerar för både konstanta och variabla index.
 
 ```basic
-type TEntity
-  var x:  int      # 1 byte
-  var y:  int      # 1 byte
-  var hp: word     # 2 bytes  → element size = 4
+typ TEntity
+var x: int # 1 byte
+var y: int # 1 byte
+var hp: ord # 2 byte → elementstorlek = 4
 endtype
 
 const N = 8
-var enemies: TEntity = array(N)   # allocates N × 4 = 32 bytes at $C000
+var enemies: TEntity = array(N) # allokerar N × 4 = 32 byte vid $C000
 
-enemies[0].x  = 5
-enemies[0].y  = 10
+enemies[0].x = 5
+enemies[0].y = 10
 enemies[0].hp = $0100
-var v = enemies[0].hp             # read back — LDA $C002 / LDA $C003
+var v = enemies[0].hp # läs tillbaka — LDA $C002 / LDA $C003
 
 var i: int = 2
-enemies[i].x = 42                 # variable index → idx * elem_size + offset
+enemies[i].x = 42 # variabelindex → idx * elementstorlek + offset
 
-# Float field (Q8.8 fixed-point)
-type TBall
-  var bx:  int     # 1 byte
-  var by:  int     # 1 byte
-  var vel: float   # 2 bytes Q8.8  → element size = 4
+# Flyttal (Q8.8 fast punkt)
+typ TBall
+var bx: int # 1 byte
+var by: int # 1 byte
+var vel: flyttal # 2 byte Q8.8 → elementstorlek = 4
 endtype
 
 var balls: TBall = array(3)
-balls[0].vel = 1.5                # stores Q8.8: hi=1, lo=128
-var f: float = balls[0].vel       # read float field into float variable
-print balls[0].vel                # prints "1.50"
+balls[0].vel = 1.5 # lagrar Q8.8: hi=1, lo=128
+var f: float = balls[0].vel # läser flyttalsfältet till flyttalsvariabeln
+print balls[0].vel # skriver ut "1.50"
 ```
 
 Regler och begränsningar:
@@ -504,9 +689,9 @@ Se `examples/type_demo.ub`.
 ### 16-bitars (ord)variabler
 
 ```basic
-var ptr: word = $0400    # two ZP bytes: lo=$00 hi=$04
-poke ptr, 6              # STA (ptr),Y
-var v = peek(ptr)        # LDA (ptr),Y
+var ptr: word = $0400 # två ZP-byte: lo=$00 hi=$04
+peta ptr, 6 # STA (ptr),Y
+var v = peek(ptr) # LDA (ptr),Y
 ```
 
 **16-bitarsprodukter (åtgärdat i 1.5.7).** En produkt som tilldelats ett `word`
@@ -522,37 +707,35 @@ var stor: ord = 100 * nivå + 900
 
 Sedan 1.6.1 gäller detta även inom summor och för `shl`, och för konstanta
 multiplikatorer över 255: `py = cy * 8 + fy`, `py = (cy shl 3) + fy` och `w = cy
-* 300` behåller alla 16 bitar (tidigare trunkerades summan till 8 bitar).
-Bytemål behåller 8-bitarsresultat.
 
 ### Bitmappsgrafik
 
 ```basic
-graphics on              # VIC-II hires bitmap mode (320×200, 1bpp); bitmap at $2000
-graphics on multi        # VIC-II multicolor bitmap mode (160×200, 2bpp, 4 colours/cell)
-graphics off             # return to text mode
+grafik på # VIC-II använder bitmappsläge (320×200, 1bpp); bitmapp vid $2000
+grafik på multi # VIC-II flerfärgsbitmappsläge (160×200, 2bpp, 4 färger/cell)
+grafik av # återgå till textläge
 
-gcls                     # clear bitmap (fills $2000-$3FFF) + set video matrix colors
+gcls # rensa bitmapp (fyller $2000-$3FFF) + ställ in videomatrisfärger
 
-plot x, y                # set pixel at (x, y);  x: 0-319,  y: 0-199
-plot erase x, y          # clear pixel (AND ~mask)
-plot xor x, y            # toggle pixel (EOR mask) — flicker-free animation
-circle x, y, r           # midpoint circle centered at (x, y) with radius r; clips off-screen points
-line x1, y1, x2, y2      # Bresenham line from (x1,y1) to (x2,y2); x: 0-319, y: 0-199
-line erase x1, y1, x2, y2  # clear pixels along the line (AND ~mask)
-line xor x1, y1, x2, y2    # toggle pixels along the line (EOR mask)
-rect x1, y1, x2, y2      # draw rectangle outline (4 edges); x: 0-319, y: 0-199
-rect erase x1, y1, x2, y2  # clear rectangle outline (AND ~mask)
-rect xor x1, y1, x2, y2    # XOR rectangle outline (EOR mask)
-paint x, y               # 4-connected flood fill from (x, y); fills clear pixels bounded by set ones
+plot x, y # ställ in pixel vid (x, y); x: 0-319, y: 0-199
+plot radera x, y # rensa pixel (OCH ~mask)
+plot xor x, y # växla pixel (EOR-mask) — flimmerfri animering
+cirkla in x, y, r # mittpunkt cirkel centrerad vid (x, y) med radie r; klipper punkter utanför skärmen
+linje x1, y1, x2, y2 # Bresenham-linje från (x1,y1) till (x2,y2); x: 0-319, y: 0-199
+radera linje x1, y1, x2, y2 # rensa pixlar längs linjen (OCH ~mask)
+linje xor x1, y1, x2, y2 # växla pixlar längs linjen (EOR-mask)
+rect x1, y1, x2, y2 # rita rektangelkontur (4 kanter); x: 0-319, y: 0-199
+radera rektangel x1, y1, x2, y2 # rensa rektangelkontur (OCH ~mask)
+rect xor x1, y1, x2, y2 # XOR rektangelkontur (EOR-mask)
+måla x, y # 4-kopplad fyllning från (x, y); fyller rensa pixlar begränsade av ange ettor
 
-color pen c              # set the hires drawing color (0-15); see below
+färgpenna c # ange anställningens ritfärg (0-15); se nedan
 
-# ── Multicolor bitmap (graphics on multi, 160×200) ──
-mplot x, y, color        # set multicolor pixel (x: 0-159, y: 0-199, color: 0-3)
-mline x1, y1, x2, y2, color   # multicolor line
-mrect x1, y1, x2, y2, color   # multicolor rectangle outline
-mcircle x, y, r, color        # multicolor circle
+# ── Flerfärgad bitmapp (grafik på multi, 160×200) ──
+mplot x, y, color # set multicolor pixel (x: 0-159, y: 0-199, color: 0-3)
+mline x1, y1, x2, y2, color # multicolor line
+mrect x1, y1, x2, y2, color # multicolor rectangle outline
+mcircle x, y, r, color # multicolor circle
 ```
 
 Båda `graphics on`-varianterna tömmer displayen (`LDA $D011 / AND #$EF / STA
@@ -574,13 +757,13 @@ bevaras. Den förblir aktiv till nästa `color pen`. Standardinställningen är 
 (1), så program som aldrig anropar `color pen` ser exakt ut som tidigare.
 
 ```basic
-graphics on
+grafik på
 gcls
-color pen 2              # red
-line 0, 0, 100, 100
-color pen 6              # blue
-circle 160, 100, 40
-display on
+färgpenna 2 # röd
+linje 0, 0, 100, 100
+färgpenna 6 # blå
+cirkel 160, 100, 40
+display på
 ```
 
 #### Flerfärgade former — `mline` / `mrect` / `mcircle`
@@ -593,12 +776,12 @@ efterföljande `color`-argumentet är 2-bitarskällan (0-3), och de faktiska
 färgerna kommer från cellpaletten (skärm / färg-RAM) exakt som för `mplot`.
 
 ```basic
-graphics on multi
+grafik på multi
 gcls
 mcircle 80, 100, 40, 1
 mrect 10, 10, 150, 190, 2
 mline 0, 0, 159, 199, 3
-display on
+display på
 ```
 
 `mline`/`mrect`/`mcircle` återanvänder samma Bresenham-/mittpunktsrutiner som
@@ -608,21 +791,21 @@ deras motsvarigheter i anställningsprogrammet, och plottar varje pixel genom
 ### Dubbelbuffrad bitmapp (flimmerfri)
 
 ```basic
-graphics on double       # double-buffered hires bitmap (320×200)
-gcls                     # clears the HIDDEN back buffer
-line 0, 0, 319, 199      # all drawing (plot/line/circle/rect/paint/gcls) goes to the back buffer
-flip                     # show the drawn buffer; redirect drawing to the other one
-graphics off             # back to text mode (restores VIC bank 0)
+grafik på dubbel # dubbelbuffrad anställer bitmapp (320×200)
+gcls # rensar den DOLDDA bakre bufferten
+rad 0, 0, 319, 199 # alla ritningar (plot/line/circle/rect/paint/gcls) går till bakre bufferten
+vänd # visa den ritade bufferten; omdirigera ritningen till den andra
+grafik av # tillbaka till textläge (återställer VIC bank 0)
 ```
 
 `graphics on double` behåller **två** kompletta anlitade bitmappar och visar
 endast färdiga bildrutor, vilket eliminerar flimmer utan några XOR-trick — varje
 bildruta `gcls`, ritar du och sedan `flip`.
 
-| Buffert                   | Bitmapp | Videomatris | VIC-banken | `$DD00` låga bitar |
-| ------------------------- | ------- | ----------- | ---------- | ------------------ |
-| A (framsida, visas först) | `$2000` | `$0400`     | bank 0     | `%11`              |
-| B (baksida, ritad först)  | `$6000` | `$4400`     | bank 1     | `%10`              |
+| Buffert                   | Bitmapp     | Videomatris | VIC-banken | `$DD00` låga bitar |
+| ------------------------- | ----------- | ----------- | ---------- | ------------------ |
+| A (framsida, visas först) | 2000 dollar | `$0400`     | bank 0     | `%11`              |
+| B (baksida, ritad först)  | 6000 dollar | 4400 dollar | bank 1     | `%10`              |
 
 * Alla pixelkommandon skriver genom en runtime **draw base** (en nollsidig
   byte), så de riktar sig automatiskt mot den buffert som för närvarande är
@@ -649,13 +832,13 @@ Se `examples/cube_demo.ub` — en tumlande 3D-trådmodellkub renderad flimmerfri
 ### Blockgrafik (80×50)
 
 ```basic
-graphics on block        # 80×50 block-pixel mode (text mode + custom 4-pixel charset @ $2800)
-graphics off             # return to text mode
-gcls                     # clear block playfield: screen RAM $0400-$07FF + color RAM $D800-$DBFF
+grafik på block # 80×50 blockpixelläge (textläge + anpassad 4-pixel teckenuppsättning @ $2800)
+grafik av # återgå till textläge
+gcls # rensa blockets spelfält: skärm-RAM $0400-$07FF + färg-RAM $D800-$DBFF
 
-plot4 x, y               # set block pixel at (x, y);  x: 0-79, y: 0-49
-plot4 erase x, y         # clear block pixel at (x, y)
-circle4 x, y, r          # draw midpoint circle in block pixels; clips to 80×50
+plot4 x, y # sätt blockpixel vid (x, y); x: 0-79, y: 0-49
+plot4 radera x, y # rensa blockpixel vid (x, y)
+circle4 x, y, r # rita mittpunktscirkel i blockpixlar; klipp till 80×50
 ```
 
 Ett tjockt lågupplöst läge ovanpå standard 40×25-text. En anpassad
@@ -671,38 +854,38 @@ samma blockpixelhjälpare för att rita en konturcirkel i 80×50-koordinatutrymm
 ### Skärm och färg
 
 ```basic
-cls                      # clear screen (KERNAL $E544)
-cls fast                 # fast fill: screen RAM + color RAM + HOME
+cls # rensa skärm (KERNAL $E544)
+cls snabbt # snabb ifyllning: skärm-RAM + färg-RAM + HOME
 
-color text 14            # text color register $0286
-color border 6           # $D020
-color bg 0               # $D021
-color pen 2              # hires drawing color (0-15) for plot/line/rect/circle/paint
+färg text 14 # text färg register $0286
+färg kantlinje 6 # $D020
+färg bakgrund 0 # $D021
+färgpenna 2 # anlitar ritfärg (0-15) för plot/linje/rektangulär/cirkel/målning
 
-screen 0, 0, 65          # write char 65 ('A') to screen RAM at col 0, row 0 ($0400)
-screen 10, 5, ch         # col 10, row 5 — col/row can be variables
-screen 5, 3, 42, 7       # char 42 at col 5, row 3, color 7 (writes color RAM $D800 too)
-screen x, y, ch, col     # all four arguments as variables
+skärm 0, 0, 65 # skriv tecken 65 ('A') till skärm-RAM vid kolumn 0, rad 0 ($0400)
+skärm 10, 5, ch # kolumn 10, rad 5 — kolumn/rad kan vara variabler
+skärm 5, 3, 42, 7 # tecken 42 vid kolumn 5, rad 3, färg 7 (skriver även färg-RAM $D800)
+skärm x, y, ch, kolumn # alla fyra argument som variabler
 
-display on               # re-enable VIC display ($D011 DEN bit)
-display off              # blank display
+display på # återaktivera VIC-display ($D011 DEN bit)
+display av # blank display
 
-lowercase                # CHR$(14) → switch VIC-II to lowercase/uppercase charset
-uppercase                # CHR$(142) → switch VIC-II back to uppercase/graphics charset
+gemener # CHR$(14) → växla VIC-II till gemener/versaler
+versaler # CHR$(142) → växla VIC-II tillbaka till versaler/grafik
 
-cursor 20, 10            # move cursor to col 20, row 10 (KERNAL PLOT $FFF0)
-cursor x, y              # column from variable x (0–39), row from y (0–24)
+markör 20, 10 # flytta markören till kolumn 20, rad 10 (KERNAL PLOT $FFF0)
+markör x, y # kolumn från variabel x (0–39), rad från y (0–24)
 
-print at 20, 10, "HELLO" # cursor(20,10) + print in one statement (no trailing newline)
-print at x, y, "Score:", score  # any mix of exprs
-print at 0, 0            # position only (no text, no newline)
+print at 20, 10, "HELLO" # markör(20,10) + print in one-sats (ingen avslutande radbrytning)
+print at x, y, "Poäng:", poäng # valfri blandning av uttryck
+print at 0, 0 # endast position (ingen text, ingen radbrytning)
 
-scroll x 3               # set horizontal fine scroll: $D016 bits 0-2 = 3 (0-7)
-scroll y 2               # set vertical fine scroll:   $D011 bits 0-2 = 2 (0-7)
-scroll x n               # value can be a variable or expression (masked to bits 0-2)
-scroll x 7 narrow        # set fine scroll and force 38-column mode (hide edge column)
-scroll x 0 wide          # set fine scroll and restore 40-column mode
-scroll row 12 left       # shift screen RAM row 12 left by one character
+scroll x 3 # sätt horisontell fin rullning: $D016 bitar 0-2 = 3 (0-7)
+scroll y 2 # sätt vertikal fin rullning: $D011 bitar 0-2 = 2 (0-7)
+scroll x n # värdet kan vara en variabel eller ett uttryck (maskerat till bitar 0-2)
+scroll x 7 narrow # ställ in fin scroll och tvinga fram 38-kolumnsläge (dölj kantkolumn)
+scroll x 0 wide # ställ in fin scroll och återställ 40-kolumnsläge
+scrolla rad 12 åt vänster # flytta skärmens RAM-rad 12 åt vänster med ett tecken
 ```
 
 `lowercase` genererar `LDA #$0E; JSR $FFD2` vid körning. Strängliteraler som
@@ -729,15 +912,15 @@ col/row: adress beräknad vid kompileringstid.
 ### Ultimate 64 — CPU-hastighet
 
 ```basic
-speed 4              # set CPU to 4 MHz  (reads $D031, updates bits 0-3, writes back)
-speed 48             # 48 MHz  (maximum speed on U64)
-speed max            # same as speed 48  (alias)
-speed off            # back to 1 MHz  (alias for speed 1)
+hastighet 4 # sätter CPU till 4 MHz (läser $D031, uppdaterar bitar 0-3, skriver tillbaka)
+hastighet 48 # 48 MHz (maxhastighet på U64)
+hastighet max # samma som hastighet 48 (alias)
+hastighet av # tillbaka till 1 MHz (alias för hastighet 1)
 
-badlines on          # enable badline timing  ($D031 bit 7 = 0, default C64 behaviour)
-badlines off         # disable badline timing ($D031 bit 7 = 1, more CPU cycles)
+badlines på # aktiverar badline-timing ($D031 bit 7 = 0, standard C64-beteende)
+badlines av # inaktiverar badline-timing ($D031 bit 7 = 1, fler CPU-cykler)
 
-var t = turbo()      # 1 if turbo is active (bits 0-3 of $D031 != 0), 0 if at 1 MHz
+var t = turbo() # 1 om turbo är aktiv (bitar 0-3 av $D031 != 0), 0 om vid 1 MHz
 ```
 
 Tillgängliga MHz-värden: `1, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 20, 24, 32, 40,
@@ -760,16 +943,16 @@ register ignoreras `poke` till `$D031` tyst.
 ### Tangentbord
 
 ```basic
-var key = getch()        # busy-wait on $FFE4 until key; returns PETSCII code
-var k   = inkey()        # non-blocking: returns PETSCII code, or 0 if no key pressed
-waitkey                  # wait until any key is pressed (CIA1 matrix scan; works during IRQ)
-var k   = waitkey()      # same but returns raw $DC01 column bits (0 bit = key pressed)
-var j = joy(2)           # read joystick port 2; returns inverted bits 0-4
-var j = joy(1)           # read joystick port 1
-                         # bit0=up(1) bit1=down(2) bit2=left(4) bit3=right(8) bit4=fire(16)
-var mx = mouse_x()       # 1351 mouse: accumulated X position (helper: charge+delay+delta)
-var my = mouse_y()       # 1351 mouse: accumulated Y position (EOR #$FF inverted)
-var mb = mouse_btn()     # mouse buttons: reads $DC01 — bit0=left (fire), bit1=right (up pin)
+var key = getch() # upptagen-vänta på $FFE4 tills nyckel; returnerar PETSCII-kod
+var k = inkey() # icke-blockerande: returnerar PETSCII-kod, eller 0 om ingen tangent trycks ner
+waitkey # vänta tills valfri tangent trycks ner (CIA1-matrisskanning; fungerar under IRQ)
+var k = waitkey() # samma men returnerar råa $DC01-kolumnbitar (0 bit = tangent nedtryckt)
+var j = joy(2) # läs joystickport 2; returnerar inverterade bitar 0-4
+var j = joy(1) # läs joystickport 1
+# bit0=upp(1) bit1=ner(2) bit2=vänster(4) bit3=höger(8) bit4=eld(16)
+var mx = mouse_x() # 1351 mus: ackumulerad X-position (hjälpare: laddning+fördröjning+delta)
+var my = mouse_y() # 1351 mus: ackumulerad Y-position (EOR #$FF inverterad)
+var mb = mouse_btn() # musknappar: läser $DC01 — bit0=vänster (eld), bit1=höger (uppåtriktad pin)
 ```
 
 `mouse_x()` / `mouse_y()` kör internt en hjälprutin som hanterar: CIA1 `$DC00`
@@ -797,17 +980,17 @@ och knappfeedback.
 ### Utgång
 
 ```basic
-bye                      # JSR $E544 (clear screen), clear STOP flag, RTS to BASIC
-exit                     # alias for bye
+hej då # JSR $E544 (ren skärm), rensa STOP-flaggan, RTS till BASIC
+avsluta # alias för hej då
 ```
 
 ### Tidpunkt
 
 ```basic
-wait 50                  # wait 50 raster-line transitions (~3.2 ms)
-wait raster 100          # spin until $D012 == 100 (raster-split effects)
-delay 1                  # wait 1 PAL frame (1/50 s ≈ 20 ms)
-delay 20                 # wait 20 frames ≈ 0.4 s; n can be a variable (0–255)
+vänta 50 # vänta 50 rasterlinjeövergångar (~3,2 ms)
+vänta raster 100 # snurra tills $D012 == 100 (rasterdelningseffekter)
+fördröjning 1 # vänta 1 PAL-bildruta (1/50 s ≈ 20 ms)
+fördröjning 20 # vänta 20 bildrutor ≈ 0,4 s; n kan vara en variabel (0–255)
 ```
 
 `delay N` räknar N kompletta PAL-bildrutor med rasterlinje 200 som
@@ -816,13 +999,13 @@ bildrutegräns.
 ### SID-ljud
 
 ```basic
-sound 0, $1CAD, 25       # voice 0, freq $1CAD (≈ middle C PAL), 25 frames duration
-sound 1, freq_word, 50   # voice 1, freq from word var, 50 frames (1 s at 50 Hz)
-sound 2, 0, 0            # voice 2, silence
+ljud 0, $1CAD, 25 # röst 0, frekvens $1CAD (≈ mellersta C PAL), 25 bildrutors varaktighet
+ljud 1, frekvensord, 50 # röst 1, frekvens från ord variabel, 50 bildrutor (1 s vid 50 Hz)
+ljud 2, 0, 0 # röst 2, tystnad
 
-sid volume 15            # master volume full ($D418 = $0F); range 0-15
-sid volume 0             # silence (master volume = 0)
-sid stop                 # zero all 25 SID registers ($D400–$D418) — complete silence
+sid volym 15 # huvudvolym full ($D418 = $0F); intervall 0-15
+sid volym 0 # tystnad (huvudvolym = 0)
+sid stopp # nollställ alla 25 SID-register ($D400–$D418) — fullständig tystnad
 ```
 
 `sound <channel>, <freq>, <duration>` — längd i PAL-bildrutor (1/50 s vardera).
@@ -843,10 +1026,10 @@ individuella pokes.
 ### Icke-blockerande ljudeffekter (`sfx`) — nytt i 1.5.7
 
 ```basic
-sound 0, $2000, 25            # BLOCKS: the program waits 25 frames here
-sfx 0, $2000, 25              # returns at once; the note fades out by itself
-sfx 1, $0500, 8, 128          # optional wave: 16 triangle, 32 saw (default), 64 pulse, 128 noise
-sfx 0, freq_word, 4, 16       # freq may be a constant, a word var or an 8-bit expression
+ljud 0, $2000, 25 # BLOCK: programmet väntar 25 bildrutor här
+sfx 0, $2000, 25 # returnerar direkt; tonen tonar ut av sig själv
+sfx 1, $0500, 8, 128 # valfri våg: 16 triangel, 32 såg (standard), 64 puls, 128 brus
+sfx 0, freq_word, 4, 16 # freq kan vara en konstant, en ordvariabel eller ett 8-bitarsuttryck
 ```
 
 `sfx <channel>, <freq>, <frames> [, <wave>]` programmerar en SID-röst och
@@ -862,8 +1045,8 @@ så tonen dör bort under ungefär den tiden. Den återaktiverar rösten varje a
 ### SID Music
 
 ```basic
-load sid "tune.sid"            # embed SID music at its native load address
-load sid "tune.sid", $2000     # override: embed at $2000 regardless of SID header
+ladda sid "tune.sid" # bädda in SID-musik på dess ursprungliga laddningsadress
+ladda sid "tune.sid", $2000 # åsidosätta: bädda in vid $2000 oavsett SID-rubrik
 ```
 
 `load sid` läser en PSID- eller RSID-fil vid **kompileringstid**, raderar
@@ -881,18 +1064,18 @@ Båda konstanterna fungerar överallt där en konstant adress accepteras: `sys`,
 **Typisk användning:**
 
 ```basic
-load sid "music.sid"
+ladda sid "music.sid"
 
 sub music_irq()
-  poke $D019, $FF       # ACK VIC raster IRQ
-  sys sid_play          # advance one frame of music
-  irq_exit              # JMP $EA81: restore A/X/Y + RTI (proper IRQ exit)
+poke $D019, $FF # ACK VIC raster IRQ
+sys sid_play # gå framåt en bildruta med musik
+irq_exit # JMP $EA81: återställ A/X/Y + RTI (korrekt IRQ-utgång)
 end
 
-sys sid_init, 0         # initialise SID chip: A=0 → first sub-tune
-irq music_irq, $C0      # raster IRQ at line $C0 → 50 Hz on PAL
+sys sid_init, 0 # initiera SID-chip: A=0 → första sublåten
+irq music_irq, $C0 # raster IRQ vid linje $C0 → 50 Hz på PAL
 
-sid volume 15           # master volume on
+sid volym 15 # huvudvolym på
 ```
 
 **Anteckningar:**
@@ -906,20 +1089,9 @@ sid volume 15           # master volume on
 ### Tracker-låtar (`tune`)
 
 ```basic
-tune                       # optional: tune at $C800  (default $8000)
-  speed 6                  # frames per row (50 Hz PAL)
-  inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
-  inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
-  imod 0, 6, 3, 9, 40, $0200, $0E00   # vibrato + pulse width modulation (1.6.2)
-  ifilt 0, $0500, 20, 1               # cutoff sweep up to $500, back and forth (1.6.2)
-  igate 1, 2, 1, $09                  # gate timer, hard restart, first frame $09 (1.6.2)
-  itab 1, 2, 0, ".. +0", ".. +4", ".. +7"   # arpeggio table (1.6.2)
-  order 0, 1, 0            # pattern order (patterns may repeat)
-  pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
-  pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
-  pat 1, 0, "G-4 00", "...", "E-4 00", "...", "C-4 00"
+justering # valfritt: justering vid $C800 (standard $8000) hastighet 6 # bildrutor per rad (50 Hz PAL) inst 0, $41, $09, $F0, $0800, $0064, $27, $1F inst 1, $10, $08, $A8, $0400, $0000, $00, $0F imod 0, 6, 3, 9, 40, $0200, $0E00 # vibrato + pulsbreddsmodulering (1.6.2) ifilt 0, $0500, 20, 1 # avgränsningssvep upp till $500, fram och tillbaka (1.6.2) igate 1, 2, 1, $09 # gatetimer, hård omstart, första bildrutan $09 (1.6.2) itab 1, 2, 0, ".. +0", ".. +4", ".. +7" # arpeggiotabell (1.6.2) ordning 0, 1, 0 # mönsterordning (mönster kan upprepas) pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00" pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03" pat 1, 0, "G-4 00", "...", "E-4 00", "...", "C-4 00"
 end
-music play                 # or: sys sid_init / irq handler calling sys sid_play
+musikuppspelning # eller: sys sid_init / irq-hanterare som anropar sys sid_play
 ```
 
 `tune ... end` beskriver en 3-stämmig spårningsmelodi i klartext (samma
@@ -930,14 +1102,14 @@ så `music play`, `music stop`, `music pause` och `music resume` (och en manuell
 
 | Linje                                                             | Menande                                                                                                                                                                                                                                                                                                                                                             |
 | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `speed N`                                                         | Bildrutor per spårningsrad (1–255).                                                                                                                                                                                                                                                                                                                                 |
-| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol`             | Ett instrument: kontrollregister (vågformsbitar plus ringmod `$04` / synk `$02`; gate-biten läggs till av spelaren), attack/decay, sustain/release, 12-bitars pulsbredd, 11-bitars filteravstängning, resonans-/filterrouting-byte (`$D417`-stil: valfri routing-bit = routa rösten som spelar detta instrument) och mode/volym-byte (`$D418`-stil, bit 7 = 3 OFF). |
+| `hastighet N`                                                     | Bildrutor per spårningsrad (1–255).                                                                                                                                                                                                                                                                                                                                 |
+| `inst-id, ctrl, ad, sr, pw, cutoff, resilt, modevol`              | Ett instrument: kontrollregister (vågformsbitar plus ringmod `$04` / synk `$02`; gate-biten läggs till av spelaren), attack/decay, sustain/release, 12-bitars pulsbredd, 11-bitars filteravstängning, resonans-/filterrouting-byte (`$D417`-stil: valfri routing-bit = routa rösten som spelar detta instrument) och mode/volym-byte (`$D418`-stil, bit 7 = 3 OFF). |
 | `imod id, vibdelay, vibspeed, vibdepth, pwmspeed, pwmmin, pwmmax` | (1.6.2) Instrumentvibrato: efter `vibdelay`-ramar en triangel-LFO som vrider varje `vibspeed`-ram (1-15, 0 = av), djup 0-15 (skalat till notens halvton). Pulsbreddsmodulering: `pwmspeed` tillagd per ram (0 = av), studsar mellan `pwmmin` och `pwmmax`.                                                                                                          |
 | `iFilt-id, cutend, svep, pingis`                                  | (1.6.2) Filtergränssvep: från `instant`-gränsen mot `cutend` med `svep` (0-127) per bildruta; `pingpong` 1 = fram och tillbaka.                                                                                                                                                                                                                                     |
 | `igate-id, gatetimer, hård omstart, firstwave`                    | (1.6.2) Grinden släpps `gatetimer` ramar före nästa ton på rösten (håll den under `speed`); `hardrestart` 1 sätter även ADSR till 0 då. `firstwave` (t.ex. `$09` = test + gate) skrivs på tonens första ram.                                                                                                                                                        |
 | `itab-id, hastighet, loop, "steg", ...`                           | (1.6.2) Vågform/arpeggio-tabell, upp till 32 steg: `"WW +n"`, `".. -n"` eller `"WW =n"` - vågform i hexagonal (`..` behåller den) och en tonförskjutning i halvtoner eller en absolut ton (`=60`). Ett steg varje `hastighets` bildruta, sedan tillbaka till steg `loop` (255 = stanna på sista steget).                                                            |
-| `order p, p, ...`                                                 | Mönsterordning. Linjerna ackumuleras, upp till 255 steg.                                                                                                                                                                                                                                                                                                            |
-| `pat p, v, "cell", ...`                                           | Upp till 32 rader för röst `v` (0-2) av mönster `p` (0-7). Saknade rader är tomma.                                                                                                                                                                                                                                                                                  |
+| `ordning p, p, ... `                                              | Mönsterordning. Linjerna ackumuleras, upp till 255 steg.                                                                                                                                                                                                                                                                                                            |
+| `klappa p, v, "cell", ...`                                        | Upp till 32 rader för röst `v` (0-2) av mönster `p` (0-7). Saknade rader är tomma.                                                                                                                                                                                                                                                                                  |
 
 En **cell** är `NOTE INST FX`: `C-4`, `D#3`, `Eb2` eller `...` för ingen not,
 ett tvåsiffrigt hexagonalt instrument (`..` för att lämna det), och en valfri
@@ -973,21 +1145,21 @@ sid`-sats eller ett `tune ... end`-block (båda definierar `sid_init` /
 `sid_play`).
 
 ```basic
-load sid "tune.sid"         # embed SID file (defines sid_init / sid_play)
+ladda sid "tune.sid" # bädda in SID-fil (definierar sid_init / sid_play)
 
-music play                  # initialise sub-tune 0 + start CIA1 50 Hz IRQ
-music play 1                # start from sub-tune 1 (song number 0-based)
-music stop                  # stop playback + zero all 25 SID registers ($D400-$D418)
-music pause                 # disable CIA1 timer A IRQ (music freezes, SID unchanged)
-music resume                # re-enable CIA1 timer A IRQ (continues from pause point)
+musikuppspelning # initiera undermelodi 0 + starta CIA1 50 Hz IRQ
+musikuppspelning 1 # starta från undermelodi 1 (baserat på låtnummer 0)
+musikstopp # stoppa uppspelning + nollställ alla 25 SID-register ($D400-$D418)
+musikpaus # inaktivera CIA1 timer A IRQ (musiken fryser, SID oförändrat)
+musikåteruppta # återaktivera CIA1 timer A IRQ (fortsätter från pauspunkt)
 ```
 
-| Påstående        | Effekt                                                                                                |
-| ---------------- | ----------------------------------------------------------------------------------------------------- |
-| `music play [n]` | anropa `sid_init(n)`, konfigurera CIA1-timer A till 19 656 cykler (~50 Hz PAL), installera IRQ-omslag |
-| `music stop`     | inaktivera CIA1 IRQ + nollställ alla 25 SID-register                                                  |
-| `music pause`    | inaktivera CIA1 IRQ (SID-utmatningen förblir fryst)                                                   |
-| `music resume`   | återaktivera CIA1 IRQ (fortsätter från pauspunkten)                                                   |
+| Påstående              | Effekt                                                                                                |
+| ---------------------- | ----------------------------------------------------------------------------------------------------- |
+| `musikuppspelning [n]` | anropa `sid_init(n)`, konfigurera CIA1-timer A till 19 656 cykler (~50 Hz PAL), installera IRQ-omslag |
+| `musikstopp`           | inaktivera CIA1 IRQ + nollställ alla 25 SID-register                                                  |
+| `musikpaus`            | inaktivera CIA1 IRQ (SID-utmatningen förblir fryst)                                                   |
+| `musik-CV`             | återaktivera CIA1 IRQ (fortsätter från pauspunkten)                                                   |
 
 IRQ-omslaget (som skickas ut en gång i slutet av programmet) gör: ACK CIA1 timer
 A → `JSR sid_play` → `JMP $EA81`.
@@ -995,32 +1167,32 @@ A → `JSR sid_play` → `JMP $EA81`.
 ### Sprites
 
 ```basic
-sprite 0, x, y, $2000    # sprite 0: set X, Y position and data pointer
-sprite 0, x, y           # without data pointer (keeps existing)
-sprite on  0             # enable sprite 0 ($D015 |= bit0)
-sprite off 0             # disable sprite 0 ($D015 &= ~bit0)
-sprite color 0, 7        # sprite 0 color = yellow ($D027)
-sprite multicolor 0, on  # enable multicolor mode for sprite 0 ($D01C |= bit0)
-sprite multicolor 0, off # disable multicolor mode ($D01C &= ~bit0)
-sprite expand x 0, on    # double width ($D01D |= bit0)
-sprite expand x 0, off   # normal width ($D01D &= ~bit0)
-sprite expand y 0, on    # double height ($D017 |= bit0)
-sprite expand y 0, off   # normal height ($D017 &= ~bit0)
-sprite priority 0, on    # behind background ($D01B |= bit0)
-sprite priority 0, off   # in front of background ($D01B &= ~bit0)
-var h = sprite_hit()     # sprite–sprite collision ($D01E, cleared on read)
-var b = sprite_bg_hit()  # sprite–background collision ($D01F, cleared on read)
-var x = sprite_x(0)      # read sprite 0 X position (lo byte, $D000)
-var y = sprite_y(0)      # read sprite 0 Y position ($D001)
-sprite_frame 0, $2000          # select one static sprite image
-sprite_frame 0, $2000, frame   # select an animation frame from a frame sequence
+sprite 0, x, y, $2000 # sprite 0: sätt X-, Y-position och datapekare
+sprite 0, x, y # utan datapekare (behåller existens)
+sprite på 0 # aktivera sprite 0 ($D015 |= bit0)
+sprite av 0 # inaktivera sprite 0 ($D015 &amp;= ~bit0)
+sprite färg 0, 7 # sprite 0 färg = gul ($D027)
+sprite multicolor 0, på # aktivera flerfärgsläge för sprite 0 ($D01C |= bit0)
+sprite multicolor 0, av # inaktivera flerfärgsläge ($D01C &amp;= ~bit0)
+sprite expand x 0, på # dubbel bredd ($D01D |= bit0)
+sprite expand x 0, av # normal bredd ($D01D &amp;= ~bit0)
+sprite expand y 0, på # dubbel höjd ($D017 |= bit0)
+sprite expand y 0, av # normal höjd ($D017 &amp;= ~bit0)
+sprite-prioritet 0, på # bakom bakgrunden ($D01B |= bit0)
+sprite-prioritet 0, av # framför bakgrunden ($D01B &amp;= ~bit0)
+var h = sprite_hit() # sprite-sprite-kollision ($D01E, rensad vid läsning)
+var b = sprite_bg_hit() # sprite-bakgrundskollision ($D01F, rensad vid läsning)
+var x = sprite_x(0) # läs sprite 0 X-position (låg byte, $D000)
+var y = sprite_y(0) # läs sprite 0 Y-position ($D001)
+sprite_frame 0, $2000 # välj en statisk sprite-bild
+sprite_frame 0, $2000, frame # välj en animationsbildruta från en bildrutesekvens
 ```
 
 X stöder hela 9-bitarsintervallet (0–319): använd en `word`-variabel för
 runtime-värden > 255. Sprite-datapekare: `data_addr` måste vara
 64-byte-justerad; lagras som `addr >> 6` vid `$07F8+id`.
 
-#### Sprite animation with `sprite_frame`
+#### Sprite-animering med `sprite_frame`
 
 `sprite_frame` är kommandot som används för att ändra den visade bilden av en
 sprite under animering. Det ändrar bara spritens datapekare; det flyttar
@@ -1040,11 +1212,7 @@ animeringens timing och radbrytning:
 
 ```basic
 var frame = 0
-loop
-  sprite_frame 0, $2000, frame
-  frame = frame + 1
-  if frame == 4 then frame = 0 end
-  delay 5
+loop sprite_frame 0, $2000, frame frame = frame + 1 om frame == 4 så är frame = 0 end fördröjning 5
 end
 ```
 
@@ -1055,8 +1223,8 @@ sprite-bild och förblir bakåtkompatibel. Sprite-positionen styrs fortfarande a
 ### Kollision i programvarans gränsruta
 
 ```basic
-var touching = box_hit(left1, top1, right1, bottom1,
-                       left2, top2, right2, bottom2)
+var beröring = box_hit(vänster1, topp1, höger1, botten1,
+vänster2, topp2, höger2, botten2)
 ```
 
 `box_hit()` utför ett axeljusterat avgränsningsboxtest (AABB) och returnerar `1`
@@ -1067,17 +1235,16 @@ rutor kan vara mindre än den synliga sprite-bilden eller kan beskriva spelobjek
 som inte är sprite. Koordinaterna är inkluderande; behåll `left <= right` och
 `top <= bottom`.
 
-### Sprite definition
+### Sprite-definition
 
 ```basic
 sprdef 0
-  $00,$3C,$00,  $00,$FF,$00,  $03,$FF,$C0,  $07,$FF,$E0,
-  $0F,$FF,$F0,  $0F,$FF,$F0,  $1F,$FF,$F8,  $1F,$FF,$F8,
-  $1F,$FF,$F8,  $0F,$FF,$F0,  $0F,$FF,$F0,  $07,$FF,$E0,
-  $03,$FF,$C0,  $00,$FF,$00,  $00,$3C,$00,  $00,$00,$00,
-  $00,$00,$00,  $00,$00,$00,  $00,$00,$00,  $00,$00,$00,
-  $00,$00,$00
-end
+  $00,$3C,$00, $00,$FF,$00, $03,$FF,$C0, $07,$FF,$E0,
+  $0F,$FF,$F0, $0F,$FF,$F0, $1F,$FF,$F8, $1F,$FF,$F8,
+  $1F,$FF,$F8, $0F,$FF,$F0, $0F,$FF,$F0, $07,$FF,$E0,
+  $03,$FF,$C0, $00,$FF,$00, $00,$3C,$00, $00,$00,$00,
+  $00,$00,$00, $00,$00,$00, $00,$00,$00, $00,$00,$00,
+00 kr, 00 kr, 00 kr slut
 ```
 
 `sprdef id ... end` bäddar in 63 spritebyte vid nästa 64-byte-justerade adress i
@@ -1086,8 +1253,8 @@ data_addr >> 6`. För att använda samma form för flera sprites, läs tillbaka
 pekaren:
 
 ```basic
-var pg = peek($07F8)   # pointer set by sprdef 0
-poke $07F9, pg         # copy to sprites 1–7
+var pg = peek($07F8) # pekare satt av sprdef 0
+poke $07F9, pg # kopiera till sprites 1–7
 ```
 
 ### Karaktärsrutekartor (`.ubmap`)
@@ -1221,9 +1388,9 @@ version, dimensioner eller längd producerar ett kompileringsfel.
 ### Import av bild från Koala Painter
 
 ```basic
-koala load "pictures/title.kla"  # validate and embed at compile time
-koala show                       # enter bitmap multicolor mode
-koala hide                       # return to the default text display
+koala ladda "pictures/title.kla" # validera och bädda in vid kompileringstid
+koala visa # gå in i bitmappsläge för flerfärgade bilder
+koala dölj # återgå till standardtextvisning
 ```
 
 `koala load` accepterar en standard 10003-byte Koala-fil (`$6000`
@@ -1243,10 +1410,10 @@ Koala-import kan för närvarande inte kombineras med `load sid` i samma program
 ### Kodlayout: `org` — nytt i 1.5.7
 
 ```basic
-sub a() ... end          # subs/fns are placed one after another from the end of the main body
-org $4000                # the next subs/fns continue at $4000; $xxxx-$3FFF stays zero-filled
+sub a() ... end # subs/fns placeras efter varandra från slutet av huvuddelen
+org $4000 # nästa subs/fns fortsätter vid $4000; $xxxx-$3FFF förblir nollfylld
 sub b() ... end
-incbin "font.bin", $3800 # data can live in the gap ($3800-$3FFF is a whole VIC charset slot)
+incbin "font.bin", $3800 # data kan finnas i mellanrummet ($3800-$3FFF är en hel VIC-teckenuppsättningsplats)
 ```
 
 `org addr` går **mellan sub/fn-definitioner** (den ignoreras i huvuddelen och
@@ -1261,14 +1428,14 @@ mellanrummet.
 ### Anpassad teckenuppsättning (`charset on` / `charset off` nytt i 1.5.7)
 
 ```basic
-charset $3800            # set base address for chardef (default $3800)
+teckenuppsättning $3800 # ange basadress för chardef (standard $3800)
 
-chardef 65               # redefine character 65 ('A')
-  $18,$3C,$66,$7E,$66,$66,$66,$00
+chardef 65 # omdefiniera tecken 65 ('A')
+$18,$3C,$66,$7E,$66,$66,$66,$00
 end
 
-chardef 66               # fewer than 8 bytes are zero-padded
-  $7C,$66,$7C,$66,$7C
+chardef 66 # färre än 8 byte är nollfyllda
+$7C,$66,$7C,$66,$7C
 end
 ```
 
@@ -1283,11 +1450,11 @@ programmeraren (manualen sa det före 1.5.7 — det var fel).
 För att få VIC-II att använda setet, slå på det (och stäng av det igen när du är
 klar):
 ```basic
-charset $3800
-chardef 1  $FF,$81,$81,$81,$81,$81,$81,$FF  end  # box border
-charset on          # VIC-II reads characters from $3800 (screen matrix untouched)
+teckenuppsättning $3800
+chardef 1 $FF,$81,$81,$81,$81,$81,$81,$81,$FF slut # boxkant
+teckenuppsättning på # VIC-II läser tecken från $3800 (skärmmatris orörd)
 ...
-charset off         # back to the ROM set ($1800 if `lowercase` is active, else $1000)
+teckenuppsättning av # tillbaka till ROM-uppsättningen ($1800 om `gemener` är aktiv, annars $1000)
 ```
 
 `charset on` läs-ändra-skriver `$D018` bitarna 1-3 från den sista `charset addr`
@@ -1309,14 +1476,14 @@ addr`) räknas inte som kod.
 ### Minne
 
 ```basic
-poke $D020, 2            # STA $D020
-poke addr_var, 6         # STA (addr_var),Y  — if addr_var is word type
-var v = peek($D012)      # LDA $D012
-var v = peek(addr_var)   # LDA (addr_var),Y  — if addr_var is word type
+poke $D020, 2 # STA $D020
+poke addr_var, 6 # STA (addr_var),Y — om addr_var är ordtypen
+var v = peek($D012) # LDA $D012
+var v = peek(addr_var) # LDA (addr_var),Y — om addr_var är ordtypen
 
-var w: word = peek16($C000)   # read 16-bit little-endian: lo=$C000, hi=$C001
-poke16 $0314, $EA81           # write 16-bit little-endian: lo→$0314, hi→$0315
-poke16 ptr, w                 # word var as address; word var as value
+var w: word = peek16($C000) # läs 16-bitars little-endian: lo=$C000, hi=$C001
+poke16 $0314, $EA81 # skriv 16-bitars little-endian: lo→$0314, hi→$0315
+poke16 ptr, w # word var som adress; word var som värde
 ```
 
 `peek16(addr)` läser två på varandra följande byte (lo, hi) som en `word`.
@@ -1325,13 +1492,13 @@ poke16 ptr, w                 # word var as address; word var as value
 ### Disk-I/O
 
 ```basic
-load "PROGRAM"           # KERNAL LOAD: loads file from device 8 to its native address
-load "DATA", $C000       # loads file to a specific address
-chain "GAME"             # load another program over this one and RUN it (see below)
-load "DATA", ptr         # addr from word variable
+ladda "PROGRAM" # KERNAL LOAD: laddar fil från enhet 8 till dess ursprungliga adress
+ladda "DATA", $C000 # laddar fil till en specifik adress
+kedja "GAME" # ladda ett annat program över detta och KÖR det (se nedan)
+ladda "DATA", ptr # adr från word-variabel
 
-save "DATA", $C000, 4096 # KERNAL SAVE from $C000, 4096 bytes → device 8
-save "PROG", start, len  # addr and len from word/int variables
+spara "DATA", $C000, 4096 # KERNAL SAVE från $C000, 4096 byte → enhet 8
+spara "PROG", starta, len # adr och len från word/int-variabler
 ```
 
 `load` anropar KERNAL `SETNAM`+`SETLFS`+`LOAD` (`$FFBD`/`$FFBA`/`$FFD5`). Utan
@@ -1344,9 +1511,9 @@ Kräver både `addr` och `len`.
 #### Kedja till ett annat program — `kedja` (nytt i 1.5.9)
 
 ```basic
-chain "GAME"             # load GAME from the drive we were started from and RUN it
-chain "GAME", 9          # from drive 9 (any expression)
-print "LOAD ERROR"       # only reached if the file could not be loaded
+kedja "GAME" # ladda GAME från den enhet vi startades från och KÖR det
+kedja "GAME", 9 # från enhet 9 (valfritt uttryck)
+print "LOAD ERROR" # nåddes endast om filen inte kunde laddas
 ```
 
 `chain` laddar ett annat program till sin egen laddningsadress — normalt
@@ -1383,15 +1550,15 @@ Filnamnet måste vara en strängliteral på 1–16 tecken.
 ### Seriell kanalfil I/O
 
 ```basic
-open 1, 8, 2, "MYFILE"  # open logical file 1, device 8, secondary 2, name "MYFILE"
-open 2, 4, 7             # open printer (device 4), no filename
-open ch, dev, sec        # channel, device, secondary from variables
+öppna 1, 8, 2, "MIN FIL" # öppna logisk fil 1, enhet 8, sekundär 2, namn "MIN FIL"
+öppna 2, 4, 7 # öppna skrivare (enhet 4), inget filnamn
+öppna kanal, dev, sek # kanal, enhet, sekundär från variabler
 
-print# 1, "HELLO"        # send "HELLO"+CR to logical file 1
-print# ch, x, "text"     # any mix of vars, strings — same as print but to file
+print# 1, "HEJ" # skicka "HEJ"+CR till logisk fil 1
+print# kanal, x, "text" # valfri blandning av variabler, strängar — samma som print men till fil
 
-close 1                  # close logical file 1
-close ch                 # channel from variable
+stäng 1 # stäng logisk fil 1
+stäng kanal # kanal från variabel
 ```
 
 `open` anropar `SETNAM` ($FFBD) + `SETLFS` ($FFBA) + `OPEN` ($FFC0). Utan ett
@@ -1402,9 +1569,9 @@ placerar kanalnumret i A och anropar `CLOSE` ($FFC3).
 ### Input
 
 ```basic
-input score              # read up to 3 digits from keyboard → 8-bit int var
-input "Name: ", name     # optional prompt string, then read line → string var
-input "Score: ", score   # prompt + int input
+inmatning av poäng # läs upp till 3 siffror från tangentbordet → 8-bitars int var
+inmatning av "Namn: ", namn # valfri promptsträng, läs sedan rad → sträng var
+inmatning av "Poäng: ", poäng # prompt + int inmatning
 ```
 
 `input` använder KERNAL BASIN (`$FFCF`) för blockerande, ekoad linjeinmatning
@@ -1413,6 +1580,11 @@ med DEL-stöd.
   8-bitarsvärde vid CR.
 - **Strängvariabel**: accepterar upp till 30 tecken; lagrar som null-avslutad
   sträng; ZP-par uppdaterat.
+- **DUBBEL var** (1.6.3): siffror och `.`, t.ex. `12,5` → 12,50 (två decimaler).
+- **Array-element** (1.6.3): `input t(i)` / `input nevek(i)`; `input "prompt";
+  x` fungerar också.
+- **Strängvariabel**: accepterar upp till 30 tecken; lagrar som null-avslutad
+  sträng; ZP-par uppdateras.
 
 ### Flytpunkt / Fixpunkt
 
@@ -1420,24 +1592,24 @@ med DEL-stöd.
 heltalsdelen (0–255) och den låga byten är bråkdelen (0/256 … 255/256).
 
 ```basic
-var f: float = 3.5       # 3.5 → hi=3, lo=128 (= 0x0380)
-var g: float = 0         # integer 0 is promoted to 0.0 automatically
+var f: flyttal = 3.5 # 3.5 → hi=3, lo=128 (= 0x0380)
+var g: flyttal = 0 # heltal 0 höjs automatiskt till 0.0
 
-f = 1.5                  # Q8.8 literal assignment
-f = f + 1.5              # 16-bit Q8.8 arithmetic (result: 3.0)
-f = f + g                # float + float
+f = 1.5 # Q8.8 bokstavstilldelning
+f = f + 1.5 # 16-bitars Q8.8 aritmetik (resultat: 3.0)
+f = f + g # flyttal + flyttal
 
-var n = int(f)           # extract integer part (hi byte) → 8-bit int
-print f                  # prints as "N.DD" (e.g. 3.5 → "3.50", 1.25 → "1.25")
+var n = int(f) # extrahera heltalsdelen (hi byte) → 8-bitars heltal
+print f # skriver ut som "N.DD" (t.ex. 3.5 → "3.50", 1.25 → "1.25")
 ```
 
 | Drift          | Exempel              | Anteckningar                           |
 | -------------- | -------------------- | -------------------------------------- |
-| Bokstavlig     | `3.5`, `0.25`, `1.0` | parsad som Q8.8 vid kompileringstid    |
+| Bokstavlig     | `3,5`, `0,25`, `1,0` | parsad som Q8.8 vid kompileringstid    |
 | Heltalskampanj | `f = 5`              | lagrar 5,0 (hög=5, låg=0)              |
-| Lägg till/dela | `f + 1.5`, `f - g`   | 16-bitars Q8.8-aritmetik               |
+| Lägg till/dela | `f + 1,5`, `f - g`   | 16-bitars Q8.8-aritmetik               |
 | Extrahera int  | `int(f)`             | returnerar hi byte som 8-bitars heltal |
-| Skriva ut      | `print f`            | formatera "N.DD", alltid 2 bråksiffror |
+| Skriva ut      | `skriv ut f`         | formatera "N.DD", alltid 2 bråksiffror |
 
 **Varning:** Aritmetiskt överflöde avslutas vid 255,255 (ingen mättnad).
 Multiplikation och division av två flyttalvariabler stöds ännu inte — använd
@@ -1452,39 +1624,39 @@ avkortat, inte avrundat: 1/10 = 25/256 skrivs ut som `0.09`.
 ### Matematiska funktioner
 
 ```basic
-var a = abs(x - 20)      # two's-complement absolute value
-var b = min(x, 39)       # 8-bit minimum
-var c = max(x, 0)        # 8-bit maximum
-var s = sgn(score)       # 0 = zero, 1 = positive (1–127), $FF = negative (128–255)
-var r = rnd()            # LCG pseudo-random 0-255; seed from raster line
-var r = rnd(10)          # LCG pseudo-random 0-9 (rnd() mod n; result 0..n-1)
-var s = sin(angle)       # sine: angle 0-255 (full circle), returns 0-255 (center=128)
-var c = cos(angle)       # cosine = sin(angle+64)
-var v = clamp(x, 0, 39)  # 8-bit unsigned clamp: result = max(lo, min(hi, val))
+var a = abs(x - 20) # absolutvärde för tvåkomplement
+var b = min(x, 39) # 8-bitars minimum
+var c = max(x, 0) # 8-bitars maximum
+var s = sgn(poäng) # 0 = noll, 1 = positiv (1–127), $FF = negativ (128–255)
+var r = rnd() # LCG pseudo-slumpmässig 0-255; frö från rasterlinje
+var r = rnd(10) # LCG pseudo-random 0-9 (rnd() mod n; resultat 0..n-1)
+var s = sin(vinkel) # sinus: vinkel 0-255 (full cirkel), returnerar 0-255 (centrum=128)
+var c = cos(vinkel) # cosinus = sin(vinkel+64)
+var v = clamp(x, 0, 39) # 8-bitars osignerad clamp: resultat = max(lo, min(hi, val))
 
-print hex(n)             # print as 2-digit uppercase hex
-print bin(n)             # print as 8-bit binary string
+print hex(n) # print as 2-siffrig versal hex
+print bin(n) # print as 8-bitars binär sträng
 ```
 
 ### Strängfunktioner
 
 ```basic
-var n = len(msg)         # length of null-terminated string var (0–255)
-var c = asc(msg)         # PETSCII code of first character (0 if empty)
-var c = asc("A")         # compile-time: constant PETSCII code
-var n = val(s)           # runtime: parse decimal PETSCII string → 8-bit int (e.g. "042" → 42)
-var c = msg[i]           # string character at index i: PETSCII code of msg[i]
-msg[i] = c               # write PETSCII byte c to string at index i — STA (ptr),Y
-msg[0] = 72              # constant index → LDY #0; STA (ptr),Y
+var n = len(msg) # längd på null-avslutad sträng var (0–255)
+var c = asc(msg) # PETSCII-kod för första tecknet (0 om tom)
+var c = asc("A") # kompileringstid: konstant PETSCII-kod
+var n = val(s) # körtid: tolka decimal PETSCII-sträng → 8-bitars heltal (t.ex. "042" → 42)
+var c = msg[i] # strängtecken vid index i: PETSCII-kod för msg[i]
+msg[i] = c # skriv PETSCII-byte c till sträng vid index i — STA (ptr),Y
+msg[0] = 72 # konstant index → LDY #0; STA (ptr),Y
 ```
 
 ### Nummerformatering
 
 ```basic
-print hex(n)             # print as 2-digit uppercase hex
-print bin(n)             # print as 8-bit binary string
-print dec(n, 4)          # right-justified decimal in a field of 4 chars (e.g. 42 → "  42")
-print dec(n, width)      # width can also be a variable
+print hex(n) # skriv ut som 2-siffrigt hexadecimalt tecken i versaler
+print bin(n) # skriv ut som 8-bitars binär sträng
+print dec(n, 4) # högerjusterat decimaltal i ett fält med 4 tecken (t.ex. 42 → "42")
+print dec(n, width) # width kan också vara en variabel
 ```
 
 `dec(n, width)` fyller ut talet till vänster med mellanslag för att fylla
@@ -1495,12 +1667,12 @@ till `n` oförändrad (samma som `hex`/`bin`).
 ### REU (RAM-expansionsenhet)
 
 ```basic
-var ok = reu_present()   # 1 if REU detected, 0 if not (write/read test on $DF04)
-var ok = reudet()        # alias for reu_present()
+var ok = reu_present() # 1 om REU upptäcktes, 0 om inte (skriv-/lästest på $DF04)
+var ok = reudet() # alias för reu_present()
 
-reu stash c64addr, bank, reu_addr, len  # copy C64 → REU
-reu fetch c64addr, bank, reu_addr, len  # copy REU → C64
-reu swap  c64addr, bank, reu_addr, len  # swap between C64 and REU
+reu stash c64addr, bank, reu_addr, len # kopiera C64 → REU
+reu hämta c64addr, bank, reu_addr, len # kopiera REU → C64
+reu swap c64addr, bank, reu_addr, len # växla mellan C64 och REU
 ```
 
 `reu_present()` utför ett skriv-/återläsningstest på REU-registret `$DF04`. Utan
@@ -1513,7 +1685,7 @@ kommandoregister.
 | `c64addr`  | 16-bitars | C64 RAM-start — konstant, `word` variabel eller 8-bitars uttryck |
 | `bank`     | 8-bitars  | REU-banknummer (0–7 för en 512 KB-enhet)                         |
 | `reu_addr` | 16-bitars | Kvittning inom REU-banken                                        |
-| `len`      | 16-bitars | Byte att överföra (`0` = 65 536 i REU-hårdvara)                  |
+| `lens`     | 16-bitars | Byte att överföra (`0` = 65 536 i REU-hårdvara)                  |
 
 REU-register: `$DF01` kommando (`$B0` stash / `$B1` fetch / `$B2` swap),
 `$DF02–$DF03` C64 addr, `$DF04–$DF05` REU offset, `$DF06` bank, `$DF07–$DF08`
@@ -1523,18 +1695,18 @@ eller VICE: **Inställningar → Hårdvara → RAM-expansionsmodul**.
 ### Minnesverktyg
 
 ```basic
-fill screen 32           # fill screen RAM $0400–$07FF with value 32 (space char)
-fill color 1             # fill color RAM $D800–$DBFF with value 1 (white)
+fyll skärm 32 # fyll skärm RAM $0400–$07FF med värde 32 (mellanslag)
+fyllningsfärg 1 # fyllningsfärg RAM $D800–$DBFF med värde 1 (vit)
 
-fill $0400, 1000, 32     # fill 1000 bytes starting at $0400 with value 32
-fill addr, 256, 0        # addr can be word var
-fill ptr, len_word, val  # all operands can be expressions / word vars
+fyll $0400, 1000, 32 # fyll 1000 byte från $0400 med värde 32
+fyll addr, 256, 0 # addr kan vara ordvariabel
+fyll ptr, len_word, val # alla operander kan vara uttryck / ordvariabel
 
-memcopy $C000, $0400, 256   # copy 256 bytes from $C000 → $0400
-memcopy src_ptr, dst_ptr, 40 # word vars for source and destination
+memcopy $C000, $0400, 256 # kopiera 256 byte från $C000 → $0400
+memcopy src_ptr, dst_ptr, 40 # ordvariabel för källa och destination
 
-drawmem $C000, $0400, 8, 10, 40 # blit 8×10 rect from $C000 → screen at $0400, stride 40
-drawmem src_ptr, dst_ptr, w, h, 40 # word vars for src/dst
+drawmem $C000, $0400, 8, 10, 40 # blit 8×10 rect from $C000 → skärm vid $0400, steg 40
+drawmem src_ptr, dst_ptr, w, h, 40 # ordvariabler för src/dst
 ```
 
 Både `fill` och `memcopy` stöder 16-bitarslängder (0–65535). Använd
@@ -1549,10 +1721,10 @@ höjd och steglängd är alla 8-bitarsvärden. `src` och `dst` kan vara konstant
 ### Raster-IRQ
 
 ```basic
-irq my_handler           # raster IRQ at line 0, handler = sub name or address
-irq my_handler, 100      # raster IRQ at raster line 100
-irq $C800, 200           # handler at fixed address
-irq addr_word            # handler address from a word variable
+irq my_handler # raster IRQ på rad 0, handler = subnamn eller adress
+irq my_handler, 100 # raster IRQ på rasterrad 100
+irq $C800, 200 # handler vid fast adress
+irq adr_word # handleradress från en ordvariabel
 ```
 
 Ställer in en raster-IRQ via BASIC-mjukvektorn (`$0314`/`$0315`): inaktiverar
@@ -1565,10 +1737,10 @@ Hanteraren **måste** sluta med `sys $EA81` (KERNAL-slutet av IRQ) — vanliga
 
 ```basic
 sub my_handler()
-  poke $D019, $FF      # ACK VIC IRQ
-  # ... work here ...
-  sys $EA81            # JMP to KERNAL end-of-IRQ
-end
+poke $D019, $FF # ACK VIC IRQ
+# ... fungerar här ...
+sys $EA81 # JMP till KERNAL slutet av IRQ
+slut
 ```
 
 Framåtriktade referenser stöds (`irq my_handler` innan suben är definierad).
@@ -1576,11 +1748,11 @@ Framåtriktade referenser stöds (`irq my_handler` innan suben är definierad).
 ### NMI-hanterare
 
 ```basic
-nmi my_nmi               # set NMI vector $0318/$0319 to handler sub or address
+nmi my_nmi # sätt NMI-vektorn $0318/$0319 till hanterarens sub eller adress
 
 sub my_nmi()
-  # ... NMI work here ...
-  nmi_exit               # JMP $FE47 — proper NMI exit (restores A/X/Y + RTI)
+# ... NMI fungerar här ...
+nmi_exit # JMP $FE47 — korrekt NMI-utgång (återställer A/X/Y + RTI)
 end
 ```
 
@@ -1593,15 +1765,15 @@ referenser stöds.
 ### CIA1-timer-IRQ
 
 ```basic
-cia_timer 19656, my_handler   # CIA1 timer A: fires every 19656 cycles (~50 Hz PAL)
-cia_timer period, handler      # period can be a variable or expression
+cia_timer 19656, my_handler # CIA1 timer A: utlöses var 19656:e cykel (~50 Hz PAL)
+cia_timer period, handler # period kan vara en variabel eller ett uttryck
 ```
 
 Ställer in CIA1-timer A som en periodisk IRQ-källa via BASIC-mjukvektorn
 (`$0314`/`$0315`):
 1. SEI — inaktivera avbrott
 2. `$DC0D = $7F` — inaktivera alla CIA1 IRQ:er
-3. Load 16-bit period lo→`$DC04`, hi→`$DC05`
+3. Ladda 16-bitarsperiod lo→`$DC04`, hi→`$DC05`
 4. Skriv hanteraradressen till `$0314`/`$0315`
 5. `$DC0D = $81` — aktivera CIA1-timer A IRQ
 6. `$DC0E = $01` — starta timer A i kontinuerligt läge
@@ -1612,9 +1784,9 @@ IRQ:n:
 
 ```basic
 sub my_handler()
-  poke $DC0D, $01      # ACK CIA1 timer A IRQ (read also clears it)
-  # ... work here ...
-  irq_exit             # JMP $EA81: restore A/X/Y + RTI
+poke $DC0D, $01 # ACK CIA1 timer A IRQ (läs rensar den också)
+# ... fungera här ...
+irq_exit # JMP $EA81: återställ A/X/Y + RTI
 end
 ```
 
@@ -1624,13 +1796,12 @@ PAL-timing: klocka = 985 248 Hz. Period för 50 Hz = 985 248 / 50 = 19 705 cykle
 ### Felhantering
 
 ```basic
-onerr goto err_handler   # set KERNAL I/O error vector ($0300/$0301) to a label
+onerr goto err_handler # sätt KERNAL I/O-felvektor ($0300/$0301) till en etikett
 
 ...
 
-label err_handler
-  print "I/O ERROR"
-  bye
+etikett err_handler
+skriv ut "I/O-FEL" hej då
 ```
 
 `onerr goto label` skriver etikettadressen (lo, hi) till KERNAL-platserna
@@ -1641,11 +1812,11 @@ Framåtriktade referenser (etikett definierad efter `onerr goto`) stöds.
 ### Inbäddning av filer vid kompilering (`incbin` hoppa över / längd nytt i 1.5.7)
 
 ```basic
-incbin "sprites.bin"            # embed raw binary bytes at current code position
-incbin "charset.bin", $2000     # embed at an absolute address, padding as needed
-incbin "font.prg", $3C00, 2       # ...skipping the first 2 bytes (e.g. a .prg load address)
-incbin "big.bin", $4000, 16, 256  # ...skip 16 bytes, then take at most 256 bytes
-include "defs.ub"        # inline another .ub source file (lexed+parsed in place)
+incbin "sprites.bin" # bädda in råa binära byte vid aktuell kodposition
+incbin "charset.bin", $2000 # bädda in vid en absolut adress, utfyllnad efter behov
+incbin "font.prg", $3C00, 2 # ...hoppar över de första 2 byten (t.ex. en .prg-laddningsadress)
+incbin "big.bin", $4000, 16, 256 # ...hoppar över 16 byte, ta sedan högst 256 byte
+include "defs.ub" # infogar en annan .ub-källfil (lexed+parsad på plats)
 ```
 
 `incbin "file", addr, skip [, length]` tar bort de första `skip` bytena i filen
@@ -1654,11 +1825,11 @@ högst `length` byte; `skip` och `length` är konstanter, och ett `skip` bortom
 slutet av filen är ett fel. Adressformen kräver att målet är ovanför den
 genererade koden — eller inuti ett `org`-gap.
 
-### Data / Read
+### Data / Läsning
 
 ```basic
-data 1, 2, 3, 255        # constant byte table
-read varname             # load next byte into varname (auto-declares if needed)
+data 1, 2, 3, 255 # konstant byte-tabell
+läs variabelnamn # ladda nästa byte i variabelnamn (deklarerar automatiskt om det behövs)
 ```
 
 Alla `data`-värden samlas in vid kompileringstillfället. En 2-byte ZP-pekare
@@ -1670,11 +1841,11 @@ pekaren framåt.
 ```basic
 var sinus = array(8)
 data sinus: 128, 218, 255, 218
-data sinus: 128, 37, 0, 37      # further lines continue where the previous one stopped
-print sinus[i]                  # random access, like any array
+data sinus: 128, 37, 0, 37 # ytterligare rader fortsätter där den föregående slutade
+print sinus[i] # slumpmässig åtkomst, som vilken array som helst
 
 var xpos = array_word(2)
-data xpos: 24, 300              # word arrays take 16-bit values (stored lo, hi)
+data xpos: 24, 300 # ordarrayer tar 16-bitars värden (lagras lågt, högt)
 ```
 
 En `data`-rad vars första element är `name:` fyller en deklarerad `array` /
@@ -1687,53 +1858,52 @@ kompileringsfel. Dessa rader påverkar inte `read`.
 ### Inline-montering
 
 ```basic
-sys $FFD2                # JSR $FFD2
-sys $FFD2, 7             # LDA #7 ; JSR $FFD2  (pass byte value in A register)
-irq_exit                 # JMP $EA81 — proper IRQ handler exit (restore A/X/Y + RTI)
-asm $EA, $EA             # inline raw bytes (NOP NOP) — legacy form
+sys $FFD2 # JSR $FFD2
+sys $FFD2, 7 # LDA #7 ; JSR $FFD2 (pass byte-värde i A-register)
+irq_exit # JMP $EA81 — korrekt IRQ-hanterare exit (återställ A/X/Y + RTI)
+asm $EA, $EA # inline råa bytes (NOP NOP) — äldre form
 asm {
-  ; Full 6502 mnemonics and addressing modes
-  LDA #$07               ; immediate
-  STA $0286              ; absolute
-  LDA $50                ; zero-page  ($50 ≤ $FF → ZP auto-selected)
-  STA $0400,X            ; absolute,X indexed
-  LDA ($50),Y            ; (indirect),Y
-  LDA ($50,X)            ; (indirect,X)
-  JSR $FFD2              ; subroutine call
-  JMP $C000              ; absolute jump
-  JMP ($FFFC)            ; indirect jump
+; Fullständig 6502 mnemonik och adresseringslägen
+LDA #$07 ; omedelbar
+STA $0286 ; absolut
+LDA $50 ; noll-sida ($50 ≤ $FF → ZP autovald)
+STA $0400,X ; absolut,X indexerad
+LDA ($50),Y ; (indirekt),Y
+LDA ($50,X) ; (indirekt,X)
+JSR $FFD2 ; subrutinanrop
+JMP $C000 ; absolut hopp
+JMP ($FFFC); indirekt hopp
 
-  CLC
-  ADC #1
-  SEC
-  SBC #1
+CLC
+ADC #1
+SEC SBC #1
 
-  TAX                    ; implied / transfer
-  ASL A                  ; accumulator (also just: ASL)
-  LSR A
-  ROL
-  ROR
+TAX; implicit / överföring
+ASL A; ackumulator (även bara: ASL)
+LSR A
+ROL
+ROR
 
-  ; Branches — operand is an absolute address; offset is computed automatically
-  BNE loop               ; forward or backward branch to local label
-  BEQ done
+; Förgreningar — operand är en absolut adress; offset beräknas automatiskt
+BNE-loop; framåt- eller bakåtförgrening till lokal etikett
+BEQ klar
 
 loop:
-  NOP
-done:
-  RTS
+NOP
+klar:
+RTS
 
-  ; #<label / #>label — lo / hi byte of a label address
-  LDA #<handler
-  STA $0314
-  LDA #>handler
-  STA $0315
+; #<etikett / #>etikett — låg/hög byte av en etikettadress
+LDA #<hanterare
+STA $0314
+LDA #>hanterare
+STA $0315
 
-  ; * — current assembly location
-  JMP *
+; * — aktuell monteringsplats
+JMP *
 
-  ; Raw hex bytes (backward-compatible with old asm { $xx ... } syntax)
-  $EA $EA                ; two NOP bytes
+; Råa hexagonala byte (bakåtkompatibel med gammal asm { $xx ... } syntax)
+$EA $EA; två NOP-byte
 }
 ```
 
@@ -1743,7 +1913,7 @@ done:
 | --------------- | ------------- | ---- | ----------------------------- |
 | (ingen operand) | Underförstådd | 1    | `NOP`, `RTS`                  |
 | `A`             | Ackumulator   | 1    | `ASL A`, `LSR`                |
-| `#value`        | Omedelbar     | 2    | `LDA #$07`                    |
+| `#värde`        | Omedelbar     | 2    | `LDA #$07`                    |
 | `$zz` (0–255)   | Noll-sida     | 2    | `LDA $50`                     |
 | `$zz,X`         | ZP,X          | 2    | `LDA $50,X`                   |
 | `$zz,Y`         | ZP,Y          | 2    | `LDX $50,Y`                   |
@@ -1753,7 +1923,7 @@ done:
 | `($xxxx)`       | Indirekt      | 3    | `JMP ($FFFC)`                 |
 | `($zz,X)`       | (Indirekt, X) | 2    | `LDA ($50,X)`                 |
 | `($zz),Y`       | (Indirekt), Y | 2    | `LDA ($50),Y`                 |
-| `label`         | Relativ       | 2    | `BNE label` (endast filialer) |
+| `etikett`       | Relativ       | 2    | `BNE label` (endast filialer) |
 
 - `$zz` (1–2 hexagonsiffror, värde ≤ 255) väljer noll-sida om instruktionen
   stöder det; annars uppgraderas automatiskt till absolut. Använd `$00xx` (4
@@ -1778,12 +1948,12 @@ UltimateBasic-satser för att flytta värden till kända platser före `asm {
 
 ```basic
 sub set_colors(border_col, bg_col)
-  poke $D020, border_col   # UltimateBasic resolves the ZP address
-  poke $D021, bg_col
-  asm {
-    ; values are already in $D020 / $D021
-    LDA $D020
-  }
+poke $D020, border_col # UltimateBasic löser ZP-adressen
+poke $D021, bg_col
+asm {
+; värdena finns redan i $D020 / $D021
+LDA $D020
+}
 end
 ```
 
@@ -1795,12 +1965,12 @@ och `irq2` kan referera till varandra fritt. Se `examples/raster_irq_demo.ub`.
 ### Sträng ↔ heltal
 
 ```basic
-numstr score, $0340      # writes "042\0" at $0340 (always 3 digits, zero-padded)
-var n = str_to_int("42") # compile-time: Expr::Number(42)
+numstr poäng, $0340 # skriver "042\0" vid $0340 (alltid 3 siffror, nollfyllt)
+var n = str_to_int("42") # kompileringstid: Expr::Number(42)
 
-print str$(score)                # print 8-bit int as 3-digit decimal string ("000"–"255")
-print "Score: " + str$(score)   # usable in string concat print context
-var s: string = str$(n)          # assign str$() result to a string var (shared static buffer)
+print str$(poäng) # skriv ut 8-bitars heltal som 3-siffrig decimalsträng ("000"–"255")
+print "Poäng: " + str$(poäng) # kan användas i sammansatt sträng print-kontext
+var s: string = str$(n) # tilldela str$() resultat till en sträng var (delad statisk buffert)
 ```
 
 `str$(n)` konverterar ett 8-bitarsvärde till en decimalsträng med 3 tecken
@@ -1817,11 +1987,11 @@ permanent ZP-par som allokeras vid kompileringstillfället.
 
 | Fil                                 | Beskrivning                                                                            |
 | ----------------------------------- | -------------------------------------------------------------------------------------- |
-| `examples/features.ub`              | const, label/goto, poke/peek, rnd, matematiska funktioner                              |
-| `examples/new_features.ub`          | underparametrar, arrayer, ordvariabler, strängvariabler                                |
-| `examples/bitmap_demo.ub`           | 320×200 bitmapp, plott, grafik på/av                                                   |
+| `exempel/funktioner.ub`             | const, label/goto, poke/peek, rnd, matematiska funktioner                              |
+| `exemples/new_functions.ub`         | underparametrar, arrayer, ordvariabler, strängvariabler                                |
+| `exemples/bitmap_demo.ub`           | 320×200 bitmapp, plott, grafik på/av                                                   |
 | `examples/block_demo.ub`            | 80×50 blockgrafik, plot4, cirkel4, grafik på block                                     |
-| `examples/joystick_demo.ub`         | joystickläsning, sprite-rörelse                                                        |
+| `exemples/joystick_demo.ub`         | joystickläsning, sprite-rörelse                                                        |
 | `examples/mux_demo.ub`              | raster sprite multiplexer (3 fönster × 8 sprites = 24)                                 |
 | `examples/orbit_demo.ub`            | 24-sprite-bana med pulserande radie och slumpmässiga färger                            |
 | `examples/plasma_demo.ub`           | plasmaeffektbitmapp med rasterkantanimering                                            |
@@ -1833,25 +2003,25 @@ permanent ZP-par som allokeras vid kompileringstillfället.
 | `examples/tenprint.ub`              | 5 TENPRINT-labyrintimplementeringar med meny; demos `lowercase` teckenuppsättningsläge |
 | `examples/countdown_demo.ub`        | Nedräkning `for..next` med negativa steg, inkl. `for i = 20 to 0 step -2`              |
 | `examples/countdown_errors_demo.ub` | Kompileringsfel för standardsteget `from > to`                                         |
-| `examples/explicit_demo.ub`         | `--explicit` CLI-flag-demo med fullständigt typade `var`, `sub`, `fn`                  |
+| `exemples/explicit_demo.ub`         | `--explicit` CLI-flag-demo med fullständigt typade `var`, `sub`, `fn`                  |
 | `examples/explicit_errors_demo.ub`  | Lös kod som bygger utan `--explicit`, fel med den                                      |
 
 ## CLI-referens
 
 ```
-ub build <input.ub> [OPTIONS]
+ub build <input.ub> [ALTERNATIV]
 
-  -o, --output <file>   Output .prg or .crt file (default: <input>.prg)
-  -v, --verbose         Show zero-page layout and code hex dump
-  --no-stub             Skip the BASIC SYS stub (code loads at $0801)
-  --debug               Also produce .sym, .dbg and .vs debugger files
-  --asm                 Also produce a readable 6502 codegen .asm listing
-  --d64 [file]          Also produce a .d64 disk image;
-                          without a filename defaults to <output>.d64
-  --add <file>          Add an extra file to the .d64 disk image;
-                          may be repeated for multiple files
-  --explicit            Require :type on every var / sub-param / fn-param
-  -h, --help            Show help
+-o, --output <fil> Skriv ut .prg- eller .crt-fil (standard: <input>.prg)
+-v, --verbose Visa nollsidig layout och hex-dump av kod
+--no-stub Hoppa över BASIC SYS-stubben (kod laddas vid $0801)
+--debug Skapar även .sym-, .dbg- och .vs-felsökarfiler
+--asm Skapar även en läsbar 6502-kodgenereringslista för .asm
+--d64 [fil] Skapar även en .d64-diskavbildning;
+utan filnamn används standardvärdet <output>.d64
+--add <fil> Lägger till en extra fil till .d64-diskavbildningen;
+kan upprepas för flera filer
+--explicit Kräver :type på varje var / sub-param / fn-param
+-h, --help Visa hjälp
 ```
 
 ### CRT-export
@@ -1885,17 +2055,19 @@ kompileringsfel.
 
 **Vad den tillämpar:**
 
-| Deklarationsblankett                              | Utan `--explicit`            | Med `--explicit`         |
-| ------------------------------------------------- | ---------------------------- | ------------------------ |
-| `var name = expr` (nej `:type`)                   | ok — typ antydd              | fel                      |
-| `var name: int = expr` (eller ord/flyttal/sträng) | ok                           | ok                       |
-| `var arr = array(N)`                              | okej — implicit `array`      | okej — oförändrad        |
-| `var arr = array_word(N)`                         | okej — implicit `array_word` | okej — oförändrad        |
-| `const NAME = value`                              | ok                           | okej — oförändrad        |
-| `sub foo(a, b)` (otypade parametrar)              | ok                           | fel per otypad parameter |
-| `sub foo(a: int, b: int)`                         | ok                           | ok                       |
-| `fn foo(a): int` (otypad parameter)               | ok                           | fel på parametern        |
-| `fn foo(a: int): int`                             | ok                           | ok                       |
+| Deklarationsblankett                              | Utan `--explicit` | Med `--explicit`  |
+| ------------------------------------------------- | ----------------- | ----------------- |
+| `var name = expr` (nej `:type`)                   | ok — typ antydd   | fel               |
+| `var name: int = expr` (eller ord/flyttal/sträng) | ok                | ok                |
+| `var arr = array(N)`                              | ok — typ antydd   | fel               |
+| `var arr = array_word(N)`                         | ok                | ok                |
+| `const NAME = value`                              | ok                | okej — oförändrad |
+| `sub foo(a, b)` (otypade parametrar)              | ok                | okej — oförändrad |
+| `sub foo(a: int, b: int)`                         | ok                | okej — oförändrad |
+| `fn foo(a): int` (otypad parameter)               | ok                | fel på parametern |
+| `fn foo(a: int): int`                             | ok                | ok                |
+| `fn foo(a): int` (otypad parameter)               | ok                | fel på parametern |
+| `fn foo(a: int): int`                             | ok                | ok                |
 
 Konstanter och arraydeklarationer accepteras alltid — deras typ fastställs av
 deklarationsformuläret, så `:type` skulle vara redundant.
@@ -1904,9 +2076,9 @@ deklarationsformuläret, så `:type` skulle vara redundant.
 
 ```
 $ ub build myprog.ub --explicit
-Compilation errors:
-  line 14: 'explicit' mode: 'var loose' has no type — use 'var loose: int|word|float|string'
-  line 16: 'explicit' mode: parameter 'a' has no type — use 'a: int|word|float|string'
+Kompileringsfel:
+rad 14: 'explicit' läge: 'var loose' har ingen typ — använd 'var loose: int|word|float|string'
+rad 16: 'explicit' läge: parameter 'a' har ingen typ — använd 'a: int|word|float|string'
 ```
 
 Flaggan är en växling vid byggtid — ingenting i källkoden behöver ändras för att
@@ -1947,9 +2119,10 @@ Använd `--asm` för att skriva en läsbar 6502-källförteckning bredvid PRG:n:
 ub build demo.ub --asm
 ```
 
-For an output named `demo.prg`, this creates `demo.asm`. The listing is produced
-from metadata collected while Ultimate Basic generates the machine code; it is
-not merely a disassembly of the completed PRG. It contains:
+För en utdata med namnet `demo.prg` skapar detta `demo.asm`. Listningen
+produceras från metadata som samlas in medan Ultimate Basic genererar
+maskinkoden; det är inte bara en demontering av den färdiga PRG:n. Den
+innehåller:
 
 - `; UB:` kommentarer som markerar det genererade byteintervallet för varje
   emitterande UB-sats;
@@ -1975,15 +2148,15 @@ nolfyllda adressgap använder KickAssemblers `.fill`-direktiv.
 Exempelutdrag:
 
 ```asm
-.label x                 = $02 ; int
+.label x = $02; int
 
 * = $080D
 
 ub_start:
-    cld                         ; $080D: D8
-    ; UB: var x
-    lda  #$01                   ; $080E: A9 01
-    sta  x                      ; $0810: 85 02
+cld; $080D: D8
+; UB: var x
+lda #$01; $080E: A9 01
+sta x; $0810: 85 02
 ```
 
 Adress-/bytekommentarerna gör det enkelt att jämföra listan med `.prg`. Utdata
@@ -1997,22 +2170,19 @@ härleds från källfilens stam, med versaler (t.ex. `music.prg` → `MUSIC`).
 Efter en lyckad byggprocess skriver kompilatorn alltid ut en minneskarta:
 
 ```
-demo.ub → demo.prg  (386 bytes)
+demo.ub → demo.prg (386 byte)
 
-  Load:    $080D – $0989
+Ladda: $080D – $0989
 
-  Variables (zero page):
-    score    ZP:$08   byte
-    lives    ZP:$0A   byte
-    msg      ZP:$0C   string
-    ptr      ZP:$0E   word
+Variabler (noll sida):
+poäng ZP:$08 byte
+liv ZP:$0A byte
+meddelande ZP:$0C sträng ptr ZP:$0E ord
 
-  Subroutines:
-    greet    $0900
-    show     $0912
+Subrutiner: hälsning $0900 visa $0912
 
-  Arrays ($C000+):
-    sprites  $C000   8 bytes
+Matriser ($C000+):
+sprites $C000 8 byte
 ```
 
 Med `-v` visar utdata dessutom de interna ZP-allokeringarna och en fullständig
@@ -2048,15 +2218,15 @@ Använd `--asm` för att se den genererade koden för ditt eget program.
 | String concat-körning                 | `s1 + s2` skrivs ut sekventiellt — ingen heapallokering eller längdspårning                                                                                                                                                                                                                                                                                                     |
 | `rnd()` / `rnd(n)`                    | Enkel LCG, inte kryptografisk; punkt = 256                                                                                                                                                                                                                                                                                                                                      |
 | `abs()` / `sgn()` / `min()` / `max()` | Endast 8-bitarsvärden; `abs`/`sgn` behandlar värden som signerade (bit 7 = negativ → `abs` tvåkomplement, `sgn` returnerar `$FF`); `min`/`max` är osignerade (0–255)                                                                                                                                                                                                            |
-| `plot`                                | Pixlar utanför räckvidden klipps tyst bort (Y ≥ 200 eller X ≥ 320 → no-op)                                                                                                                                                                                                                                                                                                      |
+| `diagram`                             | Pixlar utanför räckvidden klipps tyst bort (Y ≥ 200 eller X ≥ 320 → no-op)                                                                                                                                                                                                                                                                                                      |
 | `mplot`                               | Ingen gränskontroll — x måste vara 0–159, y måste vara 0–199                                                                                                                                                                                                                                                                                                                    |
 | `mline` / `mrect`                     | Flerfärgad; x: 0–159, y: 0–199. Pixlar utanför skärmen radbryts (ingen klippning) — håll koordinaterna inom intervallet                                                                                                                                                                                                                                                         |
-| `mcircle`                             | Flerfärgad; klipp av punkter utanför skärmen (x ≥ 160 eller y ≥ 200 hoppas över)                                                                                                                                                                                                                                                                                                |
-| `color pen`                           | Anställer endast; ställer in förgrundsbiten för berörda celler (bakgrunden bevaras). Har ingen effekt i blockläge (`plot4`/`circle4`)                                                                                                                                                                                                                                           |
+| `mcirkel`                             | Flerfärgad; klipp av punkter utanför skärmen (x ≥ 160 eller y ≥ 200 hoppas över)                                                                                                                                                                                                                                                                                                |
+| `färgpenna`                           | Anställer endast; ställer in förgrundsbiten för berörda celler (bakgrunden bevaras). Har ingen effekt i blockläge (`plot4`/`circle4`)                                                                                                                                                                                                                                           |
 | `rect`                                | Ingen gränskontroll — x: 0–319, y: 0–199; x1≤x2 och y1≤y2 tillämpas inte (degenererade/inverterade rektangulära element producerar odefinierad utdata)                                                                                                                                                                                                                          |
-| `plot4`                               | Ingen gränskontroll — x måste vara 0–79, y måste vara 0–49 (blockläge)                                                                                                                                                                                                                                                                                                          |
-| `circle4`                             | Klipp ut blockpixlar utanför skärmen; användbar radie är ungefär 0–49 i 80×50 blockläge                                                                                                                                                                                                                                                                                         |
+| `diagram4`                            | Ingen gränskontroll — x måste vara 0–79, y måste vara 0–49 (blockläge)                                                                                                                                                                                                                                                                                                          |
+| `cirkel4`                             | Klipp ut blockpixlar utanför skärmen; användbar radie är ungefär 0–49 i 80×50 blockläge                                                                                                                                                                                                                                                                                         |
 | `chr$`                                | Ingen PETSCII↔ASCII-mappning — n skickas som det är till CHROUT                                                                                                                                                                                                                                                                                                                 |
-| `music play`                          | Kräver `load sid` eller ett `tune`-block; endast en CIA1-omslagsfil genereras (den sista `musikuppspelningen` vinner)                                                                                                                                                                                                                                                           |
-| `graphics on double`                  | Anställer endast; använder `$4000–$7FFF` för backbufferten, så programkoden måste hålla sig under `$4400`; kan inte kombineras med sprites eller multicolor                                                                                                                                                                                                                     |
+| `musikuppspelning`                    | Kräver `load sid` eller ett `tune`-block; endast en CIA1-omslagsfil genereras (den sista `musikuppspelningen` vinner)                                                                                                                                                                                                                                                           |
+| `grafik på dubbel`                    | Anställer endast; använder `$4000–$7FFF` för backbufferten, så programkoden måste hålla sig under `$4400`; kan inte kombineras med sprites eller multicolor                                                                                                                                                                                                                     |
 | Felrapportering                       | Endast vid kompilering; `onerr goto` hanterar KERNAL I/O-fel vid körning                                                                                                                                                                                                                                                                                                        |

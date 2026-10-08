@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.2 — Nyelvi kézikönyv
+# Ultimate Basic v1.6.3 — Nyelvi kézikönyv
 
 Teljes nyelvi és parancssori felület (CLI) referencia az Ultimate Basichez, egy
 BASIC-szerű nyelvhez, amely közvetlenül 6502-es gépi kóddá fordul Commodore
@@ -23,14 +23,14 @@ számlálóban, `inc`/`dec`, `input` vagy `read` utasításban fordítási idej�
 eredményez.
 
 ```basic
-var x = 10               # 8-bit integer (default)
-var ptr: word = $0400    # 16-bit — two zero-page bytes, usable as 16-bit address
-var f: float = 3.5       # Q8.8 fixed-point — hi byte = integer, lo byte = fraction
-var msg = "HELLO"        # string variable (pointer to inline PETSCII data)
-var s: string = "TEXT"   # string with explicit type
-var scores = array(10)   # byte array, 10 elements stored at $C000+
-var moments  = array_word(8) # word array, 8 word elements stored at $C000+
-const BORDER_ADDR = $D020 # compile-time constant (substituted inline, no ZP slot)
+var x = 10 # 8 bites egész szám (alapértelmezett)
+var ptr: word = $0400 # 16 bites — két nulla oldalas bájt, 16 bites címként használható
+var f: float = 3.5 # Q8.8 fixpontos — hi byte = egész szám, lo byte = tört szám
+var msg = "HELLO" # karakterlánc változó (mutató a beágyazott PETSCII adatokra)
+var s: string = "TEXT" # explicit típusú karakterlánc
+var scores = array(10) # bájtos tömb, 10 elem a $C000+ címen tárolva
+var moments = array_word(8) # szótömb, 8 szóelem a $C000+ címen tárolva
+const BORDER_ADDR = $D020 # fordítási idejű állandó (beágyazott, nincs ZP slot)
 ```
 
 A kulcsszavak és azonosítók **nem megkülönböztetik a kis- és nagybetűket**: a
@@ -39,13 +39,79 @@ A kulcsszavak és azonosítók **nem megkülönböztetik a kis- és nagybetűket
 | Típus                 | Szélesség     | Megjegyzések                                                  |
 | --------------------- | ------------- | ------------------------------------------------------------- |
 | `int`                 | 8 bites       | alapértelmezett numerikus literálok esetén                    |
-| `word`                | 16 bites      | két ZP bájt; címként használható `poke`/`peek`-ban            |
-| `float`               | 16 bites Q8.8 | hi byte = egész rész (0–255), lo byte = tört rész             |
-| `string`              | mutató        | ZP pár → null-terminált PETSCII a kódszegmensben              |
-| `array(N)`            | N bájt        | bájt elemek; a `$C000+` címen található, nem a ZP-ben         |
+| `szó`                 | 16 bites      | két ZP bájt; címként használható `poke`/`peek`-ban            |
+| `lebeg`               | 16 bites Q8.8 | hi byte = egész rész (0–255), lo byte = tört rész             |
+| `karakterlánc`        | mutató        | ZP pár → null-terminált PETSCII a kódszegmensben              |
+| `tömb(N)`             | N bájt        | bájt elemek; a `$C000+` címen található, nem a ZP-ben         |
 | `array_word(N)`       | N×2 bájt      | szóelemek (16 bitesek); `$C000+` címen találhatók, nem ZP-ben |
-| `array(R, C, …)`      | ∏dims bájtok  | többdimenziós (sor-szak); index `arr[r, c]`                   |
+| `tömb(R, C, …)`       | ∏dims bájtok  | többdimenziós (sor-szak); index `arr[r, c]`                   |
 | `array_word(R, C, …)` | ∏dims×2 bájt  | többdimenziós szótömb (sor-fő)                                |
+
+#### BASIC stílusú deklarációk: `dim … as …`
+
+Az `dim név típusként` az `var név alternatív írásmódja: típus` — ugyanaz a
+tároló, ugyanaz a kód:
+
+```basic
+DIM kor AS INTEGER # előjeles 16 bites, 0-tól kezdődik
+DIM nev AS STRING # karakterlánc, ""-ként kezdődik
+DIM fizetes AS DOUBLE # Q8.8 fixpont, 0.00-tól kezdődik
+DIM x, y AS BYTE # több név, mindegyik típust kap
+DIM pont AS INTEGER = 1000, cim AS STRING = "C64" # inicializálók, vegyes típusok
+```
+
+| `mint …`                             | Ultimate Basic típus                                 |
+| ------------------------------------ | ---------------------------------------------------- |
+| `bájt`, `int`                        | `int` (8 bites, 0–255)                               |
+| `egész szám`                         | előjeles 16 bites (−32768 … 32767) — QBasic INTEGER  |
+| `szó`                                | `szó` (előjel nélküli 16 bites, 0–65535)             |
+| `egyszeres`, `dupla`, `lebegőpontos` | `float` (Q8.8 — 0–255.99, **not** IEEE lebegőpontos) |
+| `karakterlánc`                       | `karakterlánc`                                       |
+
+- `= value` nélkül a számok 0-val, a karakterláncok pedig `""`-nél kezdődnek.
+- Az `dim a, b as integer` függvény a **both** típusneveket adja vissza (VB.NET
+  stílus, nem QBasic). Csak egyetlen névhez tartozhat inicializáló.
+- Az `as` és a BASIC típusnevek kontextusszavak, nem foglaltak – névként
+  továbbra is használhatók.
+- Nem támogatott: `as long`, struktúratípusok (`var name: TName = array(N)`
+  használata) — fordítási idejű hibák.
+- Az `--explicit` esetén a `dim` `as` nélkül hibát jelent.
+- A karakterlánc-hozzárendelésnek érték-szemantikájával kell rendelkeznie: az `s
+  = "TEXT"` a literálra mutat, az `t = s` és a kiszámított értékek a `t` saját
+  pufferébe másolódnak (lásd: *Karakterláncok futásidejű állapotban*). Az 1.6.3
+  előtt az `s = "TEXT"` a deklaráció után egy szemétbájtot tárolt a mutatóban.
+
+#### `dim` típusú tömbök: `dim név(u1, u2, …) típus`
+
+```basic
+DIM tabla(2, 3) AS INTEGER ' 3 × 4 elem: tabla(0..2, 0..3)
+DIM kocka(1, 2, 3) AS BYTE ' tetszőleges számú dimenzió
+DIM ar(9) AS DOUBLE ' 10 Q8.8 érték
+DIM nevek(4) AS STRING ' 5 karakterlánc, mindegyik ""-vel kezdődik
+DIM v(9) ' nincs AS → bájt tömb
+
+tabla(2, 3) = 999 ' QBasic stílusú index ( )-vel
+tabla[2, 3] = 999 ' … vagy a szokásos [ ]
+nevek(0) = "ZSOLT"
+PRINT tabla(2, 3); " "; nevek(0); " "; ar(1)
+```
+
+- Minden korlát a **legmagasabb indexű** (ALAP szabály): Az `dim t(2, 3)` 3 × 4
+  elemet tartalmaz. (Az `var t = array(3, 4)` elemszámot vesz fel — ugyanaz a
+  tömb.)
+- Elemtípusok: `byte`/`int` → 1 byte, `integer` (előjeles) / `word` → 2 byte,
+  `single`/`double`/`float` → 2 byte Q8.8, `string` → 2 byte pointer. A
+  határoknak fordítási idejű állandóknak kell lenniük; a tömbök az `$C000-$CFFF`
+  (4096 byte, ellenőrizve) mappában találhatók.
+- A karakterlánc-tömb elemei így kezdődnek: `""`; `nevek(i) = "TEXT"` / `= s` /
+  `= a + b`, `n = nevek(i)`, nyomtatás, `+`, átadva egy `string` paraméternek és
+  `input nevek(i)` mind működnek (a nem literál értékek elemenként egy 31
+  karakteres helyre másolódnak).
+- Az `name(i)` indexelés a `var a = array(…)` paraméterrel deklarált tömbök
+  esetén is működik.
+- Egy tömb `dim` csoportonként: `dim a(3) bájtként, n egész számként. Az `
+  rendben van, az `dim n, az a(3) egész számként ` hiba. Nincs inicializáló —
+  használja az ` adatnevet: …`.
 
 ### Foglalt szavak
 
@@ -111,20 +177,20 @@ visszafogottak**
 Ezek az angol szavak ártatlan azonosítóknak tűnnek, de a lexer már lekéri őket.
 Nevezd át őket a csendes megszakítás elkerülése érdekében:
 
-| Fenntartott                                 | Javasolt átnevezés                  |
-| ------------------------------------------- | ----------------------------------- |
-| `end`                                       | `stop_at`, `finish`, `last`         |
-| `stop`                                      | `stop_at`, `halt`                   |
-| `times`                                     | `count`, `n`, `iters`               |
-| `screen`                                    | `scraddr`, `screen_addr`            |
-| `border`, `bg`, `text`                      | `border_addr`, `bg_col`, `text_col` |
-| `clamp`                                     | `cap`, `bound`                      |
-| `line`, `circle`, `rect`                    | `ln`, `circ`, `box_r`               |
-| `data`, `read`                              | `bytes`, `next_byte`                |
-| `load`, `save`, `open`, `close`             | `load_file`, ...                    |
-| `map`, `show`, `hide`                       | `tilemap`, `reveal`, `conceal`      |
-| `play`, `pause`, `resume`, `stop`, `volume` | `play_song`, `vol`                  |
-| `int`, `float`, `word`, `string`            | `n_int`, `speed_f`, `addr`, `msg`   |
+| Fenntartott                                                | Javasolt átnevezés                              |
+| ---------------------------------------------------------- | ----------------------------------------------- |
+| `vég`                                                      | `megállás`-nél, `befejezés`, `utolsó`           |
+| `állj`                                                     | `megállj_`-nél, `megállj`                       |
+| `szor`                                                     | `számlálás`, `n`, `iter`                        |
+| `képernyő`                                                 | `képernyő_cím`, `képernyő_cím`                  |
+| `szegély`, `háttér`, `szöveg`                              | `szegély_cím`, `háttér_oszlop`, `szöveg_oszlop` |
+| `szorító`                                                  | `sapka`, `kötés`                                |
+| `vonal`, `kör`, `téglalap`                                 | `ln`, `kör`, `doboz_r`                          |
+| `adat`, `olvasás`                                          | `bájt`, `következő_bájt`                        |
+| `betöltés`, `mentés`, `megnyitás`, `bezárás`               | `fájl_betöltés`, ...                            |
+| `térkép`, `megjelenítés`, `elrejtés`                       | `csempetérkép`, `felfedés`, `elrejtett`         |
+| `lejátszás`, `szünet`, `folytatás`, `leállítás`, `hangerő` | `dal_lejátszása`, `hangerő`                     |
+| `int`, `float`, `word`, `string`                           | `n_int`, `speed_f`, `cím`, `üzenet`             |
 
 A szimbolikus tokenek (`+ - * / = == != < > <= >= : , ; ( ) [ ] # $ % @`)
 természetesen nem használhatók azonosítókban.
@@ -164,25 +230,25 @@ definíciója: `x / 0 = 255`, `x mod 0 = x` (1.6.0 előtt lefagyott). Az `x = x 
 ### Növelés / Csökkentés
 
 ```basic
-inc x                    # x = x + 1  (INC zp — single instruction)
-dec x                    # x = x - 1  (DEC zp — single instruction)
+inc x # x = x + 1 (INC zp — egyetlen utasítás) dec x # x = x - 1 (DEC zp — egyetlen utasítás)
 ```
 
-For `word` variables carry is handled: `inc` uses `INC lo; BNE skip; INC hi`;
-`dec` uses `LDA lo; BNE skip; DEC hi; DEC lo`.
+Az `szó` esetén a változók átvitele a következőképpen történik: `inc` a
+következőt használja: `INC lo; BNE skip; INC hi`; `dec` a következőt használja:
+`LDA lo; BNE skip; DEC hi; DEC lo`.
 
 ### Összetett hozzárendelések
 
 ```basic
-x += 5                   # x = x + 5
-x -= 3                   # x = x - 3
-x *= 2                   # x = x * 2
-x /= 4                   # x = x / 4
-x and= 15                # x = x and 15   (bitwise AND)
-x or= 64                 # x = x or 64    (bitwise OR)
-x xor= 255               # x = x xor 255  (bitwise XOR)
-x shl= 2                 # x = x shl 2
-x shr= 1                 # x = x shr 1
+x += 5 # x = x + 5
+x -= 3 # x = x - 3
+x *= 2 # x = x * 2
+x /= 4 # x = x / 4
+x és= 15 # x = x és 15 (bitenkénti ÉS)
+x vagy= 64 # x = x vagy 64 (bitenkénti VAGY)
+x xor= 255 # x = x xor 255 (bitenkénti XOR)
+x shl= 2 # x = x shl2
+x shr= 1 # x = x shr1
 ```
 
 ### Nyomtatás
@@ -191,47 +257,45 @@ x shr= 1                 # x = x shr 1
 print "HELLO"
 print x
 print x, y, "text"
-print                     # blank line
+print # üres sor
 
-print spc(5)             # print 5 space characters
-print tab(20), "VALUE"  # move cursor to column 20, then print
-print "A", spc(3), "B" # mix freely
+print spc(5) # 5 szóköz karakter kiírása
+print tab(20), "VALUE" # kurzor mozgatása a 20. oszlopba, majd kiírás
+print "A", spc(3), "B" # szabadon keverhető
 
-print "A=" + a           # string + numeric var
-print s1 + s2            # two string vars → sequential print
-print "Hello " + "World" # two literals → compile-time fold
-print chr$(13)           # print by PETSCII code
+print "A=" + a # karakterlánc + numerikus változó
+print s1 + s2 # két karakterlánc változó → szekvenciális kiírás
+print "Hello " + "World" # két literál → fordítási idejű hajtogatás
+print chr$(13) # kiírás PETSCII kóddal
 ```
 
 ### chr$
 
 ```basic
-print chr$(65)           # output character with PETSCII code 65 ('A')
-var c = chr$(n)          # store byte value n in variable c
-print ">" + chr$(42)     # usable in string concat
+print chr$(65) # PETSCII kódú karakter kimenete 65 ('A')
+var c = chr$(n) # az n byte értékének tárolása a c változóban
+print "&gt;" + chr$(42) # használható karakterláncban concat
 ```
 
 ### Elágazó
 
 ```basic
-if x == 1 then
-  print "YES"
-else
-  print "NO"
-end
+ha x == 1, akkor kiírja: "IGEN"
+különben kiírja: "NEM"
+vége
 ```
 
-### Select / Case
+### Kiválasztás / Eset
 
 ```basic
-select x
-  case 1:
-    print "ONE"
-  case 2:
-    print "TWO"
-  else:
-    print "OTHER"
-end
+x kiválasztása
+1. eset:
+"EGY" kiírása
+2. eset:
+"KETTŐ" kiírása
+egyébként:
+"EGYÉB" kiírása
+vége
 ```
 
 A `select expr` egyszer kiértékeli a kifejezést, és sorban összehasonlítja az
@@ -242,55 +306,56 @@ ha nincs egyező esettörzs. Minden értéknek 8 bitesnek (0–255) kell lennie.
 ### Hurokok
 
 ```basic
-loop 5               # counted loop (5 iterations)
-  print "HI"
+5. ciklus # számlált ciklus (5 iteráció)
+print "HI"
 end
 
-times 5              # alias for loop N ... end
-  print "HI"
+times 5 # az N. ciklus aliasa ... end
+print "HI"
 end
 
-loop                 # infinite loop
-  x = x + 1
-  if x == 5 then continue end  # skip to next iteration
-  if x == 100 then break end
+ciklus # végtelen ciklus
+x = x + 1
+ha x == 5, akkor folytatódik end # ugrás a következő iterációra
+ha x == 100, akkor megszakít end
 end
 
 var i = 0
-for i = 1 to 10      # for..next (preferred)
-  if i == 5 then continue end  # skip to increment step
-  print i
+for i = 1-től 10-ig # for..next (ajánlott)
+ha i == 5, akkor folytatódik end # ugrás a növelési lépésre
+print i
 next
 
-for i = 0 to 20 step 2
-  print i
-next i               # variable name after 'next' is optional
+for i = 0-tól 20-ig 2. lépés
+print i
+next i # a 'next' utáni változó neve opcionális
 
-for i = 10 to 1 step -1     # counting down — negative constant step is supported
-  print i
+for i = 10-től 1-ig step -1 # visszaszámlálás — negatív konstans step támogatott
+
+print i
 next
 
-for i = 20 to 0 step -2     # terminates correctly at i = 0 (11 iterations)
-  print i
+for i = 20-tól 0-ig step -2 # helyesen fejeződik be i = 0-nál (11 iteráció)
+print i
 next i
 
 var i = 0
-loop i = 1 to 10     # legacy loop..end syntax — identical code
-  print i
+loop i = 1-től 10 # hagyományos ciklus..end szintaxis — azonos kód
+print i
 end
 
-while x < 100
-  x = x + 1
+while x &lt; 100
+x = x + 1
 end
 
-repeat               # do-while: body runs at least once
-  x = x + 1
-until x == 100       # exits when condition is true
+repeat # do-while: törzs legalább egyszer lefut
+x = x + 1
+amíg x == 100 # kilép, ha a feltétel igaz
 ```
 
 **Útvonalszabályok `for`/`loop` számára:**
 
-| Case                                                       | Viselkedés                                                                                                                |
+| Ügy                                                        | Viselkedés                                                                                                                |
 | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | `for i = 1 to 10` (alapértelmezett `step +1`, `from ≤ to`) | számol felfelé, standard                                                                                                  |
 | `for i = 0 to 20 step 2` (pozitív lépés, `from ≤ to`)      | 2-vel felszámol                                                                                                           |
@@ -316,9 +381,9 @@ rendelkező visszaszámlálásra van szükséged, oszd szét a ciklust, vagy has
 ### Címkék és ugrás
 
 ```basic
-label main_loop
-  x = x + 1
-  if x < 10 then goto main_loop end
+címke fő_ciklus
+x = x + 1
+ha x &lt; 10, akkor a fő_ciklus végére ugorunk
 ```
 
 A `goto` továbbítási mód (a címke később definiálva) teljes mértékben
@@ -330,27 +395,27 @@ paraméterei, és ugyanazt a nulla oldalas hatókört használja. A `gosub` tám
 az előre mutató hivatkozásokat (a címke a `gosub` után van definiálva).
 
 ```basic
-gosub draw_border
+gosub rajzol_keret
 ...
-label draw_border
-  # ... draw something ...
-  return               # RTS — returns to the instruction after gosub
+címke rajzol_keret
+# ... rajzol valamit ...
+return # RTS — visszatér a gosub utáni utasításhoz
 ```
 
 ### Alprogramok
 
 ```basic
 sub greet()
-  print "HELLO!"
+print "HELLO!"
 end
 
 sub set_color(col)
-  color border col
-  color text   col
+szegély színe oszlop
+szöveg színe oszlop
 end
 
-greet()              # call with parens
-call greet           # call keyword (no parens)
+greet() # hívás zárójelekkel
+greet hívása # kulcsszó hívása (zárójelek nélkül)
 set_color(6)
 ```
 
@@ -363,23 +428,23 @@ indexelheti a forrás karakterláncot.
 ### Függvények (visszatérési értékek)
 
 ```basic
-fn square(x)
-  return x * x
+fn négyzet(x)
+return x * x
 end
 
-fn add(a, b)
-  return a + b
+fn összeadás(a, b)
+return a + b
 end
 
-fn clamp(val, lo, hi)
-  if val < lo then return lo end
-  if val > hi then return hi end
-  return val
+fn clamp(érték, lo, hi)
+ha érték &lt; lo, akkor return lo end
+ha érték &gt; hi, akkor return hi end
+return érték
 end
 
-var s = square(9)         # s = 81  — fn call as expression
-var c = clamp(joy, 0, 39) # c = clamped value
-print add(10, 20)         # 30  — usable inline in print
+var s = négyzet(9) # s = 81 — fn hívás kifejezésként
+var c = clamp(joy, 0, 39) # c = rögzített érték
+print összeadás(10, 20) # 30 — használható inline a nyomtatásban
 ```
 
 A függvények támogatják az opcionális `: word` visszatérési típust 16 bites
@@ -387,17 +452,162 @@ A függvények támogatják az opcionális `: word` visszatérési típust 16 bi
 
 ```basic
 fn get_addr(): word
-  return $C000
+return $C000
 end
 
-var ptr: word = get_addr()  # ptr = $C000
-poke ptr, 42                 # STA (ptr),Y — valid indirect addressing
-var v = peek(ptr)            # LDA (ptr),Y
+var ptr: word = get_addr() # ptr = $C000
+poke ptr, 42 # STA (ptr),Y — érvényes közvetett címzés
+var v = peek(ptr) # LDA (ptr),Y
 ```
 
 A `fn` a 2. lépésben kerül kibocsátásra (ugyanaz, mint a `sub`), így a
 függvénytörzsek soha nem futnak le indításkor. Az előre mutató hivatkozások
 teljes mértékben támogatottak.
+
+
+#### QBasic stílusú `FUNCTION` / `SUB`
+
+```basic
+FUNKCIÓ Negyzet (szam AS INTEGER) AS INTEGER
+    Negyzet = szam * szam ' return value = hozzárendelés a függvény nevéhez
+VÉGE FUNKCIÓ
+
+FUNKCIÓ Nagyobb (a AS BYTE, b AS BYTE) AS BYTE
+    Nagyobb = a
+    HA b &gt; a AKKOR
+        Nagyobb = b
+        EXIT FUNCTION ' visszatér most, az eddig hozzárendelt értékkel
+    VÉGE HA
+VÉGE FUNKCIÓ
+
+SUB Koszont (nev AS STRING)
+    NYOMTATÁS "Üdvözöllek, "; nev; "!"
+END SUB
+
+n = Negyzet(30)
+Koszont "Zsolt" ' hívás zárójel nélkül
+Koszont("Zsolt") ' ... vagy velük
+CALL Koszont("Zsolt")
+```
+
+- Az `function` a `fn` szinonimája; az `p AS type` paraméterlistákban működik,
+  az `AS type` pedig a ` után)` megadja a visszatérési típust (ugyanazok a
+  típusnevek, mint a `dim`-nél). Az `: a type` továbbra is működik.
+- A függvénynévhez rendelt érték egy rejtett `<név>__result` változóba
+  tárolódik, amely az `END FUNCTION` / `EXIT FUNCTION` parancsnál tér vissza; a
+  `return expr` parancs is működik.
+- Az `END SUB`, `END FUNCTION`, `END IF`, `END SELECT` szavak elfogadottak (a
+  második szó opcionális); az `EXIT SUB` / `EXIT FUNCTION` szavak visszatérési
+  értéke (a sima `exit` továbbra is `bye`).
+- Egy sub/fn zárójel nélkül hívható: `Koszont "Zsolt"`, `Rajzol x, y`.
+- Az `PRINT a; b; c` — `;` utasítás szóközök nélkül köti össze az elemeket; egy
+  `;` utasítás utáni `;` utasítás, amelyet egy utasítás követ (`print x; y =
+  1`), továbbra is elválasztja az utasításokat.
+- A karakterlánc literálokban az ékezetes betűk az alapbetűjükkel megegyezően
+  jelennek meg (`ü` → `u`, `ő` → `o`); a C64 karakterkészletben nincsenek
+  ékezetek.
+- A szó/float paraméterek mostantól mindkét bájtot fogadják, és egy `string`
+  paraméternek átadott karakterlánc literál is működik (korábban csak a lo bájt
+  / egy karakterlánc változó működött).
+- Nincs rekurzió (a paraméterek statikus nulla oldalas helyeken találhatók); az
+  1.6.3 verzió óta a rekurzív hívás fordítási hibát jelez, nem pedig csendes
+  hibás eredményt.
+
+#### További QBasic szintaxis (1.6.3)
+
+Az alábbi QBasic űrlapok az eredeti szintaxis mellett fordulnak le (az `==`,
+`end`, `loop`, `#` megjegyzések mind továbbra is működnek).
+
+```basic
+' megjegyzés (QBasic stílus, például #)
+HA x = 3 AKKOR KIÍR "három" ' egysoros HA: nem VÉGE HA szükséges
+HA x &lt;&gt; 3 AKKOR KIÍR "nem" KÜLÖNBEN KIÍR "igen"
+HA n &lt; 0 AKKOR KIÍR "negatív"
+KÜLÖNBEN HA n = 0 AKKOR KIÍR "nulla"
+KÜLÖNBEN KIÍR "pozitív"
+VÉGE HA
+
+DO WHILE i &lt; 10 : i = i + 1 : LOOP ' szintén DO UNTIL c … LOOP,
+DO : i = i - 1 : LOOP UNTIL i = 0 ' DO … LOOP WHILE c, DO … LOOP (végtelen)
+WHILE k &lt;&gt; 5 : k = k + 1 : WEND
+i = 1-TŐL 100-IG
+HA i = 12 AKKOR KILÉPÉS FOR ' KILÉPÉS DO / KILÉPÉS FOR / KILÉPÉS FOR
+KÖVETKEZŐ
+
+SELECT CASE n CASE 1, 2, 3: PRINT "kicsi"
+CASE 10 TO 20: PRINT "tinédzser"
+CASE IS &gt; 1000: PRINT "nagy"
+CASE ELSE: PRINT "egyéb"
+END SELECT
+
+AZ END ' befejezi a programot (a képernyő megmarad)
+```
+
+- **Feltételek:** az `IF` / `ELSEIF` / `WHILE` / `UNTIL` / `LOOP WHILE|UNTIL`
+  cikluson belül egyetlen `=` összehasonlítja. Az `&lt;&gt;` azt jelenti, hogy
+  nem mindenhol egyenlő (ugyanaz, mint az `!=`).
+- **Egysoros HA:** egy `THEN` utáni utasítás egy egysoros HA-t hoz létre, amely
+  a sorral végződik, vagy egy `end` utasítással ugyanazon a sorban (`if c then x
+  = 1 end`, mint korábban). Egy többsoros HA-nak sortörésre van szüksége az
+  `THEN` után. A QBasic-hez hasonlóan minden, ami az adott sorban a `THEN` után
+  van, az HA-hoz tartozik (`… THEN EXIT FOR : NEXT` elnyelné a `NEXT`
+  utasítást).
+- **`END` önmagában:** egy `END`, ami nem zár le blokkot, befejezi a programot,
+  mint a QBasic. Egy felesleges `end` ezért már nem jelenik meg hibaként.
+- **`DO` blokkok:** egy `DO` blokkon belül egy `LOOP` zárja le a sort (az
+  eredeti `ciklus N … end` / `ciklus i = … end` ciklusok továbbra is működnek
+  benne).
+- **`SELECT CASE`:** a régi `select x` / `case n:` űrlap változatlan. A `SELECT
+  CASE` egy HA lánccá redukálódik egy rejtett `select__N` változó felett.
+
+#### Futásidejű karakterláncok (1.6.3)
+
+```basic
+DIM s AS STRING, t AS STRING
+s = "Pont: " + pont + "!" ' a számok szöveggé alakulnak (16 bites, előjeles INTEGER esetén)
+t = s ' egy másolat: s későbbi módosítása nem változtatja meg a t-t
+s = s + "?"
+PRINT LEFT$(s, 4); RIGHT$(s, 2); MID$(s, 7, 3); MID$(s, 7)
+PRINT LEN(s + t), VAL("1234") + 1, STR$(pont)
+HA s = "ABC" VAGY t &lt;&gt; "" AKKOR PRINT "összehasonlítás = / &lt;&gt;-val"
+```
+
+- **Pufferek:** egy karakterlánc változó, amely számított értéket kap (`+`,
+  `left$`, `right$`, `mid$`, számok, egy másik változó), egy 80 karakteres
+  pufferrel rendelkezik; a hosszabb eredményeket 80 karakternél vágja le a
+  rendszer. Egy literál hozzárendelése továbbra is csak rámutat rá.
+- **Sztringtömbök: Az ** elemek, amelyek nem literál értéket kapnak (vagy
+  `input`), saját 32 bájtos helyet kapnak (31 karakter), így az `input nevek(i)`
+  egy ciklusban minden nevet megtart.
+- **`STR$` / `VAL`:** Egy 16 bites vagy előjeles érték `STR$` eleme nem
+  tartalmaz vezető nullákat (`"-42"`). A kompatibilitás érdekében egy bájt
+  `STR$` eleme megőrzi a 3 jegyű alakját (`"007"`). Az `VAL` 16 bites előjeles
+  számokat olvas be (`VAL("1234") + 1` = 1235).
+- **Összehasonlítás:** csak `=` / `&lt;&gt;` (és `==` / `!=`); nincs `&lt;` /
+  `&gt;` karakterlánc-sorrend.
+
+#### Előjeles INTEGER, INPUT, DOUBLE (1.6.3)
+
+- Az **INTEGER előjeles:** `DIM x AS INTEGER` előjeles 16 bites (−32768 … 32767,
+  mint a QBasic): nyomtatás, `&lt;` `&gt;` összehasonlítások, `/` (nulla felé
+  csonkol), `ABS`, szövegkonverzió, `INPUT` és `FOR` nullán keresztüli ciklusok
+  (`FOR i = 3 TO -3 STEP -2`) mind az előjelet követik. Az `WORD` előjel nélküli
+  0 … 65535 marad. Az unáris mínusz bárhol működik (`a &lt; -10`, `x * -2`).
+- A **`FOR` egy 16 bites számlálóval** (`INTEGER` / `WORD`) egy valódi 16 bites
+  ciklus. Régebben 256-nál tördelte a ciklust, így a `FOR k = 0 TO 300` 45-ször
+  futott le.
+- **`INPUT`:** INTEGER / WORD-ba maximum 6 karaktert olvas be (`-` INTEGER
+  esetén), DOUBLE-ba `12.5` (két tizedesjegy) fogad el. `INPUT t(i)` tömbelembe
+  olvas, és `INPUT "prompt"; x` is működik.
+- Az **DOUBLE ÷ DOUBLE** most már pontos (`7.5 / 2.5 = 3.00`); korábban csak az
+  osztó egész részét használták. A DOUBLE × DOUBLE már korábban is támogatott
+  volt.
+- A 256 bájtnál nagyobb ** tömbök** (`DIM t(200) AS INTEGER`, `DIM g(19, 19)`)
+  változó indexekkel működnek; az indexet a 256-os értéknél történő tördeléshez
+  és a rossz elembe való íráshoz használják.
+- Az **Rekurzió** (egy al-/függvény, amely közvetlenül vagy másokon keresztül
+  hívja meg önmagát) egy fordítási hiba. Korábban hibás eredményeket adott
+  vissza, mivel a paraméterek fix nulla oldalas helyeken találhatók.
 
 ### Tömbök
 
@@ -424,18 +634,17 @@ elválasztott alsó indexű listával vannak indexelve. A teljes méret az össz
 dimenzió szorzata.
 
 ```basic
-var grid = array(8, 8)     # 8×8 = 64 bytes at $C000
-grid[1, 0] = 11            # row 1, col 0 → flat index 1*8+0 = 8 → STA $C008
-grid[0, 1] = 22            # row 0, col 1 → flat index 1       → STA $C001
-grid[r, c] = 33            # variable → computes r*8 + c, then STA (ptr),Y
-var v = grid[r, c]         # LDA (ptr),Y
+var grid = array(8, 8) # 8×8 = 64 bájt $C000-nél
+grid[1, 0] = 11 # 1. sor, 0. oszlop → flat index 1*8+0 = 8 → STA $C008
+grid[0, 1] = 22 # 0. sor, 1. oszlop → flat index 1 → STA $C001
+grid[r, c] = 33 # változó → kiszámítja az r*8 + c értéket, majd STA (ptr),Y
+var v = grid[r, c] # LDA (ptr),Y
 
-var wm = array_word(4, 4)  # 4×4 word array = 32 bytes
-wm[1, 2] = $ABCD           # element 1*4+2 = 6 → bytes $C00C/$C00D
+var wm = array_word(4, 4) # 4×4 szavas tömb = 32 bájt
+wm[1, 2] = $ABCD # elem 1*4+2 = 6 → bájtok $C00C/$C00D
 
 const ROWS = 3
-const COLS = 5
-var m = array(ROWS, COLS)  # dimensions may be compile-time constants
+const COLS = 5}var m = array(ROWS, COLS) # a dimenziók lehetnek fordítási idejű állandók
 ```
 
 A sor-fő elrendezés azt jelenti, hogy az utolsó alsó index összefüggő: a
@@ -456,34 +665,34 @@ A mezőhozzáférés a `arr[idx].field` értéket használja, és mind konstans,
 változó indexek esetén működik.
 
 ```basic
-type TEntity
-  var x:  int      # 1 byte
-  var y:  int      # 1 byte
-  var hp: word     # 2 bytes  → element size = 4
+típus TEntity
+var x: int # 1 bájt
+var y: int # 1 bájt
+var hp: szó # 2 bájt → elem mérete = 4
 endtype
 
 const N = 8
-var enemies: TEntity = array(N)   # allocates N × 4 = 32 bytes at $C000
+var enemies: TEntity = array(N) # N × 4 = 32 bájtot foglal le $C000-nál
 
-enemies[0].x  = 5
-enemies[0].y  = 10
+enemies[0].x = 5
+enemies[0].y = 10
 enemies[0].hp = $0100
-var v = enemies[0].hp             # read back — LDA $C002 / LDA $C003
+var v = enemies[0].hp # visszaolvasás — LDA $C002 / LDA $C003
 
 var i: int = 2
-enemies[i].x = 42                 # variable index → idx * elem_size + offset
+enemies[i].x = 42 # változó index → idx * elem_size + offset
 
-# Float field (Q8.8 fixed-point)
+# Lebegőpontos mező (Q8.8 fixpontos)
 type TBall
-  var bx:  int     # 1 byte
-  var by:  int     # 1 byte
-  var vel: float   # 2 bytes Q8.8  → element size = 4
+var bx: int # 1 bájt
+var by: int # 1 bájt
+var vel: float # 2 bájt Q8.8 → elem mérete = 4
 endtype
 
 var balls: TBall = array(3)
-balls[0].vel = 1.5                # stores Q8.8: hi=1, lo=128
-var f: float = balls[0].vel       # read float field into float variable
-print balls[0].vel                # prints "1.50"
+balls[0].vel = 1.5 # elmenti a Q8.8-at: hi=1, lo=128
+var f: float = balls[0].vel # float mező beolvasása a float változóba
+print balls[0].vel # kiírja "1.50"-et
 ```
 
 Szabályok és korlátozások:
@@ -513,9 +722,9 @@ Lásd: `examples/type_demo.ub`.
 ### 16 bites (szó) változók
 
 ```basic
-var ptr: word = $0400    # two ZP bytes: lo=$00 hi=$04
-poke ptr, 6              # STA (ptr),Y
-var v = peek(ptr)        # LDA (ptr),Y
+var ptr: szó = 0400 USD # két ZP bájt: lo=00 USD hi=04 USD
+poke ptr, 6 # STA (ptr),Y
+var v = peek(ptr) # LDA (ptr),Y
 ```
 
 **16 bites szorzatok (javítva az 1.5.7-es verzióban).** Egy `word` rendelt
@@ -537,31 +746,31 @@ bitre csonkították). A bájtcélok 8 bites eredményeket tartanak meg.
 ### Bittérképes grafika
 
 ```basic
-graphics on              # VIC-II hires bitmap mode (320×200, 1bpp); bitmap at $2000
-graphics on multi        # VIC-II multicolor bitmap mode (160×200, 2bpp, 4 colours/cell)
-graphics off             # return to text mode
+grafika bekapcsolva # VIC-II bitkép módot használ (320×200, 1 bit/cella); bitkép ára $2000
+grafika több # VIC-II többszínű bitkép mód (160×200, 2 bit/cella)
+grafika kikapcsolva # vissza szöveges módba
 
-gcls                     # clear bitmap (fills $2000-$3FFF) + set video matrix colors
+gcls # bitkép törlése ($2000-$3FFF kitöltése) + videómátrix színeinek beállítása
 
-plot x, y                # set pixel at (x, y);  x: 0-319,  y: 0-199
-plot erase x, y          # clear pixel (AND ~mask)
-plot xor x, y            # toggle pixel (EOR mask) — flicker-free animation
-circle x, y, r           # midpoint circle centered at (x, y) with radius r; clips off-screen points
-line x1, y1, x2, y2      # Bresenham line from (x1,y1) to (x2,y2); x: 0-319, y: 0-199
-line erase x1, y1, x2, y2  # clear pixels along the line (AND ~mask)
-line xor x1, y1, x2, y2    # toggle pixels along the line (EOR mask)
-rect x1, y1, x2, y2      # draw rectangle outline (4 edges); x: 0-319, y: 0-199
-rect erase x1, y1, x2, y2  # clear rectangle outline (AND ~mask)
-rect xor x1, y1, x2, y2    # XOR rectangle outline (EOR mask)
-paint x, y               # 4-connected flood fill from (x, y); fills clear pixels bounded by set ones
+x, y ábrázolása # képpont beállítása (x, y); x: 0-319, y: 0-199
+x, y törlése # képpont törlése (ÉS ~maszk)
+x vagy x, y ábrázolása # képpont ki-/bekapcsolása (EOR maszk) — villódzásmentes animáció
+x, y, r kör # (x, y) középpontú, r sugárral rendelkező kör középpontja; képernyőn kívüli pontok levágása
+x1, y1, x2, y2 vonal # Bresenham vonal (x1,y1) pontból (x2,y2) pontba; x: 0-319, y: 0-199
+x1, y1, x2, y2 vonaltörlés # pixelek törlése a vonal mentén (ÉS ~maszk)
+xor vonal x1, y1, x2, y2 # pixelek ki-/bekapcsolása a vonal mentén (EOR maszk)
+x1, y1, x2, y2 # téglalap körvonal rajzolása (4 él); x: 0-319, y: 0-199
+x1, y1, x2, y2 vonaltörlés # téglalap körvonal törlése (ÉS ~maszk)
+xor vonal x1, y1, x2, y2 # XOR téglalap körvonal (EOR maszk)
+x, y festése # 4-összefüggő kitöltés (x, y) pontból; kitölti a halmaz által határolt üres pixeleket
 
-color pen c              # set the hires drawing color (0-15); see below
+color pen c # beállítja a rajz színét (0-15); lásd alább
 
-# ── Multicolor bitmap (graphics on multi, 160×200) ──
-mplot x, y, color        # set multicolor pixel (x: 0-159, y: 0-199, color: 0-3)
-mline x1, y1, x2, y2, color   # multicolor line
-mrect x1, y1, x2, y2, color   # multicolor rectangle outline
-mcircle x, y, r, color        # multicolor circle
+# ── Többszínű bitkép (grafika többszínű képen, 160×200) ──
+mplot x, y, color # beállítja a többszínű pixelt (x: 0-159, y: 0-199, color: 0-3)
+mline x1, y1, x2, y2, color # többszínű vonal
+mrect x1, y1, x2, y2, color # többszínű téglalap körvonal
+mcircle x, y, r, color # többszínű kör
 ```
 
 Mindkét `graphics on` változat elsötétíti a kijelzőt (`LDA $D011 / AND #$EF /
@@ -585,13 +794,13 @@ soha nem hívják meg a `color pen` függvényt, pontosan úgy néznek ki, mint
 korábban.
 
 ```basic
-graphics on
+grafika bekapcsolva
 gcls
-color pen 2              # red
-line 0, 0, 100, 100
-color pen 6              # blue
-circle 160, 100, 40
-display on
+színes toll 2 # piros
+vonal 0, 0, 100, 100
+színes toll 6 # kék
+kör 160, 100, 40
+kijelző bekapcsolva
 ```
 
 #### Többszínű alakzatok — `mline` / `mrect` / `mcircle`
@@ -605,12 +814,12 @@ színek pedig a cellapalettából (képernyő / szín RAM) származnak, pontosan
 mint a `mplot` esetében.
 
 ```basic
-graphics on multi
+grafika többrétegű grafikákon
 gcls
 mcircle 80, 100, 40, 1
 mrect 10, 10, 150, 190, 2
 mline 0, 0, 159, 199, 3
-display on
+megjelenítés bekapcsolva
 ```
 
 A `mline`/`mrect`/`mcircle` ugyanazokat a Bresenham/középpont rutinokat
@@ -620,21 +829,21 @@ használják újra, mint a megfelelőik, minden pixelt `mplot`-on keresztül
 ### Duplán pufferelt bitkép (villódzásmentes)
 
 ```basic
-graphics on double       # double-buffered hires bitmap (320×200)
-gcls                     # clears the HIDDEN back buffer
-line 0, 0, 319, 199      # all drawing (plot/line/circle/rect/paint/gcls) goes to the back buffer
-flip                     # show the drawn buffer; redirect drawing to the other one
-graphics off             # back to text mode (restores VIC bank 0)
+grafika dupla # dupla pufferelésű hires bitkép (320×200)
+gcls # törli a REJTETT hátsó puffert
+0. sor, 0, 319, 199 # minden rajz (plot/line/circle/tégl/paint/gcls) a hátsó pufferbe kerül
+flip # megjeleníti a rajzolt puffert; átirányítja a rajzot a másikra
+grafika kikapcsolva # vissza szöveges módba (visszaállítja a 0. VIC bank-ot)
 ```
 
 A `graphics on double` **két** teljes képkockát tart meg, és csak a kész
 képkockákat mutatja, kiküszöbölve a villódzást XOR trükkök nélkül – minden
 képkockát `gcls` megrajzolsz, majd `flip`.
 
-| Puffer                    | Bitkép  | Videómátrix | VIC bank | `$DD00` alacsony bitek |
-| ------------------------- | ------- | ----------- | -------- | ---------------------- |
-| A (elöl, először látható) | `$2000` | `$0400`     | 0. bank  | `%11`                  |
-| B (hátul, először húzva)  | `$6000` | `$4400`     | 1. bank  | `%10`                  |
+| Puffer                    | Bitkép        | Videómátrix   | VIC bank | `$DD00` alacsony bitek |
+| ------------------------- | ------------- | ------------- | -------- | ---------------------- |
+| A (elöl, először látható) | `2000 dollár` | `0400 dollár` | 0. bank  | `%11`                  |
+| B (hátul, először húzva)  | `6000 dollár` | `4400 dollár` | 1. bank  | `%10`                  |
 
 * Minden pixelparancs egy futásidejű **draw base**-en (egy nulla oldalas bájton)
   keresztül ír, így automatikusan azt a puffert célozzák meg, amelyik éppen
@@ -663,13 +872,13 @@ drótvázas kocka.
 ### Blokkgrafikák (80×50)
 
 ```basic
-graphics on block        # 80×50 block-pixel mode (text mode + custom 4-pixel charset @ $2800)
-graphics off             # return to text mode
-gcls                     # clear block playfield: screen RAM $0400-$07FF + color RAM $D800-$DBFF
+grafika a blokkon # 80×50 blokk-pixel mód (szöveges mód + egyéni 4 pixeles karakterkészlet @ $2800)
+grafika kikapcsolva # vissza szöveges módba
+gcls # blokk játékmező törlése: képernyő RAM $0400-$07FF + színes RAM $D800-$DBFF
 
-plot4 x, y               # set block pixel at (x, y);  x: 0-79, y: 0-49
-plot4 erase x, y         # clear block pixel at (x, y)
-circle4 x, y, r          # draw midpoint circle in block pixels; clips to 80×50
+plot4 x, y # blokk pixel beállítása (x, y) ponton; x: 0-79, y: 0-49
+plot4 x, y törlése # blokk pixel törlése (x, y) ponton
+circle4 x, y, r # középponti kör rajzolása blokk pixelekben; 80×50-re vágás
 ```
 
 Egy vaskos, alacsony felbontású mód rétegezve a szabványos 40×25-ös szövegre.
@@ -686,38 +895,38 @@ RAM-ot is. Lásd: `examples/block_demo.ub`.
 ### Képernyő és szín
 
 ```basic
-cls                      # clear screen (KERNAL $E544)
-cls fast                 # fast fill: screen RAM + color RAM + HOME
+cls # képernyő törlése (KERNAL $E544)
+cls fast # gyors kitöltés: képernyő RAM + szín RAM + HOME
 
-color text 14            # text color register $0286
-color border 6           # $D020
-color bg 0               # $D021
-color pen 2              # hires drawing color (0-15) for plot/line/rect/circle/paint
+színes szöveg 14 # szövegszín regiszter $0286
+színes szegély 6 # $D020
+színes háttér 0 # $D021
+színes toll 2 # rajzszín (0-15) bérlése a diagramhoz/vonalhoz/téglalaphoz/körhöz/festéshez
 
-screen 0, 0, 65          # write char 65 ('A') to screen RAM at col 0, row 0 ($0400)
-screen 10, 5, ch         # col 10, row 5 — col/row can be variables
-screen 5, 3, 42, 7       # char 42 at col 5, row 3, color 7 (writes color RAM $D800 too)
-screen x, y, ch, col     # all four arguments as variables
+képernyő 0, 0, 65 # 65. karakter ('A') írása a képernyő RAM-ba a 0. oszlopban, 0. sorba ($0400)
+képernyő 10, 5, ch # 10. oszlop, 5. sor — az oszlop/sor változók lehetnek
+képernyő 5, 3, 42, 7 # 42. karakter az 5. oszlopban, 3. sorba, 7. szín (a $D800 színRAM-ot is kiírja)
+képernyő x, y, ch, col # mind a négy argumentum változóként
 
-display on               # re-enable VIC display ($D011 DEN bit)
-display off              # blank display
+kijelzés bekapcsolva # VIC kijelző újraengedélyezése ($D011 DEN bit)
+kijelzés kikapcsolva # üres kijelző
 
-lowercase                # CHR$(14) → switch VIC-II to lowercase/uppercase charset
-uppercase                # CHR$(142) → switch VIC-II back to uppercase/graphics charset
+kisbetűs # CHR$(14) → VIC-II átváltása kisbetűs/nagybetűs karakterkészletre
+nagybetűs # CHR$(142) → VIC-II visszaváltása nagybetűs/grafikus karakterkészletre
 
-cursor 20, 10            # move cursor to col 20, row 10 (KERNAL PLOT $FFF0)
-cursor x, y              # column from variable x (0–39), row from y (0–24)
+kurzor 20, 10 # kurzor mozgatása a 20. oszlopba, 10. sorba (KERNAL PLOT $FFF0)
+kurzor x, y # oszlop az x változóból (0–39), sor az y-ból (0–24)
 
-print at 20, 10, "HELLO" # cursor(20,10) + print in one statement (no trailing newline)
-print at x, y, "Score:", score  # any mix of exprs
-print at 0, 0            # position only (no text, no newline)
+kiírás 20, 10-nél, "HELLO" # kurzor(20,10) + kiírás egy utasításban (nincs sortörés)
+kiírás x, y-nál, "Pontszám:", pontszám # kifejezések bármilyen keveréke
+kiírás 0, 0-nál # csak pozíció (nincs szöveg, nincs sortörés)
 
-scroll x 3               # set horizontal fine scroll: $D016 bits 0-2 = 3 (0-7)
-scroll y 2               # set vertical fine scroll:   $D011 bits 0-2 = 2 (0-7)
-scroll x n               # value can be a variable or expression (masked to bits 0-2)
-scroll x 7 narrow        # set fine scroll and force 38-column mode (hide edge column)
-scroll x 0 wide          # set fine scroll and restore 40-column mode
-scroll row 12 left       # shift screen RAM row 12 left by one character
+görgetés x 3 # vízszintes finomgörgetés beállítása: $D016 bitek 0-2 = 3 (0-7)
+görgetés y 2 # függőleges finomgörgetés beállítása: $D011 0-2. bitek = 2 (0-7)
+scroll x n # az érték lehet változó vagy kifejezés (a 0-2. bitekre maszkolva)
+scroll x 7 narrow # finom görgetés beállítása és 38 oszlopos mód kikényszerítése (éloszlop elrejtése)
+scroll x 0 wide # finom görgetés beállítása és 40 oszlopos mód visszaállítása
+12. sor görgetése balra # képernyő RAM 12. sorának eltolása balra egy karakterrel
 ```
 
 A `lowercase` futásidőben `LDA #$0E; JSR $FFD2` értéket bocsát ki. A `lowercase`
@@ -746,15 +955,15 @@ Konstans oszlop/sor: a fordítási időben kiszámított cím.
 ### Ultimate 64 — CPU-sebesség
 
 ```basic
-speed 4              # set CPU to 4 MHz  (reads $D031, updates bits 0-3, writes back)
-speed 48             # 48 MHz  (maximum speed on U64)
-speed max            # same as speed 48  (alias)
-speed off            # back to 1 MHz  (alias for speed 1)
+speed 4 # CPU beállítása 4 MHz-re ($D031 olvasása, 0-3 bitek frissítése, visszaírás)
+speed 48 # 48 MHz (maximális sebesség U64-en)
+speed max # ugyanaz, mint a speed 48 (alias)
+speed off # vissza 1 MHz-re (alias a speed 1-hez)
 
-badlines on          # enable badline timing  ($D031 bit 7 = 0, default C64 behaviour)
-badlines off         # disable badline timing ($D031 bit 7 = 1, more CPU cycles)
+badlines on # rossz vonal időzítésének engedélyezése ($D031 bit 7 = 0, alapértelmezett C64 viselkedés)
+badlines off # rossz vonal időzítésének letiltása ($D031 bit 7 = 1, több CPU ciklus)
 
-var t = turbo()      # 1 if turbo is active (bits 0-3 of $D031 != 0), 0 if at 1 MHz
+var t = turbo() # 1, ha a turbo aktív ($D031 0-3 bitjei != 0), 0, ha 1 MHz-en van
 ```
 
 Elérhető MHz értékek: `1, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 20, 24, 32, 40, 48`.
@@ -778,16 +987,16 @@ hagyományos C64-en vagy emulátoron, amely nem tartalmazza a regisztert, a `pok
 ### Billentyűzet
 
 ```basic
-var key = getch()        # busy-wait on $FFE4 until key; returns PETSCII code
-var k   = inkey()        # non-blocking: returns PETSCII code, or 0 if no key pressed
-waitkey                  # wait until any key is pressed (CIA1 matrix scan; works during IRQ)
-var k   = waitkey()      # same but returns raw $DC01 column bits (0 bit = key pressed)
-var j = joy(2)           # read joystick port 2; returns inverted bits 0-4
-var j = joy(1)           # read joystick port 1
-                         # bit0=up(1) bit1=down(2) bit2=left(4) bit3=right(8) bit4=fire(16)
-var mx = mouse_x()       # 1351 mouse: accumulated X position (helper: charge+delay+delta)
-var my = mouse_y()       # 1351 mouse: accumulated Y position (EOR #$FF inverted)
-var mb = mouse_btn()     # mouse buttons: reads $DC01 — bit0=left (fire), bit1=right (up pin)
+var key = getch() # busy - várakozás a $FFE4-en, amíg a billentyű le nem nyomódik; PETSCII kódot ad vissza
+var k = inkey() # nem blokkoló: PETSCII kódot ad vissza, vagy 0-t, ha nem nyomnak le billentyűt
+waitkey # várakozás, amíg le nem nyomnak egy billentyűt (CIA1 mátrix letapogatás; IRQ alatt működik)
+var k = waitkey() # ugyanaz, de nyers $DC01 oszlopbiteket ad vissza (0 bit = lenyomott billentyű)
+var j = joy(2) # joystick 2. portjának beolvasása; invertált 0-4 biteket ad vissza
+var j = joy(1) # joystick port 1 olvasása
+# bit0=up(1) bit1=down(2) bit2=left(4) bit3=right(8) bit4=fire(16)
+var mx = mouse_x() # 1351 egér: összesített X pozíció (segítő: charge+delay+delta)
+var my = mouse_y() # 1351 egér: összesített Y pozíció (EOR #$FF invertált)
+var mb = mouse_btn() # egérgombok: $DC01 olvasása — bit0=bal (tűz), bit1=jobb (fel pin)
 ```
 
 A `mouse_x()` / `mouse_y()` belsőleg futtat egy segítő szubrutint, amely a
@@ -816,17 +1025,17 @@ követéssel és gomb visszajelzéssel.
 ### Kijárat
 
 ```basic
-bye                      # JSR $E544 (clear screen), clear STOP flag, RTS to BASIC
-exit                     # alias for bye
+bye # JSR $E544 (képernyő törlése), STOP jelző törlése, RTS BASIC-be
+exit # alias a bye-hoz
 ```
 
 ### Időzítés
 
 ```basic
-wait 50                  # wait 50 raster-line transitions (~3.2 ms)
-wait raster 100          # spin until $D012 == 100 (raster-split effects)
-delay 1                  # wait 1 PAL frame (1/50 s ≈ 20 ms)
-delay 20                 # wait 20 frames ≈ 0.4 s; n can be a variable (0–255)
+wait 50 # 50 raszteres vonalátmenet várakozása (~3,2 ms)
+wait raster 100 # pörgetés, amíg $D012 == 100 (raszterfelosztási effektek)
+delay 1 # 1 PAL képkocka várakozása (1/50 s ≈ 20 ms)
+delay 20 # 20 képkocka várakozása ≈ 0,4 s; n változó lehet (0–255)
 ```
 
 A `delay N` N teljes PAL képkockát számol meg, a 200-as rasztervonalat használva
@@ -835,13 +1044,13 @@ képkockahatárként.
 ### SID hang
 
 ```basic
-sound 0, $1CAD, 25       # voice 0, freq $1CAD (≈ middle C PAL), 25 frames duration
-sound 1, freq_word, 50   # voice 1, freq from word var, 50 frames (1 s at 50 Hz)
-sound 2, 0, 0            # voice 2, silence
+hang 0, $1CAD, 25 # 0. hang, frekvencia $1CAD (≈ középső C PAL), 25 képkocka időtartama
+hang 1, frekvencia_szó, 50 # 1. hang, frekvencia a szóváltozóból, 50 képkocka (1 s 50 Hz-en)
+hang 2, 0, 0 # 2. hang, csend
 
-sid volume 15            # master volume full ($D418 = $0F); range 0-15
-sid volume 0             # silence (master volume = 0)
-sid stop                 # zero all 25 SID registers ($D400–$D418) — complete silence
+sid hangerő 15 # fő hangerő teljes ($D418 = $0F); tartomány 0-15
+sid hangerő 0 # csend (fő hangerő = 0)
+sid leállítás # mind a 25 SID regiszter nullázása ($D400–$D418) — teljes csend
 ```
 
 `sound <channel>, <freq>, <duration>` — időtartam PAL képkockákban (egyenként
@@ -864,10 +1073,10 @@ gyorsabban, mint 25 egyedi piszkálás.
 ### Nem blokkoló hangeffektek (`sfx`) — újdonság az 1.5.7-es verzióban
 
 ```basic
-sound 0, $2000, 25            # BLOCKS: the program waits 25 frames here
-sfx 0, $2000, 25              # returns at once; the note fades out by itself
-sfx 1, $0500, 8, 128          # optional wave: 16 triangle, 32 saw (default), 64 pulse, 128 noise
-sfx 0, freq_word, 4, 16       # freq may be a constant, a word var or an 8-bit expression
+sound 0, $2000, 25 # BLOCKS: a program itt 25 képkockát vár
+sfx 0, $2000, 25 # azonnal visszatér; a hang magától elhalkul
+sfx 1, $0500, 8, 128 # opcionális wave: 16 triangle, 32 saw (alapértelmezett), 64 pulse, 128 noise
+sfx 0, freq_word, 4, 16 # a freq lehet konstans, szóváltozó vagy 8 bites kifejezés
 ```
 
 Az `sfx <channel>, <freq>, <frames> [, <wave>]` egy SID hangot programoz, és
@@ -884,18 +1093,18 @@ be), és beállítja a fő hangerőt `$0F`. Az `channel` (0-2), az `frames` (1-2
 ### SID Zene
 
 ```basic
-load sid "tune.sid"            # embed SID music at its native load address
-load sid "tune.sid", $2000     # override: embed at $2000 regardless of SID header
+load sid "tune.sid" # SID zene beágyazása a natív betöltési címére
+load sid "tune.sid", $2000 # felülbírálás: beágyazás $2000-re a SID fejléctől függetlenül
 ```
 
 A `load sid` **fordítási időben** beolvassa a PSID vagy RSID fájlt, eltávolítja
 a fejlécet, és hozzáfűzi a nyers zenei bájtokat a kimenethez. `.prg`. A `load
 sid` után két fordítási idejű állandó válik elérhetővé:
 
-| Állandó    | Leírás                                                                     |
-| ---------- | -------------------------------------------------------------------------- |
-| `sid_init` | Init rutin cím — egyszeri hívás A = dalszámmal (0-alapú)                   |
-| `sid_play` | Rutincím lejátszása — minden keret meghívása (50 Hz PAL) egy IRQ kezelőből |
+| Állandó        | Leírás                                                                     |
+| -------------- | -------------------------------------------------------------------------- |
+| `oldal_kezdet` | Init rutin cím — egyszeri hívás A = dalszámmal (0-alapú)                   |
+| `sid_play`     | Rutincím lejátszása — minden keret meghívása (50 Hz PAL) egy IRQ kezelőből |
 
 Mindkét konstans bárhol működik, ahol konstans címet fogadnak el: `sys`, `irq`,
 `poke`, kifejezések.
@@ -903,18 +1112,18 @@ Mindkét konstans bárhol működik, ahol konstans címet fogadnak el: `sys`, `i
 **Tipikus használat:**
 
 ```basic
-load sid "music.sid"
+sid "music.sid" betöltése
 
 sub music_irq()
-  poke $D019, $FF       # ACK VIC raster IRQ
-  sys sid_play          # advance one frame of music
-  irq_exit              # JMP $EA81: restore A/X/Y + RTI (proper IRQ exit)
+poke $D019, $FF # ACK VIC raszter IRQ
+sys sid_play # zene egy képkockával előrébb ugrása
+irq_exit # JMP $EA81: A/X/Y + RTI visszaállítása (megfelelő IRQ kilépés)
 end
 
-sys sid_init, 0         # initialise SID chip: A=0 → first sub-tune
-irq music_irq, $C0      # raster IRQ at line $C0 → 50 Hz on PAL
+sys sid_init, 0 # SID chip inicializálása: A=0 → első alhangolás
+irq music_irq, $C0 # raszter IRQ a $C0 soron → 50 Hz PAL-on
 
-sid volume 15           # master volume on
+sid volume 15 # fő hangerő bekapcsolva
 ```
 
 **Megjegyzések:**
@@ -928,20 +1137,20 @@ sid volume 15           # master volume on
 ### Tracker dallamok (`tune`)
 
 ```basic
-tune                       # optional: tune at $C800  (default $8000)
-  speed 6                  # frames per row (50 Hz PAL)
-  inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
-  inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
-  imod 0, 6, 3, 9, 40, $0200, $0E00   # vibrato + pulse width modulation (1.6.2)
-  ifilt 0, $0500, 20, 1               # cutoff sweep up to $500, back and forth (1.6.2)
-  igate 1, 2, 1, $09                  # gate timer, hard restart, first frame $09 (1.6.2)
-  itab 1, 2, 0, ".. +0", ".. +4", ".. +7"   # arpeggio table (1.6.2)
-  order 0, 1, 0            # pattern order (patterns may repeat)
-  pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
-  pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
-  pat 1, 0, "G-4 00", "...", "E-4 00", "...", "C-4 00"
-end
-music play                 # or: sys sid_init / irq handler calling sys sid_play
+hangolás # opcionális: hangolás $C800-on (alapértelmezett $8000)
+sebesség 6 # képkocka soronként (50 Hz PAL)
+inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
+inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
+imod 0, 6, 3, 9, 40, $0200, $0E00 # vibrato + impulzusszélesség-moduláció (1.6.2)
+ifilt 0, $0500, 20, 1 # levágási sweep $500-ig, oda-vissza (1.6.2)
+igate 1, 2, 1, $09 # kapu időzítő, kemény újraindítás, első képkocka $09 (1.6.2)
+itab 1, 2, 0, ".. +0", ".. +4", ".. +7" # arpeggio tábla (1.6.2)
+sorrend 0, 1, 0 # pattern sorrend (a pattern-ek ismétlődhetnek)
+pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
+pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
+pat 1, 0, "G-4 00", "...", "E-4 00", "...", "C-4 00"
+vége
+zene lejátszás # vagy: sys sid_init / irq kezelő hívja a sys sid_play-t
 ```
 
 Az `tune ... end` egy 3 hangú követő dallamot ír le egyszerű szövegben
@@ -953,14 +1162,14 @@ kezelő, amely a `sys sid_play` függvényt hívja meg) változatlanul működik
 
 | Vonal                                                                                                   | Jelentés                                                                                                                                                                                                                                                                                                                                                                                         |
 | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `speed N`                                                                                               | Keretek követő soronként (1-255).                                                                                                                                                                                                                                                                                                                                                                |
+| `sebesség N`                                                                                            | Keretek követő soronként (1-255).                                                                                                                                                                                                                                                                                                                                                                |
 | `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol`                                                   | Egy hangszer: vezérlőregiszter (hullámforma bitek plusz gyűrű mod `$04` / szinkron `$02`; a gate bitet a játékos adja hozzá), attack/decay, sustain/release, 12 bites impulzusszélesség, 11 bites szűrő levágás, rezonancia/szűrő-útválasztó bájt (`$D417` stílus: bármelyik útvonalválasztó bit = a hangszeren játszó hang útvonalát adja) és mód/hangerő bájt (`$D418` stílus, 7. bit = 3 KI). |
 | `imod azonosító, vibrációs késleltetés, vibrációs sebesség, vibrációmélység, pwmspeed, pwmmin, pwmmax ` | (1.6.2) Hangszer vibrato: az `vibdelay` keretek után egy háromszög alakú LFO, amely minden `vibspeed` keretben (1-15, 0 = kikapcsolva) bekapcsol, mélység 0-15 (a hangjegy félhangjára skálázva). Impulzusszélesség-moduláció: keretenként hozzáadott `pwmspeed` (0 = kikapcsolva), `pwmmin` és `pwmmax` között ugrál.                                                                           |
 | `ifilt azonosító, cutend, sweep, pingpong`                                                              | (1.6.2) Szűrő levágási sweep: az `inst` levágástól a `cutend` felé `sweep` (0-127) lépésekben képkockánként; `pingpong` 1 = oda-vissza.                                                                                                                                                                                                                                                          |
 | `igate azonosító, kapuidőzítő, hardrestart, első hullám`                                                | (1.6.2) A kapu a következő hangjegy előtt `gatetimer` képkockával feloldódik (tartsa a `speed` alatt); a `hardrestart` 1 parancs az ADSR-t is 0-ra állítja. A hangjegy első képkockájára a `firstwave` (pl. `$09` = test + gate) kerül írásra.                                                                                                                                                   |
 | `itab azonosító, sebesség, ciklus, "lépés", ...`                                                        | (1.6.2) Hullámforma / arpeggio táblázat, akár 32 lépésben: `"WW +n"`, `".. -n"` vagy `"WW =n"` - hullámforma hexadecimálisban (`..` megtartja) és egy hangjegy eltolás félhangokban vagy egy abszolút hangjegy (`=60`). Egy lépés minden `sebesség` képkockánként, majd vissza a `hurok` lépéshez (255 = marad az utolsó lépésen).                                                               |
-| `order p, p, ...`                                                                                       | Minta sorrend. A vonalak felhalmozódnak, akár 255 lépésben.                                                                                                                                                                                                                                                                                                                                      |
-| `pat p, v, "cell", ...`                                                                                 | Legfeljebb 32 sor a `v` (0-2) hanghoz, amely a `p` (0-7) mintában található. A hiányzó sorok üresek.                                                                                                                                                                                                                                                                                             |
+| ` sorrend p, p, ...`                                                                                    | Minta sorrend. A vonalak felhalmozódnak, akár 255 lépésben.                                                                                                                                                                                                                                                                                                                                      |
+| `pat p, v, "cella", ...`                                                                                | Legfeljebb 32 sor a `v` (0-2) hanghoz, amely a `p` (0-7) mintában található. A hiányzó sorok üresek.                                                                                                                                                                                                                                                                                             |
 
 Egy **cell** a `NOTE INST FX`: `C-4`, `D#3`, `Eb2` vagy `...` ha nincs hang, egy
 kétjegyű hex hangszer (`..` ha ki akarja hagyni), és egy opcionális effekt -
@@ -1000,21 +1209,21 @@ sid_init` / `cia_timer` beállításnak. Előzetes `load sid` utasítást vagy `
 definiálja).
 
 ```basic
-load sid "tune.sid"         # embed SID file (defines sid_init / sid_play)
+"tune.sid" sid betöltése # SID fájl beágyazása (sid_init / sid_play definiálása)
 
-music play                  # initialise sub-tune 0 + start CIA1 50 Hz IRQ
-music play 1                # start from sub-tune 1 (song number 0-based)
-music stop                  # stop playback + zero all 25 SID registers ($D400-$D418)
-music pause                 # disable CIA1 timer A IRQ (music freezes, SID unchanged)
-music resume                # re-enable CIA1 timer A IRQ (continues from pause point)
+zenelejátszás # 0. alhangolás inicializálása + CIA1 50 Hz IRQ indítása
+zenelejátszás 1 # indítás az 1. alhangolásról (0. szám alapján)
+zenelejátszás leállítása # lejátszás leállítása + mind a 25 SID regiszter nullázása ($D400-$D418)
+zenelejátszás szüneteltetése # CIA1 A időzítő IRQ letiltása (a zene lefagy, a SID változatlan)
+zenelejátszás folytatása # CIA1 A időzítő IRQ újraengedélyezése (a szüneteltetési ponttól folytatódik)
 ```
 
-| Nyilatkozat      | Hatás                                                                                                             |
-| ---------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `music play [n]` | hívja a `sid_init(n)` kódot, állítsa be a CIA1 időzítőt A 19 656 ciklusra (~50 Hz PAL), telepítse az IRQ burkolót |
-| `music stop`     | CIA1 IRQ letiltása + mind a 25 SID regiszter nullázása                                                            |
-| `music pause`    | CIA1 IRQ letiltása (a SID kimenet lefagyva marad)                                                                 |
-| `music resume`   | CIA1 IRQ újraengedélyezése (a szüneteltetési ponttól folytatva)                                                   |
+| Nyilatkozat           | Hatás                                                                                                             |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `zene lejátszása [n]` | hívja a `sid_init(n)` kódot, állítsa be a CIA1 időzítőt A 19 656 ciklusra (~50 Hz PAL), telepítse az IRQ burkolót |
+| `zene leáll`          | CIA1 IRQ letiltása + mind a 25 SID regiszter nullázása                                                            |
+| `zene szünet`         | CIA1 IRQ letiltása (a SID kimenet lefagyva marad)                                                                 |
+| `zenei önéletrajz`    | CIA1 IRQ újraengedélyezése (a szüneteltetési ponttól folytatva)                                                   |
 
 Az IRQ burkoló (a program végén egyszer kibocsátott) a következőket teszi: ACK
 CIA1 időzítő A → `JSR sid_play` → `JMP $EA81`.
@@ -1022,25 +1231,25 @@ CIA1 időzítő A → `JSR sid_play` → `JMP $EA81`.
 ### Sprite-ok
 
 ```basic
-sprite 0, x, y, $2000    # sprite 0: set X, Y position and data pointer
-sprite 0, x, y           # without data pointer (keeps existing)
-sprite on  0             # enable sprite 0 ($D015 |= bit0)
-sprite off 0             # disable sprite 0 ($D015 &= ~bit0)
-sprite color 0, 7        # sprite 0 color = yellow ($D027)
-sprite multicolor 0, on  # enable multicolor mode for sprite 0 ($D01C |= bit0)
-sprite multicolor 0, off # disable multicolor mode ($D01C &= ~bit0)
-sprite expand x 0, on    # double width ($D01D |= bit0)
-sprite expand x 0, off   # normal width ($D01D &= ~bit0)
-sprite expand y 0, on    # double height ($D017 |= bit0)
-sprite expand y 0, off   # normal height ($D017 &= ~bit0)
-sprite priority 0, on    # behind background ($D01B |= bit0)
-sprite priority 0, off   # in front of background ($D01B &= ~bit0)
-var h = sprite_hit()     # sprite–sprite collision ($D01E, cleared on read)
-var b = sprite_bg_hit()  # sprite–background collision ($D01F, cleared on read)
-var x = sprite_x(0)      # read sprite 0 X position (lo byte, $D000)
-var y = sprite_y(0)      # read sprite 0 Y position ($D001)
-sprite_frame 0, $2000          # select one static sprite image
-sprite_frame 0, $2000, frame   # select an animation frame from a frame sequence
+sprite 0, x, y, $2000 # sprite 0: X, Y pozíció és adatmutató beállítása
+sprite 0, x, y # adatmutató nélkül (megtartja a meglévőt)
+sprite bekapcsolva 0 # sprite 0 engedélyezése ($D015 |= bit0)
+sprite kikapcsolva 0 # sprite 0 letiltása ($D015 &amp;= ~bit0)
+sprite színe 0, 7 # sprite 0 szín = sárga ($D027)
+sprite többszínű 0, bekapcsolva # többszínű mód engedélyezése a sprite 0-hoz ($D01C |= bit0)
+sprite többszínű 0, kikapcsolva # többszínű mód letiltása ($D01C &amp;= ~bit0)
+sprite kiterjesztés x 0, bekapcsolva # dupla szélesség ($D01D |= bit0)
+sprite kiterjesztés x 0, kikapcsolva # normál szélesség ($D01D &amp;= ~bit0)
+sprite kiterjesztés y 0, bekapcsolva # dupla magasság ($D017 |= bit0)
+sprite kiterjesztés y 0, ki # normál magasság ($D017 &amp;= ~bit0)
+sprite prioritás 0, bekapcsolva # háttér mögött ($D01B |= bit0)
+sprite prioritás 0, kikapcsolva # háttér előtt ($D01B &amp;= ~bit0)
+var h = sprite_hit() # sprite-sprite ütközés ($D01E, olvasáskor törlődik)
+var b = sprite_bg_hit() # sprite-háttér ütközés ($D01F, olvasáskor törlődik)
+var x = sprite_x(0) # sprite 0 X pozíció beolvasása (lo byte, $D000)
+var y = sprite_y(0) # sprite 0 Y pozíció beolvasása ($D001)
+sprite_frame 0, $2000 # egy statikus sprite kép kiválasztása
+sprite_frame 0, $2000, frame # egy animációs képkocka kiválasztása egy képkockasorozatból
 ```
 
 Az X a teljes 9 bites tartományt támogatja (0–319): a 255-nél nagyobb futásidejű
@@ -1048,7 +1257,7 @@ Az X a teljes 9 bites tartományt támogatja (0–319): a 255-nél nagyobb futá
 64 bájtos igazítottnak kell lennie; `addr >> 6` néven tárolva a `$07F8+id`
 címen.
 
-#### Sprite animation with `sprite_frame`
+#### Sprite animáció `sprite_frame`-szel
 
 A `sprite_frame` parancs segítségével módosíthatjuk egy sprite megjelenített
 képét animáció közben. Ez csak a sprite adatmutatóját változtatja meg; **nem**
@@ -1069,11 +1278,9 @@ az animáció időzítését és tördelését:
 
 ```basic
 var frame = 0
-loop
-  sprite_frame 0, $2000, frame
-  frame = frame + 1
-  if frame == 4 then frame = 0 end
-  delay 5
+ciklus
+sprite_frame 0, $2000, frame frame = frame + 1
+ha frame == 4, akkor frame = 0 end delay 5
 end
 ```
 
@@ -1084,8 +1291,7 @@ továbbra is a `sprite id,x,y` vezérli.
 ### Szoftveres határolókeret-ütközés
 
 ```basic
-var touching = box_hit(left1, top1, right1, bottom1,
-                       left2, top2, right2, bottom2)
+var touching = box_hit(bal1, felső1, jobb1, alsó1, bal2, felső2, jobb2, alsó2)
 ```
 
 A `box_hit()` tengelyhez igazított határolókeret (AABB) tesztet hajt végre, és
@@ -1096,17 +1302,17 @@ tetszőleges 8 bites kifejezés, így a dobozok kisebbek lehetnek, mint a látha
 sprite grafika, vagy nem sprite játékobjektumokat írhatnak le. A koordináták
 inkluzívak; a `left <= right` és a `top <= bottom` értékeket tartsa meg.
 
-### Sprite definition
+### Sprite definíció
 
 ```basic
 sprdef 0
-  $00,$3C,$00,  $00,$FF,$00,  $03,$FF,$C0,  $07,$FF,$E0,
-  $0F,$FF,$F0,  $0F,$FF,$F0,  $1F,$FF,$F8,  $1F,$FF,$F8,
-  $1F,$FF,$F8,  $0F,$FF,$F0,  $0F,$FF,$F0,  $07,$FF,$E0,
-  $03,$FF,$C0,  $00,$FF,$00,  $00,$3C,$00,  $00,$00,$00,
-  $00,$00,$00,  $00,$00,$00,  $00,$00,$00,  $00,$00,$00,
-  $00,$00,$00
-end
+  $00,$3C,$00, $00,$FF,$00, $03,$FF,$C0, $07,$FF,$E0,
+  $0F,$FF,$F0, $0F,$FF,$F0, $1F,$FF,$F8, $1F,$FF,$F8,
+  $1F,$FF,$F8, $0F,$FF,$F0, $0F,$FF,$F0, $07,$FF,$E0,
+  $03,$FF,$C0, $00,$FF,$00, $00,$3C,$00, $00,$00,$00,
+  $00,$00,$00, $00,$00,$00, $00,$00,$00, $00,$00,$00,
+$00,$00,$00
+vége
 ```
 
 A `sprdef id ... end` 63 sprite bájtot ágyaz be a kódszegmens következő 64
@@ -1115,8 +1321,8 @@ beállítja a `$07F8+id = data_addr >> 6` értéket. Ha ugyanazt az alakzatot t�
 sprite-hoz szeretné használni, olvassa vissza a mutatót:
 
 ```basic
-var pg = peek($07F8)   # pointer set by sprdef 0
-poke $07F9, pg         # copy to sprites 1–7
+var pg = peek($07F8) # a sprdef által beállított mutató 0
+poke $07F9, pg # másolás az 1–7. sprite-okba
 ```
 
 ### Karakterlap-térképek (`.ubmap`)
@@ -1258,9 +1464,9 @@ okoz.
 ### Koala Painter képimportálás
 
 ```basic
-koala load "pictures/title.kla"  # validate and embed at compile time
-koala show                       # enter bitmap multicolor mode
-koala hide                       # return to the default text display
+koala betöltés "pictures/title.kla" # érvényesítés és beágyazás fordítási időben
+koala show # bitképes többszínű módba lépés
+koala hide # visszaállítás az alapértelmezett szövegmegjelenítésre
 ```
 
 A `koala load` elfogad egy szabványos 10003 bájtos Koala fájlt (`$6000`
@@ -1282,10 +1488,10 @@ fordító hibát jelez. A Koala importálás jelenleg nem kombinálható a `load
 ### Kód elrendezése: `org` — újdonság az 1.5.7-es verzióban
 
 ```basic
-sub a() ... end          # subs/fns are placed one after another from the end of the main body
-org $4000                # the next subs/fns continue at $4000; $xxxx-$3FFF stays zero-filled
+sub a() ... end # a rész/fn-ek egymás után kerülnek elhelyezésre a törzs végétől számítva
+org $4000 # a következő rész/fn-ek $4000-nél folytatódnak; $xxxx-$3FFF nullával kitöltve marad
 sub b() ... end
-incbin "font.bin", $3800 # data can live in the gap ($3800-$3FFF is a whole VIC charset slot)
+incbin "font.bin", $3800 # az adatok elhelyezkedhetnek a résben ($3800-$3FFF egy teljes VIC karakterkészlet slot)
 ```
 
 Az `org addr` függvény az **alprogram/fn definíciók között helyezkedik el** (a
@@ -1301,14 +1507,14 @@ fölé kerül.
 ### Egyéni karakterkészlet (`charset on` / `charset off` újdonság az 1.5.7-es verzióban)
 
 ```basic
-charset $3800            # set base address for chardef (default $3800)
+charset $3800 # a chardef alapcímének beállítása (alapértelmezett $3800)
 
-chardef 65               # redefine character 65 ('A')
-  $18,$3C,$66,$7E,$66,$66,$66,$00
+chardef 65 # a 65-ös karakter ('A') újradefiniálása
+$18,$3C,$66,$7E,$66,$66,$66,$00
 end
 
-chardef 66               # fewer than 8 bytes are zero-padded
-  $7C,$66,$7C,$66,$7C
+chardef 66 # kevesebb, mint 8 bájt nullával van kiegészítve
+$7C,$66,$7C,$66,$7C
 end
 ```
 
@@ -1323,11 +1529,11 @@ Az `charset addr` csak az `chardef` célállomást állítja be; nem bocsát ki 
 Ahhoz, hogy a VIC-II ezt a készletet használja, kapcsolja be (és kapcsolja ki,
 ha végzett):
 ```basic
-charset $3800
-chardef 1  $FF,$81,$81,$81,$81,$81,$81,$FF  end  # box border
-charset on          # VIC-II reads characters from $3800 (screen matrix untouched)
+karakterkészlet $3800
+chardef 1 $FF,$81,$81,$81,$81,$81,$81,$FF vége # mező kerete
+karakterkészlet bekapcsolva # A VIC-II karaktereket olvas $3800-ból (a képernyőmátrix érintetlen)
 ...
-charset off         # back to the ROM set ($1800 if `lowercase` is active, else $1000)
+karakterkészlet kikapcsolva # Vissza a ROM készlethez ($1800, ha a `kisbetűs` aktív, egyébként $1000)
 ```
 
 `charset on` olvasási-módosítási-írási műveletén keresztül `$D018` bitek 1-3-át
@@ -1350,14 +1556,14 @@ adatokat (`incbin ..., addr`) nem számítjuk kódnak.
 ### Memória
 
 ```basic
-poke $D020, 2            # STA $D020
-poke addr_var, 6         # STA (addr_var),Y  — if addr_var is word type
-var v = peek($D012)      # LDA $D012
-var v = peek(addr_var)   # LDA (addr_var),Y  — if addr_var is word type
+poke $D020, 2 # STA $D020
+poke addr_var, 6 # STA (addr_var),Y — ha az addr_var szótípus
+var v = peek($D012) # LDA $D012
+var v = peek(addr_var) # LDA (addr_var),Y — ha az addr_var szótípus
 
-var w: word = peek16($C000)   # read 16-bit little-endian: lo=$C000, hi=$C001
-poke16 $0314, $EA81           # write 16-bit little-endian: lo→$0314, hi→$0315
-poke16 ptr, w                 # word var as address; word var as value
+var w: word = peek16($C000) # 16 bites little-endian olvasása: lo=$C000, hi=$C001
+poke16 $0314, $EA81 # 16 bites little-endian írása: lo→$0314, hi→$0315
+poke16 ptr, w # word var címként; word var értékként
 ```
 
 A `peek16(addr)` két egymást követő bájtot (lo, hi) `word`-ként olvas be. A
@@ -1366,13 +1572,13 @@ A `peek16(addr)` két egymást követő bájtot (lo, hi) `word`-ként olvas be. 
 ### Lemez I/O
 
 ```basic
-load "PROGRAM"           # KERNAL LOAD: loads file from device 8 to its native address
-load "DATA", $C000       # loads file to a specific address
-chain "GAME"             # load another program over this one and RUN it (see below)
-load "DATA", ptr         # addr from word variable
+load "PROGRAM" # KERNAL LOAD: betölti a fájlt a 8-as eszközről a natív címére
+load "DATA", $C000 # betölti a fájlt egy adott címre
+chain "GAME" # betölt egy másik programot erre a programra és FUTATJA (lásd alább)
+load "DATA", ptr # cím a word változóból
 
 save "DATA", $C000, 4096 # KERNAL SAVE from $C000, 4096 bytes → device 8
-save "PROG", start, len  # addr and len from word/int variables
+save "PROG", start, len # cím és len a word/int változókból
 ```
 
 A `load` függvény meghívja a KERNAL `SETNAM`+`SETLFS`+`LOAD`
@@ -1386,9 +1592,9 @@ Szükséges mind az `addr`, mind a `len` metódus.
 #### Láncolás egy másik programhoz — `lánc` (újdonság az 1.5.9-es verzióban)
 
 ```basic
-chain "GAME"             # load GAME from the drive we were started from and RUN it
-chain "GAME", 9          # from drive 9 (any expression)
-print "LOAD ERROR"       # only reached if the file could not be loaded
+chain "GAME" # betöltjük a GAME-et arról a meghajtóról, amelyről elindítottuk, és FUTJUK
+chain "GAME", 9 # a 9-es meghajtóról (bármilyen kifejezés)
+print "BETÖLTÉSI HIBA" # csak akkor érhető el, ha a fájlt nem sikerült betölteni
 ```
 
 Az `chain` parancs betölt egy másik programot a saját betöltési címére —
@@ -1426,15 +1632,15 @@ A fájlnévnek 1–16 karakter hosszúságú karakterláncnak kell lennie.
 ### Soros csatorna fájl I/O
 
 ```basic
-open 1, 8, 2, "MYFILE"  # open logical file 1, device 8, secondary 2, name "MYFILE"
-open 2, 4, 7             # open printer (device 4), no filename
-open ch, dev, sec        # channel, device, secondary from variables
+open 1, 8, 2, "MYFILE" # logikai fájl megnyitása 1, eszköz 8, másodlagos 2, név "MYFILE"
+open 2, 4, 7 # nyomtató megnyitása (eszköz 4), nincs fájlnév
+open ch, dev, sec # csatorna, eszköz, másodlagos változókból
 
-print# 1, "HELLO"        # send "HELLO"+CR to logical file 1
-print# ch, x, "text"     # any mix of vars, strings — same as print but to file
+print# 1, "HELLO" # "HELLO"+CR küldése az 1. logikai fájlnak
+print# ch, x, "text" # változók és karakterláncok bármilyen keveréke — ugyanaz, mint a print, de fájlba küldés
 
-close 1                  # close logical file 1
-close ch                 # channel from variable
+close 1 # logikai fájl bezárása 1
+close ch # csatorna változóból
 ```
 
 A `open` meghívja a `SETNAM` ($FFBD) + `SETLFS` ($FFBA) + `OPEN` ($FFC0)
@@ -1443,12 +1649,12 @@ kimenete a `CHKOUT` ($FFC9), karakterenként CHROUT (+ záró CR), majd a `CLRCH
 ($FFCC) parancson keresztül kerül továbbításra. A `close` beilleszti a
 csatornaszámot az A-ba és meghívja a `CLOSE` ($FFC3) függvényt.
 
-### Input
+### Bemenet
 
 ```basic
-input score              # read up to 3 digits from keyboard → 8-bit int var
-input "Name: ", name     # optional prompt string, then read line → string var
-input "Score: ", score   # prompt + int input
+input score # maximum 3 számjegy beolvasása a billentyűzetről → 8 bites int var
+input "Név: ", név # opcionális prompt karakterlánc, majd sor beolvasása → string var
+input "Pontszám: ", score # prompt + int input
 ```
 
 Az `input` KERNAL BASIN-t (`$FFCF`) használja a blokkoláshoz, visszhangos
@@ -1457,6 +1663,12 @@ vonalbemenetet biztosít DEL támogatással.
   bites értékké konvertál.
 - **Karakterlánc-változó**: maximum 30 karaktert fogad el; nullával lezárt
   karakterláncként tárolódik; a ZP pár frissül.
+- **DOUBLE var** (1.6.3): számjegyek és `.`, pl. `12,5` → 12,50 (két
+  tizedesjegy).
+- **Tömbelem** (1.6.3): `input t(i)` / `input nevek(i)`; `input "prompt"; x` is
+  működik.
+- **Karakterlánc var**: maximum 30 karaktert fogad el; nullával lezárt
+  karakterláncként tárolódik; a ZP pár frissül.
 
 ### Úszópont / Fixpont
 
@@ -1464,24 +1676,24 @@ Az `float` változók Q8.8 fixpontos formátumot használnak: a felső bájt az 
 rész (0–255), az alsó bájt pedig a tört rész (0/256 … 255/256).
 
 ```basic
-var f: float = 3.5       # 3.5 → hi=3, lo=128 (= 0x0380)
-var g: float = 0         # integer 0 is promoted to 0.0 automatically
+var f: float = 3.5 # 3.5 → hi=3, lo=128 (= 0x0380)
+var g: float = 0 # a 0 egész szám automatikusan 0.0-ra lép elő
 
-f = 1.5                  # Q8.8 literal assignment
-f = f + 1.5              # 16-bit Q8.8 arithmetic (result: 3.0)
-f = f + g                # float + float
+f = 1.5 # Q8.8 literál értékadás
+f = f + 1.5 # 16 bites Q8.8 aritmetikai művelet (eredmény: 3.0)
+f = f + g # float + float
 
-var n = int(f)           # extract integer part (hi byte) → 8-bit int
-print f                  # prints as "N.DD" (e.g. 3.5 → "3.50", 1.25 → "1.25")
+var n = int(f) # egész rész kinyerése (hi byte) → 8 bites int
+print f # "N.DD" formátumban nyomtat (pl. 3.5 → "3.50", 1.25 → "1.25")
 ```
 
 | Művelet                | Példa                | Megjegyzések                                    |
 | ---------------------- | -------------------- | ----------------------------------------------- |
-| Szó szerinti           | `3.5`, `0.25`, `1.0` | fordítási időben Q8.8-ként értelmezve           |
-| Egész szám előléptetés | `f = 5`              | 5.0-ás üzletek (magas=5, alacsony=0)            |
-| Hozzáadás/felirat      | `f + 1.5`, `f - g`   | 16 bites Q8.8 aritmetikai                       |
+| Szó szerinti           | `3,5`, `0,25`, `1,0` | fordítási időben Q8.8-ként értelmezve           |
+| Egész szám előléptetés | [X₀X]f = 5[X₀X]      | 5.0-ás üzletek (magas=5, alacsony=0)            |
+| Hozzáadás/felirat      | `f + 1,5`, `f - g`   | 16 bites Q8.8 aritmetikai                       |
 | Int kinyerése          | `int(f)`             | a hi byte-ot 8 bites egész számként adja vissza |
-| Nyomtatás              | `print f`            | "N.DD" formátum, mindig 2 tört számjegy         |
+| Nyomtatás              | `f nyomtatása`       | "N.DD" formátum, mindig 2 tört számjegy         |
 
 **Figyelmeztetés:** A számtani túlcsordulás 255,255-nél tördelődik (nincs
 telítés). Két lebegőpontos változó szorzása és osztása még nem támogatott –
@@ -1497,39 +1709,39 @@ eredményt. Az 1.5.7 előtt a nyers 16 bites értéket egész számként nyomtat
 ### Matematikai függvények
 
 ```basic
-var a = abs(x - 20)      # two's-complement absolute value
-var b = min(x, 39)       # 8-bit minimum
-var c = max(x, 0)        # 8-bit maximum
-var s = sgn(score)       # 0 = zero, 1 = positive (1–127), $FF = negative (128–255)
-var r = rnd()            # LCG pseudo-random 0-255; seed from raster line
-var r = rnd(10)          # LCG pseudo-random 0-9 (rnd() mod n; result 0..n-1)
-var s = sin(angle)       # sine: angle 0-255 (full circle), returns 0-255 (center=128)
-var c = cos(angle)       # cosine = sin(angle+64)
-var v = clamp(x, 0, 39)  # 8-bit unsigned clamp: result = max(lo, min(hi, val))
+var a = abs(x - 20) # kettes komplementer abszolút érték
+var b = min(x, 39) # 8 bites minimum
+var c = max(x, 0) # 8 bites maximum
+var s = sgn(pontszám) # 0 = nulla, 1 = pozitív (1–127), $FF = negatív (128–255)
+var r = rnd() # LCG pszeudo-véletlenszerű 0-255; seed from raszteres vonal
+var r = rnd(10) # LCG pszeudo-véletlenszerű 0-9 (rnd() mod n; eredmény 0..n-1)
+var s = sin(szög) # szinusz: szög 0-255 (teljes kör), visszaadja a 0-255 értéket (középpont=128)
+var c = cos(szög) # koszinusz = sin(szög+64)
+var v = clamp(x, 0, 39) # 8 bites előjel nélküli clamp: eredmény = max(lo, min(hi, val))
 
-print hex(n)             # print as 2-digit uppercase hex
-print bin(n)             # print as 8-bit binary string
+print hex(n) # nyomtatás 2 számjegyű nagybetűs hexként
+print bin(n) # nyomtatás 8 bites bináris karakterláncként
 ```
 
 ### Sztringfüggvények
 
 ```basic
-var n = len(msg)         # length of null-terminated string var (0–255)
-var c = asc(msg)         # PETSCII code of first character (0 if empty)
-var c = asc("A")         # compile-time: constant PETSCII code
-var n = val(s)           # runtime: parse decimal PETSCII string → 8-bit int (e.g. "042" → 42)
-var c = msg[i]           # string character at index i: PETSCII code of msg[i]
-msg[i] = c               # write PETSCII byte c to string at index i — STA (ptr),Y
-msg[0] = 72              # constant index → LDY #0; STA (ptr),Y
+var n = len(msg) # a nullával lezárt karakterlánc hossza var (0–255)
+var c = asc(msg) # az első karakter PETSCII kódja (0, ha üres)
+var c = asc("A") # fordítási idő: konstans PETSCII kód
+var n = val(s) # futási idő: decimális PETSCII karakterlánc elemzése → 8 bites egész (pl. "042" → 42)
+var c = msg[i] # az i indexen lévő karakterlánc: az msg[i] PETSCII kódja
+msg[i] = c # a PETSCII c bájt kiírása az i indexen lévő karakterláncba — STA (ptr),Y
+msg[0] = 72 # konstans index → LDY #0; STA (ptr),Y
 ```
 
 ### Számformázás
 
 ```basic
-print hex(n)             # print as 2-digit uppercase hex
-print bin(n)             # print as 8-bit binary string
-print dec(n, 4)          # right-justified decimal in a field of 4 chars (e.g. 42 → "  42")
-print dec(n, width)      # width can also be a variable
+print hex(n) # kinyomtatás 2 számjegyű nagybetűs hexként
+print bin(n) # kinyomtatás 8 bites bináris karakterláncként
+print dec(n, 4) # jobbra igazított decimális szám 4 karakteres mezőben (pl. 42 → " 42")
+print dec(n, width) # a width változó is lehet
 ```
 
 A `dec(n, width)` a bal oldali számot szóközökkel tölti ki a `width` karakterek
@@ -1540,12 +1752,12 @@ nélkül (csonkolás nélkül) kerül kinyomtatásra. Nem nyomtatási környezet
 ### REU (RAM bővítőegység)
 
 ```basic
-var ok = reu_present()   # 1 if REU detected, 0 if not (write/read test on $DF04)
-var ok = reudet()        # alias for reu_present()
+var ok = reu_present() # 1, ha REU-t észlel, 0, ha nem (írási/olvasási teszt a $DF04-en)
+var ok = reudet() # a reu_present() álneve
 
-reu stash c64addr, bank, reu_addr, len  # copy C64 → REU
-reu fetch c64addr, bank, reu_addr, len  # copy REU → C64
-reu swap  c64addr, bank, reu_addr, len  # swap between C64 and REU
+reu stash c64addr, bank, reu_addr, len # C64 másolása → REU
+reu fetch c64addr, bank, reu_addr, len # REU másolása → C64
+reu swap c64addr, bank, reu_addr, len # csere C64 és REU között
 ```
 
 Az `reu_present()` írási/visszaolvasási tesztet hajt végre a `$DF04` REU
@@ -1553,12 +1765,12 @@ regiszteren. REU nélkül az írás elvész (nyitott busz), így a visszaolvasá
 eltérő – megbízhatóan érzékeli a jelenlétet anélkül, hogy bármilyen mellékhatást
 okozó parancsregisztert érintene.
 
-| Paraméter  | Szélesség | Megjegyzések                                                       |
-| ---------- | --------- | ------------------------------------------------------------------ |
-| `c64addr`  | 16 bites  | C64 RAM indítása — konstans, `word` változó vagy 8 bites kifejezés |
-| `bank`     | 8 bites   | REU bankszám (0–7 egy 512 KB-os egységhez)                         |
-| `reu_addr` | 16 bites  | REU bankon belüli elszámolás                                       |
-| `len`      | 16 bites  | Átvinni kívánt bájtok (`0` = 65 536 REU hardverben)                |
+| Paraméter | Szélesség | Megjegyzések                                                       |
+| --------- | --------- | ------------------------------------------------------------------ |
+| `c64cím`  | 16 bites  | C64 RAM indítása — konstans, `word` változó vagy 8 bites kifejezés |
+| `bank`    | 8 bites   | REU bankszám (0–7 egy 512 KB-os egységhez)                         |
+| `reu_cím` | 16 bites  | REU bankon belüli elszámolás                                       |
+| `len`     | 16 bites  | Átvinni kívánt bájtok (`0` = 65 536 REU hardverben)                |
 
 REU regiszterek: `$DF01` parancs (`$B0` stash / `$B1` fetch / `$B2` swap),
 `$DF02–$DF03` C64 cím, `$DF04–$DF05` REU eltolás, `$DF06` bank, `$DF07–$DF08`
@@ -1568,18 +1780,18 @@ szükséges: **Beállítások → Hardver → RAM bővítőmodul**.
 ### Memória segédprogramok
 
 ```basic
-fill screen 32           # fill screen RAM $0400–$07FF with value 32 (space char)
-fill color 1             # fill color RAM $D800–$DBFF with value 1 (white)
+fill screen 32 # képernyő kitöltése RAM $0400–$07FF értékkel 32 (szóköz karakter)
+fill color 1 # kitöltőszín RAM $D800–$DBFF értékkel 1 (fehér)
 
-fill $0400, 1000, 32     # fill 1000 bytes starting at $0400 with value 32
-fill addr, 256, 0        # addr can be word var
-fill ptr, len_word, val  # all operands can be expressions / word vars
+fill $0400, 1000, 32 # 1000 bájt kitöltése $0400-tól kezdődően 32 értékkel
+fill addr, 256, 0 # addr lehet szóváltozó
+fill ptr, len_word, val # minden operandus lehet kifejezés / szóváltozó
 
-memcopy $C000, $0400, 256   # copy 256 bytes from $C000 → $0400
-memcopy src_ptr, dst_ptr, 40 # word vars for source and destination
+memcopy $C000, $0400, 256 # 256 bájt másolása $C000 → $0400 címről
+memcopy src_ptr, dst_ptr, 40 # szóváltozók a forráshoz és a célhoz
 
-drawmem $C000, $0400, 8, 10, 40 # blit 8×10 rect from $C000 → screen at $0400, stride 40
-drawmem src_ptr, dst_ptr, w, h, 40 # word vars for src/dst
+drawmem $C000, $0400, 8, 10, 40 # 8×10 bit másolása közvetlenül innen $C000 → képernyő $0400-nál, 40-es lépésszám
+drawmem src_ptr, dst_ptr, w, h, 40 # szóváltozók az src/dst-hez
 ```
 
 A `fill` és a `memcopy` is támogatja a 16 bites hosszúságokat (0–65535). 255-nél
@@ -1595,10 +1807,10 @@ bites kifejezések.
 ### Raszteres IRQ
 
 ```basic
-irq my_handler           # raster IRQ at line 0, handler = sub name or address
-irq my_handler, 100      # raster IRQ at raster line 100
-irq $C800, 200           # handler at fixed address
-irq addr_word            # handler address from a word variable
+irq my_handler # raszter IRQ a 0. sorban, kezelő = alnév vagy cím
+irq my_handler, 100 # raszter IRQ a 100. rasztersorban
+irq $C800, 200 # kezelő fix címen
+irq addr_word # kezelő címe egy szóváltozóból
 ```
 
 Beállít egy raszteres IRQ-t a BASIC szoftveres vektoron (`$0314`/`$0315`)
@@ -1611,9 +1823,9 @@ vagy `RTI` sérti a verem tartalmát. Először nyugtázd a VIC IRQ-t:
 
 ```basic
 sub my_handler()
-  poke $D019, $FF      # ACK VIC IRQ
-  # ... work here ...
-  sys $EA81            # JMP to KERNAL end-of-IRQ
+poke $D019, $FF # ACK VIC IRQ
+# ... itt működik ...
+sys $EA81 # JMP a KERNAL-hoz IRQ vége
 end
 ```
 
@@ -1622,11 +1834,11 @@ Az előrehivatkozások támogatottak (`irq my_handler` az aldefiniálás előtt)
 ### NMI-kezelő
 
 ```basic
-nmi my_nmi               # set NMI vector $0318/$0319 to handler sub or address
+nmi my_nmi # $0318/$0319 NMI vektor beállítása a kezelő alcímére vagy címére
 
 sub my_nmi()
-  # ... NMI work here ...
-  nmi_exit               # JMP $FE47 — proper NMI exit (restores A/X/Y + RTI)
+# ... Az NMI itt működik ...
+nmi_exit # JMP $FE47 — megfelelő NMI kilépés (visszaállítja az A/X/Y + RTI értékeket)
 end
 ```
 
@@ -1639,15 +1851,15 @@ sérüléséhez vezet. Előrehivatkozások támogatottak.
 ### CIA1 időzítő megszakítás
 
 ```basic
-cia_timer 19656, my_handler   # CIA1 timer A: fires every 19656 cycles (~50 Hz PAL)
-cia_timer period, handler      # period can be a variable or expression
+cia_timer 19656, my_handler # CIA1 időzítő A: 19656 ciklusonként aktiválódik (~50 Hz PAL)
+cia_timer period, handler # az időszak lehet változó vagy kifejezés
 ```
 
 Beállítja a CIA1 időzítőt A periodikus IRQ forrásként a BASIC szoftveres
 vektoron (`$0314`/`$0315`) keresztül:
 1. SEI – megszakítások letiltása
 2. `$DC0D = $7F` — minden CIA1 IRQ letiltása
-3. Load 16-bit period lo→`$DC04`, hi→`$DC05`
+3. 16 bites periódus betöltése lo→`$DC04`, hi→`$DC05`
 4. Írd be a kezelő címét `$0314`/`$0315` ide
 5. `$DC0D = $81` — CIA1 időzítő A IRQ engedélyezése
 6. `$DC0E = $01` — Az A időzítő indítása folyamatos üzemmódban
@@ -1658,9 +1870,9 @@ nyugtáznia kell a CIA1 IRQ-t:
 
 ```basic
 sub my_handler()
-  poke $DC0D, $01      # ACK CIA1 timer A IRQ (read also clears it)
-  # ... work here ...
-  irq_exit             # JMP $EA81: restore A/X/Y + RTI
+poke $DC0D, $01 # ACK CIA1 időzítő A IRQ (az olvasás törli is)
+# ... itt működik ...
+irq_exit # JMP $EA81: A/X/Y + RTI visszaállítása
 end
 ```
 
@@ -1670,13 +1882,13 @@ ciklus ≈ `$4CC9`. Előremeneti referenciák támogatottak.
 ### Hibakezelés
 
 ```basic
-onerr goto err_handler   # set KERNAL I/O error vector ($0300/$0301) to a label
+onerr goto err_handler # a KERNAL I/O hibavektor ($0300/$0301) címkévé tétele
 
 ...
 
-label err_handler
-  print "I/O ERROR"
-  bye
+címke err_handler
+print "I/O HIBA"
+bye
 ```
 
 A `onerr goto label` a címkét (lo, hi) a KERNAL `$0300` és `$0301` helyekre
@@ -1687,11 +1899,11 @@ mutató hivatkozások (a `onerr goto` után definiált címke) támogatottak.
 ### Fordítási idejű fájlbeágyazás (`incbin` skip / length, új az 1.5.7-es verzióban)
 
 ```basic
-incbin "sprites.bin"            # embed raw binary bytes at current code position
-incbin "charset.bin", $2000     # embed at an absolute address, padding as needed
-incbin "font.prg", $3C00, 2       # ...skipping the first 2 bytes (e.g. a .prg load address)
-incbin "big.bin", $4000, 16, 256  # ...skip 16 bytes, then take at most 256 bytes
-include "defs.ub"        # inline another .ub source file (lexed+parsed in place)
+incbin "sprites.bin" # nyers bináris bájtok beágyazása az aktuális kódpozícióba
+incbin "charset.bin", $2000 # beágyazás abszolút címre, szükség szerint kitöltve
+incbin "font.prg", $3C00, 2 # ...az első 2 bájt kihagyása (pl. egy .prg betöltési cím)
+incbin "big.bin", $4000, 16, 256 # ...16 bájt kihagyása, majd legfeljebb 256 bájt felhasználása
+include "defs.ub" # egy másik .ub forrásfájl beágyazása (lexikálisan + helyben értelmezve)
 ```
 
 Az `incbin "file", addr, skip [, length]` függvény eldobja a fájl első `skip`
@@ -1700,11 +1912,11 @@ legfeljebb `length` bájtot foglal el; az `skip` és `length` konstansok, és a
 fájl vége utáni `skip` hiba. A címforma megköveteli, hogy a cél a generált kód
 felett legyen – vagy egy `org` résen belül.
 
-### Data / Read
+### Adatok / Olvasás
 
 ```basic
-data 1, 2, 3, 255        # constant byte table
-read varname             # load next byte into varname (auto-declares if needed)
+data 1, 2, 3, 255 # konstans bájttábla
+read varname # a következő bájt betöltése a változónév táblába (szükség esetén automatikusan deklarálódik)
 ```
 
 Az összes `data` értéket fordítási időben gyűjti össze a rendszer. A program
@@ -1716,11 +1928,11 @@ Minden `read` lépéssel előrébb viszi a mutatót.
 ```basic
 var sinus = array(8)
 data sinus: 128, 218, 255, 218
-data sinus: 128, 37, 0, 37      # further lines continue where the previous one stopped
-print sinus[i]                  # random access, like any array
+data sinus: 128, 37, 0, 37 # a további sorok ott folytatódnak, ahol az előző abbamaradt
+print sinus[i] # véletlenszerű hozzáférés, mint bármely tömb
 
 var xpos = array_word(2)
-data xpos: 24, 300              # word arrays take 16-bit values (stored lo, hi)
+data xpos: 24, 300 # a szavas tömbök 16 bites értékeket fogadnak (lo, hi tárolva)
 ```
 
 Egy `data` sor, amelynek első eleme `name:`, egy deklarált `array` /
@@ -1734,53 +1946,53 @@ adatfolyamot.
 ### Soros összeszerelés
 
 ```basic
-sys $FFD2                # JSR $FFD2
-sys $FFD2, 7             # LDA #7 ; JSR $FFD2  (pass byte value in A register)
-irq_exit                 # JMP $EA81 — proper IRQ handler exit (restore A/X/Y + RTI)
-asm $EA, $EA             # inline raw bytes (NOP NOP) — legacy form
+sys $FFD2 # JSR $FFD2
+sys $FFD2, 7 # LDA #7 ; JSR $FFD2 (átadott bájtérték az A regiszterben)
+irq_exit # JMP $EA81 — megfelelő IRQ kezelő kilépés (A/X/Y + RTI visszaállítása)
+asm $EA, $EA # inline nyers bájtok (NOP NOP) — örökölt forma
 asm {
-  ; Full 6502 mnemonics and addressing modes
-  LDA #$07               ; immediate
-  STA $0286              ; absolute
-  LDA $50                ; zero-page  ($50 ≤ $FF → ZP auto-selected)
-  STA $0400,X            ; absolute,X indexed
-  LDA ($50),Y            ; (indirect),Y
-  LDA ($50,X)            ; (indirect,X)
-  JSR $FFD2              ; subroutine call
-  JMP $C000              ; absolute jump
-  JMP ($FFFC)            ; indirect jump
+; Teljes 6502 mnemonika és címzési módok
+LDA #$07 ; azonnali
+STA $0286 ; abszolút
+LDA $50 ; nulla oldalas ($50 ≤ $FF → ZP automatikusan kiválasztva)
+STA $0400,X ; abszolút,X indexelt
+LDA ($50),Y ; (közvetett),Y
+LDA ($50,X) ; (közvetett,X)
+JSR $FFD2 ; alprogramhívás
+JMP $C000 ; abszolút ugrás
+JMP ($FFFC); közvetett ugrás
 
-  CLC
-  ADC #1
-  SEC
-  SBC #1
+CLC
+ADC #1
+SEC
+SBC #1
 
-  TAX                    ; implied / transfer
-  ASL A                  ; accumulator (also just: ASL)
-  LSR A
-  ROL
-  ROR
+TAX; implicit / transzfer
+ASL A; akkumulátor (szintén csak: ASL)
+LSR A
+ROL
+ROR
 
-  ; Branches — operand is an absolute address; offset is computed automatically
-  BNE loop               ; forward or backward branch to local label
-  BEQ done
+; Elágazások — az operandus abszolút cím; az eltolás automatikusan kiszámításra kerül
+BNE ciklus; előre vagy hátra elágazás a helyi címkére
+BEQ kész
 
-loop:
-  NOP
-done:
-  RTS
+ciklus:
+NOP
+kész:
+RTS
 
-  ; #<label / #>label — lo / hi byte of a label address
-  LDA #<handler
-  STA $0314
-  LDA #>handler
-  STA $0315
+; #<címke / #>címke — a címkecím alsó / felső bájtja
+LDA #<kezelő
+STA $0314
+LDA #>kezelő
+STA $0315
 
-  ; * — current assembly location
-  JMP *
+; * — aktuális assembly hely
+JMP *
 
-  ; Raw hex bytes (backward-compatible with old asm { $xx ... } syntax)
-  $EA $EA                ; two NOP bytes
+; Nyers hex bájtok (visszafelé kompatibilis a régi asm { $xx ... } szintaxissal)
+$EA $EA; két NOP bájt
 }
 ```
 
@@ -1790,7 +2002,7 @@ done:
 | ----------------- | -------------- | ------ | ------------------------- |
 | (nincs operandus) | Hallgatólagos  | 1      | `NOP`, `RTS`              |
 | `A`               | Akkumulátor    | 1      | `ASL A`, `LSR`            |
-| `#value`          | Azonnali       | 2      | `LDA #$07`                |
+| `#érték`          | Azonnali       | 2      | `LDA #07`                 |
 | `$zz` (0–255)     | Nulla oldal    | 2      | `LDA $50`                 |
 | `$zz,X`           | ZP,X           | 2      | `LDA $50,X`               |
 | `$zz,Y`           | ZP,Y           | 2      | `LDX $50,Y`               |
@@ -1799,8 +2011,8 @@ done:
 | `$xxxx,Y`         | Abszolút,Y     | 3      | `LDA $0400,Y`             |
 | `($xxxx)`         | Közvetett      | 3      | `JMP ($FFFC)`             |
 | `($zz,X)`         | (Közvetett, X) | 2      | `LDA ($50,X)`             |
-| `($zz),Y`         | (Közvetett),Y  | 2      | `LDA ($50),Y`             |
-| `label`           | Relatív        | 2      | `BNE label` (csak fiókok) |
+| `($zz),Y`         | (Közvetett),Y  | 2      | `LDA (50 dollár),Y`       |
+| `címke`           | Relatív        | 2      | `BNE label` (csak fiókok) |
 
 - Az `$zz` (1–2 hexadecimális számjegy, érték ≤ 255) a nulladik oldalas
   formátumot választja, ha az utasítás támogatja; egyébként automatikusan
@@ -1826,12 +2038,12 @@ helyekre helyezheti át:
 
 ```basic
 sub set_colors(border_col, bg_col)
-  poke $D020, border_col   # UltimateBasic resolves the ZP address
-  poke $D021, bg_col
-  asm {
-    ; values are already in $D020 / $D021
-    LDA $D020
-  }
+poke $D020, border_col # Az UltimateBasic feloldja a ZP címet
+poke $D021, bg_col
+asm { 
+; az értékek már benne vannak a $D020 / $D021-ben
+LDA $D020
+}
 end
 ```
 
@@ -1845,12 +2057,12 @@ főprogramban. Az azonos blokkban lévő címkék megosztják a hatókört, így
 ### Karakterlánc ↔ egész szám
 
 ```basic
-numstr score, $0340      # writes "042\0" at $0340 (always 3 digits, zero-padded)
-var n = str_to_int("42") # compile-time: Expr::Number(42)
+numstr pontszám, $0340 # kiírja a "042\0"-t $0340-nek (mindig 3 számjegy, nullákkal kiegészítve)
+var n = str_to_int("42") # fordítási idejű: Expr::Number(42)
 
-print str$(score)                # print 8-bit int as 3-digit decimal string ("000"–"255")
-print "Score: " + str$(score)   # usable in string concat print context
-var s: string = str$(n)          # assign str$() result to a string var (shared static buffer)
+print str$(score) # 8 bites egész számot ír ki 3 számjegyű decimális karakterláncként ("000"–"255")
+print "Pontszám: " + str$(score) # használható karakterlánc concat nyomtatási környezetben
+var s: string = str$(n) # az str$() eredményét karakterlánchoz rendeli var (megosztott statikus puffer)
 ```
 
 A `str$(n)` egy 8 bites értéket 3 karakteres decimális karakterlánccá alakít
@@ -1865,43 +2077,44 @@ párban tárolja a rendszer, amelyet fordítási időben foglalnak le.
 
 ## Példák
 
-| Fájl                                | Leírás                                                                                     |
-| ----------------------------------- | ------------------------------------------------------------------------------------------ |
-| `examples/features.ub`              | konstans, címke/goto, piszkálás/bukás, rnd, matematikai függvények                         |
-| `examples/new_features.ub`          | alparaméterek, tömbök, szóváltozók, karakterláncváltozók                                   |
-| `examples/bitmap_demo.ub`           | 320×200 bitkép, plot, grafika be/ki                                                        |
-| `examples/block_demo.ub`            | 80×50 blokkgrafika, plot4, circle4, grafika blokkon                                        |
-| `examples/joystick_demo.ub`         | joystick olvasás, sprite mozgás                                                            |
-| `examples/mux_demo.ub`              | raszteres sprite multiplexer (3 ablak × 8 sprite = 24)                                     |
-| `examples/orbit_demo.ub`            | 24 sprite pálya pulzáló sugárral és véletlenszerű színekkel                                |
-| `examples/plasma_demo.ub`           | plazmahatású bitkép raszteres sávszegély animációval                                       |
-| `examples/sprite_data.ub`           | sprdef alakzatadatok (más demókban is megtalálhatók)                                       |
-| `examples/sprite_mux_orbit.ub`      | 24 sprite-os pálya demó sprdef-fel + előre kiszámított pozíciókkal                         |
-| `examples/sprite_orbit_demo.ub`     | 8 hardveres sprite körpályán sin/cos táblázat segítségével                                 |
-| `examples/reu_bitmap_demo.ub`       | REU stash/fetch bitmap grafikával                                                          |
-| `examples/sid_music_demo.ub`        | SID zenelejátszó raszteres IRQ-val és billentyűzetkilépéssel                               |
-| `examples/tenprint.ub`              | 5 TENPRINT labirintus implementáció menüvel; demók `lowercase` karakterkészlet módban      |
-| `examples/countdown_demo.ub`        | Visszaszámlálás `for..next` negatív lépésekkel, beleértve a `for i = 20 to 0 step -2`-t is |
-| `examples/countdown_errors_demo.ub` | Fordítási idejű hiba az alapértelmezett lépéshez `from > to`                               |
-| `examples/explicit_demo.ub`         | `--explicit` CLI-flag bemutató teljesen begépelt `var`, `sub`, `fn` szövegekkel            |
-| `examples/explicit_errors_demo.ub`  | Laza kód, ami `--explicit` nélkül épül fel, hibákat okoz                                   |
+| Fájl                                  | Leírás                                                                                     |
+| ------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `példák/jellemzők.ub`                 | konstans, címke/goto, piszkálás/bukás, rnd, matematikai függvények                         |
+| `példák/új_szolgáltatások.ub`         | alparaméterek, tömbök, szóváltozók, karakterláncváltozók                                   |
+| `példák/bitmap_demo.ub`               | 320×200 bitkép, plot, grafika be/ki                                                        |
+| `példák/blokk_demo.ub`                | 80×50 blokkgrafika, plot4, circle4, grafika blokkon                                        |
+| `példák/joystick_demo.ub`             | joystick olvasás, sprite mozgás                                                            |
+| `példák/mux_demo.ub`                  | raszteres sprite multiplexer (3 ablak × 8 sprite = 24)                                     |
+| `példák/orbit_demo.ub`                | 24 sprite pálya pulzáló sugárral és véletlenszerű színekkel                                |
+| `példák/plasma_demo.ub`               | plazmahatású bitkép raszteres sávszegély animációval                                       |
+| `példák/sprite_adatok.ub`             | sprdef alakzatadatok (más demókban is megtalálhatók)                                       |
+| `példák/sprite_mux_orbit.ub`          | 24 sprite-os pálya demó sprdef-fel + előre kiszámított pozíciókkal                         |
+| `példák/sprite_orbit_demo.ub`         | 8 hardveres sprite körpályán sin/cos táblázat segítségével                                 |
+| `példák/reu_bitmap_demo.ub`           | REU stash/fetch bitmap grafikával                                                          |
+| `példák/sid_music_demo.ub`            | SID zenelejátszó raszteres IRQ-val és billentyűzetkilépéssel                               |
+| `példák/tenprint.ub`                  | 5 TENPRINT labirintus implementáció menüvel; demók `lowercase` karakterkészlet módban      |
+| `példák/visszaszámláló_demo.ub`       | Visszaszámlálás `for..next` negatív lépésekkel, beleértve a `for i = 20 to 0 step -2`-t is |
+| `példák/visszaszámláló_hibák_demo.ub` | Fordítási idejű hiba az alapértelmezett lépéshez `from > to`                               |
+| `példák/explicit_demo.ub`             | `--explicit` CLI-flag bemutató teljesen begépelt `var`, `sub`, `fn` szövegekkel            |
+| `examples/explicit_errors_demo.ub`    | Laza kód, ami `--explicit` nélkül épül fel, hibákat okoz                                   |
 
 ## CLI-referencia
 
 ```
-ub build <input.ub> [OPTIONS]
+ub build <input.ub> [OPCIÓK]
 
-  -o, --output <file>   Output .prg or .crt file (default: <input>.prg)
-  -v, --verbose         Show zero-page layout and code hex dump
-  --no-stub             Skip the BASIC SYS stub (code loads at $0801)
-  --debug               Also produce .sym, .dbg and .vs debugger files
-  --asm                 Also produce a readable 6502 codegen .asm listing
-  --d64 [file]          Also produce a .d64 disk image;
-                          without a filename defaults to <output>.d64
-  --add <file>          Add an extra file to the .d64 disk image;
-                          may be repeated for multiple files
-  --explicit            Require :type on every var / sub-param / fn-param
-  -h, --help            Show help
+-o, --output <fájl> .prg vagy .crt fájl kimenete (alapértelmezett: <input>.prg)
+
+-v, --verbose Nulla oldalas elrendezés és kód hex dump megjelenítése
+--no-stub A BASIC SYS stub kihagyása (a kód $0801-kor töltődik be)
+--debug .sym, .dbg és .vs debugger fájlok létrehozása is
+--asm Olvasható 6502 kódgeneráló .asm lista létrehozása is
+--d64 [fájl] .d64 lemezkép létrehozása is;
+fájlnév nélkül alapértelmezetten <output>.d64
+--add <fájl> Egy extra fájl hozzáadása a .d64 lemezképhez;
+több fájl esetén is ismétlődhet
+--explicit :type parancs szükséges minden változó / alparaméter / fn-paraméter esetén
+-h, --help Súgó megjelenítése
 ```
 
 ### CRT export
@@ -1936,17 +2149,19 @@ laza forma fordítási idejű hibává válik.
 
 **Amit érvényesít:**
 
-| Nyilatkozati űrlap                                   | `--explicit` nélkül               | `--explicit`-val                   |
-| ---------------------------------------------------- | --------------------------------- | ---------------------------------- |
-| `var name = expr` (nem `:type`)                      | ok — típus kikövetkeztetett       | hiba                               |
-| `var name: int = expr` (vagy szó/float/karakterlánc) | Rendben                           | Rendben                            |
-| `var arr = array(N)`                                 | oké — implicit módon `array`      | rendben – változatlan              |
-| `var arr = array_word(N)`                            | oké — implicit módon `array_word` | rendben – változatlan              |
-| `const NAME = value`                                 | Rendben                           | rendben – változatlan              |
-| `sub foo(a, b)` (beíratlan paraméterek)              | Rendben                           | hiba típus nélküli paraméterenként |
-| `sub foo(a: int, b: int)`                            | Rendben                           | Rendben                            |
-| `fn foo(a): int` (beíratlan paraméter)               | Rendben                           | hiba a paraméterben                |
-| `fn foo(a: int): int`                                | Rendben                           | Rendben                            |
+| Nyilatkozati űrlap                                   | `--explicit` nélkül         | `--explicit`-val      |
+| ---------------------------------------------------- | --------------------------- | --------------------- |
+| `var name = expr` (nem `:type`)                      | ok — típus kikövetkeztetett | hiba                  |
+| `var name: int = expr` (vagy szó/float/karakterlánc) | Rendben                     | Rendben               |
+| `var arr = array(N)`                                 | ok — típus kikövetkeztetett | hiba                  |
+| `var arr = array_word(N)`                            | Rendben                     | Rendben               |
+| `const NAME = value`                                 | Rendben                     | rendben – változatlan |
+| `sub foo(a, b)` (beíratlan paraméterek)              | Rendben                     | rendben – változatlan |
+| `sub foo(a: int, b: int)`                            | Rendben                     | rendben – változatlan |
+| `fn foo(a): int` (beíratlan paraméter)               | Rendben                     | hiba a paraméterben   |
+| `fn foo(a: int): int`                                | Rendben                     | Rendben               |
+| `fn foo(a): int` (beíratlan paraméter)               | Rendben                     | hiba a paraméterben   |
+| `fn ize(a: int): int`                                | Rendben                     | Rendben               |
 
 A konstansok és a tömbdeklarációk mindig elfogadottak – típusukat a deklarációs
 űrlap rögzíti, így a `:type` redundáns lenne.
@@ -1955,9 +2170,9 @@ A konstansok és a tömbdeklarációk mindig elfogadottak – típusukat a dekla
 
 ```
 $ ub build myprog.ub --explicit
-Compilation errors:
-  line 14: 'explicit' mode: 'var loose' has no type — use 'var loose: int|word|float|string'
-  line 16: 'explicit' mode: parameter 'a' has no type — use 'a: int|word|float|string'
+Fordítási hibák:
+14. sor: 'explicit' mód: a 'var loose' paraméternek nincs típusa — használja a 'var loose: int|word|float|string' formátumot
+16. sor: 'explicit' mód: az 'a' paraméternek nincs típusa — használja az 'a: int|word|float|string' formátumot
 ```
 
 A jelző egy építési időben változó kapcsoló – a forrásban semminek sem kell
@@ -1982,7 +2197,7 @@ használva:
 | ---------- | ------------------------------------------------------------------------------------------------------------ |
 | `demo.sym` | KickAssembler-kompatibilis szimbólumforrás, amely alkalmas assembler forráskódba importálásra                |
 | `demo.dbg` | C64Debugger/RetroDebugger KickAssembler hibakeresési dump, amely tartalmazza a program szegmensét és címkéit |
-| `demo.vs`  | VICE monitor parancsfájl, amely `al` parancsokat tartalmaz a címcímkékhez                                    |
+| `demó.vs`  | VICE monitor parancsfájl, amely `al` parancsokat tartalmaz a címcímkékhez                                    |
 
 Mindhárom exportálás tartalmazza a `program_start`, `program_end` értékeket,
 változókat, tömböket, alprogramokat és a kódgenerálás után ismert BASIC
@@ -2000,9 +2215,9 @@ A `--asm` karakterlánccal írjon olvasható 6502-es forráslistát a PRG mellé
 ub build demo.ub --asm
 ```
 
-For an output named `demo.prg`, this creates `demo.asm`. The listing is produced
-from metadata collected while Ultimate Basic generates the machine code; it is
-not merely a disassembly of the completed PRG. It contains:
+Egy `demo.prg` nevű kimenet esetén ez létrehozza a `demo.asm` fájlt. A lista a
+gépi kód generálása során gyűjtött metaadatokból készül; ez nem pusztán a kész
+PRG szétszerelése. A következőket tartalmazza:
 
 - `; UB:` megjegyzések, amelyek az egyes kibocsátó UB utasítások generált
   bájttartományát jelölik;
@@ -2031,15 +2246,16 @@ használják.
 Példa részlet:
 
 ```asm
-.label x                 = $02 ; int
+.label x = $02; int
 
 * = $080D
 
 ub_start:
-    cld                         ; $080D: D8
-    ; UB: var x
-    lda  #$01                   ; $080E: A9 01
-    sta  x                      ; $0810: 85 02
+cld; $080D: D8
+
+; UB: var x
+lda #$01; $080E: A901
+stax; $0810: 8502
 ```
 
 A cím/bájt megjegyzések megkönnyítik a lista összehasonlítását a `.prg`
@@ -2055,22 +2271,22 @@ fájlnevek a forrásfájl nevéből származnak, nagybetűvel írva (pl. `music.
 Sikeres fordítás után a fordító mindig kinyomtat egy memóriatérképet:
 
 ```
-demo.ub → demo.prg  (386 bytes)
+demo.ub → demo.prg (386 bájt)
 
-  Load:    $080D – $0989
+Betöltés: $080D – $0989
 
-  Variables (zero page):
-    score    ZP:$08   byte
-    lives    ZP:$0A   byte
-    msg      ZP:$0C   string
-    ptr      ZP:$0E   word
+Változók (nulladik oldal):
+score ZP:$08 bájt
+lives ZP:$0A bájt
+msg ZP:$0C string
+ptr ZP:$0E word
 
-  Subroutines:
-    greet    $0900
-    show     $0912
+Alprogramok:
+greet $0900
+show $0912
 
-  Arrays ($C000+):
-    sprites  $C000   8 bytes
+Tömbök ($C000+):
+sprite-ok $C000 8 bájt
 ```
 
 A `-v` beállítással a kimenet ezen felül mutatja a belső ZP-foglalásokat és egy
@@ -2105,17 +2321,17 @@ Használd az `--asm` kapcsolót a saját programodhoz generált kód megtekinté
 | Alprogramok                           | Nincs rekurzió — A ZP paraméterhelyek statikusan vannak lefoglalva                                                                                                                                                                                                                                                                                                                                                |
 | Karakterlánc-változók                 | Read-only after init; assignment replaces the pointer, not the data                                                                                                                                                                                                                                                                                                                                               |
 | Karakterlánc-összefűzés futásideje    | `s1 + s2` szekvenciálisan nyomtat — nincs halomfoglalás vagy hosszkövetés                                                                                                                                                                                                                                                                                                                                         |
-| `rnd()` / `rnd(n)`                    | Egyszerű LCG, nem kriptográfiai; periódus = 256                                                                                                                                                                                                                                                                                                                                                                   |
+| `ford()` / `ford(n)`                  | Egyszerű LCG, nem kriptográfiai; periódus = 256                                                                                                                                                                                                                                                                                                                                                                   |
 | `abs()` / `sgn()` / `min()` / `max()` | csak 8 bites értékek; `abs`/`sgn` az értékeket előjelesként kezeli (7. bit = negatív → `abs` kettes komplementer, `sgn` `$FF` értéket ad vissza); `min`/`max` előjel nélküliek (0–255)                                                                                                                                                                                                                            |
-| `plot`                                | A tartományon kívüli pixeleket hangtalanul levágja a rendszer (Y ≥ 200 vagy X ≥ 320 → nincs művelet)                                                                                                                                                                                                                                                                                                              |
+| `diagram`                             | A tartományon kívüli pixeleket hangtalanul levágja a rendszer (Y ≥ 200 vagy X ≥ 320 → nincs művelet)                                                                                                                                                                                                                                                                                                              |
 | `mplot`                               | Nincs határérték-ellenőrzés — x-nek 0–159, y-nak 0–199 között kell lennie                                                                                                                                                                                                                                                                                                                                         |
 | `mline` / `mrect`                     | Többszínű; x: 0–159, y: 0–199. Képernyőn kívüli pixelek tördelése (nincs vágás) – a koordináták a tartományon belül maradnak                                                                                                                                                                                                                                                                                      |
-| `mcircle`                             | Többszínű; képernyőn kívüli pontokat vág (x ≥ 160 vagy y ≥ 200 kihagyva)                                                                                                                                                                                                                                                                                                                                          |
-| `color pen`                           | Csak felvételek; beállítja az érintett cellák előtérbeli részét (a háttér megmarad). Blokk módban nincs hatása (`plot4`/`circle4`)                                                                                                                                                                                                                                                                                |
-| `rect`                                | Nincs határérték-ellenőrzés — x: 0–319, y: 0–199; x1≤x2 és y1≤y2 nincsenek kikényszerítve (a degenerált/invertált egyenesek nem definiált kimenetet eredményeznek)                                                                                                                                                                                                                                                |
+| `mkör`                                | Többszínű; képernyőn kívüli pontokat vág (x ≥ 160 vagy y ≥ 200 kihagyva)                                                                                                                                                                                                                                                                                                                                          |
+| `színes toll`                         | Csak felvételek; beállítja az érintett cellák előtérbeli részét (a háttér megmarad). Blokk módban nincs hatása (`plot4`/`circle4`)                                                                                                                                                                                                                                                                                |
+| `egyenes`                             | Nincs határérték-ellenőrzés — x: 0–319, y: 0–199; x1≤x2 és y1≤y2 nincsenek kikényszerítve (a degenerált/invertált egyenesek nem definiált kimenetet eredményeznek)                                                                                                                                                                                                                                                |
 | `plot4`                               | Nincs határérték-ellenőrzés — x értékének 0–79, y értékének 0–49 között kell lennie (blokk mód)                                                                                                                                                                                                                                                                                                                   |
-| `circle4`                             | Kivágja a képernyőn kívüli blokkképpontokat; a hasznos sugár nagyjából 0–49 80×50-es blokk módban.                                                                                                                                                                                                                                                                                                                |
-| `chr$`                                | Nincs PETSCII↔ASCII leképezés — az n értékét változatlanul adja át a CHROUT-nak                                                                                                                                                                                                                                                                                                                                   |
-| `music play`                          | `load sid` vagy `tune` blokkot igényel; csak egy CIA1 wrapper kerül kibocsátásra (az utolsó `musicplay` nyer)                                                                                                                                                                                                                                                                                                     |
-| `graphics on double`                  | Csak bérelt példányok; `$4000–$7FFF` karaktereket használ a hátsó pufferhez, így a programkódnak `$4400` alatt kell maradnia; nem kombinálható sprite-okkal vagy többszínűvel                                                                                                                                                                                                                                     |
+| `kör4`                                | Kivágja a képernyőn kívüli blokkképpontokat; a hasznos sugár nagyjából 0–49 80×50-es blokk módban.                                                                                                                                                                                                                                                                                                                |
+| `karakter`                            | Nincs PETSCII↔ASCII leképezés — az n értékét változatlanul adja át a CHROUT-nak                                                                                                                                                                                                                                                                                                                                   |
+| `zenelejátszás`                       | `load sid` vagy `tune` blokkot igényel; csak egy CIA1 wrapper kerül kibocsátásra (az utolsó `musicplay` nyer)                                                                                                                                                                                                                                                                                                     |
+| `grafika dupla `-en                   | Csak bérelt példányok; `$4000–$7FFF` karaktereket használ a hátsó pufferhez, így a programkódnak `$4400` alatt kell maradnia; nem kombinálható sprite-okkal vagy többszínűvel                                                                                                                                                                                                                                     |
 | Hibajelentés                          | Csak fordítási időben; a `onerr goto` futási időben kezeli a KERNAL I/O hibákat                                                                                                                                                                                                                                                                                                                                   |

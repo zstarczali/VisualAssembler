@@ -1,174 +1,186 @@
 # C64 Visual Assembler — Podręcznik użytkownika
 
-**Wersja 2.5.3**
+**Wersja 2.5.4**
 
-Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągając i upuszczając bloki instrukcji, i oglądaj generowany kod assemblera i maszynowy w czasie rzeczywistym.
+Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągając
+i upuszczając bloki instrukcji, i oglądaj generowany kod assemblera i maszynowy
+w czasie rzeczywistym.
 
 ---
 
 ## Spis treści
 
-- [C64 Visual Assembler — Podręcznik użytkownika](#c64-visual-assembler--user-manual)
-    - [Najważniejsze cechy wersji 2.5.3](#version-253-highlights)
-    - [Najważniejsze cechy wersji 2.5.2](#version-252-highlights)
-    - [Najważniejsze cechy wersji 2.5.1](#version-251-highlights)
-    - [Najważniejsze cechy wersji 2.5.0](#version-250-highlights)
-    - [Najważniejsze cechy wersji 2.4.9](#version-249-highlights)
-    - [Najważniejsze cechy wersji 2.4.8](#version-248-highlights)
-    - [Najważniejsze cechy wersji 2.4.7](#version-247-highlights)
-    - [Najważniejsze cechy wersji 2.4.6](#version-246-highlights)
-    - [Najważniejsze cechy wersji 2.4.5](#version-245-highlights)
-    - [Najważniejsze cechy wersji 2.4.3](#version-243-highlights)
-    - [Najważniejsze cechy wersji 2.4.2](#version-242-highlights)
-    - [Najważniejsze cechy wersji 2.4.1](#version-241-highlights)
-    - [Najważniejsze cechy wersji 2.4.0](#version-240-highlights)
-    - [Najważniejsze cechy wersji 2.3.9](#version-239-highlights)
-  - [Spis treści](#table-of-contents)
-  - [1. Przegląd interfejsu](#1-interface-overview)
-  - [2. Paleta bloków](#2-block-palette)
-  - [3. Obszar programu](#3-program-area)
-    - [Wejście operandu](#operand-input)
-  - [4. Widok ASM](#4-asm-view)
-    - [Tryby wyjściowe](#output-modes)
-    - [Karta Zestaw narzędzi](#toolkit-tab)
-    - [Karta Opcje](#options-tab)
-    - [Kliknięcie wiersza ASM](#clicking-an-asm-line)
+- [C64 Visual Assembler — Podręcznik
+  użytkownika](#c64-visual-assembler--user-manual)
+    - [Najważniejsze cechy wersji 2.5.4](#version-254-highlights)
+    - [Najważniejsze cechy wersji 2.5.2](#version-253-highlights)
+    - [Najważniejsze cechy wersji 2.5.1](#version-252-highlights)
+    - [Najważniejsze cechy wersji 2.5.0](#version-251-highlights)
+    - [Najważniejsze cechy wersji 2.4.9](#version-250-highlights)
+    - [Najważniejsze cechy wersji 2.4.8](#version-249-highlights)
+    - [Najważniejsze cechy wersji 2.4.7](#version-248-highlights)
+    - [Najważniejsze cechy wersji 2.4.6](#version-247-highlights)
+    - [Najważniejsze cechy wersji 2.4.5](#version-246-highlights)
+    - [Najważniejsze cechy wersji 2.4.3](#version-245-highlights)
+    - [Najważniejsze cechy wersji 2.4.2](#version-243-highlights)
+    - [Najważniejsze cechy wersji 2.4.1](#version-242-highlights)
+    - [Najważniejsze cechy wersji 2.4.0](#version-241-highlights)
+    - [Najważniejsze cechy wersji 2.3.9](#version-240-highlights)
+    - [Spis treści](#version-239-highlights)
+  - [1. Przegląd interfejsu](#table-of-contents)
+  - [2. Paleta bloków](#1-interface-overview)
+  - [3. Obszar programu](#2-block-palette)
+  - [4. Widok ASM](#3-program-area)
+    - [Tryby wyjściowe](#operand-input)
+  - [5. Ustawienia i pasek narzędzi](#4-asm-view)
+    - [Szablony projektów](#output-modes)
+    - [Budowanie projektu](#toolkit-tab)
+    - [Przykładowe programy](#options-tab)
+    - [Załaduj plik .asm (szybkie odniesienie)](#clicking-an-asm-line)
     - [Numery wierszy ASM](#asm-line-numbers)
     - [Modalne okno postępu kompilacji](#compile-progress-modal)
-  - [5. Ustawienia i pasek narzędzi](#5-settings--toolbar)
-    - [Szablony projektów](#project-templates)
-    - [Budowanie projektu](#build-project)
-    - [Przykładowe programy](#example-programs)
-    - [Załaduj plik .asm (szybkie odniesienie)](#load-asm-file-quick-reference)
-      - [Importuj notatki dotyczące analizy i najlepsze praktyki](#import-parsing-notes-and-best-practices)
-  - [Tryb Ultimate Basic](#ultimatebasic-mode)
-    - [Otwieranie edytora UB](#opening-the-ub-editor)
-    - [Narzędzia edytora](#editor-tools)
-    - [Projekty, zakładki i pliki startowe](#projects-tabs-and-startup-files)
-    - [Budowa i diagnostyka](#building-and-diagnostics)
-    - [Uruchomienie, D64 i Exomizer](#running-d64-and-exomizer)
-    - [Symbole debugera i deasemblacja](#debugger-symbols-and-disassembly)
-    - [Podręcznik i źródło Ultimate Basic](#ultimate-basic-manual-and-source)
-  - [6. Tryb ekspercki](#6-expert-mode)
-    - [Przełączanie trybów](#switching-modes)
-    - [Układ edytora](#editor-layout)
-    - [Przyciski paska narzędzi](#toolbar-buttons)
-    - [Podświetlanie błędu](#error-highlighting)
+  - [Tryb Ultimate Basic](#5-settings--toolbar)
+    - [Otwieranie edytora UB](#project-templates)
+    - [Narzędzia edytora](#build-project)
+    - [Projekty, zakładki i pliki startowe](#example-programs)
+    - [Budowa i diagnostyka](#load-asm-file-quick-reference)
+      - [Importuj notatki dotyczące analizy i najlepsze
+        praktyki](#import-parsing-notes-and-best-practices)
+  - [6. Tryb ekspercki](#ultimatebasic-mode)
+    - [Przełączanie trybów](#opening-the-ub-editor)
+    - [Układ edytora](#editor-tools)
+    - [Przyciski paska narzędzi](#projects-tabs-and-startup-files)
+    - [Podświetlanie błędu](#building-and-diagnostics)
+    - [Podświetlenie składni](#running-d64-and-exomizer)
+    - [Formater źródła](#debugger-symbols-and-disassembly)
+    - [Panel projektu \&amp; zakładki](#ultimate-basic-manual-and-source)
+  - [7. Tryby adresowania](#6-expert-mode)
+    - [Oznacz wyrażenia jako operandy](#switching-modes)
+    - [Licznik programu `*` w wyrażeniach](#editor-layout)
+    - [Lokalne etykiety (kropkowane)](#toolbar-buttons)
+    - [Etykiety operandów kodu samomodyfikującego](#error-highlighting)
     - [Podświetlenie składni](#syntax-highlight)
     - [Formater źródła](#source-formatter)
     - [Panel projektu \&amp; zakładki](#project-panel--tabs)
     - [Pasek kart](#tab-bar)
-  - [7. Tryby adresowania](#7-addressing-modes)
-    - [Oznacz wyrażenia jako operandy](#label-expressions-as-operands)
-    - [Licznik programu `*` w wyrażeniach](#the--program-counter-in-expressions)
-    - [Lokalne etykiety (kropkowane)](#local-dotted-labels)
-    - [Etykiety operandów kodu samomodyfikującego](#self-modifying-code-operand-labels)
-  - [8. Standardowe instrukcje 6502](#8-standard-6502-instructions)
-    - [Przenoszenie danych](#data-movement)
-    - [Arytmetyka](#arithmetic)
-    - [Logika](#logic)
-    - [Skoki i gałęzie](#jumps--branches)
-    - [LBNE / LBEQ / … (Długie gałęzie)](#lbne--lbeq---long-branches)
-    - [Operacje rejestru](#register-operations)
-    - [Przesunięcie i obrót](#shift--rotate)
-    - [Stos](#stack)
-    - [System / Flagi](#system--flags)
-    - [Nielegalne/nieudokumentowane instrukcje](#illegal--undocumented-instructions)
-  - [9. Bloki makro — odniesienie](#9-macro-blocks--reference)
-    - [LABEL](#label)
-    - [COMMENT](#comment)
-    - [BYTE](#byte)
-    - [WORD](#word)
-    - [FILL](#fill)
-    - [ALIGN](#align)
-    - [TEXT](#text)
-    - [STRING](#string)
-    - [DATA](#data)
+  - [8. Standardowe instrukcje 6502](#7-addressing-modes)
+    - [Przenoszenie danych](#label-expressions-as-operands)
+    - [Arytmetyka](#the--program-counter-in-expressions)
+    - [Logika](#local-dotted-labels)
+    - [Skoki i gałęzie](#self-modifying-code-operand-labels)
+  - [9. Bloki makro — odniesienie](#8-standard-6502-instructions)
+    - [LABEL](#data-movement)
+    - [COMMENT](#arithmetic)
+    - [BYTE](#logic)
+    - [WORD](#jumps--branches)
+    - [FILL](#lbne--lbeq---long-branches)
+    - [ALIGN](#register-operations)
+    - [TEXT](#shift--rotate)
+    - [STRING](#stack)
+    - [DATA](#system--flags)
+    - [RAWBYTES](#illegal--undocumented-instructions)
+  - [10. Integracja debugera](#9-macro-blocks--reference)
+    - [RetroDebugger](#label)
+    - [Bloki punktów przerwania](#comment)
+    - [Flagi debugera (zakładka Opcje)](#byte)
+    - [SŁOWO](#word)
+    - [WYPEŁNIJ](#fill)
+    - [WYRÓWNAJ](#align)
+    - [TEKST 1}
+    - [CIĄG](#string)
+    - [DANE](#data)
     - [RAWBYTES](#rawbytes)
-    - [RAWTEXT](#rawtext)
+    - [SUROWY TEKST](#rawtext)
     - [PETSCII](#petscii)
-    - [CHARSET](#charset)
+    - [ZESTAW ZNAKÓW](#charset)
     - [CHARDEF](#chardef)
-    - [BOX_HIT](#box_hit)
+    - [TRAFIENIE W PUDEŁKO](#box_hit)
     - [INCBIN](#incbin)
     - [KOALA](#koala)
     - [POZIOM / POZIOM\_RZĄD](#level--level_row)
       - [POZIOM](#level)
       - [POZIOM\_RZĄD](#level_row)
     - [SID](#sid)
-    - [INCLUDE](#include)
-    - [TABLE](#table)
+    - [WŁĄCZ](#include)
+    - [TABELA](#table)
     - [ORG](#org)
-    - [LOOP / NEXT](#loop--next)
-      - [LOOP](#loop)
-      - [NEXT](#next)
-    - [FOR / ENDF](#for--endf)
-      - [FOR](#for)
-      - [ENDF](#endf)
-    - [PUSH / PULL](#push--pull)
-      - [PUSH](#push)
-      - [PULL](#pull)
+    - [PĘTLA / NASTĘPNY](#loop--next)
+      - [PĘTLA](#loop)
+      - [DALEJ](#next)
+    - [DLA / ZAKOŃCZENIE](#for--endf)
+      - [DLA](#for)
+      - [KONIEC](#endf)
+    - [PCHNIJ / POCIĄGNIJ](#push--pull)
+      - [PCHNIJ](#push)
+      - [POCIĄGNIJ](#pull)
     - [END / alias RTS](#end--rts-alias)
-    - [MACRO / ENDM / INVOKE](#macro--endm--invoke)
+    - [MAKRO / ENDM / WYWOŁAJ](#macro--endm--invoke)
       - [MAKRO (początek definicji)](#macro-definition-start)
       - [ENDM (koniec definicji)](#endm-definition-end)
-      - [INVOKE](#invoke)
-    - [REGION / ENDREGION](#region--endregion)
-    - [DEFINE / IF / ELSE / ENDIF](#define--if--else--endif)
+      - [WYWOŁAJ](#invoke)
+    - [REGION / KONIEC REGIONU](#region--endregion)
+    - [DEFINIUJ / JEŻELI / W PRZECIWNYM RAZIE / ENDIF](#define--if--else--endif)
     - [.ASSERT](#assert)
-      - [DEFINE](#define)
-      - [IF](#if)
-      - [ELSE](#else)
-    - [ENDIF](#endif)
-    - [CONST](#const)
+      - [DEFINIUJ](#define)
+      - [JEŻELI](#if)
+      - [INACZEJ](#else)
+    - [KONIECJĘ JEŻELI](#endif)
+    - [STAŁA](#const)
     - [VAR](#var)
-    - [Czas wykonania JEŻELI / W PRZECIWNYM RAZIE / ENDIF](#runtime-if--else--endif)
+    - [Czas wykonania JEŻELI / W PRZECIWNYM RAZIE /
+      ENDIF](#runtime-if--else--endif)
     - [WHILE / ENDW](#while--endw)
-    - [REPEAT / UNTIL](#repeat--until)
+    - [POWTARZAJ / DO](#repeat--until)
     - [MEMCPY / MEMSET](#memcpy--memset)
-    - [PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / DELAY / SET_BORDER / SET_BG](#print--print_char--print_hex--clear_screen--wait_key--delay--set_border--set_bg)
-    - [IRQ_SETUP](#irq_setup)
+    - [DRUKUJ / DRUKUJ ZNAK / DRUKUJ SZESNASTKOWY / WYCZYŚĆ EKRAN / KLUCZ
+      OCZEKIWANIA / OPÓŹNIENIE / USTAW_OBRAMOWANIE /
+      USTAW_BOKIEM](#print--print_char--print_hex--clear_screen--wait_key--delay--set_border--set_bg)
+    - [USTAWIENIA_IRQ](#irq_setup)
     - [RAND](#rand)
     - [SPRITE\_INIT](#sprite_init)
     - [SPRITE\_POS](#sprite_pos)
-    - [WAIT\_RASTER](#wait_raster)
+    - [CZEKAJ\_RASTER](#wait_raster)
     - [JOYSTICK](#joystick)
-    - [MOUSE](#mouse)
+    - [MYSZ](#mouse)
     - [SPRITE\_COL](#sprite_col)
-    - [LOADFILE](#loadfile)
+    - [WCZYTAJ PLIK](#loadfile)
     - [EXODECRUNCH](#exodecrunch)
     - [REU\_CHECK](#reu_check)
-    - [REU\_STASH / REU\_FETCH / REU\_SWAP](#reu_stash--reu_fetch--reu_swap)
+    - [REU\_SCHOWAJ / REU\_POBIERZ /
+      REU\_ZAMIEŃ](#reu_stash--reu_fetch--reu_swap)
     - [TURBO\_SET](#turbo_set)
-    - [SUPERCPU\_DETECT](#supercpu_detect)
-    - [TURBO\_ENABLE](#turbo_enable)
-    - [MAP\_COPY](#map_copy)
-    - [MAP\_COPY16X16](#map_copy16x16)
+    - [SUPERPROCPU\_WYKRYWANIE](#supercpu_detect)
+    - [TURBO\_WŁĄCZ](#turbo_enable)
+    - [MAPA\_KOPIA](#map_copy)
+    - [MAPA\_KOPIA16X16](#map_copy16x16)
     - [SPRITE\_ANIM](#sprite_anim)
-    - [SCORE\_BCD](#score_bcd)
-  - [10. Integracja debugera](#10-debugger-integration)
+    - [WYNIK\_BCD](#score_bcd)
+  - [11. Linki do bazy wiedzy](#10-debugger-integration)
     - [RetroDebugger](#retrodebugger)
     - [Bloki punktów przerwania](#breakpoint-blocks)
     - [Flagi debugera (zakładka Opcje)](#debugger-flags-options-tab)
-  - [11. Linki do bazy wiedzy](#11-knowledge-base-links)
-  - [12. Eksport D64 i uruchomienie](#12-d64-export--run)
+  - [12. Eksport D64 i uruchomienie](#11-knowledge-base-links)
+  - [12b. Eksport CRT (wkład Magic Desk 64K)](#12-d64-export--run)
     - [Przycisk Podziel bieg](#split-run-button)
     - [Eksportuj do okna dialogowego D64](#export-to-d64-dialog)
     - [Metadane D64 w projektach](#d64-metadata-in-projects)
-  - [12b. Eksport CRT (wkład Magic Desk 64K)](#12b-crt-export-magic-desk-64k-cartridge)
-  - [13. Ustawienia sprzętowe](#13-hardware-settings)
-    - [Emulator VICE](#vice-emulator)
-    - [Exomizer](#exomizer)
-    - [Retro Debugger](#retro-debugger)
-    - [C64 Ultimate / 1541 Ultimate](#c64-ultimate--1541-ultimate)
-    - [Kung Fu Flash 2](#kung-fu-flash-2)
+  - [13. Ustawienia sprzętowe](#12b-crt-export-magic-desk-64k-cartridge)
+  - [14. Edytory wizualne (zestaw narzędzi)](#13-hardware-settings)
+    - [Edytor wysokiej rozdzielczości / wielokolorowy](#vice-emulator)
+    - [Edytor sprite'ów](#exomizer)
+    - [Przeglądarka ROM-u znaków C64 („Mapa znaków”)](#retro-debugger)
+    - [Edytor znaków (zestaw znaków)](#c64-ultimate--1541-ultimate)
+    - [Edytor kanwy znaków](#kung-fu-flash-2)
   - [14. Edytory wizualne (zestaw narzędzi)](#14-visual-editors-toolkit)
-    - [Edytor wysokiej rozdzielczości / wielokolorowy](#hi-res--multicolor-editor)
+    - [Edytor wysokiej rozdzielczości /
+      wielokolorowy](#hi-res--multicolor-editor)
     - [Edytor sprite'ów](#sprite-editor)
-    - [Przeglądarka ROM-u znaków C64 („Mapa znaków”)](#c64-character-rom-browser-char-map)
+    - [Przeglądarka ROM-u znaków C64 („Mapa
+      znaków”)](#c64-character-rom-browser-char-map)
     - [Edytor znaków (zestaw znaków)](#character-editor-charset)
     - [Edytor kanwy znaków](#charset-canvas-editor)
-    - [Edytor map (mapy kafelkowe wielowarstwowe)](#map-editor-multilayer-tilemaps)
+    - [Edytor map (mapy kafelkowe
+      wielowarstwowe)](#map-editor-multilayer-tilemaps)
     - [Edytor poziomów](#level-editor)
     - [Edytor SID (śledzenie 3-głosowe)](#sid-editor-3-voice-tracker)
     - [Edytor krzywych](#curve-editor)
@@ -176,150 +188,390 @@ Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągaj�
 
 ---
 
-## Najważniejsze cechy wersji 2.5.3
+## Najważniejsze cechy wersji 2.5.4
 
-- **Naprawiono: uruchomienie w VICE / RetroDebugger w systemie Windows** nie powoduje już błędu *program nie został znaleziony*, gdy w zmiennej PATH brakuje programu PowerShell; VICE uruchamia się z własnego folderu (powiązany plik `x64sc.exe` jest kojarzony z rzeczywistym), a ścieżki ze spacjami są ujęte w cudzysłów. Wskaż ścieżkę VICE do pliku `x64sc.exe` w folderze `bin` programu VICE, obok jego bibliotek DLL.
+- **Naprawiono: okno nie pojawiało się po ponownym uruchomieniu** — jeśli
+  aplikacja została zamknięta z zminimalizowanym lub ukrytym oknem (głównie na
+  macOS, ale także na Linuksie/Wayland), kolejne uruchomienie mogło się pojawić
+  bez okna. Stan widoczny nie jest już zapisywany (rozmiar okna nadal jest), a
+  okno jest zawsze wyświetlane po uruchomieniu.
+- **Dołączony Ultimate Basic 1.6.3 ** — składnia w stylu QBasic: `dim name jako
+  type` dla zmiennych i tablic każdego typu, `function` / `sub` z typami `as`,
+  `elseif`, `do … loop`, `while … wend`, `select case`, `exit do` / `exit sub`,
+  pojedyncza linia `if`, Komentarze `'` i `drukują a; b; c`; ciągi czasu
+  wykonania (`+`, `left$` / `right$` / `mid$`) oraz 16-bitowe liczby całkowite
+  `ze znakiem`. Podświetlono, uzupełniono i sformatowano w edytorze UB, dodając
+  nowe wpisy **DIM**, **FUNCTION**, **ELSEIF**, **DO**, **WEND**, **SELECT
+  CASE**, **END**, **EXIT SUB** i **LEFT$** / **RIGHT$** / **MID$** w panelu
+  Polecenia. Zobacz [UltimateBasic Mode](#ultimatebasic-mode).
 
 ---
 
 ## Najważniejsze cechy wersji 2.5.2
 
-- **Podgląd edytora SID na prawdziwym SID** — podgląd instrumentu, wirtualna klawiatura, wprowadzanie nut, odtwarzanie akordów/arpeggio, wierszy i pojedynczych wzorców przez WebSid; syntezator pozostaje jedynie opcją zapasową. Zobacz [Edytor SID](#sid-editor-3-voice-tracker).
-- **Note-off** — klawisz **1** zapisuje `===` do trackera: bramka zostaje zwolniona, a zwolnienie instrumentu jest wykonywane, podobnie jak wyłączenie klawisza w innych trackerach; **Enter** edytuje wybraną komórkę.
-- **Odłączany tracker** — tracker (wiersze utworu, trackera i harmonii, siatka) może być umieszczony w osobnym, skalowalnym panelu i dokowany z powrotem.
-- **Predefiniowane ustawienia Wave/arpeggio** — lista presetów zachowuje wybrany preset do momentu ręcznej edycji tabeli.
-- **VA-VK** — nowa nazwa wirtualnej klawiatury z przyciskami Play/Stop; zapamiętuje swoją pozycję, stan otwarcia, oktawę i *Insert do trackera*; zapamiętywana jest **główna głośność** edytora SID.
-- **Baza wiedzy** — środowisko programistyczne systemu operacyjnego C64 i linki do png2c64, lista dwukolumnowa. Zobacz [Linki do bazy wiedzy](#11-knowledge-base-links).
+- **Podgląd edytora SID na prawdziwym SID** — podgląd instrumentu, wirtualna
+  klawiatura, wprowadzanie nut, odtwarzanie akordów/arpeggio, wierszy i
+  pojedynczych wzorców przez WebSid; syntezator pozostaje jedynie opcją
+  zapasową. Zobacz [Edytor SID]{1}.
 
 ---
 
 ## Najważniejsze cechy wersji 2.5.1
 
-- **Instrumenty edytora SID** — routing filtrów na głos, **3 WYŁ.** i rezonansowy **przemiatanie** (start, koniec, prędkość, ping-pong); instrument **wibrato** (opóźnienie, prędkość, głębokość); **modulacja szerokości impulsu**; **timer bramki**, **twardy restart** i przebieg pierwszej klatki; **tabela fal/arpeggio** z presetami; **PIERŚCIEŃ** i **SYNC**. Zobacz [Edytor SID](#sid-editor-3-voice-tracker).
-- **Nowy odtwarzacz SID** — wyeksportowany odtwarzacz uruchamia modulację instrumentu co klatkę (`JSR sid_frame` dla własnego IRQ); podgląd renderuje tego samego odtwarzacza przez mały syntezator SID. `.bin` zapisuje, zachowując nazwy instrumentów i szybkość.
-- **Klawiatura wirtualna** — 2, 3 lub 4 oktawy o wyglądzie syntezatora Commodore 64.
-- **Ultimate Basic 1.6.2 w pakiecie** — `tune` zyskuje `imod`, `ifilt`, `igate` i `itab`; **Eksport do UltimateBasic** je zapisuje.
-- **Zakładki i Przejdź do wiersza** w edytorach Expert i Ultimate Basic — Ctrl+F2 / F2 / Shift+F2, Ctrl+G.
-- **Naprawiono: wyrażenia etykiet ** (`.assert`, `LEVEL_MULTICOLOR*16`, `*`) działają ponownie w zainstalowanej aplikacji (brak `eval` w ramach wersji CSP).
-- Okna dialogowe **Edytora D64** otwierają się w aktywnym folderze roboczym; raport **Projektu kompilacji** podaje nazwę folderu wyjściowego.
+- **Instrumenty edytora SID** — routing filtrów na głos, **3 WYŁ.** i
+  rezonansowy **przemiatanie** (start, koniec, prędkość, ping-pong); instrument
+  **wibrato** (opóźnienie, prędkość, głębokość); **modulacja szerokości
+  impulsu**; **timer bramki**, **twardy restart** i przebieg pierwszej klatki;
+  **tabela fal/arpeggio** z presetami; **PIERŚCIEŃ** i **SYNC**. Zobacz [Edytor
+  SID](#sid-editor-3-voice-tracker).
+- **Nowy odtwarzacz SID** — wyeksportowany odtwarzacz uruchamia modulację
+  instrumentu co klatkę (`JSR sid_frame` dla własnego IRQ); podgląd renderuje
+  tego samego odtwarzacza przez mały syntezator SID. `.bin` zapisuje, zachowując
+  nazwy instrumentów i szybkość.
+- **Klawiatura wirtualna** — 2, 3 lub 4 oktawy o wyglądzie syntezatora Commodore
+  64.
+- **Ultimate Basic 1.6.2 w pakiecie** — `tune` zyskuje `imod`, `ifilt`, `igate`
+  i `itab`; **Eksport do UltimateBasic** je zapisuje.
+- **Zakładki i Przejdź do wiersza** w edytorach Expert i Ultimate Basic —
+  Ctrl+F2 / F2 / Shift+F2, Ctrl+G.
+- **Naprawiono: wyrażenia etykiet ** (`.assert`, `LEVEL_MULTICOLOR*16`, `*`)
+  działają ponownie w zainstalowanej aplikacji (brak `eval` w ramach wersji
+  CSP).
 
 ---
 
 ## Najważniejsze cechy wersji 2.5.0
 
-- **Edytor poziomów** — nowy edytor pasków narzędzi, który rozmieszcza ekrany Edytora Map w pionie, poziomie lub w siatce 2D i umożliwia podgląd całego poziomu za pomocą płynnego przewijania. Zobacz [Edytor poziomów](#level-editor).
-- Makra **LEVEL / LEVEL_ROW** — `.level "level.bin"[, $addr]` umieszcza tylko umieszczone ekrany projektu edytora poziomów oraz tabele wskaźników i definiuje etykiety i stałe `LEVEL_*`; `.level_row dst, col[, color]` kopiuje jeden wiersz poziomu składający się z 40 znaków do bufora. Zobacz [LEVEL / LEVEL_ROW](#level--level_row).
-- **Zmienny tryb JOYSTICKA** — `.port joysticka, vx, vy[, fire]` zapisuje kierunek do zmiennych (−1 / 0 / +1) zamiast przesuwać duszka; port `3` odczytuje oba porty joysticka. Zobacz [JOYSTICK](#joystick).
-- **Demo przewijania poziomów** — `samples/level-demo.asm` przewija poziom ekranu 2×5 piksel po pikselu w każdym kierunku za pomocą joysticka, bez efektu rozrywania obrazu, z pozostawieniem miejsca na sprite'y i kod gry.
-- **Konwerter liczb** — niemodalne okno dialogowe DEC / HEX / BIN na pasku narzędzi. Zobacz [Konwerter liczb](#number-converter).
-- **Okno dialogowe „Przykłady”** — **Menu → „Przykłady…”** otwiera przeszukiwalną, skategoryzowaną listę wbudowanych programów przykładowych. Zobacz [Programy przykładowe](#example-programs).
-- **Dołączony Ultimate Basic 1.6.1 ** — `map load "level.bin" [, addr]` odczytuje projekt Level Editor bezpośrednio, a nowy `map view px, py` przewija mapę płynnie i bez rozrywania obrazu w pozycji piksela (przykład: `level_scroll_demo.ub`). Iloczyn bajtów w 16-bitowej sumie nie jest już obcinany do 8 bitów. W dokumentacji poleceń UB wymieniono `map view`, a wyszukiwanie w tym programie najpierw umieszcza dopasowania do nazw poleceń.
+- **Edytor poziomów** — nowy edytor pasków narzędzi, który rozmieszcza ekrany
+  Edytora Map w pionie, poziomie lub w siatce 2D i umożliwia podgląd całego
+  poziomu za pomocą płynnego przewijania. Zobacz [Edytor
+  poziomów](#sid-editor-3-voice-tracker).
+- Makra **LEVEL / LEVEL_ROW** — `.level "level.bin"[, $addr]` umieszcza tylko
+  umieszczone ekrany projektu edytora poziomów oraz tabele wskaźników i
+  definiuje etykiety i stałe `LEVEL_*`; `.level_row dst, col[, color]` kopiuje
+  jeden wiersz poziomu składający się z 40 znaków do bufora. Zobacz [LEVEL /
+  LEVEL_ROW]{1}.
+- **Zmienny tryb JOYSTICKA** — `.port joysticka, vx, vy[, fire]` zapisuje
+  kierunek do zmiennych (−1 / 0 / +1) zamiast przesuwać duszka; port `3`
+  odczytuje oba porty joysticka. Zobacz [JOYSTICK]{1}.
+- **Demo przewijania poziomów** — `samples/level-demo.asm` przewija poziom
+  ekranu 2×5 piksel po pikselu w każdym kierunku za pomocą joysticka, bez efektu
+  rozrywania obrazu, z pozostawieniem miejsca na sprite'y i kod gry.
+- **Konwerter liczb** — niemodalne okno dialogowe DEC / HEX / BIN na pasku
+  narzędzi. Zobacz [Konwerter liczb]{1}.
+- **Okno dialogowe „Przykłady”** — **Menu → „Przykłady…”** otwiera
+  przeszukiwalną, skategoryzowaną listę wbudowanych programów przykładowych.
+  Zobacz [Programy przykładowe]{1}.
+- **Dołączony Ultimate Basic 1.6.1 ** — `map load "level.bin" [, addr]`
+  odczytuje projekt Level Editor bezpośrednio, a nowy `map view px, py` przewija
+  mapę płynnie i bez rozrywania obrazu w pozycji piksela (przykład:
+  `level_scroll_demo.ub`). Iloczyn bajtów w 16-bitowej sumie nie jest już
+  obcinany do 8 bitów. W dokumentacji poleceń UB wymieniono `map view`, a
+  wyszukiwanie w tym programie najpierw umieszcza dopasowania do nazw poleceń.
 
 ---
 
 ## Najważniejsze cechy wersji 2.4.9
 
-- **Szablony projektów** — **Menu → Plik → Nowy projekt z szablonu…** lub nowy przycisk na pasku narzędzi pomiędzy **Menu** a **Samouczki** tworzy gotowy do kompilacji projekt `.proj` w osobnym folderze. Okno dialogowe zawiera sekcję **Assembler** (pusty program, szkielet gry, hires i wielokolorowa mapa bitowa) oraz sekcję **UltimateBasic** (pusty program, szkielet gry, mapa bitowa hires, rastrowe przerwanie IRQ) z podglądem z wyróżnioną składnią. Twoje własne szablony `.asm` / `.ub` są pobierane z folderu szablonów użytkownika. Zobacz [Szablony projektu](#project-templates).
-- **Budowanie projektu** — **Menu → Budowanie → Budowanie projektu** kompiluje każdy możliwy do zbudowania plik otwartego projektu (lub otwartych kart) do pliku `.prg` obok jego źródła, zapisuje pliki symboli debugera, jeśli są dostępne, pomija moduły tylko do dołączenia i wyświetla raport dla każdego pliku. Zobacz [Budowanie projektu](#build-project).
-- **Ctrl + kółko myszy – powiększenie** w edytorach Expert i Ultimate Basic (`Cmd` + kółko w systemie macOS; działa również szczypanie za pomocą touchpada).
-- **Obszary robocze zapamiętują projekty** — drzewa projektów Expert i Ultimate Basic, plik startowy i niezapisane zmiany projektu są zapisywane w obszarze roboczym `.vaws` i przywracane z nim. Starsze obszary robocze są nadal otwarte.
-- **Ultimate Basic** — dołączony kompilator generuje szybszy, mniejszy kod 6502; mapa pamięci teraz rozróżnia prawdziwy kod i dane, pomijając wypełnienia i długie `org` przerwy.
-- **Okna dialogowe plików rozpoczynają się w aktywnym folderze roboczym** — Blokowym/Eksperckim lub Podstawowym, w zależności od bieżącego trybu.
+- **Szablony projektów** — **Menu → Plik → Nowy projekt z szablonu…** lub nowy
+  przycisk na pasku narzędzi pomiędzy **Menu** a **Samouczki** tworzy gotowy do
+  kompilacji projekt `.proj` w osobnym folderze. Okno dialogowe zawiera sekcję
+  **Assembler** (pusty program, szkielet gry, hires i wielokolorowa mapa bitowa)
+  oraz sekcję **UltimateBasic** (pusty program, szkielet gry, mapa bitowa hires,
+  rastrowe przerwanie IRQ) z podglądem z wyróżnioną składnią. Twoje własne
+  szablony `.asm` / `.ub` są pobierane z folderu szablonów użytkownika. Zobacz
+  [Szablony projektu](#level-editor).
+- **Budowanie projektu** — **Menu → Budowanie → Budowanie projektu** kompiluje
+  każdy możliwy do zbudowania plik otwartego projektu (lub otwartych kart) do
+  pliku `.prg` obok jego źródła, zapisuje pliki symboli debugera, jeśli są
+  dostępne, pomija moduły tylko do dołączenia i wyświetla raport dla każdego
+  pliku. Zobacz [Budowanie projektu](#level--level_row).
+- **Ctrl + kółko myszy – powiększenie** w edytorach Expert i Ultimate Basic
+  (`Cmd` + kółko w systemie macOS; działa również szczypanie za pomocą
+  touchpada).
+- **Obszary robocze zapamiętują projekty** — drzewa projektów Expert i Ultimate
+  Basic, plik startowy i niezapisane zmiany projektu są zapisywane w obszarze
+  roboczym `.vaws` i przywracane z nim. Starsze obszary robocze są nadal
+  otwarte.
+- **Ultimate Basic** — dołączony kompilator generuje szybszy, mniejszy kod 6502;
+  mapa pamięci teraz rozróżnia prawdziwy kod i dane, pomijając wypełnienia i
+  długie `org` przerwy.
+- **Okna dialogowe plików rozpoczynają się w aktywnym folderze roboczym** —
+  Blokowym/Eksperckim lub Podstawowym, w zależności od bieżącego trybu.
+- **W pakiecie Ultimate Basic 1.6.1 ** — `map load "level.bin" [, addr]`
+  odczytuje projekt Level Editor bezpośrednio, a nowy `map view px, py` przewija
+  mapę płynnie i bez rozrywania obrazu w pozycji piksela (przykład:
+  `level_scroll_demo.ub`). Iloczyn bajtów w 16-bitowej sumie nie jest już
+  obcinany do 8 bitów. W dokumentacji poleceń UB wymieniono `map view`, a
+  wyszukiwanie w tym programie najpierw umieszcza dopasowania do nazw poleceń.
 
 ---
 
 ## Najważniejsze cechy wersji 2.4.8
 
-- **Nowe makro KOALA** — `.koala "picture.koa"` (opcjonalnie `, $2000`) ładuje obrazek Koala Painter i wyświetla go za pomocą 86-bajtowej procedury wyświetlania. Zobacz [KOALA](#koala).
-- **Import/eksport plików Koala w edytorze Hires** — **Pliki → Importuj pliki Koala (.koa)…** / **Eksportuj pliki Koala (.koa)…** (standardowy plik 10003-bajtowy; zdjęcia w wysokiej rozdzielczości są podczas eksportu redukowane do wielokolorowych). Pliki `.koa` / `.kla` są również rozpoznawane przez **Importuj obraz / .bin**.
-- **W pakiecie Ultimate Basic 1.5.9** — nowy `łańcuch „PLIK” [, urządzenie]` (ładuje inny program nad działającym i URUCHOM go); `ładowanie „PLIK”` ładuje pod adres pliku, `ładowanie „PLIK”, addr` do `addr`; poprawki błędów D64. `łańcuch` jest podświetlony i wymieniony w odniesieniu do poleceń.
-- **Status aktualizacji na pasku stanu eksperta** — ten sam wskaźnik *Aktualny* / klikalny *Dostępna aktualizacja* co w trybie Ultimate Basic.
-- **Okna dialogowe zapisu** oferują własny typ pliku (np. *KOA*) zamiast *Binarny (\*.bin)*.
-- **Bardziej kompleksowa kontrola aktualizacji** — lista instalatorów jest opublikowana na stronie c64va.tech/downloads/VA/, więc kontrola działa z nową stroną pobierania; pomocnik aktualizacji systemu Linux nie dziedziczy już ścieżek bibliotek AppImage.
+- **Nowe makro KOALA** — `.koala "picture.koa"` (opcjonalnie `, $2000`) ładuje
+  obrazek Koala Painter i wyświetla go za pomocą 86-bajtowej procedury
+  wyświetlania. Zobacz [KOALA](#project-templates).
+- **Import/eksport plików Koala w edytorze Hires** — **Pliki → Importuj pliki
+  Koala (.koa)…** / **Eksportuj pliki Koala (.koa)…** (standardowy plik
+  10003-bajtowy; zdjęcia w wysokiej rozdzielczości są podczas eksportu
+  redukowane do wielokolorowych). Pliki `.koa` / `.kla` są również rozpoznawane
+  przez **Importuj obraz / .bin**.
+- **W pakiecie Ultimate Basic 1.5.9** — nowy `łańcuch „PLIK” [, urządzenie]`
+  (ładuje inny program nad działającym i URUCHOM go); `ładowanie „PLIK”` ładuje
+  pod adres pliku, `ładowanie „PLIK”, addr` do `addr`; poprawki błędów D64.
+  `łańcuch` jest podświetlony i wymieniony w odniesieniu do poleceń.
+- **Status aktualizacji na pasku stanu eksperta** — ten sam wskaźnik *Aktualny*
+  / klikalny *Dostępna aktualizacja* co w trybie Ultimate Basic.
+- **Okna dialogowe zapisu** oferują własny typ pliku (np. *KOA*) zamiast
+  *Binarny (\*.bin)*.
+- **Bardziej kompleksowa kontrola aktualizacji** — lista instalatorów jest
+  opublikowana na stronie c64va.tech/downloads/VA/, więc kontrola działa z nową
+  stroną pobierania; pomocnik aktualizacji systemu Linux nie dziedziczy już
+  ścieżek bibliotek AppImage.
 
 ---
 
 ## Najważniejsze cechy wersji 2.4.7
 
-- **Aktualizacje w aplikacji** — **Menu → Sprawdź dostępność aktualizacji** sprawdza, czy w pliku c64va.tech jest dostępna nowsza wersja, a po potwierdzeniu pobiera instalator dla Twojej platformy z paskiem postępu i instaluje go. Zobacz [Aktualizacje w aplikacji](#in-app-updates). To sprawdzanie jest również uruchamiane po cichu przy każdym uruchomieniu.
-- **Status aktualizacji na pasku stanu Ultimate Basic** — pokazuje **Aktualne (vX)** lub podświetlony **Dostępna aktualizacja: vY**, którego kliknięcie otwiera okno dialogowe aktualizacji.
-- **Edytor krzywych → Eksport UltimateBasic** — **Pliki → Eksport do UltimateBasic** zapisuje tabelę jako zainicjowaną tablicę UB; **Pliki → Eksport demonstracji UltimateBasic** generuje gotową do uruchomienia demonstrację sprite'ów UB. Zobacz [Edytor krzywych](#curve-editor).
-- **Ultimate Basic 1.5.8 w pakiecie** — nowy formularz **`data <array>: v, …`** wypełnia zadeklarowaną tablicę `array` / `array_word` na początku programu (dalsze wiersze są kontynuowane tam, gdzie zakończył się poprzedni, tablice słów przyjmują wartości 16-bitowe) bez dotykania strumienia `read`.
-- **Układ dopasowany do okna** — panele edytora zajmują dokładnie pozostałą wysokość okna, więc aplikacja nie wyświetla już pionowego paska przewijania na poziomie strony; panel wyjściowy ASM zachowuje minimalną szerokość 440 px; ścieżka do folderu roboczego znajduje się w subtelnym znaczniku nad tytułem widoku ASM i korzysta z tego samego znacznika na paskach narzędzi Expert i Ultimate Basic. Etykiety przycisków dialogowych nie zawijają się już.
-- **Odniesienie do poleceń Ultimate Basic** — polecenia `tune` i `music` zawierają pełne, skomentowane przykłady (format komórki, efekty, notatki gracza, `music play N`); polecenia `inst`, `order`, `pat` i tune `speed` mają własne wpisy; polecenia `data` zawierają nową formę tablicy; poprawiono składnię polecenia `load sid` (`load sid "tune.sid", $2000`).
+- **Aktualizacje w aplikacji** — **Menu → Sprawdź dostępność aktualizacji**
+  sprawdza, czy w pliku c64va.tech jest dostępna nowsza wersja, a po
+  potwierdzeniu pobiera instalator dla Twojej platformy z paskiem postępu i
+  instaluje go. Zobacz [Aktualizacje w aplikacji](#koala). To sprawdzanie jest
+  również uruchamiane po cichu przy każdym uruchomieniu.
+- **Status aktualizacji na pasku stanu Ultimate Basic** — pokazuje **Aktualne
+  (vX)** lub podświetlony **Dostępna aktualizacja: vY**, którego kliknięcie
+  otwiera okno dialogowe aktualizacji.
+- **Edytor krzywych → Eksport UltimateBasic** — **Pliki → Eksport do
+  UltimateBasic** zapisuje tabelę jako zainicjowaną tablicę UB; **Pliki →
+  Eksport demonstracji UltimateBasic** generuje gotową do uruchomienia
+  demonstrację sprite'ów UB. Zobacz [Edytor krzywych]{1}.
+- **Ultimate Basic 1.5.8 w pakiecie** — nowy formularz **`data <array>: v, …`**
+  wypełnia zadeklarowaną tablicę `array` / `array_word` na początku programu
+  (dalsze wiersze są kontynuowane tam, gdzie zakończył się poprzedni, tablice
+  słów przyjmują wartości 16-bitowe) bez dotykania strumienia `read`.
+- **Układ dopasowany do okna** — panele edytora zajmują dokładnie pozostałą
+  wysokość okna, więc aplikacja nie wyświetla już pionowego paska przewijania na
+  poziomie strony; panel wyjściowy ASM zachowuje minimalną szerokość 440 px;
+  ścieżka do folderu roboczego znajduje się w subtelnym znaczniku nad tytułem
+  widoku ASM i korzysta z tego samego znacznika na paskach narzędzi Expert i
+  Ultimate Basic. Etykiety przycisków dialogowych nie zawijają się już.
+- **Odniesienie do poleceń Ultimate Basic** — polecenia `tune` i `music`
+  zawierają pełne, skomentowane przykłady (format komórki, efekty, notatki
+  gracza, `music play N`); polecenia `inst`, `order`, `pat` i tune `speed` mają
+  własne wpisy; polecenia `data` zawierają nową formę tablicy; poprawiono
+  składnię polecenia `load sid` (`load sid "tune.sid", $2000`).
 
 ---
 
 ## Najważniejsze cechy wersji 2.4.6
 
-- **Edytor SID → Eksport UltimateBasic** — **Pliki → Eksport do UltimateBasic** zapisuje melodię jako blok `melodii... koniec` (instrumenty, lista kolejności i wiersze wzorów jako tekst), po którym następuje `odtwarzanie muzyki` i wstawia go w miejscu kursora edytora Ultimate Basic (poza trybem UB jest kopiowany do schowka). Kompilator UltimateBasic buduje z niego odtwarzacz bez zerowej strony w momencie kompilacji, więc `odtwarzanie muzyki` / `zatrzymywanie muzyki` kontroluje melodię i nic nie koliduje ze zmiennymi UB. Obsługiwane są efekty wibrato, slajdu, cięcia nut i szybkości; do 8 wzorów, dowolna długość listy kolejności. Wymaga kompilatora UltimateBasic z obsługą `tune`.
-- **Aktualizacja języka Ultimate Basic** — podświetlanie składni i odniesienie do poleceń obejmują teraz **`sfx`** (efekt SID bez blokowania: `kanał sfx, częstotliwość, klatki [, fala]`), **`org`** (kontynuacja kodu sub/fn pod adresem, pozostawiając wypełnioną zerami lukę, która może pomieścić dane `incbin`), **`włączenie zestawu znaków` / `wyłączenie zestawu znaków`** (przełączenie VIC-II na zestaw znaków RAM i z powrotem) oraz **`incbin` slicing** (`incbin "font.prg", $3C00, 2` pomija pierwsze bajty, opcjonalny czwarty argument ogranicza długość).
-- **Podświetlanie wielu bloków w widoku ASM** — zaznaczenie kilku bloków powoduje jednoczesne podświetlenie wszystkich ich linii ASM, pozycja przewijania pozostaje stabilna podczas zaznaczania, a numery linii są łagodniejsze dzięki subtelnej regule separatora pionowego.
-- **Tryb asemblera zachowany we wszystkich przełącznikach Ultimate Basic** — otwarcie projektu lub wbudowanej próbki, gdy Ultimate Basic jest aktywny, powoduje teraz najpierw opuszczenie UB i powrót do ostatniego trybu blokowego/eksperckiego, dzięki czemu bufor UB nie może już nadpisać trybu ani tytułu nowej karty. Nowe karty są tworzone w prawidłowym trybie.
-- **Ustawienia Kung Fu Flash 2** — przycisk **Wykryj USB** w Ustawieniach sprzętowych ponownie skanuje port szeregowy kartridża, a wymagania wstępne KFF2 teraz wskazują wymagane oprogramowanie układowe Kung Fu Flash (v2.07+).
+- **Edytor SID → Eksport UltimateBasic** — **Pliki → Eksport do UltimateBasic**
+  zapisuje melodię jako blok `melodii... koniec` (instrumenty, lista kolejności
+  i wiersze wzorów jako tekst), po którym następuje `odtwarzanie muzyki` i
+  wstawia go w miejscu kursora edytora Ultimate Basic (poza trybem UB jest
+  kopiowany do schowka). Kompilator UltimateBasic buduje z niego odtwarzacz bez
+  zerowej strony w momencie kompilacji, więc `odtwarzanie muzyki` /
+  `zatrzymywanie muzyki` kontroluje melodię i nic nie koliduje ze zmiennymi UB.
+  Obsługiwane są efekty wibrato, slajdu, cięcia nut i szybkości; do 8 wzorów,
+  dowolna długość listy kolejności. Wymaga kompilatora UltimateBasic z obsługą
+  `tune`.
+- **Aktualizacja języka Ultimate Basic** — podświetlanie składni i odniesienie
+  do poleceń obejmują teraz **`sfx`** (efekt SID bez blokowania: `kanał sfx,
+  częstotliwość, klatki [, fala]`), **`org`** (kontynuacja kodu sub/fn pod
+  adresem, pozostawiając wypełnioną zerami lukę, która może pomieścić dane
+  `incbin`), **`włączenie zestawu znaków` / `wyłączenie zestawu znaków`**
+  (przełączenie VIC-II na zestaw znaków RAM i z powrotem) oraz **`incbin`
+  slicing** (`incbin "font.prg", $3C00, 2` pomija pierwsze bajty, opcjonalny
+  czwarty argument ogranicza długość).
+- **Podświetlanie wielu bloków w widoku ASM** — zaznaczenie kilku bloków
+  powoduje jednoczesne podświetlenie wszystkich ich linii ASM, pozycja
+  przewijania pozostaje stabilna podczas zaznaczania, a numery linii są
+  łagodniejsze dzięki subtelnej regule separatora pionowego.
+- **Tryb asemblera zachowany we wszystkich przełącznikach Ultimate Basic** —
+  otwarcie projektu lub wbudowanej próbki, gdy Ultimate Basic jest aktywny,
+  powoduje teraz najpierw opuszczenie UB i powrót do ostatniego trybu
+  blokowego/eksperckiego, dzięki czemu bufor UB nie może już nadpisać trybu ani
+  tytułu nowej karty. Nowe karty są tworzone w prawidłowym trybie.
+- **Ustawienia Kung Fu Flash 2** — przycisk **Wykryj USB** w Ustawieniach
+  sprzętowych ponownie skanuje port szeregowy kartridża, a wymagania wstępne
+  KFF2 teraz wskazują wymagane oprogramowanie układowe Kung Fu Flash (v2.07+).
+- **Odniesienie do poleceń Ultimate Basic** — polecenia `tune` i `music`
+  zawierają pełne, skomentowane przykłady (format komórki, efekty, notatki
+  gracza, `music play N`); polecenia `inst`, `order`, `pat` i tune `speed` mają
+  własne wpisy; polecenia `data` zawierają nową formę tablicy; poprawiono
+  składnię polecenia `load sid` (`load sid "tune.sid", $2000`).
 
 ---
 
 ## Najważniejsze cechy wersji 2.4.5
 
-- **Obsługa Kung Fu Flash 2 — uruchamiaj swoje programy na prawdziwym Commodore 64/128.** Nowy wpis **Kung Fu Flash 2** w podzielonym menu **Uruchom** kompiluje program i przesyła go przez USB bezpośrednio do prawdziwego, włączonego komputera C64 (lub C128) z wbudowaną kartą Kung Fu Flash 2 — bez obrazu dysku, kopiowania z karty SD i emulatora. Działa w trybach blokowym, eksperckim i Ultimate Basic. Port szeregowy USB karty jest wykrywany automatycznie (i można go wpisać ręcznie); zobacz [Kung Fu Flash 2](#kung-fu-flash-2), aby zapoznać się z konfiguracją i dokładnym przebiegiem pracy.
-- **Panele Program/ASM z możliwością zmiany rozmiaru** — cienki pionowy podział między panelem Program a panelem ASM/Wyjście pozwala przesunąć granicę w lewo lub w prawo (minimum 260 px na panel). Klawisze strzałek przesuwają go, dwukrotne kliknięcie resetuje podział do proporcji 50/50, a położenie jest zapamiętywane między sesjami. Podział jest ukryty w trybach Expert i Ultimate Basic oraz w układzie wąskiego stosu.
-- **Czystsze linie makr w widoku ASM** — bloki makr są teraz wyświetlane bez początkowego znacznika komentarza (`.print "HELLO"`, `.if A == 1`, `.sprite_init …` zamiast `; .print …`), a moduł podświetlania składni ASM koloruje je jako makra. Zwykłe bloki KOMENTARZA i znaczniki regionów nadal zaczynają się od `;`.
-- **Niestandardowe podświetlanie makr w edytorze eksperta** — nazwa makra po `.macro`, `.invoke` i `.call` (oraz wywołaniach w stylu Kick `:name(...)`) ma własny kolor, podobnie jak zamienniki `{param}` wewnątrz treści makra i nazwy parametrów w nagłówku `.macro` w każdym motywie.
-- **Odświeżone okno dialogowe „O programie”** — szerszy układ dwukolumnowy z pogrupowanymi linkami do projektów, licencji i źródeł, a baner Ultimate Basic ma teraz przezroczyste tło, dzięki czemu pasuje do każdego motywu.
-- **Web64 na stronie produktu** — nowa sekcja poświęcona środowisku IDE Web64 na stronie [c64va.tech](https://www.c64va.tech).
-- **Aktualizacja przykładu** — przykład `makro z parametrem` używa teraz formy `.macro setColor(color)` w nawiasach.
+- **Obsługa Kung Fu Flash 2 — uruchamiaj swoje programy na prawdziwym Commodore
+  64/128.** Nowy wpis **Kung Fu Flash 2** w podzielonym menu **Uruchom**
+  kompiluje program i przesyła go przez USB bezpośrednio do prawdziwego,
+  włączonego komputera C64 (lub C128) z wbudowaną kartą Kung Fu Flash 2 — bez
+  obrazu dysku, kopiowania z karty SD i emulatora. Działa w trybach blokowym,
+  eksperckim i Ultimate Basic. Port szeregowy USB karty jest wykrywany
+  automatycznie (i można go wpisać ręcznie); zobacz [Kung Fu Flash 2]{1}, aby
+  zapoznać się z konfiguracją i dokładnym przebiegiem pracy.
+- **Panele Program/ASM z możliwością zmiany rozmiaru** — cienki pionowy podział
+  między panelem Program a panelem ASM/Wyjście pozwala przesunąć granicę w lewo
+  lub w prawo (minimum 260 px na panel). Klawisze strzałek przesuwają go,
+  dwukrotne kliknięcie resetuje podział do proporcji 50/50, a położenie jest
+  zapamiętywane między sesjami. Podział jest ukryty w trybach Expert i Ultimate
+  Basic oraz w układzie wąskiego stosu.
+- **Czystsze linie makr w widoku ASM** — bloki makr są teraz wyświetlane bez
+  początkowego znacznika komentarza (`.print "HELLO"`, `.if A == 1`,
+  `.sprite_init …` zamiast `; .print …`), a moduł podświetlania składni ASM
+  koloruje je jako makra. Zwykłe bloki KOMENTARZA i znaczniki regionów nadal
+  zaczynają się od `;`.
+- **Niestandardowe podświetlanie makr w edytorze eksperta** — nazwa makra po
+  `.macro`, `.invoke` i `.call` (oraz wywołaniach w stylu Kick `:name(...)`) ma
+  własny kolor, podobnie jak zamienniki `{param}` wewnątrz treści makra i nazwy
+  parametrów w nagłówku `.macro` w każdym motywie.
+- **Odświeżone okno dialogowe „O programie”** — szerszy układ dwukolumnowy z
+  pogrupowanymi linkami do projektów, licencji i źródeł, a baner Ultimate Basic
+  ma teraz przezroczyste tło, dzięki czemu pasuje do każdego motywu.
 
 ---
 
 ## Najważniejsze cechy wersji 2.4.3
 
-- **Edytor SID: Lista utworów/kolejności** — wzory są teraz układane za pomocą odpowiedniej listy utworów/kolejności, umieszczonej na banku surowych wzorów, dzięki czemu wzór może się powtarzać, a utwór może być dłuższy niż liczba zapisanych wzorów. Dodawaj, usuwaj i zmieniaj kolejność kroków bezpośrednio z Edytora SID; odtwarzanie i wyeksportowany odtwarzacz korzystają z tej listy, a nie z surowej kolejności wzorów.
-- **Edytor SID: Kolumna efektów** — każda komórka śledząca może teraz zawierać efekt obok swojej nuty: **V**ibrato, slajd **U**p / **D**own, nuta-**C**ut i zmiana tempa (**F**). Wpisz go bezpośrednio do komórki, np. `C-4 01 V24` (nuta + instrument + vibrato) lub `F06` (tylko zmiana tempa). Efekty są uruchamiane raz na wiersz, zgodnie z eksportowanym odtwarzaczem, i teraz są odtwarzane prawidłowo zarówno w podglądzie Web Audio w aplikacji, jak i w skompilowanym eksporcie 6502 — to prawdziwy, grywalny silnik efektów, a nie tylko rusztowanie eksportu.
-- **Format zapisu SID zgodny z poprzednimi wersjami** — zapisy SID zawierają teraz znacznik wersji, więc starsze zapisy `.bin` wykonane przed powstaniem kolumny efektów są wczytywane dokładnie tak samo jak wcześniej, a efekty są po prostu nieobecne.
-- **Edytor D64: jawny obieg zapisu** — każda edycja (dodawanie/wyodrębnianie/zmiana nazwy/usuwanie, a teraz także edycja bajtów w Edytorze Bloków) odbywa się na prywatnej kopii roboczej; nic nie ma wpływu na Twój prawdziwy plik `.d64`, dopóki nie klikniesz przycisku **Zapisz**, który również najpierw zapisuje automatyczną kopię zapasową. Zamknięcie edytora lub otwarcie innego dysku z niezapisanymi zmianami teraz wyświetla prośbę o potwierdzenie, zamiast bezgłośnie je odrzucać.
-- **Edytor D64: Siatka heksadecymalna edytora bloków** — surowy widok bajtów dla wybranego bloku 256 bajtów jest teraz poprawną siatką heksadecymalną dla każdego bajtu, a nie zwykłym polem tekstowym, a jego okno dialogowe nie przyciemnia już reszty aplikacji znajdującej się za nim po otwarciu.
+- **Edytor SID: Lista utworów/kolejności** — wzory są teraz układane za pomocą
+  odpowiedniej listy utworów/kolejności, umieszczonej na banku surowych wzorów,
+  dzięki czemu wzór może się powtarzać, a utwór może być dłuższy niż liczba
+  zapisanych wzorów. Dodawaj, usuwaj i zmieniaj kolejność kroków bezpośrednio z
+  Edytora SID; odtwarzanie i wyeksportowany odtwarzacz korzystają z tej listy, a
+  nie z surowej kolejności wzorów.
+- **Edytor SID: Kolumna efektów** — każda komórka śledząca może teraz zawierać
+  efekt obok swojej nuty: **V**ibrato, slajd **U**p / **D**own, nuta-**C**ut i
+  zmiana tempa (**F**). Wpisz go bezpośrednio do komórki, np. `C-4 01 V24` (nuta
+  + instrument + vibrato) lub `F06` (tylko zmiana tempa). Efekty są uruchamiane
+  raz na wiersz, zgodnie z eksportowanym odtwarzaczem, i teraz są odtwarzane
+  prawidłowo zarówno w podglądzie Web Audio w aplikacji, jak i w skompilowanym
+  eksporcie 6502 — to prawdziwy, grywalny silnik efektów, a nie tylko
+  rusztowanie eksportu.
+- **Format zapisu SID zgodny z poprzednimi wersjami** — zapisy SID zawierają
+  teraz znacznik wersji, więc starsze zapisy `.bin` wykonane przed powstaniem
+  kolumny efektów są wczytywane dokładnie tak samo jak wcześniej, a efekty są po
+  prostu nieobecne.
+- **Edytor D64: jawny obieg zapisu** — każda edycja
+  (dodawanie/wyodrębnianie/zmiana nazwy/usuwanie, a teraz także edycja bajtów w
+  Edytorze Bloków) odbywa się na prywatnej kopii roboczej; nic nie ma wpływu na
+  Twój prawdziwy plik `.d64`, dopóki nie klikniesz przycisku **Zapisz**, który
+  również najpierw zapisuje automatyczną kopię zapasową. Zamknięcie edytora lub
+  otwarcie innego dysku z niezapisanymi zmianami teraz wyświetla prośbę o
+  potwierdzenie, zamiast bezgłośnie je odrzucać.
+- **Edytor D64: Siatka heksadecymalna edytora bloków** — surowy widok bajtów dla
+  wybranego bloku 256 bajtów jest teraz poprawną siatką heksadecymalną dla
+  każdego bajtu, a nie zwykłym polem tekstowym, a jego okno dialogowe nie
+  przyciemnia już reszty aplikacji znajdującej się za nim po otwarciu.
+- **Web64 na stronie produktu** — nowa sekcja poświęcona środowisku IDE Web64 na
+  stronie [c64va.tech](https://www.c64va.tech).
+- **Aktualizacja przykładu** — przykład `makro z parametrem` używa teraz formy
+  `.macro setColor(color)` w nawiasach.
 
 ---
 
 ## Najważniejsze cechy wersji 2.4.2
 
-- **Przeciągnij i upuść do edytora D64** — upuść skompilowany plik `.prg`/`.bin` (z eksportów edytorów SID/sprite/char lub z dowolnego innego miejsca) bezpośrednio na obraz dysku; panel Dodaj otworzy się z wstępnie wypełnionym plikiem. Upuszczenie kilku plików naraz spowoduje umieszczenie ich w kolejce jeden po drugim.
-- **Generuj plik dołączony** — nowy przycisk na pasku narzędzi zapisuje plik `.inc` zawierający listę `.const NAME = $ADDR` dla każdego wpisu na dysku, dzięki czemu program główny może odwołać się do miejsca, w którym każdy z nich się znalazł, bez konieczności ręcznego przepisywania adresów.
-- **Edytor bloków (nowy)** — przełącznik na pasku narzędzi przełącza Edytor D64 na dostęp do surowych ścieżek/sektorów poniżej katalogu: klikalna mapa bloków (pokolorowana bitmapą wolnych/używanych plików BAM, z łańcuchem BAM i katalogów oznaczonym oddzielnie), widok/edytor szesnastkowy dla wybranego bloku 256-bajtowego oraz nawigacja po sektorach Poprzedni/Następny. Odczytuje i zapisuje obraz dysku bezpośrednio (`read_bin_file`/`write_bin_file`), niezależnie od `c1541`.
+- **Przeciągnij i upuść do edytora D64** — upuść skompilowany plik `.prg`/`.bin`
+  (z eksportów edytorów SID/sprite/char lub z dowolnego innego miejsca)
+  bezpośrednio na obraz dysku; panel Dodaj otworzy się z wstępnie wypełnionym
+  plikiem. Upuszczenie kilku plików naraz spowoduje umieszczenie ich w kolejce
+  jeden po drugim.
+- **Generuj plik dołączony** — nowy przycisk na pasku narzędzi zapisuje plik
+  `.inc` zawierający listę `.const NAME = $ADDR` dla każdego wpisu na dysku,
+  dzięki czemu program główny może odwołać się do miejsca, w którym każdy z nich
+  się znalazł, bez konieczności ręcznego przepisywania adresów.
+- **Edytor bloków (nowy)** — przełącznik na pasku narzędzi przełącza Edytor D64
+  na dostęp do surowych ścieżek/sektorów poniżej katalogu: klikalna mapa bloków
+  (pokolorowana bitmapą wolnych/używanych plików BAM, z łańcuchem BAM i
+  katalogów oznaczonym oddzielnie), widok/edytor szesnastkowy dla wybranego
+  bloku 256-bajtowego oraz nawigacja po sektorach Poprzedni/Następny. Odczytuje
+  i zapisuje obraz dysku bezpośrednio (`read_bin_file`/`write_bin_file`),
+  niezależnie od `c1541`.
+- **Edytor D64: jawny obieg zapisu ** — każda edycja
+  (dodawanie/wyodrębnianie/zmiana nazwy/usuwanie, a teraz także edycja bajtów w
+  Edytorze Bloków) odbywa się na prywatnej kopii roboczej; nic nie ma wpływu na
+  Twój prawdziwy plik `.d64`, dopóki nie klikniesz przycisku **Zapisz**, który
+  również najpierw zapisuje automatyczną kopię zapasową. Zamknięcie edytora lub
+  otwarcie innego dysku z niezapisanymi zmianami teraz wyświetla prośbę o
+  potwierdzenie, zamiast bezgłośnie je odrzucać.
+- **Edytor D64: Siatka heksadecymalna edytora bloków** — surowy widok bajtów dla
+  wybranego bloku 256 bajtów jest teraz poprawną siatką heksadecymalną dla
+  każdego bajtu, a nie zwykłym polem tekstowym, a jego okno dialogowe nie
+  przyciemnia już reszty aplikacji znajdującej się za nim po otwarciu.
 
 ---
 
 ## Najważniejsze cechy wersji 2.4.1
 
-- **Języki interfejsu użytkownika: polski i włoski** — pełne tłumaczenie interfejsu (menu, okna dialogowe, opisy mnemotechniczne, odnośniki do poleceń Ultimate Basic) obok istniejących wersji: węgierskiej, angielskiej, hiszpańskiej, niemieckiej i holenderskiej.
-- **Przycisk paska narzędzi Pomocy online** — nowy przycisk ikony po uruchomieniu Debug, który otwiera wielojęzyczną witrynę dokumentacji ([c64va.tech/docs.html](https://www.c64va.tech/docs.html)) bezpośrednio z aplikacji.
-- **Centralne opisy mnemoników:** Opisy mnemoników dla poszczególnych języków zostały przeniesione do współdzielonego pliku tłumaczenia wraz z pozostałymi ciągami interfejsu użytkownika. Naprawiono również długotrwały błąd, w wyniku którego angielskie opisy poleceń `PRINT`, `PRINT_HEX`, `CLEAR_SCREEN`, `WAIT_KEY`, `SET_BORDER`, `SET_BG`, `IRQ_SETUP` i `RAND` były po cichu nadpisywane resztkami tekstu hiszpańskiego.
+- **Języki interfejsu użytkownika: polski i włoski** — pełne tłumaczenie
+  interfejsu (menu, okna dialogowe, opisy mnemotechniczne, odnośniki do poleceń
+  Ultimate Basic) obok istniejących wersji: węgierskiej, angielskiej,
+  hiszpańskiej, niemieckiej i holenderskiej.
+- **Przycisk paska narzędzi Pomocy online** — nowy przycisk ikony po
+  uruchomieniu Debug, który otwiera wielojęzyczną witrynę dokumentacji
+  ([c64va.tech/docs.html]{1}) bezpośrednio z aplikacji.
+- **Centralne opisy mnemoników:** Opisy mnemoników dla poszczególnych języków
+  zostały przeniesione do współdzielonego pliku tłumaczenia wraz z pozostałymi
+  ciągami interfejsu użytkownika. Naprawiono również długotrwały błąd, w wyniku
+  którego angielskie opisy poleceń `PRINT`, `PRINT_HEX`, `CLEAR_SCREEN`,
+  `WAIT_KEY`, `SET_BORDER`, `SET_BG`, `IRQ_SETUP` i `RAND` były po cichu
+  nadpisywane resztkami tekstu hiszpańskiego.
 
 ---
 
 ## Najważniejsze cechy wersji 2.4.0
 
-- **Edytor D64** — pełna przeglądarka obrazów dysków na pasku narzędzi (po Edytorze Krzywych). Otwórz istniejący plik `.d64`, utwórz nowy, pusty lub uruchom bieżący dysk bezpośrednio w programie VICE – wszystko z menu Pliki ▾, podobnie jak w innych edytorach wizualnych. Zobacz [Edytor D64 (przeglądanie i edycja istniejącego obrazu dysku)](#d64-editor-browse--edit-an-existing-disk-image).
-- **Dodaj/wyodrębnij/zmień nazwę/usuń w edytorze D64** — dodaj plik lokalny do katalogu na dysku, wyodrębnij wybrany wpis z powrotem do `.prg`, zmień nazwę wpisu w tabeli lub usuń go — każda akcja jest stosowana bezpośrednio do pliku `.d64` za pośrednictwem `c1541`, bez oddzielnego kroku zapisu.
-- **Adres ładowania, adres dekompresji i Exomizer w edytorze D64** — dodanie pliku RAW bez nagłówka pozwala ustawić opcjonalny adres ładowania, cel dekompresji Exomizera i skompresować go w trakcie przesyłania, używając tych samych trybów kompresji `mem`/`sfx`, co pliki dodatkowe w oknie dialogowym Eksport do D64. Plik `.prg`, który zawiera już własny nagłówek, całkowicie pomija te pola.
-- **Selektor typu wpisu dysku** — wybierz PRG / SEQ / USR / REL dla nowo dodanego pliku zamiast zawsze zapisywać go jako PRG.
-- **Autentyczna lista katalogów** — lista plików edytora D64 jest renderowana w dołączonej czcionce C64 Pro, wielkimi literami, co zapewnia klasyczny wygląd `LOAD"$",8`.
-- **Naprawiono:** Zmiana nazwy wpisu w edytorze D64 nie powoduje już odrzucenia edycji po kliknięciu w polu tekstowym.
-- **Ulepszono:** odznaka wskaźnika trybu motywu jasnego na pasku narzędzi (TRYB BLOKOWY / TRYB EKSPERCKI / …) jest ciemniejsza i bardziej czytelna, a jej migocząca animacja jest ponownie widoczna.
+- **Edytor D64** — pełna przeglądarka obrazów dysków na pasku narzędzi (po
+  Edytorze Krzywych). Otwórz istniejący plik `.d64`, utwórz nowy, pusty lub
+  uruchom bieżący dysk bezpośrednio w programie VICE – wszystko z menu Pliki ▾,
+  podobnie jak w innych edytorach wizualnych. Zobacz [Edytor D64 (przeglądanie i
+  edycja istniejącego obrazu dysku)]{1}.
+- **Dodaj/wyodrębnij/zmień nazwę/usuń w edytorze D64** — dodaj plik lokalny do
+  katalogu na dysku, wyodrębnij wybrany wpis z powrotem do `.prg`, zmień nazwę
+  wpisu w tabeli lub usuń go — każda akcja jest stosowana bezpośrednio do pliku
+  `.d64` za pośrednictwem `c1541`, bez oddzielnego kroku zapisu.
+- **Adres ładowania, adres dekompresji i Exomizer w edytorze D64** — dodanie
+  pliku RAW bez nagłówka pozwala ustawić opcjonalny adres ładowania, cel
+  dekompresji Exomizera i skompresować go w trakcie przesyłania, używając tych
+  samych trybów kompresji `mem`/`sfx`, co pliki dodatkowe w oknie dialogowym
+  Eksport do D64. Plik `.prg`, który zawiera już własny nagłówek, całkowicie
+  pomija te pola.
 
 ---
 
 ## Najważniejsze cechy wersji 2.3.9
 
-Pięć funkcji poprawiających jakość pracy asemblera, z których wszystkie można wykorzystać w trybie tekstowym w trybie eksperckim oraz (jeśli ma to sens) jako bloki. Każda z nich ma swoją własną sekcję referencyjną poniżej:
-
-- **`*` w dowolnym wyrażeniu** — symbol licznika programów działa teraz wewnątrz wyrażeń operandów, a nie tylko samodzielnie: `BNE *-5`, `JMP *+20`, `LDA #&lt;*`, `LDA #&gt;(*+63)`. `*` następujący po wartości (`STRIDE*2`) to nadal mnożenie. Zobacz [Tryby adresowania → Licznik programów `*` w wyrażeniach](#the--program-counter-in-expressions).
-- **Lokalne etykiety (kropkowane)** — etykieta taka jak `.loop` należy do zakresu najbliższej poprzedzającej ją etykiety globalnej *(niekropkowanej), więc `DrawSprite` i `ClearScreen` mogą definiować własne etykiety `.loop` bez kolizji. Zobacz [Lokalne etykiety (kropkowane)](#local-dotted-labels).
-- **Pseudooperacje z długimi gałęziami** — `LBNE`, `LBEQ`, `LBCC`, `LBCS`, `LBMI`, `LBPL`, `LBVC`, `LBVS` asemblacja do odwróconej gałęzi przez `JMP` (zawsze 5 bajtów), dzięki czemu cel może znajdować się w dowolnej odległości. Nowa kategoria palety **Długie gałęzie**. Zobacz [LBNE / LBEQ / … (Długie gałęzie)](#lbne--lbeq---long-branches).
-- Dyrektywa **`.assert`** — `.assert end - start &lt;= 256` lub `.assert * &lt; $A000, „message” ` jest oceniane w czasie montażu i kończy kompilację niepowodzeniem (pokazując rzeczywistą wartość), gdy wyrażenie jest fałszywe. Zobacz [.ASSERT](#assert).
-- **Etykiety operandów kodu samomodyfikującego** — `Wartość LDA:#$00` definiuje etykietę `wartość` wskazującą na bajt operandu instrukcji, więc `Wartość STA` łata ją bezpośrednio. Zobacz [Etykiety operandów kodu samomodyfikującego](#self-modifying-code-operand-labels).
-- **Przyjaźniejsze błędy gałęzi poza zakresem** — gałąź, która ląduje poza zakresem −128…+127, teraz dokładnie raportuje, o ile wykracza poza zakres i sugeruje pasującą `LBxx` długą gałąź.
+- **`*` w dowolnym wyrażeniu** — symbol licznika programów działa teraz wewnątrz
+  wyrażeń operandów, a nie tylko samodzielnie: `BNE *-5`, `JMP *+20`, `LDA
+  #&lt;*`, `LDA #&gt;(*+63)`. `*` następujący po wartości (`STRIDE*2`) to nadal
+  mnożenie. Zobacz [Tryby adresowania → Licznik programów `*` w
+  wyrażeniach](#d64-editor-browse--edit-an-existing-disk-image).
+- **Lokalne etykiety (kropkowane)** — etykieta taka jak `.loop` należy do
+  zakresu najbliższej poprzedzającej ją etykiety globalnej *(niekropkowanej),
+  więc `DrawSprite` i `ClearScreen` mogą definiować własne etykiety `.loop` bez
+  kolizji. Zobacz [Lokalne etykiety (kropkowane)]{1}.
+- **Pseudooperacje z długimi gałęziami** — `LBNE`, `LBEQ`, `LBCC`, `LBCS`,
+  `LBMI`, `LBPL`, `LBVC`, `LBVS` asemblacja do odwróconej gałęzi przez `JMP`
+  (zawsze 5 bajtów), dzięki czemu cel może znajdować się w dowolnej odległości.
+  Nowa kategoria palety **Długie gałęzie**. Zobacz [LBNE / LBEQ / … (Długie
+  gałęzie)]{1}.
+- Dyrektywa **`.assert`** — `.assert end - start &lt;= 256` lub `.assert * &lt;
+  $A000, „message” ` jest oceniane w czasie montażu i kończy kompilację
+  niepowodzeniem (pokazując rzeczywistą wartość), gdy wyrażenie jest fałszywe.
+  Zobacz [.ASSERT]{1}.
+- **Etykiety operandów kodu samomodyfikującego** — `Wartość LDA:#$00` definiuje
+  etykietę `wartość` wskazującą na bajt operandu instrukcji, więc `Wartość STA`
+  łata ją bezpośrednio. Zobacz [Etykiety operandów kodu samomodyfikującego]{1}.
+- **Przyjaźniejsze błędy gałęzi poza zakresem** — gałąź, która ląduje poza
+  zakresem −128…+127, teraz dokładnie raportuje, o ile wykracza poza zakres i
+  sugeruje pasującą `LBxx` długą gałąź.
+- **Ulepszono:** odznaka wskaźnika trybu motywu jasnego na pasku narzędzi (TRYB
+  BLOKOWY / TRYB EKSPERCKI / …) jest ciemniejsza i bardziej czytelna, a jej
+  migocząca animacja jest ponownie widoczna.
 
 ---
 
@@ -327,73 +579,137 @@ Pięć funkcji poprawiających jakość pracy asemblera, z których wszystkie mo
 
 Aplikacja jest podzielona na trzy główne panele:
 
+- **`*` w dowolnym wyrażeniu** — symbol licznika programów działa teraz wewnątrz
+  wyrażeń operandów, a nie tylko samodzielnie: `BNE *-5`, `JMP *+20`, `LDA
+  #&lt;*`, `LDA #&gt;(*+63)`. `*` następujący po wartości (`STRIDE*2`) to nadal
+  mnożenie. Zobacz [Tryby adresowania → Licznik programów `*` w
+  wyrażeniach](#the--program-counter-in-expressions).
+- **Lokalne etykiety (kropkowane)** — etykieta taka jak `.loop` należy do
+  zakresu najbliższej poprzedzającej ją etykiety globalnej *(niekropkowanej),
+  więc `DrawSprite` i `ClearScreen` mogą definiować własne etykiety `.loop` bez
+  kolizji. Zobacz [Lokalne etykiety (kropkowane)](#local-dotted-labels).
+- **Pseudooperacje z długimi gałęziami** — `LBNE`, `LBEQ`, `LBCC`, `LBCS`,
+  `LBMI`, `LBPL`, `LBVC`, `LBVS` asemblacja do odwróconej gałęzi przez `JMP`
+  (zawsze 5 bajtów), dzięki czemu cel może znajdować się w dowolnej odległości.
+  Nowa kategoria palety **Długie gałęzie**. Zobacz [LBNE / LBEQ / … (Długie
+  gałęzie)](#lbne--lbeq---long-branches).
+- Dyrektywa **`.assert` ** — `.assert end - start &lt;= 256` lub `.assert * &lt;
+  $A000, „message” ` jest oceniane w czasie montażu i kończy kompilację
+  niepowodzeniem (pokazując rzeczywistą wartość), gdy wyrażenie jest fałszywe.
+  Zobacz [.ASSERT](#assert).
+- **Etykiety operandów kodu samomodyfikującego** — `Wartość LDA:#$00` definiuje
+  etykietę `wartość` wskazującą na bajt operandu instrukcji, więc `Wartość STA`
+  łata ją bezpośrednio. Zobacz [Etykiety operandów kodu
+  samomodyfikującego](#self-modifying-code-operand-labels).
+- **Przyjaźniejsze błędy gałęzi poza zakresem** — gałąź, która ląduje poza
+  zakresem −128…+127, teraz dokładnie raportuje, o ile wykracza poza zakres i
+  sugeruje pasującą `LBxx` długą gałąź.
+
+---
+
+## 2. Paleta blokowa
+
+Paleta po lewej stronie zawiera listę wszystkich dostępnych bloków pogrupowanych
+według kategorii:
+
 | Płyta                 | Opis                                                                                |
 | --------------------- | ----------------------------------------------------------------------------------- |
 | **Lewo — Paleta**     | Wszystkie dostępne instrukcje i bloki makr. Szukaj lub przeglądaj według kategorii. |
 | **Centrum — Program** | Twój program. Przeciągnij bloki tutaj, zmień ich kolejność, edytuj operandy.        |
 | **Prawy — Wyjście**   | Podgląd na żywo ASM i/lub wyjście monitora pamięci.                                 |
 
-Etykieta trybu po prawej stronie nagłówka identyfikuje aktywny edytor **Block**, **Expert** lub **Ultimate Basic**. Jest ona aktualizowana natychmiast po zmianie trybu edycji.
+Użyj pola wyszukiwania **** u góry palety, aby filtrować według nazwy. Kliknij
+przycisk **Dodaj wybrany blok** lub przeciągnij blok do obszaru programu.
 
-W trybie blokowym cienki **pionowy separator** znajduje się między panelami Program i Wyjście. Przeciągnij go, aby dać każdemu panelowi więcej miejsca (każdy zachowa co najmniej 260 px), użyj klawiszy ← / →, aby przesuwać go o 16 px, lub kliknij go dwukrotnie, aby przywrócić podział do proporcji 50/50. Pozycja jest zapisywana w ustawieniach interfejsu użytkownika. Separator jest ukryty w trybach Ekspert i Ultimate Basic oraz gdy okno jest wystarczająco wąskie, aby panele mogły się układać.
-
----
-
-## 2. Paleta blokowa
-
-Paleta po lewej stronie zawiera listę wszystkich dostępnych bloków pogrupowanych według kategorii:
-
-- **Przemieszczanie danych** — LDA, LDX, STA, STX, …
-- **Arytmetyka** — ADC, SBC, INC, DEC, CMP, …
-- **Logika** — AND, ORA, EOR, BIT
-- **Skoki i gałęzie** — JMP, JSR, RTS, BNE, BEQ, …
-- **Długie gałęzie** — LBNE, LBEQ, LBCC, LBCS, LBMI, LBPL, LBVC, LBVS (gałęzie na dowolną odległość; patrz §8)
-- **Operacje rejestrowe** — TAX, TAY, INX, DEX, …
-- **Przesunięcie i obrót** — ASL, LSR, ROL, ROR
-- **Stos** — PHA, PHP, PLA, PLP
-- **System** — CLC, SEC, NOP, BRK, …
-- **Nielegalne instrukcje** — LAX, SAX, DCP, …
-- **Structure** — LABEL, COMMENT, REGION, ENDREGION
-- **Macros** — LOOP, NEXT, FOR, ENDF, PUSH, PULL, END, TEXT, BYTE, WORD, FILL, ALIGN, ASSERT, STRING, DATA, RAWBYTES, RAWTEXT, PETSCII, CHARSET, INCBIN, SID, INCLUDE, TABLE, ORG, MACRO, ENDM, INVOKE, IF, ELSE, ENDIF, VAR, WHILE, ENDW, REPEAT, UNTIL, MEMCPY, MEMSET, PRINT, PRINT_CHAR, PRINT_HEX, CLEAR_SCREEN, WAIT_KEY, DELAY, SET_BORDER, SET_BG, IRQ_SETUP, RAND, SPRITE_INIT, SPRITE_POS, WAIT_RASTER, JOYSTICK, MOUSE, SPRITE_COL, LOADFILE, REU_CHECK, REU_STASH, REU_FETCH, REU_SWAP, TURBO_SET, SUPERCPU_DETECT, TURBO_ENABLE, MAP_COPY, MAP_COPY16X16, SPRITE_ANIM, SCORE_BCD
-
-Użyj pola wyszukiwania **** u góry palety, aby filtrować według nazwy. Kliknij przycisk **Dodaj wybrany blok** lub przeciągnij blok do obszaru programu.
+W trybie blokowym cienki **pionowy separator ** znajduje się między panelami
+Program i Wyjście. Przeciągnij go, aby dać każdemu panelowi więcej miejsca
+(każdy zachowa co najmniej 260 px), użyj klawiszy ← / →, aby przesuwać go o 16
+px, lub kliknij go dwukrotnie, aby przywrócić podział do proporcji 50/50.
+Pozycja jest zapisywana w ustawieniach interfejsu użytkownika. Separator jest
+ukryty w trybach Ekspert i Ultimate Basic oraz gdy okno jest wystarczająco
+wąskie, aby panele mogły się układać.
 
 ---
 
 ## 3. Obszar programu
 
-- **Przeciągnij i upuść** bloki z palety lub **zmień kolejność** istniejących bloków, przeciągając ich uchwyt (≡).
-- Każdy blok pokazuje swój **mnemonik**, **pole operandu** i **selektor trybu adresowania** (jeśli ma to zastosowanie).
+Paleta po lewej stronie zawiera listę wszystkich dostępnych bloków pogrupowanych
+według kategorii:
+
+- **Przeciągnij i upuść** bloki z palety lub **zmień kolejność** istniejących
+  bloków, przeciągając ich uchwyt (≡).
+- Każdy blok pokazuje swój **mnemonik**, **pole operandu** i **selektor trybu
+  adresowania** (jeśli ma to zastosowanie).
 - Kliknij przełącznik **▸ / ▾**, aby zwinąć lub rozwinąć blok.
 - Aby usunąć blok, naciśnij przycisk **× (usuń)**.
 - Przycisk **Zwiń wszystko** powoduje zwinięcie wszystkich bloków na raz.
+- **Operacje rejestrowe** — TAX, TAY, INX, DEX, …
+- **Przesunięcie i obrót** — ASL, LSR, ROL, ROR
+- **Stos** — PHA, PHP, PLA, PLP
+- **System** — CLC, SEC, NOP, BRK, …
+- **Nielegalne instrukcje** — LAX, SAX, DCP, …
+- **Struktura** — ETYKIETA, KOMENTARZ, REGION, REGION KOŃCOWY
+- **Makra** — PĘTLA, NASTĘPNY, DLA, ZAKOŃCZENIE, WCIŚNIJ, POCIĄGNIJ, KONIEC,
+  TEKST, BAJT, SŁOWO, WYPEŁNIJ, WYRÓWNAJ, POTWIERDŹ, STRING, DANE, RAWBYTES,
+  RAWTEXT, PETSCII, ZESTAW ZNAKÓW, INCBIN, SID, DOŁĄCZ, TABELA, ORG, MAKRO,
+  ENDM, WYWOŁAJ, JEŻELI, W PRZECIWNYM WYPADKU, ENDIF, ZMIENNA, PODCZAS, ENDW,
+  POWTARZAJ, DOPÓKI, MEMCPY, ZESTAW MEMSET, DRUKUJ, PRINT_CHAR, PRINT_HEX,
+  WYCZYŚĆ_EKRAN, CZEKAJ_KLUCZ, OPÓŹNIJ, USTAW_BORDER, USTAW_BG, IRQ_SETUP, LOS,
+  SPRITE_INIT, SPRITE_POS, WAIT_RASTER, JOYSTICK, MYSZ, SPRITE_COL, LOADFILE,
+  REU_CHECK, REU_STASH, REU_FETCH, REU_SWAP, TURBO_SET, SUPERCPU_DETECT,
+  TURBO_ENABLE, MAP_COPY, MAP_COPY16X16, SPRITE_ANIM, SCORE_BCD
 
-### Minimapa panelu bloku
-
-W panelu Program znajduje się przełączany przycisk **minimapy** w nagłówku. Po włączeniu tej opcji na prawej krawędzi panelu pojawia się wąski pasek płótna `o szerokości 56 pikseli`, przedstawiający wszystkie bloki w postaci poziomych pasków oznaczonych kolorami:
-
-| Kolor paska         | Typ bloku                |
-| ------------------- | ------------------------ |
-| Cyjan               | Etykiety                 |
-| Niebieski/fioletowy | Makra i dyrektywy        |
-| Żółty               | Instrukcje               |
-| Zielony             | Komentarze i puste linie |
-| Czerwony            | Bloki z błędem walidacji |
-
-Zwinięte bloki są renderowane z mniejszą przezroczystością. Kliknij lub przeciągnij w dowolne miejsce minimapy, aby przewinąć listę programów do tej pozycji. Wskaźnik widoku (prostokąt w kolorze akcentującym) śledzi widoczną część listy. Stan jest zapisany w ustawieniach interfejsu użytkownika (klawisz `blockMinimap`).
-
-### Wejście operandu
-
-- W przypadku instrukcji rozgałęzienia/skoku (`BNE`, `JMP`, `JSR` itd.) pojawia się rozwijana lista wyboru etykiet **** — kliknij zdefiniowaną etykietę, aby ją wstawić.
-- Format liczb jest zgodny z przełącznikiem **HEX / DEC** na pasku narzędzi (patrz sekcja 5).
+Użyj pola wyszukiwania **** u góry palety, aby filtrować według nazwy. Kliknij
+przycisk **Dodaj wybrany blok** lub przeciągnij blok do obszaru programu.
 
 ---
 
 ## 4. Widok ASM
 
-Prawy panel pokazuje wygenerowany wynik w czasie rzeczywistym.
+- **Przeciągnij i upuść** bloki z palety lub **zmień kolejność** istniejących
+  bloków, przeciągając ich uchwyt (≡).
+- Każdy blok pokazuje swój **mnemonik**, **pole operandu** i **selektor trybu
+  adresowania** (jeśli ma to zastosowanie).
+- Kliknij przełącznik **▸ / ▾**, aby zwinąć lub rozwinąć blok.
+- Aby usunąć blok, naciśnij przycisk **× (usuń)**.
+- Przycisk **Zwiń wszystko** powoduje zwinięcie wszystkich bloków na raz.
 
 ### Tryby wyjściowe
+
+Bloki makr pojawiają się w widokach ASM i Both jako proste linie makr bez
+znacznika komentarza (`.print "HELLO"`, `.wait_raster $FF`, `.invoke
+setColor(blue)`) i są kolorowane jak makra; tylko prawdziwe bloki KOMENTARZA,
+znaczniki regionów i ostrzeżenia zachowują swoje wiodące `;`.
+
+| Tryb            | Opis                                                                                                                                                                                                                                                                                                                  |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **ASM**         | Źródło montażu 6502 z adresami i etykietami                                                                                                                                                                                                                                                                           |
+| **Monitor**     | Zrzut szesnastkowy/bajtowy (w stylu monitora C64)                                                                                                                                                                                                                                                                     |
+| **Dyzasm**      | Czysty deasembler 6502: adres · bajty szesnastkowe · mnemoniki z rozwiązanymi operandami numerycznymi. Makra są rozwijane do pojedynczych instrukcji (TEKST → pary LDA/STA, PĘTLA → LDX itd.). Dane BAJT/SŁOWO/WYPEŁNIENIE prezentowane jako zrzut szesnastkowy. Brak nazw makr, komentarzy ani adnotacji w wynikach. |
+| **Oba**         | ASM na górze, monitor poniżej                                                                                                                                                                                                                                                                                         |
+| **Dezasembler** | Tak samo jak w Disasm — dedykowana zakładka do widoku demontażu                                                                                                                                                                                                                                                       |
+
+Zwinięte bloki są renderowane z mniejszą przezroczystością. Kliknij lub
+przeciągnij w dowolne miejsce minimapy, aby przewinąć listę programów do tej
+pozycji. Wskaźnik widoku (prostokąt w kolorze akcentującym) śledzi widoczną
+część listy. Stan jest zapisany w ustawieniach interfejsu użytkownika (klawisz
+`blockMinimap`).
+
+### Karta Zestaw narzędzi
+
+- W przypadku instrukcji rozgałęzienia/skoku (`BNE`, `JMP`, `JSR` itd.) pojawia
+  się rozwijana lista wyboru etykiet **** — kliknij zdefiniowaną etykietę, aby
+  ją wstawić.
+- Format liczb jest zgodny z przełącznikiem **HEX / DEC** na pasku narzędzi
+  (patrz sekcja 5).
+
+---
+
+## 5. Ustawienia i pasek narzędzi
+
+Prawy panel pokazuje wygenerowany wynik w czasie rzeczywistym.
+
+### Migawki projektu
 
 | Tryb                | Opis                                                                                                                                                                                                                                                                                                                  |
 | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -405,55 +721,86 @@ Prawy panel pokazuje wygenerowany wynik w czasie rzeczywistym.
 | **Zestaw narzędzi** | Panel referencyjny C64: próbnik palety 16 kolorów + kod sterujący PETSCII i ściągawka ze znakami do druku. Tylko do odczytu — szczegóły w podsekcji „Zestaw narzędzi” poniżej.                                                                                                                                        |
 | **Opcje**           | Panel ustawień programu — format liczb, przełączanie źródła makra, parametry debugera                                                                                                                                                                                                                                 |
 
-Bloki makr pojawiają się w widokach ASM i Both jako proste linie makr bez znacznika komentarza (`.print "HELLO"`, `.wait_raster $FF`, `.invoke setColor(blue)`) i są kolorowane jak makra; tylko prawdziwe bloki KOMENTARZA, znaczniki regionów i ostrzeżenia zachowują swoje wiodące `;`.
+Migawki projektu są przechowywane jako pliki JSON sidecar na dysku, a nie w
+pamięci lokalnej. Są one powiązane z bieżącym plikiem projektu, jeśli taki
+istnieje, dzięki czemu historia przetrwa ponowne uruchomienia i będzie śledzić
+projekt.
 
-### Karta Zestaw narzędzi
+### Aktualizacje w aplikacji
 
-Karta **Zestaw narzędzi** w widoku ASM to panel szybkiego dostępu tylko do odczytu — nigdy nie modyfikuje programu. Dwie sekcje:
+**Menu → Sprawdź dostępność aktualizacji** wyszukuje najnowszą wersję na
+c64va.tech (odczytuje linki do pobrania dla Twojej platformy) i porównuje ją z
+bieżącą wersją:
 
-| Sekcja                     | Treść                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Paleta kolorów C64**     | Siatka 16 próbek pokazująca każdy kolor C64 wraz z indeksem (0–15 / `$00`–`$0F`) i nazwą. Kliknij próbkę, aby skopiować jej indeks szesnastkowy do schowka. Najedź kursorem, aby wyświetlić nazwę koloru (jasnoniebieski, brązowy itd.).                                                                                                                                                                                                           |
-| **Kody sterujące PETSCII** | Wspólne kody sterujące dla `CHROUT` ($FFD2): kody zmiany koloru (`$05` biały, `$1C` czerwony, `$1E` zielony, `$1F` niebieski, …), ruch kursora (`$11`/`$1D`/`$91`/`$9D`), włączanie/wyłączanie odwrotne (`$12`/`$92`), `$93` czysty ekran, Przełączniki zestawów znaków `$8E`/`$0E`. A także ściągawka z zakresem do druku (interpunkcja 32-64, A-Z 65-90, nawiasy 91-95, grafika 96-127, grafika przesunięta 160-191, odbicie lustrzane 192-223). |
+| Platforma | Co się dzieje                                                                                                                                                                                                                          |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Okna**  | Instalacja przebiega w trybie pasywnym (tylko postęp) i uruchamia nową wersję po jej zakończeniu. Instalacja na komputerze wymaga uprawnień administratora (UAC).                                                                      |
+| **macOS** | Plik DMG zostaje zamontowany, a pakiet aplikacji zostaje zastąpiony nowym, po czym uruchamiana jest nowa wersja. Jeśli folder aplikacji nie jest zapisywalny, plik DMG jest po prostu otwierany, aby można było przeciągnąć aplikację. |
 
-Toolkit to najszybszy sposób na wyszukanie indeksu koloru lub bajtu kontrolnego PETSCII bez opuszczania edytora.
+Po pobraniu aplikacja zainstaluje aktualizację i uruchomi się ponownie:
 
-### Karta Opcje
+### Przestrzenie robocze
 
-Karta **Opcje** zawiera ustawienia wpływające na generowanie kodu i wyświetlanie wyników:
+Obszar roboczy **** (plik `.vaws`) zapamiętuje, które rzeczywiste pliki na dysku
+były otwarte na każdej karcie — w tym tryb edytora każdej karty i która karta
+była aktywna — dzięki czemu można później ponownie otworzyć ten sam zestaw. Jest
+on niezależny od projektu `.proj`: obszar roboczy może obejmować dowolną
+kombinację plików projektu Block/Expert `.json`, samodzielnych plików `.asm`
+oraz plików źródłowych Ultimate Basic `.ub`/`.proj` na wielu kartach.
 
-- **Źródło makra** — gdy włączone, bloki definicji makra (MACRO…ENDM) wyświetlają swój kod źródłowy w widoku ASM.
-- **Adres początkowy programu** — teraz ustawiany za pomocą bloku **ORG** w obszarze programu, a nie osobnego pola wprowadzania. Pierwszy blok ORG definiuje adres ładowania programu; kolejne bloki ORG rozpoczynają dodatkowe sekcje pod różnymi adresami.
-- **Parametry debugera** — trzy wbudowane przełączniki kontrolujące, które flagi są przekazywane do zewnętrznego debugera podczas uruchamiania:
-  - **`-jmp` ON/OFF** — przejdź bezpośrednio do adresu startowego programu po załadowaniu.
+- Przestrzenie robocze **zapisują się automatycznie** kilkaset milisekund po
+  wprowadzeniu zmiany, jeśli została ona zapisana lub otwarta.
+- Aplikacja **automatycznie przywraca ostatnią przestrzeń roboczą** po
+  uruchomieniu, dzięki czemu możesz kontynuować pracę na otwartych kartach od
+  miejsca, w którym przerwałeś.
+- W obszarze roboczym zapisywane są tylko karty oparte na rzeczywistym pliku na
+  dysku; karta zawierająca niezapisaną próbkę lub program znajdujący się
+  wyłącznie w pamięci nie ma niczego do zapisania i jest pomijana (jeśli żadna z
+  otwartych kart nie kwalifikuje się, wyświetlane jest powiadomienie).
+  - **`-jmp` ON/OFF** — przejdź bezpośrednio do adresu startowego programu po
+    załadowaniu.
   - **`-unpause` WŁ./WYŁ.** — natychmiastowe wznawianie debugera po załadowaniu.
-  - **`-wait` ms ON/OFF** — dodaje opóźnienie `-wait <ms>` przed wznowieniem; wybierz 500 ms lub 1000 ms z listy rozwijanej.
-- **Informacje o kompilacji** — wyświetla podsumowanie skompilowanego programu (adres początkowy kodu, rozmiar, status szczątkowego kodu BASIC SYS).
+  - **`-wait` ms ON/OFF** — dodaje opóźnienie `-wait <ms>` przed wznowieniem;
+    wybierz 500 ms lub 1000 ms z listy rozwijanej.
+- Otwarcie obszaru roboczego powoduje najpierw zamknięcie wszystkich otwartych
+  kart — przed kontynuacją zostaniesz poproszony o potwierdzenie.
 
-### Kliknięcie linii ASM
+### Szablony projektów
 
-Kliknij dowolny wiersz w widoku ASM, aby **podświetlić odpowiadający mu blok** w obszarze programu. Po zaznaczeniu kilku bloków, wiersze ASM wszystkich z nich zostaną podświetlone razem.
+**Menu → Plik → Nowy projekt z szablonu…** — lub przycisk na pasku narzędzi
+pomiędzy **Menu** i **Samouczki** — otwiera okno dialogowe szablonu:
 
-### Numery linii ASM
+### Zbuduj projekt
 
-Panel ASM wyświetla **numery wierszy** (`001 |`, `002 |`, …), aby ułatwić rozwiązywanie problemów, gdy błąd kompilacji wskazuje na konkretny wiersz.
+**Menu → Kompilacja → Kompilacja projektu** kompiluje cały projekt w jednym
+kroku. Zostają zbudowane pliki otwartego projektu `.proj` — lub, bez projektu,
+otwarte zakładki plików:
 
-- Numery linii wizualnych służą wyłącznie celom diagnostycznym.
-- **Kopiuj ASM** nadal kopiuje czysty tekst źródłowy **bez** prefiksów numerów wierszy.
+- każde możliwe do skompilowania źródło (`.asm`, blok `.json`, `.ub`) jest
+  kompilowane do pliku `.prg` **obok jego źródła** o tej samej nazwie; po
+  włączeniu opcji **Uruchom z Exomizerem** dane wyjściowe są kompilowane;
+- pliki pomocnicze debugera (symbole/mapa źródłowa) są zapisywane obok PRG,
+  jeśli są dostępne;
 
-### Modalny postęp kompilacji
+### Przykładowe programy
 
-Podczas wykonywania cięższych akcji pojawia się wyśrodkowane okno postępu z paskiem postępu:
+**Menu → Przykłady…** otwiera przeglądarkę przykładów: wbudowane przykładowe
+programy pogrupowane tematycznie (Podstawy, Makra i przepływ sterowania,
+Grafika, Sprite'y i dane wejściowe, Pliki i ładowanie, Muzyka, IRQ i sprzęt) w
+dwóch kolumnach.
 
-- **Uruchom w VICE** — kompilowanie/budowanie PRG i uruchamianie emulatora.
-- **Debugowanie** — kompilowanie/budowanie PRG i uruchamianie debugera.
-- **Załaduj plik .asm** — otwórz plik `.asm` w trybie eksperta i zmaterializuj bloki ze źródła.
+- Wpisz w polu wyszukiwania, aby filtrować według nazwy lub kategorii. Stopka
+  pokazuje, ile przykładów pasuje.
+- Kliknij przykład, aby go wybrać, **↑ / ↓** przesuń wybór; **kliknij
+  dwukrotnie**, **Enter** lub **Załaduj** ładuje go.
+- Okno dialogowe otworzy się na ostatnio załadowanym przykładzie.
 
-Okno modalne zamyka się automatycznie po zakończeniu akcji lub jej niepowodzeniu.
+Okno modalne zamyka się automatycznie po zakończeniu akcji lub jej
+niepowodzeniu.
 
 ---
 
-## 5. Ustawienia i pasek narzędzi
+## Tryb Ultimate Basic
 
 | Kontrola                                                                               | Opis                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | -------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -462,9 +809,9 @@ Okno modalne zamyka się automatycznie po zakończeniu akcji lub jej niepowodzen
 | **Motyw**                                                                              | Jasny / Ciemny / OLED / Commodore 77 — wybierz z selektora motywów w menu Ustawienia. OLED używa czystego czarnego tła dla wyświetlaczy AMOLED. Commodore 77 to neonowożółty motyw na czarnym tle; gdy jest aktywny, panel powitalny startowy używa koloru panelu motywu (pasującego do karty wiadomości), wyświetla mniejsze, dedykowane logo Commodore 77 i żółty pasek postępu. Wybrany motyw jest stosowany przed pierwszym malowaniem przy kolejnym uruchomieniu.                                                                                                 |
 | **Tryb retro CRT**                                                                     | Przełącza pełnoekranowy filtr CRT: linie skanowania, winietę fosforową, migotanie i zniekształcenie beczkowate. Stan jest zapisywany między sesjami.                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | **Pokaż panel pamięci**                                                                | Globalny przełącznik pokazujący lub ukrywający cały panel pamięci C64                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| **Podstawowy schemat systemu**                                                         | Dodaje wiersz języka BASIC, który wywołuje SYS do źródła programu                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| **Podstawowy schemat systemu **                                                        | Dodaje wiersz języka BASIC, który wywołuje SYS do źródła programu                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | **Przykłady…**                                                                         | Otwórz przykładową przeglądarkę i załaduj wbudowany przykładowy program — zobacz [Przykładowe programy](#example-programs)                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| **Powiększ / pomniejsz**                                                               | Skalowanie interfejsu użytkownika bloku (dotyczy wszystkich elementów bloku)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| **Powiększ / pomniejsz **                                                              | Skalowanie interfejsu użytkownika bloku (dotyczy wszystkich elementów bloku)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | **Zapisz projekt**                                                                     | Zapisz bieżący program jako plik projektu `.json`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | **Zapisz program jako**                                                                | Zapisz bieżący program jako plik projektu `.json` za każdym razem, korzystając z nowego okna dialogowego pliku                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | **Załaduj projekt**                                                                    | Załaduj wcześniej zapisany projekt                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
@@ -476,38 +823,55 @@ Okno modalne zamyka się automatycznie po zakończeniu akcji lub jej niepowodzen
 | **Otwórz projekt** (`Menu → Plik`)                                                     | Otwórz wieloplikowy projekt `.proj` i otwórz wszystkie pliki źródłowe jako zakładki                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | **Zapisz projekt** (`Menu → Plik`)                                                     | Zapisz bieżący projekt `.proj` (panel projektu musi być otwarty)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | **Zamknij projekt** (`Menu → Plik`)                                                    | Zamknij aktualnie otwarty projekt i wszystkie jego zakładki plików. Wyświetla monit o zapisanie niezapisanych zmian. Panel projektu resetuje się do stanu pustego.                                                                                                                                                                                                                                                                                                                                                                                                     |
-| **Załaduj plik .asm**                                                                  | Otwiera plik `.asm` w trybie eksperckim i importuje tekstowy plik ASM 6502 do bieżącej karty                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| **Zapisz program**                                                                     | Eksportuj skompilowany plik binarny jako plik `.prg`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| **Załaduj plik .asm**                                                                  | Otwiera plik `.asm` w trybie eksperta i importuje tekstowy plik ASM 6502 do bieżącej karty                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| **Zapisz program **                                                                    | Eksportuj skompilowany plik binarny jako plik `.prg`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | **Budowa CRT**                                                                         | Wyeksportuj program jako plik Magic Desk o rozmiarze 64 KB (`.crt`, typ kartridża 19). Zobacz [Sekcję 12b](#12b-crt-export-magic-desk-64k-cartridge).                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| **Buduj projekt** (`Menu → Buduj`)                                                     | Skompiluj każdy możliwy do skompilowania plik projektu (lub otwartych kart) do pliku `.prg` obok jego źródła — zobacz [Kompilowanie projektu](#build-project)                                                                                                                                                                                                                                                                                                                                                                                                          |
+| **Buduj projekt** (`Menu → Buduj`)                                                     | Kompiluj każdy możliwy do skompilowania plik projektu (lub otwartych kart) do pliku `.prg` obok jego źródła — zobacz [Kompilowanie projektu](#build-project)                                                                                                                                                                                                                                                                                                                                                                                                           |
 | **Uruchom (przycisk podziału)**                                                        | Główny przycisk **▶ Uruchom** uruchamia bieżący tryb; kliknij strzałkę **▾**, aby przełączać się między: **Uruchom jako PRG** (kompilacja i uruchomienie programu VICE bezpośrednio), **Uruchom przez D64** (pakowanie do obrazu dysku .d64 i uruchomienie programu VICE), **Uruchom na sprzęcie** (wysyłanie PRG do urządzenia C64 Ultimate / 1541 Ultimate) lub **Kung Fu Flash 2** (przesyłanie PRG przez USB do prawdziwego komputera C64/C128 za pomocą kartridża Kung Fu Flash 2). Zobacz [Sekcję 12](#12-d64-export--run) i [Sekcję 13](#13-hardware-settings). |
 | **Debugowanie (RetroDebugger)**                                                        | Kompiluj i uruchamiaj w RetroDebuggerze z punktami przerwania, symbolami i flagami autostartu (patrz [Sekcja 9](#9-debugger-integration))                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | **Uruchom z Exomizerem**                                                               | Pole wyboru w menu Ustawienia — po zaznaczeniu wszystkie operacje Uruchom i Kompilacja przeszukują PRG przez `exomizer sfx sys` przed uruchomieniem lub zapisaniem. Działa z opcjami Uruchom jako PRG, Uruchom przez D64, Uruchom na sprzęcie, Kompilacja PRG i Kompilacja D64. Najpierw skonfiguruj plik wykonywalny Exomizera w **Ustawieniach sprzętu**.                                                                                                                                                                                                            |
-| **Automatyczne zapisywanie migawek**                                                   | Zaznacz pole wyboru w **Ustawienia sprzętowe → Migawka**. Po włączeniu aplikacja automatycznie utworzy migawkę około 2,5 sekundy po zakończeniu edycji karty. Wyłącz tę opcję, jeśli chcesz tylko ręcznie zapisywać migawki.                                                                                                                                                                                                                                                                                                                                           |
+| **Automatyczne zapisywanie migawek**                                                   | Zaznacz pole wyboru w **Ustawienia sprzętowe → Migawka **. Po włączeniu aplikacja automatycznie utworzy migawkę około 2,5 sekundy po zakończeniu edycji karty. Wyłącz tę opcję, jeśli chcesz tylko ręcznie zapisywać migawki.                                                                                                                                                                                                                                                                                                                                          |
 | **Ustawienia sprzętowe**                                                               | Otwórz okno dialogowe konfiguracji sprzętu — skonfiguruj VICE, Exomizer, RetroDebugger, C64 Ultimate (host, hasło, test połączenia) i port szeregowy Kung Fu Flash 2. Zobacz [Sekcję 13](#13-hardware-settings).                                                                                                                                                                                                                                                                                                                                                       |
 | **Nowy program…**                                                                      | Otwiera okno dialogowe potwierdzenia, a następnie czyści wszystkie bloki z obszaru programu                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | **Zwiń wszystko**                                                                      | Zwiń wszystkie bloki                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| **O**                                                                                  | Informacje o wersji                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| **O **                                                                                 | Informacje o wersji                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | **Co nowego**                                                                          | Dziennik zmian                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 
-### Migawki projektu
+### Otwieranie edytora UB
 
-Migawki projektu są przechowywane jako pliki JSON sidecar na dysku, a nie w pamięci lokalnej. Są one powiązane z bieżącym plikiem projektu, jeśli taki istnieje, dzięki czemu historia przetrwa ponowne uruchomienia i będzie śledzić projekt.
+Wybierz ikonę **UB** na głównym pasku narzędzi, aby przejść do trybu Ultimate
+Basic. Wybrany tryb edytora jest zapamiętywany po ponownym uruchomieniu
+aplikacji. Nowe źródło zaczyna się od:
 
-- **Menu → Kompilacja → Zapisz migawkę** otwiera okno dialogowe migawki i zapisuje bieżący stan bloku oraz tekst Expert ASM.
-- **Menu → Kompilacja → Przywróć poprzednią wersję** przywraca bezpośrednio najnowszą migawkę.
-- **Menu → Kompilacja → Historia migawek** otwiera okno dialogowe, w którym można dodawać notatki, przywracać starsze wpisy lub je usuwać.
-- **Ustawienia sprzętowe → Migawka → Automatyczne zapisywanie migawek** – określa, czy aplikacja ma automatycznie tworzyć migawki po edycjach. Domyślne opóźnienie wynosi około 2,5 sekundy, a ustawienie ma zastosowanie dla każdej karty.
-- Jeśli projekt nie został jeszcze zapisany, migawki są przechowywane w katalogu konfiguracji aplikacji, dopóki projekt nie otrzyma ścieżki do pliku. | **Baza wiedzy** | Linki referencyjne (kody operacji 6502, JĄDRO C64, mapa pamięci, kolory) | | **Sprawdź dostępność aktualizacji** | Sprawdź, czy w pliku c64va.tech jest dostępna nowsza wersja i pobierz ją/zainstaluj — zobacz [Aktualizacje w aplikacji](#in-app-updates) |
+- **Menu → Kompilacja → Zapisz migawkę** otwiera okno dialogowe migawki i
+  zapisuje bieżący stan bloku oraz tekst Expert ASM.
+- **Menu → Kompilacja → Przywróć poprzednią wersję** przywraca bezpośrednio
+  najnowszą migawkę.
+- **Menu → Kompilacja → Historia migawek** otwiera okno dialogowe, w którym
+  można dodawać notatki, przywracać starsze wpisy lub je usuwać.
+- **Ustawienia sprzętowe → Migawka → Automatyczne zapisywanie migawek ** –
+  określa, czy aplikacja ma automatycznie tworzyć migawki po edycjach. Domyślne
+  opóźnienie wynosi około 2,5 sekundy, a ustawienie ma zastosowanie dla każdej
+  karty.
+- Jeśli projekt nie został jeszcze zapisany, migawki są przechowywane w katalogu
+  konfiguracji aplikacji, dopóki projekt nie otrzyma ścieżki do pliku. | **Baza
+  wiedzy** | Linki referencyjne (kody operacji 6502, JĄDRO C64, mapa pamięci,
+  kolory) | | **Sprawdź dostępność aktualizacji** | Sprawdź, czy w pliku
+  c64va.tech jest dostępna nowsza wersja i pobierz ją/zainstaluj — zobacz
+  [Aktualizacje w aplikacji](#in-app-updates) |
 
-### Aktualizacje w aplikacji
+### Narzędzia edytora
 
-**Menu → Sprawdź dostępność aktualizacji** wyszukuje najnowszą wersję na c64va.tech (odczytuje linki do pobrania dla Twojej platformy) i porównuje ją z bieżącą wersją:
+Pasek narzędzi UB korzysta z tego samego języka wizualnego i niestandardowych
+podpowiedzi, co tryb Eksperta. Zapewnia on:
 
-- **Aktualne** — tak podaje okno dialogowe.
-- **Dostępna aktualizacja** — wybierz opcję **Aktualizuj teraz**, aby pobrać instalator (pasek postępu pobierania będzie pokazywał postęp pobierania), **Później**, aby zamknąć okno dialogowe lub **Pomiń tę wersję**, aby automatyczne sprawdzanie nie oferowało ponownie tej wersji.
+- podświetlanie składni w oparciu o bieżący podręcznik języka Ultimate Basic;
+- numery wierszy, które pozostają zsynchronizowane z długimi plikami;
 
-Po pobraniu aplikacja zainstaluje aktualizację i uruchomi się ponownie:
+Panel Demontażu zawiera przycisk **Kopiuj**, który kopiuje cały wyświetlany kod
+źródłowy do schowka. Pomoc dotycząca poleceń jest zgodna z dołączonym
+kompilatorem: na przykład polecenie `identyfikator_klatki_sprite'a, adres_danych
+[, klatka]` wybiera obraz animacji z kolejnych 64-bajtowych klatek sprite'a.
 
 | Platforma | Co się dzieje                                                                                                                                                                                                                          |
 | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -515,169 +879,311 @@ Po pobraniu aplikacja zainstaluje aktualizację i uruchomi się ponownie:
 | **macOS** | Plik DMG zostaje zamontowany, a pakiet aplikacji zostaje zastąpiony nowym, po czym uruchamiana jest nowa wersja. Jeśli folder aplikacji nie jest zapisywalny, plik DMG jest po prostu otwierany, aby można było przeciągnąć aplikację. |
 | **Linux** | Obraz aplikacji zostaje zamieniony na nowy. Instalacja `.deb` / `.rpm` zostaje zaktualizowana za pomocą `pkexec` (zostaniesz poproszony o podanie hasła); bez `pkexec` pakiet zostanie otwarty w instalatorze oprogramowania.          |
 
-Jeśli istnieją niezapisane karty, aplikacja pyta o nie przed zamknięciem. To samo sprawdzanie jest wykonywane cicho kilka sekund po każdym uruchomieniu: nic nie jest wyświetlane, chyba że istnieje nowsza wersja. Wynik pojawia się również na pasku stanu Ultimate Basic — **Aktualne (vX)** lub podświetlony komunikat **Dostępna aktualizacja: vY**, który otwiera okno dialogowe aktualizacji.
+Lista poleceń ma celowo ograniczoną wysokość, aby karta szczegółów polecenia
+mogła wypełnić pozostałą wysokość panelu. Obszar szczegółów przewija się
+niezależnie, umożliwiając dostęp do dłuższych opisów składni.
 
-### Przestrzenie robocze
+### Projekty, zakładki i pliki startowe
 
-Obszar roboczy **** (plik `.vaws`) zapamiętuje, które rzeczywiste pliki na dysku były otwarte na każdej karcie — w tym tryb edytora każdej karty i która karta była aktywna — dzięki czemu można później ponownie otworzyć ten sam zestaw. Jest on niezależny od projektu `.proj`: obszar roboczy może obejmować dowolną kombinację plików projektu Block/Expert `.json`, samodzielnych plików `.asm` oraz plików źródłowych Ultimate Basic `.ub`/`.proj` na wielu kartach.
+Projekty Ultimate Basic korzystają z plików `.proj` i mogą zawierać wiele plików
+źródłowych `.ub`. Panel Projekt wyświetla listę otwartych plików, oznacza
+niezapisane karty oraz pokazuje odkryte etykiety, funkcje i podprogramy. Akcje
+projektu umożliwiają tworzenie, otwieranie, zapisywanie i zamykanie projektu lub
+dodawanie kolejnego pliku źródłowego. Nowy projekt można również uruchomić na
+podstawie szablonu UltimateBasic — zobacz [Szablony projektów]{1}.
 
-- Przestrzenie robocze **zapisują się automatycznie** kilkaset milisekund po wprowadzeniu zmiany, jeśli została ona zapisana lub otwarta.
-- Aplikacja **automatycznie przywraca ostatnią przestrzeń roboczą** po uruchomieniu, dzięki czemu możesz kontynuować pracę na otwartych kartach od miejsca, w którym przerwałeś.
-- W obszarze roboczym zapisywane są tylko karty oparte na rzeczywistym pliku na dysku; karta zawierająca niezapisaną próbkę lub program znajdujący się wyłącznie w pamięci nie ma niczego do zapisania i jest pomijana (jeśli żadna z otwartych kart nie kwalifikuje się, wyświetlane jest powiadomienie).
-- Otwarcie obszaru roboczego powoduje najpierw zamknięcie wszystkich otwartych kart — przed kontynuacją zostaniesz poproszony o potwierdzenie.
-- Jeśli obszar roboczy odwołuje się do pliku, który został już przeniesiony lub usunięty, wpis ten jest pomijany i zgłaszany według nazwy po załadowaniu.
-- Otwarte projekty Expert i Ultimate Basic **** są również przechowywane: drzewo projektu (wraz z niezapisanymi dodatkami i usunięciami), plik startowy i cel zapisu `.proj` wracają wraz z obszarem roboczym. Obszary robocze zapisane przez starsze wersje otwierają się bez nich.
+- **Dodaj plik** — wybierz jeden lub więcej plików naraz (dowolny typ — `.ub`,
+  `.bin`, `.prg`, obrazy, czcionki itd.). Pliki źródłowe `.ub` są również
+  otwierane jako karty edytora; wszystko inne jest dodawane wyłącznie jako
+  odniesienie, aby zasoby `incbin`/`loadfile` mogły być przenoszone wraz z
+  projektem.
+- **Dodaj folder** — odwołuje się do całego folderu (np. katalogu zasobów
+  `incbin`, takiego jak `fonts/`), dzięki czemu pozostaje on powiązany z
+  projektem.
+- W obszarze roboczym zapisywane są tylko karty oparte na rzeczywistym pliku na
+  dysku; karta zawierająca niezapisaną próbkę lub program znajdujący się
+  wyłącznie w pamięci nie ma niczego do zapisania i jest pomijana (jeśli żadna z
+  otwartych kart nie kwalifikuje się, wyświetlane jest powiadomienie).
+- Otwarcie obszaru roboczego powoduje najpierw zamknięcie wszystkich otwartych
+  kart — przed kontynuacją zostaniesz poproszony o potwierdzenie.
+- Jeśli obszar roboczy odwołuje się do pliku, który został już przeniesiony lub
+  usunięty, wpis ten jest pomijany i zgłaszany według nazwy po załadowaniu.
+- Otwarte projekty Expert i Ultimate Basic **** są również przechowywane: drzewo
+  projektu (wraz z niezapisanymi dodatkami i usunięciami), plik startowy i cel
+  zapisu `.proj` wracają wraz z obszarem roboczym. Obszary robocze zapisane
+  przez starsze wersje otwierają się bez nich.
 
-### Szablony projektów
+### Budynek i diagnostyka
 
-**Menu → Plik → Nowy projekt z szablonu…** — lub przycisk na pasku narzędzi pomiędzy **Menu** i **Samouczki** — otwiera okno dialogowe szablonu:
+Przycisk **Build** otwiera ten sam wyśrodkowany widok postępu, co w innych
+przepływach pracy w Visual Assembler. Pomyślne kompilacje aktualizują dane
+wyjściowe kompilacji, informacje o kompilacji i deasemblację. Włącz **Verbose**,
+aby uwzględnić szczegóły mapy pamięci kompilatora, wewnętrzne alokacje stron
+zerowych i wygenerowane dane kodu.
 
-1. Wybierz sekcję u góry: **Assembler** lub **UltimateBasic** (okno dialogowe otwiera się w sekcji odpowiadającej bieżącemu trybowi edytora).
-2. Wybierz szablon z listy. Po prawej stronie znajduje się jego opis oraz podgląd z wyróżnioną składnią i wypełnioną nazwą projektu.
-3. Wprowadź nazwę projektu **** i lokalizację **** (**Przeglądaj…**). Wiersz poniżej formularza pokazuje dokładną ścieżkę do pliku `.proj`, która zostanie utworzona.
-4. Kliknij **Utwórz projekt**.
+1. Dane wyjściowe kompilacji stają się widoczne automatycznie;
+2. błędy kompilatora są wyświetlane na czerwono;
+3. wyśrodkowane okno dialogowe kompilacji wyświetla błąd;
+4. błędy zawierające wiersz źródłowy wybierz ten wiersz w aktywnym edytorze UB.
 
-| Sekcja            | Wbudowane szablony                                                                                                                                                                                                 |
+| Platforma         | Wbudowane szablony                                                                                                                                                                                                 |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **Asembler**      | Pusty program, Pusta gra (tytuł / stany gry / zakończenia gry, joystick, sprite gracza), Mapa bitowa Hires, Mapa bitowa wielokolorowa                                                                              |
 | **UltimateBasic** | Pusty program, pusta gra (ta sama maszyna stanowa w UB), mapa bitowa Hires (`linia` / `prostokąt` / `koło` z `kolorowym pisakiem`), przerwanie rastrowe (`pod` wywoływane co każdą klatkę z przerwania rastrowego) |
 
-Projekt jest tworzony w osobnym folderze: `<lokalizacja>/<nazwa>/<nazwa>.proj` plus `main.asm` (Assembler) lub `main.ub` (UltimateBasic, plik `.proj` jest oznaczony jako projekt Ultimate Basic). Istniejący projekt nigdy nie jest nadpisywany — zamiast tego pojawia się o tym komunikat w oknie dialogowym. Najpierw zamykane są otwarte karty (wyświetlane są pytania o niezapisane zmiany), a następnie nowy projekt otwiera się w trybie eksperta lub Ultimate Basic z widocznym panelem projektu i plikiem głównym ustawionym jako plik startowy.
+Gdy kompilacja się nie powiedzie:
 
-**Twoje własne szablony:** **Folder „Moje szablony”** (w lewym dolnym rogu okna dialogowego) otwiera folder „Szablony użytkownika” w katalogu konfiguracji aplikacji. Każdy plik `.asm` lub `.ub` umieszczony w tym folderze pojawia się w odpowiedniej sekcji (w sekcji *Moje szablony*, chyba że zawiera nazwę kategorii). Szablon to zwykły plik źródłowy z opcjonalnym nagłówkiem z wierszami komentarza na górze — `;` w asemblerze, `#` w Ultimate Basic:
+Informacje o kompilacji zawierają raporty dotyczące adresów
+ładowania/zakończenia, rozmiarów kodów i PRG, stanu Exomizera, zmiennych,
+tablic, funkcji/podprogramów i etykiet.
 
 ```asm
-; @name Raster bars
-; @name.hu Raszter csíkok
-; @category Effects
-; @desc Two raster bars in the border.
+; @name Paski rastrowe
+; @name.hu Paski rastrowe
+; @category Efekty
+; @desc Dwa paski rastrowe na obramowaniu.
 ; @order 50
 ```
 
-`@name`, `@category` i `@desc` mogą mieć warianty w zależności od języka (`@name.hu`, `@desc.de`, …); `@order` sortuje listę. Wszystko po nagłówku staje się nowym plikiem głównym, a `{{PROJECT}}` jest zastępowane nazwą projektu (użyj jej w komentarzu, aby sam szablon nadal się kompilował).
+`@name`, `@category` i `@desc` mogą mieć warianty w zależności od języka
+(`@name.hu`, `@desc.de`, …); `@order` sortuje listę. Wszystko po nagłówku staje
+się nowym plikiem głównym, a `{{PROJECT}}` jest zastępowane nazwą projektu (użyj
+jej w komentarzu, aby sam szablon nadal się kompilował).
 
-### Zbuduj projekt
+### Uruchomienie, D64 i Exomizer
 
-**Menu → Kompilacja → Kompilacja projektu** kompiluje cały projekt w jednym kroku. Zostają zbudowane pliki otwartego projektu `.proj` — lub, bez projektu, otwarte zakładki plików:
+Główny przycisk podziału **Uruchom** obsługuje Ultimate Basic w każdym normalnym
+miejscu docelowym:
 
-- każde możliwe do skompilowania źródło (`.asm`, blok `.json`, `.ub`) jest kompilowane do pliku `.prg` **obok jego źródła** o tej samej nazwie; po włączeniu opcji **Uruchom z Exomizerem** dane wyjściowe są kompilowane;
-- pliki pomocnicze debugera (symbole/mapa źródłowa) są zapisywane obok PRG, jeśli są dostępne;
-- moduły pobierane przez inny plik za pomocą plików `.include` / `include` (i `.inc`) są pomijane, podobnie jak zakładki, które nigdy nie zostały zapisane;
-- raport wyświetla wszystkie pliki wraz z ich rozmiarem, *powodem pominięcia* lub błędem kompilatora, a pasek stanu pokazuje *N/M utworzonych plików*.
+- każde możliwe do skompilowania źródło (`.asm`, blok `.json`, `.ub`) jest
+  kompilowane do `.prg` **obok jego źródła** o tej samej nazwie; po włączeniu
+  opcji **Uruchom z Exomizerem** dane wyjściowe są kompilowane;
+- pliki pomocnicze debugera (symbole/mapa źródłowa) są zapisywane obok PRG,
+  jeśli są dostępne;
+- moduły pobierane przez inny plik za pomocą plików `.include` / `include` (i
+  `.inc`) są pomijane, podobnie jak zakładki, które nigdy nie zostały zapisane;
+- raport wyświetla wszystkie pliki wraz z ich rozmiarem, *powodem pominięcia*
+  lub błędem kompilatora, a pasek stanu pokazuje *N/M utworzonych plików*.
 
-### Przykładowe programy
+### Symbole debugera i deasemblacja
 
-**Menu → Przykłady…** otwiera przeglądarkę przykładów: wbudowane przykładowe programy pogrupowane tematycznie (Podstawy, Makra i przepływ sterowania, Grafika, Sprite'y i dane wejściowe, Pliki i ładowanie, Muzyka, IRQ i sprzęt) w dwóch kolumnach.
+Kompilacje żądają informacji debugowania Ultimate Basic i generują trzy zgodne
+sidecary:
 
-- Wpisz w polu wyszukiwania, aby filtrować według nazwy lub kategorii. Stopka pokazuje, ile przykładów pasuje.
-- Kliknij przykład, aby go wybrać, **↑ / ↓** przesuń wybór; **kliknij dwukrotnie**, **Enter** lub **Załaduj** ładuje go.
-- Okno dialogowe otworzy się na ostatnio załadowanym przykładzie.
+- `.sym` dla symboli w stylu KickAssembler;
+- `.dbg` dla źródła C64Debugger/RetroDebugger i informacji o segmencie;
+- `.vs` dla etykiet monitorów VICE.
 
-### Załaduj plik .asm (szybki przewodnik)
+### Podręcznik i źródło Ultimate Basic
 
-Program ładujący w trybie eksperckim `.asm` akceptuje powszechne wzorce źródłowe 6502 i konwertuje je na bloki:
+Ikona książki na pasku narzędzi UB otwiera odpowiedni plik Ultimate Basic
+`MANUAL.pdf` w trybie offline; przycisk podręcznika w oknie powitalnym startowym
+otwiera ten sam podręcznik. Visual Assembler pobiera zarówno kompilator, jak i
+plik PDF z przypiętej zależności Git/Cargo, więc środowisko IDE nie utrzymuje
+drugiej kopii implementacji Ultimate Basic. Okno dialogowe Informacje i ekran
+powitalny wyświetlają aktualną wersję zależności.
 
 - `* = 1500$` → blok ORG
 - `Etykieta:` → blok ETYKIETA
 - `Etykieta: .bajt 0` → ETYKIETA + bloki BYTE
 - `.bajt ...` → blok BYTE
 - `; komentarz` (lub wbudowany `; ...`) → blok KOMENTARZA
-- instrukcje (`lda`, `jsr`, `beq` itd.) → bloki instrukcji z wykrytym trybem adresowania
+- instrukcje (`lda`, `jsr`, `beq` itd.) → bloki instrukcji z wykrytym trybem
+  adresowania
 
 #### Importuj notatki dotyczące analizy i najlepsze praktyki
 
-- Lokalne etykiety, takie jak `.wait`, są importowane jako standardowe etykiety (bez kropki), a odniesienia są odpowiednio normalizowane.
-- W przypadku adresowania w stylu `($zp),Y` / `($zp,X)` należy użyć konkretnego bajtu strony zerowej (`$FB`, `$FC` itd.) w celu zapewnienia najlepszej zgodności.
-- Unikaj niejednoznacznych krótkich etykiet wyglądających jak hex (`cc1`, `dead`, `beef`) w kontekstach gałęzi; preferuj nazwy takie jak `loop_cc1`.
-- Jeżeli program rozpoczyna się od danych (`.byte`) przed kodem wykonywalnym, należy na początku dodać jawny skok wejściowy (na przykład `JMP Start`).
+- Lokalne etykiety, takie jak `.wait`, są importowane jako standardowe etykiety
+  (bez kropki), a odniesienia są odpowiednio normalizowane.
+- W przypadku adresowania w stylu `($zp),Y` / `($zp,X)` należy użyć konkretnego
+  bajtu strony zerowej (`$FB`, `$FC` itd.) w celu zapewnienia najlepszej
+  zgodności.
+- Unikaj niejednoznacznych krótkich etykiet wyglądających jak hex (`cc1`,
+  `dead`, `beef`) w kontekstach gałęzi; preferuj nazwy takie jak `loop_cc1`.
+- Jeżeli program rozpoczyna się od danych (`.byte`) przed kodem wykonywalnym,
+  należy na początku dodać jawny skok wejściowy (na przykład `JMP Start`).
 
 ### Import ASM (Kick Assembler)
 
-Przycisk **Import ASM** w menu Program pobiera surowy kod źródłowy Kick Assembler do nowej zakładki w trybie blokowym. Jest on niezależny od przycisku `Załaduj plik .asm` w trybie Eksperta — jego niestandardowa podpowiedź informuje, że **obsługiwany jest tylko kod Kick Assembler** (inne asemblery mogą analizować kod częściowo, ale nie ma gwarancji poprawnego działania).
+Przycisk **Import ASM** w menu Program pobiera surowy kod źródłowy Kick
+Assembler do nowej zakładki w trybie blokowym. Jest on niezależny od przycisku
+`Załaduj plik .asm` w trybie Eksperta — jego niestandardowa podpowiedź
+informuje, że **obsługiwany jest tylko kod Kick Assembler** (inne asemblery mogą
+analizować kod częściowo, ale nie ma gwarancji poprawnego działania).
 
 Obsługiwane wzorce:
 
 - `.pc = $XXXX` dyrektywa origin → blok ORG
 - `.const NAZWA = wartość`, `.label NAZWA = wartość` → CONST równa się
-- `.macro NAME(p1, p2, ...) { ... }` z korpusem nawiasu klamrowego `{`/`}` lub `.endm` → definicja makra użytkownika
-- Wywołanie makra `NAZWA(args)`, prefiks dwukropka Kick `:NAZWA(args)` i `.invoke NAME(args)` — wszystko odbywa się w obie strony przez formę dwukropka Kick
-- Etykiety `@local` (`@loop:`, `BEQ @loop`) zachowują prefiks `@` w obecnej postaci
+- `.macro NAME(p1, p2, ...) { ... }` z korpusem nawiasu klamrowego `{`/`}` lub
+  `.endm` → definicja makra użytkownika
+- Wywołanie makra `NAZWA(args)`, prefiks dwukropka Kick `:NAZWA(args)` i
+  `.invoke NAME(args)` — wszystko odbywa się w obie strony przez formę dwukropka
+  Kick
+- Etykiety `@local` (`@loop:`, `BEQ @loop`) zachowują prefiks `@` w obecnej
+  postaci
 - Operand `etykieta + N` / `etykieta - N` (np. `STA mod1+2`, `LDA xp+1`)
-- Komentarze liniowe `// ...` i `;` — oba akceptowane, bloki `/* ... */` są traktowane jako pojedynczy wiersz komentarza
-- Przejście automatycznego startu języka BASIC: gdy program rozpoczyna się od `$0801` ze standardowym `SYS 2061` bajtowym szczątkiem (`.byte $0B,$08,$0A,$00,$9E,$32,$30,$36,$31,$00,$00,$00`), kompilator emituje PRG dosłownie zamiast otaczać go drugim BASIC SYS
+- Komentarze liniowe `// ...` i `;` — oba akceptowane, bloki `/* ... */` są
+  traktowane jako pojedynczy wiersz komentarza
+- Przejście automatycznego startu języka BASIC: gdy program rozpoczyna się od
+  `$0801` ze standardowym `SYS 2061` bajtowym szczątkiem (`.byte
+  $0B,$08,$0A,$00,$9E,$32,$30,$36,$31,$00,$00,$00`), kompilator emituje PRG
+  dosłownie zamiast otaczać go drugim BASIC SYS
 
 Znane ograniczenie:
 
-- Stałe, które odpowiadają adresowi strony zerowej (na przykład `.const BYTEADDR = $FC` użyte jako `STA BYTEADDR`), kompilują się obecnie do instrukcji w trybie absolutnym (3 bajty) zamiast strony zerowej (2 bajty). Skompilowany kod nadal zapisuje dane do prawidłowej lokalizacji w pamięci, ale z niewielkim rozmiarem i narzutem cyklu w porównaniu z tym samym kodem źródłowym skompilowanym przez Kick Assembler.
+- Stałe, które odpowiadają adresowi strony zerowej (na przykład `.const BYTEADDR
+  = $FC` użyte jako `STA BYTEADDR`), kompilują się obecnie do instrukcji w
+  trybie absolutnym (3 bajty) zamiast strony zerowej (2 bajty). Skompilowany kod
+  nadal zapisuje dane do prawidłowej lokalizacji w pamięci, ale z niewielkim
+  rozmiarem i narzutem cyklu w porównaniu z tym samym kodem źródłowym
+  skompilowanym przez Kick Assembler.
 
-## Tryb Ultimate Basic
+## 6. Tryb eksperta
 
-Visual Assembler zawiera kompletne środowisko programistyczne **Ultimate Basic**. Ultimate Basic to nowoczesny, kompilowany język BASIC do tworzenia programów, gier i dem w języku C64 bez konieczności pisania wszystkich operacji w niskopoziomowym asemblerze 6502. Kompilator działa lokalnie i generuje natywne dane wyjściowe PRG dla języka C64.
+Tryb Eksperta to w pełni funkcjonalny edytor tekstów bezpośrednich 6502,
+działający równolegle z edytorem bloków. Każda karta może działać w trybie
+blokowym lub eksperckim — można się między nimi swobodnie przełączać w dowolnym
+momencie za pomocą przełącznika **Blok/Ekspert** na górnym pasku.
 
-### Otwieranie edytora UB
+### Przełączanie trybów
 
-Wybierz ikonę **UB** na głównym pasku narzędzi, aby przejść do trybu Ultimate Basic. Wybrany tryb edytora jest zapamiętywany po ponownym uruchomieniu aplikacji. Nowe źródło zaczyna się od:
+Wybierz ikonę **UB** na głównym pasku narzędzi, aby przejść do trybu Ultimate
+Basic. Wybrany tryb edytora jest zapamiętywany po ponownym uruchomieniu
+aplikacji. Nowe źródło zaczyna się od:
 
 ```basic
-color bg 0
-color border 0
+kolor tła 0
+kolor obramowania 0
 
-print "HELLO FROM ULTIMATE BASIC"
+nadruk „HELLO FROM ULTIMATE BASIC”
 ```
 
-Tryb UB działa z plikami źródłowymi `.ub`. Funkcje **Nowy**, **Otwórz**, **Zapisz** i **Zapisz jako** działają na aktywnej karcie UB. Otwarcie pliku `.ub` automatycznie aktywuje odpowiednią kartę edytora.
+Tryb UB działa z plikami źródłowymi `.ub`. Funkcje **Nowy**, **Otwórz**,
+**Zapisz** i **Zapisz jako** działają na aktywnej karcie UB. Otwarcie pliku
+`.ub` automatycznie aktywuje odpowiednią kartę edytora.
 
-Pasek narzędzi pokazuje aktualny folder roboczy UB. Ten folder jest przechowywany oddzielnie od folderu roboczego Blok/Ekspert. Gdy tryb UB jest aktywny, polecenie **Plik → Ustaw folder roboczy** wybiera folder UB; jego podpowiedź identyfikuje aktywny zakres. Okna dialogowe Otwórz/Zapisz UB rozpoczynają się w tym miejscu, a niezapisane źródła używają go jako bazy dla względnych ścieżek `include` i `incbin`.
+Pasek narzędzi pokazuje aktualny folder roboczy UB. Ten folder jest
+przechowywany oddzielnie od folderu roboczego Blok/Ekspert. Gdy tryb UB jest
+aktywny, polecenie **Plik → Ustaw folder roboczy** wybiera folder UB; jego
+podpowiedź identyfikuje aktywny zakres. Okna dialogowe Otwórz/Zapisz UB
+rozpoczynają się w tym miejscu, a niezapisane źródła używają go jako bazy dla
+względnych ścieżek `include` i `incbin`.
 
-### Narzędzia edytora
+### Układ edytora
 
-Pasek narzędzi UB korzysta z tego samego języka wizualnego i niestandardowych podpowiedzi, co tryb Eksperta. Zapewnia on:
+Pasek narzędzi UB korzysta z tego samego języka wizualnego i niestandardowych
+podpowiedzi, co tryb Eksperta. Zapewnia on:
 
 - podświetlanie składni w oparciu o bieżący podręcznik języka Ultimate Basic;
 - numery wierszy, które pozostają zsynchronizowane z długimi plikami;
-- sterowanie powiększeniem minimapy i edytora (`Ctrl` + kółko myszy również powiększa); kliknij minimapę, aby przeskoczyć lub przeciągnij wybrany obszar widoku, aby przewijać go w sposób ciągły;
+- sterowanie powiększeniem minimapy i edytora (`Ctrl` + kółko myszy również
+  powiększa); kliknij minimapę, aby przeskoczyć lub przeciągnij wybrany obszar
+  widoku, aby przewijać go w sposób ciągły;
 - Znajdź (`Ctrl+F` / `Cmd+F`) korzystając z paska wyszukiwania w stylu eksperta;
 - formatowanie źródła z uwzględnieniem wcięć strukturalnych;
 - automatyczne uzupełnianie poleceń i wbudowanych funkcji;
-- przeszukiwalny panel **Poleceń** ze składnią, opisem i wskazówkami dotyczącymi użytkowania — opisy są zgodne z bieżącym językiem interfejsu użytkownika (węgierskim, angielskim, hiszpańskim, niemieckim, holenderskim), a w przypadku elementów, które nie zostały jeszcze przetłumaczone, stosuje się język angielski;
-- niezależnie przełączane panele **Projekt** i **Polecenia**, wyświetlane obok siebie, gdy oba są włączone;
-- niezależnie przełączane i zmieniane rozmiarowo panele **Wyjście kompilacji** i **Demontaż**.
+- przeszukiwalny panel **Poleceń** ze składnią, opisem i wskazówkami dotyczącymi
+  użytkowania — opisy są zgodne z bieżącym językiem interfejsu użytkownika
+  (węgierskim, angielskim, hiszpańskim, niemieckim, holenderskim), a w przypadku
+  elementów, które nie zostały jeszcze przetłumaczone, stosuje się język
+  angielski;
+- niezależnie przełączane panele **Projekt** i **Polecenia**, wyświetlane obok
+  siebie, gdy oba są włączone;
+- niezależnie przełączane i zmieniane rozmiarowo panele **Wyjście kompilacji** i
+  **Demontaż**.
 
-Panel Demontażu zawiera przycisk **Kopiuj**, który kopiuje cały wyświetlany kod źródłowy do schowka. Pomoc dotycząca poleceń jest zgodna z dołączonym kompilatorem: na przykład polecenie `identyfikator_klatki_sprite'a, adres_danych [, klatka]` wybiera obraz animacji z kolejnych 64-bajtowych klatek sprite'a.
+Panel Demontażu zawiera przycisk **Kopiuj**, który kopiuje cały wyświetlany kod
+źródłowy do schowka. Pomoc dotycząca poleceń jest zgodna z dołączonym
+kompilatorem: na przykład polecenie `identyfikator_klatki_sprite'a, adres_danych
+[, klatka]` wybiera obraz animacji z kolejnych 64-bajtowych klatek sprite'a.
 
-Lista poleceń ma celowo ograniczoną wysokość, aby karta szczegółów polecenia mogła wypełnić pozostałą wysokość panelu. Obszar szczegółów przewija się niezależnie, umożliwiając dostęp do dłuższych opisów składni.
+Edytor rozumie również składnię w stylu QBasic z Ultimate Basic 1.6.3: `dim name
+as type`, `function … end function`, `sub … end sub`, `elseif`, `do … loop
+[while | until]`, `while … wend`, `select case`, `exit do` / `exit for` / `exit
+while` / `exit sub` / `exit function`, funkcje łańcuchowe `left$` / `right$` /
+`mid$` oraz komentarze zaczynające się od `'`, a także `#` lub `rem`. Słowa,
+które kompilator traktuje jako słowa kluczowe tylko w jednej pozycji, są tam
+kolorowane i pozostają użyteczne jako nazwy: `as` z nazwami typów BASIC (`byte`,
+`integer`, `single`, `double`), `case is`, `map view`, `wait key` i opcjami
+`scroll` (`row`, `x`, `y`, `lewy`, `prawy`, `wąski`, `szeroki`). **Format**
+wcina bloki `funkcja`, `do … loop`, `while … wend` i `elseif` i pozostawia pętle
+jednowierszowe (`do while c : … : loop`) bez wcięć, panel Projekt wyświetla
+bloki `funkcja` w obszarze Funkcje, a panel Polecenia zawiera bloki **DIM**,
+**FUNCTION**, **ELSEIF**, **DO**, Wpisy **WEND**, **SELECT CASE**, **END**,
+**EXIT SUB**, **LEFT$**, **RIGHT$** i **MID$**.
 
-### Projekty, zakładki i pliki startowe
+Lista poleceń ma celowo ograniczoną wysokość, aby karta szczegółów polecenia
+mogła wypełnić pozostałą wysokość panelu. Obszar szczegółów przewija się
+niezależnie, umożliwiając dostęp do dłuższych opisów składni.
 
-Projekty Ultimate Basic korzystają z plików `.proj` i mogą zawierać wiele plików źródłowych `.ub`. Panel Projekt wyświetla listę otwartych plików, oznacza niezapisane karty oraz pokazuje odkryte etykiety, funkcje i podprogramy. Akcje projektu umożliwiają tworzenie, otwieranie, zapisywanie i zamykanie projektu lub dodawanie kolejnego pliku źródłowego. Nowy projekt można również uruchomić na podstawie szablonu UltimateBasic — zobacz [Szablony projektów](#project-templates).
+### Przyciski paska narzędzi
 
-Kliknij gwiazdkę obok pliku projektu, aby oznaczyć go jako **plik startowy**. Polecenia Build, Run, D64, C64 Ultimate i Debug kompilują ten plik startowy, nawet jeśli aktywna jest inna karta. Bez wyboru pliku startowego używana jest aktywna karta UB.
+Skróty edytora: `Ctrl+/` (`Cmd+/` na macOS) komentuje bieżący wiersz lub każdy
+zaznaczony wiersz; dodanie `Shift` usuwa początkowy znacznik komentarza z tych
+wierszy. Komentarze w wierszu instrukcji (na przykład `LDA $12 ; wyjaśnienie`)
+pozostają w wierszu instrukcji podczas przełączania między trybem eksperta a
+trybem blokowym. W trybie blokowym są one wyświetlane jako zielony znacznik
+kursywy `; komentarz` w nagłówku bloku; najechanie kursorem na znacznik ujawnia
+pełny tekst, gdy jest on obcięty.
 
-Pasek narzędzi panelu projektu zawiera dwa przyciski dodawania, a okna dialogowe plików domyślnie wskazują folder roboczy **UB** (Menu → Plik → Ustaw folder roboczy, specyficzne dla UB):
+Kliknij gwiazdkę obok pliku projektu, aby oznaczyć go jako **plik startowy **.
+Polecenia Build, Run, D64, C64 Ultimate i Debug kompilują ten plik startowy,
+nawet jeśli aktywna jest inna karta. Bez wyboru pliku startowego używana jest
+aktywna karta UB.
 
-- **Dodaj plik** — wybierz jeden lub więcej plików naraz (dowolny typ — `.ub`, `.bin`, `.prg`, obrazy, czcionki itd.). Pliki źródłowe `.ub` są również otwierane jako karty edytora; wszystko inne jest dodawane wyłącznie jako odniesienie, aby zasoby `incbin`/`loadfile` mogły być przenoszone wraz z projektem.
-- **Dodaj folder** — odwołuje się do całego folderu (np. katalogu zasobów `incbin`, takiego jak `fonts/`), dzięki czemu pozostaje on powiązany z projektem.
+Pasek narzędzi panelu projektu zawiera dwa przyciski dodawania, a okna dialogowe
+plików domyślnie wskazują folder roboczy **UB** (Menu → Plik → Ustaw folder
+roboczy, specyficzne dla UB):
 
-Foldery w drzewie mają strzałkę zwijania/rozwijania, a kliknięcie prawym przyciskiem myszy folderu **** pozwala dodać jeden lub więcej plików zagnieżdżonych pod nim (pokazanych jako wcięte). Każdy wpis ma przycisk usuwania (✕); wpisy inne niż `.ub` mają charakter wyłącznie referencyjny i nie otwierają się po kliknięciu.
+- **Dodaj plik** — wybierz jeden lub więcej plików naraz (dowolny typ — `.ub`,
+  `.bin`, `.prg`, obrazy, czcionki itd.). Pliki źródłowe `.ub` są również
+  otwierane jako karty edytora; wszystko inne jest dodawane wyłącznie jako
+  odniesienie, aby zasoby `incbin`/`loadfile` mogły być przenoszone wraz z
+  projektem.
+- **Dodaj folder** — odwołuje się do całego folderu (np. katalogu zasobów
+  `incbin`, takiego jak `fonts/`), dzięki czemu pozostaje on powiązany z
+  projektem.
 
-Przycisk **Zapisz projekt** wyłącza się automatycznie i pokazuje stan „Zapisano”, gdy w projekcie nie ma żadnych oczekujących zmian, a automatycznie włącza się ponownie w chwili dodania, usunięcia lub reorganizacji pliku lub folderu.
+Foldery w drzewie mają strzałkę zwijania/rozwijania, a kliknięcie prawym
+przyciskiem myszy folderu **** pozwala dodać jeden lub więcej plików
+zagnieżdżonych pod nim (pokazanych jako wcięte). Każdy wpis ma przycisk usuwania
+(✕); wpisy inne niż `.ub` mają charakter wyłącznie referencyjny i nie otwierają
+się po kliknięciu.
 
-### Budynek i diagnostyka
+Przycisk **Zapisz projekt** wyłącza się automatycznie i pokazuje stan
+„Zapisano”, gdy w projekcie nie ma żadnych oczekujących zmian, a automatycznie
+włącza się ponownie w chwili dodania, usunięcia lub reorganizacji pliku lub
+folderu.
 
-Przycisk **Build** otwiera ten sam wyśrodkowany widok postępu, co w innych przepływach pracy w Visual Assembler. Pomyślne kompilacje aktualizują dane wyjściowe kompilacji, informacje o kompilacji i deasemblację. Włącz **Verbose**, aby uwzględnić szczegóły mapy pamięci kompilatora, wewnętrzne alokacje stron zerowych i wygenerowane dane kodu.
+### Ekspert edytora minimapy
 
-Gdy kompilacja się nie powiedzie:
+Minimapa edytora Eksperta to wąski pasek płótna (`88 px`) znajdujący się po
+prawej stronie obszaru edytora. Wyświetla on pomniejszoną reprezentację każdej
+linii źródłowej:
+
+**półprzezroczysty wskaźnik widoku** (prostokąt z akcentem) pokazuje, która
+część źródła jest aktualnie widoczna. Kliknij dowolne miejsce na minimapie, aby
+przejść do tej pozycji; przeciągnij, aby przewijać w sposób ciągły. Minimapa
+przewija się niezależnie, utrzymując wskaźnik widoku na środku. Stan jest
+zapisany w ustawieniach interfejsu użytkownika (klawisz `expertMinimap`).
 
 - Dane wyjściowe kompilacji stają się widoczne automatycznie;
 - błędy kompilatora są wyświetlane na czerwono;
 - wyśrodkowane okno dialogowe kompilacji wyświetla błąd;
 - błędy zawierające wiersz źródłowy wybierz ten wiersz w aktywnym edytorze UB.
 
-Informacje o kompilacji zawierają raporty dotyczące adresów ładowania/zakończenia, rozmiarów kodów i PRG, stanu Exomizera, zmiennych, tablic, funkcji/podprogramów i etykiet.
+Informacje o kompilacji zawierają raporty dotyczące adresów
+ładowania/zakończenia, rozmiarów kodów i PRG, stanu Exomizera, zmiennych,
+tablic, funkcji/podprogramów i etykiet.
 
-### Uruchomienie, D64 i Exomizer
+### Błąd podświetlania
 
-Główny przycisk podziału **Uruchom** obsługuje Ultimate Basic w każdym normalnym miejscu docelowym:
+Wiersze, których kompilacja nie powiodła się, są podświetlane na czerwono ****
+(przyciemniane tło + lewa ramka akcentująca) w czasie rzeczywistym, 350 ms po
+każdym naciśnięciu klawisza. Pierwszy komunikat o błędzie jest również
+wyświetlany na pasku stanu. Popraw wiersz, a podświetlenie zniknie
+automatycznie.
 
 | Tryb pracy                  | Podstawowe zachowanie Ultimate                                                                                                                                   |
 | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -687,59 +1193,86 @@ Główny przycisk podziału **Uruchom** obsługuje Ultimate Basic w każdym norm
 | **Uruchom D64 na sprzęcie** | Spakuj D64 i wyślij do skonfigurowanego C64 Ultimate.                                                                                                            |
 | **Kung Fu Flash 2**         | Skompiluj kod źródłowy UB i prześlij plik PRG przez USB na prawdziwy komputer C64/C128 z kartridżem Kung Fu Flash 2. Zobacz [Kung Fu Flash 2](#kung-fu-flash-2). |
 
-Globalna opcja **Ustawienia → Exomizer** dotyczy również kompilacji UB i normalnych celów uruchomieniowych; nie jest potrzebne osobne przełączanie paska narzędzi UB. Uruchomienia debugera celowo korzystają z nieskompresowanego pliku PRG, aby adresy i symbole kompilatora nadal odpowiadały wykonywanemu programowi.
+Globalna opcja **Ustawienia → Exomizer** dotyczy również kompilacji UB i
+normalnych celów uruchomieniowych; nie jest potrzebne osobne przełączanie paska
+narzędzi UB. Debuger celowo używa nieskompresowanego pliku PRG, aby adresy i
+symbole kompilatora nadal odpowiadały wykonywanemu programowi.
 
-Włącz **Ustawienia → Ustawienia programu → Generuj kod źródłowy UltimateBasic ASM (.asm)**, aby zapisać wygenerowany przez kompilator zestaw obok pliku PRG lub kompilacji D64, używając tej samej nazwy pliku bazowego. Jest to opcja kompilacji, więc pasek narzędzi UB nie zawiera oddzielnych przycisków eksportu ASM. Polecenie `load "NAME", $address` dostarcza również adres ładowania PRG dla odpowiedniego pliku dodatkowego D64.
+Włącz **Ustawienia → Ustawienia programu → Generuj kod źródłowy UltimateBasic
+ASM (.asm)**, aby zapisać wygenerowany przez kompilator zestaw obok pliku PRG
+lub kompilacji D64, używając tej samej nazwy pliku bazowego. Jest to opcja
+kompilacji, więc pasek narzędzi UB nie zawiera oddzielnych przycisków eksportu
+ASM. Polecenie `load "NAME", $address` dostarcza również adres ładowania PRG dla
+odpowiedniego pliku dodatkowego D64.
 
-### Symbole debugera i deasemblacja
+### Podświetlanie składni
 
-Kompilacje żądają informacji debugowania Ultimate Basic i generują trzy zgodne sidecary:
+Edytor wykorzystuje przezroczystą nakładkę `<div>` (`expert-hl`), która
+odzwierciedla zawartość pola tekstowego za pomocą kolorowych elementów `<span>`.
+Podświetlanie można wyłączyć przyciskiem **HL**, aby zwiększyć wydajność w
+bardzo dużych programach.
 
 - `.sym` dla symboli w stylu KickAssembler;
 - `.dbg` dla źródła C64Debugger/RetroDebugger i informacji o segmencie;
 - `.vs` dla etykiet monitorów VICE.
 
-Kolorowy panel UB Disassembly rozpoznaje znane etykiety i prezentuje adresy, bajty, mnemoniki i operandy. Przycisk **Debug** uruchamia RetroDebugger z surowym programem UB PRG, elementami pomocniczymi debugowania oraz etykietami, funkcjami, podprogramami, zmiennymi i tablicami kompilatora. Ustawienia oczekiwania i wznawiania debugowania są wspólne dla standardowej konfiguracji debugera Visual Assembler.
+Dyrektywy `REGION` / `ENDREGION` są podświetlane tak samo jak inne dyrektywy
+asemblera. Zwinięte regiony pozostawiają widoczny w edytorze tylko nagłówek
+regionu do momentu ich ponownego otwarcia. Nowy przełącznik **Wybór regionu** na
+pasku narzędzi steruje automatycznym podświetlaniem bieżącego regionu tylko w
+trybie eksperta; jego wyłączenie sprawia, że źródło jest widoczne bez zmiany
+stanu zwinięcia.
 
-### Podręcznik i źródło Ultimate Basic
+### Formater źródła
 
-Ikona książki na pasku narzędzi UB otwiera odpowiedni plik Ultimate Basic `MANUAL.pdf` w trybie offline; przycisk podręcznika w oknie powitalnym startowym otwiera ten sam podręcznik. Visual Assembler pobiera zarówno kompilator, jak i plik PDF z przypiętej zależności Git/Cargo, więc środowisko IDE nie utrzymuje drugiej kopii implementacji Ultimate Basic. Okno dialogowe Informacje i ekran powitalny wyświetlają aktualną wersję zależności.
+Kliknij przycisk **Formatuj** (`#expert-format-btn`), aby automatycznie
+sformatować bieżące źródło:
 
 Ultimate Basic jest również dostępny jako samodzielny projekt open-source:
 
 <https://github.com/zstarczali/UltimateBasic>
 
-Kompilator jest dołączony do programu Visual Assembler, więc w czasie wykonywania nie jest wymagany żaden oddzielny plik wykonywalny `ub`.
+Kompilator jest dołączony do programu Visual Assembler, więc w czasie
+wykonywania nie jest wymagany żaden oddzielny plik wykonywalny `ub`.
 
-## 6. Tryb eksperta
+## 7. Tryby adresowania
 
-Tryb Eksperta to w pełni funkcjonalny edytor tekstów bezpośrednich 6502, działający równolegle z edytorem bloków. Każda karta może działać w trybie blokowym lub eksperckim — można się między nimi swobodnie przełączać w dowolnym momencie za pomocą przełącznika **Blok/Ekspert** na górnym pasku.
+Każda instrukcja 6502 obsługuje jeden lub więcej trybów adresowania. Selektor
+trybu znajduje się na każdym bloku.
 
-### Przełączanie trybów
+### Oznacz wyrażenia etykietami jako operandy
 
-- **Blok → Ekspert:** bieżący program jest serializowany do tekstu (jedna instrukcja w wierszu, etykiety, makra jako dyrektywy). Edycje w trybie Eksperta są synchronizowane z tablicą bloków za każdym razem, gdy przełączasz się z powrotem lub uruchamiasz akcję.
-- **Ekspert → Blok:** tekst jest parsowany za pomocą `parseAsmText()`, a wynik zastępuje program blokowy. W przypadku niepowodzenia parsowania wyświetlane jest okno dialogowe błędu kompilacji.
-- **Puste linie** są zachowywane podczas przesyłania danych w obie strony: puste linie w edytorze eksperta pojawiają się jako cienkie przerywane odstępy w trybie blokowym i są przywracane jako puste linie po przełączeniu z powrotem do edytora eksperta.
+- **Blok → Ekspert:** bieżący program jest serializowany do tekstu (jedna
+  instrukcja w wierszu, etykiety, makra jako dyrektywy). Edycje w trybie
+  Eksperta są synchronizowane z tablicą bloków za każdym razem, gdy przełączasz
+  się z powrotem lub uruchamiasz akcję.
+- **Ekspert → Blok:** tekst jest parsowany za pomocą `parseAsmText()`, a wynik
+  zastępuje program blokowy. W przypadku niepowodzenia parsowania wyświetlane
+  jest okno dialogowe błędu kompilacji.
+- **Puste linie** są zachowywane podczas przesyłania danych w obie strony: puste
+  linie w edytorze eksperta pojawiają się jako cienkie przerywane odstępy w
+  trybie blokowym i są przywracane jako puste linie po przełączeniu z powrotem
+  do edytora eksperta.
 
-### Układ edytora
+### Licznik programu `*` w wyrażeniach
 
 ```
-┌──────────────────────────────────────────────────────┐
-│ [toolbar]  Block │ Expert < tab toggle               │
-├────────────┬────────────────────────────┬────────────┤
-│  Palette   │   ASM text editor          │  Disasm    │
-│  (opt.)    │   (monospace, editable)    │  panel     │
-│            │                            │  (opt.)    │
-└────────────┴────────────────────────────┴────────────┘
+┌──────────────────────────────────────────────────┐
+│ [pasek narzędzi] Blok │ Ekspert &lt; przełącznik karty │
+├─────────────┬─────────────────────────────────────┤
+│ Paleta │ Edytor tekstu ASM │ Disasm │
+│ (opcja) │ (stały odstęp, edytowalny) │ panel │
+│ │ │ (opcja) │
+└─────────────┴───────────────────────────────────────┘
 ```
 
-| Płyta               | Dźwignia kolankowa          | Opis                                                                                                                      |
-| ------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| **Paleta**          | `#przycisk-palety-eksperta` | Lewa paleta bloków — przeciągnij bloki do edytora lub kliknij, aby wstawić je w miejscu kursora                           |
-| **Edytor ASM**      | zawsze widoczny             | Pełny obszar tekstowy o stałej szerokości z nakładką podświetlania składni na żywo                                        |
-| **Panel demontażu** | `#ekspert-disasm-btn`       | Czysty demontaż 6502: każda instrukcja pokazuje adres, bajty szesnastkowe i operandy numeryczne; makra w pełni rozwinięte |
+| Płyta         | Przykład             | Opis                                                             |
+| ------------- | -------------------- | ---------------------------------------------------------------- |
+| `*`           | `BNE *`              | Rozgałęzienie do siebie (pętla nieskończona, przesunięcie `$FE`) |
+| `*-n` / `*+n` | `BNE *-5`, `BEQ *+4` | Rozgałęzienie względem bieżącego komputera o *n* bajtów          |
+| `SKOCZ *+n`   | `SKOK *+20`          | Skok absolutny obliczony na podstawie bieżącego komputera        |
 
-### Przyciski paska narzędzi
+### Etykiety lokalne (kropkowane)
 
 | Przycisk                            | ID                                                                 | Funkcjonować                                                                                                                                                                                                                                                                  |
 | ----------------------------------- | ------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -754,70 +1287,118 @@ Tryb Eksperta to w pełni funkcjonalny edytor tekstów bezpośrednich 6502, dzia
 | **Numery wierszy**                  | `#ekspert-numery-linii-przycisk`                                   | Przełącz pasek z numerem wiersza po lewej stronie edytora. Pasek pozostaje zsynchronizowany z pozycją przewijania i aktualizuje się na bieżąco podczas pisania.                                                                                                               |
 | **Znajdź**                          | `#ekspert-znajdź-przycisk`                                         | Otwórz pasek wyszukiwania (`Ctrl+F`). Wpisz, aby wyszukać; dopasowania są podświetlone w nakładce. `Enter` / `Shift+Enter` umożliwia nawigację między dopasowaniami. `Escape` zamyka pasek.                                                                                   |
 | **Oddalanie/przybliżanie**          | `#ekspert-przycisk-oddalania-` / `#ekspert-przycisk-przybliżania-` | Zmniejsz/zwiększ rozmiar czcionki edytora (8–28 pikseli). Naciśnięcie klawiszy `Ctrl` + kółko myszy (`Cmd` + kółko w systemie macOS lub szczypanie na touchpadzie) nad edytorem powoduje ten sam efekt. Ustawienie zostaje zapisane.                                          |
-| **Paleta**                          | `#przycisk-palety-eksperta`                                        | Pokaż/ukryj lewą paletę mnemotechniczną                                                                                                                                                                                                                                       |
-| **Dyzasm**                          | `#ekspert-disasm-btn`                                              | Pokaż/ukryj panel demontażu (czysty 6502, rozwinięte makra)                                                                                                                                                                                                                   |
+| `*`                                 | `BNE *`                                                            | Pokaż/ukryj lewą paletę mnemotechniczną                                                                                                                                                                                                                                       |
+| **Dyzasm**                          | `SKOK *+20`                                                        | Pokaż/ukryj panel demontażu (czysty 6502, rozwinięte makra)                                                                                                                                                                                                                   |
 | **Monitor**                         | `#przycisk-eksperta-monitora`                                      | Pokaż/ukryj panel zrzutu szesnastkowego monitora                                                                                                                                                                                                                              |
 | **Minimapa**                        | `#ekspert-minimapa-przycisk`                                       | Pokaż/ukryj pasek minimapy kodu po prawej stronie edytora                                                                                                                                                                                                                     |
 
-Skróty edytora: `Ctrl+/` (`Cmd+/` na macOS) komentuje bieżący wiersz lub każdy zaznaczony wiersz; dodanie `Shift` usuwa początkowy znacznik komentarza z tych wierszy. Komentarze w wierszu instrukcji (na przykład `LDA $12 ; wyjaśnienie`) pozostają w wierszu instrukcji podczas przełączania między trybem eksperta a trybem blokowym. W trybie blokowym są one wyświetlane jako zielony znacznik kursywy `; komentarz` w nagłówku bloku; najechanie kursorem na znacznik ujawnia pełny tekst, gdy jest on obcięty.
+*(Nowość w wersji 2.3.9.)* Etykieta, której nazwa zaczyna się od kropki —
+`.loop`, `.skip`, `.done` — jest **lokalną etykietą**. Należy ona do zakresu
+najbliższej poprzedzającej ją **globalnej** (bez kropki) etykiety i wewnętrznie
+staje się `<global>.<name>`. Dwie lokalne etykiety o tej samej krótkiej nazwie
+pod różnymi etykietami globalnymi **nie** kolidują.
 
-### Ekspert edytora minimapy
+### Etykiety operandów kodu samomodyfikującego
 
-Minimapa edytora Eksperta to wąski pasek płótna (`88 px`) znajdujący się po prawej stronie obszaru edytora. Wyświetla on pomniejszoną reprezentację każdej linii źródłowej:
+*(Nowość w wersji 2.3.9.)* Dodaj prefiks do operandu instrukcji z `label:`, aby
+umieścić etykietę na bajcie **operandu**, a nie na kodzie operacji. Instrukcja
+jest asemblowana z tego, co następuje po dwukropku.
 
-| Kolor paska           | Typ tokena                                              |
+| Tryb                  | Typ tokena                                              |
 | --------------------- | ------------------------------------------------------- |
 | Kolor komentarza      | Linie zaczynające się od `;`                            |
 | Kolor etykiety        | Wiersze z etykietą `:definicja `                        |
 | Kolor dyrektywny      | `.byte`, `.macro`, `.region` i wszystkie inne dyrektywy |
 | Mnemotechniczny kolor | Wszystko inne (instrukcje)                              |
 
-**półprzezroczysty wskaźnik widoku** (prostokąt z akcentem) pokazuje, która część źródła jest aktualnie widoczna. Kliknij dowolne miejsce na minimapie, aby przejść do tej pozycji; przeciągnij, aby przewijać w sposób ciągły. Minimapa przewija się niezależnie, utrzymując wskaźnik widoku na środku. Stan jest zapisany w ustawieniach interfejsu użytkownika (klawisz `expertMinimap`).
+`wartość` wskazuje na `<adres instrukcji> + 1` (pierwszy bajt operandu) dla
+każdego trybu adresowania. Zastępuje to starszy wzorzec `instrukcja STA + 1` /
+`instrukcja: LDA #$00`. Przechodzi on w obie strony przez tryb Blok ⇄ Ekspert
+(pole operandu zachowuje prefiks `etykieta:`).
 
 ### Błąd podświetlania
 
-Wiersze, których kompilacja nie powiodła się, są podświetlane na czerwono **** (przyciemniane tło + lewa ramka akcentująca) w czasie rzeczywistym, 350 ms po każdym naciśnięciu klawisza. Pierwszy komunikat o błędzie jest również wyświetlany na pasku stanu. Popraw wiersz, a podświetlenie zniknie automatycznie.
+Wiersze, których kompilacja nie powiodła się, są podświetlane na czerwono ****
+(przyciemniane tło + lewa ramka akcentująca) w czasie rzeczywistym, 350 ms po
+każdym naciśnięciu klawisza. Pierwszy komunikat o błędzie jest również
+wyświetlany na pasku stanu. Popraw wiersz, a podświetlenie zniknie
+automatycznie.
 
 ### Podświetlanie składni
 
-Edytor wykorzystuje przezroczystą nakładkę `<div>` (`expert-hl`), która odzwierciedla zawartość pola tekstowego za pomocą kolorowych elementów `<span>`. Podświetlanie można wyłączyć przyciskiem **HL**, aby zwiększyć wydajność w bardzo dużych programach.
+Edytor wykorzystuje przezroczystą nakładkę `<div>` (`expert-hl`), która
+odzwierciedla zawartość pola tekstowego za pomocą kolorowych elementów `<span>`.
+Podświetlanie można wyłączyć przyciskiem **HL**, aby zwiększyć wydajność w
+bardzo dużych programach.
 
 | Kolor         | Znak                                                                                                                                                         |
 | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Żółto-zielony | Mnemoniki (`LDA`, `STA`, `JMP`, …) i pseudooperacje o długiej gałęzi (`LBNE`, `LBEQ`, …)                                                                     |
 | Niebieski     | Dyrektywy (`.byte`, `.word`, `.fill`, `.assert`, `*=`, …)                                                                                                    |
 | Pomarańczowy  | Liczby (`$FF`, `%1010`, `255`)                                                                                                                               |
-| Cyjan         | Etykiety — wiersze kończące się na `:`, w tym etykiety lokalne (`.loop:`) i etykiety operandów kodu samomodyfikującego się (`wartość:` w `wartość LDA:#$00`) |
+| **ASM**       | Etykiety — wiersze kończące się na `:`, w tym etykiety lokalne (`.loop:`) i etykiety operandów kodu samomodyfikującego się (`wartość:` w `wartość LDA:#$00`) |
 | Cyraneczka    | Literały ciągów                                                                                                                                              |
 | Fioletowy     | Nazwy niestandardowych makr — nazwa po wywołaniach `.macro`, `.invoke` i `.call` oraz w stylu Kick `:name(...)`                                              |
 | Woda          | Parametry makra — nazwy parametrów w nagłówku `.macro` i zamienniki `{param}` w treści makra                                                                 |
 | Ciemnozielony | Komentarze (`; …`)                                                                                                                                           |
 
-Dyrektywy `REGION` / `ENDREGION` są podświetlane tak samo jak inne dyrektywy asemblera. Zwinięte regiony pozostawiają widoczny w edytorze tylko nagłówek regionu do momentu ich ponownego otwarcia. Nowy przełącznik **Wybór regionu** na pasku narzędzi steruje automatycznym podświetlaniem bieżącego regionu tylko w trybie eksperta; jego wyłączenie sprawia, że źródło jest widoczne bez zmiany stanu zwinięcia.
+Dyrektywy `REGION` / `ENDREGION` są podświetlane tak samo jak inne dyrektywy
+asemblera. Zwinięte regiony pozostawiają widoczny w edytorze tylko nagłówek
+regionu do momentu ich ponownego otwarcia. Nowy przełącznik **Wybór regionu** na
+pasku narzędzi steruje automatycznym podświetlaniem bieżącego regionu tylko w
+trybie eksperta; jego wyłączenie sprawia, że źródło jest widoczne bez zmiany
+stanu zwinięcia.
 
 ### Formater źródła
 
-Kliknij przycisk **Formatuj** (`#expert-format-btn`), aby automatycznie sformatować bieżące źródło:
+Kliknij przycisk **Formatuj** (`#expert-format-btn`), aby automatycznie
+sformatować bieżące źródło:
 
 - Definicje etykiet zostały przeniesione do kolumny 0.
 - Instrukcje są wcięte czterema spacjami.
 - Mnemoniki pisane są wielkimi literami.
-- Dokładnie jedna spacja między mnemonikiem i operandem (dodatkowa spacja jest normalizowana).
-- Jeśli źródło jest już sformatowane, wyświetlany jest status `„Już sformatowano”`.
+- Dokładnie jedna spacja między mnemonikiem i operandem (dodatkowa spacja jest
+  normalizowana).
+- Jeśli źródło jest już sformatowane, wyświetlany jest status `„Już
+  sformatowano”`.
 
 ### Panel projektu i zakładki
 
-Tryb eksperta obsługuje **panel projektu** (`#expert-project-panel`) dla projektów wieloplikowych `.proj`:
+Tryb eksperta obsługuje **panel projektu** (`#expert-project-panel`) dla
+projektów wieloplikowych `.proj`:
 
-- Plik `.proj` to manifest JSON zawierający listę plików źródłowych i ich metadanych.
-- Otwórz projekt za pomocą **Menu → Plik → Otwórz projekt** lub przeciągnij plik `.proj` na okno.
-- Każdy plik w projekcie otwiera się jako osobna karta **** na pasku kart u góry edytora.
-- **Zamknij projekt** (`Menu → Plik → Zamknij projekt` / `#menu-close-project`) zamyka bieżący projekt i wszystkie jego karty plików jednocześnie. Wyświetla monit o zapisanie niezapisanych zmian przed zamknięciem. Panel projektu resetuje się do stanu pustego, a `_expertProjectData` zostaje wyczyszczony.
-- Każdy plik można oznaczyć jako **plik startowy** (ikona gwiazdki ★). Po ustawieniu pliku startowego przycisk **Uruchom** (PRG, D64, Ultimate) zawsze asembluje i uruchamia kod tego pliku — niezależnie od tego, która karta jest aktualnie aktywna. Działa to zarówno w trybie blokowym, jak i eksperckim.
-- Przycisk **Dodaj** na pasku narzędzi wybiera jeden lub więcej plików naraz (dowolnego typu, nie tylko `.json`/`.asm`) i odwołuje się do nich w projekcie bez ich otwierania — należy go używać w przypadku zasobów binarnych, takich jak dane `incbin`. Domyślnie w oknie dialogowym znajduje się folder roboczy VA. Sąsiedni przycisk **Dodaj folder** odwołuje się do całego folderu (np. katalogu zasobów) w ten sam sposób. Wpisy zawierające tylko odniesienia są oznaczone przyciskiem usuwania (✕), ale nie są otwierane kliknięciem.
-- Foldery w drzewie mają strzałkę zwijania/rozwijania, a kliknięcie prawym przyciskiem myszy folderu **** umożliwia dodanie jednego lub więcej plików zagnieżdżonych pod nim (pokazanych jako wcięte).
-- Przycisk **Zapisz projekt** wyłącza się automatycznie i pokazuje stan „Zapisano”, gdy w projekcie nie ma żadnych oczekujących zmian, a automatycznie włącza się ponownie w chwili dodania, usunięcia lub reorganizacji pliku lub folderu.
-- Sekcję **symboli** znajdującą się na dole panelu projektu można zmieniać w pionie za pomocą separatora między drzewem plików a listą symboli, dzięki czemu długie listy symboli mogą zajmować więcej miejsca, gdy jest to potrzebne.
+- Plik `.proj` to manifest JSON zawierający listę plików źródłowych i ich
+  metadanych.
+- Otwórz projekt za pomocą **Menu → Plik → Otwórz projekt ** lub przeciągnij
+  plik `.proj` na okno.
+- Każdy plik w projekcie otwiera się jako osobna karta **** na pasku kart u góry
+  edytora.
+- **Zamknij projekt** (`Menu → Plik → Zamknij projekt` / `#menu-close-project`)
+  zamyka bieżący projekt i wszystkie jego karty plików jednocześnie. Wyświetla
+  monit o zapisanie niezapisanych zmian przed zamknięciem. Panel projektu
+  resetuje się do stanu pustego, a `_expertProjectData` zostaje wyczyszczony.
+- Każdy plik można oznaczyć jako **plik startowy** (ikona gwiazdki ★). Po
+  ustawieniu pliku startowego przycisk **Uruchom** (PRG, D64, Ultimate) zawsze
+  asembluje i uruchamia kod tego pliku — niezależnie od tego, która karta jest
+  aktualnie aktywna. Działa to zarówno w trybie blokowym, jak i eksperckim.
+- Przycisk **Dodaj** na pasku narzędzi wybiera jeden lub więcej plików naraz
+  (dowolnego typu, nie tylko `.json`/`.asm`) i odwołuje się do nich w projekcie
+  bez ich otwierania — należy go używać w przypadku zasobów binarnych, takich
+  jak dane `incbin`. Domyślnie w oknie dialogowym znajduje się folder roboczy
+  VA. Sąsiedni przycisk **Dodaj folder** odwołuje się do całego folderu (np.
+  katalogu zasobów) w ten sam sposób. Wpisy zawierające tylko odniesienia są
+  oznaczone przyciskiem usuwania (✕), ale nie są otwierane kliknięciem.
+- Foldery w drzewie mają strzałkę zwijania/rozwijania, a kliknięcie prawym
+  przyciskiem myszy folderu **** umożliwia dodanie jednego lub więcej plików
+  zagnieżdżonych pod nim (pokazanych jako wcięte).
+- Przycisk **Zapisz projekt** wyłącza się automatycznie i pokazuje stan
+  „Zapisano”, gdy w projekcie nie ma żadnych oczekujących zmian, a automatycznie
+  włącza się ponownie w chwili dodania, usunięcia lub reorganizacji pliku lub
+  folderu.
+- Sekcję **symboli** znajdującą się na dole panelu projektu można zmieniać w
+  pionie za pomocą separatora między drzewem plików a listą symboli, dzięki
+  czemu długie listy symboli mogą zajmować więcej miejsca, gdy jest to
+  potrzebne.
 
 ### Pasek kart
 
@@ -831,13 +1412,16 @@ Pasek kart pojawia się nad edytorem, jeśli otwarta jest więcej niż jedna kar
 | **Rozszerzenie pliku**           | Wyświetlana jest pełna nazwa pliku, łącznie z rozszerzeniem (`.c64va`, `.json`)                                                                                                                                                                                                                                                                                                                                             |
 | **Menu prawego przycisku myszy** | Kliknij prawym przyciskiem myszy kartę (lub puste miejsce na pasku kart), aby wykonać następujące czynności: **Nowa karta**, **Zamknij kartę**, **Zamknij inne karty**, **Zamknij karty po prawej stronie**, **Zamknij wszystkie karty**. Operacje zamykania zbiorczego wyświetlają monit o zamknięcie każdej niezapisanej karty i zatrzymują się po anulowaniu. **Zamknij wszystkie** zawsze pozostawia jedną pustą kartę. |
 
-> **Wskazówka:** Synchronizacja palet (`#expert-palette-sync-btn`) synchronizuje wybór palety z mnemonikiem przy kursorze. Wyłącz tę funkcję, jeśli nie chcesz, aby paleta przeskakiwała podczas edycji.
+> **Wskazówka: ** Synchronizacja palet (`#expert-palette-sync-btn`)
+> synchronizuje wybór palety z mnemonikiem przy kursorze. Wyłącz tę funkcję,
+> jeśli nie chcesz, aby paleta przeskakiwała podczas edycji.
 
 ---
 
-## 7. Tryby adresowania
+## 8. Standardowe instrukcje 6502
 
-Każda instrukcja 6502 obsługuje jeden lub więcej trybów adresowania. Selektor trybu znajduje się na każdym bloku.
+Każda instrukcja 6502 obsługuje jeden lub więcej trybów adresowania. Selektor
+trybu znajduje się na każdym bloku.
 
 | Tryb              | Etykieta          | Przykład           | Opis                                                                                  |
 | ----------------- | ----------------- | ------------------ | ------------------------------------------------------------------------------------- |
@@ -854,151 +1438,183 @@ Każda instrukcja 6502 obsługuje jeden lub więcej trybów adresowania. Selekto
 | **pośredniY**     | Pośrednie, Y      | `LDA ($FB),Y`      | Strona zerowa indeksowana pośrednio (operand = adres strony zerowej, 1 bajt)          |
 | **pośredni**      | Pośredni          | `JMP ($0100)`      | Pośredni; można go używać tylko z JMP                                                 |
 
-### Oznacz wyrażenia etykietami jako operandy
+### Przenoszenie danych
 
-Każde pole operandu akceptujące adres lub wartość bezpośrednią akceptuje również bezpośrednio **nazwę stałej** (z bloku `CONST` lub `LABEL`). Dodatkowo można użyć wyrażeń **etykieta+przesunięcie** lub **etykieta−przesunięcie**, aby odwołać się do adresu względnego do nazwanej stałej:
+Każde pole operandu akceptujące adres lub wartość bezpośrednią akceptuje również
+bezpośrednio **nazwę stałej** (z bloku `CONST` lub `LABEL`). Dodatkowo można
+użyć wyrażeń **etykieta+przesunięcie** lub **etykieta−przesunięcie**, aby
+odwołać się do adresu względnego do nazwanej stałej:
 
-| Składnia              | Przykład                     | Opis                                                                                                                             |
-| --------------------- | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `etykieta`            | `RAM ekranu STA,X`           | Rozwiązuje się do etykiety/wartości stałej                                                                                       |
-| `etykieta+$hex`       | `STA screen_ram+$0100,X`     | Adres etykiety plus przesunięcie szesnastkowe                                                                                    |
-| `etykieta+dziesiętne` | `STA screen_ram+256,X`       | Adres etykiety plus przesunięcie dziesiętne                                                                                      |
-| `etykieta-$hex`       | `Tabela LDA-$10`             | Adres etykiety pomniejszony o przesunięcie szesnastkowe                                                                          |
-| `#<etykieta`          | `LDA #<pamięć_ekranu`        | Niski bajt adresu etykiety                                                                                                       |
-| `#&gt;etykieta`       | `LDA #&gt;pamięć_ram_ekranu` | Wysoki bajt adresu etykiety                                                                                                      |
-| `*`                   | `BNE *`                      | Aktualny licznik programu (adres własny instrukcji); rozgałęzienia z `*` generują nieskończoną pętlę własną (przesunięcie `$FE`) |
+| Mnemoniczny | Przykład            | Opis                                                                                                                             |
+| ----------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `LDA`       | Załaduj akumulator  | natychmiastowy, zeroPage, absolutny, absolutnyX, absolutnyY, pośredniX, pośredniY                                                |
+| `LDX`       | Załaduj rejestr X   | natychmiastowy, zeroPage, zeroPageY, absolutny, absolutnyY                                                                       |
+| `LDY`       | Załaduj rejestr Y   | natychmiastowy, zeroPage, absolutny, absoluteX                                                                                   |
+| `STA`       | Akumulator sklepowy | zeroPage, absolutny, absolutnyX, absolutnyY, pośredniX, pośredniY                                                                |
+| `STX`       | Sklep X rejestr     | zeroPage, zeroPageY, absolutny                                                                                                   |
+| `STY`       | Sklep Y kasa        | zeroPage, absolutny                                                                                                              |
+| `*`         | `BNE *`             | Aktualny licznik programu (adres własny instrukcji); rozgałęzienia z `*` generują nieskończoną pętlę własną (przesunięcie `$FE`) |
 
 **Przykład — wyczyść dwie strony ekranowe za pomocą stałej:**
 ```
 ; .CONST screen_ram = $0400
-    LDX #$00
-clear:
-    STA screen_ram,X
-    STA screen_ram+$0100,X
-    DEX
-    BNE clear
+LDX #$00
+wyczyść:
+STA screen_ram,X
+STA screen_ram+$0100,X
+DEX
+BNE wyczyść
 ```
-
-### Licznik programu `*` w wyrażeniach
-
-*(Nowość w wersji 2.3.9.)* `*` nie jest już ograniczony do całego operandu — może pojawić się **w dowolnym miejscu wyrażenia operandu** i oznacza adres instrukcji, w której jest zapisany. Jest on rozwiązywany w momencie asemblacji na podstawie rzeczywistego adresu tej instrukcji, więc etykieta nie jest potrzebna w przypadku krótkich skoków względnych lub odczytów danych względnych względem PC.
-
-| Składnia            | Przykład                   | Oznaczający                                                      |
-| ------------------- | -------------------------- | ---------------------------------------------------------------- |
-| `*`                 | `BNE *`                    | Rozgałęzienie do siebie (pętla nieskończona, przesunięcie `$FE`) |
-| `*-n` / `*+n`       | `BNE *-5`, `BEQ *+4`       | Rozgałęzienie względem bieżącego komputera o *n* bajtów          |
-| `SKOCZ *+n`         | `SKOK *+20`                | Skok absolutny obliczony na podstawie bieżącego komputera        |
-| `#&lt;*` / `#&gt;*` | `LDA #&lt;*`, `LDA #&gt;*` | Niski/wysoki bajt bieżącego komputera                            |
-| `#&gt;(*+n)`        | `LDA #&gt;(*+63)`          | Niski/wysoki bajt adresu względnego komputera                    |
-
-**PC vs. multiplication.** `*` is treated as the program counter only when it sits in *value position* — at the start of the expression, or right after an operator, `(`, `,`, `&lt;`, `&gt;` or whitespace. A `*` that follows a number, `)` or an identifier is ordinary multiplication, so `LDA table*2` and `CONST_A*4` are unchanged.
-
-**Gdzie to działa.** Dowolny operand, który akceptuje już wyrażenie: cele rozgałęzień, `JMP` / `JSR`, `LDA`/`STA`/… bezwzględne i indeksowane, natychmiastowe operatory bajtów niskiego/wysokiego oraz wyrażenie `.assert`. `*` nigdy nie zmienia rozmiaru instrukcji, więc jest bezpieczny w każdym trybie adresowania.
-
-### Etykiety lokalne (kropkowane)
-
-*(Nowość w wersji 2.3.9.)* Etykieta, której nazwa zaczyna się od kropki — `.loop`, `.skip`, `.done` — jest **lokalną etykietą**. Należy ona do zakresu najbliższej poprzedzającej ją **globalnej** (bez kropki) etykiety i wewnętrznie staje się `<global>.<name>`. Dwie lokalne etykiety o tej samej krótkiej nazwie pod różnymi etykietami globalnymi **nie** kolidują.
-
-```
-DrawSprite:
-    LDX #0
-.loop:                 ; == DrawSprite.loop
-    LDA SpriteData,X
-    STA $2000,X
-    INX
-    CPX #63
-    BNE .loop          ; resolves within DrawSprite
-    RTS
-
-ClearScreen:
-    LDX #0
-.loop:                 ; == ClearScreen.loop — no clash
-    STA $0400,X
-    INX
-    BNE .loop
-    RTS
-```
-
-- W zakresie odwołaj się do lokalnej etykiety jako `.nazwa`.
-- Z innego zakresu odwołaj się do niego jawnie jako `Global.name` (np. `JMP ClearScreen.loop`).
-- `.name` zapisane przed jakąkolwiek etykietą globalną pozostaje zwykłym `.name` najwyższego poziomu.
-- Lokalne etykiety przechodzą przez tryb Blok ⇄ Ekspert bez zmian; prefiks `<global>.` jest szczegółem układu i nigdy nie jest przechowywany w programie blokowym.
-
-### Etykiety operandów kodu samomodyfikującego
-
-*(Nowość w wersji 2.3.9.)* Dodaj prefiks do operandu instrukcji z `label:`, aby umieścić etykietę na bajcie **operandu**, a nie na kodzie operacji. Instrukcja jest asemblowana z tego, co następuje po dwukropku.
-
-```
-setup:
-    LDA value:#$00     ; 'value' -> address of the #$00 operand byte
-    ...
-patch:
-    LDA #new
-    STA value          ; writes the operand byte directly — classic SMC
-```
-
-`wartość` wskazuje na `<adres instrukcji> + 1` (pierwszy bajt operandu) dla każdego trybu adresowania. Zastępuje to starszy wzorzec `instrukcja STA + 1` / `instrukcja: LDA #$00`. Przechodzi on w obie strony przez tryb Blok ⇄ Ekspert (pole operandu zachowuje prefiks `etykieta:`).
-
----
-
-## 8. Standardowe instrukcje 6502
-
-### Przenoszenie danych
-
-| Mnemoniczny | Opis                | Tryby                                                                             |
-| ----------- | ------------------- | --------------------------------------------------------------------------------- |
-| `LDA`       | Załaduj akumulator  | natychmiastowy, zeroPage, absolutny, absolutnyX, absolutnyY, pośredniX, pośredniY |
-| `LDX`       | Załaduj rejestr X   | natychmiastowy, zeroPage, zeroPageY, absolutny, absolutnyY                        |
-| `LDY`       | Załaduj rejestr Y   | natychmiastowy, zeroPage, absolutny, absoluteX                                    |
-| `STA`       | Akumulator sklepowy | zeroPage, absolutny, absolutnyX, absolutnyY, pośredniX, pośredniY                 |
-| `STX`       | Sklep X rejestr     | zeroPage, zeroPageY, absolutny                                                    |
-| `STY`       | Sklep Y kasa        | zeroPage, absolutny                                                               |
 
 ### Arytmetyka
 
-| Mnemoniczny | Opis                         | Notatki                                                    |
+*(Nowość w wersji 2.3.9.)* `*` nie jest już ograniczony do całego operandu —
+może pojawić się **w dowolnym miejscu wyrażenia operandu** i oznacza adres
+instrukcji, w której jest zapisany. Jest on rozwiązywany w momencie asemblacji
+na podstawie rzeczywistego adresu tej instrukcji, więc etykieta nie jest
+potrzebna w przypadku krótkich skoków względnych lub odczytów danych względnych
+względem PC.
+
+| Mnemoniczny | Przykład                     | Notatki                                                    |
 | ----------- | ---------------------------- | ---------------------------------------------------------- |
-| `ADC`       | Dodaj z przeniesieniem       | W większości przypadków przed użyciem należy ustawić `SEC` |
+| `*`         | `BNE *`                      | W większości przypadków przed użyciem należy ustawić `SEC` |
 | `SBC`       | Odejmowanie z przeniesieniem | Ustaw przeniesienie z `SEC` przed odjęciem                 |
 | `INK`       | Zwiększ pamięć               | —                                                          |
 | `GRU`       | Zmniejsz pamięć              | —                                                          |
 | `CMP`       | Porównaj z A                 | Ustawia flagi; nie modyfikuje A                            |
-| `CPX`       | Porównaj z X                 | —                                                          |
-| `CPY`       | Porównaj z Y                 | —                                                          |
+
+**PC kontra mnożenie. ** `*` jest traktowany jako licznik programu tylko wtedy,
+gdy znajduje się w *pozycji wartości* — na początku wyrażenia lub zaraz po
+operatorze, `(`, `,`, `&lt;`, `&gt;` lub spacji. Operator `*` następujący po
+liczbie, `)` lub identyfikatorze jest zwykłym mnożeniem, więc `tabela LDA*2` i
+`CONST_A*4` pozostają niezmienione.
+
+**Gdzie to działa.** Dowolny operand, który akceptuje już wyrażenie: cele
+rozgałęzień, `JMP` / `JSR`, `LDA`/`STA`/… bezwzględne i indeksowane,
+natychmiastowe operatory bajtów niskiego/wysokiego oraz wyrażenie `.assert`. `*`
+nigdy nie zmienia rozmiaru instrukcji, więc jest bezpieczny w każdym trybie
+adresowania.
 
 ### Logika
 
-| Mnemoniczny | Opis                                                            |
-| ----------- | --------------------------------------------------------------- |
-| `I`         | Logiczne AND z akumulatorem                                     |
-| `ORA`       | Logiczne OR z akumulatorem                                      |
-| `EOR`       | Ekskluzywny OR z akumulatorem                                   |
-| `BIT`       | Testowanie bitów w pamięci względem A (ustawianie flag N, V, Z) |
+*(Nowość w wersji 2.3.9.)* Etykieta, której nazwa zaczyna się od kropki —
+`.loop`, `.skip`, `.done` — jest **lokalną etykietą**. Należy ona do zakresu
+najbliższej poprzedzającej ją **globalnej** (bez kropki) etykiety i wewnętrznie
+staje się `<global>.<name>`. Dwie lokalne etykiety o tej samej krótkiej nazwie
+pod różnymi etykietami globalnymi **nie** kolidują.
+
+```
+DrawSprite:
+LDX #0
+.loop: ; == DrawSprite.loop
+LDA SpriteData,X
+STA $2000,X
+INX
+CPX #63
+BNE .loop ; rozwiązuje się w DrawSprite
+RTS
+
+ClearScreen:
+LDX #0
+.loop: ; == ClearScreen.loop — brak kolizji
+STA $0400,X
+INX
+BNE .loop
+RTS
+```
+
+- W zakresie odwołaj się do lokalnej etykiety jako `.nazwa`.
+- Z innego zakresu odwołaj się do niego jawnie jako `Global.name` (np. `JMP
+  ClearScreen.loop`).
+- `.name` zapisane przed jakąkolwiek etykietą globalną pozostaje zwykłym `.name`
+  najwyższego poziomu.
+- Lokalne etykiety przechodzą przez tryb Blok ⇄ Ekspert bez zmian; prefiks
+  `<global>.` jest szczegółem układu i nigdy nie jest przechowywany w programie
+  blokowym.
 
 ### Skoki i gałęzie
 
-| Mnemoniczny | Opis                                                   |
-| ----------- | ------------------------------------------------------ |
-| `SKOK`      | Skok bezwarunkowy (absolutny lub pośredni)             |
-| `JSR`       | Skok do podprogramu (zapisuje adres powrotu na stosie) |
-| `RTS`       | Powrót z podprogramu                                   |
-| `RTI`       | Powrót z przerwania                                    |
-| `BNE`       | Rozgałęzienie, jeśli nie jest równe (Z=0)              |
-| `BEQ`       | Gałąź, jeśli równe (Z=1)                               |
-| `UDW`       | Rozgałęzienie, jeśli Carry Clear (C=0)                 |
-| `BCS`       | Rozgałęzienie, jeśli zestaw Carry (C=1)                |
-| `BMI`       | Gałąź jeśli minus (N=1)                                |
-| `BPL`       | Rozgałęzienie jeśli Plus (N=0)                         |
-| `BVC`       | Gałąź, jeśli wyczyszczono przepełnienie (V=0)          |
-| `BVS`       | Gałąź, jeśli przepełnienie ustawione (V=1)             |
+*(Nowość w wersji 2.3.9.)* Dodaj prefiks do operandu instrukcji z `label:`, aby
+umieścić etykietę na bajcie **operandu**, a nie na kodzie operacji. Instrukcja
+jest asemblowana z tego, co następuje po dwukropku.
+
+```
+konfiguracja:
+Wartość LDA: #$00 ; 'wartość' -&gt; adres bajtu operandu #$00
+...
+poprawka:
+LDA #new
+Wartość STA ; zapisuje bajt operandu bezpośrednio — klasyczny SMC
+```
+
+`wartość` wskazuje na `<adres instrukcji> + 1` (pierwszy bajt operandu) dla
+każdego trybu adresowania. Zastępuje to starszy wzorzec `instrukcja STA + 1` /
+`instrukcja: LDA #$00`. Przechodzi on w obie strony przez tryb Blok ⇄ Ekspert
+(pole operandu zachowuje prefiks `etykieta:`).
+
+---
+
+## 9. Bloki makro — odniesienie
+
+### LABEL
+
+| Pole           | Opis                                             | Tryby                                                                             |
+| -------------- | ------------------------------------------------ | --------------------------------------------------------------------------------- |
+| Nazwa etykiety | Identyfikator używany w `JMP`, `JSR`, `BNE` itd. | natychmiastowy, zeroPage, absolutny, absolutnyX, absolutnyY, pośredniX, pośredniY |
+| `LDX`          | Załaduj rejestr X                                | natychmiastowy, zeroPage, zeroPageY, absolutny, absolutnyY                        |
+| `LDY`          | Załaduj rejestr Y                                | natychmiastowy, zeroPage, absolutny, absoluteX                                    |
+| `STA`          | Akumulator sklepowy                              | zeroPage, absolutny, absolutnyX, absolutnyY, pośredniX, pośredniY                 |
+| `STX`          | Sklep X rejestr                                  | zeroPage, zeroPageY, absolutny                                                    |
+| `STY`          | Sklep Y kasa                                     | zeroPage, absolutny                                                               |
+
+### COMMENT
+
+| Pole  | Opis                         | Notatki                                                    |
+| ----- | ---------------------------- | ---------------------------------------------------------- |
+| `ADC` | Dodaj z przeniesieniem       | W większości przypadków przed użyciem należy ustawić `SEC` |
+| `SBC` | Odejmowanie z przeniesieniem | Ustaw przeniesienie z `SEC` przed odjęciem                 |
+| `INK` | Zwiększ pamięć               | —                                                          |
+| `GRU` | Zmniejsz pamięć              | —                                                          |
+| `CMP` | Porównaj z A                 | Ustawia flagi; nie modyfikuje A                            |
+| `CPX` | Porównaj z X                 | —                                                          |
+| `CPY` | Porównaj z Y                 | —                                                          |
+
+### BYTE
+
+| Pole    | Opis                                                                          |
+| ------- | ----------------------------------------------------------------------------- |
+| Operand | Wartości bajtów rozdzielone przecinkami (np. `$01, $02, $FF` lub `1, 2, 255`) |
+| `ORA`   | Logiczne OR z akumulatorem                                                    |
+| `EOR`   | Ekskluzywny OR z akumulatorem                                                 |
+| `BIT`   | Testowanie bitów w pamięci względem A (ustawianie flag N, V, Z)               |
+
+### WORD
+
+| Pole    | Opis                                                            |
+| ------- | --------------------------------------------------------------- |
+| Operand | Wartości 16-bitowe rozdzielone przecinkami (np. `$0400, $C000`) |
+| `JSR`   | Skok do podprogramu (zapisuje adres powrotu na stosie)          |
+| `RTS`   | Powrót z podprogramu                                            |
+| `RTI`   | Powrót z przerwania                                             |
+| `BNE`   | Rozgałęzienie, jeśli nie jest równe (Z=0)                       |
+| `BEQ`   | Gałąź, jeśli równe (Z=1)                                        |
+| `UDW`   | Rozgałęzienie, jeśli Carry Clear (C=0)                          |
+| `BCS`   | Rozgałęzienie, jeśli zestaw Carry (C=1)                         |
+| `BMI`   | Gałąź jeśli minus (N=1)                                         |
+| `BPL`   | Rozgałęzienie jeśli Plus (N=0)                                  |
+| `BVC`   | Gałąź, jeśli wyczyszczono przepełnienie (V=0)                   |
+| `BVS`   | Gałąź, jeśli przepełnienie ustawione (V=1)                      |
 
 #### LBNE / LBEQ / … (Długie gałęzie)
 
-*(Nowość w wersji 2.3.9.)* Kategoria palety **Długie gałęzie** zawiera osiem pseudooperacji, które zachowują się jak gałęzie warunkowe, ale docierają do **dowolnego adresu**, a nie tylko −128…+127. Każda z nich składa się do odwróconej gałęzi, która pomija 3-bajtowy `JMP` — zawsze **5 bajtów**:
+*(Nowość w wersji 2.3.9.)* Kategoria palety **Długie gałęzie** zawiera osiem
+pseudooperacji, które zachowują się jak gałęzie warunkowe, ale docierają do
+**dowolnego adresu**, a nie tylko −128…+127. Każda z nich składa się do
+odwróconej gałęzi, która pomija 3-bajtowy `JMP` — zawsze **5 bajtów**:
 
 ```
-LBEQ done      ; assembles to:   BNE *+3   ($D0 $03)
-               ;                 JMP done  ($4C lo hi)
+LBEQ gotowe; montaż do: BNE *+3 ($D0 $03)
+; JMP gotowe ($4C lo hi)
 ```
 
 | Długa op | Stan                     | Wyemitowano jako    |
@@ -1012,223 +1628,266 @@ LBEQ done      ; assembles to:   BNE *+3   ($D0 $03)
 | `LBVC`   | wyczyść nadmiar (V=0)    | `BVS *+3 / cel JMP` |
 | `LBVS`   | zestaw przelewowy (V=1)  | `BVC *+3 / cel JMP` |
 
-- Operand: etykieta, wyrażenie `*` lub adres literowy — taki sam jak normalny cel rozgałęzienia.
-- Koszt: 5 bajtów i 1 dodatkowy cykl na wybranej ścieżce w porównaniu z krótką gałęzią. Nie ma automatycznej promocji krótkiej gałęzi — wybierasz jawnie `LBxx`.
-- Gdy prosta gałąź (`BNE`, `BEQ`, …) wykracza poza zakres, błąd kompilatora teraz nazywa dokładne przekroczenie i sugeruje pasującą `LBxx`.
+- Operand: etykieta, wyrażenie `*` lub adres literowy — taki sam jak normalny
+  cel rozgałęzienia.
+- Koszt: 5 bajtów i 1 dodatkowy cykl na wybranej ścieżce w porównaniu z krótką
+  gałęzią. Nie ma automatycznej promocji krótkiej gałęzi — wybierasz jawnie
+  `LBxx`.
+- Gdy prosta gałąź (`BNE`, `BEQ`, …) wykracza poza zakres, błąd kompilatora
+  teraz nazywa dokładne przekroczenie i sugeruje pasującą `LBxx`.
 
-### Operacje rejestrowe
+### FILL
 
-| Mnemoniczny | Opis                         |
-| ----------- | ---------------------------- |
-| `PODATEK`   | Przelew A → X                |
-| `TAY`       | Przelew A → Y                |
-| `TXA`       | Przenieś X → A               |
-| `TYA`       | Przenieś Y → A               |
-| `TSX`       | Wskaźnik stosu transferu → X |
-| `TXS`       | Przenieś X → Wskaźnik stosu  |
-| `INX`       | Zwiększ X                    |
-| `ZRĘCZNOŚĆ` | Zmniejsz X                   |
-| `INY`       | Zwiększ Y                    |
-| `DEY`       | Zmniejszenie Y               |
+| Pole        | Opis                                                     |
+| ----------- | -------------------------------------------------------- |
+| Operand     | `liczba,wartość` — np. `256,0` wypełnia 256 bajtów zerem |
+| `TAY`       | Przelew A → Y                                            |
+| `TXA`       | Przenieś X → A                                           |
+| `TYA`       | Przenieś Y → A                                           |
+| `TSX`       | Wskaźnik stosu transferu → X                             |
+| `TXS`       | Przenieś X → Wskaźnik stosu                              |
+| `INX`       | Zwiększ X                                                |
+| `ZRĘCZNOŚĆ` | Zmniejsz X                                               |
+| `INY`       | Zwiększ Y                                                |
+| `DEY`       | Zmniejszenie Y                                           |
 
-### Shift & Rotate
+### ALIGN
 
-| Mnemoniczny | Opis                             |
-| ----------- | -------------------------------- |
-| `ASL`       | Przesunięcie arytmetyczne w lewo |
-| `LSR`       | Logiczne przesunięcie w prawo    |
-| `ROL`       | Obrót w lewo przez Carry         |
-| `ROR`       | Obróć w prawo przez Carry        |
+| Pole    | Opis                                                                                    |
+| ------- | --------------------------------------------------------------------------------------- |
+| Granica | Wartość wyrównania — np. `64` (granica sprite’a), `256` (strona), `$2000` (mapa bitowa) |
+| `LSR`   | Logiczne przesunięcie w prawo                                                           |
+| `ROL`   | Obrót w lewo przez Carry                                                                |
+| `ROR`   | Obróć w prawo przez Carry                                                               |
 
-### Stos
+### TEXT
 
-| Mnemoniczny | Opis                              |
-| ----------- | --------------------------------- |
-| `PHA`       | Włóż akumulator na stos           |
-| `PHP`       | Przenieś status procesora na stos |
-| `PLA`       | Wyciągnij akumulator ze stosu     |
-| `PLP`       | Pobierz status procesora ze stosu |
+| Pole                   | Opis                                                     |
+| ---------------------- | -------------------------------------------------------- |
+| Tekst                  | Ciąg do wyświetlenia                                     |
+| X                      | Kolumna (0–39)                                           |
+| Y                      | Wiersz (0–24)                                            |
+| Etykieta (opcjonalnie) | Przypisuje etykietę wskazującą na obliczony adres ekranu |
 
-### System / Flagi
+### STRING
 
-| Mnemoniczny | Opis                                  |
-| ----------- | ------------------------------------- |
-| `CLC`       | Flaga Clear Carry                     |
-| `CLD`       | Wyczyść tryb dziesiętny               |
-| `CLI`       | Wyczyść Wyłącz przerwanie             |
-| `CLV`       | Wyczyść flagę przepełnienia           |
-| `SEK`       | Ustaw flagę przenoszenia              |
-| `SED`       | Ustaw tryb dziesiętny                 |
-| `SEI`       | Ustaw wyłączenie przerwania           |
-| `NIE`       | Brak operacji                         |
-| `BRK`       | Wymuś przerwę / przerwanie programowe |
+| Pole                       | Opis                                                                                            |
+| -------------------------- | ----------------------------------------------------------------------------------------------- |
+| Tekst                      | Ciąg do napisania                                                                               |
+| Adres                      | Adres pamięci docelowej — `$C000` hex lub **nazwa etykiety**                                    |
+| Etykieta (opcjonalnie)     | Przypisuje etykietę wskazującą na adres docelowy                                                |
+| Zmiana                     | Wartość szesnastkowa (00–FF) dodawana do każdego bajtu kodu ekranu (np. `$80` = odwrotne wideo) |
+| Zestaw znaków małych liter | Pole wyboru — ta sama semantyka co w przypadku TEKST (patrz sekcja TEKST)                       |
+| `SED`                      | Ustaw tryb dziesiętny                                                                           |
+| `SEI`                      | Ustaw wyłączenie przerwania                                                                     |
+| `NIE`                      | Brak operacji                                                                                   |
+| `BRK`                      | Wymuś przerwę / przerwanie programowe                                                           |
 
-### Nielegalne/nieudokumentowane instrukcje
+### DATA
 
-Są one obsługiwane w przypadku zaawansowanego użytkowania. Należy zachować ostrożność — zachowanie może się różnić w zależności od układu.
+Podobnie jak pętla **POKE** — zapisuje listę surowych bajtów do adresu pamięci w
+czasie wykonywania, jedną parę LDA/STA na bajt.
 
-`LAX`, `SAX`, `DCP`, `ISC`, `SLO`, `RLA`, `SRE`, `RRA`, `ANC`, `ALR`, `ARR`, `AXS`
+**Składnia ekspercka:**
 
 ---
 
-## 9. Bloki makro — odniesienie
+## 10. Integracja debugera
 
-Bloki makro pozwalają wykonywać typowe zadania w jednym kroku – zamiast pisać 10–20 instrukcji ręcznie, wystarczy usunąć jeden blok, a asembler wygeneruje kod za Ciebie. Pomyśl o nich jak o wbudowanych podprogramach.
+Aplikacja obsługuje **RetroDebugger** jako zewnętrzny debugger C64. Otrzymuje
+punkty przerwania, symbole i flagi autostartu generowane z asemblowanego
+programu.
 
 ---
 
-### LABEL
+### RetroDebugger
 
-Podobnie jak numer wiersza **w BASIC** — ale z nazwą zamiast numeru. Cele skoku dla `JMP`, `JSR`, `BNE` itd.
+[RetroDebugger]{1} to wieloplatformowy debugger Commodore 64 z obsługą punktów
+przerwania, inspekcją pamięci i deasemblacją uwzględniającą etykiety.
 
 | Pole           | Opis                                             |
 | -------------- | ------------------------------------------------ |
 | Nazwa etykiety | Identyfikator używany w `JMP`, `JSR`, `BNE` itd. |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
-loop:
-```
-
-**Wygenerowano ASM:**
-```
-loop:  ; $0820
+pętla:
 ```
 
-Aktualny adres jest wyświetlany jako komentarz. Etykiety mają rozmiar **0 bajtów**.
+**Uruchomienie:** Kliknij **Debugowanie (RetroDebugger)** na pasku narzędzi.
+Aplikacja:
+```
+pętla: ; $0820
+```
+
+Aktualny adres jest wyświetlany jako komentarz. Etykiety mają rozmiar **0
+bajtów**.
 
 ---
 
-### COMMENT
+### Bloki punktów przerwania
 
-Podobnie jak **REM w BASIC** — uwaga dla Ciebie, którą asembler całkowicie ignoruje.
+Kliknij ikonę punktu przerwania (●) w dowolnym bloku instrukcji, aby przełączyć
+go na punkt przerwania. Bloki z punktami przerwania są podświetlone na czerwono.
+Ich adresy są zapisywane w pliku punktów przerwania przy każdym uruchomieniu
+debugera.
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
-; Your comment text here
+; Tutaj wpisz tekst swojego komentarza
 ```
 
-**Wygenerowano ASM:**
+**Uruchomienie:** Kliknij **Debugowanie (RetroDebugger)** na pasku narzędzi.
+Aplikacja:
 ```
-; Your comment text here
+; Tutaj wpisz tekst swojego komentarza
 ```
 
 ---
 
-### BYTE
+### Flagi debugera (zakładka Opcje)
 
-Podobnie jak **DATA w BASIC** — przechowuje listę surowych wartości bajtów w tekście programu.
+Podobnie jak **DATA w BASIC** — przechowuje listę surowych wartości bajtów w
+tekście programu.
 
-| Pole    | Opis                                                                          |
-| ------- | ----------------------------------------------------------------------------- |
-| Operand | Wartości bajtów rozdzielone przecinkami (np. `$01, $02, $FF` lub `1, 2, 255`) |
+| Pole       | Opis         |
+| ---------- | ------------ |
+| `-jmp` WŁ. | `-jmp $ADDR` |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
-.byte $01, $02, $FF
-```
-
-**Wygenerowano ASM:**
-```
-    .byte $01, $02, $FF
+.bajt $01, $02, $FF
 ```
 
-**Odwołania do etykiet bajtów niskich/wysokich:** BYTE akceptuje tokeny `<label` (młodszy bajt) i `>label` (starszy bajt) w stylu KickAssembler/ca65 wraz z wartościami numerycznymi. Asembler rozwiązuje adres etykiety w czasie kompilacji i wstawia odpowiedni bajt. Przykład:
+**Uruchomienie:** Kliknij **Debugowanie (RetroDebugger)** na pasku narzędzi.
+Aplikacja:
+```
+.bajt $01, $02, $FF
+```
+
+**Odwołania do etykiet bajtów niskich/wysokich: ** BYTE akceptuje tokeny
+`<label` (młodszy bajt) i `>label` (starszy bajt) w stylu KickAssembler/ca65
+wraz z wartościami numerycznymi. Asembler rozwiązuje adres etykiety w czasie
+kompilacji i wstawia odpowiedni bajt. Przykład:
 
 ```
-    .byte <frame_0, >frame_0, <frame_1, >frame_1
+.bajt <ramka_0, >ramka_0, <ramka_1, >ramka_1
 ```
 
-Przechowuje najpierw bajt młodszy adresu ramki `frame_0`, następnie bajt starszy, a potem to samo dla ramki `frame_1`. Przydatne przy tworzeniu tablic skoków i list adresowych.
+Przechowuje najpierw bajt młodszy adresu ramki `frame_0`, następnie bajt
+starszy, a potem to samo dla ramki `frame_1`. Przydatne przy tworzeniu tablic
+skoków i list adresowych.
 
 **Rozmiar:** Liczba bajtów na liście.
 
 ---
 
-### WORD
+### SŁOWO
 
-Podobnie jak **DATA w BASIC-u, ale dla liczb 16-bitowych**. Każda wartość jest przechowywana jako dwa bajty (najpierw bajt młodszy, potem bajt starszy — kolejność little-endian 6502).
+Podobnie jak **DATA w BASIC-u, ale dla liczb 16-bitowych **. Każda wartość jest
+przechowywana jako dwa bajty (najpierw bajt młodszy, potem bajt starszy —
+kolejność little-endian 6502).
 
-| Pole    | Opis                                                            |
-| ------- | --------------------------------------------------------------- |
-| Operand | Wartości 16-bitowe rozdzielone przecinkami (np. `$0400, $C000`) |
+| Pole       | Opis                                                            |
+| ---------- | --------------------------------------------------------------- |
+| `-jmp` WŁ. | Wartości 16-bitowe rozdzielone przecinkami (np. `$0400, $C000`) |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
-.word $0400, $C000
+.słowo $0400, $C000
 ```
 
-**Wygenerowano ASM:**
+**Uruchomienie:** Kliknij **Debugowanie (RetroDebugger)** na pasku narzędzi.
+Aplikacja:
 ```
-    .word $0400, $C000
+.słowo $0400, $C000
 ```
 
 **Rozmiar:** 2 bajty na słowo.
 
 ---
 
-### FILL
+### WYPEŁNIĆ
 
-Podobnie jak `FOR I=1 TO N : POKE addr+I, val : NEXT` — wypełnia blok pamięci tym samym bajtem, ale w jednym bloku. Świetnie nadaje się do czyszczenia obszarów lub wstępnego wypełniania tabel.
+Podobnie jak `FOR I=1 TO N : POKE addr+I, val : NEXT` — wypełnia blok pamięci
+tym samym bajtem, ale w jednym bloku. Świetnie nadaje się do czyszczenia
+obszarów lub wstępnego wypełniania tabel.
 
-| Pole    | Opis                                                     |
-| ------- | -------------------------------------------------------- |
-| Operand | `liczba,wartość` — np. `256,0` wypełnia 256 bajtów zerem |
+| Pole       | Opis                                                     |
+| ---------- | -------------------------------------------------------- |
+| `-jmp` WŁ. | `liczba,wartość` — np. `256,0` wypełnia 256 bajtów zerem |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
-.fill 256, $00
-```
-
-**Wygenerowano ASM:**
-```
-    .fill 256, $00
+.fill 256, 00 zł
 ```
 
-**Składnia wyrażenia:** Zarówno `liczba`, jak i `wartość` akceptują wyrażenia arytmetyczne. Można odwoływać się do nazw stałych, używać literałów szesnastkowych/binarnych i wywoływać wbudowane funkcje matematyczne:
+**Uruchomienie:** Kliknij **Debugowanie (RetroDebugger)** na pasku narzędzi.
+Aplikacja:
+```
+.fill 256, 00 zł
+```
 
-| Wyrażenie                     | Oznaczający                                      |
+**Składnia wyrażenia: ** Zarówno `liczba`, jak i `wartość` akceptują wyrażenia
+arytmetyczne. Można odwoływać się do nazw stałych, używać literałów
+szesnastkowych/binarnych i wywoływać wbudowane funkcje matematyczne:
+
+| Wyrażenie                     | Notatki                                          |
 | ----------------------------- | ------------------------------------------------ |
 | `LICZBA_KAFELEK, $00`         | liczenie z CONST, literał wartości szesnastkowej |
 | `40*25, 0`                    | mnożenie liniowe                                 |
 | `okrągły(sin(PI/4)*255), 80$` | trygonometria                                    |
 
-**Funkcje wbudowane: ** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, constant `PI`
+**Funkcje wbudowane: ** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`,
+`abs()`, constant `PI`
 
-Operatorzy: `+ - * /` Literały: `$FF` (szesnastkowy), `%10110000` (binarny) Bajt młodszy/starszy: `lo(wyrażenie)`, `hi(wyrażenie)`
+Operatorzy: `+ - * /` Literały: `$FF` (szesnastkowy), `%10110000` (binarny) Bajt
+młodszy/starszy: `lo(wyrażenie)`, `hi(wyrażenie)`
 
 **Rozmiar:** Wartość liczbowa w bajtach.
 
 ---
 
-### ALIGN
+### WYRÓWNYWAĆ
 
-Przesuwa bieżący adres do przodu do następnej czystej granicy, wstawiając bajty uzupełniające zerami. C64 wymaga, aby dane sprite'a zaczynały się od granicy 64 bajtów — `ALIGN 64` obsługuje to automatycznie.
+Przesuwa bieżący adres do przodu do następnej czystej granicy, wstawiając bajty
+uzupełniające zerami. C64 wymaga, aby dane sprite'a zaczynały się od granicy 64
+bajtów — `ALIGN 64` obsługuje to automatycznie.
 
 | Pole    | Opis                                                                                    |
 | ------- | --------------------------------------------------------------------------------------- |
 | Granica | Wartość wyrównania — np. `64` (granica sprite’a), `256` (strona), `$2000` (mapa bitowa) |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
 .align 64
-.align $2000
+.align 2000 dolarów
 ```
 
-**Wygenerowano ASM:**
+**Uruchomienie:** Kliknij **Debugowanie (RetroDebugger)** na pasku narzędzi.
+Aplikacja:
 ```
-    ; ALIGN 64 → $0840 (12 bytes padding)
+; ALIGN 64 → $0840 (12 bajtów wypełnienia)
 ```
 
 **Rozmiar:** Dynamiczny — zależy od aktualnej pozycji licznika programu.
 
-> **Wskazówka:** Użyj `ALIGN 64` przed danymi sprite, `ALIGN 256` aby zapewnić wyrównanie tabel do stron.
+> **Wskazówka: ** Użyj `ALIGN 64` przed danymi sprite, `ALIGN 256` aby zapewnić
+> wyrównanie tabel do stron.
 
 ---
 
-### TEXT
+### TEKST
 
-Podobnie jak **PRINT AT** — zapisuje tekst bezpośrednio na ekranie C64 w podanej kolumnie i wierszu, bez użycia KERNAL-a. Generuje jedną parę LDA/STA na znak, wykorzystując pamięć RAM ekranu pod adresem `$0400`.
+Podobnie jak **PRINT AT** — zapisuje tekst bezpośrednio na ekranie C64 w podanej
+kolumnie i wierszu, bez użycia KERNAL-a. Generuje jedną parę LDA/STA na znak,
+wykorzystując pamięć RAM ekranu pod adresem `$0400`.
 
 | Pole                       | Opis                                                     |
 | -------------------------- | -------------------------------------------------------- |
@@ -1240,38 +1899,50 @@ Podobnie jak **PRINT AT** — zapisuje tekst bezpośrednio na ekranie C64 w poda
 
 **Tryby zestawów znaków:**
 
-W systemie C64 możliwe jest wybranie w czasie działania programu dwóch zestawów znaków:
+W systemie C64 możliwe jest wybranie w czasie działania programu dwóch zestawów
+znaków:
 
 | Tryb                                       | $D018 bit 1 | Wprowadzanie wielkich liter        | Wprowadzanie małych liter              |
 | ------------------------------------------ | ----------- | ---------------------------------- | -------------------------------------- |
 | **Wielkie litery/grafika** (domyślne)      | 0           | `A`–`Z` → kody ekranowe $01–$1A ✓  | traktowane również jako wielkie litery |
 | **Małe/wielkie litery** (po CHARSET small) | 1           | `A`–`Z` → $01–$1A (wielkie litery) | `a`–`z` → $41–$5A (małe litery) ✓      |
 
-- **Zestaw znaków wielkich liter (domyślny, pole wyboru niezaznaczone):** Wpisz, co chcesz zobaczyć wielkimi literami. `„CZEŚĆ”` wyświetla się jako `CZEŚĆ`. Wprowadzanie małymi literami jest mapowane na wielkie litery w kodach ekranowych.
-- **Zestaw znaków małych liter (pole wyboru zaznaczone):** Wpisz dokładnie taką wielkość liter, jaką chcesz zobaczyć. `„hello”` → wyświetlanie małych liter, `„HELLO”` → wyświetlanie wielkich liter. Wymaga przełączenia zestawu znaków w czasie wykonywania przed zapisaniem zawartości ekranu (użyj makra **CHARSET lower**).
+- **Zestaw znaków wielkich liter (domyślny, pole wyboru niezaznaczone): **
+  Wpisz, co chcesz zobaczyć wielkimi literami. `„CZEŚĆ”` wyświetla się jako
+  `CZEŚĆ`. Wprowadzanie małymi literami jest mapowane na wielkie litery w kodach
+  ekranowych.
+- **Zestaw znaków małych liter (pole wyboru zaznaczone): ** Wpisz dokładnie taką
+  wielkość liter, jaką chcesz zobaczyć. `„hello”` → wyświetlanie małych liter,
+  `„HELLO”` → wyświetlanie wielkich liter. Wymaga przełączenia zestawu znaków w
+  czasie wykonywania przed zapisaniem zawartości ekranu (użyj makra **CHARSET
+  lower**).
 
 **Wygenerowany ASM (tryb wielkich liter, `"HELLO"`):**
 ```
-    LDA #$08      ; 'H' screen code $08
-    STA $0400
-    LDA #$05      ; 'E' screen code $05
-    STA $0401
-    ...
+LDA #$08; kod ekranu „H” $08
+STA $0400
+LDA #$05; kod ekranu „E” $05
+STA $0401
+...
 ```
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
-.text 0, 2, "HELLO"           ; uppercase charset (default)
-.text 0, 2, "hello", lower    ; lowercase charset
+.text 0, 2, „HELLO”; zestaw znaków wielkich liter (domyślny)
+.text 0, 2, „hello”, lower; zestaw znaków małych liter
 ```
 
-Znaki są kodowane jako **kody ekranowe** (nie PETSCII). **Rozmiar:** `długość tekstu × 5` bajtów (LDA + STA na znak).
+Znaki są kodowane jako **kody ekranowe** (nie PETSCII). **Rozmiar: ** `długość
+tekstu × 5` bajtów (LDA + STA na znak).
 
 ---
 
-### STRING
+### SMYCZKOWY
 
-Podobnie jak **Wprowadzanie ciągu** do dowolnego adresu pamięci w czasie wykonywania. Generuje pary LDA/STA, które kopiują kod ekranu każdego znaku do kolejnych adresów.
+Podobnie jak **Wprowadzanie ciągu ** do dowolnego adresu pamięci w czasie
+wykonywania. Generuje pary LDA/STA, które kopiują kod ekranu każdego znaku do
+kolejnych adresów.
 
 | Pole                       | Opis                                                                                            |
 | -------------------------- | ----------------------------------------------------------------------------------------------- |
@@ -1281,31 +1952,36 @@ Podobnie jak **Wprowadzanie ciągu** do dowolnego adresu pamięci w czasie wykon
 | Zmiana                     | Wartość szesnastkowa (00–FF) dodawana do każdego bajtu kodu ekranu (np. `$80` = odwrotne wideo) |
 | Zestaw znaków małych liter | Pole wyboru — ta sama semantyka co w przypadku TEKST (patrz sekcja TEKST)                       |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
-.string $C000, "HELLO"                  ; uppercase charset (default)
-.string $C000, "hello", lower           ; lowercase charset
-.string $C000, "HELLO", 80             ; with shift (reverse video)
-.string $C000, "hello", 80, lower      ; shift + lowercase
-.string $C000, "HELLO" :my_string      ; with macroLabel
-```
-
-**Wygenerowano ASM:**
-```
-    LDA #$08      ; 'H' screen code
-    STA $C000
-    LDA #$05      ; 'E' screen code
-    STA $C001
-    ...
+.string $C000, "HELLO" ; zestaw znaków wielkich liter (domyślny)
+.string $C000, "hello", lower ; zestaw znaków małych liter
+.string $C000, "HELLO", 80 ; z shiftem (odwrócenie obrazu)
+.string $C000, "hello", 80, lower ; shift + małe litery
+.string $C000, "HELLO" :my_string ; z macroLabel
 ```
 
-Znaki są kodowane jako **kody ekranowe** (nie PETSCII). Do każdego bajtu dodawana jest opcjonalna wartość **Shift**, np. `$80` dla odwróconego obrazu. **Rozmiar:** `długość tekstu × 5` bajtów (jeden LDA + jeden STA na znak).
+**Uruchomienie:** Kliknij **Debugowanie (RetroDebugger)** na pasku narzędzi.
+Aplikacja:
+```
+LDA #$08; kod ekranu „H”
+STA $C000
+LDA #$05; kod ekranu „E”
+STA $C001
+...
+```
+
+Znaki są kodowane jako **kody ekranowe** (nie PETSCII). Do każdego bajtu
+dodawana jest opcjonalna wartość **Shift**, np. `$80` dla odwróconego obrazu.
+**Rozmiar:** `długość tekstu × 5` bajtów (jeden LDA + jeden STA na znak).
 
 ---
 
-### DATA
+### DANE
 
-Podobnie jak pętla **POKE** — zapisuje listę surowych bajtów do adresu pamięci w czasie wykonywania, jedną parę LDA/STA na bajt.
+Podobnie jak pętla **POKE** — zapisuje listę surowych bajtów do adresu pamięci w
+czasie wykonywania, jedną parę LDA/STA na bajt.
 
 | Pole                   | Opis                                                         |
 | ---------------------- | ------------------------------------------------------------ |
@@ -1313,19 +1989,21 @@ Podobnie jak pętla **POKE** — zapisuje listę surowych bajtów do adresu pami
 | Adres                  | Adres pamięci docelowej — `$C000` hex lub **nazwa etykiety** |
 | Etykieta (opcjonalnie) | Przypisuje etykietę wskazującą na adres docelowy             |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
-.data $C000, $01, $02, $03          ; hex address
-.data my_buf, $01, $02, $03         ; label address
-.data $C000, $01, $02, $03 :mydata  ; with macroLabel
+.data $C000, $01, $02, $03; adres szesnastkowy
+.data my_buf, $01, $02, $03; adres etykiety
+.data $C000, $01, $02, $03 :mydata; z makroLabel
 ```
 
-**Wygenerowano ASM:**
+**Uruchomienie:** Kliknij **Debugowanie (RetroDebugger)** na pasku narzędzi.
+Aplikacja:
 ```
-    LDA #$01
-    STA $C000
-    LDA #$02
-    STA $C001
+LDA #01 USD
+    STA $000
+    LDA nr 02
+    STA$C001
     ...
 ```
 
@@ -1335,7 +2013,10 @@ Podobnie jak pętla **POKE** — zapisuje listę surowych bajtów do adresu pami
 
 ### RAWBYTES
 
-Podobnie jak **DATA, które ładuje się bezpośrednio do pamięci** — bez żadnego kodu wykonawczego. Bajty są obecne od momentu załadowania PRG, jeszcze przed uruchomieniem kodu. Używaj tego do danych sprite'ów, map poziomów, tabel wyszukiwania i wszystkiego, co musi znajdować się pod określonym adresem.
+Podobnie jak **DATA, które ładuje się bezpośrednio do pamięci** — bez żadnego
+kodu wykonawczego. Bajty są obecne od momentu załadowania PRG, jeszcze przed
+uruchomieniem kodu. Używaj tego do danych sprite'ów, map poziomów, tabel
+wyszukiwania i wszystkiego, co musi znajdować się pod określonym adresem.
 
 | Pole                   | Opis                                                         |
 | ---------------------- | ------------------------------------------------------------ |
@@ -1343,22 +2024,29 @@ Podobnie jak **DATA, które ładuje się bezpośrednio do pamięci** — bez ża
 | Adres                  | Adres pamięci docelowej — `$C000` hex lub **nazwa etykiety** |
 | Etykieta (opcjonalnie) | Przypisuje etykietę wskazującą na adres docelowy             |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
-.rawbytes $C000, $00, $00, $00      ; hex address
-.rawbytes sprite_data, $00, $00     ; label address
-.rawbytes $0C50, $00, $00 :nev      ; with macroLabel — other code can use LDA nev,X
+.rawbytes $C000, $00, $00, $00; adres szesnastkowy
+.rawbytes sprite_data, $00, $00; adres etykiety
+.rawbytes $0C50, $00, $00 :nev; z makroLabel — inny kod może używać LDA nev,X
 ```
 
-**Rozmiar w kodzie: ** 0 bajtów. Dane są umieszczane pod podanym adresem na wyjściu.
+**Rozmiar w kodzie: ** 0 bajtów. Dane są umieszczane pod podanym adresem na
+wyjściu.
 
-> **DATA kontra RAWBYTES:** DATA generuje kod LDA/STA, który kopiuje bajty w czasie wykonywania (wolniej, ale działa, jeśli dane muszą być dynamiczne). RAWBYTES po prostu umieszcza bajty bezpośrednio — bez kodu, natychmiast, bez kosztów.
+> **DATA kontra RAWBYTES:** DATA generuje kod LDA/STA, który kopiuje bajty w
+> czasie wykonywania (wolniej, ale działa, jeśli dane muszą być dynamiczne).
+> RAWBYTES po prostu umieszcza bajty bezpośrednio — bez kodu, natychmiast, bez
+> kosztów.
 
 ---
 
 ### RAWTEXT
 
-Podobnie jak RAWBYTES, ale dla tekstu — koduje ciąg jako kody ekranowe i umieszcza bajty pod stałym adresem bez kodu wykonawczego ****. Tekst jest gotowy w pamięci w momencie załadowania PRG.
+Podobnie jak RAWBYTES, ale dla tekstu — koduje ciąg jako kody ekranowe i
+umieszcza bajty pod stałym adresem bez kodu wykonawczego ****. Tekst jest gotowy
+w pamięci w momencie załadowania PRG.
 
 | Pole                       | Opis                                                                                            |
 | -------------------------- | ----------------------------------------------------------------------------------------------- |
@@ -1368,37 +2056,49 @@ Podobnie jak RAWBYTES, ale dla tekstu — koduje ciąg jako kody ekranowe i umie
 | Zmiana                     | Wartość szesnastkowa (00–FF) dodawana do każdego bajtu kodu ekranu (np. `$80` = odwrotne wideo) |
 | Zestaw znaków małych liter | Pole wyboru — ta sama semantyka co w przypadku TEKST (patrz sekcja TEKST)                       |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
-.rawtext $C000, "HELLO"                 ; uppercase charset (default)
-.rawtext $C000, "hello", lower          ; lowercase charset
-.rawtext $C000, "HELLO", 80            ; with shift (reverse video)
-.rawtext $C000, "hello", 80, lower     ; shift + lowercase
-.rawtext $0400, "HELLO" :my_text       ; with macroLabel
+.rawtext $C000, "HELLO" ; zestaw znaków wielkich liter (domyślny)
+.rawtext $C000, "hello", lower ; zestaw znaków małych liter
+.rawtext $C000, "HELLO", 80 ; z przesunięciem (odwrócenie obrazu)
+.rawtext $C000, "hello", 80, lower ; przesunięcie + małe litery
+.rawtext $0400, "HELLO" :my_text ; z makroLabelą
 ```
 
-**Wygenerowano ASM:**
+**Uruchomienie:** Kliknij **Debugowanie (RetroDebugger)** na pasku narzędzi.
+Aplikacja:
 ```
-; .rawtext "HELLO" -> $C000
+; .rawtext "HELLO" -&gt; $C000
 ; $C000
-    .byte $08, $05, $0C, $0C, $0F   ; H E L L O (uppercase screen codes)
+.byte $08, $05, $0C, $0C, $0F ; H E L L O (kody ekranowe pisane wielkimi literami)
 
-; .rawtext "hello", lower -> $C000
+; .rawtext "hello", pisane małymi literami -&gt; $C000
 ; $C000
-    .byte $48, $45, $4C, $4C, $4F   ; h e l l o (lowercase screen codes $41–$5A range)
+.byte $48, $45, $4C, $4C, $4F ; h e l l o (kody ekranowe pisane małymi literami z zakresu $41–$5A)
 ```
 
-**Rozmiar w kodzie: ** 0 bajtów. Dane są umieszczane pod podanym adresem na wyjściu.
+**Rozmiar w kodzie: ** 0 bajtów. Dane są umieszczane pod podanym adresem na
+wyjściu.
 
-> **STRING kontra RAWTEXT:** STRING generuje kod LDA/STA, który kopiuje tekst w czasie wykonywania. RAWTEXT wczytuje bajty do PRG w momencie ładowania — bez kodu i czekania.
+> **STRING kontra RAWTEXT: ** STRING generuje kod LDA/STA, który kopiuje tekst w
+> czasie wykonywania. RAWTEXT wczytuje bajty do PRG w momencie ładowania — bez
+> kodu i czekania.
 
 ---
 
 ### PETSCII
 
-Podobnie jak **RAWBYTES, ale dla wyjścia KERNAL** — koduje ciąg jako bajty PETSCII (zgodne z CHROUT w `$FFD2`) i umieszcza je pod stałym adresem bez kodu wykonawczego. Użyj tego, gdy chcesz wydrukować znaki za pomocą `JSR $FFD2` w pętli, i zwróć uwagę, że nowe makro `PRINT` używa tego samego kodera i zachowania pola wyboru dla małych liter.
+Podobnie jak **RAWBYTES, ale dla wyjścia KERNAL ** — koduje ciąg jako bajty
+PETSCII (zgodne z CHROUT w `$FFD2`) i umieszcza je pod stałym adresem bez kodu
+wykonawczego. Użyj tego, gdy chcesz wydrukować znaki za pomocą `JSR $FFD2` w
+pętli, i zwróć uwagę, że nowe makro `PRINT` używa tego samego kodera i
+zachowania pola wyboru dla małych liter.
 
-> **PETSCII a kody ekranowe:** PETSCII i kody ekranowe to dwa różne kodowania. Kod ekranowy `$01` = litera A; PETSCII `$41` = litera A (przez CHROUT). Używaj PETSCII tylko podczas drukowania przez KERNAL; do zapisu bezpośrednio do pamięci RAM ekranu używaj TEXT/STRING/RAWTEXT.
+> **PETSCII a kody ekranowe: ** PETSCII i kody ekranowe to dwa różne kodowania.
+> Kod ekranowy `$01` = litera A; PETSCII `$41` = litera A (przez CHROUT). Używaj
+> PETSCII tylko podczas drukowania przez KERNAL; do zapisu bezpośrednio do
+> pamięci RAM ekranu używaj TEXT/STRING/RAWTEXT.
 
 | Pole                   | Opis                                                         |
 | ---------------------- | ------------------------------------------------------------ |
@@ -1414,35 +2114,39 @@ Podobnie jak **RAWBYTES, ale dla wyjścia KERNAL** — koduje ciąg jako bajty P
 | **Wielkie litery (domyślne, niezaznaczone)** | `$41`–`$5A` (PETSCII wielkie litery przez CHROUT)                                                          | mapowane również na `$41`–`$5A`        |
 | **Małe litery (zaznaczone)**                 | Litery alfabetu są mapowane tak, aby widoczna wielkość liter była spójna w zestawie znaków małych/wielkich | Ta sama zasada                         |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
-.petscii $C000, "HELLO"              ; uppercase PETSCII (default)
-.petscii $C000, "hello", lower       ; lowercase PETSCII ($61–$7A)
-.petscii $C000, "HELLO", null        ; with null terminator
-.petscii $C000, "hello", lower, null ; lowercase + null terminator
-.petscii $C000, "HELLO" :my_msg      ; with macroLabel
+.petscii $C000, "HELLO"; PETSCII z wielką literą (domyślnie)
+.petscii $C000, "hello", lower; PETSCII z małą literą ($61–$7A)
+.petscii $C000, "HELLO", null; z terminatorem null
+.petscii $C000, "hello", lower, null; z terminatorem null
+.petscii $C000, "HELLO" :my_msg; z makroLabelą
 ```
 
 **Wygenerowane bajty (wielkie litery, `"CZEŚĆ"`):**
 ```
 ; $C000
-    .byte $48, $45, $4C, $4C, $4F   ; H E L L O (PETSCII $41–$5A range)
+.byte $48, $45, $4C, $4C, $4F ; H E L L O (zakres PETSCII $41–$5A)
 ```
 
-**Rozmiar w kodzie:** 0 bajtów. Dane są umieszczane pod adresem docelowym jako odroczona sekcja danych (jak RAWBYTES).
+**Rozmiar w kodzie: ** 0 bajtów. Dane są umieszczane pod adresem docelowym jako
+odroczona sekcja danych (jak RAWBYTES).
 
-**Terminator zerowy:** Zaznacz pole wyboru *„Dołącz `$00` (terminator zerowy)”*, aby automatycznie dodać bajt `$00` po tekście. Idealne dla pętli zakończonych zerem:
+**Terminator zerowy:** Zaznacz pole wyboru *„Dołącz `$00` (terminator zerowy)”*,
+aby automatycznie dodać bajt `$00` po tekście. Idealne dla pętli zakończonych
+zerem:
 
 ```
-    LDX #$00
-loop:
-    LDA msg,X
-    BEQ done        ; $00 stops the loop
-    JSR $FFD2
-    INX
-    BNE loop
-done:
-    RTS
+LDX #$00
+pętla:
+LDA msg,X
+BEQ zakończone; $00 zatrzymuje pętlę
+JSR $FFD2
+INX
+Pętla BNE
+wykonane:
+RTS
 ```
 
 **Zasady kodowania:**
@@ -1455,69 +2159,85 @@ done:
 | Nowa linia                                   | `$0D` (ZWROT)                          | `$0D`             |
 | Inny                                         | `20$` (spacja)                         | `20 dolarów`      |
 
-> **Wskazówka:** Użyj PETSCII do danych, które będą wyprowadzane przez CHROUT (`$FFD2`). Aby zapisać dane bezpośrednio do pamięci RAM ekranu, użyj zamiast tego STRING lub RAWTEXT.
+> **Wskazówka: ** Użyj PETSCII do danych, które będą wyprowadzane przez CHROUT
+> (`$FFD2`). Aby zapisać dane bezpośrednio do pamięci RAM ekranu, użyj zamiast
+> tego STRING lub RAWTEXT.
 
 ---
 
-### CHARSET
+### ZESTAW ZNAKÓW
 
-Przełącza pamięć ROM znaków VIC-II pomiędzy trybem wielkich liter/grafiki (domyślnie w C64) a trybem małych liter/wielkich liter, poprzez modyfikację bitu 1 parametru `$D018` w czasie wykonywania.
+Przełącza pamięć ROM znaków VIC-II pomiędzy trybem wielkich liter/grafiki
+(domyślnie w C64) a trybem małych liter/wielkich liter, poprzez modyfikację bitu
+1 parametru `$D018` w czasie wykonywania.
 
 | Pole | Opis                                                                                                                                     |
 | ---- | ---------------------------------------------------------------------------------------------------------------------------------------- |
 | Tryb | **Małe litery** — włącza zestaw znaków małych/wielkich liter; **Wielkie litery** — przywraca domyślny zestaw znaków wielkich/graficznych |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
-.charset lower    ; switch to lowercase charset
-.charset upper    ; switch back to uppercase/graphics charset
+.charset lower; przełącz na zestaw znaków małych liter
+.charset upper; przełącz z powrotem na zestaw znaków wielkich liter/grafiki
 ```
 
-**Wygenerowano ASM:**
+**Uruchomienie:** Kliknij **Debugowanie (RetroDebugger)** na pasku narzędzi.
+Aplikacja:
 
 Tryb małych liter:
 ```
-    LDA $D018
-    ORA #$02      ; set bit 1 → lowercase/uppercase ROM at $1800
-    STA $D018
+LDA $D018
+ORA #$02; ustaw bit 1 → małe/wielkie litery w pamięci ROM na $1800
+STA $D018
 ```
 
 Tryb wielkich liter:
 ```
-    LDA $D018
-    AND #$FD      ; clear bit 1 → uppercase/graphics ROM at $1000
-    STA $D018
+LDA $D018
+AND #$FD ; wyczyść bit 1 → ROM wielkich liter/grafiki przy $1000
+STA $D018
 ```
 
 **Rozmiar:** 8 bajtów (LDA abs + ORA/AND imm + STA abs).
 
-**Dlaczego ORA/AND zamiast bezpośredniego zapisu?** `$D018` steruje również lokalizacją pamięci RAM ekranu (bity 7–4). Przełączenie tylko bitu 1 zachowuje resztę rejestru.
+**Dlaczego ORA/AND zamiast bezpośredniego zapisu?** `$D018` steruje również
+lokalizacją pamięci RAM ekranu (bity 7–4). Przełączenie tylko bitu 1 zachowuje
+resztę rejestru.
 
 **Typowy przepływ pracy:**
 
 ```
-    CHARSET lower             ; switch to lowercase charset
-    TEXT 0, 0, "hello world"  ; [checkbox: Lowercase charset]
-    ...
-    CHARSET upper             ; restore default when done
+CHARSET lower; przełącz na zestaw znaków małych liter
+TEXT 0, 0, "hello world"; [pole wyboru: Zestaw znaków małych liter]
+...
+CHARSET upper; przywróć ustawienia domyślne po zakończeniu
 ```
 
 Lub w trybie eksperckim:
 ```
 .charset lower
-.text 0, 0, "hello world", lower
+.text 0, 0, "witaj świecie", lower
 .charset upper
 ```
 
-W trybie eksperckim blok `.charset` teraz przechodzi również przez rozwijane menu trybów, dzięki czemu podgląd bloku i eksportowany kod źródłowy pozostają wyrównane.
+W trybie eksperckim blok `.charset` teraz przechodzi również przez rozwijane
+menu trybów, dzięki czemu podgląd bloku i eksportowany kod źródłowy pozostają
+wyrównane.
 
-> **Uwaga:** Makro CHARSET zmienia tylko wskaźnik pamięci ROM znaków VIC. Nie wywołuje `$E544` (inicjalizacja zestawu znaków KERNAL). W większości przypadków jest to wystarczające; wywołaj najpierw `JSR $E544` tylko wtedy, gdy chcesz, aby własne procedury drukowania KERNAL-a uwzględniły tę zmianę.
+> **Uwaga: ** Makro CHARSET zmienia tylko wskaźnik pamięci ROM znaków VIC. Nie
+> wywołuje `$E544` (inicjalizacja zestawu znaków KERNAL). W większości
+> przypadków jest to wystarczające; wywołaj najpierw `JSR $E544` tylko wtedy,
+> gdy chcesz, aby własne procedury drukowania KERNAL-a uwzględniły tę zmianę.
 
 ---
 
 ### CHARDEF
 
-Definiuje pojedynczy niestandardowy znak 8×8 w zestawie znaków opartym na pamięci RAM. Wysyła kod inline środowiska wykonawczego, który kopiuje 8 bajtów do `base + index * 8` w momencie wykonania — bez potrzeby poprzedzania etykietą lub `ORG`.
+Definiuje pojedynczy niestandardowy znak 8×8 w zestawie znaków opartym na
+pamięci RAM. Wysyła kod inline środowiska wykonawczego, który kopiuje 8 bajtów
+do `base + index * 8` w momencie wykonania — bez potrzeby poprzedzania etykietą
+lub `ORG`.
 
 | Pole                | Opis                                                                                                                           |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
@@ -1525,64 +2245,72 @@ Definiuje pojedynczy niestandardowy znak 8×8 w zestawie znaków opartym na pami
 | Indeks znaków       | Który slot znaku zdefiniować ponownie, 0–255. `65` = 'A' w domyślnym układzie kodu ekranu.                                     |
 | 8 bajtów            | Wiersze mapy bitowej rozdzielone przecinkami, od góry do dołu. Siódmy bit każdego bajtu = piksel najbardziej na lewo.          |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
-.chardef $3800, 65, $18,$3C,$66,$7E,$66,$66,$66,$00
+.chardef 3800 dolarów, 65, 18 dolarów, 3C dolarów, 66 dolarów, 7E dolarów, 66 dolarów, 66 dolarów, 66 dolarów, 00 dolarów
 ```
 
 **Wygenerowany ASM (8 × `LDA #b` / `Cel STA+n`, łącznie 40 bajtów):**
 ```
-    LDA #$18
+LDA #18 dolarów
     STA $3A08
-    LDA #$3C
+    LDA #3C
     STA $3A09
-    LDA #$66
+    LDA #66 dolarów
     STA $3A0A
-    LDA #$7E
+    LDA #7E
     STA $3A0B
-    LDA #$66
+    LDA #66 dolarów
     STA $3A0C
-    LDA #$66
+    LDA #66 dolarów
     STA $3A0D
-    LDA #$66
+    LDA #66 dolarów
     STA $3A0E
-    LDA #$00
+    LDA#00 dolarów
     STA $3A0F
 ```
 
-**Adres docelowy:** `$3800 + 65 * 8 = $3A08`. Obliczany w czasie kompilacji i zakodowany na stałe w operandach STA.
+**Adres docelowy: ** `$3800 + 65 * 8 = $3A08`. Obliczany w czasie kompilacji i
+zakodowany na stałe w operandach STA.
 
-**Rozmiar:** 40 bajtów na znak (8 × 5).
+**Rozmiar: ** 40 bajtów na znak (8 × 5).
 
 **Typowy przepływ pracy:**
 ```
-    ; Point VIC-II at RAM charset at $3800
-    LDA $D018
-    AND #$F1
-    ORA #$0E       ; bits 3-1 = %111 → charset at bank+$3800
-    STA $D018
+; Wskaż VIC-II na zestaw znaków RAM o wartości $3800
+LDA $D018
+AND #$F1
+ORA #$0E ; bity 3-1 = %111 → zestaw znaków o wartości bank+$3800
+STA $D018
 
-    CHARDEF $3800, 65, $18,$3C,$66,$7E,$66,$66,$66,$00   ; redefine 'A'
-    CHARDEF $3800, 66, $7C,$66,$66,$7C,$66,$66,$7C,$00   ; redefine 'B'
-    ; ... more CHARDEF calls for each custom char
+CHARDEF $3800, 65, $18,$3C,$66,$7E,$66,$66,$66,$00 ; zdefiniuj ponownie 'A'
+CHARDEF $3800, 66, $7C,$66,$66,$7C,$66,$66,$7C,$00 ; zdefiniuj ponownie 'B'
+; ... więcej wywołań CHARDEF dla każdego niestandardowego znaku
 ```
 
 **Kiedy używać CHARDEF a kiedy alternatyw:**
 
-| Zbliżać się                       | Użyj kiedy                                                                                                    |
-| --------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| **CHARDEF**                       | Potrzebujesz kilku niestandardowych znaków (powiedzmy 1–20). Koszt wykonania każdego z nich wynosi 40 bajtów. |
-| **RAWBYTES @ $3800**              | Masz pełny, niestandardowy zestaw znaków (256 znaków). Łącznie 2 KB danych, bez kopii w czasie wykonywania.   |
-| **INCBIN „charset.bin” @ $3800**  | Zewnętrzny plik zestawu znaków (stworzony przez edytor znaków). Najczystsza opcja.                            |
-| **Zestaw znaków Canvas + INCBIN** | Pełna mapa bitowa składająca się z 256 znaków, namalowana jako jeden obraz o wymiarach 128×128.               |
+| Zbliżać się                        | Użyj kiedy                                                                                                    |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| **CHARDEF**                        | Potrzebujesz kilku niestandardowych znaków (powiedzmy 1–20). Koszt wykonania każdego z nich wynosi 40 bajtów. |
+| **RAWBYTES @ 3800$**               | Masz pełny, niestandardowy zestaw znaków (256 znaków). Łącznie 2 KB danych, bez kopii w czasie wykonywania.   |
+| **INCBIN „charset.bin” @ $3800**   | Zewnętrzny plik zestawu znaków (stworzony przez edytor znaków). Najczystsza opcja.                            |
+| ** Zestaw znaków Canvas + INCBIN** | Pełna mapa bitowa składająca się z 256 znaków, namalowana jako jeden obraz o wymiarach 128×128.               |
 
-> **Przypomnienie o wyrównaniu:** VIC-II oczekuje bazy zestawu znaków jako wielokrotności `$0800`. Prawidłowe banki: `$0000`, `$0800`, `$1000`, ..., `$3800` (w ramach obecnego banku VIC o pojemności 16 KB). Zestawy znaków RAM zazwyczaj mają wartość `$2000`, `$2800`, `$3000` lub `$3800`.
+> **Przypomnienie o wyrównaniu: ** VIC-II oczekuje bazy zestawu znaków jako
+> wielokrotności `$0800`. Prawidłowe banki: `$0000`, `$0800`, `$1000`, ...,
+> `$3800` (w ramach obecnego banku VIC o pojemności 16 KB). Zestawy znaków RAM
+> zazwyczaj mają wartość `$2000`, `$2800`, `$3000` lub `$3800`.
 
 ---
 
 ### BOX_HIT
 
-Test kolizji prostokątów ograniczających wyrównanych do osi (AABB) między dwoma prostokątami opisanymi 4-bajtowymi strukturami zerowej strony. Zwraca wynik w akumulatorze: **A = 1** w przypadku nakładania się, **A = 0** w przeciwnym razie. Czysty asembler inline, bez wywołania podprogramu.
+Test kolizji prostokątów ograniczających wyrównanych do osi (AABB) między dwoma
+prostokątami opisanymi 4-bajtowymi strukturami zerowej strony. Zwraca wynik w
+akumulatorze: **A = 1** w przypadku nakładania się, **A = 0** w przeciwnym
+razie. Czysty asembler inline, bez wywołania podprogramu.
 
 | Pole                          | Opis                                                                              |
 | ----------------------------- | --------------------------------------------------------------------------------- |
@@ -1598,29 +2326,31 @@ Test kolizji prostokątów ograniczających wyrównanych do osi (AABB) między d
 | `+2`        | Prawidłowy |
 | `+3`        | Spód       |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
 .box_hit $FB, $F7
 ```
 
-**Wygenerowany ASM (30 bajtów, w pełni względny dla PC — bez podprogramów, bez skoków bezwzględnych):**
+**Wygenerowany ASM (30 bajtów, w pełni względny dla PC — bez podprogramów, bez
+skoków bezwzględnych):**
 ```
-    LDA $FD        ; b1 right
-    CMP $F7        ; b2 left
-    BCC no         ; R1 < L2 → miss
-    LDA $F9        ; b2 right
-    CMP $FB        ; b1 left
-    BCC no
-    LDA $FE        ; b1 bottom
-    CMP $F8        ; b2 top
-    BCC no
-    LDA $FA        ; b2 bottom
-    CMP $FC        ; b1 top
-    BCC no
-    LDA #$01       ; hit
-    BNE done       ; unconditional (A ≠ 0)
-no: LDA #$00
-done:
+LDA $FD ; b1 prawy
+CMP $F7 ; b2 lewy
+BCC nie ; R1 &lt; L2 → chybiony
+LDA $F9 ; b2 prawy
+CMP $FB ; b1 lewy
+BCC nie
+LDA $FE ; b1 dolny
+CMP $F8 ; b2 górny
+BCC nie
+LDA $FA ; b2 dolny
+CMP $FC ; b1 górny
+BCC nie
+LDA #$01 ; trafiony
+BNE wykonany; bezwarunkowy (A ≠ 0)
+nie: LDA #$00
+wykonane:
 ```
 
 **Rozmiar:** 30 bajtów.
@@ -1628,113 +2358,148 @@ done:
 **Typowy przepływ pracy:**
 
 ```
-    ; Player sprite box at $FB..$FE
-    LDA sprite_x            ; L
-    STA $FB
-    LDA sprite_y            ; T
-    STA $FC
-    CLC
-    ADC #23                 ; +23 → B (24-pixel tall sprite)
-    STA $FE
-    LDA $FB
-    CLC
-    ADC #23                 ; R
-    STA $FD
+; Pole sprite'a gracza w punkcie $FB..$FE
+LDA sprite_x ; L
+STA $FB
+LDA sprite_y ; T
+STA $FC
+CLC
+ADC #23 ; +23 → B (sprite o wysokości 24 pikseli)
+STA $FE
+LDA $FB
+CLC
+ADC #23 ; R
+STA $FD
 
-    ; Enemy box at $F7..$FA (populated similarly)
-    ; ...
+; Pole przeciwnika w punkcie $F7..$FA (wypełnione w podobny sposób)
+; ...
 
-    BOX_HIT $FB, $F7        ; test player vs enemy → A = 0 or 1
+BOX_HIT $FB, $F7 ; test gracz kontra wróg → A = 0 lub 1
 
-    CMP #$01
-    BNE no_collision
-    JSR handle_hit
+CMP #$01
+BNE no_collision
+JSR handle_hit
 no_collision:
 ```
 
 **Ograniczenia:**
-- Oba adresy strony zerowej muszą być `≤ $FC` (każde pole wymaga 4 kolejnych bajtów: `zp`, `zp+1`, `zp+2`, `zp+3`).
-- Współrzędne są traktowane jako **8-bitowe bez znaku** (0–255). W przypadku współrzędnych sprite’ów ze znakiem spoza tego zakresu należy je znormalizować przed zapisaniem.
-- Jeśli zachodzi taka potrzeba, oba pola mogą na siebie nachodzić w przestrzeni ZP, zwykle jednak potrzebnych jest 8 odrębnych bajtów.
+- Oba adresy strony zerowej muszą być `≤ $FC` (każde pole wymaga 4 kolejnych
+  bajtów: `zp`, `zp+1`, `zp+2`, `zp+3`).
+- Współrzędne są traktowane jako **8-bitowe bez znaku ** (0–255). W przypadku
+  współrzędnych sprite’ów ze znakiem spoza tego zakresu należy je znormalizować
+  przed zapisaniem.
+- Jeśli zachodzi taka potrzeba, oba pola mogą na siebie nachodzić w przestrzeni
+  ZP, zwykle jednak potrzebnych jest 8 odrębnych bajtów.
 
-**Dlaczego nie podprogram?** Generowanie inline pozwala uniknąć obciążenia JSR/RTS (ponad 14 cykli) i utrzymuje test w pamięci podręcznej, co zapewnia ciasne pętle gry. Jeśli musisz przetestować wiele par, umieść ręcznie własny `JSR box_hit_sub` wokół pojedynczego bloku BOX_HIT.
+**Dlaczego nie podprogram?** Generowanie inline pozwala uniknąć obciążenia
+JSR/RTS (ponad 14 cykli) i utrzymuje test w pamięci podręcznej, co zapewnia
+ciasne pętle gry. Jeśli musisz przetestować wiele par, umieść ręcznie własny
+`JSR box_hit_sub` wokół pojedynczego bloku BOX_HIT.
 
-**Porównanie z funkcją `box_hit()` w UB:** Ultimate Basic opakowuje tę samą logikę 6502, co funkcja czasu wykonania zwracająca zmienną. W VA umieszczasz BOX_HIT w miejscu, w którym potrzebujesz testu; wynik znajduje się w `A`.
+**Porównanie z funkcją `box_hit()` w UB:** Ultimate Basic opakowuje tę samą
+logikę 6502, co funkcja czasu wykonania zwracająca zmienną. W VA umieszczasz
+BOX_HIT w miejscu, w którym potrzebujesz testu; wynik znajduje się w `A`.
 
 ---
 
 ### INCBIN
 
-Podobnie jak **BLOAD w BASIC** — pobiera zewnętrzny plik binarny (`.bin`, `.prg`, `.sid`, `.raw`) i osadza go bezpośrednio w zmontowanym pliku PRG pod określonym adresem.
+Podobnie jak **BLOAD w BASIC** — pobiera zewnętrzny plik binarny (`.bin`,
+`.prg`, `.sid`, `.raw`) i osadza go bezpośrednio w zmontowanym pliku PRG pod
+określonym adresem.
 
 | Pole  | Opis                                                           |
 | ----- | -------------------------------------------------------------- |
 | Plik  | Przeglądaj, aby wybrać plik `.bin`, `.prg`, `.sid` lub `.raw`. |
 | Adres | Adres obciążenia docelowego (np. `$C000`)                      |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
-.incbin "music.bin", $C000
+.incbin "muzyka.bin", $C000
 ```
 
 **Wygenerowany komentarz ASM:**
 ```
-    ; INCBIN "music.bin" @ $C000 (2048 bytes)
-    .byte $01, $02, ...
+; INCBIN "music.bin" @ $C000 (2048 bajtów)
+.bajt $01, $02, ...
 ```
 
-**Rozmiar w kodzie:** 0 bajtów (sekcja danych odroczonych). Plik binarny jest osadzony pod podanym adresem.
+**Rozmiar w kodzie: ** 0 bajtów (sekcja danych odroczonych). Plik binarny jest
+osadzony pod podanym adresem.
 
 ---
 
 ### KOALA
 
-Ładuje obraz **Koala Painter** (`.koa` / `.kla`, 160×200, wielokolorowy) i wyświetla go. Dane obrazu są osadzone pod stałym adresem, takim jak `INCBIN` (2-bajtowy adres ładowania pliku `$6000` jest usuwany), a sam blok kompiluje się do 86-bajtowej procedury wyświetlania, która jest uruchamiana w miejscu, w którym znajduje się blok.
+Ładuje obraz **Koala Painter** (`.koa` / `.kla`, 160×200, wielokolorowy) i
+wyświetla go. Dane obrazu są osadzone pod stałym adresem, takim jak `INCBIN`
+(2-bajtowy adres ładowania pliku `$6000` jest usuwany), a sam blok kompiluje się
+do 86-bajtowej procedury wyświetlania, która jest uruchamiana w miejscu, w
+którym znajduje się blok.
 
 | Pole  | Opis                                                                                                                                                 |
 | ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Plik  | Przeglądaj, aby wybrać plik `.koa` / `.kla` (10003 bajtów lub 10001 bez adresu ładowania)                                                            |
 | Adres | Adres mapy bitowej: `$6000` (domyślny, natywny dla Koali, bank VIC 1, pamięć RAM ekranu `$4400`) lub `$2000` (bank VIC 0, pamięć RAM ekranu `$0400`) |
 
-Procedura wyświetlania kopiuje część pamięci RAM ekranu na ekran, a część pamięci RAM kolorów do `$D800`, zapisuje bajt tła do `$D021`, wybiera bank VIC w `$DD00` (zachowując pozostałe bity portu) i przełącza na tryb wielokolorowej mapy bitowej (`$D011 = $3B`, `$D016 = $18`, `$D018 = $18`). Pozostałe adresy są odrzucane: pozostałe sloty 8K znajdują się pod pamięcią ROM BASIC/KERNAL (pętla kopiowania odczytałaby pamięć ROM) lub nakładają się na cień pamięci ROM znaków.
+Procedura wyświetlania kopiuje część pamięci RAM ekranu na ekran, a część
+pamięci RAM kolorów do `$D800`, zapisuje bajt tła do `$D021`, wybiera bank VIC w
+`$DD00` (zachowując pozostałe bity portu) i przełącza na tryb wielokolorowej
+mapy bitowej (`$D011 = $3B`, `$D016 = $18`, `$D018 = $18`). Pozostałe adresy są
+odrzucane: pozostałe sloty 8K znajdują się pod pamięcią ROM BASIC/KERNAL (pętla
+kopiowania odczytałaby pamięć ROM) lub nakładają się na cień pamięci ROM znaków.
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
-.koala "picture.koa"
-.koala "picture.koa", $2000
+.koala „obrazek.koa”
+.koala „picture.koa”, 2000 dolarów
 ```
 
 **Przykład — pokaż obrazek i poczekaj:**
 ```
 * = $0801
 .koala "picture.koa"
-wait:
-    JMP wait
+czekaj:
+JMP czekaj
 ```
 
-**Rozmiar w kodzie:** 86 bajtów (program wyświetlania); 10001 bajtów danych obrazu trafia pod podany adres. Edytor Hires, polecenie **Pliki → Eksportuj Koala (.koa)…** generuje zgodny plik.
+**Rozmiar w kodzie: ** 86 bajtów (program wyświetlania); 10001 bajtów danych
+obrazu trafia pod podany adres. Edytor Hires, polecenie **Pliki → Eksportuj
+Koala (.koa)…** generuje zgodny plik.
 
 ---
 
 ### POZIOM / RZĄD_POZIOMU
 
-Dodaje projekt **Edytora poziomów** do programu i kopiuje wiersze poziomów do bufora ekranu — elementy składowe gry przewijanej. Zobacz `samples/level-demo.asm`, aby zapoznać się z kompletnym poziomem przewijanym joystickiem.
+Dodaje projekt **Edytora poziomów** do programu i kopiuje wiersze poziomów do
+bufora ekranu — elementy składowe gry z przewijaniem. Zobacz
+`samples/level-demo.asm`, aby zapoznać się z kompletnym poziomem przewijanym
+joystickiem.
 
 #### POZIOM
 
-Blok w stylu INCBIN, który emituje **0 bajtów kodu**. Tylko **umieszczone** ekrany projektu Edytora Poziomów (`.bin` zapisane poleceniem **Pliki → Zapisz poziom**) trafiają do pamięci z podanego adresu (domyślnie `$2000`), w kolejności slotów, po 2000 bajtów na ekran (1000 kodów ekranów + 1000 kolorów). Identyczne ekrany są zapisywane raz, a wszystkie puste sloty współdzielą jeden pusty ekran. Tabele wskaźników odpowiadają ekranom. Poziom może mieć maksymalnie 7 × 10 ekranów.
+Blok w stylu INCBIN, który emituje **0 bajtów kodu**. Tylko **umieszczone**
+ekrany projektu Edytora Poziomów (`.bin` zapisane poleceniem **Pliki → Zapisz
+poziom**) trafiają do pamięci z podanego adresu (domyślnie `$2000`), w
+kolejności slotów, po 2000 bajtów na ekran (1000 kodów ekranów + 1000 kolorów).
+Identyczne ekrany są zapisywane raz, a wszystkie puste sloty współdzielą jeden
+pusty ekran. Tabele wskaźników odpowiadają ekranom. Poziom może mieć maksymalnie
+7 × 10 ekranów.
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
-.level "level.bin"
-.level "level.bin", $4000
+.level „level.bin”
+.level „level.bin”, 4000 USD
 ```
 
-| Zdefiniowany                                                    | Oznaczający                                                                            |
+| Zdefiniowany                                                    | Notatki                                                                                |
 | --------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
 | `POZIOM_SLOTU_NISKI` / `POZIOM_SLOTU_WYSOKI`                    | Adres ekranu w każdym slocie (główny wiersz, `LEVEL_W` slotów na wiersz)               |
 | `SLOT_WIELU_POZIOMÓW`                                           | Rząd postaci poziomu → pierwszy slot rzędu ekranu                                      |
-| `POZIOM_ROW_NIŻSZY/WYŻSZY`, `POZIOM_ROW_NIŻSZY/WYŻSZY`          | Wiersz znaku poziomu → przesunięcie wiersza kodu ekranu/wiersza koloru wewnątrz ekranu |
+| `POZIOM_RZĘDU_NIŻSZY/WYŻSZY`, `POZIOM_RZĘDU_NIŻSZY/WYŻSZY`      | Wiersz znaku poziomu → przesunięcie wiersza kodu ekranu/wiersza koloru wewnątrz ekranu |
 | `GNIAZDO_KOLEK_POZIOMU`, `GNIAZDO_KOLEK_POZIOMU`                | Widok kolumny początkowej → kolumna ekranu i kolumna wewnątrz ekranu                   |
 | `POZIOM_W`, `POZIOM_W`                                          | Rozmiar poziomu na ekranach                                                            |
 | `KOLUMBIA_POZIOMU`, `WIERZE_POZIOMU`                            | Rozmiar poziomu w znakach                                                              |
@@ -1742,25 +2507,36 @@ Blok w stylu INCBIN, który emituje **0 bajtów kodu**. Tylko **umieszczone** ek
 | `POZIOM_BG`, `POZIOM_MC1`, `POZIOM_MC2`, `POZIOM_WIELOKOLOROWY` | Tło / kolory wielokolorowe i tryb poziomu                                              |
 | `DANE_POZIOMU`, `ROZMIAR_POZIOMU`, `KONIEC_POZIOMU`             | Początek, rozmiar i pierwszy wolny adres po danych poziomu                             |
 
-Typowy strażnik: `.assert LEVEL_END &lt;= $9200, „dane poziomu trafiają do kodu”`.
+Typowy strażnik: `.assert LEVEL_END &lt;= $9200, „dane poziomu trafiają do
+kodu”`.
 
 #### POZIOM_WIERZA
 
-Kopiuje jeden 40-znakowy wiersz poziomu do bufora: wiersz poziomu w **X**, zaczynając od kolumny poziomu przechowywanej w zmiennej `col`, do adresu przechowywanego we wskaźniku `dst` (`dst` / `dst+1`, lo/hi). Z trzecim argumentem `color` kopiuje kolory zamiast kodów ekranu (dla pamięci kolorów RAM). Okno 40-znakowe obejmujące dwa ekrany jest obsługiwane przez samomodyfikującą pętlę kopiowania (~14 cykli na bajt). X jest zachowywane, A i Y są niszczone. Wymaga bloku `.level` w programie.
+Kopiuje jeden 40-znakowy wiersz poziomu do bufora: wiersz poziomu w **X**,
+zaczynając od kolumny poziomu przechowywanej w zmiennej `col`, do adresu
+przechowywanego we wskaźniku `dst` (`dst` / `dst+1`, lo/hi). Z trzecim
+argumentem `color` kopiuje kolory zamiast kodów ekranu (dla pamięci kolorów
+RAM). Okno 40-znakowe obejmujące dwa ekrany jest obsługiwane przez
+samomodyfikującą pętlę kopiowania (~14 cykli na bajt). X jest zachowywane, A i Y
+są niszczone. Wymaga bloku `.level` w programie.
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
 .level_row dst_lo, view_x
 .level_row dst_lo, view_x, color
 ```
 
-**Rozmiar w kodzie:** 132 bajty — użyj `LBEQ` / `LBNE`, gdy gałąź musi nad nią przeskoczyć.
+**Rozmiar w kodzie:** 132 bajty — użyj `LBEQ` / `LBNE`, gdy gałąź musi nad nią
+przeskoczyć.
 
 ---
 
 ### SID
 
-Podobnie jak **BLOAD dla muzyki** — ładuje plik `.sid` do PRG i automatycznie odczytuje adresy Init i Play z nagłówka. Wywołuje Init raz podczas uruchamiania, a następnie wywołuj Play z obsługi przerwań IRQ co klatkę.
+Podobnie jak **BLOAD dla muzyki** — ładuje plik `.sid` do PRG i automatycznie
+odczytuje adresy Init i Play z nagłówka. Wywołuje Init raz podczas uruchamiania,
+a następnie wywołuj Play z obsługi przerwań IRQ co klatkę.
 
 | Pole                               | Opis                                                                                              |
 | ---------------------------------- | ------------------------------------------------------------------------------------------------- |
@@ -1769,37 +2545,55 @@ Podobnie jak **BLOAD dla muzyki** — ładuje plik `.sid` do PRG i automatycznie
 
 Blok wyświetla:
 - **Tytuł/Autor** z nagłówka SID
-- **Adres ładowania** — miejsce, w którym dane są umieszczane w pamięci (adres efektywny po nadpisaniu)
-- **Adres inicjalizacji** — wywołaj to za pomocą JSR, aby zainicjować muzykę (dostosowane do relokacji, jeśli używany jest niestandardowy adres)
-- **Adres odtwarzania** — wywołuj to za pomocą JSR w każdej ramce w obsłudze przerwań IRQ (dostosowany do relokacji)
-- Odznaka **(przeniesiony)** pojawia się, gdy niestandardowy adres przesuwa dane z ich pierwotnej pozycji
+- **Adres ładowania** — miejsce, w którym dane są umieszczane w pamięci (adres
+  efektywny po nadpisaniu)
+- **Adres inicjalizacji** — wywołaj to za pomocą JSR, aby zainicjować muzykę
+  (dostosowane do relokacji, jeśli używany jest niestandardowy adres)
+- **Adres odtwarzania** — wywołuj to za pomocą JSR w każdej ramce w obsłudze
+  przerwań IRQ (dostosowany do relokacji)
+- Odznaka **(przeniesiony)** pojawia się, gdy niestandardowy adres przesuwa dane
+  z ich pierwotnej pozycji
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
 .sid "Ikari_Warriors.sid"
-.sid "Ikari_Warriors.sid", $1000
+.sid "Ikari_Warriors.sid", 1000 dolarów
 ```
 
 **Wygenerowany komentarz ASM:**
 ```
-    ; SID "Ikari_Warriors.sid" @ $1000  Init:$1000  Play:$1006  (4096 bytes)
+; SID "Ikari_Warriors.sid" @ 1000 $ Init: 1000 $ Odtwórz: 1006 $ (4096 bajtów)
 ```
 
-**Rozmiar w kodzie:** 0 bajtów w linii. Plik binarny SID jest umieszczany pod określonym adresem jako odroczony fragment w PRG.
+**Rozmiar w kodzie: ** 0 bajtów w linii. Plik binarny SID jest umieszczany pod
+określonym adresem jako odroczony fragment w PRG.
 
-> **Ważne:** Większość plików SID zawiera zakodowane na stałe wewnętrzne adresy absolutne. Można je relokować tylko wtedy, gdy cały plik binarny zostanie przesunięty o to samo przesunięcie. Jeśli SID zawiera wewnętrzne skoki do `$10xx`, musi pozostać na `$1000` — przeniesienie go na inny adres spowoduje uszkodzenie tych wewnętrznych odwołań.
+> **Ważne:** Większość plików SID zawiera zakodowane na stałe wewnętrzne adresy
+> absolutne. Można je relokować tylko wtedy, gdy cały plik binarny zostanie
+> przesunięty o to samo przesunięcie. Jeśli SID zawiera wewnętrzne skoki do
+> `$10xx`, musi pozostać na `$1000` — przeniesienie go na inny adres spowoduje
+> uszkodzenie tych wewnętrznych odwołań.
 
-> **Typowe zastosowanie:** Umieść blok ORG przed blokiem SID, aby ustawić jego adres. Wywołaj funkcję „Init” raz podczas uruchamiania, a następnie wywołaj funkcję „Odtwórz każdą klatkę” z rastrowego programu obsługi przerwań IRQ.
+> **Typowe zastosowanie:** Umieść blok ORG przed blokiem SID, aby ustawić jego
+> adres. Wywołaj funkcję „Init” raz podczas uruchamiania, a następnie wywołaj
+> funkcję „Odtwórz każdą klatkę” z rastrowego programu obsługi przerwań IRQ.
 
 ---
 
-### INCLUDE
+### WŁĄCZAĆ
 
-Podobnie jak **MERGE w BASIC** — wczytuje inny plik i rozszerza jego bloki w tym miejscu. Idealne dla bibliotek podprogramów wielokrotnego użytku. Dołączone bloki są dostępne tylko do odczytu w bieżącym projekcie.
+Podobnie jak **MERGE w BASIC** — wczytuje inny plik i rozszerza jego bloki w tym
+miejscu. Idealne dla bibliotek podprogramów wielokrotnego użytku. Dołączone
+bloki są dostępne tylko do odczytu w bieżącym projekcie.
 
 Obsługiwane są dwa rodzaje plików:
-- **Projekt Visual Assembler** (`.json`) — bloki projektu są wstawiane w stanie takim, jaki jest.
-- **Zwykły kod źródłowy asemblera** (`.inc`, `.asm`, `.s`) — plik jest odczytywany jako tekst i parsowany w ten sam sposób, co w trybie eksperckim. Przy każdej kompilacji plik jest ponownie odczytywany z dysku (źródło prawdy = plik), dzięki czemu można go edytować zewnętrznie w dowolnym edytorze.
+- **Projekt Visual Assembler** (`.json`) — bloki projektu są wstawiane w stanie
+  takim, jaki jest.
+- **Zwykły kod źródłowy asemblera** (`.inc`, `.asm`, `.s`) — plik jest
+  odczytywany jako tekst i parsowany w ten sam sposób, co w trybie eksperckim.
+  Przy każdej kompilacji plik jest ponownie odczytywany z dysku (źródło prawdy =
+  plik), dzięki czemu można go edytować zewnętrznie w dowolnym edytorze.
 
 | Pole                        | Opis                                                                                                                                                                                                                                                                                 |
 | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -1809,50 +2603,63 @@ Obsługiwane są dwa rodzaje plików:
 **Składnia trybu eksperckiego:**
 ```
 .include "library.json"
-.include "macros.inc", $1500
+.include "macros.inc", 1500 USD
 .include "sprites.asm"
 ```
 
-- Rozszerzenie pliku **jest wymagane w trybie eksperckim** — nazwa typu `.include "macros"` jest traktowana jako `.include "macros.json"`.
-- Rozwiązywanie ścieżki: najpierw próbuje przejść obok pliku projektu (względnego), a następnie wraca do dołączonego katalogu aplikacji `samples/`.
+- Rozszerzenie pliku ** jest wymagane w trybie eksperckim ** — nazwa typu
+  `.include "macros"` jest traktowana jako `.include "macros.json"`.
+- Rozwiązywanie ścieżki: najpierw próbuje przejść obok pliku projektu
+  (względnego), a następnie wraca do dołączonego katalogu aplikacji `samples/`.
 
 **Wygenerowany ASM (bez nadpisywania adresu):**
 ```
-    ; .include "library.json" — 12 block(s)
-    ... (expanded blocks follow)
+; .include "library.json" — 12 bloków
+... (następnie rozwinięte bloki)
 ```
 
 **Wygenerowany ASM (z adresem obciążenia `C000`):**
 ```
-    ; .include "library.json" @ $C000 — 12 block(s)
-    *=$C000
-    ... (expanded blocks follow)
+; .include "library.json" @ $C000 — 12 bloków
+*=$C000
+... (następnie rozszerzone bloki)
 ```
 
-> **Wskazówka:** Użyj polecenia INCLUDE, aby tworzyć biblioteki podprogramów wielokrotnego użytku, którymi możesz dzielić się między projektami. Pliki `.inc`/`.asm`/`.s` najlepiej sprawdzają się, gdy chcesz edytować bibliotekę w edytorze tekstu lub udostępniać ją innym asemblerom 6502; `.json`, gdy biblioteka została utworzona w samym Visual Assemblerze. Ustaw adres ładowania, gdy biblioteka nie ma własnej struktury ORG lub gdy chcesz zastąpić jej domyślne położenie.
+> **Wskazówka: ** Użyj polecenia INCLUDE, aby tworzyć biblioteki podprogramów
+> wielokrotnego użytku, którymi możesz dzielić się między projektami. Pliki
+> `.inc`/`.asm`/`.s` najlepiej sprawdzają się, gdy chcesz edytować bibliotekę w
+> edytorze tekstu lub udostępniać ją innym asemblerom 6502; `.json`, gdy
+> biblioteka została utworzona w samym Visual Assemblerze. Ustaw adres
+> ładowania, gdy biblioteka nie ma własnej struktury ORG lub gdy chcesz zastąpić
+> jej domyślne położenie.
 
 ---
 
-### TABLE
+### TABELA
 
-Podobnie jak **DIM pod określonym adresem** — nadaje nazwę tabeli odnośników i określa jej miejsce w pamięci. Umieść po niej bloki BYTE, WORD lub FILL, aby zdefiniować zawartość tabeli.
+Podobnie jak **DIM pod określonym adresem ** — nadaje nazwę tabeli odnośników i
+określa jej miejsce w pamięci. Umieść po niej bloki BYTE, WORD lub FILL, aby
+zdefiniować zawartość tabeli.
 
 | Pole  | Opis                                                     |
 | ----- | -------------------------------------------------------- |
 | Nazwa | Identyfikator etykiety tabeli (np. `color_table`)        |
 | Adres | Stały adres, pod którym zaczyna się tabela (np. `$C000`) |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
 .table color_table, $C000
 ```
 
-**Wygenerowano ASM:**
+**Uruchomienie:** Kliknij **Debugowanie (RetroDebugger)** na pasku narzędzi.
+Aplikacja:
 ```
-color_table:
+tabela_kolorów:
 ```
 
-Licznik programu przeskakuje do wskazanego adresu. Umieść bloki BYTE/WORD/FILL po TABELI, aby wypełnić zawartość.
+Licznik programu przeskakuje do wskazanego adresu. Umieść bloki BYTE/WORD/FILL
+po TABELI, aby wypełnić zawartość.
 
 **Rozmiar:** 0 bajtów.
 
@@ -1860,51 +2667,63 @@ Licznik programu przeskakuje do wskazanego adresu. Umieść bloki BYTE/WORD/FILL
 
 ### ORG
 
-Ustawia miejsce w pamięci, w którym program (lub jego fragment) zostanie umieszczony — na przykład wybierając adres startowy przed wpisaniem kodu maszynowego. Każdy program wymaga co najmniej jednego pliku ORG. Standardowy, ładowalny kod startowy języka C64 BASIC to `$0801`.
+Ustawia miejsce w pamięci, w którym program (lub jego fragment) zostanie
+umieszczony — na przykład wybierając adres startowy przed wpisaniem kodu
+maszynowego. Każdy program wymaga co najmniej jednego pliku ORG. Standardowy,
+ładowalny kod startowy języka C64 BASIC to `$0801`.
 
 | Pole      | Opis                                                                                        |
 | --------- | ------------------------------------------------------------------------------------------- |
 | Adres     | Nowy adres źródłowy (np. `0801` w formacie szesnastkowym lub `2049` w formacie dziesiętnym) |
 | HEX / DEC | Przełączaj wprowadzanie adresu między wyświetlaniem szesnastkowym i dziesiętnym             |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
 * = $C000
 ```
 
-**Wygenerowano ASM:**
+**Uruchomienie:** Kliknij **Debugowanie (RetroDebugger)** na pasku narzędzi.
+Aplikacja:
 ```
 * = $C000
 ```
 
-**Rozmiar:** 0 bajtów. Sam blok ORG nie generuje kodu maszynowego.
+**Rozmiar: ** 0 bajtów. Sam blok ORG nie generuje kodu maszynowego.
 
-Każdy blok ORG rozpoczyna nową sekcję. Kolejne bloki są składane, zaczynając od tego adresu. Podczas eksportu pliku PRG wszystkie sekcje są scalane w jeden plik — przerwy między sekcjami są wypełniane zerami.
+Każdy blok ORG rozpoczyna nową sekcję. Kolejne bloki są składane, zaczynając od
+tego adresu. Podczas eksportu pliku PRG wszystkie sekcje są scalane w jeden plik
+— przerwy między sekcjami są wypełniane zerami.
 
 **Przykład — kod w `$0801`, tabela danych w `$C000`:**
 ```
 * = $0801
-    LDX #$00
-loop:
-    LDA $C000,X
-    STA $D800,X
-    INX
-    BNE loop
-    RTS
+LDX #$00
+pętla:
+LDA $C000,X
+STA $D800,X
+INX
+pętla BNE
+RTS
 
 * = $C000
-    .byte $01, $02, $03, ...
+.bajt $01, $02, $03, ...
 ```
 
-> **Wskazówka:** Każdy program musi zaczynać się od bloku ORG. Typowy adres startowy programu ładowalnego w języku C64 BASIC to `$0801` (2049 w systemie dziesiętnym). Po włączeniu **instancji stub BASIC SYS**, asembler dodaje krótką linię kodu BASIC pod adresem `$0801`, a kod zaczyna się od `$080D`.
+> **Wskazówka: ** Każdy program musi zaczynać się od bloku ORG. Typowy adres
+> startowy programu ładowalnego w języku C64 BASIC to `$0801` (2049 w systemie
+> dziesiętnym). Po włączeniu **instancji stub BASIC SYS**, asembler dodaje
+> krótką linię kodu BASIC pod adresem `$0801`, a kod zaczyna się od `$080D`.
 
 ---
 
-### LOOP / NEXT
+### PĘTLA / NASTĘPNY
 
-Podobnie jak **`FOR X=N TO 1 STEP -1 : ... : NEXT X`** w języku BASIC — odlicza od N do 1 przy użyciu rejestru X lub Y. Usuń blok LOOP, umieść swoje instrukcje między nim a NEXT, a blok automatycznie wykona odpowiednią liczbę pętli.
+Podobnie jak **`FOR X=N TO 1 STEP -1 : ... : NEXT X`** w języku BASIC — odlicza
+od N do 1 przy użyciu rejestru X lub Y. Usuń blok LOOP, umieść swoje instrukcje
+między nim a NEXT, a blok automatycznie wykona odpowiednią liczbę pętli.
 
-#### LOOP
+#### PĘTLA
 
 | Pole     | Opis                                                               |
 | -------- | ------------------------------------------------------------------ |
@@ -1912,56 +2731,62 @@ Podobnie jak **`FOR X=N TO 1 STEP -1 : ... : NEXT X`** w języku BASIC — odlic
 | Liczyć   | Liczba iteracji pętli (szesnastkowa lub dziesiętna, np. `0A` = 10) |
 | Etykieta | Automatycznie wygenerowana etykieta pętli (np. `loop0`)            |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
-.loop X, 10, loop0
+.pętla X, 10, pętla 0
 ```
 
-**Wygenerowano ASM:**
+**Uruchomienie:** Kliknij **Debugowanie (RetroDebugger)** na pasku narzędzi.
+Aplikacja:
 ```
-    LDX #$0A
-loop0:
+LDX #$0A
+pętla0:
 ```
 
 **Rozmiar:** 2 bajty (kod operacji LD_ + bezpośredni operand).
 
-#### NEXT
+#### NASTĘPNY
 
 | Pole     | Opis                                      |
 | -------- | ----------------------------------------- |
 | Rejestr  | Automatycznie dopasowane do rejestru LOOP |
 | Etykieta | Automatycznie powiązane z etykietą LOOP   |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
-.next loop0
+.następna pętla 0
 ```
 
-**Wygenerowano ASM:**
+**Uruchomienie:** Kliknij **Debugowanie (RetroDebugger)** na pasku narzędzi.
+Aplikacja:
 ```
-    DEX
-    BNE loop0
+DEX
+Pętla BNE 0
 ```
 
 **Rozmiar:** 3 bajty (DEX + BNE + przesunięcie gałęzi).
 
 **Przykład — wyczyść 10 komórek ekranu:**
 ```
-    LDX #$0A
-loop0:
-    LDA #$20        ; space character
-    STA $0400,X
-    DEX
-    BNE loop0
+LDX #$0A
+pętla 0:
+LDA #$20 ; znak spacji
+STA $0400,X
+DEX
+pętla BNE 0
 ```
 
 ---
 
-### FOR / ENDF
+### DLA / ZAKOŃCZENIE
 
-Podobnie jak **`FOR X=0 TO N-1 : ... : NEXT X`** w języku BASIC — zlicza *w górę* od 0. Idealne, gdy potrzebujesz indeksu do przodu, np. podczas przechodzenia przez ciąg lub tablicę.
+Podobnie jak **`FOR X=0 TO N-1 : ... : NEXT X`** w języku BASIC — zlicza *w
+górę* od 0. Idealne, gdy potrzebujesz indeksu do przodu, np. podczas
+przechodzenia przez ciąg lub tablicę.
 
-#### FOR
+#### DLA
 
 | Pole     | Opis                                                                                   |
 | -------- | -------------------------------------------------------------------------------------- |
@@ -1969,15 +2794,17 @@ Podobnie jak **`FOR X=0 TO N-1 : ... : NEXT X`** w języku BASIC — zlicza *w g
 | Liczyć   | Limit pętli (szesnastkowy lub dziesiętny, np. `$12` = 18). X/Y działa od 0 do limit-1. |
 | Etykieta | Automatycznie wygenerowana etykieta pętli (np. `dla0`)                                 |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
-.for X, $12, for0
+.dla X, 12$, dla 0
 ```
 
-**Wygenerowano ASM:**
+**Uruchomienie:** Kliknij **Debugowanie (RetroDebugger)** na pasku narzędzi.
+Aplikacja:
 ```
-    LDX #$00
-for0:
+LDX #$00
+dla0:
 ```
 
 **Rozmiar:** 2 bajty (kod operacji LD_ + `#$00`).
@@ -1990,111 +2817,130 @@ for0:
 | Etykieta | Automatycznie powiązane z etykietą FOR     |
 | Liczyć   | Automatycznie skopiowane z sparowanego FOR |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
-.endf for0
+.endf dla 0
 ```
 
-**Wygenerowano ASM:**
+**Uruchomienie:** Kliknij **Debugowanie (RetroDebugger)** na pasku narzędzi.
+Aplikacja:
 ```
-    INX
-    CPX #$12
-    BNE for0
+INX
+CPX #$12
+BNE za 0
 ```
 
 **Rozmiar:** 5 bajtów (IN_ + CP_ #imm + przesunięcie BNE).
 
-**Przykład — wydrukuj ciąg zakończony zerem:**
+**Przykład — wydrukuj ciąg zakończony zerem: **
 ```
-    LDX #$00
+LDX #$00
 for0:
-    LDA msg,X       ; msg = PETSCII string at fixed address
-    BEQ done        ; null terminator → exit
-    JSR $FFD2       ; CHROUT
-    INX
-    CPX #$12        ; 18 characters max
-    BNE for0
+LDA msg,X ; msg = ciąg PETSCII pod ustalonym adresem
+BEQ done ; terminator null → wyjście
+JSR $FFD2 ; CHROUT
+INX
+CPX #$12 ; maks. 18 znaków
+BNE for0
 done:
-    RTS
+RTS
 ```
 
-> **LOOP vs FOR:** LOOP odlicza w dół (N→1) — dobre do opóźnień, wypełnień i pętli pikseli. FOR odlicza w górę (0→N) — dobre do dostępu do ciągów znaków/tablic. Oba mogą używać X lub Y.
+> **LOOP vs FOR: ** LOOP odlicza w dół (N→1) — dobre do opóźnień, wypełnień i
+> pętli pikseli. FOR odlicza w górę (0→N) — dobre do dostępu do ciągów
+> znaków/tablic. Oba mogą używać X lub Y.
 
 ---
 
-### PUSH / PULL
+### PCHNIJ / POCIĄGNIJ
 
-Like **saving variables before a GOSUB and restoring them after** — but uses the 6502 hardware stack. If a subroutine uses A, X, or Y, wrap it with PUSH and PULL so the calling code's registers are preserved.
+Podobnie jak **zapisywanie zmiennych przed GOSUB i przywracanie ich po ** — ale
+wykorzystuje stos sprzętowy 6502. Jeśli podprogram używa A, X lub Y, należy go
+opakować za pomocą PUSH i PULL, aby zachować rejestry kodu wywołującego.
 
-#### PUSH
+#### NACISKAĆ
 
-Umieszcza jeden lub więcej rejestrów na stosie. Kolejność jest zawsze następująca: A → X → Y (najpierw najbardziej wewnętrzny).
+Umieszcza jeden lub więcej rejestrów na stosie. Kolejność jest zawsze
+następująca: A → X → Y (najpierw najbardziej wewnętrzny).
 
 | Pole     | Opis                                                       |
 | -------- | ---------------------------------------------------------- |
 | Rejestry | Dowolna kombinacja: `A`, `X`, `Y`, `AX`, `AY`, `XY`, `AXY` |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
 .push AXY
 ```
 
 **Wygenerowany ASM (przykład: `AX`):**
 ```
-    PHA
-    TXA
-    PHA
+PHA
+TXA
+PHA
 ```
 
 **Rozmiar:** 1 bajt dla A (`PHA`), 2 bajty dla X lub Y (transfer + push).
 
-#### PULL
+#### CIĄGNĄĆ
 
-Restores registers from the stack in **reverse order** (Y → X → A).
+Przywraca rejestry ze stosu w **odwrotnej kolejności** (Y → X → A).
 
 | Pole     | Opis                                                         |
 | -------- | ------------------------------------------------------------ |
 | Rejestry | Tak samo jak PUSH — musi pasować do odpowiedniego bloku PUSH |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
-.pull AXY
+.pociągnij AXY
 ```
 
 **Wygenerowany ASM (przykład: `AX`):**
 ```
-    PLA
-    TAX
-    PLA
+PLA
+PODATEK
+PLA
 ```
 
-> **Zasada:** Funkcje PUSH i PULL muszą zawsze używać **tego samego zestawu rejestrów**. `PUSH AX` → `PULL AX` (wewnętrznie przywraca w odwrotnej kolejności: najpierw X, potem A).
+> **Zasada: ** Funkcje PUSH i PULL muszą zawsze używać **tego samego zestawu
+> rejestrów **. `PUSH AX` → `PULL AX` (wewnętrznie przywraca w odwrotnej
+> kolejności: najpierw X, potem A).
 
 ---
 
 ### END / alias RTS
 
-Podobnie jak **RTS z przyjaźniejszą nazwą makra** — `.end` emituje pojedynczy bajt `RTS` i zachowuje się jak krótki terminator podprogramu w trybie eksperckim.
+Podobnie jak **RTS z przyjaźniejszą nazwą makra ** — `.end` emituje pojedynczy
+bajt `RTS` i zachowuje się jak krótki terminator podprogramu w trybie
+eksperckim.
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
-.end
+.koniec
 ```
 
-**Wygenerowano ASM:**
+**Uruchomienie:** Kliknij **Debugowanie (RetroDebugger)** na pasku narzędzi.
+Aplikacja:
 ```
-    RTS
+RTS
 ```
 
 **Rozmiar:** 1 bajt.
 
-Użyj tego, jeśli chcesz uzyskać znacznik końca podprogramu, który wygląda bardziej jak makro niż surowa instrukcja.
+Użyj tego, jeśli chcesz uzyskać znacznik końca podprogramu, który wygląda
+bardziej jak makro niż surowa instrukcja.
 
 ---
 
-### MACRO / ENDM / INVOKE
+### MAKRO / ENDM / WYWOŁAJ
 
-Like **a named GOSUB with parameters** — define a reusable chunk of code once (MACRO…ENDM), then call it anywhere with INVOKE. Pass different argument values each time instead of copy-pasting blocks.
+Podobnie jak **nazwany GOSUB z parametrami ** — zdefiniuj fragment kodu
+wielokrotnego użytku raz (MACRO…ENDM), a następnie wywołaj go w dowolnym miejscu
+za pomocą INVOKE. Przekazuj za każdym razem różne wartości argumentów zamiast
+kopiować i wklejać bloki.
 
 #### MAKRO (początek definicji)
 
@@ -2103,20 +2949,23 @@ Like **a named GOSUB with parameters** — define a reusable chunk of code once 
 | Nazwa     | Identyfikator makra (np. `setColor`)                                                  |
 | Parametry | Opcjonalne nazwy parametrów rozdzielone przecinkami (np. `kolor` lub `kolor, liczba`) |
 
-Oznacza początek definicji makra. Bloki między MACRO a ENDM stanowią treść makra — **nie generują żadnego kodu** w miejscu, w którym znajduje się definicja. Użyj `{paramName}` jako symbolu zastępczego dla argumentów.
+Oznacza początek definicji makra. Bloki między MACRO a ENDM stanowią treść makra
+— **nie generują żadnego kodu** w miejscu, w którym znajduje się definicja. Użyj
+`{paramName}` jako symbolu zastępczego dla argumentów.
 
-**Wygenerowano ASM:**
+**Uruchomienie:** Kliknij **Debugowanie (RetroDebugger)** na pasku narzędzi.
+Aplikacja:
 ```
-; .MACRO setColor (color)
-    ... (body blocks)
+; .MACRO setColor (kolor)
+... (bloki treści)
 ; .ENDM
 ```
 
 **Składnia trybu eksperckiego:**
 ```
-.macro setColor color
-    LDA {color}
-    STA $D020
+.macro setColor kolor
+LDA {kolor}
+STA $D020
 .endm
 ```
 
@@ -2124,175 +2973,213 @@ Oznacza początek definicji makra. Bloki między MACRO a ENDM stanowią treść 
 
 Zamyka bieżącą definicję makra. Brak pól.
 
-#### INVOKE
+#### ODWOŁAĆ SIĘ
 
-Wywołuje zdefiniowaną makroinstrukcję w tym miejscu i podstawia podane wartości argumentów w miejsce symboli zastępczych `{paramName}` w treści.
+Wywołuje zdefiniowaną makroinstrukcję w tym miejscu i podstawia podane wartości
+argumentów w miejsce symboli zastępczych `{paramName}` w treści.
 
 | Pole        | Opis                                                                                         |
 | ----------- | -------------------------------------------------------------------------------------------- |
 | Nazwa makra | Wybierz z listy rozwijanej zdefiniowanych makr                                               |
 | Argumenty   | Wartości argumentów rozdzielone przecinkami, pasujące do listy parametrów makra (np. `#$07`) |
 
-**Wygenerowano ASM:**
+**Uruchomienie:** Kliknij **Debugowanie (RetroDebugger)** na pasku narzędzi.
+Aplikacja:
 ```
 ; .invoke setColor(#$07)
-    LDA #$07
+    LDA #07 dolarów
     STA $D020
 ```
 
 **Składnia trybu eksperckiego:**
 ```
-; single argument:
+; pojedynczy argument:
 .invoke setColor(#$07)
 
-; multiple arguments:
+; wiele argumentów:
 .invoke drawPixel($10, $20)
 
-; no arguments:
+; brak argumentów:
 .invoke clearScreen
 
-; text / string arguments (quoted):
-.invoke printText("Hello, World!")
+; argumenty tekstowe/ciąg znaków (w cudzysłowie):
+.invoke printText("Witaj, świecie!")
 
-; .call alias (synonym for .invoke):
+; .call alias (synonim .invoke):
 .call setColor(#$07)
 ```
 
-Treść makra jest rozwijana w linii, a `{paramName}` jest zastępowane rzeczywistymi argumentami. Akceptowana jest również forma rozdzielona spacjami (`.invoke setColor #$07`).
+Treść makra jest rozwijana w linii, a `{paramName}` jest zastępowane
+rzeczywistymi argumentami. Akceptowana jest również forma rozdzielona spacjami
+(`.invoke setColor #$07`).
 
 **Typy argumentów:**
 - **Numeryczne**: `#$07`, `$10`, `255` — wartości szesnastkowe lub dziesiętne
-- **Ciągi tekstowe**: `„Witaj, świecie!”` — ciągi w cudzysłowie; przecinki w cudzysłowie są traktowane jako część tekstu, a nie jako separatory argumentów
+- **Ciągi tekstowe**: `„Witaj, świecie!”` — ciągi w cudzysłowie; przecinki w
+  cudzysłowie są traktowane jako część tekstu, a nie jako separatory argumentów
 - **Mieszane**: `#$07, „cześć”, $20` — dowolna kombinacja
 
-> **Wskazówka:** Zdefiniuj makra na górze (lub na dole) programu, a następnie WYWOŁUJ je w razie potrzeby. Makra można wywoływać wielokrotnie z różnymi argumentami.
+> **Wskazówka: ** Zdefiniuj makra na górze (lub na dole) programu, a następnie
+> WYWOŁUJ je w razie potrzeby. Makra można wywoływać wielokrotnie z różnymi
+> argumentami.
 
 ---
 
 ### REGION / ENDREGION
 
-Grupowanie czysto wizualne — **zero bajtów**, zero wpływu na kod asemblera. Jak złożenie sekcji programu BASIC w nazwany blok, aby móc go zwinąć i skupić się na czymś innym.
+Grupowanie czysto wizualne — **zero bajtów**, zero wpływu na kod asemblera. Jak
+złożenie sekcji programu BASIC w nazwany blok, aby móc go zwinąć i skupić się na
+czymś innym.
 
 | Pole          | Opis                                                                           |
 | ------------- | ------------------------------------------------------------------------------ |
 | Nazwa regionu | Etykieta tekstu dowolnego dla sekcji (np. `init`, `game_loop`, `sprite_setup`) |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
 .region init
-    ; blocks...
+; bloki...
 .endregion
 ```
 
 **Kontrolki w nagłówku bloku REGION (zawsze widoczne):**
-- **▸ / ▾ przełącznik** — zwija lub rozwija cały region. Po zwinięciu wszystkie bloki między REGION i ENDREGION są ukryte.
-- **↕ Rozwiń wszystko** — przywraca każdy indywidualnie zwinięty blok wewnątrz regionu i rozszerza sam region, jeśli jest to konieczne.
-- **⦵ Wybierz w ASM** — zaznacza cały zakres kodów regionu w widoku ASM (od `; ===[ nazwa ]===` do `; ===[/ nazwa]===`) i przewija do niego. Przełącza automatycznie na kartę ASM, jeśli nie jest ona obecnie widoczna.
-- **⧉ Kopiuj region** — kopiuje blok REGION, wszystkie bloki podrzędne i pasujący do niego ENDREGION do schowka. Mignięcie ✓ potwierdza kopiowanie.
-- **⎘ Wklej region** — wstawia skopiowany region jako nowy region bezpośrednio za regionem ENDREGION bieżącego regionu i przewija do niego. Przycisk jest przyciemniony, dopóki region nie zostanie skopiowany.
+- **▸ / ▾ przełącznik** — zwija lub rozwija cały region. Po zwinięciu wszystkie
+  bloki między REGION i ENDREGION są ukryte.
+- **↕ Rozwiń wszystko** — przywraca każdy indywidualnie zwinięty blok wewnątrz
+  regionu i rozszerza sam region, jeśli jest to konieczne.
+- **⦵ Wybierz w ASM** — zaznacza cały zakres kodów regionu w widoku ASM (od `;
+  ===[ nazwa ]===` do `; ===[/ nazwa]===`) i przewija do niego. Przełącza
+  automatycznie na kartę ASM, jeśli nie jest ona obecnie widoczna.
+- **⧉ Kopiuj region** — kopiuje blok REGION, wszystkie bloki podrzędne i
+  pasujący do niego ENDREGION do schowka. Mignięcie ✓ potwierdza kopiowanie.
+- **⎘ Wklej region** — wstawia skopiowany region jako nowy region bezpośrednio
+  za regionem ENDREGION bieżącego regionu i przewija do niego. Przycisk jest
+  przyciemniony, dopóki region nie zostanie skopiowany.
 
-**Wygenerowano ASM:**
+**Uruchomienie:** Kliknij **Debugowanie (RetroDebugger)** na pasku narzędzi.
+Aplikacja:
 ```
-; region init
+; inicjacja regionu
     SEI
-    LDA #$00
+    LDA#00 dolarów
     STA $D020
-; endregion init
+; inicjacja regionu końcowego
 ```
 
 **Rozmiar:** 0 bajtów dla regionu REGION i ENDREGION.
 
-**Przykładowy przepływ pracy:**
+**Przykładowy przepływ pracy: **
 1. Dodaj blok `REGION`, ustaw nazwę regionu na `init`.
 2. Poniżej dodaj instrukcje inicjalizacji.
 3. Dodaj blok `ENDREGION`, aby zamknąć sekcję.
-4. Kliknij ▸ w REGIONIE, aby zwinąć całą sekcję do jednego wiersza podczas pracy nad innymi częściami programu.
+4. Kliknij ▸ w REGIONIE, aby zwinąć całą sekcję do jednego wiersza podczas pracy
+   nad innymi częściami programu.
 
-> **Uwaga: Regiony** mogą być **zagnieżdżane** w sobie. Każdy ENDREGION zamyka najbliższy otwarty REGION. Nie ma to wpływu na zmontowany wynik.
+> **Uwaga: Regiony ** mogą być **zagnieżdżane** w sobie. Każdy ENDREGION zamyka
+> najbliższy otwarty REGION. Nie ma to wpływu na zmontowany wynik.
 
 ---
 
-### DEFINE / IF / ELSE / ENDIF
+### DEFINIUJ / JEŻELI / W PRZECIWNYM RAZIE / ENDIF
 
-Podobnie jak **przełącznik, który asembler odczytuje** — `DEFINE DEBUG` włącza symbol, a następnie dowolny blok `IF DEBUG` jest uwzględniany, a jego gałąź `ELSE` jest pomijana. Usunięcie bloku DEFINE powoduje, że blok IF znika z wyników. Nie ma potrzeby usuwania kodu w kompilacjach do wydania.
+Podobnie jak **przełącznik, który asembler odczytuje ** — `DEFINE DEBUG` włącza
+symbol, a następnie dowolny blok `IF DEBUG` jest uwzględniany, a jego gałąź
+`ELSE` jest pomijana. Usunięcie bloku DEFINE powoduje, że blok IF znika z
+wyników. Nie ma potrzeby usuwania kodu w kompilacjach do wydania.
 
-#### DEFINE
+#### OKREŚLIĆ
 
 | Pole   | Opis                                                                                                   |
 | ------ | ------------------------------------------------------------------------------------------------------ |
 | Symbol | Jeden lub więcej identyfikatorów rozdzielonych przecinkami do aktywacji (np. `DEBUG` lub `DEBUG, PAL`) |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
 .define DEBUG, PAL
 ```
 
-**Wygenerowano ASM:**
+**Uruchomienie:** Kliknij **Debugowanie (RetroDebugger)** na pasku narzędzi.
+Aplikacja:
 ```
 ; .DEFINE DEBUG
 ; .DEFINE DEBUG, PAL
 ```
 
-Blok `DEFINE` może aktywować wiele symboli jednocześnie (rozdzielonych przecinkami). Umieść bloki DEFINE na górze programu. Usunięcie bloku natychmiast dezaktywuje wszystkie jego symbole.
+Blok `DEFINE` może aktywować wiele symboli jednocześnie (rozdzielonych
+przecinkami). Umieść bloki DEFINE na górze programu. Usunięcie bloku natychmiast
+dezaktywuje wszystkie jego symbole.
 
-#### IF
+#### JEŚLI
 
 | Pole | Opis                                                                                |
 | ---- | ----------------------------------------------------------------------------------- |
 | Stan | Identyfikator do przetestowania (musi pasować do symbolu `DEFINE`, aby był aktywny) |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
 .if DEBUG
 ```
 
-**Wygenerowano ASM:**
+**Uruchomienie:** Kliknij **Debugowanie (RetroDebugger)** na pasku narzędzi.
+Aplikacja:
 ```
 ; .IF DEBUG
 ```
 
-Bloki pomiędzy `IF` i `ENDIF` (lub `ELSE`) są uwzględniane lub pomijane w zależności od tego, czy symbol warunku ma w programie odpowiadający mu `DEFINE`. Pominięte bloki są wyświetlane jako komentarze `; [IF skiped] …` i generują **zerowe bajty**.
+Bloki pomiędzy `IF` i `ENDIF` (lub `ELSE`) są uwzględniane lub pomijane w
+zależności od tego, czy symbol warunku ma w programie odpowiadający mu `DEFINE`.
+Pominięte bloki są wyświetlane jako komentarze `; [IF skiped] …` i generują
+**zerowe bajty**.
 
-#### ELSE
+#### W PRZECIWNYM RAZIE
 
-Brak pól. Oznacza gałąź alternatywną — montowaną, gdy warunek `JEŻELI` jest *nie* aktywny.
+Brak pól. Oznacza gałąź alternatywną — montowaną, gdy warunek `JEŻELI` jest
+*nie* aktywny.
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
-.else
+.w przeciwnym razie
 ```
 
-**Wygenerowano ASM:**
+**Uruchomienie:** Kliknij **Debugowanie (RetroDebugger)** na pasku narzędzi.
+Aplikacja:
 ```
-; .ELSE
+; .W PRZECIWNYM RAZIE
 ```
 
 #### ENDIF
 
 Brak pól. Zamyka blok warunkowy.
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
 .endif
 ```
 
-**Wygenerowano ASM:**
+**Uruchomienie:** Kliknij **Debugowanie (RetroDebugger)** na pasku narzędzi.
+Aplikacja:
 ```
 ; .ENDIF
 ```
 
-**Rozmiar:** 0 bajtów dla wszystkich czterech bloków. Liczy się tylko zawartość *pomiędzy*.
+**Rozmiar:** 0 bajtów dla wszystkich czterech bloków. Liczy się tylko zawartość
+*pomiędzy*.
 
 **Przykład — debugowanie granicy flash, kompilacja wydania pomija to:**
 ```
 ; .DEFINE DEBUG
 
 ; .IF DEBUG
-    LDA #$02        ; red border
-    STA $D020
+LDA #$02 ; czerwona ramka
+STA $D020
 ; .ELSE
-    LDA #$00        ; black (release)
-    STA $D020
+LDA #$00 ; czarna (zwolnienie)
+STA $D020
 ; .ENDIF
 ```
 
@@ -2301,54 +3188,68 @@ Brak pól. Zamyka blok warunkowy.
 ; .DEFINE DEBUG, PAL
 
 ; .IF PAL
-    LDA #$xx        ; PAL timing constant
+LDA #$xx ; Stała czasowa PAL
 ; .ELSE
-    LDA #$xx        ; NTSC timing constant
+LDA #$xx ; Stała czasowa NTSC
 ; .ENDIF
 ```
 
-Obsługiwane są zagnieżdżone bloki `IF`. Jeśli pominięty zostanie blok zewnętrzny, pominięte zostaną również bloki wewnętrzne.
+Obsługiwane są zagnieżdżone bloki `IF`. Jeśli pominięty zostanie blok
+zewnętrzny, pominięte zostaną również bloki wewnętrzne.
 
-> **Uwaga:** To jest obsługa warunków w czasie kompilacji. Informacje na temat porównywania/rozgałęziania w czasie wykonania można znaleźć poniżej w sekcji **Instrukcje IF / ELSE / ENDIF w czasie wykonania**.
+> **Uwaga: ** To jest obsługa warunków w czasie kompilacji. Informacje na temat
+> porównywania/rozgałęziania w czasie wykonania można znaleźć poniżej w sekcji
+> **Instrukcje IF / ELSE / ENDIF w czasie wykonania **.
 
-### .ASSERT
+### .ZAPEWNIAĆ
 
-*(Nowość w wersji 2.3.9.)* **Sprawdzanie poprawności w czasie kompilacji**. `.assert` ocenia wyrażenie podczas asemblacji; jeśli jest ono fałszywe (`0`), kompilacja zatrzymuje się z wyraźnym błędem zawierającym rzeczywistą wartość. Jeśli jest ono prawdziwe (różne od zera), nie jest emitowane.
+*(Nowość w wersji 2.3.9.)* **Sprawdzanie poprawności w czasie kompilacji**.
+`.assert` ocenia wyrażenie podczas asemblacji; jeśli jest ono fałszywe (`0`),
+kompilacja zatrzymuje się z wyraźnym błędem zawierającym rzeczywistą wartość.
+Jeśli jest ono prawdziwe (różne od zera), nie jest emitowane.
 
 | Pole      | Opis                                                                                                                                             |
 | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Wyrażenie | Dowolne wyrażenie asemblera: etykiety, `CONST`s, `*` (licznik programów), arytmetyka i porównania (`&lt;`, `&lt;=`, `&gt;`, `&gt;=`, `==`, `!=`) |
 | Wiadomość | Opcjonalny tekst dołączony do komunikatu o błędzie                                                                                               |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
-.assert spriteData < $C000
-.assert * < $A000
-.assert end - start <= 256, "sprite table overflowed one page"
+.assert spriteData &lt; $C000
+.assert * &lt; $A000
+.assert end - start &lt;= 256, "tabela sprite'ów przepełniła się o jedną stronę"
 ```
 
 **Zachowanie:**
 
 - **Rozmiar:** 0 bajtów.
-- Fałszywe potwierdzenie przerywa montaż: `` `.assert end - start &lt;= 256` jest fałszywe (wartość: 0). Tabela sprite'ów przepełniła się o jedną stronę ``
-- Twierdzenie, którego nie można ocenić (niezdefiniowana etykieta itp.) również kończy się niepowodzeniem, z komunikatem *„nie można ocenić w momencie montażu”*.
-- Porównania dają `1` / `0`; umieść `.assert` w dowolnym miejscu przebiegu programu — jest on sprawdzany pod adresem, pod którym się znajduje, więc `.assert * &lt; $D000` testuje bieżącą pozycję wyjściową.
+- Fałszywe potwierdzenie przerywa montaż: `` `.assert end - start &lt;= 256`
+  jest fałszywe (wartość: 0). Tabela sprite'ów przepełniła się o jedną stronę ``
+- Twierdzenie, którego nie można ocenić (niezdefiniowana etykieta itp.) również
+  kończy się niepowodzeniem, z komunikatem *„nie można ocenić w momencie
+  montażu”*.
+- Porównania dają `1` / `0`; umieść `.assert` w dowolnym miejscu przebiegu
+  programu — jest on sprawdzany pod adresem, pod którym się znajduje, więc
+  `.assert * &lt; $D000` testuje bieżącą pozycję wyjściową.
 
 **Przykład — ochrona bloku sprite'ów przed przekroczeniem strony:**
 ```
-* = $3000
+* = 3000 $
 sprite_data:
-    .byte $00, $00, $00        ; … 63 bytes …
+.byte $00, $00, $00 ; … 63 bajty …
 sprite_data_end:
-    .assert sprite_data_end - sprite_data == 63, "sprite must be exactly 63 bytes"
-    .assert (sprite_data % 64) == 0, "sprite must be 64-byte aligned"
+.assert sprite_data_end - sprite_data == 63, "Sprite musi mieć dokładnie 63 bajty"
+.assert (sprite_data % 64) == 0, "Sprite musi być wyrównany do 64 bajtów"
 ```
 
 ---
 
-### CONST
+### STAŁA
 
-Podobnie jak **zmienna o nazwie, która nigdy się nie zmienia** — `SCREEN = $0400`. Użyj nazwy zamiast wpisywać wszędzie surowe adresy, dzięki czemu kod będzie łatwiejszy do odczytania i późniejszej modyfikacji.
+Podobnie jak **zmienna o nazwie, która nigdy się nie zmienia** — `SCREEN =
+$0400`. Użyj nazwy zamiast wpisywać wszędzie surowe adresy, dzięki czemu kod
+będzie łatwiejszy do odczytania i późniejszej modyfikacji.
 
 | Pole    | Opis                                                                                                                                  |
 | ------- | ------------------------------------------------------------------------------------------------------------------------------------- |
@@ -2356,47 +3257,57 @@ Podobnie jak **zmienna o nazwie, która nigdy się nie zmienia** — `SCREEN = $
 | Wartość | Wartość liczbowa w wybranej bazie (np. `0400` w formacie HEX = adres $0400) lub wyrażenie względne względem komputera (patrz poniżej) |
 | Format  | HEX lub DEC — kontroluje sposób wprowadzania i wyświetlania wartości                                                                  |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
-.const SCREEN = $0400
-.const FRAMES_1S = 60
+.const EKRAN = $0400
+.const RAMKI_1S = 60
 ```
 
-**Wygenerowano ASM:**
+**Uruchomienie:** Kliknij **Debugowanie (RetroDebugger)** na pasku narzędzi.
+Aplikacja:
 ```
 ; .CONST SCREEN = $0400
 ```
 
-Nazwa stałej pojawia się w menu rozwijanym **selektora etykiet** w blokach instrukcji — wystarczy ją kliknąć, aby wstawić.
+Nazwa stałej pojawia się w menu rozwijanym **selektora etykiet** w blokach
+instrukcji — wystarczy ją kliknąć, aby wstawić.
 
 **Wyrażenia względne względem PC (`*+N` / `*-N`):**
 
-Pole wartości akceptuje również `*+N` lub `*-N`, gdzie `*` to adres kompilacji samego bloku CONST. Służy to do utworzenia nazwanego aliasu dla bajtu w pobliskiej instrukcji — klasyczny wzorzec kodu samomodyfikującego:
+Pole wartości akceptuje również `*+N` lub `*-N`, gdzie `*` to adres kompilacji
+samego bloku CONST. Służy to do utworzenia nazwanego aliasu dla bajtu w
+pobliskiej instrukcji — klasyczny wzorzec kodu samomodyfikującego:
 
 ```
-CONST op = *+1      ; op → address of the immediate operand of the next LDA
-LDA #$00            ; $00 will be patched at runtime
+CONST op = *+1 ; op → adres bezpośredniego operandu następnego LDA
+LDA #$00 ; $00 zostanie załatane w czasie wykonywania
 ...
-STA op              ; overwrites the #$00 byte → LDA reads the new value next time
+STA op ; nadpisuje bajt #$00 → LDA odczytuje nową wartość następnym razem
 ```
 
-CONST emituje 0 bajtów, etykieta w momencie kompilacji zmienia się na `current_address + 1`.
+CONST emituje 0 bajtów, etykieta w momencie kompilacji zmienia się na
+`current_address + 1`.
 
 **Wyrażenia arytmetyczne:**
 
-Pole wartości akceptuje ogólne działania arytmetyczne, w tym odwołania do wcześniej zdefiniowanych nazw CONST, literałów szesnastkowych/binarnych i wbudowanych funkcji matematycznych:
+Pole wartości akceptuje ogólne działania arytmetyczne, w tym odwołania do
+wcześniej zdefiniowanych nazw CONST, literałów szesnastkowych/binarnych i
+wbudowanych funkcji matematycznych:
 
 ```
-.const SCREEN      = $0400
-.const SCREEN_END  = SCREEN + 40*25   ; 1000 bytes later
-.const COLOR_RAM   = $D800
-.const MID_X       = 160
-.const SIN_TABLE   = round(sin(PI/8) * 127)   ; pre-computed sine value
+.const SCREEN = $0400
+.const SCREEN_END = SCREEN + 40*25 ; 1000 bajtów później
+.const COLOR_RAM = $D800
+.const MID_X = 160
+.const SIN_TABLE = round(sin(PI/8) * 127) ; wstępnie obliczona wartość sinusoidalna
 ```
 
-**Funkcje wbudowane: ** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, constant `PI`
+**Funkcje wbudowane: ** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`,
+`abs()`, constant `PI`
 
-Operatorzy: `+ - * /` Literały: `$FF` (szesnastkowy), `%10110000` (binarny) Bajt młodszy/starszy: `lo(wyrażenie)`, `hi(wyrażenie)`
+Operatorzy: `+ - * /` Literały: `$FF` (szesnastkowy), `%10110000` (binarny) Bajt
+młodszy/starszy: `lo(wyrażenie)`, `hi(wyrażenie)`
 
 **Rozmiar:** 0 bajtów.
 
@@ -2404,45 +3315,54 @@ Operatorzy: `+ - * /` Literały: `$FF` (szesnastkowy), `%10110000` (binarny) Baj
 
 ### VAR
 
-Podobnie jak **CONST, ale automatycznie przydzielane** — `VAR` rezerwuje miejsce na stronie zerowej dla etykiety bez konieczności wpisywania adresu. Używaj go do liczników, wskaźników i krótkotrwałych stanów, które należą do ZP.
+Podobnie jak **CONST, ale automatycznie przydzielane ** — `VAR` rezerwuje
+miejsce na stronie zerowej dla etykiety bez konieczności wpisywania adresu.
+Używaj go do liczników, wskaźników i krótkotrwałych stanów, które należą do ZP.
 
 | Pole                  | Opis                                                                          |
 | --------------------- | ----------------------------------------------------------------------------- |
 | Nazwa                 | Nazwa/etykieta zmiennej                                                       |
 | Rozmiar (opcjonalnie) | Liczba bajtów do zarezerwowania. Pomiń, jeśli chcesz zarezerwować jeden bajt. |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
-.var counter
-.var timer, 2
-.var lives
+licznik .var
+.var licznik czasu, 2
+.var żyje
 ```
 
-**Przykład praktyczny:**
+**Przykład praktyczny: **
 ```
 .region Vars
-.var counter
-.var timer, 2
-.endregion
+licznik .var
+.var licznik czasu, 2
+.koniecregionu
 
-LDA #$00
-STA counter
+LDA#00 dolarów
+Licznik STA
 ```
 
-**Wygenerowano ASM:**
+**Uruchomienie:** Kliknij **Debugowanie (RetroDebugger)** na pasku narzędzi.
+Aplikacja:
 ```
-; .var counter
+; .var licznik
 ```
 
-**Rozmiar:** domyślnie 1 bajt lub `N` bajtów, gdy określono rozmiar.
+**Rozmiar: ** domyślnie 1 bajt lub `N` bajtów, gdy określono rozmiar.
 
-Alokator przesuwa konfigurowalny kursor strony zerowej (`$02` do `$FE`) i przypisuje kolejny wolny slot. Jeśli żądany region nakłada się na już używaną etykietę, kompilator generuje ostrzeżenie.
+Alokator przesuwa konfigurowalny kursor strony zerowej (`$02` do `$FE`) i
+przypisuje kolejny wolny slot. Jeśli żądany region nakłada się na już używaną
+etykietę, kompilator generuje ostrzeżenie.
 
 ---
 
 ### Czas wykonania IF / ELSE / ENDIF
 
-Podobnie jak **prawdziwy szablon gałęzi** — ta wersja działa w czasie wykonywania, a nie kompilacji. Porównuje `A`, `X` lub `Y` z wartością bezpośrednią i generuje poprawną sekwencję gałęzi `CMP` / `CPX` / `CPY` za Ciebie.
+Podobnie jak **prawdziwy szablon gałęzi** — ta wersja działa w czasie
+wykonywania, a nie kompilacji. Porównuje `A`, `X` lub `Y` z wartością
+bezpośrednią i generuje poprawną sekwencję gałęzi `CMP` / `CPX` / `CPY` za
+Ciebie.
 
 | Pole     | Opis                                          |
 | -------- | --------------------------------------------- |
@@ -2450,24 +3370,28 @@ Podobnie jak **prawdziwy szablon gałęzi** — ta wersja działa w czasie wykon
 | Operator | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=`  |
 | Wartość  | Wartość natychmiastowa w formacie HEX lub DEC |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
 .if A == #$10
-    LDA #$07
+LDA #$07
 .else
-    LDA #$0F
+LDA #$0F
 .endif
 ```
 
-**Rozmiar:** Zależy od wybranych gałęzi i formy porównania.
+**Rozmiar: ** Zależy od wybranych gałęzi i formy porównania.
 
-Porównanie jest domyślnie bez znaku. W przypadku `&lt;=` i `&gt;` makro rozszerza się do najkrótszego równoważnego łańcucha rozgałęzień dla wybranego rejestru.
+Porównanie jest domyślnie bez znaku. W przypadku `&lt;=` i `&gt;` makro
+rozszerza się do najkrótszego równoważnego łańcucha rozgałęzień dla wybranego
+rejestru.
 
 ---
 
 ### WHILE / ENDW
 
-Podobnie jak **pętla czasu wykonania z testem na górze** — treść jest wykonywana tak długo, jak długo warunek pozostaje prawdziwy.
+Podobnie jak **pętla czasu wykonania z testem na górze** — treść jest wykonywana
+tak długo, jak długo warunek pozostaje prawdziwy.
 
 | Pole     | Opis                                          |
 | -------- | --------------------------------------------- |
@@ -2475,22 +3399,26 @@ Podobnie jak **pętla czasu wykonania z testem na górze** — treść jest wyko
 | Operator | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=`  |
 | Wartość  | Wartość natychmiastowa w formacie HEX lub DEC |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
 .while A != #$00
-    JSR getchar
+JSR getchar
 .endw
 ```
 
 **Rozmiar:** Zależy od treści pętli i formy porównania.
 
-Użyj `WHILE`, jeśli pętla może zakończyć się przed zakończeniem pierwszej iteracji. Jest to odpowiednik w czasie wykonywania funkcji pomocniczej `LOOP/NEXT` opartej na zliczaniu.
+Użyj `WHILE`, jeśli pętla może zakończyć się przed zakończeniem pierwszej
+iteracji. Jest to odpowiednik w czasie wykonywania funkcji pomocniczej
+`LOOP/NEXT` opartej na zliczaniu.
 
 ---
 
-### REPEAT / UNTIL
+### POWTARZAJ / DO
 
-Podobnie jak **pętla czasu wykonania z testem na dole** — treść zawsze jest uruchamiana co najmniej raz, a następnie warunek decyduje, czy się zatrzymać.
+Podobnie jak **pętla czasu wykonania z testem na dole** — treść zawsze jest
+uruchamiana co najmniej raz, a następnie warunek decyduje, czy się zatrzymać.
 
 | Pole     | Opis                                          |
 | -------- | --------------------------------------------- |
@@ -2498,164 +3426,204 @@ Podobnie jak **pętla czasu wykonania z testem na dole** — treść zawsze jest
 | Operator | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=`  |
 | Wartość  | Wartość natychmiastowa w formacie HEX lub DEC |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
 .repeat
-    JSR getchar
+JSR getchar
 .until A == #$00
 ```
 
 **Rozmiar:** Zależy od treści pętli i formy porównania.
 
-Użyj `REPEAT / UNTIL`, jeśli chcesz, aby treść została wykonana co najmniej raz przed sprawdzeniem wyjścia.
+Użyj `REPEAT / UNTIL`, jeśli chcesz, aby treść została wykonana co najmniej raz
+przed sprawdzeniem wyjścia.
 
 ---
 
 ### MEMCPY / MEMSET
 
-Podobnie jak **małe procedury pamięci, po które ciągle sięgasz** — `MEMCPY` kopiuje ciągły blok, `MEMSET` wypełnia zakres jednym bajtem.
+Podobnie jak **małe procedury pamięci, po które ciągle sięgasz** — `MEMCPY`
+kopiuje ciągły blok, `MEMSET` wypełnia zakres jednym bajtem.
 
-| Makro    | Pola                          |
-| -------- | ----------------------------- |
-| `MEMCPY` | `źródło`, `dst`, `rozmiar`    |
-| `MEMSET` | `adres`, `wartość`, `rozmiar` |
+| Makro            | Pola                          |
+| ---------------- | ----------------------------- |
+| `MEMCPY`         | `źródło`, `dst`, `rozmiar`    |
+| `ZESTAW PAMIĘCI` | `adres`, `wartość`, `rozmiar` |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
 .memcpy src=$C000, dst=$D000, size=$0100
 .memset addr=$0400, value=#$20, size=$03E8
 ```
 
-**Wygenerowano pętle ASM:** kopiowania/wypełniania w tekście, dobrane tak, aby odpowiadały żądanemu rozmiarowi.
+**Wygenerowano pętle ASM:** kopiowania/wypełniania w tekście, dobrane tak, aby
+odpowiadały żądanemu rozmiarowi.
 
-Rozmiary do 256 bajtów korzystają z krótkiej pętla 8-bitowej. Większe rozmiary automatycznie przełączają się na licznik 16-bitowy.
+Rozmiary do 256 bajtów korzystają z krótkiej pętla 8-bitowej. Większe rozmiary
+automatycznie przełączają się na licznik 16-bitowy.
 
 ---
 
-### PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / DELAY / SET_BORDER / SET_BG
+### DRUKUJ / DRUKUJ_ZNAK / DRUKUJ_SZESNASTKOWY / WYCZYŚĆ_EKRAN / KLUCZ_CZEKAJĄCY / OPÓŹNIJ / USTAW_OBRAMOWANIE / USTAW_BG
 
-#### PRINT
+#### WYDRUKOWAĆ
 
-Podobnie jak wyjście **PETSCII bez szablonu** — drukuje ciąg znaków przez `CHROUT` z takim samym traktowaniem wielkich i małych liter jak w bloku PETSCII. Pole wyboru małych liter jest współdzielone z koderem PETSCII, dzięki czemu ścieżka tekstowa pozostaje spójna.
+Podobnie jak wyjście **PETSCII bez szablonu ** — drukuje ciąg znaków przez
+`CHROUT` z takim samym traktowaniem wielkich i małych liter jak w bloku PETSCII.
+Pole wyboru małych liter jest współdzielone z koderem PETSCII, dzięki czemu
+ścieżka tekstowa pozostaje spójna.
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
-.print "HELLO"
-.print "hello", lower
+.print "CZEŚĆ"
+.print "cześć", dolna część
 ```
 
-#### PRINT_CHAR
+#### DRUKUJ_ZNAK
 
-Drukuje jeden bajt PETSCII według kodu numerycznego i wysyła go przez `CHROUT`. Wartość może być również nazwaną stałą lub etykietą, która w momencie montażu jest przekształcana na bajt, zarówno w trybie blokowym, jak i eksperckim.
+Drukuje jeden bajt PETSCII według kodu numerycznego i wysyła go przez `CHROUT`.
+Wartość może być również nazwaną stałą lub etykietą, która w momencie montażu
+jest przekształcana na bajt, zarówno w trybie blokowym, jak i eksperckim.
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
 .print_char 65
 .print_char $41
-.print_char color
+.print_char kolor
 ```
 
-#### PRINT_HEX
+#### DRUKUJ_SZESNASTKO
 
-Drukuje 8-bitową wartość jako tekst szesnastkowy poprzez normalną ścieżkę wyjściową KERNAL.
+Drukuje 8-bitową wartość jako tekst szesnastkowy poprzez normalną ścieżkę
+wyjściową KERNAL.
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
 .print_hex A
 ```
 
-#### CLEAR_SCREEN
+#### WYCZYŚĆ_EKRAN
 
 Skrót do standardowego kodu sterującego czystym ekranem w C64.
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
-.clear_screen
+.wyczyść_ekran
 ```
 
 #### WAIT_KEY
 
-Czeka, aż zostanie naciśnięty klawisz, dzięki czemu nie musisz ręcznie powtarzać pętli `GETIN` za każdym razem.
+Czeka, aż zostanie naciśnięty klawisz, dzięki czemu nie musisz ręcznie powtarzać
+pętli `GETIN` za każdym razem.
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
 .wait_key
 ```
 
-#### DELAY
+#### OPÓŹNIENIE
 
-Oczekuje żądaną liczbę klatek w ramach współdzielonej procedury pomocniczej. Używaj tego w przypadku krótkich przerw i przerw w synchronizacji, gdy pełna pętla niestandardowa byłaby przesadą. Liczba klatek może być liczbą całkowitą lub stałą o określonej nazwie, a `.wait` to po prostu alias `.delay`.
+Oczekuje żądaną liczbę klatek w ramach współdzielonej procedury pomocniczej.
+Używaj tego w przypadku krótkich przerw i przerw w synchronizacji, gdy pełna
+pętla niestandardowa byłaby przesadą. Liczba klatek może być liczbą całkowitą
+lub stałą o określonej nazwie, a `.wait` to po prostu alias `.delay`.
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
 .delay 29
 .wait 29
 .delay frames=FRAMES_1S
 ```
 
-W trybie blokowym pole opóźnienia wykorzystuje kompaktowy selektor const, gdy dostępna jest wartość symboliczna, dzięki czemu nie musisz za każdym razem wpisywać nazwy ręcznie.
+W trybie blokowym pole opóźnienia wykorzystuje kompaktowy selektor const, gdy
+dostępna jest wartość symboliczna, dzięki czemu nie musisz za każdym razem
+wpisywać nazwy ręcznie.
 
-#### SET_BORDER / SET_BG
+#### USTAW_GRANICĘ / USTAW_BG
 
-Wygodne wrappery dla rejestrów kolorów VIC-II. Wartość koloru może być liczbą bezwzględną lub nazwaną stałą z zakresu 0–15. Zarówno tryb blokowy, jak i tryb ekspercki akceptują tutaj symboliczne nazwy stałych.
+Wygodne wrappery dla rejestrów kolorów VIC-II. Wartość koloru może być liczbą
+bezwzględną lub nazwaną stałą z zakresu 0–15. Zarówno tryb blokowy, jak i tryb
+ekspercki akceptują tutaj symboliczne nazwy stałych.
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
 .set_border 6
 .set_bg 0
-.set_border color
-.set_bg color
+.set_border kolor
+.set_bg kolor
 ```
 
-**Rozmiar:** Każdy pomocnik rozszerza się do małej sekwencji zapisu do rejestru lub krótkiego wywołania KERNAL.
+**Rozmiar:** Każdy pomocnik rozszerza się do małej sekwencji zapisu do rejestru
+lub krótkiego wywołania KERNAL.
 
-W trybie blokowym pola te korzystają także z selektora const, dzięki czemu wartość symboliczna pozostaje widoczna i nie jest zastępowana przez surową liczbę.
+W trybie blokowym pola te korzystają także z selektora const, dzięki czemu
+wartość symboliczna pozostaje widoczna i nie jest zastępowana przez surową
+liczbę.
 
 ---
 
 ### IRQ_SETUP
 
-Konfiguruje obsługę przerwań rastrowych w jednym kroku. Makro zapisuje wektor IRQ, włącza przerwania rastrowe, ustawia linię, wyłącza typowe źródła IRQ CIA i powraca do normalnego wykonywania za pomocą `CLI`.
+Konfiguruje obsługę przerwań rastrowych w jednym kroku. Makro zapisuje wektor
+IRQ, włącza przerwania rastrowe, ustawia linię, wyłącza typowe źródła IRQ CIA i
+powraca do normalnego wykonywania za pomocą `CLI`.
 
 | Pole   | Opis                                                                |
 | ------ | ------------------------------------------------------------------- |
 | Treser | Etykieta procedury IRQ (np. `my_irq`)                               |
 | Raster | Linia rastrowa w systemie szesnastkowym lub dziesiętnym (np. `$FA`) |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
 .irq_setup handler=my_irq, raster=$FA
 ```
 
-**Rozmiar:** Krótka sekwencja ustawień; dokładna długość zależy od wybranej linii rastrowej.
+**Rozmiar:** Krótka sekwencja ustawień; dokładna długość zależy od wybranej
+linii rastrowej.
 
-Użyj tego, jeśli chcesz mieć standardowy kod „SEI / install handler / enable IRQ / CLI” bez rozpraszania go po całym programie.
+Użyj tego, jeśli chcesz mieć standardowy kod „SEI / install handler / enable IRQ
+/ CLI” bez rozpraszania go po całym programie.
 
 ---
 
-### RAND
+### SKRAJ
 
-Podobnie jak **niewielki wbudowany PRNG** — zwraca 8-bitową pseudolosową wartość z kompaktowego ziarna zerowej strony.
+Podobnie jak **niewielki wbudowany PRNG** — zwraca 8-bitową pseudolosową wartość
+z kompaktowego ziarna zerowej strony.
 
 | Pole     | Opis                                                          |
 | -------- | ------------------------------------------------------------- |
 | Nasienie | Opcjonalny bajt lub etykieta zerowej strony (domyślnie `$FB`) |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
-.rand
+.skraj
 ```
 
 **Rozmiar:** Kilka bajtów, w zależności od wybranej ścieżki implementacji.
 
-Generator jest przeznaczony do rozgrywki, modyfikacji efektów i szybkiego testowania danych. Jest celowo niewielki, a nie kryptograficznie skomplikowany.
+Generator jest przeznaczony do rozgrywki, modyfikacji efektów i szybkiego
+testowania danych. Jest celowo niewielki, a nie kryptograficznie skomplikowany.
 
 ---
 
 <a id="sprite_init"></a>
 ### SPRITE_INIT
 
-Konfiguruje sprite'a VIC-II w jednym bloku — zamiast pisać ~6 poleceń POKE w BASIC-u, wystarczy wypełnić pola. Ustawia wskaźnik danych sprite'a, włącza go, opcjonalnie włącza tryb wielokolorowy i ustawia jego kolor.
+Konfiguruje sprite'a VIC-II w jednym bloku — zamiast pisać ~6 poleceń POKE w
+BASIC-u, wystarczy wypełnić pola. Ustawia wskaźnik danych sprite'a, włącza go,
+opcjonalnie włącza tryb wielokolorowy i ustawia jego kolor.
 
 | Pole          | Opis                                                                      |
 | ------------- | ------------------------------------------------------------------------- |
@@ -2664,37 +3632,44 @@ Konfiguruje sprite'a VIC-II w jednym bloku — zamiast pisać ~6 poleceń POKE w
 | Strona danych | Adres danych sprite'a / 64 (np. `$21`, jeśli dane znajdują się w `$0840`) |
 | Wielobarwność | Przełącza wielokolorowy bit sprite'a (`$D01C`)                            |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
-.sprite_init 0, 7, $21
-.sprite_init 0, 7, $21, multicolor
-.sprite_init 0, 7, $21, mono
+.sprite_init 0, 7, 21 USD
+.sprite_init 0, 7, 21 USD, wielokolorowy
+.sprite_init 0, 7, 21 USD, monochromatyczny
 ```
 
-**Wygenerowano ASM:**
+**Uruchomienie:** Kliknij **Debugowanie (RetroDebugger)** na pasku narzędzi.
+Aplikacja:
 ```
-    LDA #$21
-    STA $07F8       ; sprite pointer register ($07F8 + N)
-    LDA $D015
-    ORA #$01        ; set enable bit for sprite 0
-    STA $D015
-    LDA $D01C
-    AND #$FE        ; clear multicolor bit for sprite 0
-    STA $D01C
-    LDA #$07
-    STA $D027       ; sprite 0 colour register
+LDA #$21
+STA $07F8 ; rejestr wskaźnika sprite'a ($07F8 + N)
+LDA $D015
+ORA #$01 ; ustaw bit włączenia dla sprite'a 0
+STA $D015
+LDA $D01C
+AND #$FE ; wyczyść bit wielokolorowy dla sprite'a 0
+STA $D01C
+LDA #$07
+STA $D027 ; rejestr koloru sprite'a 0
 ```
 
 **Rozmiar:** 26 bajtów.
 
-> **Strona danych sprite'a:** `adres_danych ÷ 64`. Z domyślnym stubem BASIC SYS, `ALIGN 64` po `JMP main` umieszcza dane sprite'a w `$0840` → strona = `$21`.
+> **Strona danych sprite'a: ** `adres_danych ÷ 64`. Z domyślnym stubem BASIC
+> SYS, `ALIGN 64` po `JMP main` umieszcza dane sprite'a w `$0840` → strona =
+> `$21`.
 
 ---
 
 <a id="sprite_pos"></a>
 ### SPRITE_POS
 
-Podobnie jak **`POKE 53248, x : POKE 53249, y`** w BASIC-u — ustawia pozycję początkową sprite'a. Współrzędne są wbudowywane w trakcie montażu, a pola akceptują stałe w trybie blokowym; do animacji użyj `INC`/`DEC` bezpośrednio w rejestrze sprite'a.
+Podobnie jak **`POKE 53248, x : POKE 53249, y`** w BASIC-u — ustawia pozycję
+początkową sprite'a. Współrzędne są wbudowywane w trakcie montażu, a pola
+akceptują stałe w trybie blokowym; do animacji użyj `INC`/`DEC` bezpośrednio w
+rejestrze sprite'a.
 
 | Pole     | Opis                  |
 | -------- | --------------------- |
@@ -2702,90 +3677,102 @@ Podobnie jak **`POKE 53248, x : POKE 53249, y`** w BASIC-u — ustawia pozycję 
 | X        | Pozycja pozioma 0–319 |
 | Y        | Pozycja pionowa 0–255 |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
 .sprite_pos 0, 152, 100
 ```
 
 **Wygenerowany ASM (przykład: sprite 0, X=152, Y=100):**
 ```
-    LDA #$98        ; X low byte
-    STA $D000       ; sprite 0 X register
-    LDA $D010
-    AND #$FE        ; clear X MSB for sprite 0 (X ≤ 255)
-    STA $D010
-    LDA #$64        ; Y = 100
-    STA $D001       ; sprite 0 Y register
+LDA #$98; X niższy bajt
+STA $D000; sprite 0 rejestr X
+LDA $D010
+AND #$FE; wyczyść X najstarszego bajta dla sprite'a 0 (X ≤ 255)
+STA $D010
+LDA #$64; Y = 100
+STA $D001; sprite 0 rejestr Y
 ```
 
 W przypadku X > 255 makro ustawia odpowiedni bit w `$D010` zamiast go czyścić.
 
 **Rozmiar:** 18 bajtów.
 
-> **Uwaga:** `SPRITE_POS` wstawia współrzędne X/Y do kodu (`LDA #$xx`). Aby animować sprite'a w czasie wykonywania, użyj `INC $D000` / `DEC $D000` — zobacz przykład `sprite-macro-demo`.
+> **Uwaga: ** `SPRITE_POS` wstawia współrzędne X/Y do kodu (`LDA #$xx`). Aby
+> animować sprite'a w czasie wykonywania, użyj `INC $D000` / `DEC $D000` —
+> zobacz przykład `sprite-macro-demo`.
 
 ---
 
 <a id="wait_raster"></a>
-### WAIT_RASTER
+### CZEKAJ_RASTER
 
-Czeka, aż wiązka elektronów VIC-II dotrze do określonej linii skanowania – jak synchronizacja z ramką telewizora. Umieść to na początku pętli gry, aby zapobiec rozrywaniu sprite'ów. Bez JSR, bez etykiety.
+Czeka, aż wiązka elektronów VIC-II dotrze do określonej linii skanowania – jak
+synchronizacja z ramką telewizora. Umieść to na początku pętli gry, aby zapobiec
+rozrywaniu sprite'ów. Bez JSR, bez etykiety.
 
 | Pole           | Opis                                                                    |
 | -------------- | ----------------------------------------------------------------------- |
 | Linia rastrowa | Docelowa linia rastrowa w formacie szesnastkowym (np. `FF` = linia 255) |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
 .wait_raster $FF
 ```
 
-**Wygenerowano ASM:**
+**Uruchomienie:** Kliknij **Debugowanie (RetroDebugger)** na pasku narzędzi.
+Aplikacja:
 ```
-wait:
-    LDA $D012       ; current raster line
-    CMP #$FF        ; target line
-    BNE wait        ; loop back (-7 bytes)
+czekaj:
+LDA $D012 ; bieżąca linia rastrowa
+CMP #$FF ; linia docelowa
+BNE czekaj ; pętla powrotna (-7 bajtów)
 ```
 
-**Rozmiar:** 7 bajtów (przesunięcie `BNE` `$F9` = −7 zawsze wskazuje z powrotem na `LDA`).
+**Rozmiar: ** 7 bajtów (przesunięcie `BNE` `$F9` = −7 zawsze wskazuje z powrotem
+na `LDA`).
 
-> **Wskazówka:** Umieść `WAIT_RASTER` na górze pętli gry, aby zsynchronizować ją z wyświetlaczem i zapobiec rozrywaniu się sprite'ów.
+> **Wskazówka:** Umieść `WAIT_RASTER` na górze pętli gry, aby zsynchronizować ją
+> z wyświetlaczem i zapobiec rozrywaniu się sprite'ów.
 
 ---
 
-### JOYSTICK
+### DRĄŻEK STEROWY
 
-Jak odczyt **`PEEK($DC00)`**, a następnie POKE-owanie pozycji sprite'a — ale w jednym bloku. Odczytuje jeden port joysticka CIA i odpowiednio dostosowuje rejestry X/Y sprite'a. Całkowicie inline, bez potrzeby JSR.
+Jak odczyt **`PEEK($DC00)`**, a następnie POKE-owanie pozycji sprite'a — ale w
+jednym bloku. Odczytuje jeden port joysticka CIA i odpowiednio dostosowuje
+rejestry X/Y sprite'a. Całkowicie inline, bez potrzeby JSR.
 
 | Pole     | Opis                                                                       |
 | -------- | -------------------------------------------------------------------------- |
 | Port     | `1` = port 1 (`$DC01`) lub `2` = port 2 (`$DC00`)                          |
 | Sprite # | Numer duszka 0–7 (kontroluje, która para rejestrów X/Y jest aktualizowana) |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
 .joystick 2, 0
 ```
 
 **Wygenerowany ASM (port 2, sprite 0):**
 ```
-    LDA $DC00       ; read CIA port 2
-    LSR             ; bit 0 → carry (Up)
-    BCS skip_up     ; carry set = NOT pressed
-    DEC $D001       ; Y−1 (move up)
+LDA $DC00; odczyt portu CIA 2
+LSR; bit 0 → przeniesienie (w górę)
+BCS skip_up; przeniesienie ustawione = NIEnaciśnięte
+DEC $D001; Y−1 (przesuń w górę)
 skip_up:
-    LSR             ; bit 1 → carry (Down)
-    BCS skip_down
-    INC $D001       ; Y+1 (move down)
+LSR; bit 1 → przeniesienie (w dół)
+BCS skip_down
+INC $D001; Y+1 (przesuń w dół)
 skip_down:
-    LSR             ; bit 2 → carry (Left)
-    BCS skip_left
-    DEC $D000       ; X−1 (move left)
+LSR; bit 2 → przeniesienie (w lewo)
+BCS skip_left
+DEC $D000; X−1 (przesuń w lewo)
 skip_left:
-    LSR             ; bit 3 → carry (Right)
-    BCS skip_right
-    INC $D000       ; X+1 (move right)
+LSR; bit 3 → przeniesienie (w prawo)
+BCS skip_right
+INC $D000; X+1 (przesuń w prawo)
 skip_right:
 ```
 
@@ -2799,29 +3786,39 @@ skip_right:
 | 3        | Prawidłowy |                                           |
 | 4        | Ogień      | (nieobsługiwane przez tę makroinstrukcję) |
 
-**Rozmiar:** 27 bajtów. Przesunięcie `BCS` zawsze wynosi `+3` (pomija następującą 3-bajtową instrukcję `DEC`/`INC abs`).
+**Rozmiar: ** 27 bajtów. Przesunięcie `BCS` zawsze wynosi `+3` (pomija
+następującą 3-bajtową instrukcję `DEC`/`INC abs`).
 
-**Tryb zmienny — `.port joysticka, vx, vy[, fire]`:** zamiast przesuwać duszka, kierunek zapisywany jest w zmiennych: `vx` / `vy` = `-1` / `0` / `+1` (`$FF` / `$00` / `$01`), a opcjonalnie `fire` = `1` podczas naciskania przycisku, W przeciwnym razie użyj `0`. Użyj go do przewijania kamery, odtwarzacza z własną fizyką lub menu. Port `3` odczytuje oba porty joysticka jednocześnie (`LDA $DC00` / `AND $DC01`), więc oba porty działają.
+**Tryb zmienny — `.port joysticka, vx, vy[, fire]`:** zamiast przesuwać duszka,
+kierunek zapisywany jest w zmiennych: `vx` / `vy` = `-1` / `0` / `+1` (`$FF` /
+`$00` / `$01`), a opcjonalnie `fire` = `1` podczas naciskania przycisku, W
+przeciwnym razie użyj `0`. Użyj go do przewijania kamery, odtwarzacza z własną
+fizyką lub menu. Port `3` odczytuje oba porty joysticka jednocześnie (`LDA
+$DC00` / `AND $DC01`), więc oba porty działają.
 
 ```
-.joystick 2, vx, vy          ; 35 bytes
-.joystick 3, vx, vy, fire    ; both ports + fire: 45 bytes
+.joystick 2, vx, vy; 35 bajtów
+.joystick 3, vx, vy, fire; oba porty + fire: 45 bajtów
 ```
 
 > **Typowe zastosowanie:** Umieść w etykiecie `gameloop` najpierw `WAIT_RASTER`:
 > ```
-> gameloop:
->     WAIT_RASTER ($FF)
->     JOYSTICK (port=2, sprite=0)
->     JMP gameloop
+> Pętla gry:
+> WAIT_RASTER ($FF)
+> JOYSTICK (port=2, sprite=0)
+> Pętla gry JMP
 > ```
 
 ---
 
 <a id="mouse"></a>
-### MOUSE
+### MYSZ
 
-Odczytuje dane z myszy proporcjonalnej Commodore 1351 i przesuwa sprite'a. Całkowicie **inline** — bez JSR ani etykiety. Makro wybiera port CIA, czeka na ustabilizowanie się sygnałów wejściowych z łopatki SID, a następnie dekoduje ruch delta za pomocą standardowego wzorca sterownika 1351 i stosuje go do rejestrów sprite'a.
+Odczytuje dane z myszy proporcjonalnej Commodore 1351 i przesuwa sprite'a.
+Całkowicie **inline** — bez JSR ani etykiety. Makro wybiera port CIA, czeka na
+ustabilizowanie się sygnałów wejściowych z łopatki SID, a następnie dekoduje
+ruch delta za pomocą standardowego wzorca sterownika 1351 i stosuje go do
+rejestrów sprite'a.
 
 | Pole      | Opis                                                                                     |
 | --------- | ---------------------------------------------------------------------------------------- |
@@ -2833,86 +3830,86 @@ Odczytuje dane z myszy proporcjonalnej Commodore 1351 i przesuwa sprite'a. Całk
 **Wygenerowany kształt ASM (port 1, sprite 0, ZP `$FD`/`$FE`):**
 
 ```
-    ; CIA port select + settle
-    LDA $DC00
-    AND #$3F
-    ORA #$40
-    STA $DC00
-    LDX #$67
-wait:
-    DEX
-    BNE wait
+; Wybór portu CIA + rozliczenie
+LDA $DC00
+AND #$3F
+ORA #$40
+STA $DC00
+LDX #$67
+czekaj:
+DEX
+BNE czekaj
 
-    ; X axis — standard 1351-style 7-bit delta decode
-    LDA $D419
-    TAY
-    SEC
-    SBC $FD
-    AND #$7F
-    LDX #$00
-    CMP #$40
-    BCS xneg
-    LSR A
-    BEQ xdone
-    STY $FD
-    CLC
-    ADC $D000
-    STA $D000
-    TXA
-    ADC #$00
-    AND #$01
-    BEQ xdone
-    LDA $D010
-    EOR #$01
-    STA $D010
-    JMP xdone
+; Oś X — standardowe 7-bitowe dekodowanie delta w stylu 1351
+LDA $D419
+TAY
+SEC
+SBC $FD
+AND #$7F
+LDX #$00
+CMP #$40
+BCS xneg
+LSR A
+BEQ xdone
+STY $FD
+CLC
+ADC $D000
+STA $D000
+TXA
+ADC #$00
+AND #$01
+BEQ xdone
+LDA $D010
+EOR #$01
+STA $D010
+JMP xdone
 xneg:
-    ORA #$C0
-    CMP #$FF
-    BEQ xdone
-    SEC
-    ROR
-    DEX
-    STY $FD
-    CLC
-    ADC $D000
-    STA $D000
-    TXA
-    ADC #$00
-    AND #$01
-    BEQ xdone
-    LDA $D010
-    EOR #$01
-    STA $D010
+ORA #$C0
+CMP #$FF
+BEQ xdone
+SEC
+ROR
+DEX
+STY $FD
+CLC
+ADC $D000
+STA $D000
+TXA
+ADC #$00
+AND #$01
+BEQ xdone
+LDA $D010
+EOR #$01
+STA $D010
 xdone:
 
-    ; Y axis — same decode, then inverted before apply
-    LDA $D41A
-    TAX
-    SEC
-    SBC $FE
-    AND #$7F
-    CMP #$40
-    BCS yneg
-    LSR A
-    BEQ ydone
-    STX $FE
-    EOR #$FF
-    SEC
-    ADC $D001
-    STA $D001
-    JMP ydone
+; Oś Y — to samo dekodowanie, następnie odwrócone przed zastosowaniem
+LDA $D41A
+TAX
+SEC
+SBC $FE
+AND #$7F
+CMP #$40
+BCS yneg
+LSR A
+BEQ ydone
+STX $FE
+EOR #$FF
+SEC
+ADC $D001
+STA $D001
+JMP ydone
 yneg:
-    ORA #$C0
-    CMP #$FF
-    BEQ ydone
-    SEC
-    ROR
-    STX $FE
-    EOR #$FF
-    SEC
-    ADC $D001
-    STA $D001
+ORA #$C0
+CMP #$FF
+BEQ ydone
+SEC
+ROR
+STX $FE
+EOR #$FF
+SEC
+ADC $D001
+STA $D001
 ydone:
 ```
 
@@ -2920,73 +3917,82 @@ ydone:
 
 **Składnia trybu eksperckiego:**
 ```
-.mouse port, spriteNum, zpX, zpY
-; example:
+.mouse port, numer sprite'a, zpX, zpY
+; przykład:
 .mouse 2, 0, FD, FE
 ```
 
-> **Ważne:** Przed pierwszym wywołaniem zainicjuj bajty strony zerowej bieżącymi wartościami POTX/POTY, aby uniknąć przeskoku w pierwszej ramce:
+> **Ważne:** Przed pierwszym wywołaniem zainicjuj bajty strony zerowej bieżącymi
+> wartościami POTX/POTY, aby uniknąć przeskoku w pierwszej ramce:
 > ```
->     ; port 1: LDA $DC00 : AND #$3F : ORA #$40 : STA $DC00
->     ; port 2: LDA $DC00 : AND #$3F : ORA #$80 : STA $DC00
->     LDA $D419 : LSR A : AND #$3F : STA $FD
->     LDA $D41A : LSR A : AND #$3F : STA $FE
+> ; port 1: LDA $DC00 : AND #$3F : ORA #$40 : STA $DC00
+> ; port 2: LDA $DC00 : AND #$3F : ORA #$80 : STA $DC00
+> LDA $D419 : LSR A : AND #$3F : STA $FD
+> LDA $D41A : LSR A : AND #$3F : STA $FE
 > ```
 
-> **Wskazówka:** Odczytuj ruch myszy raz na klatkę — umieść `WAIT_RASTER` w pętli gry przed `MOUSE`.
+> **Wskazówka:** Odczytuj ruch myszy raz na klatkę — umieść `WAIT_RASTER` w
+> pętli gry przed `MOUSE`.
 
 ---
 
 <a id="sprite_col"></a>
 ### SPRITE_COL
 
-Podobnie jak **`PEEK($D01E)`** w BASIC-u — sprawdza rejestry kolizji sprzętowych VIC-II i informuje, czy sprite uderzył w inny sprite lub tło. Całkowicie inline, bez potrzeby JSR.
+Podobnie jak **`PEEK($D01E)`** w BASIC-u — sprawdza rejestry kolizji sprzętowych
+VIC-II i informuje, czy sprite uderzył w inny sprite lub tło. Całkowicie inline,
+bez potrzeby JSR.
 
 | Pole        | Opis                                                                                              |
 | ----------- | ------------------------------------------------------------------------------------------------- |
 | Sprite #    | Numer duszka 0–7 (bit, który duszek należy sprawdzić)                                             |
 | Typ kolizji | `Sprite-Sprite ($D01E)` — kolizja z innym sprite'em; `Sprite-Tło ($D01F)` — kolizja z grafiką tła |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
 .sprite_col 0, sprite
-.sprite_col 0, background
+.sprite_col 0, tło
 ```
 
 **Wygenerowany ASM (sprite 0, sprite–sprite):**
 ```
-    LDA $D01E       ; read sprite-sprite collision register (clears it!)
-    AND #$01        ; isolate bit 0 (sprite 0)
-                    ; A ≠ 0 → collision occurred
+LDA $D01E ; odczyt rejestru kolizji sprite-sprite (czyszczenie!)
+AND #$01 ; izolowanie bitu 0 (sprite 0)
+; A ≠ 0 → wystąpiła kolizja
 ```
 
 **Rozmiar:** 5 bajtów.
 
-> **Ważne:** Odczytanie `$D01E`/`$D01F` **czyści rejestr**. Odczytuj go raz na klatkę i natychmiast wykonaj działanie na wyniku za pomocą `BEQ`/`BNE`.
+> **Ważne:** Odczytanie `$D01E`/`$D01F` **czyści rejestr**. Odczytuj go raz na
+> klatkę i natychmiast wykonaj działanie na wyniku za pomocą `BEQ`/`BNE`.
 
 **Typowe zastosowanie:**
 ```
-gameloop:
-    WAIT_RASTER ($FF)
-    JOYSTICK (port=2, sprite=0)
-    SPRITE_COL (sprite=0, type=sprite-sprite)
-    BEQ no_hit          ; A = 0 → no collision
-    LDA #$02
-    STA $D020           ; red border = hit!
-    JMP gameloop
+Pętla gry:
+WAIT_RASTER ($FF)
+JOYSTICK (port=2, sprite=0)
+SPRITE_COL (sprite=0, typ=sprite-sprite)
+BEQ no_hit ; A = 0 → brak kolizji
+LDA #$02
+STA $D020 ; czerwona ramka = trafienie!
+Pętla gry JMP
 no_hit:
-    LDA #$0E
-    STA $D020           ; light blue border = clear
-    JMP gameloop
+LDA #$0E
+STA $D020 ; jasnoniebieska ramka = wyczyść
+Pętla gry JMP
 ```
 
-> **Zobacz także:** `przykład kolizji` — zielona kula (sprite #0) kontra czerwony krzyż (sprite #1).
+> **Zobacz także:** `przykład kolizji` — zielona kula (sprite #0) kontra
+> czerwony krzyż (sprite #1).
 
 ---
 
-### LOADFILE
+### WCZYTAJ PLIK
 
-Podobnie jak **`LOAD „plik”, 8`** w BASIC-u — ładuje plik z dysku D64 w czasie wykonywania za pomocą procedury KERNAL LOAD. Użyj tej funkcji, aby załadować dane, muzykę lub dodatkowy kod z dysku podczas działania programu.
+Podobnie jak **`LOAD „plik”, 8`** w BASIC-u — ładuje plik z dysku D64 w czasie
+wykonywania za pomocą procedury KERNAL LOAD. Użyj tej funkcji, aby załadować
+dane, muzykę lub dodatkowy kod z dysku podczas działania programu.
 
 | Pole                         | Opis                                                                                                                                                                                                          |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -2995,50 +4001,62 @@ Podobnie jak **`LOAD „plik”, 8`** w BASIC-u — ładuje plik z dysku D64 w c
 | Zastąp adres (opcjonalnie)   | Adres ładowania szesnastkowego (np. `C000`). Jeśli ustawiony, plik jest ładowany pod ten adres (`sec=0`, ignorując nagłówek PRG). Pozostaw puste, aby użyć własnego 2-bajtowego nagłówka PRG pliku (`sec=1`). |
 | Etykieta błędu (opcjonalnie) | Jeśli ustawione, instrukcja `BCS` jest generowana po JSR LOAD. Jeśli KERNAL zwróci wartość z ustawionym przeniesieniem (błąd), wykonanie zostanie przeskoczone do tej etykiety.                               |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
 .loadfile "DEMO-COLORS", 8
 .loadfile "DEMO-COLORS", 8, $C000
-.loadfile "DEMO-COLORS", 8, $C000, error_label
+.loadfile "DEMO-COLORS", 8, $C000, etykieta_błędu
 ```
 
-**Wygenerowana struktura kodu:**
+**Wygenerowana struktura kodu: **
 ```
-    JMP skip_filename      ; jump over the inline filename
-    .byte "DEMO-COLORS"    ; filename bytes (PETSCII, 11 chars)
+JMP skip_filename; przeskocz nazwę pliku
+.byte "DEMO-COLORS" ; bajty nazwy pliku (PETSCII, 11 znaków)
 skip_filename:
-    LDA #11                ; filename length
-    LDX #<fname            ; pointer lo
-    LDY #>fname            ; pointer hi
-    JSR $FFBD              ; SETNAM
-    LDA #1                 ; logical file #1
-    LDX #8                 ; device 8
-    LDY #0                 ; sec=0 (override addr) or #1 (file's own addr)
-    JSR $FFBA              ; SETLFS
-    LDA #0                 ; LOAD command (not VERIFY)
-    JSR $FFD5              ; LOAD
-    BCS fail               ; (only if error label set)
+LDA #11 ; długość nazwy pliku
+LDX #<fname ; wskaźnik lo
+LDY #>fname ; wskaźnik hi
+JSR $FFBD ; SETNAM
+LDA #1 ; plik logiczny #1
+LDX #8 ; urządzenie 8
+LDY #0 ; s=0 (nadpisz adres) lub #1 (własny adres pliku)
+JSR $FFBA ; SETLFS
+LDA #0 ; polecenie LOAD (nie VERIFY)
+JSR $FFD5 ; LOAD
+BCS fail ; (tylko jeśli ustawiono etykietę błędu)
 ```
 
-**Rozmiar:** `3 + długość_nazwy_pliku + 9 (SETNAM) + 9 (SETLFS) + (4 w przypadku nadpisania) + 5 (WCZYTAJ) + (2 w przypadku etykiety błędu) ` bajtów. Minimum 27 bajtów.
+**Rozmiar: ** `3 + długość_nazwy_pliku + 9 (SETNAM) + 9 (SETLFS) + (4 w
+przypadku nadpisania) + 5 (WCZYTAJ) + (2 w przypadku etykiety błędu) ` bajtów.
+Minimum 27 bajtów.
 
-> **Ważne:** Nazwa pliku jest zapisywana w kodzie maszynowym zaraz po `JMP skip_filename`. Nazwa pliku na dysku musi być zapisana wielkimi literami PETSCII — co odpowiada wielkim literom w ASCII (`A`–`Z`). Makro wymusza to automatycznie.
+> **Ważne:** Nazwa pliku jest zapisywana w kodzie maszynowym zaraz po `JMP
+> skip_filename`. Nazwa pliku na dysku musi być zapisana wielkimi literami
+> PETSCII — co odpowiada wielkim literom w ASCII (`A`–`Z`). Makro wymusza to
+> automatycznie.
 
-> **Zawsze używaj etykiety błędu** w programach produkcyjnych — jeśli plik nie zostanie znaleziony, KERNAL ustawia flagę przeniesienia, a wykonywanie zostaje przerwane i przechodzi do następnego kroku.
+> **Zawsze używaj etykiety błędu** w programach produkcyjnych — jeśli plik nie
+> zostanie znaleziony, KERNAL ustawia flagę przeniesienia, a wykonywanie zostaje
+> przerwane i przechodzi do następnego kroku.
 
-> **Zobacz także:** `przykład loadfile-demo` — demonstruje ładowanie `DEMO-COLORS.PRG` z D64 z gałęzią błędu BCS i wizualnym ekranem błędu.
+> **Zobacz także:** `przykład loadfile-demo` — demonstruje ładowanie
+> `DEMO-COLORS.PRG` z D64 z gałęzią błędu BCS i wizualnym ekranem błędu.
 
 ---
 
 ### EXODECRUNCH
 
-Dekompresja Exomizera w programie ****. Użyj tej makry zaraz po poleceniu `LOADFILE`, które załadowało strumień skompresowany w trybie Exomizera `mem` — EXODECRUNCH rozpakuje ją wstecz do adresu osadzonego w strumieniu.
+Dekompresja Exomizera w programie ****. Użyj tej makry zaraz po poleceniu
+`LOADFILE`, które załadowało strumień skompresowany w trybie Exomizera `mem` —
+EXODECRUNCH rozpakuje ją wstecz do adresu osadzonego w strumieniu.
 
 | Pole           | Opis                                                                                                                |
 | -------------- | ------------------------------------------------------------------------------------------------------------------- |
 | Adres depakera | Miejsce w pamięci, w którym znajduje się kod depakera (domyślnie `B000`). Musi to być 16-bitowy adres szesnastkowy. |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
 .exodecrunch
 .exodecrunch depacker=$B000
@@ -3046,36 +4064,59 @@ Dekompresja Exomizera w programie ****. Użyj tej makry zaraz po poleceniu `LOAD
 
 **Wygenerowany kod (19 bajtów):**
 ```
-    LDA $AE           ; KERNAL load-end lo (set by previous LOAD)
-    STA $04           ; depacker src-end pointer lo
-    LDA $AF           ; KERNAL load-end hi
-    STA $05           ; depacker src-end pointer hi
-    LDA #$36          ; BASIC ROM off ($A000-$BFFF becomes RAM)
-    STA $01
-    JSR depacker      ; depacker reads back-to-front via $04/$05
-    LDA #$37          ; restore default mapping (BASIC + KERNAL + I/O)
-    STA $01
+LDA $AE; koniec ładowania jądra (ustawiony przez poprzednie LOAD)
+STA $04; wskaźnik końca źródła depakera (src-end) (lo)
+LDA $AF; koniec ładowania jądra (hi)
+STA $05; wskaźnik końca źródła depakera (src-end) (hi)
+LDA #$36; ROM BASIC wyłączony ($A000-$BFFF staje się RAM)
+STA $01
+Depaker JSR; depaker odczytuje od tyłu przez $04/$05
+LDA #$37; przywraca domyślne mapowanie (BASIC + KERNAL + I/O)
+STA $01
 ```
 
 **Jak to działa:**
 
-1. KERNAL `LOAD` ($FFD5) aktualizuje ZP `$AE/$AF` do punktu znajdującego się jeden za ostatnim załadowanym bajtem. EXODECRUNCH kopiuje to do ZP `$04/$05`, co jest oficjalną konwencją wstecznego kodu źródłowego Exomizera.
-2. Depaker jest zazwyczaj umieszczony w `$B000` (w regionie mapowanym na ROM BASIC). Makro przełącza `$01 = $36`, aby procesor widział tam pamięć RAM podczas JSR, a następnie przywraca `$01 = $37`.
-3. Adres docelowy dekompresji jest **kodowany w samym strumieniu skompresowanym** podczas kompresji za pomocą `exomizer mem -l <load> plik,<target>` — depaker odczytuje go z pierwszych bajtów strumienia.
+1. KERNAL `LOAD` ($FFD5) aktualizuje ZP `$AE/$AF` do punktu znajdującego się
+   jeden za ostatnim załadowanym bajtem. EXODECRUNCH kopiuje to do ZP `$04/$05`,
+   co jest oficjalną konwencją wstecznego kodu źródłowego Exomizera.
+2. Depaker jest zazwyczaj umieszczony w `$B000` (w regionie mapowanym na ROM
+   BASIC). Makro przełącza `$01 = $36`, aby procesor widział tam pamięć RAM
+   podczas JSR, a następnie przywraca `$01 = $37`.
+3. Adres docelowy dekompresji jest **kodowany w samym strumieniu
+   skompresowanym** podczas kompresji za pomocą `exomizer mem -l <load>
+   plik,<target>` — depaker odczytuje go z pierwszych bajtów strumienia.
 
-**Plik binarny depakera:** wstępnie skompilowany depaker wsteczny to `samples/exo-decrunch.bin` (477 bajtów, ORG $B000). Jest to wersja Kick Assemblera oficjalnego pliku `exodecrunch.asm` z dodanym do każdego odczytu kodem `INC $D020`, aby uzyskać widoczny efekt flashowania obramowania podczas dekompresji. Umieść go w swoim programie z blokiem `INCBIN` pod adresem depakera.
+**Plik binarny depakera: ** wstępnie skompilowany depaker wsteczny to
+`samples/exo-decrunch.bin` (477 bajtów, ORG $B000). Jest to wersja Kick
+Assemblera oficjalnego pliku `exodecrunch.asm` z dodanym do każdego odczytu
+kodem `INC $D020`, aby uzyskać widoczny efekt flashowania obramowania podczas
+dekompresji. Umieść go w swoim programie z blokiem `INCBIN` pod adresem
+depakera.
 
-**Kompensacja przesunięcia bezpieczeństwa:** Domyślny tryb pamięci Exomizera stosuje 2-bajtowe przesunięcie bezpieczeństwa — dane trafiają 2 bajty wcześniej niż żądany cel. Okno dialogowe „Uruchom przez D64” **automatycznie dodaje 2 do pola Dst** przed wywołaniem Exomizera, więc widoczne zachowanie jest zgodne z wpisanym adresem.
+**Kompensacja przesunięcia bezpieczeństwa:** Domyślny tryb pamięci Exomizera
+stosuje 2-bajtowe przesunięcie bezpieczeństwa — dane trafiają 2 bajty wcześniej
+niż żądany cel. Okno dialogowe „Uruchom przez D64” **automatycznie dodaje 2 do
+pola Dst ** przed wywołaniem Exomizera, więc widoczne zachowanie jest zgodne z
+wpisanym adresem.
 
-> **Zobacz także:** przykład `exo-multicolor-demo` — pełny przykład od początku do końca: WCZYTAJ skompresowaną wielokolorową mapę bitową do $C000, EXODECRUNCH rozpakowuje ją do $2000, następnie kopiuje ekran → $0400 i kolor → $D800, a następnie przełącza VIC-II w tryb wielokolorowej mapy bitowej.
+> **Zobacz także:** przykład `exo-multicolor-demo` — pełny przykład od początku
+> do końca: WCZYTAJ skompresowaną wielokolorową mapę bitową do $C000,
+> EXODECRUNCH rozpakowuje ją do $2000, następnie kopiuje ekran → $0400 i kolor →
+> $D800, a następnie przełącza VIC-II w tryb wielokolorowej mapy bitowej.
 
-> **Test integracji:** `test cargo --test exomizer_integration` (w `src-tauri/`) weryfikuje pełną kompresję i dekompresję w emulatorze 6502 z rzeczywistym plikiem binarnym depakera. Kryteria zaliczenia: 10000 bajtów, co odpowiada bajtowi źródłowemu `multi-color.bin`.
+> **Test integracji: ** `test cargo --test exomizer_integration` (w
+> `src-tauri/`) weryfikuje pełną kompresję i dekompresję w emulatorze 6502 z
+> rzeczywistym plikiem binarnym depakera. Kryteria zaliczenia: 10000 bajtów, co
+> odpowiada bajtowi źródłowemu `multi-color.bin`.
 
 ---
 
 ### REU_CHECK
 
-Wykrywa, czy podłączona jest jednostka rozszerzeń pamięci RAM Commodore (REU) — na przykład sprawdza obecność sprzętu w rejestrze `PEEK($D010)`. Testy polegają na zapisie i odczycie dwóch wzorców do rejestru REU `$DF04`.
+Wykrywa, czy podłączona jest jednostka rozszerzeń pamięci RAM Commodore (REU) —
+na przykład sprawdza obecność sprzętu w rejestrze `PEEK($D010)`. Testy polegają
+na zapisie i odczycie dwóch wzorców do rejestru REU `$DF04`.
 
 | Pole | Opis           |
 | ---- | -------------- |
@@ -3083,27 +4124,29 @@ Wykrywa, czy podłączona jest jednostka rozszerzeń pamięci RAM Commodore (REU
 
 **Wygenerowany kod (34 bajty):**
 ```
-LDA #$55
-STA $DF04
-LDA $DF04
-CMP #$55
-BNE fail
-LDA #$AA
-STA $DF04
-LDA $DF04
-CMP #$AA
-BNE fail
-LDA #$00
-CMP #$FF   ; Z=0 => REU present
-BNE done
-fail:
-LDA #$FF
-CMP #$FF   ; Z=1 => no REU
-done:
+LDA #55 dolarów
+STA$DF04
+LDA$DF04
+CMP #55 dolarów
+BNE porażka
+LDA#$AA
+STA$DF04
+LDA$DF04
+CMP#$AA
+BNE porażka
+LDA#00 dolarów
+CMP #$FF ; Z=0 =&gt; REU obecne
+BNE zrobione
+ponieść porażkę:
+LDA#$FF
+CMP #$FF ; Z=1 =&gt; brak REU
+zrobione:
 ```
-> Makro normalizuje wynik, więc poniższa gałąź pozostaje prosta: `BNE` oznacza obecność REU, `BEQ` oznacza brak REU.
+> Makro normalizuje wynik, więc poniższa gałąź pozostaje prosta: `BNE` oznacza
+> obecność REU, `BEQ` oznacza brak REU.
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
 .reu_check
 ```
@@ -3117,22 +4160,25 @@ done:
 **Typowe zastosowanie:**
 ```assembly
 REU_CHECK
-BEQ no_reu        ; skip if REU not present
-; ... REU code here ...
-no_reu:
+BEQ no_reu ; pominąć, jeżeli nie ma REU
+; ...tutaj kod REU...
+nie_reu:
 ```
 
 ---
 
 ### REU_STASH / REU_FETCH / REU_SWAP
 
-Transfer bloku DMA między pamięcią RAM komputera C64 a pamięcią rozszerzeń REU — jak bardzo szybka pętla POKE, ale procesor nie wykonuje żadnej pracy (układ REU kopiuje dane, gdy procesor jest zatrzymany). Transfer `$1000` bajtów jest praktycznie natychmiastowy.
+Transfer bloku DMA między pamięcią RAM komputera C64 a pamięcią rozszerzeń REU —
+jak bardzo szybka pętla POKE, ale procesor nie wykonuje żadnej pracy (układ REU
+kopiuje dane, gdy procesor jest zatrzymany). Transfer `$1000` bajtów jest
+praktycznie natychmiastowy.
 
-| Makro       | Kierunek             | Polecenie `$DF01` |
-| ----------- | -------------------- | ----------------- |
-| `REU_STASH` | Pamięć RAM C64 → REU | `90 dolarów`      |
-| `REU_FETCH` | REU → Pamięć RAM C64 | `91 dolarów`      |
-| `REU_SWAP`  | Pamięć RAM C64 ↔ REU | `92 dolary`       |
+| Makro              | Kierunek             | Polecenie `$DF01` |
+| ------------------ | -------------------- | ----------------- |
+| `REU_STASH`        | Pamięć RAM C64 → REU | `90 dolarów`      |
+| `POBIERZ_PONOWNIE` | REU → Pamięć RAM C64 | `91 dolarów`      |
+| `REU_SWAP`         | Pamięć RAM C64 ↔ REU | `92 dolary`       |
 
 **Pola: **
 
@@ -3143,7 +4189,8 @@ Transfer bloku DMA między pamięcią RAM komputera C64 a pamięcią rozszerzeń
 | Bank REU  | Bank pamięci REU (0–7)                             | `0`      |
 | Długość   | Liczba bajtów do przesłania (szesnastkowo, 16-bit) | `1000`   |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
 .reu_stash $C000, $0000, 0, $1000
 .reu_fetch $C000, $0000, 0, $1000
@@ -3152,25 +4199,28 @@ Transfer bloku DMA między pamięcią RAM komputera C64 a pamięcią rozszerzeń
 
 **Wygenerowany kod (40 bajtów):**
 ```
-LDA #c64lo    STA $DF02    ; C64 address LO
-LDA #c64hi    STA $DF03    ; C64 address HI
-LDA #reuLo    STA $DF04    ; REU address LO
-LDA #reuHi    STA $DF05    ; REU address HI
-LDA #bank     STA $DF06    ; REU bank
-LDA #lenLo    STA $DF07    ; length LO
-LDA #lenHi    STA $DF08    ; length HI
-LDA #$00      STA $DF09    ; address control (fixed)
-LDA #$00      STA $DF0A    ; interrupt mask (fixed)
-LDA #cmd      STA $DF01    ; execute DMA ($90/$91/$92 = stash/fetch/swap, immediate)
+LDA #c64lo STA $DF02; adres C64 LO
+LDA #c64hi STA $DF03; adres C64 HI
+LDA #reuLo STA $DF04; adres REU LO
+LDA #reuHi STA $DF05; adres REU HI
+LDA #bank STA $DF06; bank REU
+LDA #lenLo STA $DF07; długość LO
+LDA #lenHi STA $DF08; długość HI
+LDA #$00 STA $DF09; kontrola adresu (stała)
+LDA #$00 STA $DF0A; maska przerwania (stała)
+LDA #cmd STA $DF01; wykonanie DMA ($90/$91/$92 = przechowywanie/pobieranie/wymiana, natychmiast)
 ```
 
-> **Uwaga: polecenia** używają `$90/$91/$92` (ustawiony bit 4 = natychmiastowy tryb DMA). Zapis do `$DF01` rozpoczyna transfer; procesor wznawia działanie po jego zakończeniu.
+> **Uwaga: polecenia ** używają `$90/$91/$92` (ustawiony bit 4 = natychmiastowy
+> tryb DMA). Zapis do `$DF01` rozpoczyna transfer; procesor wznawia działanie po
+> jego zakończeniu.
 
 ---
 
 ### TURBO_SET
 
-Ustawia prędkość procesora **Ultimate-64 (U64)** za pomocą rejestru `$D031`. Nie ma to wpływu na prawdziwy C64 ani inne emulatory.
+Ustawia prędkość procesora **Ultimate-64 (U64)** za pomocą rejestru `$D031`. Nie
+ma to wpływu na prawdziwy C64 ani inne emulatory.
 
 **Pola: **
 
@@ -3179,32 +4229,36 @@ Ustawia prędkość procesora **Ultimate-64 (U64)** za pomocą rejestru `$D031`.
 | Prędkość  | Wskaźnik prędkości procesora | 0 = 1 MHz … 7 ≈ 10 MHz … 15 ≈ 48 MHz        |
 | Zła linia | Emulacja Badline             | Włączone (zgodne z C64) / Wyłączone (turbo) |
 
-Bajt prędkości obliczany jest w następujący sposób: `(speedIndex &amp; 0x0F) | (badline_disabled ? 0x80 : 0x00)`.
+Bajt prędkości obliczany jest w następujący sposób: `(speedIndex &amp; 0x0F) |
+(badline_disabled ? 0x80 : 0x00)`.
 
 **Wygenerowany kod (5 bajtów):**
 ```
-A9 xx   LDA #speed_byte
-8D 31 D0   STA $D031
+A9 xx LDA #speed_byte
+8D 31 D0 STA $D031
 ```
 
 **Składnia trybu eksperckiego:**
 ```
-.turbo_set 7,0    ; speed=7 (~10 MHz), badline enabled
-.turbo_set 15,1   ; speed=15 (~48 MHz), badline disabled
+.turbo_set 7,0; prędkość=7 (~10 MHz), linia uszkodzona włączona
+.turbo_set 15,1; prędkość=15 (~48 MHz), linia uszkodzona wyłączona
 ```
 
-> **Uwaga:** Ta makroinstrukcja dotyczy tylko sprzętu U64. Na prawdziwym C64 lub innych emulatorach zapisuje ona do `$D031`, co może mieć wpływ na CIA lub zostać zignorowane.
+> **Uwaga: ** Ta makroinstrukcja dotyczy tylko sprzętu U64. Na prawdziwym C64
+> lub innych emulatorach zapisuje ona do `$D031`, co może mieć wpływ na CIA lub
+> zostać zignorowane.
 
 ---
 
-### SUPERCPU_DETECT
+### WYKRYWANIE SUPERCPU
 
-Sprawdza, czy zainstalowany jest akcelerator **CMD SuperCPU** — na przykład `PEEK($D0B8)`, aby sprawdzić, czy zwraca on coś innego niż `$FF`.
+Sprawdza, czy zainstalowany jest akcelerator **CMD SuperCPU** — na przykład
+`PEEK($D0B8)`, aby sprawdzić, czy zwraca on coś innego niż `$FF`.
 
 **Wygenerowany kod (5 bajtów):**
 ```
-AD B8 D0   LDA $D0B8
-C9 FF      CMP #$FF
+AD B8 D0 LDA $D0B8
+C9 FF CMP #$FF
 ```
 
 **Wynik we flagach: **
@@ -3213,7 +4267,8 @@ C9 FF      CMP #$FF
 
 **Brak pól konfigurowalnych.**
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
 .supercpu_detect
 ```
@@ -3221,8 +4276,8 @@ C9 FF      CMP #$FF
 **Typowe zastosowanie:**
 ```assembly
 SUPERCPU_DETECT
-BEQ no_scpu       ; skip if SuperCPU not present
-; ... SuperCPU turbo code here ...
+BEQ no_scpu; pomiń, jeśli SuperCPU nie jest obecny
+; ... Tutaj kod turbo SuperCPU ...
 no_scpu:
 ```
 
@@ -3230,7 +4285,8 @@ no_scpu:
 
 ### TURBO_ENABLE
 
-Włącza lub wyłącza tryb turbo **CMD SuperCPU**. Najpierw wywołaj `SUPERCPU_DETECT` i pomiń tę czynność, jeśli SuperCPU nie jest obecny.
+Włącza lub wyłącza tryb turbo **CMD SuperCPU**. Najpierw wywołaj
+`SUPERCPU_DETECT` i pomiń tę opcję, jeśli SuperCPU nie jest obecny.
 
 | Tryb     | Rejestr | Efekt                              |
 | -------- | ------- | ---------------------------------- |
@@ -3239,24 +4295,29 @@ Włącza lub wyłącza tryb turbo **CMD SuperCPU**. Najpierw wywołaj `SUPERCPU_
 
 **Wygenerowany kod (5 bajtów):**
 ```
-A9 00         LDA #$00
-8D 7A D0      STA $D07A    ; (or $D07B for disable)
+A9 00 LDA #00 dolarów
+8D 7A D0 STA $D07A ; (lub $D07B za wyłączenie)
 ```
 
 **Składnia trybu eksperckiego:**
 ```
-.turbo_enable on
-.turbo_enable off
+.turbo_enable włączony
+.turbo_enable wyłączony
 ```
 
-> **Uwaga:** Najpierw wywołaj `SUPERCPU_DETECT` i rozgałęzij się wokół tej makroinstrukcji, jeśli SuperCPU nie jest obecny.
+> **Uwaga:** Najpierw wywołaj `SUPERCPU_DETECT` i rozgałęzij się wokół tej
+> makroinstrukcji, jeśli SuperCPU nie jest obecny.
 
 ---
 
 <a id="map_copy"></a>
 ### MAP_COPY
 
-Kopiuje mapę kafelków z adresu źródłowego do pamięci RAM ekranu (i opcjonalnie pamięci RAM kolorów) za pomocą serii pętli `LDA abs,X` / `STA abs,X`. Każda iteracja pętli kopiuje jedną stronę 256-bajtową; część strony na końcu zatrzymuje się za pomocą `CPX #rem / BNE`. JSR nie jest potrzebny — cały kod jest generowany inline.
+Kopiuje mapę kafelków z adresu źródłowego do pamięci RAM ekranu (i opcjonalnie
+pamięci RAM kolorów) za pomocą serii pętli `LDA abs,X` / `STA abs,X`. Każda
+iteracja pętli kopiuje jedną stronę 256-bajtową; część strony na końcu
+zatrzymuje się za pomocą `CPX #rem / BNE`. JSR nie jest potrzebny — cały kod
+jest generowany inline.
 
 | Pole                   | Opis                                                                                                                                                                                   |
 | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -3268,55 +4329,65 @@ Kopiuje mapę kafelków z adresu źródłowego do pamięci RAM ekranu (i opcjona
 
 **Wygenerowany ASM (mapa 1000-bajtowa, tylko ekran):**
 ```
-    LDX #$00
-    LDA $C000,X   ; page 0
-    STA $0400,X
-    INX
-    BNE *-9       ; loops until X wraps to 0 (256 iters)
-    LDA $C100,X   ; page 1
-    STA $0500,X
-    INX
-    BNE *-9
-    LDA $C200,X   ; page 2
-    STA $0600,X
-    INX
-    BNE *-9
-    LDA $C300,X   ; remainder — 232 bytes
-    STA $0700,X
-    INX
-    CPX #$E8
-    BNE *-11
+LDX #$00
+LDA $C000,X ; strona 0
+STA $0400,X
+INX
+BNE *-9 ; pętla, aż X przejdzie do 0 (256 iteracji)
+LDA $C100,X ; strona 1
+STA $0500,X
+INX
+BNE *-9
+LDA $C200,X ; strona 2
+STA $0600,X
+INX
+BNE *-9
+LDA $C300,X ; reszta — 232 bajty
+STA $0700,X
+INX
+CPX #$E8
+BNE *-11
 ```
 
-**Rozmiar:** `2 (LDX) + pełne strony×9 + (rem &gt; 0 ? 11 : 0)` bajtów na sekcję. Tryb łączony podwaja tę liczbę (sekcja ekranu + sekcja identycznego koloru).
+**Rozmiar: ** `2 (LDX) + pełne strony×9 + (rem &gt; 0 ? 11 : 0)` bajtów na
+sekcję. Tryb łączony podwaja tę liczbę (sekcja ekranu + sekcja identycznego
+koloru).
 
 **Parowanie z edytorem map:**
 
-Edytor Map **Pliki → Zapisz mapę + pamięć RAM kolorów (.bin)** eksportuje pojedynczy plik binarny, w którym pierwsze `size` bajtów to kody ekranu, a kolejne `size` bajtów to wartości pamięci RAM kolorów. Użyj MAP_COPY z zaznaczoną opcją **Combined .bin** i wskaż **Adres źródłowy** miejsce, w którym załadowany jest ten plik (np. przez INCBIN w `$C000`):
+Edytor Map **Pliki → Zapisz mapę + pamięć RAM kolorów (.bin)** eksportuje
+pojedynczy plik binarny, w którym pierwsze `size` bajtów to kody ekranu, a
+kolejne `size` bajtów to wartości pamięci RAM kolorów. Użyj MAP_COPY z
+zaznaczoną opcją **Combined .bin** i wskaż **Adres źródłowy** miejsce, w którym
+załadowany jest ten plik (np. przez INCBIN w `$C000`):
 
 ```
 * = $C000
-    INCBIN "map-color.bin" @ $C000   ; screen codes $C000–$C3E7, color $C3E8–$C7CF
+INCBIN "map-color.bin" @ $C000; kody ekranowe $C000–$C3E7, kolor $C3E8–$C7CF
 * = $0801
-    ; ...
-    MAP_COPY src=$C000 dst=$0400 size=1000 combined color_dst=$D800
+; ...
+MAP_COPY src=$C000 dst=$0400 size=1000 combined color_dst=$D800
 ```
 
 **Składnia trybu eksperckiego:**
 ```
-.map_copy $C000, $0400, 1000               ; screen only
-.map_copy $C000, $0400, 1000, auto, $D800  ; combined (color at src+size)
-.map_copy $C000, $0400, 1000, $C3E8, $D800 ; explicit color source address
+.map_copy $C000, $0400, 1000; tylko ekran
+.map_copy $C000, $0400, 1000, auto, $D800; połączone (kolor w źródle i rozmiarze)
+.map_copy $C000, $0400, 1000, $C3E8, $D800; jawny adres źródłowy koloru
 ```
 
 ---
 
 <a id="map_copy16x16"></a>
-### MAP_COPY16X16
+### MAPA_KOPIA16X16
 
-Kopiuje obszar znaków o wymiarach 16×16 z kompaktowego, 256-bajtowego bloku kodu ekranowego oraz pasującego do niego 256-bajtowego bloku pamięci RAM kolorów. Jest przeznaczony do eksportów kanw Charset i małych fragmentów kafelków/obrazów, gdzie zapis szesnastu oddzielnych wierszy MAP_COPY byłby uciążliwy.
+Kopiuje obszar znaków o wymiarach 16×16 z kompaktowego, 256-bajtowego bloku kodu
+ekranowego oraz pasującego do niego 256-bajtowego bloku pamięci RAM kolorów.
+Jest przeznaczony do eksportów kanw Charset i małych fragmentów
+kafelków/obrazów, gdzie zapis szesnastu oddzielnych wierszy MAP_COPY byłby
+uciążliwy.
 
-**Domyślny układ:**
+**Domyślny układ: **
 
 | Dane                                | Domyślny adres                |
 | ----------------------------------- | ----------------------------- |
@@ -3327,36 +4398,40 @@ Kopiuje obszar znaków o wymiarach 16×16 z kompaktowego, 256-bajtowego bloku ko
 
 **Składnia trybu eksperckiego:**
 ```
-.map_copy16x16 $3000, 12, 4
-.map_copy16x16 $3000, 12, 4, $0400, $3100, $D800
+.map_copy16x16 3000 USD, 12, 4
+.map_copy16x16 3000 USD, 12, 4, 0400 USD, 3100 USD, 800 USD
 ```
 
-Krótsza wersja kopiuje bajty ekranu z `$3000`, bajty koloru z `$3100` i umieszcza blok 16×16 w kolumnie 12, wierszu 4. Prawidłowe pozycje w lewym górnym rogu to `col = 0..24` i `row = 0..9`, więc cały obszar 16×16 pozostaje na ekranie tekstowym C64 o wymiarach 40×25.
+Krótsza wersja kopiuje bajty ekranu z `$3000`, bajty koloru z `$3100` i
+umieszcza blok 16×16 w kolumnie 12, wierszu 4. Prawidłowe pozycje w lewym górnym
+rogu to `col = 0..24` i `row = 0..9`, więc cały obszar 16×16 pozostaje na
+ekranie tekstowym C64 o wymiarach 40×25.
 
-**Wygenerowane zachowanie:**
+**Wygenerowane zachowanie: **
 
 - Generuje szesnaście kopii wierszy.
 - Każdy wiersz kopiuje 16 bajtów ekranu i 16 bajtów koloru.
 - JSR nie jest potrzebny; kod jest emitowany bezpośrednio w pozycji makra.
-- Działa w trybie znakowym normalnym i wielokolorowym. Bajty pamięci RAM kolorów przenoszą bit włączający kolor znaku/wielokolorowość każdej komórki.
+- Działa w trybie znakowym normalnym i wielokolorowym. Bajty pamięci RAM kolorów
+  przenoszą bit włączający kolor znaku/wielokolorowość każdej komórki.
 
 Typowe parowanie z Charset Canvas:
 
 ```
-* = $0801
+* = 0801 USD
     SEI
-    LDA #$00
+    LDA#00 dolarów
     STA $D021
-    LDA #$05
+    LDA #05 dolarów
     STA $D022
     LDA #$0D
     STA $D023
-    .map_copy16x16 $3000, 12, 4
-loop:
-    JMP loop
+    .map_copy16x16 3000 $, 12, 4
+pętla:
+    Pętla JMP
 
-.incbin "16x16+ram+color.bin", $3000
-.incbin "16x16+charset.bin", $2000
+.incbin „16x16+ram+kolor.bin”, 3000 USD
+.incbin „16x16+charset.bin”, 2000 USD
 ```
 
 ---
@@ -3364,7 +4439,10 @@ loop:
 <a id="sprite_anim"></a>
 ### SPRITE_ANIM
 
-Przesuwa klatkę animacji sprite'a przy każdym wywołaniu i aktualizuje wskaźnik danych sprite'a VIC-II. Przechowuje jeden bajt na klatkę w tabeli (numer strony danych sprite'a = `data_address / 64`), wskazuje na niego SPRITE_ANIM i wywołuje go raz na klatkę gry — bez potrzeby JSR.
+Przesuwa klatkę animacji sprite'a przy każdym wywołaniu i aktualizuje wskaźnik
+danych sprite'a VIC-II. Przechowuje jeden bajt na klatkę w tabeli (numer strony
+danych sprite'a = `data_address / 64`), wskazuje na niego SPRITE_ANIM i wywołuje
+go raz na klatkę gry — bez potrzeby JSR.
 
 | Pole              | Opis                                                                                                   |
 | ----------------- | ------------------------------------------------------------------------------------------------------ |
@@ -3375,45 +4453,52 @@ Przesuwa klatkę animacji sprite'a przy każdym wywołaniu i aktualizuje wskaźn
 
 **Wygenerowany ASM (sprite 0, 4 klatki, ZP `$FB`, lista w `$C100`):**
 ```
-    INC $FB         ; advance frame counter
-    LDA $FB
-    CMP #$04        ; frame count
-    BCC *+6         ; if counter < count, skip reset
-    LDA #$00
-    STA $FB
-    TAX             ; X = current frame index
-    LDA $C100,X     ; load sprite data page for this frame
-    STA $07F8       ; update sprite 0 pointer ($07F8 + sprite#)
+INC $FB ; przesuń licznik klatek
+LDA $FB
+CMP #$04 ; liczba klatek
+BCC *+6 ; jeśli licznik &lt; liczba, pomiń resetowanie
+LDA #$00
+STA $FB
+TAX ; X = bieżący indeks klatki
+LDA $C100,X ; wczytaj stronę danych sprite'a dla tej klatki
+STA $07F8 ; zaktualizuj wskaźnik sprite'a 0 ($07F8 + numer sprite'a)
 ```
 
 **Rozmiar:** 19 bajtów.
 
 **Typowe zastosowanie:**
 ```
-frameTable:
-    .byte $21, $22, $23, $24   ; 4 frames at $0840, $0880, $08C0, $0900
+Tabela klatek:
+.byte $21, $22, $23, $24 ; 4 klatki o $0840, $0880, $08C0, $0900
 
-gameloop:
-    WAIT_RASTER ($FF)
-    SPRITE_ANIM (sprite=0, list=$C100, count=4, zp=$FB)
-    JMP gameloop
+pętla gry:
+WAIT_RASTER ($FF)
+SPRITE_ANIM (sprite=0, lista=$C100, liczba=4, zp=$FB)
+pętla gry JMP
 ```
 
 **Składnia trybu eksperckiego:**
 ```
-.sprite_anim spriteNum, frameListAddr, frameCount, zpByte
-; example:
+.sprite_anim numer_spretu, adres_listy_ramek, liczba_ramek, bajt_zp
+; przykład:
 .sprite_anim 0, C100, 4, FB
 ```
 
-> **Wskazówka:** Umieść tablicę ramek jako blok RAWBYTES pod stałym adresem. Bajt licznika ZP (`$FB`) musi zostać zainicjowany wartością `$00` przed pierwszym wywołaniem. Jeśli Twój kod używa `$FB` do czegoś innego, wybierz wolną lokalizację ZP.
+> **Wskazówka: ** Umieść tablicę ramek jako blok RAWBYTES pod stałym adresem.
+> Bajt licznika ZP (`$FB`) musi zostać zainicjowany wartością `$00` przed
+> pierwszym wywołaniem. Jeśli Twój kod używa `$FB` do czegoś innego, wybierz
+> wolną lokalizację ZP.
 
 ---
 
 <a id="score_bcd"></a>
-### SCORE_BCD
+### WYNIK_BCD
 
-Dodaje wartość stałego punktu do wielobajtowego wyniku BCD przechowywanego w pamięci, a następnie renderuje każdą cyfrę do pamięci RAM ekranu jako znak kodu ekranu. Używa trybu dziesiętnego 6502 (`SED`/`CLD`) do arytmetyki BCD z zachowaniem przenoszenia — bez konieczności ręcznego żonglowania przeniesieniami.
+Dodaje wartość stałego punktu do wielobajtowego wyniku BCD przechowywanego w
+pamięci, a następnie renderuje każdą cyfrę do pamięci RAM ekranu jako znak kodu
+ekranu. Używa trybu dziesiętnego 6502 (`SED`/`CLD`) do arytmetyki BCD z
+zachowaniem przenoszenia — bez konieczności ręcznego żonglowania
+przeniesieniami.
 
 | Pole         | Opis                                                                                       |
 | ------------ | ------------------------------------------------------------------------------------------ |
@@ -3422,99 +4507,122 @@ Dodaje wartość stałego punktu do wielobajtowego wyniku BCD przechowywanego w 
 | Dodaj punkty | Wartość dziesiętna do dodania podczas każdego wywołania (np. `100`).                       |
 | Adres ekranu | Gdzie wpisać kody ekranowe cyfr (np. `0400`). Jeden bajt na cyfrę (najpierw wyższy bit).   |
 
-**Składnia ekspercka:**
+**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
 ```
 .score_bcd $C200, 4, 100, $0400
 ```
 
-**Wygenerowany ASM (4 bajty, +100 punktów, wynik na poziomie `$C200`, ekran na poziomie `$0400`):**
+**Wygenerowany ASM (4 bajty, +100 punktów, wynik na poziomie `$C200`, ekran na
+poziomie `$0400`):**
 ```
-    SED              ; enable BCD / decimal mode
-    CLC
-    LDA $C200        ; byte 0 (digits 1–2)
-    ADC #$00         ; low byte of 100 in BCD = $00
-    STA $C200
-    LDA $C201        ; byte 1 (digits 3–4)
-    ADC #$01         ; mid byte of 100 in BCD = $01 (carry propagates)
-    STA $C201
-    LDA $C202
-    ADC #$00
-    STA $C202
-    LDA $C203
-    ADC #$00
-    STA $C203
-    CLD              ; back to binary mode
+SED; włącz tryb BCD/dziesiętny
+CLC
+LDA $C200; bajt 0 (cyfry 1–2)
+ADC #$00; młodszy bajt 100 w BCD = $00
+STA $C200
+LDA $C201; bajt 1 (cyfry 3–4)
+ADC #$01; środkowy bajt 100 w BCD = $01 (przeniesienie propaguje)
+STA $C201
+LDA $C202
+ADC #$00
+STA $C202
+LDA $C203
+ADC #$00
+STA $C203
+CLD; powrót do trybu binarnego
 
-    ; render digits
-    LDX #$00
+; renderowanie cyfr
+LDX #$00
 digit_loop:
-    LDA $C200,X
-    PHA
-    LSR : LSR : LSR : LSR  ; high nibble → low nibble
-    ORA #$30         ; + '0' screen code
-    STA $0406,X      ; right-justified: screen_addr + (digits*2 - 2) - X*2
-    PLA
-    AND #$0F         ; low nibble
-    ORA #$30
-    STA $0407,X
-    INX
-    CPX #$04
-    BNE digit_loop
+LDA $C200,X
+PHA
+LSR : LSR : LSR : LSR ; wysoki nibble → niski nibble
+ORA #$30 ; + kod ekranu „0”
+STA $0406,X ; wyrównanie do prawej: screen_addr + (digits*2 - 2) - X*2
+PLA
+AND #$0F ; niski nibble
+ORA #$30
+STA $0407,X
+INX
+CPX #$04
+BNE digit_loop
 ```
 
-**Rozmiar:** `3 + cyfry×8` bajtów (narzut SED + CLC + CLD + 8 bajtów na bajt BCD dla ADC + pętla wyświetlania).
+**Rozmiar:** `3 + cyfry×8` bajtów (narzut SED + CLC + CLD + 8 bajtów na bajt BCD
+dla ADC + pętla wyświetlania).
 
 **Składnia trybu eksperckiego:**
 ```
 .score_bcd $C200, 4, 100, $0400
 ```
 
-> **Wskazówka:** Zainicjuj bajty wyniku do `$00` podczas uruchamiania. Adres wyniku powinien znajdować się na stronie zerowej lub w pamięci RAM bezwzględnej — a nie ROM. Adres ekranu powinien wskazywać na skrajnie lewą komórkę cyfrową; cyfry są zapisywane od lewej do prawej (najbardziej znaczący bajt na początku).
+> **Wskazówka: ** Zainicjuj bajty wyniku do `$00` podczas uruchamiania. Adres
+> wyniku powinien znajdować się na stronie zerowej lub w pamięci RAM
+> bezwzględnej — a nie ROM. Adres ekranu powinien wskazywać na skrajnie lewą
+> komórkę cyfrową; cyfry są zapisywane od lewej do prawej (najbardziej znaczący
+> bajt na początku).
 
-> Zakres **BCD:** `cyfry = 4` bajtów → 8 cyfr dziesiętnych → maks. wynik 99 999 999. Każdy bajt koduje dwie cyfry BCD: `$00`–`$99`.
-
----
-
-## 10. Integracja debugera
-
-Aplikacja obsługuje **RetroDebugger** jako zewnętrzny debugger C64. Otrzymuje punkty przerwania, symbole i flagi autostartu generowane z asemblowanego programu.
-
-### RetroDebugger
-
-[RetroDebugger](https://github.com/slajerek/RetroDebugger) to wieloplatformowy debugger Commodore 64 z obsługą punktów przerwania, inspekcją pamięci i deasemblacją uwzględniającą etykiety.
-
-**Konfiguracja:** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny RetroDebugger** i skieruj go do pliku binarnego `RetroDebugger`.
-
-**Uruchomienie:** Kliknij **Debugowanie (RetroDebugger)** na pasku narzędzi. Aplikacja:
-
-1. Zmontuj program do pliku `.prg` w katalogu tymczasowym.
-2. Napisz plik **punktów przerwania** (`breakpoints.txt`) — jeden `punkt przerwania $ADDR` na każdy oflagowany blok.
-3. Zapisz plik **symbols** (`symbols.txt`) w formacie etykiet Vice/RetroDebugger (`al C:addr .name`). Zawiera wszystkie bloki LABEL i CONST.
-4. Napisz także sidecary w stylu C64Debugger obok skompilowanego PRG: `.dbg`, `.sym` i `.vs`.
-5. Uruchom RetroDebugger za pomocą:
-   ```
-   RetroDebugger -prg <file.prg> -breakpoints <breakpoints.txt> -symbols <symbols.txt> [flags]
-   ```
-
-### Bloki punktów przerwania
-
-Kliknij ikonę punktu przerwania (●) w dowolnym bloku instrukcji, aby przełączyć go na punkt przerwania. Bloki z punktami przerwania są podświetlone na czerwono. Ich adresy są zapisywane w pliku punktów przerwania przy każdym uruchomieniu debugera.
-
-### Flagi debugera (zakładka Opcje)
-
-| Dźwignia kolankowa | Flaga          | Efekt                                                             |
-| ------------------ | -------------- | ----------------------------------------------------------------- |
-| `-jmp` WŁ.         | `-jmp $ADDR`   | Przejdź bezpośrednio do adresu startowego programu po załadowaniu |
-| `-wznów` WŁ.       | `-wznów`       | Natychmiast wyłącz debugger po załadowaniu                        |
-| `-czekaj` WŁ.      | `-czekaj <ms>` | Odczekaj `<ms>` milisekund przed wznowieniem — 500 ms lub 1000 ms |
-
-> **Wskazówka:** W przypadku większości programów włącz `-jmp` i `-unpause`, aby uzyskać natychmiastowy autostart. Użyj `-wait 500` lub `-wait 1000`, gdy program konfiguruje przerwania IRQ lub muzykę SID, która wymaga czasu na zainicjowanie przed pierwszym rastrem.
+> Zakres **BCD: ** `cyfry = 4` bajtów → 8 cyfr dziesiętnych → maks. wynik 99 999
+> 999. Każdy bajt koduje dwie cyfry BCD: `$00`–`$99`.
 
 ---
 
 ## 11. Linki do bazy wiedzy
 
 Szybkie łącza referencyjne dostępne w aplikacji w zakładce **Baza wiedzy**:
+
+### RetroDebugger
+
+[RetroDebugger](https://github.com/slajerek/RetroDebugger) to wieloplatformowy
+debugger Commodore 64 z obsługą punktów przerwania, inspekcją pamięci i
+deasemblacją uwzględniającą etykiety.
+
+**Konfiguracja: ** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
+RetroDebugger ** i skieruj go do pliku binarnego `RetroDebugger`.
+
+**Uruchomienie:** Kliknij **Debugowanie (RetroDebugger)** na pasku narzędzi.
+Aplikacja:
+
+1. Zmontuj program do pliku `.prg` w katalogu tymczasowym.
+2. Napisz plik **punktów przerwania** (`breakpoints.txt`) — jeden `punkt
+   przerwania $ADDR` na każdy oflagowany blok.
+3. Zapisz plik **symbols** (`symbols.txt`) w formacie etykiet Vice/RetroDebugger
+   (`al C:addr .name`). Zawiera wszystkie bloki LABEL i CONST.
+4. Napisz także sidecary w stylu C64Debugger obok skompilowanego PRG: `.dbg`,
+   `.sym` i `.vs`.
+5. Uruchom RetroDebugger za pomocą:
+   ```
+   RetroDebugger -prg <plik.prg> -breakpoints <punktyprzerwania.txt> -symbols <symbole.txt> [flagi]
+   ```
+
+### Bloki punktów przerwania
+
+Kliknij ikonę punktu przerwania (●) w dowolnym bloku instrukcji, aby przełączyć
+go na punkt przerwania. Bloki z punktami przerwania są podświetlone na czerwono.
+Ich adresy są zapisywane w pliku punktów przerwania przy każdym uruchomieniu
+debugera.
+
+### Flagi debugera (zakładka Opcje)
+
+| Przykład      | Flaga          | Efekt                                                             |
+| ------------- | -------------- | ----------------------------------------------------------------- |
+| `-jmp` WŁ.    | `-jmp $ADDR`   | Przejdź bezpośrednio do adresu startowego programu po załadowaniu |
+| `-wznów` WŁ.  | `-wznów`       | Natychmiast wyłącz debugger po załadowaniu                        |
+| `-czekaj` WŁ. | `-czekaj <ms>` | Odczekaj `<ms>` milisekund przed wznowieniem — 500 ms lub 1000 ms |
+
+> **Wskazówka: ** W przypadku większości programów włącz `-jmp` i `-unpause`,
+> aby uzyskać natychmiastowy autostart. Użyj `-wait 500` lub `-wait 1000`, gdy
+> program konfiguruje przerwania IRQ lub muzykę SID, która wymaga czasu na
+> zainicjowanie przed pierwszym rastrem.
+
+---
+
+## 12. Eksport i uruchomienie D64
+
+Wersja 1.5.1 wprowadza możliwość spakowania programu (oraz dodatkowych plików
+danych) do obrazu dysku C64 D64 i uruchomienia go w programie VICE — lub
+wyeksportowania obrazu dysku do wykorzystania w innym miejscu.
 
 | Ratunek                                             | Adres URL                                                      |
 | --------------------------------------------------- | -------------------------------------------------------------- |
@@ -3531,66 +4639,101 @@ Szybkie łącza referencyjne dostępne w aplikacji w zakładce **Baza wiedzy**:
 
 ---
 
-## 12. Eksport i uruchomienie D64
+## 12b. Eksport CRT (wkład Magic Desk 64K)
 
-Wersja 1.5.1 wprowadza możliwość spakowania programu (oraz dodatkowych plików danych) do obrazu dysku C64 D64 i uruchomienia go w programie VICE — lub wyeksportowania obrazu dysku do wykorzystania w innym miejscu.
+**Menu → Kompilacja → Kompilacja CRT** generuje obraz kartridża Commodore 64
+(`.crt`, **typ kartridża 19 — Magic Desk / Domark / HES Australia**), który
+działa na komputerach VICE, TheC64, prawdziwym sprzęcie za pośrednictwem
+EasyFlash / Kung Fu Flash oraz 1541 slotach kartridży Ultimate II+. Jest
+dostępny zarówno w **trybie blokowym**, jak i **trybie eksperckim**, a w obecnej
+kompilacji również w **trybie Ultimate Basic**.
 
-### Przycisk Split Run
+### Co znajduje się w koszyku
 
-Przycisk **Uruchom** na pasku narzędzi został zastąpiony **przyciskiem podziału**:
+Przycisk **Uruchom** na pasku narzędzi został zastąpiony podzielonym przyciskiem
+**:
 
 | Część                  | Działanie                                 |
 | ---------------------- | ----------------------------------------- |
 | **▶ Uruchom** (główny) | Wykonuje aktualnie wybrany tryb działania |
 | **▾** (strzałka)       | Otwiera selektor trybu                    |
 
-**Dostępne tryby pracy:**
+**Dostępne tryby pracy: **
 
 | Tryb                    | Opis                                                                                                                                                                                                                                                  |
 | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Uruchom jako PRG**    | Zmontuj do tymczasowego pliku `.prg` i uruchom VICE bezpośrednio. Klasyczne zachowanie.                                                                                                                                                               |
 | **Uruchom przez D64**   | Zmontuj, zbuduj obraz dysku `.d64` (używając c1541), dodaj wszelkie skonfigurowane pliki dodatkowe, a następnie uruchom VICE z dysku. Używaj tej opcji za każdym razem, gdy program ładuje pliki w czasie wykonywania (np. za pomocą makra LOADFILE). |
-| **Uruchom na sprzęcie** | Zmontuj do formatu PRG i wyślij do urządzenia **1541 Ultimate / Ultimate 64** przez sieć lokalną. Zobacz [Sekcję 13](#13-hardware-settings).                                                                                                          |
+| **Uruchom na sprzęcie** | Zmontuj do formatu PRG i wyślij do urządzenia **1541 Ultimate / Ultimate 64 ** przez sieć lokalną. Zobacz [Sekcję 13](#13-hardware-settings).                                                                                                         |
 | **Kung Fu Flash 2**     | Zmontuj do formatu PRG i prześlij przez szeregowy port USB na prawdziwy komputer C64/C128 z kartridżem **Kung Fu Flash 2**. Zobacz [Kung Fu Flash 2](#kung-fu-flash-2).                                                                               |
 
 Wybrany tryb jest zapisywany pomiędzy sesjami.
 
-### Eksportuj do okna dialogowego D64
+### Adres załadunku i punkt wejścia
 
-Otwórz za pomocą menu rozwijanego **Zapisz PRG ▾** → **Eksportuj do D64**. Okno dialogowe umożliwia:
+Kompilacja CRT nigdy nie korzysta z Exomizera (depacker nie może działać z
+pamięci ROM carta). Kompiluje bieżącą kartę za pomocą standardowego potoku
+autostartu i pobiera adres ładowania z nagłówka PRG oraz punkt wejścia z
+docelowego SYS:
 
-1. Ustaw nazwę dysku **** (maks. 16 znaków) i nazwę programu **** — są to nazwy, które pojawiają się w katalogu dysku C64.
-2. **Dodaj dodatkowe pliki** — kliknij **+**, aby wybrać dowolny plik binarny (`.prg`, `.bin`, `.sid` itd.). Dla każdego dodatkowego pliku:
-   - **Nazwa** — jak jest wyświetlana w katalogu D64 (maks. 16 znaków, automatycznie wielkie litery).
-   - **Addr** (adres ładowania, opcjonalnie) — jeśli podano, na początku dodawany jest 2-bajtowy nagłówek PRG. Pozostaw puste, aby zapisać surowe bajty bez nagłówka.
-   - **Dst** (cel dekompresji, tylko z EXO) — miejsce, w którym depaker powinien umieścić dane na C64. Po włączeniu EXO, dane dodatkowe są kompresowane za pomocą pliku `exomizer mem -l <Addr>, <Dst>` przed zapisaniem na D64. Kompensacja przesunięcia bezpieczeństwa +2 jest stosowana automatycznie.
-   - **EXO** — pole wyboru, które włącza wsteczne przetwarzanie danych w trybie `mem` dla tego wpisu. Rozmiar na dysku wynosi zazwyczaj 5–20% oryginału.
-3. Kliknij **Eksportuj**, aby wygenerować plik `.d64` przy użyciu narzędzia `c1541` programu VICE.
+1. **Tryb blokowy/ekspercki z włączonym szczątkowym plikiem BASIC SYS:**
+   obciążenie = `$0801`, wpis = cel SYS (zwykle `$080D` lub źródło użytkownika).
+2. **Tryb blokowy/ekspercki z wyłączonym modułem BASIC SYS:** obciążenie =
+   pochodzenie użytkownika (z klasycznym rozwiązaniem awaryjnym `$0801 →
+   $C000`), wejście = adres ładowania.
+   - **Nazwa** — jak jest wyświetlana w katalogu D64 (maks. 16 znaków,
+     automatycznie wielkie litery).
+   - **Addr** (adres ładowania, opcjonalnie) — jeśli podano, na początku
+     dodawany jest 2-bajtowy nagłówek PRG. Pozostaw puste, aby zapisać surowe
+     bajty bez nagłówka.
+   - **Dst** (cel dekompresji, tylko z EXO) — miejsce, w którym depaker powinien
+     umieścić dane na C64. Po włączeniu EXO, dane dodatkowe są kompresowane za
+     pomocą pliku `exomizer mem -l <Addr>, <Dst>` przed zapisaniem na D64.
+     Kompensacja przesunięcia bezpieczeństwa +2 jest stosowana automatycznie.
+   - **EXO** — pole wyboru, które włącza wsteczne przetwarzanie danych w trybie
+     `mem` dla tego wpisu. Rozmiar na dysku wynosi zazwyczaj 5–20% oryginału.
+3. **Tryb Ultimate Basic:** ładowanie i wejście pochodzą z mapy kompilatora UB
+   (`build.map.loadAddress`). Następnie szczątkowy kod autostartu UB wewnątrz
+   ładunku jest wykonywany dokładnie tak, jak po `LOAD "...",8,1 : RUN` z dysku.
 
-**Parowanie z EXODECRUNCH:** po wysłaniu pliku z parametrem EXO=on, program odczytujący plik powinien go ZAŁADOWAĆ na adres **Addr** (sec=1, własny nagłówek PRG pliku), a następnie wywołać makro **EXODECRUNCH**, aby rozpakować go wstecz do **Dst**. Pełny schemat znajdziesz w przykładzie `exo-multicolor-demo`.
+Adres źródłowy widoczny na wyjściu ASM zostaje zachowany; moduł ładujący po
+prostu kopiuje płaski obraz pamięci z PRG do pamięci RAM i przechodzi do punktu
+wejścia po odmapowaniu pamięci ROM karty.
 
-### Metadane D64 w projektach
+### Limit rozmiaru
 
-Nazwa dysku, nazwa programu i lista dodatkowych plików są zapisywane w pliku JSON projektu (pod kluczem `d64`). Po ponownym załadowaniu projektu lub próbki zawierającej metadane D64, dodatkowe dane są przywracane automatycznie — nie ma potrzeby ich ponownego dodawania za każdym razem.
+Ponieważ ładunek jest przechowywany liniowo, a funkcja `assembleProgramToPrg()`
+zwraca płaski bufor `minAddr..maxAddr` z lukami wypełnionymi zerami, program z
+szeroko rozstawionymi segmentami ORG (np. `$0801` + `$C000` + `$E000`) zlicza
+każdy bajt pomiędzy nimi do budżetu 65 408 bajtów. Przekroczenie limitu powoduje
+przerwanie kompilacji z błędem `saveCrtTooLarge` — należy skompresować układ
+pamięci lub podzielić dane.
 
-Przykład **loadfile-demo** jest wstępnie skonfigurowany z plikiem `DEMO-COLORS.PRG` jako dodatkowym plikiem. Wybierz go, otwórz **Uruchom przez D64** i kliknij **Uruchom**, aby zobaczyć pełny przepływ ładowania w akcji.
+Przykład **loadfile-demo** jest wstępnie skonfigurowany z plikiem
+`DEMO-COLORS.PRG` jako dodatkowym plikiem. Wybierz go, otwórz **Uruchom przez
+D64** i kliknij **Uruchom**, aby zobaczyć pełny przepływ ładowania w akcji.
 
-> **Wymagania:** Eksport D64 i uruchamianie przez D64 wymagają skonfigurowania VICE (`c1541`) w [Ustawieniach sprzętu](#13-hardware-settings).
+> **⚠️ Ważne ostrzeżenie — przeczytaj przed wysyłką monitora CRT**
 
-### Edytor D64 (przeglądanie i edycja istniejącego obrazu dysku)
+### Zgodność
 
-Ikona na pasku narzędzi po Edytorze Krzywych otwiera **Edytor D64** — samodzielne narzędzie do pracy bezpośrednio z istniejącym obrazem `.d64`, niezależnie od aktualnie otwartego programu. W przeciwieństwie do okna dialogowego Eksportuj do D64 (które zawsze tworzy *nowy* dysk ze skompilowanego pliku PRG), Edytor D64 edytuje obraz dysku na miejscu za pomocą `c1541`, pełniąc więc również funkcję lekkiego menedżera dysków.
+Ikona na pasku narzędzi po Edytorze Krzywych otwiera **Edytor D64** —
+samodzielne narzędzie do pracy bezpośrednio z istniejącym obrazem `.d64`,
+niezależnie od aktualnie otwartego programu. W przeciwieństwie do okna
+dialogowego Eksportuj do D64 (które zawsze tworzy *nowy* dysk ze skompilowanego
+pliku PRG), Edytor D64 edytuje obraz dysku na miejscu za pomocą `c1541`, pełniąc
+więc również funkcję lekkiego menedżera dysków.
 
 **Pliki ▾ menu:**
 
-| Przedmiot          | Działanie                                                                                 |
-| ------------------ | ----------------------------------------------------------------------------------------- |
-| **Nowy D64…**      | Wybierz ścieżkę docelową i utwórz tam nowy, sformatowany, pusty obraz dysku.              |
-| **Otwórz D64…**    | Wybierz istniejący plik `.d64` i załaduj jego katalog.                                    |
-| **Zapisz jako…**   | Skopiuj aktualnie otwarty obraz dysku do nowej ścieżki i kontynuuj edycję kopii.          |
-| **Uruchom w VICE** | Uruchom aktualnie otwarty obraz dysku bezpośrednio w programie VICE (`-drive8type 1541`). |
+| Platforma               | Działanie                                      |
+| ----------------------- | ---------------------------------------------- |
+| IMADŁO (`x64sc`, `x64`) | Działa poprzez **Plik → Dołącz obraz wkładu**. |
+| TheC64 / TheC64 Mini    | Działa poprzez wbudowaną ładowarkę kaset.      |
+| Kung Fu Flash           | Działa — natywny tryb Magic Desk.              |
+| Kaseta EasyFlash        | Działa po zaprogramowaniu jako Magic Desk.     |
 
-**Pasek narzędzi:**
+**Pasek narzędzi: **
 
 | Ikona                     | Działanie                                                                                                                                                      |
 | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -3601,103 +4744,166 @@ Ikona na pasku narzędzi po Edytorze Krzywych otwiera **Edytor D64** — samodzi
 | **Odśwież**               | Ponownie odczytaj katalog, np. po edycji dysku za pomocą innego narzędzia.                                                                                     |
 | **Zapisz**                | Zapisz zmiany z kopii roboczej z powrotem do pliku `.d64`, najpierw tworząc automatyczną kopię zapasową. Opcja dostępna tylko w przypadku niezapisanych zmian. |
 
-**Dodawanie programu:** wybranie pliku, który kończy się już na `.prg` wymaga jedynie podania **Nazwy** i **Typu** dysku (PRG/SEQ/USR/REL) — plik `.prg` zawiera już własny nagłówek adresu ładowania, więc jest on zapisywany bez zmian. Wybranie dowolnego innego pliku (np. surowego pliku `.bin`) dodatkowo wyświetla:
+**Dodawanie programu:** wybranie pliku, który kończy się już na `.prg` wymaga
+jedynie podania **Nazwy** i **Typu** dysku (PRG/SEQ/USR/REL) — plik `.prg`
+zawiera już własny nagłówek adresu ładowania, więc jest on zapisywany bez zmian.
+Wybranie dowolnego innego pliku (np. surowego pliku `.bin`) dodatkowo wyświetla:
 
-- **Adres ładowania** (szesnastkowy, opcjonalnie) — dodaj 2-bajtowy nagłówek PRG na tym adresie; pozostaw puste, aby zapisać surowe bajty.
-- **Adres dekompresji** (szesnastkowy, opcjonalny) — używany tylko w połączeniu z Exomizerem; adres docelowy, do którego dekompresor powinien rozpakować dane.
-- Pole wyboru **Exomizer** — kompresuj plik przed zapisem, używając tych samych trybów kompresji `mem`/`sfx`, co w przypadku dodatkowych plików w oknie dialogowym Eksportuj do D64 powyżej.
+- **Adres ładowania** (szesnastkowy, opcjonalnie) — dodaj 2-bajtowy nagłówek PRG
+  pod tym adresem; pozostaw puste, aby zapisać surowe bajty.
+- **Adres dekompresji** (szesnastkowy, opcjonalny) — używany tylko w połączeniu
+  z Exomizerem; adres docelowy, do którego dekompresor powinien rozpakować dane.
+- Pole wyboru **Exomizer** — kompresuj plik przed zapisem, używając tych samych
+  trybów kompresji `mem`/`sfx`, co w przypadku dodatkowych plików w oknie
+  dialogowym Eksportuj do D64 powyżej.
 
-W spisie katalogów nazwy plików są wyświetlane w tej samej czcionce i wielkimi literami, co w prawdziwym spisie C64 `LOAD"$",8`.
+W spisie katalogów nazwy plików są wyświetlane w tej samej czcionce i wielkimi
+literami, co w prawdziwym spisie C64 `LOAD"$",8`.
 
-**Zapisywanie przepływu pracy:** każda edycja — dodawanie, wyodrębnianie, zmiana nazwy, usuwanie i edycja bajtów w Edytorze Bloków — jest stosowana do prywatnej kopii roboczej obrazu dysku, a nie do rzeczywistego pliku. Przycisk **Zapisz** na pasku narzędzi (aktywny po pojawieniu się niezapisanych zmian) zapisuje kopię roboczą z powrotem na rzeczywistym pliku `.d64`, tworząc najpierw automatyczną kopię zapasową; w nagłówku wyświetla się znacznik **•**, gdy zmiany są niezapisane, a zamknięcie edytora lub otwarcie innego dysku z niezapisanymi zmianami powoduje wyświetlenie monitu o potwierdzenie zamiast ich odrzucenia. **Zapisz jako…** (menu Pliki ▾) zapisuje kopię roboczą w nowej ścieżce i kontynuuje tam edycję.
+**Zapisywanie przepływu pracy:** każda edycja — dodawanie, wyodrębnianie, zmiana
+nazwy, usuwanie i edycja bajtów w Edytorze Bloków — jest stosowana do prywatnej
+kopii roboczej obrazu dysku, a nie do rzeczywistego pliku. Przycisk **Zapisz**
+na pasku narzędzi (aktywny po pojawieniu się niezapisanych zmian) zapisuje kopię
+roboczą z powrotem na rzeczywistym pliku `.d64`, tworząc najpierw automatyczną
+kopię zapasową; w nagłówku wyświetla się znacznik **•**, gdy zmiany są
+niezapisane, a zamknięcie edytora lub otwarcie innego dysku z niezapisanymi
+zmianami powoduje wyświetlenie monitu o potwierdzenie zamiast ich odrzucenia.
+**Zapisz jako…** (menu Pliki ▾) zapisuje kopię roboczą w nowej ścieżce i
+kontynuuje tam edycję.
 
-**Edytor bloków:** ikona siatki na pasku narzędzi przełącza się na surowy widok ścieżki/sektora pod katalogiem — klikalną mapę bloków pokolorowaną na podstawie bitmapy wolnych/używanych danych BAM (z łańcuchem BAM i katalogów oznaczonym oddzielnie), siatką heksadecymalną dla każdego bajtu dla wybranego bloku 256-bajtowego oraz nawigacją w sektorach Poprzedni/Następny. Edycja bloków przechodzi przez ten sam proces tworzenia kopii roboczej/zapisu, co opisane powyżej czynności katalogowe.
+**Edytor bloków: ** ikona siatki na pasku narzędzi przełącza się na surowy widok
+ścieżki/sektora pod katalogiem — klikalną mapę bloków pokolorowaną na podstawie
+bitmapy wolnych/używanych danych BAM (z łańcuchem BAM i katalogów oznaczonym
+oddzielnie), siatką heksadecymalną dla wybranego bloku 256-bajtowego oraz
+nawigacją w sektorach Poprzedni/Następny. Edycja bloków przechodzi przez ten sam
+proces tworzenia kopii roboczej/zapisu, co opisane powyżej czynności katalogowe.
 
-> **Wymagania:** Podobnie jak w przypadku eksportu do formatu D64, edytor D64 wymaga skonfigurowania opcji VICE (`c1541`) w [Ustawieniach sprzętu](#13-hardware-settings).
-
----
-
-## 12b. Eksport CRT (wkład Magic Desk 64K)
-
-**Menu → Kompilacja → Kompilacja CRT** generuje obraz kartridża Commodore 64 (`.crt`, **typ kartridża 19 — Magic Desk / Domark / HES Australia**), który działa na komputerach VICE, TheC64, prawdziwym sprzęcie za pośrednictwem EasyFlash / Kung Fu Flash oraz 1541 slotach kartridży Ultimate II+. Jest dostępny zarówno w **trybie blokowym**, jak i **trybie eksperckim**, a w obecnej kompilacji również w **trybie Ultimate Basic**.
-
-### Co znajduje się w koszyku
-
-- **8 × 8 banków KB** przy `$8000`, przełączanie banków za pomocą `$DE00` (konwencja Magic Desk: 3 najniższe bity = bank, bit 7 = wyłączony moduł).
-- **Bank 0** zawiera nagłówek 128-bajtowy + program ładujący:
-  - Wektory zimnego i ciepłego startu `$8000/$8002` wskazują na `$8009`.
-  - `$8004–$8008` = podpis `CBM80` wymagany przez kod resetujący KERNAL.
-  - `$8009–$807F` = ładowarka: SEI / stack init / `JSR $FDA3` (IOINIT) / `JSR $FD50` (RAMTAS) / `JSR $FD15` (RESTOR) / `JSR $FF5B` (CINT), a następnie pętla kopiowania bajtów, która przesyła strumieniowo ładunek z pamięci ROM karty do pamięci RAM i przełącza banki, gdy `$FC` osiągnie `$A0`. Na końcu kopiuje malutki **stykowy kod wyjściowy** do `$0100`, wyłącza wózek za pomocą `LDA #$80 : STA $DE00` i wykonuje `JMP`s do punktu wejścia.
-- **Ładunek** zaczyna się od `$8080` w banku 0 i w razie potrzeby przelewa się do banków 1–7. Maksymalny ładunek = `8 * 8192 − 128 = 65 408 bajtów`.
-
-### Adres załadunku i punkt wejścia
-
-Kompilacja CRT nigdy nie korzysta z Exomizera (depacker nie może działać z pamięci ROM carta). Kompiluje bieżącą kartę za pomocą standardowego potoku autostartu i pobiera adres ładowania z nagłówka PRG oraz punkt wejścia z docelowego SYS:
-
-- **Tryb blokowy/ekspercki z włączonym szczątkowym plikiem BASIC SYS:** obciążenie = `$0801`, wpis = cel SYS (zwykle `$080D` lub źródło użytkownika).
-- **Tryb blokowy/ekspercki z wyłączonym modułem BASIC SYS:** obciążenie = pochodzenie użytkownika (z klasycznym rozwiązaniem awaryjnym `$0801 → $C000`), wejście = adres ładowania.
-- **Tryb Ultimate Basic:** ładowanie i wejście pochodzą z mapy kompilatora UB (`build.map.loadAddress`). Następnie szczątkowy kod autostartu UB wewnątrz ładunku jest wykonywany dokładnie tak, jak po `LOAD "...",8,1 : RUN` z dysku.
-
-Adres źródłowy widoczny na wyjściu ASM zostaje zachowany; moduł ładujący po prostu kopiuje płaski obraz pamięci z PRG do pamięci RAM i przechodzi do punktu wejścia po odmapowaniu pamięci ROM karty.
-
-### Limit rozmiaru
-
-Ponieważ ładunek jest przechowywany liniowo, a funkcja `assembleProgramToPrg()` zwraca płaski bufor `minAddr..maxAddr` z lukami wypełnionymi zerami, program z szeroko rozstawionymi segmentami ORG (np. `$0801` + `$C000` + `$E000`) zlicza każdy bajt pomiędzy nimi do budżetu 65 408 bajtów. Przekroczenie limitu powoduje przerwanie kompilacji z błędem `saveCrtTooLarge` — należy skompresować układ pamięci lub podzielić dane.
-
-> **⚠️ Ważne ostrzeżenie — przeczytaj przed wysyłką monitora CRT**
-> 
-> Program ładujący wywołuje funkcję KERNAL **`RESTOR` ($FD15)** jako część standardowej sekwencji resetowania. To celowo przepisuje standardowe wektory wejścia/wyjścia w `$0314/$0315`, `$0316/$0317`, `$0318/$0319`, `$0328/$0329` i podobnych z powrotem do domyślnych ustawień ROM-u. Konsekwencje:
-> 
-> - **Wszystkie haki IRQ / NMI / BRK ustawione przed rozruchem CRT zostaną wyczyszczone.** Twój program musi zainstalować je samodzielnie po wejściu — dokładnie tak, jak świeże `LOAD "",8,1 : RUN` z taśmy/dysku.
-> - Programy **UltimateBasic**, które opierają się na wektorach KERNAL innych niż domyślne, działających na wejściu, mogą wymagać jawnego wywołania `SYS` lub init w szczątkowym autostartie. Standardowy autostart UB działa od razu; biblioteki rozszerzeń, które przechwytują wektory *przed * `RUN`, nie.
-> - **CIA1 / CIA2** są ponownie inicjowane przez `IOINIT`. Niestandardowe ustawienia timera (IRQ rastrowe, odtwarzacz muzyczny CIA-A) muszą zostać przeprogramowane po wprowadzeniu.
-> - Wózek jest wyłączany z 8-bajtowego szczątku w **RAM pod adresem `$0100`**, aby `STA $DE00` nie mogła zostać przerwana przez błędne pobranie ROM-u. Nie należy polegać na `$0100–$0107` zawierającym obraz wierzchołka stosu przy wejściu — pierwsze wciśnięcie w RAM nadpisuje szczątek.
-> 
-> Jeśli CRT działa w VICE, ale zawodzi na prawdziwym sprzęcie, pierwszą rzeczą do sprawdzenia jest to, czy program przyjmuje konkretny stan wektora KERNAL lub timera CIA na wejściu. Zainstaluj ten stan jawnie w swojej procedurze init, a będzie on zachowywał się tak samo w obu przypadkach.
-
-### Zgodność
-
-| Platforma                       | Status                                             |
-| ------------------------------- | -------------------------------------------------- |
-| IMADŁO (`x64sc`, `x64`)         | Działa poprzez **Plik → Dołącz obraz wkładu**.     |
-| TheC64 / TheC64 Mini            | Działa poprzez wbudowaną ładowarkę kaset.          |
-| Kung Fu Flash                   | Działa — natywny tryb Magic Desk.                  |
-| Kaseta EasyFlash                | Działa po zaprogramowaniu jako Magic Desk.         |
-| 1541 Ultimate II+ / Ultimate 64 | Działa poprzez **Kaseta → Załaduj obraz koszyka**. |
-| Kameleon / Turbo Kameleon       | Fabryka.                                           |
+> **Wymagania: ** Podobnie jak w przypadku eksportu do formatu D64, edytor D64
+> wymaga skonfigurowania opcji VICE (`c1541`) w [Ustawieniach
+> sprzętu](#13-hardware-settings).
 
 ---
 
 ## 13. Ustawienia sprzętowe
 
-Otwórz **Ustawienia → Ustawienia sprzętowe…** w menu paska narzędzi. Wszystkie ścieżki do sprzętu zewnętrznego i konfiguracja sieci znajdują się tutaj.
+Otwórz **Ustawienia → Ustawienia sprzętowe…** w menu paska narzędzi. Wszystkie
+ścieżki do sprzętu zewnętrznego i konfiguracja sieci znajdują się tutaj.
 
 ### Emulator VICE
 
-| Ustawienie       | Opis                                                         |
-| ---------------- | ------------------------------------------------------------ |
-| **Wybierz VICE** | Przejdź do pliku wykonywalnego VICE `x64sc` (lub `x64`)      |
-| **Status**       | Pokazuje, czy ścieżka wykonywalna jest prawidłowa i dostępna |
-
-VICE jest wymagany do **Uruchom jako PRG**, **Uruchom przez D64** i **Eksportu do D64**.
+- **8 × 8 banków KB** przy `$8000`, przełączanie banków za pomocą `$DE00`
+  (konwencja Magic Desk: 3 najniższe bity = bank, bit 7 = wyłączony moduł).
+- **Bank 0** zawiera nagłówek 128-bajtowy + program ładujący:
+  - Wektory zimnego i ciepłego startu `$8000/$8002` wskazują na `$8009`.
+  - `$8004–$8008` = podpis `CBM80` wymagany przez kod resetujący KERNAL.
+  - `$8009–$807F` = ładowarka: SEI / stack init / `JSR $FDA3` (IOINIT) / `JSR
+    $FD50` (RAMTAS) / `JSR $FD15` (RESTOR) / `JSR $FF5B` (CINT), a następnie
+    pętla kopiowania bajtów, która przesyła strumieniowo ładunek z pamięci ROM
+    karty do pamięci RAM i przełącza banki, gdy `$FC` osiągnie `$A0`. Na końcu
+    kopiuje malutki **stykowy kod wyjściowy ** do `$0100`, wyłącza wózek za
+    pomocą `LDA #$80 : STA $DE00` i wykonuje `JMP`s do punktu wejścia.
+- **Ładunek** zaczyna się od `$8080` w banku 0 i w razie potrzeby przelewa się
+  do banków 1–7. Maksymalny ładunek = `8 * 8192 − 128 = 65 408 bajtów`.
 
 ### Exomizer
 
-| Ustawienie                                | Opis                                                                                                                                                                                                |
-| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Wybierz Exomizer**                      | Przejdź do pliku wykonywalnego `exomizer`                                                                                                                                                           |
-| **Błysk obramowania podczas dekompresji** | Po włączeniu skompresowane pliki PRG SFX korzystają ze wbudowanego w exomizer szybkiego efektu flashowania obramowania `-x1`; po wyłączeniu, w celu cichej dekompresji przekazywany jest efekt `-n` |
-| **Status**                                | Pokazuje, czy ścieżka wykonywalna jest prawidłowa i dostępna                                                                                                                                        |
-
 **Przepływ pracy: **
+
+- Zainstaluj plik binarny Exomizera:
+- Skonfiguruj ścieżkę w **Ustawienia sprzętowe → sekcja Exomizer**.
+- Zaznacz pole wyboru **Uruchom z Exomizerem** w menu **Ustawienia**.
+
+Exomizer działa w ten sam sposób w systemach Windows i macOS — interfejs wiersza
+poleceń jest wywoływany z poziomu zaplecza Tauri; integracja nie jest zależna od
+konkretnej platformy.
+
+### Retro Debugger
+
+Pełną dokumentację debugera można znaleźć w [Sekcji 9]{1}.
+
+> **⚠️ Ważne ostrzeżenie — przeczytaj przed wysyłką monitora CRT**
+> 
+> Program ładujący wywołuje funkcję KERNAL **`RESTOR` ($FD15)** jako część
+> standardowej sekwencji resetowania. To celowo przepisuje standardowe wektory
+> wejścia/wyjścia w `$0314/$0315`, `$0316/$0317`, `$0318/$0319`, `$0328/$0329` i
+> podobnych z powrotem do domyślnych ustawień ROM-u. Konsekwencje:
+> 
+> - **Wszystkie haki IRQ / NMI / BRK ustawione przed rozruchem CRT zostaną
+>   wyczyszczone.** Twój program musi zainstalować je samodzielnie po wejściu —
+>   dokładnie tak, jak świeże `LOAD "",8,1 : RUN` z taśmy/dysku.
+> - Programy **UltimateBasic**, które opierają się na wektorach KERNAL innych
+>   niż domyślne, działających na wejściu, mogą wymagać jawnego wywołania `SYS`
+>   lub init w szczątkowym autostartie. Standardowy autostart UB działa od razu;
+>   biblioteki rozszerzeń, które przechwytują wektory *przed * `RUN`, nie.
+> - **CIA1 / CIA2** są ponownie inicjowane przez `IOINIT`. Niestandardowe
+>   ustawienia timera (IRQ rastrowe, odtwarzacz muzyczny CIA-A) muszą zostać
+>   przeprogramowane po wprowadzeniu.
+> - Wózek jest wyłączany z 8-bajtowego szczątku w **RAM pod adresem `$0100`**,
+>   aby `STA $DE00` nie mogła zostać przerwana przez błędne pobranie ROM-u. Nie
+>   należy polegać na `$0100–$0107` zawierającym obraz wierzchołka stosu przy
+>   wejściu — pierwsze wciśnięcie w RAM nadpisuje szczątek.
+> 
+> Jeśli CRT działa w VICE, ale zawodzi na prawdziwym sprzęcie, pierwszą rzeczą
+> do sprawdzenia jest to, czy program przyjmuje konkretny stan wektora KERNAL
+> lub timera CIA na wejściu. Zainstaluj ten stan jawnie w swojej procedurze
+> init, a będzie on zachowywał się tak samo w obu przypadkach.
+
+### C64 Ultimate / 1541 Ultimate
+
+| Platforma                       | Opis                                                                          |
+| ------------------------------- | ----------------------------------------------------------------------------- |
+| **Host (IP)**                   | Adres IP urządzenia (np. `192.168.1.100`)                                     |
+| **Hasło**                       | Opcjonalnie — jeśli urządzenie wymaga uwierzytelnienia                        |
+| **Test połączenia**             | Wysyła żądanie testowe do `/v3/runners/info`; wyświetla komunikat OK lub błąd |
+| Kaseta EasyFlash                | Działa po zaprogramowaniu jako Magic Desk.                                    |
+| 1541 Ultimate II+ / Ultimate 64 | Działa poprzez **Kaseta → Załaduj obraz koszyka **.                           |
+| Kameleon / Turbo Kameleon       | Fabryka.                                                                      |
+
+---
+
+## 14. Edytory wizualne (zestaw narzędzi)
+
+Menu paska narzędzi **Zestaw narzędzi** grupuje edytory danych wizualnych, które
+wszystkie mają wspólne menu Pliki (`Pliki ▾`) dla opcji Ładuj BIN / Zapisz BIN /
+Eksportuj do bloków / Zapisz do D64. Każdy edytor generuje surowe dane `.bin`,
+które można umieścić w programie za pomocą `INCBIN` lub bezpośrednio dodać do
+dysku D64 za pomocą opcji **Zapisz do D64**.
+
+### Edytor wysokiej rozdzielczości / wielokolorowy
+
+| Funkcja            | Opis                                                                                                                                        |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Przełączanie trybu | Pole wyboru **Wielokolorowe** przełącza między wysoką rozdzielczością (monochromatyczne na komórkę) a wielokolorowym (4 kolory na komórkę). |
+| Narzędzia          | Ołówek, gumka, linia, prostokąt, wypełniony prostokąt, owal, wypełniony owal, wypełnienie.                                                  |
+
+Edytor bitmap na poziomie pikseli z trybami wysokiej rozdzielczości 320×200 i
+wielokolorowymi 160×200. Otwórz przez Toolkit → Hi-Res Editor.
+
+### Edytor Sprite'ów
+
+| Funkcja   | Opis                                                                                       |
+| --------- | ------------------------------------------------------------------------------------------ |
+| Ramki     | Dodaj/usuń/zmień kolejność ramek; pasek ramek jest pokazany na dole.                       |
+| Tryb      | Przełącznik mono/wielokolorowy.                                                            |
+| Narzędzia | Ołówek, gumka, linia, prostokąt, wypełniony prostokąt, owal, wypełniony owal, wypełnienie. |
+
+Edytor sprite'ów 24×21 pikseli z animacją wieloklatkową. Otwórz przez Toolkit →
+Edytor sprite'ów.
 1. Zainstaluj plik binarny Exomizera:
-   - **Windows:** pobierz wstępnie skompilowany plik `win32/exomizer.exe` ze strony https://bitbucket.org/magli143/exomizer/wiki/Home lub https://csdb.dk/release/?id=244342.
-   - **macOS:** `brew install exomizer` (instaluje oficjalną kompilację 3.1.2 Magnusa Linda).
+   - **Windows:** pobierz wstępnie skompilowany plik `win32/exomizer.exe` ze
+     strony https://bitbucket.org/magli143/exomizer/wiki/Home lub
+     https://csdb.dk/release/?id=244342.
+   - **macOS:** `brew install exomizer` (instaluje oficjalną kompilację 3.1.2
+     Magnusa Linda).
 2. Skonfiguruj ścieżkę w **Ustawienia sprzętowe → sekcja Exomizer**.
 3. Zaznacz pole wyboru **Uruchom z Exomizerem** w menu **Ustawienia**.
-4. Wszystkie akcje **Run** (PRG, D64, sprzęt) i akcje **Build** (Build PRG, Build D64) będą teraz przetwarzać zmontowany program za pomocą `exomizer sfx sys` przed uruchomieniem lub zapisaniem.
+4. Wszystkie akcje **Run** (PRG, D64, sprzęt) i akcje **Build** (Build PRG,
+   Build D64) będą teraz przetwarzać zmontowany program za pomocą `exomizer sfx
+   sys` przed uruchomieniem lub zapisaniem.
 
-Exomizer działa w ten sam sposób w systemach Windows i macOS — interfejs wiersza poleceń jest wywoływany z poziomu zaplecza Tauri; integracja nie jest zależna od konkretnej platformy.
+Exomizer działa w ten sam sposób w systemach Windows i macOS — interfejs wiersza
+poleceń jest wywoływany z poziomu zaplecza Tauri; integracja nie jest zależna od
+konkretnej platformy.
 
 **Wewnętrznie używane są dwa tryby kompresji:**
 
@@ -3706,61 +4912,98 @@ Exomizer działa w ten sam sposób w systemach Windows i macOS — interfejs wie
 | `system sfx`    | Zbuduj/Uruchom z przełącznikiem Exomizer (główna ścieżka PRG) | Samorozpakowujący się PRG z wbudowanym decruncherem; ustawienie Border-flash kontroluje `-x1` vs `-n`                                                                                          |
 | `mem` (do tyłu) | Uruchom przez D64 → pole wyboru **EXO** dla każdego pliku     | Kompresuje każdy dodatkowy plik do strumienia w trybie `mem`; program dekompresuje go w czasie wykonywania za pomocą makra **EXODECRUNCH** i wbudowanego depakera (`samples/exo-decrunch.bin`) |
 
-> **Wskazówka:** Jeśli ścieżka Exomizera nie jest skonfigurowana, ale pole wyboru jest zaznaczone, zamiast uruchomienia wyświetla się czysty komunikat o błędzie. Odznacz pole wyboru, aby uruchomić Exomizer bez kompresji.
+> **Wskazówka: ** Jeśli ścieżka Exomizera nie jest skonfigurowana, ale pole
+> wyboru jest zaznaczone, zamiast uruchomienia wyświetla się czysty komunikat o
+> błędzie. Odznacz pole wyboru, aby uruchomić Exomizer bez kompresji.
 
-> **Test integracji:** `test cargo --test exomizer_integration` (w `src-tauri/`) weryfikuje pełną kompresję i dekompresję w trybie pamięci w obie strony na emulatorze 6502.
+> **Test integracji:** `test cargo --test exomizer_integration` (w `src-tauri/`)
+> weryfikuje pełną kompresję i dekompresję w trybie pamięci w obie strony na
+> emulatorze 6502.
 
-### Retro Debugger
+### Przeglądarka ROM-u znaków C64 („mapa znaków”)
 
-| Ustawienie                | Opis                                       |
-| ------------------------- | ------------------------------------------ |
-| **Wybierz RetroDebugger** | Przejdź do pliku binarnego `RetroDebugger` |
-| **Status**                | Pokazuje, czy ścieżka jest prawidłowa      |
+| Funkcja            | Opis                                                                                                                                                                                                                                             |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Dwa zestawy znaków | Karta 1: **Zestaw 1 — Górny/Grafika** (domyślny tryb po włączeniu zasilania). Karta 2: **Zestaw 2 — Dolny/Górny** (po przełączeniu `$0E`).                                                                                                       |
+| Narzędzia          | Siatka 16×16 zawierająca wszystkie 256 znaków. Kliknij glif, aby zobaczyć jego panel szczegółów: powiększony widok 8×8 pikseli, kod ekranu (dziesiętny + szesnastkowy), kody PETSCII (domyślne i przesunięte) oraz surową 8-bajtową mapę bitową. |
 
-Pełną dokumentację debugera można znaleźć w [Sekcji 9](#9-debugger-integration).
+Przeglądarka tylko do odczytu pamięci ROM znaków C64 (wbudowanej czcionki
+PETSCII). Otwierana poprzez wpis **C64 chargen** w menu Toolkit. Przydatna do
+znalezienia kodu ekranowego glifu przed zapisaniem go za pomocą `RAWBYTES` lub
+`TEXT`.
 
-### C64 Ultimate / 1541 Ultimate
+### Edytor znaków (zestaw znaków)
 
-Uruchamiaj złożone programy PRG bezpośrednio na prawdziwym sprzęcie za pośrednictwem sieci lokalnej, korzystając z Ultimate REST API.
+Edytor znaków 8×8 o pojemności 256 znaków. Otwórz przez Toolkit → Edytor znaków.
 
-| Ustawienie          | Opis                                                                          |
-| ------------------- | ----------------------------------------------------------------------------- |
-| **Host (IP)**       | Adres IP urządzenia (np. `192.168.1.100`)                                     |
-| **Hasło**           | Opcjonalnie — jeśli urządzenie wymaga uwierzytelnienia                        |
-| **Test połączenia** | Wysyła żądanie testowe do `/v3/runners/info`; wyświetla komunikat OK lub błąd |
+| Funkcja         | Opis                                                                                           |
+| --------------- | ---------------------------------------------------------------------------------------------- |
+| Załaduj ROM     | Importuje zestaw znaków ROM C64 bezpośrednio z `chargen` programu VICE (bez selektora plików). |
+| Załaduj `.bin`  | Importuje zewnętrzny plik binarny z zestawem znaków o rozmiarze 2048 bajtów.                   |
+| Podgląd na znak | 16-szeroka siatka wszystkich 256 glifów z podświetloną bieżącą komórką.                        |
 
-**Przepływ pracy: **
+Edytor sprite'ów 24×21 pikseli z animacją wieloklatkową. Otwórz przez Toolkit →
+Edytor sprite'ów.
 1. Podłącz urządzenie 1541 Ultimate / Ultimate 64 do sieci lokalnej.
 2. Wprowadź adres IP (i hasło, jeśli zostało ustawione) w Ustawieniach sprzętu.
 3. Wybierz **Uruchom na sprzęcie** z menu podzielonego uruchamiania.
-4. Kliknij **▶ Uruchom** — PRG zostanie skompilowany i wysłany do urządzenia za pomocą protokołu HTTP POST do `/v3/runners/prg`. Urządzenie natychmiast go załaduje i uruchomi na komputerze C64.
+4. Kliknij **▶ Uruchom** — PRG zostanie skompilowany i wysłany do urządzenia za
+   pomocą protokołu HTTP POST do `/v3/runners/prg`. Urządzenie natychmiast go
+   załaduje i uruchomi na komputerze C64.
 
-> **Wskazówka:** Nie potrzebujesz kabla USB ani sterownika — interfejs API REST jest wbudowany w oprogramowanie układowe Ultimate. Twój komputer i urządzenie muszą być w tej samej sieci lokalnej.
+> **Wskazówka: ** Nie potrzebujesz kabla USB ani sterownika — interfejs API REST
+> jest wbudowany w oprogramowanie układowe Ultimate. Twój komputer i urządzenie
+> muszą być w tej samej sieci lokalnej.
 
-### Kung Fu Flash 2
+### Edytor płótna zestawu znaków
 
-Uruchamiaj asemblowane programy na **prawdziwym Commodore 64 lub C128** — bez napędu dyskowego, obrazu dysku, kopiowania kart SD ani emulatora. Visual Assembler komunikuje się z portem szeregowym USB kartridża, restartuje go do modułu ładującego MENU i przesyła plik PRG, który następnie uruchamia się na komputerze.
+Malarz pełnego zestawu znaków do tworzenia ekranów z kompletnego, 256-znakowego
+zestawu znaków. Otwórz przez Toolkit → Charset Canvas.
 
-**Czego potrzebujesz:**
-- włączony komputer Commodore 64 / C128 z zamontowanym kartridżem **Kung Fu Flash 2**;
-- **Oprogramowanie układowe Kung Fu Flash w wersji 2.07 lub nowszej** na kartridżu — starsze wersje oprogramowania układowego nie obsługują protokołu przesyłania używanego przez Visual Assembler. Wersje oprogramowania układowego: <https://codeberg.org/KimJorgensen/KungFuFlash2/releases/>;
-- kabel USB **** łączący kartridż z komputerem, na którym działa program Visual Assembler (widoczny jako wirtualny port szeregowy).
+Płótno ma rozmiar 16×16 znaków. W trybie monochromatycznym daje to obszar
+roboczy o wymiarach 128×128 pikseli; w trybie wielokolorowym znaków daje obszar
+roboczy o szerokości 64×128 pikseli, zgodnie z rzeczywistymi regułami
+wielokolorowości znaków w C64.
+- włączony komputer Commodore 64 / C128 z zamontowanym kartridżem **Kung Fu
+  Flash 2**;
+- **Oprogramowanie układowe Kung Fu Flash w wersji 2.07 lub nowszej** na
+  kartridżu — starsze wersje oprogramowania układowego nie obsługują protokołu
+  przesyłania używanego przez Visual Assembler. Wersje oprogramowania
+  układowego: <https://codeberg.org/KimJorgensen/KungFuFlash2/releases/>;
+- kabel USB **** łączący kartridż z komputerem, na którym działa program Visual
+  Assembler (widoczny jako wirtualny port szeregowy).
 
-| Ustawienie         | Opis                                                                                                                                                                                                                                                                                                                                                                                 |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Port szeregowy** | Port szeregowy USB kartridża, np. `COM4` (Windows), `/dev/cu.usbmodem…` (macOS) lub `/dev/ttyACM0` (Linux). Wykrywany automatycznie po identyfikatorze USB (`0483:5740`) podczas uruchamiania aplikacji; w wierszu stanu pod polem wyświetla się `KFF2: <port>` lub, jeśli port nie został znaleziony, pojawia się prośba o ręczne wpisanie. Wartość jest zapisywana między sesjami. |
+| Funkcja              | Opis                                                                                                                                                                      |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Mono / wielokolorowy | Tryb monochromatyczny przechowuje 1-bitowe glify 8×8. Tryb wielokolorowy przechowuje dwubitowe poziome pary pikseli i oznacza używane komórki bitem 3 pamięci RAM koloru. |
 
-**Przepływ pracy: **
-1. Umieść kartę Kung Fu Flash 2 w porcie kartridża w C64, włącz komputer i podłącz kabel USB do komputera PC/Mac.
-2. Otwórz **Ustawienia sprzętu** i sprawdź sekcję **Kung Fu Flash 2** — port powinien być już wypełniony.
-3. Wybierz **Kung Fu Flash 2** z menu podzielonego przebiegu (wybór zostanie zapamiętany i zapisany także w plikach projektu).
-4. Kliknij **▶ Uruchom**. Program zostaje skompilowany, kaseta zostaje ponownie uruchomiona w programie ładującym MENU (krótkie „dotknięcie” portu szeregowego z prędkością 1200 bodów), następuje krótkie uzgadnianie i przesłanie pliku PRG. Po zakończeniu transferu program działa na komputerze fizycznym.
+Edytor sprite'ów 24×21 pikseli z animacją wieloklatkową. Otwórz przez Toolkit →
+Edytor sprite'ów.
+1. Umieść kartę Kung Fu Flash 2 w porcie kartridża w C64, włącz komputer i
+   podłącz kabel USB do komputera PC/Mac.
+2. Otwórz **Ustawienia sprzętu** i sprawdź sekcję **Kung Fu Flash 2** — port
+   powinien być już wypełniony.
+3. Wybierz **Kung Fu Flash 2** z menu podzielonego przebiegu (wybór zostanie
+   zapamiętany i zapisany także w plikach projektu).
+4. Kliknij **▶ Uruchom **. Program zostaje skompilowany, kaseta zostaje ponownie
+   uruchomiona w programie ładującym MENU (krótkie „dotknięcie” portu
+   szeregowego z prędkością 1200 bodów), następuje krótkie uzgadnianie i
+   przesłanie pliku PRG. Po zakończeniu transferu program działa na komputerze
+   fizycznym.
 
-Działa w trybach **Block**, **Expert** i **Ultimate Basic**; programy Ultimate Basic kompilują się z pliku startowego projektu.
+Działa w trybach **Block**, **Expert** i **Ultimate Basic**; programy Ultimate
+Basic kompilują się z pliku startowego projektu.
 
-> **Ograniczenia i kontrole:** PRG musi zawierać dwubajtowy adres ładowania plus co najmniej jeden bajt danych, musi mieścić się w 64-kilobajtowej przestrzeni adresowej C64 i nie może przekraczać rozmiaru akceptowanego przez moduł ładujący kartridża. Błędy — brak konfiguracji portu, brak możliwości otwarcia portu, brak powrotu kartridża z MENU lub odrzucenie przesłania — są zgłaszane w komunikacie z dokładną przyczyną.
+> **Ograniczenia i kontrole: ** PRG musi zawierać dwubajtowy adres ładowania
+> plus co najmniej jeden bajt danych, musi mieścić się w 64-kilobajtowej
+> przestrzeni adresowej C64 i nie może przekraczać rozmiaru akceptowanego przez
+> moduł ładujący kartridża. Błędy — brak konfiguracji portu, brak możliwości
+> otwarcia portu, brak powrotu kartridża z MENU lub odrzucenie przesłania — są
+> zgłaszane w komunikacie z dokładną przyczyną.
 
-> **Wskazówka:** jeśli wolisz obraz kartridża zamiast przesyłania na żywo, **Build CRT** (Magic Desk 64K) również działa na Kung Fu Flash — zobacz [Sekcję 12b](#12b-crt-export-magic-desk-64k-cartridge).
+> **Wskazówka:** jeśli wolisz obraz kartridża zamiast przesyłania na żywo,
+> **Build CRT** (Magic Desk 64K) również działa na Kung Fu Flash — zobacz
+> [Sekcję 12b](#12b-crt-export-magic-desk-64k-cartridge).
 
 ---
 
@@ -3768,13 +5011,21 @@ Działa w trybach **Block**, **Expert** i **Ultimate Basic**; programy Ultimate 
 
 ## 14. Edytory wizualne (zestaw narzędzi)
 
-Menu paska narzędzi **Zestaw narzędzi** grupuje edytory danych wizualnych, które wszystkie mają wspólne menu Pliki (`Pliki ▾`) dla opcji Ładuj BIN / Zapisz BIN / Eksportuj do bloków / Zapisz do D64. Każdy edytor generuje surowe dane `.bin`, które można umieścić w programie za pomocą `INCBIN` lub bezpośrednio dodać do dysku D64 za pomocą opcji **Zapisz do D64**.
+Menu paska narzędzi **Zestaw narzędzi** grupuje edytory danych wizualnych, które
+wszystkie mają wspólne menu Pliki (`Pliki ▾`) dla opcji Ładuj BIN / Zapisz BIN /
+Eksportuj do bloków / Zapisz do D64. Każdy edytor generuje surowe dane `.bin`,
+które można umieścić w programie za pomocą `INCBIN` lub bezpośrednio dodać do
+dysku D64 za pomocą opcji **Zapisz do D64**.
 
-Okna dialogowe edytora wizualnego można przeciągać za nagłówki w całym obszarze roboczym Visual Assembler. Okno dialogowe bez zapisanej pozycji otwiera się wyśrodkowane; po przesunięciu jego ostatnia pozycja jest zapisywana w ustawieniach interfejsu użytkownika i przywracana przy następnym otwarciu.
+Okna dialogowe edytora wizualnego można przeciągać za nagłówki w całym obszarze
+roboczym Visual Assembler. Okno dialogowe bez zapisanej pozycji otwiera się
+wyśrodkowane; po przesunięciu jego ostatnia pozycja jest zapisywana w
+ustawieniach interfejsu użytkownika i przywracana przy następnym otwarciu.
 
 ### Edytor wysokiej rozdzielczości / wielokolorowy
 
-Edytor bitmap na poziomie pikseli z trybami wysokiej rozdzielczości 320×200 i wielokolorowymi 160×200. Otwórz przez Toolkit → Hi-Res Editor.
+Edytor bitmap na poziomie pikseli z trybami wysokiej rozdzielczości 320×200 i
+wielokolorowymi 160×200. Otwórz przez Toolkit → Hi-Res Editor.
 
 | Funkcja                 | Opis                                                                                                                                        |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -3791,7 +5042,8 @@ Edytor bitmap na poziomie pikseli z trybami wysokiej rozdzielczości 320×200 i 
 
 ### Edytor Sprite'ów
 
-Edytor sprite'ów 24×21 pikseli z animacją wieloklatkową. Otwórz przez Toolkit → Edytor sprite'ów.
+Edytor sprite'ów 24×21 pikseli z animacją wieloklatkową. Otwórz przez Toolkit →
+Edytor sprite'ów.
 
 | Funkcja             | Opis                                                                                                                                                                                                                                                        |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -3806,7 +5058,10 @@ Edytor sprite'ów 24×21 pikseli z animacją wieloklatkową. Otwórz przez Toolk
 
 ### Przeglądarka ROM-u znaków C64 („mapa znaków”)
 
-Przeglądarka tylko do odczytu pamięci ROM znaków C64 (wbudowanej czcionki PETSCII). Otwierana poprzez wpis **C64 chargen** w menu Toolkit. Przydatna do znalezienia kodu ekranowego glifu przed zapisaniem go za pomocą `RAWBYTES` lub `TEXT`.
+Przeglądarka tylko do odczytu pamięci ROM znaków C64 (wbudowanej czcionki
+PETSCII). Otwierana poprzez wpis **C64 chargen** w menu Toolkit. Przydatna do
+znalezienia kodu ekranowego glifu przed zapisaniem go za pomocą `RAWBYTES` lub
+`TEXT`.
 
 | Funkcja            | Opis                                                                                                                                                                                                                                             |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -3831,9 +5086,13 @@ Edytor znaków 8×8 o pojemności 256 znaków. Otwórz przez Toolkit → Edytor 
 
 ### Edytor płótna zestawu znaków
 
-Malarz pełnego zestawu znaków do tworzenia ekranów z kompletnego, 256-znakowego zestawu znaków. Otwórz przez Toolkit → Charset Canvas.
+Malarz pełnego zestawu znaków do tworzenia ekranów z kompletnego, 256-znakowego
+zestawu znaków. Otwórz przez Toolkit → Charset Canvas.
 
-Płótno ma rozmiar 16×16 znaków. W trybie monochromatycznym daje to obszar roboczy o wymiarach 128×128 pikseli; w trybie wielokolorowym znaków daje obszar roboczy o szerokości 64×128 pikseli, zgodnie z rzeczywistymi regułami wielokolorowości znaków w C64.
+Płótno ma rozmiar 16×16 znaków. W trybie monochromatycznym daje to obszar
+roboczy o wymiarach 128×128 pikseli; w trybie wielokolorowym znaków daje obszar
+roboczy o szerokości 64×128 pikseli, zgodnie z rzeczywistymi regułami
+wielokolorowości znaków w C64.
 
 | Funkcja                                        | Opis                                                                                                                                                                                            |
 | ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -3847,11 +5106,15 @@ Płótno ma rozmiar 16×16 znaków. W trybie monochromatycznym daje to obszar ro
 | Zapisz mapę 16×16 + kolorową pamięć RAM `.bin` | Zapisuje 256 kodów ekranowych, a następnie 256 wartości pamięci RAM kolorów. Użyj tego z `MAP_COPY16X16`.                                                                                       |
 | Załadunek                                      | Można wczytać zapisane zestawy znaków z płótna, zwykłe dane zestawu znaków i zgodne dane zestawu znaków edytora znaków, w tym zapisane kolory dla każdego znaku, jeśli są dostępne.             |
 
-**Ważne ograniczenie C64:** w trybie wielokolorowych znaków dwa współdzielone kolory są globalne dla całego ekranu (`$D022` / `$D023`). Tylko kolor własny znaku jest wyświetlany dla każdej komórki i jest ograniczony do kolorów 0–7, ponieważ bit 3 pamięci kolorów wybiera tryb wielokolorowy.
+**Ważne ograniczenie C64: ** w trybie wielokolorowych znaków dwa współdzielone
+kolory są globalne dla całego ekranu (`$D022` / `$D023`). Tylko kolor własny
+znaku jest wyświetlany dla każdej komórki i jest ograniczony do kolorów 0–7,
+ponieważ bit 3 pamięci kolorów wybiera tryb wielokolorowy.
 
 ### Edytor map (mapy kafelkowe wielowarstwowe)
 
-Warstwowy edytor map kafelkowych do statycznych scenerii, map pojawiania się sprite'ów, danych o kolizjach i podobnych. Otwórz przez Toolkit → Edytor map.
+Warstwowy edytor map kafelkowych do statycznych scenerii, map pojawiania się
+sprite'ów, danych o kolizjach i podobnych. Otwórz przez Toolkit → Edytor map.
 
 | Funkcja                                               | Opis                                                                                                                                                                                                                                                                                                       |
 | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -3869,7 +5132,10 @@ Warstwowy edytor map kafelkowych do statycznych scenerii, map pojawiania się sp
 
 ### Edytor poziomów
 
-Łączy ekrany **Edytora Map** w jeden poziom – strzelankę pionową, grę samochodową z przewijaniem w dół, grę z widokiem z boku lub mapę 2D – i wyświetla podgląd całego poziomu za pomocą płynnego przewijania. Otwórz go przyciskiem **Edytora Poziomów** na pasku narzędzi obok Edytora Map.
+Łączy ekrany **Edytora Map** w jeden poziom – strzelankę pionową, grę
+samochodową z przewijaniem w dół, grę z widokiem z boku lub mapę 2D – i
+wyświetla podgląd całego poziomu za pomocą płynnego przewijania. Otwórz go
+przyciskiem **Edytora Poziomów** na pasku narzędzi obok Edytora Map.
 
 | Funkcja     | Opis                                                                                                                                                                                                                                |
 | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -3887,59 +5153,133 @@ Warstwowy edytor map kafelkowych do statycznych scenerii, map pojawiania się sp
 | **Zapisz poziom Ekran + Kolor RAM (.bin)…**                             | Cały kod ekranu poziomu wraz z jego kolorami.                                                                            |
 | **Eksportuj do bloków** / **Kopiuj asm**                                | Dane poziomu jako bloki lub jako tekst asm (schowek).                                                                    |
 
-**Używanie poziomu:** w asemblerze, `.level "level.bin"` + `.level_row` (patrz [LEVEL / LEVEL_ROW](#level--level_row) i `samples/level-demo.asm`); w Ultimate Basic 1.6.1+, `ładowanie mapy "level.bin", $4000` i `widok mapy px, py` (przykład `level_scroll_demo.ub`).
+**Używanie poziomu:** w asemblerze, `.level "level.bin"` + `.level_row` (patrz
+[LEVEL / LEVEL_ROW](#level--level_row) i `samples/level-demo.asm`); w Ultimate
+Basic 1.6.1+, `ładowanie mapy "level.bin", $4000` i `widok mapy px, py`
+(przykład `level_scroll_demo.ub`).
 
 ### Edytor SID (śledzenie 3-głosowe)
 
-Wieloinstrumentalny, 3-głosowy tracker. Otwórz przez Toolkit → Edytor SID. **Odtwarzanie: Wszystkie** uruchamia wyeksportowany odtwarzacz 6502 w emulatorze WebSid; każdy inny podgląd (podgląd instrumentu, klawiatura wirtualna, wprowadzanie nut, akord/arpeggio, wiersz i odtwarzanie pojedynczego wzorca) również odtwarzany jest na emulowanym SID: model JS tego samego odtwarzacza (klatka po klatce) przesyła strumieniowo swoje rejestry SID do WebSid w każdej klatce, a maksymalnie trzy nuty podglądu współdzielą trzy głosy. Odtwarzacz strumieniowy jest ładowany po otwarciu edytora i ponownie po zatrzymaniu, więc nuty brzmią jednocześnie; bez WebSid odtwarzany jest mały syntezator SID.
+Wieloinstrumentalny, 3-głosowy tracker. Otwórz przez Toolkit → Edytor SID.
+**Odtwarzanie: Wszystkie** uruchamia wyeksportowany odtwarzacz 6502 w emulatorze
+WebSid; każdy inny podgląd (podgląd instrumentu, klawiatura wirtualna,
+wprowadzanie nut, akord/arpeggio, wiersz i odtwarzanie pojedynczego wzorca)
+również odtwarzany jest na emulowanym SID: model JS tego samego odtwarzacza
+(klatka po klatce) przesyła strumieniowo swoje rejestry SID do WebSid w każdej
+klatce, a maksymalnie trzy nuty podglądu współdzielą trzy głosy. Odtwarzacz
+strumieniowy jest ładowany po otwarciu edytora i ponownie po zatrzymaniu, więc
+nuty brzmią jednocześnie; bez WebSid odtwarzany jest mały syntezator SID.
 
 **Sterowanie na instrument:**
-- Pola wyboru przebiegów (TRI / SAW / PUL / NOI) — wiele przebiegów jest łączonych logicznie jak w SID — plus **RING** (modulacja pierścieniowa trójkąta przez poprzedni głos: 1 ← 3, 2 ← 1, 3 ← 2) i **SYNC** (twarda synchronizacja z poprzednim głosem).
-- ADSR (atak / zanik / podtrzymanie / uwolnienie) wyświetlane w formie wykresu przeciąganego nad czterema suwakami.
+- Pola wyboru przebiegów (TRI / SAW / PUL / NOI) — wiele przebiegów jest
+  łączonych logicznie jak w SID — plus **RING** (modulacja pierścieniowa
+  trójkąta przez poprzedni głos: 1 ← 3, 2 ← 1, 3 ← 2) i **SYNC** (twarda
+  synchronizacja z poprzednim głosem).
+- ADSR (atak / zanik / podtrzymanie / uwolnienie) wyświetlane w formie wykresu
+  przeciąganego nad czterema suwakami.
 - Suwak szerokości impulsu (0-4095).
-- **Filtr: ** *Przeprowadź ten głos przez filtr *, LP / BP / HP i **3 WYŁ. ** (wycisz głos 3, gdy nie jest przekierowywany), odcięcie, rezonans, głośność. **Koniec ** + **Przemiatanie ** Przesuń odcięcie z cięcia do końca o przemiatanie na klatkę; **Ping-pong ** odbija się między nimi — to właśnie powoduje rezonansowe przemiatanie filtra. Głos, który uruchamia instrument przekierowywany przez filtr, posiada filtr (odcięcie, rezonans, mod); każdy głos, którego instrument jest przekierowywany, przechodzi przez niego.
-- **Vibrato:** po ramkach **Delay** trójkątny LFO obraca się co **Speed** ramek, **Depth** 0-15 skalowane do półtonu nuty (niezależnie od efektu `V`).
-- **Modulacja szerokości impulsu: ** **Prędkość ** dodawana do szerokości impulsu w każdej klatce, zmieniająca się między **Min** a **Maks.**.
-- **Bramka:** **Czasomierz bramki** zwalnia bramkę o tyle klatek przed następną nutą w głosie (utrzymuje ją poniżej prędkości); **Twardy restart** zeruje wtedy ADSR, zapewniając czysty atak; **Pierwsza klatka** zapisuje przebieg na pierwszej klatce nuty (np. `$09` test + bramka).
-- **Tabela fal/arpeggio:** do 32 kroków przebiegu (— = zachowaj) i nuty (przesunięcie w półtonach lub **abs** = nuta absolutna), jeden krok co **Prędkość** klatek, **Pętla** powrót do kroku lub zatrzymanie na ostatnim kroku. **Presety** (25, w grupach; lista zachowuje wybrany preset, dopóki tabela nie zostanie ręcznie edytowana): arpeggia (durowe, molowe, septymowe, sus4, zmniejszone, zwiększone, akord mocy, oktawa, trel), perkusje (stopa, werbel, tom, klaskanie, zamknięty/otwarty hi-hat), ataki ołowiane i basowe oraz efekty dźwiękowe (laser, pickup, wybuch).
+- **Filtr: ** *Przeprowadź ten głos przez filtr *, LP / BP / HP i **3 WYŁ. **
+  (wycisz głos 3, gdy nie jest przekierowywany), odcięcie, rezonans, głośność.
+  **Koniec ** + **Przemiatanie ** Przesuń odcięcie z cięcia do końca o
+  przemiatanie na klatkę; **Ping-pong ** odbija się między nimi — to właśnie
+  powoduje rezonansowe przemiatanie filtra. Głos, który uruchamia instrument
+  przekierowywany przez filtr, posiada filtr (odcięcie, rezonans, mod); każdy
+  głos, którego instrument jest przekierowywany, przechodzi przez niego.
+- **Vibrato:** po ramkach **Delay** trójkątny LFO obraca się co **Speed** ramek,
+  **Depth** 0-15 skalowane do półtonu nuty (niezależnie od efektu `V`).
+- **Modulacja szerokości impulsu: ** **Prędkość ** dodawana do szerokości
+  impulsu w każdej klatce, zmieniająca się między **Min** a **Maks.**.
+- **Bramka:** **Czasomierz bramki** zwalnia bramkę o tyle klatek przed następną
+  nutą w głosie (utrzymuje ją poniżej prędkości); **Twardy restart** zeruje
+  wtedy ADSR, zapewniając czysty atak; **Pierwsza klatka** zapisuje przebieg na
+  pierwszej klatce nuty (np. `$09` test + bramka).
+- **Tabela fal/arpeggio:** do 32 kroków przebiegu (— = zachowaj) i nuty
+  (przesunięcie w półtonach lub **abs** = nuta absolutna), jeden krok co
+  **Prędkość** klatek, **Pętla** powrót do kroku lub zatrzymanie na ostatnim
+  kroku. **Presety** (25, w grupach; lista zachowuje wybrany preset, dopóki
+  tabela nie zostanie ręcznie edytowana): arpeggia (durowe, molowe, septymowe,
+  sus4, zmniejszone, zwiększone, akord mocy, oktawa, trel), perkusje (stopa,
+  werbel, tom, klaskanie, zamknięty/otwarty hi-hat), ataki ołowiane i basowe
+  oraz efekty dźwiękowe (laser, pickup, wybuch).
 
-**Siatka śledzenia:**
-- 3 głosy × do 7 wzorów × 32 wiersze = 7 × 32 = maksymalnie 224 wiersze (ograniczenie stanowi 8-bitowy licznik wierszy).
-- Na wiersz: nuta + indeks instrumentu, plus opcjonalny efekt (patrz **Kolumna efektów** poniżej). Puste wiersze zawierają poprzednią nutę: podobnie jak w innych trackerach (GoatTracker, SID-Wizard), nuta utrzymuje swoją bramkę (poziom podtrzymania) do następnej nuty w tym samym głosie lub **wyłączenia nuty**.
-- **Enter** (lub dwukrotne kliknięcie) edytuje wybraną komórkę jako tekst (`C-4 01 V24`); **Enter** zapisuje i przechodzi do następnego wiersza, **Esc** anuluje.
-- **Note-off** (`===`): klawisz **1** (lub `` ` `` / `=`), albo wpisz `===` / `OFF` w komórce. Zwalnia bramkę, więc zwolnienie instrumentu działa — tak samo jak efekt `C` bez nuty (zapisany i wyeksportowany jako `C00`).
-- Zaznacz jedną komórkę normalnie lub przytrzymaj klawisze **Shift** podczas klikania lub używania klawiszy strzałek, aby rozszerzyć prostokątne zaznaczenie na wiersze i dowolny z trzech głosów. Kliknięcie prawym przyciskiem myszy w zaznaczonym obszarze zachowuje zakres.
-- Kopiuj, Wytnij, Wklej i Wyczyść są dostępne na pasku narzędzi ikon i w menu kontekstowym opartym na ikonach. `Ctrl/Cmd+C` i `Ctrl/Cmd+V` działają na tym samym prostokątnym zaznaczeniu.
-- Pomocnik harmonii: wybierz nutę podstawową, rodzaj akordu i oktawę, odsłuchaj akord z bieżącym instrumentem, a następnie wstaw brzmienie bezpośrednio do trackera. Dostępne typy to: dur, mol, zmniejszony, zwiększony, Sus2, Sus4, dominanta 7, dur 7, mol 7, 6, mol 6, 9, b9, #9, Dim7 i 7sus4.
-- Pomocnik arpeggio: podgląd lub wstawianie przebiegów nutowych składających się z 4, 8 lub 16 kroków od wybranego akordu w kierunku w górę, w dół lub w górę/w dół.
-- **Podgląd wiersza** umożliwia odsłuchanie wybranego wiersza we wszystkich trzech głosach bez rozpoczynania odtwarzania wzorca.
-- Wklejanie zakresu komórek rozpoczyna się teraz od wybranej komórki początkowej zakresu i kończy się na granicach wiersza lub głosu, zamiast przechodzić do następnej kolumny lub wiersza.
+**Siatka śledzenia: **
+- 3 głosy × do 7 wzorów × 32 wiersze = 7 × 32 = maksymalnie 224 wiersze
+  (ograniczenie zapewnia 8-bitowy licznik wierszy).
+- Na wiersz: nuta + indeks instrumentu, plus opcjonalny efekt (patrz **Kolumna
+  efektów** poniżej). Puste wiersze zawierają poprzednią nutę: podobnie jak w
+  innych trackerach (GoatTracker, SID-Wizard), nuta utrzymuje swoją bramkę
+  (poziom podtrzymania) do następnej nuty w tym samym głosie lub **wyłączenia
+  nuty**.
+- **Enter** (lub dwukrotne kliknięcie) edytuje wybraną komórkę jako tekst (`C-4
+  01 V24`); **Enter** zapisuje i przechodzi do następnego wiersza, **Esc**
+  anuluje.
+- **Note-off** (`===`): klawisz **1** (lub `` ` `` / `=`), albo wpisz `===` /
+  `OFF` w komórce. Zwalnia bramkę, więc zwolnienie instrumentu działa — tak samo
+  jak efekt `C` bez nuty (zapisany i wyeksportowany jako `C00`).
+- Zaznacz jedną komórkę normalnie lub przytrzymaj klawisze **Shift** podczas
+  klikania lub używania klawiszy strzałek, aby rozszerzyć prostokątne
+  zaznaczenie na wiersze i dowolny z trzech głosów. Kliknięcie prawym
+  przyciskiem myszy w zaznaczonym obszarze zachowuje zakres.
+- Kopiuj, Wytnij, Wklej i Wyczyść są dostępne na pasku narzędzi ikon i w menu
+  kontekstowym opartym na ikonach. `Ctrl/Cmd+C` i `Ctrl/Cmd+V` działają na tym
+  samym prostokątnym zaznaczeniu.
+- Pomocnik harmonii: wybierz nutę podstawową, rodzaj akordu i oktawę, odsłuchaj
+  akord z bieżącym instrumentem, a następnie wstaw brzmienie bezpośrednio do
+  trackera. Dostępne typy to: dur, mol, zmniejszony, zwiększony, Sus2, Sus4,
+  dominanta 7, dur 7, mol 7, 6, mol 6, 9, b9, #9, Dim7 i 7sus4.
+- Pomocnik arpeggio: podgląd lub wstawianie przebiegów nutowych składających się
+  z 4, 8 lub 16 kroków od wybranego akordu w kierunku w górę, w dół lub w górę/w
+  dół.
+- **Podgląd wiersza** umożliwia odsłuchanie wybranego wiersza we wszystkich
+  trzech głosach bez rozpoczynania odtwarzania wzorca.
+- Wklejanie zakresu komórek rozpoczyna się teraz od wybranej komórki początkowej
+  zakresu i kończy się na granicach wiersza lub głosu, zamiast przechodzić do
+  następnej kolumny lub wiersza.
 - Suwak prędkości ustawia dzielnik cykli IRQ (liczba klatek pomiędzy wierszami).
 
 **Lista utworów / kolejności:**
-- Wzory są ustalane na podstawie listy piosenek/kolejności umieszczonej na wierzchu banku surowych wzorów — ten sam wzór może się powtarzać, a piosenka może być dłuższa od liczby zapisanych wzorów.
-- Dodawaj, usuwaj i zmieniaj kolejność kroków na panelu listy utworów. Podczas odtwarzania podświetlany jest bieżący krok.
-- Zarówno odtwarzanie w aplikacji, jak i każdy eksport przechodzą przez tę listę, a nie surowa kolejność wzorców — eksporty wykonane przed powstaniem listy kolejności nadal ładują się prawidłowo jako zwykły utwór 0..N-1.
+- Wzory są ustalane na podstawie listy piosenek/kolejności umieszczonej na
+  wierzchu banku surowych wzorów — ten sam wzór może się powtarzać, a piosenka
+  może być dłuższa od liczby zapisanych wzorów.
+- Dodawaj, usuwaj i zmieniaj kolejność kroków na panelu listy utworów. Podczas
+  odtwarzania bieżący krok jest podświetlany.
+- Zarówno odtwarzanie w aplikacji, jak i każdy eksport przechodzą przez tę
+  listę, a nie surowa kolejność wzorców — eksporty wykonane przed powstaniem
+  listy kolejności nadal ładują się prawidłowo jako zwykły utwór 0..N-1.
 
-**Kolumna efektów:** Każda komórka może zawierać jeden efekt obok nuty i instrumentu, wprowadzony jako krótki kod zaraz po nucie (np. `C-4 01 V24`) lub osobno w przypadku wiersza efektów bez nut (np. `F06`):
+**Kolumna efektów:** Każda komórka może zawierać jeden efekt obok nuty i
+instrumentu, wprowadzony jako krótki kod zaraz po nucie (np. `C-4 01 V24`) lub
+osobno w przypadku wiersza efektów bez nut (np. `F06`):
 
 | Kod | Efekt                       | Wartość                                                               |
 | --- | --------------------------- | --------------------------------------------------------------------- |
 | `V` | Wibrato                     | niskie skubnięcie = głębokość, wysokie skubnięcie = długość trzymania |
 | `U` | Przesuń w górę (portamento) | kwota dodana do częstotliwości każdego wiersza                        |
 | `D` | Zsuwanie w dół (portamento) | kwota odjęta od częstotliwości każdego wiersza                        |
-| `C` | Notatka ucięta              | ucisza głos bez ponownego wyzwalania; wartość nieużywana              |
+| `C` | Notatka ucięta              | ucisza głos bez ponownego uruchamiania; wartość nieużywana            |
 | `F` | Zmiana prędkości            | nowa wartość liczby klatek na wiersz, obowiązuje natychmiast          |
 
-Efekty aktualizują się raz na wiersz (zgodnie z synchronizacją eksportowanego odtwarzacza), działają identycznie w podglądzie Web Audio i skompilowanym eksporcie 6502 oraz są zapisywane/ładowane bezstratnie w wersjonowanym formacie `.bin`.
+Efekty aktualizują się raz na wiersz (zgodnie z synchronizacją eksportowanego
+odtwarzacza), działają identycznie w podglądzie Web Audio i skompilowanym
+eksporcie 6502 oraz są zapisywane/ładowane bezstratnie w wersjonowanym formacie
+`.bin`.
 
 **Odtwarzanie i klawiatura wirtualna:**
-- Przycisk Odtwórz na pasku narzędzi zmienia się na Wstrzymaj podczas odtwarzania i na Wznów po wstrzymaniu. Przycisk Zatrzymaj kończy odtwarzanie i resetuje stan.
-- Przycisk na pasku narzędzi klawiatury otwiera **VA-VK**, pianino niemodalne (2, 3 lub 4 oktawy; pozycja, stan otwarcia, oktawa i *Wstaw do trackera* są zapamiętywane) z własnymi przyciskami **Odtwarzaj/Stop**, które pozostają dostępne, gdy edytor SID jest aktywny. Przeciągnij jego nagłówek, aby umieścić go w dowolnym miejscu w aplikacji głównej.
-- Włącz opcję **Wstaw do trackera**, aby zapisać każdą zagraną nutę przy aktualnym kursorze trackera i przejść do następnego wiersza. Wyłącz tę opcję, aby odsłuchiwać nuty bez edycji.
-- Podgląd akordów i arpeggio podświetla odpowiadające im klawisze fortepianu, gdy klawiatura jest otwarta.
+- Przycisk Odtwórz na pasku narzędzi zmienia się na Wstrzymaj podczas
+  odtwarzania i na Wznów po wstrzymaniu. Przycisk Zatrzymaj kończy odtwarzanie i
+  resetuje stan.
+- Przycisk na pasku narzędzi klawiatury otwiera **VA-VK**, pianino niemodalne
+  (2, 3 lub 4 oktawy; pozycja, stan otwarcia, oktawa i *Wstaw do trackera* są
+  zapamiętywane) z własnymi przyciskami **Odtwarzaj/Stop**, które pozostają
+  dostępne, gdy edytor SID jest aktywny. Przeciągnij jego nagłówek, aby umieścić
+  go w dowolnym miejscu w aplikacji głównej.
+- Włącz opcję **Wstaw do trackera**, aby zapisać każdą zagraną nutę przy
+  aktualnym kursorze trackera i przejść do następnego wiersza. Wyłącz tę opcję,
+  aby odsłuchiwać nuty bez edycji.
+- Podgląd akordów i arpeggio podświetla odpowiadające im klawisze fortepianu,
+  gdy klawiatura jest otwarta.
 
-**Eksportowanie menu Pliki:**
+**Eksportowanie menu Pliki: **
 | Eksport                           | Co to robi                                                                                                                                                                                                                                                                                                                                                                                                        |
 | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Zapisz .bin…`                    | Zapisuje natywny format serializowany edytora (instrumenty ze wszystkimi ustawieniami modulacji i nazwami, prędkością, wzorcami i melodią). Starsze zapisy nadal się ładują.                                                                                                                                                                                                                                      |
@@ -3948,22 +5288,39 @@ Efekty aktualizują się raz na wiersz (zgodnie z synchronizacją eksportowanego
 | `Eksportuj asm (schowek)`         | Kopiuje cały kod źródłowy zestawu do schowka.                                                                                                                                                                                                                                                                                                                                                                     |
 | `Eksportuj do UltimateBasic`      | Zapisuje blok `tune ... end` (instrumenty, lista zamówień, wiersze wzorców jako tekst) oraz `music play` i wstawia go w miejscu kursora edytora Ultimate Basic; poza trybem UB kopiuje tekst do schowka. Kompilator UltimateBasic buduje odtwarzacz, więc steruje nim za pomocą `music play` / `music stop`. Modulacja instrumentu trafia do wierszy `imod` / `ifilt` / `igate` / `itab` (Ultimate Basic 1.6.2+). |
 
-**Użycie ZP gracza: ** `$02`–`$1C` (wskaźniki wzorców, przesunięcie wzorca, temperatura) i `$2F` (bieżąca prędkość), plus `$FB`–`$FD` (licznik taktów, indeks wiersza, pozycja na liście zleceń). Stan głosu, modulacji i filtra znajduje się w `sid_state` po danych. Bajty ZP powodują konflikt, jeśli korzysta z nich kod główny — w razie potrzeby przenieś je w trybie eksperckim.
+**Użycie ZP gracza: ** `$02`–`$1C` (wskaźniki wzorców, przesunięcie wzorca,
+temperatura) i `$2F` (bieżąca prędkość), plus `$FB`–`$FD` (licznik taktów,
+indeks wiersza, pozycja na liście zleceń). Stan głosu, modulacji i filtra
+znajduje się w `sid_state` po danych. Bajty ZP powodują konflikt, jeśli korzysta
+z nich kod główny — w razie potrzeby przenieś je w trybie eksperckim.
 
 **Znane limity:**
-- 8-bitowy licznik wierszy ogranicza każdy wzór do 7 wzorów × 32 wierszy w banku danych (lista utworów/kolejności może być nadal dowolnie długa poprzez powtarzanie wzorów).
-- Globalna głośność C64 `$D418` jest współdzielona przez wszystkie głosy — suwak głośności dla każdego instrumentu ma charakter informacyjny; poziom podtrzymania (`S` ADSR) to efektywna głośność dla każdego głosu.
-- Podczas gdy w trybie **Play: All** wczytany jest prawdziwy utwór (również w trybie pauzy), podglądy nut są przekierowywane do małego syntezatora, który jedynie przybliża układ SID. Podglądy docierają do WebSid około 0,1 s przed dźwiękiem.
+- 8-bitowy licznik wierszy ogranicza każdy wzór do 7 wzorów × 32 wierszy w banku
+  danych (lista utworów/kolejności może być nadal dowolnie długa poprzez
+  powtarzanie wzorów).
+- Globalna głośność C64 `$D418` jest współdzielona przez wszystkie głosy — suwak
+  głośności dla każdego instrumentu ma charakter informacyjny; poziom
+  podtrzymania (`S` ADSR) to efektywna głośność dla każdego głosu.
+- Podczas gdy w trybie **Play: All** wczytany jest prawdziwy utwór (również w
+  trybie pauzy), podglądy nut są przekierowywane do małego syntezatora, który
+  jedynie przybliża układ SID. Podglądy docierają do WebSid około 0,1 s przed
+  dźwiękiem.
 
 ---
 
 ### Edytor krzywych
 
-Generuje gotowe do użycia tabele wyszukiwania `.byte` z krzywych matematycznych — sinusoidalnych, wygładzających, trójkątnych/piłokształtnych/kwadratowych i odbiciowych. Idealne do ruchu sprite'ów, efektów rastrowych, cykli kolorów i dowolnych animacji opartych na wstępnie obliczonej tabeli. Otwórz za pomocą ikony **Edytor krzywych** na górnym pasku narzędzi (obok przycisku Edytor SID).
+Generuje gotowe do użycia tabele wyszukiwania `.byte` z krzywych matematycznych
+— sinusoidalnych, wygładzających, trójkątnych/piłokształtnych/kwadratowych i
+odbiciowych. Idealne do ruchu sprite'ów, efektów rastrowych, cykli kolorów i
+dowolnych animacji opartych na wstępnie obliczonej tabeli. Otwórz za pomocą
+ikony **Edytor krzywych** na górnym pasku narzędzi (obok przycisku Edytor SID).
 
-**Krzywe:** Sinus, Cosinus, Liniowa, Łatwe wejście/wyjście/Wejście/Wyjście (Czworokątna i Sześcienna), Łatwe wejście/wyjście (Kołowa), Trójkątna, Piłokształtna, Kwadratowa oraz Łatwe wejście/wyjście/Wejście/Wyjście odbicia.
+**Krzywe: ** Sinus, Cosinus, Liniowa, Łatwe wejście/wyjście/Wejście/Wyjście
+(Czworokątna i Sześcienna), Łatwe wejście/wyjście (Kołowa), Trójkątna,
+Piłokształtna, Kwadratowa oraz Łatwe wejście/wyjście/Wejście/Wyjście odbicia.
 
-**Sterowanie:**
+**Sterowanie: **
 | Kontrola                       | Zamiar                                                                                                                                                                                    |
 | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Wartość początkowa/końcowa** | Zakres wyjściowy. 0..255 w trybie 8-bitowym, 0..320 w trybie 16-bitowym.                                                                                                                  |
@@ -3981,13 +5338,27 @@ Generuje gotowe do użycia tabele wyszukiwania `.byte` z krzywych matematycznych
 | **8-bitowy**  | Pojedyncza tabela `.byte` (wartości 0–255). Odczyt za pomocą tabeli `LDX #index / LDA, X`. Opcjonalnie emituje procedurę odczytu sprite’a **Y** (`<label>_set_y`) — `LDA <label>, X` / `STA $D001+2N` — dla wybieralnego numeru sprite’a 0–7.                                                                                                                                                                                             |
 | **16-bitowy** | Dwie równoległe tablice bajtów — `<etykieta>_lo` (8 najniższych bitów) i `<etykieta>_hi` (9. bit, 0/1) — indeksowane przez **same** X (2 bajty na wpis). Wymagane dla sprite'a X na całym ekranie (0..320 > jeden bajt). Opcjonalnie emituje procedurę odczytu sprite'a X **** (`<etykieta>_set_x`), która zapisuje najniższy bajt do `$D000+2N` i ustawia/czyści MSB sprite'a w `$D010`, dla wybieralnego numeru sprite'a z zakresu 0–7. |
 
-Każde wyjście Kopiuj/Wstaw rozpoczyna się komentarzem nagłówkowym dokumentującym krzywą, rzeczywisty zakres min./maks., liczbę wpisów i dokładne wykorzystanie (które rejestrują każdy kanał tabeli).
+Każde wyjście Kopiuj/Wstaw rozpoczyna się komentarzem nagłówkowym dokumentującym
+krzywą, rzeczywisty zakres min./maks., liczbę wpisów i dokładne wykorzystanie
+(które rejestrują każdy kanał tabeli).
 
-**Podgląd:**
-- **Wykres** — krzywa narysowana z wartością 0 na **górze** i maks. na **dole**, zgodna z konwencją sprite-Y/raster C64 (więc to, co widzisz, to to, co tabela generuje sprzętowo). Meta linijka pod wykresem pokazuje liczbę bajtów, rzeczywistą wartość minimalną/maksymalną wygenerowanych wartości oraz nazwę(y) krzywej.
-- **Odbijająca się piłka** — animuje znacznik w tabeli z **Tempo** (5–240 wartości/s). Przy tempie 50 odpowiada to jednej wartości na klatkę w systemie PAL (50 Hz), czyli jednemu `.wait_raster` krokowi na indeks. Przyciski Odtwórz/Pauza i Restart, zanikający ślad ostatnich ~24 pozycji oraz odczyt na żywo `Indeksu · Wartości`.
+**Podgląd: **
+- **Wykres** — krzywa narysowana z wartością 0 na **górze** i maks. na **dole**,
+  zgodna z konwencją sprite-Y/raster C64 (więc to, co widzisz, to to, co tabela
+  generuje sprzętowo). Meta linijka pod wykresem pokazuje liczbę bajtów,
+  rzeczywistą wartość minimalną/maksymalną wygenerowanych wartości oraz nazwę(y)
+  krzywej.
+- **Odbijająca się piłka** — animuje znacznik w tabeli z **Tempo** (5–240
+  wartości/s). Przy tempie 50 odpowiada to jednej wartości na klatkę w systemie
+  PAL (50 Hz), czyli jednemu `.wait_raster` krokowi na indeks. Przyciski
+  Odtwórz/Pauza i Restart, zanikający ślad ostatnich ~24 pozycji oraz odczyt na
+  żywo `Indeksu · Wartości`.
 
-**Kopiuj/Wstaw:** dwie ikony paska narzędzi — **Kopiuj** umieszcza tabelę w schowku; **Wstaw do edytora** dołącza tabelę (i czytnik, jeśli jest włączony) jako bloki do bieżącego programu. Ponowne wstawienie **zastępuje** poprzednią operację wstawiania w Edytorze krzywych zamiast układania duplikatów (działa w trybie blokowym i eksperckim).
+**Kopiuj/Wstaw:** dwie ikony paska narzędzi — **Kopiuj** umieszcza tabelę w
+schowku; **Wstaw do edytora** dołącza tabelę (i czytnik, jeśli jest włączony)
+jako bloki do bieżącego programu. Ponowne wstawienie **zastępuje** poprzednią
+operację wstawiania w Edytorze krzywych zamiast układania duplikatów (działa w
+trybie blokowym i eksperckim).
 
 **Menu Pliki: **
 | Działanie                                         | Co to robi                                                                                                                                                                                                                                                                                                                                                                                                                         |
@@ -3998,20 +5369,36 @@ Każde wyjście Kopiuj/Wstaw rozpoczyna się komentarzem nagłówkowym dokumentu
 | **Eksportuj do UltimateBasic**                    | Zapisuje tabelę jako zainicjowaną tablicę Ultimate Basic — `var name = array(N)` (lub `array_word(N)` dla 16-bitów), a następnie `data name: …` wierszy — i wstawia ją w miejscu kursora edytora UB (poza trybem UB jest kopiowana do schowka). Etykieta staje się prawidłową nazwą UB pisaną małymi literami; indeksowanie tabeli następuje jako `name[i]`. Wymagany jest Ultimate Basic w wersji 1.5.8 lub nowszej (w pakiecie). |
 | **Eksportuj wersję demonstracyjną UltimateBasic** | Tworzy kompletny, gotowy do uruchomienia program UB: sprite'a piłki (`sprdef 0`), tabelę oraz pętlę zsynchronizowaną z rastrem, która odtwarza jeden wpis tabeli na klatkę. Tabele 8-bitowe sterują sprite'em **Y**, podczas gdy X wykonuje ruch od 0 do 320; tablice 16-bitowe (0 do 320) sterują sprite'em **X**, podczas gdy Y wykonuje ruch od 0 do 200. Tabele dłuższe niż 256 wpisów odtwarzają swoje pierwsze 256.          |
 
-**Dopasowanie podglądu na C64:** podgląd odczytuje tabelę **liniowo, zapętlając 0 → N-1 → 0, jedna wartość na klatkę**. Aby odtworzyć to dokładnie, należy sterować tabelą w ten sam sposób (zwiększać indeks raz na klatkę, przewijać na całej długości tabeli). Odtwarzanie ping-pongowe lub częściowe będzie przebiegać inaczej, mimo że wartości bajtów są identyczne. Zobacz `samples/curve-new-demo.asm`, aby uzyskać działający 16-bitowy przykład sprite-X.
+**Dopasowanie podglądu na C64: ** podgląd odczytuje tabelę **liniowo, zapętlając
+0 → N-1 → 0, jedna wartość na klatkę **. Aby odtworzyć to dokładnie, należy
+sterować tabelą w ten sam sposób (zwiększać indeks raz na klatkę, przewijać na
+całej długości tabeli). Odtwarzanie ping-pongowe lub częściowe będzie przebiegać
+inaczej, mimo że wartości bajtów są identyczne. Zobacz
+`samples/curve-new-demo.asm`, aby uzyskać działający 16-bitowy przykład
+sprite-X.
 
 ---
 
 ### Konwerter liczb
 
-Mały konwerter DEC/HEX/BIN **niemodalny **, otwierany przyciskiem na pasku narzędzi obok edytora D64 (kliknij ponownie lub naciśnij Esc, aby zamknąć). Pozostaje otwarty podczas edycji programu w dowolnym trybie.
+Mały konwerter DEC/HEX/BIN **niemodalny **, otwierany przyciskiem na pasku
+narzędzi obok edytora D64 (kliknij ponownie lub naciśnij Esc, aby zamknąć).
+Pozostaje otwarty podczas edycji programu w dowolnym trybie.
 
-- Wpisz w dowolne z pól **DEC**, **HEX** lub **BIN**, a pozostałe dwa zostaną wypełnione. Akceptowane są prefiksy `$`, `0x`, `%`, `0b` oraz separatory (spacja, `_`); ujemna liczba dziesiętna staje się uzupełnieniem do dwóch w bieżącej szerokości; nieprawidłowe dane są oznaczone na czerwono.
-- Szerokość **8 / 16 bitów** — wartość powyżej 255 automatycznie przełącza się na 16 bitów.
+- Wpisz w dowolne z pól **DEC**, **HEX** lub **BIN**, a pozostałe dwa zostaną
+  wypełnione. Akceptowane są prefiksy `$`, `0x`, `%`, `0b` oraz separatory
+  (spacja, `_`); ujemna liczba dziesiętna staje się uzupełnieniem do dwóch w
+  bieżącej szerokości; nieprawidłowe dane są oznaczone na czerwono.
+- Szerokość **8 / 16 bitów** — wartość powyżej 255 automatycznie przełącza się
+  na 16 bitów.
 - **Wiersz bitów** — kliknij bit, aby go przełączyć.
-- Wiersz informacyjny pokazuje wartość **signed**, a w trybie 16-bitowym bajt **low** i **high**.
-- Przyciski **Kopiuj** kopiują wartość z jej prefiksem (`53280`, `$D020`, `%1101000000100000`).
-- Przeciągnij go za nagłówek. Zapamiętuje on swoją wartość, szerokość i pozycję i otwiera się ponownie po ponownym uruchomieniu, jeśli był otwarty w momencie zamykania.
+- Wiersz informacyjny pokazuje wartość **signed**, a w trybie 16-bitowym bajt
+  **low** i **high**.
+- Przyciski **Kopiuj** kopiują wartość z jej prefiksem (`53280`, `$D020`,
+  `%1101000000100000`).
+- Przeciągnij go za nagłówek. Zapamiętuje on swoją wartość, szerokość i pozycję
+  i otwiera się ponownie po ponownym uruchomieniu, jeśli był otwarty w momencie
+  zamykania.
 
 ---
 

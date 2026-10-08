@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.5.3**
+**Version 2.5.4**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -9,6 +9,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
+    - [Version 2.5.4 Highlights](#version-254-highlights)
     - [Version 2.5.3 Highlights](#version-253-highlights)
     - [Version 2.5.2 Highlights](#version-252-highlights)
     - [Version 2.5.1 Highlights](#version-251-highlights)
@@ -173,6 +174,13 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Curve Editor](#curve-editor)
     - [Number Converter](#number-converter)
+
+---
+
+## Version 2.5.4 Highlights
+
+- **Fixed: window not appearing on relaunch** — if the app was quit with its window minimized or hidden (mostly on macOS, also on Linux / Wayland), the next start could come up without a window. The visible state is no longer saved (the window size still is), and the window is always shown at startup.
+- **Ultimate Basic 1.6.3 bundled** — QBasic-style syntax: `dim name as type` for variables and for arrays of every type, `function` / `sub` with `as` types, `elseif`, `do … loop`, `while … wend`, `select case`, `exit do` / `exit sub`, single-line `if`, `'` comments and `print a; b; c`; runtime strings (`+`, `left$` / `right$` / `mid$`) and signed 16-bit `integer`. Highlighted, completed and formatted in the UB editor, with new **DIM**, **FUNCTION**, **ELSEIF**, **DO**, **WEND**, **SELECT CASE**, **END**, **EXIT SUB** and **LEFT$** / **RIGHT$** / **MID$** entries in the Commands panel. See [UltimateBasic Mode](#ultimatebasic-mode).
 
 ---
 
@@ -646,6 +654,8 @@ The UB toolbar follows the same visual language and custom tooltips as Expert mo
 - independently toggleable and resizable **Build Output** and **Disassembly** panels.
 
 The Disassembly panel includes a **Copy** button that copies its complete displayed source to the clipboard. Command help follows the bundled compiler: for example, `sprite_frame id, data_address [, frame]` selects an animation image from consecutive 64-byte sprite frames.
+
+The editor also understands the QBasic-style syntax of Ultimate Basic 1.6.3: `dim name as type`, `function … end function`, `sub … end sub`, `elseif`, `do … loop [while | until]`, `while … wend`, `select case`, `exit do` / `exit for` / `exit while` / `exit sub` / `exit function`, the string functions `left$` / `right$` / `mid$`, and comments starting with `'` as well as `#` or `rem`. Words that the compiler treats as keywords only in one position are coloured only there and stay usable as names: `as` with the BASIC type names (`byte`, `integer`, `single`, `double`), `case is`, `map view`, `wait key` and the `scroll` options (`row`, `x`, `y`, `left`, `right`, `narrow`, `wide`). **Format** indents `function`, `do … loop`, `while … wend` and `elseif` blocks and leaves one-line loops (`do while c : … : loop`) unindented, the Project panel lists `function` blocks under Functions, and the Commands panel has **DIM**, **FUNCTION**, **ELSEIF**, **DO**, **WEND**, **SELECT CASE**, **END**, **EXIT SUB**, **LEFT$**, **RIGHT$** and **MID$** entries.
 
 The command list is intentionally height-limited so the command-detail card can fill the remaining panel height. The detail area scrolls independently for longer syntax descriptions.
 
