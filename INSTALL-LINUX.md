@@ -1,5 +1,7 @@
 # Linux Installation Guide (Ubuntu / Debian)
-Version 2.5.3
+Version 2.5.4
+
+2.5.4: Fixed the main window not appearing on relaunch: when the app was quit with its window minimized or hidden (mostly macOS, also Linux / Wayland), the saved window state brought it back hidden and the next start showed no window. The visible state is no longer saved (the window size still is), and the window is always shown at startup. Ultimate Basic 1.6.3 bundled: QBasic-style syntax — DIM name AS type for variables and arrays of every type, FUNCTION / SUB with AS types, ELSEIF, DO ... LOOP, WHILE ... WEND, SELECT CASE, EXIT DO / EXIT SUB, single-line IF, ' comments and PRINT a; b; c; runtime strings (LEFT$ / RIGHT$ / MID$) and signed 16-bit INTEGER — with highlighting, autocomplete, formatting and command help in the UB editor.
 
 2.5.3: Fixed running in VICE / RetroDebugger on Windows: it failed with "program not found" when PowerShell was missing from PATH. PowerShell is now called by its full path, the program is started directly if that fails, VICE starts from its own folder, and paths with spaces are quoted.
 
@@ -40,7 +42,7 @@ Tested on Ubuntu 22.04 and 24.04.
 Download the `.deb` package from the releases page and install:
 
 ```bash
-  sudo dpkg -i "c64-visual-assembler_2.5.3_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.5.4_amd64.deb"
 sudo apt-get install -f   # fix any missing dependencies
 ```
 
@@ -154,4 +156,4 @@ The app propagates `DISPLAY`, `WAYLAND_DISPLAY`, `XDG_RUNTIME_DIR`, `DBUS_SESSIO
 
 ---
 
-**Version:** 2.5.3 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.5.4 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64

@@ -2,9 +2,15 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.5.3**
+**Current version: v2.5.4**
 
-## What's New in v2.5.3
+## What's New in v2.5.4
+
+- **Fixed: window not appearing on relaunch** — if the app was quit while its window was minimized, hidden or on another Space (mostly macOS, also Linux / Wayland), the saved window state restored it as hidden and the next start came up without a window. The visible state is no longer saved (the window size still is), the window is shown after the first paint, and a startup fallback shows it after 3 seconds if it is still hidden.
+- **Ultimate Basic 1.6.3 bundled** — QBasic-style syntax next to the unchanged `var` / `sub` / `fn` / `end` forms. Declarations: `DIM name AS type [= value]` and `DIM name(u1, u2, …) AS type` arrays of every type (byte, integer, single / double, string) with any number of dimensions; `FUNCTION … END FUNCTION` and `SUB … END SUB` with `AS` types, return by assigning to the function name, sub calls without parentheses. Control flow: `ELSEIF`, single-line `IF … THEN … ELSE …`, `DO [WHILE|UNTIL c] … LOOP [WHILE|UNTIL c]`, `WHILE … WEND`, `SELECT CASE` (value lists, `lo TO hi`, `IS > n`, `CASE ELSE`), `EXIT DO` / `EXIT FOR` / `EXIT WHILE` / `EXIT SUB` / `EXIT FUNCTION`, `END IF` / `END SELECT`, a lone `END` ends the program, `'` comments, `PRINT a; b; c`. Runtime strings: `s = a + b`, `LEFT$` / `RIGHT$` / `MID$`, string `=` / `<>`, 16-bit `STR$` / `VAL`. `INTEGER` is signed 16-bit (`WORD` stays unsigned), and `INPUT` reads `INTEGER` / `WORD`, `DOUBLE` and array elements.
+- **UB editor** — the new keywords, the string functions and `'` comments are highlighted; context words are coloured only where they act as keywords (`as` + type, `case is`, `map view`, `wait key`, `scroll row | x | y … left | right | narrow | wide`). Autocomplete offers the new words, Format indents `function`, `do … loop`, `while … wend` and `elseif` and leaves one-line loops alone, the Project panel lists `function` blocks, and the Commands panel has new **DIM**, **FUNCTION**, **ELSEIF**, **DO**, **WEND**, **SELECT CASE**, **END**, **EXIT SUB**, **LEFT$**, **RIGHT$** and **MID$** entries in all seven UI languages.
+
+## Earlier: v2.5.3
 
 - **Fixed: running in VICE on Windows** — VICE, RetroDebugger and D64 runs failed with *program not found* when PowerShell was missing from PATH. PowerShell is now called by its full path, and the program is started directly if that fails. VICE starts from its own folder (a linked `x64sc.exe`, e.g. from winget, is resolved to the real one), and paths with spaces are quoted.
 - **Knowledge Base** — new link to the VICE emulator homepage.

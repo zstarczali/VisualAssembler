@@ -6268,19 +6268,24 @@ function _ubApplyProjectSymbolsHeight() {
 
 const ubCommandDescriptionsEn = {
   "var": "Declares a byte, word, float, string, or array variable.",
+  "dim": "BASIC-style typed declaration, the same as var name: type (UB 1.6.3+). Types: byte / int (8-bit), integer (signed 16-bit, -32768..32767), word (unsigned 16-bit), single / double / float (Q8.8 fixed point, 0-255.99), string. Without = value numbers start at 0 and strings at \"\"; dim a, b as integer gives both names the type. dim name(u1, u2, ...) as type declares an array of any type with any number of dimensions: every bound is the highest index (dim t(2, 3) has 3 x 4 elements), indexed as t(i, j) or t[i, j]; without as it is a byte array. Bounds must be constants and arrays live in $C000-$CFFF. as long and struct types are not supported; with Explicit on, a dim without as is an error.",
   "const": "Declares a compile-time constant.",
   "print": "Prints values and formatting helpers through the C64 KERNAL output routine.",
   "print at": "Moves the cursor, then prints optional values.",
   "input": "Reads a value from the keyboard into a variable.",
   "if": "Conditional execution with an optional else branch.",
+  "elseif": "Tests a further condition when the preceding IF / ELSEIF conditions were false (UB 1.6.3+). Any number of ELSEIF branches may follow an IF, before the optional ELSE; the block still ends with END or END IF. In IF / ELSEIF / WHILE / UNTIL conditions a single = compares and <> means not equal.",
   "for": "Runs a counted loop.",
   "while": "Repeats while the condition is true.",
+  "wend": "Closes a WHILE loop, QBasic style (UB 1.6.3+); the same as END after WHILE. EXIT WHILE or BREAK leaves the loop early.",
   "repeat": "Repeats until the condition becomes true.",
   "loop": "Creates an infinite or counted loop.",
+  "do": "QBasic-style loop (UB 1.6.3+). DO WHILE c / DO UNTIL c test before the body; LOOP WHILE c / LOOP UNTIL c test after it, so the body runs at least once; plain DO ... LOOP is endless. A condition at both ends is an error. EXIT DO or BREAK leaves the loop. Inside a DO block, a LOOP at the end of a line (or followed by WHILE / UNTIL) closes it; the original loop count ... end loops still work inside.",
   "break": "Leaves the current loop.",
   "continue": "Continues with the next loop iteration.",
   "sub": "Defines a non-recursive subroutine.",
   "fn": "Defines a function with an optional return type.",
+  "function": "QBasic-style function (UB 1.6.3+): function is a synonym for fn. Parameters and the return type are written p as type and ) as type (the same type names as dim; : type still works). The return value is assigned to the function name, or given with return expression; exit function returns early with the value assigned so far. The block ends with end function (plain end works too). No recursion.",
   "call": "Calls a named subroutine.",
   "goto": "Jumps to a label.",
   "label": "Defines a goto target.",
@@ -6321,12 +6326,15 @@ const ubCommandDescriptionsEn = {
   "wait": "Waits for raster transitions or for a specific raster line.",
   "bye": "Returns cleanly to BASIC.",
   "exit": "Alias for BYE; returns cleanly to BASIC.",
-  "comments": "Adds full-line or inline source comments.",
+  "end": "Closes a block (if, while, loop, times, select, sub, fn ...); the QBasic spellings END IF, END SELECT, END SUB and END FUNCTION are accepted too. An END that closes no block ends the program, as in QBasic (UB 1.6.3+); the screen is kept.",
+  "comments": "Adds full-line or inline source comments with #, ' (QBasic style, UB 1.6.3+) or rem.",
   "compound assignment": "Updates a variable with an arithmetic or bitwise operation.",
   "arrays": "Declares and accesses byte or word arrays in heap RAM. Multi-dimensional arrays use a comma-separated size list (array(rows, cols, ...)) and are stored row-major; index them with a comma-separated subscript (grid[r, c]). Dimensions must be compile-time constants; a single subscript into a multi-dim array is a flat/linear index.",
   "times": "Runs a counted loop the given number of times.",
   "select": "Selects one branch from multiple cases.",
+  "select case": "QBasic-style multi-way branch (UB 1.6.3+). A CASE may list several values (case 1, 2, 3), a range (case 10 to 20) or a comparison (case is > 1000); CASE ELSE handles everything else. The block ends with END SELECT. The original select x / case n: form is unchanged.",
   "return": "Returns from a subroutine or function.",
+  "exit sub": "Leaves the current sub, function or loop at once (UB 1.6.3+). EXIT SUB / EXIT FUNCTION return (a function returns the value assigned to its name so far); EXIT DO / EXIT FOR / EXIT WHILE leave the loop, like BREAK. Plain exit is still an alias for bye.",
   "gosub": "Calls a label with JSR; return resumes execution.",
   "cls": "Clears the text screen; FAST directly fills screen and color RAM.",
   "display": "Enables or disables VIC-II display output.",
@@ -6382,6 +6390,9 @@ const ubCommandDescriptionsEn = {
   "string conversion": "Converts between strings, characters, and numbers.",
   "numstr": "Writes a zero-padded three-digit string to an absolute address.",
   "string functions": "String and PRINT formatting helpers.",
+  "left$": "Returns the first count characters of a string (UB 1.6.3+). Usable in PRINT, in string assignments and with +; a count beyond the length gives the whole string.",
+  "right$": "Returns the last count characters of a string (UB 1.6.3+). A count beyond the length gives the whole string.",
+  "mid$": "Returns part of a string from position start, counted from 1 (UB 1.6.3+): length characters, or the rest of the string when length is omitted. A start beyond the end gives an empty string.",
   "math": "Integer math helper functions.",
   "random": "Returns a pseudo-random byte or a value below the limit.",
   "trigonometry": "Returns a fixed-point trigonometric value.",
@@ -6393,19 +6404,24 @@ const ubCommandDescriptionsEn = {
 
 const ubCommandDescriptionsHu = {
   "var": "Byte, word, lebegőpontos (float), karakterlánc (string) vagy tömb változót deklarál.",
+  "dim": "BASIC-stílusú, típusos deklaráció, ugyanaz, mint a var név: típus (UB 1.6.3+). Típusok: byte / int (8 bit), integer (előjeles 16 bit, -32768..32767), word (előjel nélküli 16 bit), single / double / float (Q8.8 fixpontos, 0-255.99), string. = érték nélkül a számok 0-ról, a stringek \"\"-ről indulnak; a dim a, b as integer mindkét névnek megadja a típust. A dim név(u1, u2, ...) as típus tömböt deklarál bármilyen típusból, tetszőleges számú dimenzióval: minden határ a legnagyobb index (a dim t(2, 3) 3 x 4 elemű), indexelése t(i, j) vagy t[i, j]; as nélkül bájttömb. A határok konstansok, a tömbök a $C000-$CFFF területen vannak. Az as long és a struktúratípus nem támogatott; bekapcsolt Explicit mellett az as nélküli dim hiba.",
   "const": "Fordítási idejű konstans deklarálása.",
   "print": "Értékeket és formázó segédfüggvényeket ír ki a C64 KERNAL kimeneti rutinján keresztül.",
   "print at": "A kurzort adott pozícióra mozgatja, majd opcionális értékeket ír ki.",
   "input": "Értéket olvas be a billentyűzetről egy változóba.",
   "if": "Feltételes végrehajtás opcionális else ággal.",
+  "elseif": "További feltételt vizsgál, ha az előző IF / ELSEIF feltételek hamisak voltak (UB 1.6.3+). Egy IF után tetszőleges számú ELSEIF ág állhat az opcionális ELSE előtt; a blokkot továbbra is END vagy END IF zárja. Az IF / ELSEIF / WHILE / UNTIL feltételekben az egyszeres = összehasonlít, a <> jelentése nem egyenlő.",
   "for": "Számlálós ciklust hajt végre.",
   "while": "Addig ismétli a törzset, amíg a feltétel igaz.",
+  "wend": "QBasic-stílusban lezárja a WHILE ciklust (UB 1.6.3+); ugyanaz, mint a WHILE utáni END. Az EXIT WHILE vagy a BREAK idő előtt kilép a ciklusból.",
   "repeat": "Addig ismétli a törzset, amíg a feltétel igazzá nem válik (hátultesztelő ciklus).",
   "loop": "Végtelen vagy megadott lépésszámú ciklust hoz létre.",
+  "do": "QBasic-stílusú ciklus (UB 1.6.3+). A DO WHILE f / DO UNTIL f a ciklusmag előtt vizsgál; a LOOP WHILE f / LOOP UNTIL f utána, így a mag legalább egyszer lefut; a sima DO ... LOOP végtelen ciklus. Mindkét végén nem lehet feltétel. Az EXIT DO vagy a BREAK kilép a ciklusból. DO blokkon belül a sor végén álló (vagy WHILE / UNTIL által követett) LOOP zárja a blokkot; az eredeti loop szám ... end ciklusok belül továbbra is működnek.",
   "break": "Kilép az aktuális ciklusból.",
   "continue": "A ciklus következő iterációjára ugrik.",
   "sub": "Nem-rekurzív eljárást (szubrutint) definiál.",
   "fn": "Függvényt definiál opcionális visszatérési típussal.",
+  "function": "QBasic-stílusú függvény (UB 1.6.3+): a function az fn szinonimája. A paraméterek és a visszatérési típus p as típus, illetve ) as típus alakban adhatók meg (ugyanazok a típusnevek, mint a dim-nél; a : típus is működik). A visszatérési értéket a függvény nevének kell értékül adni, vagy a return kifejezés adja meg; az exit function azonnal visszatér az addig beállított értékkel. A blokkot end function zárja (a sima end is jó). Rekurzió nincs.",
   "call": "Meghív egy nevesített eljárást.",
   "goto": "Egy címkére ugrik.",
   "label": "Ugrási célpontot (címkét) definiál a goto utasításhoz.",
@@ -6446,12 +6462,15 @@ const ubCommandDescriptionsHu = {
   "wait": "Raszter átmenetekre vagy egy megadott rasztersorra vár.",
   "bye": "Tiszta visszatérés a BASIC parancsértelmezőbe.",
   "exit": "A BYE parancs szinonimája; visszatérés a BASIC-be.",
-  "comments": "Egész soros (#, rem) vagy sorvégi megjegyzéseket ad a forráskódhoz.",
+  "end": "Lezár egy blokkot (if, while, loop, times, select, sub, fn ...); a QBasic-féle END IF, END SELECT, END SUB és END FUNCTION is elfogadott. Az az END, amely nem zár blokkot, befejezi a programot, mint a QBasicben (UB 1.6.3+); a képernyő megmarad.",
+  "comments": "Egész soros vagy sorvégi megjegyzést ad a forráskódhoz: #, ' (QBasic-stílus, UB 1.6.3+) vagy rem.",
   "compound assignment": "Változót frissít aritmetikai vagy bitenkénti művelettel (pl. +=, -=, and=, shl=).",
   "arrays": "Bájt vagy szó tömböket deklarál és kezel a dinamikus memóriában (heap). A többdimenziós tömbök vesszővel elválasztott méretlistát használnak (array(sorok, oszlopok, ...)) és sorfolytonosan tárolódnak; indexelésük vesszős indexeléssel történik (grid[r, c]). A dimenziók fordítási idejű konstansok; az egyetlen index többdimenziós tömbnél lineáris indexelést jelent.",
   "times": "Adott számszor hajtja végre a ciklustörzset.",
   "select": "Több eset (case) közül választ ki egy végrehajtandó ágat.",
+  "select case": "QBasic-stílusú többirányú elágazás (UB 1.6.3+). Egy CASE felsorolhat több értéket (case 1, 2, 3), megadhat tartományt (case 10 to 20) vagy összehasonlítást (case is > 1000); a CASE ELSE minden más esetet kezel. A blokkot END SELECT zárja. Az eredeti select x / case n: forma változatlan.",
   "return": "Visszatér egy eljárásból (sub) vagy függvényből (fn).",
+  "exit sub": "Azonnal kilép az aktuális eljárásból, függvényből vagy ciklusból (UB 1.6.3+). Az EXIT SUB / EXIT FUNCTION visszatér (a függvény a nevének addig adott értékkel); az EXIT DO / EXIT FOR / EXIT WHILE a ciklusból lép ki, mint a BREAK. A sima exit továbbra is a bye szinonimája.",
   "gosub": "Címkét hív meg JSR-rel; a return folytatja a végrehajtást.",
   "cls": "Törli a szöveges képernyőt; a FAST közvetlenül tölti fel a képernyő- és színmemóriát.",
   "display": "Be- vagy kikapcsolja a VIC-II képmegjelenítést.",
@@ -6507,6 +6526,9 @@ const ubCommandDescriptionsHu = {
   "string conversion": "Átalakítás szövegek, karakterek és számok között (chr$, str$, str_to_int, val).",
   "numstr": "Vezető nullás háromjegyű szám-karakterláncot ír ki egy abszolút memóriacímre.",
   "string functions": "Karakterlánc- és kiírás-formázó függvények (len, asc, spc, tab).",
+  "left$": "A karakterlánc első darab karakterét adja vissza (UB 1.6.3+). Használható PRINT-ben, string értékadásban és + művelettel; a hossznál nagyobb darabszám a teljes stringet adja.",
+  "right$": "A karakterlánc utolsó darab karakterét adja vissza (UB 1.6.3+). A hossznál nagyobb darabszám a teljes stringet adja.",
+  "mid$": "A karakterlánc egy részét adja vissza a kezdő pozíciótól, 1-től számozva (UB 1.6.3+): hossz darab karaktert, vagy a string végéig, ha a hossz elmarad. A string vége utáni kezdőpozíció üres stringet ad.",
   "math": "Egész szám matematikai segédfüggvények (abs, min, max, sgn, clamp).",
   "random": "Álvéletlen bájtot vagy a megadott felső határ alatti értéket ad vissza (rnd).",
   "trigonometry": "Fixpontos trigonometriai értéket ad vissza (sin, cos).",
@@ -6518,19 +6540,24 @@ const ubCommandDescriptionsHu = {
 
 const ubCommandDescriptionsEs = {
   "var": "Declara una variable de tipo byte, word, float, string o matriz.",
+  "dim": "Declaración tipada al estilo BASIC, igual que var nombre: tipo (UB 1.6.3+). Tipos: byte / int (8 bits), integer (16 bits con signo, -32768..32767), word (16 bits sin signo), single / double / float (punto fijo Q8.8, 0-255.99), string. Sin = valor los números empiezan en 0 y las cadenas en \"\"; dim a, b as integer da el tipo a ambos nombres. dim nombre(u1, u2, ...) as tipo declara una matriz de cualquier tipo con cualquier número de dimensiones: cada límite es el índice más alto (dim t(2, 3) tiene 3 x 4 elementos) y se indexa con t(i, j) o t[i, j]; sin as es una matriz de bytes. Los límites deben ser constantes y las matrices residen en $C000-$CFFF. No se admiten as long ni los tipos de estructura; con Explicit activado, un dim sin as es un error.",
   "const": "Declara una constante de tiempo de compilación.",
   "print": "Imprime valores y formateadores mediante la rutina de salida del KERNAL de C64.",
   "print at": "Mueve el cursor y luego imprime valores opcionales.",
   "input": "Lee un valor del teclado en una variable.",
   "if": "Ejecución condicional con una rama else opcional.",
+  "elseif": "Comprueba otra condición cuando las condiciones IF / ELSEIF anteriores eran falsas (UB 1.6.3+). Tras un IF pueden ir varias ramas ELSEIF antes del ELSE opcional; el bloque sigue terminando con END o END IF. En las condiciones de IF / ELSEIF / WHILE / UNTIL un solo = compara y <> significa distinto.",
   "for": "Ejecuta un bucle con contador.",
   "while": "Repite mientras la condición sea verdadera.",
+  "wend": "Cierra un bucle WHILE al estilo QBasic (UB 1.6.3+); equivale a END después de WHILE. EXIT WHILE o BREAK salen antes del bucle.",
   "repeat": "Repite hasta que la condición sea verdadera.",
   "loop": "Crea un bucle infinito o con contador.",
+  "do": "Bucle al estilo QBasic (UB 1.6.3+). DO WHILE c / DO UNTIL c comprueban antes del cuerpo; LOOP WHILE c / LOOP UNTIL c después, así que el cuerpo se ejecuta al menos una vez; DO ... LOOP sin condición es infinito. Una condición en ambos extremos es un error. EXIT DO o BREAK salen del bucle. Dentro de un bloque DO, un LOOP al final de la línea (o seguido de WHILE / UNTIL) lo cierra; los bucles originales loop n ... end siguen funcionando dentro.",
   "break": "Sale del bucle actual.",
   "continue": "Continúa con la siguiente iteración del bucle.",
   "sub": "Define una subrutina no recursiva.",
   "fn": "Define una función con un tipo de retorno opcional.",
+  "function": "Función al estilo QBasic (UB 1.6.3+): function es sinónimo de fn. Los parámetros y el tipo de retorno se escriben p as tipo y ) as tipo (los mismos nombres de tipo que en dim; : tipo sigue funcionando). El valor de retorno se asigna al nombre de la función o se indica con return expresión; exit function regresa antes con el valor asignado hasta ese momento. El bloque termina con end function (también vale end). Sin recursión.",
   "call": "Llama a una subrutina con nombre.",
   "goto": "Salta a una etiqueta.",
   "label": "Define un destino de salto para goto.",
@@ -6571,12 +6598,15 @@ const ubCommandDescriptionsEs = {
   "wait": "Espera transiciones de trama o una línea de trama específica.",
   "bye": "Regresa limpiamente al BASIC.",
   "exit": "Alias de BYE; regresa limpiamente al BASIC.",
-  "comments": "Añade comentarios de línea completa o en línea al código fuente.",
+  "end": "Cierra un bloque (if, while, loop, times, select, sub, fn ...); también se aceptan las formas de QBasic END IF, END SELECT, END SUB y END FUNCTION. Un END que no cierra ningún bloque termina el programa, como en QBasic (UB 1.6.3+); la pantalla se conserva.",
+  "comments": "Añade comentarios de línea completa o en línea con #, ' (estilo QBasic, UB 1.6.3+) o rem.",
   "compound assignment": "Actualiza una variable con una operación aritmética o bit a bit.",
   "arrays": "Declara y accede a matrices de bytes o palabras en la memoria dinámica (heap). Las matrices multidimensionales usan una lista de tamaños separada por comas (array(filas, cols, ...)) y se almacenan por filas; indexe con subíndices separados por comas (grid[r, c]). Las dimensiones deben ser constantes en compilación; un único subíndice en una matriz multidimensional es un índice plano/lineal.",
   "times": "Ejecuta un bucle el número de veces indicado.",
   "select": "Selecciona una rama entre múltiples casos.",
+  "select case": "Bifurcación múltiple al estilo QBasic (UB 1.6.3+). Un CASE puede indicar varios valores (case 1, 2, 3), un rango (case 10 to 20) o una comparación (case is > 1000); CASE ELSE trata todo lo demás. El bloque termina con END SELECT. La forma original select x / case n: no cambia.",
   "return": "Regresa de una subrutina o función.",
+  "exit sub": "Sale de inmediato de la subrutina, función o bucle actual (UB 1.6.3+). EXIT SUB / EXIT FUNCTION regresan (una función devuelve el valor asignado a su nombre hasta ese momento); EXIT DO / EXIT FOR / EXIT WHILE salen del bucle, como BREAK. exit a secas sigue siendo un alias de bye.",
   "gosub": "Llama a una etiqueta con JSR; return reanuda la ejecución.",
   "cls": "Borra la pantalla de texto; FAST rellena directamente la RAM de pantalla y color.",
   "display": "Activa o desactiva la salida de pantalla del VIC-II.",
@@ -6632,6 +6662,9 @@ const ubCommandDescriptionsEs = {
   "string conversion": "Convierte entre cadenas, caracteres y números.",
   "numstr": "Escribe una cadena de tres dígitos con ceros iniciales en una dirección absoluta.",
   "string functions": "Funciones auxiliares para cadenas y formateo de PRINT.",
+  "left$": "Devuelve los primeros n caracteres de una cadena (UB 1.6.3+). Se puede usar en PRINT, en asignaciones de cadenas y con +; un número mayor que la longitud devuelve la cadena entera.",
+  "right$": "Devuelve los últimos n caracteres de una cadena (UB 1.6.3+). Un número mayor que la longitud devuelve la cadena entera.",
+  "mid$": "Devuelve parte de una cadena a partir de la posición inicial, contada desde 1 (UB 1.6.3+): tantos caracteres como indique la longitud, o el resto de la cadena si se omite. Una posición inicial más allá del final devuelve una cadena vacía.",
   "math": "Funciones matemáticas auxiliares para enteros.",
   "random": "Devuelve un byte pseudoaleatorio o un valor inferior al límite.",
   "trigonometry": "Devuelve un valor trigonométrico de punto fijo.",
@@ -6643,19 +6676,24 @@ const ubCommandDescriptionsEs = {
 
 const ubCommandDescriptionsDe = {
   "var": "Deklariert eine Byte-, Word-, Float-, String- oder Array-Variable.",
+  "dim": "Typisierte Deklaration im BASIC-Stil, gleichbedeutend mit var name: typ (UB 1.6.3+). Typen: byte / int (8 Bit), integer (16 Bit mit Vorzeichen, -32768..32767), word (16 Bit ohne Vorzeichen), single / double / float (Q8.8-Festkomma, 0-255.99), string. Ohne = wert beginnen Zahlen bei 0 und Strings bei \"\"; dim a, b as integer gibt beiden Namen den Typ. dim name(u1, u2, ...) as typ deklariert ein Array beliebigen Typs mit beliebig vielen Dimensionen: jede Grenze ist der höchste Index (dim t(2, 3) hat 3 x 4 Elemente), indiziert wird mit t(i, j) oder t[i, j]; ohne as ist es ein Byte-Array. Die Grenzen müssen Konstanten sein, Arrays liegen in $C000-$CFFF. as long und Strukturtypen werden nicht unterstützt; mit aktiviertem Explicit ist ein dim ohne as ein Fehler.",
   "const": "Deklariert eine Konstante zur Kompilierzeit.",
   "print": "Gibt Werte und Formatierungshelfer über die C64-KERNAL-Ausgaberoutine aus.",
   "print at": "Bewegt den Cursor und gibt optionale Werte aus.",
   "input": "Liest einen Wert von der Tastatur in eine Variable ein.",
   "if": "Bedingte Ausführung mit optionalem else-Zweig.",
+  "elseif": "Prüft eine weitere Bedingung, wenn die vorherigen IF- / ELSEIF-Bedingungen falsch waren (UB 1.6.3+). Auf ein IF können beliebig viele ELSEIF-Zweige vor dem optionalen ELSE folgen; der Block endet weiterhin mit END oder END IF. In IF- / ELSEIF- / WHILE- / UNTIL-Bedingungen vergleicht ein einfaches =, und <> bedeutet ungleich.",
   "for": "Führt eine Zählschleife aus.",
   "while": "Wiederholt, solange die Bedingung wahr ist.",
+  "wend": "Schließt eine WHILE-Schleife im QBasic-Stil (UB 1.6.3+); gleichbedeutend mit END nach WHILE. EXIT WHILE oder BREAK verlässt die Schleife vorzeitig.",
   "repeat": "Wiederholt, bis die Bedingung wahr wird.",
   "loop": "Erstellt eine Endlos- oder Zählschleife.",
+  "do": "Schleife im QBasic-Stil (UB 1.6.3+). DO WHILE b / DO UNTIL b prüfen vor dem Rumpf; LOOP WHILE b / LOOP UNTIL b danach, der Rumpf läuft also mindestens einmal; einfaches DO ... LOOP ist endlos. Eine Bedingung an beiden Enden ist ein Fehler. EXIT DO oder BREAK verlässt die Schleife. Innerhalb eines DO-Blocks schließt ein LOOP am Zeilenende (oder gefolgt von WHILE / UNTIL) den Block; die ursprünglichen loop anzahl ... end-Schleifen funktionieren darin weiterhin.",
   "break": "Verlässt die aktuelle Schleife.",
   "continue": "Fährt mit der nächsten Schleifeniteration fort.",
   "sub": "Definiert ein nicht-rekursives Unterprogramm.",
   "fn": "Definiert eine Funktion mit optionalem Rückgabetyp.",
+  "function": "Funktion im QBasic-Stil (UB 1.6.3+): function ist ein Synonym für fn. Parameter und Rückgabetyp werden als p as typ und ) as typ geschrieben (dieselben Typnamen wie bei dim; : typ funktioniert weiterhin). Der Rückgabewert wird dem Funktionsnamen zugewiesen oder mit return ausdruck angegeben; exit function kehrt vorzeitig mit dem bisher zugewiesenen Wert zurück. Der Block endet mit end function (einfaches end geht auch). Keine Rekursion.",
   "call": "Ruft ein benanntes Unterprogramm auf.",
   "goto": "Springt zu einer Sprungmarke (Label).",
   "label": "Definiert ein Sprungziel für goto.",
@@ -6696,12 +6734,15 @@ const ubCommandDescriptionsDe = {
   "wait": "Wartet auf Rasterübergänge oder eine bestimmte Rasterzeile.",
   "bye": "Kehrt sauber zu BASIC zurück.",
   "exit": "Alias für BYE; kehrt sauber zu BASIC zurück.",
-  "comments": "Fügt ganzzeilige oder zeileninterne Quellcode-Kommentare hinzu.",
+  "end": "Schließt einen Block (if, while, loop, times, select, sub, fn ...); die QBasic-Schreibweisen END IF, END SELECT, END SUB und END FUNCTION werden ebenfalls akzeptiert. Ein END, das keinen Block schließt, beendet das Programm wie in QBasic (UB 1.6.3+); der Bildschirm bleibt erhalten.",
+  "comments": "Fügt ganzzeilige oder zeileninterne Kommentare mit #, ' (QBasic-Stil, UB 1.6.3+) oder rem hinzu.",
   "compound assignment": "Aktualisiert eine Variable mit einer arithmetischen oder bitweisen Operation.",
   "arrays": "Deklariert und verwendet Byte- oder Word-Arrays im Heap-RAM. Mehrdimensionale Arrays verwenden eine durch Kommas getrennte Größenliste (array(Zeilen, Spalten, ...)) und werden zeilenweise gespeichert; indizieren Sie sie mit kommagetrennten Indizes (grid[r, c]). Dimensionen müssen Kompilierzeit-Konstanten sein; ein einzelner Index in ein mehrdimensionales Array ist ein flacher/linearer Index.",
   "times": "Führt eine Schleife so oft aus wie angegeben.",
   "select": "Wählt einen Zweig aus mehreren Fällen (Cases) aus.",
+  "select case": "Mehrfachverzweigung im QBasic-Stil (UB 1.6.3+). Ein CASE kann mehrere Werte (case 1, 2, 3), einen Bereich (case 10 to 20) oder einen Vergleich (case is > 1000) angeben; CASE ELSE behandelt alles Übrige. Der Block endet mit END SELECT. Die ursprüngliche Form select x / case n: bleibt unverändert.",
   "return": "Kehrt aus einem Unterprogramm oder einer Funktion zurück.",
+  "exit sub": "Verlässt sofort das aktuelle Unterprogramm, die Funktion oder die Schleife (UB 1.6.3+). EXIT SUB / EXIT FUNCTION kehren zurück (eine Funktion gibt den ihrem Namen bisher zugewiesenen Wert zurück); EXIT DO / EXIT FOR / EXIT WHILE verlassen die Schleife wie BREAK. Einfaches exit bleibt ein Alias für bye.",
   "gosub": "Ruft eine Sprungmarke mit JSR auf; return setzt die Ausführung fort.",
   "cls": "Löscht den Textbildschirm; FAST füllt Bildschirm- und Farb-RAM direkt.",
   "display": "Aktiviert oder deaktiviert die VIC-II-Bildschirmausgabe.",
@@ -6757,6 +6798,9 @@ const ubCommandDescriptionsDe = {
   "string conversion": "Konvertiert zwischen Zeichenketten, Zeichen und Zahlen.",
   "numstr": "Schreibt eine dreistellige Zahl mit führenden Nullen an eine absolute Adresse.",
   "string functions": "Hilfsfunktionen für Strings und PRINT-Formatierung.",
+  "left$": "Liefert die ersten n Zeichen einer Zeichenkette (UB 1.6.3+). Verwendbar in PRINT, in String-Zuweisungen und mit +; eine Anzahl über der Länge liefert die ganze Zeichenkette.",
+  "right$": "Liefert die letzten n Zeichen einer Zeichenkette (UB 1.6.3+). Eine Anzahl über der Länge liefert die ganze Zeichenkette.",
+  "mid$": "Liefert einen Teil einer Zeichenkette ab der Startposition, gezählt ab 1 (UB 1.6.3+): so viele Zeichen, wie die Länge angibt, oder den Rest der Zeichenkette, wenn die Länge fehlt. Eine Startposition hinter dem Ende liefert eine leere Zeichenkette.",
   "math": "Ganzzahl-Mathematik-Hilfsfunktionen.",
   "random": "Gibt ein Pseudozufallsbyte oder einen Wert unterhalb des Limits zurück.",
   "trigonometry": "Gibt einen trigonometrischen Festkommawert zurück.",
@@ -6768,19 +6812,24 @@ const ubCommandDescriptionsDe = {
 
 const ubCommandDescriptionsNl = {
   "var": "Declareert een byte-, word-, float-, string- of array-variabele.",
+  "dim": "Getypeerde declaratie in BASIC-stijl, hetzelfde als var naam: type (UB 1.6.3+). Typen: byte / int (8 bit), integer (16 bit met teken, -32768..32767), word (16 bit zonder teken), single / double / float (Q8.8 vaste komma, 0-255.99), string. Zonder = waarde beginnen getallen op 0 en strings op \"\"; dim a, b as integer geeft beide namen het type. dim naam(u1, u2, ...) as type declareert een array van elk type met een willekeurig aantal dimensies: elke grens is de hoogste index (dim t(2, 3) heeft 3 x 4 elementen), te indexeren met t(i, j) of t[i, j]; zonder as is het een byte-array. De grenzen moeten constanten zijn en arrays staan in $C000-$CFFF. as long en structuurtypen worden niet ondersteund; met Explicit aan is een dim zonder as een fout.",
   "const": "Declareert een constante tijdens compileertijd.",
   "print": "Drukt waarden en opmaakhulpmiddelen af via de C64 KERNAL-uitvoerroutine.",
   "print at": "Verplaatst de cursor en drukt optionele waarden af.",
   "input": "Leest een waarde van het toetsenbord in een variabele.",
   "if": "Voorwaardelijke uitvoering met een optionele else-tak.",
+  "elseif": "Test een volgende voorwaarde als de voorgaande IF- / ELSEIF-voorwaarden onwaar waren (UB 1.6.3+). Na een IF mogen meerdere ELSEIF-takken volgen, vóór de optionele ELSE; het blok eindigt nog steeds met END of END IF. In IF- / ELSEIF- / WHILE- / UNTIL-voorwaarden vergelijkt een enkele = en betekent <> ongelijk.",
   "for": "Voert een tellende lus uit.",
   "while": "Herhaalt zolang de voorwaarde waar is.",
+  "wend": "Sluit een WHILE-lus af in QBasic-stijl (UB 1.6.3+); hetzelfde als END na WHILE. EXIT WHILE of BREAK verlaat de lus voortijdig.",
   "repeat": "Herhaalt totdat de voorwaarde waar wordt.",
   "loop": "Maakt een oneindige of tellende lus.",
+  "do": "Lus in QBasic-stijl (UB 1.6.3+). DO WHILE v / DO UNTIL v testen vóór de lusinhoud; LOOP WHILE v / LOOP UNTIL v erna, zodat de inhoud minstens één keer wordt uitgevoerd; alleen DO ... LOOP is eindeloos. Een voorwaarde aan beide kanten is een fout. EXIT DO of BREAK verlaat de lus. Binnen een DO-blok sluit een LOOP aan het einde van de regel (of gevolgd door WHILE / UNTIL) het blok; de oorspronkelijke loop aantal ... end-lussen blijven daarbinnen werken.",
   "break": "Verlaat de huidige lus.",
   "continue": "Gaat door naar de volgende lusiteratie.",
   "sub": "Definieert een niet-recursieve subroutine.",
   "fn": "Definieert een functie met een optioneel retourtype.",
+  "function": "Functie in QBasic-stijl (UB 1.6.3+): function is een synoniem voor fn. Parameters en het retourtype schrijf je als p as type en ) as type (dezelfde typenamen als bij dim; : type werkt ook nog). De retourwaarde wijs je toe aan de functienaam of geef je met return expressie; exit function keert vroegtijdig terug met de tot dan toe toegewezen waarde. Het blok eindigt met end function (alleen end mag ook). Geen recursie.",
   "call": "Roept een benoemde subroutine aan.",
   "goto": "Springt naar een label.",
   "label": "Definieert een sprongdoel voor goto.",
@@ -6821,12 +6870,15 @@ const ubCommandDescriptionsNl = {
   "wait": "Wacht op rasterovergangen of op een specifieke rasterlijn.",
   "bye": "Keert netjes terug naar BASIC.",
   "exit": "Synoniem voor BYE; keert netjes terug naar BASIC.",
-  "comments": "Voegt volledige regel- of inline-broncommentaren toe.",
+  "end": "Sluit een blok af (if, while, loop, times, select, sub, fn ...); de QBasic-schrijfwijzen END IF, END SELECT, END SUB en END FUNCTION worden ook geaccepteerd. Een END die geen blok afsluit, beëindigt het programma, zoals in QBasic (UB 1.6.3+); het scherm blijft staan.",
+  "comments": "Voegt commentaar op een hele regel of achter een opdracht toe met #, ' (QBasic-stijl, UB 1.6.3+) of rem.",
   "compound assignment": "Werkt een variabele bij met een rekenkundige of bitsgewijze bewerking.",
   "arrays": "Declareert en benadert byte- of word-arrays in heap-RAM. Meerdimensionale arrays gebruiken een door komma's gescheiden lijst van formaten (array(rijen, kolommen, ...)) en worden rij-georiënteerd opgeslagen; indexeer ze met een door komma's gescheiden index (grid[r, c]). Dimensies moeten constanten tijdens compilatie zijn; een enkele index in een meerdimensionale array is een platte/lineaire index.",
   "times": "Voert een lus het opgegeven aantal keren uit.",
   "select": "Selecteert één tak uit meerdere gevallen (cases).",
+  "select case": "Meervoudige vertakking in QBasic-stijl (UB 1.6.3+). Een CASE kan meerdere waarden (case 1, 2, 3), een bereik (case 10 to 20) of een vergelijking (case is > 1000) opgeven; CASE ELSE handelt al het overige af. Het blok eindigt met END SELECT. De oorspronkelijke vorm select x / case n: is ongewijzigd.",
   "return": "Keert terug uit een subroutine of functie.",
+  "exit sub": "Verlaat direct de huidige subroutine, functie of lus (UB 1.6.3+). EXIT SUB / EXIT FUNCTION keren terug (een functie geeft de tot dan toe aan haar naam toegewezen waarde terug); EXIT DO / EXIT FOR / EXIT WHILE verlaten de lus, net als BREAK. Alleen exit blijft een synoniem voor bye.",
   "gosub": "Roept een label aan met JSR; return hervat de uitvoering.",
   "cls": "Wist het tekstscherm; FAST vult scherm- en kleur-RAM direct.",
   "display": "Schakelt VIC-II schermweergave in of uit.",
@@ -6882,6 +6934,9 @@ const ubCommandDescriptionsNl = {
   "string conversion": "Converteert tussen strings, tekens en getallen.",
   "numstr": "Schrijft een driecijferige tekenreeks met voorloopnullen naar een absoluut adres.",
   "string functions": "Hulpfuncties voor strings en PRINT-opmaak.",
+  "left$": "Geeft de eerste n tekens van een string terug (UB 1.6.3+). Te gebruiken in PRINT, in stringtoewijzingen en met +; een aantal groter dan de lengte geeft de hele string.",
+  "right$": "Geeft de laatste n tekens van een string terug (UB 1.6.3+). Een aantal groter dan de lengte geeft de hele string.",
+  "mid$": "Geeft een deel van een string terug vanaf de startpositie, geteld vanaf 1 (UB 1.6.3+): zoveel tekens als de lengte aangeeft, of de rest van de string als de lengte ontbreekt. Een startpositie voorbij het einde geeft een lege string.",
   "math": "Wiskundige hulpfuncties voor gehele getallen.",
   "random": "Geeft een pseudo-willekeurige byte of een waarde onder de limiet terug.",
   "trigonometry": "Geeft een trigonometrische vaste-kommawaarde terug.",
@@ -6893,19 +6948,24 @@ const ubCommandDescriptionsNl = {
 
 const ubCommandDescriptionsPl = {
   "var": "Deklaruje zmienną typu byte, word, float, string lub tablicę.",
+  "dim": "Deklaracja z typem w stylu BASIC, to samo co var nazwa: typ (UB 1.6.3+). Typy: byte / int (8 bitów), integer (16 bitów ze znakiem, -32768..32767), word (16 bitów bez znaku), single / double / float (stałoprzecinkowy Q8.8, 0-255.99), string. Bez = wartość liczby zaczynają od 0, a łańcuchy od \"\"; dim a, b as integer nadaje typ obu nazwom. dim nazwa(u1, u2, ...) as typ deklaruje tablicę dowolnego typu o dowolnej liczbie wymiarów: każda granica to najwyższy indeks (dim t(2, 3) ma 3 x 4 elementy), indeksowanie przez t(i, j) lub t[i, j]; bez as jest to tablica bajtów. Granice muszą być stałymi, a tablice leżą w $C000-$CFFF. as long i typy strukturalne nie są obsługiwane; przy włączonej opcji Explicit dim bez as jest błędem.",
   "const": "Deklaruje stałą znaną w czasie kompilacji.",
   "print": "Wypisuje wartości i pomocnicze formatowanie przez procedurę wyjścia KERNAL C64.",
   "print at": "Przenosi kursor, następnie wypisuje opcjonalne wartości.",
   "input": "Odczytuje wartość z klawiatury do zmiennej.",
   "if": "Wykonanie warunkowe z opcjonalną gałęzią else.",
+  "elseif": "Sprawdza kolejny warunek, gdy poprzednie warunki IF / ELSEIF były fałszywe (UB 1.6.3+). Po IF może wystąpić dowolna liczba gałęzi ELSEIF przed opcjonalnym ELSE; blok nadal kończy END lub END IF. W warunkach IF / ELSEIF / WHILE / UNTIL pojedynczy znak = porównuje, a <> oznacza nierówność.",
   "for": "Wykonuje pętlę z licznikiem.",
   "while": "Powtarza, dopóki warunek jest prawdziwy.",
+  "wend": "Zamyka pętlę WHILE w stylu QBasic (UB 1.6.3+); to samo co END po WHILE. EXIT WHILE lub BREAK opuszcza pętlę wcześniej.",
   "repeat": "Powtarza, aż warunek stanie się prawdziwy.",
   "loop": "Tworzy pętlę nieskończoną lub liczoną.",
+  "do": "Pętla w stylu QBasic (UB 1.6.3+). DO WHILE w / DO UNTIL w sprawdzają warunek przed treścią pętli; LOOP WHILE w / LOOP UNTIL w po niej, więc treść wykona się co najmniej raz; samo DO ... LOOP jest pętlą nieskończoną. Warunek na obu końcach jest błędem. EXIT DO lub BREAK opuszcza pętlę. Wewnątrz bloku DO słowo LOOP na końcu linii (lub z WHILE / UNTIL) zamyka blok; pierwotne pętle loop liczba ... end nadal działają w środku.",
   "break": "Opuszcza bieżącą pętlę.",
   "continue": "Przechodzi do następnej iteracji pętli.",
   "sub": "Definiuje nierekurencyjny podprogram.",
   "fn": "Definiuje funkcję z opcjonalnym typem zwracanym.",
+  "function": "Funkcja w stylu QBasic (UB 1.6.3+): function to synonim fn. Parametry i typ zwracany zapisuje się jako p as typ oraz ) as typ (te same nazwy typów co w dim; : typ nadal działa). Wartość zwracaną przypisuje się do nazwy funkcji albo podaje przez return wyrażenie; exit function wraca wcześniej z dotychczas przypisaną wartością. Blok kończy end function (samo end też działa). Bez rekurencji.",
   "call": "Wywołuje nazwany podprogram.",
   "goto": "Skacze do etykiety.",
   "label": "Definiuje cel dla goto.",
@@ -6946,12 +7006,15 @@ const ubCommandDescriptionsPl = {
   "wait": "Czeka na przejścia rastra lub konkretną linię rastra.",
   "bye": "Powraca czysto do BASIC.",
   "exit": "Alias dla BYE; powraca czysto do BASIC.",
-  "comments": "Dodaje komentarze w całej linii lub inline.",
+  "end": "Zamyka blok (if, while, loop, times, select, sub, fn ...); akceptowane są też zapisy QBasic END IF, END SELECT, END SUB i END FUNCTION. END, które nie zamyka żadnego bloku, kończy program, jak w QBasic (UB 1.6.3+); ekran pozostaje bez zmian.",
+  "comments": "Dodaje komentarze w całej linii lub na końcu linii za pomocą #, ' (styl QBasic, UB 1.6.3+) lub rem.",
   "compound assignment": "Aktualizuje zmienną operacją arytmetyczną lub bitową.",
   "arrays": "Deklaruje i udostępnia tablice bajtowe lub słowa w pamięci sterty. Tablice wielowymiarowe używają listy rozmiarów rozdzielonej przecinkami (array(wiersze, kolumny, ...)) i są przechowywane wierszowo; indeksuj je indeksem rozdzielonym przecinkami (grid[w, k]). Wymiary muszą być stałymi znanymi w czasie kompilacji; pojedynczy indeks w tablicy wielowymiarowej jest indeksem płaskim/liniowym.",
   "times": "Wykonuje pętlę zadaną liczbę razy.",
   "select": "Wybiera jedną gałąź spośród wielu przypadków.",
+  "select case": "Rozgałęzienie wielokrotne w stylu QBasic (UB 1.6.3+). CASE może podać kilka wartości (case 1, 2, 3), zakres (case 10 to 20) lub porównanie (case is > 1000); CASE ELSE obsługuje całą resztę. Blok kończy END SELECT. Pierwotna forma select x / case n: pozostaje bez zmian.",
   "return": "Powraca z podprogramu lub funkcji.",
+  "exit sub": "Natychmiast opuszcza bieżący podprogram, funkcję lub pętlę (UB 1.6.3+). EXIT SUB / EXIT FUNCTION wracają (funkcja zwraca wartość dotychczas przypisaną do jej nazwy); EXIT DO / EXIT FOR / EXIT WHILE opuszczają pętlę, jak BREAK. Samo exit pozostaje aliasem bye.",
   "gosub": "Wywołuje etykietę przez JSR; return wznawia wykonanie.",
   "cls": "Czyści ekran tekstowy; FAST bezpośrednio wypełnia Screen RAM i Color RAM.",
   "display": "Włącza lub wyłącza wyjście ekranu VIC-II.",
@@ -7007,6 +7070,9 @@ const ubCommandDescriptionsPl = {
   "string conversion": "Konwertuje między łańcuchami, znakami i liczbami.",
   "numstr": "Zapisuje trzycyfrowy łańcuch z zerami wiodącymi pod adres bezwzględny.",
   "string functions": "Funkcje pomocnicze do łańcuchów i formatowania PRINT.",
+  "left$": "Zwraca pierwsze n znaków łańcucha (UB 1.6.3+). Można używać w PRINT, w przypisaniach łańcuchów i z +; liczba większa od długości zwraca cały łańcuch.",
+  "right$": "Zwraca ostatnie n znaków łańcucha (UB 1.6.3+). Liczba większa od długości zwraca cały łańcuch.",
+  "mid$": "Zwraca część łańcucha od pozycji początkowej, liczonej od 1 (UB 1.6.3+): tyle znaków, ile podaje długość, albo resztę łańcucha, gdy długość pominięto. Pozycja początkowa za końcem zwraca pusty łańcuch.",
   "math": "Pomocnicze funkcje matematyki całkowitoliczbowej.",
   "random": "Zwraca pseudolosowy bajt lub wartość poniżej limitu.",
   "trigonometry": "Zwraca wartość trygonometryczną stałoprzecinkową.",
@@ -7018,19 +7084,24 @@ const ubCommandDescriptionsPl = {
 
 const ubCommandDescriptionsIt = {
   "var": "Dichiara una variabile byte, word, float, string o array.",
+  "dim": "Dichiarazione tipizzata in stile BASIC, equivalente a var nome: tipo (UB 1.6.3+). Tipi: byte / int (8 bit), integer (16 bit con segno, -32768..32767), word (16 bit senza segno), single / double / float (virgola fissa Q8.8, 0-255.99), string. Senza = valore i numeri partono da 0 e le stringhe da \"\"; dim a, b as integer assegna il tipo a entrambi i nomi. dim nome(u1, u2, ...) as tipo dichiara un array di qualsiasi tipo con qualsiasi numero di dimensioni: ogni limite è l'indice più alto (dim t(2, 3) ha 3 x 4 elementi), indicizzato con t(i, j) o t[i, j]; senza as è un array di byte. I limiti devono essere costanti e gli array risiedono in $C000-$CFFF. as long e i tipi struttura non sono supportati; con Explicit attivo un dim senza as è un errore.",
   "const": "Dichiara una costante nota in fase di compilazione.",
   "print": "Stampa valori e helper di formattazione tramite la routine di output KERNAL del C64.",
   "print at": "Sposta il cursore, poi stampa valori opzionali.",
   "input": "Legge un valore dalla tastiera in una variabile.",
   "if": "Esecuzione condizionale con un ramo else opzionale.",
+  "elseif": "Verifica un'ulteriore condizione quando le condizioni IF / ELSEIF precedenti erano false (UB 1.6.3+). Dopo un IF possono seguire più rami ELSEIF prima dell'ELSE opzionale; il blocco termina sempre con END o END IF. Nelle condizioni di IF / ELSEIF / WHILE / UNTIL un singolo = confronta e <> significa diverso.",
   "for": "Esegue un ciclo con contatore.",
   "while": "Ripete finché la condizione è vera.",
+  "wend": "Chiude un ciclo WHILE in stile QBasic (UB 1.6.3+); equivale a END dopo WHILE. EXIT WHILE o BREAK escono prima dal ciclo.",
   "repeat": "Ripete finché la condizione diventa vera.",
   "loop": "Crea un ciclo infinito o contato.",
+  "do": "Ciclo in stile QBasic (UB 1.6.3+). DO WHILE c / DO UNTIL c verificano prima del corpo; LOOP WHILE c / LOOP UNTIL c dopo, quindi il corpo viene eseguito almeno una volta; il semplice DO ... LOOP è infinito. Una condizione a entrambe le estremità è un errore. EXIT DO o BREAK escono dal ciclo. All'interno di un blocco DO, un LOOP a fine riga (o seguito da WHILE / UNTIL) lo chiude; i cicli originali loop n ... end continuano a funzionare al suo interno.",
   "break": "Esce dal ciclo corrente.",
   "continue": "Prosegue con la successiva iterazione del ciclo.",
   "sub": "Definisce una subroutine non ricorsiva.",
   "fn": "Definisce una funzione con un tipo di ritorno opzionale.",
+  "function": "Funzione in stile QBasic (UB 1.6.3+): function è un sinonimo di fn. I parametri e il tipo di ritorno si scrivono p as tipo e ) as tipo (gli stessi nomi di tipo di dim; : tipo funziona ancora). Il valore di ritorno si assegna al nome della funzione oppure si indica con return espressione; exit function ritorna in anticipo con il valore assegnato fino a quel momento. Il blocco termina con end function (va bene anche il solo end). Nessuna ricorsione.",
   "call": "Chiama una subroutine nominata.",
   "goto": "Salta a un'etichetta.",
   "label": "Definisce una destinazione per goto.",
@@ -7071,12 +7142,15 @@ const ubCommandDescriptionsIt = {
   "wait": "Attende le transizioni raster o una specifica linea raster.",
   "bye": "Ritorna in modo pulito al BASIC.",
   "exit": "Alias di BYE; ritorna in modo pulito al BASIC.",
-  "comments": "Aggiunge commenti su riga intera o inline.",
+  "end": "Chiude un blocco (if, while, loop, times, select, sub, fn ...); sono accettate anche le forme QBasic END IF, END SELECT, END SUB ed END FUNCTION. Un END che non chiude alcun blocco termina il programma, come in QBasic (UB 1.6.3+); lo schermo viene mantenuto.",
+  "comments": "Aggiunge commenti su riga intera o in linea con #, ' (stile QBasic, UB 1.6.3+) o rem.",
   "compound assignment": "Aggiorna una variabile con un'operazione aritmetica o bit a bit.",
   "arrays": "Dichiara e accede ad array di byte o word nella RAM heap. Gli array multidimensionali usano un elenco di dimensioni separato da virgole (array(righe, colonne, ...)) e sono memorizzati per righe; si indicizzano con un indice separato da virgole (grid[r, c]). Le dimensioni devono essere costanti note in fase di compilazione; un singolo indice in un array multidimensionale è un indice piatto/lineare.",
   "times": "Esegue un ciclo per il numero di volte indicato.",
   "select": "Seleziona un ramo tra più casi.",
+  "select case": "Diramazione multipla in stile QBasic (UB 1.6.3+). Un CASE può indicare più valori (case 1, 2, 3), un intervallo (case 10 to 20) o un confronto (case is > 1000); CASE ELSE gestisce tutto il resto. Il blocco termina con END SELECT. La forma originale select x / case n: resta invariata.",
   "return": "Ritorna da una subroutine o funzione.",
+  "exit sub": "Esce subito dalla subroutine, dalla funzione o dal ciclo corrente (UB 1.6.3+). EXIT SUB / EXIT FUNCTION ritornano (una funzione restituisce il valore assegnato fino a quel momento al suo nome); EXIT DO / EXIT FOR / EXIT WHILE escono dal ciclo, come BREAK. Il solo exit resta un alias di bye.",
   "gosub": "Chiama un'etichetta con JSR; return riprende l'esecuzione.",
   "cls": "Cancella lo schermo testuale; FAST riempie direttamente Screen RAM e Color RAM.",
   "display": "Attiva o disattiva l'output video del VIC-II.",
@@ -7132,6 +7206,9 @@ const ubCommandDescriptionsIt = {
   "string conversion": "Converte tra stringhe, caratteri e numeri.",
   "numstr": "Scrive una stringa di tre cifre con zeri iniziali a un indirizzo assoluto.",
   "string functions": "Helper per stringhe e formattazione PRINT.",
+  "left$": "Restituisce i primi n caratteri di una stringa (UB 1.6.3+). Utilizzabile in PRINT, nelle assegnazioni di stringhe e con +; un numero superiore alla lunghezza restituisce l'intera stringa.",
+  "right$": "Restituisce gli ultimi n caratteri di una stringa (UB 1.6.3+). Un numero superiore alla lunghezza restituisce l'intera stringa.",
+  "mid$": "Restituisce una parte di una stringa a partire dalla posizione iniziale, contata da 1 (UB 1.6.3+): tanti caratteri quanti indicati dalla lunghezza, oppure il resto della stringa se la lunghezza è omessa. Una posizione iniziale oltre la fine restituisce una stringa vuota.",
   "math": "Funzioni helper di matematica intera.",
   "random": "Restituisce un byte pseudocasuale o un valore sotto il limite.",
   "trigonometry": "Restituisce un valore trigonometrico a virgola fissa.",
@@ -7153,20 +7230,25 @@ function _ubGetCommandDescription(name, lang = currentLanguage) {
 
 const _UB_COMMAND_REFERENCE = [
   ["var", "var name[: type] = expression", "Declares a byte, word, float, string, or array variable."],
+  ["dim", "dim name as type [= value] [, name as type ...]\ndim age as integer                 # signed 16-bit, starts at 0\ndim x, y as byte                   # both are byte\ndim score as integer = 1000, title as string = \"C64\"\ndim grid(2, 3) as integer          # array: every bound is the highest index (3 x 4)\ngrid(2, 3) = 999                   # or grid[2, 3]\n#   as byte | int                  8-bit\n#   as integer                     signed 16-bit (-32768..32767)\n#   as word                        unsigned 16-bit\n#   as single | double | float     Q8.8 fixed point\n#   as string", "BASIC-style typed declaration of variables and arrays (UB 1.6.3+)."],
   ["const", "const NAME = expression", "Declares a compile-time constant."],
-  ["print", "print [expression [, expression ...]]\nprint spc(count)\nprint tab(column)\nprint chr$(code)", "Prints values and formatting helpers through the C64 KERNAL output routine."],
+  ["print", "print [expression [, expression ...]]\nprint spc(count)\nprint tab(column)\nprint chr$(code)\nprint a; b; c               # ';' joins items without spaces (UB 1.6.3+)\nprint \"SCORE: \";            # trailing ';' = no newline", "Prints values and formatting helpers through the C64 KERNAL output routine."],
   ["print at", "print at column, row [, expression ...]", "Moves the cursor, then prints optional values."],
-  ["input", "input [\"prompt\",] variable", "Reads a value from the keyboard into a variable."],
-  ["if", "if condition then\n  statements\n[else\n  statements]\nend", "Conditional execution with an optional else branch."],
-  ["for", "for variable = start to limit [step amount]\n  statements\nnext [variable]", "Runs a counted loop."],
-  ["while", "while condition\n  statements\nend", "Repeats while the condition is true."],
+  ["input", "input [\"prompt\",] variable\ninput \"AGE\"; age            # ';' works too (UB 1.6.3+)\ninput names(i)              # array element; INTEGER / WORD and DOUBLE (12.5) values too", "Reads a value from the keyboard into a variable."],
+  ["if", "if condition then\n  statements\n[elseif condition then\n  statements]\n[else\n  statements]\nend                 # END IF is accepted too\nif x = 3 then print \"THREE\" else print \"OTHER\"   # single-line IF (UB 1.6.3+)", "Conditional execution with an optional else branch."],
+  ["elseif", "if n < 0 then\n  print \"NEGATIVE\"\nelseif n = 0 then\n  print \"ZERO\"\nelse\n  print \"POSITIVE\"\nend if", "Further condition of an IF block (UB 1.6.3+)."],
+  ["for", "for variable = start to limit [step amount]\n  statements\nnext [variable]\n\nfor i = 3 to -3 step -2       # INTEGER counters are signed 16-bit (UB 1.6.3+)\n  if i = 0 then exit for     # leave the loop early\nnext", "Runs a counted loop."],
+  ["while", "while condition\n  statements\nend                 # or WEND (UB 1.6.3+)\nwhile k <> 5 : k = k + 1 : wend", "Repeats while the condition is true."],
+  ["wend", "while condition\n  statements\nwend", "Closes a WHILE loop, QBasic style (UB 1.6.3+)."],
   ["repeat", "repeat\n  statements\nuntil condition", "Repeats until the condition becomes true."],
-  ["loop", "loop [count]\n  statements\nend", "Creates an infinite or counted loop."],
-  ["break", "break", "Leaves the current loop."],
+  ["loop", "loop [count]\n  statements\nend\n# after DO, a LOOP [WHILE | UNTIL c] closes the DO block: see DO", "Creates an infinite or counted loop."],
+  ["do", "do [while | until condition]\n  statements\nloop [while | until condition]\n\ndo while i < 10 : i = i + 1 : loop    # test before the body\ndo\n  i = i - 1\nloop until i = 0                      # test after the body\ndo                                    # endless: leave with EXIT DO\n  if done = 1 then exit do\nloop", "QBasic-style DO ... LOOP with WHILE / UNTIL (UB 1.6.3+)."],
+  ["break", "break\nexit do | exit for | exit while   # QBasic spelling (UB 1.6.3+)", "Leaves the current loop."],
   ["continue", "continue", "Continues with the next loop iteration."],
-  ["sub", "sub name([parameters])\n  statements\nend", "Defines a non-recursive subroutine."],
+  ["sub", "sub name([parameters])\n  statements\nend\n\nsub greet(who as string)     # QBasic style (UB 1.6.3+)\n  print \"HELLO, \"; who; \"!\"\n  [exit sub]                  # return early\nend sub\ngreet \"ZSOLT\"                 # call without parentheses", "Defines a non-recursive subroutine."],
   ["fn", "fn name([parameters])[: type]\n  statements\n  return expression\nend", "Defines a function with an optional return type."],
-  ["call", "call name([arguments])", "Calls a named subroutine."],
+  ["function", "function name(p as type, ...) as type\n  name = expression      # return value: assign to the function name\n  [exit function]        # return early\nend function\n\nfunction square(n as integer) as integer\n  square = n * n\nend function\nprint square(30)", "QBasic-style function; FUNCTION is a synonym for FN (UB 1.6.3+)."],
+  ["call", "call name([arguments])\nname([arguments])\nname argument, argument     # without parentheses (UB 1.6.3+)", "Calls a named subroutine."],
   ["goto", "goto label", "Jumps to a label."],
   ["label", "label name", "Defines a goto target."],
   ["graphics", "graphics on [hires|multi|block] [double]\ngraphics off", "Enables or disables a graphics mode."],
@@ -7206,12 +7288,15 @@ const _UB_COMMAND_REFERENCE = [
   ["wait", "wait transitions\nwait raster raster_line", "Waits for raster transitions or for a specific raster line."],
   ["bye", "bye", "Returns cleanly to BASIC."],
   ["exit", "exit", "Alias for BYE; returns cleanly to BASIC."],
-  ["comments", "# comment\nrem comment\nstatement # inline comment", "Adds full-line or inline source comments."],
+  ["end", "end\nend if | end select | end sub | end function\n\nprint \"DONE\"\nend                 # closes no block: ends the program (UB 1.6.3+)", "Closes a block; on its own it ends the program."],
+  ["comments", "# comment\n' comment            (QBasic style, UB 1.6.3+)\nrem comment\nstatement # inline comment\nstatement ' inline comment", "Adds full-line or inline source comments."],
   ["compound assignment", "x += n | x -= n | x *= n | x /= n\nx and= n | x or= n | x xor= n | x shl= n | x shr= n", "Updates a variable with an arithmetic or bitwise operation."],
-  ["arrays", "var bytes = array(count)\nvar words = array_word(count)\nbytes[index] = value\nvar grid = array(rows, cols)\ngrid[r, c] = value", "Declares and accesses byte or word arrays in heap RAM. Multi-dimensional arrays use a comma-separated size list (array(rows, cols, ...)) and are stored row-major; index them with a comma-separated subscript (grid[r, c]). Dimensions must be compile-time constants; a single subscript into a multi-dim array is a flat/linear index."],
+  ["arrays", "var bytes = array(count)\nvar words = array_word(count)\nbytes[index] = value\nvar grid = array(rows, cols)\ngrid[r, c] = value\ndim t(2, 3) as integer      # BASIC style: bounds = highest index, see DIM\nt(2, 3) = 999", "Declares and accesses byte or word arrays in heap RAM. Multi-dimensional arrays use a comma-separated size list (array(rows, cols, ...)) and are stored row-major; index them with a comma-separated subscript (grid[r, c]). Dimensions must be compile-time constants; a single subscript into a multi-dim array is a flat/linear index."],
   ["times", "times count\n  statements\nend", "Runs a counted loop the given number of times."],
-  ["select", "select expression\ncase value:\n  statements\n[else:]\n  statements\nend", "Selects one branch from multiple cases."],
+  ["select", "select expression\ncase value:\n  statements\n[else:]\n  statements\nend                 # END SELECT is accepted too", "Selects one branch from multiple cases."],
+  ["select case", "select case expression\n  case 1, 2, 3\n    statements\n  case 10 to 20\n    statements\n  case is > 1000\n    statements\n  case else\n    statements\nend select", "QBasic-style SELECT CASE with value lists, ranges and comparisons (UB 1.6.3+)."],
   ["return", "return [expression]", "Returns from a subroutine or function."],
+  ["exit sub", "exit sub\nexit function\nexit do\nexit for\nexit while", "Leaves a sub, function or loop early (UB 1.6.3+)."],
   ["gosub", "gosub label", "Calls a label with JSR; return resumes execution."],
   ["cls", "cls\ncls fast", "Clears the text screen; FAST directly fills screen and color RAM."],
   ["display", "display on | off", "Enables or disables VIC-II display output."],
@@ -7267,15 +7352,18 @@ const _UB_COMMAND_REFERENCE = [
   ["mouse", "mouse_x()\nmouse_x_hi()\nmouse_y()\nmouse_btn()", "Reads the connected mouse position and buttons."],
   ["reu detect", "reu_present()\nreudet()", "Checks whether a REU is available."],
   ["turbo detect", "turbo()", "Returns whether Ultimate turbo mode is active."],
-  ["types", "int | word | float | string | array | array_word", "UltimateBasic variable and array types."],
-  ["string conversion", "chr$(code)\nstr$(number)\nstr_to_int(string)\nval(string)", "Converts between strings, characters, and numbers."],
+  ["types", "int | word | float | string | array | array_word\nas byte | integer | single | double | string   # BASIC names after AS (dim, function, sub); integer is signed 16-bit", "UltimateBasic variable and array types."],
+  ["string conversion", "chr$(code)\nstr$(number)              # 16-bit / signed values: no leading zeros (UB 1.6.3+)\nstr_to_int(string)\nval(string)               # 16-bit signed (UB 1.6.3+)", "Converts between strings, characters, and numbers."],
   ["numstr", "numstr value, destination_address", "Writes a zero-padded three-digit string to an absolute address."],
-  ["string functions", "len(string)\nasc(string)\nspc(count)\ntab(column)", "String and PRINT formatting helpers."],
+  ["string functions", "len(string)\nasc(string)\nspc(count)\ntab(column)\nleft$(string, count)\nright$(string, count)\nmid$(string, start [, length])\ns = a + b + n               # runtime strings (UB 1.6.3+): numbers become text\nif s = \"ABC\" or t <> \"\" then print \"MATCH\"", "String and PRINT formatting helpers."],
+  ["left$", "left$(string, count)\nprint left$(\"HELLO WORLD\", 5)       # HELLO", "First characters of a string (UB 1.6.3+)."],
+  ["right$", "right$(string, count)\nprint right$(\"HELLO WORLD\", 5)      # WORLD", "Last characters of a string (UB 1.6.3+)."],
+  ["mid$", "mid$(string, start [, length])\nprint mid$(\"HELLO WORLD\", 7, 3)     # WOR\nprint mid$(\"HELLO WORLD\", 7)        # WORLD", "Part of a string from a 1-based position (UB 1.6.3+)."],
   ["math", "abs(x) | min(a,b) | max(a,b) | sgn(x) | clamp(x,lo,hi)", "Integer math helper functions."],
   ["random", "rnd()\nrnd(limit)", "Returns a pseudo-random byte or a value below the limit."],
   ["trigonometry", "sin(angle)\ncos(angle)", "Returns a fixed-point trigonometric value."],
   ["number formatting", "hex(value)\nbin(value)\ndec(value, width)", "Formats a number as hexadecimal, binary, or padded decimal text."],
-  ["operators", "and or xor not bnot mod shl shr", "Logical, bitwise, modulo, and shift operators."],
+  ["operators", "and or xor not bnot mod shl shr\n= <>     # in IF / ELSEIF / WHILE / UNTIL conditions = compares, <> is not equal (UB 1.6.3+)", "Logical, bitwise, modulo, and shift operators."],
   ["inc/dec", "inc variable\ndec variable", "Increments or decrements a variable."],
   ["type", "type TypeName\n  var field1: type\n  var field2: type\nendtype", "Defines a structured record type with named, typed fields. Supported field types: int (1 byte), word (2 bytes), float (2 bytes, Q8.8 fixed-point). Declare instances with var name: TypeName, then access fields as name.field. The compiler lays out fields contiguously in zero-page memory."],
 ];
@@ -7350,9 +7438,16 @@ function _ubApplyLeftViews(persist = true) {
   if (persist) saveUiSettings();
 }
 
-const _UB_KEYWORDS = new Set(("var const print print# input if then else end for to step next while repeat until loop break continue times sub fn call return goto gosub label graphics on off multi block display gcls cls fast plot plot4 mplot line circle circle4 rect fill paint flip sprite sprite_frame sprdef chardef charset expand priority sound sfx org tune music play stop pause resume sid volume irq irq_exit nmi nmi_exit cia_timer onerr data read restore asm include incbin load open close save chain memcopy drawmem map koala show hide set draw poke poke16 sys bye exit wait delay raster getch joy reu stash fetch speed badlines color border bg text screen cursor at lowercase uppercase select case and or xor not bnot mod shl shr inc dec erase scroll type endtype pen mline mrect mcircle").split(" "));
+const _UB_KEYWORDS = new Set(("var const print print# input if then else end for to step next while repeat until loop break continue times sub fn call return goto gosub label graphics on off multi block display gcls cls fast plot plot4 mplot line circle circle4 rect fill paint flip sprite sprite_frame sprdef chardef charset expand priority sound sfx org tune music play stop pause resume sid volume irq irq_exit nmi nmi_exit cia_timer onerr data read asm include incbin load open close save chain memcopy drawmem map koala show hide set draw poke poke16 sys bye exit wait delay raster getch joy reu stash fetch speed badlines color border bg text screen cursor at lowercase uppercase select case and or xor not bnot mod shl shr inc dec erase scroll type endtype pen mline mrect mcircle dim function do wend elseif").split(" "));
 const _UB_TYPES = new Set(["int", "word", "float", "string", "array", "array_word"]);
-const _UB_FUNCTIONS = new Set(("str_to_int numstr chr$ str$ inkey waitkey len asc val reudet reu_present turbo clamp peek peek16 rnd abs min max sgn spc tab joy mouse_x mouse_x_hi mouse_y mouse_btn sprhit sprbghit sprite_hit sprite_bg_hit sprite_x sprite_y map_tile map_color box_hit sin cos hex bin getch").split(" "));
+// BASIC type names used after `as` (dim / function / sub). The compiler treats them and
+// `as` as context words, not reserved ones, so they are only coloured in a type position.
+const _UB_BASIC_TYPES = new Set(["byte", "integer", "single", "double"]);
+// Words the compiler reads as keywords only right after the given keyword (case is, map view,
+// wait key, scroll row|x|y) or anywhere in a scroll statement.
+const _UB_CONTEXT_KEYWORDS = new Map([["case", new Set(["is"])], ["map", new Set(["view"])], ["wait", new Set(["key"])], ["scroll", new Set(["row", "x", "y"])]]);
+const _UB_SCROLL_WORDS = new Set(["left", "right", "narrow", "wide"]);
+const _UB_FUNCTIONS = new Set(("str_to_int numstr chr$ str$ inkey waitkey len asc val reudet reu_present turbo clamp peek peek16 rnd abs min max sgn spc tab joy mouse_x mouse_x_hi mouse_y mouse_btn sprhit sprbghit sprite_hit sprite_bg_hit sprite_x sprite_y map_tile map_color box_hit sin cos hex bin getch left$ right$ mid$").split(" "));
 const _UB_ASM_MNEMONICS = new Set(("adc and asl bcc bcs beq bit bmi bne bpl brk bvc bvs clc cld cli clv cmp cpx cpy dec dex dey eor inc inx iny jmp jsr lda ldx ldy lsr nop ora pha php pla plp rol ror rti rts sbc sec sed sei sta stx sty tax tay tsx txa txs tya").split(" "));
 
 function _ubEsc(value) { return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
@@ -7386,11 +7481,16 @@ function _ubAcUpdate() {
   const pos = ubEditor.selectionStart; const before = ubEditor.value.slice(0, pos); const match = before.match(/[A-Za-z_][A-Za-z0-9_]*\$?$/);
   if (!match || match[0].length < 2) { _ubAcHide(); return; }
   const typed = match[0].toLowerCase();
-  const descriptions = new Map(_UB_COMMAND_REFERENCE.map(([name,, desc]) => [name.split(" ")[0].toLowerCase(), _ubGetCommandDescription(name) || desc]));
-  const words = [...new Set([..._UB_KEYWORDS, ..._UB_TYPES, ..._UB_FUNCTIONS])].filter(word => word.startsWith(typed) && word !== typed).sort().slice(0, 12);
+  // Several entries share a first word ("exit" / "exit sub"): the exact name wins.
+  const descriptions = new Map();
+  _UB_COMMAND_REFERENCE.forEach(([name,, desc]) => {
+    const key = name.split(" ")[0].toLowerCase();
+    if (!descriptions.has(key) || name === key) descriptions.set(key, _ubGetCommandDescription(name) || desc);
+  });
+  const words = [...new Set([..._UB_KEYWORDS, ..._UB_TYPES, ..._UB_BASIC_TYPES, ..._UB_FUNCTIONS])].filter(word => word.startsWith(typed) && word !== typed).sort().slice(0, 12);
   if (!words.length) { _ubAcHide(); return; }
   const el = _ubAcEl(); _ubAcActive = -1;
-  el.innerHTML = words.map(word => `<div class="expert-ac-item" data-value="${_ubEsc(word)}"><span class="expert-ac-item-kw">${_ubEsc(word)}</span><span class="expert-ac-item-desc">${_ubEsc(descriptions.get(word) || (_UB_FUNCTIONS.has(word) ? "function" : _UB_TYPES.has(word) ? "type" : "keyword"))}</span></div>`).join("");
+  el.innerHTML = words.map(word => `<div class="expert-ac-item" data-value="${_ubEsc(word)}"><span class="expert-ac-item-kw">${_ubEsc(word)}</span><span class="expert-ac-item-desc">${_ubEsc(descriptions.get(word) || (_UB_FUNCTIONS.has(word) ? "function" : (_UB_TYPES.has(word) || _UB_BASIC_TYPES.has(word)) ? "type" : "keyword"))}</span></div>`).join("");
   el.querySelectorAll(".expert-ac-item").forEach(item => item.addEventListener("mousedown", event => { event.preventDefault(); _ubAcActive = [...item.parentNode.children].indexOf(item); _ubAcCommit(); }));
   const rect = ubEditor.getBoundingClientRect();
   const editorStyle = getComputedStyle(ubEditor);
@@ -7415,29 +7515,43 @@ function _ubAcUpdate() {
 }
 
 function _ubFormatText(source) {
-  let depth = 0;
+  // Open blocks, innermost last. The kind matters for LOOP: directly inside a DO it closes
+  // the block (loop / loop while c / loop until c), anywhere else it opens loop ... end.
+  const stack = [];
   let inAsm = false;
   const codePart = raw => {
     let quote = false;
     for (let i = 0; i < raw.length; i++) {
       if (raw[i] === '"') quote = !quote;
-      if (!quote && !inAsm && raw[i] === "#" && !/\bprint$/i.test(raw.slice(0, i))) return raw.slice(0, i);
+      if (!quote && !inAsm && (raw[i] === "'" || (raw[i] === "#" && !/\bprint$/i.test(raw.slice(0, i))))) return raw.slice(0, i);
       if (!quote && inAsm && raw[i] === ";") return raw.slice(0, i);
     }
     return raw;
   };
+  const lastStatement = code => {
+    let quote = false;
+    let start = -1;
+    for (let i = 0; i < code.length; i++) {
+      if (code[i] === '"') quote = !quote;
+      else if (!quote && code[i] === ":") start = i;
+    }
+    return start < 0 ? "" : code.slice(start + 1).trim();
+  };
+  // do while c : ... : loop and friends close on their own line and must not indent.
+  const oneLineEnd = { do: /^loop\b/, while: /^(?:wend|end)\b/, for: /^next\b/, repeat: /^until\b/, loop: /^end\b/, times: /^end\b/ };
   return String(source || "").split("\n").map(raw => {
     const content = raw.trim();
     if (!content) return "";
     const code = codePart(content).trim().toLowerCase();
-    const closes = /^(?:end\b|endtype\b|next\b|until\b|else\b|case\b|\})/.test(code);
-    if (closes) depth = Math.max(0, depth - 1);
-    const formatted = `${"  ".repeat(depth)}${content.replace(/\s+$/, "")}`;
-    const opens = /^(?:sub\b|fn\b|for\b|while\b|loop\b|times\b|repeat\b|select\b|sprdef\b|chardef\b|type\b|tune\b)/.test(code)
+    const closesDo = stack[stack.length - 1] === "do" && /^loop\s*(?:$|[:;]|while\b|until\b)/.test(code);
+    if (closesDo || /^(?:end\b|endtype\b|wend\b|next\b|until\b|else\b|elseif\b|case\b|\})/.test(code)) stack.pop();
+    const formatted = `${"  ".repeat(stack.length)}${content.replace(/\s+$/, "")}`;
+    const opener = closesDo ? "" : (code.match(/^(sub|fn|function|for|while|do|loop|times|repeat|select|sprdef|chardef|type|tune)\b/) || [])[1] || "";
+    const opens = (opener && !oneLineEnd[opener]?.test(lastStatement(code)))
       || /^if\b.*\bthen\s*$/.test(code)
       || /^asm\s*\{\s*$/.test(code)
-      || /^(?:else\b|case\b)/.test(code);
-    if (opens) depth++;
+      || /^(?:else\b|elseif\b|case\b)/.test(code);
+    if (opens) stack.push(opener || "block");
     if (/^asm\s*\{\s*$/.test(code)) inAsm = true;
     if (/^\}/.test(code)) inAsm = false;
     return formatted;
@@ -7488,9 +7602,9 @@ function _ubHighlightSource(source) {
       let quote = false;
       for (let i = 0; i < raw.length; i++) {
         if (raw[i] === '"') quote = !quote;
-        if (!quote && raw[i] === "#") {
-          // PRINT# is one UB token; every other # outside a string starts a comment.
-          if (/\bprint$/i.test(raw.slice(0, i))) continue;
+        if (!quote && (raw[i] === "#" || raw[i] === "'")) {
+          // PRINT# is one UB token; every other # (and the QBasic ') outside a string starts a comment.
+          if (raw[i] === "#" && /\bprint$/i.test(raw.slice(0, i))) continue;
           code = raw.slice(0, i); comment = raw.slice(i); break;
         }
       }
@@ -7502,13 +7616,25 @@ function _ubHighlightSource(source) {
     let html = "";
     const re = /("(?:[^"\\]|\\.)*")|(\$[0-9a-f]+|%[01]+|\b\d+(?:\.\d+)?\b)|(print#|[A-Za-z_][A-Za-z0-9_]*\$?)/gi;
     let last = 0;
+    let prevWord = "";
+    let scrollStatement = false;
     for (const match of code.matchAll(re)) {
-      html += _ubEsc(code.slice(last, match.index));
+      const gap = code.slice(last, match.index);
+      html += _ubEsc(gap);
       const token = match[0];
       const lower = token.toLowerCase();
-      const cls = match[1] ? "ub-string" : match[2] ? "ub-number" : _UB_TYPES.has(lower) ? "ub-type" : _UB_FUNCTIONS.has(lower) ? "ub-fn" : _UB_KEYWORDS.has(lower) || (inAsm && _UB_ASM_MNEMONICS.has(lower)) || (tuneWord && lower === tuneWord && match.index === code.search(/\S/)) ? "ub-kw" : "";
+      // `as <type>` and the context keywords are plain identifiers anywhere else.
+      if (gap.includes(":")) scrollStatement = false;
+      const adjacent = !inAsm && !gap.trim();
+      const afterAs = adjacent && prevWord === "as";
+      const asKeyword = !inAsm && ((lower === "as" && /^\s+(?:byte|int|integer|word|single|double|float|string)\b/i.test(code.slice(match.index + token.length)))
+        || (adjacent && _UB_CONTEXT_KEYWORDS.get(prevWord)?.has(lower))
+        || (scrollStatement && _UB_SCROLL_WORDS.has(lower)));
+      const cls = match[1] ? "ub-string" : match[2] ? "ub-number" : _UB_TYPES.has(lower) || (afterAs && _UB_BASIC_TYPES.has(lower)) ? "ub-type" : _UB_FUNCTIONS.has(lower) ? "ub-fn" : asKeyword || _UB_KEYWORDS.has(lower) || (inAsm && _UB_ASM_MNEMONICS.has(lower)) || (tuneWord && lower === tuneWord && match.index === code.search(/\S/)) ? "ub-kw" : "";
       html += cls ? `<span class="${cls}">${_ubEsc(token)}</span>` : _ubEsc(token);
       last = match.index + token.length;
+      prevWord = match[3] ? lower : "";
+      if (!inAsm && lower === "scroll") scrollStatement = true;
     }
     html += _ubEsc(code.slice(last));
     if (comment) html += `<span class="ub-comment">${_ubEsc(comment)}</span>`;
@@ -7723,7 +7849,7 @@ function _ubRenderProjectSymbols() {
     if (match) { groups.labels.push({ name: match[1], lineIndex }); return; }
     match = line.match(/^\s*sub\s+([A-Za-z_][A-Za-z0-9_]*)\b/i);
     if (match) { groups.subs.push({ name: match[1], lineIndex }); return; }
-    match = line.match(/^\s*fn\s+([A-Za-z_][A-Za-z0-9_]*)\b/i);
+    match = line.match(/^\s*(?:fn|function)\s+([A-Za-z_][A-Za-z0-9_]*)\b/i);
     if (match) groups.functions.push({ name: match[1], lineIndex });
   });
   container.innerHTML = "";
@@ -7896,9 +8022,9 @@ function _ubDrawMinimap() {
     const trimmed = raw.trimStart();
     if (!trimmed) return;
     let color = keywordColor;
-    if (/^(#|rem\b)/i.test(trimmed)) color = commentColor;
+    if (/^(#|'|rem\b)/i.test(trimmed)) color = commentColor;
     else if (/^[A-Za-z_][A-Za-z0-9_]*:/i.test(trimmed)) color = labelColor;
-    else if (/^(var|const|sub|fn|label|include|incbin|load|data)\b/i.test(trimmed)) color = declarationColor;
+    else if (/^(var|dim|const|sub|fn|function|label|include|incbin|load|data)\b/i.test(trimmed)) color = declarationColor;
     else if (/^(\d|\$[0-9a-f]|%[01])/i.test(trimmed)) color = numberColor;
     const indent = raw.length - trimmed.length;
     const indentX = Math.min(indent * 1.5, maxWidth * 0.35);

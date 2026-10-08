@@ -553,6 +553,14 @@
       content: 'C64VA  ●  ULTIMATE BASIC IDE'
     }
 
+    .release-ub-shot .screen-wrap::before {
+      content: 'C64VA  ●  ULTIMATE BASIC 1.6.3'
+    }
+
+    .release-ub-shot .screen-wrap img {
+      height: auto
+    }
+
     .ub-tag {
       display: inline-block;
       margin-bottom: 18px;
@@ -2007,7 +2015,7 @@
       </div>
     </div>
     <div class="hero-left">
-      <div class="badge">V2.5.3 — LATEST RELEASE</div>
+      <div class="badge">V2.5.4 — LATEST RELEASE</div>
       <h1 class="hero-title">WRITE C64 PROGRAMS<br><span>BLOCKS, MACRO-ASM OR ULTIMATE BASIC.</span></h1>
       <p class="hero-sub">A modern Commodore 64 IDE: drag-and-drop 6502 assembly blocks or switch to a full text editor
         — see real-time ASM output and run directly in VICE.</p>
@@ -2021,11 +2029,56 @@
     </div>
   </section>
 
+  <!-- V2.5.4: ULTIMATE BASIC 1.6.3, QBASIC-STYLE SYNTAX -->
+  <div id="release-254" style="background:var(--scr-darker);padding:80px 0">
+    <div class="sec about-grid" style="padding-top:0;padding-bottom:0">
+      <div>
+        <div class="ub-tag">NEW IN V2.5.4</div>
+        <div class="sec-s">// WRITE IT LIKE QBASIC</div>
+        <h2 class="sec-t">ULTIMATE BASIC 1.6.3<br><span style="color:var(--ylw)">QBASIC-STYLE SYNTAX</span></h2>
+        <p class="sec-d">Version 2.5.4 bundles Ultimate Basic 1.6.3: programs written the way BASIC books show them now compile to native C64 code &mdash; and the UB editor highlights, completes and explains every new word.</p>
+        <div class="feature-list">
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
+            <div><b>DIM &hellip; AS and typed arrays</b> <span>&mdash; <code>DIM score AS INTEGER</code>, <code>DIM names(4) AS STRING</code>: variables and arrays of every type with any number of dimensions; <code>INTEGER</code> is signed 16-bit.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
+            <div><b>FUNCTION and SUB</b> <span>&mdash; <code>AS</code> types for parameters and results, return by assigning to the function name, <code>EXIT SUB</code> / <code>EXIT FUNCTION</code>, and sub calls without parentheses.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
+            <div><b>QBasic control flow</b> <span>&mdash; <code>ELSEIF</code>, single-line <code>IF</code>, <code>DO &hellip; LOOP WHILE / UNTIL</code>, <code>WHILE &hellip; WEND</code>, <code>SELECT CASE</code> with lists, ranges and <code>IS</code>, <code>EXIT DO</code> / <code>EXIT FOR</code>, and <code>'</code> comments.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
+            <div><b>Runtime strings</b> <span>&mdash; <code>s = a + b</code>, <code>LEFT$</code>, <code>RIGHT$</code>, <code>MID$</code>, string <code>=</code> / <code>&lt;&gt;</code>, 16-bit <code>STR$</code> / <code>VAL</code>, and <code>PRINT a; b; c</code>.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
+            <div><b>Editor support</b> <span>&mdash; syntax highlighting, autocomplete and Format know the new syntax, and the Commands panel describes it in all seven UI languages.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
+            <div><b>Window relaunch fix</b> <span>&mdash; the main window always appears at startup, even if the app was quit with its window minimized or hidden.</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="about-right release-ub-shot">
+        <div class="screen-wrap">
+          <img src="uploads/ub-qbasic.png" alt="QBasic-style Ultimate Basic 1.6.3 program in the Visual Assembler UB editor" width="2084" height="1582">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div">
+
   <!-- V2.5.2: SID EDITOR PREVIEWS ON THE REAL SID -->
   <div id="release-252" style="background:var(--scr-darker);padding:80px 0">
     <div class="sec about-grid" style="padding-top:0;padding-bottom:0">
       <div>
-        <div class="ub-tag">NEW IN V2.5.2</div>
+        <div class="ub-tag">V2.5.2</div>
         <div class="sec-s">// HEAR THE REAL CHIP</div>
         <h2 class="sec-t">EVERY PREVIEW<br><span style="color:var(--ylw)">ON THE EMULATED SID</span></h2>
         <p class="sec-d">Version 2.5.2 sends every SID Editor preview through the WebSid emulator &mdash; what you hear while editing is what the C64 plays.</p>
