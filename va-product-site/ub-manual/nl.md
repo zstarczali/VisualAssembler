@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.2 — Taalhandleiding
+# Ultimate Basic v1.6.3 — Taalhandleiding
 
 Complete taal- en CLI-referentie voor Ultimate Basic, een BASIC-achtige taal die
 direct compileert naar 6502-machinecode voor de Commodore 64. Uitvoer: `.prg`
@@ -23,14 +23,14 @@ gebruik van een niet-gedeclareerde variabele in een expressie, toewijzing,
 compileerfout.
 
 ```basic
-var x = 10               # 8-bit integer (default)
-var ptr: word = $0400    # 16-bit — two zero-page bytes, usable as 16-bit address
-var f: float = 3.5       # Q8.8 fixed-point — hi byte = integer, lo byte = fraction
-var msg = "HELLO"        # string variable (pointer to inline PETSCII data)
-var s: string = "TEXT"   # string with explicit type
-var scores = array(10)   # byte array, 10 elements stored at $C000+
-var moments  = array_word(8) # word array, 8 word elements stored at $C000+
-const BORDER_ADDR = $D020 # compile-time constant (substituted inline, no ZP slot)
+var x = 10 # 8-bits integer (standaard)
+var ptr: word = $0400 # 16-bits — twee zero-page bytes, bruikbaar als 16-bits adres
+var f: float = 3.5 # Q8.8 fixed-point — hi byte = integer, lo byte = fraction
+var msg = "HELLO" # stringvariabele (pointer naar inline PETSCII-gegevens)
+var s: string = "TEXT" # string met expliciet type
+var scores = array(10) # byte-array, 10 elementen opgeslagen op $C000+
+var moments = array_word(8) # word-array, 8 word-elementen opgeslagen op $C000+
+const BORDER_ADDR = $D020 # compile-time constante (inline vervangen, geen ZP-slot)
 ```
 
 Trefwoorden en identificatoren zijn **niet hoofdlettergevoelig**: `PRINT`,
@@ -39,13 +39,77 @@ Trefwoorden en identificatoren zijn **niet hoofdlettergevoelig**: `PRINT`,
 | Type                  | Breedte       | Notities                                                         |
 | --------------------- | ------------- | ---------------------------------------------------------------- |
 | `int`                 | 8-bit         | standaardwaarde voor numerieke letterlijke waarden               |
-| `word`                | 16-bit        | twee ZP-bytes; kunnen worden gebruikt als adres in `poke`/`peek` |
+| `woord`               | 16-bit        | twee ZP-bytes; kunnen worden gebruikt als adres in `poke`/`peek` |
 | `float`               | 16-bits Q8.8  | hi byte = geheel getal (0–255), lo byte = fractioneel getal      |
 | `string`              | wijzer        | ZP-paar → null-terminated PETSCII in codesegment                 |
 | `array(N)`            | N bytes       | byte-elementen; bevindt zich op `$C000+`, niet in ZP.            |
 | `array_word(N)`       | N×2 bytes     | woord (16-bits) elementen; bevindt zich op `$C000+`, niet in ZP  |
 | `array(R, C, …)`      | ∏dims bytes   | multidimensionaal (rij-hoofdrichting); index `arr[r, c]`         |
 | `array_word(R, C, …)` | ∏dims×2 bytes | multidimensionale woordmatrix (rij-georiënteerd)                 |
+
+#### BASIC-stijl declaraties: `dim … als …`
+
+`dim name as type` is een alternatieve spelling van `var name: type` — dezelfde
+opslag, dezelfde code:
+
+```basic
+DIM kor AS INTEGER # getekend 16-bits, begint bij 0
+DIM nev AS STRING # tekenreeks, begint als ""
+DIM fizetes AS DOUBLE # Q8.8 vaste-komma, begint bij 0.00
+DIM x, y AS BYTE # meerdere namen, krijgen allemaal hetzelfde type
+DIM pont AS INTEGER = 1000, cim AS STRING = "C64" # initialisaties, gemengde typen
+```
+
+| `als …`                      | Ultiem basistype                                       |
+| ---------------------------- | ------------------------------------------------------ |
+| `byte`, `int`                | `int` (8-bit, 0–255)                                   |
+| `integer`                    | ondertekend 16-bits (−32768 … 32767) — QBasic INTEGER  |
+| `woord`                      | `woord` (ongesigneerd 16-bit, 0–65535)                 |
+| `enkel`, `dubbel`, `zwevend` | `float` (Q8.8 — 0–255.99, **not** IEEE floating point) |
+| `string`                     | `string`                                               |
+
+- Zonder `= waarde` beginnen getallen bij 0 en tekenreeksen bij `""`.
+- `dim a, b as integer` geeft **beide** geeft het type aan (VB.NET-stijl, niet
+  QBasic). Slechts één naam mag een initialisator hebben.
+- `as` en de BASIC-typenamen zijn contextwoorden, niet gereserveerd — ze blijven
+  bruikbaar als namen.
+- Niet ondersteund: `als long`, struct-typen (gebruik `var name: TName =
+  array(N)`) — compileerfouten.
+- Met `--explicit` is een `dim` zonder `as` een fout.
+- Stringtoewijzing heeft waardesemantiek: `s = "TEXT"` wijst naar de letterlijke
+  waarde, `t = s` en berekende waarden worden gekopieerd naar de eigen buffer
+  van `t` (zie *Strings tijdens runtime*). Vóór versie 1.6.3 sloeg `s = "TEXT"`
+  na de declaratie een willekeurige byte op in de pointer.
+
+#### Arrays met `dim`: `dim name(u1, u2, …) als type`
+
+```basic
+DIM tabla(2, 3) AS INTEGER ' 3 × 4 elementen: tabla(0..2, 0..3)
+DIM kocka(1, 2, 3) AS BYTE ' willekeurig aantal dimensies
+DIM ar(9) AS DOUBLE ' 10 Q8.8 waarden
+DIM nevek(4) AS STRING ' 5 strings, beginnen allemaal met ""
+DIM v(9) ' geen AS → byte array
+
+tabla(2, 3) = 999 ' QBasic-stijl index met ( )
+tabla[2, 3] = 999 ' … of de gebruikelijke [ ]
+nevek(0) = "ZSOLT"
+PRINT tabla(2, 3); " "; nevek(0); " "; ar(1)
+```
+
+- Elke grens is de **hoogste index** (BASIC-regel): `dim t(2, 3)` heeft 3 × 4
+  elementen. (`var t = array(3, 4)` telt het aantal elementen — dezelfde array.)
+- Elementtypen: `byte`/`int` → 1 byte, `integer` (signed) / `word` → 2 bytes,
+  `single`/`double`/`float` → 2-byte Q8.8, `string` → 2-byte pointer. Grenzen
+  moeten compileertijdconstanten zijn; arrays bevinden zich in `$C000-$CFFF`
+  (4096 bytes, gecontroleerd).
+- String-array-elementen beginnen als `""`; `nevek(i) = "TEXT"` / `= s` / `= a +
+  b`, `n = nevek(i)`, printing, `+`, passing to a `string` parameter and `input
+  nevek(i)` all work (niet-letterlijke waarden worden per element gekopieerd
+  naar een slot van 31 tekens).
+- `name(i)` indexering werkt ook voor arrays die zijn gedeclareerd met `var a =
+  array(…)`.
+- Eén array per `dim` groep: `dim a(3) as byte, n as integer` is goed, `dim n,
+  a(3) as integer` is een fout. Geen initialisator — gebruik `data name: …`.
 
 ### Gereserveerde woorden
 
@@ -112,20 +176,20 @@ Deze veelvoorkomende Engelse woorden lijken onschuldige identificatoren, maar
 worden al door de lexer herkend. Hernoem ze om stille woordafbreking te
 voorkomen:
 
-| Gereserveerd                                | Voorgestelde naamswijziging         |
-| ------------------------------------------- | ----------------------------------- |
-| `end`                                       | `stop_at`, `finish`, `last`         |
-| `stop`                                      | `stop_at`, `halt`                   |
-| `times`                                     | `count`, `n`, `iters`               |
-| `screen`                                    | `scraddr`, `screen_addr`            |
-| `border`, `bg`, `text`                      | `border_addr`, `bg_col`, `text_col` |
-| `clamp`                                     | `cap`, `bound`                      |
-| `line`, `circle`, `rect`                    | `ln`, `circ`, `box_r`               |
-| `data`, `read`                              | `bytes`, `next_byte`                |
-| `load`, `save`, `open`, `close`             | `load_file`, ...                    |
-| `map`, `show`, `hide`                       | `tilemap`, `reveal`, `conceal`      |
-| `play`, `pause`, `resume`, `stop`, `volume` | `play_song`, `vol`                  |
-| `int`, `float`, `word`, `string`            | `n_int`, `speed_f`, `addr`, `msg`   |
+| Gereserveerd                                          | Voorgestelde naamswijziging            |
+| ----------------------------------------------------- | -------------------------------------- |
+| `end`                                                 | `stop_at`, `finish`, `last`            |
+| `stop`                                                | `stop_at`, `halt`                      |
+| ` keer `                                              | `telling`, `n`, `iters`                |
+| `scherm`                                              | `scraddr`, `screen_addr`               |
+| `rand`, `bg`, `text`                                  | `border_addr`, `bg_col`, `text_col`    |
+| `klem`                                                | `cap`, `bound`                         |
+| `lijn`, `cirkel`, `rechthoek`                         | `ln`, `circ`, `box_r`                  |
+| `data`, `read`                                        | `bytes`, `next_byte`                   |
+| `laden`, `opslaan`, `openen`, `sluiten`               | `load_file`, ...                       |
+| `kaart`, `toon`, `verberg`                            | `tegelkaart`, `onthullen`, `verbergen` |
+| `afspelen`, `pauze`, `hervatten`, `stoppen`, `volume` | `speel_liedje`, `vol`                  |
+| `int`, `float`, `word`, `string`                      | `n_int`, `speed_f`, `addr`, `msg`      |
 
 Symbolische tokens (`+ - * / = == != < > <= >= : , ; ( ) [ ] # $ % @`) zijn
 vanzelfsprekend niet bruikbaar in identificatoren.
@@ -166,74 +230,82 @@ naar `INC` / `DEC`.
 ### Verhogen / Verlagen
 
 ```basic
-inc x                    # x = x + 1  (INC zp — single instruction)
-dec x                    # x = x - 1  (DEC zp — single instruction)
+inc x # x = x + 1 (INC zp — enkele instructie)
+dec x # x = x - 1 (DEC zp — enkele instructie)
 ```
 
-For `word` variables carry is handled: `inc` uses `INC lo; BNE skip; INC hi`;
-`dec` uses `LDA lo; BNE skip; DEC hi; DEC lo`.
+Voor `word`-variabelen wordt carry afgehandeld: `inc` gebruikt `INC lo; BNE
+skip; INC hi`; `dec` gebruikt `LDA lo; BNE skip; DEC hi; DEC lo`.
 
 ### Samengestelde opdrachten
 
 ```basic
-x += 5                   # x = x + 5
-x -= 3                   # x = x - 3
-x *= 2                   # x = x * 2
-x /= 4                   # x = x / 4
-x and= 15                # x = x and 15   (bitwise AND)
-x or= 64                 # x = x or 64    (bitwise OR)
-x xor= 255               # x = x xor 255  (bitwise XOR)
-x shl= 2                 # x = x shl 2
-x shr= 1                 # x = x shr 1
+x += 5 # x = x + 5
+x -= 3 # x = x - 3
+x *= 2 # x = x * 2
+x /= 4 # x = x / 4
+x en= 15 # x = x en 15 (bitwise AND)
+x of= 64 # x = x of 64 (bitwise OR)
+x xor= 255 # x = x xor 255 (bitwise XOR)
+x shl= 2 # x = x shl 2
+x shr= 1 # x = x shr 1
 ```
 
 ### Afdrukken
 
 ```basic
-print "HELLO"
+print "HALLO"
 print x
-print x, y, "text"
-print                     # blank line
+print x, y, "tekst"
+print # lege regel
 
-print spc(5)             # print 5 space characters
-print tab(20), "VALUE"  # move cursor to column 20, then print
-print "A", spc(3), "B" # mix freely
+print spc(5) # print 5 spaties
+print tab(20), "WAARDE" # verplaats cursor naar kolom 20, print dan
+print "A", spc(3), "B" # mix vrij
 
-print "A=" + a           # string + numeric var
-print s1 + s2            # two string vars → sequential print
-print "Hello " + "World" # two literals → compile-time fold
-print chr$(13)           # print by PETSCII code
+print "A=" + a # tekenreeks + numerieke variabele
+print s1 + s2 # twee tekenreeksvariabelen → sequentieel printen
+print "Hallo " + "Wereld" # twee letterlijke waarden → compile-time fold
+print chr$(13) # print met PETSCII-code
 ```
 
 ### chr$
 
 ```basic
-print chr$(65)           # output character with PETSCII code 65 ('A')
-var c = chr$(n)          # store byte value n in variable c
-print ">" + chr$(42)     # usable in string concat
+print chr$(65) # uitvoer teken met PETSCII-code 65 ('A')
+var c = chr$(n) # sla byte-waarde n op in variabele c
+print "&gt;" + chr$(42) # bruikbaar in string concat
 ```
 
 ### Vertakking
 
 ```basic
-if x == 1 then
-  print "YES"
-else
-  print "NO"
-end
+als x == 1 dan
+
+print "JA"
+anders
+
+print "NEE"
+einde
 ```
 
-### Select / Case
+### Selecteer / Case
 
 ```basic
-select x
-  case 1:
-    print "ONE"
-  case 2:
-    print "TWO"
-  else:
-    print "OTHER"
-end
+selecteer x
+
+geval 1:
+
+print "ÉÉN"
+
+geval 2:
+
+print "TWEE"
+
+anders:
+
+print "ANDERE"
+einde
 ```
 
 `select expr` evalueert de expressie eenmaal en vergelijkt deze met elke `case`
@@ -244,55 +316,66 @@ er geen overeenkomende case is. Alle waarden moeten 8-bits zijn (0–255).
 ### Lussen
 
 ```basic
-loop 5               # counted loop (5 iterations)
-  print "HI"
-end
+lus 5 # getelde lus (5 iteraties)
 
-times 5              # alias for loop N ... end
-  print "HI"
-end
+print "HI"
+einde
+keer 5 # alias voor lus N ... einde
 
-loop                 # infinite loop
-  x = x + 1
-  if x == 5 then continue end  # skip to next iteration
-  if x == 100 then break end
-end
+print "HI"
+einde
 
-var i = 0
-for i = 1 to 10      # for..next (preferred)
-  if i == 5 then continue end  # skip to increment step
-  print i
-next
+lus # oneindige lus
 
-for i = 0 to 20 step 2
-  print i
-next i               # variable name after 'next' is optional
+x = x + 1
 
-for i = 10 to 1 step -1     # counting down — negative constant step is supported
-  print i
-next
+als x == 5 dan doorgaan einde # ga naar de volgende iteratie
 
-for i = 20 to 0 step -2     # terminates correctly at i = 0 (11 iterations)
-  print i
-next i
+als x == 100 dan afbreken einde
+einde
 
 var i = 0
-loop i = 1 to 10     # legacy loop..end syntax — identical code
-  print i
-end
+voor i = 1 tot 10 # voor..volgende (voorkeur)
 
-while x < 100
-  x = x + 1
-end
+als i == 5 dan doorgaan einde # ga naar de volgende stap
 
-repeat               # do-while: body runs at least once
-  x = x + 1
-until x == 100       # exits when condition is true
+print i
+volgende
+
+voor i = 0 tot 20 stap 2
+
+print i
+volgende i # variabelenaam na 'volgende' is optioneel
+
+voor i = 10 tot 1 stap -1 # aftellen — negatieve constante stap wordt ondersteund
+
+print i
+volgende
+
+voor i = 20 tot 0 stap -2 # eindigt correct bij i = 0 (11 iteraties)
+
+print i
+volgende i
+
+var i = 0
+lus i = 1 tot 10 # oude lus-syntaxis — identieke code
+
+print i
+einde
+terwijl x &lt; 100
+
+x = x + 1
+einde
+
+herhaal # do-while: de body wordt minstens één keer uitgevoerd
+
+x = x + 1
+totdat x == 100 # stopt wanneer de voorwaarde waar is
 ```
 
 **Richtingsregels voor `for`/`loop`:**
 
-| Case                                                   | Gedrag                                                                                                              |
+| Geval                                                  | Gedrag                                                                                                              |
 | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
 | `for i = 1 to 10` (standaard `step +1`, `from ≤ to`)   | telt omhoog, standaard                                                                                              |
 | `for i = 0 to 20 step 2` (positieve stap, `from ≤ to`) | telt met 2 omhoog                                                                                                   |
@@ -319,8 +402,10 @@ een runtime-stapwaarde nodig hebt, splits dan de lus of gebruik een
 
 ```basic
 label main_loop
-  x = x + 1
-  if x < 10 then goto main_loop end
+
+x = x + 1
+
+als x &lt; 10 dan ga naar main_loop einde
 ```
 
 Forward `goto` (label wordt later gedefinieerd) wordt volledig ondersteund.
@@ -332,26 +417,32 @@ forward references (label gedefinieerd na `gosub`).
 
 ```basic
 gosub draw_border
+
 ...
 label draw_border
-  # ... draw something ...
-  return               # RTS — returns to the instruction after gosub
+
+# ... teken iets ...
+
+return # RTS — keert terug naar de instructie na gosub
 ```
 
 ### Subroutines
 
 ```basic
 sub greet()
-  print "HELLO!"
+
+print "HALLO!"
+
 end
 
 sub set_color(col)
-  color border col
-  color text   col
+
+color border col
+color text col
 end
 
-greet()              # call with parens
-call greet           # call keyword (no parens)
+greet() # aanroepen met haakjes
+call greet # aanroepen met trefwoord (zonder haakjes)
 set_color(6)
 ```
 
@@ -364,39 +455,204 @@ zodat de aangeroepen functie de brontekenreeks kan indexeren via `src[i]`.
 
 ```basic
 fn square(x)
-  return x * x
+
+return x * x
 end
 
 fn add(a, b)
-  return a + b
+
+return a + b
 end
 
 fn clamp(val, lo, hi)
-  if val < lo then return lo end
-  if val > hi then return hi end
-  return val
+
+if val &lt; lo then return lo end
+
+if val &gt; hi then return hi end
+
+return val
 end
 
-var s = square(9)         # s = 81  — fn call as expression
+var s = square(9) # s = 81 — fn call as expression
 var c = clamp(joy, 0, 39) # c = clamped value
-print add(10, 20)         # 30  — usable inline in print
+print add(10, 20) # 30 — usable inline in print
 ```
 
 Functies ondersteunen een optioneel retourtype `: word` voor 16-bits waarden:
 
 ```basic
 fn get_addr(): word
-  return $C000
+
+return $C000
 end
 
-var ptr: word = get_addr()  # ptr = $C000
-poke ptr, 42                 # STA (ptr),Y — valid indirect addressing
-var v = peek(ptr)            # LDA (ptr),Y
+var ptr: word = get_addr() # ptr = $C000
+poke ptr, 42 # STA (ptr),Y — geldige indirecte adressering
+var v = peek(ptr) # LDA (ptr),Y
 ```
 
 `fn` wordt in fase 2 uitgezonden (net als `sub`), waardoor de functiebody's
 nooit bij het opstarten worden uitgevoerd. Forward references worden volledig
 ondersteund.
+
+
+#### QBasic-stijl `FUNCTION` / `SUB`
+
+```basic
+FUNCTIE Negyzet (szam ALS INTEGER) ALS INTEGER
+    Negyzet = szam * szam ' retourwaarde = toewijzen aan de functienaam
+EINDE FUNCTIE
+
+FUNCTIE Nagyobb (a ALS BYTE, b ALS BYTE) ALS BYTE
+    Nagyob = een
+    ALS b &gt; a DAN
+        Nagyobb = geb
+        EXIT FUNCTION ' keer nu terug, met de tot nu toe toegewezen waarde
+    EINDE ALS
+EINDE FUNCTIE
+
+SUB Koszont (nev AS STRING)
+    AFDRUKKEN "Üdvözöllek, "; nooit; "!"
+EINDE ONDER
+
+n = Negyzet(30)
+Koszont "Zsolt" 'roep zonder haakjes
+Koszont("Zsolt") '... of met hen
+BEL Koszont("Zsolt")
+```
+
+- `function` is een synoniem voor `fn`; `p AS type` werkt in parameterlijsten en
+  `AS type` na `)` geeft het retourtype (dezelfde typenamen als `dim`). `: type`
+  werkt nog steeds.
+- Toewijzen aan de functienaam slaat de waarde op in een verborgen
+  `<naam>__result`-variabele die wordt geretourneerd bij `END FUNCTION` / `EXIT
+  FUNCTION`; `return expr` werkt ook nog steeds.
+- `END SUB`, `END FUNCTION`, `END IF`, `END SELECT` worden geaccepteerd (het
+  tweede woord is optioneel); `EXIT SUB` / `EXIT FUNCTION` retourneert (plain
+  `exit` is nog steeds `bye`).
+- Een sub/fn kan zonder haakjes worden aangeroepen: `Koszont "Zsolt"`, `Rajzol
+  x, y`.
+- `PRINT a; b; c` — `;` voegt items samen zonder spaties; een afsluitende `;`
+  onderdrukt de nieuwe regel. Een `;` gevolgd door een statement (`print x; y =
+  1`) scheidt statements nog steeds.
+- Geaccentueerde letters in tekenreeksliteralen worden afgedrukt als hun
+  basisletter (`ü` → `u`, `ő` → `o`); de C64-tekenset heeft geen accenten.
+- Word/float-parameters ontvangen nu beide bytes, en een tekenreeksconstante die
+  wordt doorgegeven aan een `string`-parameter werkt (voorheen werkte alleen de
+  lo-byte / een tekenreeksvariabele).
+- Geen recursie (parameters bevinden zich in statische geheugenruimtes); sinds
+  versie 1.6.3 is een recursieve aanroep een compilatiefout in plaats van een
+  stilzwijgend onjuist resultaat.
+
+#### Meer QBasic-syntaxis (1.6.3)
+
+De onderstaande QBasic-formulieren compileren naast de originele syntax (`==`,
+`end`, `loop`, `#`-commentaren blijven allemaal werken).
+
+```basic
+' commentaar (QBasic-stijl, zoals #)
+ALS x = 3 DAN PRINT "drie" ' eenregelige IF: geen END IF nodig
+ALS x &lt;&gt; 3 DAN PRINT "nee" ANDERS PRINT "ja"
+ALS n &lt; 0 DAN
+
+PRINT "negatief"
+ANDERS ALS n = 0 DAN
+
+PRINT "nul"
+ANDERS
+
+PRINT "positief"
+EINDE IF
+
+DO WHILE i &lt; 10 : i = i + 1 : LOOP ' ook DO UNTIL c … LOOP,
+DO : i = i - 1 : LOOP UNTIL i = 0 ' DO … LOOP WHILE c, DO … LOOP (eindeloos)
+WHILE k &lt;&gt; 5 : k = k + 1 : WEND
+VOOR i = 1 TOT 100
+
+ALS i = 12 DAN EXIT VOOR ' EXIT DO / EXIT VOOR / EXIT TERWIJL
+
+VOLGENDE
+
+SELECTEER GEVAL n
+
+GEVAL 1, 2, 3: PRINT "klein"
+
+GEVAL 10 TOT 20: PRINT "tiener"
+
+GEVAL IS &gt; 1000: PRINT "groot"
+
+GEVAL ANDERS: PRINT "anders"
+EINDE SELECTEER
+
+EINDE ' beëindigt het programma (het scherm blijft behouden)
+```
+
+- **Voorwaarden:** binnen `ALS` / `ANDERSALS` / `TERWIJL` / `TOT` / `LOOP
+  TERWIJL|TOT`, een enkele `=` vergelijking. `&lt;&gt;` betekent overal niet
+  gelijk (hetzelfde als `!=`).
+- **Eénregelige IF:** Een instructie direct na `THEN` maakt een éénregelige IF
+  die eindigt met de regel, of met een `end` op dezelfde regel (`if c then x = 1
+  end`, zoals eerder). Een meerregelige IF heeft een regelovergang nodig na
+  `THEN`. Net als in QBasic behoort alles na `THEN` op die regel tot de IF (`…
+  THEN EXIT FOR : NEXT` zou de `NEXT` negeren).
+- **`END` op zichzelf:** een `END` die geen blok sluit, beëindigt het programma,
+  net als in QBasic. Een overtollige `end` wordt daarom niet langer als fout
+  weergegeven.
+- **`DO` blokken:** binnen een `DO`, een `LOOP` aan het einde van een regel
+  sluit deze af (de originele `loop N … end` / `loop i = … end` lussen werken
+  nog steeds binnenin).
+- **`SELECT CASE`:** De oude `select x` / `case n:` vorm blijft ongewijzigd.
+  `SELECT CASE` wordt verlaagd naar een IF-keten over een verborgen `select__N`
+  variabele.
+
+#### Strings tijdens runtime (1.6.3)
+
+```basic
+DIM s AS STRING, t AS STRING
+s = "Pont: " + pont + "!" ' getallen worden tekst (16-bits, getekend voor INTEGER)
+t = s ' een kopie: het later wijzigen van s verandert t niet
+s = s + "?"
+
+PRINT LEFT$(s, 4); RIGHT$(s, 2); MID$(s, 7, 3); MID$(s, 7)
+PRINT LEN(s + t), VAL("1234") + 1, STR$(pont)
+IF s = "ABC" OR t &lt;&gt; "" THEN PRINT "vergelijk met = / &lt;&gt;"
+```
+
+- **Buffers:** een tekenreeksvariabele die een berekende waarde krijgt (`+`,
+  `links$`, `rechts$`, `midden$`, getallen, een andere variabele) heeft een
+  buffer van 80 tekens; langere resultaten worden afgekapt na 80 tekens. Het
+  toewijzen van een letterlijke waarde verwijst er nog steeds alleen naar.
+- **String arrays:** elementen die een niet-letterlijke waarde krijgen (of
+  `input`) krijgen hun eigen 32-byte slot (31 tekens), dus `input nevek(i)` in
+  een lus bewaart elke naam.
+- **`STR$` / `VAL`:** `STR$` van een 16-bits of getekende waarde heeft geen
+  voorloopnullen (`"-42"`). Voor compatibiliteit behoudt `STR$` van een byte de
+  3-cijferige vorm (`"007"`). `VAL` leest 16-bits getekende getallen
+  (`VAL("1234") + 1` = 1235).
+- **Vergelijking:** alleen `=` / `&lt;&gt;` (en `==` / `!=`); er is geen `&lt;`
+  / `&gt;` volgorde van strings.
+
+#### Getekend INTEGER, INPUT, DOUBLE (1.6.3)
+
+- **INTEGER is signed:** `DIM x AS INTEGER` is signed 16-bit (−32768 … 32767,
+  zoals QBasic): printing, `&lt;` `&gt;` comparisons, `/` (truncats toward
+  zero), `ABS`, text conversion, `INPUT` and `FOR` loops through zero (`FOR i =
+  3 TO -3 STEP -2`) all follow the sign. `WORD` blijft unsigned 0 … 65535.
+  Unaire min werkt overal (`a &lt; -10`, `x * -2`).
+- **`FOR` met een 16-bits teller** (`INTEGER` / `WORD`) is een echte 16-bits
+  lus. Deze liep vroeger over bij 256, dus `FOR k = 0 TO 300` werd 45 keer
+  uitgevoerd.
+- **`INPUT`:** in een INTEGER/WORD leest maximaal 6 tekens (met `-` voor
+  INTEGER), in een DOUBLE accepteert `12.5` (twee decimalen). `INPUT t(i)` leest
+  in een array-element, en `INPUT "prompt"; x` werkt ook.
+- **DOUBLE ÷ DOUBLE** is nu exact (`7.5 / 2.5 = 3.00`); voorheen werd alleen het
+  gehele deel van de deler gebruikt. DOUBLE × DOUBLE werd al ondersteund.
+- **Arrays van meer dan 256 bytes** (`DIM t(200) AS INTEGER`, `DIM g(19, 19)`)
+  werken met variabele indexen; de index werd gebruikt om terug te keren naar
+  256 en naar het verkeerde element te schrijven.
+- **Recursie** (een sub/functie die zichzelf aanroept, direct of via anderen) is
+  een compilatiefout. Het compileerde vroeger en gaf onjuiste resultaten terug,
+  omdat parameters zich in vaste nulpagina-slots bevinden.
 
 ### Arrays
 
@@ -424,18 +680,18 @@ Arrays kunnen met meer dan één dimensie worden gedeclareerd. Ze worden
 subscriptlijst. De totale grootte is het product van alle dimensies.
 
 ```basic
-var grid = array(8, 8)     # 8×8 = 64 bytes at $C000
-grid[1, 0] = 11            # row 1, col 0 → flat index 1*8+0 = 8 → STA $C008
-grid[0, 1] = 22            # row 0, col 1 → flat index 1       → STA $C001
-grid[r, c] = 33            # variable → computes r*8 + c, then STA (ptr),Y
-var v = grid[r, c]         # LDA (ptr),Y
+var grid = array(8, 8) # 8×8 = 64 bytes op $C000
+grid[1, 0] = 11 # rij 1, kolom 0 → platte index 1*8+0 = 8 → STA $C008
+grid[0, 1] = 22 # rij 0, kolom 1 → platte index 1 → STA $C001
+grid[r, c] = 33 # variabele → berekent r*8 + c, dan STA (ptr),Y
+var v = grid[r, c] # LDA (ptr),Y
 
-var wm = array_word(4, 4)  # 4×4 word array = 32 bytes
-wm[1, 2] = $ABCD           # element 1*4+2 = 6 → bytes $C00C/$C00D
+var wm = array_word(4, 4) # 4×4 woordarray = 32 bytes
+wm[1, 2] = $ABCD # element 1*4+2 = 6 → bytes $C00C/$C00D
 
 const ROWS = 3
 const COLS = 5
-var m = array(ROWS, COLS)  # dimensions may be compile-time constants
+var m = array(ROWS, COLS) # dimensies kunnen compile-time constanten zijn
 ```
 
 Bij een rijgeoriënteerde lay-out is de laatste index aaneengesloten: `grid[r,
@@ -457,33 +713,39 @@ variabele indexen.
 
 ```basic
 type TEntity
-  var x:  int      # 1 byte
-  var y:  int      # 1 byte
-  var hp: word     # 2 bytes  → element size = 4
+
+var x: int # 1 byte
+
+var y: int # 1 byte
+
+var hp: word # 2 bytes → elementgrootte = 4
 endtype
 
 const N = 8
-var enemies: TEntity = array(N)   # allocates N × 4 = 32 bytes at $C000
+var enemies: TEntity = array(N) # allocateert N × 4 = 32 bytes op $C000
 
-enemies[0].x  = 5
-enemies[0].y  = 10
+enemies[0].x = 5
+enemies[0].y = 10
 enemies[0].hp = $0100
-var v = enemies[0].hp             # read back — LDA $C002 / LDA $C003
+var v = enemies[0].hp # lees terug — LDA $C002 / LDA $C003
 
 var i: int = 2
-enemies[i].x = 42                 # variable index → idx * elem_size + offset
+enemies[i].x = 42 # variabele index → idx * elem_size + offset
 
-# Float field (Q8.8 fixed-point)
+# Float-veld (Q8.8 fixed-point)
 type TBall
-  var bx:  int     # 1 byte
-  var by:  int     # 1 byte
-  var vel: float   # 2 bytes Q8.8  → element size = 4
+
+var bx: int # 1 byte
+
+var by: int # 1 byte
+
+var vel: float # 2 bytes Q8.8 → elementgrootte = 4
 endtype
 
 var balls: TBall = array(3)
-balls[0].vel = 1.5                # stores Q8.8: hi=1, lo=128
-var f: float = balls[0].vel       # read float field into float variable
-print balls[0].vel                # prints "1.50"
+balls[0].vel = 1.5 # slaat Q8.8 op: hi=1, lo=128
+var f: float = balls[0].vel # lees float-veld in float-variabele
+print balls[0].vel # print "1.50"
 ```
 
 Regels en beperkingen:
@@ -514,9 +776,9 @@ Zie `examples/type_demo.ub`.
 ### 16-bits (woord) variabelen
 
 ```basic
-var ptr: word = $0400    # two ZP bytes: lo=$00 hi=$04
-poke ptr, 6              # STA (ptr),Y
-var v = peek(ptr)        # LDA (ptr),Y
+var ptr: woord = $0400 # twee ZP-bytes: lo=$00 hi=$04
+poke ptr, 6 # STA (ptr),Y
+var v = peek(ptr) # LDA (ptr),Y
 ```
 
 **16-bits producten (opgelost in 1.5.7).** Een product toegewezen aan een `word`
@@ -538,31 +800,31 @@ afgekapt tot 8 bits). Byte-targets behouden 8-bits resultaten.
 ### Bitmapafbeeldingen
 
 ```basic
-graphics on              # VIC-II hires bitmap mode (320×200, 1bpp); bitmap at $2000
-graphics on multi        # VIC-II multicolor bitmap mode (160×200, 2bpp, 4 colours/cell)
-graphics off             # return to text mode
+Graphics on # VIC-II hoge bitmapmodus (320×200, 1bpp); bitmap op $2000
+Graphics on multi # VIC-II meerkleurige bitmapmodus (160×200, 2bpp, 4 kleuren/cel)
+Graphics off # Terug naar tekstmodus
 
-gcls                     # clear bitmap (fills $2000-$3FFF) + set video matrix colors
+gcls # Bitmap wissen (vult $2000-$3FFF) + videomatrixkleuren instellen
 
-plot x, y                # set pixel at (x, y);  x: 0-319,  y: 0-199
-plot erase x, y          # clear pixel (AND ~mask)
-plot xor x, y            # toggle pixel (EOR mask) — flicker-free animation
-circle x, y, r           # midpoint circle centered at (x, y) with radius r; clips off-screen points
-line x1, y1, x2, y2      # Bresenham line from (x1,y1) to (x2,y2); x: 0-319, y: 0-199
-line erase x1, y1, x2, y2  # clear pixels along the line (AND ~mask)
-line xor x1, y1, x2, y2    # toggle pixels along the line (EOR mask)
-rect x1, y1, x2, y2      # draw rectangle outline (4 edges); x: 0-319, y: 0-199
-rect erase x1, y1, x2, y2  # clear rectangle outline (AND ~mask)
-rect xor x1, y1, x2, y2    # XOR rectangle outline (EOR mask)
-paint x, y               # 4-connected flood fill from (x, y); fills clear pixels bounded by set ones
+Plot x, y # Pixel instellen op (x, y); x: 0-319, y: 0-199
+Plot erase x, y # Pixel wissen (EN ~masker)
+Plot xor x, y # Pixel wisselen (EOR masker) — flikkervrije animatie
+Circle x, y, r # Cirkel met middelpunt (x, y) en straal r; knipt punten buiten beeld
+lijn x1, y1, x2, y2 # Bresenham-lijn van (x1,y1) naar (x2,y2); x: 0-319, y: 0-199
+lijn wissen x1, y1, x2, y2 # pixels langs de lijn wissen (EN ~masker)
+lijn xor x1, y1, x2, y2 # pixels langs de lijn wisselen (EOR masker)
+rechthoek x1, y1, x2, y2 # rechthoekomtrek tekenen (4 randen); x: 0-319, y: 0-199
+rechthoek wissen x1, y1, x2, y2 # rechthoekomtrek wissen (EN ~masker)
+rechthoek xor x1, y1, x2, y2 # XOR rechthoekomtrek (EOR masker)
+verf x, y # 4-verbonden vulling van (x, y); Vult lege pixels binnen de ingestelde grenzen
 
-color pen c              # set the hires drawing color (0-15); see below
+kleurpen c # stel de kleur voor de tekening in (0-15); zie hieronder
 
-# ── Multicolor bitmap (graphics on multi, 160×200) ──
-mplot x, y, color        # set multicolor pixel (x: 0-159, y: 0-199, color: 0-3)
-mline x1, y1, x2, y2, color   # multicolor line
-mrect x1, y1, x2, y2, color   # multicolor rectangle outline
-mcircle x, y, r, color        # multicolor circle
+# ── Meerkleurige bitmap (afbeeldingen op multi, 160×200) ──
+mplot x, y, kleur # stel meerkleurige pixel in (x: 0-159, y: 0-199, kleur: 0-3)
+mline x1, y1, x2, y2, kleur # meerkleurige lijn
+mrect x1, y1, x2, y2, kleur # meerkleurige rechthoekomtrek
+mcircle x, y, r, kleur # meerkleurige cirkel
 ```
 
 Beide `graphics on` varianten schakelen het display uit (`LDA $D011 / AND #$EF /
@@ -585,13 +847,13 @@ tot de volgende `color pen`. De standaardwaarde is wit (1), dus programma's die
 nooit `color pen` aanroepen, zien er precies hetzelfde uit als voorheen.
 
 ```basic
-graphics on
+grafische elementen op
 gcls
-color pen 2              # red
-line 0, 0, 100, 100
-color pen 6              # blue
-circle 160, 100, 40
-display on
+kleurpen 2 # rood
+lijn 0, 0, 100, 100
+kleurpen 6 # blauw
+cirkel 160, 100, 40
+weergeven op
 ```
 
 #### Meerkleurige vormen — `mline` / `mrect` / `mcircle`
@@ -605,12 +867,12 @@ en de werkelijke kleuren komen uit het celpalet (scherm / kleur-RAM) precies
 zoals bij `mplot`.
 
 ```basic
-graphics on multi
+grafische weergave op meerdere
 gcls
 mcircle 80, 100, 40, 1
 mrect 10, 10, 150, 190, 2
 mline 0, 0, 159, 199, 3
-display on
+weergave op
 ```
 
 `mline`/`mrect`/`mcircle` hergebruiken dezelfde Bresenham-/middelpuntroutines
@@ -620,11 +882,11 @@ als hun tegenhangers met hoge resolutie, waarbij elke pixel wordt uitgezet via
 ### Dubbel gebufferde bitmap (flikkervrij)
 
 ```basic
-graphics on double       # double-buffered hires bitmap (320×200)
-gcls                     # clears the HIDDEN back buffer
-line 0, 0, 319, 199      # all drawing (plot/line/circle/rect/paint/gcls) goes to the back buffer
-flip                     # show the drawn buffer; redirect drawing to the other one
-graphics off             # back to text mode (restores VIC bank 0)
+graphics on double # dubbel gebufferde hoge resolutie bitmap (320×200)
+gcls # wist de VERBORGEN achterbuffer
+line 0, 0, 319, 199 # alle tekenbewerkingen (plot/lijn/cirkel/rechthoek/schilderen/gcls) gaan naar de achterbuffer
+flip # toon de getekende buffer; leid het tekenen om naar de andere buffer
+graphics off # terug naar tekstmodus (herstelt VIC bank 0)
 ```
 
 `graphics on double` bewaart **twee** complete bitmaps met hoge resolutie en
@@ -662,13 +924,13 @@ is weergegeven.
 ### Blokgrafiek (80×50)
 
 ```basic
-graphics on block        # 80×50 block-pixel mode (text mode + custom 4-pixel charset @ $2800)
-graphics off             # return to text mode
-gcls                     # clear block playfield: screen RAM $0400-$07FF + color RAM $D800-$DBFF
+Graphics on block # 80×50 block-pixelmodus (tekstmodus + aangepaste 4-pixel tekenset @ $2800)
+Graphics off # Terug naar tekstmodus
+gcls # Blok speelveld wissen: scherm-RAM $0400-$07FF + kleur-RAM $D800-$DBFF
 
-plot4 x, y               # set block pixel at (x, y);  x: 0-79, y: 0-49
-plot4 erase x, y         # clear block pixel at (x, y)
-circle4 x, y, r          # draw midpoint circle in block pixels; clips to 80×50
+plot4 x, y # Blokpixel instellen op (x, y); x: 0-79, y: 0-49
+plot4 erase x, y # Blokpixel wissen op (x, y)
+circle4 x, y, r # Cirkel met middelpunt tekenen in blokpixels; beperkt tot 80×50
 ```
 
 Een grove, lage-resolutiemodus over standaard 40×25 tekst heen gelegd. Een
@@ -685,38 +947,38 @@ de 80×50 coördinatenruimte. `gcls` wist zowel het scherm- als het kleur-RAM. Z
 ### Scherm en kleur
 
 ```basic
-cls                      # clear screen (KERNAL $E544)
-cls fast                 # fast fill: screen RAM + color RAM + HOME
+cls # scherm wissen (KERNAL $E544)
+cls fast # snel vullen: scherm-RAM + kleur-RAM + HOME
 
-color text 14            # text color register $0286
-color border 6           # $D020
-color bg 0               # $D021
-color pen 2              # hires drawing color (0-15) for plot/line/rect/circle/paint
+kleur tekst 14 # tekstkleurregister $0286
+kleur rand 6 # $D020
+kleur achtergrond 0 # $D021
+kleur pen 2 # tekenkleur (0-15) voor plot/lijn/rechthoek/cirkel/schilderen
 
-screen 0, 0, 65          # write char 65 ('A') to screen RAM at col 0, row 0 ($0400)
-screen 10, 5, ch         # col 10, row 5 — col/row can be variables
-screen 5, 3, 42, 7       # char 42 at col 5, row 3, color 7 (writes color RAM $D800 too)
-screen x, y, ch, col     # all four arguments as variables
+scherm 0, 0, 65 # schrijf teken 65 ('A') naar scherm-RAM op kolom 0, rij 0 ($0400)
+scherm 10, 5, ch # kolom 10, rij 5 — kolom/rij kunnen variabelen zijn
+scherm 5, 3, 42, 7 # teken 42 op kolom 5, rij 3, kleur 7 (schrijft ook naar kleur-RAM $D800)
+scherm x, y, ch, col # alle vier argumenten als variabelen
 
-display on               # re-enable VIC display ($D011 DEN bit)
-display off              # blank display
+display on # VIC-display opnieuw inschakelen ($D011) DEN-bit)
+display uit # leeg scherm
 
-lowercase                # CHR$(14) → switch VIC-II to lowercase/uppercase charset
-uppercase                # CHR$(142) → switch VIC-II back to uppercase/graphics charset
+kleine letters # CHR$(14) → schakel VIC-II over naar kleine letters/hoofdletters
+hoofdletters # CHR$(142) → schakel VIC-II terug naar hoofdletters/grafische tekens
 
-cursor 20, 10            # move cursor to col 20, row 10 (KERNAL PLOT $FFF0)
-cursor x, y              # column from variable x (0–39), row from y (0–24)
+cursor 20, 10 # verplaats cursor naar kolom 20, rij 10 (KERNAL PLOT $FFF0)
+cursor x, y # kolom van variabele x (0–39), rij van y (0–24)
 
-print at 20, 10, "HELLO" # cursor(20,10) + print in one statement (no trailing newline)
-print at x, y, "Score:", score  # any mix of exprs
-print at 0, 0            # position only (no text, no newline)
+print op 20, 10, "HALLO" # cursor(20,10) + print in één statement (geen nieuwe regel aan het einde)
+print op x, y, "Score:", score # elke combinatie van expressies
+print op 0, 0 # alleen positie (geen tekst, geen nieuwe regel)
 
-scroll x 3               # set horizontal fine scroll: $D016 bits 0-2 = 3 (0-7)
-scroll y 2               # set vertical fine scroll:   $D011 bits 0-2 = 2 (0-7)
-scroll x n               # value can be a variable or expression (masked to bits 0-2)
-scroll x 7 narrow        # set fine scroll and force 38-column mode (hide edge column)
-scroll x 0 wide          # set fine scroll and restore 40-column mode
-scroll row 12 left       # shift screen RAM row 12 left by one character
+scroll x 3 # stel horizontale fijne scroll in: $D016 bits 0-2 = 3 (0-7)
+scroll y 2 # stel verticale fijne scroll in: $D011 bits 0-2 = 2 (0-7)
+scroll x n # waarde kan een variabele of expressie zijn (gemaskeerd tot bits 0-2)
+scroll x 7 narrow # stel fijne scroll in en forceer de 38-kolommenmodus (verberg de randkolom)
+scroll x 0 wide # stel fijne scroll in en herstel de 40-kolommenmodus
+scroll row 12 left # verschuif scherm-RAM rij 12 naar links met één teken
 ```
 
 `lowercase` genereert `LDA #$0E; JSR $FFD2` tijdens runtime. Stringliteralen die
@@ -743,15 +1005,15 @@ col`). Constante col/row: adres berekend tijdens compilatie.
 ### Ultimate 64 — CPU-snelheid
 
 ```basic
-speed 4              # set CPU to 4 MHz  (reads $D031, updates bits 0-3, writes back)
-speed 48             # 48 MHz  (maximum speed on U64)
-speed max            # same as speed 48  (alias)
-speed off            # back to 1 MHz  (alias for speed 1)
+snelheid 4 # CPU instellen op 4 MHz (leest $D031, werkt bits 0-3 bij, schrijft terug)
+snelheid 48 # 48 MHz (maximale snelheid op U64)
+snelheid max # hetzelfde als snelheid 48 (alias)
+snelheid uit # terug naar 1 MHz (alias voor snelheid 1)
 
-badlines on          # enable badline timing  ($D031 bit 7 = 0, default C64 behaviour)
-badlines off         # disable badline timing ($D031 bit 7 = 1, more CPU cycles)
+badlines aan # badline timing inschakelen ($D031 bit 7 = 0, standaard C64-gedrag)
+badlines uit # badline timing uitschakelen ($D031 bit 7 = 1, meer CPU-cycli)
 
-var t = turbo()      # 1 if turbo is active (bits 0-3 of $D031 != 0), 0 if at 1 MHz
+var t = turbo() # 1 als turbo actief is (bits 0-3 van $D031 != 0), 0 als op 1 MHz
 ```
 
 Beschikbare MHz-waarden: `1, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 20, 24, 32, 40,
@@ -775,16 +1037,17 @@ genegeerd.
 ### Toetsenbord
 
 ```basic
-var key = getch()        # busy-wait on $FFE4 until key; returns PETSCII code
-var k   = inkey()        # non-blocking: returns PETSCII code, or 0 if no key pressed
-waitkey                  # wait until any key is pressed (CIA1 matrix scan; works during IRQ)
-var k   = waitkey()      # same but returns raw $DC01 column bits (0 bit = key pressed)
-var j = joy(2)           # read joystick port 2; returns inverted bits 0-4
-var j = joy(1)           # read joystick port 1
-                         # bit0=up(1) bit1=down(2) bit2=left(4) bit3=right(8) bit4=fire(16)
-var mx = mouse_x()       # 1351 mouse: accumulated X position (helper: charge+delay+delta)
-var my = mouse_y()       # 1351 mouse: accumulated Y position (EOR #$FF inverted)
-var mb = mouse_btn()     # mouse buttons: reads $DC01 — bit0=left (fire), bit1=right (up pin)
+var key = getch() # wacht op $FFE4 totdat er een toets wordt ingedrukt; retourneert de PETSCII-code
+var k = inkey() # niet-blokkerend: retourneert de PETSCII-code, of 0 als er geen toets is ingedrukt
+waitkey # wacht totdat er een toets wordt ingedrukt (CIA1 matrixscan; werkt tijdens IRQ)
+var k = waitkey() # hetzelfde, maar retourneert de ruwe $DC01 kolombits (0 bit = toets ingedrukt)
+var j = joy(2) # lees joystickpoort 2; retourneert geïnverteerde bits 0-4
+var j = joy(1) # lees joystickpoort 1
+
+# bit0=omhoog(1) bit1=omlaag(2) bit2=links(4) bit3=rechts(8) bit4=vuren(16)
+var mx = mouse_x() # 1351 muis: geaccumuleerde X-positie (helper: lading+vertraging+delta)
+var my = mouse_y() # 1351 muis: geaccumuleerde Y-positie (EOR #$FF geïnverteerd)
+var mb = mouse_btn() # muisknoppen: leest $DC01 — bit0=links (vuren), bit1=rechts (omhoog-pin)
 ```
 
 `mouse_x()` / `mouse_y()` voeren intern een hulpsubroutine uit die het volgende
@@ -813,17 +1076,17 @@ sprite-tracking en knopfeedback.
 ### Uitgang
 
 ```basic
-bye                      # JSR $E544 (clear screen), clear STOP flag, RTS to BASIC
-exit                     # alias for bye
+bye # JSR $E544 (scherm wissen), STOP-vlag wissen, RTS naar BASIC
+exit # alias voor bye
 ```
 
 ### Timing
 
 ```basic
-wait 50                  # wait 50 raster-line transitions (~3.2 ms)
-wait raster 100          # spin until $D012 == 100 (raster-split effects)
-delay 1                  # wait 1 PAL frame (1/50 s ≈ 20 ms)
-delay 20                 # wait 20 frames ≈ 0.4 s; n can be a variable (0–255)
+wait 50 # wacht 50 raster-lijnovergangen (~3,2 ms)
+wait raster 100 # spin tot $D012 == 100 (raster-split effecten)
+delay 1 # wacht 1 PAL-frame (1/50 s ≈ 20 ms)
+delay 20 # wacht 20 frames ≈ 0,4 s; n kan een variabele zijn (0–255)
 ```
 
 `delay N` telt N complete PAL-frames met rasterlijn 200 als framegrens.
@@ -831,13 +1094,13 @@ delay 20                 # wait 20 frames ≈ 0.4 s; n can be a variable (0–25
 ### SID-geluid
 
 ```basic
-sound 0, $1CAD, 25       # voice 0, freq $1CAD (≈ middle C PAL), 25 frames duration
-sound 1, freq_word, 50   # voice 1, freq from word var, 50 frames (1 s at 50 Hz)
-sound 2, 0, 0            # voice 2, silence
+geluid 0, $1CAD, 25 # stem 0, freq $1CAD (≈ middelste C PAL), duur 25 frames
+geluid 1, freq_woord, 50 # stem 1, freq uit woordvariabele, 50 frames (1 s op 50 Hz)
+geluid 2, 0, 0 # stem 2, stilte
 
-sid volume 15            # master volume full ($D418 = $0F); range 0-15
-sid volume 0             # silence (master volume = 0)
-sid stop                 # zero all 25 SID registers ($D400–$D418) — complete silence
+sid volume 15 # hoofdvolume volledig ($D418 = $0F); bereik 0-15
+sid volume 0 # stilte (hoofdvolume = 0)
+sid stop # alle 25 SID-registers op nul zetten ($D400–$D418) — volledige stilte
 ```
 
 `sound <channel>, <freq>, <duration>` — duur in PAL-frames (1/50 s elk). `sound`
@@ -858,10 +1121,10 @@ afzonderlijke prikbewegingen.
 ### Niet-blokkerende geluidseffecten (`sfx`) — nieuw in 1.5.7
 
 ```basic
-sound 0, $2000, 25            # BLOCKS: the program waits 25 frames here
-sfx 0, $2000, 25              # returns at once; the note fades out by itself
-sfx 1, $0500, 8, 128          # optional wave: 16 triangle, 32 saw (default), 64 pulse, 128 noise
-sfx 0, freq_word, 4, 16       # freq may be a constant, a word var or an 8-bit expression
+sound 0, $2000, 25 # BLOKKEN: het programma wacht hier 25 frames
+sfx 0, $2000, 25 # keert direct terug; de noot vervaagt vanzelf
+sfx 1, $0500, 8, 128 # optionele golfvorm: 16 driehoek, 32 zaagtand (standaard), 64 puls, 128 ruis
+sfx 0, freq_word, 4, 16 # freq kan een constante, een woordvariabele of een 8-bits expressie zijn
 ```
 
 `sfx <channel>, <freq>, <frames> [, <wave>]` programmeert één SID-stem en keert
@@ -878,8 +1141,8 @@ compileertijdconstanten zijn.
 ### SID Muziek
 
 ```basic
-load sid "tune.sid"            # embed SID music at its native load address
-load sid "tune.sid", $2000     # override: embed at $2000 regardless of SID header
+load sid "tune.sid" # Sluit de SID-muziek in op het oorspronkelijke laadadres
+load sid "tune.sid", $2000 # overschrijven: sluit in op $2000 ongeacht de SID-header
 ```
 
 `load sid` leest een PSID- of RSID-bestand tijdens **het compileren**,
@@ -897,18 +1160,21 @@ Beide constanten werken overal waar een constant adres wordt geaccepteerd:
 **Typisch gebruik:**
 
 ```basic
-load sid "music.sid"
+laad sid "music.sid"
 
 sub music_irq()
-  poke $D019, $FF       # ACK VIC raster IRQ
-  sys sid_play          # advance one frame of music
-  irq_exit              # JMP $EA81: restore A/X/Y + RTI (proper IRQ exit)
+
+poke $D019, $FF # Bevestig VIC raster IRQ
+
+sys sid_play # Ga één frame verder met de muziek
+
+irq_exit # JMP $EA81: herstel A/X/Y + RTI (correcte IRQ-uitgang)
 end
 
-sys sid_init, 0         # initialise SID chip: A=0 → first sub-tune
-irq music_irq, $C0      # raster IRQ at line $C0 → 50 Hz on PAL
+sys sid_init, 0 # Initialiseer SID-chip: A=0 → eerste sub-tune
+irq music_irq, $C0 # Raster IRQ op lijn $C0 → 50 Hz op PAL
 
-sid volume 15           # master volume on
+sid volume 15 # Hoofdvolume aan
 ```
 
 **Opmerkingen:**
@@ -922,20 +1188,23 @@ sid volume 15           # master volume on
 ### Tracker-tunes (`tune`)
 
 ```basic
-tune                       # optional: tune at $C800  (default $8000)
-  speed 6                  # frames per row (50 Hz PAL)
-  inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
-  inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
-  imod 0, 6, 3, 9, 40, $0200, $0E00   # vibrato + pulse width modulation (1.6.2)
-  ifilt 0, $0500, 20, 1               # cutoff sweep up to $500, back and forth (1.6.2)
-  igate 1, 2, 1, $09                  # gate timer, hard restart, first frame $09 (1.6.2)
-  itab 1, 2, 0, ".. +0", ".. +4", ".. +7"   # arpeggio table (1.6.2)
-  order 0, 1, 0            # pattern order (patterns may repeat)
-  pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
-  pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
-  pat 1, 0, "G-4 00", "...", "E-4 00", "...", "C-4 00"
-end
-music play                 # or: sys sid_init / irq handler calling sys sid_play
+tune # optioneel: afstemmen op $C800 (standaard $8000)
+
+snelheid 6 # frames per rij (50 Hz PAL)
+
+inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
+
+inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
+imod 0, 6, 3, 9, 40, $0200, $0E00 # vibrato + pulsbreedtemodulatie (1.6.2)
+ifilt 0, $0500, 20, 1 # cutoff sweep omhoog naar $500, heen en weer (1.6.2)
+igate 1, 2, 1, $09 # gate timer, harde herstart, eerste frame $09 (1.6.2)
+itab 1, 2, 0, ".. +0", ".. +4", ".. +7" # arpeggiotabel (1.6.2)
+volgorde 0, 1, 0 # patroonvolgorde (patronen kunnen zich herhalen)
+pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
+pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
+pat 1, 0, "G-4 00", "...", "E-4 00", "...", "C-4 00"
+einde
+muziek afspelen # of: sys sid_init / irq handler roept sys sid_play aan
 ```
 
 `tune ... end` beschrijft een 3-stemmige tracker-tune in platte tekst (dezelfde
@@ -946,14 +1215,14 @@ een handmatige `irq` handler die `sys sid_play` aanroept) werken ongewijzigd.
 
 | Lijn                                                               | Betekenis                                                                                                                                                                                                                                                                                                                                                                             |
 | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `speed N`                                                          | Frames per trackerrij (1-255).                                                                                                                                                                                                                                                                                                                                                        |
+| `snelheid N`                                                       | Frames per trackerrij (1-255).                                                                                                                                                                                                                                                                                                                                                        |
 | `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol`              | Eén instrument: controleregister (golfvormbits plus ringmodulatie `$04` / sync `$02`; de gate-bit wordt door de speler toegevoegd), attack/decay, sustain/release, 12-bits pulsbreedte, 11-bits filtercutoff, resonantie-/filterrouteringsbyte (`$D417`-stijl: elke routeringsbit = routeer de stem die dit instrument bespeelt) en modus-/volumebyte (`$D418`-stijl, bit 7 = 3 UIT). |
 | `imod id, vibdelay, vibspeed, vibdiepte, pwmspeed, pwmmin, pwmmax` | (1.6.2) Instrumentvibrato: na `vibdelay` frames wordt een driehoekige LFO geactiveerd die elke `vibspeed` frames (1-15, 0 = uit) draait, diepte 0-15 (geschaald naar de halve toon van de noot). Pulsbreedtemodulatie: `pwmspeed` wordt per frame toegevoegd (0 = uit), stuiterend tussen `pwmmin` en `pwmmax`.                                                                       |
 | ` filter id, cutend, sweep, pingpong`                              | (1.6.2) Filter cutoff sweep: van de `inst` cutoff naar `cutend` door `sweep` (0-127) per frame; `pingpong` 1 = heen en weer.                                                                                                                                                                                                                                                          |
 | `igate id, gatetimer, hardrestart, firstwave`                      | (1.6.2) De gate wordt vrijgegeven `gatetimer` frames vóór de volgende noot op de stem (houd deze onder `speed`); `hardrestart` 1 zet ADSR dan ook op 0. `firstwave` (bijv. `$09` = test + gate) wordt geschreven op het eerste frame van de noot.                                                                                                                                     |
 | `itab id, snelheid, lus, "stap", ...`                              | (1.6.2) Golf-/arpeggiotabel, tot 32 stappen: `"WW +n"`, `".. -n"` of `"WW =n"` - golfvorm in hexadecimaal (`..` behoudt deze) en een nootverschuiving in halve tonen of een absolute noot (`=60`). Eén stap elke `snelheid` frames, dan terug naar stap `lus` (255 = blijf op de laatste stap).                                                                                       |
 | `order p, p, ...`                                                  | Patroonvolgorde. Lijnen stapelen zich op, tot 255 stappen.                                                                                                                                                                                                                                                                                                                            |
-| `pat p, v, "cell", ...`                                            | Maximaal 32 rijen voor stem `v` (0-2) van patroon `p` (0-7). Ontbrekende rijen zijn leeg.                                                                                                                                                                                                                                                                                             |
+| `pat p, v, "cel", ...`                                             | Maximaal 32 rijen voor stem `v` (0-2) van patroon `p` (0-7). Ontbrekende rijen zijn leeg.                                                                                                                                                                                                                                                                                             |
 
 Een **cel** is `NOTE INST FX`: `C-4`, `D#3`, `Eb2` of `...` voor geen noot, een
 twee-cijferig hexadecimaal instrument (`..` om het zo te laten), en een
@@ -992,21 +1261,21 @@ voorafgaande `load sid`-instructie of een `tune ... end`-blok (beide definiëren
 `sid_init` / `sid_play`).
 
 ```basic
-load sid "tune.sid"         # embed SID file (defines sid_init / sid_play)
+laad sid "tune.sid" # SID-bestand insluiten (definieert sid_init / sid_play)
 
-music play                  # initialise sub-tune 0 + start CIA1 50 Hz IRQ
-music play 1                # start from sub-tune 1 (song number 0-based)
-music stop                  # stop playback + zero all 25 SID registers ($D400-$D418)
-music pause                 # disable CIA1 timer A IRQ (music freezes, SID unchanged)
-music resume                # re-enable CIA1 timer A IRQ (continues from pause point)
+muziek afspelen # sub-tune 0 initialiseren + CIA1 50 Hz IRQ starten
+muziek afspelen 1 # starten vanaf sub-tune 1 (nummer 0-gebaseerd)
+muziek stoppen # afspelen stoppen + alle 25 SID-registers (D400-D418) op nul zetten
+muziek pauzeren # CIA1 timer A IRQ uitschakelen (muziek bevriest, SID ongewijzigd)
+muziek hervatten # CIA1 timer A IRQ weer inschakelen (vervolgt vanaf pauze)
 ```
 
-| Stelling         | Effect                                                                                                |
-| ---------------- | ----------------------------------------------------------------------------------------------------- |
-| `music play [n]` | roep `sid_init(n)` aan, configureer CIA1 timer A op 19.656 cycli (~50 Hz PAL), installeer IRQ wrapper |
-| `music stop`     | CIA1 IRQ uitschakelen + alle 25 SID-registers op nul zetten                                           |
-| `music pause`    | CIA1 IRQ uitschakelen (SID-uitvoer blijft bevroren)                                                   |
-| `music resume`   | CIA1 IRQ opnieuw inschakelen (vervolg vanaf pauzepunt)                                                |
+| Stelling              | Effect                                                                                                |
+| --------------------- | ----------------------------------------------------------------------------------------------------- |
+| `muziek afspelen [n]` | roep `sid_init(n)` aan, configureer CIA1 timer A op 19.656 cycli (~50 Hz PAL), installeer IRQ wrapper |
+| `muziek stopt`        | CIA1 IRQ uitschakelen + alle 25 SID-registers op nul zetten                                           |
+| `muziek pauze`        | CIA1 IRQ uitschakelen (SID-uitvoer blijft bevroren)                                                   |
+| `muziek hervatten`    | CIA1 IRQ opnieuw inschakelen (vervolg vanaf pauzepunt)                                                |
 
 De IRQ-wrapper (die eenmalig aan het einde van het programma wordt uitgezonden)
 doet het volgende: ACK CIA1 timer A → `JSR sid_play` → `JMP $EA81`.
@@ -1014,32 +1283,32 @@ doet het volgende: ACK CIA1 timer A → `JSR sid_play` → `JMP $EA81`.
 ### Elfjes
 
 ```basic
-sprite 0, x, y, $2000    # sprite 0: set X, Y position and data pointer
-sprite 0, x, y           # without data pointer (keeps existing)
-sprite on  0             # enable sprite 0 ($D015 |= bit0)
-sprite off 0             # disable sprite 0 ($D015 &= ~bit0)
-sprite color 0, 7        # sprite 0 color = yellow ($D027)
-sprite multicolor 0, on  # enable multicolor mode for sprite 0 ($D01C |= bit0)
-sprite multicolor 0, off # disable multicolor mode ($D01C &= ~bit0)
-sprite expand x 0, on    # double width ($D01D |= bit0)
-sprite expand x 0, off   # normal width ($D01D &= ~bit0)
-sprite expand y 0, on    # double height ($D017 |= bit0)
-sprite expand y 0, off   # normal height ($D017 &= ~bit0)
-sprite priority 0, on    # behind background ($D01B |= bit0)
-sprite priority 0, off   # in front of background ($D01B &= ~bit0)
-var h = sprite_hit()     # sprite–sprite collision ($D01E, cleared on read)
-var b = sprite_bg_hit()  # sprite–background collision ($D01F, cleared on read)
-var x = sprite_x(0)      # read sprite 0 X position (lo byte, $D000)
-var y = sprite_y(0)      # read sprite 0 Y position ($D001)
-sprite_frame 0, $2000          # select one static sprite image
-sprite_frame 0, $2000, frame   # select an animation frame from a frame sequence
+sprite 0, x, y, $2000 # sprite 0: stel X- en Y-positie en datapointers in
+sprite 0, x, y # zonder datapointers (behoudt bestaande)
+sprite on 0 # schakel sprite 0 in ($D015 |= bit0)
+sprite off 0 # schakel sprite 0 uit ($D015 &amp;= ~bit0)
+sprite color 0, 7 # kleur van sprite 0 = geel ($D027)
+sprite multicolor 0, on # schakel meerkleurige modus in voor sprite 0 ($D01C |= bit0)
+sprite multicolor 0, off # schakel meerkleurige modus uit ($D01C &amp;= ~bit0)
+sprite expand x 0, on # dubbele breedte ($D01D |= bit0)
+sprite expand x 0, off # normale breedte ($D01D &amp;= ~bit0)
+sprite expand y 0, on # dubbele hoogte ($D017 |= bit0)
+sprite expand y 0, off # normale hoogte ($D017 &amp;= ~bit0)
+sprite priority 0, on # achter de achtergrond ($D01B |= bit0)
+sprite priority 0, off # voor de achtergrond ($D01B &amp;= ~bit0)
+var h = sprite_hit() # sprite-sprite botsing ($D01E, gewist bij lezen)
+var b = sprite_bg_hit() # sprite-achtergrond botsing ($D01F, gewist bij lezen)
+var x = sprite_x(0) # lees sprite 0 X-positie (lo byte, $D000)
+var y = sprite_y(0) # lees sprite 0 Y-positie ($D001)
+sprite_frame 0, $2000 # selecteer één statische sprite-afbeelding
+sprite_frame 0, $2000, frame # selecteer een animatieframe uit een frame-sequentie
 ```
 
 X ondersteunt het volledige 9-bits bereik (0–319): gebruik een `word` variabele
 voor runtime-waarden > 255. Sprite-datapointer: `data_addr` moet 64-byte
 uitgelijnd zijn; opgeslagen als `addr >> 6` op `$07F8+id`.
 
-#### Sprite animation with `sprite_frame`
+#### Sprite-animatie met `sprite_frame`
 
 `sprite_frame` is het commando dat wordt gebruikt om de weergegeven afbeelding
 van een sprite tijdens een animatie te wijzigen. Het wijzigt alleen de
@@ -1061,10 +1330,14 @@ overgang van de animatie:
 ```basic
 var frame = 0
 loop
-  sprite_frame 0, $2000, frame
-  frame = frame + 1
-  if frame == 4 then frame = 0 end
-  delay 5
+
+sprite_frame 0, $2000, frame
+
+frame = frame + 1
+
+if frame == 4 then frame = 0 end
+
+delay 5
 end
 ```
 
@@ -1076,7 +1349,8 @@ van de sprite wordt nog steeds bepaald door `sprite id,x,y`.
 
 ```basic
 var touching = box_hit(left1, top1, right1, bottom1,
-                       left2, top2, right2, bottom2)
+
+left2, top2, right2, bottom2)
 ```
 
 `box_hit()` voert een as-uitgelijnde begrenzingsbox-test (AABB) uit en
@@ -1087,17 +1361,17 @@ functie geen VIC-II-botsingsregisters. De acht argumenten zijn willekeurige
 sprite-afbeelding of kunnen niet-sprite-gameobjecten beschrijven. Coördinaten
 zijn inclusief; behoud `left <= right` en `top <= bottom`.
 
-### Sprite definition
+### Sprite definitie
 
 ```basic
 sprdef 0
-  $00,$3C,$00,  $00,$FF,$00,  $03,$FF,$C0,  $07,$FF,$E0,
-  $0F,$FF,$F0,  $0F,$FF,$F0,  $1F,$FF,$F8,  $1F,$FF,$F8,
-  $1F,$FF,$F8,  $0F,$FF,$F0,  $0F,$FF,$F0,  $07,$FF,$E0,
-  $03,$FF,$C0,  $00,$FF,$00,  $00,$3C,$00,  $00,$00,$00,
-  $00,$00,$00,  $00,$00,$00,  $00,$00,$00,  $00,$00,$00,
-  $00,$00,$00
-end
+  $00,$3C,$00, $00,$FF,$00, $03,$FF,$C0, $07,$FF,$E0,
+  $0F,$FF,$F0, $0F,$FF,$F0, $1F,$FF,$F8, $1F,$FF,$F8,
+  $1F,$FF,$F8, $0F,$FF,$F0, $0F,$FF,$F0, $07,$FF,$E0,
+  $03,$FF,$C0, $00,$FF,$00, $00,$3C,$00, $00,$00,$00,
+  $00,$00,$00, $00,$00,$00, $00,$00,$00, $00,$00,$00,
+$00, $00, $00
+einde
 ```
 
 `sprdef id ... end` voegt 63 spritebytes in op het eerstvolgende adres in het
@@ -1106,8 +1380,8 @@ stelt automatisch `$07F8+id = data_addr >> 6` in. Om dezelfde vorm voor meerdere
 sprites te gebruiken, lees je de pointer terug:
 
 ```basic
-var pg = peek($07F8)   # pointer set by sprdef 0
-poke $07F9, pg         # copy to sprites 1–7
+var pg = peek($07F8) # pointer ingesteld door sprdef 0
+poke $07F9, pg # kopiëren naar sprites 1–7
 ```
 
 ### Tekentegelkaarten (`.ubmap`)
@@ -1250,9 +1524,9 @@ compileerfout.
 ### Koala Painter afbeelding importeren
 
 ```basic
-koala load "pictures/title.kla"  # validate and embed at compile time
-koala show                       # enter bitmap multicolor mode
-koala hide                       # return to the default text display
+koala load "pictures/title.kla" # valideer en integreer tijdens het compileren
+koala show # ga naar de bitmap-meerkleurenmodus
+koala hide # keer terug naar de standaard tekstweergave
 ```
 
 `koala load` accepteert een standaard Koala-bestand van 10003 bytes (`$6000`
@@ -1273,10 +1547,10 @@ gecombineerd met `load sid`.
 ### Code-indeling: `org` — nieuw in 1.5.7
 
 ```basic
-sub a() ... end          # subs/fns are placed one after another from the end of the main body
-org $4000                # the next subs/fns continue at $4000; $xxxx-$3FFF stays zero-filled
+sub a() ... end # subroutines/functies worden één voor één vanaf het einde van de hoofdtekst geplaatst
+org $4000 # de volgende subroutines/functies gaan verder op $4000; $xxxx-$3FFF blijft gevuld met nullen
 sub b() ... end
-incbin "font.bin", $3800 # data can live in the gap ($3800-$3FFF is a whole VIC charset slot)
+incbin "font.bin", $3800 # gegevens kunnen in de ruimte staan ($3800-$3FFF is een volledige VIC-tekenset-slot)
 ```
 
 `org addr` gaat **tussen sub/fn-definities** (het wordt genegeerd in de
@@ -1292,15 +1566,17 @@ terecht.
 ### Aangepaste tekenset (`charset on` / `charset off` nieuw in 1.5.7)
 
 ```basic
-charset $3800            # set base address for chardef (default $3800)
+charset $3800 # Stel het basisadres in voor chardef (standaard $3800)
 
-chardef 65               # redefine character 65 ('A')
-  $18,$3C,$66,$7E,$66,$66,$66,$00
-end
+chardef 65 # Herdefinieer teken 65 ('A')
 
-chardef 66               # fewer than 8 bytes are zero-padded
-  $7C,$66,$7C,$66,$7C
-end
+$18,$3C,$66,$7E,$66,$66,$66,$00
+einde
+
+chardef 66 # Minder dan 8 bytes worden opgevuld met nullen
+
+$7C,$66,$7C,$66,$7C
+einde
 ```
 
 `charset base` stelt het bestemmingsadres in dat wordt gebruikt door alle
@@ -1316,10 +1592,10 @@ verzonden. Om de VIC-II de set te laten gebruiken, moet u deze inschakelen (en
 weer uitschakelen wanneer u klaar bent):
 ```basic
 charset $3800
-chardef 1  $FF,$81,$81,$81,$81,$81,$81,$FF  end  # box border
-charset on          # VIC-II reads characters from $3800 (screen matrix untouched)
+chardef 1 $FF,$81,$81,$81,$81,$81,$81,$FF end # box border
+charset on # VIC-II leest tekens van $3800 (schermmatrix onaangeraakt)
 ...
-charset off         # back to the ROM set ($1800 if `lowercase` is active, else $1000)
+charset off # terug naar de ROM-set ($1800 als `lowercase` actief is, anders $1000)
 ```
 
 `charset on` read-modify-writes `$D018` bits 1-3 from the last `charset addr`
@@ -1341,14 +1617,14 @@ addr`) worden niet als code geteld.
 ### Geheugen
 
 ```basic
-poke $D020, 2            # STA $D020
-poke addr_var, 6         # STA (addr_var),Y  — if addr_var is word type
-var v = peek($D012)      # LDA $D012
-var v = peek(addr_var)   # LDA (addr_var),Y  — if addr_var is word type
+poke $D020, 2 # STA $D020
+poke addr_var, 6 # STA (addr_var),Y — als addr_var van het type word is
+var v = peek($D012) # LDA $D012
+var v = peek(addr_var) # LDA (addr_var),Y — als addr_var van het type word is
 
-var w: word = peek16($C000)   # read 16-bit little-endian: lo=$C000, hi=$C001
-poke16 $0314, $EA81           # write 16-bit little-endian: lo→$0314, hi→$0315
-poke16 ptr, w                 # word var as address; word var as value
+var w: word = peek16($C000) # lees 16-bit little-endian: lo=$C000, hi=$C001
+poke16 $0314, $EA81 # schrijf 16-bit little-endian: lo→$0314, hi→$0315
+poke16 ptr, w # word var als adres; word var als waarde
 ```
 
 `peek16(addr)` leest twee opeenvolgende bytes (lo, hi) als een `word`. `poke16`
@@ -1357,13 +1633,13 @@ schrijft eerst lo en daarna hi.
 ### Schijf-I/O
 
 ```basic
-load "PROGRAM"           # KERNAL LOAD: loads file from device 8 to its native address
-load "DATA", $C000       # loads file to a specific address
-chain "GAME"             # load another program over this one and RUN it (see below)
-load "DATA", ptr         # addr from word variable
+load "PROGRAM" # KERNAL LOAD: laadt bestand van apparaat 8 naar het native adres
+load "DATA", $C000 # laadt bestand naar een specifiek adres
+chain "GAME" # laad een ander programma over dit programma heen en voer het uit (zie hieronder)
+load "DATA", ptr # adres uit woordvariabele
 
-save "DATA", $C000, 4096 # KERNAL SAVE from $C000, 4096 bytes → device 8
-save "PROG", start, len  # addr and len from word/int variables
+save "DATA", $C000, 4096 # KERNAL SAVE van $C000, 4096 bytes → apparaat 8
+save "PROG", start, len # adres en lengte uit woord-/intvariabelen
 ```
 
 `load` roept KERNAL `SETNAM`+`SETLFS`+`LOAD` (`$FFBD`/`$FFBA`/`$FFD5`) aan.
@@ -1377,9 +1653,9 @@ waren de twee verwisseld: `load "F"` geladen naar `$0000`.) `save` roept
 #### Doorverbinden naar een ander programma — `chain` (nieuw in 1.5.9)
 
 ```basic
-chain "GAME"             # load GAME from the drive we were started from and RUN it
-chain "GAME", 9          # from drive 9 (any expression)
-print "LOAD ERROR"       # only reached if the file could not be loaded
+chain "GAME" # laad GAME vanaf de schijf waar we begonnen zijn en voer het uit
+chain "GAME", 9 # vanaf schijf 9 (willekeurige expressie)
+print "LAADFOUT" # wordt alleen bereikt als het bestand niet kon worden geladen
 ```
 
 `chain` laadt een ander programma naar zijn eigen laadadres — normaal gesproken
@@ -1417,15 +1693,15 @@ De bestandsnaam moet een tekenreeks zijn van 1 tot en met 16 tekens.
 ### Seriële kanaal bestands-I/O
 
 ```basic
-open 1, 8, 2, "MYFILE"  # open logical file 1, device 8, secondary 2, name "MYFILE"
-open 2, 4, 7             # open printer (device 4), no filename
-open ch, dev, sec        # channel, device, secondary from variables
+open 1, 8, 2, "MYFILE" # open logisch bestand 1, apparaat 8, secundair 2, naam "MYFILE"
+open 2, 4, 7 # open printer (apparaat 4), geen bestandsnaam
+open ch, dev, sec # kanaal, apparaat, secundair uit variabelen
 
-print# 1, "HELLO"        # send "HELLO"+CR to logical file 1
-print# ch, x, "text"     # any mix of vars, strings — same as print but to file
+print# 1, "HELLO" # stuur "HELLO"+CR naar logisch bestand 1
+print# ch, x, "text" # elke combinatie van variabelen en tekenreeksen — hetzelfde als print, maar naar een bestand
 
-close 1                  # close logical file 1
-close ch                 # channel from variable
+close 1 # sluit logisch bestand 1
+close ch # kanaal uit variabele
 ```
 
 `open` roept `SETNAM` ($FFBD) + `SETLFS` ($FFBA) + `OPEN` ($FFC0) aan. Zonder
@@ -1434,12 +1710,12 @@ via `CHKOUT` ($FFC9), CHROUT per teken (+ afsluitende CR), en vervolgens
 `CLRCHN` ($FFCC). `close` plaatst het kanaalnummer in A en roept `CLOSE` ($FFC3)
 aan.
 
-### Input
+### Invoer
 
 ```basic
-input score              # read up to 3 digits from keyboard → 8-bit int var
-input "Name: ", name     # optional prompt string, then read line → string var
-input "Score: ", score   # prompt + int input
+input score # lees maximaal 3 cijfers van het toetsenbord → 8-bits integer var
+input "Naam: ", naam # optionele promptstring, lees vervolgens de regel → string var
+input "Score: ", score # prompt + integer input
 ```
 
 `input` gebruikt KERNAL BASIN (`$FFCF`) voor blokkerende, herhaalde regelinvoer
@@ -1448,6 +1724,11 @@ met DEL-ondersteuning.
   naar een 8-bits waarde bij CR.
 - **Stringvariabele**: accepteert maximaal 30 tekens; wordt opgeslagen als een
   null-terminated string; ZP-paar bijgewerkt.
+- **DOUBLE var** (1.6.3): cijfers en `.`, bijv. `12.5` → 12.50 (twee decimalen).
+- **Array element** (1.6.3): `input t(i)` / `input nevek(i)`; `input "prompt";
+  x` werkt ook.
+- **String var**: accepteert maximaal 30 tekens; slaat op als een
+  null-terminated string; ZP-paar bijgewerkt.
 
 ### Zwevende-komma / Vaste-komma
 
@@ -1455,15 +1736,15 @@ met DEL-ondersteuning.
 gehele deel (0–255) en de lage byte is het fractionele deel (0/256 … 255/256).
 
 ```basic
-var f: float = 3.5       # 3.5 → hi=3, lo=128 (= 0x0380)
-var g: float = 0         # integer 0 is promoted to 0.0 automatically
+var f: float = 3.5 # 3.5 → hi=3, lo=128 (= 0x0380)
+var g: float = 0 # integer 0 wordt automatisch gepromoveerd naar 0.0
 
-f = 1.5                  # Q8.8 literal assignment
-f = f + 1.5              # 16-bit Q8.8 arithmetic (result: 3.0)
-f = f + g                # float + float
+f = 1.5 # Q8.8 letterlijke toewijzing
+f = f + 1.5 # 16-bits Q8.8 rekenkunde (resultaat: 3.0)
+f = f + g # float + float
 
-var n = int(f)           # extract integer part (hi byte) → 8-bit int
-print f                  # prints as "N.DD" (e.g. 3.5 → "3.50", 1.25 → "1.25")
+var n = int(f) # extraheer het integergedeelte (hi byte) → 8-bits int
+print f # print als "N.DD" (bijv. 3.5 → "3.50", 1.25 → "1.25")
 ```
 
 | Operatie            | Voorbeeld            | Notities                                                  |
@@ -1487,39 +1768,39 @@ wordt afgekapt, niet afgerond: 1/10 = 25/256 wordt afgedrukt als `0.09`.
 ### Wiskundige functies
 
 ```basic
-var a = abs(x - 20)      # two's-complement absolute value
-var b = min(x, 39)       # 8-bit minimum
-var c = max(x, 0)        # 8-bit maximum
-var s = sgn(score)       # 0 = zero, 1 = positive (1–127), $FF = negative (128–255)
-var r = rnd()            # LCG pseudo-random 0-255; seed from raster line
-var r = rnd(10)          # LCG pseudo-random 0-9 (rnd() mod n; result 0..n-1)
-var s = sin(angle)       # sine: angle 0-255 (full circle), returns 0-255 (center=128)
-var c = cos(angle)       # cosine = sin(angle+64)
-var v = clamp(x, 0, 39)  # 8-bit unsigned clamp: result = max(lo, min(hi, val))
+var a = abs(x - 20) # absolute waarde in two's-complement
+var b = min(x, 39) # 8-bits minimum
+var c = max(x, 0) # 8-bits maximum
+var s = sgn(score) # 0 = nul, 1 = positief (1–127), $FF = negatief (128–255)
+var r = rnd() # LCG pseudo-willekeurig 0-255; zaadwaarde van rasterlijn
+var r = rnd(10) # LCG pseudo-willekeurig 0-9 (rnd() mod n; resultaat 0..n-1)
+var s = sin(hoek) # sinus: hoek 0-255 (volledige cirkel), retourneert 0-255 (middelpunt=128)
+var c = cos(hoek) # cosinus = sin(hoek+64)
+var v = clamp(x, 0, 39) # 8-bits unsigned clamp: resultaat = max(lo, min(hi, val))
 
-print hex(n)             # print as 2-digit uppercase hex
-print bin(n)             # print as 8-bit binary string
+print hex(n) # print als 2-cijferige hoofdletter hexadecimale waarde
+print bin(n) # print als 8-bits binaire tekenreeks
 ```
 
 ### Stringfuncties
 
 ```basic
-var n = len(msg)         # length of null-terminated string var (0–255)
-var c = asc(msg)         # PETSCII code of first character (0 if empty)
-var c = asc("A")         # compile-time: constant PETSCII code
-var n = val(s)           # runtime: parse decimal PETSCII string → 8-bit int (e.g. "042" → 42)
-var c = msg[i]           # string character at index i: PETSCII code of msg[i]
-msg[i] = c               # write PETSCII byte c to string at index i — STA (ptr),Y
-msg[0] = 72              # constant index → LDY #0; STA (ptr),Y
+var n = len(msg) # lengte van de null-terminated string var (0–255)
+var c = asc(msg) # PETSCII-code van het eerste teken (0 als leeg)
+var c = asc("A") # compileertijd: constante PETSCII-code
+var n = val(s) # runtime: parse decimale PETSCII-string → 8-bits integer (bijv. "042" → 42)
+var c = msg[i] # teken op index i: PETSCII-code van msg[i]
+msg[i] = c # schrijf PETSCII-byte c naar string op index i — STA (ptr),Y
+msg[0] = 72 # constante index → LDY #0; STA (ptr),Y
 ```
 
 ### Nummeropmaak
 
 ```basic
-print hex(n)             # print as 2-digit uppercase hex
-print bin(n)             # print as 8-bit binary string
-print dec(n, 4)          # right-justified decimal in a field of 4 chars (e.g. 42 → "  42")
-print dec(n, width)      # width can also be a variable
+print hex(n) # print als 2-cijferig hoofdletter hexadecimaal getal
+print bin(n) # print als 8-bits binaire tekenreeks
+print dec(n, 4) # rechts uitgelijnd decimaal getal in een veld van 4 tekens (bijv. 42 → " 42")
+print dec(n, width) # width kan ook een variabele zijn
 ```
 
 `dec(n, width)` vult het getal aan de linkerkant aan met spaties om de tekens
@@ -1530,12 +1811,12 @@ afgedrukt zonder opvulling (geen afkapping). In niet-afdrukcontexten wordt
 ### REU (RAM-uitbreidingseenheid)
 
 ```basic
-var ok = reu_present()   # 1 if REU detected, 0 if not (write/read test on $DF04)
-var ok = reudet()        # alias for reu_present()
+var ok = reu_present() # 1 als REU gedetecteerd, 0 anders (schrijf-/leestest op $DF04)
+var ok = reudet() # alias voor reu_present()
 
-reu stash c64addr, bank, reu_addr, len  # copy C64 → REU
-reu fetch c64addr, bank, reu_addr, len  # copy REU → C64
-reu swap  c64addr, bank, reu_addr, len  # swap between C64 and REU
+reu stash c64addr, bank, reu_addr, len # kopieer C64 → REU
+reu fetch c64addr, bank, reu_addr, len # kopieer REU → C64
+reu swap c64addr, bank, reu_addr, len # wissel tussen C64 en REU
 ```
 
 `reu_present()` voert een schrijf-/leestest uit op REU-register `$DF04`. Zonder
@@ -1559,18 +1840,18 @@ een echte REU of VICE: **Instellingen → Hardware → RAM-uitbreidingsmodule**.
 ### Geheugenhulpprogramma's
 
 ```basic
-fill screen 32           # fill screen RAM $0400–$07FF with value 32 (space char)
-fill color 1             # fill color RAM $D800–$DBFF with value 1 (white)
+fill screen 32 # vul het schermgeheugen $0400–$07FF met waarde 32 (spatieteken)
+fill color 1 # vul het geheugengeheugen $D800–$DBFF met waarde 1 (wit)
 
-fill $0400, 1000, 32     # fill 1000 bytes starting at $0400 with value 32
-fill addr, 256, 0        # addr can be word var
-fill ptr, len_word, val  # all operands can be expressions / word vars
+fill $0400, 1000, 32 # vul 1000 bytes vanaf $0400 met waarde 32
+fill addr, 256, 0 # addr kan een woordvariabele zijn
+fill ptr, len_word, val # alle operanden kunnen expressies/woordvariabelen zijn
 
-memcopy $C000, $0400, 256   # copy 256 bytes from $C000 → $0400
-memcopy src_ptr, dst_ptr, 40 # word vars for source and destination
+memcopy $C000, $0400, 256 # kopieer 256 bytes van $C000 → $0400
+memcopy src_ptr, dst_ptr, 40 # woordvariabelen voor bron en bestemming
 
-drawmem $C000, $0400, 8, 10, 40 # blit 8×10 rect from $C000 → screen at $0400, stride 40
-drawmem src_ptr, dst_ptr, w, h, 40 # word vars for src/dst
+drawmem $C000, $0400, 8, 10, 40 # blit 8×10 rechthoek van $C000 → scherm op $0400, stapgrootte 40
+drawmem src_ptr, dst_ptr, w, h, 40 # woordvariabelen voor src/dst
 ```
 
 Zowel `fill` als `memcopy` ondersteunen lengtes van 16 bits (0–65535). Gebruik
@@ -1585,10 +1866,10 @@ kolommen). Breedte, hoogte en stapgrootte zijn allemaal 8-bits waarden. `src` en
 ### Raster IRQ
 
 ```basic
-irq my_handler           # raster IRQ at line 0, handler = sub name or address
-irq my_handler, 100      # raster IRQ at raster line 100
-irq $C800, 200           # handler at fixed address
-irq addr_word            # handler address from a word variable
+irq my_handler # raster-IRQ op regel 0, handler = subnaam of adres
+irq my_handler, 100 # raster-IRQ op rasterregel 100
+irq $C800, 200 # handler op vast adres
+irq addr_word # handleradres uit een woordvariabele
 ```
 
 Stelt een raster-IRQ in via de BASIC soft vector (`$0314`/`$0315`): schakelt de
@@ -1601,9 +1882,12 @@ simpele `RTS` of `RTI` zal de stack beschadigen. Bevestig eerst de VIC IRQ:
 
 ```basic
 sub my_handler()
-  poke $D019, $FF      # ACK VIC IRQ
-  # ... work here ...
-  sys $EA81            # JMP to KERNAL end-of-IRQ
+
+poke $D019, $FF # Bevestig VIC IRQ
+
+# ... werk hier ...
+
+sys $EA81 # Spring naar KERNAL einde van IRQ
 end
 ```
 
@@ -1613,11 +1897,13 @@ gedefinieerd).
 ### NMI-handler
 
 ```basic
-nmi my_nmi               # set NMI vector $0318/$0319 to handler sub or address
+nmi my_nmi # Stel NMI-vector $0318/$0319 in op handler-subroutine of adres
 
 sub my_nmi()
-  # ... NMI work here ...
-  nmi_exit               # JMP $FE47 — proper NMI exit (restores A/X/Y + RTI)
+
+# ... NMI-bewerkingen hier ...
+
+nmi_exit # JMP $FE47 — correcte NMI-afsluiting (herstelt A/X/Y + RTI)
 end
 ```
 
@@ -1630,15 +1916,15 @@ beschadigen. Forward references worden ondersteund.
 ### CIA1 timer IRQ
 
 ```basic
-cia_timer 19656, my_handler   # CIA1 timer A: fires every 19656 cycles (~50 Hz PAL)
-cia_timer period, handler      # period can be a variable or expression
+cia_timer 19656, my_handler # CIA1 timer A: wordt elke 19656 cycli geactiveerd (~50 Hz PAL)
+cia_timer period, handler # period kan een variabele of expressie zijn
 ```
 
 Stelt CIA1 timer A in als een periodieke IRQ-bron via de BASIC soft vector
 (`$0314`/`$0315`):
 1. SEI — interrupties uitschakelen
 2. `$DC0D = $7F` — schakel alle CIA1 IRQ's uit
-3. Load 16-bit period lo→`$DC04`, hi→`$DC05`
+3. Laad 16-bits periode lo→`$DC04`, hi→`$DC05`
 4. Schrijf het handleradres naar `$0314`/`$0315`
 5. `$DC0D = $81` — CIA1 timer A IRQ inschakelen
 6. `$DC0E = $01` — start timer A in continue modus
@@ -1649,9 +1935,12 @@ bevestigen:
 
 ```basic
 sub my_handler()
-  poke $DC0D, $01      # ACK CIA1 timer A IRQ (read also clears it)
-  # ... work here ...
-  irq_exit             # JMP $EA81: restore A/X/Y + RTI
+
+poke $DC0D, $01 # ACK CIA1 timer A IRQ (lezen wist deze ook)
+
+# ... werk hier ...
+
+irq_exit # JMP $EA81: herstel A/X/Y + RTI
 end
 ```
 
@@ -1661,13 +1950,15 @@ PAL-timing: klokfrequentie = 985 248 Hz. Periode voor 50 Hz = 985 248 / 50 = 19
 ### Foutafhandeling
 
 ```basic
-onerr goto err_handler   # set KERNAL I/O error vector ($0300/$0301) to a label
+onerr goto err_handler # Stel de kernel I/O-foutvector ($0300/$0301) in op een label
 
 ...
 
 label err_handler
-  print "I/O ERROR"
-  bye
+
+print "I/O-FOUT"
+
+bye
 ```
 
 `onerr goto label` schrijft het labeladres (lo, hi) naar de KERNAL-locaties
@@ -1679,11 +1970,11 @@ ondersteund.
 ### Compile-time file embedding (`incbin` skip / length new in 1.5.7)
 
 ```basic
-incbin "sprites.bin"            # embed raw binary bytes at current code position
-incbin "charset.bin", $2000     # embed at an absolute address, padding as needed
-incbin "font.prg", $3C00, 2       # ...skipping the first 2 bytes (e.g. a .prg load address)
-incbin "big.bin", $4000, 16, 256  # ...skip 16 bytes, then take at most 256 bytes
-include "defs.ub"        # inline another .ub source file (lexed+parsed in place)
+incbin "sprites.bin" # Voeg ruwe binaire bytes in op de huidige codepositie
+incbin "charset.bin", $2000 # Voeg in op een absoluut adres, vul indien nodig aan
+incbin "font.prg", $3C00, 2 # ...sla de eerste 2 bytes over (bijv. een .prg-laadadres)
+incbin "big.bin", $4000, 16, 256 # ...sla 16 bytes over, neem vervolgens maximaal 256 bytes
+include "defs.ub" # Voeg een ander .ub-bronbestand inline in (lexed+parsed in place)
 ```
 
 `incbin "file", addr, skip [, length]` verwijdert de eerste `skip` bytes van het
@@ -1692,11 +1983,11 @@ maximaal `length` bytes; `skip` en `length` zijn constanten, en een `skip`
 voorbij het einde van het bestand is een fout. De adresvorm vereist dat het doel
 zich boven de gegenereerde code bevindt — of binnen een `org` gat.
 
-### Data / Read
+### Gegevens / Lezen
 
 ```basic
-data 1, 2, 3, 255        # constant byte table
-read varname             # load next byte into varname (auto-declares if needed)
+data 1, 2, 3, 255 # constante bytetabel
+lees varname # laad de volgende byte in varname (wordt automatisch gedeclareerd indien nodig)
 ```
 
 Alle `data`-waarden worden tijdens het compileren verzameld. Een 2-byte
@@ -1708,11 +1999,11 @@ programma. Elke `read` verhoogt de pointer.
 ```basic
 var sinus = array(8)
 data sinus: 128, 218, 255, 218
-data sinus: 128, 37, 0, 37      # further lines continue where the previous one stopped
-print sinus[i]                  # random access, like any array
+data sinus: 128, 37, 0, 37 # volgende regels gaan verder waar de vorige is geëindigd
+print sinus[i] # willekeurige toegang, zoals elke array
 
 var xpos = array_word(2)
-data xpos: 24, 300              # word arrays take 16-bit values (stored lo, hi)
+data xpos: 24, 300 # woordarrays nemen 16-bits waarden aan (opgeslagen als laag, hoog)
 ```
 
 Een `data`-regel waarvan het eerste item `name:` is, vult een gedeclareerde
@@ -1726,53 +2017,80 @@ Deze regels hebben geen invloed op `read`.
 ### Inline-assemblage
 
 ```basic
-sys $FFD2                # JSR $FFD2
-sys $FFD2, 7             # LDA #7 ; JSR $FFD2  (pass byte value in A register)
-irq_exit                 # JMP $EA81 — proper IRQ handler exit (restore A/X/Y + RTI)
-asm $EA, $EA             # inline raw bytes (NOP NOP) — legacy form
+sys $FFD2 # JSR $FFD2
+sys $FFD2, 7 # LDA #7 ; JSR $FFD2 (byte-waarde doorgeven in A-register)
+irq_exit # JMP $EA81 — correcte IRQ-handler exit (A/X/Y + RTI herstellen)
+asm $EA, $EA # inline raw bytes (NOP NOP) — legacy-vorm
 asm {
-  ; Full 6502 mnemonics and addressing modes
-  LDA #$07               ; immediate
-  STA $0286              ; absolute
-  LDA $50                ; zero-page  ($50 ≤ $FF → ZP auto-selected)
-  STA $0400,X            ; absolute,X indexed
-  LDA ($50),Y            ; (indirect),Y
-  LDA ($50,X)            ; (indirect,X)
-  JSR $FFD2              ; subroutine call
-  JMP $C000              ; absolute jump
-  JMP ($FFFC)            ; indirect jump
 
-  CLC
-  ADC #1
-  SEC
-  SBC #1
+; Volledige 6502 mnemonics en adresseermodi
 
-  TAX                    ; implied / transfer
-  ASL A                  ; accumulator (also just: ASL)
-  LSR A
-  ROL
-  ROR
+LDA #$07 ; direct
 
-  ; Branches — operand is an absolute address; offset is computed automatically
-  BNE loop               ; forward or backward branch to local label
-  BEQ done
+STA $0286 ; absoluut
+
+LDA $50 ; zero-page ($50 ≤ $FF → ZP automatisch geselecteerd)
+
+STA $0400,X ; absoluut,X geïndexeerd
+
+LDA ($50),Y ; (indirect),Y
+
+LDA ($50,X) ; (indirect,X)
+
+JSR $FFD2 ; subroutine-aanroep
+
+JMP $C000 ; absolute sprong
+
+JMP ($FFFC) ; indirecte sprong
+
+CLC
+
+ADC #1
+
+SEC
+
+SBC #1
+
+TAX ; impliciet / overdracht
+
+ASL A ; accumulator (ook gewoon: ASL)
+
+LSR A
+
+ROL
+
+ROR
+
+; Vertakkingen — operand is een absoluut adres; offset wordt automatisch berekend
+
+BNE loop ; voorwaartse of achterwaartse sprong naar lokaal label
+
+BEQ done
 
 loop:
-  NOP
+
+NOP
 done:
-  RTS
 
-  ; #<label / #>label — lo / hi byte of a label address
-  LDA #<handler
-  STA $0314
-  LDA #>handler
-  STA $0315
+RTS
 
-  ; * — current assembly location
-  JMP *
+; #<label / #>label — lage / hoge byte van een labeladres
 
-  ; Raw hex bytes (backward-compatible with old asm { $xx ... } syntax)
-  $EA $EA                ; two NOP bytes
+LDA #<handler
+
+STA $0314
+
+LDA #>handler
+
+STA $0315
+
+; * — huidige assembly-locatie
+
+JMP *
+
+; Ruwe hexadecimale bytes (achterwaarts compatibel met oude asm { $xx ... } syntax)
+
+$EA $EA ; twee NOP-bytes
 }
 ```
 
@@ -1782,7 +2100,7 @@ done:
 | -------------- | ------------- | ----- | ----------------------------- |
 | (geen operand) | Impliciet     | 1     | `NOP`, `RTS`                  |
 | `A`            | Accumulator   | 1     | `ASL A`, `LSR`                |
-| `#value`       | Onmiddellijk  | 2     | `LDA #$07`                    |
+| `#waarde`      | Onmiddellijk  | 2     | `LDA #$07`                    |
 | `$zz` (0–255)  | Nulpagina     | 2     | `LDA $50`                     |
 | `$zz,X`        | ZP,X          | 2     | `LDA $50,X`                   |
 | `$zz,Y`        | ZP,Y          | 2     | `LDX $50,Y`                   |
@@ -1818,12 +2136,18 @@ het `asm { }`-blok:
 
 ```basic
 sub set_colors(border_col, bg_col)
-  poke $D020, border_col   # UltimateBasic resolves the ZP address
-  poke $D021, bg_col
-  asm {
-    ; values are already in $D020 / $D021
-    LDA $D020
-  }
+
+poke $D020, border_col # UltimateBasic lost het ZP-adres op
+
+poke $D021, bg_col
+
+asm {
+
+; waarden zijn al aanwezig in $D020 / $D021
+
+LDA $D020
+
+}
 end
 ```
 
@@ -1836,12 +2160,12 @@ elkaar verwijzen. Zie `examples/raster_irq_demo.ub`.
 ### String ↔ integer
 
 ```basic
-numstr score, $0340      # writes "042\0" at $0340 (always 3 digits, zero-padded)
-var n = str_to_int("42") # compile-time: Expr::Number(42)
+numstr score, $0340 # schrijft "042\0" op $0340 (altijd 3 cijfers, opgevuld met nullen)
+var n = str_to_int("42") # compileertijd: Expr::Number(42)
 
-print str$(score)                # print 8-bit int as 3-digit decimal string ("000"–"255")
-print "Score: " + str$(score)   # usable in string concat print context
-var s: string = str$(n)          # assign str$() result to a string var (shared static buffer)
+print str$(score) # print 8-bits integer als 3-cijferige decimale tekenreeks ("000"–"255")
+print "Score: " + str$(score) # bruikbaar in de context van string concat print
+var s: string = str$(n) # wijs het resultaat van str$() toe aan een string var (gedeelde statische buffer)
 ```
 
 `str$(n)` converteert een 8-bits waarde naar een decimale tekenreeks van 3
@@ -1859,7 +2183,7 @@ toegewezen.
 
 | Bestand                             | Beschrijving                                                                         |
 | ----------------------------------- | ------------------------------------------------------------------------------------ |
-| `examples/features.ub`              | const, label/goto, poke/peek, rnd, wiskundige functies                               |
+| `voorbeelden/functies.ub`           | const, label/goto, poke/peek, rnd, wiskundige functies                               |
 | `examples/new_features.ub`          | subparameters, arrays, woordvariabelen, tekenreeksvariabelen                         |
 | `examples/bitmap_demo.ub`           | 320×200 bitmap, plotten, grafische weergave aan/uit                                  |
 | `examples/block_demo.ub`            | 80×50 blokgrafieken, plot4, circle4, grafieken op blok                               |
@@ -1872,7 +2196,7 @@ toegewezen.
 | `examples/sprite_orbit_demo.ub`     | 8 hardware-sprites in een cirkelvormige baan via de sinus/cosinus-tabel              |
 | `examples/reu_bitmap_demo.ub`       | REU-opslag/ophaling met bitmapafbeeldingen                                           |
 | `examples/sid_music_demo.ub`        | SID-muziekspeler met raster-IRQ en toetsenborduitgang                                |
-| `examples/tenprint.ub`              | 5 TENPRINT doolhofimplementaties met menu; demo's `lowercase` tekensetmodus          |
+| `voorbeelden/tenprint.ub`           | 5 TENPRINT doolhofimplementaties met menu; demo's `lowercase` tekensetmodus          |
 | `examples/countdown_demo.ub`        | Aftellen `for..next` met negatieve stap, incl. `for i = 20 to 0 step -2`             |
 | `examples/countdown_errors_demo.ub` | Compileerfout voor default-step `from > to`                                          |
 | `examples/explicit_demo.ub`         | `--explicit` CLI-vlagdemo met volledig getypte `var`, `sub`, `fn`                    |
@@ -1881,19 +2205,29 @@ toegewezen.
 ## CLI-referentie
 
 ```
-ub build <input.ub> [OPTIONS]
+ub build <input.ub> [OPTIES]
 
-  -o, --output <file>   Output .prg or .crt file (default: <input>.prg)
-  -v, --verbose         Show zero-page layout and code hex dump
-  --no-stub             Skip the BASIC SYS stub (code loads at $0801)
-  --debug               Also produce .sym, .dbg and .vs debugger files
-  --asm                 Also produce a readable 6502 codegen .asm listing
-  --d64 [file]          Also produce a .d64 disk image;
-                          without a filename defaults to <output>.d64
-  --add <file>          Add an extra file to the .d64 disk image;
-                          may be repeated for multiple files
-  --explicit            Require :type on every var / sub-param / fn-param
-  -h, --help            Show help
+-o, --output <bestand> Uitvoerbestand .prg of .crt (standaard: <input>.prg)
+
+-v, --verbose Toon de lay-out van de nulpagina en een hex-dump van de code
+
+--no-stub Sla de BASIC SYS-stub over (code laadt op $0801)
+
+--debug Produceer ook debugbestanden .sym, .dbg en .vs
+
+--asm Produceer ook een leesbare 6502 codegen .asm-lijst
+
+--d64 [bestand] Produceer ook een .d64-schijfkopie;
+
+zonder bestandsnaam is de standaardwaarde <output>.d64
+
+--add <bestand> Voeg een extra bestand toe aan de .d64-schijfkopie;
+
+kan worden herhaald voor meerdere bestanden
+
+--explicit Vereis :type voor elke variabele / subparameter / functieparameter
+
+-h, --help Toon help
 ```
 
 ### CRT-export
@@ -1928,17 +2262,19 @@ compileerfout.
 
 **Wat het afdwingt:**
 
-| Verklaringformulier                                             | Zonder `--explicit`         | Met `--explicit`                |
-| --------------------------------------------------------------- | --------------------------- | ------------------------------- |
-| `var name = expr` (geen `:type`)                                | ok — type afgeleid          | fout                            |
-| `var name: int = expr` (of woord/zwevendekommagetal/tekenreeks) | OK                          | OK                              |
-| `var arr = array(N)`                                            | ok — impliciet `array`      | ok — ongewijzigd                |
-| `var arr = array_word(N)`                                       | ok — impliciet `array_word` | ok — ongewijzigd                |
-| `const NAME = value`                                            | OK                          | ok — ongewijzigd                |
-| `sub foo(a, b)` (ongetypte parameters)                          | OK                          | fout per niet-getypte parameter |
-| `sub foo(a: int, b: int)`                                       | OK                          | OK                              |
-| `fn foo(a): int` (parameter zonder typeaanduiding)              | OK                          | fout bij de parameter           |
-| `fn foo(a: int): int`                                           | OK                          | OK                              |
+| Verklaringformulier                                             | Zonder `--explicit` | Met `--explicit`      |
+| --------------------------------------------------------------- | ------------------- | --------------------- |
+| `var name = expr` (geen `:type`)                                | ok — type afgeleid  | fout                  |
+| `var name: int = expr` (of woord/zwevendekommagetal/tekenreeks) | OK                  | OK                    |
+| `var arr = array(N)`                                            | ok — type afgeleid  | fout                  |
+| `var arr = array_word(N)`                                       | OK                  | OK                    |
+| `const NAME = value`                                            | OK                  | ok — ongewijzigd      |
+| `sub foo(a, b)` (ongetypte parameters)                          | OK                  | ok — ongewijzigd      |
+| `sub foo(a: int, b: int)`                                       | OK                  | ok — ongewijzigd      |
+| `fn foo(a): int` (parameter zonder typeaanduiding)              | OK                  | fout bij de parameter |
+| `fn foo(a: int): int`                                           | OK                  | OK                    |
+| `fn foo(a): int` (ongetypeerde parameter)                       | OK                  | fout bij de parameter |
+| `fn foo(a: int): int`                                           | OK                  | OK                    |
 
 Constanten en arraydeclaraties worden altijd geaccepteerd — hun type wordt
 bepaald door de declaratievorm, dus `:type` zou overbodig zijn.
@@ -1947,9 +2283,11 @@ bepaald door de declaratievorm, dus `:type` zou overbodig zijn.
 
 ```
 $ ub build myprog.ub --explicit
-Compilation errors:
-  line 14: 'explicit' mode: 'var loose' has no type — use 'var loose: int|word|float|string'
-  line 16: 'explicit' mode: parameter 'a' has no type — use 'a: int|word|float|string'
+Compilatiefouten:
+
+regel 14: 'explicit'-modus: 'var loose' heeft geen type — gebruik 'var loose: int|word|float|string'
+
+regel 16: 'explicit'-modus: parameter 'a' heeft geen type — gebruik 'a: int|word|float|string'
 ```
 
 Deze vlag is een schakelaar die tijdens het compileren wordt ingeschakeld; er
@@ -1992,9 +2330,10 @@ Gebruik `--asm` om een leesbare 6502-broncodelijst naast de PRG te schrijven:
 ub build demo.ub --asm
 ```
 
-For an output named `demo.prg`, this creates `demo.asm`. The listing is produced
-from metadata collected while Ultimate Basic generates the machine code; it is
-not merely a disassembly of the completed PRG. It contains:
+Voor een uitvoerbestand met de naam `demo.prg` wordt hiermee `demo.asm`
+gegenereerd. De lijst wordt geproduceerd op basis van metadata die zijn
+verzameld tijdens het genereren van de machinecode door Ultimate Basic; het is
+niet zomaar een disassemblage van de voltooide PRG. Het bevat:
 
 - `; UB:` opmerkingen die het gegenereerde bytebereik van elke emitterende
   UB-instructie markeren;
@@ -2023,15 +2362,18 @@ benoemde `.byte`-regio's. Lange, met nullen gevulde adresgaten gebruiken de
 Voorbeeldfragment:
 
 ```asm
-.label x                 = $02 ; int
+.label x = $02 ; int
 
 * = $080D
 
 ub_start:
-    cld                         ; $080D: D8
-    ; UB: var x
-    lda  #$01                   ; $080E: A9 01
-    sta  x                      ; $0810: 85 02
+
+cld ; $080D: D8
+
+; UB: var x
+
+lda #$01 ; $080E: A9 01
+sta x ; $0810: 85 02
 ```
 
 De opmerkingen bij de adressen/bytes maken de lijst gemakkelijk te vergelijken
@@ -2047,22 +2389,29 @@ hoofdletters (bijv. `music.prg` → `MUSIC`).
 Na een succesvolle compilatie print de compiler altijd een geheugenkaart af:
 
 ```
-demo.ub → demo.prg  (386 bytes)
+demo.ub → demo.prg (386 bytes)
 
-  Load:    $080D – $0989
+Laden: $080D – $0989
 
-  Variables (zero page):
-    score    ZP:$08   byte
-    lives    ZP:$0A   byte
-    msg      ZP:$0C   string
-    ptr      ZP:$0E   word
+Variabelen (nulpagina):
 
-  Subroutines:
-    greet    $0900
-    show     $0912
+score ZP:$08 byte
 
-  Arrays ($C000+):
-    sprites  $C000   8 bytes
+lives ZP:$0A byte
+
+msg ZP:$0C string
+
+ptr ZP:$0E word
+
+Subroutines:
+
+greet $0900
+
+show $0912
+
+Arrays ($C000+):
+
+sprites $C000 8 bytes
 ```
 
 Met `-v` toont de uitvoer bovendien de interne ZP-toewijzingen en een volledige
@@ -2103,11 +2452,11 @@ Gebruik `--asm` om de gegenereerde code voor je eigen programma te bekijken.
 | `mplot`                               | Geen grenscontrole — x moet tussen 0 en 159 liggen, y moet tussen 0 en 199 liggen.                                                                                                                                                                                                                                                                                                                                                                           |
 | `mline` / `mrect`                     | Meerkleurig; x: 0–159, y: 0–199. Pixels buiten het scherm worden automatisch overschreven (geen uitsnijding) — coördinaten blijven binnen het bereik.                                                                                                                                                                                                                                                                                                        |
 | `mcircle`                             | Meerkleurig; punten buiten beeld (x ≥ 160 of y ≥ 200 worden overgeslagen) worden uitgeknipt.                                                                                                                                                                                                                                                                                                                                                                 |
-| `color pen`                           | Alleen voor huurcellen; stelt de voorgrond-nibble van aangeraakte cellen in (achtergrond blijft behouden). Heeft geen effect in blokmodus (`plot4`/`circle4`)                                                                                                                                                                                                                                                                                                |
-| `rect`                                | Geen grenscontrole — x: 0–319, y: 0–199; x1≤x2 en y1≤y2 worden niet afgedwongen (gedegenereerde/omgekeerde rechthoeken produceren ongedefinieerde uitvoer)                                                                                                                                                                                                                                                                                                   |
+| `kleurpen`                            | Alleen voor huurcellen; stelt de voorgrond-nibble van aangeraakte cellen in (achtergrond blijft behouden). Heeft geen effect in blokmodus (`plot4`/`circle4`)                                                                                                                                                                                                                                                                                                |
+| `rechthoek`                           | Geen grenscontrole — x: 0–319, y: 0–199; x1≤x2 en y1≤y2 worden niet afgedwongen (gedegenereerde/omgekeerde rechthoeken produceren ongedefinieerde uitvoer)                                                                                                                                                                                                                                                                                                   |
 | `plot4`                               | Geen grenscontrole — x moet tussen 0 en 79 liggen, y moet tussen 0 en 49 liggen (blokmodus)                                                                                                                                                                                                                                                                                                                                                                  |
 | `circle4`                             | Snijdt pixels buiten het scherm af; de bruikbare straal is ongeveer 0–49 in de 80×50 blokmodus.                                                                                                                                                                                                                                                                                                                                                              |
 | `chr$`                                | Geen PETSCII↔ASCII-mapping — n wordt ongewijzigd doorgegeven aan CHROUT                                                                                                                                                                                                                                                                                                                                                                                      |
-| `music play`                          | Vereist `load sid` of een `tune` blok; er wordt slechts één CIA1 wrapper uitgezonden (de laatste `music play` wint)                                                                                                                                                                                                                                                                                                                                          |
-| `graphics on double`                  | Alleen voor huurlingen; gebruikt `$4000–$7FFF` voor de backbuffer, dus programmacode moet onder `$4400` blijven; niet combineerbaar met sprites of meerkleurig                                                                                                                                                                                                                                                                                               |
+| `muziek afspelen`                     | Vereist `load sid` of een `tune` blok; er wordt slechts één CIA1 wrapper uitgezonden (de laatste `music play` wint)                                                                                                                                                                                                                                                                                                                                          |
+| `grafische weergave op dubbel`        | Alleen voor huurlingen; gebruikt `$4000–$7FFF` voor de backbuffer, dus programmacode moet onder `$4400` blijven; niet combineerbaar met sprites of meerkleurig                                                                                                                                                                                                                                                                                               |
 | Foutrapportage                        | Alleen tijdens het compileren; `onerr goto` behandelt kernel-I/O-fouten tijdens de uitvoering.                                                                                                                                                                                                                                                                                                                                                               |

@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.2 — Language Manual
+# Ultimate Basic v1.6.3 — Language Manual
 
 Complete language and CLI reference for Ultimate Basic, a BASIC-like language that
 compiles directly to 6502 machine code for the Commodore 64. Output: `.prg` files
@@ -43,6 +43,64 @@ Keywords and identifiers are **case-insensitive**: `PRINT`, `Print`, and `print`
 | `array(R, C, …)` | ∏dims bytes | multi-dimensional (row-major); index `arr[r, c]` |
 | `array_word(R, C, …)` | ∏dims×2 bytes | multi-dimensional word array (row-major) |
 
+#### BASIC-style declarations: `dim … as …`
+
+`dim name as type` is an alternative spelling of `var name: type` — same storage, same code:
+
+```basic
+DIM kor AS INTEGER          # signed 16-bit, starts at 0
+DIM nev AS STRING           # string, starts as ""
+DIM fizetes AS DOUBLE       # Q8.8 fixed point, starts at 0.00
+DIM x, y AS BYTE            # several names, all get the type
+DIM pont AS INTEGER = 1000, cim AS STRING = "C64"   # initializers, mixed types
+```
+
+| `as …` | Ultimate Basic type |
+|---|---|
+| `byte`, `int` | `int` (8-bit, 0–255) |
+| `integer` | signed 16-bit (−32768 … 32767) — QBasic INTEGER |
+| `word` | `word` (unsigned 16-bit, 0–65535) |
+| `single`, `double`, `float` | `float` (Q8.8 — 0–255.99, **not** IEEE floating point) |
+| `string` | `string` |
+
+- Without `= value`, numbers start at 0 and strings at `""`.
+- `dim a, b as integer` gives **both** names the type (VB.NET style, not QBasic).
+  Only a single name may have an initializer.
+- `as` and the BASIC type names are context words, not reserved — they remain usable as names.
+- Not supported: `as long`, struct types (use `var name: TName = array(N)`) —
+  compile-time errors.
+- With `--explicit`, a `dim` without `as` is an error.
+- String assignment has value semantics: `s = "TEXT"` points at the literal, `t = s` and
+  computed values are copied into `t`'s own buffer (see *Strings at runtime*). Before
+  1.6.3, `s = "TEXT"` after the declaration stored a garbage byte into the pointer.
+
+#### Arrays with `dim`: `dim name(u1, u2, …) as type`
+
+```basic
+DIM tabla(2, 3) AS INTEGER     ' 3 × 4 elements: tabla(0..2, 0..3)
+DIM kocka(1, 2, 3) AS BYTE     ' any number of dimensions
+DIM ar(9) AS DOUBLE            ' 10 Q8.8 values
+DIM nevek(4) AS STRING         ' 5 strings, all start as ""
+DIM v(9)                       ' no AS → byte array
+
+tabla(2, 3) = 999              ' QBasic-style index with ( )
+tabla[2, 3] = 999              ' … or the usual [ ]
+nevek(0) = "ZSOLT"
+PRINT tabla(2, 3); " "; nevek(0); " "; ar(1)
+```
+
+- Every bound is the **highest index** (BASIC rule): `dim t(2, 3)` has 3 × 4 elements.
+  (`var t = array(3, 4)` takes element counts — same array.)
+- Element types: `byte`/`int` → 1 byte, `integer` (signed) / `word` → 2 bytes,
+  `single`/`double`/`float` → 2-byte Q8.8, `string` → 2-byte pointer. Bounds must be
+  compile-time constants; arrays live in `$C000-$CFFF` (4096 bytes, checked).
+- String-array elements start as `""`; `nevek(i) = "TEXT"` / `= s` / `= a + b`,
+  `n = nevek(i)`, printing, `+`, passing to a `string` parameter and `input nevek(i)` all
+  work (non-literal values are copied into a 31-character slot per element).
+- `name(i)` indexing also works for arrays declared with `var a = array(…)`.
+- One array per `dim` group: `dim a(3) as byte, n as integer` is fine,
+  `dim n, a(3) as integer` is an error. No initializer — use `data name: …`.
+
 ### Reserved words
 
 The following identifiers are **keywords** — they cannot be used as variable, constant,
@@ -52,7 +110,7 @@ confusing error (a `var` line silently fails to declare, or an expression like
 `for i = 1 to times` folds to `Number(0)`) — so pick a different name.
 
 **Declaration & control flow**
-`var`, `const`, `sub`, `fn`, `type`, `endtype`, `return`, `call`,
+`var`, `dim`, `const`, `sub`, `fn`, `function`, `type`, `do`, `elseif`, `wend`, `endtype`, `return`, `call`,
 `label`, `goto`, `gosub`,
 `if`, `then`, `else`, `end`, `select`, `case`,
 `for`, `next`, `loop`, `times`, `to`, `step`, `while`, `repeat`, `until`,
@@ -136,6 +194,7 @@ naturally not usable in identifiers.
 
 ```basic
 # hash comment
+' QBasic-style comment (1.6.3)
 rem this is also a comment
 var x = 5  # inline comment
 var x = 5 : var y = 6  # colon separates statements on one line
@@ -385,6 +444,138 @@ var v = peek(ptr)            # LDA (ptr),Y
 
 `fn` is emitted in pass 2 (same as `sub`), so function bodies are never executed at startup.
 Forward references are fully supported.
+
+
+#### QBasic-style `FUNCTION` / `SUB`
+
+```basic
+FUNCTION Negyzet (szam AS INTEGER) AS INTEGER
+    Negyzet = szam * szam          ' return value = assign to the function name
+END FUNCTION
+
+FUNCTION Nagyobb (a AS BYTE, b AS BYTE) AS BYTE
+    Nagyobb = a
+    IF b > a THEN
+        Nagyobb = b
+        EXIT FUNCTION              ' return now, with the value assigned so far
+    END IF
+END FUNCTION
+
+SUB Koszont (nev AS STRING)
+    PRINT "Üdvözöllek, "; nev; "!"
+END SUB
+
+n = Negyzet(30)
+Koszont "Zsolt"                    ' call without parentheses
+Koszont("Zsolt")                   ' ... or with them
+CALL Koszont("Zsolt")
+```
+
+- `function` is a synonym for `fn`; `p AS type` works in parameter lists and `AS type`
+  after `)` gives the return type (same type names as `dim`). `: type` still works.
+- Assigning to the function name stores into a hidden `<name>__result` variable that is
+  returned at `END FUNCTION` / `EXIT FUNCTION`; `return expr` still works too.
+- `END SUB`, `END FUNCTION`, `END IF`, `END SELECT` are accepted (the second word is
+  optional); `EXIT SUB` / `EXIT FUNCTION` return (plain `exit` is still `bye`).
+- A sub/fn can be called without parentheses: `Koszont "Zsolt"`, `Rajzol x, y`.
+- `PRINT a; b; c` — `;` joins items without spaces; a trailing `;` suppresses the newline.
+  A `;` followed by a statement (`print x; y = 1`) still separates statements.
+- Accented letters in string literals print as their base letter (`ü` → `u`, `ő` → `o`);
+  the C64 charset has no accents.
+- Word/float parameters now receive both bytes, and a string literal passed to a
+  `string` parameter works (before, only the lo byte / a string variable worked).
+- No recursion (parameters live in static zero-page slots); since 1.6.3 a recursive call
+  is a compile error instead of silently wrong results.
+
+
+#### More QBasic syntax (1.6.3)
+
+The QBasic forms below compile next to the original syntax (`==`, `end`, `loop`, `#`
+comments all keep working).
+
+```basic
+' comment (QBasic style, like #)
+IF x = 3 THEN PRINT "three"            ' single-line IF: no END IF needed
+IF x <> 3 THEN PRINT "no" ELSE PRINT "yes"
+IF n < 0 THEN
+    PRINT "negative"
+ELSEIF n = 0 THEN
+    PRINT "zero"
+ELSE
+    PRINT "positive"
+END IF
+
+DO WHILE i < 10 : i = i + 1 : LOOP     ' also DO UNTIL c … LOOP,
+DO : i = i - 1 : LOOP UNTIL i = 0      ' DO … LOOP WHILE c, DO … LOOP (endless)
+WHILE k <> 5 : k = k + 1 : WEND
+FOR i = 1 TO 100
+    IF i = 12 THEN EXIT FOR             ' EXIT DO / EXIT FOR / EXIT WHILE
+NEXT
+
+SELECT CASE n
+    CASE 1, 2, 3       : PRINT "small"
+    CASE 10 TO 20      : PRINT "teen"
+    CASE IS > 1000     : PRINT "big"
+    CASE ELSE          : PRINT "other"
+END SELECT
+
+END                                     ' ends the program (screen is kept)
+```
+
+- **Conditions:** inside `IF` / `ELSEIF` / `WHILE` / `UNTIL` / `LOOP WHILE|UNTIL`, a single `=`
+  compares. `<>` means not equal everywhere (same as `!=`).
+- **Single-line IF:** a statement right after `THEN` makes a single-line IF that ends with
+  the line, or with an `end` on the same line (`if c then x = 1 end`, as before). A
+  multi-line IF needs a line break after `THEN`. As in QBasic, everything after `THEN` on
+  that line belongs to the IF (`… THEN EXIT FOR : NEXT` would swallow the `NEXT`).
+- **`END` on its own:** an `END` that does not close a block ends the program, like
+  QBasic. A surplus `end` therefore no longer shows up as an error.
+- **`DO` blocks:** inside a `DO`, a `LOOP` at the end of a line closes it (the original
+  `loop N … end` / `loop i = … end` loops still work inside).
+- **`SELECT CASE`:** the old `select x` / `case n:` form is unchanged. `SELECT CASE` is
+  lowered to an IF chain over a hidden `select__N` variable.
+
+#### Strings at runtime (1.6.3)
+
+```basic
+DIM s AS STRING, t AS STRING
+s = "Pont: " + pont + "!"            ' numbers become text (16-bit, signed for INTEGER)
+t = s                                ' a copy: changing s later does not change t
+s = s + "?"
+PRINT LEFT$(s, 4); RIGHT$(s, 2); MID$(s, 7, 3); MID$(s, 7)
+PRINT LEN(s + t), VAL("1234") + 1, STR$(pont)
+IF s = "ABC" OR t <> "" THEN PRINT "compare with = / <>"
+```
+
+- **Buffers:** a string variable that gets a computed value (`+`, `left$`, `right$`, `mid$`,
+  numbers, another variable) owns an 80-character buffer; longer results are cut at 80.
+  Assigning a literal still just points at it.
+- **String arrays:** elements that get a non-literal value (or `input`) get their own
+  32-byte slot (31 characters), so `input nevek(i)` in a loop keeps every name.
+- **`STR$` / `VAL`:** `STR$` of a 16-bit or signed value has no leading zeros (`"-42"`). For
+  compatibility, `STR$` of a byte keeps the 3-digit form (`"007"`). `VAL` reads 16-bit
+  signed numbers (`VAL("1234") + 1` = 1235).
+- **Comparison:** only `=` / `<>` (and `==` / `!=`); there is no `<` / `>` ordering of
+  strings.
+
+#### Signed INTEGER, INPUT, DOUBLE (1.6.3)
+
+- **INTEGER is signed:** `DIM x AS INTEGER` is signed 16-bit (−32768 … 32767, like QBasic):
+  printing, `<` `>` comparisons, `/` (truncates toward zero), `ABS`, text conversion,
+  `INPUT` and `FOR` loops through zero (`FOR i = 3 TO -3 STEP -2`) all follow the sign.
+  `WORD` stays unsigned 0 … 65535. Unary minus works anywhere (`a < -10`, `x * -2`).
+- **`FOR` with a 16-bit counter** (`INTEGER` / `WORD`) is a real 16-bit loop. It used
+  to wrap at 256, so `FOR k = 0 TO 300` ran 45 times.
+- **`INPUT`:** into an INTEGER / WORD reads up to 6 characters (with `-` for INTEGER), into
+  a DOUBLE accepts `12.5` (two decimals). `INPUT t(i)` reads into an array element, and
+  `INPUT "prompt"; x` works too.
+- **DOUBLE ÷ DOUBLE** is exact now (`7.5 / 2.5 = 3.00`); before, only the divisor's integer
+  part was used. DOUBLE × DOUBLE was already supported.
+- **Arrays over 256 bytes** (`DIM t(200) AS INTEGER`, `DIM g(19, 19)`) work with variable
+  indices; the index used to wrap at 256 and write into the wrong element.
+- **Recursion** (a sub/function calling itself, directly or through others) is a compile
+  error. It used to compile and return wrong results, because parameters live in fixed
+  zero-page slots.
 
 ### Arrays
 
@@ -1327,6 +1518,9 @@ input "Score: ", score   # prompt + int input
 
 `input` uses KERNAL BASIN (`$FFCF`) for blocking, echoed line input with DEL support.
 - **Int var**: accepts only `0`–`9`, max 3 chars; converts to 8-bit value on CR.
+- **INTEGER / WORD var** (1.6.3): up to 6 characters (`-` for INTEGER), 16-bit value.
+- **DOUBLE var** (1.6.3): digits and `.`, e.g. `12.5` → 12.50 (two decimals).
+- **Array element** (1.6.3): `input t(i)` / `input nevek(i)`; `input "prompt"; x` also works.
 - **String var**: accepts up to 30 chars; stores as null-terminated string; ZP pair updated.
 
 ### Float / Fixed-Point
@@ -1772,6 +1966,8 @@ annotated form compiles — the loose form becomes a compile-time error.
 |---|---|---|
 | `var name = expr` (no `:type`) | ok — type inferred | error |
 | `var name: int = expr` (or word/float/string) | ok | ok |
+| `dim name` (no `as`) | ok — type inferred | error |
+| `dim name as integer` (any type) | ok | ok |
 | `var arr = array(N)` | ok — implicitly `array` | ok — unchanged |
 | `var arr = array_word(N)` | ok — implicitly `array_word` | ok — unchanged |
 | `const NAME = value` | ok | ok — unchanged |
@@ -1913,12 +2109,12 @@ Use `--asm` to see the generated code for your own program.
 
 | Feature | Limitation |
 |---|---|
-| Integer arithmetic | 8-bit unsigned (0–255); `word` vars hold 16-bit values |
+| Integer arithmetic | `var`/`byte` values are 8-bit unsigned (0–255) and wrap silently (`200 + 100` → 44 in a byte); `integer` is signed 16-bit, `word` unsigned 16-bit |
 | Zero page budget | Permanent zero page is `$02–$4F` (78 bytes): every variable and sub/fn parameter takes 2 bytes, every running `for` loop 2 more (given back when the loop ends, if its body declared no variables). Running out is a compile-time error (`out of zero page`, new in 1.5.7); before, it silently overwrote the scratch area. Reuse variables in big programs |
 | Binary literals | Only `$hex` and decimal; `%` binary literals are not supported |
-| Subroutines | No recursion — ZP parameter slots are statically allocated |
-| String vars | Read-only after init; assignment replaces the pointer, not the data |
-| String concat runtime | `s1 + s2` prints sequentially — no heap allocation or length tracking |
+| Subroutines | No recursion — ZP parameter slots are statically allocated (a recursive call is a compile error) |
+| Floating point | `single` / `double` are Q8.8 fixed point (0–255.99, two decimals, no negative values); see `ROADMAP.md` |
+| String vars | Computed values live in an 80-character buffer per variable (longer results are cut); string-array element values in 31-character slots; no `<` / `>` string ordering |
 | `rnd()` / `rnd(n)` | Simple LCG, not cryptographic; period = 256 |
 | `abs()` / `sgn()` / `min()` / `max()` | 8-bit values only; `abs`/`sgn` treat values as signed (bit 7 = negative → `abs` two's-complements, `sgn` returns `$FF`); `min`/`max` are unsigned (0–255) |
 | `plot` | Out-of-range pixels are silently clipped (Y ≥ 200 or X ≥ 320 → no-op) |

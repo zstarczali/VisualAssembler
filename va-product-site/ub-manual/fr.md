@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.2 — Manuel de langue
+# Ultimate Basic v1.6.3 — Manuel de langue
 
 Référence complète du langage et de l'interface de ligne de commande pour
 Ultimate Basic, un langage de type BASIC qui se compile directement en code
@@ -24,14 +24,14 @@ un compteur `for`/`loop`, un compteur `inc`/`dec`, `input` ou une instruction
 `read` produit une erreur de compilation.
 
 ```basic
-var x = 10               # 8-bit integer (default)
-var ptr: word = $0400    # 16-bit — two zero-page bytes, usable as 16-bit address
-var f: float = 3.5       # Q8.8 fixed-point — hi byte = integer, lo byte = fraction
-var msg = "HELLO"        # string variable (pointer to inline PETSCII data)
-var s: string = "TEXT"   # string with explicit type
-var scores = array(10)   # byte array, 10 elements stored at $C000+
-var moments  = array_word(8) # word array, 8 word elements stored at $C000+
-const BORDER_ADDR = $D020 # compile-time constant (substituted inline, no ZP slot)
+var x = 10 # Entier 8 bits (par défaut)
+var ptr: word = $0400 # 16 bits — deux octets de page zéro, utilisables comme adresse 16 bits
+var f: float = 3.5 # Nombre à virgule fixe Q8.8 — octet de poids fort = entier, octet de poids faible = fraction
+var msg = "HELLO" # Variable chaîne (pointeur vers des données PETSCII intégrées)
+var s: string = "TEXT" # Chaîne de caractères avec type explicite
+var scores = array(10) # Tableau d'octets, 10 éléments stockés à $C000+
+var moments = array_word(8) # Tableau de mots, 8 éléments stockés à $C000+
+const BORDER_ADDR = $D020 # Constante de compilation (substituée en ligne, sans emplacement ZP)
 ```
 
 Les mots clés et les identifiants sont **insensibles à la casse** : `PRINT`,
@@ -40,13 +40,91 @@ Les mots clés et les identifiants sont **insensibles à la casse** : `PRINT`,
 | Taper                 | Largeur        | Notes                                                                                      |
 | --------------------- | -------------- | ------------------------------------------------------------------------------------------ |
 | `int`                 | 8 bits         | valeur par défaut pour les littéraux numériques                                            |
-| `word`                | 16 bits        | deux octets ZP ; peuvent être utilisés comme adresse dans `poke`/`peek`                    |
+| `mot`                 | 16 bits        | deux octets ZP ; peuvent être utilisés comme adresse dans `poke`/`peek`                    |
 | `float`               | Q8.8 16 bits   | octet de poids fort = partie entière (0–255), octet de poids faible = partie fractionnaire |
-| `string`              | aiguille       | Paire ZP → PETSCII terminé par un caractère nul dans le segment de code                    |
-| `array(N)`            | N octets       | Éléments octets ; réside à `$C000+`, pas dans ZP                                           |
-| `array_word(N)`       | N×2 octets     | Éléments de mot (16 bits) ; réside à `$C000+`, et non dans ZP                              |
-| `array(R, C, …)`      | ∏dims octets   | multidimensionnel (ordre des lignes) ; index `arr[r, c]`                                   |
+| `chaîne`              | aiguille       | Paire ZP → PETSCII terminé par un caractère nul dans le segment de code                    |
+| `tableau(N)`          | N octets       | Éléments octets ; réside à `$C000+`, pas dans ZP                                           |
+| `tableau_mot(N)`      | N×2 octets     | Éléments de mot (16 bits) ; réside à `$C000+`, et non dans ZP                              |
+| `tableau(R, C, …)`    | ∏dims octets   | multidimensionnel (ordre des lignes) ; index `arr[r, c]`                                   |
 | `array_word(R, C, …)` | ∏dims×2 octets | tableau de mots multidimensionnel (ordre par lignes)                                       |
+
+#### Déclarations de style BASIC : `dim … as …`
+
+`dim name as type` est une autre orthographe de `var name: type` — même
+stockage, même code :
+
+```basic
+DIM kor AS INTEGER # entier signé 16 bits, commence à 0
+
+DIM nev AS STRING # chaîne de caractères, commence par ""
+
+DIM fizetes AS DOUBLE # nombre à virgule fixe Q8.8, commence à 0.00
+
+DIM x, y AS BYTE # plusieurs noms, tous reçoivent le type
+
+DIM pont AS INTEGER = 1000, cim AS STRING = "C64" # initialiseurs, types mixtes
+```
+
+| `comme …`                      | Type de base ultime                                      |
+| ------------------------------ | -------------------------------------------------------- |
+| `octet`, `entier`              | `int` (8 bits, 0–255)                                    |
+| `entier`                       | Entier signé 16 bits (−32768 … 32767) — QBasic           |
+| `mot`                          | `mot` (non signé 16 bits, 0–65535)                       |
+| `simple`, `double`, `flottant` | `float` (Q8.8 — 0–255.99, **not** IEEE floating virgule) |
+| `chaîne`                       | `chaîne`                                                 |
+
+- Sans `= valeur`, les nombres commencent à 0 et les chaînes à `""`.
+- `dim a, b as integer` donne **les deux** nomme le type (style VB.NET, pas
+  QBasic). Un seul nom peut avoir un initialiseur.
+- `as` et les noms de types BASIC sont des mots de contexte, non réservés — ils
+  restent utilisables comme noms.
+- Non pris en charge : `as long`, types struct (utilisez `var name : TName =
+  array(N)`) — erreurs de compilation.
+- Avec `--explicite`, un `dim` sans `as` est une erreur.
+- L'affectation de chaînes de caractères a une sémantique de valeur : `s =
+  "TEXT"` pointe vers la valeur littérale, `t = s` et les valeurs calculées sont
+  copiées dans le tampon de `t` (voir « Chaînes de caractères à l'exécution »).
+  Avant la version 1.6.3, `s = "TEXT"` stockait un octet indéfini dans le
+  pointeur après la déclaration.
+
+#### Tableaux avec `dim`: `dim name(u1, u2, …) as type`
+
+```basic
+DIM tabla(2, 3) AS INTEGER ' 3 × 4 éléments : tabla(0..2, 0..3)
+
+DIM kocka(1, 2, 3) AS BYTE ' nombre quelconque de dimensions
+
+DIM ar(9) AS DOUBLE ' 10 valeurs Q8.8
+
+DIM nevek(4) AS STRING ' 5 chaînes de caractères, commençant toutes par ""
+
+DIM v(9) ' pas de AS → tableau d'octets
+
+tabla(2, 3) = 999 ' Index de style QBasic avec ( )
+
+tabla[2, 3] = 999 ' … ou l'index habituel [ ]
+
+nevek(0) = "ZSOLT"
+PRINT tabla(2, 3); " "; nevek(0); " "; ar(1)
+```
+
+- Chaque borne correspond à l'indice le plus élevé (règle de base) : dim t(2, 3)
+  possède 3 × 4 éléments. (var t = array(3, 4) prend le nombre d'éléments ; il
+  s'agit du même tableau.)
+- Types d'éléments : octet `/entier ` → 1 octet, entier ` (signé) / mot ` → 2
+  octets, nombre à virgule flottante `/double `/float `/float ` → 2 octets Q8.8,
+  chaîne de caractères ` → pointeur de 2 octets. Les limites doivent être des
+  constantes de compilation ; les tableaux résident dans `$C000-$CFFF ` (4096
+  octets, vérifiés).
+- Les éléments du tableau de chaînes commencent par `""`; `nevek(i) = "TEXT"` /
+  `= s` / `= a + b`, `n = nevek(i)`, l'impression, `+`, le passage à un `string`
+  paramètre et `input nevek(i)` fonctionnent tous (les valeurs non littérales
+  sont copiées dans un emplacement de 31 caractères par élément).
+- `name(i)` l'indexation fonctionne également pour les tableaux déclarés avec
+  `var a = array(…)`.
+- Un tableau par groupe `dim` : `dim a(3) as byte, n as integer` est correct,
+  `dim n, a(3) as integer` est une erreur. Pas d'initialiseur — utilisez `nom de
+  données : …`.
 
 ### Mots réservés
 
@@ -114,20 +192,20 @@ Ces mots anglais courants semblent être de simples identifiants, mais sont déj
 pris en compte par l'analyseur lexical. Renommez-les pour éviter les ruptures
 silencieuses :
 
-| Réservé                                     | renommage suggéré                   |
-| ------------------------------------------- | ----------------------------------- |
-| `end`                                       | `stop_at`, `finish`, `last`         |
-| `stop`                                      | `stop_at`, `halt`                   |
-| `times`                                     | `count`, `n`, `iters`               |
-| `screen`                                    | `scraddr`, `screen_addr`            |
-| `border`, `bg`, `text`                      | `border_addr`, `bg_col`, `text_col` |
-| `clamp`                                     | `cap`, `bound`                      |
-| `line`, `circle`, `rect`                    | `ln`, `circ`, `box_r`               |
-| `data`, `read`                              | `bytes`, `next_byte`                |
-| `load`, `save`, `open`, `close`             | `load_file`, ...                    |
-| `map`, `show`, `hide`                       | `tilemap`, `reveal`, `conceal`      |
-| `play`, `pause`, `resume`, `stop`, `volume` | `play_song`, `vol`                  |
-| `int`, `float`, `word`, `string`            | `n_int`, `speed_f`, `addr`, `msg`   |
+| Réservé                                          | renommage suggéré                       |
+| ------------------------------------------------ | --------------------------------------- |
+| `fin`                                            | `stop_at`, `finish`, `last`             |
+| `stop`                                           | `stop_at`, `halt`                       |
+| `fois`                                           | `compte`, `n`, `iters`                  |
+| `écran`                                          | `scraddr`, `screen_addr`                |
+| `bordure`, `arrière-plan`, `texte`               | `border_addr`, `bg_col`, `text_col`     |
+| `pince`                                          | `cap`, `lié`                            |
+| `ligne`, `cercle`, `rect`                        | `ln`, `circ`, `box_r`                   |
+| `données`, `lecture`                             | `octets`, `octet_suivant`               |
+| `charger`, `enregistrer`, `ouvrir`, `fermer`     | `load_file`, ...                        |
+| `carte`, `afficher`, `masquer`                   | `carte de tuiles`, `révéler`, `masquer` |
+| `lecture`, `pause`, `reprise`, `arrêt`, `volume` | `play_song`, `vol`                      |
+| `int`, `float`, `word`, `string`                 | `n_int`, `speed_f`, `addr`, `msg`       |
 
 Les jetons symboliques (`+ - * / = == != < > <= >= : , ; ( ) [ ] # $ % @`) ne
 sont naturellement pas utilisables dans les identifiants.
@@ -177,25 +255,29 @@ du quotient. La division par zéro est définie comme suit : x / 0 = 255, x mod 
 ### Incrémenter / Décrémenter
 
 ```basic
-inc x                    # x = x + 1  (INC zp — single instruction)
-dec x                    # x = x - 1  (DEC zp — single instruction)
+inc x # x = x + 1 (INC zp — instruction unique)
+dec x # x = x - 1 (DEC zp — instruction unique)
 ```
 
-For `word` variables carry is handled: `inc` uses `INC lo; BNE skip; INC hi`;
-`dec` uses `LDA lo; BNE skip; DEC hi; DEC lo`.
+Pour les variables `word`, la retenue est gérée : `inc` utilise `INC lo ; BNE
+skip ; INC hi` ; `dec` utilise `LDA lo ; BNE skip ; DEC hi ; DEC lo`.
 
 ### Affectations composées
 
 ```basic
-x += 5                   # x = x + 5
-x -= 3                   # x = x - 3
-x *= 2                   # x = x * 2
-x /= 4                   # x = x / 4
-x and= 15                # x = x and 15   (bitwise AND)
-x or= 64                 # x = x or 64    (bitwise OR)
-x xor= 255               # x = x xor 255  (bitwise XOR)
-x shl= 2                 # x = x shl 2
-x shr= 1                 # x = x shr 1
+x += 5 # x = x + 5
+
+x -= 3 # x = x - 3
+
+x *= 2 # x = x * 2
+
+x /= 4 # x = x / 4
+
+x and= 15 # x = x et 15 (ET bit à bit)
+x or= 64 # x = x ou 64 (OU bit à bit)
+x xor= 255 # x = x ou 255 (OU exclusif bit à bit)
+x shl= 2 # x = x shl 2
+x shr= 1 # x = x shr 1
 ```
 
 ### Imprimer
@@ -203,48 +285,57 @@ x shr= 1                 # x = x shr 1
 ```basic
 print "HELLO"
 print x
-print x, y, "text"
-print                     # blank line
+print x, y, "texte"
+print # ligne vide
 
-print spc(5)             # print 5 space characters
-print tab(20), "VALUE"  # move cursor to column 20, then print
-print "A", spc(3), "B" # mix freely
+print spc(5) # afficher 5 espaces
+print tab(20), "VALEUR" # déplacer le curseur à la colonne 20, puis afficher
+print "A", spc(3), "B" # mélanger librement
 
-print "A=" + a           # string + numeric var
-print s1 + s2            # two string vars → sequential print
-print "Hello " + "World" # two literals → compile-time fold
-print chr$(13)           # print by PETSCII code
+print "A=" + a # chaîne de caractères + variable numérique
+print s1 + s2 # deux variables de type chaîne de caractères → affichage séquentiel
+print "Hello " + "World" # deux littéraux → pliage à la compilation
+print chr$(13) # affichage en PETSCII
 ```
 
 ### chr$
 
 ```basic
-print chr$(65)           # output character with PETSCII code 65 ('A')
-var c = chr$(n)          # store byte value n in variable c
-print ">" + chr$(42)     # usable in string concat
+print chr$(65) # affiche le caractère PETSCII 65 (« A »)
+var c = chr$(n) # stocke la valeur de l'octet n dans la variable c
+print "&gt;" + chr$(42) # utilisable dans la concaténation de chaînes
 ```
 
 ### Ramification
 
 ```basic
-if x == 1 then
-  print "YES"
-else
-  print "NO"
-end
+si x == 1 alors
+
+afficher "OUI"
+
+sinon
+
+afficher "NON"
+
+fin
 ```
 
-### Select / Case
+### Sélectionner / Cas
 
 ```basic
-select x
-  case 1:
-    print "ONE"
-  case 2:
-    print "TWO"
-  else:
-    print "OTHER"
-end
+sélectionner x
+
+cas 1 :
+
+afficher « UN »
+
+cas 2 :
+
+afficher « DEUX »
+
+sinon :
+
+afficher « AUTRE »
 ```
 
 La fonction `select expr` évalue l'expression une seule fois et la compare à
@@ -256,61 +347,74 @@ codées sur 8 bits (0 à 255).
 ### Boucles
 
 ```basic
-loop 5               # counted loop (5 iterations)
-  print "HI"
-end
+boucle 5 # boucle comptée (5 itérations)
 
-times 5              # alias for loop N ... end
-  print "HI"
-end
+afficher "Salut"
+fin
 
-loop                 # infinite loop
-  x = x + 1
-  if x == 5 then continue end  # skip to next iteration
-  if x == 100 then break end
-end
+fois 5 # alias pour boucle N ... fin
 
-var i = 0
-for i = 1 to 10      # for..next (preferred)
-  if i == 5 then continue end  # skip to increment step
-  print i
-next
+afficher "Salut"
+fin
 
-for i = 0 to 20 step 2
-  print i
-next i               # variable name after 'next' is optional
+boucle # boucle infinie
 
-for i = 10 to 1 step -1     # counting down — negative constant step is supported
-  print i
-next
+x = x + 1
 
-for i = 20 to 0 step -2     # terminates correctly at i = 0 (11 iterations)
-  print i
-next i
+si x == 5 alors continuer fin # passer à l'itération suivante
+
+si x == 100 alors sortir fin
+fin
 
 var i = 0
-loop i = 1 to 10     # legacy loop..end syntax — identical code
-  print i
-end
+pour i = 1 à 10 # pour..suivant (préféré)
 
-while x < 100
-  x = x + 1
-end
+si i == 5 alors continuer fin # passer à l'incrémentation
+afficher i
+suivant
 
-repeat               # do-while: body runs at least once
-  x = x + 1
-until x == 100       # exits when condition is true
+pour i = 0 à 20 pas 2
+
+afficher i
+suivant i # le nom de la variable après 'suivant' est facultatif
+
+pour i = 10 à 1 pas -1 # décompte — un pas constant négatif est pris en charge
+
+afficher i
+suivant
+
+pour i = 20 à 0 pas -2 # se termine correctement à i = 0 (11 itérations)
+
+afficher i
+suivant i
+
+var i = 0
+boucle i = 1 à 10 # Syntaxe de boucle héritée… fin — code identique
+
+print i
+fin
+
+while x &lt; 100
+
+x = x + 1
+fin
+
+repeat # boucle do-while : le corps s’exécute au moins une fois
+
+x = x + 1
+
+until x == 100 # sort lorsque la condition est vraie
 ```
 
 **Règles de direction pour `for`/`loop` :**
 
-| Case                                                   | Comportement                                                                                                                   |
+| Cas                                                    | Comportement                                                                                                                   |
 | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
 | `for i = 1 to 10` (par défaut `step +1`, `from ≤ to`)  | compte à rebours, standard                                                                                                     |
 | `for i = 0 to 20 step 2` (étape positive, `from ≤ to`) | compte de 2                                                                                                                    |
 | `for i = 10 to 1 step -1` (pas constant négatif)       | compte à rebours ; le corps s'exécute pour i = 10, 9, ..., 1                                                                   |
-| `for i = 20 to 0 step -2` (jusqu'à zéro)               | L'exécution s'arrête à i = 0 en détectant le passage en dessous de 0 après la décrémentation ; il n'y a pas de boucle infinie. |
-| `for i = 10 to 1` (pas d'étape, `from > to`)           | **Erreur de compilation** : `for-loop: from (10) > to (1) with default step +1 loops 0 times — use 'step -1' to count down`    |
+| `for i = 20 to 0 step -2` (jusqu'à zéro)               | L'exécution s'arrête à i = 0 en détectant le passage en dessous de 0 après la décrémentation ; il n'y a pas de boucle infinie. |
+| `for i = 10 to 1` (pas d'étape, `from > to`)           | **Erreur de compilation** : `for-loop: from (10) > to (1) with default step +1 loops 0 times — use 'step -1' to count down`    |
 
 Forme du code (1.6.0) : la boucle est *rotée* — `JMP test` (omis lorsque les
 limites constantes garantissent un premier passage), le corps, `var += étape`,
@@ -331,9 +435,11 @@ divisez la boucle ou utilisez une construction `while`.
 ### Étiquettes et aller à
 
 ```basic
-label main_loop
-  x = x + 1
-  if x < 10 then goto main_loop end
+étiquette boucle_principale
+
+x = x + 1
+
+si x &lt; 10 alors aller à boucle_principale fin
 ```
 
 Le protocole Forward `goto` (étiquette définie ultérieurement) est entièrement
@@ -347,26 +453,32 @@ anticipées (étiquette définie après `gosub`).
 
 ```basic
 gosub draw_border
-...
-label draw_border
-  # ... draw something ...
-  return               # RTS — returns to the instruction after gosub
+
+... label draw_border
+
+# ... dessiner quelque chose ...
+
+return # RTS — retourne à l'instruction après gosub
 ```
 
 ### Sous-programmes
 
 ```basic
 sub greet()
-  print "HELLO!"
+
+print "HELLO!"
+
 end
 
 sub set_color(col)
-  color border col
-  color text   col
+
+color border col
+
+color text col
 end
 
-greet()              # call with parens
-call greet           # call keyword (no parens)
+greet() # appel avec parenthèses
+call greet # appel par mot-clé (sans parenthèses)
 set_color(6)
 ```
 
@@ -380,40 +492,220 @@ source via `src[i]`.
 
 ```basic
 fn square(x)
-  return x * x
+
+return x * x
 end
 
 fn add(a, b)
-  return a + b
+
+return a + b
 end
 
 fn clamp(val, lo, hi)
-  if val < lo then return lo end
-  if val > hi then return hi end
-  return val
-end
 
-var s = square(9)         # s = 81  — fn call as expression
-var c = clamp(joy, 0, 39) # c = clamped value
-print add(10, 20)         # 30  — usable inline in print
+if val &lt; lo then return lo end
+
+if val &gt; hi then return hi end
+
+return val
+end
+var s = square(9) # s = 81 — appel de fonction comme expression
+var c = clamp(joy, 0, 39) # c = valeur bridée
+print add(10, 20) # 30 — utilisable directement dans print
 ```
 
 Les fonctions prennent en charge un type de retour optionnel `: word` pour les
 valeurs 16 bits :
 
 ```basic
-fn get_addr(): word
-  return $C000
-end
+fn get_addr(): mot
 
-var ptr: word = get_addr()  # ptr = $C000
-poke ptr, 42                 # STA (ptr),Y — valid indirect addressing
-var v = peek(ptr)            # LDA (ptr),Y
+retourne $C000
+fin
+
+var ptr: mot = get_addr() # ptr = $C000
+poke ptr, 42 # STA (ptr),Y — adressage indirect valide
+var v = peek(ptr) # LDA (ptr),Y
 ```
 
 `fn` est émis lors de la passe 2 (comme `sub`), les corps de fonction ne sont
 donc jamais exécutés au démarrage. Les références anticipées sont entièrement
 prises en charge.
+
+
+#### Style QBasic `FONCTION` / `SOUS`
+
+```basic
+FONCTION Negyzet (szam COMME ENTIER) COMME ENTIER
+    Negyzet = szam * szam ' valeur de retour = attribuer au nom de la fonction
+FONCTION DE FIN
+
+FONCTION Nagyobb (a COMME OCTET, b COMME OCTET) COMME OCTET
+    Nagyobb = un
+    SI b &gt; a ALORS
+        Nagyobb = b
+        EXIT FUNCTION ' revient maintenant, avec la valeur attribuée jusqu'à présent
+    FIN SI
+FONCTION DE FIN
+
+SUB Koszont (nouveau AS STRING)
+    IMPRIMER "Üdvözöllek, " ; jamais; "!"
+FIN SOUS
+
+n = Négyzet(30)
+Koszont "Zsolt" 'appel sans parenthèses
+Koszont("Zsolt") ' ... ou avec eux
+APPELER Koszont("Zsolt")
+```
+
+- `function` est un synonyme de `fn` ; `p AS type` fonctionne dans les listes de
+  paramètres et `AS type` après `)` donne le type de retour (mêmes noms de types
+  que `dim`). ` : type` fonctionne toujours.
+- L'affectation au nom de la fonction stocke dans une variable cachée
+  `<name>__result` qui est renvoyée à `END FUNCTION` / `EXIT FUNCTION`; `return
+  expr` fonctionne toujours aussi.
+- `END SUB`, `END FUNCTION`, `END IF`, `END SELECT` sont acceptés (le deuxième
+  mot est facultatif) ; `EXIT SUB` / `EXIT FUNCTION` retourne (un simple `exit`
+  est toujours `bye`).
+- Un sub/fn peut être appelé sans parenthèses : `Koszont "Zsolt"`, `Rajzol x,
+  y`.
+- `PRINT a; b; c` — `;` concatène les éléments sans espaces ; un `;` final
+  supprime le saut de ligne. Un `;` suivi d'une instruction (`print x; y = 1`)
+  sépare toujours les instructions.
+- Les lettres accentuées dans les chaînes littérales s'impriment comme leur
+  lettre de base (`ü` → `u`, `ő` → `o`); le jeu de caractères C64 n'a pas
+  d'accents.
+- Les paramètres Word/float reçoivent désormais les deux octets, et une chaîne
+  littérale passée à un paramètre `string` fonctionne (auparavant, seul l'octet
+  lo / une variable de chaîne fonctionnait).
+- Pas de récursivité (les paramètres résident dans des emplacements statiques de
+  page zéro) ; depuis la version 1.6.3, un appel récursif provoque une erreur de
+  compilation au lieu de résultats incorrects silencieux.
+
+#### Syntaxe QBasic supplémentaire (1.6.3)
+
+Les formulaires QBasic ci-dessous se compilent à côté de la syntaxe originale
+(les commentaires `==`, `end`, `loop`, `#` continuent tous de fonctionner).
+
+```basic
+Commentaire (style QBasic, comme #)
+
+SI x = 3 ALORS AFFICHER "trois" ' une seule ligne SI : pas de FIN SI nécessaire
+
+SI x &lt;&gt; 3 ALORS AFFICHER "non" SINON AFFICHER "oui"
+
+SI n &lt; 0 ALORS
+
+AFFICHER "négatif"
+SINON SI n = 0 ALORS
+
+AFFICHER "zéro"
+SINON
+
+AFFICHER "positif"
+FIN SI
+
+FAIRE TANT QUE i &lt; 10 : i = i + 1 : BOUCLE ' aussi FAIRE JUSQU'À c … BOUCLE,
+
+FAIRE : i = i - 1 : BOUCLE JUSQU'À i = 0 ' FAIRE … BOUCLE TANT QUE c, FAIRE … BOUCLE (infini)
+
+TANT QUE k &lt;&gt; 5 : k = k + 1 : FIN
+
+POUR i = 1 À 100
+
+SI i = 12 ALORS SORTIR DE LA BOUCLE ' SORTIR DE LA BOUCLE / SORTIR DE LA BOUCLE / SORTIR DE LA BOUCLE TANT QUE
+
+SUIVANT
+
+SÉLECTIONNER CAS n
+
+CAS 1, 2, 3 : AFFICHER "petit"
+
+CAS 10 À 20 : AFFICHER "adolescent"
+
+CAS &gt; 1000 : AFFICHER "grand"
+
+CAS SINON : AFFICHER "autre"
+
+FIN DE LA SÉLECTION
+
+FIN ' termine le programme (l'écran est conservé)
+```
+
+- **Conditions : ** à l’intérieur de `IF` / `ELSEIF` / `WHILE` / `UNTIL` / `LOOP
+  WHILE|UNTIL`, une seule comparaison `=` est effectuée. `&lt;&gt;` signifie
+  différent partout (équivalent à `!=`).
+- **IF sur une seule ligne : ** Une instruction suivant immédiatement `THEN`
+  crée une instruction IF sur une seule ligne qui se termine par la ligne, ou
+  par un `end` sur la même ligne (`if c then x = 1 end`, comme précédemment).
+  Une instruction IF sur plusieurs lignes nécessite un saut de ligne après
+  `THEN`. Comme en QBasic, tout ce qui suit `THEN` sur cette ligne appartient à
+  l'instruction IF (`… THEN EXIT FOR : NEXT` engloberait le `NEXT`).
+- **`END` seul : ** un `END` qui ne ferme pas un bloc termine le programme,
+  comme en QBasic. Un `end` en trop n'est donc plus considéré comme une erreur.
+- **`DO` blocs : ** à l'intérieur d'un `DO`, un `LOOP` à la fin d'une ligne la
+  ferme (les boucles originales `loop N … end` / `loop i = … end` fonctionnent
+  toujours à l'intérieur).
+- **`SELECT CASE`:** L'ancienne forme `select x` / `case n:` reste inchangée.
+  `SELECT CASE` est simplifiée en une chaîne IF sur une variable `select__N`
+  masquée.
+
+#### Chaînes de caractères à l'exécution (1.6.3)
+
+```basic
+DIM s AS STRING, t AS STRING
+
+s = "Pont : " + pont + "!" ' Les nombres deviennent du texte (entier signé 16 bits)
+
+t = s ' Une copie : modifier s ultérieurement ne modifie pas t
+
+s = s + "?"
+
+PRINT LEFT$(s, 4); RIGHT$(s, 2); MID$(s, 7, 3); MID$(s, 7)
+
+PRINT LEN(s + t), VAL("1234") + 1, STR$(pont)
+
+IF s = "ABC" OR t &lt;&gt; "" THEN PRINT "comparer avec = / &lt;&gt;"
+```
+
+- **Buffers:** une variable de chaîne qui reçoit une valeur calculée (`+`,
+  `gauche$`, `droite$`, `milieu$`, nombres, une autre variable) possède un
+  tampon de 80 caractères ; les résultats plus longs sont coupés à 80.
+  L'affectation d'une valeur littérale ne fait que pointer vers elle.
+- **Tableaux de chaînes :** éléments qui reçoivent une valeur non littérale (ou
+  `entrée`) obtiennent leur propre emplacement de 32 octets (31 caractères),
+  donc `entrée nevek(i)` dans une boucle conserve chaque nom.
+- **`STR$` / `VAL`:** `STR$` d'une valeur 16 bits ou signée ne comporte pas de
+  zéros non significatifs (`"-42"`). Par souci de compatibilité, `STR$` d'un
+  octet conserve sa forme à 3 chiffres (`"007"`). `VAL` lit les nombres signés
+  16 bits (`VAL("1234") + 1` = 1235).
+- **Comparaison : ** seulement `=` / `&lt;&gt;` (et `==` / `!=`) ; il n'y a pas
+  d'ordre `&lt;` / `&gt;` des chaînes.
+
+#### ENTIER signé, ENTRÉE, DOUBLE (1.6.3)
+
+- **INTEGER est signé : ** `DIM x AS INTEGER ` est signé 16 bits (−32768 …
+  32767, comme QBasic) : impression, `&lt;` `&gt;` comparaisons, `/` (tronque
+  vers zéro), `ABS `, conversion de texte, `INPUT ` et `FOR ` boucles à travers
+  zéro (`FOR i = 3 TO -3 STEP -2 `) suivent tous le signe. `WORD` reste non
+  signé 0 … 65535. Le moins unaire fonctionne partout (`a &lt; -10`, `x * -2`).
+- La boucle **`FOR` avec un compteur 16 bits** (`INTEGER` / `WORD`) est une
+  véritable boucle 16 bits. Elle s'arrêtait à 256, donc `FOR k = 0 TO 300`
+  s'exécutait 45 fois.
+- **`INPUT`:** lit jusqu'à 6 caractères dans un entier/mot (avec `-` pour les
+  entiers), et accepte `12.5` (deux décimales) dans un nombre à virgule
+  flottante double précision. `INPUT t(i)` lit dans un élément de tableau, et
+  `INPUT "prompt"; x` fonctionne également.
+- Le calcul DOUBLE ÷ DOUBLE est désormais exact (7,5 / 2,5 = 3,00) ; auparavant,
+  seule la partie entière du diviseur était prise en compte. Le calcul DOUBLE ×
+  DOUBLE était déjà pris en charge.
+- **Les tableaux de plus de 256 octets** (`DIM t(200) AS INTEGER`, `DIM g(19,
+  19)`) fonctionnent avec des indices variables ; l'indice utilisé pour le
+  retour à 256 et l'écriture dans le mauvais élément.
+- **La récursivité** (une sous-fonction/fonction s'appelant elle-même,
+  directement ou par l'intermédiaire d'autres fonctions) est une erreur de
+  compilation. Auparavant, la compilation entraînait des résultats incorrects,
+  car les paramètres étaient stockés dans des emplacements fixes de page zéro.
 
 ### Tableaux
 
@@ -441,18 +733,23 @@ par lignes et indexés par une liste d'indices séparés par des virgules. Leur
 taille totale est le produit de leurs dimensions.**
 
 ```basic
-var grid = array(8, 8)     # 8×8 = 64 bytes at $C000
-grid[1, 0] = 11            # row 1, col 0 → flat index 1*8+0 = 8 → STA $C008
-grid[0, 1] = 22            # row 0, col 1 → flat index 1       → STA $C001
-grid[r, c] = 33            # variable → computes r*8 + c, then STA (ptr),Y
-var v = grid[r, c]         # LDA (ptr),Y
+var grid = array(8, 8) # 8×8 = 64 octets à $C000
 
-var wm = array_word(4, 4)  # 4×4 word array = 32 bytes
-wm[1, 2] = $ABCD           # element 1*4+2 = 6 → bytes $C00C/$C00D
+grid[1, 0] = 11 # ligne 1, colonne 0 → index plat 1*8+0 = 8 → STA $C008
+
+grid[0, 1] = 22 # ligne 0, colonne 1 → index plat 1 → STA $C001
+
+grid[r, c] = 33 # variable → calcule r*8 + c, puis STA (ptr),Y
+
+var v = grid[r, c] # LDA (ptr),Y
+
+var wm = array_word(4, 4) # tableau de mots 4×4 = 32 octets
+
+wm[1, 2] = $ABCD # élément 1*4+2 = 6 → octets $C00C/$C00D
 
 const ROWS = 3
 const COLS = 5
-var m = array(ROWS, COLS)  # dimensions may be compile-time constants
+var m = array(ROWS, COLS) # Les dimensions peuvent être des constantes de compilation
 ```
 
 L'organisation par lignes signifie que le dernier indice est contigu : `grid[r,
@@ -474,33 +771,43 @@ variables.
 
 ```basic
 type TEntity
-  var x:  int      # 1 byte
-  var y:  int      # 1 byte
-  var hp: word     # 2 bytes  → element size = 4
+
+var x: int # 1 octet
+
+var y: int # 1 octet
+
+var hp: word # 2 octets → taille de l'élément = 4
 endtype
 
 const N = 8
-var enemies: TEntity = array(N)   # allocates N × 4 = 32 bytes at $C000
 
-enemies[0].x  = 5
-enemies[0].y  = 10
+var enemies: TEntity = array(N) # alloue N × 4 = 32 octets à $C000
+
+enemies[0].x = 5
+
+enemies[0].y = 10
+
 enemies[0].hp = $0100
-var v = enemies[0].hp             # read back — LDA $C002 / LDA $C003
+var v = enemies[0].hp # lecture — LDA $C002 / LDA $C003
 
 var i: int = 2
-enemies[i].x = 42                 # variable index → idx * elem_size + offset
 
-# Float field (Q8.8 fixed-point)
+enemies[i].x = 42 # index de la variable → idx * taille_élément + décalage
+
+# Champ flottant (Q8.8 à virgule fixe)
 type TBall
-  var bx:  int     # 1 byte
-  var by:  int     # 1 byte
-  var vel: float   # 2 bytes Q8.8  → element size = 4
+
+var bx: int # 1 octet
+
+var by: int # 1 octet
+
+var vel : float # 2 octets Q8.8 → taille de l'élément = 4
 endtype
 
-var balls: TBall = array(3)
-balls[0].vel = 1.5                # stores Q8.8: hi=1, lo=128
-var f: float = balls[0].vel       # read float field into float variable
-print balls[0].vel                # prints "1.50"
+var balls : TBall = array(3)
+balls[0].vel = 1.5 # stocke Q8.8 : hi=1, lo=128
+var f : float = balls[0].vel # lit le champ float dans une variable float
+print balls[0].vel # affiche « 1.50 »
 ```
 
 Règles et contraintes :
@@ -534,9 +841,9 @@ Voir `examples/type_demo.ub`.
 ### Variables 16 bits (mot)
 
 ```basic
-var ptr: word = $0400    # two ZP bytes: lo=$00 hi=$04
-poke ptr, 6              # STA (ptr),Y
-var v = peek(ptr)        # LDA (ptr),Y
+var ptr : mot = 0400 $ # deux octets ZP : lo=00$ hi=04$
+poke ptr, 6 # STA (ptr),Y
+var v = coup d'oeil(ptr) # LDA (ptr),Y
 ```
 
 **Produits 16 bits (corrigé dans la version 1.5.7).** Un produit affecté à un
@@ -559,31 +866,38 @@ conservent les résultats sur 8 bits.
 ### Graphiques bitmap
 
 ```basic
-graphics on              # VIC-II hires bitmap mode (320×200, 1bpp); bitmap at $2000
-graphics on multi        # VIC-II multicolor bitmap mode (160×200, 2bpp, 4 colours/cell)
-graphics off             # return to text mode
+Graphismes activés # Mode bitmap haute résolution VIC-II (320×200, 1 bpp) ; bitmap à $2000
 
-gcls                     # clear bitmap (fills $2000-$3FFF) + set video matrix colors
+Graphismes activés # Mode bitmap multicolore VIC-II (160×200, 2 bpp, 4 couleurs/cellule)
+Graphismes désactivés # Retour au mode texte
 
-plot x, y                # set pixel at (x, y);  x: 0-319,  y: 0-199
-plot erase x, y          # clear pixel (AND ~mask)
-plot xor x, y            # toggle pixel (EOR mask) — flicker-free animation
-circle x, y, r           # midpoint circle centered at (x, y) with radius r; clips off-screen points
-line x1, y1, x2, y2      # Bresenham line from (x1,y1) to (x2,y2); x: 0-319, y: 0-199
-line erase x1, y1, x2, y2  # clear pixels along the line (AND ~mask)
-line xor x1, y1, x2, y2    # toggle pixels along the line (EOR mask)
-rect x1, y1, x2, y2      # draw rectangle outline (4 edges); x: 0-319, y: 0-199
-rect erase x1, y1, x2, y2  # clear rectangle outline (AND ~mask)
-rect xor x1, y1, x2, y2    # XOR rectangle outline (EOR mask)
-paint x, y               # 4-connected flood fill from (x, y); fills clear pixels bounded by set ones
+gcls # Effacer le bitmap (remplit $2000-$3FFF) + définir les couleurs de la matrice vidéo
 
-color pen c              # set the hires drawing color (0-15); see below
+plot x, y # Définir le pixel à (x, y) ; x : 0-319, y : 0-199
+plot erase x, y # Effacer le pixel (ET ~masque)
+plot xor x, y # Basculer le pixel (masque EOR) — animation sans scintillement
+circle x, y, r # Cercle du point médian centré en (x, y) avec un rayon r ; écrête les points hors écran
+line x1, y1, x2, y2 # Ligne de Bresenham de (x1,y1) à (x2,y2) ; x : 0-319, y : 0-199
 
-# ── Multicolor bitmap (graphics on multi, 160×200) ──
-mplot x, y, color        # set multicolor pixel (x: 0-159, y: 0-199, color: 0-3)
-mline x1, y1, x2, y2, color   # multicolor line
-mrect x1, y1, x2, y2, color   # multicolor rectangle outline
-mcircle x, y, r, color        # multicolor circle
+Line Eraser x1, y1, x2, y2 # Efface les pixels le long de la ligne (masque ET ~)
+
+Line XOR x1, y1, x2, y2 # Inverse les pixels le long de la ligne (masque OU-E)
+
+Rect x1, y1, x2, y2 # Dessine le contour d'un rectangle (4 côtés) ; x : 0-319, y : 0-199
+
+Rect Eraser x1, y1, x2, y2 # Efface le contour d'un rectangle (masque ET ~)
+
+Rect XOR x1, y1, x2, y2 # Contour d'un rectangle (masque OU-X)
+
+Paint x, y # Remplissage par propagation de 4 pixels à partir de (x, y) ; remplit les pixels effacés délimités par les 1 définis
+
+Color Pen c # Définit la couleur de dessin haute résolution (0-15) ; Voir ci-dessous
+
+# ── Bitmap multicolore (graphique sur fond multicolore, 160×200) ──
+mplot x, y, couleur # Définir un pixel multicolore (x : 0-159, y : 0-199, couleur : 0-3)
+mline x1, y1, x2, y2, couleur # Ligne multicolore
+mrect x1, y1, x2, y2, couleur # Contour d'un rectangle multicolore
+mcircle x, y, r, couleur # Cercle multicolore
 ```
 
 Les deux variantes `graphics on` effacent l'affichage (`LDA $D011 / AND #$EF /
@@ -608,13 +922,13 @@ que les programmes qui n'appellent jamais `color pen` s'affichent exactement
 comme avant.
 
 ```basic
-graphics on
+Graphiques sur
 gcls
-color pen 2              # red
-line 0, 0, 100, 100
-color pen 6              # blue
-circle 160, 100, 40
-display on
+Stylo couleur 2 # rouge
+Ligne 0, 0, 100, 100
+Stylo couleur 6 # bleu
+Cercle 160, 100, 40
+Affichage sur
 ```
 
 #### Formes multicolores — `mline` / `mrect` / `mcircle`
@@ -629,12 +943,12 @@ proprement dites proviennent de la palette de cellules (écran/RAM couleur),
 exactement comme pour `mplot`.
 
 ```basic
-graphics on multi
+Graphiques sur plusieurs
 gcls
 mcircle 80, 100, 40, 1
 mrect 10, 10, 150, 190, 2
 mline 0, 0, 159, 199, 3
-display on
+Affichage sur
 ```
 
 `mline`/`mrect`/`mcircle` réutilisent les mêmes routines Bresenham / point
@@ -644,11 +958,11 @@ médian que leurs homologues haute résolution, traçant chaque pixel à travers
 ### Bitmap à double tampon (sans scintillement)
 
 ```basic
-graphics on double       # double-buffered hires bitmap (320×200)
-gcls                     # clears the HIDDEN back buffer
-line 0, 0, 319, 199      # all drawing (plot/line/circle/rect/paint/gcls) goes to the back buffer
-flip                     # show the drawn buffer; redirect drawing to the other one
-graphics off             # back to text mode (restores VIC bank 0)
+graphismes sur double # bitmap haute résolution à double tampon (320×200)
+gcls # efface le tampon arrière CACHÉ
+ligne 0, 0, 319, 199 # tout le dessin (tracé/ligne/cercle/rectangle/peinture/gcls) est placé dans le tampon arrière
+flip # affiche le tampon dessiné ; redirige le dessin vers l'autre tampon
+graphics off # retour au mode texte (restaure la banque VIC 0)
 ```
 
 `graphics on double` conserve **deux** bitmaps haute résolution complets et
@@ -688,13 +1002,17 @@ scintillement.
 ### Graphiques en blocs (80×50)
 
 ```basic
-graphics on block        # 80×50 block-pixel mode (text mode + custom 4-pixel charset @ $2800)
-graphics off             # return to text mode
-gcls                     # clear block playfield: screen RAM $0400-$07FF + color RAM $D800-$DBFF
+Affichage des graphismes en mode bloc 80×50 (mode texte + jeu de caractères personnalisé 4 pixels à $2800)
 
-plot4 x, y               # set block pixel at (x, y);  x: 0-79, y: 0-49
-plot4 erase x, y         # clear block pixel at (x, y)
-circle4 x, y, r          # draw midpoint circle in block pixels; clips to 80×50
+Désactivation des graphismes # Retour au mode texte
+
+Effacement de la zone de jeu : RAM écran $0400-$07FF + RAM couleur $D800-$DBFF
+
+Plot4 x, y # Positionner le pixel du bloc à (x, y) ; x : 0-79, y : 0-49
+
+Plot4 erase x, y # Effacer le pixel du bloc à (x, y)
+
+Circle4 x, y, r # Tracer un cercle médian en pixels de bloc ; écrêtage à 80×50
 ```
 
 Un mode basse résolution épais superposé à un texte standard 40×25. Un jeu de
@@ -712,38 +1030,52 @@ Voir `examples/block_demo.ub`.
 ### Écran et couleur
 
 ```basic
-cls                      # clear screen (KERNAL $E544)
-cls fast                 # fast fill: screen RAM + color RAM + HOME
+cls # Effacer l'écran (KERNAL $E544)
 
-color text 14            # text color register $0286
-color border 6           # $D020
-color bg 0               # $D021
-color pen 2              # hires drawing color (0-15) for plot/line/rect/circle/paint
+cls fast # Remplissage rapide : RAM écran + RAM couleur + HOME
 
-screen 0, 0, 65          # write char 65 ('A') to screen RAM at col 0, row 0 ($0400)
-screen 10, 5, ch         # col 10, row 5 — col/row can be variables
-screen 5, 3, 42, 7       # char 42 at col 5, row 3, color 7 (writes color RAM $D800 too)
-screen x, y, ch, col     # all four arguments as variables
+color text 14 # Couleur du texte (registre $0286)
 
-display on               # re-enable VIC display ($D011 DEN bit)
-display off              # blank display
+color border 6 # $D020
+color bg 0 # $D021
 
-lowercase                # CHR$(14) → switch VIC-II to lowercase/uppercase charset
-uppercase                # CHR$(142) → switch VIC-II back to uppercase/graphics charset
+color pen 2 # Couleur de dessin haute résolution (0-15) pour les tracés, lignes, rectangles, cercles et peintures
 
-cursor 20, 10            # move cursor to col 20, row 10 (KERNAL PLOT $FFF0)
-cursor x, y              # column from variable x (0–39), row from y (0–24)
+screen 0, 0, 65 # Écrire le caractère 65 (« A ») dans la RAM écran, colonne 0, ligne 0 ($0400)
 
-print at 20, 10, "HELLO" # cursor(20,10) + print in one statement (no trailing newline)
-print at x, y, "Score:", score  # any mix of exprs
-print at 0, 0            # position only (no text, no newline)
+screen 10, 5, ch # Colonne 10, ligne 5 — col et ligne peuvent être des variables
 
-scroll x 3               # set horizontal fine scroll: $D016 bits 0-2 = 3 (0-7)
-scroll y 2               # set vertical fine scroll:   $D011 bits 0-2 = 2 (0-7)
-scroll x n               # value can be a variable or expression (masked to bits 0-2)
-scroll x 7 narrow        # set fine scroll and force 38-column mode (hide edge column)
-scroll x 0 wide          # set fine scroll and restore 40-column mode
-scroll row 12 left       # shift screen RAM row 12 left by one character
+screen 5, 3, 42, 7 # Caractère 42, colonne 5, ligne 3, couleur 7 (écrit également dans la RAM couleur $D800)
+
+screen x, y, ch, col # Les quatre arguments sont des variables
+
+display on # Réactiver l'affichage VIC (bit DEN $D011)
+display Off # Affichage vide
+
+Minuscules # CHR$(14) → Basculer VIC-II en mode minuscules/majuscules
+
+Majuscules # CHR$(142) → Repasser VIC-II en mode majuscules/graphiques
+
+Curseur 20, 10 # Déplacer le curseur à la colonne 20, ligne 10 (KERNAL PLOT $FFF0)
+
+Curseur x, y # Colonne de la variable x (0–39), ligne de la variable y (0–24)
+
+Print at 20, 10, "HELLO" # Curseur(20,10) + print en une seule instruction (sans saut de ligne)
+
+Print at x, y, "Score:", score # Combinaison d'expressions possibles
+Print at 0, 0 # Position uniquement (sans texte, sans saut de ligne)
+
+Scroll x 3 # Défilement horizontal fin : $D016 bits 0-2 = 3 (0-7)
+
+Scroll y 2 # Défilement vertical fin défilement : $D011 bits 0-2 = 2 (0-7)
+
+défilement x n # la valeur peut être une variable ou une expression (masquée sur les bits 0-2)
+
+défilement x 7 étroit # activer le défilement fin et forcer le mode 38 colonnes (masquer la colonne de bord)
+
+défilement x 0 large # activer le défilement fin et rétablir le mode 40 colonnes
+
+défilement ligne 12 gauche # décaler la ligne 12 de la RAM écran vers la gauche d'un caractère
 ```
 
 `lowercase` émet `LDA #$0E; JSR $FFD2` à l'exécution. Les chaînes de caractères
@@ -771,15 +1103,16 @@ Colonne/ligne constantes : adresse calculée à la compilation.
 ### Ultimate 64 — Vitesse du processeur
 
 ```basic
-speed 4              # set CPU to 4 MHz  (reads $D031, updates bits 0-3, writes back)
-speed 48             # 48 MHz  (maximum speed on U64)
-speed max            # same as speed 48  (alias)
-speed off            # back to 1 MHz  (alias for speed 1)
+speed 4 # Régle le processeur à 4 MHz (lit $D031, met à jour les bits 0 à 3, puis réécrit la valeur)
+speed 48 # 48 MHz (vitesse maximale sur U64)
+speed max # Identique à speed 48 (alias)
+speed off # Retour à 1 MHz (alias pour speed 1)
 
-badlines on          # enable badline timing  ($D031 bit 7 = 0, default C64 behaviour)
-badlines off         # disable badline timing ($D031 bit 7 = 1, more CPU cycles)
+badlines on # Active la gestion des lignes défectueuses (bit 7 de $D031 = 0, comportement par défaut du C64)
 
-var t = turbo()      # 1 if turbo is active (bits 0-3 of $D031 != 0), 0 if at 1 MHz
+badlines off # Désactive la gestion des lignes défectueuses (bit 7 de $D031 = 1, augmente le nombre de cycles processeur)
+
+var t = turbo() # 1 si le mode turbo est actif (bits 0 à 3 de $D031 != 0), 0 si la fréquence est de 1 MHz
 ```
 
 Valeurs MHz disponibles : `1, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 20, 24, 32, 40,
@@ -788,7 +1121,7 @@ plus proche lors de la compilation. Les valeurs variables sont traitées comme u
 indice de vitesse brut (0–15) et combinées par un OU logique avec les bits 0 à 3
 de `$D031`.
 
-| $D031 index | MHz (U64) | MHz (U64 Elite-II) |
+| Index $D031 | MHz (U64) | MHz (U64 Elite-II) |
 | ----------- | --------- | ------------------ |
 | 0           | 1         | 1                  |
 | 3           | 4         | 4                  |
@@ -803,16 +1136,25 @@ Nécessite que **U64 Turbo Control** soit réglé sur `U64 Turbo Registers` ou
 ### Clavier
 
 ```basic
-var key = getch()        # busy-wait on $FFE4 until key; returns PETSCII code
-var k   = inkey()        # non-blocking: returns PETSCII code, or 0 if no key pressed
-waitkey                  # wait until any key is pressed (CIA1 matrix scan; works during IRQ)
-var k   = waitkey()      # same but returns raw $DC01 column bits (0 bit = key pressed)
-var j = joy(2)           # read joystick port 2; returns inverted bits 0-4
-var j = joy(1)           # read joystick port 1
-                         # bit0=up(1) bit1=down(2) bit2=left(4) bit3=right(8) bit4=fire(16)
-var mx = mouse_x()       # 1351 mouse: accumulated X position (helper: charge+delay+delta)
-var my = mouse_y()       # 1351 mouse: accumulated Y position (EOR #$FF inverted)
-var mb = mouse_btn()     # mouse buttons: reads $DC01 — bit0=left (fire), bit1=right (up pin)
+var key = getch() # Attente active sur $FFE4 jusqu'à l'appui sur une touche ; retourne le code PETSCII
+
+var k = inkey() # Non bloquant : retourne le code PETSCII, ou 0 si aucune touche n'est enfoncée
+
+waitkey # Attente jusqu'à l'appui sur une touche (analyse de la matrice CIA1 ; fonctionne pendant une interruption)
+
+var k = waitkey() # Identique, mais retourne les bits bruts de la colonne $DC01 (bit 0 = touche enfoncée)
+
+var j = joy(2) # Lecture du port 2 du joystick ; Renvoie les bits 0 à 4 inversés.
+
+var j = joy(1) # Lecture du port 1 du joystick
+
+# bit0=haut(1) bit1=bas(2) bit2=gauche(4) bit3=droite(8) bit4=tir(16)
+
+var mx = mouse_x() # Souris 1351 : position X cumulée (avec : charge + délai + delta)
+
+var my = mouse_y() # Souris 1351 : position Y cumulée (EOR #$FF inversé)
+
+var mb = mouse_btn() # Boutons de la souris : lecture de $DC01 — bit0=gauche (tirer), bit1=droite (broche haut)
 ```
 
 **Les programmes `mouse_x()` et `mouse_y()` exécutent en interne une
@@ -843,17 +1185,17 @@ suivi de sprites et retour de bouton.
 ### Sortie
 
 ```basic
-bye                      # JSR $E544 (clear screen), clear STOP flag, RTS to BASIC
-exit                     # alias for bye
+bye # JSR $E544 (effacement de l'écran), suppression du drapeau STOP, retour à BASIC
+exit # alias pour bye
 ```
 
 ### Timing
 
 ```basic
-wait 50                  # wait 50 raster-line transitions (~3.2 ms)
-wait raster 100          # spin until $D012 == 100 (raster-split effects)
-delay 1                  # wait 1 PAL frame (1/50 s ≈ 20 ms)
-delay 20                 # wait 20 frames ≈ 0.4 s; n can be a variable (0–255)
+wait 50 # Attendre 50 transitions de lignes raster (~3,2 ms)
+wait raster 100 # Boucle jusqu'à ce que $D012 == 100 (effets de séparation raster)
+delay 1 # Attendre 1 image PAL (1/50 s ≈ 20 ms)
+delay 20 # Attendre 20 images ≈ 0,4 s ; n peut être une variable (0–255)
 ```
 
 `delay N` compte N trames PAL complètes en utilisant la ligne raster 200 comme
@@ -862,13 +1204,16 @@ limite de trame.
 ### SID Sound
 
 ```basic
-sound 0, $1CAD, 25       # voice 0, freq $1CAD (≈ middle C PAL), 25 frames duration
-sound 1, freq_word, 50   # voice 1, freq from word var, 50 frames (1 s at 50 Hz)
-sound 2, 0, 0            # voice 2, silence
+son 0, $1CAD, 25 # voix 0, fréquence $1CAD (≈ Do central PAL), durée 25 trames
 
-sid volume 15            # master volume full ($D418 = $0F); range 0-15
-sid volume 0             # silence (master volume = 0)
-sid stop                 # zero all 25 SID registers ($D400–$D418) — complete silence
+son 1, freq_mot, 50 # voix 1, fréquence de la variable mot, 50 trames (1 s à 50 Hz)
+
+son 2, 0, 0 # voix 2, silence
+
+sid volume 15 # volume principal au maximum ($D418 = $0F) ; plage 0-15
+
+sid volume 0 # silence (volume principal = 0)
+sid stop # mise à zéro des 25 registres SID ($D400–$D418) — silence complet
 ```
 
 `sound <channel>, <freq>, <duration>` — durée en images PAL (1/50 s chacune).
@@ -891,10 +1236,10 @@ plus rapide que 25 insertions individuelles.
 ### Effets sonores non bloquants (`sfx`) — nouveauté de la version 1.5.7
 
 ```basic
-sound 0, $2000, 25            # BLOCKS: the program waits 25 frames here
-sfx 0, $2000, 25              # returns at once; the note fades out by itself
-sfx 1, $0500, 8, 128          # optional wave: 16 triangle, 32 saw (default), 64 pulse, 128 noise
-sfx 0, freq_word, 4, 16       # freq may be a constant, a word var or an 8-bit expression
+son 0, $2000, 25 # BLOCS : le programme attend 25 images ici
+sfx 0, $2000, 25 # Retour immédiat ; la note s’estompe d’elle-même
+sfx 1, $0500, 8, 128 # Onde optionnelle : 16 triangle, 32 dents de scie (par défaut), 64 impulsion, 128 bruit
+sfx 0, freq_word, 4, 16 # freq peut être une constante, une variable de type mot ou une expression 8 bits
 ```
 
 La fonction `sfx <channel>, <freq>, <frames> [, <wave>]` programme une voix SID
@@ -912,8 +1257,9 @@ signal, puis réactivation) et le volume principal est réglé `$0F`. `channel`
 ### Musique SID
 
 ```basic
-load sid "tune.sid"            # embed SID music at its native load address
-load sid "tune.sid", $2000     # override: embed at $2000 regardless of SID header
+charger sid "tune.sid" # intégrer la musique SID à son adresse de chargement native
+
+charger sid "tune.sid", $2000 # priorité : intégrer à $2000 indépendamment de l'en-tête SID
 ```
 
 `load sid` lit un fichier PSID ou RSID à la **compilation**, supprime l'en-tête
@@ -923,7 +1269,7 @@ constantes de compilation deviennent disponibles :
 | Constante  | Description                                                                                                 |
 | ---------- | ----------------------------------------------------------------------------------------------------------- |
 | `sid_init` | Adresse de la routine d'initialisation — appel unique avec A = numéro de chanson (à partir de 0)            |
-| `sid_play` | Adresse de la routine de lecture — appel de chaque trame (PAL 50 Hz) depuis un gestionnaire d’interruption. |
+| `sid_play` | Adresse de la routine de lecture — appel de chaque trame (PAL 50 Hz) depuis un gestionnaire d’interruption. |
 
 Les deux constantes fonctionnent partout où une adresse constante est acceptée :
 `sys`, `irq`, `poke`, expressions.
@@ -931,18 +1277,22 @@ Les deux constantes fonctionnent partout où une adresse constante est acceptée
 **Utilisation typique :**
 
 ```basic
-load sid "music.sid"
+Charger le SID « music.sid »
 
-sub music_irq()
-  poke $D019, $FF       # ACK VIC raster IRQ
-  sys sid_play          # advance one frame of music
-  irq_exit              # JMP $EA81: restore A/X/Y + RTI (proper IRQ exit)
-end
+Sub music_irq()
 
-sys sid_init, 0         # initialise SID chip: A=0 → first sub-tune
-irq music_irq, $C0      # raster IRQ at line $C0 → 50 Hz on PAL
+Poke $D019, $FF # Accusé de réception de l'interruption raster VIC
 
-sid volume 15           # master volume on
+Système sid_play # Avancer d'une trame musicale
+
+Irq_exit # Saut $EA81 : restauration des signaux A/X/Y et RTI (sortie d'interruption correcte)
+
+Fin
+
+Système sid_init, 0 # Initialisation de la puce SID : A=0 → première sous-échelle
+Irq music_irq, $C0 # Interruption raster à la ligne $C0 → 50 Hz en PAL
+
+SID volume 15 # Volume principal activé
 ```
 
 **Remarques :**
@@ -957,20 +1307,30 @@ sid volume 15           # master volume on
 ### Track mèmes (`tune`)
 
 ```basic
-tune                       # optional: tune at $C800  (default $8000)
-  speed 6                  # frames per row (50 Hz PAL)
-  inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
-  inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
-  imod 0, 6, 3, 9, 40, $0200, $0E00   # vibrato + pulse width modulation (1.6.2)
-  ifilt 0, $0500, 20, 1               # cutoff sweep up to $500, back and forth (1.6.2)
-  igate 1, 2, 1, $09                  # gate timer, hard restart, first frame $09 (1.6.2)
-  itab 1, 2, 0, ".. +0", ".. +4", ".. +7"   # arpeggio table (1.6.2)
-  order 0, 1, 0            # pattern order (patterns may repeat)
-  pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
-  pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
-  pat 1, 0, "G-4 00", "...", "E-4 00", "...", "C-4 00"
-end
-music play                 # or: sys sid_init / irq handler calling sys sid_play
+accordage # optionnel : accordage à $C800 (par défaut $8000)
+
+vitesse 6 # images par ligne (50 Hz PAL)
+
+inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
+
+inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
+
+imod 0, 6, 3, 9, 40, $0200, $0E00 # vibrato + modulation de largeur d'impulsion (1.6.2)
+
+ifilt 0, $0500, 20, 1 # balayage de la fréquence de coupure jusqu'à $500, aller-retour (1.6.2)
+
+igate 1, 2, 1, $09 # temporisateur de porte, redémarrage forcé, première image $09 (1.6.2)
+
+itab 1, 2, 0, ".. +0", ".. +4", ".. +7" # Table d'arpèges (1.6.2)
+
+Ordre 0, 1, 0 # Ordre des motifs (les motifs peuvent se répéter)
+
+Motif 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
+
+Motif 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
+
+Motif 1, 0, "G-4 00", "...", "E-4 00", "...", "C-4 00"
+Fin de la lecture musicale # ou : sys sid_init / gestionnaire d'interruption appelant sys sid_play
 ```
 
 `tune ... end` décrit une mélodie de suivi à 3 voix en texte brut (la même
@@ -982,14 +1342,14 @@ sid_play`) fonctionnent sans modification.
 
 | Doubler                                                                       | Signification                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `speed N`                                                                     | Images par rangée de suivi (1-255).                                                                                                                                                                                                                                                                                                                                                                                                               |
-| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol`                         | Un instrument : registre de contrôle (bits de forme d'onde plus modulation en anneau `$04` / sync `$02` ; le bit de porte est ajouté par le joueur), attaque/décroissance, maintien/relâchement, largeur d'impulsion 12 bits, coupure de filtre 11 bits, octet de résonance/routage de filtre (style `$D417` : n'importe quel bit de routage = acheminer la voix qui joue cet instrument) et octet de mode/volume (style `$D418`, bit 7 = 3 OFF). |
-| `identifiant imod, vibdelay, vibspeed, vibdegree, pwmspeed, pwmmin, pwmmax`   | (1.6.2) Vibrato de l'instrument : après `vibdelay` images, un LFO triangulaire tourne toutes les `vibspeed` images (1-15, 0 = désactivé), profondeur 0-15 (proportionnelle au demi-ton de la note). Modulation de largeur d'impulsion : `pwmspeed` est ajouté par image (0 = désactivé), oscillant entre `pwmmin` et `pwmmax`.                                                                                                                    |
-| `ifilt id, cutend, sweep, pingpong`                                           | (1.6.2) Balayage de la coupure du filtre : de la coupure `inst` vers la coupure `cutend` par `sweep` (0-127) par image ; `pingpong` 1 = aller-retour.                                                                                                                                                                                                                                                                                             |
-| `Identifiant de porte, minuterie de porte, redémarrage forcé, première vague` | (1.6.2) La porte est relâchée `gatetimer` images avant la note suivante de la voix (maintenez-la en dessous de `speed`) ; `hardrestart` 1 réinitialise également l'ADSR à 0. `firstwave` (par exemple, `$09` = test + porte) est écrit sur la première image de la note.                                                                                                                                                                          |
-| `itab id, vitesse, boucle, "pas", ...`                                        | (1.6.2) Table d'ondes/arpèges, jusqu'à 32 pas : `"WW +n"`, `".. -n"` ou `"WW =n"` - forme d'onde en hexadécimal (`..` la conserve) et décalage de note en demi-tons ou note absolue (`=60`). Un pas toutes les `vitesse` images, puis retour au pas `boucle` (255 = rester sur le dernier pas).                                                                                                                                                   |
-| `order p, p, ...`                                                             | Ordre du motif. Les lignes s'accumulent, jusqu'à 255 étapes.                                                                                                                                                                                                                                                                                                                                                                                      |
-| `pat p, v, "cell", ...`                                                       | Jusqu'à 32 lignes pour la voix `v` (0-2) du motif `p` (0-7). Les lignes manquantes sont vides.                                                                                                                                                                                                                                                                                                                                                    |
+| `vitesse N`                                                                   | Images par rangée de suivi (1-255).                                                                                                                                                                                                                                                                                                                                                                                                               |
+| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol`                         | Un instrument : registre de contrôle (bits de forme d'onde plus modulation en anneau `$04` / sync `$02` ; le bit de porte est ajouté par le joueur), attaque/décroissance, maintien/relâchement, largeur d'impulsion 12 bits, coupure de filtre 11 bits, octet de résonance/routage de filtre (style `$D417` : n'importe quel bit de routage = acheminer la voix qui joue cet instrument) et octet de mode/volume (style `$D418`, bit 7 = 3 OFF). |
+| `identifiant imod, vibdelay, vibspeed, vibdegree, pwmspeed, pwmmin, pwmmax`   | (1.6.2) Vibrato de l'instrument : après `vibdelay` images, un LFO triangulaire tourne toutes les `vibspeed` images (1-15, 0 = désactivé), profondeur 0-15 (proportionnelle au demi-ton de la note). Modulation de largeur d'impulsion : `pwmspeed` est ajouté par image (0 = désactivé), oscillant entre `pwmmin` et `pwmmax`.                                                                                                                    |
+| `ifilt id, cutend, sweep, pingpong`                                           | (1.6.2) Balayage de la coupure du filtre : de la coupure `inst` vers la coupure `cutend` par `sweep` (0-127) par image ; `pingpong` 1 = aller-retour.                                                                                                                                                                                                                                                                                             |
+| `Identifiant de porte, minuterie de porte, redémarrage forcé, première vague` | (1.6.2) La porte est relâchée `gatetimer` images avant la note suivante de la voix (maintenez-la en dessous de `speed`) ; `hardrestart` 1 réinitialise également l'ADSR à 0. `firstwave` (par exemple, `$09` = test + porte) est écrit sur la première image de la note.                                                                                                                                                                          |
+| `itab id, vitesse, boucle, "pas", ...`                                        | (1.6.2) Table d'ondes/arpèges, jusqu'à 32 pas : `"WW +n"`, `".. -n"` ou `"WW =n"` - forme d'onde en hexadécimal (`..` la conserve) et décalage de note en demi-tons ou note absolue (`=60`). Un pas toutes les `vitesse` images, puis retour au pas `boucle` (255 = rester sur le dernier pas).                                                                                                                                                   |
+| `ordre p, p, ...`                                                             | Ordre du motif. Les lignes s'accumulent, jusqu'à 255 étapes.                                                                                                                                                                                                                                                                                                                                                                                      |
+| `pat p, v, "cellule", ...`                                                    | Jusqu'à 32 lignes pour la voix `v` (0-2) du motif `p` (0-7). Les lignes manquantes sont vides.                                                                                                                                                                                                                                                                                                                                                    |
 
 Une cellule **** est `NOTE INST FX` : `C-4`, `D#3`, `Eb2` ou `...` pour aucune
 note, un instrument hexadécimal à deux chiffres (`..` pour le quitter), et un
@@ -1031,21 +1391,25 @@ configuration manuelle `sys sid_init` / `cia_timer`. Nécessite une instruction
 `sid_play`).
 
 ```basic
-load sid "tune.sid"         # embed SID file (defines sid_init / sid_play)
+Charger le fichier SID « tune.sid » # Intégrer le fichier SID (définit sid_init / sid_play)
 
-music play                  # initialise sub-tune 0 + start CIA1 50 Hz IRQ
-music play 1                # start from sub-tune 1 (song number 0-based)
-music stop                  # stop playback + zero all 25 SID registers ($D400-$D418)
-music pause                 # disable CIA1 timer A IRQ (music freezes, SID unchanged)
-music resume                # re-enable CIA1 timer A IRQ (continues from pause point)
+Lecture musicale # Initialiser le sous-morceau 0 + démarrer l'interruption CIA1 50 Hz
+
+Lecture musicale 1 # Démarrer à partir du sous-morceau 1 (numéro de morceau à partir de 0)
+
+Arrêt musical # Arrêter la lecture + mettre à zéro les 25 registres SID ($D400-$D418)
+
+Pause musicale # Désactiver l'interruption A du minuteur CIA1 (la musique se fige, le SID reste inchangé)
+
+Reprise musicale # Réactiver l'interruption A du minuteur CIA1 (reprise de la lecture au point de pause)
 ```
 
-| Déclaration      | Effet                                                                                                               |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `music play [n]` | Appelez `sid_init(n)`, configurez le temporisateur A de CIA1 à 19 656 cycles (~50 Hz PAL), installez le wrapper IRQ |
-| `music stop`     | Désactiver l'IRQ CIA1 + mettre à zéro les 25 registres SID                                                          |
-| `music pause`    | désactiver l'IRQ CIA1 (la sortie SID reste figée)                                                                   |
-| `music resume`   | Réactivation de l'IRQ CIA1 (suite du point d'arrêt)                                                                 |
+| Déclaration              | Effet                                                                                                               |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| `lecture de musique [n]` | Appelez `sid_init(n)`, configurez le temporisateur A de CIA1 à 19 656 cycles (~50 Hz PAL), installez le wrapper IRQ |
+| `musique arrêt`          | Désactiver l'IRQ CIA1 + mettre à zéro les 25 registres SID                                                          |
+| `Pause musique`          | désactiver l'IRQ CIA1 (la sortie SID reste figée)                                                                   |
+| `Reprise musicale`       | Réactivation de l'IRQ CIA1 (suite du point d'arrêt)                                                                 |
 
 Le wrapper IRQ (émis une fois à la fin du programme) fait : ACK CIA1 timer A →
 `JSR sid_play` → `JMP $EA81`.
@@ -1053,25 +1417,25 @@ Le wrapper IRQ (émis une fois à la fin du programme) fait : ACK CIA1 timer A �
 ### Sprites
 
 ```basic
-sprite 0, x, y, $2000    # sprite 0: set X, Y position and data pointer
-sprite 0, x, y           # without data pointer (keeps existing)
-sprite on  0             # enable sprite 0 ($D015 |= bit0)
-sprite off 0             # disable sprite 0 ($D015 &= ~bit0)
-sprite color 0, 7        # sprite 0 color = yellow ($D027)
-sprite multicolor 0, on  # enable multicolor mode for sprite 0 ($D01C |= bit0)
-sprite multicolor 0, off # disable multicolor mode ($D01C &= ~bit0)
-sprite expand x 0, on    # double width ($D01D |= bit0)
-sprite expand x 0, off   # normal width ($D01D &= ~bit0)
-sprite expand y 0, on    # double height ($D017 |= bit0)
-sprite expand y 0, off   # normal height ($D017 &= ~bit0)
-sprite priority 0, on    # behind background ($D01B |= bit0)
-sprite priority 0, off   # in front of background ($D01B &= ~bit0)
-var h = sprite_hit()     # sprite–sprite collision ($D01E, cleared on read)
-var b = sprite_bg_hit()  # sprite–background collision ($D01F, cleared on read)
-var x = sprite_x(0)      # read sprite 0 X position (lo byte, $D000)
-var y = sprite_y(0)      # read sprite 0 Y position ($D001)
-sprite_frame 0, $2000          # select one static sprite image
-sprite_frame 0, $2000, frame   # select an animation frame from a frame sequence
+sprite 0, x, y, $2000 # sprite 0 : définit la position X, Y et le pointeur de données
+sprite 0, x, y # sans pointeur de données (conserve l'existence)
+sprite on 0 # active le sprite 0 ($D015 |= bit0)
+sprite off 0 # désactive le sprite 0 ($D015 &amp;= ~bit0)
+sprite color 0, 7 # couleur du sprite 0 = jaune ($D027)
+sprite multicolor 0, on # active le mode multicolore pour le sprite 0 ($D01C |= bit0)
+sprite multicolor 0, off # désactive le mode multicolore ($D01C &amp;= ~bit0)
+sprite expand x 0, on # double la largeur ($D01D |= bit0)
+sprite expand x 0, off # largeur normale ($D01D &amp;= ~bit0)
+sprite expand y 0, on # double la hauteur ($D017 |= bit0)
+sprite expand y 0, off # hauteur normale ($D017 &amp;= ~bit0)
+sprite priority 0, on # derrière l'arrière-plan ($D01B |= bit0)
+sprite priority 0, off # devant l'arrière-plan ($D01B &amp;= ~bit0)
+var h = sprite_hit() # collision sprite-sprite ($D01E, effacé à la lecture)
+var b = sprite_bg_hit() # collision sprite-arrière-plan ($D01F, effacé à la lecture)
+var x = sprite_x(0) # lire la position X du sprite 0 (octet de poids faible, $D000)
+var y = sprite_y(0) # lire la position Y du sprite 0 ($D001)
+sprite_frame 0, $2000 # sélectionner une image sprite statique
+sprite_frame 0, $2000, frame # sélectionner une image d'animation dans une séquence d'images
 ```
 
 X prend en charge la plage complète de 9 bits (0–319) : utilisez une variable
@@ -1079,7 +1443,7 @@ X prend en charge la plage complète de 9 bits (0–319) : utilisez une variable
 `data_addr` doit être aligné sur 64 octets ; stocké comme `addr >> 6` à
 `$07F8+id`.
 
-#### Sprite animation with `sprite_frame`
+#### Animation de sprite avec `sprite_frame`
 
 **La commande `sprite_frame` permet de modifier l'image affichée d'un sprite
 pendant une animation. Elle modifie uniquement le pointeur de données du sprite
@@ -1100,12 +1464,16 @@ programme contrôle le rythme et le retour à la ligne de l'animation.
 
 ```basic
 var frame = 0
-loop
-  sprite_frame 0, $2000, frame
-  frame = frame + 1
-  if frame == 4 then frame = 0 end
-  delay 5
-end
+boucle
+
+sprite_frame 0, $2000, frame
+
+frame = frame + 1
+
+si frame == 4 alors frame = 0 fin
+
+délai 5
+fin
 ```
 
 La forme à deux arguments, `sprite_frame id, address`, sélectionne simplement
@@ -1116,7 +1484,8 @@ position du sprite est toujours contrôlée par `sprite id,x,y`.
 
 ```basic
 var touching = box_hit(left1, top1, right1, bottom1,
-                       left2, top2, right2, bottom2)
+
+left2, top2, right2, bottom2)
 ```
 
 La fonction `box_hit()` effectue un test de boîte englobante alignée sur les
@@ -1127,17 +1496,17 @@ expressions arbitraires de 8 bits ; les boîtes peuvent donc être plus petites
 que les sprites visibles ou décrire des objets du jeu autres que des sprites.
 Les coordonnées sont inclusives ; conservez `left <= right` et `top <= bottom`.
 
-### Sprite definition
+### Définition de sprite
 
 ```basic
 sprdef 0
-  $00,$3C,$00,  $00,$FF,$00,  $03,$FF,$C0,  $07,$FF,$E0,
-  $0F,$FF,$F0,  $0F,$FF,$F0,  $1F,$FF,$F8,  $1F,$FF,$F8,
-  $1F,$FF,$F8,  $0F,$FF,$F0,  $0F,$FF,$F0,  $07,$FF,$E0,
-  $03,$FF,$C0,  $00,$FF,$00,  $00,$3C,$00,  $00,$00,$00,
-  $00,$00,$00,  $00,$00,$00,  $00,$00,$00,  $00,$00,$00,
-  $00,$00,$00
-end
+  00$,3C$,00$, 00$,$FF,00$, 03$,$FF,$C0, 07$,$FF,$E0,
+  $0F,$FF,$F0, $0F,$FF,$F0, $1F,$FF,$F8, $1F,$FF,$F8,
+  $1F,$FF,$F8, $0F,$FF,$F0, $0F,$FF,$F0, $07,$FF,$E0,
+  03 $, $FF, $C0, $00, $FF, $00, $00, $3C, $00, $00, $00, $00,
+  00$, 00$, 00$, 00$, 00$, 00$, 00$, 00$, 00$, 00$, 00$, 00$,
+00 $, 00 $, 00 $
+Fin
 ```
 
 `sprdef id ... end` intègre 63 octets de sprite à l'adresse suivante alignée sur
@@ -1146,8 +1515,8 @@ automatiquement `$07F8+id = data_addr >> 6`. Pour utiliser la même forme pour
 plusieurs sprites, relisez le pointeur :
 
 ```basic
-var pg = peek($07F8)   # pointer set by sprdef 0
-poke $07F9, pg         # copy to sprites 1–7
+var pg = peek($07F8) # pointeur défini par sprdef 0
+poke $07F9, pg # copie dans les sprites 1 à 7
 ```
 
 ### Cartes des tuiles de personnages (`.ubmap`)
@@ -1285,7 +1654,7 @@ Tous les entiers multioctets sont en format petit-boutiste :
 | --------: | --------------: | -------------------------------------------------------------------------------------------- |
 |         0 |               4 | Magie ASCII `UBMP`                                                                           |
 |         4 |               1 | Version, actuellement `1`                                                                    |
-|         5 |               1 | Indicateurs : bit 0 = présence d’une matrice de couleurs, bit 1 = mode texte multicolore     |
+|         5 |               1 | Indicateurs : bit 0 = présence d’une matrice de couleurs, bit 1 = mode texte multicolore     |
 |         6 |               2 | Largeur de la carte, 1 à 255 cellules                                                        |
 |         8 |               2 | Hauteur de la carte, 1 à 255 cellules                                                        |
 |        10 |               1 | Arrière-plan 0 (`$D021`), faible grignotage utilisé                                          |
@@ -1301,9 +1670,11 @@ de compilation.
 ### Importation d'images Koala Painter
 
 ```basic
-koala load "pictures/title.kla"  # validate and embed at compile time
-koala show                       # enter bitmap multicolor mode
-koala hide                       # return to the default text display
+koala load "pictures/title.kla" # Valider et intégrer à la compilation
+
+koala show # Passer en mode bitmap multicolore
+
+koala hide # Retour à l'affichage texte par défaut
 ```
 
 `koala load` accepte un fichier Koala standard de 10 003 octets (adresse de
@@ -1323,13 +1694,13 @@ car l'image bitmap affichée écrase `$2000-$3F3F` ; sinon, le compilateur signa
 une erreur. L'importation Koala ne peut actuellement pas être combinée avec
 `load sid` dans le même programme.
 
-### Agencement du code : `org` — nouveauté de la version 1.5.7
+### Agencement du code : `org` — nouveauté de la version 1.5.7
 
 ```basic
-sub a() ... end          # subs/fns are placed one after another from the end of the main body
-org $4000                # the next subs/fns continue at $4000; $xxxx-$3FFF stays zero-filled
+sub a() ... end # Les sous-routines/fonctions sont placées les unes après les autres à partir de la fin du corps principal
+org $4000 # Les sous-routines/fonctions suivantes continuent à $4000 ; $xxxx-$3FFF reste rempli de zéros
 sub b() ... end
-incbin "font.bin", $3800 # data can live in the gap ($3800-$3FFF is a whole VIC charset slot)
+incbin "font.bin", $3800 # Les données peuvent être stockées dans l'espace ($3800-$3FFF correspond à un emplacement complet du jeu de caractères VIC)
 ```
 
 L'adresse `org addr` se trouve **entre les définitions de
@@ -1346,14 +1717,16 @@ au-dessus de l'espace.
 ### Jeu de caractères personnalisé (`charset on` / `charset off` nouveauté de la version 1.5.7)
 
 ```basic
-charset $3800            # set base address for chardef (default $3800)
+charset $3800 # définir l'adresse de base pour chardef (par défaut $3800)
 
-chardef 65               # redefine character 65 ('A')
-  $18,$3C,$66,$7E,$66,$66,$66,$00
+chardef 65 # redéfinir le caractère 65 (« A »)
+
+$18,$3C,$66,$7E,$66,$66,$66,$00
 end
 
-chardef 66               # fewer than 8 bytes are zero-padded
-  $7C,$66,$7C,$66,$7C
+chardef 66 # moins de 8 octets sont complétés par des zéros
+
+$7C,$66,$7C,$66,$7C
 end
 ```
 
@@ -1370,10 +1743,9 @@ code. Pour que le VIC-II utilise cette configuration, activez-la (puis
 désactivez-la une fois terminé).
 ```basic
 charset $3800
-chardef 1  $FF,$81,$81,$81,$81,$81,$81,$FF  end  # box border
-charset on          # VIC-II reads characters from $3800 (screen matrix untouched)
-...
-charset off         # back to the ROM set ($1800 if `lowercase` is active, else $1000)
+chardef 1 $FF,$81,$81,$81,$81,$81,$81,$FF end # bordure de la boîte
+charset on # VIC-II lit les caractères à partir de $3800 (matrice d'écran non modifiée)
+... charset off # retour au jeu de caractères ROM ($1800 si `lowercase` est actif, sinon $1000)
 ```
 
 `charset on` read-modify-writes `$D018` bits 1-3 from the last `charset addr`
@@ -1396,14 +1768,19 @@ sont pas comptabilisées comme du code.
 ### Mémoire
 
 ```basic
-poke $D020, 2            # STA $D020
-poke addr_var, 6         # STA (addr_var),Y  — if addr_var is word type
-var v = peek($D012)      # LDA $D012
-var v = peek(addr_var)   # LDA (addr_var),Y  — if addr_var is word type
+poke $D020, 2 # STA $D020
 
-var w: word = peek16($C000)   # read 16-bit little-endian: lo=$C000, hi=$C001
-poke16 $0314, $EA81           # write 16-bit little-endian: lo→$0314, hi→$0315
-poke16 ptr, w                 # word var as address; word var as value
+poke addr_var, 6 # STA (addr_var),Y — si addr_var est de type mot
+
+var v = peek($D012) # LDA $D012
+
+var v = peek(addr_var) # LDA (addr_var),Y — si addr_var est de type mot
+
+var w: word = peek16($C000) # lecture 16 bits little-endian : lo=$C000, hi=$C001
+
+poke16 $0314, $EA81 # écriture 16 bits little-endian : lo→$0314, hi→$0315
+
+poke16 ptr, w # variable mot comme adresse ; variable mot comme valeur
 ```
 
 `peek16(addr)` lit deux octets consécutifs (lo, hi) comme un `word`. `poke16`
@@ -1412,13 +1789,17 @@ poke16 ptr, w                 # word var as address; word var as value
 ### E/S disque
 
 ```basic
-load "PROGRAM"           # KERNAL LOAD: loads file from device 8 to its native address
-load "DATA", $C000       # loads file to a specific address
-chain "GAME"             # load another program over this one and RUN it (see below)
-load "DATA", ptr         # addr from word variable
+charger "PROGRAM" # CHARGEMENT DU NOYAU : charge le fichier depuis le périphérique 8 à son adresse native
 
-save "DATA", $C000, 4096 # KERNAL SAVE from $C000, 4096 bytes → device 8
-save "PROG", start, len  # addr and len from word/int variables
+charger "DATA", $C000 # charge le fichier à une adresse spécifique
+
+chaîner "GAME" # charge un autre programme par-dessus celui-ci et l'exécute (voir ci-dessous)
+
+charger "DATA", ptr # adresse depuis la variable mot
+
+sauvegarder "DATA", $C000, 4096 # SAUVEGARDE DU NOYAU depuis $C000, 4096 octets → périphérique 8
+
+sauvegarder "PROG", start, len # adresse et longueur depuis les variables mot/entier
 ```
 
 La fonction `load` appelle les fonctions KERNAL `SETNAM`+`SETLFS`+`LOAD`
@@ -1432,9 +1813,11 @@ ignoré). (Corrigé dans la version 1.5.9 — auparavant, les deux étaient inve
 #### Enchaînement avec un autre programme — `chaîne` (nouveauté de la version 1.5.9)
 
 ```basic
-chain "GAME"             # load GAME from the drive we were started from and RUN it
-chain "GAME", 9          # from drive 9 (any expression)
-print "LOAD ERROR"       # only reached if the file could not be loaded
+chaîne "GAME" # charge le jeu depuis le lecteur où il a été lancé et l'exécute
+
+chaîne "GAME", 9 # depuis le lecteur 9 (expression quelconque)
+
+print "LOAD ERROR" # uniquement si le fichier n'a pas pu être chargé
 ```
 
 La commande `chain` charge un autre programme à sa propre adresse de chargement
@@ -1476,15 +1859,19 @@ caractères.
 ### Entrées/sorties de fichiers sur canal série
 
 ```basic
-open 1, 8, 2, "MYFILE"  # open logical file 1, device 8, secondary 2, name "MYFILE"
-open 2, 4, 7             # open printer (device 4), no filename
-open ch, dev, sec        # channel, device, secondary from variables
+Ouvrir 1, 8, 2, "MYFILE" # Ouvrir le fichier logique 1, périphérique 8, secondaire 2, nom "MYFILE"
 
-print# 1, "HELLO"        # send "HELLO"+CR to logical file 1
-print# ch, x, "text"     # any mix of vars, strings — same as print but to file
+Ouvrir 2, 4, 7 # Ouvrir l'imprimante (périphérique 4), sans nom de fichier
 
-close 1                  # close logical file 1
-close ch                 # channel from variable
+Ouvrir ch, dev, sec # Canal, périphérique, secondaire à partir des variables
+
+Imprimer # 1, "HELLO" # Envoyer "HELLO" + CR au fichier logique 1
+
+Imprimer # ch, x, "texte" # Combinaison de variables et de chaînes de caractères — identique à print mais dans un fichier
+
+Fermer 1 # Fermer le fichier logique 1
+
+Fermer ch # Canal à partir de la variable
 ```
 
 `open` appelle `SETNAM` ($FFBD) + `SETLFS` ($FFBA) + `OPEN` ($FFC0). Sans nom de
@@ -1493,12 +1880,14 @@ via `CHKOUT` ($FFC9), CHROUT caractère par caractère (+ retour chariot final),
 puis `CLRCHN` ($FFCC). `close` place le numéro de canal dans A et appelle
 `CLOSE` ($FFC3).
 
-### Input
+### Saisir
 
 ```basic
-input score              # read up to 3 digits from keyboard → 8-bit int var
-input "Name: ", name     # optional prompt string, then read line → string var
-input "Score: ", score   # prompt + int input
+Saisie du score # Lecture de jusqu'à 3 chiffres au clavier → Variable entière 8 bits
+
+Saisie de "Nom : ", nom # Chaîne d'invite facultative, puis lecture de la ligne → Variable chaîne
+
+Saisie de "Score : ", score # Invite + saisie entière
 ```
 
 `input` utilise KERNAL BASIN (`$FFCF`) pour bloquer, écho l'entrée de ligne avec
@@ -1507,6 +1896,12 @@ prise en charge DEL.
   convertit en valeur 8 bits sur CR.
 - **Variable de type chaîne** : accepte jusqu’à 30 caractères ; stocke sous
   forme de chaîne terminée par un caractère nul ; paire ZP mise à jour.
+- **DOUBLE var** (1.6.3): chiffres et `.`, par exemple `12.5` → 12.50 (deux
+  décimales).
+- **Élément de tableau** (1.6.3) : `entrée t(i)` / `entrée nevek(i)` ; `entrée
+  "prompt" ; x` fonctionne également.
+- **String var** : accepte jusqu'à 30 caractères ; stocke sous forme de chaîne
+  terminée par un caractère nul ; paire ZP mise à jour.
 
 ### Flottant / Virgule fixe
 
@@ -1515,22 +1910,25 @@ fort est la partie entière (0–255) et l'octet de poids faible est la partie
 fractionnaire (0/256 … 255/256).
 
 ```basic
-var f: float = 3.5       # 3.5 → hi=3, lo=128 (= 0x0380)
-var g: float = 0         # integer 0 is promoted to 0.0 automatically
+var f: float = 3.5 # 3.5 → hi=3, lo=128 (= 0x0380)
+var g: float = 0 # L'entier 0 est automatiquement converti en 0.0
 
-f = 1.5                  # Q8.8 literal assignment
-f = f + 1.5              # 16-bit Q8.8 arithmetic (result: 3.0)
-f = f + g                # float + float
+f = 1.5 # Affectation littérale Q8.8
 
-var n = int(f)           # extract integer part (hi byte) → 8-bit int
-print f                  # prints as "N.DD" (e.g. 3.5 → "3.50", 1.25 → "1.25")
+f = f + 1.5 # Arithmétique Q8.8 16 bits (résultat : 3.0)
+
+f = f + g # Combinaison de nombres flottants
+
+var n = int(f) # Extraction de la partie entière (octet de poids fort) → entier 8 bits
+
+print f # Affiche « N.DD » (ex. : 3.5 → « 3.50 », 1.25 → « 1.25 »)
 ```
 
 | Opération           | Exemple              | Notes                                                    |
 | ------------------- | -------------------- | -------------------------------------------------------- |
-| Littéral            | `3.5`, `0.25`, `1.0` | analysé comme Q8.8 lors de la compilation                |
+| Littéral            | `3,5`, `0,25`, `1,0` | analysé comme Q8.8 lors de la compilation                |
 | Promotion entière   | `f = 5`              | magasins 5.0 (hi=5, lo=0)                                |
-| Ajouter/sous-titrer | `f + 1.5`, `f - g`   | Arithmétique Q8.8 sur 16 bits                            |
+| Ajouter/sous-titrer | `f + 1,5`, `f - g`   | Arithmétique Q8.8 sur 16 bits                            |
 | Extraire int        | `int(f)`             | Renvoie l'octet de poids fort sous forme d'entier 8 bits |
 | Imprimer            | `print f`            | format « N.DD », toujours 2 chiffres après la virgule    |
 
@@ -1549,39 +1947,47 @@ arrondie : 1/10 = 25/256 s'affiche comme `0.09`.
 ### fonctions mathématiques
 
 ```basic
-var a = abs(x - 20)      # two's-complement absolute value
-var b = min(x, 39)       # 8-bit minimum
-var c = max(x, 0)        # 8-bit maximum
-var s = sgn(score)       # 0 = zero, 1 = positive (1–127), $FF = negative (128–255)
-var r = rnd()            # LCG pseudo-random 0-255; seed from raster line
-var r = rnd(10)          # LCG pseudo-random 0-9 (rnd() mod n; result 0..n-1)
-var s = sin(angle)       # sine: angle 0-255 (full circle), returns 0-255 (center=128)
-var c = cos(angle)       # cosine = sin(angle+64)
-var v = clamp(x, 0, 39)  # 8-bit unsigned clamp: result = max(lo, min(hi, val))
+var a = abs(x - 20) # Valeur absolue en complément à deux
+var b = min(x, 39) # Minimum sur 8 bits
+var c = max(x, 0) # Maximum sur 8 bits
+var s = sgn(score) # 0 = zéro, 1 = positif (1–127), FF = négatif (128–255)
+var r = rnd() # Pseudo-aléatoire LCG 0-255 Initialisation de la ligne raster
 
-print hex(n)             # print as 2-digit uppercase hex
-print bin(n)             # print as 8-bit binary string
+var r = rnd(10) # Pseudo-aléatoire LCG 0-9 (rnd() mod n ; résultat 0..n-1)
+
+var s = sin(angle) # Sinus : angle 0-255 (cercle complet), renvoie 0-255 (centre = 128)
+
+var c = cos(angle) # Cosinus = sin(angle + 64)
+
+var v = clamp(x, 0, 39) # Clamp non signé 8 bits : résultat = max(lo, min(hi, val))
+
+print hex(n) # Affichage en hexadécimal majuscules (2 chiffres)
+
+print bin(n) # Affichage en binaire (8 bits)
 ```
 
 ### Fonctions de chaînes de caractères
 
 ```basic
-var n = len(msg)         # length of null-terminated string var (0–255)
-var c = asc(msg)         # PETSCII code of first character (0 if empty)
-var c = asc("A")         # compile-time: constant PETSCII code
-var n = val(s)           # runtime: parse decimal PETSCII string → 8-bit int (e.g. "042" → 42)
-var c = msg[i]           # string character at index i: PETSCII code of msg[i]
-msg[i] = c               # write PETSCII byte c to string at index i — STA (ptr),Y
-msg[0] = 72              # constant index → LDY #0; STA (ptr),Y
+var n = len(msg) # longueur de la chaîne terminée par un caractère nul (0–255)
+var c = asc(msg) # code PETSCII du premier caractère (0 si vide)
+var c = asc("A") # à la compilation : code PETSCII constant
+var n = val(s) # à l'exécution : analyse de la chaîne PETSCII décimale → entier 8 bits (ex. : "042" → 42)
+var c = msg[i] # caractère de la chaîne à l'index i : code PETSCII de msg[i]
+msg[i] = c # écriture de l'octet PETSCII c dans la chaîne à l'index i — STA (ptr),Y
+msg[0] = 72 # index constant → LDY #0 ; STA (ptr),Y
 ```
 
 ### formatage des nombres
 
 ```basic
-print hex(n)             # print as 2-digit uppercase hex
-print bin(n)             # print as 8-bit binary string
-print dec(n, 4)          # right-justified decimal in a field of 4 chars (e.g. 42 → "  42")
-print dec(n, width)      # width can also be a variable
+print hex(n) # affiche en hexadécimal majuscules sur 2 chiffres
+
+print bin(n) # affiche en binaire sur 8 bits
+
+print dec(n, 4) # décimal aligné à droite sur 4 caractères (ex. : 42 → " 42")
+
+print dec(n, width) # width peut aussi être une variable
 ```
 
 `dec(n, width)` ajoute des espaces à gauche du nombre pour atteindre `width`
@@ -1592,12 +1998,14 @@ l'affichage, `dec(n, w)` est évalué à `n` sans modification (comme `hex`/`bin
 ### REU (unité d'extension RAM)
 
 ```basic
-var ok = reu_present()   # 1 if REU detected, 0 if not (write/read test on $DF04)
-var ok = reudet()        # alias for reu_present()
+var ok = reu_present() # 1 si REU détecté, 0 sinon (test de lecture/écriture sur $DF04)
+var ok = reudet() # alias de reu_present()
 
-reu stash c64addr, bank, reu_addr, len  # copy C64 → REU
-reu fetch c64addr, bank, reu_addr, len  # copy REU → C64
-reu swap  c64addr, bank, reu_addr, len  # swap between C64 and REU
+reu stash c64addr, bank, reu_addr, len # Copie C64 → REU
+
+reu fetch c64addr, bank, reu_addr, len # Copie REU → C64
+
+reu swap c64addr, bank, reu_addr, len # Échange entre C64 et REU
 ```
 
 `reu_present()` effectue un test d'écriture/lecture sur le registre REU `$DF04`.
@@ -1608,7 +2016,7 @@ registre de commande susceptible d'avoir un effet de bord.
 | Paramètre  | Largeur | Notes                                                                   |
 | ---------- | ------- | ----------------------------------------------------------------------- |
 | `c64addr`  | 16 bits | Démarrage de la RAM du C64 — constante, `word` var ou expression 8 bits |
-| `bank`     | 8 bits  | Numéro de banque REU (0–7 pour une unité de 512 Ko)                     |
+| `banque`   | 8 bits  | Numéro de banque REU (0–7 pour une unité de 512 Ko)                     |
 | `reu_addr` | 16 bits | Compensation au sein de la banque REU                                   |
 | `len`      | 16 bits | Octets à transférer (`0` = 65 536 en matériel REU)                      |
 
@@ -1621,18 +2029,23 @@ pendant le DMA). Nécessite un REU ou un VICE physique : **Paramètres → Maté
 ### Utilitaires de mémoire
 
 ```basic
-fill screen 32           # fill screen RAM $0400–$07FF with value 32 (space char)
-fill color 1             # fill color RAM $D800–$DBFF with value 1 (white)
+`fill screen 32` # Remplir la RAM écran de $0400 à $07FF avec la valeur 32 (espace)
 
-fill $0400, 1000, 32     # fill 1000 bytes starting at $0400 with value 32
-fill addr, 256, 0        # addr can be word var
-fill ptr, len_word, val  # all operands can be expressions / word vars
+`fill color 1` # Remplir la RAM couleur de $D800 à $DBFF avec la valeur 1 (blanc)
 
-memcopy $C000, $0400, 256   # copy 256 bytes from $C000 → $0400
-memcopy src_ptr, dst_ptr, 40 # word vars for source and destination
+`fill $0400, 1000, 32` # Remplir 1000 octets à partir de $0400 avec la valeur 32
 
-drawmem $C000, $0400, 8, 10, 40 # blit 8×10 rect from $C000 → screen at $0400, stride 40
-drawmem src_ptr, dst_ptr, w, h, 40 # word vars for src/dst
+`fill addr, 256, 0` # `addr` peut être une variable de type mot
+
+`fill ptr, len_word, val` # Tous les opérandes peuvent être des expressions ou des variables de type mot
+
+`memcopy $C000, $0400, 256` # Copier 256 octets de $C000 vers $0400
+
+`memcopy src_ptr, dst_ptr, 40` # Variables de type mot pour la source et la destination
+
+`drawmem $C000, $0400, 8, 10, 40` # Copier 8×10 rect from $C000 → screen at $0400, stride 40
+
+drawmem src_ptr, dst_ptr, w, h, 40 # variables de mots pour src/dst
 ```
 
 Les variables `fill` et `memcopy` prennent toutes deux en charge les longueurs
@@ -1649,10 +2062,10 @@ expressions 8 bits.
 ### IRQ raster
 
 ```basic
-irq my_handler           # raster IRQ at line 0, handler = sub name or address
-irq my_handler, 100      # raster IRQ at raster line 100
-irq $C800, 200           # handler at fixed address
-irq addr_word            # handler address from a word variable
+irq my_handler # Interruption raster à la ligne 0, gestionnaire = nom ou adresse du sous-réseau
+irq my_handler, 100 # Interruption raster à la ligne 100 du raster
+irq $C800, 200 # Gestionnaire à une adresse fixe
+irq addr_word # Adresse du gestionnaire à partir d'une variable de type mot
 ```
 
 Configure une IRQ raster via le vecteur logiciel BASIC (`$0314`/`$0315`) :
@@ -1666,9 +2079,12 @@ VIC au préalable :
 
 ```basic
 sub my_handler()
-  poke $D019, $FF      # ACK VIC IRQ
-  # ... work here ...
-  sys $EA81            # JMP to KERNAL end-of-IRQ
+
+poke $D019, $FF # ACK VIC IRQ
+
+# ... travaillez ici ...
+
+sys $EA81 # JMP vers la fin de l'IRQ du noyau
 end
 ```
 
@@ -1678,11 +2094,13 @@ définition du sous-programme).
 ### Gestionnaire NMI
 
 ```basic
-nmi my_nmi               # set NMI vector $0318/$0319 to handler sub or address
+nmi my_nmi # Définir le vecteur NMI $0318/$0319 sur la sous-routine ou l'adresse du gestionnaire
 
 sub my_nmi()
-  # ... NMI work here ...
-  nmi_exit               # JMP $FE47 — proper NMI exit (restores A/X/Y + RTI)
+
+# ... Traitement NMI ici ...
+
+nmi_exit # JMP $FE47 — sortie NMI correcte (restaure A/X/Y + RTI)
 end
 ```
 
@@ -1695,15 +2113,15 @@ corrompra la pile. Les références anticipées sont prises en charge.
 ### IRQ du minuteur CIA1
 
 ```basic
-cia_timer 19656, my_handler   # CIA1 timer A: fires every 19656 cycles (~50 Hz PAL)
-cia_timer period, handler      # period can be a variable or expression
+cia_timer 19656, my_handler # Minuteur CIA1 A : se déclenche toutes les 19 656 cycles (environ 50 Hz PAL)
+cia_timer period, handler # period peut être une variable ou une expression
 ```
 
 Configure le minuteur CIA1 A comme source d'IRQ périodique via le vecteur
 logiciel BASIC (`$0314`/`$0315`) :
 1. SEI — désactiver les interruptions
 2. `$DC0D = $7F` — désactiver toutes les IRQ CIA1
-3. Load 16-bit period lo→`$DC04`, hi→`$DC05`
+3. Charger la période 16 bits lo→`$DC04`, hi→`$DC05`
 4. Écrire l'adresse du gestionnaire à `$0314`/`$0315`
 5. `$DC0D = $81` — activer l'interruption A du minuteur CIA1
 6. `$DC0E = $01` — Démarrer le minuteur A en mode continu
@@ -1714,9 +2132,12 @@ réception de l'IRQ CIA1 :
 
 ```basic
 sub my_handler()
-  poke $DC0D, $01      # ACK CIA1 timer A IRQ (read also clears it)
-  # ... work here ...
-  irq_exit             # JMP $EA81: restore A/X/Y + RTI
+
+poke $DC0D, $01 # ACK CIA1 timer A IRQ (lecture et efface l'interruption)
+
+# ... traitement ici ...
+
+irq_exit # JMP $EA81 : restauration A/X/Y + RTI
 end
 ```
 
@@ -1726,13 +2147,15 @@ Synchronisation PAL : horloge = 985 248 Hz. Période pour 50 Hz = 985 248 / 50 =
 ### Gestion des erreurs
 
 ```basic
-onerr goto err_handler   # set KERNAL I/O error vector ($0300/$0301) to a label
+onerr goto err_handler # Définir le vecteur d'erreur d'E/S du noyau ($0300/$0301) sur une étiquette
 
 ...
 
 label err_handler
-  print "I/O ERROR"
-  bye
+
+print "ERREUR D'E/S"
+
+bye
 ```
 
 L'instruction `onerr goto label` écrit l'adresse de l'étiquette (lo, hi) aux
@@ -1744,11 +2167,11 @@ définie après `onerr goto`) sont prises en charge.
 ### Intégration de fichiers au moment de la compilation (`incbin` skip / longueur nouveau dans la version 1.5.7)
 
 ```basic
-incbin "sprites.bin"            # embed raw binary bytes at current code position
-incbin "charset.bin", $2000     # embed at an absolute address, padding as needed
-incbin "font.prg", $3C00, 2       # ...skipping the first 2 bytes (e.g. a .prg load address)
-incbin "big.bin", $4000, 16, 256  # ...skip 16 bytes, then take at most 256 bytes
-include "defs.ub"        # inline another .ub source file (lexed+parsed in place)
+incbin "sprites.bin" # Incorporer des octets binaires bruts à la position de code actuelle
+incbin "charset.bin", $2000 # Incorporer à une adresse absolue, avec remplissage si nécessaire
+incbin "font.prg", $3C00, 2 # ...en ignorant les 2 premiers octets (par exemple, l'adresse de chargement d'un fichier .prg)
+incbin "big.bin", $4000, 16, 256 # ...en ignorant 16 octets, puis en prenant au maximum 256 octets
+include "defs.ub" # Intégrer un autre fichier source .ub (lexicalisé et analysé sur place)
 ```
 
 `incbin "file", addr, skip [, length]` ignore les `skip` premiers octets du
@@ -1758,11 +2181,11 @@ constantes, et un `skip` au-delà de la fin du fichier constitue une erreur. Le
 format d'adresse exige que la cible se situe au-dessus du code généré, ou à
 l'intérieur d'un intervalle `org`.
 
-### Data / Read
+### Données / Lecture
 
 ```basic
-data 1, 2, 3, 255        # constant byte table
-read varname             # load next byte into varname (auto-declares if needed)
+data 1, 2, 3, 255 # table d'octets constants
+read varname # charger l'octet suivant dans varname (déclaration automatique si nécessaire)
 ```
 
 Toutes les valeurs `data` sont collectées à la compilation. Un pointeur ZP de 2
@@ -1774,12 +2197,15 @@ Chaque `read` incrémente le pointeur.
 
 ```basic
 var sinus = array(8)
+
 data sinus: 128, 218, 255, 218
-data sinus: 128, 37, 0, 37      # further lines continue where the previous one stopped
-print sinus[i]                  # random access, like any array
+
+data sinus: 128, 37, 0, 37 # Les lignes suivantes reprennent là où la précédente s'arrête
+print sinus[i] # Accès aléatoire, comme pour n'importe quel tableau
 
 var xpos = array_word(2)
-data xpos: 24, 300              # word arrays take 16-bit values (stored lo, hi)
+
+data xpos: 24, 300 # Les tableaux de mots utilisent des valeurs de 16 bits (stockées à lo, hi)
 ```
 
 Une ligne `data` dont le premier élément est `name:` remplit un tableau `array`
@@ -1793,53 +2219,78 @@ provoque une erreur de compilation. Ces lignes n'affectent pas `read`.
 ### Assemblage en ligne
 
 ```basic
-sys $FFD2                # JSR $FFD2
-sys $FFD2, 7             # LDA #7 ; JSR $FFD2  (pass byte value in A register)
-irq_exit                 # JMP $EA81 — proper IRQ handler exit (restore A/X/Y + RTI)
-asm $EA, $EA             # inline raw bytes (NOP NOP) — legacy form
+sys $FFD2 # JSR $FFD2
+sys $FFD2, 7 # LDA #7 ; JSR $FFD2 (transmission de la valeur d'un octet dans le registre A)
+irq_exit # JMP $EA81 — sortie correcte du gestionnaire d'interruption (restauration de A/X/Y + RTI)
+asm $EA, $EA # octets bruts en ligne (NOP NOP) — format hérité
 asm {
-  ; Full 6502 mnemonics and addressing modes
-  LDA #$07               ; immediate
-  STA $0286              ; absolute
-  LDA $50                ; zero-page  ($50 ≤ $FF → ZP auto-selected)
-  STA $0400,X            ; absolute,X indexed
-  LDA ($50),Y            ; (indirect),Y
-  LDA ($50,X)            ; (indirect,X)
-  JSR $FFD2              ; subroutine call
-  JMP $C000              ; absolute jump
-  JMP ($FFFC)            ; indirect jump
 
-  CLC
-  ADC #1
-  SEC
-  SBC #1
+; Mnémoniques et modes d'adressage complets du 6502
 
-  TAX                    ; implied / transfer
-  ASL A                  ; accumulator (also just: ASL)
-  LSR A
-  ROL
-  ROR
+LDA #$07 ; immédiat
 
-  ; Branches — operand is an absolute address; offset is computed automatically
-  BNE loop               ; forward or backward branch to local label
-  BEQ done
+STA $0286 ; absolu
 
-loop:
-  NOP
-done:
-  RTS
+LDA $50 ; page zéro ($50 ≤ $FF → ZP sélectionné automatiquement)
 
-  ; #<label / #>label — lo / hi byte of a label address
-  LDA #<handler
-  STA $0314
-  LDA #>handler
-  STA $0315
+STA $0400,X ; absolu, indexé X
 
-  ; * — current assembly location
-  JMP *
+LDA ($50),Y ; (indirect),Y
 
-  ; Raw hex bytes (backward-compatible with old asm { $xx ... } syntax)
-  $EA $EA                ; two NOP bytes
+LDA ($50,X) ; (indirect,X)
+
+JSR $FFD2 ; appel de sous-programme
+
+JMP $C000 ; Saut absolu
+
+JMP ($FFFC) ; saut indirect
+
+CLC
+ADC n° 1
+
+SEC
+
+SBC n° 1
+
+TAX ; implicite / transfert
+
+ASL A ; accumulateur (ou simplement : ASL)
+
+LSR A
+
+ROL
+ROR
+
+; Branchements — l'opérande est une adresse absolue ; le décalage est calculé automatiquement
+
+BNE boucle ; branchement avant ou arrière vers l'étiquette locale
+
+BEQ terminé
+
+boucle :
+
+NOP
+terminé :
+
+RTS
+
+; #<étiquette / #>étiquette — octet de poids faible / octet de poids fort d'une adresse d'étiquette
+
+LDA #<gestionnaire
+
+STA $0314
+
+LDA #>gestionnaire
+
+STA $0315
+
+; * — emplacement assembleur actuel
+
+JMP *
+
+; Octets hexadécimaux bruts (rétrocompatible avec l'ancienne syntaxe asm { $xx ... })
+
+$EA $EA ; deux octets NOP
 }
 ```
 
@@ -1849,17 +2300,17 @@ done:
 | --------------- | ------------ | ------ | ----------------------------------- |
 | (sans opérande) | Implicite    | 1      | `NOP`, `RTS`                        |
 | `A`             | Accumulateur | 1      | `ASL A`, `LSR`                      |
-| `#value`        | Immédiat     | 2      | `LDA #$07`                          |
+| `#valeur`       | Immédiat     | 2      | `LDA #$07`                          |
 | `$zz` (0–255)   | Page zéro    | 2      | `LDA $50`                           |
 | `$zz,X`         | ZP,X         | 2      | `LDA $50,X`                         |
-| `$zz,Y`         | ZP,Y         | 2      | `LDX $50,Y`                         |
+| `$zz,Y`         | ZP,Y         | 2      | `LDX 50 $,Y`                        |
 | `$xxxx`         | Absolu       | 3      | `LDA $0400`                         |
 | `$xxxx,X`       | Absolu,X     | 3      | `LDA $0400,X`                       |
 | `$xxxx,Y`       | Absolu,Y     | 3      | `LDA $0400,Y`                       |
 | `($xxxx)`       | Indirect     | 3      | `JMP ($FFFC)`                       |
 | `($zz,X)`       | (Indirect,X) | 2      | `LDA ($50,X)`                       |
 | `($zz),Y`       | (Indirect),Y | 2      | `LDA ($50),Y`                       |
-| `label`         | Relatif      | 2      | `BNE label` (succursales seulement) |
+| `étiquette`     | Relatif      | 2      | `BNE label` (succursales seulement) |
 
 - `$zz` (1 à 2 chiffres hexadécimaux, valeur ≤ 255) sélectionne la page zéro si
   l'instruction le prend en charge ; sinon, le mode absolu est automatiquement
@@ -1885,13 +2336,18 @@ emplacements connus avant le bloc `asm { }` :
 
 ```basic
 sub set_colors(border_col, bg_col)
-  poke $D020, border_col   # UltimateBasic resolves the ZP address
-  poke $D021, bg_col
-  asm {
-    ; values are already in $D020 / $D021
-    LDA $D020
-  }
-end
+
+poke $D020, border_col # UltimateBasic résout l'adresse ZP
+
+poke $D021, bg_col
+
+asm {
+
+; les valeurs sont déjà dans $D020 / $D021
+
+LDA $D020
+
+} end
 ```
 
 Pour les routines entièrement écrites en assembleur — notamment les
@@ -1904,12 +2360,12 @@ ainsi, `irq1` et `irq2` peuvent se référencer librement. Voir
 ### Chaîne ↔ entier
 
 ```basic
-numstr score, $0340      # writes "042\0" at $0340 (always 3 digits, zero-padded)
-var n = str_to_int("42") # compile-time: Expr::Number(42)
+numstr score, $0340 # écrit "042\0" à l'adresse $0340 (toujours 3 chiffres, complétés par des zéros)
+var n = str_to_int("42") # à la compilation : Expr::Number(42)
 
-print str$(score)                # print 8-bit int as 3-digit decimal string ("000"–"255")
-print "Score: " + str$(score)   # usable in string concat print context
-var s: string = str$(n)          # assign str$() result to a string var (shared static buffer)
+print str$(score) # affiche un entier 8 bits sous forme de chaîne décimale à 3 chiffres ("000"–"255")
+print "Score : " + str$(score) # utilisable dans un contexte d'affichage par concaténation de chaînes
+var s: string = str$(n) # assigne le résultat de str$() à une variable de type chaîne (tampon statique partagé)
 ```
 
 La fonction `str$(n)` convertit une valeur 8 bits en une chaîne décimale de 3
@@ -1925,43 +2381,53 @@ compilation.
 
 ## Exemples
 
-| Déposer                             | Description                                                                                         |
-| ----------------------------------- | --------------------------------------------------------------------------------------------------- |
-| `examples/features.ub`              | const, label/goto, poke/peek, rnd, fonctions mathématiques                                          |
-| `examples/new_features.ub`          | sous-paramètres, tableaux, variables de mots, variables de chaînes de caractères                    |
-| `examples/bitmap_demo.ub`           | Image bitmap 320×200, tracé, affichage graphique activé/désactivé                                   |
-| `examples/block_demo.ub`            | Graphiques de blocs 80×50, plot4, circle4, graphiques sur bloc                                      |
-| `examples/joystick_demo.ub`         | lecture du joystick, mouvement des sprites                                                          |
-| `examples/mux_demo.ub`              | Multiplexeur de sprites raster (3 fenêtres × 8 sprites = 24)                                        |
-| `examples/orbit_demo.ub`            | Orbite de 24 sprites avec rayon pulsant et couleurs aléatoires                                      |
-| `examples/plasma_demo.ub`           | Image bitmap à effet plasma avec animation de bordure à barres raster                               |
-| `examples/sprite_data.ub`           | Données de forme sprdef (incluses par d'autres démos)                                               |
-| `examples/sprite_mux_orbit.ub`      | Démonstration d'orbite à 24 sprites avec sprdef + positions précalculées                            |
-| `examples/sprite_orbit_demo.ub`     | 8 sprites matériels en orbite circulaire via une table sin/cos                                      |
-| `examples/reu_bitmap_demo.ub`       | REU stockage/récupération avec graphismes bitmap                                                    |
-| `examples/sid_music_demo.ub`        | Lecteur de musique SID avec IRQ raster et sortie clavier                                            |
-| `examples/tenprint.ub`              | 5 implémentations de labyrinthe TENPRINT avec menu ; démos `lowercase` mode de jeu de caractères    |
-| `examples/countdown_demo.ub`        | Compte à rebours `for..next` avec pas négatif, incl. `for i = 20 to 0 step -2`                      |
-| `examples/countdown_errors_demo.ub` | Erreur de compilation pour l'étape par défaut `from > to`                                           |
-| `examples/explicit_demo.ub`         | Démonstration de l'option CLI `--explicit` avec les options `var`, `sub` et `fn` entièrement typées |
-| `examples/explicit_errors_demo.ub`  | Code mal structuré qui se compile sans `--explicit`, erreurs avec                                   |
+| Déposer                                 | Description                                                                                         |
+| --------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `exemples/fonctionnalités.ub`           | const, label/goto, poke/peek, rnd, fonctions mathématiques                                          |
+| `exemples/nouvelles_fonctionnalités.ub` | sous-paramètres, tableaux, variables de mots, variables de chaînes de caractères                    |
+| `exemples/bitmap_demo.ub`               | Image bitmap 320×200, tracé, affichage graphique activé/désactivé                                   |
+| `exemples/block_demo.ub`                | Graphiques de blocs 80×50, plot4, circle4, graphiques sur bloc                                      |
+| `exemples/joystick_demo.ub`             | lecture du joystick, mouvement des sprites                                                          |
+| `exemples/mux_demo.ub`                  | Multiplexeur de sprites raster (3 fenêtres × 8 sprites = 24)                                        |
+| `exemples/orbit_demo.ub`                | Orbite de 24 sprites avec rayon pulsant et couleurs aléatoires                                      |
+| `exemples/plasma_demo.ub`               | Image bitmap à effet plasma avec animation de bordure à barres raster                               |
+| `exemples/sprite_data.ub`               | Données de forme sprdef (incluses par d'autres démos)                                               |
+| `exemples/sprite_mux_orbit.ub`          | Démonstration d'orbite à 24 sprites avec sprdef + positions précalculées                            |
+| `exemples/sprite_orbit_demo.ub`         | 8 sprites matériels en orbite circulaire via une table sin/cos                                      |
+| `exemples/reu_bitmap_demo.ub`           | REU stockage/récupération avec graphismes bitmap                                                    |
+| `exemples/sid_music_demo.ub`            | Lecteur de musique SID avec IRQ raster et sortie clavier                                            |
+| `exemples/tenprint.ub`                  | 5 implémentations de labyrinthe TENPRINT avec menu ; démos `lowercase` mode de jeu de caractères    |
+| `exemples/démo_compte_à_rebours.ub`     | Compte à rebours `for..next` avec pas négatif, incl. `for i = 20 to 0 step -2`                      |
+| `exemples/countdown_errors_demo.ub`     | Erreur de compilation pour l'étape par défaut `from > to`                                           |
+| `exemples/explicit_demo.ub`             | Démonstration de l'option CLI `--explicit` avec les options `var`, `sub` et `fn` entièrement typées |
+| `exemples/explicit_errors_demo.ub`      | Code mal structuré qui se compile sans `--explicit`, erreurs avec                                   |
 
 ## Référence CLI
 
 ```
 ub build <input.ub> [OPTIONS]
 
-  -o, --output <file>   Output .prg or .crt file (default: <input>.prg)
-  -v, --verbose         Show zero-page layout and code hex dump
-  --no-stub             Skip the BASIC SYS stub (code loads at $0801)
-  --debug               Also produce .sym, .dbg and .vs debugger files
-  --asm                 Also produce a readable 6502 codegen .asm listing
-  --d64 [file]          Also produce a .d64 disk image;
-                          without a filename defaults to <output>.d64
-  --add <file>          Add an extra file to the .d64 disk image;
-                          may be repeated for multiple files
-  --explicit            Require :type on every var / sub-param / fn-param
-  -h, --help            Show help
+-o, --output <fichier> Générer un fichier .prg ou .crt (par défaut : <input>.prg)
+
+-v, --verbose Afficher la mise en page initiale et le dump hexadécimal du code
+
+--no-stub Ignorer le stub BASIC SYS (le code se charge à l'adresse $0801)
+
+--debug Générer également les fichiers de débogage .sym, .dbg et .vs
+
+--asm Générer également une liste .asm lisible (génération de code 6502)
+
+--d64 [fichier] Générer également une image disque .d64 ;
+
+sans nom de fichier, le fichier par défaut est <output>.d64
+
+--add <fichier> Ajouter un fichier supplémentaire à l'image disque .d64 ;
+
+cette option peut être répétée pour plusieurs fichiers
+
+--explicit Exiger le type pour chaque variable, sous-paramètre et paramètre de fonction
+
+-h, --help Afficher l'aide
 ```
 
 ### Exportation CRT
@@ -1996,17 +2462,19 @@ compilation.
 
 **Ce que cela impose :**
 
-| Formulaire de déclaration                                     | Sans `--explicit`               | Avec `--explicit`             |
-| ------------------------------------------------------------- | ------------------------------- | ----------------------------- |
-| `var name = expr` (pas de `:type`)                            | ok — type déduit                | erreur                        |
-| `var name: int = expr` (ou mot/flottant/chaîne de caractères) | d'accord                        | d'accord                      |
-| `var arr = array(N)`                                          | ok — implicitement `array`      | OK — inchangé                 |
-| `var arr = array_word(N)`                                     | ok — implicitement `array_word` | OK — inchangé                 |
-| `const NAME = value`                                          | d'accord                        | OK — inchangé                 |
-| `sub foo(a, b)` (paramètres non typés)                        | d'accord                        | erreur par paramètre non typé |
-| `sub foo(a: int, b: int)`                                     | d'accord                        | d'accord                      |
-| `fn foo(a): int` (paramètre non typé)                         | d'accord                        | erreur sur le paramètre       |
-| `fn foo(a: int): int`                                         | d'accord                        | d'accord                      |
+| Formulaire de déclaration                                     | Sans `--explicit` | Avec `--explicit`       |
+| ------------------------------------------------------------- | ----------------- | ----------------------- |
+| `var name = expr` (pas de `:type`)                            | ok — type déduit  | erreur                  |
+| `var name: int = expr` (ou mot/flottant/chaîne de caractères) | d'accord          | d'accord                |
+| `var arr = array(N)`                                          | ok — type déduit  | erreur                  |
+| `var arr = array_word(N)`                                     | d'accord          | d'accord                |
+| `const NAME = value`                                          | d'accord          | OK — inchangé           |
+| `sub foo(a, b)` (paramètres non typés)                        | d'accord          | OK — inchangé           |
+| `sub foo(a: int, b: int)`                                     | d'accord          | OK — inchangé           |
+| `fn foo(a): int` (paramètre non typé)                         | d'accord          | erreur sur le paramètre |
+| `fn foo(a: int): int`                                         | d'accord          | d'accord                |
+| `fn foo(a): int` (paramètre non typé)                         | d'accord          | erreur sur le paramètre |
+| `fn foo(a: int): int`                                         | d'accord          | d'accord                |
 
 Les déclarations de constantes et de tableaux sont toujours acceptées — leur
 type est fixé par la forme de déclaration, donc `:type` serait redondant.
@@ -2015,9 +2483,12 @@ type est fixé par la forme de déclaration, donc `:type` serait redondant.
 
 ```
 $ ub build myprog.ub --explicit
-Compilation errors:
-  line 14: 'explicit' mode: 'var loose' has no type — use 'var loose: int|word|float|string'
-  line 16: 'explicit' mode: parameter 'a' has no type — use 'a: int|word|float|string'
+
+Erreurs de compilation :
+
+ligne 14 : mode « explicite » : « var loose » n’a pas de type — utilisez « var loose : int|word|float|string »
+
+ligne 16 : mode « explicite » : le paramètre « a » n’a pas de type — utilisez « a : int|word|float|string »
 ```
 
 Ce paramètre est une option à activer ou désactiver lors de la compilation ;
@@ -2041,7 +2512,7 @@ fichier de sortie :
 | ---------- | ------------------------------------------------------------------------------------------------------------------ |
 | `demo.sym` | Code source de symboles compatible avec KickAssembler, adapté à l'importation dans le code source assembleur.      |
 | `demo.dbg` | Fichier de débogage KickAssembler de C64Debugger/RetroDebugger contenant le segment de programme et les étiquettes |
-| `demo.vs`  | Fichier de commandes du moniteur VICE contenant les commandes `al` pour les étiquettes d'adresse                   |
+| `démo.vs`  | Fichier de commandes du moniteur VICE contenant les commandes `al` pour les étiquettes d'adresse                   |
 
 Les trois exportations incluent `program_start`, `program_end`, les variables,
 les tableaux, les sous-programmes et les étiquettes BASIC connues après la
@@ -2062,9 +2533,10 @@ Utilisez `--asm` pour écrire une liste source 6502 lisible à côté du PRG :
 ub build demo.ub --asm
 ```
 
-For an output named `demo.prg`, this creates `demo.asm`. The listing is produced
-from metadata collected while Ultimate Basic generates the machine code; it is
-not merely a disassembly of the completed PRG. It contains:
+Pour un fichier de sortie nommé `demo.prg`, cela crée `demo.asm`. Le listing est
+généré à partir des métadonnées collectées lors de la génération du code machine
+par Ultimate Basic ; il ne s’agit pas d’un simple désassemblage du PRG final. Il
+contient :
 
 - `; UB:` commentaires marquant la plage d'octets générée de chaque instruction
   UB émettrice ;
@@ -2093,15 +2565,19 @@ utilisent la directive `.fill` de KickAssembler.
 Exemple d'extrait :
 
 ```asm
-.label x                 = $02 ; int
+.label x = $02 ; int
 
 * = $080D
 
 ub_start:
-    cld                         ; $080D: D8
-    ; UB: var x
-    lda  #$01                   ; $080E: A9 01
-    sta  x                      ; $0810: 85 02
+
+cld ; $080D: D8
+
+; UB: var x
+
+lda #$01 ; $080E: A9 01
+
+sta x ; $0810: 85 02
 ```
 
 Les commentaires d'adresse/d'octet facilitent la comparaison avec `.prg`. La
@@ -2118,22 +2594,29 @@ Après une compilation réussie, le compilateur affiche toujours une carte mémo
 :
 
 ```
-demo.ub → demo.prg  (386 bytes)
+demo.ub → demo.prg (386 octets)
 
-  Load:    $080D – $0989
+Chargement : $080D – $0989
 
-  Variables (zero page):
-    score    ZP:$08   byte
-    lives    ZP:$0A   byte
-    msg      ZP:$0C   string
-    ptr      ZP:$0E   word
+Variables (page zéro) :
 
-  Subroutines:
-    greet    $0900
-    show     $0912
+score ZP : $08 octet
 
-  Arrays ($C000+):
-    sprites  $C000   8 bytes
+lives ZP : $0A octet
+
+msg ZP : $0C chaîne de caractères
+
+ptr ZP : $0E mot
+
+Sous-programmes :
+
+greet $0900
+
+show $0912
+
+Tableaux (à partir de $C000) :
+
+sprites $C000 8 octets
 ```
 
 Avec `-v`, la sortie affiche en plus les allocations ZP internes et un dump
@@ -2162,23 +2645,23 @@ Utilisez `--asm` pour voir le code généré pour votre propre programme.
 
 | Fonctionnalité                           | Limitation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Arithmétique des entiers                 | 8 bits non signés (0–255) ; les variables `word` contiennent des valeurs de 16 bits                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| Budget de page zéro                      | La page d'initialisation permanente est `$02–$4F` (78 octets) : chaque variable et paramètre de sous-routine/fonction occupe 2 octets, et chaque boucle `for` en cours d'exécution occupe 2 octets supplémentaires (libérés à la fin de la boucle si son corps ne déclare aucune variable). Un dépassement de cette page provoque une erreur de compilation (`out of zero page`, nouveauté de la version 1.5.7) ; auparavant, la zone de travail était écrasée silencieusement. Réutilisez les variables dans les grands programmes. |
-| Littéraux binaires                       | Seuls les littéraux binaires `$hex` et décimaux ne sont pas pris en charge ; `%` ne sont pas pris en charge                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| Arithmétique des entiers                 | 8 bits non signés (0–255) ; les variables `word` contiennent des valeurs de 16 bits                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| Budget de page zéro                      | La page d'initialisation permanente est `$02–$4F` (78 octets) : chaque variable et paramètre de sous-routine/fonction occupe 2 octets, et chaque boucle `for` en cours d'exécution occupe 2 octets supplémentaires (libérés à la fin de la boucle si son corps ne déclare aucune variable). Un dépassement de cette page provoque une erreur de compilation (`out of zero page`, nouveauté de la version 1.5.7) ; auparavant, la zone de travail était écrasée silencieusement. Réutilisez les variables dans les grands programmes. |
+| Littéraux binaires                       | Seuls les littéraux binaires `$hex` et décimaux ne sont pas pris en charge ; `%` ne sont pas pris en charge                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | Sous-programmes                          | Pas de récursion — les emplacements des paramètres ZP sont alloués statiquement                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | Variables de type chaîne                 | Read-only after init; assignment replaces the pointer, not the data                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | Exécution de la concaténation de chaînes | `s1 + s2` s'affiche séquentiellement — sans allocation de mémoire ni suivi de longueur                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | `rnd()` / `rnd(n)`                       | LCG simple, non cryptographique ; période = 256                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| `abs()` / `sgn()` / `min()` / `max()`    | Valeurs 8 bits uniquement ; `abs`/`sgn` traitent les valeurs comme signées (bit 7 = négatif → `abs` complément à deux, `sgn` renvoie `$FF`) ; `min`/`max` sont non signées (0–255).                                                                                                                                                                                                                                                                                                                                                  |
-| `plot`                                   | Les pixels hors plage sont écrêtés silencieusement (Y ≥ 200 ou X ≥ 320 → aucune opération).                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `abs()` / `sgn()` / `min()` / `max()`    | Valeurs 8 bits uniquement ; `abs`/`sgn` traitent les valeurs comme signées (bit 7 = négatif → `abs` complément à deux, `sgn` renvoie `$FF`) ; `min`/`max` sont non signées (0–255).                                                                                                                                                                                                                                                                                                                                                  |
+| `plan`                                   | Les pixels hors plage sont écrêtés silencieusement (Y ≥ 200 ou X ≥ 320 → aucune opération).                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | `mplot`                                  | Aucune vérification des limites — x doit être compris entre 0 et 159, y doit être compris entre 0 et 199                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| `mline` / `mrect`                        | Multicolore ; x : 0–159, y : 0–199. Les pixels hors écran sont répétitifs (pas de découpage) — les coordonnées restent dans la plage.                                                                                                                                                                                                                                                                                                                                                                                                |
+| `mline` / `mrect`                        | Multicolore ; x : 0–159, y : 0–199. Les pixels hors écran sont répétitifs (pas de découpage) — les coordonnées restent dans la plage.                                                                                                                                                                                                                                                                                                                                                                                                |
 | `mcircle`                                | Multicolore ; les points hors écran (x ≥ 160 ou y ≥ 200 sont ignorés)                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| `color pen`                              | Résolution uniquement ; définit la valeur de premier plan des cellules sélectionnées (l'arrière-plan est préservé). Sans effet en mode bloc (`plot4`/`circle4`).                                                                                                                                                                                                                                                                                                                                                                     |
-| `rect`                                   | Aucune vérification des limites — x : 0–319, y : 0–199 ; x1≤x2 et y1≤y2 ne sont pas appliqués (les rectangles dégénérés/inversés produisent une sortie indéfinie)                                                                                                                                                                                                                                                                                                                                                                    |
+| `stylo de couleur`                       | Résolution uniquement ; définit la valeur de premier plan des cellules sélectionnées (l'arrière-plan est préservé). Sans effet en mode bloc (`plot4`/`circle4`).                                                                                                                                                                                                                                                                                                                                                                     |
+| `rect`                                   | Aucune vérification des limites — x : 0–319, y : 0–199 ; x1≤x2 et y1≤y2 ne sont pas appliqués (les rectangles dégénérés/inversés produisent une sortie indéfinie)                                                                                                                                                                                                                                                                                                                                                                    |
 | `plot4`                                  | Aucune vérification des limites — x doit être compris entre 0 et 79, y doit être compris entre 0 et 49 (mode bloc)                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| `circle4`                                | Découpe les pixels hors écran ; le rayon utile est d'environ 0 à 49 en mode bloc 80×50.                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| `cercle4`                                | Découpe les pixels hors écran ; le rayon utile est d'environ 0 à 49 en mode bloc 80×50.                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | `chr$`                                   | Aucune correspondance PETSCII↔ASCII — n est transmis tel quel à CHROUT                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| `music play`                             | Nécessite `load sid` ou un bloc `tune` ; un seul wrapper CIA1 est émis (le dernier `music play` l'emporte)                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| `graphics on double`                     | Résolution uniquement ; utilise `$4000–$7FFF` pour le tampon arrière, le code du programme doit donc rester en dessous de `$4400` ; non compatible avec les sprites ou les couleurs multiples                                                                                                                                                                                                                                                                                                                                        |
-| Signalement des erreurs                  | Uniquement à la compilation ; `onerr goto` gère les erreurs d'E/S du noyau à l'exécution                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| `musique jouer`                          | Nécessite `load sid` ou un bloc `tune` ; un seul wrapper CIA1 est émis (le dernier `music play` l'emporte)                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| `graphiques sur double`                  | Résolution uniquement ; utilise `$4000–$7FFF` pour le tampon arrière, le code du programme doit donc rester en dessous de `$4400` ; non compatible avec les sprites ou les couleurs multiples                                                                                                                                                                                                                                                                                                                                        |
+| Signalement des erreurs                  | Uniquement à la compilation ; `onerr goto` gère les erreurs d'E/S du noyau à l'exécution                                                                                                                                                                                                                                                                                                                                                                                                                                             |
