@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.5.3**
+**Verzió: 2.5.4**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -26,6 +26,13 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - [12b. CRT export (Magic Desk 64K cartridge)](#12b-crt-export-magic-desk-64k-cartridge)
 - [13. Hardver beállítások](#13-hardver-beállítások)
 - [14. Vizuális szerkesztők (Toolkit)](#14-vizuális-szerkesztők-toolkit)
+
+---
+
+## A 2.5.4 verzió újdonságai
+
+- **Javítva: újraindításkor nem jelent meg az ablak** — ha az alkalmazást lekicsinyített vagy rejtett ablakkal zártad be (főleg macOS-en, illetve Linux / Wayland alatt), a következő indításkor előfordult, hogy nem jelent meg ablak. A láthatóságot az alkalmazás már nem menti (az ablak méretét továbbra is), és az ablak induláskor mindig megjelenik.
+- **Beépített Ultimate Basic 1.6.3** — QBasic-stílusú szintaxis: `dim név as típus` változókhoz és bármilyen típusú tömbhöz, `function` / `sub` `as` típusokkal, `elseif`, `do … loop`, `while … wend`, `select case`, `exit do` / `exit sub`, egysoros `if`, `'` megjegyzés és `print a; b; c`; futásidejű stringek (`+`, `left$` / `right$` / `mid$`) és előjeles 16 bites `integer`. A UB szerkesztő kiemeli, kiegészíti és formázza, a Commands panelen új **DIM**, **FUNCTION**, **ELSEIF**, **DO**, **WEND**, **SELECT CASE**, **END**, **EXIT SUB** és **LEFT$** / **RIGHT$** / **MID$** bejegyzéssel. Lásd: [UltimateBasic mód](#ultimatebasic-mód).
 
 ---
 
@@ -499,6 +506,8 @@ A UB eszköztár ugyanazt a vizuális nyelvet és egyéni tooltipeket követi, m
 - egymástól függetlenül kapcsolható és átméretezhető **Build Output** és **Disassembly** panelt.
 
 A Disassembly panelen van egy **Copy** gomb, amely a teljes megjelenített forrást vágólapra másolja. A parancssúgó a beépített fordítót követi: például a `sprite_frame id, data_address [, frame]` egymást követő 64 byte-os sprite frame-ekből választ animációs képet.
+
+A szerkesztő az Ultimate Basic 1.6.3 QBasic-stílusú szintaxisát is ismeri: `dim név as típus`, `function … end function`, `sub … end sub`, `elseif`, `do … loop [while | until]`, `while … wend`, `select case`, `exit do` / `exit for` / `exit while` / `exit sub` / `exit function`, a `left$` / `right$` / `mid$` stringfüggvények, valamint a `'` jellel kezdődő megjegyzés a `#` és a `rem` mellett. Azok a szavak, amelyeket a fordító csak egy adott helyen kezel kulcsszóként, csak ott kapnak színt, névként továbbra is használhatók: az `as` a BASIC típusnevekkel (`byte`, `integer`, `single`, `double`), a `case is`, a `map view`, a `wait key` és a `scroll` opciói (`row`, `x`, `y`, `left`, `right`, `narrow`, `wide`). A **Format** behúzza a `function`, `do … loop`, `while … wend` és `elseif` blokkokat, az egysoros ciklusokat (`do while f : … : loop`) nem húzza be, a Project panel a `function` blokkokat a függvények között listázza, a Commands panelen pedig új **DIM**, **FUNCTION**, **ELSEIF**, **DO**, **WEND**, **SELECT CASE**, **END**, **EXIT SUB**, **LEFT$**, **RIGHT$** és **MID$** bejegyzés van.
 
 A parancslista szándékosan magasság-korlátozott, hogy a parancs-részlet kártya kitölthesse a maradék panel-magasságot. A részlet-terület függetlenül görgethető a hosszabb szintaxis-leírásokhoz.
 
