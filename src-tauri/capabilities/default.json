@@ -5,6 +5,8 @@
   "windows": ["main", "about"],
   "permissions": [
     "core:default",
+    "core:window:allow-show",
+    "core:window:allow-set-focus",
     "dialog:allow-open",
     "dialog:allow-save",
     "opener:allow-open-url",

@@ -3873,12 +3873,14 @@ pub fn run() {
             // On Linux/Wayland: position is always 0,0 (compositor doesn't expose it)
             // and MAXIMIZED state causes GTK CSD buttons to malfunction when restored.
             // Save only SIZE so the user's window size is remembered, nothing else.
-            // On macOS/Windows: save everything as before.
+            // VISIBLE is never persisted: a window minimized / on another Space at quit
+            // was saved as visible=false and then never shown again (macOS). The main
+            // window is shown by the frontend (applySavedTheme) after the first paint.
             #[cfg(not(any(target_os = "macos", target_os = "windows")))]
-            let flags = tauri_plugin_window_state::StateFlags::SIZE
-                | tauri_plugin_window_state::StateFlags::VISIBLE;
+            let flags = tauri_plugin_window_state::StateFlags::SIZE;
             #[cfg(any(target_os = "macos", target_os = "windows"))]
-            let flags = tauri_plugin_window_state::StateFlags::all();
+            let flags = tauri_plugin_window_state::StateFlags::all()
+                - tauri_plugin_window_state::StateFlags::VISIBLE;
             tauri_plugin_window_state::Builder::default()
                 .with_state_flags(flags)
                 .skip_initial_state("about")
@@ -3887,7 +3889,20 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())
-        .setup(|_| Ok(()))
+        .setup(|app| {
+            // Fallback: if the frontend never shows the main window, show it after 3 s.
+            let handle = app.handle().clone();
+            std::thread::spawn(move || {
+                std::thread::sleep(std::time::Duration::from_secs(3));
+                if let Some(w) = handle.get_webview_window("main") {
+                    if !w.is_visible().unwrap_or(true) {
+                        let _ = w.show();
+                        let _ = w.set_focus();
+                    }
+                }
+            });
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             get_app_version,
             get_ultimate_basic_version,
