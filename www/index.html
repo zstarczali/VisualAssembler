@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.5.4">
+  <link rel="stylesheet" href="style.css?v=2.5.5">
 </head>
 
 <body>
@@ -229,7 +229,7 @@
           <button id="d64-editor-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="D64 Editor">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" width="15" height="15" aria-hidden="true"><circle cx="8" cy="8" r="6.5"/><circle cx="8" cy="8" r="1.6" fill="currentColor" stroke="none"/><path d="M8 1.5v2.1M8 12.4v2.1" stroke-linecap="round"/></svg>
           </button>
-          <button id="numconv-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="Number converter">
+          <button id="numconv-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="Number converter" aria-pressed="false">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true"><path d="M2 4.5h7M6.5 2 9 4.5 6.5 7"/><path d="M14 11.5H7M9.5 9 7 11.5 9.5 14"/><text x="11" y="6.2" font-size="5" font-family="monospace" fill="currentColor" stroke="none">$</text><text x="1.6" y="13.4" font-size="5" font-family="monospace" fill="currentColor" stroke="none">%</text></svg>
           </button>
           <div class="main-tb-sep" aria-hidden="true"></div>
@@ -1203,7 +1203,7 @@ PRINTABLE CHARACTERS
           <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
         </div>
         <h2 class="about-title">C64 Visual Assembler</h2>
-        <p class="about-version" id="about-version">v2.5.4</p>
+        <p class="about-version" id="about-version">v2.5.5</p>
         <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
       </div>
       <div class="about-columns">
@@ -1229,22 +1229,37 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.5.4</p>
+      <p class="whats-new-version">v2.5.5</p>
       <ul class="whats-new-list">
         <li>
-          <strong>Fixed: window not appearing on relaunch:</strong> if the app was quit with its window minimized or hidden (mostly on macOS, also on Linux / Wayland), the next start could come up without a window. The window is now always shown at startup; the saved window size is kept.
+          <strong>New: pixel grid in the Hi-Res Editor:</strong> with <em>Grid</em> on, from 4× zoom every pixel gets its own grid line, stronger on the character-cell borders. The lines are shaded to stay visible on all 16 colours.
         </li>
         <li>
-          <strong>New: Ultimate Basic 1.6.3 bundled — QBasic-style syntax:</strong> <code>DIM name AS type</code> for variables and arrays of every type, <code>FUNCTION</code> / <code>SUB</code> with <code>AS</code> types, <code>ELSEIF</code>, <code>DO … LOOP</code>, <code>WHILE … WEND</code>, <code>SELECT CASE</code>, <code>EXIT DO</code> / <code>EXIT SUB</code>, single-line <code>IF</code>, <code>'</code> comments and <code>PRINT a; b; c</code>; runtime strings (<code>+</code>, <code>LEFT$</code> / <code>RIGHT$</code> / <code>MID$</code>) and signed 16-bit <code>INTEGER</code>. The UB editor highlights, completes and formats the new syntax, and the Commands panel describes it.
+          <strong>New: 16× zoom</strong> in the Hi-Res Editor (was 8×).
         </li>
         <li>
-          <strong>From 2.5.3 — Fixed: running in VICE on Windows</strong> no longer fails with <em>program not found</em> when PowerShell is missing from PATH; VICE starts from its own folder, and paths with spaces are handled.
+          <strong>New: right-click Copy / Paste menu</strong> on the canvas of the Hi-Res, Map and Sprite editors: Copy, Paste and Transparent paste, or Copy frame / Paste frame in the Sprite Editor. A paste started from the menu previews where you clicked.
         </li>
         <li>
-          <strong>From 2.5.2 — SID Editor previews on the real SID:</strong> the instrument Preview, the virtual keyboard, note entry, chord and arpeggio previews, row preview and single-pattern playback now play through the WebSid emulator, streamed frame by frame from the same engine as the exported player. It is preloaded, so notes sound at once.
+          <strong>New: Number Converter toggle button:</strong> its toolbar button stays highlighted while the converter is shown.
         </li>
         <li>
-          <strong>Note-off in the tracker:</strong> key <strong>1</strong> writes <code>===</code> — the gate is released and the instrument's release runs, like a key-off in other trackers. <strong>Enter</strong> edits the selected cell.
+          <strong>Fixed:</strong> the multicolor cell grid of the Hi-Res Editor was twice as wide as a character cell; the Hi-Res <em>Paste</em> button always pasted transparently; the SID Editor right-click menu opened away from the cursor.
+        </li>
+        <li>
+          <strong>From 2.5.4, fixed: window not appearing on relaunch:</strong> if the app was quit with its window minimized or hidden (mostly on macOS, also on Linux / Wayland), the next start could come up without a window. The window is now always shown at startup; the saved window size is kept.
+        </li>
+        <li>
+          <strong>From 2.5.4: Ultimate Basic 1.6.3 bundled, with QBasic-style syntax:</strong> <code>DIM name AS type</code> for variables and arrays of every type, <code>FUNCTION</code> / <code>SUB</code> with <code>AS</code> types, <code>ELSEIF</code>, <code>DO … LOOP</code>, <code>WHILE … WEND</code>, <code>SELECT CASE</code>, <code>EXIT DO</code> / <code>EXIT SUB</code>, single-line <code>IF</code>, <code>'</code> comments and <code>PRINT a; b; c</code>; runtime strings (<code>+</code>, <code>LEFT$</code> / <code>RIGHT$</code> / <code>MID$</code>) and signed 16-bit <code>INTEGER</code>. The UB editor highlights, completes and formats the new syntax, and the Commands panel describes it.
+        </li>
+        <li>
+          <strong>From 2.5.3, fixed: running in VICE on Windows</strong> no longer fails with <em>program not found</em> when PowerShell is missing from PATH; VICE starts from its own folder, and paths with spaces are handled.
+        </li>
+        <li>
+          <strong>From 2.5.2: SID Editor previews on the real SID:</strong> the instrument Preview, the virtual keyboard, note entry, chord and arpeggio previews, row preview and single-pattern playback now play through the WebSid emulator, streamed frame by frame from the same engine as the exported player. It is preloaded, so notes sound at once.
+        </li>
+        <li>
+          <strong>Note-off in the tracker:</strong> key <strong>1</strong> writes <code>===</code>: the gate is released and the instrument's release runs, like a key-off in other trackers. <strong>Enter</strong> edits the selected cell.
         </li>
         <li>
           <strong>Detachable tracker:</strong> the tracker can float in its own resizable panel and dock back, so a long wave table leaves it room.
@@ -1925,7 +1940,7 @@ PRINTABLE CHARACTERS
           </button>
         </div>
         <label class="hg-check" title="Multi-Color mode (160×200)"><input type="checkbox" id="hg-multicolor"> <span id="hg-multicolor-label">Multi-Color</span></label>
-        <label class="hg-check" title="Show 8×8 cell grid"><input type="checkbox" id="hg-grid"> <span id="hg-grid-label">Grid</span></label>
+        <label class="hg-check" title="Show the character-cell grid (plus the pixel grid from 4× zoom)"><input type="checkbox" id="hg-grid"> <span id="hg-grid-label">Grid</span></label>
         <input type="file" id="hg-koala-file" accept=".koa,.kla,.prg,application/octet-stream" hidden>
         <input type="file" id="hg-import-file" accept="image/png,image/jpeg,image/jpg,image/webp,image/bmp,.png,.jpg,.jpeg,.webp,.bmp,.bin,.koa,.kla,application/octet-stream" hidden>
       </div>
@@ -1935,7 +1950,7 @@ PRINTABLE CHARACTERS
         <span class="hg-color-lbl" id="hg-paper-lbl">PAPER:</span>
         <button id="hg-paper" class="hg-swatch hg-paper" type="button" title="Paper colour — click to set from selected colour, or right-click a palette colour"></button>
         <span class="hg-zoom-lbl" id="hg-zoom-lbl">Zoom:</span>
-        <input type="range" id="hg-zoom" min="1" max="8" step="1" value="3" class="hg-zoom">
+        <input type="range" id="hg-zoom" min="1" max="16" step="1" value="3" class="hg-zoom">
         <span class="hg-zoom-val" id="hg-zoom-val">3×</span>
         <label class="hg-check"><input type="checkbox" id="hg-raster"> <span id="hg-raster-label">Raster</span></label>
       </div>
@@ -2801,13 +2816,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.5.4"></script>
-  <script src="i18n.js?v=2.5.4"></script>
-  <script src="tutorial-data.js?v=2.5.4"></script>
+  <script src="tauri-bridge.js?v=2.5.5"></script>
+  <script src="i18n.js?v=2.5.5"></script>
+  <script src="tutorial-data.js?v=2.5.5"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.5.4"></script>
+  <script src="app.js?v=2.5.5"></script>
 
 </body>
 

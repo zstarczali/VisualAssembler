@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.5.4**
+**Verzió: 2.5.5**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -26,6 +26,16 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - [12b. CRT export (Magic Desk 64K cartridge)](#12b-crt-export-magic-desk-64k-cartridge)
 - [13. Hardver beállítások](#13-hardver-beállítások)
 - [14. Vizuális szerkesztők (Toolkit)](#14-vizuális-szerkesztők-toolkit)
+
+---
+
+## A 2.5.5 verzió újdonságai
+
+- **Hi-Res szerkesztő: pixelrács és 16×-os nagyítás** — bekapcsolt **Grid** mellett 4×-es nagyítástól minden pixel saját rácsvonalat kap, a karaktercellák határán erősebbet, és a vonal árnyalata úgy igazodik, hogy mind a 16 színen látsszon. A nagyítás csúszkája mostantól 16×-ig megy. Lásd: [Hi-Res / Multicolor Editor](#hi-res--multicolor-editor).
+- **Jobb klikkes másolás / beillesztés menü** — a Hi-Res és a Map szerkesztő vásznán (másolás, beillesztés, áttetsző beillesztés), valamint a Sprite szerkesztőben (frame másolása, frame beillesztése, a frame-csíkon is). A menüből indított beillesztés előnézete a kattintás helyén jelenik meg.
+- **Számrendszer-átváltó** — a toolbar gombja kiemelve marad, amíg az átváltó látszik.
+- **Javítva** — a Hi-Res szerkesztő multicolor cellarácsa kétszer olyan széles volt, mint egy karaktercella; a Hi-Res eszköztár **Paste** gombja mindig áttetszően illesztett be; a SID szerkesztő jobb klikkes menüje a kurzortól távolabb nyílt meg, amíg a dialógus középen állt.
+- **Ez a kézikönyv** — a Hi-Res szerkesztő kijelölése, másolása / beillesztése és áttetsző beillesztése mostantól le van írva.
 
 ---
 
@@ -3670,12 +3680,16 @@ Pixel-szintű bitmap szerkesztő 320×200 hi-res és 160×200 multicolor módokk
 | Funkció | Leírás |
 |---|---|
 | Mode toggle | A **Multicolor** jelölőnégyzet vált hi-res (celláként mono) és multicolor (celláként 4 szín) közt. |
-| Eszközök | Ceruza, radír, vonal, téglalap, kitöltött téglalap, ovális, kitöltött ovális, flood fill. |
+| Eszközök | Ceruza, radír, vonal, téglalap, kitöltött téglalap, ovális, kitöltött ovális, flood fill, kijelölés. |
 | Spray eszköz | Airbrush-stílusú festő, amely pixeleket szór a kurzor köré rajzolás közben. |
 | Spray intenzitás | A spray eszköz melletti legördülő vezérli, mennyire sűrű minden spray húzás. |
 | Színpaletta | Előtér (ink) + papír (háttér) választók. A multicolor mód automatikusan követ 3 celláként­i extrát. |
 | Undo / Redo | Húzásonkénti előzmény, ctrl-Z / ctrl-Y. |
-| Grid + Raster | Opcionális 8×8 rács és raszter-sor overlay cella-igazításhoz. |
+| Kijelölés | A szaggatott négyzet ikonú eszköz: húzással jelölhető ki egy téglalap alakú terület a vásznon. Az **Esc** megszünteti a kijelölést. |
+| Másolás / beillesztés | A **Copy** (`Ctrl/Cmd+C`) a kijelölt területet másolja. A **Paste** (`Ctrl/Cmd+V`) után a másolat előnézete követi a kurzort: kattintás a vászonra elhelyezi, az **Esc** megszakítja. A másolat megmarad, így újabb `Ctrl/Cmd+V` és kattintás akárhányszor beilleszti. Hi-res módban a beillesztett pixelekre is érvényes a cellánkénti két szín, ezért a színek megtartásához igazítsd a területet a cellarácshoz. A Copy, a Paste és az áttetsző beillesztés a vászon jobb klikkes menüjében is megvan; az onnan indított beillesztés előnézete a kattintás helyén jelenik meg. |
+| Áttetsző beillesztés | A `Ctrl/Cmd+Shift+V` (vagy az eszköztár gombja) kihagyja a másolat papír színű pixeleit, így az alatta lévő kép megmarad. |
+| Grid + Raster | A **Grid** a karaktercellák rácsát mutatja: hi-resben 8×8 pixel, multicolorban 4×8 dupla széles pixel. 4×-es nagyítástól halványabb vonallal minden egyes pixelt is körberajzol, így a pixelek pontosan elhelyezhetők. A **Raster** raszter-sor overlay-t ad. |
+| Zoom | Csúszka 1×-től 16×-ig. |
 | Kép importja | A canvas-ra dobott PNG/JPEG/GIF automatikusan a 16 színes C64 palettára kvantálódik. |
 | Export blokkok | BYTE/RAWBYTES blokkokat fűz a programhoz a kódolt bitmap, screen és color adattal. |
 | Export `.bin` | A natív multicolor formátumot menti (10000 byte: 8000 bitmap + 1000 screen + 1000 color), készen a $2000-re való LOADFILE-hoz. |
@@ -3686,7 +3700,7 @@ Pixel-szintű bitmap szerkesztő 320×200 hi-res és 160×200 multicolor módokk
 
 | Funkció | Leírás |
 |---|---|
-| Frame-ek | Frame-ek hozzáadása / eltávolítása / átrendezése; a frame-csík alul látszik. |
+| Frame-ek | Frame-ek hozzáadása / eltávolítása / átrendezése; a frame-csík alul látszik. A frame-sor **Copy** / **Paste** gombja a teljes aktuális frame-et másolja; ugyanez a két pont a vászon és a frame-csík jobb klikkes menüjében is megvan. |
 | Mode | Mono / multicolor kapcsoló. |
 | Eszközök | Ceruza, kitöltés, vonal, téglalap, kör — plusz vízszintes tükrözés, függőleges tükrözés, balra/jobbra/fel/le tolás (opcionális körbefordulással). A shape eszközök élő előnézetet mutatnak húzás közben; elengedésre véglegesít. |
 | Undo / redo | Teljes undo/redo verem frame-enként. Ctrl/Cmd+Z / Ctrl/Cmd+Y vagy az eszköztár gombjai. |
@@ -3751,7 +3765,7 @@ Réteges tilemap szerkesztő statikus díszlethez, sprite spawn map-ekhez, ütk�
 | Undo / redo | Teljes undo/redo verem rétegenként. Ctrl/Cmd+Z / Ctrl/Cmd+Y vagy az eszköztár gombjai. |
 | Clear menü | Rétegenkénti vagy teljes-map törlés megerősítéssel. |
 | Kép importja | Dobj be egy tilemap PNG-t; a szerkesztő automatikusan tile-okra szeleteli. |
-| Copy / paste | Másolj egy kijelölt tile-tartományt, majd illeszd be normálisan, vagy használj átlátszó beillesztést, hogy az üres tile-ok átlátszók maradjanak. |
+| Copy / paste | Másolj egy kijelölt tile-tartományt, majd illeszd be normálisan, vagy használj átlátszó beillesztést, hogy az üres tile-ok átlátszók maradjanak. Ugyanezek a pontok a vászon jobb klikkes menüjében is megvannak. |
 | Multicolor-tudatos tile-színezés | Kompatibilis charset metaadattal a festés a tile tárolt Color RAM alapértékeit használja (a multicolor-hoz kapcsolódó kódolással) egy általános lapos szín helyett. |
 | Egyéni charset színek | Ha egy charset `charColors` metaadatot hordoz, a Map Editor a kiválasztott tile alapértelmezett Color RAM értékét használja festés közben. |
 | Export blokkok | RAWBYTES blokkokat bocsát ki a tileset grafikához + map adathoz. |
@@ -3897,7 +3911,7 @@ Minden Copy / Insert kimenet egy fejléc-megjegyzéssel kezdődik, amely dokumen
 
 ### Számrendszer-átváltó
 
-Kis, **nem modális** DEC / HEX / BIN átváltó, a D64 Editor melletti toolbar gombbal nyílik (újabb kattintás vagy Esc zárja). Nyitva maradhat, miközben bármelyik módban tovább szerkeszted a programot.
+Kis, **nem modális** DEC / HEX / BIN átváltó, a D64 Editor melletti toolbar gombbal nyílik (újabb kattintás vagy Esc zárja). A gomb kiemelve marad, amíg az átváltó látszik. Nyitva maradhat, miközben bármelyik módban tovább szerkeszted a programot.
 
 - Bármelyik mezőbe (**DEC**, **HEX**, **BIN**) írsz, a másik kettő követi. Elfogadja a `$`, `0x`, `%`, `0b` előtagot és az elválasztókat (szóköz, `_`); a negatív decimális érték kettes komplemens lesz az aktuális szélességben; a hibás bevitel pirosan jelölődik.
 - **8 / 16 bit** szélesség — 255 fölötti érték automatikusan 16 bitre vált.

@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.5.4**
+**Version 2.5.5**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -9,6 +9,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
+    - [Version 2.5.5 Highlights](#version-255-highlights)
     - [Version 2.5.4 Highlights](#version-254-highlights)
     - [Version 2.5.3 Highlights](#version-253-highlights)
     - [Version 2.5.2 Highlights](#version-252-highlights)
@@ -174,6 +175,16 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Curve Editor](#curve-editor)
     - [Number Converter](#number-converter)
+
+---
+
+## Version 2.5.5 Highlights
+
+- **Hi-Res Editor: pixel grid and 16× zoom** — with **Grid** on, from 4× zoom every pixel gets its own grid line, stronger on the character-cell borders and shaded to stay visible on all 16 colours. The zoom slider now goes up to 16×. See [Hi-Res / Multicolor Editor](#hi-res--multicolor-editor).
+- **Right-click Copy / Paste menu** — on the canvas of the Hi-Res and Map editors (Copy, Paste, Transparent paste) and in the Sprite Editor (Copy frame, Paste frame, also on the frame strip). A paste started from the menu previews where you clicked.
+- **Number Converter** — its toolbar button stays highlighted while the converter is shown.
+- **Fixed** — the multicolor cell grid of the Hi-Res Editor was twice as wide as a character cell; the Hi-Res toolbar **Paste** button always pasted transparently; the SID Editor right-click menu opened away from the cursor while the dialog was centred.
+- **This manual** — selection, copy / paste and transparent paste of the Hi-Res Editor are now described.
 
 ---
 
@@ -3819,12 +3830,16 @@ Pixel-level bitmap editor with both 320×200 hi-res and 160×200 multicolor mode
 | Feature | Description |
 |---|---|
 | Mode toggle | **Multicolor** checkbox switches between hi-res (mono per cell) and multicolor (4 colors per cell). |
-| Tools | Pencil, eraser, line, rectangle, filled rectangle, oval, filled oval, flood fill. |
+| Tools | Pencil, eraser, line, rectangle, filled rectangle, oval, filled oval, flood fill, select. |
 | Spray tool | Airbrush-style painter that scatters pixels around the cursor while drawing. |
 | Spray intensity | Dropdown next to the spray tool controls how dense each spray stroke is. |
 | Color palette | Foreground (ink) + paper (background) pickers. Multicolor mode tracks 3 per-cell extras automatically. |
 | Undo / Redo | Per-stroke history, ctrl-Z / ctrl-Y. |
-| Grid + Raster | Optional 8×8 grid and raster row overlay for cell alignment. |
+| Select | The dashed-square tool: drag on the canvas to mark a rectangular region. **Esc** clears the selection. |
+| Copy / Paste | **Copy** (`Ctrl/Cmd+C`) copies the selected region. **Paste** (`Ctrl/Cmd+V`) shows a preview that follows the cursor: click on the canvas to place it, **Esc** cancels. The copy is kept, so pressing `Ctrl/Cmd+V` and clicking again places it as many times as needed. In hi-res mode pasted pixels still follow the two-colours-per-cell limit, so line the region up with the cell grid to keep its colours. Copy, Paste and Transparent paste are also in the right-click menu of the canvas; a paste started there previews at the clicked spot. |
+| Transparent paste | `Ctrl/Cmd+Shift+V` (or its toolbar button) skips the paper-coloured pixels of the copy, so the picture underneath shows through. |
+| Grid + Raster | **Grid** shows the character-cell grid: 8×8 pixels in hi-res, 4×8 double-wide pixels in multicolor. From 4× zoom it also draws a fainter line around every single pixel, so each pixel can be placed exactly. **Raster** adds a raster row overlay. |
+| Zoom | Slider from 1× to 16×. |
 | Import image | PNG/JPEG/GIF dropped into the canvas auto-quantizes to the 16-color C64 palette. |
 | Export blocks | Appends BYTE/RAWBYTES blocks to the program with the encoded bitmap, screen, and color data. |
 | Export `.bin` | Saves the native multicolor format (10000 bytes: 8000 bitmap + 1000 screen + 1000 color) ready for LOADFILE to $2000. |
@@ -3835,7 +3850,7 @@ Pixel-level bitmap editor with both 320×200 hi-res and 160×200 multicolor mode
 
 | Feature | Description |
 |---|---|
-| Frames | Add / remove / reorder frames; frame strip shown at the bottom. |
+| Frames | Add / remove / reorder frames; frame strip shown at the bottom. **Copy** / **Paste** in the frame row copy the whole current frame; the same two entries are in the right-click menu of the canvas and of the frame strip. |
 | Mode | Mono / multicolor toggle. |
 | Tools | Pencil, fill, line, rectangle, circle — plus flip horizontal, flip vertical, shift left/right/up/down (with optional wrap). Shape tools show a live preview while dragging; release to commit. |
 | Undo / redo | Full undo/redo stack per frame. Ctrl/Cmd+Z / Ctrl/Cmd+Y or the toolbar buttons. |
@@ -3900,7 +3915,7 @@ Layered tilemap editor for static scenery, sprite spawn maps, collision data, an
 | Undo / redo | Full undo/redo stack per layer. Ctrl/Cmd+Z / Ctrl/Cmd+Y or the toolbar buttons. |
 | Clear menu | Per-layer or whole-map clear with confirmation. |
 | Image import | Drop a PNG of a tilemap; the editor auto-slices into tiles. |
-| Copy / paste | Copy a selected tile region, then paste normally or use transparent paste to keep empty tiles transparent. |
+| Copy / paste | Copy a selected tile region, then paste normally or use transparent paste to keep empty tiles transparent. The same entries are in the right-click menu of the canvas. |
 | Multicolor-aware tile coloring | With compatible charset metadata, painting uses the tile's stored Color RAM defaults (including multicolor-related encoding) instead of a generic flat color. |
 | Custom charset colors | When a charset carries `charColors` metadata, the Map Editor uses the selected tile's default Color RAM value while painting. |
 | Export blocks | Emits RAWBYTES blocks for tileset graphics + map data. |
@@ -4046,7 +4061,7 @@ Every Copy / Insert output starts with a header comment documenting the curve, a
 
 ### Number Converter
 
-A small **non-modal** DEC / HEX / BIN converter, opened with the toolbar button next to the D64 Editor (click again or press Esc to close). It stays open while you keep editing the program in any mode.
+A small **non-modal** DEC / HEX / BIN converter, opened with the toolbar button next to the D64 Editor (click again or press Esc to close). The button stays highlighted while the converter is shown. It stays open while you keep editing the program in any mode.
 
 - Type into any of the **DEC**, **HEX** or **BIN** fields and the other two follow. Prefixes `$`, `0x`, `%`, `0b` and separators (space, `_`) are accepted; a negative decimal becomes two's complement in the current width; invalid input is marked red.
 - **8 / 16 bit** width — a value above 255 switches to 16 bit automatically.

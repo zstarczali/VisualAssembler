@@ -1,7 +1,9 @@
 C64 Visual Assembler - Installation Guide
-Version 2.5.4
+Version 2.5.5
 Support: https://zstarczali.itch.io/visual-assembler-commodore-64
 ==========================================================================
+
+2.5.5: Hi-Res Editor: with Grid on, from 4× zoom every pixel gets its own grid line, stronger on the character-cell borders and shaded to stay visible on all 16 colours; the zoom now goes up to 16×. New right-click menu on the canvas of the Hi-Res and Map editors (Copy, Paste, Transparent paste) and of the Sprite Editor (Copy frame, Paste frame, also on the frame strip); a paste started from the menu previews where you clicked. The Number Converter toolbar button stays highlighted while the converter is shown. Fixed: the multicolor cell grid of the Hi-Res Editor was drawn twice as wide as a character cell; the Hi-Res toolbar Paste button always pasted transparently; the SID Editor right-click menu opened away from the cursor while the dialog was centred. The manual now documents selection, copy and paste in the Hi-Res Editor.
 
 2.5.4: Fixed the main window not appearing on relaunch: when the app was quit with its window minimized or hidden (mostly macOS, also Linux / Wayland), the saved window state brought it back hidden and the next start showed no window. The visible state is no longer saved (the window size still is), and the window is always shown at startup. Ultimate Basic 1.6.3 bundled: QBasic-style syntax — DIM name AS type for variables and arrays of every type, FUNCTION / SUB with AS types, ELSEIF, DO ... LOOP, WHILE ... WEND, SELECT CASE, EXIT DO / EXIT SUB, single-line IF, ' comments and PRINT a; b; c; runtime strings (LEFT$ / RIGHT$ / MID$) and signed 16-bit INTEGER — with highlighting, autocomplete, formatting and command help in the UB editor.
 
@@ -49,7 +51,7 @@ Tested on Ubuntu 22.04 and 24.04.
 -----------------------
 Download the .deb package from the releases page and install:
 
-  sudo dpkg -i "c64-visual-assembler_2.5.4_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.5.5_amd64.deb"
   sudo apt-get install -f   # fix any missing dependencies
 
 Launch from the Applications menu or:
@@ -142,7 +144,7 @@ Requirements: macOS 11.0+, Apple Silicon (M1/M2/M3)
 
 1. C64 Visual Assembler
 -----------------------
-1. Download the 2.5.4 DMG for your architecture from the releases page
+1. Download the 2.5.5 DMG for your architecture from the releases page
 2. Mount the DMG and drag the app to /Applications
 3. First launch: Right-click the app -> "Open" (macOS will block double-click)
 4. Click "Open" in the security dialog

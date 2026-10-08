@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "sid-252",
+  id: "editors-255",
   url: "https://www.c64va.tech/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.5.2-ben",
+    eyebrow: "Újdonság a 2.5.5-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>Előnézet a valódi SID-en:</strong> a hangszer-előnézet, a virtuális billentyűzet, az akkord, az arpeggio és a pattern-lejátszás is a WebSid emulátoron szól.</li><li><strong>Előbeállítások:</strong> a wave / arpeggio lista megtartja a választott előbeállítást.</li><li><strong>VA-VK</strong> a virtuális billentyűzet új neve; új Tudásbázis linkek két oszlopban.</li><li><strong>Tracker:</strong> note-off (<code>===</code>, 1-es billentyű), Enter-rel szerkesztés, leválasztható tracker ablak.</li><li><strong>A 2.5.1-ből:</strong> SID hangszerek szűrő-söpréssel, vibratóval, PWM-mel és arpeggio táblával, új lejátszó, könyvjelzők.</li></ul>`,
+    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>Pixelrács a Hi-Res szerkesztőben:</strong> bekapcsolt Grid mellett 4×-es nagyítástól minden pixel saját vonalat kap, és mind a 16 színen látszik.</li><li><strong>16×-os nagyítás</strong> a Hi-Res szerkesztőben.</li><li><strong>Jobb klikkes menü:</strong> másolás, beillesztés és áttetsző beillesztés a Hi-Res, a Map és a Sprite szerkesztő vásznán.</li><li><strong>Számrendszer-átváltó:</strong> a toolbar gombja kiemelve marad, amíg az átváltó nyitva van.</li><li><strong>Javítások:</strong> a multicolor cellarács, a Hi-Res Paste gomb és a SID szerkesztő jobb klikkes menüjének helye.</li><li><strong>A 2.5.4-ből:</strong> Ultimate Basic 1.6.3 QBasic-stílusú szintaxissal (<code>DIM … AS</code>, <code>FUNCTION</code>, <code>DO … LOOP</code>, <code>SELECT CASE</code>).</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.5.2",
+    eyebrow: "New in 2.5.5",
     title: "Welcome to Visual Assembler",
-    body: `<p>What's new in this release:</p><ul><li><strong>Previews on the real SID:</strong> the instrument preview, virtual keyboard, chords, arpeggios and pattern playback play on the WebSid emulator.</li><li><strong>Presets:</strong> the wave / arpeggio list keeps the chosen preset.</li><li><strong>VA-VK</strong> is the virtual keyboard's new name; new Knowledge Base links in two columns.</li><li><strong>Tracker:</strong> note-off (<code>===</code>, key 1), Enter to edit a cell, a detachable tracker window.</li><li><strong>From 2.5.1:</strong> SID instruments with filter sweeps, vibrato, PWM and arpeggio tables, a new player, bookmarks.</li></ul>`,
+    body: `<p>What's new in this release:</p><ul><li><strong>Hi-Res Editor pixel grid:</strong> with Grid on, from 4× zoom every pixel gets its own line, visible on all 16 colours.</li><li><strong>16× zoom</strong> in the Hi-Res Editor.</li><li><strong>Right-click menu:</strong> Copy, Paste and Transparent paste on the canvas of the Hi-Res, Map and Sprite editors.</li><li><strong>Number Converter:</strong> its toolbar button stays highlighted while the converter is open.</li><li><strong>Fixes:</strong> the multicolor cell grid, the Hi-Res Paste button and the position of the SID Editor's right-click menu.</li><li><strong>From 2.5.4:</strong> Ultimate Basic 1.6.3 with QBasic-style syntax (<code>DIM … AS</code>, <code>FUNCTION</code>, <code>DO … LOOP</code>, <code>SELECT CASE</code>).</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.5.2",
+    eyebrow: "Novedad en la 2.5.5",
     title: "Bienvenido a Visual Assembler",
-    body: `<p>Novedades de esta versión:</p><ul><li><strong>Vistas previas en el SID real:</strong> la vista previa del instrumento, el teclado virtual, los acordes, los arpegios y la reproducción de patrones suenan en el emulador WebSid.</li><li><strong>Presets:</strong> la lista de onda / arpegio conserva el preset elegido.</li><li><strong>VA-VK</strong> es el nuevo nombre del teclado virtual; nuevos enlaces en la Base de conocimiento, en dos columnas.</li><li><strong>Tracker:</strong> note-off (<code>===</code>, tecla 1), Enter para editar una celda, ventana del tracker separable.</li><li><strong>De la 2.5.1:</strong> instrumentos SID con barridos de filtro, vibrato, PWM y tablas de arpegio, nuevo reproductor, marcadores.</li></ul>`,
+    body: `<p>Novedades de esta versión:</p><ul><li><strong>Cuadrícula de píxeles en el editor Hi-Res:</strong> con la cuadrícula activada, desde el zoom 4× cada píxel tiene su propia línea, visible sobre los 16 colores.</li><li><strong>Zoom 16×</strong> en el editor Hi-Res.</li><li><strong>Menú del botón derecho:</strong> Copiar, Pegar y Pegar transparente en el lienzo de los editores Hi-Res, Map y Sprite.</li><li><strong>Conversor de números:</strong> su botón de la barra queda resaltado mientras el conversor está abierto.</li><li><strong>Correcciones:</strong> la cuadrícula de celdas en multicolor, el botón Pegar del editor Hi-Res y la posición del menú del botón derecho del editor SID.</li><li><strong>De la 2.5.4:</strong> Ultimate Basic 1.6.3 con sintaxis al estilo QBasic (<code>DIM … AS</code>, <code>FUNCTION</code>, <code>DO … LOOP</code>, <code>SELECT CASE</code>).</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.5.2",
+    eyebrow: "Neu in 2.5.5",
     title: "Willkommen bei Visual Assembler",
-    body: `<p>Neu in dieser Version:</p><ul><li><strong>Vorschau auf dem echten SID:</strong> Instrument-Vorschau, virtuelle Tastatur, Akkorde, Arpeggios und Pattern-Wiedergabe spielen auf dem WebSid-Emulator.</li><li><strong>Presets:</strong> die Wellen- / Arpeggio-Liste behält das gewählte Preset.</li><li><strong>VA-VK</strong> heißt die virtuelle Tastatur jetzt; neue Wissensdatenbank-Links in zwei Spalten.</li><li><strong>Tracker:</strong> Note-Off (<code>===</code>, Taste 1), Enter bearbeitet eine Zelle, abdockbares Tracker-Fenster.</li><li><strong>Aus 2.5.1:</strong> SID-Instrumente mit Filter-Sweeps, Vibrato, PWM und Arpeggio-Tabellen, neuer Player, Lesezeichen.</li></ul>`,
+    body: `<p>Neu in dieser Version:</p><ul><li><strong>Pixelraster im Hi-Res-Editor:</strong> bei eingeschaltetem Raster bekommt ab 4× Zoom jedes Pixel eine eigene Linie, sichtbar auf allen 16 Farben.</li><li><strong>16× Zoom</strong> im Hi-Res-Editor.</li><li><strong>Rechtsklick-Menü:</strong> Kopieren, Einfügen und Transparent einfügen auf der Zeichenfläche von Hi-Res-, Map- und Sprite-Editor.</li><li><strong>Zahlenkonverter:</strong> sein Toolbar-Button bleibt hervorgehoben, solange der Konverter geöffnet ist.</li><li><strong>Korrekturen:</strong> das Zellenraster im Multicolor-Modus, der Einfügen-Button im Hi-Res-Editor und die Position des Rechtsklick-Menüs im SID-Editor.</li><li><strong>Aus 2.5.4:</strong> Ultimate Basic 1.6.3 mit Syntax im QBasic-Stil (<code>DIM … AS</code>, <code>FUNCTION</code>, <code>DO … LOOP</code>, <code>SELECT CASE</code>).</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.5.2",
+    eyebrow: "Nieuw in 2.5.5",
     title: "Welkom bij Visual Assembler",
-    body: `<p>Nieuw in deze versie:</p><ul><li><strong>Voorvertoning op de echte SID:</strong> instrumentvoorvertoning, virtueel toetsenbord, akkoorden, arpeggio's en patroonweergave spelen op de WebSid-emulator.</li><li><strong>Presets:</strong> de golf- / arpeggiolijst onthoudt de gekozen preset.</li><li><strong>VA-VK</strong> is de nieuwe naam van het virtuele toetsenbord; nieuwe kennisbanklinks in twee kolommen.</li><li><strong>Tracker:</strong> note-off (<code>===</code>, toets 1), Enter bewerkt een cel, losmaakbaar trackervenster.</li><li><strong>Uit 2.5.1:</strong> SID-instrumenten met filtersweeps, vibrato, PWM en arpeggiotabellen, nieuwe speler, bladwijzers.</li></ul>`,
+    body: `<p>Nieuw in deze versie:</p><ul><li><strong>Pixelraster in de Hi-Res-editor:</strong> met het raster aan krijgt vanaf 4× zoom elke pixel een eigen lijn, zichtbaar op alle 16 kleuren.</li><li><strong>16× zoom</strong> in de Hi-Res-editor.</li><li><strong>Rechtsklikmenu:</strong> Kopiëren, Plakken en Transparant plakken op het canvas van de Hi-Res-, Map- en Sprite-editor.</li><li><strong>Getallenconverter:</strong> de werkbalkknop blijft gemarkeerd zolang de converter open is.</li><li><strong>Oplossingen:</strong> het celraster in multicolor, de knop Plakken in de Hi-Res-editor en de positie van het rechtsklikmenu in de SID-editor.</li><li><strong>Uit 2.5.4:</strong> Ultimate Basic 1.6.3 met syntaxis in QBasic-stijl (<code>DIM … AS</code>, <code>FUNCTION</code>, <code>DO … LOOP</code>, <code>SELECT CASE</code>).</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.5.2",
+    eyebrow: "Nowość w 2.5.5",
     title: "Witamy w Visual Assembler",
-    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>Podgląd na prawdziwym SID:</strong> podgląd instrumentu, wirtualna klawiatura, akordy, arpeggia i odtwarzanie wzorców grają na emulatorze WebSid.</li><li><strong>Presety:</strong> lista fal / arpeggio zachowuje wybrany preset.</li><li><strong>VA-VK</strong> to nowa nazwa wirtualnej klawiatury; nowe linki w Bazie wiedzy, w dwóch kolumnach.</li><li><strong>Tracker:</strong> note-off (<code>===</code>, klawisz 1), Enter edytuje komórkę, odłączane okno trackera.</li><li><strong>Z 2.5.1:</strong> instrumenty SID z przemiataniem filtra, vibrato, PWM i tabelami arpeggio, nowy odtwarzacz, zakładki.</li></ul>`,
+    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>Siatka pikseli w edytorze Hi-Res:</strong> przy włączonej siatce od powiększenia 4× każdy piksel ma własną linię, widoczną na wszystkich 16 kolorach.</li><li><strong>Powiększenie 16×</strong> w edytorze Hi-Res.</li><li><strong>Menu prawego przycisku:</strong> Kopiuj, Wklej i Wklej przezroczyście na płótnie edytorów Hi-Res, Map i Sprite.</li><li><strong>Konwerter liczb:</strong> jego przycisk na pasku pozostaje podświetlony, dopóki konwerter jest otwarty.</li><li><strong>Poprawki:</strong> siatka komórek w trybie multicolor, przycisk Wklej w edytorze Hi-Res oraz położenie menu prawego przycisku w edytorze SID.</li><li><strong>Z 2.5.4:</strong> Ultimate Basic 1.6.3 ze składnią w stylu QBasic (<code>DIM … AS</code>, <code>FUNCTION</code>, <code>DO … LOOP</code>, <code>SELECT CASE</code>).</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.5.2",
+    eyebrow: "Novità nella 2.5.5",
     title: "Benvenuto in Visual Assembler",
-    body: `<p>Novità di questa versione:</p><ul><li><strong>Anteprime sul vero SID:</strong> anteprima dello strumento, tastiera virtuale, accordi, arpeggi e riproduzione dei pattern suonano sull'emulatore WebSid.</li><li><strong>Preset:</strong> la lista onda / arpeggio mantiene il preset scelto.</li><li><strong>VA-VK</strong> è il nuovo nome della tastiera virtuale; nuovi link nella Knowledge Base, su due colonne.</li><li><strong>Tracker:</strong> note-off (<code>===</code>, tasto 1), Invio per modificare una cella, finestra del tracker staccabile.</li><li><strong>Dalla 2.5.1:</strong> strumenti SID con sweep del filtro, vibrato, PWM e tabelle di arpeggio, nuovo player, segnalibri.</li></ul>`,
+    body: `<p>Novità di questa versione:</p><ul><li><strong>Griglia dei pixel nell'editor Hi-Res:</strong> con la griglia attiva, dallo zoom 4× ogni pixel ha la propria linea, visibile su tutti i 16 colori.</li><li><strong>Zoom 16×</strong> nell'editor Hi-Res.</li><li><strong>Menu del tasto destro:</strong> Copia, Incolla e Incolla trasparente sull'area di disegno degli editor Hi-Res, Map e Sprite.</li><li><strong>Convertitore di numeri:</strong> il suo pulsante nella barra resta evidenziato finché il convertitore è aperto.</li><li><strong>Correzioni:</strong> la griglia delle celle in multicolor, il pulsante Incolla dell'editor Hi-Res e la posizione del menu del tasto destro dell'editor SID.</li><li><strong>Dalla 2.5.4:</strong> Ultimate Basic 1.6.3 con sintassi in stile QBasic (<code>DIM … AS</code>, <code>FUNCTION</code>, <code>DO … LOOP</code>, <code>SELECT CASE</code>).</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -2528,6 +2528,82 @@ function _showBlockCtxMenu(e, index) {
 function _hideBlockCtxMenu() {
   const menu = document.getElementById("block-ctx-menu");
   if (menu) menu.setAttribute("hidden", "");
+}
+
+// ── Shared right-click menu of the visual editors (Copy / Paste …) ──────────
+// items: [{ iconFrom, label, disabled, run }]. iconFrom is the selector of a
+// toolbar button whose icon the entry reuses. The menu is moved into `host`
+// (the editor's <dialog>): a modal dialog covers everything outside itself.
+// Puts a position:fixed menu at a viewport point, kept inside the window.
+// A centred editor dialog has `transform: translate(-50%, -50%)`, which makes
+// "fixed" relative to the dialog instead of the viewport; so the menu's real
+// origin is measured first and subtracted. (A dragged dialog has no transform.)
+function _ctxMenuPlaceAt(menu, clientX, clientY) {
+  const pad = 8;
+  menu.style.left = "0px";
+  menu.style.top = "0px";
+  const origin = menu.getBoundingClientRect();
+  const x = Math.max(pad, Math.min(clientX, window.innerWidth - origin.width - pad));
+  const y = Math.max(pad, Math.min(clientY, window.innerHeight - origin.height - pad));
+  menu.style.left = (x - origin.left) + "px";
+  menu.style.top = (y - origin.top) + "px";
+}
+let _edCtxItems = [];
+function _edHideCtxMenu() {
+  const menu = document.getElementById("ed-ctx-menu");
+  if (menu) menu.hidden = true;
+}
+function _edShowCtxMenu(e, host, items) {
+  e.preventDefault();
+  let menu = document.getElementById("ed-ctx-menu");
+  if (!menu) {
+    menu = document.createElement("div");
+    menu.id = "ed-ctx-menu";
+    menu.className = "block-ctx-menu sid-ctx-menu";
+    menu.hidden = true;
+    menu.addEventListener("click", function(evt) {
+      const btn = evt.target.closest("[data-index]");
+      if (!btn || btn.disabled) return;
+      const item = _edCtxItems[+btn.dataset.index];
+      _edHideCtxMenu();
+      if (item && item.run) item.run();
+    });
+    // The entries must not take the focus: it stays where it was in the dialog,
+    // so the editor's keyboard shortcuts (Esc, Ctrl+V) keep working afterwards.
+    menu.addEventListener("mousedown", function(evt) { evt.preventDefault(); });
+    menu.addEventListener("contextmenu", function(evt) { evt.preventDefault(); evt.stopPropagation(); });
+    document.addEventListener("pointerdown", function(evt) {
+      if (!(evt.target instanceof Element) || !evt.target.closest("#ed-ctx-menu")) _edHideCtxMenu();
+    }, true);
+    document.addEventListener("keydown", function(evt) {
+      if (evt.key !== "Escape" || menu.hidden) return;
+      _edHideCtxMenu();
+      evt.preventDefault();
+      evt.stopPropagation();
+    }, true);
+  }
+  if (menu.parentNode !== host) {
+    host.appendChild(menu);
+    host.addEventListener("close", _edHideCtxMenu);
+  }
+  _edCtxItems = items;
+  menu.textContent = "";
+  items.forEach(function(item, i) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "block-ctx-item sid-ctx-item";
+    btn.dataset.index = i;
+    btn.disabled = !!item.disabled;
+    const icon = item.iconFrom ? document.querySelector(item.iconFrom + " svg") : null;
+    if (icon) btn.appendChild(icon.cloneNode(true));
+    const label = document.createElement("span");
+    label.className = "sid-ctx-label";
+    label.textContent = item.label;
+    btn.appendChild(label);
+    menu.appendChild(btn);
+  });
+  menu.hidden = false;
+  _ctxMenuPlaceAt(menu, e.clientX, e.clientY);
 }
 
 // ── Tab bar right-click menu ────────────────────────────────────────────────
@@ -34896,6 +34972,21 @@ function setupMapEditor() {
     if (canvas) canvas.style.cursor = "copy";
     dialog.querySelectorAll(".me-tool[data-tool]").forEach(function(b) { b.classList.remove("me-tool--active"); });
   });
+  // Right-click on the canvas: Copy / Paste menu, driving the toolbar buttons.
+  document.getElementById("me-canvas")?.addEventListener("contextmenu", function(e) {
+    const cell = _meCellFromEvent(e);
+    const button = function(id) { return document.getElementById(id); };
+    const paste = function(id) {
+      button(id)?.click();
+      // preview where the menu was opened
+      if (_mePasteMode && cell) _meDrawPastePreview(cell.col, cell.row, _mePasteTransparent);
+    };
+    _edShowCtxMenu(e, dialog, [
+      { iconFrom: "#me-copy", label: t("sidContextCopy"), disabled: !!button("me-copy")?.disabled, run: function() { button("me-copy")?.click(); } },
+      { iconFrom: "#me-paste", label: t("sidContextPaste"), disabled: !_meClipboard, run: function() { paste("me-paste"); } },
+      { iconFrom: "#me-paste-transparent", label: t("edCtxPasteTransparent"), disabled: !_meClipboard, run: function() { paste("me-paste-transparent"); } },
+    ]);
+  });
   dialog.addEventListener("keydown", function(e) {
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
       if (e.shiftKey) _meRedoOp(); else _meUndoOp();
@@ -36255,13 +36346,23 @@ function _ncSetValue(value, skipField) {
   _ncSave();
 }
 
+// The toolbar button is a toggle: it stays highlighted while the dialog is shown.
+function _ncSyncButton() {
+  const btn = document.getElementById("numconv-btn");
+  if (!btn) return;
+  const open = !!document.getElementById("numconv-dialog")?.open;
+  btn.classList.toggle("main-tb-btn--active", open);
+  btn.setAttribute("aria-pressed", String(open));
+}
+
 function _ncOpen(focus = true) {
   const dialog = document.getElementById("numconv-dialog");
   if (!dialog) return;
-  if (dialog.open) { dialog.close(); return; }
+  if (dialog.open) { dialog.close(); _ncSyncButton(); return; }
   _ncRender(null);
   dialog._applyPosition?.();
   dialog.show();
+  _ncSyncButton();
   if (!focus) return;
   const dec = document.getElementById("nc-dec");
   dec?.focus();
@@ -36286,6 +36387,8 @@ function setupNumberConverter() {
     if (reopen && !dialog.open) _ncOpen(false);
   }, 0);
   document.getElementById("numconv-btn")?.addEventListener("click", function() { _ncOpen(); });
+  // Every way of closing (× button, Esc, the toolbar button) ends in a "close" event.
+  dialog.addEventListener("close", _ncSyncButton);
   document.getElementById("nc-close")?.addEventListener("click", function() { dialog.close(); });
   dialog.addEventListener("keydown", function(e) {
     if (e.key === "Escape") { e.preventDefault(); dialog.close(); }
@@ -36367,6 +36470,29 @@ function _hgPxW() { return _hgMulti ? _hgZoom * 2 : _hgZoom; }  // display px wi
 function _hgPxH() { return _hgZoom; }
 function _hgDispW() { return _hgW() * _hgPxW(); }   // = 320*zoom always
 function _hgDispH() { return _hgH() * _hgPxH(); }
+// Grid geometry in display pixels. A character cell always spans 8 hi-res
+// pixels: 8 logical pixels in hi-res, 4 double-wide ones in multicolor.
+const _HG_PIXEL_GRID_MIN_ZOOM = 4;   // below this the per-pixel lines would hide the picture
+function _hgCellW() { return (_hgMulti ? 4 : 8) * _hgPxW(); }   // = 8*zoom in both modes
+function _hgCellH() { return 8 * _hgPxH(); }
+function _hgPixelGridOn() { return _hgGrid && _hgZoom >= _HG_PIXEL_GRID_MIN_ZOOM; }
+// Colour of a grid line where it crosses a pixel of palette colour `col`:
+// light colours are darkened and dark ones lightened by `strength`, so the
+// line stays visible on all 16 C64 colours (a fixed grey vanishes on some).
+const _HG_GRID_FINE = 0.28, _HG_GRID_CELL = 0.62;
+const _hgGridShadeCache = new Map();
+function _hgGridShade(col, strength) {
+  const key = col * 2 + (strength === _HG_GRID_CELL ? 1 : 0);
+  let shade = _hgGridShadeCache.get(key);
+  if (!shade) {
+    const hex = _CE_COLORS[col];
+    const rgb = [1, 3, 5].map(function(i) { return parseInt(hex.slice(i, i + 2), 16); });
+    const target = (0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]) > 110 ? 0 : 255;
+    shade = "rgb(" + rgb.map(function(v) { return Math.round(v + (target - v) * strength); }).join(",") + ")";
+    _hgGridShadeCache.set(key, shade);
+  }
+  return shade;
+}
 
 function _hgGet(x, y) {
   if (x < 0 || y < 0 || x >= _hgW() || y >= _hgH()) return -1;
@@ -36390,8 +36516,25 @@ function _hgSet(x, y, col) {
 /* ── Rendering ── */
 function _hgDrawPixelBuf(x, y) {
   const pw = _hgPxW(), ph = _hgPxH();
-  _hgBufCtx.fillStyle = _CE_COLORS[_hgGet(x, y)];
+  const col = _hgGet(x, y);
+  _hgBufCtx.fillStyle = _CE_COLORS[col];
   _hgBufCtx.fillRect(x * pw, y * ph, pw, ph);
+  if (!_hgPixelGridOn()) return;
+  // Pixel grid: the top and left edge of every pixel is a grid line, stronger
+  // on a character-cell border. It lives in the buffer, so redrawing a pixel
+  // redraws its lines and a blit costs the same as without the grid.
+  const cellTop = y % 8 === 0, cellLeft = x % (_hgMulti ? 4 : 8) === 0;
+  const topShade = _hgGridShade(col, cellTop ? _HG_GRID_CELL : _HG_GRID_FINE);
+  const leftShade = _hgGridShade(col, cellLeft ? _HG_GRID_CELL : _HG_GRID_FINE);
+  const dx = x * pw, dy = y * ph;
+  // The cell line goes last, so it is not broken by a fine line at the corner.
+  if (cellTop && !cellLeft) {
+    _hgBufCtx.fillStyle = leftShade; _hgBufCtx.fillRect(dx, dy, 1, ph);
+    _hgBufCtx.fillStyle = topShade;  _hgBufCtx.fillRect(dx, dy, pw, 1);
+  } else {
+    _hgBufCtx.fillStyle = topShade;  _hgBufCtx.fillRect(dx, dy, pw, 1);
+    _hgBufCtx.fillStyle = leftShade; _hgBufCtx.fillRect(dx, dy, 1, ph);
+  }
 }
 /* Redraw the whole 8x8 cell a pixel belongs to (hi-res clash may have
    recoloured neighbours); multicolor just redraws the single pixel. */
@@ -36410,10 +36553,12 @@ function _hgRenderBuf() {
 }
 function _hgOverlays() {
   const W = _hgDispW(), H = _hgDispH();
-  if (_hgGrid) {
+  // Cell grid below 4x zoom. From 4x on, the cell and pixel lines are part of
+  // the buffer instead (see _hgDrawPixelBuf).
+  if (_hgGrid && !_hgPixelGridOn()) {
     _hgCtx.strokeStyle = "rgba(120,130,160,0.5)";
     _hgCtx.lineWidth = 1;
-    const cw = 8 * _hgPxW(), ch = 8 * _hgPxH();
+    const cw = _hgCellW(), ch = _hgCellH();
     _hgCtx.beginPath();
     for (let x = 0; x <= W; x += cw) { _hgCtx.moveTo(x + 0.5, 0); _hgCtx.lineTo(x + 0.5, H); }
     for (let y = 0; y <= H; y += ch) { _hgCtx.moveTo(0, y + 0.5); _hgCtx.lineTo(W, y + 0.5); }
@@ -37064,8 +37209,23 @@ function setupHiresEditor() {
   document.getElementById("hg-undo")?.addEventListener("click", _hgUndoOp);
   document.getElementById("hg-redo")?.addEventListener("click", _hgRedoOp);
   document.getElementById("hg-copy")?.addEventListener("click", _hgCopySelection);
-  document.getElementById("hg-paste")?.addEventListener("click", _hgStartPaste);
+  // Not `_hgStartPaste` directly: the click event would arrive as `transparent`.
+  document.getElementById("hg-paste")?.addEventListener("click", function() { _hgStartPaste(false); });
   document.getElementById("hg-paste-transparent")?.addEventListener("click", function() { _hgStartPaste(true); });
+  // Right-click on the canvas: Copy / Paste menu, same actions as the toolbar.
+  document.getElementById("hg-canvas")?.addEventListener("contextmenu", function(e) {
+    const p = _hgPixelFromEvent(e);
+    const paste = function(transparent) {
+      if (!_hgStartPaste(transparent)) return;
+      _hgPasteGhost = { x: p.x, y: p.y };   // preview where the menu was opened
+      _hgBlit();
+    };
+    _edShowCtxMenu(e, dialog, [
+      { iconFrom: "#hg-copy", label: t("sidContextCopy"), disabled: !_hgSelection, run: _hgCopySelection },
+      { iconFrom: "#hg-paste", label: t("sidContextPaste"), disabled: !_hgClipboard, run: function() { paste(false); } },
+      { iconFrom: "#hg-paste-transparent", label: t("edCtxPasteTransparent"), disabled: !_hgClipboard, run: function() { paste(true); } },
+    ]);
+  });
   document.getElementById("hg-clear")?.addEventListener("click", function() {
     _hgPushUndo();
     if (_hgMulti) { _hgPixMC.fill(_hgPaper); }
@@ -37124,7 +37284,8 @@ function setupHiresEditor() {
     _hgRenderAll();
   });
   document.getElementById("hg-grid")?.addEventListener("change", function(e) {
-    _hgGrid = e.target.checked; _hgBlit();
+    // Full render, not just a blit: from 4x zoom the grid is part of the buffer.
+    _hgGrid = e.target.checked; _hgRenderAll();
   });
   document.getElementById("hg-raster")?.addEventListener("change", function(e) {
     _hgRaster = e.target.checked; _hgBlit();
@@ -37433,8 +37594,19 @@ function _spRenderThumbs() {
     cv.title = t("seFrame") + " " + (i+1);
     _spDrawFrameTo(cv.getContext("2d"), fr, 48, 42);
     cv.addEventListener("click", function() { _spStop(); _spFrame = i; _spRender(); });
+    cv.addEventListener("contextmenu", function(e) { _spStop(); _spFrame = i; _spRender(); _spShowCtxMenu(e); });
     wrap.appendChild(cv);
   });
+}
+// Right-click menu of the sprite canvas and the frame strip: copies / pastes
+// the whole current frame, like the Copy / Paste buttons of the frame row.
+function _spShowCtxMenu(e) {
+  const dialog = document.getElementById("sprite-editor-dialog");
+  if (!dialog) return;
+  _edShowCtxMenu(e, dialog, [
+    { iconFrom: "#hg-copy", label: t("edCtxCopyFrame"), run: function() { document.getElementById("se-fcopy")?.click(); } },
+    { iconFrom: "#hg-paste", label: t("edCtxPasteFrame"), disabled: !_spClip, run: function() { document.getElementById("se-fpaste")?.click(); } },
+  ]);
 }
 
 function _spBuildColors() {
@@ -37764,6 +37936,7 @@ function setupSpriteEditor() {
   onClick("se-dup", function(){ _spPushUndo(); _spStop(); _spFrames.splice(_spFrame+1,0,_spCur().slice(0)); _spFrame++; _spRender(); });
   onClick("se-fcopy", function(){ _spClip = _spCur().slice(0); });
   onClick("se-fpaste", function(){ if(_spClip){ _spPushUndo(); _spCur().set(_spClip); _spRender(); } });
+  canvas.addEventListener("contextmenu", _spShowCtxMenu);
   onClick("se-fdel", function(){ _spPushUndo(); _spStop(); if(_spFrames.length<=1){ _spCur().fill(0); } else { _spFrames.splice(_spFrame,1); if(_spFrame>=_spFrames.length)_spFrame=_spFrames.length-1; } _spRender(); });
 
   const imageIn = document.createElement("input"); imageIn.type = "file"; imageIn.accept = "image/png,image/jpeg,.png,.jpg,.jpeg"; imageIn.hidden = true;
@@ -38779,11 +38952,7 @@ function _sidShowCtxMenu(e, voice, row) {
     if (label) label.textContent = t("sidContextClear");
   }
   menu.hidden = false;
-  const pad = 8;
-  const maxX = Math.max(pad, window.innerWidth - menu.offsetWidth - pad);
-  const maxY = Math.max(pad, window.innerHeight - menu.offsetHeight - pad);
-  menu.style.left = Math.max(pad, Math.min(e.clientX, maxX)) + "px";
-  menu.style.top = Math.max(pad, Math.min(e.clientY, maxY)) + "px";
+  _ctxMenuPlaceAt(menu, e.clientX, e.clientY);
 }
 function _sidBuildTracker() {
   const t = document.getElementById("sid-tracker"); if (!t) return;
