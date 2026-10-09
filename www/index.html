@@ -2106,18 +2106,6 @@ PRINTABLE CHARACTERS
             <select id="sid-midi-input" class="sid-select sid-midi-input" aria-label="MIDI input"><option value="">No MIDI input</option></select>
             <button id="sid-midi-connect" class="sid-mini-btn" type="button">Connect MIDI</button>
           </div>
-          <div class="sid-master-vol-wrap">
-            <span class="sid-master-vol-lbl" id="sid-master-vol-lbl">Master volume</span>
-            <div id="sid-master-vol" class="websid-play-knob" role="slider" tabindex="0" aria-label="Master volume" aria-valuemin="0" aria-valuemax="100" aria-valuenow="60">
-              <svg viewBox="0 0 40 40" aria-hidden="true">
-                <path class="websid-play-knob-track" d=""/>
-                <path class="websid-play-knob-value" d=""/>
-                <circle class="websid-play-knob-body" cx="20" cy="20" r="11.5"/>
-                <line class="websid-play-knob-pointer" x1="20" y1="20" x2="20" y2="11"/>
-              </svg>
-            </div>
-            <span id="sid-master-vol-val" class="sid-master-vol-val">60</span>
-          </div>
         </div>
         <div class="sid-row sid-wave-row">
           <span class="sid-lbl">WAVEFORM</span>
@@ -2358,6 +2346,18 @@ PRINTABLE CHARACTERS
           <button id="sid-vkbd-stop" class="ce-tool-btn sid-vkbd-tbtn" type="button" aria-label="Stop">
             <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="4" width="8" height="8" fill="currentColor"/></svg>
           </button>
+          <div class="sid-master-vol-wrap">
+            <span class="sid-master-vol-lbl" id="sid-master-vol-lbl">Master volume</span>
+            <div id="sid-master-vol" class="websid-play-knob" role="slider" tabindex="0" aria-label="Master volume" aria-valuemin="0" aria-valuemax="100" aria-valuenow="60">
+              <svg viewBox="0 0 40 40" aria-hidden="true">
+                <path class="websid-play-knob-track" d=""/>
+                <path class="websid-play-knob-value" d=""/>
+                <circle class="websid-play-knob-body" cx="20" cy="20" r="11.5"/>
+                <line class="websid-play-knob-pointer" x1="20" y1="20" x2="20" y2="11"/>
+              </svg>
+            </div>
+            <span id="sid-master-vol-val" class="sid-master-vol-val">60</span>
+          </div>
           <label class="sid-vkbd-insert-toggle me-check"><input type="checkbox" id="sid-vkbd-insert" checked> <span id="sid-vkbd-insert-label">Insert into tracker</span></label>
         </div>
         <div id="sid-vkbd-board" class="sid-vkbd-board"></div>

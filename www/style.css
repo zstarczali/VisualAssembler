@@ -9513,7 +9513,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 
 
 /* SID Editor */
-.sid-dialog { background: transparent; border: none; padding: 0; width: min(1000px, 97vw); max-width: 97vw; height: min(900px, 95vh); max-height: 95vh; overflow: visible; }
+.sid-dialog { background: transparent; border: none; padding: 0; width: min(1000px, 97vw); max-width: 97vw; height: min(1120px, 98vh); max-height: 98vh; overflow: visible; }
 .sid-dialog::backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); }
 .sid-card { background: var(--panel); border: 1px solid var(--panel-border); display: flex; flex-direction: column; height: 100%; overflow: visible; box-sizing: border-box; }
 .sid-hdr { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-bottom: 1px solid var(--panel-border); background: var(--panel-strong); flex-shrink: 0; position: relative; z-index: 5; }
@@ -10057,6 +10057,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-vkbd-stripes i:nth-child(4) { background: #3a7d1e; }
 .sid-vkbd-stripes i:nth-child(5) { background: #2a7ac4; }
 .sid-vkbd-meta .sid-mini-lbl, .sid-vkbd-meta .sid-num, .sid-vkbd-title, .sid-vkbd-insert-toggle { color: #d8d2c4; }
+.sid-vkbd-meta .sid-master-vol-lbl, .sid-vkbd-meta .sid-master-vol-val { color: #d8d2c4; }
 .sid-vkbd-octaves-lbl { margin-left: 10px; }
 .sid-vkbd-octaves { width: 64px; flex: 0 0 64px; }
 .sid-vkbd-key { position: absolute; border: 1px solid #2c3552; cursor: pointer; user-select: none; }
