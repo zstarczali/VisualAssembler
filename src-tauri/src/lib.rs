@@ -1,16 +1,21 @@
+use serde::{Deserialize, Serialize};
+use base64::Engine as _;
 use std::fs;
 use std::io::{ErrorKind, Write};
+use std::collections::HashMap;
+use std::sync::{Mutex, OnceLock};
+#[cfg(target_os = "windows")]
+use std::os::windows::process::CommandExt;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::thread;
-use std::time::Duration;
-#[cfg(target_os = "windows")]
-use std::os::windows::process::CommandExt;
-use serde::{Deserialize, Serialize};
+use std::time::{Duration, Instant};
 use tauri::{AppHandle, Manager};
 use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_dialog::{MessageDialogButtons, MessageDialogKind};
 use tauri_plugin_opener::OpenerExt;
+
+mod sid_core;
 
 // ── Resource path resolution ─────────────────────────────────────────────────
 // In dev builds (cargo tauri dev) resource_dir() points to target/debug/ where
@@ -110,7 +115,11 @@ fn resolve_vice_launch_path(vice_path: &str) -> Result<String, String> {
 
     if cfg!(target_os = "macos") && vice_path.ends_with(".app") {
         let app_path = std::path::Path::new(vice_path);
-        let stem = app_path.file_stem().unwrap_or_default().to_string_lossy().to_string();
+        let stem = app_path
+            .file_stem()
+            .unwrap_or_default()
+            .to_string_lossy()
+            .to_string();
 
         if let Some(parent) = app_path.parent() {
             let bin_candidate = parent.join("bin").join(&stem);
@@ -126,7 +135,10 @@ fn resolve_vice_launch_path(vice_path: &str) -> Result<String, String> {
     }
 
     if !std::path::Path::new(vice_path).exists() {
-        return Err(format!("VICE binary nem talalhato. Beallitott ut: {}", vice_path));
+        return Err(format!(
+            "VICE binary nem talalhato. Beallitott ut: {}",
+            vice_path
+        ));
     }
 
     Ok(vice_path.to_string())
@@ -139,14 +151,22 @@ fn resolve_vice_launch_path(vice_path: &str) -> Result<String, String> {
 fn windows_powershell_path() -> String {
     let root = std::env::var("SystemRoot").unwrap_or_else(|_| r"C:\Windows".to_string());
     let full = std::path::Path::new(&root).join(r"System32\WindowsPowerShell\v1.0\powershell.exe");
-    if full.exists() { full.to_string_lossy().to_string() } else { "powershell".to_string() }
+    if full.exists() {
+        full.to_string_lossy().to_string()
+    } else {
+        "powershell".to_string()
+    }
 }
 
 /// One Start-Process argument: Start-Process joins -ArgumentList with spaces
 /// without quoting, so a path with a space must carry its own double quotes.
 #[cfg(target_os = "windows")]
 fn windows_ps_arg(arg: &str) -> String {
-    let a = if arg.contains(' ') && !arg.starts_with('"') { format!("\"{}\"", arg) } else { arg.to_string() };
+    let a = if arg.contains(' ') && !arg.starts_with('"') {
+        format!("\"{}\"", arg)
+    } else {
+        arg.to_string()
+    };
     format!("'{}'", a.replace('\'', "''"))
 }
 
@@ -162,24 +182,54 @@ fn windows_spawn_detached(program: &str, args: &[String]) -> std::io::Result<()>
     let resolved = std::fs::canonicalize(program)
         .map(|p| {
             let s = p.to_string_lossy().to_string();
-            if let Some(rest) = s.strip_prefix(r"\\?\UNC\") { format!(r"\\{}", rest) }
-            else if let Some(rest) = s.strip_prefix(r"\\?\") { rest.to_string() }
-            else { s }
+            if let Some(rest) = s.strip_prefix(r"\\?\UNC\") {
+                format!(r"\\{}", rest)
+            } else if let Some(rest) = s.strip_prefix(r"\\?\") {
+                rest.to_string()
+            } else {
+                s
+            }
         })
         .unwrap_or_else(|_| program.to_string());
     let program = resolved.as_str();
-    let exe_dir = std::path::Path::new(program).parent().map(|d| d.to_path_buf());
+    let exe_dir = std::path::Path::new(program)
+        .parent()
+        .map(|d| d.to_path_buf());
     let arg_list = if args.is_empty() {
         String::new()
     } else {
-        format!(" -ArgumentList {}", args.iter().map(|a| windows_ps_arg(a)).collect::<Vec<_>>().join(","))
+        format!(
+            " -ArgumentList {}",
+            args.iter()
+                .map(|a| windows_ps_arg(a))
+                .collect::<Vec<_>>()
+                .join(",")
+        )
     };
-    let work_dir = exe_dir.as_ref()
-        .map(|d| format!(" -WorkingDirectory '{}'", d.to_string_lossy().replace('\'', "''")))
+    let work_dir = exe_dir
+        .as_ref()
+        .map(|d| {
+            format!(
+                " -WorkingDirectory '{}'",
+                d.to_string_lossy().replace('\'', "''")
+            )
+        })
         .unwrap_or_default();
-    let ps_cmd = format!("Start-Process -FilePath '{}'{}{}", program.replace('\'', "''"), arg_list, work_dir);
+    let ps_cmd = format!(
+        "Start-Process -FilePath '{}'{}{}",
+        program.replace('\'', "''"),
+        arg_list,
+        work_dir
+    );
     let via_ps = Command::new(windows_powershell_path())
-        .args(["-NoProfile", "-NonInteractive", "-WindowStyle", "Hidden", "-Command", &ps_cmd])
+        .args([
+            "-NoProfile",
+            "-NonInteractive",
+            "-WindowStyle",
+            "Hidden",
+            "-Command",
+            &ps_cmd,
+        ])
         .stdin(std::process::Stdio::null())
         .creation_flags(0x08000000) // CREATE_NO_WINDOW
         .output();
@@ -218,7 +268,8 @@ fn spawn_vice_with_file(vice_path: &str, file_path: &std::path::Path) -> Result<
             .stdin(std::process::Stdio::null())
             .stdout(std::process::Stdio::null())
             .stderr(std::process::Stdio::null())
-            .spawn().map(|_| ())
+            .spawn()
+            .map(|_| ())
     } else {
         #[cfg(target_os = "windows")]
         {
@@ -241,19 +292,26 @@ fn spawn_vice_with_file(vice_path: &str, file_path: &std::path::Path) -> Result<
             let mut cmd = Command::new(&binary);
             // Propagate display session variables — Tauri may not inherit them
             // on all desktop configurations (especially Wayland compositors).
-            for var in &["DISPLAY", "WAYLAND_DISPLAY", "XDG_RUNTIME_DIR",
-                         "DBUS_SESSION_BUS_ADDRESS", "GDK_BACKEND"] {
+            for var in &[
+                "DISPLAY",
+                "WAYLAND_DISPLAY",
+                "XDG_RUNTIME_DIR",
+                "DBUS_SESSION_BUS_ADDRESS",
+                "GDK_BACKEND",
+            ] {
                 if let Ok(val) = std::env::var(var) {
                     cmd.env(var, val);
                 }
             }
             // apt-installed VICE lacks drive ROMs; mode 1 injects PRG directly.
-            cmd.arg("-autostartprgmode").arg("1")
+            cmd.arg("-autostartprgmode")
+                .arg("1")
                 .arg(file_path.to_str().unwrap())
                 .stdin(std::process::Stdio::null())
                 .stdout(std::process::Stdio::null())
                 .stderr(std::process::Stdio::null())
-                .spawn().map(|_| ())
+                .spawn()
+                .map(|_| ())
         }
     };
 
@@ -266,7 +324,9 @@ fn get_exomizer_path(cfg: &serde_json::Value) -> String {
 
 fn get_exomizer_border_flash(cfg: &serde_json::Value) -> bool {
     // Defaults to true if unset, so existing configs keep the visual feedback.
-    cfg["uiSettings"]["exomizerBorderFlash"].as_bool().unwrap_or(true)
+    cfg["uiSettings"]["exomizerBorderFlash"]
+        .as_bool()
+        .unwrap_or(true)
 }
 
 // ── SID parsing ─────────────────────────────────────────────────────────────
@@ -296,16 +356,20 @@ fn parse_sid_buffer(buf: &[u8]) -> Result<SidInfo, String> {
 
     let data_offset = ((buf[6] as usize) << 8) | buf[7] as usize;
     let mut load_address = ((buf[8] as u16) << 8) | buf[9] as u16;
-    let init_address    = ((buf[10] as u16) << 8) | buf[11] as u16;
-    let play_address    = ((buf[12] as u16) << 8) | buf[13] as u16;
-    let num_songs       = ((buf[14] as u16) << 8) | buf[15] as u16;
-    let start_song      = ((buf[16] as u16) << 8) | buf[17] as u16;
+    let init_address = ((buf[10] as u16) << 8) | buf[11] as u16;
+    let play_address = ((buf[12] as u16) << 8) | buf[13] as u16;
+    let num_songs = ((buf[14] as u16) << 8) | buf[15] as u16;
+    let start_song = ((buf[16] as u16) << 8) | buf[17] as u16;
 
     let read_str = |from: usize, to: usize| -> String {
-        buf[from..to].iter().take_while(|&&b| b != 0).map(|&b| b as char).collect()
+        buf[from..to]
+            .iter()
+            .take_while(|&&b| b != 0)
+            .map(|&b| b as char)
+            .collect()
     };
-    let title     = read_str(22, 54);
-    let author    = read_str(54, 86);
+    let title = read_str(22, 54);
+    let author = read_str(54, 86);
     let copyright = read_str(86, 118);
 
     let mut data_bytes = buf[data_offset..].to_vec();
@@ -339,6 +403,87 @@ fn get_ultimate_basic_version() -> &'static str {
     env!("ULTIMATE_BASIC_VERSION")
 }
 
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct SidPreviewPayload {
+    sample_rate: u32,
+    model: String,
+    #[serde(default)]
+    session_id: Option<String>,
+    frames: Vec<Vec<u8>>,
+}
+
+static SID_PREVIEW_SESSIONS: OnceLock<Mutex<HashMap<String, (sid_core::SidCore, Instant)>>> = OnceLock::new();
+
+/// Offline renderer for the SID Editor's original Rust core.  Audio is
+/// rendered in short frame batches on the backend, then scheduled by Web Audio
+/// in the frontend; keeping the audio device in the WebView avoids native
+/// device/driver differences across Windows, macOS and Linux.
+#[tauri::command]
+fn render_sid_preview(payload: SidPreviewPayload) -> Result<String, String> {
+    const MAX_FRAMES: usize = 3_000; // one minute at PAL 50 Hz
+    if payload.frames.is_empty() || payload.frames.len() > MAX_FRAMES {
+        return Err("Invalid SID preview length.".to_string());
+    }
+    // The SID Editor sends the 25 implemented registers ($D400-$D418).
+    // The core keeps a 32-byte address space internally, but the unused
+    // register tail is not part of a SID register frame.
+    if payload.frames.iter().any(|frame| frame.len() != 0x19) {
+        return Err("Invalid SID register frame: expected 25 registers ($D400-$D418).".to_string());
+    }
+
+    let sample_rate = payload.sample_rate.clamp(8_000, 96_000);
+    let model = if payload.model.eq_ignore_ascii_case("6581") {
+        sid_core::SidModel::Mos6581
+    } else {
+        sid_core::SidModel::Mos8580
+    };
+    let render_frames = |sid: &mut sid_core::SidCore| {
+        let mut pcm = Vec::<i16>::with_capacity((payload.frames.len() * sample_rate as usize) / 50 + 2);
+        let mut rendered = 0usize;
+        for (frame_index, registers) in payload.frames.iter().enumerate() {
+            for (address, value) in registers.iter().enumerate() {
+                sid.write(address as u8, *value);
+            }
+            let target = ((frame_index + 1) * sample_rate as usize) / 50;
+            let mut chunk = vec![0i16; target.saturating_sub(rendered)];
+            sid.render(&mut chunk);
+            rendered += chunk.len();
+            pcm.extend_from_slice(&chunk);
+        }
+        pcm
+    };
+    let pcm = if let Some(session_id) = payload.session_id.as_deref() {
+        if session_id.is_empty() || session_id.len() > 80 {
+            return Err("Invalid SID preview session.".to_string());
+        }
+        let sessions = SID_PREVIEW_SESSIONS.get_or_init(|| Mutex::new(HashMap::new()));
+        let mut sessions = sessions.lock().map_err(|_| "SID preview state is unavailable.")?;
+        sessions.retain(|_, (_, last_used)| last_used.elapsed() < Duration::from_secs(180));
+        if !sessions.contains_key(session_id) && sessions.len() >= 16 {
+            return Err("Too many active SID previews.".to_string());
+        }
+        let (sid, last_used) = sessions.entry(session_id.to_string()).or_insert_with(|| {
+            (sid_core::SidCore::new(sample_rate, model), Instant::now())
+        });
+        *last_used = Instant::now();
+        render_frames(sid)
+    } else {
+        render_frames(&mut sid_core::SidCore::new(sample_rate, model))
+    };
+
+    let bytes: Vec<u8> = pcm.iter().flat_map(|sample| sample.to_le_bytes()).collect();
+    Ok(base64::engine::general_purpose::STANDARD.encode(bytes))
+}
+
+#[tauri::command]
+fn release_sid_preview(session_id: String) {
+    if let Some(sessions) = SID_PREVIEW_SESSIONS.get() {
+        if let Ok(mut sessions) = sessions.lock() {
+            sessions.remove(&session_id);
+        }
+    }
+}
 
 #[tauri::command]
 fn set_title(app: AppHandle, title: String) {
@@ -349,7 +494,9 @@ fn set_title(app: AppHandle, title: String) {
 
 #[tauri::command]
 async fn open_external(url: String, app: AppHandle) -> Result<(), String> {
-    app.opener().open_url(url, None::<String>).map_err(|e| e.to_string())
+    app.opener()
+        .open_url(url, None::<String>)
+        .map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -373,10 +520,7 @@ fn save_ui_settings(app: AppHandle, settings: serde_json::Value) {
 #[tauri::command]
 fn get_vice_config(app: AppHandle) -> serde_json::Value {
     let cfg = read_config(&app);
-    let vice_path = cfg["vicePath"]
-        .as_str()
-        .unwrap_or("")
-        .to_string();
+    let vice_path = cfg["vicePath"].as_str().unwrap_or("").to_string();
     let vice_path = if vice_path.is_empty() {
         detect_vice_executable()
     } else {
@@ -538,7 +682,7 @@ struct LaunchVicePayload {
 struct BuildRawPayload {
     bytes: Vec<u8>,
     file_name: Option<String>,
-    target_address: Option<String>,     // load address (hex without $), e.g. "C000"
+    target_address: Option<String>, // load address (hex without $), e.g. "C000"
     decompress_address: Option<String>, // decompress target (hex without $), e.g. "2000"
 }
 
@@ -577,18 +721,33 @@ fn write_debugger_sidecars(base_path: &Path, sidecars: &DebuggerSidecars) -> Res
     Ok(())
 }
 
-fn crunch_with_exomizer(exomizer_path: &str, input_bytes: &[u8], file_name: &str, raw_mode: bool, raw_load: Option<&str>, raw_decompress: Option<&str>, border_flash: bool) -> Result<(PathBuf, Vec<u8>), String> {
+fn crunch_with_exomizer(
+    exomizer_path: &str,
+    input_bytes: &[u8],
+    file_name: &str,
+    raw_mode: bool,
+    raw_load: Option<&str>,
+    raw_decompress: Option<&str>,
+    border_flash: bool,
+) -> Result<(PathBuf, Vec<u8>), String> {
     let temp_dir = std::env::temp_dir().join("c64-visual-assembler");
     fs::create_dir_all(&temp_dir).map_err(|e| format!("mkdir {:?}: {}", temp_dir, e))?;
     let input_path = temp_dir.join(file_name);
     fs::write(&input_path, input_bytes).map_err(|e| format!("write {:?}: {}", input_path, e))?;
 
     let ext = if raw_mode { "exo" } else { "prg" };
-    let prefix = if raw_mode { "exomizer-raw" } else { "exomizer-sfx" };
+    let prefix = if raw_mode {
+        "exomizer-raw"
+    } else {
+        "exomizer-sfx"
+    };
     let output_path = temp_dir.join(format!(
         "{}-{}.{}",
         prefix,
-        std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis(),
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_millis(),
         ext
     ));
 
@@ -617,12 +776,26 @@ fn crunch_with_exomizer(exomizer_path: &str, input_bytes: &[u8], file_name: &str
             .map(|v| v.saturating_add(2))
             .unwrap_or(0x2002);
         infile_with_target = format!("{},${:04X}", input_path.to_str().unwrap(), target_adjusted);
-        vec!["mem", "-l", load_str.as_str(), "-o", output_path.to_str().unwrap(), infile_with_target.as_str()]
+        vec![
+            "mem",
+            "-l",
+            load_str.as_str(),
+            "-o",
+            output_path.to_str().unwrap(),
+            infile_with_target.as_str(),
+        ]
     } else {
         // sfx sys: self-extracting PRG. -x1 = fast accumulator-based border-flash
         // decrunch effect; -n disables any effect. Controlled by UI setting.
         let effect_flag = if border_flash { "-x1" } else { "-n" };
-        vec!["sfx", "sys", effect_flag, "-o", output_path.to_str().unwrap(), input_path.to_str().unwrap()]
+        vec![
+            "sfx",
+            "sys",
+            effect_flag,
+            "-o",
+            output_path.to_str().unwrap(),
+            input_path.to_str().unwrap(),
+        ]
     };
     let output = cmd
         .args(&args)
@@ -635,7 +808,13 @@ fn crunch_with_exomizer(exomizer_path: &str, input_bytes: &[u8], file_name: &str
     if !output.status.success() {
         let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
         let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
-        let error = if !stderr.is_empty() { stderr } else if !stdout.is_empty() { stdout } else { format!("Exomizer exit {:?}", output.status.code()) };
+        let error = if !stderr.is_empty() {
+            stderr
+        } else if !stdout.is_empty() {
+            stdout
+        } else {
+            format!("Exomizer exit {:?}", output.status.code())
+        };
         return Err(error);
     }
 
@@ -656,12 +835,25 @@ async fn build_exomizer_prg(app: AppHandle, payload: LaunchVicePayload) -> serde
     }
 
     let file_name = payload.file_name.unwrap_or_else(|| {
-        format!("program-{}.prg", std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH).unwrap().as_millis())
+        format!(
+            "program-{}.prg",
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_millis()
+        )
     });
 
     let border_flash = get_exomizer_border_flash(&cfg);
-    match crunch_with_exomizer(&exomizer_path, &payload.bytes, &file_name, false, None, None, border_flash) {
+    match crunch_with_exomizer(
+        &exomizer_path,
+        &payload.bytes,
+        &file_name,
+        false,
+        None,
+        None,
+        border_flash,
+    ) {
         Ok((output_path, bytes)) => serde_json::json!({
             "ok": true,
             "exomizerPath": exomizer_path,
@@ -686,8 +878,13 @@ async fn build_exomizer_raw(app: AppHandle, payload: BuildRawPayload) -> serde_j
     }
 
     let file_name = payload.file_name.unwrap_or_else(|| {
-        format!("data-{}.bin", std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH).unwrap().as_millis())
+        format!(
+            "data-{}.bin",
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_millis()
+        )
     });
 
     let load_addr = payload.target_address.as_deref();
@@ -695,7 +892,15 @@ async fn build_exomizer_raw(app: AppHandle, payload: BuildRawPayload) -> serde_j
     // border_flash unused in mem mode (which uses our own depacker, not sfx),
     // but pass current setting for completeness.
     let border_flash = get_exomizer_border_flash(&cfg);
-    match crunch_with_exomizer(&exomizer_path, &payload.bytes, &file_name, true, load_addr, decomp_addr, border_flash) {
+    match crunch_with_exomizer(
+        &exomizer_path,
+        &payload.bytes,
+        &file_name,
+        true,
+        load_addr,
+        decomp_addr,
+        border_flash,
+    ) {
         Ok((output_path, bytes)) => serde_json::json!({
             "ok": true,
             "exomizerPath": exomizer_path,
@@ -712,7 +917,11 @@ async fn launch_vice(app: AppHandle, payload: LaunchVicePayload) -> serde_json::
     let cfg = read_config(&app);
     let vice_path = {
         let p = cfg["vicePath"].as_str().unwrap_or("").to_string();
-        if p.is_empty() { detect_vice_executable() } else { p }
+        if p.is_empty() {
+            detect_vice_executable()
+        } else {
+            p
+        }
     };
 
     if vice_path.is_empty() {
@@ -725,8 +934,13 @@ async fn launch_vice(app: AppHandle, payload: LaunchVicePayload) -> serde_json::
     let temp_dir = std::env::temp_dir().join("c64-visual-assembler");
     let _ = fs::create_dir_all(&temp_dir);
     let file_name = payload.file_name.unwrap_or_else(|| {
-        format!("program-{}.prg", std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH).unwrap().as_millis())
+        format!(
+            "program-{}.prg",
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_millis()
+        )
     });
     let file_path = temp_dir.join(&file_name);
     if let Err(e) = fs::write(&file_path, &payload.bytes) {
@@ -742,7 +956,9 @@ async fn launch_vice(app: AppHandle, payload: LaunchVicePayload) -> serde_json::
     let result = spawn_vice_with_file(&vice_path, &file_path);
 
     match result {
-        Ok(_) => serde_json::json!({ "ok": true, "vicePath": vice_path, "filePath": file_path.to_str().unwrap() }),
+        Ok(_) => {
+            serde_json::json!({ "ok": true, "vicePath": vice_path, "filePath": file_path.to_str().unwrap() })
+        }
         Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
     }
 }
@@ -753,7 +969,11 @@ async fn launch_exomizer(app: AppHandle, payload: LaunchVicePayload) -> serde_js
     let exomizer_path = get_exomizer_path(&cfg);
     let vice_path = {
         let p = cfg["vicePath"].as_str().unwrap_or("").to_string();
-        if p.is_empty() { detect_vice_executable() } else { p }
+        if p.is_empty() {
+            detect_vice_executable()
+        } else {
+            p
+        }
     };
 
     if exomizer_path.is_empty() {
@@ -771,12 +991,25 @@ async fn launch_exomizer(app: AppHandle, payload: LaunchVicePayload) -> serde_js
     }
 
     let file_name = payload.file_name.unwrap_or_else(|| {
-        format!("program-{}.prg", std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH).unwrap().as_millis())
+        format!(
+            "program-{}.prg",
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_millis()
+        )
     });
 
     let border_flash = get_exomizer_border_flash(&cfg);
-    let (output_path, _) = match crunch_with_exomizer(&exomizer_path, &payload.bytes, &file_name, false, None, None, border_flash) {
+    let (output_path, _) = match crunch_with_exomizer(
+        &exomizer_path,
+        &payload.bytes,
+        &file_name,
+        false,
+        None,
+        None,
+        border_flash,
+    ) {
         Ok(result) => result,
         Err(error) => return serde_json::json!({ "ok": false, "error": error }),
     };
@@ -830,10 +1063,7 @@ async fn choose_debugger_executable(app: AppHandle) -> serde_json::Value {
         if working_folder.is_some() {
             file_dialog
         } else {
-            let candidates = [
-                "/Applications",
-                "/Applications/RetroDebugger",
-            ];
+            let candidates = ["/Applications", "/Applications/RetroDebugger"];
             let start_dir = candidates
                 .iter()
                 .find(|p| std::path::Path::new(p).exists())
@@ -907,8 +1137,13 @@ async fn launch_debugger(app: AppHandle, payload: LaunchDebuggerPayload) -> serd
     let temp_dir = std::env::temp_dir().join("c64-visual-assembler");
     let _ = fs::create_dir_all(&temp_dir);
     let file_name = payload.file_name.unwrap_or_else(|| {
-        format!("program-{}.prg", std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH).unwrap().as_millis())
+        format!(
+            "program-{}.prg",
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_millis()
+        )
     });
     let file_path = temp_dir.join(&file_name);
     if let Err(e) = fs::write(&file_path, &payload.bytes) {
@@ -930,11 +1165,19 @@ async fn launch_debugger(app: AppHandle, payload: LaunchDebuggerPayload) -> serd
     if let Some(sidecars) = &payload.sidecars {
         if sidecars.dbg.is_some() {
             extra_args.push("-debuginfo".to_string());
-            extra_args.push(debugger_sidecar_path(&file_path, "dbg").to_string_lossy().to_string());
+            extra_args.push(
+                debugger_sidecar_path(&file_path, "dbg")
+                    .to_string_lossy()
+                    .to_string(),
+            );
         }
         if sidecars.vs.is_some() {
             extra_args.push("-symbols".to_string());
-            extra_args.push(debugger_sidecar_path(&file_path, "vs").to_string_lossy().to_string());
+            extra_args.push(
+                debugger_sidecar_path(&file_path, "vs")
+                    .to_string_lossy()
+                    .to_string(),
+            );
         }
     }
 
@@ -949,12 +1192,21 @@ async fn launch_debugger(app: AppHandle, payload: LaunchDebuggerPayload) -> serd
         }
     }
 
-    if payload.sidecars.as_ref().and_then(|sidecars| sidecars.vs.as_ref()).is_none() {
+    if payload
+        .sidecars
+        .as_ref()
+        .and_then(|sidecars| sidecars.vs.as_ref())
+        .is_none()
+    {
         if let Some(symbols) = &payload.symbols {
             if !symbols.is_empty() {
-                let content: String = symbols.iter()
+                let content: String = symbols
+                    .iter()
                     .map(|s| {
-                        let safe = s.name.to_lowercase().replace(|c: char| !c.is_alphanumeric() && c != '_', "_");
+                        let safe = s
+                            .name
+                            .to_lowercase()
+                            .replace(|c: char| !c.is_alphanumeric() && c != '_', "_");
                         format!("al C:{:04x} .{}", s.address, safe)
                     })
                     .collect::<Vec<_>>()
@@ -988,7 +1240,11 @@ async fn launch_debugger(app: AppHandle, payload: LaunchDebuggerPayload) -> serd
         // On macOS resolve .app bundle → Contents/MacOS/<stem>
         let binary = if debugger_path.ends_with(".app") {
             let app_path = std::path::Path::new(&debugger_path);
-            let stem = app_path.file_stem().unwrap_or_default().to_string_lossy().to_string();
+            let stem = app_path
+                .file_stem()
+                .unwrap_or_default()
+                .to_string_lossy()
+                .to_string();
             let candidate = app_path.join("Contents/MacOS").join(&stem);
             if candidate.exists() {
                 candidate.to_string_lossy().to_string()
@@ -1018,14 +1274,17 @@ async fn launch_debugger(app: AppHandle, payload: LaunchDebuggerPayload) -> serd
         cmd.stdin(std::process::Stdio::null())
             .stdout(std::process::Stdio::null())
             .stderr(std::process::Stdio::null())
-            .spawn().map(|_| ())
+            .spawn()
+            .map(|_| ())
     } else {
         #[cfg(target_os = "windows")]
         {
             let _ = fs::write(
                 temp_dir.join("debug.launch.log"),
-                format!("PROGRAM: {}\nARGS: {:?}\nBREAKPOINTS: {:?}\nAUTO_JMP: {:?}\n",
-                    debugger_path, all_args, payload.breakpoints, payload.auto_jmp),
+                format!(
+                    "PROGRAM: {}\nARGS: {:?}\nBREAKPOINTS: {:?}\nAUTO_JMP: {:?}\n",
+                    debugger_path, all_args, payload.breakpoints, payload.auto_jmp
+                ),
             );
             windows_spawn_detached(&debugger_path, &all_args)
         }
@@ -1036,7 +1295,8 @@ async fn launch_debugger(app: AppHandle, payload: LaunchDebuggerPayload) -> serd
             cmd.stdin(std::process::Stdio::null())
                 .stdout(std::process::Stdio::null())
                 .stderr(std::process::Stdio::null())
-                .spawn().map(|_| ())
+                .spawn()
+                .map(|_| ())
         }
     };
 
@@ -1054,10 +1314,11 @@ async fn choose_incbin_file(app: AppHandle, directory: Option<String>) -> serde_
         .filter(|d| !d.is_empty())
         .map(PathBuf::from)
         .or_else(|| get_working_folder_path(&read_config(&app)));
-    let mut dialog = app.dialog().file()
+    let mut dialog = app
+        .dialog()
+        .file()
         .add_filter("Binary files", &["bin", "prg", "sid", "raw"])
-        .add_filter("All files", &["*"])
-        ;
+        .add_filter("All files", &["*"]);
     if let Some(folder) = working_folder {
         dialog = dialog.set_directory(folder);
     }
@@ -1097,7 +1358,11 @@ async fn load_incbin_sample(app: AppHandle, file_name: String) -> serde_json::Va
 }
 
 #[tauri::command]
-async fn reload_incbin_file(app: AppHandle, file_path: String, base_dir: Option<String>) -> serde_json::Value {
+async fn reload_incbin_file(
+    app: AppHandle,
+    file_path: String,
+    base_dir: Option<String>,
+) -> serde_json::Value {
     let raw_path = file_path.trim();
     let raw_input_path = std::path::Path::new(raw_path);
     let normalized_file_path = if !raw_input_path.is_absolute() && raw_input_path.has_root() {
@@ -1124,7 +1389,8 @@ async fn reload_incbin_file(app: AppHandle, file_path: String, base_dir: Option<
             .unwrap_or(true);
 
         if is_bare_file_name {
-            if let Ok(p) = resolve_resource_file(&app, &format!("samples/{}", normalized_file_path)) {
+            if let Ok(p) = resolve_resource_file(&app, &format!("samples/{}", normalized_file_path))
+            {
                 candidates.push(p);
             }
         }
@@ -1142,7 +1408,10 @@ async fn reload_incbin_file(app: AppHandle, file_path: String, base_dir: Option<
     match fs::read(&resolved) {
         Ok(buf) => {
             let file_name = resolved
-                .file_name().and_then(|n| n.to_str()).unwrap_or("").to_string();
+                .file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or("")
+                .to_string();
             serde_json::json!({
                 "fileName": file_name,
                 "filePath": resolved.to_string_lossy(),
@@ -1159,10 +1428,11 @@ async fn choose_sid_file(app: AppHandle) -> serde_json::Value {
         let cfg = read_config(&app);
         get_working_folder_path(&cfg)
     };
-    let mut dialog = app.dialog().file()
+    let mut dialog = app
+        .dialog()
+        .file()
         .add_filter("SID files", &["sid"])
-        .add_filter("All files", &["*"])
-        ;
+        .add_filter("All files", &["*"]);
     if let Some(folder) = working_folder {
         dialog = dialog.set_directory(folder);
     }
@@ -1175,7 +1445,10 @@ async fn choose_sid_file(app: AppHandle) -> serde_json::Value {
                 Ok(buf) => match parse_sid_buffer(&buf) {
                     Ok(info) => {
                         let file_name = std::path::Path::new(&path_str)
-                            .file_name().and_then(|n| n.to_str()).unwrap_or("").to_string();
+                            .file_name()
+                            .and_then(|n| n.to_str())
+                            .unwrap_or("")
+                            .to_string();
                         let mut v = serde_json::to_value(info).unwrap();
                         v["canceled"] = serde_json::json!(false);
                         v["filePath"] = serde_json::json!(path_str);
@@ -1212,7 +1485,11 @@ async fn load_sid_sample(app: AppHandle, file_name: String) -> serde_json::Value
 }
 
 #[tauri::command]
-async fn reload_sid_file(app: AppHandle, file_path: String, base_dir: Option<String>) -> serde_json::Value {
+async fn reload_sid_file(
+    app: AppHandle,
+    file_path: String,
+    base_dir: Option<String>,
+) -> serde_json::Value {
     let raw_path = file_path.trim();
     let raw_input_path = std::path::Path::new(raw_path);
     let normalized_file_path = if !raw_input_path.is_absolute() && raw_input_path.has_root() {
@@ -1239,7 +1516,8 @@ async fn reload_sid_file(app: AppHandle, file_path: String, base_dir: Option<Str
             .unwrap_or(true);
 
         if is_bare_file_name {
-            if let Ok(p) = resolve_resource_file(&app, &format!("samples/{}", normalized_file_path)) {
+            if let Ok(p) = resolve_resource_file(&app, &format!("samples/{}", normalized_file_path))
+            {
                 candidates.push(p);
             }
         }
@@ -1259,7 +1537,8 @@ async fn reload_sid_file(app: AppHandle, file_path: String, base_dir: Option<Str
             Ok(info) => {
                 let mut v = serde_json::to_value(info).unwrap();
                 v["filePath"] = serde_json::json!(resolved.to_string_lossy().to_string());
-                v["fileName"] = serde_json::json!(resolved.file_name().and_then(|n| n.to_str()).unwrap_or(""));
+                v["fileName"] =
+                    serde_json::json!(resolved.file_name().and_then(|n| n.to_str()).unwrap_or(""));
                 v
             }
             Err(e) => serde_json::json!({ "error": e }),
@@ -1274,12 +1553,16 @@ async fn choose_include_file(app: AppHandle) -> serde_json::Value {
         let cfg = read_config(&app);
         get_working_folder_path(&cfg)
     };
-    let mut dialog = app.dialog().file()
-        .add_filter("Include (project or assembly)", &["json", "inc", "asm", "s"])
+    let mut dialog = app
+        .dialog()
+        .file()
+        .add_filter(
+            "Include (project or assembly)",
+            &["json", "inc", "asm", "s"],
+        )
         .add_filter("C64 Visual Assembler project", &["json"])
         .add_filter("Assembly source", &["inc", "asm", "s"])
-        .add_filter("All files", &["*"])
-        ;
+        .add_filter("All files", &["*"]);
     if let Some(folder) = working_folder {
         dialog = dialog.set_directory(folder);
     }
@@ -1295,7 +1578,10 @@ async fn choose_include_file(app: AppHandle) -> serde_json::Value {
                 .map(|e| e.eq_ignore_ascii_case("json"))
                 .unwrap_or(false);
             let file_name = path_obj
-                .file_stem().and_then(|n| n.to_str()).unwrap_or("").to_string();
+                .file_stem()
+                .and_then(|n| n.to_str())
+                .unwrap_or("")
+                .to_string();
             match fs::read_to_string(&path_str) {
                 Ok(raw) => {
                     if is_json {
@@ -1316,7 +1602,9 @@ async fn choose_include_file(app: AppHandle) -> serde_json::Value {
                                     "blocks": project["program"]
                                 })
                             }
-                            Err(e) => serde_json::json!({ "canceled": false, "error": e.to_string() }),
+                            Err(e) => {
+                                serde_json::json!({ "canceled": false, "error": e.to_string() })
+                            }
                         }
                     } else {
                         serde_json::json!({
@@ -1335,7 +1623,11 @@ async fn choose_include_file(app: AppHandle) -> serde_json::Value {
 }
 
 #[tauri::command]
-async fn reload_include_file(app: AppHandle, file_path: String, base_dir: Option<String>) -> serde_json::Value {
+async fn reload_include_file(
+    app: AppHandle,
+    file_path: String,
+    base_dir: Option<String>,
+) -> serde_json::Value {
     let raw_path = file_path.trim();
     let raw_input_path = std::path::Path::new(raw_path);
     let normalized_file_path = if !raw_input_path.is_absolute() && raw_input_path.has_root() {
@@ -1352,7 +1644,10 @@ async fn reload_include_file(app: AppHandle, file_path: String, base_dir: Option
         // (e.g. a Windows path opened on macOS), try resolving by filename only.
         if let Some(file_name) = input_path.file_name() {
             let bare = file_name.to_string_lossy();
-            let wf = { let cfg = read_config(&app); get_working_folder_path(&cfg) };
+            let wf = {
+                let cfg = read_config(&app);
+                get_working_folder_path(&cfg)
+            };
             if let Some(folder) = wf.as_ref() {
                 candidates.push(folder.join(bare.as_ref()));
             }
@@ -1402,20 +1697,29 @@ async fn reload_include_file(app: AppHandle, file_path: String, base_dir: Option
                 }
                 candidates.extend(guessed);
             }
-            if let Ok(p) = resolve_resource_file(&app, &format!("samples/{}", normalized_file_path)) {
+            if let Ok(p) = resolve_resource_file(&app, &format!("samples/{}", normalized_file_path))
+            {
                 candidates.push(p);
             }
             if input_path.extension().is_none() {
-                if let Ok(p) = resolve_resource_file(&app, &format!("samples/{}.json", normalized_file_path)) {
+                if let Ok(p) =
+                    resolve_resource_file(&app, &format!("samples/{}.json", normalized_file_path))
+                {
                     candidates.push(p);
                 }
-                if let Ok(p) = resolve_resource_file(&app, &format!("samples/{}.asm", normalized_file_path)) {
+                if let Ok(p) =
+                    resolve_resource_file(&app, &format!("samples/{}.asm", normalized_file_path))
+                {
                     candidates.push(p);
                 }
-                if let Ok(p) = resolve_resource_file(&app, &format!("samples/{}.inc", normalized_file_path)) {
+                if let Ok(p) =
+                    resolve_resource_file(&app, &format!("samples/{}.inc", normalized_file_path))
+                {
                     candidates.push(p);
                 }
-                if let Ok(p) = resolve_resource_file(&app, &format!("samples/{}.s", normalized_file_path)) {
+                if let Ok(p) =
+                    resolve_resource_file(&app, &format!("samples/{}.s", normalized_file_path))
+                {
                     candidates.push(p);
                 }
             }
@@ -1454,7 +1758,10 @@ async fn reload_include_file(app: AppHandle, file_path: String, base_dir: Option
     // convention and the value parseExpertText assigns when reading `.include "hello.asm"`.
     // Returning only file_stem broke the fileName match after the first reload.
     let file_name = resolved
-        .file_name().and_then(|n| n.to_str()).unwrap_or("").to_string();
+        .file_name()
+        .and_then(|n| n.to_str())
+        .unwrap_or("")
+        .to_string();
     match fs::read_to_string(&resolved) {
         Ok(raw) => {
             if is_json {
@@ -1523,7 +1830,11 @@ fn read_bin_file(path: String) -> serde_json::Value {
 // the Rust side at all; track/sector offset math and the BAM parse both
 // live in JS, same as the block editor's read path.
 #[tauri::command]
-fn write_bin_file(path: String, bytes: Vec<u8>, sidecars: Option<DebuggerSidecars>) -> serde_json::Value {
+fn write_bin_file(
+    path: String,
+    bytes: Vec<u8>,
+    sidecars: Option<DebuggerSidecars>,
+) -> serde_json::Value {
     if path.is_empty() {
         return serde_json::json!({ "ok": false, "error": "Empty path" });
     }
@@ -1563,7 +1874,9 @@ async fn save_prg(app: AppHandle, payload: SavePrgPayload) -> serde_json::Value 
         let cfg = read_config(&app);
         get_working_folder_path(&cfg)
     };
-    let mut dialog = app.dialog().file()
+    let mut dialog = app
+        .dialog()
+        .file()
         .add_filter("Commodore 64 PRG", &["prg"])
         .add_filter("All files", &["*"]);
     if let Some(folder) = working_folder {
@@ -1604,7 +1917,9 @@ async fn save_crt(app: AppHandle, payload: SaveCrtPayload) -> serde_json::Value 
         let cfg = read_config(&app);
         get_working_folder_path(&cfg)
     };
-    let mut dialog = app.dialog().file()
+    let mut dialog = app
+        .dialog()
+        .file()
         .add_filter("Commodore 64 cartridge", &["crt"])
         .add_filter("All files", &["*"]);
     if let Some(folder) = working_folder {
@@ -1637,7 +1952,9 @@ async fn save_bin(app: AppHandle, payload: SaveBinPayload) -> serde_json::Value 
     };
     // A javasolt fájlnév kiterjesztése legyen az első szűrő (pl. Koala .koa),
     // különben a dialógus a "Binary (*.bin)" szűrőt kínálja fel.
-    let ext = payload.file_name.as_deref()
+    let ext = payload
+        .file_name
+        .as_deref()
         .and_then(|n| Path::new(n).extension())
         .map(|e| e.to_string_lossy().to_lowercase())
         .filter(|e| e != "bin");
@@ -1688,7 +2005,9 @@ fn resolve_c1541_path(vice_path: &str) -> Option<PathBuf> {
         if vice_path.ends_with(".app") {
             if let Some(parent) = vice.parent() {
                 let candidate = parent.join("bin").join("c1541");
-                if candidate.exists() { return Some(candidate); }
+                if candidate.exists() {
+                    return Some(candidate);
+                }
             }
         }
     }
@@ -1716,7 +2035,11 @@ fn sanitize_disk_name(name: &str, max_len: usize) -> String {
         .take(max_len)
         .collect::<String>()
         .to_lowercase();
-    if lower.is_empty() { "disk".to_string() } else { lower }
+    if lower.is_empty() {
+        "disk".to_string()
+    } else {
+        lower
+    }
 }
 
 #[derive(Deserialize)]
@@ -1753,24 +2076,34 @@ async fn save_d64(app: AppHandle, payload: SaveD64Payload) -> serde_json::Value 
     let cfg = read_config(&app);
     let vice_path = {
         let p = cfg["vicePath"].as_str().unwrap_or("").to_string();
-        if p.is_empty() { detect_vice_executable() } else { p }
+        if p.is_empty() {
+            detect_vice_executable()
+        } else {
+            p
+        }
     };
 
     let c1541_path = match resolve_c1541_path(&vice_path) {
         Some(p) => p,
-        None => return serde_json::json!({
-            "ok": false,
-            "error": "c1541 nem talalhato. Allitsd be a VICE eleresi utjat (a c1541 a VICE bin/ mappajaban van)."
-        }),
+        None => {
+            return serde_json::json!({
+                "ok": false,
+                "error": "c1541 nem talalhato. Allitsd be a VICE eleresi utjat (a c1541 a VICE bin/ mappajaban van)."
+            })
+        }
     };
 
     // 2. Ask user where to save
-    let working_folder = payload.directory.as_deref()
+    let working_folder = payload
+        .directory
+        .as_deref()
         .map(str::trim)
         .filter(|d| !d.is_empty())
         .map(PathBuf::from)
         .or_else(|| get_working_folder_path(&cfg));
-    let mut dialog = app.dialog().file()
+    let mut dialog = app
+        .dialog()
+        .file()
         .add_filter("Commodore 64 disk image", &["d64"])
         .add_filter("All files", &["*"]);
     if let Some(folder) = working_folder {
@@ -1788,7 +2121,10 @@ async fn save_d64(app: AppHandle, payload: SaveD64Payload) -> serde_json::Value 
     // 4. Build disk name (PETSCII-safe uppercase)
     let raw_disk = payload.disk_name.unwrap_or_else(|| {
         std::path::Path::new(&save_path)
-            .file_stem().unwrap_or_default().to_string_lossy().to_string()
+            .file_stem()
+            .unwrap_or_default()
+            .to_string_lossy()
+            .to_string()
     });
     let disk_name = sanitize_disk_name(&raw_disk, 16);
     let disk_id = "01";
@@ -1796,7 +2132,9 @@ async fn save_d64(app: AppHandle, payload: SaveD64Payload) -> serde_json::Value 
     // 5. Write each file to a temp PRG, collecting (temp_path, c64_name) tuples.
     //    For files with load_address set, prepend the 2-byte little-endian header.
     let now_ms = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH).unwrap().as_millis();
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_millis();
 
     let mut staged: Vec<(PathBuf, String)> = Vec::new();
     for (idx, entry) in payload.files.iter().enumerate() {
@@ -1811,7 +2149,9 @@ async fn save_d64(app: AppHandle, payload: SaveD64Payload) -> serde_json::Value 
 
         if let Err(e) = fs::write(&prg_path, &data) {
             // Cleanup what we already wrote
-            for (p, _) in &staged { let _ = fs::remove_file(p); }
+            for (p, _) in &staged {
+                let _ = fs::remove_file(p);
+            }
             return serde_json::json!({
                 "ok": false,
                 "error": format!("Nem sikerult ideiglenes fajl irasa ({}): {}", entry.name, e)
@@ -1820,7 +2160,9 @@ async fn save_d64(app: AppHandle, payload: SaveD64Payload) -> serde_json::Value 
 
         let c64_name = sanitize_disk_name(&entry.name, 16);
         if c64_name.is_empty() {
-            for (p, _) in &staged { let _ = fs::remove_file(p); }
+            for (p, _) in &staged {
+                let _ = fs::remove_file(p);
+            }
             let _ = fs::remove_file(&prg_path);
             return serde_json::json!({
                 "ok": false,
@@ -1842,9 +2184,14 @@ async fn save_d64(app: AppHandle, payload: SaveD64Payload) -> serde_json::Value 
         Command::new(&c1541_path)
     };
 
-    cmd.arg("-format").arg(&format_arg).arg("d64").arg(&save_path);
+    cmd.arg("-format")
+        .arg(&format_arg)
+        .arg("d64")
+        .arg(&save_path);
     for (prg_path, c64_name) in &staged {
-        cmd.arg("-write").arg(prg_path.to_string_lossy().to_string()).arg(c64_name);
+        cmd.arg("-write")
+            .arg(prg_path.to_string_lossy().to_string())
+            .arg(c64_name);
     }
 
     #[cfg(target_os = "windows")]
@@ -1856,7 +2203,9 @@ async fn save_d64(app: AppHandle, payload: SaveD64Payload) -> serde_json::Value 
     let output = match cmd.output() {
         Ok(out) => out,
         Err(e) => {
-            for (p, _) in &staged { let _ = fs::remove_file(p); }
+            for (p, _) in &staged {
+                let _ = fs::remove_file(p);
+            }
             return serde_json::json!({
                 "ok": false,
                 "error": format!("c1541 inditasa sikertelen ({}): {}", c1541_path.display(), e)
@@ -1865,7 +2214,9 @@ async fn save_d64(app: AppHandle, payload: SaveD64Payload) -> serde_json::Value 
     };
 
     // 7. Cleanup temp PRGs
-    for (p, _) in &staged { let _ = fs::remove_file(p); }
+    for (p, _) in &staged {
+        let _ = fs::remove_file(p);
+    }
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr).to_string();
@@ -1912,21 +2263,29 @@ async fn run_d64(app: AppHandle, payload: RunD64Payload) -> serde_json::Value {
     let cfg = read_config(&app);
     let vice_path = {
         let p = cfg["vicePath"].as_str().unwrap_or("").to_string();
-        if p.is_empty() { detect_vice_executable() } else { p }
+        if p.is_empty() {
+            detect_vice_executable()
+        } else {
+            p
+        }
     };
 
     let c1541_path = match resolve_c1541_path(&vice_path) {
         Some(p) => p,
-        None => return serde_json::json!({
-            "ok": false,
-            "error": "c1541 nem talalhato. Allitsd be a VICE eleresi utjat."
-        }),
+        None => {
+            return serde_json::json!({
+                "ok": false,
+                "error": "c1541 nem talalhato. Allitsd be a VICE eleresi utjat."
+            })
+        }
     };
 
     let temp_dir = std::env::temp_dir().join("c64-visual-assembler");
     let _ = fs::create_dir_all(&temp_dir);
     let now_ms = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH).unwrap().as_millis();
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_millis();
 
     let raw_disk = payload.disk_name.unwrap_or_else(|| "disk".to_string());
     let disk_name = sanitize_disk_name(&raw_disk, 16);
@@ -1943,7 +2302,9 @@ async fn run_d64(app: AppHandle, payload: RunD64Payload) -> serde_json::Value {
         }
         data.extend_from_slice(&entry.bytes);
         if let Err(e) = fs::write(&prg_path, &data) {
-            for (p, _) in &staged { let _ = fs::remove_file(p); }
+            for (p, _) in &staged {
+                let _ = fs::remove_file(p);
+            }
             return serde_json::json!({ "ok": false, "error": e.to_string() });
         }
         let c64_name = sanitize_disk_name(&entry.name, 16);
@@ -1960,9 +2321,14 @@ async fn run_d64(app: AppHandle, payload: RunD64Payload) -> serde_json::Value {
         Command::new(&c1541_path)
     };
 
-    cmd.arg("-format").arg(&format_arg).arg("d64").arg(&d64_path);
+    cmd.arg("-format")
+        .arg(&format_arg)
+        .arg("d64")
+        .arg(&d64_path);
     for (prg_path, c64_name) in &staged {
-        cmd.arg("-write").arg(prg_path.to_string_lossy().to_string()).arg(c64_name);
+        cmd.arg("-write")
+            .arg(prg_path.to_string_lossy().to_string())
+            .arg(c64_name);
     }
 
     #[cfg(target_os = "windows")]
@@ -1974,11 +2340,15 @@ async fn run_d64(app: AppHandle, payload: RunD64Payload) -> serde_json::Value {
     let c1541_out = match cmd.output() {
         Ok(o) => o,
         Err(e) => {
-            for (p, _) in &staged { let _ = fs::remove_file(p); }
+            for (p, _) in &staged {
+                let _ = fs::remove_file(p);
+            }
             return serde_json::json!({ "ok": false, "error": e.to_string() });
         }
     };
-    for (p, _) in &staged { let _ = fs::remove_file(p); }
+    for (p, _) in &staged {
+        let _ = fs::remove_file(p);
+    }
 
     if !c1541_out.status.success() {
         let _ = fs::remove_file(&d64_path);
@@ -2000,19 +2370,36 @@ async fn run_d64(app: AppHandle, payload: RunD64Payload) -> serde_json::Value {
     let launch_result = if cfg!(target_os = "macos") {
         let binary = if vice_path.ends_with(".app") {
             let app_path = std::path::Path::new(&vice_path);
-            let stem = app_path.file_stem().unwrap_or_default().to_string_lossy().to_string();
+            let stem = app_path
+                .file_stem()
+                .unwrap_or_default()
+                .to_string_lossy()
+                .to_string();
             if let Some(parent) = app_path.parent() {
                 let cand = parent.join("bin").join(&stem);
-                if cand.exists() { cand.to_string_lossy().to_string() } else { String::new() }
-            } else { String::new() }
-        } else { vice_path.clone() };
+                if cand.exists() {
+                    cand.to_string_lossy().to_string()
+                } else {
+                    String::new()
+                }
+            } else {
+                String::new()
+            }
+        } else {
+            vice_path.clone()
+        };
 
         if binary.is_empty() || !std::path::Path::new(&binary).exists() {
             return serde_json::json!({ "ok": false, "error": "VICE binary nem talalhato." });
         }
-        Command::new("bash").arg(&binary).arg(&d64_str)
-            .stdin(std::process::Stdio::null()).stdout(std::process::Stdio::null()).stderr(std::process::Stdio::null())
-            .spawn().map(|_| ())
+        Command::new("bash")
+            .arg(&binary)
+            .arg(&d64_str)
+            .stdin(std::process::Stdio::null())
+            .stdout(std::process::Stdio::null())
+            .stderr(std::process::Stdio::null())
+            .spawn()
+            .map(|_| ())
     } else {
         #[cfg(target_os = "windows")]
         {
@@ -2021,14 +2408,25 @@ async fn run_d64(app: AppHandle, payload: RunD64Payload) -> serde_json::Value {
         #[cfg(not(target_os = "windows"))]
         {
             let mut cmd = Command::new(&vice_path);
-            for var in &["DISPLAY", "WAYLAND_DISPLAY", "XDG_RUNTIME_DIR",
-                         "DBUS_SESSION_BUS_ADDRESS", "GDK_BACKEND"] {
-                if let Ok(val) = std::env::var(var) { cmd.env(var, val); }
+            for var in &[
+                "DISPLAY",
+                "WAYLAND_DISPLAY",
+                "XDG_RUNTIME_DIR",
+                "DBUS_SESSION_BUS_ADDRESS",
+                "GDK_BACKEND",
+            ] {
+                if let Ok(val) = std::env::var(var) {
+                    cmd.env(var, val);
+                }
             }
-            cmd.arg("-drive8type").arg("1541")
+            cmd.arg("-drive8type")
+                .arg("1541")
                 .arg(&d64_str)
-                .stdin(std::process::Stdio::null()).stdout(std::process::Stdio::null()).stderr(std::process::Stdio::null())
-                .spawn().map(|_| ())
+                .stdin(std::process::Stdio::null())
+                .stdout(std::process::Stdio::null())
+                .stderr(std::process::Stdio::null())
+                .spawn()
+                .map(|_| ())
         }
     };
 
@@ -2044,7 +2442,11 @@ fn get_c1541_path(app: &AppHandle) -> Result<PathBuf, String> {
     let cfg = read_config(app);
     let vice_path = {
         let p = cfg["vicePath"].as_str().unwrap_or("").to_string();
-        if p.is_empty() { detect_vice_executable() } else { p }
+        if p.is_empty() {
+            detect_vice_executable()
+        } else {
+            p
+        }
     };
     resolve_c1541_path(&vice_path).ok_or_else(|| {
         "c1541 nem talalhato. Allitsd be a VICE eleresi utjat (a c1541 a VICE bin/ mappajaban van).".to_string()
@@ -2120,7 +2522,11 @@ fn parse_c1541_listing(text: &str) -> (String, Vec<serde_json::Value>, Option<u3
         if let Ok(blocks) = before_quote.parse::<u32>() {
             let rest = after_quote[quote_end + 1..].trim();
             let locked = rest.starts_with('<');
-            let file_type = rest.trim_start_matches('<').trim_end_matches('*').trim().to_lowercase();
+            let file_type = rest
+                .trim_start_matches('<')
+                .trim_end_matches('*')
+                .trim()
+                .to_lowercase();
             entries.push(serde_json::json!({
                 "name": name,
                 "type": file_type,
@@ -2145,10 +2551,14 @@ fn d64_dialog_folder(app: &AppHandle, directory: Option<String>) -> Option<PathB
 #[tauri::command]
 async fn choose_d64_open(app: AppHandle, directory: Option<String>) -> serde_json::Value {
     let working_folder = d64_dialog_folder(&app, directory);
-    let mut dialog = app.dialog().file()
+    let mut dialog = app
+        .dialog()
+        .file()
         .add_filter("Commodore 64 disk image", &["d64"])
         .add_filter("All files", &["*"]);
-    if let Some(folder) = working_folder { dialog = dialog.set_directory(folder); }
+    if let Some(folder) = working_folder {
+        dialog = dialog.set_directory(folder);
+    }
     match dialog.blocking_pick_file() {
         Some(path) => serde_json::json!({ "canceled": false, "filePath": path.to_string() }),
         None => serde_json::json!({ "canceled": true }),
@@ -2158,10 +2568,14 @@ async fn choose_d64_open(app: AppHandle, directory: Option<String>) -> serde_jso
 #[tauri::command]
 async fn choose_d64_new(app: AppHandle, directory: Option<String>) -> serde_json::Value {
     let working_folder = d64_dialog_folder(&app, directory);
-    let mut dialog = app.dialog().file()
+    let mut dialog = app
+        .dialog()
+        .file()
         .add_filter("Commodore 64 disk image", &["d64"])
         .add_filter("All files", &["*"]);
-    if let Some(folder) = working_folder { dialog = dialog.set_directory(folder); }
+    if let Some(folder) = working_folder {
+        dialog = dialog.set_directory(folder);
+    }
     match dialog.blocking_save_file() {
         Some(path) => serde_json::json!({ "canceled": false, "filePath": path.to_string() }),
         None => serde_json::json!({ "canceled": true }),
@@ -2170,11 +2584,19 @@ async fn choose_d64_new(app: AppHandle, directory: Option<String>) -> serde_json
 
 #[tauri::command]
 async fn d64_format(app: AppHandle, path: String, disk_name: String) -> serde_json::Value {
-    let c1541_path = match get_c1541_path(&app) { Ok(p) => p, Err(e) => return serde_json::json!({ "ok": false, "error": e }) };
+    let c1541_path = match get_c1541_path(&app) {
+        Ok(p) => p,
+        Err(e) => return serde_json::json!({ "ok": false, "error": e }),
+    };
     let name = sanitize_disk_name(&disk_name, 16);
     let format_arg = format!("{},01", name);
-    match run_c1541_cmd(&c1541_path, &["-format".into(), format_arg, "d64".into(), path.clone()]) {
-        Ok(out) if out.status.success() => serde_json::json!({ "ok": true, "filePath": path, "diskName": name }),
+    match run_c1541_cmd(
+        &c1541_path,
+        &["-format".into(), format_arg, "d64".into(), path.clone()],
+    ) {
+        Ok(out) if out.status.success() => {
+            serde_json::json!({ "ok": true, "filePath": path, "diskName": name })
+        }
         Ok(out) => c1541_err(&out),
         Err(e) => serde_json::json!({ "ok": false, "error": e }),
     }
@@ -2182,7 +2604,10 @@ async fn d64_format(app: AppHandle, path: String, disk_name: String) -> serde_js
 
 #[tauri::command]
 async fn d64_list(app: AppHandle, path: String) -> serde_json::Value {
-    let c1541_path = match get_c1541_path(&app) { Ok(p) => p, Err(e) => return serde_json::json!({ "ok": false, "error": e }) };
+    let c1541_path = match get_c1541_path(&app) {
+        Ok(p) => p,
+        Err(e) => return serde_json::json!({ "ok": false, "error": e }),
+    };
     let out = match run_c1541_cmd(&c1541_path, &["-attach".into(), path, "-list".into()]) {
         Ok(o) => o,
         Err(e) => return serde_json::json!({ "ok": false, "error": e }),
@@ -2201,15 +2626,30 @@ async fn d64_list(app: AppHandle, path: String) -> serde_json::Value {
 }
 
 #[tauri::command]
-async fn d64_add_file(app: AppHandle, path: String, bytes: Vec<u8>, name: String, load_address: Option<u16>, file_type: Option<String>) -> serde_json::Value {
-    let c1541_path = match get_c1541_path(&app) { Ok(p) => p, Err(e) => return serde_json::json!({ "ok": false, "error": e }) };
+async fn d64_add_file(
+    app: AppHandle,
+    path: String,
+    bytes: Vec<u8>,
+    name: String,
+    load_address: Option<u16>,
+    file_type: Option<String>,
+) -> serde_json::Value {
+    let c1541_path = match get_c1541_path(&app) {
+        Ok(p) => p,
+        Err(e) => return serde_json::json!({ "ok": false, "error": e }),
+    };
     let c64_name = sanitize_disk_name(&name, 16);
     if c64_name.is_empty() {
         return serde_json::json!({ "ok": false, "error": "Ervenytelen fajlnev." });
     }
     // C64 directory entry type, appended to the c1541 -write destination as
     // "name,p" / "name,s" / "name,u" / "name,r" (defaults to PRG).
-    let type_code = match file_type.as_deref().unwrap_or("prg").to_lowercase().as_str() {
+    let type_code = match file_type
+        .as_deref()
+        .unwrap_or("prg")
+        .to_lowercase()
+        .as_str()
+    {
         "seq" | "s" => "s",
         "usr" | "u" => "u",
         "rel" | "r" => "r",
@@ -2218,7 +2658,10 @@ async fn d64_add_file(app: AppHandle, path: String, bytes: Vec<u8>, name: String
 
     let temp_dir = std::env::temp_dir().join("c64-visual-assembler");
     let _ = fs::create_dir_all(&temp_dir);
-    let now_ms = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis();
+    let now_ms = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_millis();
     let prg_path = temp_dir.join(format!("d64-add-{}.prg", now_ms));
 
     let mut data: Vec<u8> = Vec::with_capacity(bytes.len() + 2);
@@ -2232,14 +2675,22 @@ async fn d64_add_file(app: AppHandle, path: String, bytes: Vec<u8>, name: String
     }
 
     let dest_name = format!("{},{}", c64_name, type_code);
-    let out = run_c1541_cmd(&c1541_path, &[
-        "-attach".into(), path,
-        "-write".into(), prg_path.to_string_lossy().to_string(), dest_name,
-    ]);
+    let out = run_c1541_cmd(
+        &c1541_path,
+        &[
+            "-attach".into(),
+            path,
+            "-write".into(),
+            prg_path.to_string_lossy().to_string(),
+            dest_name,
+        ],
+    );
     let _ = fs::remove_file(&prg_path);
 
     match out {
-        Ok(o) if o.status.success() => serde_json::json!({ "ok": true, "name": c64_name, "type": type_code }),
+        Ok(o) if o.status.success() => {
+            serde_json::json!({ "ok": true, "name": c64_name, "type": type_code })
+        }
         Ok(o) => c1541_err(&o),
         Err(e) => serde_json::json!({ "ok": false, "error": e }),
     }
@@ -2247,8 +2698,14 @@ async fn d64_add_file(app: AppHandle, path: String, bytes: Vec<u8>, name: String
 
 #[tauri::command]
 async fn d64_delete_file(app: AppHandle, path: String, name: String) -> serde_json::Value {
-    let c1541_path = match get_c1541_path(&app) { Ok(p) => p, Err(e) => return serde_json::json!({ "ok": false, "error": e }) };
-    match run_c1541_cmd(&c1541_path, &["-attach".into(), path, "-delete".into(), name]) {
+    let c1541_path = match get_c1541_path(&app) {
+        Ok(p) => p,
+        Err(e) => return serde_json::json!({ "ok": false, "error": e }),
+    };
+    match run_c1541_cmd(
+        &c1541_path,
+        &["-attach".into(), path, "-delete".into(), name],
+    ) {
         Ok(o) if o.status.success() => serde_json::json!({ "ok": true }),
         Ok(o) => c1541_err(&o),
         Err(e) => serde_json::json!({ "ok": false, "error": e }),
@@ -2256,13 +2713,30 @@ async fn d64_delete_file(app: AppHandle, path: String, name: String) -> serde_js
 }
 
 #[tauri::command]
-async fn d64_rename_file(app: AppHandle, path: String, old_name: String, new_name: String) -> serde_json::Value {
-    let c1541_path = match get_c1541_path(&app) { Ok(p) => p, Err(e) => return serde_json::json!({ "ok": false, "error": e }) };
+async fn d64_rename_file(
+    app: AppHandle,
+    path: String,
+    old_name: String,
+    new_name: String,
+) -> serde_json::Value {
+    let c1541_path = match get_c1541_path(&app) {
+        Ok(p) => p,
+        Err(e) => return serde_json::json!({ "ok": false, "error": e }),
+    };
     let sanitized_new = sanitize_disk_name(&new_name, 16);
     if sanitized_new.is_empty() {
         return serde_json::json!({ "ok": false, "error": "Ervenytelen uj nev." });
     }
-    match run_c1541_cmd(&c1541_path, &["-attach".into(), path, "-rename".into(), old_name, sanitized_new.clone()]) {
+    match run_c1541_cmd(
+        &c1541_path,
+        &[
+            "-attach".into(),
+            path,
+            "-rename".into(),
+            old_name,
+            sanitized_new.clone(),
+        ],
+    ) {
         Ok(o) if o.status.success() => serde_json::json!({ "ok": true, "name": sanitized_new }),
         Ok(o) => c1541_err(&o),
         Err(e) => serde_json::json!({ "ok": false, "error": e }),
@@ -2271,17 +2745,29 @@ async fn d64_rename_file(app: AppHandle, path: String, old_name: String, new_nam
 
 #[tauri::command]
 async fn d64_extract_file(app: AppHandle, path: String, name: String) -> serde_json::Value {
-    let c1541_path = match get_c1541_path(&app) { Ok(p) => p, Err(e) => return serde_json::json!({ "ok": false, "error": e }) };
+    let c1541_path = match get_c1541_path(&app) {
+        Ok(p) => p,
+        Err(e) => return serde_json::json!({ "ok": false, "error": e }),
+    };
 
     let temp_dir = std::env::temp_dir().join("c64-visual-assembler");
     let _ = fs::create_dir_all(&temp_dir);
-    let now_ms = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis();
+    let now_ms = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_millis();
     let out_path = temp_dir.join(format!("d64-extract-{}.prg", now_ms));
 
-    let out = run_c1541_cmd(&c1541_path, &[
-        "-attach".into(), path,
-        "-read".into(), name.clone(), out_path.to_string_lossy().to_string(),
-    ]);
+    let out = run_c1541_cmd(
+        &c1541_path,
+        &[
+            "-attach".into(),
+            path,
+            "-read".into(),
+            name.clone(),
+            out_path.to_string_lossy().to_string(),
+        ],
+    );
 
     match out {
         Ok(o) if o.status.success() => match fs::read(&out_path) {
@@ -2309,7 +2795,11 @@ async fn d64_run(app: AppHandle, path: String) -> serde_json::Value {
     let cfg = read_config(&app);
     let vice_path = {
         let p = cfg["vicePath"].as_str().unwrap_or("").to_string();
-        if p.is_empty() { detect_vice_executable() } else { p }
+        if p.is_empty() {
+            detect_vice_executable()
+        } else {
+            p
+        }
     };
     if vice_path.is_empty() {
         return serde_json::json!({ "ok": false, "error": "VICE eleresi utja nincs beallitva." });
@@ -2318,19 +2808,36 @@ async fn d64_run(app: AppHandle, path: String) -> serde_json::Value {
     let launch_result = if cfg!(target_os = "macos") {
         let binary = if vice_path.ends_with(".app") {
             let app_path = std::path::Path::new(&vice_path);
-            let stem = app_path.file_stem().unwrap_or_default().to_string_lossy().to_string();
+            let stem = app_path
+                .file_stem()
+                .unwrap_or_default()
+                .to_string_lossy()
+                .to_string();
             if let Some(parent) = app_path.parent() {
                 let cand = parent.join("bin").join(&stem);
-                if cand.exists() { cand.to_string_lossy().to_string() } else { String::new() }
-            } else { String::new() }
-        } else { vice_path.clone() };
+                if cand.exists() {
+                    cand.to_string_lossy().to_string()
+                } else {
+                    String::new()
+                }
+            } else {
+                String::new()
+            }
+        } else {
+            vice_path.clone()
+        };
 
         if binary.is_empty() || !std::path::Path::new(&binary).exists() {
             return serde_json::json!({ "ok": false, "error": "VICE binary nem talalhato." });
         }
-        Command::new("bash").arg(&binary).arg(&path)
-            .stdin(std::process::Stdio::null()).stdout(std::process::Stdio::null()).stderr(std::process::Stdio::null())
-            .spawn().map(|_| ())
+        Command::new("bash")
+            .arg(&binary)
+            .arg(&path)
+            .stdin(std::process::Stdio::null())
+            .stdout(std::process::Stdio::null())
+            .stderr(std::process::Stdio::null())
+            .spawn()
+            .map(|_| ())
     } else {
         #[cfg(target_os = "windows")]
         {
@@ -2339,14 +2846,25 @@ async fn d64_run(app: AppHandle, path: String) -> serde_json::Value {
         #[cfg(not(target_os = "windows"))]
         {
             let mut cmd = Command::new(&vice_path);
-            for var in &["DISPLAY", "WAYLAND_DISPLAY", "XDG_RUNTIME_DIR",
-                         "DBUS_SESSION_BUS_ADDRESS", "GDK_BACKEND"] {
-                if let Ok(val) = std::env::var(var) { cmd.env(var, val); }
+            for var in &[
+                "DISPLAY",
+                "WAYLAND_DISPLAY",
+                "XDG_RUNTIME_DIR",
+                "DBUS_SESSION_BUS_ADDRESS",
+                "GDK_BACKEND",
+            ] {
+                if let Ok(val) = std::env::var(var) {
+                    cmd.env(var, val);
+                }
             }
-            cmd.arg("-drive8type").arg("1541")
+            cmd.arg("-drive8type")
+                .arg("1541")
                 .arg(&path)
-                .stdin(std::process::Stdio::null()).stdout(std::process::Stdio::null()).stderr(std::process::Stdio::null())
-                .spawn().map(|_| ())
+                .stdin(std::process::Stdio::null())
+                .stdout(std::process::Stdio::null())
+                .stderr(std::process::Stdio::null())
+                .spawn()
+                .map(|_| ())
         }
     };
 
@@ -2408,20 +2926,28 @@ async fn run_d64_on_ultimate(app: AppHandle, payload: RunD64UltimatePayload) -> 
     let cfg = read_config(&app);
     let vice_path = {
         let p = cfg["vicePath"].as_str().unwrap_or("").to_string();
-        if p.is_empty() { detect_vice_executable() } else { p }
+        if p.is_empty() {
+            detect_vice_executable()
+        } else {
+            p
+        }
     };
     let c1541_path = match resolve_c1541_path(&vice_path) {
         Some(p) => p,
-        None => return serde_json::json!({
-            "ok": false,
-            "error": "c1541 nem talalhato. Allitsd be a VICE eleresi utjat."
-        }),
+        None => {
+            return serde_json::json!({
+                "ok": false,
+                "error": "c1541 nem talalhato. Allitsd be a VICE eleresi utjat."
+            })
+        }
     };
 
     let temp_dir = std::env::temp_dir().join("c64-visual-assembler");
     let _ = fs::create_dir_all(&temp_dir);
     let now_ms = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH).unwrap().as_millis();
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_millis();
 
     let raw_disk = payload.disk_name.unwrap_or_else(|| "disk".to_string());
     let disk_name = sanitize_disk_name(&raw_disk, 16);
@@ -2438,7 +2964,9 @@ async fn run_d64_on_ultimate(app: AppHandle, payload: RunD64UltimatePayload) -> 
         }
         data.extend_from_slice(&entry.bytes);
         if let Err(e) = fs::write(&prg_path, &data) {
-            for (p, _) in &staged { let _ = fs::remove_file(p); }
+            for (p, _) in &staged {
+                let _ = fs::remove_file(p);
+            }
             return serde_json::json!({ "ok": false, "error": e.to_string() });
         }
         let c64_name = sanitize_disk_name(&entry.name, 16);
@@ -2454,9 +2982,14 @@ async fn run_d64_on_ultimate(app: AppHandle, payload: RunD64UltimatePayload) -> 
     } else {
         Command::new(&c1541_path)
     };
-    cmd.arg("-format").arg(&format_arg).arg("d64").arg(&d64_path);
+    cmd.arg("-format")
+        .arg(&format_arg)
+        .arg("d64")
+        .arg(&d64_path);
     for (prg_path, c64_name) in &staged {
-        cmd.arg("-write").arg(prg_path.to_string_lossy().to_string()).arg(c64_name);
+        cmd.arg("-write")
+            .arg(prg_path.to_string_lossy().to_string())
+            .arg(c64_name);
     }
     #[cfg(target_os = "windows")]
     {
@@ -2467,11 +3000,15 @@ async fn run_d64_on_ultimate(app: AppHandle, payload: RunD64UltimatePayload) -> 
     let c1541_out = match cmd.output() {
         Ok(o) => o,
         Err(e) => {
-            for (p, _) in &staged { let _ = fs::remove_file(p); }
+            for (p, _) in &staged {
+                let _ = fs::remove_file(p);
+            }
             return serde_json::json!({ "ok": false, "error": e.to_string() });
         }
     };
-    for (p, _) in &staged { let _ = fs::remove_file(p); }
+    for (p, _) in &staged {
+        let _ = fs::remove_file(p);
+    }
 
     if !c1541_out.status.success() {
         let _ = fs::remove_file(&d64_path);
@@ -2520,7 +3057,9 @@ async fn run_d64_on_ultimate(app: AppHandle, payload: RunD64UltimatePayload) -> 
                 return serde_json::json!({ "ok": false, "error": format!("D64 mount HTTP {}: {}", status, text.trim()) });
             }
         }
-        Err(e) => return serde_json::json!({ "ok": false, "error": format!("D64 mount: {}", describe_ultimate_error(&e)) }),
+        Err(e) => {
+            return serde_json::json!({ "ok": false, "error": format!("D64 mount: {}", describe_ultimate_error(&e)) })
+        }
     }
 
     // Step 2: Run the main PRG (first file) via DMA
@@ -2557,7 +3096,11 @@ async fn run_d64_on_ultimate(app: AppHandle, payload: RunD64UltimatePayload) -> 
 }
 
 #[tauri::command]
-async fn run_on_ultimate(host: String, password: Option<String>, prg_bytes: Vec<u8>) -> serde_json::Value {
+async fn run_on_ultimate(
+    host: String,
+    password: Option<String>,
+    prg_bytes: Vec<u8>,
+) -> serde_json::Value {
     let host = host.trim().trim_end_matches('/').to_string();
     let url = format!("http://{}/v1/runners:run_prg", host);
     let client = match reqwest::Client::builder()
@@ -2605,16 +3148,18 @@ fn detect_kff2_port_name() -> Result<Option<String>, String> {
     let ports = serialport::available_ports()
         .map_err(|error| format!("A soros portok nem kérdezhetők le: {error}"))?;
     Ok(ports.into_iter().find_map(|port| match port.port_type {
-        serialport::SerialPortType::UsbPort(info)
-            if info.vid == 0x0483 && info.pid == 0x5740 =>
-        {
+        serialport::SerialPortType::UsbPort(info) if info.vid == 0x0483 && info.pid == 0x5740 => {
             Some(port.port_name)
         }
         _ => None,
     }))
 }
 
-fn kff2_read_exact(port: &mut dyn serialport::SerialPort, size: usize, message: &str) -> Result<Vec<u8>, String> {
+fn kff2_read_exact(
+    port: &mut dyn serialport::SerialPort,
+    size: usize,
+    message: &str,
+) -> Result<Vec<u8>, String> {
     let deadline = std::time::Instant::now() + Duration::from_secs(15);
     let mut data = vec![0u8; size];
     let mut offset = 0;
@@ -2622,7 +3167,8 @@ fn kff2_read_exact(port: &mut dyn serialport::SerialPort, size: usize, message: 
         match port.read(&mut data[offset..]) {
             Ok(0) => {}
             Ok(read) => offset += read,
-            Err(error) if error.kind() == ErrorKind::TimedOut && std::time::Instant::now() < deadline => {}
+            Err(error)
+                if error.kind() == ErrorKind::TimedOut && std::time::Instant::now() < deadline => {}
             Err(error) if error.kind() == ErrorKind::TimedOut => return Err(message.to_string()),
             Err(error) => return Err(format!("KFF2 soros olvasási hiba: {error}")),
         }
@@ -2653,8 +3199,14 @@ fn run_on_kff2_port(port_name: &str, prg_bytes: &[u8]) -> Result<(), String> {
             .open()
         {
             Ok(port) => break port,
-            Err(_) if std::time::Instant::now() < reconnect_deadline => thread::sleep(Duration::from_millis(100)),
-            Err(error) => return Err(format!("A KFF2 nem tért vissza a MENU után ({port_name}): {error}")),
+            Err(_) if std::time::Instant::now() < reconnect_deadline => {
+                thread::sleep(Duration::from_millis(100))
+            }
+            Err(error) => {
+                return Err(format!(
+                    "A KFF2 nem tért vissza a MENU után ({port_name}): {error}"
+                ))
+            }
         }
     };
 
@@ -2662,13 +3214,18 @@ fn run_on_kff2_port(port_name: &str, prg_bytes: &[u8]) -> Result<(), String> {
     loop {
         port.write_all(b"EFSTART:PRG\0")
             .map_err(|error| format!("KFF2 handshake írási hiba: {error}"))?;
-        port.flush().map_err(|error| format!("KFF2 handshake flush hiba: {error}"))?;
-        let response = kff2_read_exact(&mut *port, 5, "A KFF2 loader nem válaszolt a PRG-kérésre.")?;
+        port.flush()
+            .map_err(|error| format!("KFF2 handshake flush hiba: {error}"))?;
+        let response =
+            kff2_read_exact(&mut *port, 5, "A KFF2 loader nem válaszolt a PRG-kérésre.")?;
         if response == b"LOAD\0" {
             break;
         }
         if response != b"WAIT\0" {
-            return Err(format!("A KFF2 loader váratlan választ adott: {:?}", response));
+            return Err(format!(
+                "A KFF2 loader váratlan választ adott: {:?}",
+                response
+            ));
         }
         if std::time::Instant::now() >= transfer_deadline {
             return Err("A KFF2 MENU loader nem lett fogadókész időben.".to_string());
@@ -2678,7 +3235,11 @@ fn run_on_kff2_port(port_name: &str, prg_bytes: &[u8]) -> Result<(), String> {
     let requested = kff2_read_exact(&mut *port, 2, "A KFF2 loader nem kérte a PRG adatokat.")?;
     let requested = u16::from_le_bytes([requested[0], requested[1]]) as usize;
     if prg_bytes.len() > requested {
-        return Err(format!("A PRG {} bájt, a KFF2 loader legfeljebb {} bájtot kér.", prg_bytes.len(), requested));
+        return Err(format!(
+            "A PRG {} bájt, a KFF2 loader legfeljebb {} bájtot kér.",
+            prg_bytes.len(),
+            requested
+        ));
     }
     port.write_all(&(prg_bytes.len() as u16).to_le_bytes())
         .and_then(|_| port.write_all(prg_bytes))
@@ -2749,8 +3310,16 @@ async fn test_ultimate_connection(host: String, password: Option<String>) -> ser
 #[tauri::command]
 async fn save_project(app: AppHandle, payload: serde_json::Value) -> serde_json::Value {
     // If the caller passes a _filePath, save silently to that path
-    let existing_path = payload.get("_filePath").and_then(|v| v.as_str()).unwrap_or("").to_string();
-    let default_name  = payload.get("_defaultName").and_then(|v| v.as_str()).unwrap_or("program.json").to_string();
+    let existing_path = payload
+        .get("_filePath")
+        .and_then(|v| v.as_str())
+        .unwrap_or("")
+        .to_string();
+    let default_name = payload
+        .get("_defaultName")
+        .and_then(|v| v.as_str())
+        .unwrap_or("program.json")
+        .to_string();
 
     let save_path: String = if !existing_path.is_empty() {
         existing_path
@@ -2759,7 +3328,9 @@ async fn save_project(app: AppHandle, payload: serde_json::Value) -> serde_json:
             let cfg = read_config(&app);
             get_working_folder_path(&cfg)
         };
-        let mut dialog = app.dialog().file()
+        let mut dialog = app
+            .dialog()
+            .file()
             .add_filter("C64 Visual Assembler Project", &["json", "c64va"])
             .set_file_name(&default_name);
         if let Some(folder) = working_folder {
@@ -2780,7 +3351,7 @@ async fn save_project(app: AppHandle, payload: serde_json::Value) -> serde_json:
     }
     let content = serde_json::to_string_pretty(&clean).unwrap();
     match fs::write(&save_path, content.as_bytes()) {
-        Ok(_)  => serde_json::json!({ "ok": true, "filePath": save_path }),
+        Ok(_) => serde_json::json!({ "ok": true, "filePath": save_path }),
         Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
     }
 }
@@ -2790,8 +3361,16 @@ async fn save_project(app: AppHandle, payload: serde_json::Value) -> serde_json:
 // so the app can reopen that same set later. Mirrors save_project/open_proj_file.
 #[tauri::command]
 async fn save_workspace_file(app: AppHandle, payload: serde_json::Value) -> serde_json::Value {
-    let existing_path = payload.get("_filePath").and_then(|v| v.as_str()).unwrap_or("").to_string();
-    let default_name  = payload.get("_defaultName").and_then(|v| v.as_str()).unwrap_or("workspace.vaws").to_string();
+    let existing_path = payload
+        .get("_filePath")
+        .and_then(|v| v.as_str())
+        .unwrap_or("")
+        .to_string();
+    let default_name = payload
+        .get("_defaultName")
+        .and_then(|v| v.as_str())
+        .unwrap_or("workspace.vaws")
+        .to_string();
 
     let save_path: String = if !existing_path.is_empty() {
         existing_path
@@ -2800,7 +3379,9 @@ async fn save_workspace_file(app: AppHandle, payload: serde_json::Value) -> serd
             let cfg = read_config(&app);
             get_working_folder_path(&cfg)
         };
-        let mut dialog = app.dialog().file()
+        let mut dialog = app
+            .dialog()
+            .file()
             .add_filter("C64 Visual Assembler Workspace", &["vaws", "json"])
             .set_file_name(&default_name);
         if let Some(folder) = working_folder {
@@ -2820,7 +3401,7 @@ async fn save_workspace_file(app: AppHandle, payload: serde_json::Value) -> serd
     }
     let content = serde_json::to_string_pretty(&clean).unwrap();
     match fs::write(&save_path, content.as_bytes()) {
-        Ok(_)  => serde_json::json!({ "ok": true, "filePath": save_path }),
+        Ok(_) => serde_json::json!({ "ok": true, "filePath": save_path }),
         Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
     }
 }
@@ -2828,7 +3409,9 @@ async fn save_workspace_file(app: AppHandle, payload: serde_json::Value) -> serd
 #[tauri::command]
 async fn open_workspace_file(app: AppHandle) -> serde_json::Value {
     let working_folder = get_working_folder_path(&read_config(&app));
-    let mut dialog = app.dialog().file()
+    let mut dialog = app
+        .dialog()
+        .file()
         .add_filter("C64 Visual Assembler Workspace", &["vaws", "json"])
         .add_filter("All files", &["*"]);
     if let Some(folder) = working_folder {
@@ -2841,7 +3424,9 @@ async fn open_workspace_file(app: AppHandle) -> serde_json::Value {
             let path_str = path.to_string();
             match fs::read_to_string(&path_str) {
                 Ok(raw) => match serde_json::from_str::<serde_json::Value>(&raw) {
-                    Ok(ws) => serde_json::json!({ "ok": true, "filePath": path_str, "workspace": ws }),
+                    Ok(ws) => {
+                        serde_json::json!({ "ok": true, "filePath": path_str, "workspace": ws })
+                    }
                     Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
                 },
                 Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
@@ -2860,10 +3445,11 @@ async fn open_proj_file(app: AppHandle, initial_dir: Option<String>) -> serde_js
         .map(PathBuf::from)
         .filter(|path| path.is_dir())
         .or_else(|| get_working_folder_path(&read_config(&app)));
-    let mut dialog = app.dialog().file()
+    let mut dialog = app
+        .dialog()
+        .file()
         .add_filter("Visual Assembler Project", &["proj"])
-        .add_filter("All files", &["*"])
-        ;
+        .add_filter("All files", &["*"]);
     if let Some(folder) = working_folder {
         dialog = dialog.set_directory(folder);
     }
@@ -2874,8 +3460,10 @@ async fn open_proj_file(app: AppHandle, initial_dir: Option<String>) -> serde_js
             let path_str = path.to_string();
             match fs::read_to_string(&path_str) {
                 Ok(raw) => match serde_json::from_str::<serde_json::Value>(&raw) {
-                    Ok(proj) => serde_json::json!({ "ok": true, "filePath": path_str, "project": proj }),
-                    Err(e)   => serde_json::json!({ "ok": false, "error": e.to_string() }),
+                    Ok(proj) => {
+                        serde_json::json!({ "ok": true, "filePath": path_str, "project": proj })
+                    }
+                    Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
                 },
                 Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
             }
@@ -2885,7 +3473,12 @@ async fn open_proj_file(app: AppHandle, initial_dir: Option<String>) -> serde_js
 }
 
 #[tauri::command]
-async fn save_proj_file(app: AppHandle, path: String, content: String, initial_dir: Option<String>) -> serde_json::Value {
+async fn save_proj_file(
+    app: AppHandle,
+    path: String,
+    content: String,
+    initial_dir: Option<String>,
+) -> serde_json::Value {
     let save_path = if path.is_empty() {
         let working_folder = initial_dir
             .as_deref()
@@ -2894,7 +3487,9 @@ async fn save_proj_file(app: AppHandle, path: String, content: String, initial_d
             .map(PathBuf::from)
             .filter(|path| path.is_dir())
             .or_else(|| get_working_folder_path(&read_config(&app)));
-        let mut dialog = app.dialog().file()
+        let mut dialog = app
+            .dialog()
+            .file()
             .add_filter("Visual Assembler Project", &["proj"])
             .set_file_name("project.proj");
         if let Some(folder) = working_folder {
@@ -2903,14 +3498,14 @@ async fn save_proj_file(app: AppHandle, path: String, content: String, initial_d
         let result = dialog.blocking_save_file();
         match result {
             Some(p) => p.to_string(),
-            None    => return serde_json::json!({ "canceled": true }),
+            None => return serde_json::json!({ "canceled": true }),
         }
     } else {
         path
     };
 
     match fs::write(&save_path, content.as_bytes()) {
-        Ok(_)  => serde_json::json!({ "ok": true, "filePath": save_path }),
+        Ok(_) => serde_json::json!({ "ok": true, "filePath": save_path }),
         Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
     }
 }
@@ -2919,7 +3514,7 @@ async fn save_proj_file(app: AppHandle, path: String, content: String, initial_d
 fn read_text_file(path: String) -> serde_json::Value {
     match fs::read_to_string(&path) {
         Ok(content) => serde_json::json!({ "ok": true, "content": content }),
-        Err(e)      => serde_json::json!({ "ok": false, "error": e.to_string() }),
+        Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
     }
 }
 
@@ -2939,7 +3534,11 @@ async fn save_text_file(path: String, content: String) -> serde_json::Value {
 }
 
 #[tauri::command]
-fn get_project_snapshot_path(app: AppHandle, project_path: String, snapshot_id: String) -> serde_json::Value {
+fn get_project_snapshot_path(
+    app: AppHandle,
+    project_path: String,
+    snapshot_id: String,
+) -> serde_json::Value {
     let path = if project_path.is_empty() {
         let dir = app.path().app_config_dir().unwrap();
         let name = if snapshot_id.is_empty() {
@@ -2950,7 +3549,10 @@ fn get_project_snapshot_path(app: AppHandle, project_path: String, snapshot_id: 
         dir.join(format!("{}.snapshots.json", name))
     } else {
         let source = PathBuf::from(&project_path);
-        let stem = source.file_stem().and_then(|s| s.to_str()).unwrap_or("project");
+        let stem = source
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .unwrap_or("project");
         let snapshot_name = format!("{}.snapshots.json", stem);
         if let Some(parent) = source.parent() {
             parent.join(snapshot_name)
@@ -2968,7 +3570,9 @@ async fn save_asm_file(app: AppHandle, path: String, content: String) -> serde_j
             let cfg = read_config(&app);
             get_working_folder_path(&cfg)
         };
-        let mut dialog = app.dialog().file()
+        let mut dialog = app
+            .dialog()
+            .file()
             .add_filter("Assembly Source", &["asm", "s", "a65"])
             .add_filter("All files", &["*"])
             .set_file_name("program.asm");
@@ -2978,7 +3582,7 @@ async fn save_asm_file(app: AppHandle, path: String, content: String) -> serde_j
         let result = dialog.blocking_save_file();
         match result {
             Some(p) => p.to_string(),
-            None    => return serde_json::json!({ "canceled": true }),
+            None => return serde_json::json!({ "canceled": true }),
         }
     } else {
         path
@@ -2987,7 +3591,10 @@ async fn save_asm_file(app: AppHandle, path: String, content: String) -> serde_j
     if Path::new(&save_path).exists() {
         let overwrite = app
             .dialog()
-            .message(format!("The file already exists:\n\n{}\n\nOverwrite it?", save_path))
+            .message(format!(
+                "The file already exists:\n\n{}\n\nOverwrite it?",
+                save_path
+            ))
             .title("Overwrite existing file?")
             .kind(MessageDialogKind::Warning)
             .buttons(MessageDialogButtons::YesNo)
@@ -2998,7 +3605,7 @@ async fn save_asm_file(app: AppHandle, path: String, content: String) -> serde_j
     }
 
     match fs::write(&save_path, content.as_bytes()) {
-        Ok(_)  => serde_json::json!({ "ok": true, "filePath": save_path }),
+        Ok(_) => serde_json::json!({ "ok": true, "filePath": save_path }),
         Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
     }
 }
@@ -3009,10 +3616,11 @@ async fn choose_asm_file(app: AppHandle) -> serde_json::Value {
         let cfg = read_config(&app);
         get_working_folder_path(&cfg)
     };
-    let mut dialog = app.dialog().file()
+    let mut dialog = app
+        .dialog()
+        .file()
         .add_filter("Assembly Source", &["asm", "s", "a65"])
-        .add_filter("All files", &["*"])
-        ;
+        .add_filter("All files", &["*"]);
     if let Some(folder) = working_folder {
         dialog = dialog.set_directory(folder);
     }
@@ -3022,8 +3630,10 @@ async fn choose_asm_file(app: AppHandle) -> serde_json::Value {
         Some(path) => {
             let path_str = path.to_string();
             match fs::read_to_string(&path_str) {
-                Ok(content) => serde_json::json!({ "ok": true, "filePath": path_str, "content": content }),
-                Err(e)      => serde_json::json!({ "ok": false, "error": e.to_string() }),
+                Ok(content) => {
+                    serde_json::json!({ "ok": true, "filePath": path_str, "content": content })
+                }
+                Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
             }
         }
         None => serde_json::json!({ "canceled": true }),
@@ -3032,7 +3642,9 @@ async fn choose_asm_file(app: AppHandle) -> serde_json::Value {
 
 #[tauri::command]
 async fn choose_ub_file(app: AppHandle, initial_dir: Option<String>) -> serde_json::Value {
-    let mut dialog = app.dialog().file()
+    let mut dialog = app
+        .dialog()
+        .file()
         .add_filter("UltimateBasic Source", &["ub"])
         .add_filter("All files", &["*"]);
     let requested_folder = initial_dir
@@ -3049,7 +3661,9 @@ async fn choose_ub_file(app: AppHandle, initial_dir: Option<String>) -> serde_js
         Some(path) => {
             let path_str = path.to_string();
             match fs::read_to_string(&path_str) {
-                Ok(content) => serde_json::json!({ "ok": true, "filePath": path_str, "content": content }),
+                Ok(content) => {
+                    serde_json::json!({ "ok": true, "filePath": path_str, "content": content })
+                }
                 Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
             }
         }
@@ -3060,7 +3674,9 @@ async fn choose_ub_file(app: AppHandle, initial_dir: Option<String>) -> serde_js
 #[tauri::command]
 async fn save_ub_file(app: AppHandle, path: String, content: String) -> serde_json::Value {
     let save_path = if path.is_empty() {
-        let mut dialog = app.dialog().file()
+        let mut dialog = app
+            .dialog()
+            .file()
             .add_filter("UltimateBasic Source", &["ub"])
             .set_file_name("program.ub");
         if let Some(folder) = get_ub_working_folder_path(&read_config(&app)) {
@@ -3080,7 +3696,11 @@ async fn save_ub_file(app: AppHandle, path: String, content: String) -> serde_js
 }
 
 #[tauri::command]
-fn compile_ultimate_basic(source: String, source_path: Option<String>, explicit: Option<bool>) -> serde_json::Value {
+fn compile_ultimate_basic(
+    source: String,
+    source_path: Option<String>,
+    explicit: Option<bool>,
+) -> serde_json::Value {
     // The UB parser/codegen can use several MB of stack for large programs (deep
     // recursive-descent parsing, mainly in unoptimized debug builds). The caller's
     // thread (Tauri's command worker pool, or even the main thread during startup
@@ -3138,15 +3758,20 @@ fn compile_ultimate_basic(source: String, source_path: Option<String>, explicit:
 async fn choose_proj_member(app: AppHandle, ub: Option<bool>) -> serde_json::Value {
     let working_folder = {
         let cfg = read_config(&app);
-        if ub.unwrap_or(false) { get_ub_working_folder_path(&cfg) } else { get_working_folder_path(&cfg) }
+        if ub.unwrap_or(false) {
+            get_ub_working_folder_path(&cfg)
+        } else {
+            get_working_folder_path(&cfg)
+        }
     };
-    let mut dialog = app.dialog().file()
+    let mut dialog = app
+        .dialog()
+        .file()
         .add_filter("C64 Visual Assembler Project", &["json", "c64va"])
         .add_filter("Assembly Source", &["asm", "s", "a65", "inc"])
         .add_filter("UltimateBasic Source", &["ub"])
         .add_filter("Binary files", &["bin", "prg", "sid", "raw"])
-        .add_filter("All files", &["*"])
-        ;
+        .add_filter("All files", &["*"]);
     if let Some(folder) = working_folder {
         dialog = dialog.set_directory(folder);
     }
@@ -3154,15 +3779,18 @@ async fn choose_proj_member(app: AppHandle, ub: Option<bool>) -> serde_json::Val
 
     match result {
         Some(paths) if !paths.is_empty() => {
-            let files: Vec<serde_json::Value> = paths.iter().map(|path| {
-                let path_str = path.to_string();
-                let file_name = std::path::Path::new(&path_str)
-                    .file_name()
-                    .and_then(|n| n.to_str())
-                    .unwrap_or("")
-                    .to_string();
-                serde_json::json!({ "filePath": path_str, "fileName": file_name })
-            }).collect();
+            let files: Vec<serde_json::Value> = paths
+                .iter()
+                .map(|path| {
+                    let path_str = path.to_string();
+                    let file_name = std::path::Path::new(&path_str)
+                        .file_name()
+                        .and_then(|n| n.to_str())
+                        .unwrap_or("")
+                        .to_string();
+                    serde_json::json!({ "filePath": path_str, "fileName": file_name })
+                })
+                .collect();
             serde_json::json!({ "canceled": false, "files": files })
         }
         _ => serde_json::json!({ "canceled": true, "files": [] }),
@@ -3173,7 +3801,11 @@ async fn choose_proj_member(app: AppHandle, ub: Option<bool>) -> serde_json::Val
 async fn choose_proj_folder(app: AppHandle, ub: Option<bool>) -> serde_json::Value {
     let working_folder = {
         let cfg = read_config(&app);
-        if ub.unwrap_or(false) { get_ub_working_folder_path(&cfg) } else { get_working_folder_path(&cfg) }
+        if ub.unwrap_or(false) {
+            get_ub_working_folder_path(&cfg)
+        } else {
+            get_working_folder_path(&cfg)
+        }
     };
     let mut dialog = app.dialog().file();
     if let Some(folder) = working_folder {
@@ -3201,9 +3833,10 @@ async fn load_project(app: AppHandle) -> serde_json::Value {
         let cfg = read_config(&app);
         get_working_folder_path(&cfg)
     };
-    let mut dialog = app.dialog().file()
-        .add_filter("C64 Visual Assembler Project", &["json", "c64va"])
-        ;
+    let mut dialog = app
+        .dialog()
+        .file()
+        .add_filter("C64 Visual Assembler Project", &["json", "c64va"]);
     if let Some(folder) = working_folder {
         dialog = dialog.set_directory(folder);
     }
@@ -3224,7 +3857,7 @@ async fn load_project(app: AppHandle) -> serde_json::Value {
                             });
                         }
                         serde_json::json!({ "ok": true, "filePath": path_str, "project": project })
-                    },
+                    }
                     Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
                 },
                 Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
@@ -3238,20 +3871,31 @@ async fn load_project(app: AppHandle) -> serde_json::Value {
 async fn open_manual(app: AppHandle) -> Result<(), String> {
     let manual_path = resolve_resource_file(&app, "docs/Visual Assembler Manual.pdf")
         .map_err(|e| e.to_string())?;
-    app.opener().open_path(manual_path.to_string_lossy().as_ref(), None::<String>)
+    app.opener()
+        .open_path(manual_path.to_string_lossy().as_ref(), None::<String>)
         .map_err(|e| e.to_string())
 }
 
 #[tauri::command]
 async fn open_ultimate_basic_manual(app: AppHandle) -> Result<(), String> {
-    let manual_path = app.path().app_cache_dir().map_err(|e| e.to_string())?.join("UltimateBasic-MANUAL.pdf");
+    let manual_path = app
+        .path()
+        .app_cache_dir()
+        .map_err(|e| e.to_string())?
+        .join("UltimateBasic-MANUAL.pdf");
     if let Some(parent) = manual_path.parent() {
         fs::create_dir_all(parent).map_err(|e| e.to_string())?;
     }
     let bytes = include_bytes!(env!("ULTIMATE_BASIC_MANUAL"));
-    let needs_write = fs::metadata(&manual_path).map(|meta| meta.len() != bytes.len() as u64).unwrap_or(true);
-    if needs_write { fs::write(&manual_path, bytes).map_err(|e| e.to_string())?; }
-    app.opener().open_path(manual_path.to_string_lossy().as_ref(), None::<String>).map_err(|e| e.to_string())
+    let needs_write = fs::metadata(&manual_path)
+        .map(|meta| meta.len() != bytes.len() as u64)
+        .unwrap_or(true);
+    if needs_write {
+        fs::write(&manual_path, bytes).map_err(|e| e.to_string())?;
+    }
+    app.opener()
+        .open_path(manual_path.to_string_lossy().as_ref(), None::<String>)
+        .map_err(|e| e.to_string())
 }
 
 // ── Project templates ────────────────────────────────────────────────────────
@@ -3260,7 +3904,10 @@ async fn open_ultimate_basic_manual(app: AppHandle) -> Result<(), String> {
 // the "; @name ..." / "# @name ..." header.
 
 fn user_templates_dir(app: &AppHandle) -> Option<PathBuf> {
-    app.path().app_config_dir().ok().map(|dir| dir.join("templates"))
+    app.path()
+        .app_config_dir()
+        .ok()
+        .map(|dir| dir.join("templates"))
 }
 
 fn collect_templates(dir: &Path, source: &str, out: &mut Vec<serde_json::Value>) {
@@ -3287,7 +3934,9 @@ fn collect_templates(dir: &Path, source: &str, out: &mut Vec<serde_json::Value>)
             None => continue,
         };
         if let Ok(content) = fs::read_to_string(&path) {
-            out.push(serde_json::json!({ "fileName": file_name, "source": source, "content": content }));
+            out.push(
+                serde_json::json!({ "fileName": file_name, "source": source, "content": content }),
+            );
         }
     }
 }
@@ -3310,7 +3959,10 @@ fn list_templates(app: AppHandle) -> serde_json::Value {
 }
 
 fn create_new_file(path: &Path, content: &str) -> std::io::Result<()> {
-    let mut file = fs::OpenOptions::new().write(true).create_new(true).open(path)?;
+    let mut file = fs::OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(path)?;
     file.write_all(content.as_bytes())?;
     file.sync_all()
 }
@@ -3353,7 +4005,11 @@ fn create_template_project(
         serde_json::json!({ "ok": false, "exists": exists, "error": e.to_string() })
     };
     if let Err(e) = create_new_file(&main, &main_content) {
-        let partial: &[&Path] = if e.kind() == ErrorKind::AlreadyExists { &[] } else { &[main.as_path()] };
+        let partial: &[&Path] = if e.kind() == ErrorKind::AlreadyExists {
+            &[]
+        } else {
+            &[main.as_path()]
+        };
         return fail(e, partial);
     }
     if let Err(e) = create_new_file(&proj, &proj_content) {
@@ -3371,7 +4027,8 @@ fn create_template_project(
 async fn open_templates_folder(app: AppHandle) -> Result<(), String> {
     let dir = user_templates_dir(&app).ok_or_else(|| "No config folder".to_string())?;
     fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
-    app.opener().open_path(dir.to_string_lossy().as_ref(), None::<String>)
+    app.opener()
+        .open_path(dir.to_string_lossy().as_ref(), None::<String>)
         .map_err(|e| e.to_string())
 }
 
@@ -3387,7 +4044,11 @@ async fn load_sample(app: AppHandle, sample_name: String) -> serde_json::Value {
                 // Pre-load any d64 extras binary files so the frontend doesn't need a
                 // separate readBinFile round-trip with fragile JS path resolution.
                 let mut extras_loaded: Vec<serde_json::Value> = Vec::new();
-                if let Some(extras) = sample.get("d64").and_then(|d| d.get("extras")).and_then(|e| e.as_array()) {
+                if let Some(extras) = sample
+                    .get("d64")
+                    .and_then(|d| d.get("extras"))
+                    .and_then(|e| e.as_array())
+                {
                     let base_dir = file_path.parent().unwrap_or(&file_path);
                     for entry in extras {
                         if let Some(src) = entry.get("sourcePath").and_then(|v| v.as_str()) {
@@ -3413,13 +4074,12 @@ async fn load_sample(app: AppHandle, sample_name: String) -> serde_json::Value {
                     "filePath": file_path.to_string_lossy().to_string(),
                     "extrasLoaded": extras_loaded
                 })
-            },
+            }
             Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
         },
         Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -3476,7 +4136,10 @@ mod tests {
 
     #[test]
     fn sanitize_disk_name_strips_forbidden_chars_and_lowercases() {
-        assert_eq!(sanitize_disk_name("Disk: Name/One,Two", 16), "disk nameonetwo");
+        assert_eq!(
+            sanitize_disk_name("Disk: Name/One,Two", 16),
+            "disk nameonetwo"
+        );
         assert_eq!(sanitize_disk_name("\"/:\\\0", 16), "disk");
         assert_eq!(sanitize_disk_name("ABCDEFGHIJKLMN", 4), "abcd");
     }
@@ -3494,7 +4157,14 @@ mod tests {
         let extra = vec!["-symbols".to_string(), "program.vs".to_string()];
         assert_eq!(
             debugger_launch_args("program.prg", &extra, true),
-            vec!["-pass", "-prg", "program.prg", "-symbols", "program.vs", "-autojmp"]
+            vec![
+                "-pass",
+                "-prg",
+                "program.prg",
+                "-symbols",
+                "program.vs",
+                "-autojmp"
+            ]
         );
     }
 
@@ -3622,7 +4292,12 @@ async fn check_for_update(app: AppHandle) -> Result<serde_json::Value, String> {
     let mut latest: Option<(u32, u32, u32)> = None;
     let mut last_err = String::new();
     for url in UPDATE_PAGE_URLS {
-        match client.get(url).send().await.and_then(|r| r.error_for_status()) {
+        match client
+            .get(url)
+            .send()
+            .await
+            .and_then(|r| r.error_for_status())
+        {
             Ok(resp) => match resp.text().await {
                 Ok(html) => latest = find_latest_asset_version(&html, prefix, suffix),
                 Err(e) => last_err = e.to_string(),
@@ -3656,7 +4331,9 @@ async fn check_for_update(app: AppHandle) -> Result<serde_json::Value, String> {
 
 #[cfg(not(target_os = "windows"))]
 fn spawn_update_script(script: &str, args: &[&str]) -> Result<(), String> {
-    let dir = std::env::temp_dir().join("c64-visual-assembler").join("update");
+    let dir = std::env::temp_dir()
+        .join("c64-visual-assembler")
+        .join("update");
     fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
     let script_path = dir.join("apply-update.sh");
     fs::write(&script_path, script).map_err(|e| e.to_string())?;
@@ -3699,7 +4376,14 @@ fn launch_update_installer(app: &AppHandle, file: &Path) -> Result<bool, String>
             file_str.replace('\'', "''")
         );
         let out = Command::new(windows_powershell_path())
-            .args(["-NoProfile", "-NonInteractive", "-WindowStyle", "Hidden", "-Command", &ps_cmd])
+            .args([
+                "-NoProfile",
+                "-NonInteractive",
+                "-WindowStyle",
+                "Hidden",
+                "-Command",
+                &ps_cmd,
+            ])
             .stdin(std::process::Stdio::null())
             .creation_flags(0x08000000) // CREATE_NO_WINDOW
             .output()
@@ -3714,11 +4398,16 @@ fn launch_update_installer(app: &AppHandle, file: &Path) -> Result<bool, String>
     {
         let _ = app;
         let pid = std::process::id().to_string();
-        let bundle = std::env::current_exe()
-            .ok()
-            .and_then(|exe| exe.ancestors().find(|p| p.extension().map_or(false, |e| e == "app")).map(Path::to_path_buf));
+        let bundle = std::env::current_exe().ok().and_then(|exe| {
+            exe.ancestors()
+                .find(|p| p.extension().map_or(false, |e| e == "app"))
+                .map(Path::to_path_buf)
+        });
         let Some(bundle) = bundle.filter(|b| b.parent().map_or(false, dir_writable)) else {
-            Command::new("open").arg(&file_str).spawn().map_err(|e| e.to_string())?;
+            Command::new("open")
+                .arg(&file_str)
+                .spawn()
+                .map_err(|e| e.to_string())?;
             return Ok(false);
         };
         let script = r#"PID="$1"; DMG="$2"; TARGET="$3"
@@ -3756,7 +4445,10 @@ exec "$TARGET"
             return Ok(true);
         }
         if !Path::new("/usr/bin/pkexec").exists() {
-            Command::new("xdg-open").arg(&file_str).spawn().map_err(|e| e.to_string())?;
+            Command::new("xdg-open")
+                .arg(&file_str)
+                .spawn()
+                .map_err(|e| e.to_string())?;
             return Ok(false);
         }
         let exe = std::env::current_exe().map_err(|e| e.to_string())?;
@@ -3778,7 +4470,10 @@ exec "$EXE"
 }
 
 #[tauri::command]
-async fn download_and_install_update(app: AppHandle, version: String) -> Result<serde_json::Value, String> {
+async fn download_and_install_update(
+    app: AppHandle,
+    version: String,
+) -> Result<serde_json::Value, String> {
     use tauri::Emitter;
 
     // Csak verziót fogadunk a JS-től, az URL-t mi rakjuk össze → nem lehet
@@ -3786,10 +4481,17 @@ async fn download_and_install_update(app: AppHandle, version: String) -> Result<
     if parse_version_triplet(&version).is_none() {
         return Err(format!("Invalid version: {}", version));
     }
-    let file_name = update_asset_name(&version).ok_or("Self-update is not supported on this platform.")?;
-    let url = format!("{}{}", UPDATE_DOWNLOAD_BASE, urlencoding::encode(&file_name));
+    let file_name =
+        update_asset_name(&version).ok_or("Self-update is not supported on this platform.")?;
+    let url = format!(
+        "{}{}",
+        UPDATE_DOWNLOAD_BASE,
+        urlencoding::encode(&file_name)
+    );
 
-    let dir = std::env::temp_dir().join("c64-visual-assembler").join("update");
+    let dir = std::env::temp_dir()
+        .join("c64-visual-assembler")
+        .join("update");
     fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
     let target = dir.join(&file_name);
     let partial = dir.join(format!("{}.part", file_name));
@@ -3808,10 +4510,17 @@ async fn download_and_install_update(app: AppHandle, version: String) -> Result<
     while let Some(chunk) = resp.chunk().await.map_err(|e| e.to_string())? {
         out.write_all(&chunk).map_err(|e| e.to_string())?;
         received += chunk.len() as u64;
-        let pct = if total > 0 { (received * 100 / total) as i64 } else { -1 };
+        let pct = if total > 0 {
+            (received * 100 / total) as i64
+        } else {
+            -1
+        };
         if pct != last_pct {
             last_pct = pct;
-            let _ = app.emit("update-download-progress", serde_json::json!({ "received": received, "total": total }));
+            let _ = app.emit(
+                "update-download-progress",
+                serde_json::json!({ "received": received, "total": total }),
+            );
         }
     }
     out.flush().map_err(|e| e.to_string())?;
@@ -3819,7 +4528,10 @@ async fn download_and_install_update(app: AppHandle, version: String) -> Result<
 
     if (total > 0 && received != total) || received < 1024 * 1024 {
         let _ = fs::remove_file(&partial);
-        return Err(format!("Incomplete download ({} / {} bytes).", received, total));
+        return Err(format!(
+            "Incomplete download ({} / {} bytes).",
+            received, total
+        ));
     }
     let _ = fs::remove_file(&target);
     fs::rename(&partial, &target).map_err(|e| e.to_string())?;
@@ -3853,7 +4565,10 @@ mod update_tests {
             find_latest_asset_version(html, "C64 Visual Assembler-", "-1.x86_64.rpm"),
             Some((2, 9, 0))
         );
-        assert_eq!(find_latest_asset_version(html, "C64 Visual Assembler_", "_x64.dmg"), None);
+        assert_eq!(
+            find_latest_asset_version(html, "C64 Visual Assembler_", "_x64.dmg"),
+            None
+        );
     }
 
     #[test]
@@ -3906,6 +4621,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             get_app_version,
             get_ultimate_basic_version,
+            render_sid_preview,
+            release_sid_preview,
             check_for_update,
             download_and_install_update,
             set_title,

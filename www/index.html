@@ -2736,6 +2736,24 @@ PRINTABLE CHARACTERS
         </section>
 
         <section class="hw-settings-section">
+          <h3 class="hw-settings-section-label" id="sid-preview-settings-label">SID preview</h3>
+          <label class="field compact-field hw-field">
+            <span id="sid-preview-engine-lbl">SID engine</span>
+            <select id="sid-preview-engine" class="sid-select">
+              <option value="websid">WebSID</option>
+              <option value="va-core">VA SID Core (Rust)</option>
+            </select>
+          </label>
+          <label class="field compact-field hw-field">
+            <span id="sid-preview-model-lbl">SID chip</span>
+            <select id="sid-preview-model" class="sid-select" disabled>
+              <option value="8580">MOS 8580</option>
+              <option value="6581">MOS 6581</option>
+            </select>
+          </label>
+        </section>
+
+        <section class="hw-settings-section">
           <h3 class="hw-settings-section-label" id="snapshot-settings-label">Snapshot</h3>
           <label class="menu-checkbox-label">
             <input type="checkbox" id="auto-snapshot-toggle" checked>

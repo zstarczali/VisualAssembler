@@ -52,23 +52,32 @@ fn project_root() -> PathBuf {
 
 fn exomizer_path() -> Option<PathBuf> {
     // Read from the user's config so the test runs without env vars on this machine.
-    let cfg_path = std::env::var("APPDATA")
-        .ok()
-        .map(|a| PathBuf::from(a).join("hu.zstarczali.c64visualassembler").join("config.json"))?;
+    let cfg_path = std::env::var("APPDATA").ok().map(|a| {
+        PathBuf::from(a)
+            .join("hu.zstarczali.c64visualassembler")
+            .join("config.json")
+    })?;
     let raw = std::fs::read_to_string(&cfg_path).ok()?;
     let v: serde_json::Value = serde_json::from_str(&raw).ok()?;
     let p = v.get("exomizerPath")?.as_str()?.to_string();
     let pb = PathBuf::from(p);
-    if pb.exists() { Some(pb) } else { None }
+    if pb.exists() {
+        Some(pb)
+    } else {
+        None
+    }
 }
 
 /// Compresses with exomizer mem mode. `user_target_hex` is the FINAL destination
 /// (where the user wants the decompressed bytes). We add +2 internally to
 /// compensate for exomizer's default safety_offset of 2 — same logic as the
 /// Rust crunch_with_exomizer in lib.rs.
-fn compress_with_exomizer(input: &PathBuf, load_hex: &str, user_target_hex: &str) -> Result<Vec<u8>, String> {
-    let exo = exomizer_path()
-        .ok_or_else(|| "exomizer not configured (skip test)".to_string())?;
+fn compress_with_exomizer(
+    input: &PathBuf,
+    load_hex: &str,
+    user_target_hex: &str,
+) -> Result<Vec<u8>, String> {
+    let exo = exomizer_path().ok_or_else(|| "exomizer not configured (skip test)".to_string())?;
     let tmp_dir = std::env::temp_dir().join("va-test-exomizer");
     std::fs::create_dir_all(&tmp_dir).map_err(|e| e.to_string())?;
     let out_path = tmp_dir.join("out.exo");
@@ -81,9 +90,11 @@ fn compress_with_exomizer(input: &PathBuf, load_hex: &str, user_target_hex: &str
     let status = Command::new(&exo)
         .args(&[
             "mem",
-            "-l", &load_arg,
+            "-l",
+            &load_arg,
             "-q",
-            "-o", out_path.to_str().unwrap(),
+            "-o",
+            out_path.to_str().unwrap(),
             &infile,
         ])
         .status()
@@ -125,23 +136,39 @@ fn run_depacker(
     // wrapper can copy the source-end pointer into the depacker ZP addresses.
     ram.0[0x00AE] = (crunched_end & 0xFF) as u8;
     ram.0[0x00AF] = ((crunched_end >> 8) & 0xFF) as u8;
-    eprintln!("[setup] crunched at ${:04X}-${:04X}, end ptr=${:04X}",
-        compressed_load, crunched_end - 1, crunched_end);
+    eprintln!(
+        "[setup] crunched at ${:04X}-${:04X}, end ptr=${:04X}",
+        compressed_load,
+        crunched_end - 1,
+        crunched_end
+    );
 
     // Real app flow: execute the inline EXODECRUNCH sequence, which copies
     // $AE/$AF to $04/$05, toggles $01 to $36 around the depacker JSR, then
     // restores $01 to $37 and continues with the next instruction.
     let wrapper: [u8; 22] = [
-        0xA5, 0xAE,       // LDA $AE
-        0x85, 0x04,       // STA $04
-        0xA5, 0xAF,       // LDA $AF
-        0x85, 0x05,       // STA $05
-        0xA9, 0x36,       // LDA #$36
-        0x85, 0x01,       // STA $01
-        0x20, (depacker_load & 0xFF) as u8, (depacker_load >> 8) as u8, // JSR depacker
-        0xA9, 0x37,       // LDA #$37
-        0x85, 0x01,       // STA $01
-        0x4C, (SENTINEL_PC & 0xFF) as u8, (SENTINEL_PC >> 8) as u8, // JMP sentinel
+        0xA5,
+        0xAE, // LDA $AE
+        0x85,
+        0x04, // STA $04
+        0xA5,
+        0xAF, // LDA $AF
+        0x85,
+        0x05, // STA $05
+        0xA9,
+        0x36, // LDA #$36
+        0x85,
+        0x01, // STA $01
+        0x20,
+        (depacker_load & 0xFF) as u8,
+        (depacker_load >> 8) as u8, // JSR depacker
+        0xA9,
+        0x37, // LDA #$37
+        0x85,
+        0x01, // STA $01
+        0x4C,
+        (SENTINEL_PC & 0xFF) as u8,
+        (SENTINEL_PC >> 8) as u8, // JMP sentinel
     ];
     ram.load_at(WRAPPER_LOAD, &wrapper);
     ram.0[0x0001] = 0x37;
@@ -156,7 +183,11 @@ fn run_depacker(
         cpu.execute_instruction(&mut ram);
         steps += 1;
         if steps > max_steps {
-            panic!("depacker did not return after {} instructions (PC=${:04X})", steps, cpu.get_program_counter());
+            panic!(
+                "depacker did not return after {} instructions (PC=${:04X})",
+                steps,
+                cpu.get_program_counter()
+            );
         }
     }
     eprintln!("[depacker] completed in {} instructions", steps);
@@ -173,7 +204,10 @@ fn multi_color_compress_and_decrunch_roundtrip() {
     assert_eq!(original.len(), 10000, "multi-color.bin must be 10000 bytes");
 
     let depacker = std::fs::read(&depacker_path).expect("read exo-decrunch.bin");
-    assert!(depacker.len() > 200 && depacker.len() < 600, "depacker size sanity");
+    assert!(
+        depacker.len() > 200 && depacker.len() < 600,
+        "depacker size sanity"
+    );
 
     // Pass the user-facing target ($2000). The helper adds +2 for safety_offset.
     let compressed = match compress_with_exomizer(&mc_path, "C000", "2000") {
@@ -187,7 +221,11 @@ fn multi_color_compress_and_decrunch_roundtrip() {
     assert!(compressed.len() > 4, "compressed output too small");
     assert_eq!(compressed[0], 0x00, "PRG header lo");
     assert_eq!(compressed[1], 0xC0, "PRG header hi");
-    eprintln!("[exo] compressed {} → {} bytes", original.len(), compressed.len() - 2);
+    eprintln!(
+        "[exo] compressed {} → {} bytes",
+        original.len(),
+        compressed.len() - 2
+    );
 
     let ram = run_depacker(&depacker, &compressed, DEPACKER_LOAD, COMPRESSED_LOAD);
 
@@ -196,11 +234,17 @@ fn multi_color_compress_and_decrunch_roundtrip() {
     // Diagnostic: print 16 bytes around $2000 to see if data spills before/after.
     eprintln!(
         "[mem] $1FF8-$2017: {}",
-        (0x1FF8usize..0x2018usize).map(|a| format!("{:02X}", ram.0[a])).collect::<Vec<_>>().join(" ")
+        (0x1FF8usize..0x2018usize)
+            .map(|a| format!("{:02X}", ram.0[a]))
+            .collect::<Vec<_>>()
+            .join(" ")
     );
     eprintln!(
         "[mem] $472A-$4731: {}",
-        (0x472Ausize..0x4732usize).map(|a| format!("{:02X}", ram.0[a])).collect::<Vec<_>>().join(" ")
+        (0x472Ausize..0x4732usize)
+            .map(|a| format!("{:02X}", ram.0[a]))
+            .collect::<Vec<_>>()
+            .join(" ")
     );
     let decompressed = &ram.0[start..end];
 
@@ -217,7 +261,11 @@ fn multi_color_compress_and_decrunch_roundtrip() {
             let lo = i.saturating_sub(8);
             let hi = (i + 8).min(original.len());
             let fmt = |slice: &[u8]| -> String {
-                slice.iter().map(|b| format!("{:02X}", b)).collect::<Vec<_>>().join(" ")
+                slice
+                    .iter()
+                    .map(|b| format!("{:02X}", b))
+                    .collect::<Vec<_>>()
+                    .join(" ")
             };
             eprintln!("[diff] window offset {}-{}:", lo, hi - 1);
             eprintln!("  original    : {}", fmt(&original[lo..hi]));
@@ -248,6 +296,12 @@ fn depacker_binary_has_known_size() {
         depacker.len()
     );
     // First instruction must be `LDA $04` (backward-mode src-end load), opcode A5 04.
-    assert_eq!(depacker[0], 0xA5, "depacker entry opcode mismatch (expect LDA zp = A5)");
-    assert_eq!(depacker[1], 0x04, "depacker entry operand mismatch (expect $04)");
+    assert_eq!(
+        depacker[0], 0xA5,
+        "depacker entry opcode mismatch (expect LDA zp = A5)"
+    );
+    assert_eq!(
+        depacker[1], 0x04,
+        "depacker entry operand mismatch (expect $04)"
+    );
 }

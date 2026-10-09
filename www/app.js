@@ -3296,6 +3296,7 @@ function applyTranslations() {
     setText(".global-memory-title", t("memoryTitle"));
     setText("#hardware-settings-btn", t("hardwareSettings"));
     setText("#hardware-settings-title", t("hardwareSettingsTitle"));
+    setText("#sid-preview-settings-label", t("sidPreviewSettings"));
     setText("#hardware-settings-close", t("hardwareSettingsClose"));
     setText("#hw-vice-section-label", t("hwViceSectionLabel"));
     setText("#hw-exomizer-section-label", t("hwExomizerSectionLabel"));
@@ -3824,6 +3825,19 @@ function _applyEditorTranslations() {
   setText("#sid-save-bin", t("sidSaveBin"));
   setText("#sid-play-sid", t("sidPlaySid"));
   setText("#sid-master-vol-lbl", t("sidMasterVolume"));
+  setText("#sid-preview-engine-lbl", t("sidPreviewEngine"));
+  setText("#sid-preview-model-lbl", t("sidPreviewModel"));
+  const sidPreviewEngine = document.getElementById("sid-preview-engine");
+  if (sidPreviewEngine) {
+    if (sidPreviewEngine.options[0]) sidPreviewEngine.options[0].textContent = t("sidPreviewEngineWebSid");
+    if (sidPreviewEngine.options[1]) sidPreviewEngine.options[1].textContent = t("sidPreviewEngineVaCore");
+    sidPreviewEngine.value = _sidPreviewEngine;
+  }
+  const sidPreviewModel = document.getElementById("sid-preview-model");
+  if (sidPreviewModel) {
+    sidPreviewModel.value = _sidPreviewModel;
+    sidPreviewModel.disabled = _sidPreviewEngine !== "va-core";
+  }
   setText("#websid-play-title", t("websidPlayTitle"));
   setText("#websid-play-note", t("websidPlayNote"));
   setText("#websid-play-stop", t("websidPlayStop"));
@@ -20301,8 +20315,24 @@ function setupD64ExportDialog() {
 function setupHardwareSettingsDialog() {
   const dialog = document.getElementById("hardware-settings-dialog");
   if (!dialog) return;
-  document.getElementById("hardware-settings-btn")?.addEventListener("click", () => dialog.showModal());
+  _sidLoadPreviewSettings();
+  document.getElementById("hardware-settings-btn")?.addEventListener("click", () => {
+    _sidLoadPreviewSettings();
+    dialog.showModal();
+  });
   document.getElementById("hardware-settings-close")?.addEventListener("click", () => dialog.close());
+  document.getElementById("sid-preview-engine")?.addEventListener("change", function(e) {
+    _sidPreviewEngine = e.target.value === "va-core" ? "va-core" : "websid";
+    const modelEl = document.getElementById("sid-preview-model");
+    if (modelEl) modelEl.disabled = _sidPreviewEngine !== "va-core";
+    try { localStorage.setItem("c64va-sid-preview-engine", _sidPreviewEngine); } catch (_) {}
+    if (_sidInited) _sidStop();
+  });
+  document.getElementById("sid-preview-model")?.addEventListener("change", function(e) {
+    _sidPreviewModel = e.target.value === "6581" ? "6581" : "8580";
+    try { localStorage.setItem("c64va-sid-preview-model", _sidPreviewModel); } catch (_) {}
+    if (_sidInited) _sidStop();
+  });
 }
 
 // ── C64 Ultimate (1541 Ultimate REST API) ─────────────────────────────────────
@@ -31943,6 +31973,9 @@ function applyZoom() {
   programList.style.setProperty("--block-scale", String(blockScale));
 }
 
+// Settings setup runs inside initPalette, before the SID editor code below.
+var _sidPreviewEngine = "websid";
+var _sidPreviewModel = "8580";
 initPalette();
 
 // ===== TUTORIAL SYSTEM =======================================================
@@ -38112,6 +38145,18 @@ let _sidMetroCtx = null;
 const _SID_ROWS_PER_BEAT = 4;
 const _SID_BEATS_PER_BAR = 4;
 let _sidMasterVol = 0.6;      // 0..1, drives both Web Audio and WebSid preview
+function _sidLoadPreviewSettings() {
+  try {
+    const savedEngine = localStorage.getItem("c64va-sid-preview-engine");
+    if (savedEngine === "websid" || savedEngine === "va-core") _sidPreviewEngine = savedEngine;
+    const savedModel = localStorage.getItem("c64va-sid-preview-model");
+    if (savedModel === "6581" || savedModel === "8580") _sidPreviewModel = savedModel;
+  } catch (_) {}
+  const engineEl = document.getElementById("sid-preview-engine");
+  if (engineEl) engineEl.value = _sidPreviewEngine;
+  const modelEl = document.getElementById("sid-preview-model");
+  if (modelEl) { modelEl.value = _sidPreviewModel; modelEl.disabled = _sidPreviewEngine !== "va-core"; }
+}
 let _sidMasterGain = null;    // shared GainNode injected between _sidPlayInst output and destination
 let _sidSel = { voice: 0, row: 0 };
 let _sidSelAnchor = null;  // { voice, row } anchor for rectangular range selection
@@ -39222,12 +39267,23 @@ function _sidApplyMasterVolume() {
    rendered with the release tail by the synth. */
 function _sidPlayNote(inst, note, when, holdSec) {
   const ac = _sidEnsureAudio();
-  if (_sidStreamNote(inst, note, when - ac.currentTime, holdSec)) return { src: null };
   const td = _sidTuneData({ insts: [inst], patterns: [], song: [0], speed: 255 });
   const e = _sidEngineNew(td);
   const ins = td.insts[0];
   const hold = Math.max(2, Math.round(Math.max(0.04, holdSec) * 50));
   const tail = Math.min(150, Math.ceil(_SID_DCR[ins.r] / 20) + 6);
+  if (_sidUsesVaCore()) {
+    _sidRenderVaCore(e, hold + tail, ac.sampleRate, function(eng, k) {
+      if (k === 0) _sidEngNoteOn(eng, 0, Math.max(0, Math.min(95, note | 0)), 0);
+      if (k === hold) eng.v[0].gate = 0;
+    }).then(function(data) {
+      _sidPlayBuffer(data, Math.max(ac.currentTime + 0.01, when));
+    }).catch(function(error) {
+      console.warn("VA SID Core preview failed:", error);
+    });
+    return { src: null };
+  }
+  if (_sidStreamNote(inst, note, when - ac.currentTime, holdSec)) return { src: null };
   const data = _sidRenderEngine(e, hold + tail, ac.sampleRate, function(eng, k) {
     if (k === 0) _sidEngNoteOn(eng, 0, Math.max(0, Math.min(95, note | 0)), 0);
     if (k === hold) eng.v[0].gate = 0;
@@ -39706,7 +39762,7 @@ function _sidWaStart(audio) {
   // the real player (WebSid) reads row 0 `speed` frames after init; the
   // previews start the engine one frame before row 0 instead
   if (audio) e.tick = 1;
-  if (audio) {
+  if (audio && !_sidUsesVaCore()) {
     _sidStreamSilence();
     const st = _sidStreamEnsure();
     if (st) {
@@ -39729,7 +39785,7 @@ function _sidWaStart(audio) {
       return;
     }
   }
-  _sidWaPlay = { e: e, audio: !!audio, events: [], next: 0, timer: null };
+  _sidWaPlay = { e: e, audio: !!audio, core: !!audio && _sidUsesVaCore(), sidCoreSession: audio && _sidUsesVaCore() ? crypto.randomUUID() : null, coreQueue: Promise.resolve(), events: [], next: 0, timer: null };
   _sidWaPlay.next = _sidWaClock(_sidWaPlay) + 0.05;
   _sidWaSchedule();
   _sidWaPlay.timer = setInterval(_sidWaSchedule, 20);
@@ -39739,8 +39795,9 @@ function _sidWaSchedule() {
   const w = _sidWaPlay;
   if (!w) return;
   const now = _sidWaClock(w);
-  const chunk = 20; // frames (0.4 s)
-  while (w.next - now < 0.5) {
+  const chunk = w.core ? 10 : 20;
+  const lookahead = w.core ? 0.3 : 0.5;
+  while (w.next - now < lookahead) {
     const e = w.e;
     const td = _sidWaTune();
     e.td = td; e.a = td.a;
@@ -39748,7 +39805,22 @@ function _sidWaSchedule() {
     if (_sidPlayMode !== "all") e.pat = td.song[0] | 0;
     const first = e.frame, from = e.rows.length;
     if (w.audio) {
-      _sidPlayBuffer(_sidRenderEngine(e, chunk, _sidAudio.sampleRate), w.next);
+      if (w.core) {
+        const frames = [];
+        for (let k = 0; k < chunk; k++) {
+          _sidEngFrame(e);
+          frames.push(Array.from(e.regs));
+        }
+        const playAt = w.next;
+        w.coreQueue = w.coreQueue.then(function() {
+          if (_sidWaPlay !== w) return;
+          return _sidRenderVaCoreFrames(frames, _sidAudio.sampleRate, w.sidCoreSession).then(function(data) {
+            if (_sidWaPlay === w && !_sidPaused) _sidPlayBuffer(data, Math.max(_sidAudio.currentTime + 0.01, playAt));
+          });
+        }).catch(function(error) { console.warn("VA SID Core playback failed:", error); });
+      } else {
+        _sidPlayBuffer(_sidRenderEngine(e, chunk, _sidAudio.sampleRate), w.next);
+      }
     } else {
       for (let k = 0; k < chunk; k++) _sidEngFrame(e);
     }
@@ -39780,9 +39852,15 @@ function _sidWaShowRow(ev) {
   }
 }
 function _sidWaStop() {
-  if (_sidWaPlay && _sidWaPlay.timer) clearInterval(_sidWaPlay.timer);
-  if (_sidWaPlay && _sidWaPlay.stream) _sidStreamSilence();
+  const stopped = _sidWaPlay;
+  if (stopped && stopped.timer) clearInterval(stopped.timer);
+  if (stopped && stopped.stream) _sidStreamSilence();
   _sidWaPlay = null;
+  if (stopped && stopped.sidCoreSession && window.electronAPI?.releaseSidPreview) {
+    stopped.coreQueue.finally(function() {
+      window.electronAPI.releaseSidPreview(stopped.sidCoreSession).catch(function() {});
+    });
+  }
   _sidPreviewSources.forEach(function(src){ try { src.stop(); } catch (_) {} });
   _sidPreviewSources.clear();
 }
@@ -39821,7 +39899,7 @@ async function _sidPlay(resetPosition = true) {
   // Try WebSid first (real cycle-exact SID). Only "all" mode maps to the exported
   // tune; the single-pattern loop is rendered by the JS engine + synth.
   let usingWebSid = false;
-  if (playAll) {
+  if (playAll && !_sidUsesVaCore()) {
     if (resetPosition || !_sidPlaybackUsingWebSid) {
       try { usingWebSid = await _webSidPlayCurrent(); }
       catch (e) { console.warn("WebSid path errored:", e); usingWebSid = false; }
@@ -40207,6 +40285,36 @@ function _sidPlayBuffer(data, when) {
   _sidPreviewSources.add(src);
   src.onended = function() { _sidPreviewSources.delete(src); };
   return src;
+}
+
+function _sidUsesVaCore() {
+  return _sidPreviewEngine === "va-core" && typeof window.electronAPI?.renderSidPreview === "function";
+}
+
+function _sidDecodePcm16(base64) {
+  const raw = atob(base64);
+  const out = new Float32Array(raw.length >> 1);
+  for (let i = 0; i < out.length; i++) {
+    const value = raw.charCodeAt(i * 2) | (raw.charCodeAt(i * 2 + 1) << 8);
+    out[i] = (value & 0x8000 ? value - 0x10000 : value) / 32768;
+  }
+  return out;
+}
+
+function _sidRenderVaCoreFrames(frames, sampleRate, sessionId) {
+  const payload = { sampleRate: Math.round(sampleRate), model: _sidPreviewModel, frames: frames };
+  if (sessionId) payload.sessionId = sessionId;
+  return window.electronAPI.renderSidPreview(payload).then(_sidDecodePcm16);
+}
+
+function _sidRenderVaCore(engine, frameCount, sampleRate, hook) {
+  const frames = [];
+  for (let frame = 0; frame < frameCount; frame++) {
+    if (hook) hook(engine, frame);
+    _sidEngFrame(engine);
+    frames.push(Array.from(engine.regs));
+  }
+  return _sidRenderVaCoreFrames(frames, sampleRate);
 }
 
 /* ── Export ── */
@@ -41376,6 +41484,7 @@ function _sidInit() {
     const saved = localStorage.getItem("c64va-sid-master-vol");
     if (saved !== null && Number.isFinite(Number(saved))) _sidMasterVol = Math.max(0, Math.min(100, Number(saved))) / 100;
   } catch (_) {}
+  _sidLoadPreviewSettings();
   const volPct = Math.round(_sidMasterVol * 100);
   const volEl = document.getElementById("sid-master-vol");
   if (volEl) volEl.value = String(volPct);
@@ -41584,6 +41693,11 @@ function setupSidEditor() {
   onId("sid-play-sid", "click", function(){ if (sidSidFile) sidSidFile.click(); });
   if (sidSidFile) sidSidFile.addEventListener("change", function(e){
     const file = e.target.files && e.target.files[0]; if (!file) return;
+    if (_sidUsesVaCore()) {
+      showViceToast("External .sid files currently use WebSID. Switch the SID engine to WebSID to play this file.", true);
+      e.target.value = "";
+      return;
+    }
     const reader = new FileReader();
     reader.onload = function(){ _webSidPlayFileBytes(new Uint8Array(reader.result), file.name); };
     reader.readAsArrayBuffer(file); e.target.value = "";

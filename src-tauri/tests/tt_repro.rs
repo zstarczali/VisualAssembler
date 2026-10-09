@@ -1,5 +1,5 @@
-use ultimate_basic::compiler::{compile_with_path, debug_output, CompileOptions};
 use std::path::Path;
+use ultimate_basic::compiler::{compile_with_path, debug_output, CompileOptions};
 
 #[test]
 fn repro_trickytetris_compile() {
@@ -9,10 +9,19 @@ fn repro_trickytetris_compile() {
     let handle = std::thread::Builder::new()
         .stack_size(2 * 1024 * 1024)
         .spawn(|| {
-            let source = std::fs::read_to_string(r"F:\Development\UltimateBasic\examples\trickytetris.ub").unwrap();
+            let source =
+                std::fs::read_to_string(r"F:\Development\UltimateBasic\examples\trickytetris.ub")
+                    .unwrap();
             let path = Path::new(r"F:\Development\UltimateBasic\examples\trickytetris.ub");
             eprintln!("starting compile...");
-            let result = compile_with_path(&source, &CompileOptions { basic_stub: true, explicit: false }, Some(path));
+            let result = compile_with_path(
+                &source,
+                &CompileOptions {
+                    basic_stub: true,
+                    explicit: false,
+                },
+                Some(path),
+            );
             eprintln!("done, errors: {:?}", result.errors);
             eprintln!("prg bytes: {}", result.prg.len());
             let map = &result.map;
