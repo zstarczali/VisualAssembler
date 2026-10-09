@@ -421,7 +421,13 @@ static SID_PREVIEW_SESSIONS: OnceLock<Mutex<HashMap<String, (sid_core::SidCore, 
 /// in the frontend; keeping the audio device in the WebView avoids native
 /// device/driver differences across Windows, macOS and Linux.
 #[tauri::command]
-fn render_sid_preview(payload: SidPreviewPayload) -> Result<String, String> {
+async fn render_sid_preview(payload: SidPreviewPayload) -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(move || render_sid_preview_blocking(payload))
+        .await
+        .map_err(|error| format!("SID preview worker failed: {error}"))?
+}
+
+fn render_sid_preview_blocking(payload: SidPreviewPayload) -> Result<String, String> {
     const MAX_FRAMES: usize = 3_000; // one minute at PAL 50 Hz
     if payload.frames.is_empty() || payload.frames.len() > MAX_FRAMES {
         return Err("Invalid SID preview length.".to_string());

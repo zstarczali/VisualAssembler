@@ -9513,7 +9513,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 
 
 /* SID Editor */
-.sid-dialog { background: transparent; border: none; padding: 0; width: min(1000px, 97vw); max-width: 97vw; height: min(900px, 95vh); max-height: 95vh; overflow: visible; }
+.sid-dialog { background: transparent; border: none; padding: 0; width: min(1000px, 97vw); max-width: 97vw; height: min(1120px, 98vh); max-height: 98vh; overflow: visible; }
 .sid-dialog::backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); }
 .sid-card { background: var(--panel); border: 1px solid var(--panel-border); display: flex; flex-direction: column; height: 100%; overflow: visible; box-sizing: border-box; }
 .sid-hdr { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-bottom: 1px solid var(--panel-border); background: var(--panel-strong); flex-shrink: 0; position: relative; z-index: 5; }
@@ -9522,10 +9522,10 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-hdr .sid-xbtn { margin-left: auto; }
 .sid-xbtn { background: none; border: none; color: var(--secondary); font-size: 1.3rem; cursor: pointer; padding: 0; line-height: 1; min-height: 0; height: 28px; width: 28px; }
 .sid-xbtn:hover { color: var(--text); }
-.sid-body { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 14px; display: flex; flex-direction: column; gap: 12px; box-sizing: border-box; }
-.sid-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.sid-body { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 8px 12px; display: flex; flex-direction: column; gap: 6px; box-sizing: border-box; }
+.sid-row { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
 .sid-lbl { font-family: inherit; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; color: var(--primary); width: 96px; flex-shrink: 0; }
-.sid-section { font-family: inherit; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; color: var(--primary); display: block; margin-bottom: 8px; }
+.sid-section { font-family: inherit; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; color: var(--primary); display: block; margin-bottom: 5px; }
 .sid-select { font-family: inherit; font-size: 0.78rem; height: 28px; min-height: 0; padding: 3px 28px 3px 8px; line-height: 1.2; border: 1px solid var(--panel-border); border-radius: 2px; background: var(--control-bg); color: var(--text); cursor: pointer; }
 .sid-input { font-family: inherit; font-size: 0.8rem; height: 28px; min-height: 0; padding: 3px 8px; line-height: 1.2; border: 1px solid var(--panel-border); border-radius: 2px; background: var(--control-bg); color: var(--text); }
 #sid-inst-sel { width: 170px; flex: 0 0 170px; }
@@ -9539,6 +9539,9 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
   background: color-mix(in srgb, var(--accent, #4ade80) 18%, transparent);
 }
 .sid-metronome-btn.sid-metronome-on svg { filter: drop-shadow(0 0 4px currentColor); }
+.sid-record-btn { color: #d96a6a; }
+.sid-record-btn.sid-recording { color: #ff4545; background: rgba(255, 69, 69, 0.18); animation: sid-record-pulse 0.9s ease-in-out infinite alternate; }
+@keyframes sid-record-pulse { to { box-shadow: 0 0 10px rgba(255, 69, 69, 0.7); } }
 .sid-master-vol-wrap {
   display: inline-flex;
   align-items: center;
@@ -9546,6 +9549,10 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
   margin-left: auto;   /* push to the right side of the header */
   padding-right: 6px;
 }
+.sid-midi-wrap { display: inline-flex; align-items: center; gap: 6px; }
+.sid-midi-input { width: 150px; max-width: 20vw; }
+.sid-midi-led { width: 10px; height: 10px; flex: 0 0 10px; border-radius: 50%; background: #5a2222; border: 1px solid rgba(255,255,255,0.28); box-shadow: inset 0 1px 2px rgba(0,0,0,0.8); transition: background 0.15s ease-out, box-shadow 0.15s ease-out; }
+.sid-midi-led.sid-midi-led--on { background: #ff4545; box-shadow: 0 0 8px #ff4545; transition: none; }
 .sid-master-vol-wrap ~ .sid-xbtn { margin-left: 0; }  /* was: margin-left: auto — wrap owns the auto now */
 .sid-master-vol-lbl {
   font-family: inherit;
@@ -9944,31 +9951,43 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-check input[type="checkbox"]:checked { background: var(--primary); border-color: var(--primary); }
 .sid-check input[type="checkbox"]:checked::after { content: ""; position: absolute; left: 5px; top: 1px; width: 5px; height: 10px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); }
 .sid-range { accent-color: var(--primary); cursor: pointer; min-height: 0; padding: 0; margin: 0; height: auto; flex: 1; max-width: 260px; }
-.sid-mid { display: flex; gap: 22px; flex-wrap: wrap; align-items: flex-start; }
-.sid-adsr { flex: 0 0 300px; }
-.sid-slider-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.sid-range--knob-source { position: absolute; inline-size: 1px; block-size: 1px; opacity: 0; pointer-events: none; }
+.sid-param-knob { width: 27px; height: 27px; flex: 0 0 27px; }
+.sid-mid { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-start; }
+.sid-adsr { flex: 0 0 118px; }
+.sid-slider-row { display: flex; align-items: center; gap: 5px; margin-bottom: 1px; min-height: 27px; }
 .sid-sl-lbl { font-family: "IBM Plex Mono", monospace; font-size: 0.74rem; color: var(--secondary); width: 30px; flex-shrink: 0; }
-.sid-adsr-canvas { border: 1px solid var(--panel-border); border-radius: 2px; background: #0a0e1a; flex-shrink: 0; }
-.sid-filter { flex: 1; min-width: 220px; }
+.sid-adsr-canvas { border: 1px solid var(--panel-border); border-radius: 2px; background: #0a0e1a; flex: 1 1 280px; min-width: 240px; width: 280px; height: 172px; }
+.sid-filter { flex: 0 1 auto; min-width: 200px; display: grid; grid-template-columns: repeat(2, auto); column-gap: 18px; align-content: start; }
+.sid-filter > .sid-section, .sid-filter > .sid-filt-route, .sid-filter > .sid-filter-types { grid-column: 1 / -1; }
+.sid-filter-col { min-width: 0; }
+.sid-filter-col--sep { border-left: 1px solid var(--panel-border); padding-left: 14px; margin-left: -4px; }
+.sid-filter .sid-sl-lbl { width: 42px; }
 .sid-filter-types { display: flex; gap: 14px; margin-bottom: 8px; flex-wrap: wrap; }
 .sid-filt-route { margin-bottom: 8px; }
 .sid-check--mod span { font-family: "IBM Plex Mono", monospace; font-size: 0.72rem; }
 .sid-check--mini { margin-left: 6px; font-size: 0.72rem; white-space: nowrap; }
 .sid-num--w { min-width: 34px; text-align: right; }
 .sid-sl-lbl--w { width: 82px; font-family: inherit; font-size: 0.72rem; }
-.sid-section--sub { margin-top: 10px; }
-.sid-adv { border-top: 1px solid var(--panel-border); padding-top: 12px; }
+.sid-section--sub { margin-top: 4px; }
+.sid-adv { border-top: 1px solid var(--panel-border); padding-top: 6px; }
 .sid-adv-col { flex: 1 1 240px; min-width: 230px; }
 .sid-adv-col--gate { flex: 0 1 230px; }
 .sid-adv-col--table { flex: 1 1 300px; }
 .sid-adv-col .sid-check { margin: 4px 0 8px; }
 .sid-first-row .sid-select { flex: 1; min-width: 0; }
-.sid-adv-hint { margin: 8px 0 0; font-size: 0.7rem; line-height: 1.4; color: var(--muted); }
+.sid-adv-hint { margin: 5px 0 0; font-size: 0.7rem; line-height: 1.35; color: var(--muted); }
+@media (min-width: 780px) {
+  .sid-adv-col:first-child { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 10px; }
+  .sid-adv-col:first-child .sid-section { grid-column: 1 / -1; }
+  .sid-adv-col:first-child .sid-slider-row { min-width: 0; }
+  .sid-adv-col:first-child .sid-sl-lbl--w { width: 54px; }
+}
 .sid-table-ctl { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
 .sid-table-num { width: 52px; text-align: center; }
 #sid-table-loop { width: 92px; }
 #sid-table-preset { flex: 1 1 140px; min-width: 120px; }
-.sid-table-steps { display: flex; flex-direction: column; gap: 3px; max-height: 190px; overflow-y: auto; overflow-x: hidden; padding-right: 4px; margin-bottom: 6px; }
+.sid-table-steps { display: flex; flex-direction: column; gap: 3px; max-height: 145px; overflow-y: auto; overflow-x: hidden; padding-right: 4px; margin-bottom: 4px; }
 .sid-table-empty { font-size: 0.72rem; color: var(--muted); padding: 4px 0; }
 .sid-tstep { display: grid; grid-template-columns: 18px minmax(0, 1fr) 54px auto 24px; align-items: center; gap: 5px; }
 .sid-tstep--loop .sid-tstep-idx { color: var(--primary); font-weight: 700; }
@@ -9977,7 +9996,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-tstep .sid-input { padding: 2px 6px; text-align: right; }
 .sid-tstep .sid-check { margin: 0; font-size: 0.7rem; }
 .sid-tstep-del { width: 26px; padding: 0; }
-.sid-song-row { border-top: 1px solid var(--panel-border); padding-top: 12px; }
+.sid-song-row { border-top: 1px solid var(--panel-border); padding-top: 8px; }
 .sid-song-list { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; flex: 1; min-height: 28px; }
 .sid-song-chip {
   font-family: "IBM Plex Mono", monospace; font-size: 0.74rem; font-weight: 600;
@@ -9989,7 +10008,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-song-chip:hover { background: color-mix(in srgb, var(--secondary) 18%, transparent); color: var(--text); }
 .sid-song-chip--selected { border-color: var(--primary); color: var(--text); background: color-mix(in srgb, var(--primary) 16%, transparent); }
 .sid-song-chip--playing { border-color: var(--primary); background: var(--primary); color: #fff; }
-.sid-tracker-row { border-top: 1px solid var(--panel-border); padding-top: 12px; }
+.sid-tracker-row { border-top: 1px solid var(--panel-border); padding-top: 8px; }
 .sid-harmony-row { gap: 7px; flex-wrap: wrap; white-space: normal; }
 #sid-chord-root { width: 58px; min-width: 0; padding-right: 20px; }
 #sid-chord-type { width: 116px; min-width: 0; padding-right: 20px; }
@@ -10033,6 +10052,12 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-vkbd-tbtn { color: #d8d2c4; }
 #sid-vkbd-play { margin-left: 10px; }
 .sid-vkbd-tbtn:hover { color: #fff; background: rgba(255,255,255,0.1); }
+.sid-vkbd-tbtn.sid-record-btn { color: #d96a6a; }
+.sid-vkbd-tbtn.sid-record-btn.sid-recording { color: #ff4545; background: rgba(255, 69, 69, 0.18); }
+.sid-vkbd-tbtn.sid-metronome-btn.sid-metronome-on { color: #4ade80; background: rgba(74, 222, 128, 0.16); }
+.sid-vkbd-beat { width: 11px; height: 11px; flex: 0 0 11px; border-radius: 50%; background: #5a2222; border: 1px solid rgba(255,255,255,0.28); box-shadow: inset 0 1px 2px rgba(0,0,0,0.8); transition: background 0.12s ease-out, box-shadow 0.12s ease-out; }
+.sid-vkbd-beat.sid-beat-on { background: #4ade80; box-shadow: 0 0 8px #4ade80, inset 0 -1px 2px rgba(0,0,0,0.3); transition: none; }
+.sid-vkbd-beat.sid-beat-on.sid-beat-accent { background: #ff4545; box-shadow: 0 0 10px #ff4545, inset 0 -1px 2px rgba(0,0,0,0.3); }
 .sid-vkbd-insert-toggle input[type="checkbox"] { flex-shrink: 0; }
 .sid-vkbd-board { position: relative; margin: 12px 14px 16px; padding: 0; height: 190px; max-width: calc(100vw - 48px); background: #0c0c0e; border: 1px solid #000; border-radius: 3px; box-shadow: inset 0 6px 10px rgba(0,0,0,0.8); overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; }
 .sid-vkbd-brand { display: flex; align-items: center; gap: 14px; padding: 8px 14px; background: linear-gradient(180deg, #2c2a26, #24221f); border-bottom: 1px solid #14130f; }
@@ -10047,6 +10072,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-vkbd-stripes i:nth-child(4) { background: #3a7d1e; }
 .sid-vkbd-stripes i:nth-child(5) { background: #2a7ac4; }
 .sid-vkbd-meta .sid-mini-lbl, .sid-vkbd-meta .sid-num, .sid-vkbd-title, .sid-vkbd-insert-toggle { color: #d8d2c4; }
+.sid-vkbd-meta .sid-master-vol-lbl, .sid-vkbd-meta .sid-master-vol-val { color: #d8d2c4; }
 .sid-vkbd-octaves-lbl { margin-left: 10px; }
 .sid-vkbd-octaves { width: 64px; flex: 0 0 64px; }
 .sid-vkbd-key { position: absolute; border: 1px solid #2c3552; cursor: pointer; user-select: none; }
@@ -10297,12 +10323,17 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 #sid-voice-copy[aria-label]::after {
   top: calc(100% + 6px);
   bottom: auto;
-  left: auto !important;
-  right: 0 !important;
+  left: 0 !important;
+  right: auto !important;
   transform: none !important;
   max-width: none;
   white-space: nowrap;
   text-align: left;
+}
+#sid-clear.sid-tip-end[aria-label]::after,
+#sid-voice-copy.sid-tip-end[aria-label]::after {
+  left: auto !important;
+  right: 0 !important;
 }
 
 #tutorial-dialog #tutorial-dialog-close::after {

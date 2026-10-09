@@ -3827,6 +3827,10 @@ function _applyEditorTranslations() {
   setText("#sid-save-bin", t("sidSaveBin"));
   setText("#sid-master-vol-lbl", t("sidMasterVolume"));
   setAttr("#sid-master-vol", t("sidMasterVolume"));
+  setText("#sid-midi-lbl", t("sidMidi"));
+  setText("#sid-midi-connect", t("sidMidiConnect"));
+  setAttr("#sid-record", t("sidRecord"));
+  setAttr("#sid-vkbd-record", t("sidRecord"));
   setText("#sid-preview-engine-lbl", t("sidPreviewEngine"));
   setText("#sid-preview-model-lbl", t("sidPreviewModel"));
   const sidPreviewEngine = document.getElementById("sid-preview-engine");
@@ -3942,6 +3946,7 @@ function _applyEditorTranslations() {
   try { if (_sidInited) _sidRenderTable(); } catch (_) {}
   setText(".sid-tracker-row .sid-lbl", t("sidTrackerLabel"));
   setAttr("#sid-pat-add", t("sidAddPattern"));
+  setAttr("#sid-pat-del", t("sidDeletePattern"));
   const sidTrackerMiniLbls = document.querySelectorAll(".sid-tracker-row .sid-mini-lbl");
   if (sidTrackerMiniLbls[0]) sidTrackerMiniLbls[0].textContent = t("sidPlayMode");
   if (sidTrackerMiniLbls[1]) sidTrackerMiniLbls[1].textContent = t("sidSpeed");
@@ -38292,6 +38297,10 @@ var _sidPaused = false;
 var _sidPlaybackUsingWebSid = false;
 let _sidVkbdDrag = null;
 let _sidVkbdInsertMode = true;
+let _sidMidiAccess = null;
+let _sidMidiInputId = "";
+let _sidMidiHeld = new Set();
+let _sidRecording = null;
 
 // SID attack / decay-release time tables (ms) — approximate
 const _SID_ATK = [2,8,16,24,38,56,68,80,100,250,500,800,1000,3000,5000,8000];
@@ -38400,6 +38409,27 @@ function _sidSongInsert() {
   _sidBuildSongList();
 }
 
+// Az aktuális pattern törlése a bankból; a song hivatkozásai átszámozódnak, legalább egy pattern marad
+async function _sidPatternDelete() {
+  if (!_sidPatterns || _sidPatterns.length <= 1) return;
+  const del = _sidPat;
+  const used = _sidPatterns[del].some(function(col){ return col.some(function(c){ return c.note != null || c.fx; }); });
+  if (used && !await _showConfirm(tf("sidDeletePatternConfirm", { pat: (del < 10 ? "0" : "") + del }))) return;
+  if (_sidRecording) _sidRecordStop();
+  _sidStop();
+  _sidPatterns.splice(del, 1);
+  const song = [];
+  _sidSong.forEach(function(idx, pos) {
+    if (idx === del) { if (pos < _sidSongPos) _sidSongPos--; return; }
+    song.push(idx > del ? idx - 1 : idx);
+  });
+  _sidSong = song.length ? song : [0];
+  _sidSongPos = Math.max(0, Math.min(_sidSongPos, _sidSong.length - 1));
+  _sidBuildPatSel();
+  _sidSetPattern(Math.min(del, _sidPatterns.length - 1), true);
+  _sidBuildSongList();
+}
+
 function _sidSongRemove() {
   if (!_sidSong || _sidSong.length <= 1) return; // always keep at least one slot
   _sidSong.splice(_sidSongPos, 1);
@@ -38430,7 +38460,77 @@ function _sidNoteName(n) {
   return _SID_NOTE_NAMES[n % 12] + Math.floor(n / 12);
 }
 function _sidNoteFreq(n) { return 440 * Math.pow(2, (n - 57) / 12); } // n: 0 = C-0
+function _sidMidiRefreshInputs() {
+  const select = document.getElementById("sid-midi-input");
+  if (!select || !_sidMidiAccess) return;
+  const old = _sidMidiInputId || select.value;
+  select.innerHTML = '<option value="">' + t("sidMidiNone") + '</option>';
+  _sidMidiAccess.inputs.forEach(function(input) {
+    const option = document.createElement("option");
+    option.value = input.id;
+    option.textContent = input.name || input.manufacturer || input.id;
+    select.appendChild(option);
+  });
+  const wanted = _sidMidiAccess.inputs.has(old) ? old : (_sidMidiAccess.inputs.keys().next().value || "");
+  select.value = wanted;
+  _sidMidiSetInput(wanted);
+}
+function _sidMidiSetInput(id) {
+  if (_sidMidiAccess) _sidMidiAccess.inputs.forEach(function(input) { input.onmidimessage = null; });
+  _sidMidiInputId = id || "";
+  const input = _sidMidiAccess?.inputs.get(_sidMidiInputId);
+  if (input) input.onmidimessage = _sidMidiMessage;
+  try { localStorage.setItem("c64va-sid-midi-input", _sidMidiInputId); } catch (_) {}
+}
+let _sidMidiLedTimer = null;
+function _sidMidiFlash() {
+  const led = document.getElementById("sid-midi-led");
+  if (!led) return;
+  led.classList.add("sid-midi-led--on");
+  clearTimeout(_sidMidiLedTimer);
+  _sidMidiLedTimer = setTimeout(function(){ led.classList.remove("sid-midi-led--on"); }, 80);
+}
+function _sidMidiMessage(event) {
+  const data = event.data || [];
+  // Clock / active sensing (real-time üzenetek) nem villantja a lámpát
+  if (data.length && data[0] < 0xF8) _sidMidiFlash();
+  const command = data[0] & 0xf0;
+  const midiNote = data[1];
+  const velocity = data[2] || 0;
+  if (!Number.isFinite(midiNote)) return;
+  const note = Math.max(0, Math.min(95, midiNote - 12)); // MIDI C-1 = SID C-0
+  if (command === 0x80 || (command === 0x90 && velocity === 0)) {
+    _sidMidiHeld.delete(midiNote);
+    return;
+  }
+  if (command !== 0x90 || _sidMidiHeld.has(midiNote)) return;
+  _sidMidiHeld.add(midiNote);
+  const dialog = document.getElementById("sid-editor-dialog");
+  if (!dialog?.open || !_sidInited) return;
+  if (_sidRecording || _sidVkbdInsertMode) _sidInsertNoteAtSelection(note, true);
+  else {
+    _sidEnsureAudio();
+    _sidPlayInst(_sidCurInst(), _sidNoteFreq(note), _sidAudio.currentTime + 0.01, 0.7);
+    _sidFlashVirtualKeyboardNotes([note]);
+  }
+}
+async function _sidMidiConnect() {
+  if (!navigator.requestMIDIAccess) {
+    showViceToast(t("sidMidiUnavailable"), true);
+    return;
+  }
+  try {
+    _sidMidiAccess = await navigator.requestMIDIAccess();
+    try { _sidMidiInputId = localStorage.getItem("c64va-sid-midi-input") || ""; } catch (_) {}
+    _sidMidiAccess.onstatechange = _sidMidiRefreshInputs;
+    _sidMidiRefreshInputs();
+    if (!_sidMidiInputId) showViceToast(t("sidMidiNone"), true);
+  } catch (error) {
+    showViceToast(t("sidMidiDenied") + ": " + (error?.message || error), true);
+  }
+}
 function _sidInsertNoteAtSelection(note, advanceRow) {
+  if (_sidRecordNote(note)) return;
   if (!_sidPatterns) return;
   const row = _sidSel.row, voice = _sidSel.voice;
   _sidSelAnchor = null;
@@ -38483,7 +38583,7 @@ function _sidRenderVirtualKeyboard() {
     btn.addEventListener("click", function() {
       const note = parseInt(btn.dataset.note, 10);
       if (!Number.isFinite(note)) return;
-      if (_sidVkbdInsertMode) _sidInsertNoteAtSelection(note, true);
+      if (_sidRecording || _sidVkbdInsertMode) _sidInsertNoteAtSelection(note, true);
       else {
         _sidEnsureAudio();
         _sidPlayInst(_sidCurInst(), _sidNoteFreq(note), _sidAudio.currentTime + 0.01, 0.25);
@@ -38657,6 +38757,28 @@ function _sidPreviewArpeggio() {
   const startTime = _sidAudio.currentTime;
   const baseWhen = startTime + 0.02;
   const stepDur = 0.12;
+  if (_sidUsesVaCore()) {
+    const td = _sidTuneData({ insts: [_sidCurInst()], patterns: [], song: [0], speed: 255 });
+    const engine = _sidEngineNew(td);
+    const stepFrames = Math.round(stepDur * 50);
+    const tail = Math.min(150, Math.ceil(_SID_DCR[td.insts[0].r] / 20) + 6);
+    // Egyetlen voice és puffer: az IPC késése nem tolhatja egymásra a hangokat.
+    _sidRenderVaCore(engine, length * stepFrames + tail, _sidAudio.sampleRate, function(eng, frame) {
+      if (frame < length * stepFrames && frame % stepFrames === 0) {
+        const step = Math.floor(frame / stepFrames);
+        _sidEngNoteOn(eng, 0, notes[order[step % order.length]], 0);
+      }
+      if (frame % stepFrames === stepFrames - 1 || frame >= length * stepFrames) eng.v[0].gate = 0;
+    }).then(function(data) {
+      const when = _sidAudio.currentTime + 0.02;
+      _sidPlayBuffer(data, when);
+      for (let step = 0; step < length; step++) {
+        const note = notes[order[step % order.length]];
+        setTimeout(function() { _sidFlashVirtualKeyboardNotes([note]); }, Math.round((0.02 + step * stepDur) * 1000));
+      }
+    }).catch(function(error) { console.warn("VA SID Core arpeggio failed:", error); });
+    return;
+  }
   for (let step = 0; step < length; step++) {
     const note = notes[order[step % order.length]];
     const when = baseWhen + (step * stepDur);
@@ -38708,6 +38830,46 @@ function _sidInstFields() { return [
   ["sid-pwm-max", "pwmMax", "range", "sid-pwm-max-val"],
   ["sid-gate-timer", "gateTimer", "range", "sid-gate-timer-val"], ["sid-hr", "hr", "check"]
 ]; }
+function _sidParamKnobSync(input) {
+  const knob = document.getElementById(input.id + "-knob");
+  if (!knob) return;
+  const min = Number(input.min) || 0;
+  const max = Number(input.max) || 100;
+  _sidKnobRender(knob, (Number(input.value) - min) * 100 / Math.max(1, max - min));
+  knob.setAttribute("aria-valuenow", input.value);
+  knob.setAttribute("aria-valuetext", input.value);
+}
+function _sidInitParamKnobs() {
+  _sidInstFields().forEach(function(field) {
+    if (field[2] !== "range") return;
+    const input = document.getElementById(field[0]);
+    if (!input || document.getElementById(input.id + "-knob")) return;
+    const knob = document.createElement("div");
+    knob.id = input.id + "-knob";
+    knob.className = "websid-play-knob sid-param-knob";
+    knob.tabIndex = 0;
+    knob.setAttribute("role", "slider");
+    knob.setAttribute("aria-label", input.closest(".sid-slider-row")?.querySelector(".sid-sl-lbl")?.textContent || input.closest(".sid-wave-row")?.querySelector(".sid-mini-lbl")?.textContent || input.id);
+    knob.setAttribute("aria-valuemin", input.min);
+    knob.setAttribute("aria-valuemax", input.max);
+    knob.innerHTML = '<svg viewBox="0 0 40 40" aria-hidden="true"><path class="websid-play-knob-track" d=""/><path class="websid-play-knob-value" d=""/><circle class="websid-play-knob-body" cx="20" cy="20" r="11.5"/><line class="websid-play-knob-pointer" x1="20" y1="20" x2="20" y2="11"/></svg>';
+    input.classList.add("sid-range--knob-source");
+    input.after(knob);
+    const set = function(pct) {
+      const min = Number(input.min) || 0;
+      const max = Number(input.max) || 100;
+      input.value = String(Math.round(min + Math.max(0, Math.min(100, pct)) * (max - min) / 100));
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      _sidParamKnobSync(input);
+    };
+    _sidKnobBind(knob, function() {
+      const min = Number(input.min) || 0;
+      const max = Number(input.max) || 100;
+      return (Number(input.value) - min) * 100 / Math.max(1, max - min);
+    }, set);
+    _sidParamKnobSync(input);
+  });
+}
 function _sidLoadInstUI() {
   const inst = _sidCurInst();
   Object.assign(inst, _sidInstNorm(inst));
@@ -38716,6 +38878,7 @@ function _sidLoadInstUI() {
     const el = document.getElementById(f[0]); if (!el) return;
     if (f[2] === "check") el.checked = !!inst[f[1]]; else el.value = inst[f[1]];
     const v = f[3] && document.getElementById(f[3]); if (v) v.textContent = inst[f[1]];
+    if (f[2] === "range") _sidParamKnobSync(el);
   });
   const fw = document.getElementById("sid-first-wave");
   if (fw) {
@@ -39508,14 +39671,92 @@ function _sidPlayMetronomeClick(accent) {
     osc.stop(t + 0.06);
   } catch (_) {}
 }
+// Ütés: kattanás (ha be van kapcsolva) + a billentyűzet ütemlámpájának villanása
+let _sidBeatLampTimer = null;
+function _sidMetronomeBeat(accent) {
+  _sidPlayMetronomeClick(accent);
+  const lamps = ["sid-beat", "sid-vkbd-beat"].map(function(id){ return document.getElementById(id); }).filter(Boolean);
+  lamps.forEach(function(lamp) {
+    lamp.classList.add("sid-beat-on");
+    lamp.classList.toggle("sid-beat-accent", !!accent);
+  });
+  clearTimeout(_sidBeatLampTimer);
+  _sidBeatLampTimer = setTimeout(function(){ lamps.forEach(function(lamp){ lamp.classList.remove("sid-beat-on", "sid-beat-accent"); }); }, 90);
+}
 function _sidToggleMetronome() {
   _sidMetronomeEnabled = !_sidMetronomeEnabled;
-  const btn = document.getElementById("sid-metronome");
-  if (btn) {
+  ["sid-metronome", "sid-vkbd-metronome"].forEach(function(id) {
+    const btn = document.getElementById(id);
+    if (!btn) return;
     btn.setAttribute("aria-pressed", String(_sidMetronomeEnabled));
     btn.classList.toggle("sid-metronome-on", _sidMetronomeEnabled);
-  }
+  });
 }
+function _sidRecordRender() {
+  ["sid-record", "sid-vkbd-record"].forEach(function(id) {
+    const button = document.getElementById(id);
+    if (!button) return;
+    button.classList.toggle("sid-recording", !!_sidRecording);
+    button.setAttribute("aria-pressed", String(!!_sidRecording));
+    button.setAttribute("aria-label", _sidRecording ? t("sidRecordStop") : t("sidRecord"));
+  });
+}
+// A pattern végén a felvétel új, üres patternben folytatódik (a song-ba is bekerül)
+function _sidRecordNextPattern(rec) {
+  rec.startedAt += (_SID_ROWS - rec.startRow) * rec.rowMs;
+  rec.startRow = 0;
+  rec.lastStep = -1;
+  _sidPatterns.push(_sidNewPattern());
+  _sidBuildPatSel();
+  _sidSetPattern(_sidPatterns.length - 1, true);
+  _sidSongInsert();
+  rec.pattern = _sidCurPat();
+}
+function _sidRecordTick() {
+  const rec = _sidRecording;
+  if (!rec) return;
+  let step = Math.floor((performance.now() - rec.startedAt) / rec.rowMs);
+  while (step >= _SID_ROWS - rec.startRow) {
+    _sidRecordNextPattern(rec);
+    step = Math.floor((performance.now() - rec.startedAt) / rec.rowMs);
+  }
+  if (step === rec.lastStep) return;
+  rec.lastStep = step;
+  rec.row = rec.startRow + step;
+  _sidSel.voice = rec.voice;
+  _sidSel.row = rec.row;
+  _sidRefreshSel();
+  if ((step % _SID_ROWS_PER_BEAT) === 0) _sidMetronomeBeat(((step / _SID_ROWS_PER_BEAT) | 0) % _SID_BEATS_PER_BAR === 0);
+}
+function _sidRecordNote(note) {
+  const rec = _sidRecording;
+  if (!rec) return false;
+  rec.pattern[rec.voice][rec.row] = { note: note, inst: rec.inst, fx: null, fxval: 0 };
+  _sidSetCellText(rec.voice, rec.row);
+  _sidEnsureAudio();
+  _sidPlayInst(_sidInsts[rec.inst], _sidNoteFreq(note), _sidAudio.currentTime + 0.01, Math.max(0.08, rec.rowMs / 1000 * 0.9));
+  _sidFlashVirtualKeyboardNotes([note]);
+  return true;
+}
+function _sidRecordStart() {
+  if (!_sidPatterns) return;
+  _sidStop();
+  _sidRecording = {
+    pattern: _sidCurPat(), voice: _sidSel.voice, inst: _sidInst, startRow: _sidSel.row,
+    row: _sidSel.row, rowMs: Math.max(1, _sidSpeed) * 20, startedAt: performance.now(), lastStep: -1, timer: null
+  };
+  _sidRecordTick();
+  _sidRecording.timer = setInterval(_sidRecordTick, 16);
+  _sidRecordRender();
+}
+function _sidRecordStop() {
+  const rec = _sidRecording;
+  if (!rec) return;
+  if (rec.timer) clearInterval(rec.timer);
+  _sidRecording = null;
+  _sidRecordRender();
+}
+function _sidToggleRecord() { if (_sidRecording) _sidRecordStop(); else _sidRecordStart(); }
 
 /* ── WebSid (Wothke) integration ─────────────────────────────────────────
  * Runs the compiled SID player + tune bytes through a real cycle-exact
@@ -40324,7 +40565,7 @@ async function _webSidPlayFileBytes(bytes, filename, song = 0) {
     showViceToast("Nem PSID/RSID fájl: " + filename, true);
     return false;
   }
-  _sidStop(false);  // stops previews without preloading the editor stream over this file
+  _sidStop(false, true);  // stops previews and the previous external tune
   if (!(await _webSidInit())) {
     showViceToast("WebSid nem elérhető ebben a WebView-ban.", true);
     return false;
@@ -40383,8 +40624,12 @@ async function _vaSidPlayFileBytes(bytes, filename, song = 0) {
     showViceToast("VA SID Core file playback is unavailable.", true);
     return false;
   }
-  _sidStop(false);
+  _sidStop(false, true);
   const ac = _sidEnsureAudio();
+  // A renderer hosszú DOM-művelet alatt nem fut. Tíz másodpercnyi már az
+  // AudioContext szálán ütemezett hang ezért akkor is folytatódik.
+  const aheadTarget = 10;
+  const aheadRefill = 7;
   const state = {
     sessionId: crypto.randomUUID(), active: true, busy: false, timer: null,
     queue: Promise.resolve(), nextTime: ac.currentTime + 0.08, fileBytes: Array.from(bytes),
@@ -40394,19 +40639,23 @@ async function _vaSidPlayFileBytes(bytes, filename, song = 0) {
   const pump = async function(force) {
     if (!state.active || state.busy || (state.seeking && !force)) return false;
     state.busy = true;
-    const payload = { sessionId: state.sessionId, sampleRate: ac.sampleRate,
-      model: _sidPreviewModel, frames: 10, skipMs: Math.max(0, Math.round(state.skipMs)), song: state.song };
-    if (state.fileBytes) payload.fileBytes = state.fileBytes;
     try {
-      state.queue = window.electronAPI.renderSidFile(payload);
-      const pcm = _sidDecodePcm16(await state.queue);
-      if (!state.active) return false;
-      state.fileBytes = null;
-      state.renderedMs += state.skipMs + pcm.length * 1000 / ac.sampleRate;
-      state.skipMs = 0;
-      state.nextTime = Math.max(state.nextTime, ac.currentTime + 0.02);
-      _sidPlayBuffer(pcm, state.nextTime);
-      state.nextTime += pcm.length / ac.sampleRate;
+      do {
+        const payload = { sessionId: state.sessionId, sampleRate: ac.sampleRate,
+          model: _sidPreviewModel, frames: 20, skipMs: Math.max(0, Math.round(state.skipMs)), song: state.song };
+        if (state.fileBytes) payload.fileBytes = state.fileBytes;
+        state.queue = window.electronAPI.renderSidFile(payload);
+        const pcm = _sidDecodePcm16(await state.queue);
+        if (!state.active) return false;
+        if (!pcm.length) throw new Error("Empty SID audio buffer.");
+        state.fileBytes = null;
+        state.renderedMs += state.skipMs + pcm.length * 1000 / ac.sampleRate;
+        state.skipMs = 0;
+        state.nextTime = Math.max(state.nextTime, ac.currentTime + 0.02);
+        _sidPlayBuffer(pcm, state.nextTime);
+        state.nextTime += pcm.length / ac.sampleRate;
+        // A Web Audio szál előre ütemezett hangja UI-terhelés alatt is tovább szól.
+      } while (state.active && !state.paused && (!state.seeking || force) && state.nextTime - ac.currentTime < aheadTarget);
       return true;
     } catch (e) {
       if (state.active) {
@@ -40431,7 +40680,7 @@ async function _vaSidPlayFileBytes(bytes, filename, song = 0) {
   }).catch(function() {});
   _webSidShowExternalDialog(filename, _sidVaCoreLabel());
   state.timer = setInterval(function() {
-    if (state.active && !state.paused && state.nextTime - ac.currentTime < 0.5) pump();
+    if (state.active && !state.paused && state.nextTime - ac.currentTime < aheadRefill) pump();
   }, 50);
   return true;
 }
@@ -40563,8 +40812,8 @@ function _sidWaShowRow(ev) {
     if (_sidPat !== ev.pat) _sidSetPattern(ev.pat, true);
     if (ev.row === 0) _sidBuildSongList();
   }
-  if (_sidMetronomeEnabled && (ev.row % _SID_ROWS_PER_BEAT) === 0) {
-    _sidPlayMetronomeClick(((ev.row / _SID_ROWS_PER_BEAT) | 0) % _SID_BEATS_PER_BAR === 0);
+  if ((ev.row % _SID_ROWS_PER_BEAT) === 0) {
+    _sidMetronomeBeat(((ev.row / _SID_ROWS_PER_BEAT) | 0) % _SID_BEATS_PER_BAR === 0);
   }
   const t = document.getElementById("sid-tracker");
   if (t) {
@@ -40587,14 +40836,16 @@ function _sidWaStop() {
   _sidPreviewSources.clear();
 }
 
-function _sidStop(preloadStream = true) {
+function _sidStop(preloadStream = true, stopExternal = false) {
+  if (typeof _sidRecordStop === "function") _sidRecordStop();
   if (_sidTimer) { clearInterval(_sidTimer); _sidTimer = null; }
-  if (typeof _sidExternalCore !== "undefined" && _sidExternalCore) _sidExternalCoreStop();
+  // Az editor saját preview-ja nem zárhatja be a külön SID Player ablakot.
+  if (stopExternal && typeof _sidExternalCore !== "undefined" && _sidExternalCore) _sidExternalCoreStop();
   _sidWaStop();
   _sidStreamSilence();
   _sidPaused = false;
   _sidPlaybackUsingWebSid = false;
-  _webSidPause();
+  if (stopExternal) _webSidPause();
   if (preloadStream) _sidStreamPreload();
   const t = document.getElementById("sid-tracker");
   if (t) t.querySelectorAll("tr.sid-playing").forEach(function(r){ r.classList.remove("sid-playing"); });
@@ -40606,7 +40857,7 @@ async function _sidPlay(resetPosition = true) {
   _sidWaStop();
   const playAll = _sidPlayMode === "all";
   if (resetPosition) {
-    _webSidPause();
+    if (_sidExtStatus === "stopped") _webSidPause();
       _sidSongPlayPos = 0;
     if (playAll) {
       _sidPlayPat = (_sidSong && _sidSong.length) ? _sidSong[0] : 0;
@@ -42258,6 +42509,9 @@ function setupSidEditor() {
       _sidDrawADSR();
     });
   });
+  // setupSidEditor még az app.js SID-állapotdeklarációi előtt fut.
+  // A tekerő geometriája csak a script teljes kiértékelése után érhető el.
+  setTimeout(_sidInitParamKnobs, 0);
   onId("sid-first-wave", "change", function(e){ _sidCurInst().firstWave = parseInt(e.target.value, 10) || 0; });
   onId("sid-table-speed", "input", function(e){
     const v = parseInt(e.target.value, 10);
@@ -42283,6 +42537,13 @@ function setupSidEditor() {
   const adsrC = document.getElementById("sid-adsr-canvas");
   if (adsrC) {
     adsrC.style.cursor = "pointer";
+    // A vászon felbontása követi a megjelenített méretet, így a rajz nem nyúlik
+    if (typeof ResizeObserver === "function") {
+      new ResizeObserver(function(){
+        const w = Math.round(adsrC.clientWidth), h = Math.round(adsrC.clientHeight);
+        if (w > 0 && h > 0 && (adsrC.width !== w || adsrC.height !== h)) { adsrC.width = w; adsrC.height = h; _sidDrawADSR(); }
+      }).observe(adsrC);
+    }
     let drag = null;
     const pos = function(e){ const r = adsrC.getBoundingClientRect(); return { x:(e.clientX-r.left)*(adsrC.width/r.width), y:(e.clientY-r.top)*(adsrC.height/r.height) }; };
     const cl = function(v){ return Math.max(0, Math.min(15, Math.round(v))); };
@@ -42322,6 +42583,17 @@ function setupSidEditor() {
     if (_sidTimer) { _sidPlay(); }
   });
   onId("sid-metronome", "click", _sidToggleMetronome);
+  // Tördelő toolbar: a tooltip a dialógus belseje felé nyílik
+  ["sid-clear", "sid-voice-copy"].forEach(function(id) {
+    onId(id, "pointerenter", function(e) {
+      const btn = e.currentTarget, box = dialog.getBoundingClientRect(), r = btn.getBoundingClientRect();
+      btn.classList.toggle("sid-tip-end", r.left + r.width / 2 > box.left + box.width / 2);
+    });
+  });
+  onId("sid-vkbd-metronome", "click", _sidToggleMetronome);
+  onId("sid-pat-del", "click", _sidPatternDelete);
+  onId("sid-record", "click", _sidToggleRecord);
+  onId("sid-vkbd-record", "click", _sidToggleRecord);
   onId("sid-chord-preview", "click", _sidPreviewChord);
   onId("sid-arp-preview", "click", _sidPreviewArpeggio);
   onId("sid-chord-add", "click", _sidInsertChord);
@@ -42336,6 +42608,8 @@ function setupSidEditor() {
   onId("sid-virtual-keyboard", "click", function(){
     _sidOpenVirtualKeyboard();
   });
+  onId("sid-midi-connect", "click", _sidMidiConnect);
+  onId("sid-midi-input", "change", function(e) { _sidMidiSetInput(e.target.value); });
   onId("sid-vkbd-close", "click", function(){
     _sidCloseVirtualKeyboard();
   });

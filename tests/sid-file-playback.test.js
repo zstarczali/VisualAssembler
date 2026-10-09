@@ -19,13 +19,14 @@ function fnSource(name) {
 }
 
 test("stopping for an external SID does not preload the editor stream", () => {
-  let preloads = 0;
+  let preloads = 0, externalStops = 0, webSidPauses = 0;
   const ctx = {
     _sidTimer: null,
+    _sidExternalCore: {},
     _sidWaStop() {},
-    _sidExternalCoreStop() {},
+    _sidExternalCoreStop() { externalStops++; },
     _sidStreamSilence() {},
-    _webSidPause() {},
+    _webSidPause() { webSidPauses++; },
     _sidStreamPreload() { preloads++; },
     _sidUpdatePauseButton() {},
     _sidBuildSongList() {},
@@ -35,6 +36,11 @@ test("stopping for an external SID does not preload the editor stream", () => {
   vm.runInContext(`${fnSource("_sidStop")}; this.stop = _sidStop;`, ctx);
   ctx.stop(false);
   assert.equal(preloads, 0);
+  assert.equal(externalStops, 0);
+  assert.equal(webSidPauses, 0);
+  ctx.stop(false, true);
+  assert.equal(externalStops, 1);
+  assert.equal(webSidPauses, 1);
   ctx.stop();
   assert.equal(preloads, 1);
 });
@@ -65,7 +71,7 @@ test("WebSID file playback remains available", async () => {
   const bytes = new Uint8Array(0x7c);
   bytes.set([0x50, 0x53, 0x49, 0x44]);
   assert.equal(await ctx.play(bytes, "example.sid"), true);
-  assert.deepEqual(calls.stop, [[false]]);
+  assert.deepEqual(calls.stop, [[false, true]]);
   assert.equal(calls.resume, 1);
   assert.deepEqual(calls.shown, ["example.sid"]);
   assert.equal(ctx._webSidActive, true);
@@ -102,23 +108,63 @@ test("VA SID Core renders an external PSID without WebSID", async () => {
     _webSidShowExternalDialog(name, engine) { calls.shown.push(name); calls.engine = engine; },
     _webSidHideExternalDialog() {},
     showViceToast(message) { throw new Error(message); },
-    setInterval() { return 1; },
+    setInterval(callback) { calls.tick = callback; return 1; },
     clearInterval() {},
   };
   vm.createContext(ctx);
   vm.runInContext(`${fnSource("_sidExternalCoreStop")}; ${fnSource("_sidVaCoreLabel")}; ${fnSource("_vaSidPlayFileBytes")}; this.play = _vaSidPlayFileBytes; this.stop = _sidExternalCoreStop;`, ctx);
   const bytes = new Uint8Array([80, 83, 73, 68]);
   assert.equal(await ctx.play(bytes, "example.sid"), true);
-  assert.equal(calls.render.length, 1);
+  assert.ok(calls.render.length > 1);
   assert.equal(calls.render[0].model, "6581");
+  assert.equal(calls.render[0].frames, 20);
   assert.deepEqual(Array.from(calls.render[0].fileBytes), Array.from(bytes));
-  assert.equal(calls.sources.length, 1);
+  assert.equal(calls.render[1].fileBytes, undefined);
+  assert.equal(calls.sources.length, calls.render.length);
+  assert.ok(ctx._sidExternalCore.nextTime - ac.currentTime >= 10);
+  for (let i = 1; i < calls.sources.length; i++) {
+    assert.ok(Math.abs(calls.sources[i].when - calls.sources[i - 1].when - 0.1) < 1e-9);
+  }
   assert.deepEqual(calls.shown, ["example.sid"]);
   assert.equal(calls.engine, "VA SID Core v1.0 (MOS 6581)");
+  ac.currentTime = 4;
+  await ctx._sidExternalCore.pump();
+  assert.ok(ctx._sidExternalCore.nextTime - ac.currentTime >= 10);
   ctx.stop();
   await Promise.resolve();
   await Promise.resolve();
   assert.deepEqual(calls.release, ["sid-session-1"]);
+});
+
+test("VA arpeggio renders one voice once and schedules notes after a delayed render", async () => {
+  let finish;
+  const calls = { notes: [], buffers: [], timers: [] };
+  const ac = { currentTime: 0, sampleRate: 44100 };
+  const ctx = {
+    document: { getElementById: () => null },
+    _sidGetChordNotes: () => [48, 52, 55], _sidEnsureAudio() {}, _sidAudio: ac,
+    _sidUsesVaCore: () => true, _sidCurInst: () => ({}),
+    _sidTuneData: () => ({ insts: [{ r: 0 }] }), _SID_DCR: [20],
+    _sidEngineNew: () => ({ v: [{ gate: 0 }] }),
+    _sidEngNoteOn(eng, voice, note) { calls.notes.push({ voice, note }); eng.v[0].gate = 1; },
+    _sidRenderVaCore(eng, count, rate, hook) {
+      for (let frame = 0; frame < count; frame++) hook(eng, frame);
+      return new Promise(resolve => { finish = resolve; });
+    },
+    _sidPlayBuffer(data, when) { calls.buffers.push(when); },
+    _sidFlashVirtualKeyboardNotes() {},
+    setTimeout(fn, delay) { calls.timers.push(delay); }, console,
+  };
+  vm.createContext(ctx);
+  vm.runInContext(fnSource("_sidPreviewArpeggio") + "; _sidPreviewArpeggio();", ctx);
+  assert.deepEqual(calls.notes.map(n => n.note), [48, 52, 55, 48, 52, 55, 48, 52]);
+  assert.ok(calls.notes.every(n => n.voice === 0));
+  assert.equal(calls.buffers.length, 0);
+  ac.currentTime = 5;
+  finish(new Float32Array(100));
+  await Promise.resolve();
+  assert.deepEqual(calls.buffers, [5.02]);
+  assert.deepEqual(calls.timers, [20, 140, 260, 380, 500, 620, 740, 860]);
 });
 
 test("external SID dialog: pause freezes the counter, play resumes, stop resets and keeps the dialog", () => {
