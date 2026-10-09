@@ -38657,6 +38657,28 @@ function _sidPreviewArpeggio() {
   const startTime = _sidAudio.currentTime;
   const baseWhen = startTime + 0.02;
   const stepDur = 0.12;
+  if (_sidUsesVaCore()) {
+    const td = _sidTuneData({ insts: [_sidCurInst()], patterns: [], song: [0], speed: 255 });
+    const engine = _sidEngineNew(td);
+    const stepFrames = Math.round(stepDur * 50);
+    const tail = Math.min(150, Math.ceil(_SID_DCR[td.insts[0].r] / 20) + 6);
+    // Egyetlen voice és puffer: az IPC késése nem tolhatja egymásra a hangokat.
+    _sidRenderVaCore(engine, length * stepFrames + tail, _sidAudio.sampleRate, function(eng, frame) {
+      if (frame < length * stepFrames && frame % stepFrames === 0) {
+        const step = Math.floor(frame / stepFrames);
+        _sidEngNoteOn(eng, 0, notes[order[step % order.length]], 0);
+      }
+      if (frame % stepFrames === stepFrames - 1 || frame >= length * stepFrames) eng.v[0].gate = 0;
+    }).then(function(data) {
+      const when = _sidAudio.currentTime + 0.02;
+      _sidPlayBuffer(data, when);
+      for (let step = 0; step < length; step++) {
+        const note = notes[order[step % order.length]];
+        setTimeout(function() { _sidFlashVirtualKeyboardNotes([note]); }, Math.round((0.02 + step * stepDur) * 1000));
+      }
+    }).catch(function(error) { console.warn("VA SID Core arpeggio failed:", error); });
+    return;
+  }
   for (let step = 0; step < length; step++) {
     const note = notes[order[step % order.length]];
     const when = baseWhen + (step * stepDur);
@@ -40385,6 +40407,10 @@ async function _vaSidPlayFileBytes(bytes, filename, song = 0) {
   }
   _sidStop(false);
   const ac = _sidEnsureAudio();
+  // A renderer hosszú DOM-művelet alatt nem fut. Tíz másodpercnyi már az
+  // AudioContext szálán ütemezett hang ezért akkor is folytatódik.
+  const aheadTarget = 10;
+  const aheadRefill = 7;
   const state = {
     sessionId: crypto.randomUUID(), active: true, busy: false, timer: null,
     queue: Promise.resolve(), nextTime: ac.currentTime + 0.08, fileBytes: Array.from(bytes),
@@ -40394,19 +40420,23 @@ async function _vaSidPlayFileBytes(bytes, filename, song = 0) {
   const pump = async function(force) {
     if (!state.active || state.busy || (state.seeking && !force)) return false;
     state.busy = true;
-    const payload = { sessionId: state.sessionId, sampleRate: ac.sampleRate,
-      model: _sidPreviewModel, frames: 10, skipMs: Math.max(0, Math.round(state.skipMs)), song: state.song };
-    if (state.fileBytes) payload.fileBytes = state.fileBytes;
     try {
-      state.queue = window.electronAPI.renderSidFile(payload);
-      const pcm = _sidDecodePcm16(await state.queue);
-      if (!state.active) return false;
-      state.fileBytes = null;
-      state.renderedMs += state.skipMs + pcm.length * 1000 / ac.sampleRate;
-      state.skipMs = 0;
-      state.nextTime = Math.max(state.nextTime, ac.currentTime + 0.02);
-      _sidPlayBuffer(pcm, state.nextTime);
-      state.nextTime += pcm.length / ac.sampleRate;
+      do {
+        const payload = { sessionId: state.sessionId, sampleRate: ac.sampleRate,
+          model: _sidPreviewModel, frames: 20, skipMs: Math.max(0, Math.round(state.skipMs)), song: state.song };
+        if (state.fileBytes) payload.fileBytes = state.fileBytes;
+        state.queue = window.electronAPI.renderSidFile(payload);
+        const pcm = _sidDecodePcm16(await state.queue);
+        if (!state.active) return false;
+        if (!pcm.length) throw new Error("Empty SID audio buffer.");
+        state.fileBytes = null;
+        state.renderedMs += state.skipMs + pcm.length * 1000 / ac.sampleRate;
+        state.skipMs = 0;
+        state.nextTime = Math.max(state.nextTime, ac.currentTime + 0.02);
+        _sidPlayBuffer(pcm, state.nextTime);
+        state.nextTime += pcm.length / ac.sampleRate;
+        // A Web Audio szál előre ütemezett hangja UI-terhelés alatt is tovább szól.
+      } while (state.active && !state.paused && (!state.seeking || force) && state.nextTime - ac.currentTime < aheadTarget);
       return true;
     } catch (e) {
       if (state.active) {
@@ -40431,7 +40461,7 @@ async function _vaSidPlayFileBytes(bytes, filename, song = 0) {
   }).catch(function() {});
   _webSidShowExternalDialog(filename, _sidVaCoreLabel());
   state.timer = setInterval(function() {
-    if (state.active && !state.paused && state.nextTime - ac.currentTime < 0.5) pump();
+    if (state.active && !state.paused && state.nextTime - ac.currentTime < aheadRefill) pump();
   }, 50);
   return true;
 }
