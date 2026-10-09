@@ -3830,6 +3830,7 @@ function _applyEditorTranslations() {
   setText("#sid-midi-lbl", t("sidMidi"));
   setText("#sid-midi-connect", t("sidMidiConnect"));
   setAttr("#sid-record", t("sidRecord"));
+  setAttr("#sid-vkbd-record", t("sidRecord"));
   setText("#sid-preview-engine-lbl", t("sidPreviewEngine"));
   setText("#sid-preview-model-lbl", t("sidPreviewModel"));
   const sidPreviewEngine = document.getElementById("sid-preview-engine");
@@ -3945,6 +3946,7 @@ function _applyEditorTranslations() {
   try { if (_sidInited) _sidRenderTable(); } catch (_) {}
   setText(".sid-tracker-row .sid-lbl", t("sidTrackerLabel"));
   setAttr("#sid-pat-add", t("sidAddPattern"));
+  setAttr("#sid-pat-del", t("sidDeletePattern"));
   const sidTrackerMiniLbls = document.querySelectorAll(".sid-tracker-row .sid-mini-lbl");
   if (sidTrackerMiniLbls[0]) sidTrackerMiniLbls[0].textContent = t("sidPlayMode");
   if (sidTrackerMiniLbls[1]) sidTrackerMiniLbls[1].textContent = t("sidSpeed");
@@ -38407,6 +38409,27 @@ function _sidSongInsert() {
   _sidBuildSongList();
 }
 
+// Az aktuális pattern törlése a bankból; a song hivatkozásai átszámozódnak, legalább egy pattern marad
+async function _sidPatternDelete() {
+  if (!_sidPatterns || _sidPatterns.length <= 1) return;
+  const del = _sidPat;
+  const used = _sidPatterns[del].some(function(col){ return col.some(function(c){ return c.note != null || c.fx; }); });
+  if (used && !await _showConfirm(tf("sidDeletePatternConfirm", { pat: (del < 10 ? "0" : "") + del }))) return;
+  if (_sidRecording) _sidRecordStop();
+  _sidStop();
+  _sidPatterns.splice(del, 1);
+  const song = [];
+  _sidSong.forEach(function(idx, pos) {
+    if (idx === del) { if (pos < _sidSongPos) _sidSongPos--; return; }
+    song.push(idx > del ? idx - 1 : idx);
+  });
+  _sidSong = song.length ? song : [0];
+  _sidSongPos = Math.max(0, Math.min(_sidSongPos, _sidSong.length - 1));
+  _sidBuildPatSel();
+  _sidSetPattern(Math.min(del, _sidPatterns.length - 1), true);
+  _sidBuildSongList();
+}
+
 function _sidSongRemove() {
   if (!_sidSong || _sidSong.length <= 1) return; // always keep at least one slot
   _sidSong.splice(_sidSongPos, 1);
@@ -38459,8 +38482,18 @@ function _sidMidiSetInput(id) {
   if (input) input.onmidimessage = _sidMidiMessage;
   try { localStorage.setItem("c64va-sid-midi-input", _sidMidiInputId); } catch (_) {}
 }
+let _sidMidiLedTimer = null;
+function _sidMidiFlash() {
+  const led = document.getElementById("sid-midi-led");
+  if (!led) return;
+  led.classList.add("sid-midi-led--on");
+  clearTimeout(_sidMidiLedTimer);
+  _sidMidiLedTimer = setTimeout(function(){ led.classList.remove("sid-midi-led--on"); }, 80);
+}
 function _sidMidiMessage(event) {
   const data = event.data || [];
+  // Clock / active sensing (real-time üzenetek) nem villantja a lámpát
+  if (data.length && data[0] < 0xF8) _sidMidiFlash();
   const command = data[0] & 0xf0;
   const midiNote = data[1];
   const velocity = data[2] || 0;
@@ -39638,33 +39671,62 @@ function _sidPlayMetronomeClick(accent) {
     osc.stop(t + 0.06);
   } catch (_) {}
 }
+// Ütés: kattanás (ha be van kapcsolva) + a billentyűzet ütemlámpájának villanása
+let _sidBeatLampTimer = null;
+function _sidMetronomeBeat(accent) {
+  _sidPlayMetronomeClick(accent);
+  const lamps = ["sid-beat", "sid-vkbd-beat"].map(function(id){ return document.getElementById(id); }).filter(Boolean);
+  lamps.forEach(function(lamp) {
+    lamp.classList.add("sid-beat-on");
+    lamp.classList.toggle("sid-beat-accent", !!accent);
+  });
+  clearTimeout(_sidBeatLampTimer);
+  _sidBeatLampTimer = setTimeout(function(){ lamps.forEach(function(lamp){ lamp.classList.remove("sid-beat-on", "sid-beat-accent"); }); }, 90);
+}
 function _sidToggleMetronome() {
   _sidMetronomeEnabled = !_sidMetronomeEnabled;
-  const btn = document.getElementById("sid-metronome");
-  if (btn) {
+  ["sid-metronome", "sid-vkbd-metronome"].forEach(function(id) {
+    const btn = document.getElementById(id);
+    if (!btn) return;
     btn.setAttribute("aria-pressed", String(_sidMetronomeEnabled));
     btn.classList.toggle("sid-metronome-on", _sidMetronomeEnabled);
-  }
+  });
 }
 function _sidRecordRender() {
-  const button = document.getElementById("sid-record");
-  if (!button) return;
-  button.classList.toggle("sid-recording", !!_sidRecording);
-  button.setAttribute("aria-pressed", String(!!_sidRecording));
-  button.setAttribute("aria-label", _sidRecording ? t("sidRecordStop") : t("sidRecord"));
+  ["sid-record", "sid-vkbd-record"].forEach(function(id) {
+    const button = document.getElementById(id);
+    if (!button) return;
+    button.classList.toggle("sid-recording", !!_sidRecording);
+    button.setAttribute("aria-pressed", String(!!_sidRecording));
+    button.setAttribute("aria-label", _sidRecording ? t("sidRecordStop") : t("sidRecord"));
+  });
+}
+// A pattern végén a felvétel új, üres patternben folytatódik (a song-ba is bekerül)
+function _sidRecordNextPattern(rec) {
+  rec.startedAt += (_SID_ROWS - rec.startRow) * rec.rowMs;
+  rec.startRow = 0;
+  rec.lastStep = -1;
+  _sidPatterns.push(_sidNewPattern());
+  _sidBuildPatSel();
+  _sidSetPattern(_sidPatterns.length - 1, true);
+  _sidSongInsert();
+  rec.pattern = _sidCurPat();
 }
 function _sidRecordTick() {
   const rec = _sidRecording;
   if (!rec) return;
-  const step = Math.floor((performance.now() - rec.startedAt) / rec.rowMs);
-  if (step >= _SID_ROWS - rec.startRow) { _sidRecordStop(); return; }
+  let step = Math.floor((performance.now() - rec.startedAt) / rec.rowMs);
+  while (step >= _SID_ROWS - rec.startRow) {
+    _sidRecordNextPattern(rec);
+    step = Math.floor((performance.now() - rec.startedAt) / rec.rowMs);
+  }
   if (step === rec.lastStep) return;
   rec.lastStep = step;
   rec.row = rec.startRow + step;
   _sidSel.voice = rec.voice;
   _sidSel.row = rec.row;
   _sidRefreshSel();
-  if ((step % _SID_ROWS_PER_BEAT) === 0) _sidPlayMetronomeClick(((step / _SID_ROWS_PER_BEAT) | 0) % _SID_BEATS_PER_BAR === 0);
+  if ((step % _SID_ROWS_PER_BEAT) === 0) _sidMetronomeBeat(((step / _SID_ROWS_PER_BEAT) | 0) % _SID_BEATS_PER_BAR === 0);
 }
 function _sidRecordNote(note) {
   const rec = _sidRecording;
@@ -40750,8 +40812,8 @@ function _sidWaShowRow(ev) {
     if (_sidPat !== ev.pat) _sidSetPattern(ev.pat, true);
     if (ev.row === 0) _sidBuildSongList();
   }
-  if (_sidMetronomeEnabled && (ev.row % _SID_ROWS_PER_BEAT) === 0) {
-    _sidPlayMetronomeClick(((ev.row / _SID_ROWS_PER_BEAT) | 0) % _SID_BEATS_PER_BAR === 0);
+  if ((ev.row % _SID_ROWS_PER_BEAT) === 0) {
+    _sidMetronomeBeat(((ev.row / _SID_ROWS_PER_BEAT) | 0) % _SID_BEATS_PER_BAR === 0);
   }
   const t = document.getElementById("sid-tracker");
   if (t) {
@@ -42475,6 +42537,13 @@ function setupSidEditor() {
   const adsrC = document.getElementById("sid-adsr-canvas");
   if (adsrC) {
     adsrC.style.cursor = "pointer";
+    // A vászon felbontása követi a megjelenített méretet, így a rajz nem nyúlik
+    if (typeof ResizeObserver === "function") {
+      new ResizeObserver(function(){
+        const w = Math.round(adsrC.clientWidth), h = Math.round(adsrC.clientHeight);
+        if (w > 0 && h > 0 && (adsrC.width !== w || adsrC.height !== h)) { adsrC.width = w; adsrC.height = h; _sidDrawADSR(); }
+      }).observe(adsrC);
+    }
     let drag = null;
     const pos = function(e){ const r = adsrC.getBoundingClientRect(); return { x:(e.clientX-r.left)*(adsrC.width/r.width), y:(e.clientY-r.top)*(adsrC.height/r.height) }; };
     const cl = function(v){ return Math.max(0, Math.min(15, Math.round(v))); };
@@ -42514,7 +42583,17 @@ function setupSidEditor() {
     if (_sidTimer) { _sidPlay(); }
   });
   onId("sid-metronome", "click", _sidToggleMetronome);
+  // Tördelő toolbar: a tooltip a dialógus belseje felé nyílik
+  ["sid-clear", "sid-voice-copy"].forEach(function(id) {
+    onId(id, "pointerenter", function(e) {
+      const btn = e.currentTarget, box = dialog.getBoundingClientRect(), r = btn.getBoundingClientRect();
+      btn.classList.toggle("sid-tip-end", r.left + r.width / 2 > box.left + box.width / 2);
+    });
+  });
+  onId("sid-vkbd-metronome", "click", _sidToggleMetronome);
+  onId("sid-pat-del", "click", _sidPatternDelete);
   onId("sid-record", "click", _sidToggleRecord);
+  onId("sid-vkbd-record", "click", _sidToggleRecord);
   onId("sid-chord-preview", "click", _sidPreviewChord);
   onId("sid-arp-preview", "click", _sidPreviewArpeggio);
   onId("sid-chord-add", "click", _sidInsertChord);

@@ -9551,6 +9551,8 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 }
 .sid-midi-wrap { display: inline-flex; align-items: center; gap: 6px; }
 .sid-midi-input { width: 150px; max-width: 20vw; }
+.sid-midi-led { width: 10px; height: 10px; flex: 0 0 10px; border-radius: 50%; background: #5a2222; border: 1px solid rgba(255,255,255,0.28); box-shadow: inset 0 1px 2px rgba(0,0,0,0.8); transition: background 0.15s ease-out, box-shadow 0.15s ease-out; }
+.sid-midi-led.sid-midi-led--on { background: #ff4545; box-shadow: 0 0 8px #ff4545; transition: none; }
 .sid-master-vol-wrap ~ .sid-xbtn { margin-left: 0; }  /* was: margin-left: auto — wrap owns the auto now */
 .sid-master-vol-lbl {
   font-family: inherit;
@@ -9955,8 +9957,11 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-adsr { flex: 0 0 118px; }
 .sid-slider-row { display: flex; align-items: center; gap: 5px; margin-bottom: 1px; min-height: 27px; }
 .sid-sl-lbl { font-family: "IBM Plex Mono", monospace; font-size: 0.74rem; color: var(--secondary); width: 30px; flex-shrink: 0; }
-.sid-adsr-canvas { border: 1px solid var(--panel-border); border-radius: 2px; background: #0a0e1a; flex: 0 1 360px; min-width: 280px; width: min(100%, 360px); height: auto; aspect-ratio: 280 / 170; }
-.sid-filter { flex: 0 1 220px; min-width: 200px; }
+.sid-adsr-canvas { border: 1px solid var(--panel-border); border-radius: 2px; background: #0a0e1a; flex: 1 1 280px; min-width: 240px; width: 280px; height: 172px; }
+.sid-filter { flex: 0 1 auto; min-width: 200px; display: grid; grid-template-columns: repeat(2, auto); column-gap: 18px; align-content: start; }
+.sid-filter > .sid-section, .sid-filter > .sid-filt-route, .sid-filter > .sid-filter-types { grid-column: 1 / -1; }
+.sid-filter-col { min-width: 0; }
+.sid-filter-col--sep { border-left: 1px solid var(--panel-border); padding-left: 14px; margin-left: -4px; }
 .sid-filter .sid-sl-lbl { width: 42px; }
 .sid-filter-types { display: flex; gap: 14px; margin-bottom: 8px; flex-wrap: wrap; }
 .sid-filt-route { margin-bottom: 8px; }
@@ -10047,6 +10052,12 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-vkbd-tbtn { color: #d8d2c4; }
 #sid-vkbd-play { margin-left: 10px; }
 .sid-vkbd-tbtn:hover { color: #fff; background: rgba(255,255,255,0.1); }
+.sid-vkbd-tbtn.sid-record-btn { color: #d96a6a; }
+.sid-vkbd-tbtn.sid-record-btn.sid-recording { color: #ff4545; background: rgba(255, 69, 69, 0.18); }
+.sid-vkbd-tbtn.sid-metronome-btn.sid-metronome-on { color: #4ade80; background: rgba(74, 222, 128, 0.16); }
+.sid-vkbd-beat { width: 11px; height: 11px; flex: 0 0 11px; border-radius: 50%; background: #5a2222; border: 1px solid rgba(255,255,255,0.28); box-shadow: inset 0 1px 2px rgba(0,0,0,0.8); transition: background 0.12s ease-out, box-shadow 0.12s ease-out; }
+.sid-vkbd-beat.sid-beat-on { background: #4ade80; box-shadow: 0 0 8px #4ade80, inset 0 -1px 2px rgba(0,0,0,0.3); transition: none; }
+.sid-vkbd-beat.sid-beat-on.sid-beat-accent { background: #ff4545; box-shadow: 0 0 10px #ff4545, inset 0 -1px 2px rgba(0,0,0,0.3); }
 .sid-vkbd-insert-toggle input[type="checkbox"] { flex-shrink: 0; }
 .sid-vkbd-board { position: relative; margin: 12px 14px 16px; padding: 0; height: 190px; max-width: calc(100vw - 48px); background: #0c0c0e; border: 1px solid #000; border-radius: 3px; box-shadow: inset 0 6px 10px rgba(0,0,0,0.8); overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; }
 .sid-vkbd-brand { display: flex; align-items: center; gap: 14px; padding: 8px 14px; background: linear-gradient(180deg, #2c2a26, #24221f); border-bottom: 1px solid #14130f; }
@@ -10312,12 +10323,17 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 #sid-voice-copy[aria-label]::after {
   top: calc(100% + 6px);
   bottom: auto;
-  left: auto !important;
-  right: 0 !important;
+  left: 0 !important;
+  right: auto !important;
   transform: none !important;
   max-width: none;
   white-space: nowrap;
   text-align: left;
+}
+#sid-clear.sid-tip-end[aria-label]::after,
+#sid-voice-copy.sid-tip-end[aria-label]::after {
+  left: auto !important;
+  right: 0 !important;
 }
 
 #tutorial-dialog #tutorial-dialog-close::after {
