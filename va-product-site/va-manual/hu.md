@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**2.5.4-es verzió**
+**2.5.5-ös verzió**
 
 Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat
 létre húzással és elengedéssel (fogd és vidd) utasításblokkokkal, és valós
@@ -12,77 +12,81 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
 
 - [C64 Visual Assembler — Felhasználói
   kézikönyv](#c64-visual-assembler--user-manual)
+    - [2.5.5-ös verzió – kiemelt funkciók](#version-255-highlights)
     - [2.5.4-es verzió – kiemelt funkciók](#version-254-highlights)
-    - [2.5.2-es verzió – kiemelt funkciók](#version-253-highlights)
-    - [2.5.1-es verzió – kiemelt funkciók](#version-252-highlights)
-    - [2.5.0 verzió – kiemelt funkciók](#version-251-highlights)
-    - [2.4.9-es verzió – kiemelt funkciók](#version-250-highlights)
-    - [2.4.8-as verzió kiemelt funkciói](#version-249-highlights)
-    - [2.4.7-es verzió – kiemelt funkciók](#version-248-highlights)
-    - [2.4.6-os verzió kiemelt funkciói](#version-247-highlights)
-    - [2.4.5-ös verzió – kiemelt funkciók](#version-246-highlights)
-    - [2.4.3-as verzió kiemelt funkciói](#version-245-highlights)
-    - [2.4.2-es verzió – kiemelt funkciók](#version-243-highlights)
-    - [2.4.1-es verzió – kiemelt funkciók](#version-242-highlights)
-    - [2.4.0 verzió – kiemelt funkciók](#version-241-highlights)
-    - [2.3.9-es verzió – kiemelt funkciók](#version-240-highlights)
-    - [Tartalomjegyzék](#version-239-highlights)
-  - [1. Felület áttekintése](#table-of-contents)
-  - [2. Blokk paletta](#1-interface-overview)
-  - [3. Programterület](#2-block-palette)
-  - [4. ASM nézet](#3-program-area)
-    - [Kimeneti módok](#operand-input)
-  - [5. Beállítások \&amp; Eszköztár](#4-asm-view)
-    - [Projektsablonok](#output-modes)
-    - [Projekt építése](#toolkit-tab)
-    - [Példaprogramok](#options-tab)
-    - [.asm fájl betöltése (gyors útmutató)](#clicking-an-asm-line)
+    - [2.5.3-as verzió kiemelt funkciói](#version-253-highlights)
+    - [2.5.2-es verzió – kiemelt funkciók](#version-252-highlights)
+    - [2.5.1-es verzió – kiemelt funkciók](#version-251-highlights)
+    - [2.5.0 verzió – kiemelt funkciók](#version-250-highlights)
+    - [2.4.9-es verzió – kiemelt funkciók](#version-249-highlights)
+    - [2.4.8-as verzió kiemelt funkciói](#version-248-highlights)
+    - [2.4.7-es verzió – kiemelt funkciók](#version-247-highlights)
+    - [2.4.6-os verzió kiemelt funkciói](#version-246-highlights)
+    - [2.4.5-ös verzió – kiemelt funkciók](#version-245-highlights)
+    - [2.4.3-as verzió kiemelt funkciói](#version-243-highlights)
+    - [2.4.2-es verzió – kiemelt funkciók](#version-242-highlights)
+    - [2.4.1-es verzió – kiemelt funkciók](#version-241-highlights)
+    - [2.4.0 verzió – kiemelt funkciók](#version-240-highlights)
+    - [2.3.9-es verzió – kiemelt funkciók](#version-239-highlights)
+  - [Tartalomjegyzék](#table-of-contents)
+  - [1. Felület áttekintése](#1-interface-overview)
+  - [2. Blokk paletta](#2-block-palette)
+  - [3. Programterület](#3-program-area)
+    - [Operandus bemenet](#operand-input)
+  - [4. ASM nézet](#4-asm-view)
+    - [Kimeneti módok](#output-modes)
+    - [Eszközkészlet fül](#toolkit-tab)
+    - [Beállítások fül](#options-tab)
+    - [ASM sorra kattintás](#clicking-an-asm-line)
     - [ASM sorszámok](#asm-line-numbers)
     - [Fordítási folyamatjelző modális ablak](#compile-progress-modal)
-  - [UltimateBasic mód](#5-settings--toolbar)
-    - [Az UB szerkesztő megnyitása](#project-templates)
-    - [Szerkesztőeszközök](#build-project)
-    - [Projektek, lapok és indítófájlok](#example-programs)
-    - [Épületépítés és diagnosztika](#load-asm-file-quick-reference)
+  - [5. Beállítások \&amp; Eszköztár](#5-settings--toolbar)
+    - [Projektsablonok](#project-templates)
+    - [Projekt építése](#build-project)
+    - [Példaprogramok](#example-programs)
+    - [.asm fájl betöltése (gyors útmutató)](#load-asm-file-quick-reference)
       - [Import elemzési megjegyzések és ajánlott
         eljárások](#import-parsing-notes-and-best-practices)
-  - [6. Szakértői mód](#ultimatebasic-mode)
-    - [Módok váltása](#opening-the-ub-editor)
-    - [Szerkesztői elrendezés](#editor-tools)
-    - [Eszköztár gombjai](#projects-tabs-and-startup-files)
-    - [Kiemelési hiba](#building-and-diagnostics)
-    - [Szintaxis kiemelés](#running-d64-and-exomizer)
-    - [Forrásformázó](#debugger-symbols-and-disassembly)
-    - [Projekt panel \&amp; fülek](#ultimate-basic-manual-and-source)
-  - [7. Címzési módok](#6-expert-mode)
-    - [Kifejezések operandusként való címkézése](#switching-modes)
-    - [Az `*` programszámláló kifejezésekben](#editor-layout)
-    - [Helyi (pontozott) címkék](#toolbar-buttons)
-    - [Önmódosító kód operandus címkéi](#error-highlighting)
+  - [UltimateBasic mód](#ultimatebasic-mode)
+    - [Az UB szerkesztő megnyitása](#opening-the-ub-editor)
+    - [Szerkesztőeszközök](#editor-tools)
+    - [Projektek, lapok és indítófájlok](#projects-tabs-and-startup-files)
+    - [Épületépítés és diagnosztika](#building-and-diagnostics)
+    - [Futás, D64 és Exomizer](#running-d64-and-exomizer)
+    - [Hibakereső szimbólumok és
+      szétszerelés](#debugger-symbols-and-disassembly)
+    - [Ultimate Basic kézikönyv és forrás](#ultimate-basic-manual-and-source)
+  - [6. Szakértői mód](#6-expert-mode)
+    - [Módok váltása](#switching-modes)
+    - [Szerkesztői elrendezés](#editor-layout)
+    - [Eszköztár gombjai](#toolbar-buttons)
+    - [Kiemelési hiba](#error-highlighting)
     - [Szintaxis kiemelés](#syntax-highlight)
     - [Forrásformázó](#source-formatter)
     - [Projekt panel \&amp; fülek](#project-panel--tabs)
     - [Tabulátorsáv](#tab-bar)
-  - [8. 6502-es szabvány szerinti utasítások](#7-addressing-modes)
-    - [Adatmozgatás](#label-expressions-as-operands)
-    - [Számtan](#the--program-counter-in-expressions)
-    - [Logika](#local-dotted-labels)
-    - [Ugrások \&amp; Elágazások](#self-modifying-code-operand-labels)
-  - [9. Makróblokkok — Referencia](#8-standard-6502-instructions)
-    - [LABEL](#data-movement)
-    - [COMMENT](#arithmetic)
-    - [BYTE](#logic)
-    - [WORD](#jumps--branches)
-    - [FILL](#lbne--lbeq---long-branches)
-    - [ALIGN](#register-operations)
-    - [TEXT](#shift--rotate)
-    - [STRING](#stack)
-    - [DATA](#system--flags)
-    - [RAWBYTES](#illegal--undocumented-instructions)
-  - [10. Hibakereső integráció](#9-macro-blocks--reference)
-    - [RetroDebugger](#label)
-    - [Töréspont blokkok](#comment)
-    - [Hibakereső jelzők (Beállítások lap)](#byte)
+  - [7. Címzési módok](#7-addressing-modes)
+    - [Kifejezések operandusként való címkézése](#label-expressions-as-operands)
+    - [Az `*` programszámláló
+      kifejezésekben](#the--program-counter-in-expressions)
+    - [Helyi (pontozott) címkék](#local-dotted-labels)
+    - [Önmódosító kód operandus címkéi](#self-modifying-code-operand-labels)
+  - [8. 6502-es szabvány szerinti utasítások](#8-standard-6502-instructions)
+    - [Adatmozgatás](#data-movement)
+    - [Számtan](#arithmetic)
+    - [Logika](#logic)
+    - [Ugrások \&amp; Elágazások](#jumps--branches)
+    - [LBNE / LBEQ / … (Hosszú ágak)](#lbne--lbeq---long-branches)
+    - [Regiszterműveletek](#register-operations)
+    - [Shift \&amp; Forgatás](#shift--rotate)
+    - [Verem](#stack)
+    - [Rendszer / Jelzők](#system--flags)
+    - [Törvénytelen / Nem dokumentált
+      utasítások](#illegal--undocumented-instructions)
+  - [9. Makróblokkok — Referencia](#9-macro-blocks--reference)
+    - [CÍMKE](#label)
+    - [MEGJEGYZÉS](#comment)
+    - [BÁJT](#byte)
     - [SZÓ](#word)
     - [KITÖLTÉS](#fill)
     - [IGAZÍTÁS](#align)
@@ -153,22 +157,23 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
     - [TÉRKÉP\_MÁSOLAT16X16](#map_copy16x16)
     - [SPRITE\_ANIM](#sprite_anim)
     - [PONTSZÁM\_BCD](#score_bcd)
-  - [11. Tudásbázis linkek](#10-debugger-integration)
+  - [10. Hibakereső integráció](#10-debugger-integration)
     - [RetroDebugger](#retrodebugger)
     - [Töréspont blokkok](#breakpoint-blocks)
     - [Hibakereső jelzők (Beállítások lap)](#debugger-flags-options-tab)
-  - [12. D64 Exportálás \&amp; Futtatás](#11-knowledge-base-links)
-  - [12b. CRT Export (Magic Desk 64K kazetta)](#12-d64-export--run)
+  - [11. Tudásbázis linkek](#11-knowledge-base-links)
+  - [12. D64 Exportálás \&amp; Futtatás](#12-d64-export--run)
     - [Felosztás gomb](#split-run-button)
     - [Exportálás D64-be párbeszédpanel](#export-to-d64-dialog)
     - [D64 metaadatok a projektekben](#d64-metadata-in-projects)
-  - [13. Hardverbeállítások](#12b-crt-export-magic-desk-64k-cartridge)
-  - [14. Vizuális szerkesztők (Eszköztár)](#13-hardware-settings)
-    - [Nagy felbontású / Többszínű szerkesztő](#vice-emulator)
-    - [Sprite szerkesztő](#exomizer)
-    - [C64 Karakter ROM böngésző ("Karaktertérkép")](#retro-debugger)
-    - [Karakterszerkesztő (Karakterkészlet)](#c64-ultimate--1541-ultimate)
-    - [Karakterkészlet-vászonszerkesztő](#kung-fu-flash-2)
+  - [12b. CRT Export (Magic Desk 64K
+    kazetta)](#12b-crt-export-magic-desk-64k-cartridge)
+  - [13. Hardverbeállítások](#13-hardware-settings)
+    - [VICE emulátor](#vice-emulator)
+    - [Exomizer](#exomizer)
+    - [Retro hibakereső](#retro-debugger)
+    - [C64 Végső / 1541 Végső](#c64-ultimate--1541-ultimate)
+    - [Kung Fu Villám 2](#kung-fu-flash-2)
   - [14. Vizuális szerkesztők (Eszköztár)](#14-visual-editors-toolkit)
     - [Nagy felbontású / Többszínű szerkesztő](#hi-res--multicolor-editor)
     - [Sprite szerkesztő](#sprite-editor)
@@ -182,6 +187,28 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
     - [SID-szerkesztő (3 hangos követő)](#sid-editor-3-voice-tracker)
     - [Görbeszerkesztő](#curve-editor)
     - [Számátváltó](#number-converter)
+
+---
+
+## A 2.5.5-ös verzió legfontosabb elemei
+
+- **Nagy felbontású szerkesztő: képpontrács és 16× nagyítás** — bekapcsolt
+  **ráccsal** 4× nagyítástól minden képpont saját rácsvonalat kap, amely erősebb
+  a karaktercella-szegélyeken, és árnyékolt, hogy mind a 16 színnél látható
+  maradjon. A nagyítási csúszka mostantól 16×-ig nagyítható. Lásd: [Nagy
+  felbontású / Többszínű szerkesztő](#hi-res--multicolor-editor).
+- **Jobb klikk a Másolás / Beillesztés menüre** — a Nagy felbontású és Térkép
+  szerkesztő vásznán (Másolás, Beillesztés, Átlátszó beillesztés) és a Sprite
+  szerkesztőben (Keret másolása, Keret beillesztése, szintén a keretsávon). A
+  beillesztés a menü előnézetéből indult ki, ahová kattintott.
+- **Számátváltó** — az eszköztár gombja kiemelve marad, amíg az átváltó látható.
+- **Javítva** — a Nagy felbontású szerkesztő többszínű cellarácsa kétszer olyan
+  széles volt, mint egy karaktercella; a Nagy felbontású eszköztár
+  **Beillesztés** gombja mindig átlátszóan illesedett be; az SID szerkesztő jobb
+  gombbal megjelenő menüje a kurzortól távol nyílt meg, miközben a
+  párbeszédpanel középre volt igazítva.
+- **Ez a kézikönyv** – a Nagy Felbontású Szerkesztő kijelölési,
+  másolási/beillesztési és átlátszó beillesztési funkcióit ismerteti.
 
 ---
 
@@ -677,9 +704,9 @@ setColor(blue)`), és makrószínekkel vannak ellátva; csak a valódi COMMENT
 blokkok, régiójelölők és figyelmeztetések tartják meg a bevezető `;`
 karakterláncukat.
 
-| Mód             | Leírás                                                                                                                                                                                                                                                                                                             |
+| Sáv színe       | Leírás                                                                                                                                                                                                                                                                                                             |
 | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **ASM**         | 6502 assembly forráskód címekkel és címkékkel                                                                                                                                                                                                                                                                      |
+| Cián            | 6502 assembly forráskód címekkel és címkékkel                                                                                                                                                                                                                                                                      |
 | **Monitor**     | Hex / bájt kiíratás (C64 monitor stílus)                                                                                                                                                                                                                                                                           |
 | **Diazmus**     | Tiszta 6502 szétszerelés: cím · hex bájtok · feloldott numerikus operandusokkal ellátott mnemonikok. A makrók kibővítve egyedi utasításokra (TEXT → LDA/STA párok, LOOP → LDX, stb.). A BYTE/WORD/FILL adatok darabolt hex dumpként jelennek meg. A kimenetben nincsenek makrónevek, megjegyzések vagy annotációk. |
 | **Mindkettő**   | ASM felül, monitor alul                                                                                                                                                                                                                                                                                            |
@@ -728,7 +755,7 @@ projektet.
 oldalon (beolvassa a platformod letöltési linkjeit), és összehasonlítja a futó
 verzióval:
 
-| Platform    | Mi történik?                                                                                                                                                                         |
+| Szakasz     | Mi történik?                                                                                                                                                                         |
 | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **Ablakok** | A telepítő passzív módban fut (csak folyamatban lévő műveletek), és a befejezése után elindítja az új verziót. A gépenkénti telepítés rendszergazdai jogosultságokat (UAC) kér.      |
 | **macOS**   | A DMG csatolásra kerül, az alkalmazáscsomag a helyére kerül, majd elindul az új verzió. Ha az alkalmazásmappa nem írható, a DMG egyszerűen megnyílik, így áthúzhatja az alkalmazást. |
@@ -924,7 +951,7 @@ belső nulla oldalas allokációknak és a generált kódadatoknak a megjelenít
 4. A forrássort tartalmazó hibák esetén válassza ki az adott sort az aktív UB
    szerkesztőben.
 
-| Platform             | Beépített sablonok                                                                                                                                                                                   |
+| Szakasz              | Beépített sablonok                                                                                                                                                                                   |
 | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Assembler**        | Üres program, Üres játék (cím / lejátszás / játék vége állapotok, joystick, játékos sprite), Hires bitkép, Többszínű bitkép                                                                          |
 | **Végső Alapszintű** | Üres program, Üres játék (ugyanaz az állapotgép az UB-ben), Bitmap felbérelése (`line` / `rect` / `circle` `color pen`-szel), Raszter IRQ (a `sub` minden képkockát meghív a raszter megszakításból) |
@@ -1264,11 +1291,11 @@ minden blokkon megjelenik.
 └────────────┴────────────────────────────┴────────────┘
 ```
 
-| Panel         | Példa                | Leírás                                              |
-| ------------- | -------------------- | --------------------------------------------------- |
-| `*`           | `BNE *`              | Elágazás önmagához (végtelen ciklus, eltolás `$FE`) |
-| `*-n` / `*+n` | `BNE *-5`, `BEQ *+4` | Elágazás az aktuális PC-hez képest *n* bájttal      |
-| `JMP *+n`     | `JMP *+20`           | Az aktuális PC-ből számított abszolút ugrás         |
+| Panel         | Váltás                    | Leírás                                              |
+| ------------- | ------------------------- | --------------------------------------------------- |
+| **Paletták**  | `#szakértői-paletta-gomb` | Elágazás önmagához (végtelen ciklus, eltolás `$FE`) |
+| `*-n` / `*+n` | `BNE *-5`, `BEQ *+4`      | Elágazás az aktuális PC-hez képest *n* bájttal      |
+| `JMP *+n`     | `#szakértői-disazm-gomb`  | Az aktuális PC-ből számított abszolút ugrás         |
 
 ### Helyi (pontozott) címkék
 
@@ -1285,8 +1312,8 @@ minden blokkon megjelenik.
 | **Sorszámok**                             | `#szakértői-sorszámok-gomb`                                 | Be-/kikapcsolhatod a sorszámozás utáni kötésmargót a szerkesztő bal oldalán. A kötésmargó szinkronban marad a görgetési pozícióval, és gépelés közben frissül.                                                                                                                               |
 | **Keresés**                               | `#szakértői-kereső-gomb`                                    | Nyisd meg a lebegő keresősávot (`Ctrl+F`). Gépelj be a kereséshez; a találatok kiemelve jelennek meg az átfedésben. Az `Enter` / `Shift+Enter` navigál a találatok között. Az `Escape` bezárja a sávot.                                                                                      |
 | **Kicsinyítés / Kicsinyítés**             | `#szakértői-kicsinyítés-gomb` / `#szakértői-közelítés-gomb` | A szerkesztő betűméretének csökkentése/növelése (8–28 px). A szerkesztő feletti `Ctrl` + egérgörgő (`Cmd` + görgő macOS-en, vagy érintőpados csippentés) lenyomása ugyanezt teszi. A beállítás megmarad.                                                                                     |
-| `*`                                       | `BNE *`                                                     | A bal oldali mnemonikus paletta megjelenítése/elrejtése                                                                                                                                                                                                                                      |
-| **Diazmus**                               | `JMP *+20`                                                  | A szétszerelési panel megjelenítése/elrejtése (tiszta 6502, makrók kibontva)                                                                                                                                                                                                                 |
+| **Paletták**                              | `#szakértői-paletta-gomb`                                   | A bal oldali mnemonikus paletta megjelenítése/elrejtése                                                                                                                                                                                                                                      |
+| **Diazmus**                               | `#szakértői-disazm-gomb`                                    | A szétszerelési panel megjelenítése/elrejtése (tiszta 6502, makrók kibontva)                                                                                                                                                                                                                 |
 | **Monitor**                               | `#szakértői-monitor-gomb`                                   | A monitor hex-dump paneljének megjelenítése/elrejtése                                                                                                                                                                                                                                        |
 | **Minitérkép**                            | `#szakértői-minitérkép-gomb`                                | A kód minitérkép sávjának megjelenítése/elrejtése a szerkesztő jobb oldalán                                                                                                                                                                                                                  |
 
@@ -1302,7 +1329,7 @@ azonos rövid nevű, különböző globális címkék alatti lokális címke nem
 hogy a címkét az **operandus bájtjára helyezzük el** az opkód helyett. Az
 utasítás a kettőspont utáni értékből áll össze.
 
-| Mód              | Token típusa                                              |
+| Sáv színe        | Token típusa                                              |
 | ---------------- | --------------------------------------------------------- |
 | Megjegyzés színe | `;` kezdetű sorok                                         |
 | Címke színe      | `címkével ellátott vonalak:` definíció                    |
@@ -1333,7 +1360,7 @@ javítása érdekében.
 | Sárgászöld | Mnemonikok (`LDA`, `STA`, `JMP`, …) és hosszú elágazású pszeudo-opciók (`LBNE`, `LBEQ`, …)                                                            |
 | Kék        | Irányelvek (`.byte`, `.word`, `.fill`, `.assert`, `*=`, …)                                                                                            |
 | Narancs    | Számok (`$FF`, `%1010`, `255`)                                                                                                                        |
-| **ASM**    | Címkék — `:` végződésű sorok, beleértve a lokális címkéket (`.loop:`) és az önmódosító kódú operandus címkéket (`value:` az `LDA value:#$00` részben) |
+| Cián       | Címkék — `:` végződésű sorok, beleértve a lokális címkéket (`.loop:`) és az önmódosító kódú operandus címkéket (`value:` az `LDA value:#$00` részben) |
 | Böjti réce | Karakterlánc literálok                                                                                                                                |
 | Ibolya     | Egyéni makrónevek — a `.macro`, `.invoke` és `.call`, valamint a Kick-stílusú `:name(...)` hívások utáni név                                          |
 | Víz        | Makróparaméterek – a paraméterek nevei a `.macro` fejlécben és az `{param}` helyettesítések a makró törzsében                                         |
@@ -1441,15 +1468,15 @@ elfogad egy **konstans nevű** értéket is (egy `CONST` blokkból vagy egy
 `LABEL`-ből). Ezenkívül használhatod a **label+offset** vagy az **label−offset**
 kifejezéseket egy elnevezett konstanshoz viszonyított címre való hivatkozáshoz:
 
-| Emlékezeterősítő | Példa                   | Leírás                                                                                                             |
-| ---------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `LDA`            | Töltésakkumulátor       | azonnali, nulla oldal, abszolút, abszolútX, abszolútY, közvetettX, közvetettY                                      |
-| `LDX`            | X regiszter betöltése   | azonnali, nulla oldal, nulla oldalY, abszolút, abszolútY                                                           |
-| `LDY`            | Y regiszter betöltése   | azonnali, nulla oldal, abszolút, abszolútX                                                                         |
-| `STA`            | Tároló akkumulátor      | zeroPage, abszolút, abszolútX, abszolútY, közvetettX, közvetettY                                                   |
-| `STX`            | X pénztárgép üzlet      | nulla oldal, nulla oldalY, abszolút                                                                                |
-| `STY`            | Y pénztárgép tárolására | nulla oldal, abszolút                                                                                              |
-| `*`              | `BNE *`                 | Aktuális programszámláló (az utasítás saját címe); az `*` elágazások végtelen önhurkot generálnak (eltolás: `$FE`) |
+| Szintaxis | Példa                   | Leírás                                                                                                             |
+| --------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `LDA`     | Töltésakkumulátor       | azonnali, nulla oldal, abszolút, abszolútX, abszolútY, közvetettX, közvetettY                                      |
+| `LDX`     | X regiszter betöltése   | azonnali, nulla oldal, nulla oldalY, abszolút, abszolútY                                                           |
+| `LDY`     | Y regiszter betöltése   | azonnali, nulla oldal, abszolút, abszolútX                                                                         |
+| `STA`     | Tároló akkumulátor      | zeroPage, abszolút, abszolútX, abszolútY, közvetettX, közvetettY                                                   |
+| `STX`     | X pénztárgép üzlet      | nulla oldal, nulla oldalY, abszolút                                                                                |
+| `STY`     | Y pénztárgép tárolására | nulla oldal, abszolút                                                                                              |
+| `*`       | `BNE *`                 | Aktuális programszámláló (az utasítás saját címe); az `*` elágazások végtelen önhurkot generálnak (eltolás: `$FE`) |
 
 **Példa — két képernyőoldal törlése CONST használatával:**
 ```
@@ -1470,13 +1497,13 @@ a címét jelöli, amelyre írták. Assembly időben feloldódik az utasítás v
 címe alapján, így nincs szükség címkére a rövid relatív ugrásokhoz vagy a PC-hez
 viszonyított adatolvasásokhoz.
 
-| Emlékezeterősítő | Példa                     | Megjegyzések                                                                    |
-| ---------------- | ------------------------- | ------------------------------------------------------------------------------- |
-| `*`              | `BNE *`                   | A legtöbb esetben használat előtt állítsa be a hordozást az `SEC` paraméterrel. |
-| `SBC`            | Kivonás átvitellel        | Kivonás előtt állítsa be az átvitelt `SEC`-cel                                  |
-| `INC`            | Memória növelése          | —                                                                               |
-| `DEC`            | Memória csökkentése       | —                                                                               |
-| `CMP`            | Hasonlítsa össze az A-val | Jelzőket állít be; nem módosítja az A-t                                         |
+| Szintaxis | Példa                     | Jelentés                                                                        |
+| --------- | ------------------------- | ------------------------------------------------------------------------------- |
+| `*`       | `BNE *`                   | A legtöbb esetben használat előtt állítsa be a hordozást az `SEC` paraméterrel. |
+| `SBC`     | Kivonás átvitellel        | Kivonás előtt állítsa be az átvitelt `SEC`-cel                                  |
+| `INC`     | Memória növelése          | —                                                                               |
+| `DEC`     | Memória csökkentése       | —                                                                               |
+| `CMP`     | Hasonlítsa össze az A-val | Jelzőket állít be; nem módosítja az A-t                                         |
 
 **PC vs. szorzás.** Az `*` csak akkor kezeli a programszámlálót, ha az
 *értékpozícióban* található — a kifejezés elején, vagy közvetlenül egy operátor,
@@ -1552,52 +1579,52 @@ címzési mód esetén. Ez felváltja a régebbi `STA utasítás+1` / `utasítá
 
 ### LABEL
 
-| Mező       | Leírás                                                    | Módok                                                                         |
-| ---------- | --------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| Címke neve | Az `JMP`, `JSR`, `BNE` stb. fájlokban használt azonosító. | azonnali, nulla oldal, abszolút, abszolútX, abszolútY, közvetettX, közvetettY |
-| `LDX`      | X regiszter betöltése                                     | azonnali, nulla oldal, nulla oldalY, abszolút, abszolútY                      |
-| `LDY`      | Y regiszter betöltése                                     | azonnali, nulla oldal, abszolút, abszolútX                                    |
-| `STA`      | Tároló akkumulátor                                        | zeroPage, abszolút, abszolútX, abszolútY, közvetettX, közvetettY              |
-| `STX`      | X pénztárgép üzlet                                        | nulla oldal, nulla oldalY, abszolút                                           |
-| `STY`      | Y pénztárgép tárolására                                   | nulla oldal, abszolút                                                         |
+| Emlékezeterősítő | Leírás                                                    | Módok                                                                         |
+| ---------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Címke neve       | Az `JMP`, `JSR`, `BNE` stb. fájlokban használt azonosító. | azonnali, nulla oldal, abszolút, abszolútX, abszolútY, közvetettX, közvetettY |
+| `LDX`            | X regiszter betöltése                                     | azonnali, nulla oldal, nulla oldalY, abszolút, abszolútY                      |
+| `LDY`            | Y regiszter betöltése                                     | azonnali, nulla oldal, abszolút, abszolútX                                    |
+| `STA`            | Tároló akkumulátor                                        | zeroPage, abszolút, abszolútX, abszolútY, közvetettX, közvetettY              |
+| `STX`            | X pénztárgép üzlet                                        | nulla oldal, nulla oldalY, abszolút                                           |
+| `STY`            | Y pénztárgép tárolására                                   | nulla oldal, abszolút                                                         |
 
 ### COMMENT
 
-| Mező  | Leírás                    | Megjegyzések                                                                    |
-| ----- | ------------------------- | ------------------------------------------------------------------------------- |
-| `ADC` | Hozzáadás átvitellel      | A legtöbb esetben használat előtt állítsa be a hordozást az `SEC` paraméterrel. |
-| `SBC` | Kivonás átvitellel        | Kivonás előtt állítsa be az átvitelt `SEC`-cel                                  |
-| `INC` | Memória növelése          | —                                                                               |
-| `DEC` | Memória csökkentése       | —                                                                               |
-| `CMP` | Hasonlítsa össze az A-val | Jelzőket állít be; nem módosítja az A-t                                         |
-| `CPX` | Hasonlítsa össze X-szel   | —                                                                               |
-| `CPY` | Hasonlítsa össze Y-nal    | —                                                                               |
+| Emlékezeterősítő | Leírás                    | Megjegyzések                                                                    |
+| ---------------- | ------------------------- | ------------------------------------------------------------------------------- |
+| `ADC`            | Hozzáadás átvitellel      | A legtöbb esetben használat előtt állítsa be a hordozást az `SEC` paraméterrel. |
+| `SBC`            | Kivonás átvitellel        | Kivonás előtt állítsa be az átvitelt `SEC`-cel                                  |
+| `INC`            | Memória növelése          | —                                                                               |
+| `DEC`            | Memória csökkentése       | —                                                                               |
+| `CMP`            | Hasonlítsa össze az A-val | Jelzőket állít be; nem módosítja az A-t                                         |
+| `CPX`            | Hasonlítsa össze X-szel   | —                                                                               |
+| `CPY`            | Hasonlítsa össze Y-nal    | —                                                                               |
 
 ### BYTE
 
-| Mező      | Leírás                                                                         |
-| --------- | ------------------------------------------------------------------------------ |
-| Operandus | Vesszővel elválasztott bájtértékek (pl. `$01, $02, $FF` vagy `1, 2, 255`)      |
-| `ORA`     | Logikai VAGY akkumulátorral                                                    |
-| `EOR`     | Exkluzív VAGY akkumulátorral                                                   |
-| `BIT`     | A memória bitjeinek tesztelése A-val szemben (beállítja az N, V és Z jelzőket) |
+| Emlékezeterősítő | Leírás                                                                         |
+| ---------------- | ------------------------------------------------------------------------------ |
+| Operandus        | Vesszővel elválasztott bájtértékek (pl. `$01, $02, $FF` vagy `1, 2, 255`)      |
+| `ORA`            | Logikai VAGY akkumulátorral                                                    |
+| `EOR`            | Exkluzív VAGY akkumulátorral                                                   |
+| `BIT`            | A memória bitjeinek tesztelése A-val szemben (beállítja az N, V és Z jelzőket) |
 
 ### WORD
 
-| Mező      | Leírás                                                             |
-| --------- | ------------------------------------------------------------------ |
-| Operandus | Vesszővel elválasztott 16 bites értékek (pl. `$0400, $C000`)       |
-| `JSR`     | Ugrás az alprogramhoz (a visszatérési címet a veremtárolóba menti) |
-| `RTS`     | Visszatérés az alprogramból                                        |
-| `RTI`     | Visszatérés megszakításból                                         |
-| `BNE`     | Elágazás, ha nem egyenlő (Z=0)                                     |
-| `BEQ`     | Elágazás, ha egyenlő (Z=1)                                         |
-| `BCC`     | Elágazás, ha átvitel mentes (C=0)                                  |
-| `BCS`     | Elágazás, ha átviteli halmaz (C=1)                                 |
-| `BMI`     | Elágazás, ha mínusz (N=1)                                          |
-| `BPL`     | Elágazás, ha plusz (N=0)                                           |
-| `BVC`     | Elágazás túlcsordulás esetén ürítve (V=0)                          |
-| `BVS`     | Elágazás túlcsordulás esetén (V=1)                                 |
+| Emlékezeterősítő | Leírás                                                             |
+| ---------------- | ------------------------------------------------------------------ |
+| Operandus        | Vesszővel elválasztott 16 bites értékek (pl. `$0400, $C000`)       |
+| `JSR`            | Ugrás az alprogramhoz (a visszatérési címet a veremtárolóba menti) |
+| `RTS`            | Visszatérés az alprogramból                                        |
+| `RTI`            | Visszatérés megszakításból                                         |
+| `BNE`            | Elágazás, ha nem egyenlő (Z=0)                                     |
+| `BEQ`            | Elágazás, ha egyenlő (Z=1)                                         |
+| `BCC`            | Elágazás, ha átvitel mentes (C=0)                                  |
+| `BCS`            | Elágazás, ha átviteli halmaz (C=1)                                 |
+| `BMI`            | Elágazás, ha mínusz (N=1)                                          |
+| `BPL`            | Elágazás, ha plusz (N=0)                                           |
+| `BVC`            | Elágazás túlcsordulás esetén ürítve (V=0)                          |
+| `BVS`            | Elágazás túlcsordulás esetén (V=1)                                 |
 
 #### LBNE / LBEQ / … (Hosszú ágak)
 
@@ -1633,31 +1660,31 @@ LBEQ kész; összeállítás: BNE *+3 ($D0 $03)
 
 ### FILL
 
-| Mező      | Leírás                                                  |
-| --------- | ------------------------------------------------------- |
-| Operandus | `count,value` — pl. `256,0` 256 bájtot nullával tölt ki |
-| `TAY`     | Átvitel A → Y                                           |
-| `TXA`     | X → A átvitel                                           |
-| `TYA`     | Y → A átvitel                                           |
-| `TSX`     | Átviteli verem mutató → X                               |
-| `TXS`     | X átvitel → Veremmutató                                 |
-| `INX`     | X lépésköz                                              |
-| `DEX`     | Csökkentés X                                            |
-| `INY`     | Y irányú növekmény                                      |
-| `DEY`     | Y csökkentése                                           |
+| Emlékezeterősítő | Leírás                                                  |
+| ---------------- | ------------------------------------------------------- |
+| Operandus        | `count,value` — pl. `256,0` 256 bájtot nullával tölt ki |
+| `TAY`            | Átvitel A → Y                                           |
+| `TXA`            | X → A átvitel                                           |
+| `TYA`            | Y → A átvitel                                           |
+| `TSX`            | Átviteli verem mutató → X                               |
+| `TXS`            | X átvitel → Veremmutató                                 |
+| `INX`            | X lépésköz                                              |
+| `DEX`            | Csökkentés X                                            |
+| `INY`            | Y irányú növekmény                                      |
+| `DEY`            | Y csökkentése                                           |
 
 ### ALIGN
 
-| Mező  | Leírás                                                                     |
-| ----- | -------------------------------------------------------------------------- |
-| Határ | Igazítási érték — pl. `64` (sprite határ), `256` (oldal), `$2000` (bitkép) |
-| `LSR` | Logikai eltolás jobbra                                                     |
-| `ROL` | Balra forgatás átvitellel                                                  |
-| `ROR` | Jobbra forgatás Carry-n keresztül                                          |
+| Emlékezeterősítő | Leírás                                                                     |
+| ---------------- | -------------------------------------------------------------------------- |
+| Határ            | Igazítási érték — pl. `64` (sprite határ), `256` (oldal), `$2000` (bitkép) |
+| `LSR`            | Logikai eltolás jobbra                                                     |
+| `ROL`            | Balra forgatás átvitellel                                                  |
+| `ROR`            | Jobbra forgatás Carry-n keresztül                                          |
 
 ### TEXT
 
-| Mező               | Leírás                                                          |
+| Emlékezeterősítő   | Leírás                                                          |
 | ------------------ | --------------------------------------------------------------- |
 | Szöveg             | A megjelenítendő karakterlánc                                   |
 | X                  | Oszlop (0–39)                                                   |
@@ -1666,7 +1693,7 @@ LBEQ kész; összeállítás: BNE *+3 ($D0 $03)
 
 ### STRING
 
-| Mező                     | Leírás                                                                               |
+| Emlékezeterősítő         | Leírás                                                                               |
 | ------------------------ | ------------------------------------------------------------------------------------ |
 | Szöveg                   | A kiírandó karakterlánc                                                              |
 | Cím                      | Cél memóriacím — `$C000` hex vagy egy **címkenév**                                   |
@@ -1704,14 +1731,12 @@ töréspont-támogatással, memória-ellenőrzéssel és címke-érzékeny szét
 | ---------- | --------------------------------------------------------- |
 | Címke neve | Az `JMP`, `JSR`, `BNE` stb. fájlokban használt azonosító. |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 hurok:
 ```
 
-**Indítás:** Kattintson a **Debug (RetroDebugger)** lehetőségre az eszköztáron.
-Az alkalmazás a következőket teszi:
+**Generált ASM:**
 ```
 hurok: ; $0820
 ```
@@ -1726,14 +1751,12 @@ Kattintson a töréspont ikonra (●) bármelyik utasításblokkon, ha azt
 töréspontként szeretné beállítani. A töréspontos blokkok pirossal vannak
 kiemelve. Címük minden hibakereső indításakor beíródik a töréspont fájlba.
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 ; A hozzászólásod szövege ide
 ```
 
-**Indítás:** Kattintson a **Debug (RetroDebugger)** lehetőségre az eszköztáron.
-Az alkalmazás a következőket teszi:
+**Generált ASM:**
 ```
 ; A hozzászólásod szövege ide
 ```
@@ -1744,18 +1767,16 @@ Az alkalmazás a következőket teszi:
 
 Mint az **DATA a BASIC**-ben — nyers bájtértékek listáját tárolja a programban.
 
-| Mező       | Leírás       |
-| ---------- | ------------ |
-| `-jump` BE | `-jump $CÍM` |
+| Mező      | Leírás       |
+| --------- | ------------ |
+| Operandus | `-jump $CÍM` |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .byte $01, $02, $FF
 ```
 
-**Indítás:** Kattintson a **Debug (RetroDebugger)** lehetőségre az eszköztáron.
-Az alkalmazás a következőket teszi:
+**Generált ASM:**
 ```
 .byte $01, $02, $FF
 ```
@@ -1782,18 +1803,16 @@ Mint a BASIC **DATA függvénye, de 16 bites számokhoz **. Minden érték két
 bájtként tárolódik (először az alacsony bájt, majd a magasabb – 6502 kis-endián
 sorrend).
 
-| Mező       | Leírás                                                       |
-| ---------- | ------------------------------------------------------------ |
-| `-jump` BE | Vesszővel elválasztott 16 bites értékek (pl. `$0400, $C000`) |
+| Mező      | Leírás                                                       |
+| --------- | ------------------------------------------------------------ |
+| Operandus | Vesszővel elválasztott 16 bites értékek (pl. `$0400, $C000`) |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .szó $0400, $C000
 ```
 
-**Indítás:** Kattintson a **Debug (RetroDebugger)** lehetőségre az eszköztáron.
-Az alkalmazás a következőket teszi:
+**Generált ASM:**
 ```
 .szó $0400, $C000
 ```
@@ -1808,18 +1827,16 @@ Mint például a `FOR I=1 TO N : POKE addr+I, val : NEXT` — egy memóriablokko
 tölt ki ugyanazzal a bájttal, de egyetlen blokkban. Nagyszerű területek
 törlésére vagy táblázatok előzetes feltöltésére.
 
-| Mező       | Leírás                                                  |
-| ---------- | ------------------------------------------------------- |
-| `-jump` BE | `count,value` — pl. `256,0` 256 bájtot nullával tölt ki |
+| Mező      | Leírás                                                  |
+| --------- | ------------------------------------------------------- |
+| Operandus | `count,value` — pl. `256,0` 256 bájtot nullával tölt ki |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .fill 256, $00
 ```
 
-**Indítás:** Kattintson a **Debug (RetroDebugger)** lehetőségre az eszköztáron.
-Az alkalmazás a következőket teszi:
+**Generált ASM:**
 ```
 .fill 256, $00
 ```
@@ -1828,7 +1845,7 @@ Az alkalmazás a következőket teszi:
 kifejezéseket. Hivatkozhatsz CONST nevekre, használhatsz hex/bináris
 literálokat, és meghívhatsz beépített matematikai függvényeket:
 
-| Kifejezés                   | Megjegyzések                           |
+| Kifejezés                   | Jelentés                               |
 | --------------------------- | -------------------------------------- |
 | `CSEMPE_SZÁMA, $00`         | számlálás CONST-ból, hex literál érték |
 | `40*25, 0`                  | soron belüli szorzás                   |
@@ -1854,15 +1871,13 @@ határon kezdődjenek — az `ALIGN 64` ezt automatikusan kezeli.
 | ----- | -------------------------------------------------------------------------- |
 | Határ | Igazítási érték — pl. `64` (sprite határ), `256` (oldal), `$2000` (bitkép) |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .align 64
 .align 2000 dollár
 ```
 
-**Indítás:** Kattintson a **Debug (RetroDebugger)** lehetőségre az eszköztáron.
-Az alkalmazás a következőket teszi:
+**Generált ASM:**
 ```
 ; ALIGN 64 → $0840 (12 bájtos kitöltés)
 ```
@@ -1915,8 +1930,7 @@ STA $0401
 ...
 ```
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .text 0, 2, "HELLO" ; nagybetűs karakterkészlet (alapértelmezett)
 .text 0, 2, "hello", alsó ; kisbetűs karakterkészlet
@@ -1941,8 +1955,7 @@ címekre másolják.
 | Váltás                   | Hex érték (00–FF) hozzáadva minden képernyőkód bájthoz (pl. `$80` = fordított videó) |
 | Kisbetűs karakterkészlet | Jelölőnégyzet – ugyanaz a szemantika, mint a TEXT esetében (lásd a TEXT részt)       |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .string $C000, "HELLO" ; nagybetűs karakterkészlet (alapértelmezett)
 .string $C000, "hello", alsó ; kisbetűs karakterkészlet
@@ -1951,8 +1964,7 @@ konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra
 .string $C000, "HELLO" :my_string ; makrócímkével
 ```
 
-**Indítás:** Kattintson a **Debug (RetroDebugger)** lehetőségre az eszköztáron.
-Az alkalmazás a következőket teszi:
+**Generált ASM:**
 ```
 LDA #$08 ; 'H' képernyőkód
 STA $C000
@@ -1978,16 +1990,14 @@ memóriacímre, bájtonként egy LDA/STA párt.
 | Cím                | Cél memóriacím — `$C000` hex vagy egy **címkenév** |
 | Címke (opcionális) | Hozzárendel egy címkét, amely a célcímre mutat     |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .data $C000, $01, $02, $03 ; hex cím
 .data my_buf, $01, $02, $03 ; címke cím
 .data $C000, $01, $02, $03 :mydata ; makrócímkével
 ```
 
-**Indítás:** Kattintson a **Debug (RetroDebugger)** lehetőségre az eszköztáron.
-Az alkalmazás a következőket teszi:
+**Generált ASM:**
 ```
 LDA #$01
     STA $C000
@@ -2013,8 +2023,7 @@ keresőtáblákhoz, bármihez, aminek csak egy adott címen kell lennie.
 | Cím                | Cél memóriacím — `$C000` hex vagy egy **címkenév** |
 | Címke (opcionális) | Hozzárendel egy címkét, amely a célcímre mutat     |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .rawbytes $C000, $00, $00, $00 ; hex cím
 .rawbytes sprite_data, $00, $00 ; címke cím
@@ -2044,8 +2053,7 @@ betöltése után azonnal készen áll a memóriában.
 | Váltás                   | Hex érték (00–FF) hozzáadva minden képernyőkód bájthoz (pl. `$80` = fordított videó) |
 | Kisbetűs karakterkészlet | Jelölőnégyzet – ugyanaz a szemantika, mint a TEXT esetében (lásd a TEXT részt)       |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .rawtext $C000, "HELLO" ; nagybetűs karakterkészlet (alapértelmezett)
 .rawtext $C000, "hello", alsó ; kisbetűs karakterkészlet
@@ -2054,8 +2062,7 @@ konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra
 .rawtext $0400, "HELLO" :my_text ; makrócímkével
 ```
 
-**Indítás:** Kattintson a **Debug (RetroDebugger)** lehetőségre az eszköztáron.
-Az alkalmazás a következőket teszi:
+**Generált ASM:**
 ```
 ; .rawtext "HELLO" -&gt; $C000
 ; $C000
@@ -2103,8 +2110,7 @@ viselkedést használja.
 | **Nagybetű (alapértelmezett, nincs bejelölve)** | `$41`–`$5A` (PETSCII nagybetűs CHROUT-on keresztül)                                                                              | szintén leképezve a `$41`–`$5A`-re |
 | **Kisbetűs (bejelölve)**                        | Az ábécé betűi át lettek képezve, így a látható kis- és nagybetűs karakterkészletben a kis- és nagybetűk változatlanok maradnak. | Ugyanaz a szabály                  |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .petscii $C000, "HELLO" ; nagybetűs PETSCII (alapértelmezett)
 .petscii $C000, "hello", kisbetűs ; kisbetűs PETSCII ($61–$7A)
@@ -2163,15 +2169,13 @@ között.
 | ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Mód  | **Kisbetűs** — engedélyezi a kisbetűs/nagybetűs karakterkészletet; **Nagybetűs** — visszaállítja az alapértelmezett nagybetűs/grafikus karakterkészletet |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .charset lower ; váltás kisbetűs karakterkészletre
 .charset upper ; visszaváltás nagybetűs/grafikus karakterkészletre
 ```
 
-**Indítás:** Kattintson a **Debug (RetroDebugger)** lehetőségre az eszköztáron.
-Az alkalmazás a következőket teszi:
+**Generált ASM:**
 
 Kisbetűs mód:
 ```
@@ -2232,8 +2236,7 @@ Beágyazott futásidejű kódot bocsát ki, amely végrehajtáskor 8 bájtot má
 | Karakterindex        | Melyik karakterhelyet kell újradefiniálni, 0–255. `65` = 'A' az alapértelmezett képernyőkód-elrendezésben.           |
 | 8 bájt               | Vesszővel elválasztott bitképsorok, fentről lefelé. Minden bájt 7. bitje = a bal szélső képpont.                     |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .chardef 3800 dollár, 65 dollár, 18 dollár, 3 cent, 66 dollár, 7 ezer dollár, 66 dollár, 66 dollár, 66 dollár, 00 dollár
 ```
@@ -2314,8 +2317,7 @@ koordináták):
 | `+2`    | Jobbra |
 | `+3`    | Alsó   |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .box_hit $FB, $F7
 ```
@@ -2389,8 +2391,7 @@ PRG-be a megadott címen.
 | Fájl | Tallózással válasszon ki egy `.bin`, `.prg`, `.sid` vagy `.raw` fájlt. |
 | Cím  | Cél betöltési cím (pl. `$C000`)                                        |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .incbin "zene.bin", $C000
 ```
@@ -2425,8 +2426,7 @@ többszínű bitképes módot (`$D011 = $3B`, `$D016 = $18`, `$D018 = $18`). A t
 címet elutasítja: a fennmaradó 8K-s nyílás a BASIC/KERNAL ROM alatt van (a
 másolási ciklus ROM-ot olvasna), vagy átfedésben van a karakter-ROM árnyékkal.
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .koala "kép.koa"
 .koala "kép.koa", 2000 USD
@@ -2463,14 +2463,13 @@ képernyőkód + 1000 szín). Az azonos képernyők egyszer tárolódnak, és mi
 slot egy üres képernyőn osztozik. A pointer táblák a képernyőket követik. Egy
 szint legfeljebb 7 × 10 képernyő lehet.
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .level "szint.bin"
 .level "szint.bin", $4000
 ```
 
-| Meghatározott                                             | Megjegyzések                                                                       |
+| Meghatározott                                             | Jelentés                                                                           |
 | --------------------------------------------------------- | ---------------------------------------------------------------------------------- |
 | `ALACSONY_SZINT` / `MAGAS_SZINT`                          | A képernyő címe minden slotban (sor-fő, `LEVEL_W` slot soronként)                  |
 | `SZINT_SOR_HELY`                                          | Szint karakter sor → a képernyő sorának első helye                                 |
@@ -2494,8 +2493,7 @@ képernyőkódok helyett a színeket másolja (színes RAM esetén). Egy két k�
 bájtonként). X megmarad, A és Y törlődik. Szükséges hozzá egy `.level` blokk a
 programban.
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .level_row dst_lo, nézet_x
 .level_row dst_lo, nézet_x, szín
@@ -2529,8 +2527,7 @@ A blokk a következőket jeleníti meg:
 - Egy **(áthelyezett)** jelvény jelenik meg, ha egy egyéni cím elmozdítja az
   adatokat az eredeti pozíciójukból.
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .sid "Ikari_Warriors.sid"
 .sid "Ikari_Warriors.sid", 1000 dollár
@@ -2622,14 +2619,12 @@ FILL blokkokat kell utána elhelyezni.
 | Név  | A tábla címkéjének azonosítója (pl. `színtábla`) |
 | Cím  | Fix cím, ahol a tábla kezdődik (pl. `$C000`)     |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .table színtábla, $C000
 ```
 
-**Indítás:** Kattintson a **Debug (RetroDebugger)** lehetőségre az eszköztáron.
-Az alkalmazás a következőket teszi:
+**Generált ASM:**
 ```
 színtábla:
 ```
@@ -2653,14 +2648,12 @@ kezdőcím az `$0801`.
 | Cím       | Az új forráscím (pl. `0801` HEX-ben, vagy `2049` DEC-ben)       |
 | HEX / DEC | Váltás a címbevitel hexadecimális és decimális kijelzése között |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 * = C000 dollár
 ```
 
-**Indítás:** Kattintson a **Debug (RetroDebugger)** lehetőségre az eszköztáron.
-Az alkalmazás a következőket teszi:
+**Generált ASM:**
 ```
 * = C000 dollár
 ```
@@ -2708,14 +2701,12 @@ megfelelő számú ciklust ismétli.
 | Gróf          | Ciklus iterációszám (hex vagy decimális, pl. `0A` = 10) |
 | Címke         | Automatikusan generált cikluscímke (pl. `ciklus0`)      |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .loop X, 10, loop0
 ```
 
-**Indítás:** Kattintson a **Debug (RetroDebugger)** lehetőségre az eszköztáron.
-Az alkalmazás a következőket teszi:
+**Generált ASM:**
 ```
 LDX #$0A}hurok0:
 ```
@@ -2729,14 +2720,12 @@ LDX #$0A}hurok0:
 | Nyilvántartás | Automatikusan illeszkedik a LOOP regiszterhez |
 | Címke         | Automatikusan kapcsolódik a LOOP címkéhez     |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .következő ciklus0
 ```
 
-**Indítás:** Kattintson a **Debug (RetroDebugger)** lehetőségre az eszköztáron.
-Az alkalmazás a következőket teszi:
+**Generált ASM:**
 ```
 DEX BNE hurok0
 ```
@@ -2768,14 +2757,12 @@ tömbön való lépéshez.
 | Gróf          | Ciklushatár (hex vagy decimális, pl. `$12` = 18). Az X/Y 0-tól 1-ig terjed. |
 | Címke         | Automatikusan generált cikluscímke (pl. `for0`)                             |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 X-ért, $12, 0-ért
 ```
 
-**Indítás:** Kattintson a **Debug (RetroDebugger)** lehetőségre az eszköztáron.
-Az alkalmazás a következőket teszi:
+**Generált ASM:**
 ```
 LDX #00$0-ért:
 ```
@@ -2790,14 +2777,12 @@ LDX #00$0-ért:
 | Címke         | Automatikusan kapcsolódik a FOR címkéhez     |
 | Gróf          | Automatikusan másolva a párosított FOR-ból   |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .endf for0
 ```
 
-**Indítás:** Kattintson a **Debug (RetroDebugger)** lehetőségre az eszköztáron.
-Az alkalmazás a következőket teszi:
+**Generált ASM:**
 ```
 INX CPX #$12 BNE 0-ért
 ```
@@ -2841,8 +2826,7 @@ legbelső először).
 | ----------- | -------------------------------------------------------------- |
 | Regiszterek | Bármilyen kombináció: `A`, `X`, `Y`, `AX`, `AY`, `XY`, `XY[X2] |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .push AXY
 ```
@@ -2862,8 +2846,7 @@ Visszaállítja a regisztereket a veremből ** fordított sorrendben ** (Y → X
 | ----------- | ----------------------------------------------------------------- |
 | Regiszterek | Ugyanaz, mint a PUSH – meg kell egyeznie a megfelelő PUSH blokkal |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .húzza az AXY-t
 ```
@@ -2885,14 +2868,12 @@ Az **RTS-hez hasonlóan, egy barátságosabb makrónévvel ** — az `.end` egye
 `RTS` bájtot bocsát ki, és szakértői módban rövid alprogramterminátorként
 viselkedik.
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .end
 ```
 
-**Indítás:** Kattintson a **Debug (RetroDebugger)** lehetőségre az eszköztáron.
-Az alkalmazás a következőket teszi:
+**Generált ASM:**
 ```
 RTS
 ```
@@ -2923,8 +2904,7 @@ alkotják – ezek **nem generálnak semmilyen kódot** ott, ahol a definíció
 található. Az argumentumokhoz használd a `{paramName}` karakterláncot
 helykitöltőként.
 
-**Indítás:** Kattintson a **Debug (RetroDebugger)** lehetőségre az eszköztáron.
-Az alkalmazás a következőket teszi:
+**Generált ASM:**
 ```
 ; .MACRO setColor (szín)
 ... (törzsblokkok)
@@ -2953,8 +2933,7 @@ helyettesíti a törzsben lévő `{paramName}` helyőrzők helyére.
 | Makró neve | Válasszon a definiált makrók legördülő menüjéből                                                       |
 | érvek      | Vesszővel elválasztott argumentumértékek, amelyek megegyeznek a makró paraméterlistájával (pl. `#$07`) |
 
-**Indítás:** Kattintson a **Debug (RetroDebugger)** lehetőségre az eszköztáron.
-Az alkalmazás a következőket teszi:
+**Generált ASM:**
 ```
 ; .invoke setColor(#$07)
     LDA #$07
@@ -3006,8 +2985,7 @@ hajtogatod, hogy aztán összecsukhasd és valami másra koncentrálhass.
 | ---------- | ----------------------------------------------------------------------------- |
 | Régió neve | Szabad szöveges címkék a szakaszhoz (pl. `init`, `game_loop`, `sprite_setup`) |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .region init
 ; blokkok...
@@ -3029,8 +3007,7 @@ konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra
   az aktuális régió ENDREGION-ja után, és odagörget. A gomb halványan jelenik
   meg, amíg a régió másolása meg nem történik.
 
-**Indítás:** Kattintson a **Debug (RetroDebugger)** lehetőségre az eszköztáron.
-Az alkalmazás a következőket teszi:
+**Generált ASM:**
 ```
 ; régió init
     SEI
@@ -3066,14 +3043,12 @@ kimenetből. A kiadott buildekhez nem kell kódot törölni.
 | --------- | ---------------------------------------------------------------------------------------------- |
 | Szimbólum | Egy vagy több vesszővel elválasztott azonosító az aktiváláshoz (pl. `DEBUG` vagy `DEBUG, PAL`) |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .define DEBUG, PAL
 ```
 
-**Indítás:** Kattintson a **Debug (RetroDebugger)** lehetőségre az eszköztáron.
-Az alkalmazás a következőket teszi:
+**Generált ASM:**
 ```
 ; .DEFINE DEBUG
 ; .DEFINE DEBUG, PAL
@@ -3089,14 +3064,12 @@ eltávolítása azonnal deaktiválja az összes szimbólumát.
 | ------- | ----------------------------------------------------------------------------------- |
 | Állapot | Tesztelendő azonosító (egyeznie kell egy `DEFINE` szimbólummal az aktív állapothoz) |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .if HIBAKERESÉS
 ```
 
-**Indítás:** Kattintson a **Debug (RetroDebugger)** lehetőségre az eszköztáron.
-Az alkalmazás a következőket teszi:
+**Generált ASM:**
 ```
 ; .HA HIBAKERESÉS
 ```
@@ -3111,14 +3084,12 @@ bájtot** generálnak.
 Nincsenek mezők. Az alternatív ágat jelöli — akkor állítódik össze, amikor az
 `IF` feltétel *not* aktív.
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .más
 ```
 
-**Indítás:** Kattintson a **Debug (RetroDebugger)** lehetőségre az eszköztáron.
-Az alkalmazás a következőket teszi:
+**Generált ASM:**
 ```
 ; .ELSE
 ```
@@ -3127,14 +3098,12 @@ Az alkalmazás a következőket teszi:
 
 Nincsenek mezők. Lezárja a feltételes blokkot.
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .endif fájltípus
 ```
 
-**Indítás:** Kattintson a **Debug (RetroDebugger)** lehetőségre az eszköztáron.
-Az alkalmazás a következőket teszi:
+**Generált ASM:**
 ```
 ; .ENDIF
 ```
@@ -3184,8 +3153,7 @@ igaz (nem nulla), akkor semmit nem bocsát ki.
 | Kifejezés | Bármely assembler kifejezés: címkék, `CONST`s, `*` (programszámláló), aritmetikai műveletek és összehasonlítások (`&lt;`, `&lt;=`, `&gt;`, `&gt;=`, `==`, `!=`) |
 | Üzenet    | A hibaüzenethez hozzáfűzött opcionális szöveg                                                                                                                   |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .assert spriteData &lt; $C000
 .assert * &lt; $A000
@@ -3229,15 +3197,13 @@ módosítható.
 | Érték    | Numerikus érték a kiválasztott számrendszerben (pl. `0400` HEX = $0400 cím esetén), vagy PC-relatív kifejezés (lásd alább) |
 | Formátum | HEX vagy DEC — az érték bevitelének és megjelenítésének módját szabályozza                                                 |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .const KÉPERNYŐ = $0400
 .const KERETEK_1-EK = 60
 ```
 
-**Indítás:** Kattintson a **Debug (RetroDebugger)** lehetőségre az eszköztáron.
-Az alkalmazás a következőket teszi:
+**Generált ASM:**
 ```
 ; .CONST SCREEN = $0400
 ```
@@ -3296,8 +3262,7 @@ Használja számlálókhoz, mutatókhoz és a ZP-be tartozó rövid életű áll
 | Név                | Változó neve / címkéje                                       |
 | Méret (opcionális) | A lefoglalandó bájtok száma. Egyetlen bájt esetén hagyja ki. |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .var számláló
 .var időzítő, 2
@@ -3315,8 +3280,7 @@ LDA #$00
 STA számláló
 ```
 
-**Indítás:** Kattintson a **Debug (RetroDebugger)** lehetőségre az eszköztáron.
-Az alkalmazás a következőket teszi:
+**Generált ASM:**
 ```
 ; .var számláló
 ```
@@ -3342,8 +3306,7 @@ fordítási időben. Összehasonlítja az `A`, `X` vagy `Y` értékeket egy azon
 | Operátor      | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
 | Érték         | Azonnali érték HEX vagy DEC formátumban      |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .ha A == #$10
 LDA #$07
@@ -3371,8 +3334,7 @@ feltétel igaz marad.
 | Operátor      | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
 | Érték         | Azonnali érték HEX vagy DEC formátumban      |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .while A != #$00 JSR getchar
 .endw
@@ -3397,8 +3359,7 @@ egyszer, majd a feltétel eldönti, hogy leálljon-e.
 | Operátor      | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
 | Érték         | Azonnali érték HEX vagy DEC formátumban      |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .repeat
 JSR getchar
@@ -3423,8 +3384,7 @@ egyetlen bájttal.
 | `MEMCPY` | `forrás`, `dst`, `méret` |
 | `MEMSET` | `cím`, `érték`, `méret`  |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .memcpy forrás=$C000, dst=$D000, méret=$0100
 .memset cím=$0400, érték=#$20, méret=$03E8
@@ -3447,8 +3407,7 @@ Mint a **PETSCII kimenet a sablonos ** nélkül — egy karakterláncot nyomtat 
 PETSCII blokk. A kisbetűs jelölőnégyzet meg van osztva a PETSCII kódolóval, így
 a szöveg elérési útja konzisztens marad.
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .print "SZIA"
 .print "szia", alsó
@@ -3460,8 +3419,7 @@ Kinyomtat egy PETSCII bájtot numerikus kódként, és elküldi azt a `CHROUT`
 metóduson keresztül. Az érték lehet egy elnevezett konstans vagy címke is, amely
 összeszereléskor bájtra oldódik fel, mind Blokk, mind Szakértő módban.
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .print_char 65
 .print_char $41
@@ -3473,8 +3431,7 @@ konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra
 Egy 8 bites értéket nyomtat ki hexadecimális szövegként a normál KERNAL kimeneti
 útvonalon keresztül.
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .print_hex A
 ```
@@ -3483,8 +3440,7 @@ konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra
 
 A szabványos C64 képernyős vezérlőkód gyorsbillentyűje.
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .clear_screen
 ```
@@ -3494,8 +3450,7 @@ konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra
 Megvárja, amíg lenyomnak egy billentyűt, így nem kell minden alkalommal kézzel
 futtatni a `GETIN` ciklust.
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .wait_key
 ```
@@ -3507,8 +3462,7 @@ rövid szünetekhez és időzítési hézagokhoz használjuk, amikor egy teljes 
 ciklus túlzás lenne. A képkockaszám lehet nyers szám vagy egy elnevezett
 konstans, és az `.wait` csak az `.delay` álneve.
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .delay 29
 .wait 29
@@ -3525,8 +3479,7 @@ Kényelmi burkolók a VIC-II színregiszterekhez. A színérték lehet nyers sz�
 egy elnevezett konstans, amely 0–15-re oldódik fel. Mind a Blokk mód, mind a
 Szakértő mód elfogad szimbolikus konstansneveket.
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .set_border 6
 .set_bg 0
@@ -3555,8 +3508,7 @@ végrehajtáshoz.
 | Kezelő  | IRQ rutin címkéje (pl. `my_irq`)                                  |
 | Raszter | Raszteres vonal hexadecimális vagy decimális formában (pl. `$FA`) |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .irq_setup kezelő=my_irq, raszter=$FA
 ```
@@ -3578,8 +3530,7 @@ ad vissza egy kompakt nulla oldalas kezdőértékből.
 | ---- | ---------------------------------------------------------------------- |
 | Mag  | Opcionális nulla oldalas kezdőbájt vagy címke (alapértelmezett: `$FB`) |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .rand
 ```
@@ -3606,16 +3557,14 @@ beállítja a színét.
 | Adatoldal | Sprite adatcím / 64 (pl. `$21`, ha az adat a `$0840` címen található) |
 | Sokszínű  | Be-/kikapcsolja a sprite többszínű bitjét (`$D01C`)                   |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .sprite_init 0, 7, $21
 .sprite_init 0, 7, $21, többszínű
 .sprite_init 0, 7, $21, egyszínű
 ```
 
-**Indítás:** Kattintson a **Debug (RetroDebugger)** lehetőségre az eszköztáron.
-Az alkalmazás a következőket teszi:
+**Generált ASM:**
 ```
 LDA #$21
 STA $07F8 ; sprite pointer regiszter ($07F8 + N)
@@ -3651,8 +3600,7 @@ használd közvetlenül a sprite regiszteren az `INC`/`DEC` metódust.
 | X        | Vízszintes pozíció 0–319 |
 | Y        | Függőleges pozíció 0–255 |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .sprite_pos 0, 152, 100
 ```
@@ -3691,14 +3639,12 @@ JSR-re, nincs szükség címkére.
 | --------------- | --------------------------------------------------------- |
 | Raszteres vonal | Cél raszteres vonal hexadecimálisan (pl. `FF` = 255. sor) |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .wait_raster $FF
 ```
 
-**Indítás:** Kattintson a **Debug (RetroDebugger)** lehetőségre az eszköztáron.
-Az alkalmazás a következőket teszi:
+**Generált ASM:**
 ```
 várj:
 LDA $D012 ; aktuális raszter sor
@@ -3725,8 +3671,7 @@ JSR-re.
 | Kikötő   | `1` = 1-es port (`$DC01`) vagy `2` = 2-es port (`$DC00`)               |
 | Sprite # | Sprite szám 0–7 (azt vezérli, hogy melyik X/Y regiszterpár frissüljön) |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .joystick 2, 0
 ```
@@ -3873,8 +3818,7 @@ regisztereket, és megmondja, hogy egy sprite egy másik sprite-ba vagy a hátt�
 | Sprite #       | Sprite szám 0–7 (melyik sprite bitjét kell ellenőrizni)                                                        |
 | Ütközés típusa | `Sprite-Sprite ($D01E)` — ütközés egy másik sprite-tal; `Sprite-Background ($D01F)` — ütközés háttérgrafikával |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .sprite_col 0, sprite
 .sprite_col 0, háttér
@@ -3927,8 +3871,7 @@ kódot tölthet be lemezről a program futása közben.
 | Cím felülírása (opcionális) | Hex betöltési cím (pl. `C000`). Ha be van állítva, a fájl erre a címre töltődik be (`sec=0`, figyelmen kívül hagyva a PRG fejlécet). Hagyja üresen, ha a fájl saját 2 bájtos PRG fejlécét szeretné használni (`sec=1`). |
 | Hibacímke (opcionális)      | Ha be van állítva, a JSR LOAD után egy `BCS` utasítás generálódik. Ha a KERNAL carry set (hiba) értékkel tér vissza, a végrehajtás erre a címkére ugrik.                                                                |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .loadfile "DEMÓ-SZÍNEK", 8
 .loadfile "DEMÓ-SZÍNEK", 8, $C000
@@ -3979,8 +3922,7 @@ adatfolyamba beágyazott címre.
 | ------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | Depakoló címe | A kicsomagoló kód memóriában való tárolásának helye (alapértelmezett: `B000`). 16 bites hexadecimális címnek kell lennie. |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .exodecrunch
 .exodecrunch kicsomagoló=$B000
@@ -4070,8 +4012,7 @@ kész:
 > A makró normalizálja az eredményt, így a következő ág egyszerű marad: az `BNE`
 > REU jelenlétét, az `BEQ` hiányzó REU-t jelent.
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .reu_check
 ```
@@ -4115,8 +4056,7 @@ azonnali.
 | REU bank | REU memóriabank (0–7)                 | `0`    |
 | Hossz    | Átviendő bájtok száma (hex, 16 bites) | `1000` |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .reu_stash $C000, $0000, 0, $1000
 .reu_fetch $C000, $0000, 0, $1000
@@ -4193,8 +4133,7 @@ C9 FF CMP #$FF
 
 **Nincsenek konfigurálható mezők.**
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .supercpu_detect
 ```
@@ -4417,8 +4356,7 @@ A 6502-es decimális módot (`SED`/`CLD`) használja a hordozható BCD-aritmetik
 | Pontok hozzáadása | Hívásonként hozzáadandó decimális érték (pl. `100`).                                                         |
 | Képernyőcím       | Hová kell írni a számjegy képernyőkódokat (pl. `0400`). Számjegyenként egy bájt (a magasabb nibble először). |
 
-**Beállítás:** Nyisd meg a **Beállítások → RetroDebugger futtatható fájl
-konfigurálása** fájlt, és irányítsd át a `RetroDebugger` bináris fájlra.
+**Szakértői szintaxis:**
 ```
 .score_bcd $C200, 4, 100, $0400
 ```
@@ -4511,7 +4449,7 @@ kiemelve. Címük minden hibakereső indításakor beíródik a töréspont fáj
 
 ### Hibakereső jelzők (Beállítások fül)
 
-| Példa                             | Zászló                         | Hatás                                                                  |
+| Váltás                            | Zászló                         | Hatás                                                                  |
 | --------------------------------- | ------------------------------ | ---------------------------------------------------------------------- |
 | `-jump` BE                        | `-jump $CÍM`                   | Betöltés után közvetlenül a program kezdőcímére ugorhat                |
 | `-szüneteltetés megszüntetése` BE | `-szüneteltetés megszüntetése` | A hibakereső szüneteltetésének azonnali feloldása betöltéskor          |
@@ -4784,24 +4722,23 @@ az `INCBIN` paraméterrel, vagy közvetlenül hozzáadhatók egy D64 lemezhez a
 
 ### Nagy felbontású / többszínű szerkesztő
 
-| Jellemző  | Leírás                                                                                                                    |
-| --------- | ------------------------------------------------------------------------------------------------------------------------- |
-| Módváltás | A **Többszínű** jelölőnégyzet a nagy felbontású (cellánként fekete-fehér) és a többszínű (cellánként 4 szín) között vált. |
-| Eszközök  | Ceruza, radír, vonal, téglalap, kitöltött téglalap, ovális, kitöltött ovális, kitöltés.                                   |
+| Jellemző    | Leírás                                                                                                                    |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Módváltás   | A **Többszínű** jelölőnégyzet a nagy felbontású (cellánként fekete-fehér) és a többszínű (cellánként 4 szín) között vált. |
+| **Állapot** | Megjeleníti, hogy a végrehajtható fájl elérési útja érvényes és elérhető-e                                                |
 
 Pixel szintű bitképszerkesztő 320×200 nagy felbontású és 160×200 többszínű
 móddal. Megnyitás a Toolkit → Nagy felbontású szerkesztő menüpontban.
 
 ### Sprite-szerkesztő
 
-| Jellemző | Leírás                                                                                  |
-| -------- | --------------------------------------------------------------------------------------- |
-| Keretek  | Keretek hozzáadása / eltávolítása / átrendezése; a keretsáv alul látható.               |
-| Mód      | Monokróm / többszínű váltás.                                                            |
-| Eszközök | Ceruza, radír, vonal, téglalap, kitöltött téglalap, ovális, kitöltött ovális, kitöltés. |
+| Jellemző    | Leírás                                                                     |
+| ----------- | -------------------------------------------------------------------------- |
+| Keretek     | Keretek hozzáadása / eltávolítása / átrendezése; a keretsáv alul látható.  |
+| Mód         | Monokróm / többszínű váltás.                                               |
+| **Állapot** | Megjeleníti, hogy a végrehajtható fájl elérési útja érvényes és elérhető-e |
 
-24×21 pixeles sprite szerkesztő több képkockás animációval. Megnyitás a Toolkit
-→ Sprite szerkesztő menüpontban.
+**Munkafolyamat:**
 1. Telepítsd az Exomizer bináris fájlt:
    - **Windows:** töltse le az előre elkészített `win32/exomizer.exe` fájlt a
      https://bitbucket.org/magli143/exomizer/wiki/Home vagy a
@@ -4839,7 +4776,7 @@ platformspecifikus.
 | Jellemző            | Leírás                                                                                                                                                                                                                                             |
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Két karakterkészlet | 1. fül: **1. készlet — Felső/Grafika** (alapértelmezett mód bekapcsolás után). 2. fül: **2. készlet — Alsó/Felső** (`$0E` váltás után).                                                                                                            |
-| Eszközök            | 16×16-os rács, mind a 256 karakterből. Kattintson egy karakterjelre a részletes panel megtekintéséhez: nagyított 8×8 pixeles nézet, képernyőkód (decimális + hex), PETSCII kódok (alapértelmezett és eltolt is), valamint a nyers 8 bájtos bitkép. |
+| **Állapot**         | 16×16-os rács, mind a 256 karakterből. Kattintson egy karakterjelre a részletes panel megtekintéséhez: nagyított 8×8 pixeles nézet, képernyőkód (decimális + hex), PETSCII kódok (alapértelmezett és eltolt is), valamint a nyers 8 bájtos bitkép. |
 
 A C64 karakter ROM (a beépített PETSCII betűtípus) csak olvasható megjelenítője.
 Megnyitható az **C64 chargen** bejegyzéssel az Eszközkészlet menüben. Hasznos
@@ -4857,8 +4794,7 @@ Karakterszerkesztő menüpontban.
 | Betöltés `.bin`          | Importál egy külső, 2048 bájtos karakterkészletű bináris fájlt.                                      |
 | Karakterenkénti előnézet | 16 szélességű rács, amely mind a 256 karakterjelet tartalmazza, az aktuális cellával kiemelve.       |
 
-24×21 pixeles sprite szerkesztő több képkockás animációval. Megnyitás a Toolkit
-→ Sprite szerkesztő menüpontban.
+**Munkafolyamat:**
 1. Csatlakoztassa a 1541 Ultimate / Ultimate 64 készüléket a helyi hálózathoz.
 2. Adja meg az IP-címét (és jelszavát, ha be van állítva) a Hardverbeállítások
    részben.
@@ -4892,8 +4828,7 @@ a C64 valódi karaktereinek többszínűségi szabályait használva.
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Monokróm / többszínű | A monokróm mód 1 bites 8×8-as karakterjeleket tárol. A többszínű mód két bites vízszintes pixelpárokat tárol, és a felhasznált cellákat a Color RAM 3-as bitjével jelöli. |
 
-24×21 pixeles sprite szerkesztő több képkockás animációval. Megnyitás a Toolkit
-→ Sprite szerkesztő menüpontban.
+**Munkafolyamat:**
 1. Helyezze a Kung Fu Flash 2-t a C64 kazettacsatlakozójába, kapcsolja be a
    számítógépet, és csatlakoztassa az USB-kábelt a PC-hez/Mac-hez.
 2. Nyisd meg a **Hardverbeállítások** ablakot, és ellenőrizd a **Kung Fu Flash
@@ -4943,34 +4878,38 @@ megnyitáskor visszaáll.
 Pixel szintű bitképszerkesztő 320×200 nagy felbontású és 160×200 többszínű
 móddal. Megnyitás a Toolkit → Nagy felbontású szerkesztő menüpontban.
 
-| Jellemző                  | Leírás                                                                                                                          |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| Módváltás                 | A **Többszínű** jelölőnégyzet a nagy felbontású (cellánként fekete-fehér) és a többszínű (cellánként 4 szín) között vált.       |
-| Eszközök                  | Ceruza, radír, vonal, téglalap, kitöltött téglalap, ovális, kitöltött ovális, kitöltés.                                         |
-| Szóróeszköz               | Airbrush stílusú festő, amely rajzolás közben pixeleket szór a kurzor körül.                                                    |
-| Permetezés intenzitása    | A szóróeszköz melletti legördülő menüvel szabályozható az egyes szóróvonások sűrűsége.                                          |
-| Színpaletta               | Előtér (tinta) + papír (háttér) választó. A többszínű mód automatikusan cellánként 3 extrát követ.                              |
-| Visszavonás / Újraindítás | Löketenkénti előzmények, ctrl-Z / ctrl-Y.                                                                                       |
-| Rács + Raszter            | Opcionális 8×8-as rács és raszteres sorrátét a cellaigazításhoz.                                                                |
-| Kép importálása           | A vászonra dobott PNG/JPEG/GIF fájlok automatikusan kvantálódnak a 16 színű C64 palettára.                                      |
-| Blokk exportálása         | BYTE/RAWBYTES blokkokat fűz a programhoz a kódolt bitképes, képernyő- és színadatokkal.                                         |
-| Exportálás: `.bin`        | Elmenti a natív többszínű formátumot (10000 bájt: 8000 bitkép + 1000 képernyő + 1000 szín) a LOADFILE-ra $2000 fájlformátumban. |
+| Jellemző                  | Leírás                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Módváltás                 | A **Többszínű** jelölőnégyzet a nagy felbontású (cellánként fekete-fehér) és a többszínű (cellánként 4 szín) között vált.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| Eszközök                  | Ceruza, radír, vonal, téglalap, kitöltött téglalap, ovális, kitöltött ovális, kitöltés, kijelölés.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Szóróeszköz               | Airbrush stílusú festő, amely rajzolás közben pixeleket szór a kurzor körül.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Permetezés intenzitása    | A szóróeszköz melletti legördülő menüvel szabályozható az egyes szóróvonások sűrűsége.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Színpaletta               | Előtér (tinta) + papír (háttér) választó. A többszínű mód automatikusan cellánként 3 extrát követ.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Visszavonás / Újraindítás | Löketenkénti előzmények, ctrl-Z / ctrl-Y.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| Válasszon                 | A szaggatott négyzet eszköz: húzd az egeret a vásznon egy téglalap alakú régió kijelöléséhez. Az **Esc** billentyűkombináció törli a kijelölést.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Másolás / Beillesztés     | A **Másolás** (`Ctrl/Cmd+C`) paranccsal másolható a kijelölt terület. A **Beillesztés** (`Ctrl/Cmd+V`) paranccsal a kurzort követő előnézetet jeleníthet meg: kattintson a vászonra az elhelyezéséhez, az **Esc** paranccsal megszakíthatja a műveletet. A másolat megmarad, ezért a `Ctrl/Cmd+V` billentyűkombináció megnyomásával és az újbóli kattintással annyiszor helyezheti el, ahányszor szükséges. Nagy felbontású módban a beillesztett képpontok továbbra is követik a cellánkénti két szín korlátját, ezért a terület színeinek megőrzése érdekében igazítsa a cellarácshoz a területet. A Másolás, Beillesztés és Átlátszó beillesztés funkciók a vászon jobb gombbal elérhető menüjében is elérhetők; a beillesztés ott kezdődik, ahol a kattintott ponton kezdődik az előnézet. |
+| Átlátszó paszta           | A `Ctrl/Cmd+Shift+V` (vagy annak eszköztárgombja) billentyűkombináció kihagyja a másolat papírszínű pixeleit, így az alattuk lévő kép átlátszik.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Rács + Raszter            | Az **Grid** a karaktercella-rácsot mutatja: 8×8 pixel nagy felbontású, 4×8 dupla széles pixel többszínű módban. 4×-es nagyítástól halványabb vonalat húz minden egyes pixel köré, így minden pixel pontosan elhelyezhető. Az **Raster** raszteres sorrátétet ad hozzá.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Zoomolás                  | Csúszka 1×-ről 16×-ra.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Kép importálása           | A vászonra dobott PNG/JPEG/GIF fájlok automatikusan kvantálódnak a 16 színű C64 palettára.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Blokk exportálása         | BYTE/RAWBYTES blokkokat fűz a programhoz a kódolt bitképes, képernyő- és színadatokkal.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Exportálás: `.bin`        | Elmenti a natív többszínű formátumot (10000 bájt: 8000 bitkép + 1000 képernyő + 1000 szín) a LOADFILE-ra $2000 fájlformátumban.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 
 ### Sprite-szerkesztő
 
 24×21 pixeles sprite szerkesztő több képkockás animációval. Megnyitás a Toolkit
 → Sprite szerkesztő menüpontban.
 
-| Jellemző                  | Leírás                                                                                                                                                                                                                                                      |
-| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Keretek                   | Keretek hozzáadása / eltávolítása / átrendezése; a keretsáv alul látható.                                                                                                                                                                                   |
-| Mód                       | Monokróm / többszínű váltás.                                                                                                                                                                                                                                |
-| Eszközök                  | Ceruza, kitöltés, vonal, téglalap, kör – plusz vízszintes tükrözés, függőleges tükrözés, eltolás balra/jobbra/fel/le (opcionális körbefuttatás). Az alakzateszközök élő előnézetet jelenítenek meg húzás közben; a véglegesítéshez engedje el a billentyűt. |
-| Visszavonás / újraindítás | Teljes visszavonás/ismétlés művelet képkockánként. Ctrl/Cmd+Z / Ctrl/Cmd+Y vagy az eszköztár gombjai.                                                                                                                                                       |
-| Képimportálás             | PNG vagy JPEG fájl importálása a Fájlok → Kép importálása menüpontban. Az importáló minden képpontot a legközelebbi C64 palettaszínhez rendel, és beírja az aktuális képkockába.                                                                            |
-| Animáció előnézete        | Lejátszás / leállítás konfigurálható sebességgel.                                                                                                                                                                                                           |
-| Blokk exportálása         | Minden képkockához beszúr egy RAWBYTES blokkot 64 bájtos, egymáshoz igazított címen, valamint egy sprite pointer beállítást.                                                                                                                                |
-| Mentés `.bin`             | Képkockánként 64 bájtot ír (nyers sprite adatok kitöltés nélkül).                                                                                                                                                                                           |
+| Jellemző                  | Leírás                                                                                                                                                                                                                                                                       |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Keretek                   | Keretek hozzáadása / eltávolítása / átrendezése; a keretsáv alul látható. A keretsorban található **Másolás** / **Beillesztés** paranccsal másolja a teljes aktuális keretet; ugyanez a két bejegyzés található a vászon és a keretsáv jobb gombbal előhívható menüjében is. |
+| Mód                       | Monokróm / többszínű váltás.                                                                                                                                                                                                                                                 |
+| Eszközök                  | Ceruza, kitöltés, vonal, téglalap, kör – plusz vízszintes tükrözés, függőleges tükrözés, eltolás balra/jobbra/fel/le (opcionális körbefuttatás). Az alakzateszközök élő előnézetet jelenítenek meg húzás közben; a véglegesítéshez engedje el a billentyűt.                  |
+| Visszavonás / újraindítás | Teljes visszavonás/ismétlés művelet képkockánként. Ctrl/Cmd+Z / Ctrl/Cmd+Y vagy az eszköztár gombjai.                                                                                                                                                                        |
+| Képimportálás             | PNG vagy JPEG fájl importálása a Fájlok → Kép importálása menüpontban. Az importáló minden képpontot a legközelebbi C64 palettaszínhez rendel, és beírja az aktuális képkockába.                                                                                             |
+| Animáció előnézete        | Lejátszás / leállítás konfigurálható sebességgel.                                                                                                                                                                                                                            |
+| Blokk exportálása         | Minden képkockához beszúr egy RAWBYTES blokkot 64 bájtos, egymáshoz igazított címen, valamint egy sprite pointer beállítást.                                                                                                                                                 |
+| Mentés `.bin`             | Képkockánként 64 bájtot ír (nyers sprite adatok kitöltés nélkül).                                                                                                                                                                                                            |
 
 ### C64 karakter ROM böngésző ("Karaktertérkép")
 
@@ -5040,7 +4979,7 @@ Térképszerkesztő menüpontban.
 | Visszavonás / újraindítás                 | Teljes visszavonás/ismétlés művelet rétegenként. Ctrl/Cmd+Z / Ctrl/Cmd+Y vagy az eszköztár gombjai.                                                                                                                                                                                 |
 | Menü törlése                              | Rétegenkénti vagy teljes térképi törlés megerősítéssel.                                                                                                                                                                                                                             |
 | Képimportálás                             | Helyezzen el egy tilemap PNG-jét; a szerkesztő automatikusan csempékre szeleteli.                                                                                                                                                                                                   |
-| Másolás / beillesztés                     | Másolja ki a kijelölt csempeterületet, majd illessze be normál módon, vagy használjon átlátszó pasztát az üres csempék átlátszóságának megőrzéséhez.                                                                                                                                |
+| Másolás / beillesztés                     | Másolja ki a kijelölt csempeterületet, majd illessze be normál módon, vagy használjon átlátszó beillesztést az üres csempék átlátszóságának megőrzéséhez. Ugyanezek a bejegyzések találhatók a vászon jobb gombbal elérhető menüjében is.                                           |
 | Többszínű csempe színezés                 | Kompatibilis karakterkészlet metaadatokkal a festés a csempe tárolt Color RAM alapértelmezett értékeit használja (beleértve a többszínűséggel kapcsolatos kódolást is) egy általános, egyszínű helyett.                                                                             |
 | Egyéni karakterkészlet színek             | Amikor egy karakterkészlet `charColors` metaadatot hordoz, a Térképszerkesztő a kiválasztott csempe alapértelmezett Szín RAM értékét használja festés közben.                                                                                                                       |
 | Blokk exportálása                         | RAWBYTES blokkokat bocsát ki a csempék grafikáihoz + térképadatokhoz.                                                                                                                                                                                                               |
@@ -5303,8 +5242,8 @@ példáért.
 
 Egy kis **nem modális** DEC / HEX / BIN konverter, amely a D64 szerkesztő
 melletti eszköztár gombbal nyitható meg (kattintson ismét, vagy nyomja meg az
-Esc billentyűt a bezáráshoz). A program szerkesztése közben bármilyen módban
-nyitva marad.
+Esc billentyűt a bezáráshoz). A gomb kiemelve marad, amíg a konverter látható. A
+program szerkesztése közben bármilyen módban nyitva marad.
 
 - Írj be egy értéket az **DEC**, **HEX** vagy **BIN** mezők bármelyikébe, majd a
   másik kettő következik. Az `$`, `0x`, `%`, `0b` előtagok és elválasztók

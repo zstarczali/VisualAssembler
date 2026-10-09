@@ -6794,9 +6794,11 @@ html[data-theme="commodore77"] .splash-image {
   padding: 0;
   background: var(--panel);
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
-  min-width: 360px;
-  max-width: 720px;
-  width: 90vw;
+  min-width: 0;
+  max-width: none;
+  width: min(1040px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
 }
 
 /* Explicit centering so the dialog looks correct whether opened with show()
@@ -6827,8 +6829,33 @@ html[data-theme="commodore77"] .splash-image {
 
 .hw-settings-body {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
+}
+
+@media (max-width: 1000px) {
+  .hardware-settings-dialog {
+    width: min(760px, calc(100vw - 32px));
+  }
+
+  .hw-settings-body {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .hardware-settings-dialog {
+    width: calc(100vw - 24px);
+    max-height: calc(100vh - 24px);
+  }
+
+  .hardware-settings-card {
+    padding: 18px 14px;
+  }
+
+  .hw-settings-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .hw-settings-body .hw-settings-section--full {
@@ -6870,6 +6897,12 @@ html[data-theme="commodore77"] .splash-image {
 .hw-settings-section input {
   max-width: 100%;
   min-width: 0;
+}
+
+.hw-settings-section .sid-select {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .hw-settings-section-label {
@@ -9509,7 +9542,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-master-vol-wrap {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   margin-left: auto;   /* push to the right side of the header */
   padding-right: 6px;
 }
@@ -9522,14 +9555,6 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
   text-transform: uppercase;
   color: var(--secondary);
   white-space: nowrap;
-}
-.sid-master-vol {
-  width: 130px;
-  height: 4px;
-  min-height: 0;
-  accent-color: var(--accent, #4ade80);
-  vertical-align: middle;
-  margin: 0;
 }
 .sid-master-vol-val {
   font-family: var(--mono-font, monospace);
@@ -10062,6 +10087,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .cg-icon-btn,
 .cg-tool,
 .dbe-tool,
+.websid-play-tool,
 #curve-gen-btn,
 #disasm-copy-source-btn,
 #expert-disasm-copy-source-btn {
@@ -10086,6 +10112,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .cg-icon-btn[aria-label]::after,
 .cg-tool[aria-label]::after,
 .dbe-tool[aria-label]::after,
+.websid-play-tool[aria-label]::after,
 #curve-gen-btn[aria-label]::after,
 #disasm-copy-source-btn[aria-label]::after,
 #expert-disasm-copy-source-btn[aria-label]::after {
@@ -10112,6 +10139,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
    dialog, so the default `right: 0` pushes the tooltip off-canvas where
    the card's `overflow: hidden` clips it. Anchor left instead. */
 .cg-tool[aria-label]::after,
+.websid-play-tool[aria-label]::after,
 #curve-gen-btn[aria-label]::after {
   left: 0;
   right: auto;
@@ -10148,6 +10176,8 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .cg-icon-btn:hover[aria-label]::after,
 .cg-tool:hover[aria-label]::after,
 .dbe-tool:hover[aria-label]::after,
+.websid-play-tool:hover[aria-label]::after,
+.websid-play-tool:focus-visible[aria-label]::after,
 #curve-gen-btn:hover[aria-label]::after,
 #disasm-copy-source-btn:hover[aria-label]::after,
 #expert-disasm-copy-source-btn:hover[aria-label]::after,
@@ -10280,42 +10310,50 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
   left: auto;
 }
 
-/* ── External SID playback dialog (modal, WebSid) ─────────────────
-   Uses <dialog>.showModal() — with two modals open, the last one to enter
-   the top layer wins for clicks, so Stop is always reachable. A translucent
-   backdrop makes the SID editor visible-but-inert until Stop is pressed. */
+/* ═══ SID player (floating, like the number converter) ═════════
+   show() normally; showModal() only over an open modal editor (SID Editor),
+   where a non-modal dialog would sit under the modal ::backdrop. */
 .websid-play-dialog {
-  padding: 0;
   border: none;
+  padding: 0;
+  margin: 0;
   background: transparent;
   color: var(--text);
-  max-width: 460px;
+  width: min(520px, 96vw);
+  overflow: visible;
 }
-.websid-play-dialog:not([open]) { display: none; }
-.websid-play-dialog::backdrop {
-  background: color-mix(in srgb, #000 45%, transparent);
-  backdrop-filter: blur(1.5px);
+.websid-play-dialog[open] {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9980;
 }
+.websid-play-dialog::backdrop { background: transparent; }
 .websid-play-card {
-  min-width: 320px;
-  max-width: 420px;
-  background: var(--panel-strong, var(--panel-bg));
+  background: var(--panel);
   border: 1px solid var(--panel-border);
-  border-radius: 6px;
-  padding: 18px 20px 16px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
-  color: var(--text);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3), 0 16px 40px rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
 }
 .websid-play-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-weight: 600;
-  font-size: 0.95rem;
-  margin-bottom: 10px;
+  gap: 10px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--panel-border);
+  background: var(--panel-strong);
+}
+.websid-play-title {
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
 }
 .websid-play-dot {
-  width: 10px; height: 10px; border-radius: 50%;
+  width: 8px; height: 8px; border-radius: 50%;
   background: var(--accent, #4ade80);
   box-shadow: 0 0 8px currentColor;
   animation: websid-pulse 1.2s ease-in-out infinite;
@@ -10324,23 +10362,185 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
   0%, 100% { opacity: 1; transform: scale(1); }
   50%      { opacity: 0.4; transform: scale(0.7); }
 }
-.websid-play-file {
-  font-family: var(--mono-font, monospace);
-  font-size: 0.85rem;
+.websid-play-dialog--seeking .websid-play-time { animation: websid-seeking 0.8s ease-in-out infinite; }
+@keyframes websid-seeking { 50% { opacity: 0.35; } }
+.websid-play-dialog--paused .websid-play-dot { animation: none; opacity: 0.6; }
+.websid-play-dialog--stopped .websid-play-dot { animation: none; background: var(--secondary); box-shadow: none; opacity: 0.5; }
+.websid-play-xbtn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  width: 28px; height: 28px; min-height: 0; padding: 0;
   color: var(--secondary);
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.websid-play-xbtn:hover { color: var(--text); }
+.websid-play-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+}
+.websid-play-time {
+  margin-left: auto;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 1.05rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+.websid-play-tools {
+  display: flex; gap: 2px; align-items: center;
+  background: var(--control-bg);
+  border: 1px solid var(--panel-border); border-radius: 2px;
+  padding: 2px;
+}
+.websid-play-tool {
+  width: 28px; height: 26px; min-height: 0; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: none; border-radius: 2px; background: transparent;
+  color: var(--secondary); cursor: pointer;
+}
+.websid-play-tool svg { display: block; width: 15px; height: 15px; }
+.websid-play-tool:hover {
+  background: color-mix(in srgb, var(--secondary) 18%, transparent);
+  color: var(--text);
+}
+.websid-play-tool--active {
+  background: color-mix(in srgb, var(--primary) 22%, transparent);
+  color: var(--primary);
+}
+.websid-play-tool:disabled { opacity: 0.4; cursor: default; background: transparent; }
+.websid-play-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px 12px;
+  border: 1px dashed transparent;
+}
+.websid-play-body.websid-play-dragover {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+}
+.websid-play-file {
+  font-weight: 600;
+  font-size: 0.9rem;
   word-break: break-all;
-  margin-bottom: 8px;
+  min-height: 1.2em;
+}
+.websid-play-meta {
+  font-size: 0.78rem;
+  color: var(--secondary);
+  min-height: 1em;
+}
+.websid-play-meta-row { display: flex; align-items: center; gap: 8px; min-height: 1em; }
+.websid-play-meta-row .websid-play-meta { flex: 1; min-width: 0; }
+.websid-play-tools[hidden] { display: none; }
+.websid-play-song {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  padding: 0 4px;
+}
+.websid-play-seek-row { display: flex; align-items: center; gap: 8px; }
+/* volume knob: drag up/down, mouse wheel or arrow keys; 270° sweep */
+.websid-play-vol-wrap { display: flex; align-items: center; gap: 4px; margin-left: auto; }
+.websid-play-vol-wrap + .websid-play-time { margin-left: 8px; }
+.websid-play-knob {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  cursor: ns-resize;
+  touch-action: none;
+  outline: none;
+}
+.websid-play-knob svg { display: block; width: 100%; height: 100%; }
+.websid-play-knob:focus-visible { box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 55%, transparent); }
+.websid-play-knob-track { fill: none; stroke: var(--panel-border); stroke-width: 3.5; stroke-linecap: round; }
+.websid-play-knob-value { fill: none; stroke: var(--primary); stroke-width: 3.5; stroke-linecap: round; }
+.websid-play-knob-body { fill: var(--control-bg); stroke: var(--panel-border); stroke-width: 1; }
+.websid-play-knob:hover .websid-play-knob-body { stroke: var(--secondary); }
+.websid-play-knob-pointer { stroke: var(--text); stroke-width: 2; stroke-linecap: round; }
+.websid-play-vol-val {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.72rem;
+  color: var(--secondary);
+  min-width: 3ch;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.websid-play-seek { flex: 1; min-width: 0; }
+.websid-play-length {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.75rem;
+  color: var(--secondary);
+  font-variant-numeric: tabular-nums;
+}
+.websid-play-engine {
+  font-size: 0.7rem;
+  color: var(--secondary);
+  border: 1px solid var(--panel-border);
+  border-radius: 2px;
+  padding: 2px 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.websid-play-engine:empty { display: none; }
+.websid-play-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 220px;
+  overflow-y: auto;
+  border: 1px solid var(--panel-border);
+  background: var(--control-bg);
+}
+.websid-play-list:empty { display: none; }
+.websid-play-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px 4px 8px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  border-bottom: 1px solid color-mix(in srgb, var(--panel-border) 60%, transparent);
+}
+.websid-play-item:last-child { border-bottom: none; }
+.websid-play-item:hover { background: color-mix(in srgb, var(--secondary) 12%, transparent); }
+.websid-play-item--current { color: var(--primary); font-weight: 600; }
+.websid-play-item-no {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.72rem;
+  color: var(--secondary);
+  min-width: 2ch;
+  text-align: right;
+}
+.websid-play-item-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.websid-play-item-del {
+  background: none; border: none;
+  width: 20px; height: 20px; min-height: 0; padding: 0;
+  color: var(--secondary); cursor: pointer; font-size: 1rem; line-height: 1;
+  opacity: 0;
+}
+.websid-play-item:hover .websid-play-item-del { opacity: 1; }
+.websid-play-item-del:hover { color: var(--text); }
+.websid-play-drop-hint {
+  padding: 10px;
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--secondary);
+  border: 1px dashed var(--panel-border);
 }
 .websid-play-note {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: var(--secondary);
   opacity: 0.75;
-  margin-bottom: 14px;
   line-height: 1.4;
-}
-.websid-play-actions {
-  display: flex;
-  justify-content: flex-end;
 }
 
 /* ── New project from template ──────────────────────────────────── */

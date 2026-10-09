@@ -1,6 +1,6 @@
 # C64 Visuell Assembler — Användarmanual
 
-**Version 2.5.4**
+**Version 2.5.5**
 
 En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom att
 dra och släppa instruktionsblock och se den genererade assemblern och
@@ -11,77 +11,80 @@ maskinkoden i realtid.
 ## Innehållsförteckning
 
 - [C64 Visual Assembler — Användarmanual](#c64-visual-assembler--user-manual)
+    - [Höjdpunkter i version 2.5.5](#version-255-highlights)
     - [Höjdpunkter i version 2.5.4](#version-254-highlights)
-    - [Höjdpunkter i version 2.5.2](#version-253-highlights)
-    - [Höjdpunkter i version 2.5.1](#version-252-highlights)
-    - [Höjdpunkter i version 2.5.0](#version-251-highlights)
-    - [Höjdpunkter i version 2.4.9](#version-250-highlights)
-    - [Höjdpunkter i version 2.4.8](#version-249-highlights)
-    - [Höjdpunkter i version 2.4.7](#version-248-highlights)
-    - [Höjdpunkter i version 2.4.6](#version-247-highlights)
-    - [Höjdpunkter i version 2.4.5](#version-246-highlights)
-    - [Höjdpunkter i version 2.4.3](#version-245-highlights)
-    - [Höjdpunkter i version 2.4.2](#version-243-highlights)
-    - [Höjdpunkter i version 2.4.1](#version-242-highlights)
-    - [Höjdpunkter i version 2.4.0](#version-241-highlights)
-    - [Höjdpunkter i version 2.3.9](#version-240-highlights)
-    - [Innehållsförteckning](#version-239-highlights)
-  - [1. Översikt över gränssnittet](#table-of-contents)
-  - [2. Blockpalett](#1-interface-overview)
-  - [3. Programområde](#2-block-palette)
-  - [4. ASM-vy](#3-program-area)
-    - [Utmatningslägen](#operand-input)
-  - [5. Inställningar \&amp; Verktygsfält](#4-asm-view)
-    - [Projektmallar](#output-modes)
-    - [Byggprojekt](#toolkit-tab)
-    - [Exempelprogram](#options-tab)
-    - [Ladda .asm-fil (snabbreferens)](#clicking-an-asm-line)
+    - [Höjdpunkter i version 2.5.3](#version-253-highlights)
+    - [Höjdpunkter i version 2.5.2](#version-252-highlights)
+    - [Höjdpunkter i version 2.5.1](#version-251-highlights)
+    - [Höjdpunkter i version 2.5.0](#version-250-highlights)
+    - [Höjdpunkter i version 2.4.9](#version-249-highlights)
+    - [Höjdpunkter i version 2.4.8](#version-248-highlights)
+    - [Höjdpunkter i version 2.4.7](#version-247-highlights)
+    - [Höjdpunkter i version 2.4.6](#version-246-highlights)
+    - [Höjdpunkter i version 2.4.5](#version-245-highlights)
+    - [Höjdpunkter i version 2.4.3](#version-243-highlights)
+    - [Höjdpunkter i version 2.4.2](#version-242-highlights)
+    - [Höjdpunkter i version 2.4.1](#version-241-highlights)
+    - [Höjdpunkter i version 2.4.0](#version-240-highlights)
+    - [Höjdpunkter i version 2.3.9](#version-239-highlights)
+  - [Innehållsförteckning](#table-of-contents)
+  - [1. Översikt över gränssnittet](#1-interface-overview)
+  - [2. Blockpalett](#2-block-palette)
+  - [3. Programområde](#3-program-area)
+    - [Operandinmatning](#operand-input)
+  - [4. ASM-vy](#4-asm-view)
+    - [Utmatningslägen](#output-modes)
+    - [Fliken Verktyg](#toolkit-tab)
+    - [Fliken Alternativ](#options-tab)
+    - [Klicka på en ASM-rad](#clicking-an-asm-line)
     - [ASM-radnummer](#asm-line-numbers)
     - [Kompileringsförloppsmodal](#compile-progress-modal)
-  - [UltimateBasic-läge](#5-settings--toolbar)
-    - [Öppnar UB-redigeraren](#project-templates)
-    - [Redigeringsverktyg](#build-project)
-    - [Projekt, flikar och startfiler](#example-programs)
-    - [Byggnad och diagnostik](#load-asm-file-quick-reference)
+  - [5. Inställningar \&amp; Verktygsfält](#5-settings--toolbar)
+    - [Projektmallar](#project-templates)
+    - [Byggprojekt](#build-project)
+    - [Exempelprogram](#example-programs)
+    - [Ladda .asm-fil (snabbreferens)](#load-asm-file-quick-reference)
       - [Importera parsningsanteckningar och bästa
         praxis](#import-parsing-notes-and-best-practices)
-  - [6. Expertläge](#ultimatebasic-mode)
-    - [Växla lägen](#opening-the-ub-editor)
-    - [Redigerarens layout](#editor-tools)
-    - [Verktygsfältsknappar](#projects-tabs-and-startup-files)
-    - [Fel vid markering](#building-and-diagnostics)
-    - [Syntaxmarkering](#running-d64-and-exomizer)
-    - [Källformatering](#debugger-symbols-and-disassembly)
-    - [Projektpanel \&amp; flikar](#ultimate-basic-manual-and-source)
-  - [7. Adresseringslägen](#6-expert-mode)
-    - [Märk uttryck som operander](#switching-modes)
-    - [Programräknaren `*` i uttryck](#editor-layout)
-    - [Lokala (prickade) etiketter](#toolbar-buttons)
-    - [Operandetiketter för självmodifierande kod](#error-highlighting)
+  - [UltimateBasic-läge](#ultimatebasic-mode)
+    - [Öppnar UB-redigeraren](#opening-the-ub-editor)
+    - [Redigeringsverktyg](#editor-tools)
+    - [Projekt, flikar och startfiler](#projects-tabs-and-startup-files)
+    - [Byggnad och diagnostik](#building-and-diagnostics)
+    - [Löpning, D64 och Exomizer](#running-d64-and-exomizer)
+    - [Felsökningssymboler och demontering](#debugger-symbols-and-disassembly)
+    - [Ultimate Basic-manual och källa](#ultimate-basic-manual-and-source)
+  - [6. Expertläge](#6-expert-mode)
+    - [Växla lägen](#switching-modes)
+    - [Redigerarens layout](#editor-layout)
+    - [Verktygsfältsknappar](#toolbar-buttons)
+    - [Fel vid markering](#error-highlighting)
     - [Syntaxmarkering](#syntax-highlight)
     - [Källformatering](#source-formatter)
     - [Projektpanel \&amp; flikar](#project-panel--tabs)
     - [Flikfält](#tab-bar)
-  - [8. Standard 6502-instruktioner](#7-addressing-modes)
-    - [Dataförflyttning](#label-expressions-as-operands)
-    - [Aritmetik](#the--program-counter-in-expressions)
-    - [Logik](#local-dotted-labels)
-    - [Hopp \&amp; grenar](#self-modifying-code-operand-labels)
-  - [9. Makroblock — Referens](#8-standard-6502-instructions)
-    - [LABEL](#data-movement)
-    - [COMMENT](#arithmetic)
-    - [BYTE](#logic)
-    - [WORD](#jumps--branches)
-    - [FILL](#lbne--lbeq---long-branches)
-    - [ALIGN](#register-operations)
-    - [TEXT](#shift--rotate)
-    - [STRING](#stack)
-    - [DATA](#system--flags)
-    - [RAWBYTES](#illegal--undocumented-instructions)
-  - [10. Integrering av felsökare](#9-macro-blocks--reference)
-    - [RetroDebugger](#label)
-    - [Brytpunktsblock](#comment)
-    - [Felsökningsflaggor (fliken Alternativ)](#byte)
+  - [7. Adresseringslägen](#7-addressing-modes)
+    - [Märk uttryck som operander](#label-expressions-as-operands)
+    - [Programräknaren `*` i uttryck](#the--program-counter-in-expressions)
+    - [Lokala (prickade) etiketter](#local-dotted-labels)
+    - [Operandetiketter för självmodifierande
+      kod](#self-modifying-code-operand-labels)
+  - [8. Standard 6502-instruktioner](#8-standard-6502-instructions)
+    - [Dataförflyttning](#data-movement)
+    - [Aritmetik](#arithmetic)
+    - [Logik](#logic)
+    - [Hopp \&amp; grenar](#jumps--branches)
+    - [LBNE / LBEQ / … (Långa grenar)](#lbne--lbeq---long-branches)
+    - [Registrera operationer](#register-operations)
+    - [Skift \&amp; Rotera](#shift--rotate)
+    - [Stack](#stack)
+    - [System / Flaggor](#system--flags)
+    - [Olagliga/Odokumenterade
+      instruktioner](#illegal--undocumented-instructions)
+  - [9. Makroblock — Referens](#9-macro-blocks--reference)
+    - [ETIKETT](#label)
+    - [KOMMENTAR](#comment)
+    - [BYTE](#byte)
     - [ORD](#word)
     - [FYLL](#fill)
     - [JUSTERA](#align)
@@ -152,22 +155,23 @@ maskinkoden i realtid.
     - [KARTA\_KOPIA16X16](#map_copy16x16)
     - [SPRITE\_ANIM](#sprite_anim)
     - [POÄNG\_BCD](#score_bcd)
-  - [11. Länkar till kunskapsbasen](#10-debugger-integration)
+  - [10. Integrering av felsökare](#10-debugger-integration)
     - [RetroDebugger](#retrodebugger)
     - [Brytpunktsblock](#breakpoint-blocks)
     - [Felsökningsflaggor (fliken Alternativ)](#debugger-flags-options-tab)
-  - [12. D64 Exportera \&amp; Kör](#11-knowledge-base-links)
-  - [12b. CRT-export (Magic Desk 64K-kassett)](#12-d64-export--run)
+  - [11. Länkar till kunskapsbasen](#11-knowledge-base-links)
+  - [12. D64 Exportera \&amp; Kör](#12-d64-export--run)
     - [Knapp för delad körning](#split-run-button)
     - [Dialogruta för export till D64](#export-to-d64-dialog)
     - [D64-metadata i projekt](#d64-metadata-in-projects)
-  - [13. Maskinvaruinställningar](#12b-crt-export-magic-desk-64k-cartridge)
-  - [14. Visuella redigerare (verktygslåda)](#13-hardware-settings)
-    - [Högupplöst/Flerfärgsredigerare](#vice-emulator)
-    - [Sprite-redigerare](#exomizer)
-    - [C64 Tecken-ROM-läsare ("Teckenkarta")](#retro-debugger)
-    - [Teckenredigerare (teckenuppsättning)](#c64-ultimate--1541-ultimate)
-    - [Teckenuppsättning Canvas-redigerare](#kung-fu-flash-2)
+  - [12b. CRT-export (Magic Desk
+    64K-kassett)](#12b-crt-export-magic-desk-64k-cartridge)
+  - [13. Maskinvaruinställningar](#13-hardware-settings)
+    - [VICE-emulator](#vice-emulator)
+    - [Exomizer](#exomizer)
+    - [Retro-felsökare](#retro-debugger)
+    - [C64 Ultimate / 1541 Ultimate](#c64-ultimate--1541-ultimate)
+    - [Kung Fu Flash 2](#kung-fu-flash-2)
   - [14. Visuella redigerare (verktygslåda)](#14-visual-editors-toolkit)
     - [Högupplöst/Flerfärgsredigerare](#hi-res--multicolor-editor)
     - [Sprite-redigerare](#sprite-editor)
@@ -181,6 +185,28 @@ maskinkoden i realtid.
     - [SID-redigerare (3-röstsspårare)](#sid-editor-3-voice-tracker)
     - [Kurvredigerare](#curve-editor)
     - [Nummeromvandlare](#number-converter)
+
+---
+
+## Höjdpunkter i version 2.5.5
+
+- **Högupplöst redigerare: pixelrutnät och 16× zoom** — med **Rutnät** aktiverat
+  får varje pixel från 4× zoom sin egen rutnätslinje, starkare längs
+  tecken-cellskanterna och skuggad för att förbli synlig på alla 16 färger.
+  Zoomreglaget går nu upp till 16×. Se [Högupplöst /
+  Flerfärgsredigerare](#hi-res--multicolor-editor).
+- **Högerklicka på Kopiera / Klistra in-menyn ** — på arbetsytan i högupplösta
+  och kartredigeraren (Kopiera, Klistra in, Transparent klistra in) och i
+  Sprite-redigeraren (Kopiera ram, Klistra in ram, även på ramremsan). En
+  inklistring startade från menyförhandsvisningarna där du klickade.
+- **Nummerkonverterare** — dess verktygsfältsknapp förblir markerad medan
+  konverteraren visas.
+- **Åtgärdat** — det flerfärgade cellrutnätet i högupplösta redigeraren var
+  dubbelt så brett som en teckencell; knappen **Klistra in** i högupplösta
+  verktygsfältet klistrades alltid in transparent; högerklicksmenyn i
+  SID-redigeraren öppnades bort från markören medan dialogrutan var centrerad.
+- **Denna manual** — markering, kopiera/klistra in och transparent klistra in i
+  högupplösta redigeraren beskrivs nu.
 
 ---
 
@@ -657,9 +683,9 @@ kommentarmarkör (`.print "HELLO"`, `.wait_raster $FF`, `.invoke setColor(blue)`
 och är färgade som makron; endast riktiga KOMMENTARblock, regionmarkörer och
 varningar behåller sina radinledande `;`.
 
-| Läge                       | Beskrivning                                                                                                                                                                                                                                                                                                 |
+| Färg på stapeln            | Beskrivning                                                                                                                                                                                                                                                                                                 |
 | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **ASM**                    | 6502 monteringskälla med adresser och etiketter                                                                                                                                                                                                                                                             |
+| Cyan                       | 6502 monteringskälla med adresser och etiketter                                                                                                                                                                                                                                                             |
 | **Skärm**                  | Hex-/bytedump (C64-monitorstil)                                                                                                                                                                                                                                                                             |
 | **Diasm**                  | Ren 6502-disassemblering: adress · hexadecimala byte · mnemonik med upplösta numeriska operander. Makron expanderas till individuella instruktioner (TEXT → LDA/STA-par, LOOP → LDX, etc.). BYTE/WORD/FILL-data visas som chunked hexadecimaldump. Inga makronamn, kommentarer eller anteckningar i utdata. |
 | **Båda**                   | ASM ovanpå, monitor nedanför                                                                                                                                                                                                                                                                                |
@@ -707,7 +733,7 @@ kvar efter omstart och följer projektet.
 (den läser nedladdningslänkarna för din plattform) och jämför den med den
 version som körs:
 
-| Plattform  | Vad händer                                                                                                                                                                             |
+| Avsnitt    | Vad händer                                                                                                                                                                             |
 | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Windows ** | Installationsprogrammet körs i passivt läge (endast fortskridande) och startar den nya versionen när det är klart. En installation per maskin ber om administratörsrättigheter (UAC).  |
 | **macOS**  | DMG-filen monteras och app-paketet sätts tillbaka på plats, sedan startar den nya versionen. Om app-mappen inte är skrivbar öppnas DMG-filen helt enkelt så att du kan dra appen över. |
@@ -895,7 +921,7 @@ genererade koddata.
 3. den centrerade kompileringsdialogrutan visar felet;
 4. fel som innehåller en källrad, välj den raden i den aktiva UB-redigeraren.
 
-| Plattform         | Inbyggda mallar                                                                                                                                                                           |
+| Avsnitt           | Inbyggda mallar                                                                                                                                                                           |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Assembler**     | Tomt program, Tomt spel (titel / spela / game over-tillstånd, joystick, spelarsprite), Anställer bitmapp, Flerfärgad bitmapp                                                              |
 | **UltimateBasic** | Tomt program, Tomt spel (samma tillståndsmaskin i UB), Anlitar bitmapp (`linje` / `raktär` / `cirkel` med `färgpenna`), Raster-IRQ (en `sub` anropar varje bildruta från rasteravbrottet) |
@@ -1219,11 +1245,11 @@ visas på varje block.
 └─────────────┴────────────────────────────────────┴──────────────┘
 ```
 
-| Panel         | Exempel              | Beskrivning                                            |
+| Panel         | Växla                | Beskrivning                                            |
 | ------------- | -------------------- | ------------------------------------------------------ |
-| `*`           | `BNE *`              | Förgrening till sig själv (oändlig loop, offset `$FE`) |
+| **Palett**    | `#expert-palett-btn` | Förgrening till sig själv (oändlig loop, offset `$FE`) |
 | `*-n` / `*+n` | `BNE *-5`, `BEQ *+4` | Gren relativt till den aktuella datorn med *n* byte    |
-| `JMP *+n`     | `JMP *+20`           | Absolut hopp beräknat från den aktuella datorn         |
+| `JMP *+n`     | `#expert-disasm-btn` | Absolut hopp beräknat från den aktuella datorn         |
 
 ### Lokala (prickade) etiketter
 
@@ -1240,8 +1266,8 @@ visas på varje block.
 | ** Radnummer **                        | `#expert-linjenummer-btn`                         | Aktivera radnummermarginalen på vänster sida av redigeraren. Mellanmarginalen är synkroniserad med rullningspositionen och uppdateras live medan du skriver.                                                                       |
 | **Hitta**                              | `#expert-hitta-btn`                               | Öppna den flytande sökfältet (`Ctrl+F`). Skriv för att söka; träffar markeras i överlägget. `Enter` / `Shift+Enter` navigerar mellan träffar. `Escape` stänger fältet.                                                             |
 | **Zooma ut/in**                        | `#expert-zoom-ut-knapp` / `#expert-zoom-in-knapp` | Minska/öka redigerarens teckenstorlek (8–28 px). `Ctrl` + mushjul (`Cmd` + hjul på macOS, eller nyp med pekplattan) över redigeraren gör detsamma. Inställningen sparas.                                                           |
-| `*`                                    | `BNE *`                                           | Visa/dölj den vänstra mnemoniska paletten                                                                                                                                                                                          |
-| **Diasm**                              | `JMP *+20`                                        | Visa/dölj demonteringspanelen (pure 6502, makron expanderade)                                                                                                                                                                      |
+| **Palett**                             | `#expert-palett-btn`                              | Visa/dölj den vänstra mnemoniska paletten                                                                                                                                                                                          |
+| **Diasm**                              | `#expert-disasm-btn`                              | Visa/dölj demonteringspanelen (pure 6502, makron expanderade)                                                                                                                                                                      |
 | **Skärm**                              | `#expert-monitor-btn`                             | Visa/dölj skärmens hex-dump-panel                                                                                                                                                                                                  |
 | **Minikarta**                          | `#expert-minimap-btn`                             | Visa/dölj kodminimap-remsan på höger sida av redigeraren                                                                                                                                                                           |
 
@@ -1257,12 +1283,12 @@ etiketter kolliderar **inte**.
 placera en etikett på **operandbyte** snarare än opkoden. Instruktionen samlas
 från det som följer efter kolon.
 
-| Läge           | Tokentyp                                             |
-| -------------- | ---------------------------------------------------- |
-| Kommentarfärg  | Rader som börjar med `;`                             |
-| Etikettfärg    | Rader med en `etikett:`-definition                   |
-| Direktivfärg   | `.byte`, `.macro`, `.region` och alla andra direktiv |
-| Mnemonisk färg | Allt annat (instruktioner)                           |
+| Färg på stapeln | Tokentyp                                             |
+| --------------- | ---------------------------------------------------- |
+| Kommentarfärg   | Rader som börjar med `;`                             |
+| Etikettfärg     | Rader med en `etikett:`-definition                   |
+| Direktivfärg    | `.byte`, `.macro`, `.region` och alla andra direktiv |
+| Mnemonisk färg  | Allt annat (instruktioner)                           |
 
 `värde` pekar på `<instruktionsadress> + 1` (den första operandbyten), för varje
 adresseringsläge. Detta ersätter det äldre `STA-instruktionsmönstret + 1` / `:
@@ -1287,7 +1313,7 @@ med knappen **HL** för prestanda i mycket stora program.
 | Gulgrön  | Mnemonik (`LDA`, `STA`, `JMP`, …) och långgreniga pseudo-operationer (`LBNE`, `LBEQ`, …)                                                                 |
 | Blå      | Direktiv (`.byte`, `.word`, `.fill`, `.assert`, `*=`, …)                                                                                                 |
 | Orange   | Tal (`$FF`, `%1010`, `255`)                                                                                                                              |
-| **ASM**  | Etiketter — rader som slutar på `:`, inklusive lokala etiketter (`.loop:`) och operandetiketter för självmodifierande kod (`value:` in `LDA value:#$00`) |
+| Cyan     | Etiketter — rader som slutar på `:`, inklusive lokala etiketter (`.loop:`) och operandetiketter för självmodifierande kod (`value:` in `LDA value:#$00`) |
 | Kricka   | Strängliteraler                                                                                                                                          |
 | Violett  | Anpassade makronamn — namnet efter `.macro`, `.invoke` och `.call`, och Kick-anrop av `:name(...)`                                                       |
 | Vatten   | Makroparametrar — parameternamnen i `.macro`-rubriken och `{param}`-substitutionerna i makrotexten                                                       |
@@ -1392,15 +1418,15 @@ också en **konstant name** (från ett `CONST`-block eller ett `LABEL`) direkt.
 Dessutom kan du använda uttrycken **label+offset** eller **label−offset** för
 att referera till en adress relativt till en namngiven konstant:
 
-| Mnemonisk | Exempel           | Beskrivning                                                                                                       |
-| --------- | ----------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `LDA`     | Lastackumulator   | omedelbar, nollSida, absolut, absolutX, absolutY, indirektX, indirektY                                            |
-| `LDX`     | Ladda X-register  | omedelbar, nollSida, nollSidaY, absolut, absolutY                                                                 |
-| `LDY`     | Ladda Y-register  | omedelbar, nollSida, absolut, absolutX                                                                            |
-| `STA`     | Butiksackumulator | nollSida, absolut, absolutX, absolutY, indirektX, indirektY                                                       |
-| `STX`     | Lagra X-register  | nollSida, nollSidaY, absolut                                                                                      |
-| `STY`     | Lagra Y-register  | nollSida, absolut                                                                                                 |
-| `*`       | `BNE *`           | Aktuell programräknare (instruktionens egen adress); grenar med `*` genererar en oändlig självloop (offset `$FE`) |
+| Syntax | Exempel           | Beskrivning                                                                                                       |
+| ------ | ----------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `LDA`  | Lastackumulator   | omedelbar, nollSida, absolut, absolutX, absolutY, indirektX, indirektY                                            |
+| `LDX`  | Ladda X-register  | omedelbar, nollSida, nollSidaY, absolut, absolutY                                                                 |
+| `LDY`  | Ladda Y-register  | omedelbar, nollSida, absolut, absolutX                                                                            |
+| `STA`  | Butiksackumulator | nollSida, absolut, absolutX, absolutY, indirektX, indirektY                                                       |
+| `STX`  | Lagra X-register  | nollSida, nollSidaY, absolut                                                                                      |
+| `STY`  | Lagra Y-register  | nollSida, absolut                                                                                                 |
+| `*`    | `BNE *`           | Aktuell programräknare (instruktionens egen adress); grenar med `*` genererar en oändlig självloop (offset `$FE`) |
 
 **Exempel — rensa två skärmsidor med hjälp av en CONST:**
 ```
@@ -1416,13 +1442,13 @@ till instruktionen den är skriven på. Den löses upp vid monteringstillfället
 instruktionens verkliga adress, så ingen etikett behövs för korta relativa hopp
 eller PC-relativa dataläsningar.
 
-| Mnemonisk | Exempel               | Anteckningar                                                      |
-| --------- | --------------------- | ----------------------------------------------------------------- |
-| `*`       | `BNE *`               | Ställ in bärfunktionen med `SEC` före användning i de flesta fall |
-| `SBC`     | Subtrahera med bäring | Sätt carry med `SEC` före subtraktion                             |
-| `INC`     | Öka minnet            | —                                                                 |
-| `DEC`     | Minska minnet         | —                                                                 |
-| `CMP`     | Jämför med A          | Sätter flaggor; ändrar inte A                                     |
+| Syntax | Exempel               | Menande                                                           |
+| ------ | --------------------- | ----------------------------------------------------------------- |
+| `*`    | `BNE *`               | Ställ in bärfunktionen med `SEC` före användning i de flesta fall |
+| `SBC`  | Subtrahera med bäring | Sätt carry med `SEC` före subtraktion                             |
+| `INC`  | Öka minnet            | —                                                                 |
+| `DEC`  | Minska minnet         | —                                                                 |
+| `CMP`  | Jämför med A          | Sätter flaggor; ändrar inte A                                     |
 
 **PC vs. multiplikation.** `*` behandlas som programräknaren endast när den
 sitter i *värdepositionen* — i början av uttrycket, eller direkt efter en
@@ -1495,7 +1521,7 @@ prefixet `etikett:`).
 
 ### LABEL
 
-| Fält        | Beskrivning                                          | Lägen                                                                  |
+| Mnemonisk   | Beskrivning                                          | Lägen                                                                  |
 | ----------- | ---------------------------------------------------- | ---------------------------------------------------------------------- |
 | Etikettnamn | Identifierare som används i `JMP`, `JSR`, `BNE` etc. | omedelbar, nollSida, absolut, absolutX, absolutY, indirektX, indirektY |
 | `LDX`       | Ladda X-register                                     | omedelbar, nollSida, nollSidaY, absolut, absolutY                      |
@@ -1506,41 +1532,41 @@ prefixet `etikett:`).
 
 ### COMMENT
 
-| Fält  | Beskrivning           | Anteckningar                                                      |
-| ----- | --------------------- | ----------------------------------------------------------------- |
-| `ADC` | Lägg till med bär     | Ställ in bärfunktionen med `SEC` före användning i de flesta fall |
-| `SBC` | Subtrahera med bäring | Sätt carry med `SEC` före subtraktion                             |
-| `INC` | Öka minnet            | —                                                                 |
-| `DEC` | Minska minnet         | —                                                                 |
-| `CMP` | Jämför med A          | Sätter flaggor; ändrar inte A                                     |
-| `CPX` | Jämför med X          | —                                                                 |
-| `CPY` | Jämför med Y          | —                                                                 |
+| Mnemonisk | Beskrivning           | Anteckningar                                                      |
+| --------- | --------------------- | ----------------------------------------------------------------- |
+| `ADC`     | Lägg till med bär     | Ställ in bärfunktionen med `SEC` före användning i de flesta fall |
+| `SBC`     | Subtrahera med bäring | Sätt carry med `SEC` före subtraktion                             |
+| `INC`     | Öka minnet            | —                                                                 |
+| `DEC`     | Minska minnet         | —                                                                 |
+| `CMP`     | Jämför med A          | Sätter flaggor; ändrar inte A                                     |
+| `CPX`     | Jämför med X          | —                                                                 |
+| `CPY`     | Jämför med Y          | —                                                                 |
 
 ### BYTE
 
-| Fält    | Beskrivning                                                          |
-| ------- | -------------------------------------------------------------------- |
-| Operand | Kommaavgränsade bytevärden (t.ex. `$01, $02, $FF` eller `1, 2, 255`) |
-| `ORA`   | Logiskt ELLER med ackumulator                                        |
-| `EOR`   | Exklusiv ELLER med ackumulator                                       |
-| `BIT`   | Testbitar i minnet mot A (sätter N-, V-, Z-flaggor)                  |
+| Mnemonisk | Beskrivning                                                          |
+| --------- | -------------------------------------------------------------------- |
+| Operand   | Kommaavgränsade bytevärden (t.ex. `$01, $02, $FF` eller `1, 2, 255`) |
+| `ORA`     | Logiskt ELLER med ackumulator                                        |
+| `EOR`     | Exklusiv ELLER med ackumulator                                       |
+| `BIT`     | Testbitar i minnet mot A (sätter N-, V-, Z-flaggor)                  |
 
 ### WORD
 
-| Fält    | Beskrivning                                            |
-| ------- | ------------------------------------------------------ |
-| Operand | Kommaavgränsade 16-bitarsvärden (t.ex. `$0400, $C000`) |
-| `JSR`   | Hoppa till subrutin (sparar returadress på stacken)    |
-| `RTS`   | Återgå från subrutin                                   |
-| `RTI`   | Återgång från avbrott                                  |
-| `BNE`   | Gren om inte lika (Z=0)                                |
-| `BEQ`   | Gren om lika (Z=1)                                     |
-| `BCC`   | Förgrena sig om överföringen är klar (C=0)             |
-| `BCS`   | Förgrening om bäruppsättning (C=1)                     |
-| `BMI`   | Gren om Minus (N=1)                                    |
-| `BPL`   | Gren om Plus (N=0)                                     |
-| `BVC`   | Gren vid överflöde Rensa (V=0)                         |
-| `BVS`   | Gren om överflöde inställt (V=1)                       |
+| Mnemonisk | Beskrivning                                            |
+| --------- | ------------------------------------------------------ |
+| Operand   | Kommaavgränsade 16-bitarsvärden (t.ex. `$0400, $C000`) |
+| `JSR`     | Hoppa till subrutin (sparar returadress på stacken)    |
+| `RTS`     | Återgå från subrutin                                   |
+| `RTI`     | Återgång från avbrott                                  |
+| `BNE`     | Gren om inte lika (Z=0)                                |
+| `BEQ`     | Gren om lika (Z=1)                                     |
+| `BCC`     | Förgrena sig om överföringen är klar (C=0)             |
+| `BCS`     | Förgrening om bäruppsättning (C=1)                     |
+| `BMI`     | Gren om Minus (N=1)                                    |
+| `BPL`     | Gren om Plus (N=0)                                     |
+| `BVC`     | Gren vid överflöde Rensa (V=0)                         |
+| `BVS`     | Gren om överflöde inställt (V=1)                       |
 
 #### LBNE / LBEQ / … (Långa grenar)
 
@@ -1575,31 +1601,31 @@ LBEQ klar; monteras till: BNE *+3 ($D0 $03)
 
 ### FILL
 
-| Fält    | Beskrivning                                            |
-| ------- | ------------------------------------------------------ |
-| Operand | `antal,värde` — t.ex. `256,0` fyller 256 byte med noll |
-| `TAY`   | Överför A → Y                                          |
-| `TXA`   | Överför X → A                                          |
-| `TYA`   | Överför Y → A                                          |
-| `TSX`   | Överför stackpekare → X                                |
-| `TXS`   | Överför X → Stackpekare                                |
-| `INX`   | Steg X                                                 |
-| `DEX`   | Minska X                                               |
-| `INY`   | Ökning Y                                               |
-| `DEY`   | Minska Y                                               |
+| Mnemonisk | Beskrivning                                            |
+| --------- | ------------------------------------------------------ |
+| Operand   | `antal,värde` — t.ex. `256,0` fyller 256 byte med noll |
+| `TAY`     | Överför A → Y                                          |
+| `TXA`     | Överför X → A                                          |
+| `TYA`     | Överför Y → A                                          |
+| `TSX`     | Överför stackpekare → X                                |
+| `TXS`     | Överför X → Stackpekare                                |
+| `INX`     | Steg X                                                 |
+| `DEX`     | Minska X                                               |
+| `INY`     | Ökning Y                                               |
+| `DEY`     | Minska Y                                               |
 
 ### ALIGN
 
-| Fält  | Beskrivning                                                                 |
-| ----- | --------------------------------------------------------------------------- |
-| Gräns | Justeringsvärde — t.ex. `64` (spritegräns), `256` (sida), `$2000` (bitmapp) |
-| `LSR` | Logisk skiftning åt höger                                                   |
-| `ROL` | Rotera vänster genom bärning                                                |
-| `ROR` | Rotera höger genom bärning                                                  |
+| Mnemonisk | Beskrivning                                                                 |
+| --------- | --------------------------------------------------------------------------- |
+| Gräns     | Justeringsvärde — t.ex. `64` (spritegräns), `256` (sida), `$2000` (bitmapp) |
+| `LSR`     | Logisk skiftning åt höger                                                   |
+| `ROL`     | Rotera vänster genom bärning                                                |
+| `ROR`     | Rotera höger genom bärning                                                  |
 
 ### TEXT
 
-| Fält               | Beskrivning                                                   |
+| Mnemonisk          | Beskrivning                                                   |
 | ------------------ | ------------------------------------------------------------- |
 | Text               | Strängen som ska visas                                        |
 | X                  | Kolumn (0–39)                                                 |
@@ -1608,7 +1634,7 @@ LBEQ klar; monteras till: BNE *+3 ($D0 $03)
 
 ### STRING
 
-| Fält                      | Beskrivning                                                                 |
+| Mnemonisk                 | Beskrivning                                                                 |
 | ------------------------- | --------------------------------------------------------------------------- |
 | Text                      | Strängen att skriva                                                         |
 | Adress                    | Målminnesadress — `$C000` hexagon eller ett **etikettnamn**                 |
@@ -1646,14 +1672,12 @@ brytpunkter, minnesinspektion och etikettmedveten demontering.
 | ----------- | ---------------------------------------------------- |
 | Etikettnamn | Identifierare som används i `JMP`, `JSR`, `BNE` etc. |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 slinga:
 ```
 
-**Starta:** Klicka på **Felsök (RetroDebugger)** i verktygsfältet. Appen kommer
-att:
+**Genererad ASM:**
 ```
 slinga: ; $0820
 ```
@@ -1669,14 +1693,12 @@ Klicka på brytpunktsikonen (●) på valfritt instruktionsblock för att växla
 mellan att vara en brytpunkt. Brytpunktsblock markeras med rött. Deras adresser
 skrivs till brytpunktsfilen varje gång felsökaren startas.
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 Din kommentartext här
 ```
 
-**Starta:** Klicka på **Felsök (RetroDebugger)** i verktygsfältet. Appen kommer
-att:
+**Genererad ASM:**
 ```
 Din kommentartext här
 ```
@@ -1688,18 +1710,16 @@ Din kommentartext här
 Liksom **DATA i BASIC** — lagrar en lista med råa bytevärden inbäddade i
 programmet.
 
-| Fält      | Beskrivning  |
-| --------- | ------------ |
-| `-jmp` PÅ | `-jmp $ADDR` |
+| Fält    | Beskrivning  |
+| ------- | ------------ |
+| Operand | `-jmp $ADDR` |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .byte $01, $02, $FF
 ```
 
-**Starta:** Klicka på **Felsök (RetroDebugger)** i verktygsfältet. Appen kommer
-att:
+**Genererad ASM:**
 ```
 .byte $01, $02, $FF
 ```
@@ -1726,18 +1746,16 @@ adresslistor.
 Liksom **DATA i BASIC men för 16-bitars tal **. Varje värde lagras som två byte
 (låg byte först, sedan hög byte — 6502 little-endian-ordning).
 
-| Fält      | Beskrivning                                            |
-| --------- | ------------------------------------------------------ |
-| `-jmp` PÅ | Kommaavgränsade 16-bitarsvärden (t.ex. `$0400, $C000`) |
+| Fält    | Beskrivning                                            |
+| ------- | ------------------------------------------------------ |
+| Operand | Kommaavgränsade 16-bitarsvärden (t.ex. `$0400, $C000`) |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .ord 400 USD, 000 USD
 ```
 
-**Starta:** Klicka på **Felsök (RetroDebugger)** i verktygsfältet. Appen kommer
-att:
+**Genererad ASM:**
 ```
 .ord 400 USD, 000 USD
 ```
@@ -1752,18 +1770,16 @@ Liksom `FOR I=1 TO N: POKE addr+I, val: NEXT` — fyller ett minnesblock med sam
 byte, men i ett enda block. Utmärkt för att rensa områden eller förfylla
 tabeller.
 
-| Fält      | Beskrivning                                            |
-| --------- | ------------------------------------------------------ |
-| `-jmp` PÅ | `antal,värde` — t.ex. `256,0` fyller 256 byte med noll |
+| Fält    | Beskrivning                                            |
+| ------- | ------------------------------------------------------ |
+| Operand | `antal,värde` — t.ex. `256,0` fyller 256 byte med noll |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .fyll 256, 00 kr
 ```
 
-**Starta:** Klicka på **Felsök (RetroDebugger)** i verktygsfältet. Appen kommer
-att:
+**Genererad ASM:**
 ```
 .fyll 256, 00 kr
 ```
@@ -1772,7 +1788,7 @@ att:
 kan referera till CONST-namn, använda hexadecimala/binära litteraler och anropa
 inbyggda matematiska funktioner:
 
-| Uttryck                       | Anteckningar                              |
+| Uttryck                       | Menande                                   |
 | ----------------------------- | ----------------------------------------- |
 | `TILE_COUNT, 00 kr `          | räkna från en KONSTANT, värde hex-literal |
 | `40*25, 0`                    | inline-multiplikation                     |
@@ -1798,15 +1814,13 @@ noll-utfyllnadsbyte. C64 kräver att sprite-data börjar på en 64-byte-gräns �
 | ----- | --------------------------------------------------------------------------- |
 | Gräns | Justeringsvärde — t.ex. `64` (spritegräns), `256` (sida), `$2000` (bitmapp) |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .align 64
 .align 2000 dollar
 ```
 
-**Starta:** Klicka på **Felsök (RetroDebugger)** i verktygsfältet. Appen kommer
-att:
+**Genererad ASM:**
 ```
 ; ALIGN 64 → $0840 (12 byte utfyllnad)
 ```
@@ -1854,8 +1868,7 @@ C64 har två teckenuppsättningar som kan väljas vid körning:
 LDA #$08 ; 'H' skärmkod $08 STA $0400 LDA #$05 ; 'E' skärmkod $05 STA $0401 ...
 ```
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .text 0, 2, "HELLO"; teckenuppsättning för versaler (standard)
 .text 0, 2, "hello", teckenuppsättning för gemener; teckenuppsättning för gemener
@@ -1879,8 +1892,7 @@ LDA/STA-par som kopierar varje teckens skärmkod till efterföljande adresser.
 | Flytta                    | Hexvärde (00–FF) läggs till varje skärmkodbyte (t.ex. `$80` = omvänd video) |
 | Gemener teckenuppsättning | Kryssruta — samma semantik som TEXT (se avsnittet TEXT)                     |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .string $C000, "HELLO" ; teckenuppsättning för versaler (standard)
 .string $C000, "hello", gemener ; teckenuppsättning för gemener
@@ -1889,8 +1901,7 @@ RetroDebugger** och peka den till binärfilen `RetroDebugger`.
 .string $C000, "HELLO" :my_string ; med macroLabel
 ```
 
-**Starta:** Klicka på **Felsök (RetroDebugger)** i verktygsfältet. Appen kommer
-att:
+**Genererad ASM:**
 ```
 LDA #$08 ; 'H'-skärmkod STA $C000 LDA #$05 ; 'E'-skärmkod STA $C001 ...
 ```
@@ -1912,16 +1923,14 @@ körning, ett LDA/STA-par per byte.
 | Adress             | Målminnesadress — `$C000` hexagon eller ett **etikettnamn** |
 | Etikett (valfritt) | Tilldelar en etikett som pekar mot måladressen              |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .data $C000, $01, $02, $03 ; hex-adress
 .data my_buf, $01, $02, $03 ; etikett adress
 .data $C000, $01, $02, $03 :mydata ; med macroLabel
 ```
 
-**Starta:** Klicka på **Felsök (RetroDebugger)** i verktygsfältet. Appen kommer
-att:
+**Genererad ASM:**
 ```
 LDA #$01
     STA $C000
@@ -1947,8 +1956,7 @@ specifik adress.
 | Adress             | Målminnesadress — `$C000` hexagon eller ett **etikettnamn** |
 | Etikett (valfritt) | Tilldelar en etikett som pekar mot måladressen              |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .rawbytes $C000, $00, $00, $00; hex-adress
 .rawbytes sprite_data, $00, $00; label-adress
@@ -1976,8 +1984,7 @@ en fast adress utan **körningskod**. Texten är klar i minnet så fort PRG ladd
 | Flytta                    | Hexvärde (00–FF) läggs till varje skärmkodbyte (t.ex. `$80` = omvänd video) |
 | Gemener teckenuppsättning | Kryssruta — samma semantik som TEXT (se avsnittet TEXT)                     |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .rawtext $C000, "HELLO" ; teckenuppsättning för versaler (standard)
 .rawtext $C000, "hello", gemener ; teckenuppsättning för gemener
@@ -1986,8 +1993,7 @@ RetroDebugger** och peka den till binärfilen `RetroDebugger`.
 .rawtext $0400, "HELLO" :min_text ; med macroLabel
 ```
 
-**Starta:** Klicka på **Felsök (RetroDebugger)** i verktygsfältet. Appen kommer
-att:
+**Genererad ASM:**
 ```
 ; .rawtext "HELLO" -&gt; $C000
 ; $C000
@@ -2033,8 +2039,7 @@ beteende för kryssrutor med gemener.
 | **Versaler (standard, avmarkerad)** | `$41`–`$5A` (PETSCII versaler via CHROUT)                                                                                    | även mappad till `$41`–`$5A` |
 | **Gemener (markerad)**              | Alfabetiska bokstäver mappas om så att det synliga skiftläget förblir konsekvent på teckenuppsättningen för gemener/versaler | Samma regel                  |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .petscii $C000, "HALLÅ" ; versaler PETSCII (standard)
 .petscii $C000, "hallå", gemener ; gemener PETSCII ($61–$7A)
@@ -2085,15 +2090,13 @@ gemener/versaler-läge genom att modifiera bit 1 av `$D018` vid körning.
 | ---- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | Läge | **Gemener** — aktiverar teckenuppsättningen för gemener/versaler; **Versaler** — återställer standardteckenuppsättningen för versaler/grafik |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .charset lower; växla till gemener teckenuppsättning
 .charset upper; växla tillbaka till versaler/grafik teckenuppsättning
 ```
 
-**Starta:** Klicka på **Felsök (RetroDebugger)** i verktygsfältet. Appen kommer
-att:
+**Genererad ASM:**
 
 Gemenerläge:
 ```
@@ -2148,8 +2151,7 @@ körningstillfället — inget behov av en föregående etikett eller `ORG`.
 | Teckenindex | Vilken teckenplats som ska omdefinieras, 0–255. `65` = 'A' i standardskärmkodlayouten.                          |
 | 8 byte      | Kommaavgränsade bitmappader, uppifrån och ned. Varje bytes bit 7 = pixel längst till vänster.                   |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .chardef $3800, 65, $18, $3C, $66, $7E, $66, $66, $66, $00
 ```
@@ -2228,8 +2230,7 @@ vid överlappning, **A = 0** annars. Ren inline-assembling, inget subrutinanrop.
 | `+2`   | Rätt    |
 | `+3`   | Botten  |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .box_hit $FB, $F7
 ```
@@ -2300,8 +2301,7 @@ Liksom **BLOAD i BASIC** — hämtar en extern binärfil (`.bin`, `.prg`, `.sid`
 | Fil    | Bläddra för att välja en `.bin`, `.prg`, `.sid` eller `.raw`-fil |
 | Adress | Målinläsningsadress (t.ex. `$C000`)                              |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .incbin "musik.bin", $C000
 ```
@@ -2336,8 +2336,7 @@ behållna andra portbitar) och växlar till flerfärgsbitmappsläge (`$D011 = $3
 8K-platserna ligger under BASIC/KERNAL ROM (kopieringsslingan skulle läsa ROM)
 eller överlappar tecken-ROM-skuggan.
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .koala "picture.koa"
 .koala "picture.koa", $2000
@@ -2372,14 +2371,13 @@ slotordning, 2000 byte per skärm (1000 skärmkoder + 1000 färger). Identiska
 skärmar lagras en gång, och alla tomma slots delar en tom skärm. Pektabellarna
 följer skärmarna. En nivå kan vara upp till 7 × 10 skärmar.
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .nivå "nivå.bin"
 .nivå "nivå.bin", 4000 dollar
 ```
 
-| Definierad                                         | Anteckningar                                                                |
+| Definierad                                         | Menande                                                                     |
 | -------------------------------------------------- | --------------------------------------------------------------------------- |
 | `NIVÅ_PLACERING_LÅG` / `NIVÅ_PLACERING_HÖG`        | Skärmens adress i varje plats (huvudrad, `NIVÅ_W` platser per rad)          |
 | `NIVÅ_RAD_PLATS`                                   | Nivå teckenrad → första platsen på dess skärmrad                            |
@@ -2403,8 +2401,7 @@ kopieras färgerna istället för skärmkoderna (för färg-RAM). Ett
 självmodifierande kopieringsslinga (~14 cykler per byte). X behålls, A och Y
 förstörs. Behöver ett `.level`-block i programmet.
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .nivårad dst_lo, vy_x
 .nivårad dst_lo, vy_x, färg
@@ -2437,8 +2434,7 @@ Blocket visar:
 - Ett **(flyttat)**-märke visas när en anpassad adress flyttar data från sin
   ursprungliga position
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .sid "Ikari_Warriors.sid"
 .sid "Ikari_Warriors.sid", $1000
@@ -2526,14 +2522,12 @@ definiera tabellens innehåll.
 | Namn   | Etikett-ID för tabellen (t.ex. `color_table`)   |
 | Adress | Fast adress där tabellen börjar (t.ex. `$C000`) |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .tabell färg_tabell, $C000
 ```
 
-**Starta:** Klicka på **Felsök (RetroDebugger)** i verktygsfältet. Appen kommer
-att:
+**Genererad ASM:**
 ```
 färg_tabell:
 ```
@@ -2556,14 +2550,12 @@ Standard C64 BASIC-laddningsbar start är `$0801`.
 | Adress    | Den nya ursprungsadressen (t.ex. `0801` i HEX, eller `2049` i DEC) |
 | HEX / DEC | Växla adressinmatningen mellan hexadecimal och decimal visning     |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 * = 000 kr
 ```
 
-**Starta:** Klicka på **Felsök (RetroDebugger)** i verktygsfältet. Appen kommer
-att:
+**Genererad ASM:**
 ```
 * = 000 kr
 ```
@@ -2603,14 +2595,12 @@ instruktioner mellan det och NEXT, och det loopar automatiskt rätt antal gånge
 | Räkna    | Antal iterationer per loop (hex eller decimal, t.ex. `0A` = 10) |
 | Märka    | Automatiskt genererad loopetikett (t.ex. `loop0`)               |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .loop X, 10, loop0
 ```
 
-**Starta:** Klicka på **Felsök (RetroDebugger)** i verktygsfältet. Appen kommer
-att:
+**Genererad ASM:**
 ```
 LDX #$0A
 loop0:
@@ -2625,14 +2615,12 @@ loop0:
 | Register | Automatiskt matchad med LOOP-registret |
 | Märka    | Automatiskt länkad till LOOP-etiketten |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .nästa loop0
 ```
 
-**Starta:** Klicka på **Felsök (RetroDebugger)** i verktygsfältet. Appen kommer
-att:
+**Genererad ASM:**
 ```
 DEX BNE-slinga 0
 ```
@@ -2661,14 +2649,12 @@ eller en array.
 | Räkna    | Loopgräns (hex eller decimal, t.ex. `$12` = 18). X/Y går från 0 upp till gräns-1. |
 | Märka    | Automatiskt genererad loopetikett (t.ex. `för0`)                                  |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 för X, 12 dollar, för 0
 ```
 
-**Starta:** Klicka på **Felsök (RetroDebugger)** i verktygsfältet. Appen kommer
-att:
+**Genererad ASM:**
 ```
 LDX #00 kr för 0:
 ```
@@ -2683,14 +2669,12 @@ LDX #00 kr för 0:
 | Märka    | Automatiskt länkad till FOR-etiketten    |
 | Räkna    | Kopieras automatiskt från den parade FOR |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .endf för0
 ```
 
-**Starta:** Klicka på **Felsök (RetroDebugger)** i verktygsfältet. Appen kommer
-att:
+**Genererad ASM:**
 ```
 INX CPX #12 USD BNE för 0
 ```
@@ -2726,8 +2710,7 @@ Skjuter ett eller flera register till stacken. Ordningen är alltid A → X → 
 | -------- | -------------------------------------------------------------------- |
 | Register | Vilken kombination som helst: `A`, `X`, `Y`, `AX`, `AY`, `XY`, `AXY` |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .tryck AXY
 ```
@@ -2747,8 +2730,7 @@ PHA TXA PHA
 | -------- | ---------------------------------------------------- |
 | Register | Samma som PUSH — måste matcha motsvarande PUSH-block |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .dra AXY
 ```
@@ -2769,14 +2751,12 @@ PLA MOMS PLA
 Liksom **RTS med ett vänligare makronamn ** — `.end` avger en enda `RTS` byte
 och beter sig som en kort subrutinterminator i expertläge.
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .avsluta
 ```
 
-**Starta:** Klicka på **Felsök (RetroDebugger)** i verktygsfältet. Appen kommer
-att:
+**Genererad ASM:**
 ```
 RTS
 ```
@@ -2806,8 +2786,7 @@ Markerar början på en makrodefinition. Block mellan MACRO och ENDM är makrots
 brödtext — de **genererar ingen kod ** där definitionen finns. Använd
 `{paramName}` som platshållare för argument.
 
-**Starta:** Klicka på **Felsök (RetroDebugger)** i verktygsfältet. Appen kommer
-att:
+**Genererad ASM:**
 ```
 ; .MACRO setColor (färg)
 ... (kroppsblock)
@@ -2834,8 +2813,7 @@ argumentvärdena med platshållarna `{paramName}` i brödtexten.
 | Makronamn | Välj från rullgardinsmenyn med definierade makron                                |
 | Argument  | Kommaavgränsade argumentvärden som matchar makrots parameterlista (t.ex. `#$07`) |
 
-**Starta:** Klicka på **Felsök (RetroDebugger)** i verktygsfältet. Appen kommer
-att:
+**Genererad ASM:**
 ```
 ; .invoke setColor(#$07)
     LDA #$07
@@ -2886,8 +2864,7 @@ komprimera det och fokusera på något annat.
 | -------------- | ------------------------------------------------------------------------ |
 | Regionens namn | Fritextetikett för sektionen (t.ex. `init`, `game_loop`, `sprite_setup`) |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .region init
 ; blockerar...
@@ -2908,8 +2885,7 @@ RetroDebugger** och peka den till binärfilen `RetroDebugger`.
   direkt efter den aktuella regionens SLUTREGION och bläddrar till den. Knappen
   är nedtonad tills en region har kopierats.
 
-**Starta:** Klicka på **Felsök (RetroDebugger)** i verktygsfältet. Appen kommer
-att:
+**Genererad ASM:**
 ```
 ; region init
     SEI
@@ -2945,14 +2921,12 @@ inte ta bort kod för versioner.
 | ------ | -------------------------------------------------------------------------------------------- |
 | Symbol | En eller flera kommaseparerade identifierare att aktivera (t.ex. `DEBUG` eller `DEBUG, PAL`) |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .define DEBUG, PAL
 ```
 
-**Starta:** Klicka på **Felsök (RetroDebugger)** i verktygsfältet. Appen kommer
-att:
+**Genererad ASM:**
 ```
 ; .DEFINE DEBUG
 ; .DEFINE DEBUG, PAL
@@ -2968,14 +2942,12 @@ inaktiveras alla dess symboler direkt.
 | ----- | ---------------------------------------------------------------------------- |
 | Skick | Identifierare att testa (måste matcha en `DEFINE`-symbol för att vara aktiv) |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .if DEBUG
 ```
 
-**Starta:** Klicka på **Felsök (RetroDebugger)** i verktygsfältet. Appen kommer
-att:
+**Genererad ASM:**
 ```
 ; .IF DEBUG
 ```
@@ -2990,14 +2962,12 @@ byte**.
 Inga fält. Markerar den alternativa grenen — monteras när villkoret `OM` är
 *inte* aktivt.
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .annan
 ```
 
-**Starta:** Klicka på **Felsök (RetroDebugger)** i verktygsfältet. Appen kommer
-att:
+**Genererad ASM:**
 ```
 ; .ANNARS
 ```
@@ -3006,14 +2976,12 @@ att:
 
 Inga fält. Stänger det villkorliga blocket.
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .endif
 ```
 
-**Starta:** Klicka på **Felsök (RetroDebugger)** i verktygsfältet. Appen kommer
-att:
+**Genererad ASM:**
 ```
 ; .ENDIF
 ```
@@ -3066,8 +3034,7 @@ noll) genererar det ingenting.
 | Uttryck    | Valfritt assembleruttryck: etiketter, `CONST`s, `*` (programräknare), aritmetik och jämförelser (`&lt;`, `&lt;=`, `&gt;`, `&gt;=`, `==`, `!=`) |
 | Meddelande | Valfri text tillagd till felmeddelandet                                                                                                        |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .assert spriteData &lt; $C000
 .assert * &lt; $A000
@@ -3109,15 +3076,13 @@ att läsa och ändra senare.
 | Värde     | Numeriskt värde i den valda basen (t.ex. `0400` i HEX = adress $0400), eller ett PC-relativt uttryck (se nedan) |
 | Formatera | HEX eller DEC — styr hur värdet anges och visas                                                                 |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .konst SKÄRM = $0400
 .konst BILDAR_1S = 60
 ```
 
-**Starta:** Klicka på **Felsök (RetroDebugger)** i verktygsfältet. Appen kommer
-att:
+**Genererad ASM:**
 ```
 ; .KONSTANT SKÄRM = $0400
 ```
@@ -3177,8 +3142,7 @@ pekare och kortlivade tillstånd som hör hemma i ZP.
 | Namn               | Variabelnamn / etikett                                   |
 | Storlek (valfritt) | Antal byte att reservera. Utelämnas för en enskild byte. |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .var räknare
 .var timer, 2
@@ -3196,8 +3160,7 @@ LDA #$00
 STA-räknare
 ```
 
-**Starta:** Klicka på **Felsök (RetroDebugger)** i verktygsfältet. Appen kommer
-att:
+**Genererad ASM:**
 ```
 .var-räknare
 ```
@@ -3222,8 +3185,7 @@ genererar den korrekta `CMP` / `CPX` / `CPY` + grensekvensen åt dig.
 | Operatör | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
 | Värde    | Omedelbart värde i HEX- eller DEC-format     |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .om A == #$10 LDA #$07
 .annars LDA #$0F
@@ -3248,8 +3210,7 @@ förblir sant.
 | Operatör | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
 | Värde    | Omedelbart värde i HEX- eller DEC-format     |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .medan A != #$00
 JSR getchar
@@ -3274,8 +3235,7 @@ en gång, sedan avgör villkoret om den ska stoppas.
 | Operatör | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
 | Värde    | Omedelbart värde i HEX- eller DEC-format     |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .repeat
 JSR getchar
@@ -3299,8 +3259,7 @@ ett sammanhängande block, `MEMSET` fyller ett område med en byte.
 | `MEMCPY` | `källa`, `dst`, `storlek`    |
 | `MEMSET` | `adress`, `värde`, `storlek` |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .memcpy src=$C000, dst=$D000, storlek=$0100
 .memset adr=$0400, värde=#$20, storlek=$03E8
@@ -3322,8 +3281,7 @@ Liksom **PETSCII-utdata utan standardtexten ** — skriver ut en sträng genom
 `CHROUT` med samma hantering av versaler/gemener som PETSCII-blocket. Kryssrutan
 för gemener delas med PETSCII-kodaren, så textsökvägen förblir konsekvent.
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .print "HEJ"
 .print "hej", sänk
@@ -3335,8 +3293,7 @@ Skriver ut en PETSCII-byte med numerisk kod och skickar den via `CHROUT`. Värde
 kan också vara en namngiven konstant eller etikett som omvandlas till en byte
 vid monteringstillfället, både i blockläge och expertläge.
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .print_char 65
 .print_char $41
@@ -3348,8 +3305,7 @@ RetroDebugger** och peka den till binärfilen `RetroDebugger`.
 Skriver ut ett 8-bitarsvärde som hexadecimal text via den vanliga
 KERNAL-utdatavägen.
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .print_hex A
 ```
@@ -3358,8 +3314,7 @@ RetroDebugger** och peka den till binärfilen `RetroDebugger`.
 
 Genväg för standard C64-kontrollkoden för tydlig skärm.
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .clear_screen
 ```
@@ -3369,8 +3324,7 @@ RetroDebugger** och peka den till binärfilen `RetroDebugger`.
 Väntar tills en tangent trycks ned, så att du inte behöver rulla `GETIN`-slingan
 för hand varje gång.
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .vänta_nyckel
 ```
@@ -3382,8 +3336,7 @@ för korta pauser och tidsintervall när en fullständig anpassad loop skulle va
 överdriven. Bildruteantalet kan vara ett rått tal eller en namngiven konstant,
 och `.wait` är bara ett alias för `.delay`.
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .delay 29
 .wait 29
@@ -3400,8 +3353,7 @@ Bekvämlighetsomslag för VIC-II-färgregistren. Färgvärdet kan vara ett rått
 eller en namngiven konstant som upplöses till 0–15. Både blockläge och
 expertläge accepterar symboliska konstantnamn här.
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .set_border 6
 .set_bg 0
@@ -3428,8 +3380,7 @@ IRQ-källorna och återgår till normal körning med `CLI`.
 | Hanterare | IRQ-rutinens etikett (t.ex. `my_irq`)                 |
 | Raster    | Rasterlinje i hexadecimal eller decimal (t.ex. `$FA`) |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .irq_setup handler=my_irq, raster=$FA
 ```
@@ -3451,8 +3402,7 @@ värde från ett kompakt nollsidigt seed-värde.
 | ------ | -------------------------------------------------------- |
 | Utsäde | Valfri nollsidig seedbyte eller etikett (standard `$FB`) |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .rand
 ```
@@ -3478,16 +3428,14 @@ aktiverar valfritt flerfärgsläge och ställer in dess färg.
 | Datasida   | Sprite-dataadress / 64 (t.ex. `$21` om data finns på `$0840`) |
 | Flerfärgad | Växlar spritens flerfärgade bit (`$D01C`)                     |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .sprite_init 0, 7, 21 USD
 .sprite_init 0, 7, 21 USD, flerfärgad
 .sprite_init 0, 7, 21 USD, mono
 ```
 
-**Starta:** Klicka på **Felsök (RetroDebugger)** i verktygsfältet. Appen kommer
-att:
+**Genererad ASM:**
 ```
 LDA #$21 STA $07F8; spritepekarregister ($07F8 + N) LDA $D015 ORA #$01; sätt aktiveringsbit för sprite 0 STA $D015 LDA $D01C OCH #$FE; rensa flerfärgsbit för sprite 0 STA $D01C LDA #$07 STA $D027; sprite 0 färgregister
 ```
@@ -3513,8 +3461,7 @@ spritregistret.
 | X        | Horisontellt läge 0–319 |
 | Y        | Vertikal position 0–255 |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .sprite_pos 0, 152, 100
 ```
@@ -3552,14 +3499,12 @@ förhindra sprite-tearing. Ingen JSR, ingen etikett behövs.
 | ----------- | ------------------------------------------------- |
 | Rasterlinje | Målrasterlinje i hexagonal (t.ex. `FF` = rad 255) |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .wait_raster $FF
 ```
 
-**Starta:** Klicka på **Felsök (RetroDebugger)** i verktygsfältet. Appen kommer
-att:
+**Genererad ASM:**
 ```
 vänta:
 LDA $D012; aktuell rasterlinje
@@ -3586,8 +3531,7 @@ Helt inline, ingen JSR behövs.
 | Hamn     | `1` = port 1 (`$DC01`) eller `2` = port 2 (`$DC00`)           |
 | Sprite # | Spritenummer 0–7 (styr vilket X/Y-registerpar som uppdateras) |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .joystick 2, 0
 ```
@@ -3708,8 +3652,7 @@ sprite eller bakgrunden. Helt inline, ingen JSR behövs.
 | Sprite #      | Sprite nummer 0–7 (vilken spritebit ska kontrolleras)                                                              |
 | Kollisionstyp | `Sprite-Sprite ($D01E)` — kollision med en annan sprite; `Sprite-Bakgrund ($D01F)` — kollision med bakgrundsgrafik |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .sprite_col 0, sprite
 .sprite_col 0, bakgrund
@@ -3757,8 +3700,7 @@ extra kod från disken medan ditt program körs.
 | Åsidosätt adress (valfritt) | Hexadecimal laddningsadress (t.ex. `C000`). Om angiven laddas filen till denna adress (`sec=0`, utan att PRG-rubriken används). Lämna tomt för att använda filens egen 2-byte PRG-rubrik (`sec=1`). |
 | Feletikett (valfritt)       | Om den är satt genereras en `BCS`-instruktion efter JSR LOAD. Om KERNAL returnerar med carry satt (fel), hoppar exekveringen till denna etikett.                                                    |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .loadfile "DEMO-FÄRGER", 8
 .loadfile "DEMO-FÄRGER", 8, $C000
@@ -3809,8 +3751,7 @@ packar upp den bakåt till adressen som är inbäddad i strömmen.
 | ----------------- | ----------------------------------------------------------------------------------------------- |
 | Avpackningsadress | Där depacker-koden finns i minnet (standard `B000`). Måste vara en 16-bitars hexadecimaladress. |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .exodecrunch
 .exodecrunch avpackare=$B000
@@ -3898,8 +3839,7 @@ gjort:
 > Makrot normaliserar resultatet så att följande gren förblir enkel: `BNE`
 > betyder att REU finns, `BEQ` betyder att REU saknas.
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .reu_check
 ```
@@ -3941,8 +3881,7 @@ processorn är stoppad). En överföring på `$1000`-byte är i praktiken omedel
 | REU-banken | REU-minnesbank (0–7)                  | `0`     |
 | Längd      | Antal byte att överföra (hex, 16-bit) | `1000`  |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .reu_stash 000 kr, 0000 kr, 0, 1000 kr
 .reu_fetch 000 kr, 0000 kr, 0, 1000 kr
@@ -4018,8 +3957,7 @@ C9 FF CMP #$FF
 
 **Inga konfigurerbara fält.**
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .supercpu_detect
 ```
@@ -4234,8 +4172,7 @@ BCD-aritmetik — ingen manuell bärjonglering behövs.
 | Lägg till poäng | Decimalvärde att lägga till per anrop (t.ex. `100`).                                            |
 | Skärmadress     | Var sifferkoderna ska skrivas (t.ex. `0400`). En byte per siffra (hög nibble först).            |
 
-**Inställningar:** Öppna **Inställningar → Konfigurera den körbara filen
-RetroDebugger** och peka den till binärfilen `RetroDebugger`.
+**Expertsyntax:**
 ```
 .score_bcd $C200, 4, 100, $0400
 ```
@@ -4321,7 +4258,7 @@ skrivs till brytpunktsfilen varje gång felsökaren startas.
 
 ### Felsökarflaggor (fliken Alternativ)
 
-| Exempel         | Flagga        | Effekt                                                                       |
+| Växla           | Flagga        | Effekt                                                                       |
 | --------------- | ------------- | ---------------------------------------------------------------------------- |
 | `-jmp` PÅ       | `-jmp $ADDR`  | Hoppa direkt till programmets startadress efter laddning                     |
 | `-återuppta` PÅ | `-återuppta`  | Avbryt pausningen av felsökaren omedelbart vid laddning                      |
@@ -4582,21 +4519,20 @@ till en D64-disk via posten **Spara till D64**.
 | Särdrag      | Beskrivning                                                                                              |
 | ------------ | -------------------------------------------------------------------------------------------------------- |
 | Lägesväxlare | **Multicolor** Kryssrutan växlar mellan hög upplösning (mono per cell) och flerfärg (4 färger per cell). |
-| Verktyg      | Penna, suddgummi, linje, rektangel, fylld rektangel, oval, fylld oval, fyllning.                         |
+| **Status**   | Visar om den körbara sökvägen är giltig och tillgänglig                                                  |
 
 Pixelnivå-bitmappsredigerare med både 320×200 högupplösta och 160×200
 flerfärgslägen. Öppna via Verktygskit → Högupplöst redigerare.
 
 ### Sprite-redigeraren
 
-| Särdrag | Beskrivning                                                                      |
-| ------- | -------------------------------------------------------------------------------- |
-| Ramar   | Lägg till / ta bort / ändra ordning på ramar; ramremsan visas längst ner.        |
-| Läge    | Mono-/flerfärgsbrytare.                                                          |
-| Verktyg | Penna, suddgummi, linje, rektangel, fylld rektangel, oval, fylld oval, fyllning. |
+| Särdrag    | Beskrivning                                                               |
+| ---------- | ------------------------------------------------------------------------- |
+| Ramar      | Lägg till / ta bort / ändra ordning på ramar; ramremsan visas längst ner. |
+| Läge       | Mono-/flerfärgsbrytare.                                                   |
+| **Status** | Visar om den körbara sökvägen är giltig och tillgänglig                   |
 
-24×21 pixlars sprite-editor med flerbildsanimering. Öppna via Toolkit → Sprite
-Editor.
+**Arbetsflöde:**
 1. Installera Exomizer-binärfilen:
    - **Windows:** ladda ner den förbyggda `win32/exomizer.exe` från
      https://bitbucket.org/magli143/exomizer/wiki/Home eller
@@ -4632,7 +4568,7 @@ Tauri-backend; ingenting i integrationen är plattformsspecifikt.
 | Särdrag                 | Beskrivning                                                                                                                                                                                                        |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Två teckenuppsättningar | Flik 1: **Set 1 — Övre/Grafik** (standardläge efter påslag). Flik 2: **Set 2 — Nedre/Övre** (efter `$0E`-brytaren).                                                                                                |
-| Verktyg                 | 16×16 rutnät med alla 256 tecken. Klicka på en teckensymbol för att se dess detaljpanel: zoomad 8×8 pixlarvy, skärmkod (decimal + hex), PETSCII-koder (både standard och förskjutna) och den råa 8-byte bitmappen. |
+| **Status**              | 16×16 rutnät med alla 256 tecken. Klicka på en teckensymbol för att se dess detaljpanel: zoomad 8×8 pixlarvy, skärmkod (decimal + hex), PETSCII-koder (både standard och förskjutna) och den råa 8-byte bitmappen. |
 
 Skrivskyddad läsare av C64-tecken-ROM (det inbyggda PETSCII-teckensnittet).
 Öppnas via posten **C64 chargen** i Toolkit-menyn. Användbart för att hitta
@@ -4649,8 +4585,7 @@ Teckenredigerare.
 | Ladda `.bin`               | Importerar en extern binärfil med 2048 byte teckenuppsättning.                           |
 | Förhandsvisning per tecken | 16-brett rutnät med alla 256 tecken med den aktuella cellen markerad.                    |
 
-24×21 pixlars sprite-editor med flerbildsanimering. Öppna via Toolkit → Sprite
-Editor.
+**Arbetsflöde:**
 1. Anslut 1541 Ultimate / Ultimate 64 till ditt lokala nätverk.
 2. Ange dess IP-adress (och lösenord om det är inställt) i
    maskinvaruinställningar.
@@ -4681,8 +4616,7 @@ breda pixlar enligt C64:s regler för flerfärgade tecken.
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | Mono / flerfärgad | Monoläget lagrar 1-bitars 8×8-glyfer. Flerfärgsläget lagrar tvåbitars horisontella pixelpar och markerar använda celler med Color RAM-bit 3. |
 
-24×21 pixlars sprite-editor med flerbildsanimering. Öppna via Toolkit → Sprite
-Editor.
+**Arbetsflöde:**
 1. Sätt i Kung Fu Flash 2 i C64:ans pickupport, slå på datorn och anslut
    USB-kabeln till din PC/Mac.
 2. Öppna **Maskinvaruinställningar** och kontrollera avsnittet **Kung Fu Flash
@@ -4730,18 +4664,22 @@ användargränssnittsinställningarna och återställs nästa gång den öppnas.
 Pixelnivå-bitmappsredigerare med både 320×200 högupplösta och 160×200
 flerfärgslägen. Öppna via Verktygskit → Högupplöst redigerare.
 
-| Särdrag          | Beskrivning                                                                                                                  |
-| ---------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| Lägesväxlare     | **Multicolor** Kryssrutan växlar mellan hög upplösning (mono per cell) och flerfärg (4 färger per cell).                     |
-| Verktyg          | Penna, suddgummi, linje, rektangel, fylld rektangel, oval, fylld oval, fyllning.                                             |
-| Sprutverktyg     | Airbrush-liknande målare som sprider pixlar runt markören medan du ritar.                                                    |
-| Sprutintensitet  | Listrutan bredvid sprutverktyget styr hur tätt varje sprutslag är.                                                           |
-| Färgpalett       | Förgrunds- (bläck) + pappers- (bakgrunds) väljare. Flerfärgsläget spårar automatiskt 3 extrafunktioner per cell.             |
-| Ångra / Gör om   | Historik per penseldrag, ctrl-Z / ctrl-Y.                                                                                    |
-| Rutnät + Raster  | Valfritt 8×8 rutnät och rasterradöverlägg för celljustering.                                                                 |
-| Importera bild   | PNG/JPEG/GIF som släpps på arbetsytan kvantiseras automatiskt till C64-paletten med 16 färger.                               |
-| Exportera block  | Lägger till BYTE/RAWBYTES-block i programmet med kodad bitmapp, skärm och färgdata.                                          |
-| Exportera `.bin` | Sparar det ursprungliga flerfärgsformatet (10000 byte: 8000 bitmapp + 1000 skärm + 1000 färg) klart för LOADFILE till $2000. |
+| Särdrag              | Beskrivning                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Lägesväxlare         | **Multicolor** Kryssrutan växlar mellan hög upplösning (mono per cell) och flerfärg (4 färger per cell).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Verktyg              | Penna, suddgummi, linje, rektangel, fylld rektangel, oval, fylld oval, fyllning, markering.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Sprutverktyg         | Airbrush-liknande målare som sprider pixlar runt markören medan du ritar.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Sprutintensitet      | Listrutan bredvid sprutverktyget styr hur tätt varje sprutslag är.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Färgpalett           | Förgrunds- (bläck) + pappers- (bakgrunds) väljare. Flerfärgsläget spårar automatiskt 3 extrafunktioner per cell.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| Ångra / Gör om       | Historik per penseldrag, ctrl-Z / ctrl-Y.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Välja                | Verktyget streckad fyrkant: dra på arbetsytan för att markera ett rektangulärt område. **Esc** rensar markeringen.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Kopiera / Klistra in | **Kopiera** (`Ctrl/Cmd+C`) kopierar det markerade området. **Klistra in** (`Ctrl/Cmd+V`) visar en förhandsgranskning som följer markören: klicka på arbetsytan för att placera den, **Esc** avbryter. Kopian behålls, så om du trycker på `Ctrl/Cmd+V` och klickar igen placeras den så många gånger som behövs. I högupplöst läge följer inklistrade pixlar fortfarande gränsen på två färger per cell, så justera regionen med cellrutnätet för att behålla dess färger. Kopiera, Klistra in och Genomskinlig klistra finns också i högerklicksmenyn på arbetsytan; en inklistring som startats där förhandsgranskas på den klickade platsen. |
+| Transparent pasta    | `Ctrl/Cmd+Shift+V` (eller dess knapp i verktygsfältet) hoppar över de pappersfärgade pixlarna i kopian, så att bilden under syns igenom.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Rutnät + Raster      | **Rutnät** visar tecken-cellsrutnätet: 8×8 pixlar i hög upplösning, 4×8 pixlar med dubbel bredd i flerfärg. Från 4× zoom ritar den också en svagare linje runt varje enskild pixel, så att varje pixel kan placeras exakt. **Raster** lägger till ett rasterradlager.                                                                                                                                                                                                                                                                                                                                                                           |
+| Zoom                 | Skjutreglage från 1× till 16×.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| Importera bild       | PNG/JPEG/GIF som släpps på arbetsytan kvantiseras automatiskt till C64-paletten med 16 färger.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| Exportera block      | Lägger till BYTE/RAWBYTES-block i programmet med kodad bitmapp, skärm och färgdata.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Exportera `.bin`     | Sparar det ursprungliga flerfärgsformatet (10000 byte: 8000 bitmapp + 1000 skärm + 1000 färg) klart för LOADFILE till $2000.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 
 ### Sprite-redigeraren
 
@@ -4750,7 +4688,7 @@ Editor.
 
 | Särdrag                      | Beskrivning                                                                                                                                                                                                                               |
 | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Ramar                        | Lägg till / ta bort / ändra ordning på ramar; ramremsan visas längst ner.                                                                                                                                                                 |
+| Ramar                        | Lägg till / ta bort / ändra ordning på ramar; ramremsan visas längst ner. **Kopiera** / **Klistra in** i ramraden kopierar du hela den aktuella ramen; samma två poster finns i högerklicksmenyn på arbetsytan och på ramremsan.          |
 | Läge                         | Mono-/flerfärgsbrytare.                                                                                                                                                                                                                   |
 | Verktyg                      | Penna, fyllning, linje, rektangel, cirkel — plus vändning horisontellt, vändning vertikalt, förskjutning vänster/höger/upp/ner (med valfri radbrytning). Formverktygen visar en live-förhandsvisning när du drar; släpp för att bekräfta. |
 | Ångra / gör om               | Fullständig ångra/gör om-stapel per bildruta. Ctrl/Cmd+Z / Ctrl/Cmd+Y eller verktygsfältsknapparna.                                                                                                                                       |
@@ -4825,7 +4763,7 @@ kollisionsdata och liknande. Öppna via Toolkit → Map Editor.
 | Ångra / gör om                     | Fullständig ångra/gör om-stapel per lager. Ctrl/Cmd+Z / Ctrl/Cmd+Y eller verktygsfältsknapparna.                                                                                                                                                          |
 | Rensa menyn                        | Rensning per lager eller hel karta med bekräftelse.                                                                                                                                                                                                       |
 | Bildimport                         | Släpp en PNG av en kakelkarta; redigeraren delar automatiskt upp kakel i kakel.                                                                                                                                                                           |
-| Kopiera / klistra in               | Kopiera ett markerat kakelområde och klistra sedan in normalt eller använd transparent klistra in för att hålla tomma kakel genomskinliga.                                                                                                                |
+| Kopiera / klistra in               | Kopiera ett markerat område i rutan och klistra sedan in det normalt eller använd transparent klistra in för att hålla tomma rutor transparenta. Samma poster finns i högerklicksmenyn på arbetsytan.                                                     |
 | Flerfärgsmedveten kakelfärgning    | Med kompatibla teckenuppsättningsmetadata använder målningen kakelns lagrade standardinställningar för färg-RAM (inklusive flerfärgsrelaterad kodning) istället för en generisk platt färg.                                                               |
 | Anpassade teckenuppsättningsfärger | När en teckenuppsättning innehåller `charColors`-metadata använder kartredigeraren den valda plattans standardvärde för färg-RAM vid målning.                                                                                                             |
 | Exportera block                    | Sätter ut RAWBYTES-block för tileset-grafik + kartdata.                                                                                                                                                                                                   |
@@ -5076,9 +5014,9 @@ fungerande 16-bitars sprite-X-exempel.
 ### Nummerkonverterare
 
 En liten **icke-modal** DEC / HEX / BIN-konverterare, öppnad med
-verktygsfältsknappen bredvid D64-editorn (klicka igen eller tryck på Esc för att
-stänga). Den förblir öppen medan du fortsätter att redigera programmet i
-valfritt läge.
+verktygsfältsknappen bredvid D64-redigeraren (klicka igen eller tryck på Esc för
+att stänga). Knappen förblir markerad medan konverteraren visas. Den förblir
+öppen medan du fortsätter att redigera programmet i valfritt läge.
 
 - Skriv in i något av fälten **DEC**, **HEX** eller **BIN** så följer de andra
   två. Prefixen `$`, `0x`, `%`, `0b` och avgränsare (mellanslag, `_`)

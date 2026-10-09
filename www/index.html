@@ -229,6 +229,9 @@
           <button id="d64-editor-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="D64 Editor">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" width="15" height="15" aria-hidden="true"><circle cx="8" cy="8" r="6.5"/><circle cx="8" cy="8" r="1.6" fill="currentColor" stroke="none"/><path d="M8 1.5v2.1M8 12.4v2.1" stroke-linecap="round"/></svg>
           </button>
+          <button id="sid-player-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="SID Player" aria-pressed="false">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true"><path d="M6 12V3.5l7-1.5V10.5"/><circle cx="4.3" cy="12" r="1.8"/><circle cx="11.3" cy="10.5" r="1.8"/></svg>
+          </button>
           <button id="numconv-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="Number converter" aria-pressed="false">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true"><path d="M2 4.5h7M6.5 2 9 4.5 6.5 7"/><path d="M14 11.5H7M9.5 9 7 11.5 9.5 14"/><text x="11" y="6.2" font-size="5" font-family="monospace" fill="currentColor" stroke="none">$</text><text x="1.6" y="13.4" font-size="5" font-family="monospace" fill="currentColor" stroke="none">%</text></svg>
           </button>
@@ -2075,15 +2078,12 @@ PRINTABLE CHARACTERS
             <button id="sid-load-bin" type="button">Load .bin…</button>
             <button id="sid-save-bin" type="button">Save .bin…</button>
             <div class="ed-file-sep"></div>
-            <button id="sid-play-sid" type="button">Play .sid file…</button>
-            <div class="ed-file-sep"></div>
             <button id="sid-export-data" type="button">Export blocks (data only)</button>
             <button id="sid-export-player" type="button">Export blocks + miniplayer</button>
             <button id="sid-export-asm" type="button">Export asm</button>
             <button id="sid-export-ub" type="button">Export to UltimateBasic</button>
           </div>
           <input type="file" id="sid-bin-file" accept=".bin,application/octet-stream" hidden>
-          <input type="file" id="sid-sid-file" accept=".sid,application/octet-stream" hidden>
         </div>
         <span class="sid-title">SID EDITOR</span>
         <button id="sid-close" class="sid-xbtn" type="button" aria-label="Close">×</button>
@@ -2102,8 +2102,15 @@ PRINTABLE CHARACTERS
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="3" width="13" height="10" rx="1.5"/><path d="M4 3v10M7 3v10M10 3v10M13 3v10"/><path d="M5.3 3v5M8.3 3v5M11.3 3v5"/></svg>
           </button>
           <div class="sid-master-vol-wrap">
-            <label class="sid-master-vol-lbl" for="sid-master-vol" id="sid-master-vol-lbl">Master volume</label>
-            <input id="sid-master-vol" class="sid-master-vol" type="range" min="0" max="100" value="60" title="Master preview volume" aria-label="Master volume">
+            <span class="sid-master-vol-lbl" id="sid-master-vol-lbl">Master volume</span>
+            <div id="sid-master-vol" class="websid-play-knob" role="slider" tabindex="0" aria-label="Master volume" aria-valuemin="0" aria-valuemax="100" aria-valuenow="60">
+              <svg viewBox="0 0 40 40" aria-hidden="true">
+                <path class="websid-play-knob-track" d=""/>
+                <path class="websid-play-knob-value" d=""/>
+                <circle class="websid-play-knob-body" cx="20" cy="20" r="11.5"/>
+                <line class="websid-play-knob-pointer" x1="20" y1="20" x2="20" y2="11"/>
+              </svg>
+            </div>
             <span id="sid-master-vol-val" class="sid-master-vol-val">60</span>
           </div>
         </div>
@@ -2353,22 +2360,70 @@ PRINTABLE CHARACTERS
     </div>
   </dialog>
 
-  <!-- showModal() puts this into the top layer above the SID editor's own
-       modal ::backdrop. Popover/non-modal alternatives were unreliable in the
-       Tauri WebView: clicks on Stop were swallowed by the parent backdrop. -->
-  <dialog id="websid-play-dialog" class="websid-play-dialog" aria-labelledby="websid-play-title">
+  <!-- SID player: non-modal floating window like the number converter.
+       Over an open modal editor (SID Editor) it is opened with showModal(),
+       otherwise the modal ::backdrop would make it inert. -->
+  <dialog id="websid-play-dialog" class="websid-play-dialog websid-play-dialog--stopped" aria-labelledby="websid-play-title">
     <div class="websid-play-card">
       <div class="websid-play-header">
         <span class="websid-play-dot" aria-hidden="true"></span>
-        <span id="websid-play-title">External SID playback</span>
+        <span id="websid-play-title" class="websid-play-title">SID Player</span>
+        <span id="websid-play-engine" class="websid-play-engine"></span>
+        <button id="websid-play-close" class="websid-play-xbtn" type="button" aria-label="Close">×</button>
       </div>
-      <div class="websid-play-file" id="websid-play-file"></div>
-      <div class="websid-play-note" id="websid-play-note">
-        External .sid tune — the tracker view stays with your current song.
+      <div class="websid-play-toolbar">
+        <div class="websid-play-tools">
+          <button id="websid-play-prev" class="websid-play-tool" type="button" aria-label="Previous"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 3.5v9" stroke="currentColor" stroke-width="1.6"/><path d="M13 3.5 5.5 8l7.5 4.5z" fill="currentColor"/></svg></button>
+          <button id="websid-play-play" class="websid-play-tool" type="button" aria-label="Play"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.5l8 4.5-8 4.5z" fill="currentColor"/></svg></button>
+          <button id="websid-play-pause" class="websid-play-tool" type="button" aria-label="Pause"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="3.5" width="2.5" height="9" fill="currentColor"/><rect x="9.5" y="3.5" width="2.5" height="9" fill="currentColor"/></svg></button>
+          <button id="websid-play-stop" class="websid-play-tool" type="button" aria-label="Stop"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="4" width="8" height="8" fill="currentColor"/></svg></button>
+          <button id="websid-play-next" class="websid-play-tool" type="button" aria-label="Next"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M12 3.5v9" stroke="currentColor" stroke-width="1.6"/><path d="M3 3.5 10.5 8 3 12.5z" fill="currentColor"/></svg></button>
+        </div>
+        <div class="websid-play-tools">
+          <button id="websid-play-rew" class="websid-play-tool" type="button" aria-label="Back 10 s"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 4 2.5 8 8 12zM14 4 8.5 8 14 12z" fill="currentColor"/></svg></button>
+          <button id="websid-play-fwd" class="websid-play-tool" type="button" aria-label="Forward 10 s"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 4l5.5 4L8 12zM2 4l5.5 4L2 12z" fill="currentColor"/></svg></button>
+        </div>
+        <div class="websid-play-tools">
+          <button id="websid-play-add" class="websid-play-tool" type="button" aria-label="Add .sid files…"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+          <button id="websid-play-open-list" class="websid-play-tool" type="button" aria-label="Open playlist…"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 4.5v8h11l2-5.5H4.5l-2 5.5M1.5 4.5V3h4l1 1.5h6V7" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></button>
+          <button id="websid-play-save-list" class="websid-play-tool" type="button" aria-label="Save playlist…"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 2.5h9l2 2v9h-11zM5 2.5v3.5h5.5V2.5M4.5 13.5V9h7v4.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></button>
+          <button id="websid-play-clear" class="websid-play-tool" type="button" aria-label="Clear playlist"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 4.5h9M6.5 4.5V3h3v1.5M5 4.5l.6 8.5h4.8l.6-8.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></button>
+        </div>
+        <div class="websid-play-vol-wrap">
+          <div id="websid-play-vol" class="websid-play-knob" role="slider" tabindex="0" aria-label="Volume" aria-valuemin="0" aria-valuemax="100" aria-valuenow="60">
+            <svg viewBox="0 0 40 40" aria-hidden="true">
+              <path class="websid-play-knob-track" d=""/>
+              <path class="websid-play-knob-value" d=""/>
+              <circle class="websid-play-knob-body" cx="20" cy="20" r="11.5"/>
+              <line class="websid-play-knob-pointer" x1="20" y1="20" x2="20" y2="11"/>
+            </svg>
+          </div>
+          <span id="websid-play-vol-val" class="websid-play-vol-val">60</span>
+        </div>
+        <span id="websid-play-time" class="websid-play-time">00:00</span>
       </div>
-      <div class="websid-play-actions">
-        <button id="websid-play-stop" class="primary" type="button">Stop</button>
+      <div class="websid-play-body">
+        <div class="websid-play-file" id="websid-play-file"></div>
+        <div class="websid-play-meta-row">
+          <div class="websid-play-meta" id="websid-play-meta"></div>
+          <div class="websid-play-tools" id="websid-play-song-row" hidden>
+            <button id="websid-play-song-prev" class="websid-play-tool" type="button" aria-label="Previous subtune"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3.5 5 8l5 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            <span id="websid-play-song" class="websid-play-song">1 / 1</span>
+            <button id="websid-play-song-next" class="websid-play-tool" type="button" aria-label="Next subtune"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 11 8l-5 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          </div>
+        </div>
+        <div class="websid-play-seek-row">
+          <input id="websid-play-seek" class="websid-play-seek" type="range" min="0" max="180" step="1" value="0" aria-label="Position">
+          <span id="websid-play-length" class="websid-play-length">03:00</span>
+        </div>
+        <ol id="websid-play-list" class="websid-play-list"></ol>
+        <div id="websid-play-drop-hint" class="websid-play-drop-hint">Drop .sid files here</div>
+        <div class="websid-play-note" id="websid-play-note" hidden>
+          External .sid tune — the tracker view stays with your current song.
+        </div>
       </div>
+      <input id="websid-play-files" type="file" accept=".sid" multiple hidden>
+      <input id="websid-play-list-file" type="file" accept=".sidpl" hidden>
     </div>
   </dialog>
 
@@ -2733,6 +2788,24 @@ PRINTABLE CHARACTERS
             <span id="ub-asm-sidecar-label">UltimateBasic ASM source generálása (.asm)</span>
           </label>
 
+        </section>
+
+        <section class="hw-settings-section">
+          <h3 class="hw-settings-section-label" id="sid-preview-settings-label">SID preview</h3>
+          <label class="field compact-field hw-field">
+            <span id="sid-preview-engine-lbl">SID engine</span>
+            <select id="sid-preview-engine" class="sid-select">
+              <option value="websid">WebSID</option>
+              <option value="va-core">VA SID Core (Rust) v1.1</option>
+            </select>
+          </label>
+          <label class="field compact-field hw-field">
+            <span id="sid-preview-model-lbl">SID chip</span>
+            <select id="sid-preview-model" class="sid-select" disabled>
+              <option value="8580">MOS 8580</option>
+              <option value="6581">MOS 6581</option>
+            </select>
+          </label>
         </section>
 
         <section class="hw-settings-section">

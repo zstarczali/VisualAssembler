@@ -20,9 +20,15 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 reqwest = { version = "0.12", default-features = false, features = ["native-tls"] }
 base64 = "0.22"
+emulator_6502 = { version = "1.1.0", features = ["implementation_transparency"] }
 urlencoding = "2"
 serialport = { version = "4.7", default-features = false }
 ultimate-basic = { git = "https://github.com/zstarczali/UltimateBasic.git", branch = "dev" }
 
-[dev-dependencies]
-emulator_6502 = { version = "1.1.0", features = ["implementation_transparency"] }
+# `tauri dev` speed: the SID emulation (VA SID Core, 6502 CPU) runs slower than
+# real time unoptimised. Dependencies build once at opt-level 2, the app at 1.
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 2

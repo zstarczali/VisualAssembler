@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Käyttöopas
 
-**Versio 2.5.4**
+**Versio 2.5.5**
 
 Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
 vetämällä ja pudottamalla käskylohkoja ja nähdä luodun assemblerin ja konekoodin
@@ -11,77 +11,83 @@ reaaliajassa.
 ## Sisällysluettelo
 
 - [C64 Visual Assembler — Käyttöopas](#c64-visual-assembler--user-manual)
+    - [Version 2.5.5 kohokohdat](#version-255-highlights)
     - [Version 2.5.4 kohokohdat](#version-254-highlights)
-    - [Version 2.5.2 kohokohdat](#version-253-highlights)
-    - [Version 2.5.1 kohokohdat](#version-252-highlights)
-    - [Version 2.5.0 kohokohdat](#version-251-highlights)
-    - [Version 2.4.9 kohokohdat](#version-250-highlights)
-    - [Version 2.4.8 kohokohdat](#version-249-highlights)
-    - [Version 2.4.7 kohokohdat](#version-248-highlights)
-    - [Version 2.4.6 kohokohdat](#version-247-highlights)
-    - [Version 2.4.5 kohokohdat](#version-246-highlights)
-    - [Version 2.4.3 kohokohdat](#version-245-highlights)
-    - [Version 2.4.2 kohokohdat](#version-243-highlights)
-    - [Version 2.4.1 kohokohdat](#version-242-highlights)
-    - [Version 2.4.0 kohokohdat](#version-241-highlights)
-    - [Version 2.3.9 kohokohdat](#version-240-highlights)
-    - [Sisällysluettelo](#version-239-highlights)
-  - [1. Käyttöliittymän yleiskatsaus](#table-of-contents)
-  - [2. Lohkopaletti](#1-interface-overview)
-  - [3. Ohjelma-alue](#2-block-palette)
-  - [4. ASM-näkymä](#3-program-area)
-    - [Lähtötilat](#operand-input)
-  - [5. Asetukset \&amp; Työkalupalkki](#4-asm-view)
-    - [Projektimallit](#output-modes)
-    - [Rakenna projekti](#toolkit-tab)
-    - [Esimerkkiohjelmia](#options-tab)
-    - [Lataa .asm-tiedosto (pikaopas)](#clicking-an-asm-line)
+    - [Version 2.5.3 kohokohdat](#version-253-highlights)
+    - [Version 2.5.2 kohokohdat](#version-252-highlights)
+    - [Version 2.5.1 kohokohdat](#version-251-highlights)
+    - [Version 2.5.0 kohokohdat](#version-250-highlights)
+    - [Version 2.4.9 kohokohdat](#version-249-highlights)
+    - [Version 2.4.8 kohokohdat](#version-248-highlights)
+    - [Version 2.4.7 kohokohdat](#version-247-highlights)
+    - [Version 2.4.6 kohokohdat](#version-246-highlights)
+    - [Version 2.4.5 kohokohdat](#version-245-highlights)
+    - [Version 2.4.3 kohokohdat](#version-243-highlights)
+    - [Version 2.4.2 kohokohdat](#version-242-highlights)
+    - [Version 2.4.1 kohokohdat](#version-241-highlights)
+    - [Version 2.4.0 kohokohdat](#version-240-highlights)
+    - [Version 2.3.9 kohokohdat](#version-239-highlights)
+  - [Sisällysluettelo](#table-of-contents)
+  - [1. Käyttöliittymän yleiskatsaus](#1-interface-overview)
+  - [2. Lohkopaletti](#2-block-palette)
+  - [3. Ohjelma-alue](#3-program-area)
+    - [Operandin syöttö](#operand-input)
+  - [4. ASM-näkymä](#4-asm-view)
+    - [Lähtötilat](#output-modes)
+    - [Työkalupaketti-välilehti](#toolkit-tab)
+    - [Asetukset-välilehti](#options-tab)
+    - [ASM-rivin napsauttaminen](#clicking-an-asm-line)
     - [ASM-rivinumerot](#asm-line-numbers)
     - [Käännöksen edistymismodaali](#compile-progress-modal)
-  - [UltimateBasic-tila](#5-settings--toolbar)
-    - [UB-editorin avaaminen](#project-templates)
-    - [Editorityökalut](#build-project)
-    - [Projektit, välilehdet ja käynnistystiedostot](#example-programs)
-    - [Rakennus ja diagnostiikka](#load-asm-file-quick-reference)
+  - [5. Asetukset \&amp; Työkalupalkki](#5-settings--toolbar)
+    - [Projektimallit](#project-templates)
+    - [Rakenna projekti](#build-project)
+    - [Esimerkkiohjelmia](#example-programs)
+    - [Lataa .asm-tiedosto (pikaopas)](#load-asm-file-quick-reference)
       - [Tuonnin jäsentämisen huomautukset ja parhaat
         käytännöt](#import-parsing-notes-and-best-practices)
-  - [6. Asiantuntijatila](#ultimatebasic-mode)
-    - [Tilan vaihtaminen](#opening-the-ub-editor)
-    - [Editorin asettelu](#editor-tools)
-    - [Työkalupalkin painikkeet](#projects-tabs-and-startup-files)
-    - [Virhe korostamisessa](#building-and-diagnostics)
-    - [Syntaksin korostus](#running-d64-and-exomizer)
-    - [Lähdekoodin muotoilija](#debugger-symbols-and-disassembly)
-    - [Projektipaneeli \&amp; välilehdet](#ultimate-basic-manual-and-source)
-  - [7. Osoitetilat](#6-expert-mode)
-    - [Merkitse lausekkeet operandeiksi](#switching-modes)
-    - [`*`-ohjelmalaskuri lausekkeissa](#editor-layout)
-    - [Paikalliset (pisteviivalla) merkityt otsikot](#toolbar-buttons)
-    - [Itseään muokkaavan koodin operanditunnisteet](#error-highlighting)
+  - [UltimateBasic-tila](#ultimatebasic-mode)
+    - [UB-editorin avaaminen](#opening-the-ub-editor)
+    - [Editorityökalut](#editor-tools)
+    - [Projektit, välilehdet ja
+      käynnistystiedostot](#projects-tabs-and-startup-files)
+    - [Rakennus ja diagnostiikka](#building-and-diagnostics)
+    - [Juoksu, D64 ja Exomizer](#running-d64-and-exomizer)
+    - [Virheenkorjaussymbolit ja niiden
+      purkaminen](#debugger-symbols-and-disassembly)
+    - [Ultimate Basicin käyttöohje ja
+      lähdekoodi](#ultimate-basic-manual-and-source)
+  - [6. Asiantuntijatila](#6-expert-mode)
+    - [Tilan vaihtaminen](#switching-modes)
+    - [Editorin asettelu](#editor-layout)
+    - [Työkalupalkin painikkeet](#toolbar-buttons)
+    - [Virhe korostamisessa](#error-highlighting)
     - [Syntaksin korostus](#syntax-highlight)
     - [Lähdekoodin muotoilija](#source-formatter)
     - [Projektipaneeli \&amp; välilehdet](#project-panel--tabs)
     - [Välilehtipalkki](#tab-bar)
-  - [8. Vakio-6502-ohjeet](#7-addressing-modes)
-    - [Tietojen siirto](#label-expressions-as-operands)
-    - [Aritmeettinen](#the--program-counter-in-expressions)
-    - [Logiikka](#local-dotted-labels)
-    - [Hyppyjä \&amp; Haarautumisia](#self-modifying-code-operand-labels)
-  - [9. Makrolohkot — Viite](#8-standard-6502-instructions)
-    - [LABEL](#data-movement)
-    - [COMMENT](#arithmetic)
-    - [BYTE](#logic)
-    - [WORD](#jumps--branches)
-    - [FILL](#lbne--lbeq---long-branches)
-    - [ALIGN](#register-operations)
-    - [TEXT](#shift--rotate)
-    - [STRING](#stack)
-    - [DATA](#system--flags)
-    - [RAWBYTES](#illegal--undocumented-instructions)
-  - [10. Virheenkorjausintegraatio](#9-macro-blocks--reference)
-    - [RetroDebugger](#label)
-    - [Keskeytyskohtalohkot](#comment)
-    - [Virheenkorjausliput (Asetukset-välilehti)](#byte)
+  - [7. Osoitetilat](#7-addressing-modes)
+    - [Merkitse lausekkeet operandeiksi](#label-expressions-as-operands)
+    - [`*`-ohjelmalaskuri lausekkeissa](#the--program-counter-in-expressions)
+    - [Paikalliset (pisteviivalla) merkityt otsikot](#local-dotted-labels)
+    - [Itseään muokkaavan koodin
+      operanditunnisteet](#self-modifying-code-operand-labels)
+  - [8. Vakio-6502-ohjeet](#8-standard-6502-instructions)
+    - [Tietojen siirto](#data-movement)
+    - [Aritmeettinen](#arithmetic)
+    - [Logiikka](#logic)
+    - [Hyppyjä \&amp; Haarautumisia](#jumps--branches)
+    - [LBNE / LBEQ / … (Pitkät oksat)](#lbne--lbeq---long-branches)
+    - [Rekisteritoiminnot](#register-operations)
+    - [Vaihto \&amp; Kierrä](#shift--rotate)
+    - [Pino](#stack)
+    - [Järjestelmä / Liput](#system--flags)
+    - [Laittomat / dokumentoimattomat
+      ohjeet](#illegal--undocumented-instructions)
+  - [9. Makrolohkot — Viite](#9-macro-blocks--reference)
+    - [MERKKI](#label)
+    - [KOMMENTTI](#comment)
+    - [BYTE](#byte)
     - [SANA](#word)
     - [TÄYTÄ](#fill)
     - [TASOITA](#align)
@@ -152,22 +158,23 @@ reaaliajassa.
     - [KARTTA\_KOPIO16X16](#map_copy16x16)
     - [SPRITE\_ANIM](#sprite_anim)
     - [PISTEET\_BCD](#score_bcd)
-  - [11. Tietopankin linkit](#10-debugger-integration)
+  - [10. Virheenkorjausintegraatio](#10-debugger-integration)
     - [RetroDebugger](#retrodebugger)
     - [Keskeytyskohtalohkot](#breakpoint-blocks)
     - [Virheenkorjausliput (Asetukset-välilehti)](#debugger-flags-options-tab)
-  - [12. D64 Vie \&amp; Suorita](#11-knowledge-base-links)
-  - [12b. CRT-vienti (Magic Desk 64K -kasetti)](#12-d64-export--run)
+  - [11. Tietopankin linkit](#11-knowledge-base-links)
+  - [12. D64 Vie \&amp; Suorita](#12-d64-export--run)
     - [Jaa suoritus -painike](#split-run-button)
     - [Vie D64-muotoon -valintaikkuna](#export-to-d64-dialog)
     - [D64-metatiedot projekteissa](#d64-metadata-in-projects)
-  - [13. Laitteistoasetukset](#12b-crt-export-magic-desk-64k-cartridge)
-  - [14. Visuaaliset editorit (työkalupakki)](#13-hardware-settings)
-    - [Korkearesoluutioinen / Monivärinen editori](#vice-emulator)
-    - [Sprite-editori](#exomizer)
-    - [C64 Merkki-ROM-selain ("Merkkikartta")](#retro-debugger)
-    - [Merkkieditori (merkistö)](#c64-ultimate--1541-ultimate)
-    - [Merkkijonojen muokkausohjelma](#kung-fu-flash-2)
+  - [12b. CRT-vienti (Magic Desk 64K
+    -kasetti)](#12b-crt-export-magic-desk-64k-cartridge)
+  - [13. Laitteistoasetukset](#13-hardware-settings)
+    - [VICE-emulaattori](#vice-emulator)
+    - [Exomizer](#exomizer)
+    - [Retro-virheenkorjaaja](#retro-debugger)
+    - [C64 Ultimate / 1541 Ultimate](#c64-ultimate--1541-ultimate)
+    - [Kung Fu Flash 2](#kung-fu-flash-2)
   - [14. Visuaaliset editorit (työkalupakki)](#14-visual-editors-toolkit)
     - [Korkearesoluutioinen / Monivärinen editori](#hi-res--multicolor-editor)
     - [Sprite-editori](#sprite-editor)
@@ -181,6 +188,28 @@ reaaliajassa.
     - [SID-editori (3-ääninen seuranta)](#sid-editor-3-voice-tracker)
     - [Käyräeditori](#curve-editor)
     - [Numeronmuunnin](#number-converter)
+
+---
+
+## Version 2.5.5 kohokohdat
+
+- **Korkearesoluutioeditori: pikseliruudukko ja 16× zoom** — kun **Ruudukko** on
+  käytössä, 4× zoomista alkaen jokainen pikseli saa oman ruudukkoviivansa, joka
+  on vahvempi merkkisolujen reunoilla ja varjostettu pysymään näkyvissä kaikilla
+  16 värillä. Zoomausliukusäädin nousee nyt jopa 16×:een. Katso
+  [Korkearesoluutio / Monivärinen editori]{1].
+- ** Napsauta hiiren kakkospainikkeella Kopioi/Liitä-valikkoa** —
+  korkearesoluutio- ja karttaeditorien näytöllä (Kopioi, Liitä, Läpinäkyvä
+  liitä) ja Sprite-editorissa (Kopioi kehys, Liitä kehys, myös kehysnauhalla).
+  Liittäminen aloitettiin valikon esikatselusta napsautetusta kohdasta.
+- **Lukumuunnin** — sen työkalupalkin painike pysyy korostettuna, kun muunnin on
+  näkyvissä.
+- **Korjattu** — Hi-Res Editorin monivärinen soluruudukko oli kaksi kertaa
+  leveämpi kuin merkkisolu; Hi-Res-työkalurivin **Liitä** -painike liitettiin
+  aina läpinäkyvästi; SID Editorin hiiren kakkospainikkeen valikko avautui pois
+  kohdistimesta, kun valintaikkuna oli keskitetty.
+- **Tässä käyttöoppaassa** kuvataan nyt Hi-Res Editorin valinta,
+  kopiointi/liitäminen ja läpinäkyvä liittäminen.
 
 ---
 
@@ -669,9 +698,9 @@ kommenttimerkkiä (`.print "HELLO"`, `.wait_raster $FF`, `.invoke
 setColor(blue)`) ja ne on väritetty makrojen mukaisesti; vain todelliset
 KOMMENTTIlohkot, aluemerkit ja varoitukset säilyttävät johtavan `;`.
 
-| Tila         | Kuvaus                                                                                                                                                                                                                                                                                                                        |
+| Palkin väri  | Kuvaus                                                                                                                                                                                                                                                                                                                        |
 | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **ASM**      | 6502 kokoonpanolähde osoitteineen ja nimikkeineen                                                                                                                                                                                                                                                                             |
+| Syaani       | 6502 kokoonpanolähde osoitteineen ja nimikkeineen                                                                                                                                                                                                                                                                             |
 | **Näyttö**   | Heksa-/tavuvedos (C64-monitorityyli)                                                                                                                                                                                                                                                                                          |
 | **Disasm**   | Pure 6502 -järjestelmän purkaminen: osoite · heksatavut · muistisäännöt ratkaistuilla numeerisilla operandeilla. Makrot on laajennettu yksittäisiksi käskyiksi (TEXT → LDA/STA-parit, LOOP → LDX jne.). BYTE/WORD/FILL-data näytetään lohkoina heksavedoksena. Tulosteessa ei ole makrojen nimiä, kommentteja tai merkintöjä. |
 | **Molemmat** | ASM ylhäällä, näyttö alhaalla                                                                                                                                                                                                                                                                                                 |
@@ -718,7 +747,7 @@ seuraa projektia.
 **Valikko → Tarkista päivitykset** etsii uusimman version c64va.tech-sivustolta
 (se lukee alustasi latauslinkit) ja vertaa sitä käynnissä olevaan versioon:
 
-| Alusta      | Mitä tapahtuu                                                                                                                                                                                               |
+| Osa         | Mitä tapahtuu                                                                                                                                                                                               |
 | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Windows** | Asennusohjelma toimii passiivisessa tilassa (vain edistyminen) ja käynnistää uuden version, kun se on valmis. Konekohtainen asennus pyytää järjestelmänvalvojan oikeuksia (UAC).                            |
 | **macOS**   | DMG liitetään ja sovelluspaketti korvataan paikalleen, minkä jälkeen uusi versio käynnistyy. Jos sovelluskansioon ei voi kirjoittaa, DMG yksinkertaisesti avataan, jotta voit vetää sovelluksen sen päälle. |
@@ -911,7 +940,7 @@ muistikarttatiedot, sisäiset nollasivuvaraukset ja luodun koodin tiedot.
 4. Lähderivillä varustetut virheet valitsevat kyseisen rivin aktiivisessa
    UB-editorissa.
 
-| Alusta            | Sisäänrakennetut mallit                                                                                                                                                                           |
+| Osa               | Sisäänrakennetut mallit                                                                                                                                                                           |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Kokoonpanija**  | Tyhjä ohjelma, Tyhjä peli (otsikko / pelaaminen / pelin päättyminen -tilat, joystick, pelaajan sprite), Hires-bittikartta, Monivärinen bittikartta                                                |
 | **UltimateBasic** | Tyhjä ohjelma, tyhjä peli (sama tilakone UB:ssä), bittikartan palkkaaminen (`viiva` / `suora` / `ympyrä` ja `värikynä`), rasteri-IRQ (`sub` kutsutaan jokaista rasterikeskeytyksen framea varten) |
@@ -1245,11 +1274,11 @@ jokaisessa lohkossa.
 └────────────┴────────────────────────────┴────────────┘
 ```
 
-| Paneeli       | Esimerkki            | Kuvaus                                               |
-| ------------- | -------------------- | ---------------------------------------------------- |
-| `*`           | `BNE *`              | Haara itseensä (ääretön silmukka, offset `$FE`)      |
-| `*-n` / `*+n` | `BNE *-5`, `BEQ *+4` | Haarautuminen suhteessa nykyiseen PC:hen *n* tavulla |
-| `JMP *+n`     | `JMP *+20`           | Absoluuttinen hyppy laskettuna nykyisestä PC:stä     |
+| Paneeli       | Vaihda                          | Kuvaus                                               |
+| ------------- | ------------------------------- | ---------------------------------------------------- |
+| **Paletti**   | `#asiantuntijapaletin-painike`  | Haara itseensä (ääretön silmukka, offset `$FE`)      |
+| `*-n` / `*+n` | `BNE *-5`, `BEQ *+4`            | Haarautuminen suhteessa nykyiseen PC:hen *n* tavulla |
+| `JMP *+n`     | `#asiantuntijan-disasm-painike` | Absoluuttinen hyppy laskettuna nykyisestä PC:stä     |
 
 ### Paikalliset (pisteviivalla) tunnisteet
 
@@ -1266,8 +1295,8 @@ jokaisessa lohkossa.
 | **Rivinumerot**                       | `#asiantuntijan-rivinumerot-painike`                                  | Rivinumerovälin pitäminen päällä/pois editorin vasemmalla puolella. Väliviiva pysyy synkronoituna vierityskohdan kanssa ja päivittyy reaaliajassa kirjoittaessasi.                                                                                           |
 | **Etsi**                              | `#asiantuntijan-etsintäpainike`                                       | Avaa kelluva hakupalkki (`Ctrl+F`). Kirjoita hakeaksesi; osumat näkyvät korostettuna hakukentässä. `Enter` / `Shift+Enter` selaa osumien välillä. `Esc` sulkee palkin.                                                                                       |
 | **Loitonna / lähennä**                | `#asiantuntijan-loitonnuspainike` / `#asiantuntijan-loitonnuspainike` | Pienennä/suurenna editorin fonttikokoa (8–28 px). `Ctrl` + hiiren rulla (`Cmd` + rulla macOS:ssä tai nipistys kosketuslevyllä) editorin päällä tekee saman. Asetus pysyy voimassa.                                                                           |
-| `*`                                   | `BNE *`                                                               | Näytä/piilota vasen muistitoimintojen paletti                                                                                                                                                                                                                |
-| **Disasm**                            | `JMP *+20`                                                            | Näytä/piilota purkupaneeli (puhdas 6502, makrot laajennettu)                                                                                                                                                                                                 |
+| **Paletti**                           | `#asiantuntijapaletin-painike`                                        | Näytä/piilota vasen muistitoimintojen paletti                                                                                                                                                                                                                |
+| **Disasm**                            | `#asiantuntijan-disasm-painike`                                       | Näytä/piilota purkupaneeli (puhdas 6502, makrot laajennettu)                                                                                                                                                                                                 |
 | **Näyttö**                            | `#asiantuntijan-monitorin-painike`                                    | Näytä/piilota näytön heksadesimaalipaneeli                                                                                                                                                                                                                   |
 | **Minikartta**                        | `#asiantuntijan-minikarttapainike`                                    | Näytä/piilota koodin minimap-nauha editorin oikealla puolella                                                                                                                                                                                                |
 
@@ -1283,7 +1312,7 @@ globaalien tunnisteiden alla, eivät törmää **ei**.
 haluat asettaa tunnisteen **operandin tavulle** operaatiokoodin sijaan. Käsky
 kootaan kaksoispistettä seuraavasta kohdasta.
 
-| Tila             | Tunnuksen tyyppi                                        |
+| Palkin väri      | Tunnuksen tyyppi                                        |
 | ---------------- | ------------------------------------------------------- |
 | Kommentin väri   | Viivat, jotka alkavat merkeillä `;`                     |
 | Tarran väri      | Rivit, joiden määritelmä on `:`                         |
@@ -1314,7 +1343,7 @@ suurissa ohjelmissa.
 | Keltavihreä  | Muistitekniikat (`LDA`, `STA`, `JMP`, …) ja pitkän haaran pseudo-operaatiot (`LBNE`, `LBEQ`, …)                                                                        |
 | Sininen      | Direktiivit (`.byte`, `.word`, `.fill`, `.assert`, `*=`, …)                                                                                                            |
 | Oranssi      | Numerot (`$FF`, `%1010`, `255`)                                                                                                                                        |
-| **ASM**      | Otsikot — rivit, jotka päättyvät `:`, mukaan lukien paikalliset otsikot (`.loop:`) ja itseään muokkaavan koodin operandin otsikot (`value:` kohdassa `LDA value:#$00`) |
+| Syaani       | Otsikot — rivit, jotka päättyvät `:`, mukaan lukien paikalliset otsikot (`.loop:`) ja itseään muokkaavan koodin operandin otsikot (`value:` kohdassa `LDA value:#$00`) |
 | Sinivihreä   | Merkkijonoliteraalit                                                                                                                                                   |
 | Violetti     | Mukautettujen makroiden nimet — nimi kutsujen `.macro`, `.invoke` ja `.call` sekä Kick-tyylisten `:name(...)` jälkeen                                                  |
 | Vesi         | Makroparametrit — `.macro`-otsikko-osan parametrien nimet ja makron rungon `{param}`-korvaukset                                                                        |
@@ -1424,15 +1453,15 @@ hyväksyy myös suoraan **vakion nimen** (`CONST`-lohkosta tai `LABEL`-lohkosta)
 Lisäksi voit käyttää **label+offset**- tai **label−offset**-lausekkeita
 viitataksesi osoitteeseen suhteessa nimettyyn vakioon:
 
-| Muistijärjestelmä | Esimerkki              | Kuvaus                                                                                                            |
-| ----------------- | ---------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `LDA`             | Kuorma-akku            | välitön, nollasivu, absoluuttinen, absoluuttinenX, absoluuttinenY, epäsuoraX, epäsuoraY                           |
-| `LDX`             | Lataa X-rekisteri      | välitön, nollasivu, nollasivuY, absoluuttinen, absoluuttinenY                                                     |
-| `LDY`             | Lataa Y-rekisteri      | välitön, nollasivu, absoluuttinen, absoluuttinenX                                                                 |
-| `STA`             | Säilytä akkumulaattori | nollasivu, absoluuttinen, absoluuttinenX, absoluuttinenY, epäsuoraX, epäsuoraY                                    |
-| `STX`             | Myymälä X kassa        | nollaSivu, nollaSivuY, absoluuttinen                                                                              |
-| `STY`             | Myymälän Y-kassa       | nollasivu, absoluuttinen                                                                                          |
-| `*`               | `BNE *`                | Nykyinen ohjelmalaskuri (käskyn oma osoite); haarat, joissa on `*`, luovat äärettömän itsesilmukan (offset `$FE`) |
+| Syntaksi | Esimerkki              | Kuvaus                                                                                                            |
+| -------- | ---------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `LDA`    | Kuorma-akku            | välitön, nollasivu, absoluuttinen, absoluuttinenX, absoluuttinenY, epäsuoraX, epäsuoraY                           |
+| `LDX`    | Lataa X-rekisteri      | välitön, nollasivu, nollasivuY, absoluuttinen, absoluuttinenY                                                     |
+| `LDY`    | Lataa Y-rekisteri      | välitön, nollasivu, absoluuttinen, absoluuttinenX                                                                 |
+| `STA`    | Säilytä akkumulaattori | nollasivu, absoluuttinen, absoluuttinenX, absoluuttinenY, epäsuoraX, epäsuoraY                                    |
+| `STX`    | Myymälä X kassa        | nollaSivu, nollaSivuY, absoluuttinen                                                                              |
+| `STY`    | Myymälän Y-kassa       | nollasivu, absoluuttinen                                                                                          |
+| `*`      | `BNE *`                | Nykyinen ohjelmalaskuri (käskyn oma osoite); haarat, joissa on `*`, luovat äärettömän itsesilmukan (offset `$FE`) |
 
 **Esimerkki — kahden näyttösivun tyhjentäminen CONST:**-muuttujalla
 ```
@@ -1453,13 +1482,13 @@ osoitetta, johon se on kirjoitettu. Se ratkaistaan kokoonpanovaiheessa kyseisen
 käskyn todellista osoitetta vasten, joten lyhyille suhteellisille hyppyille tai
 PC:hen suhteellisille datan lukukerroille ei tarvita tunnistetta.
 
-| Muistijärjestelmä | Esimerkki          | Muistiinpanoja                                                         |
-| ----------------- | ------------------ | ---------------------------------------------------------------------- |
-| `*`               | `BNE *`            | Aseta kantoaika useimmissa tapauksissa `SEC`-asetuksilla ennen käyttöä |
-| `SBC`             | Vähennä ja kanna   | Aseta siirto `SEC` ennen vähennyslaskua                                |
-| `SISÄLTÄÄ`        | Muistin lisääminen | —                                                                      |
-| `DEC`             | Vähennä muistia    | —                                                                      |
-| `CMP`             | Vertaa A:han       | Asettaa liput; ei muokkaa A:ta                                         |
+| Syntaksi   | Esimerkki          | Merkitys                                                               |
+| ---------- | ------------------ | ---------------------------------------------------------------------- |
+| `*`        | `BNE *`            | Aseta kantoaika useimmissa tapauksissa `SEC`-asetuksilla ennen käyttöä |
+| `SBC`      | Vähennä ja kanna   | Aseta siirto `SEC` ennen vähennyslaskua                                |
+| `SISÄLTÄÄ` | Muistin lisääminen | —                                                                      |
+| `DEC`      | Vähennä muistia    | —                                                                      |
+| `CMP`      | Vertaa A:han       | Asettaa liput; ei muokkaa A:ta                                         |
 
 **PC vs. kertolasku.** `*` käsitellään ohjelmalaskurina vain, kun se on
 *arvopaikalla* — lausekkeen alussa tai heti operaattorin `(`, `,`, `&lt;`,
@@ -1535,52 +1564,52 @@ etuliitteen `tunniste:`).
 
 ### LABEL
 
-| Ala             | Kuvaus                                                                   | Tilat                                                                                   |
-| --------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------------------------------- |
-| Levymerkin nimi | Tunniste, jota käytetään esimerkiksi `JMP`-, `JSR`-, `BNE`-tiedostoissa. | välitön, nollasivu, absoluuttinen, absoluuttinenX, absoluuttinenY, epäsuoraX, epäsuoraY |
-| `LDX`           | Lataa X-rekisteri                                                        | välitön, nollasivu, nollasivuY, absoluuttinen, absoluuttinenY                           |
-| `LDY`           | Lataa Y-rekisteri                                                        | välitön, nollasivu, absoluuttinen, absoluuttinenX                                       |
-| `STA`           | Säilytä akkumulaattori                                                   | nollasivu, absoluuttinen, absoluuttinenX, absoluuttinenY, epäsuoraX, epäsuoraY          |
-| `STX`           | Myymälän X kassa                                                         | nollaSivu, nollaSivuY, absoluuttinen                                                    |
-| `STY`           | Myymälän Y-kassa                                                         | nollasivu, absoluuttinen                                                                |
+| Muistijärjestelmä | Kuvaus                                                                   | Tilat                                                                                   |
+| ----------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| Levymerkin nimi   | Tunniste, jota käytetään esimerkiksi `JMP`-, `JSR`-, `BNE`-tiedostoissa. | välitön, nollasivu, absoluuttinen, absoluuttinenX, absoluuttinenY, epäsuoraX, epäsuoraY |
+| `LDX`             | Lataa X-rekisteri                                                        | välitön, nollasivu, nollasivuY, absoluuttinen, absoluuttinenY                           |
+| `LDY`             | Lataa Y-rekisteri                                                        | välitön, nollasivu, absoluuttinen, absoluuttinenX                                       |
+| `STA`             | Säilytä akkumulaattori                                                   | nollasivu, absoluuttinen, absoluuttinenX, absoluuttinenY, epäsuoraX, epäsuoraY          |
+| `STX`             | Myymälän X kassa                                                         | nollaSivu, nollaSivuY, absoluuttinen                                                    |
+| `STY`             | Myymälän Y-kassa                                                         | nollasivu, absoluuttinen                                                                |
 
 ### COMMENT
 
-| Ala        | Kuvaus               | Muistiinpanoja                                                         |
-| ---------- | -------------------- | ---------------------------------------------------------------------- |
-| `ADC`      | Lisää kantovälineenä | Aseta kantoaika useimmissa tapauksissa `SEC`-asetuksilla ennen käyttöä |
-| `SBC`      | Vähennä ja kanna     | Aseta siirto `SEC` ennen vähennyslaskua                                |
-| `SISÄLTÄÄ` | Muistin lisääminen   | —                                                                      |
-| `DEC`      | Vähennä muistia      | —                                                                      |
-| `CMP`      | Vertaa A:han         | Asettaa liput; ei muokkaa A:ta                                         |
-| `CPX`      | Vertaa X:ään         | —                                                                      |
-| `CPY`      | Vertaa Y:n kanssa    | —                                                                      |
+| Muistijärjestelmä | Kuvaus               | Muistiinpanoja                                                         |
+| ----------------- | -------------------- | ---------------------------------------------------------------------- |
+| `ADC`             | Lisää kantovälineenä | Aseta kantoaika useimmissa tapauksissa `SEC`-asetuksilla ennen käyttöä |
+| `SBC`             | Vähennä ja kanna     | Aseta siirto `SEC` ennen vähennyslaskua                                |
+| `SISÄLTÄÄ`        | Muistin lisääminen   | —                                                                      |
+| `DEC`             | Vähennä muistia      | —                                                                      |
+| `CMP`             | Vertaa A:han         | Asettaa liput; ei muokkaa A:ta                                         |
+| `CPX`             | Vertaa X:ään         | —                                                                      |
+| `CPY`             | Vertaa Y:n kanssa    | —                                                                      |
 
 ### BYTE
 
-| Ala      | Kuvaus                                                              |
-| -------- | ------------------------------------------------------------------- |
-| Operandi | Pilkulla erotetut tavuarvot (esim. `$01, $02, $FF` tai `1, 2, 255`) |
-| `ORA`    | Looginen TAI akkumulaattorilla                                      |
-| `EOR`    | Yksinoikeudella TAI kertyvällä vedolla                              |
-| `BITTI`  | Testaa muistibittejä A:ta vasten (asettaa N-, V- ja Z-liput)        |
+| Muistijärjestelmä | Kuvaus                                                              |
+| ----------------- | ------------------------------------------------------------------- |
+| Operandi          | Pilkulla erotetut tavuarvot (esim. `$01, $02, $FF` tai `1, 2, 255`) |
+| `ORA`             | Looginen TAI akkumulaattorilla                                      |
+| `EOR`             | Yksinoikeudella TAI kertyvällä vedolla                              |
+| `BITTI`           | Testaa muistibittejä A:ta vasten (asettaa N-, V- ja Z-liput)        |
 
 ### WORD
 
-| Ala            | Kuvaus                                                     |
-| -------------- | ---------------------------------------------------------- |
-| Operandi       | Pilkulla erotetut 16-bittiset arvot (esim. `$0400, $C000`) |
-| `JSR`          | Hyppää aliohjelmaan (tallentaa paluuosoitteen pinoon)      |
-| `RTS`          | Paluu aliohjelmasta                                        |
-| `RTI`          | Paluu keskeytyksestä                                       |
-| `BNE`          | Haara, jos ei ole yhtäsuuri (Z=0)                          |
-| `BEQ`          | Haara, jos yhtä suuri (Z=1)                                |
-| `Piilokopio`   | Haara, jos kantaa, selkeä (C=0)                            |
-| `BCS`          | Haara, jos kantosarja (C=1)                                |
-| `Painoindeksi` | Haara, jos miinus (N=1)                                    |
-| `BPL`          | Haara, jos plus (N=0)                                      |
-| `BVC`          | Haara, jos ylivuoto on tyhjä (V=0)                         |
-| `BVS`          | Haara, jos ylivuoto on asetettu (V=1)                      |
+| Muistijärjestelmä | Kuvaus                                                     |
+| ----------------- | ---------------------------------------------------------- |
+| Operandi          | Pilkulla erotetut 16-bittiset arvot (esim. `$0400, $C000`) |
+| `JSR`             | Hyppää aliohjelmaan (tallentaa paluuosoitteen pinoon)      |
+| `RTS`             | Paluu aliohjelmasta                                        |
+| `RTI`             | Paluu keskeytyksestä                                       |
+| `BNE`             | Haara, jos ei ole yhtäsuuri (Z=0)                          |
+| `BEQ`             | Haara, jos yhtä suuri (Z=1)                                |
+| `Piilokopio`      | Haara, jos kantaa, selkeä (C=0)                            |
+| `BCS`             | Haara, jos kantosarja (C=1)                                |
+| `Painoindeksi`    | Haara, jos miinus (N=1)                                    |
+| `BPL`             | Haara, jos plus (N=0)                                      |
+| `BVC`             | Haara, jos ylivuoto on tyhjä (V=0)                         |
+| `BVS`             | Haara, jos ylivuoto on asetettu (V=1)                      |
 
 #### LBNE / LBEQ / … (Pitkät oksat)
 
@@ -1615,31 +1644,31 @@ LBEQ valmis; kokoaa muotoon: BNE *+3 ($D0 $03)
 
 ### FILL
 
-| Ala      | Kuvaus                                                  |
-| -------- | ------------------------------------------------------- |
-| Operandi | `määrä,arvo` — esim. `256,0` täyttää 256 tavua nollalla |
-| `TAY`    | Siirto A → Y                                            |
-| `TXA`    | Siirto X → A                                            |
-| `TYA`    | Siirto Y → A                                            |
-| `TSX`    | Siirtopino-osoitin → X                                  |
-| `TXS`    | Siirto X → Pino-osoitin                                 |
-| `INX`    | Lisäys X:llä                                            |
-| `DEX`    | Vähennä X                                               |
-| `INY`    | Y-arvon lisäys                                          |
-| `DEY`    | Vähennä Y-arvoa                                         |
+| Muistijärjestelmä | Kuvaus                                                  |
+| ----------------- | ------------------------------------------------------- |
+| Operandi          | `määrä,arvo` — esim. `256,0` täyttää 256 tavua nollalla |
+| `TAY`             | Siirto A → Y                                            |
+| `TXA`             | Siirto X → A                                            |
+| `TYA`             | Siirto Y → A                                            |
+| `TSX`             | Siirtopino-osoitin → X                                  |
+| `TXS`             | Siirto X → Pino-osoitin                                 |
+| `INX`             | Lisäys X:llä                                            |
+| `DEX`             | Vähennä X                                               |
+| `INY`             | Y-arvon lisäys                                          |
+| `DEY`             | Vähennä Y-arvoa                                         |
 
 ### ALIGN
 
-| Ala   | Kuvaus                                                                     |
-| ----- | -------------------------------------------------------------------------- |
-| Raja  | Tasausarvo — esim. `64` (sprite-raja), `256` (sivu), `$2000` (bittikartta) |
-| `LSR` | Looginen siirto oikealle                                                   |
-| `ROL` | Kierrä vasemmalle kuljetuksen kautta                                       |
-| `ROR` | Kierrä oikealle Carry-toiminnon kautta                                     |
+| Muistijärjestelmä | Kuvaus                                                                     |
+| ----------------- | -------------------------------------------------------------------------- |
+| Raja              | Tasausarvo — esim. `64` (sprite-raja), `256` (sivu), `$2000` (bittikartta) |
+| `LSR`             | Looginen siirto oikealle                                                   |
+| `ROL`             | Kierrä vasemmalle kuljetuksen kautta                                       |
+| `ROR`             | Kierrä oikealle Carry-toiminnon kautta                                     |
 
 ### TEXT
 
-| Ala                 | Kuvaus                                                     |
+| Muistijärjestelmä   | Kuvaus                                                     |
 | ------------------- | ---------------------------------------------------------- |
 | Teksti              | Näytettävä merkkijono                                      |
 | X                   | Sarake (0–39)                                              |
@@ -1648,7 +1677,7 @@ LBEQ valmis; kokoaa muotoon: BNE *+3 ($D0 $03)
 
 ### STRING
 
-| Ala                         | Kuvaus                                                                                    |
+| Muistijärjestelmä           | Kuvaus                                                                                    |
 | --------------------------- | ----------------------------------------------------------------------------------------- |
 | Teksti                      | Kirjoitettava merkkijono                                                                  |
 | Osoite                      | Kohdemuistin osoite — `$C000` heksadesimaali tai **otsikkonimi**                          |
@@ -1687,13 +1716,12 @@ tunnistetietoinen purkaminen.
 | ---------------- | ------------------------------------------------------------------------ |
 | Levy-yhtiön nimi | Tunniste, jota käytetään esimerkiksi `JMP`-, `JSR`-, `BNE`-tiedostoissa. |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 silmukka:
 ```
 
-**Käynnistä:** Napsauta työkalupalkissa **Debug (RetroDebugger)**. Sovellus:
+**Generoitu ASM:**
 ```
 silmukka: ; $0820
 ```
@@ -1709,13 +1737,12 @@ sen keskeytyskohdaksi. Keskeytyskohdat sisältävät lohkot on korostettu
 punaisella. Niiden osoitteet kirjoitetaan keskeytyskohtatiedostoon jokaisella
 virheenkorjaimen käynnistyskerralla.
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 ; Kommenttisi teksti tähän
 ```
 
-**Käynnistä:** Napsauta työkalupalkissa **Debug (RetroDebugger)**. Sovellus:
+**Generoitu ASM:**
 ```
 ; Kommenttisi teksti tähän
 ```
@@ -1727,17 +1754,16 @@ osoita sillä `RetroDebugger`-binääritiedosto.
 Kuten **DATA BASIC**-ohjelmassa — tallentaa luettelon raakatavuarvoista
 ohjelmaan.
 
-| Ala             | Kuvaus          |
-| --------------- | --------------- |
-| `-hyppy` PÄÄLLÄ | `-jump $OSOITE` |
+| Ala      | Kuvaus          |
+| -------- | --------------- |
+| Operandi | `-jump $OSOITE` |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .tavu $01, $02, $FF
 ```
 
-**Käynnistä:** Napsauta työkalupalkissa **Debug (RetroDebugger)**. Sovellus:
+**Generoitu ASM:**
 ```
 .tavu $01, $02, $FF
 ```
@@ -1765,17 +1791,16 @@ Kuten BASICin **DATA, mutta 16-bittisille luvuille **. Jokainen arvo
 tallennetaan kahtena tavuna (ensin pienin tavu, sitten suurin – 6502
 little-endian -järjestys).
 
-| Ala             | Kuvaus                                                     |
-| --------------- | ---------------------------------------------------------- |
-| `-hyppy` PÄÄLLÄ | Pilkulla erotetut 16-bittiset arvot (esim. `$0400, $C000`) |
+| Ala      | Kuvaus                                                     |
+| -------- | ---------------------------------------------------------- |
+| Operandi | Pilkulla erotetut 16-bittiset arvot (esim. `$0400, $C000`) |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .sana $0400, $C000
 ```
 
-**Käynnistä:** Napsauta työkalupalkissa **Debug (RetroDebugger)**. Sovellus:
+**Generoitu ASM:**
 ```
 .sana $0400, $C000
 ```
@@ -1790,17 +1815,16 @@ Kuten `FOR I=1 TO N : POKE addr+I, val : NEXT` — täyttää muistilohkon samal
 tavulla, mutta yhdessä lohkossa. Erinomainen alueiden tyhjentämiseen tai
 taulukoiden esitäyttöön.
 
-| Ala             | Kuvaus                                                  |
-| --------------- | ------------------------------------------------------- |
-| `-hyppy` PÄÄLLÄ | `määrä,arvo` — esim. `256,0` täyttää 256 tavua nollalla |
+| Ala      | Kuvaus                                                  |
+| -------- | ------------------------------------------------------- |
+| Operandi | `määrä,arvo` — esim. `256,0` täyttää 256 tavua nollalla |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .täytä 256, 00 dollaria
 ```
 
-**Käynnistä:** Napsauta työkalupalkissa **Debug (RetroDebugger)**. Sovellus:
+**Generoitu ASM:**
 ```
 .täytä 256, 00 dollaria
 ```
@@ -1810,7 +1834,7 @@ lausekkeita. Voit viitata CONST-nimiin, käyttää
 heksadesimaali-/binääriliteraaleja ja kutsua sisäänrakennettuja matemaattisia
 funktioita:
 
-| Ilmaisu                     | Muistiinpanoja                                    |
+| Ilmaisu                     | Merkitys                                          |
 | --------------------------- | ------------------------------------------------- |
 | `LAATTAMÄÄRÄ, 00 $`         | määrä CONST-arvosta, arvo heksadesimaaliliteraali |
 | `40*25, 0`                  | rivinsisäinen kertolasku                          |
@@ -1836,14 +1860,13 @@ rajalta — `ALIGN 64` käsittelee tämän automaattisesti.
 | ---- | -------------------------------------------------------------------------- |
 | Raja | Tasausarvo — esim. `64` (sprite-raja), `256` (sivu), `$2000` (bittikartta) |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .align 64
 .align 2000 dollaria
 ```
 
-**Käynnistä:** Napsauta työkalupalkissa **Debug (RetroDebugger)**. Sovellus:
+**Generoitu ASM:**
 ```
 ; ALIGN 64 → $0840 (12 tavun täyttö)
 ```
@@ -1896,8 +1919,7 @@ STA $0401
 ...
 ```
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .text 0, 2, "HEI"; isot kirjaimet (oletus)
 .text 0, 2, "hei", pienet kirjaimet; pienet kirjaimet
@@ -1922,8 +1944,7 @@ peräkkäisiin osoitteisiin.
 | Siirtää                     | Heksadiarvo (00–FF) lisätään jokaiseen näyttökooditavuun (esim. `$80` = käänteinen video) |
 | Pienten kirjainten merkistö | Valintaruutu — sama semantiikka kuin TEKSTI (katso TEKSTI-osio)                           |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .string $C000, "HEI" ; isot kirjaimet (oletus)
 .string $C000, "hei", pienet kirjaimet ; pienet kirjaimet
@@ -1932,7 +1953,7 @@ osoita sillä `RetroDebugger`-binääritiedosto.
 .string $C000, "HEI" :my_string ; makrotunnisteella
 ```
 
-**Käynnistä:** Napsauta työkalupalkissa **Debug (RetroDebugger)**. Sovellus:
+**Generoitu ASM:**
 ```
 LDA #$08; näyttökoodi 'H' STA $C000
 LDA #$05; näyttökoodi 'E' STA $C001
@@ -1956,15 +1977,14 @@ ajonaikana, yhden LDA/STA-parin tavua kohden.
 | Osoite              | Kohdemuistin osoite — `$C000` heksadesimaali tai **otsikkonimi** |
 | Tarra (valinnainen) | Määrittää kohdeosoitteeseen osoittavan tunnisteen                |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .data $C000, $01, $02, $03; heksadesimaaliosoite
 .data my_buf, $01, $02, $03; otsikon osoite
 .data $C000, $01, $02, $03:mydata; makrotunnisteella
 ```
 
-**Käynnistä:** Napsauta työkalupalkissa **Debug (RetroDebugger)**. Sovellus:
+**Generoitu ASM:**
 ```
 LDA #$01
     STA $C000
@@ -1990,8 +2010,7 @@ minkä tarvitsee vain olla tietyssä osoitteessa.
 | Osoite              | Kohdemuistin osoite — `$C000` heksadesimaali tai **otsikkonimi** |
 | Tarra (valinnainen) | Määrittää kohdeosoitteeseen osoittavan tunnisteen                |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .rawbytes $C000, $00, $00, $00; heksadesimaaliosoite
 .rawbytes sprite_data, $00, $00; otsikkoosoite
@@ -2020,8 +2039,7 @@ valmiina muistissa heti, kun PRG latautuu.
 | Siirtää                     | Heksadiarvo (00–FF) lisätään jokaiseen näyttökooditavuun (esim. `$80` = käänteinen video) |
 | Pienten kirjainten merkistö | Valintaruutu — sama semantiikka kuin TEKSTI (katso TEKSTI-osio)                           |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .rawtext $C000, "HEI" ; isot kirjaimet (oletus)
 .rawtext $C000, "hei", pienet kirjaimet ; pienet kirjaimet
@@ -2030,7 +2048,7 @@ osoita sillä `RetroDebugger`-binääritiedosto.
 .rawtext $0400, "HEI" :oma_teksti ; makrotunnisteella
 ```
 
-**Käynnistä:** Napsauta työkalupalkissa **Debug (RetroDebugger)**. Sovellus:
+**Generoitu ASM:**
 ```
 ; .rawtext "HEI" -&gt; $C000
 ; $C000
@@ -2077,8 +2095,7 @@ valintaruututoimintoa.
 | **Isot kirjaimet (oletus, ei valittu)** | `$41`–`$5A` (PETSCII-isot kirjaimet CHROUTin kautta)                                                                      | myös yhdistetty `$41`–`$5A`         |
 | **Pienet kirjaimet (valittu)**          | Aakkosten kirjaimet on uudelleenjärjestetty, jotta näkyvä kirjainkoko pysyy samana pienten/isojen kirjainten merkistössä. | Sama sääntö                         |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .petscii $C000, "HEI" ; isot PETSCII-kirjaimet (oletus)
 .petscii $C000, "hei", pieni kirjain ; pienet PETSCII-kirjaimet ($61–$7A)
@@ -2138,14 +2155,13 @@ pienten kirjainten/isojen kirjainten tilan välillä muokkaamalla `$D018`:n bitt
 | ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Tila | **Pienet kirjaimet** — ottaa käyttöön pienten/isojen kirjainten merkistöä; **Isot kirjaimet** — palauttaa oletusarvoisen isojen kirjainten/grafiikkamerkistöä. |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .charset lower; vaihda pieniin kirjaimiin perustuvaan merkistöön
 .charset upper; vaihda takaisin isoihin kirjaimiin/grafiikkamerkistöön
 ```
 
-**Käynnistä:** Napsauta työkalupalkissa **Debug (RetroDebugger)**. Sovellus:
+**Generoitu ASM:**
 
 Pienten kirjainten tila:
 ```
@@ -2205,8 +2221,7 @@ suorituksenaikaista koodia, joka kopioi 8 tavua `base + index * 8` -merkkijonoon
 | Merkkihakemisto | Mikä merkkipaikka määritellään uudelleen, 0–255. `65` = 'A' oletusnäyttökoodin asettelussa.                                     |
 | 8 tavua         | Pilkuilla erotetut bittikarttarivit ylhäältä alas. Kunkin tavun bitti 7 = vasemmanpuoleisin pikseli.                            |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .chardef 3800 dollaria, 65 dollaria, 18 dollaria, 3C dollaria, 66 dollaria, 7E dollaria, 66 dollaria, 66 dollaria, 66 dollaria, 00 dollaria
 ```
@@ -2287,8 +2302,7 @@ koordinaatit):
 | `+2`   | Oikea  |
 | `+3`   | Pohja  |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .box_hit $FB, $F7
 ```
@@ -2360,8 +2374,7 @@ osoitteeseen.
 | Tiedosto | Selaa ja valitse tiedosto, jonka tyyppi on `.bin`, `.prg`, `.sid` tai `.raw` |
 | Osoite   | Kohdekuormitusosoite (esim. `$C000`)                                         |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .incbin "musiikki.bin", $C000
 ```
@@ -2397,8 +2410,7 @@ $18`). Muut osoitteet hylätään: loput 8K-paikkaa ovat BASIC/KERNAL ROM -muist
 alla (kopiointisilmukka lukisi ROMia) tai menevät päällekkäin merkki-ROM-varjon
 kanssa.
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .koala "kuva.koa"
 .koala "kuva.koa", 2000 dollaria
@@ -2434,14 +2446,13 @@ Identtiset ruudut tallennetaan kerran, ja kaikki tyhjät paikat jakavat yhden
 tyhjän näytön. Osoitintaulukot seuraavat näyttöjä. Taso voi olla jopa 7 × 10
 näyttöä.
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .level "taso.bin"
 .level "taso.bin", 4000 dollaria
 ```
 
-| Määritelty                                                 | Muistiinpanoja                                                              |
+| Määritelty                                                 | Merkitys                                                                    |
 | ---------------------------------------------------------- | --------------------------------------------------------------------------- |
 | `TASO_PAIKKA_ALHAINEN` / `TASO_PAIKKA_KORKEIN`             | Kunkin paikan näytön osoite (rivikohtainen, `LEVEL_W` paikkaa riviä kohden) |
 | `TASO_RIVI_PAIKKA`                                         | Tasomerkkirivi → sen näyttörivin ensimmäinen paikka                         |
@@ -2465,8 +2476,7 @@ ulottuvaa 40-merkkistä ikkunaa käsitellään itseään muokkaavalla
 kopiointisilmukalla (~14 sykliä tavua kohden). X säilytetään, A ja Y tuhotaan.
 Ohjelmassa tarvitaan `.level`-lohko.
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .level_row dst_lo, näkymä_x
 .level_row dst_lo, näkymä_x, väri
@@ -2500,8 +2510,7 @@ Lohko näyttää:
 - **(siirretty)** -merkki tulee näkyviin, kun mukautettu osoite siirtää tietoja
   alkuperäisestä sijainnistaan.
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .sid "Ikari_Warriors.sid"
 .sid "Ikari_Warriors.sid", 1000 dollaria
@@ -2594,13 +2603,12 @@ määrittääksesi taulukon sisällön.
 | Nimi   | Taulukon tunniste (esim. `väritaulukko`)             |
 | Osoite | Kiinteä osoite, josta taulukko alkaa (esim. `$C000`) |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .table väritaulukko, $C000
 ```
 
-**Käynnistä:** Napsauta työkalupalkissa **Debug (RetroDebugger)**. Sovellus:
+**Generoitu ASM:**
 ```
 väritaulukko:
 ```
@@ -2624,13 +2632,12 @@ aloitusosoite on `$0801`.
 | Osoite    | Uusi lähtöosoite (esim. `0801` heksadesimaalimuodossa tai `2049` detsembrimuotoon) |
 | HEX / DEC | Vaihda osoitesyötön heksadesimaali- ja desimaalinäytön välillä                     |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 * = 000 dollaria
 ```
 
-**Käynnistä:** Napsauta työkalupalkissa **Debug (RetroDebugger)**. Sovellus:
+**Generoitu ASM:**
 ```
 * = 000 dollaria
 ```
@@ -2676,13 +2683,12 @@ ja NEXT-rekisterin väliin, ja se toistuu automaattisesti oikean määrän kerto
 | Laskea       | Silmukan iteraatiomäärä (heksa- tai desimaaliluku, esim. `0A` = 10) |
 | Tarra        | Automaattisesti luotu silmukan otsikko (esim. `loop0`)              |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .silmukka X, 10, silmukka0
 ```
 
-**Käynnistä:** Napsauta työkalupalkissa **Debug (RetroDebugger)**. Sovellus:
+**Generoitu ASM:**
 ```
 LDX #$0A}silmukka0:
 ```
@@ -2696,13 +2702,12 @@ LDX #$0A}silmukka0:
 | Rekisteröidy | Automaattisesti sovitettu LOOP-rekisteriin |
 | Tarra        | Automaattisesti linkitetty LOOP-tarraan    |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .seuraava silmukka0
 ```
 
-**Käynnistä:** Napsauta työkalupalkissa **Debug (RetroDebugger)**. Sovellus:
+**Generoitu ASM:**
 ```
 DEX BNE-silmukka0
 ```
@@ -2735,13 +2740,12 @@ esimerkiksi merkkijonon tai taulukon läpi askellettaessa.
 | Laskea       | Silmukan raja (heksa- tai desimaaliluku, esim. `$12` = 18). X/Y alkaa 0:sta ja päättyy raja-1:een. |
 | Tarra        | Automaattisesti luotu silmukan otsikko (esim. `for0`)                                              |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .X:lle, 12 dollaria, 0:lle
 ```
 
-**Käynnistä:** Napsauta työkalupalkissa **Debug (RetroDebugger)**. Sovellus:
+**Generoitu ASM:**
 ```
 LDX #00$0:lle:
 ```
@@ -2756,13 +2760,12 @@ LDX #00$0:lle:
 | Tarra        | Automaattisesti linkitetty FOR-tarraan            |
 | Laskea       | Kopioidaan automaattisesti pariliitetystä FOR:sta |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .endf for0
 ```
 
-**Käynnistä:** Napsauta työkalupalkissa **Debug (RetroDebugger)**. Sovellus:
+**Generoitu ASM:**
 ```
 INX CPX #12 $ BNE hintaan 0
 ```
@@ -2805,8 +2808,7 @@ ensin).
 | ---------- | ---------------------------------------------------------------- |
 | Rekisterit | Mikä tahansa yhdistelmä: `A`, `X`, `Y`, `AX`, `AY`, `XY`, `XY[X] |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .push AXY
 ```
@@ -2826,8 +2828,7 @@ Palauttaa rekisterit pinosta käänteisessä **järjestyksessä ** (Y → X → 
 | ---------- | ----------------------------------------------------- |
 | Rekisterit | Sama kuin PUSH — täytyy vastata vastaavaa PUSH-lohkoa |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .vedä AXY-suuntaan
 ```
@@ -2848,13 +2849,12 @@ PLA VERO PLA
 Kuten **RTS, mutta ystävällisemmällä makronimellä ** — `.end` lähettää yhden
 `RTS` tavun ja toimii lyhyenä aliohjelman päättäjänä asiantuntijatilassa.
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .end
 ```
 
-**Käynnistä:** Napsauta työkalupalkissa **Debug (RetroDebugger)**. Sovellus:
+**Generoitu ASM:**
 ```
 RTS
 ```
@@ -2884,7 +2884,7 @@ Merkitsee makromääritelmän alun. MACRO- ja ENDM-lohkojen väliset lohkot ovat
 makron runko – ne eivät luo koodia,** jossa määritelmä sijaitsee. Käytä
 `{paramName}` paikkamerkkinä argumenteille.
 
-**Käynnistä:** Napsauta työkalupalkissa **Debug (RetroDebugger)**. Sovellus:
+**Generoitu ASM:**
 ```
 ; .MACRO setColor (väri)
 ... (rungon lohkot)
@@ -2913,7 +2913,7 @@ Kutsuu tässä kohdassa määriteltyä makroa ja korvaa annetuilla argumenttiarv
 | Makron nimi | Valitse määriteltyjen makroiden alasvetovalikosta                                            |
 | Argumentit  | Pilkuilla erotetut argumenttiarvot, jotka vastaavat makron parametriluetteloa (esim. `#$07`) |
 
-**Käynnistä:** Napsauta työkalupalkissa **Debug (RetroDebugger)**. Sovellus:
+**Generoitu ASM:**
 ```
 ; .invoke setColor(#$07)
     LDA #$07
@@ -2964,8 +2964,7 @@ kutistaa sen ja keskittyä johonkin muuhun.
 | ----------- | -------------------------------------------------------------------------------- |
 | Alueen nimi | Vapaamuotoinen tekstiotsikko osiolle (esim. `init`, `game_loop`, `sprite_setup`) |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .region init
 ; lohkot...
@@ -2987,7 +2986,7 @@ osoita sillä `RetroDebugger`-binääritiedosto.
   alueen END-ALUE-kohdan jälkeen ja vierittää siihen. Painike on himmennetty,
   kunnes alue on kopioitu.
 
-**Käynnistä:** Napsauta työkalupalkissa **Debug (RetroDebugger)**. Sovellus:
+**Generoitu ASM:**
 ```
 ; alueen init
     SEI
@@ -3023,13 +3022,12 @@ varten ei tarvitse poistaa koodia.
 | ------- | ------------------------------------------------------------------------------------------- |
 | Symboli | Yksi tai useampi pilkulla erotettu tunniste aktivoitavaksi (esim. `DEBUG` tai `DEBUG, PAL`) |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .define VIRHEENJÄRJESTELMÄ, PAL
 ```
 
-**Käynnistä:** Napsauta työkalupalkissa **Debug (RetroDebugger)**. Sovellus:
+**Generoitu ASM:**
 ```
 ; .DEFINE DEBUG
 ; .DEFINE DEBUG, PAL
@@ -3045,13 +3043,12 @@ symbolit välittömästi.
 | ----- | ------------------------------------------------------------------------------ |
 | Kunto | Testattava tunniste (sen on vastattava `DEFINE`-symbolia ollakseen aktiivinen) |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .if VIRHEENJÄRJESTELMÄ
 ```
 
-**Käynnistä:** Napsauta työkalupalkissa **Debug (RetroDebugger)**. Sovellus:
+**Generoitu ASM:**
 ```
 ; .JOS VIRHEENJÄRJESTELMÄ
 ```
@@ -3065,13 +3062,12 @@ näkyvät kommentteina `; [IF skipped] …` ja generoivat ** nolla tavua**.
 Ei kenttiä. Merkitsee vaihtoehtoisen haaran — kootaan, kun `IF`-ehto on *not*
 aktiivinen.
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .muu
 ```
 
-**Käynnistä:** Napsauta työkalupalkissa **Debug (RetroDebugger)**. Sovellus:
+**Generoitu ASM:**
 ```
 ; .ELSE
 ```
@@ -3080,13 +3076,12 @@ osoita sillä `RetroDebugger`-binääritiedosto.
 
 Ei kenttiä. Sulkee ehdollisen lohkon.
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .endif-tiedosto
 ```
 
-**Käynnistä:** Napsauta työkalupalkissa **Debug (RetroDebugger)**. Sovellus:
+**Generoitu ASM:**
 ```
 ; .ENDIF
 ```
@@ -3137,8 +3132,7 @@ se ei tuota mitään.
 | Ilmaisu | Mikä tahansa assembler-lauseke: otsikot, `CONST`s, `*` (ohjelmalaskuri), aritmetiikka ja vertailut (`&lt;`, `&lt;=`, `&gt;`, `&gt;=`, `==`, `!=`) |
 | Viesti  | Valinnainen teksti, joka on liitetty virheilmoitukseen                                                                                            |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .assert spriteData &lt; $C000
 .assert * &lt; $A000
@@ -3180,14 +3174,13 @@ koodin lukemista ja muuttamista myöhemmin.
 | Arvo  | Numeerinen arvo valitussa kantaluvussa (esim. `0400` heksadesimaalimuodossa = osoite $0400) tai PC-relatiivinen lauseke (katso alla) |
 | Muoto | HEX tai DE — määrittää, miten arvo syötetään ja näytetään                                                                            |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .const NÄYTTÖ = $0400
 .const KEHYKSET_1S = 60
 ```
 
-**Käynnistä:** Napsauta työkalupalkissa **Debug (RetroDebugger)**. Sovellus:
+**Generoitu ASM:**
 ```
 ; .VAKIONÄYTTÖ = 0400 $
 ```
@@ -3247,8 +3240,7 @@ ZP:hen.
 | Nimi               | Muuttujan nimi / otsikko                                               |
 | Koko (valinnainen) | Varattavien tavujen määrä. Jätä pois, jos varauksia on vain yksi tavu. |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .var-laskuri
 .var ajastin, 2
@@ -3266,7 +3258,7 @@ LDA #$00
 STA laskuri
 ```
 
-**Käynnistä:** Napsauta työkalupalkissa **Debug (RetroDebugger)**. Sovellus:
+**Generoitu ASM:**
 ```
 ; .var-laskuri
 ```
@@ -3291,8 +3283,7 @@ käännösaikana. Se vertaa `A`, `X` tai `Y` välittömään arvoon ja tuottaa o
 | Operaattori  | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
 | Arvo         | Välitön arvo heksa- tai desimaalimuodossa    |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .if A == #$10
 LDA #$07
@@ -3319,8 +3310,7 @@ suoritetaan niin kauan kuin ehto pysyy tosi.
 | Operaattori  | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
 | Arvo         | Välitön arvo heksa- tai desimaalimuodossa    |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .kun A != #$00
 JSR-hakumerkki
@@ -3346,8 +3336,7 @@ suoritetaan aina ainakin kerran, minkä jälkeen ehto päättää, pysähtyykö 
 | Operaattori  | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
 | Arvo         | Välitön arvo heksa- tai desimaalimuodossa    |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .repeat
 JSR getchar
@@ -3371,8 +3360,7 @@ yhtenäisen lohkon, `MEMSET` täyttää alueen yhdellä tavulla.
 | `MEMCPY`       | `lähde`, `dst`, `koko`   |
 | `MUISTIASETUS` | `osoite`, `arvo`, `koko` |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .memcpy src=$C000, dst=$D000, koko=$0100
 .memset addr=$0400, arvo=#$20, koko=$03E8
@@ -3395,8 +3383,7 @@ Kuten **PETSCII-tuloste ilman vakiomuotoista **-lohkoa — tulostaa merkkijonon
 PETSCII-lohko. Pienten kirjainten valintaruutu jaetaan PETSCII-kooderin kanssa,
 joten tekstipolku pysyy yhtenäisenä.
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .print "HEI"
 .print "hei", alempi
@@ -3408,8 +3395,7 @@ Tulostaa yhden PETSCII-tavun numeerisena koodina ja lähettää sen
 `CHROUT`-funktion kautta. Arvo voi olla myös nimetty vakio tai tunniste, joka
 muunnetaan tavuksi kokoamisvaiheessa sekä lohko- että asiantuntijatilassa.
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .print_char 65
 .print_char $41
@@ -3421,8 +3407,7 @@ osoita sillä `RetroDebugger`-binääritiedosto.
 Tulostaa 8-bittisen arvon heksadesimaalimuotoisena tekstinä normaalin
 KERNAL-tulostuspolun kautta.
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .print_hex A
 ```
@@ -3431,8 +3416,7 @@ osoita sillä `RetroDebugger`-binääritiedosto.
 
 Pikanäppäin C64:n vakiomuotoiseen selkeän näytön ohjauskoodiin.
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .selkeä_näyttö
 ```
@@ -3442,8 +3426,7 @@ osoita sillä `RetroDebugger`-binääritiedosto.
 Odottaa, kunnes näppäintä painetaan, joten sinun ei tarvitse suorittaa
 `GETIN`-silmukkaa käsin joka kerta.
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .wait_key
 ```
@@ -3455,8 +3438,7 @@ taukoihin ja ajoitusaukkoihin, kun täysin mukautettu silmukka olisi liiallinen.
 Kehysten määrä voi olla raakaluku tai nimetty vakio, ja `.wait` on vain
 `.delay`:n alias.
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .delay 29
 .wait 29
@@ -3473,8 +3455,7 @@ VIC-II-värirekisterien mukavuuskääreet. Väriarvo voi olla raakaluku tai nime
 vakio, joka ratkaisee välillä 0–15. Sekä lohkotila että asiantuntijatila
 hyväksyvät tässä symboliset vakioiden nimet.
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .set_border 6
 .set_bg 0
@@ -3501,8 +3482,7 @@ yleiset CIA:n IRQ-lähteet ja palaa normaaliin suoritukseen komennolla `CLI`.
 | Käsittelijä | IRQ-rutiinin nimi (esim. `my_irq`)                      |
 | Rasteri     | Rasteriviiva heksa- tai desimaalimuodossa (esim. `$FA`) |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .irq_setup-käsittelijä=my_irq, rasteri=$FA
 ```
@@ -3524,8 +3504,7 @@ arvon kompaktista nollasivuisesta siemenestä.
 | ------ | ------------------------------------------------------------------ |
 | Siemen | Valinnainen nollasivun siementavu tai -tunniste (oletusarvo `$FB`) |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .rand
 ```
@@ -3552,15 +3531,14 @@ ja asettaa sen värin.
 | Tietosivu   | Sprite-datan osoite / 64 (esim. `$21`, jos data on osoitteessa `$0840`) |
 | Monivärinen | Vaihtaa спрайtin monivärisbitin päälle/pois (`$D01C`)                   |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .sprite_init 0, 7, $21
 .sprite_init 0, 7, $21, monivärinen
 .sprite_init 0, 7, $21, mono
 ```
 
-**Käynnistä:** Napsauta työkalupalkissa **Debug (RetroDebugger)**. Sovellus:
+**Generoitu ASM:**
 ```
 LDA #$21
 STA $07F8 ; sprite-osoitinrekisteri ($07F8 + N)
@@ -3596,8 +3574,7 @@ rekisterissä.
 | X        | Vaakasuora asento 0–319 |
 | Y        | Pystysuora asento 0–255 |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .sprite_pos 0, 152, 100
 ```
@@ -3635,13 +3612,12 @@ spritejen repeytymisen. Ei JSR:ää, ei etikettiä tarvita.
 | ------------ | ---------------------------------------------------------- |
 | Rasteriviiva | Kohderasteriviiva heksadesimaalina (esim. `FF` = rivi 255) |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .wait_raster $FF
 ```
 
-**Käynnistä:** Napsauta työkalupalkissa **Debug (RetroDebugger)**. Sovellus:
+**Generoitu ASM:**
 ```
 odota:
 LDA $D012 ; nykyinen rasteririvi
@@ -3668,8 +3644,7 @@ X/Y-rekistereitä vastaavasti. Täysin inline-tilassa, ei JSR:ää tarvita.
 | Portti   | `1` = portti 1 (`$DC01`) tai `2` = portti 2 (`$DC00`)             |
 | Sprite # | Sprite-numero 0–7 (säätelee, mitä X/Y-rekisteriparia päivitetään) |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .ohjaussauva 2, 0
 ```
@@ -3807,8 +3782,7 @@ inline-tilassa, ei JSR:ää tarvita.
 | Sprite #      | Spriten numero 0–7 (mitä spritin bittiä tarkistetaan)                                                                 |
 | Törmäystyyppi | `Sprite-Sprite ($D01E)` — törmäys toisen spriten kanssa; `Sprite-Background ($D01F)` — törmäys taustagrafiikan kanssa |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .sprite_col 0, sprite
 .sprite_col 0, tausta
@@ -3861,8 +3835,7 @@ tietoja, musiikkia tai muuta koodia levyltä ohjelman ollessa käynnissä.
 | Ohitusosoite (valinnainen)    | Heksamuotoinen latausosoite (esim. `C000`). Jos asetettu, tiedosto ladataan tähän osoitteeseen (`sec=0`, jättäen PRG-otsikon huomiotta). Jätä tyhjäksi käyttääksesi tiedoston omaa 2-tavuista PRG-otsikkoa (`sec=1`). |
 | Virheen otsikko (valinnainen) | Jos asetettu, JSR LOAD -käskyn jälkeen luodaan `BCS`-käsky. Jos KERNAL palauttaa carry set -arvon (virhe), suoritus hyppää tähän tunnisteeseen.                                                                       |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .loadfile "DEMO-VÄRIT", 8
 .loadfile "DEMO-VÄRIT", 8, $C000
@@ -3912,8 +3885,7 @@ EXODECRUNCH purkaa sen taaksepäin virtaan upotettuun osoitteeseen.
 | ---------------- | ------------------------------------------------------------------------------------------------------------------- |
 | Pakkaajan osoite | Pakkauksenpurkukoodin sijainti muistissa (oletusarvo `B000`). Osoitteen on oltava 16-bittinen heksadesimaaliosoite. |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .exodecrunch
 .exodecrunch pakkauksenpurkuohjelma=B000 dollaria
@@ -4003,8 +3975,7 @@ tehty:
 > Makro normalisoi tuloksen, joten seuraava haara pysyy yksinkertaisena: `BNE`
 > tarkoittaa, että REU on läsnä, `BEQ` tarkoittaa, että REU puuttuu.
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .reu_check
 ```
@@ -4047,8 +4018,7 @@ välitön.
 | REU-pankki | REU-muistipankki (0–7)                           | `0`       |
 | Pituus     | Siirrettävien tavujen määrä (heksa, 16-bittinen) | `1000`    |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .reu_stash $C000, $0000, 0, $1000
 .reu_fetch $C000, $0000, 0, $1000
@@ -4125,8 +4095,7 @@ C9 FF CMP #$FF
 
 **Ei konfiguroitavia kenttiä.**
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .supercpu_detect
 ```
@@ -4348,8 +4317,7 @@ BCD-aritmetiikkaan – manuaalista kortin vaihtamista ei tarvita.
 | Lisää pisteitä   | Kutsua kohden lisättävä desimaaliarvo (esim. `100`).                                                           |
 | Näytön osoite    | Mihin numeronäyttökoodit kirjoitetaan (esim. `0400`). Yksi tavu numeroa kohden (korkeampi tavun numero ensin). |
 
-**Asennus:** Avaa **Asetukset → Määritä RetroDebugger-suoritettava tiedosto** ja
-osoita sillä `RetroDebugger`-binääritiedosto.
+**Asiantuntijan syntaksi:**
 ```
 .score_bcd $C200, 4, 100, $0400
 ```
@@ -4444,7 +4412,7 @@ virheenkorjaimen käynnistyskerralla.
 
 ### Virheenkorjausliput (Asetukset-välilehti)
 
-| Esimerkki              | Lippu           | Vaikutus                                                               |
+| Vaihda                 | Lippu           | Vaikutus                                                               |
 | ---------------------- | --------------- | ---------------------------------------------------------------------- |
 | `-hyppy` PÄÄLLÄ        | `-jump $OSOITE` | Hyppää suoraan ohjelman aloitusosoitteeseen latauksen jälkeen          |
 | `-jatka taukoa` PÄÄLLÄ | `-jatka taukoa` | Poista debuggerin keskeytys välittömästi latauksen yhteydessä          |
@@ -4721,21 +4689,20 @@ lisätä suoraan D64-levylle **Tallenna D64:ään** -merkinnän kautta.
 | Ominaisuus   | Kuvaus                                                                                                                               |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
 | Tilan vaihto | **Monivärinen** -valintaruutu vaihtaa korkearesoluutioisen (yksivärinen solua kohden) ja monivärisen (4 väriä solua kohden) välillä. |
-| Työkalut     | Lyijykynä, pyyhekumi, viiva, suorakulmio, täytetty suorakulmio, soikio, täytetty soikio, täyttöviiva.                                |
+| **Tila**     | Näyttää, onko suoritettava tiedostopolku kelvollinen ja käytettävissä                                                                |
 
 Pikselitason bittikarttaeditori, jossa on sekä 320×200 korkearesoluutio- että
 160×200 moniväritilat. Avaa Toolkit → Korkearesoluutioeditori -kohdassa.
 
 ### Sprite-editori
 
-| Ominaisuus | Kuvaus                                                                                                |
-| ---------- | ----------------------------------------------------------------------------------------------------- |
-| Kehykset   | Lisää/poista/järjestä uudelleen kehyksiä; kehysnauha näkyy alhaalla.                                  |
-| Tila       | Yksivärinen/monivärinen vaihto.                                                                       |
-| Työkalut   | Lyijykynä, pyyhekumi, viiva, suorakulmio, täytetty suorakulmio, soikio, täytetty soikio, täyttöviiva. |
+| Ominaisuus | Kuvaus                                                                |
+| ---------- | --------------------------------------------------------------------- |
+| Kehykset   | Lisää/poista/järjestä uudelleen kehyksiä; kehysnauha näkyy alhaalla.  |
+| Tila       | Yksivärinen/monivärinen vaihto.                                       |
+| **Tila**   | Näyttää, onko suoritettava tiedostopolku kelvollinen ja käytettävissä |
 
-24×21 pikselin sprite-editori moniruutuanimaatiolla. Avaa Toolkit →
-Sprite-editori -kohdassa.
+**Työnkulku:**
 1. Asenna Exomizer-binääritiedosto:
    - **Windows:** lataa valmiiksi koottu `win32/exomizer.exe` osoitteesta
      https://bitbucket.org/magli143/exomizer/wiki/Home tai
@@ -4772,7 +4739,7 @@ alustakohtaista.
 | Ominaisuus      | Kuvaus                                                                                                                                                                                                                                                               |
 | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Kaksi merkistöä | Välilehti 1: **Sarja 1 — Ylä/Grafiikka** (oletustila käynnistyksen jälkeen). Välilehti 2: **Sarja 2 — Ala/Ylä** (`$0E`-kytkimen jälkeen).                                                                                                                            |
-| Työkalut        | 16×16-ruudukko, jossa on kaikki 256 merkkiä. Napsauta symbolia nähdäksesi sen yksityiskohtapaneelin: suurennettu 8×8 pikselin näkymä, näyttökoodi (desimaali + heksadesimaali), PETSCII-koodit (sekä oletusarvoiset että siirretyt) ja raaka 8-tavuinen bittikartta. |
+| **Tila**        | 16×16-ruudukko, jossa on kaikki 256 merkkiä. Napsauta symbolia nähdäksesi sen yksityiskohtapaneelin: suurennettu 8×8 pikselin näkymä, näyttökoodi (desimaali + heksadesimaali), PETSCII-koodit (sekä oletusarvoiset että siirretyt) ja raaka 8-tavuinen bittikartta. |
 
 C64-merkki-ROMin (sisäänrakennetun PETSCII-fontin) vain luku -tilassa oleva
 katseluohjelma. Avautuu Toolkit-valikon **C64 chargen** -merkinnän kautta.
@@ -4789,8 +4756,7 @@ komennoilla `RAWBYTES` tai `TEXT`.
 | Lataa `.bin`               | Tuo ulkoisen 2048-tavuisen merkistöbinääritiedoston.                                  |
 | Merkkikohtainen esikatselu | 16-levyinen ruudukko, jossa on kaikki 256 symbolia ja nykyinen solu korostettuna.     |
 
-24×21 pikselin sprite-editori moniruutuanimaatiolla. Avaa Toolkit →
-Sprite-editori -kohdassa.
+**Työnkulku:**
 1. Yhdistä 1541 Ultimate / Ultimate 64 lähiverkkoosi.
 2. Syötä sen IP-osoite (ja salasana, jos se on asetettu) Laitteistoasetuksiin.
 3. Valitse jaetun suorituksen valikosta **Suorita laitteistolla**.
@@ -4823,8 +4789,7 @@ työalueen C64:n oikeiden merkkien monivärisääntöjen mukaisesti.
 | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Yksivärinen / monivärinen | Mono-tilassa tallennetaan 1-bittiset 8×8-symbolit. Moniväritilassa tallennetaan kaksibittiset vaakasuuntaiset pikseliparit ja käytetään solujen merkintöjä Color RAM -bitillä 3. |
 
-24×21 pikselin sprite-editori moniruutuanimaatiolla. Avaa Toolkit →
-Sprite-editori -kohdassa.
+**Työnkulku:**
 1. Aseta Kung Fu Flash 2 C64:n kasettiporttiin, käynnistä tietokone ja kytke
    USB-kaapeli tietokoneeseen/Maciin.
 2. Avaa **Laitteistoasetukset** ja tarkista **Kung Fu Flash 2** -osio – portin
@@ -4871,18 +4836,22 @@ käyttöliittymän asetuksiin ja palautetaan seuraavan avauskerran yhteydessä.
 Pikselitason bittikarttaeditori, jossa on sekä 320×200 korkearesoluutio- että
 160×200 moniväritilat. Avaa Toolkit → Korkearesoluutioeditori -kohdassa.
 
-| Ominaisuus             | Kuvaus                                                                                                                                      |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| Tilan vaihto           | **Monivärinen** -valintaruutu vaihtaa korkearesoluutioisen (yksivärinen solua kohden) ja monivärisen (4 väriä solua kohden) välillä.        |
-| Työkalut               | Lyijykynä, pyyhekumi, viiva, suorakulmio, täytetty suorakulmio, soikio, täytetty soikio, täyttöviiva.                                       |
-| Ruiskutustyökalu       | Airbrush-tyylinen piirtäjä, joka sirottelee pikseleitä kohdistimen ympärille piirtäessään.                                                  |
-| Suihkutusintensiteetti | Ruiskutustyökalun vieressä olevasta alasvetovalikosta säädetään kunkin ruiskutusjäljen tiheyttä.                                            |
-| Väripaletti            | Etualan (muste) ja paperin (tausta) poimijat. Moniväritila seuraa automaattisesti kolmea solukohtaista lisäväriä.                           |
-| Kumoa / Tee uudelleen  | Iskukohtainen historia, ctrl-Z / ctrl-Y.                                                                                                    |
-| Ruudukko + Rasteri     | Valinnainen 8×8-ruudukko ja rasteririvien päällekkäisyys solujen tasaamista varten.                                                         |
-| Tuo kuva               | Kankaalle pudotetut PNG/JPEG/GIF-kuvat kvantisoituvat automaattisesti 16-väriseen C64-palettiin.                                            |
-| Vie lohkot             | Lisää ohjelmaan BYTE/RAWBYTES-lohkoja, jotka sisältävät koodatun bittikartta-, näyttö- ja väridatan.                                        |
-| Vie `.bin`             | Tallentaa natiivin moniväritiedostomuodon (10000 tavua: 8000 bittikarttaa + 1000 näyttöä + 1000 väriä) valmiiksi LOADFILE-tiedostoon $2000. |
+| Ominaisuus             | Kuvaus                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Tilan vaihto           | **Monivärinen** -valintaruutu vaihtaa korkearesoluutioisen (yksivärinen solua kohden) ja monivärisen (4 väriä solua kohden) välillä.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Työkalut               | Lyijykynä, pyyhekumi, viiva, suorakulmio, täytetty suorakulmio, soikio, täytetty soikio, täyttöviiva, valinta.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Ruiskutustyökalu       | Airbrush-tyylinen piirtäjä, joka sirottelee pikseleitä kohdistimen ympärille piirtäessään.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| Suihkutusintensiteetti | Ruiskutustyökalun vieressä olevasta alasvetovalikosta säädetään kunkin ruiskutusjäljen tiheyttä.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Väripaletti            | Etualan (muste) ja paperin (tausta) poimijat. Moniväritila seuraa automaattisesti kolmea solukohtaista lisäväriä.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| Kumoa / Tee uudelleen  | Iskukohtainen historia, ctrl-Z / ctrl-Y.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Valitse                | Katkoneliön työkalu: vedä osoitinta kankaalla merkitäksesi suorakulmaisen alueen. **Esc** tyhjentää valinnan.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Kopioi / Liitä         | **Kopioi** (`Ctrl/Cmd+C`) kopioi valitun alueen. **Liitä** (`Ctrl/Cmd+V`) näyttää esikatselun, joka seuraa kohdistinta: napsauta piirtoaluetta sijoittaaksesi sen, **Esc** peruuttaa. Kopio säilytetään, joten `Ctrl/Cmd+V` painaminen ja uudelleen napsauttaminen sijoittaa sen niin monta kertaa kuin on tarpeen. Korkean resoluution tilassa liitetyt pikselit noudattavat edelleen kahden värin solukohtaista rajoitusta, joten kohdista alue soluruudukkoon säilyttääksesi sen värit. Kopioi, Liitä ja Läpinäkyvä liitä ovat myös piirtoalueen hiiren kakkospainikkeen valikossa; liittäminen aloitettiin siellä esikatselussa napsautetusta kohdasta. |
+| Läpinäkyvä tahna       | `Ctrl/Cmd+Shift+V` (tai sen työkalupalkin painike) ohittaa kopion paperinväriset pikselit, joten alla oleva kuva näkyy läpi.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| Ruudukko + Rasteri     | **Grid** näyttää merkkisoluruudukon: 8×8 pikseliä korkearesoluutioisena, 4×8 kaksinkertaisen leveyden pikseliä monivärisenä. 4× zoomista alkaen se piirtää myös himmeämmän viivan jokaisen pikselin ympärille, jotta jokainen pikseli voidaan sijoittaa tarkasti. **Raster** lisää rasteririvin päällekkäiskerroksen.                                                                                                                                                                                                                                                                                                                                       |
+| Zoomaus                | Liukusäädin 1× - 16×.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Tuo kuva               | Kankaalle pudotetut PNG/JPEG/GIF-kuvat kvantisoituvat automaattisesti 16-väriseen C64-palettiin.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Vie lohkot             | Lisää ohjelmaan BYTE/RAWBYTES-lohkoja, jotka sisältävät koodatun bittikartta-, näyttö- ja väridatan.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Vie `.bin`             | Tallentaa natiivin moniväritiedostomuodon (10000 tavua: 8000 bittikarttaa + 1000 näyttöä + 1000 väriä) valmiiksi LOADFILE-tiedostoon $2000.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 
 ### Sprite-editori
 
@@ -4891,7 +4860,7 @@ Sprite-editori -kohdassa.
 
 | Ominaisuus            | Kuvaus                                                                                                                                                                                                                                            |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Kehykset              | Lisää/poista/järjestä uudelleen kehyksiä; kehysnauha näkyy alhaalla.                                                                                                                                                                              |
+| Kehykset              | Lisää/poista/järjestä uudelleen kehyksiä; kehysnauha näkyy alhaalla. **Kopioi** / **Liitä** kehysrivillä kopioi koko nykyisen kehyksen; samat kaksi merkintää ovat sekä kankaan että kehysnauhan hiiren kakkospainikkeen valikoissa.              |
 | Tila                  | Yksivärinen/monivärinen vaihto.                                                                                                                                                                                                                   |
 | Työkalut              | Kynä, täyttö, viiva, suorakulmio, ympyrä – sekä vaakasuora ja pystysuora kääntö, siirto vasemmalle/oikealle/ylös/alas (valinnainen rivitys). Muototyökalut näyttävät reaaliaikaisen esikatselun vetämisen aikana; vapauta painike vahvistaaksesi. |
 | Kumoa / tee uudelleen | Täysi kumoa/tee uudelleen -pino kehystä kohden. Ctrl/Cmd+Z / Ctrl/Cmd+Y tai työkalupalkin painikkeet.                                                                                                                                             |
@@ -4966,7 +4935,7 @@ törmäysdatalle ja vastaaville. Avaa Toolkit → Karttaeditori -kohdassa.
 | Kumoa / tee uudelleen                                      | Täysi kumoa/tee uudelleen -pino tasoa kohden. Ctrl/Cmd+Z / Ctrl/Cmd+Y tai työkalupalkin painikkeet.                                                                                                                                                                                |
 | Tyhjennä valikko                                           | Tasokohtainen tai koko kartan selkeä vahvistuksella.                                                                                                                                                                                                                               |
 | Kuvan tuonti                                               | Pudota laattakartan PNG-kuva; editori leikkaa sen automaattisesti laatoiksi.                                                                                                                                                                                                       |
-| Kopioi / liitä                                             | Kopioi valittu laatta-alue ja liitä se sitten normaalisti tai käytä läpinäkyvää liitintä pitääksesi tyhjät laatat läpinäkyvinä.                                                                                                                                                    |
+| Kopioi / liitä                                             | Kopioi valittu laatta-alue ja liitä se normaalisti tai käytä läpinäkyvää liittämistä pitääksesi tyhjät laatat läpinäkyvinä. Samat merkinnät löytyvät piirtoalueen hiiren kakkospainikkeen valikosta.                                                                               |
 | Monivärinen laattojen väritys                              | Yhteensopivien merkistömetatietojen avulla maalaus käyttää laatan tallennettuja Color RAM -oletusarvoja (mukaan lukien moniväriin liittyvä koodaus) yleisen tasaisen värin sijaan.                                                                                                 |
 | Mukautetut merkistövärit                                   | Kun merkistö sisältää `charColors` metadatan, karttaeditori käyttää valitun laatan oletusarvoista Color RAM -muistin arvoa piirtäessään.                                                                                                                                           |
 | Vie lohkot                                                 | Lähettää RAWBYTES-lohkoja laattasarjan grafiikoille ja karttatiedoille.                                                                                                                                                                                                            |
@@ -5226,10 +5195,10 @@ toisto liikkuu eri tavalla, vaikka tavuarvot ovat identtiset. Katso toimivan
 
 ### Numeromuunnin
 
-Pieni **ei-modaalinen** DEC / HEX / BIN-muunnin, joka avataan D64-editorin
+Pieni **ei-modaalinen** DEC / HEX / BIN -muunnin, joka avataan D64-editorin
 vieressä olevalla työkalupalkin painikkeella (napsauta uudelleen tai paina Esc
-sulkeaksesi). Se pysyy auki, kun jatkat ohjelman muokkaamista missä tahansa
-tilassa.
+sulkeaksesi). Painike pysyy korostettuna, kun muunnin on näkyvissä. Se pysyy
+auki, kun jatkat ohjelman muokkaamista missä tahansa tilassa.
 
 - Kirjoita mihin tahansa kentistä **DEC**, **HEX** tai **BIN** ja kaksi muuta
   perässä. Etuliitteet `$`, `0x`, `%`, `0b` ja erotinmerkit (välilyönti, `_`)

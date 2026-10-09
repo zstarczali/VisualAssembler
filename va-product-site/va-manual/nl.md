@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Gebruikershandleiding
 
-**Versie 2.5.4**
+**Versie 2.5.5**
 
 Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw
 programma's door instructieblokken te slepen en neer te zetten, en bekijk de
@@ -12,77 +12,82 @@ gegenereerde assembly- en machinecode in realtime.
 
 - [C64 Visual Assembler —
   Gebruikershandleiding](#c64-visual-assembler--user-manual)
+    - [Hoogtepunten van versie 2.5.5](#version-255-highlights)
     - [Hoogtepunten van versie 2.5.4](#version-254-highlights)
-    - [Hoogtepunten van versie 2.5.2](#version-253-highlights)
-    - [Hoogtepunten van versie 2.5.1](#version-252-highlights)
-    - [Hoogtepunten van versie 2.5.0](#version-251-highlights)
-    - [Hoogtepunten van versie 2.4.9](#version-250-highlights)
-    - [Hoogtepunten van versie 2.4.8](#version-249-highlights)
-    - [Hoogtepunten van versie 2.4.7](#version-248-highlights)
-    - [Hoogtepunten van versie 2.4.6](#version-247-highlights)
-    - [Hoogtepunten van versie 2.4.5](#version-246-highlights)
-    - [Hoogtepunten van versie 2.4.3](#version-245-highlights)
-    - [Hoogtepunten van versie 2.4.2](#version-243-highlights)
-    - [Hoogtepunten van versie 2.4.1](#version-242-highlights)
-    - [Hoogtepunten van versie 2.4.0](#version-241-highlights)
-    - [Hoogtepunten van versie 2.3.9](#version-240-highlights)
-    - [Inhoudsopgave](#version-239-highlights)
-  - [1. Interfaceoverzicht](#table-of-contents)
-  - [2. Blokpalet](#1-interface-overview)
-  - [3. Programmagebied](#2-block-palette)
-  - [4. ASM-weergave](#3-program-area)
-    - [Uitvoermodi](#operand-input)
-  - [5. Instellingen & Werkbalk](#4-asm-view)
-    - [Projecttemplates](#output-modes)
-    - [Project bouwen](#toolkit-tab)
-    - [Voorbeeldprogramma's](#options-tab)
-    - [Laad .asm-bestand (snelle referentie)](#clicking-an-asm-line)
+    - [Hoogtepunten van versie 2.5.3](#version-253-highlights)
+    - [Hoogtepunten van versie 2.5.2](#version-252-highlights)
+    - [Hoogtepunten van versie 2.5.1](#version-251-highlights)
+    - [Hoogtepunten van versie 2.5.0](#version-250-highlights)
+    - [Hoogtepunten van versie 2.4.9](#version-249-highlights)
+    - [Hoogtepunten van versie 2.4.8](#version-248-highlights)
+    - [Hoogtepunten van versie 2.4.7](#version-247-highlights)
+    - [Hoogtepunten van versie 2.4.6](#version-246-highlights)
+    - [Hoogtepunten van versie 2.4.5](#version-245-highlights)
+    - [Hoogtepunten van versie 2.4.3](#version-243-highlights)
+    - [Hoogtepunten van versie 2.4.2](#version-242-highlights)
+    - [Hoogtepunten van versie 2.4.1](#version-241-highlights)
+    - [Hoogtepunten van versie 2.4.0](#version-240-highlights)
+    - [Hoogtepunten van versie 2.3.9](#version-239-highlights)
+  - [Inhoudsopgave](#table-of-contents)
+  - [1. Interfaceoverzicht](#1-interface-overview)
+  - [2. Blokpalet](#2-block-palette)
+  - [3. Programmagebied](#3-program-area)
+    - [Operandinvoer](#operand-input)
+  - [4. ASM-weergave](#4-asm-view)
+    - [Uitvoermodi](#output-modes)
+    - [Toolkit-tabblad](#toolkit-tab)
+    - [Tabblad Opties](#options-tab)
+    - [Klikken op een ASM-regel](#clicking-an-asm-line)
     - [ASM-regelnummers](#asm-line-numbers)
     - [Voortgangsweergave compilatie](#compile-progress-modal)
-  - [Ultieme Basismodus](#5-settings--toolbar)
-    - [UB-editor openen](#project-templates)
-    - [Editortools](#build-project)
-    - [Projecten, tabbladen en opstartbestanden](#example-programs)
-    - [Bouw en diagnostiek](#load-asm-file-quick-reference)
+  - [5. Instellingen & Werkbalk](#5-settings--toolbar)
+    - [Projecttemplates](#project-templates)
+    - [Project bouwen](#build-project)
+    - [Voorbeeldprogramma's](#example-programs)
+    - [Laad .asm-bestand (snelle referentie)](#load-asm-file-quick-reference)
       - [Import parsing notes and best
         practices](#import-parsing-notes-and-best-practices)
-  - [6. Expertmodus](#ultimatebasic-mode)
-    - [Modi wisselen](#opening-the-ub-editor)
-    - [Editorindeling](#editor-tools)
-    - [Werkbalkknoppen](#projects-tabs-and-startup-files)
-    - [Fout bij het markeren](#building-and-diagnostics)
-    - [Syntaxmarkering](#running-d64-and-exomizer)
-    - [Bronformatter](#debugger-symbols-and-disassembly)
-    - [Projectpaneel & tabbladen](#ultimate-basic-manual-and-source)
-  - [7. Adresseringsmodi](#6-expert-mode)
-    - [Label expressies als operanden](#switching-modes)
-    - [De `*` programmateller in expressies](#editor-layout)
-    - [Lokale (gestippelde) labels](#toolbar-buttons)
-    - [Operandlabels voor zelfmodificerende code](#error-highlighting)
+  - [Ultieme Basismodus](#ultimatebasic-mode)
+    - [UB-editor openen](#opening-the-ub-editor)
+    - [Editortools](#editor-tools)
+    - [Projecten, tabbladen en
+      opstartbestanden](#projects-tabs-and-startup-files)
+    - [Bouw en diagnostiek](#building-and-diagnostics)
+    - [Running, D64, and Exomizer](#running-d64-and-exomizer)
+    - [Debuggersymbolen en demontage](#debugger-symbols-and-disassembly)
+    - [Ultieme basishandleiding en broncode](#ultimate-basic-manual-and-source)
+  - [6. Expertmodus](#6-expert-mode)
+    - [Modi wisselen](#switching-modes)
+    - [Editorindeling](#editor-layout)
+    - [Werkbalkknoppen](#toolbar-buttons)
+    - [Fout bij het markeren](#error-highlighting)
     - [Syntaxmarkering](#syntax-highlight)
     - [Bronformatter](#source-formatter)
     - [Projectpaneel & tabbladen](#project-panel--tabs)
     - [Tabbalk](#tab-bar)
-  - [8. Standaard 6502-instructies](#7-addressing-modes)
-    - [Gegevensverplaatsing](#label-expressions-as-operands)
-    - [Rekenen](#the--program-counter-in-expressions)
-    - [Logica](#local-dotted-labels)
-    - [Sprongen & Vertakkingen](#self-modifying-code-operand-labels)
-  - [9. Macroblokken — Referentie](#8-standard-6502-instructions)
-    - [LABEL](#data-movement)
-    - [COMMENT](#arithmetic)
-    - [BYTE](#logic)
-    - [WORD](#jumps--branches)
-    - [FILL](#lbne--lbeq---long-branches)
-    - [ALIGN](#register-operations)
-    - [TEXT](#shift--rotate)
-    - [STRING](#stack)
-    - [DATA](#system--flags)
-    - [RAWBYTES](#illegal--undocumented-instructions)
-  - [10. Debuggerintegratie](#9-macro-blocks--reference)
-    - [RetroDebugger](#label)
-    - [Breakpoint Blocks](#comment)
-    - [Flags voor de debugger (tabblad Opties)](#byte)
+  - [7. Adresseringsmodi](#7-addressing-modes)
+    - [Label expressies als operanden](#label-expressions-as-operands)
+    - [De `*` programmateller in
+      expressies](#the--program-counter-in-expressions)
+    - [Lokale (gestippelde) labels](#local-dotted-labels)
+    - [Operandlabels voor zelfmodificerende
+      code](#self-modifying-code-operand-labels)
+  - [8. Standaard 6502-instructies](#8-standard-6502-instructions)
+    - [Gegevensverplaatsing](#data-movement)
+    - [Rekenen](#arithmetic)
+    - [Logica](#logic)
+    - [Sprongen & Vertakkingen](#jumps--branches)
+    - [LBNE / LBEQ / … (Lange takken)](#lbne--lbeq---long-branches)
+    - [Registerbewerkingen](#register-operations)
+    - [Verschuiven & Roteren](#shift--rotate)
+    - [Stack](#stack)
+    - [Systeem / Vlaggen](#system--flags)
+    - [Onwettige / niet-gedocumenteerde
+      instructies](#illegal--undocumented-instructions)
+  - [9. Macroblokken — Referentie](#9-macro-blocks--reference)
+    - [LABEL](#label)
+    - [COMMENTAAR](#comment)
+    - [BYTE](#byte)
     - [WOORD](#word)
     - [INVULLEN](#fill)
     - [UITLIJNEN](#align)
@@ -153,22 +158,23 @@ gegenereerde assembly- en machinecode in realtime.
     - [MAP\_COPY16X16](#map_copy16x16)
     - [SPRITE_ANIM](#sprite_anim)
     - [SCORE\_BCD](#score_bcd)
-  - [11. Links naar de kennisbank](#10-debugger-integration)
+  - [10. Debuggerintegratie](#10-debugger-integration)
     - [RetroDebugger](#retrodebugger)
     - [Breakpoint Blocks](#breakpoint-blocks)
     - [Flags voor de debugger (tabblad Opties)](#debugger-flags-options-tab)
-  - [12. D64 Exporteren & Uitvoeren](#11-knowledge-base-links)
-  - [12b. CRT-export (Magic Desk 64K-cartridge)](#12-d64-export--run)
+  - [11. Links naar de kennisbank](#11-knowledge-base-links)
+  - [12. D64 Exporteren & Uitvoeren](#12-d64-export--run)
     - [Knop Split Run](#split-run-button)
     - [Exporteren naar D64-dialoogvenster](#export-to-d64-dialog)
     - [D64-metadata in projecten](#d64-metadata-in-projects)
-  - [13. Hardware-instellingen](#12b-crt-export-magic-desk-64k-cartridge)
-  - [14. Visuele editors (toolkit)](#13-hardware-settings)
-    - [Editor voor hoge resolutie / meerkleurig](#vice-emulator)
-    - [Sprite-editor](#exomizer)
-    - [C64 Character ROM Browser ("Char map")](#retro-debugger)
-    - [Tekeneditor (Tekenset)](#c64-ultimate--1541-ultimate)
-    - [Tekenset Canvas Editor](#kung-fu-flash-2)
+  - [12b. CRT-export (Magic Desk
+    64K-cartridge)](#12b-crt-export-magic-desk-64k-cartridge)
+  - [13. Hardware-instellingen](#13-hardware-settings)
+    - [VICE Emulator](#vice-emulator)
+    - [Exomizer](#exomizer)
+    - [Retro Debugger](#retro-debugger)
+    - [C64 Ultimate / 1541 Ultimate](#c64-ultimate--1541-ultimate)
+    - [Kung Fu Flash 2](#kung-fu-flash-2)
   - [14. Visuele editors (toolkit)](#14-visual-editors-toolkit)
     - [Editor voor hoge resolutie / meerkleurig](#hi-res--multicolor-editor)
     - [Sprite-editor](#sprite-editor)
@@ -181,6 +187,28 @@ gegenereerde assembly- en machinecode in realtime.
     - [SID-editor (3-stemmen tracker)](#sid-editor-3-voice-tracker)
     - [Curve-editor](#curve-editor)
     - [Nummeromzetter](#number-converter)
+
+---
+
+## Hoogtepunten van versie 2.5.5
+
+- **Editor voor hoge resolutie: pixelraster en 16× zoom** — met **Raster**
+  ingeschakeld, krijgt elke pixel vanaf 4× zoom een eigen rasterlijn, die
+  sterker is op de randen van de tekencellen en gearceerd is zodat deze
+  zichtbaar blijft in alle 16 kleuren. De zoomschuifregelaar gaat nu tot 16×.
+  Zie [Editor voor hoge resolutie / meerkleurig](#hi-res--multicolor-editor).
+- **Rechtsklikken op het menu Kopiëren/Plakken** — op het canvas van de Hi-Res-
+  en Kaarteditors (Kopiëren, Plakken, Transparant plakken) en in de
+  Sprite-editor (Kader kopiëren, Kader plakken, ook op de kaderstrook). Het
+  plakken is gestart vanuit de menuvoorbeelden waarop u hebt geklikt.
+- **Getalomzetter** — de knop in de werkbalk blijft gemarkeerd zolang de
+  omzetter wordt weergegeven.
+- **Opgelost** — het raster van de meerkleurige cellen in de Hi-Res Editor was
+  twee keer zo breed als een tekencel; de Hi-Res werkbalk **Plakken**-knop
+  plakte altijd transparant; het rechtermuisklikmenu van de SID Editor opende
+  buiten de cursor terwijl het dialoogvenster gecentreerd was.
+- **In deze handleiding** worden nu de selectie, het kopiëren/plakken en het
+  transparant plakken van de Hi-Res Editor beschreven.
 
 ---
 
@@ -683,13 +711,13 @@ zonder commentaarmarkering (`.print "HELLO"`, `.wait_raster $FF`, `.invoke
 setColor(blue)`) en worden gekleurd zoals macro's; alleen echte COMMENT-blokken,
 regiomarkeringen en waarschuwingen behouden hun voorloopteken `;`.
 
-| Modus            | Beschrijving                                                                                                                                                                                                                                                                                                                                 |
-| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **ASM**          | 6502 assemblagebron met adressen en labels                                                                                                                                                                                                                                                                                                   |
-| **Monitor**      | Hex-/bytedump (C64-monitorstijl)                                                                                                                                                                                                                                                                                                             |
-| **Disasm**       | Pure 6502-disassemblage: adres · hexadecimale bytes · mnemonics met opgeloste numerieke operanden. Macro's worden uitgebreid tot individuele instructies (TEXT → LDA/STA-paren, LOOP → LDX, enz.). BYTE/WORD/FILL-gegevens worden weergegeven als een gechunkte hexadecimale dump. Geen macronamen, commentaren of annotaties in de uitvoer. |
-| **Beide**        | ASM bovenaan, monitor onderaan                                                                                                                                                                                                                                                                                                               |
-| **Disassembler** | Hetzelfde als Disasm — een apart tabblad voor de demontageweergave.                                                                                                                                                                                                                                                                          |
+| Kleur van de balk | Beschrijving                                                                                                                                                                                                                                                                                                                                 |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Cyaan             | 6502 assemblagebron met adressen en labels                                                                                                                                                                                                                                                                                                   |
+| **Monitor**       | Hex-/bytedump (C64-monitorstijl)                                                                                                                                                                                                                                                                                                             |
+| **Disasm**        | Pure 6502-disassemblage: adres · hexadecimale bytes · mnemonics met opgeloste numerieke operanden. Macro's worden uitgebreid tot individuele instructies (TEXT → LDA/STA-paren, LOOP → LDX, enz.). BYTE/WORD/FILL-gegevens worden weergegeven als een gechunkte hexadecimale dump. Geen macronamen, commentaren of annotaties in de uitvoer. |
+| **Beide**         | ASM bovenaan, monitor onderaan                                                                                                                                                                                                                                                                                                               |
+| **Disassembler**  | Hetzelfde als Disasm — een apart tabblad voor de demontageweergave.                                                                                                                                                                                                                                                                          |
 
 Ingeklapte blokken worden weergegeven met een lagere transparantie. Klik of
 sleep ergens op de minimap om de programmalijst naar die positie te scrollen. De
@@ -734,7 +762,7 @@ blijft volgen.
 leest de downloadlinks voor uw platform) en vergelijkt deze met de actieve
 versie:
 
-| Platform    | Wat gebeurt er?                                                                                                                                                                                                               |
+| Sectie      | Wat gebeurt er?                                                                                                                                                                                                               |
 | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Windows** | De installatie verloopt in passieve modus (alleen voortgangsregistratie) en start de nieuwe versie zodra deze is voltooid. Een installatie per machine vraagt om beheerdersrechten (UAC).                                     |
 | **macOS**   | Het DMG-bestand wordt gekoppeld en de app-bundel wordt op de juiste plek vervangen, waarna de nieuwe versie start. Als de app-map niet beschrijfbaar is, wordt het DMG-bestand geopend zodat je de app ernaartoe kunt slepen. |
@@ -931,7 +959,7 @@ codegegevens weer te geven.
 4. Fouten die een bronregel bevatten, selecteren die regel in de actieve
    UB-editor.
 
-| Platform         | Ingebouwde sjablonen                                                                                                                                                                                        |
+| Sectie           | Ingebouwde sjablonen                                                                                                                                                                                        |
 | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Assembler**    | Leeg programma, leeg spel (titel-/speel-/game over-status, joystick, speler-sprite), bitmap met hoge resolutie, meerkleurige bitmap                                                                         |
 | **UltiemeBasis** | Leeg programma, leeg spel (zelfde toestandsmachine in UB), hoge bitmap (`lijn` / `rechthoek` / `cirkel` met `kleurpen`), raster-IRQ (een `sub` die elke frame wordt aangeroepen vanuit de raster-interrupt) |
@@ -1271,11 +1299,11 @@ staat op elk blok.
 └────────────┴────────────────────────────┴────────────┘
 ```
 
-| Paneel        | Voorbeeld            | Beschrijving                                        |
-| ------------- | -------------------- | --------------------------------------------------- |
-| `*`           | `BNE *`              | Spring naar zichzelf (oneindige lus, offset `$FE`)  |
-| `*-n` / `*+n` | `BNE *-5`, `BEQ *+4` | Spring ten opzichte van de huidige pc met *n* bytes |
-| `JMP *+n`     | `JMP *+20`           | Absolute sprong berekend vanaf de huidige pc        |
+| Paneel        | Schakelaar            | Beschrijving                                        |
+| ------------- | --------------------- | --------------------------------------------------- |
+| **Palet**     | `#expert-palette-btn` | Spring naar zichzelf (oneindige lus, offset `$FE`)  |
+| `*-n` / `*+n` | `BNE *-5`, `BEQ *+4`  | Spring ten opzichte van de huidige pc met *n* bytes |
+| `JMP *+n`     | `#expert-disasm-btn`  | Absolute sprong berekend vanaf de huidige pc        |
 
 ### Lokale (gestippelde) labels
 
@@ -1292,8 +1320,8 @@ staat op elk blok.
 | **Regelnummers**                      | `#expert-line-numbers-btn`                     | Schakel de regelnummermarge aan de linkerkant van de editor in of uit. De marge blijft gesynchroniseerd met de scrollpositie en wordt live bijgewerkt terwijl u typt.                                                                                         |
 | **Vind**                              | `#expert-find-btn`                             | Open de zwevende zoekbalk (`Ctrl+F`). Typ om te zoeken; overeenkomsten worden gemarkeerd in de overlay. `Enter` / `Shift+Enter` navigeer tussen overeenkomsten. `Escape` sluit de balk.                                                                       |
 | **Uitzoomen/inzoomen**                | `#expert-zoom-out-btn` / `#expert-zoom-in-btn` | Verklein/vergroot de lettergrootte van de editor (8–28 px). `Ctrl` + muiswiel (`Cmd` + wiel op macOS, of knijpen op het touchpad) boven de editor heeft hetzelfde effect. De instelling wordt opgeslagen.                                                     |
-| `*`                                   | `BNE *`                                        | Toon/verberg het linker geheugenpalet                                                                                                                                                                                                                         |
-| **Disasm**                            | `JMP *+20`                                     | Het demontagepaneel weergeven/verbergen (pure 6502, macro's uitgebreid)                                                                                                                                                                                       |
+| **Palet**                             | `#expert-palette-btn`                          | Toon/verberg het linker geheugenpalet                                                                                                                                                                                                                         |
+| **Disasm**                            | `#expert-disasm-btn`                           | Het demontagepaneel weergeven/verbergen (pure 6502, macro's uitgebreid)                                                                                                                                                                                       |
 | **Monitor**                           | `#expert-monitor-btn`                          | Het paneel voor de hex-dump van de monitor weergeven/verbergen                                                                                                                                                                                                |
 | **Minimap**                           | `#expert-minimap-btn`                          | Toon/verberg de code-minimap aan de rechterkant van de editor                                                                                                                                                                                                 |
 
@@ -1310,7 +1338,7 @@ verschillende globale labels **botsen niet**.
 opcode. De instructie wordt geassembleerd vanuit alles wat na de dubbele punt
 komt.
 
-| Modus                 | Tokentype                                                |
+| Kleur van de balk     | Tokentype                                                |
 | --------------------- | -------------------------------------------------------- |
 | Commentaar kleur      | Regels die beginnen met `;`                              |
 | Labelkleur            | Lijnen met een `label:` definitie                        |
@@ -1341,7 +1369,7 @@ programma's.
 | Geelgroen   | Mnemonics (`LDA`, `STA`, `JMP`, …) en pseudo-operaties met lange vertakkingen (`LBNE`, `LBEQ`, …)                                                      |
 | Blauw       | Richtlijnen (`.byte`, `.word`, `.fill`, `.assert`, `*=`, …)                                                                                            |
 | Oranje      | Getallen (`$FF`, `%1010`, `255`)                                                                                                                       |
-| **ASM**     | Labels — regels die eindigen op `:`, inclusief lokale labels (`.loop:`) en labels voor zelfmodificerende code-operanden (`value:` in `LDA value:#$00`) |
+| Cyaan       | Labels — regels die eindigen op `:`, inclusief lokale labels (`.loop:`) en labels voor zelfmodificerende code-operanden (`value:` in `LDA value:#$00`) |
 | Turkoois    | Stringliteralen                                                                                                                                        |
 | Violet      | Aangepaste macronamen — de naam na `.macro`, `.invoke` en `.call`, en Kick-stijl `:name(...)`-aanroepen                                                |
 | Aqua        | Macroparameters — de parameternamen in de `.macro`-header en de `{param}`-vervangingen in de macrobody.                                                |
@@ -1454,15 +1482,15 @@ rechtstreeks een **constante naam** (uit een `CONST`-blok of een `LABEL`).
 Daarnaast kunt u **label+offset** of **label−offset** expressies gebruiken om te
 verwijzen naar een adres ten opzichte van een benoemde constante:
 
-| Ezelsbruggetje | Voorbeeld             | Beschrijving                                                                                                                 |
-| -------------- | --------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `LDA`          | Belastingsaccumulator | onmiddellijk, nulPagina, absoluut, absoluutX, absoluutY, indirectX, indirectY                                                |
-| `LDX`          | Laad X-register       | onmiddellijk, nulpagina, nulpaginaY, absoluut, absoluutY                                                                     |
-| `LDY`          | Laad Y-register       | onmiddellijk, nulpagina, absoluut, absoluteX                                                                                 |
-| `STA`          | Winkelaccumulator     | zeroPage, absolute, absoluteX, absoluteY, indirectX, indirectY                                                               |
-| `STX`          | Winkel X kassa        | nulPagina, nulPaginaY, absoluut                                                                                              |
-| `STY`          | Winkel Y kassa        | nulPagina, absoluut                                                                                                          |
-| `*`            | `BNE *`               | Huidige programmateller (het eigen adres van de instructie); sprongen met `*` genereren een oneindige zelflus (offset `$FE`) |
+| Syntaxis | Voorbeeld             | Beschrijving                                                                                                                 |
+| -------- | --------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `LDA`    | Belastingsaccumulator | onmiddellijk, nulPagina, absoluut, absoluutX, absoluutY, indirectX, indirectY                                                |
+| `LDX`    | Laad X-register       | onmiddellijk, nulpagina, nulpaginaY, absoluut, absoluutY                                                                     |
+| `LDY`    | Laad Y-register       | onmiddellijk, nulpagina, absoluut, absoluteX                                                                                 |
+| `STA`    | Winkelaccumulator     | zeroPage, absolute, absoluteX, absoluteY, indirectX, indirectY                                                               |
+| `STX`    | Winkel X kassa        | nulPagina, nulPaginaY, absoluut                                                                                              |
+| `STY`    | Winkel Y kassa        | nulPagina, absoluut                                                                                                          |
+| `*`      | `BNE *`               | Huidige programmateller (het eigen adres van de instructie); sprongen met `*` genereren een oneindige zelflus (offset `$FE`) |
 
 **Voorbeeld — wis twee schermpagina's met behulp van een CONST:**
 ```
@@ -1488,13 +1516,13 @@ van de instructie waarop het is geschreven. Het wordt tijdens de assembleertijd
 opgelost ten opzichte van het werkelijke adres van die instructie, dus er is
 geen label nodig voor korte relatieve sprongen of PC-relatieve gegevenslezingen.
 
-| Ezelsbruggetje | Voorbeeld                | Notities                                                                  |
-| -------------- | ------------------------ | ------------------------------------------------------------------------- |
-| `*`            | `BNE *`                  | Stel de carry-eigenschap in met `SEC` vóór gebruik in de meeste gevallen. |
-| `SBC`          | Aftrekken met overdracht | Stel de overdracht in met `SEC` vóór de aftrekking.                       |
-| `INC`          | Geheugen vergroten       | —                                                                         |
-| `DEC`          | Verminder het geheugen   | —                                                                         |
-| `CMP`          | Vergelijk met A          | Stelt vlaggen in; wijzigt A niet.                                         |
+| Syntaxis | Voorbeeld                | Betekenis                                                                 |
+| -------- | ------------------------ | ------------------------------------------------------------------------- |
+| `*`      | `BNE *`                  | Stel de carry-eigenschap in met `SEC` vóór gebruik in de meeste gevallen. |
+| `SBC`    | Aftrekken met overdracht | Stel de overdracht in met `SEC` vóór de aftrekking.                       |
+| `INC`    | Geheugen vergroten       | —                                                                         |
+| `DEC`    | Verminder het geheugen   | —                                                                         |
+| `CMP`    | Vergelijk met A          | Stelt vlaggen in; wijzigt A niet.                                         |
 
 **PC versus vermenigvuldiging.** `*` wordt alleen als programmateller behandeld
 wanneer deze zich in *waardepositie* bevindt — aan het begin van de expressie,
@@ -1586,52 +1614,52 @@ het `label:`-voorvoegsel).
 
 ### LABEL
 
-| Veld      | Beschrijving                                            | Modi                                                                          |
-| --------- | ------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| Labelnaam | Identificatiecode gebruikt in `JMP`, `JSR`, `BNE`, enz. | onmiddellijk, nulPagina, absoluut, absoluutX, absoluutY, indirectX, indirectY |
-| `LDX`     | Laad X-register                                         | onmiddellijk, nulpagina, nulpaginaY, absoluut, absoluutY                      |
-| `LDY`     | Laad Y-register                                         | onmiddellijk, nulpagina, absoluut, absoluteX                                  |
-| `STA`     | Winkelaccumulator                                       | zeroPage, absolute, absoluteX, absoluteY, indirectX, indirectY                |
-| `STX`     | Winkel X kassa                                          | nulPagina, nulPaginaY, absoluut                                               |
-| `STY`     | Winkel Y kassa                                          | nulPagina, absoluut                                                           |
+| Ezelsbruggetje | Beschrijving                                            | Modi                                                                          |
+| -------------- | ------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Labelnaam      | Identificatiecode gebruikt in `JMP`, `JSR`, `BNE`, enz. | onmiddellijk, nulPagina, absoluut, absoluutX, absoluutY, indirectX, indirectY |
+| `LDX`          | Laad X-register                                         | onmiddellijk, nulpagina, nulpaginaY, absoluut, absoluutY                      |
+| `LDY`          | Laad Y-register                                         | onmiddellijk, nulpagina, absoluut, absoluteX                                  |
+| `STA`          | Winkelaccumulator                                       | zeroPage, absolute, absoluteX, absoluteY, indirectX, indirectY                |
+| `STX`          | Winkel X kassa                                          | nulPagina, nulPaginaY, absoluut                                               |
+| `STY`          | Winkel Y kassa                                          | nulPagina, absoluut                                                           |
 
 ### COMMENT
 
-| Veld  | Beschrijving             | Notities                                                                  |
-| ----- | ------------------------ | ------------------------------------------------------------------------- |
-| `ADC` | Voeg toe met meenemen    | Stel de carry-eigenschap in met `SEC` vóór gebruik in de meeste gevallen. |
-| `SBC` | Aftrekken met overdracht | Stel de overdracht in met `SEC` vóór de aftrekking.                       |
-| `INC` | Geheugen vergroten       | —                                                                         |
-| `DEC` | Verminder het geheugen   | —                                                                         |
-| `CMP` | Vergelijk met A          | Stelt vlaggen in; wijzigt A niet.                                         |
-| `CPX` | Vergelijk met X          | —                                                                         |
-| `CPY` | Vergelijk met Y          | —                                                                         |
+| Ezelsbruggetje | Beschrijving             | Notities                                                                  |
+| -------------- | ------------------------ | ------------------------------------------------------------------------- |
+| `ADC`          | Voeg toe met meenemen    | Stel de carry-eigenschap in met `SEC` vóór gebruik in de meeste gevallen. |
+| `SBC`          | Aftrekken met overdracht | Stel de overdracht in met `SEC` vóór de aftrekking.                       |
+| `INC`          | Geheugen vergroten       | —                                                                         |
+| `DEC`          | Verminder het geheugen   | —                                                                         |
+| `CMP`          | Vergelijk met A          | Stelt vlaggen in; wijzigt A niet.                                         |
+| `CPX`          | Vergelijk met X          | —                                                                         |
+| `CPY`          | Vergelijk met Y          | —                                                                         |
 
 ### BYTE
 
-| Veld     | Beschrijving                                                                |
-| -------- | --------------------------------------------------------------------------- |
-| Operande | Door komma's gescheiden byte-waarden (bijv. `$01, $02, $FF` of `1, 2, 255`) |
-| `ORA`    | Logische OF met accumulator                                                 |
-| `EOR`    | Exclusieve OF met accumulator                                               |
-| `BIT`    | Test de bits in het geheugen tegen A (stelt de N-, V- en Z-vlaggen in).     |
+| Ezelsbruggetje | Beschrijving                                                                |
+| -------------- | --------------------------------------------------------------------------- |
+| Operande       | Door komma's gescheiden byte-waarden (bijv. `$01, $02, $FF` of `1, 2, 255`) |
+| `ORA`          | Logische OF met accumulator                                                 |
+| `EOR`          | Exclusieve OF met accumulator                                               |
+| `BIT`          | Test de bits in het geheugen tegen A (stelt de N-, V- en Z-vlaggen in).     |
 
 ### WORD
 
-| Veld     | Beschrijving                                                   |
-| -------- | -------------------------------------------------------------- |
-| Operande | Door komma's gescheiden 16-bits waarden (bijv. `$0400, $C000`) |
-| `JSR`    | Spring naar subroutine (slaat het retouradres op de stack op)  |
-| `RTS`    | Terugkeer uit subroutine                                       |
-| `RTI`    | Terugkeer van onderbreking                                     |
-| `BNE`    | Splitsen indien niet gelijk (Z=0)                              |
-| `BEQ`    | Takken indien gelijk (Z=1)                                     |
-| `BCC`    | Branch if Carry Clear (C=0)                                    |
-| `BCS`    | Branch if Carry Set (C=1)                                      |
-| `BMI`    | Branch if Minus (N=1)                                          |
-| `BPL`    | Branch if Plus (N=0)                                           |
-| `BVC`    | Vertakking indien overloop wissen (V=0)                        |
-| `BVS`    | Vertakking als de set overloopt (V=1)                          |
+| Ezelsbruggetje | Beschrijving                                                   |
+| -------------- | -------------------------------------------------------------- |
+| Operande       | Door komma's gescheiden 16-bits waarden (bijv. `$0400, $C000`) |
+| `JSR`          | Spring naar subroutine (slaat het retouradres op de stack op)  |
+| `RTS`          | Terugkeer uit subroutine                                       |
+| `RTI`          | Terugkeer van onderbreking                                     |
+| `BNE`          | Splitsen indien niet gelijk (Z=0)                              |
+| `BEQ`          | Takken indien gelijk (Z=1)                                     |
+| `BCC`          | Branch if Carry Clear (C=0)                                    |
+| `BCS`          | Branch if Carry Set (C=1)                                      |
+| `BMI`          | Branch if Minus (N=1)                                          |
+| `BPL`          | Branch if Plus (N=0)                                           |
+| `BVC`          | Vertakking indien overloop wissen (V=0)                        |
+| `BVS`          | Vertakking als de set overloopt (V=1)                          |
 
 #### LBNE / LBEQ / … (Lange takken)
 
@@ -1668,31 +1696,31 @@ LBEQ voltooid; assembleert naar: BNE *+3 ($D0 $03)
 
 ### FILL
 
-| Veld     | Beschrijving                                            |
-| -------- | ------------------------------------------------------- |
-| Operande | `count,value` — bijv. `256,0` vult 256 bytes met nullen |
-| `TAY`    | Overdracht A → Y                                        |
-| `TXA`    | Overdracht X → A                                        |
-| `TYA`    | Overdracht Y → A                                        |
-| `TSX`    | Overdrachtspunt naar stack → X                          |
-| `TXS`    | Overdracht X → Stackpointer                             |
-| `INX`    | Verhoog X                                               |
-| `DEX`    | Verminder X                                             |
-| `INY`    | Verhoog Y                                               |
-| `DEY`    | Verminder Y                                             |
+| Ezelsbruggetje | Beschrijving                                            |
+| -------------- | ------------------------------------------------------- |
+| Operande       | `count,value` — bijv. `256,0` vult 256 bytes met nullen |
+| `TAY`          | Overdracht A → Y                                        |
+| `TXA`          | Overdracht X → A                                        |
+| `TYA`          | Overdracht Y → A                                        |
+| `TSX`          | Overdrachtspunt naar stack → X                          |
+| `TXS`          | Overdracht X → Stackpointer                             |
+| `INX`          | Verhoog X                                               |
+| `DEX`          | Verminder X                                             |
+| `INY`          | Verhoog Y                                               |
+| `DEY`          | Verminder Y                                             |
 
 ### ALIGN
 
-| Veld  | Beschrijving                                                                   |
-| ----- | ------------------------------------------------------------------------------ |
-| Grens | Uitlijningswaarde — bijv. `64` (spritegrens), `256` (pagina), `$2000` (bitmap) |
-| `LSR` | Logische verschuiving naar rechts                                              |
-| `ROL` | Draai naar links door de Carry-functie                                         |
-| `ROR` | Draai naar rechts tijdens het dragen.                                          |
+| Ezelsbruggetje | Beschrijving                                                                   |
+| -------------- | ------------------------------------------------------------------------------ |
+| Grens          | Uitlijningswaarde — bijv. `64` (spritegrens), `256` (pagina), `$2000` (bitmap) |
+| `LSR`          | Logische verschuiving naar rechts                                              |
+| `ROL`          | Draai naar links door de Carry-functie                                         |
+| `ROR`          | Draai naar rechts tijdens het dragen.                                          |
 
 ### TEXT
 
-| Veld              | Beschrijving                                                    |
+| Ezelsbruggetje    | Beschrijving                                                    |
 | ----------------- | --------------------------------------------------------------- |
 | Tekst             | De weer te geven tekenreeks                                     |
 | X                 | Kolom (0–39)                                                    |
@@ -1701,7 +1729,7 @@ LBEQ voltooid; assembleert naar: BNE *+3 ($D0 $03)
 
 ### STRING
 
-| Veld                    | Beschrijving                                                                                            |
+| Ezelsbruggetje          | Beschrijving                                                                                            |
 | ----------------------- | ------------------------------------------------------------------------------------------------------- |
 | Tekst                   | De te schrijven tekenreeks                                                                              |
 | Adres                   | Doelgeheugenadres — `$C000` hex of een **labelnaam**                                                    |
@@ -1739,14 +1767,12 @@ ondersteuning voor breakpoints, geheugeninspectie en labelbewuste disassemblage.
 | --------- | ------------------------------------------------------- |
 | Labelnaam | Identificatiecode gebruikt in `JMP`, `JSR`, `BNE`, enz. |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 lus:
 ```
 
-**Starten:** Klik op **Debuggen (RetroDebugger)** in de werkbalk. De app zal:
+**Gegenereerde ASM:**
 ```
 lus: ; $0820
 ```
@@ -1763,14 +1789,12 @@ breakpoint in te stellen. Blokken met een breakpoint worden rood gemarkeerd. Hun
 adressen worden bij elke start van de debugger naar het breakpointbestand
 geschreven.
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 Uw reactietekst hier
 ```
 
-**Starten:** Klik op **Debuggen (RetroDebugger)** in de werkbalk. De app zal:
+**Gegenereerde ASM:**
 ```
 Uw reactietekst hier
 ```
@@ -1782,18 +1806,16 @@ Uw reactietekst hier
 Net als **DATA in BASIC** — slaat een lijst met onbewerkte byte-waarden direct
 in het programma op.
 
-| Veld       | Beschrijving |
-| ---------- | ------------ |
-| `-jmp` AAN | `-jmp $ADDR` |
+| Veld     | Beschrijving |
+| -------- | ------------ |
+| Operande | `-jmp $ADDR` |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .byte $01, $02, $FF
 ```
 
-**Starten:** Klik op **Debuggen (RetroDebugger)** in de werkbalk. De app zal:
+**Gegenereerde ASM:**
 ```
 .byte $01, $02, $FF
 ```
@@ -1821,18 +1843,16 @@ Net als **DATA in BASIC, maar dan voor 16-bits getallen **. Elke waarde wordt
 opgeslagen als twee bytes (eerst de lage byte, dan de hoge byte — 6502
 little-endian volgorde).
 
-| Veld       | Beschrijving                                                   |
-| ---------- | -------------------------------------------------------------- |
-| `-jmp` AAN | Door komma's gescheiden 16-bits waarden (bijv. `$0400, $C000`) |
+| Veld     | Beschrijving                                                   |
+| -------- | -------------------------------------------------------------- |
+| Operande | Door komma's gescheiden 16-bits waarden (bijv. `$0400, $C000`) |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .word $0400, $C000
 ```
 
-**Starten:** Klik op **Debuggen (RetroDebugger)** in de werkbalk. De app zal:
+**Gegenereerde ASM:**
 ```
 .word $0400, $C000
 ```
@@ -1847,18 +1867,16 @@ Zoals `FOR I=1 TO N : POKE addr+I, val : NEXT` — vult een geheugenblok met
 dezelfde byte, maar in één blok. Ideaal voor het wissen van gebieden of het
 vooraf vullen van tabellen.
 
-| Veld       | Beschrijving                                            |
-| ---------- | ------------------------------------------------------- |
-| `-jmp` AAN | `count,value` — bijv. `256,0` vult 256 bytes met nullen |
+| Veld     | Beschrijving                                            |
+| -------- | ------------------------------------------------------- |
+| Operande | `count,value` — bijv. `256,0` vult 256 bytes met nullen |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .fill 256, $00
 ```
 
-**Starten:** Klik op **Debuggen (RetroDebugger)** in de werkbalk. De app zal:
+**Gegenereerde ASM:**
 ```
 .fill 256, $00
 ```
@@ -1867,7 +1885,7 @@ bestand.
 expressies. Je kunt verwijzen naar CONST-namen, hexadecimale/binaire letterlijke
 waarden gebruiken en ingebouwde wiskundige functies aanroepen:
 
-| Uitdrukking                 | Notities                                               |
+| Uitdrukking                 | Betekenis                                              |
 | --------------------------- | ------------------------------------------------------ |
 | `TEGEL_AANTAL, $00`         | tellen vanaf een CONST, waarde hexadecimaal letterlijk |
 | `40*25, 0`                  | inline vermenigvuldiging                               |
@@ -1893,15 +1911,13 @@ een grens van 64 bytes — `ALIGN 64` regelt dat automatisch.
 | ----- | ------------------------------------------------------------------------------ |
 | Grens | Uitlijningswaarde — bijv. `64` (spritegrens), `256` (pagina), `$2000` (bitmap) |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .align 64
 .align $2000
 ```
 
-**Starten:** Klik op **Debuggen (RetroDebugger)** in de werkbalk. De app zal:
+**Gegenereerde ASM:**
 ```
 ; ALIGN 64 → $0840 (12 bytes opvulling)
 ```
@@ -1959,9 +1975,7 @@ STA $0401
 ...
 ```
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .text 0, 2, "HALLO" ; hoofdletters (standaard)
 .text 0, 2, "hallo", lower ; kleine letters
@@ -1986,9 +2000,7 @@ adressen kopiëren.
 | Verschuiving            | Hexadecimale waarde (00–FF) toegevoegd aan elke byte van de schermcode (bijv. `$80` = omgekeerde video) |
 | Kleine letters tekenset | Selectievakje — dezelfde betekenis als TEKST (zie het gedeelte TEKST)                                   |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .string $C000, "HALLO" ; hoofdletters (standaard)
 .string $C000, "hallo", lower ; kleine letters
@@ -1997,7 +2009,7 @@ bestand.
 .string $C000, "HALLO" :my_string ; met macroLabel
 ```
 
-**Starten:** Klik op **Debuggen (RetroDebugger)** in de werkbalk. De app zal:
+**Gegenereerde ASM:**
 ```
 LDA #$08 ; 'H' schermcode
 
@@ -2028,16 +2040,14 @@ geheugenadres tijdens de uitvoering, één LDA/STA-paar per byte.
 | Adres             | Doelgeheugenadres — `$C000` hex of een **labelnaam** |
 | Label (optioneel) | Kent een label toe dat verwijst naar het doeladres.  |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .data $C000, $01, $02, $03 ; hex-adres
 .data my_buf, $01, $02, $03 ; labeladres
 .data $C000, $01, $02, $03 :mydata ; met macroLabel
 ```
 
-**Starten:** Klik op **Debuggen (RetroDebugger)** in de werkbalk. De app zal:
+**Gegenereerde ASM:**
 ```
 LDA #$01
     STA $C000
@@ -2063,9 +2073,7 @@ opzoektabellen, alles wat gewoon op een specifiek adres moet staan.
 | Adres             | Doelgeheugenadres — `$C000` hex of een **labelnaam** |
 | Label (optioneel) | Kent een label toe dat verwijst naar het doeladres.  |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .rawbytes $C000, $00, $00, $00 ; hexadecimaal adres
 .rawbytes sprite_data, $00, $00 ; labeladres
@@ -2096,9 +2104,7 @@ geladen.
 | Verschuiving            | Hexadecimale waarde (00–FF) toegevoegd aan elke byte van de schermcode (bijv. `$80` = omgekeerde video) |
 | Kleine letters tekenset | Selectievakje — dezelfde betekenis als TEKST (zie het gedeelte TEKST)                                   |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .rawtext $C000, "HALLO" ; hoofdletters (standaard)
 .rawtext $C000, "hello", lower ; kleine letters
@@ -2107,7 +2113,7 @@ bestand.
 .rawtext $0400, "HALLO" :my_text ; met macroLabel
 ```
 
-**Starten:** Klik op **Debuggen (RetroDebugger)** in de werkbalk. De app zal:
+**Gegenereerde ASM:**
 ```
 ; .rawtext "HALLO" -&gt; $C000
 ; $C000
@@ -2156,9 +2162,7 @@ hetzelfde gedrag van het selectievakje voor kleine letters gebruikt.
 | **Hoofdletters (standaard, niet aangevinkt)** | `$41`–`$5A` (PETSCII hoofdletters via CHROUT)                                                                                                 | ook afgebeeld op `$41`–`$5A`       |
 | **Kleine letters (aangevinkt)**               | Alfabetische letters worden opnieuw toegewezen zodat de zichtbare hoofdlettergevoeligheid consistent blijft in de kleine/hoofdlettertekenset. | Dezelfde regel                     |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .petscii $C000, "HALLO" ; hoofdletters PETSCII (standaard)
 .petscii $C000, "hallo", lower ; kleine letters PETSCII ($61–$7A)
@@ -2225,15 +2229,13 @@ te wijzigen.
 | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Modus | **Kleine letters** — schakelt de tekenset voor kleine/hoofdletters in; **Hoofdletters** — herstelt de standaard tekenset voor hoofdletters/afbeeldingen |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .charset lower; schakel over naar de tekenset voor kleine letters
 .charset upper; schakel terug naar de tekenset voor hoofdletters/afbeeldingen
 ```
 
-**Starten:** Klik op **Debuggen (RetroDebugger)** in de werkbalk. De app zal:
+**Gegenereerde ASM:**
 
 Kleine lettermodus:
 ```
@@ -2300,9 +2302,7 @@ tijdens de uitvoering — er is geen voorafgaand label of `ORG` nodig.
 | Tekenindex    | Welke tekenpositie moet opnieuw worden gedefinieerd, 0–255. `65` = 'A' in de standaard schermcode-indeling.              |
 | 8 bytes       | Door komma's gescheiden bitmaprijen, van boven naar beneden. Bit 7 van elke byte komt overeen met de meest linkse pixel. |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .chardef $3800, 65, $18,$3C,$66,$7E,$66,$66,$66,$00
 ```
@@ -2388,9 +2388,7 @@ geen subroutine-aanroep.
 | `+2`   | Rechts    |
 | `+3`   | Onderkant |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .box_hit $FB, $F7
 ```
@@ -2501,9 +2499,7 @@ u opgeeft.
 | Bestand | Blader om een `.bin`, `.prg`, `.sid` of `.raw` bestand te selecteren. |
 | Adres   | Doellaadadres (bijv. `$C000`)                                         |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .incbin "music.bin", $C000
 ```
@@ -2541,9 +2537,7 @@ en schakelt de meerkleurige bitmapmodus in (`$D011 = $3B`, `$D016 = $18`, `$D018
 onder het BASIC/KERNAL-ROM (de kopieerlus zou ROM lezen) of overlappen de
 karakter-ROM-schaduw.
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .koala "foto.koa"
 .koala "foto.koa", $ 2000
@@ -2581,15 +2575,13 @@ scherm (1000 schermcodes + 1000 kleuren). Identieke schermen worden één keer
 opgeslagen en alle lege slots delen één leeg scherm. De pointertabellen volgen
 de schermen. Een level kan maximaal 7 × 10 schermen bevatten.
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .level "level.bin"
 .level "level.bin", $4000
 ```
 
-| Gedefinieerd                                             | Notities                                                                                   |
+| Gedefinieerd                                             | Betekenis                                                                                  |
 | -------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
 | `LEVEL_SLOT_LO` / `LEVEL_SLOT_HI`                        | Adres van het scherm in elk slot (rij-georiënteerd, `LEVEL_W` slots per rij)               |
 | `NIVEAU_RIJ_SLOT`                                        | Niveaukarakterrij → eerste positie van de bijbehorende schermrij                           |
@@ -2615,9 +2607,7 @@ over twee schermen uitstrekt, wordt verwerkt met een zelfmodificerende
 kopieerlus (~14 cycli per byte). X wordt behouden, A en Y worden vernietigd.
 Vereist een `.level`-blok in het programma.
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .level_row dst_lo, view_x
 .level_row dst_lo, view_x, color
@@ -2650,9 +2640,7 @@ Het blok toont:
 - Een **(verplaatst)**-badge verschijnt wanneer een aangepast adres de gegevens
   verschuift ten opzichte van hun oorspronkelijke positie.
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .sid "Ikari_Warriors.sid"
 .sid "Ikari_Warriors.sid", $1000
@@ -2748,14 +2736,12 @@ inhoud van de tabel te definiëren.
 | Naam  | Label-identificatie voor de tabel (bijv. `color_table`) |
 | Adres | Vast adres waar de tabel begint (bijv. `$C000`)         |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .table color_table, $C000
 ```
 
-**Starten:** Klik op **Debuggen (RetroDebugger)** in de werkbalk. De app zal:
+**Gegenereerde ASM:**
 ```
 kleurentabel:
 ```
@@ -2779,14 +2765,12 @@ standaard startlocatie voor C64 BASIC is `$0801`.
 | Adres     | Het nieuwe oorsprongsadres (bijv. `0801` in hexadecimaal, of `2049` in decimaal) |
 | HEX / DEC | Schakel de adresinvoer tussen hexadecimale en decimale weergave.                 |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 * = $C000
 ```
 
-**Starten:** Klik op **Debuggen (RetroDebugger)** in de werkbalk. De app zal:
+**Gegenereerde ASM:**
 ```
 * = $C000
 ```
@@ -2841,14 +2825,12 @@ ertussen en NEXT, en de lus herhaalt zich automatisch het juiste aantal keren.
 | Graaf    | Aantal iteraties van de lus (hexadecimaal of decimaal, bijv. `0A` = 10) |
 | Label    | Automatisch gegenereerd luslabel (bijv. `loop0`)                        |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .loop X, 10, loop0
 ```
 
-**Starten:** Klik op **Debuggen (RetroDebugger)** in de werkbalk. De app zal:
+**Gegenereerde ASM:**
 ```
 LDX #$0A
 loop0:
@@ -2863,14 +2845,12 @@ loop0:
 | Register | Automatisch gekoppeld aan het LOOP-register |
 | Label    | Automatisch gekoppeld aan het LOOP-label    |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .volgende lus0
 ```
 
-**Starten:** Klik op **Debuggen (RetroDebugger)** in de werkbalk. De app zal:
+**Gegenereerde ASM:**
 ```
 DEX
 
@@ -2909,14 +2889,12 @@ of een array te stappen.
 | Graaf    | Luslimiet (hexadecimaal of decimaal, bijv. `$12` = 18). X/Y loopt van 0 tot limiet-1. |
 | Label    | Automatisch gegenereerd luslabel (bijv. `for0`)                                       |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .voor X, $12, voor0
 ```
 
-**Starten:** Klik op **Debuggen (RetroDebugger)** in de werkbalk. De app zal:
+**Gegenereerde ASM:**
 ```
 LDX #$00
 voor0:
@@ -2932,14 +2910,12 @@ voor0:
 | Label    | Automatisch gekoppeld aan het FOR-label      |
 | Graaf    | Automatisch gekopieerd van de gekoppelde FOR |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .endf voor0
 ```
 
-**Starten:** Klik op **Debuggen (RetroDebugger)** in de werkbalk. De app zal:
+**Gegenereerde ASM:**
 ```
 INX
 
@@ -2993,9 +2969,7 @@ Plaatst een of meer registers op de stack. De volgorde is altijd A → X → Y
 | --------- | ------------------------------------------------------- |
 | Registers | Elke combinatie: `A`, `X`, `Y`, `AX`, `AY`, `XY`, `AXY` |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .push AXY
 ```
@@ -3019,9 +2993,7 @@ Herstelt registers van de stack in **omgekeerde volgorde** (Y → X → A).
 | --------- | ------------------------------------------------------------------------- |
 | Registers | Hetzelfde als PUSH — moet overeenkomen met het corresponderende PUSH-blok |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .pull AXY
 ```
@@ -3047,14 +3019,12 @@ Net als **RTS met een vriendelijkere macronaam ** — `.end` genereert een enkel
 `RTS` byte en gedraagt zich als een korte subroutine-terminator in de
 expertmodus.
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .einde
 ```
 
-**Starten:** Klik op **Debuggen (RetroDebugger)** in de werkbalk. De app zal:
+**Gegenereerde ASM:**
 ```
 RTS
 ```
@@ -3084,7 +3054,7 @@ Markeer het begin van een macrodefinitie. Blokken tussen MACRO en ENDM vormen de
 body van de macro — ze genereren geen code waar de definitie zich bevindt.
 Gebruik {paramName} als placeholder voor argumenten.
 
-**Starten:** Klik op **Debuggen (RetroDebugger)** in de werkbalk. De app zal:
+**Gegenereerde ASM:**
 ```
 ; .MACRO setColor (kleur)
 
@@ -3116,7 +3086,7 @@ argumentwaarden door de placeholders `{paramName}` in de body.
 | Macronaam  | Selecteer een macro uit het keuzemenu.                                                                     |
 | Argumenten | Door komma's gescheiden argumentwaarden die overeenkomen met de parameterlijst van de macro (bijv. `#$07`) |
 
-**Starten:** Klik op **Debuggen (RetroDebugger)** in de werkbalk. De app zal:
+**Gegenereerde ASM:**
 ```
 ; .roep setColor aan (#$07)
     LDA#$07
@@ -3168,9 +3138,7 @@ blok, zodat je het kunt inklappen en je op iets anders kunt concentreren.
 | --------- | --------------------------------------------------------------------------- |
 | Regionaam | Vrije tekstlabel voor de sectie (bijv. `init`, `game_loop`, `sprite_setup`) |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .region init
 
@@ -3194,7 +3162,7 @@ bestand.
   na de ENDREGION van de huidige regio en scrollt ernaartoe. De knop is gedimd
   totdat een regio is gekopieerd.
 
-**Starten:** Klik op **Debuggen (RetroDebugger)** in de werkbalk. De app zal:
+**Gegenereerde ASM:**
 ```
 ; regio init
     SEI
@@ -3230,14 +3198,12 @@ nodig om code te verwijderen voor release-builds.
 | ------- | --------------------------------------------------------------------------------------------------- |
 | Symbool | Een of meer door komma's gescheiden identificatoren om te activeren (bijv. `DEBUG` of `DEBUG, PAL`) |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .define DEBUG, PAL
 ```
 
-**Starten:** Klik op **Debuggen (RetroDebugger)** in de werkbalk. De app zal:
+**Gegenereerde ASM:**
 ```
 ; .DEFINE DEBUG
 ; .DEFINE DEBUG, PAL
@@ -3253,14 +3219,12 @@ blok deactiveert alle symbolen direct.
 | ---------- | --------------------------------------------------------------------------------------------- |
 | Voorwaarde | Identificatiecode om te testen (moet overeenkomen met een `DEFINE`-symbool om actief te zijn) |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .if DEBUG
 ```
 
-**Starten:** Klik op **Debuggen (RetroDebugger)** in de werkbalk. De app zal:
+**Gegenereerde ASM:**
 ```
 ; .ALS DEBUG
 ```
@@ -3275,14 +3239,12 @@ commentaren en genereren **nul bytes**.
 Geen velden. Markeer de alternatieve tak — samengesteld wanneer de `IF`-conditie
 *not* actief is.
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .anders
 ```
 
-**Starten:** Klik op **Debuggen (RetroDebugger)** in de werkbalk. De app zal:
+**Gegenereerde ASM:**
 ```
 ; ANDERS
 ```
@@ -3291,14 +3253,12 @@ bestand.
 
 Geen velden. Sluit het voorwaardelijke blok.
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .endif
 ```
 
-**Starten:** Klik op **Debuggen (RetroDebugger)** in de werkbalk. De app zal:
+**Gegenereerde ASM:**
 ```
 ; .ENDIF
 ```
@@ -3354,9 +3314,7 @@ met een duidelijke foutmelding die de werkelijke waarde bevat. Als deze waar is
 | Uitdrukking | Elke assembler-expressie: labels, `CONST`s, `*` (programmateller), rekenkundige bewerkingen en vergelijkingen (`&lt;`, `&lt;=`, `&gt;`, `&gt;=`, `==`, `!=`) |
 | Bericht     | Optionele tekst die aan de foutmelding kan worden toegevoegd                                                                                                 |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .assert spriteData &lt; $C000
 .assert * &lt; $A000
@@ -3402,15 +3360,13 @@ gemakkelijker te lezen en te wijzigen is.
 | Waarde  | Numerieke waarde in de geselecteerde basis (bijv. `0400` in HEX = adres $0400), of een PC-relatieve expressie (zie hieronder) |
 | Formaat | HEX of DEC — bepaalt hoe de waarde wordt ingevoerd en weergegeven.                                                            |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .const SCREEN = $0400
 .const FRAMES_1S = 60
 ```
 
-**Starten:** Klik op **Debuggen (RetroDebugger)** in de werkbalk. De app zal:
+**Gegenereerde ASM:**
 ```
 ; .CONST SCREEN = $0400
 ```
@@ -3471,9 +3427,7 @@ thuishoort.
 | Naam             | Variabelenaam / label                                         |
 | Maat (optioneel) | Aantal te reserveren bytes. Laat dit getal weg voor één byte. |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .var-teller
 .var-timer, 2
@@ -3491,7 +3445,7 @@ LDA#$00
 STA-teller
 ```
 
-**Starten:** Klik op **Debuggen (RetroDebugger)** in de werkbalk. De app zal:
+**Gegenereerde ASM:**
 ```
 ; .var teller
 ```
@@ -3516,9 +3470,7 @@ genereert de juiste `CMP` / `CPX` / `CPY` + branchsequentie voor u.
 | Operator | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
 | Waarde   | Directe waarde in HEX- of DEC-formaat        |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 Als A == #$10
 
@@ -3548,9 +3500,7 @@ zolang de voorwaarde waar blijft.
 | Operator | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
 | Waarde   | Directe waarde in HEX- of DEC-formaat        |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .while A != #$00
 
@@ -3577,9 +3527,7 @@ Zoals **een runtime-lus met een test onderaan** — de body wordt altijd minsten
 | Operator | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
 | Waarde   | Directe waarde in HEX- of DEC-formaat        |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .herhaal
 
@@ -3604,9 +3552,7 @@ kopieert een aaneengesloten blok, `MEMSET` vult een bereik met één byte.
 | `MEMCPY` | `src`, `dst`, `size`    |
 | `MEMSET` | `addr`, `value`, `size` |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .memcpy src=$C000, dst=$D000, size=$0100
 .memset addr=$0400, value=#$20, size=$03E8
@@ -3629,9 +3575,7 @@ Net als **PETSCII-uitvoer zonder de boilerplate** — print een tekenreeks via
 PETSCII-blok. Het selectievakje voor kleine letters wordt gedeeld met de
 PETSCII-encoder, zodat het tekstpad consistent blijft.
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .print "HALLO"
 .print "hallo", lower
@@ -3643,9 +3587,7 @@ Print één PETSCII-byte met behulp van een numerieke code en verzendt deze via
 `CHROUT`. De waarde kan ook een benoemde constante of label zijn die tijdens het
 assembleren wordt omgezet in een byte, zowel in blokmodus als in expertmodus.
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .print_char 65
 .print_char $41
@@ -3657,9 +3599,7 @@ bestand.
 Drukt een 8-bits waarde af als hexadecimale tekst via het normale
 KERNAL-uitvoerpad.
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .print_hex A
 ```
@@ -3668,9 +3608,7 @@ bestand.
 
 Sneltoets voor de standaard C64-code om het scherm te wissen.
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .clear_screen
 ```
@@ -3680,9 +3618,7 @@ bestand.
 Wacht tot er een toets wordt ingedrukt, zodat je de `GETIN`-lus niet elke keer
 handmatig hoeft te genereren.
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .wacht_sleutel
 ```
@@ -3694,9 +3630,7 @@ voor korte pauzes en timingproblemen wanneer een volledige, op maat gemaakte lus
 overbodig zou zijn. Het aantal frames kan een ruw getal zijn of een benoemde
 constante, en `.wait` is gewoon een alias van `.delay`.
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .vertraging 29
 .wacht 29
@@ -3713,9 +3647,7 @@ Handige wrappers voor de VIC-II-kleurregisters. De kleurwaarde kan een ruw getal
 zijn of een benoemde constante die wordt opgelost naar 0-15. Zowel de blokmodus
 als de expertmodus accepteren hier symbolische constante namen.
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .set_border 6
 .set_bg 0
@@ -3743,9 +3675,7 @@ CIA-IRQ-bronnen uit en keert terug naar de normale uitvoering met `CLI`.
 | Handler | IRQ-routinelabel (bijv. `my_irq`)                    |
 | Raster  | Rasterlijn in hexadecimaal of decimaal (bijv. `$FA`) |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .irq_setup handler=my_irq, raster=$FA
 ```
@@ -3767,9 +3697,7 @@ pseudo-willekeurige waarde uit een compacte seed van nul pagina's.
 | ---- | ---------------------------------------------------------------- |
 | Zaad | Optionele seed-byte of label voor de nulpagina (standaard `$FB`) |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .rand
 ```
@@ -3796,16 +3724,14 @@ meerkleurenmodus wordt optioneel geactiveerd en de kleur wordt ingesteld.
 | Gegevenspagina | Sprite-dataadres / 64 (bijv. `$21` als de data zich bevindt op `$0840`) |
 | Veelkleurig    | Schakelt de meerkleurige bit van de sprite in of uit (`$D01C`)          |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .sprite_init 0, 7, $21
 .sprite_init 0, 7, $21, multicolor
 .sprite_init 0, 7, $21, mono
 ```
 
-**Starten:** Klik op **Debuggen (RetroDebugger)** in de werkbalk. De app zal:
+**Gegenereerde ASM:**
 ```
 LDA #$21
 
@@ -3849,9 +3775,7 @@ rechtstreeks op het sprite-register gebruiken.
 | X        | Horizontale positie 0–319 |
 | Y        | Verticale positie 0–255   |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .sprite_pos 0, 152, 100
 ```
@@ -3895,14 +3819,12 @@ gameloop om sprite tearing te voorkomen. Geen JSR, geen label nodig.
 | ---------- | -------------------------------------------------------------- |
 | Rasterlijn | Doelrasterlijn in hexadecimale notatie (bijv. `FF` = lijn 255) |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .wait_raster $FF
 ```
 
-**Starten:** Klik op **Debuggen (RetroDebugger)** in de werkbalk. De app zal:
+**Gegenereerde ASM:**
 ```
 wacht:
 
@@ -3933,9 +3855,7 @@ aan. Volledig inline, geen JSR nodig.
 | Haven    | `1` = poort 1 (`$DC01`) of `2` = poort 2 (`$DC00`)                |
 | Sprite # | Spritenummer 0–7 (bepaalt welk X/Y-registerpaar wordt bijgewerkt) |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .joystick 2, 0
 ```
@@ -4194,9 +4114,7 @@ achtergrond heeft geraakt. Volledig inline, geen JSR nodig.
 | Sprite #     | Spritenummer 0–7 (welke bit van de sprite moet worden gecontroleerd)                                                        |
 | Botsingstype | `Sprite-Sprite ($D01E)` — botsing met een andere sprite; `Sprite-Achtergrond ($D01F)` — botsing met achtergrondafbeeldingen |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .sprite_col 0, sprite
 .sprite_col 0, achtergrond
@@ -4261,9 +4179,7 @@ draait.
 | Adres overschrijven (optioneel) | Hexadecimaal laadadres (bijv. `C000`). Indien ingesteld, wordt het bestand naar dit adres geladen (`sec=0`, waarbij de PRG-header wordt genegeerd). Laat leeg om de eigen 2-byte PRG-header van het bestand te gebruiken (`sec=1`). |
 | Foutlabel (optioneel)           | Indien ingesteld, wordt na JSR LOAD een `BCS`-instructie gegenereerd. Als de KERNAL terugkeert met een ingestelde carry (fout), springt de uitvoering naar dit label.                                                               |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .loadfile "DEMO-COLORS", 8
 .loadfile "DEMO-COLORS", 8, $C000
@@ -4328,9 +4244,7 @@ ingebed.
 | ---------------------- | ---------------------------------------------------------------------------------------------------------------- |
 | Adres van de uitpakker | Waar de depacker-code zich in het geheugen bevindt (standaard `B000`). Moet een 16-bits hexadecimaal adres zijn. |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .exodecrunch
 .exodecrunch depacker=$B000
@@ -4428,9 +4342,7 @@ klaar:
 > De macro normaliseert het resultaat zodat de volgende tak eenvoudig blijft:
 > `BNE` betekent dat REU aanwezig is, `BEQ` betekent dat REU ontbreekt.
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .reu_check
 ```
@@ -4473,9 +4385,7 @@ bytes is vrijwel direct.
 | REU-bank  | REU-geheugenbank (0–7)                    | `0`       |
 | Lengte    | Aantal over te dragen bytes (hex, 16-bit) | `1000`    |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .reu_stash $C000, $0000, 0, $1000
 .reu_fetch $C000, $0000, 0, $1000
@@ -4552,9 +4462,7 @@ C9 FF CMP #$FF
 
 **Geen configureerbare velden.**
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .supercpu_detect
 ```
@@ -4824,9 +4732,7 @@ carry-veilige BCD-rekenkunde — handmatig manipuleren van de carry is niet nodi
 | Punten toevoegen | Decimale waarde die per oproep moet worden toegevoegd (bijv. `100`).                                                     |
 | Schermadres      | Waar moeten de schermcodes voor de cijfers worden geschreven (bijv. `0400`)? Eén byte per cijfer (hoogste nibble eerst). |
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Expert syntax:**
 ```
 .score_bcd $C200, 4, 100, $0400
 ```
@@ -4950,7 +4856,7 @@ geschreven.
 
 ### Foutopsporingsvlaggen (tabblad Opties)
 
-| Voorbeeld             | Vlag              | Effect                                                                    |
+| Schakelaar            | Vlag              | Effect                                                                    |
 | --------------------- | ----------------- | ------------------------------------------------------------------------- |
 | `-jmp` AAN            | `-jmp $ADDR`      | Spring na het laden direct naar het startadres van het programma.         |
 | `-pauze opheffen` AAN | `-pauze opheffen` | De debugger direct hervatten bij het laden                                |
@@ -5226,21 +5132,20 @@ naar D64**-optie.
 | Functie         | Beschrijving                                                                                                   |
 | --------------- | -------------------------------------------------------------------------------------------------------------- |
 | Modusschakelaar | **Multicolor** selectievakje schakelt tussen hoge resolutie (mono per cel) en meerkleurig (4 kleuren per cel). |
-| Hulpmiddelen    | Potlood, gum, lijn, rechthoek, gevulde rechthoek, ovaal, gevuld ovaal, vlakvulling.                            |
+| **Status**      | Geeft aan of het uitvoerbare pad geldig en toegankelijk is.                                                    |
 
 Bitmap-editor op pixelniveau met zowel een hoge resolutie van 320×200 als een
 meerkleurige modus van 160×200. Openen via Toolkit → Hi-Res Editor.
 
 ### Sprite-editor
 
-| Functie      | Beschrijving                                                                                   |
-| ------------ | ---------------------------------------------------------------------------------------------- |
-| Lijsten      | Lijsten toevoegen/verwijderen/de volgorde wijzigen; de lijststrook wordt onderaan weergegeven. |
-| Modus        | Schakelaar voor monochroom/meerkleurig.                                                        |
-| Hulpmiddelen | Potlood, gum, lijn, rechthoek, gevulde rechthoek, ovaal, gevuld ovaal, vlakvulling.            |
+| Functie    | Beschrijving                                                                                   |
+| ---------- | ---------------------------------------------------------------------------------------------- |
+| Lijsten    | Lijsten toevoegen/verwijderen/de volgorde wijzigen; de lijststrook wordt onderaan weergegeven. |
+| Modus      | Schakelaar voor monochroom/meerkleurig.                                                        |
+| **Status** | Geeft aan of het uitvoerbare pad geldig en toegankelijk is.                                    |
 
-Sprite-editor van 24x21 pixels met animatie over meerdere frames. Openen via
-Toolkit → Sprite-editor.
+**Werkstroom:**
 1. Installeer het Exomizer-programma:
    - **Windows:** download de vooraf gecompileerde `win32/exomizer.exe` van
      https://bitbucket.org/magli143/exomizer/wiki/Home of
@@ -5278,7 +5183,7 @@ vanuit de Tauri-backend; niets aan de integratie is platformspecifiek.
 | Functie        | Beschrijving                                                                                                                                                                                                                                                   |
 | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Twee tekensets | Tabblad 1: **Set 1 — Boven/Grafisch** (standaardmodus na inschakelen). Tabblad 2: **Set 2 — Onder/Boven** (na `$0E` schakelaar).                                                                                                                               |
-| Hulpmiddelen   | Een raster van 16x16 pixels met alle 256 tekens. Klik op een glyph om het detailvenster te bekijken: een ingezoomde weergave van 8x8 pixels, de schermcode (decimaal + hexadecimaal), PETSCII-codes (zowel standaard als verschoven) en de ruwe 8-byte bitmap. |
+| **Status**     | Een raster van 16x16 pixels met alle 256 tekens. Klik op een glyph om het detailvenster te bekijken: een ingezoomde weergave van 8x8 pixels, de schermcode (decimaal + hexadecimaal), PETSCII-codes (zowel standaard als verschoven) en de ruwe 8-byte bitmap. |
 
 Alleen-lezen viewer van het C64-teken-ROM (het ingebouwde PETSCII-lettertype).
 Openen via de **C64 chargen**-optie in het Toolkit-menu. Handig om de schermcode
@@ -5295,8 +5200,7 @@ Teksteditor.
 | Laad `.bin`                 | Importeert een extern binair bestand met een tekenset van 2048 bytes.                        |
 | Voorbeeldweergave per teken | Een raster van 16 vakjes breed met alle 256 glyphs, waarbij het huidige vakje is gemarkeerd. |
 
-Sprite-editor van 24x21 pixels met animatie over meerdere frames. Openen via
-Toolkit → Sprite-editor.
+**Werkstroom:**
 1. Sluit de 1541 Ultimate / Ultimate 64 aan op uw lokale netwerk.
 2. Voer het IP-adres (en het wachtwoord, indien ingesteld) in bij de
    hardware-instellingen.
@@ -5331,8 +5235,7 @@ gebruikt.
 | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Mono / meerkleurig | In de monochrome modus worden 1-bits 8×8-glyphs opgeslagen. In de meerkleurige modus worden horizontale pixelparen van twee bits opgeslagen en worden gebruikte cellen gemarkeerd met bit 3 van het kleuren-RAM. |
 
-Sprite-editor van 24x21 pixels met animatie over meerdere frames. Openen via
-Toolkit → Sprite-editor.
+**Werkstroom:**
 1. Plaats de Kung Fu Flash 2 in de cartridgepoort van de C64, zet de computer
    aan en sluit de USB-kabel aan op je pc/Mac.
 2. Open **Hardware-instellingen** en controleer het gedeelte **Kung Fu Flash 2**
@@ -5383,34 +5286,38 @@ het de volgende keer wordt geopend.
 Bitmap-editor op pixelniveau met zowel een hoge resolutie van 320×200 als een
 meerkleurige modus van 160×200. Openen via Toolkit → Hi-Res Editor.
 
-| Functie                       | Beschrijving                                                                                                                          |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| Modusschakelaar               | **Multicolor** selectievakje schakelt tussen hoge resolutie (mono per cel) en meerkleurig (4 kleuren per cel).                        |
-| Hulpmiddelen                  | Potlood, gum, lijn, rechthoek, gevulde rechthoek, ovaal, gevuld ovaal, vlakvulling.                                                   |
-| Spuitgereedschap              | Een airbrush-achtig tekenprogramma dat tijdens het tekenen pixels rond de cursor verspreidt.                                          |
-| Spuitintensiteit              | Met het keuzemenu naast het spuitgereedschap kunt u de dichtheid van elke spuitbeweging aanpassen.                                    |
-| Kleurenpalet                  | Voorgrond (inkt) + papier (achtergrond) selectieknoppen. Meerkleurenmodus houdt automatisch 3 extra's per cel bij.                    |
-| Ongedaan maken / Opnieuw doen | Geschiedenis per beroerte, ctrl-Z / ctrl-Y.                                                                                           |
-| Raster + Raster               | Optioneel 8×8 raster en rasterrij-overlay voor celuitlijning.                                                                         |
-| Afbeelding importeren         | PNG/JPEG/GIF-bestanden die op het canvas worden geplaatst, worden automatisch gequantiseerd naar het 16-kleuren C64-palet.            |
-| Exporteer blokken             | Voegt BYTE/RAWBYTES-blokken met de gecodeerde bitmap-, scherm- en kleurgegevens toe aan het programma.                                |
-| Exporteer `.bin`              | Slaat het oorspronkelijke meerkleurige formaat (10000 bytes: 8000 bitmap + 1000 scherm + 1000 kleur) klaar voor LOADFILE op in $2000. |
+| Functie                       | Beschrijving                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Modusschakelaar               | **Multicolor** selectievakje schakelt tussen hoge resolutie (mono per cel) en meerkleurig (4 kleuren per cel).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| Hulpmiddelen                  | Potlood, gum, lijn, rechthoek, gevulde rechthoek, ovaal, gevuld ovaal, vlakken, selecteren.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Spuitgereedschap              | Een airbrush-achtig tekenprogramma dat tijdens het tekenen pixels rond de cursor verspreidt.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Spuitintensiteit              | Met het keuzemenu naast het spuitgereedschap kunt u de dichtheid van elke spuitbeweging aanpassen.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Kleurenpalet                  | Voorgrond (inkt) + papier (achtergrond) selectieknoppen. Meerkleurenmodus houdt automatisch 3 extra's per cel bij.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Ongedaan maken / Opnieuw doen | Geschiedenis per beroerte, ctrl-Z / ctrl-Y.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Select                        | Het gereedschap met gestippelde vierkanten: sleep over het canvas om een rechthoekig gebied te markeren. **Esc** wist de selectie.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Kopiëren / Plakken            | **Kopiëren** (`Ctrl/Cmd+C`) kopieert het geselecteerde gebied. **Plakken** (`Ctrl/Cmd+V`) toont een voorbeeld dat de cursor volgt: klik op het canvas om het te plaatsen, **Esc** annuleert. De kopie blijft behouden, dus door op `Ctrl/Cmd+V` te drukken en opnieuw te klikken, kunt u het zo vaak als nodig plaatsen. In de hoge-resolutiemodus volgen geplakte pixels nog steeds de limiet van twee kleuren per cel, dus lijn het gebied uit met het celraster om de kleuren te behouden. Kopiëren, Plakken en Transparant plakken zijn ook beschikbaar in het rechtermuisklikmenu van het canvas; een plakactie die daar wordt gestart, toont een voorbeeld op de aangeklikte plek. |
+| Transparante pasta            | `Ctrl/Cmd+Shift+V` (of de bijbehorende knop in de werkbalk) slaat de papierkleurige pixels van de kopie over, zodat de afbeelding eronder zichtbaar wordt.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Raster + Raster               | **Grid** toont het raster van de tekencellen: 8×8 pixels in hoge resolutie, 4×8 dubbelbrede pixels in meerkleurig. Bij 4× zoom wordt er ook een dunnere lijn rond elke pixel getekend, zodat elke pixel precies geplaatst kan worden. **Raster** voegt een rasterrij-overlay toe.                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Zoom                          | Schuifregelaar van 1× tot 16×.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| Afbeelding importeren         | PNG/JPEG/GIF-bestanden die op het canvas worden geplaatst, worden automatisch gequantiseerd naar het 16-kleuren C64-palet.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Exporteer blokken             | Voegt BYTE/RAWBYTES-blokken met de gecodeerde bitmap-, scherm- en kleurgegevens toe aan het programma.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Exporteer `.bin`              | Slaat het oorspronkelijke meerkleurige formaat (10000 bytes: 8000 bitmap + 1000 scherm + 1000 kleur) klaar voor LOADFILE op in $2000.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 
 ### Sprite-editor
 
 Sprite-editor van 24x21 pixels met animatie over meerdere frames. Openen via
 Toolkit → Sprite-editor.
 
-| Functie                            | Beschrijving                                                                                                                                                                                                                                                 |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Lijsten                            | Lijsten toevoegen/verwijderen/de volgorde wijzigen; de lijststrook wordt onderaan weergegeven.                                                                                                                                                               |
-| Modus                              | Schakelaar voor monochroom/meerkleurig.                                                                                                                                                                                                                      |
-| Hulpmiddelen                       | Potlood, vulling, lijn, rechthoek, cirkel — plus horizontaal spiegelen, verticaal spiegelen, links/rechts/boven/onder verschuiven (met optionele tekstterugloop). Vormgereedschappen tonen een live voorbeeld tijdens het slepen; laat los om te bevestigen. |
-| Ongedaan maken / opnieuw uitvoeren | Volledige stapel met ongedaan maken/herstellen per frame. Ctrl/Cmd+Z / Ctrl/Cmd+Y of de knoppen in de werkbalk.                                                                                                                                              |
-| Afbeelding importeren              | Importeer een PNG- of JPEG-bestand via Bestand → Afbeelding importeren. De importeerfunctie koppelt elke pixel aan de dichtstbijzijnde kleur uit het C64-palet en schrijft deze naar het huidige frame.                                                      |
-| Animatievoorbeeld                  | Afspelen/stoppen met instelbare snelheid.                                                                                                                                                                                                                    |
-| Exporteer blokken                  | Voegt voor elk frame een RAWBYTES-blok in op een adres dat is uitgelijnd met 64 bytes, plus een instelling voor een spritepointer.                                                                                                                           |
-| Sla `.bin` op                      | Schrijft 64 bytes per frame (ruwe spritegegevens zonder opvulling).                                                                                                                                                                                          |
+| Functie                            | Beschrijving                                                                                                                                                                                                                                                                    |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Lijsten                            | Kaders toevoegen/verwijderen/de volgorde wijzigen; de kaderstrook wordt onderaan weergegeven. **Kopiëren** / **Plakken** in de kaderrij kopieert het hele huidige kader; dezelfde twee opties zijn beschikbaar in het rechtermuisklikmenu van het canvas en van de kaderstrook. |
+| Modus                              | Schakelaar voor monochroom/meerkleurig.                                                                                                                                                                                                                                         |
+| Hulpmiddelen                       | Potlood, vulling, lijn, rechthoek, cirkel — plus horizontaal spiegelen, verticaal spiegelen, links/rechts/boven/onder verschuiven (met optionele tekstterugloop). Vormgereedschappen tonen een live voorbeeld tijdens het slepen; laat los om te bevestigen.                    |
+| Ongedaan maken / opnieuw uitvoeren | Volledige stapel met ongedaan maken/herstellen per frame. Ctrl/Cmd+Z / Ctrl/Cmd+Y of de knoppen in de werkbalk.                                                                                                                                                                 |
+| Afbeelding importeren              | Importeer een PNG- of JPEG-bestand via Bestand → Afbeelding importeren. De importeerfunctie koppelt elke pixel aan de dichtstbijzijnde kleur uit het C64-palet en schrijft deze naar het huidige frame.                                                                         |
+| Animatievoorbeeld                  | Afspelen/stoppen met instelbare snelheid.                                                                                                                                                                                                                                       |
+| Exporteer blokken                  | Voegt voor elk frame een RAWBYTES-blok in op een adres dat is uitgelijnd met 64 bytes, plus een instelling voor een spritepointer.                                                                                                                                              |
+| Sla `.bin` op                      | Schrijft 64 bytes per frame (ruwe spritegegevens zonder opvulling).                                                                                                                                                                                                             |
 
 ### C64 Character ROM Browser ("Char map")
 
@@ -5479,7 +5386,7 @@ botsingsgegevens en dergelijke. Openen via Toolkit → Kaarteditor.
 | Ongedaan maken / opnieuw uitvoeren               | Volledige stapel met ongedaan maken/herstellen per laag. Ctrl/Cmd+Z / Ctrl/Cmd+Y of de knoppen in de werkbalk.                                                                                                                                                                             |
 | Menu wissen                                      | Kaart per laag of hele kaart wissen met bevestiging.                                                                                                                                                                                                                                       |
 | Afbeelding importeren                            | Sleep een PNG-bestand van een tegelkaart naar de editor; deze verdeelt de kaart automatisch in tegels.                                                                                                                                                                                     |
-| Kopiëren/plakken                                 | Kopieer een geselecteerd tegelgebied en plak het vervolgens op de normale manier, of gebruik transparante plakoptie om lege tegels transparant te houden.                                                                                                                                  |
+| Kopiëren/plakken                                 | Kopieer een geselecteerd tegelgebied en plak het vervolgens normaal of gebruik transparant plakken om lege tegels transparant te houden. Dezelfde opties zijn te vinden in het rechtermuisklikmenu van het canvas.                                                                         |
 | Tegelkleuring met aandacht voor meerdere kleuren | Bij gebruik van compatibele tekensetmetadata gebruikt het tekenproces de standaardwaarden van het opgeslagen Color RAM-geheugen van de tegel (inclusief meerkleurige codering) in plaats van een generieke effen kleur.                                                                    |
 | Aangepaste tekensetkleuren                       | Wanneer een tekenset `charColors`-metadata bevat, gebruikt de kaarteditor de standaardkleur-RAM-waarde van de geselecteerde tegel tijdens het tekenen.                                                                                                                                     |
 | Exporteer blokken                                | Genereert RAWBYTES-blokken voor tegelsetafbeeldingen en kaartgegevens.                                                                                                                                                                                                                     |
@@ -5742,7 +5649,8 @@ Zie `samples/curve-new-demo.asm` voor een werkend 16-bits sprite-X-voorbeeld.
 
 Een kleine **niet-modale** DEC/HEX/BIN-converter, die u kunt openen met de knop
 in de werkbalk naast de D64 Editor (klik nogmaals of druk op Esc om te sluiten).
-Deze blijft open terwijl u het programma in elke modus bewerkt.
+De knop blijft gemarkeerd zolang de converter wordt weergegeven. Hij blijft open
+terwijl u het programma in elke modus bewerkt.
 
 - Voer in een van de velden **DEC**, **HEX** of **BIN** een regel in. De andere
   twee velden volgen. Voorvoegsels `$`, `0x`, `%`, `0b` en scheidingstekens
