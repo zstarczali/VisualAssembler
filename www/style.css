@@ -9522,10 +9522,10 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-hdr .sid-xbtn { margin-left: auto; }
 .sid-xbtn { background: none; border: none; color: var(--secondary); font-size: 1.3rem; cursor: pointer; padding: 0; line-height: 1; min-height: 0; height: 28px; width: 28px; }
 .sid-xbtn:hover { color: var(--text); }
-.sid-body { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 14px; display: flex; flex-direction: column; gap: 12px; box-sizing: border-box; }
-.sid-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.sid-body { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; box-sizing: border-box; }
+.sid-row { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
 .sid-lbl { font-family: inherit; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; color: var(--primary); width: 96px; flex-shrink: 0; }
-.sid-section { font-family: inherit; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; color: var(--primary); display: block; margin-bottom: 8px; }
+.sid-section { font-family: inherit; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; color: var(--primary); display: block; margin-bottom: 5px; }
 .sid-select { font-family: inherit; font-size: 0.78rem; height: 28px; min-height: 0; padding: 3px 28px 3px 8px; line-height: 1.2; border: 1px solid var(--panel-border); border-radius: 2px; background: var(--control-bg); color: var(--text); cursor: pointer; }
 .sid-input { font-family: inherit; font-size: 0.8rem; height: 28px; min-height: 0; padding: 3px 8px; line-height: 1.2; border: 1px solid var(--panel-border); border-radius: 2px; background: var(--control-bg); color: var(--text); }
 #sid-inst-sel { width: 170px; flex: 0 0 170px; }
@@ -9947,12 +9947,12 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-check input[type="checkbox"]:checked::after { content: ""; position: absolute; left: 5px; top: 1px; width: 5px; height: 10px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); }
 .sid-range { accent-color: var(--primary); cursor: pointer; min-height: 0; padding: 0; margin: 0; height: auto; flex: 1; max-width: 260px; }
 .sid-range--knob-source { position: absolute; inline-size: 1px; block-size: 1px; opacity: 0; pointer-events: none; }
-.sid-param-knob { width: 34px; height: 34px; flex: 0 0 34px; }
-.sid-mid { display: flex; gap: 22px; flex-wrap: wrap; align-items: flex-start; }
-.sid-adsr { flex: 0 0 300px; }
-.sid-slider-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.sid-param-knob { width: 27px; height: 27px; flex: 0 0 27px; }
+.sid-mid { display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-start; }
+.sid-adsr { flex: 0 0 290px; }
+.sid-slider-row { display: flex; align-items: center; gap: 5px; margin-bottom: 2px; min-height: 29px; }
 .sid-sl-lbl { font-family: "IBM Plex Mono", monospace; font-size: 0.74rem; color: var(--secondary); width: 30px; flex-shrink: 0; }
-.sid-adsr-canvas { border: 1px solid var(--panel-border); border-radius: 2px; background: #0a0e1a; flex-shrink: 0; }
+.sid-adsr-canvas { border: 1px solid var(--panel-border); border-radius: 2px; background: #0a0e1a; flex-shrink: 0; width: 250px; height: 150px; }
 .sid-filter { flex: 1; min-width: 220px; }
 .sid-filter-types { display: flex; gap: 14px; margin-bottom: 8px; flex-wrap: wrap; }
 .sid-filt-route { margin-bottom: 8px; }
@@ -9960,14 +9960,20 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-check--mini { margin-left: 6px; font-size: 0.72rem; white-space: nowrap; }
 .sid-num--w { min-width: 34px; text-align: right; }
 .sid-sl-lbl--w { width: 82px; font-family: inherit; font-size: 0.72rem; }
-.sid-section--sub { margin-top: 10px; }
-.sid-adv { border-top: 1px solid var(--panel-border); padding-top: 12px; }
+.sid-section--sub { margin-top: 6px; }
+.sid-adv { border-top: 1px solid var(--panel-border); padding-top: 8px; }
 .sid-adv-col { flex: 1 1 240px; min-width: 230px; }
 .sid-adv-col--gate { flex: 0 1 230px; }
 .sid-adv-col--table { flex: 1 1 300px; }
 .sid-adv-col .sid-check { margin: 4px 0 8px; }
 .sid-first-row .sid-select { flex: 1; min-width: 0; }
 .sid-adv-hint { margin: 8px 0 0; font-size: 0.7rem; line-height: 1.4; color: var(--muted); }
+@media (min-width: 780px) {
+  .sid-adv-col:first-child { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 10px; }
+  .sid-adv-col:first-child .sid-section { grid-column: 1 / -1; }
+  .sid-adv-col:first-child .sid-slider-row { min-width: 0; }
+  .sid-adv-col:first-child .sid-sl-lbl--w { width: 54px; }
+}
 .sid-table-ctl { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
 .sid-table-num { width: 52px; text-align: center; }
 #sid-table-loop { width: 92px; }
