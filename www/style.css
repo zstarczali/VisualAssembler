@@ -9957,6 +9957,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-sl-lbl { font-family: "IBM Plex Mono", monospace; font-size: 0.74rem; color: var(--secondary); width: 30px; flex-shrink: 0; }
 .sid-adsr-canvas { border: 1px solid var(--panel-border); border-radius: 2px; background: #0a0e1a; flex: 1 1 360px; min-width: 280px; width: auto; height: 140px; }
 .sid-filter { flex: 0 1 220px; min-width: 200px; }
+.sid-filter .sid-sl-lbl { width: 42px; }
 .sid-filter-types { display: flex; gap: 14px; margin-bottom: 8px; flex-wrap: wrap; }
 .sid-filt-route { margin-bottom: 8px; }
 .sid-check--mod span { font-family: "IBM Plex Mono", monospace; font-size: 0.72rem; }
