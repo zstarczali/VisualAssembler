@@ -9944,6 +9944,8 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-check input[type="checkbox"]:checked { background: var(--primary); border-color: var(--primary); }
 .sid-check input[type="checkbox"]:checked::after { content: ""; position: absolute; left: 5px; top: 1px; width: 5px; height: 10px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); }
 .sid-range { accent-color: var(--primary); cursor: pointer; min-height: 0; padding: 0; margin: 0; height: auto; flex: 1; max-width: 260px; }
+.sid-range--knob-source { position: absolute; inline-size: 1px; block-size: 1px; opacity: 0; pointer-events: none; }
+.sid-param-knob { width: 34px; height: 34px; flex: 0 0 34px; }
 .sid-mid { display: flex; gap: 22px; flex-wrap: wrap; align-items: flex-start; }
 .sid-adsr { flex: 0 0 300px; }
 .sid-slider-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }

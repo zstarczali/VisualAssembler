@@ -38730,6 +38730,46 @@ function _sidInstFields() { return [
   ["sid-pwm-max", "pwmMax", "range", "sid-pwm-max-val"],
   ["sid-gate-timer", "gateTimer", "range", "sid-gate-timer-val"], ["sid-hr", "hr", "check"]
 ]; }
+function _sidParamKnobSync(input) {
+  const knob = document.getElementById(input.id + "-knob");
+  if (!knob) return;
+  const min = Number(input.min) || 0;
+  const max = Number(input.max) || 100;
+  _sidKnobRender(knob, (Number(input.value) - min) * 100 / Math.max(1, max - min));
+  knob.setAttribute("aria-valuenow", input.value);
+  knob.setAttribute("aria-valuetext", input.value);
+}
+function _sidInitParamKnobs() {
+  _sidInstFields().forEach(function(field) {
+    if (field[2] !== "range") return;
+    const input = document.getElementById(field[0]);
+    if (!input || document.getElementById(input.id + "-knob")) return;
+    const knob = document.createElement("div");
+    knob.id = input.id + "-knob";
+    knob.className = "websid-play-knob sid-param-knob";
+    knob.tabIndex = 0;
+    knob.setAttribute("role", "slider");
+    knob.setAttribute("aria-label", input.closest(".sid-slider-row")?.querySelector(".sid-sl-lbl")?.textContent || input.closest(".sid-wave-row")?.querySelector(".sid-mini-lbl")?.textContent || input.id);
+    knob.setAttribute("aria-valuemin", input.min);
+    knob.setAttribute("aria-valuemax", input.max);
+    knob.innerHTML = '<svg viewBox="0 0 40 40" aria-hidden="true"><path class="websid-play-knob-track" d=""/><path class="websid-play-knob-value" d=""/><circle class="websid-play-knob-body" cx="20" cy="20" r="11.5"/><line class="websid-play-knob-pointer" x1="20" y1="20" x2="20" y2="11"/></svg>';
+    input.classList.add("sid-range--knob-source");
+    input.after(knob);
+    const set = function(pct) {
+      const min = Number(input.min) || 0;
+      const max = Number(input.max) || 100;
+      input.value = String(Math.round(min + Math.max(0, Math.min(100, pct)) * (max - min) / 100));
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      _sidParamKnobSync(input);
+    };
+    _sidKnobBind(knob, function() {
+      const min = Number(input.min) || 0;
+      const max = Number(input.max) || 100;
+      return (Number(input.value) - min) * 100 / Math.max(1, max - min);
+    }, set);
+    _sidParamKnobSync(input);
+  });
+}
 function _sidLoadInstUI() {
   const inst = _sidCurInst();
   Object.assign(inst, _sidInstNorm(inst));
@@ -38738,6 +38778,7 @@ function _sidLoadInstUI() {
     const el = document.getElementById(f[0]); if (!el) return;
     if (f[2] === "check") el.checked = !!inst[f[1]]; else el.value = inst[f[1]];
     const v = f[3] && document.getElementById(f[3]); if (v) v.textContent = inst[f[1]];
+    if (f[2] === "range") _sidParamKnobSync(el);
   });
   const fw = document.getElementById("sid-first-wave");
   if (fw) {
@@ -42288,6 +42329,7 @@ function setupSidEditor() {
       _sidDrawADSR();
     });
   });
+  _sidInitParamKnobs();
   onId("sid-first-wave", "change", function(e){ _sidCurInst().firstWave = parseInt(e.target.value, 10) || 0; });
   onId("sid-table-speed", "input", function(e){
     const v = parseInt(e.target.value, 10);
