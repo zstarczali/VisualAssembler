@@ -3829,6 +3829,7 @@ function _applyEditorTranslations() {
   setAttr("#sid-master-vol", t("sidMasterVolume"));
   setText("#sid-midi-lbl", t("sidMidi"));
   setText("#sid-midi-connect", t("sidMidiConnect"));
+  setAttr("#sid-record", t("sidRecord"));
   setText("#sid-preview-engine-lbl", t("sidPreviewEngine"));
   setText("#sid-preview-model-lbl", t("sidPreviewModel"));
   const sidPreviewEngine = document.getElementById("sid-preview-engine");
@@ -38297,6 +38298,7 @@ let _sidVkbdInsertMode = true;
 let _sidMidiAccess = null;
 let _sidMidiInputId = "";
 let _sidMidiHeld = new Set();
+let _sidRecording = null;
 
 // SID attack / decay-release time tables (ms) — approximate
 const _SID_ATK = [2,8,16,24,38,56,68,80,100,250,500,800,1000,3000,5000,8000];
@@ -38472,7 +38474,7 @@ function _sidMidiMessage(event) {
   _sidMidiHeld.add(midiNote);
   const dialog = document.getElementById("sid-editor-dialog");
   if (!dialog?.open || !_sidInited) return;
-  if (_sidVkbdInsertMode) _sidInsertNoteAtSelection(note, true);
+  if (_sidRecording || _sidVkbdInsertMode) _sidInsertNoteAtSelection(note, true);
   else {
     _sidEnsureAudio();
     _sidPlayInst(_sidCurInst(), _sidNoteFreq(note), _sidAudio.currentTime + 0.01, 0.7);
@@ -38495,6 +38497,7 @@ async function _sidMidiConnect() {
   }
 }
 function _sidInsertNoteAtSelection(note, advanceRow) {
+  if (_sidRecordNote(note)) return;
   if (!_sidPatterns) return;
   const row = _sidSel.row, voice = _sidSel.voice;
   _sidSelAnchor = null;
@@ -38547,7 +38550,7 @@ function _sidRenderVirtualKeyboard() {
     btn.addEventListener("click", function() {
       const note = parseInt(btn.dataset.note, 10);
       if (!Number.isFinite(note)) return;
-      if (_sidVkbdInsertMode) _sidInsertNoteAtSelection(note, true);
+      if (_sidRecording || _sidVkbdInsertMode) _sidInsertNoteAtSelection(note, true);
       else {
         _sidEnsureAudio();
         _sidPlayInst(_sidCurInst(), _sidNoteFreq(note), _sidAudio.currentTime + 0.01, 0.25);
@@ -39643,6 +39646,55 @@ function _sidToggleMetronome() {
     btn.classList.toggle("sid-metronome-on", _sidMetronomeEnabled);
   }
 }
+function _sidRecordRender() {
+  const button = document.getElementById("sid-record");
+  if (!button) return;
+  button.classList.toggle("sid-recording", !!_sidRecording);
+  button.setAttribute("aria-pressed", String(!!_sidRecording));
+  button.setAttribute("aria-label", _sidRecording ? t("sidRecordStop") : t("sidRecord"));
+}
+function _sidRecordTick() {
+  const rec = _sidRecording;
+  if (!rec) return;
+  const step = Math.floor((performance.now() - rec.startedAt) / rec.rowMs);
+  if (step >= _SID_ROWS - rec.startRow) { _sidRecordStop(); return; }
+  if (step === rec.lastStep) return;
+  rec.lastStep = step;
+  rec.row = rec.startRow + step;
+  _sidSel.voice = rec.voice;
+  _sidSel.row = rec.row;
+  _sidRefreshSel();
+  if ((step % _SID_ROWS_PER_BEAT) === 0) _sidPlayMetronomeClick(((step / _SID_ROWS_PER_BEAT) | 0) % _SID_BEATS_PER_BAR === 0);
+}
+function _sidRecordNote(note) {
+  const rec = _sidRecording;
+  if (!rec) return false;
+  rec.pattern[rec.voice][rec.row] = { note: note, inst: rec.inst, fx: null, fxval: 0 };
+  _sidSetCellText(rec.voice, rec.row);
+  _sidEnsureAudio();
+  _sidPlayInst(_sidInsts[rec.inst], _sidNoteFreq(note), _sidAudio.currentTime + 0.01, Math.max(0.08, rec.rowMs / 1000 * 0.9));
+  _sidFlashVirtualKeyboardNotes([note]);
+  return true;
+}
+function _sidRecordStart() {
+  if (!_sidPatterns) return;
+  _sidStop();
+  _sidRecording = {
+    pattern: _sidCurPat(), voice: _sidSel.voice, inst: _sidInst, startRow: _sidSel.row,
+    row: _sidSel.row, rowMs: Math.max(1, _sidSpeed) * 20, startedAt: performance.now(), lastStep: -1, timer: null
+  };
+  _sidRecordTick();
+  _sidRecording.timer = setInterval(_sidRecordTick, 16);
+  _sidRecordRender();
+}
+function _sidRecordStop() {
+  const rec = _sidRecording;
+  if (!rec) return;
+  if (rec.timer) clearInterval(rec.timer);
+  _sidRecording = null;
+  _sidRecordRender();
+}
+function _sidToggleRecord() { if (_sidRecording) _sidRecordStop(); else _sidRecordStart(); }
 
 /* ── WebSid (Wothke) integration ─────────────────────────────────────────
  * Runs the compiled SID player + tune bytes through a real cycle-exact
@@ -40723,6 +40775,7 @@ function _sidWaStop() {
 }
 
 function _sidStop(preloadStream = true, stopExternal = false) {
+  if (typeof _sidRecordStop === "function") _sidRecordStop();
   if (_sidTimer) { clearInterval(_sidTimer); _sidTimer = null; }
   // Az editor saját preview-ja nem zárhatja be a külön SID Player ablakot.
   if (stopExternal && typeof _sidExternalCore !== "undefined" && _sidExternalCore) _sidExternalCoreStop();
@@ -42461,6 +42514,7 @@ function setupSidEditor() {
     if (_sidTimer) { _sidPlay(); }
   });
   onId("sid-metronome", "click", _sidToggleMetronome);
+  onId("sid-record", "click", _sidToggleRecord);
   onId("sid-chord-preview", "click", _sidPreviewChord);
   onId("sid-arp-preview", "click", _sidPreviewArpeggio);
   onId("sid-chord-add", "click", _sidInsertChord);

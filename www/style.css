@@ -9522,7 +9522,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-hdr .sid-xbtn { margin-left: auto; }
 .sid-xbtn { background: none; border: none; color: var(--secondary); font-size: 1.3rem; cursor: pointer; padding: 0; line-height: 1; min-height: 0; height: 28px; width: 28px; }
 .sid-xbtn:hover { color: var(--text); }
-.sid-body { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; box-sizing: border-box; }
+.sid-body { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 8px 12px; display: flex; flex-direction: column; gap: 6px; box-sizing: border-box; }
 .sid-row { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
 .sid-lbl { font-family: inherit; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; color: var(--primary); width: 96px; flex-shrink: 0; }
 .sid-section { font-family: inherit; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; color: var(--primary); display: block; margin-bottom: 5px; }
@@ -9539,6 +9539,9 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
   background: color-mix(in srgb, var(--accent, #4ade80) 18%, transparent);
 }
 .sid-metronome-btn.sid-metronome-on svg { filter: drop-shadow(0 0 4px currentColor); }
+.sid-record-btn { color: #d96a6a; }
+.sid-record-btn.sid-recording { color: #ff4545; background: rgba(255, 69, 69, 0.18); animation: sid-record-pulse 0.9s ease-in-out infinite alternate; }
+@keyframes sid-record-pulse { to { box-shadow: 0 0 10px rgba(255, 69, 69, 0.7); } }
 .sid-master-vol-wrap {
   display: inline-flex;
   align-items: center;
@@ -9948,26 +9951,26 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-range { accent-color: var(--primary); cursor: pointer; min-height: 0; padding: 0; margin: 0; height: auto; flex: 1; max-width: 260px; }
 .sid-range--knob-source { position: absolute; inline-size: 1px; block-size: 1px; opacity: 0; pointer-events: none; }
 .sid-param-knob { width: 27px; height: 27px; flex: 0 0 27px; }
-.sid-mid { display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-start; }
-.sid-adsr { flex: 0 0 290px; }
-.sid-slider-row { display: flex; align-items: center; gap: 5px; margin-bottom: 2px; min-height: 29px; }
+.sid-mid { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-start; }
+.sid-adsr { flex: 0 0 118px; }
+.sid-slider-row { display: flex; align-items: center; gap: 5px; margin-bottom: 1px; min-height: 27px; }
 .sid-sl-lbl { font-family: "IBM Plex Mono", monospace; font-size: 0.74rem; color: var(--secondary); width: 30px; flex-shrink: 0; }
-.sid-adsr-canvas { border: 1px solid var(--panel-border); border-radius: 2px; background: #0a0e1a; flex: 1 1 360px; min-width: 280px; width: auto; height: 150px; }
-.sid-filter { flex: 1; min-width: 220px; }
+.sid-adsr-canvas { border: 1px solid var(--panel-border); border-radius: 2px; background: #0a0e1a; flex: 1 1 360px; min-width: 280px; width: auto; height: 140px; }
+.sid-filter { flex: 0 1 220px; min-width: 200px; }
 .sid-filter-types { display: flex; gap: 14px; margin-bottom: 8px; flex-wrap: wrap; }
 .sid-filt-route { margin-bottom: 8px; }
 .sid-check--mod span { font-family: "IBM Plex Mono", monospace; font-size: 0.72rem; }
 .sid-check--mini { margin-left: 6px; font-size: 0.72rem; white-space: nowrap; }
 .sid-num--w { min-width: 34px; text-align: right; }
 .sid-sl-lbl--w { width: 82px; font-family: inherit; font-size: 0.72rem; }
-.sid-section--sub { margin-top: 6px; }
-.sid-adv { border-top: 1px solid var(--panel-border); padding-top: 8px; }
+.sid-section--sub { margin-top: 4px; }
+.sid-adv { border-top: 1px solid var(--panel-border); padding-top: 6px; }
 .sid-adv-col { flex: 1 1 240px; min-width: 230px; }
 .sid-adv-col--gate { flex: 0 1 230px; }
 .sid-adv-col--table { flex: 1 1 300px; }
 .sid-adv-col .sid-check { margin: 4px 0 8px; }
 .sid-first-row .sid-select { flex: 1; min-width: 0; }
-.sid-adv-hint { margin: 8px 0 0; font-size: 0.7rem; line-height: 1.4; color: var(--muted); }
+.sid-adv-hint { margin: 5px 0 0; font-size: 0.7rem; line-height: 1.35; color: var(--muted); }
 @media (min-width: 780px) {
   .sid-adv-col:first-child { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 10px; }
   .sid-adv-col:first-child .sid-section { grid-column: 1 / -1; }
@@ -9978,7 +9981,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-table-num { width: 52px; text-align: center; }
 #sid-table-loop { width: 92px; }
 #sid-table-preset { flex: 1 1 140px; min-width: 120px; }
-.sid-table-steps { display: flex; flex-direction: column; gap: 3px; max-height: 190px; overflow-y: auto; overflow-x: hidden; padding-right: 4px; margin-bottom: 6px; }
+.sid-table-steps { display: flex; flex-direction: column; gap: 3px; max-height: 145px; overflow-y: auto; overflow-x: hidden; padding-right: 4px; margin-bottom: 4px; }
 .sid-table-empty { font-size: 0.72rem; color: var(--muted); padding: 4px 0; }
 .sid-tstep { display: grid; grid-template-columns: 18px minmax(0, 1fr) 54px auto 24px; align-items: center; gap: 5px; }
 .sid-tstep--loop .sid-tstep-idx { color: var(--primary); font-weight: 700; }
@@ -9987,7 +9990,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-tstep .sid-input { padding: 2px 6px; text-align: right; }
 .sid-tstep .sid-check { margin: 0; font-size: 0.7rem; }
 .sid-tstep-del { width: 26px; padding: 0; }
-.sid-song-row { border-top: 1px solid var(--panel-border); padding-top: 12px; }
+.sid-song-row { border-top: 1px solid var(--panel-border); padding-top: 8px; }
 .sid-song-list { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; flex: 1; min-height: 28px; }
 .sid-song-chip {
   font-family: "IBM Plex Mono", monospace; font-size: 0.74rem; font-weight: 600;
@@ -9999,7 +10002,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-song-chip:hover { background: color-mix(in srgb, var(--secondary) 18%, transparent); color: var(--text); }
 .sid-song-chip--selected { border-color: var(--primary); color: var(--text); background: color-mix(in srgb, var(--primary) 16%, transparent); }
 .sid-song-chip--playing { border-color: var(--primary); background: var(--primary); color: #fff; }
-.sid-tracker-row { border-top: 1px solid var(--panel-border); padding-top: 12px; }
+.sid-tracker-row { border-top: 1px solid var(--panel-border); padding-top: 8px; }
 .sid-harmony-row { gap: 7px; flex-wrap: wrap; white-space: normal; }
 #sid-chord-root { width: 58px; min-width: 0; padding-right: 20px; }
 #sid-chord-type { width: 116px; min-width: 0; padding-right: 20px; }
