@@ -891,11 +891,6 @@ impl SidCore {
         value
     }
 
-    #[cfg(test)]
-    pub(crate) fn registers(&self) -> [u8; 32] {
-        self.regs
-    }
-
     fn touch_bus(&mut self, value: u8) {
         self.bus_value = value;
         self.bus_ttl = match self.model {
