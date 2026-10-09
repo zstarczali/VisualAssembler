@@ -39670,11 +39670,13 @@ function _sidUpdatePauseButton() {
   });
 }
 
-function _webSidShowExternalDialog(filename) {
+function _webSidShowExternalDialog(filename, engine) {
   const dlg = document.getElementById("websid-play-dialog");
   if (!dlg) return;
   const fileEl = document.getElementById("websid-play-file");
   if (fileEl) fileEl.textContent = filename || "";
+  const engineEl = document.getElementById("websid-play-engine");
+  if (engineEl) engineEl.textContent = t("sidPreviewEngine") + ": " + engine;
   try {
     // showModal() over the already-modal SID editor: two modals stack in the
     // top layer in open order, and the topmost captures all clicks — so Stop
@@ -39716,7 +39718,7 @@ async function _webSidPlayFileBytes(bytes, filename) {
     const done = (ok, msg) => {
       if (settled) return; settled = true;
       if (!ok && msg) showViceToast(msg, true);
-      else if (ok) _webSidShowExternalDialog(filename);
+      else if (ok) _webSidShowExternalDialog(filename, "WebSID");
       resolve(ok);
     };
     try {
@@ -39794,7 +39796,7 @@ async function _vaSidPlayFileBytes(bytes, filename) {
   };
   if (!(await pump())) return false;
   if (!state.active) return false;
-  _webSidShowExternalDialog(filename);
+  _webSidShowExternalDialog(filename, "VA SID Core v" + _VA_SID_CORE_VERSION + " (MOS " + _sidPreviewModel + ")");
   state.timer = setInterval(function() {
     if (state.active && state.nextTime - ac.currentTime < 0.5) pump();
   }, 50);

@@ -10364,6 +10364,14 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
   word-break: break-all;
   margin-bottom: 8px;
 }
+.websid-play-engine {
+  display: inline-block;
+  border: 1px solid var(--panel-border);
+  padding: 5px 8px;
+  margin-bottom: 10px;
+  color: var(--text);
+  font-size: 0.8rem;
+}
 .websid-play-note {
   font-size: 0.8rem;
   color: var(--secondary);
