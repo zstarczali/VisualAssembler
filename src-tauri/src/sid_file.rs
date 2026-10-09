@@ -1,7 +1,7 @@
 //! PSID player driver: runs the tune's 6502 init/play routines and sends their
 //! SID register writes to the Rust sound core. RSID needs full C64 emulation.
 
-use crate::sid_core::{SidCore, SidModel, NTSC_CLOCK, PAL_CLOCK};
+use crate::sid_core::{SidCore, SidModel, NTSC_CLOCK, PAL_CLOCK, VERSION as SID_CORE_VERSION};
 use emulator_6502::{Interface6502, MOS6502};
 
 const SID_REGISTER_COUNT: usize = 0x19;
@@ -79,9 +79,9 @@ pub struct SidFilePlayer {
 impl SidFilePlayer {
     pub fn new(bytes: &[u8], sample_rate: u32, model: SidModel) -> Result<Self, String> {
         if bytes.len() < 0x76 || &bytes[..4] != b"PSID" {
-            return Err(
-                "VA SID Core currently supports PSID files; RSID needs full C64 emulation.".into(),
-            );
+            return Err(format!(
+                "VA SID Core {SID_CORE_VERSION} currently supports PSID files; RSID needs full C64 emulation."
+            ));
         }
         let version = be16(bytes, 4);
         let data_offset = be16(bytes, 6) as usize;

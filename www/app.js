@@ -3830,7 +3830,7 @@ function _applyEditorTranslations() {
   const sidPreviewEngine = document.getElementById("sid-preview-engine");
   if (sidPreviewEngine) {
     if (sidPreviewEngine.options[0]) sidPreviewEngine.options[0].textContent = t("sidPreviewEngineWebSid");
-    if (sidPreviewEngine.options[1]) sidPreviewEngine.options[1].textContent = t("sidPreviewEngineVaCore");
+    if (sidPreviewEngine.options[1]) sidPreviewEngine.options[1].textContent = t("sidPreviewEngineVaCore") + " v" + _VA_SID_CORE_VERSION;
     sidPreviewEngine.value = _sidPreviewEngine;
   }
   const sidPreviewModel = document.getElementById("sid-preview-model");
@@ -31974,6 +31974,7 @@ function applyZoom() {
 }
 
 // Settings setup runs inside initPalette, before the SID editor code below.
+var _VA_SID_CORE_VERSION = "1.0";
 var _sidPreviewEngine = "websid";
 var _sidPreviewModel = "8580";
 initPalette();
