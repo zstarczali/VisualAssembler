@@ -332,7 +332,7 @@ test("SID player seek jumps the counter at once and coalesces quick clicks", asy
     document: { getElementById() { return { classList: { add() {}, remove() {} } }; } },
   };
   vm.createContext(ctx);
-  vm.runInContext(`var _sidExtSeekTarget = null, _sidExtSeeking = false; ${fnSource("_sidExtSeek")}; this.seek = _sidExtSeek;`, ctx);
+  vm.runInContext(`var _sidExtSeekTarget = null, _sidExtSeeking = false; ${fnSource("_sidPlayerCanSeek")}; ${fnSource("_sidExtSeek")}; this.seek = _sidExtSeek;`, ctx);
   const first = ctx.seek(60000);
   assert.equal(ctx._sidExtElapsed, 60000, "the counter jumps before the seek finishes");
   ctx.seek(90000);
@@ -343,4 +343,25 @@ test("SID player seek jumps the counter at once and coalesces quick clicks", asy
   release();
   await first;
   assert.deepEqual(seeks, [60000, 120000], "only the newest pending target runs");
+});
+
+test("SID player: WebSID cannot seek, the request is ignored", async () => {
+  const ctx = {
+    performance: { now: () => 0 },
+    _sidExtStarting: false,
+    _sidExtStatus: "playing",
+    _sidExtElapsed: 5000,
+    _sidExtRunSince: 0,
+    _sidExternalCore: null,
+    _vaSidSeek() { throw new Error("must not seek"); },
+    _sidExtRender() {},
+    document: { getElementById() { return null; } },
+  };
+  vm.createContext(ctx);
+  vm.runInContext(`var _sidExtSeekTarget = null, _sidExtSeeking = false; ${fnSource("_sidPlayerCanSeek")}; ${fnSource("_sidExtSeek")}; this.seek = _sidExtSeek; this.can = _sidPlayerCanSeek;`, ctx);
+  assert.equal(ctx.can(), false);
+  await ctx.seek(60000);
+  assert.equal(ctx._sidExtElapsed, 5000, "the counter stays where it was");
+  ctx._sidExternalCore = {};
+  assert.equal(ctx.can(), true, "VA SID Core can seek");
 });

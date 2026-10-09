@@ -39969,8 +39969,13 @@ function _sidExtStop() {
 // newest target is kept, so quick clicks do not queue up several seeks.
 let _sidExtSeekTarget = null;
 let _sidExtSeeking = false;
+// WebSID reports no position or length for .sid files and ignores seeks,
+// so only the VA SID Core can position the tune.
+function _sidPlayerCanSeek() {
+  return _sidExtStatus !== "stopped" && !!_sidExternalCore;
+}
 async function _sidExtSeek(ms) {
-  if (_sidExtStarting || _sidExtStatus === "stopped") return;
+  if (_sidExtStarting || !_sidPlayerCanSeek()) return;
   ms = Math.max(0, Math.round(ms));
   const showAt = function(at) {
     _sidExtElapsed = at;
@@ -40128,7 +40133,7 @@ function _sidPlayerTickUi() {
   if (seek && !_sidSeekDragging) {
     seek.max = String(Math.round(_sidPlayerLengthMs() / 1000));
     seek.value = String(Math.floor(elapsed / 1000));
-    seek.disabled = _sidExtStatus === "stopped";
+    seek.disabled = !_sidPlayerCanSeek();
   }
   const len = document.getElementById("websid-play-length");
   if (len) len.textContent = _sidExtFormatTime(_sidPlayerLengthMs());
@@ -40139,7 +40144,7 @@ function _sidPlayerTickUi() {
   if (next) next.disabled = _sidPlaylistIndex >= _sidPlaylist.length - 1;
   ["websid-play-rew", "websid-play-fwd"].forEach(function(id) {
     const btn = document.getElementById(id);
-    if (btn) btn.disabled = _sidExtStatus === "stopped";
+    if (btn) btn.disabled = !_sidPlayerCanSeek();
   });
   const play = document.getElementById("websid-play-play");
   if (play) play.disabled = !hasPlaylist && !_sidExtFile;
