@@ -19,13 +19,14 @@ function fnSource(name) {
 }
 
 test("stopping for an external SID does not preload the editor stream", () => {
-  let preloads = 0;
+  let preloads = 0, externalStops = 0, webSidPauses = 0;
   const ctx = {
     _sidTimer: null,
+    _sidExternalCore: {},
     _sidWaStop() {},
-    _sidExternalCoreStop() {},
+    _sidExternalCoreStop() { externalStops++; },
     _sidStreamSilence() {},
-    _webSidPause() {},
+    _webSidPause() { webSidPauses++; },
     _sidStreamPreload() { preloads++; },
     _sidUpdatePauseButton() {},
     _sidBuildSongList() {},
@@ -35,6 +36,11 @@ test("stopping for an external SID does not preload the editor stream", () => {
   vm.runInContext(`${fnSource("_sidStop")}; this.stop = _sidStop;`, ctx);
   ctx.stop(false);
   assert.equal(preloads, 0);
+  assert.equal(externalStops, 0);
+  assert.equal(webSidPauses, 0);
+  ctx.stop(false, true);
+  assert.equal(externalStops, 1);
+  assert.equal(webSidPauses, 1);
   ctx.stop();
   assert.equal(preloads, 1);
 });
@@ -65,7 +71,7 @@ test("WebSID file playback remains available", async () => {
   const bytes = new Uint8Array(0x7c);
   bytes.set([0x50, 0x53, 0x49, 0x44]);
   assert.equal(await ctx.play(bytes, "example.sid"), true);
-  assert.deepEqual(calls.stop, [[false]]);
+  assert.deepEqual(calls.stop, [[false, true]]);
   assert.equal(calls.resume, 1);
   assert.deepEqual(calls.shown, ["example.sid"]);
   assert.equal(ctx._webSidActive, true);

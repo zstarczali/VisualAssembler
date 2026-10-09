@@ -3827,6 +3827,8 @@ function _applyEditorTranslations() {
   setText("#sid-save-bin", t("sidSaveBin"));
   setText("#sid-master-vol-lbl", t("sidMasterVolume"));
   setAttr("#sid-master-vol", t("sidMasterVolume"));
+  setText("#sid-midi-lbl", t("sidMidi"));
+  setText("#sid-midi-connect", t("sidMidiConnect"));
   setText("#sid-preview-engine-lbl", t("sidPreviewEngine"));
   setText("#sid-preview-model-lbl", t("sidPreviewModel"));
   const sidPreviewEngine = document.getElementById("sid-preview-engine");
@@ -38292,6 +38294,9 @@ var _sidPaused = false;
 var _sidPlaybackUsingWebSid = false;
 let _sidVkbdDrag = null;
 let _sidVkbdInsertMode = true;
+let _sidMidiAccess = null;
+let _sidMidiInputId = "";
+let _sidMidiHeld = new Set();
 
 // SID attack / decay-release time tables (ms) — approximate
 const _SID_ATK = [2,8,16,24,38,56,68,80,100,250,500,800,1000,3000,5000,8000];
@@ -38430,6 +38435,65 @@ function _sidNoteName(n) {
   return _SID_NOTE_NAMES[n % 12] + Math.floor(n / 12);
 }
 function _sidNoteFreq(n) { return 440 * Math.pow(2, (n - 57) / 12); } // n: 0 = C-0
+function _sidMidiRefreshInputs() {
+  const select = document.getElementById("sid-midi-input");
+  if (!select || !_sidMidiAccess) return;
+  const old = _sidMidiInputId || select.value;
+  select.innerHTML = '<option value="">' + t("sidMidiNone") + '</option>';
+  _sidMidiAccess.inputs.forEach(function(input) {
+    const option = document.createElement("option");
+    option.value = input.id;
+    option.textContent = input.name || input.manufacturer || input.id;
+    select.appendChild(option);
+  });
+  const wanted = _sidMidiAccess.inputs.has(old) ? old : (_sidMidiAccess.inputs.keys().next().value || "");
+  select.value = wanted;
+  _sidMidiSetInput(wanted);
+}
+function _sidMidiSetInput(id) {
+  if (_sidMidiAccess) _sidMidiAccess.inputs.forEach(function(input) { input.onmidimessage = null; });
+  _sidMidiInputId = id || "";
+  const input = _sidMidiAccess?.inputs.get(_sidMidiInputId);
+  if (input) input.onmidimessage = _sidMidiMessage;
+  try { localStorage.setItem("c64va-sid-midi-input", _sidMidiInputId); } catch (_) {}
+}
+function _sidMidiMessage(event) {
+  const data = event.data || [];
+  const command = data[0] & 0xf0;
+  const midiNote = data[1];
+  const velocity = data[2] || 0;
+  if (!Number.isFinite(midiNote)) return;
+  const note = Math.max(0, Math.min(95, midiNote - 12)); // MIDI C-1 = SID C-0
+  if (command === 0x80 || (command === 0x90 && velocity === 0)) {
+    _sidMidiHeld.delete(midiNote);
+    return;
+  }
+  if (command !== 0x90 || _sidMidiHeld.has(midiNote)) return;
+  _sidMidiHeld.add(midiNote);
+  const dialog = document.getElementById("sid-editor-dialog");
+  if (!dialog?.open || !_sidInited) return;
+  if (_sidVkbdInsertMode) _sidInsertNoteAtSelection(note, true);
+  else {
+    _sidEnsureAudio();
+    _sidPlayInst(_sidCurInst(), _sidNoteFreq(note), _sidAudio.currentTime + 0.01, 0.7);
+    _sidFlashVirtualKeyboardNotes([note]);
+  }
+}
+async function _sidMidiConnect() {
+  if (!navigator.requestMIDIAccess) {
+    showViceToast(t("sidMidiUnavailable"), true);
+    return;
+  }
+  try {
+    _sidMidiAccess = await navigator.requestMIDIAccess();
+    try { _sidMidiInputId = localStorage.getItem("c64va-sid-midi-input") || ""; } catch (_) {}
+    _sidMidiAccess.onstatechange = _sidMidiRefreshInputs;
+    _sidMidiRefreshInputs();
+    if (!_sidMidiInputId) showViceToast(t("sidMidiNone"), true);
+  } catch (error) {
+    showViceToast(t("sidMidiDenied") + ": " + (error?.message || error), true);
+  }
+}
 function _sidInsertNoteAtSelection(note, advanceRow) {
   if (!_sidPatterns) return;
   const row = _sidSel.row, voice = _sidSel.voice;
@@ -40387,7 +40451,7 @@ async function _webSidPlayFileBytes(bytes, filename, song = 0) {
     showViceToast("Nem PSID/RSID fájl: " + filename, true);
     return false;
   }
-  _sidStop(false);  // stops previews without preloading the editor stream over this file
+  _sidStop(false, true);  // stops previews and the previous external tune
   if (!(await _webSidInit())) {
     showViceToast("WebSid nem elérhető ebben a WebView-ban.", true);
     return false;
@@ -40446,7 +40510,7 @@ async function _vaSidPlayFileBytes(bytes, filename, song = 0) {
     showViceToast("VA SID Core file playback is unavailable.", true);
     return false;
   }
-  _sidStop(false);
+  _sidStop(false, true);
   const ac = _sidEnsureAudio();
   // A renderer hosszú DOM-művelet alatt nem fut. Tíz másodpercnyi már az
   // AudioContext szálán ütemezett hang ezért akkor is folytatódik.
@@ -40658,14 +40722,15 @@ function _sidWaStop() {
   _sidPreviewSources.clear();
 }
 
-function _sidStop(preloadStream = true) {
+function _sidStop(preloadStream = true, stopExternal = false) {
   if (_sidTimer) { clearInterval(_sidTimer); _sidTimer = null; }
-  if (typeof _sidExternalCore !== "undefined" && _sidExternalCore) _sidExternalCoreStop();
+  // Az editor saját preview-ja nem zárhatja be a külön SID Player ablakot.
+  if (stopExternal && typeof _sidExternalCore !== "undefined" && _sidExternalCore) _sidExternalCoreStop();
   _sidWaStop();
   _sidStreamSilence();
   _sidPaused = false;
   _sidPlaybackUsingWebSid = false;
-  _webSidPause();
+  if (stopExternal) _webSidPause();
   if (preloadStream) _sidStreamPreload();
   const t = document.getElementById("sid-tracker");
   if (t) t.querySelectorAll("tr.sid-playing").forEach(function(r){ r.classList.remove("sid-playing"); });
@@ -40677,7 +40742,7 @@ async function _sidPlay(resetPosition = true) {
   _sidWaStop();
   const playAll = _sidPlayMode === "all";
   if (resetPosition) {
-    _webSidPause();
+    if (_sidExtStatus === "stopped") _webSidPause();
       _sidSongPlayPos = 0;
     if (playAll) {
       _sidPlayPat = (_sidSong && _sidSong.length) ? _sidSong[0] : 0;
@@ -42329,7 +42394,9 @@ function setupSidEditor() {
       _sidDrawADSR();
     });
   });
-  _sidInitParamKnobs();
+  // setupSidEditor még az app.js SID-állapotdeklarációi előtt fut.
+  // A tekerő geometriája csak a script teljes kiértékelése után érhető el.
+  setTimeout(_sidInitParamKnobs, 0);
   onId("sid-first-wave", "change", function(e){ _sidCurInst().firstWave = parseInt(e.target.value, 10) || 0; });
   onId("sid-table-speed", "input", function(e){
     const v = parseInt(e.target.value, 10);
@@ -42408,6 +42475,8 @@ function setupSidEditor() {
   onId("sid-virtual-keyboard", "click", function(){
     _sidOpenVirtualKeyboard();
   });
+  onId("sid-midi-connect", "click", _sidMidiConnect);
+  onId("sid-midi-input", "change", function(e) { _sidMidiSetInput(e.target.value); });
   onId("sid-vkbd-close", "click", function(){
     _sidCloseVirtualKeyboard();
   });

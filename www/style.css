@@ -9546,6 +9546,8 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
   margin-left: auto;   /* push to the right side of the header */
   padding-right: 6px;
 }
+.sid-midi-wrap { display: inline-flex; align-items: center; gap: 6px; }
+.sid-midi-input { width: 150px; max-width: 20vw; }
 .sid-master-vol-wrap ~ .sid-xbtn { margin-left: 0; }  /* was: margin-left: auto — wrap owns the auto now */
 .sid-master-vol-lbl {
   font-family: inherit;
