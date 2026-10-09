@@ -69,5 +69,19 @@ fn main() {
         let ref_peak = reference[start..].iter().fold(0.0f64, |peak, value| peak.max(value.abs()));
         let rust_peak = ours[start..].iter().fold(0.0f64, |peak, value| peak.max(value.abs()));
         println!("scenario {scenario}: correlation {correlation:.4}, best lag {} ({:.4}), gain {gain:.3}, reference RMS {:.0}, Rust RMS {:.0}, peaks {:.0}/{:.0}", best.1, best.0, (rr / (44100 - start) as f64).sqrt(), (oo / (44100 - start) as f64).sqrt(), ref_peak, rust_peak);
+        let minimum_correlation = match scenario {
+            16 => Some(0.93),
+            18 => Some(0.97),
+            19 => Some(0.95),
+            20 => Some(0.98),
+            _ => None,
+        };
+        if let Some(minimum) = minimum_correlation {
+            let reference_rms = (rr / (44100 - start) as f64).sqrt();
+            let rust_rms = (oo / (44100 - start) as f64).sqrt();
+            assert!(correlation >= minimum, "6581 scenario {scenario}: correlation {correlation:.4} < {minimum:.4}");
+            assert!((rust_rms / reference_rms - 1.0).abs() < 0.08,
+                "6581 scenario {scenario}: RMS {rust_rms:.1} differs from reSID {reference_rms:.1}");
+        }
     }
 }

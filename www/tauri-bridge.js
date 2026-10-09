@@ -14,6 +14,8 @@
     getUltimateBasicVersion: () => invoke("get_ultimate_basic_version"),
     renderSidPreview: (payload) => invoke("render_sid_preview", { payload }),
     releaseSidPreview: (sessionId) => invoke("release_sid_preview", { sessionId }),
+    renderSidFile: (payload) => invoke("render_sid_file", { payload }),
+    releaseSidFile: (sessionId) => invoke("release_sid_file", { sessionId }),
     checkForUpdate: () => invoke("check_for_update"),
     downloadAndInstallUpdate: (version) => invoke("download_and_install_update", { version }),
     onUpdateProgress: (cb) => window.__TAURI__.event.listen("update-download-progress", e => cb(e.payload)),

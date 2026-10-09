@@ -16,6 +16,7 @@ use tauri_plugin_dialog::{MessageDialogButtons, MessageDialogKind};
 use tauri_plugin_opener::OpenerExt;
 
 mod sid_core;
+mod sid_file;
 
 // ── Resource path resolution ─────────────────────────────────────────────────
 // In dev builds (cargo tauri dev) resource_dir() points to target/debug/ where
@@ -479,6 +480,66 @@ fn render_sid_preview(payload: SidPreviewPayload) -> Result<String, String> {
 #[tauri::command]
 fn release_sid_preview(session_id: String) {
     if let Some(sessions) = SID_PREVIEW_SESSIONS.get() {
+        if let Ok(mut sessions) = sessions.lock() {
+            sessions.remove(&session_id);
+        }
+    }
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct SidFilePayload {
+    session_id: String,
+    sample_rate: u32,
+    model: String,
+    frames: usize,
+    file_bytes: Option<Vec<u8>>,
+}
+
+static SID_FILE_SESSIONS: OnceLock<Mutex<HashMap<String, (sid_file::SidFilePlayer, Instant)>>> =
+    OnceLock::new();
+
+#[tauri::command]
+fn render_sid_file(payload: SidFilePayload) -> Result<String, String> {
+    if payload.session_id.is_empty()
+        || payload.session_id.len() > 80
+        || !(1..=20).contains(&payload.frames)
+    {
+        return Err("Invalid SID file playback request.".into());
+    }
+    if payload.file_bytes.as_ref().is_some_and(|bytes| bytes.len() > 1_048_576) {
+        return Err("SID file is too large.".into());
+    }
+    let sample_rate = payload.sample_rate.clamp(8_000, 96_000);
+    let model = if payload.model.eq_ignore_ascii_case("6581") {
+        sid_core::SidModel::Mos6581
+    } else {
+        sid_core::SidModel::Mos8580
+    };
+    let sessions = SID_FILE_SESSIONS.get_or_init(|| Mutex::new(HashMap::new()));
+    let mut sessions = sessions
+        .lock()
+        .map_err(|_| "SID file playback state is unavailable.")?;
+    sessions.retain(|_, (_, last_used)| last_used.elapsed() < Duration::from_secs(180));
+    if let Some(bytes) = payload.file_bytes.as_deref() {
+        if !sessions.contains_key(&payload.session_id) && sessions.len() >= 8 {
+            return Err("Too many active SID files.".into());
+        }
+        let player = sid_file::SidFilePlayer::new(bytes, sample_rate, model)?;
+        sessions.insert(payload.session_id.clone(), (player, Instant::now()));
+    }
+    let (player, last_used) = sessions
+        .get_mut(&payload.session_id)
+        .ok_or("SID file playback session has expired.")?;
+    *last_used = Instant::now();
+    let pcm = player.render_frames(payload.frames)?;
+    let bytes: Vec<u8> = pcm.iter().flat_map(|sample| sample.to_le_bytes()).collect();
+    Ok(base64::engine::general_purpose::STANDARD.encode(bytes))
+}
+
+#[tauri::command]
+fn release_sid_file(session_id: String) {
+    if let Some(sessions) = SID_FILE_SESSIONS.get() {
         if let Ok(mut sessions) = sessions.lock() {
             sessions.remove(&session_id);
         }
@@ -4623,6 +4684,8 @@ pub fn run() {
             get_ultimate_basic_version,
             render_sid_preview,
             release_sid_preview,
+            render_sid_file,
+            release_sid_file,
             check_for_update,
             download_and_install_update,
             set_title,

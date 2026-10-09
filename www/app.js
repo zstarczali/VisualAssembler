@@ -39345,6 +39345,7 @@ let _webSidReady = false;
 let _webSidInitPromise = null;
 let _webSidBlobUrl = null;
 let _webSidActive = false;
+let _sidExternalCore = null;
 
 function _webSidAvailable() {
   return typeof SIDBackendAdapter !== "undefined" && typeof ScriptNodePlayer !== "undefined";
@@ -39700,7 +39701,7 @@ async function _webSidPlayFileBytes(bytes, filename) {
     showViceToast("Nem PSID/RSID fájl: " + filename, true);
     return false;
   }
-  _sidStop();  // stops both the Web Audio preview and any running WebSid instance
+  _sidStop(false);  // stops previews without preloading the editor stream over this file
   if (!(await _webSidInit())) {
     showViceToast("WebSid nem elérhető ebben a WebView-ban.", true);
     return false;
@@ -39737,6 +39738,66 @@ async function _webSidPlayFileBytes(bytes, filename) {
       done(false, "SID lejátszás hiba: " + (e && e.message ? e.message : e));
     }
   });
+}
+
+function _sidExternalCoreStop() {
+  const state = _sidExternalCore;
+  if (!state) return;
+  _sidExternalCore = null;
+  state.active = false;
+  if (state.timer) clearInterval(state.timer);
+  _sidPreviewSources.forEach(function(src){ try { src.stop(); } catch (_) {} });
+  _sidPreviewSources.clear();
+  _webSidHideExternalDialog();
+  state.queue.catch(function() {}).then(function() {
+    window.electronAPI.releaseSidFile(state.sessionId).catch(function() {});
+  });
+}
+
+async function _vaSidPlayFileBytes(bytes, filename) {
+  if (!window.electronAPI?.renderSidFile || !window.electronAPI?.releaseSidFile) {
+    showViceToast("VA SID Core file playback is unavailable.", true);
+    return false;
+  }
+  _sidStop(false);
+  const ac = _sidEnsureAudio();
+  const state = {
+    sessionId: crypto.randomUUID(), active: true, busy: false, timer: null,
+    queue: Promise.resolve(), nextTime: ac.currentTime + 0.08, fileBytes: Array.from(bytes)
+  };
+  _sidExternalCore = state;
+  const pump = async function() {
+    if (!state.active || state.busy) return false;
+    state.busy = true;
+    const payload = { sessionId: state.sessionId, sampleRate: ac.sampleRate,
+      model: _sidPreviewModel, frames: 10 };
+    if (state.fileBytes) payload.fileBytes = state.fileBytes;
+    try {
+      state.queue = window.electronAPI.renderSidFile(payload);
+      const pcm = _sidDecodePcm16(await state.queue);
+      if (!state.active) return false;
+      state.fileBytes = null;
+      state.nextTime = Math.max(state.nextTime, ac.currentTime + 0.02);
+      _sidPlayBuffer(pcm, state.nextTime);
+      state.nextTime += pcm.length / ac.sampleRate;
+      return true;
+    } catch (e) {
+      if (state.active) {
+        _sidExternalCoreStop();
+        showViceToast("VA SID Core: " + (e?.message || e), true);
+      }
+      return false;
+    } finally {
+      state.busy = false;
+    }
+  };
+  if (!(await pump())) return false;
+  if (!state.active) return false;
+  _webSidShowExternalDialog(filename);
+  state.timer = setInterval(function() {
+    if (state.active && state.nextTime - ac.currentTime < 0.5) pump();
+  }, 50);
+  return true;
 }
 
 /* Tracker playback driven by the JS engine. The engine yields the frame of
@@ -39865,14 +39926,15 @@ function _sidWaStop() {
   _sidPreviewSources.clear();
 }
 
-function _sidStop() {
+function _sidStop(preloadStream = true) {
   if (_sidTimer) { clearInterval(_sidTimer); _sidTimer = null; }
+  if (typeof _sidExternalCore !== "undefined" && _sidExternalCore) _sidExternalCoreStop();
   _sidWaStop();
   _sidStreamSilence();
   _sidPaused = false;
   _sidPlaybackUsingWebSid = false;
   _webSidPause();
-  _sidStreamPreload();
+  if (preloadStream) _sidStreamPreload();
   const t = document.getElementById("sid-tracker");
   if (t) t.querySelectorAll("tr.sid-playing").forEach(function(r){ r.classList.remove("sid-playing"); });
   _sidUpdatePauseButton();
@@ -41693,16 +41755,18 @@ function setupSidEditor() {
   onId("sid-play-sid", "click", function(){ if (sidSidFile) sidSidFile.click(); });
   if (sidSidFile) sidSidFile.addEventListener("change", function(e){
     const file = e.target.files && e.target.files[0]; if (!file) return;
-    if (_sidUsesVaCore()) {
-      showViceToast("External .sid files currently use WebSID. Switch the SID engine to WebSID to play this file.", true);
-      e.target.value = "";
-      return;
-    }
     const reader = new FileReader();
-    reader.onload = function(){ _webSidPlayFileBytes(new Uint8Array(reader.result), file.name); };
+    reader.onload = function(){
+      const bytes = new Uint8Array(reader.result);
+      if (_sidUsesVaCore()) _vaSidPlayFileBytes(bytes, file.name);
+      else _webSidPlayFileBytes(bytes, file.name);
+    };
     reader.readAsArrayBuffer(file); e.target.value = "";
   });
-  onId("websid-play-stop", "click", function(){ _webSidPause(); });
+  onId("websid-play-stop", "click", function(){
+    if (_sidExternalCore) _sidExternalCoreStop();
+    else _webSidPause();
+  });
 
   // keyboard note entry / navigation
   const wrap = document.getElementById("sid-tracker-wrap");

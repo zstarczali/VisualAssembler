@@ -6,7 +6,8 @@
 
 use std::sync::OnceLock;
 
-const PAL_CLOCK: f64 = 985_248.0;
+pub(crate) const PAL_CLOCK: f64 = 985_248.0;
+pub(crate) const NTSC_CLOCK: f64 = 1_022_730.0;
 const PHASE_MASK: u32 = 0x00ff_ffff;
 const ENV_RATE_PERIOD: [u16; 16] = [
     8, 31, 62, 94, 148, 219, 266, 312, 391, 976, 1953, 3125, 3906, 11719, 19531, 31250,
@@ -101,8 +102,10 @@ pub struct SidCore {
     waveform_dac: &'static [u16; 4096],
     envelope_dac: &'static [u16; 256],
     sample_rate: f64,
+    clock_hz: f64,
     filter_w0: f32,
     filter_inv_q: f32,
+    filter_mix_gain: f32,
     low: f32,
     band: f32,
     high: f32,
@@ -182,6 +185,10 @@ impl SidCore {
     }
 
     pub fn new(sample_rate: u32, model: SidModel) -> Self {
+        Self::new_with_clock(sample_rate, model, PAL_CLOCK)
+    }
+
+    pub(crate) fn new_with_clock(sample_rate: u32, model: SidModel, clock_hz: f64) -> Self {
         let mut sid = Self {
             regs: [0; 32],
             voices: [Voice::default(); 3],
@@ -189,8 +196,10 @@ impl SidCore {
             waveform_dac: Self::waveform_dac(model),
             envelope_dac: Self::envelope_dac(model),
             sample_rate: sample_rate.max(8_000) as f64,
+            clock_hz,
             filter_w0: 0.,
             filter_inv_q: 0.,
+            filter_mix_gain: 1.,
             low: 0.,
             band: 0.,
             high: 0.,
@@ -302,7 +311,7 @@ impl SidCore {
 
     /// Renders signed 16-bit mono samples from the current SID register state.
     pub fn render(&mut self, output: &mut [i16]) {
-        let cycles_per_sample = PAL_CLOCK / self.sample_rate;
+        let cycles_per_sample = self.clock_hz / self.sample_rate;
         let chip_gain = match self.model {
             SidModel::Mos6581 => 1.05,
             SidModel::Mos8580 => 0.98,
@@ -597,6 +606,11 @@ impl SidCore {
     fn update_filter_coefficients(&mut self) {
         let cutoff = u16::from(self.regs[0x15] & 7) | (u16::from(self.regs[0x16]) << 3);
         let resonance = (self.regs[0x17] >> 4) as usize;
+        self.filter_mix_gain = if self.model == SidModel::Mos6581 {
+            1.0 + resonance.saturating_sub(7) as f32 * 0.016
+        } else {
+            1.0
+        };
         (self.filter_w0, self.filter_inv_q) = match self.model {
             SidModel::Mos8580 => (
                 (82_355u32 * (u32::from(cutoff) + 1) >> 11) as f32 / 1_048_576.0,
@@ -652,6 +666,7 @@ impl SidCore {
         if mode & 0x40 != 0 {
             filtered += self.high * high_gain;
         }
+        filtered *= self.filter_mix_gain;
         let sid_output = (direct + filtered) * (mode_vol & 15) as f32 / 15.0;
         // reSID's external RC stage is clocked once per SID cycle: 10 kΩ / 1 nF
         // low-pass followed by 1 kΩ / 10 μF high-pass.
@@ -693,6 +708,19 @@ mod tests {
     }
 
     #[test]
+    fn ntsc_clock_advances_oscillator_faster_than_pal() {
+        let mut pal = SidCore::new_with_clock(44_100, SidModel::Mos8580, PAL_CLOCK);
+        let mut ntsc = SidCore::new_with_clock(44_100, SidModel::Mos8580, NTSC_CLOCK);
+        for sid in [&mut pal, &mut ntsc] {
+            sid.write(0, 0xe8);
+            sid.write(1, 0x03);
+        }
+        pal.render(&mut [0; 441]);
+        ntsc.render(&mut [0; 441]);
+        assert!(ntsc.voices[0].phase > pal.voices[0].phase);
+    }
+
+    #[test]
     fn reset_oscillator_state_matches_resid_startup() {
         let sid = SidCore::new(44_100, SidModel::Mos8580);
         for voice in sid.voices {
@@ -724,6 +752,35 @@ mod tests {
         };
         assert!(rms(64) > 10.0);
         assert!(rms(1_024) > rms(512) * 10.0);
+    }
+
+    #[test]
+    fn mos6581_high_resonance_rms_stays_near_local_resid_reference() {
+        // Fixed-stream cases 16 and 18-20 in scripts/sid-compare/reference.cpp.
+        // Reference RMS values come from the local VICE reSID build at 44.1 kHz.
+        for (scenario, reference_rms) in [(16, 1708.0), (18, 1431.0), (19, 2485.0), (20, 1337.0)] {
+            let mut sid = SidCore::new(44_100, SidModel::Mos6581);
+            let mut pcm = [0i16; 44_100];
+            for frame in 0..50 {
+                sid.write(0, 0);
+                sid.write(1, 0x50);
+                sid.write(2, 0);
+                sid.write(3, 8);
+                sid.write(4, match scenario { 18 => 0x11, 19 => 0x41, _ => 0x21 });
+                sid.write(5, 0x11);
+                sid.write(6, 0x80);
+                let cutoff = if scenario == 20 { 1500u16 } else { 1024u16 };
+                sid.write(0x15, (cutoff & 7) as u8);
+                sid.write(0x16, (cutoff >> 3) as u8);
+                sid.write(0x17, 0xf1);
+                sid.write(0x18, 0x1f);
+                sid.render(&mut pcm[frame * 882..(frame + 1) * 882]);
+            }
+            let window = &pcm[2_205..];
+            let mean = window.iter().map(|&sample| f64::from(sample)).sum::<f64>() / window.len() as f64;
+            let rms = (window.iter().map(|&sample| (f64::from(sample) - mean).powi(2)).sum::<f64>() / window.len() as f64).sqrt();
+            assert!((rms / reference_rms - 1.0).abs() < 0.08, "scenario {scenario}: RMS {rms:.1}, reSID {reference_rms:.1}");
+        }
     }
 
     #[test]
