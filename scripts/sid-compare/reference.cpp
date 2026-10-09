@@ -27,18 +27,17 @@ int main(int argc, char** argv) {
     for (int scenario = 0; scenario < 21; ++scenario) {
         reSID::SID sid;
         sid.set_chip_model(scenario == 2 || scenario == 3 || scenario >= 5 ? reSID::MOS6581 : reSID::MOS8580);
-        if (!sid.set_sampling_parameters(985248.0, reSID::SAMPLE_INTERPOLATE, 44100.0)) return 5;
-        double remainder = 0;
+        // Band-limited like the Rust core (windowed-sinc resampling).
+        if (!sid.set_sampling_parameters(985248.0, reSID::SAMPLE_RESAMPLE, 44100.0)) return 5;
         for (int frame = 0; frame < 50; ++frame) {
             write_frame(sid, frame, scenario);
-            for (int sample = 0; sample < 882; ++sample) {
-                remainder += 985248.0 / 44100.0;
-                const int cycles = static_cast<int>(remainder);
-                remainder -= cycles;
-                for (int cycle = 0; cycle < cycles; ++cycle) sid.clock();
-                const std::int16_t pcm = static_cast<std::int16_t>(sid.output());
-                out.write(reinterpret_cast<const char*>(&pcm), sizeof(pcm));
+            short pcm[882];
+            int filled = 0;
+            while (filled < 882) {
+                reSID::cycle_count delta = 1 << 20;
+                filled += sid.clock(delta, pcm + filled, 882 - filled);
             }
+            out.write(reinterpret_cast<const char*>(pcm), sizeof(pcm));
         }
     }
     return out ? 0 : 4;

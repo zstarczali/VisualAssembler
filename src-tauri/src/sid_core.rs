@@ -1,12 +1,17 @@
-//! VA SID Core: an original Rust SID register synthesizer.
+//! VA SID Core: an original Rust SID register synthesizer. Its output is
+//! verified against reSID as a measurement reference (scripts/sid-compare).
 //!
-//! Local Rust adaptation of selected reSID envelope-generator and DAC behaviour
-//! for private use with the user's VICE source tree. See VICE src/resid/dac.cc,
-//! envelope.cc and envelope.h (Dag Lem, GPL-2.0-or-later).
+//! Third-party parts (reSID by Dag Lem, VICE src/resid, GPL-2.0-or-later):
+//! the measured combined-waveform tables in vendor/resid-wave-tables, the
+//! 8580 resonance table RESID_8580_INV_Q_X1024, the R-2R DAC ladder formula
+//! (dac.cc) and the MOS 6581 filter / mixer / volume model (`Model6581`,
+//! ported from filter.h, filter.cc and spline.h).
+//! The chip runs one call of `clock()` per SID cycle, so a cycle-locked
+//! machine (see `sid_file`) can read OSC3 / ENV3 at the right moment.
 
-use std::sync::OnceLock;
+use std::sync::{Arc, Mutex, OnceLock};
 
-pub(crate) const VERSION: &str = "1.0";
+pub(crate) const VERSION: &str = "1.1";
 pub(crate) const PAL_CLOCK: f64 = 985_248.0;
 pub(crate) const NTSC_CLOCK: f64 = 1_022_730.0;
 const PHASE_MASK: u32 = 0x00ff_ffff;
@@ -26,6 +31,146 @@ const WAVE_8580_PS: &[u8; 4096] = include_bytes!("../vendor/resid-wave-tables/wa
 const WAVE_8580_PT: &[u8; 4096] = include_bytes!("../vendor/resid-wave-tables/wave8580_P_T.dat");
 const WAVE_8580_ST: &[u8; 4096] = include_bytes!("../vendor/resid-wave-tables/wave8580__ST.dat");
 const OUTPUT_SCALE: f32 = i16::MAX as f32 / 8.0;
+const FIR_PHASES: usize = 128;
+const FIR_ATTENUATION_DB: f64 = 80.0;
+
+/// Kaiser-windowed sinc low-pass. Every phase holds `taps` coefficients in
+/// chronological order (oldest input first), normalised to unity DC gain.
+struct Fir {
+    taps: usize,
+    phases: usize,
+    coefficients: Vec<f32>,
+}
+
+impl Fir {
+    fn bessel_i0(x: f64) -> f64 {
+        let half = x / 2.0;
+        let (mut sum, mut term, mut k) = (1.0, 1.0, 1.0);
+        loop {
+            term *= (half / k) * (half / k);
+            sum += term;
+            if term < sum * 1e-12 {
+                return sum;
+            }
+            k += 1.0;
+        }
+    }
+
+    fn design(rate: f64, pass: f64, stop: f64, phases: usize) -> Fir {
+        let dw = 2.0 * std::f64::consts::PI * (stop - pass) / rate;
+        let beta = 0.1102 * (FIR_ATTENUATION_DB - 8.7);
+        let estimate = ((FIR_ATTENUATION_DB - 7.95) / (2.285 * dw)).ceil() as usize;
+        let taps = (estimate + 7) & !7;
+        let center = taps as f64 / 2.0;
+        let cutoff = (pass + stop) / 2.0 / rate;
+        let i0_beta = Self::bessel_i0(beta);
+        let mut coefficients = vec![0f32; phases * taps];
+        for phase in 0..phases {
+            let offset = phase as f64 / phases as f64;
+            let mut values = vec![0f64; taps];
+            for (k, value) in values.iter_mut().enumerate() {
+                let x = (taps - 1 - k) as f64 + offset - center;
+                let ratio = x / center;
+                if ratio.abs() >= 1.0 {
+                    continue;
+                }
+                let arg = std::f64::consts::PI * 2.0 * cutoff * x;
+                let sinc = if arg.abs() < 1e-12 { 1.0 } else { arg.sin() / arg };
+                *value = sinc * Self::bessel_i0(beta * (1.0 - ratio * ratio).sqrt()) / i0_beta;
+            }
+            let sum: f64 = values.iter().sum();
+            for (out, value) in coefficients[phase * taps..(phase + 1) * taps].iter_mut().zip(values) {
+                *out = (value / sum) as f32;
+            }
+        }
+        Fir { taps, phases, coefficients }
+    }
+
+    fn phase(&self, fraction: f64) -> &[f32] {
+        let phase = ((fraction * self.phases as f64 + 0.5) as usize).min(self.phases - 1);
+        &self.coefficients[phase * self.taps..(phase + 1) * self.taps]
+    }
+}
+
+/// Two-stage band limiting from the SID clock to the output rate, with the
+/// band edges of reSID's SAMPLE_RESAMPLE (passband up to 20 kHz, or 0.9 * fs/2 at low
+/// rates; stopband from fs - passband, so aliases only land above the
+/// passband). Stage 1 decimates by an integer factor to roughly 2.5 * fs,
+/// stage 2 interpolates the fractional output instants from 128 phases.
+/// Splitting keeps the cost near 15 M multiply-adds per second at 44.1 kHz.
+struct Resampler {
+    decimation: usize,
+    stage1: Fir,
+    stage2: Fir,
+}
+
+impl Resampler {
+    fn shared(clock_hz: f64, sample_rate: f64) -> Arc<Resampler> {
+        static CACHE: OnceLock<Mutex<Vec<((u64, u64), Arc<Resampler>)>>> = OnceLock::new();
+        let key = (clock_hz.to_bits(), sample_rate.to_bits());
+        let mut cache = CACHE.get_or_init(|| Mutex::new(Vec::new())).lock().unwrap();
+        if let Some((_, resampler)) = cache.iter().find(|(k, _)| *k == key) {
+            return resampler.clone();
+        }
+        let pass = if 2.0 * 20_000.0 / sample_rate >= 0.9 { 0.45 * sample_rate } else { 20_000.0 };
+        let stop = sample_rate - pass;
+        let decimation = ((clock_hz / (2.5 * sample_rate)) as usize).max(1);
+        let intermediate = clock_hz / decimation as f64;
+        let resampler = Arc::new(Resampler {
+            decimation,
+            stage1: Fir::design(clock_hz, pass, intermediate - stop, 1),
+            stage2: Fir::design(intermediate, pass, stop, FIR_PHASES),
+        });
+        cache.push((key, resampler.clone()));
+        resampler
+    }
+}
+
+/// Input history of one FIR stage, stored twice so every window is contiguous.
+struct History {
+    data: Box<[f32]>,
+    size: usize,
+    pos: usize,
+}
+
+impl History {
+    fn new(taps: usize) -> Self {
+        let size = taps.next_power_of_two();
+        Self { data: vec![0f32; size * 2].into_boxed_slice(), size, pos: 0 }
+    }
+
+    fn push(&mut self, value: f32) {
+        self.data[self.pos] = value;
+        self.data[self.pos + self.size] = value;
+        self.pos = (self.pos + 1) & (self.size - 1);
+    }
+
+    fn filter(&self, coefficients: &[f32]) -> f32 {
+        let end = self.pos + self.size;
+        dot(&self.data[end - coefficients.len()..end], coefficients)
+    }
+}
+
+// Plain indexed loop: also fast in unoptimised (tauri dev) builds, and
+// vectorised by the optimiser through the four independent accumulators.
+fn dot(samples: &[f32], coefficients: &[f32]) -> f32 {
+    let n = coefficients.len();
+    let samples = &samples[..n];
+    let (mut a0, mut a1, mut a2, mut a3) = (0f32, 0f32, 0f32, 0f32);
+    let mut i = 0;
+    while i < n {
+        a0 += samples[i] * coefficients[i];
+        a1 += samples[i + 1] * coefficients[i + 1];
+        a2 += samples[i + 2] * coefficients[i + 2];
+        a3 += samples[i + 3] * coefficients[i + 3];
+        i += 4;
+    }
+    (a0 + a1) + (a2 + a3)
+}
+
+fn table_at(table: &[u16], index: i32) -> i32 {
+    i32::from(table[(index.max(0) as usize).min(table.len() - 1)])
+}
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum SidModel {
@@ -94,6 +239,292 @@ impl Default for Voice {
     }
 }
 
+/// MOS 6581 filter and output stage, ported from reSID 1.0 (VICE
+/// src/resid/filter.h, filter.cc, spline.h; Dag Lem, GPL-2.0-or-later):
+/// measured op-amp transfer curve, NMOS "resistor" gain / summer / mixer
+/// stages solved with Newton-Raphson, and the cutoff VCR in the EKV
+/// transistor model. Integer arithmetic follows reSID, including its
+/// wrapping 32-bit intermediate products.
+struct Model6581 {
+    kvddt: i32,
+    n_snake: i32,
+    voice_scale_s14: i32,
+    voice_dc: i32,
+    opamp_rev: Vec<u16>,
+    summer: Vec<u16>,
+    gain: Vec<u16>,
+    mixer: Vec<u16>,
+    f0_dac: Vec<u16>,
+    vcr_kvg: Vec<u16>,
+    vcr_n_ids_term: Vec<u16>,
+}
+
+#[derive(Clone, Copy, Default)]
+struct OpAmp {
+    vx: u16,
+    dvx: i16,
+}
+
+const OPAMP_VOLTAGE_6581: [(f64, f64); 35] = [
+    (0.81, 10.31), (0.81, 10.31), (2.40, 10.31), (2.60, 10.30), (2.70, 10.29), (2.80, 10.26),
+    (2.90, 10.17), (3.00, 10.04), (3.10, 9.83), (3.20, 9.58), (3.30, 9.32), (3.50, 8.69),
+    (3.70, 8.00), (4.00, 6.89), (4.40, 5.21), (4.54, 4.54), (4.60, 4.19), (4.80, 3.00),
+    (4.90, 2.30), (4.95, 2.03), (5.00, 1.88), (5.05, 1.77), (5.10, 1.69), (5.20, 1.58),
+    (5.40, 1.44), (5.60, 1.33), (5.80, 1.26), (6.00, 1.21), (6.40, 1.12), (7.00, 1.02),
+    (7.50, 0.97), (8.50, 0.89), (10.00, 0.81), (10.31, 0.81), (10.31, 0.81),
+];
+/// Start of the summer table for 0..=4 summed inputs (2 + n input "resistors").
+const SUMMER_OFFSET: [usize; 5] = [0, 2 << 16, 5 << 16, 9 << 16, 14 << 16];
+/// Start of the mixer table for 0..=7 mixed inputs.
+const MIXER_OFFSET: [usize; 8] =
+    [0, 1, 1 + (1 << 16), 1 + (3 << 16), 1 + (6 << 16), 1 + (10 << 16), 1 + (15 << 16), 1 + (21 << 16)];
+
+impl Model6581 {
+    fn get() -> &'static Model6581 {
+        static MODEL: OnceLock<Model6581> = OnceLock::new();
+        MODEL.get_or_init(Self::build)
+    }
+
+    /// reSID spline.h: piecewise cubic through the points, plotted at integer x.
+    fn interpolate(points: &[(f64, f64)], plot: &mut [u32]) {
+        let mut put = |x: f64, y: f64| {
+            let index = x as usize;
+            if index < plot.len() {
+                plot[index] = (if y < 0.0 { 0.0 } else { y } + 0.5) as u32;
+            }
+        };
+        let last = points.len() - 1;
+        let mut p0 = 0;
+        while p0 + 2 != last {
+            let (x0, y0) = points[p0];
+            let (x1, y1) = points[p0 + 1];
+            let (x2, y2) = points[p0 + 2];
+            let (x3, y3) = points[p0 + 3];
+            p0 += 1;
+            if x1 == x2 {
+                continue;
+            }
+            let (k1, k2);
+            if x0 == x1 && x2 == x3 {
+                k1 = (y2 - y1) / (x2 - x1);
+                k2 = k1;
+            } else if x0 == x1 {
+                k2 = (y3 - y1) / (x3 - x1);
+                k1 = (3.0 * (y2 - y1) / (x2 - x1) - k2) / 2.0;
+            } else if x2 == x3 {
+                k1 = (y2 - y0) / (x2 - x0);
+                k2 = (3.0 * (y2 - y1) / (x2 - x1) - k1) / 2.0;
+            } else {
+                k1 = (y2 - y0) / (x2 - x0);
+                k2 = (y3 - y1) / (x3 - x1);
+            }
+            let dx = x2 - x1;
+            let dy = y2 - y1;
+            let a = ((k1 + k2) - 2.0 * dy / dx) / (dx * dx);
+            let b = ((k2 - k1) / dx - 3.0 * (x1 + x2) * a) / 2.0;
+            let c = k1 - (3.0 * x1 * a + 2.0 * b) * x1;
+            let d = y1 - ((x1 * a + b) * x1 + c) * x1;
+            let res = 1.0;
+            let mut y = ((a * x1 + b) * x1 + c) * x1 + d;
+            let mut dy = (3.0 * a * (x1 + res) + 2.0 * b) * x1 * res + ((a * res + b) * res + c) * res;
+            let mut d2y = (6.0 * a * (x1 + res) + 2.0 * b) * res * res;
+            let d3y = 6.0 * a * res * res * res;
+            let mut x = x1;
+            while x <= x2 {
+                put(x, y);
+                y += dy;
+                dy += d2y;
+                d2y += d3y;
+                x += res;
+            }
+        }
+    }
+
+    /// reSID Filter::solve_gain: output of an inverting NMOS op-amp stage with
+    /// gain n (scaled by 2^7) for input vi, starting from (and updating) x.
+    fn solve_gain(opamp: &[OpAmp], n: i32, vi: i32, x: &mut i32, kvddt: i32, ak0: i32, bk0: i32) -> i32 {
+        let (mut ak, mut bk) = (ak0, bk0);
+        let a = n + (1 << 7);
+        let b = kvddt;
+        let b_vi = (b - vi).max(0) as u32;
+        let c = n.wrapping_mul((b_vi.wrapping_mul(b_vi) >> 12) as i32);
+        loop {
+            let xk = *x;
+            let entry = opamp[*x as usize];
+            let vx = i32::from(entry.vx);
+            let dvx = i32::from(entry.dvx);
+            let vo = (vx + (*x << 1) - (1 << 16)).clamp(0, (1 << 16) - 1);
+            let b_vx = (b - vx).max(0);
+            let b_vo = (b - vo).max(0);
+            let f = a
+                .wrapping_mul(((b_vx as u32).wrapping_mul(b_vx as u32) >> 12) as i32)
+                .wrapping_sub(c)
+                .wrapping_sub(((b_vo as u32).wrapping_mul(b_vo as u32) >> 5) as i32);
+            let df = ((b_vo.wrapping_mul(dvx + (1 << 11)) >> 1)
+                .wrapping_sub(a.wrapping_mul(b_vx.wrapping_mul(dvx) >> 8)))
+                >> 14;
+            if df != 0 {
+                *x -= f / df;
+            }
+            if *x == xk {
+                return vo;
+            }
+            if f < 0 {
+                ak = xk;
+            } else {
+                bk = xk;
+            }
+            if *x <= ak || *x >= bk {
+                *x = (ak + bk) >> 1;
+                if *x == ak {
+                    return vo;
+                }
+            }
+        }
+    }
+
+    fn build() -> Model6581 {
+        let (vdd, vth, ut, k, ucox, wl_vcr, wl_snake, cap) =
+            (12.18, 1.31, 26.0e-3, 1.0, 20e-6, 9.0, 1.0 / 115.0, 470e-12);
+        let points = &OPAMP_VOLTAGE_6581;
+        let vmin = points[0].0;
+        let opamp_max = points[0].1;
+        let kvddt_v = k * (vdd - vth);
+        let vmax = if kvddt_v < opamp_max { opamp_max } else { kvddt_v };
+        let denorm = vmax - vmin;
+        let norm = 1.0 / denorm;
+        let n16 = norm * f64::from((1u32 << 16) - 1);
+        let n31 = norm * f64::from((1u32 << 31) - 1);
+        let vo_n16 = n16 as i32;
+        let n14 = norm * f64::from(1u32 << 14);
+        let voice_scale_s14 = (n14 * 1.5) as i32;
+        let voice_dc = (n16 * (5.0 - vmin)) as i32;
+        let kvddt = (n16 * (kvddt_v - vmin) + 0.5) as i32;
+        let n_snake =
+            (denorm * f64::from(1 << 13) * (ucox / (2.0 * k) * wl_snake * 1.0e-6 / cap) + 0.5) as i32;
+
+        let size = points.len();
+        let mut scaled = vec![(0.0, 0.0); size];
+        for (i, &(vi, vo)) in points.iter().enumerate() {
+            scaled[size - 1 - i] = (
+                f64::from(((n16 * (vo - vi) + f64::from(1 << 16)) / 2.0 + 0.5) as i32),
+                n31 * (vi - vmin),
+            );
+        }
+        if scaled[size - 1].0 >= f64::from(1 << 16) {
+            scaled[size - 1].0 = f64::from((1 << 16) - 1);
+            scaled[size - 2].0 = f64::from((1 << 16) - 1);
+        }
+        let mut voltages = vec![0u32; 1 << 16];
+        Self::interpolate(&scaled, &mut voltages);
+        let ak = scaled[0].0 as i32;
+        let bk = scaled[size - 1].0 as i32;
+        let mut opamp = vec![OpAmp::default(); 1 << 16];
+        let mut f = voltages[ak as usize];
+        for j in ak as usize..=bk as usize {
+            let fp = f;
+            f = voltages[j];
+            let df = f.wrapping_sub(fp) as i32;
+            opamp[j].vx = if f > (0xffff << 15) { 0xffff } else { (f >> 15) as u16 };
+            opamp[j].dvx = (df >> (15 - 11)) as i16;
+        }
+
+        let mut gain = vec![0u16; 16 << 16];
+        for n8 in 0..16usize {
+            let mut x = ak;
+            for vi in 0..1 << 16 {
+                gain[(n8 << 16) + vi as usize] =
+                    Self::solve_gain(&opamp, (n8 as i32) << 4, vi, &mut x, kvddt, ak, bk) as u16;
+            }
+        }
+        let mut summer = vec![0u16; 20 << 16];
+        let mut offset = 0usize;
+        for inputs in 0..5 {
+            let idiv = 2 + inputs;
+            let mut x = ak;
+            for vi in 0..(idiv << 16) {
+                summer[offset + vi as usize] =
+                    Self::solve_gain(&opamp, idiv << 7, vi / idiv, &mut x, kvddt, ak, bk) as u16;
+            }
+            offset += (idiv << 16) as usize;
+        }
+        let mut mixer = vec![0u16; 1 + (28 << 16)];
+        let (mut offset, mut length) = (0usize, 1i32);
+        for inputs in 0..8 {
+            let n_idiv = (inputs << 7) * 8 / 6;
+            let idiv = inputs.max(1);
+            let mut x = ak;
+            for vi in 0..length {
+                mixer[offset + vi as usize] =
+                    Self::solve_gain(&opamp, n_idiv, vi / idiv, &mut x, kvddt, ak, bk) as u16;
+            }
+            offset += length as usize;
+            length = (inputs + 1) << 16;
+        }
+        let opamp_rev = opamp.iter().map(|entry| entry.vx).collect();
+
+        let dac = SidCore::cutoff_dac_6581();
+        let f0_dac = dac
+            .iter()
+            .map(|&value| (n16 * (6.65 + f64::from(value) * 2.63 / 2048.0 - vmin) + 0.5) as u16)
+            .collect();
+
+        let n16_vcr = f64::from(vo_n16);
+        let vmin_vcr = n16_vcr * vmin;
+        let kvddt_vcr = n16_vcr * (k * (vdd - vth));
+        let vcr_kvg = (0..1u32 << 16)
+            .map(|i| {
+                let vg = kvddt_vcr - (f64::from(i) * f64::from(1u32 << 16)).sqrt();
+                (k * vg - vmin_vcr + 0.5) as u16
+            })
+            .collect();
+        let kvt = k * vth;
+        let is = 2.0 * ucox * ut * ut / k * wl_vcr;
+        let n_is = n16_vcr / 2.0 * 1.0e-6 / cap * is;
+        let vcr_n_ids_term = (0..1u32 << 16)
+            .map(|kvg_vx| {
+                let log_term = ((f64::from(kvg_vx) / n16_vcr - kvt) / (2.0 * ut)).exp().ln_1p();
+                (n_is * log_term * log_term) as u16
+            })
+            .collect();
+
+        Model6581 {
+            kvddt,
+            n_snake,
+            voice_scale_s14,
+            voice_dc,
+            opamp_rev,
+            summer,
+            gain,
+            mixer,
+            f0_dac,
+            vcr_kvg,
+            vcr_n_ids_term,
+        }
+    }
+
+    /// reSID Filter::solve_integrate_6581 for one cycle: integrator with the
+    /// "snake" resistor and the cutoff VCR in parallel.
+    fn integrate(&self, vddt_vw_2: u32, vi: i32, vx: &mut i32, vc: &mut i32) -> i32 {
+        let vgst = (self.kvddt - *vx) as u32;
+        let vgdt = (self.kvddt - vi) as u32;
+        let vgdt_2 = vgdt.wrapping_mul(vgdt);
+        let n_i_snake = self
+            .n_snake
+            .wrapping_mul((vgst.wrapping_mul(vgst).wrapping_sub(vgdt_2) as i32) >> 15);
+        let kvg_index = (vddt_vw_2.wrapping_add(vgdt_2 >> 1) >> 16) as usize;
+        let kvg = i32::from(self.vcr_kvg[kvg_index.min(0xffff)]);
+        let vgs = (kvg - *vx).max(0) as usize;
+        let vgd = (kvg - vi).max(0) as usize;
+        let n_i_vcr = ((i32::from(self.vcr_n_ids_term[vgs.min(0xffff)])
+            - i32::from(self.vcr_n_ids_term[vgd.min(0xffff)])) as u32)
+            .wrapping_shl(15) as i32;
+        *vc = vc.wrapping_sub(n_i_snake.wrapping_add(n_i_vcr));
+        *vx = i32::from(self.opamp_rev[((*vc >> 15) + (1 << 15)).clamp(0, 0xffff) as usize]);
+        *vx + (*vc >> 14)
+    }
+}
+
 /// A one-SID audio core. The 25 implemented SID registers occupy `$00..$18`;
 /// the remaining internal slots are reserved and read as zero.
 pub struct SidCore {
@@ -102,18 +533,37 @@ pub struct SidCore {
     model: SidModel,
     waveform_dac: &'static [u16; 4096],
     envelope_dac: &'static [u16; 256],
-    sample_rate: f64,
-    clock_hz: f64,
     filter_w0: f32,
     filter_inv_q: f32,
-    filter_mix_gain: f32,
+    voice_samples: [f32; 3],
+    resid6581: Option<&'static Model6581>,
+    vhp: i32,
+    vbp: i32,
+    vbp_x: i32,
+    vbp_vc: i32,
+    vlp: i32,
+    vlp_x: i32,
+    vlp_vc: i32,
+    vddt_vw_2: u32,
+    eight_div_q: usize,
     low: f32,
     band: f32,
     high: f32,
     mixed: f32,
     external_low: f32,
     external_high: f32,
-    cycle_remainder: f64,
+    resampler: Arc<Resampler>,
+    history1: History,
+    history2: History,
+    decimation_count: usize,
+    output_enabled: bool,
+    cycles_per_sample: f64,
+    cycles_to_sample: u32,
+    sample_fraction: f64,
+    due_fraction: f64,
+    due_age: usize,
+    bus_value: u8,
+    bus_ttl: u32,
 }
 
 impl SidCore {
@@ -190,33 +640,69 @@ impl SidCore {
     }
 
     pub(crate) fn new_with_clock(sample_rate: u32, model: SidModel, clock_hz: f64) -> Self {
+        let sample_rate = sample_rate.max(8_000) as f64;
+        let resampler = Resampler::shared(clock_hz, sample_rate);
+        let cycles_per_sample = clock_hz / sample_rate;
         let mut sid = Self {
             regs: [0; 32],
             voices: [Voice::default(); 3],
             model,
             waveform_dac: Self::waveform_dac(model),
             envelope_dac: Self::envelope_dac(model),
-            sample_rate: sample_rate.max(8_000) as f64,
-            clock_hz,
             filter_w0: 0.,
             filter_inv_q: 0.,
-            filter_mix_gain: 1.,
+            voice_samples: [0.; 3],
+            resid6581: (model == SidModel::Mos6581).then(Model6581::get),
+            vhp: 0,
+            vbp: 0,
+            vbp_x: 0,
+            vbp_vc: 0,
+            vlp: 0,
+            vlp_x: 0,
+            vlp_vc: 0,
+            vddt_vw_2: 0,
+            eight_div_q: 0,
             low: 0.,
             band: 0.,
             high: 0.,
             mixed: 0.,
             external_low: 0.,
             external_high: 0.,
-            cycle_remainder: 0.,
+            history1: History::new(resampler.stage1.taps),
+            history2: History::new(resampler.stage2.taps),
+            resampler,
+            decimation_count: 0,
+            output_enabled: true,
+            cycles_per_sample,
+            cycles_to_sample: cycles_per_sample.floor() as u32 + 1,
+            sample_fraction: cycles_per_sample.fract(),
+            due_fraction: 0.,
+            due_age: 0,
+            bus_value: 0,
+            bus_ttl: 0,
         };
         sid.update_filter_coefficients();
+        sid.settle_output();
         sid
+    }
+
+    /// Starts the external filter at the chip's idle DC level, so a new core
+    /// does not open with the power-on thump of the 6581 output stage.
+    fn settle_output(&mut self) {
+        let mut idle = 0.0;
+        for _ in 0..20_000 {
+            idle = self.mix_output();
+        }
+        self.external_low = idle;
+        self.external_high = idle;
+        self.mixed = 0.;
     }
     pub fn write(&mut self, register: u8, value: u8) {
         if register >= 32 {
             return;
         }
         let r = register as usize;
+        self.touch_bus(value);
         let previous = self.regs[r];
         self.regs[r] = value;
         if (0x15..=0x17).contains(&r) && previous != value {
@@ -312,25 +798,110 @@ impl SidCore {
 
     /// Renders signed 16-bit mono samples from the current SID register state.
     pub fn render(&mut self, output: &mut [i16]) {
-        let cycles_per_sample = self.clock_hz / self.sample_rate;
+        let mut filled = 0;
+        while filled < output.len() {
+            if self.clock() {
+                output[filled] = self.output_sample();
+                filled += 1;
+            }
+        }
+    }
+
+    /// Advances the chip by one SID clock cycle. Returns true when an output
+    /// sample falls due; `output_sample` must then be read before the next clock.
+    pub fn clock(&mut self) -> bool {
+        for (index, voice) in self.voices.iter_mut().enumerate() {
+            Self::clock_envelope(index, voice, &self.regs);
+        }
+        self.clock_oscillators();
+        // Seeking (output off) skips the voice outputs, the filter and the mixer,
+        // the bulk of a cycle: envelopes and oscillators keep the tune's state, and
+        // the output restarts from silence anyway (set_output_enabled).
+        if self.output_enabled {
+            self.clock_filter();
+        }
+        if self.bus_ttl > 0 {
+            self.bus_ttl -= 1;
+            if self.bus_ttl == 0 {
+                self.bus_value = 0;
+            }
+        }
+        // the decimation phase keeps running while the output is off
+        self.decimation_count += 1;
+        let decimate = self.decimation_count == self.resampler.decimation;
+        if decimate {
+            self.decimation_count = 0;
+        }
+        if self.output_enabled {
+            self.history1.push(self.mixed);
+            if decimate {
+                let decimated = self.history1.filter(&self.resampler.stage1.coefficients);
+                self.history2.push(decimated);
+            }
+        }
+        self.cycles_to_sample -= 1;
+        if self.cycles_to_sample != 0 {
+            return false;
+        }
+        self.due_fraction = self.sample_fraction;
+        self.due_age = self.decimation_count;
+        let next = self.sample_fraction + self.cycles_per_sample;
+        self.cycles_to_sample = next.floor() as u32;
+        self.sample_fraction = next.fract();
+        true
+    }
+
+    /// Seeking: with the output off the envelopes and oscillators keep running,
+    /// the voice outputs, filter and resampler rest; the output restarts from
+    /// silence (a fade-in of the FIR length) when enabled.
+    pub fn set_output_enabled(&mut self, enabled: bool) {
+        if enabled && !self.output_enabled {
+            self.history1 = History::new(self.resampler.stage1.taps);
+            self.history2 = History::new(self.resampler.stage2.taps);
+        }
+        self.output_enabled = enabled;
+    }
+
+    /// The band-limited output at the instant reported by the last `clock()`.
+    /// The FIR adds a fixed latency of half its length (about 27 samples at 44.1 kHz).
+    pub fn output_sample(&self) -> i16 {
+        // the 6581 output stage already delivers reSID's 16-bit output level
         let chip_gain = match self.model {
-            SidModel::Mos6581 => 1.05,
+            SidModel::Mos6581 => 1.0,
             SidModel::Mos8580 => 0.98,
         };
-        for sample in output {
-            self.cycle_remainder += cycles_per_sample;
-            let cycles = self.cycle_remainder as usize;
-            self.cycle_remainder -= cycles as f64;
-            for _ in 0..cycles {
-                for (index, voice) in self.voices.iter_mut().enumerate() {
-                    Self::clock_envelope(index, voice, &self.regs);
-                }
-                self.clock_oscillators();
-                self.clock_filter();
-            }
-            *sample = (self.mixed * OUTPUT_SCALE * chip_gain)
-                .clamp(i16::MIN as f32, i16::MAX as f32) as i16;
-        }
+        // Instant of the due sample after the newest stage-1 output, in stage-1 samples.
+        let decimation = self.resampler.decimation as f64;
+        let fraction = (self.due_age as f64 + self.due_fraction) / decimation;
+        let value = self.history2.filter(self.resampler.stage2.phase(fraction));
+        (value * OUTPUT_SCALE * chip_gain).clamp(i16::MIN as f32, i16::MAX as f32) as i16
+    }
+
+    /// CPU read of a SID register. $19/$1A (no paddles) read $FF, $1B is the top
+    /// of voice 3's waveform, $1C its envelope; the write-only registers return
+    /// the last value on the data bus until it fades (reSID's simplification).
+    pub fn read(&mut self, register: u8) -> u8 {
+        let value = match register & 0x1f {
+            0x19 | 0x1a => 0xff,
+            0x1b => (self.voices[2].waveform_output >> 4) as u8,
+            0x1c => self.voices[2].env,
+            _ => return self.bus_value,
+        };
+        self.touch_bus(value);
+        value
+    }
+
+    #[cfg(test)]
+    pub(crate) fn registers(&self) -> [u8; 32] {
+        self.regs
+    }
+
+    fn touch_bus(&mut self, value: u8) {
+        self.bus_value = value;
+        self.bus_ttl = match self.model {
+            SidModel::Mos6581 => 0x1d00,
+            SidModel::Mos8580 => 0xa_2000,
+        };
     }
 
     fn clock_oscillators(&mut self) {
@@ -607,68 +1178,96 @@ impl SidCore {
     fn update_filter_coefficients(&mut self) {
         let cutoff = u16::from(self.regs[0x15] & 7) | (u16::from(self.regs[0x16]) << 3);
         let resonance = (self.regs[0x17] >> 4) as usize;
-        self.filter_mix_gain = if self.model == SidModel::Mos6581 {
-            1.0 + resonance.saturating_sub(7) as f32 * 0.016
+        if let Some(model) = self.resid6581 {
+            let vw = i32::from(model.f0_dac[cutoff as usize]);
+            let span = (model.kvddt - vw) as u32;
+            self.vddt_vw_2 = span.wrapping_mul(span) >> 1;
+            self.eight_div_q = !resonance & 0x0f;
         } else {
-            1.0
-        };
-        (self.filter_w0, self.filter_inv_q) = match self.model {
-            SidModel::Mos8580 => (
-                (82_355u32 * (u32::from(cutoff) + 1) >> 11) as f32 / 1_048_576.0,
-                RESID_8580_INV_Q_X1024[resonance] / 1024.0,
-            ),
-            // reSID's 6581 uses a nonlinear transistor/op-amp model and
-            // measured cutoff DAC data. The DAC ladder is reproduced here;
-            // the voltage-dependent transistor/op-amp response is still an
-            // approximation.
-            SidModel::Mos6581 => {
-                let dac = Self::cutoff_dac_6581();
-                let fraction = dac[cutoff as usize] as f32 / dac[2047] as f32;
-                (
-                    // A helyi reSID PCM-összehasonlításból illesztett, nem tranzisztorszintű görbe.
-                    (fraction.powi(4) * 0.3).clamp(0.0017, 0.055),
-                    (1.42 - resonance as f32 * 0.075).max(0.25),
-                )
-            }
-        };
+            self.filter_w0 = (82_355u32 * (u32::from(cutoff) + 1) >> 11) as f32 / 1_048_576.0;
+            self.filter_inv_q = RESID_8580_INV_Q_X1024[resonance] / 1024.0;
+        }
     }
 
-    fn clock_filter(&mut self) {
+    /// reSID's 6581 voice level: (waveform DAC - $380) * envelope DAC, scaled
+    /// into the op-amp voltage range and raised to the voice DC level.
+    fn voice_level_6581(&self, model: &Model6581, index: usize) -> i32 {
+        let voice = &self.voices[index];
+        let wave = i32::from(self.waveform_dac[voice.waveform_output as usize]) - 0x380;
+        let level = wave * i32::from(self.envelope_dac[voice.env as usize]);
+        (level.wrapping_mul(model.voice_scale_s14) >> 18) + model.voice_dc
+    }
+
+    /// One cycle of the filter and the audio mixer / volume stage, from the
+    /// voice outputs already computed for this cycle. Returns the chip output
+    /// before the C64's external RC filter.
+    fn mix_output(&mut self) -> f32 {
         let mode_vol = self.regs[0x18];
         let routing = self.regs[0x17] & 0x0f;
+        if let Some(model) = self.resid6581 {
+            let voices = [
+                self.voice_level_6581(model, 0),
+                self.voice_level_6581(model, 1),
+                self.voice_level_6581(model, 2),
+            ];
+            let (mut summed, mut summed_count) = (0i32, 0usize);
+            for (index, &voice) in voices.iter().enumerate() {
+                if routing & (1 << index) != 0 {
+                    summed += voice;
+                    summed_count += 1;
+                }
+            }
+            self.vlp = model.integrate(self.vddt_vw_2, self.vbp, &mut self.vlp_x, &mut self.vlp_vc);
+            self.vbp = model.integrate(self.vddt_vw_2, self.vhp, &mut self.vbp_x, &mut self.vbp_vc);
+            let feedback = table_at(&model.gain, ((self.eight_div_q as i32) << 16) + self.vbp.clamp(0, 0xffff));
+            self.vhp = table_at(&model.summer, SUMMER_OFFSET[summed_count] as i32 + feedback + self.vlp + summed);
+            // voice 3 off only mutes an unfiltered voice 3; EXT IN is not connected
+            let mix = ((mode_vol & 0x70) | (!(routing | ((mode_vol & 0x80) >> 5)) & 0x0f)) & 0x77;
+            let inputs = [voices[0], voices[1], voices[2], 0, self.vlp, self.vbp, self.vhp];
+            let (mut mixed, mut mixed_count) = (0i32, 0usize);
+            for (bit, &input) in inputs.iter().enumerate() {
+                if mix & (1 << bit) != 0 {
+                    mixed += input;
+                    mixed_count += 1;
+                }
+            }
+            let mixer = table_at(&model.mixer, MIXER_OFFSET[mixed_count] as i32 + mixed);
+            let volume = i32::from(mode_vol & 0x0f) << 16;
+            let output = table_at(&model.gain, volume + mixer.clamp(0, 0xffff)) - (1 << 15);
+            return output as f32 / OUTPUT_SCALE;
+        }
         let mut routed = 0.0f32;
         let mut direct = 0.0f32;
         for index in 0..3 {
-            let sample = self.render_voice(index);
+            let sample = self.voice_samples[index];
             if routing & (1 << index) != 0 {
                 routed += sample;
             } else if index != 2 || mode_vol & 0x80 == 0 {
                 direct += sample;
             }
         }
-
         self.band -= self.filter_w0 * self.high;
         self.low -= self.filter_w0 * self.band;
         self.high = self.band * self.filter_inv_q - self.low - routed;
-
         let mode = mode_vol & 0x70;
         let mut filtered = 0.0;
-        // A 6581 analóg keverőjének módonként eltérő erősítése, reSID-mintákhoz illesztve.
-        let (low_gain, band_gain, high_gain) = match self.model {
-            SidModel::Mos6581 => (0.81, 0.86, 0.48),
-            SidModel::Mos8580 => (1.0, 1.0, 1.0),
-        };
         if mode & 0x10 != 0 {
-            filtered += self.low * low_gain;
+            filtered += self.low;
         }
         if mode & 0x20 != 0 {
-            filtered += self.band * band_gain;
+            filtered += self.band;
         }
         if mode & 0x40 != 0 {
-            filtered += self.high * high_gain;
+            filtered += self.high;
         }
-        filtered *= self.filter_mix_gain;
-        let sid_output = (direct + filtered) * (mode_vol & 15) as f32 / 15.0;
+        (direct + filtered) * (mode_vol & 15) as f32 / 15.0
+    }
+
+    fn clock_filter(&mut self) {
+        for index in 0..3 {
+            self.voice_samples[index] = self.render_voice(index);
+        }
+        let sid_output = self.mix_output();
         // reSID's external RC stage is clocked once per SID cycle: 10 kΩ / 1 nF
         // low-pass followed by 1 kΩ / 10 μF high-pass.
         self.external_low += (12.0 / 128.0) * (sid_output - self.external_low);
@@ -787,16 +1386,65 @@ mod tests {
     #[test]
     fn filter_coefficients_follow_cutoff_and_resonance_writes() {
         let mut sid = SidCore::new(44_100, SidModel::Mos6581);
-        let initial_cutoff = sid.filter_w0;
-        let initial_resonance = sid.filter_inv_q;
+        let initial = (sid.vddt_vw_2, sid.eight_div_q);
         sid.write(0x16, 0x80);
-        assert_ne!(sid.filter_w0, initial_cutoff);
-        assert_eq!(sid.filter_inv_q, initial_resonance);
+        assert_ne!(sid.vddt_vw_2, initial.0);
+        assert_eq!(sid.eight_div_q, initial.1);
         sid.write(0x17, 0xf0);
-        assert_ne!(sid.filter_inv_q, initial_resonance);
-        let unchanged = (sid.filter_w0, sid.filter_inv_q);
+        assert_eq!(sid.eight_div_q, 0);
+        let unchanged = (sid.vddt_vw_2, sid.eight_div_q);
         sid.write(0x18, 0x1f);
-        assert_eq!((sid.filter_w0, sid.filter_inv_q), unchanged);
+        assert_eq!((sid.vddt_vw_2, sid.eight_div_q), unchanged);
+
+        let mut sid = SidCore::new(44_100, SidModel::Mos8580);
+        let initial = (sid.filter_w0, sid.filter_inv_q);
+        sid.write(0x16, 0x80);
+        assert_ne!(sid.filter_w0, initial.0);
+        sid.write(0x17, 0xf0);
+        assert_ne!(sid.filter_inv_q, initial.1);
+    }
+
+    #[test]
+    fn mos6581_volume_register_digi_is_audible_through_the_dc_level() {
+        // $D418 4-bit samples: silent voices, only the master volume toggles
+        let mut sid = SidCore::new(44_100, SidModel::Mos6581);
+        let mut pcm = vec![0i16; 4_410];
+        for (index, chunk) in pcm.chunks_mut(10).enumerate() {
+            sid.write(0x18, if index % 2 == 0 { 0x0f } else { 0x00 });
+            sid.render(chunk);
+        }
+        let peak = pcm[1_000..].iter().map(|&sample| i32::from(sample).abs()).max().unwrap();
+        assert!(peak > 2_000, "6581 volume digi peak {peak}");
+    }
+
+    #[test]
+    fn resampler_suppresses_aliases_of_a_bright_sawtooth() {
+        // Saw at 3849 Hz: harmonic 11 (42.3 kHz) would alias to 1765 Hz.
+        let mut sid = SidCore::new(44_100, SidModel::Mos8580);
+        sid.write(0, 0xff);
+        sid.write(1, 0xff);
+        sid.write(5, 0x00);
+        sid.write(6, 0xf0);
+        sid.write(4, 0x21);
+        sid.write(0x18, 0x0f);
+        let mut pcm = vec![0i16; 2_205 + 16_384];
+        sid.render(&mut pcm);
+        let window = &pcm[2_205..];
+        let power = |frequency: f64| {
+            let n = window.len() as f64;
+            let (mut re, mut im) = (0.0, 0.0);
+            for (index, &sample) in window.iter().enumerate() {
+                let hann = 0.5 - 0.5 * (2.0 * std::f64::consts::PI * index as f64 / n).cos();
+                let phase = 2.0 * std::f64::consts::PI * frequency * index as f64 / 44_100.0;
+                re += f64::from(sample) * hann * phase.cos();
+                im += f64::from(sample) * hann * phase.sin();
+            }
+            re * re + im * im
+        };
+        let fundamental = 65_535.0 * PAL_CLOCK / 16_777_216.0;
+        let alias = 44_100.0 - 11.0 * fundamental;
+        let ratio_db = 10.0 * (power(alias) / power(fundamental)).log10();
+        assert!(ratio_db < -60.0, "alias at {alias:.0} Hz is {ratio_db:.1} dB");
     }
 
     #[test]

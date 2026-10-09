@@ -1895,6 +1895,7 @@ function initPalette() {
   setupMapEditor();
   setupLevelEditor();
   setupNumberConverter();
+  setupSidPlayer();
   setupBookmarks();
   setupHiresEditor();
   setupSpriteEditor();
@@ -2355,6 +2356,7 @@ function setupDraggableEditorDialogs() {
     ["map-editor-dialog", ".me-hdr"],
     ["level-editor-dialog", ".me-hdr"],
     ["numconv-dialog", ".nc-hdr"],
+    ["websid-play-dialog", ".websid-play-header"],
     ["hires-editor-dialog", ".hg-hdr"],
     ["sprite-editor-dialog", ".se-hdr"],
     ["sid-editor-dialog", ".sid-hdr"],
@@ -3823,8 +3825,8 @@ function _applyEditorTranslations() {
   setText(".sid-title", t("sidTitle"));
   setText("#sid-load-bin", t("sidLoadBin"));
   setText("#sid-save-bin", t("sidSaveBin"));
-  setText("#sid-play-sid", t("sidPlaySid"));
   setText("#sid-master-vol-lbl", t("sidMasterVolume"));
+  setAttr("#sid-master-vol", t("sidMasterVolume"));
   setText("#sid-preview-engine-lbl", t("sidPreviewEngine"));
   setText("#sid-preview-model-lbl", t("sidPreviewModel"));
   const sidPreviewEngine = document.getElementById("sid-preview-engine");
@@ -3838,9 +3840,27 @@ function _applyEditorTranslations() {
     sidPreviewModel.value = _sidPreviewModel;
     sidPreviewModel.disabled = _sidPreviewEngine !== "va-core";
   }
-  setText("#websid-play-title", t("websidPlayTitle"));
+  setText("#websid-play-title", t("sidPlayerTitle"));
   setText("#websid-play-note", t("websidPlayNote"));
-  setText("#websid-play-stop", t("websidPlayStop"));
+  setText("#websid-play-drop-hint", t("sidPlayerDropHint"));
+  setAttr("#websid-play-play", t("sidPlay"));
+  setAttr("#websid-play-pause", t("sidPause"));
+  setAttr("#websid-play-stop", t("websidPlayStop"));
+  setAttr("#websid-play-prev", t("sidPlayerPrev"));
+  setAttr("#websid-play-next", t("sidPlayerNext"));
+  setAttr("#websid-play-rew", t("sidPlayerBack10"));
+  setAttr("#websid-play-fwd", t("sidPlayerForward10"));
+  setAttr("#websid-play-add", t("sidPlayerAdd"));
+  setAttr("#websid-play-clear", t("sidPlayerClear"));
+  setAttr("#websid-play-open-list", t("sidPlayerOpenList"));
+  setAttr("#websid-play-song-prev", t("sidPlayerPrevSong"));
+  setAttr("#websid-play-song-next", t("sidPlayerNextSong"));
+  setAttr("#websid-play-save-list", t("sidPlayerSaveList"));
+  setAttr("#websid-play-seek", t("sidPlayerSeek"));
+  setAttr("#websid-play-vol", t("sidPlayerVolume"));
+  setAttr("#websid-play-close", t("close"));
+  setAttr("#sid-player-btn", t("sidPlayerTitle"));
+  try { _sidPlayerRenderList(); } catch (_) {}
   setText("#sid-export-data", t("sidExportData"));
   setText("#sid-export-player", t("sidExportPlayer"));
   setText("#sid-export-asm", t("sidExportAsm"));
@@ -20327,11 +20347,13 @@ function setupHardwareSettingsDialog() {
     if (modelEl) modelEl.disabled = _sidPreviewEngine !== "va-core";
     try { localStorage.setItem("c64va-sid-preview-engine", _sidPreviewEngine); } catch (_) {}
     if (_sidInited) _sidStop();
+    _sidPlayerRenderList();
   });
   document.getElementById("sid-preview-model")?.addEventListener("change", function(e) {
     _sidPreviewModel = e.target.value === "6581" ? "6581" : "8580";
     try { localStorage.setItem("c64va-sid-preview-model", _sidPreviewModel); } catch (_) {}
     if (_sidInited) _sidStop();
+    _sidPlayerRenderList();
   });
 }
 
@@ -31974,7 +31996,7 @@ function applyZoom() {
 }
 
 // Settings setup runs inside initPalette, before the SID editor code below.
-var _VA_SID_CORE_VERSION = "1.0";
+var _VA_SID_CORE_VERSION = "1.1";
 var _sidPreviewEngine = "websid";
 var _sidPreviewModel = "8580";
 initPalette();
@@ -36461,6 +36483,90 @@ function setupNumberConverter() {
   });
 }
 
+function setupSidPlayer() {
+  const dialog = document.getElementById("websid-play-dialog");
+  if (!dialog) return;
+  const on = function(id, ev, fn) { document.getElementById(id)?.addEventListener(ev, fn); };
+  on("sid-player-btn", "click", _sidPlayerToggle);
+  on("websid-play-play", "click", _sidExtPlay);
+  on("websid-play-pause", "click", _sidExtPause);
+  on("websid-play-stop", "click", _sidExtStop);
+  on("websid-play-prev", "click", _sidPlayerPrev);
+  on("websid-play-next", "click", _sidPlayerNext);
+  on("websid-play-song-prev", "click", function() { _sidPlayerSong(-1); });
+  on("websid-play-song-next", "click", function() { _sidPlayerSong(1); });
+  on("websid-play-rew", "click", function() { _sidExtSeek(_sidExtElapsedMs() - 10000); });
+  on("websid-play-fwd", "click", function() { _sidExtSeek(_sidExtElapsedMs() + 10000); });
+  on("websid-play-close", "click", function() { dialog.close(); });
+  const fileInput = document.getElementById("websid-play-files");
+  on("websid-play-add", "click", function() { fileInput?.click(); });
+  fileInput?.addEventListener("change", async function() {
+    await _sidPlayerAddFiles(fileInput.files, false);
+    fileInput.value = "";
+  });
+  on("websid-play-clear", "click", _sidPlayerClear);
+  _sidKnobBind(document.getElementById("websid-play-vol"),
+    function() { return Math.round(_sidMasterVol * 100); },
+    function(pct) { _sidSetMasterVolume(pct); });
+  on("websid-play-save-list", "click", _sidPlayerSavePlaylist);
+  const listInput = document.getElementById("websid-play-list-file");
+  on("websid-play-open-list", "click", function() { listInput?.click(); });
+  listInput?.addEventListener("change", async function() {
+    const file = listInput.files?.[0];
+    listInput.value = "";
+    if (file) await _sidPlayerAddFiles([file], false);
+  });
+  const seek = document.getElementById("websid-play-seek");
+  seek?.addEventListener("input", function() {
+    _sidSeekDragging = true;
+    const time = document.getElementById("websid-play-time");
+    if (time) time.textContent = _sidExtFormatTime(Number(seek.value) * 1000);
+  });
+  seek?.addEventListener("change", function() {
+    _sidSeekDragging = false;
+    _sidExtSeek(Number(seek.value) * 1000);
+  });
+  document.getElementById("websid-play-list")?.addEventListener("click", function(e) {
+    const li = e.target.closest(".websid-play-item");
+    if (!li) return;
+    if (e.target.closest(".websid-play-item-del")) { _sidPlayerRemove(li.dataset.id); return; }
+    _sidPlayerPlayIndex(_sidPlaylist.findIndex(function(item) { return item.id === li.dataset.id; }));
+  });
+  // dragover must be prevented on the whole card or the WebView opens the file
+  const card = dialog.querySelector(".websid-play-card");
+  const body = dialog.querySelector(".websid-play-body");
+  let dragDepth = 0;
+  card?.addEventListener("dragenter", function(e) { e.preventDefault(); dragDepth++; body?.classList.add("websid-play-dragover"); });
+  card?.addEventListener("dragover", function(e) { e.preventDefault(); });
+  card?.addEventListener("dragleave", function() {
+    dragDepth = Math.max(0, dragDepth - 1);
+    if (!dragDepth) body?.classList.remove("websid-play-dragover");
+  });
+  card?.addEventListener("drop", function(e) {
+    e.preventDefault();
+    dragDepth = 0;
+    body?.classList.remove("websid-play-dragover");
+    _sidPlayerAddFiles(e.dataTransfer?.files, false);
+  });
+  // a non-modal dialog gets no "cancel" from Esc
+  dialog.addEventListener("keydown", function(e) {
+    if (e.key === "Escape") { e.preventDefault(); dialog.close(); }
+  });
+  // Every way of closing (×, Esc, the toolbar button) ends the playback.
+  dialog.addEventListener("close", function() {
+    // the event is queued: the window may have been reopened since
+    if (dialog.open) return;
+    if (_sidExtStatus !== "stopped") _sidExtStop();
+    _sidPlayerSyncButton();
+    _sidPlayerPersist();
+  });
+  // runs before the _sidPlaylist state is declared (TDZ), so restore after the script has loaded
+  setTimeout(function() {
+    _sidLoadMasterVolume();
+    _sidPlayerRestore();
+  }, 0);
+}
+
 /* ═══════════════════════════════════════════════════════
    HI-RES / MULTICOLOR GRAPHICS EDITOR
    ═══════════════════════════════════════════════════════ */
@@ -39248,6 +39354,81 @@ function _sidEnsureAudio() {
   }
   return _sidAudio;
 }
+// Sets the shared SID volume (0-100) and keeps the SID Editor and the SID
+// player knobs in step; persisted as c64va-sid-master-vol.
+function _sidSetMasterVolume(pct, persist = true) {
+  pct = Math.max(0, Math.min(100, Math.round(Number(pct) || 0)));
+  _sidMasterVol = pct / 100;
+  ["sid-master-vol-val", "websid-play-vol-val"].forEach(function(id) {
+    const value = document.getElementById(id);
+    if (value) value.textContent = String(pct);
+  });
+  _sidKnobRender(document.getElementById("sid-master-vol"), pct);
+  _sidKnobRender(document.getElementById("websid-play-vol"), pct);
+  _sidApplyMasterVolume();
+  if (persist) { try { localStorage.setItem("c64va-sid-master-vol", String(pct)); } catch (_) {} }
+}
+// Volume knob geometry: 0-100 maps to a 270° sweep, 0° = straight up.
+const _SID_KNOB_SWEEP = 270;
+function _sidKnobPoint(deg, r) {
+  const rad = deg * Math.PI / 180;
+  return (20 + r * Math.sin(rad)).toFixed(2) + " " + (20 - r * Math.cos(rad)).toFixed(2);
+}
+function _sidKnobArc(fromDeg, toDeg, r) {
+  if (toDeg - fromDeg < 0.5) return "";
+  return "M" + _sidKnobPoint(fromDeg, r) + "A" + r + " " + r + " 0 " + (toDeg - fromDeg > 180 ? 1 : 0) + " 1 " + _sidKnobPoint(toDeg, r);
+}
+function _sidKnobRender(knob, pct) {
+  if (!knob) return;
+  const start = -_SID_KNOB_SWEEP / 2;
+  const angle = start + _SID_KNOB_SWEEP * pct / 100;
+  knob.querySelector(".websid-play-knob-track")?.setAttribute("d", _sidKnobArc(start, -start, 16.5));
+  knob.querySelector(".websid-play-knob-value")?.setAttribute("d", _sidKnobArc(start, angle, 16.5));
+  knob.querySelector(".websid-play-knob-pointer")?.setAttribute("transform", "rotate(" + angle.toFixed(1) + " 20 20)");
+  knob.setAttribute("aria-valuenow", String(pct));
+}
+// Drag up / right = louder (200 px for the full range), wheel ±2, keys ±1 / ±10.
+function _sidKnobBind(knob, get, set) {
+  if (!knob) return;
+  let drag = null;
+  knob.addEventListener("pointerdown", function(e) {
+    drag = { x: e.clientX, y: e.clientY, value: get() };
+    try { knob.setPointerCapture(e.pointerId); } catch (_) {}
+    knob.focus();
+    e.preventDefault();
+  });
+  knob.addEventListener("pointermove", function(e) {
+    if (!drag) return;
+    set(drag.value + ((drag.y - e.clientY) + (e.clientX - drag.x)) / 2);
+  });
+  const end = function(e) {
+    drag = null;
+    try { knob.releasePointerCapture(e.pointerId); } catch (_) {}
+  };
+  knob.addEventListener("pointerup", end);
+  knob.addEventListener("pointercancel", end);
+  knob.addEventListener("wheel", function(e) {
+    e.preventDefault();
+    set(get() + (e.deltaY < 0 ? 2 : -2));
+  }, { passive: false });
+  knob.addEventListener("keydown", function(e) {
+    const step = e.shiftKey ? 10 : 1;
+    const delta = { ArrowUp: step, ArrowRight: step, ArrowDown: -step, ArrowLeft: -step, PageUp: 10, PageDown: -10 }[e.key];
+    if (delta !== undefined) set(get() + delta);
+    else if (e.key === "Home") set(0);
+    else if (e.key === "End") set(100);
+    else return;
+    e.preventDefault();
+  });
+}
+function _sidLoadMasterVolume() {
+  let pct = Math.round(_sidMasterVol * 100);
+  try {
+    const saved = localStorage.getItem("c64va-sid-master-vol");
+    if (saved !== null && Number.isFinite(Number(saved))) pct = Number(saved);
+  } catch (_) {}
+  _sidSetMasterVolume(pct, false);
+}
 function _sidApplyMasterVolume() {
   // Web Audio path: adjust the shared gain node in real time
   if (_sidMasterGain) {
@@ -39452,7 +39633,7 @@ function _webSidLoadPsid(psid) {
     try {
       const p = ScriptNodePlayer.loadMusicFromURL(
         _webSidBlobUrl,
-        { track: -1, timeout: -1, traceSID: false },
+        { track: song > 0 ? song - 1 : -1, timeout: -1, traceSID: false },
         function() { done(false); },
         function() {}
       );
@@ -39671,21 +39852,11 @@ function _sidUpdatePauseButton() {
 }
 
 function _webSidShowExternalDialog(filename, engine) {
-  const dlg = document.getElementById("websid-play-dialog");
-  if (!dlg) return;
-  const fileEl = document.getElementById("websid-play-file");
-  if (fileEl) fileEl.textContent = filename || "";
-  const engineEl = document.getElementById("websid-play-engine");
-  if (engineEl) engineEl.textContent = t("sidPreviewEngine") + ": " + engine;
-  try {
-    // showModal() over the already-modal SID editor: two modals stack in the
-    // top layer in open order, and the topmost captures all clicks — so Stop
-    // is reliably reachable. dlg.show() and popover both hit backdrop-swallowed
-    // click paths in the Tauri WebView.
-    if (!dlg.open) dlg.showModal();
-  } catch(_) {
-    try { if (!dlg.open) dlg.show(); } catch(__) {}
-  }
+  _sidPlayerEngineName = engine;
+  _sidExtElapsed = 0;
+  _sidExtSetStatus("playing");
+  _sidPlayerShow();
+  _sidPlayerRenderList();
 }
 function _webSidHideExternalDialog() {
   const dlg = document.getElementById("websid-play-dialog");
@@ -39693,7 +39864,451 @@ function _webSidHideExternalDialog() {
   try { if (dlg.open) dlg.close(); } catch(_) {}
 }
 
-async function _webSidPlayFileBytes(bytes, filename) {
+/* Transport of the SID player. Play restarts the current tune when stopped;
+ * pause suspends the AudioContext (VA SID Core) or the WebSID player, so the
+ * counter only advances while sound is produced. */
+let _sidExtFile = null;
+let _sidExtStatus = "stopped";
+let _sidExtElapsed = 0;
+let _sidExtRunSince = null;
+let _sidExtTick = null;
+let _sidExtStarting = false;
+let _sidExtStartSeq = 0;
+
+function _sidExtFormatTime(ms) {
+  const s = Math.floor(ms / 1000);
+  return String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
+}
+function _sidExtElapsedMs() {
+  return _sidExtElapsed + (_sidExtRunSince !== null ? performance.now() - _sidExtRunSince : 0);
+}
+function _sidExtRender() {
+  const time = document.getElementById("websid-play-time");
+  if (time && !_sidSeekDragging) time.textContent = _sidExtFormatTime(_sidExtElapsedMs());
+  const dlg = document.getElementById("websid-play-dialog");
+  if (dlg) {
+    dlg.classList.toggle("websid-play-dialog--paused", _sidExtStatus === "paused");
+    dlg.classList.toggle("websid-play-dialog--stopped", _sidExtStatus === "stopped");
+  }
+  const play = document.getElementById("websid-play-play");
+  if (play) play.classList.toggle("websid-play-tool--active", _sidExtStatus === "playing");
+  const pause = document.getElementById("websid-play-pause");
+  if (pause) {
+    pause.classList.toggle("websid-play-tool--active", _sidExtStatus === "paused");
+    pause.disabled = _sidExtStatus === "stopped";
+  }
+  const stop = document.getElementById("websid-play-stop");
+  if (stop) stop.disabled = _sidExtStatus === "stopped";
+  _sidPlayerTickUi();
+}
+function _sidExtSetStatus(status) {
+  if (status === "playing") {
+    if (_sidExtRunSince === null) _sidExtRunSince = performance.now();
+  } else {
+    _sidExtElapsed = status === "stopped" ? 0 : _sidExtElapsedMs();
+    _sidExtRunSince = null;
+  }
+  _sidExtStatus = status;
+  if (status === "playing" && !_sidExtTick) {
+    _sidExtTick = setInterval(function() { _sidExtRender(); _sidPlayerAutoAdvance(); }, 250);
+  }
+  if (status !== "playing" && _sidExtTick) { clearInterval(_sidExtTick); _sidExtTick = null; }
+  _sidExtRender();
+}
+async function _sidExtStartFile(bytes, filename, song = 0) {
+  // Stop the running tune with the window kept open: the engines' own stop
+  // closes it, and the late "close" event would then stop the new tune too.
+  // Unconditional: a tune that is still starting (status "stopped") must be
+  // stopped this way too when the user switches quickly.
+  _sidExtStop();
+  _sidExtFile = { bytes, name: filename, song };
+  const seq = ++_sidExtStartSeq;
+  _sidExtStarting = true;
+  try {
+    return _sidUsesVaCore() ? await _vaSidPlayFileBytes(bytes, filename, song) : await _webSidPlayFileBytes(bytes, filename, song);
+  } finally {
+    if (seq === _sidExtStartSeq) _sidExtStarting = false;
+  }
+}
+function _sidExtPlay() {
+  if (_sidExtStarting || _sidExtStatus === "playing") return;
+  if (_sidExtStatus === "paused") {
+    if (_sidExternalCore) {
+      _sidExternalCore.paused = false;
+      _sidEnsureAudio();
+    } else {
+      try { ScriptNodePlayer.getInstance()?.resume(); _webSidActive = true; } catch(_) {}
+    }
+    _sidExtSetStatus("playing");
+    return;
+  }
+  if (_sidPlaylist.length) _sidPlayerPlayIndex(Math.max(0, _sidPlaylistIndex));
+  else if (_sidExtFile) _sidExtStartFile(_sidExtFile.bytes, _sidExtFile.name, _sidExtFile.song);
+}
+function _sidExtPause() {
+  if (_sidExtStatus !== "playing") return;
+  if (_sidExternalCore) {
+    _sidExternalCore.paused = true;
+    if (_sidAudio) _sidAudio.suspend();
+  } else {
+    try { ScriptNodePlayer.getInstance()?.pause(); } catch(_) {}
+    _webSidActive = false;
+  }
+  _sidExtSetStatus("paused");
+}
+function _sidExtStop() {
+  if (_sidExternalCore) _sidExternalCoreStop(true);
+  else {
+    try { ScriptNodePlayer.getInstance()?.pause(); } catch(_) {}
+    _webSidActive = false;
+  }
+  _sidExtSetStatus("stopped");
+}
+// WebSID seeks natively; VA SID Core renders the skipped part silently.
+// The counter and the bar jump at once; while a seek is running only the
+// newest target is kept, so quick clicks do not queue up several seeks.
+let _sidExtSeekTarget = null;
+let _sidExtSeeking = false;
+async function _sidExtSeek(ms) {
+  if (_sidExtStarting || _sidExtStatus === "stopped") return;
+  ms = Math.max(0, Math.round(ms));
+  const showAt = function(at) {
+    _sidExtElapsed = at;
+    if (_sidExtRunSince !== null) _sidExtRunSince = performance.now();
+    _sidExtRender();
+  };
+  showAt(ms);
+  _sidExtSeekTarget = ms;
+  if (_sidExtSeeking) return;
+  _sidExtSeeking = true;
+  // the sound returns only when the emulation has run up to the target
+  const dlg = document.getElementById("websid-play-dialog");
+  dlg?.classList.add("websid-play-dialog--seeking");
+  try {
+    while (_sidExtSeekTarget !== null) {
+      const target = _sidExtSeekTarget;
+      _sidExtSeekTarget = null;
+      if (_sidExternalCore) await _vaSidSeek(_sidExternalCore, target);
+      else { try { ScriptNodePlayer.getInstance()?.seekPlaybackPosition(target); } catch(_) {} }
+      // the counter restarts at the target once its sound is there
+      if (_sidExtSeekTarget === null && _sidExtStatus !== "stopped") showAt(target);
+    }
+  } finally {
+    _sidExtSeeking = false;
+    dlg?.classList.remove("websid-play-dialog--seeking");
+  }
+}
+
+/* ── SID player window: playlist, skip, seek ───────────────────────────
+ * A .sid file has no length, so every tune gets _SID_TUNE_LENGTH_MS on the
+ * seek bar; after that the playlist moves on (the last tune keeps playing). */
+function _sidVaCoreLabel() {
+  return "VA SID Core v" + _VA_SID_CORE_VERSION + " (MOS " + _sidPreviewModel + ")";
+}
+// The engine that plays the current tune; when stopped, the one Play would use.
+let _sidPlayerEngineName = "";
+function _sidPlayerEngineLabel() {
+  if (_sidExtStatus !== "stopped" && _sidPlayerEngineName) return _sidPlayerEngineName;
+  return _sidUsesVaCore() ? _sidVaCoreLabel() : "WebSID";
+}
+const _SID_TUNE_LENGTH_MS = 180000;
+let _sidPlaylist = [];
+let _sidPlaylistIndex = -1;
+let _sidSeekDragging = false;
+
+function _sidPsidInfo(bytes) {
+  if (!bytes || bytes.length < 0x76) return null;
+  const magic = String.fromCharCode(bytes[0], bytes[1], bytes[2], bytes[3]);
+  if (magic !== "PSID" && magic !== "RSID") return null;
+  const str = function(offset) {
+    let out = "";
+    for (let i = offset; i < offset + 32 && bytes[i]; i++) out += String.fromCharCode(bytes[i]);
+    return out.trim();
+  };
+  const songs = Math.max(1, (bytes[0x0e] << 8) | bytes[0x0f]);
+  const startSong = Math.min(songs, Math.max(1, (bytes[0x10] << 8) | bytes[0x11]));
+  return { title: str(0x16), author: str(0x36), released: str(0x56), songs, startSong };
+}
+function _sidPlayerAdd(entries, playFirst, startIndex = 0) {
+  const added = [];
+  entries.forEach(function(entry) {
+    const info = _sidPsidInfo(entry.bytes);
+    if (!info) { showViceToast(tf("sidPlayerNotSid", { name: entry.name }), true); return; }
+    const item = { id: crypto.randomUUID(), name: entry.name, bytes: entry.bytes, info, song: _sidValidSong(entry.song, info) };
+    _sidPlaylist.push(item);
+    added.push(item);
+  });
+  _sidPlayerShow();
+  _sidPlayerRenderList();
+  _sidPlayerPersist();
+  if (added.length && (playFirst || _sidExtStatus === "stopped")) {
+    _sidPlayerPlayIndex(_sidPlaylist.indexOf(added[Math.max(0, Math.min(startIndex, added.length - 1))]));
+  }
+}
+async function _sidPlayerAddFiles(fileList, playFirst) {
+  const entries = [];
+  for (const file of Array.from(fileList || [])) {
+    if (/\.sidpl$/i.test(file.name)) {
+      try { _sidPlayerLoadPlaylist(JSON.parse(await file.text()), file.name); }
+      catch (_) { showViceToast(tf("sidPlayerBadPlaylist", { name: file.name }), true); }
+      continue;
+    }
+    try { entries.push({ name: file.name, bytes: new Uint8Array(await file.arrayBuffer()) }); } catch (_) {}
+  }
+  if (entries.length) _sidPlayerAdd(entries, playFirst);
+}
+function _sidPlayerPlayIndex(index) {
+  const item = _sidPlaylist[index];
+  if (!item) return;
+  _sidPlaylistIndex = index;
+  _sidPlayerRenderList();
+  _sidPlayerPersist();
+  _sidExtStartFile(item.bytes, item.name, item.song);
+}
+function _sidPlayerPrev() {
+  if (!_sidPlaylist.length) return;
+  // like a CD player: back to the start first, a second press steps back
+  const index = _sidExtElapsedMs() > 3000 || _sidPlaylistIndex <= 0 ? _sidPlaylistIndex : _sidPlaylistIndex - 1;
+  _sidPlayerPlayIndex(Math.max(0, index));
+}
+function _sidValidSong(song, info) {
+  return Number.isInteger(song) && song >= 1 && song <= info.songs ? song : info.startSong;
+}
+// Steps the current entry's subtune; a running tune restarts on the new one.
+function _sidPlayerSong(delta) {
+  const item = _sidPlaylist[_sidPlaylistIndex];
+  if (!item || item.info.songs < 2) return;
+  const song = Math.max(1, Math.min(item.info.songs, item.song + delta));
+  if (song === item.song) return;
+  item.song = song;
+  _sidPlayerPersist();
+  if (_sidExtStatus === "stopped") _sidPlayerRenderList();
+  else _sidPlayerPlayIndex(_sidPlaylistIndex);
+}
+function _sidPlayerNext() {
+  if (_sidPlaylistIndex < _sidPlaylist.length - 1) _sidPlayerPlayIndex(_sidPlaylistIndex + 1);
+}
+function _sidPlayerRemove(id) {
+  const index = _sidPlaylist.findIndex(function(item) { return item.id === id; });
+  if (index < 0) return;
+  _sidPlaylist.splice(index, 1);
+  if (index === _sidPlaylistIndex) {
+    _sidExtStop();
+    _sidExtFile = null;
+    _sidPlaylistIndex = Math.min(index, _sidPlaylist.length - 1);
+  } else if (index < _sidPlaylistIndex) {
+    _sidPlaylistIndex--;
+  }
+  _sidPlayerRenderList();
+  _sidPlayerPersist();
+}
+function _sidPlayerClear() {
+  _sidExtStop();
+  _sidPlaylist = [];
+  _sidPlaylistIndex = -1;
+  _sidExtFile = null;
+  _sidPlayerRenderList();
+  _sidPlayerPersist();
+}
+function _sidPlayerLengthMs() {
+  return Math.max(_SID_TUNE_LENGTH_MS, Math.ceil((_sidExtElapsedMs() + 1) / 60000) * 60000);
+}
+// Only the playback timer moves on. Doing this from the UI refresh re-entered
+// itself (Next renders the list while the status is still "playing") and
+// started every remaining tune of the playlist at once.
+function _sidPlayerAutoAdvance() {
+  if (_sidExtStatus === "playing" && !_sidExtStarting && _sidExtElapsedMs() >= _SID_TUNE_LENGTH_MS
+      && _sidPlaylistIndex < _sidPlaylist.length - 1) {
+    _sidPlayerNext();
+  }
+}
+function _sidPlayerTickUi() {
+  const elapsed = _sidExtElapsedMs();
+  const seek = document.getElementById("websid-play-seek");
+  if (seek && !_sidSeekDragging) {
+    seek.max = String(Math.round(_sidPlayerLengthMs() / 1000));
+    seek.value = String(Math.floor(elapsed / 1000));
+    seek.disabled = _sidExtStatus === "stopped";
+  }
+  const len = document.getElementById("websid-play-length");
+  if (len) len.textContent = _sidExtFormatTime(_sidPlayerLengthMs());
+  const hasPlaylist = _sidPlaylist.length > 0;
+  const prev = document.getElementById("websid-play-prev");
+  if (prev) prev.disabled = !hasPlaylist;
+  const next = document.getElementById("websid-play-next");
+  if (next) next.disabled = _sidPlaylistIndex >= _sidPlaylist.length - 1;
+  ["websid-play-rew", "websid-play-fwd"].forEach(function(id) {
+    const btn = document.getElementById(id);
+    if (btn) btn.disabled = _sidExtStatus === "stopped";
+  });
+  const play = document.getElementById("websid-play-play");
+  if (play) play.disabled = !hasPlaylist && !_sidExtFile;
+  const clear = document.getElementById("websid-play-clear");
+  if (clear) clear.disabled = !hasPlaylist;
+  const save = document.getElementById("websid-play-save-list");
+  if (save) save.disabled = !hasPlaylist;
+}
+function _sidPlayerRenderList() {
+  const list = document.getElementById("websid-play-list");
+  if (list) {
+    list.textContent = "";
+    _sidPlaylist.forEach(function(item, index) {
+      const li = document.createElement("li");
+      li.className = "websid-play-item" + (index === _sidPlaylistIndex ? " websid-play-item--current" : "");
+      li.dataset.id = item.id;
+      const no = document.createElement("span");
+      no.className = "websid-play-item-no";
+      no.textContent = String(index + 1);
+      const name = document.createElement("span");
+      name.className = "websid-play-item-name";
+      name.textContent = item.info.title ? item.info.title + (item.info.author ? " — " + item.info.author : "") : item.name;
+      const del = document.createElement("button");
+      del.type = "button";
+      del.className = "websid-play-item-del";
+      del.textContent = "×";
+      del.setAttribute("aria-label", t("sidPlayerRemove"));
+      li.append(no, name, del);
+      list.appendChild(li);
+    });
+  }
+  const current = _sidPlaylist[_sidPlaylistIndex];
+  const fileEl = document.getElementById("websid-play-file");
+  if (fileEl) fileEl.textContent = current ? (current.info.title || current.name) : "";
+  const metaEl = document.getElementById("websid-play-meta");
+  if (metaEl) metaEl.textContent = current ? [current.info.author, current.info.released].filter(Boolean).join(" · ") : "";
+  const engineEl = document.getElementById("websid-play-engine");
+  if (engineEl) {
+    engineEl.textContent = _sidPlayerEngineLabel();
+    engineEl.setAttribute("aria-label", t("sidPreviewEngine") + ": " + engineEl.textContent);
+  }
+  const songRow = document.getElementById("websid-play-song-row");
+  if (songRow) songRow.hidden = !current || current.info.songs < 2;
+  const songEl = document.getElementById("websid-play-song");
+  if (songEl && current) songEl.textContent = current.song + " / " + current.info.songs;
+  const songPrev = document.getElementById("websid-play-song-prev");
+  if (songPrev) songPrev.disabled = !current || current.song <= 1;
+  const songNext = document.getElementById("websid-play-song-next");
+  if (songNext) songNext.disabled = !current || current.song >= current.info.songs;
+  const hint = document.getElementById("websid-play-drop-hint");
+  if (hint) hint.hidden = _sidPlaylist.length > 0;
+  _sidPlayerTickUi();
+}
+function _sidPlayerSyncButton() {
+  const btn = document.getElementById("sid-player-btn");
+  if (!btn) return;
+  const open = !!document.getElementById("websid-play-dialog")?.open;
+  btn.classList.toggle("main-tb-btn--active", open);
+  btn.setAttribute("aria-pressed", String(open));
+}
+function _sidPlayerShow() {
+  const dlg = document.getElementById("websid-play-dialog");
+  if (!dlg) return;
+  const note = document.getElementById("websid-play-note");
+  if (note) note.hidden = !document.getElementById("sid-editor-dialog")?.open;
+  if (dlg.open) return;
+  // A non-modal dialog under an open modal one (SID Editor) is inert, so
+  // over a modal editor it has to enter the top layer itself.
+  let overModal = false;
+  try { overModal = !!document.querySelector("dialog[open]:modal"); } catch (_) {}
+  dlg._applyPosition?.();
+  try { if (overModal) dlg.showModal(); else dlg.show(); }
+  catch (_) { try { dlg.show(); } catch (__) {} }
+  _sidPlayerSyncButton();
+  _sidPlayerRenderList();
+  _sidPlayerPersist();
+}
+function _sidPlayerToggle() {
+  const dlg = document.getElementById("websid-play-dialog");
+  if (dlg?.open) dlg.close();
+  else _sidPlayerShow();
+}
+
+/* Playlist file (.sidpl): JSON with the tunes embedded as base64, because the
+ * WebView only hands over file contents, not paths. The same shape is kept in
+ * localStorage, so the list and the window's open state survive a restart. */
+const _SID_PLAYLIST_FORMAT = "va-sid-playlist";
+const _SID_PLAYER_STORE = "c64va-sid-player";
+
+function _sidBytesToBase64(bytes) {
+  let bin = "";
+  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  return btoa(bin);
+}
+function _sidBase64ToBytes(text) {
+  const bin = atob(text);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return bytes;
+}
+function _sidPlaylistToJson() {
+  return {
+    format: _SID_PLAYLIST_FORMAT,
+    version: 1,
+    current: Math.max(0, _sidPlaylistIndex),
+    items: _sidPlaylist.map(function(item) { return { name: item.name, song: item.song, data: _sidBytesToBase64(item.bytes) }; })
+  };
+}
+// Returns the decoded entries, or null when the text is not a playlist.
+function _sidPlaylistFromJson(json) {
+  if (!json || json.format !== _SID_PLAYLIST_FORMAT || !Array.isArray(json.items)) return null;
+  const entries = [];
+  json.items.forEach(function(item) {
+    if (!item || typeof item.name !== "string" || typeof item.data !== "string") return;
+    try { entries.push({ name: item.name, song: Number(item.song) || 0, bytes: _sidBase64ToBytes(item.data) }); } catch (_) {}
+  });
+  return { entries, current: Number.isInteger(json.current) ? json.current : 0 };
+}
+function _sidPlayerLoadPlaylist(json, sourceName) {
+  const list = _sidPlaylistFromJson(json);
+  if (!list) { showViceToast(tf("sidPlayerBadPlaylist", { name: sourceName }), true); return false; }
+  _sidPlayerClear();
+  _sidPlayerAdd(list.entries, false, Math.min(list.current, list.entries.length - 1));
+  return true;
+}
+async function _sidPlayerSavePlaylist() {
+  if (!_sidPlaylist.length) return;
+  const text = JSON.stringify(_sidPlaylistToJson(), null, 1);
+  const bytes = Array.from(new TextEncoder().encode(text));
+  if (window.electronAPI?.saveBin) {
+    const res = await window.electronAPI.saveBin({ bytes, fileName: "playlist.sidpl" });
+    if (res?.ok) showViceToast(t("sidPlayerSaved"));
+    else if (res && !res.canceled) showViceToast(res.error || t("sidPlayerSaveFailed"), true);
+    return;
+  }
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([text], { type: "application/json" }));
+  a.download = "playlist.sidpl";
+  a.click();
+  setTimeout(function() { URL.revokeObjectURL(a.href); }, 1000);
+}
+function _sidPlayerPersist() {
+  try {
+    const dlg = document.getElementById("websid-play-dialog");
+    const state = _sidPlaylistToJson();
+    state.open = !!dlg?.open;
+    localStorage.setItem(_SID_PLAYER_STORE, JSON.stringify(state));
+  } catch (_) {
+    // too many tunes for localStorage: keep at least the window state
+    try { localStorage.setItem(_SID_PLAYER_STORE, JSON.stringify({ open: !!document.getElementById("websid-play-dialog")?.open })); } catch (__) {}
+  }
+}
+function _sidPlayerRestore() {
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(_SID_PLAYER_STORE) || "null"); } catch (_) {}
+  if (!saved) return;
+  const list = _sidPlaylistFromJson(saved);
+  if (list && list.entries.length) {
+    list.entries.forEach(function(entry) {
+      const info = _sidPsidInfo(entry.bytes);
+      if (info) _sidPlaylist.push({ id: crypto.randomUUID(), name: entry.name, bytes: entry.bytes, info, song: _sidValidSong(entry.song, info) });
+    });
+    _sidPlaylistIndex = _sidPlaylist.length ? Math.max(0, Math.min(list.current, _sidPlaylist.length - 1)) : -1;
+  }
+  if (saved.open) _sidPlayerShow();
+  else _sidPlayerRenderList();
+}
+
+async function _webSidPlayFileBytes(bytes, filename, song = 0) {
   // Accepts a raw .sid file (PSID/RSID header + code). WebSid parses it natively.
   if (!bytes || bytes.length < 0x7C) {
     showViceToast("A fájl túl kicsi vagy sérült .sid.", true);
@@ -39743,7 +40358,7 @@ async function _webSidPlayFileBytes(bytes, filename) {
   });
 }
 
-function _sidExternalCoreStop() {
+function _sidExternalCoreStop(keepDialog = false) {
   const state = _sidExternalCore;
   if (!state) return;
   _sidExternalCore = null;
@@ -39751,13 +40366,14 @@ function _sidExternalCoreStop() {
   if (state.timer) clearInterval(state.timer);
   _sidPreviewSources.forEach(function(src){ try { src.stop(); } catch (_) {} });
   _sidPreviewSources.clear();
-  _webSidHideExternalDialog();
-  state.queue.catch(function() {}).then(function() {
-    window.electronAPI.releaseSidFile(state.sessionId).catch(function() {});
-  });
+  if (state.paused && _sidAudio) _sidAudio.resume();
+  if (!keepDialog) _webSidHideExternalDialog();
+  // released at once: a render still in flight finishes on its own session
+  // lock, and waiting for it let stale sessions pile up on quick switches
+  window.electronAPI.releaseSidFile(state.sessionId).catch(function() {});
 }
 
-async function _vaSidPlayFileBytes(bytes, filename) {
+async function _vaSidPlayFileBytes(bytes, filename, song = 0) {
   if (!window.electronAPI?.renderSidFile || !window.electronAPI?.releaseSidFile) {
     showViceToast("VA SID Core file playback is unavailable.", true);
     return false;
@@ -39766,27 +40382,31 @@ async function _vaSidPlayFileBytes(bytes, filename) {
   const ac = _sidEnsureAudio();
   const state = {
     sessionId: crypto.randomUUID(), active: true, busy: false, timer: null,
-    queue: Promise.resolve(), nextTime: ac.currentTime + 0.08, fileBytes: Array.from(bytes)
+    queue: Promise.resolve(), nextTime: ac.currentTime + 0.08, fileBytes: Array.from(bytes),
+    tuneBytes: Array.from(bytes), renderedMs: 0, skipMs: 0, seeking: false, song
   };
   _sidExternalCore = state;
-  const pump = async function() {
-    if (!state.active || state.busy) return false;
+  const pump = async function(force) {
+    if (!state.active || state.busy || (state.seeking && !force)) return false;
     state.busy = true;
     const payload = { sessionId: state.sessionId, sampleRate: ac.sampleRate,
-      model: _sidPreviewModel, frames: 10 };
+      model: _sidPreviewModel, frames: 10, skipMs: Math.max(0, Math.round(state.skipMs)), song: state.song };
     if (state.fileBytes) payload.fileBytes = state.fileBytes;
     try {
       state.queue = window.electronAPI.renderSidFile(payload);
       const pcm = _sidDecodePcm16(await state.queue);
       if (!state.active) return false;
       state.fileBytes = null;
+      state.renderedMs += state.skipMs + pcm.length * 1000 / ac.sampleRate;
+      state.skipMs = 0;
       state.nextTime = Math.max(state.nextTime, ac.currentTime + 0.02);
       _sidPlayBuffer(pcm, state.nextTime);
       state.nextTime += pcm.length / ac.sampleRate;
       return true;
     } catch (e) {
       if (state.active) {
-        _sidExternalCoreStop();
+        // the player window stays open; only this tune stops
+        _sidExtStop();
         showViceToast("VA SID Core: " + (e?.message || e), true);
       }
       return false;
@@ -39794,13 +40414,46 @@ async function _vaSidPlayFileBytes(bytes, filename) {
       state.busy = false;
     }
   };
+  state.pump = pump;
   if (!(await pump())) return false;
   if (!state.active) return false;
-  _webSidShowExternalDialog(filename, "VA SID Core v" + _VA_SID_CORE_VERSION + " (MOS " + _sidPreviewModel + ")");
+  // the core resolves "0 = start song" from the header; show what it plays
+  window.electronAPI.sidFileInfo?.(state.sessionId).then(function(info) {
+    const item = _sidPlaylist[_sidPlaylistIndex];
+    if (!state.active || !item || item.bytes !== bytes || !info?.song) return;
+    item.song = info.song;
+    _sidPlayerRenderList();
+  }).catch(function() {});
+  _webSidShowExternalDialog(filename, _sidVaCoreLabel());
   state.timer = setInterval(function() {
-    if (state.active && state.nextTime - ac.currentTime < 0.5) pump();
+    if (state.active && !state.paused && state.nextTime - ac.currentTime < 0.5) pump();
   }, 50);
   return true;
+}
+
+// The scheduled audio is dropped; forward seeks continue the session, backward
+// ones restart the tune in a new session and skip to the target.
+async function _vaSidSeek(state, targetMs) {
+  state.seeking = true;
+  try {
+    while (state.busy) await state.queue.catch(function() {});
+    if (!state.active) return;
+    _sidPreviewSources.forEach(function(src){ try { src.stop(); } catch (_) {} });
+    _sidPreviewSources.clear();
+    if (targetMs >= state.renderedMs) {
+      state.skipMs = Math.round(targetMs - state.renderedMs);
+    } else {
+      window.electronAPI.releaseSidFile(state.sessionId).catch(function() {});
+      state.sessionId = crypto.randomUUID();
+      state.fileBytes = state.tuneBytes;
+      state.renderedMs = 0;
+      state.skipMs = targetMs;
+    }
+    state.nextTime = 0;
+    await state.pump(true);
+  } finally {
+    state.seeking = false;
+  }
 }
 
 /* Tracker playback driven by the JS engine. The engine yields the frame of
@@ -41545,16 +42198,8 @@ function _sidInit() {
   _sidSongPlayPos = 0;
   _sidSyncPlayModeSel();
   _sidUpdateBpmDisplay();
-  try {
-    const saved = localStorage.getItem("c64va-sid-master-vol");
-    if (saved !== null && Number.isFinite(Number(saved))) _sidMasterVol = Math.max(0, Math.min(100, Number(saved))) / 100;
-  } catch (_) {}
+  _sidLoadMasterVolume();
   _sidLoadPreviewSettings();
-  const volPct = Math.round(_sidMasterVol * 100);
-  const volEl = document.getElementById("sid-master-vol");
-  if (volEl) volEl.value = String(volPct);
-  const volValEl = document.getElementById("sid-master-vol-val");
-  if (volValEl) volValEl.textContent = String(volPct);
   _sidBuildPresetSelect();
   _sidBuildInstSel();
   _sidLoadInstUI();
@@ -41676,14 +42321,9 @@ function setupSidEditor() {
   onId("sid-arp-preview", "click", _sidPreviewArpeggio);
   onId("sid-chord-add", "click", _sidInsertChord);
   onId("sid-arp-add", "click", _sidInsertArpeggio);
-  onId("sid-master-vol", "input", function(e){
-    const pct = Math.max(0, Math.min(100, parseInt(e.target.value, 10) || 0));
-    _sidMasterVol = pct / 100;
-    const valEl = document.getElementById("sid-master-vol-val");
-    if (valEl) valEl.textContent = String(pct);
-    _sidApplyMasterVolume();
-    try { localStorage.setItem("c64va-sid-master-vol", String(pct)); } catch (_) {}
-  });
+  _sidKnobBind(document.getElementById("sid-master-vol"),
+    function() { return Math.round(_sidMasterVol * 100); },
+    function(pct) { _sidSetMasterVolume(pct); });
   onId("sid-play", "click", _sidPauseToggle);
   onId("sid-stop", "click", _sidStop);
   onId("sid-vkbd-play", "click", _sidPauseToggle);
@@ -41752,23 +42392,6 @@ function setupSidEditor() {
     const reader = new FileReader();
     reader.onload = function(){ _sidDeserialize(new Uint8Array(reader.result)); };
     reader.readAsArrayBuffer(file); e.target.value = "";
-  });
-
-  const sidSidFile = document.getElementById("sid-sid-file");
-  onId("sid-play-sid", "click", function(){ if (sidSidFile) sidSidFile.click(); });
-  if (sidSidFile) sidSidFile.addEventListener("change", function(e){
-    const file = e.target.files && e.target.files[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(){
-      const bytes = new Uint8Array(reader.result);
-      if (_sidUsesVaCore()) _vaSidPlayFileBytes(bytes, file.name);
-      else _webSidPlayFileBytes(bytes, file.name);
-    };
-    reader.readAsArrayBuffer(file); e.target.value = "";
-  });
-  onId("websid-play-stop", "click", function(){
-    if (_sidExternalCore) _sidExternalCoreStop();
-    else _webSidPause();
   });
 
   // keyboard note entry / navigation

@@ -3,7 +3,7 @@ use base64::Engine as _;
 use std::fs;
 use std::io::{ErrorKind, Write};
 use std::collections::HashMap;
-use std::sync::{Mutex, OnceLock};
+use std::sync::{Arc, Mutex, OnceLock};
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
 use std::path::{Path, PathBuf};
@@ -494,13 +494,37 @@ struct SidFilePayload {
     model: String,
     frames: usize,
     file_bytes: Option<Vec<u8>>,
+    #[serde(default)]
+    skip_ms: u32,
+    /// 1-based subtune; 0 = the header's start song. Only used with file_bytes.
+    #[serde(default)]
+    song: u16,
 }
 
-static SID_FILE_SESSIONS: OnceLock<Mutex<HashMap<String, (sid_file::SidFilePlayer, Instant)>>> =
+// Each session has its own lock: the map is locked only to look a session up,
+// so a long render or seek never blocks the other sessions, nor the
+// synchronous info / release commands that run on the main thread.
+type SidFileSession = Arc<Mutex<sid_file::SidFilePlayer>>;
+static SID_FILE_SESSIONS: OnceLock<Mutex<HashMap<String, (SidFileSession, Instant)>>> =
     OnceLock::new();
 
+fn sid_file_sessions() -> Result<std::sync::MutexGuard<'static, HashMap<String, (SidFileSession, Instant)>>, String> {
+    SID_FILE_SESSIONS
+        .get_or_init(|| Mutex::new(HashMap::new()))
+        .lock()
+        .map_err(|_| "SID file playback state is unavailable.".to_string())
+}
+
+// The emulation runs on a blocking thread: seeking can take seconds in a
+// debug build and must not occupy the async runtime's workers.
 #[tauri::command]
-fn render_sid_file(payload: SidFilePayload) -> Result<String, String> {
+async fn render_sid_file(payload: SidFilePayload) -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(move || render_sid_file_blocking(payload))
+        .await
+        .map_err(|e| format!("SID file playback failed: {e}"))?
+}
+
+fn render_sid_file_blocking(payload: SidFilePayload) -> Result<String, String> {
     if payload.session_id.is_empty()
         || payload.session_id.len() > 80
         || !(1..=20).contains(&payload.frames)
@@ -516,33 +540,68 @@ fn render_sid_file(payload: SidFilePayload) -> Result<String, String> {
     } else {
         sid_core::SidModel::Mos8580
     };
-    let sessions = SID_FILE_SESSIONS.get_or_init(|| Mutex::new(HashMap::new()));
-    let mut sessions = sessions
-        .lock()
-        .map_err(|_| "SID file playback state is unavailable.")?;
-    sessions.retain(|_, (_, last_used)| last_used.elapsed() < Duration::from_secs(180));
-    if let Some(bytes) = payload.file_bytes.as_deref() {
-        if !sessions.contains_key(&payload.session_id) && sessions.len() >= 8 {
-            return Err("Too many active SID files.".into());
+    let session = if let Some(bytes) = payload.file_bytes.as_deref() {
+        {
+            let mut sessions = sid_file_sessions()?;
+            sessions.retain(|_, (_, last_used)| last_used.elapsed() < Duration::from_secs(180));
+            // Only one external tune plays at a time, so at the limit the least
+            // recently used session is stale (e.g. its release is still on the way).
+            while !sessions.contains_key(&payload.session_id) && sessions.len() >= 8 {
+                let oldest = sessions
+                    .iter()
+                    .min_by_key(|(_, (_, last_used))| *last_used)
+                    .map(|(id, _)| id.clone());
+                match oldest {
+                    Some(id) => sessions.remove(&id),
+                    None => break,
+                };
+            }
         }
-        let player = sid_file::SidFilePlayer::new(bytes, sample_rate, model)?;
-        sessions.insert(payload.session_id.clone(), (player, Instant::now()));
+        // built outside the map lock: the init routine may run for a while
+        let player = sid_file::SidFilePlayer::with_song(bytes, sample_rate, model, payload.song)?;
+        let session = Arc::new(Mutex::new(player));
+        sid_file_sessions()?.insert(payload.session_id.clone(), (session.clone(), Instant::now()));
+        session
+    } else {
+        let mut sessions = sid_file_sessions()?;
+        let (session, last_used) = sessions
+            .get_mut(&payload.session_id)
+            .ok_or("SID file playback session has expired.")?;
+        *last_used = Instant::now();
+        session.clone()
+    };
+    let mut player = session
+        .lock()
+        .map_err(|_| "SID file playback session failed.".to_string())?;
+    // A tune has no seek of its own: seeking runs the skipped frames silently.
+    let skip_samples = u64::from(payload.skip_ms.min(3_600_000)) * u64::from(sample_rate) / 1000;
+    if skip_samples > 0 {
+        let frame_samples = player.skip_frames(1)?.max(1) as u64;
+        player.skip_frames((skip_samples.saturating_sub(frame_samples) / frame_samples) as usize)?;
     }
-    let (player, last_used) = sessions
-        .get_mut(&payload.session_id)
-        .ok_or("SID file playback session has expired.")?;
-    *last_used = Instant::now();
     let pcm = player.render_frames(payload.frames)?;
     let bytes: Vec<u8> = pcm.iter().flat_map(|sample| sample.to_le_bytes()).collect();
     Ok(base64::engine::general_purpose::STANDARD.encode(bytes))
 }
 
 #[tauri::command]
+fn sid_file_info(session_id: String) -> Result<serde_json::Value, String> {
+    let session = sid_file_sessions()?
+        .get(&session_id)
+        .map(|(session, _)| session.clone())
+        .ok_or("SID file playback session has expired.")?;
+    // try_lock: this runs on the main thread, never wait for a render here
+    let player = session
+        .try_lock()
+        .map_err(|_| "SID file playback session is busy.".to_string())?;
+    Ok(serde_json::json!({ "songs": player.songs(), "song": player.song() }))
+}
+
+#[tauri::command]
 fn release_sid_file(session_id: String) {
-    if let Some(sessions) = SID_FILE_SESSIONS.get() {
-        if let Ok(mut sessions) = sessions.lock() {
-            sessions.remove(&session_id);
-        }
+    // a render still in flight keeps its Arc and finishes on its own
+    if let Ok(mut sessions) = sid_file_sessions() {
+        sessions.remove(&session_id);
     }
 }
 
@@ -4644,6 +4703,22 @@ mod update_tests {
 // ── App setup ────────────────────────────────────────────────────────────────
 
 pub fn run() {
+    // A panic in a command can take the whole app down without a trace in a
+    // release build: keep the message, location and backtrace in %TEMP%.
+    let default_hook = std::panic::take_hook();
+    std::panic::set_hook(Box::new(move |info| {
+        let path = std::env::temp_dir().join("c64va-crash.log");
+        let thread = std::thread::current().name().unwrap_or("?").to_string();
+        let entry = format!(
+            "[{:?}] thread '{thread}': {info}\n{}\n\n",
+            std::time::SystemTime::now(),
+            std::backtrace::Backtrace::force_capture()
+        );
+        if let Ok(mut file) = fs::OpenOptions::new().create(true).append(true).open(&path) {
+            let _ = std::io::Write::write_all(&mut file, entry.as_bytes());
+        }
+        default_hook(info);
+    }));
     tauri::Builder::default()
         .plugin({
             // On Linux/Wayland: position is always 0,0 (compositor doesn't expose it)
@@ -4685,6 +4760,7 @@ pub fn run() {
             render_sid_preview,
             release_sid_preview,
             render_sid_file,
+            sid_file_info,
             release_sid_file,
             check_for_update,
             download_and_install_update,
@@ -4768,4 +4844,55 @@ pub fn run() {
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+#[cfg(test)]
+mod sid_file_session_tests {
+    use super::*;
+
+    fn payload(id: &str, file: Option<&[u8]>, skip_ms: u32) -> SidFilePayload {
+        SidFilePayload {
+            session_id: id.into(),
+            sample_rate: 44_100,
+            model: "8580".into(),
+            frames: 1,
+            file_bytes: file.map(|bytes| bytes.to_vec()),
+            skip_ms,
+            song: 0,
+        }
+    }
+
+    // A long seek in one session must not stall the main-thread commands
+    // (info / release) or another session: that froze the app on track switches.
+    #[test]
+    fn a_long_seek_does_not_block_other_sessions_or_release() {
+        let tune: &[u8] = include_bytes!("../../samples/Ikari_Intro.sid");
+        render_sid_file_blocking(payload("seek", Some(tune), 0)).unwrap();
+        render_sid_file_blocking(payload("other", Some(tune), 0)).unwrap();
+        let seeking = std::thread::spawn(|| render_sid_file_blocking(payload("seek", None, 20_000)));
+        while !seeking.is_finished() && !SID_FILE_SESSIONS.get().unwrap().lock().unwrap()["seek"].0.try_lock().is_err() {
+            std::thread::yield_now();
+        }
+        let started = Instant::now();
+        sid_file_info("other".into()).unwrap();
+        render_sid_file_blocking(payload("other", None, 0)).unwrap();
+        release_sid_file("other".into());
+        release_sid_file("seek".into());
+        assert!(started.elapsed() < Duration::from_secs(5), "blocked for {:?}", started.elapsed());
+        seeking.join().unwrap().unwrap();
+    }
+
+    // Quick track switches can open sessions faster than the releases arrive:
+    // the oldest one is dropped instead of failing with "Too many active SID files".
+    #[test]
+    fn unreleased_sessions_are_evicted_not_refused() {
+        let tune: &[u8] = include_bytes!("../../samples/Ikari_Intro.sid");
+        for n in 0..12 {
+            render_sid_file_blocking(payload(&format!("switch-{n}"), Some(tune), 0)).unwrap();
+        }
+        let sessions = sid_file_sessions().unwrap();
+        assert!(sessions.len() <= 8);
+        assert!(sessions.contains_key("switch-11"));
+        assert!(!sessions.contains_key("switch-0"));
+    }
 }

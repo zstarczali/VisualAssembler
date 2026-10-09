@@ -4,6 +4,10 @@ mod sid_core;
 use sid_core::{SidCore, SidModel};
 use std::{env, fs};
 
+/// Both sides are band-limited by windowed-sinc filters of different length,
+/// so the outputs are compared at the lag that aligns them best.
+const MAX_LAG: isize = 64;
+
 fn write_frame(sid: &mut SidCore, frame: usize, scenario: usize) {
     let frequency = if scenario == 0 || scenario == 3 { 0x1200 } else { 0x5000 };
     sid.write(0, (frequency & 0xff) as u8);
@@ -35,9 +39,12 @@ fn main() {
             rendered.extend_from_slice(&chunk);
         }
         let offset = scenario * 44100 * 2;
+        // VICE amplifies resampled reSID output by scaleFactor / 2 (3 for the 6581,
+        // 5 for the 8580); reSID's resampling FIR itself has a gain of 0.97.
+        let vice_gain = if model == SidModel::Mos6581 { 1.5 } else { 2.5 } * 0.97;
         let reference: Vec<f64> = reference[offset..offset + 88200]
             .chunks_exact(2)
-            .map(|bytes| i16::from_le_bytes([bytes[0], bytes[1]]) as f64)
+            .map(|bytes| i16::from_le_bytes([bytes[0], bytes[1]]) as f64 / vice_gain)
             .collect();
         let ours: Vec<f64> = rendered.iter().map(|v| *v as f64).collect();
         let start = 2205;
@@ -57,9 +64,9 @@ fn main() {
         let gain = if oo > 0.0 { ro / oo } else { 0.0 };
         let mut best = (correlation, 0isize);
         if rr > 0.0 && oo > 0.0 {
-            for lag in -8isize..=8 {
+            for lag in -MAX_LAG..=MAX_LAG {
                 let mut shifted = 0.0;
-                for index in start + 8..44100 - 8 {
+                for index in start + MAX_LAG as usize..44100 - MAX_LAG as usize {
                     shifted += (reference[index] - mean_ref) * (ours[index.wrapping_add_signed(lag)] - mean_ours);
                 }
                 let shifted = shifted / (rr * oo).sqrt();
@@ -69,19 +76,15 @@ fn main() {
         let ref_peak = reference[start..].iter().fold(0.0f64, |peak, value| peak.max(value.abs()));
         let rust_peak = ours[start..].iter().fold(0.0f64, |peak, value| peak.max(value.abs()));
         println!("scenario {scenario}: correlation {correlation:.4}, best lag {} ({:.4}), gain {gain:.3}, reference RMS {:.0}, Rust RMS {:.0}, peaks {:.0}/{:.0}", best.1, best.0, (rr / (44100 - start) as f64).sqrt(), (oo / (44100 - start) as f64).sqrt(), ref_peak, rust_peak);
-        let minimum_correlation = match scenario {
-            16 => Some(0.93),
-            18 => Some(0.97),
-            19 => Some(0.95),
-            20 => Some(0.98),
-            _ => None,
-        };
-        if let Some(minimum) = minimum_correlation {
-            let reference_rms = (rr / (44100 - start) as f64).sqrt();
-            let rust_rms = (oo / (44100 - start) as f64).sqrt();
-            assert!(correlation >= minimum, "6581 scenario {scenario}: correlation {correlation:.4} < {minimum:.4}");
-            assert!((rust_rms / reference_rms - 1.0).abs() < 0.08,
-                "6581 scenario {scenario}: RMS {rust_rms:.1} differs from reSID {reference_rms:.1}");
+        // Scenarios 13 and 14 (gate off) are near-silent release tails; every
+        // audible stream must match reSID in shape and level.
+        let reference_rms = (rr / (44100 - start) as f64).sqrt();
+        let rust_rms = (oo / (44100 - start) as f64).sqrt();
+        if reference_rms > 20.0 {
+            let minimum = if reference_rms > 100.0 { 0.99 } else { 0.98 };
+            assert!(best.0 >= minimum, "scenario {scenario}: correlation {:.4} < {minimum:.4}", best.0);
+            assert!((rust_rms / reference_rms - 1.0).abs() < 0.03,
+                "scenario {scenario}: RMS {rust_rms:.1} differs from reSID {reference_rms:.1}");
         }
     }
 }

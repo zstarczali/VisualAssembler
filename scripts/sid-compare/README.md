@@ -1,29 +1,39 @@
 # SID comparison (diagnostic only)
 
 `reference.cpp` renders twenty-one fixed register streams through the local VICE
-reSID source. `compare.rs` renders the same streams through the application's
-Rust `SidCore` and reports waveform correlation, gain, and RMS. It fails when
-the four high-resonance 6581 cases fall below their correlation or RMS limits.
-The C++ code is not linked into the application.
+reSID source with `SAMPLE_RESAMPLE` (windowed-sinc resampling, like the Rust
+core). `compare.rs` renders the same streams through the application's Rust
+`SidCore` and reports waveform correlation, gain, and RMS. Both sides are
+band-limited by FIRs of different length, so the outputs are compared at the
+best lag within ±64 samples. VICE amplifies resampled reSID output by
+`scaleFactor / 2` (3/2 for the 6581, 5/2 for the 8580) and reSID's FIR has a
+gain of 0.97; `compare.rs` divides both out. It fails when an audible stream
+(reference RMS above 20) falls below 0.99 correlation (0.98 for the quiet
+low-cutoff cases) or differs by 3 % or more in RMS. The C++ code is not linked
+into the application.
 
 `envelope_reference.cpp` exercises the reSID envelope alone. Its gate-toggle
 trace and rate-counter-wrap transition cycles are checked in Rust unit tests.
 
 On Windows, compile `reference.cpp` together with VICE reSID's `sid.cc`,
-`voice.cc`, `wave.cc`, `envelope.cc`, `filter.cc`, `dac.cc`, `extfilt.cc`, and
-`pot.cc`. Add this directory and the VICE reSID directory as include paths.
-Compile `compare.rs` with `rustc --edition 2021 -O`. Run `reference.exe`
-with an output PCM path, then run `compare.exe` with the same path.
+`voice.cc`, `wave.cc`, `envelope.cc`, `filter.cc`, `dac.cc`, `extfilt.cc`,
+`pot.cc`, and `version.cc`. Add this directory and the VICE reSID directory as
+include paths, e.g. from a Visual Studio x64 developer prompt:
 
-Current fixed-stream results (44.1 kHz, PAL, one second each): unfiltered
-6581/8580 saw and 8580 pulse have correlation at least 0.9998; the 8580
-low-pass saw is also at least 0.9998. In the tested 6581 saw cutoff sweep,
-correlation is about 0.993. Fixed-cutoff 6581 low-pass, band-pass, and
-high-pass cases at cutoff 1024 exceed 0.966; low-pass at cutoff 64 is about
-0.995. The waveform and envelope DAC ladders are generated in Rust for each
-chip model. High-resonance saw/pulse cases remain less accurate (about
-0.93–0.99 correlation), but their RMS levels are now within 8% of reSID.
-The 6581 filter is still a calibrated approximation, not a transistor-level port.
+    cl /O2 /EHsc /std:c++17 /I. /I<vice>\src\resid reference.cpp <the .cc files>
+
+Compile `compare.rs` with `rustc --edition 2021 -O`. Run `reference.exe` with
+an output PCM path, then run `compare.exe` with the same path.
+
+Current fixed-stream results (VA SID Core 1.1, 44.1 kHz, PAL, one second each):
+every audible stream matches reSID with best-lag correlation 0.994–0.998 at a
+constant lag of 4 samples, and RMS within 1 %. This includes the 6581 cutoff
+sweep, the low-, band- and high-pass cases and the high-resonance saw / pulse /
+triangle cases (previously 0.93–0.99), because the 6581 filter, audio mixer and
+volume stage are now a port of reSID 1.0's op-amp / VCR model (`Model6581` in
+`sid_core.rs`). The quiet 6581 low-pass streams at cutoff 64 and 512 (RMS about
+37) reach 0.988. Scenarios 13 and 14 are near-silent release tails (RMS 3) and
+are not checked. The 8580 filter is unchanged (reSID 1.0's linear 8580 model).
 
 The Rust core also models the MOS 6581 combined-saw waveform pulling the
 oscillator MSB low. A focused unit test covers this chip-specific feedback;
@@ -34,4 +44,5 @@ shifting the noise register, including the 6581/8580 waveform exceptions.
 `bench.rs` measures one second of three-voice, filtered audio for each chip.
 Build it without optimization to approximate `tauri dev` performance, or with
 `rustc -O` to approximate a release build. Its PCM checksum catches accidental
-audio changes while tuning performance.
+audio changes while tuning performance. Reference numbers on the development
+machine: 6581 0.48 s / 8580 0.33 s unoptimised, 0.055 s / 0.036 s with `-O`.
