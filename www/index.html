@@ -2043,9 +2043,16 @@ PRINTABLE CHARACTERS
         </div>
         <label class="se-check"><input type="checkbox" id="se-multicolor"> <span>Multi-Color</span></label>
         <label class="se-check"><input type="checkbox" id="se-grid" checked> <span>Grid</span></label>
+        <span class="se-mini-lbl" id="se-layout-lbl">Sprites</span>
+        <select id="se-layout" class="se-select" aria-label="Metasprite size (sprites across × down)">
+          <option value="1x1">1×1</option>
+          <option value="2x1">2×1</option>
+          <option value="1x2">1×2</option>
+          <option value="2x2">2×2</option>
+        </select>
         <div class="se-tb-right">
           <span class="se-mini-lbl">Zoom</span>
-          <input type="range" id="se-zoom" min="6" max="20" step="1" value="13" class="se-zoom">
+          <input type="range" id="se-zoom" min="3" max="20" step="1" value="13" class="se-zoom">
         </div>
       </div>
       <div class="se-body">
@@ -2525,8 +2532,11 @@ PRINTABLE CHARACTERS
       </div>
       <div class="hg-png-body">
         <div class="hg-png-preview">
-          <canvas id="hg-png-canvas" width="320" height="200"></canvas>
-          <div class="hg-png-under"><span id="hg-png-status" class="hg-png-status"></span><span id="hg-png-hint" class="hg-png-hint">Wheel: zoom · drag: move</span></div>
+          <div id="hg-png-view" class="hg-png-view"><canvas id="hg-png-canvas" width="320" height="200"></canvas></div>
+          <div class="hg-png-under">
+            <span id="hg-png-status" class="hg-png-status"></span>
+            <span class="hg-png-zoombox"><span id="hg-png-zoom-lbl">Zoom</span><input type="range" id="hg-png-zoom" min="1" max="8" step="0.25" value="1"><span id="hg-png-zoom-val" class="hg-png-val">1.00×</span><span id="hg-png-hint" class="hg-png-hint">Ctrl + wheel</span></span>
+          </div>
         </div>
         <div id="hg-png-settings" class="hg-png-settings"></div>
       </div>

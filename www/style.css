@@ -11060,12 +11060,14 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .hg-png-dialog { border: none; padding: 0; background: transparent; color: var(--text); max-width: none; max-height: none; }
 .hg-png-dialog::backdrop { background: rgba(0, 0, 0, 0.45); }
 .hg-png-card { width: min(1060px, 96vw); max-height: 92vh; display: flex; flex-direction: column; background: var(--panel); border: 1px solid var(--panel-border); box-shadow: 0 2px 6px rgba(0,0,0,0.3), 0 16px 40px rgba(0,0,0,0.55); }
-.hg-png-file { font-size: 0.72rem; color: var(--secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.hg-png-file { margin-left: 4px; font-size: 0.72rem; color: var(--secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 .hg-png-body { display: flex; flex-wrap: wrap; gap: 14px; padding: 12px; min-height: 0; overflow: auto; }
 .hg-png-preview { flex: 0 1 640px; display: flex; flex-direction: column; gap: 6px; min-width: 320px; }
-#hg-png-canvas { width: 100%; aspect-ratio: 320 / 200; image-rendering: pixelated; border: 1px solid var(--panel-border); background: #000; cursor: grab; touch-action: none; }
-#hg-png-canvas.hg-png-panning { cursor: grabbing; }
-.hg-png-under { display: flex; justify-content: space-between; gap: 10px; }
+.hg-png-view { width: 100%; aspect-ratio: 320 / 200; overflow: auto; border: 1px solid var(--panel-border); background: #000; color-scheme: dark; }
+#hg-png-canvas { display: block; width: calc(100% * var(--hg-png-zoom, 1)); aspect-ratio: 320 / 200; image-rendering: pixelated; }
+.hg-png-under { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.hg-png-zoombox { display: inline-flex; align-items: center; gap: 6px; font-size: 0.72rem; color: var(--secondary); }
+.hg-png-zoombox input[type="range"] { width: 120px; min-height: 0; height: auto; padding: 0; margin: 0; border: none; box-shadow: none; accent-color: var(--primary); }
 .hg-png-hint { font-size: 0.68rem; color: var(--muted); }
 .hg-png-status { font-size: 0.72rem; color: var(--secondary); min-height: 1.2em; }
 .hg-png-settings { flex: 1 1 280px; min-width: 260px; display: grid; grid-template-columns: auto minmax(0, 1fr) 40px; gap: 6px 10px; align-items: center; align-content: start; font-size: 0.76rem; }
@@ -11079,3 +11081,9 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 
 /* Hi-Res editor: a picture dragged over the editor */
 .hg-card.hg-dragover { outline: 2px dashed var(--primary); outline-offset: -6px; }
+
+/* Sprite Editor metasprite size: a compact toolbar select (not the global form control) */
+#se-layout { width: auto; flex: 0 0 auto; height: 26px; min-height: 0; padding: 2px 24px 2px 8px; background-position: calc(100% - 8px) 50%; background-size: 9px auto; }
+
+/* fixed-width zoom value: the slider must not move when the number changes */
+#hg-png-zoom-val { display: inline-block; width: 4.2em; flex: 0 0 4.2em; text-align: right; font-variant-numeric: tabular-nums; }

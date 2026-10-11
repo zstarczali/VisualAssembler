@@ -3803,6 +3803,7 @@ function _applyEditorTranslations() {
   setText("#hg-png-apply", t("hgPngApply"));
   setText("#hg-png-credit", t("hgPngCredit"));
   setText("#hg-png-hint", t("hgPngZoomHint"));
+  setText("#hg-png-zoom-lbl", t("hgPngZoom"));
   setText("#hg-export", t("hgExport"));
   setText("#hg-import-koala", t("hgImportKoala"));
   setText("#hg-export-koala", t("hgExportKoala"));
@@ -3853,6 +3854,8 @@ function _applyEditorTranslations() {
   setAttr("#se-shd", t("shiftDown"));
   const seWrapSpan = document.querySelector("#se-wrap + span");
   if (seWrapSpan) seWrapSpan.textContent = t("seWrap");
+  setText("#se-layout-lbl", t("seLayout"));
+  setAttr("#se-layout", t("seLayoutTip"));
   const seMultiSpan = document.querySelector("#se-multicolor + span");
   if (seMultiSpan) seMultiSpan.textContent = t("seMulticolor");
   const seGridSpan = document.querySelector("#se-grid + span");
@@ -37137,9 +37140,7 @@ const _HG_PNG_PALETTES = {
 const _HG_PNG_DITHERS = ["none", "bayer4", "bayer8", "checker", "h2x4", "line2", "fs", "fs-wide", "atkinson", "sierra", "jarvis"];
 const _HG_PNG_DEFAULTS = {
   palette: "pepto", scale: "smooth", fit: "fit", dither: "checker", strength: 0.7, clamp: 0.1, serpentine: true,
-  brightness: 0, contrast: 1, saturation: 1, hue: 0, gamma: 1, sharpen: 0, blackPoint: 0, whitePoint: 0, matchRange: false,
-  // zoom into the source picture (1 = as fitted) and the pan of its centre, in 320×200 frame pixels
-  zoom: 1, panX: 0, panY: 0
+  brightness: 0, contrast: 1, saturation: 1, hue: 0, gamma: 1, sharpen: 0, blackPoint: 0, whitePoint: 0, matchRange: false
 };
 function _hgOklab(r, g, b) {
   const lin = function(c) { c /= 255; return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
@@ -37343,13 +37344,12 @@ function _hgPngConvert(rgba, w, h, multi, opts) {
 }
 
 /* ── Hi-Res editor: image import dialog (live preview, png2c64-style settings) ── */
-var _hgPng = { img: null, name: "", opts: null, timer: 0, result: null, seq: 0 };
+var _hgPng = { img: null, name: "", opts: null, timer: 0, result: null, seq: 0, view: 1 };
 const _HG_PNG_FIELDS = [
   ["mode", "select", ["hires", "multi"]],
   ["palette", "select", ["pepto", "colodore", "vice", "deekay", "c64wiki"]],
   ["scale", "select", ["smooth", "pixel"]],
   ["fit", "select", ["fit", "fill", "stretch"]],
-  ["zoom", "range", 1, 4, 0.05],
   ["-"],
   ["dither", "select", _HG_PNG_DITHERS],
   ["strength", "range", 0, 2, 0.05],
@@ -37370,7 +37370,7 @@ const _HG_PNG_LABELS = {
   mode: "hgPngMode", palette: "hgPngPalette", scale: "hgPngScale", fit: "hgPngFit", dither: "hgPngDither",
   strength: "hgPngStrength", clamp: "hgPngClamp", serpentine: "hgPngSerpentine", brightness: "hgPngBrightness",
   contrast: "hgPngContrast", saturation: "hgPngSaturation", hue: "hgPngHue", gamma: "hgPngGamma",
-  sharpen: "hgPngSharpen", blackPoint: "hgPngBlack", whitePoint: "hgPngWhite", matchRange: "hgPngMatch", zoom: "hgPngZoom"
+  sharpen: "hgPngSharpen", blackPoint: "hgPngBlack", whitePoint: "hgPngWhite", matchRange: "hgPngMatch"
 };
 function _hgPngOptionText(key, value) {
   const names = { hires: "hgPngHires", multi: "hgPngMulti", smooth: "hgPngSmooth", pixel: "hgPngPixel",
@@ -37442,9 +37442,8 @@ function _hgPngScaled() {
     const s = o.fit === "fit" ? Math.min(320 / iw, 200 / ih) : Math.max(320 / iw, 200 / ih);
     dw = iw * s; dh = ih * s;
   }
-  dw *= o.zoom || 1; dh *= o.zoom || 1;
   const sx = W / 320;
-  ctx.drawImage(img, ((320 - dw) / 2 + (o.panX || 0)) * sx, (200 - dh) / 2 + (o.panY || 0), dw * sx, dh);
+  ctx.drawImage(img, (320 - dw) / 2 * sx, (200 - dh) / 2, dw * sx, dh);
   return ctx.getImageData(0, 0, W, H).data;
 }
 function _hgPngRender() {
@@ -37486,8 +37485,8 @@ function _hgPngOpen(img, name) {
   _hgPng.img = img;
   _hgPng.name = name || "";
   _hgPng.result = null;
-  // every picture starts unzoomed and centred
-  _hgPng.opts = Object.assign(_hgPngLoadOpts(), { zoom: 1, panX: 0, panY: 0 });
+  _hgPng.opts = _hgPngLoadOpts();
+  _hgPngViewZoom(1);
   const file = document.getElementById("hg-png-file");
   if (file) file.textContent = _hgPng.name;
   _hgPngBuildSettings();
@@ -37521,6 +37520,23 @@ function _hgPngApply() {
   _hgRenderAll();
   document.getElementById("hg-png-dialog")?.close();
 }
+// Magnifies the preview inside its scrolling view; the point under the cursor
+// (or the centre) stays in place.
+function _hgPngViewZoom(z, ev) {
+  const view = document.getElementById("hg-png-view");
+  if (!view) return;
+  z = Math.max(1, Math.min(8, Math.round(z * 4) / 4));
+  const r = view.getBoundingClientRect();
+  const ax = ev ? ev.clientX - r.left : view.clientWidth / 2, ay = ev ? ev.clientY - r.top : view.clientHeight / 2;
+  const fx = (view.scrollLeft + ax) / Math.max(1, view.scrollWidth), fy = (view.scrollTop + ay) / Math.max(1, view.scrollHeight);
+  _hgPng.view = z;
+  view.style.setProperty("--hg-png-zoom", String(z));
+  view.scrollLeft = fx * view.scrollWidth - ax;
+  view.scrollTop = fy * view.scrollHeight - ay;
+  const slider = document.getElementById("hg-png-zoom"), val = document.getElementById("hg-png-zoom-val");
+  if (slider) slider.value = String(z);
+  if (val) val.textContent = z.toFixed(2) + "×";
+}
 function _setupHgPngDialog() {
   const dlg = document.getElementById("hg-png-dialog");
   if (!dlg) return;
@@ -37534,44 +37550,13 @@ function _setupHgPngDialog() {
     _hgPngChanged();
   });
   dlg.addEventListener("close", function() { _hgPng.seq++; _hgPng.img = null; _hgPng.result = null; });
-  // zoom (wheel, around the cursor) and pan (drag) on the preview
-  const cv = document.getElementById("hg-png-canvas");
-  const frameXY = function(e) {
-    const r = cv.getBoundingClientRect();
-    return { x: (e.clientX - r.left) * 320 / r.width, y: (e.clientY - r.top) * 200 / r.height, k: 320 / r.width };
-  };
-  const setZoom = function(z) {
-    const el = document.getElementById("hg-png-zoom");
-    if (!el) return;
-    el.value = String(z);
-    el.dispatchEvent(new Event("input"));
-  };
-  cv?.addEventListener("wheel", function(e) {
-    if (!_hgPng.img) return;
+  // preview zoom: the slider, or Ctrl + wheel around the cursor; scrollbars move the view
+  document.getElementById("hg-png-zoom")?.addEventListener("input", function(e) { _hgPngViewZoom(Number(e.target.value)); });
+  document.getElementById("hg-png-view")?.addEventListener("wheel", function(e) {
+    if (!e.ctrlKey) return;
     e.preventDefault();
-    const o = _hgPng.opts, p = frameXY(e);
-    const z1 = o.zoom || 1, z2 = Math.max(1, Math.min(4, z1 * (e.deltaY < 0 ? 1.12 : 1 / 1.12)));
-    // the point under the cursor stays where it is
-    o.panX = z2 === 1 ? 0 : p.x - 160 - (p.x - 160 - (o.panX || 0)) * z2 / z1;
-    o.panY = z2 === 1 ? 0 : p.y - 100 - (p.y - 100 - (o.panY || 0)) * z2 / z1;
-    setZoom(Math.round(z2 * 100) / 100);
+    _hgPngViewZoom(_hgPng.view * (e.deltaY < 0 ? 1.25 : 0.8), e);
   }, { passive: false });
-  let pan = null;
-  cv?.addEventListener("pointerdown", function(e) {
-    if (!_hgPng.img || e.button !== 0) return;
-    pan = { x: e.clientX, y: e.clientY, px: _hgPng.opts.panX || 0, py: _hgPng.opts.panY || 0, k: frameXY(e).k };
-    try { cv.setPointerCapture(e.pointerId); } catch (_) {}
-    cv.classList.add("hg-png-panning");
-  });
-  cv?.addEventListener("pointermove", function(e) {
-    if (!pan) return;
-    _hgPng.opts.panX = pan.px + (e.clientX - pan.x) * pan.k;
-    _hgPng.opts.panY = pan.py + (e.clientY - pan.y) * pan.k;
-    _hgPngChanged();
-  });
-  const endPan = function() { pan = null; cv?.classList.remove("hg-png-panning"); };
-  cv?.addEventListener("pointerup", endPan);
-  cv?.addEventListener("pointercancel", endPan);
 }
 
 function _hgImportImage(img) {
@@ -38213,7 +38198,11 @@ function _setupFileMenus() {
 /* =======================================================
    SPRITE EDITOR (24x21 hi-res / 12x21 multicolor, animated)
    ======================================================= */
-const _SP_W = 24, _SP_H = 21;
+// One hardware sprite is _SP_PW × _SP_PH. A frame is a metasprite of _spCols × _spRows
+// sprites edited as one picture of _SP_W × _SP_H pixels; exports split it into sprites.
+const _SP_PW = 24, _SP_PH = 21;
+let _SP_W = 24, _SP_H = 21;
+let _spCols = 1, _spRows = 1;
 let _spFrames = null;
 let _spFrame = 0;
 let _spMulti = false;
@@ -38282,19 +38271,27 @@ function _spRender() {
     for (let x = 0; x <= _SP_W; x += 8) { _spCtx.moveTo(x*z+0.5, 0); _spCtx.lineTo(x*z+0.5, H); }
     _spCtx.stroke();
   }
+  if (_spCols > 1 || _spRows > 1) {
+    // the borders of the sprites of the metasprite
+    _spCtx.strokeStyle = "rgba(255,216,79,0.85)"; _spCtx.lineWidth = 2; _spCtx.beginPath();
+    for (let c = 1; c < _spCols; c++) { _spCtx.moveTo(c*_SP_PW*z, 0); _spCtx.lineTo(c*_SP_PW*z, H); }
+    for (let r = 1; r < _spRows; r++) { _spCtx.moveTo(0, r*_SP_PH*z); _spCtx.lineTo(W, r*_SP_PH*z); }
+    _spCtx.stroke(); _spCtx.lineWidth = 1;
+  }
   _spRenderPreview();
   _spRenderThumbs();
   const fl = document.getElementById("se-frame-label");
   if (fl) fl.textContent = t("seFrame") + " " + (_spFrame+1) + " / " + _spFrames.length;
 }
 function _spDrawFrameTo(ctx, frame, cw, ch) {
-  const zx = cw / _SP_W, zy = ch / _SP_H;
+  // one scale for both axes (a 2×1 metasprite stays wide), centred
+  const z = Math.min(cw / _SP_W, ch / _SP_H), ox = (cw - _SP_W * z) / 2, oy = (ch - _SP_H * z) / 2;
   ctx.clearRect(0,0,cw,ch);
-  ctx.fillStyle = _CE_COLORS[_spCol.bg]; ctx.fillRect(0,0,cw,ch);
+  ctx.fillStyle = _CE_COLORS[_spCol.bg]; ctx.fillRect(ox, oy, _SP_W * z, _SP_H * z);
   for (let y = 0; y < _SP_H; y++)
     for (let x = 0; x < _SP_W; x++) {
       const v = frame[y*_SP_W+x];
-      if (v !== 0) { ctx.fillStyle = _CE_COLORS[_spPenColor(v)]; ctx.fillRect(Math.floor(x*zx), Math.floor(y*zy), Math.ceil(zx), Math.ceil(zy)); }
+      if (v !== 0) { ctx.fillStyle = _CE_COLORS[_spPenColor(v)]; ctx.fillRect(Math.floor(ox + x*z), Math.floor(oy + y*z), Math.ceil(z), Math.ceil(z)); }
     }
 }
 function _spRenderPreview() {
@@ -38352,20 +38349,58 @@ function _spBuildPalette() {
   });
 }
 
-function _spFrameBytes(frame) {
+// The 64 sprite bytes of part (pc, pr) of a frame (the whole frame for a single sprite).
+function _spFrameBytes(frame, pc = 0, pr = 0) {
   const out = new Uint8Array(64);
-  for (let y = 0; y < _SP_H; y++) {
+  const ox = pc * _SP_PW, oy = pr * _SP_PH;
+  for (let y = 0; y < _SP_PH; y++) {
+    const row = (oy + y) * _SP_W + ox;
     for (let b = 0; b < 3; b++) {
       let byte = 0;
       if (_spMulti) {
-        for (let j = 0; j < 4; j++) { const v = frame[y*_SP_W + (b*4+j)*2] & 3; byte |= v << ((3-j)*2); }
+        for (let j = 0; j < 4; j++) { const v = frame[row + (b*4+j)*2] & 3; byte |= v << ((3-j)*2); }
       } else {
-        for (let i = 0; i < 8; i++) { if (frame[y*_SP_W + b*8 + i]) byte |= 1 << (7-i); }
+        for (let i = 0; i < 8; i++) { if (frame[row + b*8 + i]) byte |= 1 << (7-i); }
       }
       out[y*3 + b] = byte;
     }
   }
   return out;
+}
+// Every sprite of a frame, left to right then top to bottom, 64 bytes each.
+function _spFrameAllBytes(frame) {
+  const out = new Uint8Array(_spCols * _spRows * 64);
+  for (let pr = 0; pr < _spRows; pr++)
+    for (let pc = 0; pc < _spCols; pc++) out.set(_spFrameBytes(frame, pc, pr), (pr * _spCols + pc) * 64);
+  return out;
+}
+// Resize every frame to cols × rows sprites; the picture stays in the top left corner.
+function _spApplyDims(cols, rows) {
+  _spCols = cols; _spRows = rows;
+  _SP_W = _SP_PW * cols; _SP_H = _SP_PH * rows;
+  const sel = document.getElementById("se-layout");
+  if (sel) sel.value = cols + "x" + rows;
+}
+function _spSetLayout(cols, rows) {
+  if (cols === _spCols && rows === _spRows) return;
+  _spStop();
+  _spPushUndo();
+  const oldW = _SP_W, oldH = _SP_H;
+  _spApplyDims(cols, rows);
+  _spFrames = _spFrames.map(function(f) {
+    const n = new Uint8Array(_SP_W * _SP_H);
+    for (let y = 0; y < Math.min(oldH, _SP_H); y++)
+      for (let x = 0; x < Math.min(oldW, _SP_W); x++) n[y * _SP_W + x] = f[y * oldW + x];
+    return n;
+  });
+  _spClip = null;
+  // the biggest zoom that fits the drawing area (a single sprite: the default 13)
+  const wrap = document.getElementById("se-canvas-wrap");
+  const fit = wrap && wrap.clientWidth ? Math.floor(Math.min((wrap.clientWidth - 24) / _SP_W, (wrap.clientHeight - 24) / _SP_H)) : 0;
+  _spZoom = cols === 1 && rows === 1 ? 13 : Math.max(3, Math.min(20, fit || Math.round(13 / Math.max(cols, rows))));
+  const zoom = document.getElementById("se-zoom");
+  if (zoom) zoom.value = String(_spZoom);
+  _spRender();
 }
 function _spExportText() {
   const fmtEl = document.getElementById("se-export-fmt");
@@ -38401,10 +38436,23 @@ function _spExportText() {
 }
 /* Current frame as comma-separated hex bytes ($xx, $xx, …) — 63 sprite bytes. */
 function _spHexCSV() {
-  const bytes = _spFrameBytes(_spCur());
-  const arr = [];
-  for (let i = 0; i < 63; i++) arr.push("$" + bytes[i].toString(16).toUpperCase().padStart(2,"0"));
-  return arr.join(", ");
+  const hex = function(bytes) {
+    const arr = [];
+    for (let i = 0; i < 63; i++) arr.push("$" + bytes[i].toString(16).toUpperCase().padStart(2,"0"));
+    return arr;
+  };
+  if (_spCols === 1 && _spRows === 1) return hex(_spFrameBytes(_spCur())).join(", ");
+  // metasprite: one labelled block per sprite with its X / Y offset in screen pixels
+  // (multicolor sprites are 24 screen pixels wide too; double them with $D01D / $D017)
+  const n = _spFrame + 1;
+  let out = "; metasprite " + _spCols + "x" + _spRows + ", frame " + n + " (sprites left to right, top to bottom)\n";
+  for (let pr = 0; pr < _spRows; pr++)
+    for (let pc = 0; pc < _spCols; pc++) {
+      const arr = hex(_spFrameBytes(_spCur(), pc, pr));
+      out += "sprite_f" + n + "_" + (pr * _spCols + pc + 1) + ":  ; x +" + (pc * _SP_PW) + ", y +" + (pr * _SP_PH) + "\n";
+      for (let k = 0; k < 63; k += 21) out += "    .byte " + arr.slice(k, k + 21).join(", ") + "\n";
+    }
+  return out.replace(/\n$/, "");
 }
 function _spUpdateExport() {
   const el = document.getElementById("se-export-out");
@@ -38480,6 +38528,7 @@ function _spSnapshot() {
   return {
     frame: _spFrame,
     multi: _spMulti,
+    cols: _spCols, rows: _spRows,
     col: { sprite: _spCol.sprite, bg: _spCol.bg, mc1: _spCol.mc1, mc2: _spCol.mc2 },
     frames: _spFrames.map(function(frame) { return frame.slice(0); })
   };
@@ -38487,6 +38536,7 @@ function _spSnapshot() {
 function _spRestore(snapshot) {
   if (!snapshot || !snapshot.frames || !snapshot.frames.length) return;
   _spStop();
+  _spApplyDims(snapshot.cols || 1, snapshot.rows || 1);
   _spFrames = snapshot.frames.map(function(frame) { return frame.slice(0); });
   _spFrame = Math.min(Math.max(0, snapshot.frame || 0), _spFrames.length - 1);
   _spMulti = !!snapshot.multi;
@@ -38652,7 +38702,11 @@ function setupSpriteEditor() {
   onClick("se-add", function(){ _spPushUndo(); _spStop(); _spFrames.splice(_spFrame+1,0,new Uint8Array(_SP_W*_SP_H)); _spFrame++; _spRender(); });
   onClick("se-dup", function(){ _spPushUndo(); _spStop(); _spFrames.splice(_spFrame+1,0,_spCur().slice(0)); _spFrame++; _spRender(); });
   onClick("se-fcopy", function(){ _spClip = _spCur().slice(0); });
-  onClick("se-fpaste", function(){ if(_spClip){ _spPushUndo(); _spCur().set(_spClip); _spRender(); } });
+  onClick("se-fpaste", function(){ if(_spClip && _spClip.length === _spCur().length){ _spPushUndo(); _spCur().set(_spClip); _spRender(); } });
+  onChange("se-layout", function(e){
+    const m = /^(\d)x(\d)$/.exec(e.target.value);
+    if (m) _spSetLayout(Number(m[1]), Number(m[2]));
+  });
   canvas.addEventListener("contextmenu", _spShowCtxMenu);
   onClick("se-fdel", function(){ _spPushUndo(); _spStop(); if(_spFrames.length<=1){ _spCur().fill(0); } else { _spFrames.splice(_spFrame,1); if(_spFrame>=_spFrames.length)_spFrame=_spFrames.length-1; } _spRender(); });
 
@@ -38677,8 +38731,9 @@ function setupSpriteEditor() {
     const allEl = document.getElementById("se-export-all");
     const all = allEl && allEl.checked;
     const frames = all ? _spFrames : [_spCur()];
-    const out = new Uint8Array(frames.length * 64);
-    frames.forEach(function(fr,i){ out.set(_spFrameBytes(fr), i*64); });
+    const per = _spCols * _spRows * 64;
+    const out = new Uint8Array(frames.length * per);
+    frames.forEach(function(fr,i){ out.set(_spFrameAllBytes(fr), i*per); });
     _saveBinFile(out, "sprite.bin");
   });
 }
@@ -38686,16 +38741,20 @@ function setupSpriteEditor() {
 function _spImportBin(src) {
   _spStop();
   _spPushUndo();
-  const count = Math.max(1, Math.floor(src.length / 64));
+  const parts = _spCols * _spRows;
+  const count = Math.max(1, Math.ceil(Math.floor(src.length / 64) / parts));
   _spFrames = [];
   for (let f = 0; f < count; f++) {
     const fr = new Uint8Array(_SP_W*_SP_H);
-    for (let y = 0; y < _SP_H; y++)
-      for (let b = 0; b < 3; b++) {
-        const byte = src[f*64 + y*3 + b] || 0;
-        if (_spMulti) { for (let j=0;j<4;j++){ const v=(byte>>((3-j)*2))&3; const x=(b*4+j)*2; fr[y*_SP_W+x]=v; fr[y*_SP_W+x+1]=v; } }
-        else { for (let i=0;i<8;i++) fr[y*_SP_W+b*8+i] = (byte>>(7-i))&1; }
-      }
+    for (let p = 0; p < parts; p++) {
+      const base = (f * parts + p) * 64, ox = (p % _spCols) * _SP_PW, oy = Math.floor(p / _spCols) * _SP_PH;
+      for (let y = 0; y < _SP_PH; y++)
+        for (let b = 0; b < 3; b++) {
+          const byte = src[base + y*3 + b] || 0, row = (oy + y) * _SP_W + ox;
+          if (_spMulti) { for (let j=0;j<4;j++){ const v=(byte>>((3-j)*2))&3; const x=(b*4+j)*2; fr[row+x]=v; fr[row+x+1]=v; } }
+          else { for (let i=0;i<8;i++) fr[row+b*8+i] = (byte>>(7-i))&1; }
+        }
+    }
     _spFrames.push(fr);
   }
   _spFrame = 0; _spRender();
