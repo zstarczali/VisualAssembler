@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.5.5">
+  <link rel="stylesheet" href="style.css?v=2.5.6">
 </head>
 
 <body>
@@ -1228,7 +1228,7 @@ PRINTABLE CHARACTERS
           <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
         </div>
         <h2 class="about-title">C64 Visual Assembler</h2>
-        <p class="about-version" id="about-version">v2.5.5</p>
+        <p class="about-version" id="about-version">v2.5.6</p>
         <p class="about-version" id="about-license"></p>
         <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
       </div>
@@ -1255,22 +1255,37 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.5.5</p>
+      <p class="whats-new-version">v2.5.6</p>
       <ul class="whats-new-list">
         <li>
-          <strong>New: pixel grid in the Hi-Res Editor:</strong> with <em>Grid</em> on, from 4× zoom every pixel gets its own grid line, stronger on the character-cell borders. The lines are shaded to stay visible on all 16 colours.
+          <strong>New: SID Player:</strong> a toolbar button opens a floating player for <code>.sid</code> (PSID / RSID) tunes — a playlist with drag and drop, previous / next tune, subtunes, seek and ±10 s, volume, and playlist save / open (<code>.sidpl</code>). The list and the window are remembered.
         </li>
         <li>
-          <strong>New: 16× zoom</strong> in the Hi-Res Editor (was 8×).
+          <strong>New: VA SID Core 1.1:</strong> a built-in SID emulation (MOS 6581 / 8580, reSID-aligned 6581 filter) with a cycle-locked PSID / RSID player, so raster-IRQ and digi tunes play too. Choose it in <em>Settings → SID preview</em>; the player shows which engine is playing.
         </li>
         <li>
-          <strong>New: right-click Copy / Paste menu</strong> on the canvas of the Hi-Res, Map and Sprite editors: Copy, Paste and Transparent paste, or Copy frame / Paste frame in the Sprite Editor. A paste started from the menu previews where you clicked.
+          <strong>SID Editor:</strong> knobs for the instrument parameters, a wider ADSR graph, <strong>MIDI input</strong> with an activity lamp, <strong>recording</strong> into the tracker (a new pattern is added when the current one is full), a <strong>metronome</strong> with beat lamps, <strong>pattern delete</strong>, the master volume on VA-VK, and <strong>Import GoatTracker .sng</strong>.
         </li>
         <li>
-          <strong>New: Number Converter toggle button:</strong> its toolbar button stays highlighted while the converter is shown.
+          <strong>New: Freemium and Professional:</strong> without a registration the app runs as Freemium. Enter the email address and serial from your purchase in <em>Menu → Register…</em> for the Professional version with every editor, build and run option, language and theme.
         </li>
         <li>
-          <strong>Fixed:</strong> the multicolor cell grid of the Hi-Res Editor was twice as wide as a character cell; the Hi-Res <em>Paste</em> button always pasted transparently; the SID Editor right-click menu opened away from the cursor.
+          <strong>Ultimate Basic 1.6.4</strong> bundled.
+        </li>
+        <li>
+          <strong>From 2.5.5: pixel grid in the Hi-Res Editor:</strong> with <em>Grid</em> on, from 4× zoom every pixel gets its own grid line, stronger on the character-cell borders. The lines are shaded to stay visible on all 16 colours.
+        </li>
+        <li>
+          <strong>From 2.5.5: 16× zoom</strong> in the Hi-Res Editor (was 8×).
+        </li>
+        <li>
+          <strong>From 2.5.5: right-click Copy / Paste menu</strong> on the canvas of the Hi-Res, Map and Sprite editors: Copy, Paste and Transparent paste, or Copy frame / Paste frame in the Sprite Editor. A paste started from the menu previews where you clicked.
+        </li>
+        <li>
+          <strong>From 2.5.5: Number Converter toggle button:</strong> its toolbar button stays highlighted while the converter is shown.
+        </li>
+        <li>
+          <strong>From 2.5.5, fixed:</strong> the multicolor cell grid of the Hi-Res Editor was twice as wide as a character cell; the Hi-Res <em>Paste</em> button always pasted transparently; the SID Editor right-click menu opened away from the cursor.
         </li>
         <li>
           <strong>From 2.5.4, fixed: window not appearing on relaunch:</strong> if the app was quit with its window minimized or hidden (mostly on macOS, also on Linux / Wayland), the next start could come up without a window. The window is now always shown at startup; the saved window size is kept.
@@ -2936,13 +2951,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.5.5"></script>
-  <script src="i18n.js?v=2.5.5"></script>
-  <script src="tutorial-data.js?v=2.5.5"></script>
+  <script src="tauri-bridge.js?v=2.5.6"></script>
+  <script src="i18n.js?v=2.5.6"></script>
+  <script src="tutorial-data.js?v=2.5.6"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.5.5"></script>
+  <script src="app.js?v=2.5.6"></script>
 
 </body>
 

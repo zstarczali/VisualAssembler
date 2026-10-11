@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.5.5**
+**Verzió: 2.5.6**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -26,6 +26,16 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - [12b. CRT export (Magic Desk 64K cartridge)](#12b-crt-export-magic-desk-64k-cartridge)
 - [13. Hardver beállítások](#13-hardver-beállítások)
 - [14. Vizuális szerkesztők (Toolkit)](#14-vizuális-szerkesztők-toolkit)
+
+---
+
+## A 2.5.6 verzió újdonságai
+
+- **SID Player** — új toolbar gomb nyit egy lebegő lejátszót `.sid` (PSID / RSID) zenékhez: lejátszási lista fogd-és-vidd támogatással, előző / következő zene, subtune-ok, tekerés és ±10 mp, hangerő, a lista mentése / megnyitása (`.sidpl`); a lista és az ablak állapota megmarad. Lásd: [SID Player](#sid-player).
+- **VA SID Core 1.1** — beépített SID-emuláció (MOS 6581 / 8580, reSID-hez igazított 6581 szűrővel) és ciklusra pontos PSID / RSID lejátszó (6510 CPU, CIA / VIC időzítés). A **Beállítások → SID előnézet** alatt választható; a SID Player kiírja, melyik motor szól.
+- **SID szerkesztő** — tekerőgombok a hangszer-paraméterekhez, szélesebb ADSR-grafikon, **MIDI bemenet**, **felvétel** a trackerbe (ha az aktuális pattern betelt, új pattern jön), **metronóm** ütemlámpákkal, **pattern törlése**, master hangerő a VA-VK-n és **GoatTracker .sng import**. Lásd: [SID Editor](#sid-editor-3-voice-tracker).
+- **Freemium és Professional** — regisztráció nélkül az alkalmazás Freemium módban fut; a Professional verzióhoz a vásárláskor kapott e-mail címet és sorozatszámot a **Menu → Regisztráció…** alatt add meg. Lásd: [Freemium és Professional](#freemium-és-professional).
+- **Beépített Ultimate Basic 1.6.4**.
 
 ---
 
@@ -388,6 +398,17 @@ A letöltés után az app telepíti a frissítést és újraindul:
 | **Linux** | Az AppImage lecserélődik az újra. A `.deb` / `.rpm` telepítés `pkexec`-kel frissül (jelszót kér); `pkexec` nélkül a csomag a rendszer szoftvertelepítőjében nyílik meg. |
 
 Ha vannak mentetlen fülek, az app bezárás előtt rákérdez. Ugyanez az ellenőrzés minden induláskor néhány másodperc után csendben is lefut: csak akkor jelenik meg bármi, ha van újabb verzió. Az eredmény az Ultimate Basic statusbarban is látszik — **Naprakész (vX)**, vagy kiemelt **Frissítés elérhető: vY**, ami megnyitja a frissítés dialógust.
+
+### Freemium és Professional
+
+Regisztráció nélkül a Visual Assembler **Freemium** módban fut; a cím melletti jelvény **FREEMIUM** vagy **PROFESSIONAL** feliratot mutat. Freemium módban Block, Expert és Ultimate Basic módban is írhatsz és fordíthatsz programokat, és futtathatod őket VICE-ban. A Professional verzió kell ezekhez:
+
+- a vizuális szerkesztők (SID, Sprite, Char, Charset, Hi-Res, Map, Level, D64, Curve) és a SID Player;
+- **Build PRG**, **Build D64**, **Build CRT**, **Build project** és az Exomizer tömörítés;
+- futtatás C64 Ultimate-en és Kung Fu Flash 2-n;
+- a magyaron és angolon kívüli felületi nyelvek, valamint az OLED és a Commodore 77 téma.
+
+Zárolt funkcióra kattintva a regisztrációs ablak nyílik meg. Regisztrációhoz nyisd meg a **Menu → Regisztráció…** pontot (vagy kattints a jelvényre), add meg a vásárláskor kapott e-mail címet és sorozatszámot, majd nyomd meg az **Aktiválás** gombot. A sorozatszám ahhoz az e-mail címhez tartozik (a kis- és nagybetű, illetve a szóközök nem számítanak), az ellenőrzés internet nélkül történik. A **Licenc eltávolítása** leveszi a regisztrációt erről a gépről.
 
 ### Munkaterületek
 
@@ -3798,6 +3819,8 @@ Réteges tilemap szerkesztő statikus díszlethez, sprite spawn map-ekhez, ütk�
 
 Több-hangszeres 3-voice tracker. Toolkit → SID Editor menüvel nyílik. A **Play: All** az exportált 6502 lejátszót futtatja a WebSid emulátorban; minden más előnézet (hangszer-előnézet, virtuális billentyűzet, hangbeírás, akkord / arpeggio, sor- és egy patternes lejátszás) is az emulált SID-en szól: ugyanannak a lejátszónak a frame-pontos JS modellje frame-enként a WebSid-be küldi a SID-regisztereit, és legfeljebb három előnézeti hang osztozik a három voice-on. A stream-lejátszó a szerkesztő megnyitásakor és Stop után betöltődik, így a hang azonnal szól; WebSid nélkül egy kis SID-szintetizátor szól helyette.
 
+**Előnézeti motor:** a **Beállítások → SID előnézet** alatt a **WebSID** vagy a **VA SID Core (Rust)** — az alkalmazás saját SID-emulációja — választható; VA SID Core esetén a chip is (MOS 6581 / 8580). A hangszer-paraméterek tekerőgombokkal állíthatók.
+
 **Hangszerenkénti vezérlők:**
 - Hullámforma jelölőnégyzetek (TRI / SAW / PUL / NOI) — több hullámforma a SID-hez hasonlóan ÉS-elődik —, plusz **RING** (a háromszög gyűrűmodulációja az előző hanggal: 1 ← 3, 2 ← 1, 3 ← 2) és **SYNC** (hard sync az előző hanghoz).
 - ADSR (attack / decay / sustain / release) drag-grafikonként a négy csúszka fölött.
@@ -3845,6 +3868,13 @@ Az effektek soronként egyszer frissülnek (megegyezően az exportált lejátsz�
 - Engedélyezd az **Insert into tracker**-t, hogy minden lejátszott note az aktuális tracker-kurzorra íródjon, és a következő sorra lépjen. Kapcsold ki a note-ok meghallgatásához szerkesztés nélkül.
 - Az akkord- és arpeggio-előnézetek megvilágítják a megfelelő zongorabillentyűket, amikor a billentyűzet nyitva van.
 
+**Felvétel, metronóm és MIDI:**
+- A **Record** (piros pont, a tracker eszköztárán és a VA-VK-n) ütemre beírja a játszott hangokat — VA-VK-ról, a számítógép billentyűzetéről vagy MIDI billentyűzetről — a kijelölt voice-ba, a kijelölt sortól, az aktuális Speed szerint. Ha a pattern betelt, az aktuális song-lépés után új, üres pattern jön, és ott folytatódik a felvétel. A Record újbóli megnyomása leállítja.
+- A **Metronóm** (tracker eszköztár és VA-VK) 4 soronként kattan, a 4 ütemes taktus első ütésén hangsúlyosan. A mellette lévő ütemlámpák lejátszás és felvétel közben minden ütésre felvillannak, kikapcsolt kattanással is.
+- **MIDI:** a hangszernév melletti **MIDI** listában válaszd ki a bemenetet, majd nyomd meg a **Connect MIDI** gombot; a hangok az aktuális hangszerrel szólnak (felvétel közben vagy *Insert into tracker* mellett a trackerbe is beíródnak). A gomb melletti lámpa minden beérkező MIDI üzenetre felvillan.
+- **Pattern törlése:** a **Pat +** melletti **−** gomb törli az aktuális patternt (ha van benne hang, előbb rákérdez). Az azt használó song-lépések kikerülnek, a többi átszámozódik; legalább egy pattern mindig megmarad.
+- A **master hangerő** tekerőgombja a VA-VK-n van.
+
 **Files menü exportok:**
 | Export | Mit csinál |
 |---|---|
@@ -3852,7 +3882,14 @@ Az effektek soronként egyszer frissülnek (megegyezően az exportált lejátsz�
 | `Export blocks (data only)` | Hangszer-táblát + pattern blokkokat fűz a programhoz a `* = $C000`-en. |
 | `Export blocks + miniplayer` | Hozzáadja a teljes lejátszót (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) plusz a PAL frekvencia-táblákat. Export után tegyél egy `JSR sid_init`-et a fő kódodba, ahol a zenének indulnia kell; saját IRQ-ból ehelyett frame-enként egyszer `JSR sid_frame`. |
 | `Export asm (clipboard)` | A teljes assembly forrást vágólapra másolja. |
+| `Import GoatTracker .sng…` | Egy GoatTracker 2 dalt tölt be az aktuális helyére — lásd lentebb a **GoatTracker import** részt. |
 | `Export to UltimateBasic` | Egy `tune ... end` blokkot (hangszerek, sorrend lista, pattern sorok szövegként) és `music play`-t ír ki, és az Ultimate Basic szerkesztő kurzorához szúrja be; UB módon kívül a vágólapra másolja. A lejátszót az UltimateBasic fordító építi, így a `music play` / `music stop` vezérli. A hangszer-modulációk `imod` / `ifilt` / `igate` / `itab` sorokba kerülnek (Ultimate Basic 1.6.2+). |
+
+**GoatTracker import:** a **Files → Import GoatTracker .sng…** egy GoatTracker 2 dalt (`.sng`, GTS3–GTS5) tölt be az aktuális helyére. Az átalakítás közelítő, mert a két tracker másképp működik:
+- A voice-onkénti sorrend listák (transpose-zal és repeat-tel) egyetlen 3 voice-os dallá lapulnak, 32 soros patternekre vágva; az azonos patternek közösek.
+- Hangszerek: az AD / SR, a first wave, a gate timer és a hard restart átkerül; a wavetable-ből wave / arpeggio tábla, a pulse táblából PWM, a filter táblából szűrőmód, rezonancia és cutoff-söprés, a speed tábla bejegyzéséből hangszer-vibrato lesz.
+- Pattern parancsok: key off → note-off, portamento → `U` / `D` (soronként legfeljebb 255), tempó → `F`; a toneporta sima hang lesz. A többi parancs kimarad, és egy üzenet felsorolja, mi lett közelítve vagy kihagyva.
+- A wavetable által elengedett gate a következő szabad sorban note-off lesz. Csak az első subtune töltődik be, és az export 7 patternes korlátja itt is érvényes.
 
 **Lejátszó ZP használat:** `$02`–`$1C` (pattern-mutatók, pattern offset, temp) és `$2F` (aktuális sebesség), valamint `$FB`–`$FD` (tick számláló, sor-index, sorrend-pozíció). A hang-, modulációs és szűrő-állapot az adatok utáni `sid_state` területen van. A ZP bájtok ütköznek, ha a fő kódod használja őket — szükség esetén relokálj Expert módon.
 
@@ -3860,6 +3897,18 @@ Az effektek soronként egyszer frissülnek (megegyezően az exportált lejátsz�
 - A 8 bites sor-számláló a nyers bankban 7 pattern × 32 sorra korlátoz (a song/sorrend lista patternek ismétlésével még mindig tetszőlegesen hosszú lehet).
 - A C64 `$D418` globális hangerő megosztott a voice-ok közt — a hangszerenkénti hangerő-csúszka informatív; a sustain szint (az ADSR `S`-e) a tényleges per-voice hangerő.
 - Amíg a **Play: All** valódi dala be van töltve (szüneteltetve is), a hang-előnézet a kis szintetizátoron szól, ami csak közelíti a SID chipet. Az előnézet kb. 0,1 mp-cel a hang előtt jut a WebSid-be.
+
+---
+
+### SID Player
+
+A **SID Player** toolbar gomb egy lebegő ablakot nyit, amely `.sid` zenefájlokat (PSID és RSID) játszik le, például a HVSC gyűjtemény zenéit.
+
+- **Lejátszási lista:** zenét az **Add .sid files…** gombbal vagy az ablakra húzva adhatsz hozzá, és kattintásra lejátszhatod; a **Remove** és a **Clear playlist** rendet tart. A **Save playlist…** / **Open playlist…** egy `.sidpl` fájlba írja és onnan olvassa a listát, a zenékkel együtt. A lista, az aktuális zene és az ablak nyitott állapota megmarad.
+- **Vezérlés:** Play, Pause, Stop, **Previous** / **Next** zene, több dalt tartalmazó fájloknál **Previous / Next subtune**, valamint időszámláló.
+- **Tekerés:** a pozíciósáv és a **Back / Forward 10 s** a VA SID Core motorral működik. A WebSID nem tud tekerni, ezért vele ezek a vezérlők le vannak tiltva.
+- **Hangerő:** a tekerőgomb közös a SID szerkesztő master hangerejével.
+- **Motor:** az ablak kiírja, melyik motor szól (WebSID, vagy VA SID Core a verziójával és a SID chippel); a **Beállítások → SID előnézet** alatt választható. A VA SID Core emulált 6510-en, CIA / VIC időzítéssel futtatja a zenét, így a raster IRQ-s és digi zenék is szólnak.
 
 ---
 

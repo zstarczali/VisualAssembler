@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.5.5**
+**Version 2.5.6**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -9,6 +9,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
+    - [Version 2.5.6 Highlights](#version-256-highlights)
     - [Version 2.5.5 Highlights](#version-255-highlights)
     - [Version 2.5.4 Highlights](#version-254-highlights)
     - [Version 2.5.3 Highlights](#version-253-highlights)
@@ -38,6 +39,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [ASM line numbers](#asm-line-numbers)
     - [Compile progress modal](#compile-progress-modal)
   - [5. Settings \& Toolbar](#5-settings--toolbar)
+    - [Freemium and Professional](#freemium-and-professional)
     - [Project templates](#project-templates)
     - [Build project](#build-project)
     - [Example programs](#example-programs)
@@ -173,8 +175,19 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [Map Editor (Multilayer Tilemaps)](#map-editor-multilayer-tilemaps)
     - [Level Editor](#level-editor)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
+    - [SID Player](#sid-player)
     - [Curve Editor](#curve-editor)
     - [Number Converter](#number-converter)
+
+---
+
+## Version 2.5.6 Highlights
+
+- **SID Player** — a new toolbar button opens a floating player for `.sid` (PSID / RSID) tunes: a playlist with drag and drop, previous / next tune, subtunes, seek and ±10 s, volume, and playlist save / open (`.sidpl`); the list and the window state are remembered. See [SID Player](#sid-player).
+- **VA SID Core 1.1** — a built-in SID emulation (MOS 6581 / 8580, with a reSID-aligned 6581 filter) and a cycle-locked PSID / RSID player (6510 CPU, CIA / VIC timing). Choose it in **Settings → SID preview**; the SID Player shows which engine is playing.
+- **SID Editor** — knobs for the instrument parameters, a wider ADSR graph, **MIDI input**, **recording** into the tracker (a new pattern is added when the current one is full), a **metronome** with beat lamps, **pattern delete**, the master volume on VA-VK, and **Import GoatTracker .sng**. See [SID Editor](#sid-editor-3-voice-tracker).
+- **Freemium and Professional** — without a registration the app runs as Freemium; enter the email address and serial from your purchase in **Menu → Register…** to get the Professional version. See [Freemium and Professional](#freemium-and-professional).
+- **Ultimate Basic 1.6.4** bundled.
 
 ---
 
@@ -537,6 +550,17 @@ After the download the app installs the update and restarts:
 | **Linux** | An AppImage is swapped for the new one. A `.deb` / `.rpm` installation is updated with `pkexec` (you are asked for your password); without `pkexec` the package is opened in your software installer. |
 
 If there are unsaved tabs, the app asks before closing. The same check runs quietly a few seconds after every start: nothing is shown unless a newer version exists. The result also appears in the Ultimate Basic status bar — **Up to date (vX)**, or a highlighted **Update available: vY** that opens the update dialog.
+
+### Freemium and Professional
+
+Without a registration Visual Assembler runs as **Freemium**; the badge next to the title shows **FREEMIUM** or **PROFESSIONAL**. In Freemium you can write and build programs and run them in VICE in Block, Expert and Ultimate Basic mode. These need the Professional version:
+
+- the visual editors (SID, Sprite, Char, Charset, Hi-Res, Map, Level, D64, Curve) and the SID Player;
+- **Build PRG**, **Build D64**, **Build CRT**, **Build project** and Exomizer packing;
+- running on the C64 Ultimate and on the Kung Fu Flash 2;
+- UI languages other than Hungarian and English, and the OLED and Commodore 77 themes.
+
+Clicking a locked feature opens the registration dialog. To register, open **Menu → Register…** (or click the badge), enter the email address and serial from your purchase and press **Activate**. The serial belongs to that email address (upper / lower case and spaces do not matter), and the check runs offline. **Remove license** takes the registration off this computer.
 
 ### Workspaces
 
@@ -3948,6 +3972,8 @@ Arranges **Map Editor screens** into one level — a vertical shooter, a car gam
 
 Multi-instrument 3-voice tracker. Open via Toolkit → SID Editor. **Play: All** runs the exported 6502 player in the WebSid emulator; every other preview (instrument Preview, virtual keyboard, note entry, chord / arpeggio, row and single-pattern playback) also plays on the emulated SID: a JS model of the same player (frame for frame) streams its SID registers to WebSid every frame, and up to three preview notes share the three voices. The stream player is loaded when the editor opens and again after Stop, so notes sound at once; without WebSid a small SID synthesizer plays instead.
 
+**Preview engine:** **Settings → SID preview** selects **WebSID** or **VA SID Core (Rust)**, the app's own SID emulation; with VA SID Core you also choose the chip (MOS 6581 / 8580). The instrument parameters are set with knobs.
+
 **Per-instrument controls:**
 - Waveform checkboxes (TRI / SAW / PUL / NOI) — multiple waveforms are ANDed like on the SID — plus **RING** (ring modulation of the triangle by the previous voice: 1 ← 3, 2 ← 1, 3 ← 2) and **SYNC** (hard sync to the previous voice).
 - ADSR (attack / decay / sustain / release) shown as a drag-graph above the four sliders.
@@ -3995,6 +4021,13 @@ Effects update once per row (matching the exported player's timing), run identic
 - Enable **Insert into tracker** to write each played note at the current tracker cursor and advance to the next row. Disable it to audition notes without editing.
 - Chord and arpeggio previews illuminate the corresponding piano keys when the keyboard is open.
 
+**Recording, metronome and MIDI:**
+- **Record** (the red dot, in the tracker toolbar and on VA-VK) writes the notes you play — on VA-VK, the computer keyboard or a MIDI keyboard — in time into the selected voice, starting at the selected row, at the current Speed. When the pattern is full, a new empty pattern is added after the current song step and recording goes on there. Press Record again to stop.
+- **Metronome** (tracker toolbar and VA-VK) clicks every 4 rows, accented on the first beat of each 4-beat bar. The beat lamps next to it flash on every beat during playback and recording, even with the click off.
+- **MIDI:** choose the input in the **MIDI** list next to the instrument name and press **Connect MIDI**; notes play the current instrument (and are written into the tracker while recording or with *Insert into tracker*). The lamp next to the button flashes on every incoming MIDI message.
+- **Pattern delete:** the **−** button next to **Pat +** deletes the current pattern (it asks first if the pattern has notes). The song steps that used it are removed and the others renumbered; at least one pattern always remains.
+- The **master volume** knob is on VA-VK.
+
 **Files menu exports:**
 | Export | What it does |
 |---|---|
@@ -4002,7 +4035,14 @@ Effects update once per row (matching the exported player's timing), run identic
 | `Export blocks (data only)` | Appends instrument table + pattern blocks to the program at `* = $C000`. |
 | `Export blocks + miniplayer` | Adds the full player (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) plus PAL frequency tables. After export, place a `JSR sid_init` in your main code where the music should start; with your own IRQ call `JSR sid_frame` once per frame instead. |
 | `Export asm (clipboard)` | Copies the full assembly source to the clipboard. |
+| `Import GoatTracker .sng…` | Loads a GoatTracker 2 song in place of the current one — see **GoatTracker import** below. |
 | `Export to UltimateBasic` | Writes a `tune ... end` block (instruments, order list, pattern rows as text) plus `music play` and inserts it at the cursor of the Ultimate Basic editor; outside UB mode it copies the text to the clipboard. The UltimateBasic compiler builds the player, so `music play` / `music stop` control it. Instrument modulation goes into `imod` / `ifilt` / `igate` / `itab` lines (Ultimate Basic 1.6.2+). |
+
+**GoatTracker import:** **Files → Import GoatTracker .sng…** loads a GoatTracker 2 song (`.sng`, GTS3–GTS5) in place of the current one. The conversion is approximate, because the two trackers work differently:
+- The per-voice order lists (with transpose and repeat) are flattened into one 3-voice song and cut into 32-row patterns; identical patterns are shared.
+- Instruments: AD / SR, first wave, gate timer and hard restart are taken over; the wavetable becomes the wave / arpeggio table, the pulse table PWM, the filter table filter mode, resonance and cutoff sweep, and the speed table entry the instrument vibrato.
+- Pattern commands: key off → note-off, portamento → `U` / `D` (at most 255 per row), tempo → `F`; toneporta becomes a plain note. Other commands are dropped, and a message lists what was approximated or skipped.
+- A gate released by the wavetable becomes a note-off on the next free row. Only the first subtune is imported, and the export limit of 7 patterns still applies.
 
 **Player ZP usage:** `$02`–`$1C` (pattern pointers, pattern offset, temp) and `$2F` (current speed), plus `$FB`–`$FD` (tick counter, row index, order-list position). Voice, modulation and filter state lives in `sid_state` after the data. The ZP bytes conflict if your main code uses them — relocate via Expert mode if needed.
 
@@ -4010,6 +4050,18 @@ Effects update once per row (matching the exported player's timing), run identic
 - 8-bit row counter limits each pattern to 7 patterns × 32 rows in the raw bank (the song/order list can still be arbitrarily long by repeating patterns).
 - C64 `$D418` global volume is shared across voices — the per-instrument volume slider is informational; sustain level (`S` of ADSR) is the effective per-voice volume.
 - While **Play: All** has the real tune loaded (also when paused), note previews fall back to the small synthesizer, which only approximates the SID chip. Previews reach WebSid about 0.1 s ahead of the sound.
+
+---
+
+### SID Player
+
+The **SID Player** toolbar button opens a floating window that plays `.sid` music files (PSID and RSID), for example tunes from the HVSC collection.
+
+- **Playlist:** add tunes with **Add .sid files…** or by dropping them on the window, and click a tune to play it; **Remove** and **Clear playlist** tidy the list. **Save playlist…** / **Open playlist…** write and read a `.sidpl` file with the tunes embedded. The list, the current tune and whether the window is open are remembered.
+- **Transport:** Play, Pause, Stop, **Previous** / **Next** tune, **Previous / Next subtune** for files with several songs, and a time counter.
+- **Seek:** the position bar and **Back / Forward 10 s** work with the VA SID Core engine. WebSID cannot seek, so these controls are disabled with it.
+- **Volume:** the knob is shared with the SID Editor's master volume.
+- **Engine:** the window shows which engine is playing (WebSID, or VA SID Core with its version and SID chip); choose it in **Settings → SID preview**. VA SID Core runs the tune on an emulated 6510 with CIA / VIC timing, so raster-IRQ and digi tunes play as well.
 
 ---
 

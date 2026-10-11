@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "editors-255",
+  id: "sid-player-256",
   url: "https://www.c64va.tech/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.5.5-ben",
+    eyebrow: "Újdonság a 2.5.6-ban",
     title: "Üdvözöl a Visual Assembler",
-    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>Pixelrács a Hi-Res szerkesztőben:</strong> bekapcsolt Grid mellett 4×-es nagyítástól minden pixel saját vonalat kap, és mind a 16 színen látszik.</li><li><strong>16×-os nagyítás</strong> a Hi-Res szerkesztőben.</li><li><strong>Jobb klikkes menü:</strong> másolás, beillesztés és áttetsző beillesztés a Hi-Res, a Map és a Sprite szerkesztő vásznán.</li><li><strong>Számrendszer-átváltó:</strong> a toolbar gombja kiemelve marad, amíg az átváltó nyitva van.</li><li><strong>Javítások:</strong> a multicolor cellarács, a Hi-Res Paste gomb és a SID szerkesztő jobb klikkes menüjének helye.</li><li><strong>A 2.5.4-ből:</strong> Ultimate Basic 1.6.3 QBasic-stílusú szintaxissal (<code>DIM … AS</code>, <code>FUNCTION</code>, <code>DO … LOOP</code>, <code>SELECT CASE</code>).</li></ul>`,
+    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>SID Player:</strong> lebegő lejátszó <code>.sid</code> zenékhez, lejátszási listával, subtune-okkal, tekeréssel és hangerővel.</li><li><strong>VA SID Core 1.1:</strong> beépített SID-emuláció (6581 / 8580), a raster IRQ-s és digi zenék is szólnak.</li><li><strong>SID szerkesztő:</strong> MIDI bemenet, felvétel a trackerbe, metronóm, pattern törlése és GoatTracker .sng import.</li><li><strong>Freemium és Professional:</strong> a vásárláskor kapott e-mail címmel és sorozatszámmal a <em>Menu → Regisztráció…</em> alatt aktiválhatod a Professional verziót.</li><li><strong>A 2.5.5-ből:</strong> pixelrács és 16×-os nagyítás a Hi-Res szerkesztőben, jobb klikkes másolás / beillesztés.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.5.5",
+    eyebrow: "New in 2.5.6",
     title: "Welcome to Visual Assembler",
-    body: `<p>What's new in this release:</p><ul><li><strong>Hi-Res Editor pixel grid:</strong> with Grid on, from 4× zoom every pixel gets its own line, visible on all 16 colours.</li><li><strong>16× zoom</strong> in the Hi-Res Editor.</li><li><strong>Right-click menu:</strong> Copy, Paste and Transparent paste on the canvas of the Hi-Res, Map and Sprite editors.</li><li><strong>Number Converter:</strong> its toolbar button stays highlighted while the converter is open.</li><li><strong>Fixes:</strong> the multicolor cell grid, the Hi-Res Paste button and the position of the SID Editor's right-click menu.</li><li><strong>From 2.5.4:</strong> Ultimate Basic 1.6.3 with QBasic-style syntax (<code>DIM … AS</code>, <code>FUNCTION</code>, <code>DO … LOOP</code>, <code>SELECT CASE</code>).</li></ul>`,
+    body: `<p>What's new in this release:</p><ul><li><strong>SID Player:</strong> a floating player for <code>.sid</code> tunes with a playlist, subtunes, seek and volume.</li><li><strong>VA SID Core 1.1:</strong> a built-in SID emulation (6581 / 8580); raster-IRQ and digi tunes play too.</li><li><strong>SID Editor:</strong> MIDI input, recording into the tracker, a metronome, pattern delete and GoatTracker .sng import.</li><li><strong>Freemium and Professional:</strong> activate the Professional version in <em>Menu → Register…</em> with the email address and serial from your purchase.</li><li><strong>From 2.5.5:</strong> pixel grid and 16× zoom in the Hi-Res Editor, right-click Copy / Paste.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.5.5",
+    eyebrow: "Novedad en la 2.5.6",
     title: "Bienvenido a Visual Assembler",
-    body: `<p>Novedades de esta versión:</p><ul><li><strong>Cuadrícula de píxeles en el editor Hi-Res:</strong> con la cuadrícula activada, desde el zoom 4× cada píxel tiene su propia línea, visible sobre los 16 colores.</li><li><strong>Zoom 16×</strong> en el editor Hi-Res.</li><li><strong>Menú del botón derecho:</strong> Copiar, Pegar y Pegar transparente en el lienzo de los editores Hi-Res, Map y Sprite.</li><li><strong>Conversor de números:</strong> su botón de la barra queda resaltado mientras el conversor está abierto.</li><li><strong>Correcciones:</strong> la cuadrícula de celdas en multicolor, el botón Pegar del editor Hi-Res y la posición del menú del botón derecho del editor SID.</li><li><strong>De la 2.5.4:</strong> Ultimate Basic 1.6.3 con sintaxis al estilo QBasic (<code>DIM … AS</code>, <code>FUNCTION</code>, <code>DO … LOOP</code>, <code>SELECT CASE</code>).</li></ul>`,
+    body: `<p>Novedades de esta versión:</p><ul><li><strong>SID Player:</strong> un reproductor flotante para melodías <code>.sid</code> con lista de reproducción, subcanciones, búsqueda y volumen.</li><li><strong>VA SID Core 1.1:</strong> emulación SID integrada (6581 / 8580); también suenan las melodías con IRQ de raster y digi.</li><li><strong>Editor SID:</strong> entrada MIDI, grabación en el tracker, metrónomo, eliminar patrón e importación de GoatTracker .sng.</li><li><strong>Freemium y Professional:</strong> activa la versión Professional en <em>Menú → Registrar…</em> con el correo y el número de serie de tu compra.</li><li><strong>De la 2.5.5:</strong> cuadrícula de píxeles y zoom 16× en el editor Hi-Res, copiar / pegar con clic derecho.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.5.5",
+    eyebrow: "Neu in 2.5.6",
     title: "Willkommen bei Visual Assembler",
-    body: `<p>Neu in dieser Version:</p><ul><li><strong>Pixelraster im Hi-Res-Editor:</strong> bei eingeschaltetem Raster bekommt ab 4× Zoom jedes Pixel eine eigene Linie, sichtbar auf allen 16 Farben.</li><li><strong>16× Zoom</strong> im Hi-Res-Editor.</li><li><strong>Rechtsklick-Menü:</strong> Kopieren, Einfügen und Transparent einfügen auf der Zeichenfläche von Hi-Res-, Map- und Sprite-Editor.</li><li><strong>Zahlenkonverter:</strong> sein Toolbar-Button bleibt hervorgehoben, solange der Konverter geöffnet ist.</li><li><strong>Korrekturen:</strong> das Zellenraster im Multicolor-Modus, der Einfügen-Button im Hi-Res-Editor und die Position des Rechtsklick-Menüs im SID-Editor.</li><li><strong>Aus 2.5.4:</strong> Ultimate Basic 1.6.3 mit Syntax im QBasic-Stil (<code>DIM … AS</code>, <code>FUNCTION</code>, <code>DO … LOOP</code>, <code>SELECT CASE</code>).</li></ul>`,
+    body: `<p>Neu in dieser Version:</p><ul><li><strong>SID Player:</strong> ein schwebender Player für <code>.sid</code>-Musik mit Playlist, Subtunes, Spulen und Lautstärke.</li><li><strong>VA SID Core 1.1:</strong> eingebaute SID-Emulation (6581 / 8580); auch Raster-IRQ- und Digi-Musik spielt.</li><li><strong>SID-Editor:</strong> MIDI-Eingang, Aufnahme in den Tracker, Metronom, Pattern löschen und GoatTracker-.sng-Import.</li><li><strong>Freemium und Professional:</strong> aktiviere die Professional-Version unter <em>Menü → Registrieren…</em> mit der E-Mail-Adresse und Seriennummer aus deinem Kauf.</li><li><strong>Aus 2.5.5:</strong> Pixelraster und 16× Zoom im Hi-Res-Editor, Kopieren / Einfügen per Rechtsklick.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.5.5",
+    eyebrow: "Nieuw in 2.5.6",
     title: "Welkom bij Visual Assembler",
-    body: `<p>Nieuw in deze versie:</p><ul><li><strong>Pixelraster in de Hi-Res-editor:</strong> met het raster aan krijgt vanaf 4× zoom elke pixel een eigen lijn, zichtbaar op alle 16 kleuren.</li><li><strong>16× zoom</strong> in de Hi-Res-editor.</li><li><strong>Rechtsklikmenu:</strong> Kopiëren, Plakken en Transparant plakken op het canvas van de Hi-Res-, Map- en Sprite-editor.</li><li><strong>Getallenconverter:</strong> de werkbalkknop blijft gemarkeerd zolang de converter open is.</li><li><strong>Oplossingen:</strong> het celraster in multicolor, de knop Plakken in de Hi-Res-editor en de positie van het rechtsklikmenu in de SID-editor.</li><li><strong>Uit 2.5.4:</strong> Ultimate Basic 1.6.3 met syntaxis in QBasic-stijl (<code>DIM … AS</code>, <code>FUNCTION</code>, <code>DO … LOOP</code>, <code>SELECT CASE</code>).</li></ul>`,
+    body: `<p>Nieuw in deze versie:</p><ul><li><strong>SID Player:</strong> een zwevende speler voor <code>.sid</code>-muziek met afspeellijst, subtunes, spoelen en volume.</li><li><strong>VA SID Core 1.1:</strong> ingebouwde SID-emulatie (6581 / 8580); ook raster-IRQ- en digi-muziek speelt.</li><li><strong>SID-editor:</strong> MIDI-invoer, opnemen in de tracker, metronoom, patroon verwijderen en GoatTracker .sng-import.</li><li><strong>Freemium en Professional:</strong> activeer de Professional-versie via <em>Menu → Registreren…</em> met het e-mailadres en serienummer van je aankoop.</li><li><strong>Uit 2.5.5:</strong> pixelraster en 16× zoom in de Hi-Res-editor, kopiëren / plakken met rechtsklik.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.5.5",
+    eyebrow: "Nowość w 2.5.6",
     title: "Witamy w Visual Assembler",
-    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>Siatka pikseli w edytorze Hi-Res:</strong> przy włączonej siatce od powiększenia 4× każdy piksel ma własną linię, widoczną na wszystkich 16 kolorach.</li><li><strong>Powiększenie 16×</strong> w edytorze Hi-Res.</li><li><strong>Menu prawego przycisku:</strong> Kopiuj, Wklej i Wklej przezroczyście na płótnie edytorów Hi-Res, Map i Sprite.</li><li><strong>Konwerter liczb:</strong> jego przycisk na pasku pozostaje podświetlony, dopóki konwerter jest otwarty.</li><li><strong>Poprawki:</strong> siatka komórek w trybie multicolor, przycisk Wklej w edytorze Hi-Res oraz położenie menu prawego przycisku w edytorze SID.</li><li><strong>Z 2.5.4:</strong> Ultimate Basic 1.6.3 ze składnią w stylu QBasic (<code>DIM … AS</code>, <code>FUNCTION</code>, <code>DO … LOOP</code>, <code>SELECT CASE</code>).</li></ul>`,
+    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>SID Player:</strong> pływający odtwarzacz muzyki <code>.sid</code> z listą odtwarzania, podutworami, przewijaniem i głośnością.</li><li><strong>VA SID Core 1.1:</strong> wbudowana emulacja SID (6581 / 8580); grają też utwory z przerwaniami rastra i digi.</li><li><strong>Edytor SID:</strong> wejście MIDI, nagrywanie do trackera, metronom, usuwanie wzorców i import GoatTracker .sng.</li><li><strong>Freemium i Professional:</strong> aktywuj wersję Professional w <em>Menu → Rejestracja…</em> adresem e-mail i numerem seryjnym z zakupu.</li><li><strong>Z 2.5.5:</strong> siatka pikseli i powiększenie 16× w edytorze Hi-Res, kopiowanie / wklejanie prawym przyciskiem.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.5.5",
+    eyebrow: "Novità nella 2.5.6",
     title: "Benvenuto in Visual Assembler",
-    body: `<p>Novità di questa versione:</p><ul><li><strong>Griglia dei pixel nell'editor Hi-Res:</strong> con la griglia attiva, dallo zoom 4× ogni pixel ha la propria linea, visibile su tutti i 16 colori.</li><li><strong>Zoom 16×</strong> nell'editor Hi-Res.</li><li><strong>Menu del tasto destro:</strong> Copia, Incolla e Incolla trasparente sull'area di disegno degli editor Hi-Res, Map e Sprite.</li><li><strong>Convertitore di numeri:</strong> il suo pulsante nella barra resta evidenziato finché il convertitore è aperto.</li><li><strong>Correzioni:</strong> la griglia delle celle in multicolor, il pulsante Incolla dell'editor Hi-Res e la posizione del menu del tasto destro dell'editor SID.</li><li><strong>Dalla 2.5.4:</strong> Ultimate Basic 1.6.3 con sintassi in stile QBasic (<code>DIM … AS</code>, <code>FUNCTION</code>, <code>DO … LOOP</code>, <code>SELECT CASE</code>).</li></ul>`,
+    body: `<p>Novità di questa versione:</p><ul><li><strong>SID Player:</strong> un lettore flottante per brani <code>.sid</code> con playlist, sottobrani, avanzamento e volume.</li><li><strong>VA SID Core 1.1:</strong> emulazione SID integrata (6581 / 8580); suonano anche i brani con IRQ raster e digi.</li><li><strong>Editor SID:</strong> ingresso MIDI, registrazione nel tracker, metronomo, eliminazione dei pattern e importazione GoatTracker .sng.</li><li><strong>Freemium e Professional:</strong> attiva la versione Professional in <em>Menu → Registra…</em> con l'e-mail e il numero di serie dell'acquisto.</li><li><strong>Dalla 2.5.5:</strong> griglia dei pixel e zoom 16× nell'editor Hi-Res, copia / incolla con il tasto destro.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
