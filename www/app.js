@@ -4001,6 +4001,7 @@ function _applyEditorTranslations() {
   setAttr("#sid-vkbd-oct-down", t("sidOctaveDown"));
   setAttr("#sid-vkbd-oct-up", t("sidOctaveUp"));
   setText("#sid-vkbd-insert-label", t("sidVkbdInsert"));
+  setText("#sid-vkbd-showplay-label", t("sidVkbdShowPlay"));
   setText("#sid-vkbd-octaves-label", t("sidVkbdOctaves"));
   setAttr("#sid-tracker-detach", t("sidTrackerDetach"));
   setAttr("#sid-tracker-attach", t("sidTrackerAttach"));
@@ -38627,6 +38628,7 @@ function _sidRenderVirtualKeyboard() {
       setTimeout(function(){ btn.classList.remove("sid-vkbd-key--active"); }, 120);
     });
   });
+  _sidVkbdRenderPlay();
 }
 /* Detachable tracker: the song / tracker / harmony rows and the grid move into
    a floating, resizable panel (and back), so a long wave table leaves room. */
@@ -38752,6 +38754,38 @@ function _sidCloseVirtualKeyboard(remember = true) {
   if (!dlg) return;
   dlg.hidden = true;
   if (remember) _sidSaveVkbdState({ open: false });
+}
+// VA-VK "Show playback": the note sounding on each voice of the playing song is
+// marked on its key (one colour per voice). Fed by the playback row events.
+var _sidVkbdShowPlay = true;
+var _sidVkbdPlayNotes = [null, null, null];
+function _sidVkbdTrackRow(ev) {
+  const pat = _sidPatterns && _sidPatterns[ev.pat != null ? ev.pat : _sidPlayPat];
+  if (!pat) return;
+  for (let v = 0; v < 3; v++) {
+    const c = pat[v] && pat[v][ev.row];
+    if (!c) continue;
+    if (c.note != null) _sidVkbdPlayNotes[v] = c.note;
+    else if (c.fx === "C") _sidVkbdPlayNotes[v] = null;
+  }
+  _sidVkbdRenderPlay();
+}
+function _sidVkbdRenderPlay() {
+  const dlg = document.getElementById("sid-virtual-keyboard-dialog");
+  if (!dlg) return;
+  dlg.querySelectorAll(".sid-vkbd-key--v1, .sid-vkbd-key--v2, .sid-vkbd-key--v3").forEach(function(k) {
+    k.classList.remove("sid-vkbd-key--v1", "sid-vkbd-key--v2", "sid-vkbd-key--v3");
+  });
+  if (!_sidVkbdShowPlay) return;
+  _sidVkbdPlayNotes.forEach(function(note, v) {
+    if (note == null) return;
+    const key = dlg.querySelector('.sid-vkbd-key[data-note="' + note + '"]');
+    if (key) key.classList.add("sid-vkbd-key--v" + (v + 1));
+  });
+}
+function _sidVkbdClearPlay() {
+  _sidVkbdPlayNotes = [null, null, null];
+  _sidVkbdRenderPlay();
 }
 function _sidFlashVirtualKeyboardNotes(notes) {
   const dlg = document.getElementById("sid-virtual-keyboard-dialog");
@@ -39698,8 +39732,8 @@ function _sidPlayMetronomeClick(accent) {
     const gain = ac.createGain();
     osc.type = "sine";
     osc.frequency.value = accent ? 1600 : 900;
-    // Scale click volume with master so metronome tracks user's preference.
-    const peak = 0.32 * Math.max(0.2, _sidMasterVol);
+    // fixed click level: the SID master volume does not affect the metronome
+    const peak = 0.32;
     gain.gain.setValueAtTime(peak, t);
     gain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
     osc.connect(gain).connect(ac.destination);
@@ -40850,6 +40884,7 @@ function _sidWaShowRow(ev) {
     if (_sidPat !== ev.pat) _sidSetPattern(ev.pat, true);
     if (ev.row === 0) _sidBuildSongList();
   }
+  _sidVkbdTrackRow(ev);
   if ((ev.row % _SID_ROWS_PER_BEAT) === 0) {
     _sidMetronomeBeat(((ev.row / _SID_ROWS_PER_BEAT) | 0) % _SID_BEATS_PER_BAR === 0);
   }
@@ -40875,6 +40910,7 @@ function _sidWaStop() {
 }
 
 function _sidStop(preloadStream = true, stopExternal = false) {
+  if (typeof _sidVkbdClearPlay === "function") _sidVkbdClearPlay();
   if (typeof _sidRecordStop === "function") _sidRecordStop();
   if (_sidTimer) { clearInterval(_sidTimer); _sidTimer = null; }
   // Az editor saját preview-ja nem zárhatja be a külön SID Player ablakot.
@@ -42804,6 +42840,9 @@ function _sidInit() {
   // VA-VK settings (read here: setupSidEditor runs before these lets exist)
   const vkSaved = _sidVkbdState();
   if (typeof vkSaved.insert === "boolean") _sidVkbdInsertMode = vkSaved.insert;
+  if (typeof vkSaved.showPlay === "boolean") _sidVkbdShowPlay = vkSaved.showPlay;
+  const showPlayToggle = document.getElementById("sid-vkbd-showplay");
+  if (showPlayToggle) showPlayToggle.checked = _sidVkbdShowPlay;
   if (Number.isFinite(vkSaved.octave)) _sidOctave = Math.max(0, Math.min(7, vkSaved.octave));
   _sidSetOctave(_sidOctave);
   _sidUpdatePauseButton();
@@ -42956,6 +42995,11 @@ function setupSidEditor() {
   });
   onId("sid-vkbd-oct-down", "click", function(){ _sidSetOctave(_sidOctave-1); });
   onId("sid-vkbd-oct-up", "click", function(){ _sidSetOctave(_sidOctave+1); });
+  onId("sid-vkbd-showplay", "change", function(e){
+    _sidVkbdShowPlay = !!e.target.checked;
+    _sidSaveVkbdState({ showPlay: _sidVkbdShowPlay });
+    _sidVkbdRenderPlay();
+  });
   onId("sid-vkbd-insert", "change", function(e){
     _sidVkbdInsertMode = !!e.target.checked;
     _sidSaveVkbdState({ insert: _sidVkbdInsertMode });

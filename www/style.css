@@ -9199,18 +9199,23 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
   display: flex; align-items: center; gap: 5px; font-family: inherit;
   font-size: 0.78rem; color: var(--secondary); cursor: pointer; user-select: none; white-space: nowrap;
 }
-.se-check input[type="checkbox"] {
+.se-check input[type="checkbox"],
+.sid-check input[type="checkbox"] {
   appearance: none; -webkit-appearance: none; position: relative;
   width: 32px; height: 18px; min-height: unset; flex-shrink: 0; cursor: pointer;
   background: color-mix(in srgb, var(--secondary) 35%, transparent);
   border-radius: 2px; border: none; padding: 0; margin: 0; transition: background 0.2s; outline: none;
 }
-.se-check input[type="checkbox"]::after {
+.se-check input[type="checkbox"]::after,
+.sid-check input[type="checkbox"]::after {
   content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px;
   border-radius: 2px; background: var(--active-fg); box-shadow: 0 1px 3px rgba(0,0,0,0.3); transition: transform 0.2s;
 }
-.se-check input[type="checkbox"]:checked { background: var(--primary); }
-.se-check input[type="checkbox"]:checked::after { transform: translateX(14px); }
+.se-check input[type="checkbox"]:checked,
+.sid-check input[type="checkbox"]:checked { background: var(--primary); }
+.sid-check input[type="checkbox"]:focus-visible { box-shadow: 0 0 0 2px var(--accent); }
+.se-check input[type="checkbox"]:checked::after,
+.sid-check input[type="checkbox"]:checked::after { transform: translateX(14px); }
 .se-tb-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
 .se-zoom { width: 100px; accent-color: var(--primary); cursor: pointer; min-height: 0; padding: 0; margin: 0; height: auto; }
 
@@ -9947,9 +9952,6 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-mini-lbl { font-family: inherit; font-size: 0.72rem; color: var(--secondary); }
 .sid-num { font-family: "IBM Plex Mono", monospace; font-size: 0.72rem; color: var(--secondary); min-width: 14px; text-align: center; }
 .sid-check { display: flex; align-items: center; gap: 5px; font-family: inherit; font-size: 0.78rem; color: var(--secondary); cursor: pointer; user-select: none; }
-.sid-check input[type="checkbox"] { appearance: none; -webkit-appearance: none; position: relative; width: 18px; height: 18px; min-height: 0; flex-shrink: 0; cursor: pointer; background: var(--control-bg); border: 1px solid var(--panel-border); border-radius: 3px; padding: 0; margin: 0; }
-.sid-check input[type="checkbox"]:checked { background: var(--primary); border-color: var(--primary); }
-.sid-check input[type="checkbox"]:checked::after { content: ""; position: absolute; left: 5px; top: 1px; width: 5px; height: 10px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); }
 .sid-range { accent-color: var(--primary); cursor: pointer; min-height: 0; padding: 0; margin: 0; height: auto; flex: 1; max-width: 260px; }
 .sid-range--knob-source { position: absolute; inline-size: 1px; block-size: 1px; opacity: 0; pointer-events: none; }
 .sid-param-knob { width: 27px; height: 27px; flex: 0 0 27px; }
@@ -10047,7 +10049,17 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-vkbd-card { width: fit-content; min-width: 720px; max-width: calc(100vw - 16px); background: linear-gradient(180deg, #3b3833 0%, #2a2825 55%, #1f1d1b 100%); border: 1px solid #5a554c; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.35), 0 18px 48px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.08); overflow: hidden; }
 .sid-vkbd-hdr { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid #14130f; background: linear-gradient(180deg, #45413a, #33302b); cursor: move; user-select: none; }
 .sid-vkbd-title { font-family: 'C64Pro', monospace; font-size: 0.9rem; letter-spacing: 0.08em; color: var(--text); }
-.sid-vkbd-meta { display: flex; align-items: center; gap: 8px; padding: 12px 14px 0; }
+.sid-vkbd-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; row-gap: 6px; padding: 12px 14px 0; }
+/* Show playback: the note of each song voice (V1 cyan, V2 magenta, V3 green) */
+.sid-vkbd-key--v1 { box-shadow: 0 -5px 0 #38d6ff inset, 0 0 12px rgba(56, 214, 255, 0.45); }
+.sid-vkbd-key--v2 { box-shadow: 0 -5px 0 #ff5ccf inset, 0 0 12px rgba(255, 92, 207, 0.45); }
+.sid-vkbd-key--v3 { box-shadow: 0 -5px 0 #4ade80 inset, 0 0 12px rgba(74, 222, 128, 0.45); }
+.sid-vkbd-key--white.sid-vkbd-key--v1 { background: linear-gradient(180deg, #fbfbfd 0%, #a9ecff 100%); }
+.sid-vkbd-key--white.sid-vkbd-key--v2 { background: linear-gradient(180deg, #fbfbfd 0%, #ffc2ee 100%); }
+.sid-vkbd-key--white.sid-vkbd-key--v3 { background: linear-gradient(180deg, #fbfbfd 0%, #b9f5cf 100%); }
+.sid-vkbd-key--black.sid-vkbd-key--v1 { background: linear-gradient(180deg, #3a415d 0%, #1f8fb0 100%); }
+.sid-vkbd-key--black.sid-vkbd-key--v2 { background: linear-gradient(180deg, #3a415d 0%, #b0368f 100%); }
+.sid-vkbd-key--black.sid-vkbd-key--v3 { background: linear-gradient(180deg, #3a415d 0%, #2f9a5a 100%); }
 .sid-vkbd-insert-toggle { margin-left: 10px; white-space: nowrap; }
 /* VA-VK is a dark panel in every theme: its tool buttons must not take the theme's control colours */
 .sid-vkbd-meta .ce-tool-btn.sid-vkbd-tbtn { color: #d8d2c4; background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.18); }

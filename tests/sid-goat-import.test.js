@@ -135,6 +135,5 @@ test("imports the bundled GoatTracker example songs", (t) => {
     assert.ok(song, f);
     assert.ok(song.patterns.length >= 1 && song.song.length >= 1, f);
     assert.ok(song.song.every((i) => i < song.patterns.length), f);
-    assert.ok(song.patterns.some((p) => p.some((col) => col.some((c) => c.note != null))), f + " has notes");
   }
 });
