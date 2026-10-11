@@ -4004,6 +4004,13 @@ function _applyEditorTranslations() {
   setText("#sid-vkbd-showplay-label", t("sidVkbdShowPlay"));
   setText("#sid-vkbd-octaves-label", t("sidVkbdOctaves"));
   setAttr("#sid-tracker-detach", t("sidTrackerDetach"));
+  setAttr("#sid-roll-btn", t("sidRollTitle"));
+  setText("#sid-roll-title", t("sidRollTitle"));
+  setText("#sid-roll-help", t("sidRollHelp"));
+  setAttr("#sid-roll-stop", t("sidStop"));
+  setAttr("#sid-roll-follow", t("sidRollFollow"));
+  setAttr("#sid-roll-vzoom-out", t("sidRollZoomOut"));
+  setAttr("#sid-roll-vzoom-in", t("sidRollZoomIn"));
   setAttr("#sid-tracker-attach", t("sidTrackerAttach"));
   const sidCtxCopy = document.querySelector("#sid-ctx-menu .sid-ctx-copy");
   const sidCtxCut = document.querySelector("#sid-ctx-menu .sid-ctx-cut");
@@ -39543,6 +39550,389 @@ function _sidSetCellText(v, r) {
   if (td) td.textContent = _sidGridCellText(_sidCurPat()[v][r]);
 }
 
+/* ── Horizontal tracker (piano roll) ─────────────────────────────────────
+ * The song (order list, 32 rows per step) drawn left to right, pitch bottom
+ * to top. A note lasts until the voice's next note or note-off. Editing writes
+ * the tracker cells: click = note on the active voice with the current
+ * instrument, drag = its length (note-off at the end), drag a note = pitch,
+ * drag its right edge = length, right-click = delete. Patterns are shared, so
+ * an edit shows at every song step that uses the pattern. */
+const _SID_ROLL_COLORS = ["#ffb347", "#7c9cff", "#ff6b6b", "#4ade80", "#f7d154", "#c084fc", "#38d6ff", "#ff8fd8", "#a3e635", "#fb923c", "#2dd4bf", "#e879f9"];
+const _SID_ROLL_VOICE = ["#38d6ff", "#ff5ccf", "#4ade80"];
+var _sidRollView = { row0: 0, colW: 14, rowPx: 11, lo: 36, span: 48, voice: 0, raf: 0, drag: null, hover: null, follow: true };
+function _sidRollState() {
+  try { return JSON.parse(localStorage.getItem("c64va-sid-roll") || "{}") || {}; } catch (_) { return {}; }
+}
+function _sidRollSave(patch) {
+  const st = Object.assign(_sidRollState(), patch);
+  try { localStorage.setItem("c64va-sid-roll", JSON.stringify(st)); } catch (_) {}
+}
+function _sidRollTotalRows() { return Math.max(1, (_sidSong && _sidSong.length ? _sidSong.length : 1) * _SID_ROWS); }
+function _sidRollCell(v, g) {
+  const pos = Math.floor(g / _SID_ROWS), r = g % _SID_ROWS;
+  const pat = _sidPatterns && _sidPatterns[_sidSong ? _sidSong[pos] : 0];
+  return pat ? { pat: pat, idx: _sidSong[pos], r: r, cell: pat[v][r] } : null;
+}
+function _sidRollWrite(v, g, cell) {
+  const at = _sidRollCell(v, g);
+  if (!at) return;
+  at.pat[v][at.r] = Object.assign({ note: null, inst: 0, fx: null, fxval: 0 }, cell);
+  if (at.idx === _sidPat) _sidSetCellText(v, at.r);
+}
+// notes of the whole song: { v, note, inst, start, end } in song rows
+function _sidRollNotes() {
+  const total = _sidRollTotalRows(), notes = [];
+  for (let v = 0; v < 3; v++) {
+    let cur = null;
+    for (let g = 0; g < total; g++) {
+      const at = _sidRollCell(v, g);
+      const c = at && at.cell;
+      if (!c) continue;
+      if (c.note != null) {
+        if (cur) { cur.end = g; notes.push(cur); }
+        cur = { v: v, note: c.note, inst: c.inst | 0, start: g, end: total };
+      } else if (c.fx === "C" && cur) {
+        cur.end = g; notes.push(cur); cur = null;
+      }
+    }
+    if (cur) notes.push(cur);
+  }
+  return notes;
+}
+function _sidRollGeom(cv) {
+  const W = cv.clientWidth, H = cv.clientHeight, keyW = 36, rulerH = 16;
+  // the pitch range follows the window height and the vertical zoom (px per semitone), around the same centre
+  const span = Math.max(6, Math.min(96, Math.round((H - rulerH) / _sidRollView.rowPx)));
+  if (H && span !== _sidRollView.span) {
+    const mid = _sidRollView.lo + _sidRollView.span / 2;
+    _sidRollView.span = span;
+    _sidRollView.lo = Math.max(0, Math.min(96 - span, Math.round(mid - span / 2)));
+  }
+  const rowH = (H - rulerH) / _sidRollView.span;
+  return { W: W, H: H, keyW: keyW, rulerH: rulerH, rowH: rowH, colW: _sidRollView.colW };
+}
+function _sidRollHit(cv, ev) {
+  const g = _sidRollGeom(cv), rect = cv.getBoundingClientRect();
+  const x = ev.clientX - rect.left, y = ev.clientY - rect.top;
+  if (x < g.keyW || y < g.rulerH) return null;
+  const row = Math.floor(_sidRollView.row0 + (x - g.keyW) / g.colW);
+  const pitch = _sidRollView.lo + _sidRollView.span - 1 - Math.floor((y - g.rulerH) / g.rowH);
+  return { row: row, pitch: Math.max(0, Math.min(95, pitch)), x: x, y: y, g: g };
+}
+function _sidRollNoteAt(notes, hit) {
+  // the active voice first, then any voice
+  const on = function(n) { return n.note === hit.pitch && hit.row >= n.start && hit.row < n.end; };
+  return notes.find(function(n) { return n.v === _sidRollView.voice && on(n); }) || notes.find(on) || null;
+}
+function _sidRollPreview(inst, note) {
+  try {
+    _sidEnsureAudio();
+    _sidPlayInst(_sidInsts[inst] || _sidCurInst(), _sidNoteFreq(note), _sidAudio.currentTime + 0.01, 0.25);
+  } catch (_) {}
+}
+// a note's end: note-off on its end row (when that row has no note) and nothing in between
+function _sidRollSetEnd(n, end) {
+  const total = _sidRollTotalRows();
+  end = Math.max(n.start + 1, Math.min(total, end));
+  for (let g = n.start + 1; g < Math.max(end, n.end); g++) {
+    const at = _sidRollCell(n.v, g);
+    if (at && at.cell && (at.cell.note != null || at.cell.fx === "C")) _sidRollWrite(n.v, g, {});
+  }
+  if (end < total) {
+    const at = _sidRollCell(n.v, end);
+    if (at && at.cell && at.cell.note == null && !at.cell.fx) _sidRollWrite(n.v, end, { fx: "C" });
+  }
+  n.end = end;
+}
+function _sidRollDelete(n) {
+  _sidRollWrite(n.v, n.start, {});
+  const at = n.end < _sidRollTotalRows() ? _sidRollCell(n.v, n.end) : null;
+  if (at && at.cell && at.cell.note == null && at.cell.fx === "C") _sidRollWrite(n.v, n.end, {});
+}
+function _sidRollPlayRow() {
+  const playing = !!(_sidTimer || _sidWaPlay || _sidPlaybackUsingWebSid);
+  if (!playing) return null;
+  const pos = _sidPlayMode === "all" ? _sidSongPlayPos : Math.max(0, _sidSong.indexOf(_sidPlayPat));
+  return pos * _SID_ROWS + _sidRow;
+}
+function _sidRollLegend(notes) {
+  const box = document.getElementById("sid-roll-legend");
+  if (!box) return;
+  const used = Array.from(new Set(notes.map(function(n) { return n.inst; }))).sort(function(x, y) { return x - y; });
+  const key = used.join(",") + "|" + used.map(function(i) { return _sidInsts[i] && _sidInsts[i].name; }).join(",");
+  if (box.dataset.key === key) return;
+  box.dataset.key = key;
+  box.innerHTML = "";
+  used.forEach(function(i) {
+    const chip = document.createElement("span");
+    chip.className = "sid-roll-chip";
+    const sw = document.createElement("span");
+    sw.className = "sid-roll-swatch";
+    sw.style.background = _SID_ROLL_COLORS[i % _SID_ROLL_COLORS.length];
+    const label = document.createElement("span");
+    label.textContent = (i < 10 ? "0" : "") + i + " " + ((_sidInsts[i] && _sidInsts[i].name) || "");
+    chip.append(sw, label);
+    box.appendChild(chip);
+  });
+}
+function _sidRollDraw() {
+  const cv = document.getElementById("sid-roll-canvas");
+  if (!cv || !_sidPatterns) return;
+  const g = _sidRollGeom(cv), view = _sidRollView;
+  if (!g.W || !g.H) return;
+  const dpr = window.devicePixelRatio || 1;
+  if (cv.width !== Math.round(g.W * dpr) || cv.height !== Math.round(g.H * dpr)) { cv.width = Math.round(g.W * dpr); cv.height = Math.round(g.H * dpr); }
+  const ctx = cv.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const total = _sidRollTotalRows();
+  const visRows = (g.W - g.keyW) / g.colW;
+  const playRow = _sidRollPlayRow();
+  // follow: the playhead stays at a third of the width, the song scrolls under it
+  if (playRow != null && view.follow && !view.drag) view.row0 = playRow - visRows / 3;
+  view.row0 = Math.max(0, Math.min(view.row0, Math.max(0, total - visRows * 0.5)));
+  const xOf = function(row) { return g.keyW + (row - view.row0) * g.colW; };
+  const yOf = function(n) { return g.rulerH + (view.lo + view.span - 1 - n) * g.rowH; };
+  const black = function(n) { return [1, 3, 6, 8, 10].includes(n % 12); };
+  ctx.fillStyle = "#0b1020";
+  ctx.fillRect(0, 0, g.W, g.H);
+  for (let n = view.lo; n < view.lo + view.span; n++) {
+    ctx.fillStyle = black(n) ? "#0e1428" : "#121a33";
+    ctx.fillRect(g.keyW, yOf(n), g.W - g.keyW, g.rowH);
+    if (n % 12 === 0) { ctx.fillStyle = "rgba(255,255,255,0.08)"; ctx.fillRect(g.keyW, yOf(n) + g.rowH - 1, g.W - g.keyW, 1); }
+  }
+  // beats, pattern boundaries and the ruler with the song step / pattern number
+  const r0 = Math.floor(view.row0), r1 = Math.min(total, Math.ceil(view.row0 + visRows) + 1);
+  for (let row = r0; row <= r1; row++) {
+    const x = Math.round(xOf(row)) + 0.5;
+    if (x < g.keyW) continue;
+    const start = row % _SID_ROWS === 0;
+    if (!start && row % _SID_ROWS_PER_BEAT && g.colW < 10) continue;
+    ctx.strokeStyle = start ? "rgba(255,255,255,0.28)" : row % _SID_ROWS_PER_BEAT === 0 ? "rgba(255,255,255,0.09)" : "rgba(255,255,255,0.04)";
+    ctx.beginPath(); ctx.moveTo(x, g.rulerH); ctx.lineTo(x, g.H); ctx.stroke();
+    if (start && row < total) {
+      const pos = row / _SID_ROWS, pat = _sidSong[pos];
+      ctx.fillStyle = pos === _sidSongPos ? "#ffd84f" : "#8a93b0";
+      ctx.font = "10px monospace";
+      ctx.fillText(String(pos).padStart(2, "0") + ":" + (pat < 10 ? "0" : "") + pat, x + 3, 11);
+    }
+  }
+  ctx.fillStyle = "rgba(255,255,255,0.12)";
+  ctx.fillRect(g.keyW, g.rulerH - 1, g.W - g.keyW, 1);
+  if (r1 >= total) { ctx.fillStyle = "rgba(0,0,0,0.45)"; ctx.fillRect(xOf(total), g.rulerH, g.W - xOf(total), g.H - g.rulerH); }
+  // the editor cursor (selected row of the selected song step)
+  const curRow = _sidSongPos * _SID_ROWS + _sidSel.row;
+  ctx.fillStyle = "rgba(255,216,79,0.10)";
+  ctx.fillRect(xOf(curRow), g.rulerH, g.colW, g.H - g.rulerH);
+  const notes = _sidRollNotes();
+  const live = [];
+  notes.forEach(function(n) {
+    const x0 = Math.max(g.keyW, xOf(n.start)), x1 = Math.min(g.W, xOf(n.end));
+    if (x1 <= x0 || n.note < view.lo || n.note >= view.lo + view.span) return;
+    const y = yOf(n.note) + 1, h = Math.max(2, g.rowH - 2);
+    const sounding = playRow != null && playRow >= n.start && playRow < n.end;
+    if (sounding) live.push(n);
+    ctx.globalAlpha = n.v === view.voice ? 1 : 0.6;
+    ctx.fillStyle = _SID_ROLL_COLORS[n.inst % _SID_ROLL_COLORS.length];
+    ctx.fillRect(x0, y, x1 - x0 - 1, h);
+    ctx.fillStyle = _SID_ROLL_VOICE[n.v];
+    ctx.fillRect(x0, y, Math.min(3, x1 - x0), h);
+    ctx.strokeStyle = sounding ? "#fff" : _SID_ROLL_VOICE[n.v];
+    ctx.lineWidth = sounding ? 1.5 : 1;
+    ctx.strokeRect(x0 + 0.5, y + 0.5, x1 - x0 - 2, h - 1);
+    ctx.lineWidth = 1;
+    if (x1 - x0 > 30 && h >= 9) {
+      ctx.fillStyle = "#0b1020";
+      ctx.font = Math.min(10, Math.floor(h - 1)) + "px monospace";
+      ctx.fillText(_sidNoteName(n.note), x0 + 5, y + h - 2);
+    }
+    ctx.globalAlpha = 1;
+  });
+  // hover cell on the active voice
+  const hv = view.hover;
+  if (hv && !view.drag && hv.pitch >= view.lo && hv.pitch < view.lo + view.span && hv.row < total) {
+    ctx.strokeStyle = _SID_ROLL_VOICE[view.voice];
+    ctx.strokeRect(xOf(hv.row) + 0.5, yOf(hv.pitch) + 0.5, g.colW - 1, g.rowH - 1);
+  }
+  // keys
+  for (let n = view.lo; n < view.lo + view.span; n++) {
+    const hit = live.find(function(s) { return s.note === n; });
+    ctx.fillStyle = hit ? _SID_ROLL_VOICE[hit.v] : black(n) ? "#1a1f2e" : "#d9deea";
+    ctx.fillRect(0, yOf(n), g.keyW - 2, Math.max(1, g.rowH - 1));
+    if (n % 12 === 0 && g.rowH >= 7) {
+      ctx.fillStyle = hit ? "#0b1020" : "#3a4256";
+      ctx.font = Math.min(10, Math.floor(g.rowH)) + "px monospace";
+      ctx.fillText(_sidNoteName(n), 2, yOf(n) + g.rowH - 2);
+    }
+  }
+  ctx.fillStyle = "#0b1020";
+  ctx.fillRect(0, 0, g.keyW, g.rulerH);
+  if (playRow != null) {
+    const x = Math.round(xOf(playRow + 0.5));
+    if (x >= g.keyW) { ctx.fillStyle = "rgba(255,255,255,0.9)"; ctx.fillRect(x, g.rulerH, 1, g.H - g.rulerH); }
+  }
+  _sidRollLegend(notes);
+}
+function _sidRollLoop() {
+  const roll = document.getElementById("sid-roll");
+  if (!roll || roll.hidden || !document.getElementById("sid-editor-dialog")?.open) { _sidRollView.raf = 0; return; }
+  _sidRollDraw();
+  _sidRollView.raf = requestAnimationFrame(_sidRollLoop);
+}
+function _sidRollSyncHeader() {
+  const follow = document.getElementById("sid-roll-follow");
+  if (follow) { follow.classList.toggle("sid-metronome-on", _sidRollView.follow); follow.setAttribute("aria-pressed", String(_sidRollView.follow)); }
+  document.querySelectorAll(".sid-roll-vbtn").forEach(function(b) { b.classList.toggle("active", Number(b.dataset.voice) === _sidRollView.voice); });
+  const inst = document.getElementById("sid-roll-inst");
+  if (inst) inst.textContent = (_sidInst < 10 ? "0" : "") + _sidInst + " " + ((_sidCurInst() && _sidCurInst().name) || "");
+}
+// fit the pitch range to the song's notes (four octaves around them)
+function _sidRollFitPitch() {
+  const notes = _sidRollNotes();
+  let mid = 48;
+  if (notes.length) {
+    let lo = 95, hi = 0;
+    notes.forEach(function(n) { lo = Math.min(lo, n.note); hi = Math.max(hi, n.note); });
+    mid = Math.round((lo + hi) / 2);
+  }
+  _sidRollView.lo = Math.max(0, Math.min(96 - _sidRollView.span, mid - (_sidRollView.span >> 1)));
+}
+function _sidRollShow(on) {
+  const roll = document.getElementById("sid-roll");
+  if (!roll) return;
+  roll.hidden = !on;
+  const btn = document.getElementById("sid-roll-btn");
+  if (btn) { btn.classList.toggle("sid-metronome-on", !!on); btn.setAttribute("aria-pressed", String(!!on)); }
+  _sidRollSave({ open: !!on });
+  if (!on) return;
+  const st = _sidRollState();
+  if (Number.isFinite(st.width)) roll.style.width = st.width + "px";
+  if (Number.isFinite(st.height)) roll.style.height = st.height + "px";
+  if (Number.isFinite(st.colW)) _sidRollView.colW = st.colW;
+  if (Number.isFinite(st.rowPx)) _sidRollView.rowPx = st.rowPx;
+  if (typeof st.follow === "boolean") _sidRollView.follow = st.follow;
+  _sidRollView.voice = _sidSel.voice;
+  _sidRollFitPitch();
+  _sidRollSyncHeader();
+  const x = Number.isFinite(st.left) ? st.left : 80, y = Number.isFinite(st.top) ? st.top : 120;
+  _sidPlaceFixed(roll, x, y);
+  requestAnimationFrame(function() { _sidPlaceFixed(roll, x, y); });
+  if (!_sidRollView.raf) _sidRollView.raf = requestAnimationFrame(_sidRollLoop);
+}
+// vertical zoom: pixels per semitone (the visible pitch range follows)
+function _sidRollZoomV(factor) {
+  _sidRollView.rowPx = Math.max(4, Math.min(32, _sidRollView.rowPx * factor));
+  _sidRollSave({ rowPx: _sidRollView.rowPx });
+}
+function _sidRollRestore() {
+  if (_sidRollState().open) _sidRollShow(true);
+}
+function _sidSetupRoll() {
+  const roll = document.getElementById("sid-roll");
+  const cv = document.getElementById("sid-roll-canvas");
+  const hdr = roll && roll.querySelector(".sid-roll-hdr");
+  if (!roll || !cv || !hdr) return;
+  document.getElementById("sid-roll-btn")?.addEventListener("click", function() { _sidRollShow(roll.hidden); });
+  document.getElementById("sid-roll-close")?.addEventListener("click", function() { _sidRollShow(false); });
+  document.getElementById("sid-roll-play")?.addEventListener("click", _sidPauseToggle);
+  document.getElementById("sid-roll-follow")?.addEventListener("click", function() {
+    _sidRollView.follow = !_sidRollView.follow;
+    _sidRollSave({ follow: _sidRollView.follow });
+    _sidRollSyncHeader();
+  });
+  document.getElementById("sid-roll-stop")?.addEventListener("click", function() { _sidStop(); });
+  document.getElementById("sid-roll-metronome")?.addEventListener("click", _sidToggleMetronome);
+  document.getElementById("sid-roll-vzoom-out")?.addEventListener("click", function() { _sidRollZoomV(1 / 1.25); });
+  document.getElementById("sid-roll-vzoom-in")?.addEventListener("click", function() { _sidRollZoomV(1.25); });
+  document.querySelectorAll(".sid-roll-vbtn").forEach(function(b) {
+    b.addEventListener("click", function() { _sidRollView.voice = Number(b.dataset.voice); _sidRollSyncHeader(); });
+  });
+  // drag the window by its header; save the size after a CSS resize
+  let move = null, sizeAtDown = null;
+  hdr.addEventListener("pointerdown", function(e) {
+    if (e.target.closest("button")) return;
+    const rect = roll.getBoundingClientRect();
+    move = { dx: e.clientX - rect.left, dy: e.clientY - rect.top };
+    try { hdr.setPointerCapture(e.pointerId); } catch (_) {}
+    e.preventDefault();
+  });
+  hdr.addEventListener("pointermove", function(e) { if (move) move.at = _sidPlaceFixed(roll, e.clientX - move.dx, e.clientY - move.dy); });
+  const endMove = function() { if (move && move.at) _sidRollSave({ left: move.at.x, top: move.at.y }); move = null; };
+  hdr.addEventListener("pointerup", endMove);
+  hdr.addEventListener("pointercancel", endMove);
+  roll.addEventListener("pointerdown", function() { sizeAtDown = { w: roll.offsetWidth, h: roll.offsetHeight }; });
+  window.addEventListener("pointerup", function() {
+    if (!sizeAtDown) return;
+    const w = roll.offsetWidth, h = roll.offsetHeight;
+    if (w > 0 && h > 0 && (w !== sizeAtDown.w || h !== sizeAtDown.h)) _sidRollSave({ width: w, height: h });
+    sizeAtDown = null;
+  });
+  // editing
+  cv.addEventListener("contextmenu", function(e) { e.preventDefault(); });
+  cv.addEventListener("pointerdown", function(e) {
+    const hit = _sidRollHit(cv, e);
+    if (!hit || hit.row >= _sidRollTotalRows()) return;
+    const notes = _sidRollNotes();
+    const n = _sidRollNoteAt(notes, hit);
+    if (e.button === 2) { if (n) _sidRollDelete(n); return; }
+    if (e.button !== 0) return;
+    if (n) {
+      const g = hit.g, xEnd = g.keyW + (n.end - _sidRollView.row0) * g.colW;
+      _sidRollView.drag = { kind: hit.x > xEnd - Math.max(5, g.colW * 0.35) ? "len" : "pitch", note: n };
+      _sidRollView.voice = n.v;
+      _sidRollSyncHeader();
+    } else {
+      const v = _sidRollView.voice;
+      _sidRollWrite(v, hit.row, { note: hit.pitch, inst: _sidInst });
+      const nn = { v: v, note: hit.pitch, inst: _sidInst, start: hit.row, end: hit.row + 1 };
+      // the new note ends where the voice's next note (or note-off) already was
+      const next = notes.filter(function(x) { return x.v === v && x.start > hit.row; }).sort(function(p, q) { return p.start - q.start; })[0];
+      nn.end = next ? next.start : _sidRollTotalRows();
+      _sidRollSetEnd(nn, hit.row + 1);
+      _sidRollView.drag = { kind: "len", note: nn, fresh: true };
+      _sidRollPreview(_sidInst, hit.pitch);
+    }
+    try { cv.setPointerCapture(e.pointerId); } catch (_) {}
+    e.preventDefault();
+  });
+  cv.addEventListener("pointermove", function(e) {
+    const hit = _sidRollHit(cv, e);
+    _sidRollView.hover = hit;
+    const d = _sidRollView.drag;
+    if (!d || !hit) return;
+    if (d.kind === "pitch" && hit.pitch !== d.note.note) {
+      const at = _sidRollCell(d.note.v, d.note.start);
+      _sidRollWrite(d.note.v, d.note.start, Object.assign({}, at.cell, { note: hit.pitch }));
+      d.note.note = hit.pitch;
+      _sidRollPreview(d.note.inst, hit.pitch);
+    } else if (d.kind === "len") {
+      const end = Math.max(d.note.start + 1, hit.row + 1);
+      if (end !== d.note.end) _sidRollSetEnd(d.note, end);
+    }
+  });
+  const endDrag = function(e) {
+    _sidRollView.drag = null;
+    if (e && e.pointerId != null) { try { cv.releasePointerCapture(e.pointerId); } catch (_) {} }
+  };
+  cv.addEventListener("pointerup", endDrag);
+  cv.addEventListener("pointercancel", endDrag);
+  cv.addEventListener("pointerleave", function() { _sidRollView.hover = null; });
+  // wheel: scroll in time, Shift = pitch, Ctrl = zoom
+  cv.addEventListener("wheel", function(e) {
+    e.preventDefault();
+    const view = _sidRollView;
+    if (e.altKey) {
+      _sidRollZoomV(e.deltaY < 0 ? 1.15 : 1 / 1.15);
+    } else if (e.ctrlKey) {
+      view.colW = Math.max(4, Math.min(48, view.colW * (e.deltaY < 0 ? 1.15 : 1 / 1.15)));
+      _sidRollSave({ colW: view.colW });
+    } else if (e.shiftKey) {
+      view.lo = Math.max(0, Math.min(96 - view.span, view.lo + (e.deltaY < 0 ? 1 : -1)));
+    } else {
+      view.row0 = Math.max(0, view.row0 + (e.deltaX || e.deltaY) / view.colW);
+    }
+  }, { passive: false });
+}
+
 function _sidPreviewSelectedRow() {
   const pat = _sidCurPat();
   const row = Math.max(0, Math.min(_SID_ROWS - 1, _sidSel.row));
@@ -39745,7 +40135,7 @@ function _sidPlayMetronomeClick(accent) {
 let _sidBeatLampTimer = null;
 function _sidMetronomeBeat(accent) {
   _sidPlayMetronomeClick(accent);
-  const lamps = ["sid-beat", "sid-vkbd-beat"].map(function(id){ return document.getElementById(id); }).filter(Boolean);
+  const lamps = ["sid-beat", "sid-vkbd-beat", "sid-roll-beat"].map(function(id){ return document.getElementById(id); }).filter(Boolean);
   lamps.forEach(function(lamp) {
     lamp.classList.add("sid-beat-on");
     lamp.classList.toggle("sid-beat-accent", !!accent);
@@ -39755,7 +40145,7 @@ function _sidMetronomeBeat(accent) {
 }
 function _sidToggleMetronome() {
   _sidMetronomeEnabled = !_sidMetronomeEnabled;
-  ["sid-metronome", "sid-vkbd-metronome"].forEach(function(id) {
+  ["sid-metronome", "sid-vkbd-metronome", "sid-roll-metronome"].forEach(function(id) {
     const btn = document.getElementById(id);
     if (!btn) return;
     btn.setAttribute("aria-pressed", String(_sidMetronomeEnabled));
@@ -40154,7 +40544,7 @@ function _sidPauseBtnMarkup(isPlaying) {
 }
 function _sidUpdatePauseButton() {
   const isPlaying = !!(_sidTimer || _sidPlaybackUsingWebSid) && !_sidPaused;
-  ["sid-play", "sid-vkbd-play"].forEach(function(id) {
+  ["sid-play", "sid-vkbd-play", "sid-roll-play"].forEach(function(id) {
     const btn = document.getElementById(id);
     if (!btn) return;
     btn.innerHTML = _sidPauseBtnMarkup(isPlaying);
@@ -42868,6 +43258,7 @@ function setupSidEditor() {
     _sidInit(); dialog.showModal();
     // place the detached tracker before the first paint (no jump from the default spot)
     _sidRestoreTrackerFloat();
+    _sidRollRestore();
     if (_sidVkbdState().open) _sidOpenVirtualKeyboard(false);
     _sidStreamPreload();
   });
@@ -43032,6 +43423,8 @@ function setupSidEditor() {
     sidVkbdHdr.addEventListener("pointercancel", endVkbdDrag);
   }
   onId("sid-tracker-detach", "click", function(){ _sidSetTrackerDetached(true); });
+  _sidSetupRoll();
+  onId("sid-inst-sel", "change", _sidRollSyncHeader);
   onId("sid-tracker-attach", "click", function(){ _sidSetTrackerDetached(false); });
   _sidSetupTrackerFloat();
   let trkDetached = false;

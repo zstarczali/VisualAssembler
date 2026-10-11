@@ -11035,3 +11035,23 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 
 /* freemium: OLED / Commodore 77 themes locked */
 .theme-option.va-locked { opacity: 0.45; }
+
+/* SID Editor horizontal tracker (piano roll), floating inside the editor dialog */
+.sid-roll { width: 900px; height: 400px; min-width: 520px; min-height: 240px; z-index: 31; }
+.sid-roll-hdr { gap: 10px; }
+.sid-roll-voices { display: inline-flex; gap: 2px; padding: 2px; background: var(--control-bg); border: 1px solid var(--panel-border); border-radius: 2px; }
+.sid-roll-vbtn { height: 22px; min-height: 0; padding: 0 8px; border: none; border-radius: 2px; background: transparent; color: var(--secondary); font: 700 0.7rem "IBM Plex Mono", monospace; cursor: pointer; }
+.sid-roll-vbtn[data-voice="0"].active { background: #38d6ff; color: #0b1020; }
+.sid-roll-vbtn[data-voice="1"].active { background: #ff5ccf; color: #0b1020; }
+.sid-roll-vbtn[data-voice="2"].active { background: #4ade80; color: #0b1020; }
+.sid-roll-tools { display: inline-flex; align-items: center; gap: 2px; }
+.sid-roll-tools .ce-tool-btn { width: 26px; height: 24px; }
+.sid-roll-tools .sid-vkbd-beat { margin: 0 4px; }
+.sid-roll-inst { font: 0.72rem "IBM Plex Mono", monospace; color: var(--secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sid-roll-body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 6px; padding: 8px 10px 10px; }
+.sid-roll-canvas { flex: 1 1 auto; min-height: 0; width: 100%; display: block; border: 1px solid var(--panel-border); border-radius: 3px; background: #0b1020; cursor: crosshair; touch-action: none; }
+.sid-roll-foot { display: flex; align-items: flex-start; gap: 12px; }
+.sid-roll-legend { flex: 1; display: flex; flex-wrap: wrap; gap: 4px 12px; font: 0.72rem "IBM Plex Mono", monospace; color: var(--secondary); }
+.sid-roll-chip { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.sid-roll-swatch { width: 11px; height: 11px; border-radius: 2px; flex: 0 0 11px; }
+.sid-roll-help { font-size: 0.68rem; color: var(--muted); text-align: right; max-width: 55%; }
