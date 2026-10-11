@@ -3850,6 +3850,9 @@ function _applyEditorTranslations() {
   setText("#sid-save-bin", t("sidSaveBin"));
   setText("#sid-import-goat", t("sidImportGoat"));
   setText("#sid-master-vol-lbl", t("sidMasterVolume"));
+  setText("#websid-play-vol-lbl", t("sidMasterVolume"));
+  setText("#sid-ed-master-vol-lbl", t("sidMasterVolume"));
+  setAttr("#sid-ed-master-vol", t("sidMasterVolume"));
   setAttr("#sid-master-vol", t("sidMasterVolume"));
   setText("#sid-midi-lbl", t("sidMidi"));
   setText("#sid-midi-connect", t("sidMidiConnect"));
@@ -39554,11 +39557,12 @@ function _sidEnsureAudio() {
 function _sidSetMasterVolume(pct, persist = true) {
   pct = Math.max(0, Math.min(100, Math.round(Number(pct) || 0)));
   _sidMasterVol = pct / 100;
-  ["sid-master-vol-val", "websid-play-vol-val"].forEach(function(id) {
+  ["sid-master-vol-val", "sid-ed-master-vol-val", "websid-play-vol-val"].forEach(function(id) {
     const value = document.getElementById(id);
     if (value) value.textContent = String(pct);
   });
   _sidKnobRender(document.getElementById("sid-master-vol"), pct);
+  _sidKnobRender(document.getElementById("sid-ed-master-vol"), pct);
   _sidKnobRender(document.getElementById("websid-play-vol"), pct);
   _sidApplyMasterVolume();
   if (persist) { try { localStorage.setItem("c64va-sid-master-vol", String(pct)); } catch (_) {} }
@@ -42933,9 +42937,11 @@ function setupSidEditor() {
   onId("sid-arp-preview", "click", _sidPreviewArpeggio);
   onId("sid-chord-add", "click", _sidInsertChord);
   onId("sid-arp-add", "click", _sidInsertArpeggio);
-  _sidKnobBind(document.getElementById("sid-master-vol"),
-    function() { return Math.round(_sidMasterVol * 100); },
-    function(pct) { _sidSetMasterVolume(pct); });
+  ["sid-master-vol", "sid-ed-master-vol"].forEach(function(id) {
+    _sidKnobBind(document.getElementById(id),
+      function() { return Math.round(_sidMasterVol * 100); },
+      function(pct) { _sidSetMasterVolume(pct); });
+  });
   onId("sid-play", "click", _sidPauseToggle);
   onId("sid-stop", "click", _sidStop);
   onId("sid-vkbd-play", "click", _sidPauseToggle);

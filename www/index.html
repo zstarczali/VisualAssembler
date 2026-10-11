@@ -1287,33 +1287,6 @@ PRINTABLE CHARACTERS
         <li>
           <strong>From 2.5.5, fixed:</strong> the multicolor cell grid of the Hi-Res Editor was twice as wide as a character cell; the Hi-Res <em>Paste</em> button always pasted transparently; the SID Editor right-click menu opened away from the cursor.
         </li>
-        <li>
-          <strong>From 2.5.4, fixed: window not appearing on relaunch:</strong> if the app was quit with its window minimized or hidden (mostly on macOS, also on Linux / Wayland), the next start could come up without a window. The window is now always shown at startup; the saved window size is kept.
-        </li>
-        <li>
-          <strong>From 2.5.4: Ultimate Basic 1.6.3 bundled, with QBasic-style syntax:</strong> <code>DIM name AS type</code> for variables and arrays of every type, <code>FUNCTION</code> / <code>SUB</code> with <code>AS</code> types, <code>ELSEIF</code>, <code>DO … LOOP</code>, <code>WHILE … WEND</code>, <code>SELECT CASE</code>, <code>EXIT DO</code> / <code>EXIT SUB</code>, single-line <code>IF</code>, <code>'</code> comments and <code>PRINT a; b; c</code>; runtime strings (<code>+</code>, <code>LEFT$</code> / <code>RIGHT$</code> / <code>MID$</code>) and signed 16-bit <code>INTEGER</code>. The UB editor highlights, completes and formats the new syntax, and the Commands panel describes it.
-        </li>
-        <li>
-          <strong>From 2.5.3, fixed: running in VICE on Windows</strong> no longer fails with <em>program not found</em> when PowerShell is missing from PATH; VICE starts from its own folder, and paths with spaces are handled.
-        </li>
-        <li>
-          <strong>From 2.5.2: SID Editor previews on the real SID:</strong> the instrument Preview, the virtual keyboard, note entry, chord and arpeggio previews, row preview and single-pattern playback now play through the WebSid emulator, streamed frame by frame from the same engine as the exported player. It is preloaded, so notes sound at once.
-        </li>
-        <li>
-          <strong>Note-off in the tracker:</strong> key <strong>1</strong> writes <code>===</code>: the gate is released and the instrument's release runs, like a key-off in other trackers. <strong>Enter</strong> edits the selected cell.
-        </li>
-        <li>
-          <strong>Detachable tracker:</strong> the tracker can float in its own resizable panel and dock back, so a long wave table leaves it room.
-        </li>
-        <li>
-          <strong>Wave / arpeggio presets:</strong> the preset list keeps the chosen preset until the table is edited by hand.
-        </li>
-        <li>
-          <strong>VA-VK:</strong> the virtual keyboard has a new name and Play / Stop buttons, and remembers its position and settings; the SID editor remembers its master volume. <strong>Knowledge Base:</strong> C64 OS development environment and png2c64 links, in two columns.
-        </li>
-        <li>
-          <strong>From 2.5.1:</strong> SID Editor instruments like a real tracker (resonant filter sweeps, vibrato, PWM, hard restart, wave / arpeggio tables, RING and SYNC), the new frame-based SID player, Ultimate Basic 1.6.2 <code>tune</code> lines, bookmarks and Go to line.
-        </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
     </div>
@@ -2159,6 +2132,18 @@ PRINTABLE CHARACTERS
           <span class="sid-mini-lbl">PW:</span>
           <input type="range" id="sid-pw" min="0" max="4095" value="2048" class="sid-range">
           <span id="sid-pw-val" class="sid-num">2048</span>
+          <div class="sid-master-vol-wrap">
+            <span class="sid-master-vol-lbl" id="sid-ed-master-vol-lbl">Master volume</span>
+            <div id="sid-ed-master-vol" class="websid-play-knob" role="slider" tabindex="0" aria-label="Master volume" aria-valuemin="0" aria-valuemax="100" aria-valuenow="60">
+              <svg viewBox="0 0 40 40" aria-hidden="true">
+                <path class="websid-play-knob-track" d=""/>
+                <path class="websid-play-knob-value" d=""/>
+                <circle class="websid-play-knob-body" cx="20" cy="20" r="11.5"/>
+                <line class="websid-play-knob-pointer" x1="20" y1="20" x2="20" y2="11"/>
+              </svg>
+            </div>
+            <span id="sid-ed-master-vol-val" class="sid-master-vol-val">60</span>
+          </div>
         </div>
         <!-- ADSR + graph + filter -->
         <div class="sid-mid">
@@ -2452,6 +2437,7 @@ PRINTABLE CHARACTERS
           <button id="websid-play-clear" class="websid-play-tool" type="button" aria-label="Clear playlist"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 4.5h9M6.5 4.5V3h3v1.5M5 4.5l.6 8.5h4.8l.6-8.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></button>
         </div>
         <div class="websid-play-vol-wrap">
+          <span id="websid-play-vol-lbl" class="sid-master-vol-lbl websid-play-vol-lbl">Master volume</span>
           <div id="websid-play-vol" class="websid-play-knob" role="slider" tabindex="0" aria-label="Volume" aria-valuemin="0" aria-valuemax="100" aria-valuenow="60">
             <svg viewBox="0 0 40 40" aria-hidden="true">
               <path class="websid-play-knob-track" d=""/>

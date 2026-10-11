@@ -10049,12 +10049,14 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-vkbd-title { font-family: 'C64Pro', monospace; font-size: 0.9rem; letter-spacing: 0.08em; color: var(--text); }
 .sid-vkbd-meta { display: flex; align-items: center; gap: 8px; padding: 12px 14px 0; }
 .sid-vkbd-insert-toggle { margin-left: 10px; white-space: nowrap; }
-.sid-vkbd-tbtn { color: #d8d2c4; }
+/* VA-VK is a dark panel in every theme: its tool buttons must not take the theme's control colours */
+.sid-vkbd-meta .ce-tool-btn.sid-vkbd-tbtn { color: #d8d2c4; background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.18); }
 #sid-vkbd-play { margin-left: 10px; }
-.sid-vkbd-tbtn:hover { color: #fff; background: rgba(255,255,255,0.1); }
-.sid-vkbd-tbtn.sid-record-btn { color: #d96a6a; }
-.sid-vkbd-tbtn.sid-record-btn.sid-recording { color: #ff4545; background: rgba(255, 69, 69, 0.18); }
-.sid-vkbd-tbtn.sid-metronome-btn.sid-metronome-on { color: #4ade80; background: rgba(74, 222, 128, 0.16); }
+.sid-vkbd-meta .ce-tool-btn.sid-vkbd-tbtn:hover { color: #fff; background: rgba(255,255,255,0.14); }
+.sid-vkbd-meta .ce-tool-btn.sid-vkbd-tbtn.sid-record-btn { color: #e06b6b; }
+.sid-vkbd-meta .ce-tool-btn.sid-vkbd-tbtn.sid-record-btn.sid-recording { color: #ff4545; background: rgba(255, 69, 69, 0.18); }
+.sid-vkbd-meta .ce-tool-btn.sid-vkbd-tbtn.sid-metronome-btn.sid-metronome-on { color: #4ade80; background: rgba(74, 222, 128, 0.16); }
+.websid-play-vol-lbl { margin-right: 2px; white-space: nowrap; }
 .sid-vkbd-beat { width: 11px; height: 11px; flex: 0 0 11px; border-radius: 50%; background: #5a2222; border: 1px solid rgba(255,255,255,0.28); box-shadow: inset 0 1px 2px rgba(0,0,0,0.8); transition: background 0.12s ease-out, box-shadow 0.12s ease-out; }
 .sid-vkbd-beat.sid-beat-on { background: #4ade80; box-shadow: 0 0 8px #4ade80, inset 0 -1px 2px rgba(0,0,0,0.3); transition: none; }
 .sid-vkbd-beat.sid-beat-on.sid-beat-accent { background: #ff4545; box-shadow: 0 0 10px #ff4545, inset 0 -1px 2px rgba(0,0,0,0.3); }
@@ -10074,7 +10076,15 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-vkbd-meta .sid-mini-lbl, .sid-vkbd-meta .sid-num, .sid-vkbd-title, .sid-vkbd-insert-toggle { color: #d8d2c4; }
 .sid-vkbd-meta .sid-master-vol-lbl, .sid-vkbd-meta .sid-master-vol-val { color: #d8d2c4; }
 .sid-vkbd-octaves-lbl { margin-left: 10px; }
-.sid-vkbd-octaves { width: 64px; flex: 0 0 64px; }
+/* dark panel in every theme: compact select without the theme's white input background */
+.sid-vkbd-meta .sid-select.sid-vkbd-octaves {
+  width: 44px; flex: 0 0 44px; height: 24px; min-height: 0; padding: 0 16px 0 7px;
+  font-size: 0.78rem; color: #d8d2c4; background-color: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.18); box-shadow: none;
+  background-position: calc(100% - 5px) 50%; background-size: 8px auto;
+}
+.sid-vkbd-meta .sid-select.sid-vkbd-octaves:hover, .sid-vkbd-meta .sid-select.sid-vkbd-octaves:focus { background-color: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.3); }
+.sid-vkbd-octaves option { background: #2a2722; color: #d8d2c4; }
 .sid-vkbd-key { position: absolute; border: 1px solid #2c3552; cursor: pointer; user-select: none; }
 .sid-vkbd-key--white { width: 48px; height: 188px; top: 0; border-radius: 0 0 4px 4px; background: linear-gradient(180deg, #fbfbfd 0%, #d9deea 100%); color: #172033; }
 .sid-vkbd-key--white:hover { background: linear-gradient(180deg, #ffffff 0%, #c8d1e6 100%); }
@@ -10350,7 +10360,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
   margin: 0;
   background: transparent;
   color: var(--text);
-  width: min(520px, 96vw);
+  width: min(640px, 96vw);
   overflow: visible;
 }
 .websid-play-dialog[open] {
