@@ -1,3 +1,5 @@
+mod license;
+
 use serde::{Deserialize, Serialize};
 use base64::Engine as _;
 use std::fs;
@@ -625,6 +627,48 @@ async fn open_external(url: String, app: AppHandle) -> Result<(), String> {
         .map_err(|e| e.to_string())
 }
 
+// ── License (full / light) ───────────────────────────────────────────────────
+
+/// Light version: the error result for a full-version command, None when licensed.
+fn light_block(app: &AppHandle) -> Option<serde_json::Value> {
+    if license::licensed_email(&read_config(app)).is_some() {
+        None
+    } else {
+        Some(serde_json::json!({ "ok": false, "error": license::LIGHT_ERROR, "licenseRequired": true }))
+    }
+}
+
+#[tauri::command]
+fn license_status(app: AppHandle) -> serde_json::Value {
+    match license::licensed_email(&read_config(&app)) {
+        Some(email) => serde_json::json!({ "licensed": true, "email": email }),
+        None => serde_json::json!({ "licensed": false, "email": "" }),
+    }
+}
+
+#[tauri::command]
+fn license_activate(app: AppHandle, email: String, serial: String) -> serde_json::Value {
+    let serial: String = serial.chars().filter(|c| !c.is_whitespace()).collect();
+    if !license::verify(&email, &serial) {
+        return serde_json::json!({ "ok": false, "error": "invalid" });
+    }
+    let email = license::normalize_email(&email);
+    let mut cfg = read_config(&app);
+    cfg["license"] = serde_json::json!({ "email": email, "serial": serial });
+    write_config(&app, &cfg);
+    serde_json::json!({ "ok": true, "email": email })
+}
+
+#[tauri::command]
+fn license_deactivate(app: AppHandle) -> serde_json::Value {
+    let mut cfg = read_config(&app);
+    if let Some(obj) = cfg.as_object_mut() {
+        obj.remove("license");
+    }
+    write_config(&app, &cfg);
+    serde_json::json!({ "ok": true })
+}
+
 #[tauri::command]
 fn quit_app(app: AppHandle) {
     app.exit(0);
@@ -950,6 +994,7 @@ fn crunch_with_exomizer(
 
 #[tauri::command]
 async fn build_exomizer_prg(app: AppHandle, payload: LaunchVicePayload) -> serde_json::Value {
+    if let Some(blocked) = light_block(&app) { return blocked; }
     let cfg = read_config(&app);
     let exomizer_path = get_exomizer_path(&cfg);
 
@@ -993,6 +1038,7 @@ async fn build_exomizer_prg(app: AppHandle, payload: LaunchVicePayload) -> serde
 
 #[tauri::command]
 async fn build_exomizer_raw(app: AppHandle, payload: BuildRawPayload) -> serde_json::Value {
+    if let Some(blocked) = light_block(&app) { return blocked; }
     let cfg = read_config(&app);
     let exomizer_path = get_exomizer_path(&cfg);
 
@@ -1091,6 +1137,7 @@ async fn launch_vice(app: AppHandle, payload: LaunchVicePayload) -> serde_json::
 
 #[tauri::command]
 async fn launch_exomizer(app: AppHandle, payload: LaunchVicePayload) -> serde_json::Value {
+    if let Some(blocked) = light_block(&app) { return blocked; }
     let cfg = read_config(&app);
     let exomizer_path = get_exomizer_path(&cfg);
     let vice_path = {
@@ -1996,6 +2043,7 @@ fn delete_bin_file(path: String) -> serde_json::Value {
 
 #[tauri::command]
 async fn save_prg(app: AppHandle, payload: SavePrgPayload) -> serde_json::Value {
+    if let Some(blocked) = light_block(&app) { return blocked; }
     let working_folder = {
         let cfg = read_config(&app);
         get_working_folder_path(&cfg)
@@ -2039,6 +2087,7 @@ struct SaveCrtPayload {
 
 #[tauri::command]
 async fn save_crt(app: AppHandle, payload: SaveCrtPayload) -> serde_json::Value {
+    if let Some(blocked) = light_block(&app) { return blocked; }
     let working_folder = {
         let cfg = read_config(&app);
         get_working_folder_path(&cfg)
@@ -2194,6 +2243,7 @@ struct SaveD64Payload {
 
 #[tauri::command]
 async fn save_d64(app: AppHandle, payload: SaveD64Payload) -> serde_json::Value {
+    if let Some(blocked) = light_block(&app) { return blocked; }
     if payload.files.is_empty() {
         return serde_json::json!({ "ok": false, "error": "Nincs fajl a D64-re irashoz." });
     }
@@ -3039,6 +3089,7 @@ struct RunD64UltimatePayload {
 
 #[tauri::command]
 async fn run_d64_on_ultimate(app: AppHandle, payload: RunD64UltimatePayload) -> serde_json::Value {
+    if let Some(blocked) = light_block(&app) { return blocked; }
     if payload.files.is_empty() {
         return serde_json::json!({ "ok": false, "error": "Nincs fajl a D64-re irashoz." });
     }
@@ -3223,10 +3274,12 @@ async fn run_d64_on_ultimate(app: AppHandle, payload: RunD64UltimatePayload) -> 
 
 #[tauri::command]
 async fn run_on_ultimate(
+    app: AppHandle,
     host: String,
     password: Option<String>,
     prg_bytes: Vec<u8>,
 ) -> serde_json::Value {
+    if let Some(blocked) = light_block(&app) { return blocked; }
     let host = host.trim().trim_end_matches('/').to_string();
     let url = format!("http://{}/v1/runners:run_prg", host);
     let client = match reqwest::Client::builder()
@@ -3389,7 +3442,8 @@ async fn detect_kff2_port() -> serde_json::Value {
 }
 
 #[tauri::command]
-async fn run_on_kff2(port: String, prg_bytes: Vec<u8>) -> serde_json::Value {
+async fn run_on_kff2(app: AppHandle, port: String, prg_bytes: Vec<u8>) -> serde_json::Value {
+    if let Some(blocked) = light_block(&app) { return blocked; }
     match tauri::async_runtime::spawn_blocking(move || run_on_kff2_port(&port, &prg_bytes)).await {
         Ok(Ok(())) => serde_json::json!({ "ok": true }),
         Ok(Err(error)) => serde_json::json!({ "ok": false, "error": error }),
@@ -4773,6 +4827,9 @@ pub fn run() {
             set_title,
             open_external,
             quit_app,
+            license_status,
+            license_activate,
+            license_deactivate,
             get_ui_settings,
             save_ui_settings,
             get_vice_config,

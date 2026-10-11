@@ -1251,6 +1251,9 @@ function initPalette() {
   });
   document.getElementById("crt-toggle")?.addEventListener("click", toggleCrtMode);
   languageSelect.addEventListener("change", handleLanguageChange);
+  ["about-dialog", "customer-message-dialog", "update-dialog", "hardware-settings-dialog", "whats-new-dialog"].forEach((id) => document.getElementById(id)?.addEventListener("dragstart", (e) => {
+    if (!e.target.closest?.("input, textarea, select, [contenteditable]")) e.preventDefault();
+  }));
   aboutButton?.addEventListener("click", async () => {
     document.querySelector(".control-menu")?.removeAttribute("open");
     document.getElementById("about-version").textContent = await getAppVersionText();
@@ -2265,9 +2268,12 @@ function initPalette() {
     const bar = document.querySelector('.splash-panel .splash-loader-bar');
     if (!splashScreen || !panel) return;
 
+    // debug: localStorage 'c64va-keep-splash' = '1' keeps the splash for inspection (click closes it)
+    let keep = false;
+    try { keep = localStorage.getItem('c64va-keep-splash') === '1'; } catch (_) {}
     let hidden = false;
-    const hide = () => {
-      if (hidden) return;
+    const hide = (force) => {
+      if (hidden || (keep && force !== true)) return;
       hidden = true;
       splashScreen.classList.add('fade-out');
       setTimeout(() => {
@@ -2275,6 +2281,8 @@ function initPalette() {
         showCustomerMessageIfNeeded();
       }, 500);
     };
+
+    if (keep) splashScreen.addEventListener('click', () => hide(true));
 
     const startReveal = () => {
       if (panel.classList.contains('ready')) return;
@@ -3124,6 +3132,11 @@ function applySavedUiSettings() {
 }
 
 function handleLanguageChange() {
+  if (typeof _vaFullAllowed === "function" && !_vaFullAllowed() && _VA_FREE_LANGUAGES && !_VA_FREE_LANGUAGES.includes(languageSelect.value)) {
+    languageSelect.value = _VA_FREE_LANGUAGES.includes(currentLanguage) ? currentLanguage : "en";
+    _vaOpenLicenseDialog(true);
+    if (languageSelect.value === currentLanguage) return;
+  }
   currentLanguage = ["en", "es", "hu", "de", "nl", "pl", "it"].includes(languageSelect.value) ? languageSelect.value : "hu";
   localStorage.setItem("c64-block-language", currentLanguage);
   document.documentElement.lang = currentLanguage;
@@ -3371,6 +3384,16 @@ function applyTranslations() {
     setText("#menu-open-workspace", t("menuOpenWorkspace"));
     document.getElementById("menu-open-workspace")?.setAttribute("aria-label", t("menuOpenWorkspaceTip"));
     setText("#save-prg", t("savePrg"));
+    setText("#license-btn", t("licenseRegister"));
+    document.getElementById("license-badge")?.setAttribute("aria-label", t("licenseRegister"));
+    setText("#license-title", t("licenseTitle"));
+    setText("#license-email-label", t("licenseEmail"));
+    setText("#license-serial-label", t("licenseSerial"));
+    setText("#license-buy", t("licenseBuy"));
+    setText("#license-deactivate", t("licenseDeactivate"));
+    setText("#license-close", t("licenseClose"));
+    setText("#license-activate", t("licenseActivate"));
+    if (typeof _vaLicenseApply === "function") _vaLicenseApply();
     setText("#set-working-folder", t("setWorkingFolder"));
     setText("#build-section-label", t("buildSection"));
     setText("#versioning-section-label", t("versioningSection"));
@@ -3825,6 +3848,7 @@ function _applyEditorTranslations() {
   setText(".sid-title", t("sidTitle"));
   setText("#sid-load-bin", t("sidLoadBin"));
   setText("#sid-save-bin", t("sidSaveBin"));
+  setText("#sid-import-goat", t("sidImportGoat"));
   setText("#sid-master-vol-lbl", t("sidMasterVolume"));
   setAttr("#sid-master-vol", t("sidMasterVolume"));
   setText("#sid-midi-lbl", t("sidMidi"));
@@ -16171,6 +16195,10 @@ function toggleTheme() {
 }
 
 function setTheme(theme) {
+  if (typeof _vaFullAllowed === "function" && !_vaFullAllowed() && _VA_FREE_THEMES && !_VA_FREE_THEMES.includes(theme)) {
+    _vaOpenLicenseDialog(true);
+    return;
+  }
   document.documentElement.dataset.theme = theme;
   localStorage.setItem("c64-block-theme", theme);
   updateThemeToggleLabel();
@@ -20106,6 +20134,7 @@ function setupRunModeDropdown() {
 }
 
 function setRunMode(mode) {
+  if (!_vaFullAllowed() && _VA_FULL_RUN_MODES.includes(mode)) mode = "prg";
   runMode = mode;
   localStorage.setItem("runMode", mode);
   const prgBtn = document.getElementById("run-prg-mode");
@@ -38279,6 +38308,9 @@ var _sidTimer = null, _sidRow = 0, _sidPlayPat = 0;
 // AudioBufferSourceNodes of the rendered preview (note previews and the
 // Web Audio pattern playback) — _sidStop stops them all.
 var _sidPreviewSources = new Set();
+// The SID Player's (VA SID Core) scheduled buffers: kept apart, so stopping the
+// editor preview (e.g. closing the SID Editor) does not silence the player.
+var _sidExtSources = new Set();
 // Web Audio pattern playback: engine kept across pattern passes + scheduling state
 var _sidWaPlay = null;
 // Song/order list: the arrangement layer on top of the raw pattern bank
@@ -40157,6 +40189,7 @@ function _sidExtSetStatus(status) {
   _sidExtRender();
 }
 async function _sidExtStartFile(bytes, filename, song = 0) {
+  if (!_vaFullAllowed()) { _vaOpenLicenseDialog(true); return false; }
   // Stop the running tune with the window kept open: the engines' own stop
   // closes it, and the late "close" event would then stop the new tune too.
   // Unconditional: a tune that is still starting (status "stopped") must be
@@ -40447,6 +40480,7 @@ function _sidPlayerSyncButton() {
   btn.setAttribute("aria-pressed", String(open));
 }
 function _sidPlayerShow() {
+  if (!_vaFullAllowed()) return;
   const dlg = document.getElementById("websid-play-dialog");
   if (!dlg) return;
   const note = document.getElementById("websid-play-note");
@@ -40610,8 +40644,8 @@ function _sidExternalCoreStop(keepDialog = false) {
   _sidExternalCore = null;
   state.active = false;
   if (state.timer) clearInterval(state.timer);
-  _sidPreviewSources.forEach(function(src){ try { src.stop(); } catch (_) {} });
-  _sidPreviewSources.clear();
+  _sidExtSources.forEach(function(src){ try { src.stop(); } catch (_) {} });
+  _sidExtSources.clear();
   if (state.paused && _sidAudio) _sidAudio.resume();
   if (!keepDialog) _webSidHideExternalDialog();
   // released at once: a render still in flight finishes on its own session
@@ -40652,7 +40686,7 @@ async function _vaSidPlayFileBytes(bytes, filename, song = 0) {
         state.renderedMs += state.skipMs + pcm.length * 1000 / ac.sampleRate;
         state.skipMs = 0;
         state.nextTime = Math.max(state.nextTime, ac.currentTime + 0.02);
-        _sidPlayBuffer(pcm, state.nextTime);
+        _sidPlayBuffer(pcm, state.nextTime, _sidExtSources);
         state.nextTime += pcm.length / ac.sampleRate;
         // A Web Audio szál előre ütemezett hangja UI-terhelés alatt is tovább szól.
       } while (state.active && !state.paused && (!state.seeking || force) && state.nextTime - ac.currentTime < aheadTarget);
@@ -40692,8 +40726,8 @@ async function _vaSidSeek(state, targetMs) {
   try {
     while (state.busy) await state.queue.catch(function() {});
     if (!state.active) return;
-    _sidPreviewSources.forEach(function(src){ try { src.stop(); } catch (_) {} });
-    _sidPreviewSources.clear();
+    _sidExtSources.forEach(function(src){ try { src.stop(); } catch (_) {} });
+    _sidExtSources.clear();
     if (targetMs >= state.renderedMs) {
       state.skipMs = Math.round(targetMs - state.renderedMs);
     } else {
@@ -41248,7 +41282,7 @@ function _sidRenderEngine(e, frames, sr, hook) {
   return out;
 }
 
-function _sidPlayBuffer(data, when) {
+function _sidPlayBuffer(data, when, sources = _sidPreviewSources) {
   const ac = _sidEnsureAudio();
   const buf = ac.createBuffer(1, Math.max(1, data.length), ac.sampleRate);
   buf.copyToChannel(data, 0);
@@ -41256,8 +41290,8 @@ function _sidPlayBuffer(data, when) {
   src.buffer = buf;
   src.connect(_sidMasterGain || ac.destination);
   src.start(Math.max(ac.currentTime, when));
-  _sidPreviewSources.add(src);
-  src.onended = function() { _sidPreviewSources.delete(src); };
+  sources.add(src);
+  src.onended = function() { sources.delete(src); };
   return src;
 }
 
@@ -41423,6 +41457,307 @@ function _sidDeserialize(src) {
   _sidSyncPlayModeSel();
   _sidBuildInstSel(); _sidLoadInstUI(); _sidBuildPatSel(); _sidBuildSongList(); _sidBuildTracker();
 }
+/* ── GoatTracker 2 (.sng, GTS3–GTS5) import ─────────────────────────────────
+ * Lossy conversion to the editor's model. The per-channel order lists (with
+ * transpose and repeat) are flattened into one 3-voice row stream, cut into
+ * 32-row patterns (identical ones shared) and listed in the song. Instruments:
+ * AD/SR, first wave, gate timer / hard restart; the wavetable becomes the
+ * wave / arpeggio table, the pulse table PWM (start, min/max, speed), the
+ * filter table filter mode, resonance and cutoff sweep, the speed table entry
+ * the instrument vibrato. Pattern commands: key off → C, portamento → U/D,
+ * tempo → F, toneporta → a plain note; the rest are dropped and counted. A gate
+ * released by the wavetable becomes a C on the next free row. Returns null
+ * for a file that is not a GoatTracker song. */
+function _sidGoatImport(bytes) {
+  const b = bytes || [];
+  const id = String.fromCharCode(b[0], b[1], b[2], b[3]);
+  if (!/^GTS[345]$/.test(id)) return null;
+  let p = 4;
+  const r8 = function() { if (p >= b.length) throw new Error("eof"); return b[p++]; };
+  const str = function(n) {
+    let s = "";
+    for (let k = 0; k < n; k++) { const c = r8(); if (c && s.length === k) s += String.fromCharCode(c); }
+    return s.trim();
+  };
+  const signed = function(v) { return v >= 0x80 ? v - 0x100 : v; };
+  try {
+    const name = str(32), author = str(32);
+    str(32);
+    const subtunes = r8();
+    const orders = [];
+    for (let s = 0; s < subtunes; s++) {
+      const ch = [];
+      for (let c = 0; c < 3; c++) { const n = r8(); const o = []; for (let k = 0; k <= n; k++) o.push(r8()); ch.push(o); }
+      orders.push(ch);
+    }
+    const gi = [];
+    const ni = r8();
+    for (let i = 0; i < ni; i++) {
+      gi.push({ ad: r8(), sr: r8(), wp: r8(), pp: r8(), fp: r8(), sp: r8(), vd: r8(), gt: r8(), fw: r8(), name: str(16) });
+    }
+    const tl = [], tr = [];
+    for (let tb = 0; tb < 4; tb++) {
+      const n = r8(), l = [], rr = [];
+      for (let k = 0; k < n; k++) l.push(r8());
+      for (let k = 0; k < n; k++) rr.push(r8());
+      tl.push(l); tr.push(rr);
+    }
+    const gp = [];
+    const np = r8();
+    for (let i = 0; i < np; i++) {
+      const len = r8(), rows = [];
+      for (let k = 0; k < len; k++) {
+        const row = [r8(), r8(), r8(), r8()];
+        if (row[0] !== 0xFF) rows.push(row);
+      }
+      gp.push(rows);
+    }
+    if (!orders.length) return null;
+
+    const skipped = {};
+    const skip = function(key) { skipped[key] = (skipped[key] || 0) + 1; };
+    const CMD_NAMES = ["", "1xx portamento up", "2xx portamento down", "3xx toneporta", "4xx vibrato", "5xx set AD",
+      "6xx set SR", "7xx set wave", "8xx wavetable ptr", "9xx pulsetable ptr", "Axx filtertable ptr", "Bxx filter control",
+      "Cxx cutoff", "Dxx master volume", "Exx funktempo", "Fxx tempo"];
+    const ft = _sidFreqTables();
+    const tempo0 = 6;
+
+    // ── instruments ──
+    const insts = gi.map(function(g, i) {
+      const ins = _sidNewInst(g.name || ("GT " + String(i + 1).padStart(2, "0")));
+      ins.a = g.ad >> 4; ins.d = g.ad & 15; ins.s = g.sr >> 4; ins.r = g.sr & 15;
+      ins.firstWave = g.fw >= 0xFE ? 0 : g.fw;
+      ins.gateTimer = (g.gt & 0x40) ? 0 : Math.min(15, g.gt & 0x3F);
+      ins.hr = ins.gateTimer > 0 && !(g.gt & 0x80);
+      ins.vol = 15;
+      // wavetable → table steps (one step per frame)
+      const W = 0, steps = [], seen = {};
+      let ptr = g.wp, loop = -1, prev = { w: 0, n: 0, abs: false }, gateOff = -1, guard = 0;
+      while (ptr && ptr <= tl[W].length && steps.length < 31 && guard++ < 512) {
+        const L = tl[W][ptr - 1], R = tr[W][ptr - 1];
+        if (L === 0xFF) { if (!R) break; if (seen[R] !== undefined) { loop = seen[R]; break; } ptr = R; continue; }
+        if (seen[ptr] !== undefined) { loop = seen[ptr]; break; }
+        seen[ptr] = steps.length;
+        ptr++;
+        if (L >= 0xF0) continue;
+        let n = prev.n, abs = prev.abs;
+        if (R !== 0x80) {
+          if (R > 0x80) { n = R & 0x7F; abs = true; } else { n = R >= 0x60 ? R - 0x80 : R; abs = false; }
+        }
+        if (L >= 0x01 && L <= 0x0F) {
+          for (let k = 0; k < L && steps.length < 31; k++) steps.push({ w: 0, n: prev.n, abs: prev.abs });
+          prev = { w: 0, n: n, abs: abs };
+        } else if (L >= 0xE0) {
+          prev = { w: 0x08, n: n, abs: abs };
+        } else {
+          prev = { w: L, n: n, abs: abs };
+          if (L >= 0x10 && !(L & 1) && gateOff < 0) gateOff = steps.length;
+        }
+        steps.push(prev);
+      }
+      const wave = steps.find(function(s){ return s.w >= 0x10; });
+      if (wave) {
+        ins.tri = !!(wave.w & 0x10); ins.saw = !!(wave.w & 0x20); ins.pul = !!(wave.w & 0x40); ins.noi = !!(wave.w & 0x80);
+        ins.ring = !!(wave.w & 0x04); ins.sync = !!(wave.w & 0x02);
+      }
+      // the editor applies step 0 on the note's first frame (first wave); GoatTracker one frame later
+      if (steps.length) steps.unshift(Object.assign({}, steps[0]));
+      const plain = steps.every(function(s){ return (!s.w || (s.w & 0xFE) === (wave ? wave.w & 0xFE : 0)) && !s.abs && !s.n; });
+      ins.table = plain ? [] : steps;
+      ins.tableLoop = plain || loop < 0 ? -1 : loop + 1;
+      ins.tableSpeed = 1;
+      ins._gateOffFrame = gateOff < 0 ? -1 : gateOff + 1;
+      // pulse table → start width + PWM range / speed
+      if (g.pp) {
+        let pt = g.pp, pw = -1, time = 0, lo = 4095, hi = 0, mods = 0, speedSum = 0, frames = 0, start = -1;
+        for (let f = 0; f < 600 && pt && pt <= tl[1].length; f++) {
+          if (tl[1][pt - 1] === 0xFF) { pt = tr[1][pt - 1]; if (!pt) break; }
+          const L = tl[1][pt - 1], R = tr[1][pt - 1];
+          if (!time) {
+            if (L >= 0x80) { pw = ((L & 15) << 8) | R; pt++; }
+            else { time = L; }
+          }
+          if (time) {
+            if (pw < 0) pw = 0x800;
+            pw = (pw + signed(R)) & 0xFFF;
+            mods++; speedSum += Math.abs(signed(R));
+            if (!--time) pt++;
+          }
+          if (pw >= 0) { if (start < 0) start = pw; lo = Math.min(lo, pw); hi = Math.max(hi, pw); }
+          frames++;
+        }
+        if (start >= 0) ins.pw = start;
+        if (mods) {
+          ins.pwmSpeed = Math.min(255, Math.max(1, Math.round(speedSum / mods)));
+          ins.pwmMin = Math.max(0x80, lo); ins.pwmMax = Math.min(0xF80, hi);
+          if (ins.pwmMax <= ins.pwmMin) ins.pwmSpeed = 0;
+        }
+      }
+      // filter table → mode, resonance, cutoff (+ sweep)
+      if (g.fp) {
+        let pt = g.fp, time = 0, cut = -1, first = -1, up = false, down = false, mods = 0, speedSum = 0;
+        for (let f = 0; f < 600 && pt && pt <= tl[2].length; f++) {
+          if (tl[2][pt - 1] === 0xFF) { pt = tr[2][pt - 1]; if (!pt) break; }
+          const L = tl[2][pt - 1], R = tr[2][pt - 1];
+          if (!time) {
+            if (L >= 0x80) {
+              ins.lp = !!(L & 0x10); ins.bp = !!(L & 0x20); ins.hp = !!(L & 0x40);
+              ins.res = R >> 4; ins.filt = true;
+              pt++;
+              if (pt <= tl[2].length && tl[2][pt - 1] === 0x00) { cut = tr[2][pt - 1]; pt++; }
+            } else if (L) time = L;
+            else { cut = R; pt++; }
+          }
+          if (time) {
+            if (cut < 0) cut = 0;
+            const s = signed(R);
+            cut = (cut + s) & 0xFF;
+            mods++; speedSum += Math.abs(s);
+            if (s > 0) up = true; else if (s < 0) down = true;
+            if (!--time) pt++;
+          }
+          if (cut >= 0 && first < 0) first = cut;
+        }
+        if (first >= 0) { ins.cut = first << 3; ins.cutEnd = cut << 3; }
+        if (mods && cut !== first) {
+          ins.cutSpeed = Math.min(127, Math.max(1, Math.round(speedSum / mods * 8)));
+          ins.cutPing = up && down;
+        }
+        if (!ins.lp && !ins.bp && !ins.hp) ins.filt = false;
+      }
+      // speed table entry → instrument vibrato (vibrato delay 0 = off)
+      if (g.sp && g.vd && g.sp <= tl[3].length) {
+        const cmp = tl[3][g.sp - 1], spd = tr[3][g.sp - 1];
+        ins.vibDelay = Math.max(0, g.vd - 1);
+        ins.vibSpeed = Math.max(1, Math.min(15, Math.round((cmp & 0x7F) / 2) || 1));
+        ins.vibDepth = cmp & 0x80 ? Math.min(15, 32 >> Math.min(5, spd)) : Math.min(15, Math.max(1, Math.round(spd * 32 / ft.semi[48])));
+      }
+      return ins;
+    });
+    if (!insts.length) insts.push(_sidNewInst());
+
+    // ── order lists → one row stream per voice ──
+    const MAX_ROWS = 255 * _SID_ROWS;
+    const order = orders[0];
+    const chans = order.map(function(ol) {
+      const end = ol.indexOf(0xFF);
+      const stop = end < 0 ? ol.length : end;
+      const restart = end >= 0 && end + 1 < ol.length ? ol[end + 1] : 0;
+      const entries = [];
+      let trans = 0, k = 0, loopEntry = -1;
+      while (k < stop) {
+        if (loopEntry < 0 && k >= restart) loopEntry = entries.length;
+        let v = ol[k];
+        if (v >= 0xE0 && v < 0xFF) { trans = v - 0xF0; k++; continue; }
+        let rep = 1;
+        if (v >= 0xD0 && v < 0xE0) { rep = v - 0xD0 + 1; k++; v = ol[k]; if (k >= stop) break; }
+        for (let n = 0; n < rep; n++) entries.push({ pat: v, trans: trans });
+        k++;
+      }
+      return { entries: entries, loopEntry: Math.max(0, Math.min(loopEntry, entries.length - 1)) };
+    });
+    const rowsOf = function(ch, limit) {
+      const out = [];
+      let e = 0, guard = 0;
+      while (out.length < limit && ch.entries.length && guard++ < 4096) {
+        const en = ch.entries[e];
+        (gp[en.pat] || []).forEach(function(row){ out.push({ row: row, trans: en.trans }); });
+        e++;
+        if (e >= ch.entries.length) e = ch.loopEntry;
+      }
+      return out;
+    };
+    const natural = chans.map(function(ch) {
+      return ch.entries.reduce(function(sum, en){ return sum + (gp[en.pat] || []).length; }, 0);
+    });
+    const total = Math.min(MAX_ROWS, Math.max.apply(null, natural.concat([1])));
+    const streams = chans.map(function(ch){ return rowsOf(ch, total).slice(0, total); });
+
+    // ── rows → cells ──
+    let tempo = tempo0;
+    const empty = function() { return { note: null, inst: 0, fx: null, fxval: 0 }; };
+    const voices = [0, 1, 2].map(function() { return Array.from({ length: Math.ceil(total / _SID_ROWS) * _SID_ROWS }, empty); });
+    const curInst = [0, 0, 0];
+    for (let r = 0; r < total; r++) {
+      for (let v = 0; v < 3; v++) {
+        const cell = streams[v][r];
+        if (!cell) continue;
+        const note = cell.row[0], gin = cell.row[1], cmd = cell.row[2], val = cell.row[3];
+        if (gin && gin <= insts.length) curInst[v] = gin - 1;
+        const out = voices[v][r];
+        if (note >= 0x60 && note <= 0xBC) {
+          out.note = Math.max(0, Math.min(95, note - 0x60 + cell.trans));
+          out.inst = curInst[v];
+          const gOff = insts[curInst[v]]._gateOffFrame;
+          if (gOff >= 0 && cmd !== 3) {
+            const at = r + Math.max(1, Math.ceil(gOff / Math.max(1, tempo)));
+            const next = streams[v][at];
+            const busy = function(c) { return !!c && ((c.row[0] >= 0x60 && c.row[0] <= 0xBC) || c.row[0] === 0xBE); };
+            let free = at < total && !busy(next);
+            for (let k = r + 1; free && k < at; k++) { if (busy(streams[v][k])) free = false; }
+            if (free) voices[v][at]._cut = true;
+          }
+        } else if (note === 0xBE) {
+          out.fx = "C";
+        }
+        if (cmd === 1 || cmd === 2) {
+          const sp = val && val <= tl[3].length ? (tl[3][val - 1] << 8) | tr[3][val - 1] : 0;
+          // GoatTracker slides every frame of the row, the editor once per row
+          if (sp && !out.fx) { out.fx = cmd === 1 ? "U" : "D"; out.fxval = Math.min(255, sp * tempo); }
+          if (sp * tempo > 255) skip(CMD_NAMES[cmd] + " (clamped)");
+        } else if (cmd === 15) {
+          const tv = val & 0x7F;
+          if (tv >= 2) { tempo = tv; if (!out.fx) { out.fx = "F"; out.fxval = tv; } }
+          else skip(CMD_NAMES[14]);
+        } else if (cmd === 3) {
+          if (out.note != null) skip(CMD_NAMES[3]);
+        } else if (cmd) {
+          skip(CMD_NAMES[cmd]);
+        }
+      }
+    }
+    voices.forEach(function(col) {
+      col.forEach(function(c) { if (c._cut) { if (!c.fx && c.note == null) c.fx = "C"; delete c._cut; } });
+    });
+    insts.forEach(function(ins){ delete ins._gateOffFrame; });
+
+    // ── 32-row patterns, identical ones shared ──
+    const patterns = [], song = [], keys = {};
+    for (let r = 0; r < voices[0].length && song.length < 255; r += _SID_ROWS) {
+      const pat = voices.map(function(col){ return col.slice(r, r + _SID_ROWS); });
+      const key = JSON.stringify(pat);
+      if (keys[key] === undefined) { keys[key] = patterns.length; patterns.push(pat); }
+      song.push(keys[key]);
+    }
+    if (!patterns.length) { patterns.push([0, 1, 2].map(function(){ return Array.from({ length: _SID_ROWS }, empty); })); song.push(0); }
+    if (subtunes > 1) skip("subtunes 2–" + subtunes);
+    return { name: name, author: author, insts: insts.map(_sidInstNorm), patterns: patterns, song: song, speed: tempo0, skipped: skipped };
+  } catch (_) {
+    return null;
+  }
+}
+
+function _sidApplyGoatImport(bytes) {
+  const res = _sidGoatImport(bytes);
+  if (!res) { showViceToast(t("sidGoatInvalid"), true); return false; }
+  _sidStop();
+  _sidInsts = res.insts;
+  _sidPatterns = res.patterns;
+  _sidSong = res.song;
+  _sidSpeed = res.speed;
+  const speedEl = document.getElementById("sid-speed");
+  if (speedEl) speedEl.value = String(_sidSpeed);
+  if (typeof _sidUpdateBpmDisplay === "function") _sidUpdateBpmDisplay();
+  _sidSongPos = 0; _sidSongPlayPos = 0;
+  _sidInst = 0; _sidPat = 0; _sidPlayPat = 0;
+  _sidSyncPlayModeSel();
+  _sidBuildInstSel(); _sidLoadInstUI(); _sidBuildPatSel(); _sidBuildSongList(); _sidBuildTracker();
+  const skipped = Object.keys(res.skipped).map(function(k){ return k + " ×" + res.skipped[k]; });
+  showViceToast(tf("sidGoatImported", { insts: res.insts.length, pats: res.patterns.length, song: res.song.length }) +
+    (skipped.length ? " " + tf("sidGoatSkipped", { list: skipped.join(", ") }) : ""), false);
+  return true;
+}
+
 function _sidExport(kind) {
   if (kind === "asm") return _sidExportAsmPlayable();
   // BASIC DATA dump (unchanged legacy path)
@@ -42666,6 +43001,14 @@ function setupSidEditor() {
   onId("sid-save-bin", "click", function(){ _saveBinFile(_sidSerialize(), "sound.bin"); });
   const sidBinFile = document.getElementById("sid-bin-file");
   onId("sid-load-bin", "click", function(){ if (sidBinFile) sidBinFile.click(); });
+  const sidSngFile = document.getElementById("sid-sng-file");
+  onId("sid-import-goat", "click", function(){ if (sidSngFile) sidSngFile.click(); });
+  if (sidSngFile) sidSngFile.addEventListener("change", function(e){
+    const file = e.target.files && e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(){ _sidApplyGoatImport(new Uint8Array(reader.result)); };
+    reader.readAsArrayBuffer(file); e.target.value = "";
+  });
   if (sidBinFile) sidBinFile.addEventListener("change", function(e){
     const file = e.target.files && e.target.files[0]; if (!file) return;
     const reader = new FileReader();
@@ -43749,4 +44092,136 @@ function _cgWireDialog() {
 // Toolbar button wiring — attach once after DOM ready
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("curve-gen-btn")?.addEventListener("click", _cgOpenDialog);
+  setupLicense();
 });
+
+/* ── License: full / light version ─────────────────────────────────────────
+ * Without a valid email / serial pair (checked by the backend, Ed25519) the
+ * app runs as the light version: the elements below are locked here, and the
+ * backend refuses the build / hardware commands. Without the Tauri backend
+ * (browser preview) the app counts as licensed. */
+var _vaLicense = { licensed: true, email: "", known: false };
+var _VA_FULL_ONLY = ["#sid-editor-btn", "#sprite-editor-btn", "#char-editor-btn", "#charset-canvas-btn",
+  "#hires-editor-btn", "#map-editor-btn", "#level-editor-btn", "#d64-editor-btn", "#curve-gen-btn", "#sid-player-btn",
+  "#save-prg", "#save-d64", "#save-crt", "#build-project", "#run-exomizer-toggle",
+  "#run-ultimate-mode", "#run-ultimate-d64-mode", "#run-kff2-mode"];
+var _VA_FULL_RUN_MODES = ["ultimate", "ultimate-d64", "kff2"];
+var _VA_FREE_LANGUAGES = ["hu", "en"];
+var _VA_FREE_THEMES = ["light", "dark"];
+function _vaFullAllowed() { return !_vaLicense || _vaLicense.licensed; }
+async function _vaLicenseRefresh() {
+  let st = null;
+  try { st = await window.electronAPI?.licenseStatus?.(); } catch (_) { st = null; }
+  _vaLicense = st ? { licensed: !!st.licensed, email: st.email || "", known: true } : { licensed: true, email: "", known: true };
+  _vaLicenseApply();
+}
+function _vaLicenseApply() {
+  if (!_VA_FULL_ONLY) return; // called by applyTranslations before this part of the script ran
+  const light = !_vaFullAllowed();
+  document.body.classList.toggle("va-light", light);
+  const badge = document.getElementById("license-badge");
+  if (badge) {
+    // shown once the backend has answered: no FREEMIUM / PROFESSIONAL flash at startup
+    badge.hidden = !_vaLicense.known;
+    badge.textContent = light ? "FREEMIUM" : "PROFESSIONAL";
+  }
+  _VA_FULL_ONLY.forEach(function(sel) {
+    const el = document.querySelector(sel);
+    if (el) el.classList.toggle("va-locked", light);
+  });
+  if (light) {
+    const player = document.getElementById("websid-play-dialog");
+    if (player?.open) { if (typeof _sidExtStop === "function") _sidExtStop(); player.close(); }
+    if (typeof runMode !== "undefined" && _VA_FULL_RUN_MODES.includes(runMode)) setRunMode("prg");
+    if (typeof exomizerEnabled !== "undefined" && exomizerEnabled) {
+      exomizerEnabled = false;
+      if (runExomizerToggle) runExomizerToggle.checked = false;
+    }
+  }
+  // freemium: Hungarian and English only
+  if (languageSelect) {
+    Array.from(languageSelect.options).forEach(function(o) { o.disabled = light && !_VA_FREE_LANGUAGES.includes(o.value); });
+    if (light && !_VA_FREE_LANGUAGES.includes(currentLanguage)) {
+      languageSelect.value = "en";
+      handleLanguageChange();
+      return;
+    }
+  }
+  // freemium: light and dark themes only
+  document.querySelectorAll(".theme-option").forEach(function(btn) {
+    btn.classList.toggle("va-locked", light && !_VA_FREE_THEMES.includes(btn.dataset.themeOpt));
+  });
+  if (light && !_VA_FREE_THEMES.includes(document.documentElement.dataset.theme || "light")) setTheme("dark");
+  const about = document.getElementById("about-license");
+  if (about) about.textContent = light ? t("licenseLightLabel") : tf("licensedTo", { email: _vaLicense.email || "—" });
+}
+function _vaLicenseSetStatus(text, kind) {
+  const el = document.getElementById("license-status");
+  if (!el) return;
+  el.textContent = text || "";
+  el.classList.toggle("license-status--error", kind === "error");
+  el.classList.toggle("license-status--ok", kind === "ok");
+}
+function _vaLicenseRender(lockedFeature) {
+  const licensed = _vaFullAllowed() && !!_vaLicense.email;
+  const msg = document.getElementById("license-msg");
+  if (msg) msg.textContent = licensed ? tf("licensedTo", { email: _vaLicense.email })
+    : (lockedFeature ? t("licenseLocked") + " " : "") + t("licenseIntro");
+  const deact = document.getElementById("license-deactivate");
+  if (deact) deact.hidden = !licensed;
+  const email = document.getElementById("license-email");
+  if (email && licensed) email.value = _vaLicense.email;
+}
+function _vaOpenLicenseDialog(lockedFeature = false) {
+  const dlg = document.getElementById("license-dialog");
+  if (!dlg) return;
+  document.querySelector(".control-menu")?.removeAttribute("open");
+  _vaLicenseSetStatus("");
+  _vaLicenseRender(lockedFeature);
+  if (!dlg.open) dlg.showModal();
+  const email = document.getElementById("license-email");
+  (email && !email.value ? email : document.getElementById("license-serial"))?.focus();
+}
+async function _vaLicenseActivate() {
+  const email = document.getElementById("license-email")?.value || "";
+  const serial = document.getElementById("license-serial")?.value || "";
+  if (!window.electronAPI?.licenseActivate) return;
+  let res = null;
+  try { res = await window.electronAPI.licenseActivate(email, serial); } catch (_) { res = null; }
+  if (!res || !res.ok) { _vaLicenseSetStatus(t("licenseInvalid"), "error"); return; }
+  _vaLicense = { licensed: true, email: res.email, known: true };
+  _vaLicenseApply();
+  _vaLicenseRender(false);
+  _vaLicenseSetStatus(tf("licenseActivated", { email: res.email }), "ok");
+}
+async function _vaLicenseDeactivate() {
+  if (!await _showConfirm(t("licenseDeactivateConfirm"))) return;
+  try { await window.electronAPI?.licenseDeactivate?.(); } catch (_) {}
+  await _vaLicenseRefresh();
+  const serial = document.getElementById("license-serial");
+  if (serial) serial.value = "";
+  _vaLicenseRender(false);
+  _vaLicenseSetStatus("");
+}
+function setupLicense() {
+  // capture phase: runs before the locked element's own handlers
+  document.addEventListener("click", function(e) {
+    if (_vaFullAllowed()) return;
+    const hit = e.target instanceof Element ? e.target.closest(_VA_FULL_ONLY.join(",")) : null;
+    if (!hit) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    _vaOpenLicenseDialog(true);
+  }, true);
+  document.getElementById("license-btn")?.addEventListener("click", function() { _vaOpenLicenseDialog(false); });
+  document.getElementById("license-badge")?.addEventListener("click", function() { _vaOpenLicenseDialog(false); });
+  document.getElementById("license-activate")?.addEventListener("click", _vaLicenseActivate);
+  document.getElementById("license-deactivate")?.addEventListener("click", _vaLicenseDeactivate);
+  document.getElementById("license-close")?.addEventListener("click", function() { document.getElementById("license-dialog")?.close(); });
+  document.getElementById("license-buy")?.addEventListener("click", function() {
+    const url = "https://www.c64va.tech/";
+    if (window.electronAPI?.openExternal) window.electronAPI.openExternal(url); else window.open(url, "_blank", "noopener");
+  });
+  _vaLicenseRefresh();
+}
+
