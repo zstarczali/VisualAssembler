@@ -11055,3 +11055,24 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-roll-chip { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
 .sid-roll-swatch { width: 11px; height: 11px; border-radius: 2px; flex: 0 0 11px; }
 .sid-roll-help { font-size: 0.68rem; color: var(--muted); text-align: right; max-width: 55%; }
+
+/* Hi-Res editor image import dialog */
+.hg-png-dialog { border: none; padding: 0; background: transparent; color: var(--text); max-width: none; max-height: none; }
+.hg-png-dialog::backdrop { background: rgba(0, 0, 0, 0.45); }
+.hg-png-card { width: min(1060px, 96vw); max-height: 92vh; display: flex; flex-direction: column; background: var(--panel); border: 1px solid var(--panel-border); box-shadow: 0 2px 6px rgba(0,0,0,0.3), 0 16px 40px rgba(0,0,0,0.55); }
+.hg-png-file { font-size: 0.72rem; color: var(--secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.hg-png-body { display: flex; flex-wrap: wrap; gap: 14px; padding: 12px; min-height: 0; overflow: auto; }
+.hg-png-preview { flex: 0 1 640px; display: flex; flex-direction: column; gap: 6px; min-width: 320px; }
+#hg-png-canvas { width: 100%; aspect-ratio: 320 / 200; image-rendering: pixelated; border: 1px solid var(--panel-border); background: #000; }
+.hg-png-status { font-size: 0.72rem; color: var(--secondary); min-height: 1.2em; }
+.hg-png-settings { flex: 1 1 280px; min-width: 260px; display: grid; grid-template-columns: auto minmax(0, 1fr) 40px; gap: 6px 10px; align-items: center; align-content: start; font-size: 0.76rem; }
+.hg-png-settings > label:not(.hg-check) { color: var(--secondary); white-space: nowrap; }
+.hg-png-settings select { height: 28px; min-height: 0; padding: 3px 26px 3px 8px; font-size: 0.76rem; }
+.hg-png-settings input[type="range"] { min-height: 0; height: auto; padding: 0; margin: 0; border: none; box-shadow: none; accent-color: var(--primary); }
+.hg-png-val { font-family: "IBM Plex Mono", monospace; font-size: 0.72rem; color: var(--secondary); text-align: right; }
+.hg-png-sep { grid-column: 1 / -1; border-top: 1px solid var(--panel-border); margin: 2px 0; }
+.hg-png-foot { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--panel-border); }
+.hg-png-credit { flex: 1; font-size: 0.68rem; color: var(--muted); }
+
+/* Hi-Res editor: a picture dragged over the editor */
+.hg-card.hg-dragover { outline: 2px dashed var(--primary); outline-offset: -6px; }

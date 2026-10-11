@@ -1878,6 +1878,7 @@ PRINTABLE CHARACTERS
         <div class="ed-file">
           <button class="ed-file-btn" type="button">Files ▾</button>
           <div class="ed-file-menu" hidden>
+            <button id="hg-import-png" type="button">Image import…</button>
             <button id="hg-import" type="button">Import image / .bin…</button>
             <button id="hg-import-koala" type="button">Import Koala (.koa)…</button>
             <div class="ed-file-sep"></div>
@@ -1949,6 +1950,9 @@ PRINTABLE CHARACTERS
           <button class="hg-btn" id="hg-paste-transparent" type="button" aria-label="Transparent paste">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="4" height="4" rx="0.5" opacity="0.55"/><rect x="6" y="2" width="4" height="4" rx="0.5" opacity="0.25"/><rect x="10" y="2" width="4" height="4" rx="0.5" opacity="0.55"/><rect x="4" y="6" width="4" height="4" rx="0.5" opacity="0.25"/><rect x="8" y="6" width="4" height="4" rx="0.5" opacity="0.55"/><path d="M6 11h4v2.2M8 10l2 2-2 2"/></svg>
           </button>
+          <button class="hg-btn" id="hg-import-image" type="button" aria-label="Image import">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="11" rx="1"/><circle cx="5.5" cy="6" r="1.2"/><path d="M2 12l3.5-3.5 2.5 2.5 2-2 4 3.5"/></svg>
+          </button>
           <button class="hg-btn" id="hg-clear" type="button" aria-label="Clear">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4.5h10M6.2 4.5V3h3.6v1.5M5 4.5l.7 8.5h4.6l.7-8.5"/></svg>
           </button>
@@ -1956,6 +1960,7 @@ PRINTABLE CHARACTERS
         <label class="hg-check" title="Multi-Color mode (160×200)"><input type="checkbox" id="hg-multicolor"> <span id="hg-multicolor-label">Multi-Color</span></label>
         <label class="hg-check" title="Show the character-cell grid (plus the pixel grid from 4× zoom)"><input type="checkbox" id="hg-grid"> <span id="hg-grid-label">Grid</span></label>
         <input type="file" id="hg-koala-file" accept=".koa,.kla,.prg,application/octet-stream" hidden>
+        <input type="file" id="hg-image-file" accept="image/png,image/jpeg,image/webp,image/bmp,image/gif,.png,.jpg,.jpeg,.webp,.bmp,.gif" hidden>
         <input type="file" id="hg-import-file" accept="image/png,image/jpeg,image/jpg,image/webp,image/bmp,.png,.jpg,.jpeg,.webp,.bmp,.bin,.koa,.kla,application/octet-stream" hidden>
       </div>
       <div class="hg-toolbar hg-toolbar--2">
@@ -2507,6 +2512,30 @@ PRINTABLE CHARACTERS
       </div>
       <input id="websid-play-files" type="file" accept=".sid" multiple hidden>
       <input id="websid-play-list-file" type="file" accept=".sidpl" hidden>
+    </div>
+  </dialog>
+
+  <!-- Hi-Res editor: image import with live preview -->
+  <dialog id="hg-png-dialog" class="hg-png-dialog" aria-labelledby="hg-png-title">
+    <div class="hg-png-card">
+      <div class="hg-hdr">
+        <span id="hg-png-title" class="hg-title">Image import</span>
+        <span id="hg-png-file" class="hg-png-file"></span>
+        <button id="hg-png-close" class="hg-xbtn" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="hg-png-body">
+        <div class="hg-png-preview">
+          <canvas id="hg-png-canvas" width="320" height="200"></canvas>
+          <div id="hg-png-status" class="hg-png-status"></div>
+        </div>
+        <div id="hg-png-settings" class="hg-png-settings"></div>
+      </div>
+      <div class="hg-png-foot">
+        <button id="hg-png-reset" class="secondary" type="button">Reset</button>
+        <span id="hg-png-credit" class="hg-png-credit">Conversion after png2c64 by tinic (MIT)</span>
+        <button id="hg-png-cancel" class="secondary" type="button">Cancel</button>
+        <button id="hg-png-apply" class="primary" type="button">Import</button>
+      </div>
     </div>
   </dialog>
 

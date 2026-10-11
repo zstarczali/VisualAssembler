@@ -2366,6 +2366,7 @@ function setupDraggableEditorDialogs() {
     ["numconv-dialog", ".nc-hdr"],
     ["websid-play-dialog", ".websid-play-header"],
     ["hires-editor-dialog", ".hg-hdr"],
+    ["hg-png-dialog", ".hg-hdr"],
     ["sprite-editor-dialog", ".se-hdr"],
     ["sid-editor-dialog", ".sid-hdr"],
     ["curve-gen-dialog", ".cg-hdr"],
@@ -3772,6 +3773,13 @@ function _applyEditorTranslations() {
   // Hires Editor
   setText(".hg-title", t("hgTitle"));
   setText("#hg-import", t("hgImport"));
+  setAttr("#hg-import-image", t("hgPngTitle"));
+  setText("#hg-import-png", t("hgPngTitle") + "…");
+  setText("#hg-png-title", t("hgPngTitle"));
+  setText("#hg-png-reset", t("hgPngReset"));
+  setText("#hg-png-cancel", t("hgPngCancel"));
+  setText("#hg-png-apply", t("hgPngApply"));
+  setText("#hg-png-credit", t("hgPngCredit"));
   setText("#hg-export", t("hgExport"));
   setText("#hg-import-koala", t("hgImportKoala"));
   setText("#hg-export-koala", t("hgExportKoala"));
@@ -37077,6 +37085,416 @@ function _hgHiresFromRGB(rgbAt) {
   }
 }
 
+/* ── Hi-Res editor: image import (converter) ───────────────────────────────
+ * After png2c64 by tinic (MIT, github.com/tinic/png2c64): colours are matched
+ * in OKLab, every 8×8 cell gets its best colours by exhaustive search under
+ * the VIC-II limits (hires: 2 per cell; multicolor: one shared background + 3
+ * per cell), then each pixel is dithered within its cell's colours. The input
+ * is the already scaled RGBA picture (320×200 hires, 160×200 multicolor). */
+const _HG_PNG_PALETTES = {
+  pepto:    [0x000000, 0xFFFFFF, 0x68372B, 0x70A4B2, 0x6F3D86, 0x588D43, 0x352879, 0xB8C76F, 0x6F4F25, 0x433900, 0x9A6759, 0x444444, 0x6C6C6C, 0x9AD284, 0x6C5EB5, 0x959595],
+  colodore: [0x000000, 0xFFFFFF, 0x813338, 0x75CEC8, 0x8E3C97, 0x56AC4D, 0x2E2C9B, 0xEDF171, 0x8E5029, 0x553800, 0xC46C71, 0x4A4A4A, 0x7B7B7B, 0xA9FF9F, 0x706DEB, 0xB2B2B2],
+  vice:     [0x000000, 0xFDFEFC, 0xBE1A24, 0x30E6C6, 0xB41AE2, 0x1FD21E, 0x211BAE, 0xDFF60A, 0xB84104, 0x6A3304, 0xFE4A57, 0x424540, 0x70746F, 0x59FE59, 0x5F53FE, 0xA4A7A2],
+  deekay:   [0x000000, 0xFFFFFF, 0x882000, 0x68D0A8, 0xA838A0, 0x50B818, 0x181090, 0xF0E858, 0xA04800, 0x472B1B, 0xC87870, 0x484848, 0x808080, 0x98FF98, 0x5090D0, 0xB8B8B8],
+  c64wiki:  [0x000000, 0xFFFFFF, 0x880000, 0xAAFFEE, 0xCC44CC, 0x00CC55, 0x0000AA, 0xEEEE77, 0xDD8855, 0x664400, 0xFF7777, 0x333333, 0x777777, 0xAAFF66, 0x0088FF, 0xBBBBBB]
+};
+const _HG_PNG_DITHERS = ["none", "bayer4", "bayer8", "checker", "h2x4", "line2", "fs", "fs-wide", "atkinson", "sierra", "jarvis"];
+const _HG_PNG_DEFAULTS = {
+  palette: "pepto", scale: "smooth", fit: "fit", dither: "checker", strength: 0.7, clamp: 0.1, serpentine: true,
+  brightness: 0, contrast: 1, saturation: 1, hue: 0, gamma: 1, sharpen: 0, blackPoint: 0, whitePoint: 0, matchRange: false
+};
+function _hgOklab(r, g, b) {
+  const lin = function(c) { c /= 255; return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+  const R = lin(r), G = lin(g), B = lin(b);
+  const l = Math.cbrt(0.4122214708 * R + 0.5363325363 * G + 0.0514459929 * B);
+  const m = Math.cbrt(0.2119034982 * R + 0.6806995451 * G + 0.1073969566 * B);
+  const s = Math.cbrt(0.0883024619 * R + 0.2817188376 * G + 0.6299787005 * B);
+  return [0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s,
+          1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s,
+          0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s];
+}
+function _hgPngPaletteLab(name) {
+  return (_HG_PNG_PALETTES[name] || _HG_PNG_PALETTES.pepto).map(function(h) { return _hgOklab(h >> 16, (h >> 8) & 255, h & 255); });
+}
+function _hgBayer(n) {
+  let m = [[0]];
+  while (m.length < n) {
+    const k = m.length, next = [];
+    for (let y = 0; y < 2 * k; y++) {
+      next.push([]);
+      for (let x = 0; x < 2 * k; x++) next[y].push(4 * m[y % k][x % k] + [0, 2, 3, 1][(y >= k ? 2 : 0) + (x >= k ? 1 : 0)]);
+    }
+    m = next;
+  }
+  return function(x, y) { return (m[y % n][x % n] + 0.5) / (n * n); };
+}
+// rgba: Uint8(Clamped)Array of w×h pixels → { multi, bg, pix (indices, w×h) } after preprocessing
+function _hgPngConvert(rgba, w, h, multi, opts) {
+  const o = Object.assign({}, _HG_PNG_DEFAULTS, opts || {});
+  const n = w * h, L = new Float32Array(n), A = new Float32Array(n), B = new Float32Array(n);
+  for (let i = 0; i < n; i++) {
+    const c = _hgOklab(rgba[i * 4], rgba[i * 4 + 1], rgba[i * 4 + 2]);
+    L[i] = c[0]; A[i] = c[1]; B[i] = c[2];
+  }
+  // ── preprocessing (OKLab)
+  if (o.blackPoint > 0 || o.whitePoint > 0) {
+    const sorted = Float32Array.from(L).sort();
+    const lb = sorted[Math.min(n - 1, Math.floor(o.blackPoint * n))];
+    const lw = sorted[Math.max(0, n - 1 - Math.floor(o.whitePoint * n))];
+    if (lw > lb + 1e-3) for (let i = 0; i < n; i++) L[i] = (L[i] - lb) / (lw - lb);
+  }
+  if (o.sharpen) {
+    const src = Float32Array.from(L);
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      let s = 0, k = 0;
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+        const xx = x + dx, yy = y + dy;
+        if (xx >= 0 && yy >= 0 && xx < w && yy < h) { s += src[yy * w + xx]; k++; }
+      }
+      const i = y * w + x;
+      L[i] = src[i] + o.sharpen * (src[i] - s / k);
+    }
+  }
+  const cosH = Math.cos(o.hue * Math.PI / 180), sinH = Math.sin(o.hue * Math.PI / 180);
+  for (let i = 0; i < n; i++) {
+    let l = Math.max(0, Math.min(1, L[i]));
+    if (o.gamma !== 1) l = Math.pow(l, 1 / o.gamma);
+    l = (l - 0.5) * o.contrast + 0.5 + o.brightness;
+    const a = A[i] * o.saturation, b = B[i] * o.saturation;
+    L[i] = l; A[i] = a * cosH - b * sinH; B[i] = a * sinH + b * cosH;
+  }
+  const pal = _hgPngPaletteLab(o.palette);
+  if (o.matchRange) {
+    let lmin = Infinity, lmax = -Infinity, cmax = 0, plmin = Infinity, plmax = -Infinity, pcmax = 0;
+    for (let i = 0; i < n; i++) { lmin = Math.min(lmin, L[i]); lmax = Math.max(lmax, L[i]); cmax = Math.max(cmax, Math.hypot(A[i], B[i])); }
+    pal.forEach(function(p) { plmin = Math.min(plmin, p[0]); plmax = Math.max(plmax, p[0]); pcmax = Math.max(pcmax, Math.hypot(p[1], p[2])); });
+    const ls = lmax > lmin + 1e-3 ? (plmax - plmin) / (lmax - lmin) : 1, cs = cmax > pcmax ? pcmax / cmax : 1;
+    for (let i = 0; i < n; i++) { L[i] = plmin + (L[i] - lmin) * ls; A[i] *= cs; B[i] *= cs; }
+  }
+  // squared OKLab distance of every pixel to every palette colour (the cell search reads it many times)
+  const D = new Float32Array(n * 16);
+  for (let i = 0; i < n; i++) for (let c = 0; c < 16; c++) {
+    const p = pal[c], dl = L[i] - p[0], da = A[i] - p[1], db = B[i] - p[2];
+    D[i * 16 + c] = dl * dl + da * da + db * db;
+  }
+  // ── colours per cell (exhaustive, on the undithered picture)
+  const cw = multi ? 4 : 8, cols = w / cw, rows = h / 8, cells = cols * rows;
+  const cellPix = function(c) {
+    const cx = (c % cols) * cw, cy = Math.floor(c / cols) * 8, out = [];
+    for (let y = 0; y < 8; y++) for (let x = 0; x < cw; x++) out.push((cy + y) * w + cx + x);
+    return out;
+  };
+  const cellCost = function(px, set) {
+    let s = 0;
+    for (let k = 0; k < px.length; k++) {
+      let best = Infinity;
+      const base = px[k] * 16;
+      for (let j = 0; j < set.length; j++) { const d = D[base + set[j]]; if (d < best) best = d; }
+      s += best;
+    }
+    return s;
+  };
+  // the colours a cell's pixels are nearest to, most frequent first
+  const candidates = function(px, exclude, count) {
+    const freq = new Array(16).fill(0);
+    px.forEach(function(i) {
+      let best = 0, bd = Infinity;
+      for (let c = 0; c < 16; c++) { if (c === exclude) continue; const d = D[i * 16 + c]; if (d < bd) { bd = d; best = c; } }
+      freq[best]++;
+    });
+    return freq.map(function(f, c) { return [f, c]; }).filter(function(e) { return e[1] !== exclude; })
+      .sort(function(p, q) { return q[0] - p[0]; }).slice(0, count).map(function(e) { return e[1]; });
+  };
+  const allPix = [];
+  for (let c = 0; c < cells; c++) allPix.push(cellPix(c));
+  const sets = new Array(cells);
+  let bg = 0;
+  if (!multi) {
+    for (let c = 0; c < cells; c++) {
+      let best = null, bc = Infinity;
+      for (let i = 0; i < 16; i++) for (let j = i + 1; j < 16; j++) {
+        const cost = cellCost(allPix[c], [i, j]);
+        if (cost < bc) { bc = cost; best = [i, j]; }
+      }
+      sets[c] = best;
+    }
+  } else {
+    const triples = function(cand) {
+      const out = [];
+      for (let i = 0; i < cand.length; i++) for (let j = i + 1; j < cand.length; j++) for (let k = j + 1; k < cand.length; k++) out.push([cand[i], cand[j], cand[k]]);
+      if (!out.length) out.push(cand.concat([0, 0, 0]).slice(0, 3));
+      return out;
+    };
+    // the shared background: the one that lets the cells fit best (6 candidates per cell)
+    let bestBg = 0, bestTotal = Infinity;
+    for (let b = 0; b < 16; b++) {
+      let total = 0;
+      for (let c = 0; c < cells && total < bestTotal; c++) {
+        let bc = Infinity;
+        triples(candidates(allPix[c], b, 6)).forEach(function(t) { const cost = cellCost(allPix[c], [b].concat(t)); if (cost < bc) bc = cost; });
+        total += bc;
+      }
+      if (total < bestTotal) { bestTotal = total; bestBg = b; }
+    }
+    bg = bestBg;
+    for (let c = 0; c < cells; c++) {
+      let best = null, bc = Infinity;
+      triples(candidates(allPix[c], bg, 8)).forEach(function(t) { const cost = cellCost(allPix[c], [bg].concat(t)); if (cost < bc) { bc = cost; best = [bg].concat(t); } });
+      sets[c] = best;
+    }
+  }
+  // ── pixels: dithered within the cell's colours
+  const pix = new Uint8Array(n);
+  const cellOf = function(x, y) { return Math.floor(y / 8) * cols + Math.floor(x / cw); };
+  const nearest = function(l, a, b, set) {
+    let best = set[0], bd = Infinity;
+    for (let j = 0; j < set.length; j++) {
+      const p = pal[set[j]], d = (l - p[0]) * (l - p[0]) + (a - p[1]) * (a - p[1]) + (b - p[2]) * (b - p[2]);
+      if (d < bd) { bd = d; best = set[j]; }
+    }
+    return best;
+  };
+  const ordered = { bayer4: _hgBayer(4), bayer8: _hgBayer(8),
+    checker: function(x, y) { return (x + y) & 1 ? 0.75 : 0.25; },
+    h2x4: function(x, y) { return ([[0, 4], [6, 2], [1, 5], [7, 3]][y % 4][x % 2] + 0.5) / 8; },
+    line2: function(x, y) { return y & 1 ? 0.75 : 0.25; } }[o.dither];
+  const kernels = {
+    fs: [[1, 0, 7], [-1, 1, 3], [0, 1, 5], [1, 1, 1], 16],
+    "fs-wide": [[1, 0, 5], [-1, 1, 3], [0, 1, 7], [1, 1, 1], 16],
+    atkinson: [[1, 0, 1], [2, 0, 1], [-1, 1, 1], [0, 1, 1], [1, 1, 1], [0, 2, 1], 8],
+    sierra: [[1, 0, 2], [-1, 1, 1], [0, 1, 1], 4],
+    jarvis: [[1, 0, 7], [2, 0, 5], [-2, 1, 3], [-1, 1, 5], [0, 1, 7], [1, 1, 5], [2, 1, 3], [-2, 2, 1], [-1, 2, 3], [0, 2, 5], [1, 2, 3], [2, 2, 1], 48]
+  }[o.dither];
+  if (kernels) {
+    const div = kernels[kernels.length - 1], taps = kernels.slice(0, -1);
+    const eL = new Float32Array(n), eA = new Float32Array(n), eB = new Float32Array(n);
+    const clamp = function(v) { return Math.max(-o.clamp, Math.min(o.clamp, v)); };
+    for (let y = 0; y < h; y++) {
+      const rev = o.serpentine && (y & 1);
+      for (let k = 0; k < w; k++) {
+        const x = rev ? w - 1 - k : k, i = y * w + x;
+        const l = L[i] + eL[i], a = A[i] + eA[i], b = B[i] + eB[i];
+        const c = nearest(l, a, b, sets[cellOf(x, y)]);
+        pix[i] = c;
+        const p = pal[c];
+        const dl = clamp((l - p[0]) * o.strength), da = clamp((a - p[1]) * o.strength), db = clamp((b - p[2]) * o.strength);
+        taps.forEach(function(t) {
+          const xx = x + (rev ? -t[0] : t[0]), yy = y + t[1];
+          if (xx < 0 || xx >= w || yy >= h) return;
+          const j = yy * w + xx, f = t[2] / div;
+          eL[j] += dl * f; eA[j] += da * f; eB[j] += db * f;
+        });
+      }
+    }
+  } else {
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const i = y * w + x, set = sets[cellOf(x, y)];
+      if (ordered) {
+        // the cell's two colours nearest to the pixel, mixed by their distance ratio
+        let c1 = set[0], c2 = set[0], d1 = Infinity, d2 = Infinity;
+        for (let j = 0; j < set.length; j++) {
+          const d = Math.sqrt(D[i * 16 + set[j]]);
+          if (d < d1) { d2 = d1; c2 = c1; d1 = d; c1 = set[j]; } else if (d < d2 && set[j] !== c1) { d2 = d; c2 = set[j]; }
+        }
+        const mix = d1 + d2 > 0 ? d1 / (d1 + d2) : 0;
+        pix[i] = c2 !== c1 && ordered(x, y) < mix * o.strength ? c2 : c1;
+      } else pix[i] = nearest(L[i], A[i], B[i], set);
+    }
+  }
+  return { multi: !!multi, bg: bg, pix: pix, sets: sets, w: w, h: h };
+}
+
+/* ── Hi-Res editor: image import dialog (live preview, png2c64-style settings) ── */
+var _hgPng = { img: null, name: "", opts: null, timer: 0, result: null, seq: 0 };
+const _HG_PNG_FIELDS = [
+  ["mode", "select", ["hires", "multi"]],
+  ["palette", "select", ["pepto", "colodore", "vice", "deekay", "c64wiki"]],
+  ["scale", "select", ["smooth", "pixel"]],
+  ["fit", "select", ["fit", "fill", "stretch"]],
+  ["-"],
+  ["dither", "select", _HG_PNG_DITHERS],
+  ["strength", "range", 0, 2, 0.05],
+  ["clamp", "range", 0.02, 0.5, 0.01],
+  ["serpentine", "check"],
+  ["-"],
+  ["brightness", "range", -0.5, 0.5, 0.01],
+  ["contrast", "range", 0, 2, 0.05],
+  ["saturation", "range", 0, 2, 0.05],
+  ["hue", "range", -180, 180, 1],
+  ["gamma", "range", 0.2, 3, 0.05],
+  ["sharpen", "range", -1, 2, 0.05],
+  ["blackPoint", "range", 0, 0.4, 0.01],
+  ["whitePoint", "range", 0, 0.4, 0.01],
+  ["matchRange", "check"]
+];
+const _HG_PNG_LABELS = {
+  mode: "hgPngMode", palette: "hgPngPalette", scale: "hgPngScale", fit: "hgPngFit", dither: "hgPngDither",
+  strength: "hgPngStrength", clamp: "hgPngClamp", serpentine: "hgPngSerpentine", brightness: "hgPngBrightness",
+  contrast: "hgPngContrast", saturation: "hgPngSaturation", hue: "hgPngHue", gamma: "hgPngGamma",
+  sharpen: "hgPngSharpen", blackPoint: "hgPngBlack", whitePoint: "hgPngWhite", matchRange: "hgPngMatch"
+};
+function _hgPngOptionText(key, value) {
+  const names = { hires: "hgPngHires", multi: "hgPngMulti", smooth: "hgPngSmooth", pixel: "hgPngPixel",
+    stretch: "hgPngStretch", fit: "hgPngFitIn", fill: "hgPngFill" };
+  if (key === "palette") return { pepto: "Pepto", colodore: "Colodore", vice: "VICE", deekay: "Deekay", c64wiki: "C64 Wiki / Godot" }[value] || value;
+  return names[value] ? t(names[value]) : value;
+}
+function _hgPngLoadOpts() {
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem("c64va-hg-png") || "{}") || {}; } catch (_) {}
+  return Object.assign({}, _HG_PNG_DEFAULTS, saved, { mode: _hgMulti ? "multi" : "hires" });
+}
+function _hgPngSaveOpts() {
+  try { localStorage.setItem("c64va-hg-png", JSON.stringify(_hgPng.opts)); } catch (_) {}
+}
+function _hgPngBuildSettings() {
+  const box = document.getElementById("hg-png-settings");
+  if (!box) return;
+  box.innerHTML = "";
+  _HG_PNG_FIELDS.forEach(function(f) {
+    if (f[0] === "-") { const sep = document.createElement("div"); sep.className = "hg-png-sep"; box.appendChild(sep); return; }
+    const key = f[0], id = "hg-png-" + key;
+    const label = document.createElement("label");
+    label.htmlFor = id;
+    label.textContent = t(_HG_PNG_LABELS[key]);
+    let ctl, val = null;
+    if (f[1] === "select") {
+      ctl = document.createElement("select");
+      f[2].forEach(function(v) { const o = document.createElement("option"); o.value = v; o.textContent = _hgPngOptionText(key, v); ctl.appendChild(o); });
+      ctl.value = _hgPng.opts[key];
+      ctl.addEventListener("change", function() { _hgPng.opts[key] = ctl.value; _hgPngChanged(); });
+    } else if (f[1] === "range") {
+      ctl = document.createElement("input");
+      ctl.type = "range"; ctl.min = f[2]; ctl.max = f[3]; ctl.step = f[4]; ctl.value = _hgPng.opts[key];
+      val = document.createElement("span");
+      val.className = "hg-png-val";
+      const show = function() { val.textContent = Number(ctl.value).toFixed(f[4] < 1 ? 2 : 0); };
+      show();
+      ctl.addEventListener("input", function() { _hgPng.opts[key] = Number(ctl.value); show(); _hgPngChanged(); });
+    } else {
+      const wrap = document.createElement("label");
+      wrap.className = "hg-check";
+      ctl = document.createElement("input");
+      ctl.type = "checkbox"; ctl.checked = !!_hgPng.opts[key];
+      ctl.addEventListener("change", function() { _hgPng.opts[key] = ctl.checked; _hgPngChanged(); });
+      wrap.appendChild(ctl);
+      ctl.id = id;
+      box.append(label, wrap, document.createElement("span"));
+      return;
+    }
+    ctl.id = id;
+    box.append(label, ctl, val || document.createElement("span"));
+  });
+}
+// the source picture scaled to the target bitmap (320×200 hires, 160×200 multicolor)
+function _hgPngScaled() {
+  const o = _hgPng.opts, img = _hgPng.img;
+  const W = o.mode === "multi" ? 160 : 320, H = 200;
+  const cv = document.createElement("canvas");
+  cv.width = W; cv.height = H;
+  const ctx = cv.getContext("2d");
+  ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H);
+  ctx.imageSmoothingEnabled = o.scale !== "pixel";
+  ctx.imageSmoothingQuality = "high";
+  const iw = img.width || img.naturalWidth, ih = img.height || img.naturalHeight;
+  // fit / fill work on the displayed 320×200 frame (multicolor pixels are double wide)
+  let dw = 320, dh = 200;
+  if (o.fit !== "stretch") {
+    const s = o.fit === "fit" ? Math.min(320 / iw, 200 / ih) : Math.max(320 / iw, 200 / ih);
+    dw = iw * s; dh = ih * s;
+  }
+  const sx = W / 320;
+  ctx.drawImage(img, (320 - dw) / 2 * sx, (200 - dh) / 2, dw * sx, dh);
+  return ctx.getImageData(0, 0, W, H).data;
+}
+function _hgPngRender() {
+  const r = _hgPng.result, cv = document.getElementById("hg-png-canvas");
+  if (!r || !cv) return;
+  const ctx = cv.getContext("2d"), out = ctx.createImageData(320, 200);
+  const pal = _HG_PNG_PALETTES[_hgPng.opts.palette] || _HG_PNG_PALETTES.pepto;
+  for (let y = 0; y < 200; y++) for (let x = 0; x < 320; x++) {
+    const c = pal[r.pix[y * r.w + (r.multi ? x >> 1 : x)]], i = (y * 320 + x) * 4;
+    out.data[i] = c >> 16; out.data[i + 1] = (c >> 8) & 255; out.data[i + 2] = c & 255; out.data[i + 3] = 255;
+  }
+  ctx.putImageData(out, 0, 0);
+}
+function _hgPngStatus(text) {
+  const el = document.getElementById("hg-png-status");
+  if (el) el.textContent = text || "";
+}
+function _hgPngRun() {
+  if (!_hgPng.img) return;
+  const seq = ++_hgPng.seq;
+  _hgPngStatus(t("hgPngWorking"));
+  // one frame for the status text, then the (synchronous) conversion
+  setTimeout(function() {
+    if (seq !== _hgPng.seq) return;
+    const multi = _hgPng.opts.mode === "multi";
+    _hgPng.result = _hgPngConvert(_hgPngScaled(), multi ? 160 : 320, 200, multi, _hgPng.opts);
+    _hgPngRender();
+    _hgPngStatus(multi ? tf("hgPngBg", { c: _hgPng.result.bg }) : "");
+  }, 16);
+}
+function _hgPngChanged() {
+  _hgPngSaveOpts();
+  clearTimeout(_hgPng.timer);
+  _hgPng.timer = setTimeout(_hgPngRun, 120);
+}
+function _hgPngOpen(img, name) {
+  const dlg = document.getElementById("hg-png-dialog");
+  if (!dlg) { _hgImportImage(img); return; }
+  _hgPng.img = img;
+  _hgPng.name = name || "";
+  _hgPng.result = null;
+  _hgPng.opts = _hgPngLoadOpts();
+  const file = document.getElementById("hg-png-file");
+  if (file) file.textContent = _hgPng.name;
+  _hgPngBuildSettings();
+  dlg._applyPosition?.();
+  if (!dlg.open) dlg.showModal();
+  _hgPngRun();
+}
+function _hgPngApply() {
+  const r = _hgPng.result;
+  if (!r) return;
+  _hgPushUndo();
+  if (r.multi) {
+    _hgMulti = true;
+    _hgPaper = r.bg;
+    _hgUpdatePaperSwatch();
+    _hgPixMC.set(r.pix);
+  } else {
+    _hgMulti = false;
+    for (let c = 0; c < 1000; c++) {
+      const set = r.sets[c], cx = (c % 40) * 8, cy = Math.floor(c / 40) * 8;
+      _hgBgCell[c] = set[0];
+      _hgFgCell[c] = set[1];
+      for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) {
+        const i = (cy + y) * 320 + cx + x;
+        _hgBit[i] = r.pix[i] === set[1] ? 1 : 0;
+      }
+    }
+  }
+  const mc = document.getElementById("hg-multicolor");
+  if (mc) mc.checked = _hgMulti;
+  _hgRenderAll();
+  document.getElementById("hg-png-dialog")?.close();
+}
+function _setupHgPngDialog() {
+  const dlg = document.getElementById("hg-png-dialog");
+  if (!dlg) return;
+  const close = function() { dlg.close(); };
+  document.getElementById("hg-png-close")?.addEventListener("click", close);
+  document.getElementById("hg-png-cancel")?.addEventListener("click", close);
+  document.getElementById("hg-png-apply")?.addEventListener("click", _hgPngApply);
+  document.getElementById("hg-png-reset")?.addEventListener("click", function() {
+    _hgPng.opts = Object.assign({}, _HG_PNG_DEFAULTS, { mode: _hgPng.opts.mode });
+    _hgPngBuildSettings();
+    _hgPngChanged();
+  });
+  dlg.addEventListener("close", function() { _hgPng.seq++; _hgPng.img = null; _hgPng.result = null; });
+}
+
 function _hgImportImage(img) {
   const W = _hgW(), H = _hgH();
   const tmp = document.createElement("canvas");
@@ -37105,14 +37523,13 @@ function _hgIsImageFile(file) {
 function _hgImportImageFile(file) {
   const loadFromObjectUrl = function() {
     const img = new Image();
-    img.onload = function() { _hgImportImage(img); URL.revokeObjectURL(img.src); };
+    img.onload = function() { _hgPngOpen(img, file.name); URL.revokeObjectURL(img.src); };
     img.onerror = function() { URL.revokeObjectURL(img.src); };
     img.src = URL.createObjectURL(file);
   };
   if (window.createImageBitmap) {
     createImageBitmap(file).then(function(bitmap) {
-      _hgImportImage(bitmap);
-      if (bitmap && bitmap.close) bitmap.close();
+      _hgPngOpen(bitmap, file.name);
     }, function() {
       loadFromObjectUrl();
     });
@@ -37344,6 +37761,7 @@ function _hgImportKoala(src) {
 function setupHiresEditor() {
   const dialog = document.getElementById("hires-editor-dialog");
   if (!dialog) return;
+  _setupHgPngDialog();
 
   document.getElementById("hires-editor-btn")?.addEventListener("click", function() {
     document.querySelector(".control-menu")?.removeAttribute("open");
@@ -37492,9 +37910,9 @@ function setupHiresEditor() {
 
   // Import
   const impFile = document.getElementById("hg-import-file");
-  document.getElementById("hg-import")?.addEventListener("click", function() { impFile?.click(); });
-  impFile?.addEventListener("change", function(e) {
-    const file = e.target.files && e.target.files[0];
+  // one entry for the Files menu, the toolbar button, drag and drop and pasted pictures:
+  // a picture opens the import dialog, a .bin / .koa loads directly
+  const importFile = function(file) {
     if (!file) return;
     if (_hgIsBinFile(file) && !_hgIsImageFile(file)) {
       const reader = new FileReader();
@@ -37506,6 +37924,41 @@ function setupHiresEditor() {
     } else {
       _hgImportImageFile(file);
     }
+  };
+  document.getElementById("hg-import")?.addEventListener("click", function() { impFile?.click(); });
+  // the toolbar button and Files → Image import pick pictures only
+  const imgFile = document.getElementById("hg-image-file");
+  document.getElementById("hg-import-image")?.addEventListener("click", function() { imgFile?.click(); });
+  document.getElementById("hg-import-png")?.addEventListener("click", function() { imgFile?.click(); });
+  imgFile?.addEventListener("change", function(e) {
+    const file = e.target.files && e.target.files[0];
+    if (file) _hgImportImageFile(file);
+    e.target.value = "";
+  });
+  const hgCard = dialog.querySelector(".hg-card");
+  hgCard?.addEventListener("dragover", function(e) {
+    if (Array.from(e.dataTransfer?.types || []).includes("Files")) { e.preventDefault(); hgCard.classList.add("hg-dragover"); }
+  });
+  hgCard?.addEventListener("dragleave", function(e) { if (!hgCard.contains(e.relatedTarget)) hgCard.classList.remove("hg-dragover"); });
+  hgCard?.addEventListener("drop", function(e) {
+    const file = e.dataTransfer?.files && e.dataTransfer.files[0];
+    hgCard.classList.remove("hg-dragover");
+    if (!file) return;
+    e.preventDefault();
+    importFile(file);
+  });
+  // a picture on the clipboard (e.g. a screenshot); Ctrl+V of an editor selection is handled on keydown
+  dialog.addEventListener("paste", function(e) {
+    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+    const item = Array.from(e.clipboardData?.items || []).find(function(it) { return it.kind === "file" && it.type.startsWith("image/"); });
+    const file = item && item.getAsFile();
+    if (!file) return;
+    e.preventDefault();
+    _hgImportImageFile(file);
+  });
+  impFile?.addEventListener("change", function(e) {
+    const file = e.target.files && e.target.files[0];
+    importFile(file);
     e.target.value = "";
   });
 
