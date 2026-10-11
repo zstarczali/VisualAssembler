@@ -2432,24 +2432,46 @@ function setupDraggableEditorDialogs() {
       dialog.style.transform = "none";
       dialog.style.left = rect.left + "px";
       dialog.style.top = rect.top + "px";
+      // Measured once: reading the size on every move forced a layout after each
+      // position write. The move itself is a GPU transform (no layout, no repaint
+      // of the big dialog), committed to left / top on release — except when the
+      // dialog holds fixed floating panels (SID Editor tracker / VA-VK / roll):
+      // a transform would carry them along and they would jump back.
+      const floats = dialog.querySelector(".sid-trk-float:not([hidden]), .sid-vkbd-dialog:not([hidden])");
       _editorDialogDrag = {
         dialog,
         dx: e.clientX - rect.left,
-        dy: e.clientY - rect.top
+        dy: e.clientY - rect.top,
+        x0: rect.left, y0: rect.top, x: rect.left, y: rect.top,
+        maxX: Math.max(8, window.innerWidth - rect.width - 8),
+        maxY: Math.max(8, window.innerHeight - rect.height - 8),
+        useTransform: !floats, raf: 0
       };
+      if (!floats) dialog.style.willChange = "transform";
       try { header.setPointerCapture(e.pointerId); } catch(_) {}
       e.preventDefault();
     });
     header.addEventListener("pointermove", function(e) {
-      if (!_editorDialogDrag || _editorDialogDrag.dialog !== dialog) return;
-      const maxX = Math.max(8, window.innerWidth - dialog.offsetWidth - 8);
-      const maxY = Math.max(8, window.innerHeight - dialog.offsetHeight - 8);
-      dialog.style.left = Math.max(8, Math.min(e.clientX - _editorDialogDrag.dx, maxX)) + "px";
-      dialog.style.top = Math.max(8, Math.min(e.clientY - _editorDialogDrag.dy, maxY)) + "px";
+      const d = _editorDialogDrag;
+      if (!d || d.dialog !== dialog) return;
+      d.x = Math.max(8, Math.min(e.clientX - d.dx, d.maxX));
+      d.y = Math.max(8, Math.min(e.clientY - d.dy, d.maxY));
+      if (d.raf) return;
+      d.raf = requestAnimationFrame(function() {
+        d.raf = 0;
+        if (d.useTransform) dialog.style.transform = "translate3d(" + (d.x - d.x0) + "px, " + (d.y - d.y0) + "px, 0)";
+        else { dialog.style.left = d.x + "px"; dialog.style.top = d.y + "px"; }
+      });
     });
     const endDrag = function(e) {
-      if (!_editorDialogDrag || _editorDialogDrag.dialog !== dialog) return;
+      const d = _editorDialogDrag;
+      if (!d || d.dialog !== dialog) return;
       _editorDialogDrag = null;
+      if (d.raf) cancelAnimationFrame(d.raf);
+      dialog.style.left = d.x + "px";
+      dialog.style.top = d.y + "px";
+      dialog.style.transform = "none";
+      dialog.style.willChange = "";
       if (e && e.pointerId != null) { try { header.releasePointerCapture(e.pointerId); } catch(_) {} }
       persistPosition();
     };
@@ -3780,6 +3802,7 @@ function _applyEditorTranslations() {
   setText("#hg-png-cancel", t("hgPngCancel"));
   setText("#hg-png-apply", t("hgPngApply"));
   setText("#hg-png-credit", t("hgPngCredit"));
+  setText("#hg-png-hint", t("hgPngZoomHint"));
   setText("#hg-export", t("hgExport"));
   setText("#hg-import-koala", t("hgImportKoala"));
   setText("#hg-export-koala", t("hgExportKoala"));
@@ -9076,10 +9099,23 @@ function _selectBlockBySourceLine(sourceLine) {
   requestAnimationFrame(() => {
     selectBlockInAsm(target.id);
     const node = programList?.querySelector(`[data-block-id="${target.id}"]`);
-    if (node && typeof node.scrollIntoView === "function") {
-      node.scrollIntoView({ block: "center", behavior: "auto" });
-    }
+    if (node) _scrollIntoContainer(node);
   });
+}
+
+// Centres node in its nearest scrolling ancestor only. scrollIntoView() scrolls
+// every scrollable ancestor, the page too, so on the Expert → Block switch the
+// header (eyebrow, toolbar) slid out of view for a moment.
+function _scrollIntoContainer(node) {
+  let box = node.parentElement;
+  while (box && box !== document.body && box !== document.documentElement) {
+    const oy = getComputedStyle(box).overflowY;
+    if ((oy === "auto" || oy === "scroll") && box.scrollHeight > box.clientHeight) break;
+    box = box.parentElement;
+  }
+  if (!box || box === document.body || box === document.documentElement) return;
+  const br = box.getBoundingClientRect(), nr = node.getBoundingClientRect();
+  box.scrollTop += (nr.top - br.top) - (box.clientHeight - nr.height) / 2;
 }
 
 function _expertSetStatus(text, type) {
@@ -37101,7 +37137,9 @@ const _HG_PNG_PALETTES = {
 const _HG_PNG_DITHERS = ["none", "bayer4", "bayer8", "checker", "h2x4", "line2", "fs", "fs-wide", "atkinson", "sierra", "jarvis"];
 const _HG_PNG_DEFAULTS = {
   palette: "pepto", scale: "smooth", fit: "fit", dither: "checker", strength: 0.7, clamp: 0.1, serpentine: true,
-  brightness: 0, contrast: 1, saturation: 1, hue: 0, gamma: 1, sharpen: 0, blackPoint: 0, whitePoint: 0, matchRange: false
+  brightness: 0, contrast: 1, saturation: 1, hue: 0, gamma: 1, sharpen: 0, blackPoint: 0, whitePoint: 0, matchRange: false,
+  // zoom into the source picture (1 = as fitted) and the pan of its centre, in 320×200 frame pixels
+  zoom: 1, panX: 0, panY: 0
 };
 function _hgOklab(r, g, b) {
   const lin = function(c) { c /= 255; return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
@@ -37311,6 +37349,7 @@ const _HG_PNG_FIELDS = [
   ["palette", "select", ["pepto", "colodore", "vice", "deekay", "c64wiki"]],
   ["scale", "select", ["smooth", "pixel"]],
   ["fit", "select", ["fit", "fill", "stretch"]],
+  ["zoom", "range", 1, 4, 0.05],
   ["-"],
   ["dither", "select", _HG_PNG_DITHERS],
   ["strength", "range", 0, 2, 0.05],
@@ -37331,7 +37370,7 @@ const _HG_PNG_LABELS = {
   mode: "hgPngMode", palette: "hgPngPalette", scale: "hgPngScale", fit: "hgPngFit", dither: "hgPngDither",
   strength: "hgPngStrength", clamp: "hgPngClamp", serpentine: "hgPngSerpentine", brightness: "hgPngBrightness",
   contrast: "hgPngContrast", saturation: "hgPngSaturation", hue: "hgPngHue", gamma: "hgPngGamma",
-  sharpen: "hgPngSharpen", blackPoint: "hgPngBlack", whitePoint: "hgPngWhite", matchRange: "hgPngMatch"
+  sharpen: "hgPngSharpen", blackPoint: "hgPngBlack", whitePoint: "hgPngWhite", matchRange: "hgPngMatch", zoom: "hgPngZoom"
 };
 function _hgPngOptionText(key, value) {
   const names = { hires: "hgPngHires", multi: "hgPngMulti", smooth: "hgPngSmooth", pixel: "hgPngPixel",
@@ -37403,8 +37442,9 @@ function _hgPngScaled() {
     const s = o.fit === "fit" ? Math.min(320 / iw, 200 / ih) : Math.max(320 / iw, 200 / ih);
     dw = iw * s; dh = ih * s;
   }
+  dw *= o.zoom || 1; dh *= o.zoom || 1;
   const sx = W / 320;
-  ctx.drawImage(img, (320 - dw) / 2 * sx, (200 - dh) / 2, dw * sx, dh);
+  ctx.drawImage(img, ((320 - dw) / 2 + (o.panX || 0)) * sx, (200 - dh) / 2 + (o.panY || 0), dw * sx, dh);
   return ctx.getImageData(0, 0, W, H).data;
 }
 function _hgPngRender() {
@@ -37446,7 +37486,8 @@ function _hgPngOpen(img, name) {
   _hgPng.img = img;
   _hgPng.name = name || "";
   _hgPng.result = null;
-  _hgPng.opts = _hgPngLoadOpts();
+  // every picture starts unzoomed and centred
+  _hgPng.opts = Object.assign(_hgPngLoadOpts(), { zoom: 1, panX: 0, panY: 0 });
   const file = document.getElementById("hg-png-file");
   if (file) file.textContent = _hgPng.name;
   _hgPngBuildSettings();
@@ -37493,6 +37534,44 @@ function _setupHgPngDialog() {
     _hgPngChanged();
   });
   dlg.addEventListener("close", function() { _hgPng.seq++; _hgPng.img = null; _hgPng.result = null; });
+  // zoom (wheel, around the cursor) and pan (drag) on the preview
+  const cv = document.getElementById("hg-png-canvas");
+  const frameXY = function(e) {
+    const r = cv.getBoundingClientRect();
+    return { x: (e.clientX - r.left) * 320 / r.width, y: (e.clientY - r.top) * 200 / r.height, k: 320 / r.width };
+  };
+  const setZoom = function(z) {
+    const el = document.getElementById("hg-png-zoom");
+    if (!el) return;
+    el.value = String(z);
+    el.dispatchEvent(new Event("input"));
+  };
+  cv?.addEventListener("wheel", function(e) {
+    if (!_hgPng.img) return;
+    e.preventDefault();
+    const o = _hgPng.opts, p = frameXY(e);
+    const z1 = o.zoom || 1, z2 = Math.max(1, Math.min(4, z1 * (e.deltaY < 0 ? 1.12 : 1 / 1.12)));
+    // the point under the cursor stays where it is
+    o.panX = z2 === 1 ? 0 : p.x - 160 - (p.x - 160 - (o.panX || 0)) * z2 / z1;
+    o.panY = z2 === 1 ? 0 : p.y - 100 - (p.y - 100 - (o.panY || 0)) * z2 / z1;
+    setZoom(Math.round(z2 * 100) / 100);
+  }, { passive: false });
+  let pan = null;
+  cv?.addEventListener("pointerdown", function(e) {
+    if (!_hgPng.img || e.button !== 0) return;
+    pan = { x: e.clientX, y: e.clientY, px: _hgPng.opts.panX || 0, py: _hgPng.opts.panY || 0, k: frameXY(e).k };
+    try { cv.setPointerCapture(e.pointerId); } catch (_) {}
+    cv.classList.add("hg-png-panning");
+  });
+  cv?.addEventListener("pointermove", function(e) {
+    if (!pan) return;
+    _hgPng.opts.panX = pan.px + (e.clientX - pan.x) * pan.k;
+    _hgPng.opts.panY = pan.py + (e.clientY - pan.y) * pan.k;
+    _hgPngChanged();
+  });
+  const endPan = function() { pan = null; cv?.classList.remove("hg-png-panning"); };
+  cv?.addEventListener("pointerup", endPan);
+  cv?.addEventListener("pointercancel", endPan);
 }
 
 function _hgImportImage(img) {
@@ -39129,6 +39208,19 @@ function _sidSetTrackerDetached(on) {
 function _sidPlaceTrackerFloat(x, y) {
   return _sidPlaceFixed(document.getElementById("sid-tracker-float"), x, y);
 }
+// A drag moves a floating panel once per frame (the placement measures the panel);
+// _sidDragFlush applies the last position at once when the drag ends.
+function _sidDragTo(state, el, x, y) {
+  state.tx = x; state.ty = y;
+  if (state.raf) return;
+  state.raf = requestAnimationFrame(function() { state.raf = 0; state.at = _sidPlaceFixed(el, state.tx, state.ty); });
+}
+function _sidDragFlush(state, el) {
+  if (!state || !state.raf) return;
+  cancelAnimationFrame(state.raf);
+  state.raf = 0;
+  state.at = _sidPlaceFixed(el, state.tx, state.ty);
+}
 function _sidPlaceFixed(float, x, y) {
   // a closed dialog has no layout to measure; the open handler places it
   if (!float || float.hidden || !document.getElementById("sid-editor-dialog")?.open) return;
@@ -39166,10 +39258,11 @@ function _sidSetupTrackerFloat() {
   });
   hdr.addEventListener("pointermove", function(e) {
     if (!drag) return;
-    drag.at = _sidPlaceTrackerFloat(e.clientX - drag.dx, e.clientY - drag.dy);
+    _sidDragTo(drag, float, e.clientX - drag.dx, e.clientY - drag.dy);
   });
   const end = function(e) {
     if (!drag) return;
+    _sidDragFlush(drag, float);
     const at = drag.at;
     drag = null;
     if (e && e.pointerId != null) { try { hdr.releasePointerCapture(e.pointerId); } catch (_) {} }
@@ -40308,8 +40401,8 @@ function _sidSetupRoll() {
     try { hdr.setPointerCapture(e.pointerId); } catch (_) {}
     e.preventDefault();
   });
-  hdr.addEventListener("pointermove", function(e) { if (move) move.at = _sidPlaceFixed(roll, e.clientX - move.dx, e.clientY - move.dy); });
-  const endMove = function() { if (move && move.at) _sidRollSave({ left: move.at.x, top: move.at.y }); move = null; };
+  hdr.addEventListener("pointermove", function(e) { if (move) _sidDragTo(move, roll, e.clientX - move.dx, e.clientY - move.dy); });
+  const endMove = function() { _sidDragFlush(move, roll); if (move && move.at) _sidRollSave({ left: move.at.x, top: move.at.y }); move = null; };
   hdr.addEventListener("pointerup", endMove);
   hdr.addEventListener("pointercancel", endMove);
   roll.addEventListener("pointerdown", function() { sizeAtDown = { w: roll.offsetWidth, h: roll.offsetHeight }; });
@@ -43864,10 +43957,11 @@ function setupSidEditor() {
     });
     sidVkbdHdr.addEventListener("pointermove", function(e) {
       if (!_sidVkbdDrag) return;
-      _sidVkbdDrag.at = _sidPlaceFixed(sidVkbdDlg, e.clientX - _sidVkbdDrag.dx, e.clientY - _sidVkbdDrag.dy);
+      _sidDragTo(_sidVkbdDrag, sidVkbdDlg, e.clientX - _sidVkbdDrag.dx, e.clientY - _sidVkbdDrag.dy);
     });
     const endVkbdDrag = function(e) {
       if (!_sidVkbdDrag) return;
+      _sidDragFlush(_sidVkbdDrag, sidVkbdDlg);
       if (_sidVkbdDrag.at) _sidSaveVkbdState({ left: _sidVkbdDrag.at.x, top: _sidVkbdDrag.at.y });
       _sidVkbdDrag = null;
       if (e && e.pointerId != null) { try { sidVkbdHdr.releasePointerCapture(e.pointerId); } catch(_) {} }

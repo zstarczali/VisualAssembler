@@ -11063,7 +11063,10 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .hg-png-file { font-size: 0.72rem; color: var(--secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 .hg-png-body { display: flex; flex-wrap: wrap; gap: 14px; padding: 12px; min-height: 0; overflow: auto; }
 .hg-png-preview { flex: 0 1 640px; display: flex; flex-direction: column; gap: 6px; min-width: 320px; }
-#hg-png-canvas { width: 100%; aspect-ratio: 320 / 200; image-rendering: pixelated; border: 1px solid var(--panel-border); background: #000; }
+#hg-png-canvas { width: 100%; aspect-ratio: 320 / 200; image-rendering: pixelated; border: 1px solid var(--panel-border); background: #000; cursor: grab; touch-action: none; }
+#hg-png-canvas.hg-png-panning { cursor: grabbing; }
+.hg-png-under { display: flex; justify-content: space-between; gap: 10px; }
+.hg-png-hint { font-size: 0.68rem; color: var(--muted); }
 .hg-png-status { font-size: 0.72rem; color: var(--secondary); min-height: 1.2em; }
 .hg-png-settings { flex: 1 1 280px; min-width: 260px; display: grid; grid-template-columns: auto minmax(0, 1fr) 40px; gap: 6px 10px; align-items: center; align-content: start; font-size: 0.76rem; }
 .hg-png-settings > label:not(.hg-check) { color: var(--secondary); white-space: nowrap; }
