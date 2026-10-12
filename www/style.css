@@ -8423,6 +8423,7 @@ html[data-theme="commodore77"] .splash-image {
 }
 .me-export-menu button:hover { background: color-mix(in srgb, var(--secondary) 18%, transparent); }
 .me-tb-right { margin-left: auto; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+#level-editor-dialog .me-tb-right { margin-left: 0; flex-wrap: wrap; }  /* the wrapped second row starts on the left */
 .me-check {
   display: flex;
   align-items: center;
@@ -8869,6 +8870,13 @@ html[data-theme="commodore77"] .splash-image {
 .lv-sidebar { gap: 8px; width: 210px; }
 .lv-sidebar .me-section-lbl { margin-bottom: 0; }
 .lv-charset-info { font-size: 0.68rem; color: var(--secondary); }
+.lv-mem { display: flex; flex-direction: column; gap: 6px; }
+.lv-mem[hidden] { display: none; }
+.lv-mem-info { white-space: pre-line; line-height: 1.45; }
+.lv-color-row { display: grid; grid-template-columns: minmax(0, 1fr) 104px; align-items: center; gap: 6px; font-size: 0.7rem; color: var(--secondary); }
+.lv-color-row > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lv-color-row .lv-select { width: 104px; padding-left: 6px; }
+#lv-mem-addr { width: 70px; font-family: "IBM Plex Mono", monospace; }
 .lv-warning {
   font-size: 0.68rem; line-height: 1.35; color: var(--text);
   padding: 6px 8px; border-radius: 2px;

@@ -13,15 +13,23 @@ Jelenleg: ceruza, vonal, kör, téglalap, tükrözés, eltolás, frame-ek és an
    sprite-határokkal; `.bin` mentés / betöltés frame-enként a sprite-ok sorban (64 bájt
    mindegyik); „Copy bytes” címkézett részeket ad X / Y eltolással; visszavonható méretváltás.
    Teszt: `tests/sprite-metasprite.test.js`.
-2. [ ] **Hires réteg multicolor sprite fölé** — két egymás fölötti sprite (multicolor test +
+2. [x] **Hires réteg multicolor sprite fölé** — két egymás fölötti sprite (multicolor test +
    hires körvonal) átfedésként szerkesztve, exportkor két külön sprite.
-3. [ ] **Hiányzó eszközök** — kitöltés (flood fill), kijelölés + mozgatás, 90°-os forgatás.
-4. [ ] **Tükrözött animáció egy kattintással** — a frame-ekből tükrözött változat új frame-ként.
-5. [ ] **PNG sprite-sheet import** — rácsra osztott képből több frame, az OKLab / dithering
+   *Kész:* „Hires réteg” kapcsoló + Réteg választó (`_spOverlay`, `_spOv`, `_spLayer`); a
+   `.bin` / Copy bytes a test után írja a réteg sprite-jait (`sprite_f1_ov_1`).
+3. [x] **Hiányzó eszközök** — kitöltés (flood fill), kijelölés + mozgatás, 90°-os forgatás.
+   *Kész:* `_spFloodFill`, kijelölés (`_spSel`, `_spLift` / `_spStamp`, nyilak, Delete, Esc),
+   `_spRotate` (kijelölés vagy frame, mindkét irány). Teszt: `tests/sprite-tools.test.js`.
+4. [x] **Tükrözött animáció egy kattintással** — a frame-ekből tükrözött változat új frame-ként.
+5. [x] **PNG sprite-sheet import** — rácsra osztott képből több frame, az OKLab / dithering
    konverterrel (Hi-Res import), a sprite színkorlátaival.
-6. [ ] **Ütközési doboz frame-enként** — téglalap a „valódi” testre; exportkor
+   *Kész:* `#se-sheet-dialog` (`_spSheetConvert`: cella / eltolás / rés / darabszám, OKLab,
+   Bayer vagy Floyd–Steinberg, színek a képből vagy a sprite-ból, csere vagy hozzáfűzés).
+6. [x] **Ütközési doboz frame-enként** — téglalap a „valódi” testre; exportkor
    `x, y, szélesség, magasság` tábla.
-7. [ ] **X / Y nagyítás előnézet** — `$D017` / `$D01D` dupla méret megjelenítése.
+   *Kész:* Hitbox eszköz + panel (`_spHit`, `_spBounds`), Files → Hitbox tábla másolása
+   (`sprite_hit_x/_y/_w/_h`, `SPRITE_FRAMES`).
+7. [x] **X / Y nagyítás előnézet** — `$D017` / `$D01D` dupla méret megjelenítése.
 
 ## Level Editor
 
@@ -37,19 +45,27 @@ görgetésű előnézet, `.bin` mentés, `LEVEL` / `LEVEL_ROW` makrók.
    `LEVEL_OBJ_X_LO/HI`, `Y_LO/HI`, `TYPE`, `PARAM`, `LEVEL_OBJ_COUNT`, `LEVEL_OBJ_T_*`,
    `LEVEL_START_X/Y` — az asm exportban és a `.level` makróban is.
    Teszt: `tests/level-editor.test.js`, `tests/level-macro.test.js`.
-2. [ ] **Karakter-attribútumok** — karakterenként szilárd / létra / veszélyes / gyűjthető,
+2. [x] **Karakter-attribútumok** — karakterenként szilárd / létra / veszélyes / gyűjthető,
    színes rétegként; exportkor 256 bájtos attribútumtábla.
-3. [ ] **Szomszédos képernyők illeszkedése** — figyelmeztetés, ha két szomszédos képernyő
+   *Kész:* `_lvAttr`, attribútum mód; `LEVEL_ATTR` + `LEVEL_ATTR_*` (asm export és `.level`).
+3. [x] **Szomszédos képernyők illeszkedése** — figyelmeztetés, ha két szomszédos képernyő
    széle nem folytatódik, a hibás sorok kiemelésével.
-4. [ ] **Memóriamérleg és tömörítés** — a pálya mérete, elfér-e egy címtől; opcionális
+   *Kész:* „Él-ellenőrzés” (`_lvEdgeIssues`: üres / nem üres vagy szilárd / nem szilárd cellák).
+4. [x] **Memóriamérleg és tömörítés** — a pálya mérete, elfér-e egy címtől; opcionális
    RLE-tömörített export kicsomagoló rutinnal.
-5. [ ] **Képernyőnkénti színek** — háttér / keret / multicolor színek képernyőnként,
+   *Kész:* Memória panel (`_lvMemInfo`, a makró `_levelBuild`-jével), `_lvRle` +
+   `level_unrle` (6502, teszt a mini6502-vel).
+5. [x] **Képernyőnkénti színek** — háttér / keret / multicolor színek képernyőnként,
    görgetéskor a lejátszó váltja őket.
-6. [ ] **„Futtatás VICE-ban”** — kész, joystickkal görgethető tesztprogram a pályából
+   *Kész:* `scr.colors`, pálya kerete (`_lvBorder`); `LEVEL_SCR_BG/BORDER/MC1/MC2`,
+   `LEVEL_BORDER`, `LEVEL_SCR_COLORS`; a VICE-tesztprogram csere után beállítja.
+6. [x] **„Futtatás VICE-ban”** — kész, joystickkal görgethető tesztprogram a pályából
    (a `level-demo` mintájára), azonnali indítással.
+   *Kész:* `_lvRunInVice` (`_lvTestProgramAsm`, a `.level` / `.incbin` blokkba közvetlenül
+   kerülnek a bájtok), kamera a Start objektumnál.
 
 ## Sorrend
 
 1. ~~Sprite Editor — metasprite~~ (kész)
 2. ~~Level Editor — objektumréteg~~ (kész)
-3. a többi pont a fenti sorrendben, egyeztetés szerint
+3. ~~a többi pont~~ (kész)

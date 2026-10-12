@@ -1662,6 +1662,8 @@ INCBIN-szerű blokk, ami **0 byte kódot** generál. A Pálya szerkesztő projek
 | `LEVEL_OBJ_X_LO/HI`, `LEVEL_OBJ_Y_LO/HI`, `LEVEL_OBJ_TYPE`, `LEVEL_OBJ_PARAM` | Objektumtábla (a Pálya szerkesztő objektumrétege): pozíció pálya-pixelben, típus és paraméterbájt, görgetési sorrendben — `LEVEL_OBJ_COUNT` elem (max. 255) |
 | `LEVEL_OBJ_T_START` … `LEVEL_OBJ_T_TRIGGER` | Objektumtípus-számok: START 0, ENEMY 1, ITEM 2, DOOR 3, EXIT 4, TRIGGER 5 |
 | `LEVEL_START_X`, `LEVEL_START_Y` | Az első Kezdőpont objektum pozíciója (csak ha van ilyen a pályán) |
+| `LEVEL_ATTR`, `LEVEL_ATTR_SOLID` … `LEVEL_ATTR_COLLECT` | Karakter-attribútum tábla (screen code-onként egy jelzőbájt; csak ha a pályán van attribútum) és a bitek: 1, 2, 4, 8 |
+| `LEVEL_BORDER`, `LEVEL_SCR_COLORS`, `LEVEL_SCR_BG/BORDER/MC1/MC2` | A pálya kerete; helyenkénti színtáblák (soronként, mint a `LEVEL_SLOT_*`), ha egy képernyőnek saját színei vannak (`LEVEL_SCR_COLORS` = 1) |
 
 Tipikus védelem: `.assert LEVEL_END <= $9200, "level data runs into the code"`.
 
@@ -3732,6 +3734,12 @@ Pixel-szintű bitmap szerkesztő 320×200 hi-res és 160×200 multicolor módokk
 | Animáció előnézet | Play / Stop konfigurálható sebességgel. |
 | Export blokkok | Egy RAWBYTES blokkot szúr be 64 byte-ra igazított címre minden frame-hez, plusz egy sprite pointer beállítást. |
 | Save `.bin` | Frame-enként 64 byte-ot ír (nyers sprite adat kitöltés nélkül). |
+| Kijelölés | **Kijelölés / mozgatás**: húzz ki egy téglalapot, majd belül húzva mozgasd a pixeleket (az üres pixelek átlátszók); a nyilak egy pixellel (multicolorban kettővel) mozgatják, a Delete törli, az Esc elengedi. A **Forgatás 90°** (mindkét irányba) a kijelölést vagy a teljes frame-et fordítja. A kijelölés, tükrözés, tolás és forgatás a testre és a hires rétegre együtt hat. |
+| Hires réteg | A **Hires réteg** minden frame fölé egy második, egyszínű hires sprite-ot tesz — a klasszikus körvonal a multicolor test fölött. A **Réteg** lista választja a szerkesztett réteget; a test szerkesztésekor a réteg halványan látszik. A C64-en külön sprite: kapjon kisebb sorszámot, mint a test. A `.bin` és a **Copy bytes** a test sprite-jai után írja (`sprite_f1_ov_1`). |
+| Tükrözött animáció | Minden frame-ről (és hitboxáról) vízszintesen tükrözött másolatot fűz a végére — egy kattintással a másik irányú járásciklus. |
+| Sprite sheet import | Files → **Sprite sheet import…**: a cella szélessége / magassága, eltolás, rés és frame-szám alapján a képet az aktuális méretű frame-ekre vágja (multicolorban a cella spritonként 12 pixelre skálázódik). A színek a képből jönnek, vagy a sprite sajátjai maradnak; OKLab egyeztetés dithering nélkül, rendezett (Bayer) vagy Floyd–Steinberg ditheringgel. Lecseréli a frame-eket, vagy hozzáfűzi. |
+| Hitbox | A **Hitbox** eszköz frame-enként egy téglalapot húz (szaggatott cián); az oldalsávban **Illesztés**, **Illesztés minden frame-en**, **Másolás minden frame-re** és **Törlés**. A Files → **Hitbox tábla másolása** `sprite_hit_x / _y / _w / _h` táblát ad (frame-enként egy bájt, képernyőpixel a bal felső saroktól); hitbox nélküli frame a pixelei befoglalóját kapja. |
+| X / Y ×2 | Az előnézetet a `$D01D` / `$D017` sprite-nagyítással mutatja. |
 
 ### C64 karakter-ROM böngésző („Char map")
 
@@ -3807,6 +3815,11 @@ Réteges tilemap szerkesztő statikus díszlethez, sprite spawn map-ekhez, ütk�
 | Szerkesztés | A **Szerkesztés a Map Editorban** megnyitja a kijelölt képernyőt a Map Editorban, és visszahozza a változásokat; duplikálás, mozgatás fel/balra vagy le/jobbra, eltávolítás; visszavonás / újra. |
 | Előnézet | Az előnézetet húzva vagy a nyilakkal pixelenként görgethetsz; a **Lejátszás** automatikusan görget (irány, sebesség 1–8, ismétlés), Szóköz = lejátszás / leállítás. A *Határok* jelöli a képernyőhatárokat. |
 | Ellenőrzések | Karakterkészlet-infó, és figyelmeztetés, ha a képernyők eltérő karakterkészletet vagy színeket használnak (a pálya az első képernyő beállításait használja). |
+| Karakter-attribútumok | A **Karakter-attribútumok** gomb az áttekintőt attribútum-festésre váltja: válaszd ki a **Szilárd**, **Létra**, **Veszélyes** vagy **Gyűjthető** jelzőt, kattints egy karakterre, és az adott screen code minden cellája megkapja (vagy elveszíti); húzással több kódra is. Színes rétegként látszanak, és a 256 bájtos `LEVEL_ATTR` táblába kerülnek (`LEVEL_ATTR_SOLID` = 1, `_LADDER` = 2, `_HAZARD` = 4, `_COLLECT` = 8). |
+| Él-ellenőrzés | Pirossal jelöli, ahol a szomszédos képernyők nem folytatódnak: a határ egyik oldala üres (szóköz), a másik nem, vagy csak az egyik oldal szilárd. Az oldalsáv megszámolja az éleket és cellákat. |
+| Színek | **Pálya kerete**, és a kijelölt képernyőhöz **Saját színek** (háttér, keret, multicolor 1 / 2); az előnézet kerete mutatja a keretszínt. Helyenként `LEVEL_SCR_BG / _BORDER / _MC1 / _MC2` táblaként exportálódik (`LEVEL_SCR_COLORS` = 1), ha egy elhelyezett képernyőnek saját színei vannak. |
+| Memória | A `.level` adat mérete egy választott címen (pontosan úgy számolva, ahogy a makró építi), figyelmeztetéssel a BASIC / KERNAL ROM, az I/O terület és a `$0800` alatti memória esetén, plusz a pálya RLE-mérete. Az **RLE exportálása blokkokba / RLE asm másolása** a pályát RLE-tömörítve adja a `level_unrle` kicsomagolóval (`($FB)` → `($FD)`). |
+| Futtatás VICE-ban | A pályából joystickkal görgethető tesztprogramot épít (a `level-demo` scrollere, kód `$C000`-n, pályaadat `$2000`-tól, egyedi karakterkészlet `$2000`-n), és elindítja VICE-ban — a színek a nézet bal felső képernyőjével váltanak, a kamera az első Kezdőpont objektumnál indul. |
 | Objektumok | Az **Objektumréteg** gomb az áttekintőt objektumszerkesztésre váltja: válassz típust (Kezdőpont, Ellenfél, Tárgy, Ajtó, Kijárat, Esemény) és **Param** bájtot (ellenfélfajta, tárgy-azonosító, ajtó célja …), kattintással lerakod, húzással mozgatod (8 px-es rácsra, Shift = szabadon), egy objektumra kattintva kijelölöd és módosíthatod a típusát / paraméterét, a nyilak mozgatják, a Delete törli. Az objektumok a pályapozícióhoz tartoznak, nem egy képernyőhöz. Az oldalsáv listázza, az előnézet mutatja őket, a pályával együtt mentődnek, és görgetési sorrendben (függőlegesen Y, vízszintesen X, rácsban soronként) `LEVEL_OBJ_*` táblaként exportálódnak — az **Asm másolása / Exportálás blokkokba** és a `.level` makró is. |
 
 **Files menü:**

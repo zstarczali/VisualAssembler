@@ -1814,6 +1814,8 @@ An INCBIN-style block that emits **0 bytes of code**. Only the **placed** screen
 | `LEVEL_OBJ_X_LO/HI`, `LEVEL_OBJ_Y_LO/HI`, `LEVEL_OBJ_TYPE`, `LEVEL_OBJ_PARAM` | Object table (Level Editor object layer): position in level pixels, type and parameter byte, in scroll order — `LEVEL_OBJ_COUNT` entries (max 255) |
 | `LEVEL_OBJ_T_START` … `LEVEL_OBJ_T_TRIGGER` | Object type numbers: START 0, ENEMY 1, ITEM 2, DOOR 3, EXIT 4, TRIGGER 5 |
 | `LEVEL_START_X`, `LEVEL_START_Y` | Position of the first Start object (only defined when the level has one) |
+| `LEVEL_ATTR`, `LEVEL_ATTR_SOLID` … `LEVEL_ATTR_COLLECT` | Character attribute table (one flag byte per screen code; only when the level has attributes) and its bits: 1, 2, 4, 8 |
+| `LEVEL_BORDER`, `LEVEL_SCR_COLORS`, `LEVEL_SCR_BG/BORDER/MC1/MC2` | Level border; per-slot colour tables (row-major like `LEVEL_SLOT_*`) when a screen has its own colours (`LEVEL_SCR_COLORS` = 1) |
 
 Typical guard: `.assert LEVEL_END <= $9200, "level data runs into the code"`.
 
@@ -3885,6 +3887,12 @@ Pixel-level bitmap editor with both 320×200 hi-res and 160×200 multicolor mode
 | Animation preview | Play / Stop with configurable speed. |
 | Export blocks | Inserts a RAWBYTES block at a 64-byte-aligned address for every frame, plus a sprite pointer setup. |
 | Save `.bin` | Writes 64 bytes per frame (raw sprite data without padding). |
+| Selection | **Select / move**: drag a rectangle, then drag inside it to move the pixels (empty pixels are transparent); arrow keys move it by one pixel (two in multicolor), Delete clears it, Esc drops it. **Rotate 90°** (both directions) turns the selection, or the whole frame. The selection, flip, shift and rotate act on body and overlay together. |
+| Hi-res overlay | **Hi-res overlay** adds a second, single-colour hi-res sprite over every frame — the classic outline over a multicolor body. The **Layer** list picks the edited layer; the overlay is dimmed while the body is edited. On the C64 it is a separate sprite: give it a lower sprite number than the body. `.bin` and **Copy bytes** write the overlay sprites after the body's (`sprite_f1_ov_1`). |
+| Mirror all | Appends a horizontally mirrored copy of every frame (and its hitbox) — a walk cycle the other way in one click. |
+| Sprite sheet import | Files → **Import sprite sheet…**: cell width / height, offset, gap and frame count cut the picture into frames of the current size (multicolor cells are scaled to 12 pixels per sprite). Colours come from the picture or stay the sprite's own; OKLab matching with no dither, ordered (Bayer) or Floyd–Steinberg dithering. Replaces the frames or appends to them. |
+| Hitbox | The **Hitbox** tool drags a rectangle per frame (dashed cyan); **Fit**, **Fit every frame**, **Copy to every frame** and **Remove** in the side panel. Files → **Copy hitbox table** gives `sprite_hit_x / _y / _w / _h` (one byte per frame, screen pixels from the top left); a frame without a hitbox uses its pixel bounds. |
+| X / Y ×2 | Shows the preview as with `$D01D` / `$D017` sprite expansion. |
 
 ### C64 Character ROM Browser ("Char map")
 
@@ -3960,6 +3968,11 @@ Arranges **Map Editor screens** into one level — a vertical shooter, a car gam
 | Editing | **Edit in Map Editor** opens the selected screen in the Map Editor and brings the changes back; duplicate, move up/left or down/right, remove; undo / redo. |
 | Preview | Drag the preview or use the arrow keys to scroll pixel by pixel; **Play** scrolls automatically (direction, speed 1–8, loop), Space = play / stop. *Borders* marks the screen boundaries. |
 | Checks | Charset info, and a warning when screens use a different charset or colors (the level uses the first screen's settings). |
+| Character attributes | The **Character attributes** button switches the overview to attribute painting: pick **Solid**, **Ladder**, **Hazard** or **Collectible**, click a character and every cell with that screen code gets (or loses) it; drag for more codes. The attributes show as a coloured layer and become the 256-byte `LEVEL_ATTR` table (`LEVEL_ATTR_SOLID` = 1, `_LADDER` = 2, `_HAZARD` = 4, `_COLLECT` = 8). |
+| Edge check | Marks in red where neighbouring screens do not continue: one side of the border empty (space) and the other not, or solid on one side only. The side panel counts the edges and cells. |
+| Colors | **Level border**, and **Own colors for this screen** (background, border, multicolor 1 / 2) for the selected screen; the preview frame shows the border. Exported per slot as `LEVEL_SCR_BG / _BORDER / _MC1 / _MC2` (with `LEVEL_SCR_COLORS` = 1) when a placed screen has its own colours. |
+| Memory | The `.level` data size at a chosen address (computed exactly as the macro builds it), with warnings for the BASIC / KERNAL ROM, the I/O area and memory below `$0800`, and the RLE size of the level. **Export RLE to blocks / Copy RLE asm** gives the level RLE packed with the `level_unrle` unpacker (`($FB)` → `($FD)`). |
+| Run in VICE | Builds a joystick-scrolled test program from the level (the `level-demo` scroller, code at `$C000`, level data from `$2000`, custom charset at `$2000`) and starts it in VICE — screen colours switch with the screen at the top left of the view, the camera starts at the first Start object. |
 | Objects | The **Objects layer** button switches the overview to object editing: pick a type (Start, Enemy, Item, Door, Exit, Trigger) and a **Param** byte (enemy kind, item id, door target …), click to place, drag to move (snapped to 8 px, Shift = free), click an object to select it and change its type / param, arrow keys move it, Delete removes it. Objects belong to the level position, not to a screen. They are listed in the sidebar, shown in the preview, saved with the level and exported in scroll order (vertical by Y, horizontal by X, grid row by row) as `LEVEL_OBJ_*` tables — by **Copy asm / Export to blocks** and by the `.level` macro. |
 
 **Files menu:**

@@ -4,10 +4,8 @@
 //! PSID driver follows VICE's psiddrv (raster IRQ for VBI tunes, CIA 1 timer A
 //! for CIA tunes, so multispeed timer values written by the tune take effect).
 
-mod cpu;
-
+use crate::mos6510::{Bus, Cpu};
 use crate::sid_core::{SidCore, SidModel, NTSC_CLOCK, PAL_CLOCK, VERSION as SID_CORE_VERSION};
-use cpu::{Bus, Cpu};
 
 const PAL_LINES: u16 = 312;
 const PAL_LINE_CYCLES: u16 = 63;
@@ -552,6 +550,8 @@ impl SidFilePlayer {
     }
 
     fn step(&mut self) {
+        self.cpu.poll(&self.machine);
+        let interrupt_ready = self.cpu.interrupt_ready();
         match self.cpu.pc {
             CALL_RETURN if !self.calls.is_empty() => {
                 match self.calls.pop() {
@@ -568,7 +568,7 @@ impl SidFilePlayer {
                         self.leave_driver_irq();
                     }
                 }
-                self.machine.tick(6);
+                self.cpu.idle(&mut self.machine, 6);
             }
             DRIVER_IRQ if self.driver_irq => {
                 if self.play_address != 0 {
@@ -578,27 +578,18 @@ impl SidFilePlayer {
                 } else {
                     self.leave_driver_irq();
                 }
-                self.machine.tick(6);
+                self.cpu.idle(&mut self.machine, 6);
             }
-            IDLE if self.idle && !self.cpu.interrupt_pending(&self.machine) => {
-                // run the chips until an interrupt can be taken (bounded, so
-                // rendering stops close to the requested sample count)
-                let irq_enabled = !self.cpu.interrupt_disabled();
-                self.cpu.observe_nmi(&self.machine);
-                let mut nmi = self.machine.nmi();
+            IDLE if self.idle && !interrupt_ready => {
+                // the CPU waits in the driver: run the machine cycle by cycle
+                // until an interrupt is due (bounded, so rendering stops close
+                // to the requested sample count)
                 for _ in 0..64 {
-                    self.machine.tick(1);
-                    let now = self.machine.nmi();
-                    if now && !nmi {
-                        // leave the rising edge for the CPU to see
-                        return;
-                    }
-                    nmi = now;
-                    if irq_enabled && self.machine.irq() {
+                    self.cpu.idle(&mut self.machine, 1);
+                    if self.cpu.interrupt_ready() {
                         break;
                     }
                 }
-                self.cpu.observe_nmi(&self.machine);
             }
             _ => {
                 self.cpu.step(&mut self.machine);

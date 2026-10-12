@@ -3793,6 +3793,18 @@ function _applyEditorTranslations() {
   setAttr("#lv-attr-mode", t("lvAttrMode"));
   setAttr("#lv-attr-type", t("lvAttrType"));
   setText("#lv-edges-label", t("lvEdges"));
+  setText("#lv-mem-label", t("lvMemory"));
+  setAttr("#lv-run", t("lvRunVice"));
+  setText("#lv-colors-label", t("lvColors"));
+  setText("#lv-own-colors-label", t("lvOwnColors"));
+  setText("#lv-col-bg-label", t("lvColBg"));
+  setText("#lv-col-border-label", t("lvColBorder"));
+  setText("#lv-col-mc1-label", t("lvColMc1"));
+  setText("#lv-col-mc2-label", t("lvColMc2"));
+  setText("#lv-level-border-label", t("lvLevelBorder"));
+  setText("#lv-mem-addr-label", t("lvMemAddr"));
+  setText('[data-lv-export="rle-asm"]', t("lvRleAsm"));
+  setText('[data-lv-export="rle-blocks"]', t("lvRleBlocks"));
   setAttr("#lv-obj-del", t("lvObjDelete"));
   setAttr("#lv-obj-type", t("lvObjType"));
   setText("#lv-obj-param-label", t("lvObjParam"));
@@ -20994,6 +21006,7 @@ function _koalaShowBytes(addr) {
      LEVEL_OBJ_X_LO/HI, LEVEL_OBJ_Y_LO/HI, LEVEL_OBJ_TYPE, LEVEL_OBJ_PARAM [LEVEL_OBJ_COUNT]
                               objects in level pixels, scroll order (as saved)
      LEVEL_ATTR[code]         character attribute flags (only when the level has any)
+     LEVEL_SCR_BG/BORDER/MC1/MC2[slot]  screen colours (only when a placed screen has its own)
    Rows and columns are 8-bit indices: at most 10 screens tall and 7 wide. */
 const _LEVEL_SCREEN = 2000;
 const _LEVEL_ROW_TABLES = ["LEVEL_SLOT_LO", "LEVEL_SLOT_HI", "LEVEL_ROW_SLOT", "LEVEL_ROW_LO", "LEVEL_ROW_HI",
@@ -21044,7 +21057,16 @@ function _levelBuild(src, addr) {
   const objs = (Array.isArray(ms.objects) ? ms.objects : [])
     .filter(o => o && o.x >= 0 && o.y >= 0 && o.x < cols * 8 && o.y < rows * 8).slice(0, 255);
   const attr = parsed.extras.attr && parsed.extras.attr.some(v => v) ? parsed.extras.attr : null;
-  const size = screens.length * _LEVEL_SCREEN + (slots + 1) * 2 + rows * 5 + nCols * 2 + objs.length * 6 + (attr ? 256 : 0);
+  const lvl = [(ms.bgColor ?? 6) & 15, (ms.borderColor ?? 0) & 15, (ms.mc1Color ?? 5) & 15, (ms.mc2Color ?? 13) & 15];
+  const scrCols = Array.isArray(ms.screenColors) ? ms.screenColors : [];
+  const slotCols = [];
+  for (let s = 0; s < slots; s++) {
+    const own = cells[s] >= 0 && cells[s] < count && Array.isArray(scrCols[cells[s]]) ? scrCols[cells[s]] : null;
+    slotCols.push(own ? own.map(v => v & 15) : (cells[s] >= 0 && cells[s] < count ? lvl : null));
+  }
+  const ownCols = slotCols.some((c, s) => c && c !== lvl);
+  for (let s = 0; s < slots; s++) if (!slotCols[s]) slotCols[s] = lvl;
+  const size = screens.length * _LEVEL_SCREEN + (slots + 1) * 2 + rows * 5 + nCols * 2 + objs.length * 6 + (attr ? 256 : 0) + (ownCols ? slots * 4 : 0);
   if (addr + size > 0x10000) return { ...empty, error: tf("levelMacroTooBig", { size }) };
   const data = new Uint8Array(size);
   screens.forEach((key, i) => {
@@ -21072,6 +21094,9 @@ function _levelBuild(src, addr) {
   table("LEVEL_OBJ_TYPE", objs.length, i => objs[i].t);
   table("LEVEL_OBJ_PARAM", objs.length, i => objs[i].p);
   if (attr) table("LEVEL_ATTR", 256, c => attr[c] || 0);
+  if (ownCols) ["LEVEL_SCR_BG", "LEVEL_SCR_BORDER", "LEVEL_SCR_MC1", "LEVEL_SCR_MC2"].forEach((name, k) => table(name, slots, s => slotCols[s][k]));
+  labels.LEVEL_BORDER = lvl[1];
+  labels.LEVEL_SCR_COLORS = ownCols ? 1 : 0;
   Object.entries(_LEVEL_ATTR_BITS).forEach(([name, bit]) => { labels["LEVEL_ATTR_" + name] = bit; });
   labels.LEVEL_OBJ_COUNT = objs.length;
   _LEVEL_OBJ_TYPES.forEach((name, i) => { labels["LEVEL_OBJ_T_" + name] = i; });
@@ -35525,6 +35550,9 @@ let _lvAttrMode = false;    // the overview paints character attributes
 let _lvAttrBit = 1;
 let _lvAttrDrag = null;     // { set: bool, last: code }
 let _lvEdges = false;       // mark screen edges that do not continue
+let _lvMemAddr = 0x2000;    // where the memory meter places the .level data
+let _lvBorder = 0;          // level border colour; a screen may override it (scr.colors)
+const _LV_SCR_COLOR_KEYS = ["bg", "border", "mc1", "mc2"];
 
 function _lvDefaultSettings() {
   return { multicolor: false, bgColor: 6, mc1Color: 5, mc2Color: 13, charSource: "rom", charset: null, charColors: null };
@@ -35561,6 +35589,7 @@ function _lvNewScreen(name, screen, color, settings) {
     screen: screen || new Uint8Array(_ME_COLS * _ME_ROWS).fill(_ME_EMPTY),
     color: color || new Uint8Array(_ME_COLS * _ME_ROWS).fill(14),
     sig: "",
+    colors: null,   // own { bg, border, mc1, mc2 }, or null = the level's colours
     cache: null
   };
   // The first screen defines the level's charset/colours; a raw .bin without
@@ -35571,6 +35600,11 @@ function _lvNewScreen(name, screen, color, settings) {
   return scr;
 }
 
+// The colours a screen is shown with: its own, or the level's.
+function _lvScreenColors(scr) {
+  const s = _lvSettings || _lvDefaultSettings();
+  return scr && scr.colors ? scr.colors : { bg: s.bgColor, border: _lvBorder, mc1: s.mc1Color, mc2: s.mc2Color };
+}
 function _lvScreenById(id) { return _lvScreens.find(function(s) { return s.id === id; }) || null; }
 function _lvNextName() { return t("lvScreenName") + " " + (_lvScreens.length + 1); }
 
@@ -35750,14 +35784,16 @@ function _lvObjTypeName(type) {
 /* ── Undo ── */
 function _lvSnapshot() {
   return {
-    screens: _lvScreens.map(function(s) { return { id: s.id, name: s.name, screen: s.screen, color: s.color, sig: s.sig }; }),
+    screens: _lvScreens.map(function(s) { return { id: s.id, name: s.name, screen: s.screen, color: s.color, sig: s.sig, colors: s.colors ? Object.assign({}, s.colors) : null }; }),
+    border: _lvBorder,
     layout: _lvLayout, w: _lvW, h: _lvH, cells: _lvCells.slice(0), sel: _lvSel, settings: _lvSettings,
     objects: _lvObjects.map(function(o) { return Object.assign({}, o); }),
     attr: _lvAttr.slice(0)
   };
 }
 function _lvRestore(snap) {
-  _lvScreens = snap.screens.map(function(s) { return Object.assign({ cache: null }, s); });
+  _lvScreens = snap.screens.map(function(s) { return Object.assign({ cache: null }, s, { colors: s.colors ? Object.assign({}, s.colors) : null }); });
+  _lvBorder = snap.border ?? _lvBorder;
   _lvObjects = (snap.objects || []).map(function(o) { return Object.assign({}, o); });
   _lvAttr = snap.attr ? snap.attr.slice(0) : new Uint8Array(256);
   if (_lvObjSel && !_lvObjById(_lvObjSel)) _lvObjSel = null;
@@ -35822,8 +35858,8 @@ function _lvScreenCanvas(scr) {
   cv.width = _LV_SW; cv.height = _LV_SH;
   const ctx = cv.getContext("2d");
   const img = ctx.createImageData(_LV_SW, _LV_SH);
-  const d = img.data, s = _lvSettings;
-  const mcColors = [s.bgColor, s.mc1Color, s.mc2Color, 0];
+  const d = img.data, s = _lvSettings, sc = _lvScreenColors(scr);
+  const mcColors = [sc.bg, sc.mc1, sc.mc2, 0];
   for (let row = 0; row < _ME_ROWS; row++) {
     for (let col = 0; col < _ME_COLS; col++) {
       const i = row * _ME_COLS + col;
@@ -35838,7 +35874,7 @@ function _lvScreenCanvas(scr) {
             const p = py * 8 + (px & 6);
             ci = mcColors[(bits[p] << 1) | bits[p + 1]];
           } else {
-            ci = bits[py * 8 + px] ? c : s.bgColor;
+            ci = bits[py * 8 + px] ? c : sc.bg;
           }
           const rgb = _lvRgb(ci);
           const o = ((row * 8 + py) * _LV_SW + col * 8 + px) * 4;
@@ -35964,6 +36000,8 @@ function _lvRenderPreview() {
     ctx.drawImage(_lvScreenCanvas(scr), ix - x, iy - y, ex - ix, ey - iy, ix - _lvCamX, iy - _lvCamY, ex - ix, ey - iy);
   }
   _lvDrawObjects(ctx, 1, _lvCamX, _lvCamY, 8, false);
+  const top = _lvScreenById(_lvCells[Math.floor(_lvCamY / _LV_SH) * _lvW + Math.floor(_lvCamX / _LV_SW)]);
+  canvas.style.boxShadow = "0 0 0 6px " + _CE_COLORS[_lvScreenColors(top).border & 0x0F];
 }
 
 /* Object markers: a coloured square with the type letter. `scale` maps level
@@ -36068,6 +36106,12 @@ function _lvRenderLibrary() {
       return _lvAttrName(a.bit) + ": " + n;
     }).join(" · ");
   }
+  _lvRenderColorPanel();
+  const mem = document.getElementById("lv-mem-info");
+  if (mem) {
+    mem.textContent = _lvMemInfo();
+    document.getElementById("lv-mem-box")?.toggleAttribute("hidden", !mem.textContent);
+  }
   const cs = document.getElementById("lv-charset-info");
   if (cs && _lvSettings) {
     cs.textContent = (_lvSettings.charSource === "custom" ? t("lvCharsetCustom") : t("lvCharsetRom")) +
@@ -36113,6 +36157,30 @@ function _lvObjSelect(id, reveal) {
     }
   }
   _lvRenderAll();
+}
+
+// Colours of the selected slot's screen (own or the level's) and the level border.
+function _lvRenderColorPanel() {
+  const box = document.getElementById("lv-colors-box");
+  if (!box) return;
+  const scr = _lvSel >= 0 ? _lvScreenById(_lvCells[_lvSel]) : null;
+  const own = document.getElementById("lv-own-colors");
+  if (own) { own.checked = !!(scr && scr.colors); own.disabled = !scr; }
+  const c = _lvScreenColors(scr);
+  _LV_SCR_COLOR_KEYS.forEach(function(k) {
+    const sel = document.getElementById("lv-col-" + k);
+    if (!sel) return;
+    if (!sel.options.length) for (let i = 0; i < 16; i++) sel.add(new Option(i + " · " + _C64_COLORS[i].n, String(i)));
+    sel.value = String(c[k] & 15);
+    sel.disabled = !(scr && scr.colors);
+    sel.style.borderLeft = "10px solid " + _CE_COLORS[c[k] & 15];
+  });
+  const lb = document.getElementById("lv-level-border");
+  if (lb) {
+    if (!lb.options.length) for (let i = 0; i < 16; i++) lb.add(new Option(i + " · " + _C64_COLORS[i].n, String(i)));
+    lb.value = String(_lvBorder);
+    lb.style.borderLeft = "10px solid " + _CE_COLORS[_lvBorder];
+  }
 }
 
 function _lvUpdateStatus() {
@@ -36403,6 +36471,8 @@ function _lvBuildLevelFile() {
       names: _lvScreens.map(function(s) { return s.name; }),
       dir: _lvDir, speed: _lvSpeed, loop: _lvLoop,
       // scroll order, which the LEVEL macro keeps (objects outside the level last)
+      borderColor: _lvBorder,
+      screenColors: _lvScreens.map(function(s) { return s.colors ? _LV_SCR_COLOR_KEYS.map(function(k) { return s.colors[k] & 15; }) : null; }),
       objects: _lvObjSorted(_lvObjects.filter(_lvObjInLevel)).concat(_lvObjects.filter(function(o) { return !_lvObjInLevel(o); }))
         .map(function(o) { return { t: o.type, x: o.x, y: o.y, p: o.param }; }),
       multicolor: st.multicolor, bgColor: st.bgColor, mc1Color: st.mc1Color, mc2Color: st.mc2Color,
@@ -36453,6 +36523,13 @@ function _lvLoadLevelFile(bytes) {
   _lvObjects = (Array.isArray(ms.objects) ? ms.objects : []).map(function(o) { return _lvObjNew(o.t, o.x, o.y, o.p); });
   _lvAttr = new Uint8Array(256);
   if (parsed.extras.attr) _lvAttr.set(parsed.extras.attr.subarray(0, 256));
+  _lvBorder = (ms.borderColor ?? 0) & 15;
+  (Array.isArray(ms.screenColors) ? ms.screenColors : []).forEach(function(c, i) {
+    if (_lvScreens[i] && Array.isArray(c)) {
+      _lvScreens[i].colors = { bg: c[0] & 15, border: c[1] & 15, mc1: c[2] & 15, mc2: c[3] & 15 };
+      _lvScreens[i].cache = null;
+    }
+  });
   _lvObjSel = null;
   _lvSel = _lvSlotCount() ? 0 : -1;
   _lvLibSel = null;
@@ -36535,6 +36612,7 @@ function _lvExportAsm() {
   dump("level_color", d.color);
   lines.push.apply(lines, _lvObjectsAsm());
   lines.push.apply(lines, _lvAttrAsm());
+  lines.push.apply(lines, _lvScrColorsAsm());
   return lines.join("\n") + "\n";
 }
 
@@ -36569,6 +36647,594 @@ function _lvAttrAsm() {
   return lines;
 }
 
+// Per-slot colour tables (row-major, like LEVEL_SLOT_*), only when a placed screen has its own colours.
+function _lvScrColorsAsm() {
+  if (!_lvCells.some(function(id) { const s = _lvScreenById(id); return s && s.colors; })) return [];
+  const lines = ["", "; Screen colours per slot (row-major): background, border, multicolor 1 / 2", ".const LEVEL_BORDER = " + _lvBorder];
+  [["LEVEL_SCR_BG", "bg"], ["LEVEL_SCR_BORDER", "border"], ["LEVEL_SCR_MC1", "mc1"], ["LEVEL_SCR_MC2", "mc2"]].forEach(function(tab) {
+    lines.push(tab[0] + ":");
+    lines.push("    .byte " + _lvCells.map(function(id) { return _lvScreenColors(_lvScreenById(id))[tab[1]] & 15; }).join(", "));
+  });
+  return lines;
+}
+
+/* ── RLE ──
+   Stream: first byte = marker (the least used byte value); then literal bytes,
+   or marker, count (1-255), value for a run; marker, 0 ends the stream. */
+function _lvRle(bytes) {
+  const freq = new Uint32Array(256);
+  for (let i = 0; i < bytes.length; i++) freq[bytes[i]]++;
+  let mark = 0;
+  for (let v = 1; v < 256; v++) if (freq[v] < freq[mark]) mark = v;
+  const out = [mark];
+  for (let i = 0; i < bytes.length;) {
+    const v = bytes[i];
+    let n = 1;
+    while (i + n < bytes.length && bytes[i + n] === v && n < 255) n++;
+    if (n >= 4 || v === mark) out.push(mark, n, v);
+    else for (let k = 0; k < n; k++) out.push(v);
+    i += n;
+  }
+  out.push(mark, 0);
+  return Uint8Array.from(out);
+}
+// The 6502 unpacker: ($FB) = packed stream, ($FD) = destination; A, X, Y destroyed.
+function _lvRleUnpackAsm() {
+  return [
+    "; level_unrle: unpack the RLE stream at ($FB) to ($FD)",
+    "level_unrle:",
+    "    LDY #$00",
+    "    LDA ($FB),Y",
+    "    STA unrle_mark",
+    "    JSR unrle_src",
+    "unrle_loop:",
+    "    LDY #$00",
+    "    LDA ($FB),Y",
+    "    JSR unrle_src",
+    "    CMP unrle_mark",
+    "    BEQ unrle_run",
+    "    STA ($FD),Y",
+    "    JSR unrle_dst",
+    "    JMP unrle_loop",
+    "unrle_run:",
+    "    LDA ($FB),Y",
+    "    BEQ unrle_done",
+    "    TAX",
+    "    JSR unrle_src",
+    "    LDA ($FB),Y",
+    "    JSR unrle_src",
+    "unrle_fill:",
+    "    STA ($FD),Y",
+    "    JSR unrle_dst",
+    "    DEX",
+    "    BNE unrle_fill",
+    "    JMP unrle_loop",
+    "unrle_done:",
+    "    RTS",
+    "unrle_src:",
+    "    INC $FB",
+    "    BNE unrle_src_ok",
+    "    INC $FC",
+    "unrle_src_ok:",
+    "    RTS",
+    "unrle_dst:",
+    "    INC $FD",
+    "    BNE unrle_dst_ok",
+    "    INC $FE",
+    "unrle_dst_ok:",
+    "    RTS",
+    "unrle_mark:",
+    "    .byte $00"
+  ];
+}
+// The level data (scroll order, as Copy asm) RLE packed, with the unpacker.
+function _lvRleAsm() {
+  const d = _lvExportData();
+  if (!d) return "";
+  const hex = function(v) { return "$" + v.toString(16).toUpperCase().padStart(2, "0"); };
+  const scr = _lvRle(d.screen), col = _lvRle(d.color);
+  const lines = [
+    "; Level: " + _lvW + "x" + _lvH + " screens, " + d.cols + "x" + d.rows + " chars, RLE packed (same order as Copy asm)",
+    "; usage: LDA #<level_screen_rle / STA $FB / LDA #>level_screen_rle / STA $FC",
+    ";        LDA #<target / STA $FD / LDA #>target / STA $FE / JSR level_unrle",
+    ".const LEVEL_COLS = " + d.cols,
+    ".const LEVEL_ROWS = " + d.rows,
+    ".const LEVEL_UNPACKED_SIZE = " + d.screen.length
+  ];
+  const dump = function(label, bytes) {
+    lines.push(label + ":");
+    for (let i = 0; i < bytes.length; i += 16) lines.push("    .byte " + Array.from(bytes.subarray(i, i + 16), hex).join(", "));
+  };
+  dump("level_screen_rle", scr);
+  dump("level_color_rle", col);
+  lines.push("");
+  lines.push.apply(lines, _lvRleUnpackAsm());
+  lines.push.apply(lines, _lvObjectsAsm());
+  lines.push.apply(lines, _lvAttrAsm());
+  return lines.join("\n") + "\n";
+}
+
+/* Memory meter: the .level data size (the macro's own build) at _lvMemAddr, the
+   areas it runs into, and the RLE size of the whole level. */
+function _lvMemInfo() {
+  if (!_lvCells.some(Boolean)) return "";
+  const hex4 = function(v) { return "$" + v.toString(16).toUpperCase().padStart(4, "0"); };
+  const out = [];
+  if (typeof _levelBuild === "function") {
+    const info = _levelBuild(_lvBuildLevelFile(), _lvMemAddr);
+    if (!info.ok) out.push("⚠ " + info.error);
+    else {
+      const from = _lvMemAddr, to = _lvMemAddr + info.data.length;
+      out.push(tf("lvMemLevel", { bytes: info.data.length, from: hex4(from), to: hex4(to - 1), screens: info.screens }));
+      const hits = function(a, b) { return from < b && to > a; };
+      if (from < 0x0800) out.push(t("lvMemLow"));
+      if (hits(0xA000, 0xC000)) out.push(t("lvMemRom"));
+      if (hits(0xD000, 0xE000)) out.push(t("lvMemIo"));
+      if (hits(0xE000, 0x10000)) out.push(t("lvMemKernal"));
+    }
+  }
+  const d = _lvExportData();
+  if (d) {
+    const packed = _lvRle(d.screen).length + _lvRle(d.color).length, raw = d.screen.length * 2;
+    out.push(tf("lvMemRle", { packed: packed, raw: raw, pct: Math.round(packed * 100 / raw) }));
+  }
+  return out.join("\n");
+}
+
+/* ── Run in VICE: a joystick-scrolled test program for the level ──
+   The scroller of samples/level-demo.asm (double buffer, XSCROLL / YSCROLL,
+   tear-free char steps), with the code at $C000 and the level data from $2000
+   (a custom charset takes $2000-$27FF, the level then starts at $2800); BASIC
+   is switched off ($01 = $36) so the data may run up to $BFFF. Screen colours
+   follow the screen at the top left of the view; the camera starts at the
+   first Start object, else where the scroll direction begins. */
+function _lvTestProgramAsm(o) {
+  const lvlAddr = o.charset ? 0x2800 : 0x2000;
+  const hex = function(v) { return "$" + v.toString(16).toUpperCase().padStart(2, "0"); };
+  const d018 = o.charset ? [0x18, 0x38] : [0x14, 0x34];
+  const L = [
+    "* = $0801",
+    "; Level test — generated by the Level Editor (Run in VICE). Joystick in port 1 or 2 scrolls.",
+    "    JMP init",
+    "",
+    ".level \"level.bin\", $" + lvlAddr.toString(16).toUpperCase(),
+    ".assert LEVEL_END <= $C000, \"the level is too big for the test program\""
+  ];
+  if (o.charset) L.push("", ".incbin \"charset.bin\", $2000");
+  L.push("",
+    "* = $C000",
+    "init:",
+    "    SEI",
+    "    LDA #$36                     ; BASIC ROM off: the level may lie under it",
+    "    STA $01",
+    "    LDA #LEVEL_BORDER",
+    "    STA $D020",
+    "    LDA #LEVEL_BG",
+    "    STA $D021",
+    "    LDA #LEVEL_MC1",
+    "    STA $D022",
+    "    LDA #LEVEL_MC2",
+    "    STA $D023",
+    "    LDA #$FF",
+    "    STA $DC00",
+    "    LDA #" + hex(o.camX & 255),
+    "    STA camx_lo",
+    "    LDA #" + hex(o.camX >> 8),
+    "    STA camx_hi",
+    "    LDA #" + hex(o.camY & 255),
+    "    STA camy_lo",
+    "    LDA #" + hex(o.camY >> 8),
+    "    STA camy_hi",
+    "    LDA #" + hex(o.camX >> 3),
+    "    STA shx",
+    "    STA view_x",
+    "    LDA #" + hex(o.camY >> 3),
+    "    STA shy",
+    "    STA next_y",
+    "    LDA #$00",
+    "    STA bstate",
+    "    LDA #$04",
+    "    STA back_hi",
+    "    LDA #$00",
+    "    STA build_row",
+    "    LDA #25",
+    "    STA build_end",
+    "    JSR build_rows",
+    "    LDA #$00",
+    "    STA cc_row",
+    "    LDA #25",
+    "    STA cc_end",
+    "    JSR copy_colors",
+    "    LDA #" + hex(d018[0]),
+    "    STA $D018",
+    "    JSR set_fine",
+    "    JSR set_colors",
+    "    LDA #$0C",
+    "    STA back_hi",
+    "    LDA #" + hex(d018[1]),
+    "    STA back_d018",
+    "",
+    "main_loop:",
+    "    LDA do_swap",
+    "    BEQ ml_wait",
+    "    .wait_raster $46",
+    "    LDA #$00",
+    "    STA cc_row",
+    "    LDA #13",
+    "    STA cc_end",
+    "    JSR copy_colors",
+    "ml_wait:",
+    "    .wait_raster $FA",
+    "    LDA do_swap",
+    "    STA swapped",
+    "    LDA #$00",
+    "    STA do_swap",
+    "    LDA swapped",
+    "    BEQ ml_fine",
+    "    LDA back_d018",
+    "    STA $D018",
+    "    JSR set_fine",
+    "    LDA #13",
+    "    STA cc_row",
+    "    LDA #25",
+    "    STA cc_end",
+    "    JSR copy_colors",
+    "    LDA back_hi",
+    "    EOR #$08",
+    "    STA back_hi",
+    "    LDA back_d018",
+    "    EOR #$20",
+    "    STA back_d018",
+    "    LDA tx",
+    "    STA shx",
+    "    LDA ty",
+    "    STA shy",
+    "    JSR set_colors",
+    "    LDA #$00",
+    "    STA bstate",
+    "    JMP frame_work",
+    "ml_fine:",
+    "    JSR set_fine",
+    "frame_work:",
+    "    .joystick 3, vx, vy, fire",
+    "    JSR decide",
+    "    JMP main_loop",
+    "",
+    "; set_colors: the colours of the screen at the top left of the view"
+  );
+  if (o.scrColors) L.push(
+    "set_colors:",
+    "    LDX shy",
+    "    LDA LEVEL_ROW_SLOT,X",
+    "    LDX shx",
+    "    CLC",
+    "    ADC LEVEL_COL_SLOT,X",
+    "    TAX",
+    "    LDA LEVEL_SCR_BG,X",
+    "    STA $D021",
+    "    LDA LEVEL_SCR_BORDER,X",
+    "    STA $D020",
+    "    LDA LEVEL_SCR_MC1,X",
+    "    STA $D022",
+    "    LDA LEVEL_SCR_MC2,X",
+    "    STA $D023",
+    "    RTS");
+  else L.push("set_colors:", "    RTS");
+  L.push("",
+    "decide:",
+    "    JSR load_cam",
+    "    JSR step_xy",
+    "    LDA ncx",
+    "    CMP shx",
+    "    BNE crossing",
+    "    LDA ncy",
+    "    CMP shy",
+    "    BNE crossing",
+    "    JSR store_cam",
+    "    LDA swapped",
+    "    BNE dc_done",
+    "    JSR step_xy",
+    "    LDA ncx",
+    "    CMP shx",
+    "    BNE prepare",
+    "    LDA ncy",
+    "    CMP shy",
+    "    BNE prepare",
+    "    JSR step_xy",
+    "    LDA ncx",
+    "    CMP shx",
+    "    BNE prepare",
+    "    LDA ncy",
+    "    CMP shy",
+    "    BEQ dc_done",
+    "prepare:",
+    "    JMP want_cell",
+    "crossing:",
+    "    LDA bstate",
+    "    CMP #$02",
+    "    BNE cross_build",
+    "    LDA tx",
+    "    CMP ncx",
+    "    BNE cross_build",
+    "    LDA ty",
+    "    CMP ncy",
+    "    BNE cross_build",
+    "    JSR store_cam",
+    "    LDA #$01",
+    "    STA do_swap",
+    "    RTS",
+    "cross_build:",
+    "    LDA swapped",
+    "    BNE dc_done",
+    "    JMP want_cell",
+    "dc_done:",
+    "    RTS",
+    "",
+    "load_cam:",
+    "    LDA camx_lo",
+    "    STA wx_lo",
+    "    LDA camx_hi",
+    "    STA wx_hi",
+    "    LDA camy_lo",
+    "    STA wy_lo",
+    "    LDA camy_hi",
+    "    STA wy_hi",
+    "    RTS",
+    "store_cam:",
+    "    LDA wx_lo",
+    "    STA camx_lo",
+    "    LDA wx_hi",
+    "    STA camx_hi",
+    "    LDA wy_lo",
+    "    STA camy_lo",
+    "    LDA wy_hi",
+    "    STA camy_hi",
+    "    RTS",
+    "",
+    "step_xy:",
+    "    LDA wx_lo",
+    "    STA t_lo",
+    "    LDA wx_hi",
+    "    STA t_hi",
+    "    LDA vx",
+    "    STA t_v",
+    "    LDA #<LEVEL_MAX_X",
+    "    STA max_lo",
+    "    LDA #>LEVEL_MAX_X",
+    "    STA max_hi",
+    "    JSR add_clamp",
+    "    LDA t_lo",
+    "    STA wx_lo",
+    "    LDA t_hi",
+    "    STA wx_hi",
+    "    JSR cell_of_t",
+    "    STA ncx",
+    "    LDA wy_lo",
+    "    STA t_lo",
+    "    LDA wy_hi",
+    "    STA t_hi",
+    "    LDA vy",
+    "    STA t_v",
+    "    LDA #<LEVEL_MAX_Y",
+    "    STA max_lo",
+    "    LDA #>LEVEL_MAX_Y",
+    "    STA max_hi",
+    "    JSR add_clamp",
+    "    LDA t_lo",
+    "    STA wy_lo",
+    "    LDA t_hi",
+    "    STA wy_hi",
+    "    JSR cell_of_t",
+    "    STA ncy",
+    "    RTS",
+    "",
+    "add_clamp:",
+    "    LDA t_v",
+    "    BEQ ac_done",
+    "    BPL ac_pos",
+    "    CLC",
+    "    LDA t_lo",
+    "    ADC t_v",
+    "    STA t_lo",
+    "    LDA t_hi",
+    "    ADC #$FF",
+    "    STA t_hi",
+    "    BPL ac_done",
+    "    LDA #$00",
+    "    STA t_lo",
+    "    STA t_hi",
+    "    RTS",
+    "ac_pos:",
+    "    CLC",
+    "    LDA t_lo",
+    "    ADC t_v",
+    "    STA t_lo",
+    "    LDA t_hi",
+    "    ADC #$00",
+    "    STA t_hi",
+    "    CMP max_hi",
+    "    BCC ac_done",
+    "    BNE ac_set",
+    "    LDA t_lo",
+    "    CMP max_lo",
+    "    BCC ac_done",
+    "ac_set:",
+    "    LDA max_lo",
+    "    STA t_lo",
+    "    LDA max_hi",
+    "    STA t_hi",
+    "ac_done:",
+    "    RTS",
+    "",
+    "cell_of_t:",
+    "    LDA t_hi",
+    "    STA t_v",
+    "    LDA t_lo",
+    "    LSR t_v",
+    "    ROR",
+    "    LSR t_v",
+    "    ROR",
+    "    LSR t_v",
+    "    ROR",
+    "    RTS",
+    "",
+    "set_fine:",
+    "    LDA camx_lo",
+    "    AND #$07",
+    "    EOR #$07",
+    "    ORA #LEVEL_MULTICOLOR*16",
+    "    STA $D016",
+    "    LDA camy_lo",
+    "    AND #$07",
+    "    EOR #$07",
+    "    ORA #$10",
+    "    STA $D011",
+    "    RTS",
+    "",
+    "want_cell:",
+    "    LDA bstate",
+    "    BEQ wc_new",
+    "    LDA tx",
+    "    CMP ncx",
+    "    BNE wc_new",
+    "    LDA ty",
+    "    CMP ncy",
+    "    BNE wc_new",
+    "    LDA bstate",
+    "    CMP #$02",
+    "    BEQ wc_done",
+    "    LDA #13",
+    "    STA build_row",
+    "    LDA #25",
+    "    STA build_end",
+    "    JSR build_rows",
+    "    LDA #$02",
+    "    STA bstate",
+    "    RTS",
+    "wc_new:",
+    "    LDA ncx",
+    "    STA tx",
+    "    STA view_x",
+    "    LDA ncy",
+    "    STA ty",
+    "    STA next_y",
+    "    LDA #$00",
+    "    STA build_row",
+    "    LDA #13",
+    "    STA build_end",
+    "    JSR build_rows",
+    "    LDA #$01",
+    "    STA bstate",
+    "wc_done:",
+    "    RTS",
+    "",
+    "build_rows:",
+    "    LDA build_row",
+    "    CMP build_end",
+    "    LBEQ br_done",
+    "    TAY",
+    "    LDA MUL40_LO,Y",
+    "    STA dst_lo",
+    "    CLC",
+    "    LDA MUL40_HI,Y",
+    "    ADC back_hi",
+    "    STA dst_hi",
+    "    TYA",
+    "    CLC",
+    "    ADC next_y",
+    "    TAX",
+    "    .level_row dst_lo, view_x",
+    "    INC build_row",
+    "    JMP build_rows",
+    "br_done:",
+    "    RTS",
+    "",
+    "copy_colors:",
+    "    LDY cc_row",
+    "    LDA MUL40_LO,Y",
+    "    STA dst_lo",
+    "    CLC",
+    "    LDA MUL40_HI,Y",
+    "    ADC #$D8",
+    "    STA dst_hi",
+    "    TYA",
+    "    CLC",
+    "    ADC next_y",
+    "    TAX",
+    "    .level_row dst_lo, view_x, color",
+    "    INC cc_row",
+    "    LDA cc_row",
+    "    CMP cc_end",
+    "    LBNE copy_colors",
+    "    RTS",
+    "",
+    "MUL40_LO:",
+    "    .byte $00, $28, $50, $78, $A0, $C8, $F0, $18, $40, $68, $90, $B8, $E0",
+    "    .byte $08, $30, $58, $80, $A8, $D0, $F8, $20, $48, $70, $98, $C0",
+    "MUL40_HI:",
+    "    .byte $00, $00, $00, $00, $00, $00, $00, $01, $01, $01, $01, $01, $01",
+    "    .byte $02, $02, $02, $02, $02, $02, $02, $03, $03, $03, $03, $03"
+  );
+  ["camx_lo", "camx_hi", "camy_lo", "camy_hi", "wx_lo", "wx_hi", "wy_lo", "wy_hi", "vx", "vy", "fire", "ncx", "ncy",
+   "shx", "shy", "tx", "ty", "bstate", "do_swap", "swapped", "t_lo", "t_hi", "t_v", "max_lo", "max_hi", "next_y",
+   "view_x", "build_row", "build_end", "back_hi", "back_d018", "cc_row", "cc_end", "dst_lo", "dst_hi"
+  ].forEach(function(name) { L.push(name + ":", "    .byte $00"); });
+  L.push(".assert * <= $D000, \"test program code runs into the I/O area\"");
+  return L.join("\n") + "\n";
+}
+
+// Camera start of the test program: centred on the first Start object, else
+// where the scroll direction begins (bottom for up, right edge for left).
+function _lvTestCamera() {
+  const L = _lvLevelPx(), maxX = L.w - _LV_SW, maxY = L.h - _LV_SH;
+  const start = _lvObjOrdered().find(function(o) { return o.type === 0; });
+  let x = 0, y = 0;
+  if (start) { x = start.x + 4 - (_LV_SW >> 1); y = start.y + 4 - (_LV_SH >> 1); }
+  else { if (_lvDir === "up") y = maxY; if (_lvDir === "left") x = maxX; }
+  return { x: Math.max(0, Math.min(maxX, x)), y: Math.max(0, Math.min(maxY, y)) };
+}
+
+// Program blocks of the test program, with the level (and charset) bytes put
+// straight into the .level / .incbin blocks — no files needed.
+function _lvTestProgramBlocks() {
+  const st = _lvSettings || _lvDefaultSettings();
+  const charset = st.charSource === "custom" && st.charset ? st.charset : null;
+  const cam = _lvTestCamera();
+  const scrColors = _lvCells.some(function(id) { const s = _lvScreenById(id); return s && s.colors; });
+  const blocks = parseExpertText(_lvTestProgramAsm({ charset: !!charset, scrColors: scrColors, camX: cam.x, camY: cam.y }));
+  const levelBytes = Array.from(_lvBuildLevelFile());
+  blocks.forEach(function(b) {
+    if (b.isIncBinMacro && b.incBinLevel) { b.incBinBytes = levelBytes; b.validationError = ""; }
+    else if (b.isIncBinMacro && charset) { b.incBinBytes = Array.from(charset.subarray(0, 2048)); b.validationError = ""; }
+  });
+  return blocks;
+}
+
+async function _lvRunInVice() {
+  if (!_lvCells.some(Boolean)) { _lvFlash(t("lvNothing")); return; }
+  if (!window.electronAPI?.launchVice) { showViceToast(t("viceLaunchIsNotAvailable"), true); return; }
+  if (!vicePath) { showViceToast(t("viceIsNotConfiguredSelectItInTheMenuFirs"), true); return; }
+  const saved = program, savedMacros = userMacros;
+  let prg;
+  try {
+    program = _lvTestProgramBlocks();
+    parseUserMacros();
+    prg = _buildAutostartPrgCore();
+  } finally {
+    program = saved;
+    userMacros = savedMacros;
+  }
+  if (!prg || !prg.ok) {
+    if (prg && prg.errors && prg.errors.length) showCompileErrorDialog(prg.errors);
+    else showViceToast((prg && prg.error) || t("lvRunFailed"), true);
+    return;
+  }
+  const result = await window.electronAPI.launchVice({ bytes: Array.from(prg.bytes), fileName: "level-test-" + Date.now() + ".prg" });
+  if (!result?.ok) { showViceToast(result?.error || t("launchingViceFailed"), true); return; }
+  const parts = (result.filePath || "").replace(/\\/g, "/").split("/");
+  showViceToast(parts[parts.length - 1] || result.filePath);
+}
+
 function _lvFlash(msg) {
   const btn = document.querySelector("#level-editor-dialog .ed-file-btn");
   if (!btn) return;
@@ -36596,6 +37262,13 @@ function _lvExport(kind) {
   if (kind === "asm") {
     navigator.clipboard.writeText(_lvExportAsm()).then(function() { _lvFlash(t("copied")); }).catch(function() {});
   }
+  if (kind === "rle-asm") {
+    navigator.clipboard.writeText(_lvRleAsm()).then(function() { _lvFlash(t("copied")); }).catch(function() {});
+  }
+  if (kind === "rle-blocks") {
+    const n = exportAsmToBlocks(_lvRleAsm());
+    _lvFlash(n > 0 ? tf("lvExportDone", { n: n }) : t("lvNothing"));
+  }
 }
 
 function _lvReset() {
@@ -36604,6 +37277,7 @@ function _lvReset() {
   _lvSel = -1; _lvLibSel = null;
   _lvObjects = []; _lvObjSel = null;
   _lvAttr = new Uint8Array(256);
+  _lvBorder = 0;
   _lvSetSettings(_lvDefaultSettings());
   _lvCamX = _lvCamY = 0;
 }
@@ -36700,6 +37374,7 @@ function setupLevelEditor() {
     _lvPushUndo();
     const scr = _lvNewScreen(src.name + " +", src.screen, src.color, null);
     scr.sig = src.sig;
+    scr.colors = src.colors ? Object.assign({}, src.colors) : null;
     _lvScreens.push(scr);
     _lvLibSel = scr.id;
     _lvPlace(scr.id);
@@ -36763,6 +37438,36 @@ function setupLevelEditor() {
     _lvRenderAll();
   });
   document.getElementById("lv-edges")?.addEventListener("change", function(e) { _lvEdges = !!e.target.checked; _lvRenderAll(); });
+  document.getElementById("lv-own-colors")?.addEventListener("change", function(e) {
+    const scr = _lvSel >= 0 ? _lvScreenById(_lvCells[_lvSel]) : null;
+    if (!scr) return;
+    _lvPushUndo();
+    scr.colors = e.target.checked ? Object.assign({}, _lvScreenColors(null)) : null;
+    scr.cache = null;
+    _lvRenderAll();
+  });
+  ["bg", "border", "mc1", "mc2"].forEach(function(k) {   // _LV_SCR_COLOR_KEYS: not declared yet here (TDZ)
+    document.getElementById("lv-col-" + k)?.addEventListener("change", function(e) {
+      const scr = _lvSel >= 0 ? _lvScreenById(_lvCells[_lvSel]) : null;
+      if (!scr || !scr.colors) return;
+      _lvPushUndo();
+      scr.colors[k] = (parseInt(e.target.value, 10) || 0) & 15;
+      scr.cache = null;
+      _lvRenderAll();
+    });
+  });
+  document.getElementById("lv-level-border")?.addEventListener("change", function(e) {
+    _lvPushUndo();
+    _lvBorder = (parseInt(e.target.value, 10) || 0) & 15;
+    _lvRenderAll();
+  });
+  document.getElementById("lv-run")?.addEventListener("click", function() { _lvRunInVice(); });
+  document.getElementById("lv-mem-addr")?.addEventListener("change", function(e) {
+    const v = parseAddressValue(e.target.value);
+    if (v != null && v >= 0 && v <= 0xFFFF) _lvMemAddr = v;
+    e.target.value = "$" + _lvMemAddr.toString(16).toUpperCase().padStart(4, "0");
+    _lvRenderLibrary();
+  });
   const deleteObject = function() {
     if (!_lvObjById(_lvObjSel)) return;
     _lvPushUndo();
