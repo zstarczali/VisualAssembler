@@ -36,6 +36,9 @@ function loadLv() {
     " place: _lvPlace, setLayout: _lvSetLayout, swap: _lvSwapSlots, remove: _lvRemoveSlot, grid: _lvGridResize," +
     " exportData: _lvExportData, exportAsm: _lvExportAsm, save: _lvBuildLevelFile, load: _lvLoadLevelFile," +
     " setDir: (d) => { _lvDir = d; }, setSel: (i) => { _lvSel = i; }," +
+    " addObj: (type, x, y, p) => { const o = _lvObjNew(type, x, y, p); _lvObjects.push(o); return o; }," +
+    " objects: () => JSON.parse(JSON.stringify(_lvObjects)), ordered: () => _lvObjOrdered().map((o) => o.type + ':' + o.x + ',' + o.y)," +
+    " snapshot: _lvSnapshot, restore: _lvRestore," +
     " state: () => ({ w: _lvW, h: _lvH, cells: JSON.parse(JSON.stringify(_lvCells)), layout: _lvLayout, dir: _lvDir, screens: _lvScreens.length }) };",
     context);
   return context.api;
@@ -152,4 +155,51 @@ test("switching vertical → grid makes a near-square grid that fills sideways",
   st = JSON.parse(JSON.stringify(lv.state()));
   assert.deepEqual([st.w, st.h], [3, 2]);
   assert.equal(st.cells.filter(Boolean).length, 6);
+});
+
+test("objects are ordered the way the scroller meets them", () => {
+  const lv = loadLv();
+  lv.add(1); lv.add(2);                     // vertical, 320×400 px
+  lv.addObj(1, 16, 40); lv.addObj(2, 100, 360); lv.addObj(0, 8, 360);
+  lv.addObj(3, 500, 10);                    // outside the level
+  lv.setDir("up");
+  assert.deepEqual(Array.from(lv.ordered()), ["0:8,360", "2:100,360", "1:16,40"]);
+  lv.setDir("down");
+  assert.deepEqual(Array.from(lv.ordered()), ["1:16,40", "0:8,360", "2:100,360"]);
+  lv.setLayout("horizontal");               // 640×200 px
+  lv.setDir("left");
+  assert.deepEqual(Array.from(lv.ordered()), ["3:500,10", "1:16,40"]);   // y = 360 is outside the 200 px tall level
+});
+
+test("objects round-trip through the level file and undo", () => {
+  const a = loadLv();
+  a.add(1); a.add(2);
+  a.addObj(1, 16, 40, 7); a.addObj(0, 8, 360, 0);
+  const bytes = a.save();
+  const b = loadLv();
+  assert.equal(b.load(bytes), true);
+  const objs = JSON.parse(JSON.stringify(b.objects().map((o) => [o.type, o.x, o.y, o.param])));
+  assert.deepEqual(objs, [[0, 8, 360, 0], [1, 16, 40, 7]]);   // saved in scroll order (up)
+  const snap = b.snapshot();
+  b.addObj(2, 0, 0);
+  b.restore(snap);
+  assert.equal(b.objects().length, 2);
+});
+
+test("asm export adds the LEVEL_OBJ_* tables", () => {
+  const lv = loadLv();
+  lv.add(1); lv.add(2);
+  lv.addObj(1, 300, 264, 5); lv.addObj(0, 8, 16);
+  lv.setDir("down");
+  const asm = lv.exportAsm();
+  assert.match(asm, /\.const LEVEL_OBJ_COUNT = 2/);
+  assert.match(asm, /\.const LEVEL_OBJ_T_ENEMY = 1/);
+  assert.match(asm, /\.const LEVEL_START_X = 8/);
+  assert.match(asm, /^LEVEL_OBJ_X_LO:\n {4}\.byte \$08, \$2C$/m);
+  assert.match(asm, /^LEVEL_OBJ_X_HI:\n {4}\.byte \$00, \$01$/m);
+  assert.match(asm, /^LEVEL_OBJ_Y_HI:\n {4}\.byte \$00, \$01$/m);
+  assert.match(asm, /^LEVEL_OBJ_PARAM:\n {4}\.byte \$00, \$05$/m);
+  const empty = loadLv();
+  empty.add(1);
+  assert.doesNotMatch(empty.exportAsm(), /LEVEL_OBJ/);
 });

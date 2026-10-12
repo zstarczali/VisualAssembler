@@ -1829,6 +1829,27 @@ PRINTABLE CHARACTERS
             <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 3.5v9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M12.5 3.5v9l-7-4.5z" fill="currentColor"/></svg>
           </button>
         </div>
+        <div class="me-tool-group">
+          <button class="me-tool" id="lv-obj-mode" type="button" aria-label="Objects layer" aria-pressed="false">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="1" opacity="0.45"/><rect x="4" y="9" width="3.5" height="3.5" fill="currentColor" stroke="none"/><path d="M10.5 4l2 3.5h-4z" fill="currentColor" stroke="none"/></svg>
+          </button>
+          <button class="me-tool" id="lv-obj-del" type="button" aria-label="Delete object" disabled>
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="1" opacity="0.45"/><path d="M6 6l4 4M10 6l-4 4"/></svg>
+          </button>
+        </div>
+        <div class="me-tool-group">
+          <button class="me-tool" id="lv-attr-mode" type="button" aria-label="Character attributes" aria-pressed="false">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1" aria-hidden="true"><rect x="2" y="2" width="5" height="5" fill="currentColor" stroke="none" opacity="0.85"/><rect x="9" y="2" width="5" height="5"/><rect x="2" y="9" width="5" height="5"/><rect x="9" y="9" width="5" height="5" fill="currentColor" stroke="none" opacity="0.45"/></svg>
+          </button>
+        </div>
+        <div class="lv-obj-controls" id="lv-attr-controls" hidden>
+          <select id="lv-attr-type" class="lv-select" aria-label="Attribute"></select>
+        </div>
+        <div class="lv-obj-controls" id="lv-obj-controls" hidden>
+          <select id="lv-obj-type" class="lv-select" aria-label="Object type"></select>
+          <label class="lv-speed"><span id="lv-obj-param-label">Param</span><input type="number" id="lv-obj-param" class="lv-num-in" min="0" max="255" value="0"></label>
+          <label class="me-check"><input type="checkbox" id="lv-obj-snap" checked> <span id="lv-obj-snap-label">Snap 8 px</span></label>
+        </div>
         <input type="file" id="lv-map-files" accept=".bin,application/octet-stream" multiple hidden>
         <input type="file" id="lv-level-file" accept=".bin,application/octet-stream" hidden>
         <div class="me-tb-right">
@@ -1846,6 +1867,7 @@ PRINTABLE CHARACTERS
           <label class="lv-speed"><span id="lv-speed-label">Speed</span><input type="number" id="lv-speed" class="lv-num-in" min="1" max="8" value="1"></label>
           <label class="me-check"><input type="checkbox" id="lv-loop" checked> <span id="lv-loop-label">Loop</span></label>
           <label class="me-check"><input type="checkbox" id="lv-borders" checked> <span id="lv-borders-label">Borders</span></label>
+          <label class="me-check"><input type="checkbox" id="lv-edges"> <span id="lv-edges-label">Edge check</span></label>
           <input type="range" id="lv-zoom" min="25" max="100" step="25" value="50" class="me-zoom" title="Zoom">
         </div>
       </div>
@@ -1854,7 +1876,11 @@ PRINTABLE CHARACTERS
           <div class="me-section-lbl" id="lv-screens-label">Screens</div>
           <div id="lv-charset-info" class="lv-charset-info"></div>
           <div id="lv-warning" class="lv-warning" hidden></div>
+          <div id="lv-edge-warn" class="lv-warning" hidden></div>
+          <div id="lv-attr-info" class="lv-charset-info" hidden></div>
           <div id="lv-library" class="lv-library"></div>
+          <div class="me-section-lbl" id="lv-objects-label" hidden>Objects</div>
+          <div id="lv-objlist" class="lv-objlist"></div>
         </div>
         <div class="me-canvas-wrap lv-canvas-wrap" id="lv-canvas-wrap">
           <canvas id="lv-canvas" class="me-canvas lv-canvas"></canvas>
@@ -1993,10 +2019,12 @@ PRINTABLE CHARACTERS
           <button class="ed-file-btn" type="button">Files ▾</button>
           <div class="ed-file-menu" hidden>
             <button id="se-import-image" type="button">Import PNG/JPEG…</button>
+            <button id="se-import-sheet" type="button">Import sprite sheet…</button>
             <button id="se-open-spd" type="button">Load .bin…</button>
             <button id="se-save-bin" type="button">Save .bin…</button>
             <div class="ed-file-sep"></div>
             <button id="se-copy-data" type="button">Copy bytes</button>
+            <button id="se-copy-hitbox" type="button">Copy hitbox table</button>
           </div>
         </div>
         <span class="se-title">SPRITE EDITOR</span>
@@ -2017,6 +2045,15 @@ PRINTABLE CHARACTERS
           <button class="se-tool" data-tool="circle" type="button" aria-label="Circle / oval">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><circle cx="8" cy="8" r="5"/></svg>
           </button>
+          <button class="se-tool" data-tool="fill" type="button" aria-label="Flood fill">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l5-5 5 5-5 5z"/><path d="M3 7l5 5 5-5" fill="currentColor" stroke="none" opacity="0.45"/></svg>
+          </button>
+          <button class="se-tool" data-tool="select" type="button" aria-label="Select / move">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11" stroke-dasharray="2 1.5"/><path d="M8 5.5v5M5.5 8h5"/></svg>
+          </button>
+          <button class="se-tool" data-tool="hitbox" type="button" aria-label="Hitbox">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" aria-hidden="true"><path d="M2.5 5V2.5H5M11 2.5h2.5V5M13.5 11v2.5H11M5 13.5H2.5V11"/><rect x="5.5" y="5.5" width="5" height="5" fill="currentColor" stroke="none" opacity="0.55"/></svg>
+          </button>
         </div>
         <div class="se-tool-group">
           <button class="se-tool" id="se-undo" type="button" aria-label="Undo">
@@ -2033,6 +2070,12 @@ PRINTABLE CHARACTERS
           <button class="se-tool" id="se-flipv" type="button" aria-label="Flip Vertical">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round" aria-hidden="true"><path d="M2 8h12" stroke-dasharray="1.5 1.4"/><path d="M5 6.2L8 3l3 3.2z" fill="currentColor" stroke="none"/><path d="M5 9.8L8 13l3-3.2z" fill="currentColor" stroke="none" opacity="0.45"/></svg>
           </button>
+          <button class="se-tool" id="se-rotr" type="button" aria-label="Rotate 90° clockwise">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.5 7.5A4.5 4.5 0 1 1 8 3h3"/><path d="M9.5 1.3L11.3 3 9.5 4.7"/></svg>
+          </button>
+          <button class="se-tool" id="se-rotl" type="button" aria-label="Rotate 90° counter-clockwise">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 7.5A4.5 4.5 0 1 0 8 3H5"/><path d="M6.5 1.3L4.7 3l1.8 1.7"/></svg>
+          </button>
           <button class="se-tool" id="se-clear" type="button" aria-label="Clear frame">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4.5h10M6.2 4.5V3h3.6v1.5M5 4.5l.7 8.5h4.6l.7-8.5"/></svg>
           </button>
@@ -2045,6 +2088,12 @@ PRINTABLE CHARACTERS
           <label class="se-check"><input type="checkbox" id="se-wrap"> <span>Wrap</span></label>
         </div>
         <label class="se-check"><input type="checkbox" id="se-multicolor"> <span>Multi-Color</span></label>
+        <label class="se-check"><input type="checkbox" id="se-overlay"> <span>Hi-res overlay</span></label>
+        <select id="se-layer" class="se-select" aria-label="Layer to edit" hidden>
+          <option value="base">Body</option>
+          <option value="ov">Overlay</option>
+        </select>
+        <span class="se-tb-break" aria-hidden="true"></span>
         <label class="se-check"><input type="checkbox" id="se-grid" checked> <span>Grid</span></label>
         <span class="se-mini-lbl" id="se-layout-lbl">Sprites</span>
         <select id="se-layout" class="se-select" aria-label="Metasprite size (sprites across × down)">
@@ -2055,7 +2104,7 @@ PRINTABLE CHARACTERS
         </select>
         <div class="se-tb-right">
           <span class="se-mini-lbl">Zoom</span>
-          <input type="range" id="se-zoom" min="3" max="20" step="1" value="13" class="se-zoom">
+          <input type="range" id="se-zoom" min="3" max="40" step="1" value="13" class="se-zoom">
         </div>
       </div>
       <div class="se-body">
@@ -2068,10 +2117,32 @@ PRINTABLE CHARACTERS
           <div class="se-preview-wrap">
             <canvas id="se-preview" class="se-preview" width="96" height="84"></canvas>
           </div>
+          <div class="se-exp">
+            <label class="se-check"><input type="checkbox" id="se-expx"> <span id="se-expx-label">X ×2</span></label>
+            <label class="se-check"><input type="checkbox" id="se-expy"> <span id="se-expy-label">Y ×2</span></label>
+          </div>
           <div class="se-section-lbl">Colors</div>
           <div class="se-colors" id="se-colors"></div>
           <div class="se-section-lbl">Palette</div>
           <div class="se-palette" id="se-palette"></div>
+          <div class="se-section-lbl" id="se-hit-lbl">Hitbox</div>
+          <div class="se-hit">
+            <span id="se-hit-info" class="se-hit-info">—</span>
+            <div class="se-tool-group">
+              <button class="se-tool" id="se-hit-fit" type="button" aria-label="Fit to the pixels">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" aria-hidden="true"><path d="M2.5 5V2.5H5M11 2.5h2.5V5M13.5 11v2.5H11M5 13.5H2.5V11"/><circle cx="8" cy="8" r="2.2" fill="currentColor" stroke="none"/></svg>
+              </button>
+              <button class="se-tool" id="se-hit-fitall" type="button" aria-label="Fit every frame">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" aria-hidden="true"><path d="M2.5 5V2.5H5M11 2.5h2.5V5M13.5 11v2.5H11M5 13.5H2.5V11"/><circle cx="6.3" cy="8" r="1.6" fill="currentColor" stroke="none"/><circle cx="9.7" cy="8" r="1.6" fill="currentColor" stroke="none"/></svg>
+              </button>
+              <button class="se-tool" id="se-hit-all" type="button" aria-label="Copy to every frame">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1"/><path d="M10.5 5.5V3.5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2"/></svg>
+              </button>
+              <button class="se-tool" id="se-hit-clear" type="button" aria-label="Remove hitbox">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="1" opacity="0.45"/><path d="M6 6l4 4M10 6l-4 4"/></svg>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
       <div class="se-footer">
@@ -2086,10 +2157,49 @@ PRINTABLE CHARACTERS
           <span class="se-anim-spacer"></span>
           <button class="se-mini-btn" id="se-add" type="button">+ Add</button>
           <button class="se-mini-btn" id="se-dup" type="button">Dup</button>
+          <button class="se-mini-btn" id="se-mirror-anim" type="button">Mirror all</button>
           <button class="se-mini-btn" id="se-fcopy" type="button">Copy</button>
           <button class="se-mini-btn" id="se-fpaste" type="button">Paste</button>
           <button class="se-mini-btn" id="se-fdel" type="button">Del</button>
         </div>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="se-sheet-dialog" class="hg-png-dialog" aria-labelledby="se-sheet-title">
+    <div class="hg-png-card">
+      <div class="hg-hdr">
+        <span id="se-sheet-title" class="hg-title">Sprite sheet import</span>
+        <span id="se-sheet-file" class="hg-png-file"></span>
+        <button id="se-sheet-close" class="hg-xbtn" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="hg-png-body">
+        <div class="hg-png-preview">
+          <div class="se-sheet-view"><canvas id="se-sheet-canvas" width="320" height="200"></canvas></div>
+          <span id="se-sheet-status" class="hg-png-status"></span>
+          <div id="se-sheet-frames" class="se-sheet-frames"></div>
+        </div>
+        <div class="hg-png-settings se-sheet-settings">
+          <label for="se-sheet-cw" id="se-sheet-cw-lbl">Cell width</label><input type="number" id="se-sheet-cw" class="lv-num-in" min="1" value="24"><span></span>
+          <label for="se-sheet-ch" id="se-sheet-ch-lbl">Cell height</label><input type="number" id="se-sheet-ch" class="lv-num-in" min="1" value="21"><span></span>
+          <label for="se-sheet-ox" id="se-sheet-ox-lbl">Offset X</label><input type="number" id="se-sheet-ox" class="lv-num-in" min="0" value="0"><span></span>
+          <label for="se-sheet-oy" id="se-sheet-oy-lbl">Offset Y</label><input type="number" id="se-sheet-oy" class="lv-num-in" min="0" value="0"><span></span>
+          <label for="se-sheet-gx" id="se-sheet-gx-lbl">Gap X</label><input type="number" id="se-sheet-gx" class="lv-num-in" min="0" value="0"><span></span>
+          <label for="se-sheet-gy" id="se-sheet-gy-lbl">Gap Y</label><input type="number" id="se-sheet-gy" class="lv-num-in" min="0" value="0"><span></span>
+          <label for="se-sheet-count" id="se-sheet-count-lbl">Frames (0 = all)</label><input type="number" id="se-sheet-count" class="lv-num-in" min="0" max="256" value="0"><span></span>
+          <div class="hg-png-sep"></div>
+          <label for="se-sheet-colors" id="se-sheet-colors-lbl">Colors</label>
+          <select id="se-sheet-colors"><option value="auto">From the picture</option><option value="keep">Current sprite colors</option></select><span></span>
+          <label for="se-sheet-dither" id="se-sheet-dither-lbl">Dither</label>
+          <select id="se-sheet-dither"><option value="none">None</option><option value="ordered">Ordered (Bayer)</option><option value="fs">Floyd–Steinberg</option></select><span></span>
+          <label class="hg-check se-sheet-replace"><input type="checkbox" id="se-sheet-replace" checked> <span id="se-sheet-replace-lbl">Replace the frames (off: append)</span></label>
+          <p id="se-sheet-hint" class="hg-png-hint se-sheet-hint">Each cell becomes a frame of the current size (1×1 … 2×2 sprites); multicolor cells are scaled to 12 pixels per sprite. Transparent pixels become the background.</p>
+        </div>
+      </div>
+      <div class="hg-png-foot">
+        <span class="hg-png-credit"></span>
+        <button id="se-sheet-cancel" class="secondary" type="button">Cancel</button>
+        <button id="se-sheet-apply" class="primary" type="button">Import</button>
       </div>
     </div>
   </dialog>

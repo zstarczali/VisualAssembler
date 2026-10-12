@@ -28,8 +28,15 @@ Jelenleg: ceruza, vonal, kör, téglalap, tükrözés, eltolás, frame-ek és an
 Jelenleg: képernyők a Map Editorból, függőleges / vízszintes / rács elrendezés, sima
 görgetésű előnézet, `.bin` mentés, `LEVEL` / `LEVEL_ROW` makrók.
 
-1. [ ] **Objektumréteg** — ellenfelek, tárgyak, kezdőpozíció, ajtók, kijárat elhelyezése
+1. [x] **Objektumréteg** — ellenfelek, tárgyak, kezdőpozíció, ajtók, kijárat elhelyezése
    ikonokkal és típusokkal; exportkor `x, y, típus` tábla `LEVEL_OBJ_*` címkékkel.
+   *Kész:* „Objektumréteg” kapcsoló a toolbaron; 6 típus (Start, Enemy, Item, Door, Exit,
+   Trigger) + 1 bájtos paraméter; lerakás, húzás (8 px rács, Shift = szabad), kijelölés,
+   nyilak, Delete; lista az oldalsávban, markerek az áttekintőn és az előnézetben; mentés a
+   `.bin` meta-ba (`objects`), undo. Export görgetési sorrendben, pálya-pixelben (16 bit):
+   `LEVEL_OBJ_X_LO/HI`, `Y_LO/HI`, `TYPE`, `PARAM`, `LEVEL_OBJ_COUNT`, `LEVEL_OBJ_T_*`,
+   `LEVEL_START_X/Y` — az asm exportban és a `.level` makróban is.
+   Teszt: `tests/level-editor.test.js`, `tests/level-macro.test.js`.
 2. [ ] **Karakter-attribútumok** — karakterenként szilárd / létra / veszélyes / gyűjthető,
    színes rétegként; exportkor 256 bájtos attribútumtábla.
 3. [ ] **Szomszédos képernyők illeszkedése** — figyelmeztetés, ha két szomszédos képernyő
@@ -43,6 +50,6 @@ görgetésű előnézet, `.bin` mentés, `LEVEL` / `LEVEL_ROW` makrók.
 
 ## Sorrend
 
-1. Sprite Editor — metasprite
-2. Level Editor — objektumréteg
+1. ~~Sprite Editor — metasprite~~ (kész)
+2. ~~Level Editor — objektumréteg~~ (kész)
 3. a többi pont a fenti sorrendben, egyeztetés szerint

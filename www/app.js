@@ -230,7 +230,7 @@ const mnemonicLibrary = {
     { mnemonic: "BOX_HIT", description: "AABB (tengely-igazitott) tegla utkozes teszt ket 4-byte ZP struktura kozott (L,T,R,B). Eredmeny A regiszterben: 1=talalt, 0=nincs. ~31 byte inline asm.", modes: ["implied"], isBoxHitMacro: true },
     { mnemonic: "INCBIN", description: "Kulso binarfajl beillesztese megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isIncBinMacro: true },
     { mnemonic: "KOALA", description: "Koala Painter kep (.koa) betoltese es megjelenitese: a bitmap $6000-ra (vagy $2000-ra) kerul, a blokk helyen futo kod bemasolja a screen/color RAM-ot, beallitja a hatterszint es a multicolor bitmap modot.", modes: ["implied"], isIncBinMacro: true, incBinKoala: true },
-    { mnemonic: "LEVEL", description: "Palya szerkeszto (Level Editor) projektfajl betoltese: csak az elhelyezett kepernyok kerulnek a memoriaba (hely-sorrendben, 2000 byte/kepernyo: screen + color), utanuk sor/oszlop/hely pointer-tablak. Cimkeket (LEVEL_SLOT_LO, LEVEL_ROW_SLOT ...) es konstansokat (LEVEL_COLS, LEVEL_MAX_X, LEVEL_BG ...) ad. 0 byte kod.", modes: ["implied"], isIncBinMacro: true, incBinLevel: true },
+    { mnemonic: "LEVEL", description: "Palya szerkeszto (Level Editor) projektfajl betoltese: csak az elhelyezett kepernyok kerulnek a memoriaba (hely-sorrendben, 2000 byte/kepernyo: screen + color), utanuk sor/oszlop/hely pointer-tablak. Cimkeket (LEVEL_SLOT_LO, LEVEL_ROW_SLOT ...) es konstansokat (LEVEL_COLS, LEVEL_MAX_X, LEVEL_BG ...) ad; az elhelyezett objektumokbol LEVEL_OBJ_X_LO/HI, Y_LO/HI, TYPE, PARAM tablak (LEVEL_OBJ_COUNT, LEVEL_OBJ_T_*, LEVEL_START_X/Y). 0 byte kod.", modes: ["implied"], isIncBinMacro: true, incBinLevel: true },
     { mnemonic: "LEVEL_ROW", description: "Palya sor masolasa: az X-ben megadott palyasor 40 byte-jat a col valtozoban levo oszloptol a dst pointer (lo/hi) altal mutatott cimre masolja; color eseten a szinadatot. Ket kepernyon atnyulo ablakot is kezel, onmodosito ciklussal (~14 ciklus/byte). X megmarad, A/Y elvesz. .level kell hozza.", modes: ["implied"], isLevelRowMacro: true },
     { mnemonic: "SID", description: "SID zenefajl betoltese kozvetlenul a memoriaba. A fejlecet automatikusan eltavolitja, a Load/Init/Play cimeket kinyeri.", modes: ["implied"], isSidMacro: true },
     { mnemonic: "INCLUDE", description: "Masik projekt JSON fajl blokkjainak beillesztese erre a helyre (csak olvasható).", modes: ["implied"], isIncludeMacro: true },
@@ -3789,6 +3789,15 @@ function _applyEditorTranslations() {
   setText("#lv-loop-label", t("lvLoop"));
   setText("#lv-borders-label", t("lvBorders"));
   setText("#lv-screens-label", t("lvScreens"));
+  setAttr("#lv-obj-mode", t("lvObjMode"));
+  setAttr("#lv-attr-mode", t("lvAttrMode"));
+  setAttr("#lv-attr-type", t("lvAttrType"));
+  setText("#lv-edges-label", t("lvEdges"));
+  setAttr("#lv-obj-del", t("lvObjDelete"));
+  setAttr("#lv-obj-type", t("lvObjType"));
+  setText("#lv-obj-param-label", t("lvObjParam"));
+  setText("#lv-obj-snap-label", t("lvObjSnap"));
+  setText("#lv-objects-label", t("lvObjects"));
   setText("#lv-preview-label", t("lvPreview"));
   setText("#lv-hint", t("lvHint"));
   try { if (document.getElementById("level-editor-dialog")?.open) _lvRenderAll(); } catch (_) {}
@@ -3842,6 +3851,38 @@ function _applyEditorTranslations() {
   setAttr('.se-tool[data-tool="line"]', t("seToolLine"));
   setAttr('.se-tool[data-tool="rect"]', t("seToolRect"));
   setAttr('.se-tool[data-tool="circle"]', t("seToolCircle"));
+  setAttr('.se-tool[data-tool="fill"]', t("seToolFill"));
+  setAttr('.se-tool[data-tool="select"]', t("seToolSelect"));
+  setAttr('.se-tool[data-tool="hitbox"]', t("seToolHitbox"));
+  setAttr("#se-rotr", t("seRotateCW"));
+  setAttr("#se-rotl", t("seRotateCCW"));
+  const seOvSpan = document.querySelector("#se-overlay + span");
+  if (seOvSpan) seOvSpan.textContent = t("seOverlay");
+  setAttr("#se-layer", t("seLayerTip"));
+  setText('#se-layer option[value="base"]', t("seLayerBody"));
+  setText('#se-layer option[value="ov"]', t("seLayerOverlay"));
+  setText("#se-expx-label", t("seExpX"));
+  setText("#se-expy-label", t("seExpY"));
+  setText("#se-mirror-anim", t("seMirrorAnim"));
+  setText("#se-hit-lbl", t("seHitbox"));
+  setAttr("#se-hit-fit", t("seHitFit"));
+  setAttr("#se-hit-fitall", t("seHitFitAll"));
+  setAttr("#se-hit-all", t("seHitCopyAll"));
+  setAttr("#se-hit-clear", t("seHitClear"));
+  setText("#se-copy-hitbox", t("seCopyHitbox"));
+  setText("#se-import-sheet", t("seImportSheet"));
+  setText("#se-sheet-title", t("seSheetTitle"));
+  [["cw", "seSheetCellW"], ["ch", "seSheetCellH"], ["ox", "seSheetOffX"], ["oy", "seSheetOffY"], ["gx", "seSheetGapX"],
+   ["gy", "seSheetGapY"], ["count", "seSheetCount"], ["colors", "seSheetColors"], ["dither", "seSheetDither"],
+   ["replace", "seSheetReplace"]].forEach(function(k) { setText("#se-sheet-" + k[0] + "-lbl", t(k[1])); });
+  setText('#se-sheet-colors option[value="auto"]', t("seSheetColorsAuto"));
+  setText('#se-sheet-colors option[value="keep"]', t("seSheetColorsKeep"));
+  setText('#se-sheet-dither option[value="none"]', t("seSheetDitherNone"));
+  setText('#se-sheet-dither option[value="ordered"]', t("seSheetDitherOrdered"));
+  setText('#se-sheet-dither option[value="fs"]', t("seSheetDitherFs"));
+  setText("#se-sheet-hint", t("seSheetHint"));
+  setText("#se-sheet-cancel", t("seSheetCancel"));
+  setText("#se-sheet-apply", t("seSheetApply"));
   setAttr("#se-undo", t("hgUndo"));
   setAttr("#se-redo", t("hgRedo"));
   setAttr("#se-fliph", t("seFlipH"));
@@ -20950,10 +20991,17 @@ function _koalaShowBytes(addr) {
      LEVEL_CROW_LO/HI[row]    (row % 25) * 40 + 1000   (color RAM data)
      LEVEL_COL_SLOT[col]      col / 40      (col = 0 .. LEVEL_COLS - 40)
      LEVEL_COL_OFS[col]       col % 40
+     LEVEL_OBJ_X_LO/HI, LEVEL_OBJ_Y_LO/HI, LEVEL_OBJ_TYPE, LEVEL_OBJ_PARAM [LEVEL_OBJ_COUNT]
+                              objects in level pixels, scroll order (as saved)
+     LEVEL_ATTR[code]         character attribute flags (only when the level has any)
    Rows and columns are 8-bit indices: at most 10 screens tall and 7 wide. */
 const _LEVEL_SCREEN = 2000;
 const _LEVEL_ROW_TABLES = ["LEVEL_SLOT_LO", "LEVEL_SLOT_HI", "LEVEL_ROW_SLOT", "LEVEL_ROW_LO", "LEVEL_ROW_HI",
   "LEVEL_CROW_LO", "LEVEL_CROW_HI", "LEVEL_COL_SLOT", "LEVEL_COL_OFS"];
+// LEVEL_OBJ_T_* numbering — the Level Editor's _LV_OBJ_TYPES order.
+const _LEVEL_OBJ_TYPES = ["START", "ENEMY", "ITEM", "DOOR", "EXIT", "TRIGGER"];
+// LEVEL_ATTR_* bits — the Level Editor's _LV_ATTRS.
+const _LEVEL_ATTR_BITS = { SOLID: 1, LADDER: 2, HAZARD: 4, COLLECT: 8 };
 const _levelCache = new WeakMap();
 
 function _importMakeLevel(fileName, addressHex) {
@@ -20993,7 +21041,10 @@ function _levelBuild(src, addr) {
     if (!seen.has(key)) { seen.set(key, screens.length); screens.push(key); }
     slotScreen.push(seen.get(key));
   }
-  const size = screens.length * _LEVEL_SCREEN + (slots + 1) * 2 + rows * 5 + nCols * 2;
+  const objs = (Array.isArray(ms.objects) ? ms.objects : [])
+    .filter(o => o && o.x >= 0 && o.y >= 0 && o.x < cols * 8 && o.y < rows * 8).slice(0, 255);
+  const attr = parsed.extras.attr && parsed.extras.attr.some(v => v) ? parsed.extras.attr : null;
+  const size = screens.length * _LEVEL_SCREEN + (slots + 1) * 2 + rows * 5 + nCols * 2 + objs.length * 6 + (attr ? 256 : 0);
   if (addr + size > 0x10000) return { ...empty, error: tf("levelMacroTooBig", { size }) };
   const data = new Uint8Array(size);
   screens.forEach((key, i) => {
@@ -21014,6 +21065,18 @@ function _levelBuild(src, addr) {
   table("LEVEL_CROW_HI", rows, r => ((r % 25) * 40 + 1000) >> 8);
   table("LEVEL_COL_SLOT", nCols, c => Math.floor(c / 40));
   table("LEVEL_COL_OFS", nCols, c => c % 40);
+  table("LEVEL_OBJ_X_LO", objs.length, i => objs[i].x);
+  table("LEVEL_OBJ_X_HI", objs.length, i => objs[i].x >> 8);
+  table("LEVEL_OBJ_Y_LO", objs.length, i => objs[i].y);
+  table("LEVEL_OBJ_Y_HI", objs.length, i => objs[i].y >> 8);
+  table("LEVEL_OBJ_TYPE", objs.length, i => objs[i].t);
+  table("LEVEL_OBJ_PARAM", objs.length, i => objs[i].p);
+  if (attr) table("LEVEL_ATTR", 256, c => attr[c] || 0);
+  Object.entries(_LEVEL_ATTR_BITS).forEach(([name, bit]) => { labels["LEVEL_ATTR_" + name] = bit; });
+  labels.LEVEL_OBJ_COUNT = objs.length;
+  _LEVEL_OBJ_TYPES.forEach((name, i) => { labels["LEVEL_OBJ_T_" + name] = i; });
+  const start = objs.find(o => (o.t | 0) === 0);
+  if (start) { labels.LEVEL_START_X = start.x; labels.LEVEL_START_Y = start.y; }
   Object.assign(labels, {
     LEVEL_W: w, LEVEL_H: h, LEVEL_COLS: cols, LEVEL_ROWS: rows,
     LEVEL_MAX_X: (cols - 40) * 8, LEVEL_MAX_Y: (rows - 25) * 8,
@@ -35431,6 +35494,37 @@ let _lvRomCache = null, _lvCustomCache = null;
 let _lvUndo = [], _lvRedo = [];
 let _lvEditingId = null, _lvMeBackup = null;
 let _lvDrag = null;         // { kind: "slot"|"lib", from, x, y, active, over }
+// Object layer: positions are level pixels (top-left of an 8×8 marker), not
+// tied to a screen, so swapping screens leaves the objects in place. The type
+// order is the LEVEL_OBJ_T_* numbering — keep it in sync with _LEVEL_OBJ_TYPES.
+const _LV_OBJ_TYPES = [
+  { key: "start",   letter: "S", color: "#3ad35a" },
+  { key: "enemy",   letter: "E", color: "#ff5a5a" },
+  { key: "item",    letter: "I", color: "#ffd84a" },
+  { key: "door",    letter: "D", color: "#5ab4ff" },
+  { key: "exit",    letter: "X", color: "#d070ff" },
+  { key: "trigger", letter: "T", color: "#ff9f40" }
+];
+let _lvObjects = [];        // [{ id, type, x, y, param }]
+let _lvObjMode = false;     // the overview edits objects instead of screens
+let _lvObjType = 1;
+let _lvObjParam = 0;
+let _lvObjSnap = true;
+let _lvObjSel = null;       // selected object id
+let _lvObjDrag = null;      // { id, dx, dy, undo }
+// Character attributes: one flag byte per screen code, shared by the whole
+// level (bit order = LEVEL_ATTR_* — keep in sync with the LEVEL macro).
+const _LV_ATTRS = [
+  { key: "solid",   bit: 1, color: "#4aa3ff" },
+  { key: "ladder",  bit: 2, color: "#ffd84a" },
+  { key: "hazard",  bit: 4, color: "#ff4a4a" },
+  { key: "collect", bit: 8, color: "#4aff8a" }
+];
+let _lvAttr = new Uint8Array(256);
+let _lvAttrMode = false;    // the overview paints character attributes
+let _lvAttrBit = 1;
+let _lvAttrDrag = null;     // { set: bool, last: code }
+let _lvEdges = false;       // mark screen edges that do not continue
 
 function _lvDefaultSettings() {
   return { multicolor: false, bgColor: 6, mc1Color: 5, mc2Color: 13, charSource: "rom", charset: null, charColors: null };
@@ -35568,15 +35662,105 @@ function _lvDeleteScreen(id) {
   if (_lvLibSel === id) _lvLibSel = null;
 }
 
+/* ── Objects ── */
+function _lvObjNew(type, x, y, param) {
+  return {
+    id: crypto.randomUUID(),
+    type: Math.max(0, Math.min(_LV_OBJ_TYPES.length - 1, type | 0)),
+    x: Math.max(0, x | 0), y: Math.max(0, y | 0), param: (param | 0) & 0xFF
+  };
+}
+function _lvObjById(id) { return _lvObjects.find(function(o) { return o.id === id; }) || null; }
+function _lvObjInLevel(o) {
+  const L = _lvLevelPx();
+  return o.x < L.w && o.y < L.h;
+}
+// Topmost object whose 8×8 marker (grown by `pad` level pixels) contains the point.
+function _lvObjAt(x, y, pad) {
+  for (let i = _lvObjects.length - 1; i >= 0; i--) {
+    const o = _lvObjects[i];
+    if (x >= o.x - pad && x < o.x + 8 + pad && y >= o.y - pad && y < o.y + 8 + pad) return o;
+  }
+  return null;
+}
+// Objects in the order the scroller meets them (a spawner walks the table with
+// one index): vertical by y, horizontal by x, grid row-major.
+function _lvObjSorted(list) {
+  const up = _lvLayout === "vertical" && _lvDir === "up";
+  const left = _lvLayout === "horizontal" && _lvDir === "left";
+  return list.slice(0).sort(function(a, b) {
+    if (_lvLayout === "horizontal") return (left ? b.x - a.x : a.x - b.x) || a.y - b.y;
+    return (up ? b.y - a.y : a.y - b.y) || a.x - b.x;
+  });
+}
+function _lvObjOrdered() { return _lvObjSorted(_lvObjects.filter(_lvObjInLevel)); }
+/* ── Character attributes and edge check ── */
+// Screen code under a level pixel, or -1 (outside, or an empty slot).
+function _lvCharAt(x, y) {
+  if (x < 0 || y < 0 || x >= _lvW * _LV_SW || y >= _lvH * _LV_SH) return -1;
+  const scr = _lvScreenById(_lvCells[Math.floor(y / _LV_SH) * _lvW + Math.floor(x / _LV_SW)]);
+  if (!scr) return -1;
+  return scr.screen[Math.floor((y % _LV_SH) / 8) * _ME_COLS + Math.floor((x % _LV_SW) / 8)];
+}
+function _lvAttrName(bit) {
+  const a = _LV_ATTRS.find(function(it) { return it.bit === bit; }) || _LV_ATTRS[0];
+  return t("lvAttr" + a.key.charAt(0).toUpperCase() + a.key.slice(1));
+}
+function _lvAttrNames(flags) {
+  return _LV_ATTRS.filter(function(a) { return flags & a.bit; }).map(function(a) { return _lvAttrName(a.bit); }).join(", ") || t("lvAttrNone");
+}
+function _lvAttrUsed() { return _lvAttr.some(function(v) { return v; }); }
+// The tint of a flag byte: the first matching of hazard, solid, ladder, collectible.
+function _lvAttrColor(flags) {
+  const a = [4, 1, 2, 8].find(function(bit) { return flags & bit; });
+  return a ? _LV_ATTRS.find(function(it) { return it.bit === a; }).color : null;
+}
+// Cells on both sides of a screen border that do not continue: one side empty
+// (space) and the other not, or solid on one side only.
+function _lvEdgeIssues() {
+  const breaks = function(a, b) {
+    return (a === _ME_EMPTY) !== (b === _ME_EMPTY) || ((_lvAttr[a] ^ _lvAttr[b]) & 1) !== 0;
+  };
+  const issues = [];
+  for (let r = 0; r < _lvH; r++)
+    for (let c = 0; c < _lvW; c++) {
+      const a = _lvScreenById(_lvCells[r * _lvW + c]);
+      if (!a) continue;
+      const below = r + 1 < _lvH ? _lvScreenById(_lvCells[(r + 1) * _lvW + c]) : null;
+      if (below) {
+        const cells = [];
+        for (let k = 0; k < _ME_COLS; k++) if (breaks(a.screen[(_ME_ROWS - 1) * _ME_COLS + k], below.screen[k])) cells.push(k);
+        if (cells.length) issues.push({ dir: "v", r: r, c: c, cells: cells });
+      }
+      const right = c + 1 < _lvW ? _lvScreenById(_lvCells[r * _lvW + c + 1]) : null;
+      if (right) {
+        const cells = [];
+        for (let k = 0; k < _ME_ROWS; k++) if (breaks(a.screen[k * _ME_COLS + _ME_COLS - 1], right.screen[k * _ME_COLS])) cells.push(k);
+        if (cells.length) issues.push({ dir: "h", r: r, c: c, cells: cells });
+      }
+    }
+  return issues;
+}
+
+function _lvObjTypeName(type) {
+  const k = _LV_OBJ_TYPES[type]?.key || "start";
+  return t("lvObj" + k.charAt(0).toUpperCase() + k.slice(1));
+}
+
 /* ── Undo ── */
 function _lvSnapshot() {
   return {
     screens: _lvScreens.map(function(s) { return { id: s.id, name: s.name, screen: s.screen, color: s.color, sig: s.sig }; }),
-    layout: _lvLayout, w: _lvW, h: _lvH, cells: _lvCells.slice(0), sel: _lvSel, settings: _lvSettings
+    layout: _lvLayout, w: _lvW, h: _lvH, cells: _lvCells.slice(0), sel: _lvSel, settings: _lvSettings,
+    objects: _lvObjects.map(function(o) { return Object.assign({}, o); }),
+    attr: _lvAttr.slice(0)
   };
 }
 function _lvRestore(snap) {
   _lvScreens = snap.screens.map(function(s) { return Object.assign({ cache: null }, s); });
+  _lvObjects = (snap.objects || []).map(function(o) { return Object.assign({}, o); });
+  _lvAttr = snap.attr ? snap.attr.slice(0) : new Uint8Array(256);
+  if (_lvObjSel && !_lvObjById(_lvObjSel)) _lvObjSel = null;
   _lvLayout = snap.layout; _lvW = snap.w; _lvH = snap.h; _lvCells = snap.cells.slice(0);
   _lvSel = Math.min(snap.sel, _lvSlotCount() - 1);
   _lvSetSettings(snap.settings);
@@ -35714,6 +35898,23 @@ function _lvRenderOverview() {
       }
     }
   }
+  if (_lvAttrMode && _lvAttrUsed()) {
+    const cs = 8 * S;
+    ctx.globalAlpha = 0.5;
+    for (let i = 0; i < _lvSlotCount(); i++) {
+      const scr = _lvScreenById(_lvCells[i]);
+      if (!scr) continue;
+      const x0 = (i % _lvW) * sw, y0 = Math.floor(i / _lvW) * sh;
+      for (let k = 0; k < _ME_COLS * _ME_ROWS; k++) {
+        const col = _lvAttrColor(_lvAttr[scr.screen[k]]);
+        if (!col) continue;
+        ctx.fillStyle = col;
+        ctx.fillRect(x0 + (k % _ME_COLS) * cs, y0 + Math.floor(k / _ME_COLS) * cs, Math.ceil(cs), Math.ceil(cs));
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+  _lvDrawObjects(ctx, S, 0, 0, Math.max(9, Math.round(8 * S)), true);
   if (_lvDrag && _lvDrag.active && _lvDrag.over >= 0) {
     const x = (_lvDrag.over % _lvW) * sw, y = Math.floor(_lvDrag.over / _lvW) * sh;
     ctx.fillStyle = "rgba(120,200,255,0.25)";
@@ -35725,6 +35926,17 @@ function _lvRenderOverview() {
     ctx.lineWidth = 2;
     ctx.strokeRect(x + 1, y + 1, sw - 2, sh - 2);
     ctx.lineWidth = 1;
+  }
+  // over the selection frame, which would hide them
+  if (_lvEdges) {
+    const cs = 8 * S, th = Math.max(3, Math.round(cs));
+    ctx.fillStyle = "#ff2a2a";
+    _lvEdgeIssues().forEach(function(is) {
+      is.cells.forEach(function(k) {
+        if (is.dir === "v") ctx.fillRect(is.c * sw + k * cs, (is.r + 1) * sh - th / 2, Math.ceil(cs), th);
+        else ctx.fillRect((is.c + 1) * sw - th / 2, is.r * sh + k * cs, th, Math.ceil(cs));
+      });
+    });
   }
   if (_lvSlotCount()) {
     ctx.strokeStyle = "#ff5a5a";
@@ -35751,6 +35963,39 @@ function _lvRenderPreview() {
     if (ex <= ix || ey <= iy) continue;
     ctx.drawImage(_lvScreenCanvas(scr), ix - x, iy - y, ex - ix, ey - iy, ix - _lvCamX, iy - _lvCamY, ex - ix, ey - iy);
   }
+  _lvDrawObjects(ctx, 1, _lvCamX, _lvCamY, 8, false);
+}
+
+/* Object markers: a coloured square with the type letter. `scale` maps level
+   pixels to canvas pixels, (ox, oy) is the level point at the canvas origin;
+   the marker is at least `size` canvas pixels so it stays clickable when zoomed out. */
+function _lvDrawObjects(ctx, scale, ox, oy, size, labels) {
+  if (!_lvObjects.length) return;
+  ctx.save();
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.font = "bold " + Math.max(6, size - 3) + "px 'IBM Plex Mono', monospace";
+  _lvObjects.forEach(function(o) {
+    if (!_lvObjInLevel(o)) return;
+    const ty = _LV_OBJ_TYPES[o.type] || _LV_OBJ_TYPES[0];
+    const x = Math.round((o.x - ox) * scale), y = Math.round((o.y - oy) * scale);
+    if (x + size < 0 || y + size < 0 || x > ctx.canvas.width || y > ctx.canvas.height) return;
+    ctx.globalAlpha = _lvObjMode || !labels ? 0.9 : 0.6;
+    ctx.fillStyle = ty.color;
+    ctx.fillRect(x, y, size, size);
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = "#000";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x + 0.5, y + 0.5, size - 1, size - 1);
+    ctx.fillStyle = "#000";
+    ctx.fillText(ty.letter, x + size / 2, y + size / 2 + 0.5);
+    if (o.id === _lvObjSel) {
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x - 1, y - 1, size + 2, size + 2);
+    }
+  });
+  ctx.restore();
 }
 
 function _lvRenderLibrary() {
@@ -35807,11 +36052,67 @@ function _lvRenderLibrary() {
   const mismatch = _lvScreens.filter(function(s) { return s.sig !== _lvSigOf(_lvSettings); }).length;
   const warn = document.getElementById("lv-warning");
   if (warn) { warn.hidden = !mismatch; warn.textContent = mismatch ? tf("lvMismatch", { n: mismatch }) : ""; }
+  const edgeWarn = document.getElementById("lv-edge-warn");
+  if (edgeWarn) {
+    const issues = _lvEdges ? _lvEdgeIssues() : [];
+    const cells = issues.reduce(function(n, is) { return n + is.cells.length; }, 0);
+    edgeWarn.hidden = !issues.length;
+    edgeWarn.textContent = issues.length ? tf("lvEdgeWarn", { n: issues.length, cells: cells }) : "";
+  }
+  const attrInfo = document.getElementById("lv-attr-info");
+  if (attrInfo) {
+    attrInfo.hidden = !_lvAttrUsed() && !_lvAttrMode;
+    attrInfo.textContent = _LV_ATTRS.map(function(a) {
+      let n = 0;
+      for (let c = 0; c < 256; c++) if (_lvAttr[c] & a.bit) n++;
+      return _lvAttrName(a.bit) + ": " + n;
+    }).join(" · ");
+  }
   const cs = document.getElementById("lv-charset-info");
   if (cs && _lvSettings) {
     cs.textContent = (_lvSettings.charSource === "custom" ? t("lvCharsetCustom") : t("lvCharsetRom")) +
       (_lvSettings.multicolor ? " · " + t("meMulticolor") : "");
   }
+}
+
+function _lvRenderObjectList() {
+  const list = document.getElementById("lv-objlist");
+  if (!list) return;
+  list.innerHTML = "";
+  document.getElementById("lv-objects-label")?.toggleAttribute("hidden", !_lvObjects.length);
+  _lvObjSorted(_lvObjects).forEach(function(o) {
+    const ty = _LV_OBJ_TYPES[o.type] || _LV_OBJ_TYPES[0];
+    const row = document.createElement("div");
+    row.className = "lv-obj-item" + (o.id === _lvObjSel ? " lv-obj-item--sel" : "");
+    const badge = document.createElement("span");
+    badge.className = "lv-obj-badge";
+    badge.style.background = ty.color;
+    badge.textContent = ty.letter;
+    const name = document.createElement("span");
+    name.className = "lv-obj-name";
+    name.textContent = _lvObjTypeName(o.type);
+    const pos = document.createElement("span");
+    pos.className = "lv-obj-pos";
+    pos.textContent = o.x + "," + o.y + (o.param ? " #" + o.param : "") + (_lvObjInLevel(o) ? "" : " ⚠");
+    row.appendChild(badge); row.appendChild(name); row.appendChild(pos);
+    row.addEventListener("click", function() { _lvObjSelect(o.id, true); });
+    list.appendChild(row);
+  });
+}
+
+/* Select an object; `reveal` switches to object mode and scrolls the camera to it. */
+function _lvObjSelect(id, reveal) {
+  _lvObjSel = id;
+  const o = _lvObjById(id);
+  if (o) {
+    _lvObjType = o.type;
+    _lvObjParam = o.param;
+    if (reveal) {
+      _lvObjMode = true;
+      if (!_lvPlaying) { _lvCamX = o.x - (_LV_SW >> 1); _lvCamY = o.y - (_LV_SH >> 1); }
+    }
+  }
+  _lvRenderAll();
 }
 
 function _lvUpdateStatus() {
@@ -35823,6 +36124,9 @@ function _lvUpdateStatus() {
     parts.push(tf("lvStatusSlot", { n: _lvSel + 1, total: _lvSlotCount() }) + (scr ? " · " + scr.name : ""));
   }
   parts.push("X:" + _lvCamX + " Y:" + _lvCamY);
+  const so = _lvObjById(_lvObjSel);
+  if (_lvObjMode && so) parts.push(_lvObjTypeName(so.type) + " " + so.x + "," + so.y + " #" + so.param);
+  if (_lvObjects.length) parts.push(tf("lvObjCount", { n: _lvObjects.length }));
   parts.push(tf("lvInfo", {
     w: _lvW, h: _lvH, cols: _lvW * _ME_COLS, rows: _lvH * _ME_ROWS,
     bytes: _lvSlotCount() * _ME_COLS * _ME_ROWS * 2
@@ -35840,6 +36144,45 @@ function _lvSyncControls() {
     dirSel.value = _lvDir;
   }
   document.getElementById("lv-grid-group")?.toggleAttribute("hidden", _lvLayout !== "grid");
+  document.getElementById("lv-obj-mode")?.classList.toggle("me-tool--active", _lvObjMode);
+  document.getElementById("lv-obj-mode")?.setAttribute("aria-pressed", _lvObjMode ? "true" : "false");
+  document.getElementById("lv-obj-controls")?.toggleAttribute("hidden", !_lvObjMode);
+  document.getElementById("lv-canvas")?.classList.toggle("lv-canvas--objects", _lvObjMode);
+  const typeSel = document.getElementById("lv-obj-type");
+  if (typeSel) {
+    if (typeSel.options.length !== _LV_OBJ_TYPES.length) {
+      typeSel.innerHTML = "";
+      _LV_OBJ_TYPES.forEach(function(ty, i) { typeSel.add(new Option(ty.letter + "  " + _lvObjTypeName(i), String(i))); });
+    } else {
+      _LV_OBJ_TYPES.forEach(function(ty, i) { typeSel.options[i].textContent = ty.letter + "  " + _lvObjTypeName(i); });
+    }
+    typeSel.value = String(_lvObjType);
+  }
+  const paramIn = document.getElementById("lv-obj-param");
+  if (paramIn && document.activeElement !== paramIn) paramIn.value = String(_lvObjParam);
+  const snapIn = document.getElementById("lv-obj-snap");
+  if (snapIn) snapIn.checked = _lvObjSnap;
+  document.getElementById("lv-obj-del")?.toggleAttribute("disabled", !_lvObjById(_lvObjSel));
+  document.getElementById("lv-attr-mode")?.classList.toggle("me-tool--active", _lvAttrMode);
+  document.getElementById("lv-attr-mode")?.setAttribute("aria-pressed", _lvAttrMode ? "true" : "false");
+  document.getElementById("lv-attr-controls")?.toggleAttribute("hidden", !_lvAttrMode);
+  document.getElementById("lv-canvas")?.classList.toggle("lv-canvas--objects", _lvObjMode || _lvAttrMode);
+  const attrSel = document.getElementById("lv-attr-type");
+  if (attrSel) {
+    if (attrSel.options.length !== _LV_ATTRS.length) {
+      attrSel.innerHTML = "";
+      _LV_ATTRS.forEach(function(a) { attrSel.add(new Option(_lvAttrName(a.bit), String(a.bit))); });
+    } else {
+      _LV_ATTRS.forEach(function(a, i) { attrSel.options[i].textContent = _lvAttrName(a.bit); });
+    }
+    attrSel.value = String(_lvAttrBit);
+    const a = _LV_ATTRS.find(function(it) { return it.bit === _lvAttrBit; });
+    attrSel.style.borderLeft = a ? "4px solid " + a.color : "";
+  }
+  const edgesIn = document.getElementById("lv-edges");
+  if (edgesIn) edgesIn.checked = _lvEdges;
+  const hint = document.getElementById("lv-hint");
+  if (hint) hint.textContent = t(_lvObjMode ? "lvObjHint" : _lvAttrMode ? "lvAttrHint" : "lvHint");
   const play = document.getElementById("lv-play");
   if (play) {
     play.classList.toggle("me-tool--active", _lvPlaying);
@@ -35854,6 +36197,7 @@ function _lvRenderAll() {
   _lvClampCam();
   _lvSyncControls();
   _lvRenderLibrary();
+  _lvRenderObjectList();
   _lvRenderOverview();
   _lvRenderPreview();
   _lvUpdateStatus();
@@ -36058,6 +36402,9 @@ function _lvBuildLevelFile() {
       cells: _lvCells.map(function(c) { return c ? ids.indexOf(c) : -1; }),
       names: _lvScreens.map(function(s) { return s.name; }),
       dir: _lvDir, speed: _lvSpeed, loop: _lvLoop,
+      // scroll order, which the LEVEL macro keeps (objects outside the level last)
+      objects: _lvObjSorted(_lvObjects.filter(_lvObjInLevel)).concat(_lvObjects.filter(function(o) { return !_lvObjInLevel(o); }))
+        .map(function(o) { return { t: o.type, x: o.x, y: o.y, p: o.param }; }),
       multicolor: st.multicolor, bgColor: st.bgColor, mc1Color: st.mc1Color, mc2Color: st.mc2Color,
       charSource: st.charSource
     },
@@ -36065,6 +36412,7 @@ function _lvBuildLevelFile() {
   };
   if (st.charSource === "custom" && st.charset) meta.extras.charset = st.charset.slice(0);
   if (st.charSource === "custom" && st.charColors) meta.extras.charColors = st.charColors.slice(0);
+  if (_lvAttrUsed()) meta.extras.attr = _lvAttr.slice(0);
   return _vaBuildBinWithMeta(payload, meta);
 }
 
@@ -36102,6 +36450,10 @@ function _lvLoadLevelFile(bytes) {
   _lvDir = _LV_DIRS[_lvLayout].includes(ms.dir) ? ms.dir : _LV_DIRS[_lvLayout][0];
   _lvSpeed = Math.max(1, Math.min(8, ms.speed | 0 || 1));
   _lvLoop = ms.loop !== false;
+  _lvObjects = (Array.isArray(ms.objects) ? ms.objects : []).map(function(o) { return _lvObjNew(o.t, o.x, o.y, o.p); });
+  _lvAttr = new Uint8Array(256);
+  if (parsed.extras.attr) _lvAttr.set(parsed.extras.attr.subarray(0, 256));
+  _lvObjSel = null;
   _lvSel = _lvSlotCount() ? 0 : -1;
   _lvLibSel = null;
   const speedIn = document.getElementById("lv-speed");
@@ -36181,7 +36533,40 @@ function _lvExportAsm() {
   };
   dump("level_screen", d.screen);
   dump("level_color", d.color);
+  lines.push.apply(lines, _lvObjectsAsm());
+  lines.push.apply(lines, _lvAttrAsm());
   return lines.join("\n") + "\n";
+}
+
+/* Object table, same names as the LEVEL macro: 16-bit level-pixel X / Y,
+   type and a free parameter byte, in scroll order. */
+function _lvObjectsAsm() {
+  const objs = _lvObjOrdered().slice(0, 255);
+  if (!objs.length) return [];
+  const hex = function(v) { return "$" + (v & 0xFF).toString(16).toUpperCase().padStart(2, "0"); };
+  const lines = ["", "; Objects: X / Y in level pixels (16 bit), scroll order", ".const LEVEL_OBJ_COUNT = " + objs.length];
+  _LV_OBJ_TYPES.forEach(function(ty, i) { lines.push(".const LEVEL_OBJ_T_" + ty.key.toUpperCase() + " = " + i); });
+  const start = objs.find(function(o) { return o.type === 0; });
+  if (start) lines.push(".const LEVEL_START_X = " + start.x, ".const LEVEL_START_Y = " + start.y);
+  [["LEVEL_OBJ_X_LO", function(o) { return o.x; }], ["LEVEL_OBJ_X_HI", function(o) { return o.x >> 8; }],
+   ["LEVEL_OBJ_Y_LO", function(o) { return o.y; }], ["LEVEL_OBJ_Y_HI", function(o) { return o.y >> 8; }],
+   ["LEVEL_OBJ_TYPE", function(o) { return o.type; }], ["LEVEL_OBJ_PARAM", function(o) { return o.param; }]
+  ].forEach(function(tab) {
+    lines.push(tab[0] + ":");
+    for (let i = 0; i < objs.length; i += 16) lines.push("    .byte " + objs.slice(i, i + 16).map(function(o) { return hex(tab[1](o)); }).join(", "));
+  });
+  return lines;
+}
+
+// 256-byte attribute table (one flag byte per screen code), same names as the LEVEL macro.
+function _lvAttrAsm() {
+  if (!_lvAttrUsed()) return [];
+  const hex = function(v) { return "$" + v.toString(16).toUpperCase().padStart(2, "0"); };
+  const lines = ["", "; Character attributes: one flag byte per screen code"];
+  _LV_ATTRS.forEach(function(a) { lines.push(".const LEVEL_ATTR_" + a.key.toUpperCase() + " = " + a.bit); });
+  lines.push("LEVEL_ATTR:");
+  for (let i = 0; i < 256; i += 16) lines.push("    .byte " + Array.from(_lvAttr.subarray(i, i + 16), hex).join(", "));
+  return lines;
 }
 
 function _lvFlash(msg) {
@@ -36217,6 +36602,8 @@ function _lvReset() {
   _lvStop();
   _lvScreens = []; _lvCells = []; _lvW = 1; _lvH = 0;
   _lvSel = -1; _lvLibSel = null;
+  _lvObjects = []; _lvObjSel = null;
+  _lvAttr = new Uint8Array(256);
   _lvSetSettings(_lvDefaultSettings());
   _lvCamX = _lvCamY = 0;
 }
@@ -36360,19 +36747,135 @@ function setupLevelEditor() {
     _lvRenderOverview();
   });
 
-  // Overview: click selects, drag swaps, double-click edits in the Map Editor
+  // Object layer controls
+  document.getElementById("lv-obj-mode")?.addEventListener("click", function() {
+    _lvObjMode = !_lvObjMode;
+    if (_lvObjMode) _lvAttrMode = false;
+    _lvRenderAll();
+  });
+  document.getElementById("lv-attr-mode")?.addEventListener("click", function() {
+    _lvAttrMode = !_lvAttrMode;
+    if (_lvAttrMode) _lvObjMode = false;
+    _lvRenderAll();
+  });
+  document.getElementById("lv-attr-type")?.addEventListener("change", function(e) {
+    _lvAttrBit = parseInt(e.target.value, 10) || 1;
+    _lvRenderAll();
+  });
+  document.getElementById("lv-edges")?.addEventListener("change", function(e) { _lvEdges = !!e.target.checked; _lvRenderAll(); });
+  const deleteObject = function() {
+    if (!_lvObjById(_lvObjSel)) return;
+    _lvPushUndo();
+    _lvObjects = _lvObjects.filter(function(o) { return o.id !== _lvObjSel; });
+    _lvObjSel = null;
+    _lvRenderAll();
+  };
+  document.getElementById("lv-obj-del")?.addEventListener("click", deleteObject);
+  document.getElementById("lv-obj-type")?.addEventListener("change", function(e) {
+    _lvObjType = parseInt(e.target.value, 10) || 0;
+    const o = _lvObjById(_lvObjSel);
+    if (o && o.type !== _lvObjType) { _lvPushUndo(); o.type = _lvObjType; }
+    _lvRenderAll();
+  });
+  document.getElementById("lv-obj-param")?.addEventListener("change", function(e) {
+    _lvObjParam = Math.max(0, Math.min(255, parseInt(e.target.value, 10) || 0));
+    e.target.value = String(_lvObjParam);
+    const o = _lvObjById(_lvObjSel);
+    if (o && o.param !== _lvObjParam) { _lvPushUndo(); o.param = _lvObjParam; }
+    _lvRenderAll();
+  });
+  document.getElementById("lv-obj-snap")?.addEventListener("change", function(e) { _lvObjSnap = !!e.target.checked; });
+
+  // Overview: click selects, drag swaps, double-click edits in the Map Editor.
+  // In object mode: click places / selects an object, drag moves it.
   const canvas = document.getElementById("lv-canvas");
+  const levelPoint = function(e) {
+    const r = canvas.getBoundingClientRect();
+    const k = canvas.width / r.width / _lvScale;
+    return { x: Math.floor((e.clientX - r.left) * k), y: Math.floor((e.clientY - r.top) * k) };
+  };
+  const objPos = function(e, x, y) {
+    const L = _lvLevelPx();
+    if (_lvObjSnap && !e.shiftKey) { x = Math.round(x / 8) * 8; y = Math.round(y / 8) * 8; }
+    return { x: Math.max(0, Math.min(L.w - 8, x)), y: Math.max(0, Math.min(L.h - 8, y)) };
+  };
+  // Attribute mode: a click toggles the flag of the clicked screen code (every
+  // cell with that code); dragging applies the same change to further codes.
+  const attrPaint = function(code) {
+    if (code < 0 || code === _lvAttrDrag.last) return;
+    _lvAttrDrag.last = code;
+    if (_lvAttrDrag.set) _lvAttr[code] |= _lvAttrBit; else _lvAttr[code] &= ~_lvAttrBit;
+    _lvRenderOverview(); _lvRenderLibrary();
+  };
+  const attrStatus = function(p) {
+    const code = _lvCharAt(p.x, p.y);
+    const st = document.getElementById("lv-status");
+    if (st && code >= 0) st.textContent = tf("lvAttrChar", { code: "$" + code.toString(16).toUpperCase().padStart(2, "0"), attrs: _lvAttrNames(_lvAttr[code]) });
+  };
   canvas?.addEventListener("pointerdown", function(e) {
     if (e.button !== 0) return;
+    if (_lvAttrMode) {
+      const p = levelPoint(e), code = _lvCharAt(p.x, p.y);
+      if (code < 0) return;
+      _lvPushUndo();
+      _lvAttrDrag = { set: !(_lvAttr[code] & _lvAttrBit), last: -1 };
+      try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+      attrPaint(code);
+      attrStatus(p);
+      return;
+    }
+    if (_lvObjMode) {
+      const p = levelPoint(e), L = _lvLevelPx();
+      if (!_lvSlotCount() || p.x >= L.w || p.y >= L.h) return;
+      // Clicking an object selects it (the type / param controls then edit it);
+      // clicking empty space places a new one with the current type / param
+      // and leaves nothing selected, so the controls stay a brush.
+      let o = _lvObjAt(p.x, p.y, Math.ceil(2 / _lvScale));
+      const hit = !!o;
+      if (!hit) {
+        _lvPushUndo();
+        const at = objPos(e, p.x - 4, p.y - 4);
+        o = _lvObjNew(_lvObjType, at.x, at.y, _lvObjParam);
+        _lvObjects.push(o);
+      }
+      _lvObjDrag = { id: o.id, dx: p.x - o.x, dy: p.y - o.y, undo: hit };
+      try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+      if (hit) _lvObjSelect(o.id, false);
+      else { _lvObjSel = null; _lvRenderAll(); }
+      return;
+    }
     const slot = _lvSlotAt(e.clientX, e.clientY);
     if (slot < 0 || slot >= _lvSlotCount()) return;
     _lvDrag = { kind: "slot", from: slot, x: e.clientX, y: e.clientY, active: false, over: -1 };
     try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
   });
-  canvas?.addEventListener("pointermove", _lvDragMove);
-  canvas?.addEventListener("pointerup", _lvDragEnd);
-  canvas?.addEventListener("pointercancel", function() { _lvDrag = null; _lvRenderOverview(); });
+  canvas?.addEventListener("pointermove", function(e) {
+    if (_lvAttrMode) {
+      const p = levelPoint(e);
+      if (_lvAttrDrag) attrPaint(_lvCharAt(p.x, p.y));
+      attrStatus(p);
+      return;
+    }
+    if (!_lvObjDrag) { _lvDragMove(e); return; }
+    const o = _lvObjById(_lvObjDrag.id);
+    if (!o) return;
+    const p = levelPoint(e);
+    const at = objPos(e, p.x - _lvObjDrag.dx, p.y - _lvObjDrag.dy);
+    if (at.x === o.x && at.y === o.y) return;
+    if (_lvObjDrag.undo) { _lvPushUndo(); _lvObjDrag.undo = false; }
+    o.x = at.x; o.y = at.y;
+    _lvRenderOverview(); _lvRenderPreview(); _lvUpdateStatus();
+  });
+  canvas?.addEventListener("pointerup", function(e) {
+    if (_lvAttrDrag) { _lvAttrDrag = null; _lvRenderAll(); return; }
+    if (_lvAttrMode) return;
+    if (!_lvObjDrag) { _lvDragEnd(e); return; }
+    _lvObjDrag = null;
+    _lvRenderAll();
+  });
+  canvas?.addEventListener("pointercancel", function() { _lvDrag = null; _lvObjDrag = null; _lvAttrDrag = null; _lvRenderOverview(); });
   canvas?.addEventListener("dblclick", function(e) {
+    if (_lvObjMode || _lvAttrMode) return;
     const slot = _lvSlotAt(e.clientX, e.clientY);
     if (slot >= 0 && _lvCells[slot]) _lvEditInMapEditor(_lvCells[slot]);
   });
@@ -36402,9 +36905,21 @@ function setupLevelEditor() {
     if (mod && e.key.toLowerCase() === "z") { if (e.shiftKey) _lvRedoOp(); else _lvUndoOp(); e.preventDefault(); return; }
     if (mod && e.key.toLowerCase() === "y") { _lvRedoOp(); e.preventDefault(); return; }
     if (e.key === " ") { if (_lvPlaying) _lvStop(); else _lvPlay(); e.preventDefault(); return; }
+    const selObj = _lvObjMode ? _lvObjById(_lvObjSel) : null;
+    if (selObj && (e.key === "Delete" || e.key === "Backspace")) { deleteObject(); e.preventDefault(); return; }
+    if (_lvObjMode && e.key === "Escape" && selObj) { _lvObjSel = null; _lvRenderAll(); e.preventDefault(); e.stopPropagation(); return; }
     if (e.key === "Delete" && _lvSel >= 0) { _lvPushUndo(); _lvRemoveSlot(_lvSel); _lvRenderAll(); e.preventDefault(); return; }
     const step = e.shiftKey ? 8 : 1;
     const moves = { ArrowUp: [0, -step], ArrowDown: [0, step], ArrowLeft: [-step, 0], ArrowRight: [step, 0] };
+    if (moves[e.key] && selObj) {
+      const L = _lvLevelPx();
+      _lvPushUndo();
+      selObj.x = Math.max(0, Math.min(L.w - 8, selObj.x + moves[e.key][0]));
+      selObj.y = Math.max(0, Math.min(L.h - 8, selObj.y + moves[e.key][1]));
+      _lvRenderAll();
+      e.preventDefault();
+      return;
+    }
     if (moves[e.key]) {
       _lvCamX += moves[e.key][0]; _lvCamY += moves[e.key][1];
       _lvClampCam();
@@ -38244,7 +38759,7 @@ let _spMulti = false;
 let _spGrid = true;
 let _spZoom = 13;
 let _spSlot = "sprite";
-let _spCol = { sprite: 1, bg: 6, mc1: 0, mc2: 11 };
+let _spCol = { sprite: 1, bg: 6, mc1: 0, mc2: 11, ov: 0 };
 let _spWrap = false;
 let _spTool = "pencil";
 let _spPainting = false, _spPaintVal = 0;
@@ -38256,49 +38771,81 @@ let _spPlay = null;
 let _spPlayDir = 1;
 let _spPingPong = false, _spOnion = false, _spFps = 6;
 let _spUndo = [], _spRedo = [];
+// Hi-res overlay: a second, single-colour hi-res sprite over each frame (e.g. a
+// black outline over a multicolor body — the classic two-sprite trick). It has
+// its own pixel arrays (0/1) parallel to _spFrames; on the C64 it is a separate
+// sprite with a lower number, so it is drawn over the body.
+let _spOverlay = false;
+let _spOv = null;           // per frame Uint8Array(_SP_W*_SP_H), 0/1
+let _spLayer = "base";      // "base" | "ov" — the layer the tools edit
 
-function _spCur() { return _spFrames[_spFrame]; }
+function _spOnOv() { return _spOverlay && _spLayer === "ov"; }
+function _spLM() { return _spMulti && !_spOnOv(); }   // multicolor pixel pairs on the edited layer
+function _spCur() { return _spOnOv() ? _spOv[_spFrame] : _spFrames[_spFrame]; }
+function _spNewFrame() { return new Uint8Array(_SP_W*_SP_H); }
 function _spGet(x, y) { return (x<0||y<0||x>=_SP_W||y>=_SP_H) ? 0 : _spCur()[y*_SP_W+x]; }
 function _spSet(x, y, v) {
   if (x<0||y<0||x>=_SP_W||y>=_SP_H) return;
   const f = _spCur();
-  if (_spMulti) { const x0 = x & ~1; f[y*_SP_W+x0] = v; f[y*_SP_W+x0+1] = v; }
+  if (_spLM()) { const x0 = x & ~1; f[y*_SP_W+x0] = v; f[y*_SP_W+x0+1] = v; }
   else f[y*_SP_W+x] = v;
 }
 function _spSlotVal(slot) {
   if (slot === "bg") return 0;
+  if (_spOnOv()) return 1;
   if (_spMulti) return slot === "mc1" ? 1 : slot === "mc2" ? 3 : 2;
   return 1;
 }
-function _spPenColor(v) {
+function _spBaseColor(v) {
   if (v === 0) return _spCol.bg;
   if (!_spMulti) return _spCol.sprite;
   return v === 1 ? _spCol.mc1 : v === 3 ? _spCol.mc2 : _spCol.sprite;
+}
+function _spPenColor(v) {
+  if (_spOnOv()) return v ? _spCol.ov : _spCol.bg;
+  return _spBaseColor(v);
+}
+// Run fn on every layer of a frame (flip / shift / rotate keep the layers aligned).
+function _spEachLayer(i, fn) {
+  fn(_spFrames[i]);
+  if (_spOverlay) fn(_spOv[i]);
 }
 
 function _spRender() {
   const W = _SP_W * _spZoom, H = _SP_H * _spZoom;
   if (_spCanvas.width !== W) { _spCanvas.width = W; _spCanvas.height = H; }
   const z = _spZoom;
+  const base = _spFrames[_spFrame];
   for (let y = 0; y < _SP_H; y++)
     for (let x = 0; x < _SP_W; x++) {
-      _spCtx.fillStyle = _CE_COLORS[_spPenColor(_spCur()[y*_SP_W+x])];
+      _spCtx.fillStyle = _CE_COLORS[_spBaseColor(base[y*_SP_W+x])];
       _spCtx.fillRect(x*z, y*z, z, z);
     }
   if (_spOnion && _spFrames.length > 1) {
-    const prev = _spFrames[(_spFrame - 1 + _spFrames.length) % _spFrames.length];
+    const pi = (_spFrame - 1 + _spFrames.length) % _spFrames.length;
+    const prev = _spFrames[pi], prevOv = _spOverlay ? _spOv[pi] : null;
     _spCtx.globalAlpha = 0.3;
     for (let y = 0; y < _SP_H; y++)
       for (let x = 0; x < _SP_W; x++) {
-        const v = prev[y*_SP_W+x];
-        if (v !== 0) { _spCtx.fillStyle = _CE_COLORS[_spPenColor(v)]; _spCtx.fillRect(x*z, y*z, z, z); }
+        const i = y*_SP_W+x, v = prev[i];
+        if (prevOv && prevOv[i]) { _spCtx.fillStyle = _CE_COLORS[_spCol.ov]; _spCtx.fillRect(x*z, y*z, z, z); }
+        else if (v !== 0) { _spCtx.fillStyle = _CE_COLORS[_spBaseColor(v)]; _spCtx.fillRect(x*z, y*z, z, z); }
       }
+    _spCtx.globalAlpha = 1;
+  }
+  if (_spOverlay) {
+    // the overlay is dimmed while the body is edited, so both stay readable
+    const ov = _spOv[_spFrame];
+    _spCtx.globalAlpha = _spOnOv() ? 1 : 0.55;
+    _spCtx.fillStyle = _CE_COLORS[_spCol.ov];
+    for (let y = 0; y < _SP_H; y++)
+      for (let x = 0; x < _SP_W; x++) if (ov[y*_SP_W+x]) _spCtx.fillRect(x*z, y*z, z, z);
     _spCtx.globalAlpha = 1;
   }
   if (_spGrid) {
     _spCtx.strokeStyle = "rgba(255,255,255,0.12)"; _spCtx.lineWidth = 1;
     _spCtx.beginPath();
-    const step = _spMulti ? 2 : 1;
+    const step = _spLM() ? 2 : 1;
     for (let x = 0; x <= _SP_W; x += step) { _spCtx.moveTo(x*z+0.5, 0); _spCtx.lineTo(x*z+0.5, H); }
     for (let y = 0; y <= _SP_H; y++) { _spCtx.moveTo(0, y*z+0.5); _spCtx.lineTo(W, y*z+0.5); }
     _spCtx.stroke();
@@ -38313,25 +38860,32 @@ function _spRender() {
     for (let r = 1; r < _spRows; r++) { _spCtx.moveTo(0, r*_SP_PH*z); _spCtx.lineTo(W, r*_SP_PH*z); }
     _spCtx.stroke(); _spCtx.lineWidth = 1;
   }
+  _spDrawMarks();
+  _spHitInfo();
   _spRenderPreview();
   _spRenderThumbs();
   const fl = document.getElementById("se-frame-label");
   if (fl) fl.textContent = t("seFrame") + " " + (_spFrame+1) + " / " + _spFrames.length;
 }
-function _spDrawFrameTo(ctx, frame, cw, ch) {
-  // one scale for both axes (a 2×1 metasprite stays wide), centred
-  const z = Math.min(cw / _SP_W, ch / _SP_H), ox = (cw - _SP_W * z) / 2, oy = (ch - _SP_H * z) / 2;
+// Frame i scaled into cw × ch, centred; ex / ey = 2 shows the $D01D / $D017 expansion.
+function _spDrawFrameTo(ctx, i, cw, ch, ex = 1, ey = 1) {
+  const frame = _spFrames[i], ov = _spOverlay ? _spOv[i] : null;
+  const zx0 = Math.min(cw / (_SP_W * ex), ch / (_SP_H * ey));
+  const zx = zx0 * ex, zy = zx0 * ey;
+  const ox = (cw - _SP_W * zx) / 2, oy = (ch - _SP_H * zy) / 2;
   ctx.clearRect(0,0,cw,ch);
-  ctx.fillStyle = _CE_COLORS[_spCol.bg]; ctx.fillRect(ox, oy, _SP_W * z, _SP_H * z);
+  ctx.fillStyle = _CE_COLORS[_spCol.bg]; ctx.fillRect(ox, oy, _SP_W * zx, _SP_H * zy);
   for (let y = 0; y < _SP_H; y++)
     for (let x = 0; x < _SP_W; x++) {
       const v = frame[y*_SP_W+x];
-      if (v !== 0) { ctx.fillStyle = _CE_COLORS[_spPenColor(v)]; ctx.fillRect(Math.floor(ox + x*z), Math.floor(oy + y*z), Math.ceil(z), Math.ceil(z)); }
+      const c = ov && ov[y*_SP_W+x] ? _spCol.ov : v !== 0 ? _spBaseColor(v) : -1;
+      if (c >= 0) { ctx.fillStyle = _CE_COLORS[c]; ctx.fillRect(Math.floor(ox + x*zx), Math.floor(oy + y*zy), Math.ceil(zx), Math.ceil(zy)); }
     }
 }
+let _spExpX = false, _spExpY = false;
 function _spRenderPreview() {
   const c = document.getElementById("se-preview"); if (!c) return;
-  _spDrawFrameTo(c.getContext("2d"), _spCur(), c.width, c.height);
+  _spDrawFrameTo(c.getContext("2d"), _spFrame, c.width, c.height, _spExpX ? 2 : 1, _spExpY ? 2 : 1);
 }
 function _spRenderThumbs() {
   const wrap = document.getElementById("se-anim-frames"); if (!wrap) return;
@@ -38341,7 +38895,7 @@ function _spRenderThumbs() {
     cv.width = 48; cv.height = 42;
     cv.className = "se-frame-thumb" + (i === _spFrame ? " se-frame-thumb--active" : "");
     cv.title = t("seFrame") + " " + (i+1);
-    _spDrawFrameTo(cv.getContext("2d"), fr, 48, 42);
+    _spDrawFrameTo(cv.getContext("2d"), i, 48, 42);
     cv.addEventListener("click", function() { _spStop(); _spFrame = i; _spRender(); });
     cv.addEventListener("contextmenu", function(e) { _spStop(); _spFrame = i; _spRender(); _spShowCtxMenu(e); });
     wrap.appendChild(cv);
@@ -38361,7 +38915,9 @@ function _spShowCtxMenu(e) {
 function _spBuildColors() {
   const wrap = document.getElementById("se-colors"); if (!wrap) return;
   wrap.innerHTML = "";
-  const slots = _spMulti
+  const slots = _spOnOv()
+    ? [["ov",t("seOverlayColor")],["bg",t("seBackground")]]
+    : _spMulti
     ? [["sprite",t("seSpriteColor")],["mc1",t("seMultiColor1")],["mc2",t("seMultiColor2")],["bg",t("seBackground")]]
     : [["sprite",t("seSpriteColor")],["bg",t("seBackground")]];
   slots.forEach(function(s) {
@@ -38385,14 +38941,15 @@ function _spBuildPalette() {
 }
 
 // The 64 sprite bytes of part (pc, pr) of a frame (the whole frame for a single sprite).
-function _spFrameBytes(frame, pc = 0, pr = 0) {
+// `multi` = false for the hi-res overlay layer.
+function _spFrameBytes(frame, pc = 0, pr = 0, multi = _spMulti) {
   const out = new Uint8Array(64);
   const ox = pc * _SP_PW, oy = pr * _SP_PH;
   for (let y = 0; y < _SP_PH; y++) {
     const row = (oy + y) * _SP_W + ox;
     for (let b = 0; b < 3; b++) {
       let byte = 0;
-      if (_spMulti) {
+      if (multi) {
         for (let j = 0; j < 4; j++) { const v = frame[row + (b*4+j)*2] & 3; byte |= v << ((3-j)*2); }
       } else {
         for (let i = 0; i < 8; i++) { if (frame[row + b*8 + i]) byte |= 1 << (7-i); }
@@ -38402,11 +38959,17 @@ function _spFrameBytes(frame, pc = 0, pr = 0) {
   }
   return out;
 }
-// Every sprite of a frame, left to right then top to bottom, 64 bytes each.
-function _spFrameAllBytes(frame) {
-  const out = new Uint8Array(_spCols * _spRows * 64);
+// Every sprite of frame i, left to right then top to bottom, 64 bytes each;
+// with the overlay on, its hi-res sprites follow the body's.
+function _spFrameAllBytes(i) {
+  const parts = _spCols * _spRows;
+  const out = new Uint8Array(parts * 64 * (_spOverlay ? 2 : 1));
   for (let pr = 0; pr < _spRows; pr++)
-    for (let pc = 0; pc < _spCols; pc++) out.set(_spFrameBytes(frame, pc, pr), (pr * _spCols + pc) * 64);
+    for (let pc = 0; pc < _spCols; pc++) {
+      const k = pr * _spCols + pc;
+      out.set(_spFrameBytes(_spFrames[i], pc, pr), k * 64);
+      if (_spOverlay) out.set(_spFrameBytes(_spOv[i], pc, pr, false), (parts + k) * 64);
+    }
   return out;
 }
 // Resize every frame to cols × rows sprites; the picture stays in the top left corner.
@@ -38422,12 +38985,14 @@ function _spSetLayout(cols, rows) {
   _spPushUndo();
   const oldW = _SP_W, oldH = _SP_H;
   _spApplyDims(cols, rows);
-  _spFrames = _spFrames.map(function(f) {
+  const resize = function(f) {
     const n = new Uint8Array(_SP_W * _SP_H);
     for (let y = 0; y < Math.min(oldH, _SP_H); y++)
       for (let x = 0; x < Math.min(oldW, _SP_W); x++) n[y * _SP_W + x] = f[y * oldW + x];
     return n;
-  });
+  };
+  _spFrames = _spFrames.map(resize);
+  _spOv = _spOv.map(resize);
   _spClip = null;
   // the biggest zoom that fits the drawing area (a single sprite: the default 13)
   const wrap = document.getElementById("se-canvas-wrap");
@@ -38442,7 +39007,7 @@ function _spExportText() {
   const fmt = fmtEl ? fmtEl.value : "hex";
   const allEl = document.getElementById("se-export-all");
   const all = allEl && allEl.checked;
-  const frames = all ? _spFrames : [_spCur()];
+  const frames = all ? _spFrames : [_spFrames[_spFrame]];
   let out = "", line = 1000;
   frames.forEach(function(fr, fi) {
     const bytes = _spFrameBytes(fr);
@@ -38476,17 +39041,22 @@ function _spHexCSV() {
     for (let i = 0; i < 63; i++) arr.push("$" + bytes[i].toString(16).toUpperCase().padStart(2,"0"));
     return arr;
   };
-  if (_spCols === 1 && _spRows === 1) return hex(_spFrameBytes(_spCur())).join(", ");
+  const body = _spFrames[_spFrame];
+  if (_spCols === 1 && _spRows === 1 && !_spOverlay) return hex(_spFrameBytes(body)).join(", ");
   // metasprite: one labelled block per sprite with its X / Y offset in screen pixels
   // (multicolor sprites are 24 screen pixels wide too; double them with $D01D / $D017)
   const n = _spFrame + 1;
-  let out = "; metasprite " + _spCols + "x" + _spRows + ", frame " + n + " (sprites left to right, top to bottom)\n";
-  for (let pr = 0; pr < _spRows; pr++)
-    for (let pc = 0; pc < _spCols; pc++) {
-      const arr = hex(_spFrameBytes(_spCur(), pc, pr));
-      out += "sprite_f" + n + "_" + (pr * _spCols + pc + 1) + ":  ; x +" + (pc * _SP_PW) + ", y +" + (pr * _SP_PH) + "\n";
-      for (let k = 0; k < 63; k += 21) out += "    .byte " + arr.slice(k, k + 21).join(", ") + "\n";
-    }
+  let out = "; " + (_spCols > 1 || _spRows > 1 ? "metasprite " + _spCols + "x" + _spRows + ", " : "") + "frame " + n +
+    " (sprites left to right, top to bottom)" + (_spOverlay ? "; _ov = hi-res overlay, give it a lower sprite number than the body" : "") + "\n";
+  const layers = _spOverlay ? [[body, "", _spMulti], [_spOv[_spFrame], "_ov", false]] : [[body, "", _spMulti]];
+  layers.forEach(function(layer) {
+    for (let pr = 0; pr < _spRows; pr++)
+      for (let pc = 0; pc < _spCols; pc++) {
+        const arr = hex(_spFrameBytes(layer[0], pc, pr, layer[2]));
+        out += "sprite_f" + n + layer[1] + "_" + (pr * _spCols + pc + 1) + ":  ; x +" + (pc * _SP_PW) + ", y +" + (pr * _SP_PH) + "\n";
+        for (let k = 0; k < 63; k += 21) out += "    .byte " + arr.slice(k, k + 21).join(", ") + "\n";
+      }
+  });
   return out.replace(/\n$/, "");
 }
 function _spUpdateExport() {
@@ -38494,17 +39064,24 @@ function _spUpdateExport() {
   if (el) el.textContent = _spExportText();
 }
 
-function _spFlipH() { const f = _spCur(); for (let y=0;y<_SP_H;y++) for (let x=0;x<_SP_W/2;x++){ const i=y*_SP_W+x, j=y*_SP_W+(_SP_W-1-x); const t=f[i]; f[i]=f[j]; f[j]=t; } _spRender(); }
-function _spFlipV() { const f = _spCur(); for (let y=0;y<_SP_H/2;y++) for (let x=0;x<_SP_W;x++){ const i=y*_SP_W+x, j=(_SP_H-1-y)*_SP_W+x; const t=f[i]; f[i]=f[j]; f[j]=t; } _spRender(); }
+function _spFlipArrH(f) { for (let y=0;y<_SP_H;y++) for (let x=0;x<_SP_W/2;x++){ const i=y*_SP_W+x, j=y*_SP_W+(_SP_W-1-x); const t=f[i]; f[i]=f[j]; f[j]=t; } }
+function _spFlipArrV(f) { for (let y=0;y<_SP_H/2;y++) for (let x=0;x<_SP_W;x++){ const i=y*_SP_W+x, j=(_SP_H-1-y)*_SP_W+x; const t=f[i]; f[i]=f[j]; f[j]=t; } }
+function _spFlipH() { _spEachLayer(_spFrame, _spFlipArrH); _spRender(); }
+function _spFlipV() { _spEachLayer(_spFrame, _spFlipArrV); _spRender(); }
 function _spShift(dir) {
-  const f = _spCur(), n = new Uint8Array(_SP_W*_SP_H);
-  for (let y=0;y<_SP_H;y++) for (let x=0;x<_SP_W;x++) {
-    let sx=x, sy=y;
-    if (dir==="left") sx=x+1; else if (dir==="right") sx=x-1; else if (dir==="up") sy=y+1; else sy=y-1;
-    if (_spWrap) { sx=(sx+_SP_W)%_SP_W; sy=(sy+_SP_H)%_SP_H; n[y*_SP_W+x]=f[sy*_SP_W+sx]; }
-    else { n[y*_SP_W+x] = (sx<0||sy<0||sx>=_SP_W||sy>=_SP_H) ? 0 : f[sy*_SP_W+sx]; }
-  }
-  f.set(n); _spRender();
+  // multicolor moves by a whole (double-wide) pixel so the pairs stay aligned
+  const step = _spMulti && (dir === "left" || dir === "right") ? 2 : 1;
+  _spEachLayer(_spFrame, function(f) {
+    const n = new Uint8Array(_SP_W*_SP_H);
+    for (let y=0;y<_SP_H;y++) for (let x=0;x<_SP_W;x++) {
+      let sx=x, sy=y;
+      if (dir==="left") sx=x+step; else if (dir==="right") sx=x-step; else if (dir==="up") sy=y+1; else sy=y-1;
+      if (_spWrap) { sx=(sx+_SP_W)%_SP_W; sy=(sy+_SP_H)%_SP_H; n[y*_SP_W+x]=f[sy*_SP_W+sx]; }
+      else { n[y*_SP_W+x] = (sx<0||sy<0||sx>=_SP_W||sy>=_SP_H) ? 0 : f[sy*_SP_W+sx]; }
+    }
+    f.set(n);
+  });
+  _spRender();
 }
 
 function _spLine(x0, y0, x1, y1, set) {
@@ -38551,12 +39128,263 @@ function _spPreviewShape(a, b, val) {
   const z = _spZoom;
   const draw = function(x, y) {
     if (x < 0 || y < 0 || x >= _SP_W || y >= _SP_H) return;
-    if (_spMulti) x &= ~1;
+    if (_spLM()) x &= ~1;
     _spCtx.fillRect(x*z, y*z, z, z);
-    if (_spMulti && x + 1 < _SP_W) _spCtx.fillRect((x+1)*z, y*z, z, z);
+    if (_spLM() && x + 1 < _SP_W) _spCtx.fillRect((x+1)*z, y*z, z, z);
   };
   _spDrawShape(a, b, draw);
   _spCtx.restore();
+}
+
+/* ── Fill, selection, rotation, hitbox, mirrored animation ── */
+function _spFloodFill(x, y, v) {
+  const step = _spLM() ? 2 : 1, f = _spCur();
+  if (step === 2) x &= ~1;
+  const target = _spGet(x, y);
+  if (target === v) return;
+  const stack = [[x, y]];
+  while (stack.length) {
+    const [cx, cy] = stack.pop();
+    if (cx < 0 || cy < 0 || cx >= _SP_W || cy >= _SP_H || f[cy*_SP_W+cx] !== target) continue;
+    _spSet(cx, cy, v);
+    stack.push([cx+step, cy], [cx-step, cy], [cx, cy+1], [cx, cy-1]);
+  }
+}
+
+// The selection covers every layer of one frame, so body and overlay move together.
+let _spSel = null;      // { x, y, w, h, frame }
+let _spFloat = null;    // { x, y, w, h, layers: [Uint8Array] } pixels lifted while moving
+let _spSelDrag = null;  // { mode: "new", a } | { mode: "move", dx, dy }
+function _spLayers(i) { return _spOverlay ? [_spFrames[i], _spOv[i]] : [_spFrames[i]]; }
+function _spSelActive() { return _spSel && _spSel.frame === _spFrame ? _spSel : null; }
+// Rectangle of two corners, clipped; multicolor keeps whole pixel pairs.
+function _spSelNorm(a, b) {
+  let x0 = Math.max(0, Math.min(a.x, b.x)), y0 = Math.max(0, Math.min(a.y, b.y));
+  let x1 = Math.min(_SP_W - 1, Math.max(a.x, b.x)), y1 = Math.min(_SP_H - 1, Math.max(a.y, b.y));
+  if (_spMulti) { x0 &= ~1; x1 |= 1; }
+  return { x: x0, y: y0, w: x1 - x0 + 1, h: y1 - y0 + 1, frame: _spFrame };
+}
+function _spLift() {
+  const s = _spSel;
+  _spFloat = { x: s.x, y: s.y, w: s.w, h: s.h, layers: _spLayers(_spFrame).map(function(f) {
+    const px = new Uint8Array(s.w * s.h);
+    for (let y = 0; y < s.h; y++)
+      for (let x = 0; x < s.w; x++) {
+        const i = (s.y + y) * _SP_W + s.x + x;
+        px[y * s.w + x] = f[i]; f[i] = 0;
+      }
+    return px;
+  }) };
+}
+// Drop the lifted pixels (0 = transparent); the selection becomes the visible part.
+function _spStamp() {
+  const fl = _spFloat;
+  if (!fl) return;
+  _spLayers(_spFrame).forEach(function(f, k) {
+    const px = fl.layers[k];
+    for (let y = 0; y < fl.h; y++)
+      for (let x = 0; x < fl.w; x++) {
+        const tx = fl.x + x, ty = fl.y + y, v = px[y * fl.w + x];
+        if (v && tx >= 0 && ty >= 0 && tx < _SP_W && ty < _SP_H) f[ty * _SP_W + tx] = v;
+      }
+  });
+  _spFloat = null;
+  const s = _spSelNorm({ x: fl.x, y: fl.y }, { x: fl.x + fl.w - 1, y: fl.y + fl.h - 1 });
+  _spSel = s.w > 0 && s.h > 0 && fl.x < _SP_W && fl.y < _SP_H && fl.x + fl.w > 0 && fl.y + fl.h > 0 ? s : null;
+}
+function _spMoveSel(dx, dy) {
+  if (!_spSelActive()) return;
+  _spLift();
+  _spFloat.x += dx; _spFloat.y += dy;
+  _spStamp();
+}
+function _spClearSel() {
+  const s = _spSelActive();
+  if (!s) return;
+  _spLayers(_spFrame).forEach(function(f) {
+    for (let y = s.y; y < s.y + s.h; y++) f.fill(0, y * _SP_W + s.x, y * _SP_W + s.x + s.w);
+  });
+}
+// Rotate the selection (or the whole frame) by 90° around its centre; what falls
+// outside the frame is lost. Multicolor pairs are re-joined afterwards.
+function _spRotate(cw) {
+  const r = _spSelActive() || { x: 0, y: 0, w: _SP_W, h: _SP_H };
+  const cx = r.x + (r.w - 1) / 2, cy = r.y + (r.h - 1) / 2;
+  _spLayers(_spFrame).forEach(function(f, k) {
+    const src = f.slice(0);
+    for (let y = r.y; y < r.y + r.h; y++) f.fill(0, y * _SP_W + r.x, y * _SP_W + r.x + r.w);
+    for (let y = r.y; y < r.y + r.h; y++)
+      for (let x = r.x; x < r.x + r.w; x++) {
+        const v = src[y * _SP_W + x];
+        if (!v) continue;
+        const rx = x - cx, ry = y - cy;
+        const tx = Math.floor(cw ? cx - ry : cx + ry), ty = Math.floor(cw ? cy + rx : cy - rx);
+        if (tx >= 0 && ty >= 0 && tx < _SP_W && ty < _SP_H) f[ty * _SP_W + tx] = v;
+      }
+    if (k === 0 && _spMulti)
+      for (let i = 0; i < f.length; i += 2) { const v = f[i] || f[i + 1]; f[i] = v; f[i + 1] = v; }
+  });
+  if (_spSelActive()) {
+    const x = Math.round(cx - (r.h - 1) / 2), y = Math.round(cy - (r.w - 1) / 2);
+    _spSel = _spSelNorm({ x: x, y: y }, { x: x + r.h - 1, y: y + r.w - 1 });
+  }
+}
+
+// Hitbox per frame, in screen pixels from the top left of the (meta)sprite.
+let _spHit = [];
+let _spHitDrag = null;
+function _spHitSync() { while (_spHit.length < _spFrames.length) _spHit.push(null); _spHit.length = _spFrames.length; }
+// Bounding box of the set pixels of frame i (all layers), null if it is empty.
+function _spBounds(i) {
+  let x0 = _SP_W, y0 = _SP_H, x1 = -1, y1 = -1;
+  _spLayers(i).forEach(function(f) {
+    for (let y = 0; y < _SP_H; y++)
+      for (let x = 0; x < _SP_W; x++)
+        if (f[y * _SP_W + x]) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+  });
+  return x1 < 0 ? null : { x: x0, y: y0, w: x1 - x0 + 1, h: y1 - y0 + 1 };
+}
+// Hitbox table for every frame; a frame without a hitbox uses its pixel bounding box.
+function _spHitboxAsm() {
+  _spHitSync();
+  const boxes = _spFrames.map(function(_, i) { return _spHit[i] || _spBounds(i) || { x: 0, y: 0, w: 0, h: 0 }; });
+  const row = function(key) { return "    .byte " + boxes.map(function(b) { return b[key]; }).join(", "); };
+  return [
+    "; sprite hitboxes, one entry per frame: x / y offset from the sprite's top left",
+    "; (screen pixels, unexpanded), width, height",
+    ".const SPRITE_FRAMES = " + boxes.length,
+    "sprite_hit_x:", row("x"), "sprite_hit_y:", row("y"),
+    "sprite_hit_w:", row("w"), "sprite_hit_h:", row("h")
+  ].join("\n");
+}
+function _spHitInfo() {
+  const el = document.getElementById("se-hit-info");
+  if (!el) return;
+  const h = _spHit[_spFrame];
+  el.textContent = h ? h.x + "," + h.y + "  " + h.w + "×" + h.h : t("seHitNone");
+}
+
+// Append a horizontally mirrored copy of every frame (a walk cycle the other way).
+function _spMirrorAnim() {
+  _spHitSync();
+  const n = _spFrames.length;
+  for (let i = 0; i < n; i++) {
+    const b = _spFrames[i].slice(0), o = _spOv[i].slice(0);
+    _spFlipArrH(b); _spFlipArrH(o);
+    _spFrames.push(b); _spOv.push(o);
+    const h = _spHit[i];
+    _spHit.push(h ? { x: _SP_W - h.x - h.w, y: h.y, w: h.w, h: h.h } : null);
+  }
+}
+
+// Selection marquee, lifted pixels and the hitbox, drawn over the canvas.
+function _spDrawMarks() {
+  const z = _spZoom, ctx = _spCtx;
+  if (_spFloat) {
+    _spFloat.layers.forEach(function(px, k) {
+      for (let y = 0; y < _spFloat.h; y++)
+        for (let x = 0; x < _spFloat.w; x++) {
+          const v = px[y * _spFloat.w + x];
+          if (!v) continue;
+          ctx.fillStyle = _CE_COLORS[k ? _spCol.ov : _spBaseColor(v)];
+          ctx.fillRect((_spFloat.x + x) * z, (_spFloat.y + y) * z, z, z);
+        }
+    });
+  }
+  const h = _spHit[_spFrame];
+  if (h) {
+    ctx.save();
+    ctx.strokeStyle = "#3df0ff"; ctx.lineWidth = 2; ctx.setLineDash([5, 3]);
+    ctx.strokeRect(h.x * z + 1, h.y * z + 1, h.w * z - 2, h.h * z - 2);
+    ctx.restore();
+  }
+  const s = _spSelActive();
+  if (s) {
+    ctx.save();
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "#000"; ctx.strokeRect(s.x * z + 0.5, s.y * z + 0.5, s.w * z - 1, s.h * z - 1);
+    ctx.strokeStyle = "#fff"; ctx.setLineDash([4, 3]); ctx.strokeRect(s.x * z + 0.5, s.y * z + 0.5, s.w * z - 1, s.h * z - 1);
+    ctx.restore();
+  }
+}
+
+/* ── Sprite sheet import: a grid of cells → frames, OKLab colour matching ── */
+const _SP_SHEET_DEFAULTS = { cellW: 0, cellH: 0, offX: 0, offY: 0, gapX: 0, gapY: 0, count: 0, colors: "auto", dither: "none", replace: true };
+let _spSheet = null;   // { src: canvas, name, opts, result }
+// Cell rectangles of the sheet, row by row (cells that do not fit are skipped).
+function _spSheetCells(o, W, H) {
+  const cells = [];
+  const cw = o.cellW || _SP_W, ch = o.cellH || _SP_H;
+  for (let y = o.offY; y + ch <= H; y += ch + o.gapY)
+    for (let x = o.offX; x + cw <= W; x += cw + o.gapX) {
+      cells.push({ x: x, y: y, w: cw, h: ch });
+      if (o.count && cells.length >= o.count) return cells;
+    }
+  return cells;
+}
+// Each cell is scaled (nearest) to the sprite's logical size — 12 pixels wide per
+// sprite in multicolor — and every pixel is matched to the sprite's colours in OKLab.
+function _spSheetConvert(src, o) {
+  const lw = _spMulti ? _SP_W / 2 : _SP_W, lh = _SP_H;
+  const cells = _spSheetCells(o, src.width, src.height);
+  const cv = document.createElement("canvas");
+  cv.width = lw; cv.height = lh;
+  const ctx = cv.getContext("2d", { willReadFrequently: true });
+  ctx.imageSmoothingEnabled = false;
+  const datas = cells.map(function(c) {
+    ctx.clearRect(0, 0, lw, lh);
+    ctx.drawImage(src, c.x, c.y, c.w, c.h, 0, 0, lw, lh);
+    return ctx.getImageData(0, 0, lw, lh).data;
+  });
+  const col = Object.assign({}, _spCol);
+  if (o.colors === "auto" && datas.length) {
+    const all = new Uint8ClampedArray(datas.length * lw * lh * 4);
+    datas.forEach(function(d, i) { all.set(d, i * d.length); });
+    _spAutoPalette(all, col);
+  }
+  const choices = _spMulti ? [[0, col.bg], [1, col.mc1], [2, col.sprite], [3, col.mc2]] : [[0, col.bg], [1, col.sprite]];
+  const lab = choices.map(function(c) { const h = _CE_COLORS[c[1]]; return _hgOklab(parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)); });
+  const d2 = function(a, b) { return (a[0]-b[0])*(a[0]-b[0]) + (a[1]-b[1])*(a[1]-b[1]) + (a[2]-b[2])*(a[2]-b[2]); };
+  const bayer = _hgBayer(4);
+  const frames = datas.map(function(d) {
+    const fr = _spNewFrame();
+    const err = o.dither === "fs" ? new Float32Array(lw * lh * 3) : null;
+    for (let y = 0; y < lh; y++)
+      for (let x = 0; x < lw; x++) {
+        const i = (y * lw + x) * 4;
+        let v = 0;
+        if (d[i + 3] >= 48) {
+          const p = _hgOklab(d[i], d[i + 1], d[i + 2]);
+          if (err) { const e3 = (y * lw + x) * 3; p[0] += err[e3]; p[1] += err[e3 + 1]; p[2] += err[e3 + 2]; }
+          // the two nearest colours; ordered dithering mixes them by the pixel's position between them
+          let a = 0, b = -1;
+          for (let k = 1; k < lab.length; k++) {
+            if (d2(p, lab[k]) < d2(p, lab[a])) { b = a; a = k; }
+            else if (b < 0 || d2(p, lab[k]) < d2(p, lab[b])) b = k;
+          }
+          let pick = a;
+          if (o.dither === "ordered" && b >= 0) {
+            const da = Math.sqrt(d2(p, lab[a])), db = Math.sqrt(d2(p, lab[b]));
+            const tpos = da / Math.max(1e-6, da + db);
+            if (tpos > bayer(x, y)) pick = b;
+          }
+          v = choices[pick][0];
+          if (err) {
+            const q = lab[pick], ex = [p[0] - q[0], p[1] - q[1], p[2] - q[2]];
+            [[1, 0, 7], [-1, 1, 3], [0, 1, 5], [1, 1, 1]].forEach(function(n) {
+              const nx = x + n[0], ny = y + n[1];
+              if (nx < 0 || nx >= lw || ny >= lh) return;
+              const e3 = (ny * lw + nx) * 3;
+              for (let c = 0; c < 3; c++) err[e3 + c] += ex[c] * n[2] / 16;
+            });
+          }
+        }
+        if (_spMulti) { fr[y * _SP_W + x * 2] = v; fr[y * _SP_W + x * 2 + 1] = v; }
+        else fr[y * _SP_W + x] = v;
+      }
+    return fr;
+  });
+  return { frames: frames, col: col, cells: cells };
 }
 
 function _spSnapshot() {
@@ -38564,8 +39392,11 @@ function _spSnapshot() {
     frame: _spFrame,
     multi: _spMulti,
     cols: _spCols, rows: _spRows,
-    col: { sprite: _spCol.sprite, bg: _spCol.bg, mc1: _spCol.mc1, mc2: _spCol.mc2 },
-    frames: _spFrames.map(function(frame) { return frame.slice(0); })
+    col: Object.assign({}, _spCol),
+    frames: _spFrames.map(function(frame) { return frame.slice(0); }),
+    overlay: _spOverlay, layer: _spLayer,
+    ov: _spOv.map(function(frame) { return frame.slice(0); }),
+    hit: _spHit.map(function(h) { return h ? Object.assign({}, h) : null; })
   };
 }
 function _spRestore(snapshot) {
@@ -38573,16 +39404,35 @@ function _spRestore(snapshot) {
   _spStop();
   _spApplyDims(snapshot.cols || 1, snapshot.rows || 1);
   _spFrames = snapshot.frames.map(function(frame) { return frame.slice(0); });
+  _spOv = snapshot.ov && snapshot.ov.length === _spFrames.length
+    ? snapshot.ov.map(function(frame) { return frame.slice(0); })
+    : _spFrames.map(function() { return _spNewFrame(); });
   _spFrame = Math.min(Math.max(0, snapshot.frame || 0), _spFrames.length - 1);
   _spMulti = !!snapshot.multi;
-  _spCol = { sprite: snapshot.col.sprite, bg: snapshot.col.bg, mc1: snapshot.col.mc1, mc2: snapshot.col.mc2 };
-  if (!_spMulti && (_spSlot === "mc1" || _spSlot === "mc2")) _spSlot = "sprite";
+  _spOverlay = !!snapshot.overlay;
+  _spLayer = _spOverlay && snapshot.layer === "ov" ? "ov" : "base";
+  _spCol = Object.assign({ ov: 0 }, snapshot.col);
+  _spHit = (snapshot.hit || []).map(function(h) { return h ? Object.assign({}, h) : null; });
+  _spSel = null; _spFloat = null; _spSelDrag = null; _spHitDrag = null;
+  _spFixSlot();
   _spPainting = false;
   _spShapeStart = null;
   const multiEl = document.getElementById("se-multicolor");
   if (multiEl) multiEl.checked = _spMulti;
+  _spSyncLayerUi();
   _spBuildColors();
   _spRender();
+}
+// The selected colour slot must exist on the edited layer.
+function _spFixSlot() {
+  if (_spOnOv()) { if (_spSlot !== "bg") _spSlot = "ov"; }
+  else if (_spSlot === "ov" || (!_spMulti && (_spSlot === "mc1" || _spSlot === "mc2"))) _spSlot = "sprite";
+}
+function _spSyncLayerUi() {
+  const ovEl = document.getElementById("se-overlay");
+  if (ovEl) ovEl.checked = _spOverlay;
+  const layerEl = document.getElementById("se-layer");
+  if (layerEl) { layerEl.hidden = !_spOverlay; layerEl.value = _spLayer; }
 }
 function _spPushUndo() {
   if (!_spFrames) return;
@@ -38620,7 +39470,8 @@ function _spTogglePlay() {
 function _spInit() {
   if (_spInited) return;
   _spInited = true;
-  _spFrames = [new Uint8Array(_SP_W*_SP_H)];
+  _spFrames = [_spNewFrame()];
+  _spOv = [_spNewFrame()];
   _spCanvas = document.getElementById("se-canvas");
   _spCtx = _spCanvas.getContext("2d");
   _spBuildColors();
@@ -38643,8 +39494,14 @@ function setupSpriteEditor() {
       e.preventDefault(); return;
     }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "y") {
-      _spRedoOp(); e.preventDefault();
+      _spRedoOp(); e.preventDefault(); return;
     }
+    if (e.target.closest("input, select, textarea") || !_spSelActive()) return;
+    if (e.key === "Escape") { _spSel = null; _spRender(); e.preventDefault(); e.stopPropagation(); return; }
+    if (e.key === "Delete" || e.key === "Backspace") { _spPushUndo(); _spClearSel(); _spRender(); e.preventDefault(); return; }
+    const step = _spMulti ? 2 : 1;
+    const moves = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+    if (moves[e.key]) { _spPushUndo(); _spMoveSel(moves[e.key][0], moves[e.key][1]); _spRender(); e.preventDefault(); }
   });
 
   const canvas = document.getElementById("se-canvas");
@@ -38656,15 +39513,38 @@ function setupSpriteEditor() {
   dialog.querySelectorAll(".se-tool[data-tool]").forEach(function(btn) {
     btn.addEventListener("click", function() {
       _spTool = btn.dataset.tool || "pencil";
+      if (_spTool !== "select" && _spSel) { _spSel = null; _spRender(); }
       dialog.querySelectorAll(".se-tool[data-tool]").forEach(function(b) { b.classList.toggle("se-tool--active", b === btn); });
     });
   });
+  const clampCell = function(p) { return { x: Math.max(0, Math.min(_SP_W - 1, p.x)), y: Math.max(0, Math.min(_SP_H - 1, p.y)) }; };
   canvas.addEventListener("pointerdown", function(e) {
     if (e.button !== 0) return;
     _spInit();
     const p = cellFromEvent(e);
     if (p.x<0||p.y<0||p.x>=_SP_W||p.y>=_SP_H) return;
     try { canvas.setPointerCapture(e.pointerId); } catch(_){}
+    if (_spTool === "fill") {
+      _spPushUndo(); _spFloodFill(p.x, p.y, _spSlotVal(_spSlot)); _spRender();
+      e.preventDefault(); return;
+    }
+    if (_spTool === "select") {
+      const s = _spSelActive();
+      if (s && p.x >= s.x && p.x < s.x + s.w && p.y >= s.y && p.y < s.y + s.h) {
+        _spPushUndo(); _spLift();
+        _spSelDrag = { mode: "move", dx: p.x - s.x, dy: p.y - s.y };
+      } else {
+        _spSel = _spSelNorm(p, p);
+        _spSelDrag = { mode: "new", a: p };
+      }
+      _spRender(); e.preventDefault(); return;
+    }
+    if (_spTool === "hitbox") {
+      _spPushUndo(); _spHitSync();
+      _spHitDrag = p;
+      _spHit[_spFrame] = { x: p.x, y: p.y, w: 1, h: 1 };
+      _spRender(); e.preventDefault(); return;
+    }
     const pen = _spSlotVal(_spSlot);
     _spPaintVal = (_spTool === "pencil" && _spGet(p.x,p.y) === pen && pen !== 0) ? 0 : pen;
     _spPushUndo();
@@ -38679,6 +39559,21 @@ function setupSpriteEditor() {
     e.preventDefault();
   });
   canvas.addEventListener("pointermove", function(e) {
+    if (_spSelDrag) {
+      const p = cellFromEvent(e);
+      if (_spSelDrag.mode === "new") _spSel = _spSelNorm(_spSelDrag.a, clampCell(p));
+      else {
+        let x = p.x - _spSelDrag.dx;
+        if (_spMulti) x = Math.floor(x / 2) * 2;
+        _spFloat.x = x; _spFloat.y = p.y - _spSelDrag.dy;
+      }
+      _spRender(); return;
+    }
+    if (_spHitDrag) {
+      const a = _spHitDrag, b = clampCell(cellFromEvent(e));
+      _spHit[_spFrame] = { x: Math.min(a.x, b.x), y: Math.min(a.y, b.y), w: Math.abs(b.x - a.x) + 1, h: Math.abs(b.y - a.y) + 1 };
+      _spRender(); return;
+    }
     if (!_spPainting) return;
     const p = cellFromEvent(e);
     if (_spTool !== "pencil") {
@@ -38691,6 +39586,11 @@ function setupSpriteEditor() {
     _spSet(p.x, p.y, _spPaintVal); _spRender();
   });
   const end = function(e, commit){
+    if (_spSelDrag) {
+      if (_spSelDrag.mode === "move") _spStamp();
+      _spSelDrag = null; _spRender();
+    }
+    _spHitDrag = null;
     if (commit && _spPainting && _spTool !== "pencil" && e && e.clientX != null) {
       const p = cellFromEvent(e);
       _spDrawShape(_spShapeStart, p, function(x, y) { _spSet(x, y, _spPaintVal); });
@@ -38722,28 +39622,57 @@ function setupSpriteEditor() {
     _spPushUndo();
     _spMulti = e.target.checked;
     if (_spMulti) { _spFrames.forEach(function(f){ for(let y=0;y<_SP_H;y++) for(let x=0;x<_SP_W;x+=2){ const v=f[y*_SP_W+x]||f[y*_SP_W+x+1]; f[y*_SP_W+x]=v; f[y*_SP_W+x+1]=v; } }); }
-    if (_spSlot==="mc1"||_spSlot==="mc2") _spSlot = "sprite";
+    _spFixSlot();
     _spBuildColors(); _spRender();
+  });
+  onChange("se-overlay", function(e) {
+    _spPushUndo();
+    _spOverlay = e.target.checked;
+    _spLayer = _spOverlay ? "ov" : "base";
+    _spFixSlot(); _spSyncLayerUi(); _spBuildColors(); _spRender();
+  });
+  onChange("se-layer", function(e) {
+    _spLayer = e.target.value === "ov" && _spOverlay ? "ov" : "base";
+    _spFixSlot(); _spBuildColors(); _spRender();
   });
   onChange("se-grid", function(e){ _spGrid = e.target.checked; _spRender(); });
   onInput("se-zoom", function(e){ _spZoom = parseInt(e.target.value,10); _spRender(); });
 
   onClick("se-copy-data", function() { navigator.clipboard.writeText(_spHexCSV()).catch(function(){}); });
+  onClick("se-copy-hitbox", function() { navigator.clipboard.writeText(_spHitboxAsm()).catch(function(){}); });
+  onClick("se-rotr", function(){ _spPushUndo(); _spRotate(true); _spRender(); });
+  onClick("se-rotl", function(){ _spPushUndo(); _spRotate(false); _spRender(); });
+  onClick("se-mirror-anim", function(){ _spPushUndo(); _spStop(); _spMirrorAnim(); _spRender(); });
+  onClick("se-hit-fit", function(){ _spPushUndo(); _spHitSync(); _spHit[_spFrame] = _spBounds(_spFrame); _spRender(); });
+  onClick("se-hit-fitall", function(){ _spPushUndo(); _spHit = _spFrames.map(function(_, i) { return _spBounds(i); }); _spRender(); });
+  onClick("se-hit-all", function(){
+    const h = _spHit[_spFrame];
+    if (!h) return;
+    _spPushUndo(); _spHit = _spFrames.map(function() { return Object.assign({}, h); }); _spRender();
+  });
+  onClick("se-hit-clear", function(){ _spPushUndo(); _spHitSync(); _spHit[_spFrame] = null; _spRender(); });
+  onChange("se-expx", function(e){ _spExpX = e.target.checked; _spRenderPreview(); });
+  onChange("se-expy", function(e){ _spExpY = e.target.checked; _spRenderPreview(); });
+  _spSetupSheetDialog(onClick);
 
   onClick("se-play", _spTogglePlay);
   onChange("se-pingpong", function(e){ _spPingPong = e.target.checked; });
   onChange("se-onion", function(e){ _spOnion = e.target.checked; _spRender(); });
   onInput("se-fps", function(e){ _spFps = parseInt(e.target.value,10); const v=document.getElementById("se-fps-val"); if(v)v.textContent=_spFps; if(_spPlay){_spStop();_spTogglePlay();} });
-  onClick("se-add", function(){ _spPushUndo(); _spStop(); _spFrames.splice(_spFrame+1,0,new Uint8Array(_SP_W*_SP_H)); _spFrame++; _spRender(); });
-  onClick("se-dup", function(){ _spPushUndo(); _spStop(); _spFrames.splice(_spFrame+1,0,_spCur().slice(0)); _spFrame++; _spRender(); });
-  onClick("se-fcopy", function(){ _spClip = _spCur().slice(0); });
-  onClick("se-fpaste", function(){ if(_spClip && _spClip.length === _spCur().length){ _spPushUndo(); _spCur().set(_spClip); _spRender(); } });
+  onClick("se-add", function(){ _spPushUndo(); _spStop(); _spHitSync(); _spHit.splice(_spFrame+1,0,null); _spFrames.splice(_spFrame+1,0,_spNewFrame()); _spOv.splice(_spFrame+1,0,_spNewFrame()); _spFrame++; _spRender(); });
+  onClick("se-dup", function(){ _spPushUndo(); _spStop(); _spHitSync(); _spHit.splice(_spFrame+1,0,_spHit[_spFrame] ? Object.assign({}, _spHit[_spFrame]) : null); _spFrames.splice(_spFrame+1,0,_spFrames[_spFrame].slice(0)); _spOv.splice(_spFrame+1,0,_spOv[_spFrame].slice(0)); _spFrame++; _spRender(); });
+  // the whole frame: body and overlay
+  onClick("se-fcopy", function(){ _spClip = { base: _spFrames[_spFrame].slice(0), ov: _spOv[_spFrame].slice(0) }; });
+  onClick("se-fpaste", function(){
+    if (!_spClip || _spClip.base.length !== _spFrames[_spFrame].length) return;
+    _spPushUndo(); _spFrames[_spFrame].set(_spClip.base); _spOv[_spFrame].set(_spClip.ov); _spRender();
+  });
   onChange("se-layout", function(e){
     const m = /^(\d)x(\d)$/.exec(e.target.value);
     if (m) _spSetLayout(Number(m[1]), Number(m[2]));
   });
   canvas.addEventListener("contextmenu", _spShowCtxMenu);
-  onClick("se-fdel", function(){ _spPushUndo(); _spStop(); if(_spFrames.length<=1){ _spCur().fill(0); } else { _spFrames.splice(_spFrame,1); if(_spFrame>=_spFrames.length)_spFrame=_spFrames.length-1; } _spRender(); });
+  onClick("se-fdel", function(){ _spPushUndo(); _spStop(); if(_spFrames.length<=1){ _spFrames[0].fill(0); _spOv[0].fill(0); } else { _spHitSync(); _spHit.splice(_spFrame,1); _spFrames.splice(_spFrame,1); _spOv.splice(_spFrame,1); if(_spFrame>=_spFrames.length)_spFrame=_spFrames.length-1; } _spRender(); });
 
   const imageIn = document.createElement("input"); imageIn.type = "file"; imageIn.accept = "image/png,image/jpeg,.png,.jpg,.jpeg"; imageIn.hidden = true;
   dialog.appendChild(imageIn);
@@ -38765,32 +39694,146 @@ function setupSpriteEditor() {
   onClick("se-save-bin", function(){
     const allEl = document.getElementById("se-export-all");
     const all = allEl && allEl.checked;
-    const frames = all ? _spFrames : [_spCur()];
-    const per = _spCols * _spRows * 64;
+    const frames = all ? _spFrames.map(function(_, i) { return i; }) : [_spFrame];
+    const per = _spCols * _spRows * 64 * (_spOverlay ? 2 : 1);
     const out = new Uint8Array(frames.length * per);
-    frames.forEach(function(fr,i){ out.set(_spFrameAllBytes(fr), i*per); });
+    frames.forEach(function(fi, i){ out.set(_spFrameAllBytes(fi), i*per); });
     _saveBinFile(out, "sprite.bin");
   });
+}
+
+function _spSheetOptsFromUi() {
+  const num = function(id, min, max) {
+    const el = document.getElementById(id);
+    const v = Math.max(min, Math.min(max, parseInt(el ? el.value : "0", 10) || 0));
+    if (el) el.value = String(v);
+    return v;
+  };
+  return {
+    cellW: num("se-sheet-cw", 1, 4096), cellH: num("se-sheet-ch", 1, 4096),
+    offX: num("se-sheet-ox", 0, 4096), offY: num("se-sheet-oy", 0, 4096),
+    gapX: num("se-sheet-gx", 0, 512), gapY: num("se-sheet-gy", 0, 512),
+    count: num("se-sheet-count", 0, 256),
+    colors: document.getElementById("se-sheet-colors")?.value || "auto",
+    dither: document.getElementById("se-sheet-dither")?.value || "none",
+    replace: !!document.getElementById("se-sheet-replace")?.checked
+  };
+}
+// The sheet with the cell grid, and the converted frames underneath.
+function _spSheetRender() {
+  const sh = _spSheet;
+  if (!sh) return;
+  sh.opts = _spSheetOptsFromUi();
+  sh.result = _spSheetConvert(sh.src, sh.opts);
+  const cv = document.getElementById("se-sheet-canvas");
+  if (cv) {
+    const k = Math.max(1, Math.floor(Math.min(640 / sh.src.width, 400 / sh.src.height)) || 1);
+    cv.width = sh.src.width * k; cv.height = sh.src.height * k;
+    const ctx = cv.getContext("2d");
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(sh.src, 0, 0, cv.width, cv.height);
+    ctx.strokeStyle = "#ffd84f"; ctx.lineWidth = 1;
+    sh.result.cells.forEach(function(c) { ctx.strokeRect(c.x * k + 0.5, c.y * k + 0.5, c.w * k - 1, c.h * k - 1); });
+  }
+  const strip = document.getElementById("se-sheet-frames");
+  if (strip) {
+    strip.innerHTML = "";
+    const saved = _spCol;
+    _spCol = sh.result.col;   // _spBaseColor reads the colours of the conversion
+    sh.result.frames.slice(0, 48).forEach(function(fr) {
+      const c = document.createElement("canvas");
+      c.width = 48; c.height = 42; c.className = "se-frame-thumb";
+      const keep = { f: _spFrames, o: _spOv, ov: _spOverlay };
+      _spFrames = [fr]; _spOverlay = false;
+      _spDrawFrameTo(c.getContext("2d"), 0, 48, 42);
+      _spFrames = keep.f; _spOv = keep.o; _spOverlay = keep.ov;
+      strip.appendChild(c);
+    });
+    _spCol = saved;
+  }
+  const st = document.getElementById("se-sheet-status");
+  if (st) st.textContent = tf("seSheetFrames", { n: sh.result.frames.length, w: sh.src.width, h: sh.src.height });
+  const ok = document.getElementById("se-sheet-apply");
+  if (ok) ok.disabled = !sh.result.frames.length;
+}
+function _spSheetOpen(img, name) {
+  const src = document.createElement("canvas");
+  src.width = img.width; src.height = img.height;
+  src.getContext("2d").drawImage(img, 0, 0);
+  _spSheet = { src: src, name: name };
+  const set = function(id, v) { const el = document.getElementById(id); if (el) el.value = String(v); };
+  set("se-sheet-cw", _SP_W); set("se-sheet-ch", _SP_H);
+  const fileEl = document.getElementById("se-sheet-file");
+  if (fileEl) fileEl.textContent = name || "";
+  _spSheetRender();
+  const dlg = document.getElementById("se-sheet-dialog");
+  if (dlg && !dlg.open) dlg.showModal();
+}
+function _spSheetApply() {
+  const sh = _spSheet;
+  if (!sh || !sh.result || !sh.result.frames.length) return;
+  _spStop();
+  _spPushUndo();
+  const frames = sh.result.frames;
+  if (sh.opts.replace) {
+    _spFrames = frames; _spOv = frames.map(function() { return _spNewFrame(); }); _spHit = []; _spFrame = 0;
+  } else {
+    _spHitSync();
+    _spFrame = _spFrames.length;
+    frames.forEach(function(fr) { _spFrames.push(fr); _spOv.push(_spNewFrame()); _spHit.push(null); });
+  }
+  _spCol = sh.result.col;
+  if (_spLayer === "ov") { _spLayer = "base"; _spFixSlot(); _spSyncLayerUi(); }
+  _spBuildColors();
+  _spRender();
+}
+function _spSetupSheetDialog(onClick) {
+  const dlg = document.getElementById("se-sheet-dialog");
+  if (!dlg) return;
+  const fileIn = document.createElement("input");
+  fileIn.type = "file"; fileIn.accept = "image/png,image/gif,image/bmp,image/webp,image/jpeg,.png,.gif,.bmp,.webp,.jpg,.jpeg"; fileIn.hidden = true;
+  document.getElementById("sprite-editor-dialog")?.appendChild(fileIn);
+  onClick("se-import-sheet", function() { _spInit(); fileIn.click(); });
+  fileIn.addEventListener("change", function(e) {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!file) return;
+    const img = new Image();
+    img.onload = function() { _spSheetOpen(img, file.name); URL.revokeObjectURL(img.src); };
+    img.onerror = function() { URL.revokeObjectURL(img.src); };
+    img.src = URL.createObjectURL(file);
+  });
+  dlg.querySelectorAll("input, select").forEach(function(el) {
+    el.addEventListener(el.type === "checkbox" || el.tagName === "SELECT" ? "change" : "input", _spSheetRender);
+  });
+  const close = function() { dlg.close(); _spSheet = null; };
+  document.getElementById("se-sheet-close")?.addEventListener("click", close);
+  document.getElementById("se-sheet-cancel")?.addEventListener("click", close);
+  document.getElementById("se-sheet-apply")?.addEventListener("click", function() { _spSheetApply(); close(); });
 }
 
 function _spImportBin(src) {
   _spStop();
   _spPushUndo();
-  const parts = _spCols * _spRows;
-  const count = Math.max(1, Math.ceil(Math.floor(src.length / 64) / parts));
-  _spFrames = [];
-  for (let f = 0; f < count; f++) {
-    const fr = new Uint8Array(_SP_W*_SP_H);
+  // with the overlay on, every frame is the body's sprites then the overlay's (as saved)
+  const parts = _spCols * _spRows, per = parts * (_spOverlay ? 2 : 1);
+  const count = Math.max(1, Math.ceil(Math.floor(src.length / 64) / per));
+  const decode = function(fr, first, multi) {
     for (let p = 0; p < parts; p++) {
-      const base = (f * parts + p) * 64, ox = (p % _spCols) * _SP_PW, oy = Math.floor(p / _spCols) * _SP_PH;
+      const base = (first + p) * 64, ox = (p % _spCols) * _SP_PW, oy = Math.floor(p / _spCols) * _SP_PH;
       for (let y = 0; y < _SP_PH; y++)
         for (let b = 0; b < 3; b++) {
           const byte = src[base + y*3 + b] || 0, row = (oy + y) * _SP_W + ox;
-          if (_spMulti) { for (let j=0;j<4;j++){ const v=(byte>>((3-j)*2))&3; const x=(b*4+j)*2; fr[row+x]=v; fr[row+x+1]=v; } }
+          if (multi) { for (let j=0;j<4;j++){ const v=(byte>>((3-j)*2))&3; const x=(b*4+j)*2; fr[row+x]=v; fr[row+x+1]=v; } }
           else { for (let i=0;i<8;i++) fr[row+b*8+i] = (byte>>(7-i))&1; }
         }
     }
-    _spFrames.push(fr);
+    return fr;
+  };
+  _spFrames = []; _spOv = []; _spHit = [];
+  for (let f = 0; f < count; f++) {
+    _spFrames.push(decode(_spNewFrame(), f * per, _spMulti));
+    _spOv.push(_spOverlay ? decode(_spNewFrame(), f * per + parts, false) : _spNewFrame());
   }
   _spFrame = 0; _spRender();
 }
@@ -38813,7 +39856,7 @@ function _spNearestColor(r, g, b) {
   }
   return best;
 }
-function _spAutoPalette(data) {
+function _spAutoPalette(data, col = _spCol) {
   const freq = new Array(16).fill(0);
   let hasTransparent = false;
   for (let i = 0; i < data.length; i += 4) {
@@ -38826,19 +39869,19 @@ function _spAutoPalette(data) {
     .map(function(item) { return item.color; });
   if (!top.length) return;
   if (_spMulti) {
-    if (!hasTransparent) _spCol.bg = top[0];
-    const fill = top.filter(function(c) { return c !== _spCol.bg; });
+    if (!hasTransparent) col.bg = top[0];
+    const fill = top.filter(function(c) { return c !== col.bg; });
     ["mc1", "sprite", "mc2"].forEach(function(slot, i) {
-      if (fill[i] != null) _spCol[slot] = fill[i];
+      if (fill[i] != null) col[slot] = fill[i];
     });
   } else if (hasTransparent) {
-    const fg = top.find(function(c) { return c !== _spCol.bg; });
-    if (fg != null) _spCol.sprite = fg;
+    const fg = top.find(function(c) { return c !== col.bg; });
+    if (fg != null) col.sprite = fg;
   } else {
-    _spCol.bg = top[0];
-    const fg = top.find(function(c) { return c !== _spCol.bg; });
-    if (fg != null) _spCol.sprite = fg;
-    else if (_spCol.sprite === _spCol.bg) _spCol.sprite = _spCol.bg === 1 ? 0 : 1;
+    col.bg = top[0];
+    const fg = top.find(function(c) { return c !== col.bg; });
+    if (fg != null) col.sprite = fg;
+    else if (col.sprite === col.bg) col.sprite = col.bg === 1 ? 0 : 1;
   }
 }
 function _spNearestValue(r, g, b, a) {
@@ -38883,6 +39926,7 @@ function _spImportImage(img) {
     }
   }
   _spFrames[_spFrame] = fr;
+  if (_spLayer === "ov") { _spLayer = "base"; _spFixSlot(); _spSyncLayerUi(); }
   _spBuildColors();
   _spRender();
 }

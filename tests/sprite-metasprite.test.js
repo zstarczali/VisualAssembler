@@ -16,13 +16,14 @@ function fn(name) {
   throw new Error(name);
 }
 
-function load(cols, rows, multi = false) {
+function load(cols, rows, multi = false, overlay = false) {
   return new Function(`
     const document = { getElementById() { return null; } };
     const _SP_PW = 24, _SP_PH = 21;
     let _SP_W = 24, _SP_H = 21, _spCols = 1, _spRows = 1;
-    let _spMulti = ${multi}, _spFrames = null, _spFrame = 0;
+    let _spMulti = ${multi}, _spFrames = null, _spFrame = 0, _spOverlay = ${overlay}, _spOv = null;
     function _spStop() {} function _spPushUndo() {} function _spRender() {}
+    ${fn("_spNewFrame")}
     ${fn("_spApplyDims")}
     ${fn("_spFrameBytes")}
     ${fn("_spFrameAllBytes")}
@@ -31,8 +32,10 @@ function load(cols, rows, multi = false) {
     return {
       W: _SP_W, H: _SP_H,
       frame() { return new Uint8Array(_SP_W * _SP_H); },
-      all: _spFrameAllBytes, part: _spFrameBytes,
-      load(bytes) { _spImportBin(bytes); return _spFrames; }
+      all(f, ov) { _spFrames = [f]; _spOv = [ov || this.frame()]; return _spFrameAllBytes(0); },
+      part: _spFrameBytes,
+      load(bytes) { _spImportBin(bytes); return _spFrames; },
+      overlays() { return _spOv; }
     };
   `)();
 }
@@ -84,4 +87,20 @@ test("a single sprite still exports and loads 64 bytes per frame", () => {
   assert.equal(all.length, 64);
   assert.deepEqual([all[0], all[2]], [0x80, 0x01]);
   assert.deepEqual(Array.from(m.load(all)[0]), Array.from(f));
+});
+
+test("the hi-res overlay follows the body's sprites in the .bin and loads back", () => {
+  const m = load(1, 1, true, true);
+  const body = m.frame(), ov = m.frame();
+  body[0] = 2; body[1] = 2;             // multicolor %10 in the first pixel pair
+  ov[1] = 1; ov[20 * 24 + 23] = 1;      // hi-res outline pixels
+  const all = m.all(body, ov);
+  assert.equal(all.length, 128);
+  assert.equal(all[0], 0x80);           // body: %10 at the top
+  assert.equal(all[64], 0x40);          // overlay: second pixel, hi-res
+  assert.equal(all[64 + 62], 0x01);
+  const frames = m.load(all);
+  assert.equal(frames.length, 1);
+  assert.deepEqual(Array.from(frames[0]), Array.from(body));
+  assert.deepEqual(Array.from(m.overlays()[0]), Array.from(ov));
 });

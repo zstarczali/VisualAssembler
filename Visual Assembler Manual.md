@@ -1811,6 +1811,9 @@ An INCBIN-style block that emits **0 bytes of code**. Only the **placed** screen
 | `LEVEL_MAX_X`, `LEVEL_MAX_Y` | Largest pixel scroll position of a 40×25 view |
 | `LEVEL_BG`, `LEVEL_MC1`, `LEVEL_MC2`, `LEVEL_MULTICOLOR` | Background / multicolor colors and mode of the level |
 | `LEVEL_DATA`, `LEVEL_SIZE`, `LEVEL_END` | Start, size and first free address after the level data |
+| `LEVEL_OBJ_X_LO/HI`, `LEVEL_OBJ_Y_LO/HI`, `LEVEL_OBJ_TYPE`, `LEVEL_OBJ_PARAM` | Object table (Level Editor object layer): position in level pixels, type and parameter byte, in scroll order — `LEVEL_OBJ_COUNT` entries (max 255) |
+| `LEVEL_OBJ_T_START` … `LEVEL_OBJ_T_TRIGGER` | Object type numbers: START 0, ENEMY 1, ITEM 2, DOOR 3, EXIT 4, TRIGGER 5 |
+| `LEVEL_START_X`, `LEVEL_START_Y` | Position of the first Start object (only defined when the level has one) |
 
 Typical guard: `.assert LEVEL_END <= $9200, "level data runs into the code"`.
 
@@ -3957,6 +3960,7 @@ Arranges **Map Editor screens** into one level — a vertical shooter, a car gam
 | Editing | **Edit in Map Editor** opens the selected screen in the Map Editor and brings the changes back; duplicate, move up/left or down/right, remove; undo / redo. |
 | Preview | Drag the preview or use the arrow keys to scroll pixel by pixel; **Play** scrolls automatically (direction, speed 1–8, loop), Space = play / stop. *Borders* marks the screen boundaries. |
 | Checks | Charset info, and a warning when screens use a different charset or colors (the level uses the first screen's settings). |
+| Objects | The **Objects layer** button switches the overview to object editing: pick a type (Start, Enemy, Item, Door, Exit, Trigger) and a **Param** byte (enemy kind, item id, door target …), click to place, drag to move (snapped to 8 px, Shift = free), click an object to select it and change its type / param, arrow keys move it, Delete removes it. Objects belong to the level position, not to a screen. They are listed in the sidebar, shown in the preview, saved with the level and exported in scroll order (vertical by Y, horizontal by X, grid row by row) as `LEVEL_OBJ_*` tables — by **Copy asm / Export to blocks** and by the `.level` macro. |
 
 **Files menu:**
 | Action | What it does |

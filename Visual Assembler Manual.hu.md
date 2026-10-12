@@ -1659,6 +1659,9 @@ INCBIN-szerű blokk, ami **0 byte kódot** generál. A Pálya szerkesztő projek
 | `LEVEL_MAX_X`, `LEVEL_MAX_Y` | Egy 40×25-ös nézet legnagyobb pixeles görgetési pozíciója |
 | `LEVEL_BG`, `LEVEL_MC1`, `LEVEL_MC2`, `LEVEL_MULTICOLOR` | A pálya háttér- és multicolor színei, módja |
 | `LEVEL_DATA`, `LEVEL_SIZE`, `LEVEL_END` | A pályaadat kezdete, mérete és az utána következő első szabad cím |
+| `LEVEL_OBJ_X_LO/HI`, `LEVEL_OBJ_Y_LO/HI`, `LEVEL_OBJ_TYPE`, `LEVEL_OBJ_PARAM` | Objektumtábla (a Pálya szerkesztő objektumrétege): pozíció pálya-pixelben, típus és paraméterbájt, görgetési sorrendben — `LEVEL_OBJ_COUNT` elem (max. 255) |
+| `LEVEL_OBJ_T_START` … `LEVEL_OBJ_T_TRIGGER` | Objektumtípus-számok: START 0, ENEMY 1, ITEM 2, DOOR 3, EXIT 4, TRIGGER 5 |
+| `LEVEL_START_X`, `LEVEL_START_Y` | Az első Kezdőpont objektum pozíciója (csak ha van ilyen a pályán) |
 
 Tipikus védelem: `.assert LEVEL_END <= $9200, "level data runs into the code"`.
 
@@ -3804,6 +3807,7 @@ Réteges tilemap szerkesztő statikus díszlethez, sprite spawn map-ekhez, ütk�
 | Szerkesztés | A **Szerkesztés a Map Editorban** megnyitja a kijelölt képernyőt a Map Editorban, és visszahozza a változásokat; duplikálás, mozgatás fel/balra vagy le/jobbra, eltávolítás; visszavonás / újra. |
 | Előnézet | Az előnézetet húzva vagy a nyilakkal pixelenként görgethetsz; a **Lejátszás** automatikusan görget (irány, sebesség 1–8, ismétlés), Szóköz = lejátszás / leállítás. A *Határok* jelöli a képernyőhatárokat. |
 | Ellenőrzések | Karakterkészlet-infó, és figyelmeztetés, ha a képernyők eltérő karakterkészletet vagy színeket használnak (a pálya az első képernyő beállításait használja). |
+| Objektumok | Az **Objektumréteg** gomb az áttekintőt objektumszerkesztésre váltja: válassz típust (Kezdőpont, Ellenfél, Tárgy, Ajtó, Kijárat, Esemény) és **Param** bájtot (ellenfélfajta, tárgy-azonosító, ajtó célja …), kattintással lerakod, húzással mozgatod (8 px-es rácsra, Shift = szabadon), egy objektumra kattintva kijelölöd és módosíthatod a típusát / paraméterét, a nyilak mozgatják, a Delete törli. Az objektumok a pályapozícióhoz tartoznak, nem egy képernyőhöz. Az oldalsáv listázza, az előnézet mutatja őket, a pályával együtt mentődnek, és görgetési sorrendben (függőlegesen Y, vízszintesen X, rácsban soronként) `LEVEL_OBJ_*` táblaként exportálódnak — az **Asm másolása / Exportálás blokkokba** és a `.level` makró is. |
 
 **Files menü:**
 | Művelet | Mit csinál |
