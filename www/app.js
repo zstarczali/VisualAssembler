@@ -3818,6 +3818,7 @@ function _applyEditorTranslations() {
   setAttr('.hg-tool[data-tool="oval"]', t("hgToolOval"));
   setAttr('.hg-tool[data-tool="filloval"]', t("hgToolFillOval"));
   setAttr('.hg-tool[data-tool="fill"]', t("hgToolFill"));
+  setAttr('.hg-tool[data-tool="cellpaper"]', t("hgToolCellPaper"));
   setAttr('.hg-tool[data-tool="select"]', t("hgToolSelect"));
   setAttr("#hg-undo", t("hgUndo"));
   setAttr("#hg-redo", t("hgRedo"));
@@ -33068,20 +33069,28 @@ const _C64_ROM_CHARS_SET2 = [
   "▼","┼","│","├","─","╮","▒","┌","┘","╯","─","╱","●","╭","─","π",
 ];
 
-// Return the character name/string for display for a given screen code
-function _c64RomDisplayChar(sc, set) {
+// Unicode approximation of a screen code — only a name for the info panel.
+function _c64RomCharName(sc, set) {
   const base = sc >= 128 ? sc - 128 : sc;
   const chars = set === 2 ? _C64_ROM_CHARS_SET2 : _C64_ROM_CHARS;
-  return chars[base] !== undefined ? chars[base] : " ";
+  return chars[base] !== undefined ? chars[base] : "?";
 }
 
-// PETSCII code for info display only (not used for font rendering)
+// The exact ROM glyph: C64 Pro Mono maps PETSCII to U+E000+code (uppercase /
+// graphics set) and U+E100+code (lowercase set), pixel-identical to the
+// character ROM. The Unicode approximations above are lossy (several
+// graphics characters share one Unicode symbol).
+function _c64RomDisplayChar(sc, set) {
+  return String.fromCharCode((set === 2 ? 0xE100 : 0xE000) + _c64RomPetsciiCode(sc));
+}
+
+// Screen code (0-127, reversed = +128) → printable PETSCII code
 function _c64RomPetsciiCode(sc) {
   const base = sc >= 128 ? sc - 128 : sc;
   if (base <= 31)  return base + 64;
   if (base <= 63)  return base;
   if (base <= 95)  return base + 32;
-  return base + 96;
+  return base + 64;
 }
 
 // Extract 8x8 bitmap via canvas
@@ -33098,7 +33107,12 @@ function _c64RomBitmapData(sc, set) {
   ctx.fillStyle = "#ffffff";
   ctx.font = N + "px C64ProMono";   // 64px → 8 C64 px, each 8 device px
   ctx.textBaseline = "top";
-  ctx.fillText(_c64RomDisplayChar(sc, set), 0, 0);
+  // Reversed codes come from the font's reversed range (U+E200/E300): the ROM's
+  // reversed @ is not an exact inverse of @, so inverting would be off by a pixel.
+  const glyph = sc >= 128
+    ? String.fromCharCode((set === 2 ? 0xE300 : 0xE200) + _c64RomPetsciiCode(sc))
+    : _c64RomDisplayChar(sc, set);
+  ctx.fillText(glyph, 0, 0);
   const img = ctx.getImageData(0, 0, N, N).data;
   const bits = [];
   for (let row = 0; row < 8; row++) {
@@ -33115,8 +33129,6 @@ function _c64RomBitmapData(sc, set) {
       bits.push(lit * 2 >= total ? 1 : 0);
     }
   }
-  // Invert for reversed chars (SC 128-255)
-  if (sc >= 128) return bits.map(function(b) { return b ^ 1; });
   return bits;
 }
 
@@ -33162,9 +33174,8 @@ function _c64RomSelect(sc) {
   const base = sc >= 128 ? sc - 128 : sc;
   const petscii = _c64RomPetsciiCode(sc);
   const isRev = sc >= 128;
-  const chars = _c64ChrromSet === 1 ? _C64_ROM_CHARS : _C64_ROM_CHARS_SET2;
   const ch = _c64RomDisplayChar(sc, _c64ChrromSet);
-  const charName = chars[base] || "?";
+  const charName = _c64RomCharName(sc, _c64ChrromSet);
 
   // Big char preview box
   const preview = document.createElement("div");
@@ -36744,6 +36755,18 @@ function _hgSet(x, y, col) {
   _hgFgCell[cell] = col;
   _hgBit[idx] = 1;
 }
+// Eraser: hi-res clears the bit, so the cell's own background shows (not the
+// global paper, which may differ per cell).
+function _hgErase(x, y) {
+  if (x < 0 || y < 0 || x >= _hgW() || y >= _hgH()) return;
+  if (_hgMulti) { _hgPixMC[y * 160 + x] = _hgPaper; return; }
+  _hgBit[y * 320 + x] = 0;
+}
+// Hi-res "cell paper" tool: sets the lo nibble of the cell's screen-RAM byte.
+function _hgSetCellBg(x, y, col) {
+  if (_hgMulti || x < 0 || y < 0 || x >= 320 || y >= 200) return;
+  _hgBgCell[(y >> 3) * 40 + (x >> 3)] = col;
+}
 
 /* ── Rendering ── */
 function _hgDrawPixelBuf(x, y) {
@@ -36859,7 +36882,17 @@ function _hgBlit() {
   _hgCtx.drawImage(_hgBuf, 0, 0);
   _hgOverlays();
 }
-function _hgRenderAll() { _hgRenderBuf(); _hgBlit(); }
+function _hgRenderAll() { _hgSyncModeTools(); _hgRenderBuf(); _hgBlit(); }
+// Multicolor has one shared $D021 background, so the per-cell paper tool is hi-res only.
+function _hgSyncModeTools() {
+  const btn = document.querySelector('.hg-tool[data-tool="cellpaper"]');
+  if (!btn) return;
+  btn.disabled = _hgMulti;
+  if (_hgMulti && _hgTool === "cellpaper") {
+    _hgTool = "pencil";
+    document.querySelectorAll(".hg-tool[data-tool]").forEach(function(b) { b.classList.toggle("hg-tool--active", b.dataset.tool === "pencil"); });
+  }
+}
 
 /* ── Selection / clipboard ────────────────────────────────────────────────── */
 function _hgCopySelection() {
@@ -38068,10 +38101,12 @@ function setupHiresEditor() {
   // Canvas interaction
   const canvas = document.getElementById("hg-canvas");
   const applyPoint = function(x, y) {
-    const col = _hgTool === "eraser" ? _hgPaper : _hgColor;
-    _hgSet(x, y, col);
+    if (_hgTool === "eraser") _hgErase(x, y);
+    else if (_hgTool === "cellpaper") _hgSetCellBg(x, y, _hgColor);
+    else _hgSet(x, y, _hgColor);
     _hgRedrawCellBuf(x, y);
   };
+  const isFreehand = function() { return _hgTool === "pencil" || _hgTool === "eraser" || _hgTool === "cellpaper"; };
   canvas.addEventListener("pointerdown", function(e) {
     if (e.button !== 0) return;
     _hgInit();
@@ -38100,7 +38135,7 @@ function setupHiresEditor() {
     }
     _hgPushUndo();
     _hgPainting = true; _hgStart = p; _hgLast = p;
-    if (_hgTool === "pencil" || _hgTool === "eraser") { applyPoint(p.x, p.y); _hgBlit(); }
+    if (isFreehand()) { applyPoint(p.x, p.y); _hgBlit(); }
     else if (_hgTool === "spray") { _hgSpray(p.x, p.y, _hgColor); _hgBlit(); }
     else if (_hgTool === "fill") { _hgFloodFill(p.x, p.y, _hgColor); _hgRenderAll(); _hgPainting = false; }
     e.preventDefault();
@@ -38122,9 +38157,9 @@ function setupHiresEditor() {
       _hgBlit();
       return;
     }
-    const col = _hgTool === "eraser" ? _hgPaper : _hgColor;
-    if (_hgTool === "pencil" || _hgTool === "eraser") {
-      _hgLine(_hgLast.x, _hgLast.y, p.x, p.y, function(x, y) { _hgSet(x, y, col); _hgRedrawCellBuf(x, y); });
+    const col = _hgColor;
+    if (isFreehand()) {
+      _hgLine(_hgLast.x, _hgLast.y, p.x, p.y, applyPoint);
       _hgLast = p; _hgBlit();
     } else if (_hgTool === "spray") {
       _hgSpray(p.x, p.y, _hgColor);
@@ -38150,7 +38185,7 @@ function setupHiresEditor() {
       if (e && e.pointerId != null) { try { canvas.releasePointerCapture(e.pointerId); } catch (_) {} }
       return;
     }
-    if (_hgTool !== "pencil" && _hgTool !== "eraser" && _hgTool !== "spray" && _hgTool !== "fill") {
+    if (!isFreehand() && _hgTool !== "spray" && _hgTool !== "fill") {
       const col = _hgColor;
       const set = function(x, y) { _hgSet(x, y, col); };
       _hgPreviewShape(_hgStart, p, set);

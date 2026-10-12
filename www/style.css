@@ -8990,6 +8990,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .hg-tool:hover, .hg-btn:hover { background: color-mix(in srgb, var(--secondary) 18%, transparent); color: var(--text); }
 .hg-tool--active { background: color-mix(in srgb, var(--primary) 22%, transparent); color: var(--primary); }
 .hg-tool--active:hover { background: color-mix(in srgb, var(--primary) 22%, transparent); color: var(--primary); }
+.hg-tool:disabled, .hg-tool:disabled:hover { opacity: 0.35; background: transparent; color: var(--secondary); cursor: default; }
 .hg-btn {
   border: 1px solid var(--panel-border);
   background: var(--control-bg);
