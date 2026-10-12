@@ -2033,7 +2033,7 @@
       </div>
     </div>
     <div class="hero-left">
-      <div class="badge">V2.5.5 — LATEST RELEASE</div>
+      <div class="badge">V2.5.7 — LATEST RELEASE</div>
       <h1 class="hero-title">WRITE C64 PROGRAMS<br><span>BLOCKS, MACRO-ASM OR ULTIMATE BASIC.</span></h1>
       <p class="hero-tagline">&ldquo;The best all-in-one, multiplatform Commodore 64 IDE.&rdquo;</p>
       <p class="hero-sub">A modern Commodore 64 IDE: drag-and-drop 6502 assembly blocks or switch to a full text editor
@@ -2048,10 +2048,86 @@
     </div>
   </section>
 
+  <!-- V2.5.7: VA SID CORE 1.2 (VICE IN RUST), EDITOR UPGRADES -->
+  <div id="release-257" style="background:var(--scr-darker);padding:80px 0">
+    <div class="sec" style="padding-top:0;padding-bottom:0">
+      <div class="ub-tag">NEW IN V2.5.7</div>
+      <div class="sec-s">// A REAL C64 INSIDE</div>
+      <h2 class="sec-t">VA SID CORE 1.2<br><span style="color:var(--ylw)">AND SHARPER EDITORS</span></h2>
+      <p class="sec-d" style="max-width:680px">Version 2.5.7 plays SID tunes on a cycle-exact C64 core and gives the graphics editors the tools you asked for.</p>
+      <div class="feature-list fl-2col">
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>VA SID Core 1.2:</b> <span>the SID Player runs tunes on a cycle-exact C64 ported from VICE to Rust &mdash; 6510 CPU with exact interrupt timing, CIA 6526A, VIC-II timing with bad lines, sprite DMA and raster IRQs.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Hi-Res Editor:</b> <span>two colours in every 8&times;8 cell with the new <b>Cell paper</b> tool.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Exact character ROM:</b> <span>the 901225-01 glyphs, byte for byte, in the ROM viewer and the Character, Map and Level editors.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Sprite Editor:</b> <span>hi-res overlay sprite, flood fill, select / move, rotate, mirrored animation, sprite sheet import with dithering, hitboxes and an X / Y &times;2 preview.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Level Editor:</b> <span>objects, character attributes, edge check, colours per screen, memory meter with RLE, and Run in VICE.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Character Editor:</b> <span>undo / redo, drawing tools, rotate, copy / paste and drag-to-swap, 2&times;2 tiles, the lowercase ROM set, a text preview and range export; the Charset Canvas zooms up to 24&times; with a pixel grid.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div">
+
+  <!-- V2.5.6: SID PLAYER, VA SID CORE, FREEMIUM / PROFESSIONAL -->
+  <div id="release-256" style="background:var(--scr-darker);padding:80px 0">
+    <div class="sec" style="padding-top:0;padding-bottom:0">
+      <div class="ub-tag">V2.5.6</div>
+      <div class="sec-s">// PLAY EVERY SID</div>
+      <h2 class="sec-t">SID PLAYER<br><span style="color:var(--ylw)">AND THE VA SID CORE</span></h2>
+      <p class="sec-d" style="max-width:680px">Version 2.5.6 plays your <code>.sid</code> collection with its own SID emulation, and the SID Editor learns MIDI, recording and GoatTracker songs.</p>
+      <div class="feature-list fl-2col">
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>SID Player:</b> <span>a floating player for <code>.sid</code> (PSID / RSID) tunes with a playlist, drag and drop, subtunes, seek and volume; playlists save as <code>.sidpl</code>.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>VA SID Core 1.1:</b> <span>a built-in SID emulation (MOS 6581 / 8580, reSID-aligned 6581 filter) with a cycle-locked player, so raster-IRQ and digi tunes play too.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>SID Editor:</b> <span>MIDI input, recording into the tracker, a metronome with beat lamps, pattern delete and knobs for every instrument parameter.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>GoatTracker import:</b> <span><b>Files &rarr; Import GoatTracker .sng&hellip;</b> turns a GoatTracker 2 song into SID Editor instruments, patterns and song.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Freemium and Professional:</b> <span>download free and start coding; the Professional version unlocks every editor, build and hardware run option, language and theme.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Ultimate Basic 1.6.4:</b> <span>bundled.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div">
+
   <!-- V2.5.5: HI-RES PIXEL GRID, RIGHT-CLICK COPY / PASTE -->
   <div id="release-255" style="background:var(--scr-darker);padding:80px 0">
     <div class="sec" style="padding-top:0;padding-bottom:0">
-      <div class="ub-tag">NEW IN V2.5.5</div>
+      <div class="ub-tag">V2.5.5</div>
       <div class="sec-s">// EVERY PIXEL IN ITS PLACE</div>
       <h2 class="sec-t">HI-RES PIXEL GRID<br><span style="color:var(--ylw)">AND RIGHT-CLICK COPY / PASTE</span></h2>
       <p class="sec-d" style="max-width:680px">Version 2.5.5 is for precise pixel work: the Hi-Res Editor shows every single pixel when you zoom in, and the graphics editors get a right-click menu for copy and paste.</p>

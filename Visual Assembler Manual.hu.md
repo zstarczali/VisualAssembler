@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.5.5**
+**Verzió: 2.5.7**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -26,6 +26,28 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - [12b. CRT export (Magic Desk 64K cartridge)](#12b-crt-export-magic-desk-64k-cartridge)
 - [13. Hardver beállítások](#13-hardver-beállítások)
 - [14. Vizuális szerkesztők (Toolkit)](#14-vizuális-szerkesztők-toolkit)
+
+---
+
+## A 2.5.7 verzió újdonságai
+
+- **VA SID Core 1.2** — a SID Player mostantól natív Rust C64 magot használ: ciklusra pontos 6510 precíz interrupt-időzítéssel, CIA 6526A, VIC-II időzítés badline-okkal, sprite-DMA-val és raster interruptokkal, valamint a 6510 I/O port. Lásd: [SID Player](#sid-player).
+- **Hi-Res szerkesztő** — két szín minden 8×8-as cellában: új **Cella háttérszín** eszköz. Lásd: [Hi-Res / Multicolor Editor](#hi-res--multicolor-editor).
+- **Pontos karakter-ROM** a ROM-nézőben, a Character Editor **Load ROM** funkciójában és a Map / Level szerkesztőben.
+- **Sprite szerkesztő** — hires réteg, kitöltés, kijelölés / mozgatás, forgatás, tükrözött animáció, sprite sheet import, hitbox, X / Y ×2 előnézet. Lásd: [Sprite Editor](#sprite-editor).
+- **Pálya szerkesztő** — objektumok, karakter-attribútumok, él-ellenőrzés, képernyőnkénti színek, memóriamérleg RLE-vel, Futtatás VICE-ban. Lásd: [Pálya szerkesztő](#pálya-szerkesztő-level-editor).
+- **Karakterszerkesztő** — visszavonás / újra, rajzeszközök, 90°-os forgatás, másolás / beillesztés és húzásos csere a térképen, 2×2-es csempék, kisbetűs ROM-készlet, szöveges előnézet és tartomány-export. Lásd: [Character Editor](#character-editor-charset).
+- **Charset Canvas** — nagyítás 2×–24× (csúszka vagy Ctrl+görgő) pixelráccsal, háttérszín hires módban, és hires karakterek multicolor módon belül. Lásd: [Charset Canvas Editor](#charset-canvas-editor).
+
+---
+
+## A 2.5.6 verzió újdonságai
+
+- **SID Player** — új toolbar gomb nyit egy lebegő lejátszót `.sid` (PSID / RSID) zenékhez: lejátszási lista fogd-és-vidd támogatással, előző / következő zene, subtune-ok, tekerés és ±10 mp, hangerő, a lista mentése / megnyitása (`.sidpl`); a lista és az ablak állapota megmarad. Lásd: [SID Player](#sid-player).
+- **VA SID Core 1.1** — beépített SID-emuláció (MOS 6581 / 8580, reSID-hez igazított 6581 szűrővel) és ciklusra pontos PSID / RSID lejátszó (6510 CPU, CIA / VIC időzítés). A **Beállítások → SID előnézet** alatt választható; a SID Player kiírja, melyik motor szól.
+- **SID szerkesztő** — tekerőgombok a hangszer-paraméterekhez, szélesebb ADSR-grafikon, **MIDI bemenet**, **felvétel** a trackerbe (ha az aktuális pattern betelt, új pattern jön), **metronóm** ütemlámpákkal, **pattern törlése**, master hangerő a VA-VK-n és **GoatTracker .sng import**. Lásd: [SID Editor](#sid-editor-3-voice-tracker).
+- **Freemium és Professional** — regisztráció nélkül az alkalmazás Freemium módban fut; a Professional verzióhoz a vásárláskor kapott e-mail címet és sorozatszámot a **Menu → Regisztráció…** alatt add meg. Lásd: [Freemium és Professional](#freemium-és-professional).
+- **Beépített Ultimate Basic 1.6.4**.
 
 ---
 
@@ -388,6 +410,17 @@ A letöltés után az app telepíti a frissítést és újraindul:
 | **Linux** | Az AppImage lecserélődik az újra. A `.deb` / `.rpm` telepítés `pkexec`-kel frissül (jelszót kér); `pkexec` nélkül a csomag a rendszer szoftvertelepítőjében nyílik meg. |
 
 Ha vannak mentetlen fülek, az app bezárás előtt rákérdez. Ugyanez az ellenőrzés minden induláskor néhány másodperc után csendben is lefut: csak akkor jelenik meg bármi, ha van újabb verzió. Az eredmény az Ultimate Basic statusbarban is látszik — **Naprakész (vX)**, vagy kiemelt **Frissítés elérhető: vY**, ami megnyitja a frissítés dialógust.
+
+### Freemium és Professional
+
+Regisztráció nélkül a Visual Assembler **Freemium** módban fut; a cím melletti jelvény **FREEMIUM** vagy **PROFESSIONAL** feliratot mutat. Freemium módban Block, Expert és Ultimate Basic módban is írhatsz és fordíthatsz programokat, és futtathatod őket VICE-ban. A Professional verzió kell ezekhez:
+
+- a vizuális szerkesztők (SID, Sprite, Char, Charset, Hi-Res, Map, Level, D64, Curve) és a SID Player;
+- **Build PRG**, **Build D64**, **Build CRT**, **Build project** és az Exomizer tömörítés;
+- futtatás C64 Ultimate-en és Kung Fu Flash 2-n;
+- a magyaron és angolon kívüli felületi nyelvek, valamint az OLED és a Commodore 77 téma.
+
+Zárolt funkcióra kattintva a regisztrációs ablak nyílik meg. Regisztrációhoz nyisd meg a **Menu → Regisztráció…** pontot (vagy kattints a jelvényre), add meg a vásárláskor kapott e-mail címet és sorozatszámot, majd nyomd meg az **Aktiválás** gombot. A sorozatszám ahhoz az e-mail címhez tartozik (a kis- és nagybetű, illetve a szóközök nem számítanak), az ellenőrzés internet nélkül történik. A **Licenc eltávolítása** leveszi a regisztrációt erről a gépről.
 
 ### Munkaterületek
 
@@ -1638,6 +1671,11 @@ INCBIN-szerű blokk, ami **0 byte kódot** generál. A Pálya szerkesztő projek
 | `LEVEL_MAX_X`, `LEVEL_MAX_Y` | Egy 40×25-ös nézet legnagyobb pixeles görgetési pozíciója |
 | `LEVEL_BG`, `LEVEL_MC1`, `LEVEL_MC2`, `LEVEL_MULTICOLOR` | A pálya háttér- és multicolor színei, módja |
 | `LEVEL_DATA`, `LEVEL_SIZE`, `LEVEL_END` | A pályaadat kezdete, mérete és az utána következő első szabad cím |
+| `LEVEL_OBJ_X_LO/HI`, `LEVEL_OBJ_Y_LO/HI`, `LEVEL_OBJ_TYPE`, `LEVEL_OBJ_PARAM` | Objektumtábla (a Pálya szerkesztő objektumrétege): pozíció pálya-pixelben, típus és paraméterbájt, görgetési sorrendben — `LEVEL_OBJ_COUNT` elem (max. 255) |
+| `LEVEL_OBJ_T_START` … `LEVEL_OBJ_T_TRIGGER` | Objektumtípus-számok: START 0, ENEMY 1, ITEM 2, DOOR 3, EXIT 4, TRIGGER 5 |
+| `LEVEL_START_X`, `LEVEL_START_Y` | Az első Kezdőpont objektum pozíciója (csak ha van ilyen a pályán) |
+| `LEVEL_ATTR`, `LEVEL_ATTR_SOLID` … `LEVEL_ATTR_COLLECT` | Karakter-attribútum tábla (screen code-onként egy jelzőbájt; csak ha a pályán van attribútum) és a bitek: 1, 2, 4, 8 |
+| `LEVEL_BORDER`, `LEVEL_SCR_COLORS`, `LEVEL_SCR_BG/BORDER/MC1/MC2` | A pálya kerete; helyenkénti színtáblák (soronként, mint a `LEVEL_SLOT_*`), ha egy képernyőnek saját színei vannak (`LEVEL_SCR_COLORS` = 1) |
 
 Tipikus védelem: `.assert LEVEL_END <= $9200, "level data runs into the code"`.
 
@@ -3680,7 +3718,8 @@ Pixel-szintű bitmap szerkesztő 320×200 hi-res és 160×200 multicolor módokk
 | Funkció | Leírás |
 |---|---|
 | Mode toggle | A **Multicolor** jelölőnégyzet vált hi-res (celláként mono) és multicolor (celláként 4 szín) közt. |
-| Eszközök | Ceruza, radír, vonal, téglalap, kitöltött téglalap, ovális, kitöltött ovális, flood fill, kijelölés. |
+| Eszközök | Ceruza, radír, vonal, téglalap, kitöltött téglalap, ovális, kitöltött ovális, flood fill, cella háttérszín, kijelölés. |
+| Cella háttérszín (hi-res) | Hi-resben minden 8×8-as cellának két színe lehet: az ink (beállított pixelek, a cella screen RAM bájtjának felső nibble-je) és a papír (törölt pixelek, alsó nibble). A **Cella háttérszín** eszköz a kattintott vagy áthúzott cellák papírját állítja a kiválasztott színre; a **PAPER** továbbra is az összes cellát egyszerre. A radír pixelt töröl, így a cella saját papírja látszik. Multicolorban le van tiltva, ott a háttér ($D021) közös. |
 | Spray eszköz | Airbrush-stílusú festő, amely pixeleket szór a kurzor köré rajzolás közben. |
 | Spray intenzitás | A spray eszköz melletti legördülő vezérli, mennyire sűrű minden spray húzás. |
 | Színpaletta | Előtér (ink) + papír (háttér) választók. A multicolor mód automatikusan követ 3 celláként­i extrát. |
@@ -3708,6 +3747,12 @@ Pixel-szintű bitmap szerkesztő 320×200 hi-res és 160×200 multicolor módokk
 | Animáció előnézet | Play / Stop konfigurálható sebességgel. |
 | Export blokkok | Egy RAWBYTES blokkot szúr be 64 byte-ra igazított címre minden frame-hez, plusz egy sprite pointer beállítást. |
 | Save `.bin` | Frame-enként 64 byte-ot ír (nyers sprite adat kitöltés nélkül). |
+| Kijelölés | **Kijelölés / mozgatás**: húzz ki egy téglalapot, majd belül húzva mozgasd a pixeleket (az üres pixelek átlátszók); a nyilak egy pixellel (multicolorban kettővel) mozgatják, a Delete törli, az Esc elengedi. A **Forgatás 90°** (mindkét irányba) a kijelölést vagy a teljes frame-et fordítja. A kijelölés, tükrözés, tolás és forgatás a testre és a hires rétegre együtt hat. |
+| Hires réteg | A **Hires réteg** minden frame fölé egy második, egyszínű hires sprite-ot tesz — a klasszikus körvonal a multicolor test fölött. A **Réteg** lista választja a szerkesztett réteget; a test szerkesztésekor a réteg halványan látszik. A C64-en külön sprite: kapjon kisebb sorszámot, mint a test. A `.bin` és a **Copy bytes** a test sprite-jai után írja (`sprite_f1_ov_1`). |
+| Tükrözött animáció | Minden frame-ről (és hitboxáról) vízszintesen tükrözött másolatot fűz a végére — egy kattintással a másik irányú járásciklus. |
+| Sprite sheet import | Files → **Sprite sheet import…**: a cella szélessége / magassága, eltolás, rés és frame-szám alapján a képet az aktuális méretű frame-ekre vágja (multicolorban a cella spritonként 12 pixelre skálázódik). A színek a képből jönnek, vagy a sprite sajátjai maradnak; OKLab egyeztetés dithering nélkül, rendezett (Bayer) vagy Floyd–Steinberg ditheringgel. Lecseréli a frame-eket, vagy hozzáfűzi. |
+| Hitbox | A **Hitbox** eszköz frame-enként egy téglalapot húz (szaggatott cián); az oldalsávban **Illesztés**, **Illesztés minden frame-en**, **Másolás minden frame-re** és **Törlés**. A Files → **Hitbox tábla másolása** `sprite_hit_x / _y / _w / _h` táblát ad (frame-enként egy bájt, képernyőpixel a bal felső saroktól); hitbox nélküli frame a pixelei befoglalóját kapja. |
+| X / Y ×2 | Az előnézetet a `$D01D` / `$D017` sprite-nagyítással mutatja. |
 
 ### C64 karakter-ROM böngésző („Char map")
 
@@ -3726,10 +3771,17 @@ A C64 karakter-ROM (a beépített PETSCII font) csak olvasható nézője. A Tool
 
 | Funkció | Leírás |
 |---|---|
-| Load ROM | A C64 ROM charsetet közvetlenül a VICE `chargen`-jéből importálja (nincs fájlválasztó). |
+| Load ROM | A C64 karakter-ROM-ot tölti be — a pontos 901225-01 glifákkal, fájlválasztó nélkül. Az első gomb (és **Files → ROM: nagybetűs / grafikus**) az 1. készletet, a második gomb (vagy Shift+kattintás, vagy **Files → ROM: kisbetűs / nagybetűs**) a 2. készletet tölti be. |
 | Load `.bin` | Külső 2048 byte-os charset binárist importál. |
 | Karakter-előnézet | 16 széles rács mind a 256 glif-fel, az aktuális cella kiemelve. |
-| Pixel szerkesztő | 8×8 egy-karakteres szerkesztő toggle/invert/clear eszközökkel. |
+| Pixel szerkesztő | A kijelölt karaktert, vagy 2×1, 1×2, 2×2 szomszédos karakterből álló **csempét** szerkeszt egy képként (Csempe választó). |
+| Rajzeszközök | Ceruza, vonal, téglalap, kitöltött téglalap és kitöltés. Ha a pixel már a kiválasztott színű, a kattintás törli. |
+| Átalakítások | Törlés, invertálás, vízszintes / függőleges tükrözés, körbeforduló eltolás, 90°-os forgatás jobbra / balra (csak négyzetes csempénél) — az egész csempén. |
+| Visszavonás / újra | Toolbar gombok, Ctrl+Z és Ctrl+Y (Ctrl+Shift+Z). |
+| Másolás / beillesztés | Toolbar gombok, Ctrl+C / Ctrl+V, vagy jobb klikk a térképen; a teljes csempét másolja a színeivel. |
+| Húzás a térképen | Egy karaktert a térképen egy másikra húzva felcseréli őket; Shift+húzás másol. |
+| Szöveges előnézet | A beírt szöveg az aktuális charsettel jelenik meg. Választható a nagybetűs vagy kisbetűs készlet szerinti leképezés; a `{65}` vagy `{$41}` képernyőkódot szúr be. |
+| Tartomány-export | Add meg a Tól / Ig karaktert, majd **Files → Tartomány mentése (.bin)** (nyers bájtok) vagy **Tartomány másolása ASM-ként** (`.byte` sorok). |
 | Karakterenkénti szín | Alapértelmezett Color RAM értéket tárol minden glifhez. Multicolor karakter módban ez a celláként­i multicolor engedély bitet és a karakter saját alsó-3-bites színét is megőrzi. |
 | Metaadat round-trip | Charset Canvas / Map munkafolyamatokból kompatibilis adat betöltésekor a karakterenkénti szín-metaadat megőrződik, így a szerkesztések folytathatók a szín-szándék elvesztése nélkül. |
 | Export blokkok | RAWBYTES-t fűz a $0800-ra (2. blokk) vagy a $3800-ra (7. blokk) a kódolt charsettel. |
@@ -3738,21 +3790,24 @@ A C64 karakter-ROM (a beépített PETSCII font) csak olvasható nézője. A Tool
 
 Teljes-canvas charset festő képernyők építéséhez egy teljes 256 karakteres charsetből. Toolkit → Charset Canvas menüvel nyílik.
 
-A canvas 16×16 karakter. Mono módban ez egy 128×128 pixeles munkaterületet ad; multicolor karakter módban egy 64×128 széles-pixeles munkaterületet a C64 valódi karakter-multicolor szabályaival.
+A canvas 16×16 karakter, 128×128 pixel. Multicolor karakter módban minden karakter vagy multicolor (széles pixelek, 4 szín), vagy hires (8 keskeny pixel, 2 szín), pontosan úgy, mint a C64-en.
 
 | Funkció | Leírás |
 |---|---|
-| Mono / multicolor | A mono mód 1 bites 8×8 glifeket tárol. A multicolor mód kétbites vízszintes pixel-párokat tárol, és a használt cellákat Color RAM 3. bittel jelöli. |
+| Mono / multicolor | A mono mód 1 bites 8×8 glifeket tárol. A multicolor mód kétbites vízszintes pixel-párokat tárol, és a multicolor cellákat Color RAM 3. bittel jelöli. |
+| Karaktermód eszköz | Multicolor módban a karakterekre kattintva vagy rajtuk húzva váltasz multicolor és hires között (Color RAM 3. bit). Az alak megmarad: a beállított pixelpár a karakter saját színe lesz. A hires karakter színei a háttér és a saját szín (0–7); MC1 / MC2 ott nem fest. |
+| Háttér | A BG legördülő mono módban is látszik; az MC1 / MC2 csak multicolorban. |
 | C64 színmodell | A háttér a `$D021`-et használja; a megosztott multicolor 1 a `$D022`-t; a megosztott multicolor 2 a `$D023`-at; minden karakter saját színe a Color RAM 0–2. bitjéből jön. |
 | Rajzeszközök | Ceruza, radír, vonal, téglalap, ovális és flood fill karakterhatárokon át működik. |
 | Spray eszköz | Airbrush-stílusú rajzolás, amely pixeleket szór a szomszédos cellák/karakterek közt. |
 | Spray intenzitás | A spray eszköz melletti legördülő beállítja a húzás sűrűségét. |
 | Grid kapcsoló | A Grid jelölőnégyzet megjeleníti vagy elrejti a 16×16 karakter-rácsot. |
+| Nagyítás | A nagyítás-csúszka (2×–24×, egész eszközpixel C64-pixelenként) vagy Ctrl+görgő a vásznon; a nagyítás megmarad. 8×-tól a Grid minden pixelhatárra halvány vonalat is rajzol. |
 | Save charset `.bin` | A 2048 byte-os karakter-bitmap adatot menti. |
 | Save 16×16 map + Color RAM `.bin` | 256 screen code-ot, majd 256 Color RAM értéket ment. Ezt a `MAP_COPY16X16`-tal használd. |
 | Betöltés | Betölthet charset-canvas mentéseket, sima charset adatot és kompatibilis Character Editor charset adatot, beleértve a tárolt karakterenkénti színeket, ha jelen vannak. |
 
-**Fontos C64 korlát:** multicolor karakter módban a két megosztott szín globális az egész képernyőre (`$D022` / `$D023`). Csak a karakter saját színe cellánkénti, és az a 0–7 színekre korlátozódik, mert a Color RAM 3. bit választja a multicolor módot.
+**Fontos C64 korlát:** multicolor karakter módban a két megosztott szín globális az egész képernyőre (`$D022` / `$D023`). Csak a karakter saját színe cellánkénti, és az a 0–7 színekre korlátozódik, mert a Color RAM 3. bit választja a multicolor módot. Így egy karakterben legfeljebb **4 szín** lehet (háttér, MC1, MC2 és a saját szín), az egész képernyőn legfeljebb 3 + 8. A palettán az osztott színek BG / 1 / 2 jelölést kapnak, a nem osztott 8–15 színek halványak. Ilyen szín választásakor az MC2-be vagy MC1-be kerül, de csak amíg azt a regisztert egy pixel sem használja; különben a legördülőben állítsd át (ez az egész képernyőt átszínezi). Hires (mono) módban egy karakter 2 színű: háttér és a saját szín (0–15).
 
 ### Map Editor (több-rétegű tilemap-ek)
 
@@ -3783,6 +3838,12 @@ Réteges tilemap szerkesztő statikus díszlethez, sprite spawn map-ekhez, ütk�
 | Szerkesztés | A **Szerkesztés a Map Editorban** megnyitja a kijelölt képernyőt a Map Editorban, és visszahozza a változásokat; duplikálás, mozgatás fel/balra vagy le/jobbra, eltávolítás; visszavonás / újra. |
 | Előnézet | Az előnézetet húzva vagy a nyilakkal pixelenként görgethetsz; a **Lejátszás** automatikusan görget (irány, sebesség 1–8, ismétlés), Szóköz = lejátszás / leállítás. A *Határok* jelöli a képernyőhatárokat. |
 | Ellenőrzések | Karakterkészlet-infó, és figyelmeztetés, ha a képernyők eltérő karakterkészletet vagy színeket használnak (a pálya az első képernyő beállításait használja). |
+| Karakter-attribútumok | A **Karakter-attribútumok** gomb az áttekintőt attribútum-festésre váltja: válaszd ki a **Szilárd**, **Létra**, **Veszélyes** vagy **Gyűjthető** jelzőt, kattints egy karakterre, és az adott screen code minden cellája megkapja (vagy elveszíti); húzással több kódra is. Színes rétegként látszanak, és a 256 bájtos `LEVEL_ATTR` táblába kerülnek (`LEVEL_ATTR_SOLID` = 1, `_LADDER` = 2, `_HAZARD` = 4, `_COLLECT` = 8). |
+| Él-ellenőrzés | Pirossal jelöli, ahol a szomszédos képernyők nem folytatódnak: a határ egyik oldala üres (szóköz), a másik nem, vagy csak az egyik oldal szilárd. Az oldalsáv megszámolja az éleket és cellákat. |
+| Színek | **Pálya kerete**, és a kijelölt képernyőhöz **Saját színek** (háttér, keret, multicolor 1 / 2); az előnézet kerete mutatja a keretszínt. Helyenként `LEVEL_SCR_BG / _BORDER / _MC1 / _MC2` táblaként exportálódik (`LEVEL_SCR_COLORS` = 1), ha egy elhelyezett képernyőnek saját színei vannak. |
+| Memória | A `.level` adat mérete egy választott címen (pontosan úgy számolva, ahogy a makró építi), figyelmeztetéssel a BASIC / KERNAL ROM, az I/O terület és a `$0800` alatti memória esetén, plusz a pálya RLE-mérete. Az **RLE exportálása blokkokba / RLE asm másolása** a pályát RLE-tömörítve adja a `level_unrle` kicsomagolóval (`($FB)` → `($FD)`). |
+| Futtatás VICE-ban | A pályából joystickkal görgethető tesztprogramot épít (a `level-demo` scrollere, kód `$C000`-n, pályaadat `$2000`-tól, egyedi karakterkészlet `$2000`-n), és elindítja VICE-ban — a színek a nézet bal felső képernyőjével váltanak, a kamera az első Kezdőpont objektumnál indul. |
+| Objektumok | Az **Objektumréteg** gomb az áttekintőt objektumszerkesztésre váltja: válassz típust (Kezdőpont, Ellenfél, Tárgy, Ajtó, Kijárat, Esemény) és **Param** bájtot (ellenfélfajta, tárgy-azonosító, ajtó célja …), kattintással lerakod, húzással mozgatod (8 px-es rácsra, Shift = szabadon), egy objektumra kattintva kijelölöd és módosíthatod a típusát / paraméterét, a nyilak mozgatják, a Delete törli. Az objektumok a pályapozícióhoz tartoznak, nem egy képernyőhöz. Az oldalsáv listázza, az előnézet mutatja őket, a pályával együtt mentődnek, és görgetési sorrendben (függőlegesen Y, vízszintesen X, rácsban soronként) `LEVEL_OBJ_*` táblaként exportálódnak — az **Asm másolása / Exportálás blokkokba** és a `.level` makró is. |
 
 **Files menü:**
 | Művelet | Mit csinál |
@@ -3797,6 +3858,8 @@ Réteges tilemap szerkesztő statikus díszlethez, sprite spawn map-ekhez, ütk�
 ### SID Editor (3-voice tracker)
 
 Több-hangszeres 3-voice tracker. Toolkit → SID Editor menüvel nyílik. A **Play: All** az exportált 6502 lejátszót futtatja a WebSid emulátorban; minden más előnézet (hangszer-előnézet, virtuális billentyűzet, hangbeírás, akkord / arpeggio, sor- és egy patternes lejátszás) is az emulált SID-en szól: ugyanannak a lejátszónak a frame-pontos JS modellje frame-enként a WebSid-be küldi a SID-regisztereit, és legfeljebb három előnézeti hang osztozik a három voice-on. A stream-lejátszó a szerkesztő megnyitásakor és Stop után betöltődik, így a hang azonnal szól; WebSid nélkül egy kis SID-szintetizátor szól helyette.
+
+**Előnézeti motor:** a **Beállítások → SID előnézet** alatt a **WebSID** vagy a **VA SID Core (Rust)** — az alkalmazás saját SID-emulációja — választható; VA SID Core esetén a chip is (MOS 6581 / 8580). A hangszer-paraméterek tekerőgombokkal állíthatók.
 
 **Hangszerenkénti vezérlők:**
 - Hullámforma jelölőnégyzetek (TRI / SAW / PUL / NOI) — több hullámforma a SID-hez hasonlóan ÉS-elődik —, plusz **RING** (a háromszög gyűrűmodulációja az előző hanggal: 1 ← 3, 2 ← 1, 3 ← 2) és **SYNC** (hard sync az előző hanghoz).
@@ -3845,6 +3908,13 @@ Az effektek soronként egyszer frissülnek (megegyezően az exportált lejátsz�
 - Engedélyezd az **Insert into tracker**-t, hogy minden lejátszott note az aktuális tracker-kurzorra íródjon, és a következő sorra lépjen. Kapcsold ki a note-ok meghallgatásához szerkesztés nélkül.
 - Az akkord- és arpeggio-előnézetek megvilágítják a megfelelő zongorabillentyűket, amikor a billentyűzet nyitva van.
 
+**Felvétel, metronóm és MIDI:**
+- A **Record** (piros pont, a tracker eszköztárán és a VA-VK-n) ütemre beírja a játszott hangokat — VA-VK-ról, a számítógép billentyűzetéről vagy MIDI billentyűzetről — a kijelölt voice-ba, a kijelölt sortól, az aktuális Speed szerint. Ha a pattern betelt, az aktuális song-lépés után új, üres pattern jön, és ott folytatódik a felvétel. A Record újbóli megnyomása leállítja.
+- A **Metronóm** (tracker eszköztár és VA-VK) 4 soronként kattan, a 4 ütemes taktus első ütésén hangsúlyosan. A mellette lévő ütemlámpák lejátszás és felvétel közben minden ütésre felvillannak, kikapcsolt kattanással is.
+- **MIDI:** a hangszernév melletti **MIDI** listában válaszd ki a bemenetet, majd nyomd meg a **Connect MIDI** gombot; a hangok az aktuális hangszerrel szólnak (felvétel közben vagy *Insert into tracker* mellett a trackerbe is beíródnak). A gomb melletti lámpa minden beérkező MIDI üzenetre felvillan.
+- **Pattern törlése:** a **Pat +** melletti **−** gomb törli az aktuális patternt (ha van benne hang, előbb rákérdez). Az azt használó song-lépések kikerülnek, a többi átszámozódik; legalább egy pattern mindig megmarad.
+- A **master hangerő** tekerőgombja a VA-VK-n van.
+
 **Files menü exportok:**
 | Export | Mit csinál |
 |---|---|
@@ -3852,7 +3922,14 @@ Az effektek soronként egyszer frissülnek (megegyezően az exportált lejátsz�
 | `Export blocks (data only)` | Hangszer-táblát + pattern blokkokat fűz a programhoz a `* = $C000`-en. |
 | `Export blocks + miniplayer` | Hozzáadja a teljes lejátszót (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) plusz a PAL frekvencia-táblákat. Export után tegyél egy `JSR sid_init`-et a fő kódodba, ahol a zenének indulnia kell; saját IRQ-ból ehelyett frame-enként egyszer `JSR sid_frame`. |
 | `Export asm (clipboard)` | A teljes assembly forrást vágólapra másolja. |
+| `Import GoatTracker .sng…` | Egy GoatTracker 2 dalt tölt be az aktuális helyére — lásd lentebb a **GoatTracker import** részt. |
 | `Export to UltimateBasic` | Egy `tune ... end` blokkot (hangszerek, sorrend lista, pattern sorok szövegként) és `music play`-t ír ki, és az Ultimate Basic szerkesztő kurzorához szúrja be; UB módon kívül a vágólapra másolja. A lejátszót az UltimateBasic fordító építi, így a `music play` / `music stop` vezérli. A hangszer-modulációk `imod` / `ifilt` / `igate` / `itab` sorokba kerülnek (Ultimate Basic 1.6.2+). |
+
+**GoatTracker import:** a **Files → Import GoatTracker .sng…** egy GoatTracker 2 dalt (`.sng`, GTS3–GTS5) tölt be az aktuális helyére. Az átalakítás közelítő, mert a két tracker másképp működik:
+- A voice-onkénti sorrend listák (transpose-zal és repeat-tel) egyetlen 3 voice-os dallá lapulnak, 32 soros patternekre vágva; az azonos patternek közösek.
+- Hangszerek: az AD / SR, a first wave, a gate timer és a hard restart átkerül; a wavetable-ből wave / arpeggio tábla, a pulse táblából PWM, a filter táblából szűrőmód, rezonancia és cutoff-söprés, a speed tábla bejegyzéséből hangszer-vibrato lesz.
+- Pattern parancsok: key off → note-off, portamento → `U` / `D` (soronként legfeljebb 255), tempó → `F`; a toneporta sima hang lesz. A többi parancs kimarad, és egy üzenet felsorolja, mi lett közelítve vagy kihagyva.
+- A wavetable által elengedett gate a következő szabad sorban note-off lesz. Csak az első subtune töltődik be, és az export 7 patternes korlátja itt is érvényes.
 
 **Lejátszó ZP használat:** `$02`–`$1C` (pattern-mutatók, pattern offset, temp) és `$2F` (aktuális sebesség), valamint `$FB`–`$FD` (tick számláló, sor-index, sorrend-pozíció). A hang-, modulációs és szűrő-állapot az adatok utáni `sid_state` területen van. A ZP bájtok ütköznek, ha a fő kódod használja őket — szükség esetén relokálj Expert módon.
 
@@ -3860,6 +3937,18 @@ Az effektek soronként egyszer frissülnek (megegyezően az exportált lejátsz�
 - A 8 bites sor-számláló a nyers bankban 7 pattern × 32 sorra korlátoz (a song/sorrend lista patternek ismétlésével még mindig tetszőlegesen hosszú lehet).
 - A C64 `$D418` globális hangerő megosztott a voice-ok közt — a hangszerenkénti hangerő-csúszka informatív; a sustain szint (az ADSR `S`-e) a tényleges per-voice hangerő.
 - Amíg a **Play: All** valódi dala be van töltve (szüneteltetve is), a hang-előnézet a kis szintetizátoron szól, ami csak közelíti a SID chipet. Az előnézet kb. 0,1 mp-cel a hang előtt jut a WebSid-be.
+
+---
+
+### SID Player
+
+A **SID Player** toolbar gomb egy lebegő ablakot nyit, amely `.sid` zenefájlokat (PSID és RSID) játszik le, például a HVSC gyűjtemény zenéit.
+
+- **Lejátszási lista:** zenét az **Add .sid files…** gombbal vagy az ablakra húzva adhatsz hozzá, és kattintásra lejátszhatod; a **Remove** és a **Clear playlist** rendet tart. A **Save playlist…** / **Open playlist…** egy `.sidpl` fájlba írja és onnan olvassa a listát, a zenékkel együtt. A lista, az aktuális zene és az ablak nyitott állapota megmarad.
+- **Vezérlés:** Play, Pause, Stop, **Previous** / **Next** zene, több dalt tartalmazó fájloknál **Previous / Next subtune**, valamint időszámláló.
+- **Tekerés:** a pozíciósáv és a **Back / Forward 10 s** a VA SID Core motorral működik. A WebSID nem tud tekerni, ezért vele ezek a vezérlők le vannak tiltva.
+- **Hangerő:** a tekerőgomb közös a SID szerkesztő master hangerejével.
+- **Motor:** az ablak kiírja, melyik motor szól (WebSID, vagy VA SID Core a verziójával és a SID chippel); a **Beállítások → SID előnézet** alatt választható. A VA SID Core natív Rust C64 magon futtatja a zenét: ciklusra pontos 6510 precíz interrupt-időzítéssel, CIA 6526A, VIC-II időzítés badline-okkal, sprite-DMA-val és raster interruptokkal, valamint a 6510 I/O port — így a raster IRQ-s, CIA-időzített és digi zenék is valódi gép időzítésével szólnak.
 
 ---
 

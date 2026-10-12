@@ -5,6 +5,7 @@ const path = require("node:path");
 const vm = require("node:vm");
 
 const appJs = fs.readFileSync(path.join(__dirname, "..", "www", "app.js"), "utf8");
+const { assemble, cpu } = require("./mini6502");
 
 function slice(startMarker, endMarker) {
   const start = appJs.indexOf(startMarker);
@@ -36,6 +37,13 @@ function loadLv() {
     " place: _lvPlace, setLayout: _lvSetLayout, swap: _lvSwapSlots, remove: _lvRemoveSlot, grid: _lvGridResize," +
     " exportData: _lvExportData, exportAsm: _lvExportAsm, save: _lvBuildLevelFile, load: _lvLoadLevelFile," +
     " setDir: (d) => { _lvDir = d; }, setSel: (i) => { _lvSel = i; }," +
+    " addObj: (type, x, y, p) => { const o = _lvObjNew(type, x, y, p); _lvObjects.push(o); return o; }," +
+    " objects: () => JSON.parse(JSON.stringify(_lvObjects)), ordered: () => _lvObjOrdered().map((o) => o.type + ':' + o.x + ',' + o.y)," +
+    " snapshot: _lvSnapshot, restore: _lvRestore," +
+    " setAttr: (code, flags) => { _lvAttr[code] = flags; }, attr: () => Array.from(_lvAttr), edges: _lvEdgeIssues," +
+    " rle: _lvRle, unrleAsm: _lvRleUnpackAsm, testAsm: _lvTestProgramAsm, camera: _lvTestCamera," +
+    " screenAt: (i) => _lvScreenById(_lvCells[i]), screens: () => _lvScreens, setBorder: (c) => { _lvBorder = c; }," +
+    " border: () => _lvBorder, colorsAsm: _lvScrColorsAsm," +
     " state: () => ({ w: _lvW, h: _lvH, cells: JSON.parse(JSON.stringify(_lvCells)), layout: _lvLayout, dir: _lvDir, screens: _lvScreens.length }) };",
     context);
   return context.api;
@@ -152,4 +160,140 @@ test("switching vertical → grid makes a near-square grid that fills sideways",
   st = JSON.parse(JSON.stringify(lv.state()));
   assert.deepEqual([st.w, st.h], [3, 2]);
   assert.equal(st.cells.filter(Boolean).length, 6);
+});
+
+test("objects are ordered the way the scroller meets them", () => {
+  const lv = loadLv();
+  lv.add(1); lv.add(2);                     // vertical, 320×400 px
+  lv.addObj(1, 16, 40); lv.addObj(2, 100, 360); lv.addObj(0, 8, 360);
+  lv.addObj(3, 500, 10);                    // outside the level
+  lv.setDir("up");
+  assert.deepEqual(Array.from(lv.ordered()), ["0:8,360", "2:100,360", "1:16,40"]);
+  lv.setDir("down");
+  assert.deepEqual(Array.from(lv.ordered()), ["1:16,40", "0:8,360", "2:100,360"]);
+  lv.setLayout("horizontal");               // 640×200 px
+  lv.setDir("left");
+  assert.deepEqual(Array.from(lv.ordered()), ["3:500,10", "1:16,40"]);   // y = 360 is outside the 200 px tall level
+});
+
+test("objects round-trip through the level file and undo", () => {
+  const a = loadLv();
+  a.add(1); a.add(2);
+  a.addObj(1, 16, 40, 7); a.addObj(0, 8, 360, 0);
+  const bytes = a.save();
+  const b = loadLv();
+  assert.equal(b.load(bytes), true);
+  const objs = JSON.parse(JSON.stringify(b.objects().map((o) => [o.type, o.x, o.y, o.param])));
+  assert.deepEqual(objs, [[0, 8, 360, 0], [1, 16, 40, 7]]);   // saved in scroll order (up)
+  const snap = b.snapshot();
+  b.addObj(2, 0, 0);
+  b.restore(snap);
+  assert.equal(b.objects().length, 2);
+});
+
+test("asm export adds the LEVEL_OBJ_* tables", () => {
+  const lv = loadLv();
+  lv.add(1); lv.add(2);
+  lv.addObj(1, 300, 264, 5); lv.addObj(0, 8, 16);
+  lv.setDir("down");
+  const asm = lv.exportAsm();
+  assert.match(asm, /\.const LEVEL_OBJ_COUNT = 2/);
+  assert.match(asm, /\.const LEVEL_OBJ_T_ENEMY = 1/);
+  assert.match(asm, /\.const LEVEL_START_X = 8/);
+  assert.match(asm, /^LEVEL_OBJ_X_LO:\n {4}\.byte \$08, \$2C$/m);
+  assert.match(asm, /^LEVEL_OBJ_X_HI:\n {4}\.byte \$00, \$01$/m);
+  assert.match(asm, /^LEVEL_OBJ_Y_HI:\n {4}\.byte \$00, \$01$/m);
+  assert.match(asm, /^LEVEL_OBJ_PARAM:\n {4}\.byte \$00, \$05$/m);
+  const empty = loadLv();
+  empty.add(1);
+  assert.doesNotMatch(empty.exportAsm(), /LEVEL_OBJ/);
+});
+
+test("character attributes: asm table, save / load and undo", () => {
+  const a = loadLv();
+  a.add(0x20);
+  assert.doesNotMatch(a.exportAsm(), /LEVEL_ATTR/);
+  a.setAttr(0xA0, 1); a.setAttr(0x41, 4 | 8);
+  const asm = a.exportAsm();
+  assert.match(asm, /\.const LEVEL_ATTR_HAZARD = 4/);
+  assert.match(asm, /^LEVEL_ATTR:$/m);
+  const rows = asm.split("LEVEL_ATTR:\n")[1].split("\n").slice(0, 16);
+  assert.equal(rows[4].split(", ")[1], "$0C");          // $41 = row 4, column 1
+  assert.equal(rows[10].split(", ")[0], "    .byte $01");  // $A0
+  const b = loadLv();
+  assert.equal(b.load(a.save()), true);
+  assert.equal(b.attr()[0xA0], 1);
+  assert.equal(b.attr()[0x41], 12);
+  const snap = b.snapshot();
+  b.setAttr(0xA0, 0);
+  b.restore(snap);
+  assert.equal(b.attr()[0xA0], 1);
+});
+
+test("edge check finds cells that do not continue across screen borders", () => {
+  const lv = loadLv();
+  lv.add(0x20); lv.add(0x20);
+  const top = lv.screenAt(0), bottom = lv.screenAt(1);
+  const t2 = top.screen.slice(0), b2 = bottom.screen.slice(0);
+  for (let c = 0; c < 40; c++) { t2[24 * 40 + c] = 0xA0; b2[c] = c < 3 ? 0x20 : 0xA0; }
+  top.screen = t2; bottom.screen = b2;
+  let issues = lv.edges();
+  assert.equal(issues.length, 1);
+  assert.deepEqual(Array.from(issues[0].cells), [0, 1, 2]);
+  assert.equal(issues[0].dir, "v");
+  // solid on one side only also breaks the edge
+  const b3 = b2.slice(0); b3[0] = 0x41; b3[1] = 0xA0; b3[2] = 0xA0; bottom.screen = b3;
+  lv.setAttr(0xA0, 1);
+  issues = lv.edges();
+  assert.deepEqual(Array.from(issues[0].cells), [0]);
+});
+
+test("RLE stream unpacks with the 6502 routine to the original bytes", () => {
+  const lv = loadLv();
+  const src = new Uint8Array(3000);
+  for (let i = 0; i < src.length; i++) src[i] = i < 900 ? 0x20 : i < 1500 ? (i * 7) & 0xFF : i < 2600 ? 14 : (i & 3);
+  src[10] = 0; src[11] = 0;                        // a short run of the probable marker value
+  const packed = lv.rle(src);
+  assert.ok(packed.length < src.length / 2);
+  const code = Array.from(lv.unrleAsm()).join("\n");
+  const { mem, labels } = assemble("* = $C000\n" + code);
+  mem.set(packed, 0x2000);
+  mem[0xFB] = 0x00; mem[0xFC] = 0x20; mem[0xFD] = 0x00; mem[0xFE] = 0x40;
+  cpu(mem).call(labels.level_unrle, 2000000);
+  assert.deepEqual(Array.from(mem.subarray(0x4000, 0x4000 + src.length)), Array.from(src));
+  assert.equal(mem[0x4000 + src.length], 0, "nothing written past the end");
+});
+
+test("screen colours: saved per screen, exported per slot", () => {
+  const a = loadLv();
+  a.add(1); a.add(2);
+  a.setBorder(11);
+  a.screenAt(1).colors = { bg: 2, border: 7, mc1: 5, mc2: 13 };
+  const asm = Array.from(a.colorsAsm()).join("\n");
+  assert.match(asm, /\.const LEVEL_BORDER = 11/);
+  assert.match(asm, /^LEVEL_SCR_BG:\n {4}\.byte 6, 2$/m);
+  assert.match(asm, /^LEVEL_SCR_BORDER:\n {4}\.byte 11, 7$/m);
+  const b = loadLv();
+  b.load(a.save());
+  assert.equal(b.border(), 11);
+  assert.deepEqual({ ...b.screens()[1].colors }, { bg: 2, border: 7, mc1: 5, mc2: 13 });
+  assert.equal(b.screens()[0].colors, null);
+});
+
+test("Run in VICE test program: charset, screen colours and the start camera", () => {
+  const lv = loadLv();
+  lv.add(1); lv.add(2); lv.add(3);                  // vertical, 320×600
+  lv.setDir("up");
+  assert.deepEqual({ ...lv.camera() }, { x: 0, y: 400 });
+  lv.addObj(0, 100, 260);
+  assert.deepEqual({ ...lv.camera() }, { x: 0, y: 164 });
+  const asm = lv.testAsm({ charset: true, scrColors: true, camX: 8, camY: 164 });
+  assert.match(asm, /^\.level "level\.bin", \$2800$/m);
+  assert.match(asm, /^\.incbin "charset\.bin", \$2000$/m);
+  assert.match(asm, /LDA LEVEL_SCR_BG,X/);
+  assert.match(asm, /LDA #\$18\n {4}STA \$D018/);
+  assert.match(asm, /LDA #\$14\n {4}STA shy/);      // 164 / 8
+  const plain = lv.testAsm({ charset: false, scrColors: false, camX: 0, camY: 0 });
+  assert.match(plain, /^\.level "level\.bin", \$2000$/m);
+  assert.doesNotMatch(plain, /\.incbin|LEVEL_SCR_BG/);
 });

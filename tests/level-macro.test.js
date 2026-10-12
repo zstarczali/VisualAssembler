@@ -34,7 +34,7 @@ function loadLevel() {
     slice("/* LEVEL = INCBIN variant", "const _LEVEL_ROW_SIZE") +
     "\nconst _LEVEL_ROW_SIZE = _levelRowBytes(0, 0, 0, false, new Proxy({}, { get: () => 0 })).length;" +
     "\nthis.api = { build: _levelBuild, info: _levelInfo, payload: _incBinPayload, parse: _levelRowParse," +
-    " row: _levelRowBytes, size: _LEVEL_ROW_SIZE, meta: _vaBuildBinWithMeta, read: _vaReadBinWithMeta };",
+    " row: _levelRowBytes, size: _LEVEL_ROW_SIZE, meta: _vaBuildBinWithMeta, read: _vaReadBinWithMeta, U8: Uint8Array };",
     context);
   return context.api;
 }
@@ -171,4 +171,58 @@ test("_incBinPayload returns the processed level data for a LEVEL block", () => 
   const block = { isIncBinMacro: true, incBinLevel: true, incBinAddress: "$4000", incBinBytes: Array.from(levelBin) };
   assert.equal(api.payload(block).length, api.info(block).data.length);
   assert.ok(api.payload(block).length < levelBin.length);
+});
+
+test("objects become LEVEL_OBJ_* tables in file order, outside ones dropped", () => {
+  const api = loadLevel();
+  const payload = new Uint8Array(2000);
+  const objects = [{ t: 0, x: 8, y: 16, p: 0 }, { t: 2, x: 600, y: 180, p: 9 }, { t: 1, x: 296, y: 392, p: 3 }, { t: 1, x: 700, y: 0, p: 0 }];
+  const file = api.meta(payload, { kind: "lv-level", settings: { layout: "grid", w: 2, h: 2, cells: [0, 0, 0, 0], objects }, extras: {} });
+  const info = api.build(file, 0x2000);
+  assert.equal(info.ok, true, info.error);
+  const L = info.labels;
+  assert.equal(L.LEVEL_OBJ_COUNT, 3);
+  assert.equal(L.LEVEL_OBJ_T_START, 0);
+  assert.equal(L.LEVEL_OBJ_T_TRIGGER, 5);
+  assert.equal(L.LEVEL_START_X, 8);
+  assert.equal(L.LEVEL_START_Y, 16);
+  const tab = (name) => Array.from(info.data).slice(L[name] - 0x2000, L[name] - 0x2000 + 3);
+  assert.deepEqual(tab("LEVEL_OBJ_X_LO"), [8, 600 & 255, 296 & 255]);
+  assert.deepEqual(tab("LEVEL_OBJ_X_HI"), [0, 2, 1]);
+  assert.deepEqual(tab("LEVEL_OBJ_Y_LO"), [16, 180, 392 & 255]);
+  assert.deepEqual(tab("LEVEL_OBJ_Y_HI"), [0, 0, 1]);
+  assert.deepEqual(tab("LEVEL_OBJ_TYPE"), [0, 2, 1]);
+  assert.deepEqual(tab("LEVEL_OBJ_PARAM"), [0, 9, 3]);
+  assert.equal(L.LEVEL_OBJ_PARAM + 3, L.LEVEL_END);
+});
+
+test("a level without objects still defines LEVEL_OBJ_COUNT = 0", () => {
+  const api = loadLevel();
+  const info = api.build(levelBin, 0x4000);
+  assert.equal(info.labels.LEVEL_OBJ_COUNT, 0);
+  assert.equal(info.labels.LEVEL_START_X, undefined);
+});
+
+test("attribute and per-slot colour tables", () => {
+  const api = loadLevel();
+  const attr = new api.U8(256); attr[0xA0] = 1; attr[0x41] = 4;   // a Uint8Array of the vm realm
+  const file = api.meta(new Uint8Array(4000), {
+    kind: "lv-level",
+    settings: { layout: "vertical", w: 1, h: 2, cells: [0, 1], bgColor: 6, borderColor: 14, screenColors: [null, [2, 7, 5, 13]] },
+    extras: { attr }
+  });
+  const info = api.build(file, 0x2000);
+  assert.equal(info.ok, true, info.error);
+  const L = info.labels, at = (name, i) => info.data[L[name] - 0x2000 + i];
+  assert.equal(at("LEVEL_ATTR", 0xA0), 1);
+  assert.equal(at("LEVEL_ATTR", 0x41), 4);
+  assert.equal(L.LEVEL_ATTR_COLLECT, 8);
+  assert.equal(L.LEVEL_BORDER, 14);
+  assert.equal(L.LEVEL_SCR_COLORS, 1);
+  assert.deepEqual([at("LEVEL_SCR_BG", 0), at("LEVEL_SCR_BG", 1)], [6, 2]);
+  assert.deepEqual([at("LEVEL_SCR_BORDER", 0), at("LEVEL_SCR_BORDER", 1)], [14, 7]);
+  assert.equal(L.LEVEL_SCR_MC2 + 2, L.LEVEL_END);
+  const plain = api.build(levelBin, 0x4000);
+  assert.equal(plain.labels.LEVEL_SCR_COLORS, 0);
+  assert.equal(plain.labels.LEVEL_ATTR, undefined);
 });

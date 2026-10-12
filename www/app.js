@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "editors-255",
+  id: "c64-core-257",
   url: "https://www.c64va.tech/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.5.5-ben",
+    eyebrow: "Újdonság a 2.5.7-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>Pixelrács a Hi-Res szerkesztőben:</strong> bekapcsolt Grid mellett 4×-es nagyítástól minden pixel saját vonalat kap, és mind a 16 színen látszik.</li><li><strong>16×-os nagyítás</strong> a Hi-Res szerkesztőben.</li><li><strong>Jobb klikkes menü:</strong> másolás, beillesztés és áttetsző beillesztés a Hi-Res, a Map és a Sprite szerkesztő vásznán.</li><li><strong>Számrendszer-átváltó:</strong> a toolbar gombja kiemelve marad, amíg az átváltó nyitva van.</li><li><strong>Javítások:</strong> a multicolor cellarács, a Hi-Res Paste gomb és a SID szerkesztő jobb klikkes menüjének helye.</li><li><strong>A 2.5.4-ből:</strong> Ultimate Basic 1.6.3 QBasic-stílusú szintaxissal (<code>DIM … AS</code>, <code>FUNCTION</code>, <code>DO … LOOP</code>, <code>SELECT CASE</code>).</li></ul>`,
+    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>VA SID Core 1.2:</strong> a SID Player a VICE-ból portolt, ciklusra pontos C64-en játszik (6510, CIA, VIC-II).</li><li><strong>Hi-Res szerkesztő:</strong> két szín minden 8×8-as cellában — új Cella háttérszín eszköz.</li><li><strong>Pontos karakter-ROM</strong> a ROM-nézőben, a Character és a Map / Level szerkesztőben.</li><li><strong>Sprite szerkesztő:</strong> hires réteg, kitöltés, kijelölés, forgatás, sprite sheet import, hitbox, X / Y ×2.</li><li><strong>Pálya szerkesztő:</strong> objektumok, karakter-attribútumok, él-ellenőrzés, képernyőnkénti színek, memóriamérleg + RLE, Futtatás VICE-ban.</li><li><strong>Karakterszerkesztő:</strong> visszavonás, rajzeszközök, forgatás, másolás / csere, 2×2-es csempék, kisbetűs ROM, szöveges előnézet, tartomány-export.</li><li><strong>Charset Canvas:</strong> nagyítás pixelráccsal, háttérszín hires módban, hires karakterek multicolor módon belül.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.5.5",
+    eyebrow: "New in 2.5.7",
     title: "Welcome to Visual Assembler",
-    body: `<p>What's new in this release:</p><ul><li><strong>Hi-Res Editor pixel grid:</strong> with Grid on, from 4× zoom every pixel gets its own line, visible on all 16 colours.</li><li><strong>16× zoom</strong> in the Hi-Res Editor.</li><li><strong>Right-click menu:</strong> Copy, Paste and Transparent paste on the canvas of the Hi-Res, Map and Sprite editors.</li><li><strong>Number Converter:</strong> its toolbar button stays highlighted while the converter is open.</li><li><strong>Fixes:</strong> the multicolor cell grid, the Hi-Res Paste button and the position of the SID Editor's right-click menu.</li><li><strong>From 2.5.4:</strong> Ultimate Basic 1.6.3 with QBasic-style syntax (<code>DIM … AS</code>, <code>FUNCTION</code>, <code>DO … LOOP</code>, <code>SELECT CASE</code>).</li></ul>`,
+    body: `<p>What's new in this release:</p><ul><li><strong>VA SID Core 1.2:</strong> the SID Player runs tunes on a cycle-exact C64 ported from VICE (6510, CIA, VIC-II).</li><li><strong>Hi-Res Editor:</strong> two colours in every 8×8 cell — the new Cell paper tool.</li><li><strong>Exact character ROM</strong> in the ROM viewer, the Character and the Map / Level editors.</li><li><strong>Sprite Editor:</strong> hi-res overlay, flood fill, select, rotate, sprite sheet import, hitbox, X / Y ×2.</li><li><strong>Level Editor:</strong> objects, character attributes, edge check, colours per screen, memory meter + RLE, Run in VICE.</li><li><strong>Character Editor:</strong> undo, drawing tools, rotate, copy / swap, 2×2 tiles, lowercase ROM, text preview, range export.</li><li><strong>Charset Canvas:</strong> zoom with a pixel grid, background colour in hi-res mode, hi-res characters inside multicolor mode.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.5.5",
+    eyebrow: "Novedad en la 2.5.7",
     title: "Bienvenido a Visual Assembler",
-    body: `<p>Novedades de esta versión:</p><ul><li><strong>Cuadrícula de píxeles en el editor Hi-Res:</strong> con la cuadrícula activada, desde el zoom 4× cada píxel tiene su propia línea, visible sobre los 16 colores.</li><li><strong>Zoom 16×</strong> en el editor Hi-Res.</li><li><strong>Menú del botón derecho:</strong> Copiar, Pegar y Pegar transparente en el lienzo de los editores Hi-Res, Map y Sprite.</li><li><strong>Conversor de números:</strong> su botón de la barra queda resaltado mientras el conversor está abierto.</li><li><strong>Correcciones:</strong> la cuadrícula de celdas en multicolor, el botón Pegar del editor Hi-Res y la posición del menú del botón derecho del editor SID.</li><li><strong>De la 2.5.4:</strong> Ultimate Basic 1.6.3 con sintaxis al estilo QBasic (<code>DIM … AS</code>, <code>FUNCTION</code>, <code>DO … LOOP</code>, <code>SELECT CASE</code>).</li></ul>`,
+    body: `<p>Novedades de esta versión:</p><ul><li><strong>VA SID Core 1.2:</strong> el SID Player reproduce en un C64 exacto al ciclo portado de VICE (6510, CIA, VIC-II).</li><li><strong>Editor Hi-Res:</strong> dos colores en cada celda de 8×8 — nueva herramienta de fondo de celda.</li><li><strong>ROM de caracteres exacta</strong> en el visor de ROM y en los editores de caracteres, mapas y niveles.</li><li><strong>Editor de sprites:</strong> capa hi-res, relleno, selección, giro, importación de hojas de sprites, hitbox, X / Y ×2.</li><li><strong>Editor de niveles:</strong> objetos, atributos de caracteres, comprobación de bordes, colores por pantalla, memoria + RLE, ejecutar en VICE.</li><li><strong>Editor de caracteres:</strong> deshacer, herramientas de dibujo, giro, copiar / intercambiar, mosaicos 2×2, ROM en minúsculas, vista previa de texto, exportar rango.</li><li><strong>Charset Canvas:</strong> zoom con cuadrícula de píxeles, color de fondo en alta resolución, caracteres de alta resolución dentro del modo multicolor.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.5.5",
+    eyebrow: "Neu in 2.5.7",
     title: "Willkommen bei Visual Assembler",
-    body: `<p>Neu in dieser Version:</p><ul><li><strong>Pixelraster im Hi-Res-Editor:</strong> bei eingeschaltetem Raster bekommt ab 4× Zoom jedes Pixel eine eigene Linie, sichtbar auf allen 16 Farben.</li><li><strong>16× Zoom</strong> im Hi-Res-Editor.</li><li><strong>Rechtsklick-Menü:</strong> Kopieren, Einfügen und Transparent einfügen auf der Zeichenfläche von Hi-Res-, Map- und Sprite-Editor.</li><li><strong>Zahlenkonverter:</strong> sein Toolbar-Button bleibt hervorgehoben, solange der Konverter geöffnet ist.</li><li><strong>Korrekturen:</strong> das Zellenraster im Multicolor-Modus, der Einfügen-Button im Hi-Res-Editor und die Position des Rechtsklick-Menüs im SID-Editor.</li><li><strong>Aus 2.5.4:</strong> Ultimate Basic 1.6.3 mit Syntax im QBasic-Stil (<code>DIM … AS</code>, <code>FUNCTION</code>, <code>DO … LOOP</code>, <code>SELECT CASE</code>).</li></ul>`,
+    body: `<p>Neu in dieser Version:</p><ul><li><strong>VA SID Core 1.2:</strong> der SID Player spielt auf einem zyklusgenauen, aus VICE portierten C64 (6510, CIA, VIC-II).</li><li><strong>Hi-Res-Editor:</strong> zwei Farben in jeder 8×8-Zelle — neues Werkzeug für die Zellenhintergrundfarbe.</li><li><strong>Exaktes Zeichen-ROM</strong> im ROM-Betrachter, im Zeichen-, Map- und Level-Editor.</li><li><strong>Sprite-Editor:</strong> Hi-Res-Ebene, Füllen, Auswahl, Drehen, Spritesheet-Import, Hitbox, X / Y ×2.</li><li><strong>Level-Editor:</strong> Objekte, Zeichenattribute, Kantenprüfung, Farben pro Bildschirm, Speicheranzeige + RLE, in VICE starten.</li><li><strong>Zeichen-Editor:</strong> Rückgängig, Zeichenwerkzeuge, Drehen, Kopieren / Tauschen, 2×2-Kacheln, Kleinbuchstaben-ROM, Textvorschau, Bereichsexport.</li><li><strong>Charset Canvas:</strong> Zoom mit Pixelraster, Hintergrundfarbe im Hi-Res-Modus, Hi-Res-Zeichen im Multicolor-Modus.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.5.5",
+    eyebrow: "Nieuw in 2.5.7",
     title: "Welkom bij Visual Assembler",
-    body: `<p>Nieuw in deze versie:</p><ul><li><strong>Pixelraster in de Hi-Res-editor:</strong> met het raster aan krijgt vanaf 4× zoom elke pixel een eigen lijn, zichtbaar op alle 16 kleuren.</li><li><strong>16× zoom</strong> in de Hi-Res-editor.</li><li><strong>Rechtsklikmenu:</strong> Kopiëren, Plakken en Transparant plakken op het canvas van de Hi-Res-, Map- en Sprite-editor.</li><li><strong>Getallenconverter:</strong> de werkbalkknop blijft gemarkeerd zolang de converter open is.</li><li><strong>Oplossingen:</strong> het celraster in multicolor, de knop Plakken in de Hi-Res-editor en de positie van het rechtsklikmenu in de SID-editor.</li><li><strong>Uit 2.5.4:</strong> Ultimate Basic 1.6.3 met syntaxis in QBasic-stijl (<code>DIM … AS</code>, <code>FUNCTION</code>, <code>DO … LOOP</code>, <code>SELECT CASE</code>).</li></ul>`,
+    body: `<p>Nieuw in deze versie:</p><ul><li><strong>VA SID Core 1.2:</strong> de SID Player speelt op een cyclusexacte, uit VICE geporteerde C64 (6510, CIA, VIC-II).</li><li><strong>Hi-Res-editor:</strong> twee kleuren in elke 8×8-cel — nieuw gereedschap voor de celachtergrond.</li><li><strong>Exacte teken-ROM</strong> in de ROM-viewer en de teken-, map- en leveleditor.</li><li><strong>Sprite-editor:</strong> hi-res-laag, vullen, selecteren, draaien, spritesheet-import, hitbox, X / Y ×2.</li><li><strong>Leveleditor:</strong> objecten, tekenattributen, randcontrole, kleuren per scherm, geheugen + RLE, uitvoeren in VICE.</li><li><strong>Tekeneditor:</strong> ongedaan maken, tekengereedschap, draaien, kopiëren / wisselen, 2×2-tegels, kleine-letter-ROM, tekstvoorbeeld, bereikexport.</li><li><strong>Charset Canvas:</strong> zoom met pixelraster, achtergrondkleur in hi-res, hi-res-tekens binnen multicolor.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.5.5",
+    eyebrow: "Nowość w 2.5.7",
     title: "Witamy w Visual Assembler",
-    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>Siatka pikseli w edytorze Hi-Res:</strong> przy włączonej siatce od powiększenia 4× każdy piksel ma własną linię, widoczną na wszystkich 16 kolorach.</li><li><strong>Powiększenie 16×</strong> w edytorze Hi-Res.</li><li><strong>Menu prawego przycisku:</strong> Kopiuj, Wklej i Wklej przezroczyście na płótnie edytorów Hi-Res, Map i Sprite.</li><li><strong>Konwerter liczb:</strong> jego przycisk na pasku pozostaje podświetlony, dopóki konwerter jest otwarty.</li><li><strong>Poprawki:</strong> siatka komórek w trybie multicolor, przycisk Wklej w edytorze Hi-Res oraz położenie menu prawego przycisku w edytorze SID.</li><li><strong>Z 2.5.4:</strong> Ultimate Basic 1.6.3 ze składnią w stylu QBasic (<code>DIM … AS</code>, <code>FUNCTION</code>, <code>DO … LOOP</code>, <code>SELECT CASE</code>).</li></ul>`,
+    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>VA SID Core 1.2:</strong> SID Player gra na dokładnym co do cyklu C64 przeniesionym z VICE (6510, CIA, VIC-II).</li><li><strong>Edytor Hi-Res:</strong> dwa kolory w każdej komórce 8×8 — nowe narzędzie tła komórki.</li><li><strong>Dokładny ROM znaków</strong> w przeglądarce ROM oraz w edytorach znaków, map i poziomów.</li><li><strong>Edytor sprite'ów:</strong> warstwa hi-res, wypełnianie, zaznaczanie, obrót, import arkuszy, hitbox, X / Y ×2.</li><li><strong>Edytor poziomów:</strong> obiekty, atrybuty znaków, kontrola krawędzi, kolory ekranów, pamięć + RLE, uruchom w VICE.</li><li><strong>Edytor znaków:</strong> cofanie, narzędzia rysowania, obrót, kopiowanie / zamiana, kafle 2×2, ROM z małymi literami, podgląd tekstu, eksport zakresu.</li><li><strong>Charset Canvas:</strong> powiększenie z siatką pikseli, kolor tła w trybie hi-res, znaki hi-res w trybie multicolor.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.5.5",
+    eyebrow: "Novità nella 2.5.7",
     title: "Benvenuto in Visual Assembler",
-    body: `<p>Novità di questa versione:</p><ul><li><strong>Griglia dei pixel nell'editor Hi-Res:</strong> con la griglia attiva, dallo zoom 4× ogni pixel ha la propria linea, visibile su tutti i 16 colori.</li><li><strong>Zoom 16×</strong> nell'editor Hi-Res.</li><li><strong>Menu del tasto destro:</strong> Copia, Incolla e Incolla trasparente sull'area di disegno degli editor Hi-Res, Map e Sprite.</li><li><strong>Convertitore di numeri:</strong> il suo pulsante nella barra resta evidenziato finché il convertitore è aperto.</li><li><strong>Correzioni:</strong> la griglia delle celle in multicolor, il pulsante Incolla dell'editor Hi-Res e la posizione del menu del tasto destro dell'editor SID.</li><li><strong>Dalla 2.5.4:</strong> Ultimate Basic 1.6.3 con sintassi in stile QBasic (<code>DIM … AS</code>, <code>FUNCTION</code>, <code>DO … LOOP</code>, <code>SELECT CASE</code>).</li></ul>`,
+    body: `<p>Novità di questa versione:</p><ul><li><strong>VA SID Core 1.2:</strong> il SID Player suona su un C64 esatto al ciclo portato da VICE (6510, CIA, VIC-II).</li><li><strong>Editor Hi-Res:</strong> due colori in ogni cella 8×8 — nuovo strumento per lo sfondo della cella.</li><li><strong>ROM dei caratteri esatta</strong> nel visualizzatore ROM e negli editor di caratteri, mappe e livelli.</li><li><strong>Editor sprite:</strong> livello hi-res, riempimento, selezione, rotazione, importazione sprite sheet, hitbox, X / Y ×2.</li><li><strong>Editor livelli:</strong> oggetti, attributi dei caratteri, controllo bordi, colori per schermata, memoria + RLE, esegui in VICE.</li><li><strong>Editor caratteri:</strong> annulla, strumenti di disegno, rotazione, copia / scambio, tessere 2×2, ROM minuscola, anteprima testo, esportazione intervallo.</li><li><strong>Charset Canvas:</strong> zoom con griglia dei pixel, colore di sfondo in hi-res, caratteri hi-res nel modo multicolor.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -230,7 +230,7 @@ const mnemonicLibrary = {
     { mnemonic: "BOX_HIT", description: "AABB (tengely-igazitott) tegla utkozes teszt ket 4-byte ZP struktura kozott (L,T,R,B). Eredmeny A regiszterben: 1=talalt, 0=nincs. ~31 byte inline asm.", modes: ["implied"], isBoxHitMacro: true },
     { mnemonic: "INCBIN", description: "Kulso binarfajl beillesztese megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isIncBinMacro: true },
     { mnemonic: "KOALA", description: "Koala Painter kep (.koa) betoltese es megjelenitese: a bitmap $6000-ra (vagy $2000-ra) kerul, a blokk helyen futo kod bemasolja a screen/color RAM-ot, beallitja a hatterszint es a multicolor bitmap modot.", modes: ["implied"], isIncBinMacro: true, incBinKoala: true },
-    { mnemonic: "LEVEL", description: "Palya szerkeszto (Level Editor) projektfajl betoltese: csak az elhelyezett kepernyok kerulnek a memoriaba (hely-sorrendben, 2000 byte/kepernyo: screen + color), utanuk sor/oszlop/hely pointer-tablak. Cimkeket (LEVEL_SLOT_LO, LEVEL_ROW_SLOT ...) es konstansokat (LEVEL_COLS, LEVEL_MAX_X, LEVEL_BG ...) ad. 0 byte kod.", modes: ["implied"], isIncBinMacro: true, incBinLevel: true },
+    { mnemonic: "LEVEL", description: "Palya szerkeszto (Level Editor) projektfajl betoltese: csak az elhelyezett kepernyok kerulnek a memoriaba (hely-sorrendben, 2000 byte/kepernyo: screen + color), utanuk sor/oszlop/hely pointer-tablak. Cimkeket (LEVEL_SLOT_LO, LEVEL_ROW_SLOT ...) es konstansokat (LEVEL_COLS, LEVEL_MAX_X, LEVEL_BG ...) ad; az elhelyezett objektumokbol LEVEL_OBJ_X_LO/HI, Y_LO/HI, TYPE, PARAM tablak (LEVEL_OBJ_COUNT, LEVEL_OBJ_T_*, LEVEL_START_X/Y). 0 byte kod.", modes: ["implied"], isIncBinMacro: true, incBinLevel: true },
     { mnemonic: "LEVEL_ROW", description: "Palya sor masolasa: az X-ben megadott palyasor 40 byte-jat a col valtozoban levo oszloptol a dst pointer (lo/hi) altal mutatott cimre masolja; color eseten a szinadatot. Ket kepernyon atnyulo ablakot is kezel, onmodosito ciklussal (~14 ciklus/byte). X megmarad, A/Y elvesz. .level kell hozza.", modes: ["implied"], isLevelRowMacro: true },
     { mnemonic: "SID", description: "SID zenefajl betoltese kozvetlenul a memoriaba. A fejlecet automatikusan eltavolitja, a Load/Init/Play cimeket kinyeri.", modes: ["implied"], isSidMacro: true },
     { mnemonic: "INCLUDE", description: "Masik projekt JSON fajl blokkjainak beillesztese erre a helyre (csak olvasható).", modes: ["implied"], isIncludeMacro: true },
@@ -1251,6 +1251,9 @@ function initPalette() {
   });
   document.getElementById("crt-toggle")?.addEventListener("click", toggleCrtMode);
   languageSelect.addEventListener("change", handleLanguageChange);
+  ["about-dialog", "customer-message-dialog", "update-dialog", "hardware-settings-dialog", "whats-new-dialog"].forEach((id) => document.getElementById(id)?.addEventListener("dragstart", (e) => {
+    if (!e.target.closest?.("input, textarea, select, [contenteditable]")) e.preventDefault();
+  }));
   aboutButton?.addEventListener("click", async () => {
     document.querySelector(".control-menu")?.removeAttribute("open");
     document.getElementById("about-version").textContent = await getAppVersionText();
@@ -2265,9 +2268,12 @@ function initPalette() {
     const bar = document.querySelector('.splash-panel .splash-loader-bar');
     if (!splashScreen || !panel) return;
 
+    // debug: localStorage 'c64va-keep-splash' = '1' keeps the splash for inspection (click closes it)
+    let keep = false;
+    try { keep = localStorage.getItem('c64va-keep-splash') === '1'; } catch (_) {}
     let hidden = false;
-    const hide = () => {
-      if (hidden) return;
+    const hide = (force) => {
+      if (hidden || (keep && force !== true)) return;
       hidden = true;
       splashScreen.classList.add('fade-out');
       setTimeout(() => {
@@ -2275,6 +2281,8 @@ function initPalette() {
         showCustomerMessageIfNeeded();
       }, 500);
     };
+
+    if (keep) splashScreen.addEventListener('click', () => hide(true));
 
     const startReveal = () => {
       if (panel.classList.contains('ready')) return;
@@ -2358,6 +2366,7 @@ function setupDraggableEditorDialogs() {
     ["numconv-dialog", ".nc-hdr"],
     ["websid-play-dialog", ".websid-play-header"],
     ["hires-editor-dialog", ".hg-hdr"],
+    ["hg-png-dialog", ".hg-hdr"],
     ["sprite-editor-dialog", ".se-hdr"],
     ["sid-editor-dialog", ".sid-hdr"],
     ["curve-gen-dialog", ".cg-hdr"],
@@ -2423,24 +2432,46 @@ function setupDraggableEditorDialogs() {
       dialog.style.transform = "none";
       dialog.style.left = rect.left + "px";
       dialog.style.top = rect.top + "px";
+      // Measured once: reading the size on every move forced a layout after each
+      // position write. The move itself is a GPU transform (no layout, no repaint
+      // of the big dialog), committed to left / top on release — except when the
+      // dialog holds fixed floating panels (SID Editor tracker / VA-VK / roll):
+      // a transform would carry them along and they would jump back.
+      const floats = dialog.querySelector(".sid-trk-float:not([hidden]), .sid-vkbd-dialog:not([hidden])");
       _editorDialogDrag = {
         dialog,
         dx: e.clientX - rect.left,
-        dy: e.clientY - rect.top
+        dy: e.clientY - rect.top,
+        x0: rect.left, y0: rect.top, x: rect.left, y: rect.top,
+        maxX: Math.max(8, window.innerWidth - rect.width - 8),
+        maxY: Math.max(8, window.innerHeight - rect.height - 8),
+        useTransform: !floats, raf: 0
       };
+      if (!floats) dialog.style.willChange = "transform";
       try { header.setPointerCapture(e.pointerId); } catch(_) {}
       e.preventDefault();
     });
     header.addEventListener("pointermove", function(e) {
-      if (!_editorDialogDrag || _editorDialogDrag.dialog !== dialog) return;
-      const maxX = Math.max(8, window.innerWidth - dialog.offsetWidth - 8);
-      const maxY = Math.max(8, window.innerHeight - dialog.offsetHeight - 8);
-      dialog.style.left = Math.max(8, Math.min(e.clientX - _editorDialogDrag.dx, maxX)) + "px";
-      dialog.style.top = Math.max(8, Math.min(e.clientY - _editorDialogDrag.dy, maxY)) + "px";
+      const d = _editorDialogDrag;
+      if (!d || d.dialog !== dialog) return;
+      d.x = Math.max(8, Math.min(e.clientX - d.dx, d.maxX));
+      d.y = Math.max(8, Math.min(e.clientY - d.dy, d.maxY));
+      if (d.raf) return;
+      d.raf = requestAnimationFrame(function() {
+        d.raf = 0;
+        if (d.useTransform) dialog.style.transform = "translate3d(" + (d.x - d.x0) + "px, " + (d.y - d.y0) + "px, 0)";
+        else { dialog.style.left = d.x + "px"; dialog.style.top = d.y + "px"; }
+      });
     });
     const endDrag = function(e) {
-      if (!_editorDialogDrag || _editorDialogDrag.dialog !== dialog) return;
+      const d = _editorDialogDrag;
+      if (!d || d.dialog !== dialog) return;
       _editorDialogDrag = null;
+      if (d.raf) cancelAnimationFrame(d.raf);
+      dialog.style.left = d.x + "px";
+      dialog.style.top = d.y + "px";
+      dialog.style.transform = "none";
+      dialog.style.willChange = "";
       if (e && e.pointerId != null) { try { header.releasePointerCapture(e.pointerId); } catch(_) {} }
       persistPosition();
     };
@@ -3124,6 +3155,11 @@ function applySavedUiSettings() {
 }
 
 function handleLanguageChange() {
+  if (typeof _vaFullAllowed === "function" && !_vaFullAllowed() && _VA_FREE_LANGUAGES && !_VA_FREE_LANGUAGES.includes(languageSelect.value)) {
+    languageSelect.value = _VA_FREE_LANGUAGES.includes(currentLanguage) ? currentLanguage : "en";
+    _vaOpenLicenseDialog(true);
+    if (languageSelect.value === currentLanguage) return;
+  }
   currentLanguage = ["en", "es", "hu", "de", "nl", "pl", "it"].includes(languageSelect.value) ? languageSelect.value : "hu";
   localStorage.setItem("c64-block-language", currentLanguage);
   document.documentElement.lang = currentLanguage;
@@ -3371,6 +3407,16 @@ function applyTranslations() {
     setText("#menu-open-workspace", t("menuOpenWorkspace"));
     document.getElementById("menu-open-workspace")?.setAttribute("aria-label", t("menuOpenWorkspaceTip"));
     setText("#save-prg", t("savePrg"));
+    setText("#license-btn", t("licenseRegister"));
+    document.getElementById("license-badge")?.setAttribute("aria-label", t("licenseRegister"));
+    setText("#license-title", t("licenseTitle"));
+    setText("#license-email-label", t("licenseEmail"));
+    setText("#license-serial-label", t("licenseSerial"));
+    setText("#license-buy", t("licenseBuy"));
+    setText("#license-deactivate", t("licenseDeactivate"));
+    setText("#license-close", t("licenseClose"));
+    setText("#license-activate", t("licenseActivate"));
+    if (typeof _vaLicenseApply === "function") _vaLicenseApply();
     setText("#set-working-folder", t("setWorkingFolder"));
     setText("#build-section-label", t("buildSection"));
     setText("#versioning-section-label", t("versioningSection"));
@@ -3624,6 +3670,27 @@ function _applyEditorTranslations() {
   setText(".ce-export-lbl", t("ceExport"));
   setText("#ce-copy-asm", t("ceCopyAsm"));
   setAttr("#ce-load-rom", t("ceLoadRom"));
+  setAttr("#ce-load-rom2", t("ceLoadRom2"));
+  setText("#ce-rom-upper", t("ceRomUpper"));
+  setText("#ce-rom-lower", t("ceRomLower"));
+  setAttr("#ce-undo", t("hgUndo"));
+  setAttr("#ce-redo", t("hgRedo"));
+  setAttr("#ce-copy", t("sidContextCopy") + " (Ctrl+C)");
+  setAttr("#ce-paste", t("sidContextPaste") + " (Ctrl+V)");
+  setAttr('.ce-tool-btn[data-ce-tool="pencil"]', t("hgToolPencil"));
+  setAttr('.ce-tool-btn[data-ce-tool="line"]', t("hgToolLine"));
+  setAttr('.ce-tool-btn[data-ce-tool="rect"]', t("hgToolRect"));
+  setAttr('.ce-tool-btn[data-ce-tool="fillrect"]', t("hgToolFillRect"));
+  setAttr('.ce-tool-btn[data-ce-tool="fill"]', t("hgToolFill"));
+  setAttr("#ce-rotr", t("seRotateCW"));
+  setAttr("#ce-rotl", t("seRotateCCW"));
+  setText("#ce-tile-label", t("ceTile"));
+  setText("#ce-preview-label", t("cePreview"));
+  setText("#ce-preview-hint", t("cePreviewHint"));
+  setText("#ce-range-label", t("ceRange"));
+  setText("#ce-save-range", t("ceSaveRange"));
+  setText("#ce-copy-range", t("ceCopyRange"));
+  setText("#ce-map-hint", t("ceMapHint"));
   setText("#ce-load-bin", t("ceLoadBin"));
   setText("#ce-save-bin", t("ceSaveBin"));
   // _ceData/_ceSel are `let`s declared later in the file; at first init they are
@@ -3646,6 +3713,7 @@ function _applyEditorTranslations() {
   setText("#cc-title", t("ccTitle"));
   setText("#cc-multicolor-label", t("ceMulticolorMode"));
   setText("#cc-grid-label", t("meGrid"));
+  setAttr("#cc-zoom", t("seZoom") + " (Ctrl+wheel)");
   setText("#cc-load-bin", t("ccLoadCharset"));
   setText("#cc-save-charset", t("ccSaveCharset"));
   setText("#cc-save-map", t("ccSaveMapColor"));
@@ -3656,6 +3724,8 @@ function _applyEditorTranslations() {
   setAttr('#charset-canvas-dialog [data-cc-tool="rect"]', t("meRect"));
   setAttr('#charset-canvas-dialog [data-cc-tool="oval"]', t("meCircle"));
   setAttr('#charset-canvas-dialog [data-cc-tool="fill"]', t("meFill"));
+  setAttr('#charset-canvas-dialog [data-cc-tool="cellmode"]', t("ccCellMode"));
+  setText("#cc-status", t("ccStatus"));
   setAttr("#cc-undo", t("hgUndo"));
   setAttr("#cc-redo", t("hgRedo"));
   setAttr("#cc-clear", t("ceClear"));
@@ -3743,12 +3813,43 @@ function _applyEditorTranslations() {
   setText("#lv-loop-label", t("lvLoop"));
   setText("#lv-borders-label", t("lvBorders"));
   setText("#lv-screens-label", t("lvScreens"));
+  setAttr("#lv-obj-mode", t("lvObjMode"));
+  setAttr("#lv-attr-mode", t("lvAttrMode"));
+  setAttr("#lv-attr-type", t("lvAttrType"));
+  setText("#lv-edges-label", t("lvEdges"));
+  setText("#lv-zoom-lbl", t("seZoom"));
+  setText("#lv-mem-label", t("lvMemory"));
+  setAttr("#lv-run", t("lvRunVice"));
+  setText("#lv-colors-label", t("lvColors"));
+  setText("#lv-own-colors-label", t("lvOwnColors"));
+  setText("#lv-col-bg-label", t("lvColBg"));
+  setText("#lv-col-border-label", t("lvColBorder"));
+  setText("#lv-col-mc1-label", t("lvColMc1"));
+  setText("#lv-col-mc2-label", t("lvColMc2"));
+  setText("#lv-level-border-label", t("lvLevelBorder"));
+  setText("#lv-mem-addr-label", t("lvMemAddr"));
+  setText('[data-lv-export="rle-asm"]', t("lvRleAsm"));
+  setText('[data-lv-export="rle-blocks"]', t("lvRleBlocks"));
+  setAttr("#lv-obj-del", t("lvObjDelete"));
+  setAttr("#lv-obj-type", t("lvObjType"));
+  setText("#lv-obj-param-label", t("lvObjParam"));
+  setText("#lv-obj-snap-label", t("lvObjSnap"));
+  setText("#lv-objects-label", t("lvObjects"));
   setText("#lv-preview-label", t("lvPreview"));
   setText("#lv-hint", t("lvHint"));
   try { if (document.getElementById("level-editor-dialog")?.open) _lvRenderAll(); } catch (_) {}
   // Hires Editor
   setText(".hg-title", t("hgTitle"));
   setText("#hg-import", t("hgImport"));
+  setAttr("#hg-import-image", t("hgPngTitle"));
+  setText("#hg-import-png", t("hgPngTitle") + "…");
+  setText("#hg-png-title", t("hgPngTitle"));
+  setText("#hg-png-reset", t("hgPngReset"));
+  setText("#hg-png-cancel", t("hgPngCancel"));
+  setText("#hg-png-apply", t("hgPngApply"));
+  setText("#hg-png-credit", t("hgPngCredit"));
+  setText("#hg-png-hint", t("hgPngZoomHint"));
+  setText("#hg-png-zoom-lbl", t("hgPngZoom"));
   setText("#hg-export", t("hgExport"));
   setText("#hg-import-koala", t("hgImportKoala"));
   setText("#hg-export-koala", t("hgExportKoala"));
@@ -3763,6 +3864,7 @@ function _applyEditorTranslations() {
   setAttr('.hg-tool[data-tool="oval"]', t("hgToolOval"));
   setAttr('.hg-tool[data-tool="filloval"]', t("hgToolFillOval"));
   setAttr('.hg-tool[data-tool="fill"]', t("hgToolFill"));
+  setAttr('.hg-tool[data-tool="cellpaper"]', t("hgToolCellPaper"));
   setAttr('.hg-tool[data-tool="select"]', t("hgToolSelect"));
   setAttr("#hg-undo", t("hgUndo"));
   setAttr("#hg-redo", t("hgRedo"));
@@ -3786,6 +3888,38 @@ function _applyEditorTranslations() {
   setAttr('.se-tool[data-tool="line"]', t("seToolLine"));
   setAttr('.se-tool[data-tool="rect"]', t("seToolRect"));
   setAttr('.se-tool[data-tool="circle"]', t("seToolCircle"));
+  setAttr('.se-tool[data-tool="fill"]', t("seToolFill"));
+  setAttr('.se-tool[data-tool="select"]', t("seToolSelect"));
+  setAttr('.se-tool[data-tool="hitbox"]', t("seToolHitbox"));
+  setAttr("#se-rotr", t("seRotateCW"));
+  setAttr("#se-rotl", t("seRotateCCW"));
+  const seOvSpan = document.querySelector("#se-overlay + span");
+  if (seOvSpan) seOvSpan.textContent = t("seOverlay");
+  setAttr("#se-layer", t("seLayerTip"));
+  setText('#se-layer option[value="base"]', t("seLayerBody"));
+  setText('#se-layer option[value="ov"]', t("seLayerOverlay"));
+  setText("#se-expx-label", t("seExpX"));
+  setText("#se-expy-label", t("seExpY"));
+  setText("#se-mirror-anim", t("seMirrorAnim"));
+  setText("#se-hit-lbl", t("seHitbox"));
+  setAttr("#se-hit-fit", t("seHitFit"));
+  setAttr("#se-hit-fitall", t("seHitFitAll"));
+  setAttr("#se-hit-all", t("seHitCopyAll"));
+  setAttr("#se-hit-clear", t("seHitClear"));
+  setText("#se-copy-hitbox", t("seCopyHitbox"));
+  setText("#se-import-sheet", t("seImportSheet"));
+  setText("#se-sheet-title", t("seSheetTitle"));
+  [["cw", "seSheetCellW"], ["ch", "seSheetCellH"], ["ox", "seSheetOffX"], ["oy", "seSheetOffY"], ["gx", "seSheetGapX"],
+   ["gy", "seSheetGapY"], ["count", "seSheetCount"], ["colors", "seSheetColors"], ["dither", "seSheetDither"],
+   ["replace", "seSheetReplace"]].forEach(function(k) { setText("#se-sheet-" + k[0] + "-lbl", t(k[1])); });
+  setText('#se-sheet-colors option[value="auto"]', t("seSheetColorsAuto"));
+  setText('#se-sheet-colors option[value="keep"]', t("seSheetColorsKeep"));
+  setText('#se-sheet-dither option[value="none"]', t("seSheetDitherNone"));
+  setText('#se-sheet-dither option[value="ordered"]', t("seSheetDitherOrdered"));
+  setText('#se-sheet-dither option[value="fs"]', t("seSheetDitherFs"));
+  setText("#se-sheet-hint", t("seSheetHint"));
+  setText("#se-sheet-cancel", t("seSheetCancel"));
+  setText("#se-sheet-apply", t("seSheetApply"));
   setAttr("#se-undo", t("hgUndo"));
   setAttr("#se-redo", t("hgRedo"));
   setAttr("#se-fliph", t("seFlipH"));
@@ -3799,6 +3933,8 @@ function _applyEditorTranslations() {
   setAttr("#se-shd", t("shiftDown"));
   const seWrapSpan = document.querySelector("#se-wrap + span");
   if (seWrapSpan) seWrapSpan.textContent = t("seWrap");
+  setText("#se-layout-lbl", t("seLayout"));
+  setAttr("#se-layout", t("seLayoutTip"));
   const seMultiSpan = document.querySelector("#se-multicolor + span");
   if (seMultiSpan) seMultiSpan.textContent = t("seMulticolor");
   const seGridSpan = document.querySelector("#se-grid + span");
@@ -3825,7 +3961,11 @@ function _applyEditorTranslations() {
   setText(".sid-title", t("sidTitle"));
   setText("#sid-load-bin", t("sidLoadBin"));
   setText("#sid-save-bin", t("sidSaveBin"));
+  setText("#sid-import-goat", t("sidImportGoat"));
   setText("#sid-master-vol-lbl", t("sidMasterVolume"));
+  setText("#websid-play-vol-lbl", t("sidMasterVolume"));
+  setText("#sid-ed-master-vol-lbl", t("sidMasterVolume"));
+  setAttr("#sid-ed-master-vol", t("sidMasterVolume"));
   setAttr("#sid-master-vol", t("sidMasterVolume"));
   setText("#sid-midi-lbl", t("sidMidi"));
   setText("#sid-midi-connect", t("sidMidiConnect"));
@@ -3974,8 +4114,16 @@ function _applyEditorTranslations() {
   setAttr("#sid-vkbd-oct-down", t("sidOctaveDown"));
   setAttr("#sid-vkbd-oct-up", t("sidOctaveUp"));
   setText("#sid-vkbd-insert-label", t("sidVkbdInsert"));
+  setText("#sid-vkbd-showplay-label", t("sidVkbdShowPlay"));
   setText("#sid-vkbd-octaves-label", t("sidVkbdOctaves"));
   setAttr("#sid-tracker-detach", t("sidTrackerDetach"));
+  setAttr("#sid-roll-btn", t("sidRollTitle"));
+  setText("#sid-roll-title", t("sidRollTitle"));
+  setText("#sid-roll-help", t("sidRollHelp"));
+  setAttr("#sid-roll-stop", t("sidStop"));
+  setAttr("#sid-roll-follow", t("sidRollFollow"));
+  setAttr("#sid-roll-vzoom-out", t("sidRollZoomOut"));
+  setAttr("#sid-roll-vzoom-in", t("sidRollZoomIn"));
   setAttr("#sid-tracker-attach", t("sidTrackerAttach"));
   const sidCtxCopy = document.querySelector("#sid-ctx-menu .sid-ctx-copy");
   const sidCtxCut = document.querySelector("#sid-ctx-menu .sid-ctx-cut");
@@ -9033,10 +9181,23 @@ function _selectBlockBySourceLine(sourceLine) {
   requestAnimationFrame(() => {
     selectBlockInAsm(target.id);
     const node = programList?.querySelector(`[data-block-id="${target.id}"]`);
-    if (node && typeof node.scrollIntoView === "function") {
-      node.scrollIntoView({ block: "center", behavior: "auto" });
-    }
+    if (node) _scrollIntoContainer(node);
   });
+}
+
+// Centres node in its nearest scrolling ancestor only. scrollIntoView() scrolls
+// every scrollable ancestor, the page too, so on the Expert → Block switch the
+// header (eyebrow, toolbar) slid out of view for a moment.
+function _scrollIntoContainer(node) {
+  let box = node.parentElement;
+  while (box && box !== document.body && box !== document.documentElement) {
+    const oy = getComputedStyle(box).overflowY;
+    if ((oy === "auto" || oy === "scroll") && box.scrollHeight > box.clientHeight) break;
+    box = box.parentElement;
+  }
+  if (!box || box === document.body || box === document.documentElement) return;
+  const br = box.getBoundingClientRect(), nr = node.getBoundingClientRect();
+  box.scrollTop += (nr.top - br.top) - (box.clientHeight - nr.height) / 2;
 }
 
 function _expertSetStatus(text, type) {
@@ -16171,6 +16332,10 @@ function toggleTheme() {
 }
 
 function setTheme(theme) {
+  if (typeof _vaFullAllowed === "function" && !_vaFullAllowed() && _VA_FREE_THEMES && !_VA_FREE_THEMES.includes(theme)) {
+    _vaOpenLicenseDialog(true);
+    return;
+  }
   document.documentElement.dataset.theme = theme;
   localStorage.setItem("c64-block-theme", theme);
   updateThemeToggleLabel();
@@ -20106,6 +20271,7 @@ function setupRunModeDropdown() {
 }
 
 function setRunMode(mode) {
+  if (!_vaFullAllowed() && _VA_FULL_RUN_MODES.includes(mode)) mode = "prg";
   runMode = mode;
   localStorage.setItem("runMode", mode);
   const prgBtn = document.getElementById("run-prg-mode");
@@ -20862,10 +21028,18 @@ function _koalaShowBytes(addr) {
      LEVEL_CROW_LO/HI[row]    (row % 25) * 40 + 1000   (color RAM data)
      LEVEL_COL_SLOT[col]      col / 40      (col = 0 .. LEVEL_COLS - 40)
      LEVEL_COL_OFS[col]       col % 40
+     LEVEL_OBJ_X_LO/HI, LEVEL_OBJ_Y_LO/HI, LEVEL_OBJ_TYPE, LEVEL_OBJ_PARAM [LEVEL_OBJ_COUNT]
+                              objects in level pixels, scroll order (as saved)
+     LEVEL_ATTR[code]         character attribute flags (only when the level has any)
+     LEVEL_SCR_BG/BORDER/MC1/MC2[slot]  screen colours (only when a placed screen has its own)
    Rows and columns are 8-bit indices: at most 10 screens tall and 7 wide. */
 const _LEVEL_SCREEN = 2000;
 const _LEVEL_ROW_TABLES = ["LEVEL_SLOT_LO", "LEVEL_SLOT_HI", "LEVEL_ROW_SLOT", "LEVEL_ROW_LO", "LEVEL_ROW_HI",
   "LEVEL_CROW_LO", "LEVEL_CROW_HI", "LEVEL_COL_SLOT", "LEVEL_COL_OFS"];
+// LEVEL_OBJ_T_* numbering — the Level Editor's _LV_OBJ_TYPES order.
+const _LEVEL_OBJ_TYPES = ["START", "ENEMY", "ITEM", "DOOR", "EXIT", "TRIGGER"];
+// LEVEL_ATTR_* bits — the Level Editor's _LV_ATTRS.
+const _LEVEL_ATTR_BITS = { SOLID: 1, LADDER: 2, HAZARD: 4, COLLECT: 8 };
 const _levelCache = new WeakMap();
 
 function _importMakeLevel(fileName, addressHex) {
@@ -20905,7 +21079,19 @@ function _levelBuild(src, addr) {
     if (!seen.has(key)) { seen.set(key, screens.length); screens.push(key); }
     slotScreen.push(seen.get(key));
   }
-  const size = screens.length * _LEVEL_SCREEN + (slots + 1) * 2 + rows * 5 + nCols * 2;
+  const objs = (Array.isArray(ms.objects) ? ms.objects : [])
+    .filter(o => o && o.x >= 0 && o.y >= 0 && o.x < cols * 8 && o.y < rows * 8).slice(0, 255);
+  const attr = parsed.extras.attr && parsed.extras.attr.some(v => v) ? parsed.extras.attr : null;
+  const lvl = [(ms.bgColor ?? 6) & 15, (ms.borderColor ?? 0) & 15, (ms.mc1Color ?? 5) & 15, (ms.mc2Color ?? 13) & 15];
+  const scrCols = Array.isArray(ms.screenColors) ? ms.screenColors : [];
+  const slotCols = [];
+  for (let s = 0; s < slots; s++) {
+    const own = cells[s] >= 0 && cells[s] < count && Array.isArray(scrCols[cells[s]]) ? scrCols[cells[s]] : null;
+    slotCols.push(own ? own.map(v => v & 15) : (cells[s] >= 0 && cells[s] < count ? lvl : null));
+  }
+  const ownCols = slotCols.some((c, s) => c && c !== lvl);
+  for (let s = 0; s < slots; s++) if (!slotCols[s]) slotCols[s] = lvl;
+  const size = screens.length * _LEVEL_SCREEN + (slots + 1) * 2 + rows * 5 + nCols * 2 + objs.length * 6 + (attr ? 256 : 0) + (ownCols ? slots * 4 : 0);
   if (addr + size > 0x10000) return { ...empty, error: tf("levelMacroTooBig", { size }) };
   const data = new Uint8Array(size);
   screens.forEach((key, i) => {
@@ -20926,6 +21112,21 @@ function _levelBuild(src, addr) {
   table("LEVEL_CROW_HI", rows, r => ((r % 25) * 40 + 1000) >> 8);
   table("LEVEL_COL_SLOT", nCols, c => Math.floor(c / 40));
   table("LEVEL_COL_OFS", nCols, c => c % 40);
+  table("LEVEL_OBJ_X_LO", objs.length, i => objs[i].x);
+  table("LEVEL_OBJ_X_HI", objs.length, i => objs[i].x >> 8);
+  table("LEVEL_OBJ_Y_LO", objs.length, i => objs[i].y);
+  table("LEVEL_OBJ_Y_HI", objs.length, i => objs[i].y >> 8);
+  table("LEVEL_OBJ_TYPE", objs.length, i => objs[i].t);
+  table("LEVEL_OBJ_PARAM", objs.length, i => objs[i].p);
+  if (attr) table("LEVEL_ATTR", 256, c => attr[c] || 0);
+  if (ownCols) ["LEVEL_SCR_BG", "LEVEL_SCR_BORDER", "LEVEL_SCR_MC1", "LEVEL_SCR_MC2"].forEach((name, k) => table(name, slots, s => slotCols[s][k]));
+  labels.LEVEL_BORDER = lvl[1];
+  labels.LEVEL_SCR_COLORS = ownCols ? 1 : 0;
+  Object.entries(_LEVEL_ATTR_BITS).forEach(([name, bit]) => { labels["LEVEL_ATTR_" + name] = bit; });
+  labels.LEVEL_OBJ_COUNT = objs.length;
+  _LEVEL_OBJ_TYPES.forEach((name, i) => { labels["LEVEL_OBJ_T_" + name] = i; });
+  const start = objs.find(o => (o.t | 0) === 0);
+  if (start) { labels.LEVEL_START_X = start.x; labels.LEVEL_START_Y = start.y; }
   Object.assign(labels, {
     LEVEL_W: w, LEVEL_H: h, LEVEL_COLS: cols, LEVEL_ROWS: rows,
     LEVEL_MAX_X: (cols - 40) * 8, LEVEL_MAX_Y: (rows - 25) * 8,
@@ -32001,7 +32202,7 @@ function applyZoom() {
 }
 
 // Settings setup runs inside initPalette, before the SID editor code below.
-var _VA_SID_CORE_VERSION = "1.1";
+var _VA_SID_CORE_VERSION = "1.2";
 var _sidPreviewEngine = "websid";
 var _sidPreviewModel = "8580";
 initPalette();
@@ -32981,20 +33182,28 @@ const _C64_ROM_CHARS_SET2 = [
   "▼","┼","│","├","─","╮","▒","┌","┘","╯","─","╱","●","╭","─","π",
 ];
 
-// Return the character name/string for display for a given screen code
-function _c64RomDisplayChar(sc, set) {
+// Unicode approximation of a screen code — only a name for the info panel.
+function _c64RomCharName(sc, set) {
   const base = sc >= 128 ? sc - 128 : sc;
   const chars = set === 2 ? _C64_ROM_CHARS_SET2 : _C64_ROM_CHARS;
-  return chars[base] !== undefined ? chars[base] : " ";
+  return chars[base] !== undefined ? chars[base] : "?";
 }
 
-// PETSCII code for info display only (not used for font rendering)
+// The exact ROM glyph: C64 Pro Mono maps PETSCII to U+E000+code (uppercase /
+// graphics set) and U+E100+code (lowercase set), pixel-identical to the
+// character ROM. The Unicode approximations above are lossy (several
+// graphics characters share one Unicode symbol).
+function _c64RomDisplayChar(sc, set) {
+  return String.fromCharCode((set === 2 ? 0xE100 : 0xE000) + _c64RomPetsciiCode(sc));
+}
+
+// Screen code (0-127, reversed = +128) → printable PETSCII code
 function _c64RomPetsciiCode(sc) {
   const base = sc >= 128 ? sc - 128 : sc;
   if (base <= 31)  return base + 64;
   if (base <= 63)  return base;
   if (base <= 95)  return base + 32;
-  return base + 96;
+  return base + 64;
 }
 
 // Extract 8x8 bitmap via canvas
@@ -33011,7 +33220,12 @@ function _c64RomBitmapData(sc, set) {
   ctx.fillStyle = "#ffffff";
   ctx.font = N + "px C64ProMono";   // 64px → 8 C64 px, each 8 device px
   ctx.textBaseline = "top";
-  ctx.fillText(_c64RomDisplayChar(sc, set), 0, 0);
+  // Reversed codes come from the font's reversed range (U+E200/E300): the ROM's
+  // reversed @ is not an exact inverse of @, so inverting would be off by a pixel.
+  const glyph = sc >= 128
+    ? String.fromCharCode((set === 2 ? 0xE300 : 0xE200) + _c64RomPetsciiCode(sc))
+    : _c64RomDisplayChar(sc, set);
+  ctx.fillText(glyph, 0, 0);
   const img = ctx.getImageData(0, 0, N, N).data;
   const bits = [];
   for (let row = 0; row < 8; row++) {
@@ -33028,8 +33242,6 @@ function _c64RomBitmapData(sc, set) {
       bits.push(lit * 2 >= total ? 1 : 0);
     }
   }
-  // Invert for reversed chars (SC 128-255)
-  if (sc >= 128) return bits.map(function(b) { return b ^ 1; });
   return bits;
 }
 
@@ -33075,9 +33287,8 @@ function _c64RomSelect(sc) {
   const base = sc >= 128 ? sc - 128 : sc;
   const petscii = _c64RomPetsciiCode(sc);
   const isRev = sc >= 128;
-  const chars = _c64ChrromSet === 1 ? _C64_ROM_CHARS : _C64_ROM_CHARS_SET2;
   const ch = _c64RomDisplayChar(sc, _c64ChrromSet);
-  const charName = chars[base] || "?";
+  const charName = _c64RomCharName(sc, _c64ChrromSet);
 
   // Big char preview box
   const preview = document.createElement("div");
@@ -33245,34 +33456,92 @@ function _ceSetPixel(charIdx, row, col, val) {
   else     _ceData[i] &= ~(1 << (7 - col));
 }
 
+// Tile: the editor edits _ceTileW × _ceTileH neighbouring characters of the map
+// (the selected one at the top left) as one picture.
+let _ceTileW = 1, _ceTileH = 1;
+let _ceTool = "pencil";
+let _ceShapeStart = null;
+let _ceUndo = [], _ceRedo = [];
+let _ceClip = null;          // { w, h, data: Uint8Array(w*h*8), colors: Uint8Array(w*h) }
+let _ceMapDrag = null;       // { from, x, y, active, over, copy }
+
+function _ceCharW() { return _ceMulticolor ? 4 : 8; }
+function _cePxW() { return _ceCharW() * _ceTileW; }
+function _cePxH() { return 8 * _ceTileH; }
+function _ceTileChars() {
+  const out = [];
+  for (let ty = 0; ty < _ceTileH; ty++)
+    for (let tx = 0; tx < _ceTileW; tx++) out.push(_ceSel + tx + ty * 16);
+  return out;
+}
+// The selection keeps the tile inside the 16×16 map.
+function _ceClampSel(n) {
+  const col = Math.min(n % 16, 16 - _ceTileW), row = Math.min(Math.floor(n / 16), 16 - _ceTileH);
+  return row * 16 + col;
+}
+function _ceGetT(x, y) {
+  const cw = _ceCharW();
+  return _ceGetPixel(_ceSel + Math.floor(x / cw) + Math.floor(y / 8) * 16, y % 8, x % cw);
+}
+function _ceSetT(x, y, v) {
+  if (x < 0 || y < 0 || x >= _cePxW() || y >= _cePxH()) return;
+  const cw = _ceCharW();
+  _ceSetPixel(_ceSel + Math.floor(x / cw) + Math.floor(y / 8) * 16, y % 8, x % cw, v);
+}
+function _ceTileRead() {
+  const w = _cePxW(), h = _cePxH(), px = new Uint8Array(w * h);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) px[y * w + x] = _ceGetT(x, y);
+  return px;
+}
+function _ceTileWrite(px) {
+  const w = _cePxW(), h = _cePxH();
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) _ceSetT(x, y, px[y * w + x]);
+}
+
 function _ceBuildGrid() {
   const grid = document.getElementById("ce-editor-grid");
   if (!grid) return;
   grid.innerHTML = "";
   grid.classList.toggle("ce-editor-grid--multicolor", _ceMulticolor);
-  const cols = _ceMulticolor ? 4 : 8;
-  for (let r = 0; r < 8; r++) {
-    for (let c = 0; c < cols; c++) {
+  const w = _cePxW(), h = _cePxH();
+  // 240 px for the widest side; a multicolor pixel is two hi-res pixels wide
+  const unit = Math.floor(240 / Math.max(_ceTileW * 8, h));
+  const cellW = (_ceMulticolor ? 2 * unit : unit) - 1, cellH = unit - 1;
+  grid.style.gridTemplateColumns = "repeat(" + w + ", " + cellW + "px)";
+  grid.style.gridTemplateRows = "repeat(" + h + ", " + cellH + "px)";
+  for (let r = 0; r < h; r++) {
+    for (let c = 0; c < w; c++) {
       const cell = document.createElement("div");
       cell.className = "ce-pixel";
+      cell.style.width = cellW + "px";
+      cell.style.height = cellH + "px";
       cell.dataset.r = r;
       cell.dataset.c = c;
+      // character borders inside a tile
+      if (c % _ceCharW() === 0 && c) cell.style.boxShadow = "inset 1px 0 0 rgba(255,216,79,0.7)";
+      if (r % 8 === 0 && r) cell.style.boxShadow = (cell.style.boxShadow ? cell.style.boxShadow + ", " : "") + "inset 0 1px 0 rgba(255,216,79,0.7)";
       grid.appendChild(cell);
     }
   }
 }
 
-function _ceRenderEditor() {
+function _ceColorsOf(n) {
+  const fg = _ceDefaultColor(n);
+  return _ceMulticolor
+    ? [_CE_COLORS[_ceBg], _CE_COLORS[_ceMc1], _CE_COLORS[_ceMc2], _CE_COLORS[fg & 7]]
+    : [_CE_COLORS[_ceBg], _CE_COLORS[fg]];
+}
+
+function _ceRenderEditor(preview) {
   const grid = document.getElementById("ce-editor-grid");
   if (!grid || !_ceData) return;
   const cells = grid.children;
-  const cols = _ceMulticolor ? 4 : 8;
-  const fg = _ceDefaultColor(_ceSel);
-  const colors = _ceMulticolor
-    ? [_CE_COLORS[_ceBg], _CE_COLORS[_ceMc1], _CE_COLORS[_ceMc2], _CE_COLORS[fg & 7]]
-    : [_CE_COLORS[_ceBg], _CE_COLORS[fg]];
+  const w = _cePxW(), cw = _ceCharW();
   for (let i = 0; i < cells.length; i++) {
-    cells[i].style.background = colors[_ceGetPixel(_ceSel, Math.floor(i / cols), i % cols)];
+    const x = i % w, y = Math.floor(i / w);
+    const n = _ceSel + Math.floor(x / cw) + Math.floor(y / 8) * 16;
+    const v = preview && preview.has(i) ? preview.get(i) : _ceGetPixel(n, y % 8, x % cw);
+    cells[i].style.background = _ceColorsOf(n)[v];
   }
 }
 
@@ -33284,16 +33553,14 @@ function _ceRenderMap() {
   const CELL = W / 16;         // 16 px per char
   const PIX  = CELL / 8;       // 2 px per hires pixel
   ctx.clearRect(0, 0, W, W);
+  const inTile = new Set(_ceTileChars());
 
   for (let n = 0; n < 256; n++) {
     const cx = (n % 16) * CELL;
     const cy = Math.floor(n / 16) * CELL;
-    const fg = _ceDefaultColor(n);
-    const colors = _ceMulticolor
-      ? [_CE_COLORS[_ceBg], _CE_COLORS[_ceMc1], _CE_COLORS[_ceMc2], _CE_COLORS[fg & 7]]
-      : [_CE_COLORS[_ceBg], _CE_COLORS[fg]];
+    const colors = _ceColorsOf(n);
 
-    ctx.fillStyle = n === _ceSel ? "#4a3a9a" : colors[0];
+    ctx.fillStyle = inTile.has(n) ? "#4a3a9a" : colors[0];
     ctx.fillRect(cx, cy, CELL, CELL);
 
     for (let r = 0; r < 8; r++) {
@@ -33315,18 +33582,26 @@ function _ceRenderMap() {
         }
       }
     }
-
-    if (n === _ceSel) {
-      ctx.strokeStyle = "rgba(255,255,255,0.6)";
-      ctx.lineWidth = 0.5;
-      ctx.strokeRect(cx + 0.5, cy + 0.5, CELL - 1, CELL - 1);
-    }
   }
+  // the tile frame, and where a dragged character would go
+  const sx = (_ceSel % 16) * CELL, sy = Math.floor(_ceSel / 16) * CELL;
+  ctx.strokeStyle = "rgba(255,255,255,0.8)";
+  ctx.lineWidth = 1;
+  ctx.strokeRect(sx + 0.5, sy + 0.5, CELL * _ceTileW - 1, CELL * _ceTileH - 1);
+  if (_ceMapDrag && _ceMapDrag.active && _ceMapDrag.over >= 0) {
+    ctx.strokeStyle = _ceMapDrag.copy ? "#4aff8a" : "#ffd84f";
+    ctx.lineWidth = 2;
+    ctx.strokeRect((_ceMapDrag.over % 16) * CELL + 1, Math.floor(_ceMapDrag.over / 16) * CELL + 1, CELL * _ceTileW - 2, CELL * _ceTileH - 2);
+  }
+  _ceRenderPreview();
 }
 
 function _ceUpdateInfo() {
   const el = document.getElementById("ce-char-info");
-  if (el) el.textContent = (typeof t === "function" ? t("ceCharLabel") : "Char:") + " " + _ceSel + " ($" + _ceSel.toString(16).toUpperCase().padStart(2,"0") + ")";
+  const hx = function(n) { return "$" + n.toString(16).toUpperCase().padStart(2, "0"); };
+  const last = _ceSel + (_ceTileW - 1) + (_ceTileH - 1) * 16;
+  if (el) el.textContent = (typeof t === "function" ? t("ceCharLabel") : "Char:") + " " + _ceSel + " (" + hx(_ceSel) + ")" +
+    (last !== _ceSel ? " – " + last + " (" + hx(last) + ")" : "");
 }
 
 function _ceUpdateAsm() {
@@ -33348,102 +33623,274 @@ function _ceUpdateAsm() {
   el.textContent = mcInfo + "char_" + hex + ":  ; $" + hex + "\n        .byte " + bytes.join(", ");
 }
 
+function _ceRefresh() { _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm(); }
+
 function _ceSelect(n) {
-  _ceSel = n;
+  _ceSel = _ceClampSel(n);
   _ceFg = _ceDefaultColor(_ceSel) & (_ceMulticolor ? 0x07 : 0x0F);
   _ceUpdateInfo();
   _ceBuildColorRows();
-  _ceRenderEditor();
-  _ceRenderMap();
-  _ceUpdateAsm();
+  _ceRefresh();
 }
 
-function _ceClear() {
+/* ── Undo ── */
+function _ceSnapshot() {
+  return { data: _ceData.slice(0), colors: _ceCharColors.slice(0), bg: _ceBg, mc1: _ceMc1, mc2: _ceMc2 };
+}
+function _ceRestore(s) {
+  _ceData.set(s.data);
+  _ceCharColors.set(s.colors);
+  _ceBg = s.bg; _ceMc1 = s.mc1; _ceMc2 = s.mc2;
+  _ceFg = _ceDefaultColor(_ceSel) & (_ceMulticolor ? 0x07 : 0x0F);
+  _ceBuildColorRows();
+  _ceRefresh();
+}
+function _cePushUndo() {
   if (!_ceData) return;
-  for (let r = 0; r < 8; r++) _ceData[_ceSel * 8 + r] = 0;
-  _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm();
+  _ceEnsureCharColors();
+  _ceUndo.push(_ceSnapshot());
+  if (_ceUndo.length > 80) _ceUndo.shift();
+  _ceRedo.length = 0;
+}
+function _ceUndoOp() {
+  if (!_ceUndo.length) return;
+  _ceRedo.push(_ceSnapshot());
+  _ceRestore(_ceUndo.pop());
+}
+function _ceRedoOp() {
+  if (!_ceRedo.length) return;
+  _ceUndo.push(_ceSnapshot());
+  _ceRestore(_ceRedo.pop());
 }
 
+/* ── Transforms (whole tile) ── */
+function _ceTransform(fn) {
+  if (!_ceData) return;
+  _cePushUndo();
+  const w = _cePxW(), h = _cePxH();
+  _ceTileWrite(fn(_ceTileRead(), w, h));
+  _ceRefresh();
+}
+function _ceClear() { _ceTransform(function(px) { return px.fill(0); }); }
 function _ceInvert() {
-  if (!_ceData) return;
-  for (let r = 0; r < 8; r++) _ceData[_ceSel * 8 + r] ^= 0xFF;
-  _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm();
+  const mask = _ceMulticolor ? 3 : 1;
+  _ceTransform(function(px) { return px.map(function(v) { return v ^ mask; }); });
 }
-
 function _ceFlipH() {
-  if (!_ceData) return;
-  for (let r = 0; r < 8; r++) {
-    let b = _ceData[_ceSel * 8 + r], rev = 0;
-    if (_ceMulticolor) {
-      for (let i = 0; i < 4; i++) rev |= ((b >> (i * 2)) & 3) << ((3 - i) * 2);
-    } else {
-      for (let i = 0; i < 8; i++) rev |= ((b >> i) & 1) << (7 - i);
-    }
-    _ceData[_ceSel * 8 + r] = rev;
-  }
-  _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm();
+  _ceTransform(function(px, w, h) {
+    const out = new Uint8Array(w * h);
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) out[y * w + x] = px[y * w + (w - 1 - x)];
+    return out;
+  });
 }
-
 function _ceFlipV() {
-  if (!_ceData) return;
-  const base = _ceSel * 8;
-  for (let r = 0; r < 4; r++) {
-    const t = _ceData[base + r];
-    _ceData[base + r] = _ceData[base + 7 - r];
-    _ceData[base + 7 - r] = t;
-  }
-  _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm();
+  _ceTransform(function(px, w, h) {
+    const out = new Uint8Array(w * h);
+    for (let y = 0; y < h; y++) out.set(px.subarray((h - 1 - y) * w, (h - y) * w), y * w);
+    return out;
+  });
 }
-
+// Shift by one (multicolor: one double-wide) pixel, wrapping around the tile.
 function _ceShift(dir) {
-  if (!_ceData) return;
-  const base = _ceSel * 8;
-  if (dir === "up") {
-    const first = _ceData[base];
-    for (let r = 0; r < 7; r++) _ceData[base + r] = _ceData[base + r + 1];
-    _ceData[base + 7] = first;
-  } else if (dir === "down") {
-    const last = _ceData[base + 7];
-    for (let r = 7; r > 0; r--) _ceData[base + r] = _ceData[base + r - 1];
-    _ceData[base] = last;
-  } else if (dir === "left") {
-    for (let r = 0; r < 8; r++) {
-      const b = _ceData[base + r];
-      _ceData[base + r] = _ceMulticolor
-        ? ((b << 2) | (b >> 6)) & 0xFF
-        : ((b << 1) | (b >> 7)) & 0xFF;
-    }
-  } else {
-    for (let r = 0; r < 8; r++) {
-      const b = _ceData[base + r];
-      _ceData[base + r] = _ceMulticolor
-        ? ((b >> 2) | (b << 6)) & 0xFF
-        : ((b >> 1) | (b << 7)) & 0xFF;
-    }
-  }
-  _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm();
+  _ceTransform(function(px, w, h) {
+    const out = new Uint8Array(w * h);
+    const dx = dir === "left" ? 1 : dir === "right" ? -1 : 0, dy = dir === "up" ? 1 : dir === "down" ? -1 : 0;
+    for (let y = 0; y < h; y++)
+      for (let x = 0; x < w; x++) out[y * w + x] = px[((y + dy + h) % h) * w + (x + dx + w) % w];
+    return out;
+  });
+}
+// 90° rotation of a square tile, done in hi-res pixels; multicolor pairs are
+// joined again afterwards (a non-zero half wins).
+function _ceRotate(cw) {
+  if (_ceTileW !== _ceTileH) return;
+  _ceTransform(function(px, w, h) {
+    const k = _ceMulticolor ? 2 : 1, n = w * k;   // n × n hi-res pixels
+    const wide = new Uint8Array(n * n);
+    for (let y = 0; y < h; y++) for (let x = 0; x < n; x++) wide[y * n + x] = px[y * w + Math.floor(x / k)];
+    const rot = new Uint8Array(n * n);
+    for (let y = 0; y < n; y++)
+      for (let x = 0; x < n; x++) rot[y * n + x] = cw ? wide[(n - 1 - x) * n + y] : wide[x * n + (n - 1 - y)];
+    const out = new Uint8Array(w * h);
+    for (let y = 0; y < h; y++)
+      for (let x = 0; x < w; x++) {
+        const a = rot[y * n + x * k], b = k === 2 ? rot[y * n + x * k + 1] : 0;
+        out[y * w + x] = a || b;
+      }
+    return out;
+  });
 }
 
-function _ceLoadRom() {
-  if (!_ceData) _ceData = new Uint8Array(256 * 8);
-  for (let sc = 0; sc < 256; sc++) {
-    const bits = _c64RomBitmapData(sc, 1);
-    const base = sc * 8;
-    for (let r = 0; r < 8; r++) {
-      let byte = 0;
-      for (let c = 0; c < 8; c++) {
-        if (bits[r * 8 + c]) byte |= (1 << (7 - c));
-      }
-      _ceData[base + r] = byte;
-    }
+/* ── Drawing tools ── */
+function _ceLinePoints(x0, y0, x1, y1) {
+  const pts = [];
+  const dx = Math.abs(x1 - x0), dy = Math.abs(y1 - y0), sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1;
+  let err = dx - dy;
+  for (;;) {
+    pts.push([x0, y0]);
+    if (x0 === x1 && y0 === y1) break;
+    const e2 = 2 * err;
+    if (e2 > -dy) { err -= dy; x0 += sx; }
+    if (e2 < dx) { err += dx; y0 += sy; }
   }
-  _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm();
-  showViceToast(t("ceLoadRomDone"), false);
+  return pts;
+}
+function _ceShapePoints(tool, a, b) {
+  if (tool === "line") return _ceLinePoints(a.x, a.y, b.x, b.y);
+  const x0 = Math.min(a.x, b.x), x1 = Math.max(a.x, b.x), y0 = Math.min(a.y, b.y), y1 = Math.max(a.y, b.y);
+  const pts = [];
+  for (let y = y0; y <= y1; y++)
+    for (let x = x0; x <= x1; x++)
+      if (tool === "fillrect" || x === x0 || x === x1 || y === y0 || y === y1) pts.push([x, y]);
+  return pts;
+}
+function _ceFloodFill(x, y, v) {
+  const w = _cePxW(), h = _cePxH(), target = _ceGetT(x, y);
+  if (target === v) return;
+  const stack = [[x, y]];
+  while (stack.length) {
+    const [cx, cy] = stack.pop();
+    if (cx < 0 || cy < 0 || cx >= w || cy >= h || _ceGetT(cx, cy) !== target) continue;
+    _ceSetT(cx, cy, v);
+    stack.push([cx + 1, cy], [cx - 1, cy], [cx, cy + 1], [cx, cy - 1]);
+  }
+}
+
+/* ── Clipboard and map drag ── */
+function _ceCopy() {
+  if (!_ceData) return;
+  const chars = _ceTileChars();
+  const data = new Uint8Array(chars.length * 8), colors = new Uint8Array(chars.length);
+  chars.forEach(function(n, i) { data.set(_ceData.subarray(n * 8, n * 8 + 8), i * 8); colors[i] = _ceDefaultColor(n); });
+  _ceClip = { w: _ceTileW, h: _ceTileH, data: data, colors: colors };
+}
+function _cePasteAt(dest) {
+  if (!_ceClip || !_ceData) return;
+  _cePushUndo();
+  for (let ty = 0; ty < _ceClip.h; ty++)
+    for (let tx = 0; tx < _ceClip.w; tx++) {
+      const col = (dest % 16) + tx, row = Math.floor(dest / 16) + ty;
+      if (col > 15 || row > 15) continue;
+      const n = row * 16 + col, i = ty * _ceClip.w + tx;
+      _ceData.set(_ceClip.data.subarray(i * 8, i * 8 + 8), n * 8);
+      _ceCharColors[n] = _ceClip.colors[i];
+    }
+  _ceSelect(dest);
+}
+// Swap (or copy) the tile at `from` to `to`; overlapping tiles are refused.
+function _ceMoveTile(from, to, copy) {
+  if (from === to || !_ceData) return;
+  const fx = from % 16, fy = Math.floor(from / 16), tx0 = to % 16, ty0 = Math.floor(to / 16);
+  if (!copy && Math.abs(fx - tx0) < _ceTileW && Math.abs(fy - ty0) < _ceTileH) return;
+  _cePushUndo();
+  for (let ty = 0; ty < _ceTileH; ty++)
+    for (let tx = 0; tx < _ceTileW; tx++) {
+      const a = (fy + ty) * 16 + fx + tx, b = (ty0 + ty) * 16 + tx0 + tx;
+      const da = _ceData.slice(a * 8, a * 8 + 8), ca = _ceCharColors[a];
+      if (!copy) { _ceData.copyWithin(a * 8, b * 8, b * 8 + 8); _ceCharColors[a] = _ceCharColors[b]; }
+      _ceData.set(da, b * 8);
+      _ceCharColors[b] = ca;
+    }
+  _ceSelect(to);
+}
+
+/* ── ROM ── */
+// set 1 = uppercase / graphics, set 2 = lowercase / uppercase
+function _ceLoadRom(set) {
+  if (!_ceData) _ceData = new Uint8Array(256 * 8);
+  _cePushUndo();
+  _meEnsureRomFont(function() {
+    for (let sc = 0; sc < 256; sc++) {
+      const bits = _c64RomBitmapData(sc, set === 2 ? 2 : 1);
+      const base = sc * 8;
+      for (let r = 0; r < 8; r++) {
+        let byte = 0;
+        for (let c = 0; c < 8; c++) {
+          if (bits[r * 8 + c]) byte |= (1 << (7 - c));
+        }
+        _ceData[base + r] = byte;
+      }
+    }
+    _ceRefresh();
+    showViceToast(t("ceLoadRomDone"), false);
+  });
+}
+
+/* ── Text preview ── */
+// Text → screen codes: {65} / {$41} insert a code; letters follow the set
+// (uppercase set: both cases are 1-26; lowercase set: a-z 1-26, A-Z 65-90).
+function _ceTextToCodes(text, lower) {
+  const codes = [];
+  const re = /\{(\$[0-9a-fA-F]{1,2}|\d{1,3})\}|[\s\S]/g;
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    if (m[1]) { codes.push((m[1][0] === "$" ? parseInt(m[1].slice(1), 16) : parseInt(m[1], 10)) & 0xff); continue; }
+    const ch = m[0];
+    if (ch === "\n") { codes.push(-1); continue; }
+    const c = ch.charCodeAt(0);
+    if (c >= 97 && c <= 122) codes.push(c - 96);
+    else if (c >= 65 && c <= 90) codes.push(lower ? c : c - 64);
+    else if (c === 64) codes.push(0);
+    else if (c >= 32 && c <= 63) codes.push(c);
+    else if (ch === "[") codes.push(27);
+    else if (ch === "£") codes.push(28);
+    else if (ch === "]") codes.push(29);
+    else codes.push(32);
+  }
+  return codes;
+}
+function _ceRenderPreview() {
+  const canvas = document.getElementById("ce-preview-canvas");
+  const input = document.getElementById("ce-preview-text");
+  if (!canvas || !input || !_ceData) return;
+  const lower = document.getElementById("ce-preview-set")?.value === "lower";
+  const COLS = 32, ROWS = 6;
+  const cells = [];
+  let col = 0, row = 0;
+  _ceTextToCodes(input.value, lower).forEach(function(code) {
+    if (code < 0 || col >= COLS) { row++; col = 0; if (code < 0) return; }
+    if (row < ROWS) cells.push([col++, row, code]);
+  });
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = _CE_COLORS[_ceBg];
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  cells.forEach(function(cell) {
+    const n = cell[2], colors = _ceColorsOf(n), ox = cell[0] * 8, oy = cell[1] * 8;
+    for (let r = 0; r < 8; r++) {
+      const byte = _ceData[n * 8 + r];
+      for (let c = 0; c < 8; c++) {
+        const v = _ceMulticolor ? (byte >> (6 - (c & 6))) & 3 : (byte >> (7 - c)) & 1;
+        if (!v) continue;
+        ctx.fillStyle = colors[v];
+        ctx.fillRect(ox + c, oy + r, 1, 1);
+      }
+    }
+  });
+}
+
+/* ── Range export ── */
+function _ceRange() {
+  const num = function(id, def) {
+    const el = document.getElementById(id);
+    const v = Math.max(0, Math.min(255, parseInt(el ? el.value : def, 10)));
+    return isNaN(v) ? def : v;
+  };
+  const a = num("ce-range-from", 0), b = num("ce-range-to", 255);
+  return { from: Math.min(a, b), to: Math.max(a, b) };
+}
+function _ceRangeAsm() {
+  const r = _ceRange();
+  const hx = function(v) { return "$" + v.toString(16).toUpperCase().padStart(2, "0"); };
+  const lines = ["; characters " + r.from + "-" + r.to + " (" + ((r.to - r.from + 1) * 8) + " bytes); the charset base is char " + r.from + " * 8 lower",
+    "charset_" + hx(r.from).slice(1).toLowerCase() + ":"];
+  for (let n = r.from; n <= r.to; n++)
+    lines.push("    .byte " + Array.from(_ceData.subarray(n * 8, n * 8 + 8), hx).join(", ") + "  ; " + hx(n));
+  return lines.join("\n");
 }
 
 function _ceBuildColorRows() {
   const rows = [
-    { id: "ce-fg-colors", ink: 3, get: function() { return _ceDefaultColor(_ceSel) & (_ceMulticolor ? 0x07 : 0x0F); }, set: function(v) { _ceSetDefaultColor(_ceSel, v); }, count: _ceMulticolor ? 8 : 16 },
+    { id: "ce-fg-colors", ink: 3, get: function() { return _ceDefaultColor(_ceSel) & (_ceMulticolor ? 0x07 : 0x0F); }, set: function(v) { _ceTileChars().forEach(function(n) { _ceSetDefaultColor(n, v); }); }, count: _ceMulticolor ? 8 : 16 },
     { id: "ce-bg-colors", ink: 0, get: function() { return _ceBg; }, set: function(v) { _ceBg = v; }, count: 16 },
     { id: "ce-mc1-colors", ink: 1, get: function() { return _ceMc1; }, set: function(v) { _ceMc1 = v; }, count: 16 },
     { id: "ce-mc2-colors", ink: 2, get: function() { return _ceMc2; }, set: function(v) { _ceMc2 = v; }, count: 16 }
@@ -33459,12 +33906,11 @@ function _ceBuildColorRows() {
       sw.style.background = _CE_COLORS[i];
       sw.title = "Color " + i;
       sw.addEventListener("click", function() {
+        _cePushUndo();
         spec.set(i);
         if (_ceMulticolor) _ceInk = spec.ink;
         _ceBuildColorRows();
-        _ceRenderEditor();
-        _ceRenderMap();
-        _ceUpdateAsm();
+        _ceRefresh();
       });
       container.appendChild(sw);
     }
@@ -33497,6 +33943,16 @@ function _ceApplySerializedState(settings) {
   _ceBuildColorRows();
 }
 
+function _ceSyncTools() {
+  document.querySelectorAll("#char-editor-dialog .ce-tool-btn[data-ce-tool]").forEach(function(b) {
+    b.classList.toggle("ce-tool-btn--active", b.dataset.ceTool === _ceTool);
+  });
+  const square = _ceTileW === _ceTileH;
+  ["ce-rotr", "ce-rotl"].forEach(function(id) { const b = document.getElementById(id); if (b) b.disabled = !square; });
+  const paste = document.getElementById("ce-paste");
+  if (paste) paste.disabled = !_ceClip;
+}
+
 function setupCharEditor() {
   const dialog = document.getElementById("char-editor-dialog");
   if (!dialog) return;
@@ -33505,9 +33961,8 @@ function setupCharEditor() {
     document.querySelector(".control-menu")?.removeAttribute("open");
     _ceInit();
     _ceUpdateInfo();
-    _ceRenderEditor();
-    _ceRenderMap();
-    _ceUpdateAsm();
+    _ceSyncTools();
+    _ceRefresh();
     dialog._applyPosition?.();
     dialog.showModal();
   });
@@ -33516,35 +33971,67 @@ function setupCharEditor() {
 
   const grid = document.getElementById("ce-editor-grid");
   if (grid) {
-    const _cePaintAt = function(clientX, clientY, firstHit) {
+    const cellAt = function(clientX, clientY) {
       const el = document.elementFromPoint(clientX, clientY);
       const cell = el && el.closest ? el.closest(".ce-pixel") : null;
-      if (!cell || !grid.contains(cell)) return;
-      const r = +cell.dataset.r, c = +cell.dataset.c;
-      if (firstHit) {
-        const current = _ceGetPixel(_ceSel, r, c);
-        _cePaintVal = _ceMulticolor ? (current === _ceInk ? 0 : _ceInk) : (current ? 0 : 1);
-      } else if (_ceGetPixel(_ceSel, r, c) === _cePaintVal) {
-        return;
-      }
-      _ceSetPixel(_ceSel, r, c, _cePaintVal);
-      _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm();
+      if (!cell || !grid.contains(cell)) return null;
+      return { x: +cell.dataset.c, y: +cell.dataset.r };
+    };
+    // the value a click paints: the selected ink, or 0 where it already is the ink
+    const paintValue = function(p) {
+      const current = _ceGetT(p.x, p.y);
+      return _ceMulticolor ? (current === _ceInk ? 0 : _ceInk) : (current ? 0 : 1);
+    };
+    const shapePreview = function(b) {
+      const map = new Map(), w = _cePxW();
+      _ceShapePoints(_ceTool, _ceShapeStart, b).forEach(function(p) { map.set(p[1] * w + p[0], _cePaintVal); });
+      _ceRenderEditor(map);
     };
     grid.addEventListener("pointerdown", function(e) {
       if (!_ceData || e.button !== 0) return;
+      const p = cellAt(e.clientX, e.clientY);
+      if (!p) return;
+      _cePushUndo();
+      _cePaintVal = paintValue(p);
+      if (_ceTool === "fill") {
+        _ceFloodFill(p.x, p.y, _ceMulticolor ? _ceInk : 1);
+        _ceRefresh();
+        e.preventDefault();
+        return;
+      }
       _cePainting = true;
       try { grid.setPointerCapture(e.pointerId); } catch (_) {}
-      _cePaintAt(e.clientX, e.clientY, true);
+      if (_ceTool === "pencil") {
+        _ceSetT(p.x, p.y, _cePaintVal);
+        _ceRefresh();
+      } else {
+        _ceShapeStart = p;
+        shapePreview(p);
+      }
       e.preventDefault();
     });
     grid.addEventListener("pointermove", function(e) {
       if (!_cePainting || !_ceData) return;
-      _cePaintAt(e.clientX, e.clientY, false);
+      const p = cellAt(e.clientX, e.clientY);
+      if (!p) return;
+      if (_ceTool === "pencil") {
+        if (_ceGetT(p.x, p.y) === _cePaintVal) return;
+        _ceSetT(p.x, p.y, _cePaintVal);
+        _ceRefresh();
+      } else {
+        shapePreview(p);
+      }
       e.preventDefault();
     });
     const _ceEndPaint = function(e) {
       if (!_cePainting) return;
       _cePainting = false;
+      if (_ceShapeStart) {
+        const p = (e && e.clientX != null && cellAt(e.clientX, e.clientY)) || _ceShapeStart;
+        _ceShapePoints(_ceTool, _ceShapeStart, p).forEach(function(q) { _ceSetT(q[0], q[1], _cePaintVal); });
+        _ceShapeStart = null;
+        _ceRefresh();
+      }
       if (e && e.pointerId != null) { try { grid.releasePointerCapture(e.pointerId); } catch (_) {} }
     };
     grid.addEventListener("pointerup", _ceEndPaint);
@@ -33552,21 +34039,63 @@ function setupCharEditor() {
     document.addEventListener("pointerup", _ceEndPaint);
   }
 
+  // Map: click selects; drag onto another character swaps (Shift: copies)
   const mapCanvas = document.getElementById("ce-map-canvas");
   if (mapCanvas) {
-    mapCanvas.addEventListener("click", function(e) {
+    const charAt = function(e) {
       const rect = mapCanvas.getBoundingClientRect();
-      const sx = mapCanvas.width / rect.width;
-      const sy = mapCanvas.height / rect.height;
-      const cx = (e.clientX - rect.left) * sx;
-      const cy = (e.clientY - rect.top)  * sy;
+      const cx = (e.clientX - rect.left) * mapCanvas.width / rect.width;
+      const cy = (e.clientY - rect.top) * mapCanvas.height / rect.height;
       const CELL = mapCanvas.width / 16;
-      const col  = Math.min(15, Math.floor(cx / CELL));
-      const row  = Math.min(15, Math.floor(cy / CELL));
-      _ceSelect(row * 16 + col);
+      if (cx < 0 || cy < 0 || cx >= mapCanvas.width || cy >= mapCanvas.height) return -1;
+      return _ceClampSel(Math.floor(cy / CELL) * 16 + Math.floor(cx / CELL));
+    };
+    mapCanvas.addEventListener("pointerdown", function(e) {
+      if (e.button !== 0 || !_ceData) return;
+      const n = charAt(e);
+      if (n < 0) return;
+      _ceMapDrag = { from: n, x: e.clientX, y: e.clientY, active: false, over: -1, copy: e.shiftKey };
+      try { mapCanvas.setPointerCapture(e.pointerId); } catch (_) {}
+    });
+    mapCanvas.addEventListener("pointermove", function(e) {
+      const d = _ceMapDrag;
+      if (!d) return;
+      if (!d.active && Math.hypot(e.clientX - d.x, e.clientY - d.y) > 4) d.active = true;
+      if (!d.active) return;
+      d.copy = e.shiftKey;
+      const over = charAt(e);
+      if (over !== d.over) { d.over = over; _ceRenderMap(); }
+    });
+    const endDrag = function(e) {
+      const d = _ceMapDrag;
+      _ceMapDrag = null;
+      if (!d) return;
+      if (!d.active) { _ceSelect(d.from); return; }
+      const to = charAt(e);
+      if (to >= 0) _ceMoveTile(d.from, to, e.shiftKey); else _ceRenderMap();
+    };
+    mapCanvas.addEventListener("pointerup", endDrag);
+    mapCanvas.addEventListener("pointercancel", function() { _ceMapDrag = null; _ceRenderMap(); });
+    mapCanvas.addEventListener("contextmenu", function(e) {
+      if (!_ceData) return;
+      const n = charAt(e);
+      if (n >= 0 && n !== _ceSel) _ceSelect(n);
+      _edShowCtxMenu(e, dialog, [
+        { iconFrom: "#ce-copy", label: t("sidContextCopy"), run: function() { _ceCopy(); _ceSyncTools(); } },
+        { iconFrom: "#ce-paste", label: t("sidContextPaste"), disabled: !_ceClip, run: function() { _cePasteAt(_ceSel); } },
+      ]);
     });
   }
 
+  dialog.querySelectorAll(".ce-tool-btn[data-ce-tool]").forEach(function(btn) {
+    btn.addEventListener("click", function() { _ceTool = btn.dataset.ceTool; _ceSyncTools(); });
+  });
+  document.getElementById("ce-undo")?.addEventListener("click", _ceUndoOp);
+  document.getElementById("ce-redo")?.addEventListener("click", _ceRedoOp);
+  document.getElementById("ce-copy")?.addEventListener("click", function() { _ceCopy(); _ceSyncTools(); });
+  document.getElementById("ce-paste")?.addEventListener("click", function() { _cePasteAt(_ceSel); });
+  document.getElementById("ce-rotr")?.addEventListener("click", function() { _ceRotate(true); });
+  document.getElementById("ce-rotl")?.addEventListener("click", function() { _ceRotate(false); });
   document.getElementById("ce-clear")?.addEventListener("click", _ceClear);
   document.getElementById("ce-invert")?.addEventListener("click", _ceInvert);
   document.getElementById("ce-fliph")?.addEventListener("click", _ceFlipH);
@@ -33575,14 +34104,23 @@ function setupCharEditor() {
   document.getElementById("ce-shr")?.addEventListener("click", function() { _ceShift("right"); });
   document.getElementById("ce-shu")?.addEventListener("click", function() { _ceShift("up"); });
   document.getElementById("ce-shd")?.addEventListener("click", function() { _ceShift("down"); });
+  document.getElementById("ce-tile")?.addEventListener("change", function(e) {
+    const m = /^(\d)x(\d)$/.exec(e.target.value);
+    if (!m) return;
+    _ceTileW = +m[1]; _ceTileH = +m[2];
+    _ceSel = _ceClampSel(_ceSel);
+    _ceBuildGrid();
+    _ceUpdateInfo();
+    _ceSyncTools();
+    _ceRefresh();
+  });
   document.getElementById("ce-multicolor")?.addEventListener("change", function(e) {
     _ceMulticolor = !!e.target.checked;
     if (_ceMulticolor) _ceFg &= 7;
     _ceInk = _ceMulticolor ? 3 : 1;
     _ceBuildGrid();
     _ceBuildColorRows();
-    _ceRenderEditor();
-    _ceRenderMap();
+    _ceRefresh();
   });
   document.querySelectorAll("[data-ce-ink]").forEach(function(label) {
     label.addEventListener("click", function() {
@@ -33591,17 +34129,41 @@ function setupCharEditor() {
       _ceBuildColorRows();
     });
   });
+  dialog.addEventListener("keydown", function(e) {
+    if (e.target.closest("input, select, textarea")) return;
+    const mod = e.ctrlKey || e.metaKey, k = e.key.toLowerCase();
+    if (mod && k === "z") { if (e.shiftKey) _ceRedoOp(); else _ceUndoOp(); e.preventDefault(); }
+    else if (mod && k === "y") { _ceRedoOp(); e.preventDefault(); }
+    else if (mod && k === "c") { _ceCopy(); _ceSyncTools(); e.preventDefault(); }
+    else if (mod && k === "v") { _cePasteAt(_ceSel); e.preventDefault(); }
+  });
 
+  document.getElementById("ce-preview-text")?.addEventListener("input", _ceRenderPreview);
+  document.getElementById("ce-preview-set")?.addEventListener("change", _ceRenderPreview);
+
+  const flash = function(id, key) {
+    const btn = document.getElementById(id);
+    if (btn) { const o = btn.textContent; btn.textContent = (typeof t === "function" ? t(key) : "Copied!"); setTimeout(function() { btn.textContent = o; }, 1300); }
+  };
   document.getElementById("ce-copy-asm")?.addEventListener("click", function() {
     const el = document.getElementById("ce-asm-out");
     if (!el) return;
-    navigator.clipboard.writeText(el.textContent).then(function() {
-      const btn = document.getElementById("ce-copy-asm");
-      if (btn) { const o = btn.textContent; btn.textContent = (typeof t === "function" ? t("copied") : "Copied!"); setTimeout(function() { btn.textContent = o; }, 1300); }
-    });
+    navigator.clipboard.writeText(el.textContent).then(function() { flash("ce-copy-asm", "copied"); });
+  });
+  document.getElementById("ce-copy-range")?.addEventListener("click", function() {
+    if (!_ceData) return;
+    navigator.clipboard.writeText(_ceRangeAsm()).then(function() { flash("ce-copy-range", "copied"); });
+  });
+  document.getElementById("ce-save-range")?.addEventListener("click", function() {
+    if (!_ceData) return;
+    const r = _ceRange();
+    _saveBinFile(_ceData.slice(r.from * 8, (r.to + 1) * 8), "charset-" + r.from + "-" + r.to + ".bin");
   });
 
-  document.getElementById("ce-load-rom")?.addEventListener("click", _ceLoadRom);
+  document.getElementById("ce-load-rom")?.addEventListener("click", function(e) { _ceLoadRom(e.shiftKey ? 2 : 1); });
+  document.getElementById("ce-load-rom2")?.addEventListener("click", function() { _ceLoadRom(2); });
+  document.getElementById("ce-rom-upper")?.addEventListener("click", function() { _ceLoadRom(1); });
+  document.getElementById("ce-rom-lower")?.addEventListener("click", function() { _ceLoadRom(2); });
 
   document.getElementById("ce-save-bin")?.addEventListener("click", function() {
     if (!_ceData) return;
@@ -33628,6 +34190,7 @@ function setupCharEditor() {
     const reader = new FileReader();
     reader.onload = function() {
       if (!_ceData) _ceData = new Uint8Array(256 * 8);
+      _cePushUndo();
       const parsed = _vaReadBinWithMeta(new Uint8Array(reader.result));
       const src = parsed.payload;
       _ceData.fill(0);
@@ -33639,9 +34202,8 @@ function setupCharEditor() {
       if (parsed.manifest?.kind === "ce-charset" || parsed.manifest?.kind === "cc-charset") _ceApplySerializedState(parsed.manifest.settings);
       else _ceFg = _ceDefaultColor(_ceSel) & (_ceMulticolor ? 0x07 : 0x0F);
       _ceBuildColorRows();
-      _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm();
-      const btn = document.getElementById("ce-load-bin");
-      if (btn) { const o = btn.textContent; btn.textContent = (typeof t === "function" ? t("loaded") : "Loaded!"); setTimeout(function(){ btn.textContent = o; }, 1400); }
+      _ceRefresh();
+      flash("ce-load-bin", "loaded");
     };
     reader.readAsArrayBuffer(file);
     e.target.value = "";
@@ -33662,15 +34224,33 @@ let _ccMc1 = 5;
 let _ccMc2 = 13;
 let _ccInk = 3;
 let _ccGrid = true;
+let _ccZoom = 6;   // device px per hi-res pixel
 let _ccPainting = false;
 let _ccStart = null;
 let _ccPreview = null;
 let _ccSprayIntensity = 3;
 let _ccUndo = [], _ccRedo = [];
 
-function _ccW() { return _ccMulticolor ? 64 : 128; }
+// Coordinates are hi-res pixels (128×128). In multicolor mode a character with
+// Color RAM bit 3 set is multicolor (one pixel = two columns); without it the
+// character stays hi-res with 2 colours, exactly as on the C64.
+function _ccW() { return 128; }
 function _ccH() { return 128; }
-function _ccCellCols() { return _ccMulticolor ? 4 : 8; }
+function _ccCellCols() { return 8; }
+let _ccCellModeTo = null;
+function _ccCharMc(charIdx) { return _ccMulticolor && !!(_ccColorRam[charIdx] & 8); }
+// Switches a character between multicolor and hi-res; a pair with any bit set
+// becomes the character's own colour, so the shape stays.
+function _ccSetCellMode(charIdx, mc) {
+  if (!_ccMulticolor || _ccCharMc(charIdx) === mc) return;
+  for (let r = 0; r < 8; r++) {
+    const i = charIdx * 8 + r, b = _ccData[i];
+    let out = 0;
+    for (let c = 0; c < 4; c++) if ((b >> (6 - c * 2)) & 3) out |= 3 << (6 - c * 2);
+    _ccData[i] = out;
+  }
+  _ccColorRam[charIdx] = (mc ? 8 : 0) | (_ccColorRam[charIdx] & 7);
+}
 function _ccCellFromPixel(x, y) {
   const cols = _ccCellCols();
   const cellX = Math.floor(x / cols);
@@ -33685,17 +34265,24 @@ function _ccGetPixel(x, y) {
   if (!_ccData || x < 0 || x >= _ccW() || y < 0 || y >= _ccH()) return 0;
   const p = _ccCellFromPixel(x, y);
   const byte = _ccData[p.charIdx * 8 + p.row];
-  if (_ccMulticolor) return (byte >> (6 - p.col * 2)) & 3;
+  if (_ccCharMc(p.charIdx)) return (byte >> (6 - (p.col & 6))) & 3;
   return (byte >> (7 - p.col)) & 1;
 }
 function _ccSetPixel(x, y, value) {
   if (!_ccData || x < 0 || x >= _ccW() || y < 0 || y >= _ccH()) return;
   const p = _ccCellFromPixel(x, y);
   const idx = p.charIdx * 8 + p.row;
-  if (_ccMulticolor) {
-    const shift = 6 - p.col * 2;
+  if (_ccCharMc(p.charIdx)) {
+    const shift = 6 - (p.col & 6);
     _ccData[idx] = (_ccData[idx] & ~(3 << shift)) | ((value & 3) << shift);
     _ccColorRam[p.charIdx] = 8 | ((value & 3) === 3 ? (_ccColor & 7) : (_ccColorRam[p.charIdx] & 7));
+  } else if (_ccMulticolor) {
+    // hi-res character in multicolor mode: background or its own colour (0-7);
+    // MC1 / MC2 do not exist here
+    if (value === 1 || value === 2) return;
+    if (value) _ccData[idx] |= (1 << (7 - p.col));
+    else _ccData[idx] &= ~(1 << (7 - p.col));
+    if (value) _ccColorRam[p.charIdx] = _ccColor & 7;
   } else {
     if (value) _ccData[idx] |= (1 << (7 - p.col));
     else _ccData[idx] &= ~(1 << (7 - p.col));
@@ -33735,17 +34322,24 @@ function _ccDrawOval(x0, y0, x1, y1, set) {
   }
 }
 function _ccFill(x, y, value) {
-  const target = _ccGetPixel(x, y);
-  if (target === value) return;
+  // by colour, so the fill crosses multicolor / hi-res characters correctly
+  const colorAt = function(px, py) { return _ccPixelColor(_ccGetPixel(px, py), _ccCellFromPixel(px, py).charIdx); };
+  const target = colorAt(x, y);
+  // the region is found first: painting half of a multicolor pair already
+  // recolours the other half
+  const seen = new Uint8Array(_ccW() * _ccH());
+  const region = [];
   const stack = [[x, y]];
   while (stack.length) {
     const p = stack.pop();
     const px = p[0], py = p[1];
-    if (px < 0 || px >= _ccW() || py < 0 || py >= _ccH()) continue;
-    if (_ccGetPixel(px, py) !== target) continue;
-    _ccSetPixel(px, py, value);
+    if (px < 0 || px >= _ccW() || py < 0 || py >= _ccH() || seen[py * _ccW() + px]) continue;
+    seen[py * _ccW() + px] = 1;
+    if (colorAt(px, py) !== target) continue;
+    region.push(p);
     stack.push([px + 1, py], [px - 1, py], [px, py + 1], [px, py - 1]);
   }
+  region.forEach(function(p) { _ccSetPixel(p[0], p[1], value); });
 }
 function _ccInkValue() {
   if (_ccTool === "eraser") return 0;
@@ -33753,15 +34347,15 @@ function _ccInkValue() {
   return _ccInk;
 }
 function _ccPixelColor(value, charIdx) {
-  if (_ccMulticolor) {
+  if (_ccCharMc(charIdx)) {
     const fg = _ccColorRam[charIdx] & 7;
     return [_ccBg, _ccMc1, _ccMc2, fg][value] & 0x0F;
   }
-  return value ? (_ccColorRam[charIdx] & 0x0F) : _ccBg;
+  return value ? (_ccColorRam[charIdx] & (_ccMulticolor ? 7 : 0x0F)) : _ccBg;
 }
 
 function _ccSpray(x, y, value) {
-  const radius = _ccMulticolor ? 2 : 3;
+  const radius = 3;
   const intensity = Math.max(1, Math.min(5, _ccSprayIntensity | 0));
   const dropsByIntensity = _ccMulticolor ? [2, 4, 6, 9, 12] : [3, 5, 8, 11, 15];
   const drops = dropsByIntensity[intensity - 1];
@@ -33776,7 +34370,7 @@ function _ccExportColorRam() {
   const out = new Uint8Array(256);
   for (let i = 0; i < out.length; i++) {
     const color = _ccColorRam[i] & 0x0F;
-    out[i] = _ccMulticolor ? (8 | (color & 7)) : color;
+    out[i] = color;
   }
   return out;
 }
@@ -33827,9 +34421,10 @@ function _ccRedoOp() {
 function _ccRender(preview) {
   const canvas = document.getElementById("cc-canvas");
   if (!canvas || !_ccData) return;
+  _ccSyncCellModeTool();
   const ctx = canvas.getContext("2d");
-  const pixelW = _ccMulticolor ? 12 : 6;
-  const pixelH = 6;
+  const pixelW = _ccZoom;
+  const pixelH = _ccZoom;
   canvas.width = _ccW() * pixelW;
   canvas.height = _ccH() * pixelH;
   ctx.fillStyle = _CE_COLORS[_ccBg];
@@ -33842,8 +34437,18 @@ function _ccRender(preview) {
       ctx.fillRect(x * pixelW, y * pixelH, pixelW, pixelH);
     }
   }
+  // from 8× the pixel edges get a faint line too
+  if (_ccGrid && _ccZoom >= 8) {
+    ctx.fillStyle = "rgba(0,0,0,0.22)";
+    for (let y = 1; y < _ccH(); y++) ctx.fillRect(0, y * pixelH, canvas.width, 1);
+    // in a multicolor character only every second column is a pixel edge
+    for (let n = 0; n < 256; n++) {
+      const step = _ccCharMc(n) ? 2 : 1, cx = (n % 16) * 8, cy = Math.floor(n / 16) * 8;
+      for (let c = step; c < 8; c += step) ctx.fillRect((cx + c) * pixelW, cy * pixelH, 1, 8 * pixelH);
+    }
+  }
   if (_ccGrid) {
-    ctx.strokeStyle = "rgba(170,160,225,0.28)";
+    ctx.strokeStyle = _ccZoom >= 8 ? "rgba(190,180,240,0.6)" : "rgba(170,160,225,0.28)";
     ctx.lineWidth = 1;
     for (let c = 0; c <= 16; c++) {
       const x = c * _ccCellCols() * pixelW + 0.5;
@@ -33865,8 +34470,8 @@ function _ccRender(preview) {
 function _ccPointFromEvent(e) {
   const canvas = document.getElementById("cc-canvas");
   const rect = canvas.getBoundingClientRect();
-  const x = Math.floor((e.clientX - rect.left) * canvas.width / rect.width / (_ccMulticolor ? 12 : 6));
-  const y = Math.floor((e.clientY - rect.top) * canvas.height / rect.height / 6);
+  const x = Math.floor((e.clientX - rect.left) * canvas.width / rect.width / _ccZoom);
+  const y = Math.floor((e.clientY - rect.top) * canvas.height / rect.height / _ccZoom);
   if (x < 0 || x >= _ccW() || y < 0 || y >= _ccH()) return null;
   return { x: x, y: y };
 }
@@ -33882,7 +34487,8 @@ function _ccShapePoints(a, b) {
 }
 
 function _ccSyncColorSelects() {
-  document.querySelector(".cc-mc-colors")?.classList.toggle("cc-mc-colors--hidden", !_ccMulticolor);
+  // the background ($D021) is there in both modes, MC1 / MC2 only in multicolor
+  document.querySelectorAll(".cc-mc-colors .cc-mc-only").forEach(function(el) { el.hidden = !_ccMulticolor; });
   [
     ["cc-bg-color", _ccBg],
     ["cc-mc1-color", _ccMc1],
@@ -33892,25 +34498,59 @@ function _ccSyncColorSelects() {
     if (sel) sel.value = String(entry[1] & 0x0F);
   });
 }
+function _ccSyncCellModeTool() {
+  const btn = document.querySelector('#charset-canvas-dialog [data-cc-tool="cellmode"]');
+  if (!btn) return;
+  btn.disabled = !_ccMulticolor;
+  if (!_ccMulticolor && _ccTool === "cellmode") {
+    _ccTool = "pencil";
+    document.querySelectorAll("#charset-canvas-dialog [data-cc-tool]").forEach(function(b) { b.classList.toggle("cc-tool--active", b.dataset.ccTool === "pencil"); });
+  }
+}
+function _ccValueUsed(v) {
+  if (!_ccData) return false;
+  for (let i = 0; i < _ccData.length; i++) {
+    if (!_ccCharMc(i >> 3)) continue;
+    const b = _ccData[i];
+    if (((b >> 6) & 3) === v || ((b >> 4) & 3) === v || ((b >> 2) & 3) === v || (b & 3) === v) return true;
+  }
+  return false;
+}
+// Multicolor: BG / MC1 / MC2 are shared by the whole screen, the 4th colour
+// (Color RAM, 0-7) is per character; 8-15 are usable only as a shared colour.
 function _ccSyncPaletteSelection() {
   const wrap = document.getElementById("cc-palette");
   if (!wrap) return;
+  const tags = { };
+  if (_ccMulticolor) { tags[_ccBg] = "BG"; tags[_ccMc1] = (tags[_ccMc1] ? tags[_ccMc1] + "/" : "") + "1"; tags[_ccMc2] = (tags[_ccMc2] ? tags[_ccMc2] + "/" : "") + "2"; }
   wrap.querySelectorAll(".cc-swatch").forEach(function(s, i) {
     s.classList.toggle("cc-swatch--sel", i === (_ccColor & 0x0F));
+    s.classList.toggle("cc-swatch--shared", !!tags[i]);
+    s.classList.toggle("cc-swatch--na", _ccMulticolor && i > 7 && !tags[i]);
+    s.dataset.tag = tags[i] || "";
   });
 }
 
 function _ccPickColor(color) {
+  const prev = _ccColor;
   _ccColor = color & 0x0F;
   if (_ccMulticolor) {
     if (_ccColor === _ccBg) _ccInk = 0;
     else if (_ccColor === _ccMc1) _ccInk = 1;
     else if (_ccColor === _ccMc2) _ccInk = 2;
     else if (_ccColor > 7) {
-      _ccMc2 = _ccColor;
-      _ccInk = 2;
-      _ccSyncColorSelects();
-      _ccRender();
+      // 8-15 only fit a shared register: take MC2 or MC1 while no pixel uses it,
+      // otherwise changing it would recolour the whole screen.
+      const slot = !_ccValueUsed(2) ? 2 : !_ccValueUsed(1) ? 1 : 0;
+      if (!slot) {
+        showViceToast(t("ccMcColorFull"), true);
+        _ccColor = prev;
+      } else {
+        if (slot === 2) _ccMc2 = _ccColor; else _ccMc1 = _ccColor;
+        _ccInk = slot;
+        _ccSyncColorSelects();
+        _ccRender();
+      }
     } else {
       _ccInk = 3;
     }
@@ -33991,10 +34631,36 @@ function _ccInit() {
   _toolDropdownSetOpen("cc-spray-tool", "cc-spray-menu", false);
   const grid = document.getElementById("cc-grid");
   if (grid) grid.checked = _ccGrid;
+  try { _ccSetZoom(+localStorage.getItem("c64va-cc-zoom") || _ccZoom); } catch (_) { _ccSetZoom(_ccZoom); }
   _ccBuildPalette();
   _ccBuildColorSelects();
   _ccSyncPaletteSelection();
   _ccRender();
+}
+// Zoom = whole device pixels per hi-res pixel, so the canvas stays sharp.
+// With an anchor (client x/y) the point under the mouse stays in place.
+function _ccSetZoom(z, anchor) {
+  z = Math.max(2, Math.min(24, Math.round(z) || 6));
+  const wrap = document.querySelector(".cc-canvas-wrap");
+  const canvas = document.getElementById("cc-canvas");
+  let fx = 0, fy = 0, ax = 0, ay = 0;
+  if (anchor && wrap && canvas) {
+    const r = canvas.getBoundingClientRect(), w = wrap.getBoundingClientRect();
+    fx = (anchor.x - r.left) / r.width; fy = (anchor.y - r.top) / r.height;
+    ax = anchor.x - w.left; ay = anchor.y - w.top;
+  }
+  _ccZoom = z;
+  const input = document.getElementById("cc-zoom");
+  if (input) input.value = z;
+  const lbl = document.getElementById("cc-zoom-lbl");
+  if (lbl) lbl.textContent = z + "×";
+  try { localStorage.setItem("c64va-cc-zoom", String(z)); } catch (_) {}
+  _ccRender();
+  if (anchor && wrap && canvas) {
+    const r = canvas.getBoundingClientRect(), w = wrap.getBoundingClientRect();
+    wrap.scrollLeft += (r.left - w.left + fx * r.width) - ax;
+    wrap.scrollTop += (r.top - w.top + fy * r.height) - ay;
+  }
 }
 function _ccExportMapColor() {
   const screen = new Uint8Array(256);
@@ -34047,12 +34713,20 @@ function setupCharsetCanvasEditor() {
       _ccPickColor(_ccColor);
     }
     _ccSyncColorSelects();
+    _ccSyncPaletteSelection();
+    _ccSyncCellModeTool();
     _ccRender();
   });
   document.getElementById("cc-grid")?.addEventListener("change", function(e) {
     _ccGrid = !!e.target.checked;
     _ccRender();
   });
+  document.getElementById("cc-zoom")?.addEventListener("input", function(e) { _ccSetZoom(+e.target.value); });
+  document.querySelector(".cc-canvas-wrap")?.addEventListener("wheel", function(e) {
+    if (!e.ctrlKey && !e.metaKey) return;
+    e.preventDefault();
+    _ccSetZoom(_ccZoom + (e.deltaY < 0 ? 1 : -1), { x: e.clientX, y: e.clientY });
+  }, { passive: false });
   document.getElementById("cc-undo")?.addEventListener("click", _ccUndoOp);
   document.getElementById("cc-redo")?.addEventListener("click", _ccRedoOp);
   dialog.addEventListener("click", function(e) {
@@ -34112,6 +34786,8 @@ function setupCharsetCanvasEditor() {
       if (parsed.extras.charColors) _ccColorRam.set(parsed.extras.charColors.subarray(0, 256));
       const settings = parsed.manifest?.settings || {};
       _ccMulticolor = !!settings.multicolor;
+      // the Character Editor stores multicolor colours without bit 3
+      if (_ccMulticolor && parsed.manifest?.kind === "ce-charset") for (let i = 0; i < 256; i++) _ccColorRam[i] |= 8;
       _ccColor = settings.fg == null ? _ccColor : (settings.fg & 0x0F);
       _ccBg = settings.bg == null ? (settings.bgColor == null ? _ccBg : settings.bgColor & 0x0F) : (settings.bg & 0x0F);
       _ccMc1 = settings.mc1 == null ? (settings.mc1Color == null ? _ccMc1 : settings.mc1Color & 0x0F) : (settings.mc1 & 0x0F);
@@ -34130,6 +34806,13 @@ function setupCharsetCanvasEditor() {
   if (canvas) {
     const apply = function(point) {
       if (!point) return;
+      if (_ccTool === "cellmode") {
+        const n = _ccCellFromPixel(point.x, point.y).charIdx;
+        if (_ccCellModeTo === null) _ccCellModeTo = !_ccCharMc(n);
+        _ccSetCellMode(n, _ccCellModeTo);
+        _ccRender();
+        return;
+      }
       const value = _ccInkValue();
       if (_ccTool === "fill") _ccFill(point.x, point.y, value);
       else if (_ccTool === "spray") _ccSpray(point.x, point.y, value);
@@ -34160,13 +34843,14 @@ function setupCharsetCanvasEditor() {
       if (_ccTool === "line" || _ccTool === "rect" || _ccTool === "oval") {
         _ccPreview = _ccShapePoints(_ccStart, point);
         _ccRender(_ccPreview);
-      } else if (_ccTool === "pencil" || _ccTool === "eraser" || _ccTool === "spray") {
+      } else if (_ccTool === "pencil" || _ccTool === "eraser" || _ccTool === "spray" || _ccTool === "cellmode") {
         apply(point);
       }
       e.preventDefault();
     });
     const end = function(e, commit) {
       if (!_ccPainting) return;
+      _ccCellModeTo = null;
       const point = e && e.clientX != null ? _ccPointFromEvent(e) : null;
       if (commit && point && (_ccTool === "line" || _ccTool === "rect" || _ccTool === "oval")) {
         const value = _ccInkValue();
@@ -35333,6 +36017,40 @@ let _lvRomCache = null, _lvCustomCache = null;
 let _lvUndo = [], _lvRedo = [];
 let _lvEditingId = null, _lvMeBackup = null;
 let _lvDrag = null;         // { kind: "slot"|"lib", from, x, y, active, over }
+// Object layer: positions are level pixels (top-left of an 8×8 marker), not
+// tied to a screen, so swapping screens leaves the objects in place. The type
+// order is the LEVEL_OBJ_T_* numbering — keep it in sync with _LEVEL_OBJ_TYPES.
+const _LV_OBJ_TYPES = [
+  { key: "start",   letter: "S", color: "#3ad35a" },
+  { key: "enemy",   letter: "E", color: "#ff5a5a" },
+  { key: "item",    letter: "I", color: "#ffd84a" },
+  { key: "door",    letter: "D", color: "#5ab4ff" },
+  { key: "exit",    letter: "X", color: "#d070ff" },
+  { key: "trigger", letter: "T", color: "#ff9f40" }
+];
+let _lvObjects = [];        // [{ id, type, x, y, param }]
+let _lvObjMode = false;     // the overview edits objects instead of screens
+let _lvObjType = 1;
+let _lvObjParam = 0;
+let _lvObjSnap = true;
+let _lvObjSel = null;       // selected object id
+let _lvObjDrag = null;      // { id, dx, dy, undo }
+// Character attributes: one flag byte per screen code, shared by the whole
+// level (bit order = LEVEL_ATTR_* — keep in sync with the LEVEL macro).
+const _LV_ATTRS = [
+  { key: "solid",   bit: 1, color: "#4aa3ff" },
+  { key: "ladder",  bit: 2, color: "#ffd84a" },
+  { key: "hazard",  bit: 4, color: "#ff4a4a" },
+  { key: "collect", bit: 8, color: "#4aff8a" }
+];
+let _lvAttr = new Uint8Array(256);
+let _lvAttrMode = false;    // the overview paints character attributes
+let _lvAttrBit = 1;
+let _lvAttrDrag = null;     // { set: bool, last: code }
+let _lvEdges = false;       // mark screen edges that do not continue
+let _lvMemAddr = 0x2000;    // where the memory meter places the .level data
+let _lvBorder = 0;          // level border colour; a screen may override it (scr.colors)
+const _LV_SCR_COLOR_KEYS = ["bg", "border", "mc1", "mc2"];
 
 function _lvDefaultSettings() {
   return { multicolor: false, bgColor: 6, mc1Color: 5, mc2Color: 13, charSource: "rom", charset: null, charColors: null };
@@ -35369,6 +36087,7 @@ function _lvNewScreen(name, screen, color, settings) {
     screen: screen || new Uint8Array(_ME_COLS * _ME_ROWS).fill(_ME_EMPTY),
     color: color || new Uint8Array(_ME_COLS * _ME_ROWS).fill(14),
     sig: "",
+    colors: null,   // own { bg, border, mc1, mc2 }, or null = the level's colours
     cache: null
   };
   // The first screen defines the level's charset/colours; a raw .bin without
@@ -35379,6 +36098,11 @@ function _lvNewScreen(name, screen, color, settings) {
   return scr;
 }
 
+// The colours a screen is shown with: its own, or the level's.
+function _lvScreenColors(scr) {
+  const s = _lvSettings || _lvDefaultSettings();
+  return scr && scr.colors ? scr.colors : { bg: s.bgColor, border: _lvBorder, mc1: s.mc1Color, mc2: s.mc2Color };
+}
 function _lvScreenById(id) { return _lvScreens.find(function(s) { return s.id === id; }) || null; }
 function _lvNextName() { return t("lvScreenName") + " " + (_lvScreens.length + 1); }
 
@@ -35470,15 +36194,107 @@ function _lvDeleteScreen(id) {
   if (_lvLibSel === id) _lvLibSel = null;
 }
 
+/* ── Objects ── */
+function _lvObjNew(type, x, y, param) {
+  return {
+    id: crypto.randomUUID(),
+    type: Math.max(0, Math.min(_LV_OBJ_TYPES.length - 1, type | 0)),
+    x: Math.max(0, x | 0), y: Math.max(0, y | 0), param: (param | 0) & 0xFF
+  };
+}
+function _lvObjById(id) { return _lvObjects.find(function(o) { return o.id === id; }) || null; }
+function _lvObjInLevel(o) {
+  const L = _lvLevelPx();
+  return o.x < L.w && o.y < L.h;
+}
+// Topmost object whose 8×8 marker (grown by `pad` level pixels) contains the point.
+function _lvObjAt(x, y, pad) {
+  for (let i = _lvObjects.length - 1; i >= 0; i--) {
+    const o = _lvObjects[i];
+    if (x >= o.x - pad && x < o.x + 8 + pad && y >= o.y - pad && y < o.y + 8 + pad) return o;
+  }
+  return null;
+}
+// Objects in the order the scroller meets them (a spawner walks the table with
+// one index): vertical by y, horizontal by x, grid row-major.
+function _lvObjSorted(list) {
+  const up = _lvLayout === "vertical" && _lvDir === "up";
+  const left = _lvLayout === "horizontal" && _lvDir === "left";
+  return list.slice(0).sort(function(a, b) {
+    if (_lvLayout === "horizontal") return (left ? b.x - a.x : a.x - b.x) || a.y - b.y;
+    return (up ? b.y - a.y : a.y - b.y) || a.x - b.x;
+  });
+}
+function _lvObjOrdered() { return _lvObjSorted(_lvObjects.filter(_lvObjInLevel)); }
+/* ── Character attributes and edge check ── */
+// Screen code under a level pixel, or -1 (outside, or an empty slot).
+function _lvCharAt(x, y) {
+  if (x < 0 || y < 0 || x >= _lvW * _LV_SW || y >= _lvH * _LV_SH) return -1;
+  const scr = _lvScreenById(_lvCells[Math.floor(y / _LV_SH) * _lvW + Math.floor(x / _LV_SW)]);
+  if (!scr) return -1;
+  return scr.screen[Math.floor((y % _LV_SH) / 8) * _ME_COLS + Math.floor((x % _LV_SW) / 8)];
+}
+function _lvAttrName(bit) {
+  const a = _LV_ATTRS.find(function(it) { return it.bit === bit; }) || _LV_ATTRS[0];
+  return t("lvAttr" + a.key.charAt(0).toUpperCase() + a.key.slice(1));
+}
+function _lvAttrNames(flags) {
+  return _LV_ATTRS.filter(function(a) { return flags & a.bit; }).map(function(a) { return _lvAttrName(a.bit); }).join(", ") || t("lvAttrNone");
+}
+function _lvAttrUsed() { return _lvAttr.some(function(v) { return v; }); }
+// The tint of a flag byte: the first matching of hazard, solid, ladder, collectible.
+function _lvAttrColor(flags) {
+  const a = [4, 1, 2, 8].find(function(bit) { return flags & bit; });
+  return a ? _LV_ATTRS.find(function(it) { return it.bit === a; }).color : null;
+}
+// Cells on both sides of a screen border that do not continue: one side empty
+// (space) and the other not, or solid on one side only.
+function _lvEdgeIssues() {
+  const breaks = function(a, b) {
+    return (a === _ME_EMPTY) !== (b === _ME_EMPTY) || ((_lvAttr[a] ^ _lvAttr[b]) & 1) !== 0;
+  };
+  const issues = [];
+  for (let r = 0; r < _lvH; r++)
+    for (let c = 0; c < _lvW; c++) {
+      const a = _lvScreenById(_lvCells[r * _lvW + c]);
+      if (!a) continue;
+      const below = r + 1 < _lvH ? _lvScreenById(_lvCells[(r + 1) * _lvW + c]) : null;
+      if (below) {
+        const cells = [];
+        for (let k = 0; k < _ME_COLS; k++) if (breaks(a.screen[(_ME_ROWS - 1) * _ME_COLS + k], below.screen[k])) cells.push(k);
+        if (cells.length) issues.push({ dir: "v", r: r, c: c, cells: cells });
+      }
+      const right = c + 1 < _lvW ? _lvScreenById(_lvCells[r * _lvW + c + 1]) : null;
+      if (right) {
+        const cells = [];
+        for (let k = 0; k < _ME_ROWS; k++) if (breaks(a.screen[k * _ME_COLS + _ME_COLS - 1], right.screen[k * _ME_COLS])) cells.push(k);
+        if (cells.length) issues.push({ dir: "h", r: r, c: c, cells: cells });
+      }
+    }
+  return issues;
+}
+
+function _lvObjTypeName(type) {
+  const k = _LV_OBJ_TYPES[type]?.key || "start";
+  return t("lvObj" + k.charAt(0).toUpperCase() + k.slice(1));
+}
+
 /* ── Undo ── */
 function _lvSnapshot() {
   return {
-    screens: _lvScreens.map(function(s) { return { id: s.id, name: s.name, screen: s.screen, color: s.color, sig: s.sig }; }),
-    layout: _lvLayout, w: _lvW, h: _lvH, cells: _lvCells.slice(0), sel: _lvSel, settings: _lvSettings
+    screens: _lvScreens.map(function(s) { return { id: s.id, name: s.name, screen: s.screen, color: s.color, sig: s.sig, colors: s.colors ? Object.assign({}, s.colors) : null }; }),
+    border: _lvBorder,
+    layout: _lvLayout, w: _lvW, h: _lvH, cells: _lvCells.slice(0), sel: _lvSel, settings: _lvSettings,
+    objects: _lvObjects.map(function(o) { return Object.assign({}, o); }),
+    attr: _lvAttr.slice(0)
   };
 }
 function _lvRestore(snap) {
-  _lvScreens = snap.screens.map(function(s) { return Object.assign({ cache: null }, s); });
+  _lvScreens = snap.screens.map(function(s) { return Object.assign({ cache: null }, s, { colors: s.colors ? Object.assign({}, s.colors) : null }); });
+  _lvBorder = snap.border ?? _lvBorder;
+  _lvObjects = (snap.objects || []).map(function(o) { return Object.assign({}, o); });
+  _lvAttr = snap.attr ? snap.attr.slice(0) : new Uint8Array(256);
+  if (_lvObjSel && !_lvObjById(_lvObjSel)) _lvObjSel = null;
   _lvLayout = snap.layout; _lvW = snap.w; _lvH = snap.h; _lvCells = snap.cells.slice(0);
   _lvSel = Math.min(snap.sel, _lvSlotCount() - 1);
   _lvSetSettings(snap.settings);
@@ -35540,8 +36356,8 @@ function _lvScreenCanvas(scr) {
   cv.width = _LV_SW; cv.height = _LV_SH;
   const ctx = cv.getContext("2d");
   const img = ctx.createImageData(_LV_SW, _LV_SH);
-  const d = img.data, s = _lvSettings;
-  const mcColors = [s.bgColor, s.mc1Color, s.mc2Color, 0];
+  const d = img.data, s = _lvSettings, sc = _lvScreenColors(scr);
+  const mcColors = [sc.bg, sc.mc1, sc.mc2, 0];
   for (let row = 0; row < _ME_ROWS; row++) {
     for (let col = 0; col < _ME_COLS; col++) {
       const i = row * _ME_COLS + col;
@@ -35556,7 +36372,7 @@ function _lvScreenCanvas(scr) {
             const p = py * 8 + (px & 6);
             ci = mcColors[(bits[p] << 1) | bits[p + 1]];
           } else {
-            ci = bits[py * 8 + px] ? c : s.bgColor;
+            ci = bits[py * 8 + px] ? c : sc.bg;
           }
           const rgb = _lvRgb(ci);
           const o = ((row * 8 + py) * _LV_SW + col * 8 + px) * 4;
@@ -35616,6 +36432,23 @@ function _lvRenderOverview() {
       }
     }
   }
+  if (_lvAttrMode && _lvAttrUsed()) {
+    const cs = 8 * S;
+    ctx.globalAlpha = 0.5;
+    for (let i = 0; i < _lvSlotCount(); i++) {
+      const scr = _lvScreenById(_lvCells[i]);
+      if (!scr) continue;
+      const x0 = (i % _lvW) * sw, y0 = Math.floor(i / _lvW) * sh;
+      for (let k = 0; k < _ME_COLS * _ME_ROWS; k++) {
+        const col = _lvAttrColor(_lvAttr[scr.screen[k]]);
+        if (!col) continue;
+        ctx.fillStyle = col;
+        ctx.fillRect(x0 + (k % _ME_COLS) * cs, y0 + Math.floor(k / _ME_COLS) * cs, Math.ceil(cs), Math.ceil(cs));
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+  _lvDrawObjects(ctx, S, 0, 0, Math.max(9, Math.round(8 * S)), true);
   if (_lvDrag && _lvDrag.active && _lvDrag.over >= 0) {
     const x = (_lvDrag.over % _lvW) * sw, y = Math.floor(_lvDrag.over / _lvW) * sh;
     ctx.fillStyle = "rgba(120,200,255,0.25)";
@@ -35627,6 +36460,17 @@ function _lvRenderOverview() {
     ctx.lineWidth = 2;
     ctx.strokeRect(x + 1, y + 1, sw - 2, sh - 2);
     ctx.lineWidth = 1;
+  }
+  // over the selection frame, which would hide them
+  if (_lvEdges) {
+    const cs = 8 * S, th = Math.max(3, Math.round(cs));
+    ctx.fillStyle = "#ff2a2a";
+    _lvEdgeIssues().forEach(function(is) {
+      is.cells.forEach(function(k) {
+        if (is.dir === "v") ctx.fillRect(is.c * sw + k * cs, (is.r + 1) * sh - th / 2, Math.ceil(cs), th);
+        else ctx.fillRect((is.c + 1) * sw - th / 2, is.r * sh + k * cs, th, Math.ceil(cs));
+      });
+    });
   }
   if (_lvSlotCount()) {
     ctx.strokeStyle = "#ff5a5a";
@@ -35653,6 +36497,41 @@ function _lvRenderPreview() {
     if (ex <= ix || ey <= iy) continue;
     ctx.drawImage(_lvScreenCanvas(scr), ix - x, iy - y, ex - ix, ey - iy, ix - _lvCamX, iy - _lvCamY, ex - ix, ey - iy);
   }
+  _lvDrawObjects(ctx, 1, _lvCamX, _lvCamY, 8, false);
+  const top = _lvScreenById(_lvCells[Math.floor(_lvCamY / _LV_SH) * _lvW + Math.floor(_lvCamX / _LV_SW)]);
+  canvas.style.boxShadow = "0 0 0 6px " + _CE_COLORS[_lvScreenColors(top).border & 0x0F];
+}
+
+/* Object markers: a coloured square with the type letter. `scale` maps level
+   pixels to canvas pixels, (ox, oy) is the level point at the canvas origin;
+   the marker is at least `size` canvas pixels so it stays clickable when zoomed out. */
+function _lvDrawObjects(ctx, scale, ox, oy, size, labels) {
+  if (!_lvObjects.length) return;
+  ctx.save();
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.font = "bold " + Math.max(6, size - 3) + "px 'IBM Plex Mono', monospace";
+  _lvObjects.forEach(function(o) {
+    if (!_lvObjInLevel(o)) return;
+    const ty = _LV_OBJ_TYPES[o.type] || _LV_OBJ_TYPES[0];
+    const x = Math.round((o.x - ox) * scale), y = Math.round((o.y - oy) * scale);
+    if (x + size < 0 || y + size < 0 || x > ctx.canvas.width || y > ctx.canvas.height) return;
+    ctx.globalAlpha = _lvObjMode || !labels ? 0.9 : 0.6;
+    ctx.fillStyle = ty.color;
+    ctx.fillRect(x, y, size, size);
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = "#000";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x + 0.5, y + 0.5, size - 1, size - 1);
+    ctx.fillStyle = "#000";
+    ctx.fillText(ty.letter, x + size / 2, y + size / 2 + 0.5);
+    if (o.id === _lvObjSel) {
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x - 1, y - 1, size + 2, size + 2);
+    }
+  });
+  ctx.restore();
 }
 
 function _lvRenderLibrary() {
@@ -35709,10 +36588,96 @@ function _lvRenderLibrary() {
   const mismatch = _lvScreens.filter(function(s) { return s.sig !== _lvSigOf(_lvSettings); }).length;
   const warn = document.getElementById("lv-warning");
   if (warn) { warn.hidden = !mismatch; warn.textContent = mismatch ? tf("lvMismatch", { n: mismatch }) : ""; }
+  const edgeWarn = document.getElementById("lv-edge-warn");
+  if (edgeWarn) {
+    const issues = _lvEdges ? _lvEdgeIssues() : [];
+    const cells = issues.reduce(function(n, is) { return n + is.cells.length; }, 0);
+    edgeWarn.hidden = !issues.length;
+    edgeWarn.textContent = issues.length ? tf("lvEdgeWarn", { n: issues.length, cells: cells }) : "";
+  }
+  const attrInfo = document.getElementById("lv-attr-info");
+  if (attrInfo) {
+    attrInfo.hidden = !_lvAttrUsed() && !_lvAttrMode;
+    attrInfo.textContent = _LV_ATTRS.map(function(a) {
+      let n = 0;
+      for (let c = 0; c < 256; c++) if (_lvAttr[c] & a.bit) n++;
+      return _lvAttrName(a.bit) + ": " + n;
+    }).join(" · ");
+  }
+  _lvRenderColorPanel();
+  const mem = document.getElementById("lv-mem-info");
+  if (mem) {
+    mem.textContent = _lvMemInfo();
+    document.getElementById("lv-mem-box")?.toggleAttribute("hidden", !mem.textContent);
+  }
   const cs = document.getElementById("lv-charset-info");
   if (cs && _lvSettings) {
     cs.textContent = (_lvSettings.charSource === "custom" ? t("lvCharsetCustom") : t("lvCharsetRom")) +
       (_lvSettings.multicolor ? " · " + t("meMulticolor") : "");
+  }
+}
+
+function _lvRenderObjectList() {
+  const list = document.getElementById("lv-objlist");
+  if (!list) return;
+  list.innerHTML = "";
+  document.getElementById("lv-objects-label")?.toggleAttribute("hidden", !_lvObjects.length);
+  _lvObjSorted(_lvObjects).forEach(function(o) {
+    const ty = _LV_OBJ_TYPES[o.type] || _LV_OBJ_TYPES[0];
+    const row = document.createElement("div");
+    row.className = "lv-obj-item" + (o.id === _lvObjSel ? " lv-obj-item--sel" : "");
+    const badge = document.createElement("span");
+    badge.className = "lv-obj-badge";
+    badge.style.background = ty.color;
+    badge.textContent = ty.letter;
+    const name = document.createElement("span");
+    name.className = "lv-obj-name";
+    name.textContent = _lvObjTypeName(o.type);
+    const pos = document.createElement("span");
+    pos.className = "lv-obj-pos";
+    pos.textContent = o.x + "," + o.y + (o.param ? " #" + o.param : "") + (_lvObjInLevel(o) ? "" : " ⚠");
+    row.appendChild(badge); row.appendChild(name); row.appendChild(pos);
+    row.addEventListener("click", function() { _lvObjSelect(o.id, true); });
+    list.appendChild(row);
+  });
+}
+
+/* Select an object; `reveal` switches to object mode and scrolls the camera to it. */
+function _lvObjSelect(id, reveal) {
+  _lvObjSel = id;
+  const o = _lvObjById(id);
+  if (o) {
+    _lvObjType = o.type;
+    _lvObjParam = o.param;
+    if (reveal) {
+      _lvObjMode = true;
+      if (!_lvPlaying) { _lvCamX = o.x - (_LV_SW >> 1); _lvCamY = o.y - (_LV_SH >> 1); }
+    }
+  }
+  _lvRenderAll();
+}
+
+// Colours of the selected slot's screen (own or the level's) and the level border.
+function _lvRenderColorPanel() {
+  const box = document.getElementById("lv-colors-box");
+  if (!box) return;
+  const scr = _lvSel >= 0 ? _lvScreenById(_lvCells[_lvSel]) : null;
+  const own = document.getElementById("lv-own-colors");
+  if (own) { own.checked = !!(scr && scr.colors); own.disabled = !scr; }
+  const c = _lvScreenColors(scr);
+  _LV_SCR_COLOR_KEYS.forEach(function(k) {
+    const sel = document.getElementById("lv-col-" + k);
+    if (!sel) return;
+    if (!sel.options.length) for (let i = 0; i < 16; i++) sel.add(new Option(i + " · " + _C64_COLORS[i].n, String(i)));
+    sel.value = String(c[k] & 15);
+    sel.disabled = !(scr && scr.colors);
+    sel.style.borderLeft = "10px solid " + _CE_COLORS[c[k] & 15];
+  });
+  const lb = document.getElementById("lv-level-border");
+  if (lb) {
+    if (!lb.options.length) for (let i = 0; i < 16; i++) lb.add(new Option(i + " · " + _C64_COLORS[i].n, String(i)));
+    lb.value = String(_lvBorder);
+    lb.style.borderLeft = "10px solid " + _CE_COLORS[_lvBorder];
   }
 }
 
@@ -35725,6 +36690,9 @@ function _lvUpdateStatus() {
     parts.push(tf("lvStatusSlot", { n: _lvSel + 1, total: _lvSlotCount() }) + (scr ? " · " + scr.name : ""));
   }
   parts.push("X:" + _lvCamX + " Y:" + _lvCamY);
+  const so = _lvObjById(_lvObjSel);
+  if (_lvObjMode && so) parts.push(_lvObjTypeName(so.type) + " " + so.x + "," + so.y + " #" + so.param);
+  if (_lvObjects.length) parts.push(tf("lvObjCount", { n: _lvObjects.length }));
   parts.push(tf("lvInfo", {
     w: _lvW, h: _lvH, cols: _lvW * _ME_COLS, rows: _lvH * _ME_ROWS,
     bytes: _lvSlotCount() * _ME_COLS * _ME_ROWS * 2
@@ -35742,6 +36710,45 @@ function _lvSyncControls() {
     dirSel.value = _lvDir;
   }
   document.getElementById("lv-grid-group")?.toggleAttribute("hidden", _lvLayout !== "grid");
+  document.getElementById("lv-obj-mode")?.classList.toggle("me-tool--active", _lvObjMode);
+  document.getElementById("lv-obj-mode")?.setAttribute("aria-pressed", _lvObjMode ? "true" : "false");
+  document.getElementById("lv-obj-controls")?.toggleAttribute("hidden", !_lvObjMode);
+  document.getElementById("lv-canvas")?.classList.toggle("lv-canvas--objects", _lvObjMode);
+  const typeSel = document.getElementById("lv-obj-type");
+  if (typeSel) {
+    if (typeSel.options.length !== _LV_OBJ_TYPES.length) {
+      typeSel.innerHTML = "";
+      _LV_OBJ_TYPES.forEach(function(ty, i) { typeSel.add(new Option(ty.letter + "  " + _lvObjTypeName(i), String(i))); });
+    } else {
+      _LV_OBJ_TYPES.forEach(function(ty, i) { typeSel.options[i].textContent = ty.letter + "  " + _lvObjTypeName(i); });
+    }
+    typeSel.value = String(_lvObjType);
+  }
+  const paramIn = document.getElementById("lv-obj-param");
+  if (paramIn && document.activeElement !== paramIn) paramIn.value = String(_lvObjParam);
+  const snapIn = document.getElementById("lv-obj-snap");
+  if (snapIn) snapIn.checked = _lvObjSnap;
+  document.getElementById("lv-obj-del")?.toggleAttribute("disabled", !_lvObjById(_lvObjSel));
+  document.getElementById("lv-attr-mode")?.classList.toggle("me-tool--active", _lvAttrMode);
+  document.getElementById("lv-attr-mode")?.setAttribute("aria-pressed", _lvAttrMode ? "true" : "false");
+  document.getElementById("lv-attr-controls")?.toggleAttribute("hidden", !_lvAttrMode);
+  document.getElementById("lv-canvas")?.classList.toggle("lv-canvas--objects", _lvObjMode || _lvAttrMode);
+  const attrSel = document.getElementById("lv-attr-type");
+  if (attrSel) {
+    if (attrSel.options.length !== _LV_ATTRS.length) {
+      attrSel.innerHTML = "";
+      _LV_ATTRS.forEach(function(a) { attrSel.add(new Option(_lvAttrName(a.bit), String(a.bit))); });
+    } else {
+      _LV_ATTRS.forEach(function(a, i) { attrSel.options[i].textContent = _lvAttrName(a.bit); });
+    }
+    attrSel.value = String(_lvAttrBit);
+    const a = _LV_ATTRS.find(function(it) { return it.bit === _lvAttrBit; });
+    attrSel.style.borderLeft = a ? "4px solid " + a.color : "";
+  }
+  const edgesIn = document.getElementById("lv-edges");
+  if (edgesIn) edgesIn.checked = _lvEdges;
+  const hint = document.getElementById("lv-hint");
+  if (hint) hint.textContent = t(_lvObjMode ? "lvObjHint" : _lvAttrMode ? "lvAttrHint" : "lvHint");
   const play = document.getElementById("lv-play");
   if (play) {
     play.classList.toggle("me-tool--active", _lvPlaying);
@@ -35756,6 +36763,7 @@ function _lvRenderAll() {
   _lvClampCam();
   _lvSyncControls();
   _lvRenderLibrary();
+  _lvRenderObjectList();
   _lvRenderOverview();
   _lvRenderPreview();
   _lvUpdateStatus();
@@ -35960,6 +36968,11 @@ function _lvBuildLevelFile() {
       cells: _lvCells.map(function(c) { return c ? ids.indexOf(c) : -1; }),
       names: _lvScreens.map(function(s) { return s.name; }),
       dir: _lvDir, speed: _lvSpeed, loop: _lvLoop,
+      // scroll order, which the LEVEL macro keeps (objects outside the level last)
+      borderColor: _lvBorder,
+      screenColors: _lvScreens.map(function(s) { return s.colors ? _LV_SCR_COLOR_KEYS.map(function(k) { return s.colors[k] & 15; }) : null; }),
+      objects: _lvObjSorted(_lvObjects.filter(_lvObjInLevel)).concat(_lvObjects.filter(function(o) { return !_lvObjInLevel(o); }))
+        .map(function(o) { return { t: o.type, x: o.x, y: o.y, p: o.param }; }),
       multicolor: st.multicolor, bgColor: st.bgColor, mc1Color: st.mc1Color, mc2Color: st.mc2Color,
       charSource: st.charSource
     },
@@ -35967,6 +36980,7 @@ function _lvBuildLevelFile() {
   };
   if (st.charSource === "custom" && st.charset) meta.extras.charset = st.charset.slice(0);
   if (st.charSource === "custom" && st.charColors) meta.extras.charColors = st.charColors.slice(0);
+  if (_lvAttrUsed()) meta.extras.attr = _lvAttr.slice(0);
   return _vaBuildBinWithMeta(payload, meta);
 }
 
@@ -36004,6 +37018,17 @@ function _lvLoadLevelFile(bytes) {
   _lvDir = _LV_DIRS[_lvLayout].includes(ms.dir) ? ms.dir : _LV_DIRS[_lvLayout][0];
   _lvSpeed = Math.max(1, Math.min(8, ms.speed | 0 || 1));
   _lvLoop = ms.loop !== false;
+  _lvObjects = (Array.isArray(ms.objects) ? ms.objects : []).map(function(o) { return _lvObjNew(o.t, o.x, o.y, o.p); });
+  _lvAttr = new Uint8Array(256);
+  if (parsed.extras.attr) _lvAttr.set(parsed.extras.attr.subarray(0, 256));
+  _lvBorder = (ms.borderColor ?? 0) & 15;
+  (Array.isArray(ms.screenColors) ? ms.screenColors : []).forEach(function(c, i) {
+    if (_lvScreens[i] && Array.isArray(c)) {
+      _lvScreens[i].colors = { bg: c[0] & 15, border: c[1] & 15, mc1: c[2] & 15, mc2: c[3] & 15 };
+      _lvScreens[i].cache = null;
+    }
+  });
+  _lvObjSel = null;
   _lvSel = _lvSlotCount() ? 0 : -1;
   _lvLibSel = null;
   const speedIn = document.getElementById("lv-speed");
@@ -36083,7 +37108,629 @@ function _lvExportAsm() {
   };
   dump("level_screen", d.screen);
   dump("level_color", d.color);
+  lines.push.apply(lines, _lvObjectsAsm());
+  lines.push.apply(lines, _lvAttrAsm());
+  lines.push.apply(lines, _lvScrColorsAsm());
   return lines.join("\n") + "\n";
+}
+
+/* Object table, same names as the LEVEL macro: 16-bit level-pixel X / Y,
+   type and a free parameter byte, in scroll order. */
+function _lvObjectsAsm() {
+  const objs = _lvObjOrdered().slice(0, 255);
+  if (!objs.length) return [];
+  const hex = function(v) { return "$" + (v & 0xFF).toString(16).toUpperCase().padStart(2, "0"); };
+  const lines = ["", "; Objects: X / Y in level pixels (16 bit), scroll order", ".const LEVEL_OBJ_COUNT = " + objs.length];
+  _LV_OBJ_TYPES.forEach(function(ty, i) { lines.push(".const LEVEL_OBJ_T_" + ty.key.toUpperCase() + " = " + i); });
+  const start = objs.find(function(o) { return o.type === 0; });
+  if (start) lines.push(".const LEVEL_START_X = " + start.x, ".const LEVEL_START_Y = " + start.y);
+  [["LEVEL_OBJ_X_LO", function(o) { return o.x; }], ["LEVEL_OBJ_X_HI", function(o) { return o.x >> 8; }],
+   ["LEVEL_OBJ_Y_LO", function(o) { return o.y; }], ["LEVEL_OBJ_Y_HI", function(o) { return o.y >> 8; }],
+   ["LEVEL_OBJ_TYPE", function(o) { return o.type; }], ["LEVEL_OBJ_PARAM", function(o) { return o.param; }]
+  ].forEach(function(tab) {
+    lines.push(tab[0] + ":");
+    for (let i = 0; i < objs.length; i += 16) lines.push("    .byte " + objs.slice(i, i + 16).map(function(o) { return hex(tab[1](o)); }).join(", "));
+  });
+  return lines;
+}
+
+// 256-byte attribute table (one flag byte per screen code), same names as the LEVEL macro.
+function _lvAttrAsm() {
+  if (!_lvAttrUsed()) return [];
+  const hex = function(v) { return "$" + v.toString(16).toUpperCase().padStart(2, "0"); };
+  const lines = ["", "; Character attributes: one flag byte per screen code"];
+  _LV_ATTRS.forEach(function(a) { lines.push(".const LEVEL_ATTR_" + a.key.toUpperCase() + " = " + a.bit); });
+  lines.push("LEVEL_ATTR:");
+  for (let i = 0; i < 256; i += 16) lines.push("    .byte " + Array.from(_lvAttr.subarray(i, i + 16), hex).join(", "));
+  return lines;
+}
+
+// Per-slot colour tables (row-major, like LEVEL_SLOT_*), only when a placed screen has its own colours.
+function _lvScrColorsAsm() {
+  if (!_lvCells.some(function(id) { const s = _lvScreenById(id); return s && s.colors; })) return [];
+  const lines = ["", "; Screen colours per slot (row-major): background, border, multicolor 1 / 2", ".const LEVEL_BORDER = " + _lvBorder];
+  [["LEVEL_SCR_BG", "bg"], ["LEVEL_SCR_BORDER", "border"], ["LEVEL_SCR_MC1", "mc1"], ["LEVEL_SCR_MC2", "mc2"]].forEach(function(tab) {
+    lines.push(tab[0] + ":");
+    lines.push("    .byte " + _lvCells.map(function(id) { return _lvScreenColors(_lvScreenById(id))[tab[1]] & 15; }).join(", "));
+  });
+  return lines;
+}
+
+/* ── RLE ──
+   Stream: first byte = marker (the least used byte value); then literal bytes,
+   or marker, count (1-255), value for a run; marker, 0 ends the stream. */
+function _lvRle(bytes) {
+  const freq = new Uint32Array(256);
+  for (let i = 0; i < bytes.length; i++) freq[bytes[i]]++;
+  let mark = 0;
+  for (let v = 1; v < 256; v++) if (freq[v] < freq[mark]) mark = v;
+  const out = [mark];
+  for (let i = 0; i < bytes.length;) {
+    const v = bytes[i];
+    let n = 1;
+    while (i + n < bytes.length && bytes[i + n] === v && n < 255) n++;
+    if (n >= 4 || v === mark) out.push(mark, n, v);
+    else for (let k = 0; k < n; k++) out.push(v);
+    i += n;
+  }
+  out.push(mark, 0);
+  return Uint8Array.from(out);
+}
+// The 6502 unpacker: ($FB) = packed stream, ($FD) = destination; A, X, Y destroyed.
+function _lvRleUnpackAsm() {
+  return [
+    "; level_unrle: unpack the RLE stream at ($FB) to ($FD)",
+    "level_unrle:",
+    "    LDY #$00",
+    "    LDA ($FB),Y",
+    "    STA unrle_mark",
+    "    JSR unrle_src",
+    "unrle_loop:",
+    "    LDY #$00",
+    "    LDA ($FB),Y",
+    "    JSR unrle_src",
+    "    CMP unrle_mark",
+    "    BEQ unrle_run",
+    "    STA ($FD),Y",
+    "    JSR unrle_dst",
+    "    JMP unrle_loop",
+    "unrle_run:",
+    "    LDA ($FB),Y",
+    "    BEQ unrle_done",
+    "    TAX",
+    "    JSR unrle_src",
+    "    LDA ($FB),Y",
+    "    JSR unrle_src",
+    "unrle_fill:",
+    "    STA ($FD),Y",
+    "    JSR unrle_dst",
+    "    DEX",
+    "    BNE unrle_fill",
+    "    JMP unrle_loop",
+    "unrle_done:",
+    "    RTS",
+    "unrle_src:",
+    "    INC $FB",
+    "    BNE unrle_src_ok",
+    "    INC $FC",
+    "unrle_src_ok:",
+    "    RTS",
+    "unrle_dst:",
+    "    INC $FD",
+    "    BNE unrle_dst_ok",
+    "    INC $FE",
+    "unrle_dst_ok:",
+    "    RTS",
+    "unrle_mark:",
+    "    .byte $00"
+  ];
+}
+// The level data (scroll order, as Copy asm) RLE packed, with the unpacker.
+function _lvRleAsm() {
+  const d = _lvExportData();
+  if (!d) return "";
+  const hex = function(v) { return "$" + v.toString(16).toUpperCase().padStart(2, "0"); };
+  const scr = _lvRle(d.screen), col = _lvRle(d.color);
+  const lines = [
+    "; Level: " + _lvW + "x" + _lvH + " screens, " + d.cols + "x" + d.rows + " chars, RLE packed (same order as Copy asm)",
+    "; usage: LDA #<level_screen_rle / STA $FB / LDA #>level_screen_rle / STA $FC",
+    ";        LDA #<target / STA $FD / LDA #>target / STA $FE / JSR level_unrle",
+    ".const LEVEL_COLS = " + d.cols,
+    ".const LEVEL_ROWS = " + d.rows,
+    ".const LEVEL_UNPACKED_SIZE = " + d.screen.length
+  ];
+  const dump = function(label, bytes) {
+    lines.push(label + ":");
+    for (let i = 0; i < bytes.length; i += 16) lines.push("    .byte " + Array.from(bytes.subarray(i, i + 16), hex).join(", "));
+  };
+  dump("level_screen_rle", scr);
+  dump("level_color_rle", col);
+  lines.push("");
+  lines.push.apply(lines, _lvRleUnpackAsm());
+  lines.push.apply(lines, _lvObjectsAsm());
+  lines.push.apply(lines, _lvAttrAsm());
+  return lines.join("\n") + "\n";
+}
+
+/* Memory meter: the .level data size (the macro's own build) at _lvMemAddr, the
+   areas it runs into, and the RLE size of the whole level. */
+function _lvMemInfo() {
+  if (!_lvCells.some(Boolean)) return "";
+  const hex4 = function(v) { return "$" + v.toString(16).toUpperCase().padStart(4, "0"); };
+  const out = [];
+  if (typeof _levelBuild === "function") {
+    const info = _levelBuild(_lvBuildLevelFile(), _lvMemAddr);
+    if (!info.ok) out.push("⚠ " + info.error);
+    else {
+      const from = _lvMemAddr, to = _lvMemAddr + info.data.length;
+      out.push(tf("lvMemLevel", { bytes: info.data.length, from: hex4(from), to: hex4(to - 1), screens: info.screens }));
+      const hits = function(a, b) { return from < b && to > a; };
+      if (from < 0x0800) out.push(t("lvMemLow"));
+      if (hits(0xA000, 0xC000)) out.push(t("lvMemRom"));
+      if (hits(0xD000, 0xE000)) out.push(t("lvMemIo"));
+      if (hits(0xE000, 0x10000)) out.push(t("lvMemKernal"));
+    }
+  }
+  const d = _lvExportData();
+  if (d) {
+    const packed = _lvRle(d.screen).length + _lvRle(d.color).length, raw = d.screen.length * 2;
+    out.push(tf("lvMemRle", { packed: packed, raw: raw, pct: Math.round(packed * 100 / raw) }));
+  }
+  return out.join("\n");
+}
+
+/* ── Run in VICE: a joystick-scrolled test program for the level ──
+   The scroller of samples/level-demo.asm (double buffer, XSCROLL / YSCROLL,
+   tear-free char steps), with the code at $C000 and the level data from $2000
+   (a custom charset takes $2000-$27FF, the level then starts at $2800); BASIC
+   is switched off ($01 = $36) so the data may run up to $BFFF. Screen colours
+   follow the screen at the top left of the view; the camera starts at the
+   first Start object, else where the scroll direction begins. */
+function _lvTestProgramAsm(o) {
+  const lvlAddr = o.charset ? 0x2800 : 0x2000;
+  const hex = function(v) { return "$" + v.toString(16).toUpperCase().padStart(2, "0"); };
+  const d018 = o.charset ? [0x18, 0x38] : [0x14, 0x34];
+  const L = [
+    "* = $0801",
+    "; Level test — generated by the Level Editor (Run in VICE). Joystick in port 1 or 2 scrolls.",
+    "    JMP init",
+    "",
+    ".level \"level.bin\", $" + lvlAddr.toString(16).toUpperCase(),
+    ".assert LEVEL_END <= $C000, \"the level is too big for the test program\""
+  ];
+  if (o.charset) L.push("", ".incbin \"charset.bin\", $2000");
+  L.push("",
+    "* = $C000",
+    "init:",
+    "    SEI",
+    "    LDA #$36                     ; BASIC ROM off: the level may lie under it",
+    "    STA $01",
+    "    LDA #LEVEL_BORDER",
+    "    STA $D020",
+    "    LDA #LEVEL_BG",
+    "    STA $D021",
+    "    LDA #LEVEL_MC1",
+    "    STA $D022",
+    "    LDA #LEVEL_MC2",
+    "    STA $D023",
+    "    LDA #$FF",
+    "    STA $DC00",
+    "    LDA #" + hex(o.camX & 255),
+    "    STA camx_lo",
+    "    LDA #" + hex(o.camX >> 8),
+    "    STA camx_hi",
+    "    LDA #" + hex(o.camY & 255),
+    "    STA camy_lo",
+    "    LDA #" + hex(o.camY >> 8),
+    "    STA camy_hi",
+    "    LDA #" + hex(o.camX >> 3),
+    "    STA shx",
+    "    STA view_x",
+    "    LDA #" + hex(o.camY >> 3),
+    "    STA shy",
+    "    STA next_y",
+    "    LDA #$00",
+    "    STA bstate",
+    "    LDA #$04",
+    "    STA back_hi",
+    "    LDA #$00",
+    "    STA build_row",
+    "    LDA #25",
+    "    STA build_end",
+    "    JSR build_rows",
+    "    LDA #$00",
+    "    STA cc_row",
+    "    LDA #25",
+    "    STA cc_end",
+    "    JSR copy_colors",
+    "    LDA #" + hex(d018[0]),
+    "    STA $D018",
+    "    JSR set_fine",
+    "    JSR set_colors",
+    "    LDA #$0C",
+    "    STA back_hi",
+    "    LDA #" + hex(d018[1]),
+    "    STA back_d018",
+    "",
+    "main_loop:",
+    "    LDA do_swap",
+    "    BEQ ml_wait",
+    "    .wait_raster $46",
+    "    LDA #$00",
+    "    STA cc_row",
+    "    LDA #13",
+    "    STA cc_end",
+    "    JSR copy_colors",
+    "ml_wait:",
+    "    .wait_raster $FA",
+    "    LDA do_swap",
+    "    STA swapped",
+    "    LDA #$00",
+    "    STA do_swap",
+    "    LDA swapped",
+    "    BEQ ml_fine",
+    "    LDA back_d018",
+    "    STA $D018",
+    "    JSR set_fine",
+    "    LDA #13",
+    "    STA cc_row",
+    "    LDA #25",
+    "    STA cc_end",
+    "    JSR copy_colors",
+    "    LDA back_hi",
+    "    EOR #$08",
+    "    STA back_hi",
+    "    LDA back_d018",
+    "    EOR #$20",
+    "    STA back_d018",
+    "    LDA tx",
+    "    STA shx",
+    "    LDA ty",
+    "    STA shy",
+    "    JSR set_colors",
+    "    LDA #$00",
+    "    STA bstate",
+    "    JMP frame_work",
+    "ml_fine:",
+    "    JSR set_fine",
+    "frame_work:",
+    "    .joystick 3, vx, vy, fire",
+    "    JSR decide",
+    "    JMP main_loop",
+    "",
+    "; set_colors: the colours of the screen at the top left of the view"
+  );
+  if (o.scrColors) L.push(
+    "set_colors:",
+    "    LDX shy",
+    "    LDA LEVEL_ROW_SLOT,X",
+    "    LDX shx",
+    "    CLC",
+    "    ADC LEVEL_COL_SLOT,X",
+    "    TAX",
+    "    LDA LEVEL_SCR_BG,X",
+    "    STA $D021",
+    "    LDA LEVEL_SCR_BORDER,X",
+    "    STA $D020",
+    "    LDA LEVEL_SCR_MC1,X",
+    "    STA $D022",
+    "    LDA LEVEL_SCR_MC2,X",
+    "    STA $D023",
+    "    RTS");
+  else L.push("set_colors:", "    RTS");
+  L.push("",
+    "decide:",
+    "    JSR load_cam",
+    "    JSR step_xy",
+    "    LDA ncx",
+    "    CMP shx",
+    "    BNE crossing",
+    "    LDA ncy",
+    "    CMP shy",
+    "    BNE crossing",
+    "    JSR store_cam",
+    "    LDA swapped",
+    "    BNE dc_done",
+    "    JSR step_xy",
+    "    LDA ncx",
+    "    CMP shx",
+    "    BNE prepare",
+    "    LDA ncy",
+    "    CMP shy",
+    "    BNE prepare",
+    "    JSR step_xy",
+    "    LDA ncx",
+    "    CMP shx",
+    "    BNE prepare",
+    "    LDA ncy",
+    "    CMP shy",
+    "    BEQ dc_done",
+    "prepare:",
+    "    JMP want_cell",
+    "crossing:",
+    "    LDA bstate",
+    "    CMP #$02",
+    "    BNE cross_build",
+    "    LDA tx",
+    "    CMP ncx",
+    "    BNE cross_build",
+    "    LDA ty",
+    "    CMP ncy",
+    "    BNE cross_build",
+    "    JSR store_cam",
+    "    LDA #$01",
+    "    STA do_swap",
+    "    RTS",
+    "cross_build:",
+    "    LDA swapped",
+    "    BNE dc_done",
+    "    JMP want_cell",
+    "dc_done:",
+    "    RTS",
+    "",
+    "load_cam:",
+    "    LDA camx_lo",
+    "    STA wx_lo",
+    "    LDA camx_hi",
+    "    STA wx_hi",
+    "    LDA camy_lo",
+    "    STA wy_lo",
+    "    LDA camy_hi",
+    "    STA wy_hi",
+    "    RTS",
+    "store_cam:",
+    "    LDA wx_lo",
+    "    STA camx_lo",
+    "    LDA wx_hi",
+    "    STA camx_hi",
+    "    LDA wy_lo",
+    "    STA camy_lo",
+    "    LDA wy_hi",
+    "    STA camy_hi",
+    "    RTS",
+    "",
+    "step_xy:",
+    "    LDA wx_lo",
+    "    STA t_lo",
+    "    LDA wx_hi",
+    "    STA t_hi",
+    "    LDA vx",
+    "    STA t_v",
+    "    LDA #<LEVEL_MAX_X",
+    "    STA max_lo",
+    "    LDA #>LEVEL_MAX_X",
+    "    STA max_hi",
+    "    JSR add_clamp",
+    "    LDA t_lo",
+    "    STA wx_lo",
+    "    LDA t_hi",
+    "    STA wx_hi",
+    "    JSR cell_of_t",
+    "    STA ncx",
+    "    LDA wy_lo",
+    "    STA t_lo",
+    "    LDA wy_hi",
+    "    STA t_hi",
+    "    LDA vy",
+    "    STA t_v",
+    "    LDA #<LEVEL_MAX_Y",
+    "    STA max_lo",
+    "    LDA #>LEVEL_MAX_Y",
+    "    STA max_hi",
+    "    JSR add_clamp",
+    "    LDA t_lo",
+    "    STA wy_lo",
+    "    LDA t_hi",
+    "    STA wy_hi",
+    "    JSR cell_of_t",
+    "    STA ncy",
+    "    RTS",
+    "",
+    "add_clamp:",
+    "    LDA t_v",
+    "    BEQ ac_done",
+    "    BPL ac_pos",
+    "    CLC",
+    "    LDA t_lo",
+    "    ADC t_v",
+    "    STA t_lo",
+    "    LDA t_hi",
+    "    ADC #$FF",
+    "    STA t_hi",
+    "    BPL ac_done",
+    "    LDA #$00",
+    "    STA t_lo",
+    "    STA t_hi",
+    "    RTS",
+    "ac_pos:",
+    "    CLC",
+    "    LDA t_lo",
+    "    ADC t_v",
+    "    STA t_lo",
+    "    LDA t_hi",
+    "    ADC #$00",
+    "    STA t_hi",
+    "    CMP max_hi",
+    "    BCC ac_done",
+    "    BNE ac_set",
+    "    LDA t_lo",
+    "    CMP max_lo",
+    "    BCC ac_done",
+    "ac_set:",
+    "    LDA max_lo",
+    "    STA t_lo",
+    "    LDA max_hi",
+    "    STA t_hi",
+    "ac_done:",
+    "    RTS",
+    "",
+    "cell_of_t:",
+    "    LDA t_hi",
+    "    STA t_v",
+    "    LDA t_lo",
+    "    LSR t_v",
+    "    ROR",
+    "    LSR t_v",
+    "    ROR",
+    "    LSR t_v",
+    "    ROR",
+    "    RTS",
+    "",
+    "set_fine:",
+    "    LDA camx_lo",
+    "    AND #$07",
+    "    EOR #$07",
+    "    ORA #LEVEL_MULTICOLOR*16",
+    "    STA $D016",
+    "    LDA camy_lo",
+    "    AND #$07",
+    "    EOR #$07",
+    "    ORA #$10",
+    "    STA $D011",
+    "    RTS",
+    "",
+    "want_cell:",
+    "    LDA bstate",
+    "    BEQ wc_new",
+    "    LDA tx",
+    "    CMP ncx",
+    "    BNE wc_new",
+    "    LDA ty",
+    "    CMP ncy",
+    "    BNE wc_new",
+    "    LDA bstate",
+    "    CMP #$02",
+    "    BEQ wc_done",
+    "    LDA #13",
+    "    STA build_row",
+    "    LDA #25",
+    "    STA build_end",
+    "    JSR build_rows",
+    "    LDA #$02",
+    "    STA bstate",
+    "    RTS",
+    "wc_new:",
+    "    LDA ncx",
+    "    STA tx",
+    "    STA view_x",
+    "    LDA ncy",
+    "    STA ty",
+    "    STA next_y",
+    "    LDA #$00",
+    "    STA build_row",
+    "    LDA #13",
+    "    STA build_end",
+    "    JSR build_rows",
+    "    LDA #$01",
+    "    STA bstate",
+    "wc_done:",
+    "    RTS",
+    "",
+    "build_rows:",
+    "    LDA build_row",
+    "    CMP build_end",
+    "    LBEQ br_done",
+    "    TAY",
+    "    LDA MUL40_LO,Y",
+    "    STA dst_lo",
+    "    CLC",
+    "    LDA MUL40_HI,Y",
+    "    ADC back_hi",
+    "    STA dst_hi",
+    "    TYA",
+    "    CLC",
+    "    ADC next_y",
+    "    TAX",
+    "    .level_row dst_lo, view_x",
+    "    INC build_row",
+    "    JMP build_rows",
+    "br_done:",
+    "    RTS",
+    "",
+    "copy_colors:",
+    "    LDY cc_row",
+    "    LDA MUL40_LO,Y",
+    "    STA dst_lo",
+    "    CLC",
+    "    LDA MUL40_HI,Y",
+    "    ADC #$D8",
+    "    STA dst_hi",
+    "    TYA",
+    "    CLC",
+    "    ADC next_y",
+    "    TAX",
+    "    .level_row dst_lo, view_x, color",
+    "    INC cc_row",
+    "    LDA cc_row",
+    "    CMP cc_end",
+    "    LBNE copy_colors",
+    "    RTS",
+    "",
+    "MUL40_LO:",
+    "    .byte $00, $28, $50, $78, $A0, $C8, $F0, $18, $40, $68, $90, $B8, $E0",
+    "    .byte $08, $30, $58, $80, $A8, $D0, $F8, $20, $48, $70, $98, $C0",
+    "MUL40_HI:",
+    "    .byte $00, $00, $00, $00, $00, $00, $00, $01, $01, $01, $01, $01, $01",
+    "    .byte $02, $02, $02, $02, $02, $02, $02, $03, $03, $03, $03, $03"
+  );
+  ["camx_lo", "camx_hi", "camy_lo", "camy_hi", "wx_lo", "wx_hi", "wy_lo", "wy_hi", "vx", "vy", "fire", "ncx", "ncy",
+   "shx", "shy", "tx", "ty", "bstate", "do_swap", "swapped", "t_lo", "t_hi", "t_v", "max_lo", "max_hi", "next_y",
+   "view_x", "build_row", "build_end", "back_hi", "back_d018", "cc_row", "cc_end", "dst_lo", "dst_hi"
+  ].forEach(function(name) { L.push(name + ":", "    .byte $00"); });
+  L.push(".assert * <= $D000, \"test program code runs into the I/O area\"");
+  return L.join("\n") + "\n";
+}
+
+// Camera start of the test program: centred on the first Start object, else
+// where the scroll direction begins (bottom for up, right edge for left).
+function _lvTestCamera() {
+  const L = _lvLevelPx(), maxX = L.w - _LV_SW, maxY = L.h - _LV_SH;
+  const start = _lvObjOrdered().find(function(o) { return o.type === 0; });
+  let x = 0, y = 0;
+  if (start) { x = start.x + 4 - (_LV_SW >> 1); y = start.y + 4 - (_LV_SH >> 1); }
+  else { if (_lvDir === "up") y = maxY; if (_lvDir === "left") x = maxX; }
+  return { x: Math.max(0, Math.min(maxX, x)), y: Math.max(0, Math.min(maxY, y)) };
+}
+
+// Program blocks of the test program, with the level (and charset) bytes put
+// straight into the .level / .incbin blocks — no files needed.
+function _lvTestProgramBlocks() {
+  const st = _lvSettings || _lvDefaultSettings();
+  const charset = st.charSource === "custom" && st.charset ? st.charset : null;
+  const cam = _lvTestCamera();
+  const scrColors = _lvCells.some(function(id) { const s = _lvScreenById(id); return s && s.colors; });
+  const blocks = parseExpertText(_lvTestProgramAsm({ charset: !!charset, scrColors: scrColors, camX: cam.x, camY: cam.y }));
+  const levelBytes = Array.from(_lvBuildLevelFile());
+  blocks.forEach(function(b) {
+    if (b.isIncBinMacro && b.incBinLevel) { b.incBinBytes = levelBytes; b.validationError = ""; }
+    else if (b.isIncBinMacro && charset) { b.incBinBytes = Array.from(charset.subarray(0, 2048)); b.validationError = ""; }
+  });
+  return blocks;
+}
+
+async function _lvRunInVice() {
+  if (!_lvCells.some(Boolean)) { _lvFlash(t("lvNothing")); return; }
+  if (!window.electronAPI?.launchVice) { showViceToast(t("viceLaunchIsNotAvailable"), true); return; }
+  if (!vicePath) { showViceToast(t("viceIsNotConfiguredSelectItInTheMenuFirs"), true); return; }
+  const saved = program, savedMacros = userMacros;
+  let prg;
+  try {
+    program = _lvTestProgramBlocks();
+    parseUserMacros();
+    prg = _buildAutostartPrgCore();
+  } finally {
+    program = saved;
+    userMacros = savedMacros;
+  }
+  if (!prg || !prg.ok) {
+    if (prg && prg.errors && prg.errors.length) showCompileErrorDialog(prg.errors);
+    else showViceToast((prg && prg.error) || t("lvRunFailed"), true);
+    return;
+  }
+  const result = await window.electronAPI.launchVice({ bytes: Array.from(prg.bytes), fileName: "level-test-" + Date.now() + ".prg" });
+  if (!result?.ok) { showViceToast(result?.error || t("launchingViceFailed"), true); return; }
+  const parts = (result.filePath || "").replace(/\\/g, "/").split("/");
+  showViceToast(parts[parts.length - 1] || result.filePath);
 }
 
 function _lvFlash(msg) {
@@ -36113,12 +37760,22 @@ function _lvExport(kind) {
   if (kind === "asm") {
     navigator.clipboard.writeText(_lvExportAsm()).then(function() { _lvFlash(t("copied")); }).catch(function() {});
   }
+  if (kind === "rle-asm") {
+    navigator.clipboard.writeText(_lvRleAsm()).then(function() { _lvFlash(t("copied")); }).catch(function() {});
+  }
+  if (kind === "rle-blocks") {
+    const n = exportAsmToBlocks(_lvRleAsm());
+    _lvFlash(n > 0 ? tf("lvExportDone", { n: n }) : t("lvNothing"));
+  }
 }
 
 function _lvReset() {
   _lvStop();
   _lvScreens = []; _lvCells = []; _lvW = 1; _lvH = 0;
   _lvSel = -1; _lvLibSel = null;
+  _lvObjects = []; _lvObjSel = null;
+  _lvAttr = new Uint8Array(256);
+  _lvBorder = 0;
   _lvSetSettings(_lvDefaultSettings());
   _lvCamX = _lvCamY = 0;
 }
@@ -36215,6 +37872,7 @@ function setupLevelEditor() {
     _lvPushUndo();
     const scr = _lvNewScreen(src.name + " +", src.screen, src.color, null);
     scr.sig = src.sig;
+    scr.colors = src.colors ? Object.assign({}, src.colors) : null;
     _lvScreens.push(scr);
     _lvLibSel = scr.id;
     _lvPlace(scr.id);
@@ -36262,19 +37920,165 @@ function setupLevelEditor() {
     _lvRenderOverview();
   });
 
-  // Overview: click selects, drag swaps, double-click edits in the Map Editor
+  // Object layer controls
+  document.getElementById("lv-obj-mode")?.addEventListener("click", function() {
+    _lvObjMode = !_lvObjMode;
+    if (_lvObjMode) _lvAttrMode = false;
+    _lvRenderAll();
+  });
+  document.getElementById("lv-attr-mode")?.addEventListener("click", function() {
+    _lvAttrMode = !_lvAttrMode;
+    if (_lvAttrMode) _lvObjMode = false;
+    _lvRenderAll();
+  });
+  document.getElementById("lv-attr-type")?.addEventListener("change", function(e) {
+    _lvAttrBit = parseInt(e.target.value, 10) || 1;
+    _lvRenderAll();
+  });
+  document.getElementById("lv-edges")?.addEventListener("change", function(e) { _lvEdges = !!e.target.checked; _lvRenderAll(); });
+  document.getElementById("lv-own-colors")?.addEventListener("change", function(e) {
+    const scr = _lvSel >= 0 ? _lvScreenById(_lvCells[_lvSel]) : null;
+    if (!scr) return;
+    _lvPushUndo();
+    scr.colors = e.target.checked ? Object.assign({}, _lvScreenColors(null)) : null;
+    scr.cache = null;
+    _lvRenderAll();
+  });
+  ["bg", "border", "mc1", "mc2"].forEach(function(k) {   // _LV_SCR_COLOR_KEYS: not declared yet here (TDZ)
+    document.getElementById("lv-col-" + k)?.addEventListener("change", function(e) {
+      const scr = _lvSel >= 0 ? _lvScreenById(_lvCells[_lvSel]) : null;
+      if (!scr || !scr.colors) return;
+      _lvPushUndo();
+      scr.colors[k] = (parseInt(e.target.value, 10) || 0) & 15;
+      scr.cache = null;
+      _lvRenderAll();
+    });
+  });
+  document.getElementById("lv-level-border")?.addEventListener("change", function(e) {
+    _lvPushUndo();
+    _lvBorder = (parseInt(e.target.value, 10) || 0) & 15;
+    _lvRenderAll();
+  });
+  document.getElementById("lv-run")?.addEventListener("click", function() { _lvRunInVice(); });
+  document.getElementById("lv-mem-addr")?.addEventListener("change", function(e) {
+    const v = parseAddressValue(e.target.value);
+    if (v != null && v >= 0 && v <= 0xFFFF) _lvMemAddr = v;
+    e.target.value = "$" + _lvMemAddr.toString(16).toUpperCase().padStart(4, "0");
+    _lvRenderLibrary();
+  });
+  const deleteObject = function() {
+    if (!_lvObjById(_lvObjSel)) return;
+    _lvPushUndo();
+    _lvObjects = _lvObjects.filter(function(o) { return o.id !== _lvObjSel; });
+    _lvObjSel = null;
+    _lvRenderAll();
+  };
+  document.getElementById("lv-obj-del")?.addEventListener("click", deleteObject);
+  document.getElementById("lv-obj-type")?.addEventListener("change", function(e) {
+    _lvObjType = parseInt(e.target.value, 10) || 0;
+    const o = _lvObjById(_lvObjSel);
+    if (o && o.type !== _lvObjType) { _lvPushUndo(); o.type = _lvObjType; }
+    _lvRenderAll();
+  });
+  document.getElementById("lv-obj-param")?.addEventListener("change", function(e) {
+    _lvObjParam = Math.max(0, Math.min(255, parseInt(e.target.value, 10) || 0));
+    e.target.value = String(_lvObjParam);
+    const o = _lvObjById(_lvObjSel);
+    if (o && o.param !== _lvObjParam) { _lvPushUndo(); o.param = _lvObjParam; }
+    _lvRenderAll();
+  });
+  document.getElementById("lv-obj-snap")?.addEventListener("change", function(e) { _lvObjSnap = !!e.target.checked; });
+
+  // Overview: click selects, drag swaps, double-click edits in the Map Editor.
+  // In object mode: click places / selects an object, drag moves it.
   const canvas = document.getElementById("lv-canvas");
+  const levelPoint = function(e) {
+    const r = canvas.getBoundingClientRect();
+    const k = canvas.width / r.width / _lvScale;
+    return { x: Math.floor((e.clientX - r.left) * k), y: Math.floor((e.clientY - r.top) * k) };
+  };
+  const objPos = function(e, x, y) {
+    const L = _lvLevelPx();
+    if (_lvObjSnap && !e.shiftKey) { x = Math.round(x / 8) * 8; y = Math.round(y / 8) * 8; }
+    return { x: Math.max(0, Math.min(L.w - 8, x)), y: Math.max(0, Math.min(L.h - 8, y)) };
+  };
+  // Attribute mode: a click toggles the flag of the clicked screen code (every
+  // cell with that code); dragging applies the same change to further codes.
+  const attrPaint = function(code) {
+    if (code < 0 || code === _lvAttrDrag.last) return;
+    _lvAttrDrag.last = code;
+    if (_lvAttrDrag.set) _lvAttr[code] |= _lvAttrBit; else _lvAttr[code] &= ~_lvAttrBit;
+    _lvRenderOverview(); _lvRenderLibrary();
+  };
+  const attrStatus = function(p) {
+    const code = _lvCharAt(p.x, p.y);
+    const st = document.getElementById("lv-status");
+    if (st && code >= 0) st.textContent = tf("lvAttrChar", { code: "$" + code.toString(16).toUpperCase().padStart(2, "0"), attrs: _lvAttrNames(_lvAttr[code]) });
+  };
   canvas?.addEventListener("pointerdown", function(e) {
     if (e.button !== 0) return;
+    if (_lvAttrMode) {
+      const p = levelPoint(e), code = _lvCharAt(p.x, p.y);
+      if (code < 0) return;
+      _lvPushUndo();
+      _lvAttrDrag = { set: !(_lvAttr[code] & _lvAttrBit), last: -1 };
+      try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+      attrPaint(code);
+      attrStatus(p);
+      return;
+    }
+    if (_lvObjMode) {
+      const p = levelPoint(e), L = _lvLevelPx();
+      if (!_lvSlotCount() || p.x >= L.w || p.y >= L.h) return;
+      // Clicking an object selects it (the type / param controls then edit it);
+      // clicking empty space places a new one with the current type / param
+      // and leaves nothing selected, so the controls stay a brush.
+      let o = _lvObjAt(p.x, p.y, Math.ceil(2 / _lvScale));
+      const hit = !!o;
+      if (!hit) {
+        _lvPushUndo();
+        const at = objPos(e, p.x - 4, p.y - 4);
+        o = _lvObjNew(_lvObjType, at.x, at.y, _lvObjParam);
+        _lvObjects.push(o);
+      }
+      _lvObjDrag = { id: o.id, dx: p.x - o.x, dy: p.y - o.y, undo: hit };
+      try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+      if (hit) _lvObjSelect(o.id, false);
+      else { _lvObjSel = null; _lvRenderAll(); }
+      return;
+    }
     const slot = _lvSlotAt(e.clientX, e.clientY);
     if (slot < 0 || slot >= _lvSlotCount()) return;
     _lvDrag = { kind: "slot", from: slot, x: e.clientX, y: e.clientY, active: false, over: -1 };
     try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
   });
-  canvas?.addEventListener("pointermove", _lvDragMove);
-  canvas?.addEventListener("pointerup", _lvDragEnd);
-  canvas?.addEventListener("pointercancel", function() { _lvDrag = null; _lvRenderOverview(); });
+  canvas?.addEventListener("pointermove", function(e) {
+    if (_lvAttrMode) {
+      const p = levelPoint(e);
+      if (_lvAttrDrag) attrPaint(_lvCharAt(p.x, p.y));
+      attrStatus(p);
+      return;
+    }
+    if (!_lvObjDrag) { _lvDragMove(e); return; }
+    const o = _lvObjById(_lvObjDrag.id);
+    if (!o) return;
+    const p = levelPoint(e);
+    const at = objPos(e, p.x - _lvObjDrag.dx, p.y - _lvObjDrag.dy);
+    if (at.x === o.x && at.y === o.y) return;
+    if (_lvObjDrag.undo) { _lvPushUndo(); _lvObjDrag.undo = false; }
+    o.x = at.x; o.y = at.y;
+    _lvRenderOverview(); _lvRenderPreview(); _lvUpdateStatus();
+  });
+  canvas?.addEventListener("pointerup", function(e) {
+    if (_lvAttrDrag) { _lvAttrDrag = null; _lvRenderAll(); return; }
+    if (_lvAttrMode) return;
+    if (!_lvObjDrag) { _lvDragEnd(e); return; }
+    _lvObjDrag = null;
+    _lvRenderAll();
+  });
+  canvas?.addEventListener("pointercancel", function() { _lvDrag = null; _lvObjDrag = null; _lvAttrDrag = null; _lvRenderOverview(); });
   canvas?.addEventListener("dblclick", function(e) {
+    if (_lvObjMode || _lvAttrMode) return;
     const slot = _lvSlotAt(e.clientX, e.clientY);
     if (slot >= 0 && _lvCells[slot]) _lvEditInMapEditor(_lvCells[slot]);
   });
@@ -36304,9 +38108,21 @@ function setupLevelEditor() {
     if (mod && e.key.toLowerCase() === "z") { if (e.shiftKey) _lvRedoOp(); else _lvUndoOp(); e.preventDefault(); return; }
     if (mod && e.key.toLowerCase() === "y") { _lvRedoOp(); e.preventDefault(); return; }
     if (e.key === " ") { if (_lvPlaying) _lvStop(); else _lvPlay(); e.preventDefault(); return; }
+    const selObj = _lvObjMode ? _lvObjById(_lvObjSel) : null;
+    if (selObj && (e.key === "Delete" || e.key === "Backspace")) { deleteObject(); e.preventDefault(); return; }
+    if (_lvObjMode && e.key === "Escape" && selObj) { _lvObjSel = null; _lvRenderAll(); e.preventDefault(); e.stopPropagation(); return; }
     if (e.key === "Delete" && _lvSel >= 0) { _lvPushUndo(); _lvRemoveSlot(_lvSel); _lvRenderAll(); e.preventDefault(); return; }
     const step = e.shiftKey ? 8 : 1;
     const moves = { ArrowUp: [0, -step], ArrowDown: [0, step], ArrowLeft: [-step, 0], ArrowRight: [step, 0] };
+    if (moves[e.key] && selObj) {
+      const L = _lvLevelPx();
+      _lvPushUndo();
+      selObj.x = Math.max(0, Math.min(L.w - 8, selObj.x + moves[e.key][0]));
+      selObj.y = Math.max(0, Math.min(L.h - 8, selObj.y + moves[e.key][1]));
+      _lvRenderAll();
+      e.preventDefault();
+      return;
+    }
     if (moves[e.key]) {
       _lvCamX += moves[e.key][0]; _lvCamY += moves[e.key][1];
       _lvClampCam();
@@ -36657,6 +38473,18 @@ function _hgSet(x, y, col) {
   _hgFgCell[cell] = col;
   _hgBit[idx] = 1;
 }
+// Eraser: hi-res clears the bit, so the cell's own background shows (not the
+// global paper, which may differ per cell).
+function _hgErase(x, y) {
+  if (x < 0 || y < 0 || x >= _hgW() || y >= _hgH()) return;
+  if (_hgMulti) { _hgPixMC[y * 160 + x] = _hgPaper; return; }
+  _hgBit[y * 320 + x] = 0;
+}
+// Hi-res "cell paper" tool: sets the lo nibble of the cell's screen-RAM byte.
+function _hgSetCellBg(x, y, col) {
+  if (_hgMulti || x < 0 || y < 0 || x >= 320 || y >= 200) return;
+  _hgBgCell[(y >> 3) * 40 + (x >> 3)] = col;
+}
 
 /* ── Rendering ── */
 function _hgDrawPixelBuf(x, y) {
@@ -36772,7 +38600,17 @@ function _hgBlit() {
   _hgCtx.drawImage(_hgBuf, 0, 0);
   _hgOverlays();
 }
-function _hgRenderAll() { _hgRenderBuf(); _hgBlit(); }
+function _hgRenderAll() { _hgSyncModeTools(); _hgRenderBuf(); _hgBlit(); }
+// Multicolor has one shared $D021 background, so the per-cell paper tool is hi-res only.
+function _hgSyncModeTools() {
+  const btn = document.querySelector('.hg-tool[data-tool="cellpaper"]');
+  if (!btn) return;
+  btn.disabled = _hgMulti;
+  if (_hgMulti && _hgTool === "cellpaper") {
+    _hgTool = "pencil";
+    document.querySelectorAll(".hg-tool[data-tool]").forEach(function(b) { b.classList.toggle("hg-tool--active", b.dataset.tool === "pencil"); });
+  }
+}
 
 /* ── Selection / clipboard ────────────────────────────────────────────────── */
 function _hgCopySelection() {
@@ -37037,6 +38875,441 @@ function _hgHiresFromRGB(rgbAt) {
   }
 }
 
+/* ── Hi-Res editor: image import (converter) ───────────────────────────────
+ * After png2c64 by tinic (MIT, github.com/tinic/png2c64): colours are matched
+ * in OKLab, every 8×8 cell gets its best colours by exhaustive search under
+ * the VIC-II limits (hires: 2 per cell; multicolor: one shared background + 3
+ * per cell), then each pixel is dithered within its cell's colours. The input
+ * is the already scaled RGBA picture (320×200 hires, 160×200 multicolor). */
+const _HG_PNG_PALETTES = {
+  pepto:    [0x000000, 0xFFFFFF, 0x68372B, 0x70A4B2, 0x6F3D86, 0x588D43, 0x352879, 0xB8C76F, 0x6F4F25, 0x433900, 0x9A6759, 0x444444, 0x6C6C6C, 0x9AD284, 0x6C5EB5, 0x959595],
+  colodore: [0x000000, 0xFFFFFF, 0x813338, 0x75CEC8, 0x8E3C97, 0x56AC4D, 0x2E2C9B, 0xEDF171, 0x8E5029, 0x553800, 0xC46C71, 0x4A4A4A, 0x7B7B7B, 0xA9FF9F, 0x706DEB, 0xB2B2B2],
+  vice:     [0x000000, 0xFDFEFC, 0xBE1A24, 0x30E6C6, 0xB41AE2, 0x1FD21E, 0x211BAE, 0xDFF60A, 0xB84104, 0x6A3304, 0xFE4A57, 0x424540, 0x70746F, 0x59FE59, 0x5F53FE, 0xA4A7A2],
+  deekay:   [0x000000, 0xFFFFFF, 0x882000, 0x68D0A8, 0xA838A0, 0x50B818, 0x181090, 0xF0E858, 0xA04800, 0x472B1B, 0xC87870, 0x484848, 0x808080, 0x98FF98, 0x5090D0, 0xB8B8B8],
+  c64wiki:  [0x000000, 0xFFFFFF, 0x880000, 0xAAFFEE, 0xCC44CC, 0x00CC55, 0x0000AA, 0xEEEE77, 0xDD8855, 0x664400, 0xFF7777, 0x333333, 0x777777, 0xAAFF66, 0x0088FF, 0xBBBBBB]
+};
+const _HG_PNG_DITHERS = ["none", "bayer4", "bayer8", "checker", "h2x4", "line2", "fs", "fs-wide", "atkinson", "sierra", "jarvis"];
+const _HG_PNG_DEFAULTS = {
+  palette: "pepto", scale: "smooth", fit: "fit", dither: "checker", strength: 0.7, clamp: 0.1, serpentine: true,
+  brightness: 0, contrast: 1, saturation: 1, hue: 0, gamma: 1, sharpen: 0, blackPoint: 0, whitePoint: 0, matchRange: false
+};
+function _hgOklab(r, g, b) {
+  const lin = function(c) { c /= 255; return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+  const R = lin(r), G = lin(g), B = lin(b);
+  const l = Math.cbrt(0.4122214708 * R + 0.5363325363 * G + 0.0514459929 * B);
+  const m = Math.cbrt(0.2119034982 * R + 0.6806995451 * G + 0.1073969566 * B);
+  const s = Math.cbrt(0.0883024619 * R + 0.2817188376 * G + 0.6299787005 * B);
+  return [0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s,
+          1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s,
+          0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s];
+}
+function _hgPngPaletteLab(name) {
+  return (_HG_PNG_PALETTES[name] || _HG_PNG_PALETTES.pepto).map(function(h) { return _hgOklab(h >> 16, (h >> 8) & 255, h & 255); });
+}
+function _hgBayer(n) {
+  let m = [[0]];
+  while (m.length < n) {
+    const k = m.length, next = [];
+    for (let y = 0; y < 2 * k; y++) {
+      next.push([]);
+      for (let x = 0; x < 2 * k; x++) next[y].push(4 * m[y % k][x % k] + [0, 2, 3, 1][(y >= k ? 2 : 0) + (x >= k ? 1 : 0)]);
+    }
+    m = next;
+  }
+  return function(x, y) { return (m[y % n][x % n] + 0.5) / (n * n); };
+}
+// rgba: Uint8(Clamped)Array of w×h pixels → { multi, bg, pix (indices, w×h) } after preprocessing
+function _hgPngConvert(rgba, w, h, multi, opts) {
+  const o = Object.assign({}, _HG_PNG_DEFAULTS, opts || {});
+  const n = w * h, L = new Float32Array(n), A = new Float32Array(n), B = new Float32Array(n);
+  for (let i = 0; i < n; i++) {
+    const c = _hgOklab(rgba[i * 4], rgba[i * 4 + 1], rgba[i * 4 + 2]);
+    L[i] = c[0]; A[i] = c[1]; B[i] = c[2];
+  }
+  // ── preprocessing (OKLab)
+  if (o.blackPoint > 0 || o.whitePoint > 0) {
+    const sorted = Float32Array.from(L).sort();
+    const lb = sorted[Math.min(n - 1, Math.floor(o.blackPoint * n))];
+    const lw = sorted[Math.max(0, n - 1 - Math.floor(o.whitePoint * n))];
+    if (lw > lb + 1e-3) for (let i = 0; i < n; i++) L[i] = (L[i] - lb) / (lw - lb);
+  }
+  if (o.sharpen) {
+    const src = Float32Array.from(L);
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      let s = 0, k = 0;
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+        const xx = x + dx, yy = y + dy;
+        if (xx >= 0 && yy >= 0 && xx < w && yy < h) { s += src[yy * w + xx]; k++; }
+      }
+      const i = y * w + x;
+      L[i] = src[i] + o.sharpen * (src[i] - s / k);
+    }
+  }
+  const cosH = Math.cos(o.hue * Math.PI / 180), sinH = Math.sin(o.hue * Math.PI / 180);
+  for (let i = 0; i < n; i++) {
+    let l = Math.max(0, Math.min(1, L[i]));
+    if (o.gamma !== 1) l = Math.pow(l, 1 / o.gamma);
+    l = (l - 0.5) * o.contrast + 0.5 + o.brightness;
+    const a = A[i] * o.saturation, b = B[i] * o.saturation;
+    L[i] = l; A[i] = a * cosH - b * sinH; B[i] = a * sinH + b * cosH;
+  }
+  const pal = _hgPngPaletteLab(o.palette);
+  if (o.matchRange) {
+    let lmin = Infinity, lmax = -Infinity, cmax = 0, plmin = Infinity, plmax = -Infinity, pcmax = 0;
+    for (let i = 0; i < n; i++) { lmin = Math.min(lmin, L[i]); lmax = Math.max(lmax, L[i]); cmax = Math.max(cmax, Math.hypot(A[i], B[i])); }
+    pal.forEach(function(p) { plmin = Math.min(plmin, p[0]); plmax = Math.max(plmax, p[0]); pcmax = Math.max(pcmax, Math.hypot(p[1], p[2])); });
+    const ls = lmax > lmin + 1e-3 ? (plmax - plmin) / (lmax - lmin) : 1, cs = cmax > pcmax ? pcmax / cmax : 1;
+    for (let i = 0; i < n; i++) { L[i] = plmin + (L[i] - lmin) * ls; A[i] *= cs; B[i] *= cs; }
+  }
+  // squared OKLab distance of every pixel to every palette colour (the cell search reads it many times)
+  const D = new Float32Array(n * 16);
+  for (let i = 0; i < n; i++) for (let c = 0; c < 16; c++) {
+    const p = pal[c], dl = L[i] - p[0], da = A[i] - p[1], db = B[i] - p[2];
+    D[i * 16 + c] = dl * dl + da * da + db * db;
+  }
+  // ── colours per cell (exhaustive, on the undithered picture)
+  const cw = multi ? 4 : 8, cols = w / cw, rows = h / 8, cells = cols * rows;
+  const cellPix = function(c) {
+    const cx = (c % cols) * cw, cy = Math.floor(c / cols) * 8, out = [];
+    for (let y = 0; y < 8; y++) for (let x = 0; x < cw; x++) out.push((cy + y) * w + cx + x);
+    return out;
+  };
+  const cellCost = function(px, set) {
+    let s = 0;
+    for (let k = 0; k < px.length; k++) {
+      let best = Infinity;
+      const base = px[k] * 16;
+      for (let j = 0; j < set.length; j++) { const d = D[base + set[j]]; if (d < best) best = d; }
+      s += best;
+    }
+    return s;
+  };
+  // the colours a cell's pixels are nearest to, most frequent first
+  const candidates = function(px, exclude, count) {
+    const freq = new Array(16).fill(0);
+    px.forEach(function(i) {
+      let best = 0, bd = Infinity;
+      for (let c = 0; c < 16; c++) { if (c === exclude) continue; const d = D[i * 16 + c]; if (d < bd) { bd = d; best = c; } }
+      freq[best]++;
+    });
+    return freq.map(function(f, c) { return [f, c]; }).filter(function(e) { return e[1] !== exclude; })
+      .sort(function(p, q) { return q[0] - p[0]; }).slice(0, count).map(function(e) { return e[1]; });
+  };
+  const allPix = [];
+  for (let c = 0; c < cells; c++) allPix.push(cellPix(c));
+  const sets = new Array(cells);
+  let bg = 0;
+  if (!multi) {
+    for (let c = 0; c < cells; c++) {
+      let best = null, bc = Infinity;
+      for (let i = 0; i < 16; i++) for (let j = i + 1; j < 16; j++) {
+        const cost = cellCost(allPix[c], [i, j]);
+        if (cost < bc) { bc = cost; best = [i, j]; }
+      }
+      sets[c] = best;
+    }
+  } else {
+    const triples = function(cand) {
+      const out = [];
+      for (let i = 0; i < cand.length; i++) for (let j = i + 1; j < cand.length; j++) for (let k = j + 1; k < cand.length; k++) out.push([cand[i], cand[j], cand[k]]);
+      if (!out.length) out.push(cand.concat([0, 0, 0]).slice(0, 3));
+      return out;
+    };
+    // the shared background: the one that lets the cells fit best (6 candidates per cell)
+    let bestBg = 0, bestTotal = Infinity;
+    for (let b = 0; b < 16; b++) {
+      let total = 0;
+      for (let c = 0; c < cells && total < bestTotal; c++) {
+        let bc = Infinity;
+        triples(candidates(allPix[c], b, 6)).forEach(function(t) { const cost = cellCost(allPix[c], [b].concat(t)); if (cost < bc) bc = cost; });
+        total += bc;
+      }
+      if (total < bestTotal) { bestTotal = total; bestBg = b; }
+    }
+    bg = bestBg;
+    for (let c = 0; c < cells; c++) {
+      let best = null, bc = Infinity;
+      triples(candidates(allPix[c], bg, 8)).forEach(function(t) { const cost = cellCost(allPix[c], [bg].concat(t)); if (cost < bc) { bc = cost; best = [bg].concat(t); } });
+      sets[c] = best;
+    }
+  }
+  // ── pixels: dithered within the cell's colours
+  const pix = new Uint8Array(n);
+  const cellOf = function(x, y) { return Math.floor(y / 8) * cols + Math.floor(x / cw); };
+  const nearest = function(l, a, b, set) {
+    let best = set[0], bd = Infinity;
+    for (let j = 0; j < set.length; j++) {
+      const p = pal[set[j]], d = (l - p[0]) * (l - p[0]) + (a - p[1]) * (a - p[1]) + (b - p[2]) * (b - p[2]);
+      if (d < bd) { bd = d; best = set[j]; }
+    }
+    return best;
+  };
+  const ordered = { bayer4: _hgBayer(4), bayer8: _hgBayer(8),
+    checker: function(x, y) { return (x + y) & 1 ? 0.75 : 0.25; },
+    h2x4: function(x, y) { return ([[0, 4], [6, 2], [1, 5], [7, 3]][y % 4][x % 2] + 0.5) / 8; },
+    line2: function(x, y) { return y & 1 ? 0.75 : 0.25; } }[o.dither];
+  const kernels = {
+    fs: [[1, 0, 7], [-1, 1, 3], [0, 1, 5], [1, 1, 1], 16],
+    "fs-wide": [[1, 0, 5], [-1, 1, 3], [0, 1, 7], [1, 1, 1], 16],
+    atkinson: [[1, 0, 1], [2, 0, 1], [-1, 1, 1], [0, 1, 1], [1, 1, 1], [0, 2, 1], 8],
+    sierra: [[1, 0, 2], [-1, 1, 1], [0, 1, 1], 4],
+    jarvis: [[1, 0, 7], [2, 0, 5], [-2, 1, 3], [-1, 1, 5], [0, 1, 7], [1, 1, 5], [2, 1, 3], [-2, 2, 1], [-1, 2, 3], [0, 2, 5], [1, 2, 3], [2, 2, 1], 48]
+  }[o.dither];
+  if (kernels) {
+    const div = kernels[kernels.length - 1], taps = kernels.slice(0, -1);
+    const eL = new Float32Array(n), eA = new Float32Array(n), eB = new Float32Array(n);
+    const clamp = function(v) { return Math.max(-o.clamp, Math.min(o.clamp, v)); };
+    for (let y = 0; y < h; y++) {
+      const rev = o.serpentine && (y & 1);
+      for (let k = 0; k < w; k++) {
+        const x = rev ? w - 1 - k : k, i = y * w + x;
+        const l = L[i] + eL[i], a = A[i] + eA[i], b = B[i] + eB[i];
+        const c = nearest(l, a, b, sets[cellOf(x, y)]);
+        pix[i] = c;
+        const p = pal[c];
+        const dl = clamp((l - p[0]) * o.strength), da = clamp((a - p[1]) * o.strength), db = clamp((b - p[2]) * o.strength);
+        taps.forEach(function(t) {
+          const xx = x + (rev ? -t[0] : t[0]), yy = y + t[1];
+          if (xx < 0 || xx >= w || yy >= h) return;
+          const j = yy * w + xx, f = t[2] / div;
+          eL[j] += dl * f; eA[j] += da * f; eB[j] += db * f;
+        });
+      }
+    }
+  } else {
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const i = y * w + x, set = sets[cellOf(x, y)];
+      if (ordered) {
+        // the cell's two colours nearest to the pixel, mixed by their distance ratio
+        let c1 = set[0], c2 = set[0], d1 = Infinity, d2 = Infinity;
+        for (let j = 0; j < set.length; j++) {
+          const d = Math.sqrt(D[i * 16 + set[j]]);
+          if (d < d1) { d2 = d1; c2 = c1; d1 = d; c1 = set[j]; } else if (d < d2 && set[j] !== c1) { d2 = d; c2 = set[j]; }
+        }
+        const mix = d1 + d2 > 0 ? d1 / (d1 + d2) : 0;
+        pix[i] = c2 !== c1 && ordered(x, y) < mix * o.strength ? c2 : c1;
+      } else pix[i] = nearest(L[i], A[i], B[i], set);
+    }
+  }
+  return { multi: !!multi, bg: bg, pix: pix, sets: sets, w: w, h: h };
+}
+
+/* ── Hi-Res editor: image import dialog (live preview, png2c64-style settings) ── */
+var _hgPng = { img: null, name: "", opts: null, timer: 0, result: null, seq: 0, view: 1 };
+const _HG_PNG_FIELDS = [
+  ["mode", "select", ["hires", "multi"]],
+  ["palette", "select", ["pepto", "colodore", "vice", "deekay", "c64wiki"]],
+  ["scale", "select", ["smooth", "pixel"]],
+  ["fit", "select", ["fit", "fill", "stretch"]],
+  ["-"],
+  ["dither", "select", _HG_PNG_DITHERS],
+  ["strength", "range", 0, 2, 0.05],
+  ["clamp", "range", 0.02, 0.5, 0.01],
+  ["serpentine", "check"],
+  ["-"],
+  ["brightness", "range", -0.5, 0.5, 0.01],
+  ["contrast", "range", 0, 2, 0.05],
+  ["saturation", "range", 0, 2, 0.05],
+  ["hue", "range", -180, 180, 1],
+  ["gamma", "range", 0.2, 3, 0.05],
+  ["sharpen", "range", -1, 2, 0.05],
+  ["blackPoint", "range", 0, 0.4, 0.01],
+  ["whitePoint", "range", 0, 0.4, 0.01],
+  ["matchRange", "check"]
+];
+const _HG_PNG_LABELS = {
+  mode: "hgPngMode", palette: "hgPngPalette", scale: "hgPngScale", fit: "hgPngFit", dither: "hgPngDither",
+  strength: "hgPngStrength", clamp: "hgPngClamp", serpentine: "hgPngSerpentine", brightness: "hgPngBrightness",
+  contrast: "hgPngContrast", saturation: "hgPngSaturation", hue: "hgPngHue", gamma: "hgPngGamma",
+  sharpen: "hgPngSharpen", blackPoint: "hgPngBlack", whitePoint: "hgPngWhite", matchRange: "hgPngMatch"
+};
+function _hgPngOptionText(key, value) {
+  const names = { hires: "hgPngHires", multi: "hgPngMulti", smooth: "hgPngSmooth", pixel: "hgPngPixel",
+    stretch: "hgPngStretch", fit: "hgPngFitIn", fill: "hgPngFill" };
+  if (key === "palette") return { pepto: "Pepto", colodore: "Colodore", vice: "VICE", deekay: "Deekay", c64wiki: "C64 Wiki / Godot" }[value] || value;
+  return names[value] ? t(names[value]) : value;
+}
+function _hgPngLoadOpts() {
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem("c64va-hg-png") || "{}") || {}; } catch (_) {}
+  return Object.assign({}, _HG_PNG_DEFAULTS, saved, { mode: _hgMulti ? "multi" : "hires" });
+}
+function _hgPngSaveOpts() {
+  try { localStorage.setItem("c64va-hg-png", JSON.stringify(_hgPng.opts)); } catch (_) {}
+}
+function _hgPngBuildSettings() {
+  const box = document.getElementById("hg-png-settings");
+  if (!box) return;
+  box.innerHTML = "";
+  _HG_PNG_FIELDS.forEach(function(f) {
+    if (f[0] === "-") { const sep = document.createElement("div"); sep.className = "hg-png-sep"; box.appendChild(sep); return; }
+    const key = f[0], id = "hg-png-" + key;
+    const label = document.createElement("label");
+    label.htmlFor = id;
+    label.textContent = t(_HG_PNG_LABELS[key]);
+    let ctl, val = null;
+    if (f[1] === "select") {
+      ctl = document.createElement("select");
+      f[2].forEach(function(v) { const o = document.createElement("option"); o.value = v; o.textContent = _hgPngOptionText(key, v); ctl.appendChild(o); });
+      ctl.value = _hgPng.opts[key];
+      ctl.addEventListener("change", function() { _hgPng.opts[key] = ctl.value; _hgPngChanged(); });
+    } else if (f[1] === "range") {
+      ctl = document.createElement("input");
+      ctl.type = "range"; ctl.min = f[2]; ctl.max = f[3]; ctl.step = f[4]; ctl.value = _hgPng.opts[key];
+      val = document.createElement("span");
+      val.className = "hg-png-val";
+      const show = function() { val.textContent = Number(ctl.value).toFixed(f[4] < 1 ? 2 : 0); };
+      show();
+      ctl.addEventListener("input", function() { _hgPng.opts[key] = Number(ctl.value); show(); _hgPngChanged(); });
+    } else {
+      const wrap = document.createElement("label");
+      wrap.className = "hg-check";
+      ctl = document.createElement("input");
+      ctl.type = "checkbox"; ctl.checked = !!_hgPng.opts[key];
+      ctl.addEventListener("change", function() { _hgPng.opts[key] = ctl.checked; _hgPngChanged(); });
+      wrap.appendChild(ctl);
+      ctl.id = id;
+      box.append(label, wrap, document.createElement("span"));
+      return;
+    }
+    ctl.id = id;
+    box.append(label, ctl, val || document.createElement("span"));
+  });
+}
+// the source picture scaled to the target bitmap (320×200 hires, 160×200 multicolor)
+function _hgPngScaled() {
+  const o = _hgPng.opts, img = _hgPng.img;
+  const W = o.mode === "multi" ? 160 : 320, H = 200;
+  const cv = document.createElement("canvas");
+  cv.width = W; cv.height = H;
+  const ctx = cv.getContext("2d");
+  ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H);
+  ctx.imageSmoothingEnabled = o.scale !== "pixel";
+  ctx.imageSmoothingQuality = "high";
+  const iw = img.width || img.naturalWidth, ih = img.height || img.naturalHeight;
+  // fit / fill work on the displayed 320×200 frame (multicolor pixels are double wide)
+  let dw = 320, dh = 200;
+  if (o.fit !== "stretch") {
+    const s = o.fit === "fit" ? Math.min(320 / iw, 200 / ih) : Math.max(320 / iw, 200 / ih);
+    dw = iw * s; dh = ih * s;
+  }
+  const sx = W / 320;
+  ctx.drawImage(img, (320 - dw) / 2 * sx, (200 - dh) / 2, dw * sx, dh);
+  return ctx.getImageData(0, 0, W, H).data;
+}
+function _hgPngRender() {
+  const r = _hgPng.result, cv = document.getElementById("hg-png-canvas");
+  if (!r || !cv) return;
+  const ctx = cv.getContext("2d"), out = ctx.createImageData(320, 200);
+  const pal = _HG_PNG_PALETTES[_hgPng.opts.palette] || _HG_PNG_PALETTES.pepto;
+  for (let y = 0; y < 200; y++) for (let x = 0; x < 320; x++) {
+    const c = pal[r.pix[y * r.w + (r.multi ? x >> 1 : x)]], i = (y * 320 + x) * 4;
+    out.data[i] = c >> 16; out.data[i + 1] = (c >> 8) & 255; out.data[i + 2] = c & 255; out.data[i + 3] = 255;
+  }
+  ctx.putImageData(out, 0, 0);
+}
+function _hgPngStatus(text) {
+  const el = document.getElementById("hg-png-status");
+  if (el) el.textContent = text || "";
+}
+function _hgPngRun() {
+  if (!_hgPng.img) return;
+  const seq = ++_hgPng.seq;
+  _hgPngStatus(t("hgPngWorking"));
+  // one frame for the status text, then the (synchronous) conversion
+  setTimeout(function() {
+    if (seq !== _hgPng.seq) return;
+    const multi = _hgPng.opts.mode === "multi";
+    _hgPng.result = _hgPngConvert(_hgPngScaled(), multi ? 160 : 320, 200, multi, _hgPng.opts);
+    _hgPngRender();
+    _hgPngStatus(multi ? tf("hgPngBg", { c: _hgPng.result.bg }) : "");
+  }, 16);
+}
+function _hgPngChanged() {
+  _hgPngSaveOpts();
+  clearTimeout(_hgPng.timer);
+  _hgPng.timer = setTimeout(_hgPngRun, 120);
+}
+function _hgPngOpen(img, name) {
+  const dlg = document.getElementById("hg-png-dialog");
+  if (!dlg) { _hgImportImage(img); return; }
+  _hgPng.img = img;
+  _hgPng.name = name || "";
+  _hgPng.result = null;
+  _hgPng.opts = _hgPngLoadOpts();
+  _hgPngViewZoom(1);
+  const file = document.getElementById("hg-png-file");
+  if (file) file.textContent = _hgPng.name;
+  _hgPngBuildSettings();
+  dlg._applyPosition?.();
+  if (!dlg.open) dlg.showModal();
+  _hgPngRun();
+}
+function _hgPngApply() {
+  const r = _hgPng.result;
+  if (!r) return;
+  _hgPushUndo();
+  if (r.multi) {
+    _hgMulti = true;
+    _hgPaper = r.bg;
+    _hgUpdatePaperSwatch();
+    _hgPixMC.set(r.pix);
+  } else {
+    _hgMulti = false;
+    for (let c = 0; c < 1000; c++) {
+      const set = r.sets[c], cx = (c % 40) * 8, cy = Math.floor(c / 40) * 8;
+      _hgBgCell[c] = set[0];
+      _hgFgCell[c] = set[1];
+      for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) {
+        const i = (cy + y) * 320 + cx + x;
+        _hgBit[i] = r.pix[i] === set[1] ? 1 : 0;
+      }
+    }
+  }
+  const mc = document.getElementById("hg-multicolor");
+  if (mc) mc.checked = _hgMulti;
+  _hgRenderAll();
+  document.getElementById("hg-png-dialog")?.close();
+}
+// Magnifies the preview inside its scrolling view; the point under the cursor
+// (or the centre) stays in place.
+function _hgPngViewZoom(z, ev) {
+  const view = document.getElementById("hg-png-view");
+  if (!view) return;
+  z = Math.max(1, Math.min(8, Math.round(z * 4) / 4));
+  const r = view.getBoundingClientRect();
+  const ax = ev ? ev.clientX - r.left : view.clientWidth / 2, ay = ev ? ev.clientY - r.top : view.clientHeight / 2;
+  const fx = (view.scrollLeft + ax) / Math.max(1, view.scrollWidth), fy = (view.scrollTop + ay) / Math.max(1, view.scrollHeight);
+  _hgPng.view = z;
+  view.style.setProperty("--hg-png-zoom", String(z));
+  view.scrollLeft = fx * view.scrollWidth - ax;
+  view.scrollTop = fy * view.scrollHeight - ay;
+  const slider = document.getElementById("hg-png-zoom"), val = document.getElementById("hg-png-zoom-val");
+  if (slider) slider.value = String(z);
+  if (val) val.textContent = z.toFixed(2) + "×";
+}
+function _setupHgPngDialog() {
+  const dlg = document.getElementById("hg-png-dialog");
+  if (!dlg) return;
+  const close = function() { dlg.close(); };
+  document.getElementById("hg-png-close")?.addEventListener("click", close);
+  document.getElementById("hg-png-cancel")?.addEventListener("click", close);
+  document.getElementById("hg-png-apply")?.addEventListener("click", _hgPngApply);
+  document.getElementById("hg-png-reset")?.addEventListener("click", function() {
+    _hgPng.opts = Object.assign({}, _HG_PNG_DEFAULTS, { mode: _hgPng.opts.mode });
+    _hgPngBuildSettings();
+    _hgPngChanged();
+  });
+  dlg.addEventListener("close", function() { _hgPng.seq++; _hgPng.img = null; _hgPng.result = null; });
+  // preview zoom: the slider, or Ctrl + wheel around the cursor; scrollbars move the view
+  document.getElementById("hg-png-zoom")?.addEventListener("input", function(e) { _hgPngViewZoom(Number(e.target.value)); });
+  document.getElementById("hg-png-view")?.addEventListener("wheel", function(e) {
+    if (!e.ctrlKey) return;
+    e.preventDefault();
+    _hgPngViewZoom(_hgPng.view * (e.deltaY < 0 ? 1.25 : 0.8), e);
+  }, { passive: false });
+}
+
 function _hgImportImage(img) {
   const W = _hgW(), H = _hgH();
   const tmp = document.createElement("canvas");
@@ -37065,14 +39338,13 @@ function _hgIsImageFile(file) {
 function _hgImportImageFile(file) {
   const loadFromObjectUrl = function() {
     const img = new Image();
-    img.onload = function() { _hgImportImage(img); URL.revokeObjectURL(img.src); };
+    img.onload = function() { _hgPngOpen(img, file.name); URL.revokeObjectURL(img.src); };
     img.onerror = function() { URL.revokeObjectURL(img.src); };
     img.src = URL.createObjectURL(file);
   };
   if (window.createImageBitmap) {
     createImageBitmap(file).then(function(bitmap) {
-      _hgImportImage(bitmap);
-      if (bitmap && bitmap.close) bitmap.close();
+      _hgPngOpen(bitmap, file.name);
     }, function() {
       loadFromObjectUrl();
     });
@@ -37304,6 +39576,7 @@ function _hgImportKoala(src) {
 function setupHiresEditor() {
   const dialog = document.getElementById("hires-editor-dialog");
   if (!dialog) return;
+  _setupHgPngDialog();
 
   document.getElementById("hires-editor-btn")?.addEventListener("click", function() {
     document.querySelector(".control-menu")?.removeAttribute("open");
@@ -37452,9 +39725,9 @@ function setupHiresEditor() {
 
   // Import
   const impFile = document.getElementById("hg-import-file");
-  document.getElementById("hg-import")?.addEventListener("click", function() { impFile?.click(); });
-  impFile?.addEventListener("change", function(e) {
-    const file = e.target.files && e.target.files[0];
+  // one entry for the Files menu, the toolbar button, drag and drop and pasted pictures:
+  // a picture opens the import dialog, a .bin / .koa loads directly
+  const importFile = function(file) {
     if (!file) return;
     if (_hgIsBinFile(file) && !_hgIsImageFile(file)) {
       const reader = new FileReader();
@@ -37466,6 +39739,41 @@ function setupHiresEditor() {
     } else {
       _hgImportImageFile(file);
     }
+  };
+  document.getElementById("hg-import")?.addEventListener("click", function() { impFile?.click(); });
+  // the toolbar button and Files → Image import pick pictures only
+  const imgFile = document.getElementById("hg-image-file");
+  document.getElementById("hg-import-image")?.addEventListener("click", function() { imgFile?.click(); });
+  document.getElementById("hg-import-png")?.addEventListener("click", function() { imgFile?.click(); });
+  imgFile?.addEventListener("change", function(e) {
+    const file = e.target.files && e.target.files[0];
+    if (file) _hgImportImageFile(file);
+    e.target.value = "";
+  });
+  const hgCard = dialog.querySelector(".hg-card");
+  hgCard?.addEventListener("dragover", function(e) {
+    if (Array.from(e.dataTransfer?.types || []).includes("Files")) { e.preventDefault(); hgCard.classList.add("hg-dragover"); }
+  });
+  hgCard?.addEventListener("dragleave", function(e) { if (!hgCard.contains(e.relatedTarget)) hgCard.classList.remove("hg-dragover"); });
+  hgCard?.addEventListener("drop", function(e) {
+    const file = e.dataTransfer?.files && e.dataTransfer.files[0];
+    hgCard.classList.remove("hg-dragover");
+    if (!file) return;
+    e.preventDefault();
+    importFile(file);
+  });
+  // a picture on the clipboard (e.g. a screenshot); Ctrl+V of an editor selection is handled on keydown
+  dialog.addEventListener("paste", function(e) {
+    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+    const item = Array.from(e.clipboardData?.items || []).find(function(it) { return it.kind === "file" && it.type.startsWith("image/"); });
+    const file = item && item.getAsFile();
+    if (!file) return;
+    e.preventDefault();
+    _hgImportImageFile(file);
+  });
+  impFile?.addEventListener("change", function(e) {
+    const file = e.target.files && e.target.files[0];
+    importFile(file);
     e.target.value = "";
   });
 
@@ -37511,10 +39819,12 @@ function setupHiresEditor() {
   // Canvas interaction
   const canvas = document.getElementById("hg-canvas");
   const applyPoint = function(x, y) {
-    const col = _hgTool === "eraser" ? _hgPaper : _hgColor;
-    _hgSet(x, y, col);
+    if (_hgTool === "eraser") _hgErase(x, y);
+    else if (_hgTool === "cellpaper") _hgSetCellBg(x, y, _hgColor);
+    else _hgSet(x, y, _hgColor);
     _hgRedrawCellBuf(x, y);
   };
+  const isFreehand = function() { return _hgTool === "pencil" || _hgTool === "eraser" || _hgTool === "cellpaper"; };
   canvas.addEventListener("pointerdown", function(e) {
     if (e.button !== 0) return;
     _hgInit();
@@ -37543,7 +39853,7 @@ function setupHiresEditor() {
     }
     _hgPushUndo();
     _hgPainting = true; _hgStart = p; _hgLast = p;
-    if (_hgTool === "pencil" || _hgTool === "eraser") { applyPoint(p.x, p.y); _hgBlit(); }
+    if (isFreehand()) { applyPoint(p.x, p.y); _hgBlit(); }
     else if (_hgTool === "spray") { _hgSpray(p.x, p.y, _hgColor); _hgBlit(); }
     else if (_hgTool === "fill") { _hgFloodFill(p.x, p.y, _hgColor); _hgRenderAll(); _hgPainting = false; }
     e.preventDefault();
@@ -37565,9 +39875,9 @@ function setupHiresEditor() {
       _hgBlit();
       return;
     }
-    const col = _hgTool === "eraser" ? _hgPaper : _hgColor;
-    if (_hgTool === "pencil" || _hgTool === "eraser") {
-      _hgLine(_hgLast.x, _hgLast.y, p.x, p.y, function(x, y) { _hgSet(x, y, col); _hgRedrawCellBuf(x, y); });
+    const col = _hgColor;
+    if (isFreehand()) {
+      _hgLine(_hgLast.x, _hgLast.y, p.x, p.y, applyPoint);
       _hgLast = p; _hgBlit();
     } else if (_hgTool === "spray") {
       _hgSpray(p.x, p.y, _hgColor);
@@ -37593,7 +39903,7 @@ function setupHiresEditor() {
       if (e && e.pointerId != null) { try { canvas.releasePointerCapture(e.pointerId); } catch (_) {} }
       return;
     }
-    if (_hgTool !== "pencil" && _hgTool !== "eraser" && _hgTool !== "spray" && _hgTool !== "fill") {
+    if (!isFreehand() && _hgTool !== "spray" && _hgTool !== "fill") {
       const col = _hgColor;
       const set = function(x, y) { _hgSet(x, y, col); };
       _hgPreviewShape(_hgStart, p, set);
@@ -37641,14 +39951,18 @@ function _setupFileMenus() {
 /* =======================================================
    SPRITE EDITOR (24x21 hi-res / 12x21 multicolor, animated)
    ======================================================= */
-const _SP_W = 24, _SP_H = 21;
+// One hardware sprite is _SP_PW × _SP_PH. A frame is a metasprite of _spCols × _spRows
+// sprites edited as one picture of _SP_W × _SP_H pixels; exports split it into sprites.
+const _SP_PW = 24, _SP_PH = 21;
+let _SP_W = 24, _SP_H = 21;
+let _spCols = 1, _spRows = 1;
 let _spFrames = null;
 let _spFrame = 0;
 let _spMulti = false;
 let _spGrid = true;
 let _spZoom = 13;
 let _spSlot = "sprite";
-let _spCol = { sprite: 1, bg: 6, mc1: 0, mc2: 11 };
+let _spCol = { sprite: 1, bg: 6, mc1: 0, mc2: 11, ov: 0 };
 let _spWrap = false;
 let _spTool = "pencil";
 let _spPainting = false, _spPaintVal = 0;
@@ -37660,49 +39974,81 @@ let _spPlay = null;
 let _spPlayDir = 1;
 let _spPingPong = false, _spOnion = false, _spFps = 6;
 let _spUndo = [], _spRedo = [];
+// Hi-res overlay: a second, single-colour hi-res sprite over each frame (e.g. a
+// black outline over a multicolor body — the classic two-sprite trick). It has
+// its own pixel arrays (0/1) parallel to _spFrames; on the C64 it is a separate
+// sprite with a lower number, so it is drawn over the body.
+let _spOverlay = false;
+let _spOv = null;           // per frame Uint8Array(_SP_W*_SP_H), 0/1
+let _spLayer = "base";      // "base" | "ov" — the layer the tools edit
 
-function _spCur() { return _spFrames[_spFrame]; }
+function _spOnOv() { return _spOverlay && _spLayer === "ov"; }
+function _spLM() { return _spMulti && !_spOnOv(); }   // multicolor pixel pairs on the edited layer
+function _spCur() { return _spOnOv() ? _spOv[_spFrame] : _spFrames[_spFrame]; }
+function _spNewFrame() { return new Uint8Array(_SP_W*_SP_H); }
 function _spGet(x, y) { return (x<0||y<0||x>=_SP_W||y>=_SP_H) ? 0 : _spCur()[y*_SP_W+x]; }
 function _spSet(x, y, v) {
   if (x<0||y<0||x>=_SP_W||y>=_SP_H) return;
   const f = _spCur();
-  if (_spMulti) { const x0 = x & ~1; f[y*_SP_W+x0] = v; f[y*_SP_W+x0+1] = v; }
+  if (_spLM()) { const x0 = x & ~1; f[y*_SP_W+x0] = v; f[y*_SP_W+x0+1] = v; }
   else f[y*_SP_W+x] = v;
 }
 function _spSlotVal(slot) {
   if (slot === "bg") return 0;
+  if (_spOnOv()) return 1;
   if (_spMulti) return slot === "mc1" ? 1 : slot === "mc2" ? 3 : 2;
   return 1;
 }
-function _spPenColor(v) {
+function _spBaseColor(v) {
   if (v === 0) return _spCol.bg;
   if (!_spMulti) return _spCol.sprite;
   return v === 1 ? _spCol.mc1 : v === 3 ? _spCol.mc2 : _spCol.sprite;
+}
+function _spPenColor(v) {
+  if (_spOnOv()) return v ? _spCol.ov : _spCol.bg;
+  return _spBaseColor(v);
+}
+// Run fn on every layer of a frame (flip / shift / rotate keep the layers aligned).
+function _spEachLayer(i, fn) {
+  fn(_spFrames[i]);
+  if (_spOverlay) fn(_spOv[i]);
 }
 
 function _spRender() {
   const W = _SP_W * _spZoom, H = _SP_H * _spZoom;
   if (_spCanvas.width !== W) { _spCanvas.width = W; _spCanvas.height = H; }
   const z = _spZoom;
+  const base = _spFrames[_spFrame];
   for (let y = 0; y < _SP_H; y++)
     for (let x = 0; x < _SP_W; x++) {
-      _spCtx.fillStyle = _CE_COLORS[_spPenColor(_spCur()[y*_SP_W+x])];
+      _spCtx.fillStyle = _CE_COLORS[_spBaseColor(base[y*_SP_W+x])];
       _spCtx.fillRect(x*z, y*z, z, z);
     }
   if (_spOnion && _spFrames.length > 1) {
-    const prev = _spFrames[(_spFrame - 1 + _spFrames.length) % _spFrames.length];
+    const pi = (_spFrame - 1 + _spFrames.length) % _spFrames.length;
+    const prev = _spFrames[pi], prevOv = _spOverlay ? _spOv[pi] : null;
     _spCtx.globalAlpha = 0.3;
     for (let y = 0; y < _SP_H; y++)
       for (let x = 0; x < _SP_W; x++) {
-        const v = prev[y*_SP_W+x];
-        if (v !== 0) { _spCtx.fillStyle = _CE_COLORS[_spPenColor(v)]; _spCtx.fillRect(x*z, y*z, z, z); }
+        const i = y*_SP_W+x, v = prev[i];
+        if (prevOv && prevOv[i]) { _spCtx.fillStyle = _CE_COLORS[_spCol.ov]; _spCtx.fillRect(x*z, y*z, z, z); }
+        else if (v !== 0) { _spCtx.fillStyle = _CE_COLORS[_spBaseColor(v)]; _spCtx.fillRect(x*z, y*z, z, z); }
       }
+    _spCtx.globalAlpha = 1;
+  }
+  if (_spOverlay) {
+    // the overlay is dimmed while the body is edited, so both stay readable
+    const ov = _spOv[_spFrame];
+    _spCtx.globalAlpha = _spOnOv() ? 1 : 0.55;
+    _spCtx.fillStyle = _CE_COLORS[_spCol.ov];
+    for (let y = 0; y < _SP_H; y++)
+      for (let x = 0; x < _SP_W; x++) if (ov[y*_SP_W+x]) _spCtx.fillRect(x*z, y*z, z, z);
     _spCtx.globalAlpha = 1;
   }
   if (_spGrid) {
     _spCtx.strokeStyle = "rgba(255,255,255,0.12)"; _spCtx.lineWidth = 1;
     _spCtx.beginPath();
-    const step = _spMulti ? 2 : 1;
+    const step = _spLM() ? 2 : 1;
     for (let x = 0; x <= _SP_W; x += step) { _spCtx.moveTo(x*z+0.5, 0); _spCtx.lineTo(x*z+0.5, H); }
     for (let y = 0; y <= _SP_H; y++) { _spCtx.moveTo(0, y*z+0.5); _spCtx.lineTo(W, y*z+0.5); }
     _spCtx.stroke();
@@ -37710,24 +40056,39 @@ function _spRender() {
     for (let x = 0; x <= _SP_W; x += 8) { _spCtx.moveTo(x*z+0.5, 0); _spCtx.lineTo(x*z+0.5, H); }
     _spCtx.stroke();
   }
+  if (_spCols > 1 || _spRows > 1) {
+    // the borders of the sprites of the metasprite
+    _spCtx.strokeStyle = "rgba(255,216,79,0.85)"; _spCtx.lineWidth = 2; _spCtx.beginPath();
+    for (let c = 1; c < _spCols; c++) { _spCtx.moveTo(c*_SP_PW*z, 0); _spCtx.lineTo(c*_SP_PW*z, H); }
+    for (let r = 1; r < _spRows; r++) { _spCtx.moveTo(0, r*_SP_PH*z); _spCtx.lineTo(W, r*_SP_PH*z); }
+    _spCtx.stroke(); _spCtx.lineWidth = 1;
+  }
+  _spDrawMarks();
+  _spHitInfo();
   _spRenderPreview();
   _spRenderThumbs();
   const fl = document.getElementById("se-frame-label");
   if (fl) fl.textContent = t("seFrame") + " " + (_spFrame+1) + " / " + _spFrames.length;
 }
-function _spDrawFrameTo(ctx, frame, cw, ch) {
-  const zx = cw / _SP_W, zy = ch / _SP_H;
+// Frame i scaled into cw × ch, centred; ex / ey = 2 shows the $D01D / $D017 expansion.
+function _spDrawFrameTo(ctx, i, cw, ch, ex = 1, ey = 1) {
+  const frame = _spFrames[i], ov = _spOverlay ? _spOv[i] : null;
+  const zx0 = Math.min(cw / (_SP_W * ex), ch / (_SP_H * ey));
+  const zx = zx0 * ex, zy = zx0 * ey;
+  const ox = (cw - _SP_W * zx) / 2, oy = (ch - _SP_H * zy) / 2;
   ctx.clearRect(0,0,cw,ch);
-  ctx.fillStyle = _CE_COLORS[_spCol.bg]; ctx.fillRect(0,0,cw,ch);
+  ctx.fillStyle = _CE_COLORS[_spCol.bg]; ctx.fillRect(ox, oy, _SP_W * zx, _SP_H * zy);
   for (let y = 0; y < _SP_H; y++)
     for (let x = 0; x < _SP_W; x++) {
       const v = frame[y*_SP_W+x];
-      if (v !== 0) { ctx.fillStyle = _CE_COLORS[_spPenColor(v)]; ctx.fillRect(Math.floor(x*zx), Math.floor(y*zy), Math.ceil(zx), Math.ceil(zy)); }
+      const c = ov && ov[y*_SP_W+x] ? _spCol.ov : v !== 0 ? _spBaseColor(v) : -1;
+      if (c >= 0) { ctx.fillStyle = _CE_COLORS[c]; ctx.fillRect(Math.floor(ox + x*zx), Math.floor(oy + y*zy), Math.ceil(zx), Math.ceil(zy)); }
     }
 }
+let _spExpX = false, _spExpY = false;
 function _spRenderPreview() {
   const c = document.getElementById("se-preview"); if (!c) return;
-  _spDrawFrameTo(c.getContext("2d"), _spCur(), c.width, c.height);
+  _spDrawFrameTo(c.getContext("2d"), _spFrame, c.width, c.height, _spExpX ? 2 : 1, _spExpY ? 2 : 1);
 }
 function _spRenderThumbs() {
   const wrap = document.getElementById("se-anim-frames"); if (!wrap) return;
@@ -37737,7 +40098,7 @@ function _spRenderThumbs() {
     cv.width = 48; cv.height = 42;
     cv.className = "se-frame-thumb" + (i === _spFrame ? " se-frame-thumb--active" : "");
     cv.title = t("seFrame") + " " + (i+1);
-    _spDrawFrameTo(cv.getContext("2d"), fr, 48, 42);
+    _spDrawFrameTo(cv.getContext("2d"), i, 48, 42);
     cv.addEventListener("click", function() { _spStop(); _spFrame = i; _spRender(); });
     cv.addEventListener("contextmenu", function(e) { _spStop(); _spFrame = i; _spRender(); _spShowCtxMenu(e); });
     wrap.appendChild(cv);
@@ -37757,7 +40118,9 @@ function _spShowCtxMenu(e) {
 function _spBuildColors() {
   const wrap = document.getElementById("se-colors"); if (!wrap) return;
   wrap.innerHTML = "";
-  const slots = _spMulti
+  const slots = _spOnOv()
+    ? [["ov",t("seOverlayColor")],["bg",t("seBackground")]]
+    : _spMulti
     ? [["sprite",t("seSpriteColor")],["mc1",t("seMultiColor1")],["mc2",t("seMultiColor2")],["bg",t("seBackground")]]
     : [["sprite",t("seSpriteColor")],["bg",t("seBackground")]];
   slots.forEach(function(s) {
@@ -37780,27 +40143,74 @@ function _spBuildPalette() {
   });
 }
 
-function _spFrameBytes(frame) {
+// The 64 sprite bytes of part (pc, pr) of a frame (the whole frame for a single sprite).
+// `multi` = false for the hi-res overlay layer.
+function _spFrameBytes(frame, pc = 0, pr = 0, multi = _spMulti) {
   const out = new Uint8Array(64);
-  for (let y = 0; y < _SP_H; y++) {
+  const ox = pc * _SP_PW, oy = pr * _SP_PH;
+  for (let y = 0; y < _SP_PH; y++) {
+    const row = (oy + y) * _SP_W + ox;
     for (let b = 0; b < 3; b++) {
       let byte = 0;
-      if (_spMulti) {
-        for (let j = 0; j < 4; j++) { const v = frame[y*_SP_W + (b*4+j)*2] & 3; byte |= v << ((3-j)*2); }
+      if (multi) {
+        for (let j = 0; j < 4; j++) { const v = frame[row + (b*4+j)*2] & 3; byte |= v << ((3-j)*2); }
       } else {
-        for (let i = 0; i < 8; i++) { if (frame[y*_SP_W + b*8 + i]) byte |= 1 << (7-i); }
+        for (let i = 0; i < 8; i++) { if (frame[row + b*8 + i]) byte |= 1 << (7-i); }
       }
       out[y*3 + b] = byte;
     }
   }
   return out;
 }
+// Every sprite of frame i, left to right then top to bottom, 64 bytes each;
+// with the overlay on, its hi-res sprites follow the body's.
+function _spFrameAllBytes(i) {
+  const parts = _spCols * _spRows;
+  const out = new Uint8Array(parts * 64 * (_spOverlay ? 2 : 1));
+  for (let pr = 0; pr < _spRows; pr++)
+    for (let pc = 0; pc < _spCols; pc++) {
+      const k = pr * _spCols + pc;
+      out.set(_spFrameBytes(_spFrames[i], pc, pr), k * 64);
+      if (_spOverlay) out.set(_spFrameBytes(_spOv[i], pc, pr, false), (parts + k) * 64);
+    }
+  return out;
+}
+// Resize every frame to cols × rows sprites; the picture stays in the top left corner.
+function _spApplyDims(cols, rows) {
+  _spCols = cols; _spRows = rows;
+  _SP_W = _SP_PW * cols; _SP_H = _SP_PH * rows;
+  const sel = document.getElementById("se-layout");
+  if (sel) sel.value = cols + "x" + rows;
+}
+function _spSetLayout(cols, rows) {
+  if (cols === _spCols && rows === _spRows) return;
+  _spStop();
+  _spPushUndo();
+  const oldW = _SP_W, oldH = _SP_H;
+  _spApplyDims(cols, rows);
+  const resize = function(f) {
+    const n = new Uint8Array(_SP_W * _SP_H);
+    for (let y = 0; y < Math.min(oldH, _SP_H); y++)
+      for (let x = 0; x < Math.min(oldW, _SP_W); x++) n[y * _SP_W + x] = f[y * oldW + x];
+    return n;
+  };
+  _spFrames = _spFrames.map(resize);
+  _spOv = _spOv.map(resize);
+  _spClip = null;
+  // the biggest zoom that fits the drawing area (a single sprite: the default 13)
+  const wrap = document.getElementById("se-canvas-wrap");
+  const fit = wrap && wrap.clientWidth ? Math.floor(Math.min((wrap.clientWidth - 24) / _SP_W, (wrap.clientHeight - 24) / _SP_H)) : 0;
+  _spZoom = cols === 1 && rows === 1 ? 13 : Math.max(3, Math.min(20, fit || Math.round(13 / Math.max(cols, rows))));
+  const zoom = document.getElementById("se-zoom");
+  if (zoom) zoom.value = String(_spZoom);
+  _spRender();
+}
 function _spExportText() {
   const fmtEl = document.getElementById("se-export-fmt");
   const fmt = fmtEl ? fmtEl.value : "hex";
   const allEl = document.getElementById("se-export-all");
   const all = allEl && allEl.checked;
-  const frames = all ? _spFrames : [_spCur()];
+  const frames = all ? _spFrames : [_spFrames[_spFrame]];
   let out = "", line = 1000;
   frames.forEach(function(fr, fi) {
     const bytes = _spFrameBytes(fr);
@@ -37829,27 +40239,52 @@ function _spExportText() {
 }
 /* Current frame as comma-separated hex bytes ($xx, $xx, …) — 63 sprite bytes. */
 function _spHexCSV() {
-  const bytes = _spFrameBytes(_spCur());
-  const arr = [];
-  for (let i = 0; i < 63; i++) arr.push("$" + bytes[i].toString(16).toUpperCase().padStart(2,"0"));
-  return arr.join(", ");
+  const hex = function(bytes) {
+    const arr = [];
+    for (let i = 0; i < 63; i++) arr.push("$" + bytes[i].toString(16).toUpperCase().padStart(2,"0"));
+    return arr;
+  };
+  const body = _spFrames[_spFrame];
+  if (_spCols === 1 && _spRows === 1 && !_spOverlay) return hex(_spFrameBytes(body)).join(", ");
+  // metasprite: one labelled block per sprite with its X / Y offset in screen pixels
+  // (multicolor sprites are 24 screen pixels wide too; double them with $D01D / $D017)
+  const n = _spFrame + 1;
+  let out = "; " + (_spCols > 1 || _spRows > 1 ? "metasprite " + _spCols + "x" + _spRows + ", " : "") + "frame " + n +
+    " (sprites left to right, top to bottom)" + (_spOverlay ? "; _ov = hi-res overlay, give it a lower sprite number than the body" : "") + "\n";
+  const layers = _spOverlay ? [[body, "", _spMulti], [_spOv[_spFrame], "_ov", false]] : [[body, "", _spMulti]];
+  layers.forEach(function(layer) {
+    for (let pr = 0; pr < _spRows; pr++)
+      for (let pc = 0; pc < _spCols; pc++) {
+        const arr = hex(_spFrameBytes(layer[0], pc, pr, layer[2]));
+        out += "sprite_f" + n + layer[1] + "_" + (pr * _spCols + pc + 1) + ":  ; x +" + (pc * _SP_PW) + ", y +" + (pr * _SP_PH) + "\n";
+        for (let k = 0; k < 63; k += 21) out += "    .byte " + arr.slice(k, k + 21).join(", ") + "\n";
+      }
+  });
+  return out.replace(/\n$/, "");
 }
 function _spUpdateExport() {
   const el = document.getElementById("se-export-out");
   if (el) el.textContent = _spExportText();
 }
 
-function _spFlipH() { const f = _spCur(); for (let y=0;y<_SP_H;y++) for (let x=0;x<_SP_W/2;x++){ const i=y*_SP_W+x, j=y*_SP_W+(_SP_W-1-x); const t=f[i]; f[i]=f[j]; f[j]=t; } _spRender(); }
-function _spFlipV() { const f = _spCur(); for (let y=0;y<_SP_H/2;y++) for (let x=0;x<_SP_W;x++){ const i=y*_SP_W+x, j=(_SP_H-1-y)*_SP_W+x; const t=f[i]; f[i]=f[j]; f[j]=t; } _spRender(); }
+function _spFlipArrH(f) { for (let y=0;y<_SP_H;y++) for (let x=0;x<_SP_W/2;x++){ const i=y*_SP_W+x, j=y*_SP_W+(_SP_W-1-x); const t=f[i]; f[i]=f[j]; f[j]=t; } }
+function _spFlipArrV(f) { for (let y=0;y<_SP_H/2;y++) for (let x=0;x<_SP_W;x++){ const i=y*_SP_W+x, j=(_SP_H-1-y)*_SP_W+x; const t=f[i]; f[i]=f[j]; f[j]=t; } }
+function _spFlipH() { _spEachLayer(_spFrame, _spFlipArrH); _spRender(); }
+function _spFlipV() { _spEachLayer(_spFrame, _spFlipArrV); _spRender(); }
 function _spShift(dir) {
-  const f = _spCur(), n = new Uint8Array(_SP_W*_SP_H);
-  for (let y=0;y<_SP_H;y++) for (let x=0;x<_SP_W;x++) {
-    let sx=x, sy=y;
-    if (dir==="left") sx=x+1; else if (dir==="right") sx=x-1; else if (dir==="up") sy=y+1; else sy=y-1;
-    if (_spWrap) { sx=(sx+_SP_W)%_SP_W; sy=(sy+_SP_H)%_SP_H; n[y*_SP_W+x]=f[sy*_SP_W+sx]; }
-    else { n[y*_SP_W+x] = (sx<0||sy<0||sx>=_SP_W||sy>=_SP_H) ? 0 : f[sy*_SP_W+sx]; }
-  }
-  f.set(n); _spRender();
+  // multicolor moves by a whole (double-wide) pixel so the pairs stay aligned
+  const step = _spMulti && (dir === "left" || dir === "right") ? 2 : 1;
+  _spEachLayer(_spFrame, function(f) {
+    const n = new Uint8Array(_SP_W*_SP_H);
+    for (let y=0;y<_SP_H;y++) for (let x=0;x<_SP_W;x++) {
+      let sx=x, sy=y;
+      if (dir==="left") sx=x+step; else if (dir==="right") sx=x-step; else if (dir==="up") sy=y+1; else sy=y-1;
+      if (_spWrap) { sx=(sx+_SP_W)%_SP_W; sy=(sy+_SP_H)%_SP_H; n[y*_SP_W+x]=f[sy*_SP_W+sx]; }
+      else { n[y*_SP_W+x] = (sx<0||sy<0||sx>=_SP_W||sy>=_SP_H) ? 0 : f[sy*_SP_W+sx]; }
+    }
+    f.set(n);
+  });
+  _spRender();
 }
 
 function _spLine(x0, y0, x1, y1, set) {
@@ -37896,36 +40331,311 @@ function _spPreviewShape(a, b, val) {
   const z = _spZoom;
   const draw = function(x, y) {
     if (x < 0 || y < 0 || x >= _SP_W || y >= _SP_H) return;
-    if (_spMulti) x &= ~1;
+    if (_spLM()) x &= ~1;
     _spCtx.fillRect(x*z, y*z, z, z);
-    if (_spMulti && x + 1 < _SP_W) _spCtx.fillRect((x+1)*z, y*z, z, z);
+    if (_spLM() && x + 1 < _SP_W) _spCtx.fillRect((x+1)*z, y*z, z, z);
   };
   _spDrawShape(a, b, draw);
   _spCtx.restore();
+}
+
+/* ── Fill, selection, rotation, hitbox, mirrored animation ── */
+function _spFloodFill(x, y, v) {
+  const step = _spLM() ? 2 : 1, f = _spCur();
+  if (step === 2) x &= ~1;
+  const target = _spGet(x, y);
+  if (target === v) return;
+  const stack = [[x, y]];
+  while (stack.length) {
+    const [cx, cy] = stack.pop();
+    if (cx < 0 || cy < 0 || cx >= _SP_W || cy >= _SP_H || f[cy*_SP_W+cx] !== target) continue;
+    _spSet(cx, cy, v);
+    stack.push([cx+step, cy], [cx-step, cy], [cx, cy+1], [cx, cy-1]);
+  }
+}
+
+// The selection covers every layer of one frame, so body and overlay move together.
+let _spSel = null;      // { x, y, w, h, frame }
+let _spFloat = null;    // { x, y, w, h, layers: [Uint8Array] } pixels lifted while moving
+let _spSelDrag = null;  // { mode: "new", a } | { mode: "move", dx, dy }
+function _spLayers(i) { return _spOverlay ? [_spFrames[i], _spOv[i]] : [_spFrames[i]]; }
+function _spSelActive() { return _spSel && _spSel.frame === _spFrame ? _spSel : null; }
+// Rectangle of two corners, clipped; multicolor keeps whole pixel pairs.
+function _spSelNorm(a, b) {
+  let x0 = Math.max(0, Math.min(a.x, b.x)), y0 = Math.max(0, Math.min(a.y, b.y));
+  let x1 = Math.min(_SP_W - 1, Math.max(a.x, b.x)), y1 = Math.min(_SP_H - 1, Math.max(a.y, b.y));
+  if (_spMulti) { x0 &= ~1; x1 |= 1; }
+  return { x: x0, y: y0, w: x1 - x0 + 1, h: y1 - y0 + 1, frame: _spFrame };
+}
+function _spLift() {
+  const s = _spSel;
+  _spFloat = { x: s.x, y: s.y, w: s.w, h: s.h, layers: _spLayers(_spFrame).map(function(f) {
+    const px = new Uint8Array(s.w * s.h);
+    for (let y = 0; y < s.h; y++)
+      for (let x = 0; x < s.w; x++) {
+        const i = (s.y + y) * _SP_W + s.x + x;
+        px[y * s.w + x] = f[i]; f[i] = 0;
+      }
+    return px;
+  }) };
+}
+// Drop the lifted pixels (0 = transparent); the selection becomes the visible part.
+function _spStamp() {
+  const fl = _spFloat;
+  if (!fl) return;
+  _spLayers(_spFrame).forEach(function(f, k) {
+    const px = fl.layers[k];
+    for (let y = 0; y < fl.h; y++)
+      for (let x = 0; x < fl.w; x++) {
+        const tx = fl.x + x, ty = fl.y + y, v = px[y * fl.w + x];
+        if (v && tx >= 0 && ty >= 0 && tx < _SP_W && ty < _SP_H) f[ty * _SP_W + tx] = v;
+      }
+  });
+  _spFloat = null;
+  const s = _spSelNorm({ x: fl.x, y: fl.y }, { x: fl.x + fl.w - 1, y: fl.y + fl.h - 1 });
+  _spSel = s.w > 0 && s.h > 0 && fl.x < _SP_W && fl.y < _SP_H && fl.x + fl.w > 0 && fl.y + fl.h > 0 ? s : null;
+}
+function _spMoveSel(dx, dy) {
+  if (!_spSelActive()) return;
+  _spLift();
+  _spFloat.x += dx; _spFloat.y += dy;
+  _spStamp();
+}
+function _spClearSel() {
+  const s = _spSelActive();
+  if (!s) return;
+  _spLayers(_spFrame).forEach(function(f) {
+    for (let y = s.y; y < s.y + s.h; y++) f.fill(0, y * _SP_W + s.x, y * _SP_W + s.x + s.w);
+  });
+}
+// Rotate the selection (or the whole frame) by 90° around its centre; what falls
+// outside the frame is lost. Multicolor pairs are re-joined afterwards.
+function _spRotate(cw) {
+  const r = _spSelActive() || { x: 0, y: 0, w: _SP_W, h: _SP_H };
+  const cx = r.x + (r.w - 1) / 2, cy = r.y + (r.h - 1) / 2;
+  _spLayers(_spFrame).forEach(function(f, k) {
+    const src = f.slice(0);
+    for (let y = r.y; y < r.y + r.h; y++) f.fill(0, y * _SP_W + r.x, y * _SP_W + r.x + r.w);
+    for (let y = r.y; y < r.y + r.h; y++)
+      for (let x = r.x; x < r.x + r.w; x++) {
+        const v = src[y * _SP_W + x];
+        if (!v) continue;
+        const rx = x - cx, ry = y - cy;
+        const tx = Math.floor(cw ? cx - ry : cx + ry), ty = Math.floor(cw ? cy + rx : cy - rx);
+        if (tx >= 0 && ty >= 0 && tx < _SP_W && ty < _SP_H) f[ty * _SP_W + tx] = v;
+      }
+    if (k === 0 && _spMulti)
+      for (let i = 0; i < f.length; i += 2) { const v = f[i] || f[i + 1]; f[i] = v; f[i + 1] = v; }
+  });
+  if (_spSelActive()) {
+    const x = Math.round(cx - (r.h - 1) / 2), y = Math.round(cy - (r.w - 1) / 2);
+    _spSel = _spSelNorm({ x: x, y: y }, { x: x + r.h - 1, y: y + r.w - 1 });
+  }
+}
+
+// Hitbox per frame, in screen pixels from the top left of the (meta)sprite.
+let _spHit = [];
+let _spHitDrag = null;
+function _spHitSync() { while (_spHit.length < _spFrames.length) _spHit.push(null); _spHit.length = _spFrames.length; }
+// Bounding box of the set pixels of frame i (all layers), null if it is empty.
+function _spBounds(i) {
+  let x0 = _SP_W, y0 = _SP_H, x1 = -1, y1 = -1;
+  _spLayers(i).forEach(function(f) {
+    for (let y = 0; y < _SP_H; y++)
+      for (let x = 0; x < _SP_W; x++)
+        if (f[y * _SP_W + x]) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+  });
+  return x1 < 0 ? null : { x: x0, y: y0, w: x1 - x0 + 1, h: y1 - y0 + 1 };
+}
+// Hitbox table for every frame; a frame without a hitbox uses its pixel bounding box.
+function _spHitboxAsm() {
+  _spHitSync();
+  const boxes = _spFrames.map(function(_, i) { return _spHit[i] || _spBounds(i) || { x: 0, y: 0, w: 0, h: 0 }; });
+  const row = function(key) { return "    .byte " + boxes.map(function(b) { return b[key]; }).join(", "); };
+  return [
+    "; sprite hitboxes, one entry per frame: x / y offset from the sprite's top left",
+    "; (screen pixels, unexpanded), width, height",
+    ".const SPRITE_FRAMES = " + boxes.length,
+    "sprite_hit_x:", row("x"), "sprite_hit_y:", row("y"),
+    "sprite_hit_w:", row("w"), "sprite_hit_h:", row("h")
+  ].join("\n");
+}
+function _spHitInfo() {
+  const el = document.getElementById("se-hit-info");
+  if (!el) return;
+  const h = _spHit[_spFrame];
+  el.textContent = h ? h.x + "," + h.y + "  " + h.w + "×" + h.h : t("seHitNone");
+}
+
+// Append a horizontally mirrored copy of every frame (a walk cycle the other way).
+function _spMirrorAnim() {
+  _spHitSync();
+  const n = _spFrames.length;
+  for (let i = 0; i < n; i++) {
+    const b = _spFrames[i].slice(0), o = _spOv[i].slice(0);
+    _spFlipArrH(b); _spFlipArrH(o);
+    _spFrames.push(b); _spOv.push(o);
+    const h = _spHit[i];
+    _spHit.push(h ? { x: _SP_W - h.x - h.w, y: h.y, w: h.w, h: h.h } : null);
+  }
+}
+
+// Selection marquee, lifted pixels and the hitbox, drawn over the canvas.
+function _spDrawMarks() {
+  const z = _spZoom, ctx = _spCtx;
+  if (_spFloat) {
+    _spFloat.layers.forEach(function(px, k) {
+      for (let y = 0; y < _spFloat.h; y++)
+        for (let x = 0; x < _spFloat.w; x++) {
+          const v = px[y * _spFloat.w + x];
+          if (!v) continue;
+          ctx.fillStyle = _CE_COLORS[k ? _spCol.ov : _spBaseColor(v)];
+          ctx.fillRect((_spFloat.x + x) * z, (_spFloat.y + y) * z, z, z);
+        }
+    });
+  }
+  const h = _spHit[_spFrame];
+  if (h) {
+    ctx.save();
+    ctx.strokeStyle = "#3df0ff"; ctx.lineWidth = 2; ctx.setLineDash([5, 3]);
+    ctx.strokeRect(h.x * z + 1, h.y * z + 1, h.w * z - 2, h.h * z - 2);
+    ctx.restore();
+  }
+  const s = _spSelActive();
+  if (s) {
+    ctx.save();
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "#000"; ctx.strokeRect(s.x * z + 0.5, s.y * z + 0.5, s.w * z - 1, s.h * z - 1);
+    ctx.strokeStyle = "#fff"; ctx.setLineDash([4, 3]); ctx.strokeRect(s.x * z + 0.5, s.y * z + 0.5, s.w * z - 1, s.h * z - 1);
+    ctx.restore();
+  }
+}
+
+/* ── Sprite sheet import: a grid of cells → frames, OKLab colour matching ── */
+const _SP_SHEET_DEFAULTS = { cellW: 0, cellH: 0, offX: 0, offY: 0, gapX: 0, gapY: 0, count: 0, colors: "auto", dither: "none", replace: true };
+let _spSheet = null;   // { src: canvas, name, opts, result }
+// Cell rectangles of the sheet, row by row (cells that do not fit are skipped).
+function _spSheetCells(o, W, H) {
+  const cells = [];
+  const cw = o.cellW || _SP_W, ch = o.cellH || _SP_H;
+  for (let y = o.offY; y + ch <= H; y += ch + o.gapY)
+    for (let x = o.offX; x + cw <= W; x += cw + o.gapX) {
+      cells.push({ x: x, y: y, w: cw, h: ch });
+      if (o.count && cells.length >= o.count) return cells;
+    }
+  return cells;
+}
+// Each cell is scaled (nearest) to the sprite's logical size — 12 pixels wide per
+// sprite in multicolor — and every pixel is matched to the sprite's colours in OKLab.
+function _spSheetConvert(src, o) {
+  const lw = _spMulti ? _SP_W / 2 : _SP_W, lh = _SP_H;
+  const cells = _spSheetCells(o, src.width, src.height);
+  const cv = document.createElement("canvas");
+  cv.width = lw; cv.height = lh;
+  const ctx = cv.getContext("2d", { willReadFrequently: true });
+  ctx.imageSmoothingEnabled = false;
+  const datas = cells.map(function(c) {
+    ctx.clearRect(0, 0, lw, lh);
+    ctx.drawImage(src, c.x, c.y, c.w, c.h, 0, 0, lw, lh);
+    return ctx.getImageData(0, 0, lw, lh).data;
+  });
+  const col = Object.assign({}, _spCol);
+  if (o.colors === "auto" && datas.length) {
+    const all = new Uint8ClampedArray(datas.length * lw * lh * 4);
+    datas.forEach(function(d, i) { all.set(d, i * d.length); });
+    _spAutoPalette(all, col);
+  }
+  const choices = _spMulti ? [[0, col.bg], [1, col.mc1], [2, col.sprite], [3, col.mc2]] : [[0, col.bg], [1, col.sprite]];
+  const lab = choices.map(function(c) { const h = _CE_COLORS[c[1]]; return _hgOklab(parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)); });
+  const d2 = function(a, b) { return (a[0]-b[0])*(a[0]-b[0]) + (a[1]-b[1])*(a[1]-b[1]) + (a[2]-b[2])*(a[2]-b[2]); };
+  const bayer = _hgBayer(4);
+  const frames = datas.map(function(d) {
+    const fr = _spNewFrame();
+    const err = o.dither === "fs" ? new Float32Array(lw * lh * 3) : null;
+    for (let y = 0; y < lh; y++)
+      for (let x = 0; x < lw; x++) {
+        const i = (y * lw + x) * 4;
+        let v = 0;
+        if (d[i + 3] >= 48) {
+          const p = _hgOklab(d[i], d[i + 1], d[i + 2]);
+          if (err) { const e3 = (y * lw + x) * 3; p[0] += err[e3]; p[1] += err[e3 + 1]; p[2] += err[e3 + 2]; }
+          // the two nearest colours; ordered dithering mixes them by the pixel's position between them
+          let a = 0, b = -1;
+          for (let k = 1; k < lab.length; k++) {
+            if (d2(p, lab[k]) < d2(p, lab[a])) { b = a; a = k; }
+            else if (b < 0 || d2(p, lab[k]) < d2(p, lab[b])) b = k;
+          }
+          let pick = a;
+          if (o.dither === "ordered" && b >= 0) {
+            const da = Math.sqrt(d2(p, lab[a])), db = Math.sqrt(d2(p, lab[b]));
+            const tpos = da / Math.max(1e-6, da + db);
+            if (tpos > bayer(x, y)) pick = b;
+          }
+          v = choices[pick][0];
+          if (err) {
+            const q = lab[pick], ex = [p[0] - q[0], p[1] - q[1], p[2] - q[2]];
+            [[1, 0, 7], [-1, 1, 3], [0, 1, 5], [1, 1, 1]].forEach(function(n) {
+              const nx = x + n[0], ny = y + n[1];
+              if (nx < 0 || nx >= lw || ny >= lh) return;
+              const e3 = (ny * lw + nx) * 3;
+              for (let c = 0; c < 3; c++) err[e3 + c] += ex[c] * n[2] / 16;
+            });
+          }
+        }
+        if (_spMulti) { fr[y * _SP_W + x * 2] = v; fr[y * _SP_W + x * 2 + 1] = v; }
+        else fr[y * _SP_W + x] = v;
+      }
+    return fr;
+  });
+  return { frames: frames, col: col, cells: cells };
 }
 
 function _spSnapshot() {
   return {
     frame: _spFrame,
     multi: _spMulti,
-    col: { sprite: _spCol.sprite, bg: _spCol.bg, mc1: _spCol.mc1, mc2: _spCol.mc2 },
-    frames: _spFrames.map(function(frame) { return frame.slice(0); })
+    cols: _spCols, rows: _spRows,
+    col: Object.assign({}, _spCol),
+    frames: _spFrames.map(function(frame) { return frame.slice(0); }),
+    overlay: _spOverlay, layer: _spLayer,
+    ov: _spOv.map(function(frame) { return frame.slice(0); }),
+    hit: _spHit.map(function(h) { return h ? Object.assign({}, h) : null; })
   };
 }
 function _spRestore(snapshot) {
   if (!snapshot || !snapshot.frames || !snapshot.frames.length) return;
   _spStop();
+  _spApplyDims(snapshot.cols || 1, snapshot.rows || 1);
   _spFrames = snapshot.frames.map(function(frame) { return frame.slice(0); });
+  _spOv = snapshot.ov && snapshot.ov.length === _spFrames.length
+    ? snapshot.ov.map(function(frame) { return frame.slice(0); })
+    : _spFrames.map(function() { return _spNewFrame(); });
   _spFrame = Math.min(Math.max(0, snapshot.frame || 0), _spFrames.length - 1);
   _spMulti = !!snapshot.multi;
-  _spCol = { sprite: snapshot.col.sprite, bg: snapshot.col.bg, mc1: snapshot.col.mc1, mc2: snapshot.col.mc2 };
-  if (!_spMulti && (_spSlot === "mc1" || _spSlot === "mc2")) _spSlot = "sprite";
+  _spOverlay = !!snapshot.overlay;
+  _spLayer = _spOverlay && snapshot.layer === "ov" ? "ov" : "base";
+  _spCol = Object.assign({ ov: 0 }, snapshot.col);
+  _spHit = (snapshot.hit || []).map(function(h) { return h ? Object.assign({}, h) : null; });
+  _spSel = null; _spFloat = null; _spSelDrag = null; _spHitDrag = null;
+  _spFixSlot();
   _spPainting = false;
   _spShapeStart = null;
   const multiEl = document.getElementById("se-multicolor");
   if (multiEl) multiEl.checked = _spMulti;
+  _spSyncLayerUi();
   _spBuildColors();
   _spRender();
+}
+// The selected colour slot must exist on the edited layer.
+function _spFixSlot() {
+  if (_spOnOv()) { if (_spSlot !== "bg") _spSlot = "ov"; }
+  else if (_spSlot === "ov" || (!_spMulti && (_spSlot === "mc1" || _spSlot === "mc2"))) _spSlot = "sprite";
+}
+function _spSyncLayerUi() {
+  const ovEl = document.getElementById("se-overlay");
+  if (ovEl) ovEl.checked = _spOverlay;
+  const layerEl = document.getElementById("se-layer");
+  if (layerEl) { layerEl.hidden = !_spOverlay; layerEl.value = _spLayer; }
 }
 function _spPushUndo() {
   if (!_spFrames) return;
@@ -37963,7 +40673,8 @@ function _spTogglePlay() {
 function _spInit() {
   if (_spInited) return;
   _spInited = true;
-  _spFrames = [new Uint8Array(_SP_W*_SP_H)];
+  _spFrames = [_spNewFrame()];
+  _spOv = [_spNewFrame()];
   _spCanvas = document.getElementById("se-canvas");
   _spCtx = _spCanvas.getContext("2d");
   _spBuildColors();
@@ -37986,8 +40697,14 @@ function setupSpriteEditor() {
       e.preventDefault(); return;
     }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "y") {
-      _spRedoOp(); e.preventDefault();
+      _spRedoOp(); e.preventDefault(); return;
     }
+    if (e.target.closest("input, select, textarea") || !_spSelActive()) return;
+    if (e.key === "Escape") { _spSel = null; _spRender(); e.preventDefault(); e.stopPropagation(); return; }
+    if (e.key === "Delete" || e.key === "Backspace") { _spPushUndo(); _spClearSel(); _spRender(); e.preventDefault(); return; }
+    const step = _spMulti ? 2 : 1;
+    const moves = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+    if (moves[e.key]) { _spPushUndo(); _spMoveSel(moves[e.key][0], moves[e.key][1]); _spRender(); e.preventDefault(); }
   });
 
   const canvas = document.getElementById("se-canvas");
@@ -37999,15 +40716,38 @@ function setupSpriteEditor() {
   dialog.querySelectorAll(".se-tool[data-tool]").forEach(function(btn) {
     btn.addEventListener("click", function() {
       _spTool = btn.dataset.tool || "pencil";
+      if (_spTool !== "select" && _spSel) { _spSel = null; _spRender(); }
       dialog.querySelectorAll(".se-tool[data-tool]").forEach(function(b) { b.classList.toggle("se-tool--active", b === btn); });
     });
   });
+  const clampCell = function(p) { return { x: Math.max(0, Math.min(_SP_W - 1, p.x)), y: Math.max(0, Math.min(_SP_H - 1, p.y)) }; };
   canvas.addEventListener("pointerdown", function(e) {
     if (e.button !== 0) return;
     _spInit();
     const p = cellFromEvent(e);
     if (p.x<0||p.y<0||p.x>=_SP_W||p.y>=_SP_H) return;
     try { canvas.setPointerCapture(e.pointerId); } catch(_){}
+    if (_spTool === "fill") {
+      _spPushUndo(); _spFloodFill(p.x, p.y, _spSlotVal(_spSlot)); _spRender();
+      e.preventDefault(); return;
+    }
+    if (_spTool === "select") {
+      const s = _spSelActive();
+      if (s && p.x >= s.x && p.x < s.x + s.w && p.y >= s.y && p.y < s.y + s.h) {
+        _spPushUndo(); _spLift();
+        _spSelDrag = { mode: "move", dx: p.x - s.x, dy: p.y - s.y };
+      } else {
+        _spSel = _spSelNorm(p, p);
+        _spSelDrag = { mode: "new", a: p };
+      }
+      _spRender(); e.preventDefault(); return;
+    }
+    if (_spTool === "hitbox") {
+      _spPushUndo(); _spHitSync();
+      _spHitDrag = p;
+      _spHit[_spFrame] = { x: p.x, y: p.y, w: 1, h: 1 };
+      _spRender(); e.preventDefault(); return;
+    }
     const pen = _spSlotVal(_spSlot);
     _spPaintVal = (_spTool === "pencil" && _spGet(p.x,p.y) === pen && pen !== 0) ? 0 : pen;
     _spPushUndo();
@@ -38022,6 +40762,21 @@ function setupSpriteEditor() {
     e.preventDefault();
   });
   canvas.addEventListener("pointermove", function(e) {
+    if (_spSelDrag) {
+      const p = cellFromEvent(e);
+      if (_spSelDrag.mode === "new") _spSel = _spSelNorm(_spSelDrag.a, clampCell(p));
+      else {
+        let x = p.x - _spSelDrag.dx;
+        if (_spMulti) x = Math.floor(x / 2) * 2;
+        _spFloat.x = x; _spFloat.y = p.y - _spSelDrag.dy;
+      }
+      _spRender(); return;
+    }
+    if (_spHitDrag) {
+      const a = _spHitDrag, b = clampCell(cellFromEvent(e));
+      _spHit[_spFrame] = { x: Math.min(a.x, b.x), y: Math.min(a.y, b.y), w: Math.abs(b.x - a.x) + 1, h: Math.abs(b.y - a.y) + 1 };
+      _spRender(); return;
+    }
     if (!_spPainting) return;
     const p = cellFromEvent(e);
     if (_spTool !== "pencil") {
@@ -38034,6 +40789,11 @@ function setupSpriteEditor() {
     _spSet(p.x, p.y, _spPaintVal); _spRender();
   });
   const end = function(e, commit){
+    if (_spSelDrag) {
+      if (_spSelDrag.mode === "move") _spStamp();
+      _spSelDrag = null; _spRender();
+    }
+    _spHitDrag = null;
     if (commit && _spPainting && _spTool !== "pencil" && e && e.clientX != null) {
       const p = cellFromEvent(e);
       _spDrawShape(_spShapeStart, p, function(x, y) { _spSet(x, y, _spPaintVal); });
@@ -38065,24 +40825,57 @@ function setupSpriteEditor() {
     _spPushUndo();
     _spMulti = e.target.checked;
     if (_spMulti) { _spFrames.forEach(function(f){ for(let y=0;y<_SP_H;y++) for(let x=0;x<_SP_W;x+=2){ const v=f[y*_SP_W+x]||f[y*_SP_W+x+1]; f[y*_SP_W+x]=v; f[y*_SP_W+x+1]=v; } }); }
-    if (_spSlot==="mc1"||_spSlot==="mc2") _spSlot = "sprite";
+    _spFixSlot();
     _spBuildColors(); _spRender();
+  });
+  onChange("se-overlay", function(e) {
+    _spPushUndo();
+    _spOverlay = e.target.checked;
+    _spLayer = _spOverlay ? "ov" : "base";
+    _spFixSlot(); _spSyncLayerUi(); _spBuildColors(); _spRender();
+  });
+  onChange("se-layer", function(e) {
+    _spLayer = e.target.value === "ov" && _spOverlay ? "ov" : "base";
+    _spFixSlot(); _spBuildColors(); _spRender();
   });
   onChange("se-grid", function(e){ _spGrid = e.target.checked; _spRender(); });
   onInput("se-zoom", function(e){ _spZoom = parseInt(e.target.value,10); _spRender(); });
 
   onClick("se-copy-data", function() { navigator.clipboard.writeText(_spHexCSV()).catch(function(){}); });
+  onClick("se-copy-hitbox", function() { navigator.clipboard.writeText(_spHitboxAsm()).catch(function(){}); });
+  onClick("se-rotr", function(){ _spPushUndo(); _spRotate(true); _spRender(); });
+  onClick("se-rotl", function(){ _spPushUndo(); _spRotate(false); _spRender(); });
+  onClick("se-mirror-anim", function(){ _spPushUndo(); _spStop(); _spMirrorAnim(); _spRender(); });
+  onClick("se-hit-fit", function(){ _spPushUndo(); _spHitSync(); _spHit[_spFrame] = _spBounds(_spFrame); _spRender(); });
+  onClick("se-hit-fitall", function(){ _spPushUndo(); _spHit = _spFrames.map(function(_, i) { return _spBounds(i); }); _spRender(); });
+  onClick("se-hit-all", function(){
+    const h = _spHit[_spFrame];
+    if (!h) return;
+    _spPushUndo(); _spHit = _spFrames.map(function() { return Object.assign({}, h); }); _spRender();
+  });
+  onClick("se-hit-clear", function(){ _spPushUndo(); _spHitSync(); _spHit[_spFrame] = null; _spRender(); });
+  onChange("se-expx", function(e){ _spExpX = e.target.checked; _spRenderPreview(); });
+  onChange("se-expy", function(e){ _spExpY = e.target.checked; _spRenderPreview(); });
+  _spSetupSheetDialog(onClick);
 
   onClick("se-play", _spTogglePlay);
   onChange("se-pingpong", function(e){ _spPingPong = e.target.checked; });
   onChange("se-onion", function(e){ _spOnion = e.target.checked; _spRender(); });
   onInput("se-fps", function(e){ _spFps = parseInt(e.target.value,10); const v=document.getElementById("se-fps-val"); if(v)v.textContent=_spFps; if(_spPlay){_spStop();_spTogglePlay();} });
-  onClick("se-add", function(){ _spPushUndo(); _spStop(); _spFrames.splice(_spFrame+1,0,new Uint8Array(_SP_W*_SP_H)); _spFrame++; _spRender(); });
-  onClick("se-dup", function(){ _spPushUndo(); _spStop(); _spFrames.splice(_spFrame+1,0,_spCur().slice(0)); _spFrame++; _spRender(); });
-  onClick("se-fcopy", function(){ _spClip = _spCur().slice(0); });
-  onClick("se-fpaste", function(){ if(_spClip){ _spPushUndo(); _spCur().set(_spClip); _spRender(); } });
+  onClick("se-add", function(){ _spPushUndo(); _spStop(); _spHitSync(); _spHit.splice(_spFrame+1,0,null); _spFrames.splice(_spFrame+1,0,_spNewFrame()); _spOv.splice(_spFrame+1,0,_spNewFrame()); _spFrame++; _spRender(); });
+  onClick("se-dup", function(){ _spPushUndo(); _spStop(); _spHitSync(); _spHit.splice(_spFrame+1,0,_spHit[_spFrame] ? Object.assign({}, _spHit[_spFrame]) : null); _spFrames.splice(_spFrame+1,0,_spFrames[_spFrame].slice(0)); _spOv.splice(_spFrame+1,0,_spOv[_spFrame].slice(0)); _spFrame++; _spRender(); });
+  // the whole frame: body and overlay
+  onClick("se-fcopy", function(){ _spClip = { base: _spFrames[_spFrame].slice(0), ov: _spOv[_spFrame].slice(0) }; });
+  onClick("se-fpaste", function(){
+    if (!_spClip || _spClip.base.length !== _spFrames[_spFrame].length) return;
+    _spPushUndo(); _spFrames[_spFrame].set(_spClip.base); _spOv[_spFrame].set(_spClip.ov); _spRender();
+  });
+  onChange("se-layout", function(e){
+    const m = /^(\d)x(\d)$/.exec(e.target.value);
+    if (m) _spSetLayout(Number(m[1]), Number(m[2]));
+  });
   canvas.addEventListener("contextmenu", _spShowCtxMenu);
-  onClick("se-fdel", function(){ _spPushUndo(); _spStop(); if(_spFrames.length<=1){ _spCur().fill(0); } else { _spFrames.splice(_spFrame,1); if(_spFrame>=_spFrames.length)_spFrame=_spFrames.length-1; } _spRender(); });
+  onClick("se-fdel", function(){ _spPushUndo(); _spStop(); if(_spFrames.length<=1){ _spFrames[0].fill(0); _spOv[0].fill(0); } else { _spHitSync(); _spHit.splice(_spFrame,1); _spFrames.splice(_spFrame,1); _spOv.splice(_spFrame,1); if(_spFrame>=_spFrames.length)_spFrame=_spFrames.length-1; } _spRender(); });
 
   const imageIn = document.createElement("input"); imageIn.type = "file"; imageIn.accept = "image/png,image/jpeg,.png,.jpg,.jpeg"; imageIn.hidden = true;
   dialog.appendChild(imageIn);
@@ -38104,27 +40897,146 @@ function setupSpriteEditor() {
   onClick("se-save-bin", function(){
     const allEl = document.getElementById("se-export-all");
     const all = allEl && allEl.checked;
-    const frames = all ? _spFrames : [_spCur()];
-    const out = new Uint8Array(frames.length * 64);
-    frames.forEach(function(fr,i){ out.set(_spFrameBytes(fr), i*64); });
+    const frames = all ? _spFrames.map(function(_, i) { return i; }) : [_spFrame];
+    const per = _spCols * _spRows * 64 * (_spOverlay ? 2 : 1);
+    const out = new Uint8Array(frames.length * per);
+    frames.forEach(function(fi, i){ out.set(_spFrameAllBytes(fi), i*per); });
     _saveBinFile(out, "sprite.bin");
   });
+}
+
+function _spSheetOptsFromUi() {
+  const num = function(id, min, max) {
+    const el = document.getElementById(id);
+    const v = Math.max(min, Math.min(max, parseInt(el ? el.value : "0", 10) || 0));
+    if (el) el.value = String(v);
+    return v;
+  };
+  return {
+    cellW: num("se-sheet-cw", 1, 4096), cellH: num("se-sheet-ch", 1, 4096),
+    offX: num("se-sheet-ox", 0, 4096), offY: num("se-sheet-oy", 0, 4096),
+    gapX: num("se-sheet-gx", 0, 512), gapY: num("se-sheet-gy", 0, 512),
+    count: num("se-sheet-count", 0, 256),
+    colors: document.getElementById("se-sheet-colors")?.value || "auto",
+    dither: document.getElementById("se-sheet-dither")?.value || "none",
+    replace: !!document.getElementById("se-sheet-replace")?.checked
+  };
+}
+// The sheet with the cell grid, and the converted frames underneath.
+function _spSheetRender() {
+  const sh = _spSheet;
+  if (!sh) return;
+  sh.opts = _spSheetOptsFromUi();
+  sh.result = _spSheetConvert(sh.src, sh.opts);
+  const cv = document.getElementById("se-sheet-canvas");
+  if (cv) {
+    const k = Math.max(1, Math.floor(Math.min(640 / sh.src.width, 400 / sh.src.height)) || 1);
+    cv.width = sh.src.width * k; cv.height = sh.src.height * k;
+    const ctx = cv.getContext("2d");
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(sh.src, 0, 0, cv.width, cv.height);
+    ctx.strokeStyle = "#ffd84f"; ctx.lineWidth = 1;
+    sh.result.cells.forEach(function(c) { ctx.strokeRect(c.x * k + 0.5, c.y * k + 0.5, c.w * k - 1, c.h * k - 1); });
+  }
+  const strip = document.getElementById("se-sheet-frames");
+  if (strip) {
+    strip.innerHTML = "";
+    const saved = _spCol;
+    _spCol = sh.result.col;   // _spBaseColor reads the colours of the conversion
+    sh.result.frames.slice(0, 48).forEach(function(fr) {
+      const c = document.createElement("canvas");
+      c.width = 48; c.height = 42; c.className = "se-frame-thumb";
+      const keep = { f: _spFrames, o: _spOv, ov: _spOverlay };
+      _spFrames = [fr]; _spOverlay = false;
+      _spDrawFrameTo(c.getContext("2d"), 0, 48, 42);
+      _spFrames = keep.f; _spOv = keep.o; _spOverlay = keep.ov;
+      strip.appendChild(c);
+    });
+    _spCol = saved;
+  }
+  const st = document.getElementById("se-sheet-status");
+  if (st) st.textContent = tf("seSheetFrames", { n: sh.result.frames.length, w: sh.src.width, h: sh.src.height });
+  const ok = document.getElementById("se-sheet-apply");
+  if (ok) ok.disabled = !sh.result.frames.length;
+}
+function _spSheetOpen(img, name) {
+  const src = document.createElement("canvas");
+  src.width = img.width; src.height = img.height;
+  src.getContext("2d").drawImage(img, 0, 0);
+  _spSheet = { src: src, name: name };
+  const set = function(id, v) { const el = document.getElementById(id); if (el) el.value = String(v); };
+  set("se-sheet-cw", _SP_W); set("se-sheet-ch", _SP_H);
+  const fileEl = document.getElementById("se-sheet-file");
+  if (fileEl) fileEl.textContent = name || "";
+  _spSheetRender();
+  const dlg = document.getElementById("se-sheet-dialog");
+  if (dlg && !dlg.open) dlg.showModal();
+}
+function _spSheetApply() {
+  const sh = _spSheet;
+  if (!sh || !sh.result || !sh.result.frames.length) return;
+  _spStop();
+  _spPushUndo();
+  const frames = sh.result.frames;
+  if (sh.opts.replace) {
+    _spFrames = frames; _spOv = frames.map(function() { return _spNewFrame(); }); _spHit = []; _spFrame = 0;
+  } else {
+    _spHitSync();
+    _spFrame = _spFrames.length;
+    frames.forEach(function(fr) { _spFrames.push(fr); _spOv.push(_spNewFrame()); _spHit.push(null); });
+  }
+  _spCol = sh.result.col;
+  if (_spLayer === "ov") { _spLayer = "base"; _spFixSlot(); _spSyncLayerUi(); }
+  _spBuildColors();
+  _spRender();
+}
+function _spSetupSheetDialog(onClick) {
+  const dlg = document.getElementById("se-sheet-dialog");
+  if (!dlg) return;
+  const fileIn = document.createElement("input");
+  fileIn.type = "file"; fileIn.accept = "image/png,image/gif,image/bmp,image/webp,image/jpeg,.png,.gif,.bmp,.webp,.jpg,.jpeg"; fileIn.hidden = true;
+  document.getElementById("sprite-editor-dialog")?.appendChild(fileIn);
+  onClick("se-import-sheet", function() { _spInit(); fileIn.click(); });
+  fileIn.addEventListener("change", function(e) {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!file) return;
+    const img = new Image();
+    img.onload = function() { _spSheetOpen(img, file.name); URL.revokeObjectURL(img.src); };
+    img.onerror = function() { URL.revokeObjectURL(img.src); };
+    img.src = URL.createObjectURL(file);
+  });
+  dlg.querySelectorAll("input, select").forEach(function(el) {
+    el.addEventListener(el.type === "checkbox" || el.tagName === "SELECT" ? "change" : "input", _spSheetRender);
+  });
+  const close = function() { dlg.close(); _spSheet = null; };
+  document.getElementById("se-sheet-close")?.addEventListener("click", close);
+  document.getElementById("se-sheet-cancel")?.addEventListener("click", close);
+  document.getElementById("se-sheet-apply")?.addEventListener("click", function() { _spSheetApply(); close(); });
 }
 
 function _spImportBin(src) {
   _spStop();
   _spPushUndo();
-  const count = Math.max(1, Math.floor(src.length / 64));
-  _spFrames = [];
+  // with the overlay on, every frame is the body's sprites then the overlay's (as saved)
+  const parts = _spCols * _spRows, per = parts * (_spOverlay ? 2 : 1);
+  const count = Math.max(1, Math.ceil(Math.floor(src.length / 64) / per));
+  const decode = function(fr, first, multi) {
+    for (let p = 0; p < parts; p++) {
+      const base = (first + p) * 64, ox = (p % _spCols) * _SP_PW, oy = Math.floor(p / _spCols) * _SP_PH;
+      for (let y = 0; y < _SP_PH; y++)
+        for (let b = 0; b < 3; b++) {
+          const byte = src[base + y*3 + b] || 0, row = (oy + y) * _SP_W + ox;
+          if (multi) { for (let j=0;j<4;j++){ const v=(byte>>((3-j)*2))&3; const x=(b*4+j)*2; fr[row+x]=v; fr[row+x+1]=v; } }
+          else { for (let i=0;i<8;i++) fr[row+b*8+i] = (byte>>(7-i))&1; }
+        }
+    }
+    return fr;
+  };
+  _spFrames = []; _spOv = []; _spHit = [];
   for (let f = 0; f < count; f++) {
-    const fr = new Uint8Array(_SP_W*_SP_H);
-    for (let y = 0; y < _SP_H; y++)
-      for (let b = 0; b < 3; b++) {
-        const byte = src[f*64 + y*3 + b] || 0;
-        if (_spMulti) { for (let j=0;j<4;j++){ const v=(byte>>((3-j)*2))&3; const x=(b*4+j)*2; fr[y*_SP_W+x]=v; fr[y*_SP_W+x+1]=v; } }
-        else { for (let i=0;i<8;i++) fr[y*_SP_W+b*8+i] = (byte>>(7-i))&1; }
-      }
-    _spFrames.push(fr);
+    _spFrames.push(decode(_spNewFrame(), f * per, _spMulti));
+    _spOv.push(_spOverlay ? decode(_spNewFrame(), f * per + parts, false) : _spNewFrame());
   }
   _spFrame = 0; _spRender();
 }
@@ -38147,7 +41059,7 @@ function _spNearestColor(r, g, b) {
   }
   return best;
 }
-function _spAutoPalette(data) {
+function _spAutoPalette(data, col = _spCol) {
   const freq = new Array(16).fill(0);
   let hasTransparent = false;
   for (let i = 0; i < data.length; i += 4) {
@@ -38160,19 +41072,19 @@ function _spAutoPalette(data) {
     .map(function(item) { return item.color; });
   if (!top.length) return;
   if (_spMulti) {
-    if (!hasTransparent) _spCol.bg = top[0];
-    const fill = top.filter(function(c) { return c !== _spCol.bg; });
+    if (!hasTransparent) col.bg = top[0];
+    const fill = top.filter(function(c) { return c !== col.bg; });
     ["mc1", "sprite", "mc2"].forEach(function(slot, i) {
-      if (fill[i] != null) _spCol[slot] = fill[i];
+      if (fill[i] != null) col[slot] = fill[i];
     });
   } else if (hasTransparent) {
-    const fg = top.find(function(c) { return c !== _spCol.bg; });
-    if (fg != null) _spCol.sprite = fg;
+    const fg = top.find(function(c) { return c !== col.bg; });
+    if (fg != null) col.sprite = fg;
   } else {
-    _spCol.bg = top[0];
-    const fg = top.find(function(c) { return c !== _spCol.bg; });
-    if (fg != null) _spCol.sprite = fg;
-    else if (_spCol.sprite === _spCol.bg) _spCol.sprite = _spCol.bg === 1 ? 0 : 1;
+    col.bg = top[0];
+    const fg = top.find(function(c) { return c !== col.bg; });
+    if (fg != null) col.sprite = fg;
+    else if (col.sprite === col.bg) col.sprite = col.bg === 1 ? 0 : 1;
   }
 }
 function _spNearestValue(r, g, b, a) {
@@ -38217,6 +41129,7 @@ function _spImportImage(img) {
     }
   }
   _spFrames[_spFrame] = fr;
+  if (_spLayer === "ov") { _spLayer = "base"; _spFixSlot(); _spSyncLayerUi(); }
   _spBuildColors();
   _spRender();
 }
@@ -38279,6 +41192,9 @@ var _sidTimer = null, _sidRow = 0, _sidPlayPat = 0;
 // AudioBufferSourceNodes of the rendered preview (note previews and the
 // Web Audio pattern playback) — _sidStop stops them all.
 var _sidPreviewSources = new Set();
+// The SID Player's (VA SID Core) scheduled buffers: kept apart, so stopping the
+// editor preview (e.g. closing the SID Editor) does not silence the player.
+var _sidExtSources = new Set();
 // Web Audio pattern playback: engine kept across pattern passes + scheduling state
 var _sidWaPlay = null;
 // Song/order list: the arrangement layer on top of the raw pattern bank
@@ -38592,6 +41508,7 @@ function _sidRenderVirtualKeyboard() {
       setTimeout(function(){ btn.classList.remove("sid-vkbd-key--active"); }, 120);
     });
   });
+  _sidVkbdRenderPlay();
 }
 /* Detachable tracker: the song / tracker / harmony rows and the grid move into
    a floating, resizable panel (and back), so a long wave table leaves room. */
@@ -38632,6 +41549,19 @@ function _sidSetTrackerDetached(on) {
 function _sidPlaceTrackerFloat(x, y) {
   return _sidPlaceFixed(document.getElementById("sid-tracker-float"), x, y);
 }
+// A drag moves a floating panel once per frame (the placement measures the panel);
+// _sidDragFlush applies the last position at once when the drag ends.
+function _sidDragTo(state, el, x, y) {
+  state.tx = x; state.ty = y;
+  if (state.raf) return;
+  state.raf = requestAnimationFrame(function() { state.raf = 0; state.at = _sidPlaceFixed(el, state.tx, state.ty); });
+}
+function _sidDragFlush(state, el) {
+  if (!state || !state.raf) return;
+  cancelAnimationFrame(state.raf);
+  state.raf = 0;
+  state.at = _sidPlaceFixed(el, state.tx, state.ty);
+}
 function _sidPlaceFixed(float, x, y) {
   // a closed dialog has no layout to measure; the open handler places it
   if (!float || float.hidden || !document.getElementById("sid-editor-dialog")?.open) return;
@@ -38669,10 +41599,11 @@ function _sidSetupTrackerFloat() {
   });
   hdr.addEventListener("pointermove", function(e) {
     if (!drag) return;
-    drag.at = _sidPlaceTrackerFloat(e.clientX - drag.dx, e.clientY - drag.dy);
+    _sidDragTo(drag, float, e.clientX - drag.dx, e.clientY - drag.dy);
   });
   const end = function(e) {
     if (!drag) return;
+    _sidDragFlush(drag, float);
     const at = drag.at;
     drag = null;
     if (e && e.pointerId != null) { try { hdr.releasePointerCapture(e.pointerId); } catch (_) {} }
@@ -38717,6 +41648,38 @@ function _sidCloseVirtualKeyboard(remember = true) {
   if (!dlg) return;
   dlg.hidden = true;
   if (remember) _sidSaveVkbdState({ open: false });
+}
+// VA-VK "Show playback": the note sounding on each voice of the playing song is
+// marked on its key (one colour per voice). Fed by the playback row events.
+var _sidVkbdShowPlay = true;
+var _sidVkbdPlayNotes = [null, null, null];
+function _sidVkbdTrackRow(ev) {
+  const pat = _sidPatterns && _sidPatterns[ev.pat != null ? ev.pat : _sidPlayPat];
+  if (!pat) return;
+  for (let v = 0; v < 3; v++) {
+    const c = pat[v] && pat[v][ev.row];
+    if (!c) continue;
+    if (c.note != null) _sidVkbdPlayNotes[v] = c.note;
+    else if (c.fx === "C") _sidVkbdPlayNotes[v] = null;
+  }
+  _sidVkbdRenderPlay();
+}
+function _sidVkbdRenderPlay() {
+  const dlg = document.getElementById("sid-virtual-keyboard-dialog");
+  if (!dlg) return;
+  dlg.querySelectorAll(".sid-vkbd-key--v1, .sid-vkbd-key--v2, .sid-vkbd-key--v3").forEach(function(k) {
+    k.classList.remove("sid-vkbd-key--v1", "sid-vkbd-key--v2", "sid-vkbd-key--v3");
+  });
+  if (!_sidVkbdShowPlay) return;
+  _sidVkbdPlayNotes.forEach(function(note, v) {
+    if (note == null) return;
+    const key = dlg.querySelector('.sid-vkbd-key[data-note="' + note + '"]');
+    if (key) key.classList.add("sid-vkbd-key--v" + (v + 1));
+  });
+}
+function _sidVkbdClearPlay() {
+  _sidVkbdPlayNotes = [null, null, null];
+  _sidVkbdRenderPlay();
 }
 function _sidFlashVirtualKeyboardNotes(notes) {
   const dlg = document.getElementById("sid-virtual-keyboard-dialog");
@@ -39474,6 +42437,389 @@ function _sidSetCellText(v, r) {
   if (td) td.textContent = _sidGridCellText(_sidCurPat()[v][r]);
 }
 
+/* ── Horizontal tracker (piano roll) ─────────────────────────────────────
+ * The song (order list, 32 rows per step) drawn left to right, pitch bottom
+ * to top. A note lasts until the voice's next note or note-off. Editing writes
+ * the tracker cells: click = note on the active voice with the current
+ * instrument, drag = its length (note-off at the end), drag a note = pitch,
+ * drag its right edge = length, right-click = delete. Patterns are shared, so
+ * an edit shows at every song step that uses the pattern. */
+const _SID_ROLL_COLORS = ["#ffb347", "#7c9cff", "#ff6b6b", "#4ade80", "#f7d154", "#c084fc", "#38d6ff", "#ff8fd8", "#a3e635", "#fb923c", "#2dd4bf", "#e879f9"];
+const _SID_ROLL_VOICE = ["#38d6ff", "#ff5ccf", "#4ade80"];
+var _sidRollView = { row0: 0, colW: 14, rowPx: 11, lo: 36, span: 48, voice: 0, raf: 0, drag: null, hover: null, follow: true };
+function _sidRollState() {
+  try { return JSON.parse(localStorage.getItem("c64va-sid-roll") || "{}") || {}; } catch (_) { return {}; }
+}
+function _sidRollSave(patch) {
+  const st = Object.assign(_sidRollState(), patch);
+  try { localStorage.setItem("c64va-sid-roll", JSON.stringify(st)); } catch (_) {}
+}
+function _sidRollTotalRows() { return Math.max(1, (_sidSong && _sidSong.length ? _sidSong.length : 1) * _SID_ROWS); }
+function _sidRollCell(v, g) {
+  const pos = Math.floor(g / _SID_ROWS), r = g % _SID_ROWS;
+  const pat = _sidPatterns && _sidPatterns[_sidSong ? _sidSong[pos] : 0];
+  return pat ? { pat: pat, idx: _sidSong[pos], r: r, cell: pat[v][r] } : null;
+}
+function _sidRollWrite(v, g, cell) {
+  const at = _sidRollCell(v, g);
+  if (!at) return;
+  at.pat[v][at.r] = Object.assign({ note: null, inst: 0, fx: null, fxval: 0 }, cell);
+  if (at.idx === _sidPat) _sidSetCellText(v, at.r);
+}
+// notes of the whole song: { v, note, inst, start, end } in song rows
+function _sidRollNotes() {
+  const total = _sidRollTotalRows(), notes = [];
+  for (let v = 0; v < 3; v++) {
+    let cur = null;
+    for (let g = 0; g < total; g++) {
+      const at = _sidRollCell(v, g);
+      const c = at && at.cell;
+      if (!c) continue;
+      if (c.note != null) {
+        if (cur) { cur.end = g; notes.push(cur); }
+        cur = { v: v, note: c.note, inst: c.inst | 0, start: g, end: total };
+      } else if (c.fx === "C" && cur) {
+        cur.end = g; notes.push(cur); cur = null;
+      }
+    }
+    if (cur) notes.push(cur);
+  }
+  return notes;
+}
+function _sidRollGeom(cv) {
+  const W = cv.clientWidth, H = cv.clientHeight, keyW = 36, rulerH = 16;
+  // the pitch range follows the window height and the vertical zoom (px per semitone), around the same centre
+  const span = Math.max(6, Math.min(96, Math.round((H - rulerH) / _sidRollView.rowPx)));
+  if (H && span !== _sidRollView.span) {
+    const mid = _sidRollView.lo + _sidRollView.span / 2;
+    _sidRollView.span = span;
+    _sidRollView.lo = Math.max(0, Math.min(96 - span, Math.round(mid - span / 2)));
+  }
+  const rowH = (H - rulerH) / _sidRollView.span;
+  return { W: W, H: H, keyW: keyW, rulerH: rulerH, rowH: rowH, colW: _sidRollView.colW };
+}
+function _sidRollHit(cv, ev) {
+  const g = _sidRollGeom(cv), rect = cv.getBoundingClientRect();
+  const x = ev.clientX - rect.left, y = ev.clientY - rect.top;
+  if (x < g.keyW || y < g.rulerH) return null;
+  const row = Math.floor(_sidRollView.row0 + (x - g.keyW) / g.colW);
+  const pitch = _sidRollView.lo + _sidRollView.span - 1 - Math.floor((y - g.rulerH) / g.rowH);
+  return { row: row, pitch: Math.max(0, Math.min(95, pitch)), x: x, y: y, g: g };
+}
+function _sidRollNoteAt(notes, hit) {
+  // the active voice first, then any voice
+  const on = function(n) { return n.note === hit.pitch && hit.row >= n.start && hit.row < n.end; };
+  return notes.find(function(n) { return n.v === _sidRollView.voice && on(n); }) || notes.find(on) || null;
+}
+function _sidRollPreview(inst, note) {
+  try {
+    _sidEnsureAudio();
+    _sidPlayInst(_sidInsts[inst] || _sidCurInst(), _sidNoteFreq(note), _sidAudio.currentTime + 0.01, 0.25);
+  } catch (_) {}
+}
+// a note's end: note-off on its end row (when that row has no note) and nothing in between
+function _sidRollSetEnd(n, end) {
+  const total = _sidRollTotalRows();
+  end = Math.max(n.start + 1, Math.min(total, end));
+  for (let g = n.start + 1; g < Math.max(end, n.end); g++) {
+    const at = _sidRollCell(n.v, g);
+    if (at && at.cell && (at.cell.note != null || at.cell.fx === "C")) _sidRollWrite(n.v, g, {});
+  }
+  if (end < total) {
+    const at = _sidRollCell(n.v, end);
+    if (at && at.cell && at.cell.note == null && !at.cell.fx) _sidRollWrite(n.v, end, { fx: "C" });
+  }
+  n.end = end;
+}
+function _sidRollDelete(n) {
+  _sidRollWrite(n.v, n.start, {});
+  const at = n.end < _sidRollTotalRows() ? _sidRollCell(n.v, n.end) : null;
+  if (at && at.cell && at.cell.note == null && at.cell.fx === "C") _sidRollWrite(n.v, n.end, {});
+}
+function _sidRollPlayRow() {
+  const playing = !!(_sidTimer || _sidWaPlay || _sidPlaybackUsingWebSid);
+  if (!playing) return null;
+  const pos = _sidPlayMode === "all" ? _sidSongPlayPos : Math.max(0, _sidSong.indexOf(_sidPlayPat));
+  return pos * _SID_ROWS + _sidRow;
+}
+function _sidRollLegend(notes) {
+  const box = document.getElementById("sid-roll-legend");
+  if (!box) return;
+  const used = Array.from(new Set(notes.map(function(n) { return n.inst; }))).sort(function(x, y) { return x - y; });
+  const key = used.join(",") + "|" + used.map(function(i) { return _sidInsts[i] && _sidInsts[i].name; }).join(",");
+  if (box.dataset.key === key) return;
+  box.dataset.key = key;
+  box.innerHTML = "";
+  used.forEach(function(i) {
+    const chip = document.createElement("span");
+    chip.className = "sid-roll-chip";
+    const sw = document.createElement("span");
+    sw.className = "sid-roll-swatch";
+    sw.style.background = _SID_ROLL_COLORS[i % _SID_ROLL_COLORS.length];
+    const label = document.createElement("span");
+    label.textContent = (i < 10 ? "0" : "") + i + " " + ((_sidInsts[i] && _sidInsts[i].name) || "");
+    chip.append(sw, label);
+    box.appendChild(chip);
+  });
+}
+function _sidRollDraw() {
+  const cv = document.getElementById("sid-roll-canvas");
+  if (!cv || !_sidPatterns) return;
+  const g = _sidRollGeom(cv), view = _sidRollView;
+  if (!g.W || !g.H) return;
+  const dpr = window.devicePixelRatio || 1;
+  if (cv.width !== Math.round(g.W * dpr) || cv.height !== Math.round(g.H * dpr)) { cv.width = Math.round(g.W * dpr); cv.height = Math.round(g.H * dpr); }
+  const ctx = cv.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const total = _sidRollTotalRows();
+  const visRows = (g.W - g.keyW) / g.colW;
+  const playRow = _sidRollPlayRow();
+  // follow: the playhead stays at a third of the width, the song scrolls under it
+  if (playRow != null && view.follow && !view.drag) view.row0 = playRow - visRows / 3;
+  view.row0 = Math.max(0, Math.min(view.row0, Math.max(0, total - visRows * 0.5)));
+  const xOf = function(row) { return g.keyW + (row - view.row0) * g.colW; };
+  const yOf = function(n) { return g.rulerH + (view.lo + view.span - 1 - n) * g.rowH; };
+  const black = function(n) { return [1, 3, 6, 8, 10].includes(n % 12); };
+  ctx.fillStyle = "#0b1020";
+  ctx.fillRect(0, 0, g.W, g.H);
+  for (let n = view.lo; n < view.lo + view.span; n++) {
+    ctx.fillStyle = black(n) ? "#0e1428" : "#121a33";
+    ctx.fillRect(g.keyW, yOf(n), g.W - g.keyW, g.rowH);
+    if (n % 12 === 0) { ctx.fillStyle = "rgba(255,255,255,0.08)"; ctx.fillRect(g.keyW, yOf(n) + g.rowH - 1, g.W - g.keyW, 1); }
+  }
+  // beats, pattern boundaries and the ruler with the song step / pattern number
+  const r0 = Math.floor(view.row0), r1 = Math.min(total, Math.ceil(view.row0 + visRows) + 1);
+  for (let row = r0; row <= r1; row++) {
+    const x = Math.round(xOf(row)) + 0.5;
+    if (x < g.keyW) continue;
+    const start = row % _SID_ROWS === 0;
+    if (!start && row % _SID_ROWS_PER_BEAT && g.colW < 10) continue;
+    ctx.strokeStyle = start ? "rgba(255,255,255,0.28)" : row % _SID_ROWS_PER_BEAT === 0 ? "rgba(255,255,255,0.09)" : "rgba(255,255,255,0.04)";
+    ctx.beginPath(); ctx.moveTo(x, g.rulerH); ctx.lineTo(x, g.H); ctx.stroke();
+    if (start && row < total) {
+      const pos = row / _SID_ROWS, pat = _sidSong[pos];
+      ctx.fillStyle = pos === _sidSongPos ? "#ffd84f" : "#8a93b0";
+      ctx.font = "10px monospace";
+      ctx.fillText(String(pos).padStart(2, "0") + ":" + (pat < 10 ? "0" : "") + pat, x + 3, 11);
+    }
+  }
+  ctx.fillStyle = "rgba(255,255,255,0.12)";
+  ctx.fillRect(g.keyW, g.rulerH - 1, g.W - g.keyW, 1);
+  if (r1 >= total) { ctx.fillStyle = "rgba(0,0,0,0.45)"; ctx.fillRect(xOf(total), g.rulerH, g.W - xOf(total), g.H - g.rulerH); }
+  // the editor cursor (selected row of the selected song step)
+  const curRow = _sidSongPos * _SID_ROWS + _sidSel.row;
+  ctx.fillStyle = "rgba(255,216,79,0.10)";
+  ctx.fillRect(xOf(curRow), g.rulerH, g.colW, g.H - g.rulerH);
+  const notes = _sidRollNotes();
+  const live = [];
+  notes.forEach(function(n) {
+    const x0 = Math.max(g.keyW, xOf(n.start)), x1 = Math.min(g.W, xOf(n.end));
+    if (x1 <= x0 || n.note < view.lo || n.note >= view.lo + view.span) return;
+    const y = yOf(n.note) + 1, h = Math.max(2, g.rowH - 2);
+    const sounding = playRow != null && playRow >= n.start && playRow < n.end;
+    if (sounding) live.push(n);
+    ctx.globalAlpha = n.v === view.voice ? 1 : 0.6;
+    ctx.fillStyle = _SID_ROLL_COLORS[n.inst % _SID_ROLL_COLORS.length];
+    ctx.fillRect(x0, y, x1 - x0 - 1, h);
+    ctx.fillStyle = _SID_ROLL_VOICE[n.v];
+    ctx.fillRect(x0, y, Math.min(3, x1 - x0), h);
+    ctx.strokeStyle = sounding ? "#fff" : _SID_ROLL_VOICE[n.v];
+    ctx.lineWidth = sounding ? 1.5 : 1;
+    ctx.strokeRect(x0 + 0.5, y + 0.5, x1 - x0 - 2, h - 1);
+    ctx.lineWidth = 1;
+    if (x1 - x0 > 30 && h >= 9) {
+      ctx.fillStyle = "#0b1020";
+      ctx.font = Math.min(10, Math.floor(h - 1)) + "px monospace";
+      ctx.fillText(_sidNoteName(n.note), x0 + 5, y + h - 2);
+    }
+    ctx.globalAlpha = 1;
+  });
+  // hover cell on the active voice
+  const hv = view.hover;
+  if (hv && !view.drag && hv.pitch >= view.lo && hv.pitch < view.lo + view.span && hv.row < total) {
+    ctx.strokeStyle = _SID_ROLL_VOICE[view.voice];
+    ctx.strokeRect(xOf(hv.row) + 0.5, yOf(hv.pitch) + 0.5, g.colW - 1, g.rowH - 1);
+  }
+  // keys
+  for (let n = view.lo; n < view.lo + view.span; n++) {
+    const hit = live.find(function(s) { return s.note === n; });
+    ctx.fillStyle = hit ? _SID_ROLL_VOICE[hit.v] : black(n) ? "#1a1f2e" : "#d9deea";
+    ctx.fillRect(0, yOf(n), g.keyW - 2, Math.max(1, g.rowH - 1));
+    if (n % 12 === 0 && g.rowH >= 7) {
+      ctx.fillStyle = hit ? "#0b1020" : "#3a4256";
+      ctx.font = Math.min(10, Math.floor(g.rowH)) + "px monospace";
+      ctx.fillText(_sidNoteName(n), 2, yOf(n) + g.rowH - 2);
+    }
+  }
+  ctx.fillStyle = "#0b1020";
+  ctx.fillRect(0, 0, g.keyW, g.rulerH);
+  if (playRow != null) {
+    const x = Math.round(xOf(playRow + 0.5));
+    if (x >= g.keyW) { ctx.fillStyle = "rgba(255,255,255,0.9)"; ctx.fillRect(x, g.rulerH, 1, g.H - g.rulerH); }
+  }
+  _sidRollLegend(notes);
+}
+function _sidRollLoop() {
+  const roll = document.getElementById("sid-roll");
+  if (!roll || roll.hidden || !document.getElementById("sid-editor-dialog")?.open) { _sidRollView.raf = 0; return; }
+  _sidRollDraw();
+  _sidRollView.raf = requestAnimationFrame(_sidRollLoop);
+}
+function _sidRollSyncHeader() {
+  const follow = document.getElementById("sid-roll-follow");
+  if (follow) { follow.classList.toggle("sid-metronome-on", _sidRollView.follow); follow.setAttribute("aria-pressed", String(_sidRollView.follow)); }
+  document.querySelectorAll(".sid-roll-vbtn").forEach(function(b) { b.classList.toggle("active", Number(b.dataset.voice) === _sidRollView.voice); });
+  const inst = document.getElementById("sid-roll-inst");
+  if (inst) inst.textContent = (_sidInst < 10 ? "0" : "") + _sidInst + " " + ((_sidCurInst() && _sidCurInst().name) || "");
+}
+// fit the pitch range to the song's notes (four octaves around them)
+function _sidRollFitPitch() {
+  const notes = _sidRollNotes();
+  let mid = 48;
+  if (notes.length) {
+    let lo = 95, hi = 0;
+    notes.forEach(function(n) { lo = Math.min(lo, n.note); hi = Math.max(hi, n.note); });
+    mid = Math.round((lo + hi) / 2);
+  }
+  _sidRollView.lo = Math.max(0, Math.min(96 - _sidRollView.span, mid - (_sidRollView.span >> 1)));
+}
+function _sidRollShow(on) {
+  const roll = document.getElementById("sid-roll");
+  if (!roll) return;
+  roll.hidden = !on;
+  const btn = document.getElementById("sid-roll-btn");
+  if (btn) { btn.classList.toggle("sid-metronome-on", !!on); btn.setAttribute("aria-pressed", String(!!on)); }
+  _sidRollSave({ open: !!on });
+  if (!on) return;
+  const st = _sidRollState();
+  if (Number.isFinite(st.width)) roll.style.width = st.width + "px";
+  if (Number.isFinite(st.height)) roll.style.height = st.height + "px";
+  if (Number.isFinite(st.colW)) _sidRollView.colW = st.colW;
+  if (Number.isFinite(st.rowPx)) _sidRollView.rowPx = st.rowPx;
+  if (typeof st.follow === "boolean") _sidRollView.follow = st.follow;
+  _sidRollView.voice = _sidSel.voice;
+  _sidRollFitPitch();
+  _sidRollSyncHeader();
+  const x = Number.isFinite(st.left) ? st.left : 80, y = Number.isFinite(st.top) ? st.top : 120;
+  _sidPlaceFixed(roll, x, y);
+  requestAnimationFrame(function() { _sidPlaceFixed(roll, x, y); });
+  if (!_sidRollView.raf) _sidRollView.raf = requestAnimationFrame(_sidRollLoop);
+}
+// vertical zoom: pixels per semitone (the visible pitch range follows)
+function _sidRollZoomV(factor) {
+  _sidRollView.rowPx = Math.max(4, Math.min(32, _sidRollView.rowPx * factor));
+  _sidRollSave({ rowPx: _sidRollView.rowPx });
+}
+function _sidRollRestore() {
+  if (_sidRollState().open) _sidRollShow(true);
+}
+function _sidSetupRoll() {
+  const roll = document.getElementById("sid-roll");
+  const cv = document.getElementById("sid-roll-canvas");
+  const hdr = roll && roll.querySelector(".sid-roll-hdr");
+  if (!roll || !cv || !hdr) return;
+  document.getElementById("sid-roll-btn")?.addEventListener("click", function() { _sidRollShow(roll.hidden); });
+  document.getElementById("sid-roll-close")?.addEventListener("click", function() { _sidRollShow(false); });
+  document.getElementById("sid-roll-play")?.addEventListener("click", _sidPauseToggle);
+  document.getElementById("sid-roll-follow")?.addEventListener("click", function() {
+    _sidRollView.follow = !_sidRollView.follow;
+    _sidRollSave({ follow: _sidRollView.follow });
+    _sidRollSyncHeader();
+  });
+  document.getElementById("sid-roll-stop")?.addEventListener("click", function() { _sidStop(); });
+  document.getElementById("sid-roll-metronome")?.addEventListener("click", _sidToggleMetronome);
+  document.getElementById("sid-roll-vzoom-out")?.addEventListener("click", function() { _sidRollZoomV(1 / 1.25); });
+  document.getElementById("sid-roll-vzoom-in")?.addEventListener("click", function() { _sidRollZoomV(1.25); });
+  document.querySelectorAll(".sid-roll-vbtn").forEach(function(b) {
+    b.addEventListener("click", function() { _sidRollView.voice = Number(b.dataset.voice); _sidRollSyncHeader(); });
+  });
+  // drag the window by its header; save the size after a CSS resize
+  let move = null, sizeAtDown = null;
+  hdr.addEventListener("pointerdown", function(e) {
+    if (e.target.closest("button")) return;
+    const rect = roll.getBoundingClientRect();
+    move = { dx: e.clientX - rect.left, dy: e.clientY - rect.top };
+    try { hdr.setPointerCapture(e.pointerId); } catch (_) {}
+    e.preventDefault();
+  });
+  hdr.addEventListener("pointermove", function(e) { if (move) _sidDragTo(move, roll, e.clientX - move.dx, e.clientY - move.dy); });
+  const endMove = function() { _sidDragFlush(move, roll); if (move && move.at) _sidRollSave({ left: move.at.x, top: move.at.y }); move = null; };
+  hdr.addEventListener("pointerup", endMove);
+  hdr.addEventListener("pointercancel", endMove);
+  roll.addEventListener("pointerdown", function() { sizeAtDown = { w: roll.offsetWidth, h: roll.offsetHeight }; });
+  window.addEventListener("pointerup", function() {
+    if (!sizeAtDown) return;
+    const w = roll.offsetWidth, h = roll.offsetHeight;
+    if (w > 0 && h > 0 && (w !== sizeAtDown.w || h !== sizeAtDown.h)) _sidRollSave({ width: w, height: h });
+    sizeAtDown = null;
+  });
+  // editing
+  cv.addEventListener("contextmenu", function(e) { e.preventDefault(); });
+  cv.addEventListener("pointerdown", function(e) {
+    const hit = _sidRollHit(cv, e);
+    if (!hit || hit.row >= _sidRollTotalRows()) return;
+    const notes = _sidRollNotes();
+    const n = _sidRollNoteAt(notes, hit);
+    if (e.button === 2) { if (n) _sidRollDelete(n); return; }
+    if (e.button !== 0) return;
+    if (n) {
+      const g = hit.g, xEnd = g.keyW + (n.end - _sidRollView.row0) * g.colW;
+      _sidRollView.drag = { kind: hit.x > xEnd - Math.max(5, g.colW * 0.35) ? "len" : "pitch", note: n };
+      _sidRollView.voice = n.v;
+      _sidRollSyncHeader();
+    } else {
+      const v = _sidRollView.voice;
+      _sidRollWrite(v, hit.row, { note: hit.pitch, inst: _sidInst });
+      const nn = { v: v, note: hit.pitch, inst: _sidInst, start: hit.row, end: hit.row + 1 };
+      // the new note ends where the voice's next note (or note-off) already was
+      const next = notes.filter(function(x) { return x.v === v && x.start > hit.row; }).sort(function(p, q) { return p.start - q.start; })[0];
+      nn.end = next ? next.start : _sidRollTotalRows();
+      _sidRollSetEnd(nn, hit.row + 1);
+      _sidRollView.drag = { kind: "len", note: nn, fresh: true };
+      _sidRollPreview(_sidInst, hit.pitch);
+    }
+    try { cv.setPointerCapture(e.pointerId); } catch (_) {}
+    e.preventDefault();
+  });
+  cv.addEventListener("pointermove", function(e) {
+    const hit = _sidRollHit(cv, e);
+    _sidRollView.hover = hit;
+    const d = _sidRollView.drag;
+    if (!d || !hit) return;
+    if (d.kind === "pitch" && hit.pitch !== d.note.note) {
+      const at = _sidRollCell(d.note.v, d.note.start);
+      _sidRollWrite(d.note.v, d.note.start, Object.assign({}, at.cell, { note: hit.pitch }));
+      d.note.note = hit.pitch;
+      _sidRollPreview(d.note.inst, hit.pitch);
+    } else if (d.kind === "len") {
+      const end = Math.max(d.note.start + 1, hit.row + 1);
+      if (end !== d.note.end) _sidRollSetEnd(d.note, end);
+    }
+  });
+  const endDrag = function(e) {
+    _sidRollView.drag = null;
+    if (e && e.pointerId != null) { try { cv.releasePointerCapture(e.pointerId); } catch (_) {} }
+  };
+  cv.addEventListener("pointerup", endDrag);
+  cv.addEventListener("pointercancel", endDrag);
+  cv.addEventListener("pointerleave", function() { _sidRollView.hover = null; });
+  // wheel: scroll in time, Shift = pitch, Ctrl = zoom
+  cv.addEventListener("wheel", function(e) {
+    e.preventDefault();
+    const view = _sidRollView;
+    if (e.altKey) {
+      _sidRollZoomV(e.deltaY < 0 ? 1.15 : 1 / 1.15);
+    } else if (e.ctrlKey) {
+      view.colW = Math.max(4, Math.min(48, view.colW * (e.deltaY < 0 ? 1.15 : 1 / 1.15)));
+      _sidRollSave({ colW: view.colW });
+    } else if (e.shiftKey) {
+      view.lo = Math.max(0, Math.min(96 - view.span, view.lo + (e.deltaY < 0 ? 1 : -1)));
+    } else {
+      view.row0 = Math.max(0, view.row0 + (e.deltaX || e.deltaY) / view.colW);
+    }
+  }, { passive: false });
+}
+
 function _sidPreviewSelectedRow() {
   const pat = _sidCurPat();
   const row = Math.max(0, Math.min(_SID_ROWS - 1, _sidSel.row));
@@ -39522,11 +42868,12 @@ function _sidEnsureAudio() {
 function _sidSetMasterVolume(pct, persist = true) {
   pct = Math.max(0, Math.min(100, Math.round(Number(pct) || 0)));
   _sidMasterVol = pct / 100;
-  ["sid-master-vol-val", "websid-play-vol-val"].forEach(function(id) {
+  ["sid-master-vol-val", "sid-ed-master-vol-val", "websid-play-vol-val"].forEach(function(id) {
     const value = document.getElementById(id);
     if (value) value.textContent = String(pct);
   });
   _sidKnobRender(document.getElementById("sid-master-vol"), pct);
+  _sidKnobRender(document.getElementById("sid-ed-master-vol"), pct);
   _sidKnobRender(document.getElementById("websid-play-vol"), pct);
   _sidApplyMasterVolume();
   if (persist) { try { localStorage.setItem("c64va-sid-master-vol", String(pct)); } catch (_) {} }
@@ -39662,8 +43009,8 @@ function _sidPlayMetronomeClick(accent) {
     const gain = ac.createGain();
     osc.type = "sine";
     osc.frequency.value = accent ? 1600 : 900;
-    // Scale click volume with master so metronome tracks user's preference.
-    const peak = 0.32 * Math.max(0.2, _sidMasterVol);
+    // fixed click level: the SID master volume does not affect the metronome
+    const peak = 0.32;
     gain.gain.setValueAtTime(peak, t);
     gain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
     osc.connect(gain).connect(ac.destination);
@@ -39675,7 +43022,7 @@ function _sidPlayMetronomeClick(accent) {
 let _sidBeatLampTimer = null;
 function _sidMetronomeBeat(accent) {
   _sidPlayMetronomeClick(accent);
-  const lamps = ["sid-beat", "sid-vkbd-beat"].map(function(id){ return document.getElementById(id); }).filter(Boolean);
+  const lamps = ["sid-beat", "sid-vkbd-beat", "sid-roll-beat"].map(function(id){ return document.getElementById(id); }).filter(Boolean);
   lamps.forEach(function(lamp) {
     lamp.classList.add("sid-beat-on");
     lamp.classList.toggle("sid-beat-accent", !!accent);
@@ -39685,7 +43032,7 @@ function _sidMetronomeBeat(accent) {
 }
 function _sidToggleMetronome() {
   _sidMetronomeEnabled = !_sidMetronomeEnabled;
-  ["sid-metronome", "sid-vkbd-metronome"].forEach(function(id) {
+  ["sid-metronome", "sid-vkbd-metronome", "sid-roll-metronome"].forEach(function(id) {
     const btn = document.getElementById(id);
     if (!btn) return;
     btn.setAttribute("aria-pressed", String(_sidMetronomeEnabled));
@@ -40084,7 +43431,7 @@ function _sidPauseBtnMarkup(isPlaying) {
 }
 function _sidUpdatePauseButton() {
   const isPlaying = !!(_sidTimer || _sidPlaybackUsingWebSid) && !_sidPaused;
-  ["sid-play", "sid-vkbd-play"].forEach(function(id) {
+  ["sid-play", "sid-vkbd-play", "sid-roll-play"].forEach(function(id) {
     const btn = document.getElementById(id);
     if (!btn) return;
     btn.innerHTML = _sidPauseBtnMarkup(isPlaying);
@@ -40157,6 +43504,7 @@ function _sidExtSetStatus(status) {
   _sidExtRender();
 }
 async function _sidExtStartFile(bytes, filename, song = 0) {
+  if (!_vaFullAllowed()) { _vaOpenLicenseDialog(true); return false; }
   // Stop the running tune with the window kept open: the engines' own stop
   // closes it, and the late "close" event would then stop the new tune too.
   // Unconditional: a tune that is still starting (status "stopped") must be
@@ -40447,6 +43795,7 @@ function _sidPlayerSyncButton() {
   btn.setAttribute("aria-pressed", String(open));
 }
 function _sidPlayerShow() {
+  if (!_vaFullAllowed()) return;
   const dlg = document.getElementById("websid-play-dialog");
   if (!dlg) return;
   const note = document.getElementById("websid-play-note");
@@ -40610,8 +43959,8 @@ function _sidExternalCoreStop(keepDialog = false) {
   _sidExternalCore = null;
   state.active = false;
   if (state.timer) clearInterval(state.timer);
-  _sidPreviewSources.forEach(function(src){ try { src.stop(); } catch (_) {} });
-  _sidPreviewSources.clear();
+  _sidExtSources.forEach(function(src){ try { src.stop(); } catch (_) {} });
+  _sidExtSources.clear();
   if (state.paused && _sidAudio) _sidAudio.resume();
   if (!keepDialog) _webSidHideExternalDialog();
   // released at once: a render still in flight finishes on its own session
@@ -40652,7 +44001,7 @@ async function _vaSidPlayFileBytes(bytes, filename, song = 0) {
         state.renderedMs += state.skipMs + pcm.length * 1000 / ac.sampleRate;
         state.skipMs = 0;
         state.nextTime = Math.max(state.nextTime, ac.currentTime + 0.02);
-        _sidPlayBuffer(pcm, state.nextTime);
+        _sidPlayBuffer(pcm, state.nextTime, _sidExtSources);
         state.nextTime += pcm.length / ac.sampleRate;
         // A Web Audio szál előre ütemezett hangja UI-terhelés alatt is tovább szól.
       } while (state.active && !state.paused && (!state.seeking || force) && state.nextTime - ac.currentTime < aheadTarget);
@@ -40692,8 +44041,8 @@ async function _vaSidSeek(state, targetMs) {
   try {
     while (state.busy) await state.queue.catch(function() {});
     if (!state.active) return;
-    _sidPreviewSources.forEach(function(src){ try { src.stop(); } catch (_) {} });
-    _sidPreviewSources.clear();
+    _sidExtSources.forEach(function(src){ try { src.stop(); } catch (_) {} });
+    _sidExtSources.clear();
     if (targetMs >= state.renderedMs) {
       state.skipMs = Math.round(targetMs - state.renderedMs);
     } else {
@@ -40812,6 +44161,7 @@ function _sidWaShowRow(ev) {
     if (_sidPat !== ev.pat) _sidSetPattern(ev.pat, true);
     if (ev.row === 0) _sidBuildSongList();
   }
+  _sidVkbdTrackRow(ev);
   if ((ev.row % _SID_ROWS_PER_BEAT) === 0) {
     _sidMetronomeBeat(((ev.row / _SID_ROWS_PER_BEAT) | 0) % _SID_BEATS_PER_BAR === 0);
   }
@@ -40837,6 +44187,7 @@ function _sidWaStop() {
 }
 
 function _sidStop(preloadStream = true, stopExternal = false) {
+  if (typeof _sidVkbdClearPlay === "function") _sidVkbdClearPlay();
   if (typeof _sidRecordStop === "function") _sidRecordStop();
   if (_sidTimer) { clearInterval(_sidTimer); _sidTimer = null; }
   // Az editor saját preview-ja nem zárhatja be a külön SID Player ablakot.
@@ -41248,7 +44599,7 @@ function _sidRenderEngine(e, frames, sr, hook) {
   return out;
 }
 
-function _sidPlayBuffer(data, when) {
+function _sidPlayBuffer(data, when, sources = _sidPreviewSources) {
   const ac = _sidEnsureAudio();
   const buf = ac.createBuffer(1, Math.max(1, data.length), ac.sampleRate);
   buf.copyToChannel(data, 0);
@@ -41256,8 +44607,8 @@ function _sidPlayBuffer(data, when) {
   src.buffer = buf;
   src.connect(_sidMasterGain || ac.destination);
   src.start(Math.max(ac.currentTime, when));
-  _sidPreviewSources.add(src);
-  src.onended = function() { _sidPreviewSources.delete(src); };
+  sources.add(src);
+  src.onended = function() { sources.delete(src); };
   return src;
 }
 
@@ -41423,6 +44774,307 @@ function _sidDeserialize(src) {
   _sidSyncPlayModeSel();
   _sidBuildInstSel(); _sidLoadInstUI(); _sidBuildPatSel(); _sidBuildSongList(); _sidBuildTracker();
 }
+/* ── GoatTracker 2 (.sng, GTS3–GTS5) import ─────────────────────────────────
+ * Lossy conversion to the editor's model. The per-channel order lists (with
+ * transpose and repeat) are flattened into one 3-voice row stream, cut into
+ * 32-row patterns (identical ones shared) and listed in the song. Instruments:
+ * AD/SR, first wave, gate timer / hard restart; the wavetable becomes the
+ * wave / arpeggio table, the pulse table PWM (start, min/max, speed), the
+ * filter table filter mode, resonance and cutoff sweep, the speed table entry
+ * the instrument vibrato. Pattern commands: key off → C, portamento → U/D,
+ * tempo → F, toneporta → a plain note; the rest are dropped and counted. A gate
+ * released by the wavetable becomes a C on the next free row. Returns null
+ * for a file that is not a GoatTracker song. */
+function _sidGoatImport(bytes) {
+  const b = bytes || [];
+  const id = String.fromCharCode(b[0], b[1], b[2], b[3]);
+  if (!/^GTS[345]$/.test(id)) return null;
+  let p = 4;
+  const r8 = function() { if (p >= b.length) throw new Error("eof"); return b[p++]; };
+  const str = function(n) {
+    let s = "";
+    for (let k = 0; k < n; k++) { const c = r8(); if (c && s.length === k) s += String.fromCharCode(c); }
+    return s.trim();
+  };
+  const signed = function(v) { return v >= 0x80 ? v - 0x100 : v; };
+  try {
+    const name = str(32), author = str(32);
+    str(32);
+    const subtunes = r8();
+    const orders = [];
+    for (let s = 0; s < subtunes; s++) {
+      const ch = [];
+      for (let c = 0; c < 3; c++) { const n = r8(); const o = []; for (let k = 0; k <= n; k++) o.push(r8()); ch.push(o); }
+      orders.push(ch);
+    }
+    const gi = [];
+    const ni = r8();
+    for (let i = 0; i < ni; i++) {
+      gi.push({ ad: r8(), sr: r8(), wp: r8(), pp: r8(), fp: r8(), sp: r8(), vd: r8(), gt: r8(), fw: r8(), name: str(16) });
+    }
+    const tl = [], tr = [];
+    for (let tb = 0; tb < 4; tb++) {
+      const n = r8(), l = [], rr = [];
+      for (let k = 0; k < n; k++) l.push(r8());
+      for (let k = 0; k < n; k++) rr.push(r8());
+      tl.push(l); tr.push(rr);
+    }
+    const gp = [];
+    const np = r8();
+    for (let i = 0; i < np; i++) {
+      const len = r8(), rows = [];
+      for (let k = 0; k < len; k++) {
+        const row = [r8(), r8(), r8(), r8()];
+        if (row[0] !== 0xFF) rows.push(row);
+      }
+      gp.push(rows);
+    }
+    if (!orders.length) return null;
+
+    const skipped = {};
+    const skip = function(key) { skipped[key] = (skipped[key] || 0) + 1; };
+    const CMD_NAMES = ["", "1xx portamento up", "2xx portamento down", "3xx toneporta", "4xx vibrato", "5xx set AD",
+      "6xx set SR", "7xx set wave", "8xx wavetable ptr", "9xx pulsetable ptr", "Axx filtertable ptr", "Bxx filter control",
+      "Cxx cutoff", "Dxx master volume", "Exx funktempo", "Fxx tempo"];
+    const ft = _sidFreqTables();
+    const tempo0 = 6;
+
+    // ── instruments ──
+    const insts = gi.map(function(g, i) {
+      const ins = _sidNewInst(g.name || ("GT " + String(i + 1).padStart(2, "0")));
+      ins.a = g.ad >> 4; ins.d = g.ad & 15; ins.s = g.sr >> 4; ins.r = g.sr & 15;
+      ins.firstWave = g.fw >= 0xFE ? 0 : g.fw;
+      ins.gateTimer = (g.gt & 0x40) ? 0 : Math.min(15, g.gt & 0x3F);
+      ins.hr = ins.gateTimer > 0 && !(g.gt & 0x80);
+      ins.vol = 15;
+      // wavetable → table steps (one step per frame)
+      const W = 0, steps = [], seen = {};
+      let ptr = g.wp, loop = -1, prev = { w: 0, n: 0, abs: false }, gateOff = -1, guard = 0;
+      while (ptr && ptr <= tl[W].length && steps.length < 31 && guard++ < 512) {
+        const L = tl[W][ptr - 1], R = tr[W][ptr - 1];
+        if (L === 0xFF) { if (!R) break; if (seen[R] !== undefined) { loop = seen[R]; break; } ptr = R; continue; }
+        if (seen[ptr] !== undefined) { loop = seen[ptr]; break; }
+        seen[ptr] = steps.length;
+        ptr++;
+        if (L >= 0xF0) continue;
+        let n = prev.n, abs = prev.abs;
+        if (R !== 0x80) {
+          if (R > 0x80) { n = R & 0x7F; abs = true; } else { n = R >= 0x60 ? R - 0x80 : R; abs = false; }
+        }
+        if (L >= 0x01 && L <= 0x0F) {
+          for (let k = 0; k < L && steps.length < 31; k++) steps.push({ w: 0, n: prev.n, abs: prev.abs });
+          prev = { w: 0, n: n, abs: abs };
+        } else if (L >= 0xE0) {
+          prev = { w: 0x08, n: n, abs: abs };
+        } else {
+          prev = { w: L, n: n, abs: abs };
+          if (L >= 0x10 && !(L & 1) && gateOff < 0) gateOff = steps.length;
+        }
+        steps.push(prev);
+      }
+      const wave = steps.find(function(s){ return s.w >= 0x10; });
+      if (wave) {
+        ins.tri = !!(wave.w & 0x10); ins.saw = !!(wave.w & 0x20); ins.pul = !!(wave.w & 0x40); ins.noi = !!(wave.w & 0x80);
+        ins.ring = !!(wave.w & 0x04); ins.sync = !!(wave.w & 0x02);
+      }
+      // the editor applies step 0 on the note's first frame (first wave); GoatTracker one frame later
+      if (steps.length) steps.unshift(Object.assign({}, steps[0]));
+      const plain = steps.every(function(s){ return (!s.w || (s.w & 0xFE) === (wave ? wave.w & 0xFE : 0)) && !s.abs && !s.n; });
+      ins.table = plain ? [] : steps;
+      ins.tableLoop = plain || loop < 0 ? -1 : loop + 1;
+      ins.tableSpeed = 1;
+      ins._gateOffFrame = gateOff < 0 ? -1 : gateOff + 1;
+      // pulse table → start width + PWM range / speed
+      if (g.pp) {
+        let pt = g.pp, pw = -1, time = 0, lo = 4095, hi = 0, mods = 0, speedSum = 0, frames = 0, start = -1;
+        for (let f = 0; f < 600 && pt && pt <= tl[1].length; f++) {
+          if (tl[1][pt - 1] === 0xFF) { pt = tr[1][pt - 1]; if (!pt) break; }
+          const L = tl[1][pt - 1], R = tr[1][pt - 1];
+          if (!time) {
+            if (L >= 0x80) { pw = ((L & 15) << 8) | R; pt++; }
+            else { time = L; }
+          }
+          if (time) {
+            if (pw < 0) pw = 0x800;
+            pw = (pw + signed(R)) & 0xFFF;
+            mods++; speedSum += Math.abs(signed(R));
+            if (!--time) pt++;
+          }
+          if (pw >= 0) { if (start < 0) start = pw; lo = Math.min(lo, pw); hi = Math.max(hi, pw); }
+          frames++;
+        }
+        if (start >= 0) ins.pw = start;
+        if (mods) {
+          ins.pwmSpeed = Math.min(255, Math.max(1, Math.round(speedSum / mods)));
+          ins.pwmMin = Math.max(0x80, lo); ins.pwmMax = Math.min(0xF80, hi);
+          if (ins.pwmMax <= ins.pwmMin) ins.pwmSpeed = 0;
+        }
+      }
+      // filter table → mode, resonance, cutoff (+ sweep)
+      if (g.fp) {
+        let pt = g.fp, time = 0, cut = -1, first = -1, up = false, down = false, mods = 0, speedSum = 0;
+        for (let f = 0; f < 600 && pt && pt <= tl[2].length; f++) {
+          if (tl[2][pt - 1] === 0xFF) { pt = tr[2][pt - 1]; if (!pt) break; }
+          const L = tl[2][pt - 1], R = tr[2][pt - 1];
+          if (!time) {
+            if (L >= 0x80) {
+              ins.lp = !!(L & 0x10); ins.bp = !!(L & 0x20); ins.hp = !!(L & 0x40);
+              ins.res = R >> 4; ins.filt = true;
+              pt++;
+              if (pt <= tl[2].length && tl[2][pt - 1] === 0x00) { cut = tr[2][pt - 1]; pt++; }
+            } else if (L) time = L;
+            else { cut = R; pt++; }
+          }
+          if (time) {
+            if (cut < 0) cut = 0;
+            const s = signed(R);
+            cut = (cut + s) & 0xFF;
+            mods++; speedSum += Math.abs(s);
+            if (s > 0) up = true; else if (s < 0) down = true;
+            if (!--time) pt++;
+          }
+          if (cut >= 0 && first < 0) first = cut;
+        }
+        if (first >= 0) { ins.cut = first << 3; ins.cutEnd = cut << 3; }
+        if (mods && cut !== first) {
+          ins.cutSpeed = Math.min(127, Math.max(1, Math.round(speedSum / mods * 8)));
+          ins.cutPing = up && down;
+        }
+        if (!ins.lp && !ins.bp && !ins.hp) ins.filt = false;
+      }
+      // speed table entry → instrument vibrato (vibrato delay 0 = off)
+      if (g.sp && g.vd && g.sp <= tl[3].length) {
+        const cmp = tl[3][g.sp - 1], spd = tr[3][g.sp - 1];
+        ins.vibDelay = Math.max(0, g.vd - 1);
+        ins.vibSpeed = Math.max(1, Math.min(15, Math.round((cmp & 0x7F) / 2) || 1));
+        ins.vibDepth = cmp & 0x80 ? Math.min(15, 32 >> Math.min(5, spd)) : Math.min(15, Math.max(1, Math.round(spd * 32 / ft.semi[48])));
+      }
+      return ins;
+    });
+    if (!insts.length) insts.push(_sidNewInst());
+
+    // ── order lists → one row stream per voice ──
+    const MAX_ROWS = 255 * _SID_ROWS;
+    const order = orders[0];
+    const chans = order.map(function(ol) {
+      const end = ol.indexOf(0xFF);
+      const stop = end < 0 ? ol.length : end;
+      const restart = end >= 0 && end + 1 < ol.length ? ol[end + 1] : 0;
+      const entries = [];
+      let trans = 0, k = 0, loopEntry = -1;
+      while (k < stop) {
+        if (loopEntry < 0 && k >= restart) loopEntry = entries.length;
+        let v = ol[k];
+        if (v >= 0xE0 && v < 0xFF) { trans = v - 0xF0; k++; continue; }
+        let rep = 1;
+        if (v >= 0xD0 && v < 0xE0) { rep = v - 0xD0 + 1; k++; v = ol[k]; if (k >= stop) break; }
+        for (let n = 0; n < rep; n++) entries.push({ pat: v, trans: trans });
+        k++;
+      }
+      return { entries: entries, loopEntry: Math.max(0, Math.min(loopEntry, entries.length - 1)) };
+    });
+    const rowsOf = function(ch, limit) {
+      const out = [];
+      let e = 0, guard = 0;
+      while (out.length < limit && ch.entries.length && guard++ < 4096) {
+        const en = ch.entries[e];
+        (gp[en.pat] || []).forEach(function(row){ out.push({ row: row, trans: en.trans }); });
+        e++;
+        if (e >= ch.entries.length) e = ch.loopEntry;
+      }
+      return out;
+    };
+    const natural = chans.map(function(ch) {
+      return ch.entries.reduce(function(sum, en){ return sum + (gp[en.pat] || []).length; }, 0);
+    });
+    const total = Math.min(MAX_ROWS, Math.max.apply(null, natural.concat([1])));
+    const streams = chans.map(function(ch){ return rowsOf(ch, total).slice(0, total); });
+
+    // ── rows → cells ──
+    let tempo = tempo0;
+    const empty = function() { return { note: null, inst: 0, fx: null, fxval: 0 }; };
+    const voices = [0, 1, 2].map(function() { return Array.from({ length: Math.ceil(total / _SID_ROWS) * _SID_ROWS }, empty); });
+    const curInst = [0, 0, 0];
+    for (let r = 0; r < total; r++) {
+      for (let v = 0; v < 3; v++) {
+        const cell = streams[v][r];
+        if (!cell) continue;
+        const note = cell.row[0], gin = cell.row[1], cmd = cell.row[2], val = cell.row[3];
+        if (gin && gin <= insts.length) curInst[v] = gin - 1;
+        const out = voices[v][r];
+        if (note >= 0x60 && note <= 0xBC) {
+          out.note = Math.max(0, Math.min(95, note - 0x60 + cell.trans));
+          out.inst = curInst[v];
+          const gOff = insts[curInst[v]]._gateOffFrame;
+          if (gOff >= 0 && cmd !== 3) {
+            const at = r + Math.max(1, Math.ceil(gOff / Math.max(1, tempo)));
+            const next = streams[v][at];
+            const busy = function(c) { return !!c && ((c.row[0] >= 0x60 && c.row[0] <= 0xBC) || c.row[0] === 0xBE); };
+            let free = at < total && !busy(next);
+            for (let k = r + 1; free && k < at; k++) { if (busy(streams[v][k])) free = false; }
+            if (free) voices[v][at]._cut = true;
+          }
+        } else if (note === 0xBE) {
+          out.fx = "C";
+        }
+        if (cmd === 1 || cmd === 2) {
+          const sp = val && val <= tl[3].length ? (tl[3][val - 1] << 8) | tr[3][val - 1] : 0;
+          // GoatTracker slides every frame of the row, the editor once per row
+          if (sp && !out.fx) { out.fx = cmd === 1 ? "U" : "D"; out.fxval = Math.min(255, sp * tempo); }
+          if (sp * tempo > 255) skip(CMD_NAMES[cmd] + " (clamped)");
+        } else if (cmd === 15) {
+          const tv = val & 0x7F;
+          if (tv >= 2) { tempo = tv; if (!out.fx) { out.fx = "F"; out.fxval = tv; } }
+          else skip(CMD_NAMES[14]);
+        } else if (cmd === 3) {
+          if (out.note != null) skip(CMD_NAMES[3]);
+        } else if (cmd) {
+          skip(CMD_NAMES[cmd]);
+        }
+      }
+    }
+    voices.forEach(function(col) {
+      col.forEach(function(c) { if (c._cut) { if (!c.fx && c.note == null) c.fx = "C"; delete c._cut; } });
+    });
+    insts.forEach(function(ins){ delete ins._gateOffFrame; });
+
+    // ── 32-row patterns, identical ones shared ──
+    const patterns = [], song = [], keys = {};
+    for (let r = 0; r < voices[0].length && song.length < 255; r += _SID_ROWS) {
+      const pat = voices.map(function(col){ return col.slice(r, r + _SID_ROWS); });
+      const key = JSON.stringify(pat);
+      if (keys[key] === undefined) { keys[key] = patterns.length; patterns.push(pat); }
+      song.push(keys[key]);
+    }
+    if (!patterns.length) { patterns.push([0, 1, 2].map(function(){ return Array.from({ length: _SID_ROWS }, empty); })); song.push(0); }
+    if (subtunes > 1) skip("subtunes 2–" + subtunes);
+    return { name: name, author: author, insts: insts.map(_sidInstNorm), patterns: patterns, song: song, speed: tempo0, skipped: skipped };
+  } catch (_) {
+    return null;
+  }
+}
+
+function _sidApplyGoatImport(bytes) {
+  const res = _sidGoatImport(bytes);
+  if (!res) { showViceToast(t("sidGoatInvalid"), true); return false; }
+  _sidStop();
+  _sidInsts = res.insts;
+  _sidPatterns = res.patterns;
+  _sidSong = res.song;
+  _sidSpeed = res.speed;
+  const speedEl = document.getElementById("sid-speed");
+  if (speedEl) speedEl.value = String(_sidSpeed);
+  if (typeof _sidUpdateBpmDisplay === "function") _sidUpdateBpmDisplay();
+  _sidSongPos = 0; _sidSongPlayPos = 0;
+  _sidInst = 0; _sidPat = 0; _sidPlayPat = 0;
+  _sidSyncPlayModeSel();
+  _sidBuildInstSel(); _sidLoadInstUI(); _sidBuildPatSel(); _sidBuildSongList(); _sidBuildTracker();
+  const skipped = Object.keys(res.skipped).map(function(k){ return k + " ×" + res.skipped[k]; });
+  showViceToast(tf("sidGoatImported", { insts: res.insts.length, pats: res.patterns.length, song: res.song.length }) +
+    (skipped.length ? " " + tf("sidGoatSkipped", { list: skipped.join(", ") }) : ""), false);
+  return true;
+}
+
 function _sidExport(kind) {
   if (kind === "asm") return _sidExportAsmPlayable();
   // BASIC DATA dump (unchanged legacy path)
@@ -42465,6 +46117,9 @@ function _sidInit() {
   // VA-VK settings (read here: setupSidEditor runs before these lets exist)
   const vkSaved = _sidVkbdState();
   if (typeof vkSaved.insert === "boolean") _sidVkbdInsertMode = vkSaved.insert;
+  if (typeof vkSaved.showPlay === "boolean") _sidVkbdShowPlay = vkSaved.showPlay;
+  const showPlayToggle = document.getElementById("sid-vkbd-showplay");
+  if (showPlayToggle) showPlayToggle.checked = _sidVkbdShowPlay;
   if (Number.isFinite(vkSaved.octave)) _sidOctave = Math.max(0, Math.min(7, vkSaved.octave));
   _sidSetOctave(_sidOctave);
   _sidUpdatePauseButton();
@@ -42490,6 +46145,7 @@ function setupSidEditor() {
     _sidInit(); dialog.showModal();
     // place the detached tracker before the first paint (no jump from the default spot)
     _sidRestoreTrackerFloat();
+    _sidRollRestore();
     if (_sidVkbdState().open) _sidOpenVirtualKeyboard(false);
     _sidStreamPreload();
   });
@@ -42598,9 +46254,11 @@ function setupSidEditor() {
   onId("sid-arp-preview", "click", _sidPreviewArpeggio);
   onId("sid-chord-add", "click", _sidInsertChord);
   onId("sid-arp-add", "click", _sidInsertArpeggio);
-  _sidKnobBind(document.getElementById("sid-master-vol"),
-    function() { return Math.round(_sidMasterVol * 100); },
-    function(pct) { _sidSetMasterVolume(pct); });
+  ["sid-master-vol", "sid-ed-master-vol"].forEach(function(id) {
+    _sidKnobBind(document.getElementById(id),
+      function() { return Math.round(_sidMasterVol * 100); },
+      function(pct) { _sidSetMasterVolume(pct); });
+  });
   onId("sid-play", "click", _sidPauseToggle);
   onId("sid-stop", "click", _sidStop);
   onId("sid-vkbd-play", "click", _sidPauseToggle);
@@ -42615,6 +46273,11 @@ function setupSidEditor() {
   });
   onId("sid-vkbd-oct-down", "click", function(){ _sidSetOctave(_sidOctave-1); });
   onId("sid-vkbd-oct-up", "click", function(){ _sidSetOctave(_sidOctave+1); });
+  onId("sid-vkbd-showplay", "change", function(e){
+    _sidVkbdShowPlay = !!e.target.checked;
+    _sidSaveVkbdState({ showPlay: _sidVkbdShowPlay });
+    _sidVkbdRenderPlay();
+  });
   onId("sid-vkbd-insert", "change", function(e){
     _sidVkbdInsertMode = !!e.target.checked;
     _sidSaveVkbdState({ insert: _sidVkbdInsertMode });
@@ -42635,10 +46298,11 @@ function setupSidEditor() {
     });
     sidVkbdHdr.addEventListener("pointermove", function(e) {
       if (!_sidVkbdDrag) return;
-      _sidVkbdDrag.at = _sidPlaceFixed(sidVkbdDlg, e.clientX - _sidVkbdDrag.dx, e.clientY - _sidVkbdDrag.dy);
+      _sidDragTo(_sidVkbdDrag, sidVkbdDlg, e.clientX - _sidVkbdDrag.dx, e.clientY - _sidVkbdDrag.dy);
     });
     const endVkbdDrag = function(e) {
       if (!_sidVkbdDrag) return;
+      _sidDragFlush(_sidVkbdDrag, sidVkbdDlg);
       if (_sidVkbdDrag.at) _sidSaveVkbdState({ left: _sidVkbdDrag.at.x, top: _sidVkbdDrag.at.y });
       _sidVkbdDrag = null;
       if (e && e.pointerId != null) { try { sidVkbdHdr.releasePointerCapture(e.pointerId); } catch(_) {} }
@@ -42647,6 +46311,8 @@ function setupSidEditor() {
     sidVkbdHdr.addEventListener("pointercancel", endVkbdDrag);
   }
   onId("sid-tracker-detach", "click", function(){ _sidSetTrackerDetached(true); });
+  _sidSetupRoll();
+  onId("sid-inst-sel", "change", _sidRollSyncHeader);
   onId("sid-tracker-attach", "click", function(){ _sidSetTrackerDetached(false); });
   _sidSetupTrackerFloat();
   let trkDetached = false;
@@ -42666,6 +46332,14 @@ function setupSidEditor() {
   onId("sid-save-bin", "click", function(){ _saveBinFile(_sidSerialize(), "sound.bin"); });
   const sidBinFile = document.getElementById("sid-bin-file");
   onId("sid-load-bin", "click", function(){ if (sidBinFile) sidBinFile.click(); });
+  const sidSngFile = document.getElementById("sid-sng-file");
+  onId("sid-import-goat", "click", function(){ if (sidSngFile) sidSngFile.click(); });
+  if (sidSngFile) sidSngFile.addEventListener("change", function(e){
+    const file = e.target.files && e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(){ _sidApplyGoatImport(new Uint8Array(reader.result)); };
+    reader.readAsArrayBuffer(file); e.target.value = "";
+  });
   if (sidBinFile) sidBinFile.addEventListener("change", function(e){
     const file = e.target.files && e.target.files[0]; if (!file) return;
     const reader = new FileReader();
@@ -43749,4 +47423,136 @@ function _cgWireDialog() {
 // Toolbar button wiring — attach once after DOM ready
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("curve-gen-btn")?.addEventListener("click", _cgOpenDialog);
+  setupLicense();
 });
+
+/* ── License: full / light version ─────────────────────────────────────────
+ * Without a valid email / serial pair (checked by the backend, Ed25519) the
+ * app runs as the light version: the elements below are locked here, and the
+ * backend refuses the build / hardware commands. Without the Tauri backend
+ * (browser preview) the app counts as licensed. */
+var _vaLicense = { licensed: true, email: "", known: false };
+var _VA_FULL_ONLY = ["#sid-editor-btn", "#sprite-editor-btn", "#char-editor-btn", "#charset-canvas-btn",
+  "#hires-editor-btn", "#map-editor-btn", "#level-editor-btn", "#d64-editor-btn", "#curve-gen-btn", "#sid-player-btn",
+  "#save-prg", "#save-d64", "#save-crt", "#build-project", "#run-exomizer-toggle",
+  "#run-ultimate-mode", "#run-ultimate-d64-mode", "#run-kff2-mode"];
+var _VA_FULL_RUN_MODES = ["ultimate", "ultimate-d64", "kff2"];
+var _VA_FREE_LANGUAGES = ["hu", "en"];
+var _VA_FREE_THEMES = ["light", "dark"];
+function _vaFullAllowed() { return !_vaLicense || _vaLicense.licensed; }
+async function _vaLicenseRefresh() {
+  let st = null;
+  try { st = await window.electronAPI?.licenseStatus?.(); } catch (_) { st = null; }
+  _vaLicense = st ? { licensed: !!st.licensed, email: st.email || "", known: true } : { licensed: true, email: "", known: true };
+  _vaLicenseApply();
+}
+function _vaLicenseApply() {
+  if (!_VA_FULL_ONLY) return; // called by applyTranslations before this part of the script ran
+  const light = !_vaFullAllowed();
+  document.body.classList.toggle("va-light", light);
+  const badge = document.getElementById("license-badge");
+  if (badge) {
+    // shown once the backend has answered: no FREEMIUM / PROFESSIONAL flash at startup
+    badge.hidden = !_vaLicense.known;
+    badge.textContent = light ? "FREEMIUM" : "PROFESSIONAL";
+  }
+  _VA_FULL_ONLY.forEach(function(sel) {
+    const el = document.querySelector(sel);
+    if (el) el.classList.toggle("va-locked", light);
+  });
+  if (light) {
+    const player = document.getElementById("websid-play-dialog");
+    if (player?.open) { if (typeof _sidExtStop === "function") _sidExtStop(); player.close(); }
+    if (typeof runMode !== "undefined" && _VA_FULL_RUN_MODES.includes(runMode)) setRunMode("prg");
+    if (typeof exomizerEnabled !== "undefined" && exomizerEnabled) {
+      exomizerEnabled = false;
+      if (runExomizerToggle) runExomizerToggle.checked = false;
+    }
+  }
+  // freemium: Hungarian and English only
+  if (languageSelect) {
+    Array.from(languageSelect.options).forEach(function(o) { o.disabled = light && !_VA_FREE_LANGUAGES.includes(o.value); });
+    if (light && !_VA_FREE_LANGUAGES.includes(currentLanguage)) {
+      languageSelect.value = "en";
+      handleLanguageChange();
+      return;
+    }
+  }
+  // freemium: light and dark themes only
+  document.querySelectorAll(".theme-option").forEach(function(btn) {
+    btn.classList.toggle("va-locked", light && !_VA_FREE_THEMES.includes(btn.dataset.themeOpt));
+  });
+  if (light && !_VA_FREE_THEMES.includes(document.documentElement.dataset.theme || "light")) setTheme("dark");
+  const about = document.getElementById("about-license");
+  if (about) about.textContent = light ? t("licenseLightLabel") : tf("licensedTo", { email: _vaLicense.email || "—" });
+}
+function _vaLicenseSetStatus(text, kind) {
+  const el = document.getElementById("license-status");
+  if (!el) return;
+  el.textContent = text || "";
+  el.classList.toggle("license-status--error", kind === "error");
+  el.classList.toggle("license-status--ok", kind === "ok");
+}
+function _vaLicenseRender(lockedFeature) {
+  const licensed = _vaFullAllowed() && !!_vaLicense.email;
+  const msg = document.getElementById("license-msg");
+  if (msg) msg.textContent = licensed ? tf("licensedTo", { email: _vaLicense.email })
+    : (lockedFeature ? t("licenseLocked") + " " : "") + t("licenseIntro");
+  const deact = document.getElementById("license-deactivate");
+  if (deact) deact.hidden = !licensed;
+  const email = document.getElementById("license-email");
+  if (email && licensed) email.value = _vaLicense.email;
+}
+function _vaOpenLicenseDialog(lockedFeature = false) {
+  const dlg = document.getElementById("license-dialog");
+  if (!dlg) return;
+  document.querySelector(".control-menu")?.removeAttribute("open");
+  _vaLicenseSetStatus("");
+  _vaLicenseRender(lockedFeature);
+  if (!dlg.open) dlg.showModal();
+  const email = document.getElementById("license-email");
+  (email && !email.value ? email : document.getElementById("license-serial"))?.focus();
+}
+async function _vaLicenseActivate() {
+  const email = document.getElementById("license-email")?.value || "";
+  const serial = document.getElementById("license-serial")?.value || "";
+  if (!window.electronAPI?.licenseActivate) return;
+  let res = null;
+  try { res = await window.electronAPI.licenseActivate(email, serial); } catch (_) { res = null; }
+  if (!res || !res.ok) { _vaLicenseSetStatus(t("licenseInvalid"), "error"); return; }
+  _vaLicense = { licensed: true, email: res.email, known: true };
+  _vaLicenseApply();
+  _vaLicenseRender(false);
+  _vaLicenseSetStatus(tf("licenseActivated", { email: res.email }), "ok");
+}
+async function _vaLicenseDeactivate() {
+  if (!await _showConfirm(t("licenseDeactivateConfirm"))) return;
+  try { await window.electronAPI?.licenseDeactivate?.(); } catch (_) {}
+  await _vaLicenseRefresh();
+  const serial = document.getElementById("license-serial");
+  if (serial) serial.value = "";
+  _vaLicenseRender(false);
+  _vaLicenseSetStatus("");
+}
+function setupLicense() {
+  // capture phase: runs before the locked element's own handlers
+  document.addEventListener("click", function(e) {
+    if (_vaFullAllowed()) return;
+    const hit = e.target instanceof Element ? e.target.closest(_VA_FULL_ONLY.join(",")) : null;
+    if (!hit) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    _vaOpenLicenseDialog(true);
+  }, true);
+  document.getElementById("license-btn")?.addEventListener("click", function() { _vaOpenLicenseDialog(false); });
+  document.getElementById("license-badge")?.addEventListener("click", function() { _vaOpenLicenseDialog(false); });
+  document.getElementById("license-activate")?.addEventListener("click", _vaLicenseActivate);
+  document.getElementById("license-deactivate")?.addEventListener("click", _vaLicenseDeactivate);
+  document.getElementById("license-close")?.addEventListener("click", function() { document.getElementById("license-dialog")?.close(); });
+  document.getElementById("license-buy")?.addEventListener("click", function() {
+    const url = "https://www.c64va.tech/";
+    if (window.electronAPI?.openExternal) window.electronAPI.openExternal(url); else window.open(url, "_blank", "noopener");
+  });
+  _vaLicenseRefresh();
+}
+

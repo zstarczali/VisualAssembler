@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.5.5">
+  <link rel="stylesheet" href="style.css?v=2.5.7">
 </head>
 
 <body>
@@ -44,7 +44,10 @@
   <div class="app-shell">
     <header class="hero">
       <div class="hero-copy-block">
-        <p class="eyebrow">Commodore 64 visual assembler</p>
+        <div class="eyebrow-row">
+          <p class="eyebrow">Commodore 64 visual assembler</p>
+          <button id="license-badge" class="license-badge" type="button" aria-label="Register…" hidden>FREEMIUM</button>
+        </div>
         <div class="hero-menu-row">
           <div class="main-toolbar">
           <details class="control-menu">
@@ -181,6 +184,7 @@
                 <h3 class="control-menu-label control-menu-label--section" id="menu-info-label">Info</h3>
                 <button id="help-manual-btn" class="secondary" type="button">Manual</button>
                 <button id="about-btn" class="secondary" type="button">About</button>
+                <button id="license-btn" class="secondary" type="button">Register…</button>
                 <button id="whats-new-btn" class="secondary" type="button">What's New</button>
                 <button id="knowledge-base-btn" class="secondary" type="button">Knowledge Base</button>
                 <button id="check-update-btn" class="secondary" type="button">Check for Update</button>
@@ -957,6 +961,24 @@ PRINTABLE CHARACTERS
     </div>
   </dialog>
 
+  <dialog id="license-dialog" class="app-confirm-dialog update-dialog license-dialog">
+    <div class="app-confirm-card">
+      <h2 class="compile-error-title" id="license-title">Register Visual Assembler</h2>
+      <p id="license-msg" class="app-confirm-msg"></p>
+      <label class="license-field"><span id="license-email-label">Email</span>
+        <input id="license-email" type="email" autocomplete="email" spellcheck="false"></label>
+      <label class="license-field"><span id="license-serial-label">Serial</span>
+        <textarea id="license-serial" rows="3" spellcheck="false"></textarea></label>
+      <p id="license-status" class="license-status" role="status"></p>
+      <div class="app-confirm-buttons">
+        <button id="license-buy" class="secondary" type="button">Buy full version</button>
+        <button id="license-deactivate" class="secondary" type="button" hidden>Remove license</button>
+        <button id="license-close" class="secondary" type="button">Close</button>
+        <button id="license-activate" class="primary" type="button">Activate</button>
+      </div>
+    </div>
+  </dialog>
+
   <dialog id="update-dialog" class="app-confirm-dialog update-dialog">
     <div class="app-confirm-card">
       <h2 class="compile-error-title" id="update-title">Check for Update</h2>
@@ -1206,7 +1228,8 @@ PRINTABLE CHARACTERS
           <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
         </div>
         <h2 class="about-title">C64 Visual Assembler</h2>
-        <p class="about-version" id="about-version">v2.5.5</p>
+        <p class="about-version" id="about-version">v2.5.7</p>
+        <p class="about-version" id="about-license"></p>
         <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
       </div>
       <div class="about-columns">
@@ -1232,49 +1255,40 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.5.5</p>
+      <p class="whats-new-version">v2.5.7</p>
       <ul class="whats-new-list">
         <li>
-          <strong>New: pixel grid in the Hi-Res Editor:</strong> with <em>Grid</em> on, from 4× zoom every pixel gets its own grid line, stronger on the character-cell borders. The lines are shaded to stay visible on all 16 colours.
+          <strong>New: VA SID Core 1.2:</strong> the SID Player now runs tunes on a cycle-exact 6510 (every bus cycle, dummy accesses, VICE's interrupt timing), CIA 6526A timers / interrupts / TOD, VIC-II timing with bad lines, sprite DMA and raster interrupts, and the 6510 I/O port.
         </li>
         <li>
-          <strong>New: 16× zoom</strong> in the Hi-Res Editor (was 8×).
+          <strong>Hi-Res Editor: two colours in every 8×8 cell:</strong> the new <em>Cell paper</em> tool sets the background of each cell (the low nibble of its screen RAM byte), so every cell can have its own ink and paper. The eraser now uncovers the cell's own background.
         </li>
         <li>
-          <strong>New: right-click Copy / Paste menu</strong> on the canvas of the Hi-Res, Map and Sprite editors: Copy, Paste and Transparent paste, or Copy frame / Paste frame in the Sprite Editor. A paste started from the menu previews where you clicked.
+          <strong>Exact C64 character ROM:</strong> the ROM viewer, <em>Load ROM</em> in the Character Editor and the Map / Level editors now use the real glyphs (checked byte by byte against the 901225-01 character ROM); several graphics characters were wrong or missing before.
         </li>
         <li>
-          <strong>New: Number Converter toggle button:</strong> its toolbar button stays highlighted while the converter is shown.
+          <strong>Sprite Editor:</strong> a <strong>hi-res overlay</strong> sprite over each frame (outline over a multicolor body), <strong>flood fill</strong>, <strong>select / move</strong>, <strong>rotate 90°</strong>, <strong>Mirror all</strong> (a mirrored copy of the animation), <strong>sprite sheet import</strong> with OKLab colour matching and dithering, a <strong>hitbox</strong> per frame with a table export, an <strong>X / Y ×2</strong> preview and zoom up to 40×.
         </li>
         <li>
-          <strong>Fixed:</strong> the multicolor cell grid of the Hi-Res Editor was twice as wide as a character cell; the Hi-Res <em>Paste</em> button always pasted transparently; the SID Editor right-click menu opened away from the cursor.
+          <strong>Level Editor:</strong> an <strong>objects layer</strong> (start, enemies, items, doors, exit, triggers → <code>LEVEL_OBJ_*</code> tables), <strong>character attributes</strong> (solid, ladder, hazard, collectible → <code>LEVEL_ATTR</code>), an <strong>edge check</strong> between screens, <strong>colours per screen</strong>, a <strong>memory meter</strong> with RLE export and unpacker, and <strong>Run in VICE</strong> — a joystick-scrolled test program built from the level.
         </li>
         <li>
-          <strong>From 2.5.4, fixed: window not appearing on relaunch:</strong> if the app was quit with its window minimized or hidden (mostly on macOS, also on Linux / Wayland), the next start could come up without a window. The window is now always shown at startup; the saved window size is kept.
+          <strong>Character Editor:</strong> <strong>undo / redo</strong>, drawing tools (pencil, line, rectangle, fill), <strong>rotate 90°</strong>, <strong>copy / paste</strong> and drag to swap characters on the map (Shift+drag copies), <strong>2×1 / 1×2 / 2×2 tiles</strong> edited as one picture, the <strong>lowercase ROM set</strong>, a <strong>text preview</strong> and <strong>range export</strong> (<code>.bin</code> or <code>.byte</code> lines). The <strong>Charset Canvas</strong> zooms 2×–24× (slider or Ctrl+wheel) with a pixel grid, sets the background in hi-res mode too, and can switch single characters to <strong>hi-res inside multicolor mode</strong> (Color RAM bit 3), like the C64.
         </li>
         <li>
-          <strong>From 2.5.4: Ultimate Basic 1.6.3 bundled, with QBasic-style syntax:</strong> <code>DIM name AS type</code> for variables and arrays of every type, <code>FUNCTION</code> / <code>SUB</code> with <code>AS</code> types, <code>ELSEIF</code>, <code>DO … LOOP</code>, <code>WHILE … WEND</code>, <code>SELECT CASE</code>, <code>EXIT DO</code> / <code>EXIT SUB</code>, single-line <code>IF</code>, <code>'</code> comments and <code>PRINT a; b; c</code>; runtime strings (<code>+</code>, <code>LEFT$</code> / <code>RIGHT$</code> / <code>MID$</code>) and signed 16-bit <code>INTEGER</code>. The UB editor highlights, completes and formats the new syntax, and the Commands panel describes it.
+          <strong>From 2.5.6: SID Player:</strong> a toolbar button opens a floating player for <code>.sid</code> (PSID / RSID) tunes — a playlist with drag and drop, previous / next tune, subtunes, seek and ±10 s, volume, and playlist save / open (<code>.sidpl</code>). The list and the window are remembered.
         </li>
         <li>
-          <strong>From 2.5.3, fixed: running in VICE on Windows</strong> no longer fails with <em>program not found</em> when PowerShell is missing from PATH; VICE starts from its own folder, and paths with spaces are handled.
+          <strong>From 2.5.6: VA SID Core 1.1:</strong> a built-in SID emulation (MOS 6581 / 8580, reSID-aligned 6581 filter) with a cycle-locked PSID / RSID player, so raster-IRQ and digi tunes play too. Choose it in <em>Settings → SID preview</em>; the player shows which engine is playing.
         </li>
         <li>
-          <strong>From 2.5.2: SID Editor previews on the real SID:</strong> the instrument Preview, the virtual keyboard, note entry, chord and arpeggio previews, row preview and single-pattern playback now play through the WebSid emulator, streamed frame by frame from the same engine as the exported player. It is preloaded, so notes sound at once.
+          <strong>From 2.5.6: SID Editor:</strong> knobs for the instrument parameters, a wider ADSR graph, <strong>MIDI input</strong> with an activity lamp, <strong>recording</strong> into the tracker (a new pattern is added when the current one is full), a <strong>metronome</strong> with beat lamps, <strong>pattern delete</strong>, the master volume on VA-VK, and <strong>Import GoatTracker .sng</strong>.
         </li>
         <li>
-          <strong>Note-off in the tracker:</strong> key <strong>1</strong> writes <code>===</code>: the gate is released and the instrument's release runs, like a key-off in other trackers. <strong>Enter</strong> edits the selected cell.
+          <strong>From 2.5.6: Freemium and Professional:</strong> without a registration the app runs as Freemium. Enter the email address and serial from your purchase in <em>Menu → Register…</em> for the Professional version with every editor, build and run option, language and theme.
         </li>
         <li>
-          <strong>Detachable tracker:</strong> the tracker can float in its own resizable panel and dock back, so a long wave table leaves it room.
-        </li>
-        <li>
-          <strong>Wave / arpeggio presets:</strong> the preset list keeps the chosen preset until the table is edited by hand.
-        </li>
-        <li>
-          <strong>VA-VK:</strong> the virtual keyboard has a new name and Play / Stop buttons, and remembers its position and settings; the SID editor remembers its master volume. <strong>Knowledge Base:</strong> C64 OS development environment and png2c64 links, in two columns.
-        </li>
-        <li>
-          <strong>From 2.5.1:</strong> SID Editor instruments like a real tracker (resonant filter sweeps, vibrato, PWM, hard restart, wave / arpeggio tables, RING and SYNC), the new frame-based SID player, Ultimate Basic 1.6.2 <code>tune</code> lines, bookmarks and Go to line.
+          <strong>Ultimate Basic 1.6.4</strong> bundled.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -1409,9 +1423,13 @@ PRINTABLE CHARACTERS
           <button class="ed-file-btn" type="button">Files ▾</button>
           <div class="ed-file-menu" hidden>
             <button id="ce-load-bin" type="button">Load .bin</button>
+            <button id="ce-rom-upper" type="button">ROM: uppercase / graphics</button>
+            <button id="ce-rom-lower" type="button">ROM: lowercase / uppercase</button>
             <div class="ed-file-sep"></div>
             <button id="ce-save-bin" type="button">Save .bin</button>
+            <button id="ce-save-range" type="button">Save range (.bin)</button>
             <button id="ce-copy-asm" type="button">Export ASM</button>
+            <button id="ce-copy-range" type="button">Copy range ASM</button>
           </div>
         </div>
         <div class="ce-hdr-titles">
@@ -1424,6 +1442,42 @@ PRINTABLE CHARACTERS
         <button id="ce-load-rom" class="ce-tool-btn" type="button" aria-label="Load charset from ROM">
           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="8" height="8" rx="1"/><path d="M6.5 4V2M9.5 4V2M6.5 14v-2M9.5 14v-2M4 6.5H2M4 9.5H2M14 6.5h-2M14 9.5h-2" stroke-linecap="round"/></svg>
         </button>
+        <button id="ce-load-rom2" class="ce-tool-btn" type="button" aria-label="Load lowercase charset from ROM">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="8" height="8" rx="1"/><path d="M6.5 4V2M9.5 4V2M6.5 14v-2M9.5 14v-2M4 6.5H2M4 9.5H2M14 6.5h-2M14 9.5h-2" stroke-linecap="round"/><text x="8" y="10.6" font-size="6" font-family="sans-serif" text-anchor="middle" fill="currentColor" stroke="none">a</text></svg>
+        </button>
+        <div class="ce-tool-group">
+          <button class="ce-tool-btn" id="ce-undo" type="button" aria-label="Undo">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 5L3 7.5 5.5 10"/><path d="M3 7.5h7a3.5 3.5 0 010 7H8"/></svg>
+          </button>
+          <button class="ce-tool-btn" id="ce-redo" type="button" aria-label="Redo">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 5L13 7.5 10.5 10"/><path d="M13 7.5H6a3.5 3.5 0 000 7H8"/></svg>
+          </button>
+        </div>
+        <div class="ce-tool-group">
+          <button class="ce-tool-btn" id="ce-copy" type="button" aria-label="Copy">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1"/><path d="M3 11V3h8"/></svg>
+          </button>
+          <button class="ce-tool-btn" id="ce-paste" type="button" aria-label="Paste">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3.5" width="10" height="11" rx="1"/><rect x="5.5" y="2" width="5" height="3" rx="0.6" fill="currentColor" stroke="none"/></svg>
+          </button>
+        </div>
+        <div class="ce-tool-group">
+          <button class="ce-tool-btn ce-tool-btn--active" data-ce-tool="pencil" type="button" aria-label="Pencil">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 14l1.2-3.5L10.5 3.2l2.3 2.3-7.3 7.3z"/><path d="M9.5 4.2l2.3 2.3"/></svg>
+          </button>
+          <button class="ce-tool-btn" data-ce-tool="line" type="button" aria-label="Line">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><line x1="3" y1="13" x2="13" y2="3"/></svg>
+          </button>
+          <button class="ce-tool-btn" data-ce-tool="rect" type="button" aria-label="Rectangle">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><rect x="3" y="4" width="10" height="8"/></svg>
+          </button>
+          <button class="ce-tool-btn" data-ce-tool="fillrect" type="button" aria-label="Filled Rectangle">
+            <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="3" y="4" width="10" height="8" rx="0.5"/></svg>
+          </button>
+          <button class="ce-tool-btn" data-ce-tool="fill" type="button" aria-label="Flood Fill">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l5-5 5 5-5 5z"/><path d="M3 7l5 5 5-5" fill="currentColor" stroke="none" opacity="0.45"/></svg>
+          </button>
+        </div>
         <div class="ce-tool-group">
           <button class="ce-tool-btn" id="ce-clear" type="button" aria-label="Clear">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4.5h10M6.2 4.5V3h3.6v1.5M5 4.5l.7 8.5h4.6l.7-8.5"/></svg>
@@ -1437,6 +1491,12 @@ PRINTABLE CHARACTERS
           <button class="ce-tool-btn" id="ce-flipv" type="button" aria-label="Flip Vertical">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round" aria-hidden="true"><path d="M2 8h12" stroke-dasharray="1.5 1.4"/><path d="M5 6.2L8 3l3 3.2z" fill="currentColor" stroke="none"/><path d="M5 9.8L8 13l3-3.2z" fill="currentColor" stroke="none" opacity="0.45"/></svg>
           </button>
+          <button class="ce-tool-btn" id="ce-rotr" type="button" aria-label="Rotate 90° clockwise">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.5 7.5A4.5 4.5 0 1 1 8 3h3"/><path d="M9.5 1.3L11.3 3 9.5 4.7"/></svg>
+          </button>
+          <button class="ce-tool-btn" id="ce-rotl" type="button" aria-label="Rotate 90° counter-clockwise">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 7.5A4.5 4.5 0 1 0 8 3H5"/><path d="M6.5 1.3L4.7 3l1.8 1.7"/></svg>
+          </button>
         </div>
         <div class="ce-tool-group">
           <button class="ce-shift-btn" id="ce-shl" type="button" aria-label="Shift Left">←</button>
@@ -1444,6 +1504,15 @@ PRINTABLE CHARACTERS
           <button class="ce-shift-btn" id="ce-shu" type="button" aria-label="Shift Up">↑</button>
           <button class="ce-shift-btn" id="ce-shd" type="button" aria-label="Shift Down">↓</button>
         </div>
+        <span class="ce-tb-break"></span>
+        <label class="ce-tile-lbl"><span id="ce-tile-label">Tile</span>
+          <select id="ce-tile" class="ce-select">
+            <option value="1x1">1×1</option>
+            <option value="2x1">2×1</option>
+            <option value="1x2">1×2</option>
+            <option value="2x2">2×2</option>
+          </select>
+        </label>
         <label class="ce-mode-check me-check" title="Multicolor mode">
           <input type="checkbox" id="ce-multicolor">
           <span id="ce-multicolor-label">Multicolor mode</span>
@@ -1471,11 +1540,30 @@ PRINTABLE CHARACTERS
               <div id="ce-mc2-colors" class="ce-colors"></div>
             </div>
           </div>
+          <div class="ce-preview">
+            <div class="ce-preview-hdr">
+              <span id="ce-preview-label" class="ce-section-lbl">Preview</span>
+              <select id="ce-preview-set" class="ce-select">
+                <option value="upper">ABC</option>
+                <option value="lower">abc / ABC</option>
+              </select>
+            </div>
+            <textarea id="ce-preview-text" class="ce-preview-text" rows="2" spellcheck="false">HELLO WORLD! {$51}{$51}</textarea>
+            <canvas id="ce-preview-canvas" class="ce-preview-canvas" width="256" height="48"></canvas>
+            <span id="ce-preview-hint" class="ce-hint">{65} / {$41} = screen code</span>
+          </div>
+          <div class="ce-range">
+            <span id="ce-range-label" class="ce-section-lbl">Range</span>
+            <input id="ce-range-from" class="ce-num-in" type="number" min="0" max="255" value="0">
+            <span>–</span>
+            <input id="ce-range-to" class="ce-num-in" type="number" min="0" max="255" value="255">
+          </div>
           <input type="file" id="ce-load-file" accept=".bin,application/octet-stream" hidden>
           <pre id="ce-asm-out" class="ce-asm-out" hidden></pre>
         </div>
         <div class="ce-right">
           <canvas id="ce-map-canvas" class="ce-map-canvas" width="256" height="256"></canvas>
+          <span id="ce-map-hint" class="ce-hint ce-map-hint">Drag: swap · Shift+drag: copy · Right click: copy / paste</span>
         </div>
       </div>
     </div>
@@ -1536,6 +1624,9 @@ PRINTABLE CHARACTERS
           <button class="cc-tool" data-cc-tool="fill" type="button" aria-label="Fill">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l5-5 5 5-5 5z"/><path d="M3 7l5 5 5-5" fill="currentColor" stroke="none" opacity="0.45"/></svg>
           </button>
+          <button class="cc-tool" data-cc-tool="cellmode" type="button" aria-label="Character: multicolor / hi-res" disabled>
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11"/><path d="M2.5 8h11M8 2.5v11"/><path d="M3 3h4.5v4.5H3z" fill="currentColor" stroke="none" opacity="0.55"/><path d="M10.25 8.5v4.5M11.75 8.5v4.5" stroke-width="0.9"/></svg>
+          </button>
           <button class="cc-tool" id="cc-clear" type="button" aria-label="Clear">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4.5h10M6.2 4.5V3h3.6v1.5M5 4.5l.7 8.5h4.6l.7-8.5"/></svg>
           </button>
@@ -1548,6 +1639,11 @@ PRINTABLE CHARACTERS
           <input type="checkbox" id="cc-grid" checked>
           <span id="cc-grid-label">Grid</span>
         </label>
+        <div class="cc-zoom">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14M5 7h4M7 5v4"/></svg>
+          <input type="range" id="cc-zoom" min="2" max="24" step="1" value="6" aria-label="Zoom">
+          <span id="cc-zoom-lbl" class="cc-zoom-lbl">6×</span>
+        </div>
       </div>
       <div class="cc-body">
         <div class="cc-sidebar">
@@ -1555,10 +1651,10 @@ PRINTABLE CHARACTERS
           <div id="cc-palette" class="cc-palette"></div>
           <div class="cc-mc-colors">
             <label><span id="cc-bg-label">BG</span><select id="cc-bg-color" class="cc-color-select"></select></label>
-            <label><span id="cc-mc1-label">MC1</span><select id="cc-mc1-color" class="cc-color-select"></select></label>
-            <label><span id="cc-mc2-label">MC2</span><select id="cc-mc2-color" class="cc-color-select"></select></label>
+            <label class="cc-mc-only"><span id="cc-mc1-label">MC1</span><select id="cc-mc1-color" class="cc-color-select"></select></label>
+            <label class="cc-mc-only"><span id="cc-mc2-label">MC2</span><select id="cc-mc2-color" class="cc-color-select"></select></label>
           </div>
-          <div id="cc-status" class="cc-status">128x128 mono / 64x128 multicolor, 256 chars</div>
+          <div id="cc-status" class="cc-status">128x128, 256 chars. Multicolor: each character is multicolor or hi-res.</div>
         </div>
         <div class="cc-canvas-wrap">
           <canvas id="cc-canvas" class="cc-canvas" width="768" height="768"></canvas>
@@ -1754,6 +1850,8 @@ PRINTABLE CHARACTERS
             <button data-lv-export="screen-color" type="button">Save level Screen + Color RAM (.bin)…</button>
             <button data-lv-export="blocks" type="button">Export to blocks</button>
             <button data-lv-export="asm" type="button">Copy asm (→ clipboard)</button>
+            <button data-lv-export="rle-blocks" type="button">Export RLE to blocks</button>
+            <button data-lv-export="rle-asm" type="button">Copy RLE asm (→ clipboard)</button>
           </div>
         </div>
         <span id="lv-title" class="me-title">LEVEL EDITOR</span>
@@ -1817,6 +1915,30 @@ PRINTABLE CHARACTERS
           <button class="me-tool" id="lv-rewind" type="button" aria-label="Back to start">
             <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 3.5v9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M12.5 3.5v9l-7-4.5z" fill="currentColor"/></svg>
           </button>
+          <button class="me-tool" id="lv-run" type="button" aria-label="Run in VICE">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="3" width="13" height="10" rx="1"/><path d="M6.5 5.8v4.4L10.3 8z" fill="currentColor" stroke="none"/></svg>
+          </button>
+        </div>
+        <div class="me-tool-group">
+          <button class="me-tool" id="lv-obj-mode" type="button" aria-label="Objects layer" aria-pressed="false">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="1" opacity="0.45"/><rect x="4" y="9" width="3.5" height="3.5" fill="currentColor" stroke="none"/><path d="M10.5 4l2 3.5h-4z" fill="currentColor" stroke="none"/></svg>
+          </button>
+          <button class="me-tool" id="lv-obj-del" type="button" aria-label="Delete object" disabled>
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="1" opacity="0.45"/><path d="M6 6l4 4M10 6l-4 4"/></svg>
+          </button>
+        </div>
+        <div class="me-tool-group">
+          <button class="me-tool" id="lv-attr-mode" type="button" aria-label="Character attributes" aria-pressed="false">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1" aria-hidden="true"><rect x="2" y="2" width="5" height="5" fill="currentColor" stroke="none" opacity="0.85"/><rect x="9" y="2" width="5" height="5"/><rect x="2" y="9" width="5" height="5"/><rect x="9" y="9" width="5" height="5" fill="currentColor" stroke="none" opacity="0.45"/></svg>
+          </button>
+        </div>
+        <div class="lv-obj-controls" id="lv-attr-controls" hidden>
+          <select id="lv-attr-type" class="lv-select" aria-label="Attribute"></select>
+        </div>
+        <div class="lv-obj-controls" id="lv-obj-controls" hidden>
+          <select id="lv-obj-type" class="lv-select" aria-label="Object type"></select>
+          <label class="lv-speed"><span id="lv-obj-param-label">Param</span><input type="number" id="lv-obj-param" class="lv-num-in" min="0" max="255" value="0"></label>
+          <label class="me-check"><input type="checkbox" id="lv-obj-snap" checked> <span id="lv-obj-snap-label">Snap 8 px</span></label>
         </div>
         <input type="file" id="lv-map-files" accept=".bin,application/octet-stream" multiple hidden>
         <input type="file" id="lv-level-file" accept=".bin,application/octet-stream" hidden>
@@ -1835,7 +1957,9 @@ PRINTABLE CHARACTERS
           <label class="lv-speed"><span id="lv-speed-label">Speed</span><input type="number" id="lv-speed" class="lv-num-in" min="1" max="8" value="1"></label>
           <label class="me-check"><input type="checkbox" id="lv-loop" checked> <span id="lv-loop-label">Loop</span></label>
           <label class="me-check"><input type="checkbox" id="lv-borders" checked> <span id="lv-borders-label">Borders</span></label>
-          <input type="range" id="lv-zoom" min="25" max="100" step="25" value="50" class="me-zoom" title="Zoom">
+          <label class="me-check"><input type="checkbox" id="lv-edges"> <span id="lv-edges-label">Edge check</span></label>
+          <span class="lv-zoom-lbl" id="lv-zoom-lbl">Zoom</span>
+          <input type="range" id="lv-zoom" min="25" max="400" step="25" value="50" class="me-zoom" aria-label="Zoom">
         </div>
       </div>
       <div class="me-body">
@@ -1843,7 +1967,25 @@ PRINTABLE CHARACTERS
           <div class="me-section-lbl" id="lv-screens-label">Screens</div>
           <div id="lv-charset-info" class="lv-charset-info"></div>
           <div id="lv-warning" class="lv-warning" hidden></div>
+          <div id="lv-edge-warn" class="lv-warning" hidden></div>
+          <div id="lv-attr-info" class="lv-charset-info" hidden></div>
           <div id="lv-library" class="lv-library"></div>
+          <div class="me-section-lbl" id="lv-objects-label" hidden>Objects</div>
+          <div id="lv-objlist" class="lv-objlist"></div>
+          <div id="lv-colors-box" class="lv-mem">
+            <div class="me-section-lbl" id="lv-colors-label">Colors</div>
+            <label class="lv-color-row"><span id="lv-level-border-label">Level border</span><select id="lv-level-border" class="lv-select"></select></label>
+            <label class="me-check"><input type="checkbox" id="lv-own-colors"> <span id="lv-own-colors-label">Own colors for this screen</span></label>
+            <label class="lv-color-row"><span id="lv-col-bg-label">Background</span><select id="lv-col-bg" class="lv-select"></select></label>
+            <label class="lv-color-row"><span id="lv-col-border-label">Border</span><select id="lv-col-border" class="lv-select"></select></label>
+            <label class="lv-color-row"><span id="lv-col-mc1-label">Multicolor 1</span><select id="lv-col-mc1" class="lv-select"></select></label>
+            <label class="lv-color-row"><span id="lv-col-mc2-label">Multicolor 2</span><select id="lv-col-mc2" class="lv-select"></select></label>
+          </div>
+          <div id="lv-mem-box" class="lv-mem" hidden>
+            <div class="me-section-lbl" id="lv-mem-label">Memory</div>
+            <label class="lv-speed"><span id="lv-mem-addr-label">.level at</span><input type="text" id="lv-mem-addr" class="lv-num-in" value="$2000" spellcheck="false"></label>
+            <div id="lv-mem-info" class="lv-charset-info lv-mem-info"></div>
+          </div>
         </div>
         <div class="me-canvas-wrap lv-canvas-wrap" id="lv-canvas-wrap">
           <canvas id="lv-canvas" class="me-canvas lv-canvas"></canvas>
@@ -1867,6 +2009,7 @@ PRINTABLE CHARACTERS
         <div class="ed-file">
           <button class="ed-file-btn" type="button">Files ▾</button>
           <div class="ed-file-menu" hidden>
+            <button id="hg-import-png" type="button">Image import…</button>
             <button id="hg-import" type="button">Import image / .bin…</button>
             <button id="hg-import-koala" type="button">Import Koala (.koa)…</button>
             <div class="ed-file-sep"></div>
@@ -1918,6 +2061,9 @@ PRINTABLE CHARACTERS
           <button class="hg-tool" data-tool="fill" type="button" aria-label="Flood Fill">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l5-5 5 5-5 5z"/><path d="M3 7l5 5 5-5" fill="currentColor" stroke="none" opacity="0.45"/></svg>
           </button>
+          <button class="hg-tool" data-tool="cellpaper" type="button" aria-label="Cell paper colour (per 8×8 cell, hi-res)">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11"/><rect x="2.5" y="2.5" width="5.5" height="5.5" fill="currentColor" stroke="none" opacity="0.55"/><path d="M8 2.5v11M2.5 8h11" opacity="0.6"/></svg>
+          </button>
           <button class="hg-tool" data-tool="select" type="button" aria-label="Select">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11" stroke-dasharray="2 1.5"/></svg>
           </button>
@@ -1938,6 +2084,9 @@ PRINTABLE CHARACTERS
           <button class="hg-btn" id="hg-paste-transparent" type="button" aria-label="Transparent paste">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="4" height="4" rx="0.5" opacity="0.55"/><rect x="6" y="2" width="4" height="4" rx="0.5" opacity="0.25"/><rect x="10" y="2" width="4" height="4" rx="0.5" opacity="0.55"/><rect x="4" y="6" width="4" height="4" rx="0.5" opacity="0.25"/><rect x="8" y="6" width="4" height="4" rx="0.5" opacity="0.55"/><path d="M6 11h4v2.2M8 10l2 2-2 2"/></svg>
           </button>
+          <button class="hg-btn" id="hg-import-image" type="button" aria-label="Image import">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="11" rx="1"/><circle cx="5.5" cy="6" r="1.2"/><path d="M2 12l3.5-3.5 2.5 2.5 2-2 4 3.5"/></svg>
+          </button>
           <button class="hg-btn" id="hg-clear" type="button" aria-label="Clear">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4.5h10M6.2 4.5V3h3.6v1.5M5 4.5l.7 8.5h4.6l.7-8.5"/></svg>
           </button>
@@ -1945,6 +2094,7 @@ PRINTABLE CHARACTERS
         <label class="hg-check" title="Multi-Color mode (160×200)"><input type="checkbox" id="hg-multicolor"> <span id="hg-multicolor-label">Multi-Color</span></label>
         <label class="hg-check" title="Show the character-cell grid (plus the pixel grid from 4× zoom)"><input type="checkbox" id="hg-grid"> <span id="hg-grid-label">Grid</span></label>
         <input type="file" id="hg-koala-file" accept=".koa,.kla,.prg,application/octet-stream" hidden>
+        <input type="file" id="hg-image-file" accept="image/png,image/jpeg,image/webp,image/bmp,image/gif,.png,.jpg,.jpeg,.webp,.bmp,.gif" hidden>
         <input type="file" id="hg-import-file" accept="image/png,image/jpeg,image/jpg,image/webp,image/bmp,.png,.jpg,.jpeg,.webp,.bmp,.bin,.koa,.kla,application/octet-stream" hidden>
       </div>
       <div class="hg-toolbar hg-toolbar--2">
@@ -1974,10 +2124,12 @@ PRINTABLE CHARACTERS
           <button class="ed-file-btn" type="button">Files ▾</button>
           <div class="ed-file-menu" hidden>
             <button id="se-import-image" type="button">Import PNG/JPEG…</button>
+            <button id="se-import-sheet" type="button">Import sprite sheet…</button>
             <button id="se-open-spd" type="button">Load .bin…</button>
             <button id="se-save-bin" type="button">Save .bin…</button>
             <div class="ed-file-sep"></div>
             <button id="se-copy-data" type="button">Copy bytes</button>
+            <button id="se-copy-hitbox" type="button">Copy hitbox table</button>
           </div>
         </div>
         <span class="se-title">SPRITE EDITOR</span>
@@ -1998,6 +2150,15 @@ PRINTABLE CHARACTERS
           <button class="se-tool" data-tool="circle" type="button" aria-label="Circle / oval">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><circle cx="8" cy="8" r="5"/></svg>
           </button>
+          <button class="se-tool" data-tool="fill" type="button" aria-label="Flood fill">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l5-5 5 5-5 5z"/><path d="M3 7l5 5 5-5" fill="currentColor" stroke="none" opacity="0.45"/></svg>
+          </button>
+          <button class="se-tool" data-tool="select" type="button" aria-label="Select / move">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11" stroke-dasharray="2 1.5"/><path d="M8 5.5v5M5.5 8h5"/></svg>
+          </button>
+          <button class="se-tool" data-tool="hitbox" type="button" aria-label="Hitbox">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" aria-hidden="true"><path d="M2.5 5V2.5H5M11 2.5h2.5V5M13.5 11v2.5H11M5 13.5H2.5V11"/><rect x="5.5" y="5.5" width="5" height="5" fill="currentColor" stroke="none" opacity="0.55"/></svg>
+          </button>
         </div>
         <div class="se-tool-group">
           <button class="se-tool" id="se-undo" type="button" aria-label="Undo">
@@ -2014,6 +2175,12 @@ PRINTABLE CHARACTERS
           <button class="se-tool" id="se-flipv" type="button" aria-label="Flip Vertical">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round" aria-hidden="true"><path d="M2 8h12" stroke-dasharray="1.5 1.4"/><path d="M5 6.2L8 3l3 3.2z" fill="currentColor" stroke="none"/><path d="M5 9.8L8 13l3-3.2z" fill="currentColor" stroke="none" opacity="0.45"/></svg>
           </button>
+          <button class="se-tool" id="se-rotr" type="button" aria-label="Rotate 90° clockwise">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.5 7.5A4.5 4.5 0 1 1 8 3h3"/><path d="M9.5 1.3L11.3 3 9.5 4.7"/></svg>
+          </button>
+          <button class="se-tool" id="se-rotl" type="button" aria-label="Rotate 90° counter-clockwise">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 7.5A4.5 4.5 0 1 0 8 3H5"/><path d="M6.5 1.3L4.7 3l1.8 1.7"/></svg>
+          </button>
           <button class="se-tool" id="se-clear" type="button" aria-label="Clear frame">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4.5h10M6.2 4.5V3h3.6v1.5M5 4.5l.7 8.5h4.6l.7-8.5"/></svg>
           </button>
@@ -2026,10 +2193,23 @@ PRINTABLE CHARACTERS
           <label class="se-check"><input type="checkbox" id="se-wrap"> <span>Wrap</span></label>
         </div>
         <label class="se-check"><input type="checkbox" id="se-multicolor"> <span>Multi-Color</span></label>
+        <label class="se-check"><input type="checkbox" id="se-overlay"> <span>Hi-res overlay</span></label>
+        <select id="se-layer" class="se-select" aria-label="Layer to edit" hidden>
+          <option value="base">Body</option>
+          <option value="ov">Overlay</option>
+        </select>
+        <span class="se-tb-break" aria-hidden="true"></span>
         <label class="se-check"><input type="checkbox" id="se-grid" checked> <span>Grid</span></label>
+        <span class="se-mini-lbl" id="se-layout-lbl">Sprites</span>
+        <select id="se-layout" class="se-select" aria-label="Metasprite size (sprites across × down)">
+          <option value="1x1">1×1</option>
+          <option value="2x1">2×1</option>
+          <option value="1x2">1×2</option>
+          <option value="2x2">2×2</option>
+        </select>
         <div class="se-tb-right">
           <span class="se-mini-lbl">Zoom</span>
-          <input type="range" id="se-zoom" min="6" max="20" step="1" value="13" class="se-zoom">
+          <input type="range" id="se-zoom" min="3" max="40" step="1" value="13" class="se-zoom">
         </div>
       </div>
       <div class="se-body">
@@ -2042,10 +2222,32 @@ PRINTABLE CHARACTERS
           <div class="se-preview-wrap">
             <canvas id="se-preview" class="se-preview" width="96" height="84"></canvas>
           </div>
+          <div class="se-exp">
+            <label class="se-check"><input type="checkbox" id="se-expx"> <span id="se-expx-label">X ×2</span></label>
+            <label class="se-check"><input type="checkbox" id="se-expy"> <span id="se-expy-label">Y ×2</span></label>
+          </div>
           <div class="se-section-lbl">Colors</div>
           <div class="se-colors" id="se-colors"></div>
           <div class="se-section-lbl">Palette</div>
           <div class="se-palette" id="se-palette"></div>
+          <div class="se-section-lbl" id="se-hit-lbl">Hitbox</div>
+          <div class="se-hit">
+            <span id="se-hit-info" class="se-hit-info">—</span>
+            <div class="se-tool-group">
+              <button class="se-tool" id="se-hit-fit" type="button" aria-label="Fit to the pixels">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" aria-hidden="true"><path d="M2.5 5V2.5H5M11 2.5h2.5V5M13.5 11v2.5H11M5 13.5H2.5V11"/><circle cx="8" cy="8" r="2.2" fill="currentColor" stroke="none"/></svg>
+              </button>
+              <button class="se-tool" id="se-hit-fitall" type="button" aria-label="Fit every frame">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" aria-hidden="true"><path d="M2.5 5V2.5H5M11 2.5h2.5V5M13.5 11v2.5H11M5 13.5H2.5V11"/><circle cx="6.3" cy="8" r="1.6" fill="currentColor" stroke="none"/><circle cx="9.7" cy="8" r="1.6" fill="currentColor" stroke="none"/></svg>
+              </button>
+              <button class="se-tool" id="se-hit-all" type="button" aria-label="Copy to every frame">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1"/><path d="M10.5 5.5V3.5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2"/></svg>
+              </button>
+              <button class="se-tool" id="se-hit-clear" type="button" aria-label="Remove hitbox">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="1" opacity="0.45"/><path d="M6 6l4 4M10 6l-4 4"/></svg>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
       <div class="se-footer">
@@ -2060,10 +2262,49 @@ PRINTABLE CHARACTERS
           <span class="se-anim-spacer"></span>
           <button class="se-mini-btn" id="se-add" type="button">+ Add</button>
           <button class="se-mini-btn" id="se-dup" type="button">Dup</button>
+          <button class="se-mini-btn" id="se-mirror-anim" type="button">Mirror all</button>
           <button class="se-mini-btn" id="se-fcopy" type="button">Copy</button>
           <button class="se-mini-btn" id="se-fpaste" type="button">Paste</button>
           <button class="se-mini-btn" id="se-fdel" type="button">Del</button>
         </div>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="se-sheet-dialog" class="hg-png-dialog" aria-labelledby="se-sheet-title">
+    <div class="hg-png-card">
+      <div class="hg-hdr">
+        <span id="se-sheet-title" class="hg-title">Sprite sheet import</span>
+        <span id="se-sheet-file" class="hg-png-file"></span>
+        <button id="se-sheet-close" class="hg-xbtn" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="hg-png-body">
+        <div class="hg-png-preview">
+          <div class="se-sheet-view"><canvas id="se-sheet-canvas" width="320" height="200"></canvas></div>
+          <span id="se-sheet-status" class="hg-png-status"></span>
+          <div id="se-sheet-frames" class="se-sheet-frames"></div>
+        </div>
+        <div class="hg-png-settings se-sheet-settings">
+          <label for="se-sheet-cw" id="se-sheet-cw-lbl">Cell width</label><input type="number" id="se-sheet-cw" class="lv-num-in" min="1" value="24"><span></span>
+          <label for="se-sheet-ch" id="se-sheet-ch-lbl">Cell height</label><input type="number" id="se-sheet-ch" class="lv-num-in" min="1" value="21"><span></span>
+          <label for="se-sheet-ox" id="se-sheet-ox-lbl">Offset X</label><input type="number" id="se-sheet-ox" class="lv-num-in" min="0" value="0"><span></span>
+          <label for="se-sheet-oy" id="se-sheet-oy-lbl">Offset Y</label><input type="number" id="se-sheet-oy" class="lv-num-in" min="0" value="0"><span></span>
+          <label for="se-sheet-gx" id="se-sheet-gx-lbl">Gap X</label><input type="number" id="se-sheet-gx" class="lv-num-in" min="0" value="0"><span></span>
+          <label for="se-sheet-gy" id="se-sheet-gy-lbl">Gap Y</label><input type="number" id="se-sheet-gy" class="lv-num-in" min="0" value="0"><span></span>
+          <label for="se-sheet-count" id="se-sheet-count-lbl">Frames (0 = all)</label><input type="number" id="se-sheet-count" class="lv-num-in" min="0" max="256" value="0"><span></span>
+          <div class="hg-png-sep"></div>
+          <label for="se-sheet-colors" id="se-sheet-colors-lbl">Colors</label>
+          <select id="se-sheet-colors"><option value="auto">From the picture</option><option value="keep">Current sprite colors</option></select><span></span>
+          <label for="se-sheet-dither" id="se-sheet-dither-lbl">Dither</label>
+          <select id="se-sheet-dither"><option value="none">None</option><option value="ordered">Ordered (Bayer)</option><option value="fs">Floyd–Steinberg</option></select><span></span>
+          <label class="hg-check se-sheet-replace"><input type="checkbox" id="se-sheet-replace" checked> <span id="se-sheet-replace-lbl">Replace the frames (off: append)</span></label>
+          <p id="se-sheet-hint" class="hg-png-hint se-sheet-hint">Each cell becomes a frame of the current size (1×1 … 2×2 sprites); multicolor cells are scaled to 12 pixels per sprite. Transparent pixels become the background.</p>
+        </div>
+      </div>
+      <div class="hg-png-foot">
+        <span class="hg-png-credit"></span>
+        <button id="se-sheet-cancel" class="secondary" type="button">Cancel</button>
+        <button id="se-sheet-apply" class="primary" type="button">Import</button>
       </div>
     </div>
   </dialog>
@@ -2077,6 +2318,7 @@ PRINTABLE CHARACTERS
           <div class="ed-file-menu" hidden>
             <button id="sid-load-bin" type="button">Load .bin…</button>
             <button id="sid-save-bin" type="button">Save .bin…</button>
+            <button id="sid-import-goat" type="button">Import GoatTracker .sng…</button>
             <div class="ed-file-sep"></div>
             <button id="sid-export-data" type="button">Export blocks (data only)</button>
             <button id="sid-export-player" type="button">Export blocks + miniplayer</button>
@@ -2084,6 +2326,7 @@ PRINTABLE CHARACTERS
             <button id="sid-export-ub" type="button">Export to UltimateBasic</button>
           </div>
           <input type="file" id="sid-bin-file" accept=".bin,application/octet-stream" hidden>
+          <input type="file" id="sid-sng-file" accept=".sng" hidden>
         </div>
         <span class="sid-title">SID EDITOR</span>
         <button id="sid-close" class="sid-xbtn" type="button" aria-label="Close">×</button>
@@ -2119,6 +2362,18 @@ PRINTABLE CHARACTERS
           <span class="sid-mini-lbl">PW:</span>
           <input type="range" id="sid-pw" min="0" max="4095" value="2048" class="sid-range">
           <span id="sid-pw-val" class="sid-num">2048</span>
+          <div class="sid-master-vol-wrap">
+            <span class="sid-master-vol-lbl" id="sid-ed-master-vol-lbl">Master volume</span>
+            <div id="sid-ed-master-vol" class="websid-play-knob" role="slider" tabindex="0" aria-label="Master volume" aria-valuemin="0" aria-valuemax="100" aria-valuenow="60">
+              <svg viewBox="0 0 40 40" aria-hidden="true">
+                <path class="websid-play-knob-track" d=""/>
+                <path class="websid-play-knob-value" d=""/>
+                <circle class="websid-play-knob-body" cx="20" cy="20" r="11.5"/>
+                <line class="websid-play-knob-pointer" x1="20" y1="20" x2="20" y2="11"/>
+              </svg>
+            </div>
+            <span id="sid-ed-master-vol-val" class="sid-master-vol-val">60</span>
+          </div>
         </div>
         <!-- ADSR + graph + filter -->
         <div class="sid-mid">
@@ -2255,6 +2510,9 @@ PRINTABLE CHARACTERS
           <button id="sid-clear" class="ce-tool-btn" type="button" aria-label="Clear selection">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4.5h10"/><path d="M6 4.5V3.4c0-.5.4-.9.9-.9h2.2c.5 0 .9.4.9.9v1.1"/><path d="M5 6.5v5.2"/><path d="M8 6.5v5.2"/><path d="M11 6.5v5.2"/><path d="M4.2 4.5l.5 8c0 .6.5 1 1.1 1h4.4c.6 0 1.1-.4 1.1-1l.5-8"/></svg>
           </button>
+          <button id="sid-roll-btn" class="ce-tool-btn" type="button" aria-label="Horizontal tracker" aria-pressed="false">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 2.5h13M1.5 13.5h13" stroke="currentColor" stroke-width="1" opacity=".5"/><rect x="2" y="4.5" width="5" height="2" rx=".5" fill="currentColor"/><rect x="6" y="7.5" width="7" height="2" rx=".5" fill="currentColor"/><rect x="9.5" y="4.5" width="4" height="2" rx=".5" fill="currentColor"/><rect x="3" y="10.5" width="4" height="1.6" rx=".5" fill="currentColor"/></svg>
+          </button>
           <button id="sid-tracker-detach" class="ce-tool-btn" type="button" aria-label="Detach tracker">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3H3.5a1 1 0 00-1 1v8.5a1 1 0 001 1H12a1 1 0 001-1V9"/><path d="M9.5 2.5h4v4M13.5 2.5L8 8"/></svg>
           </button>
@@ -2328,6 +2586,37 @@ PRINTABLE CHARACTERS
       </div>
       <div id="sid-trk-float-body" class="sid-trk-float-body"></div>
     </div>
+    <!-- Horizontal tracker: the song drawn as notes over time, editable with the mouse -->
+    <div id="sid-roll" class="sid-trk-float sid-roll" hidden>
+      <div class="sid-trk-float-hdr sid-roll-hdr">
+        <span id="sid-roll-title" class="sid-title">HORIZONTAL TRACKER</span>
+        <div class="sid-roll-voices" role="group" aria-label="Voice">
+          <button type="button" class="sid-roll-vbtn" data-voice="0">V1</button>
+          <button type="button" class="sid-roll-vbtn" data-voice="1">V2</button>
+          <button type="button" class="sid-roll-vbtn" data-voice="2">V3</button>
+        </div>
+        <div class="sid-roll-tools">
+          <button id="sid-roll-play" class="ce-tool-btn" type="button" aria-label="Play"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.5l8 4.5-8 4.5z" fill="currentColor"/></svg></button>
+          <button id="sid-roll-stop" class="ce-tool-btn" type="button" aria-label="Stop"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="4" width="8" height="8" fill="currentColor"/></svg></button>
+          <button id="sid-roll-metronome" class="ce-tool-btn sid-metronome-btn" type="button" aria-label="Metronome" aria-pressed="false"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 14h6M6 14l1.5-11h1L10 14M8 3v0M8 8l3-1.5"/></svg></button>
+          <span id="sid-roll-beat" class="sid-vkbd-beat" aria-hidden="true"></span>
+          <button id="sid-roll-follow" class="ce-tool-btn sid-metronome-btn" type="button" aria-label="Follow playback" aria-pressed="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 1.5v13"/><path d="M2 5.5 5 8l-3 2.5M14 5.5 11 8l3 2.5"/></svg></button>
+        </div>
+        <div class="sid-roll-tools">
+          <button id="sid-roll-vzoom-out" class="ce-tool-btn" type="button" aria-label="Zoom out vertically"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 1.5v4M6 3.5l2 2 2-2M8 14.5v-4M6 12.5l2-2 2 2M4 8h8"/></svg></button>
+          <button id="sid-roll-vzoom-in" class="ce-tool-btn" type="button" aria-label="Zoom in vertically"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 5.5v-4M6 3.5l2-2 2 2M8 10.5v4M6 12.5l2 2 2-2M4 8h8"/></svg></button>
+        </div>
+        <span id="sid-roll-inst" class="sid-roll-inst"></span>
+        <button id="sid-roll-close" class="sid-xbtn sid-trk-attach" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="sid-roll-body">
+        <canvas id="sid-roll-canvas" class="sid-roll-canvas"></canvas>
+        <div class="sid-roll-foot">
+          <div id="sid-roll-legend" class="sid-roll-legend"></div>
+          <span id="sid-roll-help" class="sid-roll-help"></span>
+        </div>
+      </div>
+    </div>
     <div id="sid-virtual-keyboard-dialog" class="sid-vkbd-dialog" aria-labelledby="sid-vkbd-title" hidden>
       <div class="sid-vkbd-card">
         <div class="sid-vkbd-hdr">
@@ -2375,6 +2664,7 @@ PRINTABLE CHARACTERS
             </div>
             <span id="sid-master-vol-val" class="sid-master-vol-val">60</span>
           </div>
+          <label class="sid-vkbd-insert-toggle me-check"><input type="checkbox" id="sid-vkbd-showplay" checked> <span id="sid-vkbd-showplay-label">Show playback</span></label>
           <label class="sid-vkbd-insert-toggle me-check"><input type="checkbox" id="sid-vkbd-insert" checked> <span id="sid-vkbd-insert-label">Insert into tracker</span></label>
         </div>
         <div id="sid-vkbd-board" class="sid-vkbd-board"></div>
@@ -2412,6 +2702,7 @@ PRINTABLE CHARACTERS
           <button id="websid-play-clear" class="websid-play-tool" type="button" aria-label="Clear playlist"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 4.5h9M6.5 4.5V3h3v1.5M5 4.5l.6 8.5h4.8l.6-8.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></button>
         </div>
         <div class="websid-play-vol-wrap">
+          <span id="websid-play-vol-lbl" class="sid-master-vol-lbl websid-play-vol-lbl">Master volume</span>
           <div id="websid-play-vol" class="websid-play-knob" role="slider" tabindex="0" aria-label="Volume" aria-valuemin="0" aria-valuemax="100" aria-valuenow="60">
             <svg viewBox="0 0 40 40" aria-hidden="true">
               <path class="websid-play-knob-track" d=""/>
@@ -2446,6 +2737,33 @@ PRINTABLE CHARACTERS
       </div>
       <input id="websid-play-files" type="file" accept=".sid" multiple hidden>
       <input id="websid-play-list-file" type="file" accept=".sidpl" hidden>
+    </div>
+  </dialog>
+
+  <!-- Hi-Res editor: image import with live preview -->
+  <dialog id="hg-png-dialog" class="hg-png-dialog" aria-labelledby="hg-png-title">
+    <div class="hg-png-card">
+      <div class="hg-hdr">
+        <span id="hg-png-title" class="hg-title">Image import</span>
+        <span id="hg-png-file" class="hg-png-file"></span>
+        <button id="hg-png-close" class="hg-xbtn" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="hg-png-body">
+        <div class="hg-png-preview">
+          <div id="hg-png-view" class="hg-png-view"><canvas id="hg-png-canvas" width="320" height="200"></canvas></div>
+          <div class="hg-png-under">
+            <span id="hg-png-status" class="hg-png-status"></span>
+            <span class="hg-png-zoombox"><span id="hg-png-zoom-lbl">Zoom</span><input type="range" id="hg-png-zoom" min="1" max="8" step="0.25" value="1"><span id="hg-png-zoom-val" class="hg-png-val">1.00×</span><span id="hg-png-hint" class="hg-png-hint">Ctrl + wheel</span></span>
+          </div>
+        </div>
+        <div id="hg-png-settings" class="hg-png-settings"></div>
+      </div>
+      <div class="hg-png-foot">
+        <button id="hg-png-reset" class="secondary" type="button">Reset</button>
+        <span id="hg-png-credit" class="hg-png-credit">Conversion after png2c64 by tinic (MIT)</span>
+        <button id="hg-png-cancel" class="secondary" type="button">Cancel</button>
+        <button id="hg-png-apply" class="primary" type="button">Import</button>
+      </div>
     </div>
   </dialog>
 
@@ -2818,7 +3136,7 @@ PRINTABLE CHARACTERS
             <span id="sid-preview-engine-lbl">SID engine</span>
             <select id="sid-preview-engine" class="sid-select">
               <option value="websid">WebSID</option>
-              <option value="va-core">VA SID Core (Rust) v1.1</option>
+              <option value="va-core">VA SID Core (Rust) v1.2</option>
             </select>
           </label>
           <label class="field compact-field hw-field">
@@ -2911,13 +3229,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.5.5"></script>
-  <script src="i18n.js?v=2.5.5"></script>
-  <script src="tutorial-data.js?v=2.5.5"></script>
+  <script src="tauri-bridge.js?v=2.5.7"></script>
+  <script src="i18n.js?v=2.5.7"></script>
+  <script src="tutorial-data.js?v=2.5.7"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.5.5"></script>
+  <script src="app.js?v=2.5.7"></script>
 
 </body>
 

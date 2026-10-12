@@ -4,15 +4,12 @@
 //! PSID driver follows VICE's psiddrv (raster IRQ for VBI tunes, CIA 1 timer A
 //! for CIA tunes, so multispeed timer values written by the tune take effect).
 
-mod cpu;
-
+use crate::c64::cia::{Cia, CiaModel};
+use crate::c64::pla::CpuPort;
+use crate::c64::vicii::{Vicii, ViciiModel};
+use crate::mos6510::{Bus, Cpu};
 use crate::sid_core::{SidCore, SidModel, NTSC_CLOCK, PAL_CLOCK, VERSION as SID_CORE_VERSION};
-use cpu::{Bus, Cpu};
 
-const PAL_LINES: u16 = 312;
-const PAL_LINE_CYCLES: u16 = 63;
-const NTSC_LINES: u16 = 263;
-const NTSC_LINE_CYCLES: u16 = 65;
 /// Driver addresses never executed by real code ($00/$01 are the CPU port):
 /// a JSR from the driver returns to CALL_RETURN, the IRQ vector of PSID tunes
 /// points to DRIVER_IRQ, and the main loop after init idles at IDLE.
@@ -25,215 +22,6 @@ const KERNAL_IRQ_EXIT: u16 = 0xea81;
 enum Call {
     Init,
     Play,
-}
-
-/// MOS 6526: timers A/B (continuous / one-shot, B counting A underflows) and
-/// the interrupt control register. TOD, serial port and keyboard read idle.
-struct Cia {
-    timer_a: u16,
-    latch_a: u16,
-    timer_b: u16,
-    latch_b: u16,
-    control_a: u8,
-    control_b: u8,
-    mask: u8,
-    flags: u8,
-    port: [u8; 2],
-    direction: [u8; 2],
-}
-
-impl Cia {
-    fn new() -> Self {
-        Self {
-            timer_a: 0xffff,
-            latch_a: 0xffff,
-            timer_b: 0xffff,
-            latch_b: 0xffff,
-            control_a: 0,
-            control_b: 0,
-            mask: 0,
-            flags: 0,
-            port: [0xff; 2],
-            direction: [0; 2],
-        }
-    }
-
-    fn tick(&mut self) {
-        let mut underflow_a = false;
-        if self.control_a & 0x21 == 0x01 {
-            if self.timer_a == 0 {
-                underflow_a = true;
-                self.flags |= 0x01;
-                self.timer_a = self.latch_a;
-                if self.control_a & 0x08 != 0 {
-                    self.control_a &= !0x01;
-                }
-            } else {
-                self.timer_a -= 1;
-            }
-        }
-        if self.control_b & 0x01 != 0 {
-            let count = match (self.control_b >> 5) & 3 {
-                0 => true,
-                2 | 3 => underflow_a,
-                _ => false,
-            };
-            if count {
-                if self.timer_b == 0 {
-                    self.flags |= 0x02;
-                    self.timer_b = self.latch_b;
-                    if self.control_b & 0x08 != 0 {
-                        self.control_b &= !0x01;
-                    }
-                } else {
-                    self.timer_b -= 1;
-                }
-            }
-        }
-    }
-
-    fn interrupt(&self) -> bool {
-        self.flags & self.mask & 0x1f != 0
-    }
-
-    fn read(&mut self, register: u16) -> u8 {
-        match register & 0x0f {
-            r @ 0..=1 => self.port[r as usize] | !self.direction[r as usize],
-            r @ 2..=3 => self.direction[r as usize - 2],
-            4 => self.timer_a as u8,
-            5 => (self.timer_a >> 8) as u8,
-            6 => self.timer_b as u8,
-            7 => (self.timer_b >> 8) as u8,
-            0x0d => {
-                let value = self.flags | if self.interrupt() { 0x80 } else { 0 };
-                self.flags = 0;
-                value
-            }
-            0x0e => self.control_a & !0x10,
-            0x0f => self.control_b & !0x10,
-            _ => 0,
-        }
-    }
-
-    fn write(&mut self, register: u16, value: u8) {
-        match register & 0x0f {
-            r @ 0..=1 => self.port[r as usize] = value,
-            r @ 2..=3 => self.direction[r as usize - 2] = value,
-            4 => self.latch_a = (self.latch_a & 0xff00) | u16::from(value),
-            5 => {
-                self.latch_a = (self.latch_a & 0x00ff) | (u16::from(value) << 8);
-                if self.control_a & 0x01 == 0 {
-                    self.timer_a = self.latch_a;
-                }
-            }
-            6 => self.latch_b = (self.latch_b & 0xff00) | u16::from(value),
-            7 => {
-                self.latch_b = (self.latch_b & 0x00ff) | (u16::from(value) << 8);
-                if self.control_b & 0x01 == 0 {
-                    self.timer_b = self.latch_b;
-                }
-            }
-            0x0d => {
-                if value & 0x80 != 0 {
-                    self.mask |= value & 0x1f;
-                } else {
-                    self.mask &= !(value & 0x1f);
-                }
-            }
-            0x0e => {
-                if value & 0x10 != 0 {
-                    self.timer_a = self.latch_a;
-                }
-                self.control_a = value & !0x10;
-            }
-            0x0f => {
-                if value & 0x10 != 0 {
-                    self.timer_b = self.latch_b;
-                }
-                self.control_b = value & !0x10;
-            }
-            _ => {}
-        }
-    }
-}
-
-/// The parts of the VIC-II a tune can observe: raster counter, raster
-/// compare interrupt and the interrupt latch / enable registers.
-struct Vic {
-    registers: [u8; 64],
-    line: u16,
-    cycle: u16,
-    lines: u16,
-    line_cycles: u16,
-    compare: u16,
-    flags: u8,
-    mask: u8,
-}
-
-impl Vic {
-    fn new(ntsc: bool) -> Self {
-        let (lines, line_cycles) =
-            if ntsc { (NTSC_LINES, NTSC_LINE_CYCLES) } else { (PAL_LINES, PAL_LINE_CYCLES) };
-        // the first clock starts raster line 0
-        Self {
-            registers: [0; 64],
-            line: lines - 1,
-            cycle: line_cycles - 1,
-            lines,
-            line_cycles,
-            compare: 0,
-            flags: 0,
-            mask: 0,
-        }
-    }
-
-    fn tick(&mut self) {
-        self.cycle += 1;
-        if self.cycle == self.line_cycles {
-            self.cycle = 0;
-            self.line = (self.line + 1) % self.lines;
-            if self.line == self.compare {
-                self.flags |= 0x01;
-            }
-        }
-    }
-
-    fn interrupt(&self) -> bool {
-        self.flags & self.mask & 0x0f != 0
-    }
-
-    fn read(&mut self, register: u16) -> u8 {
-        match register & 0x3f {
-            0x11 => (self.registers[0x11] & 0x7f) | ((self.line >> 1) & 0x80) as u8,
-            0x12 => self.line as u8,
-            0x19 => self.flags | 0x70 | if self.interrupt() { 0x80 } else { 0 },
-            0x1a => self.mask | 0xf0,
-            0x1e | 0x1f => 0,
-            r @ 0x20..=0x2e => self.registers[r as usize] | 0xf0,
-            0x2f..=0x3f => 0xff,
-            r => self.registers[r as usize],
-        }
-    }
-
-    fn write(&mut self, register: u16, value: u8) {
-        let r = (register & 0x3f) as usize;
-        match r {
-            0x11 | 0x12 => {
-                self.registers[r] = value;
-                self.compare = if r == 0x11 {
-                    (self.compare & 0xff) | (u16::from(value & 0x80) << 1)
-                } else {
-                    (self.compare & 0x100) | u16::from(value)
-                };
-                if self.line == self.compare {
-                    self.flags |= 0x01;
-                }
-            }
-            0x19 => self.flags &= !(value & 0x0f),
-            0x1a => self.mask = value & 0x0f,
-            _ => self.registers[r] = value,
-        }
-    }
 }
 
 /// Replacement KERNAL: every byte is RTS except the interrupt paths a tune
@@ -268,19 +56,20 @@ struct Machine {
     ram: Box<[u8; 65_536]>,
     kernal: Box<[u8; 8192]>,
     color: Box<[u8; 1024]>,
-    port_direction: u8,
-    port_data: u8,
+    port: CpuPort,
+    /// Machine cycles since power-on (for the CPU port's floating bits).
+    clk: u64,
     sid: SidCore,
     cia1: Cia,
     cia2: Cia,
-    vic: Vic,
+    vic: Vicii,
     output: Vec<i16>,
     discard: usize,
 }
 
 impl Machine {
     fn banks(&self) -> u8 {
-        (self.port_data | !self.port_direction) & 7
+        self.port.banks()
     }
 
     fn io_visible(&self) -> bool {
@@ -293,8 +82,8 @@ impl Machine {
             0xd000..=0xd3ff => self.vic.read(address),
             0xd400..=0xd7ff => self.sid.read((address & 0x1f) as u8),
             0xd800..=0xdbff => self.color[(address & 0x3ff) as usize] | 0xf0,
-            0xdc00..=0xdcff => self.cia1.read(address),
-            0xdd00..=0xddff => self.cia2.read(address),
+            0xdc00..=0xdcff => self.cia1.read(address as u8),
+            0xdd00..=0xddff => self.cia2.read(address as u8),
             _ => 0xff,
         }
     }
@@ -304,8 +93,8 @@ impl Machine {
             0xd000..=0xd3ff => self.vic.write(address, value),
             0xd400..=0xd7ff => self.sid.write((address & 0x1f) as u8, value),
             0xd800..=0xdbff => self.color[(address & 0x3ff) as usize] = value & 0x0f,
-            0xdc00..=0xdcff => self.cia1.write(address, value),
-            0xdd00..=0xddff => self.cia2.write(address, value),
+            0xdc00..=0xdcff => self.cia1.write(address as u8, value),
+            0xdd00..=0xddff => self.cia2.write(address as u8, value),
             _ => {}
         }
     }
@@ -315,8 +104,7 @@ impl Bus for Machine {
     fn read(&mut self, address: u16) -> u8 {
         let banks = self.banks();
         match address {
-            0x0000 => self.port_direction,
-            0x0001 => (self.port_data & self.port_direction) | (!self.port_direction & 0x17),
+            0x0000 | 0x0001 => self.port.read(address, self.clk),
             0xa000..=0xbfff if banks & 3 == 3 => 0x60,
             0xd000..=0xdfff if banks & 3 != 0 => {
                 if banks & 4 != 0 {
@@ -332,8 +120,7 @@ impl Bus for Machine {
 
     fn write(&mut self, address: u16, value: u8) {
         match address {
-            0x0000 => self.port_direction = value,
-            0x0001 => self.port_data = value,
+            0x0000 | 0x0001 => self.port.write(address, value, self.clk),
             0xd000..=0xdfff if self.io_visible() => self.io_write(address, value),
             _ => self.ram[address as usize] = value,
         }
@@ -341,6 +128,7 @@ impl Bus for Machine {
 
     fn tick(&mut self, cycles: u32) {
         for _ in 0..cycles {
+            self.clk += 1;
             self.vic.tick();
             self.cia1.tick();
             self.cia2.tick();
@@ -355,11 +143,15 @@ impl Bus for Machine {
     }
 
     fn irq(&self) -> bool {
-        self.cia1.interrupt() || self.vic.interrupt()
+        self.cia1.irq() || self.vic.irq()
     }
 
     fn nmi(&self) -> bool {
-        self.cia2.interrupt()
+        self.cia2.irq()
+    }
+
+    fn ba_low(&self) -> bool {
+        self.vic.ba_low()
     }
 }
 
@@ -455,19 +247,17 @@ impl SidFilePlayer {
         let clock_hz = if ntsc { NTSC_CLOCK } else { PAL_CLOCK };
         let speed = u32::from_be_bytes(bytes[0x12..0x16].try_into().unwrap());
         let cia_speed = !rsid && (speed >> (song - 1).min(31)) & 1 != 0;
-        let (lines, line_cycles) =
-            if ntsc { (NTSC_LINES, NTSC_LINE_CYCLES) } else { (PAL_LINES, PAL_LINE_CYCLES) };
 
         let mut machine = Machine {
             ram: Box::new([0; 65_536]),
             kernal: kernal_stub(),
             color: Box::new([0; 1024]),
-            port_direction: 0x2f,
-            port_data: 0x37,
+            port: CpuPort::new(),
+            clk: 0,
             sid: SidCore::new_with_clock(sample_rate, model, clock_hz),
-            cia1: Cia::new(),
-            cia2: Cia::new(),
-            vic: Vic::new(ntsc),
+            cia1: Cia::new(CiaModel::Mos6526A, clock_hz as u32, if ntsc { 60 } else { 50 }),
+            cia2: Cia::new(CiaModel::Mos6526A, clock_hz as u32, if ntsc { 60 } else { 50 }),
+            vic: Vicii::new(if ntsc { ViciiModel::Ntsc } else { ViciiModel::Pal }),
             output: Vec::new(),
             discard: 0,
         };
@@ -488,20 +278,23 @@ impl SidFilePlayer {
         }
         machine.vic.write(0xd011, 0x1b);
         machine.vic.write(0xd012, 0x00);
-        machine.vic.flags = 0;
+        machine.vic.write(0xd019, 0x0f);
         let timer: u16 = if ntsc { 0x4295 } else { 0x4025 };
-        machine.cia1.write(0xdc04, timer as u8);
-        machine.cia1.write(0xdc05, (timer >> 8) as u8);
-        machine.cia1.write(0xdc0e, 0x01);
+        machine.cia1.write(0x04, timer as u8);
+        machine.cia1.write(0x05, (timer >> 8) as u8);
+        machine.cia1.write(0x0e, 0x01);
         machine.sid.write(0x18, 0x0f);
         let raster_play = !rsid && play_address != 0 && !cia_speed;
         if raster_play {
             machine.vic.write(0xd01a, 0x01);
         } else {
-            machine.cia1.write(0xdc0d, 0x81);
+            machine.cia1.write(0x0d, 0x81);
         }
-        machine.port_data = bank_for((init_address >> 8) as u8, (load_end >> 8) as u8);
+        // the KERNAL's port setup, then the driver's banking for init
+        machine.port.write(0, 0x2f, 0);
+        machine.port.write(1, bank_for((init_address >> 8) as u8, (load_end >> 8) as u8), 0);
 
+        let frame_rate = clock_hz / f64::from(machine.vic.lines() * machine.vic.cycles_per_line());
         let mut player = Self {
             machine,
             cpu: Cpu::new(init_address),
@@ -514,7 +307,7 @@ impl SidFilePlayer {
             songs,
             song,
             sample_rate: sample_rate.max(8_000) as usize,
-            frame_rate: clock_hz / f64::from(lines * line_cycles),
+            frame_rate,
             frame_number: 0,
         };
         let index = (song - 1) as u8;
@@ -552,6 +345,8 @@ impl SidFilePlayer {
     }
 
     fn step(&mut self) {
+        self.cpu.poll(&self.machine);
+        let interrupt_ready = self.cpu.interrupt_ready();
         match self.cpu.pc {
             CALL_RETURN if !self.calls.is_empty() => {
                 match self.calls.pop() {
@@ -568,7 +363,7 @@ impl SidFilePlayer {
                         self.leave_driver_irq();
                     }
                 }
-                self.machine.tick(6);
+                self.cpu.idle(&mut self.machine, 6);
             }
             DRIVER_IRQ if self.driver_irq => {
                 if self.play_address != 0 {
@@ -578,27 +373,18 @@ impl SidFilePlayer {
                 } else {
                     self.leave_driver_irq();
                 }
-                self.machine.tick(6);
+                self.cpu.idle(&mut self.machine, 6);
             }
-            IDLE if self.idle && !self.cpu.interrupt_pending(&self.machine) => {
-                // run the chips until an interrupt can be taken (bounded, so
-                // rendering stops close to the requested sample count)
-                let irq_enabled = !self.cpu.interrupt_disabled();
-                self.cpu.observe_nmi(&self.machine);
-                let mut nmi = self.machine.nmi();
+            IDLE if self.idle && !interrupt_ready => {
+                // the CPU waits in the driver: run the machine cycle by cycle
+                // until an interrupt is due (bounded, so rendering stops close
+                // to the requested sample count)
                 for _ in 0..64 {
-                    self.machine.tick(1);
-                    let now = self.machine.nmi();
-                    if now && !nmi {
-                        // leave the rising edge for the CPU to see
-                        return;
-                    }
-                    nmi = now;
-                    if irq_enabled && self.machine.irq() {
+                    self.cpu.idle(&mut self.machine, 1);
+                    if self.cpu.interrupt_ready() {
                         break;
                     }
                 }
-                self.cpu.observe_nmi(&self.machine);
             }
             _ => {
                 self.cpu.step(&mut self.machine);
@@ -642,6 +428,11 @@ impl SidFilePlayer {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    const PAL_LINES: u16 = 312;
+    const PAL_LINE_CYCLES: u16 = 63;
+    const NTSC_LINES: u16 = 263;
+    const NTSC_LINE_CYCLES: u16 = 65;
 
     fn psid(load: u16, init: u16, play: u16, speed: u32, code: &[u8]) -> Vec<u8> {
         let mut file = vec![0u8; 0x7c];

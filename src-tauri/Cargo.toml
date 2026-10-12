@@ -1,6 +1,6 @@
 [package]
 name = "c64-visual-assembler"
-version = "2.5.5"
+version = "2.5.7"
 edition = "2021"
 
 [lib]
@@ -20,6 +20,7 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 reqwest = { version = "0.12", default-features = false, features = ["native-tls"] }
 base64 = "0.22"
+ed25519-dalek = "2"
 emulator_6502 = { version = "1.1.0", features = ["implementation_transparency"] }
 urlencoding = "2"
 serialport = { version = "4.7", default-features = false }

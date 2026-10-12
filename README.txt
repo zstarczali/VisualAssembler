@@ -1,7 +1,11 @@
 C64 Visual Assembler - Installation Guide
-Version 2.5.5
+Version 2.5.7
 Support: https://zstarczali.itch.io/visual-assembler-commodore-64
 ==========================================================================
+
+2.5.7: VA SID Core 1.2: the SID Player runs tunes on a native Rust C64 core (cycle-exact 6510, CIA 6526A, VIC-II timing with bad lines and sprite DMA, 6510 I/O port). Hi-Res Editor: two colours in every 8x8 cell with the new Cell paper tool. Exact C64 character ROM in the ROM viewer and the Character / Map / Level editors. Sprite Editor: hi-res overlay layer, flood fill, select / move, rotate 90 degrees, Mirror all, sprite sheet import, hitbox per frame, X / Y x2 preview, zoom up to 40x. Level Editor: objects layer, character attributes, edge check, colours per screen, memory meter with RLE export, Run in VICE.
+
+2.5.6: New SID Player: a floating player for .sid (PSID / RSID) tunes with a playlist (drag and drop, save / open), subtunes, seek and volume. VA SID Core 1.1: a built-in SID emulation (MOS 6581 / 8580) with a cycle-locked PSID / RSID player, selectable in Settings -> SID preview. SID Editor: knobs, MIDI input, recording into the tracker, metronome, pattern delete and Import GoatTracker .sng. Freemium and Professional versions: register in Menu -> Register... with the email address and serial from your purchase. Ultimate Basic 1.6.4 bundled.
 
 2.5.5: Hi-Res Editor: with Grid on, from 4× zoom every pixel gets its own grid line, stronger on the character-cell borders and shaded to stay visible on all 16 colours; the zoom now goes up to 16×. New right-click menu on the canvas of the Hi-Res and Map editors (Copy, Paste, Transparent paste) and of the Sprite Editor (Copy frame, Paste frame, also on the frame strip); a paste started from the menu previews where you clicked. The Number Converter toolbar button stays highlighted while the converter is shown. Fixed: the multicolor cell grid of the Hi-Res Editor was drawn twice as wide as a character cell; the Hi-Res toolbar Paste button always pasted transparently; the SID Editor right-click menu opened away from the cursor while the dialog was centred. The manual now documents selection, copy and paste in the Hi-Res Editor.
 
@@ -51,7 +55,7 @@ Tested on Ubuntu 22.04 and 24.04.
 -----------------------
 Download the .deb package from the releases page and install:
 
-  sudo dpkg -i "c64-visual-assembler_2.5.5_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.5.7_amd64.deb"
   sudo apt-get install -f   # fix any missing dependencies
 
 Launch from the Applications menu or:
@@ -144,7 +148,7 @@ Requirements: macOS 11.0+, Apple Silicon (M1/M2/M3)
 
 1. C64 Visual Assembler
 -----------------------
-1. Download the 2.5.5 DMG for your architecture from the releases page
+1. Download the 2.5.7 DMG for your architecture from the releases page
 2. Mount the DMG and drag the app to /Applications
 3. First launch: Right-click the app -> "Open" (macOS will block double-click)
 4. Click "Open" in the security dialog
