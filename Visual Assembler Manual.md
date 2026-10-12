@@ -184,7 +184,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ## Version 2.5.7 Highlights
 
-- **VA SID Core 1.2** — the SID Player's C64 is now ported from VICE (x64sc): a cycle-exact 6510 with VICE's interrupt timing, the CIA 6526A, the VIC-II timing with bad lines, sprite DMA and raster interrupts, and the 6510 I/O port. See [SID Player](#sid-player).
+- **VA SID Core 1.2** — the SID Player now uses a native Rust C64 core: a cycle-exact 6510 with precise interrupt timing, the CIA 6526A, VIC-II timing with bad lines, sprite DMA and raster interrupts, and the 6510 I/O port. See [SID Player](#sid-player).
 - **Hi-Res Editor** — two colours in every 8×8 cell: the new **Cell paper** tool. See [Hi-Res / Multicolor Editor](#hi-res--multicolor-editor).
 - **Exact character ROM** in the ROM viewer, the Character Editor's **Load ROM** and the Map / Level editors.
 - **Sprite Editor** — hi-res overlay, flood fill, select / move, rotate, Mirror all, sprite sheet import, hitbox, X / Y ×2 preview. See [Sprite Editor](#sprite-editor).
@@ -4102,7 +4102,7 @@ The **SID Player** toolbar button opens a floating window that plays `.sid` musi
 - **Transport:** Play, Pause, Stop, **Previous** / **Next** tune, **Previous / Next subtune** for files with several songs, and a time counter.
 - **Seek:** the position bar and **Back / Forward 10 s** work with the VA SID Core engine. WebSID cannot seek, so these controls are disabled with it.
 - **Volume:** the knob is shared with the SID Editor's master volume.
-- **Engine:** the window shows which engine is playing (WebSID, or VA SID Core with its version and SID chip); choose it in **Settings → SID preview**. VA SID Core runs the tune on a C64 ported from VICE (x64sc): a cycle-exact 6510 with VICE's interrupt timing, the CIA 6526A, the VIC-II timing with bad lines, sprite DMA and raster interrupts, and the 6510 I/O port — so raster-IRQ, CIA-timed and digi tunes play with the timing of a real machine.
+- **Engine:** the window shows which engine is playing (WebSID, or VA SID Core with its version and SID chip); choose it in **Settings → SID preview**. VA SID Core runs the tune on a native Rust C64 core with a cycle-exact 6510, precise interrupt timing, CIA 6526A, VIC-II timing with bad lines, sprite DMA and raster interrupts, and the 6510 I/O port — so raster-IRQ, CIA-timed and digi tunes play with the timing of a real machine.
 
 ---
 
