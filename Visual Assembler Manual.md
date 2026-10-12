@@ -189,6 +189,8 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 - **Exact character ROM** in the ROM viewer, the Character Editor's **Load ROM** and the Map / Level editors.
 - **Sprite Editor** — hi-res overlay, flood fill, select / move, rotate, Mirror all, sprite sheet import, hitbox, X / Y ×2 preview. See [Sprite Editor](#sprite-editor).
 - **Level Editor** — objects, character attributes, edge check, colours per screen, memory meter with RLE, Run in VICE. See [Level Editor](#level-editor).
+- **Character Editor** — undo / redo, drawing tools, rotate 90°, copy / paste and drag-to-swap on the map, 2×2 tiles, the lowercase ROM set, a text preview and range export. See [Character Editor](#character-editor-charset).
+- **Charset Canvas** — zoom 2×–24× (slider or Ctrl+wheel) with a pixel grid, background colour in hi-res mode, and hi-res characters inside multicolor mode. See [Charset Canvas Editor](#charset-canvas-editor).
 
 ---
 
@@ -3923,10 +3925,17 @@ Read-only viewer of the C64 character ROM (the built-in PETSCII font). Open via 
 
 | Feature | Description |
 |---|---|
-| Load ROM | Loads the C64 character ROM (uppercase / graphics set) — the exact 901225-01 glyphs, no file picker. |
+| Load ROM | Loads the C64 character ROM — the exact 901225-01 glyphs, no file picker. The first button (and **Files → ROM: uppercase / graphics**) loads set 1, the second button (or Shift+click, or **Files → ROM: lowercase / uppercase**) loads set 2. |
 | Load `.bin` | Imports an external 2048-byte charset binary. |
 | Per-char preview | 16-wide grid of all 256 glyphs with the current cell highlighted. |
-| Pixel editor | 8×8 single-character editor with toggle/invert/clear tools. |
+| Pixel editor | Edits the selected character, or a **tile** of 2×1, 1×2 or 2×2 neighbouring characters as one picture (Tile selector). |
+| Drawing tools | Pencil, line, rectangle, filled rectangle and flood fill. A click on a pixel that already has the ink erases it. |
+| Transforms | Clear, invert, flip horizontal / vertical, shift with wrap-around, rotate 90° clockwise / counter-clockwise (square tiles only) — on the whole tile. |
+| Undo / Redo | Toolbar buttons, Ctrl+Z and Ctrl+Y (Ctrl+Shift+Z). |
+| Copy / Paste | Toolbar buttons, Ctrl+C / Ctrl+V, or right-click on the map; copies the whole tile with its colours. |
+| Map drag | Drag a character onto another on the map to swap them; Shift+drag copies. |
+| Text preview | Type text to see it in the current charset. Choose the uppercase or lowercase set mapping; `{65}` or `{$41}` inserts a screen code. |
+| Range export | Set the From / To characters, then **Files → Save range (.bin)** (raw bytes) or **Copy range ASM** (`.byte` lines). |
 | Per-character color | Stores a default Color RAM value for each glyph. In multicolor character mode this also preserves the per-cell multicolor enable bit and the character's own lower-3-bit color. |
 | Metadata round-trip | When loading compatible data from Charset Canvas / Map workflows, per-character color metadata is preserved so edits can continue without losing color intent. |
 | Export blocks | Appends RAWBYTES at $0800 (block 2) or $3800 (block 7) with the encoded charset. |
@@ -3935,21 +3944,24 @@ Read-only viewer of the C64 character ROM (the built-in PETSCII font). Open via 
 
 Full-canvas charset painter for building screens from a complete 256-character charset. Open via Toolkit → Charset Canvas.
 
-The canvas is 16×16 characters. In mono mode that gives a 128×128 pixel working area; in multicolor character mode it gives a 64×128 wide-pixel working area using the C64's real character multicolor rules.
+The canvas is 16×16 characters, 128×128 pixels. In multicolor character mode every character is either multicolor (wide pixels, 4 colours) or hi-res (8 narrow pixels, 2 colours), exactly like on the C64.
 
 | Feature | Description |
 |---|---|
-| Mono / multicolor | Mono mode stores 1-bit 8×8 glyphs. Multicolor mode stores two-bit horizontal pixel pairs and marks used cells with Color RAM bit 3. |
+| Mono / multicolor | Mono mode stores 1-bit 8×8 glyphs. Multicolor mode stores two-bit horizontal pixel pairs and marks multicolor cells with Color RAM bit 3. |
+| Character mode tool | In multicolor mode, click or drag over characters to switch them between multicolor and hi-res (Color RAM bit 3). The shape is kept: a set pixel pair becomes the character's own colour. A hi-res character has the background and its own colour (0–7); MC1 / MC2 do not paint there. |
+| Background | The BG dropdown is shown in mono mode too; MC1 / MC2 only in multicolor mode. |
 | C64 color model | Background uses `$D021`; shared multicolor 1 uses `$D022`; shared multicolor 2 uses `$D023`; each character's own color comes from Color RAM bits 0–2. |
 | Drawing tools | Pencil, eraser, line, rectangle, oval, and flood fill work across character boundaries. |
 | Spray tool | Airbrush-style drawing that scatters pixels across neighboring cells/characters. |
 | Spray intensity | Dropdown next to the spray tool sets the stroke density. |
 | Grid toggle | The Grid checkbox shows or hides the 16×16 character grid. |
+| Zoom | The zoom slider (2×–24×, whole device pixels per C64 pixel) or Ctrl+wheel over the canvas; the zoom is remembered. From 8× the Grid also draws a fine line on every pixel edge. |
 | Save charset `.bin` | Saves the 2048-byte character bitmap data. |
 | Save 16×16 map + Color RAM `.bin` | Saves 256 screen codes followed by 256 Color RAM values. Use this with `MAP_COPY16X16`. |
 | Loading | Can load charset-canvas saves, plain charset data, and compatible Character Editor charset data including stored per-character colors when present. |
 
-**Important C64 limitation:** in multicolor character mode the two shared colors are global for the whole screen (`$D022` / `$D023`). Only the character's own color is per cell, and it is limited to colors 0–7 because Color RAM bit 3 selects multicolor mode.
+**Important C64 limitation:** in multicolor character mode the two shared colors are global for the whole screen (`$D022` / `$D023`). Only the character's own color is per cell, and it is limited to colors 0–7 because Color RAM bit 3 selects multicolor mode. So one character shows at most **4 colours** (background, MC1, MC2 and its own colour), and the whole screen at most 3 + 8. In the palette the shared colours are tagged BG / 1 / 2, and colours 8–15 that are not shared are dimmed. Picking such a colour puts it into MC2 or MC1 only while no pixel uses that register; otherwise change it in its dropdown (that recolours the whole screen). In hi-res (mono) mode a character has 2 colours: the background and its own colour (0–15).
 
 ### Map Editor (Multilayer Tilemaps)
 

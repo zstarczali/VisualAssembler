@@ -82,49 +82,49 @@ const CUSTOMER_MESSAGE = {
   hu: {
     eyebrow: "Újdonság a 2.5.7-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>VA SID Core 1.2:</strong> a SID Player a VICE-ból portolt, ciklusra pontos C64-en játszik (6510, CIA, VIC-II).</li><li><strong>Hi-Res szerkesztő:</strong> két szín minden 8×8-as cellában — új Cella háttérszín eszköz.</li><li><strong>Pontos karakter-ROM</strong> a ROM-nézőben, a Character és a Map / Level szerkesztőben.</li><li><strong>Sprite szerkesztő:</strong> hires réteg, kitöltés, kijelölés, forgatás, sprite sheet import, hitbox, X / Y ×2.</li><li><strong>Pálya szerkesztő:</strong> objektumok, karakter-attribútumok, él-ellenőrzés, képernyőnkénti színek, memóriamérleg + RLE, Futtatás VICE-ban.</li></ul>`,
+    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>VA SID Core 1.2:</strong> a SID Player a VICE-ból portolt, ciklusra pontos C64-en játszik (6510, CIA, VIC-II).</li><li><strong>Hi-Res szerkesztő:</strong> két szín minden 8×8-as cellában — új Cella háttérszín eszköz.</li><li><strong>Pontos karakter-ROM</strong> a ROM-nézőben, a Character és a Map / Level szerkesztőben.</li><li><strong>Sprite szerkesztő:</strong> hires réteg, kitöltés, kijelölés, forgatás, sprite sheet import, hitbox, X / Y ×2.</li><li><strong>Pálya szerkesztő:</strong> objektumok, karakter-attribútumok, él-ellenőrzés, képernyőnkénti színek, memóriamérleg + RLE, Futtatás VICE-ban.</li><li><strong>Karakterszerkesztő:</strong> visszavonás, rajzeszközök, forgatás, másolás / csere, 2×2-es csempék, kisbetűs ROM, szöveges előnézet, tartomány-export.</li><li><strong>Charset Canvas:</strong> nagyítás pixelráccsal, háttérszín hires módban, hires karakterek multicolor módon belül.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
     eyebrow: "New in 2.5.7",
     title: "Welcome to Visual Assembler",
-    body: `<p>What's new in this release:</p><ul><li><strong>VA SID Core 1.2:</strong> the SID Player runs tunes on a cycle-exact C64 ported from VICE (6510, CIA, VIC-II).</li><li><strong>Hi-Res Editor:</strong> two colours in every 8×8 cell — the new Cell paper tool.</li><li><strong>Exact character ROM</strong> in the ROM viewer, the Character and the Map / Level editors.</li><li><strong>Sprite Editor:</strong> hi-res overlay, flood fill, select, rotate, sprite sheet import, hitbox, X / Y ×2.</li><li><strong>Level Editor:</strong> objects, character attributes, edge check, colours per screen, memory meter + RLE, Run in VICE.</li></ul>`,
+    body: `<p>What's new in this release:</p><ul><li><strong>VA SID Core 1.2:</strong> the SID Player runs tunes on a cycle-exact C64 ported from VICE (6510, CIA, VIC-II).</li><li><strong>Hi-Res Editor:</strong> two colours in every 8×8 cell — the new Cell paper tool.</li><li><strong>Exact character ROM</strong> in the ROM viewer, the Character and the Map / Level editors.</li><li><strong>Sprite Editor:</strong> hi-res overlay, flood fill, select, rotate, sprite sheet import, hitbox, X / Y ×2.</li><li><strong>Level Editor:</strong> objects, character attributes, edge check, colours per screen, memory meter + RLE, Run in VICE.</li><li><strong>Character Editor:</strong> undo, drawing tools, rotate, copy / swap, 2×2 tiles, lowercase ROM, text preview, range export.</li><li><strong>Charset Canvas:</strong> zoom with a pixel grid, background colour in hi-res mode, hi-res characters inside multicolor mode.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
     eyebrow: "Novedad en la 2.5.7",
     title: "Bienvenido a Visual Assembler",
-    body: `<p>Novedades de esta versión:</p><ul><li><strong>VA SID Core 1.2:</strong> el SID Player reproduce en un C64 exacto al ciclo portado de VICE (6510, CIA, VIC-II).</li><li><strong>Editor Hi-Res:</strong> dos colores en cada celda de 8×8 — nueva herramienta de fondo de celda.</li><li><strong>ROM de caracteres exacta</strong> en el visor de ROM y en los editores de caracteres, mapas y niveles.</li><li><strong>Editor de sprites:</strong> capa hi-res, relleno, selección, giro, importación de hojas de sprites, hitbox, X / Y ×2.</li><li><strong>Editor de niveles:</strong> objetos, atributos de caracteres, comprobación de bordes, colores por pantalla, memoria + RLE, ejecutar en VICE.</li></ul>`,
+    body: `<p>Novedades de esta versión:</p><ul><li><strong>VA SID Core 1.2:</strong> el SID Player reproduce en un C64 exacto al ciclo portado de VICE (6510, CIA, VIC-II).</li><li><strong>Editor Hi-Res:</strong> dos colores en cada celda de 8×8 — nueva herramienta de fondo de celda.</li><li><strong>ROM de caracteres exacta</strong> en el visor de ROM y en los editores de caracteres, mapas y niveles.</li><li><strong>Editor de sprites:</strong> capa hi-res, relleno, selección, giro, importación de hojas de sprites, hitbox, X / Y ×2.</li><li><strong>Editor de niveles:</strong> objetos, atributos de caracteres, comprobación de bordes, colores por pantalla, memoria + RLE, ejecutar en VICE.</li><li><strong>Editor de caracteres:</strong> deshacer, herramientas de dibujo, giro, copiar / intercambiar, mosaicos 2×2, ROM en minúsculas, vista previa de texto, exportar rango.</li><li><strong>Charset Canvas:</strong> zoom con cuadrícula de píxeles, color de fondo en alta resolución, caracteres de alta resolución dentro del modo multicolor.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
     eyebrow: "Neu in 2.5.7",
     title: "Willkommen bei Visual Assembler",
-    body: `<p>Neu in dieser Version:</p><ul><li><strong>VA SID Core 1.2:</strong> der SID Player spielt auf einem zyklusgenauen, aus VICE portierten C64 (6510, CIA, VIC-II).</li><li><strong>Hi-Res-Editor:</strong> zwei Farben in jeder 8×8-Zelle — neues Werkzeug für die Zellenhintergrundfarbe.</li><li><strong>Exaktes Zeichen-ROM</strong> im ROM-Betrachter, im Zeichen-, Map- und Level-Editor.</li><li><strong>Sprite-Editor:</strong> Hi-Res-Ebene, Füllen, Auswahl, Drehen, Spritesheet-Import, Hitbox, X / Y ×2.</li><li><strong>Level-Editor:</strong> Objekte, Zeichenattribute, Kantenprüfung, Farben pro Bildschirm, Speicheranzeige + RLE, in VICE starten.</li></ul>`,
+    body: `<p>Neu in dieser Version:</p><ul><li><strong>VA SID Core 1.2:</strong> der SID Player spielt auf einem zyklusgenauen, aus VICE portierten C64 (6510, CIA, VIC-II).</li><li><strong>Hi-Res-Editor:</strong> zwei Farben in jeder 8×8-Zelle — neues Werkzeug für die Zellenhintergrundfarbe.</li><li><strong>Exaktes Zeichen-ROM</strong> im ROM-Betrachter, im Zeichen-, Map- und Level-Editor.</li><li><strong>Sprite-Editor:</strong> Hi-Res-Ebene, Füllen, Auswahl, Drehen, Spritesheet-Import, Hitbox, X / Y ×2.</li><li><strong>Level-Editor:</strong> Objekte, Zeichenattribute, Kantenprüfung, Farben pro Bildschirm, Speicheranzeige + RLE, in VICE starten.</li><li><strong>Zeichen-Editor:</strong> Rückgängig, Zeichenwerkzeuge, Drehen, Kopieren / Tauschen, 2×2-Kacheln, Kleinbuchstaben-ROM, Textvorschau, Bereichsexport.</li><li><strong>Charset Canvas:</strong> Zoom mit Pixelraster, Hintergrundfarbe im Hi-Res-Modus, Hi-Res-Zeichen im Multicolor-Modus.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
     eyebrow: "Nieuw in 2.5.7",
     title: "Welkom bij Visual Assembler",
-    body: `<p>Nieuw in deze versie:</p><ul><li><strong>VA SID Core 1.2:</strong> de SID Player speelt op een cyclusexacte, uit VICE geporteerde C64 (6510, CIA, VIC-II).</li><li><strong>Hi-Res-editor:</strong> twee kleuren in elke 8×8-cel — nieuw gereedschap voor de celachtergrond.</li><li><strong>Exacte teken-ROM</strong> in de ROM-viewer en de teken-, map- en leveleditor.</li><li><strong>Sprite-editor:</strong> hi-res-laag, vullen, selecteren, draaien, spritesheet-import, hitbox, X / Y ×2.</li><li><strong>Leveleditor:</strong> objecten, tekenattributen, randcontrole, kleuren per scherm, geheugen + RLE, uitvoeren in VICE.</li></ul>`,
+    body: `<p>Nieuw in deze versie:</p><ul><li><strong>VA SID Core 1.2:</strong> de SID Player speelt op een cyclusexacte, uit VICE geporteerde C64 (6510, CIA, VIC-II).</li><li><strong>Hi-Res-editor:</strong> twee kleuren in elke 8×8-cel — nieuw gereedschap voor de celachtergrond.</li><li><strong>Exacte teken-ROM</strong> in de ROM-viewer en de teken-, map- en leveleditor.</li><li><strong>Sprite-editor:</strong> hi-res-laag, vullen, selecteren, draaien, spritesheet-import, hitbox, X / Y ×2.</li><li><strong>Leveleditor:</strong> objecten, tekenattributen, randcontrole, kleuren per scherm, geheugen + RLE, uitvoeren in VICE.</li><li><strong>Tekeneditor:</strong> ongedaan maken, tekengereedschap, draaien, kopiëren / wisselen, 2×2-tegels, kleine-letter-ROM, tekstvoorbeeld, bereikexport.</li><li><strong>Charset Canvas:</strong> zoom met pixelraster, achtergrondkleur in hi-res, hi-res-tekens binnen multicolor.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
     eyebrow: "Nowość w 2.5.7",
     title: "Witamy w Visual Assembler",
-    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>VA SID Core 1.2:</strong> SID Player gra na dokładnym co do cyklu C64 przeniesionym z VICE (6510, CIA, VIC-II).</li><li><strong>Edytor Hi-Res:</strong> dwa kolory w każdej komórce 8×8 — nowe narzędzie tła komórki.</li><li><strong>Dokładny ROM znaków</strong> w przeglądarce ROM oraz w edytorach znaków, map i poziomów.</li><li><strong>Edytor sprite'ów:</strong> warstwa hi-res, wypełnianie, zaznaczanie, obrót, import arkuszy, hitbox, X / Y ×2.</li><li><strong>Edytor poziomów:</strong> obiekty, atrybuty znaków, kontrola krawędzi, kolory ekranów, pamięć + RLE, uruchom w VICE.</li></ul>`,
+    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>VA SID Core 1.2:</strong> SID Player gra na dokładnym co do cyklu C64 przeniesionym z VICE (6510, CIA, VIC-II).</li><li><strong>Edytor Hi-Res:</strong> dwa kolory w każdej komórce 8×8 — nowe narzędzie tła komórki.</li><li><strong>Dokładny ROM znaków</strong> w przeglądarce ROM oraz w edytorach znaków, map i poziomów.</li><li><strong>Edytor sprite'ów:</strong> warstwa hi-res, wypełnianie, zaznaczanie, obrót, import arkuszy, hitbox, X / Y ×2.</li><li><strong>Edytor poziomów:</strong> obiekty, atrybuty znaków, kontrola krawędzi, kolory ekranów, pamięć + RLE, uruchom w VICE.</li><li><strong>Edytor znaków:</strong> cofanie, narzędzia rysowania, obrót, kopiowanie / zamiana, kafle 2×2, ROM z małymi literami, podgląd tekstu, eksport zakresu.</li><li><strong>Charset Canvas:</strong> powiększenie z siatką pikseli, kolor tła w trybie hi-res, znaki hi-res w trybie multicolor.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
     eyebrow: "Novità nella 2.5.7",
     title: "Benvenuto in Visual Assembler",
-    body: `<p>Novità di questa versione:</p><ul><li><strong>VA SID Core 1.2:</strong> il SID Player suona su un C64 esatto al ciclo portato da VICE (6510, CIA, VIC-II).</li><li><strong>Editor Hi-Res:</strong> due colori in ogni cella 8×8 — nuovo strumento per lo sfondo della cella.</li><li><strong>ROM dei caratteri esatta</strong> nel visualizzatore ROM e negli editor di caratteri, mappe e livelli.</li><li><strong>Editor sprite:</strong> livello hi-res, riempimento, selezione, rotazione, importazione sprite sheet, hitbox, X / Y ×2.</li><li><strong>Editor livelli:</strong> oggetti, attributi dei caratteri, controllo bordi, colori per schermata, memoria + RLE, esegui in VICE.</li></ul>`,
+    body: `<p>Novità di questa versione:</p><ul><li><strong>VA SID Core 1.2:</strong> il SID Player suona su un C64 esatto al ciclo portato da VICE (6510, CIA, VIC-II).</li><li><strong>Editor Hi-Res:</strong> due colori in ogni cella 8×8 — nuovo strumento per lo sfondo della cella.</li><li><strong>ROM dei caratteri esatta</strong> nel visualizzatore ROM e negli editor di caratteri, mappe e livelli.</li><li><strong>Editor sprite:</strong> livello hi-res, riempimento, selezione, rotazione, importazione sprite sheet, hitbox, X / Y ×2.</li><li><strong>Editor livelli:</strong> oggetti, attributi dei caratteri, controllo bordi, colori per schermata, memoria + RLE, esegui in VICE.</li><li><strong>Editor caratteri:</strong> annulla, strumenti di disegno, rotazione, copia / scambio, tessere 2×2, ROM minuscola, anteprima testo, esportazione intervallo.</li><li><strong>Charset Canvas:</strong> zoom con griglia dei pixel, colore di sfondo in hi-res, caratteri hi-res nel modo multicolor.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -3713,6 +3713,7 @@ function _applyEditorTranslations() {
   setText("#cc-title", t("ccTitle"));
   setText("#cc-multicolor-label", t("ceMulticolorMode"));
   setText("#cc-grid-label", t("meGrid"));
+  setAttr("#cc-zoom", t("seZoom") + " (Ctrl+wheel)");
   setText("#cc-load-bin", t("ccLoadCharset"));
   setText("#cc-save-charset", t("ccSaveCharset"));
   setText("#cc-save-map", t("ccSaveMapColor"));
@@ -3723,6 +3724,8 @@ function _applyEditorTranslations() {
   setAttr('#charset-canvas-dialog [data-cc-tool="rect"]', t("meRect"));
   setAttr('#charset-canvas-dialog [data-cc-tool="oval"]', t("meCircle"));
   setAttr('#charset-canvas-dialog [data-cc-tool="fill"]', t("meFill"));
+  setAttr('#charset-canvas-dialog [data-cc-tool="cellmode"]', t("ccCellMode"));
+  setText("#cc-status", t("ccStatus"));
   setAttr("#cc-undo", t("hgUndo"));
   setAttr("#cc-redo", t("hgRedo"));
   setAttr("#cc-clear", t("ceClear"));
@@ -34221,15 +34224,33 @@ let _ccMc1 = 5;
 let _ccMc2 = 13;
 let _ccInk = 3;
 let _ccGrid = true;
+let _ccZoom = 6;   // device px per hi-res pixel
 let _ccPainting = false;
 let _ccStart = null;
 let _ccPreview = null;
 let _ccSprayIntensity = 3;
 let _ccUndo = [], _ccRedo = [];
 
-function _ccW() { return _ccMulticolor ? 64 : 128; }
+// Coordinates are hi-res pixels (128×128). In multicolor mode a character with
+// Color RAM bit 3 set is multicolor (one pixel = two columns); without it the
+// character stays hi-res with 2 colours, exactly as on the C64.
+function _ccW() { return 128; }
 function _ccH() { return 128; }
-function _ccCellCols() { return _ccMulticolor ? 4 : 8; }
+function _ccCellCols() { return 8; }
+let _ccCellModeTo = null;
+function _ccCharMc(charIdx) { return _ccMulticolor && !!(_ccColorRam[charIdx] & 8); }
+// Switches a character between multicolor and hi-res; a pair with any bit set
+// becomes the character's own colour, so the shape stays.
+function _ccSetCellMode(charIdx, mc) {
+  if (!_ccMulticolor || _ccCharMc(charIdx) === mc) return;
+  for (let r = 0; r < 8; r++) {
+    const i = charIdx * 8 + r, b = _ccData[i];
+    let out = 0;
+    for (let c = 0; c < 4; c++) if ((b >> (6 - c * 2)) & 3) out |= 3 << (6 - c * 2);
+    _ccData[i] = out;
+  }
+  _ccColorRam[charIdx] = (mc ? 8 : 0) | (_ccColorRam[charIdx] & 7);
+}
 function _ccCellFromPixel(x, y) {
   const cols = _ccCellCols();
   const cellX = Math.floor(x / cols);
@@ -34244,17 +34265,24 @@ function _ccGetPixel(x, y) {
   if (!_ccData || x < 0 || x >= _ccW() || y < 0 || y >= _ccH()) return 0;
   const p = _ccCellFromPixel(x, y);
   const byte = _ccData[p.charIdx * 8 + p.row];
-  if (_ccMulticolor) return (byte >> (6 - p.col * 2)) & 3;
+  if (_ccCharMc(p.charIdx)) return (byte >> (6 - (p.col & 6))) & 3;
   return (byte >> (7 - p.col)) & 1;
 }
 function _ccSetPixel(x, y, value) {
   if (!_ccData || x < 0 || x >= _ccW() || y < 0 || y >= _ccH()) return;
   const p = _ccCellFromPixel(x, y);
   const idx = p.charIdx * 8 + p.row;
-  if (_ccMulticolor) {
-    const shift = 6 - p.col * 2;
+  if (_ccCharMc(p.charIdx)) {
+    const shift = 6 - (p.col & 6);
     _ccData[idx] = (_ccData[idx] & ~(3 << shift)) | ((value & 3) << shift);
     _ccColorRam[p.charIdx] = 8 | ((value & 3) === 3 ? (_ccColor & 7) : (_ccColorRam[p.charIdx] & 7));
+  } else if (_ccMulticolor) {
+    // hi-res character in multicolor mode: background or its own colour (0-7);
+    // MC1 / MC2 do not exist here
+    if (value === 1 || value === 2) return;
+    if (value) _ccData[idx] |= (1 << (7 - p.col));
+    else _ccData[idx] &= ~(1 << (7 - p.col));
+    if (value) _ccColorRam[p.charIdx] = _ccColor & 7;
   } else {
     if (value) _ccData[idx] |= (1 << (7 - p.col));
     else _ccData[idx] &= ~(1 << (7 - p.col));
@@ -34294,17 +34322,24 @@ function _ccDrawOval(x0, y0, x1, y1, set) {
   }
 }
 function _ccFill(x, y, value) {
-  const target = _ccGetPixel(x, y);
-  if (target === value) return;
+  // by colour, so the fill crosses multicolor / hi-res characters correctly
+  const colorAt = function(px, py) { return _ccPixelColor(_ccGetPixel(px, py), _ccCellFromPixel(px, py).charIdx); };
+  const target = colorAt(x, y);
+  // the region is found first: painting half of a multicolor pair already
+  // recolours the other half
+  const seen = new Uint8Array(_ccW() * _ccH());
+  const region = [];
   const stack = [[x, y]];
   while (stack.length) {
     const p = stack.pop();
     const px = p[0], py = p[1];
-    if (px < 0 || px >= _ccW() || py < 0 || py >= _ccH()) continue;
-    if (_ccGetPixel(px, py) !== target) continue;
-    _ccSetPixel(px, py, value);
+    if (px < 0 || px >= _ccW() || py < 0 || py >= _ccH() || seen[py * _ccW() + px]) continue;
+    seen[py * _ccW() + px] = 1;
+    if (colorAt(px, py) !== target) continue;
+    region.push(p);
     stack.push([px + 1, py], [px - 1, py], [px, py + 1], [px, py - 1]);
   }
+  region.forEach(function(p) { _ccSetPixel(p[0], p[1], value); });
 }
 function _ccInkValue() {
   if (_ccTool === "eraser") return 0;
@@ -34312,15 +34347,15 @@ function _ccInkValue() {
   return _ccInk;
 }
 function _ccPixelColor(value, charIdx) {
-  if (_ccMulticolor) {
+  if (_ccCharMc(charIdx)) {
     const fg = _ccColorRam[charIdx] & 7;
     return [_ccBg, _ccMc1, _ccMc2, fg][value] & 0x0F;
   }
-  return value ? (_ccColorRam[charIdx] & 0x0F) : _ccBg;
+  return value ? (_ccColorRam[charIdx] & (_ccMulticolor ? 7 : 0x0F)) : _ccBg;
 }
 
 function _ccSpray(x, y, value) {
-  const radius = _ccMulticolor ? 2 : 3;
+  const radius = 3;
   const intensity = Math.max(1, Math.min(5, _ccSprayIntensity | 0));
   const dropsByIntensity = _ccMulticolor ? [2, 4, 6, 9, 12] : [3, 5, 8, 11, 15];
   const drops = dropsByIntensity[intensity - 1];
@@ -34335,7 +34370,7 @@ function _ccExportColorRam() {
   const out = new Uint8Array(256);
   for (let i = 0; i < out.length; i++) {
     const color = _ccColorRam[i] & 0x0F;
-    out[i] = _ccMulticolor ? (8 | (color & 7)) : color;
+    out[i] = color;
   }
   return out;
 }
@@ -34386,9 +34421,10 @@ function _ccRedoOp() {
 function _ccRender(preview) {
   const canvas = document.getElementById("cc-canvas");
   if (!canvas || !_ccData) return;
+  _ccSyncCellModeTool();
   const ctx = canvas.getContext("2d");
-  const pixelW = _ccMulticolor ? 12 : 6;
-  const pixelH = 6;
+  const pixelW = _ccZoom;
+  const pixelH = _ccZoom;
   canvas.width = _ccW() * pixelW;
   canvas.height = _ccH() * pixelH;
   ctx.fillStyle = _CE_COLORS[_ccBg];
@@ -34401,8 +34437,18 @@ function _ccRender(preview) {
       ctx.fillRect(x * pixelW, y * pixelH, pixelW, pixelH);
     }
   }
+  // from 8× the pixel edges get a faint line too
+  if (_ccGrid && _ccZoom >= 8) {
+    ctx.fillStyle = "rgba(0,0,0,0.22)";
+    for (let y = 1; y < _ccH(); y++) ctx.fillRect(0, y * pixelH, canvas.width, 1);
+    // in a multicolor character only every second column is a pixel edge
+    for (let n = 0; n < 256; n++) {
+      const step = _ccCharMc(n) ? 2 : 1, cx = (n % 16) * 8, cy = Math.floor(n / 16) * 8;
+      for (let c = step; c < 8; c += step) ctx.fillRect((cx + c) * pixelW, cy * pixelH, 1, 8 * pixelH);
+    }
+  }
   if (_ccGrid) {
-    ctx.strokeStyle = "rgba(170,160,225,0.28)";
+    ctx.strokeStyle = _ccZoom >= 8 ? "rgba(190,180,240,0.6)" : "rgba(170,160,225,0.28)";
     ctx.lineWidth = 1;
     for (let c = 0; c <= 16; c++) {
       const x = c * _ccCellCols() * pixelW + 0.5;
@@ -34424,8 +34470,8 @@ function _ccRender(preview) {
 function _ccPointFromEvent(e) {
   const canvas = document.getElementById("cc-canvas");
   const rect = canvas.getBoundingClientRect();
-  const x = Math.floor((e.clientX - rect.left) * canvas.width / rect.width / (_ccMulticolor ? 12 : 6));
-  const y = Math.floor((e.clientY - rect.top) * canvas.height / rect.height / 6);
+  const x = Math.floor((e.clientX - rect.left) * canvas.width / rect.width / _ccZoom);
+  const y = Math.floor((e.clientY - rect.top) * canvas.height / rect.height / _ccZoom);
   if (x < 0 || x >= _ccW() || y < 0 || y >= _ccH()) return null;
   return { x: x, y: y };
 }
@@ -34441,7 +34487,8 @@ function _ccShapePoints(a, b) {
 }
 
 function _ccSyncColorSelects() {
-  document.querySelector(".cc-mc-colors")?.classList.toggle("cc-mc-colors--hidden", !_ccMulticolor);
+  // the background ($D021) is there in both modes, MC1 / MC2 only in multicolor
+  document.querySelectorAll(".cc-mc-colors .cc-mc-only").forEach(function(el) { el.hidden = !_ccMulticolor; });
   [
     ["cc-bg-color", _ccBg],
     ["cc-mc1-color", _ccMc1],
@@ -34451,25 +34498,59 @@ function _ccSyncColorSelects() {
     if (sel) sel.value = String(entry[1] & 0x0F);
   });
 }
+function _ccSyncCellModeTool() {
+  const btn = document.querySelector('#charset-canvas-dialog [data-cc-tool="cellmode"]');
+  if (!btn) return;
+  btn.disabled = !_ccMulticolor;
+  if (!_ccMulticolor && _ccTool === "cellmode") {
+    _ccTool = "pencil";
+    document.querySelectorAll("#charset-canvas-dialog [data-cc-tool]").forEach(function(b) { b.classList.toggle("cc-tool--active", b.dataset.ccTool === "pencil"); });
+  }
+}
+function _ccValueUsed(v) {
+  if (!_ccData) return false;
+  for (let i = 0; i < _ccData.length; i++) {
+    if (!_ccCharMc(i >> 3)) continue;
+    const b = _ccData[i];
+    if (((b >> 6) & 3) === v || ((b >> 4) & 3) === v || ((b >> 2) & 3) === v || (b & 3) === v) return true;
+  }
+  return false;
+}
+// Multicolor: BG / MC1 / MC2 are shared by the whole screen, the 4th colour
+// (Color RAM, 0-7) is per character; 8-15 are usable only as a shared colour.
 function _ccSyncPaletteSelection() {
   const wrap = document.getElementById("cc-palette");
   if (!wrap) return;
+  const tags = { };
+  if (_ccMulticolor) { tags[_ccBg] = "BG"; tags[_ccMc1] = (tags[_ccMc1] ? tags[_ccMc1] + "/" : "") + "1"; tags[_ccMc2] = (tags[_ccMc2] ? tags[_ccMc2] + "/" : "") + "2"; }
   wrap.querySelectorAll(".cc-swatch").forEach(function(s, i) {
     s.classList.toggle("cc-swatch--sel", i === (_ccColor & 0x0F));
+    s.classList.toggle("cc-swatch--shared", !!tags[i]);
+    s.classList.toggle("cc-swatch--na", _ccMulticolor && i > 7 && !tags[i]);
+    s.dataset.tag = tags[i] || "";
   });
 }
 
 function _ccPickColor(color) {
+  const prev = _ccColor;
   _ccColor = color & 0x0F;
   if (_ccMulticolor) {
     if (_ccColor === _ccBg) _ccInk = 0;
     else if (_ccColor === _ccMc1) _ccInk = 1;
     else if (_ccColor === _ccMc2) _ccInk = 2;
     else if (_ccColor > 7) {
-      _ccMc2 = _ccColor;
-      _ccInk = 2;
-      _ccSyncColorSelects();
-      _ccRender();
+      // 8-15 only fit a shared register: take MC2 or MC1 while no pixel uses it,
+      // otherwise changing it would recolour the whole screen.
+      const slot = !_ccValueUsed(2) ? 2 : !_ccValueUsed(1) ? 1 : 0;
+      if (!slot) {
+        showViceToast(t("ccMcColorFull"), true);
+        _ccColor = prev;
+      } else {
+        if (slot === 2) _ccMc2 = _ccColor; else _ccMc1 = _ccColor;
+        _ccInk = slot;
+        _ccSyncColorSelects();
+        _ccRender();
+      }
     } else {
       _ccInk = 3;
     }
@@ -34550,10 +34631,36 @@ function _ccInit() {
   _toolDropdownSetOpen("cc-spray-tool", "cc-spray-menu", false);
   const grid = document.getElementById("cc-grid");
   if (grid) grid.checked = _ccGrid;
+  try { _ccSetZoom(+localStorage.getItem("c64va-cc-zoom") || _ccZoom); } catch (_) { _ccSetZoom(_ccZoom); }
   _ccBuildPalette();
   _ccBuildColorSelects();
   _ccSyncPaletteSelection();
   _ccRender();
+}
+// Zoom = whole device pixels per hi-res pixel, so the canvas stays sharp.
+// With an anchor (client x/y) the point under the mouse stays in place.
+function _ccSetZoom(z, anchor) {
+  z = Math.max(2, Math.min(24, Math.round(z) || 6));
+  const wrap = document.querySelector(".cc-canvas-wrap");
+  const canvas = document.getElementById("cc-canvas");
+  let fx = 0, fy = 0, ax = 0, ay = 0;
+  if (anchor && wrap && canvas) {
+    const r = canvas.getBoundingClientRect(), w = wrap.getBoundingClientRect();
+    fx = (anchor.x - r.left) / r.width; fy = (anchor.y - r.top) / r.height;
+    ax = anchor.x - w.left; ay = anchor.y - w.top;
+  }
+  _ccZoom = z;
+  const input = document.getElementById("cc-zoom");
+  if (input) input.value = z;
+  const lbl = document.getElementById("cc-zoom-lbl");
+  if (lbl) lbl.textContent = z + "×";
+  try { localStorage.setItem("c64va-cc-zoom", String(z)); } catch (_) {}
+  _ccRender();
+  if (anchor && wrap && canvas) {
+    const r = canvas.getBoundingClientRect(), w = wrap.getBoundingClientRect();
+    wrap.scrollLeft += (r.left - w.left + fx * r.width) - ax;
+    wrap.scrollTop += (r.top - w.top + fy * r.height) - ay;
+  }
 }
 function _ccExportMapColor() {
   const screen = new Uint8Array(256);
@@ -34606,12 +34713,20 @@ function setupCharsetCanvasEditor() {
       _ccPickColor(_ccColor);
     }
     _ccSyncColorSelects();
+    _ccSyncPaletteSelection();
+    _ccSyncCellModeTool();
     _ccRender();
   });
   document.getElementById("cc-grid")?.addEventListener("change", function(e) {
     _ccGrid = !!e.target.checked;
     _ccRender();
   });
+  document.getElementById("cc-zoom")?.addEventListener("input", function(e) { _ccSetZoom(+e.target.value); });
+  document.querySelector(".cc-canvas-wrap")?.addEventListener("wheel", function(e) {
+    if (!e.ctrlKey && !e.metaKey) return;
+    e.preventDefault();
+    _ccSetZoom(_ccZoom + (e.deltaY < 0 ? 1 : -1), { x: e.clientX, y: e.clientY });
+  }, { passive: false });
   document.getElementById("cc-undo")?.addEventListener("click", _ccUndoOp);
   document.getElementById("cc-redo")?.addEventListener("click", _ccRedoOp);
   dialog.addEventListener("click", function(e) {
@@ -34671,6 +34786,8 @@ function setupCharsetCanvasEditor() {
       if (parsed.extras.charColors) _ccColorRam.set(parsed.extras.charColors.subarray(0, 256));
       const settings = parsed.manifest?.settings || {};
       _ccMulticolor = !!settings.multicolor;
+      // the Character Editor stores multicolor colours without bit 3
+      if (_ccMulticolor && parsed.manifest?.kind === "ce-charset") for (let i = 0; i < 256; i++) _ccColorRam[i] |= 8;
       _ccColor = settings.fg == null ? _ccColor : (settings.fg & 0x0F);
       _ccBg = settings.bg == null ? (settings.bgColor == null ? _ccBg : settings.bgColor & 0x0F) : (settings.bg & 0x0F);
       _ccMc1 = settings.mc1 == null ? (settings.mc1Color == null ? _ccMc1 : settings.mc1Color & 0x0F) : (settings.mc1 & 0x0F);
@@ -34689,6 +34806,13 @@ function setupCharsetCanvasEditor() {
   if (canvas) {
     const apply = function(point) {
       if (!point) return;
+      if (_ccTool === "cellmode") {
+        const n = _ccCellFromPixel(point.x, point.y).charIdx;
+        if (_ccCellModeTo === null) _ccCellModeTo = !_ccCharMc(n);
+        _ccSetCellMode(n, _ccCellModeTo);
+        _ccRender();
+        return;
+      }
       const value = _ccInkValue();
       if (_ccTool === "fill") _ccFill(point.x, point.y, value);
       else if (_ccTool === "spray") _ccSpray(point.x, point.y, value);
@@ -34719,13 +34843,14 @@ function setupCharsetCanvasEditor() {
       if (_ccTool === "line" || _ccTool === "rect" || _ccTool === "oval") {
         _ccPreview = _ccShapePoints(_ccStart, point);
         _ccRender(_ccPreview);
-      } else if (_ccTool === "pencil" || _ccTool === "eraser" || _ccTool === "spray") {
+      } else if (_ccTool === "pencil" || _ccTool === "eraser" || _ccTool === "spray" || _ccTool === "cellmode") {
         apply(point);
       }
       e.preventDefault();
     });
     const end = function(e, commit) {
       if (!_ccPainting) return;
+      _ccCellModeTo = null;
       const point = e && e.clientX != null ? _ccPointFromEvent(e) : null;
       if (commit && point && (_ccTool === "line" || _ccTool === "rect" || _ccTool === "oval")) {
         const value = _ccInkValue();

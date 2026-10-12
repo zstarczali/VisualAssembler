@@ -36,6 +36,8 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - **Pontos karakter-ROM** a ROM-nézőben, a Character Editor **Load ROM** funkciójában és a Map / Level szerkesztőben.
 - **Sprite szerkesztő** — hires réteg, kitöltés, kijelölés / mozgatás, forgatás, tükrözött animáció, sprite sheet import, hitbox, X / Y ×2 előnézet. Lásd: [Sprite Editor](#sprite-editor).
 - **Pálya szerkesztő** — objektumok, karakter-attribútumok, él-ellenőrzés, képernyőnkénti színek, memóriamérleg RLE-vel, Futtatás VICE-ban. Lásd: [Pálya szerkesztő](#pálya-szerkesztő-level-editor).
+- **Karakterszerkesztő** — visszavonás / újra, rajzeszközök, 90°-os forgatás, másolás / beillesztés és húzásos csere a térképen, 2×2-es csempék, kisbetűs ROM-készlet, szöveges előnézet és tartomány-export. Lásd: [Character Editor](#character-editor-charset).
+- **Charset Canvas** — nagyítás 2×–24× (csúszka vagy Ctrl+görgő) pixelráccsal, háttérszín hires módban, és hires karakterek multicolor módon belül. Lásd: [Charset Canvas Editor](#charset-canvas-editor).
 
 ---
 
@@ -3769,10 +3771,17 @@ A C64 karakter-ROM (a beépített PETSCII font) csak olvasható nézője. A Tool
 
 | Funkció | Leírás |
 |---|---|
-| Load ROM | A C64 karakter-ROM-ot tölti be (nagybetű / grafikus készlet) — a pontos 901225-01 glifákkal, fájlválasztó nélkül. |
+| Load ROM | A C64 karakter-ROM-ot tölti be — a pontos 901225-01 glifákkal, fájlválasztó nélkül. Az első gomb (és **Files → ROM: nagybetűs / grafikus**) az 1. készletet, a második gomb (vagy Shift+kattintás, vagy **Files → ROM: kisbetűs / nagybetűs**) a 2. készletet tölti be. |
 | Load `.bin` | Külső 2048 byte-os charset binárist importál. |
 | Karakter-előnézet | 16 széles rács mind a 256 glif-fel, az aktuális cella kiemelve. |
-| Pixel szerkesztő | 8×8 egy-karakteres szerkesztő toggle/invert/clear eszközökkel. |
+| Pixel szerkesztő | A kijelölt karaktert, vagy 2×1, 1×2, 2×2 szomszédos karakterből álló **csempét** szerkeszt egy képként (Csempe választó). |
+| Rajzeszközök | Ceruza, vonal, téglalap, kitöltött téglalap és kitöltés. Ha a pixel már a kiválasztott színű, a kattintás törli. |
+| Átalakítások | Törlés, invertálás, vízszintes / függőleges tükrözés, körbeforduló eltolás, 90°-os forgatás jobbra / balra (csak négyzetes csempénél) — az egész csempén. |
+| Visszavonás / újra | Toolbar gombok, Ctrl+Z és Ctrl+Y (Ctrl+Shift+Z). |
+| Másolás / beillesztés | Toolbar gombok, Ctrl+C / Ctrl+V, vagy jobb klikk a térképen; a teljes csempét másolja a színeivel. |
+| Húzás a térképen | Egy karaktert a térképen egy másikra húzva felcseréli őket; Shift+húzás másol. |
+| Szöveges előnézet | A beírt szöveg az aktuális charsettel jelenik meg. Választható a nagybetűs vagy kisbetűs készlet szerinti leképezés; a `{65}` vagy `{$41}` képernyőkódot szúr be. |
+| Tartomány-export | Add meg a Tól / Ig karaktert, majd **Files → Tartomány mentése (.bin)** (nyers bájtok) vagy **Tartomány másolása ASM-ként** (`.byte` sorok). |
 | Karakterenkénti szín | Alapértelmezett Color RAM értéket tárol minden glifhez. Multicolor karakter módban ez a celláként­i multicolor engedély bitet és a karakter saját alsó-3-bites színét is megőrzi. |
 | Metaadat round-trip | Charset Canvas / Map munkafolyamatokból kompatibilis adat betöltésekor a karakterenkénti szín-metaadat megőrződik, így a szerkesztések folytathatók a szín-szándék elvesztése nélkül. |
 | Export blokkok | RAWBYTES-t fűz a $0800-ra (2. blokk) vagy a $3800-ra (7. blokk) a kódolt charsettel. |
@@ -3781,21 +3790,24 @@ A C64 karakter-ROM (a beépített PETSCII font) csak olvasható nézője. A Tool
 
 Teljes-canvas charset festő képernyők építéséhez egy teljes 256 karakteres charsetből. Toolkit → Charset Canvas menüvel nyílik.
 
-A canvas 16×16 karakter. Mono módban ez egy 128×128 pixeles munkaterületet ad; multicolor karakter módban egy 64×128 széles-pixeles munkaterületet a C64 valódi karakter-multicolor szabályaival.
+A canvas 16×16 karakter, 128×128 pixel. Multicolor karakter módban minden karakter vagy multicolor (széles pixelek, 4 szín), vagy hires (8 keskeny pixel, 2 szín), pontosan úgy, mint a C64-en.
 
 | Funkció | Leírás |
 |---|---|
-| Mono / multicolor | A mono mód 1 bites 8×8 glifeket tárol. A multicolor mód kétbites vízszintes pixel-párokat tárol, és a használt cellákat Color RAM 3. bittel jelöli. |
+| Mono / multicolor | A mono mód 1 bites 8×8 glifeket tárol. A multicolor mód kétbites vízszintes pixel-párokat tárol, és a multicolor cellákat Color RAM 3. bittel jelöli. |
+| Karaktermód eszköz | Multicolor módban a karakterekre kattintva vagy rajtuk húzva váltasz multicolor és hires között (Color RAM 3. bit). Az alak megmarad: a beállított pixelpár a karakter saját színe lesz. A hires karakter színei a háttér és a saját szín (0–7); MC1 / MC2 ott nem fest. |
+| Háttér | A BG legördülő mono módban is látszik; az MC1 / MC2 csak multicolorban. |
 | C64 színmodell | A háttér a `$D021`-et használja; a megosztott multicolor 1 a `$D022`-t; a megosztott multicolor 2 a `$D023`-at; minden karakter saját színe a Color RAM 0–2. bitjéből jön. |
 | Rajzeszközök | Ceruza, radír, vonal, téglalap, ovális és flood fill karakterhatárokon át működik. |
 | Spray eszköz | Airbrush-stílusú rajzolás, amely pixeleket szór a szomszédos cellák/karakterek közt. |
 | Spray intenzitás | A spray eszköz melletti legördülő beállítja a húzás sűrűségét. |
 | Grid kapcsoló | A Grid jelölőnégyzet megjeleníti vagy elrejti a 16×16 karakter-rácsot. |
+| Nagyítás | A nagyítás-csúszka (2×–24×, egész eszközpixel C64-pixelenként) vagy Ctrl+görgő a vásznon; a nagyítás megmarad. 8×-tól a Grid minden pixelhatárra halvány vonalat is rajzol. |
 | Save charset `.bin` | A 2048 byte-os karakter-bitmap adatot menti. |
 | Save 16×16 map + Color RAM `.bin` | 256 screen code-ot, majd 256 Color RAM értéket ment. Ezt a `MAP_COPY16X16`-tal használd. |
 | Betöltés | Betölthet charset-canvas mentéseket, sima charset adatot és kompatibilis Character Editor charset adatot, beleértve a tárolt karakterenkénti színeket, ha jelen vannak. |
 
-**Fontos C64 korlát:** multicolor karakter módban a két megosztott szín globális az egész képernyőre (`$D022` / `$D023`). Csak a karakter saját színe cellánkénti, és az a 0–7 színekre korlátozódik, mert a Color RAM 3. bit választja a multicolor módot.
+**Fontos C64 korlát:** multicolor karakter módban a két megosztott szín globális az egész képernyőre (`$D022` / `$D023`). Csak a karakter saját színe cellánkénti, és az a 0–7 színekre korlátozódik, mert a Color RAM 3. bit választja a multicolor módot. Így egy karakterben legfeljebb **4 szín** lehet (háttér, MC1, MC2 és a saját szín), az egész képernyőn legfeljebb 3 + 8. A palettán az osztott színek BG / 1 / 2 jelölést kapnak, a nem osztott 8–15 színek halványak. Ilyen szín választásakor az MC2-be vagy MC1-be kerül, de csak amíg azt a regisztert egy pixel sem használja; különben a legördülőben állítsd át (ez az egész képernyőt átszínezi). Hires (mono) módban egy karakter 2 színű: háttér és a saját szín (0–15).
 
 ### Map Editor (több-rétegű tilemap-ek)
 

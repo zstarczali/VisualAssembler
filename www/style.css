@@ -7849,7 +7849,7 @@ html[data-theme="commodore77"] .splash-image {
 .ce-preview { display: flex; flex-direction: column; gap: 5px; }
 .ce-preview-hdr { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .ce-preview-text {
-  min-height: 0; height: 42px; resize: vertical; padding: 4px 6px;
+  min-height: 34px; max-height: 96px; height: 42px; resize: vertical; padding: 4px 6px;
   font-family: "IBM Plex Mono", monospace; font-size: 0.74rem;
 }
 .ce-preview-canvas { display: block; width: 100%; image-rendering: pixelated; border: 2px solid #6c5eb5; }
@@ -8087,10 +8087,11 @@ html[data-theme="commodore77"] .splash-image {
   display: block;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
-  width: 100%;
-  max-width: 100%;
-  max-height: 100%;
+  flex: 1 1 0;
+  min-height: 0;
+  width: auto;
   height: auto;
+  max-width: 100%;
   aspect-ratio: 1;
   cursor: pointer;
   border: 3px solid #352879;
@@ -8291,7 +8292,7 @@ html[data-theme="commodore77"] .splash-image {
   padding-top: 8px;
   border-top: 1px solid var(--panel-border);
 }
-.cc-mc-colors--hidden { display: none; }
+.cc-mc-colors .cc-mc-only[hidden] { display: none; }
 .cc-mc-colors label {
   display: flex;
   flex-direction: column;
@@ -8318,6 +8319,17 @@ html[data-theme="commodore77"] .splash-image {
   font-size: 0.62rem;
   color: var(--secondary);
   line-height: 1.45;
+}
+.cc-zoom { display: flex; align-items: center; gap: 6px; color: var(--secondary); }
+.cc-zoom svg { width: 15px; height: 15px; flex: 0 0 auto; }
+.cc-zoom input[type="range"] { width: 120px; }
+.cc-zoom-lbl { min-width: 30px; font-size: 0.74rem; font-variant-numeric: tabular-nums; }
+.cc-swatch { position: relative; }
+.cc-swatch--na { opacity: 0.45; }
+.cc-swatch--shared::after {
+  content: attr(data-tag); position: absolute; right: 1px; bottom: 0;
+  font-size: 8px; line-height: 1; font-weight: 700; color: #fff;
+  text-shadow: 0 0 2px #000, 0 0 2px #000; pointer-events: none;
 }
 .cc-canvas-wrap {
   flex: 1;

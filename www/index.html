@@ -1273,6 +1273,9 @@ PRINTABLE CHARACTERS
           <strong>Level Editor:</strong> an <strong>objects layer</strong> (start, enemies, items, doors, exit, triggers → <code>LEVEL_OBJ_*</code> tables), <strong>character attributes</strong> (solid, ladder, hazard, collectible → <code>LEVEL_ATTR</code>), an <strong>edge check</strong> between screens, <strong>colours per screen</strong>, a <strong>memory meter</strong> with RLE export and unpacker, and <strong>Run in VICE</strong> — a joystick-scrolled test program built from the level.
         </li>
         <li>
+          <strong>Character Editor:</strong> <strong>undo / redo</strong>, drawing tools (pencil, line, rectangle, fill), <strong>rotate 90°</strong>, <strong>copy / paste</strong> and drag to swap characters on the map (Shift+drag copies), <strong>2×1 / 1×2 / 2×2 tiles</strong> edited as one picture, the <strong>lowercase ROM set</strong>, a <strong>text preview</strong> and <strong>range export</strong> (<code>.bin</code> or <code>.byte</code> lines). The <strong>Charset Canvas</strong> zooms 2×–24× (slider or Ctrl+wheel) with a pixel grid, sets the background in hi-res mode too, and can switch single characters to <strong>hi-res inside multicolor mode</strong> (Color RAM bit 3), like the C64.
+        </li>
+        <li>
           <strong>From 2.5.6: SID Player:</strong> a toolbar button opens a floating player for <code>.sid</code> (PSID / RSID) tunes — a playlist with drag and drop, previous / next tune, subtunes, seek and ±10 s, volume, and playlist save / open (<code>.sidpl</code>). The list and the window are remembered.
         </li>
         <li>
@@ -1621,6 +1624,9 @@ PRINTABLE CHARACTERS
           <button class="cc-tool" data-cc-tool="fill" type="button" aria-label="Fill">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l5-5 5 5-5 5z"/><path d="M3 7l5 5 5-5" fill="currentColor" stroke="none" opacity="0.45"/></svg>
           </button>
+          <button class="cc-tool" data-cc-tool="cellmode" type="button" aria-label="Character: multicolor / hi-res" disabled>
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11"/><path d="M2.5 8h11M8 2.5v11"/><path d="M3 3h4.5v4.5H3z" fill="currentColor" stroke="none" opacity="0.55"/><path d="M10.25 8.5v4.5M11.75 8.5v4.5" stroke-width="0.9"/></svg>
+          </button>
           <button class="cc-tool" id="cc-clear" type="button" aria-label="Clear">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4.5h10M6.2 4.5V3h3.6v1.5M5 4.5l.7 8.5h4.6l.7-8.5"/></svg>
           </button>
@@ -1633,6 +1639,11 @@ PRINTABLE CHARACTERS
           <input type="checkbox" id="cc-grid" checked>
           <span id="cc-grid-label">Grid</span>
         </label>
+        <div class="cc-zoom">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14M5 7h4M7 5v4"/></svg>
+          <input type="range" id="cc-zoom" min="2" max="24" step="1" value="6" aria-label="Zoom">
+          <span id="cc-zoom-lbl" class="cc-zoom-lbl">6×</span>
+        </div>
       </div>
       <div class="cc-body">
         <div class="cc-sidebar">
@@ -1640,10 +1651,10 @@ PRINTABLE CHARACTERS
           <div id="cc-palette" class="cc-palette"></div>
           <div class="cc-mc-colors">
             <label><span id="cc-bg-label">BG</span><select id="cc-bg-color" class="cc-color-select"></select></label>
-            <label><span id="cc-mc1-label">MC1</span><select id="cc-mc1-color" class="cc-color-select"></select></label>
-            <label><span id="cc-mc2-label">MC2</span><select id="cc-mc2-color" class="cc-color-select"></select></label>
+            <label class="cc-mc-only"><span id="cc-mc1-label">MC1</span><select id="cc-mc1-color" class="cc-color-select"></select></label>
+            <label class="cc-mc-only"><span id="cc-mc2-label">MC2</span><select id="cc-mc2-color" class="cc-color-select"></select></label>
           </div>
-          <div id="cc-status" class="cc-status">128x128 mono / 64x128 multicolor, 256 chars</div>
+          <div id="cc-status" class="cc-status">128x128, 256 chars. Multicolor: each character is multicolor or hi-res.</div>
         </div>
         <div class="cc-canvas-wrap">
           <canvas id="cc-canvas" class="cc-canvas" width="768" height="768"></canvas>
