@@ -8423,7 +8423,9 @@ html[data-theme="commodore77"] .splash-image {
 }
 .me-export-menu button:hover { background: color-mix(in srgb, var(--secondary) 18%, transparent); }
 .me-tb-right { margin-left: auto; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-#level-editor-dialog .me-tb-right { margin-left: 0; flex-wrap: wrap; }  /* the wrapped second row starts on the left */
+#level-editor-dialog .me-tb-right { margin-left: 0; }  /* a wrapped second row starts on the left */
+#level-editor-dialog .me-tb-right .lv-select { width: auto; flex: 0 0 auto; }
+.lv-zoom-lbl { font-size: 0.8rem; color: var(--secondary); }
 .me-check {
   display: flex;
   align-items: center;

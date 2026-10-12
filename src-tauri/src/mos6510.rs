@@ -232,9 +232,14 @@ impl Cpu {
         if !bus.ba_low() {
             return;
         }
+        // VICE `vicii_steal_cycles`: the clock runs on, the interrupt latency
+        // counters do not (they are fixed up below)
         while bus.ba_low() {
-            self.clk_inc(bus);
+            self.poll(bus);
+            bus.tick(1);
+            self.clk += 1;
         }
+        self.poll(bus);
         match self.op.number {
             0x93 | 0x9b | 0x9c | 0x9e | 0x9f => {
                 if self.check_ba_low {

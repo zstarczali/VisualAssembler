@@ -3793,6 +3793,7 @@ function _applyEditorTranslations() {
   setAttr("#lv-attr-mode", t("lvAttrMode"));
   setAttr("#lv-attr-type", t("lvAttrType"));
   setText("#lv-edges-label", t("lvEdges"));
+  setText("#lv-zoom-lbl", t("seZoom"));
   setText("#lv-mem-label", t("lvMemory"));
   setAttr("#lv-run", t("lvRunVice"));
   setText("#lv-colors-label", t("lvColors"));

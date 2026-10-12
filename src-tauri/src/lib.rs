@@ -17,6 +17,7 @@ use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_dialog::{MessageDialogButtons, MessageDialogKind};
 use tauri_plugin_opener::OpenerExt;
 
+mod c64;
 mod mos6510;
 mod sid_core;
 mod sid_file;
