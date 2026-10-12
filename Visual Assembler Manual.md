@@ -190,7 +190,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 - **Sprite Editor** — hi-res overlay, flood fill, select / move, rotate, Mirror all, sprite sheet import, hitbox, X / Y ×2 preview. See [Sprite Editor](#sprite-editor).
 - **Level Editor** — objects, character attributes, edge check, colours per screen, memory meter with RLE, Run in VICE. See [Level Editor](#level-editor).
 - **Character Editor** — undo / redo, drawing tools, rotate 90°, copy / paste and drag-to-swap on the map, 2×2 tiles, the lowercase ROM set, a text preview and range export. See [Character Editor](#character-editor-charset).
-- **Charset Canvas** — zoom 2×–24× (slider or Ctrl+wheel) with a pixel grid, background colour in hi-res mode, and hi-res characters inside multicolor mode. See [Charset Canvas Editor](#charset-canvas-editor).
+- **Charset Canvas** — zoom 2×–24× (slider or Ctrl+wheel) with a pixel grid, background colour in hi-res mode, hi-res characters inside multicolor mode, and **ECM** (a background per character). See [Charset Canvas Editor](#charset-canvas-editor).
 
 ---
 
@@ -3951,6 +3951,7 @@ The canvas is 16×16 characters, 128×128 pixels. In multicolor character mode e
 | Mono / multicolor | Mono mode stores 1-bit 8×8 glyphs. Multicolor mode stores two-bit horizontal pixel pairs and marks multicolor cells with Color RAM bit 3. |
 | Character mode tool | In multicolor mode, click or drag over characters to switch them between multicolor and hi-res (Color RAM bit 3). The shape is kept: a set pixel pair becomes the character's own colour. A hi-res character has the background and its own colour (0–7); MC1 / MC2 do not paint there. |
 | Background | The BG dropdown is shown in mono mode too; MC1 / MC2 only in multicolor mode. |
+| ECM | The **ECM** checkbox (extended colour mode, not together with multicolor): every character is hi-res with its own colour (0–15) and one of four backgrounds BG0–BG3 (`$D021`–`$D024`; BG1 / BG2 are the MC1 / MC2 registers). Pick a BG colour in the palette (tagged B0–B3), then click or drag over characters with the **Character background** tool. Only 64 different characters fit: the status line counts them, and saving merges equal characters — the charset is 64 characters (512 bytes) and the screen codes are `glyph | background << 6`. Turn ECM on with `$D011` bit 6. |
 | C64 color model | Background uses `$D021`; shared multicolor 1 uses `$D022`; shared multicolor 2 uses `$D023`; each character's own color comes from Color RAM bits 0–2. |
 | Drawing tools | Pencil, eraser, line, rectangle, oval, and flood fill work across character boundaries. |
 | Spray tool | Airbrush-style drawing that scatters pixels across neighboring cells/characters. |

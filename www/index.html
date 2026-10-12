@@ -1273,7 +1273,7 @@ PRINTABLE CHARACTERS
           <strong>Level Editor:</strong> an <strong>objects layer</strong> (start, enemies, items, doors, exit, triggers → <code>LEVEL_OBJ_*</code> tables), <strong>character attributes</strong> (solid, ladder, hazard, collectible → <code>LEVEL_ATTR</code>), an <strong>edge check</strong> between screens, <strong>colours per screen</strong>, a <strong>memory meter</strong> with RLE export and unpacker, and <strong>Run in VICE</strong> — a joystick-scrolled test program built from the level.
         </li>
         <li>
-          <strong>Character Editor:</strong> <strong>undo / redo</strong>, drawing tools (pencil, line, rectangle, fill), <strong>rotate 90°</strong>, <strong>copy / paste</strong> and drag to swap characters on the map (Shift+drag copies), <strong>2×1 / 1×2 / 2×2 tiles</strong> edited as one picture, the <strong>lowercase ROM set</strong>, a <strong>text preview</strong> and <strong>range export</strong> (<code>.bin</code> or <code>.byte</code> lines). The <strong>Charset Canvas</strong> zooms 2×–24× (slider or Ctrl+wheel) with a pixel grid, sets the background in hi-res mode too, and can switch single characters to <strong>hi-res inside multicolor mode</strong> (Color RAM bit 3), like the C64.
+          <strong>Character Editor:</strong> <strong>undo / redo</strong>, drawing tools (pencil, line, rectangle, fill), <strong>rotate 90°</strong>, <strong>copy / paste</strong> and drag to swap characters on the map (Shift+drag copies), <strong>2×1 / 1×2 / 2×2 tiles</strong> edited as one picture, the <strong>lowercase ROM set</strong>, a <strong>text preview</strong> and <strong>range export</strong> (<code>.bin</code> or <code>.byte</code> lines). The <strong>Charset Canvas</strong> zooms 2×–24× (slider or Ctrl+wheel) with a pixel grid, sets the background in hi-res mode too, and can switch single characters to <strong>hi-res inside multicolor mode</strong> (Color RAM bit 3), like the C64, and has an <strong>ECM</strong> mode with a background (<code>$D021</code>–<code>$D024</code>) per character.
         </li>
         <li>
           <strong>From 2.5.6: SID Player:</strong> a toolbar button opens a floating player for <code>.sid</code> (PSID / RSID) tunes — a playlist with drag and drop, previous / next tune, subtunes, seek and ±10 s, volume, and playlist save / open (<code>.sidpl</code>). The list and the window are remembered.
@@ -1627,6 +1627,9 @@ PRINTABLE CHARACTERS
           <button class="cc-tool" data-cc-tool="cellmode" type="button" aria-label="Character: multicolor / hi-res" disabled>
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11"/><path d="M2.5 8h11M8 2.5v11"/><path d="M3 3h4.5v4.5H3z" fill="currentColor" stroke="none" opacity="0.55"/><path d="M10.25 8.5v4.5M11.75 8.5v4.5" stroke-width="0.9"/></svg>
           </button>
+          <button class="cc-tool" data-cc-tool="cellbg" type="button" aria-label="Character background (ECM)" disabled>
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11" fill="currentColor" fill-opacity="0.35"/><path d="M6 11.5L8 4.5l2 7M6.7 9h2.6" stroke-linecap="round"/></svg>
+          </button>
           <button class="cc-tool" id="cc-clear" type="button" aria-label="Clear">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4.5h10M6.2 4.5V3h3.6v1.5M5 4.5l.7 8.5h4.6l.7-8.5"/></svg>
           </button>
@@ -1634,6 +1637,10 @@ PRINTABLE CHARACTERS
         <label class="cc-check me-check" title="Multicolor mode">
           <input type="checkbox" id="cc-multicolor">
           <span id="cc-multicolor-label">Multicolor mode</span>
+        </label>
+        <label class="cc-check me-check">
+          <input type="checkbox" id="cc-ecm">
+          <span id="cc-ecm-label">ECM</span>
         </label>
         <label class="cc-grid-check me-check" title="Show character grid">
           <input type="checkbox" id="cc-grid" checked>
@@ -1653,11 +1660,12 @@ PRINTABLE CHARACTERS
             <label><span id="cc-bg-label">BG</span><select id="cc-bg-color" class="cc-color-select"></select></label>
             <label class="cc-mc-only"><span id="cc-mc1-label">MC1</span><select id="cc-mc1-color" class="cc-color-select"></select></label>
             <label class="cc-mc-only"><span id="cc-mc2-label">MC2</span><select id="cc-mc2-color" class="cc-color-select"></select></label>
+            <label class="cc-ecm-only" hidden><span id="cc-bg3-label">BG3</span><select id="cc-bg3-color" class="cc-color-select"></select></label>
           </div>
           <div id="cc-status" class="cc-status">128x128, 256 chars. Multicolor: each character is multicolor or hi-res.</div>
         </div>
         <div class="cc-canvas-wrap">
-          <canvas id="cc-canvas" class="cc-canvas" width="768" height="768"></canvas>
+          <div id="cc-canvas-sizer" class="cc-canvas-sizer"><canvas id="cc-canvas" class="cc-canvas" width="768" height="768"></canvas></div>
         </div>
       </div>
       <input type="file" id="cc-load-file" accept=".bin,application/octet-stream" hidden>
@@ -2108,7 +2116,7 @@ PRINTABLE CHARACTERS
         <label class="hg-check"><input type="checkbox" id="hg-raster"> <span id="hg-raster-label">Raster</span></label>
       </div>
       <div class="hg-canvas-wrap" id="hg-canvas-wrap">
-        <canvas id="hg-canvas" class="hg-canvas"></canvas>
+        <div id="hg-canvas-sizer" class="hg-canvas-sizer"><canvas id="hg-canvas" class="hg-canvas"></canvas></div>
       </div>
       <div class="hg-footer">
         <span id="hg-status" class="hg-status">(0, 0)</span>
