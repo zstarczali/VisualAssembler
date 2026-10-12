@@ -2,9 +2,17 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.5.6**
+**Current version: v2.5.7**
 
-## What's New in v2.5.6
+## What's New in v2.5.7
+
+- **VA SID Core 1.2: a C64 ported from VICE** — the SID Player's machine is now a Rust port of VICE's x64sc: a cycle-exact 6510 (every bus cycle including the dummy reads / writes, VICE's interrupt latency rules, BA stalls), the CIA 6526 / 6526A (timer pipelines, the interrupt flag delay line, the timer B bug, PB6 / PB7, shift register, TOD), the VIC-II timing (raster counter, raster interrupt, bad lines, sprite DMA with Y expansion and crunch) and the 6510 I/O port with its floating bits.
+- **Hi-Res Editor: two colours per 8×8 cell** — the new **Cell paper** tool sets each cell's background (the low nibble of its screen RAM byte), so every cell has its own ink and paper as on the C64; the eraser uncovers the cell's own background. Disabled in multicolor, which has one shared background.
+- **Exact character ROM** — the ROM viewer, **Load ROM** in the Character Editor and the Map / Level editors draw the real glyphs from the font's PETSCII code points, checked byte by byte against the 901225-01 character ROM (both sets, reversed characters included); several graphics characters were wrong or missing.
+- **Sprite Editor** — a **hi-res overlay** sprite over every frame (an outline over a multicolor body, saved and copied after the body's sprites); **flood fill**, **select / move** (arrow keys, Delete, Esc) and **rotate 90°**, all acting on body and overlay together; **Mirror all** appends a mirrored copy of the animation; **sprite sheet import** (cell size, offset, gap, OKLab colour matching, Bayer or Floyd–Steinberg dithering); a **hitbox** per frame with **Copy hitbox table**; an **X / Y ×2** expansion preview; zoom up to 40×.
+- **Level Editor** — an **objects layer** (start, enemy, item, door, exit, trigger with a parameter byte, exported in scroll order as `LEVEL_OBJ_*` tables); **character attributes** (solid, ladder, hazard, collectible → the 256-byte `LEVEL_ATTR` table); an **edge check** that marks screen borders that do not continue; **colours per screen** (`LEVEL_SCR_BG / _BORDER / _MC1 / _MC2`); a **memory meter** for the `.level` data with RLE export and a 6502 unpacker; **Run in VICE** builds a joystick-scrolled test program from the level.
+
+## Earlier: v2.5.6
 
 - **SID Player** — a new toolbar button opens a floating player for `.sid` (PSID / RSID) tunes: a playlist with drag and drop, previous / next tune, subtune switching, seek and ±10 s (VA SID Core), a volume knob shared with the SID Editor, and playlist save / open as `.sidpl` with the tunes embedded. The list, the current tune and the window state are remembered.
 - **VA SID Core 1.1** — the app's own SID emulation in Rust: MOS 6581 / 8580 with a reSID-aligned 6581 filter and mixer, two-stage FIR resampling and SID bus reads, plus a cycle-locked PSID / RSID pipeline (6510 CPU, CIA / VIC timing, IRQ handling, the KERNAL `$EA7B` IRQ tail), so raster-IRQ and digi tunes play. Choose WebSID or VA SID Core (and the chip) in **Settings → SID preview**; the player shows the active engine.

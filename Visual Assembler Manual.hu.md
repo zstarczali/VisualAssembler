@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.5.6**
+**Verzió: 2.5.7**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -26,6 +26,16 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - [12b. CRT export (Magic Desk 64K cartridge)](#12b-crt-export-magic-desk-64k-cartridge)
 - [13. Hardver beállítások](#13-hardver-beállítások)
 - [14. Vizuális szerkesztők (Toolkit)](#14-vizuális-szerkesztők-toolkit)
+
+---
+
+## A 2.5.7 verzió újdonságai
+
+- **VA SID Core 1.2** — a SID Player C64-e mostantól a VICE-ból (x64sc) portolt: ciklusra pontos 6510 a VICE interrupt-időzítésével, CIA 6526A, VIC-II időzítés badline-okkal, sprite-DMA-val és raster interruptokkal, valamint a 6510 I/O port. Lásd: [SID Player](#sid-player).
+- **Hi-Res szerkesztő** — két szín minden 8×8-as cellában: új **Cella háttérszín** eszköz. Lásd: [Hi-Res / Multicolor Editor](#hi-res--multicolor-editor).
+- **Pontos karakter-ROM** a ROM-nézőben, a Character Editor **Load ROM** funkciójában és a Map / Level szerkesztőben.
+- **Sprite szerkesztő** — hires réteg, kitöltés, kijelölés / mozgatás, forgatás, tükrözött animáció, sprite sheet import, hitbox, X / Y ×2 előnézet. Lásd: [Sprite Editor](#sprite-editor).
+- **Pálya szerkesztő** — objektumok, karakter-attribútumok, él-ellenőrzés, képernyőnkénti színek, memóriamérleg RLE-vel, Futtatás VICE-ban. Lásd: [Pálya szerkesztő](#pálya-szerkesztő-level-editor).
 
 ---
 
@@ -3706,7 +3716,8 @@ Pixel-szintű bitmap szerkesztő 320×200 hi-res és 160×200 multicolor módokk
 | Funkció | Leírás |
 |---|---|
 | Mode toggle | A **Multicolor** jelölőnégyzet vált hi-res (celláként mono) és multicolor (celláként 4 szín) közt. |
-| Eszközök | Ceruza, radír, vonal, téglalap, kitöltött téglalap, ovális, kitöltött ovális, flood fill, kijelölés. |
+| Eszközök | Ceruza, radír, vonal, téglalap, kitöltött téglalap, ovális, kitöltött ovális, flood fill, cella háttérszín, kijelölés. |
+| Cella háttérszín (hi-res) | Hi-resben minden 8×8-as cellának két színe lehet: az ink (beállított pixelek, a cella screen RAM bájtjának felső nibble-je) és a papír (törölt pixelek, alsó nibble). A **Cella háttérszín** eszköz a kattintott vagy áthúzott cellák papírját állítja a kiválasztott színre; a **PAPER** továbbra is az összes cellát egyszerre. A radír pixelt töröl, így a cella saját papírja látszik. Multicolorban le van tiltva, ott a háttér ($D021) közös. |
 | Spray eszköz | Airbrush-stílusú festő, amely pixeleket szór a kurzor köré rajzolás közben. |
 | Spray intenzitás | A spray eszköz melletti legördülő vezérli, mennyire sűrű minden spray húzás. |
 | Színpaletta | Előtér (ink) + papír (háttér) választók. A multicolor mód automatikusan követ 3 celláként­i extrát. |
@@ -3758,7 +3769,7 @@ A C64 karakter-ROM (a beépített PETSCII font) csak olvasható nézője. A Tool
 
 | Funkció | Leírás |
 |---|---|
-| Load ROM | A C64 ROM charsetet közvetlenül a VICE `chargen`-jéből importálja (nincs fájlválasztó). |
+| Load ROM | A C64 karakter-ROM-ot tölti be (nagybetű / grafikus készlet) — a pontos 901225-01 glifákkal, fájlválasztó nélkül. |
 | Load `.bin` | Külső 2048 byte-os charset binárist importál. |
 | Karakter-előnézet | 16 széles rács mind a 256 glif-fel, az aktuális cella kiemelve. |
 | Pixel szerkesztő | 8×8 egy-karakteres szerkesztő toggle/invert/clear eszközökkel. |
@@ -3925,7 +3936,7 @@ A **SID Player** toolbar gomb egy lebegő ablakot nyit, amely `.sid` zenefájlok
 - **Vezérlés:** Play, Pause, Stop, **Previous** / **Next** zene, több dalt tartalmazó fájloknál **Previous / Next subtune**, valamint időszámláló.
 - **Tekerés:** a pozíciósáv és a **Back / Forward 10 s** a VA SID Core motorral működik. A WebSID nem tud tekerni, ezért vele ezek a vezérlők le vannak tiltva.
 - **Hangerő:** a tekerőgomb közös a SID szerkesztő master hangerejével.
-- **Motor:** az ablak kiírja, melyik motor szól (WebSID, vagy VA SID Core a verziójával és a SID chippel); a **Beállítások → SID előnézet** alatt választható. A VA SID Core emulált 6510-en, CIA / VIC időzítéssel futtatja a zenét, így a raster IRQ-s és digi zenék is szólnak.
+- **Motor:** az ablak kiírja, melyik motor szól (WebSID, vagy VA SID Core a verziójával és a SID chippel); a **Beállítások → SID előnézet** alatt választható. A VA SID Core a VICE-ból (x64sc) portolt C64-en futtatja a zenét: ciklusra pontos 6510 a VICE interrupt-időzítésével, CIA 6526A, VIC-II időzítés badline-okkal, sprite-DMA-val és raster interruptokkal, valamint a 6510 I/O port — így a raster IRQ-s, CIA-időzített és digi zenék is valódi gép időzítésével szólnak.
 
 ---
 

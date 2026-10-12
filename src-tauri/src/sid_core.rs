@@ -11,7 +11,7 @@
 
 use std::sync::{Arc, Mutex, OnceLock};
 
-pub(crate) const VERSION: &str = "1.1";
+pub(crate) const VERSION: &str = "1.2";
 pub(crate) const PAL_CLOCK: f64 = 985_248.0;
 pub(crate) const NTSC_CLOCK: f64 = 1_022_730.0;
 const PHASE_MASK: u32 = 0x00ff_ffff;

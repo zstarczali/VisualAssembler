@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.5.6**
+**Version 2.5.7**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -9,6 +9,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
+    - [Version 2.5.7 Highlights](#version-257-highlights)
     - [Version 2.5.6 Highlights](#version-256-highlights)
     - [Version 2.5.5 Highlights](#version-255-highlights)
     - [Version 2.5.4 Highlights](#version-254-highlights)
@@ -178,6 +179,16 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [SID Player](#sid-player)
     - [Curve Editor](#curve-editor)
     - [Number Converter](#number-converter)
+
+---
+
+## Version 2.5.7 Highlights
+
+- **VA SID Core 1.2** — the SID Player's C64 is now ported from VICE (x64sc): a cycle-exact 6510 with VICE's interrupt timing, the CIA 6526A, the VIC-II timing with bad lines, sprite DMA and raster interrupts, and the 6510 I/O port. See [SID Player](#sid-player).
+- **Hi-Res Editor** — two colours in every 8×8 cell: the new **Cell paper** tool. See [Hi-Res / Multicolor Editor](#hi-res--multicolor-editor).
+- **Exact character ROM** in the ROM viewer, the Character Editor's **Load ROM** and the Map / Level editors.
+- **Sprite Editor** — hi-res overlay, flood fill, select / move, rotate, Mirror all, sprite sheet import, hitbox, X / Y ×2 preview. See [Sprite Editor](#sprite-editor).
+- **Level Editor** — objects, character attributes, edge check, colours per screen, memory meter with RLE, Run in VICE. See [Level Editor](#level-editor).
 
 ---
 
@@ -3859,7 +3870,8 @@ Pixel-level bitmap editor with both 320×200 hi-res and 160×200 multicolor mode
 | Feature | Description |
 |---|---|
 | Mode toggle | **Multicolor** checkbox switches between hi-res (mono per cell) and multicolor (4 colors per cell). |
-| Tools | Pencil, eraser, line, rectangle, filled rectangle, oval, filled oval, flood fill, select. |
+| Tools | Pencil, eraser, line, rectangle, filled rectangle, oval, filled oval, flood fill, cell paper, select. |
+| Cell paper (hi-res) | Hi-res allows two colours in every 8×8 cell: the ink (set pixels, high nibble of the cell's screen RAM byte) and the paper (clear pixels, low nibble). The **Cell paper** tool sets the paper of each cell you click or drag over to the selected colour; **PAPER** still sets every cell at once. The eraser clears pixels, so the cell's own paper shows. Disabled in multicolor, where the background ($D021) is shared. |
 | Spray tool | Airbrush-style painter that scatters pixels around the cursor while drawing. |
 | Spray intensity | Dropdown next to the spray tool controls how dense each spray stroke is. |
 | Color palette | Foreground (ink) + paper (background) pickers. Multicolor mode tracks 3 per-cell extras automatically. |
@@ -3911,7 +3923,7 @@ Read-only viewer of the C64 character ROM (the built-in PETSCII font). Open via 
 
 | Feature | Description |
 |---|---|
-| Load ROM | Imports the C64 ROM charset directly from VICE's `chargen` (no file picker). |
+| Load ROM | Loads the C64 character ROM (uppercase / graphics set) — the exact 901225-01 glyphs, no file picker. |
 | Load `.bin` | Imports an external 2048-byte charset binary. |
 | Per-char preview | 16-wide grid of all 256 glyphs with the current cell highlighted. |
 | Pixel editor | 8×8 single-character editor with toggle/invert/clear tools. |
@@ -4078,7 +4090,7 @@ The **SID Player** toolbar button opens a floating window that plays `.sid` musi
 - **Transport:** Play, Pause, Stop, **Previous** / **Next** tune, **Previous / Next subtune** for files with several songs, and a time counter.
 - **Seek:** the position bar and **Back / Forward 10 s** work with the VA SID Core engine. WebSID cannot seek, so these controls are disabled with it.
 - **Volume:** the knob is shared with the SID Editor's master volume.
-- **Engine:** the window shows which engine is playing (WebSID, or VA SID Core with its version and SID chip); choose it in **Settings → SID preview**. VA SID Core runs the tune on an emulated 6510 with CIA / VIC timing, so raster-IRQ and digi tunes play as well.
+- **Engine:** the window shows which engine is playing (WebSID, or VA SID Core with its version and SID chip); choose it in **Settings → SID preview**. VA SID Core runs the tune on a C64 ported from VICE (x64sc): a cycle-exact 6510 with VICE's interrupt timing, the CIA 6526A, the VIC-II timing with bad lines, sprite DMA and raster interrupts, and the 6510 I/O port — so raster-IRQ, CIA-timed and digi tunes play with the timing of a real machine.
 
 ---
 

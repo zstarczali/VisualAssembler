@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "sid-player-256",
+  id: "c64-core-257",
   url: "https://www.c64va.tech/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.5.6-ban",
+    eyebrow: "Újdonság a 2.5.7-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>SID Player:</strong> lebegő lejátszó <code>.sid</code> zenékhez, lejátszási listával, subtune-okkal, tekeréssel és hangerővel.</li><li><strong>VA SID Core 1.1:</strong> beépített SID-emuláció (6581 / 8580), a raster IRQ-s és digi zenék is szólnak.</li><li><strong>SID szerkesztő:</strong> MIDI bemenet, felvétel a trackerbe, metronóm, pattern törlése és GoatTracker .sng import.</li><li><strong>Freemium és Professional:</strong> a vásárláskor kapott e-mail címmel és sorozatszámmal a <em>Menu → Regisztráció…</em> alatt aktiválhatod a Professional verziót.</li><li><strong>A 2.5.5-ből:</strong> pixelrács és 16×-os nagyítás a Hi-Res szerkesztőben, jobb klikkes másolás / beillesztés.</li></ul>`,
+    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>VA SID Core 1.2:</strong> a SID Player a VICE-ból portolt, ciklusra pontos C64-en játszik (6510, CIA, VIC-II).</li><li><strong>Hi-Res szerkesztő:</strong> két szín minden 8×8-as cellában — új Cella háttérszín eszköz.</li><li><strong>Pontos karakter-ROM</strong> a ROM-nézőben, a Character és a Map / Level szerkesztőben.</li><li><strong>Sprite szerkesztő:</strong> hires réteg, kitöltés, kijelölés, forgatás, sprite sheet import, hitbox, X / Y ×2.</li><li><strong>Pálya szerkesztő:</strong> objektumok, karakter-attribútumok, él-ellenőrzés, képernyőnkénti színek, memóriamérleg + RLE, Futtatás VICE-ban.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.5.6",
+    eyebrow: "New in 2.5.7",
     title: "Welcome to Visual Assembler",
-    body: `<p>What's new in this release:</p><ul><li><strong>SID Player:</strong> a floating player for <code>.sid</code> tunes with a playlist, subtunes, seek and volume.</li><li><strong>VA SID Core 1.1:</strong> a built-in SID emulation (6581 / 8580); raster-IRQ and digi tunes play too.</li><li><strong>SID Editor:</strong> MIDI input, recording into the tracker, a metronome, pattern delete and GoatTracker .sng import.</li><li><strong>Freemium and Professional:</strong> activate the Professional version in <em>Menu → Register…</em> with the email address and serial from your purchase.</li><li><strong>From 2.5.5:</strong> pixel grid and 16× zoom in the Hi-Res Editor, right-click Copy / Paste.</li></ul>`,
+    body: `<p>What's new in this release:</p><ul><li><strong>VA SID Core 1.2:</strong> the SID Player runs tunes on a cycle-exact C64 ported from VICE (6510, CIA, VIC-II).</li><li><strong>Hi-Res Editor:</strong> two colours in every 8×8 cell — the new Cell paper tool.</li><li><strong>Exact character ROM</strong> in the ROM viewer, the Character and the Map / Level editors.</li><li><strong>Sprite Editor:</strong> hi-res overlay, flood fill, select, rotate, sprite sheet import, hitbox, X / Y ×2.</li><li><strong>Level Editor:</strong> objects, character attributes, edge check, colours per screen, memory meter + RLE, Run in VICE.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.5.6",
+    eyebrow: "Novedad en la 2.5.7",
     title: "Bienvenido a Visual Assembler",
-    body: `<p>Novedades de esta versión:</p><ul><li><strong>SID Player:</strong> un reproductor flotante para melodías <code>.sid</code> con lista de reproducción, subcanciones, búsqueda y volumen.</li><li><strong>VA SID Core 1.1:</strong> emulación SID integrada (6581 / 8580); también suenan las melodías con IRQ de raster y digi.</li><li><strong>Editor SID:</strong> entrada MIDI, grabación en el tracker, metrónomo, eliminar patrón e importación de GoatTracker .sng.</li><li><strong>Freemium y Professional:</strong> activa la versión Professional en <em>Menú → Registrar…</em> con el correo y el número de serie de tu compra.</li><li><strong>De la 2.5.5:</strong> cuadrícula de píxeles y zoom 16× en el editor Hi-Res, copiar / pegar con clic derecho.</li></ul>`,
+    body: `<p>Novedades de esta versión:</p><ul><li><strong>VA SID Core 1.2:</strong> el SID Player reproduce en un C64 exacto al ciclo portado de VICE (6510, CIA, VIC-II).</li><li><strong>Editor Hi-Res:</strong> dos colores en cada celda de 8×8 — nueva herramienta de fondo de celda.</li><li><strong>ROM de caracteres exacta</strong> en el visor de ROM y en los editores de caracteres, mapas y niveles.</li><li><strong>Editor de sprites:</strong> capa hi-res, relleno, selección, giro, importación de hojas de sprites, hitbox, X / Y ×2.</li><li><strong>Editor de niveles:</strong> objetos, atributos de caracteres, comprobación de bordes, colores por pantalla, memoria + RLE, ejecutar en VICE.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.5.6",
+    eyebrow: "Neu in 2.5.7",
     title: "Willkommen bei Visual Assembler",
-    body: `<p>Neu in dieser Version:</p><ul><li><strong>SID Player:</strong> ein schwebender Player für <code>.sid</code>-Musik mit Playlist, Subtunes, Spulen und Lautstärke.</li><li><strong>VA SID Core 1.1:</strong> eingebaute SID-Emulation (6581 / 8580); auch Raster-IRQ- und Digi-Musik spielt.</li><li><strong>SID-Editor:</strong> MIDI-Eingang, Aufnahme in den Tracker, Metronom, Pattern löschen und GoatTracker-.sng-Import.</li><li><strong>Freemium und Professional:</strong> aktiviere die Professional-Version unter <em>Menü → Registrieren…</em> mit der E-Mail-Adresse und Seriennummer aus deinem Kauf.</li><li><strong>Aus 2.5.5:</strong> Pixelraster und 16× Zoom im Hi-Res-Editor, Kopieren / Einfügen per Rechtsklick.</li></ul>`,
+    body: `<p>Neu in dieser Version:</p><ul><li><strong>VA SID Core 1.2:</strong> der SID Player spielt auf einem zyklusgenauen, aus VICE portierten C64 (6510, CIA, VIC-II).</li><li><strong>Hi-Res-Editor:</strong> zwei Farben in jeder 8×8-Zelle — neues Werkzeug für die Zellenhintergrundfarbe.</li><li><strong>Exaktes Zeichen-ROM</strong> im ROM-Betrachter, im Zeichen-, Map- und Level-Editor.</li><li><strong>Sprite-Editor:</strong> Hi-Res-Ebene, Füllen, Auswahl, Drehen, Spritesheet-Import, Hitbox, X / Y ×2.</li><li><strong>Level-Editor:</strong> Objekte, Zeichenattribute, Kantenprüfung, Farben pro Bildschirm, Speicheranzeige + RLE, in VICE starten.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.5.6",
+    eyebrow: "Nieuw in 2.5.7",
     title: "Welkom bij Visual Assembler",
-    body: `<p>Nieuw in deze versie:</p><ul><li><strong>SID Player:</strong> een zwevende speler voor <code>.sid</code>-muziek met afspeellijst, subtunes, spoelen en volume.</li><li><strong>VA SID Core 1.1:</strong> ingebouwde SID-emulatie (6581 / 8580); ook raster-IRQ- en digi-muziek speelt.</li><li><strong>SID-editor:</strong> MIDI-invoer, opnemen in de tracker, metronoom, patroon verwijderen en GoatTracker .sng-import.</li><li><strong>Freemium en Professional:</strong> activeer de Professional-versie via <em>Menu → Registreren…</em> met het e-mailadres en serienummer van je aankoop.</li><li><strong>Uit 2.5.5:</strong> pixelraster en 16× zoom in de Hi-Res-editor, kopiëren / plakken met rechtsklik.</li></ul>`,
+    body: `<p>Nieuw in deze versie:</p><ul><li><strong>VA SID Core 1.2:</strong> de SID Player speelt op een cyclusexacte, uit VICE geporteerde C64 (6510, CIA, VIC-II).</li><li><strong>Hi-Res-editor:</strong> twee kleuren in elke 8×8-cel — nieuw gereedschap voor de celachtergrond.</li><li><strong>Exacte teken-ROM</strong> in de ROM-viewer en de teken-, map- en leveleditor.</li><li><strong>Sprite-editor:</strong> hi-res-laag, vullen, selecteren, draaien, spritesheet-import, hitbox, X / Y ×2.</li><li><strong>Leveleditor:</strong> objecten, tekenattributen, randcontrole, kleuren per scherm, geheugen + RLE, uitvoeren in VICE.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.5.6",
+    eyebrow: "Nowość w 2.5.7",
     title: "Witamy w Visual Assembler",
-    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>SID Player:</strong> pływający odtwarzacz muzyki <code>.sid</code> z listą odtwarzania, podutworami, przewijaniem i głośnością.</li><li><strong>VA SID Core 1.1:</strong> wbudowana emulacja SID (6581 / 8580); grają też utwory z przerwaniami rastra i digi.</li><li><strong>Edytor SID:</strong> wejście MIDI, nagrywanie do trackera, metronom, usuwanie wzorców i import GoatTracker .sng.</li><li><strong>Freemium i Professional:</strong> aktywuj wersję Professional w <em>Menu → Rejestracja…</em> adresem e-mail i numerem seryjnym z zakupu.</li><li><strong>Z 2.5.5:</strong> siatka pikseli i powiększenie 16× w edytorze Hi-Res, kopiowanie / wklejanie prawym przyciskiem.</li></ul>`,
+    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>VA SID Core 1.2:</strong> SID Player gra na dokładnym co do cyklu C64 przeniesionym z VICE (6510, CIA, VIC-II).</li><li><strong>Edytor Hi-Res:</strong> dwa kolory w każdej komórce 8×8 — nowe narzędzie tła komórki.</li><li><strong>Dokładny ROM znaków</strong> w przeglądarce ROM oraz w edytorach znaków, map i poziomów.</li><li><strong>Edytor sprite'ów:</strong> warstwa hi-res, wypełnianie, zaznaczanie, obrót, import arkuszy, hitbox, X / Y ×2.</li><li><strong>Edytor poziomów:</strong> obiekty, atrybuty znaków, kontrola krawędzi, kolory ekranów, pamięć + RLE, uruchom w VICE.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.5.6",
+    eyebrow: "Novità nella 2.5.7",
     title: "Benvenuto in Visual Assembler",
-    body: `<p>Novità di questa versione:</p><ul><li><strong>SID Player:</strong> un lettore flottante per brani <code>.sid</code> con playlist, sottobrani, avanzamento e volume.</li><li><strong>VA SID Core 1.1:</strong> emulazione SID integrata (6581 / 8580); suonano anche i brani con IRQ raster e digi.</li><li><strong>Editor SID:</strong> ingresso MIDI, registrazione nel tracker, metronomo, eliminazione dei pattern e importazione GoatTracker .sng.</li><li><strong>Freemium e Professional:</strong> attiva la versione Professional in <em>Menu → Registra…</em> con l'e-mail e il numero di serie dell'acquisto.</li><li><strong>Dalla 2.5.5:</strong> griglia dei pixel e zoom 16× nell'editor Hi-Res, copia / incolla con il tasto destro.</li></ul>`,
+    body: `<p>Novità di questa versione:</p><ul><li><strong>VA SID Core 1.2:</strong> il SID Player suona su un C64 esatto al ciclo portato da VICE (6510, CIA, VIC-II).</li><li><strong>Editor Hi-Res:</strong> due colori in ogni cella 8×8 — nuovo strumento per lo sfondo della cella.</li><li><strong>ROM dei caratteri esatta</strong> nel visualizzatore ROM e negli editor di caratteri, mappe e livelli.</li><li><strong>Editor sprite:</strong> livello hi-res, riempimento, selezione, rotazione, importazione sprite sheet, hitbox, X / Y ×2.</li><li><strong>Editor livelli:</strong> oggetti, attributi dei caratteri, controllo bordi, colori per schermata, memoria + RLE, esegui in VICE.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -3670,6 +3670,27 @@ function _applyEditorTranslations() {
   setText(".ce-export-lbl", t("ceExport"));
   setText("#ce-copy-asm", t("ceCopyAsm"));
   setAttr("#ce-load-rom", t("ceLoadRom"));
+  setAttr("#ce-load-rom2", t("ceLoadRom2"));
+  setText("#ce-rom-upper", t("ceRomUpper"));
+  setText("#ce-rom-lower", t("ceRomLower"));
+  setAttr("#ce-undo", t("hgUndo"));
+  setAttr("#ce-redo", t("hgRedo"));
+  setAttr("#ce-copy", t("sidContextCopy") + " (Ctrl+C)");
+  setAttr("#ce-paste", t("sidContextPaste") + " (Ctrl+V)");
+  setAttr('.ce-tool-btn[data-ce-tool="pencil"]', t("hgToolPencil"));
+  setAttr('.ce-tool-btn[data-ce-tool="line"]', t("hgToolLine"));
+  setAttr('.ce-tool-btn[data-ce-tool="rect"]', t("hgToolRect"));
+  setAttr('.ce-tool-btn[data-ce-tool="fillrect"]', t("hgToolFillRect"));
+  setAttr('.ce-tool-btn[data-ce-tool="fill"]', t("hgToolFill"));
+  setAttr("#ce-rotr", t("seRotateCW"));
+  setAttr("#ce-rotl", t("seRotateCCW"));
+  setText("#ce-tile-label", t("ceTile"));
+  setText("#ce-preview-label", t("cePreview"));
+  setText("#ce-preview-hint", t("cePreviewHint"));
+  setText("#ce-range-label", t("ceRange"));
+  setText("#ce-save-range", t("ceSaveRange"));
+  setText("#ce-copy-range", t("ceCopyRange"));
+  setText("#ce-map-hint", t("ceMapHint"));
   setText("#ce-load-bin", t("ceLoadBin"));
   setText("#ce-save-bin", t("ceSaveBin"));
   // _ceData/_ceSel are `let`s declared later in the file; at first init they are
@@ -32178,7 +32199,7 @@ function applyZoom() {
 }
 
 // Settings setup runs inside initPalette, before the SID editor code below.
-var _VA_SID_CORE_VERSION = "1.1";
+var _VA_SID_CORE_VERSION = "1.2";
 var _sidPreviewEngine = "websid";
 var _sidPreviewModel = "8580";
 initPalette();
@@ -33432,34 +33453,92 @@ function _ceSetPixel(charIdx, row, col, val) {
   else     _ceData[i] &= ~(1 << (7 - col));
 }
 
+// Tile: the editor edits _ceTileW × _ceTileH neighbouring characters of the map
+// (the selected one at the top left) as one picture.
+let _ceTileW = 1, _ceTileH = 1;
+let _ceTool = "pencil";
+let _ceShapeStart = null;
+let _ceUndo = [], _ceRedo = [];
+let _ceClip = null;          // { w, h, data: Uint8Array(w*h*8), colors: Uint8Array(w*h) }
+let _ceMapDrag = null;       // { from, x, y, active, over, copy }
+
+function _ceCharW() { return _ceMulticolor ? 4 : 8; }
+function _cePxW() { return _ceCharW() * _ceTileW; }
+function _cePxH() { return 8 * _ceTileH; }
+function _ceTileChars() {
+  const out = [];
+  for (let ty = 0; ty < _ceTileH; ty++)
+    for (let tx = 0; tx < _ceTileW; tx++) out.push(_ceSel + tx + ty * 16);
+  return out;
+}
+// The selection keeps the tile inside the 16×16 map.
+function _ceClampSel(n) {
+  const col = Math.min(n % 16, 16 - _ceTileW), row = Math.min(Math.floor(n / 16), 16 - _ceTileH);
+  return row * 16 + col;
+}
+function _ceGetT(x, y) {
+  const cw = _ceCharW();
+  return _ceGetPixel(_ceSel + Math.floor(x / cw) + Math.floor(y / 8) * 16, y % 8, x % cw);
+}
+function _ceSetT(x, y, v) {
+  if (x < 0 || y < 0 || x >= _cePxW() || y >= _cePxH()) return;
+  const cw = _ceCharW();
+  _ceSetPixel(_ceSel + Math.floor(x / cw) + Math.floor(y / 8) * 16, y % 8, x % cw, v);
+}
+function _ceTileRead() {
+  const w = _cePxW(), h = _cePxH(), px = new Uint8Array(w * h);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) px[y * w + x] = _ceGetT(x, y);
+  return px;
+}
+function _ceTileWrite(px) {
+  const w = _cePxW(), h = _cePxH();
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) _ceSetT(x, y, px[y * w + x]);
+}
+
 function _ceBuildGrid() {
   const grid = document.getElementById("ce-editor-grid");
   if (!grid) return;
   grid.innerHTML = "";
   grid.classList.toggle("ce-editor-grid--multicolor", _ceMulticolor);
-  const cols = _ceMulticolor ? 4 : 8;
-  for (let r = 0; r < 8; r++) {
-    for (let c = 0; c < cols; c++) {
+  const w = _cePxW(), h = _cePxH();
+  // 240 px for the widest side; a multicolor pixel is two hi-res pixels wide
+  const unit = Math.floor(240 / Math.max(_ceTileW * 8, h));
+  const cellW = (_ceMulticolor ? 2 * unit : unit) - 1, cellH = unit - 1;
+  grid.style.gridTemplateColumns = "repeat(" + w + ", " + cellW + "px)";
+  grid.style.gridTemplateRows = "repeat(" + h + ", " + cellH + "px)";
+  for (let r = 0; r < h; r++) {
+    for (let c = 0; c < w; c++) {
       const cell = document.createElement("div");
       cell.className = "ce-pixel";
+      cell.style.width = cellW + "px";
+      cell.style.height = cellH + "px";
       cell.dataset.r = r;
       cell.dataset.c = c;
+      // character borders inside a tile
+      if (c % _ceCharW() === 0 && c) cell.style.boxShadow = "inset 1px 0 0 rgba(255,216,79,0.7)";
+      if (r % 8 === 0 && r) cell.style.boxShadow = (cell.style.boxShadow ? cell.style.boxShadow + ", " : "") + "inset 0 1px 0 rgba(255,216,79,0.7)";
       grid.appendChild(cell);
     }
   }
 }
 
-function _ceRenderEditor() {
+function _ceColorsOf(n) {
+  const fg = _ceDefaultColor(n);
+  return _ceMulticolor
+    ? [_CE_COLORS[_ceBg], _CE_COLORS[_ceMc1], _CE_COLORS[_ceMc2], _CE_COLORS[fg & 7]]
+    : [_CE_COLORS[_ceBg], _CE_COLORS[fg]];
+}
+
+function _ceRenderEditor(preview) {
   const grid = document.getElementById("ce-editor-grid");
   if (!grid || !_ceData) return;
   const cells = grid.children;
-  const cols = _ceMulticolor ? 4 : 8;
-  const fg = _ceDefaultColor(_ceSel);
-  const colors = _ceMulticolor
-    ? [_CE_COLORS[_ceBg], _CE_COLORS[_ceMc1], _CE_COLORS[_ceMc2], _CE_COLORS[fg & 7]]
-    : [_CE_COLORS[_ceBg], _CE_COLORS[fg]];
+  const w = _cePxW(), cw = _ceCharW();
   for (let i = 0; i < cells.length; i++) {
-    cells[i].style.background = colors[_ceGetPixel(_ceSel, Math.floor(i / cols), i % cols)];
+    const x = i % w, y = Math.floor(i / w);
+    const n = _ceSel + Math.floor(x / cw) + Math.floor(y / 8) * 16;
+    const v = preview && preview.has(i) ? preview.get(i) : _ceGetPixel(n, y % 8, x % cw);
+    cells[i].style.background = _ceColorsOf(n)[v];
   }
 }
 
@@ -33471,16 +33550,14 @@ function _ceRenderMap() {
   const CELL = W / 16;         // 16 px per char
   const PIX  = CELL / 8;       // 2 px per hires pixel
   ctx.clearRect(0, 0, W, W);
+  const inTile = new Set(_ceTileChars());
 
   for (let n = 0; n < 256; n++) {
     const cx = (n % 16) * CELL;
     const cy = Math.floor(n / 16) * CELL;
-    const fg = _ceDefaultColor(n);
-    const colors = _ceMulticolor
-      ? [_CE_COLORS[_ceBg], _CE_COLORS[_ceMc1], _CE_COLORS[_ceMc2], _CE_COLORS[fg & 7]]
-      : [_CE_COLORS[_ceBg], _CE_COLORS[fg]];
+    const colors = _ceColorsOf(n);
 
-    ctx.fillStyle = n === _ceSel ? "#4a3a9a" : colors[0];
+    ctx.fillStyle = inTile.has(n) ? "#4a3a9a" : colors[0];
     ctx.fillRect(cx, cy, CELL, CELL);
 
     for (let r = 0; r < 8; r++) {
@@ -33502,18 +33579,26 @@ function _ceRenderMap() {
         }
       }
     }
-
-    if (n === _ceSel) {
-      ctx.strokeStyle = "rgba(255,255,255,0.6)";
-      ctx.lineWidth = 0.5;
-      ctx.strokeRect(cx + 0.5, cy + 0.5, CELL - 1, CELL - 1);
-    }
   }
+  // the tile frame, and where a dragged character would go
+  const sx = (_ceSel % 16) * CELL, sy = Math.floor(_ceSel / 16) * CELL;
+  ctx.strokeStyle = "rgba(255,255,255,0.8)";
+  ctx.lineWidth = 1;
+  ctx.strokeRect(sx + 0.5, sy + 0.5, CELL * _ceTileW - 1, CELL * _ceTileH - 1);
+  if (_ceMapDrag && _ceMapDrag.active && _ceMapDrag.over >= 0) {
+    ctx.strokeStyle = _ceMapDrag.copy ? "#4aff8a" : "#ffd84f";
+    ctx.lineWidth = 2;
+    ctx.strokeRect((_ceMapDrag.over % 16) * CELL + 1, Math.floor(_ceMapDrag.over / 16) * CELL + 1, CELL * _ceTileW - 2, CELL * _ceTileH - 2);
+  }
+  _ceRenderPreview();
 }
 
 function _ceUpdateInfo() {
   const el = document.getElementById("ce-char-info");
-  if (el) el.textContent = (typeof t === "function" ? t("ceCharLabel") : "Char:") + " " + _ceSel + " ($" + _ceSel.toString(16).toUpperCase().padStart(2,"0") + ")";
+  const hx = function(n) { return "$" + n.toString(16).toUpperCase().padStart(2, "0"); };
+  const last = _ceSel + (_ceTileW - 1) + (_ceTileH - 1) * 16;
+  if (el) el.textContent = (typeof t === "function" ? t("ceCharLabel") : "Char:") + " " + _ceSel + " (" + hx(_ceSel) + ")" +
+    (last !== _ceSel ? " – " + last + " (" + hx(last) + ")" : "");
 }
 
 function _ceUpdateAsm() {
@@ -33535,102 +33620,274 @@ function _ceUpdateAsm() {
   el.textContent = mcInfo + "char_" + hex + ":  ; $" + hex + "\n        .byte " + bytes.join(", ");
 }
 
+function _ceRefresh() { _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm(); }
+
 function _ceSelect(n) {
-  _ceSel = n;
+  _ceSel = _ceClampSel(n);
   _ceFg = _ceDefaultColor(_ceSel) & (_ceMulticolor ? 0x07 : 0x0F);
   _ceUpdateInfo();
   _ceBuildColorRows();
-  _ceRenderEditor();
-  _ceRenderMap();
-  _ceUpdateAsm();
+  _ceRefresh();
 }
 
-function _ceClear() {
+/* ── Undo ── */
+function _ceSnapshot() {
+  return { data: _ceData.slice(0), colors: _ceCharColors.slice(0), bg: _ceBg, mc1: _ceMc1, mc2: _ceMc2 };
+}
+function _ceRestore(s) {
+  _ceData.set(s.data);
+  _ceCharColors.set(s.colors);
+  _ceBg = s.bg; _ceMc1 = s.mc1; _ceMc2 = s.mc2;
+  _ceFg = _ceDefaultColor(_ceSel) & (_ceMulticolor ? 0x07 : 0x0F);
+  _ceBuildColorRows();
+  _ceRefresh();
+}
+function _cePushUndo() {
   if (!_ceData) return;
-  for (let r = 0; r < 8; r++) _ceData[_ceSel * 8 + r] = 0;
-  _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm();
+  _ceEnsureCharColors();
+  _ceUndo.push(_ceSnapshot());
+  if (_ceUndo.length > 80) _ceUndo.shift();
+  _ceRedo.length = 0;
+}
+function _ceUndoOp() {
+  if (!_ceUndo.length) return;
+  _ceRedo.push(_ceSnapshot());
+  _ceRestore(_ceUndo.pop());
+}
+function _ceRedoOp() {
+  if (!_ceRedo.length) return;
+  _ceUndo.push(_ceSnapshot());
+  _ceRestore(_ceRedo.pop());
 }
 
+/* ── Transforms (whole tile) ── */
+function _ceTransform(fn) {
+  if (!_ceData) return;
+  _cePushUndo();
+  const w = _cePxW(), h = _cePxH();
+  _ceTileWrite(fn(_ceTileRead(), w, h));
+  _ceRefresh();
+}
+function _ceClear() { _ceTransform(function(px) { return px.fill(0); }); }
 function _ceInvert() {
-  if (!_ceData) return;
-  for (let r = 0; r < 8; r++) _ceData[_ceSel * 8 + r] ^= 0xFF;
-  _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm();
+  const mask = _ceMulticolor ? 3 : 1;
+  _ceTransform(function(px) { return px.map(function(v) { return v ^ mask; }); });
 }
-
 function _ceFlipH() {
-  if (!_ceData) return;
-  for (let r = 0; r < 8; r++) {
-    let b = _ceData[_ceSel * 8 + r], rev = 0;
-    if (_ceMulticolor) {
-      for (let i = 0; i < 4; i++) rev |= ((b >> (i * 2)) & 3) << ((3 - i) * 2);
-    } else {
-      for (let i = 0; i < 8; i++) rev |= ((b >> i) & 1) << (7 - i);
-    }
-    _ceData[_ceSel * 8 + r] = rev;
-  }
-  _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm();
+  _ceTransform(function(px, w, h) {
+    const out = new Uint8Array(w * h);
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) out[y * w + x] = px[y * w + (w - 1 - x)];
+    return out;
+  });
 }
-
 function _ceFlipV() {
-  if (!_ceData) return;
-  const base = _ceSel * 8;
-  for (let r = 0; r < 4; r++) {
-    const t = _ceData[base + r];
-    _ceData[base + r] = _ceData[base + 7 - r];
-    _ceData[base + 7 - r] = t;
-  }
-  _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm();
+  _ceTransform(function(px, w, h) {
+    const out = new Uint8Array(w * h);
+    for (let y = 0; y < h; y++) out.set(px.subarray((h - 1 - y) * w, (h - y) * w), y * w);
+    return out;
+  });
 }
-
+// Shift by one (multicolor: one double-wide) pixel, wrapping around the tile.
 function _ceShift(dir) {
-  if (!_ceData) return;
-  const base = _ceSel * 8;
-  if (dir === "up") {
-    const first = _ceData[base];
-    for (let r = 0; r < 7; r++) _ceData[base + r] = _ceData[base + r + 1];
-    _ceData[base + 7] = first;
-  } else if (dir === "down") {
-    const last = _ceData[base + 7];
-    for (let r = 7; r > 0; r--) _ceData[base + r] = _ceData[base + r - 1];
-    _ceData[base] = last;
-  } else if (dir === "left") {
-    for (let r = 0; r < 8; r++) {
-      const b = _ceData[base + r];
-      _ceData[base + r] = _ceMulticolor
-        ? ((b << 2) | (b >> 6)) & 0xFF
-        : ((b << 1) | (b >> 7)) & 0xFF;
-    }
-  } else {
-    for (let r = 0; r < 8; r++) {
-      const b = _ceData[base + r];
-      _ceData[base + r] = _ceMulticolor
-        ? ((b >> 2) | (b << 6)) & 0xFF
-        : ((b >> 1) | (b << 7)) & 0xFF;
-    }
-  }
-  _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm();
+  _ceTransform(function(px, w, h) {
+    const out = new Uint8Array(w * h);
+    const dx = dir === "left" ? 1 : dir === "right" ? -1 : 0, dy = dir === "up" ? 1 : dir === "down" ? -1 : 0;
+    for (let y = 0; y < h; y++)
+      for (let x = 0; x < w; x++) out[y * w + x] = px[((y + dy + h) % h) * w + (x + dx + w) % w];
+    return out;
+  });
+}
+// 90° rotation of a square tile, done in hi-res pixels; multicolor pairs are
+// joined again afterwards (a non-zero half wins).
+function _ceRotate(cw) {
+  if (_ceTileW !== _ceTileH) return;
+  _ceTransform(function(px, w, h) {
+    const k = _ceMulticolor ? 2 : 1, n = w * k;   // n × n hi-res pixels
+    const wide = new Uint8Array(n * n);
+    for (let y = 0; y < h; y++) for (let x = 0; x < n; x++) wide[y * n + x] = px[y * w + Math.floor(x / k)];
+    const rot = new Uint8Array(n * n);
+    for (let y = 0; y < n; y++)
+      for (let x = 0; x < n; x++) rot[y * n + x] = cw ? wide[(n - 1 - x) * n + y] : wide[x * n + (n - 1 - y)];
+    const out = new Uint8Array(w * h);
+    for (let y = 0; y < h; y++)
+      for (let x = 0; x < w; x++) {
+        const a = rot[y * n + x * k], b = k === 2 ? rot[y * n + x * k + 1] : 0;
+        out[y * w + x] = a || b;
+      }
+    return out;
+  });
 }
 
-function _ceLoadRom() {
-  if (!_ceData) _ceData = new Uint8Array(256 * 8);
-  for (let sc = 0; sc < 256; sc++) {
-    const bits = _c64RomBitmapData(sc, 1);
-    const base = sc * 8;
-    for (let r = 0; r < 8; r++) {
-      let byte = 0;
-      for (let c = 0; c < 8; c++) {
-        if (bits[r * 8 + c]) byte |= (1 << (7 - c));
-      }
-      _ceData[base + r] = byte;
-    }
+/* ── Drawing tools ── */
+function _ceLinePoints(x0, y0, x1, y1) {
+  const pts = [];
+  const dx = Math.abs(x1 - x0), dy = Math.abs(y1 - y0), sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1;
+  let err = dx - dy;
+  for (;;) {
+    pts.push([x0, y0]);
+    if (x0 === x1 && y0 === y1) break;
+    const e2 = 2 * err;
+    if (e2 > -dy) { err -= dy; x0 += sx; }
+    if (e2 < dx) { err += dx; y0 += sy; }
   }
-  _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm();
-  showViceToast(t("ceLoadRomDone"), false);
+  return pts;
+}
+function _ceShapePoints(tool, a, b) {
+  if (tool === "line") return _ceLinePoints(a.x, a.y, b.x, b.y);
+  const x0 = Math.min(a.x, b.x), x1 = Math.max(a.x, b.x), y0 = Math.min(a.y, b.y), y1 = Math.max(a.y, b.y);
+  const pts = [];
+  for (let y = y0; y <= y1; y++)
+    for (let x = x0; x <= x1; x++)
+      if (tool === "fillrect" || x === x0 || x === x1 || y === y0 || y === y1) pts.push([x, y]);
+  return pts;
+}
+function _ceFloodFill(x, y, v) {
+  const w = _cePxW(), h = _cePxH(), target = _ceGetT(x, y);
+  if (target === v) return;
+  const stack = [[x, y]];
+  while (stack.length) {
+    const [cx, cy] = stack.pop();
+    if (cx < 0 || cy < 0 || cx >= w || cy >= h || _ceGetT(cx, cy) !== target) continue;
+    _ceSetT(cx, cy, v);
+    stack.push([cx + 1, cy], [cx - 1, cy], [cx, cy + 1], [cx, cy - 1]);
+  }
+}
+
+/* ── Clipboard and map drag ── */
+function _ceCopy() {
+  if (!_ceData) return;
+  const chars = _ceTileChars();
+  const data = new Uint8Array(chars.length * 8), colors = new Uint8Array(chars.length);
+  chars.forEach(function(n, i) { data.set(_ceData.subarray(n * 8, n * 8 + 8), i * 8); colors[i] = _ceDefaultColor(n); });
+  _ceClip = { w: _ceTileW, h: _ceTileH, data: data, colors: colors };
+}
+function _cePasteAt(dest) {
+  if (!_ceClip || !_ceData) return;
+  _cePushUndo();
+  for (let ty = 0; ty < _ceClip.h; ty++)
+    for (let tx = 0; tx < _ceClip.w; tx++) {
+      const col = (dest % 16) + tx, row = Math.floor(dest / 16) + ty;
+      if (col > 15 || row > 15) continue;
+      const n = row * 16 + col, i = ty * _ceClip.w + tx;
+      _ceData.set(_ceClip.data.subarray(i * 8, i * 8 + 8), n * 8);
+      _ceCharColors[n] = _ceClip.colors[i];
+    }
+  _ceSelect(dest);
+}
+// Swap (or copy) the tile at `from` to `to`; overlapping tiles are refused.
+function _ceMoveTile(from, to, copy) {
+  if (from === to || !_ceData) return;
+  const fx = from % 16, fy = Math.floor(from / 16), tx0 = to % 16, ty0 = Math.floor(to / 16);
+  if (!copy && Math.abs(fx - tx0) < _ceTileW && Math.abs(fy - ty0) < _ceTileH) return;
+  _cePushUndo();
+  for (let ty = 0; ty < _ceTileH; ty++)
+    for (let tx = 0; tx < _ceTileW; tx++) {
+      const a = (fy + ty) * 16 + fx + tx, b = (ty0 + ty) * 16 + tx0 + tx;
+      const da = _ceData.slice(a * 8, a * 8 + 8), ca = _ceCharColors[a];
+      if (!copy) { _ceData.copyWithin(a * 8, b * 8, b * 8 + 8); _ceCharColors[a] = _ceCharColors[b]; }
+      _ceData.set(da, b * 8);
+      _ceCharColors[b] = ca;
+    }
+  _ceSelect(to);
+}
+
+/* ── ROM ── */
+// set 1 = uppercase / graphics, set 2 = lowercase / uppercase
+function _ceLoadRom(set) {
+  if (!_ceData) _ceData = new Uint8Array(256 * 8);
+  _cePushUndo();
+  _meEnsureRomFont(function() {
+    for (let sc = 0; sc < 256; sc++) {
+      const bits = _c64RomBitmapData(sc, set === 2 ? 2 : 1);
+      const base = sc * 8;
+      for (let r = 0; r < 8; r++) {
+        let byte = 0;
+        for (let c = 0; c < 8; c++) {
+          if (bits[r * 8 + c]) byte |= (1 << (7 - c));
+        }
+        _ceData[base + r] = byte;
+      }
+    }
+    _ceRefresh();
+    showViceToast(t("ceLoadRomDone"), false);
+  });
+}
+
+/* ── Text preview ── */
+// Text → screen codes: {65} / {$41} insert a code; letters follow the set
+// (uppercase set: both cases are 1-26; lowercase set: a-z 1-26, A-Z 65-90).
+function _ceTextToCodes(text, lower) {
+  const codes = [];
+  const re = /\{(\$[0-9a-fA-F]{1,2}|\d{1,3})\}|[\s\S]/g;
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    if (m[1]) { codes.push((m[1][0] === "$" ? parseInt(m[1].slice(1), 16) : parseInt(m[1], 10)) & 0xff); continue; }
+    const ch = m[0];
+    if (ch === "\n") { codes.push(-1); continue; }
+    const c = ch.charCodeAt(0);
+    if (c >= 97 && c <= 122) codes.push(c - 96);
+    else if (c >= 65 && c <= 90) codes.push(lower ? c : c - 64);
+    else if (c === 64) codes.push(0);
+    else if (c >= 32 && c <= 63) codes.push(c);
+    else if (ch === "[") codes.push(27);
+    else if (ch === "£") codes.push(28);
+    else if (ch === "]") codes.push(29);
+    else codes.push(32);
+  }
+  return codes;
+}
+function _ceRenderPreview() {
+  const canvas = document.getElementById("ce-preview-canvas");
+  const input = document.getElementById("ce-preview-text");
+  if (!canvas || !input || !_ceData) return;
+  const lower = document.getElementById("ce-preview-set")?.value === "lower";
+  const COLS = 32, ROWS = 6;
+  const cells = [];
+  let col = 0, row = 0;
+  _ceTextToCodes(input.value, lower).forEach(function(code) {
+    if (code < 0 || col >= COLS) { row++; col = 0; if (code < 0) return; }
+    if (row < ROWS) cells.push([col++, row, code]);
+  });
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = _CE_COLORS[_ceBg];
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  cells.forEach(function(cell) {
+    const n = cell[2], colors = _ceColorsOf(n), ox = cell[0] * 8, oy = cell[1] * 8;
+    for (let r = 0; r < 8; r++) {
+      const byte = _ceData[n * 8 + r];
+      for (let c = 0; c < 8; c++) {
+        const v = _ceMulticolor ? (byte >> (6 - (c & 6))) & 3 : (byte >> (7 - c)) & 1;
+        if (!v) continue;
+        ctx.fillStyle = colors[v];
+        ctx.fillRect(ox + c, oy + r, 1, 1);
+      }
+    }
+  });
+}
+
+/* ── Range export ── */
+function _ceRange() {
+  const num = function(id, def) {
+    const el = document.getElementById(id);
+    const v = Math.max(0, Math.min(255, parseInt(el ? el.value : def, 10)));
+    return isNaN(v) ? def : v;
+  };
+  const a = num("ce-range-from", 0), b = num("ce-range-to", 255);
+  return { from: Math.min(a, b), to: Math.max(a, b) };
+}
+function _ceRangeAsm() {
+  const r = _ceRange();
+  const hx = function(v) { return "$" + v.toString(16).toUpperCase().padStart(2, "0"); };
+  const lines = ["; characters " + r.from + "-" + r.to + " (" + ((r.to - r.from + 1) * 8) + " bytes); the charset base is char " + r.from + " * 8 lower",
+    "charset_" + hx(r.from).slice(1).toLowerCase() + ":"];
+  for (let n = r.from; n <= r.to; n++)
+    lines.push("    .byte " + Array.from(_ceData.subarray(n * 8, n * 8 + 8), hx).join(", ") + "  ; " + hx(n));
+  return lines.join("\n");
 }
 
 function _ceBuildColorRows() {
   const rows = [
-    { id: "ce-fg-colors", ink: 3, get: function() { return _ceDefaultColor(_ceSel) & (_ceMulticolor ? 0x07 : 0x0F); }, set: function(v) { _ceSetDefaultColor(_ceSel, v); }, count: _ceMulticolor ? 8 : 16 },
+    { id: "ce-fg-colors", ink: 3, get: function() { return _ceDefaultColor(_ceSel) & (_ceMulticolor ? 0x07 : 0x0F); }, set: function(v) { _ceTileChars().forEach(function(n) { _ceSetDefaultColor(n, v); }); }, count: _ceMulticolor ? 8 : 16 },
     { id: "ce-bg-colors", ink: 0, get: function() { return _ceBg; }, set: function(v) { _ceBg = v; }, count: 16 },
     { id: "ce-mc1-colors", ink: 1, get: function() { return _ceMc1; }, set: function(v) { _ceMc1 = v; }, count: 16 },
     { id: "ce-mc2-colors", ink: 2, get: function() { return _ceMc2; }, set: function(v) { _ceMc2 = v; }, count: 16 }
@@ -33646,12 +33903,11 @@ function _ceBuildColorRows() {
       sw.style.background = _CE_COLORS[i];
       sw.title = "Color " + i;
       sw.addEventListener("click", function() {
+        _cePushUndo();
         spec.set(i);
         if (_ceMulticolor) _ceInk = spec.ink;
         _ceBuildColorRows();
-        _ceRenderEditor();
-        _ceRenderMap();
-        _ceUpdateAsm();
+        _ceRefresh();
       });
       container.appendChild(sw);
     }
@@ -33684,6 +33940,16 @@ function _ceApplySerializedState(settings) {
   _ceBuildColorRows();
 }
 
+function _ceSyncTools() {
+  document.querySelectorAll("#char-editor-dialog .ce-tool-btn[data-ce-tool]").forEach(function(b) {
+    b.classList.toggle("ce-tool-btn--active", b.dataset.ceTool === _ceTool);
+  });
+  const square = _ceTileW === _ceTileH;
+  ["ce-rotr", "ce-rotl"].forEach(function(id) { const b = document.getElementById(id); if (b) b.disabled = !square; });
+  const paste = document.getElementById("ce-paste");
+  if (paste) paste.disabled = !_ceClip;
+}
+
 function setupCharEditor() {
   const dialog = document.getElementById("char-editor-dialog");
   if (!dialog) return;
@@ -33692,9 +33958,8 @@ function setupCharEditor() {
     document.querySelector(".control-menu")?.removeAttribute("open");
     _ceInit();
     _ceUpdateInfo();
-    _ceRenderEditor();
-    _ceRenderMap();
-    _ceUpdateAsm();
+    _ceSyncTools();
+    _ceRefresh();
     dialog._applyPosition?.();
     dialog.showModal();
   });
@@ -33703,35 +33968,67 @@ function setupCharEditor() {
 
   const grid = document.getElementById("ce-editor-grid");
   if (grid) {
-    const _cePaintAt = function(clientX, clientY, firstHit) {
+    const cellAt = function(clientX, clientY) {
       const el = document.elementFromPoint(clientX, clientY);
       const cell = el && el.closest ? el.closest(".ce-pixel") : null;
-      if (!cell || !grid.contains(cell)) return;
-      const r = +cell.dataset.r, c = +cell.dataset.c;
-      if (firstHit) {
-        const current = _ceGetPixel(_ceSel, r, c);
-        _cePaintVal = _ceMulticolor ? (current === _ceInk ? 0 : _ceInk) : (current ? 0 : 1);
-      } else if (_ceGetPixel(_ceSel, r, c) === _cePaintVal) {
-        return;
-      }
-      _ceSetPixel(_ceSel, r, c, _cePaintVal);
-      _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm();
+      if (!cell || !grid.contains(cell)) return null;
+      return { x: +cell.dataset.c, y: +cell.dataset.r };
+    };
+    // the value a click paints: the selected ink, or 0 where it already is the ink
+    const paintValue = function(p) {
+      const current = _ceGetT(p.x, p.y);
+      return _ceMulticolor ? (current === _ceInk ? 0 : _ceInk) : (current ? 0 : 1);
+    };
+    const shapePreview = function(b) {
+      const map = new Map(), w = _cePxW();
+      _ceShapePoints(_ceTool, _ceShapeStart, b).forEach(function(p) { map.set(p[1] * w + p[0], _cePaintVal); });
+      _ceRenderEditor(map);
     };
     grid.addEventListener("pointerdown", function(e) {
       if (!_ceData || e.button !== 0) return;
+      const p = cellAt(e.clientX, e.clientY);
+      if (!p) return;
+      _cePushUndo();
+      _cePaintVal = paintValue(p);
+      if (_ceTool === "fill") {
+        _ceFloodFill(p.x, p.y, _ceMulticolor ? _ceInk : 1);
+        _ceRefresh();
+        e.preventDefault();
+        return;
+      }
       _cePainting = true;
       try { grid.setPointerCapture(e.pointerId); } catch (_) {}
-      _cePaintAt(e.clientX, e.clientY, true);
+      if (_ceTool === "pencil") {
+        _ceSetT(p.x, p.y, _cePaintVal);
+        _ceRefresh();
+      } else {
+        _ceShapeStart = p;
+        shapePreview(p);
+      }
       e.preventDefault();
     });
     grid.addEventListener("pointermove", function(e) {
       if (!_cePainting || !_ceData) return;
-      _cePaintAt(e.clientX, e.clientY, false);
+      const p = cellAt(e.clientX, e.clientY);
+      if (!p) return;
+      if (_ceTool === "pencil") {
+        if (_ceGetT(p.x, p.y) === _cePaintVal) return;
+        _ceSetT(p.x, p.y, _cePaintVal);
+        _ceRefresh();
+      } else {
+        shapePreview(p);
+      }
       e.preventDefault();
     });
     const _ceEndPaint = function(e) {
       if (!_cePainting) return;
       _cePainting = false;
+      if (_ceShapeStart) {
+        const p = (e && e.clientX != null && cellAt(e.clientX, e.clientY)) || _ceShapeStart;
+        _ceShapePoints(_ceTool, _ceShapeStart, p).forEach(function(q) { _ceSetT(q[0], q[1], _cePaintVal); });
+        _ceShapeStart = null;
+        _ceRefresh();
+      }
       if (e && e.pointerId != null) { try { grid.releasePointerCapture(e.pointerId); } catch (_) {} }
     };
     grid.addEventListener("pointerup", _ceEndPaint);
@@ -33739,21 +34036,63 @@ function setupCharEditor() {
     document.addEventListener("pointerup", _ceEndPaint);
   }
 
+  // Map: click selects; drag onto another character swaps (Shift: copies)
   const mapCanvas = document.getElementById("ce-map-canvas");
   if (mapCanvas) {
-    mapCanvas.addEventListener("click", function(e) {
+    const charAt = function(e) {
       const rect = mapCanvas.getBoundingClientRect();
-      const sx = mapCanvas.width / rect.width;
-      const sy = mapCanvas.height / rect.height;
-      const cx = (e.clientX - rect.left) * sx;
-      const cy = (e.clientY - rect.top)  * sy;
+      const cx = (e.clientX - rect.left) * mapCanvas.width / rect.width;
+      const cy = (e.clientY - rect.top) * mapCanvas.height / rect.height;
       const CELL = mapCanvas.width / 16;
-      const col  = Math.min(15, Math.floor(cx / CELL));
-      const row  = Math.min(15, Math.floor(cy / CELL));
-      _ceSelect(row * 16 + col);
+      if (cx < 0 || cy < 0 || cx >= mapCanvas.width || cy >= mapCanvas.height) return -1;
+      return _ceClampSel(Math.floor(cy / CELL) * 16 + Math.floor(cx / CELL));
+    };
+    mapCanvas.addEventListener("pointerdown", function(e) {
+      if (e.button !== 0 || !_ceData) return;
+      const n = charAt(e);
+      if (n < 0) return;
+      _ceMapDrag = { from: n, x: e.clientX, y: e.clientY, active: false, over: -1, copy: e.shiftKey };
+      try { mapCanvas.setPointerCapture(e.pointerId); } catch (_) {}
+    });
+    mapCanvas.addEventListener("pointermove", function(e) {
+      const d = _ceMapDrag;
+      if (!d) return;
+      if (!d.active && Math.hypot(e.clientX - d.x, e.clientY - d.y) > 4) d.active = true;
+      if (!d.active) return;
+      d.copy = e.shiftKey;
+      const over = charAt(e);
+      if (over !== d.over) { d.over = over; _ceRenderMap(); }
+    });
+    const endDrag = function(e) {
+      const d = _ceMapDrag;
+      _ceMapDrag = null;
+      if (!d) return;
+      if (!d.active) { _ceSelect(d.from); return; }
+      const to = charAt(e);
+      if (to >= 0) _ceMoveTile(d.from, to, e.shiftKey); else _ceRenderMap();
+    };
+    mapCanvas.addEventListener("pointerup", endDrag);
+    mapCanvas.addEventListener("pointercancel", function() { _ceMapDrag = null; _ceRenderMap(); });
+    mapCanvas.addEventListener("contextmenu", function(e) {
+      if (!_ceData) return;
+      const n = charAt(e);
+      if (n >= 0 && n !== _ceSel) _ceSelect(n);
+      _edShowCtxMenu(e, dialog, [
+        { iconFrom: "#ce-copy", label: t("sidContextCopy"), run: function() { _ceCopy(); _ceSyncTools(); } },
+        { iconFrom: "#ce-paste", label: t("sidContextPaste"), disabled: !_ceClip, run: function() { _cePasteAt(_ceSel); } },
+      ]);
     });
   }
 
+  dialog.querySelectorAll(".ce-tool-btn[data-ce-tool]").forEach(function(btn) {
+    btn.addEventListener("click", function() { _ceTool = btn.dataset.ceTool; _ceSyncTools(); });
+  });
+  document.getElementById("ce-undo")?.addEventListener("click", _ceUndoOp);
+  document.getElementById("ce-redo")?.addEventListener("click", _ceRedoOp);
+  document.getElementById("ce-copy")?.addEventListener("click", function() { _ceCopy(); _ceSyncTools(); });
+  document.getElementById("ce-paste")?.addEventListener("click", function() { _cePasteAt(_ceSel); });
+  document.getElementById("ce-rotr")?.addEventListener("click", function() { _ceRotate(true); });
+  document.getElementById("ce-rotl")?.addEventListener("click", function() { _ceRotate(false); });
   document.getElementById("ce-clear")?.addEventListener("click", _ceClear);
   document.getElementById("ce-invert")?.addEventListener("click", _ceInvert);
   document.getElementById("ce-fliph")?.addEventListener("click", _ceFlipH);
@@ -33762,14 +34101,23 @@ function setupCharEditor() {
   document.getElementById("ce-shr")?.addEventListener("click", function() { _ceShift("right"); });
   document.getElementById("ce-shu")?.addEventListener("click", function() { _ceShift("up"); });
   document.getElementById("ce-shd")?.addEventListener("click", function() { _ceShift("down"); });
+  document.getElementById("ce-tile")?.addEventListener("change", function(e) {
+    const m = /^(\d)x(\d)$/.exec(e.target.value);
+    if (!m) return;
+    _ceTileW = +m[1]; _ceTileH = +m[2];
+    _ceSel = _ceClampSel(_ceSel);
+    _ceBuildGrid();
+    _ceUpdateInfo();
+    _ceSyncTools();
+    _ceRefresh();
+  });
   document.getElementById("ce-multicolor")?.addEventListener("change", function(e) {
     _ceMulticolor = !!e.target.checked;
     if (_ceMulticolor) _ceFg &= 7;
     _ceInk = _ceMulticolor ? 3 : 1;
     _ceBuildGrid();
     _ceBuildColorRows();
-    _ceRenderEditor();
-    _ceRenderMap();
+    _ceRefresh();
   });
   document.querySelectorAll("[data-ce-ink]").forEach(function(label) {
     label.addEventListener("click", function() {
@@ -33778,17 +34126,41 @@ function setupCharEditor() {
       _ceBuildColorRows();
     });
   });
+  dialog.addEventListener("keydown", function(e) {
+    if (e.target.closest("input, select, textarea")) return;
+    const mod = e.ctrlKey || e.metaKey, k = e.key.toLowerCase();
+    if (mod && k === "z") { if (e.shiftKey) _ceRedoOp(); else _ceUndoOp(); e.preventDefault(); }
+    else if (mod && k === "y") { _ceRedoOp(); e.preventDefault(); }
+    else if (mod && k === "c") { _ceCopy(); _ceSyncTools(); e.preventDefault(); }
+    else if (mod && k === "v") { _cePasteAt(_ceSel); e.preventDefault(); }
+  });
 
+  document.getElementById("ce-preview-text")?.addEventListener("input", _ceRenderPreview);
+  document.getElementById("ce-preview-set")?.addEventListener("change", _ceRenderPreview);
+
+  const flash = function(id, key) {
+    const btn = document.getElementById(id);
+    if (btn) { const o = btn.textContent; btn.textContent = (typeof t === "function" ? t(key) : "Copied!"); setTimeout(function() { btn.textContent = o; }, 1300); }
+  };
   document.getElementById("ce-copy-asm")?.addEventListener("click", function() {
     const el = document.getElementById("ce-asm-out");
     if (!el) return;
-    navigator.clipboard.writeText(el.textContent).then(function() {
-      const btn = document.getElementById("ce-copy-asm");
-      if (btn) { const o = btn.textContent; btn.textContent = (typeof t === "function" ? t("copied") : "Copied!"); setTimeout(function() { btn.textContent = o; }, 1300); }
-    });
+    navigator.clipboard.writeText(el.textContent).then(function() { flash("ce-copy-asm", "copied"); });
+  });
+  document.getElementById("ce-copy-range")?.addEventListener("click", function() {
+    if (!_ceData) return;
+    navigator.clipboard.writeText(_ceRangeAsm()).then(function() { flash("ce-copy-range", "copied"); });
+  });
+  document.getElementById("ce-save-range")?.addEventListener("click", function() {
+    if (!_ceData) return;
+    const r = _ceRange();
+    _saveBinFile(_ceData.slice(r.from * 8, (r.to + 1) * 8), "charset-" + r.from + "-" + r.to + ".bin");
   });
 
-  document.getElementById("ce-load-rom")?.addEventListener("click", _ceLoadRom);
+  document.getElementById("ce-load-rom")?.addEventListener("click", function(e) { _ceLoadRom(e.shiftKey ? 2 : 1); });
+  document.getElementById("ce-load-rom2")?.addEventListener("click", function() { _ceLoadRom(2); });
+  document.getElementById("ce-rom-upper")?.addEventListener("click", function() { _ceLoadRom(1); });
+  document.getElementById("ce-rom-lower")?.addEventListener("click", function() { _ceLoadRom(2); });
 
   document.getElementById("ce-save-bin")?.addEventListener("click", function() {
     if (!_ceData) return;
@@ -33815,6 +34187,7 @@ function setupCharEditor() {
     const reader = new FileReader();
     reader.onload = function() {
       if (!_ceData) _ceData = new Uint8Array(256 * 8);
+      _cePushUndo();
       const parsed = _vaReadBinWithMeta(new Uint8Array(reader.result));
       const src = parsed.payload;
       _ceData.fill(0);
@@ -33826,9 +34199,8 @@ function setupCharEditor() {
       if (parsed.manifest?.kind === "ce-charset" || parsed.manifest?.kind === "cc-charset") _ceApplySerializedState(parsed.manifest.settings);
       else _ceFg = _ceDefaultColor(_ceSel) & (_ceMulticolor ? 0x07 : 0x0F);
       _ceBuildColorRows();
-      _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm();
-      const btn = document.getElementById("ce-load-bin");
-      if (btn) { const o = btn.textContent; btn.textContent = (typeof t === "function" ? t("loaded") : "Loaded!"); setTimeout(function(){ btn.textContent = o; }, 1400); }
+      _ceRefresh();
+      flash("ce-load-bin", "loaded");
     };
     reader.readAsArrayBuffer(file);
     e.target.value = "";

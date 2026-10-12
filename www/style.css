@@ -7755,8 +7755,8 @@ html[data-theme="commodore77"] .splash-image {
   margin: 0;
   width: min(960px, 96vw);
   max-width: 96vw;
-  height: min(680px, 92vh);
-  max-height: 92vh;
+  height: min(760px, 94vh);
+  max-height: 94vh;
   overflow: visible;
 }
 .ce-dialog::backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); }
@@ -7835,6 +7835,27 @@ html[data-theme="commodore77"] .splash-image {
   color: var(--text);
 }
 .ce-map-lbl { margin-left: auto; }
+.ce-tb-break { flex-basis: 100%; height: 0; margin-bottom: -10px; }
+.ce-tool-btn.ce-tool-btn--active,
+.ce-tool-group .ce-tool-btn.ce-tool-btn--active {
+  background: color-mix(in srgb, var(--primary) 22%, transparent);
+  color: var(--primary);
+}
+.ce-tool-btn:disabled { opacity: 0.4; cursor: default; background: transparent; }
+.ce-tile-lbl { display: flex; align-items: center; gap: 6px; font-size: 0.74rem; color: var(--secondary); }
+.ce-select { height: 28px; min-height: 0; width: auto; padding: 3px 26px 3px 8px; font-family: inherit; font-size: 0.76rem; }
+.ce-num-in { width: 58px; height: 26px; min-height: 0; padding: 3px 6px; font-size: 0.76rem; }
+.ce-hint { font-size: 0.66rem; color: var(--secondary); line-height: 1.35; }
+.ce-preview { display: flex; flex-direction: column; gap: 5px; }
+.ce-preview-hdr { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.ce-preview-text {
+  min-height: 0; height: 42px; resize: vertical; padding: 4px 6px;
+  font-family: "IBM Plex Mono", monospace; font-size: 0.74rem;
+}
+.ce-preview-canvas { display: block; width: 100%; image-rendering: pixelated; border: 2px solid #6c5eb5; }
+.ce-range { display: flex; align-items: center; gap: 6px; font-size: 0.74rem; color: var(--secondary); }
+.ce-range .ce-section-lbl { margin-right: auto; }
+.ce-right .ce-map-hint { color: #d8d2f4; text-align: center; }
 .ce-xbtn {
   background: none;
   border: none;
@@ -8053,6 +8074,8 @@ html[data-theme="commodore77"] .splash-image {
   min-width: 0;
   background: #6c5eb5;
   display: flex;
+  flex-direction: column;
+  gap: 8px;
   align-items: center;
   justify-content: center;
   padding: 20px;

@@ -1,5 +1,7 @@
 # Linux Installation Guide (Ubuntu / Debian)
-Version 2.5.6
+Version 2.5.7
+
+2.5.7: VA SID Core 1.2: the SID Player runs tunes on a C64 ported from VICE (cycle-exact 6510, CIA 6526A, VIC-II timing with bad lines and sprite DMA, 6510 I/O port). Hi-Res Editor: two colours in every 8x8 cell with the new Cell paper tool. Exact C64 character ROM in the ROM viewer and the Character / Map / Level editors. Sprite Editor: hi-res overlay layer, flood fill, select / move, rotate 90 degrees, Mirror all, sprite sheet import, hitbox per frame, X / Y x2 preview, zoom up to 40x. Level Editor: objects layer, character attributes, edge check, colours per screen, memory meter with RLE export, Run in VICE.
 
 2.5.6: New SID Player: a floating player for .sid (PSID / RSID) tunes with a playlist (drag and drop, save / open), subtunes, seek and volume. VA SID Core 1.1: a built-in SID emulation (MOS 6581 / 8580) with a cycle-locked PSID / RSID player, selectable in Settings -> SID preview. SID Editor: knobs, MIDI input, recording into the tracker, metronome, pattern delete and Import GoatTracker .sng. Freemium and Professional versions: register in Menu -> Register... with the email address and serial from your purchase. Ultimate Basic 1.6.4 bundled.
 
@@ -46,7 +48,7 @@ Tested on Ubuntu 22.04 and 24.04.
 Download the `.deb` package from the releases page and install:
 
 ```bash
-  sudo dpkg -i "c64-visual-assembler_2.5.6_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.5.7_amd64.deb"
 sudo apt-get install -f   # fix any missing dependencies
 ```
 
@@ -160,4 +162,4 @@ The app propagates `DISPLAY`, `WAYLAND_DISPLAY`, `XDG_RUNTIME_DIR`, `DBUS_SESSIO
 
 ---
 
-**Version:** 2.5.6 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.5.7 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
