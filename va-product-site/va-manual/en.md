@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.5.7**
+**Version 2.5.8**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -9,6 +9,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
+    - [Version 2.5.8 Highlights](#version-258-highlights)
     - [Version 2.5.7 Highlights](#version-257-highlights)
     - [Version 2.5.6 Highlights](#version-256-highlights)
     - [Version 2.5.5 Highlights](#version-255-highlights)
@@ -40,7 +41,9 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [ASM line numbers](#asm-line-numbers)
     - [Compile progress modal](#compile-progress-modal)
   - [5. Settings \& Toolbar](#5-settings--toolbar)
+    - [Version control](#version-control)
     - [Freemium and Professional](#freemium-and-professional)
+    - [Reporting a bug](#reporting-a-bug)
     - [Project templates](#project-templates)
     - [Build project](#build-project)
     - [Example programs](#example-programs)
@@ -179,6 +182,18 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [SID Player](#sid-player)
     - [Curve Editor](#curve-editor)
     - [Number Converter](#number-converter)
+
+---
+
+## Version 2.5.8 Highlights
+
+- **Version control** — the project snapshots became a git-like version control: commits with a message and a short hash, a log with **HEAD**, a **Diff** against the working copy, **Checkout** into the editor and separate autosave entries. Block-mode (JSON) programs are compared as assembly lines, so the diff shows real changes. Works on Block, Expert and Ultimate Basic tabs. See [Version control](#version-control).
+- **Git integration** — choose `git.exe` in **Settings → Version control** (or let the app find it). When the project is inside a git repository, the dialog shows the branch, the changed files, commit (saves first), log, diff with a **RAW** view, checkout, **Pull** / **Push** and **git init**.
+- **Report Bug** — a built-in report form with up to 4 screenshots (file, Ctrl+V or drag and drop), optional email, system info and the recent app errors. See [Reporting a bug](#reporting-a-bug).
+- **Professional serial by email** — supporters request their serial in the registration dialog (**Request serial (supporters)**); the Professional version can be bought on c64va.pro with PayPal (5 €, one-time) and the serial arrives by email right after the payment. See [Freemium and Professional](#freemium-and-professional).
+- **SID Player** — **Shuffle** and **favourites** (★) per tune. See [SID Player](#sid-player).
+- **Commodore Beige theme** — the classic breadbin: beige case, mustard function-key buttons, the rainbow badge stripes and a C64 blue monitor view (Professional).
+- **Commodore Starlight theme** — a light theme after the translucent C64 breadbin: frosted clear glass with the rainbow RGB glow shining through, a magenta accent and rainbow syntax colours (Professional).
 
 ---
 
@@ -504,7 +519,7 @@ The modal closes automatically when the action completes or fails.
 |---|---|
 | **Number base (HEX / DEC / BIN)** | Sets the display/input format for operands throughout the UI. BIN mode displays values as binary with `%` prefix (e.g. `%11111000`). The ASM view always shows each block in its own format. |
 | **Language** | Switch the user interface between English, Hungarian, Spanish, German, and Dutch (Nederlands) |
-| **Theme** | Light / Dark / OLED / Commodore 77 — select from the theme picker in the Settings menu. OLED uses a pure-black background for AMOLED displays. Commodore 77 is a neon-yellow-on-black theme; when it is the active theme the startup splash panel uses the theme's panel colour (matching the message card), shows a smaller dedicated Commodore 77 logo, and a yellow progress bar. The chosen theme is applied before the first paint on the next launch. |
+| **Theme** | Light / Dark / OLED / Commodore 77 / Commodore Starlight / Commodore Beige — select from the theme picker in the Settings menu. OLED uses a pure-black background for AMOLED displays. Commodore 77 is a neon-yellow-on-black theme; when it is the active theme the startup splash panel uses the theme's panel colour (matching the message card), shows a smaller dedicated Commodore 77 logo, and a yellow progress bar. Commodore Starlight is a light theme after the translucent C64 breadbin: frosted clear glass panels with the rainbow RGB glow shining through, a magenta accent, rainbow syntax colours and a smoky dark monitor view. Commodore Beige is the classic breadbin: a beige case, mustard function-key buttons, the rainbow badge stripes and a C64 blue screen for the monitor view. The chosen theme is applied before the first paint on the next launch. |
 | **CRT retro mode** | Toggles a full-screen CRT filter: scanlines, phosphor vignette, flicker, and barrel distortion. State is saved between sessions. |
 | **Show memory panel** | Global toggle that shows or hides the full C64 memory panel |
 | **BASIC SYS stub** | Prepends a BASIC line that calls SYS to your program's origin |
@@ -528,22 +543,37 @@ The modal closes automatically when the action completes or fails.
 | **Run (split button)** | The main **▶ Run** button runs the current mode; click the **▾** arrow to switch between: **Run as PRG** (compile and launch VICE directly), **Run via D64** (package into a .d64 disk image and launch VICE), **Run on hardware** (send PRG to a C64 Ultimate / 1541 Ultimate device), or **Kung Fu Flash 2** (upload the PRG over USB to a real C64/C128 with a Kung Fu Flash 2 cartridge). See [Section 12](#12-d64-export--run) and [Section 13](#13-hardware-settings). |
 | **Debug (RetroDebugger)** | Compile and launch in RetroDebugger with breakpoints, symbols, and autostart flags (see [Section 9](#9-debugger-integration)) |
 | **Run with Exomizer** | Checkbox in the Settings menu — when enabled, all Run and Build operations crunch the PRG through `exomizer sfx sys` before launching or saving. Works with Run as PRG, Run via D64, Run on Hardware, Build PRG, and Build D64. Configure the Exomizer executable in **Hardware Settings** first. |
-| **Automatic snapshot saving** | Checkbox in **Hardware Settings → Snapshot**. When enabled, the app creates a snapshot automatically about 2.5 seconds after you stop editing a tab. Turn it off if you only want manual snapshot saves. |
+| **Automatic autosave entries** | Checkbox in **Hardware Settings → Version control**. When enabled, the app adds an autosave entry to the version history about 2.5 seconds after you stop editing a tab. Turn it off if you only want your own commits. See [Version control](#version-control). |
 | **Hardware Settings** | Open the hardware configuration dialog — configure VICE, Exomizer, RetroDebugger, C64 Ultimate (host, password, connection test) and the Kung Fu Flash 2 serial port. See [Section 13](#13-hardware-settings). |
 | **New program…** | Opens a confirmation dialog, then clears all blocks from the program area |
 | **Collapse All** | Collapse all blocks |
 | **About** | Version info |
 | **What's New** | Changelog |
 
-### Project snapshots
+### Version control
 
-Project snapshots are stored as on-disk sidecar JSON files, not in localStorage. They are tied to the current project file when one exists, so the history survives restarts and follows the project around.
+Every tab has its own version history, like a small git repository. **Menu → Build → Version control…** (or **Commit…**) opens the dialog; **Discard changes (back to HEAD)** restores the last commit directly.
 
-- **Menu → Build → Save snapshot** opens the snapshot dialog and saves the current block state plus Expert ASM text.
-- **Menu → Build → Restore previous version** restores the latest snapshot directly.
-- **Menu → Build → Snapshot history** opens the dialog where you can add notes, restore older entries, or delete them.
-- **Hardware Settings → Snapshot → Automatic snapshot saving** controls whether the app creates snapshots automatically after edits. The default delay is about 2.5 seconds, and the setting applies per tab.
-- If a project has not been saved yet, snapshots are stored in the app config directory until the project gets a file path.
+The usual workflow: write a **commit message** and press **Commit** (or Ctrl+Enter) → keep editing → press **Diff** to see what changed → commit again.
+
+- **Commit** — saves the current state of the tab with your message. Every commit gets a short hash (for example `1bd55ba`); the newest one is **HEAD**. A commit with no changes since HEAD is not created.
+- **Status line** — *Nothing to commit, working tree clean* or *Uncommitted changes since `<hash>`*.
+- **Diff** — the changes since HEAD; the **Diff** button of a log entry compares that version with the editor. Added lines are green, removed lines red, and the header shows **+N / −M**. Block-mode programs are compared as assembly lines (one line per block), Expert sources line by line, Ultimate Basic tabs by their source, so a Block-mode project saved as JSON still shows readable changes.
+- **Checkout** — loads that version into the editor. The file on disk only changes when you save; **Discard changes** goes back to HEAD.
+- **Autosave entries** — with **Settings → Version control → Automatic autosave entries in version control** the app adds an entry about 2.5 seconds after you stop editing. They are marked *autosave*; the last 20 are kept, next to up to 100 commits.
+- The history is stored next to the project file as `<project>.snapshots.json` (in the app config folder until the project is saved), so it survives restarts. Snapshots made by earlier versions appear as commits.
+
+#### Git
+
+If `git` is installed, the same dialog can work with a real git repository.
+
+- **Settings → Version control:** **Choose git.exe…** or **Auto-detect** (searches the PATH and the usual install folders); the line below shows the git version. **Use Git when the project is in a repository** (on by default) switches the dialog to Git mode automatically for files inside a repository. The **Built-in / Git** switch in the dialog header changes the mode by hand.
+- The header shows the branch with **↑** (commits to push) and **↓** (commits to pull), followed by the changed files of the repository.
+- **Commit** saves the file first, stages only this file (or every change with **Stage all changes (git add -A)**) and runs `git commit`.
+- The log lists the commits of this file with their branches and tags. **Diff** on an entry compares the commit with its parent; the **Diff** button compares HEAD with the editor, unsaved changes included. Project files are compared the same way as in the built-in mode; **RAW** shows the plain `git diff`.
+- **Checkout** loads the file of that commit into the editor (`git show`) without touching the disk.
+- **Pull** (`--ff-only`), **Push** (the first push sets the upstream with `-u origin <branch>`) and **Create repository (git init)** when the folder is not a repository yet.
+- git runs without a console window and never asks for a password: credentials must come from a credential manager or an SSH key, otherwise the error message is shown in the dialog.
 | **Knowledge Base** | Reference links (6502 opcodes, C64 KERNAL, memory map, colors) |
 | **Check for Update** | Check c64va.pro for a newer release and download / install it — see [In-app updates](#in-app-updates) |
 
@@ -571,9 +601,20 @@ Without a registration Visual Assembler runs as **Freemium**; the badge next to 
 - the visual editors (SID, Sprite, Char, Charset, Hi-Res, Map, Level, D64, Curve) and the SID Player;
 - **Build PRG**, **Build D64**, **Build CRT**, **Build project** and Exomizer packing;
 - running on the C64 Ultimate and on the Kung Fu Flash 2;
-- UI languages other than Hungarian and English, and the OLED and Commodore 77 themes.
+- UI languages other than Hungarian and English, and the OLED, Commodore 77, Commodore Starlight and Commodore Beige themes.
 
 Clicking a locked feature opens the registration dialog. To register, open **Menu → Register…** (or click the badge), enter the email address and serial from your purchase and press **Activate**. The serial belongs to that email address (upper / lower case and spaces do not matter), and the check runs offline. **Remove license** takes the registration off this computer.
+
+**Getting a serial.** If you supported the project earlier, enter your email address in the registration dialog and press **Request serial (supporters)** (or use the form at c64va.pro/register): the serial arrives by email, once per address. The Professional version can be bought on c64va.pro — **Buy full version** in the dialog opens the page: PayPal, 5 € one-time, and the serial is emailed right after the payment. The page also compares Freemium and Professional.
+
+### Reporting a bug
+
+**Menu → Report Bug** opens a form that sends the report straight to the developer.
+
+- **Summary** and **What happened?** are required — describe what you did, what you expected and what happened instead. **Email** is optional (filled in with your licence email); give it if you want a reply.
+- **Screenshots:** up to 4 images with **Add image…**, by pasting with **Ctrl+V** (for example after Win+Shift+S) or by dropping them on the form. Large images are scaled down to 1920 pixels.
+- **Include system info and recent errors** (on by default) adds the app version, the operating system, the language, the theme, the editor and run mode, the licence state, the screen size, the number of blocks and the last app errors. **What is sent?** shows the data. Your source code is not sent.
+- **Send report** confirms with the report number. **Send by email** opens your mail program instead.
 
 ### Workspaces
 
@@ -3859,6 +3900,16 @@ Works from **Block**, **Expert** and **Ultimate Basic** mode alike; Ultimate Bas
 
 ---
 
+### Version control (git)
+
+| Setting | Description |
+|---|---|
+| **Automatic autosave entries in version control** | Adds an autosave entry to the version history about 2.5 s after you stop editing |
+| **Choose git.exe…** | Browse to the `git` executable (`git.exe` on Windows) |
+| **Auto-detect** | Clears the chosen path and searches the PATH and the usual install folders |
+| **Use Git when the project is in a repository** | Opens the Version control dialog in Git mode for files inside a git repository |
+| **Status** | Shows the git version, or that git was not found (the built-in version control still works) |
+
 ## 14. Visual Editors (Toolkit)
 
 The toolbar **Toolkit** menu groups the visual data editors that all share a common Files menu (`Files ▾`) for Load BIN / Save BIN / Export to blocks / Save to D64. Each editor produces raw `.bin` data that can be placed in a program with `INCBIN`, or directly added to a D64 disk via the **Save to D64** entry.
@@ -4104,6 +4155,8 @@ The **SID Player** toolbar button opens a floating window that plays `.sid` musi
 - **Seek:** the position bar and **Back / Forward 10 s** work with the VA SID Core engine. WebSID cannot seek, so these controls are disabled with it.
 - **Volume:** the knob is shared with the SID Editor's master volume.
 - **Engine:** the window shows which engine is playing (WebSID, or VA SID Core with its version and SID chip); choose it in **Settings → SID preview**. VA SID Core runs the tune on a native Rust C64 core with a cycle-exact 6510, precise interrupt timing, CIA 6526A, VIC-II timing with bad lines, sprite DMA and raster interrupts, and the 6510 I/O port — so raster-IRQ, CIA-timed and digi tunes play with the timing of a real machine.
+- **Shuffle:** the shuffle button next to **Next** plays the playlist in random order — no tune repeats until every tune has played, and **Previous** steps back along the random order. The setting is remembered.
+- **Favourites:** the ☆ / ★ in each row marks a tune; it is kept in the saved state and in `.sidpl` playlists.
 
 ---
 
