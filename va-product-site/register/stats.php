@@ -55,7 +55,10 @@ if (!empty($_SESSION['va_admin']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $lang = ($_POST['lang'] ?? '') === 'hu' ? 'hu' : 'en';
     $action = (string) ($_POST['action'] ?? '');
     try {
-        if (!vaValidEmail($email)) {
+        if ($action === 'clear_rate') {
+            $n = $db->exec('DELETE FROM va_register_attempts');
+            $_SESSION['flash'] = ['ok', 'RATE LIMITS CLEARED (' . (int) $n . ' ATTEMPTS).'];
+        } elseif (!vaValidEmail($email)) {
             $_SESSION['flash'] = ['err', 'INVALID EMAIL ADDRESS.'];
         } elseif ($action === 'resend') {
             // a donorlistára is felveszi, így a cím később maga is kérhet
@@ -204,6 +207,7 @@ $act = (int) $one('SELECT COUNT(*) FROM va_activations');
 $actTotal = (int) $one('SELECT SUM(activations) FROM va_activations');
 $actOs = $all('SELECT os, COUNT(*) AS n FROM va_activations GROUP BY os ORDER BY n DESC');
 $actVer = $all('SELECT version, COUNT(*) AS n FROM va_activations GROUP BY version ORDER BY n DESC');
+$rateIps = (int) $one('SELECT COUNT(DISTINCT ip) FROM va_register_attempts WHERE created_at > NOW() - INTERVAL 1 HOUR');
 $notActivated = (int) $one('SELECT COUNT(*) FROM va_serial_requests s LEFT JOIN va_activations a ON a.email = s.email WHERE s.mailed_at IS NOT NULL AND a.email IS NULL');
 
 // egy e-mail összes állapota: donor, serial, vásárlás, aktiválás
@@ -311,6 +315,12 @@ ob_start(); ?>
         <p class="hint">SEND SERIAL: (RE)SENDS THE SERIAL RIGHT AWAY AND ADDS THE ADDRESS TO THE DONORS.<br>
             ALLOW NEW REQUEST: CLEARS THE "ALREADY REQUESTED" FLAG, THE ADDRESS CAN REQUEST AGAIN ON THE REGISTER PAGE.<br>
             THE SERIAL IS DERIVED FROM THE EMAIL, SO A RESEND IS ALWAYS THE SAME SERIAL.</p>
+        <form method="post" class="row" style="margin-top:12px">
+            <input type="hidden" name="csrf" value="<?= $h($csrf) ?>"><input type="hidden" name="q" value="<?= $h($q) ?>">
+            <input type="hidden" name="action" value="clear_rate">
+            <button class="btn" type="submit">CLEAR RATE LIMITS</button>
+            <span class="hint" style="margin:0">IPS WITH FAILED ATTEMPTS IN THE LAST HOUR: <?= $rateIps ?></span>
+        </form>
         <?php if ($q !== ''): ?><div style="margin-top:18px"><?= $emailTable($found) ?></div><?php endif; ?>
     </div>
 
