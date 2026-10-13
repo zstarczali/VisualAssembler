@@ -32,5 +32,7 @@ return [
         'currency' => 'EUR',
         'item_name' => 'C64 Visual Assembler Professional',
     ],
+    // register/stats.php jelszava (vagy VA_ADMIN_PASSWORD környezeti változó)
+    'admin_password' => '',
     'max_per_ip_per_hour' => 10,
 ];
