@@ -11099,7 +11099,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
   min-height: 0; height: auto; padding: 6px 8px; font-family: "IBM Plex Mono", monospace; font-size: 0.8rem;
   border: 1px solid var(--panel-border); border-radius: 2px; background: var(--control-bg); color: var(--text);
 }
-.license-field textarea { resize: vertical; word-break: break-all; }
+.license-field textarea { height: calc(2 * 1.4em + 14px); line-height: 1.4; resize: none; overflow: hidden; word-break: break-all; }
 .license-status { margin: 0; min-height: 1.2em; font-size: 0.78rem; color: var(--secondary); }
 .license-status--error { color: #e05555; }
 .license-status--ok { color: #3fbf6a; }
