@@ -1,6 +1,6 @@
 Options -Indexes
 
-<FilesMatch "^(config|config\.sample|lib)\.php$|\.(sql|md)$">
+<FilesMatch "^(config|config\.sample|lib|paypal)\.php$|\.(sql|md)$">
   <IfModule mod_authz_core.c>
     Require all denied
   </IfModule>

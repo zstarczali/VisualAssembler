@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**2.5.5-ös verzió**
+**2.5.7-es verzió**
 
 Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat
 létre húzással és elengedéssel (fogd és vidd) utasításblokkokkal, és valós
@@ -12,6 +12,8 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
 
 - [C64 Visual Assembler — Felhasználói
   kézikönyv](#c64-visual-assembler--user-manual)
+    - [2.5.7-es verzió – kiemelt funkciók](#version-257-highlights)
+    - [2.5.6-os verzió kiemelt funkciói](#version-256-highlights)
     - [2.5.5-ös verzió – kiemelt funkciók](#version-255-highlights)
     - [2.5.4-es verzió – kiemelt funkciók](#version-254-highlights)
     - [2.5.3-as verzió kiemelt funkciói](#version-253-highlights)
@@ -41,6 +43,7 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
     - [ASM sorszámok](#asm-line-numbers)
     - [Fordítási folyamatjelző modális ablak](#compile-progress-modal)
   - [5. Beállítások \&amp; Eszköztár](#5-settings--toolbar)
+    - [Freemium és Professional](#freemium-and-professional)
     - [Projektsablonok](#project-templates)
     - [Projekt építése](#build-project)
     - [Példaprogramok](#example-programs)
@@ -185,8 +188,61 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
       csempetérképek)](#map-editor-multilayer-tilemaps)
     - [Pályaszerkesztő](#level-editor)
     - [SID-szerkesztő (3 hangos követő)](#sid-editor-3-voice-tracker)
+    - [SID-lejátszó](#sid-player)
     - [Görbeszerkesztő](#curve-editor)
     - [Számátváltó](#number-converter)
+
+---
+
+## A 2.5.7-es verzió legfontosabb elemei
+
+- **VA SID Core 1.2** — az SID Player mostantól egy natív Rust C64 magot
+  használ: egy cikluspontos 6510-et precíz megszakításidőzítéssel, a CIA
+  6526A-t, VIC-II időzítést hibás vonalakkal, sprite DMA és raszteres
+  megszakításokat, valamint a 6510 I/O portot. Lásd: [SID Player](#sid-player).
+- **Nagy felbontású szerkesztő** — két szín minden 8×8-as cellában: az új **Cell
+  paper** eszköz. Lásd: [Nagy felbontású / Többszínű
+  szerkesztő](#hi-res--multicolor-editor).
+- **Pontos karakter ROM** a ROM-nézegetőben, a Karakterszerkesztő **ROM
+  betöltése** menüpontjában és a Térkép/Pályaszerkesztőkben.
+- **Sprite szerkesztő** — nagy felbontású átfedés, kitöltés kitöltés,
+  kijelölés/mozgatás, forgatás, összes tükrözése, sprite lap importálása,
+  találati mező, X / Y ×2 előnézet. Lásd: [Sprite szerkesztő](#sprite-editor).
+- **Pályaszerkesztő** — objektumok, karakterattribútumok, élellenőrzés,
+  képernyőnkénti színek, memóriamérő RLE-vel, Futtatás VICE-ban. Lásd:
+  [Pályaszerkesztő](#level-editor).
+- **Karakterszerkesztő** — visszavonás / újra, rajzeszközök, 90°-os elforgatás,
+  másolás / beillesztés és húzás a térképen való cseréhez, 2×2-es csempék,
+  kisbetűs ROM készlet, szöveg előnézete és tartomány exportálása. Lásd:
+  [Karakterszerkesztő](#character-editor-charset).
+- **Karakterkészlet-szerkesztő** — 2×–24× nagyítás (csúszka vagy Ctrl+görgő)
+  pixelráccsal, háttérszín nagy felbontású módban, nagy felbontású karakterek
+  többszínű módban, és **ECM** (karakterenként külön háttér). Lásd:
+  [Karakterkészlet-szerkesztő]{1].
+
+---
+
+## A 2.5.6-os verzió legfontosabb elemei
+
+- **SID lejátszó** — egy új eszköztár gomb megnyit egy lebegő lejátszót a `.sid`
+  (PSID / RSID) dallamokhoz: egy lejátszási lista húzással, előző/következő
+  dallam, aldallamok, keresés és ±10 másodperc, hangerő, valamint a lejátszási
+  lista mentése/megnyitása (`.sidpl`) lehetőséggel; a lista és az ablak állapota
+  megjegyzendő. Lásd: [SID lejátszó](#sid-player).
+- **VA SID Core 1.1** — beépített SID emuláció (MOS 6581 / 8580, reSID-hez
+  igazított 6581 szűrővel) és ciklusfüggő PSID / RSID lejátszó (6510 CPU, CIA /
+  VIC időzítés). Válaszd ki a **Beállítások → SID előnézet** menüpontban; az SID
+  lejátszó megmutatja, melyik motor játszik le.
+- **SID szerkesztő** — gombok a hangszerparaméterekhez, szélesebb ADSR grafikon,
+  **MIDI bemenet**, **felvétel** a trackerbe (új pattern kerül hozzáadásra, ha a
+  jelenlegi megtelt), **metronóm** ütemlámpákkal, **pattern törlése**, a VA-VK
+  master hangerőszabályzója, és **GoatTracker .sng importálása**. Lásd: [SID
+  szerkesztő](#sid-editor-3-voice-tracker).
+- **Freemium és Professional** — regisztráció nélkül az alkalmazás Freemium
+  néven fut; a Professional verzió letöltéséhez add meg a vásárláskor használt
+  e-mail címedet és sorozatszámodat a **Menü → Regisztráció…** menüpontban.
+  Lásd: [Freemium és Professional](#freemium-and-professional).
+- Az **Ultimate Basic 1.6.4** csomagban található.
 
 ---
 
@@ -378,25 +434,20 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
   ASM nézet címe felett, és ugyanazt a jelvényt használja a Szakértő és az
   Ultimate Basic eszköztáron is. A párbeszédpanelek feliratai már nem
   tördelődnek.
-- **Ultimate Basic parancsreferencia** — A `tune` és az `music` teljes,
-  kommentált példákat mutat (cellaponkénti formátum, effektek, játékosjegyzetek,
-  `music lejátszás N`); az `inst`, `order`, `pat` és a tune `speed` saját
-  bejegyzésekkel rendelkezik; a `data` az új tömbformát mutatja; a `load sid`
-  szintaxis javítva lett (`load sid "tune.sid", $2000`).
+- **Hatalmasabb frissítés-ellenőrzés** — a telepítők listája a
+  c64va.pro/downloads/VA/ címen található, így az ellenőrzés az új letöltési
+  oldallal is működik; a Linux frissítési segéd már nem örökli az AppImage
+  könyvtár elérési útját.
 
 ---
 
 ## A 2.4.6-os verzió legfontosabb elemei
 
-- **SID szerkesztő → UltimateBasic export** — **Fájlok → Exportálás
-  UltimateBasic-be** kiírja a dallamot egy `tune ... end` blokkként (hangszerek,
-  sorrendlista és pattern sorok szövegként), majd `music play` következik, és
-  beszúrja az Ultimate Basic szerkesztő kurzorához (UB módon kívül a vágólapra
-  másolja). Az UltimateBasic fordító egy nulla oldal nélküli lejátszót épít
-  belőle fordítási időben, így a `music play` / `music stop` vezérli a dallamot,
-  és semmi sem ütközik az UB változókkal. Vibrato, slide, note-cut és speed
-  effektek támogatottak; akár 8 pattern, bármilyen sorrendlista hosszúság.
-  UltimateBasic fordítót igényel `tune` támogatással.
+- **Alkalmazáson belüli frissítések** — **Menü → Frissítések keresése**
+  ellenőrzi a c64va.pro fájlt újabb verziókért, és megerősítés esetén letölti a
+  platformodhoz tartozó telepítőt egy folyamatjelző sávval, majd telepíti azt.
+  Lásd: [Alkalmazáson belüli frissítések](#in-app-updates). Az ellenőrzés minden
+  indításkor csendben fut.
 - **Alapfokú nyelvi frissítés** — a szintaxiskiemelések és a parancsreferenciák
   mostantól lefedik a következőket: **`sfx`** (nem blokkoló SID hatás: `sfx
   channel, frames, frames [, wave]`), **`org`** (a sub/fn kód folytatása egy
@@ -489,7 +540,7 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
   hexadecimális rács egy sima szövegdoboz helyett, és a párbeszédpanel már nem
   halványítja el az alkalmazás többi részét mögötte, amikor meg van nyitva.
 - **Web64 a termék weboldalán** — új Web64 IDE részleg a
-  [c64va.tech](https://www.c64va.tech) oldalon.
+  [c64va.pro](https://www.c64va.pro) oldalon.
 - **Mintafrissítés** — az `makró-paraméterrel` minta mostantól a zárójeles
   `.macro setColor(color)` űrlapot használja.
 
@@ -550,11 +601,9 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
   új üres lemezt, vagy indítsa el az aktuális lemezt közvetlenül a VICE-ba,
   mindezt a Fájlok ▾ menüből, a többi vizuális szerkesztőhöz hasonlóan. Lásd:
   [D64 szerkesztő (meglévő lemezkép böngészése és szerkesztése)]{1}.
-- **Hozzáadás / kibontás / átnevezés / törlés a D64 szerkesztőben** — helyi fájl
-  hozzáadása a lemezkönyvtárhoz, kijelölt bejegyzés visszacsomagolása egy `.prg`
-  fájlba, bejegyzés átnevezése a táblázatban, vagy törlése — minden művelet
-  közvetlenül a `.d64` fájlra kerül alkalmazásra a `c1541` fájlon keresztül,
-  külön mentési lépés nélkül.
+- **Online súgó eszköztár gomb** — egy új ikon gomb a Debug után, amely
+  közvetlenül az alkalmazásból nyitja meg a többnyelvű dokumentációs webhelyet
+  ([c64va.pro/docs.html](https://www.c64va.pro/docs.html)).
 - **Betöltési cím, kicsomagolási cím és Exomizer a D64 szerkesztőben** — fejléc
   nélküli nyers fájl hozzáadásával beállítható egy opcionális betöltési cím, egy
   Exomizer kicsomagolási cél, és tömöríthető a fájl betöltés közben,
@@ -881,13 +930,14 @@ váltáshoz. A kiválasztott szerkesztőmódot a rendszer megjegyzi az alkalmaz�
   konfigurációs könyvtárában tárolódnak, amíg a projekt nem kap egy
   fájlútvonalat. | **Tudásbázis** | Referencia linkek (6502 opkódok, C64 KERNAL,
   memóriatérkép, színek) | | **Frissítések keresése** | Keressen újabb verziót a
-  c64va.tech oldalon, és töltse le / telepítse – lásd: [Alkalmazáson belüli
+  c64va.pro oldalon, és töltse le / telepítse – lásd: [Alkalmazáson belüli
   frissítések](#in-app-updates) |
 
 ### Szerkesztőeszközök
 
-Az UB eszköztár ugyanazt a vizuális nyelvet és egyéni eszköztippeket követi,
-mint a Szakértő mód. A következőket kínálja:
+**Menü → Frissítések keresése** megkeresi a legújabb kiadást a c64va.pro oldalon
+(beolvassa a platformod letöltési linkjeit), és összehasonlítja a futó
+verzióval:
 
 - szintaxiskiemelések az aktuális Ultimate Basic nyelvi referencia alapján;
 - a hosszú fájlokkal szinkronban maradó sorszámok;
@@ -906,6 +956,29 @@ egy animációs képet választ ki egymást követő 64 bájtos sprite képkock�
 A parancslista magassága szándékosan korlátozott, így a parancsrészletező kártya
 kitöltheti a panel fennmaradó magasságát. A részletes terület külön görgethető a
 hosszabb szintaxisleírásokért.
+
+### Freemium és Professional
+
+Regisztráció nélkül a Visual Assembler **Freemium** néven fut; a cím melletti
+jelvény **FREEMIUM** vagy **PROFESSIONAL** feliratot mutat. A Freemiumban
+programokat írhatsz és építhetsz, valamint futtathatsz VICE-ban Block, Expert és
+Ultimate Basic módban. Ezekhez a Professional verzió szükséges:
+
+- a vizuális szerkesztők (SID, Sprite, Char, Charset, Hi-Res, Map, Level, D64,
+  Curve) és az SID Player;
+- **PRG fordítása**, **D64 fordítása**, **CRT fordítása**, **projekt fordítása**
+  és Exomizer csomagolás;
+- a C64 Ultimate-en és a Kung Fu Flash 2-n fut;
+- A magyaron és angolon kívüli felhasználói felület nyelvei, valamint az OLED és
+  a Commodore 77 témák.
+
+Egy zárolt funkcióra kattintva megnyílik a regisztrációs párbeszédablak. A
+regisztrációhoz nyissa meg a **Menü → Regisztráció…** menüpontot (vagy
+kattintson a jelvényre), adja meg a vásárláskor használt e-mail címet és
+sorozatszámot, majd nyomja meg az **Aktiválás** gombot. A sorozatszám ehhez az
+e-mail címhez tartozik (a nagy- és kisbetűk, valamint a szóközök nem
+számítanak), és az ellenőrzés offline módon fut. A **Licenc eltávolítása**
+eltávolítja a regisztrációt erről a számítógépről.
 
 ### Projektek, lapok és indítófájlok
 
@@ -2469,17 +2542,22 @@ szint legfeljebb 7 × 10 képernyő lehet.
 .level "szint.bin", $4000
 ```
 
-| Meghatározott                                             | Jelentés                                                                           |
-| --------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| `ALACSONY_SZINT` / `MAGAS_SZINT`                          | A képernyő címe minden slotban (sor-fő, `LEVEL_W` slot soronként)                  |
-| `SZINT_SOR_HELY`                                          | Szint karakter sor → a képernyő sorának első helye                                 |
-| `SZINT_SOR_ALACSONY/MAGAS`, `SZINT_VARÁZS_ALACSONY/MAGAS` | Szint karaktersor → a képernyőkód sorának / színsorának eltolása a képernyőn belül |
-| `SZINT_SZÍN_RÉSZ`, `SZINT_SZÍN_FELÜLET`                   | Nézet kezdő oszlopa → képernyő oszlop és a képernyőn belüli oszlop                 |
-| `SZINT_SZINT`, `SZINT_M`                                  | Szintméret a képernyőkön                                                           |
-| `SZINT_SZÉLEK`, `SZINT_SOROK`                             | Szintméret karakterekben                                                           |
-| `SZINT_MAX_X`, `SZINT_MAX_Y`                              | 40×25-ös nézet legnagyobb görgetési pozíciója pixelenként                          |
-| `SZINT_BG`, `SZINT_MC1`, `SZINT_MC2`, `SZINT_MULTICOLOR`  | Háttér / többszínű színek és a szint módja                                         |
-| `SZINT_ADATOK`, `SZINT_MÉRET`, `SZINT_VÉGE`               | Kezdő, méret és az első szabad cím a szintadatok után                              |
+| Meghatározott                                                                        | Jelentés                                                                                                                                                             |
+| ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ALACSONY_SZINT` / `MAGAS_SZINT`                                                     | A képernyő címe minden slotban (sor-fő, `LEVEL_W` slot soronként)                                                                                                    |
+| `SZINT_SOR_HELY`                                                                     | Szint karakter sor → a képernyő sorának első helye                                                                                                                   |
+| `SZINT_SOR_ALACSONY/MAGAS`, `SZINT_VARÁZS_ALACSONY/MAGAS`                            | Szint karaktersor → a képernyőkód sorának / színsorának eltolása a képernyőn belül                                                                                   |
+| `SZINT_SZÍN_RÉSZ`, `SZINT_SZÍN_FELÜLET`                                              | Nézet kezdő oszlopa → képernyő oszlop és a képernyőn belüli oszlop                                                                                                   |
+| `SZINT_SZINT`, `SZINT_M`                                                             | Szintméret a képernyőkön                                                                                                                                             |
+| `SZINT_SZÉLEK`, `SZINT_SOROK`                                                        | Szintméret karakterekben                                                                                                                                             |
+| `SZINT_MAX_X`, `SZINT_MAX_Y`                                                         | 40×25-ös nézet legnagyobb görgetési pozíciója pixelenként                                                                                                            |
+| `SZINT_BG`, `SZINT_MC1`, `SZINT_MC2`, `SZINT_MULTICOLOR`                             | Háttér / többszínű színek és a szint módja                                                                                                                           |
+| `SZINT_ADATOK`, `SZINT_MÉRET`, `SZINT_VÉGE`                                          | Kezdő, méret és az első szabad cím a szintadatok után                                                                                                                |
+| `SZINT_OBJ_X_LO/MAGAS`, `SZINT_OBJ_Y_LO/MAGAS`, `SZINT_OBJ_TÍPUS`, `SZINT_OBJ_PARAM` | Objektumtábla (Level Editor objektumréteg): pozíció a szint pixeleiben, típusa és paraméter bájtja, görgetési sorrendben — `LEVEL_OBJ_COUNT` bejegyzés (maximum 255) |
+| `LEVEL_OBJ_T_START` … `LEVEL_OBJ_T_TRIGGER`                                          | Tárgytípus számok: START 0, ELLENSÉG 1, TÁRGY 2, AJTÓ 3, KIJÁRAT 4, RIASZTÓ 5                                                                                        |
+| `LEVEL_START_X`, `LEVEL_START_Y`                                                     | Az első Start objektum pozíciója (csak akkor van megadva, ha a szint rendelkezik ilyennel)                                                                           |
+| `SZINT_ATTR`, `SZINT_ATTR_SZILÁRD` … `SZINT_ATTR_GYŰJTÉS`                            | Karakter attribútumtáblázat (képernyőkódonként egy jelzőbájt; csak akkor, ha a szint rendelkezik attribútumokkal) és bitjei: 1, 2, 4, 8                              |
+| `SZINT_SZEGÉLY`, `SZINT_SZÍNEK`, `SZINT_SZEGÉLY/SZEGÉLY/MC1/MC2`                     | Szintszegély; slotonkénti színtáblázatok (soronkénti főbb értékek, mint például `LEVEL_SLOT_*`), ha a képernyőnek saját színei vannak (`LEVEL_SCR_COLORS` = 1)       |
 
 Tipikus őr: `.assert LEVEL_END &lt;= $9200, "szintadatok futnak a kódba"`.
 
@@ -4722,7 +4800,7 @@ az `INCBIN` paraméterrel, vagy közvetlenül hozzáadhatók egy D64 lemezhez a
 
 ### Nagy felbontású / többszínű szerkesztő
 
-| Jellemző    | Leírás                                                                                                                    |
+| Beállítás   | Leírás                                                                                                                    |
 | ----------- | ------------------------------------------------------------------------------------------------------------------------- |
 | Módváltás   | A **Többszínű** jelölőnégyzet a nagy felbontású (cellánként fekete-fehér) és a többszínű (cellánként 4 szín) között vált. |
 | **Állapot** | Megjeleníti, hogy a végrehajtható fájl elérési útja érvényes és elérhető-e                                                |
@@ -4732,7 +4810,7 @@ móddal. Megnyitás a Toolkit → Nagy felbontású szerkesztő menüpontban.
 
 ### Sprite-szerkesztő
 
-| Jellemző    | Leírás                                                                     |
+| Beállítás   | Leírás                                                                     |
 | ----------- | -------------------------------------------------------------------------- |
 | Keretek     | Keretek hozzáadása / eltávolítása / átrendezése; a keretsáv alul látható.  |
 | Mód         | Monokróm / többszínű váltás.                                               |
@@ -4773,7 +4851,7 @@ platformspecifikus.
 
 ### C64 karakter ROM böngésző ("Karaktertérkép")
 
-| Jellemző            | Leírás                                                                                                                                                                                                                                             |
+| Beállítás           | Leírás                                                                                                                                                                                                                                             |
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Két karakterkészlet | 1. fül: **1. készlet — Felső/Grafika** (alapértelmezett mód bekapcsolás után). 2. fül: **2. készlet — Alsó/Felső** (`$0E` váltás után).                                                                                                            |
 | **Állapot**         | 16×16-os rács, mind a 256 karakterből. Kattintson egy karakterjelre a részletes panel megtekintéséhez: nagyított 8×8 pixeles nézet, képernyőkód (decimális + hex), PETSCII kódok (alapértelmezett és eltolt is), valamint a nyers 8 bájtos bitkép. |
@@ -4788,7 +4866,7 @@ egy karakterjel képernyőkódjának megkereséséhez, mielőtt azt a `RAWBYTES`
 256 karakteres, 8×8 karakterkészlet-szerkesztő. Megnyitás az Eszköztár →
 Karakterszerkesztő menüpontban.
 
-| Jellemző                 | Leírás                                                                                               |
+| Beállítás                | Leírás                                                                                               |
 | ------------------------ | ---------------------------------------------------------------------------------------------------- |
 | ROM betöltése            | Importálja a C64 ROM karakterkészletet közvetlenül a VICE `chargen` fájljából (fájlválasztó nélkül). |
 | Betöltés `.bin`          | Importál egy külső, 2048 bájtos karakterkészletű bináris fájlt.                                      |
@@ -4824,7 +4902,7 @@ a C64 valódi karaktereinek többszínűségi szabályait használva.
 - egy **USB-kábel**, amely a kazettát a Visual Assembler programot futtató
   számítógéphez csatlakoztatja (virtuális soros portként jelenik meg).
 
-| Jellemző             | Leírás                                                                                                                                                                    |
+| Beállítás            | Leírás                                                                                                                                                                    |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Monokróm / többszínű | A monokróm mód 1 bites 8×8-as karakterjeleket tárol. A többszínű mód két bites vízszintes pixelpárokat tárol, és a felhasznált cellákat a Color RAM 3-as bitjével jelöli. |
 
@@ -4878,38 +4956,45 @@ megnyitáskor visszaáll.
 Pixel szintű bitképszerkesztő 320×200 nagy felbontású és 160×200 többszínű
 móddal. Megnyitás a Toolkit → Nagy felbontású szerkesztő menüpontban.
 
-| Jellemző                  | Leírás                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Módváltás                 | A **Többszínű** jelölőnégyzet a nagy felbontású (cellánként fekete-fehér) és a többszínű (cellánként 4 szín) között vált.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| Eszközök                  | Ceruza, radír, vonal, téglalap, kitöltött téglalap, ovális, kitöltött ovális, kitöltés, kijelölés.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| Szóróeszköz               | Airbrush stílusú festő, amely rajzolás közben pixeleket szór a kurzor körül.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| Permetezés intenzitása    | A szóróeszköz melletti legördülő menüvel szabályozható az egyes szóróvonások sűrűsége.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| Színpaletta               | Előtér (tinta) + papír (háttér) választó. A többszínű mód automatikusan cellánként 3 extrát követ.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| Visszavonás / Újraindítás | Löketenkénti előzmények, ctrl-Z / ctrl-Y.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| Válasszon                 | A szaggatott négyzet eszköz: húzd az egeret a vásznon egy téglalap alakú régió kijelöléséhez. Az **Esc** billentyűkombináció törli a kijelölést.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| Másolás / Beillesztés     | A **Másolás** (`Ctrl/Cmd+C`) paranccsal másolható a kijelölt terület. A **Beillesztés** (`Ctrl/Cmd+V`) paranccsal a kurzort követő előnézetet jeleníthet meg: kattintson a vászonra az elhelyezéséhez, az **Esc** paranccsal megszakíthatja a műveletet. A másolat megmarad, ezért a `Ctrl/Cmd+V` billentyűkombináció megnyomásával és az újbóli kattintással annyiszor helyezheti el, ahányszor szükséges. Nagy felbontású módban a beillesztett képpontok továbbra is követik a cellánkénti két szín korlátját, ezért a terület színeinek megőrzése érdekében igazítsa a cellarácshoz a területet. A Másolás, Beillesztés és Átlátszó beillesztés funkciók a vászon jobb gombbal elérhető menüjében is elérhetők; a beillesztés ott kezdődik, ahol a kattintott ponton kezdődik az előnézet. |
-| Átlátszó paszta           | A `Ctrl/Cmd+Shift+V` (vagy annak eszköztárgombja) billentyűkombináció kihagyja a másolat papírszínű pixeleit, így az alattuk lévő kép átlátszik.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| Rács + Raszter            | Az **Grid** a karaktercella-rácsot mutatja: 8×8 pixel nagy felbontású, 4×8 dupla széles pixel többszínű módban. 4×-es nagyítástól halványabb vonalat húz minden egyes pixel köré, így minden pixel pontosan elhelyezhető. Az **Raster** raszteres sorrátétet ad hozzá.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| Zoomolás                  | Csúszka 1×-ről 16×-ra.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| Kép importálása           | A vászonra dobott PNG/JPEG/GIF fájlok automatikusan kvantálódnak a 16 színű C64 palettára.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| Blokk exportálása         | BYTE/RAWBYTES blokkokat fűz a programhoz a kódolt bitképes, képernyő- és színadatokkal.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| Exportálás: `.bin`        | Elmenti a natív többszínű formátumot (10000 bájt: 8000 bitkép + 1000 képernyő + 1000 szín) a LOADFILE-ra $2000 fájlformátumban.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| Jellemző                    | Leírás                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Módváltás                   | A **Többszínű** jelölőnégyzet a nagy felbontású (cellánként fekete-fehér) és a többszínű (cellánként 4 szín) között vált.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| Eszközök                    | Ceruza, radír, vonal, téglalap, kitöltött téglalap, ovális, kitöltött ovális, kitöltés, cellás papír, kijelölés.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Sejtpapír (nagy felbontású) | A nagy felbontású mód minden 8×8-as cellában két színt engedélyez: a tintaszínt (beállított pixelek, a cella képernyő RAM-jának magas felhasználása) és a papírszínt (tiszta pixelek, alacsony felhasználás). A **Cell paper** eszköz minden kattintással vagy húzással kijelölt cella papírszínét a kiválasztott színre állítja; a **PAPER** továbbra is minden cellát egyszerre állít be. A radír törli a pixeleket, így a cella saját papírszíne látszik. Többszínű módban, ahol a háttér ($D021) megosztott, le van tiltva.                                                                                                                                                                                                                                                                |
+| Szóróeszköz                 | Airbrush stílusú festő, amely rajzolás közben pixeleket szór a kurzor körül.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Permetezés intenzitása      | A szóróeszköz melletti legördülő menüvel szabályozható az egyes szóróvonások sűrűsége.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Színpaletta                 | Előtér (tinta) + papír (háttér) választó. A többszínű mód automatikusan cellánként 3 extrát követ.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Visszavonás / Újraindítás   | Löketenkénti előzmények, ctrl-Z / ctrl-Y.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| Válasszon                   | A szaggatott négyzet eszköz: húzd az egeret a vásznon egy téglalap alakú régió kijelöléséhez. Az **Esc** billentyűkombináció törli a kijelölést.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Másolás / Beillesztés       | A **Másolás** (`Ctrl/Cmd+C`) paranccsal másolható a kijelölt terület. A **Beillesztés** (`Ctrl/Cmd+V`) paranccsal a kurzort követő előnézetet jeleníthet meg: kattintson a vászonra az elhelyezéséhez, az **Esc** paranccsal megszakíthatja a műveletet. A másolat megmarad, ezért a `Ctrl/Cmd+V` billentyűkombináció megnyomásával és az újbóli kattintással annyiszor helyezheti el, ahányszor szükséges. Nagy felbontású módban a beillesztett képpontok továbbra is követik a cellánkénti két szín korlátját, ezért a terület színeinek megőrzése érdekében igazítsa a cellarácshoz a területet. A Másolás, Beillesztés és Átlátszó beillesztés funkciók a vászon jobb gombbal elérhető menüjében is elérhetők; a beillesztés ott kezdődik, ahol a kattintott ponton kezdődik az előnézet. |
+| Átlátszó paszta             | A `Ctrl/Cmd+Shift+V` (vagy annak eszköztárgombja) billentyűkombináció kihagyja a másolat papírszínű pixeleit, így az alattuk lévő kép átlátszik.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Rács + Raszter              | Az **Grid** a karaktercella-rácsot mutatja: 8×8 pixel nagy felbontású, 4×8 dupla széles pixel többszínű módban. 4×-es nagyítástól halványabb vonalat húz minden egyes pixel köré, így minden pixel pontosan elhelyezhető. Az **Raster** raszteres sorrátétet ad hozzá.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Zoomolás                    | Csúszka 1×-ről 16×-ra.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Kép importálása             | A vászonra dobott PNG/JPEG/GIF fájlok automatikusan kvantálódnak a 16 színű C64 palettára.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Blokk exportálása           | BYTE/RAWBYTES blokkokat fűz a programhoz a kódolt bitképes, képernyő- és színadatokkal.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Exportálás: `.bin`          | Elmenti a natív többszínű formátumot (10000 bájt: 8000 bitkép + 1000 képernyő + 1000 szín) a LOADFILE-ra $2000 fájlformátumban.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 
 ### Sprite-szerkesztő
 
 24×21 pixeles sprite szerkesztő több képkockás animációval. Megnyitás a Toolkit
 → Sprite szerkesztő menüpontban.
 
-| Jellemző                  | Leírás                                                                                                                                                                                                                                                                       |
-| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Keretek                   | Keretek hozzáadása / eltávolítása / átrendezése; a keretsáv alul látható. A keretsorban található **Másolás** / **Beillesztés** paranccsal másolja a teljes aktuális keretet; ugyanez a két bejegyzés található a vászon és a keretsáv jobb gombbal előhívható menüjében is. |
-| Mód                       | Monokróm / többszínű váltás.                                                                                                                                                                                                                                                 |
-| Eszközök                  | Ceruza, kitöltés, vonal, téglalap, kör – plusz vízszintes tükrözés, függőleges tükrözés, eltolás balra/jobbra/fel/le (opcionális körbefuttatás). Az alakzateszközök élő előnézetet jelenítenek meg húzás közben; a véglegesítéshez engedje el a billentyűt.                  |
-| Visszavonás / újraindítás | Teljes visszavonás/ismétlés művelet képkockánként. Ctrl/Cmd+Z / Ctrl/Cmd+Y vagy az eszköztár gombjai.                                                                                                                                                                        |
-| Képimportálás             | PNG vagy JPEG fájl importálása a Fájlok → Kép importálása menüpontban. Az importáló minden képpontot a legközelebbi C64 palettaszínhez rendel, és beírja az aktuális képkockába.                                                                                             |
-| Animáció előnézete        | Lejátszás / leállítás konfigurálható sebességgel.                                                                                                                                                                                                                            |
-| Blokk exportálása         | Minden képkockához beszúr egy RAWBYTES blokkot 64 bájtos, egymáshoz igazított címen, valamint egy sprite pointer beállítást.                                                                                                                                                 |
-| Mentés `.bin`             | Képkockánként 64 bájtot ír (nyers sprite adatok kitöltés nélkül).                                                                                                                                                                                                            |
+| Jellemző                  | Leírás                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Keretek                   | Keretek hozzáadása / eltávolítása / átrendezése; a keretsáv alul látható. A keretsorban található **Másolás** / **Beillesztés** paranccsal másolja a teljes aktuális keretet; ugyanez a két bejegyzés található a vászon és a keretsáv jobb gombbal előhívható menüjében is.                                                                                                                                                                                                    |
+| Mód                       | Monokróm / többszínű váltás.                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Eszközök                  | Ceruza, kitöltés, vonal, téglalap, kör – plusz vízszintes tükrözés, függőleges tükrözés, eltolás balra/jobbra/fel/le (opcionális körbefuttatás). Az alakzateszközök élő előnézetet jelenítenek meg húzás közben; a véglegesítéshez engedje el a billentyűt.                                                                                                                                                                                                                     |
+| Visszavonás / újraindítás | Teljes visszavonás/ismétlés művelet képkockánként. Ctrl/Cmd+Z / Ctrl/Cmd+Y vagy az eszköztár gombjai.                                                                                                                                                                                                                                                                                                                                                                           |
+| Képimportálás             | PNG vagy JPEG fájl importálása a Fájlok → Kép importálása menüpontban. Az importáló minden képpontot a legközelebbi C64 palettaszínhez rendel, és beírja az aktuális képkockába.                                                                                                                                                                                                                                                                                                |
+| Animáció előnézete        | Lejátszás / leállítás konfigurálható sebességgel.                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Blokk exportálása         | Minden képkockához beszúr egy RAWBYTES blokkot 64 bájtos, egymáshoz igazított címen, valamint egy sprite pointer beállítást.                                                                                                                                                                                                                                                                                                                                                    |
+| Mentés `.bin`             | Képkockánként 64 bájtot ír (nyers sprite adatok kitöltés nélkül).                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Kiválasztás               | **Kijelölés / mozgatás**: húzz egy téglalapot, majd húzd az egérmutatót a belsejébe a képpontok mozgatásához (az üres képpontok átlátszóak); a nyílbillentyűk egy képponttal mozgatják (többszínű esetén kettővel), a Delete törli, az Esc elveti. **Elforgatás 90°-kal** (mindkét irányban) elforgatja a kijelölést, vagy az egész keretet. A kijelölés, tükrözés, eltolás és forgatás együttesen hatnak a testre és az átfedésre.                                             |
+| Nagy felbontású átfedés   | A **Nagy felbontású overlay** egy második, egyszínű nagy felbontású sprite-ot ad hozzá minden képkockához – a klasszikus körvonalat egy többszínű test felett. Az **Réteg** lista kiválasztja a szerkesztett réteget; az overlay halványan jelenik meg, amíg a test szerkesztve van. A C64-en ez egy különálló sprite: adj neki alacsonyabb sprite-számot, mint a testnek. Az `.bin` és a **Copy bytes** parancsok az overlay sprite-okat a test (`sprite_f1_ov_1`) után írják. |
+| Minden tükrözése          | Minden képkocka (és a hozzá tartozó találati mező) vízszintesen tükrözött másolatát hozzáfűzi – egyetlen kattintással elvégezhető a körforgás a másik irányba.                                                                                                                                                                                                                                                                                                                  |
+| Sprite lap importálása    | Fájlok → **Sprite lap importálása…**: a cella szélessége / magassága, az eltolás, a rés és a képkockaszám a képet az aktuális méretű képkockákra vágja (a többszínű cellák sprite-onként 12 pixelre vannak méretezve). A színek a képből származnak, vagy a sprite sajátjai maradnak; OKLab illesztés színárnyalatok nélkül, rendezett (Bayer) vagy Floyd-Steinberg színárnyalatok. Lecseréli a képkockákat, vagy hozzájuk fűzi a képeket.                                      |
+| Találatmező               | A **Hitbox** eszköz képkockánként egy téglalapot húz (szaggatott ciánkék); a **Fit**, **Fit every frame**, **Copy to every frame** és **Remove** menüpontok az oldalsó panelen találhatók. A Fájlok → **Copy hitbox table** visszaadja a `sprite_hit_x / _y / _w / _h` értéket (képkockánként egy bájt, a képernyő pixelei a bal felső sarokból); a hitbox nélküli képkocka a saját pixelhatárait használja.                                                                    |
+| X / Y ×2                  | Az `$D01D` / `$D017` sprite bővítményhez hasonló előnézetet mutat.                                                                                                                                                                                                                                                                                                                                                                                                              |
 
 ### C64 karakter ROM böngésző ("Karaktertérkép")
 
@@ -4930,41 +5015,59 @@ egy karakterjel képernyőkódjának megkereséséhez, mielőtt azt a `RAWBYTES`
 256 karakteres, 8×8 karakterkészlet-szerkesztő. Megnyitás az Eszköztár →
 Karakterszerkesztő menüpontban.
 
-| Jellemző                   | Leírás                                                                                                                                                                                               |
-| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ROM betöltése              | Importálja a C64 ROM karakterkészletet közvetlenül a VICE `chargen` fájljából (fájlválasztó nélkül).                                                                                                 |
-| Betöltés `.bin`            | Importál egy külső, 2048 bájtos karakterkészletű bináris fájlt.                                                                                                                                      |
-| Karakterenkénti előnézet   | 16 szélességű rács, amely mind a 256 karakterjelet tartalmazza, az aktuális cellával kiemelve.                                                                                                       |
-| Pixel szerkesztő           | 8×8-as egykarakteres szerkesztő váltó/invertáló/törlés eszközökkel.                                                                                                                                  |
-| Karakterenkénti szín       | Minden karakterjelhez egy alapértelmezett Color RAM értéket tárol. Többszínű karaktermódban ez megőrzi a cellánkénti többszínű engedélyezési bitet és a karakter saját alsó 3 bites színét is.       |
-| Metaadatok oda-vissza útja | Kompatibilis adatok Charset Canvas / Map munkafolyamatokból történő betöltésekor a karakterenkénti szín metaadatok megmaradnak, így a szerkesztések a színszándék elvesztése nélkül folytatódhatnak. |
-| Blokk exportálása          | A RAWBYTES értékét a $0800 (2. blokk) vagy a $3800 (7. blokk) értéknél a kódolt karakterkészlettel fűzi hozzá.                                                                                       |
+| Jellemző                   | Leírás                                                                                                                                                                                                                                                                              |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ROM betöltése              | Betölti a C64 karakter ROM-ot — a pontos 901225-01 karakterjeleket, fájlválasztó nélkül. Az első gomb (és a **Fájlok → ROM: nagybetűs / grafika**) az 1. készletet, a második gomb (vagy a Shift+kattintás, vagy a **Fájlok → ROM: kisbetűs / nagybetűs**) a 2. készletet tölti be. |
+| Betöltés `.bin`            | Importál egy külső, 2048 bájtos karakterkészletű bináris fájlt.                                                                                                                                                                                                                     |
+| Karakterenkénti előnézet   | 16 szélességű rács, amely mind a 256 karakterjelet tartalmazza, az aktuális cellával kiemelve.                                                                                                                                                                                      |
+| Pixel szerkesztő           | A kiválasztott karaktert, vagy egy 2×1, 1×2 vagy 2×2 szomszédos karakterből álló **csempét** egyetlen képpé szerkeszti (Csempeválasztó).                                                                                                                                            |
+| Rajzeszközök               | Ceruza, vonal, téglalap, kitöltött téglalap és kitöltés. Egy olyan képpontra kattintva, amelyen már van tinta, az törlődik.                                                                                                                                                         |
+| Átalakítások               | Törlés, megfordítás, vízszintes/függőleges tükrözés, eltolás körbefuttatással, 90°-os elforgatás az óramutató járásával megegyezően/az óramutató járásával ellentétesen (csak négyzet alakú csempéknél) – az egész csempén.                                                         |
+| Visszavonás / Újraindítás  | Eszköztár gombjai, Ctrl+Z és Ctrl+Y (Ctrl+Shift+Z).                                                                                                                                                                                                                                 |
+| Másolás / Beillesztés      | Eszköztár gombjai, Ctrl+C / Ctrl+V, vagy jobb egérgombbal kattintás a térképre; a teljes csempét másolja a színeivel együtt.                                                                                                                                                        |
+| Térképhúzás                | Húzzon egy karaktert egy másikra a térképen a cseréhez; a Shift billentyű lenyomása mellett húzza át a másolatokat.                                                                                                                                                                 |
+| Szöveg előnézete           | Írjon be szöveget a jelenlegi karakterkészletben való megtekintéshez. Válassza ki a nagybetűs vagy kisbetűs karakterkészlet-hozzárendelést; az `{65}` vagy az `{$41}` beszúr egy képernyőkódot.                                                                                     |
+| Tartomány exportálása      | Állítsd be a From / Custo karaktereket, majd **Files → Save range (.bin)** (nyers bájtok) vagy **Copy range ASM** (`.byte` sorok).                                                                                                                                                  |
+| Karakterenkénti szín       | Minden karakterjelhez egy alapértelmezett Color RAM értéket tárol. Többszínű karaktermódban ez megőrzi a cellánkénti többszínű engedélyezési bitet és a karakter saját alsó 3 bites színét is.                                                                                      |
+| Metaadatok oda-vissza útja | Kompatibilis adatok Charset Canvas / Map munkafolyamatokból történő betöltésekor a karakterenkénti szín metaadatok megmaradnak, így a szerkesztések a színszándék elvesztése nélkül folytatódhatnak.                                                                                |
+| Blokk exportálása          | A RAWBYTES értékét a $0800 (2. blokk) vagy a $3800 (7. blokk) értéknél a kódolt karakterkészlettel fűzi hozzá.                                                                                                                                                                      |
 
 ### Karakterkészlet-vászonszerkesztő
 
 Teljes vászon karakterkészlet-festő képernyők létrehozásához egy teljes 256
 karakteres karakterkészletből. Megnyitás a Toolkit → Charset Canvas menüpontban.
 
-A vászon 16×16 karakteres. Monokróm módban ez 128×128 pixeles munkaterületet
-biztosít; többszínű karaktermódban 64×128 pixeles széles munkaterületet biztosít
-a C64 valódi karaktereinek többszínűségi szabályait használva.
+A vászon 16×16 karakteres, 128×128 pixeles. Többszínű karakter módban minden
+karakter vagy többszínű (széles pixelek, 4 szín), vagy nagy felbontású (8
+keskeny pixel, 2 szín), pontosan úgy, mint a C64-en.
 
-| Jellemző                                    | Leírás                                                                                                                                                                                                                |
-| ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Monokróm / többszínű                        | A monokróm mód 1 bites 8×8-as karakterjeleket tárol. A többszínű mód két bites vízszintes pixelpárokat tárol, és a felhasznált cellákat a Color RAM 3-as bitjével jelöli.                                             |
-| C64 színmodell                              | A háttér az `$D021` biteket használja; a megosztott többszínű 1 az `$D022` biteket használja; a megosztott többszínű 2 az `$D023` biteket használja; minden karakter saját színe a Color RAM 0–2 bitjeiből származik. |
-| Rajzeszközök                                | A ceruza, radír, vonal, téglalap, ovális és elárasztásos kitöltés a karakterhatárokon átívelően működik.                                                                                                              |
-| Szóróeszköz                                 | Airbrush stílusú rajz, amely pixeleket szór szét a szomszédos cellákon/karaktereken.                                                                                                                                  |
-| Permetezés intenzitása                      | A szóróeszköz melletti legördülő menüvel állíthatja be a vonal sűrűségét.                                                                                                                                             |
-| Rács váltása                                | A Rács jelölőnégyzet bejelölésével megjelenítheti vagy elrejtheti a 16×16-os karakterrácsot.                                                                                                                          |
-| Karakterkészlet mentése: `.bin`             | Menti a 2048 bájtos karakteres bitképes adatokat.                                                                                                                                                                     |
-| 16×16-os térkép + Színes RAM mentése `.bin` | 256 képernyőkódot, majd 256 színes RAM-értéket ment. Használja ezt a `MAP_COPY16X16` paranccsal.                                                                                                                      |
-| Terhelés                                    | Betöltheti a charset-canvas mentéseket, az egyszerű charset adatokat és a kompatibilis Karakterszerkesztő charset adatokat, beleértve a tárolt karakterenkénti színeket is, ha vannak.                                |
+| Jellemző                                    | Leírás                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |                                                              |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| Monokróm / többszínű                        | A monokróm mód 1 bites 8×8-as karakterjeleket tárol. A többszínű mód két bites vízszintes pixelpárokat tárol, és a többszínű cellákat a Color RAM 3-as bitjével jelöli.                                                                                                                                                                                                                                                                                                                                                                                                               |                                                              |
+| Karakter mód eszköz                         | Többszínű módban kattints vagy húzd az egérmutatót a karakterek fölé, hogy válthass a többszínű és a nagy felbontású mód között (Color RAM 3. bit). Az alak megmarad: egy beállított pixelpár lesz a karakter saját színe. Egy nagy felbontású karakternek van háttere és saját színe (0–7); az MC1 / MC2 nem fest oda.                                                                                                                                                                                                                                                               |                                                              |
+| Háttér                                      | A BG legördülő menü mono módban is látható; az MC1 / MC2 csak többszínű módban.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                              |
+| ECM                                         | Az **ECM** jelölőnégyzet (kiterjesztett színmód, nem használható a többszínűvel együtt): minden karakter nagy felbontású, saját színnel (0–15) és négy háttér egyikével (BG0–BG3) (`$D021`–`$D024`; a BG1 / BG2 az MC1 / MC2 regiszterek). Válasszon egy BG színt a palettán (B0–B3 címkével), majd kattintson vagy húzza át az egeret a karakterek felett a **Karakterháttér** eszközzel. Csak 64 különböző karakter fér el: az állapotsor számolja őket, és a mentés az egyenlő karaktereket egyesíti – a karakterkészlet 64 karakter (512 bájt), a képernyőkódok pedig `glyph`-ek. | háttér << 6`. Kapcsolja be az ECM-et az `$D011` 6. bitjével. |
+| C64 színmodell                              | A háttér az `$D021` biteket használja; a megosztott többszínű 1 az `$D022` biteket használja; a megosztott többszínű 2 az `$D023` biteket használja; minden karakter saját színe a Color RAM 0–2 bitjeiből származik.                                                                                                                                                                                                                                                                                                                                                                 |                                                              |
+| Rajzeszközök                                | A ceruza, radír, vonal, téglalap, ovális és elárasztásos kitöltés a karakterhatárokon átívelően működik.                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |                                                              |
+| Szóróeszköz                                 | Airbrush stílusú rajz, amely pixeleket szór szét a szomszédos cellákon/karaktereken.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |                                                              |
+| Permetezés intenzitása                      | A szóróeszköz melletti legördülő menüvel állíthatja be a vonal sűrűségét.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |                                                              |
+| Rács váltása                                | A Rács jelölőnégyzet bejelölésével megjelenítheti vagy elrejtheti a 16×16-os karakterrácsot.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |                                                              |
+| Zoomolás                                    | A zoom csúszka (2×–24×, az eszköz teljes pixelei C64 pixelenként) vagy a Ctrl+görgő a vászon felett; a zoomot a program megjegyzi. 8×-tól a Rács minden pixel szélén egy vékony vonalat húz.                                                                                                                                                                                                                                                                                                                                                                                          |                                                              |
+| Karakterkészlet mentése: `.bin`             | Menti a 2048 bájtos karakteres bitképes adatokat.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |                                                              |
+| 16×16-os térkép + Színes RAM mentése `.bin` | 256 képernyőkódot, majd 256 színes RAM-értéket ment. Használja ezt a `MAP_COPY16X16` paranccsal.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |                                                              |
+| Terhelés                                    | Betöltheti a charset-canvas mentéseket, az egyszerű charset adatokat és a kompatibilis Karakterszerkesztő charset adatokat, beleértve a tárolt karakterenkénti színeket is, ha vannak.                                                                                                                                                                                                                                                                                                                                                                                                |                                                              |
 
-**Fontos C64 korlátozás:** többszínű karaktermódban a két megosztott szín
+**Fontos C64 korlátozás:** többszínű karakter módban a két megosztott szín
 globális a teljes képernyőn (`$D022` / `$D023`). Cellánként csak a karakter
 saját színe van megadva, és ez a 0–7 színekre korlátozódik, mivel a Color RAM 3.
-bitje a többszínű módot választja ki.
+bitje választja ki a többszínű módot. Tehát egy karakter legfeljebb **4 színt**
+(háttér, MC1, MC2 és a saját színe) jelenít meg, a teljes képernyő pedig
+legfeljebb 3 + 8-at. A palettán a megosztott színek BG / 1 / 2 címkével vannak
+ellátva, a nem megosztott 8–15. színek pedig halványan jelennek meg. Egy ilyen
+szín kiválasztása csak az MC2 vagy MC1 regiszterbe helyezi, miközben egyetlen
+pixel sem használja ezt a regisztert; ellenkező esetben módosítsa a legördülő
+menüben (ami átszínezi a teljes képernyőt). Nagy felbontású (mono) módban egy
+karakternek két színe van: a háttérszíne és a saját színe (0–15).
 
 ### Térképszerkesztő (többrétegű csempetérképek)
 
@@ -4993,13 +5096,19 @@ lövöldözős, lefelé görgető autós játék, oldalra görgető vagy 2D-s t�
 teljes pálya előnézetét sima görgetéssel jeleníti meg. Nyissa meg a(z)
 **Pályaszerkesztő** eszköztárgombbal a Térképszerkesztő mellett.
 
-| Jellemző    | Leírás                                                                                                                                                                                                                                                     |
-| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Elrendezés  | **Függőleges**, **Vízszintes** vagy **Rács** (sorok × oszlopok, sorok és oszlopok hozzáadása/eltávolítása gombokkal).                                                                                                                                      |
-| Képernyők   | **Új üres képernyő**, **Hozzáadás a Térképszerkesztőből** (a jelenleg megnyitott térkép) vagy **Térkép(ek) betöltése (.bin)…** (több Térképszerkesztő export egyszerre). Húzzon egy képernyőt a listából egy helyre; húzza a helyeket egymásra a cseréhez. |
-| Szerkesztés | **Szerkesztés a Térképszerkesztőben** megnyitja a kijelölt képernyőt a Térképszerkesztőben, és visszaállítja a módosításokat; duplikálás, mozgatás fel/balra vagy le/jobbra, eltávolítás; visszavonás/ismétlés.                                            |
-| Előnézet    | Húzd az előnézetet, vagy használd a nyílbillentyűket a pixelenkénti görgetéshez; az **Lejátszás** automatikusan görget (irány, sebesség 1–8, ismétlés), Szóköz = lejátszás / leállítás. Az *Szegélyek* a képernyő határait jelöli.                         |
-| Csekkek     | Karakterkészlet-információk, valamint figyelmeztetés, ha a képernyők eltérő karakterkészletet vagy színeket használnak (a szint az első képernyő beállításait használja).                                                                                  |
+| Jellemző          | Leírás                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Elrendezés        | **Függőleges**, **Vízszintes** vagy **Rács** (sorok × oszlopok, sorok és oszlopok hozzáadása/eltávolítása gombokkal).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Képernyők         | **Új üres képernyő**, **Hozzáadás a Térképszerkesztőből** (a jelenleg megnyitott térkép) vagy **Térkép(ek) betöltése (.bin)…** (több Térképszerkesztő export egyszerre). Húzzon egy képernyőt a listából egy helyre; húzza a helyeket egymásra a cseréhez.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Szerkesztés       | **Szerkesztés a Térképszerkesztőben** megnyitja a kijelölt képernyőt a Térképszerkesztőben, és visszaállítja a módosításokat; duplikálás, mozgatás fel/balra vagy le/jobbra, eltávolítás; visszavonás/ismétlés.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Előnézet          | Húzd az előnézetet, vagy használd a nyílbillentyűket a pixelenkénti görgetéshez; az **Lejátszás** automatikusan görget (irány, sebesség 1–8, ismétlés), Szóköz = lejátszás / leállítás. Az *Szegélyek* a képernyő határait jelöli.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| Csekkek           | Karakterkészlet-információk, valamint figyelmeztetés, ha a képernyők eltérő karakterkészletet vagy színeket használnak (a szint az első képernyő beállításait használja).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Karakterjellemzők | Az **Karakterattribútumok** gombbal az áttekintést attribútumfestésre válthatod: válaszd a **Solid**, **Ladder**, **Hazard** vagy **Collectible** elemet, kattints egy karakterre, és minden olyan cella, amelyik tartalmazza az adott képernyőkódot, megkapja (vagy elveszíti) azt; húzd az egeret további kódokért. Az attribútumok színes rétegként jelennek meg, és a 256 bájtos `LEVEL_ATTR` táblázatot alkotják (`LEVEL_ATTR_SOLID` = 1, `_LADDER` = 2, `_HAZARD` = 4, `_COLLECT` = 8).                                                                                                                                                                                                                                                                                                                |
+| Élellenőrzés      | Pirossal jelölve vannak azok a helyek, ahol a szomszédos képernyők nem folytatódnak: a szegély egyik oldala üres (szóköz), a másik nem, vagy csak az egyik oldal tömör. Az oldalsó panel számolja az éleket és a cellákat.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Színek            | **Szint szegély**, és **Saját színek ehhez a képernyőhöz** (háttér, szegély, többszínű 1 / 2) a kiválasztott képernyőhöz; az előnézeti keret a szegélyt mutatja. Helyenként exportálva `LEVEL_SCR_BG / _BORDER / _MC1 / _MC2` formátumban (`LEVEL_SCR_COLORS` = 1 értékkel), ha egy elhelyezett képernyő saját színekkel rendelkezik.                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Memória           | Az `.level` adatméret egy kiválasztott címen (pontosan úgy számítva ki, ahogy a makró felépíti), figyelmeztetésekkel a BASIC / KERNAL ROM-ra, az alatta lévő I/O területre és memóriára `$0800`, valamint a szint RLE méretére vonatkozóan. Az **RLE exportálása blokkokba / RLE másolása asm** parancs megadja a `level_unrle` kicsomagolóval (`($FB)` → `($FD)`) kicsomagolt szint RLE értékét.                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Futás VICE-ban    | Egy joystick-os görgetéses tesztprogramot épít a szintből (a `level-demo` görgető, kód a `$C000`-en, szintadatok a `$2000`-en, egyéni karakterkészlet a `$2000`-en), és elindítja a VICE-ban — a képernyő színei a nézet bal felső sarkában lévő képernyővel váltanak, a kamera az első Start objektumnál indul.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Tárgyak           | Az **Objektum réteg** gombbal az áttekintést objektumszerkesztésre válthatod: válassz egy típust (Start, Ellenség, Tárgy, Ajtó, Kijárat, Trigger) és egy **Param** bájtot (ellenség fajtája, tárgyazonosító, ajtó célpontja…), kattints az elhelyezéshez, húzd az áthelyezéshez (8 px-re rögzítve, Shift = szabad), kattints egy objektumra a kiválasztásához és a típus/paraméter módosításához, a nyílbillentyűk mozgatják, a Törlés gombbal eltávolíthatod. Az objektumok a szint pozíciójához tartoznak, nem egy képernyőhöz. Az oldalsávon vannak felsorolva, az előnézetben láthatók, a szinttel együtt mentve és görgetési sorrendben (függőlegesen Y-nal, vízszintesen X-szel, rács soronként) exportálva `LEVEL_OBJ_*` táblázatokként — az **Copy asm / Export to blocks** és az `.level` makróval. |
 
 **Fájlok menü:**
 | Akció                                                                   | Mit csinál                                                                                                                         |
@@ -5025,6 +5134,11 @@ minden képkockán streameli a SID regisztereit a WebSid-re, és legfeljebb hár
 előnézeti hangjegy osztozik a három hangon. A stream lejátszó a szerkesztő
 megnyitásakor, majd a Stop gomb megnyomásakor töltődik be, így a hangjegyek
 egyszerre szólalnak meg; WebSid nélkül egy kis SID szintetizátor játszik le.
+
+**Előnézeti motor:** **Beállítások → SID előnézet** kiválasztja a **WebSID**
+vagy a **VA SID Core (Rust)** lehetőséget, az alkalmazás saját SID emulációját;
+a VA SID Core esetében a chipet is ki kell választani (MOS 6581 / 8580). A
+műszer paramétereit gombokkal lehet beállítani.
 
 **Eszközönkénti vezérlők:**
 - Hullámforma jelölőnégyzetek (TRI / SAW / PUL / NOI) – több hullámforma ÉS
@@ -5138,6 +5252,28 @@ formátumban.
 - Az akkord- és arpeggio-előnézetek megvilágítják a megfelelő
   zongorabillentyűket, amikor a billentyűzet nyitva van.
 
+**Felvétel, metronóm és MIDI:**
+- A **Record** (a piros pont a követő eszköztáron és a VA-VK-n) a lejátszott
+  hangokat – a VA-VK-n, a számítógép billentyűzetén vagy egy MIDI billentyűzeten
+  – a kiválasztott hangszínre írja be a kiválasztott sortól kezdve, az aktuális
+  sebességgel. Amikor a pattern megtelik, egy új üres pattern kerül hozzáadásra
+  az aktuális dallépés után, és a felvétel onnan folytatódik. A leállításhoz
+  nyomja meg ismét a Record gombot.
+- A **Metronóm** (követő eszköztár és VA-VK) 4 sorban kattan, minden 4 ütemes
+  sáv első ütemére helyezve a hangsúlyt. A mellette lévő ütemjelzők minden
+  ütemnél villognak lejátszás és felvétel közben, még kikapcsolt kattanás
+  mellett is.
+- **MIDI:** válaszd ki a bemenetet a hangszer neve melletti **MIDI** listában,
+  majd nyomd meg a **MIDI csatlakoztatása** gombot; a hangjegyek az aktuális
+  hangszert játsszák (és felvétel közben, vagy a *MIDI beszúrása* gombbal
+  beíródnak a trackerbe). A gomb melletti lámpa minden bejövő MIDI üzenetnél
+  villog.
+- **Pattern törlése:** A **−** gomb a **Pat +** mellett törli az aktuális
+  pattern-t (először megkérdezi, hogy a pattern tartalmaz-e hangjegyeket). A
+  pattern-t használó dallépések eltávolításra kerülnek, a többi pedig
+  újraszámozásra kerül; legalább egy pattern mindig megmarad.
+- Az **master hangerő** gomb a VA-VK-n található.
+
 **Fájlok menü exportálása:**
 | Export                               | Mit csinál                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -5145,7 +5281,25 @@ formátumban.
 | `Blokkok exportálása (csak adatok)`  | A `* = $C000` helyen hozzáfűzi a műszertáblázatot + minta blokkokat a programhoz.                                                                                                                                                                                                                                                                                                                                              |
 | `Blokkok exportálása + minilejátszó` | Hozzáadja a teljes lejátszót (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) plusz PAL frekvenciatáblázatokat. Exportálás után helyezz el egy `JSR sid_init` függvényt a fő kódodban, ahol a zenének kezdődnie kell; ehelyett képkockánként egyszer használd a saját `JSR sid_frame` IRQ hívásodat.                                                                                                            |
 | ` ASM exportálása (vágólap)`         | A teljes assembly forráskódot a vágólapra másolja.                                                                                                                                                                                                                                                                                                                                                                             |
+| `GoatTracker .sng importálása…`      | Betölt egy GoatTracker 2 dalt az aktuális helyett — lásd a **GoatTracker import** részt alább.                                                                                                                                                                                                                                                                                                                                 |
 | `Exportálás UltimateBasic-be`        | Kiír egy `tune ... end` blokkot (hangszerek, sorrendlista, pattern sorok szövegként) plusz a `music play` parancsot, és beszúrja azt az Ultimate Basic szerkesztő kurzorához; UB módon kívül a vágólapra másolja a szöveget. Az UltimateBasic fordítója építi fel a lejátszót, így a `music play` / `music stop` vezérli azt. A hangszermoduláció a `imod` / `ifilt` / `igate` / `itab` sorokba kerül (Ultimate Basic 1.6.2+). |
+
+**GoatTracker importálás:** **Fájlok → GoatTracker .sng importálása…** betölt
+egy GoatTracker 2 dalt (`.sng`, GTS3–GTS5) a jelenlegi dal helyett. Az átváltás
+hozzávetőleges, mivel a két nyomkövető eltérően működik:
+- A hangonkénti sorrendi listák (transzponálással és ismétléssel) egyetlen 3
+  hangú dallá lapítottak, és 32 soros mintákra vágták őket; az azonos minták
+  megosztottak.
+- Hangszerek: Az AD/SR, az első hullámforma, a kapuidőzítő és a hard restart
+  átvételre kerül; a hullámforma-tábla a hullámforma/arpeggio táblázattá, a PWM
+  impulzustáblázattá, a szűrőtábla a szűrőmód, rezonancia és vágási sweep
+  táblázattá, a sebességtábla pedig a hangszer vibrato táblájává válik.
+- Mintaparancsok: hangnem le → hangnem le, portamento → `U` / `D` (soronként
+  legfeljebb 255), tempo → `F`; a toneporta sima hanggá válik. A többi parancs
+  elvész, és egy üzenet felsorolja, hogy mi lett megközelítőleg vagy kihagyva.
+- A hullámtábla által kiadott kapu hangjelzéssé válik a következő szabad sorban.
+  Csak az első aldallam importálódik, és a 7 minta exportálási korlátja továbbra
+  is érvényes.
 
 **Player ZP használat:** `$02`–`$1C` (mintamutatók, minta eltolás, hőmérséklet)
 és `$2F` (aktuális sebesség), plusz `$FB`–`$FD` (tick számláló, sorindex,
@@ -5164,6 +5318,35 @@ sorrendlista pozíció). A hang, a moduláció és a szűrőállapot az adatok u
   a hangjegy-előnézetek a kis szintetizátorra vonatkoznak, amely csak
   megközelíti a SID chipet. Az előnézetek a WebSid-re körülbelül 0,1
   másodperccel a hang előtt érnek el.
+
+---
+
+### SID-lejátszó
+
+Az **SID Player** eszköztárgomb egy lebegő ablakot nyit meg, amely `.sid`
+zenefájlokat (PSID és RSID) játszik le, például a HVSC gyűjteményéből származó
+dalokat.
+
+- **Lejátszási lista:** dallamok hozzáadása az **.sid fájlokkal…**, vagy az
+  ablakra húzással, majd egy dallamra kattintással lejátszáshoz; **Eltávolítás**
+  és **Lejátszási lista törlése** a lista rendezése. **Lejátszási lista
+  mentése…** / **Lejátszási lista megnyitása…** egy `.sidpl` fájl írása és
+  olvasása a beágyazott dallamokkal. A lista, az aktuális dallam és az, hogy az
+  ablak nyitva van-e, megjegyződik.
+- **Szállítás:** Lejátszás, Szünet, Leállítás, **Előző** / **Következő** dallam,
+  **Előző / Következő aldallam** több dalt tartalmazó fájlokhoz, valamint
+  időszámláló.
+- **Keresés:** A pozíciójelző és az **Vissza/Előre 10 másodpercig** működik a VA
+  SID Core motorral. A WebSID nem tud keresni, így ezek a vezérlők le vannak
+  tiltva nála.
+- **Hangerő:** a gomb meg van osztva a SID Editor fő hangerőszabályzójával.
+- **Engine:** az ablak mutatja, hogy melyik motor játszik le (WebSID, vagy VA
+  SID Core a verziójával és SID chipjével); válaszd ki a **Beállítások → SID
+  előnézet** menüpontban. A VA SID Core egy natív Rust C64 magon futtatja a
+  dallamot, cikluspontos 6510-es processzorral, precíz megszakítási időzítéssel,
+  CIA 6526A-val, VIC-II időzítéssel rossz vonalakkal, sprite DMA és raszteres
+  megszakításokkal, valamint a 6510 I/O porttal – így a raszteres IRQ, CIA
+  időzített és digitális dallamok egy valódi gép időzítésével játszanak.
 
 ---
 

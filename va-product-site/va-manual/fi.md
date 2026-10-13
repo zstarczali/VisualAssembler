@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Käyttöopas
 
-**Versio 2.5.5**
+**Versio 2.5.7**
 
 Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
 vetämällä ja pudottamalla käskylohkoja ja nähdä luodun assemblerin ja konekoodin
@@ -11,6 +11,8 @@ reaaliajassa.
 ## Sisällysluettelo
 
 - [C64 Visual Assembler — Käyttöopas](#c64-visual-assembler--user-manual)
+    - [Version 2.5.7 kohokohdat](#version-257-highlights)
+    - [Version 2.5.6 kohokohdat](#version-256-highlights)
     - [Version 2.5.5 kohokohdat](#version-255-highlights)
     - [Version 2.5.4 kohokohdat](#version-254-highlights)
     - [Version 2.5.3 kohokohdat](#version-253-highlights)
@@ -40,6 +42,7 @@ reaaliajassa.
     - [ASM-rivinumerot](#asm-line-numbers)
     - [Käännöksen edistymismodaali](#compile-progress-modal)
   - [5. Asetukset \&amp; Työkalupalkki](#5-settings--toolbar)
+    - [Freemium ja Professional](#freemium-and-professional)
     - [Projektimallit](#project-templates)
     - [Rakenna projekti](#build-project)
     - [Esimerkkiohjelmia](#example-programs)
@@ -186,8 +189,60 @@ reaaliajassa.
       laattakartat)](#map-editor-multilayer-tilemaps)
     - [Kenttäeditori](#level-editor)
     - [SID-editori (3-ääninen seuranta)](#sid-editor-3-voice-tracker)
+    - [SID-soitin](#sid-player)
     - [Käyräeditori](#curve-editor)
     - [Numeronmuunnin](#number-converter)
+
+---
+
+## Version 2.5.7 kohokohdat
+
+- **VA SID Core 1.2** — SID Player käyttää nyt natiivia Rust C64 -ydintä:
+  syklintarkkaa 6510-prosessoria, jossa on tarkka keskeytysajoitus, CIA 6526A
+  -prosessoria, jossa on VIC-II-ajoitus ja virheelliset viivat, sprite DMA- ja
+  rasterikeskeytykset sekä 6510 I/O -portti. Katso [SID Player](#sid-player).
+- **Korkearesoluutioeditori** — kaksi väriä jokaisessa 8×8-solussa: uusi
+  **Solupaperi**-työkalu. Katso [Korkearesoluutio-/monivärieditori]{1].
+- **Tarkka hahmon ROM** ROM-katseluohjelmassa, hahmoeditorin **Load ROM**
+  -kohdassa ja kartta-/tasoeditorissa.
+- **Sprite Editor** — korkearesoluutioinen päällekkäiskuva, täyttö,
+  valinta/siirto, kierto, kaikkien peilikuva, sprite-arkin tuonti, osuma-alue,
+  X/Y ×2 esikatselu. Katso [Sprite Editor]{1].
+- **Kenttäeditori** — objektit, hahmon ominaisuudet, reunan tarkistus, värit
+  näytöllä, muistimittari RLE:llä, suoritetaan VICE:ssä. Katso
+  [Kenttäeditori]{1].
+- **Hahmoeditori** — kumoa/tee uudelleen, piirtotyökalut, käännä 90°,
+  kopioi/liitä ja vedä vaihtaaksesi kartalla, 2×2-laatat, pienten kirjainten
+  ROM-sarja, tekstin esikatselu ja alueen vienti. Katso
+  [Hahmoeditori](#character-editor-charset).
+- **Merkkikartta** — zoomaa 2×–24× (liukusäädin tai Ctrl+rulla)
+  pikseliruudukolla, taustavärillä korkearesoluutioisessa tilassa,
+  korkearesoluutioisilla merkeillä moniväritilassa ja **ECM** (tausta merkkiä
+  kohden). Katso [Merkkikarttaeditori]{1].
+
+---
+
+## Version 2.5.6 kohokohdat
+
+- **SID Player** — uusi työkalupalkin painike avaa kelluvan soittimen `.sid`
+  (PSID / RSID) -kappaleille: soittolista, jossa on vetäminen ja pudottaminen,
+  edellinen/seuraava kappale, alikappaleet, haku ja ±10 s, äänenvoimakkuus sekä
+  soittolistan tallennus/avaaminen (`.sidpl`); lista ja ikkunan tila muistetaan.
+  Katso [SID Player]{1].
+- **VA SID Core 1.1** — sisäänrakennettu SID-emulointi (MOS 6581/8580,
+  reSID-tasapainotetulla 6581-suodattimella) ja syklilukittu PSID/RSID-soitin
+  (6510 CPU, CIA/VIC-ajoitus). Valitse se kohdasta **Asetukset →
+  SID-esikatselu**; SID-soitin näyttää, mikä moottori toistetaan.
+- **SID-editori** — instrumenttiparametrien säätimet, leveämpi ADSR-grafiikka,
+  **MIDI-tulo**, **äänitys** seurantalaitteeseen (uusi pattern lisätään, kun
+  nykyinen on täynnä), **metronomi** rytmivaloilla, **patternin poisto**,
+  VA-VK:n äänenvoimakkuuden säätö ja **GoatTracker .sng-tiedoston tuonti**.
+  Katso [SID-editori](#sid-editor-3-voice-tracker).
+- **Freemium ja Professional** — ilman rekisteröitymistä sovellus toimii
+  Freemiumina; anna ostoksesi sähköpostiosoite ja sarjanumero kohdassa **Valikko
+  → Rekisteröidy…** saadaksesi Professional-version. Katso [Freemium ja
+  Professional]{1].
+- **Ultimate Basic 1.6.4** sisältyy pakettiin.
 
 ---
 
@@ -375,25 +430,19 @@ reaaliajassa.
   pikseliä; työkansion polku sijaitsee hienovaraisessa merkissä ASM-näkymän
   otsikon yläpuolella ja käyttää samaa merkkiä sekä Expert- että Ultimate Basic
   -työkaluriveillä. Valintaikkunoiden painikkeiden otsikot eivät enää rivity.
-- **Ultimate Basic -komentoviite** — `tune` ja `music` näyttävät täydelliset
-  esimerkit kommentoituina (solumuoto, tehosteet, soittajan muistiinpanot,
-  `musiikin toisto N`); `inst`, `order`, `pat` ja tune `speed` -komennoilla on
-  omat merkintänsä; `data` näyttää uuden taulukkomuodon; `load sid` -syntaksi on
-  korjattu (`load sid "tune.sid", $2000`).
+- **Vankempi päivitysten tarkistus** — asennusohjelmien luettelo julkaistaan
+  osoitteessa c64va.pro/downloads/VA/, joten tarkistus toimii uuden lataussivun
+  kanssa; Linuxin päivitysavustaja ei enää peri AppImage-kirjastopolkuja.
 
 ---
 
 ## Version 2.4.6 kohokohdat
 
-- **SID-editori → UltimateBasic export** — **Files → Export to UltimateBasic**
-  kirjoittaa sävelmän `tune ... end` -lohkona (instrumentit, järjestyslista ja
-  pattern-rivit tekstinä), jota seuraa `music play`, ja lisää sen Ultimate Basic
-  -editorin kursoriin (UB-tilan ulkopuolella se kopioidaan leikepöydälle).
-  UltimateBasic-kääntäjä rakentaa siitä nollasivuttoman soittimen käännösaikana,
-  joten `music play` / `music stop` ohjaavat sävelmää eikä mikään törmää
-  UB-muuttujiin. Vibrato-, slide-, nuotinleikkaus- ja nopeustehosteita tuetaan;
-  jopa 8 patternia, mikä tahansa järjestyslistan pituus. Vaatii
-  UltimateBasic-kääntäjän, jossa on `tune` -tuki.
+- **Sovelluksen sisäiset päivitykset** — **Valikko → Tarkista päivitykset**
+  tarkistaa c64va.pro:sta uudemman version ja lataa vahvistuksen jälkeen
+  alustallesi sopivan asennusohjelman edistymispalkilla ja asentaa sen. Katso
+  [Sovelluksen sisäiset päivitykset](#in-app-updates). Tarkistus suoritetaan
+  myös hiljaisesti jokaisen käynnistyksen yhteydessä.
 - **Ultimate Basic -kielipäivitys** — syntaksin korostus ja komentojen viite
   kattavat nyt **`sfx`** (ei-estävä SID-vaikutus: `sfx channel, freq, freqs [,
   wave]`), **`org`** (jatkaa sub/fn-koodia osoitteessa jättäen nollalla täytetyn
@@ -484,7 +533,7 @@ reaaliajassa.
   tekstiruudun sijaan, eikä sen valintaikkuna enää himmenna muuta sovellusta sen
   takana ollessaan avoinna.
 - **Web64 tuotesivustolla** — uusi Web64 IDE -osio osoitteessa
-  [c64va.tech](https://www.c64va.tech).
+  [c64va.pro](https://www.c64va.pro).
 - **Esimerkkipäivitys** — `makro-parametrilla` -esimerkki käyttää nyt sulkeissa
   olevaa `.macro setColor(color)` -muotoa.
 
@@ -546,11 +595,10 @@ reaaliajassa.
   nykyinen levy suoraan VICE-ohjelmaan. Kaikki tämä Tiedostot ▾ -valikosta, joka
   vastaa muita visuaalisia editoreita. Katso [D64-editori (olemassa olevan
   levykuvan selaaminen ja muokkaaminen)]{1}.
-- **Lisää / pura / nimeä uudelleen / poista D64-editorissa** — lisää paikallinen
-  tiedosto levyhakemistoon, pura valittu merkintä takaisin `.prg`-tiedostoon,
-  nimeä merkintä uudelleen taulukon sisällä tai poista se — jokainen toiminto
-  kohdistetaan suoraan `.d64`-tiedostoon `c1541`-komennon kautta ilman erillistä
-  tallennusvaihetta.
+- **Online-ohjeen työkalupalkin painike** — uusi kuvakepainike, joka avautuu
+  Debugin jälkeen ja avaa monikielisen dokumentaatiosivuston
+  ([c64va.pro/docs.html](https://www.c64va.pro/docs.html)) suoraan
+  sovelluksesta.
 - **Latausosoite, purkuosoite ja Exomizer D64-editorissa** — otsikottoman
   raakatiedoston lisääminen antaa sinulle mahdollisuuden asettaa valinnaisen
   latausosoitteen, Exomizer-purkukohteen ja pakata sen matkan varrella
@@ -872,14 +920,14 @@ lähdekoodi alkaa:
 - Jos projektia ei ole vielä tallennettu, tilannevedokset tallennetaan
   sovelluksen määrityshakemistoon, kunnes projekti saa tiedostopolun. |
   **Tietokanta** | Viitelinkit (6502-operaatiokoodit, C64 KERNAL, muistikartta,
-  värit) | | **Tarkista päivitykset** | Tarkista osoitteesta c64va.tech uudemman
-  version varalta ja lataa/asenna se — katso [Sovelluksen sisäiset
+  värit) | | **Tarkista päivitykset** | Tarkista uudempi versio osoitteesta
+  c64va.pro ja lataa/asenna se — katso [Sovelluksen sisäiset
   päivitykset](#in-app-updates) |
 
 ### Editorityökalut
 
-UB-työkalurivi noudattaa samaa visuaalista kieltä ja mukautettuja
-työkaluvihjeitä kuin asiantuntijatila. Se tarjoaa:
+**Valikko → Tarkista päivitykset** etsii uusimman version c64va.pro-sivustolta
+(se lukee alustasi latauslinkit) ja vertaa sitä käynnissä olevaan versioon:
 
 - syntaksin korostus nykyisen Ultimate Basic -kielireferenssin perusteella;
 - rivinumerot, jotka pysyvät synkronoituina pitkien tiedostojen kanssa;
@@ -898,6 +946,28 @@ peräkkäisistä 64-tavuisista sprite-kehyksistä.
 Komentoluettelon korkeus on tarkoituksella rajoitettu, jotta komentotietokortti
 voi täyttää paneelin jäljellä olevan korkeuden. Tietoalue vierii itsenäisesti
 pidempiä syntaksikuvauksia varten.
+
+### Freemium ja Professional
+
+Ilman rekisteröitymistä Visual Assembler toimii nimellä **Freemium**; otsikon
+vieressä oleva merkki näyttää **FREEMIUM** tai **PROFESSIONAL**. Freemiumissa
+voit kirjoittaa ja rakentaa ohjelmia ja suorittaa niitä VICE:ssä Block-, Expert-
+ja Ultimate Basic -tiloissa. Nämä vaativat Professional-version:
+
+- visuaaliset editorit (SID, Sprite, Char, Charset, Hi-Res, Map, Level, D64,
+  Curve) ja SID Player;
+- **Kokoa PRG**, **Kokoa D64**, **Kokoa CRT**, **Kokoa projekti** ja
+  Exomizer-pakkaus;
+- toimii C64 Ultimatessa ja Kung Fu Flash 2:ssa;
+- Muut käyttöliittymäkielet kuin unkari ja englanti sekä OLED- ja Commodore 77
+  -teemat.
+
+Lukitun ominaisuuden napsauttaminen avaa rekisteröinti-ikkunan.
+Rekisteröityäksesi avaa **Valikko → Rekisteröi…** (tai napsauta tunnusta), anna
+ostoksesi sähköpostiosoite ja sarjanumero ja paina **Aktivoi**. Sarjanumero
+kuuluu kyseiseen sähköpostiosoitteeseen (isoilla ja pienillä kirjaimilla sekä
+välilyönneillä ei ole merkitystä), ja tarkistus suoritetaan offline-tilassa.
+**Poista lisenssi** poistaa rekisteröinnin tältä tietokoneelta.
 
 ### Projektit, välilehdet ja käynnistystiedostot
 
@@ -2452,17 +2522,22 @@ näyttöä.
 .level "taso.bin", 4000 dollaria
 ```
 
-| Määritelty                                                 | Merkitys                                                                    |
-| ---------------------------------------------------------- | --------------------------------------------------------------------------- |
-| `TASO_PAIKKA_ALHAINEN` / `TASO_PAIKKA_KORKEIN`             | Kunkin paikan näytön osoite (rivikohtainen, `LEVEL_W` paikkaa riviä kohden) |
-| `TASO_RIVI_PAIKKA`                                         | Tasomerkkirivi → sen näyttörivin ensimmäinen paikka                         |
-| `TASO_RIVI_ALHAINEN/KORKEA`, `TASO_VARREN_ALHAINEN/KORKEA` | Tasomerkkirivi → sen näyttökoodirivin / väririvin siirtymä näytön sisällä   |
-| `TASO_KOLON_PAIKKA`, `TASO_KOLON_MUKAISET`                 | Näkymän aloitussarake → näytön sarake ja näytön sisällä oleva sarake        |
-| `TASO_V`, `TASO_K`                                         | Tasojen koko näytöillä                                                      |
-| `TASO_SARAKKEET`, `TASO_RIVIT`                             | Tason koko merkeinä                                                         |
-| `LEVEL_MAX_X`, `LEVEL_MAX_Y`                               | 40×25-näkymän suurin pikselin vierityskohta                                 |
-| `TASO_BG`, `TASO_MC1`, `TASO_MC2`, `TASO_MONIVÄRINEN`      | Tausta-/moniväriset värit ja tason tila                                     |
-| `TASOTIEDOT`, `TASOKO`, `TASOLOPPUTAUDEN`                  | Aloitus, koko ja ensimmäinen vapaa osoite tasotietojen jälkeen              |
+| Määritelty                                                                    | Merkitys                                                                                                                                                           |
+| ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `TASO_PAIKKA_ALHAINEN` / `TASO_PAIKKA_KORKEIN`                                | Kunkin paikan näytön osoite (rivikohtainen, `LEVEL_W` paikkaa riviä kohden)                                                                                        |
+| `TASO_RIVI_PAIKKA`                                                            | Tasomerkkirivi → sen näyttörivin ensimmäinen paikka                                                                                                                |
+| `TASO_RIVI_ALHAINEN/KORKEA`, `TASO_VARREN_ALHAINEN/KORKEA`                    | Tasomerkkirivi → sen näyttökoodirivin / väririvin siirtymä näytön sisällä                                                                                          |
+| `TASO_KOLON_PAIKKA`, `TASO_KOLON_MUKAISET`                                    | Näkymän aloitussarake → näytön sarake ja näytön sisällä oleva sarake                                                                                               |
+| `TASO_V`, `TASO_K`                                                            | Tasojen koko näytöillä                                                                                                                                             |
+| `TASO_SARAKKEET`, `TASO_RIVIT`                                                | Tason koko merkeinä                                                                                                                                                |
+| `LEVEL_MAX_X`, `LEVEL_MAX_Y`                                                  | 40×25-näkymän suurin pikselin vierityskohta                                                                                                                        |
+| `TASO_BG`, `TASO_MC1`, `TASO_MC2`, `TASO_MONIVÄRINEN`                         | Tausta-/moniväriset värit ja tason tila                                                                                                                            |
+| `TASOTIEDOT`, `TASOKO`, `TASOLOPPUTAUDEN`                                     | Aloitus, koko ja ensimmäinen vapaa osoite tasotietojen jälkeen                                                                                                     |
+| `LEVEL_OBJ_X_LO/HI`, `LEVEL_OBJ_Y_LO/HI`, `LEVEL_OBJ_TYPE`, `LEVEL_OBJ_PARAM` | Objektitaulukko (Level Editor -objektitaso): sijainti tasopikseleissä, tyyppi ja parametritavu vieritysjärjestyksessä — `LEVEL_OBJ_COUNT` merkintää (enintään 255) |
+| `LEVEL_OBJ_T_START` … `LEVEL_OBJ_T_TRIGGER`                                   | Objektityyppien numerot: ALKU 0, VIHOLLISEN 1, ESINE 2, OVI 3, ULOSKÄYNTI 4, LIIPAISIN 5                                                                           |
+| `LEVEL_START_X`, `LEVEL_START_Y`                                              | Ensimmäisen aloitusobjektin sijainti (määritellään vain, jos tasolla on sellainen)                                                                                 |
+| `TASO_ATTR`, `TASO_ATTR_KIINTEÄ` … `TASO_ATTR_KERÄYS`                         | Merkkien ominaisuustaulukko (yksi lipputavu näyttökoodia kohden; vain silloin, kun tasolla on ominaisuuksia) ja sen bitit: 1, 2, 4, 8                              |
+| `TASO_REUNUS`, `TASO_VÄRIT`, `TASO_REUNUS/REUNUS/MC1/MC2`                     | Tasoraja; paikkakohtaiset väritaulukot (rivikohtainen, kuten `LEVEL_SLOT_*`), kun näytöllä on omat värinsä (`LEVEL_SCR_COLORS` = 1)                                |
 
 Tyypillinen vartija: `.assert LEVEL_END &lt;= $9200, "tasodata törmää koodiin"`.
 
@@ -4686,7 +4761,7 @@ lisätä suoraan D64-levylle **Tallenna D64:ään** -merkinnän kautta.
 
 ### Korkean resoluution / monivärinen editori
 
-| Ominaisuus   | Kuvaus                                                                                                                               |
+| Asetus       | Kuvaus                                                                                                                               |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
 | Tilan vaihto | **Monivärinen** -valintaruutu vaihtaa korkearesoluutioisen (yksivärinen solua kohden) ja monivärisen (4 väriä solua kohden) välillä. |
 | **Tila**     | Näyttää, onko suoritettava tiedostopolku kelvollinen ja käytettävissä                                                                |
@@ -4696,11 +4771,11 @@ Pikselitason bittikarttaeditori, jossa on sekä 320×200 korkearesoluutio- että
 
 ### Sprite-editori
 
-| Ominaisuus | Kuvaus                                                                |
-| ---------- | --------------------------------------------------------------------- |
-| Kehykset   | Lisää/poista/järjestä uudelleen kehyksiä; kehysnauha näkyy alhaalla.  |
-| Tila       | Yksivärinen/monivärinen vaihto.                                       |
-| **Tila**   | Näyttää, onko suoritettava tiedostopolku kelvollinen ja käytettävissä |
+| Asetus   | Kuvaus                                                                |
+| -------- | --------------------------------------------------------------------- |
+| Kehykset | Lisää/poista/järjestä uudelleen kehyksiä; kehysnauha näkyy alhaalla.  |
+| Tila     | Yksivärinen/monivärinen vaihto.                                       |
+| **Tila** | Näyttää, onko suoritettava tiedostopolku kelvollinen ja käytettävissä |
 
 **Työnkulku:**
 1. Asenna Exomizer-binääritiedosto:
@@ -4736,7 +4811,7 @@ alustakohtaista.
 
 ### C64-merkki-ROM-selain ("merkkikartta")
 
-| Ominaisuus      | Kuvaus                                                                                                                                                                                                                                                               |
+| Asetus          | Kuvaus                                                                                                                                                                                                                                                               |
 | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Kaksi merkistöä | Välilehti 1: **Sarja 1 — Ylä/Grafiikka** (oletustila käynnistyksen jälkeen). Välilehti 2: **Sarja 2 — Ala/Ylä** (`$0E`-kytkimen jälkeen).                                                                                                                            |
 | **Tila**        | 16×16-ruudukko, jossa on kaikki 256 merkkiä. Napsauta symbolia nähdäksesi sen yksityiskohtapaneelin: suurennettu 8×8 pikselin näkymä, näyttökoodi (desimaali + heksadesimaali), PETSCII-koodit (sekä oletusarvoiset että siirretyt) ja raaka 8-tavuinen bittikartta. |
@@ -4750,7 +4825,7 @@ komennoilla `RAWBYTES` tai `TEXT`.
 
 256-merkkinen 8×8 merkistöeditori. Avaa Toolkit → Merkkieditori -kohdassa.
 
-| Ominaisuus                 | Kuvaus                                                                                |
+| Asetus                     | Kuvaus                                                                                |
 | -------------------------- | ------------------------------------------------------------------------------------- |
 | Lataa ROM                  | Tuo C64 ROM -merkistöä suoraan VICE:n `chargen` -tiedostosta (ei tiedostovalitsinta). |
 | Lataa `.bin`               | Tuo ulkoisen 2048-tavuisen merkistöbinääritiedoston.                                  |
@@ -4785,7 +4860,7 @@ työalueen C64:n oikeiden merkkien monivärisääntöjen mukaisesti.
 - **USB-kaapeli**, joka yhdistää äänikasetin Visual Assembleria suorittavaan
   tietokoneeseen (se näkyy virtuaalisena sarjaporttina).
 
-| Ominaisuus                | Kuvaus                                                                                                                                                                           |
+| Asetus                    | Kuvaus                                                                                                                                                                           |
 | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Yksivärinen / monivärinen | Mono-tilassa tallennetaan 1-bittiset 8×8-symbolit. Moniväritilassa tallennetaan kaksibittiset vaakasuuntaiset pikseliparit ja käytetään solujen merkintöjä Color RAM -bitillä 3. |
 
@@ -4836,38 +4911,45 @@ käyttöliittymän asetuksiin ja palautetaan seuraavan avauskerran yhteydessä.
 Pikselitason bittikarttaeditori, jossa on sekä 320×200 korkearesoluutio- että
 160×200 moniväritilat. Avaa Toolkit → Korkearesoluutioeditori -kohdassa.
 
-| Ominaisuus             | Kuvaus                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Tilan vaihto           | **Monivärinen** -valintaruutu vaihtaa korkearesoluutioisen (yksivärinen solua kohden) ja monivärisen (4 väriä solua kohden) välillä.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| Työkalut               | Lyijykynä, pyyhekumi, viiva, suorakulmio, täytetty suorakulmio, soikio, täytetty soikio, täyttöviiva, valinta.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| Ruiskutustyökalu       | Airbrush-tyylinen piirtäjä, joka sirottelee pikseleitä kohdistimen ympärille piirtäessään.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| Suihkutusintensiteetti | Ruiskutustyökalun vieressä olevasta alasvetovalikosta säädetään kunkin ruiskutusjäljen tiheyttä.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| Väripaletti            | Etualan (muste) ja paperin (tausta) poimijat. Moniväritila seuraa automaattisesti kolmea solukohtaista lisäväriä.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| Kumoa / Tee uudelleen  | Iskukohtainen historia, ctrl-Z / ctrl-Y.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| Valitse                | Katkoneliön työkalu: vedä osoitinta kankaalla merkitäksesi suorakulmaisen alueen. **Esc** tyhjentää valinnan.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| Kopioi / Liitä         | **Kopioi** (`Ctrl/Cmd+C`) kopioi valitun alueen. **Liitä** (`Ctrl/Cmd+V`) näyttää esikatselun, joka seuraa kohdistinta: napsauta piirtoaluetta sijoittaaksesi sen, **Esc** peruuttaa. Kopio säilytetään, joten `Ctrl/Cmd+V` painaminen ja uudelleen napsauttaminen sijoittaa sen niin monta kertaa kuin on tarpeen. Korkean resoluution tilassa liitetyt pikselit noudattavat edelleen kahden värin solukohtaista rajoitusta, joten kohdista alue soluruudukkoon säilyttääksesi sen värit. Kopioi, Liitä ja Läpinäkyvä liitä ovat myös piirtoalueen hiiren kakkospainikkeen valikossa; liittäminen aloitettiin siellä esikatselussa napsautetusta kohdasta. |
-| Läpinäkyvä tahna       | `Ctrl/Cmd+Shift+V` (tai sen työkalupalkin painike) ohittaa kopion paperinväriset pikselit, joten alla oleva kuva näkyy läpi.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| Ruudukko + Rasteri     | **Grid** näyttää merkkisoluruudukon: 8×8 pikseliä korkearesoluutioisena, 4×8 kaksinkertaisen leveyden pikseliä monivärisenä. 4× zoomista alkaen se piirtää myös himmeämmän viivan jokaisen pikselin ympärille, jotta jokainen pikseli voidaan sijoittaa tarkasti. **Raster** lisää rasteririvin päällekkäiskerroksen.                                                                                                                                                                                                                                                                                                                                       |
-| Zoomaus                | Liukusäädin 1× - 16×.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| Tuo kuva               | Kankaalle pudotetut PNG/JPEG/GIF-kuvat kvantisoituvat automaattisesti 16-väriseen C64-palettiin.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| Vie lohkot             | Lisää ohjelmaan BYTE/RAWBYTES-lohkoja, jotka sisältävät koodatun bittikartta-, näyttö- ja väridatan.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| Vie `.bin`             | Tallentaa natiivin moniväritiedostomuodon (10000 tavua: 8000 bittikarttaa + 1000 näyttöä + 1000 väriä) valmiiksi LOADFILE-tiedostoon $2000.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Ominaisuus                    | Kuvaus                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Tilan vaihto                  | **Monivärinen** -valintaruutu vaihtaa korkearesoluutioisen (yksivärinen solua kohden) ja monivärisen (4 väriä solua kohden) välillä.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Työkalut                      | Lyijykynä, pyyhekumi, viiva, suorakulmio, täytetty suorakulmio, soikio, täytetty soikio, täyttöviiva, solupaperi, valinta.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| Solupaperi (korkearesoluutio) | Korkearesoluutioinen kuva sallii kaksi väriä jokaisessa 8×8-solussa: musteen (asetetut pikselit, solun näytön RAM-tavun suuri näpyttely) ja paperin (tyhjennä pikselit, pieni näpyttely). **Solun paperi** -työkalu asettaa jokaisen napsauttamalla tai vetämällä hiirellä valitun värisen solun paperin; **PAPERI** asettaa silti jokaisen solun kerralla. Pyyhekumi tyhjentää pikselit, joten solun oma paperi näkyy. Pois käytöstä monivärisessä tilassa, jossa tausta ($D021) on jaettu.                                                                                                                                                                |
+| Ruiskutustyökalu              | Airbrush-tyylinen piirtäjä, joka sirottelee pikseleitä kohdistimen ympärille piirtäessään.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| Suihkutusintensiteetti        | Ruiskutustyökalun vieressä olevasta alasvetovalikosta säädetään kunkin ruiskutusjäljen tiheyttä.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Väripaletti                   | Etualan (muste) ja paperin (tausta) poimijat. Moniväritila seuraa automaattisesti kolmea solukohtaista lisäväriä.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| Kumoa / Tee uudelleen         | Iskukohtainen historia, ctrl-Z / ctrl-Y.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Valitse                       | Katkoneliön työkalu: vedä osoitinta kankaalla merkitäksesi suorakulmaisen alueen. **Esc** tyhjentää valinnan.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Kopioi / Liitä                | **Kopioi** (`Ctrl/Cmd+C`) kopioi valitun alueen. **Liitä** (`Ctrl/Cmd+V`) näyttää esikatselun, joka seuraa kohdistinta: napsauta piirtoaluetta sijoittaaksesi sen, **Esc** peruuttaa. Kopio säilytetään, joten `Ctrl/Cmd+V` painaminen ja uudelleen napsauttaminen sijoittaa sen niin monta kertaa kuin on tarpeen. Korkean resoluution tilassa liitetyt pikselit noudattavat edelleen kahden värin solukohtaista rajoitusta, joten kohdista alue soluruudukkoon säilyttääksesi sen värit. Kopioi, Liitä ja Läpinäkyvä liitä ovat myös piirtoalueen hiiren kakkospainikkeen valikossa; liittäminen aloitettiin siellä esikatselussa napsautetusta kohdasta. |
+| Läpinäkyvä tahna              | `Ctrl/Cmd+Shift+V` (tai sen työkalupalkin painike) ohittaa kopion paperinväriset pikselit, joten alla oleva kuva näkyy läpi.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| Ruudukko + Rasteri            | **Grid** näyttää merkkisoluruudukon: 8×8 pikseliä korkearesoluutioisena, 4×8 kaksinkertaisen leveyden pikseliä monivärisenä. 4× zoomista alkaen se piirtää myös himmeämmän viivan jokaisen pikselin ympärille, jotta jokainen pikseli voidaan sijoittaa tarkasti. **Raster** lisää rasteririvin päällekkäiskerroksen.                                                                                                                                                                                                                                                                                                                                       |
+| Zoomaus                       | Liukusäädin 1× - 16×.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Tuo kuva                      | Kankaalle pudotetut PNG/JPEG/GIF-kuvat kvantisoituvat automaattisesti 16-väriseen C64-palettiin.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Vie lohkot                    | Lisää ohjelmaan BYTE/RAWBYTES-lohkoja, jotka sisältävät koodatun bittikartta-, näyttö- ja väridatan.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Vie `.bin`                    | Tallentaa natiivin moniväritiedostomuodon (10000 tavua: 8000 bittikarttaa + 1000 näyttöä + 1000 väriä) valmiiksi LOADFILE-tiedostoon $2000.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 
 ### Sprite-editori
 
 24×21 pikselin sprite-editori moniruutuisella animaatiolla. Avaa Toolkit →
 Sprite-editori -kohdassa.
 
-| Ominaisuus            | Kuvaus                                                                                                                                                                                                                                            |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Kehykset              | Lisää/poista/järjestä uudelleen kehyksiä; kehysnauha näkyy alhaalla. **Kopioi** / **Liitä** kehysrivillä kopioi koko nykyisen kehyksen; samat kaksi merkintää ovat sekä kankaan että kehysnauhan hiiren kakkospainikkeen valikoissa.              |
-| Tila                  | Yksivärinen/monivärinen vaihto.                                                                                                                                                                                                                   |
-| Työkalut              | Kynä, täyttö, viiva, suorakulmio, ympyrä – sekä vaakasuora ja pystysuora kääntö, siirto vasemmalle/oikealle/ylös/alas (valinnainen rivitys). Muototyökalut näyttävät reaaliaikaisen esikatselun vetämisen aikana; vapauta painike vahvistaaksesi. |
-| Kumoa / tee uudelleen | Täysi kumoa/tee uudelleen -pino kehystä kohden. Ctrl/Cmd+Z / Ctrl/Cmd+Y tai työkalupalkin painikkeet.                                                                                                                                             |
-| Kuvan tuonti          | Tuo PNG- tai JPEG-kuva valitsemalla Tiedostot → Tuo kuva. Tuoja yhdistää jokaisen pikselin lähimpään C64-palettiväriin ja kirjoittaa sen nykyiseen kehykseen.                                                                                     |
-| Animaation esikatselu | Toista / pysäytä konfiguroitavalla nopeudella.                                                                                                                                                                                                    |
-| Vie lohkot            | Lisää RAWBYTES-lohkon 64-tavuiseen tasattuun osoitteeseen jokaista kehystä kohden sekä sprite-osoittimen asetuksen.                                                                                                                               |
-| Tallenna `.bin`       | Kirjoittaa 64 tavua kehystä kohden (raakaa spritedataa ilman täytettä).                                                                                                                                                                           |
+| Ominaisuus                     | Kuvaus                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Kehykset                       | Lisää/poista/järjestä uudelleen kehyksiä; kehysnauha näkyy alhaalla. **Kopioi** / **Liitä** kehysrivillä kopioi koko nykyisen kehyksen; samat kaksi merkintää ovat sekä kankaan että kehysnauhan hiiren kakkospainikkeen valikoissa.                                                                                                                                                                                                                                 |
+| Tila                           | Yksivärinen/monivärinen vaihto.                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| Työkalut                       | Kynä, täyttö, viiva, suorakulmio, ympyrä – sekä vaakasuora ja pystysuora kääntö, siirto vasemmalle/oikealle/ylös/alas (valinnainen rivitys). Muototyökalut näyttävät reaaliaikaisen esikatselun vetämisen aikana; vapauta painike vahvistaaksesi.                                                                                                                                                                                                                    |
+| Kumoa / tee uudelleen          | Täysi kumoa/tee uudelleen -pino kehystä kohden. Ctrl/Cmd+Z / Ctrl/Cmd+Y tai työkalupalkin painikkeet.                                                                                                                                                                                                                                                                                                                                                                |
+| Kuvan tuonti                   | Tuo PNG- tai JPEG-kuva valitsemalla Tiedostot → Tuo kuva. Tuoja yhdistää jokaisen pikselin lähimpään C64-palettiväriin ja kirjoittaa sen nykyiseen kehykseen.                                                                                                                                                                                                                                                                                                        |
+| Animaation esikatselu          | Toista / pysäytä konfiguroitavalla nopeudella.                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Vie lohkot                     | Lisää RAWBYTES-lohkon 64-tavuiseen tasattuun osoitteeseen jokaista kehystä kohden sekä sprite-osoittimen asetuksen.                                                                                                                                                                                                                                                                                                                                                  |
+| Tallenna `.bin`                | Kirjoittaa 64 tavua kehystä kohden (raakaa spritedataa ilman täytettä).                                                                                                                                                                                                                                                                                                                                                                                              |
+| Valinta                        | **Valitse / siirrä**: vedä suorakulmiota ja vedä sitten sen sisällä siirtääksesi pikseleitä (tyhjät pikselit ovat läpinäkyviä); nuolinäppäimet siirtävät sitä yhden pikselin verran (kahden monivärisessä), Delete tyhjentää sen, Esc pudottaa sen. **Kierrä 90°** (molempiin suuntiin) kääntää valinnan tai koko kehyksen. Valinta, kääntäminen, siirtäminen ja kiertäminen vaikuttavat yhdessä runkoon ja päällekkäiskuvaan.                                       |
+| Korkean resoluution peittokuva | **Korkean resoluution päällekkäiskuva** lisää toisen, yksivärisen korkean resoluution spriten jokaisen kehyksen päälle – klassisen ääriviivan monivärisen rungon päälle. **Kerros**-luettelo valitsee muokatun kerroksen; päällekkäiskuva himmenee rungon muokkauksen aikana. C64:ssä se on erillinen spritti: anna sille pienempi spritin numero kuin rungolle. `.bin` ja **Kopioi bytes** kirjoittavat päällekkäiskuvan spritit rungon (`sprite_f1_ov_1`) jälkeen. |
+| Peilaa kaikki                  | Lisää jokaisesta kehyksestä (ja sen osuma-alueesta) vaakasuunnassa peilikuvan – voit kävellä kierrosta toiseen suuntaan yhdellä napsautuksella.                                                                                                                                                                                                                                                                                                                      |
+| Sprite-arkin tuonti            | Tiedostot → **Tuo sprite-arkki…**: solun leveys/korkeus, siirtymä, väli ja kehysten määrä leikkaavat kuvan nykyisen kokoisiksi kehyksiksi (moniväriset solut skaalataan 12 pikseliin spriteä kohden). Värit tulevat kuvasta tai pysyvät spriten omina; OKLab-täsmäytys ilman rasterointia, järjestetty (Bayer) tai Floyd–Steinberg-rasterointi. Korvaa kehykset tai lisää niihin.                                                                                    |
+| Hitbox                         | **Hitbox** -työkalu vetää suorakulmion kehystä kohden (katkoviiva syaanilla); **Fit**, **Fit every frame**, **Copy to every frame** ja **Remove** sivupaneelissa. Tiedostot → **Copy hitbox table** antaa `sprite_hit_x / _y / _w / _h` (yksi tavu kehystä kohden, näytön pikselit vasemmasta yläkulmasta); kehys ilman hitboxia käyttää pikselirajojaan.                                                                                                            |
+| X / Y ×2                       | Näyttää esikatselun kuten sprite-laajennuksessa `$D01D` / `$D017`.                                                                                                                                                                                                                                                                                                                                                                                                   |
 
 ### C64-merkki-ROM-selain ("merkkikartta")
 
@@ -4887,41 +4969,59 @@ komennoilla `RAWBYTES` tai `TEXT`.
 
 256-merkkinen 8×8 merkistöeditori. Avaa Toolkit → Merkkieditori -kohdassa.
 
-| Ominaisuus                   | Kuvaus                                                                                                                                                                                                    |
-| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Lataa ROM                    | Tuo C64 ROM -merkistöä suoraan VICE:n `chargen` -tiedostosta (ei tiedostovalitsinta).                                                                                                                     |
-| Lataa `.bin`                 | Tuo ulkoisen 2048-tavuisen merkistöbinääritiedoston.                                                                                                                                                      |
-| Merkkikohtainen esikatselu   | 16-levyinen ruudukko, jossa on kaikki 256 symbolia ja nykyinen solu korostettuna.                                                                                                                         |
-| Pikselieditori               | 8×8 yhden merkin editori, jossa on vaihto-/käänteis-/tyhjennystyökalut.                                                                                                                                   |
-| Merkkikohtainen väri         | Tallentaa kullekin glyyfille oletusarvoisen Color RAM -arvon. Monivärisessä merkkitilassa tämä säilyttää myös solukohtaisen monivärisävytyksen käyttöönottobitin ja merkin oman alemman 3-bittisen värin. |
-| Metadatan edestakainen kulku | Kun lataat yhteensopivia tietoja Charset Canvas-/Kartta-työnkuluista, merkkikohtaiset värimetatiedot säilyvät, joten muokkauksia voidaan jatkaa menettämättä väritarkoitusta.                             |
-| Vie lohkot                   | Liittää RAWBYTES-arvon kohtaan $0800 (lohko 2) tai $3800 (lohko 7) koodatulla merkistöllä.                                                                                                                |
+| Ominaisuus                   | Kuvaus                                                                                                                                                                                                                                                                              |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Lataa ROM                    | Lataa C64-merkki-ROMin — tarkat 901225-01-symbolit, ei tiedostovalitsinta. Ensimmäinen painike (ja **Tiedostot → ROM: isot kirjaimet / grafiikka**) lataa sarjan 1, toinen painike (tai Shift+napsautus tai **Tiedostot → ROM: pienet kirjaimet / isot kirjaimet**) lataa sarjan 2. |
+| Lataa `.bin`                 | Tuo ulkoisen 2048-tavuisen merkistöbinääritiedoston.                                                                                                                                                                                                                                |
+| Merkkikohtainen esikatselu   | 16-levyinen ruudukko, jossa on kaikki 256 symbolia ja nykyinen solu korostettuna.                                                                                                                                                                                                   |
+| Pikselieditori               | Muokkaa valittua merkkiä tai **laattaa**, jossa on 2×1, 1×2 tai 2×2 vierekkäistä merkkiä yhdeksi kuvana (laatanvalitsin).                                                                                                                                                           |
+| Piirustustyökalut            | Lyijykynä, viiva, suorakulmio, täytetty suorakulmio ja täyttöalue. Musteella jo varustetun pikselin napsauttaminen poistaa sen.                                                                                                                                                     |
+| Muunnokset                   | Tyhjennä, käännä, käännä vaaka-/pystysuunnassa, siirrä kiertämällä, käännä 90° myötäpäivään / vastapäivään (vain neliönmuotoiset laatat) — koko laatassa.                                                                                                                           |
+| Kumoa / Tee uudelleen        | Työkalupalkin painikkeet, Ctrl+Z ja Ctrl+Y (Ctrl+Shift+Z).                                                                                                                                                                                                                          |
+| Kopioi / Liitä               | Työkalurivin painikkeet, Ctrl+C / Ctrl+V tai hiiren kakkospainikkeella napsauttaminen kartalla; kopioi koko laatan väreineen.                                                                                                                                                       |
+| Kartan vetäminen             | Vedä hahmo toisen hahmon päälle kartalla vaihtaaksesi niitä; pidä Shift-näppäintä painettuna ja vedä kopioita.                                                                                                                                                                      |
+| Tekstin esikatselu           | Kirjoita teksti nähdäksesi sen nykyisessä merkistössä. Valitse isojen tai pienten kirjainten yhdistäminen; `{65}` tai `{$41}` lisää näyttökoodin.                                                                                                                                   |
+| Alueen vienti                | Aseta Lähettäjä- ja Vastaanottaja-merkit ja sitten **Tiedostot → Tallenna alue (.bin)** (raa'at tavut) tai **Kopioi alue ASM** (`.tavut` riviä).                                                                                                                                    |
+| Merkkikohtainen väri         | Tallentaa kullekin glyyfille oletusarvoisen Color RAM -arvon. Monivärisessä merkkitilassa tämä säilyttää myös solukohtaisen monivärisävytyksen käyttöönottobitin ja merkin oman alemman 3-bittisen värin.                                                                           |
+| Metadatan edestakainen kulku | Kun lataat yhteensopivia tietoja Charset Canvas-/Kartta-työnkuluista, merkkikohtaiset värimetatiedot säilyvät, joten muokkauksia voidaan jatkaa menettämättä väritarkoitusta.                                                                                                       |
+| Vie lohkot                   | Liittää RAWBYTES-arvon kohtaan $0800 (lohko 2) tai $3800 (lohko 7) koodatulla merkistöllä.                                                                                                                                                                                          |
 
 ### Merkistöpohjan editori
 
 Koko kankaan kattava merkistöpiirtäjä näyttöjen rakentamiseen täydellisestä 256
 merkin merkistöstä. Avaa Toolkit → Charset Canvas -kohdasta.
 
-Kangas on 16 × 16 merkkiä. Yksivärisessä tilassa se tarjoaa 128 × 128 pikselin
-työalueen; monivärisessä merkkitilassa se tarjoaa 64 × 128 pikselin laajan
-työalueen C64:n oikeiden merkkien monivärisääntöjen mukaisesti.
+Kangas on 16 × 16 merkkiä, 128 × 128 pikseliä. Monivärisessä merkkitilassa
+jokainen merkki on joko monivärinen (leveät pikselit, 4 väriä) tai
+korkearesoluutioinen (8 kapeaa pikseliä, 2 väriä), aivan kuten C64:ssä.
 
-| Ominaisuus                              | Kuvaus                                                                                                                                                                                               |
-| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Yksivärinen / monivärinen               | Mono-tilassa tallennetaan 1-bittiset 8×8-symbolit. Moniväritilassa tallennetaan kaksibittiset vaakasuuntaiset pikseliparit ja käytetään solujen merkintöjä Color RAM -bitillä 3.                     |
-| C64-värimalli                           | Tausta käyttää `$D021`; jaettu monivärinen 1 käyttää `$D022`; jaettu monivärinen 2 käyttää `$D023`; jokaisen hahmon oma väri tulee Color RAM -biteistä 0–2.                                          |
-| Piirustustyökalut                       | Lyijykynä, pyyhekumi, viiva, suorakulmio, soikio ja täyttö toimivat merkkien rajojen yli.                                                                                                            |
-| Ruiskutustyökalu                        | Airbrush-tyylinen piirustus, joka sirottelee pikseleitä viereisten solujen/merkkien päälle.                                                                                                          |
-| Suihkutusintensiteetti                  | Ruiskutustyökalun vieressä oleva alasvetovalikko asettaa viivan tiheyden.                                                                                                                            |
-| Ruudukon vaihto/vaihto                  | Ruudukko-valintaruutu näyttää tai piilottaa 16×16 merkkiruudukon.                                                                                                                                    |
-| Tallenna merkistö `.bin`                | Tallentaa 2048-tavuisen merkkibittikarttadatan.                                                                                                                                                      |
-| Tallenna 16×16 kartta + väri-RAM `.bin` | Tallentaa 256 näyttökoodia ja sen jälkeen 256 väri-RAM-arvoa. Käytä tätä yhdessä `MAP_COPY16X16`:n kanssa.                                                                                           |
-| Ladataan                                | Voi ladata charset-canvas-tallennuksia, tavallisia charset-tietoja ja yhteensopivia Character Editor -character-tietoja, mukaan lukien tallennetut merkkikohtaisesti määritetyt värit, jos niitä on. |
+| Ominaisuus                              | Kuvaus                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                           |
+| --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| Yksivärinen / monivärinen               | Mono-tilassa tallennetaan 1-bittiset 8×8-symbolit. Moniväritilassa tallennetaan kaksibittiset vaakasuuntaiset pikseliparit ja moniväriset solut merkitään Color RAM -bitillä 3.                                                                                                                                                                                                                                                                                                                                                              |                                                           |
+| Merkkitilatyökalu                       | Moniväritilassa napsauta tai vedä hahmojen yli vaihtaaksesi niiden monivärisen ja korkean resoluution välillä (Color RAM -bitti 3). Muoto säilyy: asetetusta pikseliparista tulee hahmon oma väri. Korkean resoluution hahmolla on tausta ja oma väri (0–7); MC1/MC2 eivät maalaa siihen.                                                                                                                                                                                                                                                    |                                                           |
+| Tausta                                  | Taustavalikon näet myös yksiväritilassa; MC1/MC2 vain moniväritilassa.                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                           |
+| ECM-koodi                               | **ECM**-valintaruutu (laajennettu väritila, ei yhdessä monivärisen kanssa): jokainen merkki on korkearesoluutioinen omalla värillään (0–15) ja yhdellä neljästä taustasta BG0–BG3 (`$D021`–`$D024`; BG1 / BG2 ovat MC1 / MC2 -rekisterit). Valitse paletista taustaväri (merkitty B0–B3) ja napsauta tai vedä sitten merkkien yli **Character background** -työkalulla. Vain 64 eri merkkiä mahtuu: tilarivi laskee ne, ja tallennettaessa yhtä suuret merkit yhdistetään – merkistö on 64 merkkiä (512 tavua) ja näyttökoodit ovat `glyph`. | tausta << 6`. Käynnistä ECM käyttämällä `$D011` bittiä 6. |
+| C64-värimalli                           | Tausta käyttää `$D021`; jaettu monivärinen 1 käyttää `$D022`; jaettu monivärinen 2 käyttää `$D023`; jokaisen hahmon oma väri tulee Color RAM -biteistä 0–2.                                                                                                                                                                                                                                                                                                                                                                                  |                                                           |
+| Piirustustyökalut                       | Lyijykynä, pyyhekumi, viiva, suorakulmio, soikio ja täyttö toimivat merkkien rajojen yli.                                                                                                                                                                                                                                                                                                                                                                                                                                                    |                                                           |
+| Ruiskutustyökalu                        | Airbrush-tyylinen piirustus, joka sirottelee pikseleitä viereisten solujen/merkkien päälle.                                                                                                                                                                                                                                                                                                                                                                                                                                                  |                                                           |
+| Suihkutusintensiteetti                  | Ruiskutustyökalun vieressä oleva alasvetovalikko asettaa viivan tiheyden.                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |                                                           |
+| Ruudukon vaihto/vaihto                  | Ruudukko-valintaruutu näyttää tai piilottaa 16×16 merkkiruudukon.                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |                                                           |
+| Zoomaus                                 | Zoomausliukusäädin (2×–24×, koko laitteen pikselit C64-pikseliä kohden) tai Ctrl+rulla kankaan päällä; zoomaus muistetaan. 8×:stä alkaen ruudukko piirtää myös ohuen viivan jokaisen pikselin reunaan.                                                                                                                                                                                                                                                                                                                                       |                                                           |
+| Tallenna merkistö `.bin`                | Tallentaa 2048-tavuisen merkkibittikarttadatan.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |                                                           |
+| Tallenna 16×16 kartta + väri-RAM `.bin` | Tallentaa 256 näyttökoodia ja sen jälkeen 256 väri-RAM-arvoa. Käytä tätä yhdessä `MAP_COPY16X16`:n kanssa.                                                                                                                                                                                                                                                                                                                                                                                                                                   |                                                           |
+| Ladataan                                | Voi ladata charset-canvas-tallennuksia, tavallisia charset-tietoja ja yhteensopivia Character Editor -character-tietoja, mukaan lukien tallennetut merkkikohtaisesti määritetyt värit, jos niitä on.                                                                                                                                                                                                                                                                                                                                         |                                                           |
 
 **Tärkeä C64-rajoitus:** monivärisessä merkkitilassa kaksi jaettua väriä ovat
-globaaleja koko näytölle (`$D022` / `$D023`). Vain merkin oma väri on
+globaaleja koko näytölle (`$D022` / `$D023`). Vain hahmon oma väri on
 solukohtainen, ja se on rajoitettu väreihin 0–7, koska Color RAM -bitti 3
-valitsee monivärisen tilan.
+valitsee monivärisen tilan. Joten yksi merkki näyttää enintään **4 väriä**
+(tausta, MC1, MC2 ja oma väri) ja koko näyttö enintään 3 + 8. Paletissa jaetut
+värit on merkitty tunnisteilla BG / 1 / 2, ja värit 8–15, joita ei jaeta, on
+himmennetty. Tällaisen värin valitseminen sijoittaa sen vain MC2:een tai
+MC1:een, kun taas mikään pikseli ei käytä kyseistä rekisteriä; muussa
+tapauksessa muuta sitä sen alasvetovalikosta (joka värittää koko näytön
+uudelleen). Korkean resoluution (mono) tilassa hahmolla on kaksi väriä: tausta
+ja oma väri (0–15).
 
 ### Karttaeditori (monikerroksiset laattakartat)
 
@@ -4949,13 +5049,19 @@ ammuntapeli, alaspäin vierittävä autopeli, sivuttaisvieritys tai 2D-kartta �
 esikatselee koko tasoa tasaisesti vierittämällä. Avaa se karttaeditorin vieressä
 olevalla **Kenttäeditori**-työkalurivin painikkeella.
 
-| Ominaisuus   | Kuvaus                                                                                                                                                                                                                                 |
-| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Layout       | **Pystysuora**, **Vaakasuora** tai **Ruudukko** (rivit × sarakkeet, rivin ja sarakkeen lisäys-/poistopainikkeilla).                                                                                                                    |
-| Näytöt       | **Uusi tyhjä näyttö**, **Lisää karttaeditorista** (auki oleva kartta) tai **Lataa kartta(t) (.bin)…** (useita karttaeditorin vientitiedostoja kerralla). Vedä näyttö luettelosta paikkaan; vedä paikat päällekkäin vaihtaaksesi niitä. |
-| Muokkaus     | **Muokkaa karttaeditorissa** avaa valitun näytön karttaeditorissa ja palauttaa muutokset; kopioi, siirrä ylös/vasemmalle tai alas/oikealle, poista; kumoa/tee uudelleen.                                                               |
-| Esikatselu   | Vedä esikatselua tai käytä nuolinäppäimiä vierittääksesi pikseli pikseliltä; **Toista** vierittää automaattisesti (suunta, nopeus 1–8, silmukka), Välilyönti = toisto/pysäytys. *Reunat* merkitsevät näytön rajat.                     |
-| Tarkastukset | Merkistötiedot ja varoitus, kun näytöt käyttävät eri merkistöä tai värejä (taso käyttää ensimmäisen näytön asetuksia).                                                                                                                 |
+| Ominaisuus          | Kuvaus                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Layout              | **Pystysuora**, **Vaakasuora** tai **Ruudukko** (rivit × sarakkeet, rivin ja sarakkeen lisäys-/poistopainikkeilla).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Näytöt              | **Uusi tyhjä näyttö**, **Lisää karttaeditorista** (auki oleva kartta) tai **Lataa kartta(t) (.bin)…** (useita karttaeditorin vientitiedostoja kerralla). Vedä näyttö luettelosta paikkaan; vedä paikat päällekkäin vaihtaaksesi niitä.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| Muokkaus            | **Muokkaa karttaeditorissa** avaa valitun näytön karttaeditorissa ja palauttaa muutokset; kopioi, siirrä ylös/vasemmalle tai alas/oikealle, poista; kumoa/tee uudelleen.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Esikatselu          | Vedä esikatselua tai käytä nuolinäppäimiä vierittääksesi pikseli pikseliltä; **Toista** vierittää automaattisesti (suunta, nopeus 1–8, silmukka), Välilyönti = toisto/pysäytys. *Reunat* merkitsevät näytön rajat.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| Tarkastukset        | Merkistötiedot ja varoitus, kun näytöt käyttävät eri merkistöä tai värejä (taso käyttää ensimmäisen näytön asetuksia).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| Hahmon ominaisuudet | **Hahmon ominaisuudet** -painike vaihtaa yleiskatsauksen ominaisuuksien piirtämiseen: valitse **Solid**, **Ladder**, **Hazard** tai **Collectible**, napsauta merkkiä ja jokainen solu, jossa on kyseinen näyttökoodi, saa (tai menettää) sen; vedä saadaksesi lisää koodeja. Määritteet näkyvät värillisenä kerroksena ja niistä tulee 256-tavuinen `LEVEL_ATTR`-taulukko (`LEVEL_ATTR_SOLID` = 1, `_LADDER` = 2, `_HAZARD` = 4, `_COLLECT` = 8).                                                                                                                                                                                                                                                                                                                          |
+| Reunan tarkistus    | Punaiset merkit paikoista, joissa vierekkäiset näytöt eivät jatku: reunuksen toinen puoli on tyhjä (välilyönti) ja toinen ei, tai vain toinen puoli on yhtenäinen. Sivupaneeli laskee reunat ja solut.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| Värit               | **Tasoreuna** ja **Omat värit tälle näytölle** (tausta, reunus, monivärinen 1/2) valitulle näytölle; esikatselukehys näyttää reunuksen. Vienti tapahtuu paikkaan mukaan muodossa `LEVEL_SCR_BG / _BORDER / _MC1 / _MC2` (jossa `LEVEL_SCR_COLORS` = 1), kun sijoitetulla näytöllä on omat värinsä.                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| Muisti              | `.level`-datan koko valitussa osoitteessa (lasketaan täsmälleen niin kuin makro sen rakentaa), varoituksilla BASIC / KERNAL ROMille, I/O-alueelle ja muistille sen alapuolella `$0800` sekä tason RLE-koosta. **Export RLE to blocks / Copy RLE asm** antaa `level_unrle`-purkajalla (`($FB)` → `($FD)`) pakatun tason RLE:n.                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Juokse VICE-tilassa | Rakentaa joystick-scroll-testiohjelman tasolta (`level-demo`-vieritysohjelma, koodi kohdassa `$C000`, tasodataa tasolta `$2000`, mukautettu merkistö kohdassa `$2000`) ja käynnistää sen VICE:ssä — näytön värit vaihtuvat näytön ollessa näkymän vasemmassa yläkulmassa, kamera käynnistyy ensimmäisestä Start-objektista.                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Esineet             | **Objektit-taso** -painike vaihtaa yleiskatsauksen objektien muokkaamiseen: valitse tyyppi (Aloitus, Vihollinen, Esine, Ovi, Uloskäynti, Liipaisin) ja **Param** tavu (vihollisen laji, esineen tunnus, oven kohde …), napsauta sijoittaaksesi, vedä siirtääksesi (kiinnitetty 8 px:ään, Shift = vapaa), napsauta objektia valitaksesi sen ja muuttaaksesi sen tyyppiä/parametria, nuolinäppäimet siirtävät sitä, Delete poistaa sen. Objektit kuuluvat tason sijaintiin, eivät näyttöön. Ne luetellaan sivupalkissa, näytetään esikatselussa, tallennetaan tason mukana ja viedään vieritysjärjestyksessä (pystysuoraan Y:n mukaan, vaakasuoraan X:n mukaan, ruudukko rivi riviltä) `LEVEL_OBJ_*` -taulukoina — **Kopioi asm / Vie lohkoihin** ja `.level` -makron avulla. |
 
 **Tiedostot-valikko:**
 | Toiminta                                                          | Mitä se tekee                                                                                                          |
@@ -4981,6 +5087,11 @@ SID-rekisterinsä WebSidiin joka kehys, ja jopa kolme esikatselunuottia jakaa
 kolme ääntä. Suoratoistosoitin latautuu, kun editori avautuu, ja uudelleen
 pysäytysnäppäimen jälkeen, joten nuotit soivat kerralla; ilman WebSidiä pieni
 SID-syntetisaattori soittaa sen sijaan.
+
+**Esikatselumoottori:** **Asetukset → SID-esikatselu** valitsee **WebSID:n** tai
+**VA SID Coren (Rust)**, sovelluksen oman SID-emuloinnin; VA SID Coressa
+valitaan myös siru (MOS 6581 / 8580). Instrumenttiparametrit asetetaan
+säätimillä.
 
 **Laitekohtaiset säätimet:**
 - Aaltomuodon valintaruudut (TRI / SAW / PUL / NOI) — useat aaltomuodot
@@ -5094,14 +5205,54 @@ ajoitusta), toimivat identtisesti Web Audio -esikatselussa ja käännetyssä
 - Sointujen ja arpeggioiden esikatselut valaisevat vastaavat pianonäppäimet, kun
   koskettimet ovat auki.
 
+**Äänitys, metronomi ja MIDI:**
+- **Äänitä** (punainen piste seurantapalkissa ja VA-VK:ssa) tallentaa soittamasi
+  nuotit – VA-VK:lla, tietokoneen näppäimistöllä tai MIDI-näppäimistöllä –
+  tahtiin valittuun ääneen valitulta riviltä alkaen nykyisellä nopeudella. Kun
+  kuvio on täynnä, uusi tyhjä kuvio lisätään nykyisen kappaleen vaiheen jälkeen
+  ja tallennus jatkuu siitä. Pysäytä painamalla Äänitä uudelleen.
+- **Metronomi** (seurantatyökalurivi ja VA-VK) napsahtaa joka neljäs rivi,
+  painottuen jokaisen neljän iskun tahdin ensimmäiseen iskuun. Sen vieressä
+  olevat iskuvalot vilkkuvat jokaisella iskulla toiston ja tallennuksen aikana,
+  vaikka napsahdus olisi pois päältä.
+- **MIDI:** valitse tulo **MIDI** -luettelosta instrumentin nimen vierestä ja
+  paina **Connect MIDI**; nuotit soittavat nykyistä instrumenttia (ja ne
+  kirjoitetaan seurantalaitteeseen äänityksen aikana tai *Insert into tracker*
+  -komennolla). Painikkeen vieressä oleva merkkivalo vilkkuu jokaisen saapuvan
+  MIDI-viestin yhteydessä.
+- **Kuviota poistamalla:** **−**-painike **Pat +** -kohdan vieressä poistaa
+  nykyisen kuvion (se kysyy ensin, onko kuviossa nuotteja). Sitä käyttäneet
+  kappaleen vaiheet poistetaan ja muut numeroidaan uudelleen; vähintään yksi
+  kuvio jää aina jäljelle.
+- **äänenvoimakkuuden pääsäädin** on VA-VK:ssa.
+
 **Tiedostovalikon viennit:**
-| Viedä                      | Mitä se tekee                                                                                                                                                                                                                                                                                                                                                                                                        |
-| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Tallenna .bin…`           | Kirjoittaa editorin natiivin serialisoidun formaatin (instrumentit kaikilla modulaatioasetuksilla ja nimillä, nopeudella, patterneilla, kappaleella). Vanhemmat tallennukset latautuvat edelleen.                                                                                                                                                                                                                    |
-| `Vie lohkot (vain tiedot)` | Liittää instrumenttitaulukon + kuviolohkot ohjelmaan kohtaan `* = $C000`.                                                                                                                                                                                                                                                                                                                                            |
-| `Vie lohkot + minipelaaja` | Lisää koko soittimen (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) sekä PAL-taajuustaulukot. Viennin jälkeen sijoita `JSR sid_init` pääkoodiisi kohtaan, josta musiikin tulisi alkaa; käytä omaa IRQ-kutsua `JSR sid_frame` kerran kehystä kohden.                                                                                                                                                 |
-| `Vie asm (leikepöytä)`     | Kopioi koko kokoonpanon lähdekoodin leikepöydälle.                                                                                                                                                                                                                                                                                                                                                                   |
-| `Vie UltimateBasiciin`     | Kirjoittaa `tune ... end` -lohkon (instrumentit, järjestysluettelo, pattern-rivit tekstinä) sekä `music play` ja lisää sen Ultimate Basic -editorin kursoriin; UB-tilan ulkopuolella se kopioi tekstin leikepöydälle. UltimateBasic-kääntäjä rakentaa soittimen, joten `music play` / `music stop` ohjaa sitä. Instrumenttien modulointi menee `imod` / `ifilt` / `igate` / `itab` -riville (Ultimate Basic 1.6.2+). |
+| Viedä                            | Mitä se tekee                                                                                                                                                                                                                                                                                                                                                                                                        |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Tallenna .bin…`                 | Kirjoittaa editorin natiivin serialisoidun formaatin (instrumentit kaikilla modulaatioasetuksilla ja nimillä, nopeudella, patterneilla, kappaleella). Vanhemmat tallennukset latautuvat edelleen.                                                                                                                                                                                                                    |
+| `Vie lohkot (vain tiedot)`       | Liittää instrumenttitaulukon + kuviolohkot ohjelmaan kohtaan `* = $C000`.                                                                                                                                                                                                                                                                                                                                            |
+| `Vie lohkot + minipelaaja`       | Lisää koko soittimen (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) sekä PAL-taajuustaulukot. Viennin jälkeen sijoita `JSR sid_init` pääkoodiisi kohtaan, josta musiikin tulisi alkaa; käytä omaa IRQ-kutsua `JSR sid_frame` kerran kehystä kohden.                                                                                                                                                 |
+| `Vie asm (leikepöytä)`           | Kopioi koko kokoonpanon lähdekoodin leikepöydälle.                                                                                                                                                                                                                                                                                                                                                                   |
+| `Tuo GoatTracker .sng-tiedosto…` | Lataa GoatTracker 2 -kappaleen nykyisen kappaleen tilalle — katso **GoatTracker-tuonti** alla.                                                                                                                                                                                                                                                                                                                       |
+| `Vie UltimateBasiciin`           | Kirjoittaa `tune ... end` -lohkon (instrumentit, järjestysluettelo, pattern-rivit tekstinä) sekä `music play` ja lisää sen Ultimate Basic -editorin kursoriin; UB-tilan ulkopuolella se kopioi tekstin leikepöydälle. UltimateBasic-kääntäjä rakentaa soittimen, joten `music play` / `music stop` ohjaa sitä. Instrumenttien modulointi menee `imod` / `ifilt` / `igate` / `itab` -riville (Ultimate Basic 1.6.2+). |
+
+**GoatTracker-tuonti:** **Tiedostot → Tuo GoatTracker .sng…** lataa GoatTracker
+2 -kappaleen (`.sng`, GTS3–GTS5) nykyisen kappaleen tilalle. Muunnos on
+likimääräinen, koska nämä kaksi seurantaa toimivat eri tavalla:
+- Äänikohtaiset järjestyslistat (transponoinneineen ja toistoineen) on
+  litistetty yhdeksi kolmiääniseksi kappaleeksi ja leikattu 32-rivisiksi
+  kuvioiksi; identtiset kuviot jaetaan.
+- Instrumentit: AD/SR, ensimmäinen aalto, porttiajastin ja kova
+  uudelleenkäynnistys otetaan käyttöön; aaltotaulukosta tulee
+  aalto-/arpeggio-taulukko, pulssitaulukosta PWM, suodatintaulukosta
+  suodatintila, resonanssi ja katkaisupyyhkäisy ja nopeustaulukosta
+  instrumenttivibrato.
+- Kuviokomennot: sävellaji pois → nuotin pois, portamento → `U` / `D` (enintään
+  255 riviä kohden), tempo → `F`; toneportasta tulee tavallinen nuotti. Muut
+  komennot jätetään pois ja viestissä luetellaan, mikä on arvioitu tai ohitettu.
+- Aaltotaulukon vapauttamasta portista tulee nuotinvaihto seuraavalla vapaalla
+  rivillä. Vain ensimmäinen aliviritys tuodaan, ja 7 kuvion vientirajoitus on
+  edelleen voimassa.
 
 **Soittimen ZP-käyttö:** `$02`–`$1C` (kuvio-osoittimet, kuvion offset,
 lämpötila) ja `$2F` (nykyinen nopeus), sekä `$FB`–`$FD` (tick-laskuri,
@@ -5120,6 +5271,35 @@ jos pääkoodisi käyttää niitä – siirrä tarvittaessa Expert-tilassa.
   esikatselut palautuvat pieneen syntetisaattoriin, joka vain likimääräisesti
   vastaa SID-sirua. Esikatselut saapuvat WebSidiin noin 0,1 sekuntia ennen
   ääntä.
+
+---
+
+### SID-soitin
+
+**SID Player** -työkalurivin painike avaa kelluvan ikkunan, joka toistaa
+`.sid`-musiikkitiedostoja (PSID ja RSID), esimerkiksi HVSC-kokoelman kappaleita.
+
+- **Soittolista:** lisää kappaleita **Lisää .sid-tiedostoilla…** tai
+  pudottamalla ne ikkunaan ja napsauttamalla kappaletta toistaaksesi sen;
+  **Poista** ja **Tyhjennä soittolista** siistivät listan. **Tallenna
+  soittolista…** / **Avaa soittolista…** kirjoittavat ja lukevat `.sidpl`
+  -tiedoston, johon kappaleet on upotettu. Lista, nykyinen kappale ja tieto
+  siitä, onko ikkuna auki, muistetaan.
+- **Siirto:** Toista, Tauko, Pysäytä, **Edellinen** / **Seuraava** kappale,
+  **Edellinen / Seuraava osakappale** useita kappaleita sisältäville
+  tiedostoille ja aikalaskuri.
+- **Haku:** Sijaintipalkki ja **Takaisin/Eteenpäin 10 s** toimivat VA SID Core
+  -moottorin kanssa. WebSID ei voi hakea, joten nämä säätimet ovat siinä poissa
+  käytöstä.
+- **Äänenvoimakkuus:** tätä nuppia käytetään yhdessä SID Editorin
+  äänenvoimakkuuden pääsäätimen kanssa.
+- **Prosessori:** ikkunassa näkyy, mitä prosessoria käytetään (WebSID tai VA SID
+  Core versioineen ja SID-siruineen); valitse se kohdasta **Asetukset →
+  SID-esikatselu**. VA SID Core suorittaa virityksen natiivilla Rust C64
+  -ytimellä, jossa on syklintarkka 6510-prosessori, tarkka keskeytysajoitus, CIA
+  6526A, VIC-II-ajoitus huonoilla linjoilla, sprite DMA ja rasterikeskeytykset
+  sekä 6510 I/O -portti – joten rasteri-IRQ, CIA-ajoitettu ja digitaalinen
+  viritys toistavat oikean koneen ajoituksen.
 
 ---
 

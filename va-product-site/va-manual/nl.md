@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Gebruikershandleiding
 
-**Versie 2.5.5**
+**Versie 2.5.7**
 
 Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw
 programma's door instructieblokken te slepen en neer te zetten, en bekijk de
@@ -12,6 +12,8 @@ gegenereerde assembly- en machinecode in realtime.
 
 - [C64 Visual Assembler —
   Gebruikershandleiding](#c64-visual-assembler--user-manual)
+    - [Hoogtepunten van versie 2.5.7](#version-257-highlights)
+    - [Hoogtepunten van versie 2.5.6](#version-256-highlights)
     - [Hoogtepunten van versie 2.5.5](#version-255-highlights)
     - [Hoogtepunten van versie 2.5.4](#version-254-highlights)
     - [Hoogtepunten van versie 2.5.3](#version-253-highlights)
@@ -41,6 +43,7 @@ gegenereerde assembly- en machinecode in realtime.
     - [ASM-regelnummers](#asm-line-numbers)
     - [Voortgangsweergave compilatie](#compile-progress-modal)
   - [5. Instellingen & Werkbalk](#5-settings--toolbar)
+    - [Freemium en Professioneel](#freemium-and-professional)
     - [Projecttemplates](#project-templates)
     - [Project bouwen](#build-project)
     - [Voorbeeldprogramma's](#example-programs)
@@ -185,8 +188,62 @@ gegenereerde assembly- en machinecode in realtime.
     - [Kaarteditor (Meerlaagse tegelkaarten)](#map-editor-multilayer-tilemaps)
     - [Niveau-editor](#level-editor)
     - [SID-editor (3-stemmen tracker)](#sid-editor-3-voice-tracker)
+    - [SID Speler](#sid-player)
     - [Curve-editor](#curve-editor)
     - [Nummeromzetter](#number-converter)
+
+---
+
+## Hoogtepunten van versie 2.5.7
+
+- **VA SID Core 1.2** — de SID Player gebruikt nu een native Rust C64-core: een
+  cycle-exacte 6510 met precieze interrupt-timing, de CIA 6526A, VIC-II-timing
+  met foutlijnen, sprite DMA en raster-interrupts, en de 6510 I/O-poort. Zie
+  [SID Player](#sid-player).
+- **Editor voor hoge resolutie** — twee kleuren in elke 8×8 cel: de nieuwe
+  **Celpapier** tool. Zie [Editor voor hoge resolutie /
+  meerkleurig](#hi-res--multicolor-editor).
+- **Exacte karakter-ROM** in de ROM-viewer, de Character Editor's **Load ROM**
+  en de Map/Level-editors.
+- **Sprite-editor** — overlay met hoge resolutie, opvullen,
+  selecteren/verplaatsen, roteren, alles spiegelen, sprite-sheet importeren,
+  hitbox, X/Y ×2-voorbeeld. Zie [Sprite-editor](#sprite-editor).
+- **Level Editor** — objecten, karakterkenmerken, randcontrole, kleuren per
+  scherm, geheugenmeter met RLE, uitvoeren in VICE. Zie [Level
+  Editor](#level-editor).
+- **Tekeneditor** — ongedaan maken/opnieuw doen, tekengereedschappen, 90°
+  roteren, kopiëren/plakken en slepen om te wisselen op de kaart, 2×2 tegels, de
+  ROM-set met kleine letters, een tekstvoorbeeld en bereikexport. Zie
+  [Tekeneditor](#character-editor-charset).
+- **Tekensetcanvas** — zoom 2×–24× (schuifregelaar of Ctrl+wiel) met een
+  pixelraster, achtergrondkleur in de hoge-resolutiemodus, tekens in hoge
+  resolutie in de meerkleurige modus en **ECM** (een achtergrond per teken). Zie
+  [Tekensetcanvas-editor](#charset-canvas-editor).
+
+---
+
+## Hoogtepunten van versie 2.5.6
+
+- **SID Player** — een nieuwe knop in de werkbalk opent een zwevende speler voor
+  `.sid` (PSID / RSID) nummers: een afspeellijst met slepen en neerzetten,
+  vorige/volgende nummer, subnummers, zoeken en ±10 s, volume en afspeellijst
+  opslaan/openen (`.sidpl`); de lijst en de vensterstatus worden onthouden. Zie
+  [SID Player](#sid-player).
+- **VA SID Core 1.1** — een ingebouwde SID-emulatie (MOS 6581 / 8580, met een
+  reSID-uitgelijnd 6581-filter) en een cycle-locked PSID / RSID-speler (6510
+  CPU, CIA / VIC-timing). Selecteer deze in **Instellingen → SID-voorbeeld**; de
+  SID-speler toont welke engine wordt afgespeeld.
+- **SID Editor** — knoppen voor de instrumentparameters, een bredere
+  ADSR-grafiek, **MIDI-ingang**, **opnemen** in de tracker (een nieuw patroon
+  wordt toegevoegd wanneer het huidige patroon vol is), een **metronoom** met
+  beatlampjes, **patroon verwijderen**, het mastervolume op VA-VK, en
+  **GoatTracker .sng importeren**. Zie [SID
+  Editor](#sid-editor-3-voice-tracker).
+- **Freemium en Professional** — zonder registratie werkt de app als Freemium;
+  voer het e-mailadres en de serienummer van uw aankoop in via **Menu →
+  Registreren…** om de Professional-versie te verkrijgen. Zie [Freemium en
+  Professional](#freemium-and-professional).
+- **Ultimate Basic 1.6.4** meegeleverd.
 
 ---
 
@@ -380,26 +437,20 @@ gegenereerde assembly- en machinecode in realtime.
   boven de titel van de ASM-weergave en gebruikt dezelfde badge in de Expert- en
   Ultimate Basic-werkbalken. Labels van dialoogvensterknoppen worden niet langer
   afgebroken.
-- **Ultieme Basic-opdrachtreferentie** — `tune` en `music` tonen volledige, van
-  commentaar voorziene voorbeelden (celindeling, effecten, spelernotities,
-  `music play N`); `inst`, `order`, `pat` en de tune `speed` hebben hun eigen
-  vermeldingen; `data` toont de nieuwe arrayvorm; de `load sid`-syntaxis is
-  gecorrigeerd (`load sid "tune.sid", $2000`).
+- **Betere updatecontrole** — de lijst met installatieprogramma's is
+  gepubliceerd op c64va.pro/downloads/VA/, dus de controle werkt met de nieuwe
+  downloadpagina; de Linux-updatehelper erft niet langer de
+  AppImage-bibliotheekpaden.
 
 ---
 
 ## Hoogtepunten van versie 2.4.6
 
-- **SID Editor → UltimateBasic exporteren** — **Bestanden → Exporteren naar
-  UltimateBasic** schrijft de melodie als een `melodie ... einde` blok
-  (instrumenten, volgordelijst en patroonrijen als tekst) gevolgd door `muziek
-  afspelen`, en voegt deze in op de cursorpositie van de Ultimate Basic editor
-  (buiten de UB-modus wordt deze naar het klembord gekopieerd). De
-  UltimateBasic-compiler bouwt er tijdens het compileren een zero-page-vrije
-  speler van, zodat `muziek afspelen` / `muziek stoppen` de melodie besturen en
-  er geen conflicten ontstaan met UB-variabelen. Vibrato-, slide-, noot-cut- en
-  snelheidseffecten worden ondersteund; tot 8 patronen, elke gewenste lengte van
-  de volgordelijst. Vereist een UltimateBasic-compiler met `tune`-ondersteuning.
+- **In-app updates** — **Menu → Controleren op updates** controleert c64va.pro
+  op een nieuwere versie en downloadt, na bevestiging, het installatieprogramma
+  voor uw platform met een voortgangsbalk en installeert het. Zie [In-app
+  updates](#in-app-updates). De controle wordt ook op de achtergrond uitgevoerd
+  bij elke opstart.
 - **Update Ultimate Basic-taal** — syntaxmarkering en de commandoreferentie
   omvatten nu **`sfx`** (niet-blokkerend SID-effect: `sfx-kanaal, frequentie,
   frames [, golf]`), **`org`** (vervolg sub/fn-code op een adres, waarbij een
@@ -494,7 +545,7 @@ gegenereerde assembly- en machinecode in realtime.
   van een gewoon tekstvak, en het dialoogvenster dimt niet langer de rest van de
   app erachter wanneer het geopend is.
 - **Web64 op de productwebsite** — een nieuwe Web64 IDE-sectie op
-  [c64va.tech](https://www.c64va.tech).
+  [c64va.pro](https://www.c64va.pro).
 - **Voorbeeldupdate** — het `macro-met-parameter` voorbeeld gebruikt nu de
   tussen haakjes geplaatste `.macro setColor(color)` vorm.
 
@@ -557,11 +608,10 @@ gegenereerde assembly- en machinecode in realtime.
   huidige schijf rechtstreeks in VICE, allemaal vanuit een menu Bestand ▾ dat
   overeenkomt met de andere visuele editors. Zie [D64 Editor (een bestaande
   schijfimage bekijken en bewerken)]{1}.
-- **Toevoegen / extraheren / hernoemen / verwijderen in de D64 Editor** — voeg
-  een lokaal bestand toe aan de schijfdirectory, extraheer een geselecteerde
-  vermelding terug naar een `.prg`, hernoem een vermelding direct in de tabel of
-  verwijder deze — elke actie wordt rechtstreeks toegepast op het `.d64`-bestand
-  via `c1541`, zonder aparte opslagstap.
+- **Online Help-werkbalkknop** — een nieuwe pictogramknop na Debug opent de
+  meertalige documentatiesite
+  ([c64va.pro/docs.html](https://www.c64va.pro/docs.html)) rechtstreeks vanuit
+  de app.
 - **Laadadres, decompressieadres en Exomizer in de D64 Editor** — door een
   onbewerkt bestand zonder header toe te voegen, kunt u een optioneel laadadres
   en een Exomizer-decompressiedoel instellen en het bestand tijdens het laden
@@ -883,17 +933,17 @@ opnieuw opstarten van de applicatie. Een nieuwe bron begint met:
   bepaalt of de app automatisch momentopnamen maakt na bewerkingen. De
   standaardvertraging is ongeveer 2,5 seconden en de instelling geldt per
   tabblad.
-- Als een project nog niet is opgeslagen, worden momentopnamen opgeslagen in de
+- Als een project nog niet is opgeslagen, worden momentopnamen bewaard in de
   configuratiemap van de app totdat het project een bestandspad krijgt. |
   **Kennisbank** | Referentielinks (6502 opcodes, C64 KERNAL, geheugenkaart,
-  kleuren) | | **Controleren op updates** | Controleer c64va.tech voor een
-  nieuwere versie en download/installeer deze — zie [In-app
-  updates](#in-app-updates) |
+  kleuren) | | **Controleren op updates** | Controleer c64va.pro op een nieuwere
+  versie en download/installeer deze — zie [In-app updates](#in-app-updates) |
 
 ### Editortools
 
-De UB-werkbalk hanteert dezelfde visuele stijl en aangepaste tooltips als de
-Expert-modus. Deze biedt het volgende:
+**Menu → Controleren op updates** zoekt de nieuwste versie op c64va.pro (het
+leest de downloadlinks voor uw platform) en vergelijkt deze met de actieve
+versie:
 
 - Syntaxmarkering op basis van de huidige Ultimate Basic-taalreferentie;
 - regelnummers die synchroon blijven met lange bestanden;
@@ -913,6 +963,28 @@ spriteframes van 64 bytes.
 De lijst met opdrachten is opzettelijk in hoogte beperkt, zodat de detailkaart
 van de opdracht de resterende paneelhoogte kan vullen. Het detailgebied scrollt
 onafhankelijk voor langere syntaxbeschrijvingen.
+
+### Freemium en professioneel
+
+Zonder registratie draait Visual Assembler als **Freemium**; de badge naast de
+titel toont **FREEMIUM** of **PROFESSIONAL**. In de Freemium-modus kun je
+programma's schrijven en compileren en ze in VICE uitvoeren in de Block-,
+Expert- en Ultimate Basic-modus. Hiervoor is de Professional-versie vereist.
+
+- de visuele editors (SID, Sprite, Char, Charset, Hi-Res, Map, Level, D64,
+  Curve) en de SID Player;
+- **Build PRG**, **Build D64**, **Build CRT**, **Build project** and Exomizer
+  packing;
+- draaiend op de C64 Ultimate en op Kung Fu Flash 2;
+- UI-talen anders dan Hongaars en Engels, en de OLED- en Commodore 77-thema's.
+
+Door op een vergrendelde functie te klikken, opent u het
+registratiedialoogvenster. Om te registreren, opent u **Menu → Registreren…**
+(of klikt u op het badge-icoon), voert u het e-mailadres en het serienummer van
+uw aankoop in en drukt u op **Activeren**. Het serienummer hoort bij dat
+e-mailadres (hoofdletters/kleine letters en spaties maken niet uit) en de
+controle wordt offline uitgevoerd. **Licentie verwijderen** verwijdert de
+registratie van deze computer.
 
 ### Projecten, tabbladen en opstartbestanden
 
@@ -2581,17 +2653,22 @@ de schermen. Een level kan maximaal 7 × 10 schermen bevatten.
 .level "level.bin", $4000
 ```
 
-| Gedefinieerd                                             | Betekenis                                                                                  |
-| -------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| `LEVEL_SLOT_LO` / `LEVEL_SLOT_HI`                        | Adres van het scherm in elk slot (rij-georiënteerd, `LEVEL_W` slots per rij)               |
-| `NIVEAU_RIJ_SLOT`                                        | Niveaukarakterrij → eerste positie van de bijbehorende schermrij                           |
-| `NIVEAU_RIJ_LAAG/HOOG`, `NIVEAU_KRAAIEN_LAAG/HOOG`       | Niveau tekenrij → offset van de bijbehorende schermcode-rij / kleurenrij binnen een scherm |
-| `LEVEL_COL_SLOT`, `LEVEL_COL_OFS`                        | Bekijk de beginkolom → schermkolom en de kolom binnen het scherm                           |
-| `NIVEAU_W`, `NIVEAU_H`                                   | Niveaugrootte in schermen                                                                  |
-| `NIVEAU_KOLOMMEN`, `NIVEAU_RIJEN`                        | Grootte van het level in tekens                                                            |
-| `LEVEL_MAX_X`, `LEVEL_MAX_Y`                             | Grootste scrollpositie in pixels van een 40×25-weergave                                    |
-| `LEVEL_BG`, `LEVEL_MC1`, `LEVEL_MC2`, `LEVEL_MULTICOLOR` | Achtergrond / meerkleurige kleuren en modus van het level                                  |
-| `NIVEAU_GEGEVENS`, `NIVEAU_GROOTTE`, `NIVEAU_EINDE`      | Start, grootte en eerste vrije adres na de niveaugegevens                                  |
+| Gedefinieerd                                                                  | Betekenis                                                                                                                                           |
+| ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `LEVEL_SLOT_LO` / `LEVEL_SLOT_HI`                                             | Adres van het scherm in elk slot (rij-georiënteerd, `LEVEL_W` slots per rij)                                                                        |
+| `NIVEAU_RIJ_SLOT`                                                             | Niveaukarakterrij → eerste positie van de bijbehorende schermrij                                                                                    |
+| `NIVEAU_RIJ_LAAG/HOOG`, `NIVEAU_KRAAIEN_LAAG/HOOG`                            | Niveau tekenrij → offset van de bijbehorende schermcode-rij / kleurenrij binnen een scherm                                                          |
+| `LEVEL_COL_SLOT`, `LEVEL_COL_OFS`                                             | Bekijk de beginkolom → schermkolom en de kolom binnen het scherm                                                                                    |
+| `NIVEAU_W`, `NIVEAU_H`                                                        | Niveaugrootte in schermen                                                                                                                           |
+| `NIVEAU_KOLOMMEN`, `NIVEAU_RIJEN`                                             | Grootte van het level in tekens                                                                                                                     |
+| `LEVEL_MAX_X`, `LEVEL_MAX_Y`                                                  | Grootste scrollpositie in pixels van een 40×25-weergave                                                                                             |
+| `LEVEL_BG`, `LEVEL_MC1`, `LEVEL_MC2`, `LEVEL_MULTICOLOR`                      | Achtergrond / meerkleurige kleuren en modus van het level                                                                                           |
+| `NIVEAU_GEGEVENS`, `NIVEAU_GROOTTE`, `NIVEAU_EINDE`                           | Start, grootte en eerste vrije adres na de niveaugegevens                                                                                           |
+| `LEVEL_OBJ_X_LO/HI`, `LEVEL_OBJ_Y_LO/HI`, `LEVEL_OBJ_TYPE`, `LEVEL_OBJ_PARAM` | Objecttabel (objectlaag van de level-editor): positie in levelpixels, type en parameterbyte, in scrollvolgorde — `LEVEL_OBJ_COUNT` items (max. 255) |
+| `LEVEL_OBJ_T_START` … `LEVEL_OBJ_T_TRIGGER`                                   | Objecttypenummers: START 0, VIJAND 1, ITEM 2, DEUR 3, UITGANG 4, TRIGGER 5                                                                          |
+| `LEVEL_START_X`, `LEVEL_START_Y`                                              | Positie van het eerste Start-object (alleen gedefinieerd als het level er een heeft)                                                                |
+| `LEVEL_ATTR`, `LEVEL_ATTR_SOLID` … `LEVEL_ATTR_COLLECT`                       | Karakterattributentabel (één vlagbyte per schermcode; alleen wanneer het level attributen heeft) en de bijbehorende bits: 1, 2, 4, 8                |
+| `LEVEL_BORDER`, `LEVEL_SCR_COLORS`, `LEVEL_SCR_BG/BORDER/MC1/MC2`             | Niveaugrens; kleurentabellen per slot (rij-georiënteerd zoals `LEVEL_SLOT_*`) wanneer een scherm zijn eigen kleuren heeft (`LEVEL_SCR_COLORS` = 1)  |
 
 Typische beveiliging: `.assert LEVEL_END &lt;= $9200, "niveaugegevens komen in
 de code terecht"`.
@@ -5129,7 +5206,7 @@ naar D64**-optie.
 
 ### Editor voor hoge resolutie / meerkleurig
 
-| Functie         | Beschrijving                                                                                                   |
+| Instelling      | Beschrijving                                                                                                   |
 | --------------- | -------------------------------------------------------------------------------------------------------------- |
 | Modusschakelaar | **Multicolor** selectievakje schakelt tussen hoge resolutie (mono per cel) en meerkleurig (4 kleuren per cel). |
 | **Status**      | Geeft aan of het uitvoerbare pad geldig en toegankelijk is.                                                    |
@@ -5139,7 +5216,7 @@ meerkleurige modus van 160×200. Openen via Toolkit → Hi-Res Editor.
 
 ### Sprite-editor
 
-| Functie    | Beschrijving                                                                                   |
+| Instelling | Beschrijving                                                                                   |
 | ---------- | ---------------------------------------------------------------------------------------------- |
 | Lijsten    | Lijsten toevoegen/verwijderen/de volgorde wijzigen; de lijststrook wordt onderaan weergegeven. |
 | Modus      | Schakelaar voor monochroom/meerkleurig.                                                        |
@@ -5180,7 +5257,7 @@ vanuit de Tauri-backend; niets aan de integratie is platformspecifiek.
 
 ### C64 Character ROM Browser ("Char map")
 
-| Functie        | Beschrijving                                                                                                                                                                                                                                                   |
+| Instelling     | Beschrijving                                                                                                                                                                                                                                                   |
 | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Twee tekensets | Tabblad 1: **Set 1 — Boven/Grafisch** (standaardmodus na inschakelen). Tabblad 2: **Set 2 — Onder/Boven** (na `$0E` schakelaar).                                                                                                                               |
 | **Status**     | Een raster van 16x16 pixels met alle 256 tekens. Klik op een glyph om het detailvenster te bekijken: een ingezoomde weergave van 8x8 pixels, de schermcode (decimaal + hexadecimaal), PETSCII-codes (zowel standaard als verschoven) en de ruwe 8-byte bitmap. |
@@ -5194,7 +5271,7 @@ van een glyph te vinden voordat je deze schrijft met `RAWBYTES` of `TEXT`.
 Teksteditor met een tekenset van 256 tekens (8x8). Openen via Toolkit →
 Teksteditor.
 
-| Functie                     | Beschrijving                                                                                 |
+| Instelling                  | Beschrijving                                                                                 |
 | --------------------------- | -------------------------------------------------------------------------------------------- |
 | ROM laden                   | Importeert de C64 ROM-tekenset rechtstreeks van VICE's `chargen` (geen bestandsselector).    |
 | Laad `.bin`                 | Importeert een extern binair bestand met een tekenset van 2048 bytes.                        |
@@ -5231,7 +5308,7 @@ gebruikt.
 - een **USB-kabel** waarmee de cartridge wordt verbonden met de computer waarop
   Visual Assembler draait (deze verschijnt als een virtuele seriële poort).
 
-| Functie            | Beschrijving                                                                                                                                                                                                     |
+| Instelling         | Beschrijving                                                                                                                                                                                                     |
 | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Mono / meerkleurig | In de monochrome modus worden 1-bits 8×8-glyphs opgeslagen. In de meerkleurige modus worden horizontale pixelparen van twee bits opgeslagen en worden gebruikte cellen gemarkeerd met bit 3 van het kleuren-RAM. |
 
@@ -5289,7 +5366,8 @@ meerkleurige modus van 160×200. Openen via Toolkit → Hi-Res Editor.
 | Functie                       | Beschrijving                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Modusschakelaar               | **Multicolor** selectievakje schakelt tussen hoge resolutie (mono per cel) en meerkleurig (4 kleuren per cel).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| Hulpmiddelen                  | Potlood, gum, lijn, rechthoek, gevulde rechthoek, ovaal, gevuld ovaal, vlakken, selecteren.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Hulpmiddelen                  | Potlood, gum, lijn, rechthoek, gevulde rechthoek, ovaal, gevuld ovaal, vlak vullen, celpapier, selecteren.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Celpapier (hoge resolutie)    | Bij hoge resolutie zijn er twee kleuren in elke 8×8 cel mogelijk: de inkt (ingestelde pixels, hoge nibble van de scherm-RAM-byte van de cel) en het papier (wisbare pixels, lage nibble). Met de tool **Celpapier** wordt het papier van elke cel waarop u klikt of die u sleept ingesteld op de geselecteerde kleur; **PAPIER** stelt nog steeds alle cellen tegelijk in. De gum verwijdert pixels, zodat het eigen papier van de cel zichtbaar wordt. Uitgeschakeld in meerkleurige weergave, waar de achtergrond ($D021) wordt gedeeld.                                                                                                                                               |
 | Spuitgereedschap              | Een airbrush-achtig tekenprogramma dat tijdens het tekenen pixels rond de cursor verspreidt.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | Spuitintensiteit              | Met het keuzemenu naast het spuitgereedschap kunt u de dichtheid van elke spuitbeweging aanpassen.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | Kleurenpalet                  | Voorgrond (inkt) + papier (achtergrond) selectieknoppen. Meerkleurenmodus houdt automatisch 3 extra's per cel bij.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
@@ -5308,16 +5386,22 @@ meerkleurige modus van 160×200. Openen via Toolkit → Hi-Res Editor.
 Sprite-editor van 24x21 pixels met animatie over meerdere frames. Openen via
 Toolkit → Sprite-editor.
 
-| Functie                            | Beschrijving                                                                                                                                                                                                                                                                    |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Lijsten                            | Kaders toevoegen/verwijderen/de volgorde wijzigen; de kaderstrook wordt onderaan weergegeven. **Kopiëren** / **Plakken** in de kaderrij kopieert het hele huidige kader; dezelfde twee opties zijn beschikbaar in het rechtermuisklikmenu van het canvas en van de kaderstrook. |
-| Modus                              | Schakelaar voor monochroom/meerkleurig.                                                                                                                                                                                                                                         |
-| Hulpmiddelen                       | Potlood, vulling, lijn, rechthoek, cirkel — plus horizontaal spiegelen, verticaal spiegelen, links/rechts/boven/onder verschuiven (met optionele tekstterugloop). Vormgereedschappen tonen een live voorbeeld tijdens het slepen; laat los om te bevestigen.                    |
-| Ongedaan maken / opnieuw uitvoeren | Volledige stapel met ongedaan maken/herstellen per frame. Ctrl/Cmd+Z / Ctrl/Cmd+Y of de knoppen in de werkbalk.                                                                                                                                                                 |
-| Afbeelding importeren              | Importeer een PNG- of JPEG-bestand via Bestand → Afbeelding importeren. De importeerfunctie koppelt elke pixel aan de dichtstbijzijnde kleur uit het C64-palet en schrijft deze naar het huidige frame.                                                                         |
-| Animatievoorbeeld                  | Afspelen/stoppen met instelbare snelheid.                                                                                                                                                                                                                                       |
-| Exporteer blokken                  | Voegt voor elk frame een RAWBYTES-blok in op een adres dat is uitgelijnd met 64 bytes, plus een instelling voor een spritepointer.                                                                                                                                              |
-| Sla `.bin` op                      | Schrijft 64 bytes per frame (ruwe spritegegevens zonder opvulling).                                                                                                                                                                                                             |
+| Functie                            | Beschrijving                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Lijsten                            | Kaders toevoegen/verwijderen/de volgorde wijzigen; de kaderstrook wordt onderaan weergegeven. **Kopiëren** / **Plakken** in de kaderrij kopieert het hele huidige kader; dezelfde twee opties zijn beschikbaar in het rechtermuisklikmenu van het canvas en van de kaderstrook.                                                                                                                                                                                              |
+| Modus                              | Schakelaar voor monochroom/meerkleurig.                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| Hulpmiddelen                       | Potlood, vulling, lijn, rechthoek, cirkel — plus horizontaal spiegelen, verticaal spiegelen, links/rechts/boven/onder verschuiven (met optionele tekstterugloop). Vormgereedschappen tonen een live voorbeeld tijdens het slepen; laat los om te bevestigen.                                                                                                                                                                                                                 |
+| Ongedaan maken / opnieuw uitvoeren | Volledige stapel met ongedaan maken/herstellen per frame. Ctrl/Cmd+Z / Ctrl/Cmd+Y of de knoppen in de werkbalk.                                                                                                                                                                                                                                                                                                                                                              |
+| Afbeelding importeren              | Importeer een PNG- of JPEG-bestand via Bestand → Afbeelding importeren. De importeerfunctie koppelt elke pixel aan de dichtstbijzijnde kleur uit het C64-palet en schrijft deze naar het huidige frame.                                                                                                                                                                                                                                                                      |
+| Animatievoorbeeld                  | Afspelen/stoppen met instelbare snelheid.                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Exporteer blokken                  | Voegt voor elk frame een RAWBYTES-blok in op een adres dat is uitgelijnd met 64 bytes, plus een instelling voor een spritepointer.                                                                                                                                                                                                                                                                                                                                           |
+| Sla `.bin` op                      | Schrijft 64 bytes per frame (ruwe spritegegevens zonder opvulling).                                                                                                                                                                                                                                                                                                                                                                                                          |
+| Selectie                           | **Selecteren/verplaatsen**: sleep een rechthoek en sleep vervolgens binnen de rechthoek om de pixels te verplaatsen (lege pixels zijn transparant); met de pijltjestoetsen verplaatst u de rechthoek één pixel (twee bij meerkleurig), Delete verwijdert de selectie, Esc laat de selectie vallen. **90° draaien** (in beide richtingen) draait de selectie of het hele kader. Selecteren, spiegelen, verschuiven en roteren werken tegelijkertijd op de body en de overlay. |
+| Overlay met hoge resolutie         | **Hi-res overlay** voegt een tweede, eenkleurige sprite met hoge resolutie toe over elk frame — de klassieke omtrek over een veelkleurig lichaam. De **Layer** lijst selecteert de bewerkte laag; de overlay wordt gedimd terwijl het lichaam wordt bewerkt. Op de C64 is het een aparte sprite: geef deze een lager spritenummer dan het lichaam. `.bin` en **Copy bytes** schrijven de overlay-sprites na die van het lichaam (`sprite_f1_ov_1`).                          |
+| Spiegel alles                      | Voegt een horizontaal gespiegelde kopie van elk frame (en de bijbehorende hitbox) toe — een loopcyclus in de andere richting met één klik.                                                                                                                                                                                                                                                                                                                                   |
+| Sprite-sheet importeren            | Bestanden → **Spritesheet importeren…**: celbreedte/hoogte, offset, tussenruimte en frameaantal verdelen de afbeelding in frames van de huidige grootte (meerkleurige cellen worden geschaald naar 12 pixels per sprite). Kleuren komen uit de afbeelding of blijven de eigen kleuren van de sprite; OKLab-matching zonder dithering, geordende (Bayer) of Floyd-Steinberg-dithering. Vervangt de frames of voegt eraan toe.                                                 |
+| Hitbox                             | De **Hitbox**-tool sleept een rechthoek per frame (gestippeld cyaan); **Fit**, **Fit every frame**, **Copy to every frame** en **Remove** in het zijpaneel. Bestanden → **Copy hitbox table** geeft `sprite_hit_x / _y / _w / _h` (één byte per frame, schermpixels vanaf linksboven); een frame zonder hitbox gebruikt zijn pixelgrenzen.                                                                                                                                   |
+| X / Y ×2                           | Toont de preview zoals met `$D01D` / `$D017` sprite-uitbreiding.                                                                                                                                                                                                                                                                                                                                                                                                             |
 
 ### C64 Character ROM Browser ("Char map")
 
@@ -5337,42 +5421,59 @@ van een glyph te vinden voordat je deze schrijft met `RAWBYTES` of `TEXT`.
 Teksteditor met een tekenset van 256 tekens (8x8). Openen via Toolkit →
 Teksteditor.
 
-| Functie                     | Beschrijving                                                                                                                                                                                                  |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ROM laden                   | Importeert de C64 ROM-tekenset rechtstreeks van VICE's `chargen` (geen bestandsselector).                                                                                                                     |
-| Laad `.bin`                 | Importeert een extern binair bestand met een tekenset van 2048 bytes.                                                                                                                                         |
-| Voorbeeldweergave per teken | Een raster van 16 vakjes breed met alle 256 glyphs, waarbij het huidige vakje is gemarkeerd.                                                                                                                  |
-| Pixel-editor                | 8x8 tekeneditor voor één teken met schakel-/omkeer-/wisfuncties.                                                                                                                                              |
-| Kleur per teken             | Slaat een standaard kleur-RAM-waarde op voor elk teken. In de modus voor meerkleurige tekens behoudt dit ook de per-cel meerkleurige inschakelbit en de eigen lagere 3-bits kleur van het teken.              |
-| Metadata retour             | Bij het laden van compatibele gegevens vanuit Charset Canvas/Map-workflows blijven de kleurmetadata per teken behouden, zodat bewerkingen kunnen worden voortgezet zonder dat de kleurintentie verloren gaat. |
-| Exporteer blokken           | Voegt de gecodeerde tekenset toe aan RAWBYTES op $0800 (blok 2) of $3800 (blok 7).                                                                                                                            |
+| Functie                       | Beschrijving                                                                                                                                                                                                                                                       |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| ROM laden                     | Laadt de C64-teken-ROM — de exacte 901225-01 glyphs, zonder bestandsselector. De eerste knop (en **Bestanden → ROM: hoofdletters / afbeeldingen**) laadt set 1, de tweede knop (of Shift+klik, of **Bestanden → ROM: kleine letters / hoofdletters**) laadt set 2. |
+| Laad `.bin`                   | Importeert een extern binair bestand met een tekenset van 2048 bytes.                                                                                                                                                                                              |
+| Voorbeeldweergave per teken   | Een raster van 16 vakjes breed met alle 256 glyphs, waarbij het huidige vakje is gemarkeerd.                                                                                                                                                                       |
+| Pixel-editor                  | Bewerkt het geselecteerde teken, of een **tegel** van 2×1, 1×2 of 2×2 aangrenzende tekens als één afbeelding (tegelkiezer).                                                                                                                                        |
+| Tekengereedschappen           | Potlood, lijn, rechthoek, gevulde rechthoek en vlakvulling. Door op een pixel te klikken waar al inkt op staat, wordt deze gewist.                                                                                                                                 |
+| Transformaties                | Wissen, omkeren, horizontaal/verticaal spiegelen, verschuiven met omwikkeling, 90° met de klok mee/tegen de klok in draaien (alleen vierkante tegels) — op de hele tegel.                                                                                          |
+| Ongedaan maken / Opnieuw doen | Werkbalkknoppen, Ctrl+Z en Ctrl+Y (Ctrl+Shift+Z).                                                                                                                                                                                                                  |
+| Kopiëren / Plakken            | Met de knoppen op de werkbalk, Ctrl+C / Ctrl+V, of door met de rechtermuisknop op de kaart te klikken, wordt de hele tegel inclusief de kleuren gekopieerd.                                                                                                        |
+| Kaart slepen                  | Sleep een personage naar een ander personage op de kaart om ze te verwisselen; Shift+slepen kopieert.                                                                                                                                                              |
+| Tekstvoorbeeld                | Typ tekst om deze in de huidige tekenset te bekijken. Kies de toewijzing voor hoofdletters of kleine letters; `{65}` of `{$41}` voegt een schermcode in.                                                                                                           |
+| Bereik exporteren             | Stel de 'Van'- en 'Naar'-tekens in en ga vervolgens naar **Bestanden → Bereik opslaan (.bin)** (ruwe bytes) of **Bereik kopiëren ASM** (`.byte` regels).                                                                                                           |
+| Kleur per teken               | Slaat een standaard kleur-RAM-waarde op voor elk teken. In de modus voor meerkleurige tekens behoudt dit ook de per-cel meerkleurige inschakelbit en de eigen lagere 3-bits kleur van het teken.                                                                   |
+| Metadata retour               | Bij het laden van compatibele gegevens vanuit Charset Canvas/Map-workflows blijven de kleurmetadata per teken behouden, zodat bewerkingen kunnen worden voortgezet zonder dat de kleurintentie verloren gaat.                                                      |
+| Exporteer blokken             | Voegt de gecodeerde tekenset toe aan RAWBYTES op $0800 (blok 2) of $3800 (blok 7).                                                                                                                                                                                 |
 
 ### Tekenset Canvas Editor
 
 Volledig canvas tekenset-schilderprogramma voor het bouwen van schermen vanuit
 een complete tekenset van 256 tekens. Openen via Toolkit → Tekensetcanvas.
 
-Het canvas is 16×16 tekens. In de monochrome modus geeft dat een werkgebied van
-128×128 pixels; in de modus met meerdere tekens geeft het een werkgebied van
-64×128 pixels, waarbij de regels voor meerdere tekens van de C64 worden
-gebruikt.
+Het tekengebied is 16×16 tekens, 128×128 pixels. In de modus voor meerkleurige
+tekens is elk teken ofwel meerkleurig (brede pixels, 4 kleuren) ofwel in hoge
+resolutie (8 smalle pixels, 2 kleuren), precies zoals op de C64.
 
-| Functie                                       | Beschrijving                                                                                                                                                                                                     |
-| --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Mono / meerkleurig                            | In de monochrome modus worden 1-bits 8×8-glyphs opgeslagen. In de meerkleurige modus worden horizontale pixelparen van twee bits opgeslagen en worden gebruikte cellen gemarkeerd met bit 3 van het kleuren-RAM. |
-| C64 kleurenmodel                              | Achtergrond gebruikt `$D021`; gedeelde meerkleurige kleur 1 gebruikt `$D022`; gedeelde meerkleurige kleur 2 gebruikt `$D023`; de kleur van elk teken is afkomstig uit bits 0–2 van het kleurengeheugen.          |
-| Tekengereedschappen                           | Potlood, gum, lijn, rechthoek, ovaal en vulpen werken over de grenzen van tekens heen.                                                                                                                           |
-| Spuitgereedschap                              | Een tekening in airbrush-stijl waarbij pixels over aangrenzende cellen/tekens verspreid worden.                                                                                                                  |
-| Spuitintensiteit                              | Via het keuzemenu naast het spuitgereedschap kunt u de spuitdichtheid instellen.                                                                                                                                 |
-| Raster inschakelen/uitschakelen               | Met het selectievakje 'Raster' kunt u het raster van 16x16 tekens weergeven of verbergen.                                                                                                                        |
-| Sla de tekenset `.bin` op.                    | Slaat de 2048-byte tekenbitmapgegevens op.                                                                                                                                                                       |
-| Sla een kaart van 16×16 op + Kleur RAM `.bin` | Slaat 256 schermcodes op, gevolgd door 256 kleur-RAM-waarden. Gebruik dit met `MAP_COPY16X16`.                                                                                                                   |
-| Laden                                         | Kan opgeslagen charset-canvasbestanden, gewone charset-gegevens en compatibele Character Editor charset-gegevens laden, inclusief opgeslagen kleuren per teken indien aanwezig.                                  |
+| Functie                                       | Beschrijving                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |                                                      |
+| --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| Mono / meerkleurig                            | In de monochrome modus worden 1-bits 8×8-glyphs opgeslagen. In de meerkleurige modus worden horizontale pixelparen van twee bits opgeslagen en worden meerkleurige cellen gemarkeerd met bit 3 van het kleurgeheugen.                                                                                                                                                                                                                                                                                                                                                                           |                                                      |
+| Tekenmodus-tool                               | In de meerkleurenmodus kunt u op tekens klikken of slepen om ze te wisselen tussen meerkleuren en hoge resolutie (Color RAM-bit 3). De vorm blijft behouden: een vast pixelpaar wordt de eigen kleur van het teken. Een teken met hoge resolutie heeft de achtergrond en zijn eigen kleur (0-7); MC1/MC2 tekenen daar niet.                                                                                                                                                                                                                                                                     |                                                      |
+| Achtergrond                                   | Het BG-dropdownmenu wordt ook in de monochrome modus weergegeven; MC1 / MC2 alleen in de meerkleurige modus.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |                                                      |
+| ECM                                           | Het selectievakje **ECM** (uitgebreide kleurmodus, niet samen met meerkleurig): elk teken is in hoge resolutie met een eigen kleur (0–15) en een van de vier achtergronden BG0–BG3 (`$D021`–`$D024`; BG1 / BG2 zijn de MC1 / MC2-registers). Kies een achtergrondkleur in het palet (gelabeld B0–B3) en klik of sleep vervolgens over tekens met het gereedschap **Tekenachtergrond**. Er passen slechts 64 verschillende tekens in: de statusregel telt ze en bij het opslaan worden gelijke tekens samengevoegd — de tekenset bestaat uit 64 tekens (512 bytes) en de schermcodes zijn `glyph | achtergrond << 6`. Schakel ECM in met `$D011` bit 6. |
+| C64 kleurenmodel                              | Achtergrond gebruikt `$D021`; gedeelde meerkleurige kleur 1 gebruikt `$D022`; gedeelde meerkleurige kleur 2 gebruikt `$D023`; de kleur van elk teken is afkomstig uit bits 0–2 van het kleurengeheugen.                                                                                                                                                                                                                                                                                                                                                                                         |                                                      |
+| Tekengereedschappen                           | Potlood, gum, lijn, rechthoek, ovaal en vulpen werken over de grenzen van tekens heen.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |                                                      |
+| Spuitgereedschap                              | Een tekening in airbrush-stijl waarbij pixels over aangrenzende cellen/tekens verspreid worden.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |                                                      |
+| Spuitintensiteit                              | Via het keuzemenu naast het spuitgereedschap kunt u de spuitdichtheid instellen.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |                                                      |
+| Raster inschakelen/uitschakelen               | Met het selectievakje 'Raster' kunt u het raster van 16x16 tekens weergeven of verbergen.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                      |
+| Zoom                                          | De zoomregelaar (2×–24×, hele apparaatpixels per C64-pixel) of Ctrl+muiswiel over het canvas; de zoominstelling wordt onthouden. Vanaf 8× tekent het raster ook een fijne lijn op elke pixelrand.                                                                                                                                                                                                                                                                                                                                                                                               |                                                      |
+| Sla de tekenset `.bin` op.                    | Slaat de 2048-byte tekenbitmapgegevens op.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |                                                      |
+| Sla een kaart van 16×16 op + Kleur RAM `.bin` | Slaat 256 schermcodes op, gevolgd door 256 kleur-RAM-waarden. Gebruik dit met `MAP_COPY16X16`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |                                                      |
+| Laden                                         | Kan opgeslagen charset-canvasbestanden, gewone charset-gegevens en compatibele Character Editor charset-gegevens laden, inclusief opgeslagen kleuren per teken indien aanwezig.                                                                                                                                                                                                                                                                                                                                                                                                                 |                                                      |
 
 **Belangrijke C64-beperking:** In de meerkleurige tekenmodus zijn de twee
 gedeelde kleuren globaal voor het hele scherm (`$D022` / `$D023`). Alleen de
-eigen kleur van het teken is per cel, en deze is beperkt tot de kleuren 0-7
-omdat bit 3 van het kleuren-RAM de meerkleurige modus selecteert.
+eigen kleur van het teken is per cel, en deze is beperkt tot kleuren 0-7 omdat
+bit 3 van het kleuren-RAM de meerkleurige modus selecteert. Dus één teken toont
+maximaal **4 kleuren** (achtergrond, MC1, MC2 en zijn eigen kleur), en het hele
+scherm maximaal 3 + 8. In het palet zijn de gedeelde kleuren gelabeld als BG / 1
+/ 2, en kleuren 8-15 die niet gedeeld worden, zijn gedimd. Het selecteren van
+zo'n kleur plaatst deze alleen in MC2 of MC1 zolang geen pixel dat register
+gebruikt; anders wordt deze gewijzigd in het dropdownmenu (waardoor het hele
+scherm opnieuw wordt gekleurd). In de hoge-resolutiemodus (mono) heeft een teken
+2 kleuren: de achtergrond en zijn eigen kleur (0-15).
 
 ### Kaarteditor (tegelkaarten met meerdere lagen)
 
@@ -5401,13 +5502,19 @@ side-scroller of een 2D-kaart — en wordt het hele level met vloeiend scrollen
 weergegeven. Open het met de **Level Editor**-knop in de werkbalk naast de Map
 Editor.
 
-| Functie   | Beschrijving                                                                                                                                                                                                                                             |
-| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Indeling  | **Verticaal**, **Horizontaal** of **Raster** (rijen × kolommen, met knoppen voor het toevoegen/verwijderen van rijen en kolommen).                                                                                                                       |
-| Schermen  | **Nieuw leeg scherm**, **Toevoegen vanuit Kaarteditor** (de momenteel geopende kaart) of **Kaart(en) laden (.bin)…** (meerdere Kaarteditor-exports tegelijk). Sleep een scherm uit de lijst naar een slot; sleep slots naar elkaar om ze te verwisselen. |
-| Bewerken  | **Bewerken in kaarteditor** opent het geselecteerde scherm in de kaarteditor en brengt de wijzigingen terug; dupliceren, omhoog/links of omlaag/rechts verplaatsen, verwijderen; ongedaan maken/opnieuw doen.                                            |
-| Voorbeeld | Sleep de preview of gebruik de pijltjes toetsen om pixel voor pixel te scrollen; **Afspelen** scrollt automatisch (richting, snelheid 1–8, herhalen), Spatie = afspelen/stoppen. *Randen* markeert de schermranden.                                      |
-| Controles | Informatie over de tekenset en een waarschuwing wanneer schermen een andere tekenset of kleuren gebruiken (het level gebruikt de instellingen van het eerste scherm).                                                                                    |
+| Functie               | Beschrijving                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Indeling              | **Verticaal**, **Horizontaal** of **Raster** (rijen × kolommen, met knoppen voor het toevoegen/verwijderen van rijen en kolommen).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| Schermen              | **Nieuw leeg scherm**, **Toevoegen vanuit Kaarteditor** (de momenteel geopende kaart) of **Kaart(en) laden (.bin)…** (meerdere Kaarteditor-exports tegelijk). Sleep een scherm uit de lijst naar een slot; sleep slots naar elkaar om ze te verwisselen.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Bewerken              | **Bewerken in kaarteditor** opent het geselecteerde scherm in de kaarteditor en brengt de wijzigingen terug; dupliceren, omhoog/links of omlaag/rechts verplaatsen, verwijderen; ongedaan maken/opnieuw doen.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Voorbeeld             | Sleep de preview of gebruik de pijltjes toetsen om pixel voor pixel te scrollen; **Afspelen** scrollt automatisch (richting, snelheid 1–8, herhalen), Spatie = afspelen/stoppen. *Randen* markeert de schermranden.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Controles             | Informatie over de tekenset en een waarschuwing wanneer schermen een andere tekenset of kleuren gebruiken (het level gebruikt de instellingen van het eerste scherm).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Karaktereigenschappen | De knop **Personagekenmerken** schakelt het overzicht over naar het schilderen van kenmerken: kies **Vaste**, **Ladder**, **Gevaar** of **Verzamelobject**, klik op een personage en elke cel met die schermcode krijgt (of verliest) die code; sleep voor meer codes. De attributen worden weergegeven als een gekleurde laag en vormen de 256-byte `LEVEL_ATTR`-tabel (`LEVEL_ATTR_SOLID` = 1, `_LADDER` = 2, `_HAZARD` = 4, `_COLLECT` = 8).                                                                                                                                                                                                                                                                                                                     |
+| Randcontrole          | In het rood zijn de plekken aangegeven waar aangrenzende schermen niet doorlopen: de ene kant van de rand is leeg (ruimte) en de andere niet, of slechts aan één kant is de rand gevuld. Het zijpaneel telt de randen en cellen.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Kleuren               | **Niveaurand**, en **Eigen kleuren voor dit scherm** (achtergrond, rand, meerkleurig 1 / 2) voor het geselecteerde scherm; het voorbeeldvenster toont de rand. Geëxporteerd per slot als `NIVEAU_SCHERM_ACHTERGROND / _RAND / _MEERKLEUREN1 / _MEERKLEUREN2` (met `NIVEAU_SCHERM_KLEUREN` = 1) wanneer een geplaatst scherm zijn eigen kleuren heeft.                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Geheugen              | De `.level`-gegevensgrootte op een gekozen adres (precies berekend zoals de macro deze opbouwt), met waarschuwingen voor de BASIC/KERNAL ROM, het I/O-gebied en het geheugen onder `$0800`, en de RLE-grootte van het level. **Export RLE to blocks / Copy RLE asm** geeft de level-RLE verpakt met de `level_unrle`-uitpakker (`($FB)` → `($FD)`).                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Verschijnt in VICE    | Bouwt een met een joystick bestuurd testprogramma op basis van het level (de `level-demo`-scroller, code op `$C000`, levelgegevens van `$2000`, aangepaste tekenset op `$2000`) en start het in VICE — de schermkleuren veranderen met het scherm linksboven in het beeld, de camera start bij het eerste Start-object.                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Objecten              | De knop **Objectenlaag** schakelt het overzicht over naar objectbewerking: kies een type (Start, Vijand, Item, Deur, Uitgang, Trigger) en een **Param** byte (vijandsoort, item-ID, deurdoel, enz.), klik om te plaatsen, sleep om te verplaatsen (vastgeklikt op 8 px, Shift = vrij), klik op een object om het te selecteren en het type/de parameter te wijzigen, de pijltjestoetsen verplaatsen het, Delete verwijdert het. Objecten behoren tot de levelpositie, niet tot een scherm. Ze worden weergegeven in de zijbalk, getoond in de preview, opgeslagen met het level en geëxporteerd in scrollvolgorde (verticaal op Y, horizontaal op X, rasterrij voor rij) als `LEVEL_OBJ_*` tabellen — met **Copy asm / Export to blocks** en met de `.level` macro. |
 
 **Bestandenmenu:**
 | Actie                                                                  | Wat het doet                                                                                                                    |
@@ -5433,6 +5540,11 @@ frame naar WebSid, en maximaal drie previewnoten delen de drie stemmen. De
 streamspeler wordt geladen wanneer de editor wordt geopend en opnieuw na Stop,
 zodat noten direct klinken; zonder WebSid speelt er in plaats daarvan een kleine
 SID-synthesizer.
+
+**Voorbeeldweergave-engine:** **Instellingen → SID-voorbeeld** selecteert
+**WebSID** of **VA SID Core (Rust)**, de eigen SID-emulatie van de app; met VA
+SID Core kiest u ook de chip (MOS 6581 / 8580). De instrumentparameters worden
+ingesteld met draaiknoppen.
 
 ** Bedieningselementen per instrument: **
 - Golfvormselectievakjes (TRI / SAW / PUL / NOI) — meerdere golfvormen worden
@@ -5547,6 +5659,27 @@ in het versiebeheerde `.bin`-formaat.
 - Bij het openen van het klavier lichten de bijbehorende pianotoetsen op als de
   akkoord- en arpeggiovoorbeelden worden weergegeven.
 
+**Opname, metronoom en MIDI:**
+- **Record** (de rode stip in de tracker-werkbalk en op VA-VK) schrijft de noten
+  die je speelt – op VA-VK, het computertoetsenbord of een MIDI-keyboard –
+  synchroon in de geselecteerde stem, beginnend bij de geselecteerde regel, met
+  de huidige snelheid. Wanneer het patroon vol is, wordt er na de huidige
+  songstap een nieuw, leeg patroon toegevoegd en gaat de opname daar verder.
+  Druk nogmaals op Record om te stoppen.
+- **Metronoom** (tracker-werkbalk en VA-VK) klikt elke 4 regels, met de nadruk
+  op de eerste tel van elke maat van 4 tellen. De tel-lampjes ernaast knipperen
+  bij elke tel tijdens het afspelen en opnemen, zelfs als de klik is
+  uitgeschakeld.
+- **MIDI:** Kies de ingang in de **MIDI**-lijst naast de instrumentnaam en druk
+  op **MIDI verbinden**; noten worden gespeeld door het huidige instrument (en
+  worden in de tracker geschreven tijdens het opnemen of met *Invoegen in
+  tracker*). Het lampje naast de knop knippert bij elk inkomend MIDI-bericht.
+- **Patroon verwijderen:** De **−**-knop naast **Patroon +** verwijdert het
+  huidige patroon (er wordt eerst gevraagd of het patroon noten bevat). De
+  songstappen die het patroon gebruikten, worden verwijderd en de andere worden
+  opnieuw genummerd; er blijft altijd minstens één patroon over.
+- De **hoofdvolumeknop** bevindt zich op VA-VK.
+
 **Exporteren via het menu Bestanden:**
 | Exporteren                             | Wat het doet                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -5554,7 +5687,25 @@ in het versiebeheerde `.bin`-formaat.
 | `Blokken exporteren (alleen gegevens)` | Voegt de instrumenttabel + patroonblokken toe aan het programma op `* = $C000`.                                                                                                                                                                                                                                                                                                                                                  |
 | `Blokken exporteren + miniplayer`      | Voegt de volledige speler (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) plus PAL-frequentietabellen toe. Plaats na het exporteren een `JSR sid_init` in uw hoofdcode waar de muziek moet beginnen; gebruik in plaats daarvan uw eigen IRQ-aanroep `JSR sid_frame` eenmaal per frame.                                                                                                                           |
 | `Exporteer asm (klembord)`             | Kopieert de volledige broncode van de assembly naar het klembord.                                                                                                                                                                                                                                                                                                                                                                |
+| `Importeer GoatTracker .sng…`          | Laadt een GoatTracker 2-nummer in plaats van het huidige — zie **GoatTracker import** hieronder.                                                                                                                                                                                                                                                                                                                                 |
 | `Exporteren naar UltimateBasic`        | Schrijft een `tune ... end` blok (instrumenten, volgordelijst, patroonrijen als tekst) plus `music play` en voegt dit in op de cursorpositie van de Ultimate Basic-editor; buiten de UB-modus kopieert het de tekst naar het klembord. De UltimateBasic-compiler bouwt de speler, dus `music play` / `music stop` besturen deze. Instrumentmodulatie komt in `imod` / `ifilt` / `igate` / `itab` regels (Ultimate Basic 1.6.2+). |
+
+**GoatTracker importeren:** **Bestanden → GoatTracker .sng importeren…** laadt
+een GoatTracker 2-nummer (`.sng`, GTS3–GTS5) in plaats van het huidige. De
+conversie is bij benadering, omdat de twee trackers anders werken:
+- De volgordelijsten per stem (met transponering en herhaling) worden
+  samengevoegd tot één lied voor drie stemmen en in patronen van 32 rijen
+  verdeeld; identieke patronen worden gedeeld.
+- Instrumenten: AD/SR, eerste golf, gate timer en harde herstart worden
+  overgenomen; de wavetable wordt de golf-/arpeggiotabel, de pulstabel PWM, de
+  filtertabel filtermodus, resonantie en cutoff sweep, en de snelheidstabel
+  invoert het instrumentvibrato.
+- Patrooncommando's: key off → note-off, portamento → `U` / `D` (maximaal 255
+  per regel), tempo → `F`; toneporta wordt een gewone noot. Andere commando's
+  worden weggelaten en een bericht geeft aan wat is benaderd of overgeslagen.
+- Een gate die door de wavetable wordt vrijgegeven, wordt een noot-off op de
+  volgende vrije rij. Alleen de eerste subtune wordt geïmporteerd en de
+  exportlimiet van 7 patronen blijft van kracht.
 
 **Gebruik van de speler-ZP: ** `$02`–`$1C` (patroonpointers, patroonoffset,
 temp) en `$2F` (huidige snelheid), plus `$FB`–`$FD` (tickteller, rij-index,
@@ -5573,6 +5724,35 @@ verplaats ze indien nodig via de Expert-modus.
   vallen de notenvoorbeelden terug op de kleine synthesizer, die slechts een
   benadering is van de SID-chip. De voorbeelden bereiken WebSid ongeveer 0,1
   seconde eerder dan het geluid.
+
+---
+
+### SID-speler
+
+De **SID Player**-werkbalkknop opent een zwevend venster dat
+`.sid`-muziekbestanden (PSID en RSID) afspeelt, bijvoorbeeld nummers uit de
+HVSC-collectie.
+
+- **Afspeellijst:** Voeg nummers toe met **Voeg .sid-bestanden toe…** of door ze
+  naar het venster te slepen en op een nummer te klikken om het af te spelen;
+  **Verwijderen** en **Afspeellijst wissen** ruimen de lijst op. **Afspeellijst
+  opslaan…** / **Afspeellijst openen…** schrijven en lezen een `.sidpl`-bestand
+  met de nummers erin. De lijst, het huidige nummer en of het venster open is,
+  worden onthouden.
+- **Transport:** Afspelen, Pauze, Stop, **Vorige** / **Volgende** melodie,
+  **Vorige / Volgende submelodie** voor bestanden met meerdere nummers, en een
+  tijdsteller.
+- **Zoeken:** de positiebalk en **Terug/Vooruit 10 s** werken met de VA SID
+  Core-engine. WebSID kan niet zoeken, dus deze bedieningselementen zijn daarmee
+  uitgeschakeld.
+- **Volume:** De knop wordt gedeeld met het hoofdvolume van de SID Editor.
+- **Engine:** Het venster toont welke engine wordt gebruikt (WebSID of VA SID
+  Core met de bijbehorende versie en SID-chip); kies deze in **Instellingen →
+  SID-voorbeeld**. VA SID Core voert de tune uit op een native Rust C64-core met
+  een cycle-exacte 6510, precieze interrupt-timing, CIA 6526A, VIC-II-timing met
+  foutlijnen, sprite DMA en raster-interrupts, en de 6510 I/O-poort — zodat
+  raster-IRQ-, CIA-getimede en digitale tunes worden afgespeeld met de timing
+  van een echte machine.
 
 ---
 

@@ -20,3 +20,16 @@ CREATE TABLE IF NOT EXISTS va_register_attempts (
   created_at DATETIME NOT NULL,
   KEY ix_ip_created (ip, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS va_purchases (
+  order_id VARCHAR(40) NOT NULL PRIMARY KEY,
+  email VARCHAR(254) NOT NULL,
+  lang VARCHAR(8) NOT NULL DEFAULT 'en',
+  amount VARCHAR(16) NOT NULL DEFAULT '',
+  currency VARCHAR(3) NOT NULL DEFAULT '',
+  state VARCHAR(16) NOT NULL DEFAULT 'created',
+  capture_id VARCHAR(40) NOT NULL DEFAULT '',
+  payer_email VARCHAR(254) NOT NULL DEFAULT '',
+  created_at DATETIME NOT NULL,
+  fulfilled_at DATETIME NULL,
+  KEY ix_email (email)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

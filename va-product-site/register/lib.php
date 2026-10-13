@@ -116,16 +116,31 @@ function vaRequestSerial(string $rawEmail, string $lang): string
         return 'not_donor';
     }
 
+    return vaIssueSerial($email, $lang, false);
+}
+
+/**
+ * Serial kiadása és kiküldése (a donor-ellenőrzés után). Eredmény: 'sent' | 'exists' | 'mail'.
+ * $resend: ha már kapott serialt, újra elküldi (vásárlásnál), különben 'exists'.
+ */
+function vaIssueSerial(string $email, string $lang, bool $resend): string
+{
+    $cfg = vaConfig();
+    $db = vaDb();
     $serial = vaMakeSerial($email);
+    $isNew = true;
     try {
         $db->prepare('INSERT INTO va_serial_requests (email, serial, lang, ip, user_agent, created_at) VALUES (?, ?, ?, ?, ?, NOW())')
-            ->execute([$email, $serial, $lang, $ip, substr((string) ($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 255)]);
+            ->execute([$email, $serial, $lang, vaClientIp(), substr((string) ($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 255)]);
     } catch (PDOException $e) {
         // 1062: duplikált e-mail (UNIQUE) — már kért
-        if ((int) ($e->errorInfo[1] ?? 0) === 1062) {
+        if ((int) ($e->errorInfo[1] ?? 0) !== 1062) {
+            throw $e;
+        }
+        if (!$resend) {
             return 'exists';
         }
-        throw $e;
+        $isNew = false;
     }
 
     try {
@@ -135,7 +150,9 @@ function vaRequestSerial(string $rawEmail, string $lang): string
             $smtp['from'], $smtp['from_name'] ?? '', $email, $subject, $body, $smtp['bcc'] ?? '');
     } catch (Throwable $e) {
         // a levél nem ment ki: a cím újra próbálkozhat
-        $db->prepare('DELETE FROM va_serial_requests WHERE email = ? AND mailed_at IS NULL')->execute([$email]);
+        if ($isNew) {
+            $db->prepare('DELETE FROM va_serial_requests WHERE email = ? AND mailed_at IS NULL')->execute([$email]);
+        }
         error_log('VA register mail error: ' . $e->getMessage());
         return 'mail';
     }
