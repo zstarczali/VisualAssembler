@@ -661,6 +661,32 @@ fn license_activate(app: AppHandle, email: String, serial: String) -> serde_json
     serde_json::json!({ "ok": true, "email": email })
 }
 
+const LICENSE_REQUEST_URL: &str = "https://www.c64va.pro/register/";
+
+/// Professional serial by email for donors (donor list, once per address): va-product-site/register/index.php JSON API.
+#[tauri::command]
+async fn license_request(app: AppHandle, email: String, lang: String) -> serde_json::Value {
+    let client = match update_http_client(&app, 30) {
+        Ok(c) => c,
+        Err(_) => return serde_json::json!({ "ok": false, "result": "network" }),
+    };
+    let body = serde_json::json!({ "email": license::normalize_email(&email), "lang": lang });
+    let resp = match client
+        .post(LICENSE_REQUEST_URL)
+        .header("Content-Type", "application/json")
+        .body(body.to_string())
+        .send()
+        .await
+    {
+        Ok(r) => r,
+        Err(_) => return serde_json::json!({ "ok": false, "result": "network" }),
+    };
+    match resp.text().await.ok().and_then(|t| serde_json::from_str::<serde_json::Value>(&t).ok()) {
+        Some(v) if v["result"].is_string() => v,
+        _ => serde_json::json!({ "ok": false, "result": "server" }),
+    }
+}
+
 #[tauri::command]
 fn license_deactivate(app: AppHandle) -> serde_json::Value {
     let mut cfg = read_config(&app);
@@ -4383,10 +4409,10 @@ mod tests {
 // illő link, a downloads/VA/ könyvtárlistázást is megpróbáljuk.
 
 const UPDATE_PAGE_URLS: [&str; 2] = [
-    "https://www.c64va.tech/",
-    "https://www.c64va.tech/downloads/VA/",
+    "https://www.c64va.pro/",
+    "https://www.c64va.pro/downloads/VA/",
 ];
-const UPDATE_DOWNLOAD_BASE: &str = "https://www.c64va.tech/downloads/VA/";
+const UPDATE_DOWNLOAD_BASE: &str = "https://www.c64va.pro/downloads/VA/";
 
 fn parse_version_triplet(s: &str) -> Option<(u32, u32, u32)> {
     let mut parts = s.trim().trim_start_matches('v').split('.');
@@ -4831,6 +4857,7 @@ pub fn run() {
             quit_app,
             license_status,
             license_activate,
+            license_request,
             license_deactivate,
             get_ui_settings,
             save_ui_settings,

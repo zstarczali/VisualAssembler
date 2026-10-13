@@ -78,53 +78,53 @@ const addressingModes = {
 const CUSTOMER_MESSAGE = {
   enabled: true,
   id: "c64-core-257",
-  url: "https://www.c64va.tech/docs.html",
+  url: "https://www.c64va.pro/docs.html",
   hu: {
     eyebrow: "Újdonság a 2.5.7-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>VA SID Core 1.2:</strong> a SID Player a VICE-ból portolt, ciklusra pontos C64-en játszik (6510, CIA, VIC-II).</li><li><strong>Hi-Res szerkesztő:</strong> két szín minden 8×8-as cellában — új Cella háttérszín eszköz.</li><li><strong>Pontos karakter-ROM</strong> a ROM-nézőben, a Character és a Map / Level szerkesztőben.</li><li><strong>Sprite szerkesztő:</strong> hires réteg, kitöltés, kijelölés, forgatás, sprite sheet import, hitbox, X / Y ×2.</li><li><strong>Pálya szerkesztő:</strong> objektumok, karakter-attribútumok, él-ellenőrzés, képernyőnkénti színek, memóriamérleg + RLE, Futtatás VICE-ban.</li><li><strong>Karakterszerkesztő:</strong> visszavonás, rajzeszközök, forgatás, másolás / csere, 2×2-es csempék, kisbetűs ROM, szöveges előnézet, tartomány-export.</li><li><strong>Charset Canvas:</strong> nagyítás pixelráccsal, háttérszín hires módban, hires karakterek multicolor módon belül.</li></ul>`,
+    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>VA SID Core 1.2:</strong> a SID Player a VICE-ból portolt, ciklusra pontos C64-en játszik (6510, CIA, VIC-II).</li><li><strong>Hi-Res szerkesztő:</strong> két szín minden 8×8-as cellában — új Cella háttérszín eszköz.</li><li><strong>Pontos karakter-ROM</strong> a ROM-nézőben, a Character és a Map / Level szerkesztőben.</li><li><strong>Sprite szerkesztő:</strong> hires réteg, kitöltés, kijelölés, forgatás, sprite sheet import, hitbox, X / Y ×2.</li><li><strong>Pálya szerkesztő:</strong> objektumok, karakter-attribútumok, él-ellenőrzés, képernyőnkénti színek, memóriamérleg + RLE, Futtatás VICE-ban.</li><li><strong>Karakterszerkesztő:</strong> visszavonás, rajzeszközök, forgatás, másolás / csere, 2×2-es csempék, kisbetűs ROM, szöveges előnézet, tartomány-export.</li><li><strong>Charset Canvas:</strong> nagyítás pixelráccsal, háttérszín hires módban, hires karakterek multicolor módon belül, ECM karakterenkénti háttérrel.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
     eyebrow: "New in 2.5.7",
     title: "Welcome to Visual Assembler",
-    body: `<p>What's new in this release:</p><ul><li><strong>VA SID Core 1.2:</strong> the SID Player runs tunes on a cycle-exact C64 ported from VICE (6510, CIA, VIC-II).</li><li><strong>Hi-Res Editor:</strong> two colours in every 8×8 cell — the new Cell paper tool.</li><li><strong>Exact character ROM</strong> in the ROM viewer, the Character and the Map / Level editors.</li><li><strong>Sprite Editor:</strong> hi-res overlay, flood fill, select, rotate, sprite sheet import, hitbox, X / Y ×2.</li><li><strong>Level Editor:</strong> objects, character attributes, edge check, colours per screen, memory meter + RLE, Run in VICE.</li><li><strong>Character Editor:</strong> undo, drawing tools, rotate, copy / swap, 2×2 tiles, lowercase ROM, text preview, range export.</li><li><strong>Charset Canvas:</strong> zoom with a pixel grid, background colour in hi-res mode, hi-res characters inside multicolor mode.</li></ul>`,
+    body: `<p>What's new in this release:</p><ul><li><strong>VA SID Core 1.2:</strong> the SID Player runs tunes on a cycle-exact C64 ported from VICE (6510, CIA, VIC-II).</li><li><strong>Hi-Res Editor:</strong> two colours in every 8×8 cell — the new Cell paper tool.</li><li><strong>Exact character ROM</strong> in the ROM viewer, the Character and the Map / Level editors.</li><li><strong>Sprite Editor:</strong> hi-res overlay, flood fill, select, rotate, sprite sheet import, hitbox, X / Y ×2.</li><li><strong>Level Editor:</strong> objects, character attributes, edge check, colours per screen, memory meter + RLE, Run in VICE.</li><li><strong>Character Editor:</strong> undo, drawing tools, rotate, copy / swap, 2×2 tiles, lowercase ROM, text preview, range export.</li><li><strong>Charset Canvas:</strong> zoom with a pixel grid, background colour in hi-res mode, hi-res characters inside multicolor mode, ECM with a background per character.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
     eyebrow: "Novedad en la 2.5.7",
     title: "Bienvenido a Visual Assembler",
-    body: `<p>Novedades de esta versión:</p><ul><li><strong>VA SID Core 1.2:</strong> el SID Player reproduce en un C64 exacto al ciclo portado de VICE (6510, CIA, VIC-II).</li><li><strong>Editor Hi-Res:</strong> dos colores en cada celda de 8×8 — nueva herramienta de fondo de celda.</li><li><strong>ROM de caracteres exacta</strong> en el visor de ROM y en los editores de caracteres, mapas y niveles.</li><li><strong>Editor de sprites:</strong> capa hi-res, relleno, selección, giro, importación de hojas de sprites, hitbox, X / Y ×2.</li><li><strong>Editor de niveles:</strong> objetos, atributos de caracteres, comprobación de bordes, colores por pantalla, memoria + RLE, ejecutar en VICE.</li><li><strong>Editor de caracteres:</strong> deshacer, herramientas de dibujo, giro, copiar / intercambiar, mosaicos 2×2, ROM en minúsculas, vista previa de texto, exportar rango.</li><li><strong>Charset Canvas:</strong> zoom con cuadrícula de píxeles, color de fondo en alta resolución, caracteres de alta resolución dentro del modo multicolor.</li></ul>`,
+    body: `<p>Novedades de esta versión:</p><ul><li><strong>VA SID Core 1.2:</strong> el SID Player reproduce en un C64 exacto al ciclo portado de VICE (6510, CIA, VIC-II).</li><li><strong>Editor Hi-Res:</strong> dos colores en cada celda de 8×8 — nueva herramienta de fondo de celda.</li><li><strong>ROM de caracteres exacta</strong> en el visor de ROM y en los editores de caracteres, mapas y niveles.</li><li><strong>Editor de sprites:</strong> capa hi-res, relleno, selección, giro, importación de hojas de sprites, hitbox, X / Y ×2.</li><li><strong>Editor de niveles:</strong> objetos, atributos de caracteres, comprobación de bordes, colores por pantalla, memoria + RLE, ejecutar en VICE.</li><li><strong>Editor de caracteres:</strong> deshacer, herramientas de dibujo, giro, copiar / intercambiar, mosaicos 2×2, ROM en minúsculas, vista previa de texto, exportar rango.</li><li><strong>Charset Canvas:</strong> zoom con cuadrícula de píxeles, color de fondo en alta resolución, caracteres de alta resolución dentro del modo multicolor, ECM con fondo por carácter.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
     eyebrow: "Neu in 2.5.7",
     title: "Willkommen bei Visual Assembler",
-    body: `<p>Neu in dieser Version:</p><ul><li><strong>VA SID Core 1.2:</strong> der SID Player spielt auf einem zyklusgenauen, aus VICE portierten C64 (6510, CIA, VIC-II).</li><li><strong>Hi-Res-Editor:</strong> zwei Farben in jeder 8×8-Zelle — neues Werkzeug für die Zellenhintergrundfarbe.</li><li><strong>Exaktes Zeichen-ROM</strong> im ROM-Betrachter, im Zeichen-, Map- und Level-Editor.</li><li><strong>Sprite-Editor:</strong> Hi-Res-Ebene, Füllen, Auswahl, Drehen, Spritesheet-Import, Hitbox, X / Y ×2.</li><li><strong>Level-Editor:</strong> Objekte, Zeichenattribute, Kantenprüfung, Farben pro Bildschirm, Speicheranzeige + RLE, in VICE starten.</li><li><strong>Zeichen-Editor:</strong> Rückgängig, Zeichenwerkzeuge, Drehen, Kopieren / Tauschen, 2×2-Kacheln, Kleinbuchstaben-ROM, Textvorschau, Bereichsexport.</li><li><strong>Charset Canvas:</strong> Zoom mit Pixelraster, Hintergrundfarbe im Hi-Res-Modus, Hi-Res-Zeichen im Multicolor-Modus.</li></ul>`,
+    body: `<p>Neu in dieser Version:</p><ul><li><strong>VA SID Core 1.2:</strong> der SID Player spielt auf einem zyklusgenauen, aus VICE portierten C64 (6510, CIA, VIC-II).</li><li><strong>Hi-Res-Editor:</strong> zwei Farben in jeder 8×8-Zelle — neues Werkzeug für die Zellenhintergrundfarbe.</li><li><strong>Exaktes Zeichen-ROM</strong> im ROM-Betrachter, im Zeichen-, Map- und Level-Editor.</li><li><strong>Sprite-Editor:</strong> Hi-Res-Ebene, Füllen, Auswahl, Drehen, Spritesheet-Import, Hitbox, X / Y ×2.</li><li><strong>Level-Editor:</strong> Objekte, Zeichenattribute, Kantenprüfung, Farben pro Bildschirm, Speicheranzeige + RLE, in VICE starten.</li><li><strong>Zeichen-Editor:</strong> Rückgängig, Zeichenwerkzeuge, Drehen, Kopieren / Tauschen, 2×2-Kacheln, Kleinbuchstaben-ROM, Textvorschau, Bereichsexport.</li><li><strong>Charset Canvas:</strong> Zoom mit Pixelraster, Hintergrundfarbe im Hi-Res-Modus, Hi-Res-Zeichen im Multicolor-Modus, ECM mit Hintergrund pro Zeichen.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
     eyebrow: "Nieuw in 2.5.7",
     title: "Welkom bij Visual Assembler",
-    body: `<p>Nieuw in deze versie:</p><ul><li><strong>VA SID Core 1.2:</strong> de SID Player speelt op een cyclusexacte, uit VICE geporteerde C64 (6510, CIA, VIC-II).</li><li><strong>Hi-Res-editor:</strong> twee kleuren in elke 8×8-cel — nieuw gereedschap voor de celachtergrond.</li><li><strong>Exacte teken-ROM</strong> in de ROM-viewer en de teken-, map- en leveleditor.</li><li><strong>Sprite-editor:</strong> hi-res-laag, vullen, selecteren, draaien, spritesheet-import, hitbox, X / Y ×2.</li><li><strong>Leveleditor:</strong> objecten, tekenattributen, randcontrole, kleuren per scherm, geheugen + RLE, uitvoeren in VICE.</li><li><strong>Tekeneditor:</strong> ongedaan maken, tekengereedschap, draaien, kopiëren / wisselen, 2×2-tegels, kleine-letter-ROM, tekstvoorbeeld, bereikexport.</li><li><strong>Charset Canvas:</strong> zoom met pixelraster, achtergrondkleur in hi-res, hi-res-tekens binnen multicolor.</li></ul>`,
+    body: `<p>Nieuw in deze versie:</p><ul><li><strong>VA SID Core 1.2:</strong> de SID Player speelt op een cyclusexacte, uit VICE geporteerde C64 (6510, CIA, VIC-II).</li><li><strong>Hi-Res-editor:</strong> twee kleuren in elke 8×8-cel — nieuw gereedschap voor de celachtergrond.</li><li><strong>Exacte teken-ROM</strong> in de ROM-viewer en de teken-, map- en leveleditor.</li><li><strong>Sprite-editor:</strong> hi-res-laag, vullen, selecteren, draaien, spritesheet-import, hitbox, X / Y ×2.</li><li><strong>Leveleditor:</strong> objecten, tekenattributen, randcontrole, kleuren per scherm, geheugen + RLE, uitvoeren in VICE.</li><li><strong>Tekeneditor:</strong> ongedaan maken, tekengereedschap, draaien, kopiëren / wisselen, 2×2-tegels, kleine-letter-ROM, tekstvoorbeeld, bereikexport.</li><li><strong>Charset Canvas:</strong> zoom met pixelraster, achtergrondkleur in hi-res, hi-res-tekens binnen multicolor, ECM met achtergrond per teken.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
     eyebrow: "Nowość w 2.5.7",
     title: "Witamy w Visual Assembler",
-    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>VA SID Core 1.2:</strong> SID Player gra na dokładnym co do cyklu C64 przeniesionym z VICE (6510, CIA, VIC-II).</li><li><strong>Edytor Hi-Res:</strong> dwa kolory w każdej komórce 8×8 — nowe narzędzie tła komórki.</li><li><strong>Dokładny ROM znaków</strong> w przeglądarce ROM oraz w edytorach znaków, map i poziomów.</li><li><strong>Edytor sprite'ów:</strong> warstwa hi-res, wypełnianie, zaznaczanie, obrót, import arkuszy, hitbox, X / Y ×2.</li><li><strong>Edytor poziomów:</strong> obiekty, atrybuty znaków, kontrola krawędzi, kolory ekranów, pamięć + RLE, uruchom w VICE.</li><li><strong>Edytor znaków:</strong> cofanie, narzędzia rysowania, obrót, kopiowanie / zamiana, kafle 2×2, ROM z małymi literami, podgląd tekstu, eksport zakresu.</li><li><strong>Charset Canvas:</strong> powiększenie z siatką pikseli, kolor tła w trybie hi-res, znaki hi-res w trybie multicolor.</li></ul>`,
+    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>VA SID Core 1.2:</strong> SID Player gra na dokładnym co do cyklu C64 przeniesionym z VICE (6510, CIA, VIC-II).</li><li><strong>Edytor Hi-Res:</strong> dwa kolory w każdej komórce 8×8 — nowe narzędzie tła komórki.</li><li><strong>Dokładny ROM znaków</strong> w przeglądarce ROM oraz w edytorach znaków, map i poziomów.</li><li><strong>Edytor sprite'ów:</strong> warstwa hi-res, wypełnianie, zaznaczanie, obrót, import arkuszy, hitbox, X / Y ×2.</li><li><strong>Edytor poziomów:</strong> obiekty, atrybuty znaków, kontrola krawędzi, kolory ekranów, pamięć + RLE, uruchom w VICE.</li><li><strong>Edytor znaków:</strong> cofanie, narzędzia rysowania, obrót, kopiowanie / zamiana, kafle 2×2, ROM z małymi literami, podgląd tekstu, eksport zakresu.</li><li><strong>Charset Canvas:</strong> powiększenie z siatką pikseli, kolor tła w trybie hi-res, znaki hi-res w trybie multicolor, ECM z tłem dla każdego znaku.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
     eyebrow: "Novità nella 2.5.7",
     title: "Benvenuto in Visual Assembler",
-    body: `<p>Novità di questa versione:</p><ul><li><strong>VA SID Core 1.2:</strong> il SID Player suona su un C64 esatto al ciclo portato da VICE (6510, CIA, VIC-II).</li><li><strong>Editor Hi-Res:</strong> due colori in ogni cella 8×8 — nuovo strumento per lo sfondo della cella.</li><li><strong>ROM dei caratteri esatta</strong> nel visualizzatore ROM e negli editor di caratteri, mappe e livelli.</li><li><strong>Editor sprite:</strong> livello hi-res, riempimento, selezione, rotazione, importazione sprite sheet, hitbox, X / Y ×2.</li><li><strong>Editor livelli:</strong> oggetti, attributi dei caratteri, controllo bordi, colori per schermata, memoria + RLE, esegui in VICE.</li><li><strong>Editor caratteri:</strong> annulla, strumenti di disegno, rotazione, copia / scambio, tessere 2×2, ROM minuscola, anteprima testo, esportazione intervallo.</li><li><strong>Charset Canvas:</strong> zoom con griglia dei pixel, colore di sfondo in hi-res, caratteri hi-res nel modo multicolor.</li></ul>`,
+    body: `<p>Novità di questa versione:</p><ul><li><strong>VA SID Core 1.2:</strong> il SID Player suona su un C64 esatto al ciclo portato da VICE (6510, CIA, VIC-II).</li><li><strong>Editor Hi-Res:</strong> due colori in ogni cella 8×8 — nuovo strumento per lo sfondo della cella.</li><li><strong>ROM dei caratteri esatta</strong> nel visualizzatore ROM e negli editor di caratteri, mappe e livelli.</li><li><strong>Editor sprite:</strong> livello hi-res, riempimento, selezione, rotazione, importazione sprite sheet, hitbox, X / Y ×2.</li><li><strong>Editor livelli:</strong> oggetti, attributi dei caratteri, controllo bordi, colori per schermata, memoria + RLE, esegui in VICE.</li><li><strong>Editor caratteri:</strong> annulla, strumenti di disegno, rotazione, copia / scambio, tessere 2×2, ROM minuscola, anteprima testo, esportazione intervallo.</li><li><strong>Charset Canvas:</strong> zoom con griglia dei pixel, colore di sfondo in hi-res, caratteri hi-res nel modo multicolor, ECM con sfondo per carattere.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -1864,7 +1864,7 @@ function initPalette() {
   });
   document.querySelector(".customer-message-site")?.addEventListener("click", (e) => {
     e.preventDefault();
-    window.electronAPI?.openExternal("https://www.c64va.tech");
+    window.electronAPI?.openExternal("https://www.c64va.pro");
   });
   // The message body is rich HTML (set via innerHTML in showCustomerMessageIfNeeded)
   // and may contain plain <a href target="_blank"> links — those don't navigate
@@ -2204,7 +2204,7 @@ function initPalette() {
   chooseDebuggerButton?.addEventListener("click", chooseDebuggerExecutable);
   runDebuggerButton?.addEventListener("click", runInDebugger);
   onlineHelpButton?.addEventListener("click", () => {
-    window.electronAPI?.openExternal("https://www.c64va.tech/docs.html?doc");
+    window.electronAPI?.openExternal("https://www.c64va.pro/docs.html?doc");
   });
   dbgJmp?.addEventListener("change", () => { debuggerJmp = dbgJmp.checked; saveUiSettings(); });
   dbgWait?.addEventListener("change", () => { debuggerWait = dbgWait.checked; saveUiSettings(); });
@@ -3413,6 +3413,7 @@ function applyTranslations() {
     setText("#license-email-label", t("licenseEmail"));
     setText("#license-serial-label", t("licenseSerial"));
     setText("#license-buy", t("licenseBuy"));
+    setText("#license-request", t("licenseRequest"));
     setText("#license-deactivate", t("licenseDeactivate"));
     setText("#license-close", t("licenseClose"));
     setText("#license-activate", t("licenseActivate"));
@@ -3725,6 +3726,7 @@ function _applyEditorTranslations() {
   setAttr('#charset-canvas-dialog [data-cc-tool="oval"]', t("meCircle"));
   setAttr('#charset-canvas-dialog [data-cc-tool="fill"]', t("meFill"));
   setAttr('#charset-canvas-dialog [data-cc-tool="cellmode"]', t("ccCellMode"));
+  setAttr('#charset-canvas-dialog [data-cc-tool="cellbg"]', t("ccCellBg"));
   setText("#cc-status", t("ccStatus"));
   setAttr("#cc-undo", t("hgUndo"));
   setAttr("#cc-redo", t("hgRedo"));
@@ -17680,7 +17682,7 @@ function _showConfirm(msg) {
   });
 }
 
-// ── Self-update (c64va.tech/downloads/VA) ────────────────────────────────────
+// ── Self-update (c64va.pro/downloads/VA) ────────────────────────────────────
 const _UPDATE_SKIP_KEY = "c64va-update-skip-version";
 let _updateBusy = false;
 let _updateInfo = null;
@@ -17748,7 +17750,7 @@ function _updateShowAvailable() {
 async function checkForAppUpdate({ silent = false } = {}) {
   if (_updateBusy) return;
   if (!window.electronAPI?.checkForUpdate) {
-    if (!silent) window.electronAPI?.openExternal?.("https://www.c64va.tech/");
+    if (!silent) window.electronAPI?.openExternal?.("https://www.c64va.pro/");
     return;
   }
   if (!silent) {
@@ -34238,6 +34240,25 @@ function _ccW() { return 128; }
 function _ccH() { return 128; }
 function _ccCellCols() { return 8; }
 let _ccCellModeTo = null;
+// ECM (extended colour mode): hi-res characters, each cell picks one of four
+// backgrounds ($D021-$D024) with bits 6-7 of its screen code, so only 64
+// different characters fit. The canvas keeps every cell's own pixels; saving
+// merges the equal ones (_ccEcmGlyphs). BG1 / BG2 are the MC1 / MC2 registers.
+let _ccEcm = false, _ccBg3 = 11, _ccEcmBg = null, _ccEcmPick = 0;
+function _ccEcmBgOf(n) { return _ccEcmBg ? _ccEcmBg[n] & 3 : 0; }
+function _ccBgColors() { return [_ccBg, _ccMc1, _ccMc2, _ccBg3]; }
+function _ccEcmGlyphs() {
+  const keys = new Map(), glyphs = [], codes = new Uint8Array(256);
+  for (let n = 0; n < 256; n++) {
+    const key = Array.prototype.join.call(_ccData.subarray(n * 8, n * 8 + 8), ",");
+    let g = keys.get(key);
+    if (g === undefined) { g = glyphs.length; keys.set(key, g); glyphs.push(n); }
+    codes[n] = (g & 63) | (_ccEcmBgOf(n) << 6);
+  }
+  const charset = new Uint8Array(512);
+  glyphs.slice(0, 64).forEach(function(n, g) { charset.set(_ccData.subarray(n * 8, n * 8 + 8), g * 8); });
+  return { count: glyphs.length, codes: codes, charset: charset };
+}
 function _ccCharMc(charIdx) { return _ccMulticolor && !!(_ccColorRam[charIdx] & 8); }
 // Switches a character between multicolor and hi-res; a pair with any bit set
 // becomes the character's own colour, so the shape stays.
@@ -34250,6 +34271,7 @@ function _ccSetCellMode(charIdx, mc) {
     _ccData[i] = out;
   }
   _ccColorRam[charIdx] = (mc ? 8 : 0) | (_ccColorRam[charIdx] & 7);
+  _ccDirty.add(charIdx);
 }
 function _ccCellFromPixel(x, y) {
   const cols = _ccCellCols();
@@ -34272,6 +34294,7 @@ function _ccSetPixel(x, y, value) {
   if (!_ccData || x < 0 || x >= _ccW() || y < 0 || y >= _ccH()) return;
   const p = _ccCellFromPixel(x, y);
   const idx = p.charIdx * 8 + p.row;
+  _ccDirty.add(p.charIdx);
   if (_ccCharMc(p.charIdx)) {
     const shift = 6 - (p.col & 6);
     _ccData[idx] = (_ccData[idx] & ~(3 << shift)) | ((value & 3) << shift);
@@ -34347,6 +34370,7 @@ function _ccInkValue() {
   return _ccInk;
 }
 function _ccPixelColor(value, charIdx) {
+  if (_ccEcm) return value ? (_ccColorRam[charIdx] & 0x0F) : (_ccBgColors()[_ccEcmBgOf(charIdx)] & 0x0F);
   if (_ccCharMc(charIdx)) {
     const fg = _ccColorRam[charIdx] & 7;
     return [_ccBg, _ccMc1, _ccMc2, fg][value] & 0x0F;
@@ -34383,7 +34407,10 @@ function _ccSnapshot() {
     bg: _ccBg & 0x0F,
     mc1: _ccMc1 & 0x0F,
     mc2: _ccMc2 & 0x0F,
-    ink: _ccInk | 0
+    ink: _ccInk | 0,
+    ecm: !!_ccEcm,
+    bg3: _ccBg3 & 0x0F,
+    ecmBg: _ccEcmBg ? _ccEcmBg.slice(0) : null
   };
 }
 function _ccRestore(snapshot) {
@@ -34397,8 +34424,14 @@ function _ccRestore(snapshot) {
   _ccMc1 = snapshot.mc1 & 0x0F;
   _ccMc2 = snapshot.mc2 & 0x0F;
   _ccInk = snapshot.ink | 0;
+  _ccEcm = !!snapshot.ecm;
+  _ccBg3 = snapshot.bg3 == null ? _ccBg3 : snapshot.bg3 & 0x0F;
+  if (snapshot.ecmBg) { _ccEcmBg = _ccEcmBg || new Uint8Array(256); _ccEcmBg.set(snapshot.ecmBg); }
+  else if (_ccEcmBg) _ccEcmBg.fill(0);
   const toggle = document.getElementById("cc-multicolor");
   if (toggle) toggle.checked = _ccMulticolor;
+  const ecmToggle = document.getElementById("cc-ecm");
+  if (ecmToggle) ecmToggle.checked = _ccEcm;
   _ccSyncColorSelects();
   _ccSyncPaletteSelection();
   _ccRender();
@@ -34418,45 +34451,85 @@ function _ccRedoOp() {
   _ccUndo.push(_ccSnapshot());
   _ccRestore(_ccRedo.pop());
 }
-function _ccRender(preview) {
-  const canvas = document.getElementById("cc-canvas");
-  if (!canvas || !_ccData) return;
-  _ccSyncCellModeTool();
-  const ctx = canvas.getContext("2d");
-  const pixelW = _ccZoom;
-  const pixelH = _ccZoom;
-  canvas.width = _ccW() * pixelW;
-  canvas.height = _ccH() * pixelH;
-  ctx.fillStyle = _CE_COLORS[_ccBg];
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  for (let y = 0; y < _ccH(); y++) {
-    for (let x = 0; x < _ccW(); x++) {
-      const p = _ccCellFromPixel(x, y);
-      const value = _ccGetPixel(x, y);
-      ctx.fillStyle = _CE_COLORS[_ccPixelColor(value, p.charIdx)];
-      ctx.fillRect(x * pixelW, y * pixelH, pixelW, pixelH);
+// The picture is kept in a zoomed buffer that is updated per character
+// (_ccDirty); the on-screen canvas covers only the visible part of it (at 24x
+// the whole one is 3072x3072, which WebKit draws in software), and its context
+// is translated so drawing keeps picture coordinates.
+let _ccBuf = null, _ccBufCtx = null, _ccDirty = new Set();
+let _ccView = { x: 0, y: 0, w: 0, h: 0 }, _ccBlitRaf = 0, _ccBlitPreview = null;
+function _ccDrawCharBuf(n) {
+  const z = _ccZoom, ctx = _ccBufCtx, cx = (n % 16) * 8, cy = (n >> 4) * 8;
+  for (let r = 0; r < 8; r++)
+    for (let c = 0; c < 8; c++) {
+      ctx.fillStyle = _CE_COLORS[_ccPixelColor(_ccGetPixel(cx + c, cy + r), n)];
+      ctx.fillRect((cx + c) * z, (cy + r) * z, z, z);
     }
-  }
-  // from 8× the pixel edges get a faint line too
-  if (_ccGrid && _ccZoom >= 8) {
+  // from 8× the pixel edges get a faint line too; in a multicolor character
+  // only every second column is a pixel edge
+  if (_ccGrid && z >= 8) {
     ctx.fillStyle = "rgba(0,0,0,0.22)";
-    for (let y = 1; y < _ccH(); y++) ctx.fillRect(0, y * pixelH, canvas.width, 1);
-    // in a multicolor character only every second column is a pixel edge
-    for (let n = 0; n < 256; n++) {
-      const step = _ccCharMc(n) ? 2 : 1, cx = (n % 16) * 8, cy = Math.floor(n / 16) * 8;
-      for (let c = step; c < 8; c += step) ctx.fillRect((cx + c) * pixelW, cy * pixelH, 1, 8 * pixelH);
-    }
+    for (let r = cy ? 0 : 1; r < 8; r++) ctx.fillRect(cx * z, (cy + r) * z, 8 * z, 1);
+    const step = _ccCharMc(n) ? 2 : 1;
+    for (let c = step; c < 8; c += step) ctx.fillRect((cx + c) * z, cy * z, 1, 8 * z);
   }
+}
+// Full redraw: colours, mode, zoom or grid changed.
+function _ccRender(preview) {
+  if (!_ccData || !document.getElementById("cc-canvas")) return;
+  _ccSyncCellModeTool();
+  const S = 128 * _ccZoom;
+  if (!_ccBuf) { _ccBuf = document.createElement("canvas"); _ccBufCtx = _ccBuf.getContext("2d"); }
+  if (_ccBuf.width !== S) { _ccBuf.width = S; _ccBuf.height = S; }
+  for (let n = 0; n < 256; n++) _ccDrawCharBuf(n);
+  _ccDirty.clear();
+  _ccBlit(preview);
+}
+// While painting: redraw only the changed characters, at most once a frame.
+function _ccRenderFast() {
+  if (!_ccBuf || _ccBuf.width !== 128 * _ccZoom) { _ccRender(); return; }
+  _ccDirty.forEach(_ccDrawCharBuf);
+  _ccDirty.clear();
+  if (_ccEcm) _ccSyncStatus();
+  _ccBlitSoon(null);
+}
+function _ccBlitSoon(preview) {
+  _ccBlitPreview = preview;
+  if (!_ccBlitRaf) _ccBlitRaf = requestAnimationFrame(function() { _ccBlitRaf = 0; _ccBlit(_ccBlitPreview); });
+}
+function _ccViewport() {
+  const S = 128 * _ccZoom;
+  const wrap = document.querySelector(".cc-canvas-wrap"), sizer = document.getElementById("cc-canvas-sizer");
+  if (!wrap || !sizer) return { x: 0, y: 0, w: S, h: S };
+  const wr = wrap.getBoundingClientRect(), sr = sizer.getBoundingClientRect();
+  const x = Math.max(0, Math.min(S - 1, Math.floor(wr.left + wrap.clientLeft - sr.left - sizer.clientLeft)));
+  const y = Math.max(0, Math.min(S - 1, Math.floor(wr.top + wrap.clientTop - sr.top - sizer.clientTop)));
+  return { x: x, y: y, w: Math.max(1, Math.min(S - x, wrap.clientWidth + 1)), h: Math.max(1, Math.min(S - y, wrap.clientHeight + 1)) };
+}
+function _ccBlit(preview) {
+  if (_ccBlitRaf) { cancelAnimationFrame(_ccBlitRaf); _ccBlitRaf = 0; }
+  const canvas = document.getElementById("cc-canvas");
+  if (!canvas || !_ccBuf) return;
+  const S = 128 * _ccZoom;
+  const sizer = document.getElementById("cc-canvas-sizer");
+  if (sizer) { sizer.style.width = S + "px"; sizer.style.height = S + "px"; }
+  const v = _ccViewport();
+  if (canvas.width !== v.w || canvas.height !== v.h) { canvas.width = v.w; canvas.height = v.h; }
+  if (_ccView.x !== v.x || _ccView.y !== v.y) { canvas.style.left = v.x + "px"; canvas.style.top = v.y + "px"; }
+  _ccView = v;
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(1, 0, 0, 1, -v.x, -v.y);
+  ctx.drawImage(_ccBuf, v.x, v.y, v.w, v.h, v.x, v.y, v.w, v.h);
+  const pixelW = _ccZoom, pixelH = _ccZoom;
   if (_ccGrid) {
     ctx.strokeStyle = _ccZoom >= 8 ? "rgba(190,180,240,0.6)" : "rgba(170,160,225,0.28)";
     ctx.lineWidth = 1;
     for (let c = 0; c <= 16; c++) {
       const x = c * _ccCellCols() * pixelW + 0.5;
-      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, S); ctx.stroke();
     }
     for (let r = 0; r <= 16; r++) {
       const y = r * 8 * pixelH + 0.5;
-      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(S, y); ctx.stroke();
     }
   }
   if (preview) {
@@ -34470,8 +34543,8 @@ function _ccRender(preview) {
 function _ccPointFromEvent(e) {
   const canvas = document.getElementById("cc-canvas");
   const rect = canvas.getBoundingClientRect();
-  const x = Math.floor((e.clientX - rect.left) * canvas.width / rect.width / _ccZoom);
-  const y = Math.floor((e.clientY - rect.top) * canvas.height / rect.height / _ccZoom);
+  const x = Math.floor(((e.clientX - rect.left) * canvas.width / rect.width + _ccView.x) / _ccZoom);
+  const y = Math.floor(((e.clientY - rect.top) * canvas.height / rect.height + _ccView.y) / _ccZoom);
   if (x < 0 || x >= _ccW() || y < 0 || y >= _ccH()) return null;
   return { x: x, y: y };
 }
@@ -34488,11 +34561,18 @@ function _ccShapePoints(a, b) {
 
 function _ccSyncColorSelects() {
   // the background ($D021) is there in both modes, MC1 / MC2 only in multicolor
-  document.querySelectorAll(".cc-mc-colors .cc-mc-only").forEach(function(el) { el.hidden = !_ccMulticolor; });
+  document.querySelectorAll(".cc-mc-colors .cc-mc-only").forEach(function(el) { el.hidden = !_ccMulticolor && !_ccEcm; });
+  document.querySelectorAll(".cc-mc-colors .cc-ecm-only").forEach(function(el) { el.hidden = !_ccEcm; });
+  // in ECM $D022 / $D023 are the 2nd and 3rd background
+  [["cc-bg-label", "BG0", "ceBg"], ["cc-mc1-label", "BG1", "ceMc1"], ["cc-mc2-label", "BG2", "ceMc2"]].forEach(function(l) {
+    const el = document.getElementById(l[0]);
+    if (el) el.textContent = _ccEcm ? l[1] : t(l[2]);
+  });
   [
     ["cc-bg-color", _ccBg],
     ["cc-mc1-color", _ccMc1],
-    ["cc-mc2-color", _ccMc2]
+    ["cc-mc2-color", _ccMc2],
+    ["cc-bg3-color", _ccBg3]
   ].forEach(function(entry) {
     const sel = document.getElementById(entry[0]);
     if (sel) sel.value = String(entry[1] & 0x0F);
@@ -34502,10 +34582,21 @@ function _ccSyncCellModeTool() {
   const btn = document.querySelector('#charset-canvas-dialog [data-cc-tool="cellmode"]');
   if (!btn) return;
   btn.disabled = !_ccMulticolor;
-  if (!_ccMulticolor && _ccTool === "cellmode") {
+  const bgBtn = document.querySelector('#charset-canvas-dialog [data-cc-tool="cellbg"]');
+  if (bgBtn) bgBtn.disabled = !_ccEcm;
+  if ((!_ccMulticolor && _ccTool === "cellmode") || (!_ccEcm && _ccTool === "cellbg")) {
     _ccTool = "pencil";
     document.querySelectorAll("#charset-canvas-dialog [data-cc-tool]").forEach(function(b) { b.classList.toggle("cc-tool--active", b.dataset.ccTool === "pencil"); });
   }
+  _ccSyncStatus();
+}
+function _ccSyncStatus() {
+  const el = document.getElementById("cc-status");
+  if (!el || !_ccData) return;
+  if (!_ccEcm) { el.textContent = t("ccStatus"); el.classList.remove("cc-status--warn"); return; }
+  const n = _ccEcmGlyphs().count;
+  el.textContent = tf("ccEcmStatus", { n: n });
+  el.classList.toggle("cc-status--warn", n > 64);
 }
 function _ccValueUsed(v) {
   if (!_ccData) return false;
@@ -34523,6 +34614,7 @@ function _ccSyncPaletteSelection() {
   if (!wrap) return;
   const tags = { };
   if (_ccMulticolor) { tags[_ccBg] = "BG"; tags[_ccMc1] = (tags[_ccMc1] ? tags[_ccMc1] + "/" : "") + "1"; tags[_ccMc2] = (tags[_ccMc2] ? tags[_ccMc2] + "/" : "") + "2"; }
+  if (_ccEcm) _ccBgColors().forEach(function(c, i) { tags[c] = (tags[c] ? tags[c] + "/" : "") + "B" + i; });
   wrap.querySelectorAll(".cc-swatch").forEach(function(s, i) {
     s.classList.toggle("cc-swatch--sel", i === (_ccColor & 0x0F));
     s.classList.toggle("cc-swatch--shared", !!tags[i]);
@@ -34534,6 +34626,11 @@ function _ccSyncPaletteSelection() {
 function _ccPickColor(color) {
   const prev = _ccColor;
   _ccColor = color & 0x0F;
+  if (_ccEcm) {
+    const bgIdx = _ccBgColors().indexOf(_ccColor);
+    if (bgIdx >= 0) _ccEcmPick = bgIdx;
+    else if (_ccTool === "cellbg") showViceToast(t("ccEcmPickBg"), true);
+  }
   if (_ccMulticolor) {
     if (_ccColor === _ccBg) _ccInk = 0;
     else if (_ccColor === _ccMc1) _ccInk = 1;
@@ -34576,7 +34673,8 @@ function _ccBuildColorSelects() {
   [
     { id: "cc-bg-color", get: function() { return _ccBg; }, set: function(v) { _ccBg = v; } },
     { id: "cc-mc1-color", get: function() { return _ccMc1; }, set: function(v) { _ccMc1 = v; } },
-    { id: "cc-mc2-color", get: function() { return _ccMc2; }, set: function(v) { _ccMc2 = v; } }
+    { id: "cc-mc2-color", get: function() { return _ccMc2; }, set: function(v) { _ccMc2 = v; } },
+    { id: "cc-bg3-color", get: function() { return _ccBg3; }, set: function(v) { _ccBg3 = v; } }
   ].forEach(function(spec) {
     const sel = document.getElementById(spec.id);
     if (!sel || sel.children.length) return;
@@ -34642,7 +34740,7 @@ function _ccInit() {
 function _ccSetZoom(z, anchor) {
   z = Math.max(2, Math.min(24, Math.round(z) || 6));
   const wrap = document.querySelector(".cc-canvas-wrap");
-  const canvas = document.getElementById("cc-canvas");
+  const canvas = document.getElementById("cc-canvas-sizer");
   let fx = 0, fy = 0, ax = 0, ay = 0;
   if (anchor && wrap && canvas) {
     const r = canvas.getBoundingClientRect(), w = wrap.getBoundingClientRect();
@@ -34662,18 +34760,24 @@ function _ccSetZoom(z, anchor) {
     wrap.scrollTop += (r.top - w.top + fy * r.height) - ay;
   }
 }
+function _ccSettingsMeta() {
+  return { multicolor: _ccMulticolor, ecm: _ccEcm, fg: _ccColor, bg: _ccBg, mc1: _ccMc1, mc2: _ccMc2, bg3: _ccBg3,
+    bgColor: _ccBg, mc1Color: _ccMc1, mc2Color: _ccMc2 };
+}
+// 256 screen codes + 256 Color RAM values. In ECM the codes are glyph | bg << 6
+// and the 64-character set travels in the meta (ecmCharset).
 function _ccExportMapColor() {
   const screen = new Uint8Array(256);
   for (let i = 0; i < 256; i++) screen[i] = i;
+  const ecm = _ccEcm ? _ccEcmGlyphs() : null;
+  if (ecm) screen.set(ecm.codes);
   const colorRam = _ccExportColorRam();
   const out = new Uint8Array(512);
   out.set(screen, 0);
   out.set(colorRam, 256);
-  return _vaBuildBinWithMeta(out, {
-    kind: "cc-map",
-    settings: { multicolor: _ccMulticolor, bgColor: _ccBg, mc1Color: _ccMc1, mc2Color: _ccMc2 },
-    extras: { charset: _ccData.slice(0), charColors: colorRam }
-  });
+  const extras = { charset: _ccData.slice(0), charColors: colorRam };
+  if (ecm) { extras.ecmBg = _ccEcmBg.slice(0); extras.ecmCharset = ecm.charset; }
+  return _vaBuildBinWithMeta(out, { kind: "cc-map", settings: _ccSettingsMeta(), extras: extras });
 }
 function setupCharsetCanvasEditor() {
   const dialog = document.getElementById("charset-canvas-dialog");
@@ -34706,8 +34810,29 @@ function setupCharsetCanvasEditor() {
       _toolDropdownSetOpen("cc-spray-tool", "cc-spray-menu", false);
     });
   });
+  document.getElementById("cc-ecm")?.addEventListener("change", function(e) {
+    _ccInit();
+    _ccPushUndo();
+    _ccEcm = !!e.target.checked;
+    if (_ccEcm) {
+      // ECM and multicolor exclude each other on the VIC-II
+      _ccMulticolor = false;
+      const mc = document.getElementById("cc-multicolor");
+      if (mc) mc.checked = false;
+      if (!_ccEcmBg) _ccEcmBg = new Uint8Array(256);
+    }
+    _ccSyncColorSelects();
+    _ccSyncPaletteSelection();
+    _ccSyncCellModeTool();
+    _ccRender();
+  });
   document.getElementById("cc-multicolor")?.addEventListener("change", function(e) {
     _ccMulticolor = !!e.target.checked;
+    if (_ccMulticolor && _ccEcm) {
+      _ccEcm = false;
+      const ecm = document.getElementById("cc-ecm");
+      if (ecm) ecm.checked = false;
+    }
     if (_ccMulticolor) {
       for (let i = 0; i < _ccColorRam.length; i++) _ccColorRam[i] = 8 | (_ccColorRam[i] & 7);
       _ccPickColor(_ccColor);
@@ -34727,6 +34852,9 @@ function setupCharsetCanvasEditor() {
     e.preventDefault();
     _ccSetZoom(_ccZoom + (e.deltaY < 0 ? 1 : -1), { x: e.clientX, y: e.clientY });
   }, { passive: false });
+  const ccWrap = document.querySelector(".cc-canvas-wrap");
+  ccWrap?.addEventListener("scroll", function() { if (_ccBuf) _ccBlitSoon(null); }, { passive: true });
+  if (ccWrap && typeof ResizeObserver === "function") new ResizeObserver(function() { if (_ccBuf) _ccBlitSoon(null); }).observe(ccWrap);
   document.getElementById("cc-undo")?.addEventListener("click", _ccUndoOp);
   document.getElementById("cc-redo")?.addEventListener("click", _ccRedoOp);
   dialog.addEventListener("click", function(e) {
@@ -34751,11 +34879,23 @@ function setupCharsetCanvasEditor() {
     _ccPushUndo();
     _ccData.fill(0);
     _ccColorRam.fill(_ccMulticolor ? (8 | (_ccColor & 7)) : (_ccColor & 0x0F));
+    if (_ccEcmBg) _ccEcmBg.fill(0);
     _ccRender();
   });
   document.getElementById("cc-save-charset")?.addEventListener("click", function() {
     _ccInit();
     const colorRam = _ccExportColorRam();
+    if (_ccEcm) {
+      const ecm = _ccEcmGlyphs();
+      if (ecm.count > 64) { showViceToast(tf("ccEcmTooMany", { n: ecm.count }), true); return; }
+      // 64 characters (512 bytes); the cell pictures stay in the meta for editing
+      _saveBinFile(_vaBuildBinWithMeta(ecm.charset, {
+        kind: "cc-charset",
+        settings: _ccSettingsMeta(),
+        extras: { charset: _ccData.slice(0), color: colorRam, charColors: colorRam, ecmBg: _ccEcmBg.slice(0) }
+      }), "charset-canvas-ecm.bin");
+      return;
+    }
     _saveBinFile(_vaBuildBinWithMeta(_ccData, {
       kind: "cc-charset",
       settings: { multicolor: _ccMulticolor, fg: _ccColor, bg: _ccBg, mc1: _ccMc1, mc2: _ccMc2 },
@@ -34764,6 +34904,7 @@ function setupCharsetCanvasEditor() {
   });
   document.getElementById("cc-save-map")?.addEventListener("click", function() {
     _ccInit();
+    if (_ccEcm && _ccEcmGlyphs().count > 64) { showViceToast(tf("ccEcmTooMany", { n: _ccEcmGlyphs().count }), true); return; }
     _saveBinFile(_ccExportMapColor(), "charset-canvas-map-color.bin");
   });
   const loadFile = document.getElementById("cc-load-file");
@@ -34786,6 +34927,13 @@ function setupCharsetCanvasEditor() {
       if (parsed.extras.charColors) _ccColorRam.set(parsed.extras.charColors.subarray(0, 256));
       const settings = parsed.manifest?.settings || {};
       _ccMulticolor = !!settings.multicolor;
+      _ccEcm = !!settings.ecm && !_ccMulticolor;
+      if (settings.bg3 != null) _ccBg3 = settings.bg3 & 0x0F;
+      if (!_ccEcmBg) _ccEcmBg = new Uint8Array(256);
+      _ccEcmBg.fill(0);
+      if (parsed.extras.ecmBg) _ccEcmBg.set(parsed.extras.ecmBg.subarray(0, 256));
+      const ecmToggle = document.getElementById("cc-ecm");
+      if (ecmToggle) ecmToggle.checked = _ccEcm;
       // the Character Editor stores multicolor colours without bit 3
       if (_ccMulticolor && parsed.manifest?.kind === "ce-charset") for (let i = 0; i < 256; i++) _ccColorRam[i] |= 8;
       _ccColor = settings.fg == null ? _ccColor : (settings.fg & 0x0F);
@@ -34806,22 +34954,32 @@ function setupCharsetCanvasEditor() {
   if (canvas) {
     const apply = function(point) {
       if (!point) return;
+      if (_ccTool === "cellbg") {
+        const n = _ccCellFromPixel(point.x, point.y).charIdx;
+        if (!_ccEcmBg) _ccEcmBg = new Uint8Array(256);
+        _ccEcmBg[n] = _ccEcmPick;
+        _ccDirty.add(n);
+        _ccRenderFast();
+        return;
+      }
       if (_ccTool === "cellmode") {
         const n = _ccCellFromPixel(point.x, point.y).charIdx;
         if (_ccCellModeTo === null) _ccCellModeTo = !_ccCharMc(n);
         _ccSetCellMode(n, _ccCellModeTo);
-        _ccRender();
+        _ccRenderFast();
         return;
       }
       const value = _ccInkValue();
       if (_ccTool === "fill") _ccFill(point.x, point.y, value);
       else if (_ccTool === "spray") _ccSpray(point.x, point.y, value);
       else _ccSetPixel(point.x, point.y, value);
-      _ccRender();
+      _ccRenderFast();
     };
+    let ccLast = null;
     canvas.addEventListener("pointerdown", function(e) {
       if (e.button !== 0) return;
       _ccInit();
+      ccLast = null;
       const point = _ccPointFromEvent(e);
       if (!point) return;
       _ccPushUndo();
@@ -34833,6 +34991,7 @@ function setupCharsetCanvasEditor() {
         _ccRender(_ccPreview);
       } else {
         apply(point);
+        ccLast = point;
       }
       e.preventDefault();
     });
@@ -34842,8 +35001,13 @@ function setupCharsetCanvasEditor() {
       if (!point) return;
       if (_ccTool === "line" || _ccTool === "rect" || _ccTool === "oval") {
         _ccPreview = _ccShapePoints(_ccStart, point);
-        _ccRender(_ccPreview);
-      } else if (_ccTool === "pencil" || _ccTool === "eraser" || _ccTool === "spray" || _ccTool === "cellmode") {
+        _ccBlitSoon(_ccPreview);
+      } else if (_ccTool === "pencil" || _ccTool === "eraser" || _ccTool === "cellmode" || _ccTool === "cellbg") {
+        // fast strokes skip pixels between two events: join them with a line
+        if (ccLast) _ccDrawLine(ccLast.x, ccLast.y, point.x, point.y, function(x, y) { apply({ x: x, y: y }); });
+        else apply(point);
+        ccLast = point;
+      } else if (_ccTool === "spray") {
         apply(point);
       }
       e.preventDefault();
@@ -38539,7 +38703,8 @@ function _hgOverlays() {
   }
   if (_hgRaster) {
     _hgCtx.fillStyle = "rgba(0,0,0,0.28)";
-    for (let y = 0; y < H; y += 2) _hgCtx.fillRect(0, y, W, 1);
+    const y1 = Math.min(H, _hgView.y + _hgView.h);
+    for (let y = _hgView.y & ~1; y < y1; y += 2) _hgCtx.fillRect(_hgView.x, y, _hgView.w, 1);
   }
   // Selection marquee — dashed outline around the current selection.
   if (_hgSelection) {
@@ -38594,11 +38759,35 @@ function _hgOverlays() {
     _hgCtx.restore();
   }
 }
-function _hgBlit() {
+// The on-screen canvas covers only the visible part of the zoomed picture
+// (at 16x the whole one is 5120x3200, which WebKit draws in software): the
+// sizer gives the scroll area its full size, the canvas follows the scroll
+// position, and the context is translated so drawing keeps picture coordinates.
+let _hgView = { x: 0, y: 0, w: 0, h: 0 }, _hgBlitRaf = 0;
+function _hgViewport() {
   const W = _hgDispW(), H = _hgDispH();
-  if (_hgCanvas.width !== W) { _hgCanvas.width = W; _hgCanvas.height = H; }
-  _hgCtx.drawImage(_hgBuf, 0, 0);
+  const wrap = document.getElementById("hg-canvas-wrap"), sizer = document.getElementById("hg-canvas-sizer");
+  if (!wrap || !sizer) return { x: 0, y: 0, w: W, h: H };
+  const wr = wrap.getBoundingClientRect(), sr = sizer.getBoundingClientRect();
+  const x = Math.max(0, Math.min(W - 1, Math.floor(wr.left + wrap.clientLeft - sr.left)));
+  const y = Math.max(0, Math.min(H - 1, Math.floor(wr.top + wrap.clientTop - sr.top)));
+  return { x: x, y: y, w: Math.max(1, Math.min(W - x, wrap.clientWidth + 1)), h: Math.max(1, Math.min(H - y, wrap.clientHeight + 1)) };
+}
+function _hgBlit() {
+  if (_hgBlitRaf) { cancelAnimationFrame(_hgBlitRaf); _hgBlitRaf = 0; }
+  const sizer = document.getElementById("hg-canvas-sizer");
+  if (sizer) { sizer.style.width = _hgDispW() + "px"; sizer.style.height = _hgDispH() + "px"; }
+  const v = _hgViewport();
+  if (_hgCanvas.width !== v.w || _hgCanvas.height !== v.h) { _hgCanvas.width = v.w; _hgCanvas.height = v.h; }
+  if (_hgView.x !== v.x || _hgView.y !== v.y) { _hgCanvas.style.left = v.x + "px"; _hgCanvas.style.top = v.y + "px"; }
+  _hgView = v;
+  _hgCtx.setTransform(1, 0, 0, 1, -v.x, -v.y);
+  _hgCtx.drawImage(_hgBuf, v.x, v.y, v.w, v.h, v.x, v.y, v.w, v.h);
   _hgOverlays();
+}
+// While drawing, many pointer events arrive per frame: one blit per frame is enough.
+function _hgBlitSoon() {
+  if (!_hgBlitRaf) _hgBlitRaf = requestAnimationFrame(function() { _hgBlitRaf = 0; _hgBlit(); });
 }
 function _hgRenderAll() { _hgSyncModeTools(); _hgRenderBuf(); _hgBlit(); }
 // Multicolor has one shared $D021 background, so the per-cell paper tool is hi-res only.
@@ -38775,8 +38964,8 @@ function _hgSpray(x, y, col) {
 function _hgPixelFromEvent(e) {
   const rect = _hgCanvas.getBoundingClientRect();
   const sx = _hgCanvas.width / rect.width, sy = _hgCanvas.height / rect.height;
-  const x = Math.floor((e.clientX - rect.left) * sx / _hgPxW());
-  const y = Math.floor((e.clientY - rect.top)  * sy / _hgPxH());
+  const x = Math.floor(((e.clientX - rect.left) * sx + _hgView.x) / _hgPxW());
+  const y = Math.floor(((e.clientY - rect.top)  * sy + _hgView.y) / _hgPxH());
   return { x, y };
 }
 function _hgStatus(x, y) {
@@ -39818,6 +40007,9 @@ function setupHiresEditor() {
 
   // Canvas interaction
   const canvas = document.getElementById("hg-canvas");
+  const canvasWrap = document.getElementById("hg-canvas-wrap");
+  canvasWrap?.addEventListener("scroll", function() { if (_hgInited) _hgBlitSoon(); }, { passive: true });
+  if (canvasWrap && typeof ResizeObserver === "function") new ResizeObserver(function() { if (_hgInited) _hgBlitSoon(); }).observe(canvasWrap);
   const applyPoint = function(x, y) {
     if (_hgTool === "eraser") _hgErase(x, y);
     else if (_hgTool === "cellpaper") _hgSetCellBg(x, y, _hgColor);
@@ -39864,7 +40056,7 @@ function setupHiresEditor() {
     // Update the paste-ghost preview as the cursor moves.
     if (_hgPasteMode && _hgClipboard) {
       _hgPasteGhost = { x: p.x, y: p.y };
-      _hgBlit();
+      _hgBlitSoon();
       return;
     }
     if (!_hgPainting) return;
@@ -39872,16 +40064,16 @@ function setupHiresEditor() {
       const x0 = Math.min(_hgStart.x, p.x), y0 = Math.min(_hgStart.y, p.y);
       const x1 = Math.max(_hgStart.x, p.x), y1 = Math.max(_hgStart.y, p.y);
       _hgSelection = { x: x0, y: y0, w: x1 - x0 + 1, h: y1 - y0 + 1 };
-      _hgBlit();
+      _hgBlitSoon();
       return;
     }
     const col = _hgColor;
     if (isFreehand()) {
       _hgLine(_hgLast.x, _hgLast.y, p.x, p.y, applyPoint);
-      _hgLast = p; _hgBlit();
+      _hgLast = p; _hgBlitSoon();
     } else if (_hgTool === "spray") {
       _hgSpray(p.x, p.y, _hgColor);
-      _hgLast = p; _hgBlit();
+      _hgLast = p; _hgBlitSoon();
     } else {
       // shape preview: blit committed, draw preview on top
       _hgBlit();
@@ -43742,9 +43934,21 @@ function _sidPlayerTickUi() {
   const save = document.getElementById("websid-play-save-list");
   if (save) save.disabled = !hasPlaylist;
 }
+let _sidPlayerShownIndex = -1;
+// Keeps the current entry visible in the playlist (only inside the list, the
+// floating window itself does not move).
+function _sidPlayerRevealCurrent(list) {
+  const li = list.children[_sidPlaylistIndex];
+  if (!li) return;
+  const lr = list.getBoundingClientRect(), ir = li.getBoundingClientRect();
+  if (ir.top < lr.top) list.scrollTop -= lr.top - ir.top;
+  else if (ir.bottom > lr.bottom) list.scrollTop += ir.bottom - lr.bottom;
+}
 function _sidPlayerRenderList() {
   const list = document.getElementById("websid-play-list");
   if (list) {
+    // emptying the list resets its scroll position: keep it
+    const scrollTop = list.scrollTop;
     list.textContent = "";
     _sidPlaylist.forEach(function(item, index) {
       const li = document.createElement("li");
@@ -43764,6 +43968,11 @@ function _sidPlayerRenderList() {
       li.append(no, name, del);
       list.appendChild(li);
     });
+    list.scrollTop = scrollTop;
+    if (_sidPlaylistIndex !== _sidPlayerShownIndex) {
+      _sidPlayerShownIndex = _sidPlaylistIndex;
+      _sidPlayerRevealCurrent(list);
+    }
   }
   const current = _sidPlaylist[_sidPlaylistIndex];
   const fileEl = document.getElementById("websid-play-file");
@@ -47500,6 +47709,8 @@ function _vaLicenseRender(lockedFeature) {
     : (lockedFeature ? t("licenseLocked") + " " : "") + t("licenseIntro");
   const deact = document.getElementById("license-deactivate");
   if (deact) deact.hidden = !licensed;
+  const req = document.getElementById("license-request");
+  if (req) req.hidden = licensed;
   const email = document.getElementById("license-email");
   if (email && licensed) email.value = _vaLicense.email;
 }
@@ -47525,6 +47736,23 @@ async function _vaLicenseActivate() {
   _vaLicenseRender(false);
   _vaLicenseSetStatus(tf("licenseActivated", { email: res.email }), "ok");
 }
+async function _vaLicenseRequest() {
+  const input = document.getElementById("license-email");
+  const email = (input?.value || "").trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { _vaLicenseSetStatus(t("licenseRequestInvalidEmail"), "error"); input?.focus(); return; }
+  if (!window.electronAPI?.licenseRequest) return;
+  const btn = document.getElementById("license-request");
+  if (btn) btn.disabled = true;
+  _vaLicenseSetStatus(t("licenseRequestSending"));
+  let res = null;
+  try { res = await window.electronAPI.licenseRequest(email, currentLanguage); } catch (_) { res = null; }
+  if (btn) btn.disabled = false;
+  const keys = { sent: "licenseRequestSent", invalid_email: "licenseRequestInvalidEmail", not_donor: "licenseRequestNotDonor", exists: "licenseRequestExists",
+    rate: "licenseRequestRate", network: "licenseRequestNetwork" };
+  const result = res?.result || "server";
+  _vaLicenseSetStatus(tf(keys[result] || "licenseRequestFailed", { email }), result === "sent" ? "ok" : "error");
+  if (result === "sent") document.getElementById("license-serial")?.focus();
+}
 async function _vaLicenseDeactivate() {
   if (!await _showConfirm(t("licenseDeactivateConfirm"))) return;
   try { await window.electronAPI?.licenseDeactivate?.(); } catch (_) {}
@@ -47548,9 +47776,10 @@ function setupLicense() {
   document.getElementById("license-badge")?.addEventListener("click", function() { _vaOpenLicenseDialog(false); });
   document.getElementById("license-activate")?.addEventListener("click", _vaLicenseActivate);
   document.getElementById("license-deactivate")?.addEventListener("click", _vaLicenseDeactivate);
+  document.getElementById("license-request")?.addEventListener("click", _vaLicenseRequest);
   document.getElementById("license-close")?.addEventListener("click", function() { document.getElementById("license-dialog")?.close(); });
   document.getElementById("license-buy")?.addEventListener("click", function() {
-    const url = "https://www.c64va.tech/";
+    const url = "https://www.c64va.pro/";
     if (window.electronAPI?.openExternal) window.electronAPI.openExternal(url); else window.open(url, "_blank", "noopener");
   });
   _vaLicenseRefresh();

@@ -23,7 +23,7 @@ const FNS = ["_ccW", "_ccH", "_ccCellCols", "_ccCharMc", "_ccSetCellMode", "_ccC
 function load(multi) {
   return new Function(`
     let _ccData = new Uint8Array(2048), _ccColorRam = new Uint8Array(256).fill(${multi ? "8 | 5" : 14});
-    let _ccMulticolor = ${multi}, _ccColor = 7, _ccBg = 6, _ccMc1 = 2, _ccMc2 = 13;
+    let _ccMulticolor = ${multi}, _ccColor = 7, _ccBg = 6, _ccMc1 = 2, _ccMc2 = 13, _ccDirty = new Set(), _ccEcm = false;
     ${FNS.map(fn).join("\n")}
     return {
       data: () => _ccData, ram: () => _ccColorRam, setColor: (c) => { _ccColor = c; },
@@ -93,4 +93,44 @@ test("shared-register use ignores hi-res characters", () => {
   assert.equal(m.used(1), false);
   m.set(8, 0, 1);
   assert.equal(m.used(1), true);
+});
+
+// ECM: hi-res cells with one of four backgrounds, at most 64 different glyphs.
+function loadEcm() {
+  return new Function(`
+    let _ccData = new Uint8Array(2048), _ccColorRam = new Uint8Array(256).fill(1);
+    let _ccMulticolor = false, _ccColor = 1, _ccBg = 0, _ccMc1 = 2, _ccMc2 = 5, _ccBg3 = 6, _ccDirty = new Set();
+    let _ccEcm = true, _ccEcmBg = new Uint8Array(256);
+    ${["_ccCharMc", "_ccEcmBgOf", "_ccBgColors", "_ccEcmGlyphs", "_ccPixelColor"].map(fn).join("\n")}
+    return { data: () => _ccData, bg: () => _ccEcmBg, color: _ccPixelColor, glyphs: _ccEcmGlyphs };
+  `)();
+}
+
+test("ECM: each cell shows its own background register", () => {
+  const m = loadEcm();
+  m.bg()[5] = 3;
+  m.bg()[6] = 1;
+  assert.equal(m.color(0, 5), 6, "BG3 = $D024");
+  assert.equal(m.color(0, 6), 2, "BG1 = $D022");
+  assert.equal(m.color(1, 6), 1, "foreground from Color RAM");
+});
+
+test("ECM: equal characters are merged and the code carries the background", () => {
+  const m = loadEcm();
+  m.data()[8 * 10] = 0xff;   // char 10 differs from the empty ones
+  m.data()[8 * 20] = 0xff;   // char 20 equals char 10
+  m.bg()[20] = 2;
+  const g = m.glyphs();
+  assert.equal(g.count, 2);
+  assert.equal(g.codes[0], 0);
+  assert.equal(g.codes[10], 1);
+  assert.equal(g.codes[20], 1 | (2 << 6));
+  assert.equal(g.charset[8], 0xff, "glyph 1 in the 64-character set");
+  assert.equal(g.charset.length, 512);
+});
+
+test("ECM: more than 64 different characters are reported", () => {
+  const m = loadEcm();
+  for (let n = 0; n < 100; n++) m.data()[n * 8] = n;
+  assert.equal(m.glyphs().count, 100);
 });

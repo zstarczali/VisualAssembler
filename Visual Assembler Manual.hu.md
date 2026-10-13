@@ -37,7 +37,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - **Sprite szerkesztő** — hires réteg, kitöltés, kijelölés / mozgatás, forgatás, tükrözött animáció, sprite sheet import, hitbox, X / Y ×2 előnézet. Lásd: [Sprite Editor](#sprite-editor).
 - **Pálya szerkesztő** — objektumok, karakter-attribútumok, él-ellenőrzés, képernyőnkénti színek, memóriamérleg RLE-vel, Futtatás VICE-ban. Lásd: [Pálya szerkesztő](#pálya-szerkesztő-level-editor).
 - **Karakterszerkesztő** — visszavonás / újra, rajzeszközök, 90°-os forgatás, másolás / beillesztés és húzásos csere a térképen, 2×2-es csempék, kisbetűs ROM-készlet, szöveges előnézet és tartomány-export. Lásd: [Character Editor](#character-editor-charset).
-- **Charset Canvas** — nagyítás 2×–24× (csúszka vagy Ctrl+görgő) pixelráccsal, háttérszín hires módban, és hires karakterek multicolor módon belül. Lásd: [Charset Canvas Editor](#charset-canvas-editor).
+- **Charset Canvas** — nagyítás 2×–24× (csúszka vagy Ctrl+görgő) pixelráccsal, háttérszín hires módban, hires karakterek multicolor módon belül, és **ECM** (karakterenkénti háttér). Lásd: [Charset Canvas Editor](#charset-canvas-editor).
 
 ---
 
@@ -127,13 +127,13 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - **Beépített Ultimate Basic 1.5.9** — új `chain "FILE" [, eszköz]` (másik program betöltése a futó program fölé és indítása); a `load "FILE"` a fájl saját címére, a `load "FILE", addr` az `addr`-ra tölt; D64 javítások. A `chain` ki van emelve és szerepel a parancsreferenciában.
 - **Frissítés-jelző az Expert statusbarban** — ugyanaz a *Naprakész* / kattintható *Frissítés elérhető* jelző, mint Ultimate Basic módban.
 - **Mentési dialógusok** — a fájl saját típusát kínálják (pl. *KOA*) a *Binary (\*.bin)* helyett.
-- **Megbízhatóbb frissítés-ellenőrzés** — a telepítők listája a c64va.tech/downloads/VA/ címen érhető el, így az ellenőrzés az új letöltési oldallal is működik; a Linux frissítő segéd már nem örökli az AppImage könyvtár-útvonalait.
+- **Megbízhatóbb frissítés-ellenőrzés** — a telepítők listája a c64va.pro/downloads/VA/ címen érhető el, így az ellenőrzés az új letöltési oldallal is működik; a Linux frissítő segéd már nem örökli az AppImage könyvtár-útvonalait.
 
 ---
 
 ## A 2.4.7 verzió újdonságai
 
-- **Frissítés az alkalmazásból** — a **Menu → Check for Update** megkeresi az újabb kiadást a c64va.tech-en, és jóváhagyás után letölti a platformodnak megfelelő telepítőt (folyamatjelzővel), majd telepíti. Lásd: [Frissítés az alkalmazásból](#frissítés-az-alkalmazásból). Az ellenőrzés minden induláskor csendben is lefut.
+- **Frissítés az alkalmazásból** — a **Menu → Check for Update** megkeresi az újabb kiadást a c64va.pro-en, és jóváhagyás után letölti a platformodnak megfelelő telepítőt (folyamatjelzővel), majd telepíti. Lásd: [Frissítés az alkalmazásból](#frissítés-az-alkalmazásból). Az ellenőrzés minden induláskor csendben is lefut.
 - **Frissítés-jelző az Ultimate Basic statusbarban** — **Naprakész (vX)**, vagy kiemelt, kattintható **Frissítés elérhető: vY**, ami megnyitja a frissítés dialógust.
 - **Curve Editor → UltimateBasic export** — a **Files → Export to UltimateBasic** a táblát inicializált UB tömbként írja ki; a **Files → Export UltimateBasic demo** kész, futtatható UB sprite demót készít. Lásd: [Curve Editor](#curve-editor).
 - **Beépített Ultimate Basic 1.5.8** — az új **`data <tömb>: v, …`** alak induláskor feltölt egy deklarált `array` / `array_word` tömböt (a további sorok ott folytatják, ahol az előző abbahagyta, word tömbnél 16 bites értékek), a `read` adatfolyamot nem érinti.
@@ -159,7 +159,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - **Tisztább makrósorok az ASM nézetben** — a makró blokkok mostantól a vezető megjegyzésjel nélkül jelennek meg (`.print "HELLO"`, `.if A == 1`, `.sprite_init …` a `; .print …` helyett), az ASM szintaxiskiemelő pedig makróként színezi őket. A sima COMMENT blokkok és a régiójelölők továbbra is `;`-vel kezdődnek.
 - **Egyedi makrók kiemelése az Expert szerkesztőben** — a `.macro`, `.invoke` és `.call` utáni makrónév (és a Kick-stílusú `:név(...)` hívás) külön színt kap, ahogy a makró törzsében a `{param}` behelyettesítések és a `.macro` fejléc paraméternevei is — minden témában.
 - **Megújult About dialógus** — szélesebb, kétoszlopos elrendezés csoportosított projekt-, licenc- és köszönet-hivatkozásokkal; az Ultimate Basic banner háttere átlátszó, így minden témába beleolvad.
-- **Web64 a termékoldalon** — új Web64 IDE szekció a [c64va.tech](https://www.c64va.tech) oldalon.
+- **Web64 a termékoldalon** — új Web64 IDE szekció a [c64va.pro](https://www.c64va.pro) oldalon.
 - **Minta frissítés** — a `macro-with-parameter` minta a zárójeles `.macro setColor(color)` alakot használja.
 
 ---
@@ -185,7 +185,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 ## A 2.4.1 verzió újdonságai
 
 - **Lengyel és olasz felületi nyelv** — teljes felület-fordítás (menük, dialógusok, mnemonik leírások, Ultimate Basic parancsreferencia) a meglévő magyar, angol, spanyol, német és holland mellett.
-- **Online Help eszköztár-gomb** — új ikon-gomb a Debug után, a többnyelvű dokumentációs oldalt ([c64va.tech/docs.html](https://www.c64va.tech/docs.html)) nyitja meg közvetlenül az appból.
+- **Online Help eszköztár-gomb** — új ikon-gomb a Debug után, a többnyelvű dokumentációs oldalt ([c64va.pro/docs.html](https://www.c64va.pro/docs.html)) nyitja meg közvetlenül az appból.
 - **Mnemonik leírások központosítása:** a nyelvenkénti mnemonik leírások a közös fordítási fájlba kerültek a többi felületi szöveg mellé. Emellett javítva lett egy régóta fennálló hiba, ahol a `PRINT`, `PRINT_HEX`, `CLEAR_SCREEN`, `WAIT_KEY`, `SET_BORDER`, `SET_BG`, `IRQ_SETUP` és `RAND` angol leírásait egy véletlenül ottmaradt spanyol szöveg felülírta.
 
 ---
@@ -382,7 +382,7 @@ A modal automatikusan bezárul, amikor a művelet befejeződik vagy meghiúsul.
 | **About** | Verzióinformáció |
 | **What's New** | Changelog |
 | **Knowledge Base** | Referencia linkek (6502 opcode-ok, C64 KERNAL, memóriatérkép, színek) |
-| **Check for Update** | Újabb kiadás keresése a c64va.tech-en, letöltése és telepítése — lásd [Frissítés az alkalmazásból](#frissítés-az-alkalmazásból) |
+| **Check for Update** | Újabb kiadás keresése a c64va.pro-en, letöltése és telepítése — lásd [Frissítés az alkalmazásból](#frissítés-az-alkalmazásból) |
 
 ### Projekt snapshotok
 
@@ -396,7 +396,7 @@ A projekt snapshotok lemezen tárolt sidecar JSON fájlokként vannak elmentve, 
 
 ### Frissítés az alkalmazásból
 
-A **Menu → Check for Update** megkeresi a legújabb kiadást a c64va.tech-en (a platformodhoz tartozó letöltési linkeket olvassa ki), és összeveti a futó verzióval:
+A **Menu → Check for Update** megkeresi a legújabb kiadást a c64va.pro-en (a platformodhoz tartozó letöltési linkeket olvassa ki), és összeveti a futó verzióval:
 
 - **Naprakész** — a dialógus ezt jelzi.
 - **Frissítés elérhető** — az **Update now** letölti a telepítőt (a letöltést folyamatjelző mutatja), a **Later** bezárja a dialógust, a **Skip this version** pedig kikapcsolja az adott kiadás automatikus felajánlását.
@@ -3797,6 +3797,7 @@ A canvas 16×16 karakter, 128×128 pixel. Multicolor karakter módban minden kar
 | Mono / multicolor | A mono mód 1 bites 8×8 glifeket tárol. A multicolor mód kétbites vízszintes pixel-párokat tárol, és a multicolor cellákat Color RAM 3. bittel jelöli. |
 | Karaktermód eszköz | Multicolor módban a karakterekre kattintva vagy rajtuk húzva váltasz multicolor és hires között (Color RAM 3. bit). Az alak megmarad: a beállított pixelpár a karakter saját színe lesz. A hires karakter színei a háttér és a saját szín (0–7); MC1 / MC2 ott nem fest. |
 | Háttér | A BG legördülő mono módban is látszik; az MC1 / MC2 csak multicolorban. |
+| ECM | Az **ECM** jelölőnégyzet (kiterjesztett színmód, multicolorral együtt nem megy): minden karakter hires, saját színnel (0–15) és a négy háttér egyikével, BG0–BG3 (`$D021`–`$D024`; a BG1 / BG2 az MC1 / MC2 regiszter). Válassz BG színt a palettán (B0–B3 jelölés), majd a **Karakter háttere** eszközzel kattints vagy húzd a karaktereken. Csak 64 különböző karakter fér el: az állapotsor számolja, mentéskor az azonos karakterek összevonódnak — a charset 64 karakteres (512 bájt), a képernyőkód `karakter | háttér << 6`. Bekapcsolás a C64-en: `$D011` 6. bit. |
 | C64 színmodell | A háttér a `$D021`-et használja; a megosztott multicolor 1 a `$D022`-t; a megosztott multicolor 2 a `$D023`-at; minden karakter saját színe a Color RAM 0–2. bitjéből jön. |
 | Rajzeszközök | Ceruza, radír, vonal, téglalap, ovális és flood fill karakterhatárokon át működik. |
 | Spray eszköz | Airbrush-stílusú rajzolás, amely pixeleket szór a szomszédos cellák/karakterek közt. |

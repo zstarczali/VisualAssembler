@@ -8292,7 +8292,8 @@ html[data-theme="commodore77"] .splash-image {
   padding-top: 8px;
   border-top: 1px solid var(--panel-border);
 }
-.cc-mc-colors .cc-mc-only[hidden] { display: none; }
+.cc-mc-colors .cc-mc-only[hidden], .cc-mc-colors .cc-ecm-only[hidden] { display: none; }
+.cc-status--warn { color: #e06b6b; }
 .cc-mc-colors label {
   display: flex;
   flex-direction: column;
@@ -8338,13 +8339,16 @@ html[data-theme="commodore77"] .splash-image {
   padding: 12px 14px;
   background: var(--bg-accent);
 }
+.cc-canvas-sizer { position: relative; border: 1px solid var(--panel-border); background: #000; }
 .cc-canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
   display: block;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
   background: #000;
   cursor: crosshair;
-  border: 1px solid var(--panel-border);
 }
 
 /* ═══ Map Editor ═══════════════════════════════════════════ */
@@ -9124,7 +9128,11 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
   /* Dark scrollbars matching the black canvas backdrop (visible in light theme). */
   color-scheme: dark;
 }
+.hg-canvas-sizer { position: relative; }
 .hg-canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
   display: block;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
@@ -11091,7 +11099,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
   min-height: 0; height: auto; padding: 6px 8px; font-family: "IBM Plex Mono", monospace; font-size: 0.8rem;
   border: 1px solid var(--panel-border); border-radius: 2px; background: var(--control-bg); color: var(--text);
 }
-.license-field textarea { resize: vertical; word-break: break-all; }
+.license-field textarea { height: calc(2 * 1.4em + 14px); line-height: 1.4; resize: none; overflow: hidden; word-break: break-all; }
 .license-status { margin: 0; min-height: 1.2em; font-size: 0.78rem; color: var(--secondary); }
 .license-status--error { color: #e05555; }
 .license-status--ok { color: #3fbf6a; }

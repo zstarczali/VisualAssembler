@@ -190,7 +190,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 - **Sprite Editor** — hi-res overlay, flood fill, select / move, rotate, Mirror all, sprite sheet import, hitbox, X / Y ×2 preview. See [Sprite Editor](#sprite-editor).
 - **Level Editor** — objects, character attributes, edge check, colours per screen, memory meter with RLE, Run in VICE. See [Level Editor](#level-editor).
 - **Character Editor** — undo / redo, drawing tools, rotate 90°, copy / paste and drag-to-swap on the map, 2×2 tiles, the lowercase ROM set, a text preview and range export. See [Character Editor](#character-editor-charset).
-- **Charset Canvas** — zoom 2×–24× (slider or Ctrl+wheel) with a pixel grid, background colour in hi-res mode, and hi-res characters inside multicolor mode. See [Charset Canvas Editor](#charset-canvas-editor).
+- **Charset Canvas** — zoom 2×–24× (slider or Ctrl+wheel) with a pixel grid, background colour in hi-res mode, hi-res characters inside multicolor mode, and **ECM** (a background per character). See [Charset Canvas Editor](#charset-canvas-editor).
 
 ---
 
@@ -280,13 +280,13 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 - **Ultimate Basic 1.5.9 bundled** — new `chain "FILE" [, device]` (load another program over the running one and RUN it); `load "FILE"` loads to the file's own address, `load "FILE", addr` to `addr`; D64 fixes. `chain` is highlighted and listed in the command reference.
 - **Update status in the Expert status bar** — the same *Up to date* / clickable *Update available* indicator as in Ultimate Basic mode.
 - **Save dialogs** offer the file's own type (e.g. *KOA*) instead of *Binary (\*.bin)*.
-- **More robust update check** — the installer list is published at c64va.tech/downloads/VA/, so the check works with the new download page; the Linux update helper no longer inherits the AppImage library paths.
+- **More robust update check** — the installer list is published at c64va.pro/downloads/VA/, so the check works with the new download page; the Linux update helper no longer inherits the AppImage library paths.
 
 ---
 
 ## Version 2.4.7 Highlights
 
-- **In-app updates** — **Menu → Check for Update** checks c64va.tech for a newer release and, on confirmation, downloads the installer for your platform with a progress bar and installs it. See [In-app updates](#in-app-updates). The check also runs quietly at every start.
+- **In-app updates** — **Menu → Check for Update** checks c64va.pro for a newer release and, on confirmation, downloads the installer for your platform with a progress bar and installs it. See [In-app updates](#in-app-updates). The check also runs quietly at every start.
 - **Update status in the Ultimate Basic status bar** — shows **Up to date (vX)**, or a highlighted **Update available: vY** that opens the update dialog when clicked.
 - **Curve Editor → UltimateBasic export** — **Files → Export to UltimateBasic** writes the table as an initialised UB array; **Files → Export UltimateBasic demo** produces a ready-to-run UB sprite demo. See [Curve Editor](#curve-editor).
 - **Ultimate Basic 1.5.8 bundled** — the new **`data <array>: v, …`** form fills a declared `array` / `array_word` at program start (further lines continue where the previous one stopped, word arrays take 16-bit values) without touching the `read` stream.
@@ -312,7 +312,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 - **Cleaner macro lines in the ASM view** — macro blocks are now listed without the leading comment marker (`.print "HELLO"`, `.if A == 1`, `.sprite_init …` instead of `; .print …`), and the ASM syntax highlighter colours them as macros. Ordinary COMMENT blocks and region markers still start with `;`.
 - **Custom macro highlighting in the Expert editor** — the macro name after `.macro`, `.invoke` and `.call` (and Kick-style `:name(...)` calls) has its own colour, and so do the `{param}` substitutions inside the macro body and the parameter names in the `.macro` header, in every theme.
 - **Refreshed About dialog** — a wider two-column layout with grouped project, license and credit links, and the Ultimate Basic banner now has a transparent background so it blends into every theme.
-- **Web64 on the product site** — a new Web64 IDE section on [c64va.tech](https://www.c64va.tech).
+- **Web64 on the product site** — a new Web64 IDE section on [c64va.pro](https://www.c64va.pro).
 - **Sample update** — the `macro-with-parameter` sample now uses the parenthesised `.macro setColor(color)` form.
 
 ---
@@ -338,7 +338,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Version 2.4.1 Highlights
 
 - **Polish and Italian UI languages** — full interface translation (menus, dialogs, mnemonic descriptions, Ultimate Basic command reference) alongside the existing Hungarian, English, Spanish, German and Dutch.
-- **Online Help toolbar button** — a new icon button after Debug opens the multi-language documentation site ([c64va.tech/docs.html](https://www.c64va.tech/docs.html)) directly from the app.
+- **Online Help toolbar button** — a new icon button after Debug opens the multi-language documentation site ([c64va.pro/docs.html](https://www.c64va.pro/docs.html)) directly from the app.
 - **Centralized mnemonic descriptions:** per-language mnemonic descriptions moved into the shared translation file alongside the rest of the UI strings. Also fixes a longstanding bug where the English descriptions for `PRINT`, `PRINT_HEX`, `CLEAR_SCREEN`, `WAIT_KEY`, `SET_BORDER`, `SET_BG`, `IRQ_SETUP` and `RAND` were silently overwritten by leftover Spanish text.
 
 ---
@@ -545,11 +545,11 @@ Project snapshots are stored as on-disk sidecar JSON files, not in localStorage.
 - **Hardware Settings → Snapshot → Automatic snapshot saving** controls whether the app creates snapshots automatically after edits. The default delay is about 2.5 seconds, and the setting applies per tab.
 - If a project has not been saved yet, snapshots are stored in the app config directory until the project gets a file path.
 | **Knowledge Base** | Reference links (6502 opcodes, C64 KERNAL, memory map, colors) |
-| **Check for Update** | Check c64va.tech for a newer release and download / install it — see [In-app updates](#in-app-updates) |
+| **Check for Update** | Check c64va.pro for a newer release and download / install it — see [In-app updates](#in-app-updates) |
 
 ### In-app updates
 
-**Menu → Check for Update** looks up the newest release on c64va.tech (it reads the download links for your platform) and compares it with the running version:
+**Menu → Check for Update** looks up the newest release on c64va.pro (it reads the download links for your platform) and compares it with the running version:
 
 - **Up to date** — the dialog says so.
 - **Update available** — choose **Update now** to download the installer (a progress bar shows the download), **Later** to close the dialog, or **Skip this version** to stop the automatic check from offering that release again.
@@ -3951,6 +3951,7 @@ The canvas is 16×16 characters, 128×128 pixels. In multicolor character mode e
 | Mono / multicolor | Mono mode stores 1-bit 8×8 glyphs. Multicolor mode stores two-bit horizontal pixel pairs and marks multicolor cells with Color RAM bit 3. |
 | Character mode tool | In multicolor mode, click or drag over characters to switch them between multicolor and hi-res (Color RAM bit 3). The shape is kept: a set pixel pair becomes the character's own colour. A hi-res character has the background and its own colour (0–7); MC1 / MC2 do not paint there. |
 | Background | The BG dropdown is shown in mono mode too; MC1 / MC2 only in multicolor mode. |
+| ECM | The **ECM** checkbox (extended colour mode, not together with multicolor): every character is hi-res with its own colour (0–15) and one of four backgrounds BG0–BG3 (`$D021`–`$D024`; BG1 / BG2 are the MC1 / MC2 registers). Pick a BG colour in the palette (tagged B0–B3), then click or drag over characters with the **Character background** tool. Only 64 different characters fit: the status line counts them, and saving merges equal characters — the charset is 64 characters (512 bytes) and the screen codes are `glyph | background << 6`. Turn ECM on with `$D011` bit 6. |
 | C64 color model | Background uses `$D021`; shared multicolor 1 uses `$D022`; shared multicolor 2 uses `$D023`; each character's own color comes from Color RAM bits 0–2. |
 | Drawing tools | Pencil, eraser, line, rectangle, oval, and flood fill work across character boundaries. |
 | Spray tool | Airbrush-style drawing that scatters pixels across neighboring cells/characters. |

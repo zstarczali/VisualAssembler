@@ -298,7 +298,7 @@
       "Bash(python - C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/417dc66c-f8ef-40e4-bae4-a7fe70729f8f/scratchpad/md2pdf.py)",
       "Bash(python C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/417dc66c-f8ef-40e4-bae4-a7fe70729f8f/scratchpad/ubref.py)",
       "Bash(python C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/417dc66c-f8ef-40e4-bae4-a7fe70729f8f/scratchpad/ubref2.py)",
-      "Bash(curl -s -A \"C64VisualAssembler/2.4.6\" https://www.c64va.tech/ -o /tmp/p.html)",
+      "Bash(curl -s -A \"C64VisualAssembler/2.4.6\" https://www.c64va.pro/ -o /tmp/p.html)",
       "Bash(cd /f/Development/VisualAssembler; sed -n 30,40p .gitignore; which php 2>/dev/null || ls /c/xampp/php/php.exe /c/php/php.exe 2>/dev/null || echo \"no php\")",
       "Bash(git status *)",
       "Bash(grep -i \"regex\\\\|match\\(\\\\|/\\\\^\")",
