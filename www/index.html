@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>C64 Visual Assembler</title>
-  <script>(function(){var t=localStorage.getItem('c64-block-theme')||'light';document.documentElement.dataset.theme=t;document.documentElement.style.background={'dark':'#1a1b26','oled':'#0d0d12','commodore77':'#0a0a08','light':'#e8ecf1'}[t]||'#e8ecf1';})();</script>
+  <script>(function(){var t=localStorage.getItem('c64-block-theme')||'light';document.documentElement.dataset.theme=t;document.documentElement.style.background={'dark':'#1a1b26','oled':'#0d0d12','commodore77':'#0a0a08','starlight':'#f4f1fa','beige':'#e4ddd0','light':'#e8ecf1'}[t]||'#e8ecf1';})();</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -164,6 +164,14 @@
                     <button class="secondary theme-option" data-theme-opt="commodore77" type="button">
                       <span class="theme-option-dot" data-theme-opt="commodore77" aria-hidden="true"></span>
                       <span>Commodore 77</span>
+                    </button>
+                    <button class="secondary theme-option" data-theme-opt="starlight" type="button">
+                      <span class="theme-option-dot" data-theme-opt="starlight" aria-hidden="true"></span>
+                      <span>Commodore Starlight</span>
+                    </button>
+                    <button class="secondary theme-option" data-theme-opt="beige" type="button">
+                      <span class="theme-option-dot" data-theme-opt="beige" aria-hidden="true"></span>
+                      <span>Commodore Beige</span>
                     </button>
                   </div>
                 </details>
@@ -1324,6 +1332,12 @@ PRINTABLE CHARACTERS
         </li>
         <li>
           <strong>SID Player:</strong> <em>Shuffle</em> and per-tune <em>favourites</em> (★), kept in the saved state and in <code>.sidpl</code> playlists.
+        </li>
+        <li>
+          <strong>New theme: Commodore Starlight:</strong> a light theme after the translucent C64 breadbin — frosted clear glass with the rainbow RGB glow shining through, a magenta accent, rainbow syntax colours and a smoky dark monitor (Professional).
+        </li>
+        <li>
+          <strong>New theme: Commodore Beige:</strong> the classic breadbin — a beige case, mustard function-key buttons, the rainbow badge stripes and a C64 blue screen for the monitor view (Professional).
         </li>
         <li>
           <strong>From 2.5.7: VA SID Core 1.2:</strong> the SID Player now runs tunes on a cycle-exact 6510 (every bus cycle, dummy accesses, VICE's interrupt timing), CIA 6526A timers / interrupts / TOD, VIC-II timing with bad lines, sprite DMA and raster interrupts, and the 6510 I/O port.

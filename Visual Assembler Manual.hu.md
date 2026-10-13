@@ -36,6 +36,8 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - **Hibabejelentés** — beépített bejelentő űrlap legfeljebb 4 képernyőképpel (fájl, Ctrl+V vagy ráhúzás), opcionális e-maillel, rendszerinfóval és a legutóbbi hibákkal. Lásd: [Hibabejelentés](#hibabejelentés).
 - **Professional sorozatszám e-mailben** — a támogatók a regisztrációs ablakban kérhetik a sorozatszámot (**Sorozatszám kérése (támogatóknak)**); a Professional verzió a c64va.pro oldalon PayPallal megvásárolható (5 €, egyszeri díj), a sorozatszám a fizetés után azonnal megérkezik e-mailben. Lásd: [Freemium és Professional](#freemium-és-professional).
 - **SID Player** — **véletlen lejátszás** és számonkénti **kedvencek** (★). Lásd: [SID Player](#sid-player).
+- **Commodore Beige téma** — a klasszikus „kenyérdoboz”: bézs tok, mustársárga funkcióbillentyű-gombok, a logó szivárványcsíkja és C64 kék monitornézet (Professional).
+- **Commodore Starlight téma** — világos téma az átlátszó C64 tok nyomán: jégfehér üveg, amelyen átdereng a szivárványos RGB-fény, magenta kiemelés és szivárványos szintaxisszínek (Professional).
 
 ---
 
@@ -361,7 +363,7 @@ A modal automatikusan bezárul, amikor a művelet befejeződik vagy meghiúsul.
 |---|---|
 | **Számrendszer (HEX / DEC / BIN)** | Beállítja az operandusok megjelenítési/beviteli formátumát az egész felületen. BIN módban az értékek binárisan, `%` prefixszel jelennek meg (pl. `%11111000`). Az ASM nézet mindig a saját formátumában mutatja az egyes blokkokat. |
 | **Nyelv** | A felület nyelvének váltása angol, magyar, spanyol, német és holland (Nederlands) között |
-| **Téma** | Light / Dark / OLED / Commodore 77 — a Settings menü témaválasztójából. Az OLED tiszta fekete hátteret használ AMOLED kijelzőkhöz. A Commodore 77 egy neon-sárga-feketén téma; ha ez az aktív téma, az indítási splash panel a téma panel-színét használja (a message card-hoz igazítva), egy kisebb, dedikált Commodore 77 logót és egy sárga progress bárt mutat. A választott téma a következő indításkor az első kirajzolás előtt érvényesül. |
+| **Téma** | Light / Dark / OLED / Commodore 77 / Commodore Starlight / Commodore Beige — a Settings menü témaválasztójából. Az OLED tiszta fekete hátteret használ AMOLED kijelzőkhöz. A Commodore 77 egy neon-sárga-feketén téma; ha ez az aktív téma, az indítási splash panel a téma panel-színét használja (a message card-hoz igazítva), egy kisebb, dedikált Commodore 77 logót és egy sárga progress bárt mutat. A Commodore Starlight világos téma az átlátszó C64 tok nyomán: jégfehér, áttetsző panelek, amelyeken átdereng a szivárványos RGB-fény, magenta kiemelés, szivárványos szintaxisszínek és füstös, sötét monitornézet. A Commodore Beige a klasszikus „kenyérdoboz”: bézs tok, mustársárga funkcióbillentyű-gombok, a logó szivárványcsíkja és C64 kék képernyő a monitornézetben. A választott téma a következő indításkor az első kirajzolás előtt érvényesül. |
 | **CRT retro mód** | Teljes képernyős CRT szűrőt kapcsol: scanline-ok, foszfor vignettálás, villódzás és hordódisztorzió. Az állapot munkamenetek között mentődik. |
 | **Show memory panel** | Globális kapcsoló, amely megjeleníti vagy elrejti a teljes C64 memória panelt |
 | **BASIC SYS stub** | Egy BASIC sort tesz a program elé, amely SYS-szel hívja a program originjét |
@@ -443,7 +445,7 @@ Regisztráció nélkül a Visual Assembler **Freemium** módban fut; a cím mell
 - a vizuális szerkesztők (SID, Sprite, Char, Charset, Hi-Res, Map, Level, D64, Curve) és a SID Player;
 - **Build PRG**, **Build D64**, **Build CRT**, **Build project** és az Exomizer tömörítés;
 - futtatás C64 Ultimate-en és Kung Fu Flash 2-n;
-- a magyaron és angolon kívüli felületi nyelvek, valamint az OLED és a Commodore 77 téma.
+- a magyaron és angolon kívüli felületi nyelvek, valamint az OLED, a Commodore 77, a Commodore Starlight és a Commodore Beige téma.
 
 Zárolt funkcióra kattintva a regisztrációs ablak nyílik meg. Regisztrációhoz nyisd meg a **Menu → Regisztráció…** pontot (vagy kattints a jelvényre), add meg a vásárláskor kapott e-mail címet és sorozatszámot, majd nyomd meg az **Aktiválás** gombot. A sorozatszám ahhoz az e-mail címhez tartozik (a kis- és nagybetű, illetve a szóközök nem számítanak), az ellenőrzés internet nélkül történik. A **Licenc eltávolítása** leveszi a regisztrációt erről a gépről.
 

@@ -192,6 +192,8 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 - **Report Bug** — a built-in report form with up to 4 screenshots (file, Ctrl+V or drag and drop), optional email, system info and the recent app errors. See [Reporting a bug](#reporting-a-bug).
 - **Professional serial by email** — supporters request their serial in the registration dialog (**Request serial (supporters)**); the Professional version can be bought on c64va.pro with PayPal (5 €, one-time) and the serial arrives by email right after the payment. See [Freemium and Professional](#freemium-and-professional).
 - **SID Player** — **Shuffle** and **favourites** (★) per tune. See [SID Player](#sid-player).
+- **Commodore Beige theme** — the classic breadbin: beige case, mustard function-key buttons, the rainbow badge stripes and a C64 blue monitor view (Professional).
+- **Commodore Starlight theme** — a light theme after the translucent C64 breadbin: frosted clear glass with the rainbow RGB glow shining through, a magenta accent and rainbow syntax colours (Professional).
 
 ---
 
@@ -517,7 +519,7 @@ The modal closes automatically when the action completes or fails.
 |---|---|
 | **Number base (HEX / DEC / BIN)** | Sets the display/input format for operands throughout the UI. BIN mode displays values as binary with `%` prefix (e.g. `%11111000`). The ASM view always shows each block in its own format. |
 | **Language** | Switch the user interface between English, Hungarian, Spanish, German, and Dutch (Nederlands) |
-| **Theme** | Light / Dark / OLED / Commodore 77 — select from the theme picker in the Settings menu. OLED uses a pure-black background for AMOLED displays. Commodore 77 is a neon-yellow-on-black theme; when it is the active theme the startup splash panel uses the theme's panel colour (matching the message card), shows a smaller dedicated Commodore 77 logo, and a yellow progress bar. The chosen theme is applied before the first paint on the next launch. |
+| **Theme** | Light / Dark / OLED / Commodore 77 / Commodore Starlight / Commodore Beige — select from the theme picker in the Settings menu. OLED uses a pure-black background for AMOLED displays. Commodore 77 is a neon-yellow-on-black theme; when it is the active theme the startup splash panel uses the theme's panel colour (matching the message card), shows a smaller dedicated Commodore 77 logo, and a yellow progress bar. Commodore Starlight is a light theme after the translucent C64 breadbin: frosted clear glass panels with the rainbow RGB glow shining through, a magenta accent, rainbow syntax colours and a smoky dark monitor view. Commodore Beige is the classic breadbin: a beige case, mustard function-key buttons, the rainbow badge stripes and a C64 blue screen for the monitor view. The chosen theme is applied before the first paint on the next launch. |
 | **CRT retro mode** | Toggles a full-screen CRT filter: scanlines, phosphor vignette, flicker, and barrel distortion. State is saved between sessions. |
 | **Show memory panel** | Global toggle that shows or hides the full C64 memory panel |
 | **BASIC SYS stub** | Prepends a BASIC line that calls SYS to your program's origin |
@@ -599,7 +601,7 @@ Without a registration Visual Assembler runs as **Freemium**; the badge next to 
 - the visual editors (SID, Sprite, Char, Charset, Hi-Res, Map, Level, D64, Curve) and the SID Player;
 - **Build PRG**, **Build D64**, **Build CRT**, **Build project** and Exomizer packing;
 - running on the C64 Ultimate and on the Kung Fu Flash 2;
-- UI languages other than Hungarian and English, and the OLED and Commodore 77 themes.
+- UI languages other than Hungarian and English, and the OLED, Commodore 77, Commodore Starlight and Commodore Beige themes.
 
 Clicking a locked feature opens the registration dialog. To register, open **Menu → Register…** (or click the badge), enter the email address and serial from your purchase and press **Activate**. The serial belongs to that email address (upper / lower case and spaces do not matter), and the check runs offline. **Remove license** takes the registration off this computer.
 

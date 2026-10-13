@@ -2117,9 +2117,6 @@ function initPalette() {
   projectSnapshotDialog?.addEventListener("cancel", () => {
     _closeProjectSnapshotDialog();
   });
-  projectSnapshotDialog?.addEventListener("click", (e) => {
-    if (e.target === projectSnapshotDialog) _closeProjectSnapshotDialog();
-  });
   zoomOutButton.addEventListener("click", () => adjustZoom(-0.08));
   zoomInButton.addEventListener("click", () => adjustZoom(0.08));
   outputModeTabs.forEach((tab) => tab.addEventListener("click", () => {
@@ -2381,7 +2378,8 @@ function setupDraggableEditorDialogs() {
     ["sid-editor-dialog", ".sid-hdr"],
     ["curve-gen-dialog", ".cg-hdr"],
     ["d64-editor-dialog", ".de-hdr"],
-    ["d64-block-editor-dialog", ".dbe-hdr"]
+    ["d64-block-editor-dialog", ".dbe-hdr"],
+    ["project-snapshot-dialog", ".project-snapshot-hdr"]
   ];
   dialogs.forEach(function(entry) {
     const dialogId = entry[0];
@@ -16366,7 +16364,7 @@ function applySavedTheme() {
 }
 
 function toggleTheme() {
-  const next = { light: "dark", dark: "oled", oled: "commodore77", commodore77: "light" };
+  const next = { light: "dark", dark: "oled", oled: "commodore77", commodore77: "starlight", starlight: "beige", beige: "light" };
   setTheme(next[document.documentElement.dataset.theme] || "dark");
 }
 
@@ -17560,6 +17558,7 @@ function _vcShowDiff(title, diffText, raw = null) {
     }).join("");
   }
   box.hidden = false;
+  _vcClampDialog();
   box.scrollIntoView({ block: "nearest" });
 }
 function _vcSetOutput(text, isError = false) {
@@ -17612,6 +17611,16 @@ async function _vcApplyText(tab, content) {
   return _applyProjectPayload({ version: 1, app: "c64-visual-assembler", expertText: content, program: parseExpertText(content) }, { keepFilePath: true });
 }
 
+// A mozgatott (bal / felső pozícióval rögzített) ablak ne lógjon ki a képernyőből, ha a tartalma megnő.
+function _vcClampDialog() {
+  const dlg = projectSnapshotDialog;
+  if (!dlg?.open || !dlg.style.top.endsWith("px")) return;
+  requestAnimationFrame(() => {
+    const rect = dlg.getBoundingClientRect();
+    const maxTop = Math.max(8, window.innerHeight - rect.height - 8);
+    if (rect.top > maxTop) dlg.style.top = maxTop + "px";
+  });
+}
 function _vcSetModeButtons(mode, gitUsable) {
   document.getElementById("vc-mode-local")?.classList.toggle("vc-mode-btn--active", mode === "local");
   const gitBtn = document.getElementById("vc-mode-git");
@@ -17633,8 +17642,9 @@ async function _renderProjectSnapshotHistory() {
   const mode = await _vcResolveMode(tab);
   _vcSetModeButtons(mode, !!(_vcGitPath && _vcTabFile(tab)));
   if (projectSnapshotNoteInput) projectSnapshotNoteInput.placeholder = t("snapshotNotePlaceholder");
-  if (mode === "git") return _vcRenderGit(tab);
-  return _vcRenderLocal(tab);
+  if (mode === "git") await _vcRenderGit(tab);
+  else await _vcRenderLocal(tab);
+  _vcClampDialog();
 }
 
 async function _vcRenderLocal(tab) {
@@ -17768,7 +17778,10 @@ async function _openProjectSnapshotDialog() {
   const diff = document.getElementById("vc-diff");
   if (diff) diff.hidden = true;
   await _renderProjectSnapshotHistory();
+  // mentett pozíció (setupDraggableEditorDialogs) a megnyitás előtt, méretre igazítás utána
+  projectSnapshotDialog._applyPosition?.();
   projectSnapshotDialog.showModal();
+  projectSnapshotDialog._applyPosition?.();
   setTimeout(() => projectSnapshotNoteInput?.focus(), 0);
 }
 
