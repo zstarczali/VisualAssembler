@@ -34,5 +34,8 @@ return [
     ],
     // register/stats.php jelszava (vagy VA_ADMIN_PASSWORD környezeti változó)
     'admin_password' => '',
+    // hibabejelentés: értesítő e-mail cím (üres = nincs) és IP-nkénti óránkénti limit
+    'bug_notify' => '',
+    'bug_max_per_hour' => 5,
     'max_per_ip_per_hour' => 10,
 ];

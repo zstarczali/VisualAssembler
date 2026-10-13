@@ -2,9 +2,17 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.5.7**
+**Current version: v2.5.8**
 
-## What's New in v2.5.7
+## What's New in v2.5.8
+
+- **Version control** — the project snapshots became a git-like version control: commits with a message and a short hash, a log with **HEAD**, **Diff** against the working copy (Block-mode programs are compared as assembly lines, so JSON projects show readable changes), **Checkout** into the editor and separate autosave entries (the last 20 are kept, next to up to 100 commits). Works on Block, Expert and Ultimate Basic tabs.
+- **Git integration** — choose `git.exe` in **Settings → Version control** or let the app find it on the PATH. Inside a git repository the dialog shows the branch with ahead / behind counts and the changed files, and offers commit (saves the file first; optionally `git add -A`), the file's log, diff (parsed, with a **RAW** view of the plain `git diff`), checkout into the editor (`git show`), **Pull** (`--ff-only`), **Push** (sets the upstream on the first push) and **git init**. git runs without a console window and without prompts.
+- **Report Bug** — **Menu → Report Bug** opens a form: summary, description, optional email, up to 4 screenshots (file, **Ctrl+V** or drag and drop; large images are scaled to 1920 px), and optionally the system info and the last app errors. Reports go to the developer's dashboard; **Send by email** is still there.
+- **Professional serial by email** — supporters request their serial in the registration dialog (**Request serial (supporters)**, once per address); the Professional version can be bought on c64va.pro with PayPal (5 €, one-time) and the serial is emailed right after the payment. The product site compares Freemium and Professional.
+- **SID Player** — **Shuffle** (no repeats until every tune has played, Previous steps back along the random order) and per-tune **favourites** (★), kept in the saved state and in `.sidpl` playlists.
+
+## Earlier: v2.5.7
 
 - **VA SID Core 1.2** — the SID Player now includes a native Rust C64 core: a cycle-exact 6510 (every bus cycle including dummy reads / writes and BA stalls), the CIA 6526 / 6526A (timer pipelines, interrupt flag delay line, timer B bug, PB6 / PB7, shift register, TOD), VIC-II timing (raster counter, raster interrupt, bad lines, sprite DMA with Y expansion and crunch) and the 6510 I/O port with its floating bits.
 - **Hi-Res Editor: two colours per 8×8 cell** — the new **Cell paper** tool sets each cell's background (the low nibble of its screen RAM byte), so every cell has its own ink and paper as on the C64; the eraser uncovers the cell's own background. Disabled in multicolor, which has one shared background.

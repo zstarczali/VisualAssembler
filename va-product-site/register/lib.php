@@ -101,22 +101,22 @@ function vaRequestSerial(string $rawEmail, string $lang): string
     $db = vaDb();
     $ip = vaClientIp();
 
-    // minden próbálkozás számít, így a donorlista nem pásztázható
+    // csak a sikertelen próbálkozások számítanak: a donorlista így sem pásztázható,
+    // a sikeres kérést pedig úgyis korlátozza az e-mail címenként egy serial
     $db->exec('DELETE FROM va_register_attempts WHERE created_at < (NOW() - INTERVAL 1 DAY)');
     $st = $db->prepare('SELECT COUNT(*) FROM va_register_attempts WHERE ip = ? AND created_at > (NOW() - INTERVAL 1 HOUR)');
     $st->execute([$ip]);
     if ((int) $st->fetchColumn() >= (int) ($cfg['max_per_ip_per_hour'] ?? 10)) {
         return 'rate';
     }
-    $db->prepare('INSERT INTO va_register_attempts (ip, created_at) VALUES (?, NOW())')->execute([$ip]);
 
     $st = $db->prepare('SELECT 1 FROM va_donors WHERE email = ?');
     $st->execute([$email]);
-    if ($st->fetchColumn() === false) {
-        return 'not_donor';
+    $result = $st->fetchColumn() === false ? 'not_donor' : vaIssueSerial($email, $lang, false);
+    if ($result === 'not_donor' || $result === 'exists') {
+        $db->prepare('INSERT INTO va_register_attempts (ip, created_at) VALUES (?, NOW())')->execute([$ip]);
     }
-
-    return vaIssueSerial($email, $lang, false);
+    return $result;
 }
 
 /**

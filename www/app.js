@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "c64-core-257",
+  id: "version-control-258",
   url: "https://www.c64va.pro/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.5.7-ben",
+    eyebrow: "Újdonság a 2.5.8-ban",
     title: "Üdvözöl a Visual Assembler",
-    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>VA SID Core 1.2:</strong> a SID Player a VICE-ból portolt, ciklusra pontos C64-en játszik (6510, CIA, VIC-II).</li><li><strong>Hi-Res szerkesztő:</strong> két szín minden 8×8-as cellában — új Cella háttérszín eszköz.</li><li><strong>Pontos karakter-ROM</strong> a ROM-nézőben, a Character és a Map / Level szerkesztőben.</li><li><strong>Sprite szerkesztő:</strong> hires réteg, kitöltés, kijelölés, forgatás, sprite sheet import, hitbox, X / Y ×2.</li><li><strong>Pálya szerkesztő:</strong> objektumok, karakter-attribútumok, él-ellenőrzés, képernyőnkénti színek, memóriamérleg + RLE, Futtatás VICE-ban.</li><li><strong>Karakterszerkesztő:</strong> visszavonás, rajzeszközök, forgatás, másolás / csere, 2×2-es csempék, kisbetűs ROM, szöveges előnézet, tartomány-export.</li><li><strong>Charset Canvas:</strong> nagyítás pixelráccsal, háttérszín hires módban, hires karakterek multicolor módon belül, ECM karakterenkénti háttérrel.</li></ul>`,
+    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>Verziókezelés:</strong> commit, napló, diff és checkout minden fülön, git bekötéssel (git.exe a Beállításokban).</li><li><strong>Hibabejelentés:</strong> űrlap képernyőképekkel (Ctrl+V vagy húzás), rendszerinfóval.</li><li><strong>Professional:</strong> a sorozatszám e-mailben jön — támogatóknak a regisztrációs ablakból, vásárlás a c64va.pro-n (5 €).</li><li><strong>SID Player:</strong> véletlen lejátszás és kedvencek.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.5.7",
+    eyebrow: "New in 2.5.8",
     title: "Welcome to Visual Assembler",
-    body: `<p>What's new in this release:</p><ul><li><strong>VA SID Core 1.2:</strong> the SID Player runs tunes on a cycle-exact C64 ported from VICE (6510, CIA, VIC-II).</li><li><strong>Hi-Res Editor:</strong> two colours in every 8×8 cell — the new Cell paper tool.</li><li><strong>Exact character ROM</strong> in the ROM viewer, the Character and the Map / Level editors.</li><li><strong>Sprite Editor:</strong> hi-res overlay, flood fill, select, rotate, sprite sheet import, hitbox, X / Y ×2.</li><li><strong>Level Editor:</strong> objects, character attributes, edge check, colours per screen, memory meter + RLE, Run in VICE.</li><li><strong>Character Editor:</strong> undo, drawing tools, rotate, copy / swap, 2×2 tiles, lowercase ROM, text preview, range export.</li><li><strong>Charset Canvas:</strong> zoom with a pixel grid, background colour in hi-res mode, hi-res characters inside multicolor mode, ECM with a background per character.</li></ul>`,
+    body: `<p>What's new in this release:</p><ul><li><strong>Version control:</strong> commit, log, diff and checkout on every tab, with Git integration (git.exe in Settings).</li><li><strong>Report Bug:</strong> a report form with screenshots (Ctrl+V or drag and drop) and system info.</li><li><strong>Professional:</strong> the serial arrives by email — supporters request it in the registration dialog, buy it on c64va.pro (5 €).</li><li><strong>SID Player:</strong> shuffle and favourites.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.5.7",
+    eyebrow: "Novedad en la 2.5.8",
     title: "Bienvenido a Visual Assembler",
-    body: `<p>Novedades de esta versión:</p><ul><li><strong>VA SID Core 1.2:</strong> el SID Player reproduce en un C64 exacto al ciclo portado de VICE (6510, CIA, VIC-II).</li><li><strong>Editor Hi-Res:</strong> dos colores en cada celda de 8×8 — nueva herramienta de fondo de celda.</li><li><strong>ROM de caracteres exacta</strong> en el visor de ROM y en los editores de caracteres, mapas y niveles.</li><li><strong>Editor de sprites:</strong> capa hi-res, relleno, selección, giro, importación de hojas de sprites, hitbox, X / Y ×2.</li><li><strong>Editor de niveles:</strong> objetos, atributos de caracteres, comprobación de bordes, colores por pantalla, memoria + RLE, ejecutar en VICE.</li><li><strong>Editor de caracteres:</strong> deshacer, herramientas de dibujo, giro, copiar / intercambiar, mosaicos 2×2, ROM en minúsculas, vista previa de texto, exportar rango.</li><li><strong>Charset Canvas:</strong> zoom con cuadrícula de píxeles, color de fondo en alta resolución, caracteres de alta resolución dentro del modo multicolor, ECM con fondo por carácter.</li></ul>`,
+    body: `<p>Novedades de esta versión:</p><ul><li><strong>Control de versiones:</strong> commit, historial, diff y checkout en cada pestaña, con integración de Git (git.exe en Ajustes).</li><li><strong>Reportar error:</strong> un formulario con capturas (Ctrl+V o arrastrar) e información del sistema.</li><li><strong>Professional:</strong> el número de serie llega por correo — los donantes lo piden en el diálogo de registro; se compra en c64va.pro (5 €).</li><li><strong>SID Player:</strong> reproducción aleatoria y favoritos.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.5.7",
+    eyebrow: "Neu in 2.5.8",
     title: "Willkommen bei Visual Assembler",
-    body: `<p>Neu in dieser Version:</p><ul><li><strong>VA SID Core 1.2:</strong> der SID Player spielt auf einem zyklusgenauen, aus VICE portierten C64 (6510, CIA, VIC-II).</li><li><strong>Hi-Res-Editor:</strong> zwei Farben in jeder 8×8-Zelle — neues Werkzeug für die Zellenhintergrundfarbe.</li><li><strong>Exaktes Zeichen-ROM</strong> im ROM-Betrachter, im Zeichen-, Map- und Level-Editor.</li><li><strong>Sprite-Editor:</strong> Hi-Res-Ebene, Füllen, Auswahl, Drehen, Spritesheet-Import, Hitbox, X / Y ×2.</li><li><strong>Level-Editor:</strong> Objekte, Zeichenattribute, Kantenprüfung, Farben pro Bildschirm, Speicheranzeige + RLE, in VICE starten.</li><li><strong>Zeichen-Editor:</strong> Rückgängig, Zeichenwerkzeuge, Drehen, Kopieren / Tauschen, 2×2-Kacheln, Kleinbuchstaben-ROM, Textvorschau, Bereichsexport.</li><li><strong>Charset Canvas:</strong> Zoom mit Pixelraster, Hintergrundfarbe im Hi-Res-Modus, Hi-Res-Zeichen im Multicolor-Modus, ECM mit Hintergrund pro Zeichen.</li></ul>`,
+    body: `<p>Neu in dieser Version:</p><ul><li><strong>Versionsverwaltung:</strong> Commit, Verlauf, Diff und Checkout in jedem Tab, mit Git-Anbindung (git.exe in den Einstellungen).</li><li><strong>Fehler melden:</strong> ein Formular mit Screenshots (Strg+V oder Drag & Drop) und Systeminfo.</li><li><strong>Professional:</strong> die Seriennummer kommt per E-Mail — Unterstützer fordern sie im Registrierungsdialog an, Kauf auf c64va.pro (5 €).</li><li><strong>SID Player:</strong> Zufallswiedergabe und Favoriten.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.5.7",
+    eyebrow: "Nieuw in 2.5.8",
     title: "Welkom bij Visual Assembler",
-    body: `<p>Nieuw in deze versie:</p><ul><li><strong>VA SID Core 1.2:</strong> de SID Player speelt op een cyclusexacte, uit VICE geporteerde C64 (6510, CIA, VIC-II).</li><li><strong>Hi-Res-editor:</strong> twee kleuren in elke 8×8-cel — nieuw gereedschap voor de celachtergrond.</li><li><strong>Exacte teken-ROM</strong> in de ROM-viewer en de teken-, map- en leveleditor.</li><li><strong>Sprite-editor:</strong> hi-res-laag, vullen, selecteren, draaien, spritesheet-import, hitbox, X / Y ×2.</li><li><strong>Leveleditor:</strong> objecten, tekenattributen, randcontrole, kleuren per scherm, geheugen + RLE, uitvoeren in VICE.</li><li><strong>Tekeneditor:</strong> ongedaan maken, tekengereedschap, draaien, kopiëren / wisselen, 2×2-tegels, kleine-letter-ROM, tekstvoorbeeld, bereikexport.</li><li><strong>Charset Canvas:</strong> zoom met pixelraster, achtergrondkleur in hi-res, hi-res-tekens binnen multicolor, ECM met achtergrond per teken.</li></ul>`,
+    body: `<p>Nieuw in deze versie:</p><ul><li><strong>Versiebeheer:</strong> commit, log, diff en checkout in elk tabblad, met Git-koppeling (git.exe in Instellingen).</li><li><strong>Probleem melden:</strong> een formulier met schermafbeeldingen (Ctrl+V of slepen) en systeeminfo.</li><li><strong>Professional:</strong> het serienummer komt per e-mail — supporters vragen het aan in het registratievenster, kopen op c64va.pro (5 €).</li><li><strong>SID Player:</strong> willekeurig afspelen en favorieten.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.5.7",
+    eyebrow: "Nowość w 2.5.8",
     title: "Witamy w Visual Assembler",
-    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>VA SID Core 1.2:</strong> SID Player gra na dokładnym co do cyklu C64 przeniesionym z VICE (6510, CIA, VIC-II).</li><li><strong>Edytor Hi-Res:</strong> dwa kolory w każdej komórce 8×8 — nowe narzędzie tła komórki.</li><li><strong>Dokładny ROM znaków</strong> w przeglądarce ROM oraz w edytorach znaków, map i poziomów.</li><li><strong>Edytor sprite'ów:</strong> warstwa hi-res, wypełnianie, zaznaczanie, obrót, import arkuszy, hitbox, X / Y ×2.</li><li><strong>Edytor poziomów:</strong> obiekty, atrybuty znaków, kontrola krawędzi, kolory ekranów, pamięć + RLE, uruchom w VICE.</li><li><strong>Edytor znaków:</strong> cofanie, narzędzia rysowania, obrót, kopiowanie / zamiana, kafle 2×2, ROM z małymi literami, podgląd tekstu, eksport zakresu.</li><li><strong>Charset Canvas:</strong> powiększenie z siatką pikseli, kolor tła w trybie hi-res, znaki hi-res w trybie multicolor, ECM z tłem dla każdego znaku.</li></ul>`,
+    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>Kontrola wersji:</strong> commit, historia, diff i checkout w każdej karcie, z integracją Git (git.exe w Ustawieniach).</li><li><strong>Zgłoś błąd:</strong> formularz ze zrzutami ekranu (Ctrl+V lub przeciąganie) i informacjami o systemie.</li><li><strong>Professional:</strong> numer seryjny przychodzi e-mailem — wspierający proszą o niego w oknie rejestracji, zakup na c64va.pro (5 €).</li><li><strong>SID Player:</strong> odtwarzanie losowe i ulubione.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.5.7",
+    eyebrow: "Novità nella 2.5.8",
     title: "Benvenuto in Visual Assembler",
-    body: `<p>Novità di questa versione:</p><ul><li><strong>VA SID Core 1.2:</strong> il SID Player suona su un C64 esatto al ciclo portato da VICE (6510, CIA, VIC-II).</li><li><strong>Editor Hi-Res:</strong> due colori in ogni cella 8×8 — nuovo strumento per lo sfondo della cella.</li><li><strong>ROM dei caratteri esatta</strong> nel visualizzatore ROM e negli editor di caratteri, mappe e livelli.</li><li><strong>Editor sprite:</strong> livello hi-res, riempimento, selezione, rotazione, importazione sprite sheet, hitbox, X / Y ×2.</li><li><strong>Editor livelli:</strong> oggetti, attributi dei caratteri, controllo bordi, colori per schermata, memoria + RLE, esegui in VICE.</li><li><strong>Editor caratteri:</strong> annulla, strumenti di disegno, rotazione, copia / scambio, tessere 2×2, ROM minuscola, anteprima testo, esportazione intervallo.</li><li><strong>Charset Canvas:</strong> zoom con griglia dei pixel, colore di sfondo in hi-res, caratteri hi-res nel modo multicolor, ECM con sfondo per carattere.</li></ul>`,
+    body: `<p>Novità di questa versione:</p><ul><li><strong>Controllo versione:</strong> commit, cronologia, diff e checkout in ogni scheda, con integrazione Git (git.exe nelle Impostazioni).</li><li><strong>Segnala un bug:</strong> un modulo con screenshot (Ctrl+V o trascinamento) e info di sistema.</li><li><strong>Professional:</strong> il numero di serie arriva via e-mail — i sostenitori lo richiedono nella finestra di registrazione, acquisto su c64va.pro (5 €).</li><li><strong>SID Player:</strong> riproduzione casuale e preferiti.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -420,6 +420,21 @@ const workingFolderPanelText = workingFolderPanel?.querySelector(".panel-heading
 const helpManualButton = document.getElementById("help-manual-btn");
 const checkUpdateButton = document.getElementById("check-update-btn");
 const reportBugButton = document.getElementById("report-bug-btn");
+// Utolsó JS-hibák a hibabejelentéshez (var: a script elején már gyűjt, TDZ nélkül)
+var _vaErrorLog = [];
+function _vaLogError(kind, text) {
+  _vaErrorLog.push(new Date().toISOString().slice(11, 19) + " [" + kind + "] " + String(text).slice(0, 2000));
+  if (_vaErrorLog.length > 30) _vaErrorLog.shift();
+}
+window.addEventListener("error", (e) => _vaLogError("error", (e.error && e.error.stack) || e.message + " @ " + e.filename + ":" + e.lineno));
+window.addEventListener("unhandledrejection", (e) => _vaLogError("promise", (e.reason && e.reason.stack) || e.reason));
+(function() {
+  const orig = console.error;
+  console.error = function(...args) {
+    try { _vaLogError("console", args.map((x) => (x && x.stack) || (typeof x === "object" ? JSON.stringify(x) : String(x))).join(" ")); } catch (_) {}
+    return orig.apply(console, args);
+  };
+})();
 const basicSysToggle = document.getElementById("basic-sys-toggle");
 const showBasicStubToggle = document.getElementById("show-basic-stub-toggle");
 const writeDebugSidecarsToggle = document.getElementById("write-debug-sidecars-toggle");
@@ -580,7 +595,8 @@ let _expertFindIdx = -1;
 let _expertProjectData = null; // { name, files, _projPath }
 let _expertProjectDirty = false;
 let _expertPendingEditMeta = null;
-const _PROJECT_SNAPSHOT_MAX_ENTRIES = 10;
+const _PROJECT_SNAPSHOT_MAX_ENTRIES = 100;
+const _PROJECT_SNAPSHOT_MAX_AUTO = 20;
 const _HISTORY_MAX_STACK = 200; // cap per-tab undo/redo stacks so long editing sessions with many open tabs don't grow memory unbounded
 const _PROJECT_SNAPSHOT_AUTO_DELAY_MS = 2500;
 const DELAY_HELPER_LABEL = "__delay_wait_frames";
@@ -674,6 +690,7 @@ function saveUiSettings() {
     expertMinimap: _expertMinimapEnabled,
     blockMinimap: _blockMinimapEnabled,
     autoSnapshotEnabled: autoSnapshotToggle ? autoSnapshotToggle.checked : true,
+    gitPreferred: document.getElementById("git-preferred") ? document.getElementById("git-preferred").checked : savedUiSettings.gitPreferred !== false,
     editorDialogPositions: _editorDialogPositions,
     lastWorkspacePath: _currentWorkspacePath
   };
@@ -1282,14 +1299,7 @@ function initPalette() {
     document.querySelector(".control-menu")?.removeAttribute("open");
     checkForAppUpdate();
   });
-  reportBugButton?.addEventListener("click", async () => {
-    const version = await getAppVersionText();
-    const ua = navigator.userAgent;
-    const os = ua.includes("Win") ? "Windows" : ua.includes("Mac") ? "macOS" : navigator.platform || "Unknown";
-    const subject = encodeURIComponent(`Visual Assembler ${version} - Bug Report`);
-    const body = encodeURIComponent(`Visual Assembler version: ${version}\nOS: ${os}\n\n--- Describe the bug ---\n\n\n--- Steps to reproduce ---\n\n`);
-    window.electronAPI.openExternal(`mailto:retroboj@outlook.com?subject=${subject}&body=${body}`);
-  });
+  reportBugButton?.addEventListener("click", () => _bugOpenDialog());
   basicSysToggle?.addEventListener("change", () => {
     saveUiSettings();
     renderEmulatorRunHint();
@@ -2977,6 +2987,8 @@ function _applyUiSettingsToDOM() {
   if (autoSnapshotToggle) {
     autoSnapshotToggle.checked = savedUiSettings.autoSnapshotEnabled !== false;
   }
+  const gitPreferredToggle = document.getElementById("git-preferred");
+  if (gitPreferredToggle) gitPreferredToggle.checked = savedUiSettings.gitPreferred !== false;
 
   if (savedUiSettings.asmOutputBase) {
     asmOutputBase = savedUiSettings.asmOutputBase;
@@ -3237,6 +3249,17 @@ function applyTranslations() {
   if (blockPaletteSyncLabelEl) blockPaletteSyncLabelEl.textContent = t("blockDescSyncLabel");
   const autoSnapshotLabelEl = document.getElementById("auto-snapshot-toggle-label");
   if (autoSnapshotLabelEl) autoSnapshotLabelEl.textContent = t("autoSnapshotLabel");
+  setText("#vc-mode-local", t("vcModeLocal"));
+  setText("#vc-diff-working", t("vcDiff"));
+  setText("#vc-git-init", t("vcGitInit"));
+  setText("#vc-git-pull", t("vcGitPull"));
+  setText("#vc-git-push", t("vcGitPush"));
+  setText("#vc-git-refresh", t("vcGitRefresh"));
+  setText("#vc-stage-all-label", t("vcGitStageAll"));
+  setText("#git-exe-label", t("gitExeLabel"));
+  setText("#choose-git", t("chooseGit"));
+  setText("#detect-git", t("detectGit"));
+  setText("#git-preferred-label", t("gitPreferred"));
   const expertModeLabelEl = document.getElementById("expert-mode-label");
   if (expertModeLabelEl) expertModeLabelEl.textContent = t("expertModeLabel");
   if (_confirmYes) _confirmYes.textContent = t("tabCloseConfirmOk");
@@ -3414,6 +3437,19 @@ function applyTranslations() {
     setText("#license-serial-label", t("licenseSerial"));
     setText("#license-buy", t("licenseBuy"));
     setText("#license-request", t("licenseRequest"));
+    setText("#bug-title", t("reportBug"));
+    setText("#bug-intro", t("bugIntro"));
+    setText("#bug-summary-label", t("bugSummary"));
+    setText("#bug-description-label", t("bugDescription"));
+    setText("#bug-email-label", t("bugEmail"));
+    setText("#bug-images-label", t("bugImages"));
+    setText("#bug-add-image", t("bugAddImage"));
+    setText("#bug-include-info-label", t("bugIncludeInfo"));
+    setText("#bug-sysinfo-label", t("bugWhatIsSent"));
+    setText("#bug-mail", t("bugByEmail"));
+    setText("#bug-close", t("licenseClose"));
+    setText("#bug-send", t("bugSend"));
+    document.getElementById("bug-description")?.setAttribute("placeholder", t("bugDescriptionPlaceholder"));
     setText("#license-deactivate", t("licenseDeactivate"));
     setText("#license-close", t("licenseClose"));
     setText("#license-activate", t("licenseActivate"));
@@ -3528,7 +3564,7 @@ function applyTranslations() {
     if (projectSnapshotTitle) projectSnapshotTitle.textContent = t("snapshotDialogTitle");
     if (projectSnapshotNoteLabel) projectSnapshotNoteLabel.textContent = t("snapshotNoteLabel");
     if (projectSnapshotNoteInput) projectSnapshotNoteInput.setAttribute("placeholder", t("snapshotNotePlaceholder"));
-    if (projectSnapshotSaveButton) projectSnapshotSaveButton.textContent = t("saveSnapshot");
+    if (projectSnapshotSaveButton) projectSnapshotSaveButton.textContent = t("vcCommitDefault");
     if (projectSnapshotRestoreButton) projectSnapshotRestoreButton.textContent = t("restoreLatestSnapshot");
     if (projectSnapshotCloseButton) {
       projectSnapshotCloseButton.setAttribute("title", t("close"));
@@ -3994,6 +4030,7 @@ function _applyEditorTranslations() {
   setAttr("#websid-play-stop", t("websidPlayStop"));
   setAttr("#websid-play-prev", t("sidPlayerPrev"));
   setAttr("#websid-play-next", t("sidPlayerNext"));
+  setAttr("#websid-play-shuffle", t("sidPlayerShuffle"));
   setAttr("#websid-play-rew", t("sidPlayerBack10"));
   setAttr("#websid-play-fwd", t("sidPlayerForward10"));
   setAttr("#websid-play-add", t("sidPlayerAdd"));
@@ -17170,7 +17207,7 @@ function _getLegacyProjectSnapshotStorageKey(tab = _getActiveTab()) {
 
 async function _getProjectSnapshotStoragePath(tab = _getActiveTab()) {
   if (!tab || !window.electronAPI?.getProjectSnapshotPath) return "";
-  const result = await window.electronAPI.getProjectSnapshotPath(tab.filePath || "", tab.snapshotId || String(tab.id || ""));
+  const result = await window.electronAPI.getProjectSnapshotPath(tab.filePath || _vcUbFilePath(tab) || "", tab.snapshotId || String(tab.id || ""));
   if (typeof result === "string") return result;
   return result?.path || "";
 }
@@ -17203,7 +17240,9 @@ function _normalizeProjectSnapshotEntries(entries) {
     seen.add(signature);
     merged.push(entry);
   }
-  return merged.slice(0, _PROJECT_SNAPSHOT_MAX_ENTRIES);
+  // commitok max _PROJECT_SNAPSHOT_MAX_ENTRIES, ezen belül az automatikus mentések max _PROJECT_SNAPSHOT_MAX_AUTO
+  let autos = 0;
+  return merged.filter(entry => entry.kind !== "auto" || ++autos <= _PROJECT_SNAPSHOT_MAX_AUTO).slice(0, _PROJECT_SNAPSHOT_MAX_ENTRIES);
 }
 
 async function _readProjectSnapshotEntries(tab = _getActiveTab()) {
@@ -17263,7 +17302,7 @@ function _projectSnapshotLabel(entry) {
   if (!entry) return "";
   const note = typeof entry.note === "string" ? entry.note.trim() : "";
   if (note) return note;
-  return entry.kind === "auto" ? (currentLanguage === "hu" ? "Automatikus snapshot" : "Auto snapshot") : (currentLanguage === "hu" ? "Kézi snapshot" : "Manual snapshot");
+  return entry.kind === "auto" ? t("vcAutosaveMessage") : t("vcCommitDefault");
 }
 
 function _buildSnapshotPayloadFromTab(tab) {
@@ -17298,8 +17337,20 @@ function _buildSnapshotPayloadFromTab(tab) {
   };
 }
 
+function _vcIsUbTab(tab) {
+  if (!tab) return false;
+  return tab.id === activeTabId ? !!ultimateBasicMode : tab.editorMode === "ub";
+}
+function _vcUbFilePath(tab) {
+  if (!tab) return "";
+  return (tab.id === activeTabId && ultimateBasicMode ? _ubFilePath : tab.ubFilePath) || "";
+}
 function _getCurrentProjectSnapshotPayload(tab = _getActiveTab()) {
   if (!tab) return null;
+  if (_vcIsUbTab(tab)) {
+    const ubText = tab.id === activeTabId && ubEditor ? ubEditor.value : (tab.ubText || "");
+    return { version: 1, app: "c64-visual-assembler", kind: "ub", ubText };
+  }
   if (tab.id === activeTabId) {
     return getProjectPayload();
   }
@@ -17322,14 +17373,16 @@ function _scheduleProjectSnapshot(tabId) {
     _projectSnapshotTimers.delete(tabId);
     const tab = tabs.find(t => t.id === tabId);
     if (!tab || !tab.dirty) return;
-    const payload = tab.id === activeTabId ? getProjectPayload() : _buildSnapshotPayloadFromTab(tab);
+    const payload = _getCurrentProjectSnapshotPayload(tab);
     if (!payload) return;
     const entries = await _readProjectSnapshotEntries(tab);
     const latest = entries[0]?.payload;
     if (latest && JSON.stringify(latest) === JSON.stringify(payload)) return;
+    const createdAt = new Date().toISOString();
     entries.unshift({
       id: crypto.randomUUID(),
-      createdAt: new Date().toISOString(),
+      hash: await _vcHash(payload, createdAt),
+      createdAt,
       kind: "auto",
       note: "",
       payload
@@ -17342,69 +17395,378 @@ function _scheduleProjectSnapshot(tabId) {
   _projectSnapshotTimers.set(tabId, timer);
 }
 
+/* ── Verziókezelés ─────────────────────────────────────────────────────────
+ * Beépített mód: a pillanatkép-tár (<projekt>.snapshots.json) git-szerűen: commit üzenettel és rövid
+ * hash-sel, napló (HEAD = legutóbbi commit), diff a munkapéldánnyal, checkout a szerkesztőbe,
+ * automatikus mentések (autosave) külön jelölve. Git mód: a fül fájljának mappájában a beállított
+ * git (git_exec Tauri command): status, commit (előtte ment), log, diff, checkout a szerkesztőbe,
+ * pull / push, git init. A mód fülenként automatikus (repóban git), a fejlécben átváltható. */
+let _vcMode = "";
+let _vcGitPath = "";
+let _vcGitState = null;
+
+function _vcShortHash(entry) {
+  return entry?.hash || String(entry?.id || "").replace(/-/g, "").slice(0, 7);
+}
+async function _vcHash(payload, createdAt) {
+  try {
+    const buf = await crypto.subtle.digest("SHA-1", new TextEncoder().encode(createdAt + JSON.stringify(payload)));
+    return Array.from(new Uint8Array(buf).slice(0, 4), b => b.toString(16).padStart(2, "0")).join("").slice(0, 7);
+  } catch {
+    return crypto.randomUUID().replace(/-/g, "").slice(0, 7);
+  }
+}
+function _vcProgramText(payload) {
+  return (payload?.program || []).map(block => {
+    try { return _blockToExpertLine(block); } catch { return ""; }
+  }).join("\n");
+}
+function _vcPayloadText(payload) {
+  if (!payload) return "";
+  if (typeof payload.ubText === "string") return payload.ubText;
+  if (typeof payload.expertText === "string" && payload.expertText.trim()) return payload.expertText;
+  return _vcProgramText(payload);
+}
+// Block módban mentett JSON és Expert forrás vegyesen: ha nem mindkét oldalon van forrásszöveg,
+// mindkettőt a blokkokból generált assembly-sorokra hozzuk, így a diff nem a formátumkülönbséget mutatja.
+function _vcComparable(oldPayload, newPayload) {
+  if (typeof oldPayload?.ubText === "string" || typeof newPayload?.ubText === "string") {
+    return [oldPayload?.ubText || "", newPayload?.ubText || ""];
+  }
+  const hasSrc = (pl) => typeof pl?.expertText === "string" && pl.expertText.trim() !== "";
+  if (hasSrc(oldPayload) && hasSrc(newPayload)) return [oldPayload.expertText, newPayload.expertText];
+  return [_vcProgramText(oldPayload), _vcProgramText(newPayload)];
+}
+function _vcSmartDiff(oldPayload, newPayload) {
+  const [a, b] = _vcComparable(oldPayload, newPayload);
+  return _vcLineDiff(a, b);
+}
+function _vcDiffStats(diffText) {
+  let add = 0;
+  let del = 0;
+  diffText.split("\n").forEach(line => {
+    if (line.startsWith("+") && !line.startsWith("+++")) add++;
+    else if (line.startsWith("-") && !line.startsWith("---")) del++;
+  });
+  return add || del ? `  +${add} / −${del}` : "";
+}
+// Fájltartalom (git show) → összehasonlítható payload a fájl típusa szerint
+function _vcParseFileContent(name, content) {
+  if (/\.ub$/i.test(name)) return { ubText: content };
+  if (/\.json$/i.test(name)) {
+    try { return JSON.parse(content); } catch { return { expertText: content, program: [] }; }
+  }
+  let program = [];
+  try { program = parseExpertText(content); } catch { program = []; }
+  return { expertText: content, program };
+}
+async function _vcGitFilePayload(rev, file) {
+  const res = await _vcGit(["show", `${rev}:./${file.name}`], file.dir);
+  return res.ok ? _vcParseFileContent(file.name, res.stdout) : null;
+}
+function _vcEsc(text) {
+  return String(text ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+function _vcTabFile(tab) {
+  const full = String(tab?.filePath || _vcUbFilePath(tab) || "");
+  if (!full) return null;
+  const norm = full.replace(/\\/g, "/");
+  const cut = norm.lastIndexOf("/");
+  return { dir: full.slice(0, cut), name: norm.slice(cut + 1) };
+}
+
+// Soralapú diff (LCS a közös eleje/vége levágása után), egységes formában, 3 sor kontextussal.
+function _vcLineDiff(oldText, newText) {
+  const a = oldText.split("\n");
+  const b = newText.split("\n");
+  let start = 0;
+  while (start < a.length && start < b.length && a[start] === b[start]) start++;
+  let endA = a.length;
+  let endB = b.length;
+  while (endA > start && endB > start && a[endA - 1] === b[endB - 1]) { endA--; endB--; }
+  const ma = a.slice(start, endA);
+  const mb = b.slice(start, endB);
+  const ops = [];
+  const n = ma.length;
+  const m = mb.length;
+  if (n * m <= 4000000) {
+    const w = m + 1;
+    const dp = new Uint32Array((n + 1) * w);
+    for (let i = n - 1; i >= 0; i--) {
+      for (let j = m - 1; j >= 0; j--) {
+        dp[i * w + j] = ma[i] === mb[j] ? dp[(i + 1) * w + j + 1] + 1 : Math.max(dp[(i + 1) * w + j], dp[i * w + j + 1]);
+      }
+    }
+    let i = 0;
+    let j = 0;
+    while (i < n && j < m) {
+      if (ma[i] === mb[j]) { ops.push([" ", ma[i]]); i++; j++; }
+      else if (dp[(i + 1) * w + j] >= dp[i * w + j + 1]) ops.push(["-", ma[i++]]);
+      else ops.push(["+", mb[j++]]);
+    }
+    while (i < n) ops.push(["-", ma[i++]]);
+    while (j < m) ops.push(["+", mb[j++]]);
+  } else {
+    ma.forEach(line => ops.push(["-", line]));
+    mb.forEach(line => ops.push(["+", line]));
+  }
+  const all = a.slice(0, start).map(line => [" ", line]).concat(ops, a.slice(endA).map(line => [" ", line]));
+  const keep = new Uint8Array(all.length);
+  all.forEach((op, idx) => {
+    if (op[0] === " ") return;
+    for (let k = Math.max(0, idx - 3); k <= Math.min(all.length - 1, idx + 3); k++) keep[k] = 1;
+  });
+  if (!keep.some(Boolean)) return "";
+  const out = [];
+  let oldNo = 1;
+  let newNo = 1;
+  let gap = false;
+  all.forEach((op, idx) => {
+    if (keep[idx]) {
+      if (gap) out.push(`@@ -${oldNo} +${newNo} @@`);
+      gap = false;
+      out.push(op[0] + op[1]);
+    } else {
+      gap = true;
+    }
+    if (op[0] !== "+") oldNo++;
+    if (op[0] !== "-") newNo++;
+  });
+  return out.join("\n");
+}
+let _vcRawDiff = null;
+function _vcShowDiff(title, diffText, raw = null) {
+  const box = document.getElementById("vc-diff");
+  const body = document.getElementById("vc-diff-body");
+  const head = document.getElementById("vc-diff-title");
+  if (!box || !body) return;
+  if (raw !== "keep") {
+    _vcRawDiff = raw ? { title, smart: diffText, raw, showingRaw: false } : null;
+  }
+  const rawBtn = document.getElementById("vc-diff-raw");
+  if (rawBtn) {
+    rawBtn.hidden = !_vcRawDiff;
+    rawBtn.classList.toggle("vc-mode-btn--active", !!_vcRawDiff?.showingRaw);
+  }
+  if (head) head.textContent = title + _vcDiffStats(diffText);
+  if (!diffText.trim()) {
+    body.innerHTML = `<span class="vc-diff-ctx">${_vcEsc(t("vcDiffNone"))}</span>`;
+  } else {
+    body.innerHTML = diffText.split("\n").map(line => {
+      const cls = line.startsWith("@@") ? "vc-diff-hunk"
+        : /^(diff |index |--- |\+\+\+ |new file|deleted file|commit |Author:|Date:)/.test(line) ? "vc-diff-meta"
+        : line.startsWith("+") ? "vc-diff-add" : line.startsWith("-") ? "vc-diff-del" : "vc-diff-ctx";
+      return `<span class="${cls}">${_vcEsc(line) || " "}</span>`;
+    }).join("");
+  }
+  box.hidden = false;
+  box.scrollIntoView({ block: "nearest" });
+}
+function _vcSetOutput(text, isError = false) {
+  const out = document.getElementById("vc-output");
+  if (!out) return;
+  out.hidden = !text;
+  out.textContent = text || "";
+  out.classList.toggle("vc-output--error", !!isError);
+}
+async function _vcGit(args, cwd) {
+  if (!window.electronAPI?.gitExec) return { ok: false, code: -1, stdout: "", stderr: "git unavailable" };
+  try {
+    return await window.electronAPI.gitExec(args, cwd);
+  } catch (err) {
+    return { ok: false, code: -1, stdout: "", stderr: String(err?.message || err) };
+  }
+}
+async function _vcResolveMode(tab) {
+  const file = _vcTabFile(tab);
+  const gitUsable = !!(_vcGitPath && file && window.electronAPI?.gitExec);
+  if (_vcMode === "git" && gitUsable) return "git";
+  if (_vcMode === "local") return "local";
+  if (!gitUsable || savedUiSettings.gitPreferred === false) return "local";
+  const res = await _vcGit(["rev-parse", "--show-toplevel"], file.dir);
+  return res.ok ? "git" : "local";
+}
+
+// Egy korábbi verzió tartalma a szerkesztőbe kerül (nem a lemezre); mentéssel lesz végleges.
+async function _vcApplyText(tab, content) {
+  const name = String(tab?.filePath || _vcUbFilePath(tab) || "");
+  if (/\.ub$/i.test(name) || (ultimateBasicMode && tab?.id === activeTabId && !/\.(json|asm|s|inc)$/i.test(name))) {
+    if (!ultimateBasicMode || !ubEditor) { showViceToast(t("vcUnsupported"), true); return false; }
+    ubEditor.value = content;
+    ubEditor.dispatchEvent(new Event("input", { bubbles: true }));
+    return true;
+  }
+  if (/\.json$/i.test(name)) {
+    let data = null;
+    try { data = JSON.parse(content); } catch { data = null; }
+    if (!data) { showViceToast(t("vcUnsupported"), true); return false; }
+    return _applyProjectPayload(data, { keepFilePath: true });
+  }
+  if (expertMode && expertEditor) {
+    _expertSourceText = content;
+    _expertRefreshProjection(0, 0);
+    expertEditor.dispatchEvent(new Event("input"));
+    markTabDirty();
+    return true;
+  }
+  return _applyProjectPayload({ version: 1, app: "c64-visual-assembler", expertText: content, program: parseExpertText(content) }, { keepFilePath: true });
+}
+
+function _vcSetModeButtons(mode, gitUsable) {
+  document.getElementById("vc-mode-local")?.classList.toggle("vc-mode-btn--active", mode === "local");
+  const gitBtn = document.getElementById("vc-mode-git");
+  if (gitBtn) {
+    gitBtn.classList.toggle("vc-mode-btn--active", mode === "git");
+    gitBtn.disabled = !gitUsable;
+    gitBtn.setAttribute("aria-label", gitUsable ? "Git" : (_vcGitPath ? t("vcGitNoFile") : t("vcGitNotFound")));
+  }
+  const gitOnly = mode === "git";
+  document.getElementById("vc-git-bar")?.toggleAttribute("hidden", !gitOnly);
+  document.getElementById("vc-stage-all-row")?.toggleAttribute("hidden", !gitOnly);
+  document.getElementById("vc-changes")?.toggleAttribute("hidden", !gitOnly);
+}
+
 async function _renderProjectSnapshotHistory() {
-  if (!projectSnapshotList || !projectSnapshotEmpty || !projectSnapshotTabName) return;
+  if (!projectSnapshotList || !projectSnapshotTabName) return;
   const tab = _getActiveTab();
+  projectSnapshotTabName.textContent = tab?.name || t("snapshotCurrentProgram");
+  const mode = await _vcResolveMode(tab);
+  _vcSetModeButtons(mode, !!(_vcGitPath && _vcTabFile(tab)));
+  if (projectSnapshotNoteInput) projectSnapshotNoteInput.placeholder = t("snapshotNotePlaceholder");
+  if (mode === "git") return _vcRenderGit(tab);
+  return _vcRenderLocal(tab);
+}
+
+async function _vcRenderLocal(tab) {
   const entries = await _readProjectSnapshotEntries(tab);
-  const tabLabel = tab?.name || t("snapshotCurrentProgram");
-  projectSnapshotTabName.textContent = tabLabel;
-  if (projectSnapshotNoteInput) {
-    projectSnapshotNoteInput.placeholder = t("snapshotNotePlaceholder");
+  const current = _getCurrentProjectSnapshotPayload(tab);
+  const headIndex = entries.findIndex(entry => entry.kind !== "auto");
+  const head = entries[headIndex >= 0 ? headIndex : 0];
+  const clean = !!(head && current && JSON.stringify(head.payload) === JSON.stringify(current));
+  const branchEl = document.getElementById("vc-branch");
+  if (branchEl) branchEl.textContent = "";
+  const statusEl = document.getElementById("vc-status");
+  if (statusEl) {
+    statusEl.textContent = !entries.length ? t("vcNoCommits") : clean ? t("vcClean") : tf("vcDirty", { hash: _vcShortHash(head) });
+    statusEl.classList.toggle("vc-status--dirty", !!entries.length && !clean);
   }
-  if (projectSnapshotEmpty) {
-    projectSnapshotEmpty.textContent = t("snapshotEmpty");
-  }
-  if (projectSnapshotSaveButton) {
-    projectSnapshotSaveButton.disabled = false;
-  }
-  if (projectSnapshotRestoreButton) {
-    projectSnapshotRestoreButton.disabled = entries.length === 0;
-  }
+  if (projectSnapshotRestoreButton) projectSnapshotRestoreButton.disabled = !head;
+  const diffBtn = document.getElementById("vc-diff-working");
+  if (diffBtn) diffBtn.disabled = !head;
   projectSnapshotEmpty.hidden = entries.length > 0;
-  if (entries.length === 0) {
-    projectSnapshotList.innerHTML = "";
-    return;
-  }
+  projectSnapshotEmpty.textContent = t("snapshotEmpty");
   projectSnapshotList.innerHTML = entries.map((entry, index) => {
-    const title = _projectSnapshotLabel(entry).replace(/</g, "&lt;");
-    const when = _formatProjectSnapshotDate(entry.createdAt).replace(/</g, "&lt;");
-    const kind = entry.kind === "auto"
-      ? (currentLanguage === "hu" ? "Automatikus" : "Auto")
-      : (currentLanguage === "hu" ? "Kézi" : "Manual");
+    const auto = entry.kind === "auto";
+    const message = _projectSnapshotLabel(entry);
     return `
-      <article class="project-snapshot-item" data-index="${index}">
-        <div class="project-snapshot-item-head">
-          <strong class="project-snapshot-item-title">${title}</strong>
-          <span class="project-snapshot-item-kind">${kind}</span>
-        </div>
-        <div class="project-snapshot-item-meta">${when}</div>
-        <div class="project-snapshot-item-actions">
-          <button class="secondary project-snapshot-restore-btn" type="button" data-index="${index}">${t("snapshotRestore")}</button>
-          <button class="secondary project-snapshot-delete-btn" type="button" data-index="${index}">${t("snapshotDelete")}</button>
-        </div>
+      <article class="vc-commit${auto ? " vc-commit--auto" : ""}" data-index="${index}">
+        <span class="vc-dot" aria-hidden="true"></span>
+        <code class="vc-hash">${_vcEsc(_vcShortHash(entry))}</code>
+        <span class="vc-msg">${_vcEsc(message)}</span>
+        ${index === headIndex ? `<span class="vc-ref">HEAD</span>` : ""}
+        ${auto ? `<span class="vc-ref vc-ref--auto">${_vcEsc(t("vcAutosave"))}</span>` : ""}
+        <span class="vc-meta">${_vcEsc(_formatProjectSnapshotDate(entry.createdAt))}</span>
+        <span class="vc-actions">
+          <button class="secondary" type="button" data-act="diff" data-index="${index}">${_vcEsc(t("vcDiff"))}</button>
+          <button class="secondary" type="button" data-act="checkout" data-index="${index}">${_vcEsc(t("snapshotRestore"))}</button>
+          <button class="secondary vc-del" type="button" data-act="delete" data-index="${index}" aria-label="${_vcEsc(t("snapshotDelete"))}">×</button>
+        </span>
       </article>`;
   }).join("");
+}
 
-  projectSnapshotList.querySelectorAll(".project-snapshot-restore-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const idx = parseInt(btn.dataset.index || "-1", 10);
-      if (!Number.isNaN(idx)) {
-          void _restoreProjectSnapshotByIndex(idx);
-      }
-    });
+function _vcParseBranch(line) {
+  // "## main...origin/main [ahead 1, behind 2]" vagy "## No commits yet on main"
+  const text = String(line || "").replace(/^##\s*/, "");
+  const noCommits = /^(No commits yet on|Initial commit on)\s+(.+)$/.exec(text);
+  if (noCommits) return { branch: noCommits[2], upstream: "", ahead: 0, behind: 0, empty: true };
+  const m = /^([^.\s]+)(?:\.\.\.(\S+))?(?:\s+\[(.*)\])?/.exec(text) || [];
+  const extra = m[3] || "";
+  return {
+    branch: m[1] || "HEAD",
+    upstream: m[2] || "",
+    ahead: Number((/ahead (\d+)/.exec(extra) || [])[1] || 0),
+    behind: Number((/behind (\d+)/.exec(extra) || [])[1] || 0),
+    empty: false,
+  };
+}
+
+async function _vcRenderGit(tab) {
+  const dirty = _vcIsUbTab(tab) ? !!_ubDirty : !!tab.dirty;
+  const file = _vcTabFile(tab);
+  const statusEl = document.getElementById("vc-status");
+  const branchEl = document.getElementById("vc-branch");
+  const changesEl = document.getElementById("vc-changes");
+  const initBtn = document.getElementById("vc-git-init");
+  const st = await _vcGit(["status", "--porcelain=v1", "-b", "--untracked-files=all"], file.dir);
+  const isRepo = st.ok;
+  _vcGitState = null;
+  if (initBtn) initBtn.hidden = isRepo;
+  ["vc-git-pull", "vc-git-push"].forEach(id => { const b = document.getElementById(id); if (b) b.disabled = !isRepo; });
+  if (!isRepo) {
+    if (statusEl) { statusEl.textContent = st.stderr && /not found/i.test(st.stderr) ? t("vcGitNotFound") : t("vcGitNotRepo"); statusEl.classList.remove("vc-status--dirty"); }
+    if (branchEl) branchEl.textContent = "";
+    if (changesEl) changesEl.innerHTML = "";
+    projectSnapshotList.innerHTML = "";
+    projectSnapshotEmpty.hidden = true;
+    if (projectSnapshotSaveButton) projectSnapshotSaveButton.disabled = true;
+    return;
+  }
+  if (projectSnapshotSaveButton) projectSnapshotSaveButton.disabled = false;
+  const lines = st.stdout.split(/\r?\n/).filter(Boolean);
+  const info = _vcParseBranch(lines.shift());
+  const changes = lines.map(line => ({ code: line.slice(0, 2), path: line.slice(3) }));
+  const mine = changes.find(c => c.path.replace(/^"|"$/g, "").split("/").pop() === file.name);
+  _vcGitState = { ...info, changes };
+  if (branchEl) {
+    const sync = [info.ahead ? "↑" + info.ahead : "", info.behind ? "↓" + info.behind : ""].filter(Boolean).join(" ");
+    branchEl.textContent = "⎇ " + info.branch + (sync ? "  " + sync : "");
+  }
+  if (statusEl) {
+    const parts = [mine || dirty ? tf("vcGitFileChanged", { file: file.name }) : t("vcClean")];
+    if (dirty) parts.push(t("vcGitUnsaved"));
+    statusEl.textContent = parts.join(" ");
+    statusEl.classList.toggle("vc-status--dirty", !!(mine || dirty));
+  }
+  if (changesEl) {
+    changesEl.innerHTML = changes.length
+      ? `<div class="vc-changes-title">${_vcEsc(tf("vcGitChanges", { n: changes.length }))}</div>` + changes.slice(0, 60).map(c =>
+        `<div class="vc-change${c === mine ? " vc-change--mine" : ""}"><code class="vc-change-code">${_vcEsc(c.code.replace(/ /g, "·"))}</code> ${_vcEsc(c.path)}</div>`).join("")
+      : "";
+  }
+  const log = info.empty ? { ok: true, stdout: "" } : await _vcGit(["log", "-n", "60", "--date=iso", "--pretty=format:%h%x1f%an%x1f%ad%x1f%s%x1f%D", "--", file.name], file.dir);
+  const rows = (log.ok ? log.stdout : "").split(/\r?\n/).filter(Boolean).map(line => {
+    const [hash, author, date, subject, refs] = line.split("\x1f");
+    return { hash, author, date, subject, refs };
   });
-  projectSnapshotList.querySelectorAll(".project-snapshot-delete-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const idx = parseInt(btn.dataset.index || "-1", 10);
-      if (!Number.isNaN(idx)) {
-        _deleteProjectSnapshotByIndex(idx);
-      }
-    });
-  });
+  const diffBtn = document.getElementById("vc-diff-working");
+  if (diffBtn) diffBtn.disabled = info.empty;
+  if (projectSnapshotRestoreButton) projectSnapshotRestoreButton.disabled = info.empty || !rows.length;
+  projectSnapshotEmpty.hidden = rows.length > 0;
+  projectSnapshotEmpty.textContent = t("vcNoCommits");
+  projectSnapshotList.innerHTML = rows.map((row, index) => {
+    const refs = String(row.refs || "").split(",").map(s => s.trim().replace(/^HEAD -> /, "HEAD → ")).filter(Boolean);
+    return `
+      <article class="vc-commit" data-hash="${_vcEsc(row.hash)}">
+        <span class="vc-dot" aria-hidden="true"></span>
+        <code class="vc-hash">${_vcEsc(row.hash)}</code>
+        <span class="vc-msg">${_vcEsc(row.subject)}</span>
+        ${refs.map(ref => `<span class="vc-ref">${_vcEsc(ref)}</span>`).join("")}
+        <span class="vc-meta">${_vcEsc(row.author)} · ${_vcEsc(String(row.date || "").slice(0, 16))}</span>
+        <span class="vc-actions">
+          <button class="secondary" type="button" data-act="git-show" data-hash="${_vcEsc(row.hash)}">${_vcEsc(t("vcDiff"))}</button>
+          <button class="secondary" type="button" data-act="git-checkout" data-hash="${_vcEsc(row.hash)}"${index === 0 && !mine && !dirty ? " disabled" : ""}>${_vcEsc(t("snapshotRestore"))}</button>
+        </span>
+      </article>`;
+  }).join("");
 }
 
 async function _openProjectSnapshotDialog() {
   if (!projectSnapshotDialog) return;
+  _vcMode = "";
+  _vcSetOutput("");
+  const diff = document.getElementById("vc-diff");
+  if (diff) diff.hidden = true;
   await _renderProjectSnapshotHistory();
   projectSnapshotDialog.showModal();
   setTimeout(() => projectSnapshotNoteInput?.focus(), 0);
@@ -17414,33 +17776,58 @@ function _closeProjectSnapshotDialog() {
   projectSnapshotDialog?.close();
 }
 
+async function _vcCurrentMode() {
+  return _vcResolveMode(_getActiveTab());
+}
+
 async function _saveManualProjectSnapshot() {
-  const note = (projectSnapshotNoteInput?.value || "").trim();
   const tab = _getActiveTab();
   if (!tab) return false;
+  const message = (projectSnapshotNoteInput?.value || "").trim();
+  if (!message) {
+    _vcSetOutput(t("vcNeedMessage"), true);
+    projectSnapshotNoteInput?.focus();
+    return false;
+  }
+  if (await _vcCurrentMode() === "git") return _vcGitCommit(tab, message);
   const payload = _getCurrentProjectSnapshotPayload(tab);
   if (!payload) return false;
   const entries = await _readProjectSnapshotEntries(tab);
-  const latest = entries[0]?.payload;
-  if (latest && JSON.stringify(latest) === JSON.stringify(payload)) {
-    if (emulatorStatus) {
-      emulatorStatus.textContent = t("snapshotAlreadyExists");
-    }
+  const headEntry = entries.find(entry => entry.kind !== "auto");
+  if (headEntry && JSON.stringify(headEntry.payload) === JSON.stringify(payload)) {
+    _vcSetOutput(t("snapshotAlreadyExists"));
     return false;
   }
-  entries.unshift({
-    id: crypto.randomUUID(),
-    createdAt: new Date().toISOString(),
-    kind: "manual",
-    note,
-    payload
-  });
+  const createdAt = new Date().toISOString();
+  const hash = await _vcHash(payload, createdAt);
+  entries.unshift({ id: crypto.randomUUID(), hash, createdAt, kind: "manual", note: message, payload });
   await _writeProjectSnapshotEntries(tab, entries);
-  await _renderProjectSnapshotHistory();
   if (projectSnapshotNoteInput) projectSnapshotNoteInput.value = "";
-  if (emulatorStatus) {
-    emulatorStatus.textContent = t("snapshotSaved");
+  _vcSetOutput(tf("vcCommitted", { hash }));
+  await _renderProjectSnapshotHistory();
+  return true;
+}
+
+async function _vcGitCommit(tab, message) {
+  const file = _vcTabFile(tab);
+  if (!file) return false;
+  const isDirty = () => (_vcIsUbTab(tab) ? !!_ubDirty : !!_getActiveTab()?.dirty);
+  if (isDirty()) {
+    await saveProjectToFile();
+    if (isDirty()) { _vcSetOutput(t("projectSaveFailed"), true); return false; }
   }
+  const stageAll = document.getElementById("vc-stage-all")?.checked;
+  const add = await _vcGit(stageAll ? ["add", "-A"] : ["add", "--", file.name], file.dir);
+  if (!add.ok) { _vcSetOutput(tf("vcGitFailed", { cmd: "add" }) + "\n" + add.stderr, true); return false; }
+  const res = await _vcGit(["commit", "-m", message], file.dir);
+  if (!res.ok) {
+    _vcSetOutput((res.stdout + "\n" + res.stderr).trim() || tf("vcGitFailed", { cmd: "commit" }), true);
+    await _renderProjectSnapshotHistory();
+    return false;
+  }
+  if (projectSnapshotNoteInput) projectSnapshotNoteInput.value = "";
+  _vcSetOutput(res.stdout.trim().split(/\r?\n/)[0] || tf("vcGitDone", { cmd: "commit" }));
+  await _renderProjectSnapshotHistory();
   return true;
 }
 
@@ -17450,24 +17837,39 @@ async function _restoreProjectSnapshotByIndex(index) {
   const entries = await _readProjectSnapshotEntries(tab);
   const entry = entries[index];
   if (!entry?.payload) return false;
-  const msg = t("snapshotConfirmRestore");
-  if (!await _showConfirm(msg)) return false;
-  const ok = await _applyProjectPayload(entry.payload, { keepFilePath: true, sourceLabel: entry.note || entry.createdAt || "" });
+  if (!await _showConfirm(t("snapshotConfirmRestore"))) return false;
+  const ok = typeof entry.payload.ubText === "string"
+    ? await _vcApplyText(tab, entry.payload.ubText)
+    : await _applyProjectPayload(entry.payload, { keepFilePath: true, sourceLabel: entry.note || entry.createdAt || "" });
   if (ok) {
-    if (emulatorStatus) {
-      emulatorStatus.textContent = t("snapshotRestored");
-    }
-    await _renderProjectSnapshotHistory();
+    if (projectSnapshotDialog?.open) await _renderProjectSnapshotHistory();
   }
   return ok;
 }
 
+// "Változások elvetése": vissza a HEAD-re (beépítettben a legutóbbi commit, gitben a HEAD fájltartalma).
 async function _restoreLatestProjectSnapshot() {
   const tab = _getActiveTab();
   if (!tab) return false;
+  if (await _vcCurrentMode() === "git") return _vcGitCheckout(tab, "HEAD");
   const entries = await _readProjectSnapshotEntries(tab);
-  if (entries.length === 0) return false;
-  return _restoreProjectSnapshotByIndex(0);
+  if (!entries.length) return false;
+  const headIndex = entries.findIndex(entry => entry.kind !== "auto");
+  return _restoreProjectSnapshotByIndex(headIndex >= 0 ? headIndex : 0);
+}
+
+async function _vcGitCheckout(tab, rev) {
+  const file = _vcTabFile(tab);
+  if (!file) return false;
+  const res = await _vcGit(["show", `${rev}:./${file.name}`], file.dir);
+  if (!res.ok) { _vcSetOutput(res.stderr || tf("vcGitFailed", { cmd: "show" }), true); return false; }
+  if (!await _showConfirm(t("snapshotConfirmRestore"))) return false;
+  const ok = await _vcApplyText(tab, res.stdout);
+  if (ok) {
+    _vcSetOutput(tf("vcCheckedOut", { hash: rev }));
+    if (projectSnapshotDialog?.open) await _renderProjectSnapshotHistory();
+  }
+  return ok;
 }
 
 async function _deleteProjectSnapshotByIndex(index) {
@@ -17475,15 +17877,126 @@ async function _deleteProjectSnapshotByIndex(index) {
   if (!tab) return false;
   const entries = await _readProjectSnapshotEntries(tab);
   if (!entries[index]) return false;
-  const msg = t("snapshotConfirmDelete");
-  if (!await _showConfirm(msg)) return false;
+  if (!await _showConfirm(t("snapshotConfirmDelete"))) return false;
   entries.splice(index, 1);
   await _writeProjectSnapshotEntries(tab, entries);
   await _renderProjectSnapshotHistory();
-  if (emulatorStatus) {
-    emulatorStatus.textContent = t("snapshotDeleted");
-  }
   return true;
+}
+
+async function _vcDiffWorking() {
+  const tab = _getActiveTab();
+  if (!tab) return;
+  if (await _vcCurrentMode() === "git") {
+    // a HEAD fájlja értelmezve, a szerkesztő aktuális (akár mentetlen) állapotával összevetve
+    const file = _vcTabFile(tab);
+    const old = await _vcGitFilePayload("HEAD", file);
+    const raw = await _vcGit(["diff", "HEAD", "--", file.name], file.dir);
+    if (!old) { _vcSetOutput(raw.stderr || tf("vcGitFailed", { cmd: "show" }), true); return; }
+    _vcShowDiff(tf("vcDiffWorking", { hash: "HEAD" }), _vcSmartDiff(old, _getCurrentProjectSnapshotPayload(tab)), raw.ok ? raw.stdout : "");
+    return;
+  }
+  const entries = await _readProjectSnapshotEntries(tab);
+  const headIndex = entries.findIndex(entry => entry.kind !== "auto");
+  const head = entries[headIndex >= 0 ? headIndex : 0];
+  if (!head) return;
+  _vcShowDiff(tf("vcDiffWorking", { hash: _vcShortHash(head) }), _vcSmartDiff(head.payload, _getCurrentProjectSnapshotPayload(tab)));
+}
+
+async function _vcListAction(e) {
+  const btn = e.target.closest("button[data-act]");
+  if (!btn) return;
+  const tab = _getActiveTab();
+  const act = btn.dataset.act;
+  const index = parseInt(btn.dataset.index || "-1", 10);
+  if (act === "checkout") return _restoreProjectSnapshotByIndex(index);
+  if (act === "delete") return _deleteProjectSnapshotByIndex(index);
+  if (act === "diff") {
+    const entries = await _readProjectSnapshotEntries(tab);
+    const entry = entries[index];
+    if (!entry) return;
+    _vcShowDiff(tf("vcDiffWorking", { hash: _vcShortHash(entry) }), _vcSmartDiff(entry.payload, _getCurrentProjectSnapshotPayload(tab)));
+    return;
+  }
+  const file = _vcTabFile(tab);
+  if (!file) return;
+  if (act === "git-show") {
+    // a commit a szülőjéhez képest, értelmezett formában (első commitnál üreshez képest)
+    const hash = btn.dataset.hash;
+    const raw = await _vcGit(["show", "--stat", "--patch", "--format=commit %H%nAuthor: %an <%ae>%nDate:   %ad%n%n    %s%n", hash, "--", file.name], file.dir);
+    if (!raw.ok) { _vcSetOutput(raw.stderr, true); return; }
+    const after = await _vcGitFilePayload(hash, file);
+    const before = await _vcGitFilePayload(hash + "^", file);
+    const header = raw.stdout.split(/\r?\n/).slice(0, 5).filter(line => /^(Author:|Date:|\s{4}\S)/.test(line)).map(line => line.replace(/^\s+/, "")).join("  ·  ");
+    _vcShowDiff(hash + "  " + header, after ? _vcSmartDiff(before || {}, after) : raw.stdout, raw.stdout);
+  } else if (act === "git-checkout") {
+    await _vcGitCheckout(tab, btn.dataset.hash);
+  }
+}
+
+async function _vcGitSimple(args, label) {
+  const file = _vcTabFile(_getActiveTab());
+  if (!file) return;
+  _vcSetOutput(tf("vcGitRunning", { cmd: label }));
+  let res = await _vcGit(args, file.dir);
+  // első push: nincs upstream → push -u origin <ág>
+  if (!res.ok && label === "push" && /no upstream branch|has no upstream/i.test(res.stderr) && _vcGitState?.branch) {
+    res = await _vcGit(["push", "-u", "origin", _vcGitState.branch], file.dir);
+  }
+  const text = (res.stdout + "\n" + res.stderr).trim();
+  _vcSetOutput(res.ok ? (text || tf("vcGitDone", { cmd: label })) : (text || tf("vcGitFailed", { cmd: label })), !res.ok);
+  await _renderProjectSnapshotHistory();
+}
+
+function setupVersionControl() {
+  projectSnapshotList?.addEventListener("click", _vcListAction);
+  document.getElementById("vc-diff-working")?.addEventListener("click", _vcDiffWorking);
+  document.getElementById("vc-diff-close")?.addEventListener("click", () => { const d = document.getElementById("vc-diff"); if (d) d.hidden = true; });
+  document.getElementById("vc-diff-raw")?.addEventListener("click", () => {
+    if (!_vcRawDiff) return;
+    _vcRawDiff.showingRaw = !_vcRawDiff.showingRaw;
+    _vcShowDiff(_vcRawDiff.title, _vcRawDiff.showingRaw ? _vcRawDiff.raw : _vcRawDiff.smart, "keep");
+  });
+  document.getElementById("vc-mode-local")?.addEventListener("click", () => { _vcMode = "local"; _vcSetOutput(""); _renderProjectSnapshotHistory(); });
+  document.getElementById("vc-mode-git")?.addEventListener("click", () => { _vcMode = "git"; _vcSetOutput(""); _renderProjectSnapshotHistory(); });
+  document.getElementById("vc-git-refresh")?.addEventListener("click", () => { _vcSetOutput(""); _renderProjectSnapshotHistory(); });
+  document.getElementById("vc-git-pull")?.addEventListener("click", () => _vcGitSimple(["pull", "--ff-only"], "pull"));
+  document.getElementById("vc-git-push")?.addEventListener("click", () => _vcGitSimple(["push"], "push"));
+  document.getElementById("vc-git-init")?.addEventListener("click", async () => {
+    if (!await _showConfirm(t("vcGitInitConfirm"))) return;
+    _vcMode = "git";
+    await _vcGitSimple(["init"], "init");
+  });
+  projectSnapshotNoteInput?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); _saveManualProjectSnapshot(); }
+  });
+  document.getElementById("choose-git")?.addEventListener("click", async () => {
+    const res = await window.electronAPI?.chooseGitExecutable?.();
+    if (res && !res.canceled) await loadGitConfig();
+  });
+  document.getElementById("detect-git")?.addEventListener("click", async () => {
+    await window.electronAPI?.setGitPath?.("");
+    await loadGitConfig();
+  });
+  document.getElementById("git-preferred")?.addEventListener("change", saveUiSettings);
+  loadGitConfig();
+}
+
+async function loadGitConfig() {
+  let cfg = null;
+  try { cfg = await window.electronAPI?.getGitConfig?.(); } catch { cfg = null; }
+  _vcGitPath = cfg?.effectivePath || "";
+  const input = document.getElementById("git-path");
+  if (input) {
+    input.value = _vcGitPath;
+    input.title = _vcGitPath;
+    input.placeholder = t("gitNotConfigured");
+  }
+  const status = document.getElementById("git-status");
+  if (!status) return;
+  if (!_vcGitPath) { status.textContent = t("gitStatusMissing"); return; }
+  const ver = await _vcGit(["version"], "");
+  status.textContent = ver.ok ? ver.stdout.trim() + (cfg?.gitPath ? "" : " · " + t("gitAutoDetected")) : t("gitStatusMissing");
 }
 
 async function _migrateProjectSnapshotHistory(tab, oldSnapshotPath) {
@@ -38478,6 +38991,7 @@ function setupSidPlayer() {
   on("websid-play-stop", "click", _sidExtStop);
   on("websid-play-prev", "click", _sidPlayerPrev);
   on("websid-play-next", "click", _sidPlayerNext);
+  on("websid-play-shuffle", "click", function() { _sidPlayerSetShuffle(!_sidShuffle); });
   on("websid-play-song-prev", "click", function() { _sidPlayerSong(-1); });
   on("websid-play-song-next", "click", function() { _sidPlayerSong(1); });
   on("websid-play-rew", "click", function() { _sidExtSeek(_sidExtElapsedMs() - 10000); });
@@ -38515,6 +39029,11 @@ function setupSidPlayer() {
     const li = e.target.closest(".websid-play-item");
     if (!li) return;
     if (e.target.closest(".websid-play-item-del")) { _sidPlayerRemove(li.dataset.id); return; }
+    if (e.target.closest(".websid-play-item-fav")) {
+      const item = _sidPlaylist.find(function(it) { return it.id === li.dataset.id; });
+      if (item) { item.fav = !item.fav; _sidPlayerRenderList(); _sidPlayerPersist(); }
+      return;
+    }
     _sidPlayerPlayIndex(_sidPlaylist.findIndex(function(item) { return item.id === li.dataset.id; }));
   });
   // dragover must be prevented on the whole card or the WebView opens the file
@@ -43800,6 +44319,10 @@ function _sidPlayerEngineLabel() {
 const _SID_TUNE_LENGTH_MS = 180000;
 let _sidPlaylist = [];
 let _sidPlaylistIndex = -1;
+// shuffle: the ids played in this round (in order), so Next never repeats a tune
+// until every entry has played and Previous steps back along the random order
+let _sidShuffle = false;
+let _sidShuffleHistory = [];
 let _sidSeekDragging = false;
 
 function _sidPsidInfo(bytes) {
@@ -43820,7 +44343,7 @@ function _sidPlayerAdd(entries, playFirst, startIndex = 0) {
   entries.forEach(function(entry) {
     const info = _sidPsidInfo(entry.bytes);
     if (!info) { showViceToast(tf("sidPlayerNotSid", { name: entry.name }), true); return; }
-    const item = { id: crypto.randomUUID(), name: entry.name, bytes: entry.bytes, info, song: _sidValidSong(entry.song, info) };
+    const item = { id: crypto.randomUUID(), name: entry.name, bytes: entry.bytes, info, song: _sidValidSong(entry.song, info), fav: !!entry.fav };
     _sidPlaylist.push(item);
     added.push(item);
   });
@@ -43847,12 +44370,18 @@ function _sidPlayerPlayIndex(index) {
   const item = _sidPlaylist[index];
   if (!item) return;
   _sidPlaylistIndex = index;
+  if (_sidShuffle && _sidShuffleHistory[_sidShuffleHistory.length - 1] !== item.id) _sidShuffleHistory.push(item.id);
   _sidPlayerRenderList();
   _sidPlayerPersist();
   _sidExtStartFile(item.bytes, item.name, item.song);
 }
 function _sidPlayerPrev() {
   if (!_sidPlaylist.length) return;
+  if (_sidShuffle && _sidExtElapsedMs() <= 3000 && _sidShuffleHistory.length > 1) {
+    _sidShuffleHistory.pop();
+    const back = _sidPlaylist.findIndex(function(item) { return item.id === _sidShuffleHistory[_sidShuffleHistory.length - 1]; });
+    if (back >= 0) { _sidPlayerPlayIndex(back); return; }
+  }
   // like a CD player: back to the start first, a second press steps back
   const index = _sidExtElapsedMs() > 3000 || _sidPlaylistIndex <= 0 ? _sidPlaylistIndex : _sidPlaylistIndex - 1;
   _sidPlayerPlayIndex(Math.max(0, index));
@@ -43872,7 +44401,30 @@ function _sidPlayerSong(delta) {
   else _sidPlayerPlayIndex(_sidPlaylistIndex);
 }
 function _sidPlayerNext() {
+  if (_sidShuffle) {
+    if (_sidPlaylist.length < 2) return;
+    const current = _sidPlaylist[_sidPlaylistIndex]?.id;
+    let pool = _sidPlaylist.filter(function(item) { return !_sidShuffleHistory.includes(item.id); });
+    if (!pool.length) {
+      // every tune played: a new round, starting from the current one
+      _sidShuffleHistory = current ? [current] : [];
+      pool = _sidPlaylist.filter(function(item) { return item.id !== current; });
+    }
+    _sidPlayerPlayIndex(_sidPlaylist.indexOf(pool[Math.floor(Math.random() * pool.length)]));
+    return;
+  }
   if (_sidPlaylistIndex < _sidPlaylist.length - 1) _sidPlayerPlayIndex(_sidPlaylistIndex + 1);
+}
+function _sidPlayerSetShuffle(on) {
+  _sidShuffle = !!on;
+  const current = _sidPlaylist[_sidPlaylistIndex]?.id;
+  _sidShuffleHistory = _sidShuffle && current ? [current] : [];
+  const btn = document.getElementById("websid-play-shuffle");
+  if (btn) {
+    btn.classList.toggle("websid-play-tool--active", _sidShuffle);
+    btn.setAttribute("aria-pressed", String(_sidShuffle));
+  }
+  _sidPlayerPersist();
 }
 function _sidPlayerRemove(id) {
   const index = _sidPlaylist.findIndex(function(item) { return item.id === id; });
@@ -43892,6 +44444,7 @@ function _sidPlayerClear() {
   _sidExtStop();
   _sidPlaylist = [];
   _sidPlaylistIndex = -1;
+  _sidShuffleHistory = [];
   _sidExtFile = null;
   _sidPlayerRenderList();
   _sidPlayerPersist();
@@ -43904,7 +44457,7 @@ function _sidPlayerLengthMs() {
 // started every remaining tune of the playlist at once.
 function _sidPlayerAutoAdvance() {
   if (_sidExtStatus === "playing" && !_sidExtStarting && _sidExtElapsedMs() >= _SID_TUNE_LENGTH_MS
-      && _sidPlaylistIndex < _sidPlaylist.length - 1) {
+      && (_sidShuffle ? _sidPlaylist.length > 1 : _sidPlaylistIndex < _sidPlaylist.length - 1)) {
     _sidPlayerNext();
   }
 }
@@ -43922,7 +44475,7 @@ function _sidPlayerTickUi() {
   const prev = document.getElementById("websid-play-prev");
   if (prev) prev.disabled = !hasPlaylist;
   const next = document.getElementById("websid-play-next");
-  if (next) next.disabled = _sidPlaylistIndex >= _sidPlaylist.length - 1;
+  if (next) next.disabled = _sidShuffle ? _sidPlaylist.length < 2 : _sidPlaylistIndex >= _sidPlaylist.length - 1;
   ["websid-play-rew", "websid-play-fwd"].forEach(function(id) {
     const btn = document.getElementById(id);
     if (btn) btn.disabled = !_sidPlayerCanSeek();
@@ -43960,12 +44513,18 @@ function _sidPlayerRenderList() {
       const name = document.createElement("span");
       name.className = "websid-play-item-name";
       name.textContent = item.info.title ? item.info.title + (item.info.author ? " — " + item.info.author : "") : item.name;
+      const fav = document.createElement("button");
+      fav.type = "button";
+      fav.className = "websid-play-item-fav" + (item.fav ? " websid-play-item-fav--on" : "");
+      fav.textContent = item.fav ? "★" : "☆";
+      fav.setAttribute("aria-label", t("sidPlayerFavorite"));
+      fav.setAttribute("aria-pressed", String(!!item.fav));
       const del = document.createElement("button");
       del.type = "button";
       del.className = "websid-play-item-del";
       del.textContent = "×";
       del.setAttribute("aria-label", t("sidPlayerRemove"));
-      li.append(no, name, del);
+      li.append(no, fav, name, del);
       list.appendChild(li);
     });
     list.scrollTop = scrollTop;
@@ -44049,7 +44608,7 @@ function _sidPlaylistToJson() {
     format: _SID_PLAYLIST_FORMAT,
     version: 1,
     current: Math.max(0, _sidPlaylistIndex),
-    items: _sidPlaylist.map(function(item) { return { name: item.name, song: item.song, data: _sidBytesToBase64(item.bytes) }; })
+    items: _sidPlaylist.map(function(item) { return { name: item.name, song: item.song, fav: item.fav || undefined, data: _sidBytesToBase64(item.bytes) }; })
   };
 }
 // Returns the decoded entries, or null when the text is not a playlist.
@@ -44058,7 +44617,7 @@ function _sidPlaylistFromJson(json) {
   const entries = [];
   json.items.forEach(function(item) {
     if (!item || typeof item.name !== "string" || typeof item.data !== "string") return;
-    try { entries.push({ name: item.name, song: Number(item.song) || 0, bytes: _sidBase64ToBytes(item.data) }); } catch (_) {}
+    try { entries.push({ name: item.name, song: Number(item.song) || 0, fav: item.fav === true, bytes: _sidBase64ToBytes(item.data) }); } catch (_) {}
   });
   return { entries, current: Number.isInteger(json.current) ? json.current : 0 };
 }
@@ -44090,10 +44649,11 @@ function _sidPlayerPersist() {
     const dlg = document.getElementById("websid-play-dialog");
     const state = _sidPlaylistToJson();
     state.open = !!dlg?.open;
+    state.shuffle = _sidShuffle;
     localStorage.setItem(_SID_PLAYER_STORE, JSON.stringify(state));
   } catch (_) {
     // too many tunes for localStorage: keep at least the window state
-    try { localStorage.setItem(_SID_PLAYER_STORE, JSON.stringify({ open: !!document.getElementById("websid-play-dialog")?.open })); } catch (__) {}
+    try { localStorage.setItem(_SID_PLAYER_STORE, JSON.stringify({ open: !!document.getElementById("websid-play-dialog")?.open, shuffle: _sidShuffle })); } catch (__) {}
   }
 }
 function _sidPlayerRestore() {
@@ -44104,10 +44664,11 @@ function _sidPlayerRestore() {
   if (list && list.entries.length) {
     list.entries.forEach(function(entry) {
       const info = _sidPsidInfo(entry.bytes);
-      if (info) _sidPlaylist.push({ id: crypto.randomUUID(), name: entry.name, bytes: entry.bytes, info, song: _sidValidSong(entry.song, info) });
+      if (info) _sidPlaylist.push({ id: crypto.randomUUID(), name: entry.name, bytes: entry.bytes, info, song: _sidValidSong(entry.song, info), fav: !!entry.fav });
     });
     _sidPlaylistIndex = _sidPlaylist.length ? Math.max(0, Math.min(list.current, _sidPlaylist.length - 1)) : -1;
   }
+  if (saved.shuffle) _sidPlayerSetShuffle(true);
   if (saved.open) _sidPlayerShow();
   else _sidPlayerRenderList();
 }
@@ -47633,7 +48194,177 @@ function _cgWireDialog() {
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("curve-gen-btn")?.addEventListener("click", _cgOpenDialog);
   setupLicense();
+  setupBugReport();
+  setupVersionControl();
 });
+
+/* ── Hibabejelentés ────────────────────────────────────────────────────────
+ * Dialógus (#bug-dialog): összefoglaló, leírás, opcionális e-mail, max 4 kép (fájl / Ctrl+V / húzás,
+ * _bugShrinkImage kicsinyíti), rendszerinfó + utolsó JS-hibák (_vaErrorLog). Küldés: bug_report Tauri
+ * command → va-product-site/register/bug.php; a dashboardon: register/bugs.php. */
+const _BUG_MAX_IMAGES = 4;
+const _BUG_MAX_SIDE = 1920;
+let _bugImages = [];
+let _bugSending = false;
+
+function _bugOsName() {
+  const ua = navigator.userAgent;
+  return ua.includes("Win") ? "Windows" : ua.includes("Mac") ? "macOS" : ua.includes("Linux") ? "Linux" : navigator.platform || "Unknown";
+}
+async function _bugSysInfo() {
+  return {
+    version: await getAppVersionText(),
+    os: _bugOsName(),
+    userAgent: navigator.userAgent,
+    language: currentLanguage,
+    theme: document.documentElement.dataset.theme || "light",
+    mode: document.body.classList.contains("ub-mode") ? "ultimate-basic" : (expertMode ? "expert" : "block"),
+    runMode: typeof runMode !== "undefined" ? runMode : "",
+    licensed: _vaFullAllowed(),
+    screen: screen.width + "x" + screen.height + " @" + (window.devicePixelRatio || 1),
+    window: window.innerWidth + "x" + window.innerHeight,
+    blocks: Array.isArray(program) ? program.length : 0,
+  };
+}
+// Képet max _BUG_MAX_SIDE oldalra kicsinyít; PNG marad, ha úgy nem sokkal nagyobb, különben JPEG.
+function _bugShrinkImage(file) {
+  return new Promise(function(resolve, reject) {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = function() {
+      URL.revokeObjectURL(url);
+      const scale = Math.min(1, _BUG_MAX_SIDE / Math.max(img.naturalWidth, img.naturalHeight));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
+      canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
+      canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+      const png = canvas.toDataURL("image/png");
+      const jpg = canvas.toDataURL("image/jpeg", 0.85);
+      const data = png.length <= jpg.length * 1.5 ? png : jpg;
+      resolve({ name: (file.name || "screenshot").replace(/\.[^.]+$/, "") + (data === png ? ".png" : ".jpg"), dataUrl: data });
+    };
+    img.onerror = function() { URL.revokeObjectURL(url); reject(new Error("image")); };
+    img.src = url;
+  });
+}
+async function _bugAddFiles(files) {
+  for (const file of Array.from(files || [])) {
+    if (!/^image\//.test(file.type)) continue;
+    if (_bugImages.length >= _BUG_MAX_IMAGES) { _bugSetStatus(tf("bugMaxImages", { n: _BUG_MAX_IMAGES }), "error"); break; }
+    try { _bugImages.push(await _bugShrinkImage(file)); } catch (_) { _bugSetStatus(t("bugImageFailed"), "error"); }
+  }
+  _bugRenderImages();
+}
+function _bugRenderImages() {
+  const box = document.getElementById("bug-images");
+  if (!box) return;
+  box.textContent = "";
+  _bugImages.forEach(function(img, i) {
+    const cell = document.createElement("div");
+    cell.className = "bug-thumb";
+    const pic = document.createElement("img");
+    pic.src = img.dataUrl;
+    pic.alt = img.name;
+    const del = document.createElement("button");
+    del.type = "button";
+    del.className = "bug-thumb-del";
+    del.textContent = "×";
+    del.setAttribute("aria-label", t("bugRemoveImage"));
+    del.addEventListener("click", function() { _bugImages.splice(i, 1); _bugRenderImages(); });
+    cell.append(pic, del);
+    box.appendChild(cell);
+  });
+  const add = document.getElementById("bug-add-image");
+  if (add) add.disabled = _bugImages.length >= _BUG_MAX_IMAGES;
+}
+function _bugSetStatus(text, kind) {
+  const el = document.getElementById("bug-status");
+  if (!el) return;
+  el.textContent = text || "";
+  el.classList.toggle("license-status--error", kind === "error");
+  el.classList.toggle("license-status--ok", kind === "ok");
+}
+async function _bugOpenDialog() {
+  const dlg = document.getElementById("bug-dialog");
+  if (!dlg) return;
+  document.querySelector(".control-menu")?.removeAttribute("open");
+  _bugSetStatus("");
+  const email = document.getElementById("bug-email");
+  if (email && !email.value && _vaLicense?.email) email.value = _vaLicense.email;
+  const info = document.getElementById("bug-sysinfo-preview");
+  if (info) info.textContent = JSON.stringify(await _bugSysInfo(), null, 1) + (_vaErrorLog.length ? "\n\n" + _vaErrorLog.slice(-5).join("\n") : "");
+  _bugRenderImages();
+  if (!dlg.open) dlg.showModal();
+  document.getElementById("bug-summary")?.focus();
+}
+async function _bugSend() {
+  if (_bugSending) return;
+  const summary = document.getElementById("bug-summary")?.value.trim() || "";
+  const description = document.getElementById("bug-description")?.value.trim() || "";
+  const email = document.getElementById("bug-email")?.value.trim() || "";
+  if (!summary || !description) { _bugSetStatus(t("bugNeedText"), "error"); return; }
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { _bugSetStatus(t("licenseRequestInvalidEmail"), "error"); return; }
+  if (!window.electronAPI?.bugReport) { _bugSetStatus(t("bugSendFailed"), "error"); return; }
+  const withInfo = document.getElementById("bug-include-info")?.checked !== false;
+  const sys = await _bugSysInfo();
+  const payload = {
+    summary, description, email,
+    version: sys.version, os: sys.os, lang: currentLanguage, licensed: sys.licensed,
+    sysinfo: withInfo ? sys : {},
+    errors: withInfo ? _vaErrorLog.slice() : [],
+    attachments: _bugImages.map(function(img) { return { name: img.name, data: img.dataUrl.split(",")[1] }; }),
+  };
+  _bugSending = true;
+  const btn = document.getElementById("bug-send");
+  if (btn) btn.disabled = true;
+  _bugSetStatus(t("bugSending"));
+  let res = null;
+  try { res = await window.electronAPI.bugReport(payload); } catch (_) { res = null; }
+  _bugSending = false;
+  if (btn) btn.disabled = false;
+  if (res?.ok) {
+    _bugSetStatus(tf("bugSent", { id: res.id }), "ok");
+    document.getElementById("bug-summary").value = "";
+    document.getElementById("bug-description").value = "";
+    _bugImages = [];
+    _bugRenderImages();
+    return;
+  }
+  const key = { rate: "bugRate", invalid_email: "licenseRequestInvalidEmail", network: "licenseRequestNetwork" }[res?.error] || "bugSendFailed";
+  _bugSetStatus(t(key), "error");
+}
+async function _bugSendByEmail() {
+  const version = await getAppVersionText();
+  const summary = document.getElementById("bug-summary")?.value.trim() || "Bug Report";
+  const description = document.getElementById("bug-description")?.value.trim() || "";
+  const subject = encodeURIComponent(`Visual Assembler ${version} - ${summary}`);
+  const body = encodeURIComponent(`Visual Assembler version: ${version}\nOS: ${_bugOsName()}\n\n${description}\n`);
+  window.electronAPI?.openExternal?.(`mailto:retroboj@outlook.com?subject=${subject}&body=${body}`);
+}
+function setupBugReport() {
+  const dlg = document.getElementById("bug-dialog");
+  if (!dlg) return;
+  const fileInput = document.getElementById("bug-files");
+  document.getElementById("bug-add-image")?.addEventListener("click", function() { fileInput?.click(); });
+  fileInput?.addEventListener("change", async function() { await _bugAddFiles(fileInput.files); fileInput.value = ""; });
+  document.getElementById("bug-send")?.addEventListener("click", _bugSend);
+  document.getElementById("bug-mail")?.addEventListener("click", _bugSendByEmail);
+  document.getElementById("bug-close")?.addEventListener("click", function() { dlg.close(); });
+  // Ctrl+V képpel (pl. Win+Shift+S után) és húzás a dialógusra
+  dlg.addEventListener("paste", function(e) {
+    const files = Array.from(e.clipboardData?.files || []).filter(function(f) { return /^image\//.test(f.type); });
+    if (!files.length) return;
+    e.preventDefault();
+    _bugAddFiles(files);
+  });
+  dlg.addEventListener("dragover", function(e) { e.preventDefault(); dlg.classList.add("bug-dialog--drop"); });
+  dlg.addEventListener("dragleave", function(e) { if (e.target === dlg) dlg.classList.remove("bug-dialog--drop"); });
+  dlg.addEventListener("drop", function(e) {
+    e.preventDefault();
+    dlg.classList.remove("bug-dialog--drop");
+    _bugAddFiles(e.dataTransfer?.files);
+  });
+}
 
 /* ── License: full / light version ─────────────────────────────────────────
  * Without a valid email / serial pair (checked by the backend, Ed25519) the

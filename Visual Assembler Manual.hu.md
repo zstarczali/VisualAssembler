@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.5.7**
+**Verzió: 2.5.8**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -26,6 +26,16 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - [12b. CRT export (Magic Desk 64K cartridge)](#12b-crt-export-magic-desk-64k-cartridge)
 - [13. Hardver beállítások](#13-hardver-beállítások)
 - [14. Vizuális szerkesztők (Toolkit)](#14-vizuális-szerkesztők-toolkit)
+
+---
+
+## A 2.5.8 verzió újdonságai
+
+- **Verziókezelés** — a projekt snapshotokból git-szerű verziókezelés lett: commitok üzenettel és rövid hash-sel, napló **HEAD** jelöléssel, **Diff** a munkapéldánnyal, **Checkout** a szerkesztőbe és külön jelölt automatikus mentések. A Block módú (JSON) programokat assembly-sorokként hasonlítja össze, így a diff a valódi változásokat mutatja. Block, Expert és Ultimate Basic fülön is működik. Lásd: [Verziókezelés](#verziókezelés).
+- **Git integráció** — a `git.exe` a **Beállítások → Verziókezelés** alatt adható meg (vagy az app megkeresi). Ha a projekt git repóban van, a dialógus mutatja az ágat, a változott fájlokat, és tud commitot (előtte ment), naplót, diffet **RAW** nézettel, checkoutot, **Pull** / **Push**-t és **git init**-et.
+- **Hibabejelentés** — beépített bejelentő űrlap legfeljebb 4 képernyőképpel (fájl, Ctrl+V vagy ráhúzás), opcionális e-maillel, rendszerinfóval és a legutóbbi hibákkal. Lásd: [Hibabejelentés](#hibabejelentés).
+- **Professional sorozatszám e-mailben** — a támogatók a regisztrációs ablakban kérhetik a sorozatszámot (**Sorozatszám kérése (támogatóknak)**); a Professional verzió a c64va.pro oldalon PayPallal megvásárolható (5 €, egyszeri díj), a sorozatszám a fizetés után azonnal megérkezik e-mailben. Lásd: [Freemium és Professional](#freemium-és-professional).
+- **SID Player** — **véletlen lejátszás** és számonkénti **kedvencek** (★). Lásd: [SID Player](#sid-player).
 
 ---
 
@@ -375,7 +385,7 @@ A modal automatikusan bezárul, amikor a művelet befejeződik vagy meghiúsul.
 | **Run (osztott gomb)** | A fő **▶ Run** gomb az aktuális módot futtatja; a **▾** nyíllal válthatsz: **Run as PRG** (fordítás és VICE közvetlen indítása), **Run via D64** (.d64 lemezképbe csomagolás és VICE indítása), **Run on hardware** (PRG küldése egy C64 Ultimate / 1541 Ultimate eszközre), vagy **Kung Fu Flash 2** (a PRG feltöltése USB-n egy Kung Fu Flash 2 cartridge-dzsel felszerelt valódi C64/C128-ra). Lásd a [12.](#12-d64-export-és-futtatás) és [13. szakaszt](#13-hardver-beállítások). |
 | **Debug (RetroDebugger)** | Fordítás és indítás RetroDebuggerben breakpointokkal, szimbólumokkal és autostart flag-ekkel (lásd a [10. szakaszt](#10-debugger-integráció)) |
 | **Run with Exomizer** | Jelölőnégyzet a Settings menüben — bekapcsolva minden Run és Build művelet `exomizer sfx sys`-szel tömöríti a PRG-t indítás vagy mentés előtt. Működik a Run as PRG, Run via D64, Run on Hardware, Build PRG és Build D64 műveletekkel. Először állítsd be az Exomizer futtathatót a **Hardware Settings**-ben. |
-| **Automatikus snapshot mentés** | Jelölőnégyzet a **Hardware Settings → Snapshot** alatt. Bekapcsolva az app automatikusan készít snapshotot kb. 2,5 másodperccel azután, hogy abbahagytad egy fül szerkesztését. Kapcsold ki, ha csak kézi snapshot mentést szeretnél. |
+| **Automatikus mentések a verziókezelésbe** | Jelölőnégyzet a **Hardware Settings → Verziókezelés** alatt. Bekapcsolva az app kb. 2,5 másodperccel azután, hogy abbahagytad egy fül szerkesztését, automatikus mentést tesz a verziótörténetbe. Kapcsold ki, ha csak a saját commitjaidat szeretnéd. Lásd: [Verziókezelés](#verziókezelés). |
 | **Hardware Settings** | Megnyitja a hardver konfigurációs dialógust — VICE, Exomizer, RetroDebugger, C64 Ultimate (host, jelszó, kapcsolat-teszt) és a Kung Fu Flash 2 soros port beállítása. Lásd a [13. szakaszt](#13-hardver-beállítások). |
 | **New program…** | Megerősítő dialógust nyit, majd törli az összes blokkot a programterületről |
 | **Collapse All** | Minden blokk becsukása |
@@ -384,15 +394,30 @@ A modal automatikusan bezárul, amikor a művelet befejeződik vagy meghiúsul.
 | **Knowledge Base** | Referencia linkek (6502 opcode-ok, C64 KERNAL, memóriatérkép, színek) |
 | **Check for Update** | Újabb kiadás keresése a c64va.pro-en, letöltése és telepítése — lásd [Frissítés az alkalmazásból](#frissítés-az-alkalmazásból) |
 
-### Projekt snapshotok
+### Verziókezelés
 
-A projekt snapshotok lemezen tárolt sidecar JSON fájlokként vannak elmentve, nem a localStorage-ban. Az aktuális projektfájlhoz kötődnek, ha van ilyen, így az előzmény túléli az újraindításokat és követi a projektet.
+Minden fülnek saját verziótörténete van, mint egy kis git repónak. A **Menu → Build → Verziókezelés…** (vagy **Commit…**) megnyitja a dialógust; a **Változások elvetése (vissza a HEAD-re)** közvetlenül visszaállítja az utolsó commitot.
 
-- A **Menu → Build → Save snapshot** megnyitja a snapshot dialógust, és elmenti az aktuális blokk-állapotot plusz az Expert ASM szöveget.
-- A **Menu → Build → Restore previous version** közvetlenül visszaállítja a legutóbbi snapshotot.
-- A **Menu → Build → Snapshot history** megnyitja a dialógust, ahol jegyzeteket adhatsz, régebbi bejegyzéseket állíthatsz vissza vagy törölhetsz.
-- A **Hardware Settings → Snapshot → Automatikus snapshot mentés** szabályozza, hogy az app automatikusan készít-e snapshotokat szerkesztések után. Az alapértelmezett késleltetés kb. 2,5 másodperc, és a beállítás fülönként érvényes.
-- Ha egy projektet még nem mentettél el, a snapshotok az app konfig könyvtárában tárolódnak, amíg a projekt fájlútvonalat nem kap.
+A szokásos menet: írj **commit üzenetet**, és nyomd meg a **Commit** gombot (vagy Ctrl+Enter) → dolgozz tovább → a **Diff** megmutatja, mi változott → újra commit.
+
+- **Commit** — a fül aktuális állapotát menti el az üzeneteddel. Minden commit rövid hash-t kap (pl. `1bd55ba`); a legújabb a **HEAD**. Ha a HEAD óta nincs változás, nem jön létre új commit.
+- **Állapotsor** — *Nincs mit commitolni, a munkapéldány tiszta* vagy *Commitolatlan változások a `<hash>` óta*.
+- **Diff** — a HEAD óta történt változások; egy naplóbejegyzés **Diff** gombja azt a verziót hasonlítja a szerkesztőhöz. Az új sorok zöldek, a töröltek pirosak, a fejléc **+N / −M** összesítőt mutat. A Block módú programokat assembly-sorokként (blokkonként egy sor), az Expert forrást soronként, az Ultimate Basic fület a forrása alapján hasonlítja össze, így a JSON-ként mentett Block módú projekt változásai is olvashatók.
+- **Checkout** — az adott verziót a szerkesztőbe tölti. A lemezen lévő fájl csak mentéskor változik; a **Változások elvetése** visszavisz a HEAD-re.
+- **Automatikus mentések** — a **Beállítások → Verziókezelés → Automatikus mentések a verziókezelésbe** bekapcsolásával az app kb. 2,5 másodperccel a szerkesztés abbahagyása után bejegyzést tesz a naplóba. Ezek *autosave* jelölést kapnak; a legutóbbi 20 marad meg, a legfeljebb 100 commit mellett.
+- A történet a projektfájl mellett, `<projekt>.snapshots.json` fájlban tárolódik (mentés előtt az app konfig mappájában), így túléli az újraindítást. A korábbi verziók snapshotjai commitként jelennek meg.
+
+#### Git
+
+Ha a `git` telepítve van, ugyanez a dialógus valódi git repóval is dolgozik.
+
+- **Beállítások → Verziókezelés:** **git.exe kiválasztása…** vagy **Automatikus keresés** (a PATH-ban és a szokásos telepítési mappákban); alatta a git verziója látszik. A **Git használata, ha a projekt git repóban van** (alapból bekapcsolva) a repóban lévő fájloknál magától git módba váltja a dialógust. A dialógus fejlécében a **Beépített / Git** kapcsolóval kézzel is válthatsz.
+- A fejléc mutatja az ágat **↑** (push-ra váró) és **↓** (pull-ra váró) commitokkal, alatta a repó változott fájljait.
+- A **Commit** előbb elmenti a fájlt, csak ezt a fájlt stage-eli (vagy minden változást a **Minden változás stage-elése (git add -A)** bejelölésével), majd `git commit`-ot futtat.
+- A napló ennek a fájlnak a commitjait mutatja az ágakkal és tagekkel. Egy bejegyzés **Diff** gombja a commitot a szülőjével veti össze; a **Diff** gomb a HEAD-et a szerkesztővel, a mentetlen változásokkal együtt. A projektfájlokat ugyanúgy hasonlítja, mint a beépített mód; a **RAW** a nyers `git diff`-et mutatja.
+- A **Checkout** az adott commit fájlját a szerkesztőbe tölti (`git show`), a lemezhez nem nyúl.
+- **Pull** (`--ff-only`), **Push** (az első push beállítja az upstreamet: `-u origin <ág>`), és **Repó létrehozása (git init)**, ha a mappa még nem repó.
+- A git konzolablak nélkül fut, és soha nem kér jelszót: a hitelesítésnek credential managerből vagy SSH kulcsból kell jönnie, különben a hibaüzenet a dialógusban jelenik meg.
 
 ### Frissítés az alkalmazásból
 
@@ -421,6 +446,17 @@ Regisztráció nélkül a Visual Assembler **Freemium** módban fut; a cím mell
 - a magyaron és angolon kívüli felületi nyelvek, valamint az OLED és a Commodore 77 téma.
 
 Zárolt funkcióra kattintva a regisztrációs ablak nyílik meg. Regisztrációhoz nyisd meg a **Menu → Regisztráció…** pontot (vagy kattints a jelvényre), add meg a vásárláskor kapott e-mail címet és sorozatszámot, majd nyomd meg az **Aktiválás** gombot. A sorozatszám ahhoz az e-mail címhez tartozik (a kis- és nagybetű, illetve a szóközök nem számítanak), az ellenőrzés internet nélkül történik. A **Licenc eltávolítása** leveszi a regisztrációt erről a gépről.
+
+**Sorozatszám beszerzése.** Ha korábban támogattad a projektet, írd be az e-mail címedet a regisztrációs ablakba, és nyomd meg a **Sorozatszám kérése (támogatóknak)** gombot (vagy használd a c64va.pro/register űrlapot): a sorozatszám e-mailben érkezik, címenként egyszer. A Professional verzió a c64va.pro oldalon vásárolható meg — az ablak **Teljes verzió vásárlása** gombja megnyitja: PayPal, 5 € egyszeri díj, a sorozatszám a fizetés után azonnal megérkezik e-mailben. Az oldalon a Freemium és a Professional összehasonlítása is megtalálható.
+
+### Hibabejelentés
+
+A **Menu → Hiba bejelentése** egy űrlapot nyit, amely a bejelentést közvetlenül a fejlesztőnek küldi.
+
+- Az **Összefoglaló** és a **Mi történt?** kötelező — írd le, mit csináltál, mit vártál, és mi történt helyette. Az **E-mail** nem kötelező (a licenc e-mail címével előtöltve); add meg, ha választ szeretnél.
+- **Képernyőképek:** legfeljebb 4 kép a **Kép hozzáadása…** gombbal, **Ctrl+V** beillesztéssel (pl. Win+Shift+S után) vagy az űrlapra húzva. A nagy képeket az app 1920 pixelre kicsinyíti.
+- A **Rendszerinfó és a legutóbbi hibák csatolása** (alapból bekapcsolva) elküldi az app verzióját, az operációs rendszert, a nyelvet, a témát, a szerkesztő- és futtatási módot, a licenc állapotát, a képernyőméretet, a blokkok számát és a legutóbbi app-hibákat. A **Mi kerül elküldésre?** megmutatja az adatokat. A forráskódod nem kerül elküldésre.
+- A **Bejelentés küldése** a bejelentés számával nyugtáz. A **Küldés e-mailben** helyette a levelezőprogramot nyitja meg.
 
 ### Munkaterületek
 
@@ -3705,6 +3741,16 @@ Az assembleált programokat **valódi Commodore 64-en vagy C128-on** futtathatod
 
 ---
 
+### Verziókezelés (git)
+
+| Beállítás | Leírás |
+|---|---|
+| **Automatikus mentések a verziókezelésbe** | A szerkesztés abbahagyása után kb. 2,5 mp-cel automatikus mentést tesz a verziótörténetbe |
+| **git.exe kiválasztása…** | A `git` futtatható fájl kiválasztása (Windowson `git.exe`) |
+| **Automatikus keresés** | Törli a választott útvonalat, és a PATH-ban, valamint a szokásos telepítési mappákban keres |
+| **Git használata, ha a projekt git repóban van** | A git repóban lévő fájloknál git módban nyitja a Verziókezelés dialógust |
+| **Állapot** | A git verzióját mutatja, vagy hogy nem található (a beépített verziókezelés ekkor is működik) |
+
 ## 14. Vizuális szerkesztők (Toolkit)
 
 Az eszköztár **Toolkit** menüje csoportosítja a vizuális adat-szerkesztőket, amelyek mind egy közös Files menüt (`Files ▾`) osztanak meg: Load BIN / Save BIN / Export to blocks / Save to D64. Minden szerkesztő nyers `.bin` adatot állít elő, amely `INCBIN`-nel programba helyezhető, vagy közvetlenül D64 lemezre adható a **Save to D64** menüponttal.
@@ -3950,6 +3996,8 @@ A **SID Player** toolbar gomb egy lebegő ablakot nyit, amely `.sid` zenefájlok
 - **Tekerés:** a pozíciósáv és a **Back / Forward 10 s** a VA SID Core motorral működik. A WebSID nem tud tekerni, ezért vele ezek a vezérlők le vannak tiltva.
 - **Hangerő:** a tekerőgomb közös a SID szerkesztő master hangerejével.
 - **Motor:** az ablak kiírja, melyik motor szól (WebSID, vagy VA SID Core a verziójával és a SID chippel); a **Beállítások → SID előnézet** alatt választható. A VA SID Core natív Rust C64 magon futtatja a zenét: ciklusra pontos 6510 precíz interrupt-időzítéssel, CIA 6526A, VIC-II időzítés badline-okkal, sprite-DMA-val és raster interruptokkal, valamint a 6510 I/O port — így a raster IRQ-s, CIA-időzített és digi zenék is valódi gép időzítésével szólnak.
+- **Véletlen lejátszás:** a **Next** melletti kapcsoló véletlen sorrendben játssza a listát — egy szám sem ismétlődik, amíg mind le nem ment, a **Previous** pedig a véletlen sorrendben lép vissza. A beállítást megjegyzi.
+- **Kedvencek:** a sorokban lévő ☆ / ★ megjelöli a számot; a mentett állapotban és a `.sidpl` lejátszási listákban is megmarad.
 
 ---
 

@@ -4,8 +4,24 @@
     {
       "name": "va-dev",
       "runtimeExecutable": "npx",
-      "runtimeArgs": ["serve", "-l", "1430", "./www"],
+      "runtimeArgs": [
+        "serve",
+        "-l",
+        "1430",
+        "./www"
+      ],
       "port": 1430
+    },
+    {
+      "name": "va-site",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "serve",
+        "-l",
+        "1431",
+        "./va-product-site"
+      ],
+      "port": 1431
     }
   ]
 }
