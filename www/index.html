@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.5.7">
+  <link rel="stylesheet" href="style.css?v=2.5.8">
 </head>
 
 <body>
@@ -863,25 +863,47 @@ PRINTABLE CHARACTERS
     </div>
   </dialog>
 
-  <dialog id="project-snapshot-dialog" class="project-snapshot-dialog">
+  <dialog id="project-snapshot-dialog" class="project-snapshot-dialog vc-dialog">
     <div class="project-snapshot-card">
       <div class="project-snapshot-hdr">
         <div class="project-snapshot-hdr-text">
-          <h2 class="project-snapshot-title" id="project-snapshot-title">Project snapshots</h2>
-          <p class="project-snapshot-subtitle"><span id="project-snapshot-tab-name"></span></p>
+          <h2 class="project-snapshot-title" id="project-snapshot-title">Version control</h2>
+          <p class="project-snapshot-subtitle"><span id="project-snapshot-tab-name"></span> <span id="vc-branch" class="vc-branch"></span></p>
+        </div>
+        <div class="vc-mode" role="group" aria-label="Mode">
+          <button id="vc-mode-local" class="vc-mode-btn" type="button">Built-in</button>
+          <button id="vc-mode-git" class="vc-mode-btn" type="button">Git</button>
         </div>
         <button id="project-snapshot-close" class="project-snapshot-xbtn" type="button" aria-label="Close">×</button>
       </div>
+      <p id="vc-status" class="vc-status"></p>
+      <div id="vc-git-bar" class="vc-git-bar" hidden>
+        <button id="vc-git-init" class="secondary" type="button" hidden>git init</button>
+        <button id="vc-git-pull" class="secondary" type="button">Pull</button>
+        <button id="vc-git-push" class="secondary" type="button">Push</button>
+        <button id="vc-git-refresh" class="secondary" type="button">Refresh</button>
+      </div>
+      <div id="vc-changes" class="vc-changes" hidden></div>
       <label class="project-snapshot-note-field">
-        <span id="project-snapshot-note-label">Note</span>
-        <textarea id="project-snapshot-note" rows="2" placeholder="Optional note"></textarea>
+        <span id="project-snapshot-note-label">Commit message</span>
+        <textarea id="project-snapshot-note" rows="2" placeholder="Describe what changed…"></textarea>
+      </label>
+      <label id="vc-stage-all-row" class="menu-checkbox-label vc-stage-all" hidden>
+        <input type="checkbox" id="vc-stage-all">
+        <span id="vc-stage-all-label">Stage all changes (git add -A)</span>
       </label>
       <div class="project-snapshot-actions">
-        <button id="project-snapshot-save" class="primary" type="button">Save snapshot</button>
-        <button id="project-snapshot-restore-latest" class="secondary" type="button">Restore latest</button>
+        <button id="project-snapshot-save" class="primary" type="button">Commit</button>
+        <button id="vc-diff-working" class="secondary" type="button">Diff</button>
+        <button id="project-snapshot-restore-latest" class="secondary" type="button">Discard changes</button>
       </div>
-      <p id="project-snapshot-empty" class="project-snapshot-empty">No snapshots yet.</p>
-      <div id="project-snapshot-list" class="project-snapshot-list"></div>
+      <pre id="vc-output" class="vc-output" hidden></pre>
+      <div id="vc-diff" class="vc-diff" hidden>
+        <div class="vc-diff-hdr"><span id="vc-diff-title"></span><span class="vc-diff-tools"><button id="vc-diff-raw" class="vc-mode-btn" type="button" hidden>RAW</button><button id="vc-diff-close" class="project-snapshot-xbtn" type="button" aria-label="Close">×</button></span></div>
+        <pre id="vc-diff-body" class="vc-diff-body"></pre>
+      </div>
+      <p id="project-snapshot-empty" class="project-snapshot-empty">No commits yet.</p>
+      <div id="project-snapshot-list" class="project-snapshot-list vc-log"></div>
     </div>
   </dialog>
 
@@ -977,6 +999,36 @@ PRINTABLE CHARACTERS
         <button id="license-close" class="secondary" type="button">Close</button>
         <button id="license-activate" class="primary" type="button">Activate</button>
       </div>
+    </div>
+  </dialog>
+
+  <dialog id="bug-dialog" class="app-confirm-dialog update-dialog bug-dialog">
+    <div class="app-confirm-card">
+      <h2 class="compile-error-title" id="bug-title">Report Bug</h2>
+      <p id="bug-intro" class="app-confirm-msg"></p>
+      <label class="license-field"><span id="bug-summary-label">Summary</span>
+        <input id="bug-summary" type="text" maxlength="200" spellcheck="true"></label>
+      <label class="license-field"><span id="bug-description-label">What happened?</span>
+        <textarea id="bug-description" class="bug-description" rows="7" maxlength="20000" spellcheck="true"></textarea></label>
+      <label class="license-field"><span id="bug-email-label">Email (optional)</span>
+        <input id="bug-email" type="email" autocomplete="email" spellcheck="false"></label>
+      <div class="license-field">
+        <span id="bug-images-label">Screenshots</span>
+        <div class="bug-images-row">
+          <div id="bug-images" class="bug-images"></div>
+          <button id="bug-add-image" class="secondary bug-add-image" type="button">Add image…</button>
+        </div>
+      </div>
+      <label class="bug-include-info"><input id="bug-include-info" type="checkbox" checked>
+        <span id="bug-include-info-label">Include system info and recent errors</span></label>
+      <details class="bug-sysinfo"><summary id="bug-sysinfo-label">What is sent?</summary><pre id="bug-sysinfo-preview"></pre></details>
+      <p id="bug-status" class="license-status" role="status"></p>
+      <div class="app-confirm-buttons">
+        <button id="bug-mail" class="secondary" type="button">Send by email</button>
+        <button id="bug-close" class="secondary" type="button">Close</button>
+        <button id="bug-send" class="primary" type="button">Send report</button>
+      </div>
+      <input id="bug-files" type="file" accept="image/*" multiple hidden>
     </div>
   </dialog>
 
@@ -1229,7 +1281,7 @@ PRINTABLE CHARACTERS
           <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
         </div>
         <h2 class="about-title">C64 Visual Assembler</h2>
-        <p class="about-version" id="about-version">v2.5.7</p>
+        <p class="about-version" id="about-version">v2.5.8</p>
         <p class="about-version" id="about-license"></p>
         <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
       </div>
@@ -1256,25 +1308,40 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.5.7</p>
+      <p class="whats-new-version">v2.5.8</p>
       <ul class="whats-new-list">
         <li>
-          <strong>New: VA SID Core 1.2:</strong> the SID Player now runs tunes on a cycle-exact 6510 (every bus cycle, dummy accesses, VICE's interrupt timing), CIA 6526A timers / interrupts / TOD, VIC-II timing with bad lines, sprite DMA and raster interrupts, and the 6510 I/O port.
+          <strong>New: Version control:</strong> the project snapshots became a git-like version control — commits with a message and a short hash, a log with <em>HEAD</em>, <em>Diff</em> against the working copy (Block-mode programs are compared as assembly lines, so JSON projects show readable changes), <em>Checkout</em> into the editor and separate autosave entries. Works on Block, Expert and Ultimate Basic tabs.
         </li>
         <li>
-          <strong>Hi-Res Editor: two colours in every 8×8 cell:</strong> the new <em>Cell paper</em> tool sets the background of each cell (the low nibble of its screen RAM byte), so every cell can have its own ink and paper. The eraser now uncovers the cell's own background.
+          <strong>New: Git integration:</strong> choose <code>git.exe</code> in Settings → Version control (or auto-detect). Inside a git repository the dialog shows the branch, the changed files, commit (saves first), log, diff with a <em>RAW</em> view, checkout, <em>Pull</em> / <em>Push</em> and <em>git init</em>.
         </li>
         <li>
-          <strong>Exact C64 character ROM:</strong> the ROM viewer, <em>Load ROM</em> in the Character Editor and the Map / Level editors now use the real glyphs (checked byte by byte against the 901225-01 character ROM); several graphics characters were wrong or missing before.
+          <strong>New: Report Bug:</strong> a built-in report form with up to 4 screenshots (file, Ctrl+V or drag and drop), an optional email, system info and the recent app errors.
         </li>
         <li>
-          <strong>Sprite Editor:</strong> a <strong>hi-res overlay</strong> sprite over each frame (outline over a multicolor body), <strong>flood fill</strong>, <strong>select / move</strong>, <strong>rotate 90°</strong>, <strong>Mirror all</strong> (a mirrored copy of the animation), <strong>sprite sheet import</strong> with OKLab colour matching and dithering, a <strong>hitbox</strong> per frame with a table export, an <strong>X / Y ×2</strong> preview and zoom up to 40×.
+          <strong>Professional serial by email:</strong> supporters request their serial in the registration dialog; the Professional version can be bought on c64va.pro with PayPal (5 €, one-time) and the serial arrives by email right after the payment.
         </li>
         <li>
-          <strong>Level Editor:</strong> an <strong>objects layer</strong> (start, enemies, items, doors, exit, triggers → <code>LEVEL_OBJ_*</code> tables), <strong>character attributes</strong> (solid, ladder, hazard, collectible → <code>LEVEL_ATTR</code>), an <strong>edge check</strong> between screens, <strong>colours per screen</strong>, a <strong>memory meter</strong> with RLE export and unpacker, and <strong>Run in VICE</strong> — a joystick-scrolled test program built from the level.
+          <strong>SID Player:</strong> <em>Shuffle</em> and per-tune <em>favourites</em> (★), kept in the saved state and in <code>.sidpl</code> playlists.
         </li>
         <li>
-          <strong>Character Editor:</strong> <strong>undo / redo</strong>, drawing tools (pencil, line, rectangle, fill), <strong>rotate 90°</strong>, <strong>copy / paste</strong> and drag to swap characters on the map (Shift+drag copies), <strong>2×1 / 1×2 / 2×2 tiles</strong> edited as one picture, the <strong>lowercase ROM set</strong>, a <strong>text preview</strong> and <strong>range export</strong> (<code>.bin</code> or <code>.byte</code> lines). The <strong>Charset Canvas</strong> zooms 2×–24× (slider or Ctrl+wheel) with a pixel grid, sets the background in hi-res mode too, and can switch single characters to <strong>hi-res inside multicolor mode</strong> (Color RAM bit 3), like the C64, and has an <strong>ECM</strong> mode with a background (<code>$D021</code>–<code>$D024</code>) per character.
+          <strong>From 2.5.7: VA SID Core 1.2:</strong> the SID Player now runs tunes on a cycle-exact 6510 (every bus cycle, dummy accesses, VICE's interrupt timing), CIA 6526A timers / interrupts / TOD, VIC-II timing with bad lines, sprite DMA and raster interrupts, and the 6510 I/O port.
+        </li>
+        <li>
+          <strong>From 2.5.7: Hi-Res Editor: two colours in every 8×8 cell:</strong> the new <em>Cell paper</em> tool sets the background of each cell (the low nibble of its screen RAM byte), so every cell can have its own ink and paper. The eraser now uncovers the cell's own background.
+        </li>
+        <li>
+          <strong>From 2.5.7: Exact C64 character ROM:</strong> the ROM viewer, <em>Load ROM</em> in the Character Editor and the Map / Level editors now use the real glyphs (checked byte by byte against the 901225-01 character ROM); several graphics characters were wrong or missing before.
+        </li>
+        <li>
+          <strong>From 2.5.7: Sprite Editor:</strong> a <strong>hi-res overlay</strong> sprite over each frame (outline over a multicolor body), <strong>flood fill</strong>, <strong>select / move</strong>, <strong>rotate 90°</strong>, <strong>Mirror all</strong> (a mirrored copy of the animation), <strong>sprite sheet import</strong> with OKLab colour matching and dithering, a <strong>hitbox</strong> per frame with a table export, an <strong>X / Y ×2</strong> preview and zoom up to 40×.
+        </li>
+        <li>
+          <strong>From 2.5.7: Level Editor:</strong> an <strong>objects layer</strong> (start, enemies, items, doors, exit, triggers → <code>LEVEL_OBJ_*</code> tables), <strong>character attributes</strong> (solid, ladder, hazard, collectible → <code>LEVEL_ATTR</code>), an <strong>edge check</strong> between screens, <strong>colours per screen</strong>, a <strong>memory meter</strong> with RLE export and unpacker, and <strong>Run in VICE</strong> — a joystick-scrolled test program built from the level.
+        </li>
+        <li>
+          <strong>From 2.5.7: Character Editor:</strong> <strong>undo / redo</strong>, drawing tools (pencil, line, rectangle, fill), <strong>rotate 90°</strong>, <strong>copy / paste</strong> and drag to swap characters on the map (Shift+drag copies), <strong>2×1 / 1×2 / 2×2 tiles</strong> edited as one picture, the <strong>lowercase ROM set</strong>, a <strong>text preview</strong> and <strong>range export</strong> (<code>.bin</code> or <code>.byte</code> lines). The <strong>Charset Canvas</strong> zooms 2×–24× (slider or Ctrl+wheel) with a pixel grid, sets the background in hi-res mode too, and can switch single characters to <strong>hi-res inside multicolor mode</strong> (Color RAM bit 3), like the C64, and has an <strong>ECM</strong> mode with a background (<code>$D021</code>–<code>$D024</code>) per character.
         </li>
         <li>
           <strong>From 2.5.6: SID Player:</strong> a toolbar button opens a floating player for <code>.sid</code> (PSID / RSID) tunes — a playlist with drag and drop, previous / next tune, subtunes, seek and ±10 s, volume, and playlist save / open (<code>.sidpl</code>). The list and the window are remembered.
@@ -1289,7 +1356,7 @@ PRINTABLE CHARACTERS
           <strong>From 2.5.6: Freemium and Professional:</strong> without a registration the app runs as Freemium. Enter the email address and serial from your purchase in <em>Menu → Register…</em> for the Professional version with every editor, build and run option, language and theme.
         </li>
         <li>
-          <strong>Ultimate Basic 1.6.4</strong> bundled.
+          <strong>From 2.5.7: Ultimate Basic 1.6.4</strong> bundled.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -2699,6 +2766,7 @@ PRINTABLE CHARACTERS
           <button id="websid-play-pause" class="websid-play-tool" type="button" aria-label="Pause"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="3.5" width="2.5" height="9" fill="currentColor"/><rect x="9.5" y="3.5" width="2.5" height="9" fill="currentColor"/></svg></button>
           <button id="websid-play-stop" class="websid-play-tool" type="button" aria-label="Stop"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="4" width="8" height="8" fill="currentColor"/></svg></button>
           <button id="websid-play-next" class="websid-play-tool" type="button" aria-label="Next"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M12 3.5v9" stroke="currentColor" stroke-width="1.6"/><path d="M3 3.5 10.5 8 3 12.5z" fill="currentColor"/></svg></button>
+          <button id="websid-play-shuffle" class="websid-play-tool" type="button" aria-label="Shuffle" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 4.5h2.5c3 0 5 7 8 7h2M1.5 11.5h2.5c1.2 0 2.2-1.1 3-2.4M9 6.9c.8-1.3 1.8-2.4 3-2.4h2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M12.5 2.5l2 2-2 2M12.5 9.5l2 2-2 2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         </div>
         <div class="websid-play-tools">
           <button id="websid-play-rew" class="websid-play-tool" type="button" aria-label="Back 10 s"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 4 2.5 8 8 12zM14 4 8.5 8 14 12z" fill="currentColor"/></svg></button>
@@ -3163,15 +3231,17 @@ PRINTABLE CHARACTERS
             <input type="checkbox" id="auto-snapshot-toggle" checked>
             <span id="auto-snapshot-toggle-label">Automatikus snapshot</span>
           </label>
-          <div class="hw-settings-subsection">
-            <h3 class="hw-settings-section-label" id="kff2-section-label">Kung Fu Flash 2</h3>
-            <label class="field compact-field hw-field">
-              <span id="kff2-port-label">Soros port</span>
-              <input id="kff2-port" type="text" placeholder="/dev/cu.usbmodem… / COM4 / /dev/ttyACM0" autocomplete="off" spellcheck="false">
-            </label>
-            <button id="kff2-detect-btn" class="secondary" type="button">USB felismerése</button>
-            <p id="kff2-status" class="menu-note"></p>
-          </div>
+          <button id="choose-git" class="secondary" type="button">Choose git.exe…</button>
+          <button id="detect-git" class="secondary" type="button">Auto-detect</button>
+          <label class="field compact-field hw-field">
+            <span id="git-exe-label">git executable</span>
+            <input id="git-path" type="text" readonly>
+          </label>
+          <label class="menu-checkbox-label">
+            <input type="checkbox" id="git-preferred" checked>
+            <span id="git-preferred-label">Use Git when the project is in a repository</span>
+          </label>
+          <p id="git-status" class="menu-note"></p>
         </section>
 
         <section class="hw-settings-section">
@@ -3206,6 +3276,15 @@ PRINTABLE CHARACTERS
           </label>
           <button id="ultimate-connect-test" class="secondary" type="button">Kapcsolat tesztelése</button>
           <p id="ultimate-status" class="menu-note"></p>
+          <div class="hw-settings-subsection hw-settings-subsection--inline">
+            <h3 class="hw-settings-section-label" id="kff2-section-label">Kung Fu Flash 2</h3>
+            <label class="field compact-field hw-field">
+              <span id="kff2-port-label">Soros port</span>
+              <input id="kff2-port" type="text" placeholder="/dev/cu.usbmodem… / COM4 / /dev/ttyACM0" autocomplete="off" spellcheck="false">
+            </label>
+            <button id="kff2-detect-btn" class="secondary" type="button">USB felismerése</button>
+            <p id="kff2-status" class="menu-note"></p>
+          </div>
         </section>
 
       </div>
@@ -3238,13 +3317,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.5.7"></script>
-  <script src="i18n.js?v=2.5.7"></script>
-  <script src="tutorial-data.js?v=2.5.7"></script>
+  <script src="tauri-bridge.js?v=2.5.8"></script>
+  <script src="i18n.js?v=2.5.8"></script>
+  <script src="tutorial-data.js?v=2.5.8"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.5.7"></script>
+  <script src="app.js?v=2.5.8"></script>
 
 </body>
 

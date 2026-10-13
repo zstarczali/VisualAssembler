@@ -1,7 +1,9 @@
 C64 Visual Assembler - Installation Guide
-Version 2.5.7
+Version 2.5.8
 Support: https://zstarczali.itch.io/visual-assembler-commodore-64
 ==========================================================================
+
+2.5.8: Version control: git-like commits, log, diff and checkout on every tab, with optional Git integration (choose git.exe in Settings). Report Bug form with screenshots. Professional serial by email (supporters, or PayPal purchase on c64va.pro). SID Player: shuffle and favourites.
 
 2.5.7: VA SID Core 1.2: the SID Player runs tunes on a native Rust C64 core (cycle-exact 6510, CIA 6526A, VIC-II timing with bad lines and sprite DMA, 6510 I/O port). Hi-Res Editor: two colours in every 8x8 cell with the new Cell paper tool. Exact C64 character ROM in the ROM viewer and the Character / Map / Level editors. Sprite Editor: hi-res overlay layer, flood fill, select / move, rotate 90 degrees, Mirror all, sprite sheet import, hitbox per frame, X / Y x2 preview, zoom up to 40x. Level Editor: objects layer, character attributes, edge check, colours per screen, memory meter with RLE export, Run in VICE.
 
@@ -55,7 +57,7 @@ Tested on Ubuntu 22.04 and 24.04.
 -----------------------
 Download the .deb package from the releases page and install:
 
-  sudo dpkg -i "c64-visual-assembler_2.5.7_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.5.8_amd64.deb"
   sudo apt-get install -f   # fix any missing dependencies
 
 Launch from the Applications menu or:
@@ -148,7 +150,7 @@ Requirements: macOS 11.0+, Apple Silicon (M1/M2/M3)
 
 1. C64 Visual Assembler
 -----------------------
-1. Download the 2.5.7 DMG for your architecture from the releases page
+1. Download the 2.5.8 DMG for your architecture from the releases page
 2. Mount the DMG and drag the app to /Applications
 3. First launch: Right-click the app -> "Open" (macOS will block double-click)
 4. Click "Open" in the security dialog

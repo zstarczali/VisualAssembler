@@ -662,6 +662,31 @@ fn license_activate(app: AppHandle, email: String, serial: String) -> serde_json
     serde_json::json!({ "ok": true, "email": email })
 }
 
+const BUG_REPORT_URL: &str = "https://www.c64va.pro/register/bug.php";
+
+/// Bug report with screenshots (base64) to va-product-site/register/bug.php; shown on register/bugs.php.
+#[tauri::command]
+async fn bug_report(app: AppHandle, payload: serde_json::Value) -> serde_json::Value {
+    let client = match update_http_client(&app, 60) {
+        Ok(c) => c,
+        Err(_) => return serde_json::json!({ "ok": false, "error": "network" }),
+    };
+    let resp = match client
+        .post(BUG_REPORT_URL)
+        .header("Content-Type", "application/json")
+        .body(payload.to_string())
+        .send()
+        .await
+    {
+        Ok(r) => r,
+        Err(_) => return serde_json::json!({ "ok": false, "error": "network" }),
+    };
+    match resp.text().await.ok().and_then(|t| serde_json::from_str::<serde_json::Value>(&t).ok()) {
+        Some(v) if v["ok"].is_boolean() => v,
+        _ => serde_json::json!({ "ok": false, "error": "server" }),
+    }
+}
+
 const LICENSE_ACTIVATE_URL: &str = "https://www.c64va.pro/register/activate.php";
 
 /// Activation count for the site statistics (register/stats.php); fire and forget, offline is fine.
@@ -753,6 +778,120 @@ fn get_vice_config(app: AppHandle) -> serde_json::Value {
 fn get_exomizer_config(app: AppHandle) -> serde_json::Value {
     let cfg = read_config(&app);
     serde_json::json!({ "exomizerPath": get_exomizer_path(&cfg) })
+}
+
+// ── Git (Version control) ────────────────────────────────────────────────────
+
+/// git executable: the configured one, else the first git on PATH / in the usual install folders.
+fn detect_git_executable() -> String {
+    let exe = if cfg!(target_os = "windows") { "git.exe" } else { "git" };
+    if let Some(paths) = std::env::var_os("PATH") {
+        for dir in std::env::split_paths(&paths) {
+            let candidate = dir.join(exe);
+            if candidate.is_file() {
+                return candidate.to_string_lossy().to_string();
+            }
+        }
+    }
+    let common: &[&str] = if cfg!(target_os = "windows") {
+        &[r"C:\Program Files\Git\cmd\git.exe", r"C:\Program Files (x86)\Git\cmd\git.exe"]
+    } else {
+        &["/usr/bin/git", "/usr/local/bin/git", "/opt/homebrew/bin/git"]
+    };
+    common.iter().find(|c| Path::new(c).is_file()).map(|c| c.to_string()).unwrap_or_default()
+}
+
+fn get_git_path(cfg: &serde_json::Value) -> String {
+    match cfg["gitPath"].as_str() {
+        Some(p) if !p.is_empty() && Path::new(p).is_file() => p.to_string(),
+        _ => detect_git_executable(),
+    }
+}
+
+#[tauri::command]
+fn get_git_config(app: AppHandle) -> serde_json::Value {
+    let cfg = read_config(&app);
+    serde_json::json!({
+        "gitPath": cfg["gitPath"].as_str().unwrap_or(""),
+        "effectivePath": get_git_path(&cfg),
+    })
+}
+
+#[tauri::command]
+fn set_git_path(app: AppHandle, path: String) -> serde_json::Value {
+    let mut cfg = read_config(&app);
+    cfg["gitPath"] = serde_json::json!(path);
+    write_config(&app, &cfg);
+    serde_json::json!({ "gitPath": path, "effectivePath": get_git_path(&cfg) })
+}
+
+#[tauri::command]
+async fn choose_git_executable(app: AppHandle) -> serde_json::Value {
+    let dialog = app.dialog().clone();
+    let file_dialog = dialog.file();
+    #[cfg(target_os = "windows")]
+    let file_dialog = file_dialog.add_filter("git.exe", &["exe"]);
+    match file_dialog.blocking_pick_file() {
+        Some(path) => {
+            let path_str = path.to_string();
+            let mut cfg = read_config(&app);
+            cfg["gitPath"] = serde_json::json!(path_str);
+            write_config(&app, &cfg);
+            serde_json::json!({ "canceled": false, "gitPath": path_str })
+        }
+        None => serde_json::json!({ "canceled": true }),
+    }
+}
+
+/// Runs git in `cwd` with an allow-listed subcommand. No console window and no interactive
+/// prompts (GIT_TERMINAL_PROMPT=0, ssh BatchMode), so a push / pull without credentials fails
+/// instead of hanging.
+#[tauri::command]
+async fn git_exec(app: AppHandle, args: Vec<String>, cwd: String) -> serde_json::Value {
+    const ALLOWED: &[&str] = &[
+        "version", "rev-parse", "symbolic-ref", "status", "add", "commit", "log", "diff", "show",
+        "init", "pull", "push", "branch", "remote", "ls-files",
+    ];
+    let git = get_git_path(&read_config(&app));
+    if git.is_empty() {
+        return serde_json::json!({ "ok": false, "code": -1, "stdout": "", "stderr": "git not found", "notFound": true });
+    }
+    let Some(sub) = args.first() else {
+        return serde_json::json!({ "ok": false, "code": -1, "stdout": "", "stderr": "no git command" });
+    };
+    if !ALLOWED.contains(&sub.as_str()) {
+        return serde_json::json!({ "ok": false, "code": -1, "stdout": "", "stderr": format!("git {sub} is not allowed") });
+    }
+    let dir = if cwd.is_empty() { None } else { Some(PathBuf::from(&cwd)) };
+    if let Some(d) = dir.as_ref() {
+        if !d.is_dir() {
+            return serde_json::json!({ "ok": false, "code": -1, "stdout": "", "stderr": "folder not found" });
+        }
+    }
+    let result = tauri::async_runtime::spawn_blocking(move || {
+        let mut cmd = Command::new(&git);
+        cmd.args(&args)
+            .env("GIT_TERMINAL_PROMPT", "0")
+            .env("GIT_SSH_COMMAND", "ssh -o BatchMode=yes")
+            .env("GIT_PAGER", "cat");
+        if let Some(d) = dir {
+            cmd.current_dir(d);
+        }
+        #[cfg(target_os = "windows")]
+        cmd.creation_flags(0x08000000); // CREATE_NO_WINDOW
+        cmd.output()
+    })
+    .await;
+    match result {
+        Ok(Ok(out)) => serde_json::json!({
+            "ok": out.status.success(),
+            "code": out.status.code().unwrap_or(-1),
+            "stdout": String::from_utf8_lossy(&out.stdout),
+            "stderr": String::from_utf8_lossy(&out.stderr),
+        }),
+        Ok(Err(e)) => serde_json::json!({ "ok": false, "code": -1, "stdout": "", "stderr": e.to_string() }),
+        Err(e) => serde_json::json!({ "ok": false, "code": -1, "stdout": "", "stderr": e.to_string() }),
+    }
 }
 
 #[tauri::command]
@@ -4880,6 +5019,7 @@ pub fn run() {
             license_status,
             license_activate,
             license_request,
+            bug_report,
             license_deactivate,
             get_ui_settings,
             save_ui_settings,
@@ -4888,6 +5028,10 @@ pub fn run() {
             get_working_folder,
             choose_vice_executable,
             choose_exomizer_executable,
+            get_git_config,
+            set_git_path,
+            choose_git_executable,
+            git_exec,
             choose_working_folder,
             choose_ub_working_folder,
             build_exomizer_prg,

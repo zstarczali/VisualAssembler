@@ -233,7 +233,7 @@ test("SID player playlist: PSID metadata, prev restarts then steps back, remove 
     _sidPlayerPersist() {},
   };
   vm.createContext(ctx);
-  vm.runInContext(`const _SID_TUNE_LENGTH_MS = 180000; var _sidPlaylist = [], _sidPlaylistIndex = -1, _sidSeekDragging = false;
+  vm.runInContext(`const _SID_TUNE_LENGTH_MS = 180000; var _sidPlaylist = [], _sidPlaylistIndex = -1, _sidSeekDragging = false, _sidShuffle = false, _sidShuffleHistory = [];
     ${["_sidPsidInfo", "_sidValidSong", "_sidPlayerAdd", "_sidPlayerPlayIndex", "_sidPlayerPrev", "_sidPlayerNext", "_sidPlayerRemove",
       "_sidPlayerLengthMs", "_sidPlayerTickUi", "_sidPlayerRenderList"].map(fnSource).join("\n")}
     this.api = { add: _sidPlayerAdd, prev: _sidPlayerPrev, next: _sidPlayerNext, remove: _sidPlayerRemove,
@@ -327,7 +327,7 @@ test("SID player auto-advance moves one tune on, the UI refresh never advances",
     _sidPlayerPersist() {},
   };
   vm.createContext(ctx);
-  vm.runInContext(`const _SID_TUNE_LENGTH_MS = 180000; var _sidPlaylist = [], _sidPlaylistIndex = 0, _sidSeekDragging = false;
+  vm.runInContext(`const _SID_TUNE_LENGTH_MS = 180000; var _sidPlaylist = [], _sidPlaylistIndex = 0, _sidSeekDragging = false, _sidShuffle = false, _sidShuffleHistory = [];
     ${["_sidPsidInfo", "_sidValidSong", "_sidPlayerPlayIndex", "_sidPlayerNext", "_sidPlayerLengthMs", "_sidPlayerTickUi",
       "_sidPlayerRenderList", "_sidPlayerAutoAdvance"].map(fnSource).join("\n")}
     this.api = { tick: _sidPlayerTickUi, render: _sidPlayerRenderList, advance: _sidPlayerAutoAdvance,
@@ -412,4 +412,40 @@ test("SID player: WebSID cannot seek, the request is ignored", async () => {
   assert.equal(ctx._sidExtElapsed, 5000, "the counter stays where it was");
   ctx._sidExternalCore = {};
   assert.equal(ctx.can(), true, "VA SID Core can seek");
+});
+
+test("SID player shuffle: every tune once per round, Previous steps back along the random order", () => {
+  const started = [];
+  const ctx = {
+    crypto: { randomUUID: (() => { let n = 0; return () => "id" + (++n); })() },
+    document: { getElementById() { return null; } },
+    t: (k) => k,
+    tf: (k) => k,
+    showViceToast() {},
+    _sidExtStatus: "playing",
+    _sidExtStarting: false,
+    _sidExtFile: null,
+    _sidExtElapsedMs: () => 0,
+    _sidExtStartFile(bytes, name) { started.push(name); },
+    _sidExtFormatTime: () => "",
+    _sidPlayerShow() {},
+    _sidPlayerPersist() {},
+    Math,
+  };
+  vm.createContext(ctx);
+  vm.runInContext(`const _SID_TUNE_LENGTH_MS = 180000; var _sidPlaylist = [], _sidPlaylistIndex = -1, _sidSeekDragging = false, _sidShuffle = false, _sidShuffleHistory = [];
+    ${["_sidPsidInfo", "_sidValidSong", "_sidPlayerAdd", "_sidPlayerPlayIndex", "_sidPlayerPrev", "_sidPlayerNext", "_sidPlayerSetShuffle",
+      "_sidPlayerLengthMs", "_sidPlayerTickUi", "_sidPlayerRenderList"].map(fnSource).join("\n")}
+    this.api = { add: _sidPlayerAdd, next: _sidPlayerNext, prev: _sidPlayerPrev, shuffle: _sidPlayerSetShuffle };`, ctx);
+  const psid = () => { const b = new Uint8Array(0x80); b.set([0x50, 0x53, 0x49, 0x44]); return b; };
+  const names = ["a.sid", "b.sid", "c.sid", "d.sid"];
+  ctx.api.add(names.map((name) => ({ name, bytes: psid() })), true);
+  ctx.api.shuffle(true);
+  for (let i = 0; i < 3; i++) ctx.api.next();
+  assert.deepEqual([...started].sort(), names, "one round plays every tune once");
+  const order = started.slice();
+  ctx.api.prev();
+  assert.equal(started[started.length - 1], order[order.length - 2], "Previous goes back in the random order");
+  ctx.api.next();
+  assert.equal(started.length, 6, "a new round starts after every tune has played");
 });
