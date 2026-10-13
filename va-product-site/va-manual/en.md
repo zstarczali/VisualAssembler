@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.5.5**
+**Version 2.5.7**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -9,6 +9,8 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
+    - [Version 2.5.7 Highlights](#version-257-highlights)
+    - [Version 2.5.6 Highlights](#version-256-highlights)
     - [Version 2.5.5 Highlights](#version-255-highlights)
     - [Version 2.5.4 Highlights](#version-254-highlights)
     - [Version 2.5.3 Highlights](#version-253-highlights)
@@ -38,6 +40,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [ASM line numbers](#asm-line-numbers)
     - [Compile progress modal](#compile-progress-modal)
   - [5. Settings \& Toolbar](#5-settings--toolbar)
+    - [Freemium and Professional](#freemium-and-professional)
     - [Project templates](#project-templates)
     - [Build project](#build-project)
     - [Example programs](#example-programs)
@@ -173,8 +176,31 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [Map Editor (Multilayer Tilemaps)](#map-editor-multilayer-tilemaps)
     - [Level Editor](#level-editor)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
+    - [SID Player](#sid-player)
     - [Curve Editor](#curve-editor)
     - [Number Converter](#number-converter)
+
+---
+
+## Version 2.5.7 Highlights
+
+- **VA SID Core 1.2** — the SID Player now uses a native Rust C64 core: a cycle-exact 6510 with precise interrupt timing, the CIA 6526A, VIC-II timing with bad lines, sprite DMA and raster interrupts, and the 6510 I/O port. See [SID Player](#sid-player).
+- **Hi-Res Editor** — two colours in every 8×8 cell: the new **Cell paper** tool. See [Hi-Res / Multicolor Editor](#hi-res--multicolor-editor).
+- **Exact character ROM** in the ROM viewer, the Character Editor's **Load ROM** and the Map / Level editors.
+- **Sprite Editor** — hi-res overlay, flood fill, select / move, rotate, Mirror all, sprite sheet import, hitbox, X / Y ×2 preview. See [Sprite Editor](#sprite-editor).
+- **Level Editor** — objects, character attributes, edge check, colours per screen, memory meter with RLE, Run in VICE. See [Level Editor](#level-editor).
+- **Character Editor** — undo / redo, drawing tools, rotate 90°, copy / paste and drag-to-swap on the map, 2×2 tiles, the lowercase ROM set, a text preview and range export. See [Character Editor](#character-editor-charset).
+- **Charset Canvas** — zoom 2×–24× (slider or Ctrl+wheel) with a pixel grid, background colour in hi-res mode, hi-res characters inside multicolor mode, and **ECM** (a background per character). See [Charset Canvas Editor](#charset-canvas-editor).
+
+---
+
+## Version 2.5.6 Highlights
+
+- **SID Player** — a new toolbar button opens a floating player for `.sid` (PSID / RSID) tunes: a playlist with drag and drop, previous / next tune, subtunes, seek and ±10 s, volume, and playlist save / open (`.sidpl`); the list and the window state are remembered. See [SID Player](#sid-player).
+- **VA SID Core 1.1** — a built-in SID emulation (MOS 6581 / 8580, with a reSID-aligned 6581 filter) and a cycle-locked PSID / RSID player (6510 CPU, CIA / VIC timing). Choose it in **Settings → SID preview**; the SID Player shows which engine is playing.
+- **SID Editor** — knobs for the instrument parameters, a wider ADSR graph, **MIDI input**, **recording** into the tracker (a new pattern is added when the current one is full), a **metronome** with beat lamps, **pattern delete**, the master volume on VA-VK, and **Import GoatTracker .sng**. See [SID Editor](#sid-editor-3-voice-tracker).
+- **Freemium and Professional** — without a registration the app runs as Freemium; enter the email address and serial from your purchase in **Menu → Register…** to get the Professional version. See [Freemium and Professional](#freemium-and-professional).
+- **Ultimate Basic 1.6.4** bundled.
 
 ---
 
@@ -254,13 +280,13 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 - **Ultimate Basic 1.5.9 bundled** — new `chain "FILE" [, device]` (load another program over the running one and RUN it); `load "FILE"` loads to the file's own address, `load "FILE", addr` to `addr`; D64 fixes. `chain` is highlighted and listed in the command reference.
 - **Update status in the Expert status bar** — the same *Up to date* / clickable *Update available* indicator as in Ultimate Basic mode.
 - **Save dialogs** offer the file's own type (e.g. *KOA*) instead of *Binary (\*.bin)*.
-- **More robust update check** — the installer list is published at c64va.tech/downloads/VA/, so the check works with the new download page; the Linux update helper no longer inherits the AppImage library paths.
+- **More robust update check** — the installer list is published at c64va.pro/downloads/VA/, so the check works with the new download page; the Linux update helper no longer inherits the AppImage library paths.
 
 ---
 
 ## Version 2.4.7 Highlights
 
-- **In-app updates** — **Menu → Check for Update** checks c64va.tech for a newer release and, on confirmation, downloads the installer for your platform with a progress bar and installs it. See [In-app updates](#in-app-updates). The check also runs quietly at every start.
+- **In-app updates** — **Menu → Check for Update** checks c64va.pro for a newer release and, on confirmation, downloads the installer for your platform with a progress bar and installs it. See [In-app updates](#in-app-updates). The check also runs quietly at every start.
 - **Update status in the Ultimate Basic status bar** — shows **Up to date (vX)**, or a highlighted **Update available: vY** that opens the update dialog when clicked.
 - **Curve Editor → UltimateBasic export** — **Files → Export to UltimateBasic** writes the table as an initialised UB array; **Files → Export UltimateBasic demo** produces a ready-to-run UB sprite demo. See [Curve Editor](#curve-editor).
 - **Ultimate Basic 1.5.8 bundled** — the new **`data <array>: v, …`** form fills a declared `array` / `array_word` at program start (further lines continue where the previous one stopped, word arrays take 16-bit values) without touching the `read` stream.
@@ -286,7 +312,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 - **Cleaner macro lines in the ASM view** — macro blocks are now listed without the leading comment marker (`.print "HELLO"`, `.if A == 1`, `.sprite_init …` instead of `; .print …`), and the ASM syntax highlighter colours them as macros. Ordinary COMMENT blocks and region markers still start with `;`.
 - **Custom macro highlighting in the Expert editor** — the macro name after `.macro`, `.invoke` and `.call` (and Kick-style `:name(...)` calls) has its own colour, and so do the `{param}` substitutions inside the macro body and the parameter names in the `.macro` header, in every theme.
 - **Refreshed About dialog** — a wider two-column layout with grouped project, license and credit links, and the Ultimate Basic banner now has a transparent background so it blends into every theme.
-- **Web64 on the product site** — a new Web64 IDE section on [c64va.tech](https://www.c64va.tech).
+- **Web64 on the product site** — a new Web64 IDE section on [c64va.pro](https://www.c64va.pro).
 - **Sample update** — the `macro-with-parameter` sample now uses the parenthesised `.macro setColor(color)` form.
 
 ---
@@ -312,7 +338,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Version 2.4.1 Highlights
 
 - **Polish and Italian UI languages** — full interface translation (menus, dialogs, mnemonic descriptions, Ultimate Basic command reference) alongside the existing Hungarian, English, Spanish, German and Dutch.
-- **Online Help toolbar button** — a new icon button after Debug opens the multi-language documentation site ([c64va.tech/docs.html](https://www.c64va.tech/docs.html)) directly from the app.
+- **Online Help toolbar button** — a new icon button after Debug opens the multi-language documentation site ([c64va.pro/docs.html](https://www.c64va.pro/docs.html)) directly from the app.
 - **Centralized mnemonic descriptions:** per-language mnemonic descriptions moved into the shared translation file alongside the rest of the UI strings. Also fixes a longstanding bug where the English descriptions for `PRINT`, `PRINT_HEX`, `CLEAR_SCREEN`, `WAIT_KEY`, `SET_BORDER`, `SET_BG`, `IRQ_SETUP` and `RAND` were silently overwritten by leftover Spanish text.
 
 ---
@@ -519,11 +545,11 @@ Project snapshots are stored as on-disk sidecar JSON files, not in localStorage.
 - **Hardware Settings → Snapshot → Automatic snapshot saving** controls whether the app creates snapshots automatically after edits. The default delay is about 2.5 seconds, and the setting applies per tab.
 - If a project has not been saved yet, snapshots are stored in the app config directory until the project gets a file path.
 | **Knowledge Base** | Reference links (6502 opcodes, C64 KERNAL, memory map, colors) |
-| **Check for Update** | Check c64va.tech for a newer release and download / install it — see [In-app updates](#in-app-updates) |
+| **Check for Update** | Check c64va.pro for a newer release and download / install it — see [In-app updates](#in-app-updates) |
 
 ### In-app updates
 
-**Menu → Check for Update** looks up the newest release on c64va.tech (it reads the download links for your platform) and compares it with the running version:
+**Menu → Check for Update** looks up the newest release on c64va.pro (it reads the download links for your platform) and compares it with the running version:
 
 - **Up to date** — the dialog says so.
 - **Update available** — choose **Update now** to download the installer (a progress bar shows the download), **Later** to close the dialog, or **Skip this version** to stop the automatic check from offering that release again.
@@ -537,6 +563,17 @@ After the download the app installs the update and restarts:
 | **Linux** | An AppImage is swapped for the new one. A `.deb` / `.rpm` installation is updated with `pkexec` (you are asked for your password); without `pkexec` the package is opened in your software installer. |
 
 If there are unsaved tabs, the app asks before closing. The same check runs quietly a few seconds after every start: nothing is shown unless a newer version exists. The result also appears in the Ultimate Basic status bar — **Up to date (vX)**, or a highlighted **Update available: vY** that opens the update dialog.
+
+### Freemium and Professional
+
+Without a registration Visual Assembler runs as **Freemium**; the badge next to the title shows **FREEMIUM** or **PROFESSIONAL**. In Freemium you can write and build programs and run them in VICE in Block, Expert and Ultimate Basic mode. These need the Professional version:
+
+- the visual editors (SID, Sprite, Char, Charset, Hi-Res, Map, Level, D64, Curve) and the SID Player;
+- **Build PRG**, **Build D64**, **Build CRT**, **Build project** and Exomizer packing;
+- running on the C64 Ultimate and on the Kung Fu Flash 2;
+- UI languages other than Hungarian and English, and the OLED and Commodore 77 themes.
+
+Clicking a locked feature opens the registration dialog. To register, open **Menu → Register…** (or click the badge), enter the email address and serial from your purchase and press **Activate**. The serial belongs to that email address (upper / lower case and spaces do not matter), and the check runs offline. **Remove license** takes the registration off this computer.
 
 ### Workspaces
 
@@ -1787,6 +1824,11 @@ An INCBIN-style block that emits **0 bytes of code**. Only the **placed** screen
 | `LEVEL_MAX_X`, `LEVEL_MAX_Y` | Largest pixel scroll position of a 40×25 view |
 | `LEVEL_BG`, `LEVEL_MC1`, `LEVEL_MC2`, `LEVEL_MULTICOLOR` | Background / multicolor colors and mode of the level |
 | `LEVEL_DATA`, `LEVEL_SIZE`, `LEVEL_END` | Start, size and first free address after the level data |
+| `LEVEL_OBJ_X_LO/HI`, `LEVEL_OBJ_Y_LO/HI`, `LEVEL_OBJ_TYPE`, `LEVEL_OBJ_PARAM` | Object table (Level Editor object layer): position in level pixels, type and parameter byte, in scroll order — `LEVEL_OBJ_COUNT` entries (max 255) |
+| `LEVEL_OBJ_T_START` … `LEVEL_OBJ_T_TRIGGER` | Object type numbers: START 0, ENEMY 1, ITEM 2, DOOR 3, EXIT 4, TRIGGER 5 |
+| `LEVEL_START_X`, `LEVEL_START_Y` | Position of the first Start object (only defined when the level has one) |
+| `LEVEL_ATTR`, `LEVEL_ATTR_SOLID` … `LEVEL_ATTR_COLLECT` | Character attribute table (one flag byte per screen code; only when the level has attributes) and its bits: 1, 2, 4, 8 |
+| `LEVEL_BORDER`, `LEVEL_SCR_COLORS`, `LEVEL_SCR_BG/BORDER/MC1/MC2` | Level border; per-slot colour tables (row-major like `LEVEL_SLOT_*`) when a screen has its own colours (`LEVEL_SCR_COLORS` = 1) |
 
 Typical guard: `.assert LEVEL_END <= $9200, "level data runs into the code"`.
 
@@ -3830,7 +3872,8 @@ Pixel-level bitmap editor with both 320×200 hi-res and 160×200 multicolor mode
 | Feature | Description |
 |---|---|
 | Mode toggle | **Multicolor** checkbox switches between hi-res (mono per cell) and multicolor (4 colors per cell). |
-| Tools | Pencil, eraser, line, rectangle, filled rectangle, oval, filled oval, flood fill, select. |
+| Tools | Pencil, eraser, line, rectangle, filled rectangle, oval, filled oval, flood fill, cell paper, select. |
+| Cell paper (hi-res) | Hi-res allows two colours in every 8×8 cell: the ink (set pixels, high nibble of the cell's screen RAM byte) and the paper (clear pixels, low nibble). The **Cell paper** tool sets the paper of each cell you click or drag over to the selected colour; **PAPER** still sets every cell at once. The eraser clears pixels, so the cell's own paper shows. Disabled in multicolor, where the background ($D021) is shared. |
 | Spray tool | Airbrush-style painter that scatters pixels around the cursor while drawing. |
 | Spray intensity | Dropdown next to the spray tool controls how dense each spray stroke is. |
 | Color palette | Foreground (ink) + paper (background) pickers. Multicolor mode tracks 3 per-cell extras automatically. |
@@ -3858,6 +3901,12 @@ Pixel-level bitmap editor with both 320×200 hi-res and 160×200 multicolor mode
 | Animation preview | Play / Stop with configurable speed. |
 | Export blocks | Inserts a RAWBYTES block at a 64-byte-aligned address for every frame, plus a sprite pointer setup. |
 | Save `.bin` | Writes 64 bytes per frame (raw sprite data without padding). |
+| Selection | **Select / move**: drag a rectangle, then drag inside it to move the pixels (empty pixels are transparent); arrow keys move it by one pixel (two in multicolor), Delete clears it, Esc drops it. **Rotate 90°** (both directions) turns the selection, or the whole frame. The selection, flip, shift and rotate act on body and overlay together. |
+| Hi-res overlay | **Hi-res overlay** adds a second, single-colour hi-res sprite over every frame — the classic outline over a multicolor body. The **Layer** list picks the edited layer; the overlay is dimmed while the body is edited. On the C64 it is a separate sprite: give it a lower sprite number than the body. `.bin` and **Copy bytes** write the overlay sprites after the body's (`sprite_f1_ov_1`). |
+| Mirror all | Appends a horizontally mirrored copy of every frame (and its hitbox) — a walk cycle the other way in one click. |
+| Sprite sheet import | Files → **Import sprite sheet…**: cell width / height, offset, gap and frame count cut the picture into frames of the current size (multicolor cells are scaled to 12 pixels per sprite). Colours come from the picture or stay the sprite's own; OKLab matching with no dither, ordered (Bayer) or Floyd–Steinberg dithering. Replaces the frames or appends to them. |
+| Hitbox | The **Hitbox** tool drags a rectangle per frame (dashed cyan); **Fit**, **Fit every frame**, **Copy to every frame** and **Remove** in the side panel. Files → **Copy hitbox table** gives `sprite_hit_x / _y / _w / _h` (one byte per frame, screen pixels from the top left); a frame without a hitbox uses its pixel bounds. |
+| X / Y ×2 | Shows the preview as with `$D01D` / `$D017` sprite expansion. |
 
 ### C64 Character ROM Browser ("Char map")
 
@@ -3876,10 +3925,17 @@ Read-only viewer of the C64 character ROM (the built-in PETSCII font). Open via 
 
 | Feature | Description |
 |---|---|
-| Load ROM | Imports the C64 ROM charset directly from VICE's `chargen` (no file picker). |
+| Load ROM | Loads the C64 character ROM — the exact 901225-01 glyphs, no file picker. The first button (and **Files → ROM: uppercase / graphics**) loads set 1, the second button (or Shift+click, or **Files → ROM: lowercase / uppercase**) loads set 2. |
 | Load `.bin` | Imports an external 2048-byte charset binary. |
 | Per-char preview | 16-wide grid of all 256 glyphs with the current cell highlighted. |
-| Pixel editor | 8×8 single-character editor with toggle/invert/clear tools. |
+| Pixel editor | Edits the selected character, or a **tile** of 2×1, 1×2 or 2×2 neighbouring characters as one picture (Tile selector). |
+| Drawing tools | Pencil, line, rectangle, filled rectangle and flood fill. A click on a pixel that already has the ink erases it. |
+| Transforms | Clear, invert, flip horizontal / vertical, shift with wrap-around, rotate 90° clockwise / counter-clockwise (square tiles only) — on the whole tile. |
+| Undo / Redo | Toolbar buttons, Ctrl+Z and Ctrl+Y (Ctrl+Shift+Z). |
+| Copy / Paste | Toolbar buttons, Ctrl+C / Ctrl+V, or right-click on the map; copies the whole tile with its colours. |
+| Map drag | Drag a character onto another on the map to swap them; Shift+drag copies. |
+| Text preview | Type text to see it in the current charset. Choose the uppercase or lowercase set mapping; `{65}` or `{$41}` inserts a screen code. |
+| Range export | Set the From / To characters, then **Files → Save range (.bin)** (raw bytes) or **Copy range ASM** (`.byte` lines). |
 | Per-character color | Stores a default Color RAM value for each glyph. In multicolor character mode this also preserves the per-cell multicolor enable bit and the character's own lower-3-bit color. |
 | Metadata round-trip | When loading compatible data from Charset Canvas / Map workflows, per-character color metadata is preserved so edits can continue without losing color intent. |
 | Export blocks | Appends RAWBYTES at $0800 (block 2) or $3800 (block 7) with the encoded charset. |
@@ -3888,21 +3944,25 @@ Read-only viewer of the C64 character ROM (the built-in PETSCII font). Open via 
 
 Full-canvas charset painter for building screens from a complete 256-character charset. Open via Toolkit → Charset Canvas.
 
-The canvas is 16×16 characters. In mono mode that gives a 128×128 pixel working area; in multicolor character mode it gives a 64×128 wide-pixel working area using the C64's real character multicolor rules.
+The canvas is 16×16 characters, 128×128 pixels. In multicolor character mode every character is either multicolor (wide pixels, 4 colours) or hi-res (8 narrow pixels, 2 colours), exactly like on the C64.
 
 | Feature | Description |
 |---|---|
-| Mono / multicolor | Mono mode stores 1-bit 8×8 glyphs. Multicolor mode stores two-bit horizontal pixel pairs and marks used cells with Color RAM bit 3. |
+| Mono / multicolor | Mono mode stores 1-bit 8×8 glyphs. Multicolor mode stores two-bit horizontal pixel pairs and marks multicolor cells with Color RAM bit 3. |
+| Character mode tool | In multicolor mode, click or drag over characters to switch them between multicolor and hi-res (Color RAM bit 3). The shape is kept: a set pixel pair becomes the character's own colour. A hi-res character has the background and its own colour (0–7); MC1 / MC2 do not paint there. |
+| Background | The BG dropdown is shown in mono mode too; MC1 / MC2 only in multicolor mode. |
+| ECM | The **ECM** checkbox (extended colour mode, not together with multicolor): every character is hi-res with its own colour (0–15) and one of four backgrounds BG0–BG3 (`$D021`–`$D024`; BG1 / BG2 are the MC1 / MC2 registers). Pick a BG colour in the palette (tagged B0–B3), then click or drag over characters with the **Character background** tool. Only 64 different characters fit: the status line counts them, and saving merges equal characters — the charset is 64 characters (512 bytes) and the screen codes are `glyph | background << 6`. Turn ECM on with `$D011` bit 6. |
 | C64 color model | Background uses `$D021`; shared multicolor 1 uses `$D022`; shared multicolor 2 uses `$D023`; each character's own color comes from Color RAM bits 0–2. |
 | Drawing tools | Pencil, eraser, line, rectangle, oval, and flood fill work across character boundaries. |
 | Spray tool | Airbrush-style drawing that scatters pixels across neighboring cells/characters. |
 | Spray intensity | Dropdown next to the spray tool sets the stroke density. |
 | Grid toggle | The Grid checkbox shows or hides the 16×16 character grid. |
+| Zoom | The zoom slider (2×–24×, whole device pixels per C64 pixel) or Ctrl+wheel over the canvas; the zoom is remembered. From 8× the Grid also draws a fine line on every pixel edge. |
 | Save charset `.bin` | Saves the 2048-byte character bitmap data. |
 | Save 16×16 map + Color RAM `.bin` | Saves 256 screen codes followed by 256 Color RAM values. Use this with `MAP_COPY16X16`. |
 | Loading | Can load charset-canvas saves, plain charset data, and compatible Character Editor charset data including stored per-character colors when present. |
 
-**Important C64 limitation:** in multicolor character mode the two shared colors are global for the whole screen (`$D022` / `$D023`). Only the character's own color is per cell, and it is limited to colors 0–7 because Color RAM bit 3 selects multicolor mode.
+**Important C64 limitation:** in multicolor character mode the two shared colors are global for the whole screen (`$D022` / `$D023`). Only the character's own color is per cell, and it is limited to colors 0–7 because Color RAM bit 3 selects multicolor mode. So one character shows at most **4 colours** (background, MC1, MC2 and its own colour), and the whole screen at most 3 + 8. In the palette the shared colours are tagged BG / 1 / 2, and colours 8–15 that are not shared are dimmed. Picking such a colour puts it into MC2 or MC1 only while no pixel uses that register; otherwise change it in its dropdown (that recolours the whole screen). In hi-res (mono) mode a character has 2 colours: the background and its own colour (0–15).
 
 ### Map Editor (Multilayer Tilemaps)
 
@@ -3933,6 +3993,12 @@ Arranges **Map Editor screens** into one level — a vertical shooter, a car gam
 | Editing | **Edit in Map Editor** opens the selected screen in the Map Editor and brings the changes back; duplicate, move up/left or down/right, remove; undo / redo. |
 | Preview | Drag the preview or use the arrow keys to scroll pixel by pixel; **Play** scrolls automatically (direction, speed 1–8, loop), Space = play / stop. *Borders* marks the screen boundaries. |
 | Checks | Charset info, and a warning when screens use a different charset or colors (the level uses the first screen's settings). |
+| Character attributes | The **Character attributes** button switches the overview to attribute painting: pick **Solid**, **Ladder**, **Hazard** or **Collectible**, click a character and every cell with that screen code gets (or loses) it; drag for more codes. The attributes show as a coloured layer and become the 256-byte `LEVEL_ATTR` table (`LEVEL_ATTR_SOLID` = 1, `_LADDER` = 2, `_HAZARD` = 4, `_COLLECT` = 8). |
+| Edge check | Marks in red where neighbouring screens do not continue: one side of the border empty (space) and the other not, or solid on one side only. The side panel counts the edges and cells. |
+| Colors | **Level border**, and **Own colors for this screen** (background, border, multicolor 1 / 2) for the selected screen; the preview frame shows the border. Exported per slot as `LEVEL_SCR_BG / _BORDER / _MC1 / _MC2` (with `LEVEL_SCR_COLORS` = 1) when a placed screen has its own colours. |
+| Memory | The `.level` data size at a chosen address (computed exactly as the macro builds it), with warnings for the BASIC / KERNAL ROM, the I/O area and memory below `$0800`, and the RLE size of the level. **Export RLE to blocks / Copy RLE asm** gives the level RLE packed with the `level_unrle` unpacker (`($FB)` → `($FD)`). |
+| Run in VICE | Builds a joystick-scrolled test program from the level (the `level-demo` scroller, code at `$C000`, level data from `$2000`, custom charset at `$2000`) and starts it in VICE — screen colours switch with the screen at the top left of the view, the camera starts at the first Start object. |
+| Objects | The **Objects layer** button switches the overview to object editing: pick a type (Start, Enemy, Item, Door, Exit, Trigger) and a **Param** byte (enemy kind, item id, door target …), click to place, drag to move (snapped to 8 px, Shift = free), click an object to select it and change its type / param, arrow keys move it, Delete removes it. Objects belong to the level position, not to a screen. They are listed in the sidebar, shown in the preview, saved with the level and exported in scroll order (vertical by Y, horizontal by X, grid row by row) as `LEVEL_OBJ_*` tables — by **Copy asm / Export to blocks** and by the `.level` macro. |
 
 **Files menu:**
 | Action | What it does |
@@ -3947,6 +4013,8 @@ Arranges **Map Editor screens** into one level — a vertical shooter, a car gam
 ### SID Editor (3-Voice Tracker)
 
 Multi-instrument 3-voice tracker. Open via Toolkit → SID Editor. **Play: All** runs the exported 6502 player in the WebSid emulator; every other preview (instrument Preview, virtual keyboard, note entry, chord / arpeggio, row and single-pattern playback) also plays on the emulated SID: a JS model of the same player (frame for frame) streams its SID registers to WebSid every frame, and up to three preview notes share the three voices. The stream player is loaded when the editor opens and again after Stop, so notes sound at once; without WebSid a small SID synthesizer plays instead.
+
+**Preview engine:** **Settings → SID preview** selects **WebSID** or **VA SID Core (Rust)**, the app's own SID emulation; with VA SID Core you also choose the chip (MOS 6581 / 8580). The instrument parameters are set with knobs.
 
 **Per-instrument controls:**
 - Waveform checkboxes (TRI / SAW / PUL / NOI) — multiple waveforms are ANDed like on the SID — plus **RING** (ring modulation of the triangle by the previous voice: 1 ← 3, 2 ← 1, 3 ← 2) and **SYNC** (hard sync to the previous voice).
@@ -3995,6 +4063,13 @@ Effects update once per row (matching the exported player's timing), run identic
 - Enable **Insert into tracker** to write each played note at the current tracker cursor and advance to the next row. Disable it to audition notes without editing.
 - Chord and arpeggio previews illuminate the corresponding piano keys when the keyboard is open.
 
+**Recording, metronome and MIDI:**
+- **Record** (the red dot, in the tracker toolbar and on VA-VK) writes the notes you play — on VA-VK, the computer keyboard or a MIDI keyboard — in time into the selected voice, starting at the selected row, at the current Speed. When the pattern is full, a new empty pattern is added after the current song step and recording goes on there. Press Record again to stop.
+- **Metronome** (tracker toolbar and VA-VK) clicks every 4 rows, accented on the first beat of each 4-beat bar. The beat lamps next to it flash on every beat during playback and recording, even with the click off.
+- **MIDI:** choose the input in the **MIDI** list next to the instrument name and press **Connect MIDI**; notes play the current instrument (and are written into the tracker while recording or with *Insert into tracker*). The lamp next to the button flashes on every incoming MIDI message.
+- **Pattern delete:** the **−** button next to **Pat +** deletes the current pattern (it asks first if the pattern has notes). The song steps that used it are removed and the others renumbered; at least one pattern always remains.
+- The **master volume** knob is on VA-VK.
+
 **Files menu exports:**
 | Export | What it does |
 |---|---|
@@ -4002,7 +4077,14 @@ Effects update once per row (matching the exported player's timing), run identic
 | `Export blocks (data only)` | Appends instrument table + pattern blocks to the program at `* = $C000`. |
 | `Export blocks + miniplayer` | Adds the full player (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) plus PAL frequency tables. After export, place a `JSR sid_init` in your main code where the music should start; with your own IRQ call `JSR sid_frame` once per frame instead. |
 | `Export asm (clipboard)` | Copies the full assembly source to the clipboard. |
+| `Import GoatTracker .sng…` | Loads a GoatTracker 2 song in place of the current one — see **GoatTracker import** below. |
 | `Export to UltimateBasic` | Writes a `tune ... end` block (instruments, order list, pattern rows as text) plus `music play` and inserts it at the cursor of the Ultimate Basic editor; outside UB mode it copies the text to the clipboard. The UltimateBasic compiler builds the player, so `music play` / `music stop` control it. Instrument modulation goes into `imod` / `ifilt` / `igate` / `itab` lines (Ultimate Basic 1.6.2+). |
+
+**GoatTracker import:** **Files → Import GoatTracker .sng…** loads a GoatTracker 2 song (`.sng`, GTS3–GTS5) in place of the current one. The conversion is approximate, because the two trackers work differently:
+- The per-voice order lists (with transpose and repeat) are flattened into one 3-voice song and cut into 32-row patterns; identical patterns are shared.
+- Instruments: AD / SR, first wave, gate timer and hard restart are taken over; the wavetable becomes the wave / arpeggio table, the pulse table PWM, the filter table filter mode, resonance and cutoff sweep, and the speed table entry the instrument vibrato.
+- Pattern commands: key off → note-off, portamento → `U` / `D` (at most 255 per row), tempo → `F`; toneporta becomes a plain note. Other commands are dropped, and a message lists what was approximated or skipped.
+- A gate released by the wavetable becomes a note-off on the next free row. Only the first subtune is imported, and the export limit of 7 patterns still applies.
 
 **Player ZP usage:** `$02`–`$1C` (pattern pointers, pattern offset, temp) and `$2F` (current speed), plus `$FB`–`$FD` (tick counter, row index, order-list position). Voice, modulation and filter state lives in `sid_state` after the data. The ZP bytes conflict if your main code uses them — relocate via Expert mode if needed.
 
@@ -4010,6 +4092,18 @@ Effects update once per row (matching the exported player's timing), run identic
 - 8-bit row counter limits each pattern to 7 patterns × 32 rows in the raw bank (the song/order list can still be arbitrarily long by repeating patterns).
 - C64 `$D418` global volume is shared across voices — the per-instrument volume slider is informational; sustain level (`S` of ADSR) is the effective per-voice volume.
 - While **Play: All** has the real tune loaded (also when paused), note previews fall back to the small synthesizer, which only approximates the SID chip. Previews reach WebSid about 0.1 s ahead of the sound.
+
+---
+
+### SID Player
+
+The **SID Player** toolbar button opens a floating window that plays `.sid` music files (PSID and RSID), for example tunes from the HVSC collection.
+
+- **Playlist:** add tunes with **Add .sid files…** or by dropping them on the window, and click a tune to play it; **Remove** and **Clear playlist** tidy the list. **Save playlist…** / **Open playlist…** write and read a `.sidpl` file with the tunes embedded. The list, the current tune and whether the window is open are remembered.
+- **Transport:** Play, Pause, Stop, **Previous** / **Next** tune, **Previous / Next subtune** for files with several songs, and a time counter.
+- **Seek:** the position bar and **Back / Forward 10 s** work with the VA SID Core engine. WebSID cannot seek, so these controls are disabled with it.
+- **Volume:** the knob is shared with the SID Editor's master volume.
+- **Engine:** the window shows which engine is playing (WebSID, or VA SID Core with its version and SID chip); choose it in **Settings → SID preview**. VA SID Core runs the tune on a native Rust C64 core with a cycle-exact 6510, precise interrupt timing, CIA 6526A, VIC-II timing with bad lines, sprite DMA and raster interrupts, and the 6510 I/O port — so raster-IRQ, CIA-timed and digi tunes play with the timing of a real machine.
 
 ---
 

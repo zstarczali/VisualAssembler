@@ -1,6 +1,6 @@
 # C64 Visual Assembler – Benutzerhandbuch
 
-**Version 2.5.5**
+**Version 2.5.7**
 
 Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Sie
 Programme durch Ziehen und Ablegen von Befehlsblöcken und sehen Sie den
@@ -11,6 +11,8 @@ generierten Assembler- und Maschinencode in Echtzeit.
 ## Inhaltsverzeichnis
 
 - [C64 Visual Assembler — Benutzerhandbuch](#c64-visual-assembler--user-manual)
+    - [Version 2.5.7 Highlights](#version-257-highlights)
+    - [Version 2.5.6 Highlights](#version-256-highlights)
     - [Version 2.5.5 Highlights](#version-255-highlights)
     - [Version 2.5.4 Highlights](#version-254-highlights)
     - [Version 2.5.3 Highlights](#version-253-highlights)
@@ -40,6 +42,7 @@ generierten Assembler- und Maschinencode in Echtzeit.
     - [ASM-Zeilennummern](#asm-line-numbers)
     - [Kompilierungsfortschrittsanzeige](#compile-progress-modal)
   - [5. Einstellungen & Symbolleiste](#5-settings--toolbar)
+    - [Freemium und Professional](#freemium-and-professional)
     - [Projektvorlagen](#project-templates)
     - [Build project](#build-project)
     - [Beispielprogramme](#example-programs)
@@ -185,8 +188,63 @@ generierten Assembler- und Maschinencode in Echtzeit.
       Kachelkarten)](#map-editor-multilayer-tilemaps)
     - [Level Editor](#level-editor)
     - [SID-Editor (3-Voice-Tracker)](#sid-editor-3-voice-tracker)
+    - [SID Player](#sid-player)
     - [Kurveneditor](#curve-editor)
     - [Zahlenkonverter](#number-converter)
+
+---
+
+## Highlights der Version 2.5.7
+
+- **VA SID Core 1.2** – Der SID Player verwendet nun einen nativen Rust
+  C64-Kern: einen taktgenauen 6510 mit präziser Interrupt-Zeitsteuerung, den CIA
+  6526A, VIC-II-Timing mit fehlerhaften Zeilen, Sprite-DMA und Raster-Interrupts
+  sowie den 6510-I/O-Port. Siehe [SID Player](#sid-player).
+- **Hi-Res Editor** – zwei Farben in jeder 8×8-Zelle: das neue Werkzeug
+  **Zellenpapier**. Siehe [Hi-Res /
+  Mehrfarben-Editor](#hi-res--multicolor-editor).
+- **Exakte Charakter-ROM** im ROM-Viewer, im Charaktereditor **Load ROM** und in
+  den Karten-/Level-Editoren.
+- **Sprite-Editor** – Hochauflösende Überlagerung, Flächenfüllung,
+  Auswählen/Verschieben, Drehen, Alles spiegeln, Sprite-Sheet-Import,
+  Trefferzone, X/Y ×2-Vorschau. Siehe [Sprite-Editor](#sprite-editor).
+- **Level-Editor** – Objekte, Charakterattribute, Kantenprüfung, Farben pro
+  Bildschirm, Speicheranzeige mit RLE, Ausführung in VICE. Siehe
+  [Level-Editor](#level-editor).
+- **Charaktereditor** – Rückgängig/Wiederherstellen, Zeichenwerkzeuge,
+  90°-Drehung, Kopieren/Einfügen und Verschieben zum Tauschen auf der Karte,
+  2×2-Kacheln, Kleinbuchstaben-ROM-Satz, Textvorschau und Bereichsexport. Siehe
+  [Charaktereditor](#character-editor-charset).
+- **Charset Canvas** – 2×–24× Zoom (Schieberegler oder Strg+Rad) mit
+  Pixelraster, Hintergrundfarbe im hochauflösenden Modus, hochauflösende Zeichen
+  im Mehrfarbenmodus und **ECM** (ein Hintergrund pro Zeichen). Siehe [Charset
+  Canvas Editor](#charset-canvas-editor).
+
+---
+
+## Highlights der Version 2.5.6
+
+- **SID Player** – Eine neue Schaltfläche in der Symbolleiste öffnet einen
+  schwebenden Player für `.sid` (PSID/RSID)-Titel: eine Wiedergabeliste mit Drag
+  & Drop, vorherigem/nächstem Titel, Submelodien, Suchfunktion (±10 s),
+  Lautstärkeregelung und Speichern/Öffnen der Wiedergabeliste (`.sidpl`). Die
+  Liste und der Fensterstatus werden gespeichert. Siehe [SID
+  Player](#sid-player).
+- **VA SID Core 1.1** – eine integrierte SID-Emulation (MOS 6581/8580 mit einem
+  reSID-ausgerichteten 6581-Filter) und ein zyklusgekoppelter PSID/RSID-Player
+  (6510-CPU, CIA/VIC-Timing). Wählen Sie diese Option unter **Einstellungen →
+  SID-Vorschau** aus; der SID-Player zeigt an, welche Engine aktiv ist.
+- **SID-Editor** – Regler für die Instrumentenparameter, ein breiteres
+  ADSR-Diagramm, **MIDI-Eingang**, **Aufnahme** in den Tracker (ein neues
+  Pattern wird hinzugefügt, sobald das aktuelle voll ist), ein **Metronom**mit
+  Beat-Lampen, **Pattern löschen**, die Master-Lautstärkeregelung am VA-VK und
+  **GoatTracker .sng importieren**. Siehe
+  [SID-Editor](#sid-editor-3-voice-tracker).
+- **Freemium und Professional** – Ohne Registrierung läuft die App als
+  Freemium-Version. Geben Sie Ihre E-Mail-Adresse und Seriennummer aus dem Kauf
+  unter **Menü → Registrieren…** ein, um die Professional-Version zu erhalten.
+  Siehe [Freemium und Professional](#freemium-and-professional).
+- **Ultimate Basic 1.6.4** enthalten.
 
 ---
 
@@ -381,27 +439,20 @@ generierten Assembler- und Maschinencode in Echtzeit.
   Titel der ASM-Ansicht angezeigt und verwendet denselben Badge in den
   Symbolleisten „Experte“ und „Ultimate Basic“. Die Beschriftungen von
   Dialogfeld-Schaltflächen werden nicht mehr umgebrochen.
-- **Ultimative Basic-Befehlsreferenz** — `tune` und `music` zeigen vollständige,
-  kommentierte Beispiele (Zellenformat, Effekte, Spielernoten, `music play N`);
-  `inst`, `order`, `pat` und tune `speed` haben ihre eigenen Einträge; `data`
-  zeigt die neue Array-Form; die Syntax von `load sid` wurde korrigiert (`load
-  sid "tune.sid", $2000`).
+- **Robustere Updateprüfung** — Die Installationsliste wird unter
+  c64va.pro/downloads/VA/ veröffentlicht, sodass die Prüfung mit der neuen
+  Downloadseite funktioniert; der Linux-Update-Helfer erbt nicht mehr die
+  AppImage-Bibliothekspfade.
 
 ---
 
 ## Highlights der Version 2.4.6
 
-- **SID-Editor → UltimateBasic-Export** — **Dateien → Export nach
-  UltimateBasic** schreibt die Melodie als `Melodie ... Ende`-Block
-  (Instrumente, Orderliste und Patternzeilen als Text), gefolgt von `Musik
-  abspielen`, und fügt sie an der Cursorposition des UltimateBasic-Editors ein
-  (außerhalb des UB-Modus wird sie in die Zwischenablage kopiert). Der
-  UltimateBasic-Compiler erstellt daraus zur Kompilierzeit einen
-  Nullseiten-freien Player, sodass `Musik abspielen` / `Musik stoppen` die
-  Melodie steuern und keine Konflikte mit UB-Variablen auftreten. Vibrato-,
-  Slide-, Noten-Cut- und Geschwindigkeitseffekte werden unterstützt; bis zu 8
-  Patterns, beliebige Orderlistenlänge. Erfordert einen UltimateBasic-Compiler
-  mit `tune`-Unterstützung.
+- **In-App-Updates** — **Menü → Nach Updates suchen** prüft, ob eine neuere
+  Version von c64va.pro verfügbar ist, und lädt nach Bestätigung das
+  Installationsprogramm für Ihre Plattform mit Fortschrittsanzeige herunter und
+  installiert es. Siehe [In-App-Updates](#in-app-updates). Die Prüfung wird
+  außerdem bei jedem Start im Hintergrund ausgeführt.
 - **Ultimatives Basic-Sprachupdate** – Syntaxhervorhebung und Befehlsreferenz
   umfassen nun **`sfx`** (nicht blockierender SID-Effekt: `sfx Kanal, Frequenz,
   Frames [, Welle]`), **`org`** (Sub-/Funktionscode an einer Adresse fortsetzen
@@ -499,7 +550,7 @@ generierten Assembler- und Maschinencode in Echtzeit.
   anstelle eines einfachen Textfelds, und der Dialog blendet den Rest der
   Anwendung im Hintergrund nicht mehr aus, solange er geöffnet ist.
 - **Web64 auf der Produktseite** — ein neuer Web64 IDE-Bereich auf
-  [c64va.tech](https://www.c64va.tech).
+  [c64va.pro](https://www.c64va.pro).
 - **Beispiel update** — das `macro-with-parameter` Beispiel verwendet jetzt die
   geklammerte `.macro setColor(color)` Form.
 
@@ -565,11 +616,10 @@ generierten Assembler- und Maschinencode in Echtzeit.
   jeweils über das Menü „Dateien ▾“ möglich, analog zu den anderen visuellen
   Editoren. Siehe [D64-Editor (vorhandenes Disk-Image durchsuchen und
   bearbeiten)]{1}.
-- **Hinzufügen / Extrahieren / Umbenennen / Löschen im D64 Editor** — eine
-  lokale Datei zum Festplattenverzeichnis hinzufügen, einen ausgewählten Eintrag
-  zurück in eine `.prg` extrahieren, einen Eintrag direkt in der Tabelle
-  umbenennen oder löschen — jede Aktion wird direkt auf die `.d64`-Datei über
-  `c1541` angewendet, ohne dass ein separater Speicherschritt erforderlich ist.
+- **Online-Hilfe-Symbolleistenschaltfläche** — eine neue Symbolschaltfläche, die
+  nach dem Debuggen die mehrsprachige Dokumentationsseite
+  ([c64va.pro/docs.html](https://www.c64va.pro/docs.html)) direkt aus der App
+  öffnet.
 - **Ladeadresse, Dekomprimierungsadresse & Exomizer im D64-Editor** – Durch
   Hinzufügen einer Rohdatei ohne Header können Sie eine optionale Ladeadresse
   und ein Exomizer-Dekomprimierungsziel festlegen sowie die Datei beim Import
@@ -913,14 +963,15 @@ mit:
 - Wenn ein Projekt noch nicht gespeichert wurde, werden Snapshots im
   App-Konfigurationsverzeichnis gespeichert, bis dem Projekt ein Dateipfad
   zugewiesen wird. | **Wissensdatenbank** | Referenzlinks (6502 Opcodes,
-  C64-Kernel, Speicherbelegung, Farben) | | **Nach Updates suchen** | Auf
-  c64va.tech nach einer neueren Version suchen und diese
-  herunterladen/installieren – siehe [In-App-Updates](#in-app-updates) |
+  C64-Kernel, Speicherbelegung, Farben) | | **Nach Updates suchen** | Prüfen Sie
+  auf c64va.pro, ob eine neuere Version verfügbar ist, und laden Sie diese
+  herunter/installieren Sie sie – siehe [In-App-Updates](#in-app-updates) |
 
 ### Editorwerkzeuge
 
-Die UB-Symbolleiste verwendet dieselbe visuelle Sprache und dieselben
-benutzerdefinierten Tooltips wie der Expertenmodus. Sie bietet Folgendes:
+**Menü → Nach Updates suchen** sucht die neueste Version auf c64va.pro (liest
+die Download-Links für Ihre Plattform) und vergleicht sie mit der aktuell
+laufenden Version:
 
 - Syntaxhervorhebung basierend auf der aktuellen Ultimate Basic-Sprachreferenz;
 - Zeilennummern bleiben mit langen Dateien synchronisiert;
@@ -940,6 +991,30 @@ aufeinanderfolgenden 64-Byte-Sprite-Frames aus.
 Die Befehlsliste ist absichtlich in ihrer Höhe begrenzt, damit die
 Befehlsdetailkarte die verbleibende Höhe des Bedienfelds ausfüllen kann. Der
 Detailbereich lässt sich für längere Syntaxbeschreibungen unabhängig scrollen.
+
+### Freemium und Professional
+
+Ohne Registrierung läuft Visual Assembler als **Freemium**; das Symbol neben dem
+Titel zeigt **FREEMIUM** oder **PROFESSIONAL** an. In der Freemium-Version
+können Sie Programme schreiben und erstellen und diese in VICE im Block-,
+Experten- und Ultimate Basic-Modus ausführen. Diese Modi erfordern die
+Professional-Version.
+
+- die visuellen Editoren (SID, Sprite, Char, Charset, Hi-Res, Map, Level, D64,
+  Curve) und der SID Player;
+- **Build PRG**, **Build D64**, **Build CRT**, **Build project** and Exomizer
+  packing;
+- Läuft auf dem C64 Ultimate und auf Kung Fu Flash 2;
+- Benutzeroberflächensprachen außer Ungarisch und Englisch sowie die OLED- und
+  Commodore 77-Designs.
+
+Durch Klicken auf eine gesperrte Funktion wird der Registrierungsdialog
+geöffnet. Zur Registrierung öffnen Sie **Menü → Registrieren…** (oder klicken
+Sie auf das Symbol), geben Sie die E-Mail-Adresse und die Seriennummer Ihres
+Kaufs ein und klicken Sie auf **Aktivieren**. Die Seriennummer ist dieser
+E-Mail-Adresse zugeordnet (Groß-/Kleinschreibung und Leerzeichen spielen keine
+Rolle), und die Überprüfung erfolgt offline. Mit **Lizenz entfernen** wird die
+Registrierung von diesem Computer gelöscht.
 
 ### Projekte, Registerkarten und Startdateien
 
@@ -2612,17 +2687,22 @@ umfassen.
 .level "level.bin", $4000
 ```
 
-| Definition                                               | Bedeutung                                                                                                 |
-| -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `LEVEL_SLOT_LO` / `LEVEL_SLOT_HI`                        | Adresse des Bildschirms in jedem Slot (zeilenweise, `LEVEL_W` Slots pro Zeile)                            |
-| `LEVEL_ROW_SLOT`                                         | Level-Charakterzeile → erster Platz der zugehörigen Bildschirmzeile                                       |
-| `LEVEL_ROW_LO/HI`, `LEVEL_CROW_LO/HI`                    | Level-Zeichenzeile → Versatz der zugehörigen Bildschirmcode-Zeile / Farbzeile innerhalb eines Bildschirms |
-| `LEVEL_COL_SLOT`, `LEVEL_COL_OFS`                        | Ansicht Startspalte → Bildschirmspalte und Spalte innerhalb des Bildschirms                               |
-| `LEVEL_W`, `LEVEL_H`                                     | Levelgröße in Bildschirmen                                                                                |
-| `LEVEL_COLS`, `LEVEL_ROWS`                               | Levelgröße in Zeichen                                                                                     |
-| `LEVEL_MAX_X`, `LEVEL_MAX_Y`                             | Größte Scrollposition in Pixeln einer 40×25-Ansicht                                                       |
-| `LEVEL_BG`, `LEVEL_MC1`, `LEVEL_MC2`, `LEVEL_MULTICOLOR` | Hintergrund / Mehrfarbigkeit und Modus des Levels                                                         |
-| `LEVEL_DATA`, `LEVEL_SIZE`, `LEVEL_END`                  | Start-, Größen- und erste freie Adresse nach den Leveldaten                                               |
+| Definition                                                                    | Bedeutung                                                                                                                                                   |
+| ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `LEVEL_SLOT_LO` / `LEVEL_SLOT_HI`                                             | Adresse des Bildschirms in jedem Slot (zeilenweise, `LEVEL_W` Slots pro Zeile)                                                                              |
+| `LEVEL_ROW_SLOT`                                                              | Level-Charakterzeile → erster Platz der zugehörigen Bildschirmzeile                                                                                         |
+| `LEVEL_ROW_LO/HI`, `LEVEL_CROW_LO/HI`                                         | Level-Zeichenzeile → Versatz der zugehörigen Bildschirmcode-Zeile / Farbzeile innerhalb eines Bildschirms                                                   |
+| `LEVEL_COL_SLOT`, `LEVEL_COL_OFS`                                             | Ansicht Startspalte → Bildschirmspalte und Spalte innerhalb des Bildschirms                                                                                 |
+| `LEVEL_W`, `LEVEL_H`                                                          | Levelgröße in Bildschirmen                                                                                                                                  |
+| `LEVEL_COLS`, `LEVEL_ROWS`                                                    | Levelgröße in Zeichen                                                                                                                                       |
+| `LEVEL_MAX_X`, `LEVEL_MAX_Y`                                                  | Größte Scrollposition in Pixeln einer 40×25-Ansicht                                                                                                         |
+| `LEVEL_BG`, `LEVEL_MC1`, `LEVEL_MC2`, `LEVEL_MULTICOLOR`                      | Hintergrund / Mehrfarbigkeit und Modus des Levels                                                                                                           |
+| `LEVEL_DATA`, `LEVEL_SIZE`, `LEVEL_END`                                       | Start-, Größen- und erste freie Adresse nach den Leveldaten                                                                                                 |
+| `LEVEL_OBJ_X_LO/HI`, `LEVEL_OBJ_Y_LO/HI`, `LEVEL_OBJ_TYPE`, `LEVEL_OBJ_PARAM` | Objekttabelle (Objektebene des Level-Editors): Position in Levelpixeln, Typ und Parameterbyte, in Scrollreihenfolge — `LEVEL_OBJ_COUNT` Einträge (max. 255) |
+| `LEVEL_OBJ_T_START` … `LEVEL_OBJ_T_TRIGGER`                                   | Objekttypnummern: START 0, FEIND 1, GEGENSTAND 2, TÜR 3, AUSGANG 4, AUSLÖSER 5                                                                              |
+| `LEVEL_START_X`, `LEVEL_START_Y`                                              | Position des ersten Startobjekts (nur definiert, wenn das Level eines hat)                                                                                  |
+| `LEVEL_ATTR`, `LEVEL_ATTR_SOLID` … `LEVEL_ATTR_COLLECT`                       | Charakterattributtabelle (ein Flag-Byte pro Bildschirmcode; nur wenn das Level Attribute besitzt) und ihre Bits: 1, 2, 4, 8                                 |
+| `LEVEL_BORDER`, `LEVEL_SCR_COLORS`, `LEVEL_SCR_BG/BORDER/MC1/MC2`             | Level-Rahmen; Farbtabellen pro Slot (zeilenweise wie `LEVEL_SLOT_*`), wenn ein Bildschirm eigene Farben hat (`LEVEL_SCR_COLORS` = 1)                        |
 
 Typischer Schutz: `.assert LEVEL_END &lt;= $9200, "Level-Daten laufen in den
 Code"`.
@@ -5080,7 +5160,7 @@ geschrieben werden können.
 
 ### Hi-Res / Multicolor Editor
 
-| Besonderheit    | Beschreibung                                                                                                                                                                   |
+| Einstellung     | Beschreibung                                                                                                                                                                   |
 | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Modusumschalter | Mit dem Kontrollkästchen **Multicolor** kann zwischen hochauflösender Darstellung (monochrom pro Zelle) und mehrfarbiger Darstellung (4 Farben pro Zelle) umgeschaltet werden. |
 | **Status**      | Zeigt an, ob der Ausführungspfad gültig und erreichbar ist.                                                                                                                    |
@@ -5090,11 +5170,11 @@ Pixelgenauer Bitmap-Editor mit 320×200-Hi-Res- und 160×200-Multicolor-Modus.
 
 ### Sprite-Editor
 
-| Besonderheit | Beschreibung                                                                  |
-| ------------ | ----------------------------------------------------------------------------- |
-| Rahmen       | Rahmen hinzufügen / entfernen / neu anordnen; Rahmenleiste unten dargestellt. |
-| Modus        | Umschaltung zwischen einfarbig und mehrfarbig.                                |
-| **Status**   | Zeigt an, ob der Ausführungspfad gültig und erreichbar ist.                   |
+| Einstellung | Beschreibung                                                                  |
+| ----------- | ----------------------------------------------------------------------------- |
+| Rahmen      | Rahmen hinzufügen / entfernen / neu anordnen; Rahmenleiste unten dargestellt. |
+| Modus       | Umschaltung zwischen einfarbig und mehrfarbig.                                |
+| **Status**  | Zeigt an, ob der Ausführungspfad gültig und erreichbar ist.                   |
 
 **Workflow:**
 1. Installieren Sie die Exomizer-Binärdatei:
@@ -5133,7 +5213,7 @@ plattformspezifisch.
 
 ### C64 Character ROM Browser ("Zeichentabelle")
 
-| Besonderheit      | Beschreibung                                                                                                                                                                                                                                           |
+| Einstellung       | Beschreibung                                                                                                                                                                                                                                           |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Zwei Zeichensätze | Registerkarte 1: **Einstellung 1 – Oben/Grafik** (Standardmodus nach dem Einschalten). Registerkarte 2: **Einstellung 2 – Unten/Oben** (nach Umschalten auf `$0E`).                                                                                    |
 | **Status**        | 16×16-Raster aller 256 Zeichen. Klicken Sie auf ein Glyphe, um dessen Detailansicht anzuzeigen: vergrößerte 8×8-Pixel-Ansicht, Bildschirmcode (dezimal + hexadezimal), PETSCII-Codes (sowohl Standard als auch verschoben) und die rohe 8-Byte-Bitmap. |
@@ -5147,7 +5227,7 @@ Bildschirmcode eines Glyphen zu ermitteln, bevor dieser mit `RAWBYTES` oder
 
 256-Zeichen-Zeichensatz-Editor (8×8). Öffnen über Toolkit → Zeicheneditor.
 
-| Besonderheit         | Beschreibung                                                                                |
+| Einstellung          | Beschreibung                                                                                |
 | -------------------- | ------------------------------------------------------------------------------------------- |
 | ROM laden            | Importiert den C64 ROM-Zeichensatz direkt aus VICEs `chargen` (ohne Dateiauswahl).          |
 | Lade `.bin`          | Importiert eine externe 2048-Byte-Zeichensatz-Binärdatei.                                   |
@@ -5185,7 +5265,7 @@ Mehrfarbenregeln des C64.
 - ein **USB-Kabel**, das die Cartridge mit dem Computer verbindet, auf dem
   Visual Assembler läuft (es wird als virtueller serieller Port angezeigt).
 
-| Besonderheit           | Beschreibung                                                                                                                                                                                    |
+| Einstellung            | Beschreibung                                                                                                                                                                                    |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Monochrom / mehrfarbig | Im Mono-Modus werden 1-Bit-Glyphen der Größe 8×8 gespeichert. Im Mehrfarbenmodus werden horizontale Pixelpaare mit zwei Bit gespeichert und verwendete Zellen mit Bit 3 des Farb-RAMs markiert. |
 
@@ -5243,7 +5323,8 @@ Pixelgenauer Bitmap-Editor mit 320×200-Hi-Res- und 160×200-Multicolor-Modus.
 | Besonderheit                  | Beschreibung                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Modusumschalter               | Mit dem Kontrollkästchen **Multicolor** kann zwischen hochauflösender Darstellung (monochrom pro Zelle) und mehrfarbiger Darstellung (4 Farben pro Zelle) umgeschaltet werden.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| Werkzeuge                     | Bleistift, Radiergummi, Linie, Rechteck, gefülltes Rechteck, Oval, gefülltes Oval, Flächenfüllung, Auswählen.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Werkzeuge                     | Bleistift, Radiergummi, Linie, Rechteck, ausgefülltes Rechteck, Oval, ausgefülltes Oval, Flächenfüllung, Zellpapier, auswählen.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Zellpapier (hochauflösend)    | Die hochauflösende Darstellung ermöglicht zwei Farben in jeder 8×8-Zelle: die Tinte (Pixel setzen, hohes Nibble des Bildschirm-RAM-Bytes der Zelle) und das Papier (Pixel löschen, niedriges Nibble). Das Werkzeug **Zellenpapier** ändert die Papierfarbe jeder Zelle, die Sie anklicken oder über die Sie ziehen; **PAPER** ändert die Farbe weiterhin für alle Zellen gleichzeitig. Der Radierer löscht Pixel, sodass das Papier der Zelle sichtbar wird. Diese Funktion ist im Mehrfarbenmodus deaktiviert, da der Hintergrund ($D021) gemeinsam genutzt wird.                                                                                                                                                                                          |
 | Sprühwerkzeug                 | Ein Malprogramm im Airbrush-Stil, das beim Zeichnen Pixel um den Cursor herum verteilt.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | Sprühintensität               | Über das Dropdown-Menü neben dem Sprühwerkzeug lässt sich die Dichte jedes Sprühstoßes steuern.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | Farbpalette                   | Vordergrund- (Tinte) + Papier- (Hintergrund) Auswahlmöglichkeiten. Im Mehrfarbenmodus werden automatisch 3 zusätzliche Farben pro Zelle erfasst.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
@@ -5262,16 +5343,22 @@ Pixelgenauer Bitmap-Editor mit 320×200-Hi-Res- und 160×200-Multicolor-Modus.
 Sprite-Editor (24×21 Pixel) mit Mehrbildanimation. Öffnen über Toolkit →
 Sprite-Editor.
 
-| Besonderheit                  | Beschreibung                                                                                                                                                                                                                                                |
-| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Rahmen                        | Frames hinzufügen/entfernen/neu anordnen; Frame-Leiste unten angezeigt. **Kopieren** / **Einfügen** in der Frame-Zeile kopiert den gesamten aktuellen Frame; dieselben beiden Einträge befinden sich im Kontextmenü der Arbeitsfläche und der Frame-Leiste. |
-| Modus                         | Umschaltung zwischen einfarbig und mehrfarbig.                                                                                                                                                                                                              |
-| Werkzeuge                     | Stift, Füllung, Linie, Rechteck, Kreis – plus horizontal spiegeln, vertikal spiegeln, verschieben (links/rechts/oben/unten, mit optionalem Umbruch). Die Formwerkzeuge zeigen beim Ziehen eine Live-Vorschau; zum Bestätigen loslassen.                     |
-| Rückgängig / Wiederherstellen | Vollständiger Rückgängig-/Wiederherstellen-Stapel pro Frame. Strg/Cmd+Z / Strg/Cmd+Y oder die Schaltflächen in der Symbolleiste.                                                                                                                            |
-| Bildimport                    | Importieren Sie eine PNG- oder JPEG-Datei über Datei → Bild importieren. Der Importer ordnet jedem Pixel die nächstgelegene Farbe der C64-Palette zu und schreibt sie in den aktuellen Frame.                                                               |
-| Animationsvorschau            | Wiedergabe/Stopp mit einstellbarer Geschwindigkeit.                                                                                                                                                                                                         |
-| Exportblöcke                  | Fügt für jeden Frame einen RAWBYTES-Block an einer 64-Byte-ausgerichteten Adresse sowie eine Sprite-Pointer-Einrichtung ein.                                                                                                                                |
-| Speichern `.bin`              | Schreibt 64 Bytes pro Frame (Rohdaten der Sprites ohne Auffüllung).                                                                                                                                                                                         |
+| Besonderheit                  | Beschreibung                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Rahmen                        | Frames hinzufügen/entfernen/neu anordnen; Frame-Leiste unten angezeigt. **Kopieren** / **Einfügen** in der Frame-Zeile kopiert den gesamten aktuellen Frame; dieselben beiden Einträge befinden sich im Kontextmenü der Arbeitsfläche und der Frame-Leiste.                                                                                                                                                                                                                                                                     |
+| Modus                         | Umschaltung zwischen einfarbig und mehrfarbig.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| Werkzeuge                     | Stift, Füllung, Linie, Rechteck, Kreis – plus horizontal spiegeln, vertikal spiegeln, verschieben (links/rechts/oben/unten, mit optionalem Umbruch). Die Formwerkzeuge zeigen beim Ziehen eine Live-Vorschau; zum Bestätigen loslassen.                                                                                                                                                                                                                                                                                         |
+| Rückgängig / Wiederherstellen | Vollständiger Rückgängig-/Wiederherstellen-Stapel pro Frame. Strg/Cmd+Z / Strg/Cmd+Y oder die Schaltflächen in der Symbolleiste.                                                                                                                                                                                                                                                                                                                                                                                                |
+| Bildimport                    | Importieren Sie eine PNG- oder JPEG-Datei über Datei → Bild importieren. Der Importer ordnet jedem Pixel die nächstgelegene Farbe der C64-Palette zu und schreibt sie in den aktuellen Frame.                                                                                                                                                                                                                                                                                                                                   |
+| Animationsvorschau            | Wiedergabe/Stopp mit einstellbarer Geschwindigkeit.                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Exportblöcke                  | Fügt für jeden Frame einen RAWBYTES-Block an einer 64-Byte-ausgerichteten Adresse sowie eine Sprite-Pointer-Einrichtung ein.                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Speichern `.bin`              | Schreibt 64 Bytes pro Frame (Rohdaten der Sprites ohne Auffüllung).                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Auswahl                       | **Auswählen/Verschieben**: Ziehen Sie ein Rechteck und anschließend innerhalb des Rechtecks, um die Pixel zu verschieben (leere Pixel sind transparent). Mit den Pfeiltasten verschieben Sie das Rechteck um ein Pixel (bei mehrfarbigen Elementen um zwei Pixel). Entf löscht die Auswahl, Esc lässt sie verschwinden. **90° drehen** (in beide Richtungen): Dreht die Auswahl oder den gesamten Rahmen. Auswahl, Spiegeln, Verschieben und Drehen wirken sich gleichzeitig auf den Rahmen und die darüberliegende Fläche aus. |
+| Hochauflösendes Overlay       | **Hi-res overlay** fügt über jedem Frame einen zweiten, einfarbigen hochauflösenden Sprite hinzu – die klassische Kontur über einem mehrfarbigen Körper. Die Liste **Layer** wählt die bearbeitete Ebene aus; der Overlay wird abgedunkelt, während der Körper bearbeitet wird. Auf dem C64 ist es ein separater Sprite: Weisen Sie ihm eine niedrigere Sprite-Nummer als dem Körper zu. `.bin` und **Copy bytes** schreiben die Overlay-Sprites nach dem Sprite des Körpers (`sprite_f1_ov_1`).                                |
+| Alle Spiegeln                 | Fügt eine horizontal gespiegelte Kopie jedes Frames (und seiner Hitbox) hinzu – ein Laufzyklus in die andere Richtung mit einem Klick.                                                                                                                                                                                                                                                                                                                                                                                          |
+| Sprite-Sheet-Import           | Dateien → **Sprite-Sheet importieren…**: Zellenbreite/-höhe, Versatz, Abstand und Frame-Anzahl teilen das Bild in Frames der aktuellen Größe auf (mehrfarbige Zellen werden auf 12 Pixel pro Sprite skaliert). Die Farben stammen aus dem Bild oder bleiben die des Sprites; OKLab-Farbanpassung ohne Dithering, geordnetes (Bayer) oder Floyd-Steinberg-Dithering. Ersetzt die Frames oder fügt sie an.                                                                                                                        |
+| Hitbox                        | Das **Hitbox**-Werkzeug zieht ein Rechteck pro Frame (gestrichelt cyan); **Anpassen**, **An jeden Frame anpassen**, **In jeden Frame kopieren** und **Entfernen** befinden sich im Seitenbereich. Dateien → **Hitbox-Tabelle kopieren** liefert `sprite_hit_x / _y / _w / _h` (ein Byte pro Frame, Bildschirmpixel von der oberen linken Ecke); ein Frame ohne Hitbox verwendet seine Pixelgrenzen.                                                                                                                             |
+| X / Y ×2                      | Zeigt die Vorschau wie bei der Sprite-Erweiterung `$D01D` / `$D017`.                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 
 ### C64 Character ROM Browser ("Zeichentabelle")
 
@@ -5291,15 +5378,22 @@ Nützlich, um den Bildschirmcode eines Glyphen zu ermitteln, bevor dieser mit
 
 256-Zeichen-Zeichensatz-Editor (8×8). Öffnen über Toolkit → Zeicheneditor.
 
-| Besonderheit         | Beschreibung                                                                                                                                                                                                             |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| ROM laden            | Importiert den C64 ROM-Zeichensatz direkt aus VICEs `chargen` (ohne Dateiauswahl).                                                                                                                                       |
-| Lade `.bin`          | Importiert eine externe 2048-Byte-Zeichensatz-Binärdatei.                                                                                                                                                                |
-| Vorschau pro Zeichen | Ein 16 Zellen breites Raster aller 256 Glyphen, wobei die aktuelle Zelle hervorgehoben ist.                                                                                                                              |
-| Pixel-Editor         | 8×8 Einzelzeichen-Editor mit Umschalt-/Invertierungs-/Löschwerkzeugen.                                                                                                                                                   |
-| Farbe pro Zeichen    | Speichert einen Standardwert für den Farbspeicher (Color RAM) für jedes Glyphen. Im Mehrfarbenzeichenmodus bleiben dabei auch das Mehrfarben-Aktivierungsbit pro Zelle und die eigene 3-Bit-Farbe des Zeichens erhalten. |
-| Metadaten-Roundtrip  | Beim Laden kompatibler Daten aus Charset Canvas / Map-Workflows bleiben die Farbmetadaten pro Zeichen erhalten, sodass Bearbeitungen fortgesetzt werden können, ohne die Farbabsicht zu verlieren.                       |
-| Exportblöcke         | Fügt RAWBYTES an der Adresse $0800 (Block 2) oder $3800 (Block 7) mit dem kodierten Zeichensatz an.                                                                                                                      |
+| Besonderheit                  | Beschreibung                                                                                                                                                                                                                                                                         |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| ROM laden                     | Lädt den C64-Zeichen-ROM – die exakten Glyphen 901225-01, ohne Dateiauswahl. Die erste Schaltfläche (und **Dateien → ROM: Großbuchstaben / Grafiken**) lädt Satz 1, die zweite Schaltfläche (oder Shift+Klick oder **Dateien → ROM: Kleinbuchstaben / Großbuchstaben**) lädt Satz 2. |
+| Lade `.bin`                   | Importiert eine externe 2048-Byte-Zeichensatz-Binärdatei.                                                                                                                                                                                                                            |
+| Vorschau pro Zeichen          | Ein 16 Zellen breites Raster aller 256 Glyphen, wobei die aktuelle Zelle hervorgehoben ist.                                                                                                                                                                                          |
+| Pixel-Editor                  | Bearbeitet das ausgewählte Zeichen oder eine **Kachel** aus 2×1, 1×2 oder 2×2 benachbarten Zeichen als ein Bild (Kachelauswahl).                                                                                                                                                     |
+| Zeichenwerkzeuge              | Bleistift, Linie, Rechteck, gefülltes Rechteck und Flächenfüllung. Ein Klick auf ein bereits mit Tinte gefülltes Pixel löscht diese.                                                                                                                                                 |
+| Transformiert                 | Löschen, invertieren, horizontal/vertikal spiegeln, mit Wrap-around verschieben, um 90° im Uhrzeigersinn/gegen den Uhrzeigersinn drehen (nur quadratische Kacheln) – auf der gesamten Kachel.                                                                                        |
+| Rückgängig / Wiederherstellen | Symbolleistenschaltflächen, Strg+Z und Strg+Y (Strg+Umschalt+Z).                                                                                                                                                                                                                     |
+| Kopieren / Einfügen           | Schaltflächen in der Symbolleiste, Strg+C / Strg+V oder Rechtsklick auf die Karte; kopiert die gesamte Kachel mit ihren Farben.                                                                                                                                                      |
+| Kartenverschieben             | Ziehen Sie eine Spielfigur auf eine andere auf der Karte, um sie zu tauschen; ziehen Sie Kopien mit gedrückter Umschalttaste.                                                                                                                                                        |
+| Textvorschau                  | Geben Sie Text ein, um ihn im aktuellen Zeichensatz anzuzeigen. Wählen Sie die Groß- oder Kleinbuchstabenzuordnung; `{65}` oder `{$41}` fügt einen Bildschirmcode ein.                                                                                                               |
+| Bereichsexport                | Stellen Sie die Zeichen von / Bis ein und wählen Sie dann **Dateien → Bereich speichern (.bin)** (Rohbytes) oder **Bereich kopieren ASM** (`.byte` Zeilen).                                                                                                                          |
+| Farbe pro Zeichen             | Speichert einen Standardwert für den Farbspeicher (Color RAM) für jedes Glyphen. Im Mehrfarbenzeichenmodus bleiben dabei auch das Mehrfarben-Aktivierungsbit pro Zelle und die eigene 3-Bit-Farbe des Zeichens erhalten.                                                             |
+| Metadaten-Roundtrip           | Beim Laden kompatibler Daten aus Charset Canvas / Map-Workflows bleiben die Farbmetadaten pro Zeichen erhalten, sodass Bearbeitungen fortgesetzt werden können, ohne die Farbabsicht zu verlieren.                                                                                   |
+| Exportblöcke                  | Fügt RAWBYTES an der Adresse $0800 (Block 2) oder $3800 (Block 7) mit dem kodierten Zeichensatz an.                                                                                                                                                                                  |
 
 ### Zeichensatz-Leinwand-Editor
 
@@ -5307,27 +5401,39 @@ Vollflächiger Zeichensatz-Maler zum Erstellen von Bildschirmdarstellungen aus
 einem vollständigen 256-Zeichen-Zeichensatz. Öffnen über Toolkit →
 Zeichensatz-Leinwand.
 
-Die Zeichenfläche umfasst 16×16 Zeichen. Im Monochrom-Modus ergibt sich daraus
-ein Arbeitsbereich von 128×128 Pixeln; im Mehrfarben-Zeichenmodus ergibt sich
-ein breiter Arbeitsbereich von 64×128 Pixeln unter Verwendung der
-Mehrfarbenregeln des C64.
+Die Zeichenfläche umfasst 16×16 Zeichen bzw. 128×128 Pixel. Im Mehrfarbenmodus
+ist jedes Zeichen entweder mehrfarbig (breite Pixel, 4 Farben) oder
+hochauflösend (8 schmale Pixel, 2 Farben), genau wie beim C64.
 
-| Besonderheit                            | Beschreibung                                                                                                                                                                                    |
-| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Monochrom / mehrfarbig                  | Im Mono-Modus werden 1-Bit-Glyphen der Größe 8×8 gespeichert. Im Mehrfarbenmodus werden horizontale Pixelpaare mit zwei Bit gespeichert und verwendete Zellen mit Bit 3 des Farb-RAMs markiert. |
-| C64 Farbmodell                          | Hintergrund verwendet `$D021`; gemeinsam genutzte Mehrfarben 1 verwendet `$D022`; gemeinsam genutzte Mehrfarben 2 verwendet `$D023`; die Farbe jedes Zeichens stammt aus den Farb-RAM-Bits 0–2. |
-| Zeichenwerkzeuge                        | Bleistift, Radiergummi, Linie, Rechteck, Oval und Flächenfüllung arbeiten über die Zeichengrenzen hinweg.                                                                                       |
-| Sprühwerkzeug                           | Eine Zeichnung im Airbrush-Stil, bei der Pixel über benachbarte Zellen/Zeichen verteilt werden.                                                                                                 |
-| Sprühintensität                         | Über das Dropdown-Menü neben dem Sprühwerkzeug lässt sich die Hubdichte einstellen.                                                                                                             |
-| Raster umschalten                       | Das Kontrollkästchen „Raster“ blendet das 16×16-Zeichenraster ein oder aus.                                                                                                                     |
-| Zeichensatz speichern `.bin`            | Speichert die 2048 Byte großen Zeichenbitmap-Daten.                                                                                                                                             |
-| 16×16 Karte speichern + Farb-RAM `.bin` | Speichert 256 Bildschirmcodes, gefolgt von 256 Farb-RAM-Werten. Verwenden Sie dies mit `MAP_COPY16X16`.                                                                                         |
-| Laden                                   | Kann charset-canvas-Speicherstände, einfache charset-Daten und kompatible Character Editor-charset-Daten einschließlich gespeicherter Farben pro Zeichen laden, sofern vorhanden.               |
+| Besonderheit                            | Beschreibung                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |                                                               |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------- |
+| Monochrom / mehrfarbig                  | Im Mono-Modus werden 1-Bit-Glyphen der Größe 8×8 gespeichert. Im Mehrfarbenmodus werden horizontale Pixelpaare mit zwei Bit gespeichert und mehrfarbige Zellen mit dem dritten Bit des Farb-RAMs markiert.                                                                                                                                                                                                                                                                                                                                                                                                               |                                                               |
+| Werkzeug für den Zeichenmodus           | Im Mehrfarbenmodus können Sie durch Klicken oder Ziehen über die Zeichen zwischen Mehrfarben- und hochauflösender Darstellung (Farb-RAM Bit 3) umschalten. Die Form bleibt erhalten: Ein festgelegtes Pixelpaar wird zur Farbe des Zeichens. Ein hochauflösendes Zeichen hat den Hintergrund und seine eigene Farbe (0–7); MC1/MC2 zeichnen dort nicht.                                                                                                                                                                                                                                                                  |                                                               |
+| Hintergrund                             | Das BG-Dropdown-Menü wird auch im Monochrom-Modus angezeigt; MC1 / MC2 nur im Mehrfarbenmodus.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |                                                               |
+| ECM                                     | Die Checkbox **ECM** (erweiterter Farbmodus, nicht zusammen mit Mehrfarben): Jedes Zeichen wird hochauflösend mit eigener Farbe (0–15) und einem von vier Hintergründen BG0–BG3 dargestellt (`$D021`–`$D024`; BG1/BG2 sind die MC1/MC2-Register). Wählen Sie eine Hintergrundfarbe aus der Palette (B0–B3) und klicken oder ziehen Sie dann mit dem Werkzeug **Zeichenhintergrund** über die Zeichen. Es passen nur 64 verschiedene Zeichen: Die Statuszeile zählt sie, und beim Speichern werden gleiche Zeichen zusammengeführt – der Zeichensatz umfasst 64 Zeichen (512 Byte), und die Bildschirmcodes sind `glyph`. | Hintergrund << 6`. Schalten Sie ECM mit Bit 6 von `$D011 ein. |
+| C64 Farbmodell                          | Hintergrund verwendet `$D021`; gemeinsam genutzte Mehrfarben 1 verwendet `$D022`; gemeinsam genutzte Mehrfarben 2 verwendet `$D023`; die Farbe jedes Zeichens stammt aus den Farb-RAM-Bits 0–2.                                                                                                                                                                                                                                                                                                                                                                                                                          |                                                               |
+| Zeichenwerkzeuge                        | Bleistift, Radiergummi, Linie, Rechteck, Oval und Flächenfüllung arbeiten über die Zeichengrenzen hinweg.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |                                                               |
+| Sprühwerkzeug                           | Eine Zeichnung im Airbrush-Stil, bei der Pixel über benachbarte Zellen/Zeichen verteilt werden.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |                                                               |
+| Sprühintensität                         | Über das Dropdown-Menü neben dem Sprühwerkzeug lässt sich die Hubdichte einstellen.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |                                                               |
+| Raster umschalten                       | Das Kontrollkästchen „Raster“ blendet das 16×16-Zeichenraster ein oder aus.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |                                                               |
+| Zoom                                    | Der Zoom-Regler (2×–24×, volle Gerätepixel pro C64-Pixel) oder Strg+Rad über der Arbeitsfläche; die Zoomstufe wird gespeichert. Ab 8× zeichnet das Raster zusätzlich eine feine Linie an jeder Pixelkante.                                                                                                                                                                                                                                                                                                                                                                                                               |                                                               |
+| Zeichensatz speichern `.bin`            | Speichert die 2048 Byte großen Zeichenbitmap-Daten.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |                                                               |
+| 16×16 Karte speichern + Farb-RAM `.bin` | Speichert 256 Bildschirmcodes, gefolgt von 256 Farb-RAM-Werten. Verwenden Sie dies mit `MAP_COPY16X16`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |                                                               |
+| Laden                                   | Kann charset-canvas-Speicherstände, einfache charset-Daten und kompatible Character Editor-charset-Daten einschließlich gespeicherter Farben pro Zeichen laden, sofern vorhanden.                                                                                                                                                                                                                                                                                                                                                                                                                                        |                                                               |
 
 **Wichtige C64-Einschränkung:** Im Mehrfarben-Zeichenmodus gelten die beiden
 gemeinsam genutzten Farben global für den gesamten Bildschirm (`$D022` /
-`$D023`). Nur die Farbe des jeweiligen Zeichens ist pro Zelle verfügbar und auf
-die Farben 0–7 beschränkt, da Bit 3 des Farb-RAM den Mehrfarbenmodus auswählt.
+`$D023`). Nur die Eigenfarbe des Zeichens ist zellenspezifisch und auf die
+Farben 0–7 beschränkt, da Bit 3 des Farb-RAMs den Mehrfarbenmodus auswählt. Ein
+Zeichen kann also maximal **4 Farben** (Hintergrund, MC1, MC2 und Eigenfarbe)
+und der gesamte Bildschirm maximal 3 + 8 Farben darstellen. In der Palette sind
+die gemeinsam genutzten Farben mit BG / 1 / 2 gekennzeichnet, die nicht
+gemeinsam genutzten Farben 8–15 sind abgedunkelt. Die Auswahl einer solchen
+Farbe wird nur dann in MC2 oder MC1 gespeichert, wenn kein Pixel dieses Register
+verwendet; andernfalls kann sie im zugehörigen Dropdown-Menü geändert werden
+(wodurch der gesamte Bildschirm neu eingefärbt wird). Im hochauflösenden
+(monochromen) Modus hat ein Zeichen 2 Farben: die Hintergrundfarbe und seine
+eigene Farbe (0–15).
 
 ### Karteneditor (Mehrschichtige Kachelkarten)
 
@@ -5356,13 +5462,19 @@ einer 2D-Karte – und zeigt den gesamten Level in flüssiger Scroll-Vorschau an
 Öffnen Sie ihn über die Schaltfläche **Level-Editor** in der Symbolleiste neben
 dem Karteneditor.
 
-| Besonderheit | Beschreibung                                                                                                                                                                                                                                                                     |
-| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Layout       | **Vertikal**, **Horizontal** oder **Raster** (Zeilen × Spalten, mit Schaltflächen zum Hinzufügen/Entfernen von Zeilen und Spalten).                                                                                                                                              |
-| Bildschirme  | **Neuer leerer Bildschirm**, **Aus dem Karteneditor hinzufügen** (die aktuell geöffnete Karte) oder **Karte(n) laden (.bin)…** (mehrere Kartenexporte gleichzeitig). Ziehen Sie einen Bildschirm aus der Liste auf einen Slot; ziehen Sie Slots aufeinander, um sie zu tauschen. |
-| Bearbeitung  | **Im Karteneditor bearbeiten** öffnet den ausgewählten Bildschirm im Karteneditor und stellt die Änderungen wieder her; duplizieren, nach oben/links oder unten/rechts verschieben, entfernen; rückgängig machen / wiederherstellen.                                             |
-| Vorschau     | Ziehen Sie die Vorschau oder verwenden Sie die Pfeiltasten, um pixelweise zu scrollen; **Wiedergabe** scrollt automatisch (Richtung, Geschwindigkeit 1–8, Schleife), Leertaste = Wiedergabe/Stopp. *Rahmen* markiert die Bildschirmränder.                                       |
-| Schecks      | Informationen zum Zeichensatz und eine Warnung, wenn Bildschirme einen anderen Zeichensatz oder andere Farben verwenden (das Level verwendet die Einstellungen des ersten Bildschirms).                                                                                          |
+| Besonderheit           | Beschreibung                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Layout                 | **Vertikal**, **Horizontal** oder **Raster** (Zeilen × Spalten, mit Schaltflächen zum Hinzufügen/Entfernen von Zeilen und Spalten).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Bildschirme            | **Neuer leerer Bildschirm**, **Aus dem Karteneditor hinzufügen** (die aktuell geöffnete Karte) oder **Karte(n) laden (.bin)…** (mehrere Kartenexporte gleichzeitig). Ziehen Sie einen Bildschirm aus der Liste auf einen Slot; ziehen Sie Slots aufeinander, um sie zu tauschen.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Bearbeitung            | **Im Karteneditor bearbeiten** öffnet den ausgewählten Bildschirm im Karteneditor und stellt die Änderungen wieder her; duplizieren, nach oben/links oder unten/rechts verschieben, entfernen; rückgängig machen / wiederherstellen.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| Vorschau               | Ziehen Sie die Vorschau oder verwenden Sie die Pfeiltasten, um pixelweise zu scrollen; **Wiedergabe** scrollt automatisch (Richtung, Geschwindigkeit 1–8, Schleife), Leertaste = Wiedergabe/Stopp. *Rahmen* markiert die Bildschirmränder.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| Schecks                | Informationen zum Zeichensatz und eine Warnung, wenn Bildschirme einen anderen Zeichensatz oder andere Farben verwenden (das Level verwendet die Einstellungen des ersten Bildschirms).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Charaktereigenschaften | Mit der Schaltfläche **Charakterattribute** wird die Übersicht auf Attributmalerei umgeschaltet: Wählen Sie **Solid**, **Ladder**, **Hazard** oder **Collectible**, klicken Sie auf einen Charakter, und jede Zelle mit diesem Bildschirmcode erhält (oder verliert) ihn; ziehen Sie, um weitere Codes hinzuzufügen. Die Attribute werden als farbige Ebene angezeigt und bilden die 256 Byte große Tabelle `LEVEL_ATTR` (`LEVEL_ATTR_SOLID` = 1, `_LADDER` = 2, `_HAZARD` = 4, `_COLLECT` = 8).                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Kantenprüfung          | Rote Markierungen zeigen an, wo benachbarte Bildschirme nicht aneinandergrenzen: eine Seite des Randes ist leer (Leerzeichen), die andere nicht, oder nur eine Seite ist ausgefüllt. Das Seitenfeld zählt die Ränder und Zellen.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Farben                 | **Level-Rahmen** und **Eigene Farben für diesen Bildschirm** (Hintergrund, Rahmen, Mehrfarbig 1 / 2) für den ausgewählten Bildschirm; der Vorschaurahmen zeigt den Rahmen. Exportiert pro Slot als `LEVEL_SCR_BG / _BORDER / _MC1 / _MC2` (mit `LEVEL_SCR_COLORS` = 1), wenn ein platzierter Bildschirm eigene Farben hat.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| Erinnerung             | Die Datengröße von `.level` an einer gewählten Adresse (genau berechnet, wie sie vom Makro erstellt wird), mit Warnungen für das BASIC-/KERNAL-ROM, den E/A-Bereich und den Speicher unterhalb von `$0800` sowie die RLE-Größe des Levels. **Export RLE to blocks / Copy RLE asm** gibt das mit dem `level_unrle`-Entpacker gepackte Level-RLE aus (`($FB)` → `($FD)`).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Läuft bei VICE         | Erstellt ein mit dem Joystick scrollbares Testprogramm aus dem Level (dem `level-demo` Scroller, Code bei `$C000`, Leveldaten von `$2000`, benutzerdefinierter Zeichensatz bei `$2000`) und startet es in VICE – die Bildschirmfarben wechseln mit dem Bildschirm oben links in der Ansicht, die Kamera startet beim ersten Startobjekt.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Objekte                | Die Schaltfläche „Objektebene“ schaltet die Übersicht in den Objektbearbeitungsmodus: Wählen Sie einen Typ (Start, Gegner, Gegenstand, Tür, Ausgang, Auslöser) und ein Byte mit Parametern (Gegnerart, Gegenstands-ID, Türziel usw.) aus. Klicken Sie zum Platzieren, ziehen Sie zum Verschieben (einrastet bei 8 px, Umschalt = frei). Klicken Sie auf ein Objekt, um es auszuwählen und seinen Typ/Parameter zu ändern. Mit den Pfeiltasten verschieben Sie es, mit der Entf-Taste entfernen Sie es. Objekte gehören zur Levelposition, nicht zum Bildschirm. Sie werden in der Seitenleiste aufgelistet, in der Vorschau angezeigt, mit dem Level gespeichert und in Scrollreihenfolge (vertikal entlang der Y-Achse, horizontal entlang der X-Achse, Rasterzeile für Rasterzeile) als LEVEL_OBJ_*-Tabellen exportiert – entweder über „Assembler kopieren / In Blöcke exportieren“ oder über das Makro „Level“. |
 
 **Menü „Dateien“:**
 | Aktion                                                                   | Was es tut                                                                                                                                       |
@@ -5388,6 +5500,11 @@ streamt seine SID-Register in jedem Frame an WebSID, und bis zu drei
 Vorschau-Noten teilen sich die drei Stimmen. Der Stream-Player wird beim Öffnen
 des Editors und nach dem Stoppen erneut geladen, sodass die Noten gleichzeitig
 erklingen; ohne WebSID wird stattdessen ein kleiner SID-Synthesizer verwendet.
+
+**Vorschau-Engine:** **Einstellungen → SID-Vorschau** wählt **WebSID** oder **VA
+SID Core (Rust)**, die eigene SID-Emulation der App; bei VA SID Core wählen Sie
+auch den Chip (MOS 6581 / 8580). Die Instrumentenparameter werden über
+Drehregler eingestellt.
 
 **Instrumentenspezifische Steuerung:**
 - Wellenform-Kontrollkästchen (TRI / SAW / PUL / NOI) — mehrere Wellenformen
@@ -5506,6 +5623,29 @@ gespeichert/geladen.
 - Akkord- und Arpeggio-Vorschauen leuchten die entsprechenden Klaviertasten auf,
   wenn die Tastatur geöffnet ist.
 
+**Aufnahme, Metronom und MIDI:**
+- **Aufnahme** (der rote Punkt in der Tracker-Symbolleiste und auf dem VA-VK)
+  speichert die gespielten Noten – auf dem VA-VK, der Computertastatur oder
+  einem MIDI-Keyboard – zeitgesteuert in der ausgewählten Stimme, beginnend in
+  der ausgewählten Zeile und mit der aktuellen Geschwindigkeit. Sobald das
+  Pattern voll ist, wird nach dem aktuellen Songschritt ein neues, leeres
+  Pattern eingefügt und die Aufnahme dort fortgesetzt. Drücken Sie erneut auf
+  Aufnahme, um den Vorgang zu beenden.
+- Das Metronom (Tracker-Symbolleiste und VA-VK) klickt alle vier Zeilen, wobei
+  der erste Schlag jedes Vier-Schlag-Takts betont wird. Die daneben befindlichen
+  Taktlichter blinken bei jedem Schlag während der Wiedergabe und Aufnahme, auch
+  wenn das Klicken deaktiviert ist.
+- **MIDI:** Wählen Sie den Eingang in der **MIDI**-Liste neben dem
+  Instrumentennamen und drücken Sie **MIDI verbinden**. Die Noten werden über
+  das aktuelle Instrument wiedergegeben (und während der Aufnahme oder mit *In
+  Tracker einfügen* in den Tracker geschrieben). Die Lampe neben der Taste
+  blinkt bei jeder eingehenden MIDI-Nachricht.
+- **Muster löschen:** Die Schaltfläche **−** neben **Pat +** löscht das aktuelle
+  Muster (vorher wird gefragt, ob das Muster Noten enthält). Die Songschritte,
+  die dieses Muster verwendet haben, werden entfernt und die anderen neu
+  nummeriert; mindestens ein Muster bleibt immer erhalten.
+- Der **Master-Lautstärkeregler** befindet sich auf VA-VK.
+
 **Dateien-Menü-Exporte:**
 | Export                                   | Was es tut                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -5513,7 +5653,26 @@ gespeichert/geladen.
 | `Exportblöcke (nur Daten)`               | Fügt Instrumententabelle + Musterblöcke an das Programm an der Stelle `* = $C000` an.                                                                                                                                                                                                                                                                                                                                                                              |
 | `Exportblöcke + Minispieler`             | Fügt den vollständigen Player (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) sowie PAL-Frequenztabellen hinzu. Nach dem Export fügen Sie in Ihrem Hauptcode an der Stelle, an der die Musik starten soll, einen `JSR sid_init`-Aufruf ein; verwenden Sie stattdessen Ihren eigenen IRQ-Aufruf `JSR sid_frame` einmal pro Frame.                                                                                                                   |
 | `Assembler exportieren (Zwischenablage)` | Kopiert den vollständigen Assembler-Quelltext in die Zwischenablage.                                                                                                                                                                                                                                                                                                                                                                                               |
+| `GoatTracker .sng importieren…`          | Lädt einen GoatTracker 2-Song anstelle des aktuellen – siehe **GoatTracker import** unten.                                                                                                                                                                                                                                                                                                                                                                         |
 | `Export nach UltimateBasic`              | Schreibt einen `tune ... end`-Block (Instrumente, Reihenfolgeliste, Patternzeilen als Text) plus `music play` und fügt ihn an der Cursorposition des Ultimate Basic-Editors ein; außerhalb des UB-Modus wird der Text in die Zwischenablage kopiert. Der Ultimate Basic-Compiler erstellt den Player, daher steuern `music play` / `music stop` ihn. Die Instrumentenmodulation erfolgt in den Zeilen `imod` / `ifilt` / `igate` / `itab` (Ultimate Basic 1.6.2+). |
+
+**GoatTracker-Import:** **Dateien → GoatTracker .sng importieren…** lädt einen
+GoatTracker 2-Song (`.sng`, GTS3–GTS5) anstelle des aktuellen. Die Konvertierung
+ist nur annähernd genau, da die beiden Tracker unterschiedlich funktionieren.
+- Die Reihenfolgelisten für jede Stimme (mit Transponierung und Wiederholung)
+  werden zu einem dreistimmigen Lied zusammengefasst und in 32-zeilige Muster
+  unterteilt; identische Muster werden geteilt.
+- Instrumente: AD/SR, erste Welle, Gate-Timer und Hard Restart werden
+  übernommen; die Wavetable wird zur Wave-/Arpeggio-Tabelle, die Pulstabelle zur
+  PWM, die Filtertabelle zum Filtermodus, Resonanz- und Cutoff-Sweep und die
+  Geschwindigkeitstabelle zum Instrumenten-Vibrato.
+- Pattern-Befehle: Key Off → Note-Off, Portamento → `U` / `D` (maximal 255 pro
+  Zeile), Tempo → `F`; Toneporta wird zu einer einfachen Note. Andere Befehle
+  werden verworfen, und eine Meldung listet auf, was approximiert oder
+  übersprungen wurde.
+- Ein vom Wavetable freigegebenes Gate wird in der nächsten freien Zeile zu
+  einem Note-Off. Nur die erste Subtune wird importiert, und die
+  Exportbeschränkung von 7 Patterns gilt weiterhin.
 
 **ZP-Nutzung des Spielers: ** `$02`–`$1C` (Pattern-Zeiger, Pattern-Offset, temp)
 und `$2F` (aktuelle Geschwindigkeit) sowie `$FB`–`$FD` (Tick-Zähler,
@@ -5533,6 +5692,36 @@ im Expertenmodus.
   greifen die Notenvorschauen auf den kleinen Synthesizer zurück, der den
   SID-Chip nur annähernd simuliert. Die Vorschauen erreichen WebSID etwa 0,1
   Sekunden vor dem eigentlichen Ton.
+
+---
+
+### SID Player
+
+Über die Symbolleistenschaltfläche **SID Player** wird ein schwebendes Fenster
+geöffnet, das `.sid`-Musikdateien (PSID und RSID) abspielt, beispielsweise Titel
+aus der HVSC-Sammlung.
+
+- **Playlist:** Füge Titel mit **.sid-Dateien hinzufügen…** oder durch Ziehen in
+  das Fenster hinzu und klicke auf einen Titel, um ihn abzuspielen;
+  **Entfernen** und **Playlist leeren** räumen die Liste auf. **Playlist
+  speichern…** / **Playlist öffnen…** Schreibe und lese eine `.sidpl`-Datei mit
+  den eingebetteten Titeln. Die Liste, der aktuelle Titel und ob das Fenster
+  geöffnet ist, werden gespeichert.
+- **Transport:** Wiedergabe, Pause, Stopp, **Vorheriger** / **Nächster** Titel,
+  **Vorheriger / Nächster Unterton** für Dateien mit mehreren Titeln und ein
+  Zeitzähler.
+- **Suchen:** Die Positionsleiste und **Zurück/Vorwärts 10 s** funktionieren mit
+  der VA SID Core-Engine. WebSID unterstützt keine Suchfunktion, daher sind
+  diese Steuerelemente deaktiviert.
+- **Lautstärke:** Der Regler wird mit der Master-Lautstärke des SID-Editors
+  geteilt.
+- **Engine:** Das Fenster zeigt die aktuell abspielende Engine an (WebSID oder
+  VA SID Core mit Versionsnummer und SID-Chip). Die Auswahl erfolgt unter
+  **Einstellungen → SID-Vorschau**. VA SID Core spielt die Melodie auf einem
+  nativen Rust C64-Kern mit einem taktgenauen 6510, präzisem Interrupt-Timing,
+  CIA 6526A, VIC-II-Timing mit fehlerhaften Zeilen, Sprite-DMA und
+  Raster-Interrupts sowie dem 6510-I/O-Port ab – Raster-IRQ-, CIA-getaktete und
+  Digi-Melodien werden also mit dem Timing einer realen Maschine wiedergegeben.
 
 ---
 

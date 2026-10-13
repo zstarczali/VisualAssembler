@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Podręcznik użytkownika
 
-**Wersja 2.5.5**
+**Wersja 2.5.7**
 
 Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągając
 i upuszczając bloki instrukcji, i oglądaj generowany kod assemblera i maszynowy
@@ -12,6 +12,8 @@ w czasie rzeczywistym.
 
 - [C64 Visual Assembler — Podręcznik
   użytkownika](#c64-visual-assembler--user-manual)
+    - [Najważniejsze cechy wersji 2.5.7](#version-257-highlights)
+    - [Najważniejsze cechy wersji 2.5.6](#version-256-highlights)
     - [Najważniejsze cechy wersji 2.5.5](#version-255-highlights)
     - [Najważniejsze cechy wersji 2.5.4](#version-254-highlights)
     - [Najważniejsze cechy wersji 2.5.3](#version-253-highlights)
@@ -41,6 +43,7 @@ w czasie rzeczywistym.
     - [Numery wierszy ASM](#asm-line-numbers)
     - [Modalne okno postępu kompilacji](#compile-progress-modal)
   - [5. Ustawienia i pasek narzędzi](#5-settings--toolbar)
+    - [Freemium i Professional](#freemium-and-professional)
     - [Szablony projektów](#project-templates)
     - [Budowanie projektu](#build-project)
     - [Przykładowe programy](#example-programs)
@@ -187,8 +190,63 @@ w czasie rzeczywistym.
       wielowarstwowe)](#map-editor-multilayer-tilemaps)
     - [Edytor poziomów](#level-editor)
     - [Edytor SID (śledzenie 3-głosowe)](#sid-editor-3-voice-tracker)
+    - [Odtwarzacz SID](#sid-player)
     - [Edytor krzywych](#curve-editor)
     - [Konwerter liczb](#number-converter)
+
+---
+
+## Najważniejsze cechy wersji 2.5.7
+
+- **VA SID Core 1.2** — SID Player wykorzystuje teraz natywny rdzeń Rust C64:
+  procesor 6510 z precyzyjnym taktowaniem przerwań, CIA 6526A, taktowanie VIC-II
+  z błędnymi liniami, przerwania DMA i rastrowe dla sprite'ów oraz port
+  wejścia/wyjścia 6510. Zobacz [SID Player](#sid-player).
+- **Edytor wysokiej rozdzielczości** — dwa kolory w każdej komórce 8×8: nowe
+  narzędzie **Papier komórkowy**. Zobacz [Edytor wysokiej rozdzielczości /
+  wielokolorowy](#hi-res--multicolor-editor).
+- **Dokładny ROM postaci** w przeglądarce ROM, **Załaduj ROM** edytora postaci i
+  edytorach map/poziomów.
+- **Edytor sprite'ów** — nakładka w wysokiej rozdzielczości, wypełnianie,
+  zaznaczanie/przesuwanie, obracanie, odbijanie lustrzane wszystkich, import
+  arkusza sprite'ów, pole trafienia, podgląd X/Y ×2. Zobacz [Edytor
+  sprite'ów](#sprite-editor).
+- **Edytor poziomów** — obiekty, atrybuty postaci, sprawdzanie krawędzi, liczba
+  kolorów na ekran, licznik pamięci z RLE, uruchamianie w VICE. Zobacz [Edytor
+  poziomów](#level-editor).
+- **Edytor postaci** — cofanie/ponawianie, narzędzia do rysowania, obrót o 90°,
+  kopiowanie/wklejanie i przeciąganie w celu zamiany na mapie, kafelki 2×2,
+  zestaw ROM-ów z małymi literami, podgląd tekstu i eksport zakresu. Zobacz
+  [Edytor postaci](#character-editor-charset).
+- **Charset Canvas** — powiększenie 2×–24× (suwak lub Ctrl+kółko) z siatką
+  pikseli, kolorem tła w trybie wysokiej rozdzielczości, znakami wysokiej
+  rozdzielczości w trybie wielokolorowym i **ECM** (tło dla każdego znaku).
+  Zobacz [Charset Canvas Editor](#charset-canvas-editor).
+
+---
+
+## Najważniejsze cechy wersji 2.5.6
+
+- **Odtwarzacz SID** — nowy przycisk na pasku narzędzi otwiera pływający
+  odtwarzacz dla utworów `.sid` (PSID / RSID): lista odtwarzania z funkcją
+  „przeciągnij i upuść”, poprzednią / następną melodią, pododcinkami,
+  wyszukiwaniem i ±10 s, głośnością oraz zapisywaniem / otwieraniem listy
+  odtwarzania (`.sidpl`); lista i stan okna są zapamiętywane. Zobacz [Odtwarzacz
+  SID](#sid-player).
+- **VA SID Core 1.1** — wbudowana emulacja SID (MOS 6581/8580, z filtrem 6581
+  wyrównanym do reSID) i odtwarzacz PSID/RSID z cyklicznym blokowaniem (procesor
+  6510, taktowanie CIA/VIC). Wybierz w **Ustawienia → Podgląd SID**; odtwarzacz
+  SID pokazuje, który silnik odtwarza.
+- **Edytor SID** — pokrętła parametrów instrumentu, szerszy wykres ADSR,
+  **wejście MIDI**, **nagrywanie** do trackera (nowy wzór jest dodawany, gdy
+  obecny jest pełny), **metronom** z lampami uderzeniowymi, **usuwanie wzoru**,
+  głośność główna na VA-VK i **Import pliku GoatTracker .sng**. Zobacz [Edytor
+  SID](#sid-editor-3-voice-tracker).
+- **Freemium i Professional** — bez rejestracji aplikacja działa jako Freemium;
+  wprowadź adres e-mail i numer seryjny z zakupu w **Menu → Zarejestruj…**, aby
+  uzyskać wersję Professional. Zobacz [Freemium i
+  Professional](#freemium-and-professional).
+- **W zestawie Ultimate Basic 1.6.4 **.
 
 ---
 
@@ -382,26 +440,20 @@ w czasie rzeczywistym.
   ścieżka do folderu roboczego znajduje się w subtelnym znaczniku nad tytułem
   widoku ASM i korzysta z tego samego znacznika na paskach narzędzi Expert i
   Ultimate Basic. Etykiety przycisków dialogowych nie zawijają się już.
-- **Odniesienie do poleceń Ultimate Basic** — polecenia `tune` i `music`
-  zawierają pełne, skomentowane przykłady (format komórki, efekty, notatki
-  gracza, `music play N`); polecenia `inst`, `order`, `pat` i tune `speed` mają
-  własne wpisy; polecenia `data` zawierają nową formę tablicy; poprawiono
-  składnię polecenia `load sid` (`load sid "tune.sid", $2000`).
+- **Bardziej kompleksowa kontrola aktualizacji** — lista instalatorów jest
+  opublikowana na stronie c64va.pro/downloads/VA/, więc kontrola działa z nową
+  stroną pobierania; pomocnik aktualizacji systemu Linux nie dziedziczy już
+  ścieżek bibliotek AppImage.
 
 ---
 
 ## Najważniejsze cechy wersji 2.4.6
 
-- **Edytor SID → Eksport UltimateBasic** — **Pliki → Eksport do UltimateBasic**
-  zapisuje melodię jako blok `melodii... koniec` (instrumenty, lista kolejności
-  i wiersze wzorów jako tekst), po którym następuje `odtwarzanie muzyki` i
-  wstawia go w miejscu kursora edytora Ultimate Basic (poza trybem UB jest
-  kopiowany do schowka). Kompilator UltimateBasic buduje z niego odtwarzacz bez
-  zerowej strony w momencie kompilacji, więc `odtwarzanie muzyki` /
-  `zatrzymywanie muzyki` kontroluje melodię i nic nie koliduje ze zmiennymi UB.
-  Obsługiwane są efekty wibrato, slajdu, cięcia nut i szybkości; do 8 wzorów,
-  dowolna długość listy kolejności. Wymaga kompilatora UltimateBasic z obsługą
-  `tune`.
+- **Aktualizacje w aplikacji** — **Menu → Sprawdź dostępność aktualizacji**
+  sprawdza, czy w pliku c64va.pro jest dostępna nowsza wersja, a po
+  potwierdzeniu pobiera instalator dla Twojej platformy z paskiem postępu i
+  instaluje go. Zobacz [Aktualizacje w aplikacji](#in-app-updates). To
+  sprawdzanie jest również przeprowadzane po cichu przy każdym uruchomieniu.
 - **Aktualizacja języka Ultimate Basic** — podświetlanie składni i odniesienie
   do poleceń obejmują teraz **`sfx`** (efekt SID bez blokowania: `kanał sfx,
   częstotliwość, klatki [, fala]`), **`org`** (kontynuacja kodu sub/fn pod
@@ -492,8 +544,8 @@ w czasie rzeczywistym.
   wybranego bloku 256 bajtów jest teraz poprawną siatką heksadecymalną dla
   każdego bajtu, a nie zwykłym polem tekstowym, a jego okno dialogowe nie
   przyciemnia już reszty aplikacji znajdującej się za nim po otwarciu.
-- **Web64 na stronie produktu** — nowa sekcja poświęcona środowisku IDE Web64 na
-  stronie [c64va.tech](https://www.c64va.tech).
+- **Web64 na stronie produktu** — nowa sekcja IDE Web64 na
+  [c64va.pro](https://www.c64va.pro).
 - **Aktualizacja przykładu** — przykład `makro z parametrem` używa teraz formy
   `.macro setColor(color)` w nawiasach.
 
@@ -556,10 +608,10 @@ w czasie rzeczywistym.
   uruchom bieżący dysk bezpośrednio w programie VICE – wszystko z menu Pliki ▾,
   podobnie jak w innych edytorach wizualnych. Zobacz [Edytor D64 (przeglądanie i
   edycja istniejącego obrazu dysku)]{1}.
-- **Dodaj/wyodrębnij/zmień nazwę/usuń w edytorze D64** — dodaj plik lokalny do
-  katalogu na dysku, wyodrębnij wybrany wpis z powrotem do `.prg`, zmień nazwę
-  wpisu w tabeli lub usuń go — każda akcja jest stosowana bezpośrednio do pliku
-  `.d64` za pośrednictwem `c1541`, bez oddzielnego kroku zapisu.
+- **Przycisk paska narzędzi Pomocy online** — nowy przycisk ikony po
+  uruchomieniu Debug, który otwiera wielojęzyczną witrynę dokumentacji
+  ([c64va.pro/docs.html](https://www.c64va.pro/docs.html)) bezpośrednio z
+  aplikacji.
 - **Adres ładowania, adres dekompresji i Exomizer w edytorze D64** — dodanie
   pliku RAW bez nagłówka pozwala ustawić opcjonalny adres ładowania, cel
   dekompresji Exomizera i skompresować go w trakcie przesyłania, używając tych
@@ -883,13 +935,14 @@ aplikacji. Nowe źródło zaczyna się od:
   konfiguracji aplikacji, dopóki projekt nie otrzyma ścieżki do pliku. | **Baza
   wiedzy** | Linki referencyjne (kody operacji 6502, JĄDRO C64, mapa pamięci,
   kolory) | | **Sprawdź dostępność aktualizacji** | Sprawdź, czy w pliku
-  c64va.tech jest dostępna nowsza wersja i pobierz ją/zainstaluj — zobacz
-  [Aktualizacje w aplikacji](#in-app-updates) |
+  c64va.pro jest nowsza wersja i pobierz ją/zainstaluj — zobacz [Aktualizacje w
+  aplikacji](#in-app-updates) |
 
 ### Narzędzia edytora
 
-Pasek narzędzi UB korzysta z tego samego języka wizualnego i niestandardowych
-podpowiedzi, co tryb Eksperta. Zapewnia on:
+**Menu → Sprawdź dostępność aktualizacji** wyszukuje najnowszą wersję na
+c64va.pro (odczytuje linki do pobrania dla Twojej platformy) i porównuje ją z
+działającą wersją:
 
 - podświetlanie składni w oparciu o bieżący podręcznik języka Ultimate Basic;
 - numery wierszy, które pozostają zsynchronizowane z długimi plikami;
@@ -908,6 +961,28 @@ kompilatorem: na przykład polecenie `identyfikator_klatki_sprite'a, adres_danyc
 Lista poleceń ma celowo ograniczoną wysokość, aby karta szczegółów polecenia
 mogła wypełnić pozostałą wysokość panelu. Obszar szczegółów przewija się
 niezależnie, umożliwiając dostęp do dłuższych opisów składni.
+
+### Freemium i Professional
+
+Bez rejestracji Visual Assembler działa jako **Freemium**; etykieta obok tytułu
+wskazuje **FREEMIUM** lub **PROFESSIONAL**. W Freemium możesz pisać i kompilować
+programy oraz uruchamiać je w VICE w trybach Block, Expert i Ultimate Basic.
+Wymagają one wersji Professional:
+
+- edytory wizualne (SID, Sprite, Char, Charset, Hi-Res, Map, Level, D64, Curve)
+  i SID Player;
+- **Kompilacja PRG**, **Kompilacja D64**, **Kompilacja CRT**, **Kompilacja
+  projektu** i pakowanie Exomizera;
+- działa na C64 Ultimate i na Kung Fu Flash 2;
+- Języki interfejsu użytkownika inne niż węgierski i angielski oraz motywy OLED
+  i Commodore 77.
+
+Kliknięcie zablokowanej funkcji otwiera okno dialogowe rejestracji. Aby się
+zarejestrować, otwórz **Menu → Zarejestruj…** (lub kliknij znaczek), wprowadź
+adres e-mail i numer seryjny z zakupu i naciśnij **Aktywuj**. Numer seryjny jest
+przypisany do tego adresu e-mail (wielkie/małe litery i spacje nie mają
+znaczenia), a weryfikacja zostanie przeprowadzona w trybie offline. **Usuń
+licencję** usuwa rejestrację z tego komputera.
 
 ### Projekty, zakładki i pliki startowe
 
@@ -2493,17 +2568,22 @@ pusty ekran. Tabele wskaźników odpowiadają ekranom. Poziom może mieć maksym
 .level „level.bin”, 4000 USD
 ```
 
-| Zdefiniowany                                                    | Oznaczający                                                                            |
-| --------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| `POZIOM_SLOTU_NISKI` / `POZIOM_SLOTU_WYSOKI`                    | Adres ekranu w każdym slocie (główny wiersz, `LEVEL_W` slotów na wiersz)               |
-| `SLOT_WIELU_POZIOMÓW`                                           | Rząd postaci poziomu → pierwszy slot rzędu ekranu                                      |
-| `POZIOM_RZĘDU_NIŻSZY/WYŻSZY`, `POZIOM_RZĘDU_NIŻSZY/WYŻSZY`      | Wiersz znaku poziomu → przesunięcie wiersza kodu ekranu/wiersza koloru wewnątrz ekranu |
-| `GNIAZDO_KOLEK_POZIOMU`, `GNIAZDO_KOLEK_POZIOMU`                | Widok kolumny początkowej → kolumna ekranu i kolumna wewnątrz ekranu                   |
-| `POZIOM_W`, `POZIOM_W`                                          | Rozmiar poziomu na ekranach                                                            |
-| `KOLUMBIA_POZIOMU`, `WIERZE_POZIOMU`                            | Rozmiar poziomu w znakach                                                              |
-| `POZIOM_MAX_X`, `POZIOM_MAX_Y`                                  | Największa pozycja przewijania pikseli w widoku 40×25                                  |
-| `POZIOM_BG`, `POZIOM_MC1`, `POZIOM_MC2`, `POZIOM_WIELOKOLOROWY` | Tło / kolory wielokolorowe i tryb poziomu                                              |
-| `DANE_POZIOMU`, `ROZMIAR_POZIOMU`, `KONIEC_POZIOMU`             | Początek, rozmiar i pierwszy wolny adres po danych poziomu                             |
+| Zdefiniowany                                                                         | Oznaczający                                                                                                                                                            |
+| ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POZIOM_SLOTU_NISKI` / `POZIOM_SLOTU_WYSOKI`                                         | Adres ekranu w każdym slocie (główny wiersz, `LEVEL_W` slotów na wiersz)                                                                                               |
+| `SLOT_WIELU_POZIOMÓW`                                                                | Rząd postaci poziomu → pierwszy slot rzędu ekranu                                                                                                                      |
+| `POZIOM_RZĘDU_NIŻSZY/WYŻSZY`, `POZIOM_RZĘDU_NIŻSZY/WYŻSZY`                           | Wiersz znaku poziomu → przesunięcie wiersza kodu ekranu/wiersza koloru wewnątrz ekranu                                                                                 |
+| `GNIAZDO_KOLEK_POZIOMU`, `GNIAZDO_KOLEK_POZIOMU`                                     | Widok kolumny początkowej → kolumna ekranu i kolumna wewnątrz ekranu                                                                                                   |
+| `POZIOM_W`, `POZIOM_W`                                                               | Rozmiar poziomu na ekranach                                                                                                                                            |
+| `KOLUMBIA_POZIOMU`, `WIERZE_POZIOMU`                                                 | Rozmiar poziomu w znakach                                                                                                                                              |
+| `POZIOM_MAX_X`, `POZIOM_MAX_Y`                                                       | Największa pozycja przewijania pikseli w widoku 40×25                                                                                                                  |
+| `POZIOM_BG`, `POZIOM_MC1`, `POZIOM_MC2`, `POZIOM_WIELOKOLOROWY`                      | Tło / kolory wielokolorowe i tryb poziomu                                                                                                                              |
+| `DANE_POZIOMU`, `ROZMIAR_POZIOMU`, `KONIEC_POZIOMU`                                  | Początek, rozmiar i pierwszy wolny adres po danych poziomu                                                                                                             |
+| `POZIOM_OBJ_X_LO/HI`, `POZIOM_OBJ_Y_LO/HI`, `TYP_OBJ_POZIOMU`, `PARAM_OBJ_POZIOMU`   | Tabela obiektów (warstwa obiektów edytora poziomów): pozycja w pikselach poziomu, typ i bajt parametru, w kolejności przewijania — wpisy `LEVEL_OBJ_COUNT` (maks. 255) |
+| `POCZĄTEK_OBIEKTÓW_T_POZIOMU` … `WYZWALACZ_OBIEKTÓW_T_POZIOMU`                       | Numery typów obiektów: START 0, WRÓG 1, PRZEDMIOT 2, DRZWI 3, WYJŚCIE 4, WYZWALACZ 5                                                                                   |
+| `POZIOM_START_X`, `POZIOM_START_Y`                                                   | Pozycja pierwszego obiektu startowego (zdefiniowana tylko wtedy, gdy poziom go posiada)                                                                                |
+| `ATRYB_POZIOMU`, `ATRYB_POZIOMU_SOLID` … `ZBIERZ_ATRYB_POZIOMU`                      | Tabela atrybutów znaku (jeden bajt flagi na kod ekranu; tylko gdy poziom ma atrybuty) i jej bity: 1, 2, 4, 8                                                           |
+| `GRANICA_POZIOMU`, `KOLORY_SCR_POZIOMU`, `GRANICA_POZIOMU_SCR_BLASK/GRANICA/MC1/MC2` | Obramowanie poziomu; tabele kolorów dla każdego slotu (rzędowe, np. `LEVEL_SLOT_*`), gdy ekran ma własne kolory (`LEVEL_SCR_COLORS` = 1)                               |
 
 Typowy strażnik: `.assert LEVEL_END &lt;= $9200, „dane poziomu trafiają do
 kodu”`.
@@ -4808,7 +4888,7 @@ dysku D64 za pomocą opcji **Zapisz do D64**.
 
 ### Edytor wysokiej rozdzielczości / wielokolorowy
 
-| Funkcja            | Opis                                                                                                                                        |
+| Ustawienie         | Opis                                                                                                                                        |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | Przełączanie trybu | Pole wyboru **Wielokolorowe** przełącza między wysoką rozdzielczością (monochromatyczne na komórkę) a wielokolorowym (4 kolory na komórkę). |
 | **Status**         | Pokazuje, czy ścieżka wykonywalna jest prawidłowa i dostępna                                                                                |
@@ -4818,7 +4898,7 @@ wielokolorowymi 160×200. Otwórz przez Toolkit → Hi-Res Editor.
 
 ### Edytor Sprite'ów
 
-| Funkcja    | Opis                                                                 |
+| Ustawienie | Opis                                                                 |
 | ---------- | -------------------------------------------------------------------- |
 | Ramki      | Dodaj/usuń/zmień kolejność ramek; pasek ramek jest pokazany na dole. |
 | Tryb       | Przełącznik mono/wielokolorowy.                                      |
@@ -4858,7 +4938,7 @@ konkretnej platformy.
 
 ### Przeglądarka ROM-u znaków C64 („mapa znaków”)
 
-| Funkcja            | Opis                                                                                                                                                                                                                                             |
+| Ustawienie         | Opis                                                                                                                                                                                                                                             |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Dwa zestawy znaków | Karta 1: **Zestaw 1 — Górny/Grafika** (domyślny tryb po włączeniu zasilania). Karta 2: **Zestaw 2 — Dolny/Górny** (po przełączeniu `$0E`).                                                                                                       |
 | **Status**         | Siatka 16×16 zawierająca wszystkie 256 znaków. Kliknij glif, aby zobaczyć jego panel szczegółów: powiększony widok 8×8 pikseli, kod ekranu (dziesiętny + szesnastkowy), kody PETSCII (domyślne i przesunięte) oraz surową 8-bajtową mapę bitową. |
@@ -4872,7 +4952,7 @@ znalezienia kodu ekranowego glifu przed zapisaniem go za pomocą `RAWBYTES` lub
 
 Edytor znaków 8×8 o pojemności 256 znaków. Otwórz przez Toolkit → Edytor znaków.
 
-| Funkcja         | Opis                                                                                           |
+| Ustawienie      | Opis                                                                                           |
 | --------------- | ---------------------------------------------------------------------------------------------- |
 | Załaduj ROM     | Importuje zestaw znaków ROM C64 bezpośrednio z `chargen` programu VICE (bez selektora plików). |
 | Załaduj `.bin`  | Importuje zewnętrzny plik binarny z zestawem znaków o rozmiarze 2048 bajtów.                   |
@@ -4908,7 +4988,7 @@ wielokolorowości znaków w C64.
 - kabel USB **** łączący kartridż z komputerem, na którym działa program Visual
   Assembler (widoczny jako wirtualny port szeregowy).
 
-| Funkcja              | Opis                                                                                                                                                                      |
+| Ustawienie           | Opis                                                                                                                                                                      |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Mono / wielokolorowy | Tryb monochromatyczny przechowuje 1-bitowe glify 8×8. Tryb wielokolorowy przechowuje dwubitowe poziome pary pikseli i oznacza używane komórki bitem 3 pamięci RAM koloru. |
 
@@ -4961,38 +5041,45 @@ ustawieniach interfejsu użytkownika i przywracana przy następnym otwarciu.
 Edytor bitmap na poziomie pikseli z trybami wysokiej rozdzielczości 320×200 i
 wielokolorowymi 160×200. Otwórz przez Toolkit → Hi-Res Editor.
 
-| Funkcja                 | Opis                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Przełączanie trybu      | Pole wyboru **Wielokolorowe** przełącza między wysoką rozdzielczością (monochromatyczne na komórkę) a wielokolorowym (4 kolory na komórkę).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| Narzędzia               | Ołówek, gumka, linia, prostokąt, wypełniony prostokąt, owal, wypełniony owal, wypełnienie, zaznacz.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| Narzędzie do rozpylania | Malarz w stylu aerografu, który rozprasza piksele wokół kursora podczas rysowania.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| Intensywność rozpylania | Lista rozwijana obok narzędzia natryskowego umożliwia kontrolowanie gęstości każdego pociągnięcia natryskiem.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| Paleta kolorów          | Selektory pierwszego planu (tusz) i papieru (tło). Tryb wielokolorowy automatycznie śledzi 3 dodatkowe elementy na komórkę.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| Cofnij / Ponów          | Historia poszczególnych uderzeń, ctrl-Z / ctrl-Y.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| Wybierać                | Narzędzie do zaznaczania przerywanymi kwadratami: przeciągnij na płótnie, aby zaznaczyć prostokątny obszar. **Esc** czyści zaznaczenie.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| Kopiuj/Wklej            | **Kopiuj** (`Ctrl/Cmd+C`) kopiuje zaznaczony region. **Wklej** (`Ctrl/Cmd+V`) wyświetla podgląd podążający za kursorem: kliknij na płótnie, aby je umieścić, **Esc** anuluje. Kopia jest zachowywana, więc naciśnięcie `Ctrl/Cmd+V` i ponowne kliknięcie powoduje umieszczenie jej tyle razy, ile potrzeba. W trybie wysokiej rozdzielczości wklejone piksele nadal podlegają limitowi dwóch kolorów na komórkę, więc wyrównaj region z siatką komórek, aby zachować jego kolory. Kopiuj, Wklej i Wklej przezroczysto są również dostępne w menu prawego przycisku myszy na płótnie; wklejanie rozpoczęte w tym miejscu wyświetla podgląd w miejscu kliknięcia. |
-| Przezroczysta pasta     | `Ctrl/Cmd+Shift+V` (lub odpowiadający mu przycisk na pasku narzędzi) pomija piksele kopii w kolorze papieru, więc widoczny jest obraz znajdujący się pod spodem.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| Siatka + Raster         | **Siatka** pokazuje siatkę komórek znaków: 8×8 pikseli w wysokiej rozdzielczości, 4×8 pikseli o podwójnej szerokości w wielokolorze. Przy powiększeniu 4x rysuje również cieńszą linię wokół każdego piksela, dzięki czemu każdy piksel można umieścić dokładnie. **Raster** dodaje nakładkę wiersza rastrowego.                                                                                                                                                                                                                                                                                                                                                |
-| Brzęczenie              | Suwak od 1× do 16×.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| Importuj obraz          | Obrazy PNG/JPEG/GIF upuszczone na płótno są automatycznie kwantyzowane do 16-kolorowej palety C64.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| Eksportuj bloki         | Dołącza do programu bloki BYTE/RAWBYTES zawierające zakodowane dane dotyczące mapy bitowej, ekranu i koloru.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| Eksportuj `.bin`        | Zapisuje natywny format wielokolorowy (10000 bajtów: 8000 bitmap + 1000 ekran + 1000 kolorów) gotowy do załadowania pliku do $2000.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Funkcja                                 | Opis                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Przełączanie trybu                      | Pole wyboru **Wielokolorowe** przełącza między wysoką rozdzielczością (monochromatyczne na komórkę) a wielokolorowym (4 kolory na komórkę).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Narzędzia                               | Ołówek, gumka, linia, prostokąt, wypełniony prostokąt, owal, wypełniony owal, wypełnienie, papier komórkowy, zaznacz.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| Papier komórkowy (wysoka rozdzielczość) | Tryb wysokiej rozdzielczości pozwala na użycie dwóch kolorów w każdej komórce 8×8: atramentu (ustawione piksele, wysoki bit bajtu pamięci RAM komórki) i papieru (czystsze piksele, niski bit). Narzędzie **Papier w komórce** ustawia wybrany kolor papieru dla każdej klikniętej lub przeciągniętej komórki; narzędzie **PAPIER** ustawia kolor dla wszystkich komórek jednocześnie. Gumka czyści piksele, więc widoczny jest papier komórki. Wyłączone w trybie wielokolorowym, gdzie tło ($D021) jest współdzielone.                                                                                                                                        |
+| Narzędzie do rozpylania                 | Malarz w stylu aerografu, który rozprasza piksele wokół kursora podczas rysowania.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Intensywność rozpylania                 | Lista rozwijana obok narzędzia natryskowego umożliwia kontrolowanie gęstości każdego pociągnięcia natryskiem.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Paleta kolorów                          | Selektory pierwszego planu (tusz) i papieru (tło). Tryb wielokolorowy automatycznie śledzi 3 dodatkowe elementy na komórkę.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Cofnij / Ponów                          | Historia poszczególnych uderzeń, ctrl-Z / ctrl-Y.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Wybierać                                | Narzędzie do zaznaczania przerywanymi kwadratami: przeciągnij na płótnie, aby zaznaczyć prostokątny obszar. **Esc** czyści zaznaczenie.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Kopiuj/Wklej                            | **Kopiuj** (`Ctrl/Cmd+C`) kopiuje zaznaczony region. **Wklej** (`Ctrl/Cmd+V`) wyświetla podgląd podążający za kursorem: kliknij na płótnie, aby je umieścić, **Esc** anuluje. Kopia jest zachowywana, więc naciśnięcie `Ctrl/Cmd+V` i ponowne kliknięcie powoduje umieszczenie jej tyle razy, ile potrzeba. W trybie wysokiej rozdzielczości wklejone piksele nadal podlegają limitowi dwóch kolorów na komórkę, więc wyrównaj region z siatką komórek, aby zachować jego kolory. Kopiuj, Wklej i Wklej przezroczysto są również dostępne w menu prawego przycisku myszy na płótnie; wklejanie rozpoczęte w tym miejscu wyświetla podgląd w miejscu kliknięcia. |
+| Przezroczysta pasta                     | `Ctrl/Cmd+Shift+V` (lub odpowiadający mu przycisk na pasku narzędzi) pomija piksele kopii w kolorze papieru, więc widoczny jest obraz znajdujący się pod spodem.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| Siatka + Raster                         | **Siatka** pokazuje siatkę komórek znaków: 8×8 pikseli w wysokiej rozdzielczości, 4×8 pikseli o podwójnej szerokości w wielokolorze. Przy powiększeniu 4x rysuje również cieńszą linię wokół każdego piksela, dzięki czemu każdy piksel można umieścić dokładnie. **Raster** dodaje nakładkę wiersza rastrowego.                                                                                                                                                                                                                                                                                                                                                |
+| Brzęczenie                              | Suwak od 1× do 16×.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Importuj obraz                          | Obrazy PNG/JPEG/GIF upuszczone na płótno są automatycznie kwantyzowane do 16-kolorowej palety C64.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Eksportuj bloki                         | Dołącza do programu bloki BYTE/RAWBYTES zawierające zakodowane dane dotyczące mapy bitowej, ekranu i koloru.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Eksportuj `.bin`                        | Zapisuje natywny format wielokolorowy (10000 bajtów: 8000 bitmap + 1000 ekran + 1000 kolorów) gotowy do załadowania pliku do $2000.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 
 ### Edytor Sprite'ów
 
 Edytor sprite'ów 24×21 pikseli z animacją wieloklatkową. Otwórz przez Toolkit →
 Edytor sprite'ów.
 
-| Funkcja             | Opis                                                                                                                                                                                                                                                        |
-| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Ramki               | Dodaj/usuń/zmień kolejność klatek; pasek klatek jest pokazany na dole. **Kopiuj** / **Wklej** w wierszu klatek kopiuje całą bieżącą klatkę; te same dwa wpisy znajdują się w menu prawego przycisku myszy na płótnie i pasku klatek.                        |
-| Tryb                | Przełącznik mono/wielokolorowy.                                                                                                                                                                                                                             |
-| Narzędzia           | Ołówek, wypełnienie, linia, prostokąt, okrąg — a także odbicie w poziomie, odbicie w pionie, przesunięcie w lewo/prawo/górę/dół (z opcjonalnym zawijaniem). Narzędzia kształtów wyświetlają podgląd na żywo podczas przeciągania; zwolnij, aby zatwierdzić. |
-| Cofnij / ponów      | Pełny stos cofania/ponawiania dla każdej klatki. Ctrl/Cmd+Z / Ctrl/Cmd+Y lub przyciski paska narzędzi.                                                                                                                                                      |
-| Importowanie obrazu | Zaimportuj PNG lub JPEG poprzez Pliki → Importuj obraz. Importer mapuje każdy piksel na najbliższy kolor z palety C64 i zapisuje go w bieżącej klatce.                                                                                                      |
-| Podgląd animacji    | Odtwarzaj/zatrzymaj z konfigurowalną prędkością.                                                                                                                                                                                                            |
-| Eksportuj bloki     | Wstawia blok RAWBYTES pod adresem 64-bajtowym dla każdej klatki, a także konfigurację wskaźnika sprite'a.                                                                                                                                                   |
-| Zapisz `.bin`       | Zapisuje 64 bajty na klatkę (surowe dane sprite'a bez wypełnienia).                                                                                                                                                                                         |
+| Funkcja                            | Opis                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Ramki                              | Dodaj/usuń/zmień kolejność klatek; pasek klatek jest pokazany na dole. **Kopiuj** / **Wklej** w wierszu klatek kopiuje całą bieżącą klatkę; te same dwa wpisy znajdują się w menu prawego przycisku myszy na płótnie i pasku klatek.                                                                                                                                                                                                     |
+| Tryb                               | Przełącznik mono/wielokolorowy.                                                                                                                                                                                                                                                                                                                                                                                                          |
+| Narzędzia                          | Ołówek, wypełnienie, linia, prostokąt, okrąg — a także odbicie w poziomie, odbicie w pionie, przesunięcie w lewo/prawo/górę/dół (z opcjonalnym zawijaniem). Narzędzia kształtów wyświetlają podgląd na żywo podczas przeciągania; zwolnij, aby zatwierdzić.                                                                                                                                                                              |
+| Cofnij / ponów                     | Pełny stos cofania/ponawiania dla każdej klatki. Ctrl/Cmd+Z / Ctrl/Cmd+Y lub przyciski paska narzędzi.                                                                                                                                                                                                                                                                                                                                   |
+| Importowanie obrazu                | Zaimportuj PNG lub JPEG poprzez Pliki → Importuj obraz. Importer mapuje każdy piksel na najbliższy kolor z palety C64 i zapisuje go w bieżącej klatce.                                                                                                                                                                                                                                                                                   |
+| Podgląd animacji                   | Odtwarzaj/zatrzymaj z konfigurowalną prędkością.                                                                                                                                                                                                                                                                                                                                                                                         |
+| Eksportuj bloki                    | Wstawia blok RAWBYTES pod adresem 64-bajtowym dla każdej klatki, a także konfigurację wskaźnika sprite'a.                                                                                                                                                                                                                                                                                                                                |
+| Zapisz `.bin`                      | Zapisuje 64 bajty na klatkę (surowe dane sprite'a bez wypełnienia).                                                                                                                                                                                                                                                                                                                                                                      |
+| Wybór                              | **Zaznacz / przesuń**: przeciągnij prostokąt, a następnie przeciągnij wewnątrz niego, aby przesunąć piksele (puste piksele są przezroczyste); klawisze strzałek przesuwają go o jeden piksel (dwa w przypadku kolorów wielokolorowych), Delete czyści, Esc upuszcza. **Obrót o 90°** (w obu kierunkach) obraca zaznaczenie lub całą ramkę. Zaznaczenie, przerzucenie, przesunięcie i obrót działają jednocześnie na korpusie i nakładce. |
+| Nakładka o wysokiej rozdzielczości | **Nakładka o wysokiej rozdzielczości** dodaje drugi, jednokolorowy sprite o wysokiej rozdzielczości na każdą klatkę — klasyczny kontur na wielokolorowym korpusie. Lista **Warstwa** wybiera edytowaną warstwę; nakładka jest przyciemniana podczas edycji korpusu. Na C64 jest to osobny sprite: nadaj mu niższy numer sprite'a niż korpusowi. `.bin` i **Kopiuj bajty** zapisują sprite'y nakładki po korpusie (`sprite_f1_ov_1`).     |
+| Odbij wszystko                     | Dodaje poziomo odbitą kopię każdej klatki (i jej pola trafienia) — cykl przejścia w drugą stronę za pomocą jednego kliknięcia.                                                                                                                                                                                                                                                                                                           |
+| Import arkusza sprite'ów           | Pliki → **Importuj arkusz sprite'ów…**: szerokość/wysokość komórki, przesunięcie, odstęp i liczba klatek dzielą obraz na klatki o bieżącym rozmiarze (komórki wielokolorowe są skalowane do 12 pikseli na sprite'a). Kolory pochodzą z obrazka lub pozostają własne sprite'a; dopasowanie OKLab bez ditheringu, dithering uporządkowany (Bayer) lub Floyd-Steinberg. Zastępuje klatki lub dodaje do nich elementy.                       |
+| Hitbox                             | Narzędzie **Pole trafień** przeciąga prostokąt na klatkę (przerywany cyjan); **Dopasuj**, **Dopasuj do każdej klatki**, **Kopiuj do każdej klatki** i **Usuń** w panelu bocznym. Pliki → **Kopiuj tabelę pól trafień** daje `sprite_hit_x / _y / _w / _h` (jeden bajt na klatkę, piksele ekranu od lewego górnego rogu); klatka bez pola trafień używa jej granic pikseli.                                                               |
+| X / Y ×2                           | Pokazuje podgląd tak jak przy rozszerzeniu sprite'ów `$D01D` / `$D017`.                                                                                                                                                                                                                                                                                                                                                                  |
 
 ### Przeglądarka ROM-u znaków C64 („mapa znaków”)
 
@@ -5012,42 +5099,59 @@ znalezienia kodu ekranowego glifu przed zapisaniem go za pomocą `RAWBYTES` lub
 
 Edytor znaków 8×8 o pojemności 256 znaków. Otwórz przez Toolkit → Edytor znaków.
 
-| Funkcja                         | Opis                                                                                                                                                                                                               |
-| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Załaduj ROM                     | Importuje zestaw znaków ROM C64 bezpośrednio z `chargen` programu VICE (bez selektora plików).                                                                                                                     |
-| Załaduj `.bin`                  | Importuje zewnętrzny plik binarny z zestawem znaków o rozmiarze 2048 bajtów.                                                                                                                                       |
-| Podgląd na znak                 | 16-szeroka siatka wszystkich 256 glifów z podświetloną bieżącą komórką.                                                                                                                                            |
-| Edytor pikseli                  | Edytor pojedynczego znaku 8×8 z narzędziami przełączania/odwracania/czyszczenia.                                                                                                                                   |
-| Kolor na znak                   | Przechowuje domyślną wartość pamięci RAM koloru dla każdego glifu. W trybie znaków wielokolorowych zachowuje również bit aktywacji wielokoloru dla każdej komórki oraz własny, 3-bitowy kolor znaku.               |
-| Podróż w obie strony metadanych | Podczas ładowania zgodnych danych z przepływów pracy Charset Canvas/Map, metadane dotyczące koloru dla każdego znaku są zachowywane, dzięki czemu można kontynuować edycję bez utraty zamierzenia kolorystycznego. |
-| Eksportuj bloki                 | Dodaje RAWBYTES pod numerem $0800 (blok 2) lub $3800 (blok 7) z zakodowanym zestawem znaków.                                                                                                                       |
+| Funkcja                         | Opis                                                                                                                                                                                                                                                                        |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Załaduj ROM                     | Ładuje ROM ze znakami C64 — dokładnie glify 901225-01, bez selektora plików. Pierwszy przycisk (i **Pliki → ROM: wielkie litery / grafika **) ładuje zestaw 1, drugi przycisk (lub Shift + kliknięcie, lub **Pliki → ROM: małe litery / wielkie litery **) ładuje zestaw 2. |
+| Załaduj `.bin`                  | Importuje zewnętrzny plik binarny z zestawem znaków o rozmiarze 2048 bajtów.                                                                                                                                                                                                |
+| Podgląd na znak                 | 16-szeroka siatka wszystkich 256 glifów z podświetloną bieżącą komórką.                                                                                                                                                                                                     |
+| Edytor pikseli                  | Edytuje wybrany znak lub **kafelek** 2×1, 1×2 lub 2×2 sąsiadujących znaków jako jeden obraz (selektor kafelków).                                                                                                                                                            |
+| Narzędzia do rysowania          | Ołówek, linia, prostokąt, wypełniony prostokąt i wypełnienie. Kliknięcie na piksel, który już ma tusz, usuwa go.                                                                                                                                                            |
+| Transformuje                    | Wyczyść, odwróć, odbij poziomo/pionowo, przesuń z zawijaniem, obróć o 90° zgodnie z ruchem wskazówek zegara/przeciwnie do ruchu wskazówek zegara (tylko kwadratowe kafelki) — na całym kafelku.                                                                             |
+| Cofnij / Ponów                  | Przyciski paska narzędzi: Ctrl+Z i Ctrl+Y (Ctrl+Shift+Z).                                                                                                                                                                                                                   |
+| Kopiuj/Wklej                    | Przyciski paska narzędzi, Ctrl+C / Ctrl+V lub kliknięcie prawym przyciskiem myszy na mapie; kopiuje cały kafelek wraz z jego kolorami.                                                                                                                                      |
+| Przeciąganie mapy               | Przeciągnij jedną postać na inną na mapie, aby je zamienić; Shift+przeciągnij kopie.                                                                                                                                                                                        |
+| Podgląd tekstu                  | Wpisz tekst, aby zobaczyć go w aktualnym zestawie znaków. Wybierz mapowanie wielkich lub małych liter; `{65}` lub `{$41}` wstawia kod ekranu.                                                                                                                               |
+| Eksport zakresu                 | Ustaw znaki Od/Do, następnie **Pliki → Zapisz zakres (.bin)** (surowe bajty) lub **Kopiuj zakres ASM** (wiersze `.byte`).                                                                                                                                                   |
+| Kolor na znak                   | Przechowuje domyślną wartość pamięci RAM koloru dla każdego glifu. W trybie znaków wielokolorowych zachowuje również bit aktywacji wielokoloru dla każdej komórki oraz własny, 3-bitowy kolor znaku.                                                                        |
+| Podróż w obie strony metadanych | Podczas ładowania zgodnych danych z przepływów pracy Charset Canvas/Map, metadane dotyczące koloru dla każdego znaku są zachowywane, dzięki czemu można kontynuować edycję bez utraty zamierzenia kolorystycznego.                                                          |
+| Eksportuj bloki                 | Dodaje RAWBYTES pod numerem $0800 (blok 2) lub $3800 (blok 7) z zakodowanym zestawem znaków.                                                                                                                                                                                |
 
 ### Edytor płótna zestawu znaków
 
 Malarz pełnego zestawu znaków do tworzenia ekranów z kompletnego, 256-znakowego
 zestawu znaków. Otwórz przez Toolkit → Charset Canvas.
 
-Płótno ma rozmiar 16×16 znaków. W trybie monochromatycznym daje to obszar
-roboczy o wymiarach 128×128 pikseli; w trybie wielokolorowym znaków daje obszar
-roboczy o szerokości 64×128 pikseli, zgodnie z rzeczywistymi regułami
-wielokolorowości znaków w C64.
+Płótno ma wymiary 16×16 znaków i 128×128 pikseli. W trybie wielokolorowym każdy
+znak jest albo wielokolorowy (szerokie piksele, 4 kolory), albo w wysokiej
+rozdzielczości (8 wąskich pikseli, 2 kolory), dokładnie tak jak na C64.
 
-| Funkcja                                        | Opis                                                                                                                                                                                            |
-| ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Mono / wielokolorowy                           | Tryb monochromatyczny przechowuje 1-bitowe glify 8×8. Tryb wielokolorowy przechowuje dwubitowe poziome pary pikseli i oznacza używane komórki bitem 3 pamięci RAM koloru.                       |
-| Model kolorów C64                              | Tło wykorzystuje `$D021`; współdzielony wielokolorowy 1 wykorzystuje `$D022`; współdzielony wielokolorowy 2 wykorzystuje `$D023`; kolor każdego znaku pochodzi z bitów 0–2 pamięci RAM kolorów. |
-| Narzędzia do rysowania                         | Ołówek, gumka, linia, prostokąt, owal i wypełnienie działają niezależnie od granic znaków.                                                                                                      |
-| Narzędzie do rozpylania                        | Rysunek w stylu aerografu, w którym piksele są rozrzucane po sąsiadujących komórkach/znakach.                                                                                                   |
-| Intensywność rozpylania                        | Lista rozwijana obok narzędzia natryskowego umożliwia ustawienie gęstości pociągnięć.                                                                                                           |
-| Przełącznik siatki                             | Pole wyboru Siatka pozwala wyświetlić lub ukryć siatkę znaków 16×16.                                                                                                                            |
-| Zapisz zestaw znaków `.bin`                    | Zapisuje dane mapy bitowej znaków o rozmiarze 2048 bajtów.                                                                                                                                      |
-| Zapisz mapę 16×16 + kolorową pamięć RAM `.bin` | Zapisuje 256 kodów ekranowych, a następnie 256 wartości pamięci RAM kolorów. Użyj tego z `MAP_COPY16X16`.                                                                                       |
-| Załadunek                                      | Można wczytać zapisane zestawy znaków z płótna, zwykłe dane zestawu znaków i zgodne dane zestawu znaków edytora znaków, w tym zapisane kolory dla każdego znaku, jeśli są dostępne.             |
+| Funkcja                                        | Opis                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |                                                |
+| ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| Mono / wielokolorowy                           | Tryb monochromatyczny przechowuje 1-bitowe glify 8×8. Tryb wielokolorowy przechowuje dwubitowe pary pikseli poziomych i oznacza komórki wielokolorowe bitem 3 pamięci Color RAM.                                                                                                                                                                                                                                                                                                                                                          |                                                |
+| Narzędzie trybu znakowego                      | W trybie wielokolorowym kliknij lub przeciągnij nad postaciami, aby przełączać je między trybem wielokolorowym a trybem wysokiej rozdzielczości (bit 3 pamięci RAM kolorów). Kształt jest zachowany: ustawiona para pikseli staje się kolorem postaci. Postać w trybie wysokiej rozdzielczości ma tło i swój własny kolor (0–7); MC1/MC2 nie maluje w tym trybie.                                                                                                                                                                         |                                                |
+| Tło                                            | Lista rozwijana BG jest wyświetlana również w trybie monochromatycznym; MC1/MC2 tylko w trybie wielokolorowym.                                                                                                                                                                                                                                                                                                                                                                                                                            |                                                |
+| ECM                                            | Pole wyboru **ECM** (rozszerzony tryb kolorów, nie w połączeniu z wielokolorowym): każdy znak jest w wysokiej rozdzielczości, ma własny kolor (0–15) i jedno z czterech teł BG0–BG3 (`$D021`–`$D024`; BG1/BG2 to rejestry MC1/MC2). Wybierz kolor tła z palety (oznaczony tagami B0–B3), a następnie kliknij lub przeciągnij po znakach za pomocą narzędzia **Tło znaku**. Zmieści się tylko 64 różnych znaków: linia stanu je zlicza, a zapisywanie łączy równe znaki — zestaw znaków to 64 znaki (512 bajtów), a kody ekranowe to `glif | tło << 6`. Włącz ECM za pomocą `$D011` bitu 6. |
+| Model kolorów C64                              | Tło wykorzystuje `$D021`; współdzielony wielokolorowy 1 wykorzystuje `$D022`; współdzielony wielokolorowy 2 wykorzystuje `$D023`; kolor każdego znaku pochodzi z bitów 0–2 pamięci RAM kolorów.                                                                                                                                                                                                                                                                                                                                           |                                                |
+| Narzędzia do rysowania                         | Ołówek, gumka, linia, prostokąt, owal i wypełnienie działają niezależnie od granic znaków.                                                                                                                                                                                                                                                                                                                                                                                                                                                |                                                |
+| Narzędzie do rozpylania                        | Rysunek w stylu aerografu, w którym piksele są rozrzucane po sąsiadujących komórkach/znakach.                                                                                                                                                                                                                                                                                                                                                                                                                                             |                                                |
+| Intensywność rozpylania                        | Lista rozwijana obok narzędzia natryskowego umożliwia ustawienie gęstości pociągnięć.                                                                                                                                                                                                                                                                                                                                                                                                                                                     |                                                |
+| Przełącznik siatki                             | Pole wyboru Siatka pozwala wyświetlić lub ukryć siatkę znaków 16×16.                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |                                                |
+| Brzęczenie                                     | Suwak powiększenia (2×–24×, całe piksele urządzenia na piksel C64) lub Ctrl + kółko na płótnie; powiększenie jest zapamiętywane. Od 8× Siatka rysuje również cienką linię na krawędzi każdego piksela.                                                                                                                                                                                                                                                                                                                                    |                                                |
+| Zapisz zestaw znaków `.bin`                    | Zapisuje dane mapy bitowej znaków o rozmiarze 2048 bajtów.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |                                                |
+| Zapisz mapę 16×16 + kolorową pamięć RAM `.bin` | Zapisuje 256 kodów ekranowych, a następnie 256 wartości pamięci RAM kolorów. Użyj tego z `MAP_COPY16X16`.                                                                                                                                                                                                                                                                                                                                                                                                                                 |                                                |
+| Załadunek                                      | Można wczytać zapisane zestawy znaków z płótna, zwykłe dane zestawu znaków i zgodne dane zestawu znaków edytora znaków, w tym zapisane kolory dla każdego znaku, jeśli są dostępne.                                                                                                                                                                                                                                                                                                                                                       |                                                |
 
-**Ważne ograniczenie C64: ** w trybie wielokolorowych znaków dwa współdzielone
-kolory są globalne dla całego ekranu (`$D022` / `$D023`). Tylko kolor własny
-znaku jest wyświetlany dla każdej komórki i jest ograniczony do kolorów 0–7,
-ponieważ bit 3 pamięci kolorów wybiera tryb wielokolorowy.
+**Ważne ograniczenie C64: ** w trybie wielokolorowym dwa współdzielone kolory są
+globalne dla całego ekranu (`$D022` / `$D023`). Tylko kolor własny znaku jest
+wyświetlany na komórkę i jest ograniczony do kolorów 0–7, ponieważ bit 3 pamięci
+kolorów wybiera tryb wielokolorowy. Zatem jeden znak wyświetla maksymalnie **4
+kolory** (tło, MC1, MC2 i własny kolor), a cały ekran maksymalnie 3 + 8. W
+palecie współdzielone kolory są oznaczone jako BG / 1 / 2, a kolory 8–15, które
+nie są współdzielone, są przyciemniane. Wybranie takiego koloru umieszcza go
+tylko w rejestrze MC2 lub MC1, dopóki żaden piksel nie korzysta z tego rejestru;
+w przeciwnym razie zmień go na liście rozwijanej (co spowoduje zmianę koloru
+całego ekranu). W trybie wysokiej rozdzielczości (mono) postać ma 2 kolory:
+kolor tła i swój własny kolor (0–15).
 
 ### Edytor map (mapy kafelkowe wielowarstwowe)
 
@@ -5075,13 +5179,19 @@ samochodową z przewijaniem w dół, grę z widokiem z boku lub mapę 2D – i
 wyświetla podgląd całego poziomu za pomocą płynnego przewijania. Otwórz go
 przyciskiem **Edytora Poziomów** na pasku narzędzi obok Edytora Map.
 
-| Funkcja     | Opis                                                                                                                                                                                                                                |
-| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Układ       | **Pionowo**, **Poziomo** lub **Siatka** (wiersze × kolumny, z przyciskami dodawania/usuwania wierszy i kolumn).                                                                                                                     |
-| Ekrany      | **Nowy pusty ekran**, **Dodaj z Edytora Map** (aktualnie otwarta mapa) lub **Załaduj mapę(y) (.bin)…** (kilka eksportów Edytora Map jednocześnie). Przeciągnij ekran z listy na slot; przeciągnij sloty na siebie, aby je zamienić. |
-| Redagowanie | **Edytuj w Edytorze map** otwiera wybrany ekran w Edytorze map i przywraca zmiany: duplikuj, przesuń w górę/lewo lub w dół/prawo, usuń; cofnij/ponów.                                                                               |
-| Zapowiedź   | Przeciągnij podgląd lub użyj klawiszy strzałek, aby przewijać piksel po pikselu; **Odtwórz** przewija automatycznie (kierunek, prędkość 1–8, pętla), spacja = odtwarzanie / zatrzymanie. *Granice* oznaczają granice ekranu.        |
-| Czeki       | Informacje o zestawie znaków i ostrzeżenie, gdy ekrany używają innego zestawu znaków lub kolorów (poziom korzysta z ustawień pierwszego ekranu).                                                                                    |
+| Funkcja           | Opis                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Układ             | **Pionowo**, **Poziomo** lub **Siatka** (wiersze × kolumny, z przyciskami dodawania/usuwania wierszy i kolumn).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| Ekrany            | **Nowy pusty ekran**, **Dodaj z Edytora Map** (aktualnie otwarta mapa) lub **Załaduj mapę(y) (.bin)…** (kilka eksportów Edytora Map jednocześnie). Przeciągnij ekran z listy na slot; przeciągnij sloty na siebie, aby je zamienić.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Redagowanie       | **Edytuj w Edytorze map** otwiera wybrany ekran w Edytorze map i przywraca zmiany: duplikuj, przesuń w górę/lewo lub w dół/prawo, usuń; cofnij/ponów.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Zapowiedź         | Przeciągnij podgląd lub użyj klawiszy strzałek, aby przewijać piksel po pikselu; **Odtwórz** przewija automatycznie (kierunek, prędkość 1–8, pętla), spacja = odtwarzanie / zatrzymanie. *Granice* oznaczają granice ekranu.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Czeki             | Informacje o zestawie znaków i ostrzeżenie, gdy ekrany używają innego zestawu znaków lub kolorów (poziom korzysta z ustawień pierwszego ekranu).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| Atrybuty postaci  | Przycisk **Atrybuty postaci** przełącza podgląd na malowanie atrybutów: wybierz **Solid**, **Ladder**, **Hazard** lub **Collectible**, kliknij postać, a każda komórka z tym kodem ekranowym otrzyma go (lub utraci); przeciągnij, aby uzyskać więcej kodów. Atrybuty są wyświetlane jako kolorowa warstwa i stają się 256-bajtową tabelą `LEVEL_ATTR` (`LEVEL_ATTR_SOLID` = 1, `_LADDER` = 2, `_HAZARD` = 4, `_COLLECT` = 8).                                                                                                                                                                                                                                                                                                                                                                                            |
+| Kontrola krawędzi | Czerwone znaczniki, gdzie sąsiednie ekrany nie są kontynuowane: jedna strona obramowania pusta (spacja), a druga nie, lub jednostronnie wypełniona. Panel boczny zlicza krawędzie i komórki.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Zabarwienie       | **Obramowanie poziomu** i **Własne kolory dla tego ekranu** (tło, obramowanie, wielokolorowe 1/2) dla wybranego ekranu; ramka podglądu pokazuje obramowanie. Eksportowane dla każdego slotu jako `LEVEL_SCR_BG / _BORDER / _MC1 / _MC2` (z `LEVEL_SCR_COLORS` = 1), gdy umieszczony ekran ma własne kolory.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Pamięć            | Rozmiar danych `.level` pod wybranym adresem (obliczony dokładnie tak, jak kompiluje go makro), z ostrzeżeniami dotyczącymi ROM-u BASIC/KERNAL, obszaru wejścia/wyjścia i pamięci poniżej `$0800` oraz rozmiaru RLE poziomu. Polecenie **Eksportuj RLE do bloków / Kopiuj RLE asm** daje poziom RLE spakowany za pomocą rozpakowywacza `level_unrle` (`($FB)` → `($FD)`).                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Bieg w VICE       | Buduje program testowy przewijany joystickiem z poziomu (przewijacz `level-demo`, kod w `$C000`, dane poziomu z `$2000`, niestandardowy zestaw znaków w `$2000`) i uruchamia go w VICE — kolory ekranu zmieniają się, gdy ekran znajduje się w lewym górnym rogu widoku, kamera rozpoczyna pracę od pierwszego obiektu startowego.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Obiekty           | Przycisk **Warstwa obiektów** przełącza podgląd na edycję obiektów: wybierz typ (Start, Wróg, Przedmiot, Drzwi, Wyjście, Wyzwalacz) i bajt **Parametru** (rodzaj wroga, identyfikator przedmiotu, cel drzwi…), kliknij, aby umieścić, przeciągnij, aby przesunąć (przyciągane do 8 pikseli, Shift = swobodny), kliknij obiekt, aby go zaznaczyć i zmienić jego typ/parametr, klawisze strzałek przesuwają go, a klawisz Delete usuwa. Obiekty należą do pozycji na poziomie, a nie do ekranu. Są one wymienione na pasku bocznym, wyświetlane w podglądzie, zapisywane wraz z poziomem i eksportowane w kolejności przewijania (pionowo według osi Y, poziomo według osi X, wiersz po wierszu siatki) jako tabele `LEVEL_OBJ_*` — za pomocą polecenia **Kopiuj asm / Eksportuj do bloków** oraz za pomocą makra `.level`. |
 
 **Menu Pliki: **
 | Działanie                                                               | Co to robi                                                                                                               |
@@ -5107,6 +5217,11 @@ również odtwarzany jest na emulowanym SID: model JS tego samego odtwarzacza
 klatce, a maksymalnie trzy nuty podglądu współdzielą trzy głosy. Odtwarzacz
 strumieniowy jest ładowany po otwarciu edytora i ponownie po zatrzymaniu, więc
 nuty brzmią jednocześnie; bez WebSid odtwarzany jest mały syntezator SID.
+
+**Silnik podglądu: ** **Ustawienia → Podgląd SID** wybiera **WebSID** lub **VA
+SID Core (Rust)**, własną emulację SID aplikacji; w przypadku VA SID Core
+wybiera się również układ (MOS 6581/8580). Parametry instrumentu ustawia się za
+pomocą pokręteł.
 
 **Sterowanie na instrument:**
 - Pola wyboru przebiegów (TRI / SAW / PUL / NOI) — wiele przebiegów jest
@@ -5217,6 +5332,25 @@ eksporcie 6502 oraz są zapisywane/ładowane bezstratnie w wersjonowanym formaci
 - Podgląd akordów i arpeggio podświetla odpowiadające im klawisze fortepianu,
   gdy klawiatura jest otwarta.
 
+**Nagrywanie, metronom i MIDI:**
+- **Record** (czerwona kropka na pasku narzędzi trackera i na VA-VK) zapisuje
+  nuty grane na VA-VK, klawiaturze komputera lub MIDI w tempie wybranego głosu,
+  zaczynając od wybranego wiersza i z aktualną prędkością. Po zapełnieniu
+  schematu, po bieżącym kroku utworu dodawany jest nowy, pusty schemat i tam
+  rozpoczyna się nagrywanie. Naciśnij ponownie przycisk Record, aby zatrzymać.
+- **Metronom** (pasek narzędzi trackera i VA-VK) klika co 4 wiersze, akcentując
+  pierwsze uderzenie każdego 4-uderzenia taktu. Lampki uderzeń obok niego migają
+  przy każdym uderzeniu podczas odtwarzania i nagrywania, nawet gdy klik jest
+  wyłączony.
+- **MIDI:** wybierz wejście z listy **MIDI** obok nazwy instrumentu i naciśnij
+  **Połącz MIDI**; nuty będą odtwarzane przez bieżący instrument (i zapisywane w
+  trackerze podczas nagrywania lub za pomocą *Wstaw do trackera*). Lampka obok
+  przycisku będzie migać przy każdej przychodzącej wiadomości MIDI.
+- **Usuwanie wzoru:** przycisk **−** obok **Pat +** usuwa bieżący wzór (najpierw
+  pyta, czy wzór zawiera nuty). Kroki utworu, które go używały, są usuwane, a
+  pozostałe numerowane ponownie; zawsze pozostaje co najmniej jeden wzór.
+- Pokrętło **regulacji głośności głównej ** znajduje się na VA-VK.
+
 **Eksportowanie menu Pliki: **
 | Eksport                           | Co to robi                                                                                                                                                                                                                                                                                                                                                                                                        |
 | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -5224,7 +5358,26 @@ eksporcie 6502 oraz są zapisywane/ładowane bezstratnie w wersjonowanym formaci
 | `Eksportuj bloki (tylko dane)`    | Dodaje do programu tabelę instrumentów + bloki wzorców w punkcie `* = $C000`.                                                                                                                                                                                                                                                                                                                                     |
 | `Eksport bloków + miniodtwarzacz` | Dodaje pełny odtwarzacz (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) oraz tabele częstotliwości PAL. Po wyeksportowaniu umieść `JSR sid_init` w kodzie głównym w miejscu, w którym ma się zaczynać muzyka; zamiast tego użyj własnego wywołania IRQ `JSR sid_frame` raz na klatkę.                                                                                                             |
 | `Eksportuj asm (schowek)`         | Kopiuje cały kod źródłowy zestawu do schowka.                                                                                                                                                                                                                                                                                                                                                                     |
+| `Importuj GoatTracker .sng…`      | Ładuje utwór GoatTracker 2 w miejsce bieżącego — patrz **Import GoatTracker** poniżej.                                                                                                                                                                                                                                                                                                                            |
 | `Eksportuj do UltimateBasic`      | Zapisuje blok `tune ... end` (instrumenty, lista zamówień, wiersze wzorców jako tekst) oraz `music play` i wstawia go w miejscu kursora edytora Ultimate Basic; poza trybem UB kopiuje tekst do schowka. Kompilator UltimateBasic buduje odtwarzacz, więc steruje nim za pomocą `music play` / `music stop`. Modulacja instrumentu trafia do wierszy `imod` / `ifilt` / `igate` / `itab` (Ultimate Basic 1.6.2+). |
+
+**Import GoatTracker:** **Pliki → Importuj GoatTracker .sng…** ładuje utwór
+GoatTracker 2 (`.sng`, GTS3–GTS5) w miejsce bieżącego. Konwersja jest
+przybliżona, ponieważ oba trackery działają inaczej:
+- Listy kolejności dla każdego głosu (z transpozycją i powtórzeniem) są
+  spłaszczane do jednej piosenki 3-głosowej i cięte na wzory składające się z 32
+  wierszy; identyczne wzory są współdzielone.
+- Instrumenty: przejmowane są AD/SR, pierwsza fala, timer bramki i twardy
+  restart; tabela fal staje się tabelą fal/arpeggio, tabela impulsów PWM, tabela
+  filtrów trybem filtru, rezonansem i odcięciem, a wejście tabeli prędkości
+  staje się vibrato instrumentu.
+- Polecenia wzorcowe: key off → note-off, portamento → `U` / `D` (maksymalnie
+  255 na wiersz), tempo → `F`; toneporta staje się zwykłą nutą. Pozostałe
+  polecenia są pomijane, a komunikat zawiera listę tego, co zostało przybliżone
+  lub pominięte.
+- Bramka zwolniona przez tablicę fal staje się nutą off w kolejnym wolnym
+  wierszu. Importowany jest tylko pierwszy podmelodion, a limit eksportu 7
+  wzorów nadal obowiązuje.
 
 **Użycie ZP gracza: ** `$02`–`$1C` (wskaźniki wzorców, przesunięcie wzorca,
 temperatura) i `$2F` (bieżąca prędkość), plus `$FB`–`$FD` (licznik taktów,
@@ -5243,6 +5396,36 @@ z nich kod główny — w razie potrzeby przenieś je w trybie eksperckim.
   trybie pauzy), podglądy nut są przekierowywane do małego syntezatora, który
   jedynie przybliża układ SID. Podglądy docierają do WebSid około 0,1 s przed
   dźwiękiem.
+
+---
+
+### Odtwarzacz SID
+
+Przycisk paska narzędzi **SID Player** otwiera pływające okno, w którym
+odtwarzane są pliki muzyczne `.sid` (PSID i RSID), na przykład utwory z kolekcji
+HVSC.
+
+- **Playlista:** dodawaj utwory za pomocą **dodaj pliki .sid…** lub upuszczając
+  je na okno i kliknij utwór, aby go odtworzyć; **usuń** i **wyczyść playlistę**
+  uporządkuj listę. **zapisz playlistę…** / **otwórz playlistę…** zapisz i
+  odczytaj plik `.sidpl` z osadzonymi utworami. Zapamiętywana jest lista,
+  bieżący utwór i informacja o otwarciu okna.
+- **Transport:** Odtwarzanie, pauza, stop, **Poprzednia** / **Następna**
+  melodia, **Poprzednia / Następna podmelodia** w przypadku plików z kilkoma
+  utworami i licznik czasu.
+- **Przeszukiwanie:** pasek pozycji i **Wstecz/Do przodu 10 s** działają z
+  silnikiem VA SID Core. WebSID nie obsługuje przeszukiwania, więc te elementy
+  sterujące są w nim wyłączone.
+- **Głośność:** pokrętło jest współdzielone z głównym regulatorem głośności
+  edytora SID.
+- **Silnik:** okno pokazuje, który silnik odtwarza (WebSID czy VA SID Core wraz
+  z jego wersją i chipem SID); wybierz go w **Ustawienia → Podgląd SID**. VA SID
+  Core uruchamia utwór na natywnym rdzeniu Rust C64 z procesorem 6510 o
+  dokładnym taktowaniu cyklicznym, precyzyjnym taktowaniem przerwań, CIA 6526A,
+  taktowaniem VIC-II z błędnymi liniami, przerwaniami DMA i rastrowymi dla
+  sprite'ów oraz portem wejścia/wyjścia 6510 — dzięki czemu utwory rastrowe z
+  przerwaniami IRQ, taktowane przez CIA i cyfrowe odtwarzają się z taktowaniem
+  prawdziwej maszyny.
 
 ---
 

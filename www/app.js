@@ -47779,7 +47779,7 @@ function setupLicense() {
   document.getElementById("license-request")?.addEventListener("click", _vaLicenseRequest);
   document.getElementById("license-close")?.addEventListener("click", function() { document.getElementById("license-dialog")?.close(); });
   document.getElementById("license-buy")?.addEventListener("click", function() {
-    const url = "https://www.c64va.pro/";
+    const url = "https://www.c64va.pro/register/buy.php?lang=" + (currentLanguage === "hu" ? "hu" : "en");
     if (window.electronAPI?.openExternal) window.electronAPI.openExternal(url); else window.open(url, "_blank", "noopener");
   });
   _vaLicenseRefresh();

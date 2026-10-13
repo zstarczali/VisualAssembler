@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Manuale utente
 
-**Versione 2.5.5**
+**Versione 2.5.7**
 
 Un assembler visuale a blocchi per il Commodore 64, basato sul processore 6502.
 Crea programmi trascinando e rilasciando blocchi di istruzioni e visualizza in
@@ -11,6 +11,8 @@ tempo reale il codice assembly e il codice macchina generati.
 ## Sommario
 
 - [C64 Visual Assembler — Manuale utente](#c64-visual-assembler--user-manual)
+    - [Punti salienti della versione 2.5.7](#version-257-highlights)
+    - [Punti salienti della versione 2.5.6](#version-256-highlights)
     - [Punti salienti della versione 2.5.5](#version-255-highlights)
     - [Punti salienti della versione 2.5.4](#version-254-highlights)
     - [Punti salienti della versione 2.5.3](#version-253-highlights)
@@ -40,6 +42,7 @@ tempo reale il codice assembly e il codice macchina generati.
     - [Numeri di riga ASSM](#asm-line-numbers)
     - [Modulo di avanzamento della compilazione](#compile-progress-modal)
   - [5. Impostazioni e barra degli strumenti](#5-settings--toolbar)
+    - [Freemium e Professional](#freemium-and-professional)
     - [Modelli di progetto](#project-templates)
     - [Progetto di costruzione](#build-project)
     - [Esempi di programmi](#example-programs)
@@ -183,8 +186,62 @@ tempo reale il codice assembly e il codice macchina generati.
       multilivello)](#map-editor-multilayer-tilemaps)
     - [Editor di livelli](#level-editor)
     - [Editor SID (Tracker a 3 voci)](#sid-editor-3-voice-tracker)
+    - [SID Player](#sid-player)
     - [Editor di curve](#curve-editor)
     - [Convertitore di numeri](#number-converter)
+
+---
+
+## Punti salienti della versione 2.5.7
+
+- **VA SID Core 1.2** — il SID Player ora utilizza un core nativo Rust C64: un
+  6510 a ciclo esatto con temporizzazione precisa degli interrupt, il CIA 6526A,
+  temporizzazione VIC-II con linee errate, DMA sprite e interrupt raster e la
+  porta I/O del 6510. Vedi [SID Player](#sid-player).
+- **Editor ad alta risoluzione** — due colori in ogni cella 8×8: il nuovo
+  strumento **Carta per celle**. Vedi [Editor ad alta
+  risoluzione/multicolore](#hi-res--multicolor-editor).
+- **ROM esatta del personaggio** nel visualizzatore ROM, nell'editor dei
+  personaggi **Carica ROM** e negli editor di mappe/livelli.
+- **Editor di sprite** — sovrapposizione ad alta risoluzione, riempimento a
+  inondazione, selezione/spostamento, rotazione, specchia tutto, importazione di
+  fogli di sprite, hitbox, anteprima X/Y ×2. Vedi [Editor di
+  sprite](#sprite-editor).
+- **Editor di livelli** — oggetti, attributi dei personaggi, controllo dei
+  bordi, colori per schermata, indicatore di memoria con RLE, esegui in VICE.
+  Vedi [Editor di livelli](#level-editor).
+- **Editor di caratteri** — annulla/ripristina, strumenti di disegno, ruota di
+  90°, copia/incolla e trascina per scambiare sulla mappa, tessere 2×2, set ROM
+  minuscolo, anteprima del testo ed esportazione dell'intervallo. Vedi [Editor
+  di caratteri](#character-editor-charset).
+- **Charset Canvas** — zoom 2×–24× (cursore o Ctrl+rotella) con griglia di
+  pixel, colore di sfondo in modalità ad alta risoluzione, caratteri ad alta
+  risoluzione all'interno della modalità multicolore e **ECM** (uno sfondo per
+  ogni carattere). Vedi [Editor Charset Canvas](#charset-canvas-editor).
+
+---
+
+## Punti salienti della versione 2.5.6
+
+- **SID Player** — un nuovo pulsante della barra degli strumenti apre un lettore
+  mobile per i brani `.sid` (PSID / RSID): una playlist con trascinamento, brano
+  precedente/successivo, sottobrani, ricerca e ±10 s, volume e
+  salvataggio/apertura della playlist (`.sidpl`); l'elenco e lo stato della
+  finestra vengono memorizzati. Vedi [SID Player](#sid-player).
+- **VA SID Core 1.1** — un'emulazione SID integrata (MOS 6581 / 8580, con un
+  filtro 6581 allineato a reSID) e un lettore PSID / RSID a ciclo bloccato (CPU
+  6510, temporizzazione CIA / VIC). Selezionalo in **Impostazioni → Anteprima
+  SID**; il lettore SID mostra quale motore è in esecuzione.
+- **Editor SID** — manopole per i parametri dello strumento, un grafico ADSR più
+  ampio, **ingresso MIDI**, **registrazione** nel tracker (viene aggiunto un
+  nuovo pattern quando quello corrente è pieno), un **metronomo** con spie di
+  battito, **eliminazione pattern**, il volume master su VA-VK e **Importa
+  GoatTracker .sng**. Vedi [Editor SID](#sid-editor-3-voice-tracker).
+- **Freemium e Professional** — senza registrazione l'app funziona come
+  Freemium; inserisci l'indirizzo email e il numero di serie del tuo acquisto in
+  **Menu → Registrati…** per ottenere la versione Professional. Vedi [Freemium e
+  Professional](#freemium-and-professional).
+- **Ultimate Basic 1.6.4** incluso.
 
 ---
 
@@ -383,26 +440,20 @@ tempo reale il codice assembly e il codice macchina generati.
   lavoro si trova in un piccolo badge sopra il titolo della vista ASM e utilizza
   lo stesso badge nelle barre degli strumenti Expert e Ultimate Basic. Le
   etichette dei pulsanti di dialogo non vanno più a capo.
-- **Riferimento ai comandi base definitivi** — `tune` e `music` mostrano esempi
-  completi e commentati (formato cella, effetti, note del lettore, `music play
-  N`); `inst`, `order`, `pat` e la melodia `speed` hanno voci proprie; `data`
-  mostra la nuova forma dell'array; la sintassi di `load sid` è corretta (`load
-  sid "tune.sid", $2000`).
+- **Controllo degli aggiornamenti più robusto** — l'elenco dei programmi di
+  installazione è pubblicato su c64va.pro/downloads/VA/, quindi il controllo
+  funziona con la nuova pagina di download; l'assistente di aggiornamento per
+  Linux non eredita più i percorsi della libreria AppImage.
 
 ---
 
 ## Punti salienti della versione 2.4.6
 
-- **Editor SID → Esporta in UltimateBasic** — **File → Esporta in
-  UltimateBasic** scrive la melodia come un blocco `tune ... end` (strumenti,
-  elenco ordini e righe pattern come testo) seguito da `music play` e lo
-  inserisce nel cursore dell'editor di Ultimate Basic (al di fuori della
-  modalità UB viene copiato negli appunti). Il compilatore di UltimateBasic crea
-  un lettore senza pagine zero in fase di compilazione, quindi `music play` /
-  `music stop` controllano la melodia e nulla entra in conflitto con le
-  variabili UB. Sono supportati gli effetti vibrato, slide, note-cut e velocità;
-  fino a 8 pattern, qualsiasi lunghezza dell'elenco ordini. Richiede un
-  compilatore UltimateBasic con supporto `tune`.
+- **Aggiornamenti in-app** — **Menu → Verifica aggiornamenti** controlla
+  c64va.pro per una versione più recente e, in caso di conferma, scarica il
+  programma di installazione per la tua piattaforma con una barra di avanzamento
+  e lo installa. Vedi [Aggiornamenti in-app](#in-app-updates). La verifica viene
+  eseguita anche silenziosamente ad ogni avvio.
 - **Aggiornamento del linguaggio Ultimate Basic** — l'evidenziazione della
   sintassi e il riferimento ai comandi ora coprono **`sfx`** (effetto SID non
   bloccante: `canale sfx, freq, frame [, wave]`), **`org`** (continua il codice
@@ -498,7 +549,7 @@ tempo reale il codice assembly e il codice macchina generati.
   finestra di dialogo non oscura più il resto dell'app sottostante mentre è
   aperta.
 - **Web64 sul sito del prodotto** — una nuova sezione Web64 IDE su
-  [c64va.tech](https://www.c64va.tech).
+  [c64va.pro](https://www.c64va.pro).
 - **Aggiornamento dell'esempio** — l'esempio `macro-con-parametro` ora utilizza
   la forma tra parentesi `.macro setColor(colore)`.
 
@@ -563,11 +614,10 @@ tempo reale il codice assembly e il codice macchina generati.
   vuoto o avvia il disco corrente direttamente in VICE, tutto da un menu File ▾
   che corrisponde agli altri editor visivi. Vedi [Editor D64 (sfoglia e modifica
   un'immagine disco esistente)]{1}.
-- **Aggiungi / estrai / rinomina / elimina nell'editor D64** — aggiungi un file
-  locale alla directory del disco, estrai una voce selezionata in un `.prg`,
-  rinomina una voce in linea nella tabella o eliminala — ogni azione viene
-  applicata direttamente al file `.d64` tramite `c1541`, senza alcun passaggio
-  di salvataggio separato.
+- **Pulsante della barra degli strumenti Guida in linea** — un nuovo pulsante
+  icona dopo Debug apre il sito della documentazione multilingue
+  ([c64va.pro/docs.html](https://www.c64va.pro/docs.html)) direttamente
+  dall'app.
 - **Indirizzo di caricamento, indirizzo di decompressione ed Exomizer
   nell'editor D64** — l'aggiunta di un file raw senza intestazione consente di
   impostare un indirizzo di caricamento opzionale, una destinazione di
@@ -898,13 +948,14 @@ dopo il riavvio dell'applicazione. Un nuovo codice sorgente inizia con:
   nella directory di configurazione dell'app finché al progetto non viene
   assegnato un percorso file. | **Base di conoscenza** | Collegamenti di
   riferimento (opcode 6502, kernel C64, mappa della memoria, colori) | |
-  **Verifica aggiornamenti** | Controlla c64va.tech per una versione più recente
+  **Verifica aggiornamenti** | Controlla c64va.pro per una versione più recente
   e scaricala/installala — vedi [Aggiornamenti in-app](#in-app-updates) |
 
 ### Strumenti dell'editor
 
-La barra degli strumenti UB segue lo stesso linguaggio visivo e gli stessi
-suggerimenti personalizzati della modalità Esperto. Offre:
+**Menu → Verifica aggiornamenti** cerca la versione più recente su c64va.pro
+(legge i link di download per la tua piattaforma) e la confronta con la versione
+in esecuzione:
 
 - Evidenziazione della sintassi basata sul riferimento corrente al linguaggio
   Ultimate Basic;
@@ -925,6 +976,29 @@ L'elenco dei comandi è intenzionalmente limitato in altezza in modo che la
 scheda dei dettagli del comando possa riempire l'altezza rimanente del pannello.
 L'area dei dettagli scorre indipendentemente per consentire descrizioni di
 sintassi più lunghe.
+
+### Freemium e Professionale
+
+Senza registrazione Visual Assembler funziona come **Freemium**; il badge
+accanto al titolo mostra **FREEMIUM** o **PROFESSIONAL**. Nella versione
+Freemium è possibile scrivere e compilare programmi ed eseguirli in VICE nelle
+modalità Block, Expert e Ultimate Basic. Queste richiedono la versione
+Professional:
+
+- gli editor visivi (SID, Sprite, Char, Charset, Hi-Res, Map, Level, D64, Curve)
+  e il SID Player;
+- **Compila PRG**, **Compila D64**, **Compila CRT**, **Compila il progetto** e
+  il packaging di Exomizer;
+- in esecuzione su C64 Ultimate e su Kung Fu Flash 2;
+- Lingue dell'interfaccia utente diverse dall'ungherese e dall'inglese, e i temi
+  OLED e Commodore 77.
+
+Facendo clic su una funzione bloccata si apre la finestra di dialogo di
+registrazione. Per registrarsi, aprire **Menu → Registra…** (oppure fare clic
+sul badge), inserire l'indirizzo e-mail e il numero di serie dell'acquisto e
+premere **Attiva**. Il numero di serie appartiene a quell'indirizzo e-mail
+(maiuscole/minuscole e spazi non sono importanti) e la verifica viene eseguita
+offline. **Rimuovi licenza** rimuove la registrazione da questo computer.
 
 ### Progetti, schede e file di avvio
 
@@ -2575,17 +2649,22 @@ puntatori seguono le schermate. Un livello può avere fino a 7 × 10 schermate.
 .level "level.bin", $4000
 ```
 
-| Definizione                                              | Senso                                                                                                               |
-| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `LIVELLO_SLOT_BASSO` / `LIVELLO_SLOT ALTO`               | Indirizzo dello schermo in ogni slot (per riga, `LEVEL_W` slot per riga)                                            |
-| `LIVEL_ROW_SLOT`                                         | Riga del personaggio di livello → primo slot della sua riga dello schermo                                           |
-| `LIVELLO_RIGA_BASSO/ALTO`, `LIVELLO_RIGA_BASSO/ALTO`     | Riga del carattere di livello → offset della sua riga di codice schermo / riga di colore all'interno di uno schermo |
-| `LEVEL_COL_SLOT`, `LEVEL_COL_OFS`                        | Visualizza la colonna iniziale → colonna dello schermo e colonna all'interno dello schermo                          |
-| `LIVELLO_O`, `LIVELLO_ALTO`                              | Livello di dimensione negli schermi                                                                                 |
-| `LEVEL_COLS`, `LEVEL_ROWS`                               | Dimensione del livello in caratteri                                                                                 |
-| `LIVELLO_MAX_X`, `LIVELLO_MAX_Y`                         | Posizione di scorrimento massima in pixel di una vista 40×25                                                        |
-| `LIVEL_BG`, `LIVEL_MC1`, `LIVEL_MC2`, `LIVEL_MULTICOLOR` | Sfondo / colori multicolore e modalità del livello                                                                  |
-| `DATI_LIVELLO`, `DIMENSIONE_LIVELLO`, `FINE_LIVELLO`     | Inizio, dimensione e primo indirizzo libero dopo i dati di livello                                                  |
+| Definizione                                                                   | Senso                                                                                                                                                                                  |
+| ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `LIVELLO_SLOT_BASSO` / `LIVELLO_SLOT ALTO`                                    | Indirizzo dello schermo in ogni slot (per riga, `LEVEL_W` slot per riga)                                                                                                               |
+| `LIVEL_ROW_SLOT`                                                              | Riga del personaggio di livello → primo slot della sua riga dello schermo                                                                                                              |
+| `LIVELLO_RIGA_BASSO/ALTO`, `LIVELLO_RIGA_BASSO/ALTO`                          | Riga del carattere di livello → offset della sua riga di codice schermo / riga di colore all'interno di uno schermo                                                                    |
+| `LEVEL_COL_SLOT`, `LEVEL_COL_OFS`                                             | Visualizza la colonna iniziale → colonna dello schermo e colonna all'interno dello schermo                                                                                             |
+| `LIVELLO_O`, `LIVELLO_ALTO`                                                   | Livello di dimensione negli schermi                                                                                                                                                    |
+| `LEVEL_COLS`, `LEVEL_ROWS`                                                    | Dimensione del livello in caratteri                                                                                                                                                    |
+| `LIVELLO_MAX_X`, `LIVELLO_MAX_Y`                                              | Posizione di scorrimento massima in pixel di una vista 40×25                                                                                                                           |
+| `LIVEL_BG`, `LIVEL_MC1`, `LIVEL_MC2`, `LIVEL_MULTICOLOR`                      | Sfondo / colori multicolore e modalità del livello                                                                                                                                     |
+| `DATI_LIVELLO`, `DIMENSIONE_LIVELLO`, `FINE_LIVELLO`                          | Inizio, dimensione e primo indirizzo libero dopo i dati di livello                                                                                                                     |
+| `LIVEL_OBJ_X_LO/HI`, `LIVEL_OBJ_Y_LO/HI`, `LIVEL_OBJ_TYPE`, `LIVEL_OBJ_PARAM` | Tabella degli oggetti (livello oggetti dell'editor di livello): posizione in pixel del livello, tipo e byte del parametro, in ordine di scorrimento — `LEVEL_OBJ_COUNT` voci (max 255) |
+| `LEVEL_OBJ_T_START` … `LEVEL_OBJ_T_TRIGGER`                                   | Numeri dei tipi di oggetto: INIZIO 0, NEMICO 1, OGGETTO 2, PORTA 3, USCITA 4, GRILLETTO 5                                                                                              |
+| `LIVELLO_INIZIO_X`, `LIVELLO_INIZIO_Y`                                        | Posizione del primo oggetto Start (definita solo se il livello ne possiede uno)                                                                                                        |
+| `LEVEL_ATTR`, `LEVEL_ATTR_SOLID` … `LEVEL_ATTR_COLLECT`                       | Tabella degli attributi del personaggio (un byte flag per codice schermo; solo quando il livello ha attributi) e i suoi bit: 1, 2, 4, 8                                                |
+| `LIVEL_BORDER`, `LIVEL_SCR_COLORS`, `LIVEL_SCR_BG/BORDER/MC1/MC2`             | Bordo del livello; tabelle dei colori per slot (per riga come `LEVEL_SLOT_*`) quando uno schermo ha i propri colori (`LEVEL_SCR_COLORS` = 1)                                           |
 
 Guardia tipica: `.assert LEVEL_END &lt;= $9200, "i dati di livello vengono
 eseguiti nel codice"`.
@@ -5061,7 +5140,7 @@ direttamente a un disco D64 tramite la voce **Salva su D64**.
 
 ### Editor ad alta risoluzione/multicolore
 
-| Caratteristica        | Descrizione                                                                                                                        |
+| Collocamento          | Descrizione                                                                                                                        |
 | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
 | Interruttore modalità | **Multicolore** La casella di controllo commuta tra alta risoluzione (monocromatico per cella) e multicolore (4 colori per cella). |
 | **Stato**             | Indica se il percorso del file eseguibile è valido e accessibile.                                                                  |
@@ -5072,11 +5151,11 @@ risoluzione.
 
 ### Editor di sprite
 
-| Caratteristica | Descrizione                                                                       |
-| -------------- | --------------------------------------------------------------------------------- |
-| Cornici        | Aggiungi/rimuovi/riordina le cornici; la striscia di cornici è mostrata in basso. |
-| Modalità       | Interruttore monocromatico/multicolore.                                           |
-| **Stato**      | Indica se il percorso del file eseguibile è valido e accessibile.                 |
+| Collocamento | Descrizione                                                                       |
+| ------------ | --------------------------------------------------------------------------------- |
+| Cornici      | Aggiungi/rimuovi/riordina le cornici; la striscia di cornici è mostrata in basso. |
+| Modalità     | Interruttore monocromatico/multicolore.                                           |
+| **Stato**    | Indica se il percorso del file eseguibile è valido e accessibile.                 |
 
 **Flusso di lavoro:**
 1. Installa il file binario di Exomizer:
@@ -5114,7 +5193,7 @@ specifica per una singola piattaforma.
 
 ### Browser delle ROM dei personaggi del C64 ("Mappa dei caratteri")
 
-| Caratteristica       | Descrizione                                                                                                                                                                                                                                           |
+| Collocamento         | Descrizione                                                                                                                                                                                                                                           |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Due set di caratteri | Scheda 1: **Set 1 — Superiore/Grafica** (modalità predefinita dopo l'accensione). Scheda 2: **Set 2 — Inferiore/Superiore** (dopo lo switch `$0E`).                                                                                                   |
 | **Stato**            | Griglia 16×16 di tutti i 256 caratteri. Clicca su un glifo per visualizzare il pannello dei dettagli: vista ingrandita 8×8 pixel, codice schermo (decimale + esadecimale), codici PETSCII (sia predefiniti che traslati) e la bitmap grezza a 8 byte. |
@@ -5129,7 +5208,7 @@ trovare il codice schermo di un glifo prima di scriverlo con `RAWBYTES` o
 Editor di caratteri 8×8 con supporto per 256 caratteri. Apribile tramite Toolkit
 → Editor di caratteri.
 
-| Caratteristica          | Descrizione                                                                                   |
+| Collocamento            | Descrizione                                                                                   |
 | ----------------------- | --------------------------------------------------------------------------------------------- |
 | Carica la ROM           | Importa il charset della ROM C64 direttamente da `chargen` di VICE (senza selettore di file). |
 | Carica `.bin`           | Importa un file binario esterno con set di caratteri da 2048 byte.                            |
@@ -5165,7 +5244,7 @@ regole di stampa multicolore dei caratteri del C64.
 - un cavo **USB** che collega la cartuccia al computer su cui è in esecuzione
   Visual Assembler (viene visualizzato come una porta seriale virtuale).
 
-| Caratteristica            | Descrizione                                                                                                                                                                                      |
+| Collocamento              | Descrizione                                                                                                                                                                                      |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Monocromatico/multicolore | La modalità monocromatica memorizza glifi 8×8 a 1 bit. La modalità multicolore memorizza coppie di pixel orizzontali a due bit e contrassegna le celle utilizzate con il bit 3 della RAM Colore. |
 
@@ -5219,38 +5298,45 @@ Editor di bitmap a livello di pixel con modalità ad alta risoluzione 320×200 e
 modalità multicolore 160×200. Apribile tramite Toolkit → Editor ad alta
 risoluzione.
 
-| Caratteristica          | Descrizione                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Interruttore modalità   | **Multicolore** La casella di controllo commuta tra alta risoluzione (monocromatico per cella) e multicolore (4 colori per cella).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| Utensili                | Matita, gomma, linea, rettangolo, rettangolo pieno, ovale, ovale pieno, riempimento a inondazione, seleziona.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| Strumento a spruzzo     | Un programma di pittura in stile aerografo che sparge pixel intorno al cursore durante il disegno.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| Intensità dello spruzzo | Il menu a tendina accanto allo strumento spray controlla la densità di ogni spruzzo.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| Tavolozza di colori     | Selettori per primo piano (inchiostro) e carta (sfondo). La modalità multicolore traccia automaticamente 3 colori extra per cella.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| Annulla / Ripeti        | Cronologia per ogni singolo colpo, ctrl-Z / ctrl-Y.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| Selezionare             | Lo strumento quadrato tratteggiato: trascina sulla tela per selezionare un'area rettangolare. **Esc** cancella la selezione.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| Copia/Incolla           | **Copia** (`Ctrl/Cmd+C`) copia la regione selezionata. **Incolla** (`Ctrl/Cmd+V`) mostra un'anteprima che segue il cursore: fai clic sulla tela per posizionarla, **Esc** annulla. La copia viene mantenuta, quindi premendo `Ctrl/Cmd+V` e facendo di nuovo clic la si posiziona tutte le volte necessarie. In modalità ad alta risoluzione i pixel incollati rispettano ancora il limite di due colori per cella, quindi allinea la regione con la griglia delle celle per mantenerne i colori. Copia, Incolla e Incolla trasparente sono presenti anche nel menu contestuale del tasto destro del mouse sulla tela; un'operazione di incolla avviata da lì viene visualizzata in anteprima nel punto in cui si fa clic. |
-| Pasta trasparente       | `Ctrl/Cmd+Shift+V` (o il relativo pulsante nella barra degli strumenti) salta i pixel color carta della copia, in modo che l'immagine sottostante sia visibile.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| Griglia + raster        | **Griglia** mostra la griglia delle celle dei caratteri: 8×8 pixel in alta risoluzione, 4×8 pixel a doppia larghezza in multicolore. Con uno zoom 4× disegna anche una linea più sottile attorno a ogni singolo pixel, in modo che ogni pixel possa essere posizionato con precisione. **Raster** aggiunge una sovrapposizione di righe raster.                                                                                                                                                                                                                                                                                                                                                                            |
-| Zoom                    | Cursore da 1× a 16×.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| Immagine G              | I file PNG/JPEG/GIF trascinati sull'area di lavoro vengono automaticamente quantizzati alla tavolozza a 16 colori del C64.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| Blocchi di esportazione | Aggiunge al programma blocchi BYTE/RAWBYTES contenenti i dati codificati relativi a bitmap, schermo e colore.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| Esporta `.bin`          | Salva il formato multicolore nativo (10000 byte: 8000 bitmap + 1000 schermo + 1000 colore) pronto per LOADFILE a $2000.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Caratteristica                     | Descrizione                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Interruttore modalità              | **Multicolore** La casella di controllo commuta tra alta risoluzione (monocromatico per cella) e multicolore (4 colori per cella).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Utensili                           | Matita, gomma, linea, rettangolo, rettangolo pieno, ovale, ovale pieno, riempimento a inondazione, carta a celle, seleziona.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Carta cellulare (alta risoluzione) | L'alta risoluzione consente due colori in ogni cella 8×8: l'inchiostro (pixel impostati, nibble alto del byte di RAM dello schermo della cella) e la carta (pixel cancellati, nibble basso). Lo strumento **Carta della cella** imposta la carta di ogni cella su cui si fa clic o si trascina il cursore sul colore selezionato; **CARTA** imposta comunque tutte le celle contemporaneamente. La gomma cancella i pixel, in modo che venga visualizzata la carta della cella. Disabilitato in modalità multicolore, dove lo sfondo ($D021) è condiviso.                                                                                                                                                                  |
+| Strumento a spruzzo                | Un programma di pittura in stile aerografo che sparge pixel intorno al cursore durante il disegno.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Intensità dello spruzzo            | Il menu a tendina accanto allo strumento spray controlla la densità di ogni spruzzo.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Tavolozza di colori                | Selettori per primo piano (inchiostro) e carta (sfondo). La modalità multicolore traccia automaticamente 3 colori extra per cella.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Annulla / Ripeti                   | Cronologia per ogni singolo colpo, ctrl-Z / ctrl-Y.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Selezionare                        | Lo strumento quadrato tratteggiato: trascina sulla tela per selezionare un'area rettangolare. **Esc** cancella la selezione.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Copia/Incolla                      | **Copia** (`Ctrl/Cmd+C`) copia la regione selezionata. **Incolla** (`Ctrl/Cmd+V`) mostra un'anteprima che segue il cursore: fai clic sulla tela per posizionarla, **Esc** annulla. La copia viene mantenuta, quindi premendo `Ctrl/Cmd+V` e facendo di nuovo clic la si posiziona tutte le volte necessarie. In modalità ad alta risoluzione i pixel incollati rispettano ancora il limite di due colori per cella, quindi allinea la regione con la griglia delle celle per mantenerne i colori. Copia, Incolla e Incolla trasparente sono presenti anche nel menu contestuale del tasto destro del mouse sulla tela; un'operazione di incolla avviata da lì viene visualizzata in anteprima nel punto in cui si fa clic. |
+| Pasta trasparente                  | `Ctrl/Cmd+Shift+V` (o il relativo pulsante nella barra degli strumenti) salta i pixel color carta della copia, in modo che l'immagine sottostante sia visibile.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Griglia + raster                   | **Griglia** mostra la griglia delle celle dei caratteri: 8×8 pixel in alta risoluzione, 4×8 pixel a doppia larghezza in multicolore. Con uno zoom 4× disegna anche una linea più sottile attorno a ogni singolo pixel, in modo che ogni pixel possa essere posizionato con precisione. **Raster** aggiunge una sovrapposizione di righe raster.                                                                                                                                                                                                                                                                                                                                                                            |
+| Zoom                               | Cursore da 1× a 16×.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Immagine G                         | I file PNG/JPEG/GIF trascinati sull'area di lavoro vengono automaticamente quantizzati alla tavolozza a 16 colori del C64.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Blocchi di esportazione            | Aggiunge al programma blocchi BYTE/RAWBYTES contenenti i dati codificati relativi a bitmap, schermo e colore.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Esporta `.bin`                     | Salva il formato multicolore nativo (10000 byte: 8000 bitmap + 1000 schermo + 1000 colore) pronto per LOADFILE a $2000.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 
 ### Editor di sprite
 
 Editor di sprite da 24×21 pixel con animazione multi-frame. Apri tramite Toolkit
 → Editor di sprite.
 
-| Caratteristica            | Descrizione                                                                                                                                                                                                                                                                           |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Cornici                   | Aggiungi / rimuovi / riordina i frame; la striscia di frame viene visualizzata in basso. **Copia** / **Incolla** nella riga del frame copia l'intero frame corrente; le stesse due voci sono presenti nel menu contestuale del canvas e della striscia di frame.                      |
-| Modalità                  | Interruttore monocromatico/multicolore.                                                                                                                                                                                                                                               |
-| Utensili                  | Matita, riempimento, linea, rettangolo, cerchio — più capovolgi orizzontalmente, capovolgi verticalmente, sposta a sinistra/destra/su/giù (con ritorno a capo opzionale). Gli strumenti Forma mostrano un'anteprima in tempo reale durante il trascinamento; rilascia per confermare. |
-| Annulla / Ripeti          | Stack completo di annulla/ripristina per ogni fotogramma. Ctrl/Cmd+Z / Ctrl/Cmd+Y o i pulsanti della barra degli strumenti.                                                                                                                                                           |
-| Importazione immagini     | Importa un'immagine PNG o JPEG tramite File → Importa immagine. Il programma di importazione associa ogni pixel al colore della tavolozza C64 più vicino e lo scrive nel frame corrente.                                                                                              |
-| Anteprima dell'animazione | Riproduzione/Arresto con velocità configurabile.                                                                                                                                                                                                                                      |
-| Blocchi di esportazione   | Inserisce un blocco RAWBYTES a un indirizzo allineato a 64 byte per ogni fotogramma, oltre a una configurazione del puntatore sprite.                                                                                                                                                 |
-| Salva `.bin`              | Scrive 64 byte per fotogramma (dati sprite grezzi senza riempimento).                                                                                                                                                                                                                 |
+| Caratteristica                      | Descrizione                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Cornici                             | Aggiungi / rimuovi / riordina i frame; la striscia di frame viene visualizzata in basso. **Copia** / **Incolla** nella riga del frame copia l'intero frame corrente; le stesse due voci sono presenti nel menu contestuale del canvas e della striscia di frame.                                                                                                                                                                                                                                      |
+| Modalità                            | Interruttore monocromatico/multicolore.                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Utensili                            | Matita, riempimento, linea, rettangolo, cerchio — più capovolgi orizzontalmente, capovolgi verticalmente, sposta a sinistra/destra/su/giù (con ritorno a capo opzionale). Gli strumenti Forma mostrano un'anteprima in tempo reale durante il trascinamento; rilascia per confermare.                                                                                                                                                                                                                 |
+| Annulla / Ripeti                    | Stack completo di annulla/ripristina per ogni fotogramma. Ctrl/Cmd+Z / Ctrl/Cmd+Y o i pulsanti della barra degli strumenti.                                                                                                                                                                                                                                                                                                                                                                           |
+| Importazione immagini               | Importa un'immagine PNG o JPEG tramite File → Importa immagine. Il programma di importazione associa ogni pixel al colore della tavolozza C64 più vicino e lo scrive nel frame corrente.                                                                                                                                                                                                                                                                                                              |
+| Anteprima dell'animazione           | Riproduzione/Arresto con velocità configurabile.                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| Blocchi di esportazione             | Inserisce un blocco RAWBYTES a un indirizzo allineato a 64 byte per ogni fotogramma, oltre a una configurazione del puntatore sprite.                                                                                                                                                                                                                                                                                                                                                                 |
+| Salva `.bin`                        | Scrive 64 byte per fotogramma (dati sprite grezzi senza riempimento).                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Selezione                           | **Seleziona / sposta**: trascina un rettangolo, quindi trascina al suo interno per spostare i pixel (i pixel vuoti sono trasparenti); i tasti freccia lo spostano di un pixel (due in modalità multicolore), Canc lo cancella, Esc lo rilascia. **Ruota di 90°** (in entrambe le direzioni) ruota la selezione o l'intera cornice. La selezione, il capovolgimento, lo spostamento e la rotazione agiscono contemporaneamente sul corpo e sulla sovrapposizione.                                      |
+| Sovrapposizione ad alta risoluzione | **Sovrapposizione ad alta risoluzione** aggiunge un secondo sprite ad alta risoluzione monocolore su ogni fotogramma: il classico contorno su un corpo multicolore. L'elenco **Livello** seleziona il livello modificato; la sovrapposizione viene attenuata mentre il corpo viene modificato. Sul C64 è uno sprite separato: assegnagli un numero di sprite inferiore rispetto al corpo. `.bin` e **Copia byte** scrivono gli sprite della sovrapposizione dopo quelli del corpo (`sprite_f1_ov_1`). |
+| Specchia tutto                      | Aggiunge una copia speculare orizzontalmente di ogni fotogramma (e della relativa hitbox): un ciclo di camminata nella direzione opposta con un solo clic.                                                                                                                                                                                                                                                                                                                                            |
+| Importazione del foglio sprite      | File → **Importa foglio sprite…**: larghezza/altezza cella, offset, spazio e numero di fotogrammi dividono l'immagine in fotogrammi delle dimensioni correnti (le celle multicolore vengono ridimensionate a 12 pixel per sprite). I colori provengono dall'immagine o rimangono quelli dello sprite; corrispondenza OKLab senza dithering, ordinato (Bayer) o Floyd-Steinberg. Sostituisce i fotogrammi o li aggiunge ad essi.                                                                       |
+| Hitbox                              | Lo strumento **Hitbox** trascina un rettangolo per ogni fotogramma (ciano tratteggiato); **Adatta**, **Adatta ogni fotogramma**, **Copia in ogni fotogramma** e **Rimuovi** nel pannello laterale. File → **Copia tabella hitbox** restituisce `sprite_hit_x / _y / _w / _h` (un byte per fotogramma, pixel dello schermo dall'angolo in alto a sinistra); un fotogramma senza hitbox utilizza i suoi limiti in pixel.                                                                                |
+| X / Y ×2                            | Mostra l'anteprima come con l'espansione sprite `$D01D` / `$D017`.                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 
 ### Browser delle ROM dei personaggi del C64 ("Mappa dei caratteri")
 
@@ -5271,42 +5357,60 @@ trovare il codice schermo di un glifo prima di scriverlo con `RAWBYTES` o
 Editor di caratteri 8×8 con supporto per 256 caratteri. Apribile tramite Toolkit
 → Editor di caratteri.
 
-| Caratteristica            | Descrizione                                                                                                                                                                                                                        |
-| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Carica la ROM             | Importa il charset della ROM C64 direttamente da `chargen` di VICE (senza selettore di file).                                                                                                                                      |
-| Carica `.bin`             | Importa un file binario esterno con set di caratteri da 2048 byte.                                                                                                                                                                 |
-| Anteprima per carattere   | Griglia di 16 caselle con tutti i 256 glifi, con la cella corrente evidenziata.                                                                                                                                                    |
-| Editor Pixel              | Editor di caratteri singoli 8×8 con strumenti di attivazione/inversione/cancellazione.                                                                                                                                             |
-| Colore per carattere      | Memorizza un valore predefinito di RAM per il colore di ciascun glifo. In modalità caratteri multicolore, conserva anche il bit di abilitazione multicolore per cella e il colore a 3 bit inferiori del carattere stesso.          |
-| Metadati andata e ritorno | Quando si caricano dati compatibili dai flussi di lavoro Charset Canvas/Map, i metadati relativi al colore di ciascun carattere vengono conservati, in modo che le modifiche possano continuare senza perdere l'intento cromatico. |
-| Blocchi di esportazione   | Aggiunge RAWBYTES a $0800 (blocco 2) o $3800 (blocco 7) con il set di caratteri codificato.                                                                                                                                        |
+| Caratteristica            | Descrizione                                                                                                                                                                                                                                                    |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Carica la ROM             | Carica la ROM dei caratteri del C64: glifi esatti 901225-01, senza selettore di file. Il primo pulsante (e **File → ROM: maiuscole / grafica**) carica il set 1, il secondo pulsante (o Maiusc+clic, o **File → ROM: minuscole / maiuscole**) carica il set 2. |
+| Carica `.bin`             | Importa un file binario esterno con set di caratteri da 2048 byte.                                                                                                                                                                                             |
+| Anteprima per carattere   | Griglia di 16 caselle con tutti i 256 glifi, con la cella corrente evidenziata.                                                                                                                                                                                |
+| Editor Pixel              | Modifica il carattere selezionato o una **cella** di 2×1, 1×2 o 2×2 caratteri adiacenti come un'unica immagine (selettore di celle).                                                                                                                           |
+| Strumenti di disegno      | Matita, linea, rettangolo, rettangolo pieno e riempimento a inondazione. Un clic su un pixel che contiene già l'inchiostro lo cancella.                                                                                                                        |
+| Trasformazioni            | Cancella, inverti, capovolgi orizzontalmente/verticalmente, sposta con avvolgimento, ruota di 90° in senso orario/antiorario (solo tessere quadrate) — sull'intera tessera.                                                                                    |
+| Annulla / Ripeti          | Pulsanti della barra degli strumenti, Ctrl+Z e Ctrl+Y (Ctrl+Maiusc+Z).                                                                                                                                                                                         |
+| Copia/Incolla             | Tramite i pulsanti della barra degli strumenti, Ctrl+C / Ctrl+V o facendo clic con il pulsante destro del mouse sulla mappa, viene copiata l'intera porzione di mappa con i relativi colori.                                                                   |
+| trascinamento della mappa | Trascina un personaggio su un altro sulla mappa per scambiarli; Maiusc+trascina per creare copie.                                                                                                                                                              |
+| Anteprima del testo       | Digita il testo per visualizzarlo nel set di caratteri corrente. Scegli la mappatura del set di maiuscole o minuscole; `{65}` o `{$41}` inserisce un codice schermo.                                                                                           |
+| Esportazione di gamma     | Imposta i caratteri Da / A, quindi **File → Salva intervallo (.bin)** (byte grezzi) oppure **Copia intervallo ASM** (`.byte` righe).                                                                                                                           |
+| Colore per carattere      | Memorizza un valore predefinito di RAM per il colore di ciascun glifo. In modalità caratteri multicolore, conserva anche il bit di abilitazione multicolore per cella e il colore a 3 bit inferiori del carattere stesso.                                      |
+| Metadati andata e ritorno | Quando si caricano dati compatibili dai flussi di lavoro Charset Canvas/Map, i metadati relativi al colore di ciascun carattere vengono conservati, in modo che le modifiche possano continuare senza perdere l'intento cromatico.                             |
+| Blocchi di esportazione   | Aggiunge RAWBYTES a $0800 (blocco 2) o $3800 (blocco 7) con il set di caratteri codificato.                                                                                                                                                                    |
 
 ### Editor di tela Charset
 
 Strumento di creazione di schermate a schermo intero a partire da un set
 completo di 256 caratteri. Apribile tramite Toolkit → Charset Canvas.
 
-La tela è composta da 16×16 caratteri. In modalità monocromatica, ciò
-corrisponde a un'area di lavoro di 128×128 pixel; in modalità caratteri
-multicolore, l'area di lavoro diventa di 64×128 pixel, utilizzando le reali
-regole di stampa multicolore dei caratteri del C64.
+La tela è composta da 16×16 caratteri, ovvero 128×128 pixel. In modalità
+caratteri multicolore, ogni carattere è multicolore (pixel larghi, 4 colori) o
+ad alta risoluzione (8 pixel stretti, 2 colori), esattamente come sul C64.
 
-| Caratteristica                        | Descrizione                                                                                                                                                                                       |
-| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Monocromatico/multicolore             | La modalità monocromatica memorizza glifi 8×8 a 1 bit. La modalità multicolore memorizza coppie di pixel orizzontali a due bit e contrassegna le celle utilizzate con il bit 3 della RAM Colore.  |
-| Modello a colori C64                  | Lo sfondo utilizza `$D021`; il multicolore condiviso 1 utilizza `$D022`; il multicolore condiviso 2 utilizza `$D023`; il colore di ciascun personaggio proviene dai bit 0-2 della RAM dei colori. |
-| Strumenti di disegno                  | Matita, gomma, linea, rettangolo, ovale e riempimento a inondazione funzionano anche oltre i contorni dei caratteri.                                                                              |
-| Strumento a spruzzo                   | Disegno in stile aerografo che sparge pixel sulle celle/caratteri adiacenti.                                                                                                                      |
-| Intensità dello spruzzo               | Il menu a tendina accanto allo strumento spruzzo permette di impostare la densità del tratto.                                                                                                     |
-| Attiva/disattiva griglia              | La casella di controllo Griglia mostra o nasconde la griglia di caratteri 16×16.                                                                                                                  |
-| Salva charset `.bin`                  | Salva i dati della bitmap dei caratteri da 2048 byte.                                                                                                                                             |
-| Salva mappa 16×16 + RAM colore `.bin` | Salva 256 codici schermo seguiti da 256 valori RAM colore. Utilizzare con `MAP_COPY16X16`.                                                                                                        |
-| Caricamento                           | Può caricare salvataggi charset-canvas, dati charset semplici e dati charset compatibili dell'editor di personaggi, inclusi i colori per singolo personaggio memorizzati, se presenti.            |
+| Caratteristica                        | Descrizione                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |                                                 |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| Monocromatico/multicolore             | La modalità monocromatica memorizza glifi 8×8 a 1 bit. La modalità multicolore memorizza coppie di pixel orizzontali a due bit e contrassegna le celle multicolore con il bit 3 della RAM Colore.                                                                                                                                                                                                                                                                                                                                                                             |                                                 |
+| Strumento modalità personaggio        | In modalità multicolore, fai clic o trascina sui caratteri per passare dalla modalità multicolore a quella ad alta risoluzione (bit 3 della RAM Colore). La forma viene mantenuta: una determinata coppia di pixel diventa il colore del carattere. Un carattere ad alta risoluzione ha lo sfondo e un colore proprio (0-7); MC1/MC2 non disegnano in quella zona.                                                                                                                                                                                                            |                                                 |
+| Sfondo                                | Il menu a tendina BG viene visualizzato anche in modalità monocromatica; MC1 / MC2 solo in modalità multicolore.                                                                                                                                                                                                                                                                                                                                                                                                                                                              |                                                 |
+| ECM                                   | La casella di controllo **ECM** (modalità colore estesa, non insieme a multicolore): ogni carattere è ad alta risoluzione con il proprio colore (0–15) e uno dei quattro sfondi BG0–BG3 (`$D021`–`$D024`; BG1 / BG2 sono i registri MC1 / MC2). Scegli un colore BG nella tavolozza (contrassegnato B0–B3), quindi fai clic o trascina sui caratteri con lo strumento **Sfondo carattere**. Ci stanno solo 64 caratteri diversi: la riga di stato li conta e il salvataggio unisce i caratteri uguali: il charset è di 64 caratteri (512 byte) e i codici schermo sono `glyph | background << 6`. Attiva ECM con `$D011` bit 6. |
+| Modello a colori C64                  | Lo sfondo utilizza `$D021`; il multicolore condiviso 1 utilizza `$D022`; il multicolore condiviso 2 utilizza `$D023`; il colore di ciascun personaggio proviene dai bit 0-2 della RAM dei colori.                                                                                                                                                                                                                                                                                                                                                                             |                                                 |
+| Strumenti di disegno                  | Matita, gomma, linea, rettangolo, ovale e riempimento a inondazione funzionano anche oltre i contorni dei caratteri.                                                                                                                                                                                                                                                                                                                                                                                                                                                          |                                                 |
+| Strumento a spruzzo                   | Disegno in stile aerografo che sparge pixel sulle celle/caratteri adiacenti.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |                                                 |
+| Intensità dello spruzzo               | Il menu a tendina accanto allo strumento spruzzo permette di impostare la densità del tratto.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |                                                 |
+| Attiva/disattiva griglia              | La casella di controllo Griglia mostra o nasconde la griglia di caratteri 16×16.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |                                                 |
+| Zoom                                  | Il cursore dello zoom (da 2× a 24×, pixel dell'intero dispositivo per pixel C64) o Ctrl+rotellina del mouse sull'area di lavoro; lo zoom viene memorizzato. A partire da 8×, la griglia disegna anche una linea sottile su ogni bordo di pixel.                                                                                                                                                                                                                                                                                                                               |                                                 |
+| Salva charset `.bin`                  | Salva i dati della bitmap dei caratteri da 2048 byte.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |                                                 |
+| Salva mappa 16×16 + RAM colore `.bin` | Salva 256 codici schermo seguiti da 256 valori RAM colore. Utilizzare con `MAP_COPY16X16`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |                                                 |
+| Caricamento                           | Può caricare salvataggi charset-canvas, dati charset semplici e dati charset compatibili dell'editor di personaggi, inclusi i colori per singolo personaggio memorizzati, se presenti.                                                                                                                                                                                                                                                                                                                                                                                        |                                                 |
 
 **Importante limitazione del C64:** nella modalità caratteri multicolore i due
 colori condivisi sono globali per l'intero schermo (`$D022` / `$D023`). Solo il
-colore del carattere è per cella ed è limitato ai colori 0-7 perché il bit 3
-della RAM dei colori seleziona la modalità multicolore.
+colore proprio del carattere è per cella ed è limitato ai colori 0-7 perché il
+bit 3 della RAM dei colori seleziona la modalità multicolore. Quindi un
+carattere mostra al massimo **4 colori** (sfondo, MC1, MC2 e il suo colore
+proprio) e l'intero schermo al massimo 3 + 8. Nella tavolozza i colori condivisi
+sono etichettati BG / 1 / 2 e i colori 8-15 che non sono condivisi sono
+attenuati. Selezionando un colore di questo tipo, lo si inserisce in MC2 o MC1
+solo finché nessun pixel utilizza quel registro; altrimenti, lo si può
+modificare nel menu a tendina corrispondente (che ricolora l'intero schermo). In
+modalità ad alta risoluzione (monocromatica) un personaggio ha 2 colori: lo
+sfondo e il proprio colore (0–15).
 
 ### Editor di mappe (mappe a tessere multilivello)
 
@@ -5335,13 +5439,19 @@ a scorrimento laterale o una mappa 2D, e ne visualizza l'anteprima con uno
 scorrimento fluido. Aprilo con il pulsante della barra degli strumenti Editor di
 livelli accanto all'Editor di mappe.
 
-| Caratteristica | Descrizione                                                                                                                                                                                                                                                                       |
-| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Disposizione   | **Verticale**, **Orizzontale** o **Griglia** (righe × colonne, con pulsanti per aggiungere/rimuovere righe e colonne).                                                                                                                                                            |
-| Schermate      | **Nuova schermata vuota**, **Aggiungi dall'Editor mappe** (la mappa attualmente aperta) o **Carica mappa(e) (.bin)...** (più esportazioni dell'Editor mappe contemporaneamente). Trascina una schermata dall'elenco su uno slot; trascina gli slot uno sull'altro per scambiarli. |
-| Modifica       | **Modifica nell'editor di mappe** apre la schermata selezionata nell'editor di mappe e riporta indietro le modifiche; duplica, sposta in alto/sinistra o in basso/destra, rimuovi; annulla/ripristina.                                                                            |
-| Anteprima      | Trascina l'anteprima o usa i tasti freccia per scorrere pixel per pixel; **Riproduci** scorre automaticamente (direzione, velocità 1–8, loop), Spazio = riproduci / interrompi. *Bordi* contrassegna i bordi dello schermo.                                                       |
-| Assegni        | Informazioni sul set di caratteri e un avviso quando le schermate utilizzano un set di caratteri o colori diversi (il livello utilizza le impostazioni della prima schermata).                                                                                                    |
+| Caratteristica         | Descrizione                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Disposizione           | **Verticale**, **Orizzontale** o **Griglia** (righe × colonne, con pulsanti per aggiungere/rimuovere righe e colonne).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Schermate              | **Nuova schermata vuota**, **Aggiungi dall'Editor mappe** (la mappa attualmente aperta) o **Carica mappa(e) (.bin)...** (più esportazioni dell'Editor mappe contemporaneamente). Trascina una schermata dall'elenco su uno slot; trascina gli slot uno sull'altro per scambiarli.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Modifica               | **Modifica nell'editor di mappe** apre la schermata selezionata nell'editor di mappe e riporta indietro le modifiche; duplica, sposta in alto/sinistra o in basso/destra, rimuovi; annulla/ripristina.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Anteprima              | Trascina l'anteprima o usa i tasti freccia per scorrere pixel per pixel; **Riproduci** scorre automaticamente (direzione, velocità 1–8, loop), Spazio = riproduci / interrompi. *Bordi* contrassegna i bordi dello schermo.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| Assegni                | Informazioni sul set di caratteri e un avviso quando le schermate utilizzano un set di caratteri o colori diversi (il livello utilizza le impostazioni della prima schermata).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Attributi caratteriali | Il pulsante **Attributi del personaggio** commuta la panoramica alla pittura degli attributi: scegli **Solido**, **Scala**, **Pericolo** o **Collezionabile**, fai clic su un personaggio e ogni cella con quel codice schermo lo ottiene (o lo perde); trascina per altri codici. Gli attributi vengono visualizzati come un livello colorato e diventano la tabella `LEVEL_ATTR` da 256 byte (`LEVEL_ATTR_SOLID` = 1, `_LADDER` = 2, `_HAZARD` = 4, `_COLLECT` = 8).                                                                                                                                                                                                                                                                                                                                               |
+| Controllo del bordo    | I segni rossi indicano le interruzioni tra le schermate adiacenti: un lato del bordo è vuoto (spazio) e l'altro no, oppure è pieno solo da un lato. Il pannello laterale conta i bordi e le celle.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Colori                 | **Bordo di livello** e **Colori propri per questo schermo** (sfondo, bordo, multicolore 1 / 2) per lo schermo selezionato; la cornice di anteprima mostra il bordo. Esportato per slot come `LEVEL_SCR_BG / _BORDER / _MC1 / _MC2` (con `LEVEL_SCR_COLORS` = 1) quando uno schermo posizionato ha i suoi colori.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Memoria                | La dimensione dei dati `.level` a un indirizzo scelto (calcolata esattamente come la macro la costruisce), con avvisi per la ROM BASIC/KERNAL, l'area I/O e la memoria sotto `$0800` e la dimensione RLE del livello. **Esporta RLE in blocchi / Copia RLE asm** fornisce l'RLE del livello impacchettato con l'unpacker `level_unrle` (`($FB)` → `($FD)`).                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| Pubblicato su VICE     | Crea un programma di test con scorrimento tramite joystick dal livello (lo scroller `level-demo`, codice in `$C000`, dati del livello da `$2000`, set di caratteri personalizzato in `$2000`) e lo avvia in VICE: i colori dello schermo cambiano con lo schermo in alto a sinistra della vista, la telecamera inizia dal primo oggetto Start.                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| oggetti                | Il pulsante **Livello oggetti** commuta la panoramica alla modifica degli oggetti: scegli un tipo (Inizio, Nemico, Oggetto, Porta, Uscita, Trigger) e un byte **Parametro** (tipo di nemico, ID oggetto, destinazione porta...), clicca per posizionare, trascina per spostare (agganciato a 8 px, Maiusc = libero), clicca su un oggetto per selezionarlo e modificarne il tipo/parametro, i tasti freccia lo spostano, Canc lo rimuove. Gli oggetti appartengono alla posizione del livello, non a una schermata. Sono elencati nella barra laterale, mostrati nell'anteprima, salvati con il livello ed esportati in ordine di scorrimento (verticale per Y, orizzontale per X, riga della griglia per riga) come tabelle `LEVEL_OBJ_*` — tramite **Copia asm / Esporta in blocchi** e tramite la macro `.level`. |
 
 **Menu file:**
 | Azione                                                                   | Cosa fa                                                                                                                                   |
@@ -5368,6 +5478,11 @@ anteprima condividono le tre voci. Il player di streaming viene caricato
 all'apertura dell'editor e di nuovo dopo Stop, quindi le note suonano
 contemporaneamente; senza WebSid viene invece riprodotto un piccolo
 sintetizzatore SID.
+
+**Motore di anteprima:** **Impostazioni → Anteprima SID** seleziona **WebSID** o
+**VA SID Core (Rust)**, l'emulazione SID proprietaria dell'app; con VA SID Core
+si sceglie anche il chip (MOS 6581 / 8580). I parametri dello strumento vengono
+impostati tramite manopole.
 
 **Comandi per strumento:**
 - Caselle di controllo della forma d'onda (TRI / SAW / PUL / NOI) — più forme
@@ -5483,6 +5598,28 @@ dati nel formato versionato `.bin`.
 - Le anteprime di accordi e arpeggi illuminano i tasti corrispondenti del
   pianoforte quando la tastiera è aperta.
 
+**Registrazione, metronomo e MIDI:**
+- **Registra** (il punto rosso, nella barra degli strumenti del tracker e su
+  VA-VK) scrive le note che suoni — su VA-VK, sulla tastiera del computer o su
+  una tastiera MIDI — a tempo nella voce selezionata, a partire dalla riga
+  selezionata, alla velocità corrente. Quando il pattern è pieno, viene aggiunto
+  un nuovo pattern vuoto dopo il passo corrente del brano e la registrazione
+  continua lì. Premi di nuovo Registra per interrompere.
+- **Il metronomo** (barra degli strumenti del tracker e VA-VK) emette un clic
+  ogni 4 righe, accentuato sul primo battito di ogni battuta di 4 battiti. Le
+  spie del battito accanto lampeggiano a ogni battito durante la riproduzione e
+  la registrazione, anche con il clic disattivato.
+- **MIDI:** scegli l'ingresso nell'elenco **MIDI** accanto al nome dello
+  strumento e premi **Connetti MIDI**; le note vengono riprodotte dallo
+  strumento corrente (e vengono scritte nel tracker durante la registrazione o
+  con *Inserisci nel tracker*). La spia accanto al pulsante lampeggia ad ogni
+  messaggio MIDI in arrivo.
+- **Elimina pattern:** il pulsante **−** accanto a **Pat +** elimina il pattern
+  corrente (chiede prima se il pattern ha delle note). I passaggi della canzone
+  che lo utilizzavano vengono rimossi e gli altri rinumerati; almeno un pattern
+  rimane sempre.
+- La manopola del volume principale **** si trova su VA-VK.
+
 **Esportazioni del menu File:**
 | Esportare                          | Cosa fa                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -5490,7 +5627,25 @@ dati nel formato versionato `.bin`.
 | `Esportazione blocchi (solo dati)` | Aggiunge la tabella degli strumenti + i blocchi di pattern al programma in `* = $C000`.                                                                                                                                                                                                                                                                                                                                                   |
 | `Esporta blocchi + minigiocatore`  | Aggiunge il player completo (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) più le tabelle di frequenza PAL. Dopo l'esportazione, inserisci un `JSR sid_init` nel tuo codice principale dove dovrebbe iniziare la musica; con la tua chiamata IRQ `JSR sid_frame` una volta per frame.                                                                                                                                    |
 | `Esporta asm (appunti)`            | Copia l'intero codice sorgente dell'assembly negli appunti.                                                                                                                                                                                                                                                                                                                                                                               |
+| `Importa GoatTracker .sng…`        | Carica un brano di GoatTracker 2 al posto di quello corrente — vedi **Importazione GoatTracker** qui sotto.                                                                                                                                                                                                                                                                                                                               |
 | `Esporta in UltimateBasic`         | Scrive un blocco `tune ... end` (strumenti, elenco ordine, righe pattern come testo) più `music play` e lo inserisce nel cursore dell'editor di Ultimate Basic; al di fuori della modalità UB copia il testo negli appunti. Il compilatore di UltimateBasic crea il player, quindi `music play` / `music stop` lo controllano. La modulazione dello strumento va nelle righe `imod` / `ifilt` / `igate` / `itab` (Ultimate Basic 1.6.2+). |
+
+**Importazione GoatTracker:** **File → Importa GoatTracker .sng…** carica un
+brano GoatTracker 2 (`.sng`, GTS3–GTS5) al posto di quello corrente. La
+conversione è approssimativa, perché i due tracker funzionano in modo diverso:
+- Gli elenchi di ordine per voce (con trasposizione e ripetizione) vengono
+  appiattiti in un unico brano a 3 voci e suddivisi in schemi di 32 righe; gli
+  schemi identici vengono condivisi.
+- Strumenti: AD/SR, prima onda, timer gate e hard restart vengono gestiti; la
+  wavetable diventa la tabella delle onde/arpeggi, la tabella degli impulsi PWM,
+  la tabella dei filtri modalità filtro, risonanza e sweep di cutoff e la
+  tabella della velocità immissione vibrato dello strumento.
+- Comandi pattern: key off → note-off, portamento → `U` / `D` (al massimo 255
+  per riga), tempo → `F`; toneporta diventa una nota semplice. Altri comandi
+  vengono omessi e un messaggio elenca ciò che è stato approssimato o saltato.
+- Un gate rilasciato dalla wavetable diventa una nota di riposo sulla riga
+  libera successiva. Viene importata solo la prima sotto-melodia e il limite di
+  esportazione di 7 pattern rimane valido.
 
 **Utilizzo ZP del lettore:** `$02`–`$1C` (puntatori pattern, offset pattern,
 temp) e `$2F` (velocità corrente), più `$FB`–`$FD` (contatore tick, indice di
@@ -5509,6 +5664,34 @@ necessario.
 - Mentre **Play: All** ha la melodia reale caricata (anche in pausa), le
   anteprime delle note tornano al piccolo sintetizzatore, che approssima solo il
   chip SID. Le anteprime raggiungono WebSid circa 0,1 s prima del suono.
+
+---
+
+### SID Player
+
+Il pulsante della barra degli strumenti **SID Player** apre una finestra mobile
+che riproduce file musicali `.sid` (PSID e RSID), ad esempio brani dalla
+collezione HVSC.
+
+- **Playlist:** aggiungi brani con **Aggiungi file .sid…** o trascinandoli sulla
+  finestra e fai clic su un brano per riprodurlo; **Rimuovi** e **Cancella
+  playlist** riordina la lista. **Salva playlist…** / **Apri playlist…** scrivi
+  e leggi un file `.sidpl` con i brani incorporati. La lista, il brano corrente
+  e se la finestra è aperta vengono memorizzati.
+- **Trasporto:** Riproduci, Pausa, Stop, **Brano precedente** / **successivo**,
+  **Sottobrano precedente / successivo** per file con più brani e un contatore
+  del tempo.
+- **Ricerca:** la barra di posizione e **Indietro / Avanti 10 s** funzionano con
+  il motore VA SID Core. WebSID non può cercare, quindi questi controlli sono
+  disabilitati con esso.
+- **Volume:** la manopola è condivisa con il volume principale dell'editor SID.
+- **Motore:** la finestra mostra quale motore è in esecuzione (WebSID o VA SID
+  Core con la sua versione e chip SID); selezionalo in **Impostazioni →
+  Anteprima SID**. VA SID Core esegue la melodia su un core Rust C64 nativo con
+  un 6510 a ciclo esatto, temporizzazione precisa degli interrupt, CIA 6526A,
+  temporizzazione VIC-II con linee errate, DMA sprite e interrupt raster e la
+  porta I/O 6510, quindi gli interrupt raster, temporizzati CIA e digitali
+  vengono riprodotti con la temporizzazione di una macchina reale.
 
 ---
 

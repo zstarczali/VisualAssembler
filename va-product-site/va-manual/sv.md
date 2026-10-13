@@ -1,6 +1,6 @@
 # C64 Visuell Assembler — Användarmanual
 
-**Version 2.5.5**
+**Version 2.5.7**
 
 En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom att
 dra och släppa instruktionsblock och se den genererade assemblern och
@@ -11,6 +11,8 @@ maskinkoden i realtid.
 ## Innehållsförteckning
 
 - [C64 Visual Assembler — Användarmanual](#c64-visual-assembler--user-manual)
+    - [Höjdpunkter i version 2.5.7](#version-257-highlights)
+    - [Höjdpunkter i version 2.5.6](#version-256-highlights)
     - [Höjdpunkter i version 2.5.5](#version-255-highlights)
     - [Höjdpunkter i version 2.5.4](#version-254-highlights)
     - [Höjdpunkter i version 2.5.3](#version-253-highlights)
@@ -40,6 +42,7 @@ maskinkoden i realtid.
     - [ASM-radnummer](#asm-line-numbers)
     - [Kompileringsförloppsmodal](#compile-progress-modal)
   - [5. Inställningar \&amp; Verktygsfält](#5-settings--toolbar)
+    - [Freemium och Professional](#freemium-and-professional)
     - [Projektmallar](#project-templates)
     - [Byggprojekt](#build-project)
     - [Exempelprogram](#example-programs)
@@ -183,8 +186,60 @@ maskinkoden i realtid.
       kakelkartor)](#map-editor-multilayer-tilemaps)
     - [Nivåredigerare](#level-editor)
     - [SID-redigerare (3-röstsspårare)](#sid-editor-3-voice-tracker)
+    - [SID-spelare](#sid-player)
     - [Kurvredigerare](#curve-editor)
     - [Nummeromvandlare](#number-converter)
+
+---
+
+## Höjdpunkter i version 2.5.7
+
+- **VA SID Core 1.2** — SID Player använder nu en inbyggd Rust C64-kärna: en
+  cykelexakt 6510 med exakt avbrottstid, CIA 6526A, VIC-II-timing med dåliga
+  linjer, sprite DMA och rasteravbrott, och 6510 I/O-porten. Se [SID
+  Player](#sid-player).
+- **Högupplöst redigerare** — två färger i varje 8×8-cell: det nya verktyget
+  **Cellpapper**. Se [Högupplöst /
+  Flerfärgsredigerare](#hi-res--multicolor-editor).
+- **Exakt karaktärs-ROM** i ROM-visaren, karaktärsredigerarens **Ladda ROM** och
+  kart-/nivåredigerarna.
+- **Sprite Editor** — högupplöst överlägg, fyllnadseffekt, markera/flytta,
+  rotera, spegla allt, importera sprite-ark, träffruta, X/Y
+  ×2-förhandsgranskning. Se [Sprite Editor](#sprite-editor).
+- **Nivåredigerare** — objekt, karaktärsattribut, kantkontroll, färger per
+  skärm, minnesmätare med RLE, Kör i VICE. Se [Nivåredigerare](#level-editor).
+- **Teckenredigerare** — ångra/gör om, ritverktyg, rotera 90°, kopiera/klistra
+  in och dra-för-att-växla på kartan, 2×2-rutor, ROM-uppsättning med gemener,
+  förhandsgranskning av text och export av intervall. Se
+  [Teckenredigerare](#character-editor-charset).
+- **Teckenuppsättning Canvas** — zooma 2×–24× (skjutreglage eller Ctrl+hjul) med
+  ett pixelrutnät, bakgrundsfärg i högupplöst läge, högupplösta tecken i
+  flerfärgsläge och **ECM** (en bakgrund per tecken). Se [Teckenuppsättning
+  Canvas-redigerare](#charset-canvas-editor).
+
+---
+
+## Höjdpunkter i version 2.5.6
+
+- **SID Player** — en ny verktygsfältsknapp öppnar en flytande spelare för
+  `.sid` (PSID / RSID) låtar: en spellista med dra och släpp, föregående / nästa
+  låt, undermelodier, sökning och ±10 s, volym och spara / öppna spellista
+  (`.sidpl`); listan och fönstrets tillstånd sparas. Se [SID
+  Player](#sid-player).
+- **VA SID Core 1.1** — en inbyggd SID-emulering (MOS 6581/8580, med ett
+  reSID-anpassat 6581-filter) och en cykellåst PSID/RSID-spelare (6510 CPU,
+  CIA/VIC-timing). Välj det i **Inställningar → SID-förhandsvisning**;
+  SID-spelaren visar vilken motor som spelar.
+- **SID-redigerare** — rattar för instrumentparametrarna, en bredare ADSR-graf,
+  **MIDI-ingång**, **inspelning** i spåraren (ett nytt mönster läggs till när
+  det nuvarande är fullt), en **metronom** med taktslagslampor,
+  **mönsterborttagning**, mastervolymen på VA-VK och **Importera GoatTracker
+  .sng**. Se [SID-redigerare](#sid-editor-3-voice-tracker).
+- **Freemium och Professional** — utan registrering körs appen som Freemium;
+  ange e-postadressen och serienumret från ditt köp i **Meny → Registrera…** för
+  att få Professional-versionen. Se [Freemium och
+  Professional](#freemium-and-professional).
+- **Ultimate Basic 1.6.4** medföljer.
 
 ---
 
@@ -370,25 +425,19 @@ maskinkoden i realtid.
   sökväg sitter i en diskret markering ovanför ASM-vytiteln och använder samma
   markering i verktygsfälten Expert och Ultimate Basic. Etiketter för
   dialogknappar radbryts inte längre.
-- **Ultimate Basic-kommandoreferens** — `tune` och `music` visar fullständiga,
-  kommenterade exempel (cellformat, effekter, spelarnoter, `musikuppspelning
-  N`); `inst`, `order`, `pat` och tune `speed` har sina egna poster; `data`
-  visar den nya arrayformen; syntaxen `load sid` är korrigerad (`load sid
-  "tune.sid", $2000`).
+- **Mer robust uppdateringskontroll** — installationslistan publiceras på
+  c64va.pro/downloads/VA/, så kontrollen fungerar med den nya nedladdningssidan;
+  Linux-uppdateringshjälpen ärver inte längre AppImage-bibliotekets sökvägar.
 
 ---
 
 ## Höjdpunkter i version 2.4.6
 
-- **SID-redigerare → UltimateBasic export** — **Filer → Exportera till
-  UltimateBasic** skriver melodin som ett `melodi ... slut`-block (instrument,
-  ordningslista och mönsterrader som text) följt av `musikuppspelning` och
-  infogar det vid markören i Ultimate Basic-redigeraren (utanför UB-läge
-  kopieras det till urklipp). UltimateBasic-kompilatorn bygger en sidfri spelare
-  från den vid kompileringstillfället, så `musikuppspelning` / `musikstopp` styr
-  melodin och ingenting kolliderar med UB-variabler. Vibrato-, slide-,
-  notklippnings- och hastighetseffekter stöds; upp till 8 mönster, valfri
-  ordningslistalängd. Kräver en UltimateBasic-kompilator med stöd för `melodi`.
+- **Uppdateringar i appen** — **Meny → Sök efter uppdateringar** söker efter en
+  nyare version i c64va.pro och laddar ner installationsprogrammet för din
+  plattform med en förloppsindikator efter bekräftelse och installerar det. Se
+  [Uppdateringar i appen](#in-app-updates). Kontrollen körs också tyst vid varje
+  start.
 - **Ultimate Basic-språkuppdatering** — syntaxmarkering och kommandoreferensen
   täcker nu **`sfx`** (icke-blockerande SID-effekt: `sfx-kanal, frekvens, frames
   [, wave]`), **`org`** (fortsätt sub-/fn-kod vid en adress, vilket lämnar ett
@@ -473,8 +522,8 @@ maskinkoden i realtid.
   256-byte-blocket är nu ett korrekt hex-rutnät per byte istället för en vanlig
   textruta, och dess dialogruta tonar inte längre ner resten av appen bakom den
   när den är öppen.
-- **Web64 på produktsidan** — ett nytt Web64 IDE-avsnitt på
-  [c64va.tech](https://www.c64va.tech).
+- **Web64 på produktsidan** — en ny Web64 IDE-sektion på
+  [c64va.pro](https://www.c64va.pro).
 - **Exempeluppdatering** — exemplet `makro-med-parameter` använder nu formen
   `.makro setColor(färg)` inom parentes.
 
@@ -534,10 +583,9 @@ maskinkoden i realtid.
   den aktuella disken direkt i VICE, allt från en Filer ▾-meny som matchar de
   andra visuella redigerarna. Se [D64 Editor (bläddra bland och redigera en
   befintlig diskavbildning)]{1}.
-- **Lägg till / extrahera / byt namn på / ta bort i D64-editorn** — lägg till en
-  lokal fil i diskkatalogen, extrahera en vald post tillbaka till en `.prg`, byt
-  namn på en post inline i tabellen eller ta bort den — varje åtgärd tillämpas
-  direkt på `.d64`-filen via `c1541`, utan separat sparningssteg.
+- **Knapp i verktygsfältet Onlinehjälp** — en ny ikonknapp efter Debug öppnar
+  den flerspråkiga dokumentationssidan
+  ([c64va.pro/docs.html](https://www.c64va.pro/docs.html)) direkt från appen.
 - **Ladda adress, dekomprimera adress och Exomizer i D64-redigeraren** — genom
   att lägga till en headerlös råfil kan du ange en valfri laddningsadress, ett
   Exomizer-dekomprimeringsmål och komprimera den på vägen in, med samma
@@ -854,13 +902,14 @@ En ny källa börjar med:
 - Om ett projekt inte har sparats ännu lagras ögonblicksbilder i appens
   konfigurationskatalog tills projektet får en sökväg. | **Kunskapsbas** |
   Referenslänkar (6502 opkoder, C64 KERNAL, minneskarta, färger) | | **Sök efter
-  uppdateringar** | Sök efter en nyare version på c64va.tech och ladda
+  uppdateringar** | Sök efter en nyare version på c64va.pro och ladda
   ner/installera den — se [Uppdateringar i appen](#in-app-updates) |
 
 ### Redigeringsverktyg
 
-UB-verktygsfältet följer samma visuella språk och anpassade verktygstips som
-expertläget. Det erbjuder:
+**Meny → Sök efter uppdateringar** söker upp den senaste versionen på c64va.pro
+(den läser nedladdningslänkarna för din plattform) och jämför den med den
+version som körs:
 
 - syntaxmarkering baserad på den nuvarande Ultimate Basic-språkreferensen;
 - radnummer som förblir synkroniserade med långa filer;
@@ -879,6 +928,28 @@ på varandra följande 64-byte sprite-frames.
 Kommandolistan är avsiktligt höjdbegränsad så att kommandodetaljkortet kan fylla
 den återstående panelhöjden. Detaljområdet rullar oberoende för längre
 syntaxbeskrivningar.
+
+### Freemium och Professional
+
+Utan registrering körs Visual Assembler som **Freemium**; märket bredvid titeln
+visar **FREEMIUM** eller **PROFESSIONAL**. I Freemium kan du skriva och bygga
+program och köra dem i VICE i Block-, Expert- och Ultimate Basic-läge. Dessa
+kräver Professional-versionen:
+
+- de visuella redigerarna (SID, Sprite, Char, Charset, Hi-Res, Map, Level, D64,
+  Curve) och SID Player;
+- **Bygg PRG**, **Bygg D64**, **Bygg CRT**, **Bygg projekt** och
+  Exomizer-packning;
+- körs på C64 Ultimate och på Kung Fu Flash 2;
+- Andra gränssnittsspråk än ungerska och engelska, samt OLED- och Commodore
+  77-teman.
+
+Om du klickar på en låst funktion öppnas registreringsdialogrutan. För att
+registrera dig, öppna **Meny → Registrera…** (eller klicka på märket), ange
+e-postadressen och serienumret från ditt köp och tryck på **Aktivera**.
+Serienumret tillhör den e-postadressen (stora/små bokstäver och mellanslag
+spelar ingen roll), och kontrollen körs offline. **Ta bort licens** tar bort
+registreringen från den här datorn.
 
 ### Projekt, flikar och startfiler
 
@@ -2377,17 +2448,22 @@ följer skärmarna. En nivå kan vara upp till 7 × 10 skärmar.
 .nivå "nivå.bin", 4000 dollar
 ```
 
-| Definierad                                         | Menande                                                                     |
-| -------------------------------------------------- | --------------------------------------------------------------------------- |
-| `NIVÅ_PLACERING_LÅG` / `NIVÅ_PLACERING_HÖG`        | Skärmens adress i varje plats (huvudrad, `NIVÅ_W` platser per rad)          |
-| `NIVÅ_RAD_PLATS`                                   | Nivå teckenrad → första platsen på dess skärmrad                            |
-| `NIVÅ_ROD_LÅG/HÖG`, `NIVÅ_KRÅ_LÅG/HÖG`             | Nivå teckenrad → förskjutning av dess skärmkodsrad / färgrad inuti en skärm |
-| `NIVÅKOLUMNPLATS`, `NIVÅKOLUMNOFS`                 | Visa startkolumn → skärmkolumn och kolumn inuti skärmen                     |
-| `NIVÅ_W`, `NIVÅ_H`                                 | Nivåstorlek på skärmar                                                      |
-| `NIVÅKOLMER`, `NIVÅRADER`                          | Nivåstorlek i tecken                                                        |
-| `NIVÅ_MAX_X`, `NIVÅ_MAX_Y`                         | Största pixelrullningsposition i en 40×25-vy                                |
-| `NIVÅ_BG`, `NIVÅ_MC1`, `NIVÅ_MC2`, `NIVÅ_FLERFÄRG` | Bakgrunds-/flerfärgade färger och nivåläge                                  |
-| `NIVÅDATA`, `NIVÅSTORLEK`, `NIVÅSLUT`              | Start, storlek och första fria adress efter nivådata                        |
+| Definierad                                                                     | Menande                                                                                                                                        |
+| ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NIVÅ_PLACERING_LÅG` / `NIVÅ_PLACERING_HÖG`                                    | Skärmens adress i varje plats (huvudrad, `NIVÅ_W` platser per rad)                                                                             |
+| `NIVÅ_RAD_PLATS`                                                               | Nivå teckenrad → första platsen på dess skärmrad                                                                                               |
+| `NIVÅ_ROD_LÅG/HÖG`, `NIVÅ_KRÅ_LÅG/HÖG`                                         | Nivå teckenrad → förskjutning av dess skärmkodsrad / färgrad inuti en skärm                                                                    |
+| `NIVÅKOLUMNPLATS`, `NIVÅKOLUMNOFS`                                             | Visa startkolumn → skärmkolumn och kolumn inuti skärmen                                                                                        |
+| `NIVÅ_W`, `NIVÅ_H`                                                             | Nivåstorlek på skärmar                                                                                                                         |
+| `NIVÅKOLMER`, `NIVÅRADER`                                                      | Nivåstorlek i tecken                                                                                                                           |
+| `NIVÅ_MAX_X`, `NIVÅ_MAX_Y`                                                     | Största pixelrullningsposition i en 40×25-vy                                                                                                   |
+| `NIVÅ_BG`, `NIVÅ_MC1`, `NIVÅ_MC2`, `NIVÅ_FLERFÄRG`                             | Bakgrunds-/flerfärgade färger och nivåläge                                                                                                     |
+| `NIVÅDATA`, `NIVÅSTORLEK`, `NIVÅSLUT`                                          | Start, storlek och första fria adress efter nivådata                                                                                           |
+| `NIVÅ_OBJ_X_LO/HÖG`, `NIVÅ_OBJ_Y_LO/HÖG`, `NIVÅ_OBJ_TYP`, `NIVÅ_OBJ_PARAMETER` | Objekttabell (Level Editor-objektlager): position i nivåpixlar, typ och parameterbyte, i rullningsordning — `LEVEL_OBJ_COUNT` poster (max 255) |
+| `NIVÅ_OBJ_T_START` … `NIVÅ_OBJ_T_TRIGGER`                                      | Objekttypnummer: START 0, FIENDE 1, FÖREMÅL 2, DÖRR 3, UTGÅNG 4, AVLÖSARE 5                                                                    |
+| `NIVÅ_START_X`, `NIVÅ_START_Y`                                                 | Position för det första startobjektet (definieras endast när nivån har ett)                                                                    |
+| `NIVÅ_ATTR`, `NIVÅ_ATTR_FAST` … `NIVÅ_ATTR_INSAMLING`                          | Teckenattributtabell (en flaggbyte per skärmkod; endast när nivån har attribut) och dess bitar: 1, 2, 4, 8                                     |
+| `NIVÅKANT`, `NIVÅ_SKÄRM_FÄRGER`, `NIVÅ_SKÄRM_BG/KANT/MC1/MC2`                  | Nivågräns; färgtabeller per plats (rad-huvud som `LEVEL_SLOT_*`) när en skärm har sina egna färger (`LEVEL_SCR_COLORS` = 1)                    |
 
 Typisk skydd: `.assert LEVEL_END &lt;= $9200, "nivådata körs in i koden"`.
 
@@ -4516,7 +4592,7 @@ till en D64-disk via posten **Spara till D64**.
 
 ### Högupplöst/flerfärgsredigerare
 
-| Särdrag      | Beskrivning                                                                                              |
+| Miljö        | Beskrivning                                                                                              |
 | ------------ | -------------------------------------------------------------------------------------------------------- |
 | Lägesväxlare | **Multicolor** Kryssrutan växlar mellan hög upplösning (mono per cell) och flerfärg (4 färger per cell). |
 | **Status**   | Visar om den körbara sökvägen är giltig och tillgänglig                                                  |
@@ -4526,7 +4602,7 @@ flerfärgslägen. Öppna via Verktygskit → Högupplöst redigerare.
 
 ### Sprite-redigeraren
 
-| Särdrag    | Beskrivning                                                               |
+| Miljö      | Beskrivning                                                               |
 | ---------- | ------------------------------------------------------------------------- |
 | Ramar      | Lägg till / ta bort / ändra ordning på ramar; ramremsan visas längst ner. |
 | Läge       | Mono-/flerfärgsbrytare.                                                   |
@@ -4565,7 +4641,7 @@ Tauri-backend; ingenting i integrationen är plattformsspecifikt.
 
 ### C64 Tecken-ROM-läsare ("Teckenkarta")
 
-| Särdrag                 | Beskrivning                                                                                                                                                                                                        |
+| Miljö                   | Beskrivning                                                                                                                                                                                                        |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Två teckenuppsättningar | Flik 1: **Set 1 — Övre/Grafik** (standardläge efter påslag). Flik 2: **Set 2 — Nedre/Övre** (efter `$0E`-brytaren).                                                                                                |
 | **Status**              | 16×16 rutnät med alla 256 tecken. Klicka på en teckensymbol för att se dess detaljpanel: zoomad 8×8 pixlarvy, skärmkod (decimal + hex), PETSCII-koder (både standard och förskjutna) och den råa 8-byte bitmappen. |
@@ -4579,7 +4655,7 @@ skärmkoden för en tecken innan du skriver den med `RAWBYTES` eller `TEXT`.
 Teckenuppsättningsredigerare med 256 tecken, 8×8. Öppna via Verktyg →
 Teckenredigerare.
 
-| Särdrag                    | Beskrivning                                                                              |
+| Miljö                      | Beskrivning                                                                              |
 | -------------------------- | ---------------------------------------------------------------------------------------- |
 | Ladda ROM                  | Importerar C64 ROM-teckenuppsättningen direkt från VICE:s `laddning` (ingen filväljare). |
 | Ladda `.bin`               | Importerar en extern binärfil med 2048 byte teckenuppsättning.                           |
@@ -4612,7 +4688,7 @@ breda pixlar enligt C64:s regler för flerfärgade tecken.
 - en **USB-kabel** som ansluter kassetten till datorn som kör Visual Assembler
   (den visas som en virtuell serieport).
 
-| Särdrag           | Beskrivning                                                                                                                                  |
+| Miljö             | Beskrivning                                                                                                                                  |
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | Mono / flerfärgad | Monoläget lagrar 1-bitars 8×8-glyfer. Flerfärgsläget lagrar tvåbitars horisontella pixelpar och markerar använda celler med Color RAM-bit 3. |
 
@@ -4664,38 +4740,45 @@ användargränssnittsinställningarna och återställs nästa gång den öppnas.
 Pixelnivå-bitmappsredigerare med både 320×200 högupplösta och 160×200
 flerfärgslägen. Öppna via Verktygskit → Högupplöst redigerare.
 
-| Särdrag              | Beskrivning                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Lägesväxlare         | **Multicolor** Kryssrutan växlar mellan hög upplösning (mono per cell) och flerfärg (4 färger per cell).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| Verktyg              | Penna, suddgummi, linje, rektangel, fylld rektangel, oval, fylld oval, fyllning, markering.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| Sprutverktyg         | Airbrush-liknande målare som sprider pixlar runt markören medan du ritar.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| Sprutintensitet      | Listrutan bredvid sprutverktyget styr hur tätt varje sprutslag är.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| Färgpalett           | Förgrunds- (bläck) + pappers- (bakgrunds) väljare. Flerfärgsläget spårar automatiskt 3 extrafunktioner per cell.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| Ångra / Gör om       | Historik per penseldrag, ctrl-Z / ctrl-Y.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| Välja                | Verktyget streckad fyrkant: dra på arbetsytan för att markera ett rektangulärt område. **Esc** rensar markeringen.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| Kopiera / Klistra in | **Kopiera** (`Ctrl/Cmd+C`) kopierar det markerade området. **Klistra in** (`Ctrl/Cmd+V`) visar en förhandsgranskning som följer markören: klicka på arbetsytan för att placera den, **Esc** avbryter. Kopian behålls, så om du trycker på `Ctrl/Cmd+V` och klickar igen placeras den så många gånger som behövs. I högupplöst läge följer inklistrade pixlar fortfarande gränsen på två färger per cell, så justera regionen med cellrutnätet för att behålla dess färger. Kopiera, Klistra in och Genomskinlig klistra finns också i högerklicksmenyn på arbetsytan; en inklistring som startats där förhandsgranskas på den klickade platsen. |
-| Transparent pasta    | `Ctrl/Cmd+Shift+V` (eller dess knapp i verktygsfältet) hoppar över de pappersfärgade pixlarna i kopian, så att bilden under syns igenom.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| Rutnät + Raster      | **Rutnät** visar tecken-cellsrutnätet: 8×8 pixlar i hög upplösning, 4×8 pixlar med dubbel bredd i flerfärg. Från 4× zoom ritar den också en svagare linje runt varje enskild pixel, så att varje pixel kan placeras exakt. **Raster** lägger till ett rasterradlager.                                                                                                                                                                                                                                                                                                                                                                           |
-| Zoom                 | Skjutreglage från 1× till 16×.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| Importera bild       | PNG/JPEG/GIF som släpps på arbetsytan kvantiseras automatiskt till C64-paletten med 16 färger.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| Exportera block      | Lägger till BYTE/RAWBYTES-block i programmet med kodad bitmapp, skärm och färgdata.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| Exportera `.bin`     | Sparar det ursprungliga flerfärgsformatet (10000 byte: 8000 bitmapp + 1000 skärm + 1000 färg) klart för LOADFILE till $2000.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Särdrag                 | Beskrivning                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Lägesväxlare            | **Multicolor** Kryssrutan växlar mellan hög upplösning (mono per cell) och flerfärg (4 färger per cell).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Verktyg                 | Penna, suddgummi, linje, rektangel, fylld rektangel, oval, fylld oval, flödfyllning, cellpapper, markering.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Cellpapper (högupplöst) | Hög upplösning tillåter två färger i varje 8×8-cell: bläcket (angivna pixlar, hög nibble av cellens skärm-RAM-byte) och pappret (rena pixlar, låg nibble). Verktyget **Cellpapper** ställer in pappret för varje cell du klickar eller drar över till den valda färgen; **PAPPER** ställer fortfarande in varje cell samtidigt. Radergummit rensar pixlar, så att cellens eget papper syns. Inaktiverat i flerfärg, där bakgrunden ($D021) delas.                                                                                                                                                                                               |
+| Sprutverktyg            | Airbrush-liknande målare som sprider pixlar runt markören medan du ritar.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Sprutintensitet         | Listrutan bredvid sprutverktyget styr hur tätt varje sprutslag är.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Färgpalett              | Förgrunds- (bläck) + pappers- (bakgrunds) väljare. Flerfärgsläget spårar automatiskt 3 extrafunktioner per cell.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| Ångra / Gör om          | Historik per penseldrag, ctrl-Z / ctrl-Y.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Välja                   | Verktyget streckad fyrkant: dra på arbetsytan för att markera ett rektangulärt område. **Esc** rensar markeringen.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Kopiera / Klistra in    | **Kopiera** (`Ctrl/Cmd+C`) kopierar det markerade området. **Klistra in** (`Ctrl/Cmd+V`) visar en förhandsgranskning som följer markören: klicka på arbetsytan för att placera den, **Esc** avbryter. Kopian behålls, så om du trycker på `Ctrl/Cmd+V` och klickar igen placeras den så många gånger som behövs. I högupplöst läge följer inklistrade pixlar fortfarande gränsen på två färger per cell, så justera regionen med cellrutnätet för att behålla dess färger. Kopiera, Klistra in och Genomskinlig klistra finns också i högerklicksmenyn på arbetsytan; en inklistring som startats där förhandsgranskas på den klickade platsen. |
+| Transparent pasta       | `Ctrl/Cmd+Shift+V` (eller dess knapp i verktygsfältet) hoppar över de pappersfärgade pixlarna i kopian, så att bilden under syns igenom.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Rutnät + Raster         | **Rutnät** visar tecken-cellsrutnätet: 8×8 pixlar i hög upplösning, 4×8 pixlar med dubbel bredd i flerfärg. Från 4× zoom ritar den också en svagare linje runt varje enskild pixel, så att varje pixel kan placeras exakt. **Raster** lägger till ett rasterradlager.                                                                                                                                                                                                                                                                                                                                                                           |
+| Zoom                    | Skjutreglage från 1× till 16×.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| Importera bild          | PNG/JPEG/GIF som släpps på arbetsytan kvantiseras automatiskt till C64-paletten med 16 färger.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| Exportera block         | Lägger till BYTE/RAWBYTES-block i programmet med kodad bitmapp, skärm och färgdata.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Exportera `.bin`        | Sparar det ursprungliga flerfärgsformatet (10000 byte: 8000 bitmapp + 1000 skärm + 1000 färg) klart för LOADFILE till $2000.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 
 ### Sprite-redigeraren
 
 24×21 pixlars sprite-editor med flerbildsanimering. Öppna via Toolkit → Sprite
 Editor.
 
-| Särdrag                      | Beskrivning                                                                                                                                                                                                                               |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Ramar                        | Lägg till / ta bort / ändra ordning på ramar; ramremsan visas längst ner. **Kopiera** / **Klistra in** i ramraden kopierar du hela den aktuella ramen; samma två poster finns i högerklicksmenyn på arbetsytan och på ramremsan.          |
-| Läge                         | Mono-/flerfärgsbrytare.                                                                                                                                                                                                                   |
-| Verktyg                      | Penna, fyllning, linje, rektangel, cirkel — plus vändning horisontellt, vändning vertikalt, förskjutning vänster/höger/upp/ner (med valfri radbrytning). Formverktygen visar en live-förhandsvisning när du drar; släpp för att bekräfta. |
-| Ångra / gör om               | Fullständig ångra/gör om-stapel per bildruta. Ctrl/Cmd+Z / Ctrl/Cmd+Y eller verktygsfältsknapparna.                                                                                                                                       |
-| Bildimport                   | Importera en PNG- eller JPEG-fil via Filer → Importera bild. Importören mappar varje pixel till närmaste C64-palettfärg och skriver den i den aktuella bildrutan.                                                                         |
-| Förhandsvisning av animering | Spela upp/stoppa med konfigurerbar hastighet.                                                                                                                                                                                             |
-| Exportera block              | Infogar ett RAWBYTES-block vid en 64-byte-justerad adress för varje ram, plus en sprite-pekarinställning.                                                                                                                                 |
-| Spara `.bin`                 | Skriver 64 byte per bildruta (rå sprite-data utan utfyllnad).                                                                                                                                                                             |
+| Särdrag                      | Beskrivning                                                                                                                                                                                                                                                                                                                                                                                                   |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Ramar                        | Lägg till / ta bort / ändra ordning på ramar; ramremsan visas längst ner. **Kopiera** / **Klistra in** i ramraden kopierar du hela den aktuella ramen; samma två poster finns i högerklicksmenyn på arbetsytan och på ramremsan.                                                                                                                                                                              |
+| Läge                         | Mono-/flerfärgsbrytare.                                                                                                                                                                                                                                                                                                                                                                                       |
+| Verktyg                      | Penna, fyllning, linje, rektangel, cirkel — plus vändning horisontellt, vändning vertikalt, förskjutning vänster/höger/upp/ner (med valfri radbrytning). Formverktygen visar en live-förhandsvisning när du drar; släpp för att bekräfta.                                                                                                                                                                     |
+| Ångra / gör om               | Fullständig ångra/gör om-stapel per bildruta. Ctrl/Cmd+Z / Ctrl/Cmd+Y eller verktygsfältsknapparna.                                                                                                                                                                                                                                                                                                           |
+| Bildimport                   | Importera en PNG- eller JPEG-fil via Filer → Importera bild. Importören mappar varje pixel till närmaste C64-palettfärg och skriver den i den aktuella bildrutan.                                                                                                                                                                                                                                             |
+| Förhandsvisning av animering | Spela upp/stoppa med konfigurerbar hastighet.                                                                                                                                                                                                                                                                                                                                                                 |
+| Exportera block              | Infogar ett RAWBYTES-block vid en 64-byte-justerad adress för varje ram, plus en sprite-pekarinställning.                                                                                                                                                                                                                                                                                                     |
+| Spara `.bin`                 | Skriver 64 byte per bildruta (rå sprite-data utan utfyllnad).                                                                                                                                                                                                                                                                                                                                                 |
+| Urval                        | **Markera / flytta**: dra en rektangel och dra sedan inuti den för att flytta pixlarna (tomma pixlar är transparenta); piltangenterna flyttar den en pixel (två i flerfärg), Delete tar bort den, Esc tar bort den. **Rotera 90°** (båda riktningarna) roterar markeringen, eller hela ramen. Markeringen, vändningen, skiftningen och rotationen påverkar ramens innehåll och överlappar varandra.           |
+| Högupplöst överlägg          | **Högupplöst överlägg** lägger till en andra, enfärgad högupplöst sprite över varje bildruta — den klassiska konturen över en flerfärgad kropp. Listan **Lager** väljer det redigerade lagret; överlägget nedtonas medan kroppen redigeras. På C64 är det en separat sprite: ge den ett lägre spritenummer än kroppen. `.bin` och **Kopiera byte** skriver overlay-sprites efter kroppens (`sprite_f1_ov_1`). |
+| Spegla alla                  | Lägger till en horisontellt speglad kopia av varje bildruta (och dess träffruta) — en gångcykel åt andra hållet med ett klick.                                                                                                                                                                                                                                                                                |
+| Import av Sprite-ark         | Filer → **Importera sprite-ark…**: cellbredd/höjd, offset, mellanrum och bildruteantal klipper bilden i bildrutor med aktuell storlek (flerfärgade celler skalas till 12 pixlar per sprite). Färgerna kommer från bilden eller förblir spritens egna; OKLab-matchning utan dithering, ordnad (Bayer) eller Floyd-Steinberg-dithering. Ersätter bildrutorna eller lägger till dem.                             |
+| Hitbox                       | Verktyget **Hitbox** drar en rektangel per bildruta (streckad cyan); **Anpassa**, **Anpassa varje bildruta**, **Kopiera till varje bildruta** och **Ta bort** i sidopanelen. Filer → **Kopiera träffrute-tabellen** ger `sprite_hit_x / _y / _w / _h` (en byte per bildruta, skärmpixlar från övre vänstra hörnet); en bildruta utan en träffruta använder dess pixelgränser.                                 |
+| X/Y ×2                       | Visar förhandsgranskningen som med sprite-expansionen `$D01D` / `$D017`.                                                                                                                                                                                                                                                                                                                                      |
 
 ### C64 Tecken-ROM-läsare ("Teckenkarta")
 
@@ -4715,41 +4798,58 @@ skärmkoden för en tecken innan du skriver den med `RAWBYTES` eller `TEXT`.
 Teckenuppsättningsredigerare med 256 tecken, 8×8. Öppna via Verktyg →
 Teckenredigerare.
 
-| Särdrag                    | Beskrivning                                                                                                                                                                             |
-| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Ladda ROM                  | Importerar C64 ROM-teckenuppsättningen direkt från VICE:s `laddning` (ingen filväljare).                                                                                                |
-| Ladda `.bin`               | Importerar en extern binärfil med 2048 byte teckenuppsättning.                                                                                                                          |
-| Förhandsvisning per tecken | 16-brett rutnät med alla 256 tecken med den aktuella cellen markerad.                                                                                                                   |
-| Pixelredigerare            | 8×8 editor för entecken med verktyg för att växla/invertera/rensa.                                                                                                                      |
-| Färg per tecken            | Lagrar ett standardvärde för färg-RAM för varje tecken. I flerfärgsläge för tecken bevarar detta även aktiveringsbiten för flerfärg per cell och tecknets egen lägre 3-bitarsfärg.      |
-| Metadata tur och retur     | När man läser in kompatibla data från arbetsflöden för teckenuppsättning Canvas/Map bevaras färgmetadata per tecken så att redigeringar kan fortsätta utan att förlora färgintentionen. |
-| Exportera block            | Lägger till RAWBYTES vid $0800 (block 2) eller $3800 (block 7) med den kodade teckenuppsättningen.                                                                                      |
+| Särdrag                    | Beskrivning                                                                                                                                                                                                                                                             |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Ladda ROM                  | Laddar C64-tecken-ROM:n — exakt samma tecken som 901225-01, ingen filväljare. Den första knappen (och **Filer → ROM: versaler / grafik**) laddar uppsättning 1, den andra knappen (eller Skift+klicka, eller **Filer → ROM: gemener / versaler**) laddar uppsättning 2. |
+| Ladda `.bin`               | Importerar en extern binärfil med 2048 byte teckenuppsättning.                                                                                                                                                                                                          |
+| Förhandsvisning per tecken | 16-brett rutnät med alla 256 tecken med den aktuella cellen markerad.                                                                                                                                                                                                   |
+| Pixelredigerare            | Redigerar det valda tecknet, eller en **ruta** med 2×1, 1×2 eller 2×2 angränsande tecken som en bild (rutväljare).                                                                                                                                                      |
+| Ritverktyg                 | Blyertspenna, linje, rektangel, fylld rektangel och flödande fyllning. Ett klick på en pixel som redan har bläck raderar den.                                                                                                                                           |
+| Transformationer           | Rensa, invertera, vända horisontellt/vertikalt, skifta med omslutning, rotera 90° medurs/moturs (endast fyrkantiga plattor) — på hela plattan.                                                                                                                          |
+| Ångra / Gör om             | Verktygsfältsknappar, Ctrl+Z och Ctrl+Y (Ctrl+Shift+Z).                                                                                                                                                                                                                 |
+| Kopiera / Klistra in       | Verktygsfältsknappar, Ctrl+C / Ctrl+V, eller högerklicka på kartan; kopierar hela rutan med dess färger.                                                                                                                                                                |
+| Dra kartan                 | Dra en karaktär till en annan på kartan för att byta ut dem; Skift+dra kopior.                                                                                                                                                                                          |
+| Förhandsgranskning av text | Skriv text för att se den i den aktuella teckenuppsättningen. Välj om du vill använda versaler eller gemener; `{65}` eller `{$41}` infogar en skärmkod.                                                                                                                 |
+| Export av intervall        | Ställ in Från/Till-tecknen, sedan **Filer → Spara område (.bin)** (råa byte) eller **Kopiera område ASM** (`.byte` rader).                                                                                                                                              |
+| Färg per tecken            | Lagrar ett standardvärde för färg-RAM för varje tecken. I flerfärgsläge för tecken bevarar detta även aktiveringsbiten för flerfärg per cell och tecknets egen lägre 3-bitarsfärg.                                                                                      |
+| Metadata tur och retur     | När man läser in kompatibla data från arbetsflöden för teckenuppsättning Canvas/Map bevaras färgmetadata per tecken så att redigeringar kan fortsätta utan att förlora färgintentionen.                                                                                 |
+| Exportera block            | Lägger till RAWBYTES vid $0800 (block 2) eller $3800 (block 7) med den kodade teckenuppsättningen.                                                                                                                                                                      |
 
 ### Teckenuppsättning Canvas-redigeraren
 
 Helskärmsverktyg för teckenuppsättningshanterare för att bygga skärmar från en
 komplett teckenuppsättning på 256 tecken. Öppna via Toolkit → Charset Canvas.
 
-Arbetsytan är 16×16 tecken stor. I monoläge ger det en arbetsyta på 128×128
-pixlar; i flerfärgsläge för tecken ger det en arbetsyta på 64×128 pixlar med
-breda pixlar enligt C64:s regler för flerfärgade tecken.
+Arbetsytan är 16×16 tecken, 128×128 pixlar. I flerfärgsläge är varje tecken
+antingen flerfärgat (breda pixlar, 4 färger) eller högupplöst (8 smala pixlar, 2
+färger), precis som på C64.
 
-| Särdrag                             | Beskrivning                                                                                                                                                                                     |
-| ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Mono / flerfärgad                   | Monoläget lagrar 1-bitars 8×8-glyfer. Flerfärgsläget lagrar tvåbitars horisontella pixelpar och markerar använda celler med Color RAM-bit 3.                                                    |
-| C64 färgmodell                      | Bakgrunden använder `$D021`; delad flerfärg 1 använder `$D022`; delad flerfärg 2 använder `$D023`; varje karaktärs egen färg kommer från Color RAM-bitarna 0–2.                                 |
-| Ritverktyg                          | Blyertspenna, suddgummi, linje, rektangel, oval och flödfyllning fungerar över teckengränser.                                                                                                   |
-| Sprutverktyg                        | Airbrush-liknande teckning som sprider pixlar över angränsande celler/tecken.                                                                                                                   |
-| Sprutintensitet                     | Listrutan bredvid sprutverktyget ställer in penseldragets täthet.                                                                                                                               |
-| Rutnätsväxling                      | Kryssrutnätet visar eller döljer rutnätet med 16×16 tecken.                                                                                                                                     |
-| Spara teckenuppsättning `.bin`      | Sparar bitmappsdata på 2048 tecken.                                                                                                                                                             |
-| Spara 16×16-karta + Färg-RAM `.bin` | Sparar 256 skärmkoder följt av 256 färg-RAM-värden. Använd detta med `MAP_COPY16X16`.                                                                                                           |
-| Belastning                          | Kan ladda sparade teckenuppsättningar för canvas, vanliga teckenuppsättningsdata och kompatibla teckenuppsättningsdata för teckenredigeraren, inklusive lagrade färger per tecken när de finns. |
+| Särdrag                             | Beskrivning                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |                                               |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| Mono / flerfärgad                   | Monoläge lagrar 1-bitars 8×8-glyfer. Flerfärgsläge lagrar tvåbitars horisontella pixelpar och markerar flerfärgade celler med Color RAM-bit 3.                                                                                                                                                                                                                                                                                                                                                                   |                                               |
+| Verktyget för teckenläge            | I flerfärgsläge, klicka eller dra över tecken för att växla mellan flerfärg och högupplöst (Color RAM bit 3). Formen behålls: ett angivet pixelpar blir karaktärens egen färg. En högupplöst karaktär har bakgrunden och sin egen färg (0–7); MC1 / MC2 målar inte där.                                                                                                                                                                                                                                          |                                               |
+| Bakgrund                            | BG-rullgardinsmenyn visas även i monoläge; MC1/MC2 endast i flerfärgsläge.                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                               |
+| ECM                                 | Kryssrutan **ECM** (utökat färgläge, inte tillsammans med flerfärg): varje tecken är högupplöst med sin egen färg (0–15) och en av fyra bakgrunder BG0–BG3 (`$D021`–`$D024`; BG1 / BG2 är MC1 / MC2-registren). Välj en BG-färg i paletten (taggad B0–B3), klicka eller dra sedan över tecknen med verktyget **Teckenbakgrund**. Endast 64 olika tecken får plats: statusraden räknar dem, och när du sparar slås lika tecken samman — teckenuppsättningen är 64 tecken (512 byte) och skärmkoderna är `glyfer`. | bakgrund << 6`. Slå på ECM med `$D011` bit 6. |
+| C64 färgmodell                      | Bakgrunden använder `$D021`; delad flerfärg 1 använder `$D022`; delad flerfärg 2 använder `$D023`; varje karaktärs egen färg kommer från Color RAM-bitarna 0–2.                                                                                                                                                                                                                                                                                                                                                  |                                               |
+| Ritverktyg                          | Blyertspenna, suddgummi, linje, rektangel, oval och flödfyllning fungerar över teckengränser.                                                                                                                                                                                                                                                                                                                                                                                                                    |                                               |
+| Sprutverktyg                        | Airbrush-liknande teckning som sprider pixlar över angränsande celler/tecken.                                                                                                                                                                                                                                                                                                                                                                                                                                    |                                               |
+| Sprutintensitet                     | Listrutan bredvid sprutverktyget ställer in penseldragets täthet.                                                                                                                                                                                                                                                                                                                                                                                                                                                |                                               |
+| Rutnätsväxling                      | Kryssrutnätet visar eller döljer rutnätet med 16×16 tecken.                                                                                                                                                                                                                                                                                                                                                                                                                                                      |                                               |
+| Zoom                                | Zoomreglaget (2×–24×, hela enhetens pixlar per C64-pixel) eller Ctrl+hjulet över arbetsytan; zoomen sparas. Från 8× ritar rutnätet också en fin linje längs varje pixelkant.                                                                                                                                                                                                                                                                                                                                     |                                               |
+| Spara teckenuppsättning `.bin`      | Sparar bitmappsdata på 2048 tecken.                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |                                               |
+| Spara 16×16-karta + Färg-RAM `.bin` | Sparar 256 skärmkoder följt av 256 färg-RAM-värden. Använd detta med `MAP_COPY16X16`.                                                                                                                                                                                                                                                                                                                                                                                                                            |                                               |
+| Belastning                          | Kan ladda sparade teckenuppsättningar för canvas, vanliga teckenuppsättningsdata och kompatibla teckenuppsättningsdata för teckenredigeraren, inklusive lagrade färger per tecken när de finns.                                                                                                                                                                                                                                                                                                                  |                                               |
 
 **Viktig C64-begränsning:** i flerfärgsläge för tecken är de två delade färgerna
 globala för hela skärmen (`$D022` / `$D023`). Endast tecknets egen färg visas
 per cell, och den är begränsad till färgerna 0–7 eftersom Color RAM-bit 3 väljer
-flerfärgsläge.
+flerfärgsläge. Så ett tecken visar högst **4 färger** (bakgrund, MC1, MC2 och
+sin egen färg), och hela skärmen högst 3 + 8. I paletten är de delade färgerna
+taggade BG / 1 / 2, och färgerna 8–15 som inte delas är nedtonade. Om du väljer
+en sådan färg placeras den endast i MC2 eller MC1 medan ingen pixel använder det
+registret; annars ändras den i dess rullgardinsmeny (som färgar om hela
+skärmen). I högupplöst (mono) läge har en karaktär två färger: bakgrunden och
+sin egen färg (0–15).
 
 ### Kartredigerare (Flerskiktade kakelkartor)
 
@@ -4777,13 +4877,19 @@ bilspel som skrollar nedåt, en sidoskrollare eller en 2D-karta — och
 förhandsgranskar hela nivån med smidig skrollning. Öppna den med
 verktygsfältsknappen **Nivåredigerare** bredvid kartredigeraren.
 
-| Särdrag         | Beskrivning                                                                                                                                                                                                                                                      |
-| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Layout          | **Vertikal**, **Horisontell** eller **Rutnät** (rader × kolumner, med knappar för att lägga till/ta bort rader och kolumner).                                                                                                                                    |
-| Skärmar         | **Ny tom skärm**, **Lägg till från kartredigeraren** (den karta som för närvarande är öppen) eller **Ladda karta(or) (.bin)…** (flera kartredigerarexporter samtidigt). Dra en skärm från listan till en plats; dra platserna till varandra för att byta ut dem. |
-| Redigering      | **Redigera i kartredigeraren** öppnar den valda skärmen i kartredigeraren och återställer ändringarna; duplicera, flytta upp/vänster eller ned/höger, ta bort; ångra/gör om.                                                                                     |
-| Förhandsvisning | Dra förhandsgranskningen eller använd piltangenterna för att bläddra pixel för pixel; **Spela upp** bläddrar automatiskt (riktning, hastighet 1–8, loop), Mellanslag = spela upp / stopp. *Kantlinjer* markerar skärmens gränser.                                |
-| Checkar         | Teckenuppsättningsinformation och en varning när skärmar använder en annan teckenuppsättning eller färger (nivån använder den första skärmens inställningar).                                                                                                    |
+| Särdrag           | Beskrivning                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Layout            | **Vertikal**, **Horisontell** eller **Rutnät** (rader × kolumner, med knappar för att lägga till/ta bort rader och kolumner).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| Skärmar           | **Ny tom skärm**, **Lägg till från kartredigeraren** (den karta som för närvarande är öppen) eller **Ladda karta(or) (.bin)…** (flera kartredigerarexporter samtidigt). Dra en skärm från listan till en plats; dra platserna till varandra för att byta ut dem.                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Redigering        | **Redigera i kartredigeraren** öppnar den valda skärmen i kartredigeraren och återställer ändringarna; duplicera, flytta upp/vänster eller ned/höger, ta bort; ångra/gör om.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Förhandsvisning   | Dra förhandsgranskningen eller använd piltangenterna för att bläddra pixel för pixel; **Spela upp** bläddrar automatiskt (riktning, hastighet 1–8, loop), Mellanslag = spela upp / stopp. *Kantlinjer* markerar skärmens gränser.                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Checkar           | Teckenuppsättningsinformation och en varning när skärmar använder en annan teckenuppsättning eller färger (nivån använder den första skärmens inställningar).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| Karaktärsattribut | Knappen **Teckenattribut** växlar översikten till attributmålning: välj **Solid**, **Ladder**, **Hazard** eller **Collectible**, klicka på ett tecken och varje cell med den skärmkoden får (eller förlorar) det; dra för fler koder. Attributen visas som ett färgat lager och blir den 256-byte stora `LEVEL_ATTR`-tabellen (`LEVEL_ATTR_SOLID` = 1, `_LADDER` = 2, `_HAZARD` = 4, `_COLLECT` = 8).                                                                                                                                                                                                                                                                                                          |
+| Kantkontroll      | Markeringar i rött där angränsande skärmar inte fortsätter: ena sidan av ramen är tom (mellanslag) och den andra inte, eller heldragen på endast ena sidan. Sidopanelen räknar kanterna och cellerna.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| Färger            | **Nivåkant** och **Egna färger för den här skärmen** (bakgrund, kant, flerfärgad 1/2) för den valda skärmen; förhandsgranskningsbilden visar kanten. Exporteras per plats som `LEVEL_SCR_BG / _BORDER / _MC1 / _MC2` (med `LEVEL_SCR_COLORS` = 1) när en placerad skärm har sina egna färger.                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| Minne             | Datastorleken `.level` vid en vald adress (beräknad exakt som makrot bygger den), med varningar för BASIC / KERNAL ROM, I/O-området och minnet under `$0800`, och RLE-storleken för nivån. **Exportera RLE till block / Kopiera RLE asm** ger nivån RLE packad med `level_unrle`-uppackaren (`($FB)` → `($FD)`).                                                                                                                                                                                                                                                                                                                                                                                               |
+| Spring i VICE     | Bygger ett joystick-skrollat testprogram från nivån (`level-demo`-skrollaren, kod vid `$C000`, nivådata från `$2000`, anpassad teckenuppsättning vid `$2000`) och startar det i VICE — skärmfärgerna växlar med skärmen längst upp till vänster i vyn, kameran startar vid det första startobjektet.                                                                                                                                                                                                                                                                                                                                                                                                           |
+| Objekt            | Knappen **Objektlagret** växlar översikten till objektredigering: välj en typ (Start, Fiende, Föremål, Dörr, Utgång, Utlösare) och en **Param** byte (fiendetyp, föremåls-ID, dörrmål...), klicka för att placera, dra för att flytta (fäst till 8 px, Shift = ledig), klicka på ett objekt för att markera det och ändra dess typ/parameter, piltangenterna flyttar det, Delete tar bort det. Objekt tillhör nivåpositionen, inte en skärm. De listas i sidofältet, visas i förhandsgranskningen, sparas med nivån och exporteras i rullningsordning (vertikalt med Y, horisontellt med X, rutnät rad för rad) som `NIVÅ_OBJ_*` tabeller — med **Kopiera asm / Exportera till block** och med makrot `.nivå`. |
 
 **Filmeny: **
 | Handling                                                      | Vad den gör                                                                                                             |
@@ -4809,6 +4915,11 @@ bildruta) streamar sina SID-register till WebSid varje bildruta, och upp till
 tre förhandsvisningsnoter delar de tre rösterna. Streamspelaren laddas när
 editorn öppnas och igen efter Stopp, så noterna ljuder samtidigt; utan WebSid
 spelas en liten SID-synthesizer istället.
+
+**Förhandsgranskningsmotor:** **Inställningar → SID-förhandsgranskning** väljer
+**WebSID** eller **VA SID Core (Rust)**, appens egen SID-emulering; med VA SID
+Core väljer du även chipet (MOS 6581/8580). Instrumentparametrarna ställs in med
+rattar.
 
 **Kontroller per instrument: **
 - Kryssrutor för vågformer (TRI / SAW / PUL / NOI) — flera vågformer
@@ -4914,6 +5025,26 @@ och sparas/läses förlustfritt i det versionerade `.bin`-formatet.
 - Förhandsvisningar av ackord och arpeggio lyser upp motsvarande pianotangenter
   när klaviaturen är öppet.
 
+**Inspelning, metronom och MIDI: **
+- **Record** (den röda pricken, i spårningsverktygsfältet och på VA-VK) skriver
+  in noterna du spelar – på VA-VK, datorns keyboard eller ett MIDI-keyboard – i
+  takt till det valda ljudet, med början på den valda raden, med aktuell
+  hastighet. När mönstret är fullt läggs ett nytt tomt mönster till efter det
+  aktuella låtsteget och inspelningen fortsätter där. Tryck på Record igen för
+  att stoppa.
+- **Metronomen** (trackerverktygsfältet och VA-VK) klickar var fjärde rad, med
+  accent på det första slaget i varje 4-taktstakt. Taktslagslamporna bredvid
+  blinkar vid varje slag under uppspelning och inspelning, även när klicket är
+  avstängt.
+- **MIDI:** välj ingången i **MIDI**-listan bredvid instrumentnamnet och tryck
+  på **Anslut MIDI**; noter spelar det aktuella instrumentet (och skrivs in i
+  trackern under inspelning eller med *Insert into tracker*). Lampan bredvid
+  knappen blinkar vid varje inkommande MIDI-meddelande.
+- **Mönsterborttagning:** knappen **−** bredvid **Pat +** raderar det aktuella
+  mönstret (den frågar först om mönstret har noter). Låtstegen som använde det
+  tas bort och de andra numreras om; minst ett mönster finns alltid kvar.
+- **Mastervolymratten ** sitter på VA-VK.
+
 **Export av filer-menyn:**
 | Exportera                       | Vad den gör                                                                                                                                                                                                                                                                                                                                                                                                    |
 | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -4921,7 +5052,25 @@ och sparas/läses förlustfritt i det versionerade `.bin`-formatet.
 | `Exportera block (endast data)` | Lägger till instrumenttabell + mönsterblock till programmet vid `* = $C000`.                                                                                                                                                                                                                                                                                                                                   |
 | `Exportera block + minispelare` | Lägger till hela spelaren (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) plus PAL-frekvenstabeller. Efter export, placera en `JSR sid_init` i din huvudkod där musiken ska börja; med ditt eget IRQ-anrop `JSR sid_frame` en gång per bildruta istället.                                                                                                                                      |
 | `Exportera asm (urklipp)`       | Kopierar hela assembly-källkoden till urklipp.                                                                                                                                                                                                                                                                                                                                                                 |
+| `Importera GoatTracker .sng…`   | Laddar en GoatTracker 2-låt istället för den nuvarande — se **GoatTracker-import** nedan.                                                                                                                                                                                                                                                                                                                      |
 | `Exportera till UltimateBasic`  | Skriver ett `melodi ... slut`-block (instrument, ordningslista, mönsterrader som text) plus `musikuppspelning` och infogar det vid markören i Ultimate Basic-editorn; utanför UB-läge kopieras texten till urklipp. UltimateBasic-kompilatorn bygger spelaren, så `musikuppspelning` / `musikstopp` styr den. Instrumentmodulering går in i `imod` / `ifilt` / `igate` / `itab`-rader (Ultimate Basic 1.6.2+). |
+
+**GoatTracker import:** **Filer → Importera GoatTracker .sng…** laddar en
+GoatTracker 2-låt (`.sng`, GTS3–GTS5) istället för den nuvarande. Konverteringen
+är ungefärlig, eftersom de två spårarna fungerar olika:
+- Ordningslistorna per röst (med transponering och upprepning) är utplattade
+  till en 3-stämmig sång och uppdelade i 32-radiga mönster; identiska mönster
+  delas.
+- Instrument: AD/SR, första vågen, gatetimer och hård omstart tas över;
+  vågtabellen blir våg-/arpeggiotabellen, pulstabellen PWM, filtertabellen blir
+  filterläge, resonans- och cutoff-svep, och hastighetstabellen blir
+  instrumentets vibrato.
+- Mönsterkommandon: key off → note-off, portamento → `U` / `D` (högst 255 per
+  rad), tempo → `F`; toneporta blir en vanlig ton. Andra kommandon tas bort och
+  ett meddelande listar vad som approximerades eller hoppades över.
+- En grind som släpps av wavetablen blir en utgångssignal på nästa fria rad.
+  Endast den första submelodin importeras, och exportgränsen på 7 mönster gäller
+  fortfarande.
 
 **Användning av spelarens ZP:** `$02`–`$1C` (mönsterpekare, mönsterförskjutning,
 temp) och `$2F` (nuvarande hastighet), plus `$FB`–`$FD` (tickräknare, radindex,
@@ -4939,6 +5088,33 @@ flytta via expertläge om det behövs.
   återgår tonförhandsvisningar till den lilla synthesizern, som bara
   approximerar SID-chippet. Förhandsvisningar når WebSid cirka 0,1 s före
   ljudet.
+
+---
+
+### SID-spelare
+
+Verktygsfältsknappen **SID Player** öppnar ett flytande fönster som spelar upp
+`.sid`-musikfiler (PSID och RSID), till exempel låtar från HVSC-samlingen.
+
+- **Spellista:** lägg till låtar med **Lägg till .sid-filer…** eller genom att
+  släppa dem i fönstret och klicka på en låt för att spela den; **Ta bort** och
+  **Rensa spellista** rensa listan. **Spara spellista…** / **Öppna spellista…**
+  skriv och läs en `.sidpl`-fil med låtarna inbäddade. Listan, den aktuella
+  låten och om fönstret är öppet sparas.
+- **Transport:** Spela upp, Pausa, Stopp, **Föregående** / **Nästa** melodi,
+  **Föregående / Nästa undermelodi** för filer med flera låtar och en
+  tidsräknare.
+- **Sök:** Positionsfältet och **Bakåt/Framåt 10 s** fungerar med VA SID
+  Core-motorn. WebSID kan inte söka, så dessa kontroller är inaktiverade med
+  den.
+- **Volym:** Ratten delas med SID-redigerarens huvudvolym.
+- **Motor:** Fönstret visar vilken motor som spelar (WebSID, eller VA SID Core
+  med dess version och SID-chip); välj det i ** Inställningar →
+  SID-förhandsgranskning**. VA SID Core kör melodin på en inbyggd Rust C64-kärna
+  med en cykelexakt 6510, exakt avbrottstiming, CIA 6526A, VIC-II-timing med
+  dåliga linjer, sprite DMA och rasteravbrott, och 6510 I/O-porten — så
+  raster-IRQ, CIA-tidsinställda och digitala melodier spelas med timingen hos en
+  riktig maskin.
 
 ---
 
