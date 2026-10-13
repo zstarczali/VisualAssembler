@@ -24,6 +24,16 @@ if ($files === false || $files === []) {
     exit('Download is not available yet.');
 }
 
+// letöltésszámlálás (register/stats.php); hiba esetén a letöltés akkor is megy
+try {
+    define('VA_REGISTER', true);
+    require __DIR__ . '/register/lib.php';
+    vaDb()->prepare('INSERT INTO va_download_counts (day, file_key, count) VALUES (CURDATE(), ?, 1) ON DUPLICATE KEY UPDATE count = count + 1')
+        ->execute([$key]);
+} catch (Throwable $e) {
+    error_log('VA download count: ' . $e->getMessage());
+}
+
 usort($files, static fn(string $a, string $b): int => filemtime($b) <=> filemtime($a));
 $file = $files[0];
 

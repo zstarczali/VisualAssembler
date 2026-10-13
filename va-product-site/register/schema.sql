@@ -33,3 +33,17 @@ CREATE TABLE IF NOT EXISTS va_purchases (
   fulfilled_at DATETIME NULL,
   KEY ix_email (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS va_download_counts (
+  day DATE NOT NULL,
+  file_key VARCHAR(40) NOT NULL,
+  count INT UNSIGNED NOT NULL DEFAULT 0,
+  PRIMARY KEY (day, file_key)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS va_activations (
+  email VARCHAR(254) NOT NULL PRIMARY KEY,
+  version VARCHAR(20) NOT NULL DEFAULT '',
+  os VARCHAR(20) NOT NULL DEFAULT '',
+  activations INT UNSIGNED NOT NULL DEFAULT 1,
+  first_at DATETIME NOT NULL,
+  last_at DATETIME NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

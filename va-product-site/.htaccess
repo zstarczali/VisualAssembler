@@ -1,0 +1,4 @@
+SetEnv VA_SMTP_PASS ""
+SetEnv VA_SIGN_SEED ""
+SetEnv VA_DB_PASS ""
+SetEnd VA_ADMIN_PASSWORD ""

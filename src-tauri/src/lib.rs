@@ -658,7 +658,29 @@ fn license_activate(app: AppHandle, email: String, serial: String) -> serde_json
     let mut cfg = read_config(&app);
     cfg["license"] = serde_json::json!({ "email": email, "serial": serial });
     write_config(&app, &cfg);
+    report_license_activation(&app, &email, &serial);
     serde_json::json!({ "ok": true, "email": email })
+}
+
+const LICENSE_ACTIVATE_URL: &str = "https://www.c64va.pro/register/activate.php";
+
+/// Activation count for the site statistics (register/stats.php); fire and forget, offline is fine.
+fn report_license_activation(app: &AppHandle, email: &str, serial: &str) {
+    let Ok(client) = update_http_client(app, 15) else { return };
+    let body = serde_json::json!({
+        "email": email,
+        "serial": serial,
+        "version": app.package_info().version.to_string(),
+        "os": std::env::consts::OS,
+    });
+    tauri::async_runtime::spawn(async move {
+        let _ = client
+            .post(LICENSE_ACTIVATE_URL)
+            .header("Content-Type", "application/json")
+            .body(body.to_string())
+            .send()
+            .await;
+    });
 }
 
 const LICENSE_REQUEST_URL: &str = "https://www.c64va.pro/register/";
