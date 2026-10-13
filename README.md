@@ -93,11 +93,11 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 - **Update status in the Expert status bar** — the same *Up to date* / clickable *Update available* indicator as in Ultimate Basic mode.
 - **Save dialogs offer the file's own type** — e.g. *KOA (\*.koa)* instead of *Binary (\*.bin)*.
 - **Ultimate Basic 1.5.9 bundled** — new **`chain "FILE" [, device]`** loads another program over the running one and RUNs it (boot / title programs); `load "FILE"` now loads to the file's own address and `load "FILE", addr` to `addr` (the secondary address was swapped); `--d64` directory entries, BAM offsets and sector allocation fixed. `chain` is highlighted in the UB editor and listed in the command reference (together with the `sprhit()` / `sprbghit()` short forms).
-- **More robust update check** — c64va.tech now publishes the installer list at `downloads/VA/`, so the check works with the new download page (also for 2.4.6 / 2.4.7); the Linux update helper no longer inherits the AppImage library paths.
+- **More robust update check** — c64va.pro now publishes the installer list at `downloads/VA/`, so the check works with the new download page (also for 2.4.6 / 2.4.7); the Linux update helper no longer inherits the AppImage library paths.
 
 ## Earlier: v2.4.7
 
-- **In-app updates** — **Menu → Check for Update** now checks c64va.tech for a newer release, and on confirmation downloads the installer for your platform (with a progress bar) and installs it: the Windows installer runs in passive mode and restarts the app, on macOS the app bundle is replaced from the DMG, and on Linux the AppImage is swapped or the `.deb`/`.rpm` is installed via `pkexec`. The check also runs quietly at every start; **Skip this version** silences a release you don't want.
+- **In-app updates** — **Menu → Check for Update** now checks c64va.pro for a newer release, and on confirmation downloads the installer for your platform (with a progress bar) and installs it: the Windows installer runs in passive mode and restarts the app, on macOS the app bundle is replaced from the DMG, and on Linux the AppImage is swapped or the `.deb`/`.rpm` is installed via `pkexec`. The check also runs quietly at every start; **Skip this version** silences a release you don't want.
 - **Update status in the Ultimate Basic status bar** — shows **Up to date (vX)**, or a highlighted **Update available: vY** that opens the update dialog when clicked.
 - **Curve Editor → UltimateBasic export** — **Files → Export to UltimateBasic** writes the table as an initialised UB array (`var name = array(N)` / `array_word(N)` for 16-bit, followed by `data name: …` lines). **Files → Export UltimateBasic demo** produces a ready-to-run sprite demo: a ball sprite follows the curve (8-bit tables drive sprite Y, 16-bit 0..320 tables drive sprite X). Both are inserted at the UB editor cursor, or copied to the clipboard outside UB mode.
 - **Ultimate Basic 1.5.8 bundled** — new **`data <array>: v, …`** form fills a declared array at program start (several lines continue where the previous one stopped, word arrays take 16-bit values) without touching the `read` stream.
@@ -138,7 +138,7 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 ## Earlier: v2.4.1
 
 - **Polish and Italian UI languages** — full UI translation (menus, dialogs, mnemonic descriptions, Ultimate Basic command reference) alongside the existing Hungarian, English, Spanish, German and Dutch.
-- **Online Help toolbar button** — a new icon button after Debug opens the multi-language documentation site (c64va.tech/docs.html) directly from the app.
+- **Online Help toolbar button** — a new icon button after Debug opens the multi-language documentation site (c64va.pro/docs.html) directly from the app.
 - **Centralized mnemonic descriptions** — per-language mnemonic descriptions moved from `app.js` into `i18n.js` alongside the rest of the UI strings, simplifying the language-selection logic. Also fixes a longstanding bug where the English descriptions for `PRINT`, `PRINT_HEX`, `CLEAR_SCREEN`, `WAIT_KEY`, `SET_BORDER`, `SET_BG`, `IRQ_SETUP` and `RAND` were silently overwritten by leftover Spanish text.
 
 ## Earlier: v2.4.0

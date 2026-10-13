@@ -38,3 +38,4 @@ samples/*.snapshots.json
 /va-product-site/downloads/VA/*
 !/va-product-site/downloads/VA/index.php
 !/va-product-site/downloads/VA/.htaccess
+/va-product-site/register/config.php

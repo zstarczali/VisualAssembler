@@ -9,6 +9,10 @@
 //   node scripts/keygen.js pubkey                     public key of the existing private key
 //   node scripts/keygen.js <email>                    serial for one address
 //   node scripts/keygen.js csv <in.csv> <out.csv>     serials for every email in a purchases CSV
+//   node scripts/keygen.js donors-sql <in.csv> <out.sql>  donor list import (INSERT IGNORE INTO va_donors)
+//                                                     for the register page (phpMyAdmin → SQL)
+//   node scripts/keygen.js phpkey                     base64 seed of the private key for the
+//                                                     va-product-site/register config.php (sign_seed)
 //
 // Private key: $C64VA_LICENSE_KEY or ~/.c64va/license-private.pem
 const crypto = require("node:crypto");
@@ -36,6 +40,11 @@ function publicKeyBytes(key) {
   // raw 32-byte Ed25519 public key = the last 32 bytes of the SPKI DER
   const pub = key.type === "public" ? key : crypto.createPublicKey(key);
   return pub.export({ type: "spki", format: "der" }).subarray(-32);
+}
+
+// raw 32-byte Ed25519 seed = the last 32 bytes of the PKCS#8 DER (PHP: sodium_crypto_sign_seed_keypair)
+function privateKeySeed(key) {
+  return key.export({ type: "pkcs8", format: "der" }).subarray(-32);
 }
 
 function loadPrivateKey() {
@@ -75,6 +84,27 @@ function printPublicKey(key) {
   console.log("[" + Array.from(publicKeyBytes(key), (x) => "0x" + x.toString(16).padStart(2, "0")).join(", ") + "]");
 }
 
+const sqlStr = (v) => "'" + String(v).replace(/\\/g, "\\\\").replace(/'/g, "''") + "'";
+
+// Donation CSV → SQL for va-product-site/register (email, full_name, created_at columns).
+function donorsSql(text) {
+  const rows = parseCsv(text.replace(/^﻿/, ""));
+  const head = rows.shift() || [];
+  const col = (name) => head.findIndex((h) => h.trim().toLowerCase() === name);
+  const ei = col("email"), ni = col("full_name"), di = col("created_at");
+  if (ei < 0) throw new Error("No 'email' column");
+  const seen = new Set();
+  const values = [];
+  rows.forEach((r) => {
+    const email = (r[ei] || "").trim().toLowerCase();
+    if (!email.includes("@") || seen.has(email)) return;
+    seen.add(email);
+    values.push("(" + [email, ni >= 0 ? r[ni] || "" : "", di >= 0 ? r[di] || "" : ""].map(sqlStr).join(", ") + ")");
+  });
+  return { count: seen.size, sql: values.length
+    ? "INSERT IGNORE INTO va_donors (email, full_name, donated_at) VALUES\n" + values.join(",\n") + ";\n" : "" };
+}
+
 const csvCell = (v) => (/[",\r\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v);
 
 function main(argv) {
@@ -89,6 +119,7 @@ function main(argv) {
     return;
   }
   if (cmd === "pubkey") { printPublicKey(loadPrivateKey()); return; }
+  if (cmd === "phpkey") { console.log(privateKeySeed(loadPrivateKey()).toString("base64")); return; }
   if (cmd === "csv") {
     if (!a || !b) { console.error("usage: node scripts/keygen.js csv <in.csv> <out.csv>"); process.exit(1); }
     const key = loadPrivateKey();
@@ -109,13 +140,20 @@ function main(argv) {
     console.log(seen.size + " serials → " + b);
     return;
   }
+  if (cmd === "donors-sql") {
+    if (!a || !b) { console.error("usage: node scripts/keygen.js donors-sql <in.csv> <out.sql>"); process.exit(1); }
+    const { count, sql } = donorsSql(fs.readFileSync(a, "utf8"));
+    fs.writeFileSync(b, sql);
+    console.log(count + " donors → " + b);
+    return;
+  }
   if (cmd && cmd.includes("@")) {
     console.log(makeSerial(loadPrivateKey(), cmd));
     return;
   }
-  console.error("usage: node scripts/keygen.js init | pubkey | <email> | csv <in.csv> <out.csv>");
+  console.error("usage: node scripts/keygen.js init | pubkey | phpkey | <email> | donors-sql <in.csv> <out.sql> | csv <in.csv> <out.csv>");
   process.exit(1);
 }
 
 if (require.main === module) main(process.argv.slice(2));
-module.exports = { licenseMessage, makeSerial, verifySerial, publicKeyBytes, parseCsv };
+module.exports = { licenseMessage, makeSerial, verifySerial, publicKeyBytes, privateKeySeed, parseCsv, donorsSql };

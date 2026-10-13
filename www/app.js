@@ -78,7 +78,7 @@ const addressingModes = {
 const CUSTOMER_MESSAGE = {
   enabled: true,
   id: "c64-core-257",
-  url: "https://www.c64va.tech/docs.html",
+  url: "https://www.c64va.pro/docs.html",
   hu: {
     eyebrow: "Újdonság a 2.5.7-ben",
     title: "Üdvözöl a Visual Assembler",
@@ -1864,7 +1864,7 @@ function initPalette() {
   });
   document.querySelector(".customer-message-site")?.addEventListener("click", (e) => {
     e.preventDefault();
-    window.electronAPI?.openExternal("https://www.c64va.tech");
+    window.electronAPI?.openExternal("https://www.c64va.pro");
   });
   // The message body is rich HTML (set via innerHTML in showCustomerMessageIfNeeded)
   // and may contain plain <a href target="_blank"> links — those don't navigate
@@ -2204,7 +2204,7 @@ function initPalette() {
   chooseDebuggerButton?.addEventListener("click", chooseDebuggerExecutable);
   runDebuggerButton?.addEventListener("click", runInDebugger);
   onlineHelpButton?.addEventListener("click", () => {
-    window.electronAPI?.openExternal("https://www.c64va.tech/docs.html?doc");
+    window.electronAPI?.openExternal("https://www.c64va.pro/docs.html?doc");
   });
   dbgJmp?.addEventListener("change", () => { debuggerJmp = dbgJmp.checked; saveUiSettings(); });
   dbgWait?.addEventListener("change", () => { debuggerWait = dbgWait.checked; saveUiSettings(); });
@@ -3413,6 +3413,7 @@ function applyTranslations() {
     setText("#license-email-label", t("licenseEmail"));
     setText("#license-serial-label", t("licenseSerial"));
     setText("#license-buy", t("licenseBuy"));
+    setText("#license-request", t("licenseRequest"));
     setText("#license-deactivate", t("licenseDeactivate"));
     setText("#license-close", t("licenseClose"));
     setText("#license-activate", t("licenseActivate"));
@@ -17681,7 +17682,7 @@ function _showConfirm(msg) {
   });
 }
 
-// ── Self-update (c64va.tech/downloads/VA) ────────────────────────────────────
+// ── Self-update (c64va.pro/downloads/VA) ────────────────────────────────────
 const _UPDATE_SKIP_KEY = "c64va-update-skip-version";
 let _updateBusy = false;
 let _updateInfo = null;
@@ -17749,7 +17750,7 @@ function _updateShowAvailable() {
 async function checkForAppUpdate({ silent = false } = {}) {
   if (_updateBusy) return;
   if (!window.electronAPI?.checkForUpdate) {
-    if (!silent) window.electronAPI?.openExternal?.("https://www.c64va.tech/");
+    if (!silent) window.electronAPI?.openExternal?.("https://www.c64va.pro/");
     return;
   }
   if (!silent) {
@@ -47708,6 +47709,8 @@ function _vaLicenseRender(lockedFeature) {
     : (lockedFeature ? t("licenseLocked") + " " : "") + t("licenseIntro");
   const deact = document.getElementById("license-deactivate");
   if (deact) deact.hidden = !licensed;
+  const req = document.getElementById("license-request");
+  if (req) req.hidden = licensed;
   const email = document.getElementById("license-email");
   if (email && licensed) email.value = _vaLicense.email;
 }
@@ -47733,6 +47736,23 @@ async function _vaLicenseActivate() {
   _vaLicenseRender(false);
   _vaLicenseSetStatus(tf("licenseActivated", { email: res.email }), "ok");
 }
+async function _vaLicenseRequest() {
+  const input = document.getElementById("license-email");
+  const email = (input?.value || "").trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { _vaLicenseSetStatus(t("licenseRequestInvalidEmail"), "error"); input?.focus(); return; }
+  if (!window.electronAPI?.licenseRequest) return;
+  const btn = document.getElementById("license-request");
+  if (btn) btn.disabled = true;
+  _vaLicenseSetStatus(t("licenseRequestSending"));
+  let res = null;
+  try { res = await window.electronAPI.licenseRequest(email, currentLanguage); } catch (_) { res = null; }
+  if (btn) btn.disabled = false;
+  const keys = { sent: "licenseRequestSent", invalid_email: "licenseRequestInvalidEmail", not_donor: "licenseRequestNotDonor", exists: "licenseRequestExists",
+    rate: "licenseRequestRate", network: "licenseRequestNetwork" };
+  const result = res?.result || "server";
+  _vaLicenseSetStatus(tf(keys[result] || "licenseRequestFailed", { email }), result === "sent" ? "ok" : "error");
+  if (result === "sent") document.getElementById("license-serial")?.focus();
+}
 async function _vaLicenseDeactivate() {
   if (!await _showConfirm(t("licenseDeactivateConfirm"))) return;
   try { await window.electronAPI?.licenseDeactivate?.(); } catch (_) {}
@@ -47756,9 +47776,10 @@ function setupLicense() {
   document.getElementById("license-badge")?.addEventListener("click", function() { _vaOpenLicenseDialog(false); });
   document.getElementById("license-activate")?.addEventListener("click", _vaLicenseActivate);
   document.getElementById("license-deactivate")?.addEventListener("click", _vaLicenseDeactivate);
+  document.getElementById("license-request")?.addEventListener("click", _vaLicenseRequest);
   document.getElementById("license-close")?.addEventListener("click", function() { document.getElementById("license-dialog")?.close(); });
   document.getElementById("license-buy")?.addEventListener("click", function() {
-    const url = "https://www.c64va.tech/";
+    const url = "https://www.c64va.pro/";
     if (window.electronAPI?.openExternal) window.electronAPI.openExternal(url); else window.open(url, "_blank", "noopener");
   });
   _vaLicenseRefresh();

@@ -280,13 +280,13 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 - **Ultimate Basic 1.5.9 bundled** — new `chain "FILE" [, device]` (load another program over the running one and RUN it); `load "FILE"` loads to the file's own address, `load "FILE", addr` to `addr`; D64 fixes. `chain` is highlighted and listed in the command reference.
 - **Update status in the Expert status bar** — the same *Up to date* / clickable *Update available* indicator as in Ultimate Basic mode.
 - **Save dialogs** offer the file's own type (e.g. *KOA*) instead of *Binary (\*.bin)*.
-- **More robust update check** — the installer list is published at c64va.tech/downloads/VA/, so the check works with the new download page; the Linux update helper no longer inherits the AppImage library paths.
+- **More robust update check** — the installer list is published at c64va.pro/downloads/VA/, so the check works with the new download page; the Linux update helper no longer inherits the AppImage library paths.
 
 ---
 
 ## Version 2.4.7 Highlights
 
-- **In-app updates** — **Menu → Check for Update** checks c64va.tech for a newer release and, on confirmation, downloads the installer for your platform with a progress bar and installs it. See [In-app updates](#in-app-updates). The check also runs quietly at every start.
+- **In-app updates** — **Menu → Check for Update** checks c64va.pro for a newer release and, on confirmation, downloads the installer for your platform with a progress bar and installs it. See [In-app updates](#in-app-updates). The check also runs quietly at every start.
 - **Update status in the Ultimate Basic status bar** — shows **Up to date (vX)**, or a highlighted **Update available: vY** that opens the update dialog when clicked.
 - **Curve Editor → UltimateBasic export** — **Files → Export to UltimateBasic** writes the table as an initialised UB array; **Files → Export UltimateBasic demo** produces a ready-to-run UB sprite demo. See [Curve Editor](#curve-editor).
 - **Ultimate Basic 1.5.8 bundled** — the new **`data <array>: v, …`** form fills a declared `array` / `array_word` at program start (further lines continue where the previous one stopped, word arrays take 16-bit values) without touching the `read` stream.
@@ -312,7 +312,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 - **Cleaner macro lines in the ASM view** — macro blocks are now listed without the leading comment marker (`.print "HELLO"`, `.if A == 1`, `.sprite_init …` instead of `; .print …`), and the ASM syntax highlighter colours them as macros. Ordinary COMMENT blocks and region markers still start with `;`.
 - **Custom macro highlighting in the Expert editor** — the macro name after `.macro`, `.invoke` and `.call` (and Kick-style `:name(...)` calls) has its own colour, and so do the `{param}` substitutions inside the macro body and the parameter names in the `.macro` header, in every theme.
 - **Refreshed About dialog** — a wider two-column layout with grouped project, license and credit links, and the Ultimate Basic banner now has a transparent background so it blends into every theme.
-- **Web64 on the product site** — a new Web64 IDE section on [c64va.tech](https://www.c64va.tech).
+- **Web64 on the product site** — a new Web64 IDE section on [c64va.pro](https://www.c64va.pro).
 - **Sample update** — the `macro-with-parameter` sample now uses the parenthesised `.macro setColor(color)` form.
 
 ---
@@ -338,7 +338,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Version 2.4.1 Highlights
 
 - **Polish and Italian UI languages** — full interface translation (menus, dialogs, mnemonic descriptions, Ultimate Basic command reference) alongside the existing Hungarian, English, Spanish, German and Dutch.
-- **Online Help toolbar button** — a new icon button after Debug opens the multi-language documentation site ([c64va.tech/docs.html](https://www.c64va.tech/docs.html)) directly from the app.
+- **Online Help toolbar button** — a new icon button after Debug opens the multi-language documentation site ([c64va.pro/docs.html](https://www.c64va.pro/docs.html)) directly from the app.
 - **Centralized mnemonic descriptions:** per-language mnemonic descriptions moved into the shared translation file alongside the rest of the UI strings. Also fixes a longstanding bug where the English descriptions for `PRINT`, `PRINT_HEX`, `CLEAR_SCREEN`, `WAIT_KEY`, `SET_BORDER`, `SET_BG`, `IRQ_SETUP` and `RAND` were silently overwritten by leftover Spanish text.
 
 ---
@@ -545,11 +545,11 @@ Project snapshots are stored as on-disk sidecar JSON files, not in localStorage.
 - **Hardware Settings → Snapshot → Automatic snapshot saving** controls whether the app creates snapshots automatically after edits. The default delay is about 2.5 seconds, and the setting applies per tab.
 - If a project has not been saved yet, snapshots are stored in the app config directory until the project gets a file path.
 | **Knowledge Base** | Reference links (6502 opcodes, C64 KERNAL, memory map, colors) |
-| **Check for Update** | Check c64va.tech for a newer release and download / install it — see [In-app updates](#in-app-updates) |
+| **Check for Update** | Check c64va.pro for a newer release and download / install it — see [In-app updates](#in-app-updates) |
 
 ### In-app updates
 
-**Menu → Check for Update** looks up the newest release on c64va.tech (it reads the download links for your platform) and compares it with the running version:
+**Menu → Check for Update** looks up the newest release on c64va.pro (it reads the download links for your platform) and compares it with the running version:
 
 - **Up to date** — the dialog says so.
 - **Update available** — choose **Update now** to download the installer (a progress bar shows the download), **Later** to close the dialog, or **Skip this version** to stop the automatic check from offering that release again.

@@ -26,6 +26,7 @@
     licenseStatus: () => invoke("license_status"),
     licenseActivate: (email, serial) => invoke("license_activate", { email, serial }),
     licenseDeactivate: () => invoke("license_deactivate"),
+    licenseRequest: (email, lang) => invoke("license_request", { email, lang }),
     getViceConfig: () => invoke("get_vice_config"),
     getExomizerConfig: () => invoke("get_exomizer_config"),
     getWorkingFolder: () => invoke("get_working_folder"),

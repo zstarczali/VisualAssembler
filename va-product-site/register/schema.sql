@@ -1,0 +1,22 @@
+CREATE TABLE IF NOT EXISTS va_donors (
+  email VARCHAR(254) NOT NULL PRIMARY KEY,
+  full_name VARCHAR(255) NOT NULL DEFAULT '',
+  donated_at VARCHAR(40) NOT NULL DEFAULT '',
+  added_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS va_serial_requests (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(254) NOT NULL,
+  serial VARCHAR(100) NOT NULL,
+  lang VARCHAR(8) NOT NULL DEFAULT 'en',
+  ip VARCHAR(45) NOT NULL DEFAULT '',
+  user_agent VARCHAR(255) NOT NULL DEFAULT '',
+  created_at DATETIME NOT NULL,
+  mailed_at DATETIME NULL,
+  UNIQUE KEY uq_email (email)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS va_register_attempts (
+  ip VARCHAR(45) NOT NULL,
+  created_at DATETIME NOT NULL,
+  KEY ix_ip_created (ip, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
