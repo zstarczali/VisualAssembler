@@ -106,7 +106,7 @@ function vaAdminPage(string $title, string $body): void
             . '<a class="nav-link" href="stats.php?logout=1">LOG OUT</a>';
     }
     echo '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
-        . '<title>Visual Assembler -' . vaH($title) . '</title><link rel="icon" href="../favicon.ico"><style>' . VA_ADMIN_CSS . '</style></head><body>'
+        . '<title>Visual Assembler - ' . vaH($title) . '</title><link rel="icon" href="../favicon.ico"><style>' . VA_ADMIN_CSS . '</style></head><body>'
         . '<div class="rb"></div><nav><a class="brand" href="../"><img src="../assets/logo2.png" alt="C64VA"><span>C64 VISUAL ASSEMBLER</span></a>'
         . '<div class="sp"></div>' . $nav . '</nav><div class="screen"><main>' . $body . '</main></div></body></html>';
 }

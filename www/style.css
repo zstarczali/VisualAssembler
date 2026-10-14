@@ -219,6 +219,111 @@ html[data-theme="commodore77"] {
   --asm-operand: #f5df4d;
 }
 
+/* "Commodore Starlight" — the translucent C64 breadbin: frosted clear glass
+   panels with the rainbow RGB glow of the case shining through (pink → violet →
+   cyan → green → yellow → orange), a magenta accent and smoky dark glass for the
+   monitor, like the smoked keycaps. */
+html[data-theme="starlight"] {
+  color-scheme: light;
+  --hl-comment:   #8b85a8;
+  --hl-directive: #6d28d9;
+  --hl-mnem:      #0e7490;
+  --hl-number:    #c2410c;
+  --hl-string:    #15803d;
+  --hl-label:     #a16207;
+  --hl-macro:     #c026d3;
+  --hl-macro-param: #0f766e;
+  --expert-editor-bg: #fbf9fe;
+  --ub-editor-bg: #fbf9fe;
+  --ub-chrome-bg: rgba(246, 242, 252, 0.98);
+  --ub-side-bg: rgba(251, 249, 254, 0.98);
+  --ub-selection-bg: rgba(214, 51, 154, 0.20);
+  --cg-canvas-bg: #20263a;
+  --bg: #f4f1fa;
+  --bg-accent: #ebe6f5;
+  --panel: rgba(255, 255, 255, 0.86);
+  --panel-strong: rgba(255, 255, 255, 0.94);
+  --panel-border: rgba(139, 92, 246, 0.20);
+  --text: #241a38;
+  --muted: #6b6285;
+  --primary: #d6339a;
+  --primary-deep: #b0257e;
+  --secondary: #5b4f7a;
+  --secondary-soft: rgba(214, 51, 154, 0.09);
+  --surface-soft: rgba(139, 92, 246, 0.06);
+  --control-bg: rgba(248, 245, 253, 0.95);
+  --active-bg: #d6339a;
+  --active-fg: #ffffff;
+  --shadow: 0 1px 3px rgba(60, 20, 90, 0.10), 0 4px 18px rgba(214, 51, 154, 0.10);
+  --input-bg: rgba(255, 255, 255, 0.96);
+  --output-bg: #f8f5fd;
+  --output-text: #2e2344;
+  --monitor-text: #0e7490;
+  --error: #dc2626;
+  --accent: var(--primary);
+  --asm-mnemonic: #0e7490;
+  --asm-directive: #7c3aed;
+  --asm-macro: #c026d3;
+  --asm-comment: #8b85a8;
+  --asm-label: #b45309;
+  --asm-number: #ea580c;
+  --asm-region: #15803d;
+  --asm-operand: #a16207;
+  --sl-rainbow: linear-gradient(90deg, #ff4fb8, #b18cff, #5ef2ff, #7ef0a4, #ffd166, #ff9f43);
+}
+
+/* "Commodore Beige" — the classic breadbin: beige case, dark brown keycaps,
+   mustard function keys, the rainbow badge stripes and a C64 blue screen for
+   the monitor view. */
+html[data-theme="beige"] {
+  color-scheme: light;
+  --hl-comment:   #8a7f6e;
+  --hl-directive: #7a3b8a;
+  --hl-mnem:      #352f8f;
+  --hl-number:    #a8471f;
+  --hl-string:    #4f7a3a;
+  --hl-label:     #9a5a1c;
+  --hl-macro:     #2f7686;
+  --hl-macro-param: #6b5a1a;
+  --expert-editor-bg: #f6f1e7;
+  --ub-editor-bg: #f6f1e7;
+  --ub-chrome-bg: rgba(232, 226, 214, 0.98);
+  --ub-side-bg: rgba(240, 235, 224, 0.98);
+  --ub-selection-bg: rgba(184, 137, 47, 0.25);
+  --cg-canvas-bg: #20263a;
+  --bg: #e4ddd0;
+  --bg-accent: #d8d0c0;
+  --panel: rgba(240, 235, 224, 0.98);
+  --panel-strong: rgba(246, 242, 234, 0.98);
+  --panel-border: rgba(90, 72, 55, 0.18);
+  --text: #2b231d;
+  --muted: #6e6355;
+  --primary: #b8892f;
+  --primary-deep: #96701f;
+  --secondary: #5d5246;
+  --secondary-soft: rgba(93, 82, 70, 0.10);
+  --surface-soft: rgba(93, 82, 70, 0.06);
+  --control-bg: rgba(232, 226, 214, 0.98);
+  --active-bg: #b8892f;
+  --active-fg: #2b231d;
+  --shadow: 0 1px 3px rgba(60, 45, 30, 0.14), 0 2px 8px rgba(60, 45, 30, 0.10);
+  --input-bg: rgba(250, 247, 240, 0.98);
+  --output-bg: #efe9dd;
+  --output-text: #2e261f;
+  --monitor-text: #352f8f;
+  --error: #b3261e;
+  --accent: var(--primary);
+  --asm-mnemonic: #352f8f;
+  --asm-directive: #7a3b8a;
+  --asm-macro: #2f7686;
+  --asm-comment: #8a7f6e;
+  --asm-label: #9a5a1c;
+  --asm-number: #a8471f;
+  --asm-region: #4f7a3a;
+  --asm-operand: #7a5f14;
+  --c64-badge: linear-gradient(90deg, #c8432b 0 20%, #e07b2a 20% 40%, #e8c23a 40% 60%, #4f9a3c 60% 80%, #3a6fb8 80% 100%);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -245,6 +350,12 @@ html[data-theme="oled"] {
 }
 html[data-theme="commodore77"] {
   background-color: #0a0a08;
+}
+html[data-theme="starlight"] {
+  background-color: #f4f1fa;
+}
+html[data-theme="beige"] {
+  background-color: #e4ddd0;
 }
 html:has(#splash-screen) {
   overflow: hidden;
@@ -567,7 +678,9 @@ a {
    an already-light background. Darken/saturate the pill so it stands out the
    same way it does on the dark themes, which also makes the shimmer visible
    again without touching its animation/blend logic. */
-html[data-theme="light"] .editor-mode-indicator {
+html[data-theme="light"] .editor-mode-indicator,
+html[data-theme="beige"] .editor-mode-indicator,
+html[data-theme="starlight"] .editor-mode-indicator {
   border-color: color-mix(in srgb, var(--accent) 55%, transparent);
   background: color-mix(in srgb, var(--accent) 82%, transparent);
   color: #fff;
@@ -576,7 +689,9 @@ html[data-theme="light"] .editor-mode-indicator {
     inset 0 -1px 3px rgba(0, 0, 0, 0.25),
     0 4px 14px rgba(15, 23, 42, 0.20);
 }
-html[data-theme="light"] .editor-mode-indicator::before {
+html[data-theme="light"] .editor-mode-indicator::before,
+html[data-theme="beige"] .editor-mode-indicator::before,
+html[data-theme="starlight"] .editor-mode-indicator::before {
   background: linear-gradient(
     to bottom,
     rgba(255, 255, 255, 0.35) 0%,
@@ -608,12 +723,18 @@ html[data-theme="light"] .editor-mode-indicator::before {
   color: #3ac96a;
 }
 
-html[data-theme="light"] .main-tb-run { color: #1a8a3f; }
-html[data-theme="light"] .main-tb-run:hover {
+html[data-theme="light"] .main-tb-run,
+html[data-theme="beige"] .main-tb-run,
+html[data-theme="starlight"] .main-tb-run { color: #1a8a3f; }
+html[data-theme="light"] .main-tb-run:hover,
+html[data-theme="beige"] .main-tb-run:hover,
+html[data-theme="starlight"] .main-tb-run:hover {
   background: color-mix(in srgb, #1a8a3f 14%, transparent);
   color: #1a8a3f;
 }
-html[data-theme="light"] .main-toolbar .split-run-arrow {
+html[data-theme="light"] .main-toolbar .split-run-arrow,
+html[data-theme="beige"] .main-toolbar .split-run-arrow,
+html[data-theme="starlight"] .main-toolbar .split-run-arrow {
   border-inline-start-color: color-mix(in srgb, #1a8a3f 35%, transparent);
 }
 
@@ -624,8 +745,12 @@ html[data-theme="light"] .main-toolbar .split-run-arrow {
   color: #e05252;
 }
 
-html[data-theme="light"] .main-tb-debug { color: #b3251f; }
-html[data-theme="light"] .main-tb-debug:hover {
+html[data-theme="light"] .main-tb-debug,
+html[data-theme="beige"] .main-tb-debug,
+html[data-theme="starlight"] .main-tb-debug { color: #b3251f; }
+html[data-theme="light"] .main-tb-debug:hover,
+html[data-theme="beige"] .main-tb-debug:hover,
+html[data-theme="starlight"] .main-tb-debug:hover {
   background: color-mix(in srgb, #b3251f 14%, transparent);
   color: #b3251f;
 }
@@ -1101,12 +1226,18 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  overflow-y: auto;
   min-width: 140px;
   padding: 8px;
   border-radius: 3px;
   border: 1px solid var(--panel-border);
   background: color-mix(in srgb, var(--panel-strong) 97%, transparent);
   box-shadow: var(--shadow);
+}
+
+/* a toggle esemény aszinkron: elhelyezésig rejtve, különben a régi helyén felvillan */
+.theme-picker-panel:not(.theme-picker-panel--placed) {
+  visibility: hidden;
 }
 
 .theme-option {
@@ -5450,6 +5581,25 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
 .vc-dialog { max-width: 860px; }
 .vc-dialog [hidden] { display: none !important; }
 .vc-dialog .project-snapshot-card > * { flex-shrink: 0; }
+/* fejléc a szerkesztőablakok mintájára (.se-hdr / .se-title) */
+.vc-dialog .project-snapshot-card { padding-top: 0; }
+.vc-dialog .project-snapshot-hdr {
+  align-items: center; gap: 12px;
+  margin: 0 -24px; padding: 8px 12px;
+  border-bottom: 1px solid var(--panel-border);
+  background: var(--panel-strong);
+  position: sticky; top: 0; z-index: 2;
+}
+.vc-dialog .project-snapshot-hdr-text { display: flex; align-items: baseline; gap: 12px; }
+.vc-dialog .project-snapshot-title {
+  font-size: 0.74rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  white-space: nowrap;
+}
+.vc-dialog .project-snapshot-subtitle {
+  margin: 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-family: "IBM Plex Mono", monospace; font-size: 0.7rem; color: var(--secondary);
+}
+.vc-dialog .vc-mode-btn { height: 22px; padding: 0 10px; font-size: 0.72rem; }
 .vc-mode { display: flex; gap: 2px; padding: 2px; border: 1px solid var(--panel-border); border-radius: 2px; background: var(--control-bg); align-self: center; }
 .vc-mode-btn { min-height: 0; height: 26px; padding: 0 12px; border: none; border-radius: 2px; background: transparent; color: var(--secondary); font-size: 0.78rem; cursor: pointer; }
 .vc-mode-btn:hover:not(:disabled) { background: color-mix(in srgb, var(--secondary) 18%, transparent); color: var(--text); }
@@ -5481,6 +5631,12 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
 .vc-ref--auto { border-color: var(--secondary); color: var(--secondary); }
 .vc-meta { font-size: 0.72rem; color: var(--secondary); white-space: nowrap; }
 .vc-actions { display: flex; gap: 4px; }
+.vc-files { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 2px 12px; font-family: "IBM Plex Mono", monospace; font-size: 0.7rem; color: var(--secondary); }
+.vc-file code { font-weight: 700; }
+.vc-file--a code { color: #3fa45b; }
+.vc-file--d code { color: #d0504a; }
+.vc-file--m code, .vc-file--r code { color: #e0a030; }
+.vc-scope[hidden] { display: none; }
 .vc-actions button { min-height: 0; height: 24px; padding: 0 8px; font-size: 0.72rem; }
 .vc-actions .vc-del { width: 24px; padding: 0; }
 .vc-diff { border: 1px solid var(--panel-border); border-radius: 2px; background: var(--control-bg); }
@@ -11250,3 +11406,262 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 
 /* fixed-width zoom value: the slider must not move when the number changes */
 #hg-png-zoom-val { display: inline-block; width: 4.2em; flex: 0 0 4.2em; text-align: right; font-variant-numeric: tabular-nums; }
+
+
+/* ── Commodore Starlight ─────────────────────────────────────────────────── */
+html[data-theme="starlight"] body {
+  background:
+    radial-gradient(60% 40% at 10% 108%, rgba(255, 79, 184, 0.30), transparent 70%),
+    radial-gradient(55% 36% at 36% 112%, rgba(177, 140, 255, 0.26), transparent 70%),
+    radial-gradient(55% 36% at 62% 112%, rgba(94, 242, 255, 0.26), transparent 70%),
+    radial-gradient(60% 40% at 90% 108%, rgba(255, 209, 102, 0.28), transparent 70%),
+    radial-gradient(80% 50% at 50% -10%, rgba(255, 255, 255, 0.9), transparent 70%),
+    var(--bg);
+  background-attachment: fixed;
+}
+html[data-theme="starlight"] body::after {
+  content: "";
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: var(--sl-rainbow);
+  opacity: 0.85;
+  pointer-events: none;
+  z-index: 2;
+}
+html[data-theme="starlight"] .primary {
+  background: linear-gradient(135deg, #e0399f 0%, #8b5cf6 100%);
+  color: #ffffff;
+  font-weight: 700;
+  border-color: rgba(214, 51, 154, 0.5);
+  box-shadow: 0 4px 14px rgba(214, 51, 154, 0.25);
+}
+html[data-theme="starlight"] .primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #c92c8b 0%, #7c4ce6 100%);
+}
+html[data-theme="starlight"] .monitor-output {
+  background: #1b1726 !important;
+  color: #5ef2ff !important;
+  border-color: #3a3150 !important;
+  text-shadow: 0 0 8px rgba(94, 242, 255, 0.40);
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.5), 0 4px 18px rgba(139, 92, 246, 0.15);
+}
+html[data-theme="starlight"] .theme-toggle-glyph::after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  background: currentColor;
+  clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
+}
+.theme-option-dot[data-theme-opt="starlight"] {
+  background: conic-gradient(#ff4fb8, #b18cff, #5ef2ff, #7ef0a4, #ffd166, #ff9f43, #ff4fb8);
+  border-color: #ffffff;
+}
+html[data-theme="starlight"] .splash-panel .splash-loader-bar {
+  background: var(--sl-rainbow);
+}
+html[data-theme="starlight"] ::selection {
+  background: rgba(214, 51, 154, 0.25);
+}
+
+
+/* ── Commodore Beige ─────────────────────────────────────────────────────── */
+html[data-theme="beige"] body::after {
+  content: "";
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4px;
+  background: var(--c64-badge);
+  pointer-events: none;
+  z-index: 2;
+}
+/* mustard function keys */
+html[data-theme="beige"] .primary {
+  background: linear-gradient(180deg, #d0a24a 0%, #b8892f 100%);
+  color: #2b231d;
+  font-weight: 700;
+  border-color: #8a6619;
+  box-shadow: inset 0 1px 0 rgba(255, 245, 210, 0.5), 0 2px 0 rgba(90, 65, 20, 0.45);
+}
+html[data-theme="beige"] .primary:hover:not(:disabled) {
+  background: linear-gradient(180deg, #c4963d 0%, #a97c25 100%);
+}
+/* C64 blue screen */
+html[data-theme="beige"] .monitor-output {
+  background: #40318d !important;
+  color: #a59bf0 !important;
+  border-color: #2c2266 !important;
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.35), 0 0 0 6px #a59bf0;
+}
+html[data-theme="beige"] .theme-toggle-glyph::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 1px;
+  background: var(--c64-badge);
+}
+.theme-option-dot[data-theme-opt="beige"] {
+  background: #d8cfbd;
+  border-color: #3b302a;
+}
+html[data-theme="beige"] .splash-panel .splash-loader-bar {
+  background: var(--c64-badge);
+}
+html[data-theme="beige"] ::selection {
+  background: rgba(184, 137, 47, 0.30);
+}
+
+/* ── Commodore 64 ────────────────────────────────────────────────────────────
+   The power-on screen: light blue border (page background), blue screen
+   (panels), light blue text, reverse-video buttons and the C64 font in the
+   monitor view. Syntax colours are taken from the C64 palette. */
+html[data-theme="c64"] {
+  color-scheme: dark;
+  background-color: #7869c4;
+  --hl-comment:   #9088d8;
+  --hl-directive: #c9a0ff;
+  --hl-mnem:      #ffffff;
+  --hl-number:    #eef078;
+  --hl-string:    #a9f59e;
+  --hl-label:     #75d6d0;
+  --hl-macro:     #ff9a8f;
+  --hl-macro-param: #e0c27a;
+  --expert-editor-bg: #40318d;
+  --ub-editor-bg: #40318d;
+  --ub-chrome-bg: rgba(52, 40, 120, 0.98);
+  --ub-side-bg: rgba(58, 45, 130, 0.98);
+  --ub-selection-bg: rgba(165, 155, 240, 0.32);
+  --cg-canvas-bg: #20263a;
+  --bg: #7869c4;
+  --bg-accent: #6a5bb8;
+  --panel: rgba(64, 49, 141, 0.98);
+  --panel-strong: rgba(56, 42, 128, 0.99);
+  --panel-border: rgba(165, 155, 240, 0.30);
+  --text: #c9c2ff;
+  --muted: #9a91e0;
+  --primary: #a59bf0;
+  --primary-deep: #8a7ee0;
+  --secondary: #b3abf5;
+  --secondary-soft: rgba(165, 155, 240, 0.14);
+  --surface-soft: rgba(165, 155, 240, 0.07);
+  --control-bg: rgba(52, 40, 120, 0.98);
+  --active-bg: #a59bf0;
+  --active-fg: #40318d;
+  --shadow: 0 2px 10px rgba(20, 12, 60, 0.45);
+  --input-bg: rgba(46, 35, 110, 0.98);
+  --output-bg: #40318d;
+  --output-text: #c9c2ff;
+  --monitor-text: #a59bf0;
+  --error: #ff8a80;
+  --accent: var(--primary);
+  --asm-mnemonic: #ffffff;
+  --asm-directive: #c9a0ff;
+  --asm-macro: #75d6d0;
+  --asm-comment: #9088d8;
+  --asm-label: #75d6d0;
+  --asm-number: #eef078;
+  --asm-region: #a9f59e;
+  --asm-operand: #e0c27a;
+}
+/* reverse video: light blue key, blue letters */
+html[data-theme="c64"] .primary,
+html[data-theme="c64"] .emulator-actions .primary,
+html[data-theme="c64"] .emulator-actions .link-button.primary {
+  background: #a59bf0;
+  color: #40318d;
+  font-weight: 700;
+  border-color: #c9c2ff;
+  box-shadow: none;
+}
+html[data-theme="c64"] .primary:hover:not(:disabled) {
+  background: #c9c2ff;
+}
+html[data-theme="c64"] .monitor-output {
+  font-family: "C64ProMono", monospace !important;
+  background: #40318d !important;
+  color: #a59bf0 !important;
+  border-color: #7869c4 !important;
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.25), 0 0 0 6px #7869c4;
+}
+html[data-theme="c64"] .theme-toggle-glyph::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 1px;
+  background: #40318d;
+  box-shadow: inset 0 0 0 2px #a59bf0;
+}
+.theme-option-dot[data-theme-opt="c64"] {
+  background: #40318d;
+  border-color: #7869c4;
+}
+html[data-theme="c64"] .splash-panel .splash-loader-bar {
+  background: #a59bf0;
+}
+html[data-theme="c64"] ::selection {
+  background: rgba(165, 155, 240, 0.40);
+  color: #ffffff;
+}
+html[data-theme="c64"] #add-selected {
+  background: var(--primary);
+  color: var(--active-fg);
+  border-color: var(--primary-deep);
+}
+html[data-theme="c64"] #add-selected:hover {
+  background: var(--primary-deep);
+}
+html[data-theme="c64"] .asm-block:has(.bp-toggle.bp-active) {
+  background: rgba(255, 68, 68, 0.22) !important;
+  border-color: rgba(255, 120, 120, 0.6) !important;
+}
+html[data-theme="c64"] .expert-err-line {
+  background: color-mix(in srgb, #ff4444 22%, transparent);
+}
+html[data-theme="c64"] .expert-hl mark.hl-find-match {
+  background: color-mix(in srgb, #eef078 35%, transparent);
+}
+html[data-theme="c64"] .expert-hl mark.hl-find-current {
+  background: color-mix(in srgb, #eef078 70%, transparent);
+  color: #40318d;
+  outline-color: #eef078;
+}
+body.crt-mode[data-theme="c64"] #crt-overlay::before {
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(0, 0, 0, 0.14) 3px,
+    rgba(0, 0, 0, 0.14) 4px
+  );
+}
+/* text that sits directly on the light blue border */
+html[data-theme="c64"] .eyebrow,
+html[data-theme="c64"] .hero-copy,
+html[data-theme="c64"] .memory-strip-axis,
+html[data-theme="c64"] .license-badge {
+  color: #2a1f6e;
+}
+html[data-theme="c64"] .license-badge {
+  border-color: rgba(42, 31, 110, 0.45);
+}
+html[data-theme="c64"] .editor-mode-indicator {
+  border-color: #a59bf0;
+  background: #40318d;
+  color: #c9c2ff;
+}
+/* SID Player: the playing tune in reverse video (the accent alone is too close to the text colour) */
+html[data-theme="c64"] .websid-play-item--current,
+html[data-theme="c64"] .websid-play-item--current:hover {
+  background: #a59bf0;
+  color: #40318d;
+  font-weight: 700;
+}
+html[data-theme="c64"] .websid-play-item--current .websid-play-item-no,
+html[data-theme="c64"] .websid-play-item--current .websid-play-item-fav:not(.websid-play-item-fav--on),
+html[data-theme="c64"] .websid-play-item--current .websid-play-item-del {
+  color: #40318d;
+}

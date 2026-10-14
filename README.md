@@ -2,9 +2,16 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.5.8**
+**Current version: v2.5.9**
 
-## What's New in v2.5.8
+## What's New in v2.5.9
+
+- **Commodore 64 theme** — the C64 power-on screen: a light blue border around blue panels, light blue text, reverse-video buttons, syntax colours from the C64 palette and the C64 font in the monitor view (Professional).
+- **Commodore Beige theme** — the classic breadbin: a beige case, mustard function-key buttons, the rainbow badge stripes and a C64 blue screen for the monitor view (Professional).
+- **Commodore Starlight theme** — a light theme after the translucent C64 breadbin: frosted clear glass with the rainbow RGB glow shining through, a magenta accent, rainbow syntax colours and a smoky dark monitor (Professional).
+- **Version control dialog** — drag it by its header; it reopens where you left it, stays on screen when the log or a diff makes it taller, and a click outside no longer closes it (Esc does).
+
+## Earlier: v2.5.8
 
 - **Version control** — the project snapshots became a git-like version control: commits with a message and a short hash, a log with **HEAD**, **Diff** against the working copy (Block-mode programs are compared as assembly lines, so JSON projects show readable changes), **Checkout** into the editor and separate autosave entries (the last 20 are kept, next to up to 100 commits). Works on Block, Expert and Ultimate Basic tabs.
 - **Git integration** — choose `git.exe` in **Settings → Version control** or let the app find it on the PATH. Inside a git repository the dialog shows the branch with ahead / behind counts and the changed files, and offers commit (saves the file first; optionally `git add -A`), the file's log, diff (parsed, with a **RAW** view of the plain `git diff`), checkout into the editor (`git show`), **Pull** (`--ff-only`), **Push** (sets the upstream on the first push) and **git init**. git runs without a console window and without prompts.

@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "version-control-258",
+  id: "themes-259",
   url: "https://www.c64va.pro/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.5.8-ban",
+    eyebrow: "Újdonság a 2.5.9-ban",
     title: "Üdvözöl a Visual Assembler",
-    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>Verziókezelés:</strong> commit, napló, diff és checkout minden fülön, git bekötéssel (git.exe a Beállításokban).</li><li><strong>Hibabejelentés:</strong> űrlap képernyőképekkel (Ctrl+V vagy húzás), rendszerinfóval.</li><li><strong>Professional:</strong> a sorozatszám e-mailben jön — támogatóknak a regisztrációs ablakból, vásárlás a c64va.pro-n (5 €).</li><li><strong>SID Player:</strong> véletlen lejátszás és kedvencek.</li></ul>`,
+    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>Új témák (Professional):</strong> Commodore 64 — a kék bekapcsolási képernyő világoskék kerettel —, Commodore Beige — a klasszikus kenyérdoboz, C64 kék monitorral — és Commodore Starlight — áttetsző üveg szivárványos fénnyel.</li><li><strong>Verziókezelés ablak:</strong> mozgatható, és megjegyzi a helyét.</li><li><strong>Verziókezelés:</strong> commit, napló, diff és checkout minden fülön, git bekötéssel (git.exe a Beállításokban).</li><li><strong>Hibabejelentés:</strong> űrlap képernyőképekkel (Ctrl+V vagy húzás), rendszerinfóval.</li><li><strong>Professional:</strong> a sorozatszám e-mailben jön — támogatóknak a regisztrációs ablakból, vásárlás a c64va.pro-n (5 €).</li><li><strong>SID Player:</strong> véletlen lejátszás és kedvencek.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.5.8",
+    eyebrow: "New in 2.5.9",
     title: "Welcome to Visual Assembler",
-    body: `<p>What's new in this release:</p><ul><li><strong>Version control:</strong> commit, log, diff and checkout on every tab, with Git integration (git.exe in Settings).</li><li><strong>Report Bug:</strong> a report form with screenshots (Ctrl+V or drag and drop) and system info.</li><li><strong>Professional:</strong> the serial arrives by email — supporters request it in the registration dialog, buy it on c64va.pro (5 €).</li><li><strong>SID Player:</strong> shuffle and favourites.</li></ul>`,
+    body: `<p>What's new in this release:</p><ul><li><strong>New themes (Professional):</strong> Commodore 64 — the blue power-on screen with a light blue border —, Commodore Beige — the classic breadbin with a C64 blue monitor — and Commodore Starlight — clear glass with a rainbow glow.</li><li><strong>Version control dialog:</strong> movable, and it remembers its position.</li><li><strong>Version control:</strong> commit, log, diff and checkout on every tab, with Git integration (git.exe in Settings).</li><li><strong>Report Bug:</strong> a report form with screenshots (Ctrl+V or drag and drop) and system info.</li><li><strong>Professional:</strong> the serial arrives by email — supporters request it in the registration dialog, buy it on c64va.pro (5 €).</li><li><strong>SID Player:</strong> shuffle and favourites.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.5.8",
+    eyebrow: "Novedad en la 2.5.9",
     title: "Bienvenido a Visual Assembler",
-    body: `<p>Novedades de esta versión:</p><ul><li><strong>Control de versiones:</strong> commit, historial, diff y checkout en cada pestaña, con integración de Git (git.exe en Ajustes).</li><li><strong>Reportar error:</strong> un formulario con capturas (Ctrl+V o arrastrar) e información del sistema.</li><li><strong>Professional:</strong> el número de serie llega por correo — los donantes lo piden en el diálogo de registro; se compra en c64va.pro (5 €).</li><li><strong>SID Player:</strong> reproducción aleatoria y favoritos.</li></ul>`,
+    body: `<p>Novedades de esta versión:</p><ul><li><strong>Nuevos temas (Professional):</strong> Commodore 64 — la pantalla azul de arranque con borde azul claro —, Commodore Beige — la clásica panera con monitor azul C64 — y Commodore Starlight — cristal translúcido con un brillo arcoíris.</li><li><strong>Diálogo de control de versiones:</strong> se puede mover y recuerda su posición.</li><li><strong>Control de versiones:</strong> commit, historial, diff y checkout en cada pestaña, con integración de Git (git.exe en Ajustes).</li><li><strong>Reportar error:</strong> un formulario con capturas (Ctrl+V o arrastrar) e información del sistema.</li><li><strong>Professional:</strong> el número de serie llega por correo — los donantes lo piden en el diálogo de registro; se compra en c64va.pro (5 €).</li><li><strong>SID Player:</strong> reproducción aleatoria y favoritos.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.5.8",
+    eyebrow: "Neu in 2.5.9",
     title: "Willkommen bei Visual Assembler",
-    body: `<p>Neu in dieser Version:</p><ul><li><strong>Versionsverwaltung:</strong> Commit, Verlauf, Diff und Checkout in jedem Tab, mit Git-Anbindung (git.exe in den Einstellungen).</li><li><strong>Fehler melden:</strong> ein Formular mit Screenshots (Strg+V oder Drag & Drop) und Systeminfo.</li><li><strong>Professional:</strong> die Seriennummer kommt per E-Mail — Unterstützer fordern sie im Registrierungsdialog an, Kauf auf c64va.pro (5 €).</li><li><strong>SID Player:</strong> Zufallswiedergabe und Favoriten.</li></ul>`,
+    body: `<p>Neu in dieser Version:</p><ul><li><strong>Neue Themes (Professional):</strong> Commodore 64 — der blaue Startbildschirm mit hellblauem Rahmen —, Commodore Beige — der klassische Brotkasten mit C64-blauem Monitor — und Commodore Starlight — klares Glas mit Regenbogenschimmer.</li><li><strong>Versionsverwaltung:</strong> der Dialog ist verschiebbar und merkt sich seine Position.</li><li><strong>Versionsverwaltung:</strong> Commit, Verlauf, Diff und Checkout in jedem Tab, mit Git-Anbindung (git.exe in den Einstellungen).</li><li><strong>Fehler melden:</strong> ein Formular mit Screenshots (Strg+V oder Drag & Drop) und Systeminfo.</li><li><strong>Professional:</strong> die Seriennummer kommt per E-Mail — Unterstützer fordern sie im Registrierungsdialog an, Kauf auf c64va.pro (5 €).</li><li><strong>SID Player:</strong> Zufallswiedergabe und Favoriten.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.5.8",
+    eyebrow: "Nieuw in 2.5.9",
     title: "Welkom bij Visual Assembler",
-    body: `<p>Nieuw in deze versie:</p><ul><li><strong>Versiebeheer:</strong> commit, log, diff en checkout in elk tabblad, met Git-koppeling (git.exe in Instellingen).</li><li><strong>Probleem melden:</strong> een formulier met schermafbeeldingen (Ctrl+V of slepen) en systeeminfo.</li><li><strong>Professional:</strong> het serienummer komt per e-mail — supporters vragen het aan in het registratievenster, kopen op c64va.pro (5 €).</li><li><strong>SID Player:</strong> willekeurig afspelen en favorieten.</li></ul>`,
+    body: `<p>Nieuw in deze versie:</p><ul><li><strong>Nieuwe thema's (Professional):</strong> Commodore 64 — het blauwe opstartscherm met lichtblauwe rand —, Commodore Beige — de klassieke broodtrommel met een C64-blauwe monitor — en Commodore Starlight — helder glas met een regenboogglans.</li><li><strong>Versiebeheer:</strong> het venster is verplaatsbaar en onthoudt zijn positie.</li><li><strong>Versiebeheer:</strong> commit, log, diff en checkout in elk tabblad, met Git-koppeling (git.exe in Instellingen).</li><li><strong>Probleem melden:</strong> een formulier met schermafbeeldingen (Ctrl+V of slepen) en systeeminfo.</li><li><strong>Professional:</strong> het serienummer komt per e-mail — supporters vragen het aan in het registratievenster, kopen op c64va.pro (5 €).</li><li><strong>SID Player:</strong> willekeurig afspelen en favorieten.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.5.8",
+    eyebrow: "Nowość w 2.5.9",
     title: "Witamy w Visual Assembler",
-    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>Kontrola wersji:</strong> commit, historia, diff i checkout w każdej karcie, z integracją Git (git.exe w Ustawieniach).</li><li><strong>Zgłoś błąd:</strong> formularz ze zrzutami ekranu (Ctrl+V lub przeciąganie) i informacjami o systemie.</li><li><strong>Professional:</strong> numer seryjny przychodzi e-mailem — wspierający proszą o niego w oknie rejestracji, zakup na c64va.pro (5 €).</li><li><strong>SID Player:</strong> odtwarzanie losowe i ulubione.</li></ul>`,
+    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>Nowe motywy (Professional):</strong> Commodore 64 — niebieski ekran startowy z jasnoniebieską ramką —, Commodore Beige — klasyczny „chlebak” z niebieskim monitorem C64 — oraz Commodore Starlight — przezroczyste szkło z tęczowym blaskiem.</li><li><strong>Kontrola wersji:</strong> okno można przesuwać i zapamiętuje swoje położenie.</li><li><strong>Kontrola wersji:</strong> commit, historia, diff i checkout w każdej karcie, z integracją Git (git.exe w Ustawieniach).</li><li><strong>Zgłoś błąd:</strong> formularz ze zrzutami ekranu (Ctrl+V lub przeciąganie) i informacjami o systemie.</li><li><strong>Professional:</strong> numer seryjny przychodzi e-mailem — wspierający proszą o niego w oknie rejestracji, zakup na c64va.pro (5 €).</li><li><strong>SID Player:</strong> odtwarzanie losowe i ulubione.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.5.8",
+    eyebrow: "Novità nella 2.5.9",
     title: "Benvenuto in Visual Assembler",
-    body: `<p>Novità di questa versione:</p><ul><li><strong>Controllo versione:</strong> commit, cronologia, diff e checkout in ogni scheda, con integrazione Git (git.exe nelle Impostazioni).</li><li><strong>Segnala un bug:</strong> un modulo con screenshot (Ctrl+V o trascinamento) e info di sistema.</li><li><strong>Professional:</strong> il numero di serie arriva via e-mail — i sostenitori lo richiedono nella finestra di registrazione, acquisto su c64va.pro (5 €).</li><li><strong>SID Player:</strong> riproduzione casuale e preferiti.</li></ul>`,
+    body: `<p>Novità di questa versione:</p><ul><li><strong>Nuovi temi (Professional):</strong> Commodore 64 — la schermata blu di avvio con bordo azzurro —, Commodore Beige — il classico «biscottone» con monitor blu C64 — e Commodore Starlight — vetro trasparente con un bagliore arcobaleno.</li><li><strong>Controllo versione:</strong> la finestra si può spostare e ricorda la sua posizione.</li><li><strong>Controllo versione:</strong> commit, cronologia, diff e checkout in ogni scheda, con integrazione Git (git.exe nelle Impostazioni).</li><li><strong>Segnala un bug:</strong> un modulo con screenshot (Ctrl+V o trascinamento) e info di sistema.</li><li><strong>Professional:</strong> il numero di serie arriva via e-mail — i sostenitori lo richiedono nella finestra di registrazione, acquisto su c64va.pro (5 €).</li><li><strong>SID Player:</strong> riproduzione casuale e preferiti.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -1244,6 +1244,14 @@ function initPalette() {
     const picker = document.getElementById("theme-picker");
     if (picker?.open && !picker.contains(e.target)) picker.removeAttribute("open");
   });
+  // a panel fixen pozicionált, görgetésnél elszakadna a gombtól → bezárjuk (a saját görgetése kivétel)
+  const closeThemePickerOnScroll = (e) => {
+    const picker = document.getElementById("theme-picker");
+    if (picker?.open && !(e.target instanceof Node && picker.contains(e.target))) picker.removeAttribute("open");
+  };
+  document.addEventListener("scroll", closeThemePickerOnScroll, true);
+  document.addEventListener("wheel", closeThemePickerOnScroll, { capture: true, passive: true });
+  window.addEventListener("resize", () => document.getElementById("theme-picker")?.removeAttribute("open"));
 
   // Position theme-picker panel as fixed popup relative to the summary button
   document.getElementById("theme-picker")?.addEventListener("toggle", (e) => {
@@ -1252,18 +1260,30 @@ function initPalette() {
     if (e.newState === "open") {
       const summaryRect = document.getElementById("theme-toggle")?.getBoundingClientRect();
       if (summaryRect) {
-        const panelW = 160;
+        // a nyitott panel valós mérete (a témák számával nő)
+        panel.style.maxHeight = "";
+        const panelW = panel.offsetWidth || 160;
+        const panelH = panel.offsetHeight || 140;
         let left = summaryRect.left;
         // Keep inside viewport
         if (left + panelW > window.innerWidth - 8) left = window.innerWidth - panelW - 8;
         if (left < 8) left = 8;
+        const below = window.innerHeight - summaryRect.bottom - 14;
+        const above = summaryRect.top - 14;
         let top = summaryRect.bottom + 6;
-        // If would go off bottom, open upward
-        const estH = 140;
-        if (top + estH > window.innerHeight - 8) top = summaryRect.top - estH - 6;
+        // lent nincs hely → felfelé, ha ott több van; ha egyik sem elég, görgethető
+        if (panelH > below && above > below) {
+          top = Math.max(8, summaryRect.top - panelH - 6);
+          if (panelH > above) panel.style.maxHeight = above + "px";
+        } else if (panelH > below) {
+          panel.style.maxHeight = below + "px";
+        }
         panel.style.top  = top + "px";
         panel.style.left = left + "px";
       }
+      panel.classList.add("theme-picker-panel--placed");
+    } else {
+      panel.classList.remove("theme-picker-panel--placed");
     }
   });
   document.getElementById("crt-toggle")?.addEventListener("click", toggleCrtMode);
@@ -2117,9 +2137,6 @@ function initPalette() {
   projectSnapshotDialog?.addEventListener("cancel", () => {
     _closeProjectSnapshotDialog();
   });
-  projectSnapshotDialog?.addEventListener("click", (e) => {
-    if (e.target === projectSnapshotDialog) _closeProjectSnapshotDialog();
-  });
   zoomOutButton.addEventListener("click", () => adjustZoom(-0.08));
   zoomInButton.addEventListener("click", () => adjustZoom(0.08));
   outputModeTabs.forEach((tab) => tab.addEventListener("click", () => {
@@ -2381,7 +2398,8 @@ function setupDraggableEditorDialogs() {
     ["sid-editor-dialog", ".sid-hdr"],
     ["curve-gen-dialog", ".cg-hdr"],
     ["d64-editor-dialog", ".de-hdr"],
-    ["d64-block-editor-dialog", ".dbe-hdr"]
+    ["d64-block-editor-dialog", ".dbe-hdr"],
+    ["project-snapshot-dialog", ".project-snapshot-hdr"]
   ];
   dialogs.forEach(function(entry) {
     const dialogId = entry[0];
@@ -3250,6 +3268,9 @@ function applyTranslations() {
   const autoSnapshotLabelEl = document.getElementById("auto-snapshot-toggle-label");
   if (autoSnapshotLabelEl) autoSnapshotLabelEl.textContent = t("autoSnapshotLabel");
   setText("#vc-mode-local", t("vcModeLocal"));
+  setText("#vc-scope-file", t("vcScopeFile"));
+  setText("#vc-scope-project", t("vcScopeProject"));
+  document.getElementById("vc-scope")?.setAttribute("aria-label", t("vcScopeLabel"));
   setText("#vc-diff-working", t("vcDiff"));
   setText("#vc-git-init", t("vcGitInit"));
   setText("#vc-git-pull", t("vcGitPull"));
@@ -16366,7 +16387,7 @@ function applySavedTheme() {
 }
 
 function toggleTheme() {
-  const next = { light: "dark", dark: "oled", oled: "commodore77", commodore77: "light" };
+  const next = { light: "dark", dark: "oled", oled: "commodore77", commodore77: "starlight", starlight: "beige", beige: "c64", c64: "light" };
   setTheme(next[document.documentElement.dataset.theme] || "dark");
 }
 
@@ -17377,17 +17398,20 @@ function _scheduleProjectSnapshot(tabId) {
     if (!payload) return;
     const entries = await _readProjectSnapshotEntries(tab);
     const latest = entries[0]?.payload;
-    if (latest && JSON.stringify(latest) === JSON.stringify(payload)) return;
-    const createdAt = new Date().toISOString();
-    entries.unshift({
-      id: crypto.randomUUID(),
-      hash: await _vcHash(payload, createdAt),
-      createdAt,
-      kind: "auto",
-      note: "",
-      payload
-    });
-    await _writeProjectSnapshotEntries(tab, entries);
+    if (!latest || JSON.stringify(latest) !== JSON.stringify(payload)) {
+      const createdAt = new Date().toISOString();
+      entries.unshift({
+        id: crypto.randomUUID(),
+        hash: await _vcHash(payload, createdAt),
+        createdAt,
+        kind: "auto",
+        note: "",
+        payload
+      });
+      await _writeProjectSnapshotEntries(tab, entries);
+    }
+    // projekthez tartozó fülnél a projekt-tárba is kerül autosave
+    await _vcProjectAutosave(tab);
     if (projectSnapshotDialog?.open) {
       await _renderProjectSnapshotHistory();
     }
@@ -17534,6 +17558,116 @@ function _vcLineDiff(oldText, newText) {
   });
   return out.join("\n");
 }
+
+// ── Projekt-szintű verziókezelés: tiszta segédek ──
+// A projekt-snapshot payloadja { kind: "project", files: { "<projektmappához relatív út>": szöveg } }.
+// A projektfa bináris fájljai (fontok, .koa, .bin, .sid…) "\0b64:<base64>" alakú szövegként kerülnek bele,
+// így az összehasonlítás és a hash ugyanúgy működik, mint a szövegfájloknál.
+const _VC_PROJECT_TEXT_RE = /\.(asm|s|a65|inc|ub|json)$/i;
+const _VC_BIN_PREFIX = "\0b64:";
+const _VC_BIN_MAX = 1024 * 1024;
+function _vcIsBin(content) {
+  return typeof content === "string" && content.startsWith(_VC_BIN_PREFIX);
+}
+function _vcBinEncode(bytes) {
+  let raw = "";
+  for (let i = 0; i < bytes.length; i += 0x8000) raw += String.fromCharCode.apply(null, Array.from(bytes.slice(i, i + 0x8000)));
+  return _VC_BIN_PREFIX + btoa(raw);
+}
+function _vcBinDecode(content) {
+  const raw = atob(String(content).slice(_VC_BIN_PREFIX.length));
+  const out = new Array(raw.length);
+  for (let i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+  return out;
+}
+function _vcBinSize(content) {
+  const b64 = String(content).slice(_VC_BIN_PREFIX.length);
+  return Math.floor(b64.length * 3 / 4) - (b64.endsWith("==") ? 2 : b64.endsWith("=") ? 1 : 0);
+}
+function _vcRelPath(dir, abs) {
+  const d = String(dir || "").replace(/\\/g, "/").replace(/\/+$/, "");
+  const a = String(abs || "").replace(/\\/g, "/");
+  return d && a.toLowerCase().startsWith(d.toLowerCase() + "/") ? a.slice(d.length + 1) : a;
+}
+function _vcJoinPath(dir, rel) {
+  const r = String(rel || "").replace(/\\/g, "/");
+  if (/^[A-Za-z]:\//.test(r) || r.startsWith("/")) return r;
+  const out = [];
+  (String(dir || "").replace(/\\/g, "/").replace(/\/+$/, "") + "/" + r).split("/").forEach((part, i) => {
+    if (part === "..") { if (out.length > 1) out.pop(); }
+    else if (part !== "." && (part !== "" || i === 0)) out.push(part);
+  });
+  return out.join("/");
+}
+function _vcFlattenProjFiles(nodes, out = []) {
+  (nodes || []).forEach(node => {
+    if (node?.type === "folder") _vcFlattenProjFiles(node.children, out);
+    else if (node?.path) out.push(node.path);
+  });
+  return out;
+}
+// .include / include / #import / !source "fájl" és a Block mód JSON INCLUDE blokkjainak includeFile mezője
+function _vcIncludeRefs(text) {
+  const refs = [];
+  const src = String(text || "");
+  for (const m of src.matchAll(/^[ \t]*[.#!]?(?:include|import|source)[ \t]+"([^"\r\n]+)"/gim)) refs.push(m[1]);
+  for (const m of src.matchAll(/"includeFile"\s*:\s*"([^"\r\n]+)"/g)) refs.push(m[1]);
+  return refs;
+}
+function _vcSortFiles(files) {
+  return Object.fromEntries(Object.entries(files || {}).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)));
+}
+function _vcSamePayload(a, b) {
+  if (!a || !b) return false;
+  if (a.kind === "project" || b.kind === "project") return JSON.stringify(_vcSortFiles(a.files)) === JSON.stringify(_vcSortFiles(b.files));
+  return JSON.stringify(a) === JSON.stringify(b);
+}
+// A = csak az újban van, D = csak a régiben, M = mindkettőben, eltérő tartalommal
+function _vcProjectChanges(oldFiles, newFiles) {
+  const a = oldFiles || {};
+  const b = newFiles || {};
+  return [...new Set([...Object.keys(a), ...Object.keys(b)])].sort()
+    .filter(name => a[name] !== b[name])
+    .map(name => ({ path: name, status: !(name in a) ? "A" : !(name in b) ? "D" : "M" }));
+}
+function _vcProjectDiff(oldFiles, newFiles) {
+  return _vcProjectChanges(oldFiles, newFiles).map(({ path, status }) => {
+    const before = oldFiles?.[path] ?? "";
+    const after = newFiles?.[path] ?? "";
+    const head = [`diff ${path}`];
+    if (status === "A") head.push("new file");
+    if (status === "D") head.push("deleted file");
+    if (_vcIsBin(before) || _vcIsBin(after)) {
+      const size = (content) => (_vcIsBin(content) ? _vcBinSize(content) + " bytes" : content ? "text" : "-");
+      return head.concat([`Binary file: ${size(before)} -> ${size(after)}`]).join("\n");
+    }
+    head.push(`--- ${status === "A" ? "/dev/null" : "a/" + path}`, `+++ ${status === "D" ? "/dev/null" : "b/" + path}`);
+    const body = status === "A" ? after.split("\n").map(line => "+" + line).join("\n")
+      : status === "D" ? before.split("\n").map(line => "-" + line).join("\n")
+      : /\.json$/i.test(path) ? _vcSmartDiff(_vcParseFileContent(path, before), _vcParseFileContent(path, after))
+      : _vcLineDiff(before, after);
+    return head.concat(body ? [body] : []).join("\n");
+  }).join("\n");
+}
+// git log --name-status --pretty=format:%x1e%h%x1f%an%x1f%ad%x1f%s%x1f%D kimenete
+function _vcParseGitLog(stdout) {
+  return String(stdout || "").split("\x1e").map(chunk => chunk.replace(/^[\r\n]+/, "")).filter(Boolean).map(chunk => {
+    const lines = chunk.split(/\r?\n/);
+    const [hash, author, date, subject, refs] = lines.shift().split("\x1f");
+    const files = lines.filter(line => line.includes("\t")).map(line => {
+      const parts = line.split("\t");
+      return { status: parts[0].charAt(0), path: parts[parts.length - 1] };
+    });
+    return { hash, author, date, subject, refs, files };
+  });
+}
+function _vcFilesHtml(files) {
+  if (!files?.length) return "";
+  const shown = files.slice(0, 8).map(f =>
+    `<span class="vc-file vc-file--${_vcEsc(String(f.status).toLowerCase())}"><code>${_vcEsc(f.status)}</code> ${_vcEsc(f.path)}</span>`).join("");
+  const more = files.length > 8 ? `<span class="vc-file">${_vcEsc(tf("vcProjectFilesMore", { n: files.length - 8 }))}</span>` : "";
+  return `<div class="vc-files">${shown}${more}</div>`;
+}
 let _vcRawDiff = null;
 function _vcShowDiff(title, diffText, raw = null) {
   const box = document.getElementById("vc-diff");
@@ -17560,6 +17694,7 @@ function _vcShowDiff(title, diffText, raw = null) {
     }).join("");
   }
   box.hidden = false;
+  _vcClampDialog();
   box.scrollIntoView({ block: "nearest" });
 }
 function _vcSetOutput(text, isError = false) {
@@ -17612,6 +17747,16 @@ async function _vcApplyText(tab, content) {
   return _applyProjectPayload({ version: 1, app: "c64-visual-assembler", expertText: content, program: parseExpertText(content) }, { keepFilePath: true });
 }
 
+// A mozgatott (bal / felső pozícióval rögzített) ablak ne lógjon ki a képernyőből, ha a tartalma megnő.
+function _vcClampDialog() {
+  const dlg = projectSnapshotDialog;
+  if (!dlg?.open || !dlg.style.top.endsWith("px")) return;
+  requestAnimationFrame(() => {
+    const rect = dlg.getBoundingClientRect();
+    const maxTop = Math.max(8, window.innerHeight - rect.height - 8);
+    if (rect.top > maxTop) dlg.style.top = maxTop + "px";
+  });
+}
 function _vcSetModeButtons(mode, gitUsable) {
   document.getElementById("vc-mode-local")?.classList.toggle("vc-mode-btn--active", mode === "local");
   const gitBtn = document.getElementById("vc-mode-git");
@@ -17626,28 +17771,274 @@ function _vcSetModeButtons(mode, gitUsable) {
   document.getElementById("vc-changes")?.toggleAttribute("hidden", !gitOnly);
 }
 
+// ── Projekt-szintű verziókezelés ──
+// Ha az aktív fül egy megnyitott .proj projekthez tartozik (Expert vagy UB), a commit a projekt összes
+// forrásfájlját (a projektfa + a belőlük include-olt szövegfájlok) egy bejegyzésben rögzíti a
+// <projekt>.proj.history.json tárban. Nyitott, mentetlen fülnél a fül tartalma számít, egyébként a lemez.
+let _vcScope = "";
+
+function _vcFindTab(absPath) {
+  const norm = _normFilePath(absPath);
+  return tabs.find(tab => _normFilePath(_vcUbFilePath(tab) || tab.filePath) === norm) || null;
+}
+function _vcTabDirty(tab) {
+  return tab.id === activeTabId && ultimateBasicMode ? !!_ubDirty : !!tab.dirty;
+}
+function _vcTabText(tab, name) {
+  if (_vcIsUbTab(tab)) return tab.id === activeTabId && ubEditor ? ubEditor.value : (tab.ubText || "");
+  if (tab.id === activeTabId && expertMode && expertEditor && !/\.json$/i.test(name)) return _expertGetSourceText();
+  const payload = _getCurrentProjectSnapshotPayload(tab);
+  return /\.json$/i.test(name) ? JSON.stringify(payload, null, 2) : _vcPayloadText(payload);
+}
+function _vcProjectContext(tab = _getActiveTab()) {
+  const file = _vcTabFile(tab);
+  if (!file) return null;
+  const norm = _normFilePath(file.dir + "/" + file.name);
+  const candidates = _vcIsUbTab(tab) ? [_ubProjectData, _expertProjectData] : [_expertProjectData, _ubProjectData];
+  for (const data of candidates) {
+    if (!data?._projPath) continue;
+    const projPath = String(data._projPath).replace(/\\/g, "/");
+    const dir = projPath.replace(/\/[^/]*$/, "");
+    const members = _vcFlattenProjFiles(data.files).map(path => _vcJoinPath(dir, path));
+    if (!members.some(path => _normFilePath(path) === norm) && !norm.startsWith(_normFilePath(dir) + "/")) continue;
+    return {
+      name: data.name || projPath.split("/").pop().replace(/\.proj$/i, ""),
+      projPath, dir, members, isUb: data === _ubProjectData,
+      storePath: projPath + ".history.json",
+    };
+  }
+  return null;
+}
+function _vcProjectScope(tab = _getActiveTab()) {
+  const ctx = _vcProjectContext(tab);
+  return ctx && _vcScope !== "file" ? ctx : null;
+}
+
+async function _vcCollectProjectFiles(ctx) {
+  const files = {};
+  for (const abs of ctx.members.filter(path => !_VC_PROJECT_TEXT_RE.test(path))) {
+    const res = await window.electronAPI?.readBinFile?.(abs);
+    if (!res?.ok || !res.bytes || res.bytes.length > _VC_BIN_MAX) continue;
+    files[_vcRelPath(ctx.dir, abs)] = _vcBinEncode(res.bytes);
+  }
+  const queue = ctx.members.filter(path => _VC_PROJECT_TEXT_RE.test(path));
+  const seen = new Set();
+  while (queue.length && seen.size < 300) {
+    const abs = queue.shift();
+    const key = _normFilePath(abs);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const tab = _vcFindTab(abs);
+    let text = null;
+    if (tab && _vcTabDirty(tab)) text = _vcTabText(tab, abs);
+    else {
+      const res = await window.electronAPI?.readTextFile?.(abs);
+      if (res?.ok && typeof res.content === "string") text = res.content;
+      else if (tab) text = _vcTabText(tab, abs);
+    }
+    if (typeof text !== "string") continue;
+    text = text.replace(/\r\n/g, "\n");
+    files[_vcRelPath(ctx.dir, abs)] = text;
+    const base = abs.replace(/\/[^/]*$/, "");
+    _vcIncludeRefs(text).forEach(ref => { if (_VC_PROJECT_TEXT_RE.test(ref)) queue.push(_vcJoinPath(base, ref)); });
+  }
+  return _vcSortFiles(files);
+}
+async function _vcProjectPayload(ctx) {
+  return { version: 1, app: "c64-visual-assembler", kind: "project", project: ctx.name, files: await _vcCollectProjectFiles(ctx) };
+}
+
+async function _vcProjReadEntries(ctx) {
+  const cached = _PROJECT_SNAPSHOT_HISTORY_CACHE.get(ctx.storePath);
+  if (cached) return JSON.parse(JSON.stringify(cached));
+  const res = await window.electronAPI?.readTextFile?.(ctx.storePath);
+  let entries = [];
+  if (res?.ok && typeof res.content === "string" && res.content.trim()) {
+    try {
+      const parsed = JSON.parse(res.content);
+      entries = _normalizeProjectSnapshotEntries(Array.isArray(parsed) ? parsed : []);
+    } catch {
+      entries = [];
+    }
+  }
+  _PROJECT_SNAPSHOT_HISTORY_CACHE.set(ctx.storePath, entries);
+  return JSON.parse(JSON.stringify(entries));
+}
+async function _vcProjWriteEntries(ctx, entries) {
+  if (!window.electronAPI?.saveTextFile) return false;
+  const normalized = _normalizeProjectSnapshotEntries(entries);
+  const result = await window.electronAPI.saveTextFile(ctx.storePath, JSON.stringify(normalized, null, 2));
+  if (!result?.ok) return false;
+  _PROJECT_SNAPSHOT_HISTORY_CACHE.set(ctx.storePath, normalized);
+  return true;
+}
+
+// Hatókör szerinti tár / aktuális állapot / diff (fájl vagy projekt)
+async function _vcEntries(tab) {
+  const ctx = _vcProjectScope(tab);
+  return ctx ? _vcProjReadEntries(ctx) : _readProjectSnapshotEntries(tab);
+}
+async function _vcWriteEntries(tab, entries) {
+  const ctx = _vcProjectScope(tab);
+  return ctx ? _vcProjWriteEntries(ctx, entries) : _writeProjectSnapshotEntries(tab, entries);
+}
+async function _vcCurrentPayload(tab) {
+  const ctx = _vcProjectScope(tab);
+  return ctx ? _vcProjectPayload(ctx) : _getCurrentProjectSnapshotPayload(tab);
+}
+function _vcDiffPayloads(oldPayload, newPayload) {
+  if (oldPayload?.kind === "project" || newPayload?.kind === "project") return _vcProjectDiff(oldPayload?.files || {}, newPayload?.files || {});
+  return _vcSmartDiff(oldPayload, newPayload);
+}
+// Új bejegyzés a hatókör tárába; null, ha nincs változás (commitnál a HEAD-hez, autosave-nél a legutóbbihoz képest).
+async function _vcAddEntry(tab, kind, note) {
+  const payload = await _vcCurrentPayload(tab);
+  if (!payload) return null;
+  const entries = await _vcEntries(tab);
+  const base = kind === "auto" ? entries[0] : entries.find(entry => entry.kind !== "auto");
+  if (base && _vcSamePayload(base.payload, payload)) return null;
+  const createdAt = new Date().toISOString();
+  const entry = { id: crypto.randomUUID(), hash: await _vcHash(payload, createdAt), createdAt, kind, note, payload };
+  if (payload.kind === "project") entry.changed = _vcProjectChanges(base?.payload?.files || {}, payload.files);
+  entries.unshift(entry);
+  return await _vcWriteEntries(tab, entries) ? entry : null;
+}
+
+async function _vcProjectAutosave(tab) {
+  const ctx = _vcProjectContext(tab);
+  if (!ctx) return;
+  const payload = await _vcProjectPayload(ctx);
+  const entries = await _vcProjReadEntries(ctx);
+  if (entries[0] && _vcSamePayload(entries[0].payload, payload)) return;
+  const createdAt = new Date().toISOString();
+  entries.unshift({
+    id: crypto.randomUUID(), hash: await _vcHash(payload, createdAt), createdAt, kind: "auto", note: "",
+    changed: _vcProjectChanges(entries[0]?.payload?.files || {}, payload.files), payload,
+  });
+  await _vcProjWriteEntries(ctx, entries);
+}
+
+// A snapshot fájljai a szerkesztőbe (nyitott / megnyitott fülekbe) kerülnek, lemezre csak mentéskor.
+// A snapshotban nem szereplő (azóta felvett) fájlok változatlanok maradnak.
+async function _vcProjectApply(ctx, files, label) {
+  const current = (await _vcProjectPayload(ctx)).files;
+  const changes = _vcProjectChanges(current, files);
+  const toApply = changes.filter(c => c.status !== "D");
+  const extra = changes.filter(c => c.status === "D").map(c => c.path);
+  if (!toApply.length) { _vcSetOutput(t("vcProjectNoChanges")); return false; }
+  if (!await _showConfirm(tf("vcProjectConfirmRestore", { n: toApply.length, hash: label }))) return false;
+  const originId = activeTabId;
+  const failed = [];
+  let applied = 0;
+  for (const { path } of toApply) {
+    const abs = _vcJoinPath(ctx.dir, path);
+    const content = files[path];
+    const name = path.split("/").pop();
+    if (_vcIsBin(content)) {
+      // bináris fájlnak nincs szerkesztő-füle: közvetlenül a lemezre kerül
+      let res = null;
+      try { res = await window.electronAPI?.writeBinFile?.(abs, _vcBinDecode(content)); } catch { res = null; }
+      if (res?.ok) applied++; else failed.push(path);
+      continue;
+    }
+    try {
+      let tab = _vcFindTab(abs);
+      if (tab) {
+        if (tab.id !== activeTabId) _tabActivate(tab.id);
+        if (!await _vcApplyText(tab, content)) { failed.push(path); continue; }
+      } else if (/\.ub$/i.test(path)) {
+        _ubCreateFileTab(abs, content);
+      } else if (/\.(asm|s|a65|inc)$/i.test(path)) {
+        if (ultimateBasicMode) setUltimateBasicMode(false);
+        await _expertLoadAsmFromPath(abs, content, name);
+      } else {
+        await _expertProjectOpenFile({ type: "file", name, path: abs });
+        tab = _vcFindTab(abs);
+        if (!tab || tab.id !== activeTabId || !await _vcApplyText(tab, content)) { failed.push(path); continue; }
+      }
+      if (ultimateBasicMode) _ubDirty = true;
+      markTabDirty();
+      applied++;
+    } catch {
+      failed.push(path);
+    }
+  }
+  if (activeTabId !== originId && tabs.some(tab => tab.id === originId)) _tabActivate(originId);
+  if (expertMode) _expertRenderProjectTree();
+  if (ultimateBasicMode) _ubRenderProjectFiles();
+  const lines = [tf("vcProjectRestored", { n: applied, hash: label })];
+  if (extra.length) lines.push(tf("vcProjectExtra", { hash: label, files: extra.join(", ") }));
+  if (failed.length) lines.push(tf("vcProjectRestoreFailed", { files: failed.join(", ") }));
+  _vcSetOutput(lines.join("\n"), failed.length > 0);
+  return applied > 0;
+}
+
+// Git: a projekt fájljai egy adott revízióban (a repó gyökeréhez relatív úttal), a projektmappához relatív kulcsokkal
+async function _vcGitRoot(cwd) {
+  const res = await _vcGit(["rev-parse", "--show-toplevel"], cwd);
+  return res.ok ? res.stdout.trim().replace(/\\/g, "/") : "";
+}
+async function _vcGitProjectFiles(ctx, rev, root, relPaths) {
+  const files = {};
+  for (const rel of relPaths.slice(0, 300)) {
+    const res = await _vcGit(["show", `${rev}:${_vcRelPath(root, _vcJoinPath(ctx.dir, rel))}`], ctx.dir);
+    if (res.ok) files[rel] = res.stdout.replace(/\r\n/g, "\n");
+  }
+  return files;
+}
+// Mentetlen projekt-fülek mentése (git commit előtt)
+async function _vcSaveProjectTabs(ctx) {
+  const originId = activeTabId;
+  const dirNorm = _normFilePath(ctx.dir) + "/";
+  const failed = [];
+  for (const tab of [...tabs]) {
+    const full = _vcUbFilePath(tab) || tab.filePath || "";
+    if (!full || !_normFilePath(full).startsWith(dirNorm) || !_vcTabDirty(tab)) continue;
+    if (tab.id !== activeTabId) _tabActivate(tab.id);
+    await saveProjectToFile();
+    if (_vcTabDirty(tab)) failed.push(tab.name || full);
+  }
+  if (activeTabId !== originId && tabs.some(tab => tab.id === originId)) _tabActivate(originId);
+  return failed;
+}
+
+function _vcSetScopeButtons(ctx) {
+  const group = document.getElementById("vc-scope");
+  if (group) group.hidden = !ctx;
+  const project = !!ctx && _vcScope !== "file";
+  document.getElementById("vc-scope-file")?.classList.toggle("vc-mode-btn--active", !project);
+  document.getElementById("vc-scope-project")?.classList.toggle("vc-mode-btn--active", project);
+}
+
 async function _renderProjectSnapshotHistory() {
   if (!projectSnapshotList || !projectSnapshotTabName) return;
   const tab = _getActiveTab();
-  projectSnapshotTabName.textContent = tab?.name || t("snapshotCurrentProgram");
+  const ctx = _vcProjectContext(tab);
+  const scoped = _vcProjectScope(tab);
+  _vcSetScopeButtons(ctx);
+  projectSnapshotTabName.textContent = scoped ? tf("vcProjectTitle", { name: scoped.name }) : (tab?.name || t("snapshotCurrentProgram"));
   const mode = await _vcResolveMode(tab);
   _vcSetModeButtons(mode, !!(_vcGitPath && _vcTabFile(tab)));
+  if (scoped) document.getElementById("vc-stage-all-row")?.setAttribute("hidden", "");
   if (projectSnapshotNoteInput) projectSnapshotNoteInput.placeholder = t("snapshotNotePlaceholder");
-  if (mode === "git") return _vcRenderGit(tab);
-  return _vcRenderLocal(tab);
+  if (mode === "git") await _vcRenderGit(tab);
+  else await _vcRenderLocal(tab);
+  _vcClampDialog();
 }
 
 async function _vcRenderLocal(tab) {
-  const entries = await _readProjectSnapshotEntries(tab);
-  const current = _getCurrentProjectSnapshotPayload(tab);
+  const entries = await _vcEntries(tab);
+  const current = await _vcCurrentPayload(tab);
   const headIndex = entries.findIndex(entry => entry.kind !== "auto");
   const head = entries[headIndex >= 0 ? headIndex : 0];
-  const clean = !!(head && current && JSON.stringify(head.payload) === JSON.stringify(current));
+  const clean = !!(head && current && _vcSamePayload(head.payload, current));
   const branchEl = document.getElementById("vc-branch");
   if (branchEl) branchEl.textContent = "";
   const statusEl = document.getElementById("vc-status");
   if (statusEl) {
-    statusEl.textContent = !entries.length ? t("vcNoCommits") : clean ? t("vcClean") : tf("vcDirty", { hash: _vcShortHash(head) });
+    statusEl.textContent = !entries.length ? t("vcNoCommits") : clean ? t("vcClean")
+      : current?.kind === "project" ? tf("vcProjectDirty", { hash: _vcShortHash(head), n: _vcProjectChanges(head.payload?.files, current.files).length })
+      : tf("vcDirty", { hash: _vcShortHash(head) });
     statusEl.classList.toggle("vc-status--dirty", !!entries.length && !clean);
   }
   if (projectSnapshotRestoreButton) projectSnapshotRestoreButton.disabled = !head;
@@ -17671,6 +18062,7 @@ async function _vcRenderLocal(tab) {
           <button class="secondary" type="button" data-act="checkout" data-index="${index}">${_vcEsc(t("snapshotRestore"))}</button>
           <button class="secondary vc-del" type="button" data-act="delete" data-index="${index}" aria-label="${_vcEsc(t("snapshotDelete"))}">×</button>
         </span>
+        ${_vcFilesHtml(entry.changed)}
       </article>`;
   }).join("");
 }
@@ -17692,7 +18084,10 @@ function _vcParseBranch(line) {
 }
 
 async function _vcRenderGit(tab) {
-  const dirty = _vcIsUbTab(tab) ? !!_ubDirty : !!tab.dirty;
+  const ctx = _vcProjectScope(tab);
+  const dirty = ctx
+    ? tabs.some(other => _normFilePath(_vcUbFilePath(other) || other.filePath).startsWith(_normFilePath(ctx.dir) + "/") && _vcTabDirty(other))
+    : (_vcIsUbTab(tab) ? !!_ubDirty : !!tab.dirty);
   const file = _vcTabFile(tab);
   const statusEl = document.getElementById("vc-status");
   const branchEl = document.getElementById("vc-branch");
@@ -17716,14 +18111,24 @@ async function _vcRenderGit(tab) {
   const lines = st.stdout.split(/\r?\n/).filter(Boolean);
   const info = _vcParseBranch(lines.shift());
   const changes = lines.map(line => ({ code: line.slice(0, 2), path: line.slice(3) }));
-  const mine = changes.find(c => c.path.replace(/^"|"$/g, "").split("/").pop() === file.name);
+  let isMine = c => c.path.replace(/^"|"$/g, "").split("/").pop() === file.name;
+  if (ctx) {
+    // projekt-módban a projektmappába eső változások számítanak a sajátnak
+    const root = await _vcGitRoot(file.dir);
+    const prefix = root ? _vcRelPath(root, ctx.dir).toLowerCase() : "";
+    const inRoot = !prefix || _normFilePath(root) === _normFilePath(ctx.dir);
+    isMine = c => inRoot || c.path.replace(/^"|"$/g, "").replace(/^.* -> /, "").toLowerCase().startsWith(prefix + "/");
+  }
+  const mineList = changes.filter(isMine);
+  const mine = ctx ? (mineList.length ? mineList : null) : mineList[0];
   _vcGitState = { ...info, changes };
   if (branchEl) {
     const sync = [info.ahead ? "↑" + info.ahead : "", info.behind ? "↓" + info.behind : ""].filter(Boolean).join(" ");
     branchEl.textContent = "⎇ " + info.branch + (sync ? "  " + sync : "");
   }
   if (statusEl) {
-    const parts = [mine || dirty ? tf("vcGitFileChanged", { file: file.name }) : t("vcClean")];
+    const parts = [ctx ? (mine || dirty ? tf("vcGitProjectChanged", { n: mineList.length }) : t("vcClean"))
+      : mine || dirty ? tf("vcGitFileChanged", { file: file.name }) : t("vcClean")];
     if (dirty) parts.push(t("vcGitUnsaved"));
     statusEl.textContent = parts.join(" ");
     statusEl.classList.toggle("vc-status--dirty", !!(mine || dirty));
@@ -17731,14 +18136,14 @@ async function _vcRenderGit(tab) {
   if (changesEl) {
     changesEl.innerHTML = changes.length
       ? `<div class="vc-changes-title">${_vcEsc(tf("vcGitChanges", { n: changes.length }))}</div>` + changes.slice(0, 60).map(c =>
-        `<div class="vc-change${c === mine ? " vc-change--mine" : ""}"><code class="vc-change-code">${_vcEsc(c.code.replace(/ /g, "·"))}</code> ${_vcEsc(c.path)}</div>`).join("")
+        `<div class="vc-change${(ctx ? mineList.includes(c) : c === mine) ? " vc-change--mine" : ""}"><code class="vc-change-code">${_vcEsc(c.code.replace(/ /g, "·"))}</code> ${_vcEsc(c.path)}</div>`).join("")
       : "";
   }
-  const log = info.empty ? { ok: true, stdout: "" } : await _vcGit(["log", "-n", "60", "--date=iso", "--pretty=format:%h%x1f%an%x1f%ad%x1f%s%x1f%D", "--", file.name], file.dir);
-  const rows = (log.ok ? log.stdout : "").split(/\r?\n/).filter(Boolean).map(line => {
-    const [hash, author, date, subject, refs] = line.split("\x1f");
-    return { hash, author, date, subject, refs };
-  });
+  // projekt-módban az egész repó naplója, commitonként a változott fájlokkal
+  const log = info.empty ? { ok: true, stdout: "" } : await _vcGit(ctx
+    ? ["log", "-n", "60", "--date=iso", "--name-status", "--pretty=format:%x1e%h%x1f%an%x1f%ad%x1f%s%x1f%D"]
+    : ["log", "-n", "60", "--date=iso", "--pretty=format:%x1e%h%x1f%an%x1f%ad%x1f%s%x1f%D", "--", file.name], file.dir);
+  const rows = _vcParseGitLog(log.ok ? log.stdout : "");
   const diffBtn = document.getElementById("vc-diff-working");
   if (diffBtn) diffBtn.disabled = info.empty;
   if (projectSnapshotRestoreButton) projectSnapshotRestoreButton.disabled = info.empty || !rows.length;
@@ -17757,6 +18162,7 @@ async function _vcRenderGit(tab) {
           <button class="secondary" type="button" data-act="git-show" data-hash="${_vcEsc(row.hash)}">${_vcEsc(t("vcDiff"))}</button>
           <button class="secondary" type="button" data-act="git-checkout" data-hash="${_vcEsc(row.hash)}"${index === 0 && !mine && !dirty ? " disabled" : ""}>${_vcEsc(t("snapshotRestore"))}</button>
         </span>
+        ${ctx ? _vcFilesHtml(row.files) : ""}
       </article>`;
   }).join("");
 }
@@ -17764,11 +18170,15 @@ async function _vcRenderGit(tab) {
 async function _openProjectSnapshotDialog() {
   if (!projectSnapshotDialog) return;
   _vcMode = "";
+  _vcScope = "";
   _vcSetOutput("");
   const diff = document.getElementById("vc-diff");
   if (diff) diff.hidden = true;
   await _renderProjectSnapshotHistory();
+  // mentett pozíció (setupDraggableEditorDialogs) a megnyitás előtt, méretre igazítás utána
+  projectSnapshotDialog._applyPosition?.();
   projectSnapshotDialog.showModal();
+  projectSnapshotDialog._applyPosition?.();
   setTimeout(() => projectSnapshotNoteInput?.focus(), 0);
 }
 
@@ -17790,20 +18200,14 @@ async function _saveManualProjectSnapshot() {
     return false;
   }
   if (await _vcCurrentMode() === "git") return _vcGitCommit(tab, message);
-  const payload = _getCurrentProjectSnapshotPayload(tab);
-  if (!payload) return false;
-  const entries = await _readProjectSnapshotEntries(tab);
-  const headEntry = entries.find(entry => entry.kind !== "auto");
-  if (headEntry && JSON.stringify(headEntry.payload) === JSON.stringify(payload)) {
+  const entry = await _vcAddEntry(tab, "manual", message);
+  if (!entry) {
     _vcSetOutput(t("snapshotAlreadyExists"));
     return false;
   }
-  const createdAt = new Date().toISOString();
-  const hash = await _vcHash(payload, createdAt);
-  entries.unshift({ id: crypto.randomUUID(), hash, createdAt, kind: "manual", note: message, payload });
-  await _writeProjectSnapshotEntries(tab, entries);
+  const hash = entry.hash;
   if (projectSnapshotNoteInput) projectSnapshotNoteInput.value = "";
-  _vcSetOutput(tf("vcCommitted", { hash }));
+  _vcSetOutput(tf("vcCommitted", { hash }) + (entry.changed ? "\n" + entry.changed.map(c => c.status + " " + c.path).join("\n") : ""));
   await _renderProjectSnapshotHistory();
   return true;
 }
@@ -17811,12 +18215,16 @@ async function _saveManualProjectSnapshot() {
 async function _vcGitCommit(tab, message) {
   const file = _vcTabFile(tab);
   if (!file) return false;
+  const ctx = _vcProjectScope(tab);
   const isDirty = () => (_vcIsUbTab(tab) ? !!_ubDirty : !!_getActiveTab()?.dirty);
-  if (isDirty()) {
+  if (ctx) {
+    const failed = await _vcSaveProjectTabs(ctx);
+    if (failed.length) { _vcSetOutput(t("projectSaveFailed") + "\n" + failed.join(", "), true); return false; }
+  } else if (isDirty()) {
     await saveProjectToFile();
     if (isDirty()) { _vcSetOutput(t("projectSaveFailed"), true); return false; }
   }
-  const stageAll = document.getElementById("vc-stage-all")?.checked;
+  const stageAll = !!ctx || document.getElementById("vc-stage-all")?.checked;
   const add = await _vcGit(stageAll ? ["add", "-A"] : ["add", "--", file.name], file.dir);
   if (!add.ok) { _vcSetOutput(tf("vcGitFailed", { cmd: "add" }) + "\n" + add.stderr, true); return false; }
   const res = await _vcGit(["commit", "-m", message], file.dir);
@@ -17834,9 +18242,15 @@ async function _vcGitCommit(tab, message) {
 async function _restoreProjectSnapshotByIndex(index) {
   const tab = _getActiveTab();
   if (!tab) return false;
-  const entries = await _readProjectSnapshotEntries(tab);
+  const entries = await _vcEntries(tab);
   const entry = entries[index];
   if (!entry?.payload) return false;
+  const ctx = _vcProjectScope(tab);
+  if (ctx) {
+    const ok = await _vcProjectApply(ctx, entry.payload.files || {}, _vcShortHash(entry));
+    if (projectSnapshotDialog?.open) await _renderProjectSnapshotHistory();
+    return ok;
+  }
   if (!await _showConfirm(t("snapshotConfirmRestore"))) return false;
   const ok = typeof entry.payload.ubText === "string"
     ? await _vcApplyText(tab, entry.payload.ubText)
@@ -17852,7 +18266,7 @@ async function _restoreLatestProjectSnapshot() {
   const tab = _getActiveTab();
   if (!tab) return false;
   if (await _vcCurrentMode() === "git") return _vcGitCheckout(tab, "HEAD");
-  const entries = await _readProjectSnapshotEntries(tab);
+  const entries = await _vcEntries(tab);
   if (!entries.length) return false;
   const headIndex = entries.findIndex(entry => entry.kind !== "auto");
   return _restoreProjectSnapshotByIndex(headIndex >= 0 ? headIndex : 0);
@@ -17861,6 +18275,16 @@ async function _restoreLatestProjectSnapshot() {
 async function _vcGitCheckout(tab, rev) {
   const file = _vcTabFile(tab);
   if (!file) return false;
+  const ctx = _vcProjectScope(tab);
+  if (ctx) {
+    const root = await _vcGitRoot(file.dir);
+    if (!root) { _vcSetOutput(t("vcGitNotRepo"), true); return false; }
+    const current = await _vcCollectProjectFiles(ctx);
+    const files = await _vcGitProjectFiles(ctx, rev, root, Object.keys(current));
+    const ok = await _vcProjectApply(ctx, files, rev);
+    if (projectSnapshotDialog?.open) await _renderProjectSnapshotHistory();
+    return ok;
+  }
   const res = await _vcGit(["show", `${rev}:./${file.name}`], file.dir);
   if (!res.ok) { _vcSetOutput(res.stderr || tf("vcGitFailed", { cmd: "show" }), true); return false; }
   if (!await _showConfirm(t("snapshotConfirmRestore"))) return false;
@@ -17875,11 +18299,11 @@ async function _vcGitCheckout(tab, rev) {
 async function _deleteProjectSnapshotByIndex(index) {
   const tab = _getActiveTab();
   if (!tab) return false;
-  const entries = await _readProjectSnapshotEntries(tab);
+  const entries = await _vcEntries(tab);
   if (!entries[index]) return false;
   if (!await _showConfirm(t("snapshotConfirmDelete"))) return false;
   entries.splice(index, 1);
-  await _writeProjectSnapshotEntries(tab, entries);
+  await _vcWriteEntries(tab, entries);
   await _renderProjectSnapshotHistory();
   return true;
 }
@@ -17887,6 +18311,18 @@ async function _deleteProjectSnapshotByIndex(index) {
 async function _vcDiffWorking() {
   const tab = _getActiveTab();
   if (!tab) return;
+  const ctx = _vcProjectScope(tab);
+  if (await _vcCurrentMode() === "git" && ctx) {
+    // projekt: a projekt fájljai a HEAD-ben vs. a szerkesztő / lemez; RAW = git diff HEAD az egész repóra
+    const file = _vcTabFile(tab);
+    const root = await _vcGitRoot(file.dir);
+    if (!root) { _vcSetOutput(t("vcGitNotRepo"), true); return; }
+    const current = await _vcCollectProjectFiles(ctx);
+    const old = await _vcGitProjectFiles(ctx, "HEAD", root, Object.keys(current));
+    const raw = await _vcGit(["diff", "HEAD"], file.dir);
+    _vcShowDiff(tf("vcDiffWorking", { hash: "HEAD" }), _vcProjectDiff(old, current), raw.ok ? raw.stdout : "");
+    return;
+  }
   if (await _vcCurrentMode() === "git") {
     // a HEAD fájlja értelmezve, a szerkesztő aktuális (akár mentetlen) állapotával összevetve
     const file = _vcTabFile(tab);
@@ -17896,11 +18332,11 @@ async function _vcDiffWorking() {
     _vcShowDiff(tf("vcDiffWorking", { hash: "HEAD" }), _vcSmartDiff(old, _getCurrentProjectSnapshotPayload(tab)), raw.ok ? raw.stdout : "");
     return;
   }
-  const entries = await _readProjectSnapshotEntries(tab);
+  const entries = await _vcEntries(tab);
   const headIndex = entries.findIndex(entry => entry.kind !== "auto");
   const head = entries[headIndex >= 0 ? headIndex : 0];
   if (!head) return;
-  _vcShowDiff(tf("vcDiffWorking", { hash: _vcShortHash(head) }), _vcSmartDiff(head.payload, _getCurrentProjectSnapshotPayload(tab)));
+  _vcShowDiff(tf("vcDiffWorking", { hash: _vcShortHash(head) }), _vcDiffPayloads(head.payload, await _vcCurrentPayload(tab)));
 }
 
 async function _vcListAction(e) {
@@ -17912,14 +18348,35 @@ async function _vcListAction(e) {
   if (act === "checkout") return _restoreProjectSnapshotByIndex(index);
   if (act === "delete") return _deleteProjectSnapshotByIndex(index);
   if (act === "diff") {
-    const entries = await _readProjectSnapshotEntries(tab);
+    const entries = await _vcEntries(tab);
     const entry = entries[index];
     if (!entry) return;
-    _vcShowDiff(tf("vcDiffWorking", { hash: _vcShortHash(entry) }), _vcSmartDiff(entry.payload, _getCurrentProjectSnapshotPayload(tab)));
+    _vcShowDiff(tf("vcDiffWorking", { hash: _vcShortHash(entry) }), _vcDiffPayloads(entry.payload, await _vcCurrentPayload(tab)));
     return;
   }
   const file = _vcTabFile(tab);
   if (!file) return;
+  const ctx = _vcProjectScope(tab);
+  if (act === "git-show" && ctx) {
+    // projekt: a commit összes változott szövegfájlja a szülőjéhez képest, fájlonként
+    const hash = btn.dataset.hash;
+    const raw = await _vcGit(["show", "--stat", "--patch", "--format=commit %H%nAuthor: %an <%ae>%nDate:   %ad%n%n    %s%n", hash], file.dir);
+    if (!raw.ok) { _vcSetOutput(raw.stderr, true); return; }
+    const ns = await _vcGit(["show", "--name-status", "--pretty=format:%x1e%h%x1f%an%x1f%ad%x1f%s%x1f%D", hash], file.dir);
+    const row = _vcParseGitLog(ns.ok ? ns.stdout : "")[0];
+    const paths = (row?.files || []).map(f => f.path).filter(path => _VC_PROJECT_TEXT_RE.test(path)).slice(0, 60);
+    const before = {};
+    const after = {};
+    for (const path of paths) {
+      const a = await _vcGit(["show", `${hash}^:${path}`], file.dir);
+      const b = await _vcGit(["show", `${hash}:${path}`], file.dir);
+      if (a.ok) before[path] = a.stdout.replace(/\r\n/g, "\n");
+      if (b.ok) after[path] = b.stdout.replace(/\r\n/g, "\n");
+    }
+    const header = row ? [row.author, String(row.date || "").slice(0, 16), row.subject].join("  ·  ") : "";
+    _vcShowDiff(hash + "  " + header, paths.length ? _vcProjectDiff(before, after) : raw.stdout, raw.stdout);
+    return;
+  }
   if (act === "git-show") {
     // a commit a szülőjéhez képest, értelmezett formában (első commitnál üreshez képest)
     const hash = btn.dataset.hash;
@@ -17959,6 +18416,8 @@ function setupVersionControl() {
   });
   document.getElementById("vc-mode-local")?.addEventListener("click", () => { _vcMode = "local"; _vcSetOutput(""); _renderProjectSnapshotHistory(); });
   document.getElementById("vc-mode-git")?.addEventListener("click", () => { _vcMode = "git"; _vcSetOutput(""); _renderProjectSnapshotHistory(); });
+  document.getElementById("vc-scope-file")?.addEventListener("click", () => { _vcScope = "file"; _vcSetOutput(""); _renderProjectSnapshotHistory(); });
+  document.getElementById("vc-scope-project")?.addEventListener("click", () => { _vcScope = "project"; _vcSetOutput(""); _renderProjectSnapshotHistory(); });
   document.getElementById("vc-git-refresh")?.addEventListener("click", () => { _vcSetOutput(""); _renderProjectSnapshotHistory(); });
   document.getElementById("vc-git-pull")?.addEventListener("click", () => _vcGitSimple(["pull", "--ff-only"], "pull"));
   document.getElementById("vc-git-push")?.addEventListener("click", () => _vcGitSimple(["push"], "push"));

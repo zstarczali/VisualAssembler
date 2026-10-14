@@ -227,6 +227,64 @@
       filter: drop-shadow(0 0 40px rgba(80, 80, 255, .4))
     }
 
+    /* fénycsík fut át a logón — a logó saját alakjára maszkolva */
+    .hero-logo {
+      position: relative;
+      display: block;
+      width: 100%;
+      max-width: 680px
+    }
+
+    /* a logó kifehérített másolata, mozgó színátmenetes maszkkal: csak a logó
+       pixelein csillan, és külső maszkkép nélkül file:// alatt is működik */
+    .hero-logo-shine {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      filter: brightness(2.6) saturate(0.15);
+      opacity: 0.8;
+      -webkit-mask-image: linear-gradient(105deg, transparent 42%, #000 50%, transparent 58%);
+      mask-image: linear-gradient(105deg, transparent 42%, #000 50%, transparent 58%);
+      -webkit-mask-size: 300% 100%;
+      mask-size: 300% 100%;
+      -webkit-mask-repeat: no-repeat;
+      mask-repeat: no-repeat;
+      -webkit-mask-position: 150% 0;
+      mask-position: 150% 0;
+      animation: hero-logo-shine 6s ease-in-out 1.2s infinite
+    }
+
+    @keyframes hero-logo-shine {
+      0% { -webkit-mask-position: 150% 0; mask-position: 150% 0 }
+      35%, 100% { -webkit-mask-position: -50% 0; mask-position: -50% 0 }
+    }
+
+    /* időnkénti csillanás: négyágú csillag a logó egy sárga pixelén */
+    .hero-sparkle {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      margin: -15px 0 0 -15px;
+      pointer-events: none;
+      background: radial-gradient(circle, #fff 0 16%, rgba(255, 255, 255, .7) 28%, rgba(255, 255, 230, 0) 62%);
+      clip-path: polygon(50% 0, 57% 43%, 100% 50%, 57% 57%, 50% 100%, 43% 57%, 0 50%, 43% 43%);
+      filter: drop-shadow(0 0 4px #fff);
+      animation: hero-sparkle .9s ease-out forwards
+    }
+
+    @keyframes hero-sparkle {
+      0% { transform: scale(0) rotate(0deg); opacity: 0 }
+      40% { transform: scale(var(--s, 1)) rotate(45deg); opacity: 1 }
+      100% { transform: scale(0) rotate(90deg); opacity: 0 }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hero-logo-shine { display: none }
+      .hero-sparkle { display: none }
+    }
+
     .hardware-c64,
     .download-drive {
       display: block;
@@ -258,9 +316,9 @@
     .hero-monitor-floating {
       position: absolute;
       z-index: 1;
-      top: 48px;
-      left: 250px;
-      width: min(690px, calc(100vw - 60px))
+      top: 10px;
+      left: 31px;
+      width: min(767px, calc(100vw - 60px));
     }
 
     .badge {
@@ -377,12 +435,22 @@
       height: 42.4%;
       overflow: hidden;
       margin: 0;
-      padding: clamp(5px, 1.6vw, 18px);
+      padding: 1.2% 1.4%;
       border: 0;
       background: transparent;
       font-size: clamp(5px, .75vw, 9px);
       line-height: 1.72;
-      text-shadow: 0 0 5px currentColor
+      text-shadow: 0 0 5px currentColor;
+      container-type: inline-size
+    }
+
+    /* 40 oszlopos C64 képernyő: a karakterméret a doboz szélességéből jön, így nem tördel */
+    .hero-monitor .boot-box > div {
+      font-family: 'C64Mono', monospace;
+      font-size: calc(100cqw / 40);
+      letter-spacing: 0;
+      white-space: pre;
+      overflow: hidden
     }
 
     .hero-monitor .cur {
@@ -1055,6 +1123,7 @@
       .plans-table .yes { font-size: 13px }
       .plans-table .group th { font-size: 9px; letter-spacing: 2px }
       .plans-table .price td { font-size: 13px }
+      .plans-cta .btn { letter-spacing: 1px; padding: 10px 14px !important }
     }
     .price-stamp {
       position: absolute; top: -38px; right: -26px; z-index: 3;
@@ -1790,7 +1859,8 @@
         transform: none
       }
 
-      .hero-box-img {
+      .hero-box-img,
+      .hero-logo {
         max-width: 500px
       }
 
@@ -1927,7 +1997,8 @@
         justify-content: flex-start
       }
 
-      .hero-box-img {
+      .hero-box-img,
+      .hero-logo {
         max-width: min(78vw, 340px)
       }
 
@@ -2090,7 +2161,7 @@
       </div>
     </div>
     <div class="hero-left">
-      <div class="badge">V2.5.8 — LATEST RELEASE</div>
+      <div class="badge">V2.5.9 — LATEST RELEASE</div>
       <h1 class="hero-title">WRITE C64 PROGRAMS<br><span>BLOCKS, MACRO-ASM OR ULTIMATE BASIC.</span></h1>
       <p class="hero-tagline">&ldquo;The best all-in-one, multiplatform Commodore 64 IDE.&rdquo;</p>
       <p class="hero-sub">A modern Commodore 64 IDE: drag-and-drop 6502 assembly blocks or switch to a full text editor
@@ -2101,14 +2172,42 @@
       </div>
     </div>
     <div class="hero-right">
-      <img class="hero-box-img" src="uploads/visual_assembler_transparent.webp" alt="Visual Assembler logo" width="900" height="900">
+      <span class="hero-logo"><img class="hero-box-img" src="uploads/visual_assembler_transparent.webp" alt="Visual Assembler logo" width="900" height="900"><img class="hero-logo-shine" src="uploads/visual_assembler_transparent.webp" alt="" aria-hidden="true" width="900" height="900"></span>
     </div>
   </section>
+
+  <!-- V2.5.9: COMMODORE 64, BEIGE + STARLIGHT THEMES -->
+  <div id="release-259" style="background:var(--scr-darker);padding:80px 0">
+    <div class="sec" style="padding-top:0;padding-bottom:0">
+      <div class="ub-tag">NEW IN V2.5.9</div>
+      <div class="sec-s">// BREADBIN COLOURS</div>
+      <h2 class="sec-t">THREE NEW<br><span style="color:var(--ylw)">COMMODORE THEMES</span></h2>
+      <p class="sec-d" style="max-width:680px">Version 2.5.9 dresses the IDE in the colours of the C64 itself (Professional).</p>
+      <div class="feature-list fl-2col">
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Commodore 64 theme:</b> <span>the power-on screen &mdash; light blue border, blue panels, reverse-video buttons and the C64 font in the monitor.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Commodore Beige theme:</b> <span>the classic breadbin &mdash; beige case, mustard function keys, the rainbow badge and a C64 blue screen.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Commodore Starlight theme:</b> <span>a light theme of frosted clear glass with the rainbow RGB glow shining through &mdash; inspired by the translucent C64.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Version control dialog:</b> <span>drag it anywhere &mdash; it reopens where you left it and stays on screen as the log or a diff grows.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- V2.5.8: VERSION CONTROL, GIT, BUG REPORTS -->
   <div id="release-258" style="background:var(--scr-dark);padding:80px 0">
     <div class="sec" style="padding-top:0;padding-bottom:0">
-      <div class="ub-tag">NEW IN V2.5.8</div>
+      <div class="ub-tag">FROM V2.5.8</div>
       <div class="sec-s">// COMMIT, DIFF, ROLL BACK</div>
       <h2 class="sec-t">VERSION CONTROL<br><span style="color:var(--ylw)">WITH GIT BUILT IN</span></h2>
       <p class="sec-d" style="max-width:680px">Version 2.5.8 keeps the history of every program you write &mdash; with or without Git.</p>
@@ -2700,7 +2799,7 @@
       <p class="sec-d" style="max-width:680px">A new app theme styled after the Commodore x Cyberpunk 2077
         &ldquo;Commodore 77&rdquo; breadbin edition &mdash; neon yellow on black, built only from the two brand colors
         and their shades. It covers every corner of the app: block editor, Expert ASM mode, Ultimate Basic, and every
-        tool dialog. Switch anytime from the theme picker (Light / Dark / OLED / Commodore 77).</p>
+        tool dialog. Switch anytime from the theme picker (Light / Dark / OLED / Commodore 77 / Commodore Starlight / Commodore Beige / Commodore 64).</p>
       <div class="c77-logo-wrap">
         <img src="uploads/logo2.webp" alt="C64 Visual Assembler feat. Commodore 77 — classic vibes, modern tools">
       </div>
@@ -3354,7 +3453,7 @@
             </div>
             <p class="download-picker-label" style="margin-top:14px">3. GO PROFESSIONAL — EVERY FEATURE, NO LIMITS</p>
             <div class="download-variant is-active">
-              <a class="download-item" href="register/buy.php">BUY PROFESSIONAL — 5 €</a>
+              <a class="download-item" href="register/buy.php">BUY PROFESSIONAL —&nbsp;<span style="white-space:nowrap">5&nbsp;€</span></a>
               <a class="download-item" href="register/">REQUEST SERIAL (SUPPORTERS)</a>
             </div>
           </div>
@@ -3419,14 +3518,14 @@
                 <tr><th scope="row">D64 DISK EDITOR, CURVE GENERATOR</th><td class="no" aria-label="Not included">—</td><td class="yes plan-pro" aria-label="Included">✓</td></tr>
                 <tr class="group"><th scope="rowgroup">// LOOK &amp; FEEL</th><td></td><td class="plan-pro"></td></tr>
                 <tr><th scope="row">UI LANGUAGES<small>EN, HU, DE, ES, NL, PL, IT</small></th><td>HU + EN</td><td class="plan-pro">ALL 7</td></tr>
-                <tr><th scope="row">THEMES</th><td>LIGHT + DARK</td><td class="plan-pro">+ OLED, COMMODORE 77</td></tr>
-                <tr class="price"><th scope="row">PRICE</th><td>FREE</td><td class="plan-pro">5 €<small style="display:block;font-family:'C64Mono',monospace;font-size:10px;color:var(--txt-dim)">ONE-TIME</small></td></tr>
+                <tr><th scope="row">THEMES</th><td>LIGHT + DARK</td><td class="plan-pro">+ OLED, COMMODORE 77, STARLIGHT, BEIGE, C64</td></tr>
+                <tr class="price"><th scope="row">PRICE</th><td>FREE</td><td class="plan-pro"><span style="white-space:nowrap">5&nbsp;€</span><small style="display:block;font-family:'C64Mono',monospace;font-size:10px;color:var(--txt-dim)">ONE-TIME</small></td></tr>
               </tbody>
             </table>
           </div>
           <div class="plans-cta">
             <a class="btn btn-o" href="#download" style="font-size:12px;padding:10px 22px">► DOWNLOAD FREE</a>
-            <a class="btn btn-y" href="register/buy.php" style="font-size:12px;padding:10px 22px">★ BUY PROFESSIONAL — 5 €</a>
+            <a class="btn btn-y" href="register/buy.php" style="font-size:12px;padding:10px 22px">★ BUY PROFESSIONAL —&nbsp;<span style="white-space:nowrap">5&nbsp;€</span></a>
             <a class="btn btn-o" href="register/" style="font-size:12px;padding:10px 22px">SUPPORTER? GET YOUR SERIAL</a>
           </div>
         </div>
@@ -3800,6 +3899,47 @@
       }
       window.addEventListener('hashchange', revealHash);
       revealHash();
+    })();
+  </script>
+  <script>
+    // Hero logó: időnkénti csillanás a logó világos (sárga) pixelein
+    (function () {
+      var box = document.querySelector('.hero-logo');
+      var img = box && box.querySelector('img');
+      if (!box || !img || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      // a logó sárga pixelei (0..1), ha a kép pixelei nem olvashatók (pl. file:// alatt)
+      var FALLBACK = [[0.352,0.117],[0.383,0.133],[0.43,0.164],[0.398,0.195],[0.43,0.211],[0.461,0.242],[0.492,0.258],[0.508,0.289],[0.523,0.305],[0.586,0.32],[0.555,0.336],[0.68,0.336],[0.648,0.352],[0.508,0.367],[0.523,0.383],[0.523,0.398],[0.445,0.43],[0.414,0.445],[0.398,0.477],[0.383,0.492],[0.367,0.523],[0.352,0.586],[0.445,0.586],[0.617,0.586],[0.727,0.586],[0.367,0.602],[0.57,0.602],[0.727,0.602],[0.367,0.617],[0.523,0.617],[0.664,0.617],[0.289,0.633],[0.477,0.633],[0.664,0.633],[0.289,0.648],[0.43,0.648],[0.555,0.648],[0.711,0.648],[0.242,0.695],[0.367,0.695],[0.555,0.695],[0.695,0.695],[0.836,0.695],[0.18,0.711],[0.492,0.711],[0.57,0.711],[0.773,0.711],[0.18,0.727],[0.43,0.727],[0.602,0.727],[0.836,0.727],[0.148,0.742],[0.289,0.742],[0.414,0.742],[0.57,0.742],[0.758,0.742],[0.867,0.742],[0.273,0.758],[0.414,0.758],[0.602,0.758],[0.836,0.758],[0.18,0.773],[0.352,0.773],[0.492,0.773],[0.633,0.773],[0.773,0.773],[0.133,0.836],[0.242,0.836],[0.398,0.836],[0.633,0.836],[0.82,0.836],[0.258,0.852],[0.602,0.852]];
+      var points = FALLBACK;
+      function sample() {
+        try {
+          var n = 96, c = document.createElement('canvas');
+          c.width = c.height = n;
+          var g = c.getContext('2d');
+          g.drawImage(img, 0, 0, n, n);
+          var d = g.getImageData(0, 0, n, n).data;
+          var found = [];
+          for (var y = 0; y < n; y++) for (var x = 0; x < n; x++) {
+            var i = (y * n + x) * 4;
+            if (d[i + 3] > 200 && d[i] + d[i + 1] > 380) found.push([(x + 0.5) / n, (y + 0.5) / n]);
+          }
+          if (found.length) points = found;
+        } catch (e) { points = FALLBACK; }
+      }
+      if (img.complete && img.naturalWidth) sample(); else img.addEventListener('load', sample);
+      function sparkle() {
+        if (points.length && !document.hidden) {
+          var p = points[Math.floor(Math.random() * points.length)];
+          var s = document.createElement('span');
+          s.className = 'hero-sparkle';
+          s.style.left = (p[0] * 100) + '%';
+          s.style.top = (p[1] * 100) + '%';
+          s.style.setProperty('--s', (0.6 + Math.random() * 0.9).toFixed(2));
+          s.addEventListener('animationend', function () { s.remove(); });
+          box.appendChild(s);
+        }
+        setTimeout(sparkle, 1200 + Math.random() * 2800);
+      }
+      setTimeout(sparkle, 2500);
     })();
   </script>
 </body>
