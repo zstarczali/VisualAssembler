@@ -2,10 +2,11 @@
 declare(strict_types=1);
 
 // Admin statisztika + kezelés: letöltések, serialok, vásárlások, aktiválások; serial újraküldése,
-// újrakérés engedélyezése, donor felvétele. Belépés, CSRF, layout: admin.php
+// újrakérés engedélyezése, donor felvétele, félbemaradt PayPal rendelés újraellenőrzése. Belépés, CSRF, layout: admin.php
 define('VA_REGISTER', true);
 require __DIR__ . '/lib.php';
 require __DIR__ . '/admin.php';
+require __DIR__ . '/paypal.php';
 
 vaAdminRequire();
 $h = 'vaH';
@@ -24,6 +25,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($action === 'clear_rate') {
             $n = $db->exec('DELETE FROM va_register_attempts');
             $_SESSION['flash'] = ['ok', 'RATE LIMITS CLEARED (' . (int) $n . ' ATTEMPTS).'];
+        } elseif ($action === 'recheck') {
+            // a PayPaltól lekéri a rendelést; ha ki van fizetve, teljesíti (serial e-mail), egyszer
+            $orderId = (string) ($_POST['order_id'] ?? '');
+            $res = preg_match('/^[A-Z0-9]{6,40}$/', $orderId) ? vaFulfillOrder($orderId) : 'error';
+            $_SESSION['flash'] = [
+                'sent' => ['ok', "ORDER $orderId: FULFILLED, SERIAL SENT."],
+                'pending' => ['err', "ORDER $orderId: NOT PAID / NOT CAPTURED YET."],
+                'mail' => ['err', "ORDER $orderId: PAID, BUT THE EMAIL COULD NOT BE SENT."],
+            ][$res] ?? ['err', "ORDER $orderId: AMOUNT, CURRENCY OR EMAIL MISMATCH (SEE ERROR LOG)."];
         } elseif (!vaValidEmail($email)) {
             $_SESSION['flash'] = ['err', 'INVALID EMAIL ADDRESS.'];
         } elseif ($action === 'resend') {
@@ -72,6 +82,16 @@ $serials30 = (int) $one('SELECT COUNT(*) FROM va_serial_requests WHERE mailed_at
 $bought = (int) $one("SELECT COUNT(*) FROM va_purchases WHERE state = 'fulfilled'");
 $revenue = $all("SELECT currency, SUM(amount) AS total, COUNT(*) AS n FROM va_purchases WHERE state = 'fulfilled' GROUP BY currency");
 $problem = $all("SELECT order_id, email, state, created_at FROM va_purchases WHERE state IN ('mail', 'fulfilling') ORDER BY created_at DESC");
+// megkezdett, de nem teljesített rendelések (bezárt PayPal ablak, sikertelen capture, függő fizetés)
+$open = $all("SELECT order_id, email, created_at FROM va_purchases WHERE state = 'created' AND created_at > NOW() - INTERVAL 30 DAY ORDER BY created_at DESC LIMIT 50");
+$pp = vaPaypalCfg();
+$ppWarn = [];
+if (($pp['mode'] ?? 'sandbox') !== 'live') {
+    $ppWarn[] = 'PAYPAL IS IN SANDBOX (TEST) MODE: THE BUY PAGE CANNOT TAKE REAL PAYMENTS. SET paypal.mode = live AND THE LIVE CLIENT ID / SECRET IN config.php.';
+}
+if (($pp['webhook_id'] ?? '') === '') {
+    $ppWarn[] = 'NO PAYPAL WEBHOOK ID: IF THE BUYER CLOSES THE PAGE BEFORE THE CAPTURE, THE ORDER STAYS UNFULFILLED (USE RECHECK BELOW).';
+}
 $act = (int) $one('SELECT COUNT(*) FROM va_activations');
 $actTotal = (int) $one('SELECT SUM(activations) FROM va_activations');
 $actOs = $all('SELECT os, COUNT(*) AS n FROM va_activations GROUP BY os ORDER BY n DESC');
@@ -110,6 +130,18 @@ $rowActions = static function (array $r) use ($h, $csrf, $q): string {
         . ($r['donor'] ? '' : $f('donor', '+DONOR', '', ''));
 };
 
+$recheck = static fn(string $orderId): string => '<form class="inline" method="post">'
+    . '<input type="hidden" name="csrf" value="' . $h($csrf) . '"><input type="hidden" name="action" value="recheck">'
+    . '<input type="hidden" name="order_id" value="' . $h($orderId) . '"><button class="btn sm" type="submit">RECHECK</button></form>';
+
+$orderTable = static function (array $rows) use ($h, $recheck): string {
+    $out = '<table class="wide"><tr><th>EMAIL</th><th>ORDER ID</th><th>CREATED</th><th></th></tr>';
+    foreach ($rows as $r) {
+        $out .= '<tr><td class="e">' . $h($r['email']) . '</td><td>' . $h($r['order_id']) . '</td><td>' . $h($r['created_at']) . '</td><td>' . $recheck($r['order_id']) . '</td></tr>';
+    }
+    return $out . '</table>';
+};
+
 $emailTable = static function (array $rows) use ($h, $rowActions): string {
     if (!$rows) {
         return '<p class="no">NO MATCHES.</p>';
@@ -131,6 +163,7 @@ ob_start(); ?>
     <div class="sec-s">// ADMIN</div>
     <h1 class="sec-t">VISUAL ASSEMBLER <span>STATS</span></h1>
     <?php if ($flash): ?><div class="flash <?= $h($flash[0]) ?>"><?= $h($flash[1]) ?></div><?php endif; ?>
+    <?php foreach ($ppWarn as $w): ?><div class="flash err"><?= $h($w) ?></div><?php endforeach; ?>
 
     <div class="tiles">
         <div class="tile"><b><?= $dlTotal ?></b><span>DOWNLOADS / LAST 30 DAYS: <?= $dl30 ?></span></div>
@@ -160,10 +193,16 @@ ob_start(); ?>
         <div class="box"><div class="box-t">REVENUE</div><table>
             <?php foreach ($revenue as $r): ?><tr><td><?= $h($r['currency']) ?></td><td class="n"><?= $h(number_format((float) $r['total'], 2, ',', ' ')) ?></td><td class="n"><?= (int) $r['n'] ?> PCS</td></tr><?php endforeach; ?>
             <?php if (!$revenue): ?><tr><td class="no">NO PURCHASES YET.</td></tr><?php endif; ?>
-        </table>
-        <?php if ($problem): ?><div class="box-t warn" style="margin-top:18px">PAID, BUT THE EMAIL WAS NOT SENT</div><table>
-            <?php foreach ($problem as $r): ?><tr><td class="e"><?= $h($r['email']) ?></td><td><?= $h($r['order_id']) ?></td><td><?= $h($r['created_at']) ?></td></tr><?php endforeach; ?>
-        </table><?php endif; ?></div>
+        </table></div>
+    </div>
+
+    <div class="box" id="orders" style="margin-bottom:18px">
+        <div class="box-t">PAYPAL ORDERS</div>
+        <?php if ($problem): ?><div class="box-t warn">PAID, BUT THE EMAIL WAS NOT SENT</div><?= $orderTable($problem) ?><?php endif; ?>
+        <?php if ($open): ?><div class="box-t warn"<?= $problem ? ' style="margin-top:18px"' : '' ?>>STARTED, NOT COMPLETED / LAST 30 DAYS</div><?= $orderTable($open) ?>
+            <p class="hint">RECHECK ASKS PAYPAL FOR THE ORDER; IF IT WAS PAID, THE SERIAL IS SENT. UNPAID ONES ARE ABANDONED CHECKOUTS.</p><?php endif; ?>
+        <?php if (!$problem && !$open): ?><p class="no">NO OPEN ORDERS.</p><?php endif; ?>
+        <p class="hint">PAYMENTS THROUGH PAYPAL.ME (THE DOWNLOAD "SEND $5" AND SUPPORT BUTTONS) DO NOT REACH THIS SITE. FOR THOSE, USE SEND SERIAL BELOW WITH THE PAYER'S EMAIL.</p>
     </div>
 
     <div class="box" id="manage" style="margin-bottom:18px">
