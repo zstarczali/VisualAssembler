@@ -56,6 +56,8 @@ $texts = $hu ? [
     'cancel' => 'A fizetés megszakítva.',
     'unavailable' => 'A fizetés jelenleg nem érhető el. Próbáld újra később.',
     'serial' => 'Már vásároltál vagy támogattál? Sorozatszám kérése',
+    'manual' => 'Fizess PayPallal, és a megjegyzésbe írd be, melyik e-mail címre kéred a sorozatszámot. A fizetés beérkezése után elküldjük e-mailben.',
+    'manual_btn' => 'Fizetés PayPallal',
     'back' => 'Vissza a főoldalra',
 ] : [
     'title' => 'Buy Professional',
@@ -71,9 +73,14 @@ $texts = $hu ? [
     'cancel' => 'Payment cancelled.',
     'unavailable' => 'Payment is not available right now. Please try again later.',
     'serial' => 'Already purchased or donated? Request your serial',
+    'manual' => 'Pay with PayPal and write the email address for your serial in the PayPal note. We email the serial once the payment arrives.',
+    'manual_btn' => 'Pay with PayPal',
     'back' => 'Back to the home page',
 ];
 $h = static fn(string $s): string => htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
+// amíg nincs élő PayPal (Business + Live kulcs), a fizetés paypal.me-n megy, a serialt az admin küldi (stats.php)
+$manual = ($pp['mode'] ?? 'sandbox') !== 'live' || ($pp['client_id'] ?? '') === '';
+$manualUrl = 'https://paypal.me/ZsoltTarczali/' . rawurlencode(rtrim(rtrim((string) $pp['price'], '0'), '.')) . $pp['currency'];
 $sdk = 'https://www.paypal.com/sdk/js?' . http_build_query([
     'client-id' => $pp['client_id'], 'currency' => $pp['currency'], 'intent' => 'capture', 'locale' => $hu ? 'hu_HU' : 'en_US',
 ]);
@@ -104,6 +111,8 @@ $sdk = 'https://www.paypal.com/sdk/js?' . http_build_query([
         .msg[hidden] { display: none; }
         .lang { float: right; font-size: .8rem; }
         a { color: var(--ylw); }
+        .paybtn { display: block; margin-top: 18px; padding: 12px; border-radius: 4px; background: #ffc439; color: #111;
+               font-weight: 700; text-align: center; text-decoration: none; }
         .links { display: flex; flex-direction: column; gap: 6px; margin-top: 18px; font-size: .85rem; }
     </style>
 </head>
@@ -112,7 +121,11 @@ $sdk = 'https://www.paypal.com/sdk/js?' . http_build_query([
     <a class="lang" href="?lang=<?= $hu ? 'en' : 'hu' ?>"><?= $hu ? 'English' : 'Magyar' ?></a>
     <h1><?= $h($texts['title']) ?></h1>
     <p class="price"><?= $h($price) ?></p>
-    <p><?= $h($texts['intro']) ?></p>
+    <p><?= $h($manual ? strtok($texts['intro'], '!') . '!' : $texts['intro']) ?></p>
+    <?php if ($manual): ?>
+    <p class="msg ok"><?= $h($texts['manual']) ?></p>
+    <p><a class="paybtn" href="<?= $h($manualUrl) ?>" target="_blank" rel="noopener"><?= $h($texts['manual_btn']) ?> — <?= $h($price) ?></a></p>
+    <?php else: ?>
     <div id="buy-form">
         <label><?= $h($texts['email']) ?>
             <input id="email" type="email" required maxlength="254" autocomplete="email">
@@ -120,12 +133,14 @@ $sdk = 'https://www.paypal.com/sdk/js?' . http_build_query([
         <div id="paypal-buttons"></div>
     </div>
     <p id="msg" class="msg" role="status" hidden></p>
+    <?php endif; ?>
     <div class="links">
         <a href="./?lang=<?= $h($lang) ?>"><?= $h($texts['serial']) ?></a>
         <a href="../"><?= $h($texts['back']) ?></a>
     </div>
 </main>
-<?php if (($pp['client_id'] ?? '') !== ''): ?><script src="<?= $h($sdk) ?>"></script><?php endif; ?>
+<?php if (!$manual): ?>
+<script src="<?= $h($sdk) ?>"></script>
 <script>
 (function () {
   const T = <?= json_encode($texts, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) ?>;
@@ -172,5 +187,6 @@ $sdk = 'https://www.paypal.com/sdk/js?' . http_build_query([
   }).render("#paypal-buttons");
 })();
 </script>
+<?php endif; ?>
 </body>
 </html>
