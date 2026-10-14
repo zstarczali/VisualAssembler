@@ -1226,12 +1226,18 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  overflow-y: auto;
   min-width: 140px;
   padding: 8px;
   border-radius: 3px;
   border: 1px solid var(--panel-border);
   background: color-mix(in srgb, var(--panel-strong) 97%, transparent);
   box-shadow: var(--shadow);
+}
+
+/* a toggle esemény aszinkron: elhelyezésig rejtve, különben a régi helyén felvillan */
+.theme-picker-panel:not(.theme-picker-panel--placed) {
+  visibility: hidden;
 }
 
 .theme-option {
@@ -5625,6 +5631,12 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
 .vc-ref--auto { border-color: var(--secondary); color: var(--secondary); }
 .vc-meta { font-size: 0.72rem; color: var(--secondary); white-space: nowrap; }
 .vc-actions { display: flex; gap: 4px; }
+.vc-files { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 2px 12px; font-family: "IBM Plex Mono", monospace; font-size: 0.7rem; color: var(--secondary); }
+.vc-file code { font-weight: 700; }
+.vc-file--a code { color: #3fa45b; }
+.vc-file--d code { color: #d0504a; }
+.vc-file--m code, .vc-file--r code { color: #e0a030; }
+.vc-scope[hidden] { display: none; }
 .vc-actions button { min-height: 0; height: 24px; padding: 0 8px; font-size: 0.72rem; }
 .vc-actions .vc-del { width: 24px; padding: 0; }
 .vc-diff { border: 1px solid var(--panel-border); border-radius: 2px; background: var(--control-bg); }
@@ -11501,4 +11513,155 @@ html[data-theme="beige"] .splash-panel .splash-loader-bar {
 }
 html[data-theme="beige"] ::selection {
   background: rgba(184, 137, 47, 0.30);
+}
+
+/* ── Commodore 64 ────────────────────────────────────────────────────────────
+   The power-on screen: light blue border (page background), blue screen
+   (panels), light blue text, reverse-video buttons and the C64 font in the
+   monitor view. Syntax colours are taken from the C64 palette. */
+html[data-theme="c64"] {
+  color-scheme: dark;
+  background-color: #7869c4;
+  --hl-comment:   #9088d8;
+  --hl-directive: #c9a0ff;
+  --hl-mnem:      #ffffff;
+  --hl-number:    #eef078;
+  --hl-string:    #a9f59e;
+  --hl-label:     #75d6d0;
+  --hl-macro:     #ff9a8f;
+  --hl-macro-param: #e0c27a;
+  --expert-editor-bg: #40318d;
+  --ub-editor-bg: #40318d;
+  --ub-chrome-bg: rgba(52, 40, 120, 0.98);
+  --ub-side-bg: rgba(58, 45, 130, 0.98);
+  --ub-selection-bg: rgba(165, 155, 240, 0.32);
+  --cg-canvas-bg: #20263a;
+  --bg: #7869c4;
+  --bg-accent: #6a5bb8;
+  --panel: rgba(64, 49, 141, 0.98);
+  --panel-strong: rgba(56, 42, 128, 0.99);
+  --panel-border: rgba(165, 155, 240, 0.30);
+  --text: #c9c2ff;
+  --muted: #9a91e0;
+  --primary: #a59bf0;
+  --primary-deep: #8a7ee0;
+  --secondary: #b3abf5;
+  --secondary-soft: rgba(165, 155, 240, 0.14);
+  --surface-soft: rgba(165, 155, 240, 0.07);
+  --control-bg: rgba(52, 40, 120, 0.98);
+  --active-bg: #a59bf0;
+  --active-fg: #40318d;
+  --shadow: 0 2px 10px rgba(20, 12, 60, 0.45);
+  --input-bg: rgba(46, 35, 110, 0.98);
+  --output-bg: #40318d;
+  --output-text: #c9c2ff;
+  --monitor-text: #a59bf0;
+  --error: #ff8a80;
+  --accent: var(--primary);
+  --asm-mnemonic: #ffffff;
+  --asm-directive: #c9a0ff;
+  --asm-macro: #75d6d0;
+  --asm-comment: #9088d8;
+  --asm-label: #75d6d0;
+  --asm-number: #eef078;
+  --asm-region: #a9f59e;
+  --asm-operand: #e0c27a;
+}
+/* reverse video: light blue key, blue letters */
+html[data-theme="c64"] .primary,
+html[data-theme="c64"] .emulator-actions .primary,
+html[data-theme="c64"] .emulator-actions .link-button.primary {
+  background: #a59bf0;
+  color: #40318d;
+  font-weight: 700;
+  border-color: #c9c2ff;
+  box-shadow: none;
+}
+html[data-theme="c64"] .primary:hover:not(:disabled) {
+  background: #c9c2ff;
+}
+html[data-theme="c64"] .monitor-output {
+  font-family: "C64ProMono", monospace !important;
+  background: #40318d !important;
+  color: #a59bf0 !important;
+  border-color: #7869c4 !important;
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.25), 0 0 0 6px #7869c4;
+}
+html[data-theme="c64"] .theme-toggle-glyph::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 1px;
+  background: #40318d;
+  box-shadow: inset 0 0 0 2px #a59bf0;
+}
+.theme-option-dot[data-theme-opt="c64"] {
+  background: #40318d;
+  border-color: #7869c4;
+}
+html[data-theme="c64"] .splash-panel .splash-loader-bar {
+  background: #a59bf0;
+}
+html[data-theme="c64"] ::selection {
+  background: rgba(165, 155, 240, 0.40);
+  color: #ffffff;
+}
+html[data-theme="c64"] #add-selected {
+  background: var(--primary);
+  color: var(--active-fg);
+  border-color: var(--primary-deep);
+}
+html[data-theme="c64"] #add-selected:hover {
+  background: var(--primary-deep);
+}
+html[data-theme="c64"] .asm-block:has(.bp-toggle.bp-active) {
+  background: rgba(255, 68, 68, 0.22) !important;
+  border-color: rgba(255, 120, 120, 0.6) !important;
+}
+html[data-theme="c64"] .expert-err-line {
+  background: color-mix(in srgb, #ff4444 22%, transparent);
+}
+html[data-theme="c64"] .expert-hl mark.hl-find-match {
+  background: color-mix(in srgb, #eef078 35%, transparent);
+}
+html[data-theme="c64"] .expert-hl mark.hl-find-current {
+  background: color-mix(in srgb, #eef078 70%, transparent);
+  color: #40318d;
+  outline-color: #eef078;
+}
+body.crt-mode[data-theme="c64"] #crt-overlay::before {
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(0, 0, 0, 0.14) 3px,
+    rgba(0, 0, 0, 0.14) 4px
+  );
+}
+/* text that sits directly on the light blue border */
+html[data-theme="c64"] .eyebrow,
+html[data-theme="c64"] .hero-copy,
+html[data-theme="c64"] .memory-strip-axis,
+html[data-theme="c64"] .license-badge {
+  color: #2a1f6e;
+}
+html[data-theme="c64"] .license-badge {
+  border-color: rgba(42, 31, 110, 0.45);
+}
+html[data-theme="c64"] .editor-mode-indicator {
+  border-color: #a59bf0;
+  background: #40318d;
+  color: #c9c2ff;
+}
+/* SID Player: the playing tune in reverse video (the accent alone is too close to the text colour) */
+html[data-theme="c64"] .websid-play-item--current,
+html[data-theme="c64"] .websid-play-item--current:hover {
+  background: #a59bf0;
+  color: #40318d;
+  font-weight: 700;
+}
+html[data-theme="c64"] .websid-play-item--current .websid-play-item-no,
+html[data-theme="c64"] .websid-play-item--current .websid-play-item-fav:not(.websid-play-item-fav--on),
+html[data-theme="c64"] .websid-play-item--current .websid-play-item-del {
+  color: #40318d;
 }

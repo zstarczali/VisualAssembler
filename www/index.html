@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>C64 Visual Assembler</title>
-  <script>(function(){var t=localStorage.getItem('c64-block-theme')||'light';document.documentElement.dataset.theme=t;document.documentElement.style.background={'dark':'#1a1b26','oled':'#0d0d12','commodore77':'#0a0a08','starlight':'#f4f1fa','beige':'#e4ddd0','light':'#e8ecf1'}[t]||'#e8ecf1';})();</script>
+  <script>(function(){var t=localStorage.getItem('c64-block-theme')||'light';document.documentElement.dataset.theme=t;document.documentElement.style.background={'dark':'#1a1b26','oled':'#0d0d12','commodore77':'#0a0a08','starlight':'#f4f1fa','beige':'#e4ddd0','c64':'#7869c4','light':'#e8ecf1'}[t]||'#e8ecf1';})();</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.5.8">
+  <link rel="stylesheet" href="style.css?v=2.5.9">
 </head>
 
 <body>
@@ -172,6 +172,10 @@
                     <button class="secondary theme-option" data-theme-opt="beige" type="button">
                       <span class="theme-option-dot" data-theme-opt="beige" aria-hidden="true"></span>
                       <span>Commodore Beige</span>
+                    </button>
+                    <button class="secondary theme-option" data-theme-opt="c64" type="button">
+                      <span class="theme-option-dot" data-theme-opt="c64" aria-hidden="true"></span>
+                      <span>Commodore 64</span>
                     </button>
                   </div>
                 </details>
@@ -878,6 +882,10 @@ PRINTABLE CHARACTERS
           <h2 class="project-snapshot-title" id="project-snapshot-title">Version control</h2>
           <p class="project-snapshot-subtitle"><span id="project-snapshot-tab-name"></span> <span id="vc-branch" class="vc-branch"></span></p>
         </div>
+        <div id="vc-scope" class="vc-mode vc-scope" role="group" aria-label="Scope" hidden>
+          <button id="vc-scope-file" class="vc-mode-btn" type="button">File</button>
+          <button id="vc-scope-project" class="vc-mode-btn" type="button">Project</button>
+        </div>
         <div class="vc-mode" role="group" aria-label="Mode">
           <button id="vc-mode-local" class="vc-mode-btn" type="button">Built-in</button>
           <button id="vc-mode-git" class="vc-mode-btn" type="button">Git</button>
@@ -1289,7 +1297,7 @@ PRINTABLE CHARACTERS
           <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
         </div>
         <h2 class="about-title">C64 Visual Assembler</h2>
-        <p class="about-version" id="about-version">v2.5.8</p>
+        <p class="about-version" id="about-version">v2.5.9</p>
         <p class="about-version" id="about-license"></p>
         <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
       </div>
@@ -1316,28 +1324,34 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.5.8</p>
+      <p class="whats-new-version">v2.5.9</p>
       <ul class="whats-new-list">
         <li>
-          <strong>New: Version control:</strong> the project snapshots became a git-like version control — commits with a message and a short hash, a log with <em>HEAD</em>, <em>Diff</em> against the working copy (Block-mode programs are compared as assembly lines, so JSON projects show readable changes), <em>Checkout</em> into the editor and separate autosave entries. Works on Block, Expert and Ultimate Basic tabs.
+          <strong>New theme: Commodore 64:</strong> the C64 power-on screen — a light blue border around blue panels, light blue text, reverse-video buttons, syntax colours from the C64 palette and the C64 font in the monitor view (Professional).
         </li>
         <li>
-          <strong>New: Git integration:</strong> choose <code>git.exe</code> in Settings → Version control (or auto-detect). Inside a git repository the dialog shows the branch, the changed files, commit (saves first), log, diff with a <em>RAW</em> view, checkout, <em>Pull</em> / <em>Push</em> and <em>git init</em>.
-        </li>
-        <li>
-          <strong>New: Report Bug:</strong> a built-in report form with up to 4 screenshots (file, Ctrl+V or drag and drop), an optional email, system info and the recent app errors.
-        </li>
-        <li>
-          <strong>Professional serial by email:</strong> supporters request their serial in the registration dialog; the Professional version can be bought on c64va.pro with PayPal (5 €, one-time) and the serial arrives by email right after the payment.
-        </li>
-        <li>
-          <strong>SID Player:</strong> <em>Shuffle</em> and per-tune <em>favourites</em> (★), kept in the saved state and in <code>.sidpl</code> playlists.
+          <strong>New theme: Commodore Beige:</strong> the classic breadbin — a beige case, mustard function-key buttons, the rainbow badge stripes and a C64 blue screen for the monitor view (Professional).
         </li>
         <li>
           <strong>New theme: Commodore Starlight:</strong> a light theme after the translucent C64 breadbin — frosted clear glass with the rainbow RGB glow shining through, a magenta accent, rainbow syntax colours and a smoky dark monitor (Professional).
         </li>
         <li>
-          <strong>New theme: Commodore Beige:</strong> the classic breadbin — a beige case, mustard function-key buttons, the rainbow badge stripes and a C64 blue screen for the monitor view (Professional).
+          <strong>Version control dialog:</strong> drag it by its header — it reopens where you left it and stays on screen when the log or a diff makes it taller. A click outside no longer closes it (Esc does).
+        </li>
+        <li>
+          <strong>From 2.5.8: Version control:</strong> the project snapshots became a git-like version control — commits with a message and a short hash, a log with <em>HEAD</em>, <em>Diff</em> against the working copy (Block-mode programs are compared as assembly lines, so JSON projects show readable changes), <em>Checkout</em> into the editor and separate autosave entries. Works on Block, Expert and Ultimate Basic tabs.
+        </li>
+        <li>
+          <strong>From 2.5.8: Git integration:</strong> choose <code>git.exe</code> in Settings → Version control (or auto-detect). Inside a git repository the dialog shows the branch, the changed files, commit (saves first), log, diff with a <em>RAW</em> view, checkout, <em>Pull</em> / <em>Push</em> and <em>git init</em>.
+        </li>
+        <li>
+          <strong>From 2.5.8: Report Bug:</strong> a built-in report form with up to 4 screenshots (file, Ctrl+V or drag and drop), an optional email, system info and the recent app errors.
+        </li>
+        <li>
+          <strong>From 2.5.8: Professional serial by email:</strong> supporters request their serial in the registration dialog; the Professional version can be bought on c64va.pro with PayPal (5 €, one-time) and the serial arrives by email right after the payment.
+        </li>
+        <li>
+          <strong>From 2.5.8: SID Player:</strong> <em>Shuffle</em> and per-tune <em>favourites</em> (★), kept in the saved state and in <code>.sidpl</code> playlists.
         </li>
         <li>
           <strong>From 2.5.7: VA SID Core 1.2:</strong> the SID Player now runs tunes on a cycle-exact 6510 (every bus cycle, dummy accesses, VICE's interrupt timing), CIA 6526A timers / interrupts / TOD, VIC-II timing with bad lines, sprite DMA and raster interrupts, and the 6510 I/O port.
@@ -1356,18 +1370,6 @@ PRINTABLE CHARACTERS
         </li>
         <li>
           <strong>From 2.5.7: Character Editor:</strong> <strong>undo / redo</strong>, drawing tools (pencil, line, rectangle, fill), <strong>rotate 90°</strong>, <strong>copy / paste</strong> and drag to swap characters on the map (Shift+drag copies), <strong>2×1 / 1×2 / 2×2 tiles</strong> edited as one picture, the <strong>lowercase ROM set</strong>, a <strong>text preview</strong> and <strong>range export</strong> (<code>.bin</code> or <code>.byte</code> lines). The <strong>Charset Canvas</strong> zooms 2×–24× (slider or Ctrl+wheel) with a pixel grid, sets the background in hi-res mode too, and can switch single characters to <strong>hi-res inside multicolor mode</strong> (Color RAM bit 3), like the C64, and has an <strong>ECM</strong> mode with a background (<code>$D021</code>–<code>$D024</code>) per character.
-        </li>
-        <li>
-          <strong>From 2.5.6: SID Player:</strong> a toolbar button opens a floating player for <code>.sid</code> (PSID / RSID) tunes — a playlist with drag and drop, previous / next tune, subtunes, seek and ±10 s, volume, and playlist save / open (<code>.sidpl</code>). The list and the window are remembered.
-        </li>
-        <li>
-          <strong>From 2.5.6: VA SID Core 1.1:</strong> a built-in SID emulation (MOS 6581 / 8580, reSID-aligned 6581 filter) with a cycle-locked PSID / RSID player, so raster-IRQ and digi tunes play too. Choose it in <em>Settings → SID preview</em>; the player shows which engine is playing.
-        </li>
-        <li>
-          <strong>From 2.5.6: SID Editor:</strong> knobs for the instrument parameters, a wider ADSR graph, <strong>MIDI input</strong> with an activity lamp, <strong>recording</strong> into the tracker (a new pattern is added when the current one is full), a <strong>metronome</strong> with beat lamps, <strong>pattern delete</strong>, the master volume on VA-VK, and <strong>Import GoatTracker .sng</strong>.
-        </li>
-        <li>
-          <strong>From 2.5.6: Freemium and Professional:</strong> without a registration the app runs as Freemium. Enter the email address and serial from your purchase in <em>Menu → Register…</em> for the Professional version with every editor, build and run option, language and theme.
         </li>
         <li>
           <strong>From 2.5.7: Ultimate Basic 1.6.4</strong> bundled.
@@ -3331,13 +3333,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.5.8"></script>
-  <script src="i18n.js?v=2.5.8"></script>
-  <script src="tutorial-data.js?v=2.5.8"></script>
+  <script src="tauri-bridge.js?v=2.5.9"></script>
+  <script src="i18n.js?v=2.5.9"></script>
+  <script src="tutorial-data.js?v=2.5.9"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.5.8"></script>
+  <script src="app.js?v=2.5.9"></script>
 
 </body>
 

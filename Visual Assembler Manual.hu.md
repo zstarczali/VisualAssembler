@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.5.8**
+**Verzió: 2.5.9**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -29,6 +29,16 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 
 ---
 
+## A 2.5.9 verzió újdonságai
+
+- **Commodore 64 téma** — a C64 bekapcsolási képernyője: világoskék keret a kék panelek körül, világoskék szöveg, inverz gombok, a C64 palettájából vett szintaxisszínek és C64 betűkészlet a monitornézetben (Professional).
+- **Commodore Beige téma** — a klasszikus „kenyérdoboz”: bézs tok, mustársárga funkcióbillentyű-gombok, a logó szivárványcsíkja és C64 kék monitornézet. A témaválasztóban vagy a téma gombbal léptetve érhető el (Professional).
+- **Commodore Starlight téma** — világos téma az átlátszó C64 tok nyomán: jégfehér üveg, amelyen átdereng a szivárványos RGB-fény, magenta kiemelés, szivárványos szintaxisszínek és füstös sötét monitornézet (Professional).
+- **Verziókezelés ablak** — a fejlécénél fogva mozgatható, és ott nyílik meg újra, ahol hagytad; ha a napló vagy egy diff megnöveli, a képernyőn marad, és kívülre kattintva már nem zárul be (Esc-re igen). Lásd: [Verziókezelés](#verziókezelés).
+- **Projektszintű verziókezelés** — megnyitott `.proj` projekt fülénél a **Fájl / Projekt** kapcsolóval a commit a projekt összes forrásfájlját (projektfa + include-olt fájlok) egy bejegyzésben rögzíti. A napló commitonként mutatja a változott fájlokat, a Diff fájlonként dolgozik, a Checkout minden fájlt visszatölt a szerkesztő füleibe, és az automatikus mentések projektszinten is készülnek. Git módban a napló és a diff az egész repóra vonatkozik. Lásd: [Projekt mód](#projekt-mód).
+
+---
+
 ## A 2.5.8 verzió újdonságai
 
 - **Verziókezelés** — a projekt snapshotokból git-szerű verziókezelés lett: commitok üzenettel és rövid hash-sel, napló **HEAD** jelöléssel, **Diff** a munkapéldánnyal, **Checkout** a szerkesztőbe és külön jelölt automatikus mentések. A Block módú (JSON) programokat assembly-sorokként hasonlítja össze, így a diff a valódi változásokat mutatja. Block, Expert és Ultimate Basic fülön is működik. Lásd: [Verziókezelés](#verziókezelés).
@@ -36,8 +46,6 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - **Hibabejelentés** — beépített bejelentő űrlap legfeljebb 4 képernyőképpel (fájl, Ctrl+V vagy ráhúzás), opcionális e-maillel, rendszerinfóval és a legutóbbi hibákkal. Lásd: [Hibabejelentés](#hibabejelentés).
 - **Professional sorozatszám e-mailben** — a támogatók a regisztrációs ablakban kérhetik a sorozatszámot (**Sorozatszám kérése (támogatóknak)**); a Professional verzió a c64va.pro oldalon PayPallal megvásárolható (5 €, egyszeri díj), a sorozatszám a fizetés után azonnal megérkezik e-mailben. Lásd: [Freemium és Professional](#freemium-és-professional).
 - **SID Player** — **véletlen lejátszás** és számonkénti **kedvencek** (★). Lásd: [SID Player](#sid-player).
-- **Commodore Beige téma** — a klasszikus „kenyérdoboz”: bézs tok, mustársárga funkcióbillentyű-gombok, a logó szivárványcsíkja és C64 kék monitornézet (Professional).
-- **Commodore Starlight téma** — világos téma az átlátszó C64 tok nyomán: jégfehér üveg, amelyen átdereng a szivárványos RGB-fény, magenta kiemelés és szivárványos szintaxisszínek (Professional).
 
 ---
 
@@ -363,7 +371,7 @@ A modal automatikusan bezárul, amikor a művelet befejeződik vagy meghiúsul.
 |---|---|
 | **Számrendszer (HEX / DEC / BIN)** | Beállítja az operandusok megjelenítési/beviteli formátumát az egész felületen. BIN módban az értékek binárisan, `%` prefixszel jelennek meg (pl. `%11111000`). Az ASM nézet mindig a saját formátumában mutatja az egyes blokkokat. |
 | **Nyelv** | A felület nyelvének váltása angol, magyar, spanyol, német és holland (Nederlands) között |
-| **Téma** | Light / Dark / OLED / Commodore 77 / Commodore Starlight / Commodore Beige — a Settings menü témaválasztójából. Az OLED tiszta fekete hátteret használ AMOLED kijelzőkhöz. A Commodore 77 egy neon-sárga-feketén téma; ha ez az aktív téma, az indítási splash panel a téma panel-színét használja (a message card-hoz igazítva), egy kisebb, dedikált Commodore 77 logót és egy sárga progress bárt mutat. A Commodore Starlight világos téma az átlátszó C64 tok nyomán: jégfehér, áttetsző panelek, amelyeken átdereng a szivárványos RGB-fény, magenta kiemelés, szivárványos szintaxisszínek és füstös, sötét monitornézet. A Commodore Beige a klasszikus „kenyérdoboz”: bézs tok, mustársárga funkcióbillentyű-gombok, a logó szivárványcsíkja és C64 kék képernyő a monitornézetben. A választott téma a következő indításkor az első kirajzolás előtt érvényesül. |
+| **Téma** | Light / Dark / OLED / Commodore 77 / Commodore Starlight / Commodore Beige / Commodore 64 — a Settings menü témaválasztójából. Az OLED tiszta fekete hátteret használ AMOLED kijelzőkhöz. A Commodore 77 egy neon-sárga-feketén téma; ha ez az aktív téma, az indítási splash panel a téma panel-színét használja (a message card-hoz igazítva), egy kisebb, dedikált Commodore 77 logót és egy sárga progress bárt mutat. A Commodore Starlight világos téma az átlátszó C64 tok nyomán: jégfehér, áttetsző panelek, amelyeken átdereng a szivárványos RGB-fény, magenta kiemelés, szivárványos szintaxisszínek és füstös, sötét monitornézet. A Commodore Beige a klasszikus „kenyérdoboz”: bézs tok, mustársárga funkcióbillentyű-gombok, a logó szivárványcsíkja és C64 kék képernyő a monitornézetben. A választott téma a következő indításkor az első kirajzolás előtt érvényesül. |
 | **CRT retro mód** | Teljes képernyős CRT szűrőt kapcsol: scanline-ok, foszfor vignettálás, villódzás és hordódisztorzió. Az állapot munkamenetek között mentődik. |
 | **Show memory panel** | Globális kapcsoló, amely megjeleníti vagy elrejti a teljes C64 memória panelt |
 | **BASIC SYS stub** | Egy BASIC sort tesz a program elé, amely SYS-szel hívja a program originjét |
@@ -387,7 +395,7 @@ A modal automatikusan bezárul, amikor a művelet befejeződik vagy meghiúsul.
 | **Run (osztott gomb)** | A fő **▶ Run** gomb az aktuális módot futtatja; a **▾** nyíllal válthatsz: **Run as PRG** (fordítás és VICE közvetlen indítása), **Run via D64** (.d64 lemezképbe csomagolás és VICE indítása), **Run on hardware** (PRG küldése egy C64 Ultimate / 1541 Ultimate eszközre), vagy **Kung Fu Flash 2** (a PRG feltöltése USB-n egy Kung Fu Flash 2 cartridge-dzsel felszerelt valódi C64/C128-ra). Lásd a [12.](#12-d64-export-és-futtatás) és [13. szakaszt](#13-hardver-beállítások). |
 | **Debug (RetroDebugger)** | Fordítás és indítás RetroDebuggerben breakpointokkal, szimbólumokkal és autostart flag-ekkel (lásd a [10. szakaszt](#10-debugger-integráció)) |
 | **Run with Exomizer** | Jelölőnégyzet a Settings menüben — bekapcsolva minden Run és Build művelet `exomizer sfx sys`-szel tömöríti a PRG-t indítás vagy mentés előtt. Működik a Run as PRG, Run via D64, Run on Hardware, Build PRG és Build D64 műveletekkel. Először állítsd be az Exomizer futtathatót a **Hardware Settings**-ben. |
-| **Automatikus mentések a verziókezelésbe** | Jelölőnégyzet a **Hardware Settings → Verziókezelés** alatt. Bekapcsolva az app kb. 2,5 másodperccel azután, hogy abbahagytad egy fül szerkesztését, automatikus mentést tesz a verziótörténetbe. Kapcsold ki, ha csak a saját commitjaidat szeretnéd. Lásd: [Verziókezelés](#verziókezelés). |
+| **Automatikus mentések a verziókezelésbe** | Jelölőnégyzet a **Hardware Settings → Verziókezelés** alatt. Bekapcsolva az app kb. 2,5 másodperccel azután, hogy abbahagytad egy fül szerkesztését, automatikus mentést tesz a verziótörténetbe (projekthez tartozó fülnél a projekt történetébe is). Kapcsold ki, ha csak a saját commitjaidat szeretnéd. Lásd: [Verziókezelés](#verziókezelés). |
 | **Hardware Settings** | Megnyitja a hardver konfigurációs dialógust — VICE, Exomizer, RetroDebugger, C64 Ultimate (host, jelszó, kapcsolat-teszt) és a Kung Fu Flash 2 soros port beállítása. Lásd a [13. szakaszt](#13-hardver-beállítások). |
 | **New program…** | Megerősítő dialógust nyit, majd törli az összes blokkot a programterületről |
 | **Collapse All** | Minden blokk becsukása |
@@ -398,7 +406,7 @@ A modal automatikusan bezárul, amikor a művelet befejeződik vagy meghiúsul.
 
 ### Verziókezelés
 
-Minden fülnek saját verziótörténete van, mint egy kis git repónak. A **Menu → Build → Verziókezelés…** (vagy **Commit…**) megnyitja a dialógust; a **Változások elvetése (vissza a HEAD-re)** közvetlenül visszaállítja az utolsó commitot.
+Minden fülnek saját verziótörténete van, mint egy kis git repónak; a megnyitott `.proj` projekthez tartozó fül egész projektként is verziókezelhető (lásd: [Projekt mód](#projekt-mód)). A **Menu → Build → Verziókezelés…** (vagy **Commit…**) megnyitja a dialógust; a **Változások elvetése (vissza a HEAD-re)** közvetlenül visszaállítja az utolsó commitot.
 
 A szokásos menet: írj **commit üzenetet**, és nyomd meg a **Commit** gombot (vagy Ctrl+Enter) → dolgozz tovább → a **Diff** megmutatja, mi változott → újra commit.
 
@@ -407,7 +415,21 @@ A szokásos menet: írj **commit üzenetet**, és nyomd meg a **Commit** gombot 
 - **Diff** — a HEAD óta történt változások; egy naplóbejegyzés **Diff** gombja azt a verziót hasonlítja a szerkesztőhöz. Az új sorok zöldek, a töröltek pirosak, a fejléc **+N / −M** összesítőt mutat. A Block módú programokat assembly-sorokként (blokkonként egy sor), az Expert forrást soronként, az Ultimate Basic fület a forrása alapján hasonlítja össze, így a JSON-ként mentett Block módú projekt változásai is olvashatók.
 - **Checkout** — az adott verziót a szerkesztőbe tölti. A lemezen lévő fájl csak mentéskor változik; a **Változások elvetése** visszavisz a HEAD-re.
 - **Automatikus mentések** — a **Beállítások → Verziókezelés → Automatikus mentések a verziókezelésbe** bekapcsolásával az app kb. 2,5 másodperccel a szerkesztés abbahagyása után bejegyzést tesz a naplóba. Ezek *autosave* jelölést kapnak; a legutóbbi 20 marad meg, a legfeljebb 100 commit mellett.
+- Az ablak a fejlécénél fogva mozgatható; ugyanott nyílik meg újra, és **Esc**-re vagy a bezáró gombbal zárul (kívülre kattintva nem).
 - A történet a projektfájl mellett, `<projekt>.snapshots.json` fájlban tárolódik (mentés előtt az app konfig mappájában), így túléli az újraindítást. A korábbi verziók snapshotjai commitként jelennek meg.
+
+#### Projekt mód
+
+Ha a fül egy megnyitott `.proj` projekthez tartozik (Expert vagy Ultimate Basic projekt panel), a dialógus fejlécében **Fájl / Projekt** kapcsoló jelenik meg; alapból a **Projekt** van kiválasztva. A projekten kívüli fülek a fent leírt fájlonkénti történetet használják.
+
+- A **Commit** a projekt összes forrásfájlját egyetlen bejegyzésben rögzíti: a projektfa fájljait és az általuk include-olt szövegfájlokat (`.include`, `include`, `#import`, `!source`, Block módú INCLUDE blokkok). A nyitott fülek az aktuális, akár mentetlen tartalmukkal számítanak, a többi fájl a lemezről olvasódik. A projektfa bináris fájljai (fontok, `.koa`, `.bin`, `.sid` …, fájlonként legfeljebb 1 MB) is bekerülnek; a diffjük a méretváltozást mutatja, a **Checkout** pedig közvetlenül a lemezre írja vissza őket.
+- A napló minden bejegyzésnél mutatja a commit üzenetet, a rövid hash-t és a **változott fájlokat** (**A** új, **M** módosult, **D** törölt).
+- A **Diff** fájlonként dolgozik: minden változott fájl saját fejlécet és szakaszokat kap.
+- A **Változások elvetése** ugyanígy a legutóbbi projekt-commitra (HEAD) áll vissza.
+- A **Checkout** (megerősítés után) az adott verzió összes fájlját a szerkesztőbe tölti: a nyitott fülek frissülnek, a hiányzó fájlok új fülön nyílnak meg. A lemezre csak mentéskor kerül; az azóta felvett projektfájlok változatlanok maradnak.
+- Automatikus mentések projektszinten is készülnek.
+- A projekt története a projektfájl mellett, `<projekt>.proj.history.json` fájlban tárolódik.
+- **Git** módban a napló az egész repót mutatja, commitonként a változott fájlokkal (`git log --name-status`); egy bejegyzés **Diff** gombja a commitot fájlonként mutatja, a **Diff** gomb a HEAD-et a szerkesztőben lévő projektfájlokkal veti össze (a **RAW** a repó `git diff HEAD` kimenete). A **Commit** elmenti az összes mentetlen projekt-fület, és minden változást stage-el (`git add -A`); a **Checkout** az adott commit projektfájljait a szerkesztőbe tölti.
 
 #### Git
 
@@ -445,7 +467,7 @@ Regisztráció nélkül a Visual Assembler **Freemium** módban fut; a cím mell
 - a vizuális szerkesztők (SID, Sprite, Char, Charset, Hi-Res, Map, Level, D64, Curve) és a SID Player;
 - **Build PRG**, **Build D64**, **Build CRT**, **Build project** és az Exomizer tömörítés;
 - futtatás C64 Ultimate-en és Kung Fu Flash 2-n;
-- a magyaron és angolon kívüli felületi nyelvek, valamint az OLED, a Commodore 77, a Commodore Starlight és a Commodore Beige téma.
+- a magyaron és angolon kívüli felületi nyelvek, valamint az OLED, a Commodore 77, a Commodore Starlight, a Commodore Beige és a Commodore 64 téma.
 
 Zárolt funkcióra kattintva a regisztrációs ablak nyílik meg. Regisztrációhoz nyisd meg a **Menu → Regisztráció…** pontot (vagy kattints a jelvényre), add meg a vásárláskor kapott e-mail címet és sorozatszámot, majd nyomd meg az **Aktiválás** gombot. A sorozatszám ahhoz az e-mail címhez tartozik (a kis- és nagybetű, illetve a szóközök nem számítanak), az ellenőrzés internet nélkül történik. A **Licenc eltávolítása** leveszi a regisztrációt erről a gépről.
 
@@ -594,7 +616,7 @@ A parancslista szándékosan magasság-korlátozott, hogy a parancs-részlet ká
 
 ### Projektek, fülek és startup fájlok
 
-Az Ultimate Basic projektek `.proj` fájlokat használnak, és több `.ub` forrást tartalmazhatnak. A Project panel listázza a nyitott fájlokat, jelöli a nem mentett füleket, és mutatja a felfedezett címkéket, függvényeket és szubrutinokat. A projekt-műveletekkel létrehozhatsz, megnyithatsz, menthetsz és bezárhatsz egy projektet, vagy hozzáadhatsz egy újabb forrásfájlt. Új projekt UltimateBasic sablonból is indulhat — lásd: [Projekt sablonok](#projekt-sablonok).
+Az Ultimate Basic projektek `.proj` fájlokat használnak, és több `.ub` forrást tartalmazhatnak. A Project panel listázza a nyitott fájlokat, jelöli a nem mentett füleket, és mutatja a felfedezett címkéket, függvényeket és szubrutinokat. A projekt-műveletekkel létrehozhatsz, megnyithatsz, menthetsz és bezárhatsz egy projektet, vagy hozzáadhatsz egy újabb forrásfájlt. A Verziókezelés dialógus a projekt összes fájlját együtt is commitolja, összeveti és visszaállítja — lásd: [Projekt mód](#projekt-mód). Új projekt UltimateBasic sablonból is indulhat — lásd: [Projekt sablonok](#projekt-sablonok).
 
 Kattints egy projektfájl melletti csillagra, hogy **startup fájlnak** jelöld. A Build, Run, D64, C64 Ultimate és Debug parancsok azt a startup forrást fordítják, még akkor is, ha éppen egy másik fül aktív. Startup-választás nélkül az aktív UB fül használódik.
 
@@ -764,6 +786,7 @@ Az Expert mód támogat egy **projekt panelt** (`#expert-project-panel`) több-f
 - A fában a mappáknak van nyitó/csukó nyilacskájuk, és **jobbklikkel egy mappára** egy vagy több fájlt tudsz beszúrni alá (behúzva jelenik meg).
 - A **Save project** gomb automatikusan letiltja magát és "Elmentve" állapotot mutat, amikor nincs mentetlen változás, és újra aktívvá válik, amint fájlt vagy mappát adsz hozzá, törölsz, vagy átrendezel.
 - A projekt panel alján lévő **szimbólumok** szakasz függőlegesen átméretezhető a fájlfa és a szimbólumlista közti elválasztóval, így a hosszú szimbólumlisták több helyet kaphatnak, amikor szükséges.
+- A **verziókezelés** az egész projektre is működik: a Verziókezelés dialógus **Projekt** kapcsolójával egy commit a projekt összes fájlját rögzíti, a Checkout pedig mindet visszatölti a fülekbe. Lásd: [Projekt mód](#projekt-mód).
 
 ### Fül-sáv
 
@@ -3747,7 +3770,7 @@ Az assembleált programokat **valódi Commodore 64-en vagy C128-on** futtathatod
 
 | Beállítás | Leírás |
 |---|---|
-| **Automatikus mentések a verziókezelésbe** | A szerkesztés abbahagyása után kb. 2,5 mp-cel automatikus mentést tesz a verziótörténetbe |
+| **Automatikus mentések a verziókezelésbe** | A szerkesztés abbahagyása után kb. 2,5 mp-cel automatikus mentést tesz a verziótörténetbe (projekt fülénél a projekt történetébe is) |
 | **git.exe kiválasztása…** | A `git` futtatható fájl kiválasztása (Windowson `git.exe`) |
 | **Automatikus keresés** | Törli a választott útvonalat, és a PATH-ban, valamint a szokásos telepítési mappákban keres |
 | **Git használata, ha a projekt git repóban van** | A git repóban lévő fájloknál git módban nyitja a Verziókezelés dialógust |
