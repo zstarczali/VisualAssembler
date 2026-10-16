@@ -9,6 +9,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
+    - [Next Release Highlights](#next-release-highlights)
     - [Version 2.6.0 Highlights](#version-260-highlights)
     - [Version 2.5.9 Highlights](#version-259-highlights)
     - [Version 2.5.8 Highlights](#version-258-highlights)
@@ -46,6 +47,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [Version control](#version-control)
     - [Free and open source](#free-and-open-source)
     - [Reporting a bug](#reporting-a-bug)
+    - [Memory window and zero page usage](#memory-window-and-zero-page-usage)
     - [Project templates](#project-templates)
     - [Build project](#build-project)
     - [Example programs](#example-programs)
@@ -56,6 +58,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [Editor tools](#editor-tools)
     - [Projects, tabs, and startup files](#projects-tabs-and-startup-files)
     - [Building and diagnostics](#building-and-diagnostics)
+    - [Code size per line and hints](#code-size-per-line-and-hints)
     - [Running, D64, and Exomizer](#running-d64-and-exomizer)
     - [Debugger symbols and disassembly](#debugger-symbols-and-disassembly)
     - [Ultimate Basic manual and source](#ultimate-basic-manual-and-source)
@@ -63,6 +66,8 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [Switching modes](#switching-modes)
     - [Editor layout](#editor-layout)
     - [Toolbar buttons](#toolbar-buttons)
+    - [Cycle counts](#cycle-counts)
+    - [Optimisation hints](#optimisation-hints)
     - [Error highlighting](#error-highlighting)
     - [Syntax highlight](#syntax-highlight)
     - [Source formatter](#source-formatter)
@@ -160,6 +165,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [RetroDebugger](#retrodebugger)
     - [Breakpoint Blocks](#breakpoint-blocks)
     - [Debugger Flags (Options Tab)](#debugger-flags-options-tab)
+    - [VICE Monitor (hot reload, live watch, profiler)](#vice-monitor-hot-reload-live-watch-profiler)
   - [11. Knowledge Base Links](#11-knowledge-base-links)
   - [12. D64 Export \& Run](#12-d64-export--run)
     - [Split Run button](#split-run-button)
@@ -183,7 +189,21 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [SID Player](#sid-player)
     - [Curve Editor](#curve-editor)
+    - [Table Generator](#table-generator)
     - [Number Converter](#number-converter)
+
+---
+
+## Next Release Highlights
+
+- **Cycle counts in Expert mode** — a gutter shows the cycles of every instruction, the selection total and how many raster lines it takes. See [Cycle counts](#cycle-counts).
+- **Optimisation hints** — the Expert editor marks lines that can be shorter or faster (tail call, redundant `CMP #0`, reloads, `INC` / `DEC` idioms…). See [Optimisation hints](#optimisation-hints).
+- **Table Generator** — screen / bitmap row addresses, pixel masks, multiply / divide tables, quarter squares, log / exp, bit reverse, custom expressions and unrolled fill / copy speedcode. See [Table Generator](#table-generator).
+- **VICE Monitor** — hot reload into the running VICE, live watch of labels and addresses, and a PC-sampling profiler. See [VICE Monitor](#vice-monitor-hot-reload-live-watch-profiler).
+- **Zero page usage map** and a **detachable memory window**. See [Memory window and zero page usage](#memory-window-and-zero-page-usage).
+- **Ultimate Basic** — code size per line, hints, and Sprite Editor → Ultimate Basic export with animation.
+- **SID Editor → .sid (PSID) export** and a **sprite multiplexer** project template (16 sprites).
+- Several floating windows can be open at once; the one you click comes to the front.
 
 ---
 
@@ -654,6 +674,14 @@ A **workspace** (`.vaws` file) remembers which real, on-disk files were open acr
 - If a workspace references a file that has since been moved or deleted, that entry is skipped and reported by name after loading.
 - The open Expert and Ultimate Basic **projects** are stored too: the project tree (including unsaved additions and removals), the startup file and the `.proj` save target come back with the workspace. Workspaces saved by older versions open without them.
 
+### Memory window and zero page usage
+
+The **Full C64 memory** panel can float: the **undock** button in its header moves it into a separate, non-modal window that you can drag and resize while you keep editing (the overlap badge goes with it). **Dock** (or × / Esc) puts it back. The window remembers whether it was detached and its size.
+
+When the program touches the zero page, a **Zero page usage** section appears at the top of the memory map: a 16 × 16 grid of `$00–$FF`, coloured by area — CPU port (`$00–$01`), free (`$02`, `$FB–$FE`), BASIC (`$03–$8F`, `$FF`) and KERNAL (`$90–$FA`). Used cells are filled; a frame marks a **write**, a hatch a **pointer** (`(zp),Y` / `(zp,X)`). Click a used cell to see which lines access it (click a line to jump there) and a warning when you write into the BASIC or KERNAL area.
+
+If the program contains the SID Editor's exported player (`sid_` labels), the player's zero page (`$02–$1C`, `$2F`, `$FB–$FD`) is marked too, and every address that your own code also uses is reported as a **conflict** (red frame, warning in the header).
+
 ### Project templates
 
 **Menu → File → New project from template…** — or the toolbar button between **Menu** and **Tutorials** — opens the template dialog:
@@ -665,7 +693,7 @@ A **workspace** (`.vaws` file) remembers which real, on-disk files were open acr
 
 | Section | Built-in templates |
 |---|---|
-| **Assembler** | Empty program, Empty game (title / play / game over states, joystick, player sprite), Hires bitmap, Multicolor bitmap |
+| **Assembler** | Empty program, Empty game (title / play / game over states, joystick, player sprite), Hires bitmap, Multicolor bitmap, Sprite multiplexer (16 sprites sorted by Y every frame, shown by a raster IRQ chain) |
 | **UltimateBasic** | Empty program, Empty game (same state machine in UB), Hires bitmap (`line` / `rect` / `circle` with `color pen`), Raster IRQ (a `sub` called every frame from the raster interrupt) |
 
 The project is created in its own folder: `<location>/<name>/<name>.proj` plus `main.asm` (Assembler) or `main.ub` (UltimateBasic, the `.proj` is marked as an Ultimate Basic project). An existing project is never overwritten — the dialog reports it instead. Open tabs are closed first (you are asked about unsaved changes), then the new project opens in Expert mode or Ultimate Basic mode with the project panel visible and the main file set as the startup file.
@@ -803,6 +831,17 @@ When compilation fails:
 
 Build Info reports load/end addresses, code and PRG sizes, Exomizer status, variables, arrays, functions/subroutines, and labels.
 
+### Code size per line and hints
+
+The **code size** toolbar button (flame icon) shows, after a build, how many bytes each source line compiled to — the number sits in the line-number gutter and an orange bar shows its weight against the most expensive line. The status bar adds the bytes and an estimated cycle count (straight-line, loops not counted) of the line under the cursor.
+
+While you type, a **hints** button appears in the status bar when something looks wrong; click it for the list and click a hint to jump to the line:
+
+- `sys $EA31` / `sys $EA81` — `sys` compiles to `JSR`, so the KERNAL's `RTI` returns to garbage; from an IRQ use `irq_exit` or `asm { JMP $EA31 }`;
+- `wait key` — not a documented form, use `waitkey`;
+- a `var` / `dim` / `const` that is never used;
+- after a build: an `asm` block instruction on a zero page address that holds an Ultimate Basic variable or the runtime's own zero page.
+
 ### Running, D64, and Exomizer
 
 The main split **Run** button supports Ultimate Basic in every normal destination:
@@ -902,6 +941,31 @@ The Expert editor minimap is a narrow canvas strip (`88 px`) on the far right of
 | Mnemonic colour | Everything else (instructions) |
 
 A **semi-transparent viewport indicator** (accent-coloured rectangle) shows which part of the source is currently visible. Click anywhere on the minimap to jump to that position; drag to scroll continuously. The minimap scrolls independently to keep the viewport indicator centred. The state is persisted in UI settings (`expertMinimap` key).
+
+### Cycle counts
+
+The **cycle counts** toolbar button (clock icon) adds a gutter that shows the 6510 cycles of every instruction line:
+
+| Shown | Meaning |
+|---|---|
+| `4` | fixed cost |
+| `4+` | indexed read (`abs,X`, `abs,Y`, `(zp),Y`): +1 when the index crosses a page; a page-aligned base (`$xx00`) shows the exact value |
+| `2/3` | branch: not taken / taken |
+| `2/4` (red) | taken branch that crosses a page — worth knowing in timed code |
+
+Select several lines and the status bar shows the sum: number of instructions, min–max cycles and how many PAL raster lines (63 cycles) that is. Macros and data lines are not counted. The setting is remembered.
+
+### Optimisation hints
+
+The Expert editor checks the assembled code for common peephole patterns. Lines with a hint get an amber stripe, and an **N hints** button appears in the status bar; click it for the list and click a hint to jump to the line. Hints never change your code:
+
+- `JSR x` followed by `RTS` → `JMP x` (1 byte shorter, 9 cycles faster);
+- `CMP #0` / `CPX #0` / `CPY #0` right after an instruction that already set N/Z for that register (note: the compare also sets C);
+- the same load twice, or a load of the value just stored (`STA x` / `LDA x`);
+- `LDA m` / `CLC` / `ADC #1` / `STA m` → `INC m`, and the `SEC` / `SBC #1` form → `DEC m`;
+- a `JMP` or branch to the very next instruction, and `PHA` immediately followed by `PLA`.
+
+A label between two instructions (a possible jump target) suppresses the hints that would merge them.
 
 ### Error highlighting
 
@@ -3672,6 +3736,22 @@ Click the breakpoint icon (●) on any instruction block to toggle it as a break
 
 > **Tip:** For most programs, enable `-jmp` and `-unpause` for instant autostart. Use `-wait 500` or `-wait 1000` when your program sets up IRQs or SID music that needs time to initialize before the first raster.
 
+### VICE Monitor (hot reload, live watch, profiler)
+
+The **VICE Monitor** toolbar button opens a non-modal window that talks to the running VICE through its binary monitor. **Run (VICE)** starts VICE with the monitor on port 6502 (**Settings → VICE remote monitor**, on by default). Close and restart a VICE that was started another way. The header shows the connection state; *Only available in the desktop app* appears in the browser preview.
+
+| Button | What it does |
+|---|---|
+| **Hot reload** | Writes the assembled program into the running VICE's RAM (only the occupied ranges — the gaps are left alone). Use it for data: sprites, tables, text. |
+| **Hot reload + restart** | Same, then restarts at the SYS address (stack reset; the final `RTS` returns to `READY.`). |
+| **Auto hot reload after edits** | Reloads and restarts about a second after each edit, if the program assembles. |
+| **Live watch** | Refreshes the watch list every 0.4 s; a changed value flashes. |
+| **Profile** | Samples the program counter for about 5 seconds (click again to stop early). |
+
+**Watch list:** type a label or an address — `score`, `$D020`, `53280`, or with a byte count `table, 8` — and press **+** or Enter. Each row shows the address, the bytes in hex and, for 1 or 2 bytes, the decimal value. In Ultimate Basic mode the names come from the last UB build (variables, labels, subs, arrays).
+
+**Profiler result:** two tables. *Routine* groups the samples by the nearest label (in Ultimate Basic: by `sub`), with the share in % and the raster lines it ran on — time spent in the KERNAL or BASIC ROM is listed separately. *Line* lists the most expensive source lines; click one to jump to it. Each sample briefly pauses the emulator, so the profile is a statistical picture, not an exact cycle count.
+
 ---
 
 ## 11. Knowledge Base Links
@@ -3840,6 +3920,7 @@ Open via **Settings → Hardware Settings…** in the toolbar menu. All external
 |---|---|
 | **Select VICE** | Browse to the `x64sc` (or `x64`) VICE executable |
 | **Status** | Shows whether the executable path is valid and accessible |
+| **VICE remote monitor** | Starts VICE with the binary monitor on port 6502, needed by the [VICE Monitor](#vice-monitor-hot-reload-live-watch-profiler) |
 
 VICE is required for **Run as PRG**, **Run via D64**, and **Export to D64**.
 
@@ -3986,6 +4067,8 @@ Pixel-level bitmap editor with both 320×200 hi-res and 160×200 multicolor mode
 | Sprite sheet import | Files → **Import sprite sheet…**: cell width / height, offset, gap and frame count cut the picture into frames of the current size (multicolor cells are scaled to 12 pixels per sprite). Colours come from the picture or stay the sprite's own; OKLab matching with no dither, ordered (Bayer) or Floyd–Steinberg dithering. Replaces the frames or appends to them. |
 | Hitbox | The **Hitbox** tool drags a rectangle per frame (dashed cyan); **Fit**, **Fit every frame**, **Copy to every frame** and **Remove** in the side panel. Files → **Copy hitbox table** gives `sprite_hit_x / _y / _w / _h` (one byte per frame, screen pixels from the top left); a frame without a hitbox uses its pixel bounds. |
 | X / Y ×2 | Shows the preview as with `$D01D` / `$D017` sprite expansion. |
+
+**Export to UltimateBasic** (Files menu) writes every frame (up to 8) as a `sprdef`, sets up sprite 0 (colour, multicolour, expand) and, for an animation, adds a raster-synced loop that steps the frames at the editor's FPS. In Ultimate Basic mode it is inserted at the cursor, otherwise copied to the clipboard.
 
 ### C64 Character ROM Browser ("Char map")
 
@@ -4174,6 +4257,8 @@ Effects update once per row (matching the exported player's timing), run identic
 
 ---
 
+**Export .sid (PSID)…** (Files menu) saves the tune with the playable `$C000` player as a standard PSID file — it plays in the SID Player, in VICE's `vsid` and in any other SID player.
+
 ### SID Player
 
 The **SID Player** toolbar button opens a floating window that plays `.sid` music files (PSID and RSID), for example tunes from the HVSC collection.
@@ -4233,6 +4318,26 @@ Every Copy / Insert output starts with a header comment documenting the curve, a
 **Matching the preview on the C64:** the preview reads the table **linearly, looping 0 → N-1 → 0, one value per frame**. To reproduce it exactly, drive the table the same way (increment the index once per frame, wrap at the table length). A ping-pong or partial-range playback will move differently even though the byte values are identical. See `samples/curve-new-demo.asm` for a working 16-bit sprite-X example.
 
 ---
+
+### Table Generator
+
+The **Table Generator** toolbar button (grid icon, next to the Curve Editor) builds lookup tables and speedcode. Pick a table type, set its parameters and watch the preview; the meta line shows the entry count, size and value range (for code: bytes and estimated cycles / raster lines).
+
+| Type | Values |
+|---|---|
+| Screen row addresses | base + 40 · row (any base and row length) |
+| Bitmap row addresses | pixel Y → byte address in column 0 (8 × 8 cell layout) |
+| Bitmap column offsets | pixel X → byte offset within the line (hires or multicolour) |
+| Pixel bit mask | X → bit mask (hires / multicolour, optionally inverted for `AND`) |
+| Multiply / divide / remainder by a constant | x · k, ⌊x / k⌋, x mod k |
+| Quarter squares | ⌊(x − offset)² / 4⌋, 512 entries — a · b = sqr(a + b) − sqr(a − b) |
+| Reciprocal | ⌊N / x⌋ |
+| Logarithm / exponential | round(log2 x · s), round(2^(x / s)) |
+| Bit reverse | flips a byte (or bit pairs in multicolour) to mirror sprites and characters |
+| Custom expression | any formula of `i` (`k` = 0-based index, `n` = count); `sin`, `cos`, `abs`, `min`, `max`, `round`, `floor`, `PI`, `$hex`, `%bin` |
+| Speedcode: fill / copy memory | a subroutine; *stores per iteration* 0 = fully unrolled, N = an X loop with N stores per pass |
+
+Values above 255 become a **lo / hi table pair** (`label_lo`, `label_hi`) or a `.word` table; negative values are two's complement. Options: label, hex / decimal, values per line, **Align to page** (`.align 256`, avoids the page-cross cycle). **Copy** puts the assembly on the clipboard; **Insert** adds it to the program (re-inserting the same label replaces the previous copy) — in Ultimate Basic mode it inserts an `array` with `data` lines. The Files menu also saves the table as `.bin` (lo bytes, then hi bytes) and exports it to Ultimate Basic.
 
 ### Number Converter
 

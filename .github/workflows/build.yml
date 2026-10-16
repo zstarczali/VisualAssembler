@@ -71,11 +71,11 @@ jobs:
             arch: arm64
             target: aarch64-pc-windows-msvc
           - os: macOS
-            runner: macos-14
+            runner: macos-26
             arch: arm64
             target: aarch64-apple-darwin
           - os: macOS
-            runner: macos-14
+            runner: macos-26
             arch: x64
             target: x86_64-apple-darwin
           - os: Linux
@@ -116,6 +116,17 @@ jobs:
         run: npx tauri build --target ${{ matrix.target }}
         env:
           TAURI_SIGNING_PRIVATE_KEY: ""
+
+      - name: Verify macOS app icon
+        if: matrix.os == 'macOS'
+        shell: bash
+        run: |
+          APP="src-tauri/target/${{ matrix.target }}/release/bundle/macos/C64 Visual Assembler.app"
+          test -s "$APP/Contents/Resources/Assets.car"
+          cmp src-tauri/icons/generated/Assets.car "$APP/Contents/Resources/Assets.car"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIconName' "$APP/Contents/Info.plist")" = AppIcon
+          test -s "$APP/Contents/Resources/icon.icns"
+          codesign --verify --deep --strict "$APP"
 
       - name: Upload artifacts (Windows)
         if: matrix.os == 'Windows'

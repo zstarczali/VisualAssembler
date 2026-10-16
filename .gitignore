@@ -9,6 +9,7 @@ yarn-error.log*
 # Tauri / Rust
 src-tauri/target/
 src-tauri/gen/
+src-tauri/icons/generated/
 
 # Electron build output (obsolete)
 dist/

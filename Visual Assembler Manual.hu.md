@@ -29,6 +29,19 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 
 ---
 
+## A következő verzió újdonságai
+
+- **Ciklusszámok Expert módban** — a gutter minden utasítás ciklusát mutatja, a kijelölés összegét és azt, hány raszter sort foglal. Lásd: [Ciklusszámok](#ciklusszámok).
+- **Optimalizálási tippek** — az Expert szerkesztő jelöli a rövidebben vagy gyorsabban írható sorokat (JSR + RTS, felesleges `CMP #0`, újratöltés, `INC` / `DEC` minta…). Lásd: [Optimalizálási tippek](#optimalizálási-tippek).
+- **Táblagenerátor** — képernyő- és bitmap-sorcímek, pixelmaszk, szorzó- / osztótáblák, negyed-négyzet, log / exp, bittükrözés, saját kifejezés és kigörgetett kitöltő / másoló speedcode. Lásd: [Táblagenerátor](#táblagenerátor).
+- **VICE Monitor** — hot reload a futó VICE-ba, élő változók címkére és címre, PC-mintavételes profiler. Lásd: [VICE Monitor](#vice-monitor-hot-reload-élő-változók-profiler).
+- **Zero page foglaltsági térkép** és **leválasztható memóriaablak**. Lásd: [Memóriaablak és zero page foglaltság](#memóriaablak-és-zero-page-foglaltság).
+- **Ultimate Basic** — kódméret soronként, tippek, és Sprite Editor → Ultimate Basic export animációval.
+- **SID Editor → .sid (PSID) export** és **sprite multiplexer** projekt sablon (16 sprite).
+- Több lebegő ablak lehet nyitva egyszerre; amelyikre kattintasz, az kerül felülre.
+
+---
+
 ## A 2.6.0 verzió újdonságai
 
 - **A Visual Assembler teljesen ingyenes lett** — megszűnt a Freemium / Professional licencelés. Minden szerkesztő, build és hardveres futtatás, mind a 7 felületnyelv és minden téma mindenkinek elérhető, regisztráció és sorozatszám nélkül. Az ok egyszerű: a magyar adószabályok mellett az eladásból az adók és az adminisztráció után túl kevés maradna ahhoz, hogy megérje pénzért adni. A már meglévő sorozatszámra nincs többé szükség. Lásd: [Ingyenes és nyílt forrású](#ingyenes-és-nyílt-forrású).
@@ -496,6 +509,14 @@ Egy **munkaterület** (`.vaws` fájl) megjegyzi, mely valós, lemezen lévő fá
 - Ha egy munkaterület olyan fájlra hivatkozik, amelyet azóta áthelyeztek vagy töröltek, az a bejegyzés kihagyódik, és betöltés után név szerint jelentődik.
 - A nyitott Expert és Ultimate Basic **projektek** is mentődnek: a projektfa (a mentetlen hozzáadásokkal és törlésekkel együtt), a startup fájl és a `.proj` mentési célja a munkaterülettel együtt áll vissza. A régebbi verzióval mentett munkaterületek ezek nélkül nyílnak meg.
 
+### Memóriaablak és zero page foglaltság
+
+A **Teljes C64 memória** panel leválasztható: a fejlécében lévő **leválasztás** gomb külön, nem modális ablakba teszi, amely szerkesztés közben is mozgatható és átméretezhető (az ütközés-jelvény vele megy). A **visszadokkolás** gomb (vagy × / Esc) visszarakja. Az ablak megjegyzi, hogy le volt-e választva, és a méretét.
+
+Ha a program használja a zero page-et, a memóriatérkép tetején megjelenik a **Zero page foglaltság** rész: egy 16 × 16-os rács a `$00–$FF` címekről, területenként színezve — CPU port (`$00–$01`), szabad (`$02`, `$FB–$FE`), BASIC (`$03–$8F`, `$FF`) és KERNAL (`$90–$FA`). A használt cellák kitöltöttek; a keret **írást**, a sraffozás **pointert** jelöl (`(zp),Y` / `(zp,X)`). Egy használt cellára kattintva látod, mely sorok érik el (a sorra kattintva oda ugrik), és figyelmeztetést kapsz, ha BASIC- vagy KERNAL-területre írsz.
+
+Ha a programban benne van a SID Editor exportált lejátszója (`sid_` címkék), a lejátszó zero page-e (`$02–$1C`, `$2F`, `$FB–$FD`) is jelölve van, és minden cím, amelyet a saját kódod is használ, **ütközésként** jelenik meg (piros keret, figyelmeztetés a fejlécben).
+
 ### Projekt sablonok
 
 A **Menu → File → Új projekt sablonból…** — vagy a **Menu** és a **Tutorials** közötti toolbar gomb — megnyitja a sablon dialógust:
@@ -507,7 +528,7 @@ A **Menu → File → Új projekt sablonból…** — vagy a **Menu** és a **Tu
 
 | Szekció | Beépített sablonok |
 |---|---|
-| **Assembler** | Üres program, Üres játék (cím / játék / vége állapotok, joystick, játékos sprite), Hires bitmap, Multicolor bitmap |
+| **Assembler** | Üres program, Üres játék (cím / játék / vége állapotok, joystick, játékos sprite), Hires bitmap, Multicolor bitmap, Sprite multiplexer (16 sprite, képkockánként Y szerint rendezve, raszter IRQ-lánccal megjelenítve) |
 | **UltimateBasic** | Üres program, Üres játék (ugyanaz az állapotgép UB-ben), Hires bitmap (`line` / `rect` / `circle` `color pen`-nel), Raszter IRQ (egy `sub`, amit a raszter megszakítás minden képkockában meghív) |
 
 A projekt saját mappában jön létre: `<hely>/<név>/<név>.proj`, mellette `main.asm` (Assembler) vagy `main.ub` (UltimateBasic; a `.proj` Ultimate Basic projektként van jelölve). Meglévő projektet sosem ír felül — ilyenkor a dialógus jelez. A nyitott fülek előbb bezáródnak (mentetlen változásnál rákérdez), majd az új projekt Expert vagy Ultimate Basic módban nyílik meg, látható projekt panellel, a fő fájl startup fájlként beállítva.
@@ -645,6 +666,17 @@ Ha a fordítás meghiúsul:
 
 A Build Info jelenti a load/end címeket, a kód- és PRG-méreteket, az Exomizer állapotot, a változókat, tömböket, függvényeket/szubrutinokat és címkéket.
 
+### Kódméret soronként és tippek
+
+A **kódméret** eszköztár-gomb (láng ikon) build után megmutatja, hány bájtra fordult az egyes forrássor — a szám a sorszám-gutterben áll, a narancs sáv pedig a legdrágább sorhoz mért súlyát mutatja. A státuszsor a kurzor alatti sor bájtszámát és becsült ciklusszámát is kiírja (egyenes futás, ciklusok nélkül).
+
+Gépelés közben a státuszsorban **tippek** gomb jelenik meg, ha valami gyanús; rákattintva megjelenik a lista, egy tippre kattintva a sorra ugrik:
+
+- `sys $EA31` / `sys $EA81` — a `sys` `JSR`-t fordít, így a KERNAL `RTI`-je szemétre tér vissza; IRQ-ból `irq_exit` vagy `asm { JMP $EA31 }` kell;
+- `wait key` — nem dokumentált forma, a `waitkey` a helyes;
+- `var` / `dim` / `const`, amelyet sehol nem használsz;
+- build után: `asm` blokkbeli utasítás olyan zero page címen, ahol egy Ultimate Basic változó vagy a futtatókörnyezet saját zero page-e van.
+
 ### Futtatás, D64 és Exomizer
 
 A fő osztott **Run** gomb minden szokásos célponton támogatja az Ultimate Basic-et:
@@ -744,6 +776,31 @@ Az Expert szerkesztő minimapja egy keskeny canvas-sáv (`88 px`) a szerkesztő-
 | Mnemonik-szín | Minden más (utasítások) |
 
 Egy **félig áttetsző viewport-jelző** (kiemelt színű téglalap) mutatja, a forrás mely része látható éppen. Kattints bárhol a minimapra az odaugráshoz; húzd a folyamatos görgetéshez. A minimap függetlenül görget, hogy a viewport-jelzőt középen tartsa. Az állapot a UI beállításokban tárolódik (`expertMinimap` kulcs).
+
+### Ciklusszámok
+
+A **ciklusszámok** eszköztár-gomb (óra ikon) egy guttert ad, amely minden utasítássor 6510-es ciklusszámát mutatja:
+
+| Kijelzés | Jelentés |
+|---|---|
+| `4` | fix költség |
+| `4+` | indexelt olvasás (`abs,X`, `abs,Y`, `(zp),Y`): +1, ha az index laphatárt lép át; laphatárra igazított bázisnál (`$xx00`) a pontos érték látszik |
+| `2/3` | elágazás: nem ugrik / ugrik |
+| `2/4` (piros) | laphatáron átugró elágazás — időzített kódnál fontos |
+
+Több sort kijelölve a státuszsor az összeget mutatja: utasításszám, min–max ciklus és hogy ez hány PAL raszter sor (63 ciklus). A makrók és az adatsorok nem számítanak. A beállítás megmarad.
+
+### Optimalizálási tippek
+
+Az Expert szerkesztő a lefordított kódban gyakori peephole-mintákat keres. A tippes sorok sárga csíkot kapnak, a státuszsorban pedig megjelenik egy **N tipp** gomb; rákattintva látod a listát, egy tippre kattintva a sorra ugrik. A tippek sosem írják át a kódot:
+
+- `JSR x`, utána `RTS` → `JMP x` (1 bájttal rövidebb, 9 ciklussal gyorsabb);
+- `CMP #0` / `CPX #0` / `CPY #0` közvetlenül olyan utasítás után, amely már beállította az adott regiszter N/Z flagjét (a compare a C-t is állítja!);
+- ugyanaz a betöltés kétszer, vagy az épp eltárolt érték visszatöltése (`STA x` / `LDA x`);
+- `LDA m` / `CLC` / `ADC #1` / `STA m` → `INC m`, és a `SEC` / `SBC #1` változat → `DEC m`;
+- `JMP` vagy elágazás a közvetlenül következő utasításra, és `PHA` közvetlenül utána `PLA`-val.
+
+Ha két utasítás közt címke áll (lehetséges ugrási cél), az összevonásukat javasló tipp elmarad.
 
 ### Hibakiemelés
 
@@ -3513,6 +3570,22 @@ Kattints a breakpoint ikonra (●) bármelyik utasításblokkon, hogy breakpoint
 
 > **Tipp:** a legtöbb programnál kapcsold be a `-jmp`-et és a `-unpause`-t az azonnali autostarthoz. Használj `-wait 500`-at vagy `-wait 1000`-et, ha a programod IRQ-kat vagy SID zenét állít be, aminek idő kell az inicializáláshoz az első raszter előtt.
 
+### VICE Monitor (hot reload, élő változók, profiler)
+
+A **VICE Monitor** eszköztár-gomb egy nem modális ablakot nyit, amely a futó VICE-szal a binary monitorán át beszél. A **Run (VICE)** a 6502-es porton nyitott monitorral indítja a VICE-t (**Beállítások → VICE remote monitor**, alapból bekapcsolva). A más módon indított VICE-t zárd be és indítsd újra. A fejléc a kapcsolat állapotát mutatja; böngészős előnézetben *Csak az asztali alkalmazásban érhető el* áll ott.
+
+| Gomb | Mit csinál |
+|---|---|
+| **Hot reload** | A lefordított programot a futó VICE RAM-jába írja (csak a foglalt tartományokat — a hézagokhoz nem nyúl). Adathoz jó: sprite, tábla, szöveg. |
+| **Hot reload + újraindítás** | Ugyanez, utána a SYS címtől újraindít (a verem kiürül; a végső `RTS` a `READY.`-hez tér vissza). |
+| **Automatikus hot reload szerkesztés után** | Minden szerkesztés után kb. egy másodperccel betölt és újraindít, ha a program fordul. |
+| **Élő változók** | 0,4 mp-enként frissíti a watch-listát; a megváltozott érték felvillan. |
+| **Profilozás** | Kb. 5 másodpercig mintavételezi a programszámlálót (újra kattintva hamarabb leáll). |
+
+**Watch-lista:** írj be egy címkét vagy címet — `score`, `$D020`, `53280`, vagy bájtszámmal `table, 8` —, majd **+** vagy Enter. Minden sor a címet, a bájtokat hexában és 1–2 bájtnál a decimális értéket mutatja. Ultimate Basic módban a nevek az utolsó UB buildből jönnek (változók, címkék, sub-ok, tömbök).
+
+**Profiler eredmény:** két tábla. A *Rutin* a mintákat a legközelebbi címke szerint csoportosítja (Ultimate Basicben `sub` szerint), %-os aránnyal és azokkal a raszter sorokkal, amelyekben futott — a KERNAL vagy BASIC ROM-ban töltött idő külön sor. A *Sor* a legdrágább forrássorokat sorolja fel; egyre kattintva oda ugrik. Minden minta egy pillanatra megállítja az emulátort, ezért a profil statisztikai kép, nem pontos ciklusszámlálás.
+
 ---
 
 ## 11. Tudásbázis linkek
@@ -3681,6 +3754,7 @@ A **Settings → Hardware Settings…** menüponttal nyílik az eszköztár men�
 |---|---|
 | **Select VICE** | Tallózz az `x64sc` (vagy `x64`) VICE futtatható fájlra |
 | **Status** | Mutatja, hogy a futtatható útvonala érvényes és elérhető-e |
+| **VICE remote monitor** | A 6502-es porton nyitott binary monitorral indítja a VICE-t; a [VICE Monitor](#vice-monitor-hot-reload-élő-változók-profiler) ehhez kapcsolódik |
 
 A VICE szükséges a **Run as PRG**, **Run via D64** és **Export to D64** műveletekhez.
 
@@ -3827,6 +3901,8 @@ Pixel-szintű bitmap szerkesztő 320×200 hi-res és 160×200 multicolor módokk
 | Sprite sheet import | Files → **Sprite sheet import…**: a cella szélessége / magassága, eltolás, rés és frame-szám alapján a képet az aktuális méretű frame-ekre vágja (multicolorban a cella spritonként 12 pixelre skálázódik). A színek a képből jönnek, vagy a sprite sajátjai maradnak; OKLab egyeztetés dithering nélkül, rendezett (Bayer) vagy Floyd–Steinberg ditheringgel. Lecseréli a frame-eket, vagy hozzáfűzi. |
 | Hitbox | A **Hitbox** eszköz frame-enként egy téglalapot húz (szaggatott cián); az oldalsávban **Illesztés**, **Illesztés minden frame-en**, **Másolás minden frame-re** és **Törlés**. A Files → **Hitbox tábla másolása** `sprite_hit_x / _y / _w / _h` táblát ad (frame-enként egy bájt, képernyőpixel a bal felső saroktól); hitbox nélküli frame a pixelei befoglalóját kapja. |
 | X / Y ×2 | Az előnézetet a `$D01D` / `$D017` sprite-nagyítással mutatja. |
+
+**Export to UltimateBasic** (Files menü): minden frame-et (legfeljebb 8-at) `sprdef`-ként ír ki, beállítja a 0. sprite-ot (szín, multicolor, nagyítás), animációnál pedig raszterhez szinkronizált ciklust ad hozzá, amely a szerkesztő FPS-ével lépteti a frame-eket. Ultimate Basic módban a kurzorhoz szúrja be, egyébként a vágólapra másolja.
 
 ### C64 karakter-ROM böngésző („Char map")
 
@@ -4015,6 +4091,8 @@ Az effektek soronként egyszer frissülnek (megegyezően az exportált lejátsz�
 
 ---
 
+**.sid (PSID) export…** (Files menü): a dalt a lejátszható `$C000`-s lejátszóval szabványos PSID fájlba menti — lejátszható a SID Playerben, a VICE `vsid`-jében és bármely más SID lejátszóban.
+
 ### SID Player
 
 A **SID Player** toolbar gomb egy lebegő ablakot nyit, amely `.sid` zenefájlokat (PSID és RSID) játszik le, például a HVSC gyűjtemény zenéit.
@@ -4074,6 +4152,26 @@ Minden Copy / Insert kimenet egy fejléc-megjegyzéssel kezdődik, amely dokumen
 **Az előnézet reprodukálása a C64-en:** az előnézet **lineárisan, 0 → N-1 → 0 hurokban, frame-enként egy értéket** olvas a táblából. Ennek pontos reprodukálásához vezéreld a táblát ugyanígy (növeld az indexet frame-enként egyszer, fordulj körbe a tábla hosszánál). Egy ping-pong vagy részleges tartományú lejátszás máshogy mozog, még ha a byte-értékek azonosak is. Egy működő 16 bites sprite-X példáért lásd a `samples/curve-new-demo.asm`-et.
 
 ---
+
+### Táblagenerátor
+
+A **Táblagenerátor** eszköztár-gomb (rács ikon, a Curve Editor mellett) keresőtáblákat és speedcode-ot készít. Válaszd ki a tábla típusát, állítsd be a paramétereit, és nézd az előnézetet; az alsó sor az elemszámot, a méretet és az értéktartományt mutatja (kódnál a bájtokat és a becsült ciklusokat / raszter sorokat).
+
+| Típus | Értékek |
+|---|---|
+| Képernyősor-címek | bázis + 40 · sor (tetszőleges bázis és sorhossz) |
+| Bitmap sorcímek | pixel Y → bájtcím a 0. oszlopban (8 × 8-as cellaelrendezés) |
+| Bitmap oszlop-eltolás | pixel X → bájt-eltolás a soron belül (hires vagy multicolor) |
+| Pixel bitmaszk | X → bitmaszk (hires / multicolor, `AND`-hez invertálva is) |
+| Szorzás / osztás / maradék konstanssal | x · k, ⌊x / k⌋, x mod k |
+| Negyed-négyzet | ⌊(x − eltolás)² / 4⌋, 512 elem — a · b = sqr(a + b) − sqr(a − b) |
+| Reciprok | ⌊N / x⌋ |
+| Logaritmus / exponenciális | round(log2 x · s), round(2^(x / s)) |
+| Bittükrözés | megfordítja a bájtot (multicolorban a bitpárokat) a sprite-ok és karakterek tükrözéséhez |
+| Saját kifejezés | tetszőleges képlet `i`-re (`k` = 0-tól induló index, `n` = darabszám); `sin`, `cos`, `abs`, `min`, `max`, `round`, `floor`, `PI`, `$hex`, `%bin` |
+| Speedcode: memória kitöltése / másolása | szubrutin; *tárolás / iteráció* 0 = teljesen kigörgetett, N = X-ciklus N tárolással menetenként |
+
+A 255 fölötti értékekből **lo / hi táblapár** (`címke_lo`, `címke_hi`) vagy `.word` tábla lesz; a negatív értékek kettes komplemensek. Beállítások: címke, hex / decimális, értékek soronként, **Laphatárra igazítás** (`.align 256`, elkerüli a laphatár-ciklust). A **Másolás** vágólapra teszi az assemblyt; a **Beszúrás** a programhoz adja (ugyanazzal a címkével újra beszúrva a korábbit cseréli) — Ultimate Basic módban `array`-t `data` sorokkal szúr be. A Files menüben `.bin`-be is menthető (előbb a lo, utána a hi bájtok), és Ultimate Basicbe exportálható.
 
 ### Számrendszer-átváltó
 

@@ -96,3 +96,18 @@ Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in 
 ---
 
 **Version:** 2.6.0 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+
+## Building from source: macOS app icon
+
+Release builds require **Xcode 26 or newer**, including `actool`; the standalone
+Command Line Tools are not sufficient. Select the full Xcode installation with
+`xcode-select` or set `DEVELOPER_DIR` to its `Contents/Developer` directory.
+
+`npm run build` automatically compiles `src-tauri/icons/AppIcon.icon` via
+`scripts/build-macos-icon.cjs`. The macOS-specific Tauri configuration bundles the
+result as `Contents/Resources/Assets.car`, and `Info.plist` selects `AppIcon`.
+The source artwork fills the entire square with blue; macOS applies its own mask.
+The existing `icon.icns` remains the fallback for older macOS versions.
+Generated files in `src-tauri/icons/generated/` are not committed. Windows and
+Linux builds do not run the icon compiler. CI verifies the bundled catalog and
+icon reference before uploading the macOS installer.

@@ -1,0 +1,12 @@
+{
+  "build": {
+    "beforeBuildCommand": "node scripts/build-macos-icon.cjs"
+  },
+  "bundle": {
+    "macOS": {
+      "files": {
+        "Resources/Assets.car": "icons/generated/Assets.car"
+      }
+    }
+  }
+}
