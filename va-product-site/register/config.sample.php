@@ -22,16 +22,6 @@ return [
     ],
     // A licenc privát kulcs 32 bájtos seedje base64-ben: node scripts/keygen.js phpkey
     'sign_seed' => '',
-    // PayPal (Developer Dashboard → Apps & Credentials). A secret környezeti változóból is jöhet: VA_PAYPAL_SECRET
-    'paypal' => [
-        'mode' => 'sandbox',    // 'live' élesben
-        'client_id' => '',
-        'secret' => '',
-        'webhook_id' => '',     // webhook: https://www.c64va.pro/register/webhook.php (PAYMENT.CAPTURE.COMPLETED)
-        'price' => '5.00',
-        'currency' => 'EUR',
-        'item_name' => 'C64 Visual Assembler Professional',
-    ],
     // register/stats.php jelszava (vagy VA_ADMIN_PASSWORD környezeti változó)
     'admin_password' => '',
     // hibabejelentés: értesítő e-mail cím (üres = nincs) és IP-nkénti óránkénti limit

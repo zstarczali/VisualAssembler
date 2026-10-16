@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.5.9">
+  <link rel="stylesheet" href="style.css?v=2.6.0">
 </head>
 
 <body>
@@ -46,7 +46,6 @@
       <div class="hero-copy-block">
         <div class="eyebrow-row">
           <p class="eyebrow">Commodore 64 visual assembler</p>
-          <button id="license-badge" class="license-badge" type="button" aria-label="Register…" hidden>FREEMIUM</button>
         </div>
         <div class="hero-menu-row">
           <div class="main-toolbar">
@@ -196,7 +195,6 @@
                 <h3 class="control-menu-label control-menu-label--section" id="menu-info-label">Info</h3>
                 <button id="help-manual-btn" class="secondary" type="button">Manual</button>
                 <button id="about-btn" class="secondary" type="button">About</button>
-                <button id="license-btn" class="secondary" type="button">Register…</button>
                 <button id="whats-new-btn" class="secondary" type="button">What's New</button>
                 <button id="knowledge-base-btn" class="secondary" type="button">Knowledge Base</button>
                 <button id="check-update-btn" class="secondary" type="button">Check for Update</button>
@@ -999,21 +997,15 @@ PRINTABLE CHARACTERS
     </div>
   </dialog>
 
-  <dialog id="license-dialog" class="app-confirm-dialog update-dialog license-dialog">
+  <dialog id="server-message-dialog" class="app-confirm-dialog update-dialog server-message-dialog">
     <div class="app-confirm-card">
-      <h2 class="compile-error-title" id="license-title">Register Visual Assembler</h2>
-      <p id="license-msg" class="app-confirm-msg"></p>
-      <label class="license-field"><span id="license-email-label">Email</span>
-        <input id="license-email" type="email" autocomplete="email" spellcheck="false"></label>
-      <label class="license-field"><span id="license-serial-label">Serial</span>
-        <textarea id="license-serial" rows="2" spellcheck="false"></textarea></label>
-      <p id="license-status" class="license-status" role="status"></p>
+      <div class="customer-message-eyebrow" id="server-message-caption" hidden></div>
+      <h2 class="compile-error-title" id="server-message-title"></h2>
+      <img id="server-message-image" class="server-message-image" alt="" hidden>
+      <div id="server-message-body" class="app-confirm-msg server-message-body"></div>
       <div class="app-confirm-buttons">
-        <button id="license-request" class="secondary" type="button">Request serial (supporters)</button>
-        <button id="license-buy" class="secondary" type="button">Buy full version</button>
-        <button id="license-deactivate" class="secondary" type="button" hidden>Remove license</button>
-        <button id="license-close" class="secondary" type="button">Close</button>
-        <button id="license-activate" class="primary" type="button">Activate</button>
+        <button id="server-message-open" class="secondary" type="button" hidden>Open link</button>
+        <button id="server-message-close" class="primary" type="button">Close</button>
       </div>
     </div>
   </dialog>
@@ -1022,13 +1014,13 @@ PRINTABLE CHARACTERS
     <div class="app-confirm-card">
       <h2 class="compile-error-title" id="bug-title">Report Bug</h2>
       <p id="bug-intro" class="app-confirm-msg"></p>
-      <label class="license-field"><span id="bug-summary-label">Summary</span>
+      <label class="form-field"><span id="bug-summary-label">Summary</span>
         <input id="bug-summary" type="text" maxlength="200" spellcheck="true"></label>
-      <label class="license-field"><span id="bug-description-label">What happened?</span>
+      <label class="form-field"><span id="bug-description-label">What happened?</span>
         <textarea id="bug-description" class="bug-description" rows="7" maxlength="20000" spellcheck="true"></textarea></label>
-      <label class="license-field"><span id="bug-email-label">Email (optional)</span>
+      <label class="form-field"><span id="bug-email-label">Email (optional)</span>
         <input id="bug-email" type="email" autocomplete="email" spellcheck="false"></label>
-      <div class="license-field">
+      <div class="form-field">
         <span id="bug-images-label">Screenshots</span>
         <div class="bug-images-row">
           <div id="bug-images" class="bug-images"></div>
@@ -1038,7 +1030,7 @@ PRINTABLE CHARACTERS
       <label class="bug-include-info"><input id="bug-include-info" type="checkbox" checked>
         <span id="bug-include-info-label">Include system info and recent errors</span></label>
       <details class="bug-sysinfo"><summary id="bug-sysinfo-label">What is sent?</summary><pre id="bug-sysinfo-preview"></pre></details>
-      <p id="bug-status" class="license-status" role="status"></p>
+      <p id="bug-status" class="form-status" role="status"></p>
       <div class="app-confirm-buttons">
         <button id="bug-mail" class="secondary" type="button">Send by email</button>
         <button id="bug-close" class="secondary" type="button">Close</button>
@@ -1297,8 +1289,7 @@ PRINTABLE CHARACTERS
           <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
         </div>
         <h2 class="about-title">C64 Visual Assembler</h2>
-        <p class="about-version" id="about-version">v2.5.9</p>
-        <p class="about-version" id="about-license"></p>
+        <p class="about-version" id="about-version">v2.6.0</p>
         <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
       </div>
       <div class="about-columns">
@@ -1324,19 +1315,22 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.5.9</p>
+      <p class="whats-new-version">v2.6.0</p>
       <ul class="whats-new-list">
         <li>
-          <strong>New theme: Commodore 64:</strong> the C64 power-on screen — a light blue border around blue panels, light blue text, reverse-video buttons, syntax colours from the C64 palette and the C64 font in the monitor view (Professional).
+          <strong>Visual Assembler is now completely free:</strong> the Freemium / Professional licensing has been removed. Every editor, build and hardware run option, all 7 languages and every theme work for everyone, without registration or a serial. The reason is simple: under Hungarian tax rules, selling the program would leave too little after taxes and paperwork to be worth it. Serials you already have are simply no longer needed.
         </li>
         <li>
-          <strong>New theme: Commodore Beige:</strong> the classic breadbin — a beige case, mustard function-key buttons, the rainbow badge stripes and a C64 blue screen for the monitor view (Professional).
+          <strong>From 2.5.9: New theme: Commodore 64:</strong> the C64 power-on screen — a light blue border around blue panels, light blue text, reverse-video buttons, syntax colours from the C64 palette and the C64 font in the monitor view.
         </li>
         <li>
-          <strong>New theme: Commodore Starlight:</strong> a light theme after the translucent C64 breadbin — frosted clear glass with the rainbow RGB glow shining through, a magenta accent, rainbow syntax colours and a smoky dark monitor (Professional).
+          <strong>From 2.5.9: New theme: Commodore Beige:</strong> the classic breadbin — a beige case, mustard function-key buttons, the rainbow badge stripes and a C64 blue screen for the monitor view.
         </li>
         <li>
-          <strong>Version control dialog:</strong> drag it by its header — it reopens where you left it and stays on screen when the log or a diff makes it taller. A click outside no longer closes it (Esc does).
+          <strong>From 2.5.9: New theme: Commodore Starlight:</strong> a light theme after the translucent C64 breadbin — frosted clear glass with the rainbow RGB glow shining through, a magenta accent, rainbow syntax colours and a smoky dark monitor.
+        </li>
+        <li>
+          <strong>From 2.5.9: Version control dialog:</strong> drag it by its header — it reopens where you left it and stays on screen when the log or a diff makes it taller. A click outside no longer closes it (Esc does).
         </li>
         <li>
           <strong>From 2.5.8: Version control:</strong> the project snapshots became a git-like version control — commits with a message and a short hash, a log with <em>HEAD</em>, <em>Diff</em> against the working copy (Block-mode programs are compared as assembly lines, so JSON projects show readable changes), <em>Checkout</em> into the editor and separate autosave entries. Works on Block, Expert and Ultimate Basic tabs.
@@ -1346,9 +1340,6 @@ PRINTABLE CHARACTERS
         </li>
         <li>
           <strong>From 2.5.8: Report Bug:</strong> a built-in report form with up to 4 screenshots (file, Ctrl+V or drag and drop), an optional email, system info and the recent app errors.
-        </li>
-        <li>
-          <strong>From 2.5.8: Professional serial by email:</strong> supporters request their serial in the registration dialog; the Professional version can be bought on c64va.pro with PayPal (5 €, one-time) and the serial arrives by email right after the payment.
         </li>
         <li>
           <strong>From 2.5.8: SID Player:</strong> <em>Shuffle</em> and per-tune <em>favourites</em> (★), kept in the saved state and in <code>.sidpl</code> playlists.
@@ -3333,13 +3324,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.5.9"></script>
-  <script src="i18n.js?v=2.5.9"></script>
-  <script src="tutorial-data.js?v=2.5.9"></script>
+  <script src="tauri-bridge.js?v=2.6.0"></script>
+  <script src="i18n.js?v=2.6.0"></script>
+  <script src="tutorial-data.js?v=2.6.0"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.5.9"></script>
+  <script src="app.js?v=2.6.0"></script>
 
 </body>
 

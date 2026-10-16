@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "themes-259",
+  id: "free-260",
   url: "https://www.c64va.pro/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.5.9-ban",
-    title: "Üdvözöl a Visual Assembler",
-    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>Új témák (Professional):</strong> Commodore 64 — a kék bekapcsolási képernyő világoskék kerettel —, Commodore Beige — a klasszikus kenyérdoboz, C64 kék monitorral — és Commodore Starlight — áttetsző üveg szivárványos fénnyel.</li><li><strong>Verziókezelés ablak:</strong> mozgatható, és megjegyzi a helyét.</li><li><strong>Verziókezelés:</strong> commit, napló, diff és checkout minden fülön, git bekötéssel (git.exe a Beállításokban).</li><li><strong>Hibabejelentés:</strong> űrlap képernyőképekkel (Ctrl+V vagy húzás), rendszerinfóval.</li><li><strong>Professional:</strong> a sorozatszám e-mailben jön — támogatóknak a regisztrációs ablakból, vásárlás a c64va.pro-n (5 €).</li><li><strong>SID Player:</strong> véletlen lejátszás és kedvencek.</li></ul>`,
+    eyebrow: "Újdonság a 2.6.0-ban",
+    title: "A Visual Assembler ingyenes lett",
+    body: `<p>A Freemium / Professional licencelés megszűnt: minden szerkesztő, build és hardveres futtatás, mind a 7 nyelv és minden téma mindenkinek elérhető, regisztráció és sorozatszám nélkül.</p><p>Az ok egyszerű: a magyar adószabályok mellett az eladásból az adók és az adminisztráció után túl kevés maradna ahhoz, hogy megérje pénzért adni. A már meglévő sorozatszámra nincs többé szükség.</p>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.5.9",
-    title: "Welcome to Visual Assembler",
-    body: `<p>What's new in this release:</p><ul><li><strong>New themes (Professional):</strong> Commodore 64 — the blue power-on screen with a light blue border —, Commodore Beige — the classic breadbin with a C64 blue monitor — and Commodore Starlight — clear glass with a rainbow glow.</li><li><strong>Version control dialog:</strong> movable, and it remembers its position.</li><li><strong>Version control:</strong> commit, log, diff and checkout on every tab, with Git integration (git.exe in Settings).</li><li><strong>Report Bug:</strong> a report form with screenshots (Ctrl+V or drag and drop) and system info.</li><li><strong>Professional:</strong> the serial arrives by email — supporters request it in the registration dialog, buy it on c64va.pro (5 €).</li><li><strong>SID Player:</strong> shuffle and favourites.</li></ul>`,
+    eyebrow: "New in 2.6.0",
+    title: "Visual Assembler is now free",
+    body: `<p>The Freemium / Professional licensing has been removed: every editor, build and hardware run option, all 7 languages and every theme are available to everyone, without registration or a serial.</p><p>The reason is simple: under Hungarian tax rules, selling the program would leave too little after taxes and paperwork to be worth it. Serials you already have are simply no longer needed.</p>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.5.9",
-    title: "Bienvenido a Visual Assembler",
-    body: `<p>Novedades de esta versión:</p><ul><li><strong>Nuevos temas (Professional):</strong> Commodore 64 — la pantalla azul de arranque con borde azul claro —, Commodore Beige — la clásica panera con monitor azul C64 — y Commodore Starlight — cristal translúcido con un brillo arcoíris.</li><li><strong>Diálogo de control de versiones:</strong> se puede mover y recuerda su posición.</li><li><strong>Control de versiones:</strong> commit, historial, diff y checkout en cada pestaña, con integración de Git (git.exe en Ajustes).</li><li><strong>Reportar error:</strong> un formulario con capturas (Ctrl+V o arrastrar) e información del sistema.</li><li><strong>Professional:</strong> el número de serie llega por correo — los donantes lo piden en el diálogo de registro; se compra en c64va.pro (5 €).</li><li><strong>SID Player:</strong> reproducción aleatoria y favoritos.</li></ul>`,
+    eyebrow: "Novedad en la 2.6.0",
+    title: "Visual Assembler ahora es gratis",
+    body: `<p>Se ha eliminado la licencia Freemium / Professional: todos los editores, las compilaciones y la ejecución en hardware, los 7 idiomas y todos los temas están disponibles para todos, sin registro ni número de serie.</p><p>El motivo es sencillo: con la normativa fiscal húngara, venderlo dejaría demasiado poco después de impuestos y trámites como para que valga la pena. Si ya tienes un número de serie, simplemente ya no lo necesitas.</p>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.5.9",
-    title: "Willkommen bei Visual Assembler",
-    body: `<p>Neu in dieser Version:</p><ul><li><strong>Neue Themes (Professional):</strong> Commodore 64 — der blaue Startbildschirm mit hellblauem Rahmen —, Commodore Beige — der klassische Brotkasten mit C64-blauem Monitor — und Commodore Starlight — klares Glas mit Regenbogenschimmer.</li><li><strong>Versionsverwaltung:</strong> der Dialog ist verschiebbar und merkt sich seine Position.</li><li><strong>Versionsverwaltung:</strong> Commit, Verlauf, Diff und Checkout in jedem Tab, mit Git-Anbindung (git.exe in den Einstellungen).</li><li><strong>Fehler melden:</strong> ein Formular mit Screenshots (Strg+V oder Drag & Drop) und Systeminfo.</li><li><strong>Professional:</strong> die Seriennummer kommt per E-Mail — Unterstützer fordern sie im Registrierungsdialog an, Kauf auf c64va.pro (5 €).</li><li><strong>SID Player:</strong> Zufallswiedergabe und Favoriten.</li></ul>`,
+    eyebrow: "Neu in 2.6.0",
+    title: "Visual Assembler ist jetzt kostenlos",
+    body: `<p>Die Freemium-/Professional-Lizenzierung entfällt: alle Editoren, Builds und Hardware-Ausführungen, alle 7 Sprachen und alle Themes stehen allen zur Verfügung, ohne Registrierung oder Seriennummer.</p><p>Der Grund ist einfach: Nach ungarischem Steuerrecht bliebe vom Verkauf nach Steuern und Verwaltungsaufwand zu wenig übrig, als dass es sich lohnen würde. Vorhandene Seriennummern werden einfach nicht mehr benötigt.</p>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.5.9",
-    title: "Welkom bij Visual Assembler",
-    body: `<p>Nieuw in deze versie:</p><ul><li><strong>Nieuwe thema's (Professional):</strong> Commodore 64 — het blauwe opstartscherm met lichtblauwe rand —, Commodore Beige — de klassieke broodtrommel met een C64-blauwe monitor — en Commodore Starlight — helder glas met een regenboogglans.</li><li><strong>Versiebeheer:</strong> het venster is verplaatsbaar en onthoudt zijn positie.</li><li><strong>Versiebeheer:</strong> commit, log, diff en checkout in elk tabblad, met Git-koppeling (git.exe in Instellingen).</li><li><strong>Probleem melden:</strong> een formulier met schermafbeeldingen (Ctrl+V of slepen) en systeeminfo.</li><li><strong>Professional:</strong> het serienummer komt per e-mail — supporters vragen het aan in het registratievenster, kopen op c64va.pro (5 €).</li><li><strong>SID Player:</strong> willekeurig afspelen en favorieten.</li></ul>`,
+    eyebrow: "Nieuw in 2.6.0",
+    title: "Visual Assembler is nu gratis",
+    body: `<p>De Freemium/Professional-licentie is verdwenen: alle editors, builds en uitvoering op hardware, alle 7 talen en alle thema's zijn voor iedereen beschikbaar, zonder registratie of serienummer.</p><p>De reden is eenvoudig: onder de Hongaarse belastingregels zou er na belastingen en administratie te weinig van de verkoop overblijven om het de moeite waard te maken. Een serienummer dat je al hebt, is gewoon niet meer nodig.</p>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.5.9",
-    title: "Witamy w Visual Assembler",
-    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>Nowe motywy (Professional):</strong> Commodore 64 — niebieski ekran startowy z jasnoniebieską ramką —, Commodore Beige — klasyczny „chlebak” z niebieskim monitorem C64 — oraz Commodore Starlight — przezroczyste szkło z tęczowym blaskiem.</li><li><strong>Kontrola wersji:</strong> okno można przesuwać i zapamiętuje swoje położenie.</li><li><strong>Kontrola wersji:</strong> commit, historia, diff i checkout w każdej karcie, z integracją Git (git.exe w Ustawieniach).</li><li><strong>Zgłoś błąd:</strong> formularz ze zrzutami ekranu (Ctrl+V lub przeciąganie) i informacjami o systemie.</li><li><strong>Professional:</strong> numer seryjny przychodzi e-mailem — wspierający proszą o niego w oknie rejestracji, zakup na c64va.pro (5 €).</li><li><strong>SID Player:</strong> odtwarzanie losowe i ulubione.</li></ul>`,
+    eyebrow: "Nowość w 2.6.0",
+    title: "Visual Assembler jest teraz darmowy",
+    body: `<p>Licencjonowanie Freemium / Professional zostało usunięte: wszystkie edytory, kompilacje i uruchamianie na sprzęcie, wszystkie 7 języków i wszystkie motywy są dostępne dla każdego, bez rejestracji i numeru seryjnego.</p><p>Powód jest prosty: przy węgierskich przepisach podatkowych ze sprzedaży po podatkach i formalnościach zostałoby zbyt mało, żeby to się opłacało. Posiadany numer seryjny po prostu nie jest już potrzebny.</p>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.5.9",
-    title: "Benvenuto in Visual Assembler",
-    body: `<p>Novità di questa versione:</p><ul><li><strong>Nuovi temi (Professional):</strong> Commodore 64 — la schermata blu di avvio con bordo azzurro —, Commodore Beige — il classico «biscottone» con monitor blu C64 — e Commodore Starlight — vetro trasparente con un bagliore arcobaleno.</li><li><strong>Controllo versione:</strong> la finestra si può spostare e ricorda la sua posizione.</li><li><strong>Controllo versione:</strong> commit, cronologia, diff e checkout in ogni scheda, con integrazione Git (git.exe nelle Impostazioni).</li><li><strong>Segnala un bug:</strong> un modulo con screenshot (Ctrl+V o trascinamento) e info di sistema.</li><li><strong>Professional:</strong> il numero di serie arriva via e-mail — i sostenitori lo richiedono nella finestra di registrazione, acquisto su c64va.pro (5 €).</li><li><strong>SID Player:</strong> riproduzione casuale e preferiti.</li></ul>`,
+    eyebrow: "Novità nella 2.6.0",
+    title: "Visual Assembler ora è gratuito",
+    body: `<p>La licenza Freemium / Professional è stata eliminata: tutti gli editor, le build e l'esecuzione su hardware, tutte le 7 lingue e tutti i temi sono disponibili per tutti, senza registrazione né numero di serie.</p><p>Il motivo è semplice: con le norme fiscali ungheresi, dalla vendita resterebbe troppo poco dopo tasse e burocrazia perché ne valga la pena. Il numero di serie che hai già semplicemente non serve più.</p>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -2268,6 +2268,8 @@ function initPalette() {
   });
 
   setTimeout(() => checkForAppUpdate({ silent: true }), 6000);
+  setTimeout(_serverMessageStartup, 8000);
+  _usageStart();
 
   // READY. typewriter effect
   (() => {
@@ -3185,11 +3187,6 @@ function applySavedUiSettings() {
 }
 
 function handleLanguageChange() {
-  if (typeof _vaFullAllowed === "function" && !_vaFullAllowed() && _VA_FREE_LANGUAGES && !_VA_FREE_LANGUAGES.includes(languageSelect.value)) {
-    languageSelect.value = _VA_FREE_LANGUAGES.includes(currentLanguage) ? currentLanguage : "en";
-    _vaOpenLicenseDialog(true);
-    if (languageSelect.value === currentLanguage) return;
-  }
   currentLanguage = ["en", "es", "hu", "de", "nl", "pl", "it"].includes(languageSelect.value) ? languageSelect.value : "hu";
   localStorage.setItem("c64-block-language", currentLanguage);
   document.documentElement.lang = currentLanguage;
@@ -3451,13 +3448,6 @@ function applyTranslations() {
     setText("#menu-open-workspace", t("menuOpenWorkspace"));
     document.getElementById("menu-open-workspace")?.setAttribute("aria-label", t("menuOpenWorkspaceTip"));
     setText("#save-prg", t("savePrg"));
-    setText("#license-btn", t("licenseRegister"));
-    document.getElementById("license-badge")?.setAttribute("aria-label", t("licenseRegister"));
-    setText("#license-title", t("licenseTitle"));
-    setText("#license-email-label", t("licenseEmail"));
-    setText("#license-serial-label", t("licenseSerial"));
-    setText("#license-buy", t("licenseBuy"));
-    setText("#license-request", t("licenseRequest"));
     setText("#bug-title", t("reportBug"));
     setText("#bug-intro", t("bugIntro"));
     setText("#bug-summary-label", t("bugSummary"));
@@ -3468,13 +3458,9 @@ function applyTranslations() {
     setText("#bug-include-info-label", t("bugIncludeInfo"));
     setText("#bug-sysinfo-label", t("bugWhatIsSent"));
     setText("#bug-mail", t("bugByEmail"));
-    setText("#bug-close", t("licenseClose"));
+    setText("#bug-close", t("bugClose"));
     setText("#bug-send", t("bugSend"));
     document.getElementById("bug-description")?.setAttribute("placeholder", t("bugDescriptionPlaceholder"));
-    setText("#license-deactivate", t("licenseDeactivate"));
-    setText("#license-close", t("licenseClose"));
-    setText("#license-activate", t("licenseActivate"));
-    if (typeof _vaLicenseApply === "function") _vaLicenseApply();
     setText("#set-working-folder", t("setWorkingFolder"));
     setText("#build-section-label", t("buildSection"));
     setText("#versioning-section-label", t("versioningSection"));
@@ -16392,10 +16378,6 @@ function toggleTheme() {
 }
 
 function setTheme(theme) {
-  if (typeof _vaFullAllowed === "function" && !_vaFullAllowed() && _VA_FREE_THEMES && !_VA_FREE_THEMES.includes(theme)) {
-    _vaOpenLicenseDialog(true);
-    return;
-  }
   document.documentElement.dataset.theme = theme;
   localStorage.setItem("c64-block-theme", theme);
   updateThemeToggleLabel();
@@ -21245,7 +21227,6 @@ function setupRunModeDropdown() {
 }
 
 function setRunMode(mode) {
-  if (!_vaFullAllowed() && _VA_FULL_RUN_MODES.includes(mode)) mode = "prg";
   runMode = mode;
   localStorage.setItem("runMode", mode);
   const prgBtn = document.getElementById("run-prg-mode");
@@ -44674,7 +44655,6 @@ function _sidExtSetStatus(status) {
   _sidExtRender();
 }
 async function _sidExtStartFile(bytes, filename, song = 0) {
-  if (!_vaFullAllowed()) { _vaOpenLicenseDialog(true); return false; }
   // Stop the running tune with the window kept open: the engines' own stop
   // closes it, and the late "close" event would then stop the new tune too.
   // Unconditional: a tune that is still starting (status "stopped") must be
@@ -45022,7 +45002,6 @@ function _sidPlayerSyncButton() {
   btn.setAttribute("aria-pressed", String(open));
 }
 function _sidPlayerShow() {
-  if (!_vaFullAllowed()) return;
   const dlg = document.getElementById("websid-play-dialog");
   if (!dlg) return;
   const note = document.getElementById("websid-play-note");
@@ -48652,7 +48631,6 @@ function _cgWireDialog() {
 // Toolbar button wiring — attach once after DOM ready
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("curve-gen-btn")?.addEventListener("click", _cgOpenDialog);
-  setupLicense();
   setupBugReport();
   setupVersionControl();
 });
@@ -48679,7 +48657,6 @@ async function _bugSysInfo() {
     theme: document.documentElement.dataset.theme || "light",
     mode: document.body.classList.contains("ub-mode") ? "ultimate-basic" : (expertMode ? "expert" : "block"),
     runMode: typeof runMode !== "undefined" ? runMode : "",
-    licensed: _vaFullAllowed(),
     screen: screen.width + "x" + screen.height + " @" + (window.devicePixelRatio || 1),
     window: window.innerWidth + "x" + window.innerHeight,
     blocks: Array.isArray(program) ? program.length : 0,
@@ -48740,16 +48717,14 @@ function _bugSetStatus(text, kind) {
   const el = document.getElementById("bug-status");
   if (!el) return;
   el.textContent = text || "";
-  el.classList.toggle("license-status--error", kind === "error");
-  el.classList.toggle("license-status--ok", kind === "ok");
+  el.classList.toggle("form-status--error", kind === "error");
+  el.classList.toggle("form-status--ok", kind === "ok");
 }
 async function _bugOpenDialog() {
   const dlg = document.getElementById("bug-dialog");
   if (!dlg) return;
   document.querySelector(".control-menu")?.removeAttribute("open");
   _bugSetStatus("");
-  const email = document.getElementById("bug-email");
-  if (email && !email.value && _vaLicense?.email) email.value = _vaLicense.email;
   const info = document.getElementById("bug-sysinfo-preview");
   if (info) info.textContent = JSON.stringify(await _bugSysInfo(), null, 1) + (_vaErrorLog.length ? "\n\n" + _vaErrorLog.slice(-5).join("\n") : "");
   _bugRenderImages();
@@ -48762,13 +48737,13 @@ async function _bugSend() {
   const description = document.getElementById("bug-description")?.value.trim() || "";
   const email = document.getElementById("bug-email")?.value.trim() || "";
   if (!summary || !description) { _bugSetStatus(t("bugNeedText"), "error"); return; }
-  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { _bugSetStatus(t("licenseRequestInvalidEmail"), "error"); return; }
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { _bugSetStatus(t("bugInvalidEmail"), "error"); return; }
   if (!window.electronAPI?.bugReport) { _bugSetStatus(t("bugSendFailed"), "error"); return; }
   const withInfo = document.getElementById("bug-include-info")?.checked !== false;
   const sys = await _bugSysInfo();
   const payload = {
     summary, description, email,
-    version: sys.version, os: sys.os, lang: currentLanguage, licensed: sys.licensed,
+    version: sys.version, os: sys.os, lang: currentLanguage,
     sysinfo: withInfo ? sys : {},
     errors: withInfo ? _vaErrorLog.slice() : [],
     attachments: _bugImages.map(function(img) { return { name: img.name, data: img.dataUrl.split(",")[1] }; }),
@@ -48789,7 +48764,7 @@ async function _bugSend() {
     _bugRenderImages();
     return;
   }
-  const key = { rate: "bugRate", invalid_email: "licenseRequestInvalidEmail", network: "licenseRequestNetwork" }[res?.error] || "bugSendFailed";
+  const key = { rate: "bugRate", invalid_email: "bugInvalidEmail", network: "bugNetwork" }[res?.error] || "bugSendFailed";
   _bugSetStatus(t(key), "error");
 }
 async function _bugSendByEmail() {
@@ -48825,153 +48800,122 @@ function setupBugReport() {
   });
 }
 
-/* ── License: full / light version ─────────────────────────────────────────
- * Without a valid email / serial pair (checked by the backend, Ed25519) the
- * app runs as the light version: the elements below are locked here, and the
- * backend refuses the build / hardware commands. Without the Tauri backend
- * (browser preview) the app counts as licensed. */
-var _vaLicense = { licensed: true, email: "", known: false };
-var _VA_FULL_ONLY = ["#sid-editor-btn", "#sprite-editor-btn", "#char-editor-btn", "#charset-canvas-btn",
-  "#hires-editor-btn", "#map-editor-btn", "#level-editor-btn", "#d64-editor-btn", "#curve-gen-btn", "#sid-player-btn",
-  "#save-prg", "#save-d64", "#save-crt", "#build-project", "#run-exomizer-toggle",
-  "#run-ultimate-mode", "#run-ultimate-d64-mode", "#run-kff2-mode"];
-var _VA_FULL_RUN_MODES = ["ultimate", "ultimate-d64", "kff2"];
-var _VA_FREE_LANGUAGES = ["hu", "en"];
-var _VA_FREE_THEMES = ["light", "dark"];
-function _vaFullAllowed() { return !_vaLicense || _vaLicense.licensed; }
-async function _vaLicenseRefresh() {
-  let st = null;
-  try { st = await window.electronAPI?.licenseStatus?.(); } catch (_) { st = null; }
-  _vaLicense = st ? { licensed: !!st.licensed, email: st.email || "", known: true } : { licensed: true, email: "", known: true };
-  _vaLicenseApply();
+/* ── Server: launch ping + ad-hoc message ───────────────────────────────────
+ * register/ping.php (anonymous: install id, version, OS, language, launches)
+ * and register/message.php; a message shows once per id, after the customer
+ * message and any other open modal. */
+const _SERVER_MESSAGE_SEEN_KEY = "c64va-server-message-seen";
+function _serverMessageSeen() {
+  try {
+    const list = JSON.parse(localStorage.getItem(_SERVER_MESSAGE_SEEN_KEY) || "[]");
+    return Array.isArray(list) ? list.map(String) : [];
+  } catch (_) { return []; }
 }
-function _vaLicenseApply() {
-  if (!_VA_FULL_ONLY) return; // called by applyTranslations before this part of the script ran
-  const light = !_vaFullAllowed();
-  document.body.classList.toggle("va-light", light);
-  const badge = document.getElementById("license-badge");
-  if (badge) {
-    // shown once the backend has answered: no FREEMIUM / PROFESSIONAL flash at startup
-    badge.hidden = !_vaLicense.known;
-    badge.textContent = light ? "FREEMIUM" : "PROFESSIONAL";
-  }
-  _VA_FULL_ONLY.forEach(function(sel) {
-    const el = document.querySelector(sel);
-    if (el) el.classList.toggle("va-locked", light);
-  });
-  if (light) {
-    const player = document.getElementById("websid-play-dialog");
-    if (player?.open) { if (typeof _sidExtStop === "function") _sidExtStop(); player.close(); }
-    if (typeof runMode !== "undefined" && _VA_FULL_RUN_MODES.includes(runMode)) setRunMode("prg");
-    if (typeof exomizerEnabled !== "undefined" && exomizerEnabled) {
-      exomizerEnabled = false;
-      if (runExomizerToggle) runExomizerToggle.checked = false;
+function _serverMessageMarkSeen(id) {
+  const list = _serverMessageSeen().filter(function(x) { return x !== id; });
+  list.push(id);
+  try { localStorage.setItem(_SERVER_MESSAGE_SEEN_KEY, JSON.stringify(list.slice(-100))); } catch (_) {}
+}
+// Server message HTML: only these tags survive, links keep an http(s) / mailto href and open in the browser.
+const _SERVER_MESSAGE_TAGS = new Set(["P", "BR", "B", "STRONG", "I", "EM", "U", "S", "SMALL", "CODE", "PRE", "BLOCKQUOTE",
+  "H3", "H4", "UL", "OL", "LI", "HR", "SPAN", "A"]);
+const _SERVER_MESSAGE_DROP = /^(SCRIPT|STYLE|IFRAME|OBJECT|EMBED|TEMPLATE|SVG|MATH|NOSCRIPT|TEXTAREA|SELECT|TITLE)$/;
+function _serverMessageSanitize(html) {
+  const tpl = document.createElement("template");
+  tpl.innerHTML = String(html || "");
+  const walk = (node) => {
+    for (const n of [...node.childNodes]) {
+      if (n.nodeType === 3) continue;
+      const tag = n.nodeType === 1 ? n.tagName.toUpperCase() : "";
+      if (!_SERVER_MESSAGE_TAGS.has(tag) || n.namespaceURI !== "http://www.w3.org/1999/xhtml") {
+        // unknown element: keep its text / allowed children, drop the tag itself
+        if (tag && !_SERVER_MESSAGE_DROP.test(tag)) {
+          walk(n);
+          while (n.firstChild) node.insertBefore(n.firstChild, n);
+        }
+        n.remove();
+        continue;
+      }
+      const href = tag === "A" ? (n.getAttribute("href") || "").trim() : "";
+      for (const a of [...n.attributes]) n.removeAttribute(a.name);
+      if (/^(https?:|mailto:)/i.test(href)) n.setAttribute("href", href);
+      walk(n);
     }
-  }
-  // freemium: Hungarian and English only
-  if (languageSelect) {
-    Array.from(languageSelect.options).forEach(function(o) { o.disabled = light && !_VA_FREE_LANGUAGES.includes(o.value); });
-    if (light && !_VA_FREE_LANGUAGES.includes(currentLanguage)) {
-      languageSelect.value = "en";
-      handleLanguageChange();
-      return;
-    }
-  }
-  // freemium: light and dark themes only
-  document.querySelectorAll(".theme-option").forEach(function(btn) {
-    btn.classList.toggle("va-locked", light && !_VA_FREE_THEMES.includes(btn.dataset.themeOpt));
-  });
-  if (light && !_VA_FREE_THEMES.includes(document.documentElement.dataset.theme || "light")) setTheme("dark");
-  const about = document.getElementById("about-license");
-  if (about) about.textContent = light ? t("licenseLightLabel") : tf("licensedTo", { email: _vaLicense.email || "—" });
+  };
+  walk(tpl.content);
+  return tpl.innerHTML;
 }
-function _vaLicenseSetStatus(text, kind) {
-  const el = document.getElementById("license-status");
-  if (!el) return;
-  el.textContent = text || "";
-  el.classList.toggle("license-status--error", kind === "error");
-  el.classList.toggle("license-status--ok", kind === "ok");
-}
-function _vaLicenseRender(lockedFeature) {
-  const licensed = _vaFullAllowed() && !!_vaLicense.email;
-  const msg = document.getElementById("license-msg");
-  if (msg) msg.textContent = licensed ? tf("licensedTo", { email: _vaLicense.email })
-    : (lockedFeature ? t("licenseLocked") + " " : "") + t("licenseIntro");
-  const deact = document.getElementById("license-deactivate");
-  if (deact) deact.hidden = !licensed;
-  const req = document.getElementById("license-request");
-  if (req) req.hidden = licensed;
-  const email = document.getElementById("license-email");
-  if (email && licensed) email.value = _vaLicense.email;
-}
-function _vaOpenLicenseDialog(lockedFeature = false) {
-  const dlg = document.getElementById("license-dialog");
+function _serverMessageShow(msg) {
+  const dlg = document.getElementById("server-message-dialog");
   if (!dlg) return;
-  document.querySelector(".control-menu")?.removeAttribute("open");
-  _vaLicenseSetStatus("");
-  _vaLicenseRender(lockedFeature);
-  if (!dlg.open) dlg.showModal();
-  const email = document.getElementById("license-email");
-  (email && !email.value ? email : document.getElementById("license-serial"))?.focus();
-}
-async function _vaLicenseActivate() {
-  const email = document.getElementById("license-email")?.value || "";
-  const serial = document.getElementById("license-serial")?.value || "";
-  if (!window.electronAPI?.licenseActivate) return;
-  let res = null;
-  try { res = await window.electronAPI.licenseActivate(email, serial); } catch (_) { res = null; }
-  if (!res || !res.ok) { _vaLicenseSetStatus(t("licenseInvalid"), "error"); return; }
-  _vaLicense = { licensed: true, email: res.email, known: true };
-  _vaLicenseApply();
-  _vaLicenseRender(false);
-  _vaLicenseSetStatus(tf("licenseActivated", { email: res.email }), "ok");
-}
-async function _vaLicenseRequest() {
-  const input = document.getElementById("license-email");
-  const email = (input?.value || "").trim();
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { _vaLicenseSetStatus(t("licenseRequestInvalidEmail"), "error"); input?.focus(); return; }
-  if (!window.electronAPI?.licenseRequest) return;
-  const btn = document.getElementById("license-request");
-  if (btn) btn.disabled = true;
-  _vaLicenseSetStatus(t("licenseRequestSending"));
-  let res = null;
-  try { res = await window.electronAPI.licenseRequest(email, currentLanguage); } catch (_) { res = null; }
-  if (btn) btn.disabled = false;
-  const keys = { sent: "licenseRequestSent", invalid_email: "licenseRequestInvalidEmail", not_donor: "licenseRequestNotDonor", exists: "licenseRequestExists",
-    rate: "licenseRequestRate", network: "licenseRequestNetwork" };
-  const result = res?.result || "server";
-  _vaLicenseSetStatus(tf(keys[result] || "licenseRequestFailed", { email }), result === "sent" ? "ok" : "error");
-  if (result === "sent") document.getElementById("license-serial")?.focus();
-}
-async function _vaLicenseDeactivate() {
-  if (!await _showConfirm(t("licenseDeactivateConfirm"))) return;
-  try { await window.electronAPI?.licenseDeactivate?.(); } catch (_) {}
-  await _vaLicenseRefresh();
-  const serial = document.getElementById("license-serial");
-  if (serial) serial.value = "";
-  _vaLicenseRender(false);
-  _vaLicenseSetStatus("");
-}
-function setupLicense() {
-  // capture phase: runs before the locked element's own handlers
-  document.addEventListener("click", function(e) {
-    if (_vaFullAllowed()) return;
-    const hit = e.target instanceof Element ? e.target.closest(_VA_FULL_ONLY.join(",")) : null;
-    if (!hit) return;
+  // after the customer message / any modal the user is in; a non-modal one (Number Converter, SID Player) stays open below
+  let busy = false;
+  try { busy = !!document.querySelector("dialog[open]:modal"); } catch (_) { busy = !!document.querySelector("dialog[open]:not(#numconv-dialog):not(#websid-play-dialog)"); }
+  if (busy) { setTimeout(function() { _serverMessageShow(msg); }, 3000); return; }
+  dlg.classList.toggle("server-message-dialog--warn", msg.level === "warn");
+  const caption = document.getElementById("server-message-caption");
+  caption.textContent = msg.caption || "";
+  caption.hidden = !msg.caption;
+  document.getElementById("server-message-title").textContent = msg.title || t("serverMessageTitle");
+  const image = document.getElementById("server-message-image");
+  image.hidden = !msg.image;
+  if (msg.image) image.src = msg.image; else image.removeAttribute("src");
+  const body = document.getElementById("server-message-body");
+  const isHtml = /<[a-z!\/]/i.test(msg.body || "");
+  body.classList.toggle("server-message-body--text", !isHtml);
+  if (isHtml) body.innerHTML = _serverMessageSanitize(msg.body); else body.textContent = msg.body || "";
+  body.onclick = function(e) {
+    const a = e.target.closest("a[href]");
+    if (!a) return;
     e.preventDefault();
-    e.stopImmediatePropagation();
-    _vaOpenLicenseDialog(true);
-  }, true);
-  document.getElementById("license-btn")?.addEventListener("click", function() { _vaOpenLicenseDialog(false); });
-  document.getElementById("license-badge")?.addEventListener("click", function() { _vaOpenLicenseDialog(false); });
-  document.getElementById("license-activate")?.addEventListener("click", _vaLicenseActivate);
-  document.getElementById("license-deactivate")?.addEventListener("click", _vaLicenseDeactivate);
-  document.getElementById("license-request")?.addEventListener("click", _vaLicenseRequest);
-  document.getElementById("license-close")?.addEventListener("click", function() { document.getElementById("license-dialog")?.close(); });
-  document.getElementById("license-buy")?.addEventListener("click", function() {
-    const url = "https://www.c64va.pro/register/buy.php?lang=" + (currentLanguage === "hu" ? "hu" : "en");
-    if (window.electronAPI?.openExternal) window.electronAPI.openExternal(url); else window.open(url, "_blank", "noopener");
-  });
-  _vaLicenseRefresh();
+    window.electronAPI?.openExternal?.(a.getAttribute("href"));
+  };
+  const open = document.getElementById("server-message-open");
+  open.textContent = t("serverMessageOpen");
+  open.hidden = !msg.url;
+  open.onclick = function() { if (msg.url) window.electronAPI?.openExternal?.(msg.url); };
+  const close = document.getElementById("server-message-close");
+  close.textContent = t("bugClose");
+  dlg.onclose = function() { _serverMessageMarkSeen(msg.id); };
+  close.onclick = function() { dlg.close(); };
+  dlg.showModal();
+  requestAnimationFrame(function() { close.focus(); });
 }
-
+// Active usage time for the anonymous statistics: a minute counts when the window is visible and there was input
+// in the last 5 minutes; flushed to the config every 5 minutes and when the window is hidden (app_usage_add).
+const _USAGE_IDLE_MS = 5 * 60 * 1000;
+let _usageLastInput = Date.now();
+let _usagePending = 0;
+function _usageFlush() {
+  if (!_usagePending) return;
+  const n = _usagePending;
+  _usagePending = 0;
+  try { window.electronAPI?.appUsageAdd?.(n)?.catch?.(() => {}); } catch (_) {}
+}
+function _usageStart() {
+  if (!window.electronAPI?.appUsageAdd) return;
+  const touch = () => { _usageLastInput = Date.now(); };
+  ["keydown", "mousedown", "mousemove", "wheel", "touchstart"].forEach(ev => window.addEventListener(ev, touch, { passive: true, capture: true }));
+  let ticks = 0;
+  setInterval(() => {
+    if (!document.hidden && Date.now() - _usageLastInput < _USAGE_IDLE_MS) _usagePending++;
+    if (++ticks % 5 === 0) _usageFlush();
+  }, 60000);
+  document.addEventListener("visibilitychange", () => { if (document.hidden) _usageFlush(); });
+  window.addEventListener("pagehide", _usageFlush);
+}
+async function _serverMessageStartup() {
+  const api = window.electronAPI;
+  if (!api?.fetchAppMessage) return;
+  try { await api.appLaunchPing?.(currentLanguage); } catch (_) {}
+  let msg = null;
+  try { msg = await api.fetchAppMessage(currentLanguage); } catch (_) { msg = null; }
+  if (!msg || !msg.id || _serverMessageSeen().includes(String(msg.id))) return;
+  let image = "";
+  if (msg.image) {
+    try { image = (await api.fetchAppMessageImage?.(msg.image)) || ""; } catch (_) { image = ""; }
+    if (!/^data:image\/(png|jpeg|gif|webp);base64,/.test(image)) image = "";
+  }
+  _serverMessageShow({ id: String(msg.id), caption: String(msg.caption || ""), title: String(msg.title || ""), body: String(msg.body || ""),
+    url: /^https?:\/\//.test(msg.url || "") ? msg.url : "", level: msg.level, image });
+}

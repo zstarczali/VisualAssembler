@@ -78,7 +78,7 @@ if ($id) {
                 <tr><td>STATUS</td><td><?= $status($bug['status']) ?></td></tr>
                 <tr><td>REPORTED</td><td><?= vaH($bug['created_at']) ?><?= $bug['updated_at'] ? ' · UPDATED ' . vaH($bug['updated_at']) : '' ?></td></tr>
                 <tr><td>FROM</td><td><?= $bug['email'] !== '' ? '<a href="mailto:' . vaH($bug['email']) . '?subject=' . rawurlencode('Re: [VA bug #' . $id . '] ' . $bug['summary']) . '">' . vaH($bug['email']) . '</a>' : '-' ?></td></tr>
-                <tr><td>VERSION</td><td><?= vaH($bug['version']) ?> / <?= vaH($bug['os']) ?> / <?= vaH(strtoupper((string) $bug['lang'])) ?> / <?= $bug['licensed'] ? 'PROFESSIONAL' : 'FREEMIUM' ?></td></tr>
+                <tr><td>VERSION</td><td><?= vaH($bug['version']) ?> / <?= vaH($bug['os']) ?> / <?= vaH(strtoupper((string) $bug['lang'])) ?> / <?= $bug['licensed'] ? 'PROFESSIONAL' : '-' ?></td></tr>
             </table>
             <form method="post" class="row" style="margin-top:14px"><?= $hidden('status') ?>
                 <?php foreach (VA_BUG_STATUSES as $s): ?>

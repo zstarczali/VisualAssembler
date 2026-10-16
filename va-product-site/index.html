@@ -1090,59 +1090,6 @@
     /* 80-as évek gumibélyegző: JUST 5 € */
     .download-group--va { position: relative }
 
-    /* Freemium vs Professional */
-    .plans { margin-top: 48px; text-align: left }
-    .plans-title { text-align: center; font-family: 'C64Pro', monospace; color: var(--txt-hi); font-size: clamp(15px, 2vw, 22px); letter-spacing: 3px; margin-bottom: 8px }
-    .plans-sub { text-align: center; color: var(--txt-dim); font-size: 11px; letter-spacing: 1px; margin-bottom: 22px }
-    .plans-scroll { overflow-x: auto }
-    .plans-table { width: 100%; border-collapse: collapse; font-size: 11px; letter-spacing: 1px; min-width: 520px }
-    .plans-table th, .plans-table td { padding: 11px 14px; border-bottom: 1px solid var(--brd); vertical-align: middle; line-height: 1.5 }
-    .plans-table thead th { font-family: 'C64Pro', monospace; font-weight: normal; font-size: 12px; color: var(--txt-hi); letter-spacing: 2px; border-bottom: 2px solid var(--brd-hi) }
-    .plans-table th:first-child { text-align: left; color: var(--txt); font-family: 'C64Mono', monospace; font-weight: normal; font-size: 11px; letter-spacing: 1px }
-    .plans-table td { text-align: center; width: 24%; color: var(--txt) }
-    .plans-table tbody th small { display: block; color: var(--txt-dim); font-size: 10px }
-    .plans-table .plan-pro { background: rgba(184, 199, 111, .06); border-left: 1px solid rgba(184, 199, 111, .35); border-right: 1px solid rgba(184, 199, 111, .35) }
-    .plans-table thead .plan-pro { color: var(--ylw); border-top: 1px solid rgba(184, 199, 111, .35) }
-    .plans-table .yes { color: var(--grn); font-size: 15px }
-    .plans-table .no { color: var(--txt-dim) }
-    .plans-table .price td { font-family: 'C64Pro', monospace; font-size: 18px; color: var(--txt-hi) }
-    .plans-table .price td.plan-pro { color: var(--ylw) }
-    .plans-table .group th { padding-top: 18px; color: var(--cyn); font-size: 10px; letter-spacing: 3px; border-bottom-color: transparent }
-    .plans-table .group td { border-bottom-color: transparent }
-    .plans-cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 24px }
-    .plans-table .plan-short { display: none }
-    @media (max-width: 640px) {
-      .plans-table { min-width: 0; font-size: 9px; letter-spacing: 0 }
-      .plans-table th, .plans-table td { padding: 8px 4px; line-height: 1.35 }
-      .plans-table th:first-child { font-size: 9px; letter-spacing: 0; word-break: break-word }
-      .plans-table td { width: 20% }
-      .plans-table thead th { font-size: 9px; letter-spacing: 1px }
-      .plans-table tbody th small { display: none }
-      .plans-table .plan-long { display: none }
-      .plans-table .plan-short { display: inline }
-      .plans-table .yes { font-size: 13px }
-      .plans-table .group th { font-size: 9px; letter-spacing: 2px }
-      .plans-table .price td { font-size: 13px }
-      .plans-cta .btn { letter-spacing: 1px; padding: 10px 14px !important }
-    }
-    .price-stamp {
-      position: absolute; top: -38px; right: -26px; z-index: 3;
-      width: 138px; height: 138px; display: block;
-      transform: rotate(-14deg); transition: transform .25s ease;
-      filter: drop-shadow(0 3px 0 rgba(0, 0, 0, .35));
-      animation: stamp-in .55s cubic-bezier(.2, 1.6, .4, 1) .3s both
-    }
-    .price-stamp:hover, .price-stamp:focus-visible { transform: rotate(-4deg) scale(1.08) }
-    .price-stamp svg { width: 100%; height: 100%; overflow: visible }
-    @keyframes stamp-in {
-      0% { opacity: 0; transform: rotate(-30deg) scale(2.2) }
-      70% { opacity: 1; transform: rotate(-11deg) scale(.94) }
-      100% { opacity: 1; transform: rotate(-14deg) scale(1) }
-    }
-    @media (max-width: 640px) {
-      .price-stamp { width: 104px; height: 104px; top: -30px; right: -8px }
-    }
-    @media (prefers-reduced-motion: reduce) { .price-stamp { animation: none } }
 
     .download-group:last-child {
       grid-column: 1 / -1
@@ -1267,6 +1214,15 @@
       color: var(--txt);
       font-size: 12px;
       line-height: 1.8
+    }
+
+    .download-support-note {
+      margin: -8px 0 22px;
+      padding: 10px 12px;
+      border: 1px dashed var(--brd-hi);
+      color: var(--ylw);
+      font-size: 11px;
+      line-height: 1.7
     }
 
     .download-support-actions {
@@ -2125,7 +2081,7 @@
 
   <nav>
     <div class="nav-brand">
-      <img src="assets/logo2.png" alt="C64VA">
+      <img src="assets/icon.png" alt="C64VA">
       C64 VISUAL ASSEMBLER
     </div>
     <div class="sp"></div>
@@ -2139,7 +2095,6 @@
       <a class="nav-link" href="#features">FEATURES</a>
       <a class="nav-link" href="#editors">EDITORS</a>
       <a class="nav-link" href="#docs">DOCS</a>
-      <a class="nav-link" href="#plans">PRICING</a>
       <a class="nav-link" href="#merch">MERCH</a>
       <a class="nav-link nav-dl" href="#download">DOWNLOAD</a>
     </div>
@@ -2161,7 +2116,7 @@
       </div>
     </div>
     <div class="hero-left">
-      <div class="badge">V2.5.9 — LATEST RELEASE</div>
+      <div class="badge">V2.6.0 — LATEST RELEASE</div>
       <h1 class="hero-title">WRITE C64 PROGRAMS<br><span>BLOCKS, MACRO-ASM OR ULTIMATE BASIC.</span></h1>
       <p class="hero-tagline">&ldquo;The best all-in-one, multiplatform Commodore 64 IDE.&rdquo;</p>
       <p class="hero-sub">A modern Commodore 64 IDE: drag-and-drop 6502 assembly blocks or switch to a full text editor
@@ -2176,13 +2131,25 @@
     </div>
   </section>
 
+  <!-- V2.6.0: FREE FOR EVERYONE -->
+  <div id="release-260" style="padding:80px 0">
+    <div class="sec" style="padding-top:0;padding-bottom:0">
+      <div class="ub-tag">NEW IN V2.6.0</div>
+      <div class="sec-s">// NO MORE LICENSES</div>
+      <h2 class="sec-t">EVERY FEATURE<br><span style="color:var(--ylw)">FREE FOR EVERYONE</span></h2>
+      <p class="sec-d" style="max-width:680px">The Freemium / Professional licensing is gone: every editor, build and hardware run option, all 7 languages and every theme work without registration or a serial. Under Hungarian tax rules, selling the program would leave too little after taxes and paperwork to be worth it &mdash; so it is simply free. Serials you already have are no longer needed.</p>
+    </div>
+  </div>
+
+  <hr class="div">
+
   <!-- V2.5.9: COMMODORE 64, BEIGE + STARLIGHT THEMES -->
   <div id="release-259" style="background:var(--scr-darker);padding:80px 0">
     <div class="sec" style="padding-top:0;padding-bottom:0">
-      <div class="ub-tag">NEW IN V2.5.9</div>
+      <div class="ub-tag">V2.5.9</div>
       <div class="sec-s">// BREADBIN COLOURS</div>
       <h2 class="sec-t">THREE NEW<br><span style="color:var(--ylw)">COMMODORE THEMES</span></h2>
-      <p class="sec-d" style="max-width:680px">Version 2.5.9 dresses the IDE in the colours of the C64 itself (Professional).</p>
+      <p class="sec-d" style="max-width:680px">Version 2.5.9 dresses the IDE in the colours of the C64 itself.</p>
       <div class="feature-list fl-2col">
         <div class="fi">
           <div class="fi-dot">&#9658;</div>
@@ -2223,10 +2190,6 @@
         <div class="fi">
           <div class="fi-dot">&#9658;</div>
           <div><b>Report Bug:</b> <span>a built-in form with screenshots (paste with Ctrl+V or drag and drop) and system info, sent straight to the developer.</span></div>
-        </div>
-        <div class="fi">
-          <div class="fi-dot">&#9658;</div>
-          <div><b>Professional serial by email:</b> <span>supporters request their serial in the app; buy Professional here for 5 &euro; and the serial arrives right after payment.</span></div>
         </div>
         <div class="fi">
           <div class="fi-dot">&#9658;</div>
@@ -2274,7 +2237,7 @@
 
   <hr class="div">
 
-  <!-- V2.5.6: SID PLAYER, VA SID CORE, FREEMIUM / PROFESSIONAL -->
+  <!-- V2.5.6: SID PLAYER, VA SID CORE -->
   <div id="release-256" style="background:var(--scr-darker);padding:80px 0">
     <div class="sec" style="padding-top:0;padding-bottom:0">
       <div class="ub-tag">V2.5.6</div>
@@ -2288,7 +2251,7 @@
         </div>
         <div class="fi">
           <div class="fi-dot">&#9658;</div>
-          <div><b>VA SID Core 1.1:</b> <span>a built-in SID emulation (MOS 6581 / 8580, reSID-aligned 6581 filter) with a cycle-locked player, so raster-IRQ and digi tunes play too.</span></div>
+          <div><b>VA SID Core 1.1:</b> <span>a built-in SID emulation (MOS 6581 / 8580, MOS 6581/8580-based 6581 filter) with a cycle-locked player, so raster-IRQ and digi tunes play too.</span></div>
         </div>
         <div class="fi">
           <div class="fi-dot">&#9658;</div>
@@ -2297,10 +2260,6 @@
         <div class="fi">
           <div class="fi-dot">&#9658;</div>
           <div><b>GoatTracker import:</b> <span><b>Files &rarr; Import GoatTracker .sng&hellip;</b> turns a GoatTracker 2 song into SID Editor instruments, patterns and song.</span></div>
-        </div>
-        <div class="fi">
-          <div class="fi-dot">&#9658;</div>
-          <div><b>Freemium and Professional:</b> <span>download free and start coding; the Professional version unlocks every editor, build and hardware run option, language and theme.</span></div>
         </div>
         <div class="fi">
           <div class="fi-dot">&#9658;</div>
@@ -3259,7 +3218,7 @@
             class="tab-cap-d">CHARSET BANKS, COLOR RAM, MULTICOLOR, MAP_COPY MACRO EXPORT</span></div>
       </div>
       <div class="tab-panel" id="tab-level">
-        <img src="uploads/level-editor.png" alt="Level editor in C64 Visual Assembler" width="2099" height="1354">
+        <img src="uploads/level-editor.png" alt="Level editor in C64 Visual Assembler" width="2100" height="1440">
         <div class="tab-cap"><span class="tab-cap-t">LEVEL EDITOR — SCROLLING WORLD BUILDER</span><span
             class="tab-cap-d">ARRANGE MAP SCREENS INTO HORIZONTAL, VERTICAL OR GRID LEVELS — EXPORT FOR ASM OR ULTIMATE BASIC</span></div>
       </div>
@@ -3395,39 +3354,6 @@
         <p class="sec-d">Download the ready-to-use Visual Assembler installer for your system, Ultimate Basic command-line packages, manuals and example projects directly from this site.</p>
         <div class="download-groups">
           <div class="download-group download-group--va">
-            <a class="price-stamp" href="register/buy.php" aria-label="Professional — just 5 euro">
-              <svg viewBox="0 0 140 140" aria-hidden="true">
-                <defs>
-                  <filter id="stamp-ink" x="-10%" y="-10%" width="120%" height="120%">
-                    <feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="7" result="noise"/>
-                    <feColorMatrix in="noise" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.3 1.75" result="holes"/>
-                    <feComposite in="SourceGraphic" in2="holes" operator="in" result="worn"/>
-                    <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="3" result="warp"/>
-                    <feDisplacementMap in="worn" in2="warp" scale="2.2"/>
-                  </filter>
-                  <path id="stamp-top" d="M 24 70 A 46 46 0 0 1 116 70"/>
-                  <path id="stamp-bottom" d="M 20 70 A 50 50 0 0 0 120 70"/>
-                </defs>
-                <g filter="url(#stamp-ink)">
-                  <circle cx="70" cy="70" r="67" fill="#e8322a"/>
-                  <g fill="none" stroke="#fff3d6">
-                    <circle cx="70" cy="70" r="61" stroke-width="2.4"/>
-                    <circle cx="70" cy="70" r="56.5" stroke-width="1"/>
-                    <circle cx="70" cy="70" r="35" stroke-width="1.4" stroke-dasharray="3 3"/>
-                  </g>
-                  <g fill="#fff3d6" font-family="'C64Pro', monospace">
-                    <text font-size="10.5" letter-spacing="1.6">
-                      <textPath href="#stamp-top" startOffset="50%" text-anchor="middle">★ PROFESSIONAL ★</textPath>
-                    </text>
-                    <text font-size="9" letter-spacing="1.4">
-                      <textPath href="#stamp-bottom" startOffset="50%" text-anchor="middle">ALL FEATURES</textPath>
-                    </text>
-                    <text x="70" y="61" text-anchor="middle" font-size="11" letter-spacing="2">JUST</text>
-                    <text x="70" y="89" text-anchor="middle" font-size="28">5€</text>
-                  </g>
-                </g>
-              </svg>
-            </a>
             <div class="download-group-title">VISUAL ASSEMBLER</div>
             <div class="download-picker" data-download-picker>
               <p class="download-picker-label">1. SELECT YOUR PLATFORM</p>
@@ -3450,11 +3376,6 @@
                 <a class="download-item" href="download.php?file=va-linux-deb">DEBIAN / UBUNTU X64</a>
                 <a class="download-item" href="download.php?file=va-linux-rpm">FEDORA / RPM X64</a>
               </div>
-            </div>
-            <p class="download-picker-label" style="margin-top:14px">3. GO PROFESSIONAL — EVERY FEATURE, NO LIMITS</p>
-            <div class="download-variant is-active">
-              <a class="download-item" href="register/buy.php">BUY PROFESSIONAL —&nbsp;<span style="white-space:nowrap">5&nbsp;€</span></a>
-              <a class="download-item" href="register/">REQUEST SERIAL (SUPPORTERS)</a>
             </div>
           </div>
           <div class="download-group">
@@ -3493,43 +3414,7 @@
             </div>
           </div>
         </div>
-
-        <div class="plans" id="plans">
-          <h3 class="plans-title">FREEMIUM <span style="color:var(--txt-dim)">VS</span> <span style="color:var(--ylw)">PROFESSIONAL</span></h3>
-          <p class="plans-sub">THE FREE VERSION IS A COMPLETE C64 IDE. PROFESSIONAL UNLOCKS EVERY EDITOR, BUILD AND HARDWARE FEATURE.</p>
-          <div class="plans-scroll">
-            <table class="plans-table">
-              <thead>
-                <tr><th scope="col">FEATURE</th><th scope="col"><span class="plan-long">FREEMIUM</span><span class="plan-short">FREE</span></th><th scope="col" class="plan-pro"><span class="plan-long">★ PROFESSIONAL</span><span class="plan-short">★ PRO</span></th></tr>
-              </thead>
-              <tbody>
-                <tr class="group"><th scope="rowgroup">// CODE</th><td></td><td class="plan-pro"></td></tr>
-                <tr><th scope="row">BLOCK EDITOR, EXPERT ASSEMBLER, ULTIMATE BASIC<small>DRAG &amp; DROP BLOCKS, MACROS, PROJECTS, TEMPLATES</small></th><td class="yes" aria-label="Included">✓</td><td class="yes plan-pro" aria-label="Included">✓</td></tr>
-                <tr><th scope="row">RUN IN VICE, DEBUGGER, MONITOR, DISASSEMBLER<small>BREAKPOINTS, RETRODEBUGGER, MEMORY MAP</small></th><td class="yes" aria-label="Included">✓</td><td class="yes plan-pro" aria-label="Included">✓</td></tr>
-                <tr><th scope="row">SAMPLES, TUTORIALS, MANUALS</th><td class="yes" aria-label="Included">✓</td><td class="yes plan-pro" aria-label="Included">✓</td></tr>
-                <tr class="group"><th scope="rowgroup">// BUILD &amp; HARDWARE</th><td></td><td class="plan-pro"></td></tr>
-                <tr><th scope="row">BUILD PRG / D64 / CRT FILES<small>INCLUDING BUILD PROJECT</small></th><td class="no" aria-label="Not included">—</td><td class="yes plan-pro" aria-label="Included">✓</td></tr>
-                <tr><th scope="row">EXOMIZER COMPRESSION</th><td class="no" aria-label="Not included">—</td><td class="yes plan-pro" aria-label="Included">✓</td></tr>
-                <tr><th scope="row">RUN ON C64 ULTIMATE / KUNG FU FLASH 2<small>REAL C64 / C128 HARDWARE</small></th><td class="no" aria-label="Not included">—</td><td class="yes plan-pro" aria-label="Included">✓</td></tr>
-                <tr class="group"><th scope="rowgroup">// EDITORS</th><td></td><td class="plan-pro"></td></tr>
-                <tr><th scope="row">SPRITE, CHARSET, CHARSET CANVAS, HI-RES</th><td class="no" aria-label="Not included">—</td><td class="yes plan-pro" aria-label="Included">✓</td></tr>
-                <tr><th scope="row">MAP &amp; LEVEL EDITOR</th><td class="no" aria-label="Not included">—</td><td class="yes plan-pro" aria-label="Included">✓</td></tr>
-                <tr><th scope="row">SID TRACKER EDITOR &amp; SID PLAYER<small>VA SID CORE, MIDI, GOATTRACKER IMPORT</small></th><td class="no" aria-label="Not included">—</td><td class="yes plan-pro" aria-label="Included">✓</td></tr>
-                <tr><th scope="row">D64 DISK EDITOR, CURVE GENERATOR</th><td class="no" aria-label="Not included">—</td><td class="yes plan-pro" aria-label="Included">✓</td></tr>
-                <tr class="group"><th scope="rowgroup">// LOOK &amp; FEEL</th><td></td><td class="plan-pro"></td></tr>
-                <tr><th scope="row">UI LANGUAGES<small>EN, HU, DE, ES, NL, PL, IT</small></th><td>HU + EN</td><td class="plan-pro">ALL 7</td></tr>
-                <tr><th scope="row">THEMES</th><td>LIGHT + DARK</td><td class="plan-pro">+ OLED, COMMODORE 77, STARLIGHT, BEIGE, C64</td></tr>
-                <tr class="price"><th scope="row">PRICE</th><td>FREE</td><td class="plan-pro"><span style="white-space:nowrap">5&nbsp;€</span><small style="display:block;font-family:'C64Mono',monospace;font-size:10px;color:var(--txt-dim)">ONE-TIME</small></td></tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="plans-cta">
-            <a class="btn btn-o" href="#download" style="font-size:12px;padding:10px 22px">► DOWNLOAD FREE</a>
-            <a class="btn btn-y" href="register/buy.php" style="font-size:12px;padding:10px 22px">★ BUY PROFESSIONAL —&nbsp;<span style="white-space:nowrap">5&nbsp;€</span></a>
-            <a class="btn btn-o" href="register/" style="font-size:12px;padding:10px 22px">SUPPORTER? GET YOUR SERIAL</a>
-          </div>
-        </div>
-        <div class="dl-sub">OPEN SOURCE — MIT LICENSE — BUILT WITH TAURI + RUST</div>
+        <div class="dl-sub">FREE — GPLv3 LICENSE — BUILT WITH TAURI + RUST</div>
         <div style="margin-top:20px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
           <a class="btn facebook-link" href="https://www.facebook.com/groups/4435397303367080/" target="_blank"
             rel="noopener" aria-label="Join the Visual Assembler Facebook group"
@@ -3777,9 +3662,11 @@
           <a href="#docs">DOCS</a>
           <a href="https://github.com/zstarczali/VisualAssembler/blob/main/LICENSE" target="_blank">LICENSE</a>
           <a href="#editors">SAMPLES</a>
+          <a href="privacy.html">PRIVACY</a>
+          <a href="#" data-cookie-settings>COOKIES</a>
         </div>
         <div class="visitor-counter" aria-live="polite">VISITORS <strong id="visitor-count">—</strong></div>
-        <div class="foot-copy">MIT LICENSE — FREE &amp; OPEN SOURCE</div>
+        <div class="foot-copy">GPLv3 LICENSE — FREE</div>
       </div>
     </div>
   </footer>
@@ -3862,12 +3749,15 @@
       });
     }
 
-    fetch('visitor-counter.php', { cache: 'no-store', credentials: 'same-origin' })
+    // a látogatót csak statisztikai hozzájárulással számolja (assets/consent.js)
+    const loadVisitors = () => fetch('visitor-counter.php' + (window.vaConsent?.get('stats') ? '?count=1' : ''), { cache: 'no-store', credentials: 'same-origin' })
       .then(response => response.ok ? response.json() : Promise.reject(response))
       .then(data => {
         if (Number.isInteger(data.count)) document.getElementById('visitor-count').textContent = data.count.toLocaleString();
       })
       .catch(() => { document.getElementById('visitor-count').textContent = 'OFFLINE'; });
+    loadVisitors();
+    document.addEventListener('va-consent', event => { if (event.detail.stats) loadVisitors(); });
 
 
     document.querySelector('.docs-open').addEventListener('click', () => {
@@ -3942,6 +3832,7 @@
       setTimeout(sparkle, 2500);
     })();
   </script>
+  <script src="assets/consent.js?v=1"></script>
 </body>
 
 </html>

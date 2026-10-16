@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.5.9**
+**Verzió: 2.6.0**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -29,11 +29,17 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 
 ---
 
+## A 2.6.0 verzió újdonságai
+
+- **A Visual Assembler teljesen ingyenes lett** — megszűnt a Freemium / Professional licencelés. Minden szerkesztő, build és hardveres futtatás, mind a 7 felületnyelv és minden téma mindenkinek elérhető, regisztráció és sorozatszám nélkül. Az ok egyszerű: a magyar adószabályok mellett az eladásból az adók és az adminisztráció után túl kevés maradna ahhoz, hogy megérje pénzért adni. A már meglévő sorozatszámra nincs többé szükség. Lásd: [Ingyenes és nyílt forrású](#ingyenes-és-nyílt-forrású).
+
+---
+
 ## A 2.5.9 verzió újdonságai
 
-- **Commodore 64 téma** — a C64 bekapcsolási képernyője: világoskék keret a kék panelek körül, világoskék szöveg, inverz gombok, a C64 palettájából vett szintaxisszínek és C64 betűkészlet a monitornézetben (Professional).
-- **Commodore Beige téma** — a klasszikus „kenyérdoboz”: bézs tok, mustársárga funkcióbillentyű-gombok, a logó szivárványcsíkja és C64 kék monitornézet. A témaválasztóban vagy a téma gombbal léptetve érhető el (Professional).
-- **Commodore Starlight téma** — világos téma az átlátszó C64 tok nyomán: jégfehér üveg, amelyen átdereng a szivárványos RGB-fény, magenta kiemelés, szivárványos szintaxisszínek és füstös sötét monitornézet (Professional).
+- **Commodore 64 téma** — a C64 bekapcsolási képernyője: világoskék keret a kék panelek körül, világoskék szöveg, inverz gombok, a C64 palettájából vett szintaxisszínek és C64 betűkészlet a monitornézetben.
+- **Commodore Beige téma** — a klasszikus „kenyérdoboz”: bézs tok, mustársárga funkcióbillentyű-gombok, a logó szivárványcsíkja és C64 kék monitornézet. A témaválasztóban vagy a téma gombbal léptetve érhető el.
+- **Commodore Starlight téma** — világos téma az átlátszó C64 tok nyomán: jégfehér üveg, amelyen átdereng a szivárványos RGB-fény, magenta kiemelés, szivárványos szintaxisszínek és füstös sötét monitornézet.
 - **Verziókezelés ablak** — a fejlécénél fogva mozgatható, és ott nyílik meg újra, ahol hagytad; ha a napló vagy egy diff megnöveli, a képernyőn marad, és kívülre kattintva már nem zárul be (Esc-re igen). Lásd: [Verziókezelés](#verziókezelés).
 - **Projektszintű verziókezelés** — megnyitott `.proj` projekt fülénél a **Fájl / Projekt** kapcsolóval a commit a projekt összes forrásfájlját (projektfa + include-olt fájlok) egy bejegyzésben rögzíti. A napló commitonként mutatja a változott fájlokat, a Diff fájlonként dolgozik, a Checkout minden fájlt visszatölt a szerkesztő füleibe, és az automatikus mentések projektszinten is készülnek. Git módban a napló és a diff az egész repóra vonatkozik. Lásd: [Projekt mód](#projekt-mód).
 
@@ -44,7 +50,6 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - **Verziókezelés** — a projekt snapshotokból git-szerű verziókezelés lett: commitok üzenettel és rövid hash-sel, napló **HEAD** jelöléssel, **Diff** a munkapéldánnyal, **Checkout** a szerkesztőbe és külön jelölt automatikus mentések. A Block módú (JSON) programokat assembly-sorokként hasonlítja össze, így a diff a valódi változásokat mutatja. Block, Expert és Ultimate Basic fülön is működik. Lásd: [Verziókezelés](#verziókezelés).
 - **Git integráció** — a `git.exe` a **Beállítások → Verziókezelés** alatt adható meg (vagy az app megkeresi). Ha a projekt git repóban van, a dialógus mutatja az ágat, a változott fájlokat, és tud commitot (előtte ment), naplót, diffet **RAW** nézettel, checkoutot, **Pull** / **Push**-t és **git init**-et.
 - **Hibabejelentés** — beépített bejelentő űrlap legfeljebb 4 képernyőképpel (fájl, Ctrl+V vagy ráhúzás), opcionális e-maillel, rendszerinfóval és a legutóbbi hibákkal. Lásd: [Hibabejelentés](#hibabejelentés).
-- **Professional sorozatszám e-mailben** — a támogatók a regisztrációs ablakban kérhetik a sorozatszámot (**Sorozatszám kérése (támogatóknak)**); a Professional verzió a c64va.pro oldalon PayPallal megvásárolható (5 €, egyszeri díj), a sorozatszám a fizetés után azonnal megérkezik e-mailben. Lásd: [Freemium és Professional](#freemium-és-professional).
 - **SID Player** — **véletlen lejátszás** és számonkénti **kedvencek** (★). Lásd: [SID Player](#sid-player).
 
 ---
@@ -64,9 +69,8 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 ## A 2.5.6 verzió újdonságai
 
 - **SID Player** — új toolbar gomb nyit egy lebegő lejátszót `.sid` (PSID / RSID) zenékhez: lejátszási lista fogd-és-vidd támogatással, előző / következő zene, subtune-ok, tekerés és ±10 mp, hangerő, a lista mentése / megnyitása (`.sidpl`); a lista és az ablak állapota megmarad. Lásd: [SID Player](#sid-player).
-- **VA SID Core 1.1** — beépített SID-emuláció (MOS 6581 / 8580, reSID-hez igazított 6581 szűrővel) és ciklusra pontos PSID / RSID lejátszó (6510 CPU, CIA / VIC időzítés). A **Beállítások → SID előnézet** alatt választható; a SID Player kiírja, melyik motor szól.
+- **VA SID Core 1.1** — beépített SID-emuláció (MOS 6581 / 8580, MOS 6581/8580-alapú 6581 szűrővel) és ciklusra pontos PSID / RSID lejátszó (6510 CPU, CIA / VIC időzítés). A **Beállítások → SID előnézet** alatt választható; a SID Player kiírja, melyik motor szól.
 - **SID szerkesztő** — tekerőgombok a hangszer-paraméterekhez, szélesebb ADSR-grafikon, **MIDI bemenet**, **felvétel** a trackerbe (ha az aktuális pattern betelt, új pattern jön), **metronóm** ütemlámpákkal, **pattern törlése**, master hangerő a VA-VK-n és **GoatTracker .sng import**. Lásd: [SID Editor](#sid-editor-3-voice-tracker).
-- **Freemium és Professional** — regisztráció nélkül az alkalmazás Freemium módban fut; a Professional verzióhoz a vásárláskor kapott e-mail címet és sorozatszámot a **Menu → Regisztráció…** alatt add meg. Lásd: [Freemium és Professional](#freemium-és-professional).
 - **Beépített Ultimate Basic 1.6.4**.
 
 ---
@@ -460,26 +464,21 @@ A letöltés után az app telepíti a frissítést és újraindul:
 
 Ha vannak mentetlen fülek, az app bezárás előtt rákérdez. Ugyanez az ellenőrzés minden induláskor néhány másodperc után csendben is lefut: csak akkor jelenik meg bármi, ha van újabb verzió. Az eredmény az Ultimate Basic statusbarban is látszik — **Naprakész (vX)**, vagy kiemelt **Frissítés elérhető: vY**, ami megnyitja a frissítés dialógust.
 
-### Freemium és Professional
+### Ingyenes és nyílt forrású
 
-Regisztráció nélkül a Visual Assembler **Freemium** módban fut; a cím melletti jelvény **FREEMIUM** vagy **PROFESSIONAL** feliratot mutat. Freemium módban Block, Expert és Ultimate Basic módban is írhatsz és fordíthatsz programokat, és futtathatod őket VICE-ban. A Professional verzió kell ezekhez:
+A Visual Assembler ingyenes: minden funkció — a vizuális szerkesztők (SID, Sprite, Char, Charset, Hi-Res, Map, Level, D64, Curve), a SID Player, a **Build PRG**, **Build D64**, **Build CRT**, **Build project**, az Exomizer tömörítés, a futtatás C64 Ultimate-en és Kung Fu Flash 2-n, valamint minden felületi nyelv és téma — regisztráció és sorozatszám nélkül működik. A forráskód a GNU General Public License v3.0 alatt érhető el (lásd **Menu → About**). A 2.5.9-es verzióig az alkalmazás Freemium / Professional változatra oszlott; a 2.6.0 óta az ott megadott sorozatszámra már nincs szükség.
 
-- a vizuális szerkesztők (SID, Sprite, Char, Charset, Hi-Res, Map, Level, D64, Curve) és a SID Player;
-- **Build PRG**, **Build D64**, **Build CRT**, **Build project** és az Exomizer tömörítés;
-- futtatás C64 Ultimate-en és Kung Fu Flash 2-n;
-- a magyaron és angolon kívüli felületi nyelvek, valamint az OLED, a Commodore 77, a Commodore Starlight, a Commodore Beige és a Commodore 64 téma.
+Ha tetszik a program, a fejlesztését a c64va.pro oldalon adománnyal támogathatod.
 
-Zárolt funkcióra kattintva a regisztrációs ablak nyílik meg. Regisztrációhoz nyisd meg a **Menu → Regisztráció…** pontot (vagy kattints a jelvényre), add meg a vásárláskor kapott e-mail címet és sorozatszámot, majd nyomd meg az **Aktiválás** gombot. A sorozatszám ahhoz az e-mail címhez tartozik (a kis- és nagybetű, illetve a szóközök nem számítanak), az ellenőrzés internet nélkül történik. A **Licenc eltávolítása** leveszi a regisztrációt erről a gépről.
-
-**Sorozatszám beszerzése.** Ha korábban támogattad a projektet, írd be az e-mail címedet a regisztrációs ablakba, és nyomd meg a **Sorozatszám kérése (támogatóknak)** gombot (vagy használd a c64va.pro/register űrlapot): a sorozatszám e-mailben érkezik, címenként egyszer. A Professional verzió a c64va.pro oldalon vásárolható meg — az ablak **Teljes verzió vásárlása** gombja megnyitja: PayPal, 5 € egyszeri díj, a sorozatszám a fizetés után azonnal megérkezik e-mailben. Az oldalon a Freemium és a Professional összehasonlítása is megtalálható.
+**Használati statisztika.** Az alkalmazás indításkor, naponta legfeljebb egyszer névtelen jelzést küld a c64va.pro-nak az app verziójával, az operációs rendszerrel, a felület nyelvével, az előző jelzés óta eltelt indítások számával és aktív használati perceivel (egy perc akkor számít, ha az ablak látható, és az utolsó 5 percben használtad az egeret vagy a billentyűzetet), azzal, hogy van-e még 2.5.6–2.5.9 közötti sorozatszám elmentve (csak igen / nem), és egy véletlen telepítés-azonosítóval (az app `config.json`-jában, `launchPing` néven). E-mail cím, sorozatszám, projekt vagy forráskód nem kerül elküldésre; internet nélkül nem történik semmi. Az alkalmazás alkalmanként rövid üzenetet is lekér a c64va.pro-ról (például új verzióról, néha csak a támogatóknak); minden üzenet egyszer jelenik meg.
 
 ### Hibabejelentés
 
 A **Menu → Hiba bejelentése** egy űrlapot nyit, amely a bejelentést közvetlenül a fejlesztőnek küldi.
 
-- Az **Összefoglaló** és a **Mi történt?** kötelező — írd le, mit csináltál, mit vártál, és mi történt helyette. Az **E-mail** nem kötelező (a licenc e-mail címével előtöltve); add meg, ha választ szeretnél.
+- Az **Összefoglaló** és a **Mi történt?** kötelező — írd le, mit csináltál, mit vártál, és mi történt helyette. Az **E-mail** nem kötelező; add meg, ha választ szeretnél.
 - **Képernyőképek:** legfeljebb 4 kép a **Kép hozzáadása…** gombbal, **Ctrl+V** beillesztéssel (pl. Win+Shift+S után) vagy az űrlapra húzva. A nagy képeket az app 1920 pixelre kicsinyíti.
-- A **Rendszerinfó és a legutóbbi hibák csatolása** (alapból bekapcsolva) elküldi az app verzióját, az operációs rendszert, a nyelvet, a témát, a szerkesztő- és futtatási módot, a licenc állapotát, a képernyőméretet, a blokkok számát és a legutóbbi app-hibákat. A **Mi kerül elküldésre?** megmutatja az adatokat. A forráskódod nem kerül elküldésre.
+- A **Rendszerinfó és a legutóbbi hibák csatolása** (alapból bekapcsolva) elküldi az app verzióját, az operációs rendszert, a nyelvet, a témát, a szerkesztő- és futtatási módot, a képernyőméretet, a blokkok számát és a legutóbbi app-hibákat. A **Mi kerül elküldésre?** megmutatja az adatokat. A forráskódod nem kerül elküldésre.
 - A **Bejelentés küldése** a bejelentés számával nyugtáz. A **Küldés e-mailben** helyette a levelezőprogramot nyitja meg.
 
 ### Munkaterületek

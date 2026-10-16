@@ -2,7 +2,7 @@
 #include <iostream>
 
 int main() {
-    reSID::EnvelopeGenerator envelope;
+    mos6581_8580::EnvelopeGenerator envelope;
     envelope.writeATTACK_DECAY(0x00);
     envelope.writeSUSTAIN_RELEASE(0x80);
     for (int cycle = 0; cycle <= 120; ++cycle) {
@@ -13,7 +13,7 @@ int main() {
             std::cout << cycle << ':' << unsigned(envelope.readENV()) << '\n';
         }
     }
-    reSID::EnvelopeGenerator delayed;
+    mos6581_8580::EnvelopeGenerator delayed;
     delayed.writeATTACK_DECAY(0x90);
     delayed.writeSUSTAIN_RELEASE(0x80);
     delayed.writeCONTROL_REG(0x21);

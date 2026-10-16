@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 // Visual Assembler license key generator (Ed25519).
 // The serial is the Ed25519 signature of "c64va-license-v1:<email>" (email
-// trimmed, lower case), written as "VA1-" + base64url. The app only holds the
-// public key (src-tauri/src/license.rs), so serials cannot be made from the
-// sources. The private key stays outside the repository.
+// trimmed, lower case), written as "VA1-" + base64url. Only the 2.5.6–2.5.9
+// apps check serials (with the public key in their src-tauri/src/license.rs);
+// later versions are free and have no license check. The register page keeps
+// sending serials for those apps. The private key stays outside the repository.
 //
 //   node scripts/keygen.js init                       new key pair (once), prints the public key
 //   node scripts/keygen.js pubkey                     public key of the existing private key
@@ -80,7 +81,7 @@ function parseCsv(text) {
 }
 
 function printPublicKey(key) {
-  console.log("Public key for src-tauri/src/license.rs:");
+  console.log("Public key (src-tauri/src/license.rs in the 2.5.6–2.5.9 apps):");
   console.log("[" + Array.from(publicKeyBytes(key), (x) => "0x" + x.toString(16).padStart(2, "0")).join(", ") + "]");
 }
 

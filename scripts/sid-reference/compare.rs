@@ -39,8 +39,8 @@ fn main() {
             rendered.extend_from_slice(&chunk);
         }
         let offset = scenario * 44100 * 2;
-        // VICE amplifies resampled reSID output by scaleFactor / 2 (3 for the 6581,
-        // 5 for the 8580); reSID's resampling FIR itself has a gain of 0.97.
+        // VICE amplifies resampled mos6581_8580 output by scaleFactor / 2 (3 for the 6581,
+        // 5 for the 8580); mos6581_8580's resampling FIR itself has a gain of 0.97.
         let vice_gain = if model == SidModel::Mos6581 { 1.5 } else { 2.5 } * 0.97;
         let reference: Vec<f64> = reference[offset..offset + 88200]
             .chunks_exact(2)
@@ -77,14 +77,14 @@ fn main() {
         let rust_peak = ours[start..].iter().fold(0.0f64, |peak, value| peak.max(value.abs()));
         println!("scenario {scenario}: correlation {correlation:.4}, best lag {} ({:.4}), gain {gain:.3}, reference RMS {:.0}, Rust RMS {:.0}, peaks {:.0}/{:.0}", best.1, best.0, (rr / (44100 - start) as f64).sqrt(), (oo / (44100 - start) as f64).sqrt(), ref_peak, rust_peak);
         // Scenarios 13 and 14 (gate off) are near-silent release tails; every
-        // audible stream must match reSID in shape and level.
+        // audible stream must match mos6581_8580 in shape and level.
         let reference_rms = (rr / (44100 - start) as f64).sqrt();
         let rust_rms = (oo / (44100 - start) as f64).sqrt();
         if reference_rms > 20.0 {
             let minimum = if reference_rms > 100.0 { 0.99 } else { 0.98 };
             assert!(best.0 >= minimum, "scenario {scenario}: correlation {:.4} < {minimum:.4}", best.0);
             assert!((rust_rms / reference_rms - 1.0).abs() < 0.03,
-                "scenario {scenario}: RMS {rust_rms:.1} differs from reSID {reference_rms:.1}");
+                "scenario {scenario}: RMS {rust_rms:.1} differs from mos6581_8580 {reference_rms:.1}");
         }
     }
 }

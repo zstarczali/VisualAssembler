@@ -11301,26 +11301,30 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
   color: var(--muted);
 }
 
-/* License: light version badge + registration dialog */
+/* Server message dialog (register/message.php) */
+.server-message-dialog .app-confirm-card { width: min(520px, calc(100vw - 32px)); }
+.server-message-body { overflow-wrap: anywhere; max-height: 50vh; overflow-y: auto; }
+.server-message-body--text { white-space: pre-wrap; }
+.server-message-body > :first-child { margin-top: 0; }
+.server-message-body > :last-child { margin-bottom: 0; }
+.server-message-body p, .server-message-body ul, .server-message-body ol, .server-message-body pre, .server-message-body blockquote { margin: 0 0 0.6em; }
+.server-message-body ul, .server-message-body ol { padding-left: 1.4em; }
+.server-message-body a { color: var(--primary); cursor: pointer; }
+.server-message-body pre { white-space: pre-wrap; }
+.server-message-image { display: block; max-width: 100%; max-height: 260px; margin: 0 auto 12px; border-radius: 6px; object-fit: contain; }
+.server-message-image[hidden], #server-message-caption[hidden] { display: none; }
+.server-message-dialog--warn .compile-error-title { color: #e05555; }
+/* Bug report dialog */
 .eyebrow-row { display: flex; align-items: flex-start; gap: 10px; }
-.license-badge {
-  height: 20px; min-height: 0; padding: 0 8px; margin: 0;
-  border: 1px solid color-mix(in srgb, var(--primary) 60%, transparent); border-radius: 3px;
-  background: color-mix(in srgb, var(--primary) 14%, transparent); color: var(--primary);
-  font-size: 0.66rem; font-weight: 700; letter-spacing: 0.1em; cursor: pointer;
-}
-.license-badge:hover { background: color-mix(in srgb, var(--primary) 26%, transparent); }
-.license-badge[hidden] { display: none; }
-.license-dialog .app-confirm-card { width: min(520px, calc(100vw - 32px)); }
-.license-field { display: flex; flex-direction: column; gap: 4px; font-size: 0.78rem; color: var(--secondary); }
-.license-field input, .license-field textarea {
+.form-field { display: flex; flex-direction: column; gap: 4px; font-size: 0.78rem; color: var(--secondary); }
+.form-field input, .form-field textarea {
   min-height: 0; height: auto; padding: 6px 8px; font-family: "IBM Plex Mono", monospace; font-size: 0.8rem;
   border: 1px solid var(--panel-border); border-radius: 2px; background: var(--control-bg); color: var(--text);
 }
-.license-field textarea { height: calc(2 * 1.4em + 14px); line-height: 1.4; resize: none; overflow: hidden; word-break: break-all; }
+.form-field textarea { height: calc(2 * 1.4em + 14px); line-height: 1.4; resize: none; overflow: hidden; word-break: break-all; }
 .bug-dialog { max-width: 620px; }
 .bug-dialog .app-confirm-card { gap: 12px; max-height: calc(100vh - 40px); overflow-y: auto; }
-.bug-dialog .license-field textarea.bug-description { height: auto; min-height: 120px; resize: vertical; overflow: auto; word-break: normal; font-family: inherit; }
+.bug-dialog .form-field textarea.bug-description { height: auto; min-height: 120px; resize: vertical; overflow: auto; word-break: normal; font-family: inherit; }
 .bug-dialog--drop .app-confirm-card { outline: 2px dashed var(--primary); outline-offset: -6px; }
 .bug-images-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .bug-images { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -11334,19 +11338,17 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .bug-sysinfo summary { cursor: pointer; font-size: 0.72rem; color: var(--secondary); }
 .bug-sysinfo pre { margin: 6px 0 0; max-height: 140px; overflow: auto; font-size: 0.7rem; padding: 6px 8px;
   background: var(--control-bg); border: 1px solid var(--panel-border); border-radius: 2px; white-space: pre-wrap; word-break: break-all; }
-.license-status { margin: 0; min-height: 1.2em; font-size: 0.78rem; color: var(--secondary); }
-.license-status--error { color: #e05555; }
-.license-status--ok { color: #3fbf6a; }
+.form-status { margin: 0; min-height: 1.2em; font-size: 0.78rem; color: var(--secondary); }
+.form-status--error { color: #e05555; }
+.form-status--ok { color: #3fbf6a; }
 
-/* About, customer message, update, settings: no text selection, no dragging of images / links (text fields excepted) */
-.about-dialog, .customer-message-card, #update-dialog, #hardware-settings-dialog, .whats-new-dialog { -webkit-user-select: none; user-select: none; }
+/* About, customer message, server message, update, settings: no text selection, no dragging of images / links (text fields excepted) */
+.about-dialog, .customer-message-card, #server-message-dialog, #update-dialog, #hardware-settings-dialog, .whats-new-dialog { -webkit-user-select: none; user-select: none; }
 .about-dialog img, .about-dialog a, .customer-message-card img, .customer-message-card a,
 #update-dialog img, #update-dialog a, #hardware-settings-dialog img, #hardware-settings-dialog a,
-.whats-new-dialog img, .whats-new-dialog a { -webkit-user-drag: none; user-drag: none; }
-:is(#update-dialog, #hardware-settings-dialog, .about-dialog, .customer-message-card, .whats-new-dialog) :is(input, textarea, select, [contenteditable]) { -webkit-user-select: text; user-select: text; }
+.whats-new-dialog img, .whats-new-dialog a, #server-message-dialog img, #server-message-dialog a { -webkit-user-drag: none; user-drag: none; }
+:is(#update-dialog, #hardware-settings-dialog, .about-dialog, .customer-message-card, #server-message-dialog, .whats-new-dialog) :is(input, textarea, select, [contenteditable]) { -webkit-user-select: text; user-select: text; }
 
-/* freemium: OLED / Commodore 77 themes locked */
-.theme-option.va-locked { opacity: 0.45; }
 
 /* SID Editor horizontal tracker (piano roll), floating inside the editor dialog */
 .sid-roll { width: 900px; height: 400px; min-width: 520px; min-height: 240px; z-index: 31; }
@@ -11641,12 +11643,8 @@ body.crt-mode[data-theme="c64"] #crt-overlay::before {
 /* text that sits directly on the light blue border */
 html[data-theme="c64"] .eyebrow,
 html[data-theme="c64"] .hero-copy,
-html[data-theme="c64"] .memory-strip-axis,
-html[data-theme="c64"] .license-badge {
+html[data-theme="c64"] .memory-strip-axis {
   color: #2a1f6e;
-}
-html[data-theme="c64"] .license-badge {
-  border-color: rgba(42, 31, 110, 0.45);
 }
 html[data-theme="c64"] .editor-mode-indicator {
   border-color: #a59bf0;

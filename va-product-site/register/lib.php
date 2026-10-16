@@ -10,6 +10,9 @@ if (!defined('VA_REGISTER')) {
     exit;
 }
 
+// az admin felület időpontjai (üzenetek kezdete / vége) magyar idő szerint
+date_default_timezone_set('Europe/Budapest');
+
 function vaConfig(): array
 {
     static $cfg = null;
@@ -81,6 +84,39 @@ function vaDb(): PDO
         $pdo->exec(file_get_contents(__DIR__ . '/schema.sql'));
     }
     return $pdo;
+}
+
+/** A va_messages / va_installs bővítése a régi táblán; a CREATE TABLE IF NOT EXISTS nem ad hozzá oszlopot. */
+function vaMessagesMigrate(PDO $db): void
+{
+    vaAddColumns($db, 'va_messages', [
+        'rev' => 'INT UNSIGNED NOT NULL DEFAULT 0 AFTER active',
+        'audience' => "VARCHAR(12) NOT NULL DEFAULT '' AFTER rev",
+        'caption_en' => "VARCHAR(200) NOT NULL DEFAULT '' AFTER level",
+        'caption_hu' => "VARCHAR(200) NOT NULL DEFAULT '' AFTER caption_en",
+        'image' => 'MEDIUMBLOB NULL AFTER url',
+        'image_mime' => "VARCHAR(40) NOT NULL DEFAULT '' AFTER image",
+    ]);
+}
+
+function vaInstallsMigrate(PDO $db): void
+{
+    vaAddColumns($db, 'va_installs', [
+        'minutes' => 'INT UNSIGNED NOT NULL DEFAULT 0 AFTER days',
+        'supporter' => 'TINYINT(1) NOT NULL DEFAULT 0 AFTER minutes',
+    ]);
+    vaAddColumns($db, 'va_install_days', ['minutes' => 'INT UNSIGNED NOT NULL DEFAULT 0 AFTER launches']);
+}
+
+/** @param array<string, string> $add oszlop => definíció; csak a hiányzókat adja hozzá */
+function vaAddColumns(PDO $db, string $table, array $add): void
+{
+    $cols = array_column($db->query("SHOW COLUMNS FROM $table")->fetchAll(), 'Field');
+    foreach ($add as $col => $def) {
+        if (!in_array($col, $cols, true)) {
+            $db->exec("ALTER TABLE $table ADD COLUMN $col $def");
+        }
+    }
 }
 
 function vaClientIp(): string

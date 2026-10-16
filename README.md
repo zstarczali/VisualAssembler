@@ -2,13 +2,19 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.5.9**
+**Current version: v2.6.0**
 
-## What's New in v2.5.9
+Visual Assembler is free and open source (GPLv3): every feature — editors, builds, hardware runs, languages and themes — works without a registration or serial. At most once a day the app sends an anonymous startup ping (version, OS, UI language, launch count, a random install ID) for the usage statistics; no email, project or source code is sent.
 
-- **Commodore 64 theme** — the C64 power-on screen: a light blue border around blue panels, light blue text, reverse-video buttons, syntax colours from the C64 palette and the C64 font in the monitor view (Professional).
-- **Commodore Beige theme** — the classic breadbin: a beige case, mustard function-key buttons, the rainbow badge stripes and a C64 blue screen for the monitor view (Professional).
-- **Commodore Starlight theme** — a light theme after the translucent C64 breadbin: frosted clear glass with the rainbow RGB glow shining through, a magenta accent, rainbow syntax colours and a smoky dark monitor (Professional).
+## What's New in v2.6.0
+
+- **Visual Assembler is now completely free** — the Freemium / Professional licensing has been removed. Every editor, build and hardware run option, all 7 UI languages and every theme work for everyone, without registration or a serial. The reason is simple: under Hungarian tax rules, selling the program would leave too little after taxes and paperwork to be worth it. Serials you already have are simply no longer needed.
+
+## Earlier: v2.5.9
+
+- **Commodore 64 theme** — the C64 power-on screen: a light blue border around blue panels, light blue text, reverse-video buttons, syntax colours from the C64 palette and the C64 font in the monitor view.
+- **Commodore Beige theme** — the classic breadbin: a beige case, mustard function-key buttons, the rainbow badge stripes and a C64 blue screen for the monitor view.
+- **Commodore Starlight theme** — a light theme after the translucent C64 breadbin: frosted clear glass with the rainbow RGB glow shining through, a magenta accent, rainbow syntax colours and a smoky dark monitor.
 - **Version control dialog** — drag it by its header; it reopens where you left it, stays on screen when the log or a diff makes it taller, and a click outside no longer closes it (Esc does).
 
 ## Earlier: v2.5.8
@@ -16,7 +22,6 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 - **Version control** — the project snapshots became a git-like version control: commits with a message and a short hash, a log with **HEAD**, **Diff** against the working copy (Block-mode programs are compared as assembly lines, so JSON projects show readable changes), **Checkout** into the editor and separate autosave entries (the last 20 are kept, next to up to 100 commits). Works on Block, Expert and Ultimate Basic tabs.
 - **Git integration** — choose `git.exe` in **Settings → Version control** or let the app find it on the PATH. Inside a git repository the dialog shows the branch with ahead / behind counts and the changed files, and offers commit (saves the file first; optionally `git add -A`), the file's log, diff (parsed, with a **RAW** view of the plain `git diff`), checkout into the editor (`git show`), **Pull** (`--ff-only`), **Push** (sets the upstream on the first push) and **git init**. git runs without a console window and without prompts.
 - **Report Bug** — **Menu → Report Bug** opens a form: summary, description, optional email, up to 4 screenshots (file, **Ctrl+V** or drag and drop; large images are scaled to 1920 px), and optionally the system info and the last app errors. Reports go to the developer's dashboard; **Send by email** is still there.
-- **Professional serial by email** — supporters request their serial in the registration dialog (**Request serial (supporters)**, once per address); the Professional version can be bought on c64va.pro with PayPal (5 €, one-time) and the serial is emailed right after the payment. The product site compares Freemium and Professional.
 - **SID Player** — **Shuffle** (no repeats until every tune has played, Previous steps back along the random order) and per-tune **favourites** (★), kept in the saved state and in `.sidpl` playlists.
 
 ## Earlier: v2.5.7
@@ -30,10 +35,9 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 ## Earlier: v2.5.6
 
 - **SID Player** — a new toolbar button opens a floating player for `.sid` (PSID / RSID) tunes: a playlist with drag and drop, previous / next tune, subtune switching, seek and ±10 s (VA SID Core), a volume knob shared with the SID Editor, and playlist save / open as `.sidpl` with the tunes embedded. The list, the current tune and the window state are remembered.
-- **VA SID Core 1.1** — the app's own SID emulation in Rust: MOS 6581 / 8580 with a reSID-aligned 6581 filter and mixer, two-stage FIR resampling and SID bus reads, plus a cycle-locked PSID / RSID pipeline (6510 CPU, CIA / VIC timing, IRQ handling, the KERNAL `$EA7B` IRQ tail), so raster-IRQ and digi tunes play. Choose WebSID or VA SID Core (and the chip) in **Settings → SID preview**; the player shows the active engine.
+- **VA SID Core 1.1** — the app's own SID emulation in Rust: MOS 6581 / 8580 with a MOS 6581/8580-based 6581 filter and mixer, two-stage FIR resampling and SID bus reads, plus a cycle-locked PSID / RSID pipeline (6510 CPU, CIA / VIC timing, IRQ handling, the KERNAL `$EA7B` IRQ tail), so raster-IRQ and digi tunes play. Choose WebSID or VA SID Core (and the chip) in **Settings → SID preview**; the player shows the active engine.
 - **SID Editor** — all instrument parameters are knobs; the ADSR graph uses the free width; **MIDI input** (choose the device, **Connect MIDI**, an activity lamp); **recording** into the tracker from VA-VK, the computer keyboard or MIDI, in time with the Speed — when the pattern is full a new one is added to the song; a **metronome** with beat lamps on the tracker and on VA-VK; **pattern delete** with song renumbering; the master volume knob on VA-VK; the filter controls in two columns.
 - **Import GoatTracker .sng** — **Files → Import GoatTracker .sng…** converts a GoatTracker 2 song (GTS3–GTS5): the per-voice order lists are flattened into 32-row patterns, instruments and their wave / pulse / filter / speed tables become editor instruments, key off / portamento / tempo become note-off / `U` / `D` / `F`; a message lists what was approximated.
-- **Freemium and Professional** — without a registration the app runs as **Freemium**: the visual editors and the SID Player, Build PRG / D64 / CRT / project, Exomizer, running on the C64 Ultimate and the Kung Fu Flash 2, languages other than Hungarian / English and the OLED / Commodore 77 themes need the **Professional** version. Register in **Menu → Register…** with the email address and serial from your purchase; the serial is an Ed25519 signature checked offline. A badge next to the title shows FREEMIUM or PROFESSIONAL.
 - **Ultimate Basic 1.6.4** bundled.
 
 ## Earlier: v2.5.5
@@ -549,4 +553,4 @@ A gap BYTE macro aligns the code to `$2000` (size computed dynamically based on 
 
 ## License
 
-MIT
+GPLv3 — see [LICENSE](LICENSE). Includes code ported from VICE (GPL v2 or later).

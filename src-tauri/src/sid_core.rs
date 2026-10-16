@@ -1,9 +1,9 @@
 //! VA SID Core: an original Rust SID register synthesizer. Its output is
-//! verified against reSID as a measurement reference (scripts/sid-compare).
+//! verified against mos6581_8580 as a measurement reference (scripts/sid-reference).
 //!
-//! Third-party parts (reSID by Dag Lem, VICE src/resid, GPL-2.0-or-later):
-//! the measured combined-waveform tables in vendor/resid-wave-tables, the
-//! 8580 resonance table RESID_8580_INV_Q_X1024, the R-2R DAC ladder formula
+//! Third-party parts (mos6581_8580 by Dag Lem, VICE src/mos6581_8580, GPL-2.0-or-later):
+//! the measured combined-waveform tables in vendor/sid-wave-tables, the
+//! 8580 resonance table FILTER_8580_INV_Q_X1024, the R-2R DAC ladder formula
 //! (dac.cc) and the MOS 6581 filter / mixer / volume model (`Model6581`,
 //! ported from filter.h, filter.cc and spline.h).
 //! The chip runs one call of `clock()` per SID cycle, so a cycle-locked
@@ -18,18 +18,18 @@ const PHASE_MASK: u32 = 0x00ff_ffff;
 const ENV_RATE_PERIOD: [u16; 16] = [
     8, 31, 62, 94, 148, 219, 266, 312, 391, 976, 1953, 3125, 3906, 11719, 19531, 31250,
 ];
-const RESID_8580_INV_Q_X1024: [f32; 16] = [
+const FILTER_8580_INV_Q_X1024: [f32; 16] = [
     1448., 1328., 1218., 1117., 1024., 939., 861., 790., 724., 664., 609., 558., 512., 470., 431.,
     395.,
 ];
-const WAVE_6581_PST: &[u8; 4096] = include_bytes!("../vendor/resid-wave-tables/wave6581_PST.dat");
-const WAVE_6581_PS: &[u8; 4096] = include_bytes!("../vendor/resid-wave-tables/wave6581_PS_.dat");
-const WAVE_6581_PT: &[u8; 4096] = include_bytes!("../vendor/resid-wave-tables/wave6581_P_T.dat");
-const WAVE_6581_ST: &[u8; 4096] = include_bytes!("../vendor/resid-wave-tables/wave6581__ST.dat");
-const WAVE_8580_PST: &[u8; 4096] = include_bytes!("../vendor/resid-wave-tables/wave8580_PST.dat");
-const WAVE_8580_PS: &[u8; 4096] = include_bytes!("../vendor/resid-wave-tables/wave8580_PS_.dat");
-const WAVE_8580_PT: &[u8; 4096] = include_bytes!("../vendor/resid-wave-tables/wave8580_P_T.dat");
-const WAVE_8580_ST: &[u8; 4096] = include_bytes!("../vendor/resid-wave-tables/wave8580__ST.dat");
+const WAVE_6581_PST: &[u8; 4096] = include_bytes!("../vendor/sid-wave-tables/wave6581_PST.dat");
+const WAVE_6581_PS: &[u8; 4096] = include_bytes!("../vendor/sid-wave-tables/wave6581_PS_.dat");
+const WAVE_6581_PT: &[u8; 4096] = include_bytes!("../vendor/sid-wave-tables/wave6581_P_T.dat");
+const WAVE_6581_ST: &[u8; 4096] = include_bytes!("../vendor/sid-wave-tables/wave6581__ST.dat");
+const WAVE_8580_PST: &[u8; 4096] = include_bytes!("../vendor/sid-wave-tables/wave8580_PST.dat");
+const WAVE_8580_PS: &[u8; 4096] = include_bytes!("../vendor/sid-wave-tables/wave8580_PS_.dat");
+const WAVE_8580_PT: &[u8; 4096] = include_bytes!("../vendor/sid-wave-tables/wave8580_P_T.dat");
+const WAVE_8580_ST: &[u8; 4096] = include_bytes!("../vendor/sid-wave-tables/wave8580__ST.dat");
 const OUTPUT_SCALE: f32 = i16::MAX as f32 / 8.0;
 const FIR_PHASES: usize = 128;
 const FIR_ATTENUATION_DB: f64 = 80.0;
@@ -93,7 +93,7 @@ impl Fir {
 }
 
 /// Two-stage band limiting from the SID clock to the output rate, with the
-/// band edges of reSID's SAMPLE_RESAMPLE (passband up to 20 kHz, or 0.9 * fs/2 at low
+/// band edges of mos6581_8580's SAMPLE_RESAMPLE (passband up to 20 kHz, or 0.9 * fs/2 at low
 /// rates; stopband from fs - passband, so aliases only land above the
 /// passband). Stage 1 decimates by an integer factor to roughly 2.5 * fs,
 /// stage 2 interpolates the fractional output instants from 128 phases.
@@ -239,11 +239,11 @@ impl Default for Voice {
     }
 }
 
-/// MOS 6581 filter and output stage, ported from reSID 1.0 (VICE
-/// src/resid/filter.h, filter.cc, spline.h; Dag Lem, GPL-2.0-or-later):
+/// MOS 6581 filter and output stage, ported from mos6581_8580 1.0 (VICE
+/// src/mos6581_8580/filter.h, filter.cc, spline.h; Dag Lem, GPL-2.0-or-later):
 /// measured op-amp transfer curve, NMOS "resistor" gain / summer / mixer
 /// stages solved with Newton-Raphson, and the cutoff VCR in the EKV
-/// transistor model. Integer arithmetic follows reSID, including its
+/// transistor model. Integer arithmetic follows mos6581_8580, including its
 /// wrapping 32-bit intermediate products.
 struct Model6581 {
     kvddt: i32,
@@ -285,7 +285,7 @@ impl Model6581 {
         MODEL.get_or_init(Self::build)
     }
 
-    /// reSID spline.h: piecewise cubic through the points, plotted at integer x.
+    /// mos6581_8580 spline.h: piecewise cubic through the points, plotted at integer x.
     fn interpolate(points: &[(f64, f64)], plot: &mut [u32]) {
         let mut put = |x: f64, y: f64| {
             let index = x as usize;
@@ -340,7 +340,7 @@ impl Model6581 {
         }
     }
 
-    /// reSID Filter::solve_gain: output of an inverting NMOS op-amp stage with
+    /// mos6581_8580 Filter::solve_gain: output of an inverting NMOS op-amp stage with
     /// gain n (scaled by 2^7) for input vi, starting from (and updating) x.
     fn solve_gain(opamp: &[OpAmp], n: i32, vi: i32, x: &mut i32, kvddt: i32, ak0: i32, bk0: i32) -> i32 {
         let (mut ak, mut bk) = (ak0, bk0);
@@ -503,7 +503,7 @@ impl Model6581 {
         }
     }
 
-    /// reSID Filter::solve_integrate_6581 for one cycle: integrator with the
+    /// mos6581_8580 Filter::solve_integrate_6581 for one cycle: integrator with the
     /// "snake" resistor and the cutoff VCR in parallel.
     fn integrate(&self, vddt_vw_2: u32, vi: i32, vx: &mut i32, vc: &mut i32) -> i32 {
         let vgst = (self.kvddt - *vx) as u32;
@@ -536,7 +536,7 @@ pub struct SidCore {
     filter_w0: f32,
     filter_inv_q: f32,
     voice_samples: [f32; 3],
-    resid6581: Option<&'static Model6581>,
+    model6581: Option<&'static Model6581>,
     vhp: i32,
     vbp: i32,
     vbp_x: i32,
@@ -652,7 +652,7 @@ impl SidCore {
             filter_w0: 0.,
             filter_inv_q: 0.,
             voice_samples: [0.; 3],
-            resid6581: (model == SidModel::Mos6581).then(Model6581::get),
+            model6581: (model == SidModel::Mos6581).then(Model6581::get),
             vhp: 0,
             vbp: 0,
             vbp_x: 0,
@@ -865,7 +865,7 @@ impl SidCore {
     /// The band-limited output at the instant reported by the last `clock()`.
     /// The FIR adds a fixed latency of half its length (about 27 samples at 44.1 kHz).
     pub fn output_sample(&self) -> i16 {
-        // the 6581 output stage already delivers reSID's 16-bit output level
+        // the 6581 output stage already delivers mos6581_8580's 16-bit output level
         let chip_gain = match self.model {
             SidModel::Mos6581 => 1.0,
             SidModel::Mos8580 => 0.98,
@@ -879,7 +879,7 @@ impl SidCore {
 
     /// CPU read of a SID register. $19/$1A (no paddles) read $FF, $1B is the top
     /// of voice 3's waveform, $1C its envelope; the write-only registers return
-    /// the last value on the data bus until it fades (reSID's simplification).
+    /// the last value on the data bus until it fades (mos6581_8580's simplification).
     pub fn read(&mut self, register: u8) -> u8 {
         let value = match register & 0x1f {
             0x19 | 0x1a => 0xff,
@@ -1173,18 +1173,18 @@ impl SidCore {
     fn update_filter_coefficients(&mut self) {
         let cutoff = u16::from(self.regs[0x15] & 7) | (u16::from(self.regs[0x16]) << 3);
         let resonance = (self.regs[0x17] >> 4) as usize;
-        if let Some(model) = self.resid6581 {
+        if let Some(model) = self.model6581 {
             let vw = i32::from(model.f0_dac[cutoff as usize]);
             let span = (model.kvddt - vw) as u32;
             self.vddt_vw_2 = span.wrapping_mul(span) >> 1;
             self.eight_div_q = !resonance & 0x0f;
         } else {
             self.filter_w0 = (82_355u32 * (u32::from(cutoff) + 1) >> 11) as f32 / 1_048_576.0;
-            self.filter_inv_q = RESID_8580_INV_Q_X1024[resonance] / 1024.0;
+            self.filter_inv_q = FILTER_8580_INV_Q_X1024[resonance] / 1024.0;
         }
     }
 
-    /// reSID's 6581 voice level: (waveform DAC - $380) * envelope DAC, scaled
+    /// mos6581_8580's 6581 voice level: (waveform DAC - $380) * envelope DAC, scaled
     /// into the op-amp voltage range and raised to the voice DC level.
     fn voice_level_6581(&self, model: &Model6581, index: usize) -> i32 {
         let voice = &self.voices[index];
@@ -1199,7 +1199,7 @@ impl SidCore {
     fn mix_output(&mut self) -> f32 {
         let mode_vol = self.regs[0x18];
         let routing = self.regs[0x17] & 0x0f;
-        if let Some(model) = self.resid6581 {
+        if let Some(model) = self.model6581 {
             let voices = [
                 self.voice_level_6581(model, 0),
                 self.voice_level_6581(model, 1),
@@ -1263,7 +1263,7 @@ impl SidCore {
             self.voice_samples[index] = self.render_voice(index);
         }
         let sid_output = self.mix_output();
-        // reSID's external RC stage is clocked once per SID cycle: 10 kΩ / 1 nF
+        // mos6581_8580's external RC stage is clocked once per SID cycle: 10 kΩ / 1 nF
         // low-pass followed by 1 kΩ / 10 μF high-pass.
         self.external_low += (12.0 / 128.0) * (sid_output - self.external_low);
         self.external_high += (13.0 / 131_072.0) * (self.external_low - self.external_high);
@@ -1316,7 +1316,7 @@ mod tests {
     }
 
     #[test]
-    fn reset_oscillator_state_matches_resid_startup() {
+    fn reset_oscillator_state_matches_mos6581_8580_startup() {
         let sid = SidCore::new(44_100, SidModel::Mos8580);
         for voice in sid.voices {
             assert_eq!(voice.phase, 0x55_5555);
@@ -1350,9 +1350,9 @@ mod tests {
     }
 
     #[test]
-    fn mos6581_high_resonance_rms_stays_near_local_resid_reference() {
-        // Fixed-stream cases 16 and 18-20 in scripts/sid-compare/reference.cpp.
-        // Reference RMS values come from the local VICE reSID build at 44.1 kHz.
+    fn mos6581_high_resonance_rms_stays_near_local_mos6581_8580_reference() {
+        // Fixed-stream cases 16 and 18-20 in scripts/sid-reference/reference.cpp.
+        // Reference RMS values come from the local VICE mos6581_8580 build at 44.1 kHz.
         for (scenario, reference_rms) in [(16, 1708.0), (18, 1431.0), (19, 2485.0), (20, 1337.0)] {
             let mut sid = SidCore::new(44_100, SidModel::Mos6581);
             let mut pcm = [0i16; 44_100];
@@ -1374,7 +1374,7 @@ mod tests {
             let window = &pcm[2_205..];
             let mean = window.iter().map(|&sample| f64::from(sample)).sum::<f64>() / window.len() as f64;
             let rms = (window.iter().map(|&sample| (f64::from(sample) - mean).powi(2)).sum::<f64>() / window.len() as f64).sqrt();
-            assert!((rms / reference_rms - 1.0).abs() < 0.08, "scenario {scenario}: RMS {rms:.1}, reSID {reference_rms:.1}");
+            assert!((rms / reference_rms - 1.0).abs() < 0.08, "scenario {scenario}: RMS {rms:.1}, mos6581_8580 {reference_rms:.1}");
         }
     }
 
@@ -1525,7 +1525,7 @@ mod tests {
     }
 
     #[test]
-    fn envelope_gate_transitions_match_resid_cycle_trace() {
+    fn envelope_gate_transitions_match_mos6581_8580_cycle_trace() {
         let mut sid = SidCore::new(44_100, SidModel::Mos8580);
         sid.write(5, 0x00);
         sid.write(6, 0x80);
@@ -1575,7 +1575,7 @@ mod tests {
     }
 
     #[test]
-    fn envelope_rate_change_waits_for_resid_counter_wrap() {
+    fn envelope_rate_change_waits_for_mos6581_8580_counter_wrap() {
         let mut sid = SidCore::new(44_100, SidModel::Mos8580);
         sid.write(5, 0x90);
         sid.write(6, 0x80);

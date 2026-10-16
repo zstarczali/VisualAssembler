@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.5.8**
+**Version 2.5.9**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -9,6 +9,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
+    - [Version 2.5.9 Highlights](#version-259-highlights)
     - [Version 2.5.8 Highlights](#version-258-highlights)
     - [Version 2.5.7 Highlights](#version-257-highlights)
     - [Version 2.5.6 Highlights](#version-256-highlights)
@@ -185,6 +186,16 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ---
 
+## Version 2.5.9 Highlights
+
+- **Commodore 64 theme** — the C64 power-on screen: a light blue border around blue panels, light blue text, reverse-video buttons, syntax colours from the C64 palette and the C64 font in the monitor view (Professional).
+- **Commodore Beige theme** — the classic breadbin: beige case, mustard function-key buttons, the rainbow badge stripes and a C64 blue monitor view. Pick it in the theme picker or cycle to it with the theme button (Professional). See [Settings & Toolbar](#5-settings--toolbar).
+- **Commodore Starlight theme** — a light theme after the translucent C64 breadbin: frosted clear glass with the rainbow RGB glow shining through, a magenta accent, rainbow syntax colours and a smoky dark monitor view (Professional).
+- **Version control dialog** — the dialog can be dragged by its header and reopens where you left it; it stays on screen when the log or a diff makes it taller, and a click outside no longer closes it (Esc does). See [Version control](#version-control).
+- **Project-level version control** — for a tab of an open `.proj` project, a **File / Project** switch commits every source file of the project (project tree + included files) in one entry. The log lists the changed files of each commit, Diff works file by file, Checkout restores all files into the editor tabs, and autosave entries are made per project too. In Git mode the log and diff cover the whole repository. See [Project mode](#project-mode).
+
+---
+
 ## Version 2.5.8 Highlights
 
 - **Version control** — the project snapshots became a git-like version control: commits with a message and a short hash, a log with **HEAD**, a **Diff** against the working copy, **Checkout** into the editor and separate autosave entries. Block-mode (JSON) programs are compared as assembly lines, so the diff shows real changes. Works on Block, Expert and Ultimate Basic tabs. See [Version control](#version-control).
@@ -192,8 +203,6 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 - **Report Bug** — a built-in report form with up to 4 screenshots (file, Ctrl+V or drag and drop), optional email, system info and the recent app errors. See [Reporting a bug](#reporting-a-bug).
 - **Professional serial by email** — supporters request their serial in the registration dialog (**Request serial (supporters)**); the Professional version can be bought on c64va.pro with PayPal (5 €, one-time) and the serial arrives by email right after the payment. See [Freemium and Professional](#freemium-and-professional).
 - **SID Player** — **Shuffle** and **favourites** (★) per tune. See [SID Player](#sid-player).
-- **Commodore Beige theme** — the classic breadbin: beige case, mustard function-key buttons, the rainbow badge stripes and a C64 blue monitor view (Professional).
-- **Commodore Starlight theme** — a light theme after the translucent C64 breadbin: frosted clear glass with the rainbow RGB glow shining through, a magenta accent and rainbow syntax colours (Professional).
 
 ---
 
@@ -212,7 +221,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Version 2.5.6 Highlights
 
 - **SID Player** — a new toolbar button opens a floating player for `.sid` (PSID / RSID) tunes: a playlist with drag and drop, previous / next tune, subtunes, seek and ±10 s, volume, and playlist save / open (`.sidpl`); the list and the window state are remembered. See [SID Player](#sid-player).
-- **VA SID Core 1.1** — a built-in SID emulation (MOS 6581 / 8580, with a reSID-aligned 6581 filter) and a cycle-locked PSID / RSID player (6510 CPU, CIA / VIC timing). Choose it in **Settings → SID preview**; the SID Player shows which engine is playing.
+- **VA SID Core 1.1** — a built-in SID emulation (MOS 6581 / 8580, with a mos6581_8580-aligned 6581 filter) and a cycle-locked PSID / RSID player (6510 CPU, CIA / VIC timing). Choose it in **Settings → SID preview**; the SID Player shows which engine is playing.
 - **SID Editor** — knobs for the instrument parameters, a wider ADSR graph, **MIDI input**, **recording** into the tracker (a new pattern is added when the current one is full), a **metronome** with beat lamps, **pattern delete**, the master volume on VA-VK, and **Import GoatTracker .sng**. See [SID Editor](#sid-editor-3-voice-tracker).
 - **Freemium and Professional** — without a registration the app runs as Freemium; enter the email address and serial from your purchase in **Menu → Register…** to get the Professional version. See [Freemium and Professional](#freemium-and-professional).
 - **Ultimate Basic 1.6.4** bundled.
@@ -519,7 +528,7 @@ The modal closes automatically when the action completes or fails.
 |---|---|
 | **Number base (HEX / DEC / BIN)** | Sets the display/input format for operands throughout the UI. BIN mode displays values as binary with `%` prefix (e.g. `%11111000`). The ASM view always shows each block in its own format. |
 | **Language** | Switch the user interface between English, Hungarian, Spanish, German, and Dutch (Nederlands) |
-| **Theme** | Light / Dark / OLED / Commodore 77 / Commodore Starlight / Commodore Beige — select from the theme picker in the Settings menu. OLED uses a pure-black background for AMOLED displays. Commodore 77 is a neon-yellow-on-black theme; when it is the active theme the startup splash panel uses the theme's panel colour (matching the message card), shows a smaller dedicated Commodore 77 logo, and a yellow progress bar. Commodore Starlight is a light theme after the translucent C64 breadbin: frosted clear glass panels with the rainbow RGB glow shining through, a magenta accent, rainbow syntax colours and a smoky dark monitor view. Commodore Beige is the classic breadbin: a beige case, mustard function-key buttons, the rainbow badge stripes and a C64 blue screen for the monitor view. The chosen theme is applied before the first paint on the next launch. |
+| **Theme** | Light / Dark / OLED / Commodore 77 / Commodore Starlight / Commodore Beige / Commodore 64 — select from the theme picker in the Settings menu. OLED uses a pure-black background for AMOLED displays. Commodore 77 is a neon-yellow-on-black theme; when it is the active theme the startup splash panel uses the theme's panel colour (matching the message card), shows a smaller dedicated Commodore 77 logo, and a yellow progress bar. Commodore Starlight is a light theme after the translucent C64 breadbin: frosted clear glass panels with the rainbow RGB glow shining through, a magenta accent, rainbow syntax colours and a smoky dark monitor view. Commodore Beige is the classic breadbin: a beige case, mustard function-key buttons, the rainbow badge stripes and a C64 blue screen for the monitor view. The chosen theme is applied before the first paint on the next launch. |
 | **CRT retro mode** | Toggles a full-screen CRT filter: scanlines, phosphor vignette, flicker, and barrel distortion. State is saved between sessions. |
 | **Show memory panel** | Global toggle that shows or hides the full C64 memory panel |
 | **BASIC SYS stub** | Prepends a BASIC line that calls SYS to your program's origin |
@@ -543,7 +552,7 @@ The modal closes automatically when the action completes or fails.
 | **Run (split button)** | The main **▶ Run** button runs the current mode; click the **▾** arrow to switch between: **Run as PRG** (compile and launch VICE directly), **Run via D64** (package into a .d64 disk image and launch VICE), **Run on hardware** (send PRG to a C64 Ultimate / 1541 Ultimate device), or **Kung Fu Flash 2** (upload the PRG over USB to a real C64/C128 with a Kung Fu Flash 2 cartridge). See [Section 12](#12-d64-export--run) and [Section 13](#13-hardware-settings). |
 | **Debug (RetroDebugger)** | Compile and launch in RetroDebugger with breakpoints, symbols, and autostart flags (see [Section 9](#9-debugger-integration)) |
 | **Run with Exomizer** | Checkbox in the Settings menu — when enabled, all Run and Build operations crunch the PRG through `exomizer sfx sys` before launching or saving. Works with Run as PRG, Run via D64, Run on Hardware, Build PRG, and Build D64. Configure the Exomizer executable in **Hardware Settings** first. |
-| **Automatic autosave entries** | Checkbox in **Hardware Settings → Version control**. When enabled, the app adds an autosave entry to the version history about 2.5 seconds after you stop editing a tab. Turn it off if you only want your own commits. See [Version control](#version-control). |
+| **Automatic autosave entries** | Checkbox in **Hardware Settings → Version control**. When enabled, the app adds an autosave entry to the version history about 2.5 seconds after you stop editing a tab (for a tab of a project also to the project history). Turn it off if you only want your own commits. See [Version control](#version-control). |
 | **Hardware Settings** | Open the hardware configuration dialog — configure VICE, Exomizer, RetroDebugger, C64 Ultimate (host, password, connection test) and the Kung Fu Flash 2 serial port. See [Section 13](#13-hardware-settings). |
 | **New program…** | Opens a confirmation dialog, then clears all blocks from the program area |
 | **Collapse All** | Collapse all blocks |
@@ -552,7 +561,7 @@ The modal closes automatically when the action completes or fails.
 
 ### Version control
 
-Every tab has its own version history, like a small git repository. **Menu → Build → Version control…** (or **Commit…**) opens the dialog; **Discard changes (back to HEAD)** restores the last commit directly.
+Every tab has its own version history, like a small git repository; a tab that belongs to an open `.proj` project can also be versioned as a whole project (see [Project mode](#project-mode)). **Menu → Build → Version control…** (or **Commit…**) opens the dialog; **Discard changes (back to HEAD)** restores the last commit directly.
 
 The usual workflow: write a **commit message** and press **Commit** (or Ctrl+Enter) → keep editing → press **Diff** to see what changed → commit again.
 
@@ -561,7 +570,21 @@ The usual workflow: write a **commit message** and press **Commit** (or Ctrl+Ent
 - **Diff** — the changes since HEAD; the **Diff** button of a log entry compares that version with the editor. Added lines are green, removed lines red, and the header shows **+N / −M**. Block-mode programs are compared as assembly lines (one line per block), Expert sources line by line, Ultimate Basic tabs by their source, so a Block-mode project saved as JSON still shows readable changes.
 - **Checkout** — loads that version into the editor. The file on disk only changes when you save; **Discard changes** goes back to HEAD.
 - **Autosave entries** — with **Settings → Version control → Automatic autosave entries in version control** the app adds an entry about 2.5 seconds after you stop editing. They are marked *autosave*; the last 20 are kept, next to up to 100 commits.
+- The dialog can be moved by its header; it reopens at the same place and closes with **Esc** or its close button (a click outside does not close it).
 - The history is stored next to the project file as `<project>.snapshots.json` (in the app config folder until the project is saved), so it survives restarts. Snapshots made by earlier versions appear as commits.
+
+#### Project mode
+
+When the tab belongs to an open `.proj` project (Expert or Ultimate Basic project panel), the dialog header shows a **File / Project** switch; **Project** is selected by default. Tabs outside a project keep the per-file history described above.
+
+- **Commit** records every source file of the project in one entry: the files of the project tree plus the text files they include (`.include`, `include`, `#import`, `!source`, Block-mode INCLUDE blocks). Open tabs count with their current, even unsaved, content; the other files are read from disk. Binary files of the project tree (fonts, `.koa`, `.bin`, `.sid` …, up to 1 MB each) are recorded too; their diff shows the size change, and **Checkout** writes them straight back to disk.
+- The log shows the commit message, the short hash and the **changed files** of each entry (**A** added, **M** modified, **D** removed).
+- **Diff** works file by file: every changed file gets its own header and hunks.
+- **Discard changes** goes back to the last project commit (HEAD) the same way.
+- **Checkout** (after a confirmation) loads every file of that version into the editor: open tabs are updated, missing files are opened as new tabs. Nothing is written to disk until you save; files added to the project since that version stay as they are.
+- Autosave entries are made at project level too.
+- The project history is stored next to the project file as `<project>.proj.history.json`.
+- In **Git** mode the log shows the whole repository with the changed files of each commit (`git log --name-status`); **Diff** on an entry shows the commit file by file, the **Diff** button compares HEAD with the project files in the editor (**RAW** is `git diff HEAD` of the repository). **Commit** saves every unsaved project tab and stages all changes (`git add -A`); **Checkout** loads the project files of that commit into the editor.
 
 #### Git
 
@@ -601,7 +624,7 @@ Without a registration Visual Assembler runs as **Freemium**; the badge next to 
 - the visual editors (SID, Sprite, Char, Charset, Hi-Res, Map, Level, D64, Curve) and the SID Player;
 - **Build PRG**, **Build D64**, **Build CRT**, **Build project** and Exomizer packing;
 - running on the C64 Ultimate and on the Kung Fu Flash 2;
-- UI languages other than Hungarian and English, and the OLED, Commodore 77, Commodore Starlight and Commodore Beige themes.
+- UI languages other than Hungarian and English, and the OLED, Commodore 77, Commodore Starlight, Commodore Beige and Commodore 64 themes.
 
 Clicking a locked feature opens the registration dialog. To register, open **Menu → Register…** (or click the badge), enter the email address and serial from your purchase and press **Activate**. The serial belongs to that email address (upper / lower case and spaces do not matter), and the check runs offline. **Remove license** takes the registration off this computer.
 
@@ -750,7 +773,7 @@ The command list is intentionally height-limited so the command-detail card can 
 
 ### Projects, tabs, and startup files
 
-Ultimate Basic projects use `.proj` files and can contain multiple `.ub` sources. The Project panel lists open files, marks unsaved tabs, and shows discovered labels, functions, and subroutines. Project actions let you create, open, save, and close a project or add another source file. A new project can also start from an UltimateBasic template — see [Project templates](#project-templates).
+Ultimate Basic projects use `.proj` files and can contain multiple `.ub` sources. The Project panel lists open files, marks unsaved tabs, and shows discovered labels, functions, and subroutines. Project actions let you create, open, save, and close a project or add another source file. The Version control dialog can commit, compare and restore all files of the project together — see [Project mode](#project-mode). A new project can also start from an UltimateBasic template — see [Project templates](#project-templates).
 
 Click the star beside a project file to mark it as the **startup file**. Build, Run, D64, C64 Ultimate, and Debug commands compile that startup source even if a different tab is currently active. Without a startup selection, the active UB tab is used.
 
@@ -920,6 +943,7 @@ Expert mode supports a **project panel** (`#expert-project-panel`) for multi-fil
 - Folders in the tree have a collapse/expand arrow, and **right-click a folder** to add one or more files nested under it (shown indented).
 - The **Save project** button disables itself and shows a "Saved" state once the project has no pending changes, and re-enables automatically the moment you add, remove, or reorganize a file or folder.
 - The **symbols** section at the bottom of the project panel can be resized vertically with the divider between the file tree and the symbols list, so long symbol lists can take more space when needed.
+- **Version control** works for the whole project: with the **Project** switch of the Version control dialog one commit records every project file, and Checkout restores them all into the tabs. See [Project mode](#project-mode).
 
 ### Tab bar
 
@@ -3904,7 +3928,7 @@ Works from **Block**, **Expert** and **Ultimate Basic** mode alike; Ultimate Bas
 
 | Setting | Description |
 |---|---|
-| **Automatic autosave entries in version control** | Adds an autosave entry to the version history about 2.5 s after you stop editing |
+| **Automatic autosave entries in version control** | Adds an autosave entry to the version history about 2.5 s after you stop editing (for project tabs to the project history as well) |
 | **Choose git.exe…** | Browse to the `git` executable (`git.exe` on Windows) |
 | **Auto-detect** | Clears the chosen path and searches the PATH and the usual install folders |
 | **Use Git when the project is in a repository** | Opens the Version control dialog in Git mode for files inside a git repository |

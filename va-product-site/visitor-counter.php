@@ -16,8 +16,12 @@ if ($handle === false || !flock($handle, LOCK_EX)) {
 
 $rawCount = stream_get_contents($handle);
 $count = max(0, (int) trim($rawCount === false ? '0' : $rawCount));
+$secure = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
 
-if (empty($_COOKIE['c64va_visitor_seen'])) {
+// süti csak statisztikai hozzájárulással (assets/consent.js): ?count=1 számol, ?forget=1 törli a sütit
+if (isset($_GET['forget'])) {
+    setcookie('c64va_visitor_seen', '', ['expires' => time() - 3600, 'path' => '/', 'secure' => $secure, 'httponly' => true, 'samesite' => 'Lax']);
+} elseif (isset($_GET['count']) && empty($_COOKIE['c64va_visitor_seen'])) {
     $count++;
     rewind($handle);
     ftruncate($handle, 0);
@@ -26,7 +30,7 @@ if (empty($_COOKIE['c64va_visitor_seen'])) {
     setcookie('c64va_visitor_seen', '1', [
         'expires' => time() + 31536000,
         'path' => '/',
-        'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+        'secure' => $secure,
         'httponly' => true,
         'samesite' => 'Lax',
     ]);
