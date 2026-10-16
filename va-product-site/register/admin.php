@@ -102,6 +102,7 @@ function vaAdminPage(string $title, string $body): void
         } catch (Throwable $e) {
         }
         $nav = '<a class="nav-link" href="stats.php">STATS</a>'
+            . '<a class="nav-link" href="messages.php">MESSAGES</a>'
             . '<a class="nav-link" href="bugs.php">BUGS' . ($open ? ' <span style="color:var(--red)">' . $open . '</span>' : '') . '</a>'
             . '<a class="nav-link" href="stats.php?logout=1">LOG OUT</a>';
     }
@@ -161,7 +162,7 @@ form.inline { display: inline }
 .btn.pri { border-color: var(--ylw); color: var(--ylw) }
 .btn.dng:hover { border-color: var(--red); color: var(--red); background: rgba(255, 119, 119, .08) }
 .btn.sm { padding: 3px 8px; min-height: 0; font-size: 9px }
-input[type=email], input[type=text], input[type=password], input[type=search], select {
+input[type=email], input[type=text], input[type=password], input[type=search], input[type=datetime-local], select {
   font-family: 'C64Mono', monospace; font-size: 12px; background: var(--scr-darker); color: var(--txt-hi);
   border: 1px solid var(--brd); padding: 7px 10px; min-height: 34px; text-transform: none }
 input:focus, select:focus { outline: 1px solid var(--ylw); border-color: var(--ylw) }
@@ -195,4 +196,10 @@ pre.bug-text { font-family: 'C64Mono', monospace; background: var(--scr-darker);
 textarea.note { width: 100%; min-height: 90px; font-family: 'C64Mono', monospace; font-size: 12px; background: var(--scr-darker);
   color: var(--txt-hi); border: 1px solid var(--brd); padding: 8px 10px; text-transform: none; resize: vertical }
 .clip { max-width: 420px; overflow: hidden; text-overflow: ellipsis }
+/* üzenetek, használat */
+.msg-form label { display: flex; flex-direction: column; gap: 4px; font-size: 10px; letter-spacing: 1px; color: var(--txt-dim); margin-bottom: 10px }
+.msg-form > label input, .msg-form > label textarea { width: 100% }
+.msg-form .row label { margin-bottom: 0 }
+.msg-form label.chk { flex-direction: row; align-items: center; gap: 6px; color: var(--txt) }
+td.id { text-transform: none; font-variant-numeric: tabular-nums; color: var(--txt-hi) }
 CSS;

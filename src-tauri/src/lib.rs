@@ -1,4 +1,3 @@
-mod license;
 
 use serde::{Deserialize, Serialize};
 use base64::Engine as _;
@@ -629,39 +628,6 @@ async fn open_external(url: String, app: AppHandle) -> Result<(), String> {
         .map_err(|e| e.to_string())
 }
 
-// ── License (full / light) ───────────────────────────────────────────────────
-
-/// Light version: the error result for a full-version command, None when licensed.
-fn light_block(app: &AppHandle) -> Option<serde_json::Value> {
-    if license::licensed_email(&read_config(app)).is_some() {
-        None
-    } else {
-        Some(serde_json::json!({ "ok": false, "error": license::LIGHT_ERROR, "licenseRequired": true }))
-    }
-}
-
-#[tauri::command]
-fn license_status(app: AppHandle) -> serde_json::Value {
-    match license::licensed_email(&read_config(&app)) {
-        Some(email) => serde_json::json!({ "licensed": true, "email": email }),
-        None => serde_json::json!({ "licensed": false, "email": "" }),
-    }
-}
-
-#[tauri::command]
-fn license_activate(app: AppHandle, email: String, serial: String) -> serde_json::Value {
-    let serial: String = serial.chars().filter(|c| !c.is_whitespace()).collect();
-    if !license::verify(&email, &serial) {
-        return serde_json::json!({ "ok": false, "error": "invalid" });
-    }
-    let email = license::normalize_email(&email);
-    let mut cfg = read_config(&app);
-    cfg["license"] = serde_json::json!({ "email": email, "serial": serial });
-    write_config(&app, &cfg);
-    report_license_activation(&app, &email, &serial);
-    serde_json::json!({ "ok": true, "email": email })
-}
-
 const BUG_REPORT_URL: &str = "https://www.c64va.pro/register/bug.php";
 
 /// Bug report with screenshots (base64) to va-product-site/register/bug.php; shown on register/bugs.php.
@@ -687,61 +653,136 @@ async fn bug_report(app: AppHandle, payload: serde_json::Value) -> serde_json::V
     }
 }
 
-const LICENSE_ACTIVATE_URL: &str = "https://www.c64va.pro/register/activate.php";
+const LAUNCH_PING_URL: &str = "https://www.c64va.pro/register/ping.php";
 
-/// Activation count for the site statistics (register/stats.php); fire and forget, offline is fine.
-fn report_license_activation(app: &AppHandle, email: &str, serial: &str) {
-    let Ok(client) = update_http_client(app, 15) else { return };
-    let body = serde_json::json!({
-        "email": email,
-        "serial": serial,
-        "version": app.package_info().version.to_string(),
-        "os": std::env::consts::OS,
-    });
-    tauri::async_runtime::spawn(async move {
-        let _ = client
-            .post(LICENSE_ACTIVATE_URL)
-            .header("Content-Type", "application/json")
-            .body(body.to_string())
-            .send()
-            .await;
-    });
+/// A random install id (32 hex digits) without an RNG crate: RandomState is seeded per process from the OS.
+fn new_install_id() -> String {
+    use std::hash::{BuildHasher, Hasher};
+    let nanos = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_nanos())
+        .unwrap_or(0);
+    (0..2u32)
+        .map(|i| {
+            let mut h = std::collections::hash_map::RandomState::new().build_hasher();
+            h.write_u128(nanos);
+            h.write_u32(std::process::id());
+            h.write_u32(i);
+            format!("{:016x}", h.finish())
+        })
+        .collect()
 }
 
-const LICENSE_REQUEST_URL: &str = "https://www.c64va.pro/register/";
+fn unix_day() -> u64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs() / 86_400)
+        .unwrap_or(0)
+}
 
-/// Professional serial by email for donors (donor list, once per address): va-product-site/register/index.php JSON API.
+/// The install id from the config ("launchPing": {"id", "day", "count"}); a new one is stored when missing.
+fn install_id(app: &AppHandle, cfg: &mut serde_json::Value) -> String {
+    if !cfg.is_object() {
+        *cfg = serde_json::json!({});
+    }
+    if let Some(id) = cfg["launchPing"]["id"].as_str() {
+        if id.len() == 32 && id.bytes().all(|b| b.is_ascii_hexdigit()) {
+            return id.to_ascii_lowercase();
+        }
+    }
+    let id = new_install_id();
+    if !cfg["launchPing"].is_object() {
+        cfg["launchPing"] = serde_json::json!({});
+    }
+    cfg["launchPing"]["id"] = serde_json::json!(id);
+    write_config(app, cfg);
+    id
+}
+
+fn ping_lang(lang: &str) -> String {
+    if lang.len() == 2 && lang.bytes().all(|b| b.is_ascii_lowercase()) { lang.to_string() } else { String::new() }
+}
+
+/// Anonymous "app started" ping for the site statistics (register/ping.php): version, OS, UI language, a random
+/// install id and the launches since the last successful ping; sent at most once a day, offline is fine.
 #[tauri::command]
-async fn license_request(app: AppHandle, email: String, lang: String) -> serde_json::Value {
-    let client = match update_http_client(&app, 30) {
-        Ok(c) => c,
-        Err(_) => return serde_json::json!({ "ok": false, "result": "network" }),
-    };
-    let body = serde_json::json!({ "email": license::normalize_email(&email), "lang": lang });
-    let resp = match client
-        .post(LICENSE_REQUEST_URL)
+async fn app_launch_ping(app: AppHandle, lang: String) {
+    let day = unix_day();
+    let mut cfg = read_config(&app);
+    let id = install_id(&app, &mut cfg);
+    let count = cfg["launchPing"]["count"].as_u64().unwrap_or(0) + 1;
+    cfg["launchPing"]["count"] = serde_json::json!(count);
+    write_config(&app, &cfg);
+    if cfg["launchPing"]["day"].as_u64() == Some(day) {
+        return;
+    }
+    let Ok(client) = update_http_client(&app, 15) else { return };
+    let body = serde_json::json!({
+        "id": id,
+        "version": app.package_info().version.to_string(),
+        "os": std::env::consts::OS,
+        "lang": ping_lang(&lang),
+        "launches": count.min(1000),
+    });
+    let sent = match client
+        .post(LAUNCH_PING_URL)
         .header("Content-Type", "application/json")
         .body(body.to_string())
         .send()
         .await
     {
-        Ok(r) => r,
-        Err(_) => return serde_json::json!({ "ok": false, "result": "network" }),
+        Ok(r) => r.text().await.ok().and_then(|t| serde_json::from_str::<serde_json::Value>(&t).ok()).map_or(false, |v| v["ok"] == true),
+        Err(_) => false,
     };
-    match resp.text().await.ok().and_then(|t| serde_json::from_str::<serde_json::Value>(&t).ok()) {
-        Some(v) if v["result"].is_string() => v,
-        _ => serde_json::json!({ "ok": false, "result": "server" }),
+    if sent {
+        let mut cfg = read_config(&app);
+        if cfg["launchPing"].is_object() {
+            let left = cfg["launchPing"]["count"].as_u64().unwrap_or(0).saturating_sub(count);
+            cfg["launchPing"]["count"] = serde_json::json!(left);
+            cfg["launchPing"]["day"] = serde_json::json!(day);
+            write_config(&app, &cfg);
+        }
     }
 }
 
+const APP_MESSAGE_URL: &str = "https://www.c64va.pro/register/message.php";
+
+/// Ad-hoc message from the site (register/message.php → messages.php admin): {id, title, body, url, level}
+/// in the requested language, or null (none, offline, malformed).
 #[tauri::command]
-fn license_deactivate(app: AppHandle) -> serde_json::Value {
+async fn fetch_app_message(app: AppHandle, lang: String) -> serde_json::Value {
     let mut cfg = read_config(&app);
-    if let Some(obj) = cfg.as_object_mut() {
-        obj.remove("license");
+    let id = install_id(&app, &mut cfg);
+    let Ok(client) = update_http_client(&app, 15) else { return serde_json::Value::Null };
+    let url = format!(
+        "{APP_MESSAGE_URL}?version={}&os={}&lang={}&id={}",
+        urlencoding::encode(&app.package_info().version.to_string()),
+        std::env::consts::OS,
+        ping_lang(&lang),
+        id
+    );
+    let Ok(resp) = client.get(url).send().await else { return serde_json::Value::Null };
+    let Some(v) = resp.text().await.ok().and_then(|t| serde_json::from_str::<serde_json::Value>(&t).ok()) else {
+        return serde_json::Value::Null;
+    };
+    let m = &v["message"];
+    let text = |k: &str| m[k].as_str().unwrap_or("").to_string();
+    let msg_id = match &m["id"] {
+        serde_json::Value::String(s) => s.clone(),
+        serde_json::Value::Number(n) => n.to_string(),
+        _ => String::new(),
+    };
+    if msg_id.is_empty() || (text("title").is_empty() && text("body").is_empty()) {
+        return serde_json::Value::Null;
     }
-    write_config(&app, &cfg);
-    serde_json::json!({ "ok": true })
+    let url = text("url");
+    serde_json::json!({
+        "id": msg_id,
+        "title": text("title"),
+        "body": text("body"),
+        "url": if url.starts_with("https://") || url.starts_with("http://") { url } else { String::new() },
+        "level": if text("level") == "warn" { "warn" } else { "info" },
+    })
 }
 
 #[tauri::command]
@@ -1183,7 +1224,6 @@ fn crunch_with_exomizer(
 
 #[tauri::command]
 async fn build_exomizer_prg(app: AppHandle, payload: LaunchVicePayload) -> serde_json::Value {
-    if let Some(blocked) = light_block(&app) { return blocked; }
     let cfg = read_config(&app);
     let exomizer_path = get_exomizer_path(&cfg);
 
@@ -1227,7 +1267,6 @@ async fn build_exomizer_prg(app: AppHandle, payload: LaunchVicePayload) -> serde
 
 #[tauri::command]
 async fn build_exomizer_raw(app: AppHandle, payload: BuildRawPayload) -> serde_json::Value {
-    if let Some(blocked) = light_block(&app) { return blocked; }
     let cfg = read_config(&app);
     let exomizer_path = get_exomizer_path(&cfg);
 
@@ -1326,7 +1365,6 @@ async fn launch_vice(app: AppHandle, payload: LaunchVicePayload) -> serde_json::
 
 #[tauri::command]
 async fn launch_exomizer(app: AppHandle, payload: LaunchVicePayload) -> serde_json::Value {
-    if let Some(blocked) = light_block(&app) { return blocked; }
     let cfg = read_config(&app);
     let exomizer_path = get_exomizer_path(&cfg);
     let vice_path = {
@@ -2232,7 +2270,6 @@ fn delete_bin_file(path: String) -> serde_json::Value {
 
 #[tauri::command]
 async fn save_prg(app: AppHandle, payload: SavePrgPayload) -> serde_json::Value {
-    if let Some(blocked) = light_block(&app) { return blocked; }
     let working_folder = {
         let cfg = read_config(&app);
         get_working_folder_path(&cfg)
@@ -2276,7 +2313,6 @@ struct SaveCrtPayload {
 
 #[tauri::command]
 async fn save_crt(app: AppHandle, payload: SaveCrtPayload) -> serde_json::Value {
-    if let Some(blocked) = light_block(&app) { return blocked; }
     let working_folder = {
         let cfg = read_config(&app);
         get_working_folder_path(&cfg)
@@ -2432,7 +2468,6 @@ struct SaveD64Payload {
 
 #[tauri::command]
 async fn save_d64(app: AppHandle, payload: SaveD64Payload) -> serde_json::Value {
-    if let Some(blocked) = light_block(&app) { return blocked; }
     if payload.files.is_empty() {
         return serde_json::json!({ "ok": false, "error": "Nincs fajl a D64-re irashoz." });
     }
@@ -3278,7 +3313,6 @@ struct RunD64UltimatePayload {
 
 #[tauri::command]
 async fn run_d64_on_ultimate(app: AppHandle, payload: RunD64UltimatePayload) -> serde_json::Value {
-    if let Some(blocked) = light_block(&app) { return blocked; }
     if payload.files.is_empty() {
         return serde_json::json!({ "ok": false, "error": "Nincs fajl a D64-re irashoz." });
     }
@@ -3463,12 +3497,10 @@ async fn run_d64_on_ultimate(app: AppHandle, payload: RunD64UltimatePayload) -> 
 
 #[tauri::command]
 async fn run_on_ultimate(
-    app: AppHandle,
     host: String,
     password: Option<String>,
     prg_bytes: Vec<u8>,
 ) -> serde_json::Value {
-    if let Some(blocked) = light_block(&app) { return blocked; }
     let host = host.trim().trim_end_matches('/').to_string();
     let url = format!("http://{}/v1/runners:run_prg", host);
     let client = match reqwest::Client::builder()
@@ -3631,8 +3663,7 @@ async fn detect_kff2_port() -> serde_json::Value {
 }
 
 #[tauri::command]
-async fn run_on_kff2(app: AppHandle, port: String, prg_bytes: Vec<u8>) -> serde_json::Value {
-    if let Some(blocked) = light_block(&app) { return blocked; }
+async fn run_on_kff2(port: String, prg_bytes: Vec<u8>) -> serde_json::Value {
     match tauri::async_runtime::spawn_blocking(move || run_on_kff2_port(&port, &prg_bytes)).await {
         Ok(Ok(())) => serde_json::json!({ "ok": true }),
         Ok(Err(error)) => serde_json::json!({ "ok": false, "error": error }),
@@ -5016,11 +5047,9 @@ pub fn run() {
             set_title,
             open_external,
             quit_app,
-            license_status,
-            license_activate,
-            license_request,
             bug_report,
-            license_deactivate,
+            app_launch_ping,
+            fetch_app_message,
             get_ui_settings,
             save_ui_settings,
             get_vice_config,

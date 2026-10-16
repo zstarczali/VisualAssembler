@@ -1,8 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const crypto = require("node:crypto");
-const fs = require("node:fs");
-const path = require("node:path");
 const keygen = require("../scripts/keygen.js");
 
 test("serials verify for the normalized email only", () => {
@@ -14,16 +12,6 @@ test("serials verify for the normalized email only", () => {
   assert.equal(keygen.verifySerial(publicKey, "other@example.com", serial), false);
   const other = crypto.generateKeyPairSync("ed25519").publicKey;
   assert.equal(keygen.verifySerial(other, "some.one@example.com", serial), false);
-});
-
-test("the app's embedded public key is a valid Ed25519 key", () => {
-  const src = fs.readFileSync(path.join(__dirname, "..", "src-tauri", "src", "license.rs"), "utf8");
-  const m = /LICENSE_PUBLIC_KEY: \[u8; 32\] = \[([^\]]+)\]/.exec(src);
-  assert.ok(m);
-  const raw = Buffer.from(m[1].split(",").map((x) => x.trim()).filter(Boolean).map((x) => parseInt(x, 16)));
-  assert.equal(raw.length, 32);
-  const key = crypto.createPublicKey({ key: Buffer.concat([Buffer.from("302a300506032b6570032100", "hex"), raw]), format: "der", type: "spki" });
-  assert.equal(key.asymmetricKeyType, "ed25519");
 });
 
 test("the PHP seed rebuilds the same signing key", () => {

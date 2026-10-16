@@ -43,7 +43,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [Compile progress modal](#compile-progress-modal)
   - [5. Settings \& Toolbar](#5-settings--toolbar)
     - [Version control](#version-control)
-    - [Freemium and Professional](#freemium-and-professional)
+    - [Free and open source](#free-and-open-source)
     - [Reporting a bug](#reporting-a-bug)
     - [Project templates](#project-templates)
     - [Build project](#build-project)
@@ -188,9 +188,9 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ## Version 2.5.9 Highlights
 
-- **Commodore 64 theme** — the C64 power-on screen: a light blue border around blue panels, light blue text, reverse-video buttons, syntax colours from the C64 palette and the C64 font in the monitor view (Professional).
-- **Commodore Beige theme** — the classic breadbin: beige case, mustard function-key buttons, the rainbow badge stripes and a C64 blue monitor view. Pick it in the theme picker or cycle to it with the theme button (Professional). See [Settings & Toolbar](#5-settings--toolbar).
-- **Commodore Starlight theme** — a light theme after the translucent C64 breadbin: frosted clear glass with the rainbow RGB glow shining through, a magenta accent, rainbow syntax colours and a smoky dark monitor view (Professional).
+- **Commodore 64 theme** — the C64 power-on screen: a light blue border around blue panels, light blue text, reverse-video buttons, syntax colours from the C64 palette and the C64 font in the monitor view.
+- **Commodore Beige theme** — the classic breadbin: beige case, mustard function-key buttons, the rainbow badge stripes and a C64 blue monitor view. Pick it in the theme picker or cycle to it with the theme button. See [Settings & Toolbar](#5-settings--toolbar).
+- **Commodore Starlight theme** — a light theme after the translucent C64 breadbin: frosted clear glass with the rainbow RGB glow shining through, a magenta accent, rainbow syntax colours and a smoky dark monitor view.
 - **Version control dialog** — the dialog can be dragged by its header and reopens where you left it; it stays on screen when the log or a diff makes it taller, and a click outside no longer closes it (Esc does). See [Version control](#version-control).
 - **Project-level version control** — for a tab of an open `.proj` project, a **File / Project** switch commits every source file of the project (project tree + included files) in one entry. The log lists the changed files of each commit, Diff works file by file, Checkout restores all files into the editor tabs, and autosave entries are made per project too. In Git mode the log and diff cover the whole repository. See [Project mode](#project-mode).
 
@@ -201,7 +201,6 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 - **Version control** — the project snapshots became a git-like version control: commits with a message and a short hash, a log with **HEAD**, a **Diff** against the working copy, **Checkout** into the editor and separate autosave entries. Block-mode (JSON) programs are compared as assembly lines, so the diff shows real changes. Works on Block, Expert and Ultimate Basic tabs. See [Version control](#version-control).
 - **Git integration** — choose `git.exe` in **Settings → Version control** (or let the app find it). When the project is inside a git repository, the dialog shows the branch, the changed files, commit (saves first), log, diff with a **RAW** view, checkout, **Pull** / **Push** and **git init**.
 - **Report Bug** — a built-in report form with up to 4 screenshots (file, Ctrl+V or drag and drop), optional email, system info and the recent app errors. See [Reporting a bug](#reporting-a-bug).
-- **Professional serial by email** — supporters request their serial in the registration dialog (**Request serial (supporters)**); the Professional version can be bought on c64va.pro with PayPal (5 €, one-time) and the serial arrives by email right after the payment. See [Freemium and Professional](#freemium-and-professional).
 - **SID Player** — **Shuffle** and **favourites** (★) per tune. See [SID Player](#sid-player).
 
 ---
@@ -223,7 +222,6 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 - **SID Player** — a new toolbar button opens a floating player for `.sid` (PSID / RSID) tunes: a playlist with drag and drop, previous / next tune, subtunes, seek and ±10 s, volume, and playlist save / open (`.sidpl`); the list and the window state are remembered. See [SID Player](#sid-player).
 - **VA SID Core 1.1** — a built-in SID emulation (MOS 6581 / 8580, with a reSID-aligned 6581 filter) and a cycle-locked PSID / RSID player (6510 CPU, CIA / VIC timing). Choose it in **Settings → SID preview**; the SID Player shows which engine is playing.
 - **SID Editor** — knobs for the instrument parameters, a wider ADSR graph, **MIDI input**, **recording** into the tracker (a new pattern is added when the current one is full), a **metronome** with beat lamps, **pattern delete**, the master volume on VA-VK, and **Import GoatTracker .sng**. See [SID Editor](#sid-editor-3-voice-tracker).
-- **Freemium and Professional** — without a registration the app runs as Freemium; enter the email address and serial from your purchase in **Menu → Register…** to get the Professional version. See [Freemium and Professional](#freemium-and-professional).
 - **Ultimate Basic 1.6.4** bundled.
 
 ---
@@ -617,26 +615,21 @@ After the download the app installs the update and restarts:
 
 If there are unsaved tabs, the app asks before closing. The same check runs quietly a few seconds after every start: nothing is shown unless a newer version exists. The result also appears in the Ultimate Basic status bar — **Up to date (vX)**, or a highlighted **Update available: vY** that opens the update dialog.
 
-### Freemium and Professional
+### Free and open source
 
-Without a registration Visual Assembler runs as **Freemium**; the badge next to the title shows **FREEMIUM** or **PROFESSIONAL**. In Freemium you can write and build programs and run them in VICE in Block, Expert and Ultimate Basic mode. These need the Professional version:
+Visual Assembler is free: every feature — the visual editors (SID, Sprite, Char, Charset, Hi-Res, Map, Level, D64, Curve), the SID Player, **Build PRG**, **Build D64**, **Build CRT**, **Build project**, Exomizer packing, running on the C64 Ultimate and on the Kung Fu Flash 2, and every UI language and theme — works without a registration or a serial. The source code is available under the GNU General Public License v3.0 (see **Menu → About**). Up to version 2.5.9 the app had a Freemium / Professional split; a serial entered there is simply no longer needed.
 
-- the visual editors (SID, Sprite, Char, Charset, Hi-Res, Map, Level, D64, Curve) and the SID Player;
-- **Build PRG**, **Build D64**, **Build CRT**, **Build project** and Exomizer packing;
-- running on the C64 Ultimate and on the Kung Fu Flash 2;
-- UI languages other than Hungarian and English, and the OLED, Commodore 77, Commodore Starlight, Commodore Beige and Commodore 64 themes.
+If you like the program, you can support its development with a donation on c64va.pro.
 
-Clicking a locked feature opens the registration dialog. To register, open **Menu → Register…** (or click the badge), enter the email address and serial from your purchase and press **Activate**. The serial belongs to that email address (upper / lower case and spaces do not matter), and the check runs offline. **Remove license** takes the registration off this computer.
-
-**Getting a serial.** If you supported the project earlier, enter your email address in the registration dialog and press **Request serial (supporters)** (or use the form at c64va.pro/register): the serial arrives by email, once per address. The Professional version can be bought on c64va.pro — **Buy full version** in the dialog opens the page: PayPal, 5 € one-time, and the serial is emailed right after the payment. The page also compares Freemium and Professional.
+**Usage statistics.** At most once a day, at startup, the app sends an anonymous ping to c64va.pro with the app version, the operating system, the UI language, the number of launches since the last ping and a random install ID (kept in the app's `config.json` as `launchPing`). No email address, project or source code is sent; offline nothing happens. The app also asks c64va.pro for an occasional short message (for example about a new version); each message is shown once.
 
 ### Reporting a bug
 
 **Menu → Report Bug** opens a form that sends the report straight to the developer.
 
-- **Summary** and **What happened?** are required — describe what you did, what you expected and what happened instead. **Email** is optional (filled in with your licence email); give it if you want a reply.
+- **Summary** and **What happened?** are required — describe what you did, what you expected and what happened instead. **Email** is optional; give it if you want a reply.
 - **Screenshots:** up to 4 images with **Add image…**, by pasting with **Ctrl+V** (for example after Win+Shift+S) or by dropping them on the form. Large images are scaled down to 1920 pixels.
-- **Include system info and recent errors** (on by default) adds the app version, the operating system, the language, the theme, the editor and run mode, the licence state, the screen size, the number of blocks and the last app errors. **What is sent?** shows the data. Your source code is not sent.
+- **Include system info and recent errors** (on by default) adds the app version, the operating system, the language, the theme, the editor and run mode, the screen size, the number of blocks and the last app errors. **What is sent?** shows the data. Your source code is not sent.
 - **Send report** confirms with the report number. **Send by email** opens your mail program instead.
 
 ### Workspaces

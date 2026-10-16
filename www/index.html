@@ -46,7 +46,6 @@
       <div class="hero-copy-block">
         <div class="eyebrow-row">
           <p class="eyebrow">Commodore 64 visual assembler</p>
-          <button id="license-badge" class="license-badge" type="button" aria-label="Register…" hidden>FREEMIUM</button>
         </div>
         <div class="hero-menu-row">
           <div class="main-toolbar">
@@ -196,7 +195,6 @@
                 <h3 class="control-menu-label control-menu-label--section" id="menu-info-label">Info</h3>
                 <button id="help-manual-btn" class="secondary" type="button">Manual</button>
                 <button id="about-btn" class="secondary" type="button">About</button>
-                <button id="license-btn" class="secondary" type="button">Register…</button>
                 <button id="whats-new-btn" class="secondary" type="button">What's New</button>
                 <button id="knowledge-base-btn" class="secondary" type="button">Knowledge Base</button>
                 <button id="check-update-btn" class="secondary" type="button">Check for Update</button>
@@ -999,21 +997,13 @@ PRINTABLE CHARACTERS
     </div>
   </dialog>
 
-  <dialog id="license-dialog" class="app-confirm-dialog update-dialog license-dialog">
+  <dialog id="server-message-dialog" class="app-confirm-dialog update-dialog server-message-dialog">
     <div class="app-confirm-card">
-      <h2 class="compile-error-title" id="license-title">Register Visual Assembler</h2>
-      <p id="license-msg" class="app-confirm-msg"></p>
-      <label class="license-field"><span id="license-email-label">Email</span>
-        <input id="license-email" type="email" autocomplete="email" spellcheck="false"></label>
-      <label class="license-field"><span id="license-serial-label">Serial</span>
-        <textarea id="license-serial" rows="2" spellcheck="false"></textarea></label>
-      <p id="license-status" class="license-status" role="status"></p>
+      <h2 class="compile-error-title" id="server-message-title"></h2>
+      <p id="server-message-body" class="app-confirm-msg server-message-body"></p>
       <div class="app-confirm-buttons">
-        <button id="license-request" class="secondary" type="button">Request serial (supporters)</button>
-        <button id="license-buy" class="secondary" type="button">Buy full version</button>
-        <button id="license-deactivate" class="secondary" type="button" hidden>Remove license</button>
-        <button id="license-close" class="secondary" type="button">Close</button>
-        <button id="license-activate" class="primary" type="button">Activate</button>
+        <button id="server-message-open" class="secondary" type="button" hidden>Open link</button>
+        <button id="server-message-close" class="primary" type="button">Close</button>
       </div>
     </div>
   </dialog>
@@ -1022,13 +1012,13 @@ PRINTABLE CHARACTERS
     <div class="app-confirm-card">
       <h2 class="compile-error-title" id="bug-title">Report Bug</h2>
       <p id="bug-intro" class="app-confirm-msg"></p>
-      <label class="license-field"><span id="bug-summary-label">Summary</span>
+      <label class="form-field"><span id="bug-summary-label">Summary</span>
         <input id="bug-summary" type="text" maxlength="200" spellcheck="true"></label>
-      <label class="license-field"><span id="bug-description-label">What happened?</span>
+      <label class="form-field"><span id="bug-description-label">What happened?</span>
         <textarea id="bug-description" class="bug-description" rows="7" maxlength="20000" spellcheck="true"></textarea></label>
-      <label class="license-field"><span id="bug-email-label">Email (optional)</span>
+      <label class="form-field"><span id="bug-email-label">Email (optional)</span>
         <input id="bug-email" type="email" autocomplete="email" spellcheck="false"></label>
-      <div class="license-field">
+      <div class="form-field">
         <span id="bug-images-label">Screenshots</span>
         <div class="bug-images-row">
           <div id="bug-images" class="bug-images"></div>
@@ -1038,7 +1028,7 @@ PRINTABLE CHARACTERS
       <label class="bug-include-info"><input id="bug-include-info" type="checkbox" checked>
         <span id="bug-include-info-label">Include system info and recent errors</span></label>
       <details class="bug-sysinfo"><summary id="bug-sysinfo-label">What is sent?</summary><pre id="bug-sysinfo-preview"></pre></details>
-      <p id="bug-status" class="license-status" role="status"></p>
+      <p id="bug-status" class="form-status" role="status"></p>
       <div class="app-confirm-buttons">
         <button id="bug-mail" class="secondary" type="button">Send by email</button>
         <button id="bug-close" class="secondary" type="button">Close</button>
@@ -1298,7 +1288,6 @@ PRINTABLE CHARACTERS
         </div>
         <h2 class="about-title">C64 Visual Assembler</h2>
         <p class="about-version" id="about-version">v2.5.9</p>
-        <p class="about-version" id="about-license"></p>
         <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
       </div>
       <div class="about-columns">
@@ -1327,13 +1316,13 @@ PRINTABLE CHARACTERS
       <p class="whats-new-version">v2.5.9</p>
       <ul class="whats-new-list">
         <li>
-          <strong>New theme: Commodore 64:</strong> the C64 power-on screen — a light blue border around blue panels, light blue text, reverse-video buttons, syntax colours from the C64 palette and the C64 font in the monitor view (Professional).
+          <strong>New theme: Commodore 64:</strong> the C64 power-on screen — a light blue border around blue panels, light blue text, reverse-video buttons, syntax colours from the C64 palette and the C64 font in the monitor view.
         </li>
         <li>
-          <strong>New theme: Commodore Beige:</strong> the classic breadbin — a beige case, mustard function-key buttons, the rainbow badge stripes and a C64 blue screen for the monitor view (Professional).
+          <strong>New theme: Commodore Beige:</strong> the classic breadbin — a beige case, mustard function-key buttons, the rainbow badge stripes and a C64 blue screen for the monitor view.
         </li>
         <li>
-          <strong>New theme: Commodore Starlight:</strong> a light theme after the translucent C64 breadbin — frosted clear glass with the rainbow RGB glow shining through, a magenta accent, rainbow syntax colours and a smoky dark monitor (Professional).
+          <strong>New theme: Commodore Starlight:</strong> a light theme after the translucent C64 breadbin — frosted clear glass with the rainbow RGB glow shining through, a magenta accent, rainbow syntax colours and a smoky dark monitor.
         </li>
         <li>
           <strong>Version control dialog:</strong> drag it by its header — it reopens where you left it and stays on screen when the log or a diff makes it taller. A click outside no longer closes it (Esc does).
@@ -1346,9 +1335,6 @@ PRINTABLE CHARACTERS
         </li>
         <li>
           <strong>From 2.5.8: Report Bug:</strong> a built-in report form with up to 4 screenshots (file, Ctrl+V or drag and drop), an optional email, system info and the recent app errors.
-        </li>
-        <li>
-          <strong>From 2.5.8: Professional serial by email:</strong> supporters request their serial in the registration dialog; the Professional version can be bought on c64va.pro with PayPal (5 €, one-time) and the serial arrives by email right after the payment.
         </li>
         <li>
           <strong>From 2.5.8: SID Player:</strong> <em>Shuffle</em> and per-tune <em>favourites</em> (★), kept in the saved state and in <code>.sidpl</code> playlists.
