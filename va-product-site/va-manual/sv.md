@@ -1107,6 +1107,25 @@ utvecklaren.
 - **Skicka rapport** bekräftar med rapportnumret. **Skicka via e-post** öppnar
   istället ditt e-postprogram.
 
+### Stöd
+
+**Meny → Support** öppnar en chatt med utvecklaren: skriv en fråga, en idé eller
+ett problem och tryck på **Skicka** (eller **Ctrl+Enter**). Du kan bifoga upp
+till 3 filer (totalt 4 MB): bilder, källfiler (`.asm`, `.ub`, `.txt` …),
+C64-filer (`.prg`, `.d64`, `.sid`, `.crt` …) eller en `.zip` — med **Bifoga
+fil…**, genom att klistra in (**Ctrl+V**) eller genom att dra dem till fönstret.
+Svaret visas i samma fönster, även med filer: bilder visas som
+förhandsgranskningar, ett klick sparar en fil. Fönstret är inte modalt: dra det
+i rubriken, ändra storlek från det nedre högra hörnet och fortsätt arbeta medan
+det är öppet. Appen söker efter svar vid start och varje minut; ett nytt svar
+spelar upp en kort ljudsignal (högtalarknappen i fönstrets rubrik stänger av
+ljudet), blinkar aktivitetsfältsikonen när appen är i bakgrunden, visar en röd
+prick på **Meny**-knappen och öppnar fönstret en gång. När du har en
+konversation öppnas fönstret av en kuvertikon bredvid **Meny**-knappen; den blir
+röd och blinkar med antalet olästa svar. En e-postadress är valfri: om du anger
+en kommer svaret också via e-post. Konversationen är kopplad till appens
+slumpmässiga installations-ID, så det finns inget konto och inget lösenord.
+
 ### Projekt, flikar och startfiler
 
 Ultimate Basic-projekt använder `.proj`-filer och kan innehålla flera
