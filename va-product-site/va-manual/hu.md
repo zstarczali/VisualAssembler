@@ -288,7 +288,7 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
   dallam, aldallamok, keresés és ±10 másodperc, hangerő, valamint a lejátszási
   lista mentése/megnyitása (`.sidpl`) lehetőséggel; a lista és az ablak állapota
   megjegyzendő. Lásd: [SID lejátszó](#sid-player).
-- **VA SID Core 1.1** — beépített SID emuláció (MOS 6581 / 8580, reSID-hez
+- **VA SID Core 1.1** — beépített SID emuláció (MOS 6581 / 8580, MOS 6581/8580-alapú
   igazított 6581 szűrővel) és ciklusfüggő PSID / RSID lejátszó (6510 CPU, CIA /
   VIC időzítés). Válaszd ki a **Beállítások → SID előnézet** menüpontban; az SID
   lejátszó megmutatja, melyik motor játszik le.

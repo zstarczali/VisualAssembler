@@ -3,7 +3,7 @@
 #include <fstream>
 #include <iostream>
 
-static void write_frame(reSID::SID& sid, int frame, int scenario) {
+static void write_frame(mos6581_8580::SID& sid, int frame, int scenario) {
     const unsigned frequency = scenario == 0 || scenario == 3 ? 0x1200 : 0x5000;
     sid.write(0, frequency & 0xff);
     sid.write(1, frequency >> 8);
@@ -25,16 +25,16 @@ int main(int argc, char** argv) {
     std::ofstream out(argv[1], std::ios::binary);
     if (!out) return 3;
     for (int scenario = 0; scenario < 21; ++scenario) {
-        reSID::SID sid;
-        sid.set_chip_model(scenario == 2 || scenario == 3 || scenario >= 5 ? reSID::MOS6581 : reSID::MOS8580);
+        mos6581_8580::SID sid;
+        sid.set_chip_model(scenario == 2 || scenario == 3 || scenario >= 5 ? mos6581_8580::MOS6581 : mos6581_8580::MOS8580);
         // Band-limited like the Rust core (windowed-sinc resampling).
-        if (!sid.set_sampling_parameters(985248.0, reSID::SAMPLE_RESAMPLE, 44100.0)) return 5;
+        if (!sid.set_sampling_parameters(985248.0, mos6581_8580::SAMPLE_RESAMPLE, 44100.0)) return 5;
         for (int frame = 0; frame < 50; ++frame) {
             write_frame(sid, frame, scenario);
             short pcm[882];
             int filled = 0;
             while (filled < 882) {
-                reSID::cycle_count delta = 1 << 20;
+                mos6581_8580::cycle_count delta = 1 << 20;
                 filled += sid.clock(delta, pcm + filled, 882 - filled);
             }
             out.write(reinterpret_cast<const char*>(pcm), sizeof(pcm));

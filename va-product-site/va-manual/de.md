@@ -296,7 +296,7 @@ generierten Assembler- und Maschinencode in Echtzeit.
   Liste und der Fensterstatus werden gespeichert. Siehe [SID
   Player](#sid-player).
 - **VA SID Core 1.1** – eine integrierte SID-Emulation (MOS 6581/8580 mit einem
-  reSID-ausgerichteten 6581-Filter) und ein zyklusgekoppelter PSID/RSID-Player
+  mos6581_8580-ausgerichteten 6581-Filter) und ein zyklusgekoppelter PSID/RSID-Player
   (6510-CPU, CIA/VIC-Timing). Wählen Sie diese Option unter **Einstellungen →
   SID-Vorschau** aus; der SID-Player zeigt an, welche Engine aktiv ist.
 - **SID-Editor** – Regler für die Instrumentenparameter, ein breiteres

@@ -282,7 +282,7 @@ maskinkoden i realtid.
   (`.sidpl`); listan och fönstrets tillstånd sparas. Se [SID
   Player](#sid-player).
 - **VA SID Core 1.1** — en inbyggd SID-emulering (MOS 6581/8580, med ett
-  reSID-anpassat 6581-filter) och en cykellåst PSID/RSID-spelare (6510 CPU,
+  mos6581_8580-anpassat 6581-filter) och en cykellåst PSID/RSID-spelare (6510 CPU,
   CIA/VIC-timing). Välj det i **Inställningar → SID-förhandsvisning**;
   SID-spelaren visar vilken motor som spelar.
 - **SID-redigerare** — rattar för instrumentparametrarna, en bredare ADSR-graf,

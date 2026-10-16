@@ -220,7 +220,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Version 2.5.6 Highlights
 
 - **SID Player** — a new toolbar button opens a floating player for `.sid` (PSID / RSID) tunes: a playlist with drag and drop, previous / next tune, subtunes, seek and ±10 s, volume, and playlist save / open (`.sidpl`); the list and the window state are remembered. See [SID Player](#sid-player).
-- **VA SID Core 1.1** — a built-in SID emulation (MOS 6581 / 8580, with a reSID-aligned 6581 filter) and a cycle-locked PSID / RSID player (6510 CPU, CIA / VIC timing). Choose it in **Settings → SID preview**; the SID Player shows which engine is playing.
+- **VA SID Core 1.1** — a built-in SID emulation (MOS 6581 / 8580, with a MOS 6581/8580-based 6581 filter) and a cycle-locked PSID / RSID player (6510 CPU, CIA / VIC timing). Choose it in **Settings → SID preview**; the SID Player shows which engine is playing.
 - **SID Editor** — knobs for the instrument parameters, a wider ADSR graph, **MIDI input**, **recording** into the tracker (a new pattern is added when the current one is full), a **metronome** with beat lamps, **pattern delete**, the master volume on VA-VK, and **Import GoatTracker .sng**. See [SID Editor](#sid-editor-3-voice-tracker).
 - **Ultimate Basic 1.6.4** bundled.
 

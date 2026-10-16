@@ -291,7 +291,7 @@ reaaliajassa.
   soittolistan tallennus/avaaminen (`.sidpl`); lista ja ikkunan tila muistetaan.
   Katso [SID Player]{1].
 - **VA SID Core 1.1** — sisäänrakennettu SID-emulointi (MOS 6581/8580,
-  reSID-tasapainotetulla 6581-suodattimella) ja syklilukittu PSID/RSID-soitin
+  mos6581_8580-tasapainotetulla 6581-suodattimella) ja syklilukittu PSID/RSID-soitin
   (6510 CPU, CIA/VIC-ajoitus). Valitse se kohdasta **Asetukset →
   SID-esikatselu**; SID-soitin näyttää, mikä moottori toistetaan.
 - **SID-editori** — instrumenttiparametrien säätimet, leveämpi ADSR-grafiikka,

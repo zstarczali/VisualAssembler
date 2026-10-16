@@ -63,7 +63,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 ## A 2.5.6 verzió újdonságai
 
 - **SID Player** — új toolbar gomb nyit egy lebegő lejátszót `.sid` (PSID / RSID) zenékhez: lejátszási lista fogd-és-vidd támogatással, előző / következő zene, subtune-ok, tekerés és ±10 mp, hangerő, a lista mentése / megnyitása (`.sidpl`); a lista és az ablak állapota megmarad. Lásd: [SID Player](#sid-player).
-- **VA SID Core 1.1** — beépített SID-emuláció (MOS 6581 / 8580, reSID-hez igazított 6581 szűrővel) és ciklusra pontos PSID / RSID lejátszó (6510 CPU, CIA / VIC időzítés). A **Beállítások → SID előnézet** alatt választható; a SID Player kiírja, melyik motor szól.
+- **VA SID Core 1.1** — beépített SID-emuláció (MOS 6581 / 8580, MOS 6581/8580-alapú 6581 szűrővel) és ciklusra pontos PSID / RSID lejátszó (6510 CPU, CIA / VIC időzítés). A **Beállítások → SID előnézet** alatt választható; a SID Player kiírja, melyik motor szól.
 - **SID szerkesztő** — tekerőgombok a hangszer-paraméterekhez, szélesebb ADSR-grafikon, **MIDI bemenet**, **felvétel** a trackerbe (ha az aktuális pattern betelt, új pattern jön), **metronóm** ütemlámpákkal, **pattern törlése**, master hangerő a VA-VK-n és **GoatTracker .sng import**. Lásd: [SID Editor](#sid-editor-3-voice-tracker).
 - **Beépített Ultimate Basic 1.6.4**.
 

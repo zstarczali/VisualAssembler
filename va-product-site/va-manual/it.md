@@ -292,7 +292,7 @@ tempo reale il codice assembly e il codice macchina generati.
   salvataggio/apertura della playlist (`.sidpl`); l'elenco e lo stato della
   finestra vengono memorizzati. Vedi [SID Player](#sid-player).
 - **VA SID Core 1.1** — un'emulazione SID integrata (MOS 6581 / 8580, con un
-  filtro 6581 allineato a reSID) e un lettore PSID / RSID a ciclo bloccato (CPU
+  filtro 6581 allineato a SID reference) e un lettore PSID / RSID a ciclo bloccato (CPU
   6510, temporizzazione CIA / VIC). Selezionalo in **Impostazioni → Anteprima
   SID**; il lettore SID mostra quale motore è in esecuzione.
 - **Editor SID** — manopole per i parametri dello strumento, un grafico ADSR più
@@ -666,7 +666,7 @@ tempo reale il codice assembly e il codice macchina generati.
   stringhe dell'interfaccia utente. Risolve anche un bug di vecchia data per cui
   le descrizioni in inglese per `PRINT`, `PRINT_HEX`, `CLEAR_SCREEN`,
   `WAIT_KEY`, `SET_BORDER`, `SET_BG`, `IRQ_SETUP` e `RAND` venivano sovrascritte
-  silenziosamente da testo spagnolo residuo.
+  silenziosamente da testo spagnolo SID referenceuo.
 
 ---
 

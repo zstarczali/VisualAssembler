@@ -292,7 +292,7 @@ gegenereerde assembly- en machinecode in realtime.
   opslaan/openen (`.sidpl`); de lijst en de vensterstatus worden onthouden. Zie
   [SID Player](#sid-player).
 - **VA SID Core 1.1** — een ingebouwde SID-emulatie (MOS 6581 / 8580, met een
-  reSID-uitgelijnd 6581-filter) en een cycle-locked PSID / RSID-speler (6510
+  mos6581_8580-uitgelijnd 6581-filter) en een cycle-locked PSID / RSID-speler (6510
   CPU, CIA / VIC-timing). Selecteer deze in **Instellingen → SID-voorbeeld**; de
   SID-speler toont welke engine wordt afgespeeld.
 - **SID Editor** — knoppen voor de instrumentparameters, een bredere

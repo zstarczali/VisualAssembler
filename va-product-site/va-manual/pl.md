@@ -296,7 +296,7 @@ w czasie rzeczywistym.
   odtwarzania (`.sidpl`); lista i stan okna są zapamiętywane. Zobacz [Odtwarzacz
   SID](#sid-player).
 - **VA SID Core 1.1** — wbudowana emulacja SID (MOS 6581/8580, z filtrem 6581
-  wyrównanym do reSID) i odtwarzacz PSID/RSID z cyklicznym blokowaniem (procesor
+  wyrównanym do mos6581_8580) i odtwarzacz PSID/RSID z cyklicznym blokowaniem (procesor
   6510, taktowanie CIA/VIC). Wybierz w **Ustawienia → Podgląd SID**; odtwarzacz
   SID pokazuje, który silnik odtwarza.
 - **Edytor SID** — pokrętła parametrów instrumentu, szerszy wykres ADSR,

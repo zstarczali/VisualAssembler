@@ -300,7 +300,7 @@ visualisez en temps réel le code assembleur et le code machine générés.
   (±10 s), volume et sauvegarde/ouverture de la liste de lecture (`.sidpl`) ; la
   liste et l'état de la fenêtre sont mémorisés. Voir [SID Player](#sid-player).
 - **VA SID Core 1.1** — émulation SID intégrée (MOS 6581/8580, avec filtre 6581
-  aligné sur reSID) et lecteur PSID/RSID à cycle verrouillé (processeur 6510,
+  aligné sur mos6581_8580) et lecteur PSID/RSID à cycle verrouillé (processeur 6510,
   synchronisation CIA/VIC). Sélectionnez-le dans **Paramètres → Aperçu SID** ;
   le lecteur SID indique le moteur en cours de lecture.
 - **Éditeur SID** — potentiomètres pour les paramètres de l'instrument,
