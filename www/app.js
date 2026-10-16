@@ -82,49 +82,49 @@ const CUSTOMER_MESSAGE = {
   hu: {
     eyebrow: "Újdonság a 2.6.0-ban",
     title: "Üdvözöl a Visual Assembler",
-    body: `<p><strong>A Visual Assembler ingyenes lett.</strong></p><p>A Freemium / Professional licencelés megszűnt: minden szerkesztő, build és hardveres futtatás, mind a 7 nyelv és minden téma mindenkinek elérhető, regisztráció és sorozatszám nélkül.</p><p>Az ok egyszerű: a magyar adószabályok mellett az eladásból az adók és az adminisztráció után túl kevés maradna ahhoz, hogy megérje pénzért adni. A már meglévő sorozatszámra nincs többé szükség.</p>`,
+    body: `<p><strong>A Visual Assembler ingyenes lett.</strong></p><p>A Freemium / Professional licencelés megszűnt: minden szerkesztő, build és hardveres futtatás, mind a 7 nyelv és minden téma mindenkinek elérhető, regisztráció és sorozatszám nélkül.</p><p>Az ok egyszerű: a magyar adószabályok mellett az eladásból az adók és az adminisztráció után túl kevés maradna ahhoz, hogy megérje pénzért adni. A már meglévő sorozatszámra nincs többé szükség.</p><p><strong>Írj nekem közvetlenül:</strong> a <strong>Menu → Támogatás</strong> ablakban kérdést, ötletet vagy hibát küldhetsz, akár csatolt képpel vagy fájllal (asm, prg, d64 …). A válaszom ugyanott jelenik meg, és az alkalmazás jelzi, ha megérkezett.</p>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
     eyebrow: "New in 2.6.0",
     title: "Welcome to Visual Assembler",
-    body: `<p><strong>Visual Assembler is now free.</strong></p><p>The Freemium / Professional licensing has been removed: every editor, build and hardware run option, all 7 languages and every theme are available to everyone, without registration or a serial.</p><p>The reason is simple: under Hungarian tax rules, selling the program would leave too little after taxes and paperwork to be worth it. Serials you already have are simply no longer needed.</p>`,
+    body: `<p><strong>Visual Assembler is now free.</strong></p><p>The Freemium / Professional licensing has been removed: every editor, build and hardware run option, all 7 languages and every theme are available to everyone, without registration or a serial.</p><p>The reason is simple: under Hungarian tax rules, selling the program would leave too little after taxes and paperwork to be worth it. Serials you already have are simply no longer needed.</p><p><strong>Write to me directly:</strong> in <strong>Menu → Support</strong> you can send a question, an idea or a bug, even with an attached image or file (asm, prg, d64 …). My reply appears in the same window, and the app lets you know when it arrives.</p>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
     eyebrow: "Novedad en la 2.6.0",
     title: "Bienvenido a Visual Assembler",
-    body: `<p><strong>Visual Assembler ahora es gratis.</strong></p><p>Se ha eliminado la licencia Freemium / Professional: todos los editores, las compilaciones y la ejecución en hardware, los 7 idiomas y todos los temas están disponibles para todos, sin registro ni número de serie.</p><p>El motivo es sencillo: con la normativa fiscal húngara, venderlo dejaría demasiado poco después de impuestos y trámites como para que valga la pena. Si ya tienes un número de serie, simplemente ya no lo necesitas.</p>`,
+    body: `<p><strong>Visual Assembler ahora es gratis.</strong></p><p>Se ha eliminado la licencia Freemium / Professional: todos los editores, las compilaciones y la ejecución en hardware, los 7 idiomas y todos los temas están disponibles para todos, sin registro ni número de serie.</p><p>El motivo es sencillo: con la normativa fiscal húngara, venderlo dejaría demasiado poco después de impuestos y trámites como para que valga la pena. Si ya tienes un número de serie, simplemente ya no lo necesitas.</p><p><strong>Escríbeme directamente:</strong> en <strong>Menú → Soporte</strong> puedes enviar una pregunta, una idea o un error, incluso con una imagen o un archivo adjunto (asm, prg, d64 …). Mi respuesta aparece en la misma ventana y la aplicación te avisa cuando llega.</p>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
     eyebrow: "Neu in 2.6.0",
     title: "Willkommen bei Visual Assembler",
-    body: `<p><strong>Visual Assembler ist jetzt kostenlos.</strong></p><p>Die Freemium-/Professional-Lizenzierung entfällt: alle Editoren, Builds und Hardware-Ausführungen, alle 7 Sprachen und alle Themes stehen allen zur Verfügung, ohne Registrierung oder Seriennummer.</p><p>Der Grund ist einfach: Nach ungarischem Steuerrecht bliebe vom Verkauf nach Steuern und Verwaltungsaufwand zu wenig übrig, als dass es sich lohnen würde. Vorhandene Seriennummern werden einfach nicht mehr benötigt.</p>`,
+    body: `<p><strong>Visual Assembler ist jetzt kostenlos.</strong></p><p>Die Freemium-/Professional-Lizenzierung entfällt: alle Editoren, Builds und Hardware-Ausführungen, alle 7 Sprachen und alle Themes stehen allen zur Verfügung, ohne Registrierung oder Seriennummer.</p><p>Der Grund ist einfach: Nach ungarischem Steuerrecht bliebe vom Verkauf nach Steuern und Verwaltungsaufwand zu wenig übrig, als dass es sich lohnen würde. Vorhandene Seriennummern werden einfach nicht mehr benötigt.</p><p><strong>Schreib mir direkt:</strong> unter <strong>Menü → Support</strong> kannst du eine Frage, eine Idee oder einen Fehler senden, auch mit angehängtem Bild oder einer Datei (asm, prg, d64 …). Meine Antwort erscheint im selben Fenster, und die App meldet, wenn sie da ist.</p>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
     eyebrow: "Nieuw in 2.6.0",
     title: "Welkom bij Visual Assembler",
-    body: `<p><strong>Visual Assembler is nu gratis.</strong></p><p>De Freemium/Professional-licentie is verdwenen: alle editors, builds en uitvoering op hardware, alle 7 talen en alle thema's zijn voor iedereen beschikbaar, zonder registratie of serienummer.</p><p>De reden is eenvoudig: onder de Hongaarse belastingregels zou er na belastingen en administratie te weinig van de verkoop overblijven om het de moeite waard te maken. Een serienummer dat je al hebt, is gewoon niet meer nodig.</p>`,
+    body: `<p><strong>Visual Assembler is nu gratis.</strong></p><p>De Freemium/Professional-licentie is verdwenen: alle editors, builds en uitvoering op hardware, alle 7 talen en alle thema's zijn voor iedereen beschikbaar, zonder registratie of serienummer.</p><p>De reden is eenvoudig: onder de Hongaarse belastingregels zou er na belastingen en administratie te weinig van de verkoop overblijven om het de moeite waard te maken. Een serienummer dat je al hebt, is gewoon niet meer nodig.</p><p><strong>Schrijf me direct:</strong> via <strong>Menu → Ondersteuning</strong> kun je een vraag, een idee of een fout sturen, ook met een bijgevoegde afbeelding of een bestand (asm, prg, d64 …). Mijn antwoord verschijnt in hetzelfde venster en de app laat weten wanneer het binnen is.</p>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
     eyebrow: "Nowość w 2.6.0",
     title: "Witamy w Visual Assembler",
-    body: `<p><strong>Visual Assembler jest teraz darmowy.</strong></p><p>Licencjonowanie Freemium / Professional zostało usunięte: wszystkie edytory, kompilacje i uruchamianie na sprzęcie, wszystkie 7 języków i wszystkie motywy są dostępne dla każdego, bez rejestracji i numeru seryjnego.</p><p>Powód jest prosty: przy węgierskich przepisach podatkowych ze sprzedaży po podatkach i formalnościach zostałoby zbyt mało, żeby to się opłacało. Posiadany numer seryjny po prostu nie jest już potrzebny.</p>`,
+    body: `<p><strong>Visual Assembler jest teraz darmowy.</strong></p><p>Licencjonowanie Freemium / Professional zostało usunięte: wszystkie edytory, kompilacje i uruchamianie na sprzęcie, wszystkie 7 języków i wszystkie motywy są dostępne dla każdego, bez rejestracji i numeru seryjnego.</p><p>Powód jest prosty: przy węgierskich przepisach podatkowych ze sprzedaży po podatkach i formalnościach zostałoby zbyt mało, żeby to się opłacało. Posiadany numer seryjny po prostu nie jest już potrzebny.</p><p><strong>Napisz do mnie bezpośrednio:</strong> w <strong>Menu → Wsparcie</strong> możesz wysłać pytanie, pomysł lub błąd, także z załączonym obrazem lub plikiem (asm, prg, d64 …). Moja odpowiedź pojawi się w tym samym oknie, a aplikacja da znać, gdy nadejdzie.</p>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
     eyebrow: "Novità nella 2.6.0",
     title: "Benvenuto in Visual Assembler",
-    body: `<p><strong>Visual Assembler ora è gratuito.</strong></p><p>La licenza Freemium / Professional è stata eliminata: tutti gli editor, le build e l'esecuzione su hardware, tutte le 7 lingue e tutti i temi sono disponibili per tutti, senza registrazione né numero di serie.</p><p>Il motivo è semplice: con le norme fiscali ungheresi, dalla vendita resterebbe troppo poco dopo tasse e burocrazia perché ne valga la pena. Il numero di serie che hai già semplicemente non serve più.</p>`,
+    body: `<p><strong>Visual Assembler ora è gratuito.</strong></p><p>La licenza Freemium / Professional è stata eliminata: tutti gli editor, le build e l'esecuzione su hardware, tutte le 7 lingue e tutti i temi sono disponibili per tutti, senza registrazione né numero di serie.</p><p>Il motivo è semplice: con le norme fiscali ungheresi, dalla vendita resterebbe troppo poco dopo tasse e burocrazia perché ne valga la pena. Il numero di serie che hai già semplicemente non serve più.</p><p><strong>Scrivimi direttamente:</strong> in <strong>Menu → Supporto</strong> puoi inviare una domanda, un'idea o un bug, anche con un'immagine o un file allegato (asm, prg, d64 …). La mia risposta appare nella stessa finestra e l'app ti avvisa quando arriva.</p>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -1321,6 +1321,7 @@ function initPalette() {
   });
   reportBugButton?.addEventListener("click", () => _bugOpenDialog());
   document.getElementById("support-btn")?.addEventListener("click", () => _supportOpen());
+  document.getElementById("support-notify")?.addEventListener("click", () => _supportOpen());
   basicSysToggle?.addEventListener("change", () => {
     saveUiSettings();
     renderEmulatorRunHint();
@@ -48984,6 +48985,17 @@ function _supportSetStatus(text, kind) {
 function _supportSetUnread(n) {
   document.querySelector(".control-menu-trigger")?.classList.toggle("has-unread", n > 0);
   document.getElementById("support-btn")?.classList.toggle("has-unread", n > 0);
+  // eszköztár-ikon: csak ha már volt üzenetváltás; olvasatlan válasznál piros, villog, darabszámmal
+  const notify = document.getElementById("support-notify");
+  if (notify) {
+    let thread = false;
+    try { thread = localStorage.getItem(_SUPPORT_ACTIVE_KEY) === "1"; } catch (_) {}
+    notify.hidden = !(n > 0 || thread);
+    notify.classList.toggle("support-notify--unread", n > 0);
+    const count = document.getElementById("support-notify-count");
+    if (count) { count.textContent = n > 0 ? String(n) : ""; count.hidden = !(n > 0); }
+    notify.setAttribute("aria-label", n > 0 ? tf("supportNewMessage", { count: n }) : t("supportTitle"));
+  }
 }
 // text with clickable http(s) links (opened in the browser), everything else as text nodes
 function _supportFillText(el, text) {
@@ -49102,6 +49114,7 @@ async function _supportSend() {
     localStorage.setItem(_SUPPORT_NAME_KEY, name);
   } catch (_) {}
   _supportSetStatus(t("supportSent"), "ok");
+  _supportSetUnread(0);
   _supportRender(res.messages);
 }
 async function _supportCheck() {
@@ -49109,6 +49122,10 @@ async function _supportCheck() {
   if (dlg?.open) return;
   const res = await _supportApi({ action: "check" });
   const unread = res?.ok ? Number(res.unread) || 0 : 0;
+  // van beszélgetés (akár egy korábbi buildből, más localStorage-dzsel): innentől percenként figyel
+  // a régi support.php nem küld "thread" mezőt: csak a kifejezett false jelenti, hogy nincs beszélgetés
+  if (res?.ok && (res.thread === true || unread > 0)) { try { localStorage.setItem(_SUPPORT_ACTIVE_KEY, "1"); } catch (_) {} }
+  if (res?.ok && res.thread === false) { try { localStorage.removeItem(_SUPPORT_ACTIVE_KEY); } catch (_) {} }
   _supportSetUnread(unread);
   if (unread > _supportNotified) {
     let busy = false;
@@ -49118,13 +49135,13 @@ async function _supportCheck() {
     else { _supportNotified = unread; _supportBeep(); _supportAttention(); }
   }
 }
+// induláskor mindig egy ellenőrzés (van-e beszélgetés / olvasatlan válasz); utána percenként, ha van beszélgetés
 function _supportStartBackground() {
   if (!window.electronAPI?.supportApi) return;
-  let active = false;
-  try { active = localStorage.getItem(_SUPPORT_ACTIVE_KEY) === "1"; } catch (_) {}
-  if (!active) return;
-  setTimeout(_supportCheck, 15000);
-  setInterval(_supportCheck, 60 * 1000);
+  const active = () => { try { return localStorage.getItem(_SUPPORT_ACTIVE_KEY) === "1"; } catch (_) { return false; } };
+  _supportSetUnread(0);
+  setTimeout(_supportCheck, 10000);
+  setInterval(() => { if (active()) _supportCheck(); }, 60 * 1000);
 }
 function setupSupport() {
   const dlg = document.getElementById("support-dialog");

@@ -4,7 +4,7 @@ declare(strict_types=1);
 // Támogatási csevegés az appból (Rust support_api): POST JSON, a telepítés-azonosító (id) a beszélgetés kulcsa.
 //   {"action": "send", "id", "text", "name", "email"?, "version", "os", "lang"} → {"ok", "messages": […]}
 //   {"action": "thread", "id", "read"?: true}                                   → {"ok", "messages": […], "unread", "status"}
-//   {"action": "check", "id"}                                                   → {"ok", "unread"}
+//   {"action": "check", "id"}                                                   → {"ok", "unread", "thread"}
 //   {"action": "file", "id", "file_id"}                                         → {"ok", "name", "mime", "data" (base64)}
 // "send" csatolmánnyal: "attachments": [{"name", "data" (base64)}], max 3 db / 4 MB (vaSupportCheckFiles).
 // Üzenet: {id, from: "user" | "admin", text (sima szöveg), at (ISO 8601), files: [{id, name, size, image}]}. Kezelés a dashboardon: inbox.php.
@@ -45,7 +45,8 @@ try {
     $thread = $st->fetch() ?: null;
 
     if ($action === 'check') {
-        echo json_encode(['ok' => true, 'unread' => $thread ? (int) $thread['unread_user'] : 0]);
+        // thread: van-e beszélgetése ennek a telepítésnek (az app ettől kezdve percenként figyel)
+        echo json_encode(['ok' => true, 'unread' => $thread ? (int) $thread['unread_user'] : 0, 'thread' => $thread !== null]);
         exit;
     }
 

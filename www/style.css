@@ -11354,6 +11354,13 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .support-msg-file:hover { border-color: var(--primary); }
 .support-msg-img { display: block; max-width: 240px; max-height: 170px; border-radius: 6px; border: 1px solid var(--panel-border); cursor: pointer; background: var(--control-bg); min-width: 60px; min-height: 40px; object-fit: contain; }
 .support-dialog--drop .support-card { outline: 2px dashed var(--primary); outline-offset: -6px; }
+/* eszköztár-jelző: olvasatlan támogatási válasz, amíg a Support ablak csukva van */
+.support-notify { gap: 4px; }
+.support-notify[hidden], .support-notify-count[hidden] { display: none; }
+.support-notify--unread, .support-notify--unread:hover { color: #e05555; animation: support-notify-pulse 1.6s ease-in-out infinite; }
+.support-notify-count { font-size: 0.72rem; font-weight: 700; line-height: 1; }
+@keyframes support-notify-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+@media (prefers-reduced-motion: reduce) { .support-notify--unread { animation: none; } }
 .has-unread { position: relative; }
 .has-unread::before { content: ""; position: absolute; top: 4px; right: 4px; width: 8px; height: 8px; border-radius: 50%; background: #e05555; box-shadow: 0 0 0 2px var(--panel-bg, #fff); pointer-events: none; }
 .server-message-dialog--warn .compile-error-title { color: #e05555; }
@@ -11365,6 +11372,8 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
   border: 1px solid var(--panel-border); border-radius: 2px; background: var(--control-bg); color: var(--text);
 }
 .form-field textarea { height: calc(2 * 1.4em + 14px); line-height: 1.4; resize: none; overflow: hidden; word-break: break-all; }
+/* a globális fókuszszabály csak input / select: a többsoros mező is a téma színével jelöljön, ne a böngésző fekete keretével */
+.form-field input:focus, .form-field textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 28%, transparent); }
 .bug-dialog { max-width: 620px; }
 .bug-dialog .app-confirm-card { gap: 12px; max-height: calc(100vh - 40px); overflow-y: auto; }
 .bug-dialog .form-field textarea.bug-description { height: auto; min-height: 120px; resize: vertical; overflow: auto; word-break: normal; font-family: inherit; }
