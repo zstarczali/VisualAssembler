@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.6.0**
+**Version 2.6.1**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -9,7 +9,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
-    - [Next Release Highlights](#next-release-highlights)
+    - [Version 2.6.1 Highlights](#version-261-highlights)
     - [Version 2.6.0 Highlights](#version-260-highlights)
     - [Version 2.5.9 Highlights](#version-259-highlights)
     - [Version 2.5.8 Highlights](#version-258-highlights)
@@ -194,7 +194,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ---
 
-## Next Release Highlights
+## Version 2.6.1 Highlights
 
 - **Cycle counts in Expert mode** — a gutter shows the cycles of every instruction, the selection total and how many raster lines it takes. See [Cycle counts](#cycle-counts).
 - **Optimisation hints** — the Expert editor marks lines that can be shorter or faster (tail call, redundant `CMP #0`, reloads, `INC` / `DEC` idioms…). See [Optimisation hints](#optimisation-hints).

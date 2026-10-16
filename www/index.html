@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.6.0">
+  <link rel="stylesheet" href="style.css?v=2.6.1">
 </head>
 
 <body>
@@ -1351,7 +1351,7 @@ PRINTABLE CHARACTERS
           <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
         </div>
         <h2 class="about-title">C64 Visual Assembler</h2>
-        <p class="about-version" id="about-version">v2.6.0</p>
+        <p class="about-version" id="about-version">v2.6.1</p>
         <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
       </div>
       <div class="about-columns">
@@ -1377,10 +1377,37 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.6.0</p>
+      <p class="whats-new-version">v2.6.1</p>
       <ul class="whats-new-list">
         <li>
-          <strong>Visual Assembler is now completely free:</strong> the Freemium / Professional licensing has been removed. Every editor, build and hardware run option, all 7 languages and every theme work for everyone, without registration or a serial. The reason is simple: under Hungarian tax rules, selling the program would leave too little after taxes and paperwork to be worth it. Serials you already have are simply no longer needed.
+          <strong>VICE Monitor:</strong> a new floating window for the running VICE (Run (VICE) now opens its binary monitor on port 6502) — <em>hot reload</em> the assembled program with or without a restart (optionally after every edit), a <em>live watch</em> list of labels and addresses, and a PC-sampling <em>profiler</em> per routine and per line, with the raster lines each routine ran on.
+        </li>
+        <li>
+          <strong>Table Generator:</strong> screen and bitmap row addresses, pixel masks, multiply / divide / remainder by a constant, quarter squares for fast multiplication, reciprocal, log / exp, bit reverse, custom expressions and unrolled fill / copy speedcode — as lo / hi pairs or <code>.word</code>, page-aligned on request, inserted into the program, saved as <code>.bin</code> or exported to Ultimate Basic.
+        </li>
+        <li>
+          <strong>Cycle counts in Expert mode:</strong> a gutter with the cycles of every instruction (<code>4+</code> page-cross, <code>2/3</code> branches, a red <code>2/4</code> when a taken branch crosses a page) and the cycle and raster-line total of the selection.
+        </li>
+        <li>
+          <strong>Optimisation hints:</strong> the Expert editor marks lines that can be shorter or faster — <code>JSR</code> + <code>RTS</code>, redundant <code>CMP #0</code>, reloads, the <code>INC</code> / <code>DEC</code> idiom, jumps to the next instruction, <code>PHA</code> + <code>PLA</code>.
+        </li>
+        <li>
+          <strong>Zero page usage:</strong> a 16 × 16 map in the memory panel (CPU port / free / BASIC / KERNAL areas, read / write / pointer) with the lines behind every address and SID player conflicts.
+        </li>
+        <li>
+          <strong>Detachable memory window:</strong> the Full C64 memory panel can float in its own window; several floating windows can be open and the one you click comes to the front.
+        </li>
+        <li>
+          <strong>Ultimate Basic:</strong> code size per line after a build, hints (<code>sys $EA31</code> from an IRQ, <code>wait key</code>, unused variables, <code>asm</code> zero page clashes) and Sprite Editor → Ultimate Basic export with animation.
+        </li>
+        <li>
+          <strong>SID Editor → .sid:</strong> save the tune with its player as a standard PSID file.
+        </li>
+        <li>
+          <strong>Sprite multiplexer template:</strong> 16 sprites sorted by Y every frame and shown by a raster IRQ chain.
+        </li>
+        <li>
+          <strong>From 2.6.0: Visual Assembler is now completely free:</strong> the Freemium / Professional licensing has been removed. Every editor, build and hardware run option, all 7 languages and every theme work for everyone, without registration or a serial. The reason is simple: under Hungarian tax rules, selling the program would leave too little after taxes and paperwork to be worth it. Serials you already have are simply no longer needed.
         </li>
         <li>
           <strong>From 2.5.9: New theme: Commodore 64:</strong> the C64 power-on screen — a light blue border around blue panels, light blue text, reverse-video buttons, syntax colours from the C64 palette and the C64 font in the monitor view.
@@ -2925,7 +2952,8 @@ PRINTABLE CHARACTERS
         </button>
         <button id="memory-float-close" class="websid-play-xbtn" type="button" aria-label="Close">×</button>
       </div>
-      <div id="memory-float-body" class="mem-float-body"></div>
+      <div id="memory-float-body" class="mem-float-body" tabindex="-1" autofocus></div>
+      <div class="mem-float-grip" aria-hidden="true"></div>
     </div>
   </dialog>
 
@@ -3526,13 +3554,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.6.0"></script>
-  <script src="i18n.js?v=2.6.0"></script>
-  <script src="tutorial-data.js?v=2.6.0"></script>
+  <script src="tauri-bridge.js?v=2.6.1"></script>
+  <script src="i18n.js?v=2.6.1"></script>
+  <script src="tutorial-data.js?v=2.6.1"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.6.0"></script>
+  <script src="app.js?v=2.6.1"></script>
 
 </body>
 

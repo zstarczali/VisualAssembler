@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.6.0**
+**Verzió: 2.6.1**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -29,7 +29,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 
 ---
 
-## A következő verzió újdonságai
+## A 2.6.1 verzió újdonságai
 
 - **Ciklusszámok Expert módban** — a gutter minden utasítás ciklusát mutatja, a kijelölés összegét és azt, hány raszter sort foglal. Lásd: [Ciklusszámok](#ciklusszámok).
 - **Optimalizálási tippek** — az Expert szerkesztő jelöli a rövidebben vagy gyorsabban írható sorokat (JSR + RTS, felesleges `CMP #0`, újratöltés, `INC` / `DEC` minta…). Lásd: [Optimalizálási tippek](#optimalizálási-tippek).

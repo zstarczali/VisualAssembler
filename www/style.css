@@ -5011,7 +5011,9 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
 }
 
 .expert-project-symbols {
-  flex-shrink: 0;
+  /* a mentett magasság csak alapérték: ha a panel kisebb, zsugorodik, különben az alja a státuszsor alá lógna */
+  flex: 0 1 auto;
+  min-height: 48px;
   border-top: 1px solid var(--panel-border);
   height: 160px;
   max-height: min(1200px, 86vh);
@@ -5251,14 +5253,14 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
 }
 
 /* Syntax highlight token colours (use per-theme CSS vars) */
-.expert-hl .hl-comment   { color: var(--hl-comment);   font-style: italic; }
-.expert-hl .hl-directive { color: var(--hl-directive); }
-.expert-hl .hl-mnem      { color: var(--hl-mnem); }
-.expert-hl .hl-number    { color: var(--hl-number); }
-.expert-hl .hl-string    { color: var(--hl-string); }
-.expert-hl .hl-label     { color: var(--hl-label); font-weight: 600; }
-.expert-hl .hl-macro     { color: var(--hl-macro); font-weight: 600; }
-.expert-hl .hl-macro-param { color: var(--hl-macro-param); }
+.expert-hl .hl-comment, .tg-preview .hl-comment   { color: var(--hl-comment);   font-style: italic; }
+.expert-hl .hl-directive, .tg-preview .hl-directive { color: var(--hl-directive); }
+.expert-hl .hl-mnem, .tg-preview .hl-mnem      { color: var(--hl-mnem); }
+.expert-hl .hl-number, .tg-preview .hl-number    { color: var(--hl-number); }
+.expert-hl .hl-string, .tg-preview .hl-string    { color: var(--hl-string); }
+.expert-hl .hl-label, .tg-preview .hl-label     { color: var(--hl-label); font-weight: 600; }
+.expert-hl .hl-macro, .tg-preview .hl-macro     { color: var(--hl-macro); font-weight: 600; }
+.expert-hl .hl-macro-param, .tg-preview .hl-macro-param { color: var(--hl-macro-param); }
 
 /* ── Compile Error Dialog ──────────────────────────────────────── */
 .confirm-dialog {
@@ -9969,6 +9971,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 }
 .tg-controls { grid-row: auto; }
 .tg-params { display: flex; flex-direction: column; gap: 10px; }
+.tg-controls [hidden] { display: none !important; }
 .tg-params .cg-text-in.tg-invalid { border-color: #f87171; }
 .tg-preview-wrap { display: flex; flex-direction: column; gap: 8px; min-width: 0; min-height: 0; }
 .tg-desc { font-size: 0.78rem; color: var(--secondary); line-height: 1.45; }
@@ -11982,10 +11985,22 @@ button.vm-prof-row:hover { outline: 1px solid var(--primary); }
   min-height: 180px;
   max-width: 96vw;
   max-height: 92vh;
-  resize: both;
+  position: relative;
   overflow: hidden;
 }
-.mem-float-body { flex: 1; min-height: 0; overflow: auto; padding: 12px 14px; }
+/* saját sarokfogantyú: a CSS resize WKWebView-ban (transformált, görgethető tartalmú ablakban) nem megbízható */
+.mem-float-grip {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 16px;
+  height: 16px;
+  cursor: nwse-resize;
+  z-index: 3;
+  touch-action: none;
+  background: linear-gradient(135deg, transparent 0 50%, color-mix(in srgb, var(--secondary) 55%, transparent) 50% 58%, transparent 58% 68%, color-mix(in srgb, var(--secondary) 55%, transparent) 68% 76%, transparent 76%);
+}
+.mem-float-body { flex: 1; min-height: 0; overflow: auto; padding: 12px 14px; outline: none; }
 .mem-float-body .global-memory-content { padding: 0; }
 .mem-float-body .memory-strip,
 .mem-float-body .memory-heading { display: none; }

@@ -77,58 +77,59 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "free-260",
+  id: "tools-261",
   url: "https://www.c64va.pro/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.6.0-ban",
+    eyebrow: "Újdonság a 2.6.1-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<p><strong>A Visual Assembler ingyenes lett.</strong></p><p>A Freemium / Professional licencelés megszűnt: minden szerkesztő, build és hardveres futtatás, mind a 7 nyelv és minden téma mindenkinek elérhető, regisztráció és sorozatszám nélkül.</p><p>Az ok egyszerű: a magyar adószabályok mellett az eladásból az adók és az adminisztráció után túl kevés maradna ahhoz, hogy megérje pénzért adni. A már meglévő sorozatszámra nincs többé szükség.</p><p><strong>Írj nekem közvetlenül:</strong> a <strong>Menu → Támogatás</strong> ablakban kérdést, ötletet vagy hibát küldhetsz, akár csatolt képpel vagy fájllal (asm, prg, d64 …). A válaszom ugyanott jelenik meg, és az alkalmazás jelzi, ha megérkezett.</p>`,
+    body: `<ul><li><strong>VICE Monitor</strong> — hot reload a futó VICE-ba, élő változók és profiler.</li><li><strong>Táblagenerátor</strong> — sorcímek, maszkok, szorzó- / osztótáblák, log / exp, saját képlet és speedcode.</li><li><strong>Ciklusszámok és optimalizálási tippek</strong> az Expert szerkesztőben.</li><li><strong>Zero page foglaltság</strong> és leválasztható memóriaablak.</li><li><strong>Ultimate Basic</strong>: kódméret soronként, tippek, sprite export animációval.</li><li><strong>.sid export</strong> a SID szerkesztőből és <strong>sprite multiplexer</strong> sablon.</li></ul><p>Kérdés, ötlet vagy hiba: <strong>Menu → Támogatás</strong>.</p>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.6.0",
+    eyebrow: "New in 2.6.1",
     title: "Welcome to Visual Assembler",
-    body: `<p><strong>Visual Assembler is now free.</strong></p><p>The Freemium / Professional licensing has been removed: every editor, build and hardware run option, all 7 languages and every theme are available to everyone, without registration or a serial.</p><p>The reason is simple: under Hungarian tax rules, selling the program would leave too little after taxes and paperwork to be worth it. Serials you already have are simply no longer needed.</p><p><strong>Write to me directly:</strong> in <strong>Menu → Support</strong> you can send a question, an idea or a bug, even with an attached image or file (asm, prg, d64 …). My reply appears in the same window, and the app lets you know when it arrives.</p>`,
+    body: `<ul><li><strong>VICE Monitor</strong> — hot reload into the running VICE, live watch and a profiler.</li><li><strong>Table Generator</strong> — row addresses, masks, multiply / divide tables, log / exp, custom formulas and speedcode.</li><li><strong>Cycle counts and optimisation hints</strong> in the Expert editor.</li><li><strong>Zero page usage</strong> and a detachable memory window.</li><li><strong>Ultimate Basic</strong>: code size per line, hints, sprite export with animation.</li><li><strong>.sid export</strong> from the SID Editor and a <strong>sprite multiplexer</strong> template.</li></ul><p>Questions, ideas or bugs: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.6.0",
+    eyebrow: "Novedad en la 2.6.1",
     title: "Bienvenido a Visual Assembler",
-    body: `<p><strong>Visual Assembler ahora es gratis.</strong></p><p>Se ha eliminado la licencia Freemium / Professional: todos los editores, las compilaciones y la ejecución en hardware, los 7 idiomas y todos los temas están disponibles para todos, sin registro ni número de serie.</p><p>El motivo es sencillo: con la normativa fiscal húngara, venderlo dejaría demasiado poco después de impuestos y trámites como para que valga la pena. Si ya tienes un número de serie, simplemente ya no lo necesitas.</p><p><strong>Escríbeme directamente:</strong> en <strong>Menú → Soporte</strong> puedes enviar una pregunta, una idea o un error, incluso con una imagen o un archivo adjunto (asm, prg, d64 …). Mi respuesta aparece en la misma ventana y la aplicación te avisa cuando llega.</p>`,
+    body: `<ul><li><strong>Monitor de VICE</strong> — recarga en caliente en el VICE en marcha, vigilancia en vivo y perfilador.</li><li><strong>Generador de tablas</strong> — direcciones de fila, máscaras, tablas de multiplicar / dividir, log / exp, fórmulas propias y speedcode.</li><li><strong>Ciclos y sugerencias de optimización</strong> en el editor Expert.</li><li><strong>Uso de la página cero</strong> y ventana de memoria separable.</li><li><strong>Ultimate Basic</strong>: tamaño de código por línea, sugerencias, exportación de sprites con animación.</li><li><strong>Exportación .sid</strong> desde el editor SID y plantilla de <strong>multiplexor de sprites</strong>.</li></ul><p>Preguntas, ideas o errores: <strong>Menu → Support</strong>.</p>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.6.0",
+    eyebrow: "Neu in 2.6.1",
     title: "Willkommen bei Visual Assembler",
-    body: `<p><strong>Visual Assembler ist jetzt kostenlos.</strong></p><p>Die Freemium-/Professional-Lizenzierung entfällt: alle Editoren, Builds und Hardware-Ausführungen, alle 7 Sprachen und alle Themes stehen allen zur Verfügung, ohne Registrierung oder Seriennummer.</p><p>Der Grund ist einfach: Nach ungarischem Steuerrecht bliebe vom Verkauf nach Steuern und Verwaltungsaufwand zu wenig übrig, als dass es sich lohnen würde. Vorhandene Seriennummern werden einfach nicht mehr benötigt.</p><p><strong>Schreib mir direkt:</strong> unter <strong>Menü → Support</strong> kannst du eine Frage, eine Idee oder einen Fehler senden, auch mit angehängtem Bild oder einer Datei (asm, prg, d64 …). Meine Antwort erscheint im selben Fenster, und die App meldet, wenn sie da ist.</p>`,
+    body: `<ul><li><strong>VICE-Monitor</strong> — Hot Reload in den laufenden VICE, Live-Watch und Profiler.</li><li><strong>Tabellengenerator</strong> — Zeilenadressen, Masken, Multiplikations- / Divisionstabellen, Log / Exp, eigene Formeln und Speedcode.</li><li><strong>Taktzyklen und Optimierungshinweise</strong> im Expert-Editor.</li><li><strong>Zero-Page-Belegung</strong> und abdockbares Speicherfenster.</li><li><strong>Ultimate Basic</strong>: Codegröße pro Zeile, Hinweise, Sprite-Export mit Animation.</li><li><strong>.sid-Export</strong> aus dem SID-Editor und eine <strong>Sprite-Multiplexer</strong>-Vorlage.</li></ul><p>Fragen, Ideen oder Fehler: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.6.0",
+    eyebrow: "Nieuw in 2.6.1",
     title: "Welkom bij Visual Assembler",
-    body: `<p><strong>Visual Assembler is nu gratis.</strong></p><p>De Freemium/Professional-licentie is verdwenen: alle editors, builds en uitvoering op hardware, alle 7 talen en alle thema's zijn voor iedereen beschikbaar, zonder registratie of serienummer.</p><p>De reden is eenvoudig: onder de Hongaarse belastingregels zou er na belastingen en administratie te weinig van de verkoop overblijven om het de moeite waard te maken. Een serienummer dat je al hebt, is gewoon niet meer nodig.</p><p><strong>Schrijf me direct:</strong> via <strong>Menu → Ondersteuning</strong> kun je een vraag, een idee of een fout sturen, ook met een bijgevoegde afbeelding of een bestand (asm, prg, d64 …). Mijn antwoord verschijnt in hetzelfde venster en de app laat weten wanneer het binnen is.</p>`,
+    body: `<ul><li><strong>VICE-monitor</strong> — hot reload in de draaiende VICE, live watch en een profiler.</li><li><strong>Tabelgenerator</strong> — rijadressen, maskers, vermenigvuldig- / deeltabellen, log / exp, eigen formules en speedcode.</li><li><strong>Cycli en optimalisatietips</strong> in de Expert-editor.</li><li><strong>Zero page-gebruik</strong> en een losmaakbaar geheugenvenster.</li><li><strong>Ultimate Basic</strong>: codegrootte per regel, tips, sprite-export met animatie.</li><li><strong>.sid-export</strong> vanuit de SID-editor en een <strong>sprite-multiplexer</strong>-sjabloon.</li></ul><p>Vragen, ideeën of bugs: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.6.0",
+    eyebrow: "Nowość w 2.6.1",
     title: "Witamy w Visual Assembler",
-    body: `<p><strong>Visual Assembler jest teraz darmowy.</strong></p><p>Licencjonowanie Freemium / Professional zostało usunięte: wszystkie edytory, kompilacje i uruchamianie na sprzęcie, wszystkie 7 języków i wszystkie motywy są dostępne dla każdego, bez rejestracji i numeru seryjnego.</p><p>Powód jest prosty: przy węgierskich przepisach podatkowych ze sprzedaży po podatkach i formalnościach zostałoby zbyt mało, żeby to się opłacało. Posiadany numer seryjny po prostu nie jest już potrzebny.</p><p><strong>Napisz do mnie bezpośrednio:</strong> w <strong>Menu → Wsparcie</strong> możesz wysłać pytanie, pomysł lub błąd, także z załączonym obrazem lub plikiem (asm, prg, d64 …). Moja odpowiedź pojawi się w tym samym oknie, a aplikacja da znać, gdy nadejdzie.</p>`,
+    body: `<ul><li><strong>Monitor VICE</strong> — hot reload do działającego VICE, podgląd na żywo i profiler.</li><li><strong>Generator tablic</strong> — adresy wierszy, maski, tablice mnożenia / dzielenia, log / exp, własne wzory i speedcode.</li><li><strong>Liczba cykli i wskazówki optymalizacji</strong> w edytorze Expert.</li><li><strong>Użycie strony zerowej</strong> i odłączane okno pamięci.</li><li><strong>Ultimate Basic</strong>: rozmiar kodu na linię, wskazówki, eksport sprite'ów z animacją.</li><li><strong>Eksport .sid</strong> z edytora SID i szablon <strong>multipleksera sprite'ów</strong>.</li></ul><p>Pytania, pomysły lub błędy: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.6.0",
+    eyebrow: "Novità nella 2.6.1",
     title: "Benvenuto in Visual Assembler",
-    body: `<p><strong>Visual Assembler ora è gratuito.</strong></p><p>La licenza Freemium / Professional è stata eliminata: tutti gli editor, le build e l'esecuzione su hardware, tutte le 7 lingue e tutti i temi sono disponibili per tutti, senza registrazione né numero di serie.</p><p>Il motivo è semplice: con le norme fiscali ungheresi, dalla vendita resterebbe troppo poco dopo tasse e burocrazia perché ne valga la pena. Il numero di serie che hai già semplicemente non serve più.</p><p><strong>Scrivimi direttamente:</strong> in <strong>Menu → Supporto</strong> puoi inviare una domanda, un'idea o un bug, anche con un'immagine o un file allegato (asm, prg, d64 …). La mia risposta appare nella stessa finestra e l'app ti avvisa quando arriva.</p>`,
+    body: `<ul><li><strong>Monitor VICE</strong> — hot reload nel VICE in esecuzione, watch dal vivo e profiler.</li><li><strong>Generatore di tabelle</strong> — indirizzi di riga, maschere, tabelle di moltiplicazione / divisione, log / exp, formule proprie e speedcode.</li><li><strong>Cicli e suggerimenti di ottimizzazione</strong> nell'editor Expert.</li><li><strong>Uso della pagina zero</strong> e finestra della memoria sganciabile.</li><li><strong>Ultimate Basic</strong>: dimensione del codice per riga, suggerimenti, esportazione sprite con animazione.</li><li><strong>Esportazione .sid</strong> dall'editor SID e modello di <strong>multiplexer di sprite</strong>.</li></ul><p>Domande, idee o bug: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
 };
+
 
 const mnemonicLibrary = {
   Adatmozgas: [
@@ -49700,7 +49701,8 @@ function _tgRefresh() {
   const preview = document.getElementById("tg-preview");
   if (preview) {
     const lines = asm.split("\n");
-    preview.textContent = gen.error ? t("tgExprError") : lines.slice(0, 40).join("\n") + (lines.length > 40 ? "\n…" : "");
+    if (gen.error) preview.textContent = t("tgExprError");
+    else preview.innerHTML = lines.slice(0, 40).map(_expertHighlightLine).join("\n") + (lines.length > 40 ? "\n…" : "");
     preview.classList.toggle("tg-preview--error", gen.error);
   }
   const meta = document.getElementById("tg-meta");
@@ -49895,6 +49897,30 @@ function setupMemoryFloat() {
   document.getElementById("memory-float-close")?.addEventListener("click", () => _memSetDetached(false));
   dlg?.addEventListener("close", () => { if (_memDetached) _memSetDetached(false); });
   const card = dlg?.querySelector(".mem-float-card");
+  const grip = dlg?.querySelector(".mem-float-grip");
+  grip?.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // középre transformált ablaknál a sarok mindkét irányba nőne: előbb rögzítjük a bal felső sarkát
+    const r = dlg.getBoundingClientRect();
+    dlg.style.transform = "none";
+    dlg.style.left = r.left + "px";
+    dlg.style.top = r.top + "px";
+    const start = { x: e.clientX, y: e.clientY, w: card.offsetWidth, h: card.offsetHeight, left: r.left, top: r.top };
+    try { grip.setPointerCapture(e.pointerId); } catch (_) {}
+    const move = (ev) => {
+      card.style.width = Math.max(360, Math.min(start.w + ev.clientX - start.x, window.innerWidth - start.left - 8)) + "px";
+      card.style.height = Math.max(180, Math.min(start.h + ev.clientY - start.y, window.innerHeight - start.top - 8)) + "px";
+    };
+    const up = () => {
+      grip.removeEventListener("pointermove", move);
+      grip.removeEventListener("pointerup", up);
+      grip.removeEventListener("pointercancel", up);
+    };
+    grip.addEventListener("pointermove", move);
+    grip.addEventListener("pointerup", up);
+    grip.addEventListener("pointercancel", up);
+  });
   if (card && typeof ResizeObserver === "function") {
     let timer = 0;
     new ResizeObserver(() => {
