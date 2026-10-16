@@ -1,5 +1,7 @@
 # macOS Installation Guide
-Version 2.5.9
+Version 2.6.0
+
+2.6.0: Visual Assembler is now completely free: the Freemium / Professional licensing has been removed, so every editor, build and hardware run option, all 7 languages and every theme work without registration or a serial. Under Hungarian tax rules, selling it would leave too little after taxes and paperwork to be worth it. Serials you already have are simply no longer needed.
 
 2.5.9: New themes: Commodore 64 (the blue power-on screen with a light blue border), Commodore Beige (the classic breadbin, C64 blue monitor) and Commodore Starlight (frosted clear glass with a rainbow glow). The Version control dialog can be moved and remembers its position.
 
@@ -45,7 +47,7 @@ Version 2.5.9
 
 ## Quick Install
 
-1. **Download** the 2.5.9 DMG for your architecture from the releases page
+1. **Download** the 2.6.0 DMG for your architecture from the releases page
 2. **Mount** the DMG and drag the app to `/Applications`
 3. **First launch**: Right-click the app → **"Open"** (macOS will block double-click)
 4. Click **"Open"** in the security dialog
@@ -93,4 +95,4 @@ Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in 
 
 ---
 
-**Version:** 2.5.9 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.6.0 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64

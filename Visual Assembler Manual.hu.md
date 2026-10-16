@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.5.9**
+**Verzió: 2.6.0**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -26,6 +26,12 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - [12b. CRT export (Magic Desk 64K cartridge)](#12b-crt-export-magic-desk-64k-cartridge)
 - [13. Hardver beállítások](#13-hardver-beállítások)
 - [14. Vizuális szerkesztők (Toolkit)](#14-vizuális-szerkesztők-toolkit)
+
+---
+
+## A 2.6.0 verzió újdonságai
+
+- **A Visual Assembler teljesen ingyenes lett** — megszűnt a Freemium / Professional licencelés. Minden szerkesztő, build és hardveres futtatás, mind a 7 felületnyelv és minden téma mindenkinek elérhető, regisztráció és sorozatszám nélkül. Az ok egyszerű: a magyar adószabályok mellett az eladásból az adók és az adminisztráció után túl kevés maradna ahhoz, hogy megérje pénzért adni. A már meglévő sorozatszámra nincs többé szükség. Lásd: [Ingyenes és nyílt forrású](#ingyenes-és-nyílt-forrású).
 
 ---
 
@@ -460,7 +466,7 @@ Ha vannak mentetlen fülek, az app bezárás előtt rákérdez. Ugyanez az ellen
 
 ### Ingyenes és nyílt forrású
 
-A Visual Assembler ingyenes: minden funkció — a vizuális szerkesztők (SID, Sprite, Char, Charset, Hi-Res, Map, Level, D64, Curve), a SID Player, a **Build PRG**, **Build D64**, **Build CRT**, **Build project**, az Exomizer tömörítés, a futtatás C64 Ultimate-en és Kung Fu Flash 2-n, valamint minden felületi nyelv és téma — regisztráció és sorozatszám nélkül működik. A forráskód a GNU General Public License v3.0 alatt érhető el (lásd **Menu → About**). A 2.5.9-es verzióig az alkalmazás Freemium / Professional változatra oszlott; az ott megadott sorozatszámra már nincs szükség.
+A Visual Assembler ingyenes: minden funkció — a vizuális szerkesztők (SID, Sprite, Char, Charset, Hi-Res, Map, Level, D64, Curve), a SID Player, a **Build PRG**, **Build D64**, **Build CRT**, **Build project**, az Exomizer tömörítés, a futtatás C64 Ultimate-en és Kung Fu Flash 2-n, valamint minden felületi nyelv és téma — regisztráció és sorozatszám nélkül működik. A forráskód a GNU General Public License v3.0 alatt érhető el (lásd **Menu → About**). A 2.5.9-es verzióig az alkalmazás Freemium / Professional változatra oszlott; a 2.6.0 óta az ott megadott sorozatszámra már nincs szükség.
 
 Ha tetszik a program, a fejlesztését a c64va.pro oldalon adománnyal támogathatod.
 

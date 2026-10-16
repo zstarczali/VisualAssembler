@@ -1,7 +1,9 @@
 C64 Visual Assembler - Installation Guide
-Version 2.5.9
+Version 2.6.0
 Support: https://zstarczali.itch.io/visual-assembler-commodore-64
 ==========================================================================
+
+2.6.0: Visual Assembler is now completely free: the Freemium / Professional licensing has been removed, so every editor, build and hardware run option, all 7 languages and every theme work without registration or a serial. Under Hungarian tax rules, selling it would leave too little after taxes and paperwork to be worth it. Serials you already have are simply no longer needed.
 
 2.5.9: New themes: Commodore 64 (the blue power-on screen with a light blue border), Commodore Beige (the classic breadbin, C64 blue monitor) and Commodore Starlight (frosted clear glass with a rainbow glow). The Version control dialog can be moved and remembers its position.
 
@@ -59,7 +61,7 @@ Tested on Ubuntu 22.04 and 24.04.
 -----------------------
 Download the .deb package from the releases page and install:
 
-  sudo dpkg -i "c64-visual-assembler_2.5.9_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.6.0_amd64.deb"
   sudo apt-get install -f   # fix any missing dependencies
 
 Launch from the Applications menu or:
@@ -152,7 +154,7 @@ Requirements: macOS 11.0+, Apple Silicon (M1/M2/M3)
 
 1. C64 Visual Assembler
 -----------------------
-1. Download the 2.5.9 DMG for your architecture from the releases page
+1. Download the 2.6.0 DMG for your architecture from the releases page
 2. Mount the DMG and drag the app to /Applications
 3. First launch: Right-click the app -> "Open" (macOS will block double-click)
 4. Click "Open" in the security dialog

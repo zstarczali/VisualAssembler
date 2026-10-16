@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.5.9**
+**Version 2.6.0**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -9,6 +9,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
+    - [Version 2.6.0 Highlights](#version-260-highlights)
     - [Version 2.5.9 Highlights](#version-259-highlights)
     - [Version 2.5.8 Highlights](#version-258-highlights)
     - [Version 2.5.7 Highlights](#version-257-highlights)
@@ -183,6 +184,12 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [SID Player](#sid-player)
     - [Curve Editor](#curve-editor)
     - [Number Converter](#number-converter)
+
+---
+
+## Version 2.6.0 Highlights
+
+- **Visual Assembler is now completely free** — the Freemium / Professional licensing has been removed. Every editor, build and hardware run option, all 7 UI languages and every theme work for everyone, without registration or a serial. The reason is simple: under Hungarian tax rules, selling the program would leave too little after taxes and paperwork to be worth it. Serials you already have are simply no longer needed. See [Free and open source](#free-and-open-source).
 
 ---
 
@@ -617,7 +624,7 @@ If there are unsaved tabs, the app asks before closing. The same check runs quie
 
 ### Free and open source
 
-Visual Assembler is free: every feature — the visual editors (SID, Sprite, Char, Charset, Hi-Res, Map, Level, D64, Curve), the SID Player, **Build PRG**, **Build D64**, **Build CRT**, **Build project**, Exomizer packing, running on the C64 Ultimate and on the Kung Fu Flash 2, and every UI language and theme — works without a registration or a serial. The source code is available under the GNU General Public License v3.0 (see **Menu → About**). Up to version 2.5.9 the app had a Freemium / Professional split; a serial entered there is simply no longer needed.
+Visual Assembler is free: every feature — the visual editors (SID, Sprite, Char, Charset, Hi-Res, Map, Level, D64, Curve), the SID Player, **Build PRG**, **Build D64**, **Build CRT**, **Build project**, Exomizer packing, running on the C64 Ultimate and on the Kung Fu Flash 2, and every UI language and theme — works without a registration or a serial. The source code is available under the GNU General Public License v3.0 (see **Menu → About**). Up to version 2.5.9 the app had a Freemium / Professional split; since 2.6.0 a serial entered there is simply no longer needed.
 
 If you like the program, you can support its development with a donation on c64va.pro.
 

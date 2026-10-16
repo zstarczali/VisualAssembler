@@ -179,7 +179,7 @@ ob_start(); ?>
     </div>
 
     <div class="sec-s" id="usage" style="margin-top:28px">// USAGE</div>
-    <p class="hint" style="margin:0 0 14px">ANONYMOUS: EVERY INSTALL (APPS NEWER THAN 2.5.9) SENDS ONE PING A DAY WITH A RANDOM ID, VERSION, OS, UI LANGUAGE AND NUMBER OF LAUNCHES. NO EMAIL, NO IP.</p>
+    <p class="hint" style="margin:0 0 14px">ANONYMOUS: EVERY INSTALL (APPS FROM 2.6.0) SENDS ONE PING A DAY WITH A RANDOM ID, VERSION, OS, UI LANGUAGE AND NUMBER OF LAUNCHES. NO EMAIL, NO IP.</p>
     <div class="tiles">
         <div class="tile"><b><?= $dau ?></b><span>ACTIVE TODAY</span></div>
         <div class="tile"><b><?= $wau ?></b><span>ACTIVE / 7 DAYS (RETURNING: <?= $returning7 ?>)</span></div>

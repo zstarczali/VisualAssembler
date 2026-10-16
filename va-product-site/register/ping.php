@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-// Névtelen „app indult” jelzés (a 2.5.9 utáni verzióktól, naponta legfeljebb egyszer):
+// Névtelen „app indult” jelzés (a 2.6.0-s verziótól, naponta legfeljebb egyszer):
 // POST {"id", "version", "os", "lang"?, "launches"?}. Az id egy véletlen telepítés-azonosító (32 hex) az app configjából;
 // e-mail és IP nem kerül tárolásra. Kimutatás: stats.php → USAGE.
 define('VA_REGISTER', true);

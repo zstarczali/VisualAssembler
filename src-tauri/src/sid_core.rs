@@ -3,7 +3,7 @@
 //!
 //! Third-party parts (mos6581_8580 by Dag Lem, VICE src/mos6581_8580, GPL-2.0-or-later):
 //! the measured combined-waveform tables in vendor/sid-wave-tables, the
-//! 8580 resonance table filter_8580_inv_q_x1024, the R-2R DAC ladder formula
+//! 8580 resonance table FILTER_8580_INV_Q_X1024, the R-2R DAC ladder formula
 //! (dac.cc) and the MOS 6581 filter / mixer / volume model (`Model6581`,
 //! ported from filter.h, filter.cc and spline.h).
 //! The chip runs one call of `clock()` per SID cycle, so a cycle-locked
@@ -18,7 +18,7 @@ const PHASE_MASK: u32 = 0x00ff_ffff;
 const ENV_RATE_PERIOD: [u16; 16] = [
     8, 31, 62, 94, 148, 219, 266, 312, 391, 976, 1953, 3125, 3906, 11719, 19531, 31250,
 ];
-const filter_8580_inv_q_x1024: [f32; 16] = [
+const FILTER_8580_INV_Q_X1024: [f32; 16] = [
     1448., 1328., 1218., 1117., 1024., 939., 861., 790., 724., 664., 609., 558., 512., 470., 431.,
     395.,
 ];
@@ -1180,7 +1180,7 @@ impl SidCore {
             self.eight_div_q = !resonance & 0x0f;
         } else {
             self.filter_w0 = (82_355u32 * (u32::from(cutoff) + 1) >> 11) as f32 / 1_048_576.0;
-            self.filter_inv_q = filter_8580_inv_q_x1024[resonance] / 1024.0;
+            self.filter_inv_q = FILTER_8580_INV_Q_X1024[resonance] / 1024.0;
         }
     }
 

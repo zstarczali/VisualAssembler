@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "themes-259",
+  id: "free-260",
   url: "https://www.c64va.pro/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.5.9-ban",
-    title: "Üdvözöl a Visual Assembler",
-    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>Új témák:</strong> Commodore 64 — a kék bekapcsolási képernyő világoskék kerettel —, Commodore Beige — a klasszikus kenyérdoboz, C64 kék monitorral — és Commodore Starlight — áttetsző üveg szivárványos fénnyel.</li><li><strong>Verziókezelés ablak:</strong> mozgatható, és megjegyzi a helyét.</li><li><strong>Verziókezelés:</strong> commit, napló, diff és checkout minden fülön, git bekötéssel (git.exe a Beállításokban).</li><li><strong>Hibabejelentés:</strong> űrlap képernyőképekkel (Ctrl+V vagy húzás), rendszerinfóval.</li><li><strong>SID Player:</strong> véletlen lejátszás és kedvencek.</li></ul>`,
+    eyebrow: "Újdonság a 2.6.0-ban",
+    title: "A Visual Assembler ingyenes lett",
+    body: `<p>A Freemium / Professional licencelés megszűnt: minden szerkesztő, build és hardveres futtatás, mind a 7 nyelv és minden téma mindenkinek elérhető, regisztráció és sorozatszám nélkül.</p><p>Az ok egyszerű: a magyar adószabályok mellett az eladásból az adók és az adminisztráció után túl kevés maradna ahhoz, hogy megérje pénzért adni. A már meglévő sorozatszámra nincs többé szükség.</p>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.5.9",
-    title: "Welcome to Visual Assembler",
-    body: `<p>What's new in this release:</p><ul><li><strong>New themes:</strong> Commodore 64 — the blue power-on screen with a light blue border —, Commodore Beige — the classic breadbin with a C64 blue monitor — and Commodore Starlight — clear glass with a rainbow glow.</li><li><strong>Version control dialog:</strong> movable, and it remembers its position.</li><li><strong>Version control:</strong> commit, log, diff and checkout on every tab, with Git integration (git.exe in Settings).</li><li><strong>Report Bug:</strong> a report form with screenshots (Ctrl+V or drag and drop) and system info.</li><li><strong>SID Player:</strong> shuffle and favourites.</li></ul>`,
+    eyebrow: "New in 2.6.0",
+    title: "Visual Assembler is now free",
+    body: `<p>The Freemium / Professional licensing has been removed: every editor, build and hardware run option, all 7 languages and every theme are available to everyone, without registration or a serial.</p><p>The reason is simple: under Hungarian tax rules, selling the program would leave too little after taxes and paperwork to be worth it. Serials you already have are simply no longer needed.</p>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.5.9",
-    title: "Bienvenido a Visual Assembler",
-    body: `<p>Novedades de esta versión:</p><ul><li><strong>Nuevos temas:</strong> Commodore 64 — la pantalla azul de arranque con borde azul claro —, Commodore Beige — la clásica panera con monitor azul C64 — y Commodore Starlight — cristal translúcido con un brillo arcoíris.</li><li><strong>Diálogo de control de versiones:</strong> se puede mover y recuerda su posición.</li><li><strong>Control de versiones:</strong> commit, historial, diff y checkout en cada pestaña, con integración de Git (git.exe en Ajustes).</li><li><strong>Reportar error:</strong> un formulario con capturas (Ctrl+V o arrastrar) e información del sistema.</li><li><strong>SID Player:</strong> reproducción aleatoria y favoritos.</li></ul>`,
+    eyebrow: "Novedad en la 2.6.0",
+    title: "Visual Assembler ahora es gratis",
+    body: `<p>Se ha eliminado la licencia Freemium / Professional: todos los editores, las compilaciones y la ejecución en hardware, los 7 idiomas y todos los temas están disponibles para todos, sin registro ni número de serie.</p><p>El motivo es sencillo: con la normativa fiscal húngara, venderlo dejaría demasiado poco después de impuestos y trámites como para que valga la pena. Si ya tienes un número de serie, simplemente ya no lo necesitas.</p>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.5.9",
-    title: "Willkommen bei Visual Assembler",
-    body: `<p>Neu in dieser Version:</p><ul><li><strong>Neue Themes:</strong> Commodore 64 — der blaue Startbildschirm mit hellblauem Rahmen —, Commodore Beige — der klassische Brotkasten mit C64-blauem Monitor — und Commodore Starlight — klares Glas mit Regenbogenschimmer.</li><li><strong>Versionsverwaltung:</strong> der Dialog ist verschiebbar und merkt sich seine Position.</li><li><strong>Versionsverwaltung:</strong> Commit, Verlauf, Diff und Checkout in jedem Tab, mit Git-Anbindung (git.exe in den Einstellungen).</li><li><strong>Fehler melden:</strong> ein Formular mit Screenshots (Strg+V oder Drag & Drop) und Systeminfo.</li><li><strong>SID Player:</strong> Zufallswiedergabe und Favoriten.</li></ul>`,
+    eyebrow: "Neu in 2.6.0",
+    title: "Visual Assembler ist jetzt kostenlos",
+    body: `<p>Die Freemium-/Professional-Lizenzierung entfällt: alle Editoren, Builds und Hardware-Ausführungen, alle 7 Sprachen und alle Themes stehen allen zur Verfügung, ohne Registrierung oder Seriennummer.</p><p>Der Grund ist einfach: Nach ungarischem Steuerrecht bliebe vom Verkauf nach Steuern und Verwaltungsaufwand zu wenig übrig, als dass es sich lohnen würde. Vorhandene Seriennummern werden einfach nicht mehr benötigt.</p>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.5.9",
-    title: "Welkom bij Visual Assembler",
-    body: `<p>Nieuw in deze versie:</p><ul><li><strong>Nieuwe thema's:</strong> Commodore 64 — het blauwe opstartscherm met lichtblauwe rand —, Commodore Beige — de klassieke broodtrommel met een C64-blauwe monitor — en Commodore Starlight — helder glas met een regenboogglans.</li><li><strong>Versiebeheer:</strong> het venster is verplaatsbaar en onthoudt zijn positie.</li><li><strong>Versiebeheer:</strong> commit, log, diff en checkout in elk tabblad, met Git-koppeling (git.exe in Instellingen).</li><li><strong>Probleem melden:</strong> een formulier met schermafbeeldingen (Ctrl+V of slepen) en systeeminfo.</li><li><strong>SID Player:</strong> willekeurig afspelen en favorieten.</li></ul>`,
+    eyebrow: "Nieuw in 2.6.0",
+    title: "Visual Assembler is nu gratis",
+    body: `<p>De Freemium/Professional-licentie is verdwenen: alle editors, builds en uitvoering op hardware, alle 7 talen en alle thema's zijn voor iedereen beschikbaar, zonder registratie of serienummer.</p><p>De reden is eenvoudig: onder de Hongaarse belastingregels zou er na belastingen en administratie te weinig van de verkoop overblijven om het de moeite waard te maken. Een serienummer dat je al hebt, is gewoon niet meer nodig.</p>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.5.9",
-    title: "Witamy w Visual Assembler",
-    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>Nowe motywy:</strong> Commodore 64 — niebieski ekran startowy z jasnoniebieską ramką —, Commodore Beige — klasyczny „chlebak” z niebieskim monitorem C64 — oraz Commodore Starlight — przezroczyste szkło z tęczowym blaskiem.</li><li><strong>Kontrola wersji:</strong> okno można przesuwać i zapamiętuje swoje położenie.</li><li><strong>Kontrola wersji:</strong> commit, historia, diff i checkout w każdej karcie, z integracją Git (git.exe w Ustawieniach).</li><li><strong>Zgłoś błąd:</strong> formularz ze zrzutami ekranu (Ctrl+V lub przeciąganie) i informacjami o systemie.</li><li><strong>SID Player:</strong> odtwarzanie losowe i ulubione.</li></ul>`,
+    eyebrow: "Nowość w 2.6.0",
+    title: "Visual Assembler jest teraz darmowy",
+    body: `<p>Licencjonowanie Freemium / Professional zostało usunięte: wszystkie edytory, kompilacje i uruchamianie na sprzęcie, wszystkie 7 języków i wszystkie motywy są dostępne dla każdego, bez rejestracji i numeru seryjnego.</p><p>Powód jest prosty: przy węgierskich przepisach podatkowych ze sprzedaży po podatkach i formalnościach zostałoby zbyt mało, żeby to się opłacało. Posiadany numer seryjny po prostu nie jest już potrzebny.</p>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.5.9",
-    title: "Benvenuto in Visual Assembler",
-    body: `<p>Novità di questa versione:</p><ul><li><strong>Nuovi temi:</strong> Commodore 64 — la schermata blu di avvio con bordo azzurro —, Commodore Beige — il classico «biscottone» con monitor blu C64 — e Commodore Starlight — vetro trasparente con un bagliore arcobaleno.</li><li><strong>Controllo versione:</strong> la finestra si può spostare e ricorda la sua posizione.</li><li><strong>Controllo versione:</strong> commit, cronologia, diff e checkout in ogni scheda, con integrazione Git (git.exe nelle Impostazioni).</li><li><strong>Segnala un bug:</strong> un modulo con screenshot (Ctrl+V o trascinamento) e info di sistema.</li><li><strong>SID Player:</strong> riproduzione casuale e preferiti.</li></ul>`,
+    eyebrow: "Novità nella 2.6.0",
+    title: "Visual Assembler ora è gratuito",
+    body: `<p>La licenza Freemium / Professional è stata eliminata: tutti gli editor, le build e l'esecuzione su hardware, tutte le 7 lingue e tutti i temi sono disponibili per tutti, senza registrazione né numero di serie.</p><p>Il motivo è semplice: con le norme fiscali ungheresi, dalla vendita resterebbe troppo poco dopo tasse e burocrazia perché ne valga la pena. Il numero di serie che hai già semplicemente non serve più.</p>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
