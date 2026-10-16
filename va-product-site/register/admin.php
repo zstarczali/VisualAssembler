@@ -360,6 +360,9 @@ details.box > summary.box-t:hover { color: var(--ylw) }
 .msg-user { align-self: flex-start }
 .msg-admin { align-self: flex-end; border-color: rgba(184, 199, 111, .55); background: rgba(184, 199, 111, .08) }
 .msg-new { border-color: var(--ylw) }
+.msg-del { float: right; margin-left: 8px }
+.msg-x { background: none; border: none; color: var(--txt-dim); cursor: pointer; font-family: inherit; font-size: 11px; padding: 0 2px; line-height: 1 }
+.msg-x:hover { color: var(--red) }
 .msg-meta { font-size: 10px; letter-spacing: 1px; color: var(--txt-dim); margin-bottom: 4px }
 .msg-text { white-space: pre-wrap; word-break: break-word; text-transform: none; color: var(--txt-hi); font-size: 12px; line-height: 1.6 }
 tr.unread td { background: rgba(255, 119, 119, .06) }

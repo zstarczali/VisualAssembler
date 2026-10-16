@@ -1321,6 +1321,11 @@ function initPalette() {
   });
   reportBugButton?.addEventListener("click", () => _bugOpenDialog());
   document.getElementById("support-btn")?.addEventListener("click", () => _supportOpen());
+  // adomány: a weboldal PayPal-oldala (register/donate.php) a böngészőben, az app nyelvén
+  document.getElementById("donate-btn")?.addEventListener("click", () => {
+    document.querySelector(".control-menu")?.removeAttribute("open");
+    window.electronAPI?.openExternal?.("https://www.c64va.pro/register/donate.php?lang=" + (currentLanguage === "hu" ? "hu" : "en"));
+  });
   document.getElementById("support-notify")?.addEventListener("click", () => _supportOpen());
   basicSysToggle?.addEventListener("change", () => {
     saveUiSettings();
@@ -3243,6 +3248,8 @@ function applyTranslations() {
   if (reportBugButton) reportBugButton.textContent = t("reportBug");
   const supportBtnEl = document.getElementById("support-btn");
   if (supportBtnEl) supportBtnEl.textContent = t("support");
+  const donateLabelEl = document.getElementById("donate-btn-label");
+  if (donateLabelEl) donateLabelEl.textContent = t("donate");
   if (whatsNewButton) whatsNewButton.textContent = t("whatsNew");
   const tutorialBtnEl = document.getElementById("tutorial-btn");
   const tutorialBtnLabelEl = document.getElementById("tutorial-toolbar-label");
@@ -49027,8 +49034,16 @@ function _supportRender(messages, newSince = Infinity) {
     const meta = document.createElement("div");
     meta.className = "support-msg-meta";
     const at = new Date(m.at);
-    meta.textContent = (m.from === "admin" ? t("supportDeveloper") : t("supportYou")) + " · " +
+    const who = document.createElement("span");
+    who.textContent = (m.from === "admin" ? t("supportDeveloper") : t("supportYou")) + " · " +
       (isNaN(at) ? "" : at.toLocaleString(currentLanguage, { dateStyle: "short", timeStyle: "short" }));
+    const del = document.createElement("button");
+    del.type = "button";
+    del.className = "support-msg-del";
+    del.textContent = "×";
+    del.setAttribute("aria-label", t("supportDeleteMsg"));
+    del.addEventListener("click", () => _supportDeleteMessage(m.id));
+    meta.append(who, del);
     item.appendChild(meta);
     if (m.text) {
       const body = document.createElement("div");
@@ -49042,12 +49057,40 @@ function _supportRender(messages, newSince = Infinity) {
   if (atEnd || !box.dataset.rendered) box.scrollTop = box.scrollHeight;
   box.dataset.rendered = "1";
 }
+// törlés: egy üzenet (bármelyik félé) vagy az egész beszélgetés; a szerveren végleges, ezért megerősítést kér
+async function _supportDeleteMessage(id) {
+  if (!(await _showConfirm(t("supportDeleteMsgConfirm")))) return;
+  const res = await _supportApi({ action: "delete", message_id: id });
+  if (!res?.ok) { _supportSetStatus(res?.error === "network" ? t("bugNetwork") : t("supportDeleteFailed"), "error"); return; }
+  _supportFileCache.clear();
+  await _supportLoad();
+}
+async function _supportDeleteAll() {
+  if (!(await _showConfirm(t("supportDeleteAllConfirm")))) return;
+  const res = await _supportApi({ action: "delete_all" });
+  if (!res?.ok) { _supportSetStatus(res?.error === "network" ? t("bugNetwork") : t("supportDeleteFailed"), "error"); return; }
+  try {
+    localStorage.removeItem(_SUPPORT_ACTIVE_KEY);
+    localStorage.removeItem(_SUPPORT_LAST_ADMIN_KEY);
+  } catch (_) {}
+  _supportFileCache.clear();
+  _supportRender([]);
+  _supportNotified = 0;
+  _supportSetUnread(0);
+  _supportSyncDeleteAll(false);
+  _supportSetStatus(t("supportDeletedAll"), "ok");
+}
+function _supportSyncDeleteAll(hasMessages) {
+  const b = document.getElementById("support-delete-all");
+  if (b) b.hidden = !hasMessages;
+}
 async function _supportLoad() {
   const res = await _supportApi({ action: "thread", read: true });
   if (!res?.ok) return;
   const seen = _supportLastAdminSeen();
   const fresh = (res.messages || []).some((m) => m.from === "admin" && Number(m.id) > seen);
   _supportRender(res.messages, seen);
+  _supportSyncDeleteAll((res.messages || []).length > 0);
   _supportMarkAdminSeen(res.messages);
   if (fresh) { _supportBeep(); _supportAttention(); }
   _supportNotified = 0;
@@ -49067,6 +49110,7 @@ function _supportOpen() {
   document.getElementById("support-send").textContent = t("supportSend");
   document.getElementById("support-attach").textContent = t("supportAttach");
   _supportSyncSoundButton();
+  document.getElementById("support-delete-all")?.setAttribute("aria-label", t("supportDeleteAll"));
   _supportRenderFiles();
   const email = document.getElementById("support-email");
   if (email && !email.value) { try { email.value = localStorage.getItem(_SUPPORT_EMAIL_KEY) || ""; } catch (_) {} }
@@ -49114,6 +49158,7 @@ async function _supportSend() {
     localStorage.setItem(_SUPPORT_NAME_KEY, name);
   } catch (_) {}
   _supportSetStatus(t("supportSent"), "ok");
+  _supportSyncDeleteAll(true);
   _supportSetUnread(0);
   _supportRender(res.messages);
 }
@@ -49149,6 +49194,7 @@ function setupSupport() {
   document.getElementById("support-send")?.addEventListener("click", _supportSend);
   document.getElementById("support-close")?.addEventListener("click", () => dlg.close());
   document.getElementById("support-x")?.addEventListener("click", () => dlg.close());
+  document.getElementById("support-delete-all")?.addEventListener("click", _supportDeleteAll);
   document.getElementById("support-sound")?.addEventListener("click", () => {
     try { localStorage.setItem(_SUPPORT_SOUND_KEY, _supportSoundOn() ? "0" : "1"); } catch (_) {}
     _supportSyncSoundButton();

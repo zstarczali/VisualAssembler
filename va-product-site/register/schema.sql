@@ -176,3 +176,18 @@ CREATE TABLE IF NOT EXISTS va_support_files (
   data MEDIUMBLOB NOT NULL,
   KEY ix_message (message_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS va_donations (
+  order_id VARCHAR(40) NOT NULL PRIMARY KEY,
+  amount VARCHAR(16) NOT NULL,
+  currency VARCHAR(3) NOT NULL,
+  state VARCHAR(12) NOT NULL DEFAULT 'created',
+  lang VARCHAR(8) NOT NULL DEFAULT 'en',
+  message VARCHAR(500) NOT NULL DEFAULT '',
+  capture_id VARCHAR(40) NOT NULL DEFAULT '',
+  payer_email VARCHAR(254) NOT NULL DEFAULT '',
+  payer_name VARCHAR(120) NOT NULL DEFAULT '',
+  payer_country CHAR(2) NOT NULL DEFAULT '',
+  created_at DATETIME NOT NULL,
+  completed_at DATETIME NULL,
+  KEY ix_state (state, completed_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

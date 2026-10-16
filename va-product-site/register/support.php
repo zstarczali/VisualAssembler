@@ -5,6 +5,7 @@ declare(strict_types=1);
 //   {"action": "send", "id", "text", "name", "email"?, "version", "os", "lang"} → {"ok", "messages": […]}
 //   {"action": "thread", "id", "read"?: true}                                   → {"ok", "messages": […], "unread", "status"}
 //   {"action": "check", "id"}                                                   → {"ok", "unread", "thread"}
+//   {"action": "delete", "id", "message_id"} / {"action": "delete_all", "id"} → {"ok"} (a saját beszélgetésben, mindkét fél üzenete)
 //   {"action": "file", "id", "file_id"}                                         → {"ok", "name", "mime", "data" (base64)}
 // "send" csatolmánnyal: "attachments": [{"name", "data" (base64)}], max 3 db / 4 MB (vaSupportCheckFiles).
 // Üzenet: {id, from: "user" | "admin", text (sima szöveg), at (ISO 8601), files: [{id, name, size, image}]}. Kezelés a dashboardon: inbox.php.
@@ -61,6 +62,18 @@ try {
         }
         echo json_encode(['ok' => true, 'name' => $f['name'], 'mime' => $f['mime'], 'data' => base64_encode((string) $f['data'])],
             JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        exit;
+    }
+
+    if ($action === 'delete' || $action === 'delete_all') {
+        if ($thread) {
+            if ($action === 'delete_all') {
+                vaSupportDeleteThread($db, (int) $thread['id']);
+            } elseif (!vaSupportDeleteMessage($db, (int) $thread['id'], (int) ($in['message_id'] ?? 0))) {
+                $fail(404, 'not_found');
+            }
+        }
+        echo json_encode(['ok' => true]);
         exit;
     }
 

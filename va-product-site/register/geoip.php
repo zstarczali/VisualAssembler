@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 // GeoIP-adatbázis (db-ip.com IP to Country Lite, CC BY 4.0) betöltése a va_geoip táblába, lépésenként (JSON POST),
 // hogy egy kérés se fusson bele a tárhely időkorlátjába: download → unpack → import (darabonként) → finish.
+// Ha a tárhely nem tudja letölteni (kimenő kapcsolat tiltva, Cloudflare), a böngésző tölti fel a fájlt 1 MB-os
+// darabokban (upload_start → upload_chunk …), majd ugyanúgy unpack → import → finish; a .csv is mehet tömörítés nélkül.
 // Az import a va_geoip_new táblába megy, a végén RENAME cseréli, így a ping közben is a régi tábla él.
 define('VA_REGISTER', true);
 require __DIR__ . '/lib.php';
@@ -39,35 +41,84 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     };
     try {
         $step = (string) ($in['step'] ?? '');
-        if ($step === 'download') {
+        $prepareDir = static function () use ($dir): void {
             if (!is_dir($dir) && !mkdir($dir, 0750, true)) {
                 throw new RuntimeException('CANNOT CREATE ' . $dir);
             }
             // a letöltött fájlok ne legyenek elérhetők a webről
             file_put_contents($dir . '/.htaccess', "Require all denied\n");
+        };
+        if ($step === 'upload_start') {
+            $prepareDir();
+            @unlink($gz);
+            @unlink($csv);
+            $name = basename((string) ($in['name'] ?? ''));
+            vaSetting($db, 'geoip_pending_source', $name !== '' ? $name : 'uploaded file');
+            $out(['note' => 'UPLOADING ' . ($name !== '' ? $name : 'FILE') . '...']);
+        }
+        if ($step === 'upload_chunk') {
+            $data = base64_decode((string) ($in['data'] ?? ''), true);
+            $target = !empty($in['csv']) ? $csv : $gz;
+            if ($data === false || (int) ($in['offset'] ?? -1) !== (is_file($target) ? (int) filesize($target) : 0)) {
+                throw new RuntimeException('UPLOAD OUT OF SYNC, START AGAIN.');
+            }
+            if (file_put_contents($target, $data, FILE_APPEND) === false) {
+                throw new RuntimeException('CANNOT WRITE ' . $target);
+            }
+            clearstatcache();
+            $out(['size' => (int) filesize($target)]);
+        }
+        if ($step === 'download') {
+            $prepareDir();
             $got = '';
+            $errors = [];
             foreach ($sources() as $url) {
                 $fh = fopen($gz, 'wb');
-                $ch = curl_init($url);
-                curl_setopt_array($ch, [CURLOPT_FILE => $fh, CURLOPT_FOLLOWLOCATION => true, CURLOPT_TIMEOUT => 100,
-                    CURLOPT_CONNECTTIMEOUT => 15, CURLOPT_USERAGENT => 'c64va.pro GeoIP updater', CURLOPT_FAILONERROR => true]);
-                $okDl = curl_exec($ch);
-                $code = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-                curl_close($ch);
+                if (function_exists('curl_init')) {
+                    $ch = curl_init($url);
+                    // böngészős UA: a db-ip Cloudflare mögött van; 45 mp, hogy a tárhely proxyja előbb ne vágja el
+                    curl_setopt_array($ch, [CURLOPT_FILE => $fh, CURLOPT_FOLLOWLOCATION => true, CURLOPT_TIMEOUT => 45,
+                        CURLOPT_CONNECTTIMEOUT => 10, CURLOPT_FAILONERROR => true,
+                        CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36']);
+                    $okDl = curl_exec($ch);
+                    $code = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+                    $err = curl_error($ch);
+                    curl_close($ch);
+                } else {
+                    $ctx = stream_context_create(['http' => ['timeout' => 45, 'header' => "User-Agent: Mozilla/5.0\r\n"]]);
+                    $src = @fopen($url, 'rb', false, $ctx);
+                    $okDl = $src !== false && stream_copy_to_stream($src, $fh) > 0;
+                    $code = $okDl ? 200 : 0;
+                    $err = $src === false ? 'NO CURL AND allow_url_fopen FAILED' : '';
+                    if ($src) {
+                        fclose($src);
+                    }
+                }
                 fclose($fh);
-                if ($okDl && $code === 200 && filesize($gz) > 100000) {
+                clearstatcache();
+                $size = is_file($gz) ? (int) filesize($gz) : 0;
+                $magic = $size > 2 ? (string) file_get_contents($gz, false, null, 0, 2) : '';
+                if ($okDl && $code === 200 && $size > 100000 && $magic === "\x1f\x8b") {
                     $got = $url;
                     break;
                 }
+                $errors[] = basename($url) . ': HTTP ' . $code . ($err !== '' ? ', ' . $err : '') . ', ' . $size . ' BYTES';
             }
             if ($got === '') {
                 @unlink($gz);
-                throw new RuntimeException('DOWNLOAD FAILED FROM DB-IP.COM. UPLOAD dbip-country-lite-YYYY-MM.csv.gz BY FTP AS register/geoip-data/dbip-country-lite.csv.gz AND START AGAIN WITH "IMPORT UPLOADED FILE".');
+                throw new RuntimeException('THE SERVER COULD NOT DOWNLOAD FROM DB-IP.COM (' . implode('; ', $errors) . '). '
+                    . 'USE "UPLOAD FILE": DOWNLOAD THE CSV.GZ IN YOUR BROWSER AND UPLOAD IT HERE.');
             }
             vaSetting($db, 'geoip_pending_source', basename($got));
             $out(['next' => 'unpack', 'note' => 'DOWNLOADED ' . basename($got) . ' (' . round(filesize($gz) / 1048576, 1) . ' MB)']);
         }
         if ($step === 'unpack') {
+            // tömörítetlen .csv feltöltésénél nincs mit kicsomagolni
+            if (!is_file($gz) && is_file($csv)) {
+                $db->exec('DROP TABLE IF EXISTS va_geoip_new');
+                $db->exec('CREATE TABLE va_geoip_new LIKE va_geoip');
+                $out(['next' => 'import', 'offset' => 0, 'size' => filesize($csv), 'note' => 'CSV ' . round(filesize($csv) / 1048576, 1) . ' MB']);
+            }
             if (!is_file($gz)) {
                 throw new RuntimeException('NO DOWNLOADED FILE. START AGAIN.');
             }
@@ -171,29 +222,43 @@ ob_start(); ?>
         <div class="box-t">UPDATE</div>
         <div class="row">
             <button class="btn pri" type="button" id="geo-run" data-from="download">UPDATE FROM DB-IP.COM</button>
-            <?php if ($uploaded): ?><button class="btn" type="button" id="geo-run-upload" data-from="unpack">IMPORT UPLOADED FILE</button><?php endif; ?>
+            <button class="btn" type="button" id="geo-upload">UPLOAD FILE...</button>
+            <input type="file" id="geo-file" accept=".gz,.csv" hidden>
+            <?php if ($uploaded): ?><button class="btn" type="button" id="geo-run-upload" data-from="unpack">IMPORT FILE ON THE SERVER</button><?php endif; ?>
         </div>
         <pre class="bug-text" id="geo-log" style="margin-top:14px;min-height:60px"><?= $rows ? '' : 'NO GEOIP DATA YET: COUNTRIES STAY EMPTY UNTIL THE FIRST UPDATE.' ?></pre>
         <p class="hint">THE PING LOOKS UP THE COUNTRY OF THE IP ADDRESS IN THIS LOCAL TABLE AND STORES ONLY THE TWO-LETTER CODE; THE IP IS NOT STORED
             AND NOT SENT ANYWHERE. DB-IP PUBLISHES A NEW FILE EVERY MONTH, SO UPDATE ABOUT MONTHLY. THE IMPORT TAKES A FEW MINUTES; KEEP THIS PAGE OPEN.<br>
             COUNTRIES APPEAR FOR AN INSTALL AT ITS NEXT DAILY PING.<br>
+            IF THE SERVER CANNOT DOWNLOAD: GET <a href="https://db-ip.com/db/download/ip-to-country-lite" target="_blank" rel="noopener">IP TO COUNTRY LITE (CSV)</a>
+            IN YOUR BROWSER, THEN UPLOAD IT WITH "UPLOAD FILE" (.CSV.GZ OR .CSV).<br>
             <a href="https://db-ip.com" target="_blank" rel="noopener">IP GEOLOCATION BY DB-IP</a> (CC BY 4.0)</p>
     </div>
     <script>
     (function () {
       var log = document.getElementById('geo-log'), csrf = <?= json_encode($csrf) ?>;
       var say = function (t) { log.textContent += (log.textContent ? '\n' : '') + t; };
+      var buttons = function (on) { document.querySelectorAll('#geo-run, #geo-run-upload, #geo-upload').forEach(function (b) { b.disabled = !on; }); };
+      // a válasz nem mindig JSON (PHP-hiba, a tárhely proxyjának időtúllépése): akkor a HTTP-kód és a szöveg eleje látszik
       function step(name, extra) {
         return fetch('geoip.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin',
-          body: JSON.stringify(Object.assign({ csrf: csrf, step: name }, extra || {})) }).then(function (r) { return r.json(); });
+          body: JSON.stringify(Object.assign({ csrf: csrf, step: name }, extra || {})) }).then(function (r) {
+            return r.text().then(function (t) {
+              try { return JSON.parse(t); } catch (e) {
+                return { ok: false, error: 'HTTP ' + r.status + ' ' + t.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 300) };
+              }
+            });
+          });
       }
+      var fail = function (msg) { say('ERROR: ' + msg); buttons(true); };
       function run(from) {
-        document.querySelectorAll('#geo-run, #geo-run-upload').forEach(function (b) { b.disabled = true; });
-        log.textContent = '';
-        say(from === 'download' ? 'DOWNLOADING...' : 'UNPACKING...');
+        buttons(false);
+        if (from !== 'unpack-after-upload') log.textContent = '';
+        say(from === 'download' ? 'DOWNLOADING (UP TO A MINUTE)...' : 'UNPACKING...');
+        if (from === 'unpack-after-upload') from = 'unpack';
         var go = function (name, extra) {
           step(name, extra).then(function (r) {
-            if (!r.ok) { say('ERROR: ' + r.error); return; }
+            if (!r.ok) { fail(r.error); return; }
             if (r.note) say(r.note);
             if (r.next === 'import') {
               var pct = r.size ? Math.floor(r.offset * 100 / r.size) : 0;
@@ -204,14 +269,52 @@ ob_start(); ?>
               go(r.next);
             } else {
               say('RELOADING...');
+              buttons(true);
               setTimeout(function () { location.reload(); }, 1500);
             }
-          }).catch(function (e) { say('ERROR: ' + e); });
+          }).catch(function (e) { fail(String(e)); });
         };
         go(from);
       }
       document.querySelectorAll('#geo-run, #geo-run-upload').forEach(function (b) {
         b.addEventListener('click', function () { run(b.getAttribute('data-from')); });
+      });
+      // feltöltés a böngészőből 1 MB-os darabokban (a tárhely feltöltési korlátja nem számít)
+      var fileInput = document.getElementById('geo-file');
+      document.getElementById('geo-upload').addEventListener('click', function () { fileInput.click(); });
+      fileInput.addEventListener('change', function () {
+        var file = fileInput.files[0];
+        fileInput.value = '';
+        if (!file) return;
+        var isCsv = /\.csv$/i.test(file.name);
+        if (!isCsv && !/\.gz$/i.test(file.name)) { log.textContent = ''; fail('CHOOSE THE .CSV.GZ (OR .CSV) FILE FROM DB-IP.'); return; }
+        buttons(false);
+        log.textContent = '';
+        var CHUNK = 1024 * 1024, offset = 0;
+        var readChunk = function (blob) {
+          return new Promise(function (res, rej) {
+            var rd = new FileReader();
+            rd.onload = function () { res(String(rd.result).split(',')[1] || ''); };
+            rd.onerror = function () { rej(rd.error); };
+            rd.readAsDataURL(blob);
+          });
+        };
+        var next = function () {
+          if (offset >= file.size) { say('UPLOADED.'); run('unpack-after-upload'); return; }
+          readChunk(file.slice(offset, offset + CHUNK)).then(function (data) {
+            return step('upload_chunk', { offset: offset, data: data, csv: isCsv });
+          }).then(function (r) {
+            if (!r.ok) { fail(r.error); return; }
+            offset = r.size;
+            log.textContent = log.textContent.replace(/\nUPLOADING \d+%$/, '') + '\nUPLOADING ' + Math.floor(offset * 100 / file.size) + '%';
+            next();
+          }).catch(function (e) { fail(String(e)); });
+        };
+        step('upload_start', { name: file.name }).then(function (r) {
+          if (!r.ok) { fail(r.error); return; }
+          say(r.note);
+          next();
+        }).catch(function (e) { fail(String(e)); });
       });
     })();
     </script>

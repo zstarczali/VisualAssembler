@@ -323,6 +323,31 @@ function vaSupportStoreFiles(PDO $db, int $messageId, array $files): void
     }
 }
 
+/** Egy üzenet törlése a csatolmányaival; utána az olvasatlan-számlálók a megmaradt üzenetekhez igazodnak. */
+function vaSupportDeleteMessage(PDO $db, int $threadId, int $messageId): bool
+{
+    $st = $db->prepare('SELECT sender FROM va_support_messages WHERE id = ? AND thread_id = ?');
+    $st->execute([$messageId, $threadId]);
+    if ($st->fetchColumn() === false) {
+        return false;
+    }
+    $db->prepare('DELETE FROM va_support_files WHERE message_id = ?')->execute([$messageId]);
+    $db->prepare('DELETE FROM va_support_messages WHERE id = ?')->execute([$messageId]);
+    $db->prepare("UPDATE va_support_threads t SET
+        unread_admin = LEAST(unread_admin, (SELECT COUNT(*) FROM va_support_messages m WHERE m.thread_id = t.id AND m.sender = 'user')),
+        unread_user = LEAST(unread_user, (SELECT COUNT(*) FROM va_support_messages m WHERE m.thread_id = t.id AND m.sender = 'admin'))
+        WHERE t.id = ?")->execute([$threadId]);
+    return true;
+}
+
+/** A teljes beszélgetés törlése (üzenetek, csatolmányok, maga a beszélgetés). */
+function vaSupportDeleteThread(PDO $db, int $threadId): void
+{
+    $db->prepare('DELETE f FROM va_support_files f JOIN va_support_messages m ON m.id = f.message_id WHERE m.thread_id = ?')->execute([$threadId]);
+    $db->prepare('DELETE FROM va_support_messages WHERE thread_id = ?')->execute([$threadId]);
+    $db->prepare('DELETE FROM va_support_threads WHERE id = ?')->execute([$threadId]);
+}
+
 /** Egy csatolmány letöltése / megjelenítése: a képek inline (nosniff), minden más letöltésként. */
 function vaSupportSendFile(array $f, bool $inline): void
 {
