@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Gebruikershandleiding
 
-**Versie 2.5.9**
+**Versie 2.6.0**
 
 Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw
 programma's door instructieblokken te slepen en neer te zetten, en bekijk de
@@ -12,6 +12,7 @@ gegenereerde assembly- en machinecode in realtime.
 
 - [C64 Visual Assembler —
   Gebruikershandleiding](#c64-visual-assembler--user-manual)
+    - [Hoogtepunten van versie 2.6.0](#version-260-highlights)
     - [Hoogtepunten van versie 2.5.9](#version-259-highlights)
     - [Hoogtepunten van versie 2.5.8](#version-258-highlights)
     - [Hoogtepunten van versie 2.5.7](#version-257-highlights)
@@ -46,7 +47,7 @@ gegenereerde assembly- en machinecode in realtime.
     - [Voortgangsweergave compilatie](#compile-progress-modal)
   - [5. Instellingen & Werkbalk](#5-settings--toolbar)
     - [Versiebeheer](#version-control)
-    - [Freemium en Professioneel](#freemium-and-professional)
+    - [Gratis en open source](#free-and-open-source)
     - [Een bug melden](#reporting-a-bug)
     - [Projecttemplates](#project-templates)
     - [Project bouwen](#build-project)
@@ -198,21 +199,32 @@ gegenereerde assembly- en machinecode in realtime.
 
 ---
 
+## Hoogtepunten van versie 2.6.0
+
+- **Visual Assembler is nu volledig gratis** — de Freemium/Professional-licentie
+  is verwijderd. Elke editor, build- en hardware-uitvoeringsoptie, alle 7
+  UI-talen en elk thema werken voor iedereen, zonder registratie of serienummer.
+  De reden is simpel: volgens de Hongaarse belastingregels zou de verkoop van
+  het programma na aftrek van belastingen en administratie te weinig opleveren
+  om de moeite waard te zijn. Serienummers die u al heeft, zijn simpelweg niet
+  meer nodig. Zie [Gratis en open source](#free-and-open-source).
+
+---
+
 ## Hoogtepunten van versie 2.5.9
 
 - **Commodore 64-thema** — het opstartscherm van de C64: een lichtblauwe rand
   rond blauwe panelen, lichtblauwe tekst, knoppen voor omgekeerde video,
-  syntaxkleuren uit het C64-palet en het C64-lettertype in de monitorweergave
-  (Professional).
+  syntaxkleuren uit het C64-palet en het C64-lettertype in de monitorweergave.
 - **Commodore Beige thema** — de klassieke broodtrommel: beige behuizing,
   mosterdkleurige functietoetsen, de regenboogkleurige badge-strepen en een
-  C64-blauwe monitorweergave. Kies het in de themakiezer of schakel ernaartoe
-  met de themaknop (Professioneel). Zie [Instellingen en
+  C64-blauwe monitorweergave. Selecteer het in de themakiezer of wissel
+  ernaartoe met de themaknop. Zie [Instellingen en
   werkbalk](#5-settings--toolbar).
 - **Commodore Starlight-thema** — een licht thema na de doorschijnende
   C64-broodbak: mat helder glas met een regenboogkleurige RGB-gloed die
   erdoorheen schijnt, een magenta accent, regenboogkleuren voor de syntax en een
-  rokerig donker schermbeeld (Professional).
+  rokerig donker schermbeeld.
 - **Versiebeheerdialoog** — het dialoogvenster kan aan de koptekst worden
   versleept en wordt opnieuw geopend waar u het hebt achtergelaten; het blijft
   op het scherm staan wanneer het logboek of een diff het groter maakt, en een
@@ -246,11 +258,6 @@ gegenereerde assembly- en machinecode in realtime.
   schermafbeeldingen (bestand, Ctrl+V of slepen en neerzetten), optioneel
   e-mailadres, systeeminfo en de recente app-fouten. Zie [Een bug
   melden](#reporting-a-bug).
-- **Professionele serienummer per e-mail** — supporters kunnen hun serienummer
-  aanvragen in het registratiedialoogvenster (**Serienummer aanvragen
-  (supporters)**); de professionele versie kan worden gekocht op c64va.pro met
-  PayPal (5 €, eenmalig) en het serienummer wordt direct na de betaling per
-  e-mail verzonden. Zie [Freemium en Professional](#freemium-and-professional).
 - **SID-speler** — **Schudden** en **favorieten** (★) per melodie. Zie
   [SID-speler](#sid-player).
 
@@ -291,20 +298,16 @@ gegenereerde assembly- en machinecode in realtime.
   vorige/volgende nummer, subnummers, zoeken en ±10 s, volume en afspeellijst
   opslaan/openen (`.sidpl`); de lijst en de vensterstatus worden onthouden. Zie
   [SID Player](#sid-player).
-- **VA SID Core 1.1** — een ingebouwde SID-emulatie (MOS 6581 / 8580, met een
-  mos6581_8580-uitgelijnd 6581-filter) en een cycle-locked PSID / RSID-speler (6510
-  CPU, CIA / VIC-timing). Selecteer deze in **Instellingen → SID-voorbeeld**; de
-  SID-speler toont welke engine wordt afgespeeld.
+- **VA SID Core 1.1** — een ingebouwde SID-emulatie (MOS 6581/8580, met een op
+  MOS 6581/8580 gebaseerd 6581-filter) en een cycle-locked PSID/RSID-speler
+  (6510 CPU, CIA/VIC-timing). Selecteer deze in **Instellingen →
+  SID-voorbeeld**; de SID-speler toont welke engine wordt afgespeeld.
 - **SID Editor** — knoppen voor de instrumentparameters, een bredere
   ADSR-grafiek, **MIDI-ingang**, **opnemen** in de tracker (een nieuw patroon
   wordt toegevoegd wanneer het huidige patroon vol is), een **metronoom** met
   beatlampjes, **patroon verwijderen**, het mastervolume op VA-VK, en
   **GoatTracker .sng importeren**. Zie [SID
   Editor](#sid-editor-3-voice-tracker).
-- **Freemium en Professional** — zonder registratie werkt de app als Freemium;
-  voer het e-mailadres en de serienummer van uw aankoop in via **Menu →
-  Registreren…** om de Professional-versie te verkrijgen. Zie [Freemium en
-  Professional](#freemium-and-professional).
 - **Ultimate Basic 1.6.4** meegeleverd.
 
 ---
@@ -1116,56 +1119,48 @@ De lijst met opdrachten is opzettelijk in hoogte beperkt, zodat de detailkaart
 van de opdracht de resterende paneelhoogte kan vullen. Het detailgebied scrollt
 onafhankelijk voor langere syntaxbeschrijvingen.
 
-### Freemium en professioneel
+### Gratis en open source
 
-Zonder registratie draait Visual Assembler als **Freemium**; de badge naast de
-titel toont **FREEMIUM** of **PROFESSIONAL**. In de Freemium-modus kun je
-programma's schrijven en compileren en ze in VICE uitvoeren in de Block-,
-Expert- en Ultimate Basic-modus. Hiervoor is de Professional-versie vereist.
+Visual Assembler is gratis: alle functies — de visuele editors (SID, Sprite,
+Char, Charset, Hi-Res, Map, Level, D64, Curve), de SID Player, **Build PRG**,
+**Build D64**, **Build CRT**, **Build project**, Exomizer packing, draaien op de
+C64 Ultimate en op de Kung Fu Flash 2, en elke UI-taal en elk thema — werken
+zonder registratie of serienummer. De broncode is beschikbaar onder de GNU
+General Public License v3.0 (zie **Menu → Over**). Tot versie 2.5.9 had de app
+een Freemium/Professional-indeling; sinds versie 2.6.0 is een serienummer
+invoeren niet meer nodig.
 
-- de visuele editors (SID, Sprite, Char, Charset, Hi-Res, Map, Level, D64,
-  Curve) en de SID Player;
-- **Build PRG**, **Build D64**, **Build CRT**, **Build project** and Exomizer
-  packing;
-- draaiend op de C64 Ultimate en op Kung Fu Flash 2;
-- Naast Hongaars en Engels ondersteunt de gebruikersinterface ook andere talen,
-  zoals OLED, Commodore 77, Commodore Starlight, Commodore Beige en Commodore
-  64.
+Als je het programma leuk vindt, kun je de ontwikkeling ervan steunen met een
+donatie op c64va.pro.
 
-Door op een vergrendelde functie te klikken, opent u het
-registratiedialoogvenster. Om te registreren, opent u **Menu → Registreren…**
-(of klikt u op het badge-icoon), voert u het e-mailadres en het serienummer van
-uw aankoop in en drukt u op **Activeren**. Het serienummer hoort bij dat
-e-mailadres (hoofdletters/kleine letters en spaties maken niet uit) en de
-controle wordt offline uitgevoerd. **Licentie verwijderen** verwijdert de
-registratie van deze computer.
-
-**Een serienummer verkrijgen.** Als u het project eerder hebt gesteund, voer dan
-uw e-mailadres in het registratiedialoogvenster in en druk op **Serienummer
-aanvragen (ondersteuners)** (of gebruik het formulier op c64va.pro/register):
-het serienummer wordt per e-mail verzonden, eenmalig per adres. De
-Professional-versie kan worden gekocht op c64va.pro — **Volledige versie kopen**
-in het dialoogvenster opent de pagina: PayPal, € 5 eenmalig, en het serienummer
-wordt direct na de betaling per e-mail verzonden. Op de pagina wordt ook de
-Freemium- en Professional-versie vergeleken.
+**Gebruiksstatistieken.** Maximaal één keer per dag, bij het opstarten, stuurt
+de app een anonieme ping naar c64va.pro met de app-versie, het
+besturingssysteem, de UI-taal, het aantal keren dat de app is gestart en de
+actieve minuten sinds de laatste ping (een minuut telt zolang het venster
+zichtbaar is en u de muis of het toetsenbord in de afgelopen 5 minuten hebt
+gebruikt), of er nog een serienummer van 2.5.6–2.5.9 is opgeslagen (alleen
+ja/nee) en een willekeurige installatie-ID (bewaard in het `config.json-bestand
+van de app` als `launchPing`). Er wordt geen e-mailadres, serienummer, project
+of broncode verzonden; offline gebeurt er niets. De app vraagt c64va.pro ook af
+en toe om een kort bericht (bijvoorbeeld over een nieuwe versie, soms alleen
+voor supporters); elk bericht wordt één keer weergegeven.
 
 ### Een bug melden
 
 **Menu → Bug melden** opent een formulier waarmee het rapport direct naar de
 ontwikkelaar wordt verzonden.
 
-- **Samenvatting** en **Wat is er gebeurd?** zijn verplicht — beschrijf wat u
-  deed, wat u verwachtte en wat er in plaats daarvan gebeurde. **E-mailadres**
-  is optioneel (invullen met uw licentie-e-mailadres); geef dit op als u een
-  antwoord wilt ontvangen.
+- **Samenvatting** en **Wat is er gebeurd?** zijn verplicht — beschrijf wat je
+  hebt gedaan, wat je verwachtte en wat er in plaats daarvan is gebeurd.
+  **E-mailadres** is optioneel; geef het op als je een antwoord wilt ontvangen.
 - **Schermafbeeldingen:** maximaal 4 afbeeldingen met **Afbeelding toevoegen…**,
   door te plakken met **Ctrl+V** (bijvoorbeeld na Win+Shift+S) of door ze op het
   formulier te slepen. Grote afbeeldingen worden verkleind tot 1920 pixels.
 - **Systeeminfo en recente fouten toevoegen** (standaard ingeschakeld) voegt de
   app-versie, het besturingssysteem, de taal, het thema, de editor en de
-  uitvoeringsmodus, de licentiestatus, de schermgrootte, het aantal blokken en
-  de laatste app-fouten toe. **Wat wordt er verzonden?** toont de gegevens. Uw
-  broncode wordt niet verzonden.
+  uitvoeringsmodus, de schermgrootte, het aantal blokken en de laatste
+  app-fouten toe. **Wat wordt er verzonden?** toont de gegevens. Uw broncode
+  wordt niet verzonden.
 - **Rapport verzenden** bevestigt met het rapportnummer. **Verzenden per
   e-mail** opent in plaats daarvan uw e-mailprogramma.
 

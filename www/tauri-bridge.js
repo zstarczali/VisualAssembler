@@ -28,6 +28,7 @@
     appUsageAdd: (minutes) => invoke("app_usage_add", { minutes }),
     fetchAppMessage: (lang) => invoke("fetch_app_message", { lang }),
     fetchAppMessageImage: (url) => invoke("fetch_app_message_image", { url }),
+    supportApi: (lang, payload) => invoke("support_api", { lang, payload }),
     getViceConfig: () => invoke("get_vice_config"),
     getExomizerConfig: () => invoke("get_exomizer_config"),
     getWorkingFolder: () => invoke("get_working_folder"),

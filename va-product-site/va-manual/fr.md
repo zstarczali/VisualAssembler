@@ -1,6 +1,6 @@
 # Manuel d'utilisation de l'assembleur visuel C64
 
-**Version 2.5.9**
+**Version 2.6.0**
 
 Un assembleur 6502 visuel et basé sur des blocs pour le Commodore 64. Créez des
 programmes en faisant glisser et en déposant des blocs d'instructions, et
@@ -12,6 +12,7 @@ visualisez en temps réel le code assembleur et le code machine générés.
 
 - [C64 Visual Assembler — Manuel de
   l'utilisateur](#c64-visual-assembler--user-manual)
+    - [Points saillants de la version 2.6.0](#version-260-highlights)
     - [Points saillants de la version 2.5.9](#version-259-highlights)
     - [Points saillants de la version 2.5.8](#version-258-highlights)
     - [Points saillants de la version 2.5.7](#version-257-highlights)
@@ -46,7 +47,7 @@ visualisez en temps réel le code assembleur et le code machine générés.
     - [Module de progression de la compilation](#compile-progress-modal)
   - [5. Paramètres et barre d'outils](#5-settings--toolbar)
     - [Contrôle de version](#version-control)
-    - [Freemium et Professionnel](#freemium-and-professional)
+    - [Libre et open source](#free-and-open-source)
     - [Signaler un bug](#reporting-a-bug)
     - [Modèles de projet](#project-templates)
     - [Construire le projet](#build-project)
@@ -202,20 +203,34 @@ visualisez en temps réel le code assembleur et le code machine générés.
 
 ---
 
+## Points forts de la version 2.6.0
+
+- Visual Assembler est désormais entièrement gratuit — la licence
+  Freemium/Professionnelle a été supprimée. Tous les éditeurs, options de
+  compilation et d'exécution matérielle, les 7 langues d'interface utilisateur
+  et tous les thèmes fonctionnent pour tous, sans inscription ni numéro de
+  série. La raison est simple : selon la législation fiscale hongroise, la vente
+  du logiciel ne permettrait pas de dégager un revenu suffisant après impôts et
+  formalités administratives. Les numéros de série que vous possédez déjà ne
+  sont plus nécessaires. Voir [Logiciel libre et
+  gratuit](#free-and-open-source).
+
+---
+
 ## Points forts de la version 2.5.9
 
 - **Thème Commodore 64** — l'écran de mise sous tension du C64 : une bordure
   bleu clair autour des panneaux bleus, du texte bleu clair, des boutons de
   vidéo inversée, des couleurs de syntaxe de la palette C64 et la police C64
-  dans la vue moniteur (Professionnel).
+  dans la vue moniteur.
 - Thème Commodore Beige ** — le classique : boîtier beige, touches de fonction
   moutarde, rayures arc-en-ciel et affichage bleu C64. Choisissez-le dans le
-  sélecteur de thèmes ou activez-le avec le bouton de thème (Professionnel).
-  Voir [Paramètres et barre d'outils](#5-settings--toolbar).
+  sélecteur de thèmes ou basculez entre eux avec le bouton de thème. Voir
+  [Paramètres et barre d'outils](#5-settings--toolbar).
 - **Thème Commodore Starlight** — un thème clair inspiré du C64 Breadbin
   translucide : verre clair dépoli avec la lueur RGB arc-en-ciel qui brille à
   travers, un accent magenta, des couleurs de syntaxe arc-en-ciel et une vue de
-  moniteur sombre fumée (Professionnel).
+  moniteur sombre et fumée.
 - **Boîte de dialogue de contrôle de version** — La boîte de dialogue peut être
   déplacée par son en-tête et se rouvre à l'endroit où vous l'avez laissée ;
   elle reste affichée à l'écran même si le journal ou une comparaison
@@ -252,12 +267,6 @@ visualisez en temps réel le code assembleur et le code machine générés.
   d'ajouter jusqu'à 4 captures d'écran (fichier, Ctrl+V ou glisser-déposer), une
   adresse e-mail facultative, des informations système et les erreurs récentes
   de l'application. Voir [Signaler un bug](#reporting-a-bug).
-- **Numéro de série professionnel par e-mail** — Les contributeurs peuvent
-  demander leur numéro de série lors de leur inscription (**Demander un numéro
-  de série (contributeurs)**) ; la version Professionnelle est disponible à
-  l’achat sur c64va.pro via PayPal (5 €, paiement unique) et le numéro de série
-  est envoyé par e-mail immédiatement après le paiement. Voir [Freemium et
-  Professionnel](#freemium-and-professional).
 - **SID Player** — **Lecture aléatoire** et **Favoris** (★) par morceau. Voir
   [SID Player](#sid-player).
 
@@ -300,20 +309,15 @@ visualisez en temps réel le code assembleur et le code machine générés.
   (±10 s), volume et sauvegarde/ouverture de la liste de lecture (`.sidpl`) ; la
   liste et l'état de la fenêtre sont mémorisés. Voir [SID Player](#sid-player).
 - **VA SID Core 1.1** — émulation SID intégrée (MOS 6581/8580, avec filtre 6581
-  aligné sur mos6581_8580) et lecteur PSID/RSID à cycle verrouillé (processeur 6510,
-  synchronisation CIA/VIC). Sélectionnez-le dans **Paramètres → Aperçu SID** ;
-  le lecteur SID indique le moteur en cours de lecture.
+  basé sur MOS 6581/8580) et lecteur PSID/RSID à cycle verrouillé (processeur
+  6510, synchronisation CIA/VIC). Sélectionnez-le dans **Paramètres → Aperçu
+  SID** ; le lecteur SID indique le moteur en cours de lecture.
 - **Éditeur SID** — potentiomètres pour les paramètres de l'instrument,
   graphique ADSR plus large, **entrée MIDI**, **enregistrement** dans le tracker
   (un nouveau motif est ajouté lorsque le motif actuel est plein), un
   **métronome** avec témoins lumineux de rythme, **suppression de motif**, le
   volume principal sur VA-VK et **Importer GoatTracker .sng**. Voir [Éditeur
   SID](#sid-editor-3-voice-tracker).
-- **Version Freemium et Version Professionnelle** — Sans inscription,
-  l'application fonctionne en mode Freemium ; saisissez votre adresse e-mail et
-  votre numéro de série d'achat dans **Menu → S'inscrire…** pour obtenir la
-  version Professionnelle. Voir [Version Freemium et Version
-  Professionnelle](#freemium-and-professional).
 - **Ultimate Basic 1.6.4** inclus.
 
 ---
@@ -1161,59 +1165,52 @@ fiche de détail de la commande puisse occuper toute la hauteur restante du
 panneau. La zone de détail défile indépendamment pour les descriptions de
 syntaxe plus longues.
 
-### Versions Freemium et Professionnelle
+### Source libre et ouverte
 
-Sans enregistrement, Visual Assembler fonctionne en version **Freemium** ; le
-badge à côté du titre indique **FREEMIUM** ou **PROFESSIONAL**. En version
-Freemium, vous pouvez écrire et compiler des programmes, puis les exécuter dans
-VICE en modes Block, Expert et Ultimate Basic. Ces modes nécessitent la version
-Professionnelle.
+Visual Assembler est gratuit : toutes ses fonctionnalités — les éditeurs visuels
+(SID, Sprite, Char, Charset, Hi-Res, Map, Level, D64, Curve), le lecteur SID, la
+création de projets (PNG, D64, CRT), l’empaquetage Exomizer, l’exécution sur C64
+Ultimate et Kung Fu Flash 2, ainsi que tous les thèmes et langues d’interface —
+fonctionnent sans inscription ni numéro de série. Le code source est disponible
+sous licence GNU GPL v3.0 (voir Menu → À propos). Jusqu’à la version 2.5.9,
+l’application proposait une version Freemium et une version Professionnelle ;
+depuis la version 2.6.0, aucun numéro de série n’est requis.
 
-- les éditeurs visuels (SID, Sprite, Char, Charset, Hi-Res, Map, Level, D64,
-  Curve) et le lecteur SID ;
-- **Build PRG**, **Build D64**, **Build CRT**, **Build project** et empaquetage
-  Exomizer ;
-- fonctionnant sur le C64 Ultimate et sur le Kung Fu Flash 2 ;
-- langues d'interface utilisateur autres que le hongrois et l'anglais, et les
-  thèmes OLED, Commodore 77, Commodore Starlight, Commodore Beige et Commodore
-  64.
+Si vous appréciez ce programme, vous pouvez soutenir son développement en
+faisant un don sur c64va.pro.
 
-Cliquer sur une fonction verrouillée ouvre la boîte de dialogue
-d'enregistrement. Pour vous enregistrer, ouvrez **Menu → Enregistrer…** (ou
-cliquez sur le badge), saisissez l'adresse e-mail et le numéro de série de votre
-achat, puis appuyez sur **Activer**. Le numéro de série est associé à cette
-adresse e-mail (la casse et les espaces n'ont pas d'importance), et la
-vérification s'effectue hors ligne. **Supprimer la licence** supprime
-l'enregistrement de cet ordinateur.
-
-**Obtenir un numéro de série.** Si vous avez soutenu le projet précédemment,
-saisissez votre adresse e-mail dans la boîte de dialogue d'inscription et
-cliquez sur **Demander un numéro de série (soutiens)** (ou utilisez le
-formulaire sur c64va.pro/register) : le numéro de série vous sera envoyé par
-e-mail, une seule fois par adresse. La version Professionnelle est disponible à
-l'achat sur c64va.pro — **Acheter la version complète** : la boîte de dialogue
-ouvre la page : PayPal, 5 € en une seule fois, et le numéro de série vous sera
-envoyé par e-mail immédiatement après le paiement. La page compare également les
-versions Freemium et Professionnelle.
+**Statistiques d'utilisation.** Au maximum une fois par jour, au démarrage,
+l'application envoie une requête anonyme à c64va.pro contenant la version de
+l'application, le système d'exploitation, la langue de l'interface utilisateur,
+le nombre de lancements et le temps d'activité écoulé depuis la dernière requête
+(une minute correspond à la période pendant laquelle la fenêtre est visible et
+où vous avez utilisé la souris ou le clavier au cours des 5 dernières minutes).
+L'application indique également si un numéro de série (de la version 2.5.6 à la
+version 2.5.9) est toujours enregistré (oui/non uniquement) et génère un
+identifiant d'installation aléatoire (conservé dans le fichier `config.json` de
+l'application sous le nom `launchPing`). Aucune adresse e-mail, numéro de série,
+projet ou code source n'est transmis ; aucune action n'est effectuée hors ligne.
+L'application demande également occasionnellement à c64va.pro un court message
+(par exemple, concernant une nouvelle version, parfois réservé aux
+contributeurs) ; chaque message est affiché une seule fois.
 
 ### Signaler un bug
 
 **Menu → Signaler un bug** ouvre un formulaire qui envoie le rapport directement
 au développeur.
 
-- Les sections **Résumé** et **Que s'est-il passé ?** sont obligatoires :
-  décrivez vos actions, vos attentes et le résultat obtenu. L'adresse e-mail**
-  est facultative (indiquez votre adresse e-mail de licence) ; indiquez-la si
-  vous souhaitez une réponse.
+- **Résumé** et **Que s'est-il passé ?** sont obligatoires : décrivez ce que
+  vous avez fait, ce à quoi vous vous attendiez et ce qui s'est produit.
+  **Adresse e-mail** est facultative ; indiquez-la si vous souhaitez une
+  réponse.
 - Captures d'écran : jusqu'à 4 images avec Ajouter une image…, en les collant
   avec Ctrl+V (par exemple après Win+Shift+S) ou en les déposant sur le
   formulaire. Les images volumineuses sont redimensionnées à 1920 pixels.
 - ** Inclure les informations système et les erreurs récentes ** (activé par
   défaut) : ajoute la version de l’application, le système d’exploitation, la
-  langue, le thème, l’éditeur et le mode d’exécution, l’état de la licence, la
-  taille de l’écran, le nombre de blocs et les dernières erreurs de
-  l’application. ** Que sont envoyés ? ** Affiche les données. Votre code source
-  n’est pas envoyé.
+  langue, le thème, l’éditeur et le mode d’exécution, la taille de l’écran, le
+  nombre de blocs et les dernières erreurs de l’application. ** Que sont envoyés
+  ? ** Affiche les données. Votre code source n’est pas envoyé.
 - **Envoyer le rapport** confirme avec le numéro de rapport. **Envoyer par
   courriel** ouvre votre programme de messagerie.
 

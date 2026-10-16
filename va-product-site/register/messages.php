@@ -61,9 +61,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new InvalidArgumentException('THE ENGLISH TITLE AND TEXT ARE REQUIRED.');
             }
             $image = $upload();
+            // a tiltott HTML (script, eseménykezelő, javascript: link …) már mentés előtt kikerül
+            $bodyEn = vaCleanMessageHtml($f('body_en', 8000), $cleanedEn);
+            $bodyHu = vaCleanMessageHtml($f('body_hu', 8000), $cleanedHu);
+            $cleaned = $cleanedEn || $cleanedHu;
             $vals = [
                 $f('caption_en', 200), $f('caption_hu', 200),
-                $f('title_en', 200), $f('body_en', 8000), $f('title_hu', 200), $f('body_hu', 8000), $url,
+                $f('title_en', 200), $bodyEn, $f('title_hu', 200), $bodyHu, $url,
                 ($_POST['level'] ?? '') === 'warn' ? 'warn' : 'info',
                 $ver((string) ($_POST['min_version'] ?? '')), $ver((string) ($_POST['max_version'] ?? '')),
                 in_array($_POST['os'] ?? '', ['windows', 'macos', 'linux'], true) ? (string) $_POST['os'] : '',
@@ -91,6 +95,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $st->execute();
             } elseif (!empty($_POST['remove_image'])) {
                 $db->prepare("UPDATE va_messages SET image = NULL, image_mime = '' WHERE id = ?")->execute([$id]);
+            }
+            if ($cleaned) {
+                $_SESSION['flash'] = ['err', "MESSAGE #$id SAVED, BUT TAGS OR ATTRIBUTES THE APP DOES NOT ALLOW WERE REMOVED FROM THE TEXT."];
             }
             $back = 'messages.php?edit=' . $id . '#form';
         } elseif ($action === 'reset_seen') {
@@ -148,7 +155,7 @@ $btn = static fn(int $id, string $action, string $label, string $cls, string $co
     . '<input type="hidden" name="csrf" value="' . vaH($csrf) . '"><input type="hidden" name="id" value="' . $id . '">'
     . '<button class="btn sm ' . $cls . '" name="action" value="' . $action . '" type="submit">' . $label . '</button></form> ';
 $target = static function (array $m): string {
-    $v = $m['min_version'] !== '' || $m['max_version'] !== '' ? ' ' . ($m['min_version'] ?: '*') . ' – ' . ($m['max_version'] ?: '*') : '';
+    $v = $m['min_version'] !== '' || $m['max_version'] !== '' ? ' ' . ($m['min_version'] ?: '*') . ' - ' . ($m['max_version'] ?: '*') : '';
     $aud = ['supporters' => ' / SUPPORTERS', 'others' => ' / NON-SUPPORTERS'][$m['audience']] ?? '';
     return ($m['os'] ?: 'ALL OS') . $v . $aud;
 };
@@ -171,13 +178,13 @@ ob_start(); ?>
     <div class="box" style="margin-bottom:18px">
         <div class="box-t">MESSAGES</div>
         <?php if ($list): ?><table class="wide">
-            <tr><th>#</th><th>STATE</th><th>TITLE</th><th>TARGET</th><th>FROM → UNTIL</th><th>RECEIVED BY</th><th></th></tr>
+            <tr><th>#</th><th>STATE</th><th>TITLE</th><th>TARGET</th><th>FROM -> UNTIL</th><th>RECEIVED BY</th><th></th></tr>
             <?php foreach ($list as $m): [$st, $cls] = $state($m); ?><tr>
                 <td class="n"><?= (int) $m['id'] ?></td>
                 <td class="<?= $cls ?>"><?= $st ?><?= $m['level'] === 'warn' ? ' / WARN' : '' ?></td>
                 <td class="e clip"><?= $h($m['title_en']) ?><?= $m['title_hu'] !== '' ? ' <span class="no">+HU</span>' : '' ?><?= (int) $m['image_size'] > 0 ? ' <span class="no">+IMG</span>' : '' ?></td>
                 <td><?= $h($target($m)) ?></td>
-                <td><?= $h(($m['starts_at'] ? substr($m['starts_at'], 0, 16) : '-') . ' → ' . ($m['ends_at'] ? substr($m['ends_at'], 0, 16) : '-')) ?></td>
+                <td><?= $h(($m['starts_at'] ? substr($m['starts_at'], 0, 16) : '-') . ' -> ' . ($m['ends_at'] ? substr($m['ends_at'], 0, 16) : '-')) ?></td>
                 <td class="n"><?= (int) $m['views'] ?><?= (int) $m['rev'] > 0 ? ' <span class="no">(RESET ' . (int) $m['rev'] . 'X)</span>' : '' ?></td>
                 <td><a class="btn sm" href="messages.php?edit=<?= (int) $m['id'] ?>#form">EDIT</a>
                     <?= $btn((int) $m['id'], 'toggle', $m['active'] ? 'TURN OFF' : 'TURN ON', '', '') ?>
@@ -187,7 +194,7 @@ ob_start(); ?>
         </table><?php else: ?><p class="no">NO MESSAGES YET.</p><?php endif; ?>
         <p class="hint">THE APP ASKS FOR A MESSAGE AT START-UP AND SHOWS THE NEWEST LIVE ONE THAT MATCHES ITS OS AND VERSION, ONCE PER INSTALL.<br>
             RECEIVED BY = INSTALLS THAT GOT IT (<?= $active30 ?> INSTALLS WERE ACTIVE IN THE LAST 30 DAYS). AN EDITED MESSAGE IS NOT SHOWN AGAIN; USE RESET SEEN TO SHOW IT TO EVERYONE AGAIN.<br>
-            SUPPORTERS = INSTALLS THAT STILL HAVE A SERIAL FROM 2.5.6–2.5.9 IN THEIR CONFIG (DONORS AND BUYERS WHO REGISTERED THE APP). A DONOR WHO NEVER ENTERED THE SERIAL COUNTS AS A NON-SUPPORTER.</p>
+            SUPPORTERS = INSTALLS THAT STILL HAVE A SERIAL FROM 2.5.6-2.5.9 IN THEIR CONFIG (DONORS AND BUYERS WHO REGISTERED THE APP). A DONOR WHO NEVER ENTERED THE SERIAL COUNTS AS A NON-SUPPORTER.</p>
     </div>
 
     <div class="box" id="form">

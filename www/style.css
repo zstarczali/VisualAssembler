@@ -11313,6 +11313,56 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .server-message-body pre { white-space: pre-wrap; }
 .server-message-image { display: block; max-width: 100%; max-height: 260px; margin: 0 auto 12px; border-radius: 6px; object-fit: contain; }
 .server-message-image[hidden], #server-message-caption[hidden] { display: none; }
+/* Support chat (register/support.php) */
+/* nem modális (show()), mozgatható (setupDraggableEditorDialogs) és átméretezhető (a kártya resize: both, méret c64va-support-size) */
+.support-dialog { border: none; padding: 0; margin: 0; background: transparent; color: var(--text); overflow: visible; }
+.support-dialog[open] { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 9980; }
+.support-card { display: flex; flex-direction: column; width: 520px; height: 620px; min-width: 360px; min-height: 420px;
+  max-width: calc(100vw - 16px); max-height: calc(100vh - 16px); resize: both; overflow: hidden; box-sizing: border-box;
+  background: var(--panel); border: 1px solid var(--panel-border); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3), 0 16px 40px rgba(0, 0, 0, 0.55); }
+.support-hdr { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-bottom: 1px solid var(--panel-border); background: var(--panel-strong); }
+.support-title { font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text); white-space: nowrap; }
+.support-sound { margin-left: auto; width: 28px; height: 26px; min-height: 0; padding: 0; display: inline-flex; align-items: center; justify-content: center; border: none; border-radius: 2px; background: transparent; color: var(--secondary); cursor: pointer; }
+.support-sound:hover { background: color-mix(in srgb, var(--secondary) 18%, transparent); color: var(--text); }
+.support-sound .support-sound-off, .support-sound[aria-pressed="false"] .support-sound-on { display: none; }
+.support-sound[aria-pressed="false"] .support-sound-off { display: block; }
+.support-xbtn { margin-left: 0; width: 28px; height: 28px; min-height: 0; padding: 0; border: none; background: none; color: var(--secondary); font-size: 1.1rem; line-height: 1; cursor: pointer; }
+.support-xbtn:hover { color: var(--text); }
+.support-body { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; overflow-y: auto; }
+.support-intro { margin: 0; font-size: 0.8rem; line-height: 1.45; color: var(--muted); }
+.support-body .app-confirm-buttons { margin-top: 0; }
+.support-dialog .form-field textarea.support-text { height: auto; min-height: 84px; resize: vertical; overflow: auto; word-break: normal; font-family: inherit; }
+.support-thread { display: flex; flex-direction: column; gap: 8px; flex: 1 1 120px; min-height: 80px; overflow-y: auto; padding: 2px; }
+.support-thread:empty { display: none; }
+.support-msg { max-width: 82%; padding: 8px 11px; border-radius: 8px; border: 1px solid var(--panel-border); background: var(--control-bg); }
+.support-msg--user { align-self: flex-end; background: color-mix(in srgb, var(--primary) 12%, var(--control-bg)); border-color: color-mix(in srgb, var(--primary) 35%, var(--panel-border)); }
+.support-msg--admin { align-self: flex-start; }
+.support-msg-meta { font-size: 0.68rem; color: var(--muted); margin-bottom: 3px; }
+.support-msg--new { animation: support-new 2.4s ease-out; }
+@keyframes support-new { 0%, 30% { box-shadow: 0 0 0 2px var(--primary); } 100% { box-shadow: 0 0 0 0 transparent; } }
+.support-msg-text { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 0.85rem; line-height: 1.45; }
+.support-msg-text a { color: var(--primary); cursor: pointer; }
+.support-attach-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.support-files { display: flex; flex-wrap: wrap; gap: 6px; flex: 1 1 auto; min-width: 0; }
+.support-attach { margin-left: auto; }
+.support-chip { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; padding: 3px 4px 3px 9px; border: 1px solid var(--panel-border); border-radius: 12px; font-size: 0.75rem; background: var(--control-bg); }
+.support-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 220px; }
+.support-chip button { min-height: 0; width: 20px; height: 20px; padding: 0; border: none; border-radius: 50%; background: transparent; color: var(--muted); cursor: pointer; line-height: 1; }
+.support-chip button:hover { color: var(--text); background: color-mix(in srgb, var(--secondary) 18%, transparent); }
+.support-msg-files { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.support-msg-file { min-height: 0; padding: 3px 9px; border: 1px solid var(--panel-border); border-radius: 12px; background: transparent; color: var(--primary); font-size: 0.75rem; cursor: pointer; }
+.support-msg-file:hover { border-color: var(--primary); }
+.support-msg-img { display: block; max-width: 240px; max-height: 170px; border-radius: 6px; border: 1px solid var(--panel-border); cursor: pointer; background: var(--control-bg); min-width: 60px; min-height: 40px; object-fit: contain; }
+.support-dialog--drop .support-card { outline: 2px dashed var(--primary); outline-offset: -6px; }
+/* eszköztár-jelző: olvasatlan támogatási válasz, amíg a Support ablak csukva van */
+.support-notify { gap: 4px; }
+.support-notify[hidden], .support-notify-count[hidden] { display: none; }
+.support-notify--unread, .support-notify--unread:hover { color: #e05555; animation: support-notify-pulse 1.6s ease-in-out infinite; }
+.support-notify-count { font-size: 0.72rem; font-weight: 700; line-height: 1; }
+@keyframes support-notify-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+@media (prefers-reduced-motion: reduce) { .support-notify--unread { animation: none; } }
+.has-unread { position: relative; }
+.has-unread::before { content: ""; position: absolute; top: 4px; right: 4px; width: 8px; height: 8px; border-radius: 50%; background: #e05555; box-shadow: 0 0 0 2px var(--panel-bg, #fff); pointer-events: none; }
 .server-message-dialog--warn .compile-error-title { color: #e05555; }
 /* Bug report dialog */
 .eyebrow-row { display: flex; align-items: flex-start; gap: 10px; }
@@ -11322,6 +11372,8 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
   border: 1px solid var(--panel-border); border-radius: 2px; background: var(--control-bg); color: var(--text);
 }
 .form-field textarea { height: calc(2 * 1.4em + 14px); line-height: 1.4; resize: none; overflow: hidden; word-break: break-all; }
+/* a globális fókuszszabály csak input / select: a többsoros mező is a téma színével jelöljön, ne a böngésző fekete keretével */
+.form-field input:focus, .form-field textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 28%, transparent); }
 .bug-dialog { max-width: 620px; }
 .bug-dialog .app-confirm-card { gap: 12px; max-height: calc(100vh - 40px); overflow-y: auto; }
 .bug-dialog .form-field textarea.bug-description { height: auto; min-height: 120px; resize: vertical; overflow: auto; word-break: normal; font-family: inherit; }
@@ -11343,11 +11395,11 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .form-status--ok { color: #3fbf6a; }
 
 /* About, customer message, server message, update, settings: no text selection, no dragging of images / links (text fields excepted) */
-.about-dialog, .customer-message-card, #server-message-dialog, #update-dialog, #hardware-settings-dialog, .whats-new-dialog { -webkit-user-select: none; user-select: none; }
+.about-dialog, .customer-message-card, #server-message-dialog, #support-dialog, #update-dialog, #hardware-settings-dialog, .whats-new-dialog { -webkit-user-select: none; user-select: none; }
 .about-dialog img, .about-dialog a, .customer-message-card img, .customer-message-card a,
 #update-dialog img, #update-dialog a, #hardware-settings-dialog img, #hardware-settings-dialog a,
-.whats-new-dialog img, .whats-new-dialog a, #server-message-dialog img, #server-message-dialog a { -webkit-user-drag: none; user-drag: none; }
-:is(#update-dialog, #hardware-settings-dialog, .about-dialog, .customer-message-card, #server-message-dialog, .whats-new-dialog) :is(input, textarea, select, [contenteditable]) { -webkit-user-select: text; user-select: text; }
+.whats-new-dialog img, .whats-new-dialog a, #server-message-dialog img, #server-message-dialog a, #support-dialog a { -webkit-user-drag: none; user-drag: none; }
+:is(#update-dialog, #hardware-settings-dialog, .about-dialog, .customer-message-card, #server-message-dialog, #support-dialog, .whats-new-dialog) :is(input, textarea, select, [contenteditable]) { -webkit-user-select: text; user-select: text; }
 
 
 /* SID Editor horizontal tracker (piano roll), floating inside the editor dialog */

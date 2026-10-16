@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Käyttöopas
 
-**Versio 2.5.9**
+**Versio 2.6.0**
 
 Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
 vetämällä ja pudottamalla käskylohkoja ja nähdä luodun assemblerin ja konekoodin
@@ -11,6 +11,7 @@ reaaliajassa.
 ## Sisällysluettelo
 
 - [C64 Visual Assembler — Käyttöopas](#c64-visual-assembler--user-manual)
+    - [Version 2.6.0 kohokohdat](#version-260-highlights)
     - [Version 2.5.9 kohokohdat](#version-259-highlights)
     - [Version 2.5.8 kohokohdat](#version-258-highlights)
     - [Version 2.5.7 kohokohdat](#version-257-highlights)
@@ -45,7 +46,7 @@ reaaliajassa.
     - [Käännöksen edistymismodaali](#compile-progress-modal)
   - [5. Asetukset \&amp; Työkalupalkki](#5-settings--toolbar)
     - [Versiohallinta](#version-control)
-    - [Freemium ja Professional](#freemium-and-professional)
+    - [Ilmainen ja avoimen lähdekoodin](#free-and-open-source)
     - [Virheen ilmoittaminen](#reporting-a-bug)
     - [Projektimallit](#project-templates)
     - [Rakenna projekti](#build-project)
@@ -199,20 +200,31 @@ reaaliajassa.
 
 ---
 
+## Version 2.6.0 kohokohdat
+
+- **Visual Assembler on nyt täysin ilmainen** — Freemium/Professional-lisenssi
+  on poistettu. Jokainen editori, koonti- ja laitteistoajovaihtoehto, kaikki
+  seitsemän käyttöliittymäkieltä ja jokainen teema toimivat kaikille ilman
+  rekisteröitymistä tai sarjanumeroa. Syy on yksinkertainen: Unkarin
+  verosääntöjen mukaan ohjelman myyminen jättäisi verojen ja paperityön jälkeen
+  liian vähän rahaa, jotta se olisi kannattavaa. Jo olemassa olevia
+  sarjanumeroita ei yksinkertaisesti enää tarvita. Katso [Ilmainen ja avoin
+  lähdekoodi](#free-and-open-source).
+
+---
+
 ## Version 2.5.9 kohokohdat
 
 - **Commodore 64 -teema** — C64:n käynnistysnäyttö: vaaleansininen reunus
   sinisten paneelien ympärillä, vaaleansininen teksti, käänteisen videon
-  painikkeet, C64-paletin syntaksivärit ja C64-fontti näyttönäkymässä
-  (Professional).
+  painikkeet, C64-paletin syntaksivärit ja C64-fontti näyttönäkymässä.
 - **Commodore Beige -teema** — klassinen leipälaatikko: beige kotelo,
   sinapinkeltaiset toimintonäppäimet, sateenkaarenväriset rintaraidat ja C64:n
-  sininen näyttönäkymä. Valitse se teemavalitsimesta tai siirry siihen
-  teemapainikkeella (Professional). Katso [Asetukset ja työkalupalkki]{1].
+  sininen näyttönäkymä. Valitse se teemanvalitsimesta tai selaa sitä
+  teemapainikkeella. Katso [Asetukset ja työkalupalkki]{1].
 - **Commodore Starlight -teema** — vaalea teema läpikuultavan C64-leipälaatikon
   mukaan: himmeä kirkas lasi, jonka läpi paistaa sateenkaaren RGB-hehku,
-  magenta-aksentti, sateenkaaren syntaksin värit ja savunharmaa näyttönäkymä
-  (Professional).
+  magenta-aksentti, sateenkaaren syntaksin värit ja savuinen tumma näyttönäkymä.
 - **Versiohallintaikkuna** — ikkunaa voi vetää otsikosta, ja se avautuu
   uudelleen siitä, mihin se jäi. Se pysyy näytöllä, kun loki tai vertailu tekee
   siitä korkeamman, eikä sen ulkopuolella tapahtuva napsauttaminen enää sulje
@@ -246,11 +258,6 @@ reaaliajassa.
   kuvakaappausta (tiedosto, Ctrl+V tai raahaa ja pudota), valinnainen
   sähköpostiosoite, järjestelmätiedot ja viimeaikaiset sovellusvirheet. Katso
   [Virheen ilmoittaminen]{1].
-- **Ammattimainen sarjanumero sähköpostitse** — tukijat pyytävät sarjanumeroaan
-  rekisteröintivalintaikkunassa (**Pyydä sarjanumeroa (tukijat)**);
-  Professional-version voi ostaa osoitteesta c64va.pro PayPalilla (5 €,
-  kertamaksu), ja sarjanumero saapuu sähköpostitse heti maksun jälkeen. Katso
-  [Freemium ja Professional](#freemium-and-professional).
 - **SID-soitin** — **Sekoita** ja **suosikit** (★) kappaletta kohden. Katso
   [SID-soitin](#sid-player).
 
@@ -290,8 +297,8 @@ reaaliajassa.
   edellinen/seuraava kappale, alikappaleet, haku ja ±10 s, äänenvoimakkuus sekä
   soittolistan tallennus/avaaminen (`.sidpl`); lista ja ikkunan tila muistetaan.
   Katso [SID Player]{1].
-- **VA SID Core 1.1** — sisäänrakennettu SID-emulointi (MOS 6581/8580,
-  mos6581_8580-tasapainotetulla 6581-suodattimella) ja syklilukittu PSID/RSID-soitin
+- **VA SID Core 1.1** — sisäänrakennettu SID-emulointi (MOS 6581/8580, MOS
+  6581/8580-pohjaisella 6581-suodattimella) ja syklilukittu PSID/RSID-soitin
   (6510 CPU, CIA/VIC-ajoitus). Valitse se kohdasta **Asetukset →
   SID-esikatselu**; SID-soitin näyttää, mikä moottori toistetaan.
 - **SID-editori** — instrumenttiparametrien säätimet, leveämpi ADSR-grafiikka,
@@ -299,10 +306,6 @@ reaaliajassa.
   nykyinen on täynnä), **metronomi** rytmivaloilla, **patternin poisto**,
   VA-VK:n äänenvoimakkuuden säätö ja **GoatTracker .sng-tiedoston tuonti**.
   Katso [SID-editori](#sid-editor-3-voice-tracker).
-- **Freemium ja Professional** — ilman rekisteröitymistä sovellus toimii
-  Freemiumina; anna ostoksesi sähköpostiosoite ja sarjanumero kohdassa **Valikko
-  → Rekisteröidy…** saadaksesi Professional-version. Katso [Freemium ja
-  Professional]{1].
 - **Ultimate Basic 1.6.4** sisältyy pakettiin.
 
 ---
@@ -1094,35 +1097,32 @@ Komentoluettelon korkeus on tarkoituksella rajoitettu, jotta komentotietokortti
 voi täyttää paneelin jäljellä olevan korkeuden. Tietoalue vierii itsenäisesti
 pidempiä syntaksikuvauksia varten.
 
-### Freemium ja Professional
+### Ilmainen ja avoimen lähdekoodin
 
-Ilman rekisteröitymistä Visual Assembler toimii nimellä **Freemium**; otsikon
-vieressä oleva merkki näyttää **FREEMIUM** tai **PROFESSIONAL**. Freemiumissa
-voit kirjoittaa ja rakentaa ohjelmia ja suorittaa niitä VICE:ssä Block-, Expert-
-ja Ultimate Basic -tiloissa. Nämä vaativat Professional-version:
+Visual Assembler on ilmainen: jokainen ominaisuus – visuaaliset editorit (SID,
+Sprite, Char, Charset, Hi-Res, Map, Level, D64, Curve), SID Player, **Build
+PRG**, **Build D64**, **Build CRT**, **Build-projekti**, Exomizer-pakkaus,
+toiminta C64 Ultimatessa ja Kung Fu Flash 2:ssa sekä kaikki käyttöliittymän
+kielet ja teemat – toimivat ilman rekisteröitymistä tai sarjanumeroa. Lähdekoodi
+on saatavilla GNU General Public License v3.0 -lisenssillä (katso **Valikko →
+Tietoja**). Versioon 2.5.9 asti sovelluksessa oli Freemium / Professional -jako;
+versiosta 2.6.0 lähtien sarjanumeroa ei yksinkertaisesti enää tarvita.
 
-- visuaaliset editorit (SID, Sprite, Char, Charset, Hi-Res, Map, Level, D64,
-  Curve) ja SID Player;
-- **Kokoa PRG**, **Kokoa D64**, **Kokoa CRT**, **Kokoa projekti** ja
-  Exomizer-pakkaus;
-- toimii C64 Ultimatessa ja Kung Fu Flash 2:ssa;
-- Muut käyttöliittymäkielet kuin unkari ja englanti sekä OLED-, Commodore 77-,
-  Commodore Starlight-, Commodore Beige- ja Commodore 64 -teemat.
+Jos pidät ohjelmasta, voit tukea sen kehitystä lahjoituksella osoitteessa
+c64va.pro.
 
-Lukitun ominaisuuden napsauttaminen avaa rekisteröinti-ikkunan.
-Rekisteröityäksesi avaa **Valikko → Rekisteröi…** (tai napsauta tunnusta), anna
-ostoksesi sähköpostiosoite ja sarjanumero ja paina **Aktivoi**. Sarjanumero
-kuuluu kyseiseen sähköpostiosoitteeseen (isoilla ja pienillä kirjaimilla sekä
-välilyönneillä ei ole merkitystä), ja tarkistus suoritetaan offline-tilassa.
-**Poista lisenssi** poistaa rekisteröinnin tältä tietokoneelta.
-
-**Sarjanumeron hankkiminen.** Jos olet tukenut projektia aiemmin, anna
-sähköpostiosoitteesi rekisteröintivalintaikkunaan ja paina **Pyydä sarjanumeroa
-(tukijat)** (tai käytä lomaketta osoitteessa c64va.pro/register): sarjanumero
-saapuu sähköpostitse, kerran per osoite. Professional-version voi ostaa
-osoitteesta c64va.pro — **Osta täysversio** valintaikkunassa avaa sivun: PayPal,
-5 € kertaluontoisesti, ja sarjanumero lähetetään sähköpostitse heti maksun
-jälkeen. Sivulla vertaillaan myös Freemiumia ja Professionalia.
+**Käyttötilastot.** Sovellus lähettää käynnistyksen yhteydessä korkeintaan
+kerran päivässä anonyymin ping-kutsun c64va.pro-sivustolle. Kutsu sisältää
+sovellusversion, käyttöjärjestelmän, käyttöliittymän kielen, käynnistysten
+määrän ja aktiivisten minuuttien määrän viimeisimmästä ping-kutsusta (minuutti
+lasketaan, kun ikkuna on näkyvissä ja olet käyttänyt hiirtä tai näppäimistöä
+viimeisten 5 minuutin aikana), onko sarjanumero versioista 2.5.6–2.5.9 edelleen
+tallennettuna (vain kyllä / ei) ja satunnaisen asennustunnuksen (säilytetään
+sovelluksen `config.json`-tiedostossa nimellä `launchPing`).
+Sähköpostiosoitetta, sarjanumeroa, projektia tai lähdekoodia ei lähetetä;
+offline-tilassa ei tapahdu mitään. Sovellus pyytää myös c64va.pro-sivustolta
+satunnaisia lyhyitä viestejä (esimerkiksi uudesta versiosta, joskus vain
+tukijoille); jokainen viesti näytetään kerran.
 
 ### Virheen ilmoittaminen
 
@@ -1130,17 +1130,17 @@ jälkeen. Sivulla vertaillaan myös Freemiumia ja Professionalia.
 kehittäjälle.
 
 - **Yhteenveto** ja **Mitä tapahtui?** ovat pakollisia – kuvaile mitä teit, mitä
-  odotit ja mitä sen sijaan tapahtui. **Sähköpostiosoite** on valinnainen (täytä
-  lisenssisähköpostiosoitteesi); anna se, jos haluat vastauksen.
+  odotit ja mitä sen sijaan tapahtui. **Sähköpostiosoite** on valinnainen; anna
+  se, jos haluat vastauksen.
 - **Kuvakaappaukset:** jopa 4 kuvaa toiminnolla **Lisää kuva…**, liittämällä ne
   näppäinyhdistelmällä **Ctrl+V** (esimerkiksi Win+Shift+S-näppäinyhdistelmän
   jälkeen) tai pudottamalla ne lomakkeelle. Suuret kuvat skaalataan 1920
   pikseliin.
 - **Sisällytä järjestelmätiedot ja viimeisimmät virheet** (oletusarvoisesti
   käytössä) lisää sovellusversion, käyttöjärjestelmän, kielen, teeman, editorin
-  ja suoritustilan, lisenssin tilan, näytön koon, lohkojen määrän ja
-  viimeisimmät sovellusvirheet. **Mitä lähetetään?** näyttää tiedot.
-  Lähdekoodiasi ei lähetetä.
+  ja suoritustilan, näytön koon, lohkojen määrän ja viimeisimmät
+  sovellusvirheet. **Mitä lähetetään?** näyttää tiedot. Lähdekoodiasi ei
+  lähetetä.
 - **Lähetä raportti** vahvistaa raportin numerolla. **Lähetä sähköpostitse**
   avaa sähköpostiohjelmasi.
 

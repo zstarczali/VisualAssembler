@@ -771,6 +771,39 @@ async fn app_launch_ping(app: AppHandle, lang: String) {
     }
 }
 
+const SUPPORT_URL: &str = "https://www.c64va.pro/register/support.php";
+
+/// Support chat (register/support.php): the frontend sends {action, text?, email?, name?, read?}; the install id
+/// (the conversation key), version and OS are added here. Returns the server's JSON or {ok: false, error}.
+#[tauri::command]
+async fn support_api(app: AppHandle, lang: String, payload: serde_json::Value) -> serde_json::Value {
+    let mut cfg = read_config(&app);
+    let id = install_id(&app, &mut cfg);
+    let mut body = if payload.is_object() { payload } else { serde_json::json!({}) };
+    body["id"] = serde_json::json!(id);
+    body["version"] = serde_json::json!(app.package_info().version.to_string());
+    body["os"] = serde_json::json!(std::env::consts::OS);
+    body["lang"] = serde_json::json!(ping_lang(&lang));
+    // csatolmánnyal (max 4 MB, base64) lassú kapcsolaton is elférjen
+    let Ok(client) = update_http_client(&app, 120) else {
+        return serde_json::json!({ "ok": false, "error": "network" });
+    };
+    let resp = match client
+        .post(SUPPORT_URL)
+        .header("Content-Type", "application/json")
+        .body(body.to_string())
+        .send()
+        .await
+    {
+        Ok(r) => r,
+        Err(_) => return serde_json::json!({ "ok": false, "error": "network" }),
+    };
+    match resp.text().await.ok().and_then(|t| serde_json::from_str::<serde_json::Value>(&t).ok()) {
+        Some(v) if v["ok"].is_boolean() => v,
+        _ => serde_json::json!({ "ok": false, "error": "server" }),
+    }
+}
+
 const APP_MESSAGE_URL: &str = "https://www.c64va.pro/register/message.php";
 
 /// Ad-hoc message from the site (register/message.php → messages.php admin): {id, caption, title, body (HTML,
@@ -5107,6 +5140,7 @@ pub fn run() {
             app_usage_add,
             fetch_app_message,
             fetch_app_message_image,
+            support_api,
             get_ui_settings,
             save_ui_settings,
             get_vice_config,

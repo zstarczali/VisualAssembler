@@ -85,6 +85,7 @@ CREATE TABLE IF NOT EXISTS va_installs (
   days INT UNSIGNED NOT NULL DEFAULT 0,
   minutes INT UNSIGNED NOT NULL DEFAULT 0,
   supporter TINYINT(1) NOT NULL DEFAULT 0,
+  country CHAR(2) NOT NULL DEFAULT '',
   first_at DATETIME NOT NULL,
   last_at DATETIME NOT NULL,
   KEY ix_last (last_at)
@@ -126,4 +127,52 @@ CREATE TABLE IF NOT EXISTS va_message_views (
   install_id CHAR(32) NOT NULL,
   seen_at DATETIME NOT NULL,
   PRIMARY KEY (message_id, install_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS va_geoip (
+  ip_from BINARY(16) NOT NULL PRIMARY KEY,
+  ip_to BINARY(16) NOT NULL,
+  country CHAR(2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=ascii;
+CREATE TABLE IF NOT EXISTS va_settings (
+  k VARCHAR(40) NOT NULL PRIMARY KEY,
+  v VARCHAR(255) NOT NULL DEFAULT ''
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS va_support_threads (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  install_id CHAR(32) NOT NULL,
+  email VARCHAR(254) NOT NULL DEFAULT '',
+  name VARCHAR(100) NOT NULL DEFAULT '',
+  status VARCHAR(8) NOT NULL DEFAULT 'open',
+  version VARCHAR(20) NOT NULL DEFAULT '',
+  os VARCHAR(20) NOT NULL DEFAULT '',
+  lang VARCHAR(8) NOT NULL DEFAULT '',
+  country CHAR(2) NOT NULL DEFAULT '',
+  unread_admin INT UNSIGNED NOT NULL DEFAULT 0,
+  unread_user INT UNSIGNED NOT NULL DEFAULT 0,
+  created_at DATETIME NOT NULL,
+  updated_at DATETIME NOT NULL,
+  UNIQUE KEY uq_install (install_id),
+  KEY ix_updated (updated_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS va_support_messages (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  thread_id INT UNSIGNED NOT NULL,
+  sender VARCHAR(5) NOT NULL,
+  body TEXT NOT NULL,
+  created_at DATETIME NOT NULL,
+  KEY ix_thread (thread_id, id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS va_support_rate (
+  ip VARCHAR(45) NOT NULL,
+  created_at DATETIME NOT NULL,
+  KEY ix_ip_created (ip, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=ascii;
+CREATE TABLE IF NOT EXISTS va_support_files (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  message_id INT UNSIGNED NOT NULL,
+  name VARCHAR(200) NOT NULL,
+  mime VARCHAR(80) NOT NULL,
+  size INT UNSIGNED NOT NULL,
+  data MEDIUMBLOB NOT NULL,
+  KEY ix_message (message_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

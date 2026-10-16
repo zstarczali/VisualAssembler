@@ -94,17 +94,36 @@ function vaAdminFlash(): ?array
     return $flash;
 }
 
+/** Olvasatlan felhasználói üzenetet tartalmazó támogatási beszélgetések száma (nav, stats). */
+function vaSupportUnread(): int
+{
+    return (int) vaDb()->query('SELECT COUNT(*) FROM va_support_threads WHERE unread_admin > 0')->fetchColumn();
+}
+
+/** A felhasználóktól érkezett támogatási üzenetek száma: az élő értesítés ennek a növekedéséből tudja, hogy új üzenet jött. */
+function vaSupportUserMessages(): int
+{
+    return (int) vaDb()->query("SELECT COUNT(*) FROM va_support_messages WHERE sender = 'user'")->fetchColumn();
+}
+
 function vaAdminPage(string $title, string $body): void
 {
     $nav = '';
     if (!empty($_SESSION['va_admin'])) {
         $open = 0;
+        $support = 0;
+        $supportMsgs = 0;
         try {
             $open = (int) vaDb()->query("SELECT COUNT(*) FROM va_bug_reports WHERE status IN ('new', 'open')")->fetchColumn();
+            $support = vaSupportUnread();
+            $supportMsgs = vaSupportUserMessages();
         } catch (Throwable $e) {
         }
         $nav = '<a class="nav-link" href="stats.php">STATS</a>'
             . '<a class="nav-link" href="messages.php">MESSAGES</a>'
+            . '<a class="nav-link" href="geoip.php">GEOIP</a>'
+            . '<a class="nav-link" id="nav-support" href="inbox.php" data-unread="' . $support . '" data-msgs="' . $supportMsgs . '">SUPPORT'
+            . ' <span class="nav-badge"' . ($support ? '' : ' hidden') . '>' . $support . '</span></a>'
             . '<a class="nav-link" href="bugs.php">BUGS' . ($open ? ' <span style="color:var(--red)">' . $open . '</span>' : '') . '</a>'
             . '<a class="nav-link" href="stats.php?logout=1">LOG OUT</a>';
     }
@@ -120,10 +139,125 @@ const VA_ADMIN_JS = <<<'JS'
 document.querySelectorAll('details[data-keep]').forEach(function (d) {
   var key = 'va-admin-open-' + d.dataset.keep;
   try { var v = localStorage.getItem(key); if (v !== null) d.open = v === '1'; } catch (e) {}
+  // ha a cím rá mutat (pl. stats.php#manage keresés / művelet után), mindig nyitva
+  if (d.id && location.hash === '#' + d.id) d.open = true;
   d.addEventListener('toggle', function () { try { localStorage.setItem(key, d.open ? '1' : '0'); } catch (e) {} });
 });
+// támogatás: élő olvasatlan-szám (nav, fül címe) és csipogás új felhasználói üzenetnél, minden admin oldalon;
+// a böngésző csak egy kattintás után enged hangot. Új üzenetnél 'va-support-change' esemény (inbox.php lista újratöltése).
+(function () {
+  var link = document.getElementById('nav-support');
+  if (!link) return;
+  var badge = link.querySelector('.nav-badge');
+  var baseTitle = document.title;
+  var unread = +link.getAttribute('data-unread') || 0, msgs = +link.getAttribute('data-msgs') || 0;
+  var ctx = null;
+  var soundOn = function () { try { return localStorage.getItem('va-admin-sound') !== '0'; } catch (e) { return true; } };
+  var unlock = function () {
+    try { ctx = ctx || new (window.AudioContext || window.webkitAudioContext)(); if (ctx.state === 'suspended') ctx.resume(); } catch (e) {}
+  };
+  document.addEventListener('pointerdown', unlock, { once: true });
+  document.addEventListener('keydown', unlock, { once: true });
+  window.vaBeep = function () {
+    if (!soundOn() || !ctx || ctx.state !== 'running') return;
+    [[880, 0], [1320, 0.13]].forEach(function (n) {
+      var o = ctx.createOscillator(), g = ctx.createGain(), t = ctx.currentTime + n[1];
+      o.type = 'square';
+      o.frequency.value = n[0];
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.06, t + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.11);
+      o.connect(g).connect(ctx.destination);
+      o.start(t);
+      o.stop(t + 0.12);
+    });
+  };
+  var show = function () {
+    badge.textContent = unread;
+    badge.hidden = unread <= 0;
+    document.title = (unread > 0 ? '(' + unread + ') ' : '') + baseTitle;
+  };
+  show();
+  setInterval(function () {
+    fetch('inbox.php?poll=1', { credentials: 'same-origin', cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (r) {
+      var newMsg = (+r.msgs || 0) > msgs;
+      unread = +r.unread || 0;
+      msgs = +r.msgs || 0;
+      show();
+      if (newMsg) {
+        window.vaBeep();
+        document.dispatchEvent(new CustomEvent('va-support-change'));
+      }
+    }).catch(function () {});
+  }, 15000);
+})();
+// diagram-tooltip: [data-tip] elemek (vaColumnChart oszlopai) fölött
+(function () {
+  var tip = document.createElement('div');
+  tip.className = 'chart-tip';
+  tip.hidden = true;
+  document.body.appendChild(tip);
+  var cur = null;
+  document.addEventListener('mousemove', function (e) {
+    var t = e.target.closest ? e.target.closest('[data-tip]') : null;
+    if (cur && cur !== t) cur.classList.remove('on');
+    cur = t;
+    if (!t) { tip.hidden = true; return; }
+    t.classList.add('on');
+    tip.textContent = t.getAttribute('data-tip');
+    tip.hidden = false;
+    var x = e.clientX + 14, y = e.clientY + 14, w = tip.offsetWidth, h = tip.offsetHeight;
+    if (x + w > innerWidth - 8) x = e.clientX - w - 14;
+    if (y + h > innerHeight - 8) y = e.clientY - h - 14;
+    tip.style.left = x + 'px';
+    tip.style.top = y + 'px';
+  });
+})();
 </script>
 JS;
+
+/**
+ * Oszlopdiagram (SVG, egy sorozat) napi adatokra; $points: [['label' => '2026-10-16', 'value' => 12, 'tip' => '…'], …]
+ * időrendben. Az oszlop fölött a teljes magasságú, átlátszó sáv a rámutatási terület.
+ */
+function vaColumnChart(array $points, callable $fmt): string
+{
+    $w = 600;
+    $h = 150;
+    $top = 16;
+    $bottom = 20;
+    $plot = $h - $top - $bottom;
+    $n = max(1, count($points));
+    $slot = $w / $n;
+    $bar = max(2, $slot - 2);
+    $max = max(1, ...array_map(static fn($p) => (float) $p['value'], $points ?: [['value' => 1]]));
+    $svg = '<svg class="chart" viewBox="0 0 ' . $w . ' ' . $h . '" preserveAspectRatio="none" role="img">';
+    // vízszintes segédvonalak: 0, fél, max
+    foreach ([0, 0.5, 1] as $f) {
+        $y = round($top + $plot * (1 - $f), 1);
+        $svg .= '<line class="grid" x1="0" x2="' . $w . '" y1="' . $y . '" y2="' . $y . '"/>';
+    }
+    foreach (array_values($points) as $i => $p) {
+        $x = round($i * $slot + 1, 2);
+        $bh = $p['value'] > 0 ? max(2, $plot * $p['value'] / $max) : 0;
+        $y = $top + $plot - $bh;
+        $svg .= '<g data-tip="' . vaH($p['tip']) . '"><rect class="hit" x="' . $x . '" y="0" width="' . round($bar, 2) . '" height="' . ($h - $bottom) . '"/>';
+        if ($bh > 0) {
+            // a felső sarkok kerekítettek, az alap egyenes
+            $r = min(3, $bar / 2, $bh);
+            $svg .= '<path class="bar" d="M' . $x . ',' . ($top + $plot) . 'V' . round($y + $r, 2) . 'Q' . $x . ',' . round($y, 2) . ' ' . round($x + $r, 2) . ',' . round($y, 2)
+                . 'H' . round($x + $bar - $r, 2) . 'Q' . round($x + $bar, 2) . ',' . round($y, 2) . ' ' . round($x + $bar, 2) . ',' . round($y + $r, 2)
+                . 'V' . ($top + $plot) . 'Z"/>';
+        }
+        $svg .= '</g>';
+    }
+    $svg .= '</svg>';
+    $labels = array_values($points);
+    $first = $labels[0]['label'] ?? '';
+    $last = $labels[count($labels) - 1]['label'] ?? '';
+    return '<div class="chart-wrap"><div class="chart-max">' . vaH($fmt($max)) . '</div>' . $svg
+        . '<div class="chart-x"><span>' . vaH(substr($first, 5)) . '</span><span>' . vaH(substr($last, 5)) . '</span></div></div>';
+}
 
 const VA_ADMIN_CSS = <<<'CSS'
 @font-face { font-family: 'C64Pro'; src: url('../assets/C64_Pro-STYLE.woff2') format('woff2') }
@@ -148,6 +282,8 @@ nav { background: #0d0d22; border-bottom: 2px solid var(--brd); display: flex; a
 nav .sp { flex: 1 }
 .nav-link { font-size: 11px; letter-spacing: 1px; border: 1px solid var(--brd); padding: 6px 12px }
 .nav-link:hover { border-color: var(--ylw); color: var(--ylw) }
+.nav-badge { color: var(--red) }
+.nav-badge[hidden] { display: none }
 .screen { background: var(--scr); min-height: calc(100vh - 61px); padding: 40px 32px 64px }
 main { max-width: 1180px; margin: 0 auto }
 .sec-s { font-size: 11px; letter-spacing: 4px; color: var(--cyn); margin-bottom: 8px }
@@ -218,6 +354,33 @@ details.box > summary.box-t::before { content: ''; flex: none; width: 0; height:
 details.box[open] > summary.box-t { margin-bottom: 14px }
 details.box[open] > summary.box-t::before { transform: rotate(90deg) }
 details.box > summary.box-t:hover { color: var(--ylw) }
+/* támogatási beszélgetés (inbox.php) */
+.chat { display: flex; flex-direction: column; gap: 10px; max-height: 520px; overflow-y: auto; padding: 4px 2px }
+.msg { max-width: 78%; border: 1px solid var(--brd); padding: 8px 12px; background: var(--scr-darker) }
+.msg-user { align-self: flex-start }
+.msg-admin { align-self: flex-end; border-color: rgba(184, 199, 111, .55); background: rgba(184, 199, 111, .08) }
+.msg-new { border-color: var(--ylw) }
+.msg-meta { font-size: 10px; letter-spacing: 1px; color: var(--txt-dim); margin-bottom: 4px }
+.msg-text { white-space: pre-wrap; word-break: break-word; text-transform: none; color: var(--txt-hi); font-size: 12px; line-height: 1.6 }
+tr.unread td { background: rgba(255, 119, 119, .06) }
+.atts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px }
+.att { display: inline-block; border: 1px solid var(--brd); padding: 4px 8px; font-size: 11px; text-transform: none; color: var(--ylw) }
+.att:hover { border-color: var(--ylw) }
+.att-img { padding: 2px }
+.att-img img { display: block; max-width: 220px; max-height: 160px }
+/* diagramok (vaColumnChart) */
+.chart-wrap { position: relative }
+.chart { display: block; width: 100%; height: 150px; overflow: visible }
+.chart .grid { stroke: var(--brd); stroke-width: 1; vector-effect: non-scaling-stroke }
+.chart .bar { fill: var(--ylw); opacity: .85 }
+.chart .hit { fill: transparent }
+.chart g.on .bar { opacity: 1 }
+.chart g.on .hit { fill: rgba(184, 199, 111, .08) }
+.chart-max { position: absolute; top: -4px; left: 0; font-size: 10px; color: var(--txt-dim); letter-spacing: 1px }
+.chart-x { display: flex; justify-content: space-between; font-size: 10px; color: var(--txt-dim); letter-spacing: 1px; margin-top: -14px }
+.chart-tip { position: fixed; z-index: 50; pointer-events: none; background: #0d0d22; color: var(--txt-hi); border: 1px solid var(--ylw);
+  padding: 6px 10px; font-size: 11px; letter-spacing: 1px; white-space: nowrap }
+.chart-tip[hidden] { display: none }
 /* üzenetek, használat */
 .msg-form label { display: flex; flex-direction: column; gap: 4px; font-size: 10px; letter-spacing: 1px; color: var(--txt-dim); margin-bottom: 10px }
 .msg-form > label input, .msg-form > label textarea { width: 100% }
