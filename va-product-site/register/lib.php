@@ -104,6 +104,7 @@ function vaInstallsMigrate(PDO $db): void
     vaAddColumns($db, 'va_installs', [
         'minutes' => 'INT UNSIGNED NOT NULL DEFAULT 0 AFTER days',
         'supporter' => 'TINYINT(1) NOT NULL DEFAULT 0 AFTER minutes',
+        'country' => "CHAR(2) NOT NULL DEFAULT '' AFTER supporter",
     ]);
     vaAddColumns($db, 'va_install_days', ['minutes' => 'INT UNSIGNED NOT NULL DEFAULT 0 AFTER launches']);
 }
@@ -116,6 +117,236 @@ function vaAddColumns(PDO $db, string $table, array $add): void
         if (!in_array($col, $cols, true)) {
             $db->exec("ALTER TABLE $table ADD COLUMN $col $def");
         }
+    }
+}
+
+/**
+ * Az in-app üzenet HTML-je: csak az app által is engedett tagek (_serverMessageSanitize az app.js-ben), attribútum nélkül;
+ * az A csak http(s) / mailto href-et tarthat. Minden más tag eltűnik (a szövege marad), a script / style / iframe tartalmával együtt.
+ */
+function vaCleanMessageHtml(string $html, bool &$removed = false): string
+{
+    $removed = false;
+    if (!preg_match('/<[a-z!\/?]/i', $html)) {
+        return $html;
+    }
+    $allowed = array_flip(['P', 'BR', 'B', 'STRONG', 'I', 'EM', 'U', 'S', 'SMALL', 'CODE', 'PRE', 'BLOCKQUOTE',
+        'H3', 'H4', 'UL', 'OL', 'LI', 'HR', 'SPAN', 'A']);
+    if (!class_exists('DOMDocument')) {
+        // DOM kiterjesztés nélkül: csak a tagek maradnak, attribútum (így link) nélkül
+        $in = $html;
+        $html = preg_replace('#<(script|style|iframe|object|embed|template|svg|math|noscript|textarea|select|title)\b.*?</\1\s*>#is', '', $html);
+        $html = strip_tags((string) $html, '<' . implode('><', array_map('strtolower', array_keys($allowed))) . '>');
+        $html = (string) preg_replace('#<([a-z0-9]+)\b[^>]*?(/?)>#i', '<$1$2>', $html);
+        $removed = $html !== $in;
+        return $html;
+    }
+    $drop = array_flip(['SCRIPT', 'STYLE', 'IFRAME', 'OBJECT', 'EMBED', 'TEMPLATE', 'SVG', 'MATH', 'NOSCRIPT', 'TEXTAREA', 'SELECT', 'TITLE']);
+    $doc = new DOMDocument();
+    $prev = libxml_use_internal_errors(true);
+    $doc->loadHTML('<?xml encoding="utf-8"?><div>' . $html . '</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NONET);
+    libxml_clear_errors();
+    libxml_use_internal_errors($prev);
+    // a saveHTML így UTF-8-ban adja az ékezetes betűket, nem entitásként
+    $doc->encoding = 'UTF-8';
+    $root = $doc->getElementsByTagName('div')->item(0);
+    if (!$root) {
+        return '';
+    }
+    $walk = static function (DOMNode $node) use (&$walk, &$removed, $allowed, $drop): void {
+        foreach (iterator_to_array($node->childNodes) as $n) {
+            if ($n instanceof DOMText) {
+                continue;
+            }
+            if (!$n instanceof DOMElement) {
+                $node->removeChild($n);
+                $removed = true;
+                continue;
+            }
+            $tag = strtoupper($n->nodeName);
+            if (!isset($allowed[$tag])) {
+                $removed = true;
+                if (!isset($drop[$tag])) {
+                    $walk($n);
+                    while ($n->firstChild) {
+                        $node->insertBefore($n->firstChild, $n);
+                    }
+                }
+                $node->removeChild($n);
+                continue;
+            }
+            $href = $tag === 'A' ? trim($n->getAttribute('href')) : '';
+            $safeHref = preg_match('#^(https?:|mailto:)#i', $href) === 1;
+            foreach (iterator_to_array($n->attributes) as $attr) {
+                if (!($attr->nodeName === 'href' && $safeHref)) {
+                    $removed = true;
+                }
+                $n->removeAttribute($attr->nodeName);
+            }
+            if ($safeHref) {
+                $n->setAttribute('href', $href);
+            }
+            $walk($n);
+        }
+    };
+    $walk($root);
+    $out = '';
+    foreach ($root->childNodes as $child) {
+        $out .= $doc->saveHTML($child);
+    }
+    return $out;
+}
+
+/** IPv4 / IPv6 cím 16 bájton (az IPv4 ::ffff:a.b.c.d alakban), hogy egy BINARY(16) oszlopban sorba rendezhető legyen. */
+function vaIpBin(string $ip): ?string
+{
+    $bin = @inet_pton(trim($ip));
+    if ($bin === false) {
+        return null;
+    }
+    return strlen($bin) === 4 ? str_repeat("\0", 10) . "\xff\xff" . $bin : $bin;
+}
+
+/** Ország a helyi GeoIP-táblából (db-ip.com IP to Country Lite, geoip.php tölti be); az IP-t nem tárolja. */
+function vaCountryForIp(PDO $db, string $ip): string
+{
+    $bin = vaIpBin($ip);
+    if ($bin === null) {
+        return '';
+    }
+    try {
+        // hexként megy át, mert a nyers bájtok az utf8mb4 kapcsolaton hibát adhatnak
+        $hex = strtoupper(bin2hex($bin));
+        $st = $db->prepare('SELECT HEX(ip_to) AS ip_to, country FROM va_geoip WHERE ip_from <= UNHEX(?) ORDER BY ip_from DESC LIMIT 1');
+        $st->execute([$hex]);
+        $row = $st->fetch();
+    } catch (Throwable $e) {
+        return '';
+    }
+    return $row && strcmp((string) $row['ip_to'], $hex) >= 0 && preg_match('/^[A-Z]{2}$/', (string) $row['country']) ? (string) $row['country'] : '';
+}
+
+function vaSetting(PDO $db, string $key, ?string $value = null): string
+{
+    if ($value !== null) {
+        $db->prepare('INSERT INTO va_settings (k, v) VALUES (?, ?) ON DUPLICATE KEY UPDATE v = VALUES(v)')->execute([$key, $value]);
+        return $value;
+    }
+    $st = $db->prepare('SELECT v FROM va_settings WHERE k = ?');
+    $st->execute([$key]);
+    return (string) ($st->fetchColumn() ?: '');
+}
+
+/** Országkód → angol név (intl nélkül a kód marad). */
+function vaCountryName(string $cc): string
+{
+    if ($cc === '') {
+        return 'UNKNOWN';
+    }
+    $name = class_exists('Locale') ? (string) Locale::getDisplayRegion('-' . $cc, 'en') : '';
+    return $name !== '' && $name !== $cc ? $name : $cc;
+}
+
+/** Egy támogatási beszélgetés üzenetei (az $afterId utániak), az app és az admin oldal közös formájában. */
+function vaSupportMessages(PDO $db, int $threadId, int $afterId = 0): array
+{
+    $st = $db->prepare('SELECT id, sender, body, created_at FROM va_support_messages WHERE thread_id = ? AND id > ? ORDER BY id');
+    $st->execute([$threadId, $afterId]);
+    $rows = $st->fetchAll();
+    $files = [];
+    if ($rows) {
+        $ids = array_map(static fn($r) => (int) $r['id'], $rows);
+        $fs = $db->prepare('SELECT id, message_id, name, mime, size FROM va_support_files WHERE message_id IN ('
+            . implode(',', array_fill(0, count($ids), '?')) . ') ORDER BY id');
+        $fs->execute($ids);
+        foreach ($fs->fetchAll() as $f) {
+            $files[(int) $f['message_id']][] = ['id' => (int) $f['id'], 'name' => (string) $f['name'], 'size' => (int) $f['size'],
+                'image' => strpos((string) $f['mime'], 'image/') === 0];
+        }
+    }
+    return array_map(static fn(array $r): array => [
+        'id' => (int) $r['id'],
+        'from' => $r['sender'] === 'admin' ? 'admin' : 'user',
+        'text' => (string) $r['body'],
+        'at' => date('c', (int) strtotime((string) $r['created_at'])),
+        'files' => $files[(int) $r['id']] ?? [],
+    ], $rows);
+}
+
+const VA_SUPPORT_MAX_FILES = 3;
+const VA_SUPPORT_MAX_FILE_BYTES = 4 * 1024 * 1024;
+const VA_SUPPORT_IMAGE_EXT = ['png', 'jpg', 'jpeg', 'gif', 'webp'];
+const VA_SUPPORT_FILE_EXT = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'txt', 'log', 'md', 'asm', 's', 'inc', 'a65', 'ub', 'bas', 'json', 'csv',
+    'proj', 'prg', 'd64', 'd71', 'd81', 't64', 'crt', 'sid', 'bin', 'seq', 'koa', 'kla', 'zip', '7z'];
+
+/**
+ * Támogatási csatolmányok ellenőrzése: [[név, bájtok], …] → [[tiszta név, mime, bájtok], …], vagy hibakód
+ * ('files': túl sok / túl nagy, 'file_type': nem engedett kiterjesztés, vagy kép-kiterjesztés, ami nem kép).
+ * A képek mime-ja a tartalomból jön, minden más application/octet-stream (letöltésként adjuk ki, sosem futtatva).
+ */
+function vaSupportCheckFiles(array $files)
+{
+    if (count($files) > VA_SUPPORT_MAX_FILES || array_sum(array_map(static fn($f) => strlen($f[1]), $files)) > VA_SUPPORT_MAX_FILE_BYTES) {
+        return 'files';
+    }
+    $out = [];
+    foreach ($files as [$name, $bytes]) {
+        $name = trim(preg_replace('/[^\pL\pN ._()\-]+/u', '_', basename(str_replace('\\', '/', (string) $name))), ' .');
+        $name = mb_substr($name !== '' ? $name : 'file', 0, 150);
+        $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+        if ($bytes === '' || !in_array($ext, VA_SUPPORT_FILE_EXT, true)) {
+            return 'file_type';
+        }
+        $mime = 'application/octet-stream';
+        if (in_array($ext, VA_SUPPORT_IMAGE_EXT, true)) {
+            $info = @getimagesizefromstring($bytes);
+            if (!$info || !in_array($info['mime'] ?? '', ['image/png', 'image/jpeg', 'image/gif', 'image/webp'], true)) {
+                return 'file_type';
+            }
+            $mime = $info['mime'];
+        }
+        $out[] = [$name, $mime, $bytes];
+    }
+    return $out;
+}
+
+function vaSupportStoreFiles(PDO $db, int $messageId, array $files): void
+{
+    $ins = $db->prepare('INSERT INTO va_support_files (message_id, name, mime, size, data) VALUES (?, ?, ?, ?, ?)');
+    foreach ($files as [$name, $mime, $bytes]) {
+        $ins->bindValue(1, $messageId, PDO::PARAM_INT);
+        $ins->bindValue(2, $name);
+        $ins->bindValue(3, $mime);
+        $ins->bindValue(4, strlen($bytes), PDO::PARAM_INT);
+        $ins->bindValue(5, $bytes, PDO::PARAM_LOB);
+        $ins->execute();
+    }
+}
+
+/** Egy csatolmány letöltése / megjelenítése: a képek inline (nosniff), minden más letöltésként. */
+function vaSupportSendFile(array $f, bool $inline): void
+{
+    $image = strpos((string) $f['mime'], 'image/') === 0;
+    header('Content-Type: ' . ($image ? $f['mime'] : 'application/octet-stream'));
+    header('X-Content-Type-Options: nosniff');
+    header("Content-Security-Policy: default-src 'none'; sandbox");
+    header('Content-Disposition: ' . ($inline && $image ? 'inline' : 'attachment') . "; filename*=UTF-8''" . rawurlencode((string) $f['name']));
+    header('Content-Length: ' . strlen((string) $f['data']));
+    echo $f['data'];
+}
+
+/** Értesítő e-mail (hibája nem rontja el a hívót). */
+function vaNotifyMail(string $to, string $subject, string $body): void
+{
+    if ($to === '') {
+        return;
+    }
+    try {
+        $smtp = vaConfig()['smtp'];
+        vaSendSmtpMail($smtp['host'], (int) $smtp['port'], $smtp['encryption'], $smtp['user'], $smtp['pass'],
+            $smtp['from'], $smtp['from_name'] ?? '', $to, $subject, $body);
+    } catch (Throwable $e) {
+        error_log('VA notify mail error: ' . $e->getMessage());
     }
 }
 

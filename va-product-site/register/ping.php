@@ -5,7 +5,7 @@ declare(strict_types=1);
 // POST {"id", "version", "os", "lang"?, "launches"?, "minutes"?, "supporter"?}; minutes = aktív használati percek az előző
 // sikeres ping óta (a napi sorba a beérkezés napjára kerül), supporter = régi (2.5.6–2.5.9) serial a configban.
 // Az id egy véletlen telepítés-azonosító (32 hex) az app configjából;
-// e-mail és IP nem kerül tárolásra. Kimutatás: stats.php → USAGE.
+// e-mail és IP nem kerül tárolásra; az IP-ből csak az országkód (helyi GeoIP-tábla, geoip.php) marad meg. Kimutatás: stats.php → USAGE.
 define('VA_REGISTER', true);
 require __DIR__ . '/lib.php';
 
@@ -33,6 +33,7 @@ $minutes = max(0, min(60 * 24 * 60, (int) ($in['minutes'] ?? 0)));
 try {
     $db = vaDb();
     vaInstallsMigrate($db);
+    $country = vaCountryForIp($db, vaClientIp());
     $st = $db->prepare('INSERT IGNORE INTO va_install_days (day, id, version, os, launches, minutes) VALUES (CURDATE(), ?, ?, ?, ?, ?)');
     $st->execute([$id, $version, $os, $launches, $minutes]);
     $newDay = $st->rowCount() === 1 ? 1 : 0;
@@ -40,10 +41,11 @@ try {
         $db->prepare('UPDATE va_install_days SET version = ?, os = ?, launches = launches + ?, minutes = minutes + ? WHERE day = CURDATE() AND id = ?')
             ->execute([$version, $os, $launches, $minutes, $id]);
     }
-    $db->prepare("INSERT INTO va_installs (id, version, os, lang, launches, days, minutes, supporter, first_at, last_at) VALUES (?, ?, ?, ?, ?, 1, ?, ?, NOW(), NOW())
+    $db->prepare("INSERT INTO va_installs (id, version, os, lang, launches, days, minutes, supporter, country, first_at, last_at) VALUES (?, ?, ?, ?, ?, 1, ?, ?, ?, NOW(), NOW())
         ON DUPLICATE KEY UPDATE version = VALUES(version), os = VALUES(os), lang = IF(VALUES(lang) = '', lang, VALUES(lang)),
-        launches = launches + VALUES(launches), days = days + ?, minutes = minutes + VALUES(minutes), supporter = VALUES(supporter), last_at = NOW()")
-        ->execute([$id, $version, $os, $lang, $launches, $minutes, $supporter, $newDay]);
+        launches = launches + VALUES(launches), days = days + ?, minutes = minutes + VALUES(minutes), supporter = VALUES(supporter),
+        country = IF(VALUES(country) = '', country, VALUES(country)), last_at = NOW()")
+        ->execute([$id, $version, $os, $lang, $launches, $minutes, $supporter, $country, $newDay]);
     echo json_encode(['ok' => true]);
 } catch (Throwable $e) {
     error_log('VA ping error: ' . $e->getMessage());

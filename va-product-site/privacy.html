@@ -81,6 +81,13 @@
         language, the time, the IP address and the browser of the request, so the serial can be sent again. Legal basis: your request
         (Art. 6(1)(b) GDPR). From version 2.6.0 no serial is needed; you can ask for this data to be deleted.</p>
 
+      <h3>Support chat in the app</h3>
+      <p>When you write to us in the app (Menu → Support), we store your messages and the files you attach, your name, the optional email address, the app version,
+        operating system, UI language, the country looked up from your IP address in our local database and the app's random install ID
+        that links the conversation. The IP address is kept for at most one day, only to limit abuse. The messages are used only to answer
+        you; replies may also be sent to the email address you gave. Legal basis: your request (Art. 6(1)(b) GDPR). You can ask for the
+        conversation to be deleted at any time.</p>
+
       <h3>Bug reports from the app</h3>
       <p>When you send a bug report from the app (Menu → Report Bug), we store what you entered (summary, description, optional
         email address, screenshots), the system information you chose to include (app version, operating system, language, screen size,
@@ -92,10 +99,12 @@
       <p>At most once a day, at startup, the app sends: a random install ID (created on your computer, stored in the app's
         <code>config.json</code> as <code>launchPing</code>), the app version, the operating system, the UI language, the number of
         launches and the active minutes since the last ping (a minute counts while the window is visible and there was mouse or keyboard
-        input in the last 5 minutes), and whether a serial from versions 2.5.6–2.5.9 is still stored (only yes / no). The IP address is
-        not stored, no email address, serial, project or source code is sent. The app also asks the website for short messages (for
+        input in the last 5 minutes), and whether a serial from versions 2.5.6–2.5.9 is still stored (only yes / no). From the IP address
+        of the request the country is looked up in a local database on our own server (IP to Country Lite by DB-IP) and only the two-letter
+        country code is stored; the IP address itself is not stored and not sent anywhere. No email address, serial, project or source code is sent. The app also asks the website for short messages (for
         example about a new version, sometimes only for supporters), sending the version, operating system, language, the same yes / no
-        and the same install ID, so we can count how many installs received a message.</p>
+        and the same install ID, so we can count how many installs received a message; this request also updates the time the install
+        was last seen.</p>
       <p>Legal basis: legitimate interest in knowing how many people use which version and platform (Art. 6(1)(f) GDPR). To object,
         block the app's network access to <code>c64va.pro</code> or contact us with your install ID, and we delete its records.</p>
 
@@ -148,6 +157,13 @@
         a nyelvet, az igénylés idejét, IP-címét és böngészőjét, hogy a sorozatszámot újra elküldhessük. Jogalap: a kérésed (GDPR 6. cikk
         (1) b)). A 2.6.0 óta nincs szükség sorozatszámra; kérheted ezeknek az adatoknak a törlését.</p>
 
+      <h3>Támogatási csevegés az alkalmazásban</h3>
+      <p>Ha az alkalmazásból írsz nekünk (Menü → Támogatás), tároljuk az üzeneteidet és a csatolt fájlokat, a nevedet, az opcionális e-mail címet, az appverziót,
+        az operációs rendszert, a felület nyelvét, az IP-címedből a helyi adatbázisban kikeresett országot és az alkalmazás véletlen
+        telepítés-azonosítóját, amely a beszélgetést összeköti. Az IP-címet legfeljebb egy napig őrizzük, kizárólag a visszaélések
+        korlátozására. Az üzeneteket csak a válaszadásra használjuk; a választ a megadott e-mail címre is elküldhetjük. Jogalap: a kérésed
+        (GDPR 6. cikk (1) b)). A beszélgetés törlését bármikor kérheted.</p>
+
       <h3>Hibabejelentés az alkalmazásból</h3>
       <p>Ha az alkalmazásból hibát jelentesz (Menü → Hibabejelentés), tároljuk, amit megadtál (összefoglaló, leírás, opcionális e-mail cím,
         képernyőképek), a csatolni választott rendszerinformációt (appverzió, operációs rendszer, nyelv, képernyőméret, az utóbbi
@@ -158,10 +174,12 @@
       <p>Az alkalmazás naponta legfeljebb egyszer, induláskor elküldi: egy véletlen telepítés-azonosítót (a gépeden jön létre, az alkalmazás
         <code>config.json</code> fájljában <code>launchPing</code> néven), az appverziót, az operációs rendszert, a felület nyelvét és az előző
         jelzés óta történt indítások számát és aktív használati perceit (egy perc akkor számít, ha az ablak látható, és az utolsó 5 percben volt
-        egér- vagy billentyűhasználat), valamint azt, hogy van-e még 2.5.6–2.5.9 közötti sorozatszám elmentve (csak igen / nem). Az IP-címet
-        nem tároljuk, e-mail címet, sorozatszámot, projektet vagy forráskódot nem küld. Az alkalmazás rövid üzeneteket is lekér a weboldalról
+        egér- vagy billentyűhasználat), valamint azt, hogy van-e még 2.5.6–2.5.9 közötti sorozatszám elmentve (csak igen / nem). A kérés IP-címéből
+        a saját szerverünkön lévő helyi adatbázisban (DB-IP IP to Country Lite) kikeressük az országot, és csak a kétbetűs országkódot
+        tároljuk; magát az IP-címet nem tároljuk és senkinek nem adjuk át. E-mail címet, sorozatszámot, projektet vagy forráskódot nem küld. Az alkalmazás rövid üzeneteket is lekér a weboldalról
         (például új verzióról, néha csak a támogatóknak); ehhez a verziót, az operációs rendszert, a nyelvet, ugyanezt az igen / nem jelzőt
-        és ugyanezt az azonosítót küldi, hogy lássuk, hány telepítéshez jutott el egy üzenet.</p>
+        és ugyanezt az azonosítót küldi, hogy lássuk, hány telepítéshez jutott el egy üzenet; ez a kérés a telepítés utolsó jelentkezésének
+        idejét is frissíti.</p>
       <p>Jogalap: jogos érdek, hogy tudjuk, hányan használják az egyes verziókat és platformokat (GDPR 6. cikk (1) f)). Ha tiltakozol, tiltsd le
         az alkalmazás hálózati hozzáférését a <code>c64va.pro</code> felé, vagy írj nekünk a telepítés-azonosítóddal, és töröljük az adatait.</p>
 

@@ -104,6 +104,50 @@ $topInstalls = $all('SELECT i.*, COALESCE(t.d30, 0) AS d30, COALESCE(t.l30, 0) A
     LEFT JOIN (SELECT id, COUNT(*) AS d30, SUM(launches) AS l30, SUM(minutes) AS m30 FROM va_install_days WHERE day > CURDATE() - INTERVAL 30 DAY GROUP BY id) t ON t.id = i.id
     ORDER BY m30 DESC, d30 DESC, i.last_at DESC LIMIT 50');
 $hm = static fn(int $m): string => intdiv($m, 60) . ':' . str_pad((string) ($m % 60), 2, '0', STR_PAD_LEFT);
+// diagramok: az utolsó 30 nap (ma is), a hiányzó napok 0-val
+$chartDays = [];
+for ($i = 29; $i >= 0; $i--) {
+    $chartDays[] = date('Y-m-d', strtotime("-$i day"));
+}
+$byDay = static function (array $rows, string $key = 'day'): array {
+    $out = [];
+    foreach ($rows as $r) {
+        $out[(string) $r[$key]] = $r;
+    }
+    return $out;
+};
+$useByDay = $byDay($useDays);
+$dlByDay = $byDay($dlDays);
+$newByDay = $byDay($all('SELECT DATE(first_at) AS day, COUNT(*) AS n FROM va_installs WHERE first_at > CURDATE() - INTERVAL 30 DAY GROUP BY DATE(first_at)'));
+$series = static function (callable $point) use ($chartDays): array {
+    return array_map($point, $chartDays);
+};
+$chartActive = $series(static function ($d) use ($useByDay, $hm) {
+    $r = $useByDay[$d] ?? ['n' => 0, 'l' => 0, 'm' => 0];
+    return ['label' => $d, 'value' => (int) $r['n'], 'tip' => "$d: " . (int) $r['n'] . ' INSTALLS, ' . (int) $r['l'] . ' LAUNCHES, ' . $hm((int) $r['m']) . ' USE'];
+});
+$chartUse = $series(static function ($d) use ($useByDay, $hm) {
+    $m = (int) ($useByDay[$d]['m'] ?? 0);
+    return ['label' => $d, 'value' => $m, 'tip' => "$d: " . $hm($m) . ' ACTIVE USE (REPORTED THAT DAY)'];
+});
+$chartDl = $series(static function ($d) use ($dlByDay) {
+    $n = (int) ($dlByDay[$d]['n'] ?? 0);
+    return ['label' => $d, 'value' => $n, 'tip' => "$d: $n DOWNLOADS"];
+});
+$chartNew = $series(static function ($d) use ($newByDay) {
+    $n = (int) ($newByDay[$d]['n'] ?? 0);
+    return ['label' => $d, 'value' => $n, 'tip' => "$d: $n NEW INSTALLS"];
+});
+// országok (helyi GeoIP, ping.php): aktív (30 nap) és összes telepítés, támogatók, használati idő
+$countries = $all("SELECT i.country AS k, SUM(i.last_at > NOW() - INTERVAL 30 DAY) AS active, COUNT(*) AS total,
+        SUM(i.supporter = 1 AND i.last_at > NOW() - INTERVAL 30 DAY) AS sup, COALESCE(SUM(t.m30), 0) AS m
+    FROM va_installs i
+    LEFT JOIN (SELECT id, SUM(minutes) AS m30 FROM va_install_days WHERE day > CURDATE() - INTERVAL 30 DAY GROUP BY id) t ON t.id = i.id
+    GROUP BY i.country ORDER BY active DESC, total DESC");
+$maxCountry = max(1, ...array_map(static fn($r) => (int) $r['active'], $countries ?: [['active' => 1]]));
+$geoRows = (int) ($one('SELECT COUNT(*) FROM va_geoip') ?: 0);
+$top10 = array_values(array_filter(array_slice($topInstalls, 0, 10), static fn($r) => (int) $r['m30'] > 0));
+$maxTop = max(1, ...array_map(static fn($r) => (int) $r['m30'], $top10 ?: [['m30' => 1]]));
 $rateIps = (int) $one('SELECT COUNT(DISTINCT ip) FROM va_register_attempts WHERE created_at > NOW() - INTERVAL 1 HOUR');
 $notActivated = (int) $one('SELECT COUNT(*) FROM va_serial_requests s LEFT JOIN va_activations a ON a.email = s.email WHERE s.mailed_at IS NOT NULL AND a.email IS NULL');
 
@@ -159,6 +203,7 @@ ob_start(); ?>
     <div class="sec-s">// ADMIN</div>
     <h1 class="sec-t">VISUAL ASSEMBLER <span>STATS</span></h1>
     <?php if ($flash): ?><div class="flash <?= $h($flash[0]) ?>"><?= $h($flash[1]) ?></div><?php endif; ?>
+    <?php if ($supportUnread = vaSupportUnread()): ?><div class="flash err"><a href="inbox.php" style="color:inherit"><?= $supportUnread ?> SUPPORT CONVERSATION<?= $supportUnread > 1 ? 'S' : '' ?> WITH NEW MESSAGES -></a></div><?php endif; ?>
 
     <div class="tiles">
         <div class="tile"><b><?= $dlTotal ?></b><span>DOWNLOADS / LAST 30 DAYS: <?= $dl30 ?></span></div>
@@ -188,7 +233,8 @@ ob_start(); ?>
     </div>
 
     <div class="sec-s" id="usage" style="margin-top:28px">// USAGE</div>
-    <p class="hint" style="margin:0 0 14px">ANONYMOUS: EVERY INSTALL (APPS FROM 2.6.0) SENDS ONE PING A DAY WITH A RANDOM ID, VERSION, OS, UI LANGUAGE, NUMBER OF LAUNCHES, ACTIVE MINUTES (WINDOW VISIBLE, INPUT IN THE LAST 5 MINUTES) AND WHETHER A 2.5.6–2.5.9 SERIAL IS STORED (SUP = SUPPORTER). NO EMAIL, NO IP. USE TIME ARRIVES WITH THE NEXT DAY'S PING.</p>
+    <p class="hint" style="margin:0 0 14px">ANONYMOUS: EVERY INSTALL (APPS FROM 2.6.0) SENDS ONE PING A DAY WITH A RANDOM ID, VERSION, OS, UI LANGUAGE, NUMBER OF LAUNCHES, ACTIVE MINUTES (WINDOW VISIBLE, INPUT IN THE LAST 5 MINUTES) AND WHETHER A 2.5.6-2.5.9 SERIAL IS STORED (SUP = SUPPORTER). NO EMAIL, NO IP (THE COUNTRY IS LOOKED UP IN THE LOCAL GEOIP TABLE, ONLY THE CODE IS KEPT). USE TIME ARRIVES WITH THE NEXT DAY'S PING; LAST SEEN UPDATES AT EVERY START.<br>
+        <a href="https://db-ip.com" target="_blank" rel="noopener">IP GEOLOCATION BY DB-IP</a></p>
     <div class="tiles">
         <div class="tile"><b><?= $dau ?></b><span>ACTIVE TODAY</span></div>
         <div class="tile"><b><?= $wau ?></b><span>ACTIVE / 7 DAYS (RETURNING: <?= $returning7 ?>)</span></div>
@@ -197,6 +243,28 @@ ob_start(); ?>
         <div class="tile"><b><?= $launches30 ?></b><span>LAUNCHES / 30 DAYS (<?= $mau ? round($launches30 / $mau, 1) : 0 ?> PER INSTALL)</span></div>
         <div class="tile"><b><?= round($min30 / 60) ?> H</b><span>ACTIVE USE / 30 DAYS (<?= $mau ? $hm(intdiv($min30, $mau)) : '0:00' ?> PER INSTALL, ALL TIME <?= round($minAll / 60) ?> H)</span></div>
         <div class="tile"><b><?= $sup30 ?></b><span>SUPPORTERS ACTIVE / 30 DAYS (<?= $pct($sup30, $mau) ?>)</span></div>
+    </div>
+    <div class="grid">
+        <div class="box"><div class="box-t">ACTIVE INSTALLS PER DAY</div><?= vaColumnChart($chartActive, static fn($v) => (string) (int) $v) ?></div>
+        <div class="box"><div class="box-t">ACTIVE USE PER DAY (H:MM)</div><?= vaColumnChart($chartUse, static fn($v) => $hm((int) $v)) ?></div>
+        <div class="box"><div class="box-t">NEW INSTALLS PER DAY</div><?= vaColumnChart($chartNew, static fn($v) => (string) (int) $v) ?></div>
+        <div class="box"><div class="box-t">DOWNLOADS PER DAY</div><?= vaColumnChart($chartDl, static fn($v) => (string) (int) $v) ?></div>
+    </div>
+    <div class="grid">
+        <div class="box"><div class="box-t">COUNTRIES</div>
+            <?php if ($countries): ?><table class="wide">
+                <tr><th>COUNTRY</th><th>ACTIVE 30D</th><th>ALL</th><th>SUP</th><th>USE 30D</th></tr>
+                <?php foreach ($countries as $r): ?><tr><td><?= $h($r['k'] !== '' ? $r['k'] . ' ' . vaCountryName($r['k']) : 'UNKNOWN') ?><span class="bar" style="width:<?= round((int) $r['active'] * 90 / $maxCountry) ?>px"></span></td>
+                    <td class="n"><?= (int) $r['active'] ?></td><td class="n"><?= (int) $r['total'] ?></td><td class="n"><?= (int) $r['sup'] ?></td><td class="n"><?= $hm((int) $r['m']) ?></td></tr><?php endforeach; ?>
+            </table><?php else: ?><p class="no">NO DATA YET.</p><?php endif; ?>
+            <?php if (!$geoRows): ?><p class="hint">NO GEOIP DATA: LOAD IT ON THE <a href="geoip.php">GEOIP</a> PAGE.</p><?php endif; ?>
+        </div>
+        <div class="box"><div class="box-t">TOP 10 BY ACTIVE USE / 30 DAYS</div>
+            <?php if ($top10): ?><table class="wide">
+                <?php foreach ($top10 as $r): ?><tr><td class="id"><?= $h(substr($r['id'], 0, 8)) ?> <?= $h($r['country'] ?: '--') ?><?= $r['supporter'] ? ' <span class="yes">SUP</span>' : '' ?><span class="bar" style="width:<?= round((int) $r['m30'] * 110 / $maxTop) ?>px"></span></td>
+                    <td class="n"><?= $hm((int) $r['m30']) ?></td></tr><?php endforeach; ?>
+            </table><?php else: ?><p class="no">NO DATA YET.</p><?php endif; ?>
+        </div>
     </div>
     <div class="grid">
         <div class="box"><div class="box-t">ACTIVE INSTALLS PER DAY / 30 DAYS</div><table>
@@ -227,16 +295,16 @@ ob_start(); ?>
     </div>
     <div class="box" style="margin-bottom:18px"><div class="box-t">MOST ACTIVE INSTALLS / 30 DAYS</div>
         <?php if ($topInstalls): ?><table class="wide">
-            <tr><th>INSTALL</th><th>USE 30D</th><th>DAYS 30D</th><th>LAUNCHES 30D</th><th>USE ALL</th><th>DAYS ALL</th><th>LAUNCHES ALL</th><th>FIRST SEEN</th><th>LAST SEEN</th><th>VERSION / OS / LANG</th></tr>
+            <tr><th>INSTALL</th><th>USE 30D</th><th>DAYS 30D</th><th>LAUNCHES 30D</th><th>USE ALL</th><th>DAYS ALL</th><th>LAUNCHES ALL</th><th>FIRST SEEN</th><th>LAST SEEN</th><th>COUNTRY</th><th>VERSION / OS / LANG</th></tr>
             <?php foreach ($topInstalls as $r): ?><tr><td class="id" title="<?= $h($r['id']) ?>"><?= $h(substr($r['id'], 0, 8)) ?><?= $r['supporter'] ? ' <span class="yes">SUP</span>' : '' ?></td>
                 <td class="n"><?= $hm((int) $r['m30']) ?></td><td class="n"><?= (int) $r['d30'] ?></td><td class="n"><?= (int) $r['l30'] ?></td><td class="n"><?= $hm((int) $r['minutes']) ?></td><td class="n"><?= (int) $r['days'] ?></td><td class="n"><?= (int) $r['launches'] ?></td>
-                <td><?= $h(substr($r['first_at'], 0, 10)) ?></td><td><?= $h(substr($r['last_at'], 0, 16)) ?></td>
+                <td><?= $h(substr($r['first_at'], 0, 10)) ?></td><td><?= $h(substr($r['last_at'], 0, 16)) ?></td><td><?= $h($r['country'] ?: '--') ?></td>
                 <td><?= $h(trim($r['version'] . ' / ' . $r['os'] . ' / ' . strtoupper($r['lang']), ' /')) ?></td></tr><?php endforeach; ?>
         </table><?php else: ?><p class="no">NO DATA YET.</p><?php endif; ?>
     </div>
 
-    <div class="box" id="manage" style="margin-bottom:18px">
-        <div class="box-t">MANAGE</div>
+    <details class="box" id="manage" data-keep="manage" style="margin-bottom:18px" open>
+        <summary class="box-t">MANAGE</summary>
         <form method="get" class="row" action="stats.php#manage">
             <input type="search" name="q" value="<?= $h($q) ?>" placeholder="SEARCH EMAIL (PARTIAL OK)">
             <button class="btn" type="submit">SEARCH</button>
@@ -260,7 +328,7 @@ ob_start(); ?>
             <span class="hint" style="margin:0">IPS WITH FAILED ATTEMPTS IN THE LAST HOUR: <?= $rateIps ?></span>
         </form>
         <?php if ($q !== ''): ?><div style="margin-top:18px"><?= $emailTable($found) ?></div><?php endif; ?>
-    </div>
+    </details>
 
     <details class="box" data-keep="recent-serials" open><summary class="box-t">LAST 50 SERIALS SENT</summary><?= $emailTable($recent) ?></details>
 <?php vaAdminPage('STATS', (string) ob_get_clean());

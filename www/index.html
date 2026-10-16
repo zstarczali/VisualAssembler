@@ -199,6 +199,7 @@
                 <button id="knowledge-base-btn" class="secondary" type="button">Knowledge Base</button>
                 <button id="check-update-btn" class="secondary" type="button">Check for Update</button>
                 <button id="report-bug-btn" class="secondary" type="button">Report Bug</button>
+                <button id="support-btn" class="secondary" type="button">Support</button>
               </section>
             </div>
           </details>
@@ -1037,6 +1038,39 @@ PRINTABLE CHARACTERS
         <button id="bug-send" class="primary" type="button">Send report</button>
       </div>
       <input id="bug-files" type="file" accept="image/*" multiple hidden>
+    </div>
+  </dialog>
+
+  <dialog id="support-dialog" class="support-dialog" aria-labelledby="support-title">
+    <div class="support-card">
+      <div class="support-hdr">
+        <span id="support-title" class="support-title">Support</span>
+        <button id="support-sound" class="support-sound" type="button" aria-label="Sound" aria-pressed="true">
+          <svg class="support-sound-on" viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 6h2.5l3.5-3v10l-3.5-3h-2.5z"/><path d="M11 5.5a3.5 3.5 0 0 1 0 5M12.8 3.8a6 6 0 0 1 0 8.4"/></svg>
+          <svg class="support-sound-off" viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 6h2.5l3.5-3v10l-3.5-3h-2.5z"/><path d="M11 6l4 4M15 6l-4 4"/></svg>
+        </button>
+        <button id="support-x" class="support-xbtn" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="support-body">
+      <p id="support-intro" class="support-intro"></p>
+      <div id="support-thread" class="support-thread" aria-live="polite"></div>
+      <label class="form-field"><span id="support-text-label">Message</span>
+        <textarea id="support-text" class="support-text" rows="4" maxlength="4000" spellcheck="true"></textarea></label>
+      <div class="support-attach-row">
+        <div id="support-files" class="support-files"></div>
+        <button id="support-attach" class="secondary support-attach" type="button">Attach file…</button>
+      </div>
+      <input id="support-file-input" type="file" multiple hidden>
+      <label class="form-field"><span id="support-name-label">Name</span>
+        <input id="support-name" type="text" maxlength="100" autocomplete="name" spellcheck="false"></label>
+      <label class="form-field"><span id="support-email-label">Email (optional)</span>
+        <input id="support-email" type="email" autocomplete="email" spellcheck="false"></label>
+      <p id="support-status" class="form-status" role="status"></p>
+      <div class="app-confirm-buttons">
+        <button id="support-close" class="secondary" type="button">Close</button>
+        <button id="support-send" class="primary" type="button">Send</button>
+      </div>
+      </div>
     </div>
   </dialog>
 

@@ -639,6 +639,10 @@ If you like the program, you can support its development with a donation on c64v
 - **Include system info and recent errors** (on by default) adds the app version, the operating system, the language, the theme, the editor and run mode, the screen size, the number of blocks and the last app errors. **What is sent?** shows the data. Your source code is not sent.
 - **Send report** confirms with the report number. **Send by email** opens your mail program instead.
 
+### Support
+
+**Menu → Support** opens a chat with the developer: write a question, an idea or a problem and press **Send** (or **Ctrl+Enter**). You can attach up to 3 files (4 MB in total): images, source files (`.asm`, `.ub`, `.txt` …), C64 files (`.prg`, `.d64`, `.sid`, `.crt` …) or a `.zip` — with **Attach file…**, by pasting (**Ctrl+V**) or by dragging them onto the window. The reply appears in the same window, also with files: images show as previews, a click saves a file. The window is not modal: drag it by its header, resize it from its lower right corner, and keep working while it is open. The app checks for replies at startup and every minute; a new reply plays a short beep (the speaker button in the window's header mutes it), flashes the taskbar icon when the app is in the background, shows a red dot on the **Menu** button and opens the window once. An email address is optional: if you give one, the reply also arrives by email. The conversation is tied to the app's random install ID, so there is no account and no password.
+
 ### Workspaces
 
 A **workspace** (`.vaws` file) remembers which real, on-disk files were open across every tab — including each tab's editor mode and which tab was active — so you can reopen that exact set later. It is separate from a `.proj` project: a workspace can span any mix of Block/Expert `.json` project files, standalone `.asm` files, and Ultimate Basic `.ub`/`.proj` sources across multiple tabs.

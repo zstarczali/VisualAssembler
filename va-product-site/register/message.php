@@ -33,6 +33,11 @@ try {
         echo $img['image'];
         exit;
     }
+    // az app minden indításkor kérdez: a LAST SEEN így indításonként frissül (a napi ping csak naponta egyszer jön);
+    // új sort nem hoz létre, azt a ping.php teszi
+    if (preg_match('/^[0-9a-f]{32}$/', $installId)) {
+        $db->prepare('UPDATE va_installs SET last_at = NOW() WHERE id = ?')->execute([$installId]);
+    }
     // az időablakot PHP-ban nézi, ugyanabban az időzónában, ahogy a messages.php elmentette
     $rows = $db->query('SELECT id, rev, audience, level, caption_en, caption_hu, title_en, body_en, title_hu, body_hu, url, image IS NOT NULL AS has_image,
         min_version, max_version, os, starts_at, ends_at FROM va_messages WHERE active = 1 ORDER BY id DESC')->fetchAll();
@@ -68,7 +73,7 @@ try {
         'id' => 'm' . $msg['id'] . ((int) $msg['rev'] > 0 ? '-' . (int) $msg['rev'] : ''),
         'caption' => $useHu && $msg['caption_hu'] !== '' ? $msg['caption_hu'] : $msg['caption_en'],
         'title' => $useHu ? $msg['title_hu'] : $msg['title_en'],
-        'body' => $useHu ? $msg['body_hu'] : $msg['body_en'],
+        'body' => vaCleanMessageHtml($useHu ? $msg['body_hu'] : $msg['body_en']),
         'url' => $msg['url'],
         'level' => $msg['level'],
         'image' => $msg['has_image'] ? 'https://www.c64va.pro/register/message.php?image=' . $msg['id'] : '',

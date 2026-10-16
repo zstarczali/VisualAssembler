@@ -481,6 +481,10 @@ A **Menu → Hiba bejelentése** egy űrlapot nyit, amely a bejelentést közvet
 - A **Rendszerinfó és a legutóbbi hibák csatolása** (alapból bekapcsolva) elküldi az app verzióját, az operációs rendszert, a nyelvet, a témát, a szerkesztő- és futtatási módot, a képernyőméretet, a blokkok számát és a legutóbbi app-hibákat. A **Mi kerül elküldésre?** megmutatja az adatokat. A forráskódod nem kerül elküldésre.
 - A **Bejelentés küldése** a bejelentés számával nyugtáz. A **Küldés e-mailben** helyette a levelezőprogramot nyitja meg.
 
+### Támogatás
+
+A **Menü → Támogatás** egy csevegőablakot nyit a fejlesztővel: írd be a kérdést, ötletet vagy problémát, majd kattints a **Küldés** gombra (vagy nyomd meg a **Ctrl+Enter**-t). Legfeljebb 3 fájlt csatolhatsz (összesen 4 MB): képet, forrásfájlt (`.asm`, `.ub`, `.txt` …), C64-fájlt (`.prg`, `.d64`, `.sid`, `.crt` …) vagy `.zip`-et — a **Fájl csatolása…** gombbal, beillesztéssel (**Ctrl+V**) vagy az ablakra húzva. A válasz ugyanebben az ablakban jelenik meg, akár fájlokkal együtt: a képek előnézetként látszanak, egy fájlra kattintva elmented. Az ablak nem modális: a fejlécénél fogva mozgatható, a jobb alsó sarkánál átméretezhető, és közben tovább dolgozhatsz. Az alkalmazás indításkor és utána percenként ellenőrzi, érkezett-e válasz; új válasznál rövid hangjelzés szól (az ablak fejlécében lévő hangszóró gombbal némítható), a tálcaikon villog, ha az alkalmazás a háttérben van, piros pötty jelenik meg a **Menü** gombon, és az ablak egyszer magától megnyílik. Az e-mail cím nem kötelező: ha megadod, a választ e-mailben is megkapod. A beszélgetés az alkalmazás véletlen telepítés-azonosítójához kötődik, így nincs fiók és jelszó.
+
 ### Munkaterületek
 
 Egy **munkaterület** (`.vaws` fájl) megjegyzi, mely valós, lemezen lévő fájlok voltak nyitva az egyes füleken — beleértve minden fül szerkesztőmódját és azt, hogy melyik fül volt aktív —, így később újranyithatod pontosan ezt a készletet. Ez elkülönül a `.proj` projekttől: egy munkaterület átfoghatja a Block/Expert `.json` projektfájlok, önálló `.asm` fájlok és Ultimate Basic `.ub`/`.proj` források tetszőleges keverékét több fülön keresztül.

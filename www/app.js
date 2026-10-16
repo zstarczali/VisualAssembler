@@ -81,50 +81,50 @@ const CUSTOMER_MESSAGE = {
   url: "https://www.c64va.pro/docs.html",
   hu: {
     eyebrow: "Újdonság a 2.6.0-ban",
-    title: "A Visual Assembler ingyenes lett",
-    body: `<p>A Freemium / Professional licencelés megszűnt: minden szerkesztő, build és hardveres futtatás, mind a 7 nyelv és minden téma mindenkinek elérhető, regisztráció és sorozatszám nélkül.</p><p>Az ok egyszerű: a magyar adószabályok mellett az eladásból az adók és az adminisztráció után túl kevés maradna ahhoz, hogy megérje pénzért adni. A már meglévő sorozatszámra nincs többé szükség.</p>`,
+    title: "Üdvözöl a Visual Assembler",
+    body: `<p><strong>A Visual Assembler ingyenes lett.</strong></p><p>A Freemium / Professional licencelés megszűnt: minden szerkesztő, build és hardveres futtatás, mind a 7 nyelv és minden téma mindenkinek elérhető, regisztráció és sorozatszám nélkül.</p><p>Az ok egyszerű: a magyar adószabályok mellett az eladásból az adók és az adminisztráció után túl kevés maradna ahhoz, hogy megérje pénzért adni. A már meglévő sorozatszámra nincs többé szükség.</p>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
     eyebrow: "New in 2.6.0",
-    title: "Visual Assembler is now free",
-    body: `<p>The Freemium / Professional licensing has been removed: every editor, build and hardware run option, all 7 languages and every theme are available to everyone, without registration or a serial.</p><p>The reason is simple: under Hungarian tax rules, selling the program would leave too little after taxes and paperwork to be worth it. Serials you already have are simply no longer needed.</p>`,
+    title: "Welcome to Visual Assembler",
+    body: `<p><strong>Visual Assembler is now free.</strong></p><p>The Freemium / Professional licensing has been removed: every editor, build and hardware run option, all 7 languages and every theme are available to everyone, without registration or a serial.</p><p>The reason is simple: under Hungarian tax rules, selling the program would leave too little after taxes and paperwork to be worth it. Serials you already have are simply no longer needed.</p>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
     eyebrow: "Novedad en la 2.6.0",
-    title: "Visual Assembler ahora es gratis",
-    body: `<p>Se ha eliminado la licencia Freemium / Professional: todos los editores, las compilaciones y la ejecución en hardware, los 7 idiomas y todos los temas están disponibles para todos, sin registro ni número de serie.</p><p>El motivo es sencillo: con la normativa fiscal húngara, venderlo dejaría demasiado poco después de impuestos y trámites como para que valga la pena. Si ya tienes un número de serie, simplemente ya no lo necesitas.</p>`,
+    title: "Bienvenido a Visual Assembler",
+    body: `<p><strong>Visual Assembler ahora es gratis.</strong></p><p>Se ha eliminado la licencia Freemium / Professional: todos los editores, las compilaciones y la ejecución en hardware, los 7 idiomas y todos los temas están disponibles para todos, sin registro ni número de serie.</p><p>El motivo es sencillo: con la normativa fiscal húngara, venderlo dejaría demasiado poco después de impuestos y trámites como para que valga la pena. Si ya tienes un número de serie, simplemente ya no lo necesitas.</p>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
     eyebrow: "Neu in 2.6.0",
-    title: "Visual Assembler ist jetzt kostenlos",
-    body: `<p>Die Freemium-/Professional-Lizenzierung entfällt: alle Editoren, Builds und Hardware-Ausführungen, alle 7 Sprachen und alle Themes stehen allen zur Verfügung, ohne Registrierung oder Seriennummer.</p><p>Der Grund ist einfach: Nach ungarischem Steuerrecht bliebe vom Verkauf nach Steuern und Verwaltungsaufwand zu wenig übrig, als dass es sich lohnen würde. Vorhandene Seriennummern werden einfach nicht mehr benötigt.</p>`,
+    title: "Willkommen bei Visual Assembler",
+    body: `<p><strong>Visual Assembler ist jetzt kostenlos.</strong></p><p>Die Freemium-/Professional-Lizenzierung entfällt: alle Editoren, Builds und Hardware-Ausführungen, alle 7 Sprachen und alle Themes stehen allen zur Verfügung, ohne Registrierung oder Seriennummer.</p><p>Der Grund ist einfach: Nach ungarischem Steuerrecht bliebe vom Verkauf nach Steuern und Verwaltungsaufwand zu wenig übrig, als dass es sich lohnen würde. Vorhandene Seriennummern werden einfach nicht mehr benötigt.</p>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
     eyebrow: "Nieuw in 2.6.0",
-    title: "Visual Assembler is nu gratis",
-    body: `<p>De Freemium/Professional-licentie is verdwenen: alle editors, builds en uitvoering op hardware, alle 7 talen en alle thema's zijn voor iedereen beschikbaar, zonder registratie of serienummer.</p><p>De reden is eenvoudig: onder de Hongaarse belastingregels zou er na belastingen en administratie te weinig van de verkoop overblijven om het de moeite waard te maken. Een serienummer dat je al hebt, is gewoon niet meer nodig.</p>`,
+    title: "Welkom bij Visual Assembler",
+    body: `<p><strong>Visual Assembler is nu gratis.</strong></p><p>De Freemium/Professional-licentie is verdwenen: alle editors, builds en uitvoering op hardware, alle 7 talen en alle thema's zijn voor iedereen beschikbaar, zonder registratie of serienummer.</p><p>De reden is eenvoudig: onder de Hongaarse belastingregels zou er na belastingen en administratie te weinig van de verkoop overblijven om het de moeite waard te maken. Een serienummer dat je al hebt, is gewoon niet meer nodig.</p>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
     eyebrow: "Nowość w 2.6.0",
-    title: "Visual Assembler jest teraz darmowy",
-    body: `<p>Licencjonowanie Freemium / Professional zostało usunięte: wszystkie edytory, kompilacje i uruchamianie na sprzęcie, wszystkie 7 języków i wszystkie motywy są dostępne dla każdego, bez rejestracji i numeru seryjnego.</p><p>Powód jest prosty: przy węgierskich przepisach podatkowych ze sprzedaży po podatkach i formalnościach zostałoby zbyt mało, żeby to się opłacało. Posiadany numer seryjny po prostu nie jest już potrzebny.</p>`,
+    title: "Witamy w Visual Assembler",
+    body: `<p><strong>Visual Assembler jest teraz darmowy.</strong></p><p>Licencjonowanie Freemium / Professional zostało usunięte: wszystkie edytory, kompilacje i uruchamianie na sprzęcie, wszystkie 7 języków i wszystkie motywy są dostępne dla każdego, bez rejestracji i numeru seryjnego.</p><p>Powód jest prosty: przy węgierskich przepisach podatkowych ze sprzedaży po podatkach i formalnościach zostałoby zbyt mało, żeby to się opłacało. Posiadany numer seryjny po prostu nie jest już potrzebny.</p>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
     eyebrow: "Novità nella 2.6.0",
-    title: "Visual Assembler ora è gratuito",
-    body: `<p>La licenza Freemium / Professional è stata eliminata: tutti gli editor, le build e l'esecuzione su hardware, tutte le 7 lingue e tutti i temi sono disponibili per tutti, senza registrazione né numero di serie.</p><p>Il motivo è semplice: con le norme fiscali ungheresi, dalla vendita resterebbe troppo poco dopo tasse e burocrazia perché ne valga la pena. Il numero di serie che hai già semplicemente non serve più.</p>`,
+    title: "Benvenuto in Visual Assembler",
+    body: `<p><strong>Visual Assembler ora è gratuito.</strong></p><p>La licenza Freemium / Professional è stata eliminata: tutti gli editor, le build e l'esecuzione su hardware, tutte le 7 lingue e tutti i temi sono disponibili per tutti, senza registrazione né numero di serie.</p><p>Il motivo è semplice: con le norme fiscali ungheresi, dalla vendita resterebbe troppo poco dopo tasse e burocrazia perché ne valga la pena. Il numero di serie che hai già semplicemente non serve più.</p>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -1320,6 +1320,7 @@ function initPalette() {
     checkForAppUpdate();
   });
   reportBugButton?.addEventListener("click", () => _bugOpenDialog());
+  document.getElementById("support-btn")?.addEventListener("click", () => _supportOpen());
   basicSysToggle?.addEventListener("change", () => {
     saveUiSettings();
     renderEmulatorRunHint();
@@ -1910,7 +1911,6 @@ function initPalette() {
     knowledgeBaseDialog?.showModal();
   });
   knowledgeBaseCloseButton?.addEventListener("click", () => knowledgeBaseDialog?.close());
-  knowledgeBaseDialog?.addEventListener("click", (e) => { if (e.target === knowledgeBaseDialog) knowledgeBaseDialog.close(); });
   knowledgeBaseDialog?.querySelectorAll(".knowledge-base-link").forEach((link) => {
     link.addEventListener("click", (e) => {
       e.preventDefault();
@@ -2270,6 +2270,7 @@ function initPalette() {
   setTimeout(() => checkForAppUpdate({ silent: true }), 6000);
   setTimeout(_serverMessageStartup, 8000);
   _usageStart();
+  _supportStartBackground();
 
   // READY. typewriter effect
   (() => {
@@ -2401,7 +2402,8 @@ function setupDraggableEditorDialogs() {
     ["curve-gen-dialog", ".cg-hdr"],
     ["d64-editor-dialog", ".de-hdr"],
     ["d64-block-editor-dialog", ".dbe-hdr"],
-    ["project-snapshot-dialog", ".project-snapshot-hdr"]
+    ["project-snapshot-dialog", ".project-snapshot-hdr"],
+    ["support-dialog", ".support-hdr"]
   ];
   dialogs.forEach(function(entry) {
     const dialogId = entry[0];
@@ -3238,6 +3240,8 @@ function applyTranslations() {
   if (helpManualButton) helpManualButton.textContent = t("helpManual");
   if (checkUpdateButton) checkUpdateButton.textContent = t("checkForUpdate");
   if (reportBugButton) reportBugButton.textContent = t("reportBug");
+  const supportBtnEl = document.getElementById("support-btn");
+  if (supportBtnEl) supportBtnEl.textContent = t("support");
   if (whatsNewButton) whatsNewButton.textContent = t("whatsNew");
   const tutorialBtnEl = document.getElementById("tutorial-btn");
   const tutorialBtnLabelEl = document.getElementById("tutorial-toolbar-label");
@@ -48632,6 +48636,7 @@ function _cgWireDialog() {
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("curve-gen-btn")?.addEventListener("click", _cgOpenDialog);
   setupBugReport();
+  setupSupport();
   setupVersionControl();
 });
 
@@ -48797,6 +48802,378 @@ function setupBugReport() {
     e.preventDefault();
     dlg.classList.remove("bug-dialog--drop");
     _bugAddFiles(e.dataTransfer?.files);
+  });
+}
+
+/* ── Support chat ──────────────────────────────────────────────────────────
+ * register/support.php through the Rust support_api command (it adds the install id, the conversation key).
+ * Menu → Support shows the conversation; while open it refreshes every 15 s. After the first message the app
+ * checks for replies at startup and every minute: a red dot on the Menu / Support button, a beep (can be muted
+ * in the dialog header), a taskbar flash when the app is in the background, and a new reply opens the dialog
+ * once when no other modal is open. Plain text only. */
+const _SUPPORT_ACTIVE_KEY = "c64va-support-active";
+const _SUPPORT_EMAIL_KEY = "c64va-support-email";
+const _SUPPORT_NAME_KEY = "c64va-support-name";
+let _supportPollTimer = null;
+let _supportSending = false;
+let _supportNotified = 0;
+let _supportFiles = [];
+const _SUPPORT_SOUND_KEY = "c64va-support-sound";
+const _SUPPORT_LAST_ADMIN_KEY = "c64va-support-last-admin";
+let _supportAudio = null;
+function _supportSoundOn() {
+  try { return localStorage.getItem(_SUPPORT_SOUND_KEY) !== "0"; } catch (_) { return true; }
+}
+function _supportSyncSoundButton() {
+  const b = document.getElementById("support-sound");
+  if (!b) return;
+  const on = _supportSoundOn();
+  b.setAttribute("aria-pressed", String(on));
+  b.setAttribute("aria-label", t(on ? "supportSoundOn" : "supportSoundOff"));
+}
+// rövid, C64-es (négyszögjeles, felfelé lépő) pittyenés új válasznál
+function _supportBeep() {
+  if (!_supportSoundOn()) return;
+  try {
+    _supportAudio = _supportAudio || new (window.AudioContext || window.webkitAudioContext)();
+    const ctx = _supportAudio;
+    if (ctx.state === "suspended") ctx.resume();
+    [[784, 0], [1047, 0.12], [1568, 0.24]].forEach(([freq, at]) => {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      const t0 = ctx.currentTime + at;
+      o.type = "square";
+      o.frequency.value = freq;
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(0.05, t0 + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.1);
+      o.connect(g).connect(ctx.destination);
+      o.start(t0);
+      o.stop(t0 + 0.11);
+    });
+  } catch (_) {}
+}
+// a tálcán villog, ha az app nincs előtérben
+function _supportAttention() {
+  if (document.hasFocus()) return;
+  try { window.__TAURI__?.window?.getCurrentWindow()?.requestUserAttention(2)?.catch?.(() => {}); } catch (_) {}
+}
+// a legutóbbi fejlesztői üzenet id-je: ebből látszik, hogy jött-e új válasz (beep + kiemelés)
+function _supportLastAdminSeen() {
+  try { return Number(localStorage.getItem(_SUPPORT_LAST_ADMIN_KEY)) || 0; } catch (_) { return 0; }
+}
+function _supportMarkAdminSeen(messages) {
+  const last = Math.max(0, ...(messages || []).filter((m) => m.from === "admin").map((m) => Number(m.id) || 0));
+  if (last > _supportLastAdminSeen()) { try { localStorage.setItem(_SUPPORT_LAST_ADMIN_KEY, String(last)); } catch (_) {} }
+}
+const _supportFileCache = new Map();
+const _SUPPORT_MAX_FILES = 3;
+const _SUPPORT_MAX_BYTES = 4 * 1024 * 1024;
+// a register/lib.php VA_SUPPORT_FILE_EXT listája
+const _SUPPORT_FILE_EXT = ["png", "jpg", "jpeg", "gif", "webp", "txt", "log", "md", "asm", "s", "inc", "a65", "ub", "bas", "json", "csv",
+  "proj", "prg", "d64", "d71", "d81", "t64", "crt", "sid", "bin", "seq", "koa", "kla", "zip", "7z"];
+function _supportSize(n) {
+  return n >= 1048576 ? (n / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(n / 1024)) + " KB";
+}
+function _supportRenderFiles() {
+  const box = document.getElementById("support-files");
+  if (!box) return;
+  box.textContent = "";
+  _supportFiles.forEach((f, i) => {
+    const chip = document.createElement("span");
+    chip.className = "support-chip";
+    const label = document.createElement("span");
+    label.textContent = f.name + " (" + _supportSize(f.size) + ")";
+    const x = document.createElement("button");
+    x.type = "button";
+    x.textContent = "×";
+    x.setAttribute("aria-label", t("supportRemoveFile"));
+    x.addEventListener("click", () => { _supportFiles.splice(i, 1); _supportRenderFiles(); });
+    chip.append(label, x);
+    box.appendChild(chip);
+  });
+}
+function _supportReadBase64(file) {
+  return new Promise((resolve, reject) => {
+    const rd = new FileReader();
+    rd.onload = () => resolve(String(rd.result).split(",")[1] || "");
+    rd.onerror = () => reject(rd.error);
+    rd.readAsDataURL(file);
+  });
+}
+async function _supportAddFiles(list) {
+  for (const file of Array.from(list || [])) {
+    const ext = (file.name.split(".").pop() || "").toLowerCase();
+    let name = file.name;
+    // beillesztett képnek nincs neve
+    if (!file.name.includes(".") && /^image\/(png|jpeg|gif|webp)$/.test(file.type)) name = "image." + file.type.split("/")[1].replace("jpeg", "jpg");
+    if (!_SUPPORT_FILE_EXT.includes(name.includes(".") ? (name.split(".").pop() || "").toLowerCase() : ext)) {
+      _supportSetStatus(tf("supportFileType", { name: file.name || name }), "error");
+      continue;
+    }
+    const total = _supportFiles.reduce((a, f) => a + f.size, 0) + file.size;
+    if (_supportFiles.length >= _SUPPORT_MAX_FILES || total > _SUPPORT_MAX_BYTES) {
+      _supportSetStatus(t("supportFilesLimit"), "error");
+      break;
+    }
+    try {
+      _supportFiles.push({ name, size: file.size, data: await _supportReadBase64(file) });
+    } catch (_) {
+      _supportSetStatus(tf("supportFileType", { name }), "error");
+    }
+  }
+  _supportRenderFiles();
+}
+async function _supportFetchFile(id) {
+  if (_supportFileCache.has(id)) return _supportFileCache.get(id);
+  const res = await _supportApi({ action: "file", file_id: id });
+  if (!res?.ok || typeof res.data !== "string") return null;
+  _supportFileCache.set(id, res);
+  return res;
+}
+function _supportBytes(b64) {
+  const bin = atob(b64);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+async function _supportSaveFile(id, name) {
+  const f = await _supportFetchFile(id);
+  if (!f) { _supportSetStatus(t("supportFileError"), "error"); return; }
+  await _saveBinFile(_supportBytes(f.data), f.name || name);
+}
+function _supportRenderMsgFiles(files) {
+  const box = document.createElement("div");
+  box.className = "support-msg-files";
+  for (const f of files) {
+    if (f.image) {
+      const img = document.createElement("img");
+      img.className = "support-msg-img";
+      img.alt = f.name;
+      img.setAttribute("aria-label", tf("supportSaveFile", { name: f.name }));
+      img.draggable = false;
+      _supportFetchFile(f.id).then((d) => {
+        if (d && /^image\/(png|jpeg|gif|webp)$/.test(d.mime)) img.src = "data:" + d.mime + ";base64," + d.data;
+      });
+      img.addEventListener("click", () => _supportSaveFile(f.id, f.name));
+      box.appendChild(img);
+    } else {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "support-msg-file";
+      b.textContent = f.name + " (" + _supportSize(f.size) + ")";
+      b.setAttribute("aria-label", tf("supportSaveFile", { name: f.name }));
+      b.addEventListener("click", () => _supportSaveFile(f.id, f.name));
+      box.appendChild(b);
+    }
+  }
+  return box;
+}
+function _supportApi(payload) {
+  const api = window.electronAPI;
+  if (!api?.supportApi) return Promise.resolve({ ok: false, error: "network" });
+  return api.supportApi(currentLanguage, payload).catch(() => ({ ok: false, error: "network" }));
+}
+function _supportSetStatus(text, kind) {
+  const el = document.getElementById("support-status");
+  if (!el) return;
+  el.textContent = text || "";
+  el.classList.toggle("form-status--error", kind === "error");
+  el.classList.toggle("form-status--ok", kind === "ok");
+}
+function _supportSetUnread(n) {
+  document.querySelector(".control-menu-trigger")?.classList.toggle("has-unread", n > 0);
+  document.getElementById("support-btn")?.classList.toggle("has-unread", n > 0);
+}
+// text with clickable http(s) links (opened in the browser), everything else as text nodes
+function _supportFillText(el, text) {
+  el.textContent = "";
+  const re = /https?:\/\/[^\s<>"']+/g;
+  let pos = 0;
+  let m;
+  while ((m = re.exec(text))) {
+    if (m.index > pos) el.appendChild(document.createTextNode(text.slice(pos, m.index)));
+    const url = m[0];
+    const a = document.createElement("a");
+    a.textContent = url;
+    a.href = url;
+    a.addEventListener("click", (e) => { e.preventDefault(); window.electronAPI?.openExternal?.(url); });
+    el.appendChild(a);
+    pos = m.index + m[0].length;
+  }
+  if (pos < text.length) el.appendChild(document.createTextNode(text.slice(pos)));
+}
+function _supportRender(messages, newSince = Infinity) {
+  const box = document.getElementById("support-thread");
+  if (!box) return;
+  const atEnd = box.scrollHeight - box.scrollTop - box.clientHeight < 40;
+  box.textContent = "";
+  for (const m of messages || []) {
+    const item = document.createElement("div");
+    item.className = "support-msg support-msg--" + (m.from === "admin" ? "admin" : "user")
+      + (m.from === "admin" && Number(m.id) > newSince ? " support-msg--new" : "");
+    const meta = document.createElement("div");
+    meta.className = "support-msg-meta";
+    const at = new Date(m.at);
+    meta.textContent = (m.from === "admin" ? t("supportDeveloper") : t("supportYou")) + " · " +
+      (isNaN(at) ? "" : at.toLocaleString(currentLanguage, { dateStyle: "short", timeStyle: "short" }));
+    item.appendChild(meta);
+    if (m.text) {
+      const body = document.createElement("div");
+      body.className = "support-msg-text";
+      _supportFillText(body, String(m.text));
+      item.appendChild(body);
+    }
+    if (Array.isArray(m.files) && m.files.length) item.appendChild(_supportRenderMsgFiles(m.files));
+    box.appendChild(item);
+  }
+  if (atEnd || !box.dataset.rendered) box.scrollTop = box.scrollHeight;
+  box.dataset.rendered = "1";
+}
+async function _supportLoad() {
+  const res = await _supportApi({ action: "thread", read: true });
+  if (!res?.ok) return;
+  const seen = _supportLastAdminSeen();
+  const fresh = (res.messages || []).some((m) => m.from === "admin" && Number(m.id) > seen);
+  _supportRender(res.messages, seen);
+  _supportMarkAdminSeen(res.messages);
+  if (fresh) { _supportBeep(); _supportAttention(); }
+  _supportNotified = 0;
+  _supportSetUnread(0);
+}
+function _supportOpen() {
+  const dlg = document.getElementById("support-dialog");
+  if (!dlg) return;
+  document.querySelector(".control-menu")?.removeAttribute("open");
+  document.getElementById("support-title").textContent = t("supportTitle");
+  document.getElementById("support-intro").textContent = t("supportIntro");
+  document.getElementById("support-text-label").textContent = t("supportMessage");
+  document.getElementById("support-name-label").textContent = t("supportName");
+  document.getElementById("support-email-label").textContent = t("supportEmail");
+  document.getElementById("support-close").textContent = t("bugClose");
+  document.getElementById("support-x")?.setAttribute("aria-label", t("bugClose"));
+  document.getElementById("support-send").textContent = t("supportSend");
+  document.getElementById("support-attach").textContent = t("supportAttach");
+  _supportSyncSoundButton();
+  _supportRenderFiles();
+  const email = document.getElementById("support-email");
+  if (email && !email.value) { try { email.value = localStorage.getItem(_SUPPORT_EMAIL_KEY) || ""; } catch (_) {} }
+  const name = document.getElementById("support-name");
+  if (name && !name.value) { try { name.value = localStorage.getItem(_SUPPORT_NAME_KEY) || ""; } catch (_) {} }
+  _supportSetStatus("");
+  const thread = document.getElementById("support-thread");
+  if (thread) delete thread.dataset.rendered;
+  // nem modális: a program mellette használható, és a többi nem modális ablakhoz hasonlóan mozgatható / méretezhető
+  if (!dlg.open) { dlg._applyPosition?.(); dlg.show(); }
+  document.getElementById("support-text")?.focus();
+  _supportLoad();
+  clearInterval(_supportPollTimer);
+  _supportPollTimer = setInterval(() => { if (dlg.open) _supportLoad(); }, 15000);
+}
+async function _supportSend() {
+  if (_supportSending) return;
+  const textEl = document.getElementById("support-text");
+  const text = textEl?.value.trim() || "";
+  const email = document.getElementById("support-email")?.value.trim() || "";
+  const name = document.getElementById("support-name")?.value.trim() || "";
+  if (!name) { _supportSetStatus(t("supportNeedName"), "error"); document.getElementById("support-name")?.focus(); return; }
+  if (!text && !_supportFiles.length) { _supportSetStatus(t("supportNeedText"), "error"); return; }
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { _supportSetStatus(t("bugInvalidEmail"), "error"); return; }
+  _supportSending = true;
+  const btn = document.getElementById("support-send");
+  if (btn) btn.disabled = true;
+  _supportSetStatus(t("supportSending"));
+  const res = await _supportApi({ action: "send", text, email, name,
+    attachments: _supportFiles.map((f) => ({ name: f.name, data: f.data })) });
+  _supportSending = false;
+  if (btn) btn.disabled = false;
+  if (!res?.ok) {
+    _supportSetStatus(res?.error === "rate" ? t("supportRate") : res?.error === "network" ? t("bugNetwork")
+      : res?.error === "name" ? t("supportNeedName") : res?.error === "files" ? t("supportFilesLimit")
+      : res?.error === "file_type" ? tf("supportFileType", { name: "" }) : t("supportSendFailed"), "error");
+    return;
+  }
+  if (textEl) textEl.value = "";
+  _supportFiles = [];
+  _supportRenderFiles();
+  try {
+    localStorage.setItem(_SUPPORT_ACTIVE_KEY, "1");
+    if (email) localStorage.setItem(_SUPPORT_EMAIL_KEY, email);
+    localStorage.setItem(_SUPPORT_NAME_KEY, name);
+  } catch (_) {}
+  _supportSetStatus(t("supportSent"), "ok");
+  _supportRender(res.messages);
+}
+async function _supportCheck() {
+  const dlg = document.getElementById("support-dialog");
+  if (dlg?.open) return;
+  const res = await _supportApi({ action: "check" });
+  const unread = res?.ok ? Number(res.unread) || 0 : 0;
+  _supportSetUnread(unread);
+  if (unread > _supportNotified) {
+    let busy = false;
+    try { busy = !!document.querySelector("dialog[open]:modal"); } catch (_) { busy = true; }
+    // a hangot és a villogást a megnyíló ablak betöltése adja (_supportLoad); modális ablak alatt csak jelez
+    if (!busy) { _supportNotified = unread; _supportOpen(); }
+    else { _supportNotified = unread; _supportBeep(); _supportAttention(); }
+  }
+}
+function _supportStartBackground() {
+  if (!window.electronAPI?.supportApi) return;
+  let active = false;
+  try { active = localStorage.getItem(_SUPPORT_ACTIVE_KEY) === "1"; } catch (_) {}
+  if (!active) return;
+  setTimeout(_supportCheck, 15000);
+  setInterval(_supportCheck, 60 * 1000);
+}
+function setupSupport() {
+  const dlg = document.getElementById("support-dialog");
+  if (!dlg) return;
+  document.getElementById("support-send")?.addEventListener("click", _supportSend);
+  document.getElementById("support-close")?.addEventListener("click", () => dlg.close());
+  document.getElementById("support-x")?.addEventListener("click", () => dlg.close());
+  document.getElementById("support-sound")?.addEventListener("click", () => {
+    try { localStorage.setItem(_SUPPORT_SOUND_KEY, _supportSoundOn() ? "0" : "1"); } catch (_) {}
+    _supportSyncSoundButton();
+    _supportBeep();
+  });
+  dlg.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.preventDefault(); dlg.close(); } });
+  // a kártya mérete megmarad (resize: both)
+  const card = dlg.querySelector(".support-card");
+  try {
+    const size = JSON.parse(localStorage.getItem("c64va-support-size") || "null");
+    if (card && size && size.w > 0 && size.h > 0) { card.style.width = size.w + "px"; card.style.height = size.h + "px"; }
+  } catch (_) {}
+  if (card && typeof ResizeObserver !== "undefined") {
+    let timer = 0;
+    new ResizeObserver(() => {
+      if (!dlg.open) return;
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        try { localStorage.setItem("c64va-support-size", JSON.stringify({ w: Math.round(card.offsetWidth), h: Math.round(card.offsetHeight) })); } catch (_) {}
+      }, 300);
+    }).observe(card);
+  }
+  document.getElementById("support-text")?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); _supportSend(); }
+  });
+  dlg.addEventListener("close", () => { clearInterval(_supportPollTimer); _supportPollTimer = null; });
+  const fileInput = document.getElementById("support-file-input");
+  document.getElementById("support-attach")?.addEventListener("click", () => fileInput?.click());
+  fileInput?.addEventListener("change", async () => { await _supportAddFiles(fileInput.files); fileInput.value = ""; });
+  // Ctrl+V képpel / fájllal és húzás a dialógusra
+  dlg.addEventListener("paste", (e) => {
+    const files = Array.from(e.clipboardData?.files || []);
+    if (!files.length) return;
+    e.preventDefault();
+    _supportAddFiles(files);
+  });
+  dlg.addEventListener("dragover", (e) => { e.preventDefault(); dlg.classList.add("support-dialog--drop"); });
+  dlg.addEventListener("dragleave", (e) => { if (e.target === dlg) dlg.classList.remove("support-dialog--drop"); });
+  dlg.addEventListener("drop", (e) => {
+    e.preventDefault();
+    dlg.classList.remove("support-dialog--drop");
+    _supportAddFiles(e.dataTransfer?.files);
   });
 }
 
