@@ -104,6 +104,15 @@ $topInstalls = $all('SELECT i.*, COALESCE(t.d30, 0) AS d30, COALESCE(t.l30, 0) A
     LEFT JOIN (SELECT id, COUNT(*) AS d30, SUM(launches) AS l30, SUM(minutes) AS m30 FROM va_install_days WHERE day > CURDATE() - INTERVAL 30 DAY GROUP BY id) t ON t.id = i.id
     ORDER BY m30 DESC, d30 DESC, i.last_at DESC LIMIT 50');
 $hm = static fn(int $m): string => intdiv($m, 60) . ':' . str_pad((string) ($m % 60), 2, '0', STR_PAD_LEFT);
+// adományok (donate.php, PayPal üzleti fiók): teljesült összegek pénznemenként, a legutóbbi 50 (függőben lévővel együtt)
+$donSum = static fn(string $where): array => $all("SELECT currency, SUM(amount) AS total, COUNT(*) AS n FROM va_donations
+    WHERE state = 'completed' $where GROUP BY currency ORDER BY total DESC");
+$donAll = $donSum('');
+$don30 = $donSum('AND completed_at > NOW() - INTERVAL 30 DAY');
+$donList = $all("SELECT * FROM va_donations WHERE state IN ('completed', 'pending') ORDER BY completed_at DESC LIMIT 50");
+$money = static fn(array $rows): string => $rows ? implode(' + ', array_map(static fn($r) => number_format((float) $r['total'], 2, ',', ' ') . ' '
+    . ($r['currency'] === 'EUR' ? 'EUR' : $r['currency']), $rows)) : '0';
+$donCount30 = array_sum(array_map(static fn($r) => (int) $r['n'], $don30));
 // diagramok: az utolsó 30 nap (ma is), a hiányzó napok 0-val
 $chartDays = [];
 for ($i = 29; $i >= 0; $i--) {
@@ -207,6 +216,7 @@ ob_start(); ?>
 
     <div class="tiles">
         <div class="tile"><b><?= $dlTotal ?></b><span>DOWNLOADS / LAST 30 DAYS: <?= $dl30 ?></span></div>
+        <div class="tile"><b><?= $h($money($don30)) ?></b><span>DONATIONS / 30 DAYS (<?= $donCount30 ?>), ALL TIME: <?= $h($money($donAll)) ?></span></div>
         <div class="tile"><b><?= $mau ?></b><span>ACTIVE INSTALLS / 30 DAYS (7 DAYS: <?= $wau ?>, TODAY: <?= $dau ?>)</span></div>
         <div class="tile"><b><?= $serials ?></b><span>SERIALS SENT / LAST 30 DAYS: <?= $serials30 ?></span></div>
         <div class="tile"><b><?= $act ?></b><span>ACTIVATED / <?= $pct($act, $serials) ?> OF SERIALS</span></div>
@@ -302,6 +312,22 @@ ob_start(); ?>
                 <td><?= $h(trim($r['version'] . ' / ' . $r['os'] . ' / ' . strtoupper($r['lang']), ' /')) ?></td></tr><?php endforeach; ?>
         </table><?php else: ?><p class="no">NO DATA YET.</p><?php endif; ?>
     </div>
+
+    <details class="box" id="donations" data-keep="donations" style="margin-bottom:18px" open>
+        <summary class="box-t">DONATIONS</summary>
+        <?php if ($donList): ?><table class="wide">
+            <tr><th>DATE</th><th>AMOUNT</th><th>FROM</th><th>COUNTRY</th><th>MESSAGE</th><th>STATE</th></tr>
+            <?php foreach ($donList as $d): ?><tr>
+                <td><?= $h(substr((string) $d['completed_at'], 0, 16)) ?></td>
+                <td class="n"><?= $h(number_format((float) $d['amount'], 2, ',', ' ') . ' ' . $d['currency']) ?></td>
+                <td class="e"><?= $h(trim($d['payer_name'] . ($d['payer_email'] !== '' ? ' <' . $d['payer_email'] . '>' : '')) ?: '-') ?></td>
+                <td><?= $h($d['payer_country'] ?: '--') ?></td>
+                <td class="e clip"><?= $h($d['message']) ?></td>
+                <td class="<?= $d['state'] === 'completed' ? 'yes' : 'warn' ?>"><?= $h(strtoupper($d['state'])) ?></td>
+            </tr><?php endforeach; ?>
+        </table><?php else: ?><p class="no">NO DONATIONS YET.</p><?php endif; ?>
+        <p class="hint">DONATIONS THROUGH THE SITE AND THE APP (REGISTER/DONATE.PHP, PAYPAL BUSINESS ACCOUNT). PENDING = PAYPAL IS STILL REVIEWING THE PAYMENT.</p>
+    </details>
 
     <details class="box" id="manage" data-keep="manage" style="margin-bottom:18px" open>
         <summary class="box-t">MANAGE</summary>

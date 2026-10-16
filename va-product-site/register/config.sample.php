@@ -22,6 +22,17 @@ return [
     ],
     // A licenc privát kulcs 32 bájtos seedje base64-ben: node scripts/keygen.js phpkey
     'sign_seed' => '',
+    // adomány (donate.php): PayPal üzleti fiók, developer.paypal.com → Apps & Credentials → Live. A client ID és a secret
+    // jöhet környezeti változóból is (pl. gyökér .htaccess: SetEnv VA_PAYPAL_CLIENT_ID … / SetEnv VA_PAYPAL_SECRET …), az elsőbbséget élvez.
+    // Ha egyik helyen sincs megadva, a donate.php a donate_fallback_url linket mutatja.
+    'paypal' => [
+        'mode' => 'live',       // 'sandbox' teszteléshez (sandbox client_id / secret kell hozzá)
+        'client_id' => '',
+        'secret' => '',
+        'currency' => 'EUR',
+        'brand' => 'C64 Visual Assembler',
+    ],
+    'donate_fallback_url' => 'https://paypal.me/ZsoltTarczali',
     // register/stats.php jelszava (vagy VA_ADMIN_PASSWORD környezeti változó)
     'admin_password' => '',
     // hibabejelentés: értesítő e-mail cím (üres = nincs) és IP-nkénti óránkénti limit

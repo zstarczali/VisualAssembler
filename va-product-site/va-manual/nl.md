@@ -1164,6 +1164,28 @@ ontwikkelaar wordt verzonden.
 - **Rapport verzenden** bevestigt met het rapportnummer. **Verzenden per
   e-mail** opent in plaats daarvan uw e-mailprogramma.
 
+### Steun
+
+**Menu → Ondersteuning** opent een chat met de ontwikkelaar: typ een vraag, een
+idee of een probleem en druk op **Verzenden** (of **Ctrl+Enter**). Je kunt
+maximaal 3 bestanden bijvoegen (in totaal 4 MB): afbeeldingen, bronbestanden
+(`.asm`, `.ub`, `.txt` …), C64-bestanden (`.prg`, `.d64`, `.sid`, `.crt` …) of
+een `.zip` — met **Bestand bijvoegen…**, door ze te plakken (**Ctrl+V**) of door
+ze naar het venster te slepen. Het antwoord verschijnt in hetzelfde venster, ook
+met bestanden: afbeeldingen worden als voorbeeld weergegeven, een klik slaat een
+bestand op. Het venster is niet modaal: sleep het aan de koptekst, pas de
+grootte aan via de rechteronderhoek en blijf doorwerken terwijl het open is. De
+app controleert bij het opstarten en elke minuut op antwoorden; bij een nieuw
+antwoord klinkt een kort piepje (de luidsprekerknop in de koptekst van het
+venster dempt het geluid), knippert het pictogram in de taakbalk wanneer de app
+op de achtergrond draait, verschijnt er een rode stip op de **Menu**-knop en
+wordt het venster eenmaal geopend. Zodra je een gesprek hebt, opent een
+enveloppictogram naast de **Menu**-knop het gesprek; het wordt rood en knippert
+met het aantal ongelezen antwoorden. Een e-mailadres is optioneel: als je er een
+opgeeft, ontvang je het antwoord ook per e-mail. Het gesprek is gekoppeld aan de
+willekeurige installatie-ID van de app, dus er is geen account en geen
+wachtwoord.
+
 ### Projecten, tabbladen en opstartbestanden
 
 Ultimate Basic-projecten gebruiken `.proj`-bestanden en kunnen meerdere

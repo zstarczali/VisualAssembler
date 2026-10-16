@@ -1180,6 +1180,27 @@ allo sviluppatore.
 - **Invia rapporto** conferma con il numero del rapporto. **Invia tramite
   e-mail** apre invece il tuo programma di posta.
 
+### Supporto
+
+**Menu → Supporto** apre una chat con lo sviluppatore: scrivi una domanda,
+un'idea o un problema e premi **Invia** (oppure **Ctrl+Invio**). È possibile
+allegare fino a 3 file (4 MB in totale): immagini, file sorgente (`.asm`, `.ub`,
+`.txt` …), file C64 (`.prg`, `.d64`, `.sid`, `.crt` …) o un `.zip` — con
+**Allega file…**, incollandoli (**Ctrl+V**) o trascinandoli nella finestra. La
+risposta appare nella stessa finestra, anche con i file: le immagini vengono
+visualizzate come anteprime, un clic salva un file. La finestra non è modale:
+trascinala dall'intestazione, ridimensionala dall'angolo in basso a destra e
+continua a lavorare mentre è aperta. L'app controlla le risposte all'avvio e
+ogni minuto; una nuova risposta emette un breve segnale acustico (il pulsante
+dell'altoparlante nell'intestazione della finestra lo disattiva), fa lampeggiare
+l'icona nella barra delle applicazioni quando l'app è in background, mostra un
+punto rosso sul pulsante **Menu** e apre la finestra una volta. Una volta
+avviata una conversazione, un'icona a forma di busta accanto al pulsante
+**Menu** la apre; diventa rossa e lampeggia mostrando il numero di risposte non
+lette. L'indirizzo email è facoltativo: se lo fornisci, la risposta arriverà
+anche via email. La conversazione è associata all'ID di installazione casuale
+dell'app, quindi non è necessario un account né una password.
+
 ### Progetti, schede e file di avvio
 
 I progetti Ultimate Basic utilizzano file `.proj` e possono contenere più

@@ -1144,6 +1144,26 @@ kehittäjälle.
 - **Lähetä raportti** vahvistaa raportin numerolla. **Lähetä sähköpostitse**
   avaa sähköpostiohjelmasi.
 
+### Tukea
+
+**Valikko → Tuki** avaa keskustelun kehittäjän kanssa: kirjoita kysymys, idea
+tai ongelma ja paina **Lähetä** (tai **Ctrl+Enter**). Voit liittää enintään 3
+tiedostoa (yhteensä 4 Mt): kuvia, lähdetiedostoja (`.asm`, `.ub`, `.txt` …),
+C64-tiedostoja (`.prg`, `.d64`, `.sid`, `.crt` …) tai `.zip` -tiedoston — joko
+valitsemalla **Liitä tiedosto…**, liittämällä (**Ctrl+V**) tai vetämällä ne
+ikkunaan. Vastaus näkyy samassa ikkunassa, myös tiedostojen kanssa: kuvat
+näkyvät esikatseluina, napsautus tallentaa tiedoston. Ikkuna ei ole modaalinen:
+vedä sitä otsikosta, muuta sen kokoa oikeasta alakulmasta ja jatka työskentelyä
+sen ollessa auki. Sovellus tarkistaa vastaukset käynnistyksen yhteydessä ja
+minuutin välein; uusi vastaus toistaa lyhyen piippauksen (ikkunan otsikossa
+oleva kaiutinpainike mykistää sen), väläyttää tehtäväpalkin kuvaketta, kun
+sovellus on taustalla, näyttää punaisen pisteen **Menu**-painikkeessa ja avaa
+ikkunan kerran. Kun keskustelu on käynnissä, **Menu**-painikkeen vieressä oleva
+kirjekuorikuvake avaa sen; se muuttuu punaiseksi ja vilkkuu lukemattomien
+vastausten määrän kanssa. Sähköpostiosoite on valinnainen: jos annat sellaisen,
+vastaus saapuu myös sähköpostitse. Keskustelu on sidottu sovelluksen
+satunnaiseen asennustunnukseen, joten tiliä tai salasanaa ei ole.
+
 ### Projektit, välilehdet ja käynnistystiedostot
 
 Ultimate Basic -projektit käyttävät `.proj`-tiedostoja ja voivat sisältää useita

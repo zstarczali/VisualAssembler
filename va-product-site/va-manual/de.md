@@ -1197,15 +1197,38 @@ Entwickler sendet.
 - **Bericht senden** bestätigt mit der Berichtsnummer. **Per E-Mail senden**
   öffnet stattdessen Ihr E-Mail-Programm.
 
-### Projekte, Registerkarten und Startdateien
+### Unterstützung
 
-Ultimate Basic-Projekte verwenden `.proj`-Dateien und können mehrere
-`.ub`-Quelldateien enthalten. Im Projektfenster werden geöffnete Dateien
-aufgelistet, nicht gespeicherte Registerkarten markiert und gefundene Labels,
-Funktionen und Unterprogramme angezeigt. Mit den Projektaktionen können Sie ein
-Projekt erstellen, öffnen, speichern und schließen oder eine weitere Quelldatei
-hinzufügen. Ein neues Projekt kann auch auf einer Ultimate Basic-Vorlage
-basieren – siehe [Projektvorlagen]{1}.
+**Menü → Support** öffnet einen Chat mit dem Entwickler: Schreiben Sie eine
+Frage, eine Idee oder ein Problem und drücken Sie **Senden** (oder
+**Strg+Eingabe**). Sie können bis zu 3 Dateien (insgesamt 4 MB) anhängen:
+Bilder, Quelldateien (`.asm`, `.ub`, `.txt` …), C64-Dateien (`.prg`, `.d64`,
+`.sid`, `.crt` …) oder eine `.zip-Datei` – mit **Datei anhängen…**, durch
+Einfügen (**Strg+V**) oder per Drag & Drop in das Fenster. Die Antwort erscheint
+im selben Fenster, ebenfalls mit den Dateien: Bilder werden als Vorschau
+angezeigt, ein Klick speichert die Datei. Das Fenster ist nicht modal: Ziehen
+Sie es an der Kopfzeile, ändern Sie die Größe an der unteren rechten Ecke und
+arbeiten Sie weiter, während es geöffnet ist. Die App prüft beim Start und jede
+Minute auf neue Antworten. Eine neue Antwort ertönt durch einen kurzen Piepton
+(über die Lautsprechertaste in der Kopfzeile lässt sich dieser stummschalten),
+das Taskleistensymbol blinkt, wenn die App im Hintergrund läuft, ein roter Punkt
+erscheint auf der Menü-Schaltfläche und das Fenster öffnet sich einmal. Sobald
+eine Konversation begonnen hat, öffnet ein Briefumschlagsymbol neben der
+Menü-Schaltfläche die Konversation; es färbt sich rot und blinkt entsprechend
+der Anzahl ungelesener Antworten. Die Angabe einer E-Mail-Adresse ist optional:
+Wenn Sie eine angeben, erhalten Sie die Antwort auch per E-Mail. Die
+Konversation ist an die zufällige Installations-ID der App gebunden, daher sind
+kein Konto und kein Passwort erforderlich.
+
+### Arbeitsbereiche
+
+Ein **Workspace** (`.vaws`-Datei) merkt sich, welche realen Dateien auf der
+Festplatte in den einzelnen Tabs geöffnet waren – einschließlich des
+Bearbeitungsmodus und des aktiven Tabs –, sodass Sie genau diese Einstellungen
+später wieder öffnen können. Er ist von einem `.proj`-Projekt getrennt: Ein
+Workspace kann beliebige Kombinationen von Block/Expert `.json`-Projektdateien,
+eigenständigen `.asm`-Dateien und Ultimate Basic `.ub`/`.proj`-Quelldateien über
+mehrere Tabs umfassen.
 
 - **Datei hinzufügen** – Wählen Sie eine oder mehrere Dateien gleichzeitig aus
   (beliebiger Typ – `.ub`, `.bin`, `.prg`, Bilder, Schriftarten usw.).

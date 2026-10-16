@@ -1214,6 +1214,29 @@ au développeur.
 - **Envoyer le rapport** confirme avec le numéro de rapport. **Envoyer par
   courriel** ouvre votre programme de messagerie.
 
+### Soutien
+
+**Menu → Support** ouvre une conversation avec le développeur : écrivez une
+question, une idée ou un problème et appuyez sur **Envoyer** (ou
+**Ctrl+Entrée**). Vous pouvez joindre jusqu'à 3 fichiers (4 Mo au total) :
+images, fichiers sources (`.asm`, `.ub`, `.txt`…), fichiers C64 (`.prg`, `.d64`,
+`.sid`, `.crt`…) ou un fichier `.zip` — en utilisant **Joindre un fichier…**, en
+collant (**Ctrl+V**) ou en les faisant glisser dans la fenêtre. La réponse
+apparaît dans la même fenêtre, y compris pour les fichiers : les images
+s'affichent en aperçu, un clic permet d'enregistrer le fichier. La fenêtre n'est
+pas modale : faites-la glisser par son en-tête, redimensionnez-la depuis son
+coin inférieur droit et continuez à travailler même lorsqu'elle est ouverte.
+L'application vérifie les réponses au démarrage et toutes les minutes ; une
+nouvelle réponse est signalée par un bref bip (le bouton haut-parleur dans
+l'en-tête de la fenêtre permet de la couper), l'icône de la barre des tâches
+clignote lorsque l'application est en arrière-plan, un point rouge apparaît sur
+le bouton Menu et la fenêtre s'ouvre une fois. Une fois la conversation entamée,
+une icône d'enveloppe à côté du bouton Menu permet de l'ouvrir ; elle devient
+rouge et clignote en fonction du nombre de réponses non lues. Une adresse e-mail
+est facultative : si vous en indiquez une, la réponse vous sera également
+envoyée par e-mail. La conversation est liée à l'identifiant d'installation
+aléatoire de l'application ; aucun compte ni mot de passe n'est requis.
+
 ### Projets, onglets et fichiers de démarrage
 
 Les projets Ultimate Basic utilisent des fichiers `.proj` et peuvent contenir

@@ -11322,6 +11322,13 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
   background: var(--panel); border: 1px solid var(--panel-border); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3), 0 16px 40px rgba(0, 0, 0, 0.55); }
 .support-hdr { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-bottom: 1px solid var(--panel-border); background: var(--panel-strong); }
 .support-title { font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text); white-space: nowrap; }
+.support-delete-all { margin-left: 0 !important; }
+.support-delete-all:hover { color: #e05555 !important; }
+.support-delete-all[hidden] { display: none; }
+.support-msg-meta { display: flex; align-items: center; gap: 6px; }
+.support-msg-del { margin-left: auto; min-height: 0; width: 18px; height: 18px; padding: 0; border: none; border-radius: 50%; background: transparent; color: var(--muted); font-size: 0.8rem; line-height: 1; cursor: pointer; opacity: 0; }
+.support-msg:hover .support-msg-del, .support-msg-del:focus-visible { opacity: 1; }
+.support-msg-del:hover { color: #e05555; background: color-mix(in srgb, #e05555 12%, transparent); }
 .support-sound { margin-left: auto; width: 28px; height: 26px; min-height: 0; padding: 0; display: inline-flex; align-items: center; justify-content: center; border: none; border-radius: 2px; background: transparent; color: var(--secondary); cursor: pointer; }
 .support-sound:hover { background: color-mix(in srgb, var(--secondary) 18%, transparent); color: var(--text); }
 .support-sound .support-sound-off, .support-sound[aria-pressed="false"] .support-sound-on { display: none; }
@@ -11361,6 +11368,8 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .support-notify-count { font-size: 0.72rem; font-weight: 700; line-height: 1; }
 @keyframes support-notify-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
 @media (prefers-reduced-motion: reduce) { .support-notify--unread { animation: none; } }
+/* Menu → Donation (register/donate.php a böngészőben) */
+.donate-menu-btn svg { color: #e05577; }
 .has-unread { position: relative; }
 .has-unread::before { content: ""; position: absolute; top: 4px; right: 4px; width: 8px; height: 8px; border-radius: 50%; background: #e05555; box-shadow: 0 0 0 2px var(--panel-bg, #fff); pointer-events: none; }
 .server-message-dialog--warn .compile-error-title { color: #e05555; }
