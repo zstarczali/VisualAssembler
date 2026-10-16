@@ -2269,6 +2269,7 @@ function initPalette() {
 
   setTimeout(() => checkForAppUpdate({ silent: true }), 6000);
   setTimeout(_serverMessageStartup, 8000);
+  _usageStart();
 
   // READY. typewriter effect
   (() => {
@@ -48815,14 +48816,60 @@ function _serverMessageMarkSeen(id) {
   list.push(id);
   try { localStorage.setItem(_SERVER_MESSAGE_SEEN_KEY, JSON.stringify(list.slice(-100))); } catch (_) {}
 }
+// Server message HTML: only these tags survive, links keep an http(s) / mailto href and open in the browser.
+const _SERVER_MESSAGE_TAGS = new Set(["P", "BR", "B", "STRONG", "I", "EM", "U", "S", "SMALL", "CODE", "PRE", "BLOCKQUOTE",
+  "H3", "H4", "UL", "OL", "LI", "HR", "SPAN", "A"]);
+const _SERVER_MESSAGE_DROP = /^(SCRIPT|STYLE|IFRAME|OBJECT|EMBED|TEMPLATE|SVG|MATH|NOSCRIPT|TEXTAREA|SELECT|TITLE)$/;
+function _serverMessageSanitize(html) {
+  const tpl = document.createElement("template");
+  tpl.innerHTML = String(html || "");
+  const walk = (node) => {
+    for (const n of [...node.childNodes]) {
+      if (n.nodeType === 3) continue;
+      const tag = n.nodeType === 1 ? n.tagName.toUpperCase() : "";
+      if (!_SERVER_MESSAGE_TAGS.has(tag) || n.namespaceURI !== "http://www.w3.org/1999/xhtml") {
+        // unknown element: keep its text / allowed children, drop the tag itself
+        if (tag && !_SERVER_MESSAGE_DROP.test(tag)) {
+          walk(n);
+          while (n.firstChild) node.insertBefore(n.firstChild, n);
+        }
+        n.remove();
+        continue;
+      }
+      const href = tag === "A" ? (n.getAttribute("href") || "").trim() : "";
+      for (const a of [...n.attributes]) n.removeAttribute(a.name);
+      if (/^(https?:|mailto:)/i.test(href)) n.setAttribute("href", href);
+      walk(n);
+    }
+  };
+  walk(tpl.content);
+  return tpl.innerHTML;
+}
 function _serverMessageShow(msg) {
   const dlg = document.getElementById("server-message-dialog");
   if (!dlg) return;
-  // after the customer message / any modal the user is in
-  if (document.querySelector("dialog[open]")) { setTimeout(function() { _serverMessageShow(msg); }, 3000); return; }
+  // after the customer message / any modal the user is in; a non-modal one (Number Converter, SID Player) stays open below
+  let busy = false;
+  try { busy = !!document.querySelector("dialog[open]:modal"); } catch (_) { busy = !!document.querySelector("dialog[open]:not(#numconv-dialog):not(#websid-play-dialog)"); }
+  if (busy) { setTimeout(function() { _serverMessageShow(msg); }, 3000); return; }
   dlg.classList.toggle("server-message-dialog--warn", msg.level === "warn");
+  const caption = document.getElementById("server-message-caption");
+  caption.textContent = msg.caption || "";
+  caption.hidden = !msg.caption;
   document.getElementById("server-message-title").textContent = msg.title || t("serverMessageTitle");
-  document.getElementById("server-message-body").textContent = msg.body || "";
+  const image = document.getElementById("server-message-image");
+  image.hidden = !msg.image;
+  if (msg.image) image.src = msg.image; else image.removeAttribute("src");
+  const body = document.getElementById("server-message-body");
+  const isHtml = /<[a-z!\/]/i.test(msg.body || "");
+  body.classList.toggle("server-message-body--text", !isHtml);
+  if (isHtml) body.innerHTML = _serverMessageSanitize(msg.body); else body.textContent = msg.body || "";
+  body.onclick = function(e) {
+    const a = e.target.closest("a[href]");
+    if (!a) return;
+    e.preventDefault();
+    window.electronAPI?.openExternal?.(a.getAttribute("href"));
+  };
   const open = document.getElementById("server-message-open");
   open.textContent = t("serverMessageOpen");
   open.hidden = !msg.url;
@@ -48834,6 +48881,29 @@ function _serverMessageShow(msg) {
   dlg.showModal();
   requestAnimationFrame(function() { close.focus(); });
 }
+// Active usage time for the anonymous statistics: a minute counts when the window is visible and there was input
+// in the last 5 minutes; flushed to the config every 5 minutes and when the window is hidden (app_usage_add).
+const _USAGE_IDLE_MS = 5 * 60 * 1000;
+let _usageLastInput = Date.now();
+let _usagePending = 0;
+function _usageFlush() {
+  if (!_usagePending) return;
+  const n = _usagePending;
+  _usagePending = 0;
+  try { window.electronAPI?.appUsageAdd?.(n)?.catch?.(() => {}); } catch (_) {}
+}
+function _usageStart() {
+  if (!window.electronAPI?.appUsageAdd) return;
+  const touch = () => { _usageLastInput = Date.now(); };
+  ["keydown", "mousedown", "mousemove", "wheel", "touchstart"].forEach(ev => window.addEventListener(ev, touch, { passive: true, capture: true }));
+  let ticks = 0;
+  setInterval(() => {
+    if (!document.hidden && Date.now() - _usageLastInput < _USAGE_IDLE_MS) _usagePending++;
+    if (++ticks % 5 === 0) _usageFlush();
+  }, 60000);
+  document.addEventListener("visibilitychange", () => { if (document.hidden) _usageFlush(); });
+  window.addEventListener("pagehide", _usageFlush);
+}
 async function _serverMessageStartup() {
   const api = window.electronAPI;
   if (!api?.fetchAppMessage) return;
@@ -48841,6 +48911,11 @@ async function _serverMessageStartup() {
   let msg = null;
   try { msg = await api.fetchAppMessage(currentLanguage); } catch (_) { msg = null; }
   if (!msg || !msg.id || _serverMessageSeen().includes(String(msg.id))) return;
-  _serverMessageShow({ id: String(msg.id), title: String(msg.title || ""), body: String(msg.body || ""),
-    url: /^https?:\/\//.test(msg.url || "") ? msg.url : "", level: msg.level });
+  let image = "";
+  if (msg.image) {
+    try { image = (await api.fetchAppMessageImage?.(msg.image)) || ""; } catch (_) { image = ""; }
+    if (!/^data:image\/(png|jpeg|gif|webp);base64,/.test(image)) image = "";
+  }
+  _serverMessageShow({ id: String(msg.id), caption: String(msg.caption || ""), title: String(msg.title || ""), body: String(msg.body || ""),
+    url: /^https?:\/\//.test(msg.url || "") ? msg.url : "", level: msg.level, image });
 }

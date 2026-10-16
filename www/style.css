@@ -11303,7 +11303,16 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 
 /* Server message dialog (register/message.php) */
 .server-message-dialog .app-confirm-card { width: min(520px, calc(100vw - 32px)); }
-.server-message-body { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 50vh; overflow-y: auto; }
+.server-message-body { overflow-wrap: anywhere; max-height: 50vh; overflow-y: auto; }
+.server-message-body--text { white-space: pre-wrap; }
+.server-message-body > :first-child { margin-top: 0; }
+.server-message-body > :last-child { margin-bottom: 0; }
+.server-message-body p, .server-message-body ul, .server-message-body ol, .server-message-body pre, .server-message-body blockquote { margin: 0 0 0.6em; }
+.server-message-body ul, .server-message-body ol { padding-left: 1.4em; }
+.server-message-body a { color: var(--primary); cursor: pointer; }
+.server-message-body pre { white-space: pre-wrap; }
+.server-message-image { display: block; max-width: 100%; max-height: 260px; margin: 0 auto 12px; border-radius: 6px; object-fit: contain; }
+.server-message-image[hidden], #server-message-caption[hidden] { display: none; }
 .server-message-dialog--warn .compile-error-title { color: #e05555; }
 /* Bug report dialog */
 .eyebrow-row { display: flex; align-items: flex-start; gap: 10px; }
@@ -11333,12 +11342,12 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .form-status--error { color: #e05555; }
 .form-status--ok { color: #3fbf6a; }
 
-/* About, customer message, update, settings: no text selection, no dragging of images / links (text fields excepted) */
-.about-dialog, .customer-message-card, #update-dialog, #hardware-settings-dialog, .whats-new-dialog { -webkit-user-select: none; user-select: none; }
+/* About, customer message, server message, update, settings: no text selection, no dragging of images / links (text fields excepted) */
+.about-dialog, .customer-message-card, #server-message-dialog, #update-dialog, #hardware-settings-dialog, .whats-new-dialog { -webkit-user-select: none; user-select: none; }
 .about-dialog img, .about-dialog a, .customer-message-card img, .customer-message-card a,
 #update-dialog img, #update-dialog a, #hardware-settings-dialog img, #hardware-settings-dialog a,
-.whats-new-dialog img, .whats-new-dialog a { -webkit-user-drag: none; user-drag: none; }
-:is(#update-dialog, #hardware-settings-dialog, .about-dialog, .customer-message-card, .whats-new-dialog) :is(input, textarea, select, [contenteditable]) { -webkit-user-select: text; user-select: text; }
+.whats-new-dialog img, .whats-new-dialog a, #server-message-dialog img, #server-message-dialog a { -webkit-user-drag: none; user-drag: none; }
+:is(#update-dialog, #hardware-settings-dialog, .about-dialog, .customer-message-card, #server-message-dialog, .whats-new-dialog) :is(input, textarea, select, [contenteditable]) { -webkit-user-select: text; user-select: text; }
 
 
 /* SID Editor horizontal tracker (piano roll), floating inside the editor dialog */

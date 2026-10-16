@@ -470,7 +470,7 @@ A Visual Assembler ingyenes: minden funkció — a vizuális szerkesztők (SID, 
 
 Ha tetszik a program, a fejlesztését a c64va.pro oldalon adománnyal támogathatod.
 
-**Használati statisztika.** Az alkalmazás indításkor, naponta legfeljebb egyszer névtelen jelzést küld a c64va.pro-nak az app verziójával, az operációs rendszerrel, a felület nyelvével, az előző jelzés óta eltelt indítások számával és egy véletlen telepítés-azonosítóval (az app `config.json`-jában, `launchPing` néven). E-mail cím, projekt vagy forráskód nem kerül elküldésre; internet nélkül nem történik semmi. Az alkalmazás alkalmanként rövid üzenetet is lekér a c64va.pro-ról (például új verzióról); minden üzenet egyszer jelenik meg.
+**Használati statisztika.** Az alkalmazás indításkor, naponta legfeljebb egyszer névtelen jelzést küld a c64va.pro-nak az app verziójával, az operációs rendszerrel, a felület nyelvével, az előző jelzés óta eltelt indítások számával és aktív használati perceivel (egy perc akkor számít, ha az ablak látható, és az utolsó 5 percben használtad az egeret vagy a billentyűzetet), azzal, hogy van-e még 2.5.6–2.5.9 közötti sorozatszám elmentve (csak igen / nem), és egy véletlen telepítés-azonosítóval (az app `config.json`-jában, `launchPing` néven). E-mail cím, sorozatszám, projekt vagy forráskód nem kerül elküldésre; internet nélkül nem történik semmi. Az alkalmazás alkalmanként rövid üzenetet is lekér a c64va.pro-ról (például új verzióról, néha csak a támogatóknak); minden üzenet egyszer jelenik meg.
 
 ### Hibabejelentés
 

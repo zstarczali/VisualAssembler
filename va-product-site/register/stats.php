@@ -59,6 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $q = vaNormalizeEmail(substr((string) ($_GET['q'] ?? ''), 0, 254));
 
 $db = vaDb();
+vaInstallsMigrate($db);
 $one = static fn(string $sql) => $db->query($sql)->fetchColumn() ?: 0;
 $all = static fn(string $sql): array => $db->query($sql)->fetchAll();
 
@@ -76,13 +77,20 @@ $actVer = $all('SELECT version, COUNT(*) AS n FROM va_activations GROUP BY versi
 // használat (ping.php): telepítésenként napi egy sor a va_install_days-ben
 $inst = (int) $one('SELECT COUNT(*) FROM va_installs');
 $instNew30 = (int) $one('SELECT COUNT(*) FROM va_installs WHERE first_at > NOW() - INTERVAL 30 DAY');
+$sup30 = (int) $one('SELECT COUNT(*) FROM va_installs WHERE supporter = 1 AND last_at > NOW() - INTERVAL 30 DAY');
+// aktív használati percek (az app a következő pingben küldi, ezért a beérkezés napjára kerülnek)
+$min30 = (int) $one('SELECT SUM(minutes) FROM va_install_days WHERE day > CURDATE() - INTERVAL 30 DAY');
+$minAll = (int) $one('SELECT SUM(minutes) FROM va_installs');
+$useTime = $all("SELECT CASE WHEN m < 10 THEN 'UNDER 10 MIN' WHEN m < 60 THEN '10-60 MIN' WHEN m < 300 THEN '1-5 HOURS' WHEN m < 1200 THEN '5-20 HOURS' ELSE '20+ HOURS' END AS k,
+    COUNT(*) AS n, MIN(m) AS o FROM (SELECT id, SUM(minutes) AS m FROM va_install_days WHERE day > CURDATE() - INTERVAL 30 DAY GROUP BY id) t
+    GROUP BY k ORDER BY o");
 $dau = (int) $one('SELECT COUNT(*) FROM va_install_days WHERE day = CURDATE()');
 $wau = (int) $one('SELECT COUNT(DISTINCT id) FROM va_install_days WHERE day > CURDATE() - INTERVAL 7 DAY');
 $mau = (int) $one('SELECT COUNT(DISTINCT id) FROM va_install_days WHERE day > CURDATE() - INTERVAL 30 DAY');
 $launches30 = (int) $one('SELECT SUM(launches) FROM va_install_days WHERE day > CURDATE() - INTERVAL 30 DAY');
 $returning7 = (int) $one('SELECT COUNT(DISTINCT d.id) FROM va_install_days d JOIN va_installs i ON i.id = d.id
     WHERE d.day > CURDATE() - INTERVAL 7 DAY AND i.first_at < NOW() - INTERVAL 7 DAY');
-$useDays = $all('SELECT day, COUNT(*) AS n, SUM(launches) AS l FROM va_install_days WHERE day > CURDATE() - INTERVAL 30 DAY GROUP BY day ORDER BY day DESC');
+$useDays = $all('SELECT day, COUNT(*) AS n, SUM(launches) AS l, SUM(minutes) AS m FROM va_install_days WHERE day > CURDATE() - INTERVAL 30 DAY GROUP BY day ORDER BY day DESC');
 $useBy = static fn(string $col): array => $all("SELECT $col AS k, COUNT(*) AS n FROM va_installs
     WHERE last_at > NOW() - INTERVAL 30 DAY GROUP BY $col ORDER BY n DESC");
 $useOs = $useBy('os');
@@ -92,9 +100,10 @@ $useLang = $useBy('lang');
 $useFreq = $all("SELECT CASE WHEN c = 1 THEN '1 DAY' WHEN c <= 4 THEN '2-4 DAYS' WHEN c <= 14 THEN '5-14 DAYS' ELSE '15+ DAYS' END AS k,
     COUNT(*) AS n, MIN(c) AS o FROM (SELECT id, COUNT(*) AS c FROM va_install_days WHERE day > CURDATE() - INTERVAL 30 DAY GROUP BY id) t
     GROUP BY k ORDER BY o");
-$topInstalls = $all('SELECT i.*, COALESCE(t.d30, 0) AS d30, COALESCE(t.l30, 0) AS l30 FROM va_installs i
-    LEFT JOIN (SELECT id, COUNT(*) AS d30, SUM(launches) AS l30 FROM va_install_days WHERE day > CURDATE() - INTERVAL 30 DAY GROUP BY id) t ON t.id = i.id
-    ORDER BY d30 DESC, i.last_at DESC LIMIT 50');
+$topInstalls = $all('SELECT i.*, COALESCE(t.d30, 0) AS d30, COALESCE(t.l30, 0) AS l30, COALESCE(t.m30, 0) AS m30 FROM va_installs i
+    LEFT JOIN (SELECT id, COUNT(*) AS d30, SUM(launches) AS l30, SUM(minutes) AS m30 FROM va_install_days WHERE day > CURDATE() - INTERVAL 30 DAY GROUP BY id) t ON t.id = i.id
+    ORDER BY m30 DESC, d30 DESC, i.last_at DESC LIMIT 50');
+$hm = static fn(int $m): string => intdiv($m, 60) . ':' . str_pad((string) ($m % 60), 2, '0', STR_PAD_LEFT);
 $rateIps = (int) $one('SELECT COUNT(DISTINCT ip) FROM va_register_attempts WHERE created_at > NOW() - INTERVAL 1 HOUR');
 $notActivated = (int) $one('SELECT COUNT(*) FROM va_serial_requests s LEFT JOIN va_activations a ON a.email = s.email WHERE s.mailed_at IS NOT NULL AND a.email IS NULL');
 
@@ -179,19 +188,25 @@ ob_start(); ?>
     </div>
 
     <div class="sec-s" id="usage" style="margin-top:28px">// USAGE</div>
-    <p class="hint" style="margin:0 0 14px">ANONYMOUS: EVERY INSTALL (APPS FROM 2.6.0) SENDS ONE PING A DAY WITH A RANDOM ID, VERSION, OS, UI LANGUAGE AND NUMBER OF LAUNCHES. NO EMAIL, NO IP.</p>
+    <p class="hint" style="margin:0 0 14px">ANONYMOUS: EVERY INSTALL (APPS FROM 2.6.0) SENDS ONE PING A DAY WITH A RANDOM ID, VERSION, OS, UI LANGUAGE, NUMBER OF LAUNCHES, ACTIVE MINUTES (WINDOW VISIBLE, INPUT IN THE LAST 5 MINUTES) AND WHETHER A 2.5.6–2.5.9 SERIAL IS STORED (SUP = SUPPORTER). NO EMAIL, NO IP. USE TIME ARRIVES WITH THE NEXT DAY'S PING.</p>
     <div class="tiles">
         <div class="tile"><b><?= $dau ?></b><span>ACTIVE TODAY</span></div>
         <div class="tile"><b><?= $wau ?></b><span>ACTIVE / 7 DAYS (RETURNING: <?= $returning7 ?>)</span></div>
         <div class="tile"><b><?= $mau ?></b><span>ACTIVE / 30 DAYS (<?= $pct($mau, $inst) ?> OF ALL)</span></div>
         <div class="tile"><b><?= $inst ?></b><span>INSTALLS SEEN / NEW IN 30 DAYS: <?= $instNew30 ?></span></div>
         <div class="tile"><b><?= $launches30 ?></b><span>LAUNCHES / 30 DAYS (<?= $mau ? round($launches30 / $mau, 1) : 0 ?> PER INSTALL)</span></div>
+        <div class="tile"><b><?= round($min30 / 60) ?> H</b><span>ACTIVE USE / 30 DAYS (<?= $mau ? $hm(intdiv($min30, $mau)) : '0:00' ?> PER INSTALL, ALL TIME <?= round($minAll / 60) ?> H)</span></div>
+        <div class="tile"><b><?= $sup30 ?></b><span>SUPPORTERS ACTIVE / 30 DAYS (<?= $pct($sup30, $mau) ?>)</span></div>
     </div>
     <div class="grid">
         <div class="box"><div class="box-t">ACTIVE INSTALLS PER DAY / 30 DAYS</div><table>
-            <tr><th>DAY</th><th>INSTALLS</th><th>LAUNCHES</th></tr>
-            <?php foreach ($useDays as $r): ?><tr><td><?= $h($r['day']) ?><span class="bar" style="width:<?= round((int) $r['n'] * 120 / $maxUseDay) ?>px"></span></td><td class="n"><?= (int) $r['n'] ?></td><td class="n"><?= (int) $r['l'] ?></td></tr><?php endforeach; ?>
+            <tr><th>DAY</th><th>INSTALLS</th><th>LAUNCHES</th><th>USE H:MM</th></tr>
+            <?php foreach ($useDays as $r): ?><tr><td><?= $h($r['day']) ?><span class="bar" style="width:<?= round((int) $r['n'] * 120 / $maxUseDay) ?>px"></span></td><td class="n"><?= (int) $r['n'] ?></td><td class="n"><?= (int) $r['l'] ?></td><td class="n"><?= $hm((int) $r['m']) ?></td></tr><?php endforeach; ?>
             <?php if (!$useDays): ?><tr><td class="no">NO DATA YET.</td></tr><?php endif; ?>
+        </table></div>
+        <div class="box"><div class="box-t">ACTIVE USE PER INSTALL / 30 DAYS</div><table>
+            <?php foreach ($useTime as $r): ?><tr><td><?= $h($r['k']) ?><span class="bar" style="width:<?= round((int) $r['n'] * 90 / $maxUse) ?>px"></span></td><td class="n"><?= (int) $r['n'] ?></td></tr><?php endforeach; ?>
+            <?php if (!$useTime): ?><tr><td class="no">NO DATA YET.</td></tr><?php endif; ?>
         </table></div>
         <div class="box"><div class="box-t">DAYS USED / LAST 30 DAYS</div><table>
             <?php foreach ($useFreq as $r): ?><tr><td><?= $h($r['k']) ?><span class="bar" style="width:<?= round((int) $r['n'] * 90 / $maxUse) ?>px"></span></td><td class="n"><?= (int) $r['n'] ?></td></tr><?php endforeach; ?>
@@ -212,9 +227,9 @@ ob_start(); ?>
     </div>
     <div class="box" style="margin-bottom:18px"><div class="box-t">MOST ACTIVE INSTALLS / 30 DAYS</div>
         <?php if ($topInstalls): ?><table class="wide">
-            <tr><th>INSTALL</th><th>DAYS 30D</th><th>LAUNCHES 30D</th><th>DAYS ALL</th><th>LAUNCHES ALL</th><th>FIRST SEEN</th><th>LAST SEEN</th><th>VERSION / OS / LANG</th></tr>
-            <?php foreach ($topInstalls as $r): ?><tr><td class="id" title="<?= $h($r['id']) ?>"><?= $h(substr($r['id'], 0, 8)) ?></td>
-                <td class="n"><?= (int) $r['d30'] ?></td><td class="n"><?= (int) $r['l30'] ?></td><td class="n"><?= (int) $r['days'] ?></td><td class="n"><?= (int) $r['launches'] ?></td>
+            <tr><th>INSTALL</th><th>USE 30D</th><th>DAYS 30D</th><th>LAUNCHES 30D</th><th>USE ALL</th><th>DAYS ALL</th><th>LAUNCHES ALL</th><th>FIRST SEEN</th><th>LAST SEEN</th><th>VERSION / OS / LANG</th></tr>
+            <?php foreach ($topInstalls as $r): ?><tr><td class="id" title="<?= $h($r['id']) ?>"><?= $h(substr($r['id'], 0, 8)) ?><?= $r['supporter'] ? ' <span class="yes">SUP</span>' : '' ?></td>
+                <td class="n"><?= $hm((int) $r['m30']) ?></td><td class="n"><?= (int) $r['d30'] ?></td><td class="n"><?= (int) $r['l30'] ?></td><td class="n"><?= $hm((int) $r['minutes']) ?></td><td class="n"><?= (int) $r['days'] ?></td><td class="n"><?= (int) $r['launches'] ?></td>
                 <td><?= $h(substr($r['first_at'], 0, 10)) ?></td><td><?= $h(substr($r['last_at'], 0, 16)) ?></td>
                 <td><?= $h(trim($r['version'] . ' / ' . $r['os'] . ' / ' . strtoupper($r['lang']), ' /')) ?></td></tr><?php endforeach; ?>
         </table><?php else: ?><p class="no">NO DATA YET.</p><?php endif; ?>
@@ -247,5 +262,5 @@ ob_start(); ?>
         <?php if ($q !== ''): ?><div style="margin-top:18px"><?= $emailTable($found) ?></div><?php endif; ?>
     </div>
 
-    <div class="box"><div class="box-t">LAST 50 SERIALS SENT</div><?= $emailTable($recent) ?></div>
+    <details class="box" data-keep="recent-serials" open><summary class="box-t">LAST 50 SERIALS SENT</summary><?= $emailTable($recent) ?></details>
 <?php vaAdminPage('STATS', (string) ob_get_clean());

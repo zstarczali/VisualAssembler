@@ -628,7 +628,7 @@ Visual Assembler is free: every feature — the visual editors (SID, Sprite, Cha
 
 If you like the program, you can support its development with a donation on c64va.pro.
 
-**Usage statistics.** At most once a day, at startup, the app sends an anonymous ping to c64va.pro with the app version, the operating system, the UI language, the number of launches since the last ping and a random install ID (kept in the app's `config.json` as `launchPing`). No email address, project or source code is sent; offline nothing happens. The app also asks c64va.pro for an occasional short message (for example about a new version); each message is shown once.
+**Usage statistics.** At most once a day, at startup, the app sends an anonymous ping to c64va.pro with the app version, the operating system, the UI language, the number of launches and the active minutes since the last ping (a minute counts while the window is visible and you used the mouse or keyboard in the last 5 minutes), whether a serial from 2.5.6–2.5.9 is still stored (yes / no only) and a random install ID (kept in the app's `config.json` as `launchPing`). No email address, serial, project or source code is sent; offline nothing happens. The app also asks c64va.pro for an occasional short message (for example about a new version, sometimes only for supporters); each message is shown once.
 
 ### Reporting a bug
 

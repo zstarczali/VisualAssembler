@@ -699,18 +699,40 @@ fn install_id(app: &AppHandle, cfg: &mut serde_json::Value) -> String {
     id
 }
 
+/// A supporter of the paid era: a serial from 2.5.6–2.5.9 is still in the config ("license": {"email", "serial"}).
+/// Only this yes / no goes to the site (stats, message audience), never the email or the serial.
+fn is_supporter(cfg: &serde_json::Value) -> bool {
+    let email = cfg["license"]["email"].as_str().unwrap_or("").trim();
+    let serial = cfg["license"]["serial"].as_str().unwrap_or("").trim();
+    email.contains('@') && serial.starts_with("VA1-")
+}
+
 fn ping_lang(lang: &str) -> String {
     if lang.len() == 2 && lang.bytes().all(|b| b.is_ascii_lowercase()) { lang.to_string() } else { String::new() }
 }
 
+/// Active minutes measured by the frontend (_usageTick), added to the config until the next successful ping.
+#[tauri::command]
+fn app_usage_add(app: AppHandle, minutes: u32) {
+    if minutes == 0 {
+        return;
+    }
+    let mut cfg = read_config(&app);
+    install_id(&app, &mut cfg);
+    let total = cfg["launchPing"]["minutes"].as_u64().unwrap_or(0) + u64::from(minutes.min(60));
+    cfg["launchPing"]["minutes"] = serde_json::json!(total);
+    write_config(&app, &cfg);
+}
+
 /// Anonymous "app started" ping for the site statistics (register/ping.php): version, OS, UI language, a random
-/// install id and the launches since the last successful ping; sent at most once a day, offline is fine.
+/// install id, the launches and the active minutes since the last successful ping; sent at most once a day, offline is fine.
 #[tauri::command]
 async fn app_launch_ping(app: AppHandle, lang: String) {
     let day = unix_day();
     let mut cfg = read_config(&app);
     let id = install_id(&app, &mut cfg);
     let count = cfg["launchPing"]["count"].as_u64().unwrap_or(0) + 1;
+    let minutes = cfg["launchPing"]["minutes"].as_u64().unwrap_or(0).min(60 * 24 * 60);
     cfg["launchPing"]["count"] = serde_json::json!(count);
     write_config(&app, &cfg);
     if cfg["launchPing"]["day"].as_u64() == Some(day) {
@@ -723,6 +745,8 @@ async fn app_launch_ping(app: AppHandle, lang: String) {
         "os": std::env::consts::OS,
         "lang": ping_lang(&lang),
         "launches": count.min(1000),
+        "minutes": minutes,
+        "supporter": is_supporter(&cfg),
     });
     let sent = match client
         .post(LAUNCH_PING_URL)
@@ -739,6 +763,8 @@ async fn app_launch_ping(app: AppHandle, lang: String) {
         if cfg["launchPing"].is_object() {
             let left = cfg["launchPing"]["count"].as_u64().unwrap_or(0).saturating_sub(count);
             cfg["launchPing"]["count"] = serde_json::json!(left);
+            let rest = cfg["launchPing"]["minutes"].as_u64().unwrap_or(0).saturating_sub(minutes);
+            cfg["launchPing"]["minutes"] = serde_json::json!(rest);
             cfg["launchPing"]["day"] = serde_json::json!(day);
             write_config(&app, &cfg);
         }
@@ -747,19 +773,20 @@ async fn app_launch_ping(app: AppHandle, lang: String) {
 
 const APP_MESSAGE_URL: &str = "https://www.c64va.pro/register/message.php";
 
-/// Ad-hoc message from the site (register/message.php → messages.php admin): {id, title, body, url, level}
-/// in the requested language, or null (none, offline, malformed).
+/// Ad-hoc message from the site (register/message.php → messages.php admin): {id, caption, title, body (HTML,
+/// sanitized by the frontend), url, level, image} in the requested language, or null (none, offline, malformed).
 #[tauri::command]
 async fn fetch_app_message(app: AppHandle, lang: String) -> serde_json::Value {
     let mut cfg = read_config(&app);
     let id = install_id(&app, &mut cfg);
     let Ok(client) = update_http_client(&app, 15) else { return serde_json::Value::Null };
     let url = format!(
-        "{APP_MESSAGE_URL}?version={}&os={}&lang={}&id={}",
+        "{APP_MESSAGE_URL}?version={}&os={}&lang={}&id={}&sup={}",
         urlencoding::encode(&app.package_info().version.to_string()),
         std::env::consts::OS,
         ping_lang(&lang),
-        id
+        id,
+        u8::from(is_supporter(&cfg))
     );
     let Ok(resp) = client.get(url).send().await else { return serde_json::Value::Null };
     let Some(v) = resp.text().await.ok().and_then(|t| serde_json::from_str::<serde_json::Value>(&t).ok()) else {
@@ -776,13 +803,41 @@ async fn fetch_app_message(app: AppHandle, lang: String) -> serde_json::Value {
         return serde_json::Value::Null;
     }
     let url = text("url");
+    let image = text("image");
     serde_json::json!({
         "id": msg_id,
+        "caption": text("caption"),
         "title": text("title"),
         "body": text("body"),
         "url": if url.starts_with("https://") || url.starts_with("http://") { url } else { String::new() },
         "level": if text("level") == "warn" { "warn" } else { "info" },
+        "image": if image.starts_with(APP_MESSAGE_IMAGE_PREFIX) { image } else { String::new() },
     })
+}
+
+const APP_MESSAGE_IMAGE_PREFIX: &str = "https://www.c64va.pro/register/message.php?image=";
+
+/// The message image as a data URL (the CSP only allows data: images); only from message.php, max 2 MB, PNG / JPEG / GIF / WebP.
+#[tauri::command]
+async fn fetch_app_message_image(app: AppHandle, url: String) -> Option<String> {
+    let id = url.strip_prefix(APP_MESSAGE_IMAGE_PREFIX)?;
+    if id.is_empty() || !id.bytes().all(|b| b.is_ascii_digit()) {
+        return None;
+    }
+    let client = update_http_client(&app, 20).ok()?;
+    let resp = client.get(&url).send().await.ok()?;
+    if !resp.status().is_success() {
+        return None;
+    }
+    let mime = resp.headers().get(reqwest::header::CONTENT_TYPE)?.to_str().ok()?.split(';').next()?.trim().to_string();
+    if !["image/png", "image/jpeg", "image/gif", "image/webp"].contains(&mime.as_str()) {
+        return None;
+    }
+    let bytes = resp.bytes().await.ok()?;
+    if bytes.is_empty() || bytes.len() > 2 * 1024 * 1024 {
+        return None;
+    }
+    Some(format!("data:{mime};base64,{}", base64::engine::general_purpose::STANDARD.encode(&bytes)))
 }
 
 #[tauri::command]
@@ -5049,7 +5104,9 @@ pub fn run() {
             quit_app,
             bug_report,
             app_launch_ping,
+            app_usage_add,
             fetch_app_message,
+            fetch_app_message_image,
             get_ui_settings,
             save_ui_settings,
             get_vice_config,

@@ -3662,6 +3662,8 @@
           <a href="#docs">DOCS</a>
           <a href="https://github.com/zstarczali/VisualAssembler/blob/main/LICENSE" target="_blank">LICENSE</a>
           <a href="#editors">SAMPLES</a>
+          <a href="privacy.html">PRIVACY</a>
+          <a href="#" data-cookie-settings>COOKIES</a>
         </div>
         <div class="visitor-counter" aria-live="polite">VISITORS <strong id="visitor-count">—</strong></div>
         <div class="foot-copy">GPLv3 LICENSE — FREE</div>
@@ -3747,12 +3749,15 @@
       });
     }
 
-    fetch('visitor-counter.php', { cache: 'no-store', credentials: 'same-origin' })
+    // a látogatót csak statisztikai hozzájárulással számolja (assets/consent.js)
+    const loadVisitors = () => fetch('visitor-counter.php' + (window.vaConsent?.get('stats') ? '?count=1' : ''), { cache: 'no-store', credentials: 'same-origin' })
       .then(response => response.ok ? response.json() : Promise.reject(response))
       .then(data => {
         if (Number.isInteger(data.count)) document.getElementById('visitor-count').textContent = data.count.toLocaleString();
       })
       .catch(() => { document.getElementById('visitor-count').textContent = 'OFFLINE'; });
+    loadVisitors();
+    document.addEventListener('va-consent', event => { if (event.detail.stats) loadVisitors(); });
 
 
     document.querySelector('.docs-open').addEventListener('click', () => {
@@ -3827,6 +3832,7 @@
       setTimeout(sparkle, 2500);
     })();
   </script>
+  <script src="assets/consent.js?v=1"></script>
 </body>
 
 </html>

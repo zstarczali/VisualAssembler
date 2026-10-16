@@ -79,7 +79,9 @@ function vaAdminCsrf(): string
 function vaAdminCheckCsrf(string $back): void
 {
     if (!hash_equals((string) ($_SESSION['csrf'] ?? ''), (string) ($_POST['csrf'] ?? ''))) {
-        $_SESSION['flash'] = ['err', 'FORM EXPIRED, PLEASE RETRY.'];
+        // a post_max_size-nál nagyobb kérésnél a PHP üres $_POST-ot ad
+        $tooBig = $_POST === [] && (int) ($_SERVER['CONTENT_LENGTH'] ?? 0) > 0;
+        $_SESSION['flash'] = ['err', $tooBig ? 'THE UPLOAD WAS TOO LARGE FOR THE SERVER (MAX ' . ini_get('post_max_size') . ').' : 'FORM EXPIRED, PLEASE RETRY.'];
         header('Location: ' . $back);
         exit;
     }
@@ -109,8 +111,19 @@ function vaAdminPage(string $title, string $body): void
     echo '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
         . '<title>Visual Assembler - ' . vaH($title) . '</title><link rel="icon" href="../favicon.ico"><style>' . VA_ADMIN_CSS . '</style></head><body>'
         . '<div class="rb"></div><nav><a class="brand" href="../"><img src="../assets/logo2.png" alt="C64VA"><span>C64 VISUAL ASSEMBLER</span></a>'
-        . '<div class="sp"></div>' . $nav . '</nav><div class="screen"><main>' . $body . '</main></div></body></html>';
+        . '<div class="sp"></div>' . $nav . '</nav><div class="screen"><main>' . $body . '</main></div>' . VA_ADMIN_JS . '</body></html>';
 }
+
+// details[data-keep] nyitott / csukott állapota böngészőnként megmarad
+const VA_ADMIN_JS = <<<'JS'
+<script>
+document.querySelectorAll('details[data-keep]').forEach(function (d) {
+  var key = 'va-admin-open-' + d.dataset.keep;
+  try { var v = localStorage.getItem(key); if (v !== null) d.open = v === '1'; } catch (e) {}
+  d.addEventListener('toggle', function () { try { localStorage.setItem(key, d.open ? '1' : '0'); } catch (e) {} });
+});
+</script>
+JS;
 
 const VA_ADMIN_CSS = <<<'CSS'
 @font-face { font-family: 'C64Pro'; src: url('../assets/C64_Pro-STYLE.woff2') format('woff2') }
@@ -196,10 +209,34 @@ pre.bug-text { font-family: 'C64Mono', monospace; background: var(--scr-darker);
 textarea.note { width: 100%; min-height: 90px; font-family: 'C64Mono', monospace; font-size: 12px; background: var(--scr-darker);
   color: var(--txt-hi); border: 1px solid var(--brd); padding: 8px 10px; text-transform: none; resize: vertical }
 .clip { max-width: 420px; overflow: hidden; text-overflow: ellipsis }
+/* becsukható doboz (details[data-keep]), állapot localStorage-ban */
+details.box > summary.box-t { cursor: pointer; list-style: none; margin-bottom: 0 }
+details.box > summary.box-t::-webkit-details-marker { display: none }
+details.box > summary.box-t { display: flex; align-items: center; gap: 10px }
+details.box > summary.box-t::before { content: ''; flex: none; width: 0; height: 0; border-style: solid; border-width: 5px 0 5px 8px;
+  border-color: transparent transparent transparent var(--ylw); transition: transform .15s }
+details.box[open] > summary.box-t { margin-bottom: 14px }
+details.box[open] > summary.box-t::before { transform: rotate(90deg) }
+details.box > summary.box-t:hover { color: var(--ylw) }
 /* üzenetek, használat */
 .msg-form label { display: flex; flex-direction: column; gap: 4px; font-size: 10px; letter-spacing: 1px; color: var(--txt-dim); margin-bottom: 10px }
 .msg-form > label input, .msg-form > label textarea { width: 100% }
 .msg-form .row label { margin-bottom: 0 }
 .msg-form label.chk { flex-direction: row; align-items: center; gap: 6px; color: var(--txt) }
+.msg-form .dt { display: flex; flex-wrap: wrap; gap: 4px; align-items: center }
+.msg-edit { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start }
+@media (max-width: 900px) { .msg-edit { grid-template-columns: 1fr } }
+.msg-preview { position: sticky; top: 16px }
+#msg-preview { width: 100%; height: 460px; border: 1px solid var(--brd); background: #1d1d3a }
+.msg-img-row { margin-bottom: 10px }
+.msg-thumb { max-width: 160px; max-height: 90px; border: 1px solid var(--brd) }
+input[type=file] { font-family: 'C64Mono', monospace; font-size: 11px; color: var(--txt-hi); text-transform: none; max-width: 100% }
+input[type=file]::file-selector-button { font-family: 'C64Mono', monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+  background: transparent; color: var(--ylw); border: 1px solid var(--ylw); padding: 6px 10px; margin-right: 10px }
+input[type=file]::file-selector-button:hover { background: rgba(184, 199, 111, .12) }
+.img-note { font-size: 10px; letter-spacing: 1px; color: var(--txt-dim); text-transform: none }
+.img-note.err { color: var(--red) }
+input[type=datetime-local] { color-scheme: dark; cursor: pointer; min-width: 210px }
+input[type=datetime-local]::-webkit-calendar-picker-indicator { cursor: pointer; filter: invert(.8) sepia(1) hue-rotate(20deg) saturate(3) }
 td.id { text-transform: none; font-variant-numeric: tabular-nums; color: var(--txt-hi) }
 CSS;

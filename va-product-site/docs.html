@@ -79,6 +79,7 @@ button,input{font:inherit}
     <main class="content"><p>Loading documentation...</p></main>
   </div>
 </div>
+<script src="assets/consent.js?v=1"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked@15.0.12/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
 <script>
@@ -99,11 +100,13 @@ let searchHits=[];
 let searchIndex=-1;
 let navigationHistory=[];
 let sizeSaveTimer=null;
+// beállítás-sütik csak hozzájárulással (assets/consent.js)
+function setPrefCookie(name,value){if(window.vaConsent?.get('prefs'))document.cookie=name+'='+value+'; Max-Age=31536000; Path=/; SameSite=Lax'}
 
 function saveWindowSize(){
   if(window.outerWidth<320||window.outerHeight<320)return;
-  document.cookie='va_docs_width='+Math.round(window.outerWidth)+'; Max-Age=31536000; Path=/; SameSite=Lax';
-  document.cookie='va_docs_height='+Math.round(window.outerHeight)+'; Max-Age=31536000; Path=/; SameSite=Lax';
+  setPrefCookie('va_docs_width',Math.round(window.outerWidth));
+  setPrefCookie('va_docs_height',Math.round(window.outerHeight));
 }
 window.addEventListener('resize',()=>{
   clearTimeout(sizeSaveTimer);
@@ -169,7 +172,7 @@ function updateSearch(){
 }
 async function openDocument(language){
   if(!languages.includes(language))language=currentLanguage;
-  currentLanguage=language;document.cookie='va_docs_lang='+language+'; Max-Age=31536000; Path=/; SameSite=Lax';document.cookie='va_docs_manual='+currentManual+'; Max-Age=31536000; Path=/; SameSite=Lax';
+  currentLanguage=language;setPrefCookie('va_docs_lang',language);setPrefCookie('va_docs_manual',currentManual);
   const url=new URL(location.href);url.searchParams.set('doc',language);url.searchParams.set('manual',currentManual);history.replaceState(null,'',url);
   document.documentElement.lang=language;document.querySelectorAll('.lang').forEach(button=>button.classList.toggle('active',button.dataset.doc===language));
   document.title=manuals[currentManual].title;document.querySelector('.title').textContent=manuals[currentManual].title;
@@ -201,7 +204,7 @@ content.addEventListener('click',handleAnchor);toc.addEventListener('click',hand
 document.querySelectorAll('.lang').forEach(button=>button.addEventListener('click',()=>openDocument(button.dataset.doc)));
 document.querySelectorAll('.manual').forEach(button=>button.addEventListener('click',()=>{
   currentManual=button.dataset.manual;
-  document.cookie='va_docs_manual='+currentManual+'; Max-Age=31536000; Path=/; SameSite=Lax';
+  setPrefCookie('va_docs_manual',currentManual);
   openDocument(currentLanguage);
 }));
 searchInput.addEventListener('input',updateSearch);searchInput.addEventListener('keydown',event=>{if(event.key==='Enter'&&searchHits.length){event.preventDefault();showHit(searchIndex+(event.shiftKey?-1:1))}});
@@ -209,8 +212,8 @@ searchPrev.addEventListener('click',()=>showHit(searchIndex-1));searchNext.addEv
 backButton.addEventListener('click',()=>{if(!navigationHistory.length)return;content.scrollTo({top:navigationHistory.pop(),behavior:'smooth'});backButton.disabled=navigationHistory.length===0});
 document.querySelector('.close').addEventListener('click',()=>window.close());
 document.addEventListener('keydown',event=>{if(event.key==='Escape')window.close()});
-window.addEventListener('beforeunload',()=>{document.cookie='va_docs_lang='+currentLanguage+'; Max-Age=31536000; Path=/; SameSite=Lax'});
-fetch('visitor-counter.php',{cache:'no-store',credentials:'same-origin'}).catch(()=>{});
+window.addEventListener('beforeunload',()=>setPrefCookie('va_docs_lang',currentLanguage));
+if(window.vaConsent?.get('stats'))fetch('visitor-counter.php?count=1',{cache:'no-store',credentials:'same-origin'}).catch(()=>{});
 const requestedUrl=new URL(location.href);
 const requested=requestedUrl.searchParams.get('doc');
 const requestedManual=requestedUrl.searchParams.get('manual');
