@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Podręcznik użytkownika
 
-**Wersja 2.5.9**
+**Wersja 2.6.0**
 
 Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągając
 i upuszczając bloki instrukcji, i oglądaj generowany kod assemblera i maszynowy
@@ -12,6 +12,7 @@ w czasie rzeczywistym.
 
 - [C64 Visual Assembler — Podręcznik
   użytkownika](#c64-visual-assembler--user-manual)
+    - [Najważniejsze cechy wersji 2.6.0](#version-260-highlights)
     - [Najważniejsze cechy wersji 2.5.9](#version-259-highlights)
     - [Najważniejsze cechy wersji 2.5.8](#version-258-highlights)
     - [Najważniejsze cechy wersji 2.5.7](#version-257-highlights)
@@ -46,7 +47,7 @@ w czasie rzeczywistym.
     - [Modalne okno postępu kompilacji](#compile-progress-modal)
   - [5. Ustawienia i pasek narzędzi](#5-settings--toolbar)
     - [Kontrola wersji](#version-control)
-    - [Freemium i Professional](#freemium-and-professional)
+    - [Darmowe i otwarte oprogramowanie](#free-and-open-source)
     - [Zgłaszanie błędu](#reporting-a-bug)
     - [Szablony projektów](#project-templates)
     - [Budowanie projektu](#build-project)
@@ -200,21 +201,32 @@ w czasie rzeczywistym.
 
 ---
 
+## Najważniejsze cechy wersji 2.6.0
+
+- **Visual Assembler jest teraz całkowicie darmowy** — licencje
+  Freemium/Professional zostały usunięte. Każdy edytor, opcja kompilacji i
+  uruchomienia sprzętu, wszystkie 7 języków interfejsu użytkownika i każdy motyw
+  działają dla wszystkich, bez rejestracji i numeru seryjnego. Powód jest
+  prosty: zgodnie z węgierskimi przepisami podatkowymi, sprzedaż programu po
+  opodatkowaniu i formalnościach byłaby zbyt mała, aby się opłacała. Numery
+  seryjne, które już posiadasz, po prostu nie są już potrzebne. Zobacz [Darmowe
+  i otwarte oprogramowanie](#free-and-open-source).
+
+---
+
 ## Najważniejsze cechy wersji 2.5.9
 
 - **Motyw Commodore 64** — ekran startowy C64: jasnoniebieska obwódka wokół
   niebieskich paneli, jasnoniebieski tekst, przyciski odwrotnego odtwarzania
-  wideo, kolory składni z palety C64 oraz czcionka C64 w widoku monitora
-  (Professional).
+  wideo, kolory składni z palety C64 oraz czcionka C64 w widoku monitora.
 - **Motyw Commodore Beige** — klasyczny „schowek”: beżowa obudowa, musztardowe
-  przyciski funkcyjne, tęczowe paski na znaczku i niebieski wygląd monitora C64.
-  Wybierz go w selektorze motywów lub przełącz na niego za pomocą przycisku
-  motywu (Professional). Zobacz [Ustawienia i pasek
-  narzędzi](#5-settings--toolbar).
+  przyciski funkcyjne, tęczowe paski na znaczkach i niebieski widok monitora
+  C64. Wybierz go w selektorze motywów lub przełącz za pomocą przycisku motywu.
+  Zobacz [Ustawienia i pasek narzędzi](#5-settings--toolbar).
 - **Motyw Commodore Starlight** — jasny motyw nawiązujący do półprzezroczystego
   pojemnika na chleb C64: matowe, przejrzyste szkło z prześwitującą tęczową
   poświatą RGB, akcent w kolorze magenty, tęczowe kolory składni i przydymiony,
-  ciemny widok monitora (Professional).
+  ciemny widok monitora.
 - **Okno dialogowe kontroli wersji** — okno dialogowe można przeciągnąć za
   nagłówek i otworzyć ponownie w miejscu, w którym je zostawiono; pozostaje na
   ekranie, gdy dziennik lub różnica je podnoszą, a kliknięcie poza nim nie
@@ -248,11 +260,6 @@ w czasie rzeczywistym.
   ekranu (plik, Ctrl+V lub przeciągnij i upuść), opcjonalnym adresem e-mail,
   informacjami o systemie i ostatnimi błędami aplikacji. Zobacz [Zgłaszanie
   błędu](#reporting-a-bug).
-- **Profesjonalny numer seryjny e-mailem** — osoby wspierające proszą o numer
-  seryjny w oknie rejestracji (**Prośba o numer seryjny (wspierający)**); wersję
-  Professional można kupić na c64va.pro za pomocą PayPala (5 €, jednorazowo), a
-  numer seryjny zostanie wysłany e-mailem zaraz po dokonaniu płatności. Zobacz
-  [Freemium i Professional](#freemium-and-professional).
 - **Odtwarzacz SID** — **Losowo** i **ulubione** (★) na utwór. Zobacz
   [Odtwarzacz SID](#sid-player).
 
@@ -296,18 +303,14 @@ w czasie rzeczywistym.
   odtwarzania (`.sidpl`); lista i stan okna są zapamiętywane. Zobacz [Odtwarzacz
   SID](#sid-player).
 - **VA SID Core 1.1** — wbudowana emulacja SID (MOS 6581/8580, z filtrem 6581
-  wyrównanym do mos6581_8580) i odtwarzacz PSID/RSID z cyklicznym blokowaniem (procesor
-  6510, taktowanie CIA/VIC). Wybierz w **Ustawienia → Podgląd SID**; odtwarzacz
-  SID pokazuje, który silnik odtwarza.
+  opartym na MOS 6581/8580) i odtwarzacz PSID/RSID z cyklicznym blokowaniem
+  (procesor 6510, taktowanie CIA/VIC). Wybierz w **Ustawienia → Podgląd SID**;
+  odtwarzacz SID pokazuje, który silnik odtwarza.
 - **Edytor SID** — pokrętła parametrów instrumentu, szerszy wykres ADSR,
   **wejście MIDI**, **nagrywanie** do trackera (nowy wzór jest dodawany, gdy
   obecny jest pełny), **metronom** z lampami uderzeniowymi, **usuwanie wzoru**,
   głośność główna na VA-VK i **Import pliku GoatTracker .sng**. Zobacz [Edytor
   SID](#sid-editor-3-voice-tracker).
-- **Freemium i Professional** — bez rejestracji aplikacja działa jako Freemium;
-  wprowadź adres e-mail i numer seryjny z zakupu w **Menu → Zarejestruj…**, aby
-  uzyskać wersję Professional. Zobacz [Freemium i
-  Professional](#freemium-and-professional).
 - **W zestawie Ultimate Basic 1.6.4 **.
 
 ---
@@ -1108,36 +1111,32 @@ Lista poleceń ma celowo ograniczoną wysokość, aby karta szczegółów polece
 mogła wypełnić pozostałą wysokość panelu. Obszar szczegółów przewija się
 niezależnie, umożliwiając dostęp do dłuższych opisów składni.
 
-### Freemium i Professional
+### Wolne i otwarte oprogramowanie
 
-Bez rejestracji Visual Assembler działa jako **Freemium**; etykieta obok tytułu
-wskazuje **FREEMIUM** lub **PROFESSIONAL**. W Freemium możesz pisać i kompilować
-programy oraz uruchamiać je w VICE w trybach Block, Expert i Ultimate Basic.
-Wymagają one wersji Professional:
+Visual Assembler jest darmowy: każda funkcja — edytory wizualne (SID, Sprite,
+Char, Charset, Hi-Res, Map, Level, D64, Curve), SID Player, **Build PRG**,
+**Build D64**, **Build CRT**, **Build project**, pakowanie Exomizer,
+uruchamianie na C64 Ultimate i na Kung Fu Flash 2, a także każdy język i motyw
+interfejsu użytkownika — działają bez rejestracji i numeru seryjnego. Kod
+źródłowy jest dostępny na licencji GNU General Public License v3.0 (zobacz
+**Menu → About**). Do wersji 2.5.9 aplikacja miała podział na Freemium i
+Professional; od wersji 2.6.0 podawanie numeru seryjnego po prostu nie jest już
+potrzebne.
 
-- edytory wizualne (SID, Sprite, Char, Charset, Hi-Res, Map, Level, D64, Curve)
-  i SID Player;
-- **Kompilacja PRG**, **Kompilacja D64**, **Kompilacja CRT**, **Kompilacja
-  projektu** i pakowanie Exomizera;
-- działa na C64 Ultimate i na Kung Fu Flash 2;
-- Języki interfejsu użytkownika inne niż węgierski i angielski oraz motywy OLED,
-  Commodore 77, Commodore Starlight, Commodore Beige i Commodore 64.
+Jeśli program Ci się podoba, możesz wesprzeć jego rozwój poprzez darowiznę na
+stronie c64va.pro.
 
-Kliknięcie zablokowanej funkcji otwiera okno dialogowe rejestracji. Aby się
-zarejestrować, otwórz **Menu → Zarejestruj…** (lub kliknij znaczek), wprowadź
-adres e-mail i numer seryjny z zakupu i naciśnij **Aktywuj**. Numer seryjny jest
-przypisany do tego adresu e-mail (wielkie/małe litery i spacje nie mają
-znaczenia), a weryfikacja zostanie przeprowadzona w trybie offline. **Usuń
-licencję** usuwa rejestrację z tego komputera.
-
-**Otrzymywanie numeru seryjnego.** Jeśli wspierałeś projekt wcześniej, wpisz
-swój adres e-mail w oknie rejestracji i naciśnij **Zapytaj o numer seryjny
-(wspierający)** (lub skorzystaj z formularza na stronie c64va.pro/register):
-numer seryjny zostanie wysłany e-mailem, raz na adres. Wersję Professional można
-kupić na stronie c64va.pro — **Kup pełną wersję** w oknie dialogowym otworzy się
-strona: PayPal, jednorazowa opłata 5 €, a numer seryjny zostanie wysłany
-e-mailem zaraz po dokonaniu płatności. Strona porównuje również wersje Freemium
-i Professional.
+**Statystyki użytkowania.** Najwyżej raz dziennie, przy uruchomieniu, aplikacja
+wysyła anonimowy ping do c64va.pro z informacjami o wersji aplikacji, systemie
+operacyjnym, języku interfejsu użytkownika, liczbie uruchomień i minutach
+aktywności od ostatniego pingu (minuta liczy się, gdy okno jest widoczne i
+użytkownik korzystał z myszy lub klawiatury w ciągu ostatnich 5 minut), czy
+numer seryjny z wersji 2.5.6–2.5.9 jest nadal zapisany (tylko tak/nie) oraz
+losowym identyfikatorem instalacji (zapisanym w pliku `config.json` aplikacji
+jako `launchPing`). Nie jest wysyłany żaden adres e-mail, numer seryjny, projekt
+ani kod źródłowy; w trybie offline nic się nie dzieje. Aplikacja prosi również
+c64va.pro o okazjonalne krótkie wiadomości (na przykład o nowej wersji, czasami
+tylko dla osób wspierających); każda wiadomość jest wyświetlana raz.
 
 ### Zgłaszanie błędu
 
@@ -1145,16 +1144,15 @@ i Professional.
 programisty.
 
 - Pola **Podsumowanie** i **Co się stało?** są wymagane — opisz, co zrobiłeś,
-  czego się spodziewałeś i co się stało. Pola **Adres e-mail** są opcjonalne
-  (należy wypełnić adresem e-mail powiązanym z licencją); podaj je, jeśli chcesz
-  otrzymać odpowiedź.
+  czego się spodziewałeś i co się stało zamiast tego. Pola **Adres e-mail** są
+  opcjonalne; podaj je, jeśli chcesz otrzymać odpowiedź.
 - **Zrzuty ekranu: ** do 4 obrazów z **Dodaj obraz… **, wklejając go za pomocą
   **Ctrl+V** (np. po Win+Shift+S) lub upuszczając go na formularz. Duże obrazy
   są skalowane do 1920 pikseli.
 - **Dołącz informacje o systemie i ostatnie błędy** (domyślnie włączone) dodaje
   wersję aplikacji, system operacyjny, język, motyw, edytor i tryb uruchamiania,
-  stan licencji, rozmiar ekranu, liczbę bloków i ostatnie błędy aplikacji. **Co
-  jest wysyłane?** wyświetla dane. Kod źródłowy nie jest wysyłany.
+  rozmiar ekranu, liczbę bloków i ostatnie błędy aplikacji. **Co jest
+  wysyłane?** wyświetla dane. Twój kod źródłowy nie jest wysyłany.
 - **Wyślij raport** potwierdza numerem raportu. **Wyślij e-mailem** zamiast tego
   otwiera program pocztowy.
 

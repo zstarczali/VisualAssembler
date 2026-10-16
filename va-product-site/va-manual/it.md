@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Manuale utente
 
-**Versione 2.5.9**
+**Versione 2.6.0**
 
 Un assembler visuale a blocchi per il Commodore 64, basato sul processore 6502.
 Crea programmi trascinando e rilasciando blocchi di istruzioni e visualizza in
@@ -11,6 +11,7 @@ tempo reale il codice assembly e il codice macchina generati.
 ## Sommario
 
 - [C64 Visual Assembler — Manuale utente](#c64-visual-assembler--user-manual)
+    - [Punti salienti della versione 2.6.0](#version-260-highlights)
     - [Punti salienti della versione 2.5.9](#version-259-highlights)
     - [Punti salienti della versione 2.5.8](#version-258-highlights)
     - [Punti salienti della versione 2.5.7](#version-257-highlights)
@@ -45,7 +46,7 @@ tempo reale il codice assembly e il codice macchina generati.
     - [Modulo di avanzamento della compilazione](#compile-progress-modal)
   - [5. Impostazioni e barra degli strumenti](#5-settings--toolbar)
     - [Controllo versione](#version-control)
-    - [Freemium e Professional](#freemium-and-professional)
+    - [Libero e open source](#free-and-open-source)
     - [Segnalazione di un bug](#reporting-a-bug)
     - [Modelli di progetto](#project-templates)
     - [Progetto di costruzione](#build-project)
@@ -196,21 +197,33 @@ tempo reale il codice assembly e il codice macchina generati.
 
 ---
 
+## Punti salienti della versione 2.6.0
+
+- **Visual Assembler è ora completamente gratuito** — la licenza
+  Freemium/Professional è stata rimossa. Ogni editor, opzione di compilazione e
+  di esecuzione hardware, tutte e 7 le lingue dell'interfaccia utente e ogni
+  tema funzionano per tutti, senza registrazione o numero di serie. Il motivo è
+  semplice: secondo le norme fiscali ungheresi, vendere il programma lascerebbe
+  troppo poco dopo tasse e pratiche burocratiche per essere conveniente. I
+  numeri di serie che già possedete non sono più necessari. Vedi [Gratuito e
+  open source](#free-and-open-source).
+
+---
+
 ## Punti salienti della versione 2.5.9
 
 - **Tema Commodore 64** — la schermata di accensione del C64: un bordo azzurro
   attorno ai pannelli blu, testo azzurro, pulsanti per la riproduzione video
   inversa, colori della sintassi dalla tavolozza del C64 e il font del C64 nella
-  vista monitor (Professional).
+  vista monitor.
 - **Tema Commodore Beige** — il classico cestino del pane: case beige, tasti
   funzione color senape, strisce del badge arcobaleno e visualizzazione del
   monitor blu C64. Selezionalo nel selettore temi o passa a esso con il pulsante
-  Tema (Professional). Vedi [Impostazioni e barra degli
-  strumenti](#5-settings--toolbar).
+  temi. Vedi [Impostazioni e barra degli strumenti](#5-settings--toolbar).
 - **Tema Commodore Starlight** — un tema chiaro ispirato al traslucido
   contenitore del C64: vetro trasparente satinato con bagliore RGB arcobaleno
   che traspare, un accento magenta, colori della sintassi arcobaleno e una
-  visualizzazione del monitor scura e fumé (Professional).
+  visualizzazione del monitor scura e fumé.
 - **Finestra di dialogo Controllo versione** — la finestra di dialogo può essere
   trascinata dall'intestazione e si riapre nel punto in cui è stata lasciata;
   rimane sullo schermo quando il registro o una differenza la rendono più alta e
@@ -245,11 +258,6 @@ tempo reale il codice assembly e il codice macchina generati.
   screenshot (file, Ctrl+V o trascinamento), e-mail facoltativa, informazioni di
   sistema ed errori recenti dell'app. Vedi [Segnalazione di un
   bug](#reporting-a-bug).
-- **Seriale professionale via e-mail** — i sostenitori richiedono il loro
-  seriale nella finestra di dialogo di registrazione (**Richiedi seriale
-  (sostenitori)**); la versione professionale può essere acquistata su c64va.pro
-  con PayPal (5 €, una tantum) e il seriale arriva via e-mail subito dopo il
-  pagamento. Vedi [Freemium e Professional](#freemium-and-professional).
 - **SID Player** — **Riproduzione casuale** e **preferiti** (★) per brano. Vedi
   [SID Player](#sid-player).
 
@@ -292,18 +300,14 @@ tempo reale il codice assembly e il codice macchina generati.
   salvataggio/apertura della playlist (`.sidpl`); l'elenco e lo stato della
   finestra vengono memorizzati. Vedi [SID Player](#sid-player).
 - **VA SID Core 1.1** — un'emulazione SID integrata (MOS 6581 / 8580, con un
-  filtro 6581 allineato a SID reference) e un lettore PSID / RSID a ciclo bloccato (CPU
-  6510, temporizzazione CIA / VIC). Selezionalo in **Impostazioni → Anteprima
-  SID**; il lettore SID mostra quale motore è in esecuzione.
+  filtro 6581 basato su MOS 6581/8580) e un lettore PSID / RSID a ciclo bloccato
+  (CPU 6510, temporizzazione CIA / VIC). Selezionalo in **Impostazioni →
+  Anteprima SID**; il lettore SID mostra quale motore è in esecuzione.
 - **Editor SID** — manopole per i parametri dello strumento, un grafico ADSR più
   ampio, **ingresso MIDI**, **registrazione** nel tracker (viene aggiunto un
   nuovo pattern quando quello corrente è pieno), un **metronomo** con spie di
   battito, **eliminazione pattern**, il volume master su VA-VK e **Importa
   GoatTracker .sng**. Vedi [Editor SID](#sid-editor-3-voice-tracker).
-- **Freemium e Professional** — senza registrazione l'app funziona come
-  Freemium; inserisci l'indirizzo email e il numero di serie del tuo acquisto in
-  **Menu → Registrati…** per ottenere la versione Professional. Vedi [Freemium e
-  Professional](#freemium-and-professional).
 - **Ultimate Basic 1.6.4** incluso.
 
 ---
@@ -666,7 +670,7 @@ tempo reale il codice assembly e il codice macchina generati.
   stringhe dell'interfaccia utente. Risolve anche un bug di vecchia data per cui
   le descrizioni in inglese per `PRINT`, `PRINT_HEX`, `CLEAR_SCREEN`,
   `WAIT_KEY`, `SET_BORDER`, `SET_BG`, `IRQ_SETUP` e `RAND` venivano sovrascritte
-  silenziosamente da testo spagnolo SID referenceuo.
+  silenziosamente da testo spagnolo residuo.
 
 ---
 
@@ -1130,37 +1134,32 @@ scheda dei dettagli del comando possa riempire l'altezza rimanente del pannello.
 L'area dei dettagli scorre indipendentemente per consentire descrizioni di
 sintassi più lunghe.
 
-### Freemium e Professionale
+### Libero e open source
 
-Senza registrazione Visual Assembler funziona come **Freemium**; il badge
-accanto al titolo mostra **FREEMIUM** o **PROFESSIONAL**. Nella versione
-Freemium è possibile scrivere e compilare programmi ed eseguirli in VICE nelle
-modalità Block, Expert e Ultimate Basic. Queste richiedono la versione
-Professional:
+Visual Assembler è gratuito: ogni funzionalità — gli editor visivi (SID, Sprite,
+Char, Charset, Hi-Res, Map, Level, D64, Curve), il SID Player, **Build PRG**,
+**Build D64**, **Build CRT**, **Build project**, l'impacchettamento Exomizer,
+l'esecuzione su C64 Ultimate e su Kung Fu Flash 2, e ogni lingua e tema
+dell'interfaccia utente — funziona senza registrazione o numero di serie. Il
+codice sorgente è disponibile sotto la GNU General Public License v3.0 (vedi
+**Menu → Informazioni**). Fino alla versione 2.5.9 l'applicazione aveva una
+suddivisione Freemium/Professional; dalla versione 2.6.0 non è più necessario
+inserire un numero di serie.
 
-- gli editor visivi (SID, Sprite, Char, Charset, Hi-Res, Map, Level, D64, Curve)
-  e il SID Player;
-- **Compila PRG**, **Compila D64**, **Compila CRT**, **Compila il progetto** e
-  il packaging di Exomizer;
-- in esecuzione su C64 Ultimate e su Kung Fu Flash 2;
-- Lingue dell'interfaccia utente diverse dall'ungherese e dall'inglese, e i temi
-  OLED, Commodore 77, Commodore Starlight, Commodore Beige e Commodore 64.
+Se il programma ti piace, puoi supportarne lo sviluppo con una donazione su
+c64va.pro.
 
-Facendo clic su una funzione bloccata si apre la finestra di dialogo di
-registrazione. Per registrarsi, aprire **Menu → Registra…** (oppure fare clic
-sul badge), inserire l'indirizzo e-mail e il numero di serie dell'acquisto e
-premere **Attiva**. Il numero di serie appartiene a quell'indirizzo e-mail
-(maiuscole/minuscole e spazi non sono importanti) e la verifica viene eseguita
-offline. **Rimuovi licenza** rimuove la registrazione da questo computer.
-
-**Ottenere un numero di serie.** Se hai già supportato il progetto, inserisci il
-tuo indirizzo email nella finestra di dialogo di registrazione e premi
-**Richiedi il numero di serie (sostenitori)** (oppure usa il modulo su
-c64va.pro/register): il numero di serie arriverà via email, una sola volta per
-indirizzo. La versione Professional può essere acquistata su c64va.pro —
-**Acquista la versione completa** nella finestra di dialogo si apre la pagina:
-PayPal, 5 € una tantum, e il numero di serie verrà inviato via email subito dopo
-il pagamento. La pagina confronta anche Freemium e Professional.
+**Statistiche di utilizzo.** Al massimo una volta al giorno, all'avvio, l'app
+invia un ping anonimo a c64va.pro con la versione dell'app, il sistema
+operativo, la lingua dell'interfaccia utente, il numero di avvii e i minuti di
+attività dall'ultimo ping (un minuto viene conteggiato finché la finestra è
+visibile e si è utilizzato il mouse o la tastiera negli ultimi 5 minuti), se un
+numero di serie dalla 2.5.6 alla 2.5.9 è ancora memorizzato (solo sì/no) e un ID
+di installazione casuale (conservato nel `config.json` dell'app come
+`launchPing`). Non vengono inviati indirizzi email, numeri di serie, progetti o
+codice sorgente; offline non succede nulla. L'app chiede inoltre occasionalmente
+a c64va.pro un breve messaggio (ad esempio su una nuova versione, a volte solo
+per i sostenitori); ogni messaggio viene mostrato una sola volta.
 
 ### Segnalazione di un bug
 
@@ -1168,18 +1167,16 @@ il pagamento. La pagina confronta anche Freemium e Professional.
 allo sviluppatore.
 
 - **Riepilogo** e **Cosa è successo?** sono obbligatori: descrivi cosa hai
-  fatto, cosa ti aspettavi e cosa è successo invece. **L'email** è facoltativa
-  (da inserire con l'indirizzo email della tua licenza); inseriscila se desideri
-  una risposta.
+  fatto, cosa ti aspettavi e cosa è successo invece. **Email** è facoltativa;
+  inseriscila se desideri una risposta.
 - **Screenshot:** fino a 4 immagini con **Aggiungi immagine…**, incollandole con
   **Ctrl+V** (ad esempio dopo Win+Shift+S) o rilasciandole sul modulo. Le
   immagini di grandi dimensioni vengono ridimensionate a 1920 pixel.
 - **Includi informazioni di sistema ed errori recenti** (attivato per
   impostazione predefinita) aggiunge la versione dell'app, il sistema operativo,
-  la lingua, il tema, l'editor e la modalità di esecuzione, lo stato della
-  licenza, le dimensioni dello schermo, il numero di blocchi e gli ultimi errori
-  dell'app. **Cosa viene inviato?** mostra i dati. Il codice sorgente non viene
-  inviato.
+  la lingua, il tema, l'editor e la modalità di esecuzione, le dimensioni dello
+  schermo, il numero di blocchi e gli ultimi errori dell'app. **Cosa viene
+  inviato?** mostra i dati. Il tuo codice sorgente non viene inviato.
 - **Invia rapporto** conferma con il numero del rapporto. **Invia tramite
   e-mail** apre invece il tuo programma di posta.
 

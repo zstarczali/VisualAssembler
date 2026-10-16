@@ -1,6 +1,6 @@
 # C64 Visuell Assembler — Användarmanual
 
-**Version 2.5.9**
+**Version 2.6.0**
 
 En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom att
 dra och släppa instruktionsblock och se den genererade assemblern och
@@ -11,6 +11,7 @@ maskinkoden i realtid.
 ## Innehållsförteckning
 
 - [C64 Visual Assembler — Användarmanual](#c64-visual-assembler--user-manual)
+    - [Höjdpunkter i version 2.6.0](#version-260-highlights)
     - [Höjdpunkter i version 2.5.9](#version-259-highlights)
     - [Höjdpunkter i version 2.5.8](#version-258-highlights)
     - [Höjdpunkter i version 2.5.7](#version-257-highlights)
@@ -45,7 +46,7 @@ maskinkoden i realtid.
     - [Kompileringsförloppsmodal](#compile-progress-modal)
   - [5. Inställningar \&amp; Verktygsfält](#5-settings--toolbar)
     - [Versionskontroll](#version-control)
-    - [Freemium och Professional](#freemium-and-professional)
+    - [Gratis och öppen källkod](#free-and-open-source)
     - [Rapportera ett fel](#reporting-a-bug)
     - [Projektmallar](#project-templates)
     - [Byggprojekt](#build-project)
@@ -196,19 +197,30 @@ maskinkoden i realtid.
 
 ---
 
+## Höjdpunkter i version 2.6.0
+
+- **Visual Assembler är nu helt gratis** — Freemium/Professional-licensen har
+  tagits bort. Varje redigerings-, bygg- och hårdvarukörningsalternativ, alla 7
+  UI-språk och alla teman fungerar för alla, utan registrering eller en
+  serieversion. Anledningen är enkel: enligt ungerska skatteregler skulle det
+  vara värt att sälja programmet för lite efter skatt och pappersarbete.
+  Serieversioner som du redan har behövs helt enkelt inte längre. Se [Gratis och
+  öppen källkod](#free-and-open-source).
+
+---
+
 ## Höjdpunkter i version 2.5.9
 
 - **Commodore 64-tema** — C64:s startskärm: en ljusblå ram runt blå paneler,
   ljusblå text, knappar för omvänd video, syntaxfärger från C64-paletten och
-  C64-teckensnittet i monitorvyn (Professionell).
+  C64-teckensnittet i monitorvyn.
 - **Commodore Beige-tema** — den klassiska brödlådan: beige hölje, senapsfärgade
   funktionsknappar, regnbågsfärgade ränder och en C64-blå skärmvy. Välj det i
-  temaväljaren eller växla till det med temaknappen (Professionellt). Se
-  [Inställningar och verktygsfält](#5-settings--toolbar).
+  temaväljaren eller växla till det med temaknappen. Se [Inställningar och
+  verktygsfält](#5-settings--toolbar).
 - **Commodore Starlight-tema** — ett ljust tema efter den genomskinliga
   C64-brödlådan: frostat klart glas med regnbågens RGB-glöd som lyser igenom, en
-  magentafärgad accent, regnbågens syntaxfärger och en rökig mörk skärmvy
-  (Professionell).
+  magenta accent, regnbågens syntaxfärger och en rökig mörk skärmvy.
 - **Dialogruta för versionskontroll** — dialogrutan kan dras i rubriken och
   öppnas igen där du lämnade den; den stannar kvar på skärmen när loggen eller
   en diff gör den högre, och ett klick utanför stänger den inte längre (Esc gör
@@ -237,11 +249,6 @@ maskinkoden i realtid.
 - **Rapportera fel** — ett inbyggt rapportformulär med upp till fyra skärmdumpar
   (fil, Ctrl+V eller dra och släpp), valfri e-post, systeminformation och de
   senaste appfelen. Se [Rapportera ett fel](#reporting-a-bug).
-- **Professionell serie via e-post** — supportrar begär sin serie i
-  registreringsdialogrutan (**Begär serie (supportrar)**);
-  Professional-versionen kan köpas på c64va.pro med PayPal (5 €, engångskostnad)
-  och serien kommer via e-post direkt efter betalningen. Se [Freemium och
-  Professional](#freemium-and-professional).
 - **SID-spelare** — **Blanda** och **favoriter** (★) per låt. Se
   [SID-spelare](#sid-player).
 
@@ -281,19 +288,15 @@ maskinkoden i realtid.
   låt, undermelodier, sökning och ±10 s, volym och spara / öppna spellista
   (`.sidpl`); listan och fönstrets tillstånd sparas. Se [SID
   Player](#sid-player).
-- **VA SID Core 1.1** — en inbyggd SID-emulering (MOS 6581/8580, med ett
-  mos6581_8580-anpassat 6581-filter) och en cykellåst PSID/RSID-spelare (6510 CPU,
-  CIA/VIC-timing). Välj det i **Inställningar → SID-förhandsvisning**;
+- **VA SID Core 1.1** — en inbyggd SID-emulering (MOS 6581/8580, med ett MOS
+  6581/8580-baserat 6581-filter) och en cykellåst PSID/RSID-spelare (6510 CPU,
+  CIA/VIC-timing). Välj det i **Inställningar → SID-förhandsgranskning**;
   SID-spelaren visar vilken motor som spelar.
 - **SID-redigerare** — rattar för instrumentparametrarna, en bredare ADSR-graf,
   **MIDI-ingång**, **inspelning** i spåraren (ett nytt mönster läggs till när
   det nuvarande är fullt), en **metronom** med taktslagslampor,
   **mönsterborttagning**, mastervolymen på VA-VK och **Importera GoatTracker
   .sng**. Se [SID-redigerare](#sid-editor-3-voice-tracker).
-- **Freemium och Professional** — utan registrering körs appen som Freemium;
-  ange e-postadressen och serienumret från ditt köp i **Meny → Registrera…** för
-  att få Professional-versionen. Se [Freemium och
-  Professional](#freemium-and-professional).
 - **Ultimate Basic 1.6.4** medföljer.
 
 ---
@@ -1061,35 +1064,30 @@ Kommandolistan är avsiktligt höjdbegränsad så att kommandodetaljkortet kan f
 den återstående panelhöjden. Detaljområdet rullar oberoende för längre
 syntaxbeskrivningar.
 
-### Freemium och Professional
+### Gratis och öppen källkod
 
-Utan registrering körs Visual Assembler som **Freemium**; märket bredvid titeln
-visar **FREEMIUM** eller **PROFESSIONAL**. I Freemium kan du skriva och bygga
-program och köra dem i VICE i Block-, Expert- och Ultimate Basic-läge. Dessa
-kräver Professional-versionen:
+Visual Assembler är gratis: alla funktioner — de visuella redigerarna (SID,
+Sprite, Char, Charset, Hi-Res, Map, Level, D64, Curve), SID Player, **Build
+PRG**, **Build D64**, **Build CRT**, **Build project**, Exomizer-packning,
+körning på C64 Ultimate och Kung Fu Flash 2, och alla UI-språk och teman —
+fungerar utan registrering eller serienummer. Källkoden är tillgänglig under GNU
+General Public License v3.0 (se **Meny → Om**). Fram till version 2.5.9 hade
+appen en Freemium/Professional-uppdelning; sedan 2.6.0 behövs helt enkelt inte
+längre en serienummer som anges där.
 
-- de visuella redigerarna (SID, Sprite, Char, Charset, Hi-Res, Map, Level, D64,
-  Curve) och SID Player;
-- **Bygg PRG**, **Bygg D64**, **Bygg CRT**, **Bygg projekt** och
-  Exomizer-packning;
-- körs på C64 Ultimate och på Kung Fu Flash 2;
-- Andra gränssnittsspråk än ungerska och engelska, samt teman för OLED,
-  Commodore 77, Commodore Starlight, Commodore Beige och Commodore 64.
+Om du gillar programmet kan du stödja dess utveckling med en donation på
+c64va.pro.
 
-Om du klickar på en låst funktion öppnas registreringsdialogrutan. För att
-registrera dig, öppna **Meny → Registrera…** (eller klicka på märket), ange
-e-postadressen och serienumret från ditt köp och tryck på **Aktivera**.
-Serienumret tillhör den e-postadressen (stora/små bokstäver och mellanslag
-spelar ingen roll), och kontrollen körs offline. **Ta bort licens** tar bort
-registreringen från den här datorn.
-
-**Skaffa en serie.** Om du har stöttat projektet tidigare, ange din e-postadress
-i registreringsdialogrutan och tryck på **Begär serie (supporters)** (eller
-använd formuläret på c64va.pro/register): serien kommer via e-post, en gång per
-adress. Professional-versionen kan köpas på c64va.pro — **Köp fullständig
-version** I dialogrutan öppnas sidan: PayPal, 5 € engångskostnad, och serien
-skickas via e-post direkt efter betalningen. Sidan jämför även Freemium och
-Professional.
+**Användarstatistik.** Högst en gång om dagen, vid uppstart, skickar appen ett
+anonymt ping till c64va.pro med appversion, operativsystem, UI-språk, antal
+startar och aktiva minuter sedan den senaste pingen (en minut räknas så länge
+fönstret är synligt och du har använt musen eller tangentbordet under de senaste
+5 minuterna), om en serienummer från 2.5.6–2.5.9 fortfarande lagras (endast
+ja/nej) och ett slumpmässigt installations-ID (lagras i appens `config.json` som
+`launchPing`). Ingen e-postadress, serienummer, projekt eller källkod skickas;
+offline händer ingenting. Appen frågar också c64va.pro om ett tillfälligt kort
+meddelande (till exempel om en ny version, ibland bara för supportrar); varje
+meddelande visas en gång.
 
 ### Rapportera ett fel
 
@@ -1098,14 +1096,14 @@ utvecklaren.
 
 - **Sammanfattning** och **Vad hände?** är obligatoriska — beskriv vad du
   gjorde, vad du förväntade dig och vad som hände istället. **E-post** är
-  valfritt (ifyllt med din licens-e-postadress); ange den om du vill ha svar.
+  valfritt; ange det om du vill ha svar.
 - **Skärmdumpar:** upp till 4 bilder med **Lägg till bild…**, genom att klistra
   in med **Ctrl+V** (till exempel efter Win+Shift+S) eller genom att släppa dem
   på formuläret. Stora bilder skalas ner till 1920 pixlar.
 - **Inkludera systeminformation och senaste fel** (på som standard) lägger till
-  appversion, operativsystem, språk, tema, redigerare och körläge, licensstatus,
-  skärmstorlek, antal block och de senaste appfelen. **Vad skickas?** visar
-  data. Din källkod skickas inte.
+  appversion, operativsystem, språk, tema, redigerare och körläge, skärmstorlek,
+  antal block och de senaste appfelen. **Vad skickas?** visar data. Din källkod
+  skickas inte.
 - **Skicka rapport** bekräftar med rapportnumret. **Skicka via e-post** öppnar
   istället ditt e-postprogram.
 
