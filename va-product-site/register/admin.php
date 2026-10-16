@@ -119,13 +119,18 @@ function vaAdminPage(string $title, string $body): void
             $supportMsgs = vaSupportUserMessages();
         } catch (Throwable $e) {
         }
-        $nav = '<a class="nav-link" href="stats.php">STATS</a>'
-            . '<a class="nav-link" href="messages.php">MESSAGES</a>'
-            . '<a class="nav-link" href="geoip.php">GEOIP</a>'
-            . '<a class="nav-link" id="nav-support" href="inbox.php" data-unread="' . $support . '" data-msgs="' . $supportMsgs . '">SUPPORT'
+        $page = basename($_SERVER['SCRIPT_NAME'] ?? '');
+        $cur = fn(string $f) => $page === $f ? ' nav-cur' : '';
+        $nav = '<input type="checkbox" id="nav-tg" class="nav-tg"><label for="nav-tg" class="nav-burger" aria-label="Menu"><i></i><i></i><i></i></label>'
+            . '<div class="nav-links">'
+            . '<a class="nav-link' . $cur('stats.php') . '" href="stats.php">STATS</a>'
+            . '<a class="nav-link' . $cur('messages.php') . '" href="messages.php">MESSAGES</a>'
+            . '<a class="nav-link' . $cur('geoip.php') . '" href="geoip.php">GEOIP</a>'
+            . '<a class="nav-link' . $cur('inbox.php') . '" id="nav-support" href="inbox.php" data-unread="' . $support . '" data-msgs="' . $supportMsgs . '">SUPPORT'
             . ' <span class="nav-badge"' . ($support ? '' : ' hidden') . '>' . $support . '</span></a>'
-            . '<a class="nav-link" href="bugs.php">BUGS' . ($open ? ' <span style="color:var(--red)">' . $open . '</span>' : '') . '</a>'
-            . '<a class="nav-link" href="stats.php?logout=1">LOG OUT</a>';
+            . '<a class="nav-link' . $cur('bugs.php') . '" href="bugs.php">BUGS' . ($open ? ' <span class="nav-bugs">' . $open . '</span>' : '') . '</a>'
+            . '<a class="nav-link" href="stats.php?logout=1">LOG OUT</a>'
+            . '</div>';
     }
     echo '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
         . '<title>Visual Assembler - ' . vaH($title) . '</title><link rel="icon" href="../favicon.ico"><style>' . VA_ADMIN_CSS . '</style></head><body>'
@@ -280,10 +285,29 @@ nav { background: #0d0d22; border-bottom: 2px solid var(--brd); display: flex; a
 .brand { display: flex; align-items: center; gap: 12px; color: var(--txt-hi); font-family: 'C64Pro', monospace; font-size: 13px; letter-spacing: 2px; white-space: nowrap }
 .brand img { width: 28px; height: 28px; border-radius: 3px; image-rendering: pixelated }
 nav .sp { flex: 1 }
-.nav-link { font-size: 11px; letter-spacing: 1px; border: 1px solid var(--brd); padding: 6px 12px }
+.nav-links { display: flex; align-items: center; gap: 12px }
+.nav-link { font-size: 11px; letter-spacing: 1px; border: 1px solid var(--brd); padding: 6px 12px; white-space: nowrap }
 .nav-link:hover { border-color: var(--ylw); color: var(--ylw) }
-.nav-badge { color: var(--red) }
+.nav-link.nav-cur { border-color: var(--brd-hi); color: var(--txt-hi) }
+.nav-badge, .nav-bugs { color: var(--red) }
 .nav-badge[hidden] { display: none }
+.nav-tg { display: none }
+.nav-burger { display: none; position: relative; width: 40px; height: 34px; border: 1px solid var(--brd); cursor: pointer;
+  flex-direction: column; justify-content: center; align-items: center; gap: 5px }
+.nav-burger i { display: block; width: 18px; height: 2px; background: var(--txt-hi); transition: transform .15s, opacity .15s }
+.nav-burger:hover { border-color: var(--ylw) }
+nav:has(.nav-badge:not([hidden])) .nav-burger::after { content: ''; position: absolute; top: -4px; right: -4px; width: 8px; height: 8px; background: var(--red) }
+.nav-tg:checked + .nav-burger i:nth-child(1) { transform: translateY(7px) rotate(45deg) }
+.nav-tg:checked + .nav-burger i:nth-child(2) { opacity: 0 }
+.nav-tg:checked + .nav-burger i:nth-child(3) { transform: translateY(-7px) rotate(-45deg) }
+@media (max-width: 900px) {
+  nav { flex-wrap: wrap; height: auto; min-height: 54px; row-gap: 0 }
+  .nav-burger { display: flex }
+  .nav-links { display: none; flex-basis: 100%; flex-direction: column; align-items: stretch; gap: 6px; padding: 4px 0 14px }
+  .nav-tg:checked ~ .nav-links { display: flex }
+  .nav-link { padding: 10px 14px; font-size: 12px }
+  .screen { min-height: calc(100vh - 63px) }
+}
 .screen { background: var(--scr); min-height: calc(100vh - 61px); padding: 40px 32px 64px }
 main { max-width: 1180px; margin: 0 auto }
 .sec-s { font-size: 11px; letter-spacing: 4px; color: var(--cyn); margin-bottom: 8px }
