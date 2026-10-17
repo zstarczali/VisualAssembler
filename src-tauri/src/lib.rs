@@ -21,6 +21,7 @@ mod hvsc;
 mod mos6510;
 mod sid_core;
 mod sid_file;
+mod tutorials;
 mod vice_monitor;
 
 // ── Resource path resolution ─────────────────────────────────────────────────
@@ -5293,6 +5294,12 @@ pub fn run() {
             hvsc::hvsc_clear_folder,
             hvsc::hvsc_download_all,
             hvsc::hvsc_cancel_download,
+            tutorials::list_user_tutorials,
+            tutorials::save_user_tutorial,
+            tutorials::delete_user_tutorial,
+            tutorials::open_tutorials_folder,
+            tutorials::list_online_tutorials,
+            tutorials::download_online_tutorial,
             support_api,
             get_ui_settings,
             save_ui_settings,

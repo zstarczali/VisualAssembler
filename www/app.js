@@ -2430,7 +2430,8 @@ function setupDraggableEditorDialogs() {
     ["d64-editor-dialog", ".de-hdr"],
     ["d64-block-editor-dialog", ".dbe-hdr"],
     ["project-snapshot-dialog", ".project-snapshot-hdr"],
-    ["support-dialog", ".support-hdr"]
+    ["support-dialog", ".support-hdr"],
+    ["tut-editor-dialog", ".te-hdr"]
   ];
   dialogs.forEach(function(entry) {
     const dialogId = entry[0];
@@ -4083,6 +4084,7 @@ function _applyEditorTranslations() {
   setAttr("#websid-play-fwd", t("sidPlayerForward10"));
   setAttr("#websid-play-add", t("sidPlayerAdd"));
   setAttr("#websid-play-clear", t("sidPlayerClear"));
+  _teApplyTranslations();
   setAttr("#websid-play-hvsc", t("sidHvsc"));
   setAttr("#websid-hvsc-random", t("sidHvscRandom"));
   setAttr("#websid-hvsc-add-all", t("sidHvscAddAll"));
@@ -4510,7 +4512,9 @@ function updateOperandField() {
   const needsRawTextOperand = item?.isRawTextMacro;
   const needsPetsciiOperand = item?.isPetsciiMacro;
   const needsCommentOperand = item?.isComment;
-  operandInput.disabled = hideOperandField || !(mode.needsOperand || needsTextOperand || needsByteOperand || needsStringOperand || needsDataOperand || needsRawBytesOperand || needsRawTextOperand || needsPetsciiOperand || needsCommentOperand) || item?.isIncBinMacro || item?.isIncludeMacro;
+  const operandKind = _paletteOperandKindNow(item);
+  const macroArgs = item?.isLabel ? "start" : _paletteIsMacro(item) ? _paletteMacroSyntax(item)?.args : "";
+  operandInput.disabled = hideOperandField || !operandKind;
   operandInput.placeholder = needsTextOperand
     ? (currentLanguage === "hu" ? "Peldaul HELLO C64" : "For example HELLO C64")
     : needsByteOperand
@@ -4525,9 +4529,9 @@ function updateOperandField() {
               ? (currentLanguage === "hu" ? "Peldaul HELLO" : "For example HELLO")
               : needsCommentOperand
                 ? (currentLanguage === "hu" ? "Peldaul border scroll demo" : "For example border scroll demo")
-                : getOperandPlaceholder(mode, getSelectedBase());
+                : macroArgs || getOperandPlaceholder(mode, getSelectedBase());
 
-  if (!mode.needsOperand && !needsTextOperand && !needsByteOperand && !needsStringOperand && !needsDataOperand && !needsRawBytesOperand && !needsRawTextOperand && !needsCommentOperand) {
+  if (!operandKind) {
     operandInput.value = "";
   }
 }
@@ -4843,7 +4847,84 @@ function getSelectedMnemonic() {
   return mnemonicLibrary[category].find((item) => item.mnemonic === mnemonicSelect.value);
 }
 
+/* ── Palette operand rule ─────────────────────────────────────────────────
+ * Every macro with parameters takes them in the operand field, as the text
+ * after its Expert keyword (".set_bg $06", ".region Main", "* = $C000").
+ * "field": the palette branch reads the field itself (TEXT, BYTE, LABEL …) or
+ * the addressing mode needs an operand; "parse": the text is parsed as the
+ * macro's Expert line. File macros keep their own file picker. */
+const _PALETTE_OPERAND_FLAGS = ["isLabel", "isComment", "isTextMacro", "isByteMacro", "isStringMacro", "isDataMacro", "isRawBytesMacro",
+  "isRawTextMacro", "isPetsciiMacro", "isWordMacro", "isFillMacro", "isAlignMacro", "isDefineMacro", "isIfMacro", "isMacroDefStart",
+  "isRegionMacro", "isAssertMacro", "isLevelRowMacro", "isLongBranchMacro"];
+const _PALETTE_FILE_FLAGS = ["isIncBinMacro", "isIncludeMacro", "isSidMacro", "isTableMacro"];
+// ".set_bg $06" → { keyword: ".set_bg", args: "$06" }; "* = $C000" → { keyword: "* =", args: "$C000" }
+function _macroLineArgs(line) {
+  const text = String(line || "").trim();
+  const org = /^\*\s*=\s*(.+)$/.exec(text);
+  if (org) return { keyword: "* =", args: org[1].trim() };
+  const m = /^(\.[A-Za-z_][A-Za-z0-9_]*)\s+(.+)$/.exec(text);
+  return m ? { keyword: m[1], args: m[2].trim() } : null;
+}
+function _paletteIsMacro(item) {
+  return Object.keys(item || {}).some(function(key) { return /^is[A-Z]/.test(key) && item[key] === true; });
+}
+// kind: "field" | "parse" | null; syntax(item) gives the macro's default { keyword, args }
+function _paletteOperandKind(item, mode, syntax) {
+  if (!item || _PALETTE_FILE_FLAGS.some(function(flag) { return item[flag]; })) return null;
+  if (_PALETTE_OPERAND_FLAGS.some(function(flag) { return item[flag]; })) return "field";
+  if (_paletteIsMacro(item)) return syntax(item)?.args ? "parse" : null;
+  return mode?.needsOperand ? "field" : null;
+}
+const _paletteSyntaxCache = new Map();
+// The macro's Expert syntax, from the block the palette makes by default.
+function _paletteMacroSyntax(item) {
+  if (!_paletteSyntaxCache.has(item.mnemonic)) {
+    let syntax = null;
+    // the default block, not one built from what is typed in the field now
+    const typed = operandInput.value;
+    operandInput.value = "";
+    try { syntax = _macroLineArgs(_blockToExpertLine(_createBlockFromPalette(item)).split("\n")[0]); } catch (_) {}
+    operandInput.value = typed;
+    _paletteSyntaxCache.set(item.mnemonic, syntax);
+  }
+  return _paletteSyntaxCache.get(item.mnemonic);
+}
+function _paletteOperandKindNow(item) {
+  return _paletteOperandKind(item, addressingModes[addressingSelect.value], _paletteMacroSyntax);
+}
+
 function createBlockFromMnemonic(item) {
+  return _paletteParseOperand(item, _createBlockFromPalette(item), operandInput.value.trim(), _paletteOperandKindNow(item));
+}
+// A "parse" macro: the operand text becomes the arguments of its Expert line.
+function _paletteParseOperand(item, block, operand, kind) {
+  if (!operand || kind !== "parse") return block;
+  try {
+    const parsed = parseExpertText(_paletteMacroSyntax(item).keyword + " " + operand).find(function(b) { return b.mnemonic === block.mnemonic; });
+    if (parsed) return Object.assign(parsed, { id: block.id, category: block.category, description: block.description, collapsed: block.collapsed });
+  } catch (_) {}
+  return block;
+}
+// The Expert line the palette would make for a macro from this operand text
+// and number base; the palette fields themselves are left as they were.
+function _paletteMacroLine(item, mode, base, operand) {
+  const typed = operandInput.value;
+  const checked = Array.from(baseInputs || []).find(function(input) { return input.checked; });
+  const baseInput = Array.from(baseInputs || []).find(function(input) { return input.value === base; });
+  operandInput.value = operand || "";
+  if (baseInput) baseInput.checked = true;
+  try {
+    const kind = _paletteOperandKind(item, addressingModes[mode], _paletteMacroSyntax);
+    return _blockToExpertLine(_paletteParseOperand(item, _createBlockFromPalette(item), (operand || "").trim(), kind));
+  } catch (_) {
+    return null;
+  } finally {
+    operandInput.value = typed;
+    if (checked) checked.checked = true;
+  }
+}
+
+function _createBlockFromPalette(item) {
   if (item.isLabel) {
     const labelName = sanitizeLabelName(operandInput.value.trim() || "start");
     return {
@@ -34209,6 +34290,745 @@ function _runTutorialStepAction(actionId) {
   }
 }
 
+/* ── Tutorial texts and user lessons (Tutorial Editor) ─────────────────
+ * A text is stored per language (titleHu, titleEn, …); a missing language
+ * falls back to English, Hungarian, any other, and last to the generated
+ * text (titleAuto). A user lesson ("va-tutorial") is a list of items: text
+ * steps and instructions; each instruction expands into the guided
+ * sub-steps of the built-in lesson: pick the mnemonic, type the operand,
+ * press Add. */
+const _TUT_LANG_SUFFIX = { hu: "Hu", en: "En", es: "Es", de: "De", nl: "Nl", pl: "Pl", it: "It" };
+const _TUT_FORMAT = "va-tutorial";
+
+function _tutText(obj, field, lang) {
+  if (!obj) return "";
+  const own = obj[field + (_TUT_LANG_SUFFIX[lang] || "En")];
+  if (own) return own;
+  for (const sfx of ["En", "Hu", "Es", "De", "Nl", "Pl", "It"]) {
+    if (obj[field + sfx]) return obj[field + sfx];
+  }
+  return obj[field + "Auto"] || "";
+}
+// The texts an author wrote for every language, copied onto a generated step.
+function _tutOwnTexts(item) {
+  const out = {};
+  Object.keys(item || {}).forEach(function(key) {
+    if (/^(title|desc)(Hu|En|Es|De|Nl|Pl|It)$/.test(key) && item[key]) out[key] = item[key];
+  });
+  return out;
+}
+// Another mnemonic of the same palette category, preselected so that the
+// student has to pick the right one; null when the category has no other.
+function _tutDecoyMnemonic(library, category, mnemonic) {
+  const other = (library?.[category] || []).find(function(item) { return item.mnemonic !== mnemonic; });
+  return other ? other.mnemonic : null;
+}
+// The operand text that recreates a block on the palette (_paletteOperandKind):
+// the field the palette branch fills, the arguments of the macro's Expert line,
+// or the instruction operand; null when the palette takes no operand for it.
+const _TUT_OPERAND_FIELDS = { isLabel: "labelName", isRegionMacro: "regionName", isMacroDefStart: "macroName", isDefineMacro: "defineSymbol", isIfMacro: "ifCondition" };
+function _tutOperandText(block, item, mode, modes, line) {
+  const kind = _paletteOperandKind(item, modes?.[mode], function() { return _macroLineArgs(line); });
+  if (!kind) return null;
+  if (kind === "parse") return _macroLineArgs(line)?.args ?? null;
+  for (const [flag, field] of Object.entries(_TUT_OPERAND_FIELDS)) {
+    if (item[flag]) return String(block[field] || block.rawOperand || "");
+  }
+  return String(block.rawOperand ?? "");
+}
+function _tutIsMacro(block) {
+  return Object.keys(block || {}).some(function(key) { return /^is[A-Z]/.test(key) && block[key] === true; });
+}
+// The mode the palette ends up in: the block's, if the mnemonic offers it.
+function _tutPaletteMode(item, block) {
+  const modes = item?.modes || [];
+  return modes.includes(block.addressingMode) ? block.addressingMode : (modes[0] || block.addressingMode || "implied");
+}
+// The palette category that holds the mnemonic: blocks read from Expert text
+// carry a generic category (e.g. REGION as "Makrok", on the palette "Szerkezet").
+function _tutCategoryOf(library, block) {
+  const has = function(cat) { return (library?.[cat] || []).some(function(item) { return item.mnemonic === block.mnemonic; }); };
+  if (has(block.category)) return block.category;
+  return Object.keys(library || {}).find(has) || block.category;
+}
+// A block as stored in a lesson: no id, no editor state, no file contents.
+function _tutBlockSnapshot(block) {
+  const copy = JSON.parse(JSON.stringify(block));
+  ["id", "collapsed", "incBinBytes", "_koalaData"].forEach(function(key) { delete copy[key]; });
+  return copy;
+}
+// Lesson items from a program: one instruction step per block; the leading
+// ORG block is the empty program's own and only sets its address.
+function _tutItemsFromBlocks(blocks) {
+  const items = [];
+  let org = null;
+  (blocks || []).forEach(function(block, index) {
+    if (block.isBlankLine) return;
+    if (index === 0 && block.isOrgMacro) { org = block.orgAddress || null; return; }
+    items.push({ kind: "instr", block: _tutBlockSnapshot(block) });
+  });
+  return { items, org };
+}
+// h: { t, tf, library, line(block) }
+function _tutExpandItems(data, h) {
+  const steps = [];
+  const items = Array.isArray(data?.items) ? data.items : [];
+  const total = items.filter(function(item) { return item.kind === "instr"; }).length;
+  let n = 0;
+  items.forEach(function(item) {
+    const own = _tutOwnTexts(item);
+    if (item.kind !== "instr") {
+      steps.push(Object.assign({ target: item.target || null, titleAuto: h.t("tutEdKindText") }, own));
+      return;
+    }
+    n++;
+    const block = item.block || {};
+    const prefix = n + "/" + total + " — ";
+    const line = h.line(block);
+    const category = _tutCategoryOf(h.library, block);
+    const libItem = (h.library?.[category] || []).find(function(i) { return i.mnemonic === block.mnemonic; });
+    const mode = { addressingMode: _tutPaletteMode(libItem, block), base: ["hex", "dec", "bin"].includes(block.base) ? block.base : null };
+    // the operand typed on the palette; the parameter step fixes whatever it cannot set
+    const raw = _tutOperandText(block, libItem, mode.addressingMode, h.modes, h.line(block)) || "";
+    // the parameter step only where the palette's block differs from the lesson's
+    // (a TEXT position, an address the field does not take …)
+    const norm = function(text) { return String(text || "").replace(/\s+/g, " ").trim(); };
+    const paletteLine = _tutIsMacro(block) && h.paletteLine ? h.paletteLine(libItem, mode.addressingMode, block.base, raw) : null;
+    const macro = paletteLine !== null
+      ? norm(paletteLine) !== norm(h.fullLine ? h.fullLine(block) : h.line(block))
+      : _tutIsMacro(block) || (!raw && String(block.rawOperand ?? "") !== "");
+    const decoy = _tutDecoyMnemonic(h.library, category, block.mnemonic);
+    const palette = { category, mnemonic: decoy || block.mnemonic, addressingMode: mode.addressingMode, operand: "", base: mode.base };
+    const sub = [];
+    if (decoy) {
+      sub.push({
+        target: "#mnemonic-select", prepPalette: palette, advanceOnTargetChange: true, targetValue: block.mnemonic,
+        titleAuto: prefix + h.tf("tutGenSelectTitle", { mnemonic: block.mnemonic }),
+        descAuto: h.tf("tutGenSelectDesc", { mnemonic: block.mnemonic, line }),
+      });
+    }
+    if (raw) {
+      sub.push({
+        target: "#operand-input", advanceOnTargetInput: true, targetValue: raw,
+        titleAuto: prefix + h.tf("tutGenTypeTitle", { value: raw }),
+        descAuto: h.tf("tutGenTypeDesc", { value: raw, line }),
+      });
+    }
+    sub.push({
+      target: "#add-selected", advanceOnTargetClick: true, trackAdded: true,
+      titleAuto: prefix + h.tf("tutGenAddTitle", { line }),
+      descAuto: h.t("tutGenAddDesc"),
+    });
+    // macro parameters outside the operand field are set in the added block;
+    // the step passes by itself once the block reads like the lesson's
+    if (macro) {
+      sub.push({
+        target: null, adjust: { block, auto: !!data.autoParams },
+        titleAuto: prefix + h.t("tutGenAdjustTitle"),
+        descAuto: h.tf("tutGenAdjustDesc", { line }),
+      });
+    }
+    // the mnemonic step sets up the palette; later sub-steps only restore the
+    // addressing mode, which picking the mnemonic may have changed
+    sub.forEach(function(step, i) {
+      if (i === 0 && !decoy) step.prepPalette = palette;
+      else if (i > 0 && !step.adjust) step.prepMode = mode;
+    });
+    Object.assign(sub[0], own);
+    steps.push.apply(steps, sub);
+  });
+  if (data?.clearProgram !== false && steps.length) steps[0].prepEmpty = { org: data.org || null };
+  return steps;
+}
+function _tutLessonFromData(data, h) {
+  const lesson = {
+    id: data.id, category: typeof data.category === "string" && data.category ? data.category : "custom", type: "lesson", interactive: true, user: true,
+    difficulty: [1, 2, 3].includes(data.difficulty) ? data.difficulty : 1,
+    steps: _tutExpandItems(data, h),
+  };
+  Object.keys(data).forEach(function(key) {
+    if (/^(title|desc)(Hu|En|Es|De|Nl|Pl|It)$/.test(key)) lesson[key] = data[key];
+  });
+  return lesson;
+}
+
+// An online lesson against the installed ones: "new", "update" (the site has a
+// higher rev) or "installed".
+function _tutOnlineState(entry, installed) {
+  const local = (installed || []).find(function(l) { return l.id === entry.id; });
+  if (!local) return "new";
+  return (Number(entry.rev) || 0) > (Number(local.rev) || 0) ? "update" : "installed";
+}
+
+let _tutUserLessons = [];
+let _teData = null;
+let _teSel = -1;
+let _teDirty = false;
+let _teShownSel = -1;
+let _tutLastAddedId = null;
+let _tutAdjustTimer = 0;
+let _tourLastShown = -1;
+const _TUT_USER_STORE = "c64va-user-tutorials";
+const _TE_TARGETS = [
+  ["", "tutEdTargetNone"],
+  [".palette-panel", "tutEdTargetPalette"],
+  [".program-panel", "tutEdTargetProgram"],
+  [".output-panel", "tutEdTargetAsm"],
+  ["#run-emulator", "tutEdTargetRun"],
+  [".global-memory-panel", "tutEdTargetMemory"],
+];
+
+function _tutHelpers() {
+  return {
+    t, tf,
+    library: mnemonicLibrary,
+    modes: addressingModes,
+    paletteLine: function(item, mode, base, operand) { return item ? _paletteMacroLine(item, mode, base, operand) : null; },
+    fullLine: function(block) { try { return _blockToExpertLine(block); } catch (_) { return ""; } },
+    line: function(block) {
+      try { return _blockToExpertLine(block).split("\n")[0].trim() || block.mnemonic; } catch (_) { return block.mnemonic || ""; }
+    },
+  };
+}
+function _tutLangSuffix() {
+  return _TUT_LANG_SUFFIX[currentLanguage] || "En";
+}
+// Puts the user lessons (expanded in the current language) into TUTORIAL_DATA.
+function _tutSyncUserLessons() {
+  TUTORIAL_DATA.lessons = TUTORIAL_DATA.lessons.filter(function(lesson) { return !lesson.user; });
+  let cat = TUTORIAL_DATA.categories.find(function(c) { return c.id === "custom"; });
+  if (!cat) { cat = { id: "custom" }; TUTORIAL_DATA.categories.push(cat); }
+  cat.labelAuto = t("tutCustomCategory");
+  const h = _tutHelpers();
+  const known = new Set(TUTORIAL_DATA.categories.map(function(c) { return c.id; }));
+  _tutUserLessons.forEach(function(data) {
+    const lesson = _tutLessonFromData(data, h);
+    if (!known.has(lesson.category)) lesson.category = "custom";
+    TUTORIAL_DATA.lessons.push(lesson);
+  });
+}
+async function _tutLoadUserLessons() {
+  let lessons = [];
+  if (window.electronAPI?.listUserTutorials) {
+    try { lessons = (await window.electronAPI.listUserTutorials())?.lessons || []; } catch (_) {}
+  } else {
+    try { lessons = JSON.parse(localStorage.getItem(_TUT_USER_STORE) || "[]"); } catch (_) {}
+  }
+  _tutUserLessons = (Array.isArray(lessons) ? lessons : []).filter(function(l) { return l && l.format === _TUT_FORMAT && l.id; });
+}
+async function _tutStoreUserLesson(data) {
+  const index = _tutUserLessons.findIndex(function(l) { return l.id === data.id; });
+  if (index >= 0) _tutUserLessons[index] = data; else _tutUserLessons.push(data);
+  if (window.electronAPI?.saveUserTutorial) await window.electronAPI.saveUserTutorial(data);
+  else localStorage.setItem(_TUT_USER_STORE, JSON.stringify(_tutUserLessons));
+}
+async function _tutRemoveUserLesson(id) {
+  _tutUserLessons = _tutUserLessons.filter(function(l) { return l.id !== id; });
+  if (window.electronAPI?.deleteUserTutorial) await window.electronAPI.deleteUserTutorial(id);
+  else localStorage.setItem(_TUT_USER_STORE, JSON.stringify(_tutUserLessons));
+}
+
+// ── Engine hooks used by the expanded steps ──
+function _tutPrepareEmpty(org) {
+  if (_tourPreparedLessonId === _tourLessonId) return;
+  _tourPreparedLessonId = _tourLessonId;
+  if (expertMode) {
+    setExpertMode(false);
+    if (expertModeToggle) expertModeToggle.checked = false;
+  }
+  doClearProgram();
+  if (org && program[0]?.isOrgMacro) program[0].orgAddress = org;
+  selectedBlockId = null;
+  renderProgram();
+  renderAsmOutput();
+  renderMemoryMap();
+  renderMonitorOutput();
+}
+function _tutApplyMode(mode) {
+  if (addressingSelect && mode.addressingMode && Array.from(addressingSelect.options).some(function(o) { return o.value === mode.addressingMode; })) {
+    addressingSelect.value = mode.addressingMode;
+    handleAddressingChange();
+  }
+  if (mode.base) {
+    const baseInput = Array.from(baseInputs || []).find(function(input) { return input.value === mode.base; });
+    if (baseInput && !baseInput.checked) { baseInput.checked = true; handleBaseChange(); }
+  }
+  updateOperandField();
+}
+// The block the student has just added takes every field of the lesson's
+// block (text position, macro options …) the palette cannot set.
+function _tutNormLine(text) {
+  return String(text || "").replace(/\s+/g, " ").trim();
+}
+function _tutAddedBlockMatches(snapshot) {
+  const block = program.find(function(b) { return b.id === _tutLastAddedId; });
+  if (!block) return false;
+  try { return _tutNormLine(_blockToExpertLine(block)) === _tutNormLine(_blockToExpertLine(snapshot)); } catch (_) { return false; }
+}
+function _tourAdvance() {
+  if (!_tourActive) return;
+  if (_tourCurrentStep >= _tourSteps.length - 1) { _tourEnd(); return; }
+  _tourCurrentStep += 1;
+  _tourShowStep(_tourCurrentStep);
+}
+// The "set the parameters" step: points at the added block, fills it in when
+// the lesson asks for that, and passes on as soon as the block matches.
+// Returns true when the step is skipped (only when moving forward).
+function _tutEnterAdjust(step, forward) {
+  const id = _tutLastAddedId && program.some(function(b) { return b.id === _tutLastAddedId; }) ? _tutLastAddedId : null;
+  step.target = id ? '[data-block-id="' + id + '"]' : null;
+  if (step.adjust.auto && id) _tutApplyAddedBlock(step.adjust.block);
+  if (forward && _tutAddedBlockMatches(step.adjust.block)) {
+    setTimeout(_tourAdvance, 0);
+    return true;
+  }
+  if (_tourInteractiveMode) {
+    _tutAdjustTimer = setInterval(function() {
+      if (!_tourActive || !_tutAddedBlockMatches(step.adjust.block)) return;
+      clearInterval(_tutAdjustTimer);
+      _tutAdjustTimer = 0;
+      _tourAdvance();
+    }, 400);
+  }
+  return false;
+}
+function _tutApplyAddedBlock(snapshot) {
+  const block = program.find(function(b) { return b.id === _tutLastAddedId; });
+  if (!block || block.mnemonic !== snapshot.mnemonic) return;
+  Object.assign(block, JSON.parse(JSON.stringify(snapshot)), { id: block.id, collapsed: block.collapsed });
+  markTabDirty();
+  renderProgram();
+  renderAsmOutput();
+  renderMemoryMap();
+}
+
+// ── Tutorial Editor dialog ──
+function _teNewLesson() {
+  const data = { format: _TUT_FORMAT, version: 1, id: "user-" + crypto.randomUUID().slice(0, 8), category: "custom", difficulty: 1, clearProgram: true, items: [] };
+  data["title" + _tutLangSuffix()] = t("tutEdUntitled");
+  return data;
+}
+function _teMarkDirty() {
+  _teDirty = true;
+  _teRenderMeta();
+}
+function _teRenderMeta() {
+  const meta = document.getElementById("te-meta");
+  if (meta) meta.textContent = tf("tutEdLangNote", { lang: currentLanguage.toUpperCase() }) + (_teDirty ? " · " + t("tutEdUnsaved") : "");
+}
+function _teRenderLessonSelect() {
+  const select = document.getElementById("te-lesson");
+  if (!select) return;
+  select.textContent = "";
+  const lessons = _tutUserLessons.slice();
+  if (_teData && !lessons.some(function(l) { return l.id === _teData.id; })) lessons.push(_teData);
+  lessons.forEach(function(lesson) {
+    const option = document.createElement("option");
+    option.value = lesson.id;
+    option.textContent = _tutText(lesson, "title", currentLanguage) || lesson.id;
+    select.appendChild(option);
+  });
+  if (_teData) select.value = _teData.id;
+}
+function _teItemLabel(item, h) {
+  if (item.kind === "instr") return _tutText(item, "title", currentLanguage) || h.line(item.block || {});
+  return _tutText(item, "title", currentLanguage) || t("tutEdKindText");
+}
+function _teRender() {
+  if (!_teData) return;
+  const h = _tutHelpers();
+  const sfx = _tutLangSuffix();
+  const name = document.getElementById("te-name");
+  if (name && document.activeElement !== name) name.value = _teData["title" + sfx] || "";
+  if (name) name.placeholder = _tutText(_teData, "title", currentLanguage);
+  const desc = document.getElementById("te-desc");
+  if (desc && document.activeElement !== desc) desc.value = _teData["desc" + sfx] || "";
+  if (desc) desc.placeholder = _tutText(_teData, "desc", currentLanguage);
+  const diff = document.getElementById("te-diff");
+  if (diff) diff.value = String(_teData.difficulty || 1);
+  const clear = document.getElementById("te-clear");
+  if (clear) clear.checked = _teData.clearProgram !== false;
+  const autoBox = document.getElementById("te-auto");
+  if (autoBox) autoBox.checked = !!_teData.autoParams;
+  const cat = document.getElementById("te-cat");
+  if (cat) {
+    cat.textContent = "";
+    const cats = TUTORIAL_DATA.categories.filter(function(c) { return c.id !== "custom"; }).concat([{ id: "custom", labelAuto: t("tutCustomCategory") }]);
+    cats.forEach(function(c) {
+      const option = document.createElement("option");
+      option.value = c.id;
+      option.textContent = c.id === "custom" ? t("tutCustomCategory") : _tutText(c, "label", currentLanguage);
+      cat.appendChild(option);
+    });
+    cat.value = cats.some(function(c) { return c.id === _teData.category; }) ? _teData.category : "custom";
+  }
+  const list = document.getElementById("te-steps");
+  if (list) {
+    list.textContent = "";
+    _teData.items.forEach(function(item, index) {
+      const li = document.createElement("li");
+      li.className = "te-step" + (index === _teSel ? " te-step--sel" : "") + (item.kind === "instr" ? " te-step--instr" : "");
+      li.dataset.index = String(index);
+      li.textContent = _teItemLabel(item, h);
+      list.appendChild(li);
+    });
+  }
+  const item = _teData.items[_teSel];
+  document.getElementById("te-step-empty").hidden = !!item;
+  document.getElementById("te-step-empty").textContent = t("tutEdNoStep");
+  document.getElementById("te-step-fields").hidden = !item;
+  ["te-up", "te-down", "te-remove"].forEach(function(id) {
+    const btn = document.getElementById(id);
+    if (btn) btn.disabled = !item;
+  });
+  if (document.getElementById("te-up")) document.getElementById("te-up").disabled = !item || _teSel === 0;
+  if (document.getElementById("te-down")) document.getElementById("te-down").disabled = !item || _teSel === _teData.items.length - 1;
+  document.getElementById("te-try").disabled = !_teData.items.length;
+  _teRenderMeta();
+  // a newly selected step always fills the fields, even the focused one
+  const fresh = _teShownSel !== _teSel;
+  _teShownSel = _teSel;
+  if (!item) return;
+  const auto = _tutExpandItems({ items: [item], clearProgram: false }, h);
+  const autoText = function(field) { return auto[0] ? _tutText(auto[0], field, currentLanguage).replace(/^\d+\/\d+ — /, "") : ""; };
+  document.getElementById("te-step-kind").textContent = item.kind === "instr" ? tf("tutEdKindInstr", { line: h.line(item.block || {}) }) : t("tutEdKindText");
+  const title = document.getElementById("te-step-title");
+  if (fresh || document.activeElement !== title) title.value = item["title" + sfx] || "";
+  title.placeholder = autoText("title");
+  const stepDesc = document.getElementById("te-step-desc");
+  if (fresh || document.activeElement !== stepDesc) stepDesc.value = item["desc" + sfx] || "";
+  stepDesc.placeholder = autoText("desc");
+  const targetWrap = document.getElementById("te-target-wrap");
+  targetWrap.hidden = item.kind === "instr";
+  const target = document.getElementById("te-step-target");
+  target.textContent = "";
+  _TE_TARGETS.forEach(function(entry) {
+    const option = document.createElement("option");
+    option.value = entry[0];
+    option.textContent = t(entry[1]);
+    target.appendChild(option);
+  });
+  target.value = item.target || "";
+  document.getElementById("te-step-auto").textContent = item.kind === "instr" ? tf("tutEdAutoNote", { count: auto.length }) : "";
+}
+async function _teConfirmDiscard() {
+  return !_teDirty || await _showConfirm(t("tutEdDiscardConfirm"));
+}
+function _teOpenLesson(data) {
+  _teData = JSON.parse(JSON.stringify(data));
+  if (!Array.isArray(_teData.items)) _teData.items = [];
+  _teSel = _teData.items.length ? 0 : -1;
+  _teShownSel = -2;
+  _teDirty = false;
+  _teRenderLessonSelect();
+  _teRender();
+}
+async function openTutorialEditor(lessonId) {
+  const dlg = document.getElementById("tut-editor-dialog");
+  if (!dlg) return;
+  await _tutLoadUserLessons();
+  const data = _tutUserLessons.find(function(l) { return l.id === lessonId; }) || _tutUserLessons[0] || _teNewLesson();
+  _teOpenLesson(data);
+  document.getElementById("tutorial-dialog")?.close();
+  if (!dlg.open) dlg.showModal();
+}
+async function _teSave() {
+  if (!_teData) return false;
+  // the online list offers an update when a published lesson has a higher rev
+  _teData.rev = (Number(_teData.rev) || 0) + 1;
+  try {
+    await _tutStoreUserLesson(JSON.parse(JSON.stringify(_teData)));
+  } catch (e) {
+    showViceToast(String(e?.message || e), true);
+    return false;
+  }
+  _teDirty = false;
+  _teRenderLessonSelect();
+  _teRender();
+  showViceToast(tf("tutEdSaved", { name: _tutText(_teData, "title", currentLanguage) }));
+  return true;
+}
+async function _teFromProgram() {
+  const blocks = expertMode ? _expertBuildProgram() : program;
+  const { items, org } = _tutItemsFromBlocks(blocks);
+  if (!items.length) { showViceToast(t("tutEdFromProgramEmpty"), true); return; }
+  if (_teData.items.length && !(await _showConfirm(t("tutEdFromProgramConfirm")))) return;
+  // the text steps stay in front of the new instruction steps
+  _teData.items = _teData.items.filter(function(item) { return item.kind !== "instr"; }).concat(items);
+  _teData.org = org;
+  _teSel = 0;
+  _teMarkDirty();
+  _teRender();
+}
+function _teAddText() {
+  const item = { kind: "text" };
+  item["title" + _tutLangSuffix()] = "";
+  _teData.items.splice(_teSel + 1, 0, item);
+  _teSel = _teSel + 1;
+  _teMarkDirty();
+  _teRender();
+  document.getElementById("te-step-title")?.focus();
+}
+function _teMove(delta) {
+  const to = _teSel + delta;
+  if (_teSel < 0 || to < 0 || to >= _teData.items.length) return;
+  const [item] = _teData.items.splice(_teSel, 1);
+  _teData.items.splice(to, 0, item);
+  _teSel = to;
+  _teMarkDirty();
+  _teRender();
+}
+function _teRemove() {
+  if (_teSel < 0) return;
+  _teData.items.splice(_teSel, 1);
+  _teSel = Math.min(_teSel, _teData.items.length - 1);
+  _teMarkDirty();
+  _teRender();
+}
+async function _teTry() {
+  if (!_teData?.items.length) return;
+  if (_teData.clearProgram !== false && !isProgramEmpty() && !(await _showConfirm(t("tutEdTryConfirm")))) return;
+  const lesson = _tutLessonFromData(_teData, _tutHelpers());
+  document.getElementById("tut-editor-dialog")?.close();
+  _tourStart(lesson.steps, lesson.id, true);
+}
+async function _teExport() {
+  if (!_teData) return;
+  const text = JSON.stringify(_teData, null, 1);
+  const slug = (_tutText(_teData, "title", currentLanguage) || _teData.id).replace(/[^A-Za-z0-9_-]+/g, "_").slice(0, 40) || "lesson";
+  const fileName = slug + ".vatut";
+  if (window.electronAPI?.saveBin) {
+    const res = await window.electronAPI.saveBin({ bytes: Array.from(new TextEncoder().encode(text)), fileName });
+    if (res && !res.ok && !res.canceled) showViceToast(res.error || "Export failed", true);
+    return;
+  }
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([text], { type: "application/json" }));
+  a.download = fileName;
+  a.click();
+  setTimeout(function() { URL.revokeObjectURL(a.href); }, 1000);
+}
+async function _teImport(file) {
+  let data = null;
+  try { data = JSON.parse(await file.text()); } catch (_) {}
+  if (!data || data.format !== _TUT_FORMAT || !Array.isArray(data.items)) {
+    showViceToast(tf("tutEdImportFailed", { name: file.name }), true);
+    return;
+  }
+  if (!/^[A-Za-z0-9_-]{1,64}$/.test(String(data.id)) || _tutUserLessons.some(function(l) { return l.id === data.id; })) {
+    data.id = "user-" + crypto.randomUUID().slice(0, 8);
+  }
+  await _tutStoreUserLesson(data);
+  _teOpenLesson(data);
+}
+async function _teDelete() {
+  if (!_teData) return;
+  if (!(await _showConfirm(tf("tutEdDeleteConfirm", { name: _tutText(_teData, "title", currentLanguage) })))) return;
+  await _tutRemoveUserLesson(_teData.id);
+  _teOpenLesson(_tutUserLessons[0] || _teNewLesson());
+}
+// ── Online lessons (www.c64va.pro/lessons/) ──
+let _tutOnline = null;
+let _tutOnlineError = "";
+let _tutOnlineBusy = "";
+function _tutOnlineAvailable() {
+  return !!window.electronAPI?.listOnlineTutorials;
+}
+async function openOnlineLessons() {
+  const dlg = document.getElementById("tut-online-dialog");
+  if (!dlg) return;
+  if (!dlg.open) dlg.showModal();
+  await _tutLoadUserLessons();
+  _tutOnlineLoad();
+}
+async function _tutOnlineLoad() {
+  _tutOnlineError = "";
+  if (!_tutOnlineAvailable()) { _tutOnlineRender(); return; }
+  _tutOnlineBusy = t("tutOnlineLoading");
+  _tutOnlineRender();
+  try {
+    _tutOnline = (await window.electronAPI.listOnlineTutorials())?.lessons || [];
+  } catch (e) {
+    _tutOnlineError = String(e?.message || e);
+  }
+  _tutOnlineBusy = "";
+  _tutOnlineRender();
+}
+function _tutOnlineCategoryLabel(id) {
+  if (id === "custom") return t("tutCustomCategory");
+  const cat = TUTORIAL_DATA.categories.find(function(c) { return c.id === id; });
+  return cat ? _tutText(cat, "label", currentLanguage) : t("tutCustomCategory");
+}
+function _tutOnlineRender() {
+  const status = document.getElementById("to-status");
+  const list = document.getElementById("to-list");
+  const hint = document.getElementById("to-hint");
+  if (hint) hint.textContent = t("tutOnlineHint");
+  const refresh = document.getElementById("to-refresh");
+  if (refresh) refresh.disabled = !_tutOnlineAvailable() || !!_tutOnlineBusy;
+  if (!status || !list) return;
+  status.textContent = !_tutOnlineAvailable() ? t("tutOnlineDesktopOnly")
+    : _tutOnlineBusy || (_tutOnlineError ? tf("tutOnlineFailed", { error: _tutOnlineError })
+    : (_tutOnline && !_tutOnline.length ? t("tutOnlineEmpty") : ""));
+  status.hidden = !status.textContent;
+  list.textContent = "";
+  (_tutOnline || []).forEach(function(entry) {
+    const state = _tutOnlineState(entry, _tutUserLessons);
+    const li = document.createElement("li");
+    li.className = "to-item";
+    const title = document.createElement("span");
+    title.className = "to-item-title";
+    title.textContent = _tutText(entry, "title", currentLanguage) || entry.file;
+    const meta = document.createElement("span");
+    meta.className = "to-item-meta";
+    const diff = [1, 2, 3].includes(entry.difficulty) ? t("tutEdDiff" + entry.difficulty) : "";
+    meta.textContent = [_tutOnlineCategoryLabel(entry.category), diff, tf("tutOnlineSteps", { count: entry.steps || 0 }), entry.updated].filter(Boolean).join(" · ");
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = (state === "installed" ? "secondary" : "primary") + " to-item-btn";
+    btn.dataset.file = entry.file;
+    btn.disabled = state === "installed" || !!_tutOnlineBusy;
+    btn.textContent = state === "new" ? t("tutOnlineDownload") : state === "update" ? t("tutOnlineUpdate") : "✓ " + t("tutOnlineInstalled");
+    li.append(title, btn, meta);
+    const descText = _tutText(entry, "desc", currentLanguage);
+    if (descText) {
+      const desc = document.createElement("p");
+      desc.className = "to-item-desc";
+      desc.textContent = descText;
+      li.appendChild(desc);
+    }
+    list.appendChild(li);
+  });
+}
+async function _tutOnlineInstall(file) {
+  const entry = (_tutOnline || []).find(function(e) { return e.file === file; });
+  if (!entry || _tutOnlineBusy) return;
+  _tutOnlineBusy = t("tutOnlineLoading");
+  _tutOnlineRender();
+  try {
+    const data = await window.electronAPI.downloadOnlineTutorial(file);
+    await _tutStoreUserLesson(data);
+    showViceToast(tf("tutOnlineDownloaded", { name: _tutText(data, "title", currentLanguage) || file }));
+  } catch (e) {
+    showViceToast(tf("tutOnlineFailed", { error: String(e?.message || e) }), true);
+  }
+  _tutOnlineBusy = "";
+  _tutOnlineRender();
+  if (document.getElementById("tutorial-dialog")?.open) _tutRenderDialog();
+}
+
+function setupTutorialEditor() {
+  const dlg = document.getElementById("tut-editor-dialog");
+  if (!dlg) return;
+  const on = function(id, ev, fn) { document.getElementById(id)?.addEventListener(ev, fn); };
+  const sfx = _tutLangSuffix;
+  const setLessonText = function(field, value) {
+    if (value) _teData[field + sfx()] = value; else delete _teData[field + sfx()];
+    _teMarkDirty();
+  };
+  const setItemText = function(field, value) {
+    const item = _teData?.items[_teSel];
+    if (!item) return;
+    if (value) item[field + sfx()] = value; else delete item[field + sfx()];
+    _teMarkDirty();
+    const li = document.querySelector('#te-steps .te-step[data-index="' + _teSel + '"]');
+    if (li) li.textContent = _teItemLabel(item, _tutHelpers());
+  };
+  on("te-name", "input", function(e) { setLessonText("title", e.target.value.trim()); _teRenderLessonSelect(); });
+  on("te-desc", "input", function(e) { setLessonText("desc", e.target.value); });
+  on("te-diff", "change", function(e) { _teData.difficulty = Number(e.target.value) || 1; _teMarkDirty(); });
+  on("te-clear", "change", function(e) { _teData.clearProgram = e.target.checked; _teMarkDirty(); });
+  on("te-auto", "change", function(e) { _teData.autoParams = e.target.checked; _teMarkDirty(); });
+  on("te-cat", "change", function(e) { _teData.category = e.target.value; _teMarkDirty(); });
+  on("te-step-title", "input", function(e) { setItemText("title", e.target.value.trim()); });
+  on("te-step-desc", "input", function(e) { setItemText("desc", e.target.value); });
+  on("te-step-target", "change", function(e) {
+    const item = _teData?.items[_teSel];
+    if (!item) return;
+    if (e.target.value) item.target = e.target.value; else delete item.target;
+    _teMarkDirty();
+  });
+  on("te-steps", "click", function(e) {
+    const li = e.target.closest(".te-step");
+    if (!li) return;
+    _teSel = Number(li.dataset.index);
+    _teRender();
+  });
+  on("te-lesson", "change", async function(e) {
+    const next = _tutUserLessons.find(function(l) { return l.id === e.target.value; });
+    if (!next || next.id === _teData?.id) return;
+    if (!(await _teConfirmDiscard())) { e.target.value = _teData.id; return; }
+    _teOpenLesson(next);
+  });
+  on("te-new", "click", async function() { if (await _teConfirmDiscard()) { _teOpenLesson(_teNewLesson()); _teDirty = true; _teRenderMeta(); } });
+  on("tutorial-editor-btn", "click", function() { openTutorialEditor(); });
+  on("tutorial-online-btn", "click", openOnlineLessons);
+  on("to-close", "click", function() { document.getElementById("tut-online-dialog")?.close(); });
+  on("to-refresh", "click", _tutOnlineLoad);
+  on("to-list", "click", function(e) {
+    const btn = e.target.closest(".to-item-btn");
+    if (btn && !btn.disabled) _tutOnlineInstall(btn.dataset.file);
+  });
+  on("te-from-program", "click", _teFromProgram);
+  on("te-add-text", "click", _teAddText);
+  on("te-up", "click", function() { _teMove(-1); });
+  on("te-down", "click", function() { _teMove(1); });
+  on("te-remove", "click", _teRemove);
+  on("te-save", "click", _teSave);
+  on("te-try", "click", _teTry);
+  on("te-export", "click", _teExport);
+  on("te-delete", "click", _teDelete);
+  on("te-folder", "click", function() { window.electronAPI?.openTutorialsFolder?.(); });
+  const importInput = document.getElementById("te-import-file");
+  on("te-import", "click", function() { importInput?.click(); });
+  importInput?.addEventListener("change", async function() {
+    const file = importInput.files?.[0];
+    importInput.value = "";
+    if (file && await _teConfirmDiscard()) await _teImport(file);
+  });
+  const close = async function() { if (await _teConfirmDiscard()) dlg.close(); };
+  on("te-close", "click", close);
+  dlg.addEventListener("cancel", function(e) { e.preventDefault(); close(); });
+  dlg.addEventListener("keydown", function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") { e.preventDefault(); _teSave(); }
+  });
+  _tutLoadUserLessons();
+}
+function _teApplyTranslations() {
+  const setText = function(id, key) { const el = document.getElementById(id); if (el) el.textContent = t(key); };
+  const setLabel = function(id, key) { document.getElementById(id)?.setAttribute("aria-label", t(key)); };
+  setText("te-title", "tutEdTitle");
+  setText("te-new", "tutEdNew");
+  setText("te-import", "tutEdImport");
+  setText("te-export", "tutEdExport");
+  setText("te-delete", "tutEdDelete");
+  setText("te-folder", "tutEdFolder");
+  setText("te-l-name", "tutEdLessonTitle");
+  setText("te-l-desc", "tutEdLessonDesc");
+  setText("te-l-diff", "tutEdDifficulty");
+  setText("te-l-clear", "tutEdClear");
+  setText("te-l-auto", "tutEdAutoParams");
+  setText("te-l-cat", "tutEdCategory");
+  setText("te-l-steps", "tutEdSteps");
+  setText("te-l-stitle", "tutEdStepTitle");
+  setText("te-l-sdesc", "tutEdStepDesc");
+  setText("te-l-target", "tutEdTarget");
+  setText("tutorial-editor-btn", "tutEdOpen");
+  setText("tutorial-online-btn", "tutOnlineOpen");
+  setText("to-title", "tutOnlineTitle");
+  setLabel("to-refresh", "tutOnlineRefresh");
+  setLabel("te-from-program", "tutEdFromProgram");
+  setLabel("te-add-text", "tutEdAddText");
+  setLabel("te-up", "tutEdUp");
+  setLabel("te-down", "tutEdDown");
+  setLabel("te-remove", "tutEdRemove");
+  setLabel("te-try", "tutEdTry");
+  setLabel("te-save", "tutEdSave");
+  const diff = document.getElementById("te-diff");
+  if (diff) ["tutEdDiff1", "tutEdDiff2", "tutEdDiff3"].forEach(function(key, i) { if (diff.options[i]) diff.options[i].textContent = (i + 1) + " — " + t(key); });
+  if (document.getElementById("tut-editor-dialog")?.open) _teRender();
+}
+
 function _tourClearTargetAdvance() {
   if (_tourTargetAdvanceCleanup) {
     _tourTargetAdvanceCleanup();
@@ -34239,7 +35059,10 @@ function _tourBindTargetAdvance(step) {
   };
 
   if (step.advanceOnTargetClick) {
-    const onClick = () => advance();
+    const onClick = () => {
+      if (step.trackAdded) _tutLastAddedId = selectedBlockId;
+      advance();
+    };
     targetEl.addEventListener("click", onClick);
     cleanups.push(() => targetEl.removeEventListener("click", onClick));
   }
@@ -34302,15 +35125,16 @@ function _tutRenderDialog() {
   const hintEl = document.getElementById("tutorial-select-hint");
   if (hintEl) hintEl.textContent = t("tutorialSelectHint");
   if (!listEl || !contentEl) return;
+  _tutSyncUserLessons();
 
   listEl.innerHTML = TUTORIAL_DATA.categories.map((cat) => {
     const catLessons = TUTORIAL_DATA.lessons.filter(l => l.category === cat.id);
     if (catLessons.length === 0) return "";
     return `<div class="tutorial-category">
-      <div class="tutorial-category-label">${lang === "hu" ? cat.labelHu : (lang === "es" && cat.labelEs ? cat.labelEs : (lang === "de" && cat.labelDe ? cat.labelDe : (lang === "nl" && cat.labelNl ? cat.labelNl : cat.labelEn)))}</div>
+      <div class="tutorial-category-label">${escapeHtmlAttribute(_tutText(cat, "label", lang))}</div>
       ${catLessons.map(lesson => {
         const done = _tutorialProgress[lesson.id]?.completed;
-        const title = lang === "hu" ? lesson.titleHu : (lang === "es" && lesson.titleEs ? lesson.titleEs : (lang === "de" && lesson.titleDe ? lesson.titleDe : (lang === "nl" && lesson.titleNl ? lesson.titleNl : lesson.titleEn)));
+        const title = escapeHtmlAttribute(_tutText(lesson, "title", lang));
         const stars = lesson.difficulty > 0
           ? `${lesson.difficulty}/3`
           : "TOUR";
@@ -34341,8 +35165,8 @@ function _tutShowLesson(lessonId) {
   if (!lesson || !contentEl) return;
   const canStartTour = lesson.type === "tour" || lesson.interactive === true;
 
-  const title = lang === "hu" ? lesson.titleHu : (lang === "es" && lesson.titleEs ? lesson.titleEs : (lang === "de" && lesson.titleDe ? lesson.titleDe : (lang === "nl" && lesson.titleNl ? lesson.titleNl : lesson.titleEn)));
-  const desc = lang === "hu" ? lesson.descHu : (lang === "es" && lesson.descEs ? lesson.descEs : (lang === "de" && lesson.descDe ? lesson.descDe : (lang === "nl" && lesson.descNl ? lesson.descNl : lesson.descEn)));
+  const title = _tutText(lesson, "title", lang);
+  const desc = _tutText(lesson, "desc", lang);
   const diffStars = lesson.difficulty > 0
     ? `(${lesson.difficulty}/3)`
     : null;
@@ -34375,6 +35199,7 @@ function _tutShowLesson(lessonId) {
     </div>
     ${canStartTour ? `<div class="tutorial-tour-start">
       <button class="primary tutorial-start-tour-btn" type="button">${t("tutorialStartTour")}</button>
+      ${lesson.user ? `<button class="secondary tutorial-edit-lesson-btn" type="button">${t("tutEdEdit")}</button>` : ""}
     </div>` : ""}
     <div class="tutorial-steps">${stepsHtml}</div>
     <div class="tutorial-content-footer">
@@ -34386,8 +35211,8 @@ function _tutShowLesson(lessonId) {
   lesson.steps.forEach((step, i) => {
     const stepEl = contentEl.querySelectorAll(".tutorial-step")[i];
     if (!stepEl) return;
-    stepEl.querySelector(".tutorial-step-title").textContent = lang === "hu" ? step.titleHu : (lang === "es" && step.titleEs ? step.titleEs : (lang === "de" && step.titleDe ? step.titleDe : (lang === "nl" && step.titleNl ? step.titleNl : step.titleEn)));
-    stepEl.querySelector(".tutorial-step-desc").textContent = lang === "hu" ? step.descHu : (lang === "es" && step.descEs ? step.descEs : (lang === "de" && step.descDe ? step.descDe : (lang === "nl" && step.descNl ? step.descNl : step.descEn)));
+    stepEl.querySelector(".tutorial-step-title").textContent = _tutText(step, "title", lang);
+    stepEl.querySelector(".tutorial-step-desc").textContent = _tutText(step, "desc", lang);
     const actionBtn = stepEl.querySelector(".tutorial-step-action-btn");
     if (actionBtn) actionBtn.textContent = lang === "hu" ? step.actionLabelHu : (lang === "es" && step.actionLabelEs ? step.actionLabelEs : (lang === "de" && step.actionLabelDe ? step.actionLabelDe : (lang === "nl" && step.actionLabelNl ? step.actionLabelNl : step.actionLabelEn)));
   });
@@ -34404,6 +35229,8 @@ function _tutShowLesson(lessonId) {
       _runTutorialAction(btn.dataset.actionId);
     });
   });
+
+  contentEl.querySelector(".tutorial-edit-lesson-btn")?.addEventListener("click", () => openTutorialEditor(lessonId));
 
   const startTourBtn = contentEl.querySelector(".tutorial-start-tour-btn");
   if (startTourBtn) {
@@ -34440,6 +35267,8 @@ function _tourStart(steps, lessonId, interactive = false) {
   _tourAllowOverlayClose = true;
   _tourInteractiveMode = interactive;
   _tourPreparedLessonId = null;
+  _tourLastShown = -1;
+  _tutLastAddedId = null;
   const overlay = document.getElementById("tour-overlay");
   const spotlight = document.getElementById("tour-spotlight");
   const card = document.getElementById("tour-card");
@@ -34484,6 +35313,14 @@ function _tourShowStep(index) {
   if (step.onEnterActionId) {
     _runTutorialStepAction(step.onEnterActionId);
   }
+  clearInterval(_tutAdjustTimer);
+  _tutAdjustTimer = 0;
+  const forward = index > _tourLastShown;
+  _tourLastShown = index;
+  if (step.prepEmpty) _tutPrepareEmpty(step.prepEmpty.org);
+  if (step.prepPalette) _tutorialSetPaletteSelection(step.prepPalette);
+  if (step.prepMode) _tutApplyMode(step.prepMode);
+  if (step.adjust && _tutEnterAdjust(step, forward)) return;
 
   const stepLabel = document.getElementById("tour-step-label");
   const cardTitle = document.getElementById("tour-card-title");
@@ -34493,8 +35330,8 @@ function _tourShowStep(index) {
   const skipBtn = document.getElementById("tour-skip");
 
   if (stepLabel) stepLabel.textContent = `${index + 1} / ${_tourSteps.length}`;
-  if (cardTitle) cardTitle.textContent = lang === "hu" ? step.titleHu : (lang === "es" && step.titleEs ? step.titleEs : (lang === "de" && step.titleDe ? step.titleDe : (lang === "nl" && step.titleNl ? step.titleNl : step.titleEn)));
-  if (cardDesc) cardDesc.textContent = lang === "hu" ? step.descHu : (lang === "es" && step.descEs ? step.descEs : (lang === "de" && step.descDe ? step.descDe : (lang === "nl" && step.descNl ? step.descNl : step.descEn)));
+  if (cardTitle) cardTitle.textContent = _tutText(step, "title", lang);
+  if (cardDesc) cardDesc.textContent = _tutText(step, "desc", lang);
   if (prevBtn) prevBtn.disabled = index === 0;
   if (nextBtn) nextBtn.textContent = index === _tourSteps.length - 1
     ? t("tourFinish") : t("tourNext");
@@ -34661,6 +35498,8 @@ function _tourCenterCard(card) {
 
 function _tourEnd() {
   _tourActive = false;
+  clearInterval(_tutAdjustTimer);
+  _tutAdjustTimer = 0;
   _tourAllowOverlayClose = true;
   _tourInteractiveMode = false;
   _tourPreparedLessonId = null;
@@ -34746,6 +35585,7 @@ function _initTutorialEvents() {
 
 _tutLoadProgress();
 _initTutorialEvents();
+setupTutorialEditor();
 
 // Initialize tab system
 if (tabs.length === 0) {
@@ -50194,17 +51034,33 @@ function _dlgRaise(dlg) {
   _dlgStack = _dlgStack.filter((d) => d !== dlg && d.open && !_dlgIsModal(d));
   _dlgStack.push(dlg);
   _dlgStack.forEach((d, i) => { d.style.zIndex = String(9960 + i); });
+  _dlgMarkActive(dlg);
+}
+
+// Az aktív (legutóbb használt) nem modális ablak kiemelt keretet és fejlécet kap (.dlg-active).
+function _dlgMarkActive(active) {
+  document.querySelectorAll("dialog.dlg-active").forEach((d) => { if (d !== active) d.classList.remove("dlg-active"); });
+  active?.classList.add("dlg-active");
 }
 
 function setupDialogStacking() {
   document.addEventListener("pointerdown", (e) => {
     const dlg = e.target?.closest?.("dialog[open]");
     if (dlg && !_dlgIsModal(dlg)) _dlgRaise(dlg);
+    // a főablakba kattintva egyik lebegő ablak sem aktív
+    else if (!dlg) _dlgMarkActive(null);
   }, true);
   // a toggle nem buborékol, de a document capture-fázisban megkapja
   document.addEventListener("toggle", (e) => {
     const dlg = e.target;
-    if (dlg instanceof HTMLDialogElement && dlg.open && !_dlgIsModal(dlg)) _dlgRaise(dlg);
+    if (!(dlg instanceof HTMLDialogElement)) return;
+    if (dlg.open && !_dlgIsModal(dlg)) _dlgRaise(dlg);
+    else if (!dlg.open && dlg.classList.contains("dlg-active")) {
+      // bezáráskor az alatta lévő nyitott ablak lesz az aktív
+      dlg.classList.remove("dlg-active");
+      _dlgStack = _dlgStack.filter((d) => d !== dlg && d.open && !_dlgIsModal(d));
+      _dlgMarkActive(_dlgStack[_dlgStack.length - 1] || null);
+    }
   }, true);
 }
 

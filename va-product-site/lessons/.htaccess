@@ -1,0 +1,7 @@
+DirectoryIndex index.php
+AddType application/json .vatut
+<IfModule mod_headers.c>
+  <FilesMatch "\.vatut$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>

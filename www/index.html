@@ -3330,12 +3330,98 @@ PRINTABLE CHARACTERS
           <h2 id="tutorial-dialog-title" class="tutorial-sidebar-title">Tutorials</h2>
         </div>
         <div id="tutorial-lesson-list" class="tutorial-lesson-list"></div>
+        <button id="tutorial-online-btn" class="secondary tutorial-editor-btn" type="button">Online lessons…</button>
+        <button id="tutorial-editor-btn" class="secondary tutorial-editor-btn" type="button">Lesson editor…</button>
       </div>
       <div id="tutorial-lesson-content" class="tutorial-lesson-content">
         <div class="tutorial-content-empty">
           <p id="tutorial-select-hint">Select a lesson from the list</p>
         </div>
       </div>
+    </div>
+  </dialog>
+
+  <!-- Online leckék: a www.c64va.pro/lessons/ mappában közzétett .vatut leckék -->
+  <dialog id="tut-online-dialog" class="te-dialog" aria-labelledby="to-title">
+    <div class="te-card to-card">
+      <div class="te-hdr">
+        <span id="to-title" class="te-title">Online lessons</span>
+        <span id="to-meta" class="te-meta"></span>
+        <button id="to-close" class="te-xbtn" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="te-toolbar">
+        <div class="websid-play-tools">
+          <button id="to-refresh" class="websid-play-tool" type="button" aria-label="Refresh"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8a5 5 0 1 1-1.5-3.6M13 2.5v3h-3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        </div>
+        <span id="to-hint" class="te-hint to-hint"></span>
+      </div>
+      <div class="to-body">
+        <p id="to-status" class="te-hint"></p>
+        <ul id="to-list" class="to-list"></ul>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Tutorial Editor: saját, lépésről lépésre vezetett leckék -->
+  <dialog id="tut-editor-dialog" class="te-dialog" aria-labelledby="te-title">
+    <div class="te-card">
+      <div class="te-hdr">
+        <div class="ed-file">
+          <button class="ed-file-btn" type="button">Files ▾</button>
+          <div class="ed-file-menu" hidden>
+            <button id="te-new" type="button">New lesson</button>
+            <button id="te-import" type="button">Import lesson…</button>
+            <button id="te-export" type="button">Export lesson…</button>
+            <button id="te-delete" type="button">Delete lesson</button>
+            <button id="te-folder" type="button">Open lessons folder</button>
+          </div>
+        </div>
+        <span id="te-title" class="te-title">Tutorial Editor</span>
+        <select id="te-lesson" class="te-lesson-select" aria-label="Lesson"></select>
+        <span id="te-meta" class="te-meta"></span>
+        <button id="te-close" class="te-xbtn" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="te-toolbar">
+        <div class="websid-play-tools">
+          <button id="te-from-program" class="websid-play-tool" type="button" aria-label="Steps from the current program"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="2" width="6" height="12" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M3.5 5h2M3.5 8h2M3.5 11h2M9 8h5.5M12 5.5 14.5 8 12 10.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <button id="te-add-text" class="websid-play-tool" type="button" aria-label="Add a text step"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3.5h8M2 6.5h8M2 9.5h5M12.5 9v6M9.5 12h6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button>
+        </div>
+        <div class="websid-play-tools">
+          <button id="te-up" class="websid-play-tool" type="button" aria-label="Move step up"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V3M4 7l4-4 4 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <button id="te-down" class="websid-play-tool" type="button" aria-label="Move step down"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M4 9l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <button id="te-remove" class="websid-play-tool" type="button" aria-label="Delete step"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 4.5h9M6.5 4.5V3h3v1.5M5 4.5l.6 8.5h4.8l.6-8.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></button>
+        </div>
+        <div class="websid-play-tools">
+          <button id="te-try" class="websid-play-tool" type="button" aria-label="Try the lesson"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.5l8 4.5-8 4.5z" fill="currentColor"/></svg></button>
+          <button id="te-save" class="websid-play-tool" type="button" aria-label="Save lesson"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 2.5h9l2 2v9h-11zM5 2.5v3.5h5.5V2.5M4.5 13.5V9h7v4.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></button>
+        </div>
+      </div>
+      <div class="te-body">
+        <div class="te-left">
+          <label class="form-field"><span id="te-l-name">Title</span><input id="te-name" type="text" maxlength="120" spellcheck="true"></label>
+          <label class="form-field"><span id="te-l-desc">Description</span><textarea id="te-desc" rows="3" maxlength="2000" spellcheck="true"></textarea></label>
+          <div class="te-row">
+            <label class="form-field"><span id="te-l-diff">Difficulty</span>
+              <select id="te-diff"><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></label>
+            <label class="form-field"><span id="te-l-cat">Folder</span><select id="te-cat"></select></label>
+          </div>
+          <label class="te-check"><input id="te-clear" type="checkbox" checked><span id="te-l-clear">Start with an empty program</span></label>
+          <label class="te-check"><input id="te-auto" type="checkbox"><span id="te-l-auto">Fill in macro parameters automatically</span></label>
+          <div id="te-l-steps" class="te-steps-label">Steps</div>
+          <ol id="te-steps" class="te-steps"></ol>
+        </div>
+        <div class="te-right">
+          <p id="te-step-empty" class="te-hint"></p>
+          <div id="te-step-fields" class="te-step-fields" hidden>
+            <div id="te-step-kind" class="te-step-kind"></div>
+            <label class="form-field"><span id="te-l-stitle">Step title</span><input id="te-step-title" type="text" maxlength="160" spellcheck="true"></label>
+            <label class="form-field"><span id="te-l-sdesc">Explanation</span><textarea id="te-step-desc" rows="9" maxlength="4000" spellcheck="true"></textarea></label>
+            <label id="te-target-wrap" class="form-field"><span id="te-l-target">Point at</span><select id="te-step-target"></select></label>
+            <p id="te-step-auto" class="te-hint"></p>
+          </div>
+        </div>
+      </div>
+      <input id="te-import-file" type="file" accept=".vatut,.json" hidden>
     </div>
   </dialog>
 

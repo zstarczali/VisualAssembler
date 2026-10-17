@@ -136,6 +136,14 @@ tartalmaz. Itt a kategorikus áttekintés:
 | **Assert** | `.assert` (`ASSERT`, `isAssertMacro`) | `.assert <expr>[, "üzenet"]`; 0 byte; fordítási időben `_evalAsmExpr`-rel, hamis → `assertFailed` hiba |
 | **Long branch** | `LBNE`/`LBEQ`/`LBCC`/`LBCS`/`LBMI`/`LBPL`/`LBVC`/`LBVS` (`isLongBranchMacro`, `HosszuUgrasok`) | Invertált `Bxx *+3` + `JMP target` = fix 5 byte; target label / `*`-expr / szám |
 
+### Paletta operandus mező — egységes szabály
+
+`_paletteOperandKind` (app.js, `createBlockFromMnemonic` előtt): `"field"` = a paletta-ág maga olvassa a mezőt
+(`_PALETTE_OPERAND_FLAGS`: TEXT, BYTE, LABEL, REGION, WORD … LBxx) vagy a címzési mód operandust kér; `"parse"` = minden más
+paraméteres makró: a beírt szöveg a makró Expert-sorának argumentuma (`_paletteMacroSyntax` az alapblokk sorából, pl.
+`.set_bg` + `$06`), `parseExpertText`-tel lesz blokk; a kitöltő szöveg az alap argumentum. Fájl-makrók (`_PALETTE_FILE_FLAGS`:
+INCBIN/KOALA/LEVEL, INCLUDE, SID, TABLE) és a paraméter nélküliek tiltva. Új makrónál elég a `_blockToExpertLine` + `parseExpertText` ág.
+
 ### Új makró hozzáadásakor checklist
 
 1. `mnemonicLibrary` bővítés (magyar leírással) + `mnemonicDescriptionsEn[name]`
@@ -639,6 +647,24 @@ A non-modal dialog explicit central pozíciónt igényel (user-agent csak modalo
   ]
 }
 ```
+
+### Saját leckék — Tutorial Editor
+
+Tutorials ablak → `#tutorial-editor-btn` → `#tut-editor-dialog` (`setupTutorialEditor`, `openTutorialEditor`, `_te*`).
+Formátum `va-tutorial` (`{id, difficulty, clearProgram, org, titleXx/descXx, items: [{kind: "text"|"instr", block, target}]}`),
+fájlonként az app config `tutorials/` mappájában (`tutorials.rs`: `list/save/delete_user_tutorial`, `open_tutorials_folder`),
+export/import `.vatut`. „Lépések a programból” (`_tutItemsFromBlocks`) → minden blokkból a beépített guided lecke mintája
+(`_tutExpandItems`): mnemonik választás (csali mnemonikkal, `prepPalette`; a kategória a palettakönyvtárból, `_tutCategoryOf`)
+→ operandus (`prepMode`; csak ha a paletta operandus-mezője engedélyezett: `_tutPaletteTakesOperand`, ugyanaz a szabály, mint
+`updateOperandField`) → Add (`trackAdded`) → makróknál paraméter-lépés (`adjust`: a hozzáadott blokkra mutat, `_tutEnterAdjust`
+pollozza, a sor egyezésekor továbblép; `autoParams` = automatikus kitöltés). Mappa: `data.category` (bármely tutorial-kategória,
+ismeretlennél `custom`). Szöveg-fallback: `_tutText` (nyelv → En → Hu → bármely → `*Auto` generált). Teszt: `tests/tutorial-editor.test.js`;
+a paletta mind a 160 eleme végigjátszva a previewban.
+Online leckék: Tutorials → `#tutorial-online-btn` → `#tut-online-dialog` (`openOnlineLessons`, `_tutOnlineInstall`,
+`_tutOnlineState`: new / update (`rev` nagyobb) / installed). A közzététel = `.vatut` feltöltése a
+`va-product-site/lessons/` mappába; az `index.php` JSON-listát ad (`va-lesson-index`), Rust `list_online_tutorials` /
+`download_online_tutorial` (`https://www.c64va.pro/lessons/`, fájlnév-ellenőrzés). A szerkesztő mentéskor növeli a `rev`-et.
+Kezdő lecke: `lessons/va-first-colors.vatut`.
 
 ### Sample-loader pattern step actionre
 

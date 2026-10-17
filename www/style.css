@@ -12099,3 +12099,86 @@ button.vm-prof-row:hover { outline: 1px solid var(--primary); }
   color: #ea580c;
   opacity: 0.95;
 }
+
+/* ── Tutorial Editor (saját, lépésről lépésre vezetett leckék) ─────── */
+.tutorial-editor-btn { margin: 8px 12px 12px; min-height: 0; padding: 7px 10px; font-size: 0.8rem; }
+.tutorial-tour-start { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.te-dialog { border: none; padding: 0; margin: 0; background: transparent; color: var(--text); overflow: visible; }
+.te-dialog[open] { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+.te-card {
+  display: flex; flex-direction: column;
+  width: min(940px, 96vw); height: min(640px, 92vh);
+  background: var(--panel); border: 1px solid var(--panel-border);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3), 0 16px 40px rgba(0, 0, 0, 0.55);
+}
+.te-hdr {
+  display: flex; align-items: center; gap: 12px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--panel-border);
+  background: var(--panel-strong);
+}
+.te-title { font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; }
+.te-lesson-select { height: 28px; min-height: 0; padding: 3px 26px 3px 8px; font-size: 0.8rem; max-width: 280px; }
+.te-meta { font-size: 0.72rem; color: var(--secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.te-xbtn { margin-left: auto; background: none; border: none; width: 28px; height: 28px; min-height: 0; padding: 0; color: var(--secondary); font-size: 1.3rem; line-height: 1; cursor: pointer; }
+.te-xbtn:hover { color: var(--text); }
+.te-toolbar {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+}
+.te-body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(260px, 2fr) 3fr; }
+.te-left, .te-right { min-height: 0; display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; overflow: auto; }
+.te-left { border-right: 1px solid var(--panel-border); }
+.te-dialog .form-field input, .te-dialog .form-field select { height: 30px; min-height: 0; padding: 3px 8px; font-size: 0.84rem; }
+.te-dialog .form-field textarea { min-height: 0; height: auto; resize: vertical; font-family: inherit; font-size: 0.84rem; line-height: 1.45; word-break: normal; }
+.te-dialog .te-step-fields .form-field textarea { min-height: 150px; }
+.te-row { display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap; }
+.te-check { display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; color: var(--secondary); padding-bottom: 6px; cursor: pointer; }
+.te-check input { width: auto; min-height: 0; height: auto; margin: 0; box-shadow: none; flex: none; }
+.te-steps-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--secondary); }
+.te-steps {
+  list-style: none; margin: 0; padding: 0; counter-reset: te-step;
+  flex: 1; min-height: 120px; overflow-y: auto;
+  border: 1px solid var(--panel-border); background: var(--control-bg);
+}
+.te-step {
+  counter-increment: te-step;
+  display: flex; gap: 8px; align-items: baseline;
+  padding: 5px 8px; font-size: 0.8rem; cursor: pointer;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  border-bottom: 1px solid color-mix(in srgb, var(--panel-border) 60%, transparent);
+}
+.te-step::before { content: counter(te-step); min-width: 2ch; text-align: right; color: var(--secondary); font-family: "IBM Plex Mono", monospace; font-size: 0.72rem; }
+.te-step--instr { font-family: "IBM Plex Mono", monospace; }
+.te-step:hover { background: color-mix(in srgb, var(--secondary) 12%, transparent); }
+.te-step--sel { background: color-mix(in srgb, var(--primary) 18%, transparent); color: var(--primary); }
+.te-step-fields { display: flex; flex-direction: column; gap: 10px; }
+.te-step-fields[hidden], #te-target-wrap[hidden] { display: none; }
+.te-step-kind { font-family: "IBM Plex Mono", monospace; font-size: 0.82rem; font-weight: 600; color: var(--primary); }
+.te-hint { margin: 0; font-size: 0.78rem; line-height: 1.5; color: var(--secondary); }
+@media (max-width: 720px) { .te-body { grid-template-columns: 1fr; } .te-left { border-right: none; border-bottom: 1px solid var(--panel-border); } }
+
+/* ── Aktív nem modális ablak (_dlgMarkActive) ──────────────────────── */
+dialog.dlg-active[open]:not(:modal) > :first-child {
+  box-shadow: 0 0 0 1px var(--primary), 0 0 14px color-mix(in srgb, var(--primary) 35%, transparent), 0 16px 40px rgba(0, 0, 0, 0.55);
+}
+dialog.dlg-active[open]:not(:modal) > :first-child > :first-child {
+  background: color-mix(in srgb, var(--primary) 20%, var(--panel-strong));
+}
+
+/* ── Online leckék ─────────────────────────────────────────────────── */
+.to-card { width: min(680px, 96vw); height: min(560px, 90vh); }
+.to-hint { flex: 1; min-width: 0; }
+.to-body { flex: 1; min-height: 0; overflow: auto; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+.to-body > p[hidden] { display: none; }
+.to-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.to-item {
+  display: grid; grid-template-columns: 1fr auto; gap: 3px 12px; align-items: center;
+  padding: 10px 12px; border: 1px solid var(--panel-border); background: var(--control-bg);
+}
+.to-item-title { font-weight: 600; font-size: 0.9rem; }
+.to-item-meta { grid-column: 1; font-size: 0.72rem; color: var(--secondary); }
+.to-item-btn { grid-column: 2; grid-row: 1 / span 2; min-height: 0; padding: 6px 14px; font-size: 0.8rem; white-space: nowrap; }
+.to-item-desc { grid-column: 1 / -1; margin: 4px 0 0; font-size: 0.8rem; line-height: 1.45; color: var(--secondary); white-space: pre-wrap; }
