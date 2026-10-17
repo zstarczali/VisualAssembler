@@ -4083,6 +4083,12 @@ function _applyEditorTranslations() {
   setAttr("#websid-play-fwd", t("sidPlayerForward10"));
   setAttr("#websid-play-add", t("sidPlayerAdd"));
   setAttr("#websid-play-clear", t("sidPlayerClear"));
+  setAttr("#websid-play-hvsc", t("sidHvsc"));
+  setAttr("#websid-hvsc-random", t("sidHvscRandom"));
+  setAttr("#websid-hvsc-add-all", t("sidHvscAddAll"));
+  setAttr("#websid-hvsc-refresh", t("sidHvscRefresh"));
+  setAttr("#websid-hvsc-search", t("sidHvscSearch"));
+  document.getElementById("websid-hvsc-search")?.setAttribute("placeholder", t("sidHvscSearch"));
   setAttr("#websid-play-open-list", t("sidPlayerOpenList"));
   setAttr("#websid-play-song-prev", t("sidPlayerPrevSong"));
   setAttr("#websid-play-song-next", t("sidPlayerNextSong"));
@@ -40155,6 +40161,33 @@ function setupSidPlayer() {
     fileInput.value = "";
   });
   on("websid-play-clear", "click", _sidPlayerClear);
+  on("websid-play-hvsc", "click", function() { _hvscSetOpen(!_hvscOpen()); });
+  on("websid-hvsc-random", "click", _hvscShowRandom);
+  on("websid-hvsc-add-all", "click", _hvscAddAll);
+  on("websid-hvsc-refresh", "click", function() { _hvscLoad(true); });
+  on("websid-hvsc-folder", "click", _hvscToggleFolder);
+  on("websid-hvsc-download", "click", _hvscDownloadAll);
+  window.electronAPI?.onHvscProgress?.(function(p) {
+    if (!_hvscDownload || !p) return;
+    _hvscDownload = { phase: p.phase, done: Number(p.done) || 0, total: Number(p.total) || 0 };
+    _hvscRender();
+  });
+  on("websid-hvsc-link", "click", function() { window.electronAPI?.openExternal("https://www.hvsc.c64.org/"); });
+  let hvscSearchTimer = null;
+  on("websid-hvsc-search", "input", function() {
+    clearTimeout(hvscSearchTimer);
+    hvscSearchTimer = setTimeout(_hvscRunSearch, 150);
+  });
+  on("websid-hvsc-search", "keydown", function(e) {
+    if (e.key === "Enter" && _hvscResults.length) { e.preventDefault(); _hvscAddEntry(_hvscResults[0], true); }
+  });
+  document.getElementById("websid-hvsc-list")?.addEventListener("click", function(e) {
+    const li = e.target.closest(".websid-hvsc-item");
+    const entry = li && _hvscResults[Number(li.dataset.index)];
+    if (!entry) return;
+    if (e.target.closest(".websid-hvsc-item-save")) _hvscSaveEntry(entry);
+    else _hvscAddEntry(entry, !e.target.closest(".websid-hvsc-item-add"));
+  });
   _sidKnobBind(document.getElementById("websid-play-vol"),
     function() { return Math.round(_sidMasterVol * 100); },
     function(pct) { _sidSetMasterVolume(pct); });
@@ -40219,6 +40252,7 @@ function setupSidPlayer() {
   setTimeout(function() {
     _sidLoadMasterVolume();
     _sidPlayerRestore();
+    _hvscRestore();
   }, 0);
 }
 
@@ -45535,12 +45569,18 @@ function _sidPsidInfo(bytes) {
   const startSong = Math.min(songs, Math.max(1, (bytes[0x10] << 8) | bytes[0x11]));
   return { title: str(0x16), author: str(0x36), released: str(0x56), songs, startSong };
 }
+// lengths: the subtune lengths in ms (from HVSC), hvsc: the tune's HVSC path
+function _sidPlayerItem(entry, info) {
+  const lengths = Array.isArray(entry.lengths) && entry.lengths.every(function(ms) { return Number.isFinite(ms) && ms >= 0; }) ? entry.lengths : null;
+  return { id: crypto.randomUUID(), name: entry.name, bytes: entry.bytes, info, song: _sidValidSong(entry.song, info), fav: !!entry.fav,
+    lengths, hvsc: typeof entry.hvsc === "string" ? entry.hvsc : null };
+}
 function _sidPlayerAdd(entries, playFirst, startIndex = 0) {
   const added = [];
   entries.forEach(function(entry) {
     const info = _sidPsidInfo(entry.bytes);
     if (!info) { showViceToast(tf("sidPlayerNotSid", { name: entry.name }), true); return; }
-    const item = { id: crypto.randomUUID(), name: entry.name, bytes: entry.bytes, info, song: _sidValidSong(entry.song, info), fav: !!entry.fav };
+    const item = _sidPlayerItem(entry, info);
     _sidPlaylist.push(item);
     added.push(item);
   });
@@ -45646,14 +45686,22 @@ function _sidPlayerClear() {
   _sidPlayerRenderList();
   _sidPlayerPersist();
 }
+// The current subtune's length when HVSC knows it, otherwise 0.
+function _sidPlayerTuneMs() {
+  const item = _sidPlaylist[_sidPlaylistIndex];
+  const ms = item?.lengths?.[item.song - 1];
+  return ms > 0 ? ms : 0;
+}
 function _sidPlayerLengthMs() {
+  const known = _sidPlayerTuneMs();
+  if (known) return Math.max(known, Math.ceil(_sidExtElapsedMs() / 1000) * 1000);
   return Math.max(_SID_TUNE_LENGTH_MS, Math.ceil((_sidExtElapsedMs() + 1) / 60000) * 60000);
 }
 // Only the playback timer moves on. Doing this from the UI refresh re-entered
 // itself (Next renders the list while the status is still "playing") and
 // started every remaining tune of the playlist at once.
 function _sidPlayerAutoAdvance() {
-  if (_sidExtStatus === "playing" && !_sidExtStarting && _sidExtElapsedMs() >= _SID_TUNE_LENGTH_MS
+  if (_sidExtStatus === "playing" && !_sidExtStarting && _sidExtElapsedMs() >= (_sidPlayerTuneMs() || _SID_TUNE_LENGTH_MS)
       && (_sidShuffle ? _sidPlaylist.length > 1 : _sidPlaylistIndex < _sidPlaylist.length - 1)) {
     _sidPlayerNext();
   }
@@ -45804,7 +45852,9 @@ function _sidPlaylistToJson() {
     format: _SID_PLAYLIST_FORMAT,
     version: 1,
     current: Math.max(0, _sidPlaylistIndex),
-    items: _sidPlaylist.map(function(item) { return { name: item.name, song: item.song, fav: item.fav || undefined, data: _sidBytesToBase64(item.bytes) }; })
+    items: _sidPlaylist.map(function(item) {
+      return { name: item.name, song: item.song, fav: item.fav || undefined, hvsc: item.hvsc || undefined, lengths: item.lengths || undefined, data: _sidBytesToBase64(item.bytes) };
+    })
   };
 }
 // Returns the decoded entries, or null when the text is not a playlist.
@@ -45813,7 +45863,9 @@ function _sidPlaylistFromJson(json) {
   const entries = [];
   json.items.forEach(function(item) {
     if (!item || typeof item.name !== "string" || typeof item.data !== "string") return;
-    try { entries.push({ name: item.name, song: Number(item.song) || 0, fav: item.fav === true, bytes: _sidBase64ToBytes(item.data) }); } catch (_) {}
+    try {
+      entries.push({ name: item.name, song: Number(item.song) || 0, fav: item.fav === true, hvsc: item.hvsc, lengths: item.lengths, bytes: _sidBase64ToBytes(item.data) });
+    } catch (_) {}
   });
   return { entries, current: Number.isInteger(json.current) ? json.current : 0 };
 }
@@ -45860,13 +45912,325 @@ function _sidPlayerRestore() {
   if (list && list.entries.length) {
     list.entries.forEach(function(entry) {
       const info = _sidPsidInfo(entry.bytes);
-      if (info) _sidPlaylist.push({ id: crypto.randomUUID(), name: entry.name, bytes: entry.bytes, info, song: _sidValidSong(entry.song, info), fav: !!entry.fav });
+      if (info) _sidPlaylist.push(_sidPlayerItem(entry, info));
     });
     _sidPlaylistIndex = _sidPlaylist.length ? Math.max(0, Math.min(list.current, _sidPlaylist.length - 1)) : -1;
   }
   if (saved.shuffle) _sidPlayerSetShuffle(true);
   if (saved.open) _sidPlayerShow();
   else _sidPlayerRenderList();
+}
+
+/* ── HVSC (High Voltage SID Collection) in the SID Player ───────────────
+ * The catalog is HVSC's DOCUMENTS/Songlengths.md5: every tune's path and its
+ * subtune lengths. The backend (hvsc.rs) reads it and the tunes from a local
+ * HVSC folder, its cache, or a mirror; searching runs here. */
+const _HVSC_RESULT_LIMIT = 300;
+const _HVSC_ADD_ALL_MAX = 100;
+const _HVSC_STORE = "c64va-sid-hvsc";
+const _HVSC_SECTIONS = { MUSICIANS: "Musicians", GAMES: "Games", DEMOS: "Demos" };
+
+// "4:33.108" → 273108 ms; markers after the time, like "(G)", are ignored
+function _hvscParseLength(text) {
+  const m = /^(\d+):(\d{1,2})(?:\.(\d{1,3}))?/.exec(String(text).trim());
+  if (!m) return 0;
+  return (Number(m[1]) * 60 + Number(m[2])) * 1000 + (m[3] ? Number(m[3].padEnd(3, "0")) : 0);
+}
+function _hvscParseCatalog(text) {
+  const entries = [];
+  let path = null;
+  String(text || "").split(/\r?\n/).forEach(function(line) {
+    if (line.startsWith("; /")) { path = line.slice(2).trim(); return; }
+    const eq = line.indexOf("=");
+    if (!path || eq < 0 || line.startsWith(";") || line.startsWith("[")) return;
+    // "/MUSICIANS/H/Hubbard_Rob/Commando.sid": the composer folder is the 4th part
+    const parts = path.split("/");
+    const title = parts[parts.length - 1].replace(/\.sid$/i, "").replace(/_/g, " ");
+    const author = parts[1] === "MUSICIANS" && parts.length > 4 ? parts[3].replace(/_/g, " ") : "";
+    const lengths = line.slice(eq + 1).trim().split(/\s+/).map(_hvscParseLength);
+    entries.push({ p: path, t: title, a: author, s: parts[1], l: lengths, k: path.toLowerCase().replace(/_/g, " ") });
+    path = null;
+  });
+  return entries;
+}
+// Every word must occur in the path (title, composer, folders); titles that
+// match the query come first.
+function _hvscSearch(entries, query, limit = _HVSC_RESULT_LIMIT) {
+  const words = String(query || "").toLowerCase().replace(/_/g, " ").split(/\s+/).filter(Boolean);
+  const phrase = words.join(" ");
+  if (phrase.length < 2) return { total: 0, items: [] };
+  const hits = (entries || []).filter(function(e) { return words.every(function(w) { return e.k.includes(w); }); });
+  const rank = function(e) {
+    const title = e.t.toLowerCase();
+    return title === phrase ? 0 : title.startsWith(phrase) ? 1 : title.includes(phrase) ? 2 : e.a.toLowerCase().includes(phrase) ? 3 : 4;
+  };
+  hits.sort(function(a, b) { return rank(a) - rank(b) || a.t.localeCompare(b.t); });
+  return { total: hits.length, items: hits.slice(0, limit) };
+}
+function _hvscRandom(entries, count) {
+  const out = [];
+  const used = new Set();
+  const n = Math.min(count, (entries || []).length);
+  while (out.length < n) {
+    const i = Math.floor(Math.random() * entries.length);
+    if (!used.has(i)) { used.add(i); out.push(entries[i]); }
+  }
+  return out;
+}
+
+let _hvscEntries = null;
+let _hvscVersion = null;
+let _hvscSource = "";
+let _hvscLoading = null;
+let _hvscError = "";
+let _hvscResults = [];
+let _hvscTotal = 0;
+let _hvscBusy = "";
+let _hvscLocalPath = "";
+let _hvscDownload = null;   // { phase: "download" | "extract", done, total } while the whole collection is fetched
+
+function _hvscAvailable() {
+  return !!window.electronAPI?.hvscCatalog;
+}
+function _hvscOpen() {
+  return !document.getElementById("websid-hvsc")?.hidden;
+}
+function _hvscPersist() {
+  try {
+    localStorage.setItem(_HVSC_STORE, JSON.stringify({ open: _hvscOpen(), query: document.getElementById("websid-hvsc-search")?.value || "" }));
+  } catch (_) {}
+}
+async function _hvscLoad(refresh) {
+  if (!_hvscAvailable()) { _hvscRender(); return; }
+  if (_hvscLoading) return _hvscLoading;
+  if (_hvscEntries && !refresh) return;
+  _hvscError = "";
+  _hvscLoading = (async function() {
+    try {
+      const status = await window.electronAPI.hvscStatus();
+      _hvscLocalPath = status?.localOk ? status.localPath : "";
+      const res = await window.electronAPI.hvscCatalog(!!refresh);
+      _hvscEntries = _hvscParseCatalog(res.text);
+      _hvscVersion = res.version || null;
+      _hvscSource = res.source;
+    } catch (e) {
+      _hvscError = String(e?.message || e);
+    }
+  })();
+  _hvscRender();
+  try { await _hvscLoading; } finally { _hvscLoading = null; }
+  _hvscRunSearch();
+}
+function _hvscRunSearch() {
+  const query = document.getElementById("websid-hvsc-search")?.value || "";
+  const res = _hvscSearch(_hvscEntries, query);
+  _hvscResults = res.items;
+  _hvscTotal = res.total;
+  _hvscRender();
+  _hvscPersist();
+}
+function _hvscShowRandom() {
+  if (!_hvscEntries) return;
+  const search = document.getElementById("websid-hvsc-search");
+  if (search) search.value = "";
+  _hvscResults = _hvscRandom(_hvscEntries, 25);
+  _hvscTotal = _hvscResults.length;
+  _hvscRender();
+  _hvscPersist();
+}
+function _hvscStatusText() {
+  if (!_hvscAvailable()) return t("sidHvscDesktopOnly");
+  if (_hvscLoading) return t("sidHvscLoading");
+  if (_hvscDownload) {
+    const { phase, done, total } = _hvscDownload;
+    if (phase === "extract") return tf("sidHvscUnpacking", { done: done.toLocaleString(), total: total.toLocaleString() });
+    const mb = function(bytes) { return (bytes / 1048576).toFixed(1); };
+    return tf("sidHvscDownloading", { done: mb(done), total: total ? mb(total) : "?" });
+  }
+  if (_hvscError) return tf("sidHvscLoadFailed", { error: _hvscError });
+  if (!_hvscEntries) return "";
+  if (_hvscBusy) return _hvscBusy;
+  const count = _hvscEntries.length.toLocaleString();
+  let text = _hvscVersion ? tf("sidHvscCountVersion", { version: _hvscVersion, count }) : tf("sidHvscCount", { count });
+  text += " · " + (_hvscSource === "local" ? t("sidHvscSourceLocal") : t("sidHvscSourceOnline"));
+  const query = document.getElementById("websid-hvsc-search")?.value.trim();
+  if (query) text += " · " + (_hvscTotal ? tf("sidHvscResults", { shown: _hvscResults.length, total: _hvscTotal }) : t("sidHvscNoResults"));
+  else if (!_hvscResults.length) text += " · " + t("sidHvscHint");
+  return text;
+}
+function _hvscRender() {
+  const panel = document.getElementById("websid-hvsc");
+  const btn = document.getElementById("websid-play-hvsc");
+  if (btn) {
+    btn.classList.toggle("websid-play-tool--active", _hvscOpen());
+    btn.setAttribute("aria-pressed", String(_hvscOpen()));
+  }
+  if (!panel || panel.hidden) return;
+  const status = document.getElementById("websid-hvsc-status");
+  if (status) {
+    status.textContent = _hvscStatusText();
+    status.classList.toggle("websid-hvsc-status--error", !!_hvscError);
+  }
+  const ready = !!_hvscEntries && !_hvscLoading;
+  const random = document.getElementById("websid-hvsc-random");
+  if (random) random.disabled = !ready;
+  const refresh = document.getElementById("websid-hvsc-refresh");
+  if (refresh) refresh.disabled = !_hvscAvailable() || !!_hvscLoading || _hvscSource === "local";
+  const addAll = document.getElementById("websid-hvsc-add-all");
+  if (addAll) addAll.disabled = !ready || !_hvscResults.length || !!_hvscBusy;
+  const download = document.getElementById("websid-hvsc-download");
+  if (download) {
+    download.disabled = !_hvscAvailable() || !!_hvscLoading;
+    download.classList.toggle("websid-play-tool--active", !!_hvscDownload);
+    download.setAttribute("aria-label", _hvscDownload ? t("sidHvscDownloadCancel") : t("sidHvscDownloadAll"));
+  }
+  const folder = document.getElementById("websid-hvsc-folder");
+  if (folder) {
+    folder.disabled = !_hvscAvailable() || !!_hvscLoading || !!_hvscDownload;
+    folder.classList.toggle("websid-play-tool--active", !!_hvscLocalPath);
+    folder.setAttribute("aria-label", _hvscLocalPath ? tf("sidHvscFolderClear", { path: _hvscLocalPath }) : t("sidHvscFolder"));
+  }
+  const search = document.getElementById("websid-hvsc-search");
+  if (search) search.disabled = !ready;
+  const list = document.getElementById("websid-hvsc-list");
+  if (!list) return;
+  list.textContent = "";
+  const inList = new Set(_sidPlaylist.map(function(item) { return item.hvsc; }).filter(Boolean));
+  _hvscResults.forEach(function(entry, index) {
+    const li = document.createElement("li");
+    li.className = "websid-play-item websid-hvsc-item" + (inList.has(entry.p) ? " websid-hvsc-item--added" : "");
+    li.dataset.index = String(index);
+    li.dataset.path = entry.p;
+    const name = document.createElement("span");
+    name.className = "websid-play-item-name";
+    name.textContent = entry.t;
+    const who = document.createElement("span");
+    who.className = "websid-hvsc-item-who";
+    who.textContent = entry.a || _HVSC_SECTIONS[entry.s] || entry.s;
+    const len = document.createElement("span");
+    len.className = "websid-hvsc-item-len";
+    len.textContent = _sidExtFormatTime(entry.l[0] || 0) + (entry.l.length > 1 ? " +" + (entry.l.length - 1) : "");
+    const add = document.createElement("button");
+    add.type = "button";
+    add.className = "websid-hvsc-item-btn websid-hvsc-item-add";
+    add.textContent = "+";
+    add.setAttribute("aria-label", t("sidHvscAdd"));
+    const save = document.createElement("button");
+    save.type = "button";
+    save.className = "websid-hvsc-item-btn websid-hvsc-item-save";
+    save.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.5v8M4.5 7 8 10.5 11.5 7M3 13.5h10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    save.setAttribute("aria-label", t("sidHvscSave"));
+    li.append(name, who, len, add, save);
+    list.appendChild(li);
+  });
+}
+function _hvscFileName(entry) {
+  return entry.p.slice(entry.p.lastIndexOf("/") + 1);
+}
+async function _hvscFetchBytes(entry) {
+  try {
+    return new Uint8Array(await window.electronAPI.hvscFetch(entry.p));
+  } catch (e) {
+    showViceToast(tf("sidHvscFetchFailed", { name: _hvscFileName(entry), error: String(e?.message || e) }), true);
+    return null;
+  }
+}
+// Adds a tune and plays it if asked; a tune already in the playlist is only played.
+async function _hvscAddEntry(entry, play) {
+  const existing = _sidPlaylist.findIndex(function(item) { return item.hvsc === entry.p; });
+  if (existing >= 0) {
+    if (play) _sidPlayerPlayIndex(existing);
+    return true;
+  }
+  const bytes = await _hvscFetchBytes(entry);
+  if (!bytes) return false;
+  _sidPlayerAdd([{ name: _hvscFileName(entry), bytes, lengths: entry.l, hvsc: entry.p }], play);
+  _hvscRender();
+  return true;
+}
+async function _hvscAddAll() {
+  const batch = _hvscResults.slice(0, _HVSC_ADD_ALL_MAX);
+  if (!batch.length || _hvscBusy) return;
+  const known = new Set(_sidPlaylist.map(function(item) { return item.hvsc; }));
+  const entries = [];
+  try {
+    for (let i = 0; i < batch.length; i++) {
+      _hvscBusy = tf("sidHvscAdding", { done: i + 1, total: batch.length });
+      _hvscRender();
+      if (known.has(batch[i].p)) continue;
+      const bytes = await _hvscFetchBytes(batch[i]);
+      if (bytes) entries.push({ name: _hvscFileName(batch[i]), bytes, lengths: batch[i].l, hvsc: batch[i].p });
+    }
+  } finally {
+    _hvscBusy = "";
+  }
+  if (entries.length) _sidPlayerAdd(entries, false);
+  _hvscRender();
+}
+async function _hvscSaveEntry(entry) {
+  const bytes = await _hvscFetchBytes(entry);
+  if (!bytes || !window.electronAPI?.saveBin) return;
+  const fileName = _hvscFileName(entry);
+  const res = await window.electronAPI.saveBin({ bytes: Array.from(bytes), fileName });
+  if (res?.ok) showViceToast(tf("sidHvscSaved", { name: fileName }));
+  else if (res && !res.canceled) showViceToast(res.error || t("sidPlayerSaveFailed"), true);
+}
+async function _hvscToggleFolder() {
+  if (!_hvscAvailable()) return;
+  if (_hvscLocalPath) {
+    await window.electronAPI.hvscClearFolder();
+    _hvscLocalPath = "";
+  } else {
+    const res = await window.electronAPI.hvscChooseFolder();
+    if (!res || res.canceled) return;
+    if (!res.ok) { showViceToast(t("sidHvscNotHvsc"), true); return; }
+    _hvscLocalPath = res.path;
+  }
+  _hvscEntries = null;
+  await _hvscLoad(false);
+}
+// Fetches the official .7z into a folder the user picks and switches to it;
+// pressed again while running, it cancels.
+async function _hvscDownloadAll() {
+  if (!window.electronAPI?.hvscDownloadAll) return;
+  if (_hvscDownload) { window.electronAPI.hvscCancelDownload(); return; }
+  if (!(await _showConfirm(t("sidHvscDownloadConfirm")))) return;
+  _hvscDownload = { phase: "download", done: 0, total: 0 };
+  _hvscRender();
+  let res = null;
+  try {
+    res = await window.electronAPI.hvscDownloadAll();
+  } catch (e) {
+    showViceToast(tf("sidHvscDownloadFailed", { error: String(e?.message || e) }), true);
+  } finally {
+    _hvscDownload = null;
+  }
+  if (res?.ok) {
+    _hvscLocalPath = res.path;
+    _hvscEntries = null;
+    showViceToast(tf("sidHvscDownloaded", { path: res.path }));
+    await _hvscLoad(false);
+  } else {
+    _hvscRender();
+  }
+}
+function _hvscSetOpen(open) {
+  const panel = document.getElementById("websid-hvsc");
+  if (!panel) return;
+  panel.hidden = !open;
+  _hvscRender();
+  _hvscPersist();
+  if (open) {
+    _hvscLoad(false);
+    setTimeout(function() { document.getElementById("websid-hvsc-search")?.focus(); }, 0);
+  }
+}
+function _hvscRestore() {
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(_HVSC_STORE) || "null"); } catch (_) {}
+  const search = document.getElementById("websid-hvsc-search");
+  if (search && typeof saved?.query === "string") search.value = saved.query;
+  if (saved?.open) _hvscSetOpen(true);
 }
 
 async function _webSidPlayFileBytes(bytes, filename, song = 0) {

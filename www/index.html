@@ -2840,6 +2840,7 @@ PRINTABLE CHARACTERS
           <button id="websid-play-fwd" class="websid-play-tool" type="button" aria-label="Forward 10 s"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 4l5.5 4L8 12zM2 4l5.5 4L2 12z" fill="currentColor"/></svg></button>
         </div>
         <div class="websid-play-tools">
+          <button id="websid-play-hvsc" class="websid-play-tool" type="button" aria-label="HVSC" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><ellipse cx="8" cy="3.8" rx="5.5" ry="2" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M2.5 3.8v8.4c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2V3.8M2.5 8c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2" fill="none" stroke="currentColor" stroke-width="1.2"/></svg></button>
           <button id="websid-play-add" class="websid-play-tool" type="button" aria-label="Add .sid files…"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
           <button id="websid-play-open-list" class="websid-play-tool" type="button" aria-label="Open playlist…"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 4.5v8h11l2-5.5H4.5l-2 5.5M1.5 4.5V3h4l1 1.5h6V7" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></button>
           <button id="websid-play-save-list" class="websid-play-tool" type="button" aria-label="Save playlist…"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 2.5h9l2 2v9h-11zM5 2.5v3.5h5.5V2.5M4.5 13.5V9h7v4.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></button>
@@ -2873,6 +2874,20 @@ PRINTABLE CHARACTERS
           <input id="websid-play-seek" class="websid-play-seek" type="range" min="0" max="180" step="1" value="0" aria-label="Position">
           <span id="websid-play-length" class="websid-play-length">03:00</span>
         </div>
+        <section id="websid-hvsc" class="websid-hvsc" hidden>
+          <div class="websid-hvsc-bar">
+            <input id="websid-hvsc-search" class="websid-hvsc-search" type="search" spellcheck="false" autocomplete="off" placeholder="Search HVSC…">
+            <div class="websid-play-tools">
+              <button id="websid-hvsc-random" class="websid-play-tool" type="button" aria-label="Random tunes"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="5.3" cy="5.3" r="1.1" fill="currentColor"/><circle cx="8" cy="8" r="1.1" fill="currentColor"/><circle cx="10.7" cy="10.7" r="1.1" fill="currentColor"/></svg></button>
+              <button id="websid-hvsc-add-all" class="websid-play-tool" type="button" aria-label="Add all results to the playlist"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h7M2 7.5h7M2 11h4.5M12 8.5v6M9 11.5h6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button>
+              <button id="websid-hvsc-refresh" class="websid-play-tool" type="button" aria-label="Update catalog"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8a5 5 0 1 1-1.5-3.6M13 2.5v3h-3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+              <button id="websid-hvsc-download" class="websid-play-tool" type="button" aria-label="Download the whole collection…"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5v7M5 5.5 8 8.5 11 5.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 9.5v3.5h12V9.5M4.5 11h7" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></button>
+              <button id="websid-hvsc-folder" class="websid-play-tool" type="button" aria-label="Use a local HVSC folder…"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 4.5v8h13v-6.5H7.5l-1.5-1.5z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></button>
+            </div>
+          </div>
+          <div class="websid-hvsc-status"><span id="websid-hvsc-status"></span><button id="websid-hvsc-link" class="websid-hvsc-link" type="button">hvsc.c64.org</button></div>
+          <ol id="websid-hvsc-list" class="websid-play-list websid-hvsc-list"></ol>
+        </section>
         <ol id="websid-play-list" class="websid-play-list"></ol>
         <div id="websid-play-drop-hint" class="websid-play-drop-hint">Drop .sid files here</div>
         <div class="websid-play-note" id="websid-play-note" hidden>

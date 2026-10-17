@@ -234,7 +234,7 @@ test("SID player playlist: PSID metadata, prev restarts then steps back, remove 
   };
   vm.createContext(ctx);
   vm.runInContext(`const _SID_TUNE_LENGTH_MS = 180000; var _sidPlaylist = [], _sidPlaylistIndex = -1, _sidSeekDragging = false, _sidShuffle = false, _sidShuffleHistory = [];
-    ${["_sidPsidInfo", "_sidValidSong", "_sidPlayerAdd", "_sidPlayerPlayIndex", "_sidPlayerPrev", "_sidPlayerNext", "_sidPlayerRemove",
+    ${["_sidPsidInfo", "_sidValidSong", "_sidPlayerItem", "_sidPlayerTuneMs", "_sidPlayerAdd", "_sidPlayerPlayIndex", "_sidPlayerPrev", "_sidPlayerNext", "_sidPlayerRemove",
       "_sidPlayerLengthMs", "_sidPlayerTickUi", "_sidPlayerRenderList"].map(fnSource).join("\n")}
     this.api = { add: _sidPlayerAdd, prev: _sidPlayerPrev, next: _sidPlayerNext, remove: _sidPlayerRemove,
       list: () => _sidPlaylist, index: () => _sidPlaylistIndex };`, ctx);
@@ -328,7 +328,7 @@ test("SID player auto-advance moves one tune on, the UI refresh never advances",
   };
   vm.createContext(ctx);
   vm.runInContext(`const _SID_TUNE_LENGTH_MS = 180000; var _sidPlaylist = [], _sidPlaylistIndex = 0, _sidSeekDragging = false, _sidShuffle = false, _sidShuffleHistory = [];
-    ${["_sidPsidInfo", "_sidValidSong", "_sidPlayerPlayIndex", "_sidPlayerNext", "_sidPlayerLengthMs", "_sidPlayerTickUi",
+    ${["_sidPsidInfo", "_sidValidSong", "_sidPlayerTuneMs", "_sidPlayerPlayIndex", "_sidPlayerNext", "_sidPlayerLengthMs", "_sidPlayerTickUi",
       "_sidPlayerRenderList", "_sidPlayerAutoAdvance"].map(fnSource).join("\n")}
     this.api = { tick: _sidPlayerTickUi, render: _sidPlayerRenderList, advance: _sidPlayerAutoAdvance,
       set(list) { _sidPlaylist = list; }, index: () => _sidPlaylistIndex };`, ctx);
@@ -340,6 +340,36 @@ test("SID player auto-advance moves one tune on, the UI refresh never advances",
   ctx.api.advance();
   assert.deepEqual(started, ["b"], "one timer tick advances exactly one tune");
   assert.equal(ctx.api.index(), 1);
+});
+
+test("SID player uses the HVSC subtune length for the seek bar and auto-advance", () => {
+  const started = [];
+  let elapsed = 20000;
+  const ctx = {
+    document: { getElementById() { return null; } },
+    _sidExtStatus: "playing",
+    _sidExtStarting: false,
+    _sidExtElapsedMs: () => elapsed,
+    _sidExtStartFile(bytes, name) { started.push(name); },
+    _sidPlayerRenderList() {},
+    _sidPlayerPersist() {},
+  };
+  vm.createContext(ctx);
+  vm.runInContext(`const _SID_TUNE_LENGTH_MS = 180000; var _sidPlaylist = [], _sidPlaylistIndex = 0, _sidShuffle = false, _sidShuffleHistory = [];
+    ${["_sidPlayerTuneMs", "_sidPlayerPlayIndex", "_sidPlayerNext", "_sidPlayerLengthMs", "_sidPlayerAutoAdvance"].map(fnSource).join("\n")}
+    this.api = { length: _sidPlayerLengthMs, advance: _sidPlayerAutoAdvance, set(list) { _sidPlaylist = list; } };`, ctx);
+  ctx.api.set([
+    { id: "a", name: "a", song: 2, lengths: [90000, 30000] },
+    { id: "b", name: "b", song: 1, lengths: null },
+  ]);
+  assert.equal(ctx.api.length(), 30000, "subtune 2 of the HVSC lengths");
+  ctx.api.advance();
+  assert.deepEqual(started, [], "not before the subtune ends");
+  elapsed = 30000;
+  ctx.api.advance();
+  assert.deepEqual(started, ["b"]);
+  elapsed = 20000;
+  assert.equal(ctx.api.length(), 180000, "no HVSC length: the default");
 });
 
 test("SID player volume knob maps 0-100 onto a 270 degree sweep", () => {
@@ -434,7 +464,7 @@ test("SID player shuffle: every tune once per round, Previous steps back along t
   };
   vm.createContext(ctx);
   vm.runInContext(`const _SID_TUNE_LENGTH_MS = 180000; var _sidPlaylist = [], _sidPlaylistIndex = -1, _sidSeekDragging = false, _sidShuffle = false, _sidShuffleHistory = [];
-    ${["_sidPsidInfo", "_sidValidSong", "_sidPlayerAdd", "_sidPlayerPlayIndex", "_sidPlayerPrev", "_sidPlayerNext", "_sidPlayerSetShuffle",
+    ${["_sidPsidInfo", "_sidValidSong", "_sidPlayerItem", "_sidPlayerTuneMs", "_sidPlayerAdd", "_sidPlayerPlayIndex", "_sidPlayerPrev", "_sidPlayerNext", "_sidPlayerSetShuffle",
       "_sidPlayerLengthMs", "_sidPlayerTickUi", "_sidPlayerRenderList"].map(fnSource).join("\n")}
     this.api = { add: _sidPlayerAdd, next: _sidPlayerNext, prev: _sidPlayerPrev, shuffle: _sidPlayerSetShuffle };`, ctx);
   const psid = () => { const b = new Uint8Array(0x80); b.set([0x50, 0x53, 0x49, 0x44]); return b; };

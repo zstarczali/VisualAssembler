@@ -17,6 +17,7 @@ use tauri_plugin_dialog::{MessageDialogButtons, MessageDialogKind};
 use tauri_plugin_opener::OpenerExt;
 
 mod c64;
+mod hvsc;
 mod mos6510;
 mod sid_core;
 mod sid_file;
@@ -5285,6 +5286,13 @@ pub fn run() {
             app_usage_add,
             fetch_app_message,
             fetch_app_message_image,
+            hvsc::hvsc_status,
+            hvsc::hvsc_catalog,
+            hvsc::hvsc_fetch,
+            hvsc::hvsc_choose_folder,
+            hvsc::hvsc_clear_folder,
+            hvsc::hvsc_download_all,
+            hvsc::hvsc_cancel_download,
             support_api,
             get_ui_settings,
             save_ui_settings,

@@ -10972,6 +10972,49 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
   opacity: 0.75;
   line-height: 1.4;
 }
+/* HVSC: keresés a High Voltage SID Collection-ben */
+.websid-hvsc {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid var(--panel-border);
+  background: color-mix(in srgb, var(--control-bg) 50%, var(--panel));
+}
+.websid-hvsc[hidden] { display: none; }
+.websid-hvsc-bar { display: flex; align-items: center; gap: 8px; }
+.websid-hvsc-search { flex: 1; min-width: 0; height: 30px; min-height: 0; padding: 3px 8px; font-size: 0.82rem; }
+.websid-hvsc-status { display: flex; align-items: center; gap: 8px; font-size: 0.72rem; color: var(--secondary); min-height: 1.2em; }
+.websid-hvsc-status > span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.websid-hvsc-status--error { color: #e05555; }
+.websid-hvsc-link {
+  min-height: 0; height: auto; padding: 0; border: none; background: none;
+  color: var(--secondary); font-size: 0.7rem; cursor: pointer; text-decoration: underline; opacity: 0.8;
+}
+.websid-hvsc-link:hover { color: var(--primary); opacity: 1; }
+.websid-hvsc-list { max-height: 260px; }
+.websid-hvsc-item-who {
+  flex: 0 1 34%; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: 0.74rem; color: var(--secondary);
+}
+.websid-hvsc-item-len {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.7rem; color: var(--secondary);
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+  flex: none; min-width: 8ch; text-align: right;
+}
+.websid-hvsc-item-btn {
+  display: inline-flex; align-items: center; justify-content: center; flex: none;
+  width: 22px; height: 20px; min-height: 0; padding: 0;
+  border: none; border-radius: 2px; background: transparent;
+  color: var(--secondary); cursor: pointer; font-size: 1rem; line-height: 1;
+  opacity: 0.45;
+}
+.websid-hvsc-item-btn svg { width: 13px; height: 13px; }
+.websid-play-item:hover .websid-hvsc-item-btn { opacity: 1; }
+.websid-hvsc-item-btn:hover { color: var(--text); background: color-mix(in srgb, var(--secondary) 18%, transparent); }
+.websid-hvsc-item--added .websid-play-item-name { color: var(--primary); }
 
 /* ── New project from template ──────────────────────────────────── */
 

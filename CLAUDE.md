@@ -200,6 +200,16 @@ A SID szerkesztő egy 3-voice tracker Web Audio előnézettel. A 2026-06-16 fris
 - **Per-channel volume a SID-en nem létezik** — ADSR `S` (sustain) szint a legközelebbi
 - Csak a WebSid nélküli tartalék szintetizátor nem 1:1 a valódi SID-del (ring/sync, filter karakterisztika eltér)
 
+### SID Player — HVSC
+
+A SID Player `#websid-play-hvsc` gombja a `#websid-hvsc` panelt nyitja (High Voltage SID Collection): katalógus =
+`DOCUMENTS/Songlengths.md5` (útvonal + subtune-hosszak, `_hvscParseCatalog`, keresés `_hvscSearch`, min. 2 karakter),
+dal-letöltés egyenként (`hvsc_fetch`, cache: app cache dir `hvsc/`), helyi kibontott mappa (`hvscPath` a configban,
+`hvsc_choose_folder`), teljes gyűjtemény egyben (`hvsc_download_all`: hivatalos .7z a `hvsc.brona.dk`-ról, `sevenz-rust2`,
+`hvsc-download-progress` esemény, `hvsc_cancel_download`). Backend: `src-tauri/src/hvsc.rs`; tükrök `HVSC_MIRRORS`.
+A playlist elem `lengths` / `hvsc` mezője adja a seek bar hosszát és az auto-advance-t (`_sidPlayerTuneMs`).
+Teszt: `tests/hvsc-catalog.test.js`, Rust `real_hvsc_archive_unpacks` (#[ignore], `HVSC_ARCHIVE` env).
+
 ### Idegen .sid / .bin fájlok
 
 Az editor saját formátuma nem kompatibilis külső SID file-okkal. C64-es `.bin` (pl. Ikari
