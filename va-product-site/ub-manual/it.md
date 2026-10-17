@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.5 — Manuale della lingua
+# Ultimate Basic v1.6.6 — Manuale della lingua
 
 Manuale completo del linguaggio e della riga di comando per Ultimate Basic, un
 linguaggio simile al BASIC che compila direttamente in codice macchina 6502 per
@@ -217,8 +217,8 @@ z = x e 15 # AND bit a bit
 w = a o b # OR bit a bit
 v = a x o b # XOR bit a bit
 m = x shl 3 # shift a sinistra
-n = x shr 2 # shift a destra
-r = x mod 40 # modulo a 8 bit (resto); x mod 0 = x, x / 0 = 255
+n = x shr 2 # shift a destra (aritmetica per un INTERO: -8 shr 1 = -4)
+r = x mod 40 # resto; x mod 0 = x, x / 0 = 255
 b = bnot x # NOT bit a bit: x XOR 255 (complementa tutti gli 8 bit)
 ```
 
@@ -229,8 +229,15 @@ Codice aritmetico (1.6.0): `*` per una costante si compila in shift / shift-add
 `/` e `mod` per una potenza di due sono `LSR` / `AND #(n-1)`, altrimenti un
 ciclo shift-sottrazione di 8 round il cui tempo di esecuzione non dipende più
 dal quoziente. La divisione per zero è definita come: `x / 0 = 255`, `x mod 0 =
-x` (prima della 1.6.0 si bloccava). `x = x + 1` / `x = x - 1` (e ±2) compilano
-in `INC` / `DEC`.
+x` (prima della versione 1.6.0 si bloccava).
+
+`mod` con un operando `word` o `integer` (o una costante negativa) è un resto a
+16 bit con il segno del dividendo, come in QBasic: `-7 mod 3` = -1, `7 mod -3` =
+1, `(w + 5) mod 7` mantiene 16 bit. Con un operando SINGOLO / DOPPIO funziona in
+virgola mobile (vedi *Virgola mobile*). `shr` di un `intero` è uno spostamento
+aritmetico (il segno viene mantenuto: `-8 shr 1` = -4); i valori di `word` e
+byte vengono spostati logicamente. `x = x + 1` / `x = x - 1` (e ±2) vengono
+compilati in `INC` / `DEC`.
 
 ### Incremento / Decremento
 
@@ -273,6 +280,48 @@ stampa s1 + s2 # due variabili stringa → stampa sequenziale
 stampa "Ciao " + "Mondo" # due letterali → riduzione in fase di compilazione
 stampa chr$(13) # stampa tramite codice PETSCII
 ```
+
+Per impostazione predefinita i numeri vengono stampati senza spazi aggiuntivi e
+`,` separano semplicemente gli elementi (`stampa 1, 2` restituisce `12`). Per la
+spaziatura BASIC del C64, compilare con `--basic-print`, oppure inserire una
+riga `option basic print` nel programma: un numero viene quindi stampato con uno
+spazio iniziale (o il suo `-`) e uno spazio finale (`print 5` → ` 5 `), un `,`
+sposta alla successiva zona di stampa a 10 colonne e uno spazio finale `,`
+mantiene il cursore sulla riga come uno spazio finale `;`. Le stringhe, `spc`,
+`tab`, `hex`, `bin`, `dec`, `chr$` e `str$` vengono stampate come prima.
+
+#### `STAMPA USANDO`
+
+```basic
+DIM ar AS DOUBLE = 1234.5
+DIM s AS STRING = "ALMA"
+PRINT USING "###.##"; 3.14159 ' 3.14
+PRINT USING "Ar: #,###.## Ft"; ar ' Ar: 1,234.50 Ft
+PRINT USING "+##"; 7 ' +7
+PRINT USING "##.##-"; -2.25 ' 2.25-
+PRINT USING "##"; 123 ' %123
+PRINT USING "[&amp;] [!] [\ \]"; s; s; s ' [ALMA] [A] [ALMA]
+PRINT USING "## "; 1, 2, 3 ' 1 2 3
+```
+
+| Campo                 | Senso                                                                                                                                  |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `#`                   | posizione della cifra; i numeri sono allineati a destra e arrotondati ai decimali                                                      |
+| `.`                   | punto decimale; i `#` che lo seguono sono le cifre decimali (al massimo 9)                                                             |
+| `,`                   | prima del punto: separatori delle migliaia (ciascuno `,` è una posizione)                                                              |
+| `+` all'inizio        | stampare sempre il segno (`+` / `-`)                                                                                                   |
+| `-` alla fine         | stampare il segno meno dopo il numero (uno spazio se positivo)                                                                         |
+| `&amp;` / `!` / `\ \` | stringa: l'intera stringa / il suo primo carattere / esattamente tanti caratteri quanti sono i caratteri del campo (`\` + spazi + `\`) |
+| `_`                   | stampa il carattere successivo così com'è (`_#`)                                                                                       |
+
+Un numero che non rientra viene stampato con `%` davanti (`%123`); uno zero
+iniziale isolato viene eliminato per primo (`#.##` con -0.5 → `-.50`). Gli altri
+caratteri vengono stampati così come sono. I valori scorrono attraverso i campi
+(il formato ricomincia quando termina); dopo l'ultimo valore viene stampato il
+testo fino al campo successivo. Un `;` o `,` finale mantiene il cursore sulla
+riga. Il formato deve essere una stringa letterale; i campi `**`, `$$` e `^^^^`
+non sono supportati. Un programma con `PRINT USING` include il runtime in
+virgola mobile (solo le parti necessarie).
 
 ### chr$
 
@@ -613,8 +662,9 @@ IF s = "ABC" OR t &lt;&gt; "" THEN PRINT "confronta con = / &lt;&gt;"
   iniziali (`"-42"`). Per compatibilità, `STR$` di un byte mantiene la forma a 3
   cifre (`"007"`). `VAL` legge numeri con segno a 16 bit (`VAL("1234") + 1` =
   1235).
-- **Confronto:** solo `=` / `&lt;&gt;` (e `==` / `!=`); non esiste alcun
-  ordinamento `&lt;` / `&gt;` delle stringhe.
+- **Confronto:** `=` / `&lt;&gt;` (e `==` / `!=`), e `&lt;` `&gt;` `&lt;=`
+  `&gt;=` in ordine PETSCII come C64 BASIC; una stringa viene prima di ogni
+  stringa più lunga che inizia (`"AB" &lt; "ABC"`, `"" &lt; "A"`).
 
 #### Numero intero con segno, INPUT, DOUBLE (1.6.3)
 
@@ -1788,17 +1838,19 @@ Atfogo = SQR(a * a + b * b)
 END FUNCTION
 ```
 
-|                  |                                                                                                                                                                              |
-| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Operatori        | `+ - * /` e `^` (potenza; associativo destro, lega più strettamente del meno unario: `-2^2` = -4)                                                                            |
-| Funzioni         | `SQR`, `SIN`, `COS`, `TAN`, `ATN` (radianti), `EXP`, `LOG` (naturale), `INT` (pavimento), `FIX` (tronca), `CINT` (arrotondato), `ABS`, `SGN`, `CSNG` / `CDBL` (no-op), `VAL` |
-| Letterali        | `1,5`, `.5`, `1E6`, `2,5e-3`, `70000`                                                                                                                                        |
-| Confronti        | `= &lt;&gt; &lt; &gt; &lt;= &gt;=` in `SE` / `FINCHÉ` / `FINCHÉ` / `SELEZIONARE CASO` e come valori                                                                          |
-| Stampa           | Stile C64 BASIC: `.5`, `-3.25`, `3.33333333`, `1E+10`, `1.5E-07` (nessuno spazio iniziale)                                                                                   |
-| Corde            | `s = "X=" + x`, `STR$(x)`, `VAL(s)` legge `-1.25E3`                                                                                                                          |
-| `PER`            | contatore a virgola mobile, limite e passo (`STEP 0.1`, negativo o una variabile)                                                                                            |
-| `INPUT` / `READ` | `INPUT x` legge un numero qualsiasi; `READ x` legge il byte successivo `data`                                                                                                |
-| Sottofunzione    | `p COME DOUBLE` parametri e ` COME DOUBLE` risultati                                                                                                                         |
+|                  |                                                                                                                                                                                 |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Operatori        | `+ - * /` e `^` (potenza; associativo destro, lega più strettamente del meno unario: `-2^2` = -4)                                                                               |
+| Funzioni         | `SQR`, `SIN`, `COS`, `TAN`, `ATN` (radianti), `EXP`, `LOG` (naturale), `INT` (pavimento), `FIX` (tronca), `CINT` (rotondo), `ABS`, `SGN`, `CSNG` / `CDBL` (no-op), `VAL`, `RND` |
+| `MOD`            | `a MOD b` = `a - b * FIX(a / b)` (segno di `a`, come VB / C `fmod`): `7.5 MOD 2` = 1.5; `x MOD 0` = x                                                                           |
+| `RND`            | in un'istruzione in virgola mobile `RND` / `RND()` è un numero casuale 0 ≤ x < 1 (`d = RND`, `x = RND * 6`); `rnd(n)` rimane l'intero 0 … n-1                                   |
+| Letterali        | `1,5`, `.5`, `1E6`, `2,5e-3`, `70000`                                                                                                                                           |
+| Confronti        | `= &lt;&gt; &lt; &gt; &lt;= &gt;=` in `SE` / `FINCHÉ` / `FINCHÉ` / `SELEZIONARE CASO` e come valori                                                                             |
+| Stampa           | Stile C64 BASIC: `.5`, `-3.25`, `3.33333333`, `1E+10`, `1.5E-07` (nessuno spazio iniziale a meno che `--basic-print`); decimali fissi con `PRINT USING`                         |
+| Corde            | `s = "X=" + x`, `STR$(x)`, `VAL(s)` legge `-1.25E3`                                                                                                                             |
+| `PER`            | contatore a virgola mobile, limite e passo (`STEP 0.1`, negativo o una variabile)                                                                                               |
+| `INPUT` / `READ` | `INPUT x` legge un numero qualsiasi; `READ x` legge il byte successivo `data`                                                                                                   |
+| Sottofunzione    | `p COME DOUBLE` parametri e ` COME DOUBLE` risultati                                                                                                                            |
 
 **Mescolamento con numeri interi.** Un'espressione viene calcolata in virgola
 mobile quando contiene un valore SINGOLO / DOPPIO, `^`, una delle funzioni sopra
@@ -1811,22 +1863,33 @@ valore intero assegnato a un DOUBLE viene convertito esattamente. Le espressioni
 intere mantengono le loro regole intere (`var c = a + b` è ancora un byte).
 
 **Note**
-- Un valore letterale intero compreso tra 32768 e 65535 viene letto come una
-  sequenza di 16 bit e diventa negativo nel contesto a virgola mobile: scrivere
-  `40000.0` o `4E4`.
+- Un letterale intero da 32768 a 65535 mantiene il suo valore in un'istruzione
+  che esegue calcoli in virgola mobile (`d = 40000`, `d + 50000`). Un'istruzione
+  è considerata in virgola mobile quando specifica una variabile SINGOLA/DOPPIO,
+  un array, un parametro o una funzione, oppure utilizza `^`, un letterale solo
+  in virgola mobile o una delle funzioni sopra menzionate; altrove, tale
+  letterale è un pattern a 16 bit come prima (`poke 53280, 1`, `w = 40000` in
+  una WORD). Una variabile che è diventata a virgola mobile solo tramite `var x
+  = 2.5` non conta: scrivi `40000.0` lì.
 - `7 / 2` è 3,5 quando assegnato a un DOUBLE; nel contesto intero è 3 come
   prima.
-- `x MOD y` e `AND` / `OR` / `XOR` arrotondano i loro operandi a numeri interi.
+- `AND` / `OR` / `XOR` arrotondano i loro operandi a numeri interi.
 - `SIN` / `COS` di un valore di byte mantengono il vecchio significato della
   tabella 0–255 (cerchio completo = 256); con un argomento SINGOLO / DOPPIO
   funzionano in radianti.
-- Il codice a virgola mobile non deve essere eseguito nei gestori IRQ/NMI (il
-  runtime mantiene il suo stato nella RAM fissa).
-- Costo: il runtime in virgola mobile (circa 4,4 KB, assemblato dal compilatore)
-  viene aggiunto dopo il programma la prima volta che si utilizza SINGLE /
-  DOUBLE. Le variabili occupano 5 byte nell'area dell'array, più un puntatore di
-  pagina zero di 2 byte per il runtime. Una moltiplicazione richiede circa 1-2
-  ms su un C64 a 1 MHz.
+- I gestori IRQ/NMI possono utilizzare la virgola mobile: una subroutine
+  denominata in `irq`, `nmi` o `cia_timer` che (direttamente o tramite le
+  subroutine che chiama) utilizza SINGLE/DOUBLE per salvare lo stato di runtime
+  all'avvio e ripristinarlo prima di `irq_exit`/`nmi_exit` (circa 4-5 mila cicli
+  per interrupt). I gestori senza virgola mobile non vengono rallentati. Non
+  coperto: un gestore impostato tramite indirizzo o variabile di parola, o uno
+  che termina con un semplice `RTS`/`RTI`.
+- Costo: il runtime in virgola mobile viene assemblato dal compilatore e
+  aggiunto dopo il programma; sono incluse solo le routine utilizzate dal
+  programma (circa 2 KB per `+ - * /` e `PRINT` fino a circa 5 KB con tutte le
+  funzioni e `PRINT USING`). Le variabili occupano 5 byte nell'area degli array,
+  più un puntatore di pagina zero di 2 byte per il runtime. Una moltiplicazione
+  richiede circa 1-2 ms su un C64 a 1 MHz.
 
 ### Variabili nella RAM, memoria array (1.6.4)
 
@@ -1857,10 +1920,12 @@ var b = min(x, 39) # minimo a 8 bit
 var c = max(x, 0) # massimo a 8 bit
 var s = sgn(score) # 0 = zero, 1 = positivo (1–127), $FF = negativo (128–255)
 var r = rnd() # pseudo-casuale LCG 0-255; Seed da linea raster
+
+# (0 &lt;= x &lt; 1 in un'istruzione SINGOLA/DOPPIO: d = rnd)
 var r = rnd(10) # Pseudo-casuale LCG 0-9 (rnd() mod n; risultato 0..n-1)
 var s = sin(angolo) # seno: angolo 0-255 (cerchio completo), restituisce 0-255 (centro=128)
 var c = cos(angolo) # coseno = sin(angolo+64)
-var v = clamp(x, 0, 39) # Clamp a 8 bit senza segno: risultato = max(lo, min(hi, val))
+var v = clamp(x, 0, 39) # Clamp senza segno a 8 bit: risultato = max(lo, min(hi, val))
 
 print hex(n) # stampa come esadecimale maiuscolo a 2 cifre
 print bin(n) # stampa come stringa binaria a 8 bit
@@ -1974,6 +2039,10 @@ end
 
 Sono supportati i riferimenti in avanti (`irq my_handler` prima che la
 subroutine sia definita).
+
+Una subroutine gestore può utilizzare numeri in virgola mobile SINGOLI/DOPPIO:
+salva e ripristina lo stato di runtime attorno al suo corpo (vedere *Variante in
+virgola mobile*).
 
 ### Gestore NMI
 
@@ -2282,9 +2351,12 @@ ub build <input.ub> [OPZIONI]
 senza un nome file, il valore predefinito è <output>.d64
 
 --add <file> Aggiunge un file extra all'immagine disco .d64;
-può essere ripetuto per più file
 
---explicit Richiede :type per ogni var / sub-param / fn-param
+Può essere ripetuto per più file
+
+--explicit Richiede :type per ogni variabile / sottoparametro / parametro funzione
+
+--basic-print Spaziatura di stampa BASIC C64: spazi attorno ai numeri, ',' = zone a 10 colonne
 
 -h, --help Mostra la guida
 ```
@@ -2495,10 +2567,10 @@ Utilizza `--asm` per visualizzare il codice generato per il tuo programma.
 | Budget di pagina zero                 | La pagina zero permanente è `$02–$4F` (78 byte): ogni variabile e parametro sub/fn occupa 2 byte, ogni ciclo `for` in esecuzione ne occupa altri 2. Dalla versione 1.6.4 le variabili che non rientrano vengono spostate automaticamente nella RAM (vedere *Variabili nella RAM*); solo i casi estremi segnalano ancora `pagina zero esaurita` |
 | Letterali binari                      | `%01010101` (dalla versione 1.6.4), `$hex` e decimale                                                                                                                                                                                                                                                                                          |
 | Sottoprogrammi                        | Nessuna ricorsione: gli slot dei parametri ZP vengono allocati staticamente.                                                                                                                                                                                                                                                                   |
-| Variabili stringa                     | `single` / `double` sono numeri in virgola mobile a 5 byte dalla versione 1.6.4 (non utilizzabili nei gestori IRQ; il runtime di ~4,4 KB viene aggiunto al programma); `float` rimane Q8.8 (0–255.99)                                                                                                                                          |
+| Variabili stringa                     | `single` / `double` sono numeri in virgola mobile a 5 byte dalla versione 1.6.4 (le routine utilizzate da un programma, ~2–5 KB, vengono aggiunte ad essi); `float` rimane Q8.8 (0–255.99)                                                                                                                                                     |
 | Unario meno                           | Dal 1.6.4 un `-` iniziale si lega al suo operando: `-5 - 3` è -8 (era -(5 - 3) = -2)                                                                                                                                                                                                                                                           |
-| Runtime di concatenazione di stringhe | `s1 + s2` stampa in sequenza — nessuna allocazione di heap o tracciamento della lunghezza                                                                                                                                                                                                                                                      |
-| `rnd()` / `rnd(n)`                    | LCG semplice, non crittografico; periodo = 256                                                                                                                                                                                                                                                                                                 |
+| Runtime di concatenazione di stringhe | I valori calcolati risiedono in un buffer di 80 caratteri per variabile (i risultati più lunghi vengono troncati); i valori degli elementi dell'array di stringhe sono in slot da 31 caratteri; l'ordine `&lt;` / `&gt;` è l'ordine dei byte PETSCII.                                                                                          |
+| `rnd()` / `rnd(n)`                    | LCG semplice, non crittografico; periodo = 256 (il valore in virgola mobile `rnd` è un'operazione xorshift a 32 bit)                                                                                                                                                                                                                           |
 | `abs()` / `sgn()` / `min()` / `max()` | Solo valori a 8 bit; `abs`/`sgn` trattano i valori come con segno (bit 7 = negativo → `abs` complemento a due, `sgn` restituisce `$FF`); `min`/`max` sono senza segno (0–255)                                                                                                                                                                  |
 | `grafico`                             | I pixel fuori intervallo vengono eliminati silenziosamente (Y ≥ 200 o X ≥ 320 → nessuna operazione)                                                                                                                                                                                                                                            |
 | `particella`                          | Nessun controllo dei limiti: x deve essere compreso tra 0 e 159, y deve essere compreso tra 0 e 199.                                                                                                                                                                                                                                           |

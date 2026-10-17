@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.5 — Kieliopas
+# Ultimate Basic v1.6.6 — Kieliopas
 
 Täydellinen kieli- ja komentoriviviite Ultimate Basicille, BASICin kaltaiselle
 kielelle, joka kääntyy suoraan 6502-konekoodiksi Commodore 64:lle. Tuloste:
@@ -217,8 +217,8 @@ z = x ja 15 # bittikohtainen JA
 w = a tai b # bittikohtainen TAI
 v = a xor b # bittikohtainen XOR
 m = x shl 3 # siirto vasemmalle
-n = x shr 2 # siirto oikealle
-r = x mod 40 # 8-bittinen modulo (jäännös); x mod 0 = x, x / 0 = 255
+n = x shr 2 # siirto oikealle (aritmeettinen kokonaisluku: -8 shr 1 = -4)
+r = x mod 40 # jakojäännös; x mod 0 = x, x / 0 = 255
 b = bnot x # bittikohtainen EI: x XOR 255 (komplementoi kaikki 8 bittiä)
 ```
 
@@ -229,8 +229,15 @@ Aritmeettinen koodi (1.6.0): Vakioarvolla `*` kääntyy muotoon shifts / shift-a
 kahden potenssilla korotettu `mod` ovat `LSR` / `AND #(n-1)`, muuten 8
 kierroksen shift-subtract-silmukka, jonka suoritusaika ei enää riipu
 osamäärästä. Nollalla jakaminen määritellään seuraavasti: `x / 0 = 255`, `x mod
-0 = x` (ennen versiota 1.6.0 se jumiutui). `x = x + 1` / `x = x - 1` (ja ±2)
-käännetään muotoon `INC` / `DEC`.
+0 = x` (ennen versiota 1.6.0 se jumiutui).
+
+`mod`, jossa on `word` tai `integer` operandi (tai negatiivinen vakio), on
+16-bittinen jakojäännös, jonka etumerkki on jaettava, kuten QBasicissa: `-7 mod
+3` = -1, `7 mod -3` = 1, `(w + 5) mod 7` säilyttää 16 bittiä. YKSITTÄIS- /
+KAKSINKERTAIS-operandilla se toimii liukulukulaskulla (katso *Floating point*).
+Kokonaisluvun ` ` ` shr` on aritmeettinen siirto (merkki säilytetään: `-8 shr 1`
+= -4); ` sanan ` ja tavujen arvot siirtyvät loogisesti. `x = x + 1` / `x = x -
+1` (ja ±2) käännetään muotoon `INC` / `DEC`.
 
 ### Lisäys / Vähennys
 
@@ -273,6 +280,47 @@ tulosta s1 + s2 # kaksi merkkijonomuuttujaa → peräkkäinen tulostus
 tulosta "Hei " + "Maailma" # kaksi literaalia → käännösaikainen taitto
 tulosta chr$(13) # tulosta PETSCII-koodilla
 ```
+
+Oletusarvoisesti numerot tulostetaan ilman ylimääräisiä välilyöntejä ja `,` vain
+erottaa alkiot (`print 1, 2` antaa tulokseksi `12`). C64 BASIC -välistys
+rakennetaan komennolla `--basic-print` tai lisätään ohjelmaan rivi `-asetus
+basic print`: luku tulostuu sitten etu- ja takavälillä (tai sen `-`) ja
+takavälillä (`print 5` → ` 5 `), `,` siirtää luvun seuraavaan 10 sarakkeen
+tulostusvyöhykkeeseen ja loppu- `,` pitää kohdistimen rivillä kuten loppu- `;`.
+Merkkijonot `spc`, `tab`, `hex`, `bin`, `dec`, `chr$` ja `str$` tulostuvat kuten
+ennenkin.
+
+#### `TULOSTA KÄYTTÄEN `
+
+```basic
+DIM ar AS DOUBLE = 1234,5
+DIM s AS STRING = "ALMA"
+TULOSTA KÄYTTÄEN "###.##"; 3,14159 ' 3,14
+TULOSTA KÄYTTÄEN "Ar: #,###.## Ft"; ar ' Ar: 1 234,50 Ft
+TULOSTA KÄYTTÄEN "+##"; 7 ' +7
+TULOSTA KÄYTTÄEN "##.##-"; -2,25 ' 2,25-
+TULOSTA KÄYTTÄEN "##"; 123 ' %123
+TULOSTA KÄYTTÄEN "[&amp;] [!] [\ \]"; s; s; s ' [ALMA] [A] [ALMA]
+TULOSTA KÄYTTÄEN "## "; 1, 2, 3 ' 1 2 3
+```
+
+| Ala                   | Merkitys                                                                                                                            |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `#`                   | numeron sijainti; numerot on tasattu oikealle ja pyöristetty desimaalien tarkkuudelle                                               |
+| `.`                   | desimaalipilkku; sen jälkeiset `#` ovat desimaaleja (enintään 9)                                                                    |
+| `,`                   | ennen pistettä: tuhaterottimet (jokainen `,` on yksi merkki)                                                                        |
+| `+` alussa            | tulosta aina merkki (`+` / `-`)                                                                                                     |
+| `-` lopussa           | tulosta miinusmerkki luvun perään (välilyönti, jos luku on positiivinen)                                                            |
+| `&amp;` / `!` / `\ \` | merkkijono: koko merkkijono / sen ensimmäinen merkki / täsmälleen yhtä monta merkkiä kuin kenttä on leveä (`\` + välilyönnit + `\`) |
+| `_`                   | tulosta seuraava merkki sellaisenaan (`_#`)                                                                                         |
+
+Jos luku ei mahdu kenttään, sen eteen tulostetaan `%` (`%123`); ensin jätetään
+pois yksinäinen nolla (`#.##`, jossa -0.5 → `-.50`). Muut merkit tulostetaan
+sellaisenaan. Arvot vaihtuvat kenttien välillä (muotoilu alkaa alusta, kun se
+loppuu); viimeisen arvon jälkeen tulostuu teksti seuraavaan kenttään asti.
+Merkinnät `;` tai `,` pitävät kohdistimen rivillä. Muodon on oltava
+merkkijonoliteraali; kenttiä `**`, `$$` ja `^^^^` ei tueta. Ohjelma, jossa on
+`PRINT USING`, sisältää liukulukujen suoritusympäristön (vain tarvittavat osat).
 
 ### chr$
 
@@ -587,8 +635,10 @@ JOS s = "ABC" TAI t &lt;&gt; "" NIIN PRINT "vertaa = / &lt;&gt;"
   etunollia (`"-42"`). Yhteensopivuuden vuoksi tavun `STR$` säilyttää
   kolminumeroisen muodon (`"007"`). `VAL` lukee 16-bittiset etumerkilliset luvut
   (`VAL("1234") + 1` = 1235).
-- **Vertailu:** vain `=` / `&lt;&gt;` (ja `==` / `!=`); merkkijonoilla ei ole
-  `&lt;` / `&gt;` järjestystä.
+- **Vertailu:** `=` / `&lt;&gt;` (ja `==` / `!=`), ja `&lt;` `&gt;` `&lt;=`
+  `&gt;=` PETSCII-järjestyksessä kuten C64 BASICissa; merkkijono tulee ennen
+  jokaista pidempää merkkijonoa, jonka se aloittaa (`"AB" &lt; "ABC"`, `"" &lt;
+  "A"`).
 
 #### Etumerkillinen KOKONAISLUKU, SYÖTE, KAKSINKERTAINEN (1.6.3)
 
@@ -1726,17 +1776,19 @@ Atfogo = SQR(a * a + b * b)
 END FUNCTION
 ```
 
-|                   |                                                                                                                                                                                     |
-| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Operaattorit      | `+ - * /` ja `^` (potenssi; oikealle assosiatiivinen, sitoo tiukemmin kuin unaarinen miinus: `-2^2` = -4)                                                                           |
-| Toiminnot         | `SQR`, `SIN`, `COS`, `TAN`, `ATN` (radiaanit), `EXP`, `LOG` (luonnollinen), `INT` (lattia), `FIX` (katkaistu), `CINT` (pyöreä), `ABS`, `SGN`, `CSNG` / `CDBL` (ei toimintoa), `VAL` |
-| Literaalit        | `1,5`, `.5`, `1E6`, `2,5e-3`, `70000`                                                                                                                                               |
-| Vertailut         | `= &lt;&gt; &lt; &gt; &lt;= &gt;=` kohdassa `IF` / `WHILE` / `UNT` / `SELECT CASE` ja arvoina                                                                                       |
-| Tulostaminen      | C64 PERUStyyli: `.5`, `-3.25`, `3.33333333`, `1E+10`, `1.5E-07` (ei välilyöntiä alussa)                                                                                             |
-| Jouset            | `s = "X=" + x`, `STR$(x)`, `VAL(s)` lukee `-1.25E3`                                                                                                                                 |
-| `FOR`             | liukulukulaskuri, raja ja askel (`STEP 0.1`, negatiivinen tai muuttuja)                                                                                                             |
-| `SYÖTTÖ` / `LUKU` | `INPUT x` lukee minkä tahansa numeron; `READ x` lukee seuraavan `data` tavun                                                                                                        |
-| Ali-/toiminto     | `p AS DOUBLE` -parametrit ja `AS DOUBLE` -tulokset                                                                                                                                  |
+|                   |                                                                                                                                                                                            |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Operaattorit      | `+ - * /` ja `^` (potenssi; oikealle assosiatiivinen, sitoo tiukemmin kuin unaarinen miinus: `-2^2` = -4)                                                                                  |
+| Toiminnot         | `SQR`, `SIN`, `COS`, `TAN`, `ATN` (radiaanit), `EXP`, `LOG` (luonnollinen), `INT` (lattia), `FIX` (katkaistu), `CINT` (pyöreä), `ABS`, `SGN`, `CSNG` / `CDBL` (ei toimintoa), `VAL`, `RND` |
+| `MOD`             | `a MOD b` = `a - b * FIX(a / b)` (funktion `a` etumerkki, kuten VB / C `fmod`): `7.5 MOD 2` = 1.5; `x MOD 0` = x                                                                           |
+| `RND`             | liukulukulausekkeessa `RND` / `RND()` on satunnaisluku 0 ≤ x < 1 (`d = RND`, `x = RND * 6`); `rnd(n)` pysyy kokonaislukuna 0 … n-1                                                         |
+| Literaalit        | `1,5`, `.5`, `1E6`, `2,5e-3`, `70000`                                                                                                                                                      |
+| Vertailut         | `= &lt;&gt; &lt; &gt; &lt;= &gt;=` kohdassa `IF` / `WHILE` / `UNT` / `SELECT CASE` ja arvoina                                                                                              |
+| Tulostaminen      | C64 BASIC-tyyli: `.5`, `-3.25`, `3.33333333`, `1E+10`, `1.5E-07` (ei välilyöntiä alussa, ellei `--basic-print`); kiinteät desimaaliluvut `PRINT USING` -komennolla                         |
+| Jouset            | `s = "X=" + x`, `STR$(x)`, `VAL(s)` lukee `-1.25E3`                                                                                                                                        |
+| `FOR`             | liukulukulaskuri, raja ja askel (`STEP 0.1`, negatiivinen tai muuttuja)                                                                                                                    |
+| `SYÖTTÖ` / `LUKU` | `INPUT x` lukee minkä tahansa numeron; `READ x` lukee seuraavan `data` tavun                                                                                                               |
+| Ali-/toiminto     | `p AS DOUBLE` -parametrit ja `AS DOUBLE` -tulokset                                                                                                                                         |
 
 **Sekoittaminen kokonaislukujen kanssa.** Lauseke lasketaan liukulukuvakiona,
 kun se sisältää YKSITTÄISEN / KAKSINKERTAISEN arvon, `^`, jonkin yllä olevista
@@ -1749,21 +1801,33 @@ muunnetaan tarkasti. Kokonaislukulausekkeet säilyttävät kokonaislukusäännö
 (`muuttuja c = a + b` on edelleen tavu).
 
 **Muistiinpanot**
-- Kokonaisluku literaali välillä 32768–65535 luetaan 16-bittisenä kuviona ja
-  siitä tulee negatiivinen liukulukukontekstissa: kirjoita `40000.0` tai `4E4`.
+- Kokonaislukuliteraali välillä 32768–65535 säilyttää arvonsa lausekkeessa, joka
+  lasketaan liukulukuina (`d = 40000`, `d + 50000`). Lauseke lasketaan
+  liukulukuksi, kun se nimeää YKSITTÄIS-/KAKSINKERTAISMUUTTUJAN, taulukon,
+  parametrin tai funktion tai käyttää `^`, vain liukulukuja sisältävää
+  literaalia tai jotakin yllä olevista funktioista; muualla tällainen literaali
+  on 16-bittinen kuvio kuten aiemmin (` lisää 53280, 1`, `w = 40000` SANAAN).
+  Muuttujaa, josta tuli liukuluku vain muutoksen `var x = 2.5` kautta, ei
+  lasketa – kirjoita siihen `40000.0`.
 - `7 / 2` on 3,5, kun se on liitetty KAKSINKERTAISEEN; kokonaislukukontekstissa
   se on 3 kuten ennenkin.
-- `x MOD y` ja `AND` / `OR` / `XOR` pyöristävät operandinsa kokonaisluvuiksi.
+- `JA` / `TAI` / `XTAI` pyöristävät operandinsa kokonaisluvuiksi.
 - Tavun arvon `SIN` / `COS` säilyttävät vanhan 0–255-taulukon merkityksen (täysi
   ympyrä = 256); YKSITTÄISEN / KAKSINKERTAISEN argumentin kanssa ne toimivat
   radiaaneina.
-- Liukulukukoodia ei saa suorittaa IRQ-/NMI-käsittelijöissä (suoritusympäristö
-  pitää tilansa kiinteässä RAM-muistissa).
-- Kustannukset: liukulukulaskutoiminto (noin 4,4 kt, kääntäjän kokoama)
-  liitetään ohjelman jälkeen, kun SINGLE / DOUBLE -muuttujaa käytetään
-  ensimmäistä kertaa. Muuttujat vievät 5 tavua taulukkoalueelta sekä yhden
-  2-tavuisen nollasivuisen osoittimen ajonaikaista käyttöä varten. Kertolasku
-  kestää noin 1–2 ms 1 MHz:n C64-prosessorilla.
+- IRQ-/NMI-käsittelijät voivat käyttää liukulukua: `irq`, `nmi` tai `cia_timer`
+  -niminen alifunktio, joka (suoraan tai kutsumiensa alifunktioiden kautta)
+  käyttää SINGLE / DOUBLE -menetelmää ja tallentaa ajonaikaisen tilan sen alussa
+  ja palauttaa sen ennen `irq_exit` / `nmi_exit` -menetelmää (noin 4–5 tuhatta
+  sykliä keskeytystä kohden). Käsittelijöitä, joilla ei ole liukulukua, ei
+  hidasteta. Ei sisälly: osoitteen tai sanamuuttujan asettama käsittelijä tai
+  käsittelijä, joka poistuu pelkällä `RTS` / `RTI`.
+- Kustannukset: kääntäjä kokoaa liukulukulaskufunktion ja liittää sen ohjelman
+  loppuun; vain ohjelman käyttämät rutiinit sisällytetään (noin 2 kt funktioille
+  `+ - * /` ja `PRINT`, noin 5 kt kaikkine funktioineen ja `PRINT USING`).
+  Muuttujat vievät 5 tavua taulukkoalueella sekä yhden 2-tavuisen nollasivuisen
+  osoittimen ajonaikaista toimintaa varten. Kertolasku kestää noin 1–2 ms 1
+  MHz:n C64-prosessorilla.
 
 ### RAM-muistin muuttujat, taulukkomuisti (1.6.4)
 
@@ -1792,7 +1856,8 @@ var a = abs(x - 20) # kahden komplementin itseisarvo
 var b = min(x, 39) # 8-bittinen minimi
 var c = max(x, 0) # 8-bittinen maksimi
 var s = sgn(pisteet) # 0 = nolla, 1 = positiivinen (1–127), $FF = negatiivinen (128–255)
-var r = rnd() # LCG pseudo-satunnainen 0-255; siemen rasteriviivalta
+var r = rnd() # LCG pseudo-satunnainen 0-255; siemen rasteririviltä
+# (0 &lt;= x &lt; 1 YKSITTÄIS- / KAKSINKERTAISESSA lausekkeessa: d = rnd)
 var r = rnd(10) # LCG pseudo-satunnainen 0-9 (rnd() mod n; tulos 0..n-1)
 var s = sin(kulma) # sini: kulma 0-255 (täysi ympyrä), palauttaa 0-255 (keskipiste=128)
 var c = cos(kulma) # kosini = sin(kulma+64)
@@ -1909,6 +1974,9 @@ end
 ```
 
 Eteenpäin viittauksia tuetaan (`irq my_handler` ennen kuin ali on määritelty).
+
+Käsittelijä-ali voi käyttää YKSITTÄISTÄ / KAKSINKERTAISTA liukulukua: se
+tallentaa ja palauttaa ajonaikaisen tilan rungon ympärille (katso *Liukuluku*).
 
 ### NMI-käsittelijä
 
@@ -2181,19 +2249,21 @@ ZP-pariin, joka varataan käännösaikana.
 ## CLI-viite
 
 ```
-ub build <input.ub> [VALINNAT]
+ub build <input.ub> [OPTIOT]
 
 -o, --output <tiedosto> Tulostaa .prg- tai .crt-tiedoston (oletus: <input>.prg)
 
 -v, --verbose Näytä nollasivuinen asettelu ja koodin heksadesimaalivedos
 --no-stub Ohita BASIC SYS -tynkä (koodi latautuu kohdassa $0801)
 --debug Luo myös .sym-, .dbg- ja .vs-virheenjäljitystiedostot
---asm Luo myös luettava 6502-koodin luontia varten tarkoitettu .asm-listaus
+--asm Luo myös luettava 6502 koodin luontia varten .asm-listaus
 --d64 [tiedosto] Luo myös .d64-levykuvan;
+
 ilman tiedostonimeä oletusarvo on <output>.d64
 --add <tiedosto> Lisää ylimääräisen tiedoston .d64-levykuvaan;
 voidaan toistaa useille tiedostoille
---explicit Vaatii :type jokaiselle muuttujalle / aliparametrille / fn-parametrille
+--explicit Vaaditaan :type jokaiselle muuttujalle / aliparametrille / fn-parametrille
+--basic-print C64 PERUSTULOSTUS välilyönti: välilyönnit numeroiden ympärillä, ',' = 10 sarakkeen vyöhykkeet
 -h, --help Näytä ohje
 ```
 
@@ -2395,10 +2465,10 @@ Käytä `--asm` nähdäksesi oman ohjelmasi luoman koodin.
 | Nolla sivubudjetti                          | Pysyvä nollasivu on `$02–$4F` (78 tavua): jokainen muuttuja ja sub/fn-parametri vie 2 tavua, jokainen suoritettava `for`-silmukka vie 2 tavua lisää. Versiosta 1.6.4 lähtien muuttujat, jotka eivät sovi, siirtyvät automaattisesti RAM-muistiin (katso *RAM-muistin muuttujat*); vain äärimmäisissä tapauksissa raportoidaan edelleen `ulkopuolelta nollasivulta` |
 | Binääriliteraalit                           | `%01010101` (versiosta 1.6.4 lähtien), `$hex` ja desimaaliluku                                                                                                                                                                                                                                                                                                     |
 | Aliohjelmat                                 | Ei rekursiota — ZP-parametripaikat allokoidaan staattisesti                                                                                                                                                                                                                                                                                                        |
-| Merkkijonomuuttujat                         | `single` / `double` ovat 5-tavuisia liukulukuja versiosta 1.6.4 lähtien (ei käytettävissä IRQ-käsittelijöissä; noin 4,4 kt:n suoritusaikainen versio on lisätty ohjelmaan); `float` pysyy arvossa Q8.8 (0–255,99)                                                                                                                                                  |
+| Merkkijonomuuttujat                         | `single` / `double` ovat 5-tavuisia liukulukuja versiosta 1.6.4 lähtien (ohjelman käyttämät rutiinit, ~2–5 kt, on lisätty niihin); `float` pysyy Q8.8:ssa (0–255.99)                                                                                                                                                                                               |
 | Unaarinen miinus                            | Versiosta 1.6.4 lähtien johtava `-` sitoutuu operandiinsa: `-5 - 3` on -8 (se oli -(5 - 3) = -2)                                                                                                                                                                                                                                                                   |
-| Merkkijonojen yhdistämisen suoritusaikainen | `s1 + s2` tulostaa peräkkäin — ei keon allokointia tai pituuden seurantaa                                                                                                                                                                                                                                                                                          |
-| `rnd()` / `rnd(n)`                          | Yksinkertainen LCG, ei kryptografinen; jakso = 256                                                                                                                                                                                                                                                                                                                 |
+| Merkkijonojen yhdistämisen suoritusaikainen | Lasketut arvot sijaitsevat 80 merkin puskurissa muuttujaa kohden (pidemmät tulokset karsitaan); merkkijonotaulukon elementtien arvot sijaitsevat 31 merkin paikoissa; `&lt;` / `&gt;` -järjestys on PETSCII-tavujärjestys.                                                                                                                                         |
+| `rnd()` / `rnd(n)`                          | Yksinkertainen LCG, ei kryptografinen; jakso = 256 (liukuluku `rnd` on 32-bittinen xorshift)                                                                                                                                                                                                                                                                       |
 | `abs()` / `sgn()` / `min()` / `max()`       | vain 8-bittisiä arvoja; `abs`/`sgn` käsittelee arvoja etumerkillisinä (bitti 7 = negatiivinen → `abs` kahden komplementit, `sgn` palauttaa `$FF`); `min`/`max` ovat etumerkittömiä (0–255)                                                                                                                                                                         |
 | `kuvaaja`                                   | Alueen ulkopuolella olevat pikselit rajataan äänettömästi (Y ≥ 200 tai X ≥ 320 → ei toimintoa)                                                                                                                                                                                                                                                                     |
 | `mplot`                                     | Ei rajojen tarkistusta — x:n on oltava 0–159, y:n on oltava 0–199                                                                                                                                                                                                                                                                                                  |

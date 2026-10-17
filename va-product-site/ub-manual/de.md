@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.5 — Sprachhandbuch
+# Ultimate Basic v1.6.6 — Sprachhandbuch
 
 Vollständige Sprach- und CLI-Referenz für Ultimate Basic, eine BASIC-ähnliche
 Sprache, die direkt in 6502-Maschinencode für den Commodore 64 kompiliert wird.
@@ -220,8 +220,8 @@ z = x und 15 # bitweises UND
 w = a oder b # bitweises ODER
 v = a xor b # bitweises XOR
 m = x shl 3 # Linksverschiebung
-n = x shr 2 # Rechtsverschiebung
-r = x mod 40 # 8-Bit-Modulo (Rest); x mod 0 = x, x / 0 = 255
+n = x shr 2 # Rechtsverschiebung (Arithmetik für eine ganze Zahl: -8 shr 1 = -4)
+r = x mod 40 # Rest; x mod 0 = x, x / 0 = 255
 b = bnot x # bitweises NICHT: x XOR 255 (Komplement aller 8 Bits)
 ```
 
@@ -233,8 +233,16 @@ zu einer Schiebe-Additionsschleife mit maximal 8 Durchläufen. `/` und `mod`
 multipliziert mit einer Zweierpotenz ergeben `LSR` / `AND #(n-1)`, andernfalls
 zu einer Schiebe-Subtraktionsschleife mit 8 Durchläufen, deren Laufzeit nicht
 mehr vom Quotienten abhängt. Die Division durch Null ist definiert: `x / 0 =
-255`, `x mod 0 = x` (vor Version 1.6.0 führte dies zu einem Programmabsturz). `x
-= x + 1` / `x = x - 1` (und ±2) kompilieren zu `INC` / `DEC`.
+255`, `x mod 0 = x` (vor Version 1.6.0 gab es einen Fehler).
+
+Der Operator `mod` mit einem Operanden vom Typ `word` oder `integer` (oder einer
+negativen Konstante) liefert einen 16-Bit-Rest mit dem Vorzeichen des
+Dividenden, wie in QBasic: `-7 mod 3` = -1, `7 mod -3` = 1, `(w + 5) mod 7`
+behält 16 Bit bei. Mit einem SINGLE- oder DOUBLE-Operanden funktioniert dies im
+Gleitkommamodus (siehe *Gleitkomma*). `shr` eines `integer` ist eine
+arithmetische Verschiebung (das Vorzeichen bleibt erhalten: `-8 shr 1` = -4);
+`word` und Byte-Werte werden logisch verschoben. `x = x + 1` / `x = x - 1` (und
+±2) werden zu `INC` / `DEC` kompiliert.
 
 ### Inkrementieren / Verringern
 
@@ -277,6 +285,50 @@ print s1 + s2 # zwei Zeichenketten → sequentielle Ausgabe
 print "Hello " + "World" # zwei Literale → Kompilierzeitfaltung
 print chr$(13) # Ausgabe mit PETSCII-Code
 ```
+
+Standardmäßig werden Zahlen ohne zusätzliche Leerzeichen ausgegeben, und `,`
+trennt lediglich die Elemente (`print 1, 2` ergibt `12`). Für C64 BASIC-Abstände
+kompilieren Sie mit `--basic-print` oder fügen Sie eine Zeile `option basic
+print` in das Programm ein: Eine Zahl wird dann mit einem führenden Leerzeichen
+(oder seinem `-`) und einem nachfolgenden Leerzeichen ausgegeben (`print 5` →
+` 5 `), ein `,` springt in die nächste 10-spaltige Druckzone, und ein
+nachfolgendes `,` hält den Cursor in der Zeile wie ein nachfolgendes `;`. Die
+Zeichenketten `spc`, `tab`, `hex`, `bin`, `dec`, `chr$` und `str$` werden wie
+zuvor ausgegeben.
+
+#### `DRUCKEN MIT `
+
+```basic
+DIM ar AS DOUBLE = 1234.5
+DIM s AS STRING = "ALMA"
+PRINT USING "###.##"; 3.14159 ' 3.14
+PRINT USING "Ar: #,###.## Ft"; ar ' Ar: 1,234.50 Ft
+PRINT USING "+##"; 7 ' +7
+PRINT USING "##.##-"; -2.25 ' 2.25-
+PRINT USING "##"; 123 ' %123
+PRINT USING "[&amp;] [!] [\ \]"; s; s; s ' [ALMA] [A] [ALMA]
+PRINT USING "##"; 1, 2, 3 ' 1 2 3
+```
+
+| Feld                  | Bedeutung                                                                                                                              |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `#`                   | eine Ziffernposition; die Zahlen sind rechtsbündig und auf die Dezimalstellen gerundet.                                                |
+| `.`                   | Dezimalpunkt; die nachfolgenden `#`s sind die Dezimalstellen (maximal 9).                                                              |
+| `,`                   | vor dem Punkt: Tausendertrennzeichen (jeweils `,` ist eine Position)                                                                   |
+| `+` am Anfang         | immer das Zeichen ausgeben (`+` / `-`)                                                                                                 |
+| `-` am Ende           | Setzen Sie das Minuszeichen nach der Zahl (bei positiven Zahlen ein Leerzeichen).                                                      |
+| `&amp;` / `!` / `\ \` | Zeichenkette: die gesamte Zeichenkette / ihr erstes Zeichen / genau so viele Zeichen, wie das Feld breit ist (`\` + Leerzeichen + `\`) |
+| `_`                   | Gib das nächste Zeichen unverändert aus (`_#`)                                                                                         |
+
+Eine Zahl, die nicht ins Feld passt, wird mit vorangestelltem `%` ausgegeben
+(`%123`); eine führende Null wird entfernt (`#.##` mit -0.5 → `-.50`). Alle
+anderen Zeichen werden unverändert ausgegeben. Die Werte durchlaufen die Felder
+(das Format beginnt von neuem, sobald die Werte erschöpft sind); nach dem
+letzten Wert wird der Text bis zum nächsten Feld ausgegeben. Ein nachfolgendes
+`;` oder `,` hält den Cursor in der Zeile. Das Format muss ein Stringliteral
+sein; die Felder `**`, `$$` und `^^^^` werden nicht unterstützt. Ein Programm
+mit `PRINT USING` bindet die Gleitkomma-Laufzeitumgebung ein (nur die Teile, die
+sie benötigt).
 
 ### chr$
 
@@ -606,8 +658,10 @@ IF s = "ABC" OR t &lt;&gt; "" THEN PRINT "Vergleiche mit = / &lt;&gt;"
   keine führenden Nullen (`"-42"`). Aus Kompatibilitätsgründen behält `STR$`
   eines Bytes die dreistellige Form bei (`"007"`). `VAL` liest 16-Bit-Zahlen mit
   Vorzeichen (`VAL("1234") + 1` = 1235).
-- **Vergleich:** nur `=` / `&lt;&gt;` (und `==` / `!=`); es gibt keine `&lt;` /
-  `&gt;` Reihenfolge der Zeichenketten.
+- **Vergleich:** `=` / `&lt;&gt;` (und `==` / `!=`), und `&lt;` `&gt;` `&lt;=`
+  `&gt;=` in PETSCII-Reihenfolge wie C64 BASIC; eine Zeichenkette kommt vor
+  jeder längeren Zeichenkette, die sie beginnt (`"AB" &lt; "ABC"`, `"" &lt;
+  "A"`).
 
 #### Signed INTEGER, INPUT, DOUBLE (1.6.3)
 
@@ -1787,17 +1841,19 @@ Atfogo = SQR(a * a + b * b)
 END FUNCTION
 ```
 
-|                     |                                                                                                                                                                                       |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Betreiber           | `+ - * /` und `^` (Potenz; rechtsassoziativ, bindet stärker als unäres Minus: `-2^2` = -4)                                                                                            |
-| Funktionen          | `SQR`, `SIN`, `COS`, `TAN`, `ATN` (Radiant), `EXP`, `LOG` (natürlich), `INT` (abrunden), `FIX` (abschneiden), `CINT` (runden), `ABS`, `SGN`, `CSNG` / `CDBL` (keine Operation), `VAL` |
-| Wörtliche           | `1,5`, `.5`, `1E6`, `2,5e-3`, `70000`                                                                                                                                                 |
-| Vergleiche          | `= &lt;&gt; &lt; &gt; &lt;= &gt;=` in `IF` / `WHILE` / `UNTIL` / `SELECT CASE` and as values                                                                                          |
-| Drucken             | C64 BASIC-Stil: `.5`, `-3.25`, `3.33333333`, `1E+10`, `1.5E-07` (kein führendes Leerzeichen)                                                                                          |
-| Saiten              | `s = "X=" + x`, `STR$(x)`, `VAL(s)` liest `-1.25E3`                                                                                                                                   |
-| `FOR`               | Gleitkommazähler, Grenzwert und Schrittweite (`SCHRITT 0.1`, negativ oder eine Variable)                                                                                              |
-| `EINGABE` / `LESEN` | `INPUT x` liest eine beliebige Zahl; `READ x` liest das nächste `data` Byte.                                                                                                          |
-| Unterfunktion       | `p AS DOUBLE` Parameter und `AS DOUBLE` Ergebnisse                                                                                                                                    |
+|                     |                                                                                                                                                                                              |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Betreiber           | `+ - * /` und `^` (Potenz; rechtsassoziativ, bindet stärker als unäres Minus: `-2^2` = -4)                                                                                                   |
+| Funktionen          | `SQR`, `SIN`, `COS`, `TAN`, `ATN` (Radiant), `EXP`, `LOG` (natürlich), `INT` (abrunden), `FIX` (abschneiden), `CINT` (runden), `ABS`, `SGN`, `CSNG` / `CDBL` (keine Operation), `VAL`, `RND` |
+| `MOD`               | `a MOD b` = `a - b * FIX(a / b)` (Vorzeichen von `a`, wie in VB/C `fmod`): `7.5 MOD 2` = 1.5; `x MOD 0` = x                                                                                  |
+| `RND`               | In einer Gleitkomma-Anweisung ist `RND` / `RND()` eine Zufallszahl 0 ≤ x < 1 (`d = RND`, `x = RND * 6`); `rnd(n)` bleibt die ganze Zahl 0 … n-1                                              |
+| Wörtliche           | `1,5`, `.5`, `1E6`, `2,5e-3`, `70000`                                                                                                                                                        |
+| Vergleiche          | `= &lt;&gt; &lt; &gt; &lt;= &gt;=` in `IF` / `WHILE` / `UNTIL` / `SELECT CASE` and as values                                                                                                 |
+| Drucken             | C64 BASIC-Stil: `.5`, `-3.25`, `3.33333333`, `1E+10`, `1.5E-07` (kein führendes Leerzeichen außer `--basic-print`); feste Dezimalstellen mit `PRINT USING`                                   |
+| Saiten              | `s = "X=" + x`, `STR$(x)`, `VAL(s)` liest `-1.25E3`                                                                                                                                          |
+| `FOR`               | Gleitkommazähler, Grenzwert und Schrittweite (`SCHRITT 0.1`, negativ oder eine Variable)                                                                                                     |
+| `EINGABE` / `LESEN` | `INPUT x` liest eine beliebige Zahl; `READ x` liest das nächste `data` Byte.                                                                                                                 |
+| Unterfunktion       | `p AS DOUBLE` Parameter und `AS DOUBLE` Ergebnisse                                                                                                                                           |
 
 **Mischen mit Ganzzahlen.** Ein Ausdruck wird als Gleitkommazahl berechnet, wenn
 er einen SINGLE-/DOUBLE-Wert, `^`, eine der oben genannten Funktionen oder ein
@@ -1810,21 +1866,33 @@ zugewiesener Integerwert wird die Umwandlung exakt vorgenommen.
 Integer-Ausdrücke behalten ihre Regeln (var c = a + b ist weiterhin ein Byte).
 
 **Notizen**
-- Ein ganzzahliges Literal von 32768 bis 65535 wird als 16-Bit-Muster gelesen
-  und wird im Gleitkomma-Kontext negativ: schreibe `40000.0` oder `4E4`.
+- Ein ganzzahliges Zahlenliteral von 32768 bis 65535 behält seinen Wert in einer
+  Anweisung, die mit Gleitkommazahlen rechnet (`d = 40000`, `d + 50000`). Eine
+  Anweisung gilt als Gleitkommazahl, wenn sie eine SINGLE-/DOUBLE-Variable, ein
+  Array, einen Parameter oder eine Funktion benennt oder `^`, ein reines
+  Gleitkomma-Literal oder eine der oben genannten Funktionen verwendet;
+  andernfalls ist ein solches Literal wie zuvor ein 16-Bit-Muster (`poke 53280,
+  1`, `w = 40000` into a WORD). Eine Variable, die erst durch `var x = 2.5` zu
+  einer Gleitkommazahl wurde, zählt nicht – schreiben Sie stattdessen `40000.0`.
 - `7 / 2` ist 3,5, wenn es einem DOUBLE zugewiesen wird; im Integer-Kontext ist
   es wie zuvor 3.
-- `x MOD y` und `AND` / `OR` / `XOR` runden ihre Operanden auf ganze Zahlen.
+- `AND` / `OR` / `XOR` runden ihre Operanden auf ganze Zahlen.
 - `SIN` / `COS` eines Byte-Wertes behalten die alte Bedeutung der 0–255-Tabelle
   (Vollkreis = 256); mit einem SINGLE / DOUBLE-Argument arbeiten sie im
   Bogenmaß.
-- Gleitkomma-Code darf nicht in IRQ-/NMI-Handlern ausgeführt werden (die
-  Laufzeitumgebung speichert ihren Zustand im festen RAM).
-- Kosten: Die Gleitkomma-Laufzeitumgebung (ca. 4,4 KB, vom Compiler kompiliert)
-  wird beim ersten Aufruf von SINGLE / DOUBLE an das Programm angehängt.
-  Variablen belegen 5 Byte im Array-Bereich, zuzüglich eines 2 Byte großen
-  Nullseitenzeigers für die Laufzeitumgebung. Eine Multiplikation dauert auf
-  einem 1-MHz-C64 etwa 1–2 ms.
+- IRQ-/NMI-Handler können Gleitkommazahlen verwenden: Eine Subroutine namens
+  `irq`, `nmi` oder `cia_timer`, die (direkt oder über die aufgerufenen
+  Subroutinen) SINGLE/DOUBLE verwendet, speichert den Laufzeitzustand beim Start
+  und stellt ihn vor `irq_exit` / `nmi_exit` wieder her (ca. 4.000–5.000 Zyklen
+  pro Interrupt). Handler ohne Gleitkommazahlen werden nicht verlangsamt. Nicht
+  abgedeckt sind Handler, die über eine Adress- oder Wortvariable gesetzt werden
+  oder die mit einem einfachen `RTS` / `RTI` beenden.
+- Kosten: Die Gleitkomma-Laufzeitumgebung wird vom Compiler kompiliert und dem
+  Programm nachgehängt. Es werden nur die vom Programm verwendeten Routinen
+  eingebunden (ca. 2 KB für `+ - * /` und `PRINT` bis ca. 5 KB mit allen
+  Funktionen und `PRINT USING`). Variablen belegen 5 Byte im Array-Bereich,
+  zuzüglich eines 2 Byte großen Nullseitenzeigers für die Laufzeitumgebung. Eine
+  Multiplikation dauert auf einem 1-MHz-C64 etwa 1–2 ms.
 
 ### Variablen im RAM, Array-Speicher (1.6.4)
 
@@ -1856,6 +1924,8 @@ var b = min(x, 39) # 8-Bit-Minimum
 var c = max(x, 0) # 8-Bit-Maximum
 var s = sgn(score) # 0 = Null, 1 = positiv (1–127), $FF = negativ (128–255)
 var r = rnd() # LCG-Pseudozufallszahl 0–255; Startwert aus Rasterzeile
+
+# (0 &lt;= x &lt; 1 in einer SINGLE/DOUBLE-Anweisung: d = rnd)
 var r = rnd(10) # LCG-Pseudozufallszahl 0-9 (rnd() mod n; Ergebnis 0..n-1)
 var s = sin(angle) # Sinus: Winkel 0-255 (Vollkreis), Ergebnis 0-255 (Mittelpunkt=128)
 var c = cos(angle) # Kosinus = sin(angle+64)
@@ -1974,6 +2044,10 @@ end
 
 Vorwärtsreferenzen werden unterstützt (`irq my_handler` vor der Definition der
 Unterfunktion).
+
+Eine Handler-Subroutine kann SINGLE / DOUBLE Gleitkommazahlen verwenden: Sie
+speichert und stellt den Laufzeitzustand um ihren Rumpf herum wieder her (siehe
+*Gleitkomma*).
 
 ### NMI-Handler
 
@@ -2270,9 +2344,12 @@ ub build <input.ub> [OPTIONEN]
 ohne Dateinamen wird standardmäßig <output>.d64 verwendet
 
 --add <Datei> Dem .d64-Disk-Image eine zusätzliche Datei hinzufügen;
-kann für mehrere Dateien wiederholt werden
 
---explicit Typangabe für jede Variable/jeden Unterparameter/jeden Funktionsparameter erzwingen
+Kann für mehrere Dateien wiederholt werden
+
+--explicit Erfordert :type für jede Variable / jeden Unterparameter / jeden Funktionsparameter
+
+--basic-print C64 BASIC PRINT Abstand: Leerzeichen um Zahlen, ',' = 10-spaltige Bereiche
 
 -h, --help Hilfe anzeigen
 ```
@@ -2484,10 +2561,10 @@ anzuzeigen.
 | Budget für null Seiten                | Die permanente Nullseite ist `$02–$4F` (78 Bytes): Jede Variable und jeder Parameter von Unter-/Funktionsfunktionen belegt 2 Bytes, jede laufende `for`-Schleife weitere 2 Bytes. Seit Version 1.6.4 werden Variablen, die nicht in die Nullseite passen, automatisch in den RAM verschoben (siehe *Variablen im RAM*); nur in extremen Fällen wird noch `über Nullseite` gemeldet. |
 | Binärliterale                         | `%01010101` (seit 1.6.4), `$hex` und Dezimalzahlen                                                                                                                                                                                                                                                                                                                                  |
 | Unterprogramme                        | Keine Rekursion – ZP-Parameterplätze werden statisch zugewiesen                                                                                                                                                                                                                                                                                                                     |
-| Zeichenkettenvariablen                | `single` / `double` sind seit Version 1.6.4 5-Byte-Gleitkommazahlen (nicht in IRQ-Handlern verwendbar; die ~4,4 KB große Laufzeit wird dem Programm hinzugefügt); `float` bleibt Q8.8 (0–255,99)                                                                                                                                                                                    |
+| Zeichenkettenvariablen                | `single` / `double` sind seit Version 1.6.4 5-Byte-Gleitkommazahlen (die vom Programm verwendeten Routinen, ~2–5 KB, werden hinzugefügt); `float` bleibt Q8.8 (0–255.99)                                                                                                                                                                                                            |
 | Unär minus                            | Seit 1.6.4 bindet ein führendes `-` an seinen Operanden: `-5 - 3` ist -8 (es war -(5 - 3) = -2)                                                                                                                                                                                                                                                                                     |
-| Laufzeit von Stringverkettung         | `s1 + s2` wird sequenziell ausgegeben – keine Heap-Allokation oder Längenverfolgung                                                                                                                                                                                                                                                                                                 |
-| `rnd()` / `rnd(n)`                    | Einfacher LCG, nicht kryptographisch; Periode = 256                                                                                                                                                                                                                                                                                                                                 |
+| Laufzeit von Stringverkettung         | Berechnete Werte werden in einem 80-Zeichen-Puffer pro Variable gespeichert (längere Ergebnisse werden abgeschnitten); String-Array-Elementwerte in 31-Zeichen-Slots; die Reihenfolge `&lt;` / `&gt;` entspricht der PETSCII-Byte-Reihenfolge.                                                                                                                                      |
+| `rnd()` / `rnd(n)`                    | Einfacher LCG, nicht kryptographisch; Periode = 256 (die Gleitkomma-`rnd` ist eine 32-Bit-XOR-Verschiebung)                                                                                                                                                                                                                                                                         |
 | `abs()` / `sgn()` / `min()` / `max()` | Nur 8-Bit-Werte; `abs`/`sgn` behandeln Werte als vorzeichenbehaftet (Bit 7 = negativ → `abs` Zweierkomplement, `sgn` gibt `$FF` zurück); `min`/`max` sind vorzeichenlos (0–255)                                                                                                                                                                                                     |
 | `plot`                                | Pixel außerhalb des Messbereichs werden stillschweigend abgeschnitten (Y ≥ 200 oder X ≥ 320 → keine Operation)                                                                                                                                                                                                                                                                      |
 | `mplot`                               | Keine Bereichsprüfung — x muss zwischen 0 und 159 liegen, y muss zwischen 0 und 199 liegen                                                                                                                                                                                                                                                                                          |

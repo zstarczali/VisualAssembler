@@ -1,6 +1,6 @@
 # C64 Visuell Assembler — Användarmanual
 
-**Version 2.6.2**
+**Version 2.6.3**
 
 En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom att
 dra och släppa instruktionsblock och se den genererade assemblern och
@@ -11,6 +11,7 @@ maskinkoden i realtid.
 ## Innehållsförteckning
 
 - [C64 Visual Assembler — Användarmanual](#c64-visual-assembler--user-manual)
+    - [Höjdpunkter i version 2.6.3](#version-263-highlights)
     - [Höjdpunkter i version 2.6.2](#version-262-highlights)
     - [Höjdpunkter i version 2.6.1](#version-261-highlights)
     - [Höjdpunkter i version 2.6.0](#version-260-highlights)
@@ -203,6 +204,31 @@ maskinkoden i realtid.
     - [Kurvredigerare](#curve-editor)
     - [Tabellgenerator](#table-generator)
     - [Nummeromvandlare](#number-converter)
+
+---
+
+## Höjdpunkter i version 2.6.3
+
+- **.sid import i SID Editor** — **Filer → Importera .sid…** omvandlar vilken
+  PSID/RSID-låt som helst till instrument, mönster och en låt som du kan
+  redigera: toner och legato-toner, rader placerade exakt på noterna (funktempo
+  och swing genom `F` hastighetsändringar), wave-/arpeggio-tabeller med
+  trumattacker med fast tonhöjd, puls- och filterrörelser, gate-timing och
+  vibrato. Se [SID Editor](#sid-editor-3-voice-tracker).
+- **Långa melodier spelas korrekt** — när melodidatan inte får plats bredvid
+  spelaren vid `$C000`, flyttas den till ett eget segment under `$A000` istället
+  för att köras in i I/O; `.sid`-exporten följer.
+- **VA SID Core-förhandsvisning omaktiverar toner** — en ton som startas om
+  under en hållen grind får en ny attack, precis som på den riktiga spelaren.
+- **SID-redigerare** — rubriken visar den aktiva SID-emuleringen (WebSID eller
+  VA SID Core med chipmodellen); fältet Speed har − / + knappar och tar 1–255;
+  låten kan använda upp till 256 mönster.
+- **Ultimate Basic 1.6.6** — `UTSKRIFT MED "format"; värden`, strängjämförelse i
+  PETSCII-ordning, flyttal `rnd` och `mod`, flyttal i IRQ/NMI-hanterare,
+  `alternativet grundläggande utskrift` för C64 BASIC PRINT-avstånd, mindre
+  program (endast flyttalrutinerna används) och 16-bitars adressuttryck (1.6.5).
+  Ultimate Basic-redigeraren markerar `utskrift med` och `alternativet
+  grundläggande utskrift`.
 
 ---
 
@@ -5350,8 +5376,9 @@ spelas en liten SID-synthesizer istället.
 
 **Förhandsgranskningsmotor:** **Inställningar → SID-förhandsgranskning** väljer
 **WebSID** eller **VA SID Core (Rust)**, appens egen SID-emulering; med VA SID
-Core väljer du även chipet (MOS 6581/8580). Instrumentparametrarna ställs in med
-rattar.
+Core väljer du även chipet (MOS 6581 / 8580). Redigerarens rubrik visar vilken
+motor som används (t.ex. *· VA SID Core v1.2 (MOS 8580)*).
+Instrumentparametrarna ställs in med rattar.
 
 **Kontroller per instrument: **
 - Kryssrutor för vågformer (TRI / SAW / PUL / NOI) — flera vågformer
@@ -5386,8 +5413,8 @@ rattar.
   ljudeffekter (laser, pickup, explosion).
 
 **Spårningsrutnät:**
-- 3 röster × upp till 7 mönster × 32 rader = 7 × 32 = max 224 rader (8-bitars
-  radräknare begränsar det).
+- 3 röster × upp till 256 mönster × 32 rader; sång-/ordningslistan rymmer upp
+  till 255 steg.
 - Per rad: not + instrumentindex, plus en valfri effekt (se **Effektkolumnen**
   nedan). Tomma rader innehåller föregående not: precis som i andra trackers
   (GoatTracker, SID-Wizard) behåller en not sin gate på (sustainnivå) tills
@@ -5415,7 +5442,8 @@ rattar.
 - Inklistring av cellintervall börjar nu vid den valda intervallets startcell
   och stoppar tydligt vid röst- och radgränser istället för att radbrytas till
   nästa kolumn eller rad.
-- Hastighetsreglaget anger IRQ-tick-divisorn (bildrutor mellan rader).
+- **Speed** (bildrutor mellan rader, 1–255) matas in eller stegas med − / +
+  knapparna bredvid; `F` effekten ändrar den under uppspelning.
 
 **Låt / beställningslista:**
 - Mönster är ordnade genom en låt-/ordningslista som placeras ovanpå den råa
@@ -5485,6 +5513,7 @@ och sparas/läses förlustfritt i det versionerade `.bin`-formatet.
 | `Exportera block + minispelare` | Lägger till hela spelaren (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) plus PAL-frekvenstabeller. Efter export, placera en `JSR sid_init` i din huvudkod där musiken ska börja; med ditt eget IRQ-anrop `JSR sid_frame` en gång per bildruta istället.                                                                                                                                      |
 | `Exportera asm (urklipp)`       | Kopierar hela assembly-källkoden till urklipp.                                                                                                                                                                                                                                                                                                                                                                 |
 | `Importera GoatTracker .sng…`   | Laddar en GoatTracker 2-låt istället för den nuvarande — se **GoatTracker-import** nedan.                                                                                                                                                                                                                                                                                                                      |
+| `Importera .sid…`               | Konverterar en PSID/RSID-låt till en redigerbar låt istället för den aktuella — se **.sid import** nedan.                                                                                                                                                                                                                                                                                                      |
 | `Exportera till UltimateBasic`  | Skriver ett `melodi ... slut`-block (instrument, ordningslista, mönsterrader som text) plus `musikuppspelning` och infogar det vid markören i Ultimate Basic-editorn; utanför UB-läge kopieras texten till urklipp. UltimateBasic-kompilatorn bygger spelaren, så `musikuppspelning` / `musikstopp` styr den. Instrumentmodulering går in i `imod` / `ifilt` / `igate` / `itab`-rader (Ultimate Basic 1.6.2+). |
 
 **GoatTracker import:** **Filer → Importera GoatTracker .sng…** laddar en
@@ -5500,20 +5529,45 @@ GoatTracker 2-låt (`.sng`, GTS3–GTS5) istället för den nuvarande. Konverter
 - Mönsterkommandon: key off → note-off, portamento → `U` / `D` (högst 255 per
   rad), tempo → `F`; toneporta blir en vanlig ton. Andra kommandon tas bort och
   ett meddelande listar vad som approximerades eller hoppades över.
-- En grind som släpps av wavetablen blir en utgångssignal på nästa fria rad.
-  Endast den första submelodin importeras, och exportgränsen på 7 mönster gäller
-  fortfarande.
+- En grind som släpps av wavetablen blir en tonstart på nästa fria rad. Endast
+  den första submelodin importeras.
+
+**.sid import:** **Filer → Importera .sid…** öppnar en PSID/RSID-fil (endast
+skrivbordsapp, den använder VA SID Core). Välj undermelodi och längd i sekunder
+och tryck på **Importera**: melodin spelas ljudlöst, dess SID-register spelas in
+bildruta för bildruta och omvandlas till en låt istället för den aktuella.
+- **Anmärkningar:** en ton på är en grindkant (en retrigger inom 2 bildrutor
+  räknas som en ton); en tonhöjdsförändring under en hållen grind som stannar i
+  minst 5 bildrutor blir en ny, retriggerad (legato) ton. Tonhöjden är den
+  vanligaste halvtonen i tonens huvudvågform; NTSC-melodier stämms om till
+  PAL-tontabellen.
+- **Rader:** Raderna börjar exakt på noterna. Baslängden är den längsta som
+  passar nästan alla; rader av den längden eller en bildruta längre (funktempo,
+  swing, tempoväxlingar) sätts med `F`-effekterna en rad framåt.
+- **Instrument:** AD / SR, huvudvågformen, pulsbredd och PWM, filtret (routing,
+  mode, resonans, cutoff-svep) och vågformen och tonhöjden för varje bildruta i
+  noten, upp till nästa: våg-/arpeggio-tabellen (ett prefix plus en upprepande
+  loop, upp till 32 steg). En trumattack med fast tonhöjd behåller absoluta
+  toner och en arpeggio relativa, bestämda över alla toner av samma ljud; en
+  regelbunden wobble på en halvton blir instrumentets vibrato. Gaten blir ett
+  notavbrott, en gate-timer (med hård omstart när ADSR nollställs) eller en
+  avklingning vid utlösningshastigheten. Identiska instrument delas, upp till
+  128.
+- Ett meddelande listar vad som approximerades, till exempel bilder som blir
+  halvtonssteg eller tabeller längre än 32 steg. Multi-SID-låtar och RSID-låtar
+  som börjar som ett BASIC-program stöds inte.
 
 **Användning av spelarens ZP:** `$02`–`$1C` (mönsterpekare, mönsterförskjutning,
 temp) och `$2F` (nuvarande hastighet), plus `$FB`–`$FD` (tickräknare, radindex,
 position i orderlistan). Röst, modulering och filtertillstånd finns i
-`sid_state` efter data. ZP-bytena kolliderar om din huvudkod använder dem —
-flytta via expertläge om det behövs.
+`sid_state` efter spelarkoden. ZP-bytena kolliderar om din huvudkod använder dem
+— flytta via expertläge om det behövs.
 
 **Kända gränser:**
-- 8-bitars radräknare begränsar varje mönster till 7 mönster × 32 rader i
-  råbanken (låt-/ordningslistan kan fortfarande bli godtyckligt lång genom att
-  mönstren upprepas).
+- Spelaren och dess tillstånd sitter vid `$C000`. När melodidata inte får plats
+  nedanför `$D000` bredvid dem, flyttas data till ett eget segment som slutar
+  nedanför `$A000` (den exporterade asm har en andra `* =`-rad); håll den borta
+  från ditt eget program.
 - C64 `$D418` global volym delas mellan röster — volymreglaget per instrument är
   informativt; sustainnivån (`S` för ADSR) är den effektiva volymen per röst.
 - Medan **Play: All** har den riktiga melodin laddad (även när den är pausad),

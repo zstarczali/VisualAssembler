@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**2.6.2-es verzió**
+**2.6.3-as verzió**
 
 Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat
 létre húzással és elengedéssel (fogd és vidd) utasításblokkokkal, és valós
@@ -12,6 +12,7 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
 
 - [C64 Visual Assembler — Felhasználói
   kézikönyv](#c64-visual-assembler--user-manual)
+    - [2.6.3-as verzió kiemelt funkciói](#version-263-highlights)
     - [2.6.2-es verzió – kiemelt funkciók](#version-262-highlights)
     - [2.6.1-es verzió – kiemelt funkciók](#version-261-highlights)
     - [2.6.0 verzió – kiemelt funkciók](#version-260-highlights)
@@ -205,6 +206,32 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
     - [Görbeszerkesztő](#curve-editor)
     - [Táblázatgenerátor](#table-generator)
     - [Számátváltó](#number-converter)
+
+---
+
+## A 2.6.3-as verzió legfontosabb elemei
+
+- **.sid importálás az SID szerkesztőben** — **Fájlok → .sid importálása…**
+  bármely PSID / RSID dallamot hangszerré, pattern-né és szerkeszthető dallá
+  alakít: hangjegyek és legato hangjegyek, pontosan a hangjegyekre helyezett
+  sorok (funktempo és swing a `F` sebességváltozásokon keresztül), wave /
+  arpeggio táblázatok fix hangmagasságú dobtámadásokkal, pulzus- és
+  szűrőmozgással, kapuidőzítéssel és vibratoval. Lásd: [SID
+  szerkesztő](#sid-editor-3-voice-tracker).
+- **A hosszú dallamok helyesen játszódnak le** — amikor a dallamadat nem fér el
+  a lejátszó mellett a `$C000` pozícióban, akkor a `$A000` alatti saját
+  szegmensbe ugrik ahelyett, hogy I/O-ba futna; a `.sid` export következik.
+- **A VA SID Core előnézete újraindítja a hangokat** — egy visszatartott kapu
+  alatt újraindított hang új támadást kap, mint az igazi játékosnál.
+- **SID szerkesztő** — a fejléc az aktív SID emulációt mutatja (WebSID vagy VA
+  SID Core a chip modellel); a Sebesség mező − / + gombokkal rendelkezik, és
+  1–255 értéket vehet fel; a dal akár 256 mintát is használhat.
+- **Ultimate Basic 1.6.6** — `NYOMTATÁS "formátum" használatával; értékek`,
+  karakterlánc-összehasonlítás PETSCII sorrendben, lebegőpontos `rnd` és `mod`,
+  lebegőpontos az IRQ / NMI kezelőkben, `opció basic print` a C64 BASIC PRINT
+  térközhöz, kisebb programok (csak a lebegőpontos rutinok használatban vannak)
+  és 16 bites címkifejezések (1.6.5). Az Ultimate Basic szerkesztő kiemeli a
+  `print` és az `opció basic print` opciókat.
 
 ---
 
@@ -5596,7 +5623,8 @@ egyszerre szólalnak meg; WebSid nélkül egy kis SID szintetizátor játszik le
 **Előnézeti motor:** **Beállítások → SID előnézet** kiválasztja a **WebSID**
 vagy a **VA SID Core (Rust)** lehetőséget, az alkalmazás saját SID emulációját;
 a VA SID Core esetében a chipet is ki kell választani (MOS 6581 / 8580). A
-műszer paramétereit gombokkal lehet beállítani.
+szerkesztő fejléce mutatja a használatban lévő motort (pl. *· VA SID Core v1.2
+(MOS 8580)*). A műszerparamétereket gombokkal lehet beállítani.
 
 **Eszközönkénti vezérlők:**
 - Hullámforma jelölőnégyzetek (TRI / SAW / PUL / NOI) – több hullámforma ÉS
@@ -5633,8 +5661,8 @@ műszer paramétereit gombokkal lehet beállítani.
   valamint hangeffektek (lézer, hangszedő, explosion).
 
 **Követőrács:**
-- 3 hang × maximum 7 minta × 32 sor = 7 × 32 = max. 224 sor (a 8 bites
-  sorszámláló korlátozza).
+- 3 hang × akár 256 pattern × 32 sor; a dal/sorrend lista akár 255 lépést is
+  tartalmazhat.
 - Soronként: hangjegy + hangszerindex, plusz egy opcionális effekt (lásd az
   **Effekt oszlopot** alább). Az üres sorok az előző hangjegyet tartalmazzák:
   más követőkhöz (GoatTracker, SID-Wizard) hasonlóan egy hangjegy a következő
@@ -5665,7 +5693,9 @@ műszer paramétereit gombokkal lehet beállítani.
 - A cellatartomány-beillesztés mostantól a kiválasztott tartomány
   kezdőcellájánál kezdődik, és tisztán megáll a hang- és sorhatároknál,
   ahelyett, hogy a következő oszlopba vagy sorba folyatódna.
-- A Sebesség csúszka beállítja az IRQ osztót (a sorok közötti képkockák számát).
+- A **Speed** (sorok közötti képkockák, 1–255) paramétert a mellette lévő − / +
+  gombokkal lehet beírni vagy léptetni; az `F` effektus lejátszás közben
+  megváltoztatja ezt a sebességet.
 
 **Dal / rendelési lista:**
 - A mintákat egy dal/sorrend lista szerint rendezik el, amely a nyers pattern
@@ -5740,6 +5770,7 @@ formátumban.
 | `Blokkok exportálása + minilejátszó` | Hozzáadja a teljes lejátszót (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) plusz PAL frekvenciatáblázatokat. Exportálás után helyezz el egy `JSR sid_init` függvényt a fő kódodban, ahol a zenének kezdődnie kell; ehelyett képkockánként egyszer használd a saját `JSR sid_frame` IRQ hívásodat.                                                                                                            |
 | ` ASM exportálása (vágólap)`         | A teljes assembly forráskódot a vágólapra másolja.                                                                                                                                                                                                                                                                                                                                                                             |
 | `GoatTracker .sng importálása…`      | Betölt egy GoatTracker 2 dalt az aktuális helyett — lásd a **GoatTracker import** részt alább.                                                                                                                                                                                                                                                                                                                                 |
+| ` .sid importálása…`                 | PSID / RSID dallamot szerkeszthető dallá konvertál az aktuális helyett — lásd az **.sid import** fájlt alább.                                                                                                                                                                                                                                                                                                                  |
 | `Exportálás UltimateBasic-be`        | Kiír egy `tune ... end` blokkot (hangszerek, sorrendlista, pattern sorok szövegként) plusz a `music play` parancsot, és beszúrja azt az Ultimate Basic szerkesztő kurzorához; UB módon kívül a vágólapra másolja a szöveget. Az UltimateBasic fordítója építi fel a lejátszót, így a `music play` / `music stop` vezérli azt. A hangszermoduláció a `imod` / `ifilt` / `igate` / `itab` sorokba kerül (Ultimate Basic 1.6.2+). |
 
 **GoatTracker importálás:** **Fájlok → GoatTracker .sng importálása…** betölt
@@ -5755,20 +5786,49 @@ hozzávetőleges, mivel a két nyomkövető eltérően működik:
 - Mintaparancsok: hangnem le → hangnem le, portamento → `U` / `D` (soronként
   legfeljebb 255), tempo → `F`; a toneporta sima hanggá válik. A többi parancs
   elvész, és egy üzenet felsorolja, hogy mi lett megközelítőleg vagy kihagyva.
-- A hullámtábla által kiadott kapu hangjelzéssé válik a következő szabad sorban.
-  Csak az első aldallam importálódik, és a 7 minta exportálási korlátja továbbra
-  is érvényes.
+- A hullámtábla által kiadott kapu hangjelzésként jelenik meg a következő szabad
+  sorban. Csak az első aldallam kerül importálásra.
 
-**Player ZP használat:** `$02`–`$1C` (mintamutatók, minta eltolás, hőmérséklet)
-és `$2F` (aktuális sebesség), plusz `$FB`–`$FD` (tick számláló, sorindex,
-sorrendlista pozíció). A hang, a moduláció és a szűrőállapot az adatok után, az
-`sid_state` részben található. A ZP bájtok ütköznek, ha a fő kódod használja
-őket – szükség esetén Szakértő módban helyezheted át őket.
+**.sid import:** **Fájlok → .sid import…** megnyit egy PSID / RSID fájlt (csak
+asztali alkalmazásban, VA SID Core-t használ). Válaszd ki az aldallamot és a
+hosszát másodpercben, majd nyomd meg az **Import** gombot: a dallam csendben
+fut, a SID regiszterei képkockánként rögzítésre kerülnek, és az aktuális
+regiszter helyett egy dallá alakulnak.
+- **Megjegyzések:** egy hang a kapu élére kerül (a 2 képkockán belüli
+  újraindítás egy hangnak számít); a legalább 5 képkockán át tartott kapu alatti
+  hangmagasság-változás egy új, újraindító (legato) hanggá válik. A hangmagasság
+  a hang fő hullámformájának leggyakoribb félhangja; az NTSC dallamok a PAL
+  hangtáblázatra vannak áthangolva.
+- **Sorok:** sor pontosan a hangjegyeknél kezdődik. Az alaphossz a leghosszabb,
+  amely szinte mindegyikhez illik; az ilyen hosszúságú vagy egy képkockával
+  hosszabb sorok (funktempo, swing, tempóváltások) egy sorral előrébb `F`
+  effektekkel vannak beállítva.
+- **Hangszerek:** AD / SR, a fő hullámforma, impulzusszélesség és PWM, a szűrő
+  (útválasztás, módus, rezonancia, vágási sweep) és a hang minden egyes
+  keretének hullámformája és hangmagassága, egészen a következőig: a hullámforma
+  / arpeggio táblázat (egy előtag plusz egy ismétlődő loop, akár 32 lépés). A
+  fix hangmagasságú dob attack abszolút hangjegyeket és egy arpeggio relatív
+  hangjegyeket tart meg, ugyanazon hang összes hangja felett eldöntve; egy
+  szabályos félhang alatti wobble lesz a hangszer vibrato-ja. A kapu
+  hangjegyvágássá, kapu időzítővé (kemény újraindítással, amikor az ADSR
+  nullázódik) vagy egy lecsengéssé válik a kioldási ütemben. Az azonos
+  hangszerek megosztásra kerülnek, akár 128-ig.
+- Egy üzenet felsorolja a közelítő értékeket, például a félhangú lépésekké váló
+  diákat vagy a 32 lépésnél hosszabb táblázatokat. A több SID-vel rendelkező
+  dallamok és a BASIC programként induló RSID dallamok nem támogatottak.
+
+**Lejátszó ZP használata:** `$02`–`$1C` (mintamutatók, minta eltolás,
+hőmérséklet) és `$2F` (aktuális sebesség), plusz `$FB`–`$FD` (tick számláló,
+sorindex, sorrendlista pozíció). A hang, a moduláció és a szűrőállapot a
+`sid_state` helyen található a játékoskód után. A ZP bájtok ütköznek, ha a fő
+kódod használja őket – szükség esetén áthelyezheted őket Szakértő módban.
 
 **Ismert korlátok:**
-- A 8 bites sorszámláló minden mintát 7 mintára × 32 sorra korlátoz a nyers
-  bankban (a dal/sorrend lista továbbra is tetszőlegesen hosszú lehet a minták
-  ismétlésével).
+- A lejátszó és az állapota az `$C000` karikánál található. Amikor a
+  dallamadatok nem férnek el a mellettük lévő `$D000` karika alatt, az adatok a
+  saját szegmensükbe kerülnek, amelyek az `$A000` karika alatt végződnek (az
+  exportált asm-nek van egy második `* =` sora); ezt tartsd távol a saját
+  programodtól.
 - A C64 `$D418` globális hangerő több hangszerhang között megoszlik – a
   hangszerenkénti hangerőcsúszka tájékoztató jellegű; a kitartási szint (az ADSR
   `S` értéke) a hangszerhangonkénti effektív hangerő.

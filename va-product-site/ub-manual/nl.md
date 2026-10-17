@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.5 — Taalhandleiding
+# Ultimate Basic v1.6.6 — Taalhandleiding
 
 Complete taal- en CLI-referentie voor Ultimate Basic, een BASIC-achtige taal die
 direct compileert naar 6502-machinecode voor de Commodore 64. Uitvoer: `.prg`
@@ -216,8 +216,8 @@ z = x en 15 # bitwise AND
 w = a of b # bitwise OR
 v = a xor b # bitwise XOR
 m = x shl 3 # naar links verschuiven
-n = x shr 2 # naar rechts verschuiven
-r = x modulo 40 # 8-bits modulo (rest); x mod 0 = x, x / 0 = 255
+n = x shr 2 # naar rechts verschuiven (rekenkunde voor een INTEGER: -8 shr 1 = -4)
+r = x mod 40 # rest; x mod 0 = x, x / 0 = 255
 b = bnot x # bitwise NOT: x XOR 255 (complementeer alle 8 bits)
 ```
 
@@ -227,9 +227,16 @@ Rekenkundige code (1.6.0): `*` gedeeld door een constante compileert naar shifts
 / shift-add (`x * 8` → 3× `ASL`), anders naar een shift-add lus van maximaal 8
 rondes. `/` en `mod` gedeeld door een macht van twee zijn `LSR` / `AND #(n-1)`,
 anders een shift-subtract lus van 8 rondes waarvan de looptijd niet langer
-afhangt van het quotiënt. Delen door nul is gedefinieerd: `x / 0 = 255`, `x mod
-0 = x` (vóór 1.6.0 liep het vast). `x = x + 1` / `x = x - 1` (en ±2) compileren
-naar `INC` / `DEC`.
+afhangt van het quotiënt. Delen door nul is gedefinieerd als: `x / 0 = 255`, `x
+mod 0 = x` (vóór versie 1.6.0 liep het vast).
+
+`mod` met een `word` of `integer` operand (of een negatieve constante) is een
+16-bits rest met het teken van het deeltal, zoals in QBasic: `-7 mod 3` = -1, `7
+mod -3` = 1, `(w + 5) mod 7` behoudt 16 bits. Met een SINGLE/DOUBLE operand
+werkt het in drijvende-komma (zie *Drijvende-komma*). `shr` van een `integer` is
+een rekenkundige verschuiving (het teken blijft behouden: `-8 shr 1` = -4);
+`word` en byte-waarden verschuiven logisch. `x = x + 1` / `x = x - 1` (en ±2)
+compileren naar `INC` / `DEC`.
 
 ### Verhogen / Verlagen
 
@@ -272,6 +279,48 @@ print s1 + s2 # twee tekenreeksvariabelen → sequentieel printen
 print "Hallo " + "Wereld" # twee letterlijke waarden → compile-time fold
 print chr$(13) # print met PETSCII-code
 ```
+
+Standaard worden getallen zonder extra spaties afgedrukt en `,` scheidt de items
+(`print 1, 2` geeft `12`). Voor C64 BASIC-spaties kunt u `--basic-print`
+gebruiken, of een regel `option basic print` in het programma plaatsen: een
+getal wordt dan afgedrukt met een spatie ervoor (of de spaties erna `-`) en een
+spatie erna (`print 5` → ` 5 `), een `,` verplaatst de cursor naar de volgende
+afdrukzone van 10 kolommen, en een afsluitende `,` houdt de cursor op de regel,
+net als een afsluitende `;`. De strings `spc`, `tab`, `hex`, `bin`, `dec`,
+`chr$` en `str$` worden zoals voorheen afgedrukt.
+
+#### `PRINT MET`
+
+```basic
+DIM ar AS DOUBLE = 1234.5
+DIM s AS STRING = "ALMA"
+PRINT USING "###.##"; 3.14159 ' 3.14
+PRINT USING "Ar: #,###.## Ft"; ar ' Ar: 1.234,50 Ft
+PRINT USING "+##"; 7 ' +7
+PRINT USING "##.##-"; -2.25 ' 2.25-
+PRINT USING "##"; 123 ' %123
+PRINT USING "[&amp;] [!] [\ \]"; s; s; s ' [ALMA] [A] [ALMA]
+PRINT USING "## "; 1, 2, 3 ' 1 2 3
+```
+
+| Veld                  | Betekenis                                                                                                                           |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `#`                   | een cijferpositie; getallen worden rechts uitgelijnd en afgerond op decimalen.                                                      |
+| `.`                   | decimaal punt; de `#`s erna zijn de decimalen (maximaal 9)                                                                          |
+| `,`                   | voor de komma: scheidingstekens voor duizendtallen (elk `,` is één positie)                                                         |
+| `+` aan het begin     | print altijd het teken (`+` / `-`)                                                                                                  |
+| `-` aan het einde     | Plaats het minteken achter het getal (een spatie bij een positief getal).                                                           |
+| `&amp;` / `!` / `\ \` | tekenreeks: de hele tekenreeks / het eerste teken ervan / precies evenveel tekens als de breedte van het veld (`\` + spaties + `\`) |
+| `_`                   | print het volgende teken zoals het is (`_#`)                                                                                        |
+
+Een getal dat niet past, wordt afgedrukt met `%` ervoor (`%123`); een losse
+voorloopnul wordt eerst verwijderd (`#.##` met -0.5 → `-.50`). Andere tekens
+worden afgedrukt zoals ze zijn. De waarden doorlopen de velden (de opmaak begint
+opnieuw wanneer deze op is); na de laatste waarde wordt de tekst tot aan het
+volgende veld afgedrukt. Een afsluitende `;` of `,` houdt de cursor op de regel.
+De opmaak moet een tekenreeksconstante zijn; velden zoals `**`, `$$` en `^^^^`
+worden niet ondersteund. Een programma met `PRINT USING` bevat de floating-point
+runtime (alleen de onderdelen die het nodig heeft).
 
 ### chr$
 
@@ -633,8 +682,9 @@ IF s = "ABC" OR t &lt;&gt; "" THEN PRINT "vergelijk met = / &lt;&gt;"
   voorloopnullen (`"-42"`). Voor compatibiliteit behoudt `STR$` van een byte de
   3-cijferige vorm (`"007"`). `VAL` leest 16-bits getekende getallen
   (`VAL("1234") + 1` = 1235).
-- **Vergelijking:** alleen `=` / `&lt;&gt;` (en `==` / `!=`); er is geen `&lt;`
-  / `&gt;` volgorde van strings.
+- **Vergelijking:** `=` / `&lt;&gt;` (en `==` / `!=`), en `&lt;` `&gt;` `&lt;=`
+  `&gt;=` in PETSCII-volgorde zoals in C64 BASIC; een tekenreeks komt vóór elke
+  langere tekenreeks die ermee begint (`"AB" &lt; "ABC"`, `"" &lt; "A"`).
 
 #### Getekend INTEGER, INPUT, DOUBLE (1.6.3)
 
@@ -1803,17 +1853,19 @@ Atfogo = SQR(a * a + b * b)
 END FUNCTION
 ```
 
-|                     |                                                                                                                                                                                  |
-| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Operators           | `+ - * /` en `^` (macht; rechtsassociatief, bindt sterker dan unaire min: `-2^2` = -4)                                                                                           |
-| Functies            | `SQR`, `SIN`, `COS`, `TAN`, `ATN` (radialen), `EXP`, `LOG` (natuurlijk), `INT` (naar beneden), `FIX` (afkappen), `CINT` (afronden), `ABS`, `SGN`, `CSNG` / `CDBL` (no-op), `VAL` |
-| Letterlijke waarden | `1.5`, `.5`, `1E6`, `2.5e-3`, `70000`                                                                                                                                            |
-| Vergelijkingen      | `= &lt;&gt; &lt; &gt; &lt;= &gt;=` in `IF` / `WHILE` / `UNTIL` / `SELECT CASE` en als waarden                                                                                    |
-| Afdrukken           | C64 BASIC-stijl: `.5`, `-3.25`, `3.33333333`, `1E+10`, `1.5E-07` (geen spatie aan het begin)                                                                                     |
-| Snaren              | `s = "X=" + x`, `STR$(x)`, `VAL(s)` leest `-1.25E3`                                                                                                                              |
-| `VOOR`              | drijvende-kommateller, limiet en stap (`STEP 0.1`, negatief, of een variabele)                                                                                                   |
-| `INPUT` / `READ`    | `INPUT x` leest een willekeurig getal; `READ x` leest de volgende `data` byte                                                                                                    |
-| Sub / functie       | `p ALS DOUBLE` parameters en ` ALS DOUBLE` resultaten                                                                                                                            |
+|                     |                                                                                                                                                                                         |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Operators           | `+ - * /` en `^` (macht; rechtsassociatief, bindt sterker dan unaire min: `-2^2` = -4)                                                                                                  |
+| Functies            | `SQR`, `SIN`, `COS`, `TAN`, `ATN` (radialen), `EXP`, `LOG` (natuurlijk), `INT` (naar beneden), `FIX` (afkappen), `CINT` (afronden), `ABS`, `SGN`, `CSNG` / `CDBL` (no-op), `VAL`, `RND` |
+| `MOD`               | `a MOD b` = `a - b * FIX(a / b)` (teken van `a`, zoals VB / C `fmod`): `7.5 MOD 2` = 1.5; `x MOD 0` = x                                                                                 |
+| `RND`               | In een floating-point statement is `RND` / `RND()` een willekeurig getal 0 ≤ x < 1 (`d = RND`, `x = RND * 6`); `rnd(n)` blijft het gehele getal 0 … n-1                                 |
+| Letterlijke waarden | `1.5`, `.5`, `1E6`, `2.5e-3`, `70000`                                                                                                                                                   |
+| Vergelijkingen      | `= &lt;&gt; &lt; &gt; &lt;= &gt;=` in `IF` / `WHILE` / `UNTIL` / `SELECT CASE` en als waarden                                                                                           |
+| Afdrukken           | C64 BASIC-stijl: `.5`, `-3.25`, `3.33333333`, `1E+10`, `1.5E-07` (geen spatie aan het begin tenzij `--basic-print`); vaste decimalen met `PRINT USING`                                  |
+| Snaren              | `s = "X=" + x`, `STR$(x)`, `VAL(s)` leest `-1.25E3`                                                                                                                                     |
+| `VOOR`              | drijvende-kommateller, limiet en stap (`STEP 0.1`, negatief, of een variabele)                                                                                                          |
+| `INPUT` / `READ`    | `INPUT x` leest een willekeurig getal; `READ x` leest de volgende `data` byte                                                                                                           |
+| Sub / functie       | `p ALS DOUBLE` parameters en ` ALS DOUBLE` resultaten                                                                                                                                   |
 
 **Mengsel met gehele getallen.** Een expressie wordt berekend in
 drijvende-kommaformaat wanneer deze een SINGLE/DOUBLE-waarde bevat, `^`, een van
@@ -1828,23 +1880,33 @@ geconverteerd. Integeruitdrukkingen behouden hun integerregels (`var c = a + b`
 is nog steeds een byte).
 
 **Notities**
-- Een geheel getal van 32768 tot 65535 wordt gelezen als een 16-bits patroon en
-  wordt negatief in de context van drijvende-kommagetallen: schrijf `40000.0` of
-  `4E4`.
+- Een geheel getal van 32768 tot 65535 behoudt zijn waarde in een instructie die
+  rekent met drijvende-komma getallen (`d = 40000`, `d + 50000`). Een instructie
+  telt als drijvende-komma getallen wanneer deze een SINGLE/DOUBLE variabele,
+  array, parameter of functie benoemt, of `^`, een drijvende-komma letterlijke
+  waarde of een van de bovenstaande functies gebruikt; elders is een dergelijke
+  letterlijke waarde een 16-bits patroon zoals eerder (`poke 53280, 1`, `w =
+  40000` in een WORD). Een variabele die pas via `var x = 2.5` een
+  drijvende-kommawaarde kreeg, telt niet mee — schrijf daar `40000.0`.
 - `7 / 2` is 3,5 wanneer toegewezen aan een DOUBLE; in de context van gehele
   getallen is het 3 zoals eerder.
-- `x MOD y` en `AND` / `OR` / `XOR` ronden hun operanden af naar gehele
-  getallen.
+- `AND` / `OR` / `XOR` ronden hun operanden af naar gehele getallen.
 - `SIN` / `COS` van een byte-waarde behouden de oude betekenis van de tabel
   0-255 (volledige cirkel = 256); met een SINGLE/DOUBLE-argument werken ze in
   radialen.
-- Floating-point code mag niet worden uitgevoerd in IRQ/NMI-handlers (de runtime
-  bewaart zijn status in vast RAM-geheugen).
-- Kosten: de floating-point runtime (ongeveer 4,4 KB, geassembleerd door de
-  compiler) wordt na het programma toegevoegd de eerste keer dat SINGLE/DOUBLE
-  wordt gebruikt. Variabelen nemen 5 bytes in beslag in het arraygebied, plus
-  een 2-byte zero-page pointer voor de runtime. Een vermenigvuldiging duurt
-  ongeveer 1-2 ms op een 1 MHz C64.
+- IRQ/NMI-handlers kunnen drijvende-kommawaarden gebruiken: een sub met de naam
+  `irq`, `nmi` of `cia_timer` die (direct of via de subs die hij aanroept)
+  SINGLE/DOUBLE gebruikt, slaat de runtime-status op bij de start en herstelt
+  deze vóór `irq_exit` / `nmi_exit` (ongeveer 4-5 duizend cycli per interrupt).
+  Handlers zonder drijvende-kommawaarden worden niet vertraagd. Niet gedekt: een
+  handler die is ingesteld door een adres- of woordvariabele, of een handler die
+  vertrekt met een eenvoudige `RTS` / `RTI`.
+- Kosten: de floating-point runtime wordt door de compiler samengesteld en na
+  het programma toegevoegd; alleen de routines die het programma gebruikt,
+  worden opgenomen (ongeveer 2 KB voor `+ - * /` en `PRINT` tot ongeveer 5 KB
+  met alle functies en `PRINT USING`). Variabelen nemen 5 bytes in beslag in het
+  arraygebied, plus een 2-byte zero-page pointer voor de runtime. Een
+  vermenigvuldiging duurt ongeveer 1-2 ms op een 1 MHz C64.
 
 ### Variabelen in RAM, arraygeheugen (1.6.4)
 
@@ -1875,6 +1937,8 @@ var b = min(x, 39) # 8-bits minimum
 var c = max(x, 0) # 8-bits maximum
 var s = sgn(score) # 0 = nul, 1 = positief (1–127), $FF = negatief (128–255)
 var r = rnd() # LCG pseudo-willekeurig 0-255; zaadwaarde van rasterlijn
+
+# (0 &lt;= x &lt; 1 in een SINGLE / DOUBLE-instructie: d = rnd)
 var r = rnd(10) # LCG pseudo-willekeurig 0-9 (rnd() mod n; resultaat 0..n-1)
 var s = sin(hoek) # sinus: hoek 0-255 (volledige cirkel), retourneert 0-255 (middelpunt=128)
 var c = cos(hoek) # cosinus = sin(hoek+64)
@@ -1995,6 +2059,9 @@ end
 
 Voorwaartse verwijzingen worden ondersteund (`irq my_handler` vóórdat de sub is
 gedefinieerd).
+
+Een handler-sub kan SINGLE/DOUBLE floating point gebruiken: het slaat de
+runtime-status rondom de body op en herstelt deze (zie *Floating point*).
 
 ### NMI-handler
 
@@ -2318,19 +2385,21 @@ ub build <input.ub> [OPTIES]
 
 --no-stub Sla de BASIC SYS-stub over (code laadt op $0801)
 
---debug Produceer ook debugbestanden .sym, .dbg en .vs
+--debug Genereer ook debugbestanden .sym, .dbg en .vs
 
---asm Produceer ook een leesbare 6502 codegen .asm-lijst
+--asm Genereer ook een leesbare 6502 codegen .asm-lijst
 
---d64 [bestand] Produceer ook een .d64-schijfkopie;
+--d64 [bestand] Genereer ook een .d64-schijfkopie;
 
-zonder bestandsnaam is de standaardwaarde <output>.d64
+zonder bestandsnaam wordt standaard <output>.d64 gebruikt
 
 --add <bestand> Voeg een extra bestand toe aan de .d64-schijfkopie;
 
-kan worden herhaald voor meerdere bestanden
+Kan worden herhaald voor meerdere bestanden
 
---explicit Vereis :type voor elke variabele / subparameter / functieparameter
+--explicit Vereis :type op elke var/subparameter/fn-parameter
+
+--basic-print C64 BASIC PRINT spatiëring: spaties rond getallen, ',' = zones van 10 kolommen
 
 -h, --help Toon help
 ```
@@ -2549,10 +2618,10 @@ Gebruik `--asm` om de gegenereerde code voor je eigen programma te bekijken.
 | Nul pagina budget                     | De permanente nulpagina is `$02–$4F` (78 bytes): elke variabele en sub/fn-parameter neemt 2 bytes in beslag, elke lopende `for`-lus nog eens 2 bytes. Sinds 1.6.4 worden variabelen die niet passen automatisch naar RAM verplaatst (zie *Variabelen in RAM*); alleen in extreme gevallen wordt nog steeds `buiten de nulpagina` gemeld. |
 | Binaire literals                      | `%01010101` (sinds 1.6.4), `$hex` en decimaal                                                                                                                                                                                                                                                                                            |
 | Subroutines                           | Geen recursie — ZP-parameterposities worden statisch toegewezen                                                                                                                                                                                                                                                                          |
-| Stringvariabelen                      | `single` / `double` zijn 5-byte floating point sinds 1.6.4 (niet bruikbaar in IRQ-handlers; de ~4,4 KB runtime wordt toegevoegd aan het programma); `float` blijft Q8.8 (0–255,99)                                                                                                                                                       |
+| Stringvariabelen                      | `single` / `double` zijn 5-byte floating point sinds 1.6.4 (de routines die een programma gebruikt, ~2–5 KB, worden hierbij opgeteld); `float` blijft Q8.8 (0–255.99)                                                                                                                                                                    |
 | Unaire min                            | Sinds 1.6.4 bindt een leidende `-` zich aan zijn operand: `-5 - 3` is -8 (het was -(5 - 3) = -2)                                                                                                                                                                                                                                         |
-| String concat runtime                 | `s1 + s2` print sequentieel — geen geheugenallocatie of lengtecontrole                                                                                                                                                                                                                                                                   |
-| `rnd()` / `rnd(n)`                    | Eenvoudige LCG, niet cryptografisch; periode = 256                                                                                                                                                                                                                                                                                       |
+| String concat runtime                 | Berekende waarden worden per variabele opgeslagen in een buffer van 80 tekens (langere resultaten worden afgekapt); waarden van tekenreeksarray-elementen in sleuven van 31 tekens; de volgorde `&lt;` / `&gt;` is de PETSCII-bytevolgorde.                                                                                              |
+| `rnd()` / `rnd(n)`                    | Eenvoudige LCG, niet cryptografisch; periode = 256 (de drijvende-kommawaarde `rnd` is een 32-bits xorshift)                                                                                                                                                                                                                              |
 | `abs()` / `sgn()` / `min()` / `max()` | Alleen 8-bits waarden; `abs`/`sgn` behandelen waarden als getekend (bit 7 = negatief → `abs` tweecomplement, `sgn` retourneert `$FF`); `min`/`max` zijn ongetekend (0–255)                                                                                                                                                               |
 | `plot`                                | Pixels buiten het bereik worden stilzwijgend afgesneden (Y ≥ 200 of X ≥ 320 → geen actie)                                                                                                                                                                                                                                                |
 | `mplot`                               | Geen grenscontrole — x moet tussen 0 en 159 liggen, y moet tussen 0 en 199 liggen.                                                                                                                                                                                                                                                       |

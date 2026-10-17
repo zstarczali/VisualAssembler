@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.6.2**
+**Version 2.6.3**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -9,6 +9,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
+    - [Version 2.6.3 Highlights](#version-263-highlights)
     - [Version 2.6.2 Highlights](#version-262-highlights)
     - [Version 2.6.1 Highlights](#version-261-highlights)
     - [Version 2.6.0 Highlights](#version-260-highlights)
@@ -192,6 +193,16 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [Curve Editor](#curve-editor)
     - [Table Generator](#table-generator)
     - [Number Converter](#number-converter)
+
+---
+
+## Version 2.6.3 Highlights
+
+- **.sid import in the SID Editor** — **Files → Import .sid…** turns any PSID / RSID tune into instruments, patterns and a song you can edit: note ons and legato notes, rows placed exactly on the notes (funktempo and swing through `F` speed changes), wave / arpeggio tables with fixed-pitch drum attacks, pulse and filter movement, gate timing and vibrato. See [SID Editor](#sid-editor-3-voice-tracker).
+- **Long tunes play correctly** — when the tune data does not fit next to the player at `$C000`, it moves to its own segment below `$A000` instead of running into I/O; the `.sid` export follows.
+- **VA SID Core preview retriggers notes** — a note restarted under a held gate gets a new attack, as on the real player.
+- **SID Editor** — the header shows the active SID emulation (WebSID or VA SID Core with the chip model); the Speed field has − / + buttons and takes 1–255; the song can use up to 256 patterns.
+- **Ultimate Basic 1.6.6** — `PRINT USING "format"; values`, string comparison in PETSCII order, floating-point `rnd` and `mod`, floating point in IRQ / NMI handlers, `option basic print` for C64 BASIC PRINT spacing, smaller programs (only the floating-point routines in use) and 16-bit address expressions (1.6.5). The Ultimate Basic editor highlights `print using` and `option basic print`.
 
 ---
 
@@ -4217,7 +4228,7 @@ Arranges **Map Editor screens** into one level — a vertical shooter, a car gam
 
 Multi-instrument 3-voice tracker. Open via Toolkit → SID Editor. **Play: All** runs the exported 6502 player in the WebSid emulator; every other preview (instrument Preview, virtual keyboard, note entry, chord / arpeggio, row and single-pattern playback) also plays on the emulated SID: a JS model of the same player (frame for frame) streams its SID registers to WebSid every frame, and up to three preview notes share the three voices. The stream player is loaded when the editor opens and again after Stop, so notes sound at once; without WebSid a small SID synthesizer plays instead.
 
-**Preview engine:** **Settings → SID preview** selects **WebSID** or **VA SID Core (Rust)**, the app's own SID emulation; with VA SID Core you also choose the chip (MOS 6581 / 8580). The instrument parameters are set with knobs.
+**Preview engine:** **Settings → SID preview** selects **WebSID** or **VA SID Core (Rust)**, the app's own SID emulation; with VA SID Core you also choose the chip (MOS 6581 / 8580). The editor's header shows the engine in use (e.g. *· VA SID Core v1.2 (MOS 8580)*). The instrument parameters are set with knobs.
 
 **Per-instrument controls:**
 - Waveform checkboxes (TRI / SAW / PUL / NOI) — multiple waveforms are ANDed like on the SID — plus **RING** (ring modulation of the triangle by the previous voice: 1 ← 3, 2 ← 1, 3 ← 2) and **SYNC** (hard sync to the previous voice).
@@ -4230,7 +4241,7 @@ Multi-instrument 3-voice tracker. Open via Toolkit → SID Editor. **Play: All**
 - **Wave / arpeggio table:** up to 32 steps of waveform (— = keep) and note (offset in semitones, or **abs** = absolute note), one step every **Speed** frames, **Loop** back to a step or stop on the last one. **Presets** (25, in groups; the list keeps the chosen preset until the table is edited by hand): arpeggios (major, minor, 7th chords, sus4, diminished, augmented, power chord, octave, trill), drums (kick, snare, tom, clap, closed / open hi-hat), lead and bass attacks, and sound effects (laser, pickup, explosion).
 
 **Tracker grid:**
-- 3 voices × up to 7 patterns × 32 rows = 7 × 32 = 224 rows max (8-bit row counter constrains it).
+- 3 voices × up to 256 patterns × 32 rows; the song / order list holds up to 255 steps.
 - Per-row: note + instrument index, plus an optional effect (see **Effect column** below). Empty rows hold the previous note: like in other trackers (GoatTracker, SID-Wizard), a note keeps its gate on (sustain level) until the next note on that voice or a **note-off**.
 - **Enter** (or a double-click) edits the selected cell as text (`C-4 01 V24`); **Enter** saves and moves to the next row, **Esc** cancels.
 - **Note-off** (`===`): key **1** (or `` ` `` / `=`), or type `===` / `OFF` into a cell. It releases the gate, so the instrument's release runs — the same as the `C` effect without a note (saved and exported as `C00`).
@@ -4240,7 +4251,7 @@ Multi-instrument 3-voice tracker. Open via Toolkit → SID Editor. **Play: All**
 - Arpeggio helper: preview or insert 4-, 8-, or 16-step note runs from the selected chord in up, down, or up/down directions.
 - **Preview row** auditions the selected row across all three voices without starting pattern playback.
 - Cell-range paste now starts at the selected range start cell and stops cleanly at voice and row boundaries instead of wrapping into the next column or row.
-- Speed slider sets the IRQ tick divisor (frames between rows).
+- **Speed** (frames between rows, 1–255) is typed in or stepped with the − / + buttons next to it; the `F` effect changes it during playback.
 
 **Song / order list:**
 - Patterns are arranged through a song/order list layered on top of the raw pattern bank — the same pattern can repeat, and the song can be longer than the number of stored patterns.
@@ -4281,18 +4292,25 @@ Effects update once per row (matching the exported player's timing), run identic
 | `Export blocks + miniplayer` | Adds the full player (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) plus PAL frequency tables. After export, place a `JSR sid_init` in your main code where the music should start; with your own IRQ call `JSR sid_frame` once per frame instead. |
 | `Export asm (clipboard)` | Copies the full assembly source to the clipboard. |
 | `Import GoatTracker .sng…` | Loads a GoatTracker 2 song in place of the current one — see **GoatTracker import** below. |
+| `Import .sid…` | Converts a PSID / RSID tune into an editable song in place of the current one — see **.sid import** below. |
 | `Export to UltimateBasic` | Writes a `tune ... end` block (instruments, order list, pattern rows as text) plus `music play` and inserts it at the cursor of the Ultimate Basic editor; outside UB mode it copies the text to the clipboard. The UltimateBasic compiler builds the player, so `music play` / `music stop` control it. Instrument modulation goes into `imod` / `ifilt` / `igate` / `itab` lines (Ultimate Basic 1.6.2+). |
 
 **GoatTracker import:** **Files → Import GoatTracker .sng…** loads a GoatTracker 2 song (`.sng`, GTS3–GTS5) in place of the current one. The conversion is approximate, because the two trackers work differently:
 - The per-voice order lists (with transpose and repeat) are flattened into one 3-voice song and cut into 32-row patterns; identical patterns are shared.
 - Instruments: AD / SR, first wave, gate timer and hard restart are taken over; the wavetable becomes the wave / arpeggio table, the pulse table PWM, the filter table filter mode, resonance and cutoff sweep, and the speed table entry the instrument vibrato.
 - Pattern commands: key off → note-off, portamento → `U` / `D` (at most 255 per row), tempo → `F`; toneporta becomes a plain note. Other commands are dropped, and a message lists what was approximated or skipped.
-- A gate released by the wavetable becomes a note-off on the next free row. Only the first subtune is imported, and the export limit of 7 patterns still applies.
+- A gate released by the wavetable becomes a note-off on the next free row. Only the first subtune is imported.
 
-**Player ZP usage:** `$02`–`$1C` (pattern pointers, pattern offset, temp) and `$2F` (current speed), plus `$FB`–`$FD` (tick counter, row index, order-list position). Voice, modulation and filter state lives in `sid_state` after the data. The ZP bytes conflict if your main code uses them — relocate via Expert mode if needed.
+**.sid import:** **Files → Import .sid…** opens a PSID / RSID file (desktop app only, it uses VA SID Core). Choose the subtune and the length in seconds and press **Import**: the tune runs silently, its SID registers are recorded frame by frame and turned into a song in place of the current one.
+- **Notes:** a note on is a gate edge (a retrigger within 2 frames counts as one note); a pitch change under a held gate that stays at least 5 frames becomes a new, retriggered (legato) note. The pitch is the most common semitone of the note's main waveform; NTSC tunes are retuned to the PAL note table.
+- **Rows:** rows start exactly on the note ons. The base length is the longest that fits almost all of them; rows of that length or one frame longer (funktempo, swing, tempo changes) are set with `F` effects one row ahead.
+- **Instruments:** AD / SR, the main waveform, pulse width and PWM, the filter (routing, mode, resonance, cutoff sweep) and the waveform and pitch of every frame of the note, up to the next one: the wave / arpeggio table (a prefix plus a repeating loop, up to 32 steps). A fixed-pitch drum attack keeps absolute notes and an arpeggio relative ones, decided over all notes of the same sound; a regular sub-semitone wobble becomes the instrument vibrato. The gate becomes a note cut, a gate timer (with hard restart when ADSR is zeroed) or a decay at the release rate. Identical instruments are shared, up to 128.
+- A message lists what was approximated, for example slides that become semitone steps or tables longer than 32 steps. Multi-SID tunes and RSID tunes that start as a BASIC program are not supported.
+
+**Player ZP usage:** `$02`–`$1C` (pattern pointers, pattern offset, temp) and `$2F` (current speed), plus `$FB`–`$FD` (tick counter, row index, order-list position). Voice, modulation and filter state lives in `sid_state` after the player code. The ZP bytes conflict if your main code uses them — relocate via Expert mode if needed.
 
 **Known limits:**
-- 8-bit row counter limits each pattern to 7 patterns × 32 rows in the raw bank (the song/order list can still be arbitrarily long by repeating patterns).
+- The player and its state sit at `$C000`. When the tune data does not fit below `$D000` next to them, the data moves to its own segment ending below `$A000` (the exported asm has a second `* =` line); keep it clear of your own program.
 - C64 `$D418` global volume is shared across voices — the per-instrument volume slider is informational; sustain level (`S` of ADSR) is the effective per-voice volume.
 - While **Play: All** has the real tune loaded (also when paused), note previews fall back to the small synthesizer, which only approximates the SID chip. Previews reach WebSid about 0.1 s ahead of the sound.
 

@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Gebruikershandleiding
 
-**Versie 2.6.2**
+**Versie 2.6.3**
 
 Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw
 programma's door instructieblokken te slepen en neer te zetten, en bekijk de
@@ -12,6 +12,7 @@ gegenereerde assembly- en machinecode in realtime.
 
 - [C64 Visual Assembler —
   Gebruikershandleiding](#c64-visual-assembler--user-manual)
+    - [Hoogtepunten van versie 2.6.3](#version-263-highlights)
     - [Hoogtepunten van versie 2.6.2](#version-262-highlights)
     - [Hoogtepunten van versie 2.6.1](#version-261-highlights)
     - [Hoogtepunten van versie 2.6.0](#version-260-highlights)
@@ -205,6 +206,33 @@ gegenereerde assembly- en machinecode in realtime.
     - [Curve-editor](#curve-editor)
     - [Tabelgenerator](#table-generator)
     - [Nummeromzetter](#number-converter)
+
+---
+
+## Hoogtepunten van versie 2.6.3
+
+- **.sid importeren in de SID Editor** — **Bestanden → Importeer .sid…** zet
+  elke PSID/RSID-melodie om in instrumenten, patronen en een nummer dat je kunt
+  bewerken: noten en legato-noten, rijen die precies op de noten geplaatst zijn
+  (funktempo en swing via `F` snelheidsveranderingen), golf-/arpeggio-tabellen
+  met drumaanslagen met vaste toonhoogte, puls- en filterbeweging, gate-timing
+  en vibrato. Zie [SID Editor](#sid-editor-3-voice-tracker).
+- **Lange melodieën worden correct afgespeeld** — wanneer de melodiegegevens
+  niet naast de speler passen op `$C000`, worden ze verplaatst naar een eigen
+  segment onder `$A000` in plaats van dat ze in de I/O terechtkomen; de `.sid`
+  export volgt.
+- **VA SID Core preview activeert notities opnieuw ** — een notitie die opnieuw
+  is gestart onder een vastgehouden poort krijgt een nieuwe aanval, net als bij
+  de echte speler.
+- **SID Editor** — de header toont de actieve SID-emulatie (WebSID of VA SID
+  Core met het chipmodel); het veld Snelheid heeft − / + knoppen en accepteert
+  waarden van 1–255; het nummer kan maximaal 256 patronen gebruiken.
+- **Ultimate Basic 1.6.6** — `PRINT USING "format"; waarden`,
+  tekenreeksvergelijking in PETSCII-volgorde, drijvende-komma `rnd` en `mod`,
+  drijvende-komma in IRQ/NMI-handlers, `option basic print` voor C64 BASIC
+  PRINT-afstand, kleinere programma's (alleen de drijvende-komma-routines in
+  gebruik) en 16-bits adresuitdrukkingen (1.6.5). De Ultimate Basic-editor
+  markeert `print using` en `option basic print`.
 
 ---
 
@@ -6005,8 +6033,9 @@ SID-synthesizer.
 
 **Voorbeeldweergave-engine:** **Instellingen → SID-voorbeeld** selecteert
 **WebSID** of **VA SID Core (Rust)**, de eigen SID-emulatie van de app; met VA
-SID Core kiest u ook de chip (MOS 6581 / 8580). De instrumentparameters worden
-ingesteld met draaiknoppen.
+SID Core kiest u ook de chip (MOS 6581 / 8580). De header van de editor toont de
+gebruikte engine (bijv. *· VA SID Core v1.2 (MOS 8580)*). De
+instrumentparameters worden ingesteld met draaiknoppen.
 
 ** Bedieningselementen per instrument: **
 - Golfvormselectievakjes (TRI / SAW / PUL / NOI) — meerdere golfvormen worden
@@ -6042,8 +6071,8 @@ ingesteld met draaiknoppen.
   pickup, explosie).
 
 **Tracker raster:**
-- 3 stemmen × tot 7 patronen × 32 rijen = 7 × 32 = maximaal 224 rijen (beperking
-  door een 8-bits rijteller).
+- 3 stemmen × tot 256 patronen × 32 rijen; de lied-/volgordelijst bevat maximaal
+  255 stappen.
 - Per rij: noot + instrumentindex, plus een optioneel effect (zie
   **Effectkolom** hieronder). Lege rijen bevatten de vorige noot: net als in
   andere trackers (GoatTracker, SID-Wizard) houdt een noot zijn gate aan
@@ -6074,8 +6103,8 @@ ingesteld met draaiknoppen.
 - Het plakken binnen een celbereik begint nu bij de geselecteerde begincel van
   het bereik en stopt netjes bij de grenzen van stemmen en rijen, in plaats van
   door te lopen naar de volgende kolom of rij.
-- Met de snelheidsregelaar wordt de IRQ-tickdeler ingesteld (het aantal frames
-  tussen rijen).
+- **Speed** (frames tussen rijen, 1–255) wordt ingevoerd of aangepast met de − /
+  + knoppen ernaast; het `F`-effect wijzigt dit tijdens het afspelen.
 
 ** Nummer / volgordelijst: **
 - De patronen worden geordend via een lijst met nummers/volgordes die bovenop de
@@ -6150,6 +6179,7 @@ in het versiebeheerde `.bin`-formaat.
 | `Blokken exporteren + miniplayer`      | Voegt de volledige speler (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) plus PAL-frequentietabellen toe. Plaats na het exporteren een `JSR sid_init` in uw hoofdcode waar de muziek moet beginnen; gebruik in plaats daarvan uw eigen IRQ-aanroep `JSR sid_frame` eenmaal per frame.                                                                                                                           |
 | `Exporteer asm (klembord)`             | Kopieert de volledige broncode van de assembly naar het klembord.                                                                                                                                                                                                                                                                                                                                                                |
 | `Importeer GoatTracker .sng…`          | Laadt een GoatTracker 2-nummer in plaats van het huidige — zie **GoatTracker import** hieronder.                                                                                                                                                                                                                                                                                                                                 |
+| `Importeer .sid…`                      | Converteert een PSID/RSID-tune naar een bewerkbaar nummer ter vervanging van het huidige nummer — zie **.sid import** hieronder.                                                                                                                                                                                                                                                                                                 |
 | `Exporteren naar UltimateBasic`        | Schrijft een `tune ... end` blok (instrumenten, volgordelijst, patroonrijen als tekst) plus `music play` en voegt dit in op de cursorpositie van de Ultimate Basic-editor; buiten de UB-modus kopieert het de tekst naar het klembord. De UltimateBasic-compiler bouwt de speler, dus `music play` / `music stop` besturen deze. Instrumentmodulatie komt in `imod` / `ifilt` / `igate` / `itab` regels (Ultimate Basic 1.6.2+). |
 
 **GoatTracker importeren:** **Bestanden → GoatTracker .sng importeren…** laadt
@@ -6166,19 +6196,47 @@ conversie is bij benadering, omdat de twee trackers anders werken:
   per regel), tempo → `F`; toneporta wordt een gewone noot. Andere commando's
   worden weggelaten en een bericht geeft aan wat is benaderd of overgeslagen.
 - Een gate die door de wavetable wordt vrijgegeven, wordt een noot-off op de
-  volgende vrije rij. Alleen de eerste subtune wordt geïmporteerd en de
-  exportlimiet van 7 patronen blijft van kracht.
+  volgende vrije rij. Alleen de eerste subtune wordt geïmporteerd.
+
+**.sid importeren:** **Bestanden → Importeer .sid…** opent een PSID/RSID-bestand
+(alleen desktop-app, gebruikt VA SID Core). Kies de subtune en de lengte in
+seconden en druk op **Importeren**: de melodie wordt stil afgespeeld, de
+SID-registers worden frame voor frame opgenomen en omgezet in een nummer ter
+vervanging van het huidige nummer.
+- **Opmerkingen:** een noot op is een gate-rand (een hertrigger binnen 2 frames
+  telt als één noot); een toonhoogteverandering onder een vastgehouden gate die
+  minstens 5 frames aanhoudt, wordt een nieuwe, hertriggerde (legato) noot. De
+  toonhoogte is de meest voorkomende halve toon van de hoofdgolfvorm van de
+  noot; NTSC-tunes worden opnieuw afgestemd op de PAL-notentabel.
+- **Rijen:** rijen beginnen precies op de noten. De basislengte is de langste
+  die bijna alle rijen omvat; rijen van die lengte of één frame langer
+  (funktempo, swing, tempowisselingen) worden ingesteld met `F` effecten één rij
+  vooruit.
+- **Instrumenten: ** AD/SR, de hoofdgolfvorm, pulsbreedte en PWM, het filter
+  (routing, modus, resonantie, cutoff sweep) en de golfvorm en toonhoogte van
+  elk frame van de noot, tot aan het volgende frame: de golf-/arpeggiotabel (een
+  prefix plus een herhalende lus, tot 32 stappen). Een drumaanslag met vaste
+  toonhoogte houdt absolute noten vast en een arpeggio relatieve noten, bepaald
+  over alle noten van hetzelfde geluid; een regelmatige sub-halve toon wobble
+  wordt het vibrato van het instrument. De gate wordt een nootcut, een gatetimer
+  (met harde herstart wanneer ADSR op nul staat) of een decay met de release
+  rate. Identieke instrumenten worden gedeeld, tot 128.
+- Een bericht geeft aan wat er is benaderd, bijvoorbeeld slides die halve
+  toonstappen worden of tabellen langer dan 32 stappen. Multi-SID-tunes en
+  RSID-tunes die als BASIC-programma starten, worden niet ondersteund.
 
 **Gebruik van de speler-ZP: ** `$02`–`$1C` (patroonpointers, patroonoffset,
 temp) en `$2F` (huidige snelheid), plus `$FB`–`$FD` (tickteller, rij-index,
-positie in de orderlijst). De stem-, modulatie- en filterstatus bevinden zich in
-`sid_state` na de data. De ZP-bytes conflicteren als uw hoofdcode ze gebruikt —
-verplaats ze indien nodig via de Expert-modus.
+positie in de orderlijst). De stem-, modulatie- en filterstatus bevindt zich in
+`sid_state` na de spelercode. De ZP-bytes conflicteren als uw hoofdcode ze
+gebruikt — verplaats ze indien nodig via de Expert-modus.
 
 **Bekende limieten: **
-- Een 8-bits rijteller beperkt elk patroon tot 7 patronen × 32 rijen in de ruwe
-  databank (de lijst met nummers/volgordes kan nog steeds willekeurig lang zijn
-  door herhalende patronen).
+- De speler en zijn status bevinden zich op `$C000`. Wanneer de
+  afstemmingsgegevens niet onder `$D000` ernaast passen, worden de gegevens
+  verplaatst naar een eigen segment dat eindigt onder `$A000` (de geëxporteerde
+  assembler bevat een tweede regel `* =`); zorg ervoor dat deze niet in uw eigen
+  programma terechtkomt.
 - C64 `$D418` Het globale volume wordt gedeeld over alle stemmen — de
   volumeregelaar per instrument is informatief; het sustainniveau (`S` van ADSR)
   is het effectieve volume per stem.

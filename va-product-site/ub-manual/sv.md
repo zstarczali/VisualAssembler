@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.5 — Språkmanual
+# Ultimate Basic v1.6.6 — Språkmanual
 
 Komplett språk- och CLI-referens för Ultimate Basic, ett BASIC-liknande språk
 som kompilerar direkt till 6502-maskinkod för Commodore 64. Utdata: `.prg` filer
@@ -211,10 +211,10 @@ x = x + 1
 y = a * b - c / 2
 z = x och 15 # bitvis OCH
 w = a eller b # bitvis ELLER
-v = a xor b # bitvis XOR
-m = x shl 3 # skift åt vänster
-n = x shr 2 # skift åt höger
-r = x mod 40 # 8-bitars modulo (resten); x mod 0 = x, x / 0 = 255
+v = a x eller b # bitvis XOR
+m = x shl 3 # förskjut åt vänster
+n = x shr 2 # förskjut åt höger (aritmetik för ett HELTAL: -8 shr 1 = -4)
+r = x mod 40 # rest; x mod 0 = x, x / 0 = 255
 b = bnot x # bitvis INTE: x XOR 255 (komplementera alla 8 bitar)
 ```
 
@@ -224,8 +224,15 @@ Aritmetisk kod (1.6.0): `*` med en konstant kompilerar till shifts / shift-add
 (`x * 8` → 3× `ASL`), annars till en shift-add-loop på högst 8 rundor. `/` och
 `mod` med tvåpotens är `LSR` / `OCH #(n-1)`, annars en 8-rundors
 shift-subtract-loop vars körtid inte längre beror på kvoten. Division med noll
-definieras: `x / 0 = 255`, `x mod 0 = x` (före 1.6.0 hängde den sig). `x = x +
-1` / `x = x - 1` (och ±2) kompilerar till `INC` / `DEC`.
+definieras: `x / 0 = 255`, `x mod 0 = x` (före 1.6.0 hängde den sig).
+
+`mod` med en `ord`- eller `heltal`-operand (eller en negativ konstant) är en
+16-bitars rest med dividendens tecken, som i QBasic: `-7 mod 3` = -1, `7 mod -3`
+= 1, `(w + 5) mod 7` behåller 16 bitar. Med en ENKEL / DUBBEL operand fungerar
+den med flyttal (se *Flyttal*). `shr` av ett `heltal` är en aritmetisk
+förskjutning (tecknet bibehålls: `-8 shr 1` = -4); `ord` och bytevärden
+förskjuts logiskt. `x = x + 1` / `x = x - 1` (och ±2) kompileras till `INC` /
+`DEC`.
 
 ### Ökning / Minskning
 
@@ -268,6 +275,47 @@ print s1 + s2 # två strängvariabler → sekventiell print
 print "Hello " + "Världen" # två literaler → kompileringstidsfold
 print chr$(13) # print med PETSCII-kod
 ```
+
+Som standard skrivs siffror ut utan extra mellanslag och `,` separerar bara
+posterna (`print 1, 2` ger `12`). För C64 BASIC-avstånd, bygg med
+`--basic-print`, eller lägg till radalternativet `basic print` i programmet: ett
+nummer skrivs sedan ut med ett inledande mellanslag (eller dess `-`) och ett
+avslutande mellanslag (`print 5` → ` 5 `), en `,` flyttas till nästa 10-kolumns
+utskriftszon, och en avslutande `,` håller markören på raden som en avslutande
+`;`. Strängar, `spc`, `tab`, `hex`, `bin`, `dec`, `chr$` och `str$` skrivs ut
+som tidigare.
+
+#### `SKRIV UT MED `
+
+```basic
+DIM ar SOM DUBBEL = 1234,5
+DIM s SOM STRÄNG = "ALMA"
+SKRIV MED "###.##"; 3,14159 ' 3,14
+SKRIV MED "Ar: #,###.## Ft"; ar ' Ar: 1 234,50 Ft
+SKRIV MED "+##"; 7 ' +7
+SKRIV MED "##.##-"; -2,25 ' 2,25-
+SKRIV MED "##"; 123 ' %123
+SKRIV MED "[&amp;] [!] [\ \]"; s; s; s ' [ALMA] [A] [ALMA]
+SKRIV MED "## "; 1, 2, 3 ' 1 2 3
+```
+
+| Fält                  | Menande                                                                                                           |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `#`                   | en sifferposition; siffror är högerjusterade och avrundade till decimaler                                         |
+| `.`                   | decimalpunkten; `#`-talen efter den är decimalerna (högst 9)                                                      |
+| `, `                  | före punkten: tusentalsavgränsare (varje `,` är en position)                                                      |
+| `+` i början          | skriv alltid ut tecknet (`+` / `-`)                                                                               |
+| `-` i slutet          | skriv minustecknet efter numret (ett mellanslag när det är positivt)                                              |
+| `&amp;` / `!` / `\ \` | sträng: hela strängen / dess första tecken / exakt lika många tecken som fältet är brett (`\` + mellanslag + `\`) |
+| `_`                   | skriv ut nästa tecken som det är (`_#`)                                                                           |
+
+Ett tal som inte får plats skrivs ut med `%` framför (`%123`); en ensam
+inledande 0 tas bort först (`#.##` med -0.5 → `-.50`). Andra tecken skrivs ut
+som de är. Värdena växlar mellan fälten (formatet börjar om när det tar slut);
+efter det sista värdet skrivs texten upp till nästa fält ut. Ett efterföljande
+`;` eller `,` håller markören på raden. Formatet måste vara en stränglitteral;
+fälten `**`, `$$` och `^^^^` stöds inte. Ett program med `PRINT USING`
+inkluderar flyttalsomkörningen (endast de delar den behöver).
 
 ### chr$
 
@@ -557,8 +605,9 @@ IF s = "ABC" ELLER t &lt;&gt; "" THEN PRINT "jämför med = / &lt;&gt;"
   inga inledande nollor (`"-42"`). För kompatibilitet behåller `STR$` för en
   byte den 3-siffriga formen (`"007"`). `VAL` läser 16-bitars teckenförtecknade
   tal (`VAL("1234") + 1` = 1235).
-- **Jämförelse:** endast `=` / `&lt;&gt;` (och `==` / `!=`); det finns ingen
-  `&lt;` / `&gt;` ordning på strängarna.
+- **Jämförelse:** `=` / `&lt;&gt;` (och `==` / `!=`), och `&lt;` `&gt;` `&lt;=`
+  `&gt;=` i PETSCII-ordning som C64 BASIC; en sträng kommer före varje längre
+  sträng den börjar (`"AB" &lt; "ABC"`, `"" &lt; "A"`).
 
 #### Signerat HELTAL, INMATNING, DUBBELT (1.6.3)
 
@@ -1659,17 +1708,19 @@ Atfogo = SQR(a * a + b * b)
 SLUT FUNKTION
 ```
 
-|                  |                                                                                                                                                                      |
-| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Operatörer       | `+ - * /` och `^` (potens; högerassociativ, binder hårdare än unär minus: `-2^2` = -4)                                                                               |
-| Funktioner       | `SQR`, `SIN`, `COS`, `TAN`, `ATN` (radianer), `EXP`, `LOG` (naturlig), `INT` (golv), `FIX` (avkorta), `CINT` (rund), `ABS`, `SGN`, `CSNG` / `CDBL` (ingen op), `VAL` |
-| Literaler        | `1,5`, `.5`, `1E6`, `2,5e-3`, `70000`                                                                                                                                |
-| Jämförelser      | `= &lt;&gt; &lt; &gt; &lt;= &gt;=` i `OM` / `MEDA` / `TILL` / `VÄLJ FALL` och som värden                                                                             |
-| Utskrift         | C64 BASIC-stil: `.5`, `-3.25`, `3.33333333`, `1E+10`, `1.5E-07` (inget inledande mellanslag)                                                                         |
-| Strängar         | `s = "X=" + x`, `STR$(x)`, `VAL(s)` läser `-1.25E3`                                                                                                                  |
-| `FÖR`            | flyttalsräknare, gränsvärde och steg (`STEP 0.1`, negativt eller en variabel)                                                                                        |
-| `INGÅNG` / `LÄS` | `INPUT x` läser valfritt tal; `READ x` läser nästa `data` byte                                                                                                       |
-| Underfunktion    | `p AS DOUBLE`-parametrar och `AS DOUBLE`-resultat                                                                                                                    |
+|                  |                                                                                                                                                                             |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Operatörer       | `+ - * /` och `^` (potens; högerassociativ, binder hårdare än unär minus: `-2^2` = -4)                                                                                      |
+| Funktioner       | `SQR`, `SIN`, `COS`, `TAN`, `ATN` (radianer), `EXP`, `LOG` (naturlig), `INT` (golv), `FIX` (avkorta), `CINT` (rund), `ABS`, `SGN`, `CSNG` / `CDBL` (ingen op), `VAL`, `RND` |
+| `MOD`            | `a MOD b` = `a - b * FIX(a / b)` (tecken för `a`, som VB / C `fmod`): `7.5 MOD 2` = 1.5; `x MOD 0` = x                                                                      |
+| `RND`            | I en flyttalsats är `RND` / `RND()` ett slumptal 0 ≤ x < 1 (`d = RND`, `x = RND * 6`); `rnd(n)` behåller heltalet 0 … n-1                                                   |
+| Literaler        | `1,5`, `.5`, `1E6`, `2,5e-3`, `70000`                                                                                                                                       |
+| Jämförelser      | `= &lt;&gt; &lt; &gt; &lt;= &gt;=` i `OM` / `MEDA` / `TILL` / `VÄLJ FALL` och som värden                                                                                    |
+| Utskrift         | C64 BASIC-stil: `.5`, `-3.25`, `3.33333333`, `1E+10`, `1.5E-07` (inget inledande mellanslag om inte `--basic-print`); fasta decimaler med `PRINT MED `                      |
+| Strängar         | `s = "X=" + x`, `STR$(x)`, `VAL(s)` läser `-1.25E3`                                                                                                                         |
+| `FÖR`            | flyttalsräknare, gränsvärde och steg (`STEP 0.1`, negativt eller en variabel)                                                                                               |
+| `INGÅNG` / `LÄS` | `INPUT x` läser valfritt tal; `READ x` läser nästa `data` byte                                                                                                              |
+| Underfunktion    | `p AS DOUBLE`-parametrar och `AS DOUBLE`-resultat                                                                                                                           |
 
 **Blandning med heltal.** Ett uttryck beräknas i flyttal när det innehåller ett
 ENKELT / DUBBELT värde, `^`, en av funktionerna ovan, eller en literal som
@@ -1681,19 +1732,29 @@ tilldelats en DOUBLE konverteras exakt. Heltalsuttryck behåller sina
 heltalsregler (`var c = a + b` är fortfarande en byte).
 
 **Anteckningar**
-- En heltalsliteral från 32768 till 65535 läses som ett 16-bitarsmönster och
-  blir negativt i flyttal: skriv `40000.0` eller `4E4`.
+- En heltalsliteral från 32768 till 65535 behåller sitt värde i en sats som
+  beräknar med flyttal (`d = 40000`, `d + 50000`). En sats räknas som flyttal
+  när den namnger en ENKEL / DUBBEL variabel, array, parameter eller funktion,
+  eller använder `^`, en flyttalsliteral eller en av funktionerna ovan; på andra
+  ställen är en sådan literal ett 16-bitarsmönster som tidigare (`poke 53280,
+  1`, `w = 40000` into a WORD). En variabel som bara blev flyttal genom `var x =
+  2.5` räknas inte — skriv `40000.0` där.
 - `7 / 2` är 3,5 när det tilldelas en DUBBEL; i heltalskontext är det 3 som
   tidigare.
-- `x MOD y` och `AND` / `OR` / `XOR` avrundar sina operander till heltal.
+- `OCH` / `ELLER` / `XELLER` avrundar sina operander till heltal.
 - `SIN` / `COS` för ett bytevärde behåller den gamla tabellbetydelsen 0–255
   (cirkelform = 256); med ett ENKELT / DUBBELT argument arbetar de i radianer.
-- Flyttalskod får inte köras i IRQ/NMI-hanterare (körtiden behåller sitt
-  tillstånd i fast RAM-minne).
-- Kostnad: flyttalsomkörningen (cirka 4,4 KB, sammansatt av kompilatorn) läggs
-  till efter programmet första gången SINGLE / DOUBLE används. Variabler tar 5
-  byte i arrayområdet, plus en 2-byte noll-sidspekare för körtiden. En
-  multiplikation tar ungefär 1–2 ms på en 1 MHz C64.
+- IRQ/NMI-hanterare kan använda flyttal: en sub med namnet `irq`, `nmi` eller
+  `cia_timer` som (direkt eller genom de subar den anropar) använder
+  SINGLE/DOUBLE sparar runtime-tillståndet vid starten och återställer det före
+  `irq_exit` / `nmi_exit` (cirka 4–5 tusen cykler per avbrott). Hanterare utan
+  flyttal saktas inte ner. Inte täckt: en hanterare inställd av adress eller
+  ordvariabel, eller en som lämnar med en vanlig `RTS` / `RTI`.
+- Kostnad: flyttalsomkörningen assembleras av kompilatorn och läggs till efter
+  programmet; endast de rutiner som programmet använder inkluderas (cirka 2 KB
+  för `+ - * /` och `PRINT` upp till cirka 5 KB med alla funktioner och `PRINT
+  USING`). Variabler tar 5 byte i arrayområdet, plus en 2-byte noll-sidspekare
+  för körtiden. En multiplikation tar ungefär 1–2 ms på en 1 MHz C64.
 
 ### Variabler i RAM, arrayminne (1.6.4)
 
@@ -1722,13 +1783,14 @@ var b = min(x, 39) # 8-bitars minimum
 var c = max(x, 0) # 8-bitars maximum
 var s = sgn(poäng) # 0 = noll, 1 = positiv (1–127), $FF = negativ (128–255)
 var r = rnd() # LCG pseudo-slumpmässig 0-255; frö från rasterlinje
+# (0 &lt;= x &lt; 1 i en SINGLE / DOUBLE-sats: d = rnd)
 var r = rnd(10) # LCG pseudo-random 0-9 (rnd() mod n; resultat 0..n-1)
 var s = sin(vinkel) # sinus: vinkel 0-255 (full cirkel), returnerar 0-255 (centrum=128)
 var c = cos(vinkel) # cosinus = sin(vinkel+64)
 var v = clamp(x, 0, 39) # 8-bitars osignerad clamp: resultat = max(lo, min(hi, val))
 
-print hex(n) # print as 2-siffrig versal hex
-print bin(n) # print as 8-bitars binär sträng
+print hex(n) # print som 2-siffrig hexagon
+print bin(n) # print som 8-bitars binär sträng
 ```
 
 ### Strängfunktioner
@@ -1837,6 +1899,9 @@ slut
 ```
 
 Framåtriktade referenser stöds (`irq my_handler` innan suben är definierad).
+
+En handler-sub kan använda ENKEL / DUBBEL flyttal: den sparar och återställer
+körtidsläget runt sin kropp (se *Flyttal*).
 
 ### NMI-hanterare
 
@@ -2110,13 +2175,14 @@ ub build <input.ub> [ALTERNATIV]
 -o, --output <fil> Skriv ut .prg- eller .crt-fil (standard: <input>.prg)
 -v, --verbose Visa nollsidig layout och hex-dump av kod
 --no-stub Hoppa över BASIC SYS-stubben (kod laddas vid $0801)
---debug Skapar även .sym-, .dbg- och .vs-felsökarfiler
---asm Skapar även en läsbar 6502-kodgenereringslista för .asm
---d64 [fil] Skapar även en .d64-diskavbildning;
+--debug Skapa även .sym-, .dbg- och .vs-felsökarfiler
+--asm Skapa även en läsbar 6502-kodgenereringslista för .asm
+--d64 [fil] Skapa även en .d64-diskavbildning;
 utan filnamn används standardvärdet <output>.d64
---add <fil> Lägger till en extra fil till .d64-diskavbildningen;
+--add <fil> Lägg till en extra fil till .d64-diskavbildningen;
 kan upprepas för flera filer
---explicit Kräver :type på varje var / sub-param / fn-param
+--explicit Kräv :typ på varje var / sub-param / fn-param
+--basic-print C64 BASIC PRINT avstånd: mellanslag runt siffror, ',' = 10-kolumnszoner
 -h, --help Visa hjälp
 ```
 
@@ -2310,10 +2376,10 @@ Använd `--asm` för att se den genererade koden för ditt eget program.
 | Noll sidbudget                        | Permanent nollsida är `$02–$4F` (78 byte): varje variabel och sub/fn-parameter tar 2 byte, varje körande `för` loop 2 till. Eftersom 1.6.4 flyttas variabler som inte passar till RAM automatiskt (se *Variabler i RAM*); endast extrema fall rapporterar fortfarande `av nollsida` |
 | Binära literaler                      | `%01010101` (sedan 1.6.4), `$hex` och decimal                                                                                                                                                                                                                                       |
 | Subrutiner                            | Ingen rekursion — ZP-parameterplatser allokeras statiskt                                                                                                                                                                                                                            |
-| Strängvariabler                       | `single` / `double` är 5-byte flyttal sedan 1.6.4 (ej användbara i IRQ-hanterare; runtime på ~4,4 KB har lagts till i programmet); `float` förblir Q8.8 (0–255,99)                                                                                                                  |
+| Strängvariabler                       | `single` / `double` är 5-byte flyttal sedan 1.6.4 (rutinerna som ett program använder, ~2–5 KB, läggs till); `float` förblir Q8.8 (0–255.99)                                                                                                                                        |
 | Unär minus                            | Eftersom 1.6.4 binder en inledande `-` till sin operand: `-5 - 3` är -8 (den var -(5 - 3) = -2)                                                                                                                                                                                     |
-| String concat-körning                 | `s1 + s2` skrivs ut sekventiellt — ingen heapallokering eller längdspårning                                                                                                                                                                                                         |
-| `rnd()` / `rnd(n)`                    | Enkel LCG, inte kryptografisk; punkt = 256                                                                                                                                                                                                                                          |
+| String concat-körning                 | Beräknade värden finns i en buffert på 80 tecken per variabel (längre resultat klipps ut); sträng-array-elementvärden i 31-teckens platser; ordningen `&lt;` / `&gt;` är PETSCII-byteordning                                                                                        |
+| `rnd()` / `rnd(n)`                    | Enkel LCG, inte kryptografisk; period = 256 (flyttalsvärdet `rnd` är en 32-bitars xorshift)                                                                                                                                                                                         |
 | `abs()` / `sgn()` / `min()` / `max()` | Endast 8-bitarsvärden; `abs`/`sgn` behandlar värden som signerade (bit 7 = negativ → `abs` tvåkomplement, `sgn` returnerar `$FF`); `min`/`max` är osignerade (0–255)                                                                                                                |
 | `diagram`                             | Pixlar utanför räckvidden klipps tyst bort (Y ≥ 200 eller X ≥ 320 → no-op)                                                                                                                                                                                                          |
 | `mplot`                               | Ingen gränskontroll — x måste vara 0–159, y måste vara 0–199                                                                                                                                                                                                                        |

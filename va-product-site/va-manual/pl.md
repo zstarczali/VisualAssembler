@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Podręcznik użytkownika
 
-**Wersja 2.6.2**
+**Wersja 2.6.3**
 
 Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągając
 i upuszczając bloki instrukcji, i oglądaj generowany kod assemblera i maszynowy
@@ -12,6 +12,7 @@ w czasie rzeczywistym.
 
 - [C64 Visual Assembler — Podręcznik
   użytkownika](#c64-visual-assembler--user-manual)
+    - [Najważniejsze cechy wersji 2.6.3](#version-263-highlights)
     - [Najważniejsze cechy wersji 2.6.2](#version-262-highlights)
     - [Najważniejsze cechy wersji 2.6.1](#version-261-highlights)
     - [Najważniejsze cechy wersji 2.6.0](#version-260-highlights)
@@ -208,6 +209,32 @@ w czasie rzeczywistym.
     - [Edytor krzywych](#curve-editor)
     - [Generator tabel](#table-generator)
     - [Konwerter liczb](#number-converter)
+
+---
+
+## Najważniejsze cechy wersji 2.6.3
+
+- Import **.sid w edytorze SID** — **Pliki → Importuj .sid…** przekształca
+  dowolną melodię PSID / RSID w instrumenty, wzory i utwór, który można
+  edytować: nuty i legato, wiersze umieszczone dokładnie na nutach (funktempo i
+  swing poprzez zmiany prędkości `F`), tabele wave / arpeggio z atakami bębnów o
+  stałej wysokości, ruch pulsacyjny i filtracyjny, timing bramkowy i vibrato.
+  Zobacz [Edytor SID](#sid-editor-3-voice-tracker).
+- **Długie melodie są odtwarzane poprawnie** — gdy dane melodii nie mieszczą się
+  obok odtwarzacza w `$C000`, przenoszą się one do własnego segmentu poniżej
+  `$A000` zamiast trafiać do I/O; następnie eksportuje się `.sid`.
+- **Podgląd rdzenia VA SID ponownie uruchamia nuty** — nuta ponownie uruchomiona
+  pod przytrzymaną bramą otrzymuje nowy atak, tak jak w prawdziwym odtwarzaczu.
+- **Edytor SID** — nagłówek pokazuje aktywną emulację SID (WebSID lub VA SID
+  Core z modelem układu scalonego); pole Prędkość ma przyciski − / + i przyjmuje
+  wartości od 1 do 255; utwór może wykorzystywać maksymalnie 256 wzorców.
+- **Ultimate Basic 1.6.6** — `DRUKUJ PRZY UŻYCIU "format"; wartości`,
+  porównywanie ciągów znaków w kolejności PETSCII, zmiennoprzecinkowe `rnd` i
+  `mod`, zmiennoprzecinkowe w obsłudze IRQ/NMI, `opcja podstawowego drukowania`
+  dla odstępów między poleceniami BASIC PRINT w C64, mniejsze programy (używane
+  są tylko procedury zmiennoprzecinkowe) oraz 16-bitowe wyrażenia adresowe
+  (wersja 1.6.5). Edytor Ultimate Basic wyróżnia `drukuj przy użyciu` i `opcję
+  podstawowego drukowania`.
 
 ---
 
@@ -5674,8 +5701,9 @@ nuty brzmią jednocześnie; bez WebSid odtwarzany jest mały syntezator SID.
 
 **Silnik podglądu: ** **Ustawienia → Podgląd SID** wybiera **WebSID** lub **VA
 SID Core (Rust)**, własną emulację SID aplikacji; w przypadku VA SID Core
-wybiera się również układ (MOS 6581/8580). Parametry instrumentu ustawia się za
-pomocą pokręteł.
+wybiera się również układ (MOS 6581/8580). Nagłówek edytora pokazuje używany
+silnik (np. *· VA SID Core v1.2 (MOS 8580)*). Parametry instrumentu ustawia się
+za pomocą pokręteł.
 
 **Sterowanie na instrument:**
 - Pola wyboru przebiegów (TRI / SAW / PUL / NOI) — wiele przebiegów jest
@@ -5710,8 +5738,8 @@ pomocą pokręteł.
   oraz efekty dźwiękowe (laser, pickup, wybuch).
 
 **Siatka śledzenia: **
-- 3 głosy × do 7 wzorów × 32 wiersze = 7 × 32 = maksymalnie 224 wiersze
-  (ograniczenie zapewnia 8-bitowy licznik wierszy).
+- 3 głosy × do 256 wzorów × 32 wiersze; lista utworów/kolejności mieści do 255
+  kroków.
 - Na wiersz: nuta + indeks instrumentu, plus opcjonalny efekt (patrz **Kolumna
   efektów** poniżej). Puste wiersze zawierają poprzednią nutę: podobnie jak w
   innych trackerach (GoatTracker, SID-Wizard), nuta utrzymuje swoją bramkę
@@ -5742,7 +5770,8 @@ pomocą pokręteł.
 - Wklejanie zakresu komórek rozpoczyna się teraz od wybranej komórki początkowej
   zakresu i kończy się na granicach wiersza lub głosu, zamiast przechodzić do
   następnej kolumny lub wiersza.
-- Suwak prędkości ustawia dzielnik cykli IRQ (liczba klatek pomiędzy wierszami).
+- **Prędkość** (klatki między wierszami, 1–255) wpisuje się lub zmienia skokowo
+  za pomocą przycisków − / + obok; efekt `F` zmienia ją podczas odtwarzania.
 
 **Lista utworów / kolejności:**
 - Wzory są ustalane na podstawie listy piosenek/kolejności umieszczonej na
@@ -5813,6 +5842,7 @@ eksporcie 6502 oraz są zapisywane/ładowane bezstratnie w wersjonowanym formaci
 | `Eksport bloków + miniodtwarzacz` | Dodaje pełny odtwarzacz (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) oraz tabele częstotliwości PAL. Po wyeksportowaniu umieść `JSR sid_init` w kodzie głównym w miejscu, w którym ma się zaczynać muzyka; zamiast tego użyj własnego wywołania IRQ `JSR sid_frame` raz na klatkę.                                                                                                             |
 | `Eksportuj asm (schowek)`         | Kopiuje cały kod źródłowy zestawu do schowka.                                                                                                                                                                                                                                                                                                                                                                     |
 | `Importuj GoatTracker .sng…`      | Ładuje utwór GoatTracker 2 w miejsce bieżącego — patrz **Import GoatTracker** poniżej.                                                                                                                                                                                                                                                                                                                            |
+| `Importuj .sid…`                  | Konwertuje melodię PSID/RSID na edytowalną piosenkę w miejsce bieżącej — patrz poniżej **.sid import**.                                                                                                                                                                                                                                                                                                           |
 | `Eksportuj do UltimateBasic`      | Zapisuje blok `tune ... end` (instrumenty, lista zamówień, wiersze wzorców jako tekst) oraz `music play` i wstawia go w miejscu kursora edytora Ultimate Basic; poza trybem UB kopiuje tekst do schowka. Kompilator UltimateBasic buduje odtwarzacz, więc steruje nim za pomocą `music play` / `music stop`. Modulacja instrumentu trafia do wierszy `imod` / `ifilt` / `igate` / `itab` (Ultimate Basic 1.6.2+). |
 
 **Import GoatTracker:** **Pliki → Importuj GoatTracker .sng…** ładuje utwór
@@ -5830,19 +5860,47 @@ przybliżona, ponieważ oba trackery działają inaczej:
   polecenia są pomijane, a komunikat zawiera listę tego, co zostało przybliżone
   lub pominięte.
 - Bramka zwolniona przez tablicę fal staje się nutą off w kolejnym wolnym
-  wierszu. Importowany jest tylko pierwszy podmelodion, a limit eksportu 7
-  wzorów nadal obowiązuje.
+  wierszu. Importowany jest tylko pierwszy podmelodion.
 
-**Użycie ZP gracza: ** `$02`–`$1C` (wskaźniki wzorców, przesunięcie wzorca,
+**.sid import:** **Pliki → Importuj .sid…** otwiera plik PSID/RSID (tylko
+aplikacja komputerowa, używa rdzenia VA SID). Wybierz podnutę i jej długość w
+sekundach, a następnie naciśnij **Importuj**: melodia będzie odtwarzana
+bezgłośnie, a jej rejestry SID będą rejestrowane klatka po klatce i zamieniane
+na utwór w miejsce bieżącego.
+- **Uwagi:** nuta włączona jest krawędzią bramki (ponowne wyzwolenie w ciągu 2
+  klatek liczy się jako jedna nuta); zmiana wysokości dźwięku pod przytrzymaną
+  bramką, która utrzymuje się przez co najmniej 5 klatek, staje się nową,
+  ponownie wyzwoloną nutą (legato). Wysokość dźwięku to najczęściej występujący
+  półton głównej fali nuty; melodie NTSC są dostrajane do tabeli nut PAL.
+- **Wiersze: ** wierszy zaczyna się dokładnie od nut. Długość bazy to
+  najdłuższa, która pasuje do prawie wszystkich; wiersze o tej długości lub o
+  jedną ramkę dłuższe (funktempo, swing, zmiany tempa) są ustawiane z `efektami
+  F` o jeden wiersz do przodu.
+- **Instrumenty: ** AD / SR, główny przebieg, szerokość impulsu i PWM, filtr
+  (routing, tryb, rezonans, odcięcie) oraz przebieg i wysokość każdej klatki
+  nuty, aż do następnej: tabela fal / arpeggio (prefiks i powtarzająca się
+  pętla, do 32 kroków). Atak perkusyjny o stałej wysokości dźwięku zachowuje
+  dźwięki absolutne, a arpeggio względne, ustalone dla wszystkich nut tego
+  samego brzmienia; regularne drgania sub-półtonowe stają się wibratem
+  instrumentu. Bramka staje się odcięciem nuty, timerem bramki (z twardym
+  restartem po wyzerowaniu ADSR) lub zanikaniem z częstotliwością zwalniania.
+  Identyczne instrumenty są współdzielone, do 128.
+- Komunikat zawiera listę przybliżonych wartości, na przykład slajdy, które
+  stają się krokami półtonowymi lub tabele dłuższe niż 32 kroki. Melodie
+  Multi-SID i melodie RSID uruchamiane jako program BASIC nie są obsługiwane.
+
+**Użycie ZP odtwarzacza: ** `$02`–`$1C` (wskaźniki wzorców, przesunięcie wzorca,
 temperatura) i `$2F` (bieżąca prędkość), plus `$FB`–`$FD` (licznik taktów,
 indeks wiersza, pozycja na liście zleceń). Stan głosu, modulacji i filtra
-znajduje się w `sid_state` po danych. Bajty ZP powodują konflikt, jeśli korzysta
-z nich kod główny — w razie potrzeby przenieś je w trybie eksperckim.
+znajduje się w `sid_state` po kodzie odtwarzacza. Bajty ZP powodują konflikt,
+jeśli korzysta z nich kod główny — w razie potrzeby przenieś je w trybie
+eksperckim.
 
 **Znane limity:**
-- 8-bitowy licznik wierszy ogranicza każdy wzór do 7 wzorów × 32 wierszy w banku
-  danych (lista utworów/kolejności może być nadal dowolnie długa poprzez
-  powtarzanie wzorów).
+- Odtwarzacz i jego stan znajdują się w `$C000`. Jeśli dane melodii nie mieszczą
+  się poniżej `$D000` obok nich, dane przenoszą się do własnego segmentu
+  kończącego się poniżej `$A000` (wyeksportowany plik asm ma drugi wiersz `*
+  =`); nie należy go umieszczać w programie.
 - Globalna głośność C64 `$D418` jest współdzielona przez wszystkie głosy — suwak
   głośności dla każdego instrumentu ma charakter informacyjny; poziom
   podtrzymania (`S` ADSR) to efektywna głośność dla każdego głosu.

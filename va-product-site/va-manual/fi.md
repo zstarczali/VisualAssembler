@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Käyttöopas
 
-**Versio 2.6.2**
+**Versio 2.6.3**
 
 Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
 vetämällä ja pudottamalla käskylohkoja ja nähdä luodun assemblerin ja konekoodin
@@ -11,6 +11,7 @@ reaaliajassa.
 ## Sisällysluettelo
 
 - [C64 Visual Assembler — Käyttöopas](#c64-visual-assembler--user-manual)
+    - [Version 2.6.3 kohokohdat](#version-263-highlights)
     - [Version 2.6.2 kohokohdat](#version-262-highlights)
     - [Version 2.6.1 kohokohdat](#version-261-highlights)
     - [Version 2.6.0 kohokohdat](#version-260-highlights)
@@ -206,6 +207,32 @@ reaaliajassa.
     - [Käyräeditori](#curve-editor)
     - [Taulukkogeneraattori](#table-generator)
     - [Numeronmuunnin](#number-converter)
+
+---
+
+## Version 2.6.3 kohokohdat
+
+- **.sid-tiedoston tuonti SID-editorissa** — **Tiedostot → Tuo .sid…** muuntaa
+  minkä tahansa PSID/RSID-sävelmän instrumenteiksi, patterneiksi ja kappaleeksi,
+  jota voit muokata: nuotti-oneja ja legato-nuotien, tarkasti nuoteille
+  sijoitettujen rivien (funktempo ja swing `F` nopeusmuutosten kautta),
+  aalto-/arpeggio-taulukoiden kiinteän sävelkorkeuden rumpuiskujen, pulssi- ja
+  suodatinliikkeen, portin ajoituksen ja vibraton. Katso [SID-editori]{1].
+- **Pitkät sävelmät toistetaan oikein** — kun sävelmän data ei mahdu soittimen
+  viereen kohtaan `$C000`, se siirtyy omaan segmenttiinsa `$A000` alapuolelle
+  sen sijaan, että se suoritettaisiin I/O:ssa; `.sid` -vienti seuraa perässä.
+- **VA SID Core -esikatselu käynnistää nuotit uudelleen** — pidätetyn portin
+  alta uudelleenkäynnistetty nuotti saa uuden hyökkäyksen, kuten oikealla
+  pelaajalla.
+- **SID-editori** — otsikko näyttää aktiivisen SID-emuloinnin (WebSID tai VA SID
+  Core sirumallin kanssa); Nopeus-kentässä on − / + -painikkeet ja se ottaa
+  arvoja 1–255; kappaleessa voi käyttää jopa 256 patternia.
+- **Ultimate Basic 1.6.6** — `TULOSTA KÄYTTÄEN "muotoa"; arvoja`, merkkijonojen
+  vertailu PETSCII-järjestyksessä, liukuluku `rnd` ja `mod`, liukuluku IRQ /
+  NMI-käsittelijöissä, `optio basic print` C64 BASIC PRINT -välistystä varten,
+  pienemmät ohjelmat (käytössä vain liukulukurutiinit) ja 16-bittiset
+  osoitelausekkeet (1.6.5). Ultimate Basic -editori korostaa `tulostusta
+  käyttäen` ja `optiota basic print`.
 
 ---
 
@@ -5539,9 +5566,10 @@ pysäytysnäppäimen jälkeen, joten nuotit soivat kerralla; ilman WebSidiä pie
 SID-syntetisaattori soittaa sen sijaan.
 
 **Esikatselumoottori:** **Asetukset → SID-esikatselu** valitsee **WebSID:n** tai
-**VA SID Coren (Rust)**, sovelluksen oman SID-emuloinnin; VA SID Coressa
-valitaan myös siru (MOS 6581 / 8580). Instrumenttiparametrit asetetaan
-säätimillä.
+**VA SID Coren (Rust)**, sovelluksen oman SID-emuloinnin; VA SID Coren avulla
+voit valita myös sirun (MOS 6581 / 8580). Editorin otsikko näyttää käytössä
+olevan moottorin (esim. *· VA SID Core v1.2 (MOS 8580)*). Instrumenttiparametrit
+asetetaan säätimillä.
 
 **Laitekohtaiset säätimet:**
 - Aaltomuodon valintaruudut (TRI / SAW / PUL / NOI) — useat aaltomuodot
@@ -5578,8 +5606,8 @@ säätimillä.
   äänitehosteet (laser, mikrofoni, explosion).
 
 **Seurantaruudukko:**
-- 3 ääntä × jopa 7 kuviota × 32 riviä = 7 × 32 = enintään 224 riviä (8-bittinen
-  rivilaskuri rajoittaa sitä).
+- 3 ääntä × jopa 256 patternia × 32 riviä; kappale-/järjestysluettelossa on jopa
+  255 askelta.
 - Rivikohtainen: nuotti + instrumenttiindeksi sekä valinnainen efekti (katso
   **Efektisarake** alla). Tyhjät rivit sisältävät edellisen nuotin: kuten
   muissakin seurantalaitteissa (GoatTracker, SID-Wizard), nuotti pitää porttinsa
@@ -5611,7 +5639,9 @@ säätimillä.
 - Solualueen liittäminen alkaa nyt valitusta alueen aloitussolusta ja pysähtyy
   siististi ääni- ja rivirajoihin sen sijaan, että rivitys jatkuisi seuraavaan
   sarakkeeseen tai riviin.
-- Nopeus-liukusäädin asettaa IRQ-jakajan (rivien väliset kehykset).
+- **Nopeus** (rivien väliset ruudut, 1–255) kirjoitetaan tai sitä porrastetaan
+  sen vieressä olevilla − / + -painikkeilla; `F` -tehoste muuttaa sitä toiston
+  aikana.
 
 **Kappale-/tilauslista:**
 - Patternit on järjestetty kappale-/järjestysluettelon avulla, joka on
@@ -5684,6 +5714,7 @@ ajoitusta), toimivat identtisesti Web Audio -esikatselussa ja käännetyssä
 | `Vie lohkot + minipelaaja`       | Lisää koko soittimen (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) sekä PAL-taajuustaulukot. Viennin jälkeen sijoita `JSR sid_init` pääkoodiisi kohtaan, josta musiikin tulisi alkaa; käytä omaa IRQ-kutsua `JSR sid_frame` kerran kehystä kohden.                                                                                                                                                 |
 | `Vie asm (leikepöytä)`           | Kopioi koko kokoonpanon lähdekoodin leikepöydälle.                                                                                                                                                                                                                                                                                                                                                                   |
 | `Tuo GoatTracker .sng-tiedosto…` | Lataa GoatTracker 2 -kappaleen nykyisen kappaleen tilalle — katso **GoatTracker-tuonti** alla.                                                                                                                                                                                                                                                                                                                       |
+| `Tuo .sid…`                      | Muuntaa PSID/RSID-sävelmän muokattavaks kappaleeksi nykyisen kappaleen tilalle — katso **.sid import** alla.                                                                                                                                                                                                                                                                                                         |
 | `Vie UltimateBasiciin`           | Kirjoittaa `tune ... end` -lohkon (instrumentit, järjestysluettelo, pattern-rivit tekstinä) sekä `music play` ja lisää sen Ultimate Basic -editorin kursoriin; UB-tilan ulkopuolella se kopioi tekstin leikepöydälle. UltimateBasic-kääntäjä rakentaa soittimen, joten `music play` / `music stop` ohjaa sitä. Instrumenttien modulointi menee `imod` / `ifilt` / `igate` / `itab` -riville (Ultimate Basic 1.6.2+). |
 
 **GoatTracker-tuonti:** **Tiedostot → Tuo GoatTracker .sng…** lataa GoatTracker
@@ -5701,19 +5732,48 @@ likimääräinen, koska nämä kaksi seurantaa toimivat eri tavalla:
   255 riviä kohden), tempo → `F`; toneportasta tulee tavallinen nuotti. Muut
   komennot jätetään pois ja viestissä luetellaan, mikä on arvioitu tai ohitettu.
 - Aaltotaulukon vapauttamasta portista tulee nuotinvaihto seuraavalla vapaalla
-  rivillä. Vain ensimmäinen aliviritys tuodaan, ja 7 kuvion vientirajoitus on
-  edelleen voimassa.
+  rivillä. Vain ensimmäinen aliviritys tuodaan.
+
+**.sid import:** **Tiedostot → Tuo .sid…** avaa PSID / RSID-tiedoston (vain
+työpöytäsovelluksessa, se käyttää VA SID Corea). Valitse alimelodia ja sen
+pituus sekunteina ja paina **Tuo**: melodia soi äänettömästi, sen SID-rekisterit
+tallennetaan kehys kehykseltä ja muutetaan kappaleeksi nykyisen tilalle.
+- **Huomautuksia:** nuotti on portin reuna (uudelleenviritys kahden kehyksen
+  sisällä lasketaan yhdeksi nuotiksi); sävelkorkeuden muutos pidossa olevan
+  portin alla, joka pysyy vähintään 5 kehystä, muuttuu uudeksi,
+  uudelleenviritetyksi (legato) nuotiksi. Sävelkorkeus on nuotin pääaaltomuodon
+  yleisin puolisävelaskel; NTSC-sävelmät viritetään uudelleen PAL-nuottitaulukon
+  mukaisesti.
+- **Rivit:** riviä alkaa täsmälleen nuottien kohdalta. Peruspituus on pisin,
+  joka sopii lähes kaikille; kyseisen pituiset tai yhden kehyksen pidemmät rivit
+  (funktempo, swing, tempon muutokset) asetetaan `F`-efekteillä yhden rivin
+  eteenpäin.
+- **Instrumentit:** AD / SR, pääaaltomuoto, pulssinleveys ja PWM, suodin
+  (reititys, moodi, resonanssi, katkaisupyyhkäisy) ja nuotin jokaisen kehyksen
+  aaltomuoto ja sävelkorkeus seuraavaan kehykseen asti: aalto-/arpeggio-taulukko
+  (etuliite ja toistuva silmukka, jopa 32 askelta). Kiinteäsävelkorkeuksinen
+  rumpuatakti pitää absoluuttiset nuotit ja arpeggio suhteelliset nuotit, jotka
+  on määrätty saman äänen kaikkien nuottien perusteella; tavallisesta alle
+  puolisävelaskeleen huojunnasta tulee instrumentin vibrato. Gatesta tulee
+  nuotin leikkaus, gate-ajastin (kova uudelleenkäynnistys, kun ADSR nollataan)
+  tai decay vapautusnopeudella. Identtiset instrumentit jaetaan, jopa 128
+  kappaleeseen asti.
+- Viestissä luetellaan, mitä on arvioitu, esimerkiksi diat, joista tulee
+  puolisävelaskeleita, tai taulukot, jotka ovat pidempiä kuin 32 askelta. Usean
+  SID:n sävelmiä ja RSID-sävelmiä, jotka alkavat BASIC-ohjelmana, ei tueta.
 
 **Soittimen ZP-käyttö:** `$02`–`$1C` (kuvio-osoittimet, kuvion offset,
 lämpötila) ja `$2F` (nykyinen nopeus), sekä `$FB`–`$FD` (tick-laskuri,
 rivi-indeksi, järjestyslistan sijainti). Ääni, modulaatio ja suodattimen tila
-sijaitsevat `sid_state` -tiedostossa datan jälkeen. ZP-tavut ovat ristiriidassa,
-jos pääkoodisi käyttää niitä – siirrä tarvittaessa Expert-tilassa.
+sijaitsevat `sid_state` -tiedostossa pelaajakoodin jälkeen. ZP-tavut ovat
+ristiriidassa, jos pääkoodisi käyttää niitä – siirrä tarvittaessa Expert-tilan
+kautta.
 
 **Tunnetut rajat:**
-- 8-bittinen rivilaskuri rajoittaa jokaisen kuvion 7 kuvioon × 32 riviin
-  raakapankissa (kappale-/järjestysluettelo voi silti olla mielivaltaisen pitkä
-  toistamalla kuvioita).
+- Soitin ja sen tila sijaitsevat kohdassa `$C000`. Kun sävelmädata ei mahdu
+  niiden viereen olevan `$D000` alapuolelle, data siirtyy omaan segmenttiinsä,
+  joka päättyy `$A000` alapuolelle (viedyssä asm-tiedostossa on toinen rivi `*
+  =`); pidä se erillään omasta ohjelmastasi.
 - C64 `$D418` globaali äänenvoimakkuus jaetaan eri äänien kesken —
   instrumenttikohtainen äänenvoimakkuuden liukusäädin on informatiivinen;
   sustain-taso (ADSR:n `S`) on efektiivinen äänenvoimakkuus äänittäin.

@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.5 — Manuel de langue
+# Ultimate Basic v1.6.6 — Manuel de langue
 
 Référence complète du langage et de l'interface de ligne de commande pour
 Ultimate Basic, un langage de type BASIC qui se compile directement en code
@@ -237,9 +237,9 @@ v = a ou b # OU exclusif bit à bit
 
 m = x décalage à gauche 3 # décalage à droite
 
-n = x décalage à droite 2 # décalage à droite
+n = x décalage à droite 2 # décalage à droite (arithmétique d'un entier : -8 décalage à droite 1 = -4)
 
-r = x mod 40 # modulo 8 bits (reste) ; x mod 0 = x, x / 0 = 255
+r = x mod 40 # reste ; x mod 0 = x, x / 0 = 255
 
 b = bnot x # NON bit à bit : x OU exclusif 255 (complément sur les 8 bits)
 ```
@@ -251,9 +251,16 @@ décalages / addition avec décalage (`x * 8` → 3× `ASL`), sinon en une boucl
 d'addition avec décalage d'au maximum 8 tours. `/` et `mod` multiplié par une
 puissance de deux se compilent en `LSR` / `AND #(n-1)`, sinon en une boucle de
 soustraction avec décalage de 8 tours dont le temps d'exécution ne dépend plus
-du quotient. La division par zéro est définie comme suit : x / 0 = 255, x mod 0
-= x (avant la version 1.6.0, le programme se bloquait). x = x + 1 / x = x - 1
-(et ±2) sont compilés en INC / DEC.
+du quotient. La division par zéro est définie : `x / 0 = 255`, `x mod 0 = x`
+(avant la version 1.6.0, cela bloquait).
+
+Le modulo ` avec un opérande de type mot ` ou entier ` (ou une constante
+négative) est un reste de 16 bits avec le signe du dividende, comme en QBasic :
+-7 mod 3 ` = -1, 7 mod -3 ` = 1, (w + 5) mod 7 ` conserve 16 bits. Avec un
+opérande simple ou double, il fonctionne en virgule flottante (voir la section «
+Virgule flottante » *). Le shr d'un entier est un décalage arithmétique (le
+signe est conservé : -8 shr 1 = -4) ; les valeurs de mot et d'octet sont
+décalées logiquement. x = x + 1 / x = x - 1 (et ±2) sont compilés en INC / DEC.
 
 ### Incrémenter / Décrémenter
 
@@ -300,6 +307,48 @@ print s1 + s2 # deux variables de type chaîne de caractères → affichage séq
 print "Hello " + "World" # deux littéraux → pliage à la compilation
 print chr$(13) # affichage en PETSCII
 ```
+
+Par défaut, les nombres sont imprimés sans espaces supplémentaires et `,` sépare
+simplement les éléments (`print 1, 2` donne `12`). Pour l'espacement BASIC C64
+construit avec `--basic-print`, ou mettez une ligne `option basic print` dans le
+programme : un nombre s'imprime alors avec un espace de début (ou son `-`) et un
+espace de fin (`print 5` → ` 5 `), un `,` passe à la zone d'impression suivante
+de 10 colonnes, et un `,` de fin maintient le curseur sur la ligne comme un `;`
+de fin. Les chaînes de caractères, `spc`, `tab`, `hex`, `bin`, `dec`, `chr$` et
+`str$` s'impriment comme avant.
+
+#### `IMPRIMER EN UTILISANT`
+
+```basic
+DIM ar AS DOUBLE = 1234.5
+DIM s AS STRING = "ALMA"
+PRINT USING "###.##"; 3.14159 ' 3.14
+PRINT USING "Ar: #,###.## Ft"; ar ' Ar: 1 234,50 Ft
+PRINT USING "+##"; 7 ' +7
+PRINT USING "##.##-"; -2.25 ' 2.25-
+PRINT USING "##"; 123 ' %123
+PRINT USING "[&amp;] [!] [\ \]"; s; s; s ' [ALMA] [A] [ALMA]
+PRINT USING "## "; 1, 2, 3 ' 1 2 3
+```
+
+| Champ                 | Signification                                                                                                                      |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `#`                   | position d'un chiffre ; les nombres sont alignés à droite et arrondis à la décimale.                                               |
+| `.`                   | virgule décimale ; les `#` qui la suivent représentent les décimales (au maximum 9).                                               |
+| `,`                   | avant le point : séparateurs de milliers (chaque `,` représente une position)                                                      |
+| `+` au début          | toujours imprimer le signe (`+` / `-`)                                                                                             |
+| `-` à la fin          | Imprimez le signe moins après le nombre (un espace s'il est positif).                                                              |
+| `&amp;` / `!` / `\ \` | chaîne : la chaîne entière / son premier caractère / exactement autant de caractères que la largeur du champ (`\` + espaces + `\`) |
+| `_`                   | imprimer le caractère suivant tel quel (`_#`)                                                                                      |
+
+Un nombre trop long est affiché avec `%` devant (`%123`) ; le 0 initial isolé
+est supprimé (`#.##` avec -0,5 → `-.50`). Les autres caractères sont affichés
+tels quels. Les valeurs parcourent les champs (le format recommence lorsqu'il
+est épuisé) ; après la dernière valeur, le texte jusqu'au champ suivant est
+affiché. Un `;` ou `,` à la fin maintient le curseur sur la ligne. Le format
+doit être une chaîne littérale ; les champs `**`, `$$` et `^^^^` ne sont pas
+pris en charge. Un programme avec `PRINT USING` inclut l'environnement
+d'exécution à virgule flottante (uniquement les parties dont il a besoin).
 
 ### chr$
 
@@ -682,8 +731,9 @@ IF s = "ABC" OR t &lt;&gt; "" THEN PRINT "comparer avec = / &lt;&gt;"
   zéros non significatifs (`"-42"`). Par souci de compatibilité, `STR$` d'un
   octet conserve sa forme à 3 chiffres (`"007"`). `VAL` lit les nombres signés
   16 bits (`VAL("1234") + 1` = 1235).
-- **Comparaison : ** seulement `=` / `&lt;&gt;` (et `==` / `!=`) ; il n'y a pas
-  d'ordre `&lt;` / `&gt;` des chaînes.
+- **Comparaison : ** `=` / `&lt;&gt;` (et `==` / `!=`), et `&lt;` `&gt;` `&lt;=`
+  `&gt;=` dans l'ordre PETSCII comme C64 BASIC ; une chaîne vient avant chaque
+  chaîne plus longue qu'elle commence (`"AB" &lt; "ABC"`, `"" &lt; "A"`).
 
 #### ENTIER signé, ENTRÉE, DOUBLE (1.6.3)
 
@@ -1987,17 +2037,19 @@ Atfogo = SQR(a * a + b * b)
 END FUNCTION
 ```
 
-|                      |                                                                                                                                                                                           |
-| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Opérateurs           | `+ - * /` et `^` (puissance ; associatif à droite, lie plus fortement que le moins unaire : `-2^2` = -4)                                                                                  |
-| Fonctions            | `SQR`, `SIN`, `COS`, `TAN`, `ATN` (radians), `EXP`, `LOG` (naturel), `INT` (partie entière), `FIX` (tronquer), `CINT` (arrondir), `ABS`, `SGN`, `CSNG` / `CDBL` (aucune opération), `VAL` |
-| Littéraux            | `1,5`, `,5`, `1E6`, `2,5e-3`, `70000`                                                                                                                                                     |
-| Comparaisons         | `= &lt;&gt; &lt; &gt; &lt;= &gt;=` dans `SI` / `TANT QUE` / `JUSQU'À` / `SÉLECTIONNER CAS` et comme valeurs                                                                               |
-| Impression           | Style BASIC C64 : `.5`, `-3.25`, `3.33333333`, `1E+10`, `1.5E-07` (sans espace initial)                                                                                                   |
-| Cordes               | `s = "X=" + x`, `STR$(x)`, `VAL(s)` lit `-1.25E3`                                                                                                                                         |
-| `POUR`               | compteur à virgule flottante, limite et pas (`STEP 0.1`, négatif ou une variable)                                                                                                         |
-| `ENTRÉE` / `LECTURE` | `INPUT x` lit n'importe quel nombre ; `READ x` lit l'octet suivant `data`                                                                                                                 |
-| Sous-fonction        | Paramètres `p AS DOUBLE` et résultats ` AS DOUBLE`                                                                                                                                        |
+|                      |                                                                                                                                                                                                 |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Opérateurs           | `+ - * /` et `^` (puissance ; associatif à droite, lie plus fortement que le moins unaire : `-2^2` = -4)                                                                                        |
+| Fonctions            | `SQR`, `SIN`, `COS`, `TAN`, `ATN` (radians), `EXP`, `LOG` (naturel), `INT` (partie entière), `FIX` (tronquer), `CINT` (arrondi), `ABS`, `SGN`, `CSNG` / `CDBL` (aucune opération), `VAL`, `RND` |
+| `MOD`                | `a MOD b` = `a - b * FIX(a / b)` (signe de `a`, comme VB / C `fmod`) : `7,5 MOD 2` = 1,5 ; `x MOD 0` = x                                                                                        |
+| `RND`                | Dans une instruction à virgule flottante, `RND` / `RND()` est un nombre aléatoire 0 ≤ x < 1 (`d = RND`, `x = RND * 6`); `rnd(n)` reste l'entier 0 … n-1                                         |
+| Littéraux            | `1,5`, `,5`, `1E6`, `2,5e-3`, `70000`                                                                                                                                                           |
+| Comparaisons         | `= &lt;&gt; &lt; &gt; &lt;= &gt;=` dans `SI` / `TANT QUE` / `JUSQU'À` / `SÉLECTIONNER CAS` et comme valeurs                                                                                     |
+| Impression           | Style BASIC C64 : `.5`, `-3.25`, `3.33333333`, `1E+10`, `1.5E-07` (pas d’espace initial sauf si `--basic-print`) ; décimales fixes avec `PRINT USING`                                           |
+| Cordes               | `s = "X=" + x`, `STR$(x)`, `VAL(s)` lit `-1.25E3`                                                                                                                                               |
+| `POUR`               | compteur à virgule flottante, limite et pas (`STEP 0.1`, négatif ou une variable)                                                                                                               |
+| `ENTRÉE` / `LECTURE` | `INPUT x` lit n'importe quel nombre ; `READ x` lit l'octet suivant `data`                                                                                                                       |
+| Sous-fonction        | Paramètres `p AS DOUBLE` et résultats ` AS DOUBLE`                                                                                                                                              |
 
 **Mélange avec des entiers.** Une expression est calculée en virgule flottante
 lorsqu'elle contient une valeur simple ou double, `^`, l'une des fonctions
@@ -2011,24 +2063,36 @@ convertie exactement. Les expressions entières conservent leurs règles (var c 
 a + b reste un octet).
 
 **Notes**
-- Un littéral de nombre entier de 32768 à 65535 est lu comme un motif de 16 bits
-  et devient négatif dans le contexte à virgule flottante : écrire `40000.0` ou
-  `4E4`.
+- Un littéral entier compris entre 32768 et 65535 conserve sa valeur dans une
+  instruction qui effectue des calculs en virgule flottante (`d = 40000`, `d +
+  50000`). Une instruction est considérée comme étant en virgule flottante
+  lorsqu'elle nomme une variable SINGLE/DOUBLE, un tableau, un paramètre ou une
+  fonction, ou lorsqu'elle utilise `^`, un littéral de type float uniquement ou
+  l'une des fonctions ci-dessus ; ailleurs, un tel littéral est un motif de 16
+  bits comme précédemment (`poke 53280, 1`, `w = 40000` dans un mot). Une
+  variable qui n'est devenue à virgule flottante qu'à travers `var x = 2.5` ne
+  compte pas — écrivez `40000.0` ici.
 - `7 / 2` vaut 3,5 lorsqu'il est affecté à un DOUBLE ; dans un contexte entier,
   il vaut 3 comme précédemment.
-- `x MOD y` et `AND` / `OR` / `XOR` arrondissent leurs opérandes à des entiers.
+- `AND` / `OR` / `XOR` arrondissent leurs opérandes à des entiers.
 - `SIN` / `COS` d'une valeur d'octet conservent l'ancienne signification du
   tableau 0-255 (cercle complet = 256) ; avec un argument SIMPLE / DOUBLE, ils
   fonctionnent en radians.
-- Le code à virgule flottante ne doit pas s'exécuter dans les gestionnaires IRQ
-  / NMI (l'environnement d'exécution conserve son état dans une mémoire RAM
-  fixe).
-- Coût : l’environnement d’exécution pour les nombres à virgule flottante
-  (environ 4,4 Ko, compilé par le compilateur) est ajouté à la fin du programme
-  lors de la première utilisation des opérateurs SINGLE/DOUBLE. Les variables
-  occupent 5 octets dans la zone de tableau, plus un pointeur de page zéro de 2
-  octets pour l’environnement d’exécution. Une multiplication prend environ 1 à
-  2 ms sur un C64 à 1 MHz.
+- Les gestionnaires d'IRQ/NMI peuvent utiliser des nombres à virgule flottante :
+  une sous-routine nommée dans `irq`, `nmi` ou `cia_timer` qui (directement ou
+  via les sous-routines qu'elle appelle) utilise SINGLE/DOUBLE sauvegarde l'état
+  d'exécution à son démarrage et le restaure avant `irq_exit` / `nmi_exit`
+  (environ 4 000 à 5 000 cycles par interruption). Les gestionnaires sans
+  virgule flottante ne sont pas ralentis. Ne sont pas concernés : un
+  gestionnaire défini par une adresse ou une variable de type mot, ou un
+  gestionnaire qui se termine avec un simple `RTS` / `RTI`.
+- Coût : l’environnement d’exécution à virgule flottante est assemblé par le
+  compilateur et ajouté à la fin du programme ; seules les routines utilisées
+  par le programme sont incluses (environ 2 Ko pour `+ - * /` et `PRINT`,
+  jusqu’à environ 5 Ko avec toutes les fonctions et `PRINT USING`). Les
+  variables occupent 5 octets dans la zone de tableau, plus un pointeur de page
+  zéro de 2 octets pour l’environnement d’exécution. Une multiplication prend
+  environ 1 à 2 ms sur un C64 à 1 MHz.
 
 ### Variables en RAM, mémoire tableau (1.6.4)
 
@@ -2059,15 +2123,13 @@ var a = abs(x - 20) # Valeur absolue en complément à deux
 var b = min(x, 39) # Minimum sur 8 bits
 var c = max(x, 0) # Maximum sur 8 bits
 var s = sgn(score) # 0 = zéro, 1 = positif (1–127), FF = négatif (128–255)
-var r = rnd() # Pseudo-aléatoire LCG 0-255 Initialisation de la ligne raster
+var r = rnd() # Pseudo-aléatoire LCG 0-255 Initialisation à partir d'une ligne raster
 
+# (0 &lt;= x &lt; 1 dans une instruction SIMPLE / DOUBLE : d = rnd)
 var r = rnd(10) # Pseudo-aléatoire LCG 0-9 (rnd() mod n ; résultat 0..n-1)
-
 var s = sin(angle) # Sinus : angle 0-255 (cercle complet), renvoie 0-255 (centre = 128)
-
 var c = cos(angle) # Cosinus = sin(angle + 64)
-
-var v = clamp(x, 0, 39) # Clamp non signé 8 bits : résultat = max(lo, min(hi, val))
+var v = clamp(x, 0, 39) # Limite non signée 8 bits : résultat = max(lo, min(hi, val))
 
 print hex(n) # Affichage en hexadécimal majuscules (2 chiffres)
 
@@ -2198,6 +2260,10 @@ end
 
 Les références anticipées sont prises en charge (`irq my_handler` avant la
 définition du sous-programme).
+
+Une sous-routine de gestionnaire peut utiliser une virgule flottante SIMPLE /
+DOUBLE : elle sauvegarde et restaure l'état d'exécution autour de son corps
+(voir *Vigne flottante*).
 
 ### Gestionnaire NMI
 
@@ -2520,13 +2586,13 @@ ub build <input.ub> [OPTIONS]
 
 -o, --output <fichier> Générer un fichier .prg ou .crt (par défaut : <input>.prg)
 
--v, --verbose Afficher la mise en page initiale et le dump hexadécimal du code
+-v, --verbose Afficher la mise en page zéro et le dump hexadécimal du code
 
 --no-stub Ignorer le stub BASIC SYS (le code se charge à l'adresse $0801)
 
 --debug Générer également les fichiers de débogage .sym, .dbg et .vs
 
---asm Générer également une liste .asm lisible (génération de code 6502)
+--asm Générer également une liste .asm lisible pour la génération de code 6502
 
 --d64 [fichier] Générer également une image disque .d64 ;
 
@@ -2534,11 +2600,13 @@ sans nom de fichier, le fichier par défaut est <output>.d64
 
 --add <fichier> Ajouter un fichier supplémentaire à l'image disque .d64 ;
 
-cette option peut être répétée pour plusieurs fichiers
+Peut être répété pour plusieurs fichiers.
 
---explicit Exiger le type pour chaque variable, sous-paramètre et paramètre de fonction
+--explicit : Exige le type pour chaque variable, sous-paramètre et paramètre de fonction.
 
--h, --help Afficher l'aide
+--basic-print : Espacement d'impression BASIC PRINT C64 : espaces autour des nombres, virgule = zones de 10 colonnes.
+
+-h, --help : Affiche l'aide.
 ```
 
 ### Exportation CRT
@@ -2760,10 +2828,10 @@ Utilisez `--asm` pour voir le code généré pour votre propre programme.
 | Budget de page zéro                      | La page d'octets nuls permanente est `$02–$4F` (78 octets) : chaque variable et paramètre de sous-fonction occupe 2 octets, et chaque boucle `for` en cours d'exécution 2 octets supplémentaires. Depuis la version 1.6.4, les variables qui ne tiennent pas dans la page sont automatiquement déplacées vers la RAM (voir *Variables en RAM*) ; seuls des cas extrêmes signalent encore `hors de la page d'octets nuls`. |
 | Littéraux binaires                       | `%01010101` (depuis la version 1.6.4), `$hex` et décimal                                                                                                                                                                                                                                                                                                                                                                  |
 | Sous-programmes                          | Pas de récursion — les emplacements des paramètres ZP sont alloués statiquement                                                                                                                                                                                                                                                                                                                                           |
-| Variables de type chaîne                 | `single` / `double` sont des nombres à virgule flottante de 5 octets depuis la version 1.6.4 (non utilisables dans les gestionnaires d'interruptions ; les ~4,4 Ko de mémoire d'exécution sont ajoutés au programme) ; `float` reste Q8.8 (0–255,99)                                                                                                                                                                      |
+| Variables de type chaîne                 | `single` / `double` sont des nombres à virgule flottante de 5 octets depuis la version 1.6.4 (les routines utilisées par un programme, d'environ 2 à 5 Ko, y sont ajoutées) ; `float` reste Q8.8 (0–255,99)                                                                                                                                                                                                               |
 | Unaire moins                             | Depuis la version 1.6.4, un `-` initial se lie à son opérande : `-5 - 3` vaut -8 (auparavant, c'était -(5 - 3) = -2).                                                                                                                                                                                                                                                                                                     |
-| Exécution de la concaténation de chaînes | `s1 + s2` s'affiche séquentiellement — sans allocation de mémoire ni suivi de longueur                                                                                                                                                                                                                                                                                                                                    |
-| `rnd()` / `rnd(n)`                       | LCG simple, non cryptographique ; période = 256                                                                                                                                                                                                                                                                                                                                                                           |
+| Exécution de la concaténation de chaînes | Les valeurs calculées sont stockées dans un tampon de 80 caractères par variable (les résultats plus longs sont tronqués) ; les valeurs des éléments du tableau de chaînes sont stockées dans des emplacements de 31 caractères ; l’ordre `&lt;` / `&gt;` correspond à l’ordre des octets PETSCII.                                                                                                                        |
+| `rnd()` / `rnd(n)`                       | LCG simple, non cryptographique ; période = 256 (le nombre à virgule flottante `rnd` est un décalage XOR de 32 bits)                                                                                                                                                                                                                                                                                                      |
 | `abs()` / `sgn()` / `min()` / `max()`    | Valeurs 8 bits uniquement ; `abs`/`sgn` traitent les valeurs comme signées (bit 7 = négatif → `abs` complément à deux, `sgn` renvoie `$FF`) ; `min`/`max` sont non signées (0–255).                                                                                                                                                                                                                                       |
 | `plan`                                   | Les pixels hors plage sont écrêtés silencieusement (Y ≥ 200 ou X ≥ 320 → aucune opération).                                                                                                                                                                                                                                                                                                                               |
 | `mplot`                                  | Aucune vérification des limites — x doit être compris entre 0 et 159, y doit être compris entre 0 et 199                                                                                                                                                                                                                                                                                                                  |

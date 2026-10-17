@@ -1,6 +1,6 @@
 # C64 Visual Assembler – Benutzerhandbuch
 
-**Version 2.6.2**
+**Version 2.6.3**
 
 Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Sie
 Programme durch Ziehen und Ablegen von Befehlsblöcken und sehen Sie den
@@ -11,6 +11,7 @@ generierten Assembler- und Maschinencode in Echtzeit.
 ## Inhaltsverzeichnis
 
 - [C64 Visual Assembler — Benutzerhandbuch](#c64-visual-assembler--user-manual)
+    - [Version 2.6.3 Highlights](#version-263-highlights)
     - [Version 2.6.2 Highlights](#version-262-highlights)
     - [Version 2.6.1 Highlights](#version-261-highlights)
     - [Version 2.6.0 Highlights](#version-260-highlights)
@@ -206,6 +207,34 @@ generierten Assembler- und Maschinencode in Echtzeit.
     - [Kurveneditor](#curve-editor)
     - [Tabellengenerator](#table-generator)
     - [Zahlenkonverter](#number-converter)
+
+---
+
+## Highlights der Version 2.6.3
+
+- Der Import von **.sid-Dateien im SID-Editor** – **Dateien → .sid
+  importieren…** wandelt jede PSID-/RSID-Melodie in Instrumente, Patterns und
+  einen bearbeitbaren Song um: Note-Ons und Legato-Noten, Zeilen, die exakt auf
+  den Noten platziert werden (Funktempo und
+  Swing-Through-Geschwindigkeitsänderungen `F`), Wave-/Arpeggio-Tabellen mit
+  Drum-Attacks in fester Tonhöhe, Puls- und Filterbewegungen, Gate-Timing und
+  Vibrato. Siehe [SID-Editor](#sid-editor-3-voice-tracker).
+- **Lange Melodien werden korrekt abgespielt** — wenn die Melodiedaten nicht
+  neben den Player bei `$C000` passen, werden sie in ein eigenes Segment
+  unterhalb von `$A000` verschoben, anstatt auf E/A zu stoßen; der Export `.sid`
+  folgt.
+- **VA SID Core Vorschau löst Noten erneut aus** — eine unter einem gehaltenen
+  Tor neu gestartete Note erhält einen neuen Angriff, wie beim echten Spieler.
+- **SID Editor** — die Kopfzeile zeigt die aktive SID-Emulation an (WebSID oder
+  VA SID Core je nach Chipmodell); das Geschwindigkeitsfeld verfügt über − / +
+  Tasten und nimmt Werte von 1–255 an; das Lied kann bis zu 256 Muster
+  verwenden.
+- **Ultimate Basic 1.6.6** — `PRINT USING "format"; values`, Stringvergleich in
+  PETSCII-Reihenfolge, Gleitkomma-`rnd` und `mod`, Gleitkomma-Operationen in
+  IRQ-/NMI-Handlern, `option basic print` für C64 BASIC PRINT-Abstände, kleinere
+  Programme (nur die verwendeten Gleitkomma-Routinen) und 16-Bit-Adressausdrücke
+  (1.6.5). Der Ultimate Basic-Editor hebt `print using` und `option basic print`
+  hervor.
 
 ---
 
@@ -5987,8 +6016,9 @@ erklingen; ohne WebSID wird stattdessen ein kleiner SID-Synthesizer verwendet.
 
 **Vorschau-Engine:** **Einstellungen → SID-Vorschau** wählt **WebSID** oder **VA
 SID Core (Rust)**, die eigene SID-Emulation der App; bei VA SID Core wählen Sie
-auch den Chip (MOS 6581 / 8580). Die Instrumentenparameter werden über
-Drehregler eingestellt.
+auch den Chip (MOS 6581 / 8580). Die Kopfzeile des Editors zeigt die verwendete
+Engine an (z. B. *· VA SID Core v1.2 (MOS 8580)*). Die Instrumentenparameter
+werden über Drehregler eingestellt.
 
 **Instrumentenspezifische Steuerung:**
 - Wellenform-Kontrollkästchen (TRI / SAW / PUL / NOI) — mehrere Wellenformen
@@ -6026,8 +6056,8 @@ Drehregler eingestellt.
   Pickup, Explosion).
 
 **Tracker-Gitter:**
-- 3 Stimmen × bis zu 7 Muster × 32 Zeilen = 7 × 32 = maximal 224 Zeilen
-  (begrenzt durch einen 8-Bit-Zeilenzähler).
+- 3 Stimmen × bis zu 256 Muster × 32 Zeilen; die Lied-/Reihenfolgeliste enthält
+  bis zu 255 Schritte.
 - Pro Zeile: Note + Instrumentenindex, plus ein optionaler Effekt (siehe
   **Effektspalte** unten). Leere Zeilen enthalten die vorherige Note: Wie bei
   anderen Trackern (GoatTracker, SID-Wizard) behält eine Note ihren Haltepegel
@@ -6060,8 +6090,9 @@ Drehregler eingestellt.
 - Beim Einfügen von Zellbereichen beginnt die Einfügung nun an der Startzelle
   des ausgewählten Bereichs und endet sauber an den Zeilen- und Bereichsgrenzen,
   anstatt in die nächste Spalte oder Zeile umzubrechen.
-- Mit dem Geschwindigkeitsregler wird der IRQ-Tick-Teiler (Frames zwischen den
-  Zeilen) festgelegt.
+- Die Geschwindigkeit **Speed** (Frames zwischen den Zeilen, 1–255) wird
+  eingegeben oder mit den daneben stehenden Tasten − / + schrittweise
+  eingestellt; der Effekt `F` ändert sie während der Wiedergabe.
 
 **Song / Reihenfolge:**
 - Die Muster werden über eine Song-/Reihenfolgeliste angeordnet, die über der
@@ -6138,6 +6169,7 @@ gespeichert/geladen.
 | `Exportblöcke + Minispieler`             | Fügt den vollständigen Player (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) sowie PAL-Frequenztabellen hinzu. Nach dem Export fügen Sie in Ihrem Hauptcode an der Stelle, an der die Musik starten soll, einen `JSR sid_init`-Aufruf ein; verwenden Sie stattdessen Ihren eigenen IRQ-Aufruf `JSR sid_frame` einmal pro Frame.                                                                                                                   |
 | `Assembler exportieren (Zwischenablage)` | Kopiert den vollständigen Assembler-Quelltext in die Zwischenablage.                                                                                                                                                                                                                                                                                                                                                                                               |
 | `GoatTracker .sng importieren…`          | Lädt einen GoatTracker 2-Song anstelle des aktuellen – siehe **GoatTracker import** unten.                                                                                                                                                                                                                                                                                                                                                                         |
+| `Import .sid…`                           | Konvertiert eine PSID / RSID-Melodie in ein bearbeitbares Lied anstelle des aktuellen Liedes — siehe **.sid import** unten.                                                                                                                                                                                                                                                                                                                                        |
 | `Export nach UltimateBasic`              | Schreibt einen `tune ... end`-Block (Instrumente, Reihenfolgeliste, Patternzeilen als Text) plus `music play` und fügt ihn an der Cursorposition des Ultimate Basic-Editors ein; außerhalb des UB-Modus wird der Text in die Zwischenablage kopiert. Der Ultimate Basic-Compiler erstellt den Player, daher steuern `music play` / `music stop` ihn. Die Instrumentenmodulation erfolgt in den Zeilen `imod` / `ifilt` / `igate` / `itab` (Ultimate Basic 1.6.2+). |
 
 **GoatTracker-Import:** **Dateien → GoatTracker .sng importieren…** lädt einen
@@ -6155,20 +6187,51 @@ ist nur annähernd genau, da die beiden Tracker unterschiedlich funktionieren.
   werden verworfen, und eine Meldung listet auf, was approximiert oder
   übersprungen wurde.
 - Ein vom Wavetable freigegebenes Gate wird in der nächsten freien Zeile zu
-  einem Note-Off. Nur die erste Subtune wird importiert, und die
-  Exportbeschränkung von 7 Patterns gilt weiterhin.
+  einem Note-Off. Nur die erste Subtune wird importiert.
 
-**ZP-Nutzung des Spielers: ** `$02`–`$1C` (Pattern-Zeiger, Pattern-Offset, temp)
+**.sid importieren:** **Dateien → .sid importieren…** öffnet eine
+PSID-/RSID-Datei (nur Desktop-Anwendung, verwendet VA SID Core). Wählen Sie die
+Submelodie und die Länge in Sekunden und drücken Sie **Importieren**: Die
+Melodie läuft stumm, ihre SID-Register werden Bild für Bild aufgezeichnet und
+anstelle der aktuellen Melodie in ein neues Lied umgewandelt.
+- **Hinweise:** Eine Note wird durch eine Gate-Flanke ausgelöst (ein Retrigger
+  innerhalb von 2 Frames zählt als eine Note); eine Tonhöhenänderung unter einem
+  gehaltenen Gate, das mindestens 5 Frames andauert, wird zu einer neuen,
+  retriggerten (Legato-)Note. Die Tonhöhe ist der häufigste Halbton der
+  Hauptwellenform der Note; NTSC-Melodien werden auf die PAL-Notentabelle
+  umgestimmt.
+- **Zeilen:** Zeilen beginnen exakt mit den Notenanschlägen. Die Basislänge ist
+  die längste, die für fast alle Noten passt; Zeilen dieser Länge oder eines
+  Frames länger (Funktempo, Swing, Tempowechsel) werden mit `F`-Effekten eine
+  Zeile voraus eingestellt.
+- **Instrumente: ** AD/SR, die Hauptwellenform, Pulsbreite und PWM, der Filter
+  (Routing, Modus, Resonanz, Cutoff-Sweep) sowie die Wellenform und Tonhöhe
+  jedes einzelnen Notenframes bis zum nächsten: die Wellen-/Arpeggiotabelle (ein
+  Präfix plus eine sich wiederholende Schleife, bis zu 32 Schritte). Ein
+  Drum-Attack mit fester Tonhöhe erzeugt absolute Noten, ein Arpeggio relative,
+  die über alle Noten desselben Klangs festgelegt werden; ein regelmäßiges
+  Sub-Halbton-Wobble wird zum Instrumenten-Vibrato. Das Gate kann als
+  Notenabbruch, Gate-Timer (mit hartem Neustart, wenn ADSR auf Null gesetzt
+  wird) oder Decay mit der Release-Rate fungieren. Bis zu 128 identische
+  Instrumente werden gemeinsam genutzt.
+- Eine Meldung listet auf, was angenähert wurde, beispielsweise Slides, die zu
+  Halbtonschritten werden, oder Tabellen mit mehr als 32 Schritten.
+  Multi-SID-Melodien und RSID-Melodien, die als BASIC-Programm beginnen, werden
+  nicht unterstützt.
+
+**ZP-Nutzung des Players: ** `$02`–`$1C` (Pattern-Zeiger, Pattern-Offset, temp)
 und `$2F` (aktuelle Geschwindigkeit) sowie `$FB`–`$FD` (Tick-Zähler,
-Zeilenindex, Position in der Orderliste). Stimme, Modulations- und Filterstatus
-befinden sich nach den Daten in `sid_state`. Die ZP-Bytes können in Konflikt
-geraten, wenn Ihr Hauptcode sie verwendet – verschieben Sie sie gegebenenfalls
-im Expertenmodus.
+Zeilenindex, Position in der Orderliste). Der Status von Stimme, Modulation und
+Filter befindet sich nach dem Player-Code in `sid_state`. Die ZP-Bytes können in
+Konflikt geraten, wenn Ihr Hauptcode sie verwendet – verschieben Sie sie
+gegebenenfalls im Expertenmodus.
 
 **Bekannte Grenzwerte:**
-- Ein 8-Bit-Zeilenzähler begrenzt jedes Muster auf 7 Muster × 32 Zeilen im
-  Rohdatenspeicher (die Song-/Reihenfolgeliste kann durch Wiederholung von
-  Mustern beliebig lang sein).
+- Der Spieler und sein Status befinden sich an `$C000`. Wenn die Melodiedaten
+  nicht unter `$D000` daneben passen, werden sie in ein eigenes Segment
+  verschoben, das unter `$A000` endet (der exportierte Assembler-Code enthält
+  eine zweite Zeile `* =`); achten Sie darauf, dass diese Zeile nicht mit Ihrem
+  eigenen Programm in Konflikt gerät.
 - C64 `$D418` Die globale Lautstärke wird über alle Stimmen hinweg geteilt – der
   Lautstärkeregler pro Instrument dient nur der Information; der Sustain-Pegel
   (`S` von ADSR) ist die effektive Lautstärke pro Stimme.
