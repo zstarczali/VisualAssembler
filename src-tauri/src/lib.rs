@@ -560,7 +560,27 @@ struct SidPreviewPayload {
     frames: Vec<Vec<u8>>,
 }
 
-static SID_PREVIEW_SESSIONS: OnceLock<Mutex<HashMap<String, (sid_core::SidCore, Instant)>>> = OnceLock::new();
+static SID_PREVIEW_SESSIONS: OnceLock<Mutex<HashMap<String, (sid_core::SidCore, [u8; 3], Instant)>>> = OnceLock::new();
+
+/// Writes one SID Editor register frame in the player's order: per voice
+/// AD / SR, frequency and pulse width before the control register (a restarted
+/// note first gets its gate cleared), then the filter and volume.
+fn write_preview_frame(sid: &mut sid_core::SidCore, registers: &[u8], last_ctl: &mut [u8; 3]) {
+    let restart = registers.get(0x19).copied().unwrap_or(0);
+    for voice in 0..3 {
+        let base = voice * 7;
+        if restart & (1 << voice) != 0 {
+            sid.write((base + 4) as u8, last_ctl[voice] & 0xfe);
+        }
+        for offset in [5, 6, 0, 1, 2, 3, 4] {
+            sid.write((base + offset) as u8, registers[base + offset]);
+        }
+        last_ctl[voice] = registers[base + 4];
+    }
+    for address in 0x15..0x19 {
+        sid.write(address as u8, registers[address]);
+    }
+}
 
 /// Offline renderer for the SID Editor's original Rust core.  Audio is
 /// rendered in short frame batches on the backend, then scheduled by Web Audio
@@ -578,10 +598,11 @@ fn render_sid_preview_blocking(payload: SidPreviewPayload) -> Result<String, Str
     if payload.frames.is_empty() || payload.frames.len() > MAX_FRAMES {
         return Err("Invalid SID preview length.".to_string());
     }
-    // The SID Editor sends the 25 implemented registers ($D400-$D418).
-    // The core keeps a 32-byte address space internally, but the unused
-    // register tail is not part of a SID register frame.
-    if payload.frames.iter().any(|frame| frame.len() != 0x19) {
+    // The SID Editor sends the 25 implemented registers ($D400-$D418), and
+    // optionally a 26th byte: bits 0-2 = voices whose note restarted in this
+    // frame (the player clears the gate and sets it again within the frame,
+    // which the final register values alone do not show).
+    if payload.frames.iter().any(|frame| frame.len() != 0x19 && frame.len() != 0x1a) {
         return Err("Invalid SID register frame: expected 25 registers ($D400-$D418).".to_string());
     }
 
@@ -591,13 +612,11 @@ fn render_sid_preview_blocking(payload: SidPreviewPayload) -> Result<String, Str
     } else {
         sid_core::SidModel::Mos8580
     };
-    let render_frames = |sid: &mut sid_core::SidCore| {
+    let render_frames = |sid: &mut sid_core::SidCore, last_ctl: &mut [u8; 3]| {
         let mut pcm = Vec::<i16>::with_capacity((payload.frames.len() * sample_rate as usize) / 50 + 2);
         let mut rendered = 0usize;
         for (frame_index, registers) in payload.frames.iter().enumerate() {
-            for (address, value) in registers.iter().enumerate() {
-                sid.write(address as u8, *value);
-            }
+            write_preview_frame(sid, registers, last_ctl);
             let target = ((frame_index + 1) * sample_rate as usize) / 50;
             let mut chunk = vec![0i16; target.saturating_sub(rendered)];
             sid.render(&mut chunk);
@@ -612,17 +631,17 @@ fn render_sid_preview_blocking(payload: SidPreviewPayload) -> Result<String, Str
         }
         let sessions = SID_PREVIEW_SESSIONS.get_or_init(|| Mutex::new(HashMap::new()));
         let mut sessions = sessions.lock().map_err(|_| "SID preview state is unavailable.")?;
-        sessions.retain(|_, (_, last_used)| last_used.elapsed() < Duration::from_secs(180));
+        sessions.retain(|_, (_, _, last_used)| last_used.elapsed() < Duration::from_secs(180));
         if !sessions.contains_key(session_id) && sessions.len() >= 16 {
             return Err("Too many active SID previews.".to_string());
         }
-        let (sid, last_used) = sessions.entry(session_id.to_string()).or_insert_with(|| {
-            (sid_core::SidCore::new(sample_rate, model), Instant::now())
+        let (sid, last_ctl, last_used) = sessions.entry(session_id.to_string()).or_insert_with(|| {
+            (sid_core::SidCore::new(sample_rate, model), [0; 3], Instant::now())
         });
         *last_used = Instant::now();
-        render_frames(sid)
+        render_frames(sid, last_ctl)
     } else {
-        render_frames(&mut sid_core::SidCore::new(sample_rate, model))
+        render_frames(&mut sid_core::SidCore::new(sample_rate, model), &mut [0; 3])
     };
 
     let bytes: Vec<u8> = pcm.iter().flat_map(|sample| sample.to_le_bytes()).collect();
@@ -747,6 +766,45 @@ fn sid_file_info(session_id: String) -> Result<serde_json::Value, String> {
         .try_lock()
         .map_err(|_| "SID file playback session is busy.".to_string())?;
     Ok(serde_json::json!({ "songs": player.songs(), "song": player.song() }))
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct SidDumpPayload {
+    file_bytes: Vec<u8>,
+    /// 1-based subtune; 0 = the header's start song.
+    #[serde(default)]
+    song: u16,
+    seconds: u32,
+}
+
+/// Runs a .sid tune silently and returns its SID register writes frame by
+/// frame (the SID Editor's .sid import converts them into patterns).
+#[tauri::command]
+async fn sid_register_dump(payload: SidDumpPayload) -> Result<serde_json::Value, String> {
+    tauri::async_runtime::spawn_blocking(move || sid_register_dump_blocking(payload))
+        .await
+        .map_err(|e| format!("SID register dump failed: {e}"))?
+}
+
+fn sid_register_dump_blocking(payload: SidDumpPayload) -> Result<serde_json::Value, String> {
+    if payload.file_bytes.len() > 1_048_576 {
+        return Err("SID file is too large.".into());
+    }
+    let mut player =
+        sid_file::SidFilePlayer::with_song(&payload.file_bytes, 44_100, sid_core::SidModel::Mos8580, payload.song)?;
+    let frames = (f64::from(payload.seconds.clamp(1, 900)) * player.frame_rate()).round() as usize;
+    let regs = player.dump_registers(frames);
+    let (name, author) = sid_file::header_strings(&payload.file_bytes);
+    Ok(serde_json::json!({
+        "songs": player.songs(),
+        "song": player.song(),
+        "frameRate": player.frame_rate(),
+        "frameBytes": sid_file::DUMP_FRAME_BYTES,
+        "name": name,
+        "author": author,
+        "regs": base64::engine::general_purpose::STANDARD.encode(regs),
+    }))
 }
 
 #[tauri::command]
@@ -5303,6 +5361,7 @@ pub fn run() {
             release_sid_preview,
             render_sid_file,
             sid_file_info,
+            sid_register_dump,
             release_sid_file,
             check_for_update,
             download_and_install_update,
@@ -5462,3 +5521,39 @@ mod sid_file_session_tests {
         assert!(!sessions.contains_key("switch-0"));
     }
 }
+
+#[cfg(test)]
+mod sid_preview_tests {
+    use super::*;
+
+    /// Voice 3 envelope after a few frames where the note is restarted under a
+    /// held gate (the SID Editor engine's note on), with and without the flag.
+    fn env_after_restart(flag: bool) -> u8 {
+        let mut sid = sid_core::SidCore::new(44_100, sid_core::SidModel::Mos8580);
+        let mut last = [0u8; 3];
+        let mut frame = vec![0u8; 0x1a];
+        frame[14] = 0x00;
+        frame[15] = 0x10; // frequency
+        frame[18] = 0x21; // saw + gate
+        frame[19] = 0x00; // attack 0, decay 0
+        frame[20] = 0x00; // sustain 0
+        frame[0x18] = 0x0f;
+        let mut pcm = vec![0i16; 882];
+        for k in 0..10 {
+            frame[0x19] = if k == 6 && flag { 4 } else { 0 };
+            write_preview_frame(&mut sid, &frame, &mut last);
+            sid.render(&mut pcm[..if k == 6 { 20 } else { 882 }]);
+            if k == 6 {
+                return sid.read(0x1c);
+            }
+        }
+        unreachable!()
+    }
+
+    #[test]
+    fn restart_flag_retriggers_the_envelope_under_a_held_gate() {
+        assert_eq!(env_after_restart(false), 0, "sustain 0: the envelope has died out");
+        assert!(env_after_restart(true) > 0, "the restart gives a new attack");
+    }
+}
+

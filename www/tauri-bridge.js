@@ -17,6 +17,7 @@
     renderSidFile: (payload) => invoke("render_sid_file", { payload }),
     releaseSidFile: (sessionId) => invoke("release_sid_file", { sessionId }),
     sidFileInfo: (sessionId) => invoke("sid_file_info", { sessionId }),
+    sidRegisterDump: (payload) => invoke("sid_register_dump", { payload }),
     checkForUpdate: () => invoke("check_for_update"),
     downloadAndInstallUpdate: (version) => invoke("download_and_install_update", { version }),
     onUpdateProgress: (cb) => window.__TAURI__.event.listen("update-download-progress", e => cb(e.payload)),

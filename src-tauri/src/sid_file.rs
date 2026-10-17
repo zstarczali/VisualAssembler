@@ -65,6 +65,10 @@ struct Machine {
     vic: Vicii,
     output: Vec<i16>,
     discard: usize,
+    /// Last value written to each SID register (the chip is write-only).
+    sid_regs: [u8; 32],
+    /// Voices whose gate bit went 0 → 1 since the last register dump frame.
+    gate_on: u8,
 }
 
 impl Machine {
@@ -91,7 +95,14 @@ impl Machine {
     fn io_write(&mut self, address: u16, value: u8) {
         match address {
             0xd000..=0xd3ff => self.vic.write(address, value),
-            0xd400..=0xd7ff => self.sid.write((address & 0x1f) as u8, value),
+            0xd400..=0xd7ff => {
+                let reg = (address & 0x1f) as usize;
+                if matches!(reg, 4 | 11 | 18) && self.sid_regs[reg] & 1 == 0 && value & 1 != 0 {
+                    self.gate_on |= 1 << (reg / 7);
+                }
+                self.sid_regs[reg] = value;
+                self.sid.write(reg as u8, value);
+            }
             0xd800..=0xdbff => self.color[(address & 0x3ff) as usize] = value & 0x0f,
             0xdc00..=0xdcff => self.cia1.write(address as u8, value),
             0xdd00..=0xddff => self.cia2.write(address as u8, value),
@@ -260,6 +271,8 @@ impl SidFilePlayer {
             vic: Vicii::new(if ntsc { ViciiModel::Ntsc } else { ViciiModel::Pal }),
             output: Vec::new(),
             discard: 0,
+            sid_regs: [0; 32],
+            gate_on: 0,
         };
         machine.ram[load_address as usize..=load_end].copy_from_slice(code);
 
@@ -284,6 +297,7 @@ impl SidFilePlayer {
         machine.cia1.write(0x05, (timer >> 8) as u8);
         machine.cia1.write(0x0e, 0x01);
         machine.sid.write(0x18, 0x0f);
+        machine.sid_regs[0x18] = 0x0f;
         let raster_play = !rsid && play_address != 0 && !cia_speed;
         if raster_play {
             machine.vic.write(0xd01a, 0x01);
@@ -423,6 +437,50 @@ impl SidFilePlayer {
         self.frame_number += frames;
         Ok(count)
     }
+
+    pub fn frame_rate(&self) -> f64 {
+        self.frame_rate
+    }
+
+    /// Runs `frames` video frames silently and returns, per frame, the SID
+    /// registers $D400-$D418 as last written (25 bytes) plus one byte whose
+    /// bits 0-2 flag the voices whose gate went on during that frame.
+    pub fn dump_registers(&mut self, frames: usize) -> Vec<u8> {
+        let frame_cycles = u64::from(self.machine.vic.lines()) * u64::from(self.machine.vic.cycles_per_line());
+        let mut out = Vec::with_capacity(frames * DUMP_FRAME_BYTES);
+        self.machine.output.clear();
+        self.machine.discard = usize::MAX;
+        self.machine.sid.set_output_enabled(false);
+        let mut target = self.machine.clk;
+        for _ in 0..frames {
+            target += frame_cycles;
+            self.run_until(|machine| machine.clk >= target);
+            out.extend_from_slice(&self.machine.sid_regs[..25]);
+            out.push(self.machine.gate_on);
+            self.machine.gate_on = 0;
+        }
+        self.machine.discard = 0;
+        self.machine.sid.set_output_enabled(true);
+        out
+    }
+}
+
+pub const DUMP_FRAME_BYTES: usize = 26;
+
+/// Name and author fields of a PSID / RSID header (Latin-1, zero padded).
+pub fn header_strings(bytes: &[u8]) -> (String, String) {
+    let field = |offset: usize| -> String {
+        bytes
+            .get(offset..offset + 32)
+            .unwrap_or(&[])
+            .iter()
+            .take_while(|&&b| b != 0)
+            .map(|&b| b as char)
+            .collect::<String>()
+            .trim()
+            .to_string()
+    };
+    (field(0x16), field(0x36))
 }
 
 #[cfg(test)]
@@ -453,6 +511,35 @@ mod tests {
         let mut file = psid(load, init, 0, 0, code);
         file[..4].copy_from_slice(b"RSID");
         file
+    }
+
+    #[test]
+    fn register_dump_flags_gate_edges_and_keeps_written_values() {
+        // init: nothing; play: alternately gate voice 1 on (freq $1234) and off
+        let code = [
+            0x60, // $1000 init: RTS
+            0xad, 0x20, 0x10, // $1001 play: LDA flag
+            0x49, 0x01, // EOR #1
+            0x8d, 0x20, 0x10, // STA flag
+            0x09, 0x40, // ORA #$40 (pulse)
+            0xa2, 0x34, 0x8e, 0x00, 0xd4, // LDX #$34 / STX $D400
+            0xa2, 0x12, 0x8e, 0x01, 0xd4, // LDX #$12 / STX $D401
+            0x8d, 0x04, 0xd4, // STA $D404
+            0x60, // RTS
+        ];
+        let mut image = code.to_vec();
+        image.resize(0x21, 0);
+        let mut player = SidFilePlayer::new(&psid(0x1000, 0x1000, 0x1001, 0, &image), 44_100, SidModel::Mos8580).unwrap();
+        let dump = player.dump_registers(6);
+        assert_eq!(dump.len(), 6 * DUMP_FRAME_BYTES);
+        let frames: Vec<&[u8]> = dump.chunks(DUMP_FRAME_BYTES).collect();
+        let gated: Vec<bool> = frames.iter().map(|f| f[4] & 1 != 0).collect();
+        assert!(gated.windows(2).all(|w| w[0] != w[1]), "{gated:?}");
+        for f in &frames {
+            assert_eq!((f[0], f[1], f[4] & 0xf0), (0x34, 0x12, 0x40));
+            assert_eq!(f[25] & 1 != 0, f[4] & 1 != 0);
+            assert_eq!(f[0x18], 0x0f);
+        }
     }
 
     #[test]
@@ -698,5 +785,18 @@ mod smoke {
                 std::fs::write(std::path::Path::new(out).join(format!("{name}.wav")), wav).unwrap();
             }
         }
+    }
+
+    /// Writes a register dump (`dump_registers`) of SID_DUMP_IN to SID_DUMP_OUT,
+    /// to check the SID Editor's .sid import on real tunes.
+    #[test]
+    #[ignore]
+    fn dump_registers_to_file() {
+        let (Ok(input), Ok(output)) = (std::env::var("SID_DUMP_IN"), std::env::var("SID_DUMP_OUT")) else { return };
+        let seconds: f64 = std::env::var("SID_DUMP_SECONDS").ok().and_then(|s| s.parse().ok()).unwrap_or(60.0);
+        let bytes = std::fs::read(input).unwrap();
+        let mut player = SidFilePlayer::new(&bytes, 44_100, SidModel::Mos8580).unwrap();
+        let frames = (seconds * player.frame_rate) as usize;
+        std::fs::write(output, player.dump_registers(frames)).unwrap();
     }
 }

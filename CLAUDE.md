@@ -184,7 +184,7 @@ A SID szerkesztő egy 3-voice tracker Web Audio előnézettel. A 2026-06-16 fris
   `_sidStreamNote`, `_sidStreamSilence`; teszt `tests/sid-stream.test.js`) — a JS motor frame-enként tölti a ringet.
   WebSid nélkül a `_sidSynthRender` kis szintetizátor a tartalék (`_sidRenderEngine`, `_sidWaSchedule`).
   A „Play: All” a valódi exportált lejátszót futtatja; a sorkiemelés a motor eseményeiből jön.
-- **6502 lejátszó** (`_sidExportAsmPlayable`, `* = $C000`): `sid_init`, `sid_irq` → `sid_frame` (sor-lépés `$2F` frame-enként,
+- **6502 lejátszó** (`_sidExportAsmPlayable`, `* = $C000`; ha kód (`_SID_PLAYER_CODE_MAX`) + adat + állapot elérné a `$D000`-t, az adat külön szegmensbe kerül, amely `$A000` alatt végződik, `_sidExportAsmPlayable.dataOrg`; a PSID export onnan vág): `sid_init`, `sid_irq` → `sid_frame` (sor-lépés `$2F` frame-enként,
   `sid_hr_check`, `sid_update`: tábla, hangmagasság, vibrato, PWM, szűrő-söprés), `sid_set_voice` (note on), effekt-rutinok
   `sid_vib_vN/sid_slideup_vN/sid_slidedown_vN`; állapot a `sid_state` területen. ZP: `$02-$1C`, `$2F`, `$FB-$FD`.
 - **Teszt:** `tests/sid-player.test.js` a `tests/mini6502.js` assemblerrel + CPU-val frame-ről frame-re veti össze a lejátszó
@@ -202,7 +202,7 @@ A SID szerkesztő egy 3-voice tracker Web Audio előnézettel. A 2026-06-16 fris
 ### Korlátok
 
 - **Egyetlen pattern lista loop-pal** — sequence (pattern sorrend) tábla még nincs
-- **8-bites sor-számláló** → max 7 pattern (`Math.floor(255 / _SID_ROWS)` = 7). Több pattern → warning a kódba, csak az első 7 exportálódik
+- Max 256 pattern és 255 song-lépés; hosszú dalnál az adat `$C000` alá kerül (lásd fent), ez ütközhet a saját programoddal
 - **ZP használat:** `$02-$1C`, `$2F`, `$FB-$FD`. Ha a fő programod is bántja, ütközik
 - **Vol slider per-instrument látszik, de a SID-en globális** ($D418). Az utolsóként triggerelt voice-é "nyer"
 - **Per-channel volume a SID-en nem létezik** — ADSR `S` (sustain) szint a legközelebbi
@@ -219,6 +219,18 @@ A playlist elem `lengths` / `hvsc` mezője adja a seek bar hosszát és az auto-
 Teszt: `tests/hvsc-catalog.test.js`, Rust `real_hvsc_archive_unpacks` (#[ignore], `HVSC_ARCHIVE` env).
 
 ### Idegen .sid / .bin fájlok
+
+**.sid import** (Files → `#sid-import-sid` → `#sid-import-sid-dialog`: subtune + hossz mp-ben): a Rust `sid_register_dump`
+(`SidFilePlayer::dump_registers`, frame-enként 25 SID-regiszter + gate-él bájt) lefuttatja a dalt, a `_sidDumpImport` ebből
+patterneket csinál: hangjegy = gate-él (≤2 frame-en belüli újragate összevonva) vagy legato (tartott gate alatt új félhang
+≥ 5 frame-ig); sorok = a hangkezdetekre illesztett L / L+1 frame-es sorok (funktempo, swing), a sorhossz-váltás `F` effekt
+egy sorral előbb (elsőbbsége van a `C` előtt); hangmagasság = a fő hullámforma leggyakoribb félhangja; hangszer = ADSR +
+fő hullámforma + PW/PWM + szűrő + wave tábla a teljes hangból (a következő hangig, a néma hard-restart frame előtt vágva;
+dob-attack > 12 félhangra abszolút; legrövidebb előtag + ismétlődő periódus, max 32 lépés); gate: későbbi sorban `C`,
+a következő hang előtt < sorhossz frame-mel gate timer (+ hr, ha az ADSR nullázva), egyébként S = 0, D = R. Max 64 hangszer,
+a 255 lépéses tábla-keretet használat szerint osztja. Csak asztali appban (VA SID Core). Teszt: `tests/sid-dump-import.test.js`
+(a szerkesztő motorjával is visszajátssza), Rust `register_dump_flags_gate_edges_*`, valódi dalra `SID_DUMP_IN/OUT` +
+`dump_registers_to_file` (#[ignore]).
 
 Az editor saját formátuma nem kompatibilis külső SID file-okkal. C64-es `.bin` (pl. Ikari
 Warriors zene `4C lo hi 4C lo hi 4C lo hi` jump table) **lefordított 6502 kód** — az

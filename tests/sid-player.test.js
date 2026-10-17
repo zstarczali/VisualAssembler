@@ -30,7 +30,7 @@ const FNS = ["_sidNewInst", "_sidInstNorm", "_sidInstCtrl", "_sidWaveByte", "_si
 function sandbox(state) {
   const ctx = { Math, TextEncoder, TextDecoder, Uint8Array, t: (k) => k };
   vm.createContext(ctx);
-  vm.runInContext(`${constLine("_SID_ROWS")}
+  vm.runInContext(`${constLine("_SID_ROWS")} ${constLine("_SID_PLAYER_CODE_MAX")}
     var _sidInsts = null, _sidPatterns = null, _sidSong = null, _sidSpeed = 6;
     ${FNS.map(fnSource).join("\n")}
     this.api = { set(s) { _sidInsts = s.insts; _sidPatterns = s.patterns; _sidSong = s.song; _sidSpeed = s.speed; },
@@ -144,4 +144,26 @@ test("save / load keeps every new instrument parameter and the name", () => {
     keys.forEach((k) => assert.deepEqual(back[k], ins[k], `${ins.name}.${k}`));
     assert.deepEqual(JSON.parse(JSON.stringify(back.table)), JSON.parse(JSON.stringify(ins.table)));
   });
+});
+
+test("a long tune keeps its data out of I/O and ROM, and still plays like the engine", () => {
+  const p = (k) => [0, 1, 2].map((v) => Array.from({ length: 32 }, (_, r) =>
+    ({ note: r % 4 ? null : 24 + ((k + v + r) % 40), inst: v & 1, fx: r === 31 && v === 0 ? "F" : null, fxval: r === 31 && v === 0 ? 5 + (k & 1) : 0 })));
+  const patterns = Array.from({ length: 24 }, (_, k) => p(k));
+  const api = sandbox({ insts: [{ pul: true }, { saw: true, pul: false, table: [{ w: 0x81, n: 70, abs: true }, { w: 0, n: 0 }] }],
+    patterns, song: patterns.map((_, k) => k), speed: 5 });
+  const frames = 32 * 6 * 24 + 40;
+  const { out, labels } = runPlayer(api, frames);
+  const addrs = Object.entries(labels).filter(([k]) => k.startsWith("sid_")).map(([, a]) => a);
+  assert.ok(addrs.every((a) => a < 0xA000 || (a >= 0xC000 && a < 0xD000)), "no label in BASIC ROM, I/O or KERNAL");
+  assert.ok(labels.sid_v0_notes < 0xA000, "the pattern data moved below $A000");
+  assert.deepEqual(out, runEngine(api, frames));
+});
+
+test("the player code fits in the reserved size", () => {
+  const api = sandbox(richTune());
+  const { labels } = runPlayer(api, 1);
+  const vm2 = labels.sid_vbase - 0xC000;
+  const max = Number(/const _SID_PLAYER_CODE_MAX = (0x[0-9A-Fa-f]+);/.exec(appJs)[1]);
+  assert.ok(vm2 <= max, `player code ${vm2} > ${max}`);
 });

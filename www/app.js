@@ -4050,6 +4050,7 @@ function _applyEditorTranslations() {
   setText("#sid-load-bin", t("sidLoadBin"));
   setText("#sid-save-bin", t("sidSaveBin"));
   setText("#sid-import-goat", t("sidImportGoat"));
+  setText("#sid-import-sid", t("sidImportSid"));
   setText("#sid-master-vol-lbl", t("sidMasterVolume"));
   setText("#websid-play-vol-lbl", t("sidMasterVolume"));
   setText("#sid-ed-master-vol-lbl", t("sidMasterVolume"));
@@ -4222,7 +4223,8 @@ function _applyEditorTranslations() {
   const sidTrackerMiniLbls = document.querySelectorAll(".sid-tracker-row .sid-mini-lbl");
   if (sidTrackerMiniLbls[0]) sidTrackerMiniLbls[0].textContent = t("sidPlayMode");
   if (sidTrackerMiniLbls[1]) sidTrackerMiniLbls[1].textContent = t("sidSpeed");
-  if (sidTrackerMiniLbls[2]) sidTrackerMiniLbls[2].textContent = t("sidOctave");
+  const sidOctLbl = [...sidTrackerMiniLbls].find(function(el){ return el.nextElementSibling?.id === "sid-oct-down"; });
+  if (sidOctLbl) sidOctLbl.textContent = t("sidOctave");
   const sidPlayModeSel = document.getElementById("sid-play-mode");
   if (sidPlayModeSel) {
     if (sidPlayModeSel.options[0]) sidPlayModeSel.options[0].textContent = t("sidPlayModeCurrent");
@@ -4230,6 +4232,8 @@ function _applyEditorTranslations() {
     sidPlayModeSel.value = _sidPlayMode;
   }
   setAttr("#sid-oct-down", t("sidOctaveDown"));
+  setAttr("#sid-speed-down", t("sidSpeedDown"));
+  setAttr("#sid-speed-up", t("sidSpeedUp"));
   setAttr("#sid-oct-up", t("sidOctaveUp"));
   setAttr("#sid-row-preview", t("sidPreviewRow"));
   setAttr("#sid-virtual-keyboard", t("sidVirtualKeyboard"));
@@ -47586,7 +47590,7 @@ function _sidWaSchedule() {
         const frames = [];
         for (let k = 0; k < chunk; k++) {
           _sidEngFrame(e);
-          frames.push(Array.from(e.regs));
+          frames.push(_sidVaCoreFrame(e));
         }
         const playAt = w.next;
         w.coreQueue = w.coreQueue.then(function() {
@@ -48089,12 +48093,20 @@ function _sidRenderVaCoreFrames(frames, sampleRate, sessionId) {
   return window.electronAPI.renderSidPreview(payload).then(_sidDecodePcm16);
 }
 
+/* One VA SID Core frame: the 25 registers + the voices whose note restarted
+   (the player clears and sets the gate within the frame; the core needs the edge). */
+function _sidVaCoreFrame(engine) {
+  const out = Array.from(engine.regs);
+  out.push((engine.trig[0] ? 1 : 0) | (engine.trig[1] ? 2 : 0) | (engine.trig[2] ? 4 : 0));
+  return out;
+}
+
 function _sidRenderVaCore(engine, frameCount, sampleRate, hook) {
   const frames = [];
   for (let frame = 0; frame < frameCount; frame++) {
     if (hook) hook(engine, frame);
     _sidEngFrame(engine);
-    frames.push(Array.from(engine.regs));
+    frames.push(_sidVaCoreFrame(engine));
   }
   return _sidRenderVaCoreFrames(frames, sampleRate);
 }
@@ -48514,6 +48526,337 @@ function _sidGoatImport(bytes) {
 function _sidApplyGoatImport(bytes) {
   const res = _sidGoatImport(bytes);
   if (!res) { showViceToast(t("sidGoatInvalid"), true); return false; }
+  _sidApplyImportedTune(res);
+  const skipped = Object.keys(res.skipped).map(function(k){ return k + " ×" + res.skipped[k]; });
+  showViceToast(tf("sidGoatImported", { insts: res.insts.length, pats: res.patterns.length, song: res.song.length }) +
+    (skipped.length ? " " + tf("sidGoatSkipped", { list: skipped.join(", ") }) : ""), false);
+  return true;
+}
+
+/* .sid import: the tune runs in VA SID Core (Rust sid_register_dump), the
+   per-frame SID register dump is turned back into rows. Note on = gate edge or
+   a legato pitch change; rows of L / L+1 frames start on the note ons (F effects
+   carry the changes); pitch = the most common semitone of the main waveform.
+   Instruments come from ADSR, the waveform / pitch steps of the whole note
+   (→ wave table), pulse and filter movement and the gate timing. */
+const _SID_DUMP_MAX_INSTS = 64;
+const _SID_DUMP_TABLE_STEPS = 32;
+const _SID_DUMP_WINDOW = 128;
+
+function _sidDumpImport(regs, meta) {
+  meta = meta || {};
+  const FB = meta.frameBytes || 26;
+  const frames = Math.floor((regs ? regs.length : 0) / FB);
+  if (frames < 2) return null;
+  const R = function(f, i) { return regs[f * FB + i]; };
+  const ft = _sidFreqTables();
+  // the editor's note table is PAL; NTSC tunes run on a faster clock
+  const clockScale = (meta.frameRate || 50) > 55 ? 1022727 / 985248 : 1;
+  const noteOf = function(freq) {
+    if (!freq) return null;
+    const n = Math.round(12 * Math.log2(freq * clockScale / ft.f[0]));
+    return n < 0 ? 0 : n > 95 ? 95 : n;
+  };
+  const skipped = {};
+  const skip = function(key) { skipped[key] = (skipped[key] || 0) + 1; };
+
+  // ── note ons per voice ──
+  const voices = [0, 1, 2].map(function(v) {
+    const ons = [];
+    for (let f = 0; f < frames; f++) {
+      if ((R(f, 25) >> v) & 1) ons.push(f);
+    }
+    return { b: v * 7, ons: ons };
+  });
+  // a gate edge within 2 frames of the previous one on the same voice retriggers the same note
+  voices.forEach(function(vc) {
+    let last = -Infinity;
+    vc.ons = vc.ons.filter(function(f) {
+      if (f - last <= 2) { skip("retriggers merged"); return false; }
+      last = f;
+      return true;
+    });
+  });
+  // legato: under a held gate the pitch moves to a new semitone and stays there
+  const LEGATO_HOLD = 5;
+  voices.forEach(function(vc) {
+    const b = vc.b, extra = [];
+    const pitchAt = function(g) {
+      const c = R(g, b + 4);
+      return c & 1 ? noteOf(R(g, b) | (R(g, b + 1) << 8)) * 256 + (c & 0xF0) : null;
+    };
+    vc.ons.forEach(function(f, k) {
+      const next = k + 1 < vc.ons.length ? vc.ons[k + 1] : frames;
+      let held = null;
+      for (let g = f; g + LEGATO_HOLD <= next; g++) {
+        const p = pitchAt(g);
+        if (p == null) break;
+        let stable = true;
+        for (let i = 1; i < LEGATO_HOLD && stable; i++) stable = pitchAt(g + i) === p;
+        if (!stable) continue;
+        if (held !== null && p !== held && (p & 0xF0) === (held & 0xF0) && g - f > 2) {
+          // skip back to where this pitch started
+          let s0 = g;
+          while (s0 - 1 > f && pitchAt(s0 - 1) === p) s0--;
+          if (!extra.length || s0 - extra[extra.length - 1] > 2) extra.push(s0);
+        }
+        held = p;
+        g += LEGATO_HOLD - 1;
+      }
+    });
+    if (extra.length) {
+      skip("legato notes (retriggered)");
+      vc.ons = vc.ons.concat(extra).sort(function(a, c){ return a - c; });
+    }
+  });
+  const allOns = [].concat.apply([], voices.map(function(vc){ return vc.ons; })).sort(function(a, b){ return a - b; });
+  if (!allOns.length) return null;
+  // note ons a frame apart on different voices share a row
+  const times = allOns.filter(function(f, i){ return !i || f - allOns[i - 1] > 1; });
+
+  // ── row timing: rows of L or L+1 frames start exactly on the note ons (funktempo,
+  // swing and tempo changes included); L = the longest that fits ≥ 97 % of the gaps ──
+  const gaps = [];
+  for (let i = 1; i < times.length; i++) gaps.push(times[i] - times[i - 1]);
+  const splits = function(g, L) { return Math.ceil(g / (L + 1)) <= Math.floor(g / L); };
+  const pickL = function(minRatio) {
+    for (let L = 64; L >= 2; L--) {
+      let ok = 0;
+      gaps.forEach(function(g){ if (splits(g, L)) ok++; });
+      if (ok >= minRatio * gaps.length) return L;
+    }
+    return 0;
+  };
+  const speed = gaps.length ? (pickL(0.97) || pickL(0.9) || pickL(0.75) || 1) : 6;
+  const rowStart = [times[0]];
+  const pushRows = function(g, k) {
+    const at = rowStart[rowStart.length - 1];
+    for (let i = 1; i <= k; i++) rowStart.push(at + Math.round(i * g / k));
+  };
+  // a note on too close to the previous row joins it; the next gap counts from that row
+  let carry = 0;
+  gaps.forEach(function(g0) {
+    const g = g0 + carry;
+    carry = 0;
+    const lo = Math.ceil(g / (speed + 1)), hi = Math.floor(g / speed);
+    if (lo <= hi) pushRows(g, Math.max(lo, Math.min(hi, Math.round(g / (speed + 0.5)))));
+    else if (g <= speed / 3) { skip("timing (rounded)"); carry = g; }
+    else pushRows(g, Math.max(1, Math.round(g / speed)));
+  });
+  const rowLen = function(r) { return r + 1 < rowStart.length ? rowStart[r + 1] - rowStart[r] : speed; };
+  const rowOf = function(f) {
+    const n = rowStart.length;
+    if (f >= rowStart[n - 1]) return n - 1 + Math.round((f - rowStart[n - 1]) / speed);
+    let lo = 0, hi = n - 1;
+    while (lo < hi) { const mid = (lo + hi + 1) >> 1; if (rowStart[mid] <= f) lo = mid; else hi = mid - 1; }
+    return lo + 1 < n && rowStart[lo + 1] - f < f - rowStart[lo] ? lo + 1 : lo;
+  };
+
+  const MAX_ROWS = 255 * _SID_ROWS;
+  let totalRows = rowOf(allOns[allOns.length - 1]) + 2;
+  if (totalRows > MAX_ROWS) { totalRows = MAX_ROWS; skip("length (cut)"); }
+  totalRows = Math.ceil(totalRows / _SID_ROWS) * _SID_ROWS;
+  const empty = function() { return { note: null, inst: 0, fx: null, fxval: 0 }; };
+  const cols = [0, 1, 2].map(function(){ return Array.from({ length: totalRows }, empty); });
+
+  // ── notes → cells, instruments by signature ──
+  const insts = [], instKeys = {};
+  const mode = function(arr) {
+    const cnt = {}, first = {};
+    arr.forEach(function(x, i){ if (x == null) return; cnt[x] = (cnt[x] || 0) + 1; if (first[x] === undefined) first[x] = i; });
+    let best = null;
+    Object.keys(cnt).forEach(function(k){ if (best === null || cnt[k] > cnt[best] || (cnt[k] === cnt[best] && first[k] < first[best])) best = k; });
+    return best === null ? null : +best;
+  };
+  const same = function(a, c) { return a.w === c.w && a.n === c.n && a.abs === c.abs; };
+  voices.forEach(function(vc, v) {
+    const b = vc.b;
+    const freqAt = function(g) { return R(g, b) | (R(g, b + 1) << 8); };
+    const pwAt = function(g) { return R(g, b + 2) | ((R(g, b + 3) & 15) << 8); };
+    const cutAt = function(g) { return (R(g, 0x15) & 7) | (R(g, 0x16) << 3); };
+    vc.ons.forEach(function(f, k) {
+      const next = k + 1 < vc.ons.length ? vc.ons[k + 1] : frames;
+      // the whole note up to the next one: after the gate off the release still sounds
+      let len = Math.max(1, Math.min(next - f, _SID_DUMP_WINDOW));
+      // a frame without waveform is the hard restart before the next note
+      for (let i = 1; i < len; i++) { if (!(R(f + i, b + 4) & 0xF0)) { len = i; break; } }
+      let off = -1;
+      for (let g = f + 1; g < next; g++) { if (!(R(g, b + 4) & 1)) { off = g; break; } }
+      const row = rowOf(f);
+      if (row >= totalRows) return;
+      if (cols[v][row].note != null) { skip("notes on the same row"); return; }
+
+      // main waveform: the most common one, the note: its most common semitone
+      const waves = [];
+      for (let i = 0; i < len; i++) { const w = R(f + i, b + 4) & 0xFE; if (!(w & 0x08) && (w & 0xF0)) waves.push(w); }
+      const w = mode(waves) || (R(f, b + 4) & 0xF6);
+      const pitches = [];
+      for (let i = 0; i < len; i++) { if ((R(f + i, b + 4) & 0xF0) === (w & 0xF0)) pitches.push(noteOf(freqAt(f + i))); }
+      const base = mode(pitches.length ? pitches : [noteOf(freqAt(f))]);
+      if (base == null) return;
+
+      const ins = _sidNewInst("SID");
+      const ad = R(f, b + 5), sr = R(f, b + 6);
+      ins.a = ad >> 4; ins.d = ad & 15; ins.s = sr >> 4; ins.r = sr & 15;
+      ins.tri = !!(w & 0x10); ins.saw = !!(w & 0x20); ins.pul = !!(w & 0x40); ins.noi = !!(w & 0x80);
+      ins.ring = !!(w & 0x04); ins.sync = !!(w & 0x02);
+
+      // waveform / pitch per frame → wave table; other waveforms far from the note
+      // (fixed-pitch drum attacks) keep their absolute pitch
+      const steps = [];
+      for (let i = 0; i < len; i++) {
+        const sw = R(f + i, b + 4) & 0xFE, n = noteOf(freqAt(f + i));
+        const rel = n == null ? 0 : n - base;
+        const abs = (sw & 0xF0) !== (w & 0xF0) && Math.abs(rel) > 12;
+        steps.push({ w: sw, n: abs ? (n == null ? 0 : n) : rel, abs: abs });
+      }
+      const isPlain = function(s) { return s.w === w && s.n === 0 && !s.abs; };
+      if (!steps.every(isPlain)) {
+        // shortest table: a prefix plus a period that repeats to the end of the note
+        let tStart = -1, tPer = 0;
+        for (let p = 1; p <= _SID_DUMP_TABLE_STEPS && tStart < 0; p++) {
+          let s = len - p;
+          while (s > 0 && same(steps[s - 1], steps[s - 1 + p])) s--;
+          if (len - s >= 2 * p && s + p <= _SID_DUMP_TABLE_STEPS) { tStart = s; tPer = p; }
+        }
+        let table, loop;
+        if (tStart >= 0) {
+          table = steps.slice(0, tStart + tPer);
+          // a single repeated step needs no loop: the table holds its last step
+          loop = tPer === 1 ? -1 : tStart;
+        } else {
+          table = steps.slice(0, _SID_DUMP_TABLE_STEPS);
+          loop = -1;
+          skip("long wave tables (cut)");
+        }
+        if (loop < 0) {
+          while (table.length > 1 && isPlain(table[table.length - 1]) && isPlain(table[table.length - 2])) table.pop();
+        }
+        if (!table.every(isPlain)) { ins.table = table; ins.tableLoop = loop; ins.tableSpeed = 1; }
+      }
+
+      // gate: released on a later row → note cut there; a few frames before the
+      // next note → gate timer (hard restart if ADSR is zeroed); within the first
+      // frames of a note → the envelope decays at the release rate instead
+      if (off >= 0) {
+        const cr = rowOf(off), gap = next - off;
+        if (cr > row && (next >= frames || cr < rowOf(next))) {
+          if (cr < totalRows && cols[v][cr].note == null && !cols[v][cr].fx) cols[v][cr] = { note: null, inst: 0, fx: "C", fxval: 0 };
+        } else if (next < frames && gap < speed && gap <= 15) {
+          ins.gateTimer = gap;
+          ins.hr = R(next - 1, b + 5) === 0 && R(next - 1, b + 6) === 0;
+        } else {
+          ins.s = 0; ins.d = ins.r;
+        }
+      }
+
+      // pulse width from the first frame on the pulse wave (drum attacks often precede it)
+      const end = f + len;
+      let pf = f;
+      while (pf < end - 1 && !(R(pf, b + 4) & 0x40)) pf++;
+      ins.pw = pwAt(pf);
+      let lo = ins.pw, hi = ins.pw, dsum = 0, dn = 0;
+      for (let g = pf + 1; g < end; g++) {
+        const p = pwAt(g), d = Math.abs(p - pwAt(g - 1));
+        lo = Math.min(lo, p); hi = Math.max(hi, p);
+        if (d) { dsum += d; dn++; }
+      }
+      if (dn && hi > lo) { ins.pwmSpeed = Math.min(255, Math.max(1, Math.round(dsum / dn))); ins.pwmMin = lo; ins.pwmMax = hi; }
+      // filter: global registers, routed per voice
+      const mv = R(f, 0x18);
+      ins.vol = mv & 15;
+      ins.off3 = !!(mv & 0x80);
+      ins.filt = !!((R(f, 0x17) >> v) & 1);
+      if (ins.filt) {
+        ins.lp = !!(mv & 0x10); ins.bp = !!(mv & 0x20); ins.hp = !!(mv & 0x40);
+        ins.res = R(f, 0x17) >> 4;
+        ins.cut = cutAt(f);
+        ins.cutEnd = cutAt(end - 1);
+        let cs = 0, cn = 0, up = false, down = false;
+        for (let g = f + 1; g < end; g++) {
+          const d = cutAt(g) - cutAt(g - 1);
+          if (d) { cs += Math.abs(d); cn++; if (d > 0) up = true; else down = true; }
+        }
+        if (cn && ins.cutEnd !== ins.cut) { ins.cutSpeed = Math.min(127, Math.max(1, Math.round(cs / cn))); ins.cutPing = up && down; }
+      }
+      const norm = _sidInstNorm(ins);
+      // coarse signature: pulse width only matters for the pulse wave, filter sweeps are global
+      const key = JSON.stringify(Object.assign({}, norm, {
+        name: "", pw: norm.pul ? norm.pw >> 8 : 0, pwmMin: 0, pwmMax: 0,
+        pwmSpeed: norm.pul && norm.pwmSpeed ? Math.round(Math.log2(norm.pwmSpeed)) : 0,
+        cut: norm.cut >> 7, cutEnd: 0, cutSpeed: 0, cutPing: false
+      }));
+      let idx = instKeys[key];
+      if (idx === undefined) { idx = insts.length; instKeys[key] = idx; insts.push(norm); }
+      cols[v][row] = { note: base, inst: idx, fx: null, fxval: 0 };
+    });
+  });
+  if (!insts.length) return null;
+
+  // ── too many instruments: the rarest ones map to the closest kept one ──
+  let finalInsts = insts, remap = insts.map(function(_, i){ return i; });
+  if (insts.length > _SID_DUMP_MAX_INSTS) {
+    const use = insts.map(function(){ return 0; });
+    cols.forEach(function(col){ col.forEach(function(c){ if (c.note != null) use[c.inst]++; }); });
+    const keep = insts.map(function(_, i){ return i; })
+      .sort(function(a, c){ return use[c] - use[a] || a - c; })
+      .slice(0, _SID_DUMP_MAX_INSTS).sort(function(a, c){ return a - c; });
+    const dist = function(a, c) {
+      return (_sidInstCtrl(a) !== _sidInstCtrl(c) ? 100 : 0) + Math.abs(a.a - c.a) + Math.abs(a.d - c.d) + Math.abs(a.s - c.s) +
+        Math.abs(a.r - c.r) + (a.filt !== c.filt ? 20 : 0) + (a.table.length !== c.table.length ? 10 : 0) + Math.abs(a.pw - c.pw) / 512;
+    };
+    remap = insts.map(function(ins, i) {
+      const k = keep.indexOf(i);
+      if (k >= 0) return k;
+      let best = 0;
+      keep.forEach(function(j, n){ if (dist(ins, insts[j]) < dist(ins, insts[keep[best]])) best = n; });
+      return best;
+    });
+    finalInsts = keep.map(function(i){ return insts[i]; });
+    skip("instruments merged " + (insts.length - keep.length));
+  }
+  cols.forEach(function(col){ col.forEach(function(c){ if (c.note != null) c.inst = remap[c.inst]; }); });
+  // the player holds at most 255 table steps in all: the most used instruments
+  // keep theirs whole, the rest keep what fits (the attack comes first)
+  const used = finalInsts.map(function(){ return 0; });
+  cols.forEach(function(col){ col.forEach(function(c){ if (c.note != null) used[c.inst]++; }); });
+  let tableLeft = 255;
+  finalInsts.map(function(_, i){ return i; }).sort(function(a, c){ return used[c] - used[a] || a - c; }).forEach(function(i) {
+    const ins = finalInsts[i];
+    if (ins.table.length > tableLeft) {
+      ins.table = ins.table.slice(0, tableLeft);
+      if (ins.tableLoop >= ins.table.length) ins.tableLoop = -1;
+      skip("wave tables shortened");
+    }
+    tableLeft -= ins.table.length;
+  });
+  finalInsts.forEach(function(ins, i){ ins.name = "SID " + String(i + 1).padStart(2, "0"); });
+
+  // ── row lengths: an F effect one row ahead sets the length of the next row ──
+  for (let r = 0; r + 1 < totalRows; r++) {
+    const val = Math.min(255, rowLen(r + 1));
+    if (val === Math.min(255, rowLen(r))) continue;
+    // timing wins over a note cut: a missed speed change would shift the rest of the song
+    let v = [0, 1, 2].find(function(k){ return !cols[k][r].fx; });
+    if (v === undefined) v = [0, 1, 2].find(function(k){ return cols[k][r].fx === "C"; });
+    if (v === undefined) { skip("speed changes"); continue; }
+    if (cols[v][r].fx === "C") skip("note cuts dropped");
+    cols[v][r].fx = "F"; cols[v][r].fxval = val;
+  }
+
+  // ── 32-row patterns, identical ones shared ──
+  const patterns = [], song = [], keys = {};
+  for (let r = 0; r < totalRows && song.length < 255; r += _SID_ROWS) {
+    const pat = cols.map(function(col){ return col.slice(r, r + _SID_ROWS); });
+    const key = JSON.stringify(pat);
+    if (keys[key] === undefined) { keys[key] = patterns.length; patterns.push(pat); }
+    song.push(keys[key]);
+  }
+  return { name: meta.name || "", author: meta.author || "", insts: finalInsts, patterns: patterns, song: song,
+    speed: Math.max(1, Math.min(255, rowLen(0))), skipped: skipped };
+}
+
+function _sidApplyImportedTune(res) {
   _sidStop();
   _sidInsts = res.insts;
   _sidPatterns = res.patterns;
@@ -48526,10 +48869,67 @@ function _sidApplyGoatImport(bytes) {
   _sidInst = 0; _sidPat = 0; _sidPlayPat = 0;
   _sidSyncPlayModeSel();
   _sidBuildInstSel(); _sidLoadInstUI(); _sidBuildPatSel(); _sidBuildSongList(); _sidBuildTracker();
-  const skipped = Object.keys(res.skipped).map(function(k){ return k + " ×" + res.skipped[k]; });
-  showViceToast(tf("sidGoatImported", { insts: res.insts.length, pats: res.patterns.length, song: res.song.length }) +
-    (skipped.length ? " " + tf("sidGoatSkipped", { list: skipped.join(", ") }) : ""), false);
-  return true;
+}
+
+let _sidSidImportBytes = null;
+
+function _sidHeaderInfo(bytes) {
+  const b = bytes || [];
+  const id = String.fromCharCode(b[0], b[1], b[2], b[3]);
+  if ((id !== "PSID" && id !== "RSID") || b.length < 0x76) return null;
+  const str = function(o) { let s = ""; for (let k = 0; k < 32 && b[o + k]; k++) s += String.fromCharCode(b[o + k]); return s.trim(); };
+  return { songs: (b[0x0e] << 8) | b[0x0f], start: (b[0x10] << 8) | b[0x11], name: str(0x16), author: str(0x36) };
+}
+
+function _sidOpenSidImport(bytes) {
+  const info = _sidHeaderInfo(bytes);
+  if (!info || !info.songs) { showViceToast(t("sidImportSidInvalid"), true); return; }
+  if (!window.electronAPI?.sidRegisterDump) { showViceToast(t("sidImportSidDesktopOnly"), true); return; }
+  const dlg = document.getElementById("sid-import-sid-dialog");
+  if (!dlg) return;
+  _sidSidImportBytes = bytes;
+  document.getElementById("sid-import-sid-title").textContent = t("sidImportSidTitle");
+  document.getElementById("sid-import-sid-tune").textContent = [info.name, info.author].filter(Boolean).join(" — ");
+  document.getElementById("sid-import-sid-song-label").textContent = tf("sidImportSidSong", { songs: info.songs });
+  document.getElementById("sid-import-sid-seconds-label").textContent = t("sidImportSidSeconds");
+  const songEl = document.getElementById("sid-import-sid-song");
+  songEl.max = String(info.songs);
+  songEl.value = String(Math.max(1, Math.min(info.songs, info.start || 1)));
+  songEl.disabled = info.songs < 2;
+  document.getElementById("sid-import-sid-status").textContent = "";
+  const go = document.getElementById("sid-import-sid-go");
+  go.textContent = t("sidImportSidGo");
+  go.disabled = false;
+  document.getElementById("sid-import-sid-cancel").textContent = t("sidImportSidCancel");
+  dlg.showModal();
+}
+
+async function _sidRunSidImport() {
+  const dlg = document.getElementById("sid-import-sid-dialog");
+  const go = document.getElementById("sid-import-sid-go");
+  const status = document.getElementById("sid-import-sid-status");
+  if (!_sidSidImportBytes || go.disabled) return;
+  const song = Math.max(1, parseInt(document.getElementById("sid-import-sid-song").value, 10) || 1);
+  const seconds = Math.max(1, Math.min(900, parseInt(document.getElementById("sid-import-sid-seconds").value, 10) || 120));
+  go.disabled = true;
+  status.textContent = t("sidImportSidWorking");
+  try {
+    const dump = await window.electronAPI.sidRegisterDump({ fileBytes: Array.from(_sidSidImportBytes), song: song, seconds: seconds });
+    const bin = atob(dump.regs || "");
+    const regs = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) regs[i] = bin.charCodeAt(i);
+    const res = _sidDumpImport(regs, dump);
+    if (!res) { status.textContent = t("sidImportSidNoNotes"); go.disabled = false; return; }
+    dlg.close();
+    _sidSidImportBytes = null;
+    _sidApplyImportedTune(res);
+    const skipped = Object.keys(res.skipped).map(function(k){ return k + " ×" + res.skipped[k]; });
+    showViceToast(tf("sidImportSidDone", { insts: res.insts.length, pats: res.patterns.length, song: res.song.length, speed: res.speed }) +
+      (skipped.length ? " " + tf("sidGoatSkipped", { list: skipped.join(", ") }) : ""), false);
+  } catch (err) {
+    status.textContent = String((err && err.message) || err);
+    go.disabled = false;
+  }
 }
 
 function _sidExport(kind) {
@@ -48622,6 +49022,8 @@ function _sidExportDataOnly() {
 
   return lines.join("\n");
 }
+
+const _SID_PLAYER_CODE_MAX = 0x900;
 
 function _sidExportAsmPlayable() {
   const lines = [];
@@ -49408,6 +49810,7 @@ function _sidExportAsmPlayable() {
     "");
 
   // ---- data ----------------------------------------------------------------
+  const dataStart = lines.length;
   chunk("sid_vbase", [0, 7, 14]);
   chunk("sid_vbit", [1, 2, 4]);
   L("; Song/order list: which pattern plays at each step; a pattern may",
@@ -49456,9 +49859,25 @@ function _sidExportAsmPlayable() {
   chunk("sid_freq_hi", ft.f.map(function(x){ return x >> 8; }));
   chunk("sid_semi_lo", ft.semi.map(function(x){ return x & 0xFF; }));
   chunk("sid_semi_hi", ft.semi.map(function(x){ return x >> 8; }));
+  // The player code fits in _SID_PLAYER_CODE_MAX bytes. When code + data + state
+  // would reach $D000 (I/O), the data moves to its own segment ending below
+  // $A000 (BASIC ROM), so a long tune never lands in I/O or under ROM.
+  const dataLines = lines.slice(dataStart);
+  const dataBytes = dataLines.reduce(function(n, l) {
+    const m = /^\s*\.byte\s+(.*)$/.exec(l);
+    return m ? n + m[1].split(",").length : n;
+  }, 0);
+  const split = 0xC000 + _SID_PLAYER_CODE_MAX + dataBytes + stateSize > 0xD000;
+  _sidExportAsmPlayable.dataOrg = split ? (0xA000 - dataBytes) & 0xFF00 : 0xC000;
+  if (split) lines.length = dataStart;
   L("", "; Player state (cleared by sid_init)", "sid_state:");
   STATE_V.forEach(function(n){ L("sid_" + n + ":", ".byte $00, $00, $00"); });
   STATE_G.forEach(function(n){ L("sid_" + n + ":", ".byte $00"); });
+  if (split) {
+    L("", "; Tune data (" + dataBytes + " bytes): too long for $C000-$CFFF next to the player",
+      "* = $" + _sidExportAsmPlayable.dataOrg.toString(16).toUpperCase(), "");
+    dataLines.forEach(function(l){ lines.push(l); });
+  }
 
   return lines.join("\n");
 }
@@ -49691,10 +50110,19 @@ function setupSidEditor() {
   onId("sid-song-down", "click", function(){ _sidSongMove(1); });
   onId("sid-play-mode", "change", function(e){ _sidPlayMode = e.target.value === "current" ? "current" : "all"; if(_sidTimer){ _sidPlay(); } });
   onId("sid-speed", "input", function(e){
-    _sidSpeed = Math.max(1, parseInt(e.target.value,10)||6);
+    _sidSpeed = Math.max(1, Math.min(255, parseInt(e.target.value,10)||6));
     _sidUpdateBpmDisplay();
     if (_sidTimer) { _sidPlay(); }
   });
+  const sidSpeedStep = function(d) {
+    const el = document.getElementById("sid-speed");
+    _sidSpeed = Math.max(1, Math.min(255, _sidSpeed + d));
+    if (el) el.value = String(_sidSpeed);
+    _sidUpdateBpmDisplay();
+    if (_sidTimer) { _sidPlay(); }
+  };
+  onId("sid-speed-down", "click", function(){ sidSpeedStep(-1); });
+  onId("sid-speed-up", "click", function(){ sidSpeedStep(1); });
   onId("sid-metronome", "click", _sidToggleMetronome);
   // Tördelő toolbar: a tooltip a dialógus belseje felé nyílik
   ["sid-clear", "sid-voice-copy"].forEach(function(id) {
@@ -49790,9 +50218,11 @@ function setupSidEditor() {
   onId("sid-export-psid", "click", function(){
     let prg = _buildSidPreviewPrg();
     if (!prg || prg.length < 3) { showViceToast?.(t("sidExportPsidFailed"), true); return; }
-    // a build $0801-től tölt (BASIC stub + kitöltés); a .sid-be csak a $C000-s lejátszó kell
+    // a build $0801-től tölt (BASIC stub + kitöltés); a .sid-be csak a lejátszó kell ($C000-tól,
+    // hosszú dalnál az adatszegmens kezdetétől, ami $C000 alatt van)
     const load = prg[0] | (prg[1] << 8);
-    if (load < 0xC000 && prg.length > 2 + 0xC000 - load) prg = Uint8Array.from([0x00, 0xC0, ...prg.slice(2 + 0xC000 - load)]);
+    const from = Math.min(0xC000, _sidExportAsmPlayable.dataOrg || 0xC000);
+    if (load < from && prg.length > 2 + from - load) prg = Uint8Array.from([from & 0xFF, from >> 8, ...prg.slice(2 + from - load)]);
     // a lejátszó a sid_init-ben saját IRQ-t telepít ($C000), ezért playAddress = 0
     _saveBinFile(_buildPsidBytes(prg, 0xC000, 0x0000, "VA SID tune", String(new Date().getFullYear())), "tune.sid");
   });
@@ -49806,6 +50236,16 @@ function setupSidEditor() {
     reader.onload = function(){ _sidApplyGoatImport(new Uint8Array(reader.result)); };
     reader.readAsArrayBuffer(file); e.target.value = "";
   });
+  const sidSidFile = document.getElementById("sid-sid-file");
+  onId("sid-import-sid", "click", function(){ if (sidSidFile) sidSidFile.click(); });
+  if (sidSidFile) sidSidFile.addEventListener("change", function(e){
+    const file = e.target.files && e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(){ _sidOpenSidImport(new Uint8Array(reader.result)); };
+    reader.readAsArrayBuffer(file); e.target.value = "";
+  });
+  onId("sid-import-sid-go", "click", function(){ _sidRunSidImport(); });
+  onId("sid-import-sid-cancel", "click", function(){ document.getElementById("sid-import-sid-dialog")?.close(); });
   if (sidBinFile) sidBinFile.addEventListener("change", function(e){
     const file = e.target.files && e.target.files[0]; if (!file) return;
     const reader = new FileReader();

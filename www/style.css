@@ -9873,7 +9873,8 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 #sid-play-mode { width: 92px; flex: 0 0 92px; }
 #sid-inst-name { width: 180px; flex: 0 0 auto; }
 .sid-wave-row .sid-mini-lbl { margin-left: 20px; }
-.sid-speed { width: 56px; text-align: center; }
+.sid-input.sid-speed { width: 40px; padding: 0 4px; text-align: center; -moz-appearance: textfield; appearance: textfield; }
+.sid-input.sid-speed::-webkit-inner-spin-button, .sid-input.sid-speed::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 .sid-metronome-btn.sid-metronome-on {
   color: var(--accent, #4ade80);
   background: color-mix(in srgb, var(--accent, #4ade80) 18%, transparent);
@@ -11425,6 +11426,14 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
   color: var(--muted);
 }
 
+/* SID Editor .sid import */
+.sid-import-sid-dialog .app-confirm-card { gap: 14px; }
+.sid-import-sid-title { font-weight: 700; }
+.sid-import-sid-tune { margin: -8px 0 0; font-size: 0.8rem; color: var(--muted); }
+.sid-import-sid-tune:empty, .sid-import-sid-status:empty { display: none; }
+.sid-import-sid-fields { display: grid; grid-template-columns: 1fr 90px; gap: 8px 12px; align-items: center; font-size: 0.82rem; }
+.sid-import-sid-num { box-sizing: border-box; width: 100%; height: 28px; min-height: 0; padding: 3px 6px; }
+.sid-import-sid-status { margin: 0; font-size: 0.75rem; color: var(--muted); overflow-wrap: anywhere; }
 /* Server message dialog (register/message.php) */
 .server-message-dialog .app-confirm-card { width: min(520px, calc(100vw - 32px)); }
 .server-message-body { overflow-wrap: anywhere; max-height: 50vh; overflow-y: auto; }
