@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**2.6.1-es verzió**
+**2.6.2-es verzió**
 
 Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat
 létre húzással és elengedéssel (fogd és vidd) utasításblokkokkal, és valós
@@ -12,6 +12,7 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
 
 - [C64 Visual Assembler — Felhasználói
   kézikönyv](#c64-visual-assembler--user-manual)
+    - [2.6.2-es verzió – kiemelt funkciók](#version-262-highlights)
     - [2.6.1-es verzió – kiemelt funkciók](#version-261-highlights)
     - [2.6.0 verzió – kiemelt funkciók](#version-260-highlights)
     - [2.5.9-es verzió – kiemelt funkciók](#version-259-highlights)
@@ -204,6 +205,38 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
     - [Görbeszerkesztő](#curve-editor)
     - [Táblázatgenerátor](#table-generator)
     - [Számátváltó](#number-converter)
+
+---
+
+## A 2.6.2-es verzió legfontosabb elemei
+
+- **HVSC az SID lejátszóban** – kereshet a High Voltage SID gyűjteményben (kb.
+  61 000 dallam) cím, zeneszerző vagy mappa alapján, lejátszhat, hozzáadhat a
+  lejátszási listához vagy menthet bármely dallamot; letöltheti a teljes
+  gyűjteményt egy menetben offline használatra, vagy a lejátszóval megnyithat
+  egy kicsomagolt HVSC mappát. A HVSC dallamai a keresősávon jelennek meg, és a
+  lejátszási lista továbblép, amikor egy aldallam véget ér. Lásd: [HVSC (High
+  Voltage SID gyűjtemény)](#hvsc-high-voltage-sid-collection).
+- **Spektrumanalizátor** — egy lebegő LED-sávos megjelenítő az SID lejátszóhoz
+  8-32 sávval, elhalványuló cellákkal és tükrözött padlóval. Lásd:
+  [Spektrumanalizátor](#spectrum-analyzer).
+- **Leckeszerkesztő** — alakítsd át saját programodat lépésről lépésre vezetett
+  leckévé, hasonlóan a beépített "Build: Az első szöveges programod" funkcióhoz:
+  adj hozzá magyarázatokat, válaszd ki a mappát, próbáld ki, mentsd el,
+  exportáld/importáld az `.vatut` fájlokat. Lásd: [Oktatóanyagok és a
+  leckeszerkesztő]{1].
+- **Online leckék** — töltsd le a www.c64va.pro oldalon közzétett leckéket
+  közvetlenül a Tutoriálok listájába a frissítésekkel együtt, és töltsd fel a
+  sajátjaidat a Leckeszerkesztőből áttekintésre. Lásd: [Online
+  leckék](#online-lessons).
+- **Minden makró az operandusmezőben veszi fel a paramétereit** — `SET_BG $06`,
+  `REGION Main`, `ORG $C000`, `SPRITE_POS 1, 200, 50` …: a szöveg a makró Expert
+  soraként olvasható, a mező pedig a várt formát mutatja. Lásd: [Paraméterek az
+  operandusmezőben](#parameters-in-the-operand-field).
+- **Kisebb fejlesztések** — az aktív lebegő ablak kiemelve jelenik meg, a
+  Támogatás ablak úgy néz ki, mint egy csevegés, az egérgörgő oldalra görgeti a
+  fülsávot, és az Ultimate Basic kódméret oszlopa már nem takarja el a
+  sorszámokat.
 
 ---
 
@@ -828,6 +861,26 @@ A paletta tetején található **keresőmezővel** név szerinti szűréshez kat
 a **Kijelölt blokk hozzáadása** gombra, vagy húzzon egy blokkot a
 programterületre.
 
+### Paraméterek az operandusmezőben
+
+Minden paraméterekkel rendelkező blokk az **operandus mezőben** veszi fel őket
+az **Add** előtt. Utasítások esetén ez az operandus (`06` az `LDA #$06` esetén);
+TEXT, BYTE, LABEL, REGION és a többi szöveg- vagy listamakró esetén ez a
+szövegük vagy értékük; minden más makró esetében pedig az, ami a kulcsszó után
+áll Szakértő módban:
+
+| Tömb       | Operandusmező    | Vál                      |
+| ---------- | ---------------- | ------------------------ |
+| SET_BG     | `$06`            | `.set_bg $06`            |
+| RÉGIÓ      | `Fő`             | `.region Főoldal`        |
+| ORG        | `$C000`          | `* = $C000`              |
+| SPRITE_POS | `1, 200, 50`     | `.sprite_pos 1, 200, 50` |
+| HUROK      | `Y, $05, myloop` | `.loop Y, $05, myloop`   |
+
+A mező a makró alapértelmezett paramétereit mutatja segítségül. A paraméter
+nélküli blokkok (ENDREGION, ELSE …) és a fájlmakrók (INCBIN, KOALA, LEVEL, SID,
+INCLUDE – ezek a blokkban választják ki a fájljukat) letiltva tartják a mezőt.
+
 ---
 
 ## 4. ASM nézet
@@ -1297,6 +1350,48 @@ Az `@name`, `@category` és `@desc` fájloknak lehetnek nyelvenként eltérő
 változatai (`@name.hu`, `@desc.de`, …); az `@order` rendezi a listát. A fejléc
 utáni összes elem lesz az új fő fájl, és az `{{PROJECT}}` helyére a projekt neve
 kerül (használd megjegyzésben, hogy maga a sablon továbbra is leforduljon).
+
+### Oktatóanyagok és a leckeszerkesztő
+
+Az **Oktatóanyagok** ablak mappák szerint listázza a bemutatókat és a leckéket.
+A lista alján található **Leckeszerkesztő…** gomb (és a saját leckéknél a
+**Lecke szerkesztése**) megnyitja a **Leckeszerkesztőt**, amely lépésről lépésre
+haladó leckéket készít, például a "Build: Az első szöveges programod" című részt
+a saját kódodból:
+
+1. Írd meg a programot a Blokk vagy az Expert szerkesztőben.
+2. A Leckeszerkesztőben nyomd meg a **Lépések az aktuális programból** gombot.
+   Minden sor a tanuló lépéseit adja meg: válaszd ki a mnemonikus elemet (egy
+   rossz előre ki van választva), írd be az operandust, nyomd meg az
+   **Hozzáadás** gombot. Ahol a paletta nem tud mindent beállítani (például egy
+   SZÖVEG pozíciót), a **Paraméterek beállítása** lépés az új blokkra mutat, és
+   akkor ugrik tovább, ha egyezik.
+3. Adj címet, leírást, nehézségi szintet és **mappát** (bármely Oktatóanyagok
+   kategória). Add hozzá a **szöveges lépéseket** magyarázatokhoz, opcionálisan
+   az ablak egy részére mutatva (paletta, programpanel, ASM nézet, Futtatás
+   gomb, memóriatérkép). Hagyd üresen a lépés címét vagy magyarázatát a
+   létrehozott szöveghez.
+4. **Próbáld ki a leckét** (törli az aktuális programot), majd **Mentsd el a
+   leckét** (Ctrl+S).
+
+A szövegek az aktuális felhasználói felület nyelvén lesznek mentve; egy másik
+nyelvet használó diák ezeket látja, vagy a létrehozott szöveget, ahová Ön nem
+írt semmit. A **Makróparaméterek automatikus kitöltése** kihagyja a
+paraméterlépéseket a diák számára. A **Fájlok ▾** leckéket hoz létre, töröl,
+exportál és importál `.vatut` fájlokként, és megnyitja a leckék mappáját.
+
+#### Online órák
+
+Az **Online leckék…** az Oktatóanyagok ablakban felsorolja a www.c64va.pro
+oldalon közzétett leckéket a mappájukkal, nehézségükkel és lépésszámukkal
+együtt. A **Letöltés** beilleszti a leckét a saját mappájába az Oktatóanyagok
+listában; az **Frissítés** akkor jelenik meg, ha a webhelynek újabb verziója van
+(a Leckeszerkesztő minden mentéskor frissíti a lecke módosításait). Saját leckéd
+megosztásához használd a **Fájlok ▾ → Feltöltés a c64va.pro…** menüpontot a
+Leckeszerkesztőben: add meg a neved (szerzőként jelenik meg), és opcionálisan
+egy e-mail címet és egy megjegyzést. A leckét először átnézzük; jóváhagyás után
+mindenki online leckéinek listájában megjelenik. Az e-mail címed soha nem kerül
+nyilvánosságra.
 
 ### Futás, D64 és Exomizer
 
@@ -5720,6 +5815,38 @@ dalokat.
   visszalép a véletlenszerű sorrendben. A beállítás megjegyzendő.
 - **Kedvencek:** az egyes sorban található ☆ / ★ egy dallamot jelöl; ez a
   mentett állapotban és a `.sidpl` lejátszási listákban is megtalálható.
+
+#### HVSC (Nagyfeszültségű SID-gyűjtés)
+
+Az SID Player eszköztárán található **HVSC** gomb megnyit egy keresőpanelt a
+[High Voltage SID Collection](https://www.hvsc.c64.org/) gyűjteményhez, amely
+körülbelül 61 000 C64 dallamot tartalmaz.
+
+- **Keresés:** írj be egy címet, zeneszerzőt vagy mappát (`hubbard commando`,
+  `games/s-z`); minden szónak egyeznie kell. A **Véletlenszerű dallamok** 25
+  véletlenszerű dallamot sorol fel.
+- **Lejátszás / hozzáadás / mentés:** kattintson egy dallamra a lejátszáshoz, az
+  **+** gomb hozzáadja a lejátszási listához, a letöltés gomb elmenti az `.sid`
+  fájlt. Az **Összes találat hozzáadása** legfeljebb 100 találatot ad össze.
+- **Dallamhosszak:** A HVSC ismeri minden aldallam hosszát, így a keresősáv
+  mutatja azt, és a lejátszási lista továbblép, amikor az aldallam véget ér.
+- **A dallamok forrása:** A katalógus és az egyes dallamok az első használatkor
+  egy HVSC tükörről töltődnek le, és az alkalmazás gyorsítótárában tárolódnak,
+  így az egyszer lejátszott dallam offline is lejátszható. **A katalógus
+  frissítése** lekéri a legújabb listát.
+- **Teljes gyűjtemény:** **A teljes gyűjtemény letöltése…** letölti a hivatalos
+  HVSC archívumot (kb. 85 MB) egy kiválasztott mappába, majd ott kicsomagolja
+  (kb. 380 MB); ettől kezdve a lejátszó ezt a másolatot használja, és offline
+  működik. **Helyi HVSC mappa használata…** egy már meglévő gyűjteményre mutat.
+
+#### Spektrumanalizátor
+
+A SID Player eszköztárán található sávgomb megnyitja a **Spectrum** ablakot:
+LED-stílusú sávok zöldtől sárgán át narancssárgáig, lassan elhalványuló cellák
+és tükrözött padló perspektívában. Megjeleníti azt, amit a SID Player vagy a SID
+Editor lejátszik, bármelyik motorral. A **Bands** 8, 16, 24 vagy 32 sávot állít
+be. Az ablak mozgatható és átméretezhető, a SID Playerrel együtt záródik és
+nyílik meg újra, és csak akkor rajzol, amikor meg van nyitva.
 
 ---
 

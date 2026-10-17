@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Manuale utente
 
-**Versione 2.6.1**
+**Versione 2.6.2**
 
 Un assembler visuale a blocchi per il Commodore 64, basato sul processore 6502.
 Crea programmi trascinando e rilasciando blocchi di istruzioni e visualizza in
@@ -11,6 +11,7 @@ tempo reale il codice assembly e il codice macchina generati.
 ## Sommario
 
 - [C64 Visual Assembler — Manuale utente](#c64-visual-assembler--user-manual)
+    - [Punti salienti della versione 2.6.2](#version-262-highlights)
     - [Punti salienti della versione 2.6.1](#version-261-highlights)
     - [Punti salienti della versione 2.6.0](#version-260-highlights)
     - [Punti salienti della versione 2.5.9](#version-259-highlights)
@@ -204,6 +205,37 @@ tempo reale il codice assembly e il codice macchina generati.
     - [Editor di curve](#curve-editor)
     - [Generatore di tabelle](#table-generator)
     - [Convertitore di numeri](#number-converter)
+
+---
+
+## Punti salienti della versione 2.6.2
+
+- **HVSC nel lettore SID** — cerca nella High Voltage SID Collection (circa
+  61.000 brani) per titolo, compositore o cartella, riproduci, aggiungi alla
+  playlist o salva qualsiasi brano; scarica l'intera collezione in una volta
+  sola per l'utilizzo offline oppure indica al lettore una cartella HVSC
+  decompressa. I brani di HVSC mostrano la loro durata reale sulla barra di
+  ricerca e la playlist passa al brano successivo quando termina una sottotrama.
+  Vedi [HVSC (High Voltage SID Collection)](#hvsc-high-voltage-sid-collection).
+- **Analizzatore di spettro** — un visualizzatore a barra LED fluttuante per il
+  SID Player con da 8 a 32 bande, celle sfumate e un pavimento specchiato. Vedi
+  [Analizzatore di spettro](#spectrum-analyzer).
+- **Editor di lezioni** — trasforma il tuo programma in una lezione guidata
+  passo passo come quella integrata "Crea: Il tuo primo programma di testo":
+  aggiungi spiegazioni, scegli la cartella, provalo, salvalo, esporta/importa
+  file `.vatut`. Vedi [Tutorial e l'Editor di
+  lezioni](#tutorials-and-the-lesson-editor).
+- **Lezioni online** — scarica le lezioni pubblicate su www.c64va.pro
+  direttamente nell'elenco dei tutorial, con aggiornamenti, e carica le tue
+  lezioni dall'editor per la revisione. Vedi [Lezioni online](#online-lessons).
+- **Ogni macro prende i suoi parametri nel campo operando** — `SET_BG $06`,
+  `REGION Main`, `ORG $C000`, `SPRITE_POS 1, 200, 50` …: il testo viene letto
+  come la riga Expert della macro e il campo mostra il formato previsto. Vedi
+  [Parametri nel campo operando](#parameters-in-the-operand-field).
+- **Miglioramenti minori** — la finestra mobile attiva è evidenziata, la
+  finestra di supporto ha l'aspetto di una chat, la rotellina del mouse scorre
+  la barra delle schede lateralmente e la colonna delle dimensioni del codice
+  Ultimate Basic non copre più i numeri di riga.
 
 ---
 
@@ -859,6 +891,26 @@ Utilizza la casella di ricerca **** nella parte superiore della tavolozza per
 filtrare per nome. Fai clic sul pulsante **Aggiungi blocco selezionato** oppure
 trascina un blocco nell'area del programma.
 
+### Parametri nel campo operando
+
+Ogni blocco con parametri li prende nel campo **operando** prima di **Add**. Per
+un'istruzione è l'operando (`06` per `LDA #$06`); per TEXT, BYTE, LABEL, REGION
+e le altre macro di testo o di elenco è il loro testo o valore; per ogni altra
+macro è ciò che segue la sua parola chiave in modalità esperto:
+
+| Bloccare       | Campo di lavoro  | Diventa                  |
+| -------------- | ---------------- | ------------------------ |
+| SET_BG         | `$06`            | `.set_bg $06`            |
+| REGIONE        | `Principale`     | `.Regione Principale`    |
+| ORG            | `$C000`          | `* = $C000`              |
+| SPRITE_POS     | `1, 200, 50`     | `.sprite_pos 1, 200, 50` |
+| CICLO CONTINUO | `Y, $05, myloop` | `.loop Y, $05, myloop`   |
+
+Il campo mostra i parametri predefiniti della macro come suggerimento. I blocchi
+senza parametri (ENDREGION, ELSE …) e le macro di file (INCBIN, KOALA, LEVEL,
+SID, INCLUDE - che selezionano il file all'interno del blocco) mantengono il
+campo disabilitato.
+
 ---
 
 ## 4. Vista ASM
@@ -1339,6 +1391,48 @@ ed etichette.
 diventa il nuovo file principale e `{{PROJECT}}` viene sostituito con il nome
 del progetto (usalo in un commento in modo che il modello stesso venga comunque
 compilato).
+
+### Tutorial e editor di lezioni
+
+La finestra **Tutorials** elenca tour e lezioni per cartella. Il pulsante
+**Editor lezioni…** in fondo all'elenco (e **Modifica lezione** sulle tue
+lezioni) apre l'**Editor lezioni**, che permette di creare una lezione passo
+passo come "Crea: il tuo primo programma di testo" a partire dal tuo codice:
+
+1. Scrivi il programma nell'editor a blocchi o nell'editor esperto.
+2. Nell'editor delle lezioni, premere **Passaggi dal programma corrente**. Ogni
+   riga diventa i passaggi dello studente: selezionare la frase mnemonica (una
+   errata è preselezionata), digitare l'operando, premere **Aggiungi**. Laddove
+   la tavolozza non può impostare tutto (ad esempio, una posizione di TESTO), un
+   passaggio **Imposta i parametri** punta al nuovo blocco e procede quando
+   corrisponde.
+3. Assegna alla lezione un titolo, una descrizione, un livello di difficoltà e
+   una **cartella** (qualsiasi categoria di tutorial). Aggiungi **passaggi di
+   testo** per le spiegazioni, eventualmente puntando a una parte della finestra
+   (tavolozza, pannello del programma, vista ASM, pulsante Esegui, mappa della
+   memoria). Lascia vuoto il titolo o la spiegazione di un passaggio per il
+   testo generato.
+4. **Prova la lezione** (cancella il programma corrente), quindi **Salva la
+   lezione** (Ctrl+S).
+
+I testi vengono salvati nella lingua corrente dell'interfaccia utente; uno
+studente che utilizza un'altra lingua li visualizzerà, oppure il testo generato
+laddove non ne hai scritto alcuno. **Compila automaticamente i parametri delle
+macro** salta i passaggi dei parametri per lo studente. **File ▾** crea,
+elimina, esporta e importa lezioni come file `.vatut` e apre la cartella delle
+lezioni.
+
+#### Lezioni online
+
+**Lezioni online…** nella finestra Tutorial elenca le lezioni pubblicate su
+www.c64va.pro con la relativa cartella, difficoltà e numero di passaggi.
+**Scarica** inserisce una lezione nella sua cartella nell'elenco Tutorial;
+**Aggiorna** appare quando il sito ha una versione più recente (l'Editor lezioni
+genera una revisione di una lezione ad ogni salvataggio). Per condividere la tua
+lezione, usa **File ▾ → Carica su c64va.pro…** nell'Editor lezioni: inserisci il
+tuo nome (mostrato come autore) e facoltativamente un'email e una nota. La
+lezione viene prima esaminata; una volta approvata appare nell'elenco Lezioni
+online di tutti. La tua email non viene mai pubblicata.
 
 ### Esecuzione, D64 ed Exomizer
 
@@ -6081,6 +6175,41 @@ collezione HVSC.
   indietro nell'ordine casuale. L'impostazione viene memorizzata.
 - **Preferiti:** la ☆ / ★ in ogni riga contrassegna un brano; viene mantenuto
   nello stato salvato e nelle playlist `.sidpl`.
+
+#### HVSC (Raccolta di SID ad alta tensione)
+
+Il pulsante **HVSC** nella barra degli strumenti di SID Player apre un pannello
+di ricerca per la [High Voltage SID Collection](https://www.hvsc.c64.org/),
+circa 61.000 brani per C64.
+
+- **Cerca:** digita un titolo, un compositore o una cartella (`hubbard
+  commando`, `giochi/s-z`); ogni parola deve corrispondere. **Melodie casuali**
+  elenca 25 brani casuali.
+- **Riproduci / aggiungi / salva:** fai clic su un brano per riprodurlo, **+**
+  lo aggiunge alla playlist, il pulsante di download salva il file `.sid`.
+  **Aggiungi tutti i risultati** aggiunge fino a 100 brani trovati.
+- **Durata dei brani:** HVSC conosce la durata di ogni sotto-brano, quindi la
+  barra di ricerca la mostra e la playlist passa al brano successivo quando il
+  sotto-brano termina.
+- **Da dove provengono i brani:** il catalogo e i singoli brani vengono
+  scaricati da un mirror HVSC al primo utilizzo e conservati nella cache
+  dell'app, quindi un brano riprodotto una volta viene riprodotto anche offline.
+  **Aggiorna catalogo** recupera l'elenco più recente.
+- **Collezione completa:** **Scarica l'intera collezione...** scarica l'archivio
+  ufficiale HVSC (circa 85 MB) in una cartella a tua scelta e lo decomprime lì
+  (circa 380 MB); da quel momento in poi il lettore utilizza quella copia e
+  funziona offline. **Usa una cartella HVSC locale...** indica una collezione
+  che hai già.
+
+#### Analizzatore di spettro
+
+Il pulsante della barra nella barra degli strumenti di SID Player apre la
+finestra **Spectrum**: barre in stile LED dal verde al giallo all'arancione,
+celle che svaniscono lentamente e un pavimento specchiato in prospettiva. Mostra
+qualsiasi cosa riprodotta da SID Player o SID Editor, con entrambi i motori.
+**Bands** imposta 8, 16, 24 o 32 bande. La finestra può essere spostata e
+ridimensionata, si chiude e si riapre insieme a SID Player e disegna solo quando
+è aperta.
 
 ---
 

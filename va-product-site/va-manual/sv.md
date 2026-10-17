@@ -1,6 +1,6 @@
 # C64 Visuell Assembler — Användarmanual
 
-**Version 2.6.1**
+**Version 2.6.2**
 
 En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom att
 dra och släppa instruktionsblock och se den genererade assemblern och
@@ -11,6 +11,7 @@ maskinkoden i realtid.
 ## Innehållsförteckning
 
 - [C64 Visual Assembler — Användarmanual](#c64-visual-assembler--user-manual)
+    - [Höjdpunkter i version 2.6.2](#version-262-highlights)
     - [Höjdpunkter i version 2.6.1](#version-261-highlights)
     - [Höjdpunkter i version 2.6.0](#version-260-highlights)
     - [Höjdpunkter i version 2.5.9](#version-259-highlights)
@@ -202,6 +203,37 @@ maskinkoden i realtid.
     - [Kurvredigerare](#curve-editor)
     - [Tabellgenerator](#table-generator)
     - [Nummeromvandlare](#number-converter)
+
+---
+
+## Höjdpunkter i version 2.6.2
+
+- **HVSC i SID-spelaren** — sök i High Voltage SID-samlingen (cirka 61 000
+  låtar) efter titel, kompositör eller mapp, spela upp, lägg till i spellistan
+  eller spara valfri låt; ladda ner hela samlingen på en gång för
+  offline-användning, eller peka spelaren mot en uppackad HVSC-mapp. Låtar från
+  HVSC får sin verkliga längd i sökfältet och spellistan går vidare när en
+  underlåt slutar. Se [HVSC (High Voltage SID
+  Collection)](#hvsc-high-voltage-sid-collection).
+- **Spektranalysator** — en flytande LED-barvisualiseringsverktyg för SID Player
+  med 8 till 32 band, blekande celler och ett speglat golv. Se
+  [Spektranalysator](#spectrum-analyzer).
+- **Lektionsredigerare** — förvandla ditt eget program till en
+  steg-för-steg-guidad lektion som den inbyggda "Bygg: Ditt första textprogram":
+  lägg till förklaringar, välj mappen, prova det, spara det, exportera/importera
+  `.vatut`-filer. Se [Handledningar och
+  lektionsredigeraren](#tutorials-and-the-lesson-editor).
+- **Onlinelektioner** — ladda ner lektioner publicerade på www.c64va.pro direkt
+  till listan över handledningar, med uppdateringar, och ladda upp dina egna
+  från lektionsredigeraren för granskning. Se
+  [Onlinelektioner](#online-lessons).
+- **Varje makro tar sina parametrar i operandfältet** — `SET_BG $06`, `REGION
+  Main`, `ORG $C000`, `SPRITE_POS 1, 200, 50` …: texten läses som makrots
+  expertrad, och fältet visar den förväntade formen. Se [Parametrar i
+  operandfältet](#parameters-in-the-operand-field).
+- **Mindre förbättringar** — det aktiva flytande fönstret är markerat,
+  supportfönstret ser ut som en chatt, mushjulet rullar flikfältet i sidled och
+  kolumnen Ultimate Basic-kodstorlek täcker inte längre radnumren.
 
 ---
 
@@ -803,6 +835,25 @@ Paletten till vänster listar alla tillgängliga block grupperade efter kategori
 Använd sökrutan **** högst upp i paletten för att filtrera efter namn. Klicka på
 knappen **Lägg till valt block** eller dra ett block till programområdet.
 
+### Parametrar i operandfältet
+
+Varje block med parametrar tar dem i **operandfältet** före **Add**. För en
+instruktion är det operanden (`06` för `LDA #$06`); för TEXT, BYTE, LABEL,
+REGION och de andra text- eller listmakrona är det deras text eller värde; för
+varje annat makro är det det som följer dess nyckelord i expertläge:
+
+| Blockera   | Operandfält      | Blir                     |
+| ---------- | ---------------- | ------------------------ |
+| SET_BG     | `$06`            | `.set_bg $06`            |
+| OMRÅDE     | `Huvud`          | `.region Huvud`          |
+| ORG        | `$C000`          | `* = $C000`              |
+| SPRITE_POS | `1, 200, 50 `    | `.sprite_pos 1, 200, 50` |
+| SLINGA     | `Y, $05, myloop` | `.loop Y, $05, myloop`   |
+
+Fältet visar makrots standardparametrar som en ledtråd. Block utan parametrar
+(ENDREGION, ELSE…) och filmakron (INCBIN, KOALA, LEVEL, SID, INCLUDE — de väljer
+sin fil i blocket) håller fältet inaktiverat.
+
 ---
 
 ## 4. ASM-vy
@@ -1248,6 +1299,45 @@ Exomizer-status, variabler, arrayer, funktioner/subrutiner och etiketter.
 `@desc.de`, …); `@order` sorterar listan. Allt efter rubriken blir den nya
 huvudfilen, och `{{PROJECT}}` ersätts med projektnamnet (använd det i en
 kommentar så att själva mallen fortfarande kompileras).
+
+### Handledningar och lektionsredigeraren
+
+Fönstret **Handledningar** listar rundturer och lektioner efter mapp. Knappen
+**Lektionsredigerare…** längst ner i listan (och **Redigera lektion** på dina
+egna lektioner) öppnar **Lektionsredigeraren**, som skapar en
+steg-för-steg-lektion som "Bygg: Ditt första textprogram" från din egen kod:
+
+1. Skriv programmet i Block- eller Experteditorn.
+2. I lektionsredigeraren trycker du på **Steg från det aktuella programmet**.
+   Varje rad blir elevens steg: välj mnemoniken (fel rad är förvald), skriv
+   operanden, tryck på **Lägg till**. Där paletten inte kan ställa in allt (till
+   exempel en TEXT-position) pekar ett **Ange parametrarna**-steg på det nya
+   blocket och går vidare när det matchar.
+3. Ge lektionen en titel, beskrivning, svårighetsgrad och **mapp** (valfri
+   kategori för handledningar). Lägg till **textsteg** för förklaringar,
+   eventuellt pekande på en del av fönstret (palett, programpanel, ASM-vy,
+   Kör-knapp, minneskarta). Lämna ett stegs titel eller förklaring tom för den
+   genererade texten.
+4. **Försök med lektionen** (det rensar det aktuella programmet), och **Spara
+   sedan lektionen** (Ctrl+S).
+
+Texter sparas i det aktuella gränssnittsspråket; en elev som använder ett annat
+språk ser dem, eller den genererade texten där du inte skrev några. **Fyll i
+makroparametrar automatiskt** hoppar över parameterstegen för eleven. **Filer
+▾** skapar, tar bort, exporterar och importerar lektioner som `.vatut`-filer och
+öppnar lektionsmappen.
+
+#### Onlinelektioner
+
+**Onlinelektioner…** i handledningsfönstret listar lektionerna som publicerats
+på www.c64va.pro med deras mapp, svårighetsgrad och antal steg. **Ladda ner**
+placerar en lektion i sin mapp i handledningslistan; **Uppdatera** visas när
+webbplatsen har en nyare version (lektionredigeraren uppdaterar en lektions
+version varje gång du sparar). För att dela din egen lektion, använd **Filer ▾ →
+Ladda upp till c64va.pro…** i lektionsredigeraren: ange ditt namn (visas som
+författare) och eventuellt en e-postadress och en anteckning. Lektionen granskas
+först; när den är godkänd visas den i allas lista över onlinelektioner. Din
+e-postadress publiceras aldrig.
 
 ### Löpning, D64 och Exomizer
 
@@ -5467,6 +5557,37 @@ Verktygsfältsknappen **SID Player** öppnar ett flytande fönster som spelar up
   Inställningen sparas.
 - **Favoriter:** ☆ / ★ i varje rad markerar en låt; den sparas i sparat
   tillstånd och i `.sidpl` spellistor.
+
+#### HVSC (Högspännings-SID-samling)
+
+Knappen **HVSC** i SID Player-verktygsfältet öppnar en sökpanel för [High
+Voltage SID Collection](https://www.hvsc.c64.org/), cirka 61 000 C64-låtar.
+
+- **Sök:** skriv en titel, kompositör eller mapp (`hubbard commando`,
+  `games/s-z`); varje ord måste matcha. **Slumpmässiga låtar** listar 25
+  slumpmässiga låtar.
+- **Spela / lägg till / spara:** klicka på en låt för att spela den, **+**
+  lägger till den i spellistan, nedladdningsknappen sparar `.sid`-filen. **Lägg
+  till alla resultat** lägger till upp till 100 funna låtar.
+- **Låtlängder:** HVSC känner till längden på varje undermelodi, så sökfältet
+  visar den och spellistan går vidare när undermelodin slutar.
+- **Varifrån låtarna kommer:** Katalogen och enskilda låtar laddas ner från en
+  HVSC-spegel vid första användningen och sparas i appens cache, så en låt som
+  spelas en gång spelas också offline. **Uppdatera katalogen** hämtar den
+  senaste listan.
+- **Hela samlingen:** **Ladda ner hela samlingen…** laddar ner det officiella
+  HVSC-arkivet (cirka 85 MB) till en mapp du väljer och packar upp det där
+  (cirka 380 MB); från och med då använder spelaren den kopian och fungerar
+  offline. **Använd en lokal HVSC-mapp…** pekar den mot en samling du redan har.
+
+#### Spektrumanalysator
+
+Knappen med stapeln i SID Player-verktygsfältet öppnar fönstret **Spectrum**:
+LED-liknande staplar från grönt via gult till orange, celler som tonas ut
+långsamt och ett speglat golv i perspektiv. Det visar vad SID Player eller SID
+Editor spelar, med endera motorn. **Bands** ställer in 8, 16, 24 eller 32 band.
+Fönstret kan flyttas och ändras i storlek, det stängs och öppnas igen
+tillsammans med SID Player, och det ritar bara när det är öppet.
 
 ---
 

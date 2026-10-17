@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Podręcznik użytkownika
 
-**Wersja 2.6.1**
+**Wersja 2.6.2**
 
 Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągając
 i upuszczając bloki instrukcji, i oglądaj generowany kod assemblera i maszynowy
@@ -12,6 +12,7 @@ w czasie rzeczywistym.
 
 - [C64 Visual Assembler — Podręcznik
   użytkownika](#c64-visual-assembler--user-manual)
+    - [Najważniejsze cechy wersji 2.6.2](#version-262-highlights)
     - [Najważniejsze cechy wersji 2.6.1](#version-261-highlights)
     - [Najważniejsze cechy wersji 2.6.0](#version-260-highlights)
     - [Najważniejsze cechy wersji 2.5.9](#version-259-highlights)
@@ -207,6 +208,35 @@ w czasie rzeczywistym.
     - [Edytor krzywych](#curve-editor)
     - [Generator tabel](#table-generator)
     - [Konwerter liczb](#number-converter)
+
+---
+
+## Najważniejsze cechy wersji 2.6.2
+
+- **HVSC w odtwarzaczu SID** — przeszukaj kolekcję High Voltage SID (około 61
+  000 utworów) według tytułu, kompozytora lub folderu, odtwórz, dodaj do
+  playlisty lub zapisz dowolny utwór; pobierz całą kolekcję za jednym razem do
+  użytku offline lub wskaż rozpakowany folder HVSC w odtwarzaczu. Utwory z HVSC
+  mają wyświetlaną rzeczywistą długość na pasku wyszukiwania, a playlista
+  przechodzi do następnego utworu po jego zakończeniu. Zobacz [HVSC (kolekcja
+  High Voltage SID)](#hvsc-high-voltage-sid-collection).
+- **Analizator widma** — wizualizator pływających pasków LED dla odtwarzacza SID
+  z 8 do 32 pasmami, zanikającymi komórkami i lustrzanym tłem. Zobacz
+  [Analizator widma](#spectrum-analyzer).
+- **Edytor lekcji** — zmień swój program w lekcję krok po kroku, taką jak
+  wbudowana funkcja „Zbuduj: Twój pierwszy program tekstowy”: dodaj objaśnienia,
+  wybierz folder, wypróbuj, zapisz, eksportuj/importuj pliki `.vatut`. Zobacz
+  [Samouczki i Edytor lekcji](#tutorials-and-the-lesson-editor).
+- **Lekcje online** — pobieraj lekcje opublikowane na www.c64va.pro bezpośrednio
+  na listę samouczków, wraz z aktualizacjami, i przesyłaj własne lekcje z
+  Edytora lekcji do wglądu. Zobacz [Lekcje online](#online-lessons).
+- **Każda makra przyjmuje parametry w polu operandu ** — `SET_BG $06`, `REGION
+  Main`, `ORG $C000`, `SPRITE_POS 1, 200, 50` …: tekst jest odczytywany jako
+  wiersz „Expert” makra, a pole pokazuje oczekiwaną formę. Zobacz [Parametry w
+  polu operandu](#parameters-in-the-operand-field).
+- **Mniejsze ulepszenia** — aktywne okno pływające jest podświetlone, okno
+  pomocy technicznej wygląda jak czat, kółko myszy przewija pasek kart na bok, a
+  kolumna rozmiaru kodu Ultimate Basic nie zakrywa już numerów wierszy.
 
 ---
 
@@ -842,6 +872,26 @@ według kategorii:
 Użyj pola wyszukiwania **** u góry palety, aby filtrować według nazwy. Kliknij
 przycisk **Dodaj wybrany blok** lub przeciągnij blok do obszaru programu.
 
+### Parametry w polu operandu
+
+Każdy blok z parametrami umieszcza je w polu operandu **** przed **Dodaj**. W
+przypadku instrukcji jest to operand (`06` dla `LDA #$06`); w przypadku makr
+TEXT, BYTE, LABEL, REGION i innych makr tekstowych lub listowych jest to ich
+tekst lub wartość; w przypadku każdej innej makry jest to, co następuje po jej
+słowie kluczowym w trybie eksperckim:
+
+| Blok       | Pole operandu        | Staje się                  |
+| ---------- | -------------------- | -------------------------- |
+| SET_BG     | `$06`                | `.set_bg $06`              |
+| REGION     | `Główny`             | `.region Główny`           |
+| ORG        | `$C000`              | `* = $C000`                |
+| SPRITE_POS | `1, 200, 50`         | `.sprite_pos 1, 200, 50`   |
+| PĘTLA      | `Y, $05, moja pętla` | `.pętla Y, $05, mojapętla` |
+
+Pole wyświetla domyślne parametry makra jako wskazówkę. Bloki bez parametrów
+(ENDREGION, ELSE…) i makra plików (INCBIN, KOALA, LEVEL, SID, INCLUDE —
+wybierają swój plik w bloku) powodują wyłączenie pola.
+
 ---
 
 ## 4. Widok ASM
@@ -1303,6 +1353,45 @@ tablic, funkcji/podprogramów i etykiet.
 (`@name.hu`, `@desc.de`, …); `@order` sortuje listę. Wszystko po nagłówku staje
 się nowym plikiem głównym, a `{{PROJECT}}` jest zastępowane nazwą projektu (użyj
 jej w komentarzu, aby sam szablon nadal się kompilował).
+
+### Samouczki i edytor lekcji
+
+Okno **Samouczki** wyświetla przewodniki i lekcje według folderów. Przycisk
+**Edytor lekcji…** na dole listy (oraz **Edytuj lekcję** we własnych lekcjach)
+otwiera **Edytor lekcji**, który tworzy lekcję krok po kroku, taką jak „Zbuduj:
+Twój pierwszy program tekstowy”, z własnego kodu:
+
+1. Napisz program w edytorze blokowym lub eksperckim.
+2. W Edytorze Lekcji naciśnij **Kroki z bieżącego programu**. Każdy wiersz staje
+   się krokami ucznia: wybierz mnemonik (błędny jest wstępnie wybrany), wpisz
+   operand, naciśnij **Dodaj**. Tam, gdzie paleta nie może ustawić wszystkiego
+   (np. pozycji TEKSTU), krok **Ustaw parametry** wskazuje na nowy blok i
+   przechodzi dalej, gdy będzie pasował.
+3. Nadaj lekcji tytuł, opis, poziom trudności i **folder** (dowolna kategoria
+   samouczków). Dodaj **kroki tekstowe** z objaśnieniami, opcjonalnie wskazując
+   na część okna (paleta, panel programu, widok ASM, przycisk Uruchom, mapa
+   pamięci). Pozostaw tytuł lub objaśnienie kroku puste dla wygenerowanego
+   tekstu.
+4. **Wypróbuj lekcję** (powoduje to wyczyszczenie bieżącego programu), a
+   następnie **Zapisz lekcję** (Ctrl+S).
+
+Teksty są zapisywane w bieżącym języku interfejsu użytkownika; uczeń używający
+innego języka je widzi lub widzi wygenerowany tekst, w którym niczego nie
+wpisałeś. Opcja **Automatycznie uzupełniaj parametry makra** pomija kroki
+parametrów dla ucznia. Opcja **Pliki ▾** tworzy, usuwa, eksportuje i importuje
+lekcje jako pliki `.vatut` i otwiera folder z lekcjami.
+
+#### Lekcje online
+
+**Lekcje online…** w oknie samouczków wyświetla listę lekcji opublikowanych na
+stronie www.c64va.pro wraz z folderem, poziomem trudności i liczbą kroków.
+**Pobierz** umieszcza lekcję w odpowiednim folderze na liście samouczków;
+**Aktualizuj** pojawia się, gdy strona ma nowszą wersję (Edytor lekcji wyświetla
+wersję lekcji przy każdym zapisie). Aby udostępnić własną lekcję, użyj **Pliki ▾
+→ Prześlij do c64va.pro…** w Edytorze lekcji: podaj swoje imię i nazwisko
+(wyświetlane jako autor) oraz opcjonalnie adres e-mail i notatkę. Lekcja jest
+najpierw sprawdzana; po zatwierdzeniu pojawia się na liście lekcji online
+wszystkich uczestników. Twój adres e-mail nigdy nie jest publikowany.
 
 ### Uruchomienie, D64 i Exomizer
 
@@ -5801,6 +5890,39 @@ HVSC.
   Ustawienie jest zapamiętywane.
 - **Ulubione:** ☆ / ★ w każdym wierszu oznacza utwór. Jest on przechowywany w
   stanie zapisanym oraz na listach odtwarzania `.sidpl`.
+
+#### HVSC (kolekcja SID wysokiego napięcia)
+
+Przycisk **HVSC** na pasku narzędzi programu SID Player otwiera panel
+wyszukiwania dla kolekcji [High Voltage SID
+Collection](https://www.hvsc.c64.org/), zawierającej około 61 000 utworów C64.
+
+- **Szukaj:** wpisz tytuł, kompozytora lub folder (`hubbard commando`,
+  `games/s-z`); wszystkie słowa muszą pasować. **Losowe melodie** wyświetla 25
+  losowych melodii.
+- **Odtwórz/dodaj/zapisz:** kliknij melodię, aby ją odtworzyć, **+** dodaj ją do
+  listy odtwarzania, przycisk pobierania zapisuje plik `.sid`. **Dodaj wszystkie
+  wyniki** dodaje do 100 znalezionych melodii.
+- **Długość utworów:** HVSC zna długość każdego podutworu, więc pasek
+  wyszukiwania ją pokazuje, a lista odtwarzania przesuwa się dalej, gdy podutwór
+  się kończy.
+- **Skąd pochodzą utwory:** katalog i pojedyncze utwory są pobierane z lustra
+  HVSC przy pierwszym użyciu i przechowywane w pamięci podręcznej aplikacji,
+  więc utwór odtworzony raz jest odtwarzany również w trybie offline.
+  **Aktualizacja katalogu** pobiera najnowszą listę.
+- **Cała kolekcja:** **Pobierz całą kolekcję…** pobierze oficjalne archiwum HVSC
+  (około 85 MB) do wybranego folderu i rozpakuje je tam (około 380 MB); od tej
+  pory odtwarzacz będzie korzystał z tej kopii i działał w trybie offline.
+  **Użyj lokalnego folderu HVSC…** wskaże kolekcję, którą już posiadasz.
+
+#### Analizator widma
+
+Przycisk paska na pasku narzędzi SID Player otwiera okno **Spectrum**: paski w
+stylu LED od zielonego, przez żółty, do pomarańczowego, komórki powoli
+zanikające i lustrzane odbicie w perspektywie. Pokazuje wszystko, co odtwarza
+SID Player lub SID Editor, niezależnie od silnika. **Bands** ustawia 8, 16, 24
+lub 32 pasma. Okno można przesuwać i zmieniać jego rozmiar, zamyka się i otwiera
+ponownie razem z SID Player, a rysuje tylko wtedy, gdy jest otwarte.
 
 ---
 

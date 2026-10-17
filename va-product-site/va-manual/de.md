@@ -1,6 +1,6 @@
 # C64 Visual Assembler – Benutzerhandbuch
 
-**Version 2.6.1**
+**Version 2.6.2**
 
 Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Sie
 Programme durch Ziehen und Ablegen von Befehlsblöcken und sehen Sie den
@@ -11,6 +11,7 @@ generierten Assembler- und Maschinencode in Echtzeit.
 ## Inhaltsverzeichnis
 
 - [C64 Visual Assembler — Benutzerhandbuch](#c64-visual-assembler--user-manual)
+    - [Version 2.6.2 Highlights](#version-262-highlights)
     - [Version 2.6.1 Highlights](#version-261-highlights)
     - [Version 2.6.0 Highlights](#version-260-highlights)
     - [Version 2.5.9 Highlights](#version-259-highlights)
@@ -205,6 +206,40 @@ generierten Assembler- und Maschinencode in Echtzeit.
     - [Kurveneditor](#curve-editor)
     - [Tabellengenerator](#table-generator)
     - [Zahlenkonverter](#number-converter)
+
+---
+
+## Highlights der Version 2.6.2
+
+- **HVSC im SID Player** – Durchsuchen Sie die High Voltage SID Collection (ca.
+  61.000 Titel) nach Titel, Komponist oder Ordner, spielen Sie Titel ab, fügen
+  Sie sie der Playlist hinzu oder speichern Sie sie. Laden Sie die gesamte
+  Sammlung für die Offline-Nutzung herunter oder wählen Sie im Player einen
+  entpackten HVSC-Ordner aus. Die Titel der HVSC-Sammlung werden in der
+  Suchleiste mit ihrer tatsächlichen Länge angezeigt, und die Playlist springt
+  nach jedem Subsong zum nächsten. Siehe [HVSC (High Voltage SID
+  Collection)](#hvsc-high-voltage-sid-collection).
+- **Spektrumanalysator** – ein schwebender LED-Balken-Visualisierer für den SID
+  Player mit 8 bis 32 Bändern, überblendenden Zellen und einem verspiegelten
+  Boden. Siehe [Spektrumanalysator](#spectrum-analyzer).
+- **Lektionseditor** – Verwandeln Sie Ihr eigenes Programm in eine
+  Schritt-für-Schritt-Anleitung wie die integrierte Lektion „Erstellen: Ihr
+  erstes Textprogramm“: Fügen Sie Erklärungen hinzu, wählen Sie den Ordner aus,
+  testen Sie es, speichern Sie es und exportieren/importieren Sie
+  `.vatut`-Dateien. Siehe [Tutorials und der
+  Lektionseditor](#tutorials-and-the-lesson-editor).
+- **Online-Lektionen** – Laden Sie auf www.c64va.pro veröffentlichte Lektionen
+  direkt in die Tutorial-Liste herunter (inkl. Aktualisierungen) und laden Sie
+  Ihre eigenen Lektionen über den Lektionseditor zur Überprüfung hoch. Siehe
+  [Online-Lektionen](#online-lessons).
+- **Jedes Makro verwendet seine Parameter im Operandenfeld** — `SET_BG $06`,
+  `REGION Main`, `ORG $C000`, `SPRITE_POS 1, 200, 50` …: Der Text wird als
+  Expert-Zeile des Makros interpretiert, und das Feld zeigt die erwartete Form
+  an. Siehe [Parameter im Operandenfeld](#parameters-in-the-operand-field).
+- **Kleinere Verbesserungen** — das aktive schwebende Fenster wird
+  hervorgehoben, das Support-Fenster sieht aus wie ein Chat, mit dem Mausrad
+  wird die Tab-Leiste seitlich gescrollt und die Spalte für die Codegröße in
+  Ultimate Basic verdeckt nicht mehr die Zeilennummern.
 
 ---
 
@@ -868,6 +903,26 @@ Verwenden Sie das Suchfeld ** oben in der Palette, um nach Namen zu filtern.
 Klicken Sie auf die Schaltfläche **Ausgewählten Block hinzufügen** oder ziehen
 Sie einen Block in den Programmbereich.
 
+### Parameter im Operandenfeld
+
+Jeder Block mit Parametern benötigt diese im Operandenfeld ** vor **Add**. Bei
+einer Anweisung ist es der Operand (`06` für `LDA #$06`); bei TEXT, BYTE, LABEL,
+REGION und den anderen Text- oder Listenmakros ist es deren Text oder Wert; bei
+allen anderen Makros ist es das, was im Expertenmodus auf das Schlüsselwort
+folgt.
+
+| Block      | Operationsfeld   | Wird                     |
+| ---------- | ---------------- | ------------------------ |
+| SET_BG     | `$06`            | `.set_bg $06`            |
+| REGION     | `Main`           | `.region Main`           |
+| ORG        | `$C000`          | `* = $C000`              |
+| SPRITE_POS | `1, 200, 50`     | `.sprite_pos 1, 200, 50` |
+| SCHLEIFE   | `Y, $05, myloop` | `.loop Y, $05, myloop`   |
+
+Das Feld zeigt die Standardparameter des Makros als Hinweis an. Blöcke ohne
+Parameter (ENDREGION, ELSE …) und die Dateimakros (INCBIN, KOALA, LEVEL, SID,
+INCLUDE – sie wählen ihre Datei im Block aus) halten das Feld deaktiviert.
+
 ---
 
 ## 4. ASM-Ansicht
@@ -1358,6 +1413,51 @@ Variablen, Arrays, Funktionen/Unterprogramme und Labels.
 wird zur neuen Hauptdatei, und `{{PROJECT}}` wird durch den Projektnamen ersetzt
 (verwenden Sie ihn in einem Kommentar, damit die Vorlage selbst weiterhin
 kompiliert wird).
+
+### Tutorials und der Lektionseditor
+
+Das Fenster **Tutorials** listet Touren und Lektionen nach Ordnern auf. Die
+Schaltfläche **Lektionseditor…** am unteren Rand der Liste (und **Lektion
+bearbeiten** bei Ihren eigenen Lektionen) öffnet den **Lektionseditor**, mit dem
+Sie aus Ihrem eigenen Code eine Schritt-für-Schritt-Lektion wie „Erstellen: Ihr
+erstes Textprogramm“ erstellen können.
+
+1. Schreiben Sie das Programm im Block- oder Experteneditor.
+2. Drücken Sie im Lektionseditor **Schritte aus dem aktuellen Programm**. Jede
+   Zeile wird zu den Schritten des Schülers: Wählen Sie die Eselsbrücke (eine
+   falsche ist vorausgewählt), geben Sie den Operanden ein und drücken Sie
+   **Hinzufügen**. Wenn die Palette nicht alles festlegen kann (z. B. eine
+   Textposition), zeigt der Schritt **Parameter festlegen** auf den neuen Block
+   und fährt fort, sobald eine Übereinstimmung gefunden wird.
+3. Geben Sie der Lektion einen Titel, eine Beschreibung, einen
+   Schwierigkeitsgrad und einen Ordner (beliebige Tutorial-Kategorie). Fügen Sie
+   Textschritte für Erklärungen hinzu und verweisen Sie optional auf einen
+   Bereich des Fensters (Palette, Programmfenster, ASM-Ansicht,
+   Ausführen-Schaltfläche, Speicherbelegung). Lassen Sie Titel und Erklärung
+   eines Schritts für den generierten Text leer.
+4. **Lektion ausprobieren** (dadurch wird das aktuelle Programm gelöscht), dann
+   **Lektion speichern** (Strg+S).
+
+Texte werden in der aktuellen Benutzeroberflächensprache gespeichert; ein
+Schüler, der eine andere Sprache verwendet, sieht diese oder den generierten
+Text, falls Sie „Keine“ angegeben haben. **Makroparameter automatisch
+ausfüllen** überspringt die Parameterschritte für den Schüler. **Dateien ▾**
+erstellt, löscht, exportiert und importiert Lektionen als `.vatut`-Dateien und
+öffnet den Lektionsordner.
+
+#### Online-Unterricht
+
+**Online-Lektionen…** Im Tutorial-Fenster werden die auf www.c64va.pro
+veröffentlichten Lektionen mit Ordner, Schwierigkeitsgrad und Schrittanzahl
+aufgelistet. **Herunterladen** fügt eine Lektion dem entsprechenden Ordner in
+der Tutorial-Liste hinzu; **Aktualisieren** erscheint, wenn eine neuere Version
+der Website verfügbar ist (der Lektionseditor aktualisiert die Lektionsversion
+bei jedem Speichern). Um Ihre eigene Lektion zu teilen, verwenden Sie **Dateien
+▾ → Auf c64va.pro hochladen…** im Lektionseditor: Geben Sie Ihren Namen (als
+Autor angezeigt) und optional Ihre E-Mail-Adresse und eine kurze Notiz an. Die
+Lektion wird zunächst geprüft; nach der Genehmigung erscheint sie in der
+Online-Lektionsliste für alle Benutzer. Ihre E-Mail-Adresse wird niemals
+veröffentlicht.
 
 ### Laufen, D64 und Exomizer
 
@@ -6116,6 +6216,43 @@ aus der HVSC-Sammlung.
   Reihenfolge zurück. Die Einstellung wird gespeichert.
 - **Favoriten:** Die ☆ / ★ in jeder Zeile markieren einen Titel; er wird im
   gespeicherten Zustand und in `.sidpl` Wiedergabelisten beibehalten.
+
+#### HVSC (Hochspannungs-SID-Sammlung)
+
+Über die Schaltfläche **HVSC** in der SID Player-Symbolleiste wird ein Suchfeld
+für die [High Voltage SID Collection](https://www.hvsc.c64.org/) geöffnet, die
+etwa 61.000 C64-Musikstücke umfasst.
+
+- **Suche:** Geben Sie einen Titel, Komponisten oder Ordner ein (`hubbard
+  commando`, `games/s-z`); jedes Wort muss übereinstimmen. **Zufällige
+  Melodien** listet 25 zufällige Melodien auf.
+- **Abspielen / Hinzufügen / Speichern: ** Klicken Sie auf einen Titel, um ihn
+  abzuspielen. **+** Fügt ihn zur Wiedergabeliste hinzu. Mit dem Download-Button
+  wird die Datei `.sid` gespeichert. **Alle Ergebnisse hinzufügen** Fügt bis zu
+  100 gefundene Titel hinzu.
+- **Tune-Längen:** HVSC kennt die Länge jedes Subtunes, daher wird sie in der
+  Suchleiste angezeigt und die Wiedergabeliste springt zum nächsten Subtune,
+  wenn dieser endet.
+- **Woher die Titel stammen:** Katalog und einzelne Titel werden bei der ersten
+  Nutzung von einem HVSC-Mirror heruntergeladen und im Cache der App
+  gespeichert, sodass ein einmal abgespielter Titel auch offline abgespielt
+  werden kann. **Katalog aktualisieren** ruft die neueste Liste ab.
+- **Gesamte Sammlung:** **Lade die gesamte Sammlung herunter…** Lädt das
+  offizielle HVSC-Archiv (ca. 85 MB) in einen Ordner Ihrer Wahl herunter und
+  entpackt es dort (ca. 380 MB). Der Player verwendet anschließend diese Kopie
+  und funktioniert offline. **Lokalen HVSC-Ordner verwenden…** Gibt einen
+  bereits vorhandenen Sammlungsordner an.
+
+#### Spektrumanalysator
+
+Die Schaltfläche „Balken“ in der SID-Player-Symbolleiste öffnet das
+Spektrumfenster: LED-ähnliche Balken von Grün über Gelb bis Orange, langsam
+ausblendende Zellen und ein gespiegelter Boden in perspektivischer Darstellung.
+Es zeigt das vom SID Player oder SID Editor wiedergegebene Audiomaterial an,
+unabhängig von der verwendeten Engine. Über „Bänder“ lassen sich 8, 16, 24 oder
+32 Bänder einstellen. Das Fenster kann verschoben und in der Größe angepasst
+werden, es schließt und öffnet sich zusammen mit dem SID Player und wird nur
+angezeigt, solange es geöffnet ist.
 
 ---
 

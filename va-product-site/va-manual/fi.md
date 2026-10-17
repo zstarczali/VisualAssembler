@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Käyttöopas
 
-**Versio 2.6.1**
+**Versio 2.6.2**
 
 Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
 vetämällä ja pudottamalla käskylohkoja ja nähdä luodun assemblerin ja konekoodin
@@ -11,6 +11,7 @@ reaaliajassa.
 ## Sisällysluettelo
 
 - [C64 Visual Assembler — Käyttöopas](#c64-visual-assembler--user-manual)
+    - [Version 2.6.2 kohokohdat](#version-262-highlights)
     - [Version 2.6.1 kohokohdat](#version-261-highlights)
     - [Version 2.6.0 kohokohdat](#version-260-highlights)
     - [Version 2.5.9 kohokohdat](#version-259-highlights)
@@ -205,6 +206,36 @@ reaaliajassa.
     - [Käyräeditori](#curve-editor)
     - [Taulukkogeneraattori](#table-generator)
     - [Numeronmuunnin](#number-converter)
+
+---
+
+## Version 2.6.2 kohokohdat
+
+- **HVSC SID-soittimessa** – hae High Voltage SID -kokoelmasta (noin 61 000
+  kappaletta) nimen, säveltäjän tai kansion mukaan, toista, lisää soittolistalle
+  tai tallenna mikä tahansa kappale; lataa koko kokoelma kerralla
+  offline-käyttöä varten tai ohjaa soittimeen purkamatonta HVSC-kansiota. HVSC:n
+  kappaleiden todellinen pituus näkyy hakupalkissa, ja soittolista siirtyy
+  eteenpäin, kun alikappale päättyy. Katso [HVSC (High Voltage SID
+  -kokoelma)]{1].
+- **Spektrianalysaattori** — kelluva LED-palkki-visualisaattori SID-soittimelle,
+  jossa on 8–32 kaistaa, häipyvät solut ja peilattu lattia. Katso
+  [Spektrianalysaattori](#spectrum-analyzer).
+- **Oppituntieditori** — muunna oma ohjelmasi vaiheittaiseksi ohjatuksi
+  oppitunniksi, kuten sisäänrakennettu "Build: Your First Text Program"
+  -toiminto: lisää selityksiä, valitse kansio, kokeile sitä, tallenna se,
+  vie/tuo `.vatut`-tiedostoja. Katso [Oppitunnit ja oppituntieditori]{1].
+- **Verkko-oppitunnit** — lataa www.c64va.pro-sivustolla julkaistut oppitunnit
+  suoraan tutoriaaliluetteloon päivitettyine oppitunteineen ja lähetä omasi
+  tarkistettavaksi oppituntien muokkausohjelmasta. Katso [Verkko-oppitunnit]{1].
+- **Jokainen makro saa parametrinsa operandikentästä** — `SET_BG $06`, `REGION
+  Main`, `ORG $C000`, `SPRITE_POS 1, 200, 50` …: teksti luetaan makron
+  Expert-riviksi ja kenttä näyttää odotetun muodon. Katso [Operandikentän
+  parametrit](#parameters-in-the-operand-field).
+- **Pienempiä parannuksia** — aktiivinen kelluva ikkuna on korostettuna,
+  tuki-ikkuna näyttää chatilta, hiiren rulla vierittää välilehtipalkkia
+  sivusuunnassa ja Ultimate Basic -koodin koko -sarake ei enää peitä
+  rivinumeroita.
 
 ---
 
@@ -825,6 +856,26 @@ luokittain ryhmiteltyinä:
 Käytä paletin yläosassa olevaa **hakukenttää** suodattaaksesi nimen mukaan.
 Napsauta **Lisää valittu lohko** -painiketta tai vedä lohko ohjelma-alueelle.
 
+### Operandikentän parametrit
+
+Jokainen parametrilohko ottaa ne **operandikenttään** ennen **Add**-komentoa.
+Käskyn tapauksessa se on operandi (`06`, jos kyseessä on `LDA #$06`); TEXT-,
+BYTE-, LABEL-, REGION- ja muiden teksti- tai listamakrojen tapauksessa se on
+niiden teksti tai arvo; kaikkien muiden makrojen tapauksessa se on se, mikä
+seuraa niiden avainsanaa Expert-tilassa:
+
+| Lohko      | Operandikenttä   | Tulee                    |
+| ---------- | ---------------- | ------------------------ |
+| SET_BG     | `06 dollaria`    | `.set_bg $06`            |
+| ALUE       | `Pääasiallinen`  | `.alue Pää`              |
+| ORG        | `$C000`          | `* = $C000`              |
+| SPRITE_POS | `1, 200, 50`     | `.sprite_pos 1, 200, 50` |
+| SILMUKKA   | `Y, $05, myloop` | `.loop Y, $05, myloop`   |
+
+Kenttä näyttää makron oletusparametrit vihjeenä. Lohkot, joilla ei ole
+parametreja (ENDREGION, ELSE …), ja tiedostomakrot (INCBIN, KOALA, LEVEL, SID,
+INCLUDE – ne valitsevat tiedostonsa lohkosta) pitävät kentän pois käytöstä.
+
 ---
 
 ## 4. ASM-näkymä
@@ -1285,6 +1336,46 @@ muuttujat, taulukot, funktiot/aliohjelmat ja otsikot.
 (`@name.hu`, `@desc.de`, …); `@order` lajittelee listan. Kaikesta otsikon
 jälkeen tulee uusi päätiedosto, ja `{{PROJECT}}` korvataan projektin nimellä
 (käytä sitä kommentissa, jotta itse malline kääntyy edelleen).
+
+### Opastusohjelmat ja oppituntien muokkausohjelma
+
+**Tutorials** -ikkuna listaa kierrokset ja oppitunnit kansioissa. Luettelon
+alareunassa oleva **Lesson Editor…** -painike (ja omien oppituntiesi **Muokkaa
+oppituntia**) avaa **Lesson Editor** -toiminnon, jolla voit luoda vaiheittaisen
+oppitunnin, kuten "Build: Your First Text Program" omasta koodistasi:
+
+1. Kirjoita ohjelma lohko- tai asiantuntijaeditorissa.
+2. Paina oppituntieditorissa **Askeleet nykyisestä ohjelmasta**. Jokaisesta
+   rivistä tulee oppilaan askeleet: valitse muistisääntö (väärä on esivalittu),
+   kirjoita operandi ja paina **Lisää**. Jos paletti ei voi asettaa kaikkea
+   (esimerkiksi TEKSTIN sijainti), **Aseta parametrit** -askel osoittaa uuteen
+   lohkoon ja siirtyy eteenpäin, kun se täsmää.
+3. Anna oppitunnille otsikko, kuvaus, vaikeusaste ja **kansio** (mikä tahansa
+   Opastus-kategoria). Lisää selityksiä varten **tekstivaiheet**, jotka
+   halutessasi osoittavat ikkunan osaan (paletti, ohjelmapaneeli, ASM-näkymä,
+   Suorita-painike, muistikartta). Jätä vaiheen otsikko tai selitys tyhjäksi
+   luotua tekstiä varten.
+4. **Kokeile oppituntia** (se tyhjentää nykyisen ohjelman) ja sitten **Tallenna
+   oppitunti** (Ctrl+S).
+
+Tekstit tallennetaan käyttöliittymän nykyisellä kielellä; toista kieltä käyttävä
+opiskelija näkee ne tai luodun tekstin, johon et kirjoittanut mitään. **Täytä
+makroparametrit automaattisesti** ohittaa parametrivaiheet opiskelijan kohdalla.
+**Tiedostot ▾** luo, poistaa, vie ja tuo oppitunteja `.vatut`-tiedostoina ja
+avaa oppituntikansion.
+
+#### Verkko-oppitunnit
+
+Tutoriaalit-ikkunan **Verkko-oppitunnit…** listaa www.c64va.pro-sivustolla
+julkaistut oppitunnit kansioineen, vaikeusasteineen ja vaiheiden lukumäärän
+mukaan. **Lataa** lisää oppitunnin omaan kansioonsa Tutoriaalit-luettelossa;
+**Päivitä** tulee näkyviin, kun sivustolla on uudempi versio (tuntieditori
+nostaa oppitunnin muokkausta jokaisen tallennuksen yhteydessä). Voit jakaa oman
+oppitunnin käyttämällä oppituntieditorissa **Tiedostot ▾ → Lataa
+c64va.pro-sivustolle…**: anna nimesi (näkyy kirjoittajana) ja halutessasi
+sähköpostiosoite ja viesti. Oppitunti tarkistetaan ensin; hyväksynnän jälkeen se
+näkyy kaikkien verkko-oppituntiluettelossa. Sähköpostiosoitettasi ei koskaan
+julkaista.
 
 ### Juoksu, D64 ja Exomizer
 
@@ -5670,6 +5761,39 @@ SID-soittimessa.
   satunnaisessa järjestyksessä. Asetus muistetaan.
 - **Suosikit:** Jokaisella rivillä oleva ☆ / ★ merkitsee kappaletta; se
   säilytetään tallennettuna ja `.sidpl`-soittolistoissa.
+
+#### HVSC (korkeajännitteinen SID-keräys)
+
+SID Playerin työkalupalkin **HVSC**-painike avaa hakupaneelin [High Voltage SID
+Collectionille](https://www.hvsc.c64.org/), joka sisältää noin 61 000
+C64-sävelmää.
+
+- **Haku:** kirjoita otsikko, säveltäjä tai kansio (`hubbard commando`,
+  `games/s-z`); jokaisen sanan on täsmäävä. **Satunnaiset sävelmät** listaa 25
+  satunnaista kappaletta.
+- **Toista / lisää / tallenna:** toistaaksesi kappaleen napsauttamalla sitä,
+  **+** lisää sen soittolistaan, latauspainike tallentaa `.sid`-tiedoston.
+  **Lisää kaikki tulokset** lisää jopa 100 löydettyä kappaletta.
+- **Sävelmien pituudet:** HVSC tietää jokaisen alisävelmän pituuden, joten
+  hakupalkki näyttää sen ja soittolista siirtyy eteenpäin, kun alisävelmä
+  päättyy.
+- **Mistä kappaleet tulevat:** Luettelo ja yksittäiset kappaleet ladataan
+  HVSC-peilistä ensimmäisellä käyttökerralla ja säilytetään sovelluksen
+  välimuistissa, joten kerran soitettu kappale toistetaan myös offline-tilassa.
+  **Päivitä luettelo** hakee uusimman listan.
+- **Koko kokoelma:** **Lataa koko kokoelma…** lataa virallisen HVSC-arkiston
+  (noin 85 Mt) valitsemaasi kansioon ja purkaa sen siellä (noin 380 Mt); tästä
+  eteenpäin pelaaja käyttää kyseistä kopiota ja toimii offline-tilassa. **Käytä
+  paikallista HVSC-kansiota…** osoittaa jo olemassa olevaan kokoelmaan.
+
+#### Spektrianalysaattori
+
+SID Player -työkalurivin palkkipainike avaa **Spectrum**-ikkunan: LED-tyyliset
+palkit vihreästä keltaiseen ja oranssiin, hitaasti häipyvät solut ja peilattu
+lattia perspektiivissä. Se näyttää kaiken, mitä SID Player tai SID Editor
+toistaa, kummallakin moottorilla. **Bands** asettaa 8, 16, 24 tai 32 kaistaa.
+Ikkunaa voi siirtää ja sen kokoa voi muuttaa, se sulkeutuu ja avautuu uudelleen
+yhdessä SID Playerin kanssa, ja se piirtää vain ollessaan auki.
 
 ---
 

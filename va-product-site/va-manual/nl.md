@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Gebruikershandleiding
 
-**Versie 2.6.1**
+**Versie 2.6.2**
 
 Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw
 programma's door instructieblokken te slepen en neer te zetten, en bekijk de
@@ -12,6 +12,7 @@ gegenereerde assembly- en machinecode in realtime.
 
 - [C64 Visual Assembler —
   Gebruikershandleiding](#c64-visual-assembler--user-manual)
+    - [Hoogtepunten van versie 2.6.2](#version-262-highlights)
     - [Hoogtepunten van versie 2.6.1](#version-261-highlights)
     - [Hoogtepunten van versie 2.6.0](#version-260-highlights)
     - [Hoogtepunten van versie 2.5.9](#version-259-highlights)
@@ -204,6 +205,37 @@ gegenereerde assembly- en machinecode in realtime.
     - [Curve-editor](#curve-editor)
     - [Tabelgenerator](#table-generator)
     - [Nummeromzetter](#number-converter)
+
+---
+
+## Hoogtepunten van versie 2.6.2
+
+- **HVSC in de SID-speler** — zoek in de High Voltage SID-collectie (ongeveer
+  61.000 nummers) op titel, componist of map, speel een nummer af, voeg het toe
+  aan de afspeellijst of sla het op; download de hele collectie in één keer voor
+  offline gebruik, of wijs de speler naar een uitgepakte HVSC-map. Nummers uit
+  HVSC krijgen hun werkelijke lengte op de zoekbalk en de afspeellijst gaat
+  verder wanneer een subnummer eindigt. Zie [HVSC (High Voltage
+  SID-collectie)](#hvsc-high-voltage-sid-collection).
+- **Spectrum-analysator** — een zwevende LED-balkvisualizer voor de SID Player
+  met 8 tot 32 banden, vervagende cellen en een spiegelende vloer. Zie
+  [Spectrum-analysator](#spectrum-analyzer).
+- **Leseditor** — maak van je eigen programma een stapsgewijze begeleide les,
+  zoals de ingebouwde "Bouwen: Je eerste tekstprogramma": voeg uitleg toe, kies
+  de map, probeer het uit, sla het op, exporteer/importeer `.vatut` bestanden.
+  Zie [Handleidingen en de leseditor](#tutorials-and-the-lesson-editor).
+- **Online lessen** — download lessen die gepubliceerd zijn op www.c64va.pro
+  rechtstreeks naar de lijst met tutorials, inclusief updates, en upload je
+  eigen lessen vanuit de leseditor ter beoordeling. Zie [Online
+  lessen](#online-lessons).
+- **Elke macro neemt zijn parameters in het operandveld** — `SET_BG $06`,
+  `REGION Main`, `ORG $C000`, `SPRITE_POS 1, 200, 50` …: de tekst wordt gelezen
+  als de Expert-regel van de macro en het veld toont de verwachte vorm. Zie
+  [Parameters in het operandveld](#parameters-in-the-operand-field).
+- **Kleinere verbeteringen** — het actieve zwevende venster wordt gemarkeerd,
+  het ondersteuningsvenster ziet eruit als een chat, het muiswiel scrollt de
+  tabbalk zijwaarts en de kolom 'Ultimate Basic code size' bedekt de
+  regelnummers niet langer.
 
 ---
 
@@ -841,6 +873,26 @@ categorie:
 Gebruik het zoekvak **** bovenaan het palet om te filteren op naam. Klik op de
 knop **Geselecteerd blok toevoegen** of sleep een blok naar het programmagebied.
 
+### Parameters in het operandveld
+
+Elk blok met parameters neemt deze in het **operandveld** vóór **Add**. Voor een
+instructie is dit de operand (`06` voor `LDA #$06`); voor TEXT, BYTE, LABEL,
+REGION en de andere tekst- of lijstmacro's is dit hun tekst of waarde; voor elke
+andere macro is dit wat volgt op het trefwoord in de Expert-modus:
+
+| Blok       | Operande veld    | Wordt                    |
+| ---------- | ---------------- | ------------------------ |
+| SET_BG     | `$06`            | `.set_bg $06`            |
+| REGIO      | `Hoofd`          | `.region Main`           |
+| ORG        | `$C000`          | `* = $C000`              |
+| SPRITE_POS | `1, 200, 50`     | `.sprite_pos 1, 200, 50` |
+| LUS        | `Y, $05, myloop` | `.loop Y, $05, myloop`   |
+
+Het veld toont de standaardparameters van de macro als een hint. Blokken zonder
+parameters (ENDREGION, ELSE …) en de bestandsmacro's (INCBIN, KOALA, LEVEL, SID,
+INCLUDE — deze selecteren hun bestand in het blok) houden het veld
+uitgeschakeld.
+
 ---
 
 ## 4. ASM-weergave
@@ -1316,6 +1368,46 @@ Exomizer-status, variabelen, arrays, functies/subroutines en labels.
 wordt het nieuwe hoofdbestand en `{{PROJECT}}` wordt vervangen door de
 projectnaam (gebruik deze in een commentaar zodat de template zelf nog steeds
 compileert).
+
+### Handleidingen en de leseditor
+
+Het venster **Tutorials** toont rondleidingen en lessen per map. De knop
+**Leseditor…** onderaan de lijst (en **Les bewerken** bij je eigen lessen) opent
+de **Leseditor**, waarmee je een stapsgewijze les zoals "Bouw: Je eerste
+tekstprogramma" kunt maken van je eigen code.
+
+1. Schrijf het programma in de blok- of expert-editor.
+2. Druk in de leseditor op **Stappen van het huidige programma**. Elke regel
+   wordt de stap van de leerling: kies de mnemonic (er is een verkeerde vooraf
+   geselecteerd), typ de operand en druk op **Toevoegen**. Waar het palet niet
+   alles kan instellen (bijvoorbeeld een TEXT-positie), wijst een **Parameters
+   instellen**-stap naar het nieuwe blok en gaat verder wanneer deze
+   overeenkomt.
+3. Geef de les een titel, beschrijving, moeilijkheidsgraad en **map** (elke
+   categorie van Tutorials). Voeg **tekststappen** toe voor uitleg, eventueel
+   met een verwijzing naar een deel van het venster (palet, programmapaneel,
+   ASM-weergave, knop Uitvoeren, geheugenkaart). Laat de titel of uitleg van een
+   stap leeg voor de gegenereerde tekst.
+4. **Probeer de les** (dit wist het huidige programma), en sla de les vervolgens
+   op**** (Ctrl+S).
+
+Teksten worden opgeslagen in de huidige UI-taal; een student die een andere taal
+gebruikt, ziet ze, of de gegenereerde tekst waar u niets hebt geschreven.
+**Macroparameters automatisch invullen** slaat de parameterstappen voor de
+student over. **Bestanden ▾** maakt, verwijdert, exporteert en importeert lessen
+als `.vatut` bestanden en opent de lesmap.
+
+#### Online lessen
+
+**Online lessen…** in het venster Tutorials toont de lessen die op www.c64va.pro
+zijn gepubliceerd, inclusief map, moeilijkheidsgraad en aantal stappen.
+**Downloaden** plaatst een les in de bijbehorende map in de lijst Tutorials;
+**Bijwerken** verschijnt wanneer de site een nieuwere versie heeft (de Leseditor
+verhoogt de revisie van een les bij elke keer opslaan). Om je eigen les te
+delen, gebruik je **Bestanden ▾ → Uploaden naar c64va.pro…** in de Leseditor:
+geef je naam op (weergegeven als auteur) en eventueel een e-mailadres en een
+notitie. De les wordt eerst beoordeeld; zodra deze is goedgekeurd, verschijnt
+deze in ieders lijst met online lessen. Je e-mailadres wordt nooit gepubliceerd.
 
 ### Hardlopen, D64 en Exomizer
 
@@ -6133,6 +6225,41 @@ HVSC-collectie.
   instelling wordt onthouden.
 - **Favorieten:** De ☆ / ★ in elke rij markeert een melodie; deze wordt bewaard
   in de opgeslagen status en in `.sidpl` afspeellijsten.
+
+#### HVSC (High Voltage SID Collection)
+
+De knop **HVSC** in de werkbalk van de SID Player opent een zoekpaneel voor de
+[High Voltage SID Collection](https://www.hvsc.c64.org/), ongeveer 61.000
+C64-melodieën.
+
+- **Zoeken:** typ een titel, componist of map (`hubbard commando`, `games/s-z`);
+  elk woord moet overeenkomen. **Willekeurige melodieën** geeft een lijst van 25
+  willekeurige melodieën.
+- **Afspelen / toevoegen / opslaan: ** Klik op een nummer om het af te spelen,
+  **+** voegt het toe aan de afspeellijst, de downloadknop slaat het `.sid`
+  bestand op. **Alle resultaten toevoegen** voegt maximaal 100 gevonden nummers
+  toe.
+- **Tunelengtes:** HVSC kent de lengte van elke subtune, dus de voortgangsbalk
+  geeft deze weer en de afspeellijst gaat verder wanneer de subtune eindigt.
+- **Waar de nummers vandaan komen:** De catalogus en de afzonderlijke nummers
+  worden bij het eerste gebruik gedownload van een HVSC-spiegelserver en in de
+  cache van de app bewaard, zodat een nummer dat eenmaal is afgespeeld ook
+  offline kan worden afgespeeld. **Catalogus bijwerken** Haalt de nieuwste lijst
+  op.
+- **Volledige collectie:** **Download de volledige collectie…** downloadt het
+  officiële HVSC-archief (ongeveer 85 MB) naar een map naar keuze en pakt het
+  daar uit (ongeveer 380 MB); vanaf dat moment gebruikt de speler die kopie en
+  werkt offline. **Gebruik een lokale HVSC-map…** verwijst naar een collectie
+  die je al hebt.
+
+#### Spectrumanalysator
+
+De knop in de SID Player-werkbalk opent het **Spectrum**-venster: LED-achtige
+balken van groen via geel naar oranje, cellen die langzaam vervagen en een
+gespiegelde vloer in perspectief. Het toont alles wat de SID Player of de SID
+Editor afspeelt, ongeacht de engine. **Bands** stelt 8, 16, 24 of 32 banden in.
+Het venster kan worden verplaatst en van formaat worden veranderd, het sluit en
+heropent samen met de SID Player en het tekent alleen wanneer het open is.
 
 ---
 
