@@ -200,7 +200,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 - **HVSC in the SID Player** — search the High Voltage SID Collection (about 61,000 tunes) by title, composer or folder, play, add to the playlist or save any tune; download the whole collection in one go for offline use, or point the player at an unpacked HVSC folder. Tunes from HVSC get their real length on the seek bar, and the playlist moves on when a subtune ends. See [HVSC (High Voltage SID Collection)](#hvsc-high-voltage-sid-collection).
 - **Spectrum analyzer** — a floating LED-bar visualizer for the SID Player with 8 to 32 bands, fading cells and a mirrored floor. See [Spectrum analyzer](#spectrum-analyzer).
 - **Lesson Editor** — turn your own program into a step-by-step guided lesson like the built-in "Build: Your First Text Program": add explanations, pick the folder, try it, save it, export / import `.vatut` files. See [Tutorials and the Lesson Editor](#tutorials-and-the-lesson-editor).
-- **Online lessons** — download lessons published on www.c64va.pro straight into the Tutorials list, with updates. See [Online lessons](#online-lessons).
+- **Online lessons** — download lessons published on www.c64va.pro straight into the Tutorials list, with updates, and upload your own from the Lesson Editor for review. See [Online lessons](#online-lessons).
 - **Every macro takes its parameters in the operand field** — `SET_BG $06`, `REGION Main`, `ORG $C000`, `SPRITE_POS 1, 200, 50` …: the text is read as the macro's Expert line, and the field shows the expected form. See [Parameters in the operand field](#parameters-in-the-operand-field).
 - **Smaller improvements** — the active floating window is highlighted, the Support window looks like a chat, the mouse wheel scrolls the tab bar sideways, and the Ultimate Basic code size column no longer covers the line numbers.
 
@@ -749,7 +749,7 @@ Texts are saved in the current UI language; a student using another language see
 
 #### Online lessons
 
-**Online lessons…** in the Tutorials window lists the lessons published on www.c64va.pro with their folder, difficulty and number of steps. **Download** puts a lesson into its folder in the Tutorials list; **Update** appears when the site has a newer version (the Lesson Editor raises a lesson's revision on every save). To publish a lesson, its exported `.vatut` file is placed in the site's `lessons/` folder.
+**Online lessons…** in the Tutorials window lists the lessons published on www.c64va.pro with their folder, difficulty and number of steps. **Download** puts a lesson into its folder in the Tutorials list; **Update** appears when the site has a newer version (the Lesson Editor raises a lesson's revision on every save). To share your own lesson, use **Files ▾ → Upload to c64va.pro…** in the Lesson Editor: give your name (shown as the author) and optionally an email and a note. The lesson is reviewed first; once approved it appears in everyone's Online lessons list. Your email is never published.
 
 ### Build project
 

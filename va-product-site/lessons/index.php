@@ -27,6 +27,7 @@ foreach (glob(__DIR__ . DIRECTORY_SEPARATOR . '*.vatut') ?: [] as $path) {
         'steps' => count($data['items']),
         'size' => filesize($path),
         'updated' => gmdate('Y-m-d', (int)filemtime($path)),
+        'author' => is_string($data['author'] ?? null) ? mb_substr($data['author'], 0, 100) : '',
     ];
     foreach ($data as $key => $value) {
         if (is_string($key) && preg_match(LESSON_TEXT_FIELD, $key) && is_string($value)) {

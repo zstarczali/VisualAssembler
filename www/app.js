@@ -34831,6 +34831,60 @@ async function _teDelete() {
   await _tutRemoveUserLesson(_teData.id);
   _teOpenLesson(_tutUserLessons[0] || _teNewLesson());
 }
+// ── Upload to www.c64va.pro (register/lesson.php → reviewed on the dashboard) ──
+const _TE_UPLOAD_ERRORS = { name: "tutUpNeedName", invalid_email: "tutUpBadEmail", empty: "tutUpEmpty", too_large: "tutUpTooLarge", rate: "tutUpRate", network: "bugNetwork" };
+function _teUploadStatus(text, error) {
+  const status = document.getElementById("te-up-status");
+  if (!status) return;
+  status.textContent = text || "";
+  status.classList.toggle("form-status--error", !!error);
+}
+function _teUploadOpen() {
+  if (!_teData?.items.length) { showViceToast(t("tutUpEmpty"), true); return; }
+  if (!window.electronAPI?.uploadTutorial) { showViceToast(t("tutUpDesktopOnly"), true); return; }
+  const dlg = document.getElementById("te-upload-dialog");
+  if (!dlg) return;
+  document.getElementById("te-up-intro").textContent = tf("tutUpIntro", { name: _tutText(_teData, "title", currentLanguage) || _teData.id });
+  try {
+    document.getElementById("te-up-name").value = localStorage.getItem(_SUPPORT_NAME_KEY) || "";
+    document.getElementById("te-up-email").value = localStorage.getItem(_SUPPORT_EMAIL_KEY) || "";
+  } catch (_) {}
+  document.getElementById("te-up-note").value = "";
+  document.getElementById("te-up-send").disabled = false;
+  _teUploadStatus("");
+  dlg.showModal();
+  document.getElementById(document.getElementById("te-up-name").value ? "te-up-note" : "te-up-name")?.focus();
+}
+async function _teUploadSend() {
+  const name = document.getElementById("te-up-name").value.trim();
+  const email = document.getElementById("te-up-email").value.trim();
+  if (!name) { _teUploadStatus(t("tutUpNeedName"), true); return; }
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { _teUploadStatus(t("tutUpBadEmail"), true); return; }
+  // the uploaded copy is the saved one, with its new rev
+  if (_teDirty && !(await _teSave())) return;
+  try {
+    localStorage.setItem(_SUPPORT_NAME_KEY, name);
+    if (email) localStorage.setItem(_SUPPORT_EMAIL_KEY, email);
+  } catch (_) {}
+  const send = document.getElementById("te-up-send");
+  send.disabled = true;
+  _teUploadStatus(t("tutUpSending"));
+  let res = null;
+  try {
+    res = await window.electronAPI.uploadTutorial(currentLanguage, { name, email, note: document.getElementById("te-up-note").value.trim(), lesson: _teData });
+  } catch (e) {
+    res = { ok: false, error: String(e?.message || e) };
+  }
+  send.disabled = false;
+  if (res?.ok) {
+    document.getElementById("te-upload-dialog")?.close();
+    showViceToast(tf("tutUpSent", { name: _tutText(_teData, "title", currentLanguage) || _teData.id }));
+    return;
+  }
+  const key = _TE_UPLOAD_ERRORS[res?.error];
+  _teUploadStatus(key ? t(key) : tf("tutUpFailed", { error: res?.error || "?" }), true);
+}
+
 // ── Online lessons (www.c64va.pro/lessons/) ──
 let _tutOnline = null;
 let _tutOnlineError = "";
@@ -34886,7 +34940,8 @@ function _tutOnlineRender() {
     const meta = document.createElement("span");
     meta.className = "to-item-meta";
     const diff = [1, 2, 3].includes(entry.difficulty) ? t("tutEdDiff" + entry.difficulty) : "";
-    meta.textContent = [_tutOnlineCategoryLabel(entry.category), diff, tf("tutOnlineSteps", { count: entry.steps || 0 }), entry.updated].filter(Boolean).join(" · ");
+    meta.textContent = [entry.author ? tf("tutOnlineBy", { name: entry.author }) : "", _tutOnlineCategoryLabel(entry.category), diff,
+      tf("tutOnlineSteps", { count: entry.steps || 0 }), entry.updated].filter(Boolean).join(" · ");
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = (state === "installed" ? "secondary" : "primary") + " to-item-btn";
@@ -34981,6 +35036,9 @@ function setupTutorialEditor() {
   on("te-save", "click", _teSave);
   on("te-try", "click", _teTry);
   on("te-export", "click", _teExport);
+  on("te-upload", "click", _teUploadOpen);
+  on("te-up-send", "click", _teUploadSend);
+  on("te-up-cancel", "click", function() { document.getElementById("te-upload-dialog")?.close(); });
   on("te-delete", "click", _teDelete);
   on("te-folder", "click", function() { window.electronAPI?.openTutorialsFolder?.(); });
   const importInput = document.getElementById("te-import-file");
@@ -35007,6 +35065,13 @@ function _teApplyTranslations() {
   setText("te-export", "tutEdExport");
   setText("te-delete", "tutEdDelete");
   setText("te-folder", "tutEdFolder");
+  setText("te-upload", "tutEdUpload");
+  setText("te-up-title", "tutUpTitle");
+  setText("te-up-name-l", "tutUpName");
+  setText("te-up-email-l", "tutUpEmail");
+  setText("te-up-note-l", "tutUpNote");
+  setText("te-up-send", "tutUpSend");
+  setText("te-up-cancel", "tutUpCancel");
   setText("te-l-name", "tutEdLessonTitle");
   setText("te-l-desc", "tutEdLessonDesc");
   setText("te-l-diff", "tutEdDifficulty");

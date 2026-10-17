@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.3 — Podręcznik językowy
+# Ultimate Basic v1.6.5 — Podręcznik językowy
 
 Kompletny podręcznik języka i interfejsu wiersza poleceń dla Ultimate Basic,
 języka podobnego do BASIC-a, który kompiluje się bezpośrednio do kodu
@@ -36,16 +36,17 @@ const BORDER_ADDR = $D020 # stała w czasie kompilacji (podstawiona wbudowana, b
 Słowa kluczowe i identyfikatory **nie uwzględniają wielkości liter**: `PRINT`,
 `Print` i `print` są prawidłowe.
 
-| Typ                     | Szerokość          | Notatki                                                                   |
-| ----------------------- | ------------------ | ------------------------------------------------------------------------- |
-| `int`                   | 8-bit              | domyślne dla literałów liczbowych                                         |
-| `słowo`                 | 16-bit             | dwa bajty ZP; można ich używać jako adresu w `poke`/`peek`                |
-| `zmiennoprzecinkowy`    | 16-bitowy Q8.8     | hi byte = część całkowita (0–255), lo byte = część ułamkowa               |
-| `ciąg`                  | wskaźnik           | Para ZP → PETSCII zakończony zerem w segmencie kodu                       |
-| `tablica(N)`            | N bajtów           | elementy bajtu; znajdują się pod adresem `$C000+`, a nie w ZP             |
-| `tablica_słow(N)`       | N×2 bajtów         | elementy słowa (16-bitowe); znajdują się pod adresem `$C000+`, a nie w ZP |
-| `tablica(R, C, …)`      | ∏przyciemnia bajty | wielowymiarowy (główny wiersz); indeks `arr[r, c]`                        |
-| `tablica_słow(R, C, …)` | ∏dims×2 bajty      | wielowymiarowa tablica słów (wiersz-major)                                |
+| Typ                       | Szerokość            | Notatki                                                                                             |
+| ------------------------- | -------------------- | --------------------------------------------------------------------------------------------------- |
+| `int`                     | 8-bit                | domyślne dla literałów liczbowych                                                                   |
+| `słowo`                   | 16-bit               | dwa bajty ZP; można ich używać jako adresu w `poke`/`peek`                                          |
+| `zmiennoprzecinkowy`      | 16-bitowy Q8.8       | hi byte = część całkowita (0–255), lo byte = część ułamkowa                                         |
+| `pojedynczy` / `podwójny` | 5 bajtów, pamięć RAM | zmiennoprzecinkowy (format C64 BASIC, ~9 cyfr) — `wymiar x jako double`; patrz *Zmiennoprzecinkowy* |
+| `ciąg`                    | wskaźnik             | Para ZP → PETSCII zakończony zerem w segmencie kodu                                                 |
+| `tablica(N)`              | N bajtów             | elementy bajtu; znajdują się pod adresem `$C000+`, a nie w ZP                                       |
+| `tablica_słow(N)`         | N×2 bajtów           | elementy słowa (16-bitowe); znajdują się pod adresem `$C000+`, a nie w ZP                           |
+| `tablica(R, C, …)`        | ∏przyciemnia bajty   | wielowymiarowy (główny wiersz); indeks `arr[r, c]`                                                  |
+| `tablica_słow(R, C, …)`   | ∏dims×2 bajty        | wielowymiarowa tablica słów (wiersz-major)                                                          |
 
 #### Deklaracje w stylu BASIC-a: `dim … as …`
 
@@ -53,20 +54,21 @@ Słowa kluczowe i identyfikatory **nie uwzględniają wielkości liter**: `PRINT
 ten sam kod:
 
 ```basic
-DIM kor AS INTEGER # 16-bitowy ze znakiem, zaczyna się od 0
+DIM kor AS INTEGER # 16-bitowa liczba ze znakiem, zaczyna się od 0
 DIM nev AS STRING # ciąg znaków, zaczyna się od ""
-DIM fizetes AS DOUBLE # Q8.8 stałoprzecinkowy, zaczyna się od 0,00
+DIM fizetes AS DOUBLE # liczba zmiennoprzecinkowa, zaczyna się od 0
 DIM x, y AS BYTE # kilka nazw, wszystkie mają ten sam typ
 DIM pont AS INTEGER = 1000, cim AS STRING = "C64" # inicjatory, typy mieszane
 ```
 
-| `jak …`                                        | Ostateczny podstawowy typ                                  |
-| ---------------------------------------------- | ---------------------------------------------------------- |
-| `bajt`, `int`                                  | `int` (8-bitowy, 0–255)                                    |
-| `liczba całkowita`                             | 16-bitowy ze znakiem (−32768 … 32767) — QBasic INTEGER     |
-| `słowo`                                        | `słowo` (16-bitowe bez znaku, 0–65535)                     |
-| `pojedynczy`, `podwójny`, `zmiennoprzecinkowy` | `float` (Q8.8 — 0–255,99, **nie** zmiennoprzecinkowe IEEE) |
-| `ciąg`                                         | `ciąg`                                                     |
+| `jak …`                  | Ostateczny podstawowy typ                                                                                |
+| ------------------------ | -------------------------------------------------------------------------------------------------------- |
+| `bajt`, `int`            | `int` (8-bitowy, 0–255)                                                                                  |
+| `liczba całkowita`       | 16-bitowy ze znakiem (−32768 … 32767) — QBasic INTEGER                                                   |
+| `słowo`                  | `słowo` (16-bitowe bez znaku, 0–65535)                                                                   |
+| `pojedynczy`, `podwójny` | zmiennoprzecinkowa, 5 bajtów w pamięci RAM (±2,9·10⁻³⁹ … 1,7·10³⁸, ~9 cyfr) — patrz *Zmiennoprzecinkowa* |
+| `zmiennoprzecinkowy`     | `float` (stały punkt Q8.8 — 0–255,99, szybki)                                                            |
+| `ciąg`                   | `ciąg`                                                                                                   |
 
 - Bez `= wartość` liczby zaczynają się od 0, a ciągi znaków od `""`.
 - `dim a, b jako integer` nadaje **obie** nazwie typ (styl VB.NET, nie QBasic).
@@ -86,7 +88,7 @@ DIM pont AS INTEGER = 1000, cim AS STRING = "C64" # inicjatory, typy mieszane
 ```basic
 DIM tabla(2, 3) AS INTEGER ' 3 × 4 elementy: tabla(0..2, 0..3)
 DIM kocka(1, 2, 3) AS BYTE ' dowolna liczba wymiarów
-DIM ar(9) AS DOUBLE ' 10 wartości Q8.8
+DIM ar(9) AS DOUBLE ' 10 wartości zmiennoprzecinkowych (po 5 bajtów każda)
 DIM nevek(4) AS STRING ' 5 ciągów znaków, wszystkie zaczynają się od ""
 DIM v(9) ' bez AS → tablica bajtów
 
@@ -100,9 +102,12 @@ PRINT tabla(2, 3); " "; nevek(0); " "; ar(1)
   ma 3 × 4 elementy. (`var t = array(3, 4)` pobiera liczbę elementów — ta sama
   tablica.)
 - Typy elementów: `bajt`/`int` → 1 bajt, `liczba całkowita` (ze znakiem) /
-  `słowo` → 2 bajty, `pojedyncza`/`podwójna`/`zmiennoprzecinkowa` → 2 bajty
-  Q8.8, `ciąg` → wskaźnik 2-bajtowy. Granice muszą być stałymi czasu kompilacji;
-  tablice znajdują się w `$C000-$CFFF` (4096 bajtów, zaznaczone).
+  `słowo` → 2 bajty, `liczba zmiennoprzecinkowa` → 2 bajty Q8.8,
+  `pojedyncza`/`podwójna` → 5 bajtów zmiennoprzecinkowych, `ciąg` → wskaźnik
+  2-bajtowy. Granice muszą być stałymi czasu kompilacji. Tablice znajdują się w
+  `$C000-$CFFF` (4 KB); gdy potrzeba więcej, cały obszar tablicy przesuwa się do
+  `$A000-$CFFF` (12 KB, w pamięci ROM BASIC — patrz *Pamięć tablicy*).
+  Przekroczenie 12288 bajtów powoduje błąd kompilacji.
 - Elementy tablicy ciągów zaczynają się jako `""`; `nevek(i) = "TEKST"` / `= s`
   / `= a + b`, `n = nevek(i)`, drukowanie, `+`, przekazywanie do parametru
   `ciągu` i `wejścia nevek(i)` działa (wartości nieliterałowe są kopiowane do
@@ -1553,13 +1558,26 @@ poke addr_var, 6 # STA (addr_var),Y — jeśli addr_var jest typu słowa
 var v = peek($D012) # LDA $D012
 var v = peek(addr_var) # LDA (addr_var),Y — jeśli addr_var jest typu słowa
 
-var w: word = peek16($C000) # odczyt 16-bitowego zapisu little-endian: lo=$C000, hi=$C001
-poke16 $0314, $EA81 # zapis 16-bitowego zapisu little-endian: lo→$0314, hi→$0315
+var w: word = peek16($C000) # odczyt 16-bitowego little-endianu: lo=$C000, hi=$C001
+poke16 $0314, $EA81 # zapis 16-bitowego little-endianu: lo→$0314, hi→$0315
 poke16 ptr, w # słowo var jako adres; słowo var jako wartość
+
+var k = 2
+var p = peek($07F8 + k) # LDA $07F8,Y — stała + zmienna bajtowa
+poke $07F8 + k, p # STA $07F8,Y
+poke ptr + k, 1 # słowo + bajt: pełny adres 16-bitowy
 ```
 
 `peek16(addr)` odczytuje dwa kolejne bajty (lo, hi) jako `word`. `poke16`
 zapisuje lo, a następnie hi.
+
+Adres jest zawsze wartością 16-bitową. Od wersji 1.6.5 wyrażenie adresu, takie
+jak `$07F8 + k`, zachowuje wyższy bajt stałej i przeniesienie (wcześniej było
+ono obliczane w 8 bitach, a `peek($07F8 + k)` odczytało `$00F8 + k`). Dotyczy to
+następujących długości: `peek`, `poke`, `peek16`, `poke16`, `fill`, `memcopy`,
+`drawmem`, `save` i `reu`; długości `fill` / `memcopy`, takie jak `40 * rows`,
+również są 16-bitowe. `peek(k)` ze zmienną bajtową odczytuje adres `$00kk`
+(przed wersją 1.6.5 zwracał wartość samego adresu `k`.
 
 ### Wejście/wyjście dysku
 
@@ -1655,8 +1673,10 @@ wejściowego z obsługą DEL.
   8-bitową w CR.
 - **Zmienna łańcuchowa**: akceptuje do 30 znaków; zapisuje jako łańcuch
   zakończony zerem; para ZP zostaje zaktualizowana.
-- **DOUBLE var** (1.6.3): cyfry i `.`, np. `12,5` → 12,50 (dwie cyfry po
+- **FLOAT var** (1.6.3): cyfry i `.`, np. `12,5` → 12,50 (dwie cyfry po
   przecinku).
+- **POJEDYNCZA / PODWÓJNA zmienna ** (1.6.4): dowolna liczba, `-12,5 `, `.5 `,
+  `3,25E2 `.
 - **Element tablicy** (1.6.3): `wejście t(i)` / `wejście nevek(i)`; `wejście
   „prompt”; x` również działa.
 - **String var**: akceptuje do 30 znaków; zapisuje jako string zakończony zerem;
@@ -1698,6 +1718,87 @@ wyrażenia arytmetycznego zawierającego `float` (na przykład `print a / 10` z 
 float = 1`) teraz drukuje wynik Q8.8 jako `N.DD`. Przed wersją 1.5.7 drukowanie
 surowej 16-bitowej wartości jako liczby całkowitej (`25` zamiast `0.09`). Ułamek
 jest obcięty, a nie zaokrąglony: 1/10 = 25/256 drukuje się jako `0.09`.
+
+### Liczba zmiennoprzecinkowa: `POJEDYNCZA` / `PODWÓJNA` (1.6.4)
+
+`dim x jako single` i `dim x jako double` to rzeczywiste liczby
+zmiennoprzecinkowe — 5-bajtowy format języka C64 BASIC: około 9 cyfr znaczących,
+zakres ±2,9·10⁻³⁹ … ±1,7·10³⁸. (`single` i `double` to ten sam typ). Szybki
+2-bajtowy typ Q8.8 jest nadal dostępny jako `float`.
+
+```basic
+DIM r JAKO PODWÓJNA, t JAKO PODWÓJNA
+DIM k(9) JAKO POJEDYNCZA ' tablice: 5 bajtów na element
+r = 2,5
+t = ATN(1) * 4 * r ^ 2 ' 19,6349541
+PRINT t; " "; SQR(2); " "; 1E10; " "; 1 / 3
+DLA r = 0 DO 1 KROK 0,25 : PRINT r : NEXT
+FUNKCJA Atfogo (a JAKO PODWÓJNA, b JAKO PODWÓJNA) JAKO PODWÓJNA
+Atfogo = SQR(a * a + b * b)
+KONIEC FUNKCJI
+```
+
+|                      |                                                                                                                                                                                      |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Operatorzy           | `+ - * /` i `^` (potęga; prawostronna łączna, wiąże mocniej niż unarny minus: `-2^2` = -4)                                                                                           |
+| Funkcje              | `SQR`, `SIN`, `COS`, `TAN`, `ATN` (radiany), `EXP`, `LOG` (naturalny), `INT` (podłogowy), `FIX` (obcięty), `CINT` (okrągły), `ABS`, `SGN`, `CSNG` / `CDBL` (bez operacji), `WARTOŚĆ` |
+| Literały             | `1,5`, `.5`, `1E6`, `2,5e-3`, `70000`                                                                                                                                                |
+| Porównania           | `= &lt;&gt; &lt; &gt; &lt;= &gt;=` w `JEŻELI` / `PRZYCZAS` / `DOPÓKI` / `WYBIERZ PRZYPADEK` i jako wartości                                                                          |
+| Druk                 | Styl C64 BASIC: `.5`, `-3,25`, `3,33333333`, `1E+10`, `1,5E-07` (bez początkowej spacji)                                                                                             |
+| Smyczki              | `s = "X=" + x`, `STR$(x)`, `VAL(s)` odczytuje `-1,25E3`                                                                                                                              |
+| `DLA`                | licznik zmiennoprzecinkowy, limit i krok (`KROK 0,1`, ujemny lub zmienna)                                                                                                            |
+| `WEJŚCIE` / `ODCZYT` | `INPUT x` odczytuje dowolną liczbę; `READ x` odczytuje następny `bajt danych`                                                                                                        |
+| Podfunkcja           | Parametry `p AS DOUBLE` i wyniki `AS DOUBLE`                                                                                                                                         |
+
+**Mieszanie z liczbami całkowitymi.** Wyrażenie jest obliczane w liczbach
+zmiennoprzecinkowych, gdy zawiera wartość POJEDYNCZĄ / PODWÓJNĄ, `^`, jedną z
+powyższych funkcji lub literał, który może być przechowywany tylko w liczbach
+zmiennoprzecinkowych (`1E6`, `300,5`, `70000`). Gdy program używa liczb
+zmiennoprzecinkowych, każdy literał dziesiętny (`0,1`) jest również stałą
+zmiennoprzecinkową. Przechowywanie wartości zmiennoprzecinkowej w `bajcie`,
+`liczbie całkowitej` lub `słowie` powoduje **zaokrąglenie** jej (w połowie od
+zera: 2,5 → 3, -2,5 → -3); w `liczbie zmiennoprzecinkowej` wartość ta przyjmuje
+postać Q8,8. Wartość całkowita przypisana do typu DOUBLE jest konwertowana
+dokładnie. Wyrażenia całkowite zachowują swoje reguły dotyczące liczb
+całkowitych (`var c = a + b` to nadal bajt).
+
+**Notatki**
+- Całkowitoliczbowy literał od 32768 do 65535 jest odczytywany jako 16-bitowy
+  wzorzec i staje się ujemny w kontekście zmiennoprzecinkowym: zapisz `40000.0`
+  lub `4E4`.
+- `7 / 2` wynosi 3,5, gdy jest przypisane do typu DOUBLE; w kontekście liczb
+  całkowitych wynosi 3, jak poprzednio.
+- `x MOD y` i `AND` / `OR` / `XOR` zaokrąglają swoje operandy do liczb
+  całkowitych.
+- `SIN` / `COS` wartości bajtu zachowują stare znaczenie tablicy 0–255 (pełne
+  koło = 256); z argumentem POJEDYNCZYM / PODWÓJNYM działają w radianach.
+- Kod zmiennoprzecinkowy nie może być uruchamiany w obsłudze IRQ / NMI
+  (środowisko wykonawcze przechowuje swój stan w stałej pamięci RAM).
+- Koszt: środowisko wykonawcze dla operacji zmiennoprzecinkowych (około 4,4 KB,
+  asemblowane przez kompilator) jest dołączane po programie przy pierwszym
+  użyciu funkcji SINGLE/DOUBLE. Zmienne zajmują 5 bajtów w obszarze tablicy plus
+  jeden 2-bajtowy wskaźnik strony zerowej na środowisko wykonawcze. Mnożenie
+  trwa około 1–2 ms na procesorze C64 1 MHz.
+
+### Zmienne w pamięci RAM, pamięci tablicowej (1.6.4)
+
+- **Strona zerowa zapełniona: ** gdy zmienne programu nie mieszczą się na
+  trwałej stronie zerowej (`$02-$4F`), kompilator kompiluje ją ponownie i
+  przenosi zmienne, które są najmniej używane w kodzie gorącym, do normalnej
+  pamięci RAM (po tablicach). Instrukcja używająca takiej zmiennej kopiuje ją do
+  slotu strony zerowej i z powrotem, więc programy zachowują się tak samo, tylko
+  te zmienne są nieco wolniejsze. Liczniki pętli, parametry i wszystko, czego
+  może dotknąć program obsługi przerwań IRQ, pozostaje na stronie zerowej. Mapa
+  pamięci pokazuje je jako `RAM:$xxxx`. Wyczerpanie strony zerowej nie jest już
+  błędem, z wyjątkiem skrajnych przypadków (w takich przypadkach pozostaje `brak
+  strony zerowej`).
+- Pamięć tablicowa **: Tablice ** (i zmienne rozlane/zmiennoprzecinkowe) używają
+  `$C000-$CFFF`. Gdy potrzebują więcej niż 4096 bajtów, obszar zaczyna się od
+  `$A000`, dając 12 KB (`$A000-$CFFF`): pamięć ROM języka BASIC jest wyłączana
+  na początku programu (bit 0 `$01`) i włączana ponownie przy każdym wyjściu do
+  języka BASIC (`koniec`, `pa`, koniec programu, `łańcuch`), więc program nadal
+  wraca do działającego języka BASIC. Programy, które same wywołują procedury
+  ROM BASIC (`sys $Axxx`) nie mogą używać tablic większych niż 4 KB.
 
 ### Funkcje matematyczne
 
@@ -2071,26 +2172,29 @@ trwałej parze ZP przydzielanej w momencie kompilacji.
 
 ## Przykłady
 
-| Plik                                | Opis                                                                                      |
-| ----------------------------------- | ----------------------------------------------------------------------------------------- |
-| `przykłady/funkcje.ub`              | const, label/goto, poke/peek, rnd, funkcje matematyczne                                   |
-| `przykłady/nowe_funkcje.ub`         | podparametry, tablice, zmienne słowne, zmienne łańcuchowe                                 |
-| `examples/bitmap_demo.ub`           | Mapa bitowa 320×200, wykres, grafika włączona/wyłączona                                   |
-| `examples/block_demo.ub`            | Grafika blokowa 80×50, plot4, circle4, grafika na bloku                                   |
-| `examples/joystick_demo.ub`         | odczyt joysticka, ruch sprite'ów                                                          |
-| `examples/mux_demo.ub`              | multiplekser sprite'ów rastrowych (3 okna × 8 sprite'ów = 24)                             |
-| `examples/orbit_demo.ub`            | Orbita składająca się z 24 duszków, pulsującego promienia i losowych kolorów              |
-| `examples/plasma_demo.ub`           | animacja bitmapy z efektem plazmy i obramowaniem paska rastrowego                         |
-| `examples/sprite_data.ub`           | sprdef shape data (zawarte w innych demach)                                               |
-| `przykłady/sprite_mux_orbit.ub`     | Demo orbity 24-sprite'ów z spredef + wstępnie obliczonymi pozycjami                       |
-| `przykłady/sprite_orbit_demo.ub`    | 8 sprite'ów sprzętowych na orbicie kołowej za pomocą tabeli sin/cos                       |
-| `examples/reu_bitmap_demo.ub`       | Schowek/pobieranie REU z grafiką bitmapową                                                |
-| `przykłady/sid_music_demo.ub`       | Odtwarzacz muzyczny SID z rastrowym IRQ i wyjściem klawiatury                             |
-| `przykłady/tenprint.ub`             | 5 implementacji labiryntu TENPRINT z menu; demonstracje trybu zestawów znaków `lowercase` |
-| `examples/countdown_demo.ub`        | Odliczanie `for..next` z krokiem ujemnym, w tym `for i = 20 to 0 step -2`                 |
-| `examples/countdown_errors_demo.ub` | Błąd kompilacji dla kroku domyślnego `from > to`                                          |
-| `examples/explicit_demo.ub`         | `--explicit` Demo flagi CLI z w pełni wpisanymi `var`, `sub`, `fn`                        |
-| `przykłady/explicit_errors_demo.ub` | Luźny kod, który kompiluje się bez `--explicit`, powodując błędy                          |
+| Plik                                | Opis                                                                                                          |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `przykłady/funkcje.ub`              | const, label/goto, poke/peek, rnd, funkcje matematyczne                                                       |
+| `przykłady/nowe_funkcje.ub`         | podparametry, tablice, zmienne słowne, zmienne łańcuchowe                                                     |
+| `examples/bitmap_demo.ub`           | Mapa bitowa 320×200, wykres, grafika włączona/wyłączona                                                       |
+| `examples/block_demo.ub`            | Grafika blokowa 80×50, plot4, circle4, grafika na bloku                                                       |
+| `examples/joystick_demo.ub`         | odczyt joysticka, ruch sprite'ów                                                                              |
+| `examples/mux_demo.ub`              | multiplekser sprite'ów rastrowych (3 okna × 8 sprite'ów = 24)                                                 |
+| `examples/orbit_demo.ub`            | Orbita składająca się z 24 duszków, pulsującego promienia i losowych kolorów                                  |
+| `examples/plasma_demo.ub`           | animacja bitmapy z efektem plazmy i obramowaniem paska rastrowego                                             |
+| `examples/sprite_data.ub`           | sprdef shape data (zawarte w innych demach)                                                                   |
+| `przykłady/sprite_mux_orbit.ub`     | Demo orbity 24-sprite'ów z spredef + wstępnie obliczonymi pozycjami                                           |
+| `przykłady/sprite_orbit_demo.ub`    | 8 sprite'ów sprzętowych na orbicie kołowej za pomocą tabeli sin/cos                                           |
+| `examples/reu_bitmap_demo.ub`       | Schowek/pobieranie REU z grafiką bitmapową                                                                    |
+| `przykłady/sid_music_demo.ub`       | Odtwarzacz muzyczny SID z rastrowym IRQ i wyjściem klawiatury                                                 |
+| `przykłady/tenprint.ub`             | 5 implementacji labiryntu TENPRINT z menu; demonstracje trybu zestawów znaków `lowercase`                     |
+| `examples/countdown_demo.ub`        | Odliczanie `for..next` z krokiem ujemnym, w tym `for i = 20 to 0 step -2`                                     |
+| `examples/countdown_errors_demo.ub` | Błąd kompilacji dla kroku domyślnego `from > to`                                                              |
+| `examples/explicit_demo.ub`         | `--explicit` Demo flagi CLI z w pełni wpisanymi `var`, `sub`, `fn`                                            |
+| `przykłady/explicit_errors_demo.ub` | Luźny kod, który kompiluje się bez `--explicit`, powodując błędy                                              |
+| `examples/dim_demo.ub`              | `DIM … AS …` skalary i tablice każdego typu                                                                   |
+| `przykłady/qbasic_demo.ub`          | FUNKCJA / SUB / ELSEIF / DO-LOOP / SELECT CASE / ciągi znaków w stylu QBasic                                  |
+| `examples/float_demo.ub`            | Funkcja zmiennoprzecinkowa POJEDYNCZA / PODWÓJNA: `^`, SQR, SIN, ATN, EXP, LOG, `FOR … STEP 0.5`, `AS DOUBLE` |
 
 ## Odniesienie do interfejsu wiersza poleceń
 
@@ -2302,25 +2406,26 @@ Użyj `--asm`, aby zobaczyć wygenerowany kod własnego programu.
 
 ## Znane ograniczenia
 
-| Funkcja                               | Ograniczenie                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Arytmetyka liczb całkowitych          | 8-bitowe bez znaku (0–255); `word` zmienne przechowują wartości 16-bitowe                                                                                                                                                                                                                                                                                                                                                                |
-| Budżet zerowy                         | Stała strona zerowa to `$02–$4F` (78 bajtów): każda zmienna i parametr sub/fn zajmuje 2 bajty, a każda uruchomiona pętla `for` zajmuje kolejne 2 bajty (zwracane po zakończeniu pętli, jeśli w jej ciele nie zadeklarowano żadnych zmiennych). Wyczerpanie strony jest błędem kompilacji (`out of zero page`, nowość w wersji 1.5.7); wcześniej po cichu nadpisywało obszar roboczy. Ponowne wykorzystanie zmiennych w dużych programach |
-| Literały binarne                      | Nie są obsługiwane tylko literały binarne `$hex` i decimal; `%`.                                                                                                                                                                                                                                                                                                                                                                         |
-| Podprogramy                           | Brak rekurencji — sloty parametrów ZP są przydzielane statycznie                                                                                                                                                                                                                                                                                                                                                                         |
-| Zmienne łańcuchowe                    | Read-only after init; assignment replaces the pointer, not the data                                                                                                                                                                                                                                                                                                                                                                      |
-| Czas wykonania łączenia ciągów        | `s1 + s2` drukuje sekwencyjnie — bez przydzielania pamięci na stercie ani śledzenia długości                                                                                                                                                                                                                                                                                                                                             |
-| `rnd()` / `rnd(n)`                    | Prosty LCG, niekryptograficzny; okres = 256                                                                                                                                                                                                                                                                                                                                                                                              |
-| `abs()` / `sgn()` / `min()` / `max()` | Tylko wartości 8-bitowe; `abs`/`sgn` traktuj wartości jako wartości ze znakiem (bit 7 = ujemny → `abs` uzupełnienia do dwóch, `sgn` zwraca `$FF`); `min`/`max` są wartościami bez znaku (0–255)                                                                                                                                                                                                                                          |
-| `wykres`                              | Piksele poza zakresem są bezgłośnie przycinane (Y ≥ 200 lub X ≥ 320 → brak operacji)                                                                                                                                                                                                                                                                                                                                                     |
-| `plot`                                | Brak sprawdzania granic — x musi mieścić się w przedziale 0–159, y musi mieścić się w przedziale 0–199                                                                                                                                                                                                                                                                                                                                   |
-| `mlinia` / `mrect`                    | Wielokolorowy; x: 0–159, y: 0–199. Zawijanie pikseli poza ekranem (bez przycinania) — utrzymuj współrzędne w zakresie                                                                                                                                                                                                                                                                                                                    |
-| `mcircle`                             | Wielokolorowy; przycina punkty poza ekranem (x ≥ 160 lub y ≥ 200 są pomijane)                                                                                                                                                                                                                                                                                                                                                            |
-| `kolorowy długopis`                   | Tylko do wynajęcia; ustawia fragment pierwszego planu dotkniętych komórek (tło zachowane). Nie ma efektu w trybie blokowym (`plot4`/`circle4`)                                                                                                                                                                                                                                                                                           |
-| `prostokąt`                           | Brak sprawdzania granic — x: 0–319, y: 0–199; x1≤x2 i y1≤y2 nie są wymuszane (prostokąty zdegenerowane/odwrócone generują niezdefiniowane dane wyjściowe)                                                                                                                                                                                                                                                                                |
-| `wykres4`                             | Brak sprawdzania granic — x musi być w zakresie 0–79, y musi być w zakresie 0–49 (tryb blokowy)                                                                                                                                                                                                                                                                                                                                          |
-| `koło4`                               | Przycina piksele bloków poza ekranem; użyteczny promień wynosi około 0–49 w trybie bloku 80×50                                                                                                                                                                                                                                                                                                                                           |
-| `chr$`                                | Brak mapowania PETSCII↔ASCII — n jest przekazywane bez zmian do CHROUT                                                                                                                                                                                                                                                                                                                                                                   |
-| `odtwarzanie muzyki`                  | Wymaga bloku `load sid` lub `tune`; emitowany jest tylko jeden wrapper CIA1 (ostatnie `odtworzenie muzyki` wygrywa)                                                                                                                                                                                                                                                                                                                      |
-| `grafika na podwójnym`                | Tylko wynajem; używa `$4000–$7FFF` jako bufora tylnego, więc kod programu musi znajdować się poniżej `$4400`; nie można łączyć ze sprite'ami ani obiektami wielokolorowymi                                                                                                                                                                                                                                                               |
-| Raportowanie błędów                   | Tylko w czasie kompilacji; `onerr goto` obsługuje błędy wejścia/wyjścia KERNAL w czasie wykonywania                                                                                                                                                                                                                                                                                                                                      |
+| Funkcja                               | Ograniczenie                                                                                                                                                                                                                                                                                                                             |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Arytmetyka liczb całkowitych          | 8-bitowe bez znaku (0–255); `word` zmienne przechowują wartości 16-bitowe                                                                                                                                                                                                                                                                |
+| Budżet zerowy                         | Stała strona zerowa to `$02–$4F` (78 bajtów): każda zmienna i parametr sub/fn zajmuje 2 bajty, a każda pętla `for` zajmuje kolejne 2 bajty. Od wersji 1.6.4 zmienne, które się nie mieszczą, są automatycznie przenoszone do pamięci RAM (patrz *Zmienne w pamięci RAM*); tylko skrajne przypadki nadal zgłaszają `brak strony zerowej`. |
+| Literały binarne                      | `%01010101` (od wersji 1.6.4), `$hex` i dziesiętny                                                                                                                                                                                                                                                                                       |
+| Podprogramy                           | Brak rekurencji — sloty parametrów ZP są przydzielane statycznie                                                                                                                                                                                                                                                                         |
+| Zmienne łańcuchowe                    | `single` / `double` to 5-bajtowe liczby zmiennoprzecinkowe od wersji 1.6.4 (nie można ich używać w obsłudze IRQ; do programu dodano środowisko wykonawcze ~4,4 KB); `float` zachowuje Q8.8 (0–255,99)                                                                                                                                    |
+| Jednoargumentowy minus                | Od wersji 1.6.4 wiodący `-` wiąże się ze swoim operandem: `-5 - 3` wynosi -8 (było -(5 - 3) = -2)                                                                                                                                                                                                                                        |
+| Czas wykonania łączenia ciągów        | `s1 + s2` drukuje sekwencyjnie — bez przydzielania pamięci na stercie ani śledzenia długości                                                                                                                                                                                                                                             |
+| `rnd()` / `rnd(n)`                    | Prosty LCG, niekryptograficzny; okres = 256                                                                                                                                                                                                                                                                                              |
+| `abs()` / `sgn()` / `min()` / `max()` | Tylko wartości 8-bitowe; `abs`/`sgn` traktuj wartości jako wartości ze znakiem (bit 7 = ujemny → `abs` uzupełnienia do dwóch, `sgn` zwraca `$FF`); `min`/`max` są wartościami bez znaku (0–255)                                                                                                                                          |
+| `wykres`                              | Piksele poza zakresem są bezgłośnie przycinane (Y ≥ 200 lub X ≥ 320 → brak operacji)                                                                                                                                                                                                                                                     |
+| `plot`                                | Brak sprawdzania granic — x musi mieścić się w przedziale 0–159, y musi mieścić się w przedziale 0–199                                                                                                                                                                                                                                   |
+| `mlinia` / `mrect`                    | Wielokolorowy; x: 0–159, y: 0–199. Zawijanie pikseli poza ekranem (bez przycinania) — utrzymuj współrzędne w zakresie                                                                                                                                                                                                                    |
+| `mcircle`                             | Wielokolorowy; przycina punkty poza ekranem (x ≥ 160 lub y ≥ 200 są pomijane)                                                                                                                                                                                                                                                            |
+| `kolorowy długopis`                   | Tylko do wynajęcia; ustawia fragment pierwszego planu dotkniętych komórek (tło zachowane). Nie ma efektu w trybie blokowym (`plot4`/`circle4`)                                                                                                                                                                                           |
+| `prostokąt`                           | Brak sprawdzania granic — x: 0–319, y: 0–199; x1≤x2 i y1≤y2 nie są wymuszane (prostokąty zdegenerowane/odwrócone generują niezdefiniowane dane wyjściowe)                                                                                                                                                                                |
+| `wykres4`                             | Brak sprawdzania granic — x musi być w zakresie 0–79, y musi być w zakresie 0–49 (tryb blokowy)                                                                                                                                                                                                                                          |
+| `koło4`                               | Przycina piksele bloków poza ekranem; użyteczny promień wynosi około 0–49 w trybie bloku 80×50                                                                                                                                                                                                                                           |
+| `chr$`                                | Brak mapowania PETSCII↔ASCII — n jest przekazywane bez zmian do CHROUT                                                                                                                                                                                                                                                                   |
+| `odtwarzanie muzyki`                  | Wymaga bloku `load sid` lub `tune`; emitowany jest tylko jeden wrapper CIA1 (ostatnie `odtworzenie muzyki` wygrywa)                                                                                                                                                                                                                      |
+| `grafika na podwójnym`                | Tylko wynajem; używa `$4000–$7FFF` jako bufora tylnego, więc kod programu musi znajdować się poniżej `$4400`; nie można łączyć ze sprite'ami ani obiektami wielokolorowymi                                                                                                                                                               |
+| Raportowanie błędów                   | Tylko w czasie kompilacji; `onerr goto` obsługuje błędy wejścia/wyjścia KERNAL w czasie wykonywania                                                                                                                                                                                                                                      |

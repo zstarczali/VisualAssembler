@@ -11,7 +11,7 @@ Visual Assembler is free and open source (GPLv3): every feature — editors, bui
 - **HVSC in the SID Player** — search the High Voltage SID Collection (about 61,000 tunes) by title, composer or folder; play, add to the playlist or save a tune; download the whole collection (the official 7z, unpacked in the app) for offline use or use an unpacked HVSC folder. HVSC tunes get their real subtune length on the seek bar and for auto-advance.
 - **Spectrum analyzer** — a floating LED-bar window for the SID Player: 8 / 16 / 24 / 32 log-spaced bands, fading cells, a mirrored floor; works with VA SID Core and WebSID.
 - **Lesson Editor** — makes a step-by-step guided lesson (pick the mnemonic, type the operand, Add, set the remaining parameters) from your own Block or Expert program; texts per UI language, any Tutorials folder, try / save, `.vatut` export / import.
-- **Online lessons** — lessons published on www.c64va.pro (`lessons/`) are listed in the Tutorials window and downloaded with one click, with updates.
+- **Online lessons** — lessons published on www.c64va.pro (`lessons/`) are listed in the Tutorials window and downloaded with one click, with updates; your own lessons can be uploaded from the Lesson Editor and appear there after review on the dashboard.
 - **One rule for the palette's operand field** — every macro with parameters takes them there, as the text after its Expert keyword (`SET_BG $06`, `REGION Main`, `ORG $C000` …); file macros keep their file picker.
 - **Smaller improvements** — the active floating window is highlighted, the Support window looks like a chat, the mouse wheel scrolls the tab bar sideways, the memory bars are separated from their titles, and the Ultimate Basic code size column no longer covers the line numbers.
 

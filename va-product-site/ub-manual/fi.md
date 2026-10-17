@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.3 — Kieliopas
+# Ultimate Basic v1.6.5 — Kieliopas
 
 Täydellinen kieli- ja komentoriviviite Ultimate Basicille, BASICin kaltaiselle
 kielelle, joka kääntyy suoraan 6502-konekoodiksi Commodore 64:lle. Tuloste:
@@ -36,16 +36,17 @@ const BORDER_ADDR = $D020 # käännösaikainen vakio (korvattu inline-muodossa, 
 Avainsanat ja tunnisteet **kirjainkokoa ei erotella**: `PRINT`, `Print` ja
 `print` ovat kaikki kelvollisia.
 
-| Tyyppi                | Leveys           | Muistiinpanoja                                                              |
-| --------------------- | ---------------- | --------------------------------------------------------------------------- |
-| `int`                 | 8-bittinen       | oletusarvo numeerisille literaaleille                                       |
-| `sana`                | 16-bittinen      | kaksi ZP-tavua; voidaan käyttää osoitteena `poke`/`peek`-muodossa           |
-| `kelluva`             | 16-bittinen Q8.8 | hi-tavu = kokonaislukuosa (0–255), lo-tavu = murtolukuosa                   |
-| `merkkijono`          | osoitin          | ZP-pari → nollapäätteinen PETSCII koodisegmentissä                          |
-| `taulukko(N)`         | N tavua          | tavuelementit; sijaitsee `$C000+`-kohdassa, ei ZP:ssä                       |
-| `taulukon_sana(N)`    | N×2 tavua        | sanaelementit (16-bittiset); sijaitsee `$C000+`-merkillä, ei ZP-tiedostossa |
-| `array(R, C, …)`      | ∏dims tavua      | moniulotteinen (rivi-pääaine); indeksi `arr[r, c]`                          |
-| `array_word(R, C, …)` | ∏dims×2 tavua    | moniulotteinen sanataulukko (rivi-pääaine)                                  |
+| Tyyppi                            | Leveys              | Muistiinpanoja                                                                  |
+| --------------------------------- | ------------------- | ------------------------------------------------------------------------------- |
+| `int`                             | 8-bittinen          | oletusarvo numeerisille literaaleille                                           |
+| `sana`                            | 16-bittinen         | kaksi ZP-tavua; voidaan käyttää osoitteena `poke`/`peek`-muodossa               |
+| `kelluva`                         | 16-bittinen Q8.8    | hi-tavu = kokonaislukuosa (0–255), lo-tavu = murtolukuosa                       |
+| `yksittäinen` / `kaksinkertainen` | 5 tavua RAM-muistia | liukuluku (C64 BASIC -muoto, ~9 numeroa) — `dim x as double`; katso *Liukuluku* |
+| `merkkijono`                      | osoitin             | ZP-pari → nollapäätteinen PETSCII koodisegmentissä                              |
+| `taulukko(N)`                     | N tavua             | tavuelementit; sijaitsee `$C000+`-kohdassa, ei ZP:ssä                           |
+| `taulukon_sana(N)`                | N×2 tavua           | sanaelementit (16-bittiset); sijaitsee `$C000+`-merkillä, ei ZP-tiedostossa     |
+| `array(R, C, …)`                  | ∏dims tavua         | moniulotteinen (rivi-pääaine); indeksi `arr[r, c]`                              |
+| `array_word(R, C, …)`             | ∏dims×2 tavua       | moniulotteinen sanataulukko (rivi-pääaine)                                      |
 
 #### BASIC-tyyliset määrittelyt: `dim … as …`
 
@@ -54,19 +55,20 @@ tallennustila, sama koodi:
 
 ```basic
 DIM kor AS INTEGER # etumerkillinen 16-bittinen, alkaa merkistä 0
-DIM nev AS STRING # merkkijono, alkaa merkillä ""
-DIM fizetes AS DOUBLE # Q8.8 kiintopiste, alkaa merkistä 0.00
+DIM nev AS STRING # merkkijono, alkaa merkistä ""
+DIM fzetes AS DOUBLE # liukuluku, alkaa merkistä 0
 DIM x, y AS BYTE # useita nimiä, kaikki saavat tyypin
-DIM pont AS INTEGER = 1000, cim AS STRING = "C64" # alustusfunktiot, sekalaiset tyypit
+DIM pont AS INTEGER = 1000, cim AS STRING = "C64" # alustajat, sekalaiset tyypit
 ```
 
-| `kuten …`                                   | Ultimate Basic -tyyppi                                       |
-| ------------------------------------------- | ------------------------------------------------------------ |
-| `tavu`, `kokonaisluku`                      | `int` (8-bittinen, 0–255)                                    |
-| `kokonaisluku`                              | etumerkillinen 16-bittinen (−32768 … 32767) — QBasic INTEGER |
-| `sana`                                      | `sana` (etumerkitön 16-bittinen, 0–65535)                    |
-| `yksittäinen`, `kaksinkertainen`, `kelluva` | `liukuluku` (Q8.8 — 0–255.99, **ei** IEEE-liukuluku)         |
-| `merkkijono`                                | `merkkijono`                                                 |
+| `kuten …`                        | Ultimate Basic -tyyppi                                                                   |
+| -------------------------------- | ---------------------------------------------------------------------------------------- |
+| `tavu`, `kokonaisluku`           | `int` (8-bittinen, 0–255)                                                                |
+| `kokonaisluku`                   | etumerkillinen 16-bittinen (−32768 … 32767) — QBasic INTEGER                             |
+| `sana`                           | `sana` (etumerkitön 16-bittinen, 0–65535)                                                |
+| `yksittäinen`, `kaksinkertainen` | liukuluku, 5 tavua RAM-muistissa (±2,9·10⁻³⁹ … 1,7·10³⁸, ~9 numeroa) — katso *Liukuluku* |
+| `kelluva`                        | `liukuva` (Q8.8 kiinteä piste — 0–255.99, nopea)                                         |
+| `merkkijono`                     | `merkkijono`                                                                             |
 
 - Ilman `= value`, luvut alkavat nollasta ja merkkijonot kohdasta `""`.
 - `dim a, b as integer` antaa **both** nimille tyypin (VB.NET-tyyliin, ei
@@ -86,8 +88,8 @@ DIM pont AS INTEGER = 1000, cim AS STRING = "C64" # alustusfunktiot, sekalaiset 
 ```basic
 DIM tabla(2, 3) AS INTEGER ' 3 × 4 elementtiä: tabla(0..2, 0..3)
 DIM kocka(1, 2, 3) AS BYTE ' mikä tahansa määrä ulottuvuuksia
-DIM ar(9) AS DOUBLE ' 10 Q8.8-arvoa
-DIM nevek(4) AS STRING ' 5 merkkijonoa, kaikki alkavat merkillä ""
+DIM ar(9) AS DOUBLE ' 10 liukulukuarvoa (5 tavua kukin)
+DIM nevek(4) AS STRING ' 5 merkkijonoa, kaikki alkavat merkeillä ""
 DIM v(9) ' ei AS → tavutaulukkoa
 
 tabla(2, 3) = 999 ' QBasic-tyylinen indeksi ( )-metodilla
@@ -100,9 +102,12 @@ PRINT tabla(2, 3); " "; nevek(0); " "; ar(1)
   4 alkiota. (`var t = array(3, 4)` ottaa huomioon alkioiden lukumäärän — sama
   taulukko.)
 - Elementtityypit: `byte`/`int` → 1 tavu, `integer` (etumerkillinen) / `word` →
-  2 tavua, `single`/`double`/`float` → 2-tavuinen Q8.8, `string` → 2-tavuinen
-  osoitin. Rajojen on oltava käännösaikaisia vakioita; taulukot sijaitsevat
-  hakemistossa `$C000-$CFFF` (4096 tavua, tarkistettu).
+  2 tavua, `float` → 2-tavuinen Q8.8, `single`/`double` → 5-tavuinen liukuluku,
+  `string` → 2-tavuinen osoitin. Rajojen on oltava käännösaikaisia vakioita.
+  Taulukot sijaitsevat tiedostossa `$C000-$CFFF` (4 kt); Kun he tarvitsevat
+  lisää, koko taulukon alue siirtyy kansioon `$A000-$CFFF` (12 kt, BASIC ROM
+  -muistissa — katso *Matriisimuisti*). Yli 12 288 tavua on käännösaikainen
+  virhe.
 - Merkkijonotaulukon alkiot alkavat muodossa `""`; `nevek(i) = "TEXT"` / `= s` /
   `= a + b`, `n = nevek(i)`, tulostus, `+`, välitys `string` -parametrille ja
   `input nevek(i)` toimivat kaikki (ei-literaaliarvot kopioidaan 31 merkin
@@ -1547,11 +1552,24 @@ var v = peek(addr_var) # LDA (addr_var),Y — jos addr_var on sanatyyppi
 
 var w: word = peek16($C000) # lue 16-bittinen little-endian: lo=$C000, hi=$C001
 poke16 $0314, $EA81 # kirjoita 16-bittinen little-endian: lo→$0314, hi→$0315
-poke16 ptr, w # sanamuuttuja osoitteena; sanamuuttuja arvona
+poke16 ptr, w # sanamuuttujan osoite; sana muuttuja arvona
+
+muuttuja k = 2
+muuttuja p = peek($07F8 + k) # LDA $07F8,Y — vakio + tavu muuttuja
+poke $07F8 + k, p # STA $07F8,Y
+poke ptr + k, 1 # sana + tavu: täysi 16-bittinen osoite
 ```
 
 `peek16(addr)` lukee kaksi peräkkäistä tavua (lo, hi) `word`-muodossa. `poke16`
 kirjoittaa ensin lo ja sitten hi.
+
+Osoite on aina 16-bittinen arvo. Versiosta 1.6.5 lähtien osoitelauseke, kuten
+`$07F8 + k`, säilyttää vakion korkeamman tavun ja siirtobitin (ennen se
+laskettiin 8 bitissä ja `peek($07F8 + k)` luki `$00F8 + k`). Tämä pätee `peek`,
+`poke`, `peek16`, `poke16`, `fill`, `memcopy`, `drawmem`, `save` ja `reu`
+-muuttujalle; `fill` / `memcopy` -pituudet, kuten `40 * rivit`, ovat myös
+16-bittisiä. `peek(k)` tavumuuttujan kanssa lukee osoitteen `$00kk` (se palautti
+itse arvon `k` ennen versiota 1.6.5).
 
 ### Levyn I/O
 
@@ -1645,8 +1663,10 @@ input "Pisteet: ", score # kehote + kokonaisluku input
   8-bittiseksi arvoksi CR:ssä.
 - **Merkkijonomuuttuja**: hyväksyy enintään 30 merkkiä; tallentaa
   null-päätteisenä merkkijonona; ZP-pari päivitetään.
-- **DOUBLE-muuttuja** (1.6.3): numerot ja `.`, esim. `12,5` → 12,50 (kaksi
+- **FLOAT muuttuja** (1.6.3): numerot ja `.`, esim. `12.5` → 12.50 (kaksi
   desimaalia).
+- **YKSITTÄINEN / KAKSINKERTAINEN muuttuja** (1.6.4): mikä tahansa luku,
+  `-12,5`, `.5`, `3,25E2`.
 - **Taulukon elementti** (1.6.3): `input t(i)` / `input nevek(i)`; `input
   "kehote"; x` toimii myös.
 - **Merkkijono muuttuja**: hyväksyy enintään 30 merkkiä; tallentaa
@@ -1686,6 +1706,84 @@ aritmeettisesta lausekkeesta, jossa on `float` (esimerkiksi `print a / 10`,
 jossa `a: float = 1`) tulostaa nyt Q8.8-tuloksen muodossa `N.DD`. Ennen versiota
 1.5.7 se tulosti raakana 16-bittisenä arvona kokonaislukuna (`25` eikä `0.09`).
 Murtoluku katkaistaan, ei pyöristetä: 1/10 = 25/256 tulostuu muodossa `0.09`.
+
+### Liukuluku: `YKSI` / `KAKSINKERTAINEN` (1.6.4)
+
+`dim x as single` ja `dim x as double` ovat reaalilukuja liukulukuina – C64
+BASICin 5-tavuinen formaatti: noin 9 merkitsevää numeroa, vaihteluväli
+±2,9·10⁻³⁹ … ±1,7·10³⁸. (`single` ja `double` ovat samaa tyyppiä.) Nopea
+2-tavuinen Q8.8-tyyppi on edelleen saatavilla muodossa `float`.
+
+```basic
+DIM r AS DOUBLE, t AS DOUBLE
+DIM k(9) AS SINGLE ' taulukot: 5 tavua elementtiä kohden
+r = 2,5
+t = ATN(1) * 4 * r ^ 2 ' 19,6349541
+PRINT t; " "; SQR(2); " "; 1E10; " "; 1 / 3
+FOR r = 0 TO 1 STEP 0,25 : PRINT r : NEXT
+FUNCTION Atfogo(a AS DOUBLE, b AS DOUBLE) AS DOUBLE
+Atfogo = SQR(a * a + b * b)
+END FUNCTION
+```
+
+|                   |                                                                                                                                                                                     |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Operaattorit      | `+ - * /` ja `^` (potenssi; oikealle assosiatiivinen, sitoo tiukemmin kuin unaarinen miinus: `-2^2` = -4)                                                                           |
+| Toiminnot         | `SQR`, `SIN`, `COS`, `TAN`, `ATN` (radiaanit), `EXP`, `LOG` (luonnollinen), `INT` (lattia), `FIX` (katkaistu), `CINT` (pyöreä), `ABS`, `SGN`, `CSNG` / `CDBL` (ei toimintoa), `VAL` |
+| Literaalit        | `1,5`, `.5`, `1E6`, `2,5e-3`, `70000`                                                                                                                                               |
+| Vertailut         | `= &lt;&gt; &lt; &gt; &lt;= &gt;=` kohdassa `IF` / `WHILE` / `UNT` / `SELECT CASE` ja arvoina                                                                                       |
+| Tulostaminen      | C64 PERUStyyli: `.5`, `-3.25`, `3.33333333`, `1E+10`, `1.5E-07` (ei välilyöntiä alussa)                                                                                             |
+| Jouset            | `s = "X=" + x`, `STR$(x)`, `VAL(s)` lukee `-1.25E3`                                                                                                                                 |
+| `FOR`             | liukulukulaskuri, raja ja askel (`STEP 0.1`, negatiivinen tai muuttuja)                                                                                                             |
+| `SYÖTTÖ` / `LUKU` | `INPUT x` lukee minkä tahansa numeron; `READ x` lukee seuraavan `data` tavun                                                                                                        |
+| Ali-/toiminto     | `p AS DOUBLE` -parametrit ja `AS DOUBLE` -tulokset                                                                                                                                  |
+
+**Sekoittaminen kokonaislukujen kanssa.** Lauseke lasketaan liukulukuvakiona,
+kun se sisältää YKSITTÄISEN / KAKSINKERTAISEN arvon, `^`, jonkin yllä olevista
+funktioista tai literaalin, jota vain liukuluku voi sisältää (`1E6`, `300.5`,
+`70000`). Kun ohjelma käyttää liukulukua, jokainen desimaaliliteeri (`0.1`) on
+myös liukulukuvakio. Liukulukuarvon tallentaminen `tavuun`, `kokonaislukuun` tai
+`sanaan` ** pyöristää sen** (puoliksi pois nollasta: 2,5 → 3, -2,5 → -3);
+`liukulukuun` siitä tulee Q8,8. DOUBLE-muuttujalle annettu kokonaislukuarvo
+muunnetaan tarkasti. Kokonaislukulausekkeet säilyttävät kokonaislukusäännöt
+(`muuttuja c = a + b` on edelleen tavu).
+
+**Muistiinpanot**
+- Kokonaisluku literaali välillä 32768–65535 luetaan 16-bittisenä kuviona ja
+  siitä tulee negatiivinen liukulukukontekstissa: kirjoita `40000.0` tai `4E4`.
+- `7 / 2` on 3,5, kun se on liitetty KAKSINKERTAISEEN; kokonaislukukontekstissa
+  se on 3 kuten ennenkin.
+- `x MOD y` ja `AND` / `OR` / `XOR` pyöristävät operandinsa kokonaisluvuiksi.
+- Tavun arvon `SIN` / `COS` säilyttävät vanhan 0–255-taulukon merkityksen (täysi
+  ympyrä = 256); YKSITTÄISEN / KAKSINKERTAISEN argumentin kanssa ne toimivat
+  radiaaneina.
+- Liukulukukoodia ei saa suorittaa IRQ-/NMI-käsittelijöissä (suoritusympäristö
+  pitää tilansa kiinteässä RAM-muistissa).
+- Kustannukset: liukulukulaskutoiminto (noin 4,4 kt, kääntäjän kokoama)
+  liitetään ohjelman jälkeen, kun SINGLE / DOUBLE -muuttujaa käytetään
+  ensimmäistä kertaa. Muuttujat vievät 5 tavua taulukkoalueelta sekä yhden
+  2-tavuisen nollasivuisen osoittimen ajonaikaista käyttöä varten. Kertolasku
+  kestää noin 1–2 ms 1 MHz:n C64-prosessorilla.
+
+### RAM-muistin muuttujat, taulukkomuisti (1.6.4)
+
+- **Nollasivu täynnä:** Kun ohjelman muuttujat eivät mahdu pysyvälle
+  nollasivulle (`$02-$4F`), kääntäjä rakentaa sen uudelleen ja siirtää vähiten
+  kuumassa koodissa käytetyt muuttujat normaaliin RAM-muistiin (taulukoiden
+  jälkeen). Tällaista muuttujaa käyttävä lauseke kopioi sen nollasivun paikkaan
+  ja takaisin, joten ohjelmat toimivat samalla tavalla, vain nämä muuttujat ovat
+  hieman hitaampia. Silmukkalaskurit, parametrit ja kaikki, mihin
+  IRQ-käsittelijä saattaa koskea, pysyvät nollasivulla. Muistikartta näyttää ne
+  muodossa `RAM:$xxxx`. Nollasivun loppuminen ei ole enää virhe paitsi
+  äärimmäisissä tapauksissa (`nollasivun loppuminen` on edelleen käytössä
+  niille).
+- **Matriisimuisti:**-taulukot (ja vuotaneet / liukulukumuuttujat) käyttävät
+  `$C000-$CFFF`. Kun ne tarvitsevat yli 4096 tavua, alue alkaa kohdasta `$A000`,
+  jolloin saadaan 12 kt (`$A000-$CFFF`): BASIC ROM sammutetaan ohjelman alussa
+  (`$01` bitti 0) ja kytketään takaisin päälle joka kerta, kun BASIC-tilaan
+  siirrytään (`end`, `bye`, end of program, `chain`), joten ohjelma palaa silti
+  toimivaan BASIC-tilaan. Ohjelmat, jotka kutsuvat itse BASIC ROM -rutiineja
+  (`sys $Axxx`), eivät saa käyttää yli 4 kt:n taulukoita.
 
 ### Matemaattiset funktiot
 
@@ -2056,26 +2154,29 @@ ZP-pariin, joka varataan käännösaikana.
 
 ## Esimerkkejä
 
-| Tiedosto                                      | Kuvaus                                                                                       |
-| --------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| `esimerkkejä/ominaisuuksia.ub`                | vakio, label/goto, poke/peek, rnd, matemaattiset funktiot                                    |
-| `esimerkkejä/uudet_ominaisuudet.ub`           | aliparametrit, taulukot, sanamuuttujat, merkkijonomuuttujat                                  |
-| `esimerkkejä/bitmap_demo.ub`                  | 320×200 bittikartta, juoni, grafiikka päällä/pois                                            |
-| `esimerkkejä/lohkon_demo.ub`                  | 80×50 lohkografiikka, plot4, circle4, grafiikka lohkolla                                     |
-| `esimerkkejä/joystick_demo.ub`                | joystick-lukeminen, sprite-liike                                                             |
-| `esimerkkejä/mux_demo.ub`                     | rasterisprite-multiplekseri (3 ikkunaa × 8 sprittiä = 24)                                    |
-| `esimerkkejä/orbit_demo.ub`                   | 24-sprite-kiertorata pulssisäteellä ja satunnaisilla väreillä                                |
-| `esimerkkejä/plasma_demo.ub`                  | plasmaefektinen bittikartta rasteripalkkireunuksen animaatiolla                              |
-| `esimerkkejä/sprite_data.ub`                  | sprdef-muototiedot (sisältyvät muihin demoihin)                                              |
-| `esimerkkejä/sprite_mux_orbit.ub`             | 24-sprite-kiertoradan demo sprdefillä + esilasketuilla sijainneilla                          |
-| `esimerkkejä/sprite_orbit_demo.ub`            | 8 laitteistosprittiä ympyräradalla sin/cos-taulukon kautta                                   |
-| `esimerkkejä/reu_bitmap_demo.ub`              | REU-varasto/nouto bittikarttagrafiikalla                                                     |
-| `esimerkkejä/sid_music_demo.ub`               | SID-musiikkisoitin rasteri-IRQ:lla ja näppäimistöuloskäynnillä                               |
-| `esimerkkejä/kymmenentuloste.ub`              | 5 TENPRINT-sokkelototeutusta valikoilla; demoja `lowercase` merkistötilassa                  |
-| `esimerkkejä/countdown_demo.ub`               | Lähtölaskenta `for..next` negatiivisella askeleella, mukaan lukien `for i = 20 to 0 step -2` |
-| `esimerkkejä/laskentavirheiden_demo.ub`       | Käännösaikainen virhe oletusvaiheelle `from > to`                                            |
-| `esimerkkejä/eksplisiittinen_demo.ub`         | `--explicit` CLI-lippudemo täysin kirjoitetuilla `var`, `sub`, `fn` -komennoilla             |
-| `esimerkkejä/eksplisiittiset_virheet_demo.ub` | Löyhä koodi, joka rakentuu ilman `--explicit`-koodia, aiheuttaa virheitä                     |
+| Tiedosto                                      | Kuvaus                                                                                                       |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `esimerkkejä/ominaisuuksia.ub`                | vakio, label/goto, poke/peek, rnd, matemaattiset funktiot                                                    |
+| `esimerkkejä/uudet_ominaisuudet.ub`           | aliparametrit, taulukot, sanamuuttujat, merkkijonomuuttujat                                                  |
+| `esimerkkejä/bitmap_demo.ub`                  | 320×200 bittikartta, juoni, grafiikka päällä/pois                                                            |
+| `esimerkkejä/lohkon_demo.ub`                  | 80×50 lohkografiikka, plot4, circle4, grafiikka lohkolla                                                     |
+| `esimerkkejä/joystick_demo.ub`                | joystick-lukeminen, sprite-liike                                                                             |
+| `esimerkkejä/mux_demo.ub`                     | rasterisprite-multiplekseri (3 ikkunaa × 8 sprittiä = 24)                                                    |
+| `esimerkkejä/orbit_demo.ub`                   | 24-sprite-kiertorata pulssisäteellä ja satunnaisilla väreillä                                                |
+| `esimerkkejä/plasma_demo.ub`                  | plasmaefektinen bittikartta rasteripalkkireunuksen animaatiolla                                              |
+| `esimerkkejä/sprite_data.ub`                  | sprdef-muototiedot (sisältyvät muihin demoihin)                                                              |
+| `esimerkkejä/sprite_mux_orbit.ub`             | 24-sprite-kiertoradan demo sprdefillä + esilasketuilla sijainneilla                                          |
+| `esimerkkejä/sprite_orbit_demo.ub`            | 8 laitteistosprittiä ympyräradalla sin/cos-taulukon kautta                                                   |
+| `esimerkkejä/reu_bitmap_demo.ub`              | REU-varasto/nouto bittikarttagrafiikalla                                                                     |
+| `esimerkkejä/sid_music_demo.ub`               | SID-musiikkisoitin rasteri-IRQ:lla ja näppäimistöuloskäynnillä                                               |
+| `esimerkkejä/kymmenentuloste.ub`              | 5 TENPRINT-sokkelototeutusta valikoilla; demoja `lowercase` merkistötilassa                                  |
+| `esimerkkejä/countdown_demo.ub`               | Lähtölaskenta `for..next` negatiivisella askeleella, mukaan lukien `for i = 20 to 0 step -2`                 |
+| `esimerkkejä/laskentavirheiden_demo.ub`       | Käännösaikainen virhe oletusvaiheelle `from > to`                                                            |
+| `esimerkkejä/eksplisiittinen_demo.ub`         | `--explicit` CLI-lippudemo täysin kirjoitetuilla `var`, `sub`, `fn` -komennoilla                             |
+| `esimerkkejä/eksplisiittiset_virheet_demo.ub` | Löyhä koodi, joka rakentuu ilman `--explicit`-koodia, aiheuttaa virheitä                                     |
+| `esimerkkejä/dim_demo.ub`                     | `DIM … AS …` kaikenlaiset skalaarit ja taulukot                                                              |
+| `examples/qbasic_demo.ub`                     | QBasic-tyylinen FUNCTION / SUB / ELSEIF / DO-LOOP / SELECT CASE / merkkijonot                                |
+| `esimerkkejä/float_demo.ub`                   | YKSITTÄINEN / KAKSINKERTAINEN liukuluku: `^`, SQR, SIN, ATN, EXP, LOG, `FOR … STEP 0.5`, `AS DOUBLE` funktio |
 
 ## CLI-viite
 
@@ -2288,25 +2389,26 @@ Käytä `--asm` nähdäksesi oman ohjelmasi luoman koodin.
 
 ## Tunnetut rajoitukset
 
-| Ominaisuus                                  | Rajoitus                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Kokonaislukuaritmetiikka                    | 8-bittinen etumerkitön (0–255); `word` -muuttujilla on 16-bittiset arvot                                                                                                                                                                                                                                                                                                                                                   |
-| Nolla sivubudjetti                          | Pysyvä nollasivu on `$02–$4F` (78 tavua): jokainen muuttuja ja sub/fn-parametri vie 2 tavua, jokainen suoritettava `for`-silmukka vie 2 tavua lisää (palautetaan silmukan päättyessä, jos sen rungossa ei ole ilmoitettu muuttujia). Loppuunjääminen on käännösaikainen virhe (`out of zero page`, uusi versiossa 1.5.7); aiemmin se ylikirjoitti hiljaisesti tyhjän alueen. Käytä muuttujia uudelleen suurissa ohjelmissa |
-| Binääriliteraalit                           | Vain `$hex` ja desimaalimuoto; binääriliteraaleja `%` ei tueta.                                                                                                                                                                                                                                                                                                                                                            |
-| Aliohjelmat                                 | Ei rekursiota — ZP-parametripaikat allokoidaan staattisesti                                                                                                                                                                                                                                                                                                                                                                |
-| Merkkijonomuuttujat                         | Read-only after init; assignment replaces the pointer, not the data                                                                                                                                                                                                                                                                                                                                                        |
-| Merkkijonojen yhdistämisen suoritusaikainen | `s1 + s2` tulostaa peräkkäin — ei keon allokointia tai pituuden seurantaa                                                                                                                                                                                                                                                                                                                                                  |
-| `rnd()` / `rnd(n)`                          | Yksinkertainen LCG, ei kryptografinen; jakso = 256                                                                                                                                                                                                                                                                                                                                                                         |
-| `abs()` / `sgn()` / `min()` / `max()`       | vain 8-bittisiä arvoja; `abs`/`sgn` käsittelee arvoja etumerkillisinä (bitti 7 = negatiivinen → `abs` kahden komplementit, `sgn` palauttaa `$FF`); `min`/`max` ovat etumerkittömiä (0–255)                                                                                                                                                                                                                                 |
-| `kuvaaja`                                   | Alueen ulkopuolella olevat pikselit rajataan äänettömästi (Y ≥ 200 tai X ≥ 320 → ei toimintoa)                                                                                                                                                                                                                                                                                                                             |
-| `mplot`                                     | Ei rajojen tarkistusta — x:n on oltava 0–159, y:n on oltava 0–199                                                                                                                                                                                                                                                                                                                                                          |
-| `mline` / `mrect`                           | Monivärinen; x: 0–159, y: 0–199. Näytön ulkopuolisten pikselien rivitys (ei katkaisua) — pitää koordinaatit alueella                                                                                                                                                                                                                                                                                                       |
-| `mympyrä`                                   | Monivärinen; leikkaa näytön ulkopuoliset pisteet (x ≥ 160 tai y ≥ 200 ohitetaan)                                                                                                                                                                                                                                                                                                                                           |
-| `värikynä`                                  | Vain palkkaukset; asettaa kosketettujen solujen etualan näytteen (tausta säilyy). Ei vaikutusta lohkotilassa (`plot4`/`circle4`)                                                                                                                                                                                                                                                                                           |
-| `suora`                                     | Ei rajojen tarkistusta — x: 0–319, y: 0–199; x1≤x2 ja y1≤y2 eivät ole pakollisia (degeneroituneet/käänteiset suorakulmat tuottavat määrittelemättömän tulosteen)                                                                                                                                                                                                                                                           |
-| `plot4`                                     | Ei rajojen tarkistusta — x:n on oltava 0–79, y:n on oltava 0–49 (lohkotila)                                                                                                                                                                                                                                                                                                                                                |
-| `ympyrä4`                                   | Leikkaa näytön ulkopuolisia lohkopikseleitä; hyödyllinen säde on noin 0–49 80×50-lohkotilassa                                                                                                                                                                                                                                                                                                                              |
-| `merkkiä$`                                  | Ei PETSCII↔ASCII-määritystä — n välitetään sellaisenaan CHROUT-funktiolle                                                                                                                                                                                                                                                                                                                                                  |
-| `musiikin toisto`                           | Vaatii `load sid`- tai `tune`-lohkon; vain yksi CIA1-kääre lähetetään (viimeinen `music play` voittaa)                                                                                                                                                                                                                                                                                                                     |
-| `grafiikka tuplalla`                        | Vain palkattu; käyttää `$4000–$7FFF`-merkkiä takapuskurissa, joten ohjelmakoodin on pysyttävä `$4400`-merkkiä pienempänä; ei yhdistettävissä spritien tai moniväristen kanssa                                                                                                                                                                                                                                              |
-| Virheraportointi                            | Vain käännösaikana; `onerr goto` käsittelee KERNAL I/O -virheet ajonaikana                                                                                                                                                                                                                                                                                                                                                 |
+| Ominaisuus                                  | Rajoitus                                                                                                                                                                                                                                                                                                                                                           |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Kokonaislukuaritmetiikka                    | 8-bittinen etumerkitön (0–255); `word` -muuttujilla on 16-bittiset arvot                                                                                                                                                                                                                                                                                           |
+| Nolla sivubudjetti                          | Pysyvä nollasivu on `$02–$4F` (78 tavua): jokainen muuttuja ja sub/fn-parametri vie 2 tavua, jokainen suoritettava `for`-silmukka vie 2 tavua lisää. Versiosta 1.6.4 lähtien muuttujat, jotka eivät sovi, siirtyvät automaattisesti RAM-muistiin (katso *RAM-muistin muuttujat*); vain äärimmäisissä tapauksissa raportoidaan edelleen `ulkopuolelta nollasivulta` |
+| Binääriliteraalit                           | `%01010101` (versiosta 1.6.4 lähtien), `$hex` ja desimaaliluku                                                                                                                                                                                                                                                                                                     |
+| Aliohjelmat                                 | Ei rekursiota — ZP-parametripaikat allokoidaan staattisesti                                                                                                                                                                                                                                                                                                        |
+| Merkkijonomuuttujat                         | `single` / `double` ovat 5-tavuisia liukulukuja versiosta 1.6.4 lähtien (ei käytettävissä IRQ-käsittelijöissä; noin 4,4 kt:n suoritusaikainen versio on lisätty ohjelmaan); `float` pysyy arvossa Q8.8 (0–255,99)                                                                                                                                                  |
+| Unaarinen miinus                            | Versiosta 1.6.4 lähtien johtava `-` sitoutuu operandiinsa: `-5 - 3` on -8 (se oli -(5 - 3) = -2)                                                                                                                                                                                                                                                                   |
+| Merkkijonojen yhdistämisen suoritusaikainen | `s1 + s2` tulostaa peräkkäin — ei keon allokointia tai pituuden seurantaa                                                                                                                                                                                                                                                                                          |
+| `rnd()` / `rnd(n)`                          | Yksinkertainen LCG, ei kryptografinen; jakso = 256                                                                                                                                                                                                                                                                                                                 |
+| `abs()` / `sgn()` / `min()` / `max()`       | vain 8-bittisiä arvoja; `abs`/`sgn` käsittelee arvoja etumerkillisinä (bitti 7 = negatiivinen → `abs` kahden komplementit, `sgn` palauttaa `$FF`); `min`/`max` ovat etumerkittömiä (0–255)                                                                                                                                                                         |
+| `kuvaaja`                                   | Alueen ulkopuolella olevat pikselit rajataan äänettömästi (Y ≥ 200 tai X ≥ 320 → ei toimintoa)                                                                                                                                                                                                                                                                     |
+| `mplot`                                     | Ei rajojen tarkistusta — x:n on oltava 0–159, y:n on oltava 0–199                                                                                                                                                                                                                                                                                                  |
+| `mline` / `mrect`                           | Monivärinen; x: 0–159, y: 0–199. Näytön ulkopuolisten pikselien rivitys (ei katkaisua) — pitää koordinaatit alueella                                                                                                                                                                                                                                               |
+| `mympyrä`                                   | Monivärinen; leikkaa näytön ulkopuoliset pisteet (x ≥ 160 tai y ≥ 200 ohitetaan)                                                                                                                                                                                                                                                                                   |
+| `värikynä`                                  | Vain palkkaukset; asettaa kosketettujen solujen etualan näytteen (tausta säilyy). Ei vaikutusta lohkotilassa (`plot4`/`circle4`)                                                                                                                                                                                                                                   |
+| `suora`                                     | Ei rajojen tarkistusta — x: 0–319, y: 0–199; x1≤x2 ja y1≤y2 eivät ole pakollisia (degeneroituneet/käänteiset suorakulmat tuottavat määrittelemättömän tulosteen)                                                                                                                                                                                                   |
+| `plot4`                                     | Ei rajojen tarkistusta — x:n on oltava 0–79, y:n on oltava 0–49 (lohkotila)                                                                                                                                                                                                                                                                                        |
+| `ympyrä4`                                   | Leikkaa näytön ulkopuolisia lohkopikseleitä; hyödyllinen säde on noin 0–49 80×50-lohkotilassa                                                                                                                                                                                                                                                                      |
+| `merkkiä$`                                  | Ei PETSCII↔ASCII-määritystä — n välitetään sellaisenaan CHROUT-funktiolle                                                                                                                                                                                                                                                                                          |
+| `musiikin toisto`                           | Vaatii `load sid`- tai `tune`-lohkon; vain yksi CIA1-kääre lähetetään (viimeinen `music play` voittaa)                                                                                                                                                                                                                                                             |
+| `grafiikka tuplalla`                        | Vain palkattu; käyttää `$4000–$7FFF`-merkkiä takapuskurissa, joten ohjelmakoodin on pysyttävä `$4400`-merkkiä pienempänä; ei yhdistettävissä spritien tai moniväristen kanssa                                                                                                                                                                                      |
+| Virheraportointi                            | Vain käännösaikana; `onerr goto` käsittelee KERNAL I/O -virheet ajonaikana                                                                                                                                                                                                                                                                                         |

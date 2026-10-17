@@ -34,7 +34,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - **HVSC a SID Playerben** — keresés a High Voltage SID Collection mintegy 61 000 dalában cím, zeneszerző vagy mappa szerint; lejátszás, lejátszási listára vétel vagy mentés; a teljes gyűjtemény egyben letölthető offline használatra, vagy megadható egy már kibontott HVSC mappa. A HVSC-ből érkező dalok a valódi hosszukkal jelennek meg a pozíciósávon, és a lista a dal végén lép tovább. Lásd: [HVSC (High Voltage SID Collection)](#hvsc-high-voltage-sid-collection).
 - **Spektrum-analizátor** — lebegő LED-oszlopos megjelenítő a SID Playerhez 8–32 sávval, halványuló cellákkal és tükröződő padlóval. Lásd: [Spektrum-analizátor](#spektrum-analizátor).
 - **Lecke-szerkesztő** — a saját programodból lépésről lépésre vezetett lecke készíthető, mint a beépített „Építsd meg: első szöveges program”: magyarázatok, mappa, kipróbálás, mentés, `.vatut` export / import. Lásd: [Tutorials és a lecke-szerkesztő](#tutorials-és-a-lecke-szerkesztő).
-- **Online leckék** — a www.c64va.pro oldalon közzétett leckék egy kattintással a Tutorials listába tölthetők, frissítéssel együtt. Lásd: [Online leckék](#online-leckék).
+- **Online leckék** — a www.c64va.pro oldalon közzétett leckék egy kattintással a Tutorials listába tölthetők, frissítéssel együtt, a sajátodat pedig a lecke-szerkesztőből töltheted fel jóváhagyásra. Lásd: [Online leckék](#online-leckék).
 - **Minden makró az operandus mezőben kapja a paramétereit** — `SET_BG $06`, `REGION Main`, `ORG $C000`, `SPRITE_POS 1, 200, 50` …: a beírt szöveg a makró Expert-sorának paramétere, a mező pedig mutatja a várt formát. Lásd: [Paraméterek az operandus mezőben](#paraméterek-az-operandus-mezőben).
 - **Apróbb javítások** — a használt lebegő ablak ki van emelve, a Support ablak csevegőként néz ki, az egérgörgő vízszintesen görgeti a fülsávot, és az Ultimate Basic kódméret-oszlop már nem takarja a sorszámokat.
 
@@ -583,7 +583,7 @@ A szövegek az aktuális felületnyelven mentődnek; más nyelvű tanuló ezeket
 
 #### Online leckék
 
-A Tutorials ablak **Online leckék…** gombja listázza a www.c64va.pro oldalon közzétett leckéket mappával, nehézséggel és lépésszámmal. A **Letöltés** a lecke mappájába teszi a Tutorials listában; a **Frissítés** akkor jelenik meg, ha az oldalon újabb változat van (a lecke-szerkesztő minden mentéskor növeli a lecke verzióját). Közzétételhez a lecke exportált `.vatut` fájlja az oldal `lessons/` mappájába kerül.
+A Tutorials ablak **Online leckék…** gombja listázza a www.c64va.pro oldalon közzétett leckéket mappával, nehézséggel és lépésszámmal. A **Letöltés** a lecke mappájába teszi a Tutorials listában; a **Frissítés** akkor jelenik meg, ha az oldalon újabb változat van (a lecke-szerkesztő minden mentéskor növeli a lecke verzióját). Saját leckét a lecke-szerkesztő **Files ▾ → Feltöltés a c64va.pro-ra…** menüpontjával oszthatsz meg: add meg a neved (szerzőként jelenik meg), és ha akarod, egy e-mail címet és megjegyzést. A lecke előbb jóváhagyásra vár, utána mindenki Online leckék listájában megjelenik. Az e-mail címed sosem lesz nyilvános.
 
 ### Build projekt
 

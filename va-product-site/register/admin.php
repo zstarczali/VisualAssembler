@@ -113,10 +113,16 @@ function vaAdminPage(string $title, string $body): void
         $open = 0;
         $support = 0;
         $supportMsgs = 0;
+        $lessons = 0;
         try {
             $open = (int) vaDb()->query("SELECT COUNT(*) FROM va_bug_reports WHERE status IN ('new', 'open')")->fetchColumn();
             $support = vaSupportUnread();
             $supportMsgs = vaSupportUserMessages();
+        } catch (Throwable $e) {
+        }
+        try {
+            // waiting lesson uploads (the table appears with the first upload)
+            $lessons = (int) vaDb()->query("SELECT COUNT(*) FROM va_lesson_submissions WHERE status = 'pending'")->fetchColumn();
         } catch (Throwable $e) {
         }
         $page = basename($_SERVER['SCRIPT_NAME'] ?? '');
@@ -127,6 +133,7 @@ function vaAdminPage(string $title, string $body): void
             . '<a class="nav-link' . $cur('messages.php') . '" href="messages.php">MESSAGES</a>'
             . '<a class="nav-link' . $cur('geoip.php') . '" href="geoip.php">GEOIP</a>'
             . '<a class="nav-link' . $cur('release.php') . '" href="release.php">RELEASE</a>'
+            . '<a class="nav-link' . $cur('lessons.php') . '" href="lessons.php">LESSONS' . ($lessons ? ' <span class="nav-bugs">' . $lessons . '</span>' : '') . '</a>'
             . '<a class="nav-link' . $cur('inbox.php') . '" id="nav-support" href="inbox.php" data-unread="' . $support . '" data-msgs="' . $supportMsgs . '">SUPPORT'
             . ' <span class="nav-badge"' . ($support ? '' : ' hidden') . '>' . $support . '</span></a>'
             . '<a class="nav-link' . $cur('bugs.php') . '" href="bugs.php">BUGS' . ($open ? ' <span class="nav-bugs">' . $open . '</span>' : '') . '</a>'

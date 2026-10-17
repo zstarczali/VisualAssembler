@@ -191,3 +191,25 @@ CREATE TABLE IF NOT EXISTS va_donations (
   completed_at DATETIME NULL,
   KEY ix_state (state, completed_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS va_lesson_submissions (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  install_id CHAR(32) NOT NULL,
+  lesson_id VARCHAR(64) NOT NULL,
+  rev INT UNSIGNED NOT NULL DEFAULT 0,
+  title VARCHAR(200) NOT NULL,
+  steps INT UNSIGNED NOT NULL DEFAULT 0,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(190) NOT NULL DEFAULT '',
+  note TEXT NOT NULL,
+  data MEDIUMTEXT NOT NULL,
+  version VARCHAR(20) NOT NULL DEFAULT '',
+  os VARCHAR(20) NOT NULL DEFAULT '',
+  lang CHAR(2) NOT NULL DEFAULT '',
+  country CHAR(2) NOT NULL DEFAULT '',
+  status VARCHAR(10) NOT NULL DEFAULT 'pending',
+  file VARCHAR(100) NOT NULL DEFAULT '',
+  created_at DATETIME NOT NULL,
+  decided_at DATETIME NULL,
+  KEY ix_status (status, id),
+  KEY ix_lesson (lesson_id, install_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

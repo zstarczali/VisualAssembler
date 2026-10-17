@@ -112,6 +112,7 @@
     openTutorialsFolder: () => invoke("open_tutorials_folder"),
     listOnlineTutorials: () => invoke("list_online_tutorials"),
     downloadOnlineTutorial: (file) => invoke("download_online_tutorial", { file }),
+    uploadTutorial: (lang, payload) => invoke("upload_tutorial", { lang, payload }),
     createTemplateProject: (projPath, projContent, mainPath, mainContent) => invoke("create_template_project", { projPath, projContent, mainPath, mainContent }),
     openManual: () => invoke("open_manual"),
     openUltimateBasicManual: () => invoke("open_ultimate_basic_manual"),

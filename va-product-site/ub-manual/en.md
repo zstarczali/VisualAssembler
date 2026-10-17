@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.3 — Language Manual
+# Ultimate Basic v1.6.5 — Language Manual
 
 Complete language and CLI reference for Ultimate Basic, a BASIC-like language that
 compiles directly to 6502 machine code for the Commodore 64. Output: `.prg` files
@@ -37,6 +37,7 @@ Keywords and identifiers are **case-insensitive**: `PRINT`, `Print`, and `print`
 | `int` | 8-bit | default for numeric literals |
 | `word` | 16-bit | two ZP bytes; can be used as address in `poke`/`peek` |
 | `float` | 16-bit Q8.8 | hi byte = integer part (0–255), lo byte = fractional part |
+| `single` / `double` | 5 bytes, RAM | floating point (C64 BASIC format, ~9 digits) — `dim x as double`; see *Floating point* |
 | `string` | pointer | ZP pair → null-terminated PETSCII in code segment |
 | `array(N)` | N bytes | byte elements; lives at `$C000+`, not in ZP |
 | `array_word(N)` | N×2 bytes | word (16-bit) elements; lives at `$C000+`, not in ZP |
@@ -50,7 +51,7 @@ Keywords and identifiers are **case-insensitive**: `PRINT`, `Print`, and `print`
 ```basic
 DIM kor AS INTEGER          # signed 16-bit, starts at 0
 DIM nev AS STRING           # string, starts as ""
-DIM fizetes AS DOUBLE       # Q8.8 fixed point, starts at 0.00
+DIM fizetes AS DOUBLE       # floating point, starts at 0
 DIM x, y AS BYTE            # several names, all get the type
 DIM pont AS INTEGER = 1000, cim AS STRING = "C64"   # initializers, mixed types
 ```
@@ -60,7 +61,8 @@ DIM pont AS INTEGER = 1000, cim AS STRING = "C64"   # initializers, mixed types
 | `byte`, `int` | `int` (8-bit, 0–255) |
 | `integer` | signed 16-bit (−32768 … 32767) — QBasic INTEGER |
 | `word` | `word` (unsigned 16-bit, 0–65535) |
-| `single`, `double`, `float` | `float` (Q8.8 — 0–255.99, **not** IEEE floating point) |
+| `single`, `double` | floating point, 5 bytes in RAM (±2.9·10⁻³⁹ … 1.7·10³⁸, ~9 digits) — see *Floating point* |
+| `float` | `float` (Q8.8 fixed point — 0–255.99, fast) |
 | `string` | `string` |
 
 - Without `= value`, numbers start at 0 and strings at `""`.
@@ -79,7 +81,7 @@ DIM pont AS INTEGER = 1000, cim AS STRING = "C64"   # initializers, mixed types
 ```basic
 DIM tabla(2, 3) AS INTEGER     ' 3 × 4 elements: tabla(0..2, 0..3)
 DIM kocka(1, 2, 3) AS BYTE     ' any number of dimensions
-DIM ar(9) AS DOUBLE            ' 10 Q8.8 values
+DIM ar(9) AS DOUBLE            ' 10 floating-point values (5 bytes each)
 DIM nevek(4) AS STRING         ' 5 strings, all start as ""
 DIM v(9)                       ' no AS → byte array
 
@@ -92,8 +94,10 @@ PRINT tabla(2, 3); " "; nevek(0); " "; ar(1)
 - Every bound is the **highest index** (BASIC rule): `dim t(2, 3)` has 3 × 4 elements.
   (`var t = array(3, 4)` takes element counts — same array.)
 - Element types: `byte`/`int` → 1 byte, `integer` (signed) / `word` → 2 bytes,
-  `single`/`double`/`float` → 2-byte Q8.8, `string` → 2-byte pointer. Bounds must be
-  compile-time constants; arrays live in `$C000-$CFFF` (4096 bytes, checked).
+  `float` → 2-byte Q8.8, `single`/`double` → 5-byte floating point, `string` → 2-byte
+  pointer. Bounds must be compile-time constants. Arrays live in `$C000-$CFFF` (4 KB); when
+  they need more, the whole array area moves to `$A000-$CFFF` (12 KB, under the BASIC ROM —
+  see *Array memory*). More than 12288 bytes is a compile-time error.
 - String-array elements start as `""`; `nevek(i) = "TEXT"` / `= s` / `= a + b`,
   `n = nevek(i)`, printing, `+`, passing to a `string` parameter and `input nevek(i)` all
   work (non-literal values are copied into a 31-character slot per element).
@@ -1435,9 +1439,21 @@ var v = peek(addr_var)   # LDA (addr_var),Y  — if addr_var is word type
 var w: word = peek16($C000)   # read 16-bit little-endian: lo=$C000, hi=$C001
 poke16 $0314, $EA81           # write 16-bit little-endian: lo→$0314, hi→$0315
 poke16 ptr, w                 # word var as address; word var as value
+
+var k = 2
+var p = peek($07F8 + k)       # LDA $07F8,Y — constant + byte variable
+poke $07F8 + k, p             # STA $07F8,Y
+poke ptr + k, 1               # word + byte: full 16-bit address
 ```
 
 `peek16(addr)` reads two consecutive bytes (lo, hi) as a `word`. `poke16` writes lo then hi.
+
+An address is always a 16-bit value. Since 1.6.5 an address expression such as
+`$07F8 + k` keeps the constant's high byte and the carry (before, it was computed in
+8 bits and `peek($07F8 + k)` read `$00F8 + k`). This holds for `peek`, `poke`, `peek16`,
+`poke16`, `fill`, `memcopy`, `drawmem`, `save` and `reu`; `fill` / `memcopy` lengths
+such as `40 * rows` are 16-bit too. `peek(k)` with a byte variable reads address
+`$00kk` (it returned the value of `k` itself before 1.6.5).
 
 ### Disk I/O
 
@@ -1519,7 +1535,8 @@ input "Score: ", score   # prompt + int input
 `input` uses KERNAL BASIN (`$FFCF`) for blocking, echoed line input with DEL support.
 - **Int var**: accepts only `0`–`9`, max 3 chars; converts to 8-bit value on CR.
 - **INTEGER / WORD var** (1.6.3): up to 6 characters (`-` for INTEGER), 16-bit value.
-- **DOUBLE var** (1.6.3): digits and `.`, e.g. `12.5` → 12.50 (two decimals).
+- **FLOAT var** (1.6.3): digits and `.`, e.g. `12.5` → 12.50 (two decimals).
+- **SINGLE / DOUBLE var** (1.6.4): any number, `-12.5`, `.5`, `3.25E2`.
 - **Array element** (1.6.3): `input t(i)` / `input nevek(i)`; `input "prompt"; x` also works.
 - **String var**: accepts up to 30 chars; stores as null-terminated string; ZP pair updated.
 
@@ -1556,6 +1573,74 @@ for those cases.
 involves a `float` (for example `print a / 10` with `a: float = 1`) now prints the Q8.8 result as
 `N.DD`. Before 1.5.7 it printed the raw 16-bit value as an integer (`25` instead of `0.09`).
 The fraction is truncated, not rounded: 1/10 = 25/256 prints as `0.09`.
+
+### Floating point: `SINGLE` / `DOUBLE` (1.6.4)
+
+`dim x as single` and `dim x as double` are real floating-point numbers — the 5-byte format
+of C64 BASIC: about 9 significant digits, range ±2.9·10⁻³⁹ … ±1.7·10³⁸. (`single` and
+`double` are the same type.) The fast 2-byte Q8.8 type is still available as `float`.
+
+```basic
+DIM r AS DOUBLE, t AS DOUBLE
+DIM k(9) AS SINGLE                    ' arrays: 5 bytes per element
+r = 2.5
+t = ATN(1) * 4 * r ^ 2                ' 19.6349541
+PRINT t; " "; SQR(2); " "; 1E10; " "; 1 / 3
+FOR r = 0 TO 1 STEP 0.25 : PRINT r : NEXT
+FUNCTION Atfogo (a AS DOUBLE, b AS DOUBLE) AS DOUBLE
+    Atfogo = SQR(a * a + b * b)
+END FUNCTION
+```
+
+| | |
+|---|---|
+| Operators | `+ - * /` and `^` (power; right associative, binds tighter than unary minus: `-2^2` = -4) |
+| Functions | `SQR`, `SIN`, `COS`, `TAN`, `ATN` (radians), `EXP`, `LOG` (natural), `INT` (floor), `FIX` (truncate), `CINT` (round), `ABS`, `SGN`, `CSNG` / `CDBL` (no-op), `VAL` |
+| Literals | `1.5`, `.5`, `1E6`, `2.5e-3`, `70000` |
+| Comparisons | `= <> < > <= >=` in `IF` / `WHILE` / `UNTIL` / `SELECT CASE` and as values |
+| Printing | C64 BASIC style: `.5`, `-3.25`, `3.33333333`, `1E+10`, `1.5E-07` (no leading space) |
+| Strings | `s = "X=" + x`, `STR$(x)`, `VAL(s)` reads `-1.25E3` |
+| `FOR` | floating-point counter, limit and step (`STEP 0.1`, negative, or a variable) |
+| `INPUT` / `READ` | `INPUT x` reads any number; `READ x` reads the next `data` byte |
+| Sub / function | `p AS DOUBLE` parameters and `AS DOUBLE` results |
+
+**Mixing with integers.** An expression is computed in floating point when it contains a
+SINGLE / DOUBLE value, `^`, one of the functions above, or a literal only floating point can
+hold (`1E6`, `300.5`, `70000`). Once a program uses floating point, every decimal literal
+(`0.1`) is a floating-point constant too. Storing a floating-point value into a `byte`,
+`integer` or `word` **rounds** it (half away from zero: 2.5 → 3, -2.5 → -3); into a `float`
+it becomes Q8.8. An integer value assigned to a DOUBLE is converted exactly. Integer
+expressions keep their integer rules (`var c = a + b` is still a byte).
+
+**Notes**
+- A whole-number literal from 32768 to 65535 is read as a 16-bit pattern and becomes
+  negative in floating-point context: write `40000.0` or `4E4`.
+- `7 / 2` is 3.5 when assigned to a DOUBLE; in integer context it is 3 as before.
+- `x MOD y` and `AND` / `OR` / `XOR` round their operands to integers.
+- `SIN` / `COS` of a byte value keep the old 0–255 table meaning (full circle = 256); with a
+  SINGLE / DOUBLE argument they work in radians.
+- Floating-point code must not run in IRQ / NMI handlers (the runtime keeps its state in
+  fixed RAM).
+- Cost: the floating-point runtime (about 4.4 KB, assembled by the compiler) is appended after
+  the program the first time SINGLE / DOUBLE is used. Variables take 5 bytes in the array area,
+  plus one 2-byte zero-page pointer for the runtime. A multiplication takes roughly 1–2 ms on a
+  1 MHz C64.
+
+### Variables in RAM, array memory (1.6.4)
+
+- **Zero page full:** when the program's variables do not fit into permanent zero page
+  (`$02-$4F`), the compiler builds it again and moves the variables that are used least in
+  hot code to normal RAM (after the arrays). A statement that uses such a variable copies it
+  to a zero-page slot and back, so programs behave the same, only these variables are a bit
+  slower. Loop counters, parameters and anything an IRQ handler may touch stay in zero page.
+  The memory map shows them as `RAM:$xxxx`. Running out of zero page is no longer an error
+  except in extreme cases (`out of zero page` remains for those).
+- **Array memory:** arrays (and spilled / floating-point variables) use `$C000-$CFFF`. When
+  they need more than 4096 bytes, the area starts at `$A000` instead, giving 12 KB
+  (`$A000-$CFFF`): the BASIC ROM is switched off at program start (`$01` bit 0) and switched
+  back on at every exit to BASIC (`end`, `bye`, end of program, `chain`), so the program still
+  returns to a working BASIC. Programs that call BASIC ROM routines themselves (`sys $Axxx`)
+  must not use more than 4 KB of arrays.
 
 ### Math functions
 
@@ -1914,6 +1999,9 @@ The result pointer is stored in a permanent ZP pair allocated at compile time.
 | `examples/countdown_errors_demo.ub` | Compile-time error for default-step `from > to` |
 | `examples/explicit_demo.ub` | `--explicit` CLI-flag demo with fully typed `var`, `sub`, `fn` |
 | `examples/explicit_errors_demo.ub` | Loose code that builds without `--explicit`, errors with it |
+| `examples/dim_demo.ub` | `DIM … AS …` scalars and arrays of every type |
+| `examples/qbasic_demo.ub` | QBasic-style FUNCTION / SUB / ELSEIF / DO-LOOP / SELECT CASE / strings |
+| `examples/float_demo.ub` | SINGLE / DOUBLE floating point: `^`, SQR, SIN, ATN, EXP, LOG, `FOR … STEP 0.5`, `AS DOUBLE` function |
 
 ## CLI reference
 
@@ -2110,10 +2198,11 @@ Use `--asm` to see the generated code for your own program.
 | Feature | Limitation |
 |---|---|
 | Integer arithmetic | `var`/`byte` values are 8-bit unsigned (0–255) and wrap silently (`200 + 100` → 44 in a byte); `integer` is signed 16-bit, `word` unsigned 16-bit |
-| Zero page budget | Permanent zero page is `$02–$4F` (78 bytes): every variable and sub/fn parameter takes 2 bytes, every running `for` loop 2 more (given back when the loop ends, if its body declared no variables). Running out is a compile-time error (`out of zero page`, new in 1.5.7); before, it silently overwrote the scratch area. Reuse variables in big programs |
-| Binary literals | Only `$hex` and decimal; `%` binary literals are not supported |
+| Zero page budget | Permanent zero page is `$02–$4F` (78 bytes): every variable and sub/fn parameter takes 2 bytes, every running `for` loop 2 more. Since 1.6.4 variables that do not fit move to RAM automatically (see *Variables in RAM*); only extreme cases still report `out of zero page` |
+| Binary literals | `%01010101` (since 1.6.4), `$hex` and decimal |
 | Subroutines | No recursion — ZP parameter slots are statically allocated (a recursive call is a compile error) |
-| Floating point | `single` / `double` are Q8.8 fixed point (0–255.99, two decimals, no negative values); see `ROADMAP.md` |
+| Floating point | `single` / `double` are 5-byte floating point since 1.6.4 (not usable in IRQ handlers; the ~4.4 KB runtime is added to the program); `float` stays Q8.8 (0–255.99) |
+| Unary minus | Since 1.6.4 a leading `-` binds to its operand: `-5 - 3` is -8 (it was -(5 - 3) = -2) |
 | String vars | Computed values live in an 80-character buffer per variable (longer results are cut); string-array element values in 31-character slots; no `<` / `>` string ordering |
 | `rnd()` / `rnd(n)` | Simple LCG, not cryptographic; period = 256 |
 | `abs()` / `sgn()` / `min()` / `max()` | 8-bit values only; `abs`/`sgn` treat values as signed (bit 7 = negative → `abs` two's-complements, `sgn` returns `$FF`); `min`/`max` are unsigned (0–255) |

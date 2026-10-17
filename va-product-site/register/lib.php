@@ -275,6 +275,65 @@ function vaInstallers(string $dir): array
     return $out;
 }
 
+// Beküldött leckék (lesson.php → lessons.php dashboard → ../lessons/*.vatut). A tábla első használatkor jön létre.
+const VA_LESSON_MAX_BYTES = 524288;
+const VA_LESSON_DIR = __DIR__ . '/../lessons';
+
+function vaLessonsTable(PDO $db): void
+{
+    $db->exec("CREATE TABLE IF NOT EXISTS va_lesson_submissions (
+        id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        install_id CHAR(32) NOT NULL,
+        lesson_id VARCHAR(64) NOT NULL,
+        rev INT UNSIGNED NOT NULL DEFAULT 0,
+        title VARCHAR(200) NOT NULL,
+        steps INT UNSIGNED NOT NULL DEFAULT 0,
+        name VARCHAR(100) NOT NULL,
+        email VARCHAR(190) NOT NULL DEFAULT '',
+        note TEXT NOT NULL,
+        data MEDIUMTEXT NOT NULL,
+        version VARCHAR(20) NOT NULL DEFAULT '',
+        os VARCHAR(20) NOT NULL DEFAULT '',
+        lang CHAR(2) NOT NULL DEFAULT '',
+        country CHAR(2) NOT NULL DEFAULT '',
+        status VARCHAR(10) NOT NULL DEFAULT 'pending',
+        file VARCHAR(100) NOT NULL DEFAULT '',
+        created_at DATETIME NOT NULL,
+        decided_at DATETIME NULL,
+        KEY ix_status (status, id),
+        KEY ix_lesson (lesson_id, install_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+}
+
+/** A lecke címe megjelenítéshez: angol, magyar, vagy bármely nyelv. */
+function vaLessonTitle(array $lesson): string
+{
+    foreach (['titleEn', 'titleHu', 'titleEs', 'titleDe', 'titleNl', 'titlePl', 'titleIt'] as $k) {
+        if (is_string($lesson[$k] ?? null) && trim($lesson[$k]) !== '') {
+            return mb_substr(trim($lesson[$k]), 0, 200);
+        }
+    }
+    return (string) ($lesson['id'] ?? '');
+}
+
+/** Ellenőrzött lecke (a beküldött JSON) vagy hibakód. */
+function vaLessonCheck($lesson)
+{
+    if (!is_array($lesson) || ($lesson['format'] ?? '') !== 'va-tutorial' || !is_array($lesson['items'] ?? null)) {
+        return 'invalid';
+    }
+    if (!preg_match('/^[A-Za-z0-9_-]{1,64}$/', (string) ($lesson['id'] ?? ''))) {
+        return 'invalid';
+    }
+    if (!$lesson['items']) {
+        return 'empty';
+    }
+    if (strlen((string) json_encode($lesson)) > VA_LESSON_MAX_BYTES) {
+        return 'too_large';
+    }
+    return $lesson;
+}
+
 /** Országkód → angol név (intl nélkül a kód marad). */
 function vaCountryName(string $cc): string
 {

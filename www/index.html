@@ -1391,7 +1391,7 @@ PRINTABLE CHARACTERS
           <strong>Lesson Editor:</strong> <em>Tutorials → Lesson editor…</em> turns your own program into a step-by-step guided lesson like "Build: Your First Text Program": the student picks each mnemonic, types the operand and presses Add, and sets the parameters the palette cannot. Add explanations, choose the folder, try the lesson, and export or import it as a <code>.vatut</code> file.
         </li>
         <li>
-          <strong>Online lessons:</strong> <em>Tutorials → Online lessons…</em> lists the lessons published on www.c64va.pro; download one into its folder with a click, and get its updates.
+          <strong>Online lessons:</strong> <em>Tutorials → Online lessons…</em> lists the lessons published on www.c64va.pro; download one into its folder with a click, and get its updates. Share your own with <em>Lesson Editor → Files → Upload to c64va.pro…</em>: after a review it appears for everyone, with your name as the author.
         </li>
         <li>
           <strong>Every macro takes its parameters in the operand field:</strong> type them before <em>Add</em> as they follow the macro in Expert mode — <code>$06</code> for <code>SET_BG</code>, <code>Main</code> for <code>REGION</code>, <code>$C000</code> for <code>ORG</code>, <code>1, 200, 50</code> for <code>SPRITE_POS</code>. The field shows the expected form.
@@ -3373,6 +3373,25 @@ PRINTABLE CHARACTERS
     </div>
   </dialog>
 
+  <!-- Lecke feltöltése a c64va.pro-ra (jóváhagyás után kerül az Online leckék közé) -->
+  <dialog id="te-upload-dialog" class="app-confirm-dialog update-dialog te-upload-dialog">
+    <div class="app-confirm-card">
+      <h2 class="compile-error-title" id="te-up-title">Upload lesson</h2>
+      <p id="te-up-intro" class="app-confirm-msg"></p>
+      <label class="form-field"><span id="te-up-name-l">Name</span>
+        <input id="te-up-name" type="text" maxlength="100" autocomplete="name" spellcheck="false"></label>
+      <label class="form-field"><span id="te-up-email-l">Email (optional)</span>
+        <input id="te-up-email" type="email" autocomplete="email" spellcheck="false"></label>
+      <label class="form-field"><span id="te-up-note-l">Note for the reviewer (optional)</span>
+        <textarea id="te-up-note" rows="3" maxlength="2000" spellcheck="true"></textarea></label>
+      <p id="te-up-status" class="form-status" role="status"></p>
+      <div class="app-confirm-buttons">
+        <button id="te-up-cancel" class="secondary" type="button">Cancel</button>
+        <button id="te-up-send" class="primary" type="button">Upload</button>
+      </div>
+    </div>
+  </dialog>
+
   <!-- Online leckék: a www.c64va.pro/lessons/ mappában közzétett .vatut leckék -->
   <dialog id="tut-online-dialog" class="te-dialog" aria-labelledby="to-title">
     <div class="te-card to-card">
@@ -3404,6 +3423,7 @@ PRINTABLE CHARACTERS
             <button id="te-new" type="button">New lesson</button>
             <button id="te-import" type="button">Import lesson…</button>
             <button id="te-export" type="button">Export lesson…</button>
+            <button id="te-upload" type="button">Upload to c64va.pro…</button>
             <button id="te-delete" type="button">Delete lesson</button>
             <button id="te-folder" type="button">Open lessons folder</button>
           </div>
