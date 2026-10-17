@@ -1083,16 +1083,18 @@ PRINTABLE CHARACTERS
       <p id="support-intro" class="support-intro"></p>
       <div id="support-thread" class="support-thread" aria-live="polite"></div>
       <label class="form-field"><span id="support-text-label">Message</span>
-        <textarea id="support-text" class="support-text" rows="4" maxlength="4000" spellcheck="true"></textarea></label>
+        <textarea id="support-text" class="support-text" rows="3" maxlength="4000" spellcheck="true"></textarea></label>
       <div class="support-attach-row">
         <div id="support-files" class="support-files"></div>
         <button id="support-attach" class="secondary support-attach" type="button">Attach file…</button>
       </div>
       <input id="support-file-input" type="file" multiple hidden>
+      <div class="support-id-row">
       <label class="form-field"><span id="support-name-label">Name</span>
         <input id="support-name" type="text" maxlength="100" autocomplete="name" spellcheck="false"></label>
       <label class="form-field"><span id="support-email-label">Email (optional)</span>
         <input id="support-email" type="email" autocomplete="email" spellcheck="false"></label>
+      </div>
       <p id="support-status" class="form-status" role="status"></p>
       <div class="app-confirm-buttons">
         <button id="support-close" class="secondary" type="button">Close</button>
@@ -1420,39 +1422,6 @@ PRINTABLE CHARACTERS
         </li>
         <li>
           <strong>From 2.5.9: Version control dialog:</strong> drag it by its header — it reopens where you left it and stays on screen when the log or a diff makes it taller. A click outside no longer closes it (Esc does).
-        </li>
-        <li>
-          <strong>From 2.5.8: Version control:</strong> the project snapshots became a git-like version control — commits with a message and a short hash, a log with <em>HEAD</em>, <em>Diff</em> against the working copy (Block-mode programs are compared as assembly lines, so JSON projects show readable changes), <em>Checkout</em> into the editor and separate autosave entries. Works on Block, Expert and Ultimate Basic tabs.
-        </li>
-        <li>
-          <strong>From 2.5.8: Git integration:</strong> choose <code>git.exe</code> in Settings → Version control (or auto-detect). Inside a git repository the dialog shows the branch, the changed files, commit (saves first), log, diff with a <em>RAW</em> view, checkout, <em>Pull</em> / <em>Push</em> and <em>git init</em>.
-        </li>
-        <li>
-          <strong>From 2.5.8: Report Bug:</strong> a built-in report form with up to 4 screenshots (file, Ctrl+V or drag and drop), an optional email, system info and the recent app errors.
-        </li>
-        <li>
-          <strong>From 2.5.8: SID Player:</strong> <em>Shuffle</em> and per-tune <em>favourites</em> (★), kept in the saved state and in <code>.sidpl</code> playlists.
-        </li>
-        <li>
-          <strong>From 2.5.7: VA SID Core 1.2:</strong> the SID Player now runs tunes on a cycle-exact 6510 (every bus cycle, dummy accesses, VICE's interrupt timing), CIA 6526A timers / interrupts / TOD, VIC-II timing with bad lines, sprite DMA and raster interrupts, and the 6510 I/O port.
-        </li>
-        <li>
-          <strong>From 2.5.7: Hi-Res Editor: two colours in every 8×8 cell:</strong> the new <em>Cell paper</em> tool sets the background of each cell (the low nibble of its screen RAM byte), so every cell can have its own ink and paper. The eraser now uncovers the cell's own background.
-        </li>
-        <li>
-          <strong>From 2.5.7: Exact C64 character ROM:</strong> the ROM viewer, <em>Load ROM</em> in the Character Editor and the Map / Level editors now use the real glyphs (checked byte by byte against the 901225-01 character ROM); several graphics characters were wrong or missing before.
-        </li>
-        <li>
-          <strong>From 2.5.7: Sprite Editor:</strong> a <strong>hi-res overlay</strong> sprite over each frame (outline over a multicolor body), <strong>flood fill</strong>, <strong>select / move</strong>, <strong>rotate 90°</strong>, <strong>Mirror all</strong> (a mirrored copy of the animation), <strong>sprite sheet import</strong> with OKLab colour matching and dithering, a <strong>hitbox</strong> per frame with a table export, an <strong>X / Y ×2</strong> preview and zoom up to 40×.
-        </li>
-        <li>
-          <strong>From 2.5.7: Level Editor:</strong> an <strong>objects layer</strong> (start, enemies, items, doors, exit, triggers → <code>LEVEL_OBJ_*</code> tables), <strong>character attributes</strong> (solid, ladder, hazard, collectible → <code>LEVEL_ATTR</code>), an <strong>edge check</strong> between screens, <strong>colours per screen</strong>, a <strong>memory meter</strong> with RLE export and unpacker, and <strong>Run in VICE</strong> — a joystick-scrolled test program built from the level.
-        </li>
-        <li>
-          <strong>From 2.5.7: Character Editor:</strong> <strong>undo / redo</strong>, drawing tools (pencil, line, rectangle, fill), <strong>rotate 90°</strong>, <strong>copy / paste</strong> and drag to swap characters on the map (Shift+drag copies), <strong>2×1 / 1×2 / 2×2 tiles</strong> edited as one picture, the <strong>lowercase ROM set</strong>, a <strong>text preview</strong> and <strong>range export</strong> (<code>.bin</code> or <code>.byte</code> lines). The <strong>Charset Canvas</strong> zooms 2×–24× (slider or Ctrl+wheel) with a pixel grid, sets the background in hi-res mode too, and can switch single characters to <strong>hi-res inside multicolor mode</strong> (Color RAM bit 3), like the C64, and has an <strong>ECM</strong> mode with a background (<code>$D021</code>–<code>$D024</code>) per character.
-        </li>
-        <li>
-          <strong>From 2.5.7: Ultimate Basic 1.6.4</strong> bundled.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>

@@ -82,49 +82,49 @@ const CUSTOMER_MESSAGE = {
   hu: {
     eyebrow: "Újdonság a 2.6.1-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<ul><li><strong>VICE Monitor</strong> — hot reload a futó VICE-ba, élő változók és profiler.</li><li><strong>Táblagenerátor</strong> — sorcímek, maszkok, szorzó- / osztótáblák, log / exp, saját képlet és speedcode.</li><li><strong>Ciklusszámok és optimalizálási tippek</strong> az Expert szerkesztőben.</li><li><strong>Zero page foglaltság</strong> és leválasztható memóriaablak.</li><li><strong>Ultimate Basic</strong>: kódméret soronként, tippek, sprite export animációval.</li><li><strong>.sid export</strong> a SID szerkesztőből és <strong>sprite multiplexer</strong> sablon.</li></ul><p>Kérdés, ötlet vagy hiba: <strong>Menu → Támogatás</strong>.</p>`,
+    body: `<ul><li><strong>VICE Monitor</strong>: hot reload a futó VICE-ba, élő változók és profiler.</li><li><strong>Táblagenerátor</strong>: sorcímek, maszkok, szorzó- / osztótáblák, log / exp, saját képlet és speedcode.</li><li><strong>Ciklusszámok és optimalizálási tippek</strong> az Expert szerkesztőben.</li><li><strong>Zero page foglaltság</strong> és leválasztható memóriaablak.</li><li><strong>Ultimate Basic</strong>: kódméret soronként, tippek, sprite export animációval.</li><li><strong>.sid export</strong> a SID szerkesztőből és <strong>sprite multiplexer</strong> sablon.</li></ul><p>Kérdés, ötlet vagy hiba: <strong>Menu → Támogatás</strong>.</p>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
     eyebrow: "New in 2.6.1",
     title: "Welcome to Visual Assembler",
-    body: `<ul><li><strong>VICE Monitor</strong> — hot reload into the running VICE, live watch and a profiler.</li><li><strong>Table Generator</strong> — row addresses, masks, multiply / divide tables, log / exp, custom formulas and speedcode.</li><li><strong>Cycle counts and optimisation hints</strong> in the Expert editor.</li><li><strong>Zero page usage</strong> and a detachable memory window.</li><li><strong>Ultimate Basic</strong>: code size per line, hints, sprite export with animation.</li><li><strong>.sid export</strong> from the SID Editor and a <strong>sprite multiplexer</strong> template.</li></ul><p>Questions, ideas or bugs: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>VICE Monitor</strong>: hot reload into the running VICE, live watch and a profiler.</li><li><strong>Table Generator</strong>: row addresses, masks, multiply / divide tables, log / exp, custom formulas and speedcode.</li><li><strong>Cycle counts and optimisation hints</strong> in the Expert editor.</li><li><strong>Zero page usage</strong> and a detachable memory window.</li><li><strong>Ultimate Basic</strong>: code size per line, hints, sprite export with animation.</li><li><strong>.sid export</strong> from the SID Editor and a <strong>sprite multiplexer</strong> template.</li></ul><p>Questions, ideas or bugs: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
     eyebrow: "Novedad en la 2.6.1",
     title: "Bienvenido a Visual Assembler",
-    body: `<ul><li><strong>Monitor de VICE</strong> — recarga en caliente en el VICE en marcha, vigilancia en vivo y perfilador.</li><li><strong>Generador de tablas</strong> — direcciones de fila, máscaras, tablas de multiplicar / dividir, log / exp, fórmulas propias y speedcode.</li><li><strong>Ciclos y sugerencias de optimización</strong> en el editor Expert.</li><li><strong>Uso de la página cero</strong> y ventana de memoria separable.</li><li><strong>Ultimate Basic</strong>: tamaño de código por línea, sugerencias, exportación de sprites con animación.</li><li><strong>Exportación .sid</strong> desde el editor SID y plantilla de <strong>multiplexor de sprites</strong>.</li></ul><p>Preguntas, ideas o errores: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Monitor de VICE</strong>: recarga en caliente en el VICE en marcha, vigilancia en vivo y perfilador.</li><li><strong>Generador de tablas</strong>: direcciones de fila, máscaras, tablas de multiplicar / dividir, log / exp, fórmulas propias y speedcode.</li><li><strong>Ciclos y sugerencias de optimización</strong> en el editor Expert.</li><li><strong>Uso de la página cero</strong> y ventana de memoria separable.</li><li><strong>Ultimate Basic</strong>: tamaño de código por línea, sugerencias, exportación de sprites con animación.</li><li><strong>Exportación .sid</strong> desde el editor SID y plantilla de <strong>multiplexor de sprites</strong>.</li></ul><p>Preguntas, ideas o errores: <strong>Menu → Support</strong>.</p>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
     eyebrow: "Neu in 2.6.1",
     title: "Willkommen bei Visual Assembler",
-    body: `<ul><li><strong>VICE-Monitor</strong> — Hot Reload in den laufenden VICE, Live-Watch und Profiler.</li><li><strong>Tabellengenerator</strong> — Zeilenadressen, Masken, Multiplikations- / Divisionstabellen, Log / Exp, eigene Formeln und Speedcode.</li><li><strong>Taktzyklen und Optimierungshinweise</strong> im Expert-Editor.</li><li><strong>Zero-Page-Belegung</strong> und abdockbares Speicherfenster.</li><li><strong>Ultimate Basic</strong>: Codegröße pro Zeile, Hinweise, Sprite-Export mit Animation.</li><li><strong>.sid-Export</strong> aus dem SID-Editor und eine <strong>Sprite-Multiplexer</strong>-Vorlage.</li></ul><p>Fragen, Ideen oder Fehler: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>VICE-Monitor</strong>: Hot Reload in den laufenden VICE, Live-Watch und Profiler.</li><li><strong>Tabellengenerator</strong>: Zeilenadressen, Masken, Multiplikations- / Divisionstabellen, Log / Exp, eigene Formeln und Speedcode.</li><li><strong>Taktzyklen und Optimierungshinweise</strong> im Expert-Editor.</li><li><strong>Zero-Page-Belegung</strong> und abdockbares Speicherfenster.</li><li><strong>Ultimate Basic</strong>: Codegröße pro Zeile, Hinweise, Sprite-Export mit Animation.</li><li><strong>.sid-Export</strong> aus dem SID-Editor und eine <strong>Sprite-Multiplexer</strong>-Vorlage.</li></ul><p>Fragen, Ideen oder Fehler: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
     eyebrow: "Nieuw in 2.6.1",
     title: "Welkom bij Visual Assembler",
-    body: `<ul><li><strong>VICE-monitor</strong> — hot reload in de draaiende VICE, live watch en een profiler.</li><li><strong>Tabelgenerator</strong> — rijadressen, maskers, vermenigvuldig- / deeltabellen, log / exp, eigen formules en speedcode.</li><li><strong>Cycli en optimalisatietips</strong> in de Expert-editor.</li><li><strong>Zero page-gebruik</strong> en een losmaakbaar geheugenvenster.</li><li><strong>Ultimate Basic</strong>: codegrootte per regel, tips, sprite-export met animatie.</li><li><strong>.sid-export</strong> vanuit de SID-editor en een <strong>sprite-multiplexer</strong>-sjabloon.</li></ul><p>Vragen, ideeën of bugs: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>VICE-monitor</strong>: hot reload in de draaiende VICE, live watch en een profiler.</li><li><strong>Tabelgenerator</strong>: rijadressen, maskers, vermenigvuldig- / deeltabellen, log / exp, eigen formules en speedcode.</li><li><strong>Cycli en optimalisatietips</strong> in de Expert-editor.</li><li><strong>Zero page-gebruik</strong> en een losmaakbaar geheugenvenster.</li><li><strong>Ultimate Basic</strong>: codegrootte per regel, tips, sprite-export met animatie.</li><li><strong>.sid-export</strong> vanuit de SID-editor en een <strong>sprite-multiplexer</strong>-sjabloon.</li></ul><p>Vragen, ideeën of bugs: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
     eyebrow: "Nowość w 2.6.1",
     title: "Witamy w Visual Assembler",
-    body: `<ul><li><strong>Monitor VICE</strong> — hot reload do działającego VICE, podgląd na żywo i profiler.</li><li><strong>Generator tablic</strong> — adresy wierszy, maski, tablice mnożenia / dzielenia, log / exp, własne wzory i speedcode.</li><li><strong>Liczba cykli i wskazówki optymalizacji</strong> w edytorze Expert.</li><li><strong>Użycie strony zerowej</strong> i odłączane okno pamięci.</li><li><strong>Ultimate Basic</strong>: rozmiar kodu na linię, wskazówki, eksport sprite'ów z animacją.</li><li><strong>Eksport .sid</strong> z edytora SID i szablon <strong>multipleksera sprite'ów</strong>.</li></ul><p>Pytania, pomysły lub błędy: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Monitor VICE</strong>: hot reload do działającego VICE, podgląd na żywo i profiler.</li><li><strong>Generator tablic</strong>: adresy wierszy, maski, tablice mnożenia / dzielenia, log / exp, własne wzory i speedcode.</li><li><strong>Liczba cykli i wskazówki optymalizacji</strong> w edytorze Expert.</li><li><strong>Użycie strony zerowej</strong> i odłączane okno pamięci.</li><li><strong>Ultimate Basic</strong>: rozmiar kodu na linię, wskazówki, eksport sprite'ów z animacją.</li><li><strong>Eksport .sid</strong> z edytora SID i szablon <strong>multipleksera sprite'ów</strong>.</li></ul><p>Pytania, pomysły lub błędy: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
     eyebrow: "Novità nella 2.6.1",
     title: "Benvenuto in Visual Assembler",
-    body: `<ul><li><strong>Monitor VICE</strong> — hot reload nel VICE in esecuzione, watch dal vivo e profiler.</li><li><strong>Generatore di tabelle</strong> — indirizzi di riga, maschere, tabelle di moltiplicazione / divisione, log / exp, formule proprie e speedcode.</li><li><strong>Cicli e suggerimenti di ottimizzazione</strong> nell'editor Expert.</li><li><strong>Uso della pagina zero</strong> e finestra della memoria sganciabile.</li><li><strong>Ultimate Basic</strong>: dimensione del codice per riga, suggerimenti, esportazione sprite con animazione.</li><li><strong>Esportazione .sid</strong> dall'editor SID e modello di <strong>multiplexer di sprite</strong>.</li></ul><p>Domande, idee o bug: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Monitor VICE</strong>: hot reload nel VICE in esecuzione, watch dal vivo e profiler.</li><li><strong>Generatore di tabelle</strong>: indirizzi di riga, maschere, tabelle di moltiplicazione / divisione, log / exp, formule proprie e speedcode.</li><li><strong>Cicli e suggerimenti di ottimizzazione</strong> nell'editor Expert.</li><li><strong>Uso della pagina zero</strong> e finestra della memoria sganciabile.</li><li><strong>Ultimate Basic</strong>: dimensione del codice per riga, suggerimenti, esportazione sprite con animazione.</li><li><strong>Esportazione .sid</strong> dall'editor SID e modello di <strong>multiplexer di sprite</strong>.</li></ul><p>Domande, idee o bug: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -19792,6 +19792,12 @@ function _updateTabScrollButtons() {
   btnLeft.addEventListener("click",  () => { tabBar.scrollBy({ left: -120, behavior: "smooth" }); setTimeout(_updateTabScrollButtons, 150); });
   btnRight.addEventListener("click", () => { tabBar.scrollBy({ left:  120, behavior: "smooth" }); setTimeout(_updateTabScrollButtons, 150); });
 
+  tabBar.addEventListener("wheel", (e) => {
+    if (e.ctrlKey) return;
+    e.preventDefault();
+    const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+    tabBar.scrollLeft += e.deltaMode === 1 ? d * 40 : d;
+  }, { passive: false });
   tabBar.addEventListener("scroll", _updateTabScrollButtons, { passive: true });
   new ResizeObserver(_updateTabScrollButtons).observe(tabBar);
 }());
@@ -50780,6 +50786,7 @@ function _supportOpen() {
   document.querySelector(".control-menu")?.removeAttribute("open");
   document.getElementById("support-title").textContent = t("supportTitle");
   document.getElementById("support-intro").textContent = t("supportIntro");
+  document.getElementById("support-thread").dataset.empty = t("supportIntro");
   document.getElementById("support-text-label").textContent = t("supportMessage");
   document.getElementById("support-name-label").textContent = t("supportName");
   document.getElementById("support-email-label").textContent = t("supportEmail");
