@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "lessons-262",
+  id: "sid-import-263",
   url: "https://www.c64va.pro/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.6.2-ben",
+    eyebrow: "Újdonság a 2.6.3-ban",
     title: "Üdvözöl a Visual Assembler",
-    body: `<ul><li><strong>HVSC a SID Playerben</strong>: keresés kb. 61 000 C64 dalban, lejátszás, mentés, a teljes gyűjtemény letöltése offline használatra.</li><li><strong>Spektrum-analizátor</strong> a SID Playerhez.</li><li><strong>Lecke-szerkesztő</strong>: a saját programodból lépésről lépésre vezetett lecke.</li><li><strong>Online leckék</strong> a www.c64va.pro-ról, egy kattintással.</li><li><strong>Minden makró az operandus mezőben</strong> kapja a paramétereit (<code>SET_BG $06</code>, <code>REGION Main</code> …).</li></ul><p>Kérdés, ötlet vagy hiba: <strong>Menu → Támogatás</strong>.</p>`,
+    body: `<ul><li><strong>.sid import a SID szerkesztőben</strong>: bármely PSID / RSID dal hangszerekké, patternekké és song-gá alakul, szerkesztheted és exportálhatod (Files → Import .sid…).</li><li><strong>Hosszú dalok</strong>: a lejátszó adata már nem lóg bele az I/O-ba, nem vesznek el hangok.</li><li><strong>VA SID Core előnézet</strong>: az újraindított hangok újra megszólalnak.</li><li><strong>SID szerkesztő</strong>: a fejléc mutatja a SID-emulációt, a Speed mezőn − / + gomb.</li><li><strong>Ultimate Basic 1.6.6</strong>: <code>PRINT USING</code>, sztring-összehasonlítás, lebegőpontos <code>rnd</code> / <code>mod</code>, <code>option basic print</code>, kisebb programok.</li></ul><p>Kérdés, ötlet vagy hiba: <strong>Menu → Támogatás</strong>.</p>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.6.2",
+    eyebrow: "New in 2.6.3",
     title: "Welcome to Visual Assembler",
-    body: `<ul><li><strong>HVSC in the SID Player</strong>: search about 61,000 C64 tunes, play, save, download the whole collection for offline use.</li><li><strong>Spectrum analyzer</strong> for the SID Player.</li><li><strong>Lesson Editor</strong>: a step-by-step guided lesson from your own program.</li><li><strong>Online lessons</strong> from www.c64va.pro, with one click.</li><li><strong>Every macro takes its parameters</strong> in the operand field (<code>SET_BG $06</code>, <code>REGION Main</code> …).</li></ul><p>Questions, ideas or bugs: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>.sid import in the SID Editor</strong>: any PSID / RSID tune becomes instruments, patterns and a song you can edit and export (Files → Import .sid…).</li><li><strong>Long tunes</strong>: the player data no longer runs into I/O, so no notes get lost.</li><li><strong>VA SID Core preview</strong>: restarted notes sound again.</li><li><strong>SID Editor</strong>: the header shows the SID emulation, the Speed field has − / + buttons.</li><li><strong>Ultimate Basic 1.6.6</strong>: <code>PRINT USING</code>, string comparison, floating-point <code>rnd</code> / <code>mod</code>, <code>option basic print</code>, smaller programs.</li></ul><p>Questions, ideas or bugs: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.6.2",
+    eyebrow: "Novedad en la 2.6.3",
     title: "Bienvenido a Visual Assembler",
-    body: `<ul><li><strong>HVSC en el SID Player</strong>: busca entre unos 61.000 temas de C64, reproduce, guarda y descarga la colección completa para usarla sin conexión.</li><li><strong>Analizador de espectro</strong> para el SID Player.</li><li><strong>Editor de lecciones</strong>: una lección guiada paso a paso a partir de tu propio programa.</li><li><strong>Lecciones en línea</strong> de www.c64va.pro, con un clic.</li><li><strong>Todas las macros reciben sus parámetros</strong> en el campo de operando (<code>SET_BG $06</code>, <code>REGION Main</code> …).</li></ul><p>Preguntas, ideas o errores: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Importación .sid en el editor SID</strong>: cualquier tema PSID / RSID se convierte en instrumentos, patrones y una canción que puedes editar y exportar (Files → Import .sid…).</li><li><strong>Temas largos</strong>: los datos del reproductor ya no invaden la E/S y no se pierden notas.</li><li><strong>Vista previa con VA SID Core</strong>: las notas reiniciadas vuelven a sonar.</li><li><strong>Editor SID</strong>: la cabecera muestra la emulación SID y el campo Speed tiene botones − / +.</li><li><strong>Ultimate Basic 1.6.6</strong>: <code>PRINT USING</code>, comparación de cadenas, <code>rnd</code> / <code>mod</code> en coma flotante, <code>option basic print</code>, programas más pequeños.</li></ul><p>Preguntas, ideas o errores: <strong>Menu → Support</strong>.</p>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.6.2",
+    eyebrow: "Neu in 2.6.3",
     title: "Willkommen bei Visual Assembler",
-    body: `<ul><li><strong>HVSC im SID Player</strong>: rund 61.000 C64-Stücke durchsuchen, abspielen, speichern und die ganze Sammlung für die Offline-Nutzung laden.</li><li><strong>Spektrumanalysator</strong> für den SID Player.</li><li><strong>Lektionseditor</strong>: eine geführte Schritt-für-Schritt-Lektion aus deinem eigenen Programm.</li><li><strong>Online-Lektionen</strong> von www.c64va.pro, mit einem Klick.</li><li><strong>Jedes Makro erhält seine Parameter</strong> im Operandenfeld (<code>SET_BG $06</code>, <code>REGION Main</code> …).</li></ul><p>Fragen, Ideen oder Fehler: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>.sid-Import im SID-Editor</strong>: jedes PSID- / RSID-Stück wird zu Instrumenten, Patterns und einem Song, den du bearbeiten und exportieren kannst (Files → Import .sid…).</li><li><strong>Lange Stücke</strong>: die Player-Daten reichen nicht mehr in den I/O-Bereich, es gehen keine Noten verloren.</li><li><strong>VA-SID-Core-Vorschau</strong>: neu angeschlagene Noten erklingen wieder.</li><li><strong>SID-Editor</strong>: der Kopf zeigt die SID-Emulation, das Speed-Feld hat − / +-Knöpfe.</li><li><strong>Ultimate Basic 1.6.6</strong>: <code>PRINT USING</code>, String-Vergleiche, <code>rnd</code> / <code>mod</code> als Gleitkomma, <code>option basic print</code>, kleinere Programme.</li></ul><p>Fragen, Ideen oder Fehler: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.6.2",
+    eyebrow: "Nieuw in 2.6.3",
     title: "Welkom bij Visual Assembler",
-    body: `<ul><li><strong>HVSC in de SID Player</strong>: zoek in zo'n 61.000 C64-nummers, speel af, sla op en download de hele collectie voor offline gebruik.</li><li><strong>Spectrumanalyser</strong> voor de SID Player.</li><li><strong>Lesseneditor</strong>: een stap-voor-stap begeleide les uit je eigen programma.</li><li><strong>Online lessen</strong> van www.c64va.pro, met één klik.</li><li><strong>Elke macro krijgt zijn parameters</strong> in het operandveld (<code>SET_BG $06</code>, <code>REGION Main</code> …).</li></ul><p>Vragen, ideeën of bugs: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>.sid-import in de SID-editor</strong>: elk PSID- / RSID-nummer wordt instrumenten, patronen en een song die je kunt bewerken en exporteren (Files → Import .sid…).</li><li><strong>Lange nummers</strong>: de playerdata lopen niet meer in het I/O-gebied, er gaan geen noten verloren.</li><li><strong>VA SID Core-voorbeeld</strong>: opnieuw aangeslagen noten klinken weer.</li><li><strong>SID-editor</strong>: de kop toont de SID-emulatie, het Speed-veld heeft − / +-knoppen.</li><li><strong>Ultimate Basic 1.6.6</strong>: <code>PRINT USING</code>, strings vergelijken, <code>rnd</code> / <code>mod</code> met drijvende komma, <code>option basic print</code>, kleinere programma's.</li></ul><p>Vragen, ideeën of bugs: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.6.2",
+    eyebrow: "Nowość w 2.6.3",
     title: "Witamy w Visual Assembler",
-    body: `<ul><li><strong>HVSC w SID Playerze</strong>: wyszukiwanie wśród ok. 61 000 utworów C64, odtwarzanie, zapis i pobranie całej kolekcji do pracy offline.</li><li><strong>Analizator widma</strong> dla SID Playera.</li><li><strong>Edytor lekcji</strong>: lekcja prowadzona krok po kroku z twojego własnego programu.</li><li><strong>Lekcje online</strong> z www.c64va.pro, jednym kliknięciem.</li><li><strong>Każde makro przyjmuje parametry</strong> w polu operandu (<code>SET_BG $06</code>, <code>REGION Main</code> …).</li></ul><p>Pytania, pomysły lub błędy: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Import .sid w edytorze SID</strong>: każdy utwór PSID / RSID staje się instrumentami, wzorcami i utworem, który możesz edytować i eksportować (Files → Import .sid…).</li><li><strong>Długie utwory</strong>: dane odtwarzacza nie wchodzą już w obszar I/O, nuty nie giną.</li><li><strong>Podgląd VA SID Core</strong>: ponownie uderzane nuty znów brzmią.</li><li><strong>Edytor SID</strong>: nagłówek pokazuje emulację SID, pole Speed ma przyciski − / +.</li><li><strong>Ultimate Basic 1.6.6</strong>: <code>PRINT USING</code>, porównywanie napisów, zmiennoprzecinkowe <code>rnd</code> / <code>mod</code>, <code>option basic print</code>, mniejsze programy.</li></ul><p>Pytania, pomysły lub błędy: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.6.2",
+    eyebrow: "Novità nella 2.6.3",
     title: "Benvenuto in Visual Assembler",
-    body: `<ul><li><strong>HVSC nel SID Player</strong>: cerca tra circa 61.000 brani C64, riproduci, salva e scarica l'intera collezione per l'uso offline.</li><li><strong>Analizzatore di spettro</strong> per il SID Player.</li><li><strong>Editor delle lezioni</strong>: una lezione guidata passo passo dal tuo programma.</li><li><strong>Lezioni online</strong> da www.c64va.pro, con un clic.</li><li><strong>Ogni macro riceve i parametri</strong> nel campo operando (<code>SET_BG $06</code>, <code>REGION Main</code> …).</li></ul><p>Domande, idee o bug: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Importazione .sid nell'editor SID</strong>: qualsiasi brano PSID / RSID diventa strumenti, pattern e un brano da modificare ed esportare (Files → Import .sid…).</li><li><strong>Brani lunghi</strong>: i dati del player non invadono più l'area I/O, nessuna nota va persa.</li><li><strong>Anteprima VA SID Core</strong>: le note riattaccate tornano a suonare.</li><li><strong>Editor SID</strong>: l'intestazione mostra l'emulazione SID, il campo Speed ha i pulsanti − / +.</li><li><strong>Ultimate Basic 1.6.6</strong>: <code>PRINT USING</code>, confronto tra stringhe, <code>rnd</code> / <code>mod</code> in virgola mobile, <code>option basic print</code>, programmi più piccoli.</li></ul><p>Domande, idee o bug: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -6753,6 +6753,8 @@ const ubCommandDescriptionsEn = {
   "const": "Declares a compile-time constant.",
   "print": "Prints values and formatting helpers through the C64 KERNAL output routine.",
   "print at": "Moves the cursor, then prints optional values.",
+  "print using": "Formatted output (QBasic subset): numeric fields with #, decimal point, thousands separators and sign; string fields &, ! and \\ \\. Values cycle through the fields (UB 1.6.6+).",
+  "option basic print": "Switches PRINT to C64 BASIC spacing: numbers get a leading space or minus and a trailing space, a comma jumps to the next 10-column zone (UB 1.6.6+).",
   "input": "Reads a value from the keyboard into a variable.",
   "if": "Conditional execution with an optional else branch.",
   "elseif": "Tests a further condition when the preceding IF / ELSEIF conditions were false (UB 1.6.3+). Any number of ELSEIF branches may follow an IF, before the optional ELSE; the block still ends with END or END IF. In IF / ELSEIF / WHILE / UNTIL conditions a single = compares and <> means not equal.",
@@ -6889,6 +6891,8 @@ const ubCommandDescriptionsHu = {
   "const": "Fordítási idejű konstans deklarálása.",
   "print": "Értékeket és formázó segédfüggvényeket ír ki a C64 KERNAL kimeneti rutinján keresztül.",
   "print at": "A kurzort adott pozícióra mozgatja, majd opcionális értékeket ír ki.",
+  "print using": "Formázott kiírás (QBasic részhalmaz): számmezők #, tizedespont, ezres elválasztó és előjel; szövegmezők &, ! és \\ \\. Az értékek sorban töltik ki a mezőket (UB 1.6.6+).",
+  "option basic print": "C64 BASIC szerinti PRINT-térköz: a számok előtt szóköz vagy mínusz, utánuk szóköz, a vessző a következő 10 oszlopos zónára ugrik (UB 1.6.6+).",
   "input": "Értéket olvas be a billentyűzetről egy változóba.",
   "if": "Feltételes végrehajtás opcionális else ággal.",
   "elseif": "További feltételt vizsgál, ha az előző IF / ELSEIF feltételek hamisak voltak (UB 1.6.3+). Egy IF után tetszőleges számú ELSEIF ág állhat az opcionális ELSE előtt; a blokkot továbbra is END vagy END IF zárja. Az IF / ELSEIF / WHILE / UNTIL feltételekben az egyszeres = összehasonlít, a <> jelentése nem egyenlő.",
@@ -7025,6 +7029,8 @@ const ubCommandDescriptionsEs = {
   "const": "Declara una constante de tiempo de compilación.",
   "print": "Imprime valores y formateadores mediante la rutina de salida del KERNAL de C64.",
   "print at": "Mueve el cursor y luego imprime valores opcionales.",
+  "print using": "Salida con formato (subconjunto de QBasic): campos numéricos con #, punto decimal, separador de miles y signo; campos de texto &, ! y \\ \\. Los valores recorren los campos (UB 1.6.6+).",
+  "option basic print": "PRINT con el espaciado de C64 BASIC: los números llevan un espacio o signo menos delante y un espacio detrás, la coma salta a la siguiente zona de 10 columnas (UB 1.6.6+).",
   "input": "Lee un valor del teclado en una variable.",
   "if": "Ejecución condicional con una rama else opcional.",
   "elseif": "Comprueba otra condición cuando las condiciones IF / ELSEIF anteriores eran falsas (UB 1.6.3+). Tras un IF pueden ir varias ramas ELSEIF antes del ELSE opcional; el bloque sigue terminando con END o END IF. En las condiciones de IF / ELSEIF / WHILE / UNTIL un solo = compara y <> significa distinto.",
@@ -7161,6 +7167,8 @@ const ubCommandDescriptionsDe = {
   "const": "Deklariert eine Konstante zur Kompilierzeit.",
   "print": "Gibt Werte und Formatierungshelfer über die C64-KERNAL-Ausgaberoutine aus.",
   "print at": "Bewegt den Cursor und gibt optionale Werte aus.",
+  "print using": "Formatierte Ausgabe (QBasic-Teilmenge): Zahlenfelder mit #, Dezimalpunkt, Tausendertrennzeichen und Vorzeichen; Textfelder &, ! und \\ \\. Die Werte durchlaufen die Felder (UB 1.6.6+).",
+  "option basic print": "PRINT mit C64-BASIC-Abständen: Zahlen bekommen ein Leerzeichen oder Minus davor und ein Leerzeichen danach, ein Komma springt zur nächsten 10-Spalten-Zone (UB 1.6.6+).",
   "input": "Liest einen Wert von der Tastatur in eine Variable ein.",
   "if": "Bedingte Ausführung mit optionalem else-Zweig.",
   "elseif": "Prüft eine weitere Bedingung, wenn die vorherigen IF- / ELSEIF-Bedingungen falsch waren (UB 1.6.3+). Auf ein IF können beliebig viele ELSEIF-Zweige vor dem optionalen ELSE folgen; der Block endet weiterhin mit END oder END IF. In IF- / ELSEIF- / WHILE- / UNTIL-Bedingungen vergleicht ein einfaches =, und <> bedeutet ungleich.",
@@ -7297,6 +7305,8 @@ const ubCommandDescriptionsNl = {
   "const": "Declareert een constante tijdens compileertijd.",
   "print": "Drukt waarden en opmaakhulpmiddelen af via de C64 KERNAL-uitvoerroutine.",
   "print at": "Verplaatst de cursor en drukt optionele waarden af.",
+  "print using": "Opgemaakte uitvoer (QBasic-subset): getalvelden met #, decimaalpunt, duizendtalscheiding en teken; tekstvelden &, ! en \\ \\. De waarden lopen de velden door (UB 1.6.6+).",
+  "option basic print": "PRINT met C64 BASIC-spatiëring: getallen krijgen een spatie of min ervoor en een spatie erna, een komma springt naar de volgende zone van 10 kolommen (UB 1.6.6+).",
   "input": "Leest een waarde van het toetsenbord in een variabele.",
   "if": "Voorwaardelijke uitvoering met een optionele else-tak.",
   "elseif": "Test een volgende voorwaarde als de voorgaande IF- / ELSEIF-voorwaarden onwaar waren (UB 1.6.3+). Na een IF mogen meerdere ELSEIF-takken volgen, vóór de optionele ELSE; het blok eindigt nog steeds met END of END IF. In IF- / ELSEIF- / WHILE- / UNTIL-voorwaarden vergelijkt een enkele = en betekent <> ongelijk.",
@@ -7433,6 +7443,8 @@ const ubCommandDescriptionsPl = {
   "const": "Deklaruje stałą znaną w czasie kompilacji.",
   "print": "Wypisuje wartości i pomocnicze formatowanie przez procedurę wyjścia KERNAL C64.",
   "print at": "Przenosi kursor, następnie wypisuje opcjonalne wartości.",
+  "print using": "Formatowane wyjście (podzbiór QBasic): pola liczbowe z #, kropką dziesiętną, separatorem tysięcy i znakiem; pola tekstowe &, ! i \\ \\. Wartości przechodzą przez kolejne pola (UB 1.6.6+).",
+  "option basic print": "PRINT z odstępami jak w C64 BASIC: liczby dostają spację lub minus przed i spację po, przecinek przeskakuje do następnej strefy 10 kolumn (UB 1.6.6+).",
   "input": "Odczytuje wartość z klawiatury do zmiennej.",
   "if": "Wykonanie warunkowe z opcjonalną gałęzią else.",
   "elseif": "Sprawdza kolejny warunek, gdy poprzednie warunki IF / ELSEIF były fałszywe (UB 1.6.3+). Po IF może wystąpić dowolna liczba gałęzi ELSEIF przed opcjonalnym ELSE; blok nadal kończy END lub END IF. W warunkach IF / ELSEIF / WHILE / UNTIL pojedynczy znak = porównuje, a <> oznacza nierówność.",
@@ -7569,6 +7581,8 @@ const ubCommandDescriptionsIt = {
   "const": "Dichiara una costante nota in fase di compilazione.",
   "print": "Stampa valori e helper di formattazione tramite la routine di output KERNAL del C64.",
   "print at": "Sposta il cursore, poi stampa valori opzionali.",
+  "print using": "Output formattato (sottoinsieme QBasic): campi numerici con #, punto decimale, separatore delle migliaia e segno; campi stringa &, ! e \\ \\. I valori scorrono i campi (UB 1.6.6+).",
+  "option basic print": "PRINT con la spaziatura del C64 BASIC: i numeri hanno uno spazio o il meno davanti e uno spazio dopo, la virgola salta alla zona successiva di 10 colonne (UB 1.6.6+).",
   "input": "Legge un valore dalla tastiera in una variabile.",
   "if": "Esecuzione condizionale con un ramo else opzionale.",
   "elseif": "Verifica un'ulteriore condizione quando le condizioni IF / ELSEIF precedenti erano false (UB 1.6.3+). Dopo un IF possono seguire più rami ELSEIF prima dell'ELSE opzionale; il blocco termina sempre con END o END IF. Nelle condizioni di IF / ELSEIF / WHILE / UNTIL un singolo = confronta e <> significa diverso.",
@@ -7715,6 +7729,8 @@ const _UB_COMMAND_REFERENCE = [
   ["const", "const NAME = expression", "Declares a compile-time constant."],
   ["print", "print [expression [, expression ...]]\nprint spc(count)\nprint tab(column)\nprint chr$(code)\nprint a; b; c               # ';' joins items without spaces (UB 1.6.3+)\nprint \"SCORE: \";            # trailing ';' = no newline", "Prints values and formatting helpers through the C64 KERNAL output routine."],
   ["print at", "print at column, row [, expression ...]", "Moves the cursor, then prints optional values."],
+  ["print using", "print using \"format\"; value [; value ...] [;]\nprint using \"###.##\"; price            # digits, decimal point\nprint using \"+#,###\"; total            # leading + = always a sign, , = thousands\nprint using \"##.#-\"; d                 # trailing - = sign after the number\nprint using \"& HAS ## LIVES\"; n$; lives   # & whole string, ! first char, \\  \\ field\nprint using \"_###\"; v                  # _ prints the next character as it is\n# too wide numbers print with % in front; the format must be a string literal (UB 1.6.6+)", "Formatted output (QBasic subset): numeric fields with #, decimal point, thousands separators and sign; string fields &, ! and \\ \\. Values cycle through the fields (UB 1.6.6+)."],
+  ["option basic print", "option basic print\nprint 5                  # \" 5 \" - leading space (or minus sign) and trailing space\nprint a, b               # , moves to the next 10-column zone; a trailing , keeps the line\n# the CLI switch is --basic-print; without it PRINT output is unchanged (UB 1.6.6+)", "Switches PRINT to C64 BASIC spacing: numbers get a leading space or minus and a trailing space, a comma jumps to the next 10-column zone (UB 1.6.6+)."],
   ["input", "input [\"prompt\",] variable\ninput \"AGE\"; age            # ';' works too (UB 1.6.3+)\ninput names(i)              # array element; INTEGER / WORD and DOUBLE (12.5) values too", "Reads a value from the keyboard into a variable."],
   ["if", "if condition then\n  statements\n[elseif condition then\n  statements]\n[else\n  statements]\nend                 # END IF is accepted too\nif x = 3 then print \"THREE\" else print \"OTHER\"   # single-line IF (UB 1.6.3+)", "Conditional execution with an optional else branch."],
   ["elseif", "if n < 0 then\n  print \"NEGATIVE\"\nelseif n = 0 then\n  print \"ZERO\"\nelse\n  print \"POSITIVE\"\nend if", "Further condition of an IF block (UB 1.6.3+)."],
@@ -7836,7 +7852,7 @@ const _UB_COMMAND_REFERENCE = [
   ["types", "int | word | float | string | array | array_word\nas byte | integer | single | double | string   # BASIC names after AS (dim, function, sub); integer is signed 16-bit", "UltimateBasic variable and array types."],
   ["string conversion", "chr$(code)\nstr$(number)              # 16-bit / signed values: no leading zeros (UB 1.6.3+)\nstr_to_int(string)\nval(string)               # 16-bit signed (UB 1.6.3+)", "Converts between strings, characters, and numbers."],
   ["numstr", "numstr value, destination_address", "Writes a zero-padded three-digit string to an absolute address."],
-  ["string functions", "len(string)\nasc(string)\nspc(count)\ntab(column)\nleft$(string, count)\nright$(string, count)\nmid$(string, start [, length])\ns = a + b + n               # runtime strings (UB 1.6.3+): numbers become text\nif s = \"ABC\" or t <> \"\" then print \"MATCH\"", "String and PRINT formatting helpers."],
+  ["string functions", "len(string)\nasc(string)\nspc(count)\ntab(column)\nleft$(string, count)\nright$(string, count)\nmid$(string, start [, length])\ns = a + b + n               # runtime strings (UB 1.6.3+): numbers become text\nif s = \"ABC\" or t <> \"\" then print \"MATCH\"\nif a$ < b$ then print a$     # < > <= >= in PETSCII order, \"AB\" < \"ABC\" (UB 1.6.6+)", "String and PRINT formatting helpers."],
   ["left$", "left$(string, count)\nprint left$(\"HELLO WORLD\", 5)       # HELLO", "First characters of a string (UB 1.6.3+)."],
   ["right$", "right$(string, count)\nprint right$(\"HELLO WORLD\", 5)      # WORLD", "Last characters of a string (UB 1.6.3+)."],
   ["mid$", "mid$(string, start [, length])\nprint mid$(\"HELLO WORLD\", 7, 3)     # WOR\nprint mid$(\"HELLO WORLD\", 7)        # WORLD", "Part of a string from a 1-based position (UB 1.6.3+)."],
@@ -7844,7 +7860,7 @@ const _UB_COMMAND_REFERENCE = [
   ["random", "rnd()\nrnd(limit)", "Returns a pseudo-random byte or a value below the limit."],
   ["trigonometry", "sin(angle)\ncos(angle)", "Returns a fixed-point trigonometric value."],
   ["number formatting", "hex(value)\nbin(value)\ndec(value, width)", "Formats a number as hexadecimal, binary, or padded decimal text."],
-  ["operators", "and or xor not bnot mod shl shr\n= <>     # in IF / ELSEIF / WHILE / UNTIL conditions = compares, <> is not equal (UB 1.6.3+)", "Logical, bitwise, modulo, and shift operators."],
+  ["operators", "and or xor not bnot mod shl shr\n= <>     # in IF / ELSEIF / WHILE / UNTIL conditions = compares, <> is not equal (UB 1.6.3+)\n7.5 mod 2 = 1.5          # SINGLE / DOUBLE mod in floating point; INTEGER / WORD mod is 16-bit, sign of the dividend (UB 1.6.6+)\n-8 shr 1 = -4            # INTEGER shr is arithmetic; WORD / byte shr stay logical (UB 1.6.6+)", "Logical, bitwise, modulo, and shift operators."],
   ["inc/dec", "inc variable\ndec variable", "Increments or decrements a variable."],
   ["type", "type TypeName\n  var field1: type\n  var field2: type\nendtype", "Defines a structured record type with named, typed fields. Supported field types: int (1 byte), word (2 bytes), float (2 bytes, Q8.8 fixed-point). Declare instances with var name: TypeName, then access fields as name.field. The compiler lays out fields contiguously in zero-page memory."],
 ];
@@ -7919,14 +7935,14 @@ function _ubApplyLeftViews(persist = true) {
   if (persist) saveUiSettings();
 }
 
-const _UB_KEYWORDS = new Set(("var const print print# input if then else end for to step next while repeat until loop break continue times sub fn call return goto gosub label graphics on off multi block display gcls cls fast plot plot4 mplot line circle circle4 rect fill paint flip sprite sprite_frame sprdef chardef charset expand priority sound sfx org tune music play stop pause resume sid volume irq irq_exit nmi nmi_exit cia_timer onerr data read asm include incbin load open close save chain memcopy drawmem map koala show hide set draw poke poke16 sys bye exit wait delay raster getch joy reu stash fetch speed badlines color border bg text screen cursor at lowercase uppercase select case and or xor not bnot mod shl shr inc dec erase scroll type endtype pen mline mrect mcircle dim function do wend elseif").split(" "));
+const _UB_KEYWORDS = new Set(("var const print print# input if then else end for to step next while repeat until loop break continue times sub fn call return goto gosub label graphics on off multi block display gcls cls fast plot plot4 mplot line circle circle4 rect fill paint flip sprite sprite_frame sprdef chardef charset expand priority sound sfx org tune music play stop pause resume sid volume irq irq_exit nmi nmi_exit cia_timer onerr data read asm include incbin load open close save chain memcopy drawmem map koala show hide set draw poke poke16 sys bye exit wait delay raster getch joy reu stash fetch speed badlines color border bg text screen cursor at lowercase uppercase select case and or xor not bnot mod shl shr inc dec erase scroll type endtype pen mline mrect mcircle dim function do wend elseif option").split(" "));
 const _UB_TYPES = new Set(["int", "word", "float", "string", "array", "array_word"]);
 // BASIC type names used after `as` (dim / function / sub). The compiler treats them and
 // `as` as context words, not reserved ones, so they are only coloured in a type position.
 const _UB_BASIC_TYPES = new Set(["byte", "integer", "single", "double"]);
 // Words the compiler reads as keywords only right after the given keyword (case is, map view,
 // wait key, scroll row|x|y) or anywhere in a scroll statement.
-const _UB_CONTEXT_KEYWORDS = new Map([["case", new Set(["is"])], ["map", new Set(["view"])], ["wait", new Set(["key"])], ["scroll", new Set(["row", "x", "y"])]]);
+const _UB_CONTEXT_KEYWORDS = new Map([["case", new Set(["is"])], ["map", new Set(["view"])], ["wait", new Set(["key"])], ["scroll", new Set(["row", "x", "y"])], ["print", new Set(["using"])], ["option", new Set(["basic"])]]);
 const _UB_SCROLL_WORDS = new Set(["left", "right", "narrow", "wide"]);
 const _UB_FUNCTIONS = new Set(("str_to_int numstr chr$ str$ inkey waitkey len asc val reudet reu_present turbo clamp peek peek16 rnd abs min max sgn spc tab joy mouse_x mouse_x_hi mouse_y mouse_btn sprhit sprbghit sprite_hit sprite_bg_hit sprite_x sprite_y map_tile map_color box_hit sin cos hex bin getch left$ right$ mid$").split(" "));
 const _UB_ASM_MNEMONICS = new Set(("adc and asl bcc bcs beq bit bmi bne bpl brk bvc bvs clc cld cli clv cmp cpx cpy dec dex dey eor inc inx iny jmp jsr lda ldx ldy lsr nop ora pha php pla plp rol ror rti rts sbc sec sed sei sta stx sty tax tay tsx txa txs tya").split(" "));

@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.6.2">
+  <link rel="stylesheet" href="style.css?v=2.6.3">
 </head>
 
 <body>
@@ -1371,7 +1371,7 @@ PRINTABLE CHARACTERS
           <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
         </div>
         <h2 class="about-title">C64 Visual Assembler</h2>
-        <p class="about-version" id="about-version">v2.6.2</p>
+        <p class="about-version" id="about-version">v2.6.3</p>
         <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
       </div>
       <div class="about-columns">
@@ -1397,25 +1397,40 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.6.2</p>
+      <p class="whats-new-version">v2.6.3</p>
       <ul class="whats-new-list">
         <li>
-          <strong>HVSC in the SID Player:</strong> the new <em>HVSC</em> button searches the High Voltage SID Collection — about 61,000 tunes — by title, composer or folder. Click a tune to play it, add it to the playlist or save the <code>.sid</code>; <em>Random tunes</em> lists 25 at a time. Tunes come from an HVSC mirror and are cached, or <em>Download the whole collection</em> (about 85 MB, unpacked to about 380 MB in a folder you pick) for offline use; an unpacked HVSC folder can be used too. HVSC tunes get their real length on the seek bar, and the playlist moves on when a subtune ends.
+          <strong>.sid import in the SID Editor:</strong> <em>Files → Import .sid…</em> opens any PSID / RSID tune, plays the chosen subtune silently in VA SID Core for the length you set, and turns its SID register stream into instruments, patterns and a song you can edit and export. It finds note ons and legato notes, places rows exactly on the notes (funktempo and swing through <code>F</code> speed changes), and rebuilds wave / arpeggio tables with fixed-pitch drum attacks, pulse and filter movement, gate timing with hard restart, and vibrato. A message lists what was approximated.
         </li>
         <li>
-          <strong>Spectrum analyzer:</strong> a floating window from the SID Player toolbar with LED-style bars from green to orange, cells that fade out slowly and a mirrored floor — 8, 16, 24 or 32 bands, with VA SID Core and WebSID alike.
+          <strong>Long tunes play correctly:</strong> when the tune data does not fit next to the player at <code>$C000</code>, it moves to its own segment below <code>$A000</code> instead of running into I/O — long songs no longer lose notes in Play: All, the exported asm or the <code>.sid</code> export.
         </li>
         <li>
-          <strong>Lesson Editor:</strong> <em>Tutorials → Lesson editor…</em> turns your own program into a step-by-step guided lesson like "Build: Your First Text Program": the student picks each mnemonic, types the operand and presses Add, and sets the parameters the palette cannot. Add explanations, choose the folder, try the lesson, and export or import it as a <code>.vatut</code> file.
+          <strong>VA SID Core preview retriggers notes:</strong> a note restarted under a held gate gets a new attack, as on the real player — no more silent voices.
         </li>
         <li>
-          <strong>Online lessons:</strong> <em>Tutorials → Online lessons…</em> lists the lessons published on www.c64va.pro; download one into its folder with a click, and get its updates. Share your own with <em>Lesson Editor → Files → Upload to c64va.pro…</em>: after a review it appears for everyone, with your name as the author.
+          <strong>Ultimate Basic 1.6.6:</strong> <code>PRINT USING "format"; values</code> (numeric fields with <code>#</code> <code>.</code> <code>,</code> <code>+</code> <code>-</code>, string fields <code>&amp;</code> <code>!</code> <code>\ \</code>), strings compared with <code>&lt; &gt; &lt;= &gt;=</code> in PETSCII order, <code>rnd</code> and <code>mod</code> in floating point, floating point in IRQ / NMI handlers, <code>option basic print</code> for C64 BASIC PRINT spacing, smaller programs (only the floating-point routines in use are linked), a real 16-bit <code>mod</code> and an arithmetic <code>shr</code> for INTEGER; 1.6.5 makes address expressions 16-bit in <code>peek</code>, <code>poke</code>, <code>fill</code>, <code>memcopy</code> and friends.
         </li>
         <li>
-          <strong>Every macro takes its parameters in the operand field:</strong> type them before <em>Add</em> as they follow the macro in Expert mode — <code>$06</code> for <code>SET_BG</code>, <code>Main</code> for <code>REGION</code>, <code>$C000</code> for <code>ORG</code>, <code>1, 200, 50</code> for <code>SPRITE_POS</code>. The field shows the expected form.
+          <strong>SID Editor:</strong> the header shows which SID emulation plays (WebSID or VA SID Core with the chip model); the Speed field is narrower, has − / + buttons and takes 1–255; the song can use up to 256 patterns. The BPM label shows BPM again (it read "Oct:").
         </li>
         <li>
-          <strong>Smaller improvements:</strong> the active floating window is highlighted, the Support window looks like a chat, the mouse wheel scrolls the tab bar sideways, the memory bars stand apart from their titles, and the Ultimate Basic code size column no longer covers the line numbers.
+          <strong>From 2.6.2: HVSC in the SID Player:</strong> the new <em>HVSC</em> button searches the High Voltage SID Collection — about 61,000 tunes — by title, composer or folder. Click a tune to play it, add it to the playlist or save the <code>.sid</code>; <em>Random tunes</em> lists 25 at a time. Tunes come from an HVSC mirror and are cached, or <em>Download the whole collection</em> (about 85 MB, unpacked to about 380 MB in a folder you pick) for offline use; an unpacked HVSC folder can be used too. HVSC tunes get their real length on the seek bar, and the playlist moves on when a subtune ends.
+        </li>
+        <li>
+          <strong>From 2.6.2: Spectrum analyzer:</strong> a floating window from the SID Player toolbar with LED-style bars from green to orange, cells that fade out slowly and a mirrored floor — 8, 16, 24 or 32 bands, with VA SID Core and WebSID alike.
+        </li>
+        <li>
+          <strong>From 2.6.2: Lesson Editor:</strong> <em>Tutorials → Lesson editor…</em> turns your own program into a step-by-step guided lesson like "Build: Your First Text Program": the student picks each mnemonic, types the operand and presses Add, and sets the parameters the palette cannot. Add explanations, choose the folder, try the lesson, and export or import it as a <code>.vatut</code> file.
+        </li>
+        <li>
+          <strong>From 2.6.2: Online lessons:</strong> <em>Tutorials → Online lessons…</em> lists the lessons published on www.c64va.pro; download one into its folder with a click, and get its updates. Share your own with <em>Lesson Editor → Files → Upload to c64va.pro…</em>: after a review it appears for everyone, with your name as the author.
+        </li>
+        <li>
+          <strong>From 2.6.2: Every macro takes its parameters in the operand field:</strong> type them before <em>Add</em> as they follow the macro in Expert mode — <code>$06</code> for <code>SET_BG</code>, <code>Main</code> for <code>REGION</code>, <code>$C000</code> for <code>ORG</code>, <code>1, 200, 50</code> for <code>SPRITE_POS</code>. The field shows the expected form.
+        </li>
+        <li>
+          <strong>From 2.6.2: Smaller improvements:</strong> the active floating window is highlighted, the Support window looks like a chat, the mouse wheel scrolls the tab bar sideways, the memory bars stand apart from their titles, and the Ultimate Basic code size column no longer covers the line numbers.
         </li>
         <li>
           <strong>From 2.6.1: VICE Monitor:</strong> a new floating window for the running VICE (Run (VICE) now opens its binary monitor on port 6502) — <em>hot reload</em> the assembled program with or without a restart (optionally after every edit), a <em>live watch</em> list of labels and addresses, and a PC-sampling <em>profiler</em> per routine and per line, with the raster lines each routine ran on.
@@ -3699,13 +3714,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.6.2"></script>
-  <script src="i18n.js?v=2.6.2"></script>
-  <script src="tutorial-data.js?v=2.6.2"></script>
+  <script src="tauri-bridge.js?v=2.6.3"></script>
+  <script src="i18n.js?v=2.6.3"></script>
+  <script src="tutorial-data.js?v=2.6.3"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.6.2"></script>
+  <script src="app.js?v=2.6.3"></script>
 
 </body>
 

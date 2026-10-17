@@ -4429,7 +4429,7 @@ fn compile_ultimate_basic(
         .spawn(move || {
             use ultimate_basic::compiler::{compile_with_path, debug_output, CompileOptions};
             let path = source_path.as_deref().filter(|p| !p.is_empty()).map(Path::new);
-            let result = compile_with_path(&source, &CompileOptions { basic_stub: true, explicit: explicit.unwrap_or(false) }, path);
+            let result = compile_with_path(&source, &CompileOptions { basic_stub: true, explicit: explicit.unwrap_or(false), basic_print: false }, path);
             let map = &result.map;
             let debug_source_path = path.unwrap_or_else(|| Path::new("program.ub"));
             serde_json::json!({
