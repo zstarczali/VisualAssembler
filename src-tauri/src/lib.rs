@@ -17,9 +17,11 @@ use tauri_plugin_dialog::{MessageDialogButtons, MessageDialogKind};
 use tauri_plugin_opener::OpenerExt;
 
 mod c64;
+mod hvsc;
 mod mos6510;
 mod sid_core;
 mod sid_file;
+mod tutorials;
 mod vice_monitor;
 
 // ── Resource path resolution ─────────────────────────────────────────────────
@@ -936,6 +938,33 @@ async fn support_api(app: AppHandle, lang: String, payload: serde_json::Value) -
         .send()
         .await
     {
+        Ok(r) => r,
+        Err(_) => return serde_json::json!({ "ok": false, "error": "network" }),
+    };
+    match resp.text().await.ok().and_then(|t| serde_json::from_str::<serde_json::Value>(&t).ok()) {
+        Some(v) if v["ok"].is_boolean() => v,
+        _ => serde_json::json!({ "ok": false, "error": "server" }),
+    }
+}
+
+const LESSON_UPLOAD_URL: &str = "https://www.c64va.pro/register/lesson.php";
+
+/// Lesson upload from the Lesson Editor (register/lesson.php, reviewed on the dashboard): the frontend sends
+/// {name, email?, note?, lesson}; the install id, version, OS and language are added here.
+#[tauri::command]
+async fn upload_tutorial(app: AppHandle, lang: String, payload: serde_json::Value) -> serde_json::Value {
+    let mut cfg = read_config(&app);
+    let id = install_id(&app, &mut cfg);
+    let mut body = if payload.is_object() { payload } else { serde_json::json!({}) };
+    body["action"] = serde_json::json!("submit");
+    body["id"] = serde_json::json!(id);
+    body["version"] = serde_json::json!(app.package_info().version.to_string());
+    body["os"] = serde_json::json!(std::env::consts::OS);
+    body["lang"] = serde_json::json!(ping_lang(&lang));
+    let Ok(client) = update_http_client(&app, 60) else {
+        return serde_json::json!({ "ok": false, "error": "network" });
+    };
+    let resp = match client.post(LESSON_UPLOAD_URL).header("Content-Type", "application/json").body(body.to_string()).send().await {
         Ok(r) => r,
         Err(_) => return serde_json::json!({ "ok": false, "error": "network" }),
     };
@@ -5285,6 +5314,20 @@ pub fn run() {
             app_usage_add,
             fetch_app_message,
             fetch_app_message_image,
+            hvsc::hvsc_status,
+            hvsc::hvsc_catalog,
+            hvsc::hvsc_fetch,
+            hvsc::hvsc_choose_folder,
+            hvsc::hvsc_clear_folder,
+            hvsc::hvsc_download_all,
+            hvsc::hvsc_cancel_download,
+            tutorials::list_user_tutorials,
+            tutorials::save_user_tutorial,
+            tutorials::delete_user_tutorial,
+            tutorials::open_tutorials_folder,
+            tutorials::list_online_tutorials,
+            tutorials::download_online_tutorial,
+            upload_tutorial,
             support_api,
             get_ui_settings,
             save_ui_settings,

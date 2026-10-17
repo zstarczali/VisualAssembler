@@ -2,11 +2,20 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.6.1**
+**Current version: v2.6.2**
 
 Visual Assembler is free and open source (GPLv3): every feature — editors, builds, hardware runs, languages and themes — works without a registration or serial. At most once a day the app sends an anonymous startup ping (version, OS, UI language, launch count, a random install ID) for the usage statistics; no email, project or source code is sent.
 
-## What's New in v2.6.1
+## What's New in v2.6.2
+
+- **HVSC in the SID Player** — search the High Voltage SID Collection (about 61,000 tunes) by title, composer or folder; play, add to the playlist or save a tune; download the whole collection (the official 7z, unpacked in the app) for offline use or use an unpacked HVSC folder. HVSC tunes get their real subtune length on the seek bar and for auto-advance.
+- **Spectrum analyzer** — a floating LED-bar window for the SID Player: 8 / 16 / 24 / 32 log-spaced bands, fading cells, a mirrored floor; works with VA SID Core and WebSID.
+- **Lesson Editor** — makes a step-by-step guided lesson (pick the mnemonic, type the operand, Add, set the remaining parameters) from your own Block or Expert program; texts per UI language, any Tutorials folder, try / save, `.vatut` export / import.
+- **Online lessons** — lessons published on www.c64va.pro (`lessons/`) are listed in the Tutorials window and downloaded with one click, with updates; your own lessons can be uploaded from the Lesson Editor and appear there after review on the dashboard.
+- **One rule for the palette's operand field** — every macro with parameters takes them there, as the text after its Expert keyword (`SET_BG $06`, `REGION Main`, `ORG $C000` …); file macros keep their file picker.
+- **Smaller improvements** — the active floating window is highlighted, the Support window looks like a chat, the mouse wheel scrolls the tab bar sideways, the memory bars are separated from their titles, and the Ultimate Basic code size column no longer covers the line numbers.
+
+## Earlier: v2.6.1
 
 - **VICE Monitor** — a floating window for the running VICE (Run (VICE) now opens its binary monitor on port 6502): hot reload the assembled program with or without a restart (optionally after every edit), a live watch list of labels and addresses, and a PC-sampling profiler per routine and per line with the raster lines each routine ran on.
 - **Table Generator** — screen / bitmap row addresses, bitmap column offsets, pixel masks, multiply / divide / remainder by a constant, quarter squares, reciprocal, log / exp, bit reverse, custom expressions and unrolled fill / copy speedcode; lo / hi pairs or `.word`, `.align 256`, insert, `.bin` or Ultimate Basic export.

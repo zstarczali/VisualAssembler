@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Käyttöopas
 
-**Versio 2.6.0**
+**Versio 2.6.1**
 
 Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
 vetämällä ja pudottamalla käskylohkoja ja nähdä luodun assemblerin ja konekoodin
@@ -11,6 +11,7 @@ reaaliajassa.
 ## Sisällysluettelo
 
 - [C64 Visual Assembler — Käyttöopas](#c64-visual-assembler--user-manual)
+    - [Version 2.6.1 kohokohdat](#version-261-highlights)
     - [Version 2.6.0 kohokohdat](#version-260-highlights)
     - [Version 2.5.9 kohokohdat](#version-259-highlights)
     - [Version 2.5.8 kohokohdat](#version-258-highlights)
@@ -48,6 +49,7 @@ reaaliajassa.
     - [Versiohallinta](#version-control)
     - [Ilmainen ja avoimen lähdekoodin](#free-and-open-source)
     - [Virheen ilmoittaminen](#reporting-a-bug)
+    - [Muistiikkuna ja sivun käyttö tyhjänä](#memory-window-and-zero-page-usage)
     - [Projektimallit](#project-templates)
     - [Rakenna projekti](#build-project)
     - [Esimerkkiohjelmia](#example-programs)
@@ -60,6 +62,7 @@ reaaliajassa.
     - [Projektit, välilehdet ja
       käynnistystiedostot](#projects-tabs-and-startup-files)
     - [Rakennus ja diagnostiikka](#building-and-diagnostics)
+    - [Koodin koko riviä kohden ja vihjeet](#code-size-per-line-and-hints)
     - [Juoksu, D64 ja Exomizer](#running-d64-and-exomizer)
     - [Virheenkorjaussymbolit ja niiden
       purkaminen](#debugger-symbols-and-disassembly)
@@ -69,6 +72,8 @@ reaaliajassa.
     - [Tilan vaihtaminen](#switching-modes)
     - [Editorin asettelu](#editor-layout)
     - [Työkalupalkin painikkeet](#toolbar-buttons)
+    - [Syklien määrä](#cycle-counts)
+    - [Optimointivinkkejä](#optimisation-hints)
     - [Virhe korostamisessa](#error-highlighting)
     - [Syntaksin korostus](#syntax-highlight)
     - [Lähdekoodin muotoilija](#source-formatter)
@@ -170,6 +175,8 @@ reaaliajassa.
     - [RetroDebugger](#retrodebugger)
     - [Keskeytyskohtalohkot](#breakpoint-blocks)
     - [Virheenkorjausliput (Asetukset-välilehti)](#debugger-flags-options-tab)
+    - [VICE Monitor (pikalataus, reaaliaikainen katselu,
+      profilointi)](#vice-monitor-hot-reload-live-watch-profiler)
   - [11. Tietopankin linkit](#11-knowledge-base-links)
   - [12. D64 Vie \&amp; Suorita](#12-d64-export--run)
     - [Jaa suoritus -painike](#split-run-button)
@@ -196,7 +203,34 @@ reaaliajassa.
     - [SID-editori (3-ääninen seuranta)](#sid-editor-3-voice-tracker)
     - [SID-soitin](#sid-player)
     - [Käyräeditori](#curve-editor)
+    - [Taulukkogeneraattori](#table-generator)
     - [Numeronmuunnin](#number-converter)
+
+---
+
+## Version 2.6.1 kohokohdat
+
+- **Syklien määrä asiantuntijatilassa** — sisämarginaali näyttää jokaisen käskyn
+  syklit, valinnan kokonaismäärän ja tarvittavan rasteririvin määrän. Katso
+  [Syklien määrä](#cycle-counts).
+- **Optimointivihjeitä** — Asiantuntijaeditori merkitsee rivit, jotka voivat
+  olla lyhyempiä tai nopeampia (häntäkutsu, redundantti `CMP #0`,
+  uudelleenlataukset, `INC` / `DEC` idiomit…). Katso [Optimointivihjeitä]{1].
+- **Taulukkogeneraattori** — näyttö-/bittikarttariviosoitteet, pikselimaskit,
+  kerto-/jakotaulukot, neljännesneliöt, logaritmi/lauseke, bittien kääntäminen,
+  mukautetut lausekkeet ja täyttö-/kopiointinopeuskoodi. Katso
+  [Taulukkogeneraattori](#table-generator).
+- **VICE Monitor** — käynnissä olevan VICE:n pikalataus, tunnisteiden ja
+  osoitteiden reaaliaikainen seuranta sekä PC-näytteenottoprofilointi. Katso
+  [VICE Monitor](#vice-monitor-hot-reload-live-watch-profiler).
+- **Nollasivun käyttökartta** ja **irrotettava muisti-ikkuna**. Katso
+  [Muisti-ikkuna ja nollasivun käyttö]{1].
+- **Ultimate Basic** — koodin koko riviä kohden, vihjeet ja Sprite Editor →
+  Ultimate Basic -vienti animaatiolla.
+- **SID-editori → .sid (PSID) -vienti** ja **sprite-multiplekseri**
+  -projektimalli (16 spriteä).
+- Useita kelluvia ikkunoita voi olla auki samanaikaisesti; napsauttamasi ikkuna
+  tulee eturiviin.
 
 ---
 
@@ -1108,8 +1142,9 @@ on saatavilla GNU General Public License v3.0 -lisenssillä (katso **Valikko →
 Tietoja**). Versioon 2.5.9 asti sovelluksessa oli Freemium / Professional -jako;
 versiosta 2.6.0 lähtien sarjanumeroa ei yksinkertaisesti enää tarvita.
 
-Jos pidät ohjelmasta, voit tukea sen kehitystä lahjoituksella osoitteessa
-c64va.pro.
+Jos pidät ohjelmasta, voit tukea sen kehitystä lahjoituksella: **Valikko →
+Lahjoitus** (Näytä-kohdassa) avaa lahjoitussivun c64va.pro-sivustolla, jossa
+voit lahjoittaa minkä tahansa summan PayPalin kautta.
 
 **Käyttötilastot.** Sovellus lähettää käynnistyksen yhteydessä korkeintaan
 kerran päivässä anonyymin ping-kutsun c64va.pro-sivustolle. Kutsu sisältää
@@ -1160,9 +1195,11 @@ oleva kaiutinpainike mykistää sen), väläyttää tehtäväpalkin kuvaketta, k
 sovellus on taustalla, näyttää punaisen pisteen **Menu**-painikkeessa ja avaa
 ikkunan kerran. Kun keskustelu on käynnissä, **Menu**-painikkeen vieressä oleva
 kirjekuorikuvake avaa sen; se muuttuu punaiseksi ja vilkkuu lukemattomien
-vastausten määrän kanssa. Sähköpostiosoite on valinnainen: jos annat sellaisen,
-vastaus saapuu myös sähköpostitse. Keskustelu on sidottu sovelluksen
-satunnaiseen asennustunnukseen, joten tiliä tai salasanaa ei ole.
+vastausten määrän mukaan. Viestin vieressä oleva **×** poistaa kyseisen viestin,
+ikkunan otsikossa oleva roskakoripainike poistaa koko keskustelun liitteineen
+(myös kehittäjälle; molemmat kysyvät ensin). Sähköpostiosoite on valinnainen:
+jos annat sellaisen, vastaus saapuu myös sähköpostitse. Keskustelu on sidottu
+sovelluksen satunnaiseen asennustunnukseen, joten tiliä eikä salasanaa ei ole.
 
 ### Projektit, välilehdet ja käynnistystiedostot
 
@@ -1192,6 +1229,27 @@ UltimateBasic-mallista – katso [Projektimallit]{1].
   käynnistystiedosto ja `.proj` -tallennuskohde palautetaan työtilan mukana.
   Vanhempien versioiden tallentamat työtilat avautuvat ilman niitä.
 
+### Muistiikkuna ja nolla sivun käyttö
+
+**Full C64 memory** -paneeli voi kellua: sen otsikossa oleva **undock** -painike
+siirtää sen erilliseen, ei-modaaliseen ikkunaan, jota voit vetää ja jonka kokoa
+voit muuttaa samalla kun jatkat muokkaamista (päällekkäisyysmerkki tulee sen
+mukana). **Dock** (tai × / Esc) palauttaa sen. Ikkuna muistaa, onko se irrotettu
+ja minkä kokoinen se oli.
+
+Kun ohjelma koskettaa nollasivua, muistikartan yläreunaan ilmestyy **Zero page
+usage** -osio: 16 × 16 -ruudukko `$00–$FF`, väritettynä alueen mukaan —
+CPU-portti (`$00–$01`), vapaa (`$02`, `$FB–$FE`), BASIC (`$03–$8F`, `$FF`) ja
+KERNAL (`$90–$FA`). Käytetyt solut täytetään; Kehys merkitsee
+**kirjoituskohtaa**, viivoituskohta **osoitinta** (`(zp),Y` / `(zp,X)`).
+Napsauta käytettyä solua nähdäksesi, mitkä rivit käyttävät sitä (napsauta riviä
+hypätäksesi siihen) ja varoituksen, kun kirjoitat BASIC- tai KERNAL-alueelle.
+
+Jos ohjelma sisältää SID-editorin viedyn soittimen (`sid_`-tunnisteet),
+soittimen nollasivu (`$02–$1C`, `$2F`, `$FB–$FD`) merkitään myös, ja jokainen
+oma koodisi käyttämä osoite raportoidaan **conflict** -ristiriidana (punainen
+kehys, varoitus otsikossa).
+
 ### Rakennus ja diagnostiikka
 
 **Build**-painike avaa saman keskitetyn edistymisnäkymän, jota käytetään muissa
@@ -1205,10 +1263,10 @@ muistikarttatiedot, sisäiset nollasivuvaraukset ja luodun koodin tiedot.
 4. Lähderivillä varustetut virheet valitsevat kyseisen rivin aktiivisessa
    UB-editorissa.
 
-| Osa               | Sisäänrakennetut mallit                                                                                                                                                                           |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Kokoonpanija**  | Tyhjä ohjelma, Tyhjä peli (otsikko / pelaaminen / pelin päättyminen -tilat, joystick, pelaajan sprite), Hires-bittikartta, Monivärinen bittikartta                                                |
-| **UltimateBasic** | Tyhjä ohjelma, tyhjä peli (sama tilakone UB:ssä), bittikartan palkkaaminen (`viiva` / `suora` / `ympyrä` ja `värikynä`), rasteri-IRQ (`sub` kutsutaan jokaista rasterikeskeytyksen framea varten) |
+| Osa               | Sisäänrakennetut mallit                                                                                                                                                                                                                                |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Kokoonpanija**  | Tyhjä ohjelma, Tyhjä peli (otsikko / pelaaminen / pelin päättyminen -tilat, joystick, pelaajan sprite), Hires-bittikartta, Monivärinen bittikartta, Sprite-multiplekseri (16 spriteä lajiteltuna Y:n mukaan joka ruutu, näytetään rasteri-IRQ-ketjuna) |
+| **UltimateBasic** | Tyhjä ohjelma, tyhjä peli (sama tilakone UB:ssä), bittikartan palkkaaminen (`viiva` / `suora` / `ympyrä` ja `värikynä`), rasteri-IRQ (`sub` kutsutaan jokaista rasterikeskeytyksen framea varten)                                                      |
 
 Kun kääntäminen epäonnistuu:
 
@@ -1454,6 +1512,25 @@ keskitettynä. Tila säilyy käyttöliittymäasetuksissa (`expertMinimap`-näpp�
 Build Info raportoi lataus-/loppuosoitteet, koodin ja PRG-koot, Exomizer-tilan,
 muuttujat, taulukot, funktiot/aliohjelmat ja otsikot.
 
+### Koodin koko riviä kohden ja vihjeet
+
+Työkalurivin **koodin koko** -painike (liekkikuvake) näyttää koonnin jälkeen,
+kuinka moneksi tavuksi kukin lähdekoodin rivi käännettiin – numero on
+rivinumerovälillä ja oranssi palkki näyttää sen painoarvon kalleimpaan riviin
+verrattuna. Tilarivi lisää kohdistimen alla olevan rivin tavut ja arvioidun
+syklien määrän (suora, silmukoita ei lasketa).
+
+Kirjoittaessasi tilariville ilmestyy **hints**-painike, kun jokin näyttää olevan
+vialla. Napsauta sitä nähdäksesi luettelon ja napsauta vihjettä siirtyäksesi
+riville:
+
+- `sys $EA31` / `sys $EA81` — `sys` kääntyy `JSR`-tiedostoksi, joten KERNALin
+  `RTI` palaa roskiin; IRQ:n jälkeen käytä `irq_exit` tai `asm { JMP $EA31 }`;
+- `wait key` — ei dokumentoitu muoto, käytä `waitkey`;
+- `muuttuja` / `dim` / `vakio`, jota ei koskaan käytetä;
+- koonnin jälkeen: `asm`-lohkokäsky nollasivuosoitteessa, joka sisältää Ultimate
+  Basic -muuttujan tai ajonaikaisen ympäristön oman nollasivun.
+
 ### Virhe korostuksessa
 
 Kääntymättömät rivit korostetaan reaaliajassa punaisella **** (sävytetty tausta
@@ -1590,6 +1667,41 @@ kootaan kaksoispistettä seuraavasta kohdasta.
 osoitustilaa varten. Tämä korvaa vanhemman `STA-käskyn+1` / `-käskyn: LDA #$00`
 kuvion. Se kiertää lohkon ⇄ asiantuntijatilan läpi (operandikenttä säilyttää
 etuliitteen `tunniste:`).
+
+### Syklien määrät
+
+Työkalurivin **syklien lukumäärä** -painike (kellokuvake) lisää väliviivan, joka
+näyttää jokaisen käskyrivin 6510 sykliä:
+
+| Näytetään        | Merkitys                                                                                                                              |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `4`              | kiinteät kustannukset                                                                                                                 |
+| `4+`             | indeksoitu luku (`abs,X`, `abs,Y`, `(zp),Y`): +1, kun indeksi ylittää sivun; sivulle tasattu kantaluku (`$xx00`) näyttää tarkan arvon |
+| `2/3`            | haara: ei otettu / otettu                                                                                                             |
+| `2/4` (punainen) | sivun ylittävä haara – hyvä tietää ajoitetussa koodissa                                                                               |
+
+Valitse useita rivejä, niin tilarivi näyttää summan: käskyjen lukumäärän,
+min–max-syklien määrän ja PAL-rasteririvien lukumäärän (63 sykliä). Makroja ja
+datarivejä ei lasketa. Asetus muistetaan.
+
+### Optimointivihjeitä
+
+Asiantuntijaeditori tarkistaa kootusta koodista yleisiä kurkistusreikien
+kuvioita. Vihjeellä varustetut rivit saavat keltaisen raidan ja tilariville
+ilmestyy **N hints** -painike; napsauta sitä nähdäksesi luettelon ja napsauta
+vihjettä siirtyäksesi riville. Vihjeet eivät koskaan muuta koodiasi:
+
+- `JSR x`, jota seuraa `RTS` → `JMP x` (1 tavu lyhyempi, 9 sykliä nopeampi);
+- `CMP #0` / `CPX #0` / `CPY #0` heti sellaisen käskyn jälkeen, joka on jo
+  asettanut N/Z:n kyseiselle rekisterille (huom: vertailu asettaa myös C:n);
+- sama kuorma kahdesti tai juuri tallennetun arvon kuorma (`STA x` / `LDA x`);
+- `LDA m` / `CLC` / `ADC #1` / `STA m` → `INC m`, ja `SEC` / `SBC #1` -muoto →
+  `DEC m`;
+- `JMP` tai haara aivan seuraavaan käskyyn ja `PHA` välittömästi sen jälkeen
+  `PLA`.
+
+Kahden käskyn välinen tunniste (mahdollinen hyppykohde) estää vihjeet, jotka
+yhdistäisivät ne.
 
 ### Virhe korostuksessa
 
@@ -4698,6 +4810,36 @@ virheenkorjaimen käynnistyskerralla.
 > `-wait 1000`, kun ohjelmasi määrittää keskeytyksiä tai SID-musiikkia, jonka
 > alustusaika on ennen ensimmäistä rasteria.
 
+### VICE Monitor (pikalataus, reaaliaikainen katselu, profilointi)
+
+Työkalurivin **VICE Monitor** -painike avaa ei-modaalisen ikkunan, joka
+kommunikoi käynnissä olevan VICE:n kanssa sen binäärimonitorin kautta. **Suorita
+(VICE)** käynnistää VICE:n monitorilla portissa 6502 (**Asetukset →
+VICE-etämonitori**, oletuksena päällä). Sulje ja käynnistä uudelleen VICE, joka
+käynnistettiin toisella tavalla. Otsikko näyttää yhteyden tilan; *Saatavilla
+vain työpöytäsovelluksessa* näkyy selaimen esikatselussa.
+
+| Painike                                                         | Mitä se tekee                                                                                                                                                    |
+| --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Kuuma uudelleenlataus**                                       | Kirjoittaa kootun ohjelman käynnissä olevan VICE:n RAM-muistiin (vain varatut alueet — aukot jätetään ennalleen). Käytä sitä datalle: spritit, taulukot, teksti. |
+| **Käynnistä uudelleen latauksen jälkeen + uudelleenkäynnistys** | Sama, sitten käynnistyy uudelleen SYS-osoitteesta (pinon nollaus; lopullinen `RTS` palaa arvoon `READY.`).                                                       |
+| **Automaattinen uudelleenlataus muokkausten jälkeen**           | Lataa ja käynnistyy uudelleen noin sekunnin kuluttua jokaisen muokkauksen jälkeen, jos ohjelma kootaan.                                                          |
+| **Live-katselu**                                                | Päivittää tarkkailulistan 0,4 sekunnin välein; muuttunut arvo vilkkuu.                                                                                           |
+| **Profiili**                                                    | Näyttää ohjelmalaskuria noin 5 sekunnin ajan (napsauta uudelleen pysäyttääksesi laskurin aikaisemmin).                                                           |
+
+**Seuraamuslista:** kirjoita otsikko tai osoite — `pistemäärä`, `$D020`, `53280`
+tai tavumäärällä `taulukko, 8` — ja paina **+** tai Enter. Jokaisella rivillä
+näkyy osoite, tavut heksadesimaalilukuna ja 1 tai 2 tavun tapauksessa
+desimaaliarvo. Ultimate Basic -tilassa nimet tulevat viimeisimmästä
+UB-koonnuksesta (muuttujat, otsikot, aliosat, taulukot).
+
+**Profiilin tulos:** kaksi taulukkoa. *Routine* ryhmittelee näytteet lähimmän
+tunnisteen mukaan (Ultimate Basicissa: `sub`), osuuden prosentteina ja
+rasteririvien mukaan, joilla se suoritettiin — KERNAL- tai BASIC-ROM-muistissa
+vietetty aika luetellaan erikseen. *Live* listaa kalleimmat lähderivit; napsauta
+yhtä siirtyäksesi siihen. Jokainen näyte pysäyttää emulaattorin hetkeksi, joten
+profiili on tilastollinen kuva, ei tarkka syklien määrä.
+
 ---
 
 ## 12. D64 Vie ja suorita
@@ -4961,10 +5103,11 @@ lisätä suoraan D64-levylle **Tallenna D64:ään** -merkinnän kautta.
 
 ### Korkean resoluution / monivärinen editori
 
-| Asetus       | Kuvaus                                                                                                                               |
-| ------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
-| Tilan vaihto | **Monivärinen** -valintaruutu vaihtaa korkearesoluutioisen (yksivärinen solua kohden) ja monivärisen (4 väriä solua kohden) välillä. |
-| **Tila**     | Näyttää, onko suoritettava tiedostopolku kelvollinen ja käytettävissä                                                                |
+| Asetus               | Kuvaus                                                                                                                               |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Tilan vaihto         | **Monivärinen** -valintaruutu vaihtaa korkearesoluutioisen (yksivärinen solua kohden) ja monivärisen (4 väriä solua kohden) välillä. |
+| **Tila**             | Näyttää, onko suoritettava tiedostopolku kelvollinen ja käytettävissä                                                                |
+| **VICE-etämonitori** | Käynnistää VICE:n binäärimonitorilla portissa 6502, jota [VICE Monitor](#vice-monitor-hot-reload-live-watch-profiler) tarvitsee.     |
 
 Pikselitason bittikarttaeditori, jossa on sekä 320×200 korkearesoluutio- että
 160×200 moniväritilat. Avaa Toolkit → Korkearesoluutioeditori -kohdassa.
@@ -5160,6 +5303,12 @@ Sprite-editori -kohdassa.
 | Sprite-arkin tuonti            | Tiedostot → **Tuo sprite-arkki…**: solun leveys/korkeus, siirtymä, väli ja kehysten määrä leikkaavat kuvan nykyisen kokoisiksi kehyksiksi (moniväriset solut skaalataan 12 pikseliin spriteä kohden). Värit tulevat kuvasta tai pysyvät spriten omina; OKLab-täsmäytys ilman rasterointia, järjestetty (Bayer) tai Floyd–Steinberg-rasterointi. Korvaa kehykset tai lisää niihin.                                                                                    |
 | Hitbox                         | **Hitbox** -työkalu vetää suorakulmion kehystä kohden (katkoviiva syaanilla); **Fit**, **Fit every frame**, **Copy to every frame** ja **Remove** sivupaneelissa. Tiedostot → **Copy hitbox table** antaa `sprite_hit_x / _y / _w / _h` (yksi tavu kehystä kohden, näytön pikselit vasemmasta yläkulmasta); kehys ilman hitboxia käyttää pikselirajojaan.                                                                                                            |
 | X / Y ×2                       | Näyttää esikatselun kuten sprite-laajennuksessa `$D01D` / `$D017`.                                                                                                                                                                                                                                                                                                                                                                                                   |
+
+**Vie UltimateBasiciin** (Tiedosto-valikko) kirjoittaa jokaisen ruudun (enintään
+8) `sprdef`-tiedostona, asettaa sprite 0:n (väri, monivärinen, laajennus) ja
+lisää animaatiolle rasterisynkronoidun silmukan, joka askeltaa ruutuja editorin
+kuvataajuudella. Ultimate Basic -tilassa se lisätään kohdistimen kohdalle,
+muuten kopioidaan leikepöydälle.
 
 ### C64-merkki-ROM-selain ("merkkikartta")
 
@@ -5484,6 +5633,11 @@ jos pääkoodisi käyttää niitä – siirrä tarvittaessa Expert-tilassa.
 
 ---
 
+**Vie .sid (PSID)…** (Tiedostot-valikko) tallentaa sävelmän toistettavan
+`$C000`-soittimen mukana tavallisena PSID-tiedostona — se toistetaan
+SID-soittimessa, VICE:n `vsid`-soittimessa ja missä tahansa muussa
+SID-soittimessa.
+
 ### SID-soitin
 
 **SID Player** -työkalurivin painike avaa kelluvan ikkunan, joka toistaa
@@ -5588,6 +5742,36 @@ toisto liikkuu eri tavalla, vaikka tavuarvot ovat identtiset. Katso toimivan
 16-bittisen sprite-X-esimerkin tiedostosta `samples/curve-new-demo.asm`.
 
 ---
+
+### Taulukkogeneraattori
+
+**Taulukkogeneraattori** -työkalurivin painike (ruudukkokuvake käyräeditorin
+vieressä) luo hakutaulukoita ja nopeuskoodeja. Valitse taulukkotyyppi, aseta sen
+parametrit ja katso esikatselua; meta-rivi näyttää merkintöjen määrän, koon ja
+arvoalueen (koodille: tavut ja arvioidut syklit / rasteriviivat).
+
+| Tyyppi                              | Arvot                                                                                                                                      |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Näytön riviosoitteet                | kanta + 40 · rivi (mikä tahansa kanta ja rivin pituus)                                                                                     |
+| Bittikarttarivin osoitteet          | pikseli Y → tavuosoite sarakkeessa 0 (8 × 8 soluasettelu)                                                                                  |
+| Bittikarttapalstan siirtymät        | pikseli X → tavujen siirtymä rivin sisällä (vuokraus tai monivärinen)                                                                      |
+| Pikselibittimaski                   | X → bittimaski (vuokraa / monivärinen, valinnaisesti käänteinen `JA`)                                                                      |
+| Kertoo / jaa / jakojäännös vakiolla | x · k, ⌊x / k⌋, x mod k                                                                                                                    |
+| Neljännesneliöt                     | ⌊(x − offset)² / 4⌋, 512 merkintää — a · b = sqr(a + b) − sqr(a − b)                                                                       |
+| Vastavuoroinen                      | ⌊N / x⌋                                                                                                                                    |
+| Logaritmi / eksponentiaalinen       | round(log2 x · s), round(2^(x / s))                                                                                                        |
+| Bitti taaksepäin                    | kääntää tavun (tai bittiparit monivärisessä) peilatakseen spritejä ja merkkejä                                                             |
+| Mukautettu lauseke                  | mikä tahansa kaava `i` (`k` = 0-pohjainen indeksi, `n` = count); `sin`, `cos`, `abs`, `min`, `max`, `round`, `floor`, `PI`, `$hex`, `%bin` |
+| Nopeuskoodi: täytä / kopioi muisti  | aliohjelma; *tallennusta iteraatiota kohden* 0 = täysin auki rullattu, N = X silmukka, jossa on N tallennusta kierroksella                 |
+
+Yli 255:n arvoista tulee **lo / hi -taulukkopari** (`label_lo`, `label_hi`) tai
+`.word` -taulukko; negatiiviset arvot ovat kahden komplementti. Vaihtoehdot:
+label, hex / desimaali, values per line, **Align to page** (`.align 256`,
+välttää sivunvaihdon). **Copy** siirtää kokoonpanon leikepöydälle; **Insert**
+lisää sen ohjelmaan (saman labelin lisääminen uudelleen korvaa edellisen kopion)
+— Ultimate Basic -tilassa se lisää `array` -taulukon, jossa on `data` rivejä.
+Tiedostot-valikko tallentaa taulukon myös nimellä `.bin` (alhainen tavumäärä,
+sitten korkea tavumäärä) ja vie sen Ultimate Basiciin.
 
 ### Numeromuunnin
 

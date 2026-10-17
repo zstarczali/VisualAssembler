@@ -1,0 +1,115 @@
+{
+ "format": "va-tutorial",
+ "version": 1,
+ "id": "va-first-colors",
+ "rev": 1,
+ "category": "basics",
+ "difficulty": 1,
+ "clearProgram": true,
+ "autoParams": false,
+ "org": "0801",
+ "titleEn": "Your first colors",
+ "titleHu": "Az első színek",
+ "descEn": "Set the border and background color and write text on the screen.",
+ "descHu": "Állítsd be a keret- és háttérszínt, és írj szöveget a képernyőre.",
+ "items": [
+  {
+   "kind": "text",
+   "titleEn": "Your first colors",
+   "titleHu": "Az első színek",
+   "descEn": "In this lesson you build a short program step by step:\n\n  LDA #$06\n  STA $D020\n  LDA #$00\n  STA $D021\n  .text 10, 12, \"hello c64\"\n  RTS\n\nIt turns the border blue and the background black, then writes a line of text on the screen. $D020 is the border color register, $D021 the background color register; the color codes are 0-15.\n\nReady? Click Next!",
+   "descHu": "Ebben a leckében lépésről lépésre felépítünk egy rövid programot:\n\n  LDA #$06\n  STA $D020\n  LDA #$00\n  STA $D021\n  .text 10, 12, \"hello c64\"\n  RTS\n\nA keretet kékre, a hátteret feketére állítja, majd kiír egy sort a képernyőre. A $D020 a keretszín, a $D021 a háttérszín regisztere; a színkódok 0-15 közöttiek.\n\nKészen állsz? Kattints a Tovább gombra!"
+  },
+  {
+   "kind": "instr",
+   "block": {
+    "category": "Adatmozgas",
+    "mnemonic": "LDA",
+    "description": "Akkumulator betoltese memoriabol vagy konstansbol.",
+    "operand": "#$06",
+    "rawOperand": "06",
+    "addressingMode": "immediate",
+    "base": "hex",
+    "validationError": ""
+   }
+  },
+  {
+   "kind": "instr",
+   "block": {
+    "category": "Adatmozgas",
+    "mnemonic": "STA",
+    "description": "Akkumulator kiirasa memoriacimre.",
+    "operand": "$D020",
+    "rawOperand": "D020",
+    "addressingMode": "absolute",
+    "base": "hex",
+    "validationError": ""
+   }
+  },
+  {
+   "kind": "instr",
+   "block": {
+    "category": "Adatmozgas",
+    "mnemonic": "LDA",
+    "description": "Akkumulator betoltese memoriabol vagy konstansbol.",
+    "operand": "#$00",
+    "rawOperand": "00",
+    "addressingMode": "immediate",
+    "base": "hex",
+    "validationError": ""
+   }
+  },
+  {
+   "kind": "instr",
+   "block": {
+    "category": "Adatmozgas",
+    "mnemonic": "STA",
+    "description": "Akkumulator kiirasa memoriacimre.",
+    "operand": "$D021",
+    "rawOperand": "D021",
+    "addressingMode": "absolute",
+    "base": "hex",
+    "validationError": ""
+   }
+  },
+  {
+   "kind": "instr",
+   "block": {
+    "category": "Makrok",
+    "mnemonic": "TEXT",
+    "operand": "hello c64",
+    "rawOperand": "hello c64",
+    "description": "",
+    "addressingMode": "implied",
+    "base": "hex",
+    "validationError": "",
+    "isTextMacro": true,
+    "textX": "10",
+    "textY": "12",
+    "textCharset": "upper",
+    "charOffset": "00"
+   }
+  },
+  {
+   "kind": "instr",
+   "block": {
+    "category": "Ugrasok",
+    "mnemonic": "RTS",
+    "description": "Visszateres szubrutinbol.",
+    "operand": "",
+    "rawOperand": "",
+    "addressingMode": "implied",
+    "base": "hex",
+    "validationError": ""
+   }
+  },
+  {
+   "kind": "text",
+   "target": "#run-emulator",
+   "titleEn": "Run it!",
+   "titleHu": "Futtasd!",
+   "descEn": "The program is ready. Press Run to start it in VICE: the border turns blue, the background black, and the text appears in the middle of the screen.",
+   "descHu": "Kész a program. A Run gombbal elindíthatod VICE-ban: a keret kék, a háttér fekete lesz, a szöveg pedig megjelenik a képernyő közepén."
+  }
+ ]
+}

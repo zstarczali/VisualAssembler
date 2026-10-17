@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Podręcznik użytkownika
 
-**Wersja 2.6.0**
+**Wersja 2.6.1**
 
 Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągając
 i upuszczając bloki instrukcji, i oglądaj generowany kod assemblera i maszynowy
@@ -12,6 +12,7 @@ w czasie rzeczywistym.
 
 - [C64 Visual Assembler — Podręcznik
   użytkownika](#c64-visual-assembler--user-manual)
+    - [Najważniejsze cechy wersji 2.6.1](#version-261-highlights)
     - [Najważniejsze cechy wersji 2.6.0](#version-260-highlights)
     - [Najważniejsze cechy wersji 2.5.9](#version-259-highlights)
     - [Najważniejsze cechy wersji 2.5.8](#version-258-highlights)
@@ -49,6 +50,8 @@ w czasie rzeczywistym.
     - [Kontrola wersji](#version-control)
     - [Darmowe i otwarte oprogramowanie](#free-and-open-source)
     - [Zgłaszanie błędu](#reporting-a-bug)
+    - [Okno pamięci i wykorzystanie strony
+      zerowej](#memory-window-and-zero-page-usage)
     - [Szablony projektów](#project-templates)
     - [Budowanie projektu](#build-project)
     - [Przykładowe programy](#example-programs)
@@ -60,6 +63,7 @@ w czasie rzeczywistym.
     - [Narzędzia edytora](#editor-tools)
     - [Projekty, zakładki i pliki startowe](#projects-tabs-and-startup-files)
     - [Budowa i diagnostyka](#building-and-diagnostics)
+    - [Rozmiar kodu na wiersz i wskazówki](#code-size-per-line-and-hints)
     - [Uruchomienie, D64 i Exomizer](#running-d64-and-exomizer)
     - [Symbole debugera i deasemblacja](#debugger-symbols-and-disassembly)
     - [Podręcznik i źródło Ultimate Basic](#ultimate-basic-manual-and-source)
@@ -67,6 +71,8 @@ w czasie rzeczywistym.
     - [Przełączanie trybów](#switching-modes)
     - [Układ edytora](#editor-layout)
     - [Przyciski paska narzędzi](#toolbar-buttons)
+    - [Liczenie cykli](#cycle-counts)
+    - [Wskazówki dotyczące optymalizacji](#optimisation-hints)
     - [Podświetlanie błędu](#error-highlighting)
     - [Podświetlenie składni](#syntax-highlight)
     - [Formater źródła](#source-formatter)
@@ -170,6 +176,8 @@ w czasie rzeczywistym.
     - [RetroDebugger](#retrodebugger)
     - [Bloki punktów przerwania](#breakpoint-blocks)
     - [Flagi debugera (zakładka Opcje)](#debugger-flags-options-tab)
+    - [Monitor VICE (gorące przeładowanie, oglądanie na żywo,
+      profilowanie)](#vice-monitor-hot-reload-live-watch-profiler)
   - [11. Linki do bazy wiedzy](#11-knowledge-base-links)
   - [12. Eksport D64 i uruchomienie](#12-d64-export--run)
     - [Przycisk Podziel bieg](#split-run-button)
@@ -197,7 +205,36 @@ w czasie rzeczywistym.
     - [Edytor SID (śledzenie 3-głosowe)](#sid-editor-3-voice-tracker)
     - [Odtwarzacz SID](#sid-player)
     - [Edytor krzywych](#curve-editor)
+    - [Generator tabel](#table-generator)
     - [Konwerter liczb](#number-converter)
+
+---
+
+## Najważniejsze cechy wersji 2.6.1
+
+- **Liczniki cykli w trybie eksperckim** — pasek postępu pokazuje cykle każdej
+  instrukcji, całkowitą liczbę zaznaczeń i liczbę wierszy rastrowych, które
+  zajmuje. Zobacz [Liczniki cykli](#cycle-counts).
+- **Wskazówki dotyczące optymalizacji** — edytor eksperta oznacza linie, które
+  mogą być krótsze lub szybsze (wywołanie ogonowe, redundantne `CMP #0`,
+  przeładowania, idiomy `INC` / `DEC`…). Zobacz [Wskazówki dotyczące
+  optymalizacji](#optimisation-hints).
+- **Generator tabel** — adresy wierszy ekranu/bitmapy, maski pikseli, tabele
+  mnożenia/dzielenia, ćwiartki kwadratów, logarytm/wyrażeń, odwracanie bitów,
+  wyrażenia niestandardowe i rozwinięty kod prędkości wypełniania/kopiowania.
+  Zobacz [Generator tabel](#table-generator).
+- **Monitor VICE** — szybkie przeładowanie do działającego VICE, śledzenie
+  etykiet i adresów na żywo oraz profilowanie próbkowania na komputerze. Zobacz
+  [Monitor VICE](#vice-monitor-hot-reload-live-watch-profiler).
+- **Mapa wykorzystania strony zerowej** i **odłączane okno pamięci**. Zobacz
+  [Okno pamięci i wykorzystanie strony
+  zerowej](#memory-window-and-zero-page-usage).
+- **Ultimate Basic** — rozmiar kodu na linię, wskazówki i edytor Sprite →
+  eksport Ultimate Basic z animacją.
+- **Edytor SID → Eksport .sid (PSID)** i szablon projektu **multiplekser
+  sprite’ów** (16 sprite’ów).
+- Można otworzyć kilka okien jednocześnie. Okno, które klikniesz, pojawi się na
+  wierzchu.
 
 ---
 
@@ -1123,8 +1160,9 @@ interfejsu użytkownika — działają bez rejestracji i numeru seryjnego. Kod
 Professional; od wersji 2.6.0 podawanie numeru seryjnego po prostu nie jest już
 potrzebne.
 
-Jeśli program Ci się podoba, możesz wesprzeć jego rozwój poprzez darowiznę na
-stronie c64va.pro.
+Jeśli program Ci się podoba, możesz wesprzeć jego rozwój poprzez darowiznę:
+**Menu → Darowizna** (w sekcji Widok) otwiera stronę darowizn na c64va.pro, na
+której możesz przekazać dowolną kwotę za pośrednictwem systemu PayPal.
 
 **Statystyki użytkowania.** Najwyżej raz dziennie, przy uruchomieniu, aplikacja
 wysyła anonimowy ping do c64va.pro z informacjami o wersji aplikacji, systemie
@@ -1165,16 +1203,18 @@ i naciśnij **Wyślij** (lub **Ctrl+Enter**). Możesz dołączyć maksymalnie 3 
 wklejając je (**Ctrl+V**) lub przeciągając je do okna. Odpowiedź pojawi się w
 tym samym oknie, również z plikami: obrazy są wyświetlane jako podglądy,
 kliknięcie zapisuje plik. Okno nie jest modalne: przeciągnij je za nagłówek,
-zmień jego rozmiar, zaczynając od prawego dolnego rogu, i kontynuuj pracę,
-dopóki jest otwarte. Aplikacja sprawdza odpowiedzi podczas uruchamiania i co
-minutę; nowa odpowiedź odtwarza krótki sygnał dźwiękowy (przycisk głośnika w
-nagłówku okna wycisza go), miga ikona na pasku zadań, gdy aplikacja działa w
-tle, wyświetla czerwoną kropkę na przycisku **Menu** i otwiera okno
-jednokrotnie. Po rozpoczęciu rozmowy ikona koperty obok przycisku **Menu**
-otwiera ją; zmienia kolor na czerwony i miga, pokazując liczbę nieprzeczytanych
-odpowiedzi. Adres e-mail jest opcjonalny: jeśli go podasz, odpowiedź również
-zostanie wysłana e-mailem. Rozmowa jest powiązana z losowym identyfikatorem
-instalacji aplikacji, więc nie ma konta ani hasła.
+zmień jego rozmiar od prawego dolnego rogu i kontynuuj pracę, dopóki jest
+otwarte. Aplikacja sprawdza odpowiedzi podczas uruchamiania i co minutę; nowa
+odpowiedź odtwarza krótki sygnał dźwiękowy (przycisk głośnika w nagłówku okna
+wycisza go), miga ikona na pasku zadań, gdy aplikacja działa w tle, pokazuje
+czerwoną kropkę na przycisku **Menu** i otwiera okno raz. Po rozpoczęciu rozmowy
+ikona koperty obok przycisku **Menu** otwiera ją; zmienia kolor na czerwony i
+miga z liczbą nieprzeczytanych odpowiedzi. Naciśnięcie przycisku **×** obok
+wiadomości usuwa tę wiadomość, a przycisk kosza w nagłówku okna usuwa całą
+rozmowę wraz z załącznikami (również dla programisty; obaj najpierw pytają).
+Adres e-mail jest opcjonalny: jeśli go podasz, odpowiedź również zostanie
+wysłana e-mailem. Rozmowa jest powiązana z losowym identyfikatorem instalacji
+aplikacji, więc nie ma konta ani hasła.
 
 ### Projekty, zakładki i pliki startowe
 
@@ -1206,6 +1246,27 @@ podstawie szablonu UltimateBasic — zobacz [Szablony projektów]{1}.
   zapisu `.proj` wracają wraz z obszarem roboczym. Obszary robocze zapisane
   przez starsze wersje otwierają się bez nich.
 
+### Okno pamięci i użycie zerowej strony
+
+Panel **Pełna pamięć C64** może być odłączany: przycisk **Odłącz** w jego
+nagłówku przenosi go do osobnego, niemodalnego okna, które można przeciągać i
+zmieniać jego rozmiar podczas edycji (znaczek „nakładanie” jest z nim związany).
+**Dokuj** (lub × / Esc) przywraca go z powrotem. Okno zapamiętuje, czy było
+odłączone i jaki miało rozmiar.
+
+Gdy program dotyka strony zerowej, na górze mapy pamięci pojawia się sekcja
+**Użycie strony zerowej**: siatka 16 × 16 `$00–$FF`, pokolorowana według obszaru
+— port procesora (`$00–$01`), wolny (`$02`, `$FB–$FE`), BASIC (`$03–$8F`, `$FF`)
+i KERNAL (`$90–$FA`). Używane komórki są wypełniane; ramka oznacza **zapis**,
+kreska oznacza **wskaźnik** (`(zp),Y` / `(zp,X)`). Kliknij używaną komórkę, aby
+zobaczyć, które wiersze mają do niej dostęp (kliknij wiersz, aby tam przejść) i
+ostrzeżenie, gdy zapisujesz do obszaru BASIC lub KERNAL.
+
+Jeśli program zawiera wyeksportowany odtwarzacz SID Editor (etykiety `sid_`),
+strona zerowa odtwarzacza (`$02–$1C`, `$2F`, `$FB–$FD`) jest również oznaczona,
+a każdy adres używany przez Twój własny kod jest raportowany jako **conflict**
+(czerwona ramka, ostrzeżenie w nagłówku).
+
 ### Budynek i diagnostyka
 
 Przycisk **Build** otwiera ten sam wyśrodkowany widok postępu, co w innych
@@ -1219,10 +1280,10 @@ zerowych i wygenerowane dane kodu.
 3. wyśrodkowane okno dialogowe kompilacji wyświetla błąd;
 4. błędy zawierające wiersz źródłowy wybierz ten wiersz w aktywnym edytorze UB.
 
-| Sekcja            | Wbudowane szablony                                                                                                                                                                                                 |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Asembler**      | Pusty program, Pusta gra (tytuł / stany gry / zakończenia gry, joystick, sprite gracza), Mapa bitowa Hires, Mapa bitowa wielokolorowa                                                                              |
-| **UltimateBasic** | Pusty program, pusta gra (ta sama maszyna stanowa w UB), mapa bitowa Hires (`linia` / `prostokąt` / `koło` z `kolorowym pisakiem`), przerwanie rastrowe (`pod` wywoływane co każdą klatkę z przerwania rastrowego) |
+| Sekcja            | Wbudowane szablony                                                                                                                                                                                                                                                      |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Asembler**      | Pusty program, pusta gra (tytuł / stany gry / zakończenia gry, joystick, sprite gracza), mapa bitowa Hires, mapa bitowa wielokolorowa, multiplekser sprite'ów (16 sprite'ów sortowanych według Y w każdej klatce, wyświetlanych za pomocą łańcucha przerwań rastrowych) |
+| **UltimateBasic** | Pusty program, pusta gra (ta sama maszyna stanowa w UB), mapa bitowa Hires (`linia` / `prostokąt` / `koło` z `kolorowym pisakiem`), przerwanie rastrowe (`pod` wywoływane co każdą klatkę z przerwania rastrowego)                                                      |
 
 Gdy kompilacja się nie powiedzie:
 
@@ -1472,6 +1533,27 @@ Informacje o kompilacji zawierają raporty dotyczące adresów
 ładowania/zakończenia, rozmiarów kodów i PRG, stanu Exomizera, zmiennych,
 tablic, funkcji/podprogramów i etykiet.
 
+### Rozmiar kodu na linię i wskazówki
+
+Przycisk paska narzędzi **rozmiar kodu** (ikona płomienia) pokazuje po
+kompilacji, do ilu bajtów skompilowano każdą linię źródłową – liczba ta znajduje
+się w ramce z numerami linii, a pomarańczowy pasek pokazuje jej wagę w stosunku
+do linii o największej wartości. Pasek stanu dodaje bajty i szacowaną liczbę
+cykli (linia prosta, bez liczenia pętli) linii pod kursorem.
+
+Podczas pisania na pasku stanu pojawia się przycisk **wskazówki**, gdy coś
+wygląda nie tak; kliknij go, aby wyświetlić listę, a następnie kliknij
+wskazówkę, aby przejść do wiersza:
+
+- `sys $EA31` / `sys $EA81` — `sys` kompiluje się do `JSR`, więc `RTI` KERNALA
+  zwraca śmieci; z IRQ należy użyć `irq_exit` lub `asm { JMP $EA31 }`;
+- `klawisz oczekiwania` — nie jest to udokumentowana forma, użyj `klawisza
+  oczekiwania`;
+- `var` / `dim` / `const`, który nigdy nie jest używany;
+- po kompilacji: instrukcja bloku `asm` na adresie strony zerowej, który
+  przechowuje zmienną Ultimate Basic lub własną stronę zerową środowiska
+  wykonawczego.
+
 ### Błąd podświetlania
 
 Wiersze, których kompilacja nie powiodła się, są podświetlane na czerwono ****
@@ -1610,6 +1692,43 @@ jest asemblowana z tego, co następuje po dwukropku.
 każdego trybu adresowania. Zastępuje to starszy wzorzec `instrukcja STA + 1` /
 `instrukcja: LDA #$00`. Przechodzi on w obie strony przez tryb Blok ⇄ Ekspert
 (pole operandu zachowuje prefiks `etykieta:`).
+
+### Liczenie cykli
+
+Przycisk paska narzędzi **liczniki cykli** (ikona zegara) dodaje pasek, który
+pokazuje 6510 cykli każdej linii instrukcji:
+
+| Pokazano         | Oznaczający                                                                                                                                     |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `4`              | stały koszt                                                                                                                                     |
+| `4+`             | indeksowany odczyt (`abs,X`, `abs,Y`, `(zp),Y`): +1, gdy indeks przekracza stronę; wyrównana do strony baza (`$xx00`) pokazuje dokładną wartość |
+| `2/3`            | gałąź: niepodjęta / podjęta                                                                                                                     |
+| `2/4` (czerwony) | pobrana gałąź, która przechodzi przez stronę — warto wiedzieć w kodzie czasowym                                                                 |
+
+Zaznacz kilka linii, a pasek stanu pokaże sumę: liczbę instrukcji, minimalną i
+maksymalną liczbę cykli oraz liczbę linii rastrowych PAL (63 cykle). Makra i
+linie danych nie są liczone. Ustawienie jest zapamiętywane.
+
+### Wskazówki dotyczące optymalizacji
+
+Edytor Ekspert sprawdza złożony kod pod kątem typowych wzorców „peephole”. Linie
+z podpowiedzią otrzymują bursztynowy pasek, a na pasku stanu pojawia się
+przycisk **N podpowiedzi**. Kliknij go, aby wyświetlić listę, a następnie
+kliknij podpowiedź, aby przejść do wiersza. Podpowiedzi nigdy nie zmieniają
+kodu:
+
+- `JSR x` a następnie `RTS` → `JMP x` (1 bajt krótszy, 9 cykli szybszy);
+- `CMP #0` / `CPX #0` / `CPY #0` zaraz po instrukcji, która już ustawiła N/Z dla
+  tego rejestru (uwaga: porównanie ustawia także C);
+- ten sam ładunek dwa razy lub ładunek o wartości właśnie zapisanej (`STA x` /
+  `LDA x`);
+- `LDA m` / `CLC` / `ADC #1` / `STA m` → `INC m` oraz forma `SEC` / `SBC #1` →
+  `DEC m`;
+- `JMP` lub przejście do następnej instrukcji i `PHA` bezpośrednio po niej
+  następuje `PLA`.
+
+Etykieta umieszczona pomiędzy dwiema instrukcjami (możliwy cel skoku) blokuje
+wskazówki, które mogłyby je połączyć.
 
 ### Błąd podświetlania
 
@@ -4831,6 +4950,37 @@ debugera.
 > program konfiguruje przerwania IRQ lub muzykę SID, która wymaga czasu na
 > zainicjowanie przed pierwszym rastrem.
 
+### Monitor VICE (gorące przeładowanie, oglądanie na żywo, profilowanie)
+
+Przycisk paska narzędzi **Monitor VICE** otwiera okno niemodalne, które
+komunikuje się z działającym programem VICE za pośrednictwem jego monitora
+binarnego. **Uruchom (VICE)** uruchamia program VICE z monitorem na porcie 6502
+(**Ustawienia → Zdalny monitor VICE**, domyślnie włączone). Zamknij i uruchom
+ponownie program VICE uruchomiony w inny sposób. Nagłówek pokazuje stan
+połączenia; *Dostępne tylko w aplikacji komputerowej* pojawia się w podglądzie
+przeglądarki.
+
+| Przycisk                                     | Co to robi                                                                                                                                                                             |
+| -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Gorące przeładowanie**                     | Zapisuje skompilowany program do pamięci RAM działającego VICE (tylko do zajętych zakresów — luki pozostają bez zmian). Używaj go do przechowywania danych: sprite'ów, tabel i tekstu. |
+| **Gorące przeładowanie + restart**           | To samo, następnie ponowne uruchomienie pod adresem SYS (reset stosu; końcowy `RTS` powraca do `READY.`).                                                                              |
+| **Automatyczne przeładowywanie po edycjach** | Ponowne załadowanie i ponowne uruchomienie następuje około sekundy po każdej edycji, jeśli program zostanie złożony.                                                                   |
+| **Oglądaj na żywo**                          | Odświeża listę obserwowanych co 0,4 sekundy. Zmieniona wartość miga.                                                                                                                   |
+| **Profil**                                   | Próbkuje licznik programu przez około 5 sekund (kliknij ponownie, aby zatrzymać wcześniej).                                                                                            |
+
+**Lista obserwowanych: ** wpisz etykietę lub adres — `wynik`, `$D020`, `53280`
+lub z tabelą `liczby bajtów, 8` — i naciśnij **+** lub Enter. Każdy wiersz
+zawiera adres, bajty w systemie szesnastkowym oraz, dla 1 lub 2 bajtów, wartość
+dziesiętną. W trybie Ultimate Basic nazwy pochodzą z ostatniej kompilacji UB
+(zmienne, etykiety, podzmienne, tablice).
+
+**Wynik Profilera:** dwie tabele. *Procedura* grupuje próbki według najbliższej
+etykiety (w Ultimate Basic: według `pod`), z udziałem w % i liniami rastrowymi,
+na których były wykonywane — czas spędzony w ROM-ie KERNAL lub BASIC jest
+wymieniony osobno. *Linia* wyświetla linie źródłowe o największym obciążeniu;
+kliknij jedną z nich, aby do niej przejść. Każda próbka na krótko wstrzymuje
+emulator, więc profil jest obrazem statystycznym, a nie dokładną liczbą cykli.
+
 ---
 
 ## 12. Eksport i uruchomienie D64
@@ -5086,10 +5236,11 @@ dysku D64 za pomocą opcji **Zapisz do D64**.
 
 ### Edytor wysokiej rozdzielczości / wielokolorowy
 
-| Ustawienie         | Opis                                                                                                                                        |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| Przełączanie trybu | Pole wyboru **Wielokolorowe** przełącza między wysoką rozdzielczością (monochromatyczne na komórkę) a wielokolorowym (4 kolory na komórkę). |
-| **Status**         | Pokazuje, czy ścieżka wykonywalna jest prawidłowa i dostępna                                                                                |
+| Ustawienie              | Opis                                                                                                                                        |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Przełączanie trybu      | Pole wyboru **Wielokolorowe** przełącza między wysoką rozdzielczością (monochromatyczne na komórkę) a wielokolorowym (4 kolory na komórkę). |
+| **Status**              | Pokazuje, czy ścieżka wykonywalna jest prawidłowa i dostępna                                                                                |
+| **Zdalny monitor VICE** | Uruchamia VICE z monitorem binarnym na porcie 6502, potrzebnym dla [Monitor VICE](#vice-monitor-hot-reload-live-watch-profiler)             |
 
 Edytor bitmap na poziomie pikseli z trybami wysokiej rozdzielczości 320×200 i
 wielokolorowymi 160×200. Otwórz przez Toolkit → Hi-Res Editor.
@@ -5288,6 +5439,12 @@ Edytor sprite'ów.
 | Import arkusza sprite'ów           | Pliki → **Importuj arkusz sprite'ów…**: szerokość/wysokość komórki, przesunięcie, odstęp i liczba klatek dzielą obraz na klatki o bieżącym rozmiarze (komórki wielokolorowe są skalowane do 12 pikseli na sprite'a). Kolory pochodzą z obrazka lub pozostają własne sprite'a; dopasowanie OKLab bez ditheringu, dithering uporządkowany (Bayer) lub Floyd-Steinberg. Zastępuje klatki lub dodaje do nich elementy.                       |
 | Hitbox                             | Narzędzie **Pole trafień** przeciąga prostokąt na klatkę (przerywany cyjan); **Dopasuj**, **Dopasuj do każdej klatki**, **Kopiuj do każdej klatki** i **Usuń** w panelu bocznym. Pliki → **Kopiuj tabelę pól trafień** daje `sprite_hit_x / _y / _w / _h` (jeden bajt na klatkę, piksele ekranu od lewego górnego rogu); klatka bez pola trafień używa jej granic pikseli.                                                               |
 | X / Y ×2                           | Pokazuje podgląd tak jak przy rozszerzeniu sprite'ów `$D01D` / `$D017`.                                                                                                                                                                                                                                                                                                                                                                  |
+
+**Eksport do UltimateBasic** (menu Pliki) zapisuje każdą klatkę (do 8) jako
+`sprdef`, konfiguruje sprite'a 0 (kolor, wielokolor, rozszerzenie) i, w
+przypadku animacji, dodaje pętlę zsynchronizowaną z rastrem, która przesuwa
+klatki z szybkością klatek (FPS) edytora. W trybie Ultimate Basic jest ona
+wstawiana w miejscu kursora, w przeciwnym razie kopiowana do schowka.
 
 ### Przeglądarka ROM-u znaków C64 („mapa znaków”)
 
@@ -5607,6 +5764,10 @@ z nich kod główny — w razie potrzeby przenieś je w trybie eksperckim.
 
 ---
 
+**Eksportuj .sid (PSID)…** (menu Pliki) zapisuje utwór w odtwarzalnym
+odtwarzaczu `$C000` jako standardowy plik PSID — można go odtworzyć w
+odtwarzaczu SID, w programie VICE `vsid` i w dowolnym innym odtwarzaczu SID.
+
 ### Odtwarzacz SID
 
 Przycisk paska narzędzi **SID Player** otwiera pływające okno, w którym
@@ -5713,6 +5874,36 @@ inaczej, mimo że wartości bajtów są identyczne. Zobacz
 sprite-X.
 
 ---
+
+### Generator tabel
+
+Przycisk **Generator tabel ** na pasku narzędzi (ikona siatki, obok edytora
+krzywych) tworzy tabele odnośników i speedcode. Wybierz typ tabeli, ustaw jej
+parametry i obejrzyj podgląd; linia meta pokazuje liczbę wpisów, rozmiar i
+zakres wartości (dla kodu: bajty i szacowane cykle / linie rastrowe).
+
+| Typ                                   | Wartości                                                                                                                        |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Adresy wierszy ekranu                 | podstawa + 40 · wiersz (dowolna podstawa i długość wiersza)                                                                     |
+| Adresy wierszy mapy bitowej           | piksel Y → adres bajtu w kolumnie 0 (układ komórek 8 × 8)                                                                       |
+| Przesunięcia kolumn mapy bitowej      | piksel X → przesunięcie bajtu w linii (hires lub wielokolorowe)                                                                 |
+| Maska bitowa pikseli                  | X → maska bitowa (wynajmowana / wielokolorowa, opcjonalnie odwrócona dla `AND`)                                                 |
+| Mnożenie/dzielenie/reszta przez stałą | x · k, ⌊x / k⌋, x mod k                                                                                                         |
+| Ćwiartki kwadratów                    | ⌊(x − offset)² / 4⌋, 512 wpisów — a · b = sqr(a + b) − sqr(a − b)                                                               |
+| Odwrotność                            | ⌊N / x⌋                                                                                                                         |
+| Logarytm / wykładniczy                | zaokrąglij(log2 x · s), zaokrąglij(2^(x / s))                                                                                   |
+| Bit odwrotny                          | odwraca bajt (lub pary bitów w przypadku kolorów wielokolorowych), aby odzwierciedlić sprite’y i znaki                          |
+| Wyrażenie niestandardowe              | dowolna formuła `i` (`k` = indeks od 0, `n` = count); `sin`, `cos`, `abs`, `min`, `max`, `round`, `floor`, `PI`, `$hex`, `%bin` |
+| Speedcode: wypełnij / skopiuj pamięć  | podprogram; *zapisów na iterację* 0 = całkowicie rozwinięty, N = pętla X z N zapisami na przejście                              |
+
+Wartości powyżej 255 stają się parą tablic **lo/hi** (`label_lo`, `label_hi`)
+lub tablicą `.word`; wartości ujemne są uzupełnieniem do dwóch. Opcje: etykieta,
+szesnastkowy/dziesiętny, wartości na wiersz, **Wyrównaj do strony** (`.align
+256`, unika cyklu przechodzenia między stronami). **Kopiuj** umieszcza zespół w
+schowku; **Insert** dodaje ją do programu (ponowne wstawienie tej samej etykiety
+zastępuje poprzednią kopię) — w trybie Ultimate Basic wstawia `tablicę` z
+wierszami `danych`. Menu Pliki zapisuje również tabelę jako `.bin` (najpierw
+bajty, potem bajty górne) i eksportuje ją do Ultimate Basic.
 
 ### Konwerter liczb
 

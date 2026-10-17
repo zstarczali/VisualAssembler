@@ -1,7 +1,9 @@
 C64 Visual Assembler - Installation Guide
-Version 2.6.1
+Version 2.6.2
 Support: https://zstarczali.itch.io/visual-assembler-commodore-64
 ==========================================================================
+
+2.6.2: High Voltage SID Collection in the SID Player (search about 61,000 tunes, play, save, download the whole collection for offline use, real tune lengths), spectrum analyzer window for the SID Player, Lesson Editor for step-by-step guided lessons made from your own program, online lessons from www.c64va.pro, every macro takes its parameters in the palette's operand field, the active floating window is highlighted, Support window in chat style.
 
 2.6.1: VICE Monitor (hot reload, live watch, profiler), Table Generator with speedcode, cycle counts and optimisation hints in Expert mode, zero page usage map, detachable memory window, Ultimate Basic code size per line and hints, Sprite Editor to Ultimate Basic export, .sid (PSID) export, sprite multiplexer template.
 
@@ -63,7 +65,7 @@ Tested on Ubuntu 22.04 and 24.04.
 -----------------------
 Download the .deb package from the releases page and install:
 
-  sudo dpkg -i "c64-visual-assembler_2.6.1_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.6.2_amd64.deb"
   sudo apt-get install -f   # fix any missing dependencies
 
 Launch from the Applications menu or:
@@ -156,7 +158,7 @@ Requirements: macOS 11.0+, Apple Silicon (M1/M2/M3)
 
 1. C64 Visual Assembler
 -----------------------
-1. Download the 2.6.1 DMG for your architecture from the releases page
+1. Download the 2.6.2 DMG for your architecture from the releases page
 2. Mount the DMG and drag the app to /Applications
 3. First launch: Right-click the app -> "Open" (macOS will block double-click)
 4. Click "Open" in the security dialog

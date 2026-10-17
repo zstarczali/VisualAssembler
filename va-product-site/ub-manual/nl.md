@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.3 — Taalhandleiding
+# Ultimate Basic v1.6.5 — Taalhandleiding
 
 Complete taal- en CLI-referentie voor Ultimate Basic, een BASIC-achtige taal die
 direct compileert naar 6502-machinecode voor de Commodore 64. Uitvoer: `.prg`
@@ -36,16 +36,17 @@ const BORDER_ADDR = $D020 # compile-time constante (inline vervangen, geen ZP-sl
 Trefwoorden en identificatoren zijn **niet hoofdlettergevoelig**: `PRINT`,
 `Print` en `print` zijn allemaal geldig.
 
-| Type                  | Breedte       | Notities                                                         |
-| --------------------- | ------------- | ---------------------------------------------------------------- |
-| `int`                 | 8-bit         | standaardwaarde voor numerieke letterlijke waarden               |
-| `woord`               | 16-bit        | twee ZP-bytes; kunnen worden gebruikt als adres in `poke`/`peek` |
-| `float`               | 16-bits Q8.8  | hi byte = geheel getal (0–255), lo byte = fractioneel getal      |
-| `string`              | wijzer        | ZP-paar → null-terminated PETSCII in codesegment                 |
-| `array(N)`            | N bytes       | byte-elementen; bevindt zich op `$C000+`, niet in ZP.            |
-| `array_word(N)`       | N×2 bytes     | woord (16-bits) elementen; bevindt zich op `$C000+`, niet in ZP  |
-| `array(R, C, …)`      | ∏dims bytes   | multidimensionaal (rij-hoofdrichting); index `arr[r, c]`         |
-| `array_word(R, C, …)` | ∏dims×2 bytes | multidimensionale woordmatrix (rij-georiënteerd)                 |
+| Type                   | Breedte       | Notities                                                                                    |
+| ---------------------- | ------------- | ------------------------------------------------------------------------------------------- |
+| `int`                  | 8-bit         | standaardwaarde voor numerieke letterlijke waarden                                          |
+| `woord`                | 16-bit        | twee ZP-bytes; kunnen worden gebruikt als adres in `poke`/`peek`                            |
+| `float`                | 16-bits Q8.8  | hi byte = geheel getal (0–255), lo byte = fractioneel getal                                 |
+| ` enkel ` / ` dubbel ` | 5 bytes, RAM  | drijvende-komma (C64 BASIC-formaat, ~9 cijfers) — `dim x als double`; zie *Drijvende-komma* |
+| `string`               | wijzer        | ZP-paar → null-terminated PETSCII in codesegment                                            |
+| `array(N)`             | N bytes       | byte-elementen; bevindt zich op `$C000+`, niet in ZP.                                       |
+| `array_word(N)`        | N×2 bytes     | woord (16-bits) elementen; bevindt zich op `$C000+`, niet in ZP                             |
+| `array(R, C, …)`       | ∏dims bytes   | multidimensionaal (rij-hoofdrichting); index `arr[r, c]`                                    |
+| `array_word(R, C, …)`  | ∏dims×2 bytes | multidimensionale woordmatrix (rij-georiënteerd)                                            |
 
 #### BASIC-stijl declaraties: `dim … als …`
 
@@ -55,18 +56,19 @@ opslag, dezelfde code:
 ```basic
 DIM kor AS INTEGER # getekend 16-bits, begint bij 0
 DIM nev AS STRING # tekenreeks, begint als ""
-DIM fizetes AS DOUBLE # Q8.8 vaste-komma, begint bij 0.00
+DIM fizetes AS DOUBLE # drijvende-kommawaarde, begint bij 0
 DIM x, y AS BYTE # meerdere namen, krijgen allemaal hetzelfde type
 DIM pont AS INTEGER = 1000, cim AS STRING = "C64" # initialisaties, gemengde typen
 ```
 
-| `als …`                      | Ultiem basistype                                       |
-| ---------------------------- | ------------------------------------------------------ |
-| `byte`, `int`                | `int` (8-bit, 0–255)                                   |
-| `integer`                    | ondertekend 16-bits (−32768 … 32767) — QBasic INTEGER  |
-| `woord`                      | `woord` (ongesigneerd 16-bit, 0–65535)                 |
-| `enkel`, `dubbel`, `zwevend` | `float` (Q8.8 — 0–255.99, **not** IEEE floating point) |
-| `string`                     | `string`                                               |
+| `als …`               | Ultiem basistype                                                                            |
+| --------------------- | ------------------------------------------------------------------------------------------- |
+| `byte`, `int`         | `int` (8-bit, 0–255)                                                                        |
+| `integer`             | ondertekend 16-bits (−32768 … 32767) — QBasic INTEGER                                       |
+| `woord`               | `woord` (ongesigneerd 16-bit, 0–65535)                                                      |
+| ` enkel `, ` dubbel ` | drijvende-komma, 5 bytes in RAM (±2,9·10⁻³⁹ … 1,7·10³⁸, ~9 cijfers) — zie *Drijvende-komma* |
+| `float`               | `float` (Q8.8 vaste-kommaweergave — 0–255,99, snel)                                         |
+| `string`              | `string`                                                                                    |
 
 - Zonder `= waarde` beginnen getallen bij 0 en tekenreeksen bij `""`.
 - `dim a, b as integer` geeft **beide** geeft het type aan (VB.NET-stijl, niet
@@ -86,9 +88,9 @@ DIM pont AS INTEGER = 1000, cim AS STRING = "C64" # initialisaties, gemengde typ
 ```basic
 DIM tabla(2, 3) AS INTEGER ' 3 × 4 elementen: tabla(0..2, 0..3)
 DIM kocka(1, 2, 3) AS BYTE ' willekeurig aantal dimensies
-DIM ar(9) AS DOUBLE ' 10 Q8.8 waarden
-DIM nevek(4) AS STRING ' 5 strings, beginnen allemaal met ""
-DIM v(9) ' geen AS → byte array
+DIM ar(9) AS DOUBLE ' 10 drijvende-kommawaarden (5 bytes elk)
+DIM nevek(4) AS STRING ' 5 strings, die allemaal beginnen met ""
+DIM v(9) ' geen AS → byte-array
 
 tabla(2, 3) = 999 ' QBasic-stijl index met ( )
 tabla[2, 3] = 999 ' … of de gebruikelijke [ ]
@@ -99,9 +101,11 @@ PRINT tabla(2, 3); " "; nevek(0); " "; ar(1)
 - Elke grens is de **hoogste index** (BASIC-regel): `dim t(2, 3)` heeft 3 × 4
   elementen. (`var t = array(3, 4)` telt het aantal elementen — dezelfde array.)
 - Elementtypen: `byte`/`int` → 1 byte, `integer` (signed) / `word` → 2 bytes,
-  `single`/`double`/`float` → 2-byte Q8.8, `string` → 2-byte pointer. Grenzen
-  moeten compileertijdconstanten zijn; arrays bevinden zich in `$C000-$CFFF`
-  (4096 bytes, gecontroleerd).
+  `float` → 2-byte Q8.8, `single`/`double` → 5-byte floating point, `string` →
+  2-byte pointer. Grenzen moeten compileertijdconstanten zijn. Arrays bevinden
+  zich in `$C000-$CFFF` (4 KB); Als ze meer nodig hebben, verplaatst het hele
+  arraygebied zich naar `$A000-$CFFF` (12 KB, onder de BASIC ROM — zie
+  *Arraygeheugen*). Meer dan 12288 bytes is een compileerfout.
 - String-array-elementen beginnen als `""`; `nevek(i) = "TEXT"` / `= s` / `= a +
   b`, `n = nevek(i)`, printing, `+`, passing to a `string` parameter and `input
   nevek(i)` all work (niet-letterlijke waarden worden per element gekopieerd
@@ -1624,11 +1628,24 @@ var v = peek(addr_var) # LDA (addr_var),Y — als addr_var van het type word is
 
 var w: word = peek16($C000) # lees 16-bit little-endian: lo=$C000, hi=$C001
 poke16 $0314, $EA81 # schrijf 16-bit little-endian: lo→$0314, hi→$0315
-poke16 ptr, w # word var als adres; word var als waarde
+poke16 ptr, w # word var als adres; woord var als waarde
+
+var k = 2
+var p = peek($07F8 + k) # LDA $07F8,Y — constante + byte variabele
+poke $07F8 + k, p # STA $07F8,Y
+poke ptr + k, 1 # woord + byte: volledig 16-bits adres
 ```
 
 `peek16(addr)` leest twee opeenvolgende bytes (lo, hi) als een `word`. `poke16`
 schrijft eerst lo en daarna hi.
+
+Een adres is altijd een 16-bits waarde. Sinds versie 1.6.5 behoudt een
+adresuitdrukking zoals `$07F8 + k` de hoogste byte van de constante en de
+overdracht (voorheen werd dit berekend in 8 bits en las `peek($07F8 + k)` `$00F8
++ k`). Dit geldt voor `peek`, `poke`, `peek16`, `poke16`, `fill`, `memcopy`,
+`drawmem`, `save` en `reu`; `fill` / `memcopy` lengtes zoals `40 * rows` zijn
+ook 16-bits. `peek(k)` met een bytevariabele leest adres `$00kk` (het gaf de
+waarde van `k` zelf terug vóór 1.6.5).
 
 ### Schijf-I/O
 
@@ -1724,7 +1741,8 @@ met DEL-ondersteuning.
   naar een 8-bits waarde bij CR.
 - **Stringvariabele**: accepteert maximaal 30 tekens; wordt opgeslagen als een
   null-terminated string; ZP-paar bijgewerkt.
-- **DOUBLE var** (1.6.3): cijfers en `.`, bijv. `12.5` → 12.50 (twee decimalen).
+- **FLOAT var** (1.6.3): cijfers en `.`, bijv. `12.5` → 12.50 (twee decimalen).
+- **ENKEL / DUBBEL var** (1.6.4): elk getal, `-12.5`, `.5`, `3.25E2`.
 - **Array element** (1.6.3): `input t(i)` / `input nevek(i)`; `input "prompt";
   x` werkt ook.
 - **String var**: accepteert maximaal 30 tekens; slaat op als een
@@ -1764,6 +1782,90 @@ rekenkundige expressie die een `float` bevat (bijvoorbeeld `print a / 10` met
 `a: float = 1`) print nu het Q8.8-resultaat als `N.DD`. Vóór 1.5.7 printte het
 de ruwe 16-bits waarde als een integer (`25` in plaats van `0.09`). De breuk
 wordt afgekapt, niet afgerond: 1/10 = 25/256 wordt afgedrukt als `0.09`.
+
+### Zwevende-komma: `SINGLE` / `DOUBLE` (1.6.4)
+
+`dim x as single` en `dim x as double` zijn reële drijvende-komma getallen — het
+5-byte formaat van C64 BASIC: ongeveer 9 significante cijfers, bereik ±2,9·10⁻³⁹
+… ±1,7·10³⁸. (`single` en `double` zijn van hetzelfde type.) Het snelle 2-byte
+Q8.8 type is nog steeds beschikbaar als `float`.
+
+```basic
+DIM r AS DOUBLE, t AS DOUBLE
+DIM k(9) AS SINGLE ' arrays: 5 bytes per element
+r = 2.5
+t = ATN(1) * 4 * r ^ 2 ' 19.6349541
+PRINT t; " "; SQR(2); " "; 1E10; " "; 1 / 3
+FOR r = 0 TO 1 STEP 0.25 : PRINT r : NEXT
+FUNCTION Atfogo (a AS DOUBLE, b AS DOUBLE) AS DOUBLE
+
+Atfogo = SQR(a * a + b * b)
+END FUNCTION
+```
+
+|                     |                                                                                                                                                                                  |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Operators           | `+ - * /` en `^` (macht; rechtsassociatief, bindt sterker dan unaire min: `-2^2` = -4)                                                                                           |
+| Functies            | `SQR`, `SIN`, `COS`, `TAN`, `ATN` (radialen), `EXP`, `LOG` (natuurlijk), `INT` (naar beneden), `FIX` (afkappen), `CINT` (afronden), `ABS`, `SGN`, `CSNG` / `CDBL` (no-op), `VAL` |
+| Letterlijke waarden | `1.5`, `.5`, `1E6`, `2.5e-3`, `70000`                                                                                                                                            |
+| Vergelijkingen      | `= &lt;&gt; &lt; &gt; &lt;= &gt;=` in `IF` / `WHILE` / `UNTIL` / `SELECT CASE` en als waarden                                                                                    |
+| Afdrukken           | C64 BASIC-stijl: `.5`, `-3.25`, `3.33333333`, `1E+10`, `1.5E-07` (geen spatie aan het begin)                                                                                     |
+| Snaren              | `s = "X=" + x`, `STR$(x)`, `VAL(s)` leest `-1.25E3`                                                                                                                              |
+| `VOOR`              | drijvende-kommateller, limiet en stap (`STEP 0.1`, negatief, of een variabele)                                                                                                   |
+| `INPUT` / `READ`    | `INPUT x` leest een willekeurig getal; `READ x` leest de volgende `data` byte                                                                                                    |
+| Sub / functie       | `p ALS DOUBLE` parameters en ` ALS DOUBLE` resultaten                                                                                                                            |
+
+**Mengsel met gehele getallen.** Een expressie wordt berekend in
+drijvende-kommaformaat wanneer deze een SINGLE/DOUBLE-waarde bevat, `^`, een van
+de bovenstaande functies, of een letterlijke waarde die alleen in
+drijvende-kommaformaat kan worden opgeslagen (`1E6`, `300.5`, `70000`). Zodra
+een programma drijvende-kommaformaat gebruikt, is elke decimale letterlijke
+waarde (`0.1`) ook een drijvende-kommaconstante. Het opslaan van een
+drijvende-kommawaarde in een `byte`, `integer` of `word` **rounds** wordt een
+getal (de helft van nul verwijderd: 2,5 → 3, -2,5 → -3); in een `float` wordt
+het Q8.8. Een integerwaarde die aan een DOUBLE wordt toegewezen, wordt exact
+geconverteerd. Integeruitdrukkingen behouden hun integerregels (`var c = a + b`
+is nog steeds een byte).
+
+**Notities**
+- Een geheel getal van 32768 tot 65535 wordt gelezen als een 16-bits patroon en
+  wordt negatief in de context van drijvende-kommagetallen: schrijf `40000.0` of
+  `4E4`.
+- `7 / 2` is 3,5 wanneer toegewezen aan een DOUBLE; in de context van gehele
+  getallen is het 3 zoals eerder.
+- `x MOD y` en `AND` / `OR` / `XOR` ronden hun operanden af naar gehele
+  getallen.
+- `SIN` / `COS` van een byte-waarde behouden de oude betekenis van de tabel
+  0-255 (volledige cirkel = 256); met een SINGLE/DOUBLE-argument werken ze in
+  radialen.
+- Floating-point code mag niet worden uitgevoerd in IRQ/NMI-handlers (de runtime
+  bewaart zijn status in vast RAM-geheugen).
+- Kosten: de floating-point runtime (ongeveer 4,4 KB, geassembleerd door de
+  compiler) wordt na het programma toegevoegd de eerste keer dat SINGLE/DOUBLE
+  wordt gebruikt. Variabelen nemen 5 bytes in beslag in het arraygebied, plus
+  een 2-byte zero-page pointer voor de runtime. Een vermenigvuldiging duurt
+  ongeveer 1-2 ms op een 1 MHz C64.
+
+### Variabelen in RAM, arraygeheugen (1.6.4)
+
+- **Nulpagina vol:** Wanneer de variabelen van het programma niet in de
+  permanente nulpagina passen (`$02-$4F`), compileert de compiler het programma
+  opnieuw en verplaatst de variabelen die het minst worden gebruikt in de 'hot
+  code' naar het normale RAM-geheugen (na de arrays). Een instructie die zo'n
+  variabele gebruikt, kopieert deze naar een nulpagina-slot en weer terug, zodat
+  programma's zich hetzelfde gedragen, alleen zijn deze variabelen iets trager.
+  Lustellers, parameters en alles wat een IRQ-handler kan aanraken, blijven in
+  de nulpagina. De geheugenkaart toont ze als `RAM:$xxxx`. Het opraken van de
+  nulpagina is geen fout meer, behalve in extreme gevallen (`uit nulpagina`
+  blijft voor die gevallen van toepassing).
+- **Arraygeheugen:** arrays (en spilled/floating-point variabelen) gebruiken
+  `$C000-$CFFF`. Wanneer ze meer dan 4096 bytes nodig hebben, begint het gebied
+  in plaats daarvan bij `$A000`, wat 12 KB oplevert (`$A000-$CFFF`): de BASIC
+  ROM wordt uitgeschakeld bij de start van het programma (`$01` bit 0) en weer
+  ingeschakeld bij elke exit naar BASIC (`end`, `bye`, einde van het programma,
+  `chain`), zodat het programma nog steeds terugkeert naar een werkende BASIC.
+  Programma's die zelf BASIC ROM-routines aanroepen (`sys $Axxx`) mogen niet
+  meer dan 4 KB aan arrays gebruiken.
 
 ### Wiskundige functies
 
@@ -2181,26 +2283,29 @@ toegewezen.
 
 ## Voorbeelden
 
-| Bestand                             | Beschrijving                                                                         |
-| ----------------------------------- | ------------------------------------------------------------------------------------ |
-| `voorbeelden/functies.ub`           | const, label/goto, poke/peek, rnd, wiskundige functies                               |
-| `examples/new_features.ub`          | subparameters, arrays, woordvariabelen, tekenreeksvariabelen                         |
-| `examples/bitmap_demo.ub`           | 320×200 bitmap, plotten, grafische weergave aan/uit                                  |
-| `examples/block_demo.ub`            | 80×50 blokgrafieken, plot4, circle4, grafieken op blok                               |
-| `examples/joystick_demo.ub`         | joystickuitlezing, spritebeweging                                                    |
-| `examples/mux_demo.ub`              | raster sprite multiplexer (3 vensters × 8 sprites = 24)                              |
-| `examples/orbit_demo.ub`            | 24-sprite baan met pulserende straal en willekeurige kleuren                         |
-| `examples/plasma_demo.ub`           | Plasma-effect bitmap met rasterbalkrandanimatie                                      |
-| `examples/sprite_data.ub`           | sprdef-vormgegevens (meegeleverd door andere demo's)                                 |
-| `examples/sprite_mux_orbit.ub`      | Demo van een baan met 24 sprites, sprdef en vooraf berekende posities.               |
-| `examples/sprite_orbit_demo.ub`     | 8 hardware-sprites in een cirkelvormige baan via de sinus/cosinus-tabel              |
-| `examples/reu_bitmap_demo.ub`       | REU-opslag/ophaling met bitmapafbeeldingen                                           |
-| `examples/sid_music_demo.ub`        | SID-muziekspeler met raster-IRQ en toetsenborduitgang                                |
-| `voorbeelden/tenprint.ub`           | 5 TENPRINT doolhofimplementaties met menu; demo's `lowercase` tekensetmodus          |
-| `examples/countdown_demo.ub`        | Aftellen `for..next` met negatieve stap, incl. `for i = 20 to 0 step -2`             |
-| `examples/countdown_errors_demo.ub` | Compileerfout voor default-step `from > to`                                          |
-| `examples/explicit_demo.ub`         | `--explicit` CLI-vlagdemo met volledig getypte `var`, `sub`, `fn`                    |
-| `examples/explicit_errors_demo.ub`  | Losse code die compileert zonder --explicit, geeft een foutmelding mét `--explicit`. |
+| Bestand                             | Beschrijving                                                                                               |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `voorbeelden/functies.ub`           | const, label/goto, poke/peek, rnd, wiskundige functies                                                     |
+| `examples/new_features.ub`          | subparameters, arrays, woordvariabelen, tekenreeksvariabelen                                               |
+| `examples/bitmap_demo.ub`           | 320×200 bitmap, plotten, grafische weergave aan/uit                                                        |
+| `examples/block_demo.ub`            | 80×50 blokgrafieken, plot4, circle4, grafieken op blok                                                     |
+| `examples/joystick_demo.ub`         | joystickuitlezing, spritebeweging                                                                          |
+| `examples/mux_demo.ub`              | raster sprite multiplexer (3 vensters × 8 sprites = 24)                                                    |
+| `examples/orbit_demo.ub`            | 24-sprite baan met pulserende straal en willekeurige kleuren                                               |
+| `examples/plasma_demo.ub`           | Plasma-effect bitmap met rasterbalkrandanimatie                                                            |
+| `examples/sprite_data.ub`           | sprdef-vormgegevens (meegeleverd door andere demo's)                                                       |
+| `examples/sprite_mux_orbit.ub`      | Demo van een baan met 24 sprites, sprdef en vooraf berekende posities.                                     |
+| `examples/sprite_orbit_demo.ub`     | 8 hardware-sprites in een cirkelvormige baan via de sinus/cosinus-tabel                                    |
+| `examples/reu_bitmap_demo.ub`       | REU-opslag/ophaling met bitmapafbeeldingen                                                                 |
+| `examples/sid_music_demo.ub`        | SID-muziekspeler met raster-IRQ en toetsenborduitgang                                                      |
+| `voorbeelden/tenprint.ub`           | 5 TENPRINT doolhofimplementaties met menu; demo's `lowercase` tekensetmodus                                |
+| `examples/countdown_demo.ub`        | Aftellen `for..next` met negatieve stap, incl. `for i = 20 to 0 step -2`                                   |
+| `examples/countdown_errors_demo.ub` | Compileerfout voor default-step `from > to`                                                                |
+| `examples/explicit_demo.ub`         | `--explicit` CLI-vlagdemo met volledig getypte `var`, `sub`, `fn`                                          |
+| `examples/explicit_errors_demo.ub`  | Losse code die compileert zonder --explicit, geeft een foutmelding mét `--explicit`.                       |
+| `examples/dim_demo.ub`              | `DIM … AS …` scalaire waarden en arrays van elk type                                                       |
+| `voorbeelden/qbasic_demo.ub`        | QBasic-stijl FUNCTION / SUB / ELSEIF / DO-LOOP / SELECT CASE / strings                                     |
+| `examples/float_demo.ub`            | ENKELVOUDIGE / DUBBEL drijvende-komma: `^`, SQR, SIN, ATN, EXP, LOG, `FOR … STEP 0.5`, `AS DOUBLE` functie |
 
 ## CLI-referentie
 
@@ -2438,25 +2543,26 @@ Gebruik `--asm` om de gegenereerde code voor je eigen programma te bekijken.
 
 ## Bekende beperkingen
 
-| Functie                               | Beperking                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Rekenen met gehele getallen           | 8-bits niet-ondertekend (0–255); `word` variabelen bevatten 16-bits waarden                                                                                                                                                                                                                                                                                                                                                                                  |
-| Nul pagina budget                     | De permanente nulpagina is `$02–$4F` (78 bytes): elke variabele en sub/fn-parameter neemt 2 bytes in beslag, elke lopende `for`-lus nog eens 2 bytes (die worden teruggegeven wanneer de lus eindigt, als de body geen variabelen heeft gedeclareerd). Het bereiken van een nulpagina is een compileerfout (`out of zero page`, nieuw in 1.5.7); voorheen werd het tijdelijke geheugen stilzwijgend overschreven. Hergebruik variabelen in grote programma's |
-| Binaire literals                      | Alleen `$hex` en decimale waarden; `%` binaire letterlijke waarden worden niet ondersteund.                                                                                                                                                                                                                                                                                                                                                                  |
-| Subroutines                           | Geen recursie — ZP-parameterposities worden statisch toegewezen                                                                                                                                                                                                                                                                                                                                                                                              |
-| Stringvariabelen                      | Read-only after init; assignment replaces the pointer, not the data                                                                                                                                                                                                                                                                                                                                                                                          |
-| String concat runtime                 | `s1 + s2` print sequentieel — geen geheugenallocatie of lengtecontrole                                                                                                                                                                                                                                                                                                                                                                                       |
-| `rnd()` / `rnd(n)`                    | Eenvoudige LCG, niet cryptografisch; periode = 256                                                                                                                                                                                                                                                                                                                                                                                                           |
-| `abs()` / `sgn()` / `min()` / `max()` | Alleen 8-bits waarden; `abs`/`sgn` behandelen waarden als getekend (bit 7 = negatief → `abs` tweecomplement, `sgn` retourneert `$FF`); `min`/`max` zijn ongetekend (0–255)                                                                                                                                                                                                                                                                                   |
-| `plot`                                | Pixels buiten het bereik worden stilzwijgend afgesneden (Y ≥ 200 of X ≥ 320 → geen actie)                                                                                                                                                                                                                                                                                                                                                                    |
-| `mplot`                               | Geen grenscontrole — x moet tussen 0 en 159 liggen, y moet tussen 0 en 199 liggen.                                                                                                                                                                                                                                                                                                                                                                           |
-| `mline` / `mrect`                     | Meerkleurig; x: 0–159, y: 0–199. Pixels buiten het scherm worden automatisch overschreven (geen uitsnijding) — coördinaten blijven binnen het bereik.                                                                                                                                                                                                                                                                                                        |
-| `mcircle`                             | Meerkleurig; punten buiten beeld (x ≥ 160 of y ≥ 200 worden overgeslagen) worden uitgeknipt.                                                                                                                                                                                                                                                                                                                                                                 |
-| `kleurpen`                            | Alleen voor huurcellen; stelt de voorgrond-nibble van aangeraakte cellen in (achtergrond blijft behouden). Heeft geen effect in blokmodus (`plot4`/`circle4`)                                                                                                                                                                                                                                                                                                |
-| `rechthoek`                           | Geen grenscontrole — x: 0–319, y: 0–199; x1≤x2 en y1≤y2 worden niet afgedwongen (gedegenereerde/omgekeerde rechthoeken produceren ongedefinieerde uitvoer)                                                                                                                                                                                                                                                                                                   |
-| `plot4`                               | Geen grenscontrole — x moet tussen 0 en 79 liggen, y moet tussen 0 en 49 liggen (blokmodus)                                                                                                                                                                                                                                                                                                                                                                  |
-| `circle4`                             | Snijdt pixels buiten het scherm af; de bruikbare straal is ongeveer 0–49 in de 80×50 blokmodus.                                                                                                                                                                                                                                                                                                                                                              |
-| `chr$`                                | Geen PETSCII↔ASCII-mapping — n wordt ongewijzigd doorgegeven aan CHROUT                                                                                                                                                                                                                                                                                                                                                                                      |
-| `muziek afspelen`                     | Vereist `load sid` of een `tune` blok; er wordt slechts één CIA1 wrapper uitgezonden (de laatste `music play` wint)                                                                                                                                                                                                                                                                                                                                          |
-| `grafische weergave op dubbel`        | Alleen voor huurlingen; gebruikt `$4000–$7FFF` voor de backbuffer, dus programmacode moet onder `$4400` blijven; niet combineerbaar met sprites of meerkleurig                                                                                                                                                                                                                                                                                               |
-| Foutrapportage                        | Alleen tijdens het compileren; `onerr goto` behandelt kernel-I/O-fouten tijdens de uitvoering.                                                                                                                                                                                                                                                                                                                                                               |
+| Functie                               | Beperking                                                                                                                                                                                                                                                                                                                                |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Rekenen met gehele getallen           | 8-bits niet-ondertekend (0–255); `word` variabelen bevatten 16-bits waarden                                                                                                                                                                                                                                                              |
+| Nul pagina budget                     | De permanente nulpagina is `$02–$4F` (78 bytes): elke variabele en sub/fn-parameter neemt 2 bytes in beslag, elke lopende `for`-lus nog eens 2 bytes. Sinds 1.6.4 worden variabelen die niet passen automatisch naar RAM verplaatst (zie *Variabelen in RAM*); alleen in extreme gevallen wordt nog steeds `buiten de nulpagina` gemeld. |
+| Binaire literals                      | `%01010101` (sinds 1.6.4), `$hex` en decimaal                                                                                                                                                                                                                                                                                            |
+| Subroutines                           | Geen recursie — ZP-parameterposities worden statisch toegewezen                                                                                                                                                                                                                                                                          |
+| Stringvariabelen                      | `single` / `double` zijn 5-byte floating point sinds 1.6.4 (niet bruikbaar in IRQ-handlers; de ~4,4 KB runtime wordt toegevoegd aan het programma); `float` blijft Q8.8 (0–255,99)                                                                                                                                                       |
+| Unaire min                            | Sinds 1.6.4 bindt een leidende `-` zich aan zijn operand: `-5 - 3` is -8 (het was -(5 - 3) = -2)                                                                                                                                                                                                                                         |
+| String concat runtime                 | `s1 + s2` print sequentieel — geen geheugenallocatie of lengtecontrole                                                                                                                                                                                                                                                                   |
+| `rnd()` / `rnd(n)`                    | Eenvoudige LCG, niet cryptografisch; periode = 256                                                                                                                                                                                                                                                                                       |
+| `abs()` / `sgn()` / `min()` / `max()` | Alleen 8-bits waarden; `abs`/`sgn` behandelen waarden als getekend (bit 7 = negatief → `abs` tweecomplement, `sgn` retourneert `$FF`); `min`/`max` zijn ongetekend (0–255)                                                                                                                                                               |
+| `plot`                                | Pixels buiten het bereik worden stilzwijgend afgesneden (Y ≥ 200 of X ≥ 320 → geen actie)                                                                                                                                                                                                                                                |
+| `mplot`                               | Geen grenscontrole — x moet tussen 0 en 159 liggen, y moet tussen 0 en 199 liggen.                                                                                                                                                                                                                                                       |
+| `mline` / `mrect`                     | Meerkleurig; x: 0–159, y: 0–199. Pixels buiten het scherm worden automatisch overschreven (geen uitsnijding) — coördinaten blijven binnen het bereik.                                                                                                                                                                                    |
+| `mcircle`                             | Meerkleurig; punten buiten beeld (x ≥ 160 of y ≥ 200 worden overgeslagen) worden uitgeknipt.                                                                                                                                                                                                                                             |
+| `kleurpen`                            | Alleen voor huurcellen; stelt de voorgrond-nibble van aangeraakte cellen in (achtergrond blijft behouden). Heeft geen effect in blokmodus (`plot4`/`circle4`)                                                                                                                                                                            |
+| `rechthoek`                           | Geen grenscontrole — x: 0–319, y: 0–199; x1≤x2 en y1≤y2 worden niet afgedwongen (gedegenereerde/omgekeerde rechthoeken produceren ongedefinieerde uitvoer)                                                                                                                                                                               |
+| `plot4`                               | Geen grenscontrole — x moet tussen 0 en 79 liggen, y moet tussen 0 en 49 liggen (blokmodus)                                                                                                                                                                                                                                              |
+| `circle4`                             | Snijdt pixels buiten het scherm af; de bruikbare straal is ongeveer 0–49 in de 80×50 blokmodus.                                                                                                                                                                                                                                          |
+| `chr$`                                | Geen PETSCII↔ASCII-mapping — n wordt ongewijzigd doorgegeven aan CHROUT                                                                                                                                                                                                                                                                  |
+| `muziek afspelen`                     | Vereist `load sid` of een `tune` blok; er wordt slechts één CIA1 wrapper uitgezonden (de laatste `music play` wint)                                                                                                                                                                                                                      |
+| `grafische weergave op dubbel`        | Alleen voor huurlingen; gebruikt `$4000–$7FFF` voor de backbuffer, dus programmacode moet onder `$4400` blijven; niet combineerbaar met sprites of meerkleurig                                                                                                                                                                           |
+| Foutrapportage                        | Alleen tijdens het compileren; `onerr goto` behandelt kernel-I/O-fouten tijdens de uitvoering.                                                                                                                                                                                                                                           |

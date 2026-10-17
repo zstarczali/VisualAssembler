@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "tools-261",
+  id: "lessons-262",
   url: "https://www.c64va.pro/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.6.1-ben",
+    eyebrow: "Újdonság a 2.6.2-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<ul><li><strong>VICE Monitor</strong>: hot reload a futó VICE-ba, élő változók és profiler.</li><li><strong>Táblagenerátor</strong>: sorcímek, maszkok, szorzó- / osztótáblák, log / exp, saját képlet és speedcode.</li><li><strong>Ciklusszámok és optimalizálási tippek</strong> az Expert szerkesztőben.</li><li><strong>Zero page foglaltság</strong> és leválasztható memóriaablak.</li><li><strong>Ultimate Basic</strong>: kódméret soronként, tippek, sprite export animációval.</li><li><strong>.sid export</strong> a SID szerkesztőből és <strong>sprite multiplexer</strong> sablon.</li></ul><p>Kérdés, ötlet vagy hiba: <strong>Menu → Támogatás</strong>.</p>`,
+    body: `<ul><li><strong>HVSC a SID Playerben</strong>: keresés kb. 61 000 C64 dalban, lejátszás, mentés, a teljes gyűjtemény letöltése offline használatra.</li><li><strong>Spektrum-analizátor</strong> a SID Playerhez.</li><li><strong>Lecke-szerkesztő</strong>: a saját programodból lépésről lépésre vezetett lecke.</li><li><strong>Online leckék</strong> a www.c64va.pro-ról, egy kattintással.</li><li><strong>Minden makró az operandus mezőben</strong> kapja a paramétereit (<code>SET_BG $06</code>, <code>REGION Main</code> …).</li></ul><p>Kérdés, ötlet vagy hiba: <strong>Menu → Támogatás</strong>.</p>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.6.1",
+    eyebrow: "New in 2.6.2",
     title: "Welcome to Visual Assembler",
-    body: `<ul><li><strong>VICE Monitor</strong>: hot reload into the running VICE, live watch and a profiler.</li><li><strong>Table Generator</strong>: row addresses, masks, multiply / divide tables, log / exp, custom formulas and speedcode.</li><li><strong>Cycle counts and optimisation hints</strong> in the Expert editor.</li><li><strong>Zero page usage</strong> and a detachable memory window.</li><li><strong>Ultimate Basic</strong>: code size per line, hints, sprite export with animation.</li><li><strong>.sid export</strong> from the SID Editor and a <strong>sprite multiplexer</strong> template.</li></ul><p>Questions, ideas or bugs: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>HVSC in the SID Player</strong>: search about 61,000 C64 tunes, play, save, download the whole collection for offline use.</li><li><strong>Spectrum analyzer</strong> for the SID Player.</li><li><strong>Lesson Editor</strong>: a step-by-step guided lesson from your own program.</li><li><strong>Online lessons</strong> from www.c64va.pro, with one click.</li><li><strong>Every macro takes its parameters</strong> in the operand field (<code>SET_BG $06</code>, <code>REGION Main</code> …).</li></ul><p>Questions, ideas or bugs: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.6.1",
+    eyebrow: "Novedad en la 2.6.2",
     title: "Bienvenido a Visual Assembler",
-    body: `<ul><li><strong>Monitor de VICE</strong>: recarga en caliente en el VICE en marcha, vigilancia en vivo y perfilador.</li><li><strong>Generador de tablas</strong>: direcciones de fila, máscaras, tablas de multiplicar / dividir, log / exp, fórmulas propias y speedcode.</li><li><strong>Ciclos y sugerencias de optimización</strong> en el editor Expert.</li><li><strong>Uso de la página cero</strong> y ventana de memoria separable.</li><li><strong>Ultimate Basic</strong>: tamaño de código por línea, sugerencias, exportación de sprites con animación.</li><li><strong>Exportación .sid</strong> desde el editor SID y plantilla de <strong>multiplexor de sprites</strong>.</li></ul><p>Preguntas, ideas o errores: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>HVSC en el SID Player</strong>: busca entre unos 61.000 temas de C64, reproduce, guarda y descarga la colección completa para usarla sin conexión.</li><li><strong>Analizador de espectro</strong> para el SID Player.</li><li><strong>Editor de lecciones</strong>: una lección guiada paso a paso a partir de tu propio programa.</li><li><strong>Lecciones en línea</strong> de www.c64va.pro, con un clic.</li><li><strong>Todas las macros reciben sus parámetros</strong> en el campo de operando (<code>SET_BG $06</code>, <code>REGION Main</code> …).</li></ul><p>Preguntas, ideas o errores: <strong>Menu → Support</strong>.</p>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.6.1",
+    eyebrow: "Neu in 2.6.2",
     title: "Willkommen bei Visual Assembler",
-    body: `<ul><li><strong>VICE-Monitor</strong>: Hot Reload in den laufenden VICE, Live-Watch und Profiler.</li><li><strong>Tabellengenerator</strong>: Zeilenadressen, Masken, Multiplikations- / Divisionstabellen, Log / Exp, eigene Formeln und Speedcode.</li><li><strong>Taktzyklen und Optimierungshinweise</strong> im Expert-Editor.</li><li><strong>Zero-Page-Belegung</strong> und abdockbares Speicherfenster.</li><li><strong>Ultimate Basic</strong>: Codegröße pro Zeile, Hinweise, Sprite-Export mit Animation.</li><li><strong>.sid-Export</strong> aus dem SID-Editor und eine <strong>Sprite-Multiplexer</strong>-Vorlage.</li></ul><p>Fragen, Ideen oder Fehler: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>HVSC im SID Player</strong>: rund 61.000 C64-Stücke durchsuchen, abspielen, speichern und die ganze Sammlung für die Offline-Nutzung laden.</li><li><strong>Spektrumanalysator</strong> für den SID Player.</li><li><strong>Lektionseditor</strong>: eine geführte Schritt-für-Schritt-Lektion aus deinem eigenen Programm.</li><li><strong>Online-Lektionen</strong> von www.c64va.pro, mit einem Klick.</li><li><strong>Jedes Makro erhält seine Parameter</strong> im Operandenfeld (<code>SET_BG $06</code>, <code>REGION Main</code> …).</li></ul><p>Fragen, Ideen oder Fehler: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.6.1",
+    eyebrow: "Nieuw in 2.6.2",
     title: "Welkom bij Visual Assembler",
-    body: `<ul><li><strong>VICE-monitor</strong>: hot reload in de draaiende VICE, live watch en een profiler.</li><li><strong>Tabelgenerator</strong>: rijadressen, maskers, vermenigvuldig- / deeltabellen, log / exp, eigen formules en speedcode.</li><li><strong>Cycli en optimalisatietips</strong> in de Expert-editor.</li><li><strong>Zero page-gebruik</strong> en een losmaakbaar geheugenvenster.</li><li><strong>Ultimate Basic</strong>: codegrootte per regel, tips, sprite-export met animatie.</li><li><strong>.sid-export</strong> vanuit de SID-editor en een <strong>sprite-multiplexer</strong>-sjabloon.</li></ul><p>Vragen, ideeën of bugs: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>HVSC in de SID Player</strong>: zoek in zo'n 61.000 C64-nummers, speel af, sla op en download de hele collectie voor offline gebruik.</li><li><strong>Spectrumanalyser</strong> voor de SID Player.</li><li><strong>Lesseneditor</strong>: een stap-voor-stap begeleide les uit je eigen programma.</li><li><strong>Online lessen</strong> van www.c64va.pro, met één klik.</li><li><strong>Elke macro krijgt zijn parameters</strong> in het operandveld (<code>SET_BG $06</code>, <code>REGION Main</code> …).</li></ul><p>Vragen, ideeën of bugs: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.6.1",
+    eyebrow: "Nowość w 2.6.2",
     title: "Witamy w Visual Assembler",
-    body: `<ul><li><strong>Monitor VICE</strong>: hot reload do działającego VICE, podgląd na żywo i profiler.</li><li><strong>Generator tablic</strong>: adresy wierszy, maski, tablice mnożenia / dzielenia, log / exp, własne wzory i speedcode.</li><li><strong>Liczba cykli i wskazówki optymalizacji</strong> w edytorze Expert.</li><li><strong>Użycie strony zerowej</strong> i odłączane okno pamięci.</li><li><strong>Ultimate Basic</strong>: rozmiar kodu na linię, wskazówki, eksport sprite'ów z animacją.</li><li><strong>Eksport .sid</strong> z edytora SID i szablon <strong>multipleksera sprite'ów</strong>.</li></ul><p>Pytania, pomysły lub błędy: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>HVSC w SID Playerze</strong>: wyszukiwanie wśród ok. 61 000 utworów C64, odtwarzanie, zapis i pobranie całej kolekcji do pracy offline.</li><li><strong>Analizator widma</strong> dla SID Playera.</li><li><strong>Edytor lekcji</strong>: lekcja prowadzona krok po kroku z twojego własnego programu.</li><li><strong>Lekcje online</strong> z www.c64va.pro, jednym kliknięciem.</li><li><strong>Każde makro przyjmuje parametry</strong> w polu operandu (<code>SET_BG $06</code>, <code>REGION Main</code> …).</li></ul><p>Pytania, pomysły lub błędy: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.6.1",
+    eyebrow: "Novità nella 2.6.2",
     title: "Benvenuto in Visual Assembler",
-    body: `<ul><li><strong>Monitor VICE</strong>: hot reload nel VICE in esecuzione, watch dal vivo e profiler.</li><li><strong>Generatore di tabelle</strong>: indirizzi di riga, maschere, tabelle di moltiplicazione / divisione, log / exp, formule proprie e speedcode.</li><li><strong>Cicli e suggerimenti di ottimizzazione</strong> nell'editor Expert.</li><li><strong>Uso della pagina zero</strong> e finestra della memoria sganciabile.</li><li><strong>Ultimate Basic</strong>: dimensione del codice per riga, suggerimenti, esportazione sprite con animazione.</li><li><strong>Esportazione .sid</strong> dall'editor SID e modello di <strong>multiplexer di sprite</strong>.</li></ul><p>Domande, idee o bug: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>HVSC nel SID Player</strong>: cerca tra circa 61.000 brani C64, riproduci, salva e scarica l'intera collezione per l'uso offline.</li><li><strong>Analizzatore di spettro</strong> per il SID Player.</li><li><strong>Editor delle lezioni</strong>: una lezione guidata passo passo dal tuo programma.</li><li><strong>Lezioni online</strong> da www.c64va.pro, con un clic.</li><li><strong>Ogni macro riceve i parametri</strong> nel campo operando (<code>SET_BG $06</code>, <code>REGION Main</code> …).</li></ul><p>Domande, idee o bug: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -2430,7 +2430,9 @@ function setupDraggableEditorDialogs() {
     ["d64-editor-dialog", ".de-hdr"],
     ["d64-block-editor-dialog", ".dbe-hdr"],
     ["project-snapshot-dialog", ".project-snapshot-hdr"],
-    ["support-dialog", ".support-hdr"]
+    ["support-dialog", ".support-hdr"],
+    ["tut-editor-dialog", ".te-hdr"],
+    ["sid-viz-dialog", ".sid-viz-hdr"]
   ];
   dialogs.forEach(function(entry) {
     const dialogId = entry[0];
@@ -4083,6 +4085,16 @@ function _applyEditorTranslations() {
   setAttr("#websid-play-fwd", t("sidPlayerForward10"));
   setAttr("#websid-play-add", t("sidPlayerAdd"));
   setAttr("#websid-play-clear", t("sidPlayerClear"));
+  _teApplyTranslations();
+  setAttr("#websid-play-hvsc", t("sidHvsc"));
+  setAttr("#websid-play-viz", t("sidVizOpen"));
+  setText("#sid-viz-title", t("sidVizTitle"));
+  setText("#sid-viz-bands-lbl", t("sidVizBands"));
+  setAttr("#websid-hvsc-random", t("sidHvscRandom"));
+  setAttr("#websid-hvsc-add-all", t("sidHvscAddAll"));
+  setAttr("#websid-hvsc-refresh", t("sidHvscRefresh"));
+  setAttr("#websid-hvsc-search", t("sidHvscSearch"));
+  document.getElementById("websid-hvsc-search")?.setAttribute("placeholder", t("sidHvscSearch"));
   setAttr("#websid-play-open-list", t("sidPlayerOpenList"));
   setAttr("#websid-play-song-prev", t("sidPlayerPrevSong"));
   setAttr("#websid-play-song-next", t("sidPlayerNextSong"));
@@ -4504,7 +4516,9 @@ function updateOperandField() {
   const needsRawTextOperand = item?.isRawTextMacro;
   const needsPetsciiOperand = item?.isPetsciiMacro;
   const needsCommentOperand = item?.isComment;
-  operandInput.disabled = hideOperandField || !(mode.needsOperand || needsTextOperand || needsByteOperand || needsStringOperand || needsDataOperand || needsRawBytesOperand || needsRawTextOperand || needsPetsciiOperand || needsCommentOperand) || item?.isIncBinMacro || item?.isIncludeMacro;
+  const operandKind = _paletteOperandKindNow(item);
+  const macroArgs = item?.isLabel ? "start" : _paletteIsMacro(item) ? _paletteMacroSyntax(item)?.args : "";
+  operandInput.disabled = hideOperandField || !operandKind;
   operandInput.placeholder = needsTextOperand
     ? (currentLanguage === "hu" ? "Peldaul HELLO C64" : "For example HELLO C64")
     : needsByteOperand
@@ -4519,9 +4533,9 @@ function updateOperandField() {
               ? (currentLanguage === "hu" ? "Peldaul HELLO" : "For example HELLO")
               : needsCommentOperand
                 ? (currentLanguage === "hu" ? "Peldaul border scroll demo" : "For example border scroll demo")
-                : getOperandPlaceholder(mode, getSelectedBase());
+                : macroArgs || getOperandPlaceholder(mode, getSelectedBase());
 
-  if (!mode.needsOperand && !needsTextOperand && !needsByteOperand && !needsStringOperand && !needsDataOperand && !needsRawBytesOperand && !needsRawTextOperand && !needsCommentOperand) {
+  if (!operandKind) {
     operandInput.value = "";
   }
 }
@@ -4837,7 +4851,84 @@ function getSelectedMnemonic() {
   return mnemonicLibrary[category].find((item) => item.mnemonic === mnemonicSelect.value);
 }
 
+/* ── Palette operand rule ─────────────────────────────────────────────────
+ * Every macro with parameters takes them in the operand field, as the text
+ * after its Expert keyword (".set_bg $06", ".region Main", "* = $C000").
+ * "field": the palette branch reads the field itself (TEXT, BYTE, LABEL …) or
+ * the addressing mode needs an operand; "parse": the text is parsed as the
+ * macro's Expert line. File macros keep their own file picker. */
+const _PALETTE_OPERAND_FLAGS = ["isLabel", "isComment", "isTextMacro", "isByteMacro", "isStringMacro", "isDataMacro", "isRawBytesMacro",
+  "isRawTextMacro", "isPetsciiMacro", "isWordMacro", "isFillMacro", "isAlignMacro", "isDefineMacro", "isIfMacro", "isMacroDefStart",
+  "isRegionMacro", "isAssertMacro", "isLevelRowMacro", "isLongBranchMacro"];
+const _PALETTE_FILE_FLAGS = ["isIncBinMacro", "isIncludeMacro", "isSidMacro", "isTableMacro"];
+// ".set_bg $06" → { keyword: ".set_bg", args: "$06" }; "* = $C000" → { keyword: "* =", args: "$C000" }
+function _macroLineArgs(line) {
+  const text = String(line || "").trim();
+  const org = /^\*\s*=\s*(.+)$/.exec(text);
+  if (org) return { keyword: "* =", args: org[1].trim() };
+  const m = /^(\.[A-Za-z_][A-Za-z0-9_]*)\s+(.+)$/.exec(text);
+  return m ? { keyword: m[1], args: m[2].trim() } : null;
+}
+function _paletteIsMacro(item) {
+  return Object.keys(item || {}).some(function(key) { return /^is[A-Z]/.test(key) && item[key] === true; });
+}
+// kind: "field" | "parse" | null; syntax(item) gives the macro's default { keyword, args }
+function _paletteOperandKind(item, mode, syntax) {
+  if (!item || _PALETTE_FILE_FLAGS.some(function(flag) { return item[flag]; })) return null;
+  if (_PALETTE_OPERAND_FLAGS.some(function(flag) { return item[flag]; })) return "field";
+  if (_paletteIsMacro(item)) return syntax(item)?.args ? "parse" : null;
+  return mode?.needsOperand ? "field" : null;
+}
+const _paletteSyntaxCache = new Map();
+// The macro's Expert syntax, from the block the palette makes by default.
+function _paletteMacroSyntax(item) {
+  if (!_paletteSyntaxCache.has(item.mnemonic)) {
+    let syntax = null;
+    // the default block, not one built from what is typed in the field now
+    const typed = operandInput.value;
+    operandInput.value = "";
+    try { syntax = _macroLineArgs(_blockToExpertLine(_createBlockFromPalette(item)).split("\n")[0]); } catch (_) {}
+    operandInput.value = typed;
+    _paletteSyntaxCache.set(item.mnemonic, syntax);
+  }
+  return _paletteSyntaxCache.get(item.mnemonic);
+}
+function _paletteOperandKindNow(item) {
+  return _paletteOperandKind(item, addressingModes[addressingSelect.value], _paletteMacroSyntax);
+}
+
 function createBlockFromMnemonic(item) {
+  return _paletteParseOperand(item, _createBlockFromPalette(item), operandInput.value.trim(), _paletteOperandKindNow(item));
+}
+// A "parse" macro: the operand text becomes the arguments of its Expert line.
+function _paletteParseOperand(item, block, operand, kind) {
+  if (!operand || kind !== "parse") return block;
+  try {
+    const parsed = parseExpertText(_paletteMacroSyntax(item).keyword + " " + operand).find(function(b) { return b.mnemonic === block.mnemonic; });
+    if (parsed) return Object.assign(parsed, { id: block.id, category: block.category, description: block.description, collapsed: block.collapsed });
+  } catch (_) {}
+  return block;
+}
+// The Expert line the palette would make for a macro from this operand text
+// and number base; the palette fields themselves are left as they were.
+function _paletteMacroLine(item, mode, base, operand) {
+  const typed = operandInput.value;
+  const checked = Array.from(baseInputs || []).find(function(input) { return input.checked; });
+  const baseInput = Array.from(baseInputs || []).find(function(input) { return input.value === base; });
+  operandInput.value = operand || "";
+  if (baseInput) baseInput.checked = true;
+  try {
+    const kind = _paletteOperandKind(item, addressingModes[mode], _paletteMacroSyntax);
+    return _blockToExpertLine(_paletteParseOperand(item, _createBlockFromPalette(item), (operand || "").trim(), kind));
+  } catch (_) {
+    return null;
+  } finally {
+    operandInput.value = typed;
+    if (checked) checked.checked = true;
+  }
+}
+
+function _createBlockFromPalette(item) {
   if (item.isLabel) {
     const labelName = sanitizeLabelName(operandInput.value.trim() || "start");
     return {
@@ -34203,6 +34294,810 @@ function _runTutorialStepAction(actionId) {
   }
 }
 
+/* ── Tutorial texts and user lessons (Tutorial Editor) ─────────────────
+ * A text is stored per language (titleHu, titleEn, …); a missing language
+ * falls back to English, Hungarian, any other, and last to the generated
+ * text (titleAuto). A user lesson ("va-tutorial") is a list of items: text
+ * steps and instructions; each instruction expands into the guided
+ * sub-steps of the built-in lesson: pick the mnemonic, type the operand,
+ * press Add. */
+const _TUT_LANG_SUFFIX = { hu: "Hu", en: "En", es: "Es", de: "De", nl: "Nl", pl: "Pl", it: "It" };
+const _TUT_FORMAT = "va-tutorial";
+
+function _tutText(obj, field, lang) {
+  if (!obj) return "";
+  const own = obj[field + (_TUT_LANG_SUFFIX[lang] || "En")];
+  if (own) return own;
+  for (const sfx of ["En", "Hu", "Es", "De", "Nl", "Pl", "It"]) {
+    if (obj[field + sfx]) return obj[field + sfx];
+  }
+  return obj[field + "Auto"] || "";
+}
+// The texts an author wrote for every language, copied onto a generated step.
+function _tutOwnTexts(item) {
+  const out = {};
+  Object.keys(item || {}).forEach(function(key) {
+    if (/^(title|desc)(Hu|En|Es|De|Nl|Pl|It)$/.test(key) && item[key]) out[key] = item[key];
+  });
+  return out;
+}
+// Another mnemonic of the same palette category, preselected so that the
+// student has to pick the right one; null when the category has no other.
+function _tutDecoyMnemonic(library, category, mnemonic) {
+  const other = (library?.[category] || []).find(function(item) { return item.mnemonic !== mnemonic; });
+  return other ? other.mnemonic : null;
+}
+// The operand text that recreates a block on the palette (_paletteOperandKind):
+// the field the palette branch fills, the arguments of the macro's Expert line,
+// or the instruction operand; null when the palette takes no operand for it.
+const _TUT_OPERAND_FIELDS = { isLabel: "labelName", isRegionMacro: "regionName", isMacroDefStart: "macroName", isDefineMacro: "defineSymbol", isIfMacro: "ifCondition" };
+function _tutOperandText(block, item, mode, modes, line) {
+  const kind = _paletteOperandKind(item, modes?.[mode], function() { return _macroLineArgs(line); });
+  if (!kind) return null;
+  if (kind === "parse") return _macroLineArgs(line)?.args ?? null;
+  for (const [flag, field] of Object.entries(_TUT_OPERAND_FIELDS)) {
+    if (item[flag]) return String(block[field] || block.rawOperand || "");
+  }
+  return String(block.rawOperand ?? "");
+}
+function _tutIsMacro(block) {
+  return Object.keys(block || {}).some(function(key) { return /^is[A-Z]/.test(key) && block[key] === true; });
+}
+// The mode the palette ends up in: the block's, if the mnemonic offers it.
+function _tutPaletteMode(item, block) {
+  const modes = item?.modes || [];
+  return modes.includes(block.addressingMode) ? block.addressingMode : (modes[0] || block.addressingMode || "implied");
+}
+// The palette category that holds the mnemonic: blocks read from Expert text
+// carry a generic category (e.g. REGION as "Makrok", on the palette "Szerkezet").
+function _tutCategoryOf(library, block) {
+  const has = function(cat) { return (library?.[cat] || []).some(function(item) { return item.mnemonic === block.mnemonic; }); };
+  if (has(block.category)) return block.category;
+  return Object.keys(library || {}).find(has) || block.category;
+}
+// A block as stored in a lesson: no id, no editor state, no file contents.
+function _tutBlockSnapshot(block) {
+  const copy = JSON.parse(JSON.stringify(block));
+  ["id", "collapsed", "incBinBytes", "_koalaData"].forEach(function(key) { delete copy[key]; });
+  return copy;
+}
+// Lesson items from a program: one instruction step per block; the leading
+// ORG block is the empty program's own and only sets its address.
+function _tutItemsFromBlocks(blocks) {
+  const items = [];
+  let org = null;
+  (blocks || []).forEach(function(block, index) {
+    if (block.isBlankLine) return;
+    if (index === 0 && block.isOrgMacro) { org = block.orgAddress || null; return; }
+    items.push({ kind: "instr", block: _tutBlockSnapshot(block) });
+  });
+  return { items, org };
+}
+// h: { t, tf, library, line(block) }
+function _tutExpandItems(data, h) {
+  const steps = [];
+  const items = Array.isArray(data?.items) ? data.items : [];
+  const total = items.filter(function(item) { return item.kind === "instr"; }).length;
+  let n = 0;
+  items.forEach(function(item) {
+    const own = _tutOwnTexts(item);
+    if (item.kind !== "instr") {
+      steps.push(Object.assign({ target: item.target || null, titleAuto: h.t("tutEdKindText") }, own));
+      return;
+    }
+    n++;
+    const block = item.block || {};
+    const prefix = n + "/" + total + " — ";
+    const line = h.line(block);
+    const category = _tutCategoryOf(h.library, block);
+    const libItem = (h.library?.[category] || []).find(function(i) { return i.mnemonic === block.mnemonic; });
+    const mode = { addressingMode: _tutPaletteMode(libItem, block), base: ["hex", "dec", "bin"].includes(block.base) ? block.base : null };
+    // the operand typed on the palette; the parameter step fixes whatever it cannot set
+    const raw = _tutOperandText(block, libItem, mode.addressingMode, h.modes, h.line(block)) || "";
+    // the parameter step only where the palette's block differs from the lesson's
+    // (a TEXT position, an address the field does not take …)
+    const norm = function(text) { return String(text || "").replace(/\s+/g, " ").trim(); };
+    const paletteLine = _tutIsMacro(block) && h.paletteLine ? h.paletteLine(libItem, mode.addressingMode, block.base, raw) : null;
+    const macro = paletteLine !== null
+      ? norm(paletteLine) !== norm(h.fullLine ? h.fullLine(block) : h.line(block))
+      : _tutIsMacro(block) || (!raw && String(block.rawOperand ?? "") !== "");
+    const decoy = _tutDecoyMnemonic(h.library, category, block.mnemonic);
+    const palette = { category, mnemonic: decoy || block.mnemonic, addressingMode: mode.addressingMode, operand: "", base: mode.base };
+    const sub = [];
+    if (decoy) {
+      sub.push({
+        target: "#mnemonic-select", prepPalette: palette, advanceOnTargetChange: true, targetValue: block.mnemonic,
+        titleAuto: prefix + h.tf("tutGenSelectTitle", { mnemonic: block.mnemonic }),
+        descAuto: h.tf("tutGenSelectDesc", { mnemonic: block.mnemonic, line }),
+      });
+    }
+    if (raw) {
+      sub.push({
+        target: "#operand-input", advanceOnTargetInput: true, targetValue: raw,
+        titleAuto: prefix + h.tf("tutGenTypeTitle", { value: raw }),
+        descAuto: h.tf("tutGenTypeDesc", { value: raw, line }),
+      });
+    }
+    sub.push({
+      target: "#add-selected", advanceOnTargetClick: true, trackAdded: true,
+      titleAuto: prefix + h.tf("tutGenAddTitle", { line }),
+      descAuto: h.t("tutGenAddDesc"),
+    });
+    // macro parameters outside the operand field are set in the added block;
+    // the step passes by itself once the block reads like the lesson's
+    if (macro) {
+      sub.push({
+        target: null, adjust: { block, auto: !!data.autoParams },
+        titleAuto: prefix + h.t("tutGenAdjustTitle"),
+        descAuto: h.tf("tutGenAdjustDesc", { line }),
+      });
+    }
+    // the mnemonic step sets up the palette; later sub-steps only restore the
+    // addressing mode, which picking the mnemonic may have changed
+    sub.forEach(function(step, i) {
+      if (i === 0 && !decoy) step.prepPalette = palette;
+      else if (i > 0 && !step.adjust) step.prepMode = mode;
+    });
+    Object.assign(sub[0], own);
+    steps.push.apply(steps, sub);
+  });
+  if (data?.clearProgram !== false && steps.length) steps[0].prepEmpty = { org: data.org || null };
+  return steps;
+}
+function _tutLessonFromData(data, h) {
+  const lesson = {
+    id: data.id, category: typeof data.category === "string" && data.category ? data.category : "custom", type: "lesson", interactive: true, user: true,
+    difficulty: [1, 2, 3].includes(data.difficulty) ? data.difficulty : 1,
+    steps: _tutExpandItems(data, h),
+  };
+  Object.keys(data).forEach(function(key) {
+    if (/^(title|desc)(Hu|En|Es|De|Nl|Pl|It)$/.test(key)) lesson[key] = data[key];
+  });
+  return lesson;
+}
+
+// An online lesson against the installed ones: "new", "update" (the site has a
+// higher rev) or "installed".
+function _tutOnlineState(entry, installed) {
+  const local = (installed || []).find(function(l) { return l.id === entry.id; });
+  if (!local) return "new";
+  return (Number(entry.rev) || 0) > (Number(local.rev) || 0) ? "update" : "installed";
+}
+
+let _tutUserLessons = [];
+let _teData = null;
+let _teSel = -1;
+let _teDirty = false;
+let _teShownSel = -1;
+let _tutLastAddedId = null;
+let _tutAdjustTimer = 0;
+let _tourLastShown = -1;
+const _TUT_USER_STORE = "c64va-user-tutorials";
+const _TE_TARGETS = [
+  ["", "tutEdTargetNone"],
+  [".palette-panel", "tutEdTargetPalette"],
+  [".program-panel", "tutEdTargetProgram"],
+  [".output-panel", "tutEdTargetAsm"],
+  ["#run-emulator", "tutEdTargetRun"],
+  [".global-memory-panel", "tutEdTargetMemory"],
+];
+
+function _tutHelpers() {
+  return {
+    t, tf,
+    library: mnemonicLibrary,
+    modes: addressingModes,
+    paletteLine: function(item, mode, base, operand) { return item ? _paletteMacroLine(item, mode, base, operand) : null; },
+    fullLine: function(block) { try { return _blockToExpertLine(block); } catch (_) { return ""; } },
+    line: function(block) {
+      try { return _blockToExpertLine(block).split("\n")[0].trim() || block.mnemonic; } catch (_) { return block.mnemonic || ""; }
+    },
+  };
+}
+function _tutLangSuffix() {
+  return _TUT_LANG_SUFFIX[currentLanguage] || "En";
+}
+// Puts the user lessons (expanded in the current language) into TUTORIAL_DATA.
+function _tutSyncUserLessons() {
+  TUTORIAL_DATA.lessons = TUTORIAL_DATA.lessons.filter(function(lesson) { return !lesson.user; });
+  let cat = TUTORIAL_DATA.categories.find(function(c) { return c.id === "custom"; });
+  if (!cat) { cat = { id: "custom" }; TUTORIAL_DATA.categories.push(cat); }
+  cat.labelAuto = t("tutCustomCategory");
+  const h = _tutHelpers();
+  const known = new Set(TUTORIAL_DATA.categories.map(function(c) { return c.id; }));
+  _tutUserLessons.forEach(function(data) {
+    const lesson = _tutLessonFromData(data, h);
+    if (!known.has(lesson.category)) lesson.category = "custom";
+    TUTORIAL_DATA.lessons.push(lesson);
+  });
+}
+async function _tutLoadUserLessons() {
+  let lessons = [];
+  if (window.electronAPI?.listUserTutorials) {
+    try { lessons = (await window.electronAPI.listUserTutorials())?.lessons || []; } catch (_) {}
+  } else {
+    try { lessons = JSON.parse(localStorage.getItem(_TUT_USER_STORE) || "[]"); } catch (_) {}
+  }
+  _tutUserLessons = (Array.isArray(lessons) ? lessons : []).filter(function(l) { return l && l.format === _TUT_FORMAT && l.id; });
+}
+async function _tutStoreUserLesson(data) {
+  const index = _tutUserLessons.findIndex(function(l) { return l.id === data.id; });
+  if (index >= 0) _tutUserLessons[index] = data; else _tutUserLessons.push(data);
+  if (window.electronAPI?.saveUserTutorial) await window.electronAPI.saveUserTutorial(data);
+  else localStorage.setItem(_TUT_USER_STORE, JSON.stringify(_tutUserLessons));
+}
+async function _tutRemoveUserLesson(id) {
+  _tutUserLessons = _tutUserLessons.filter(function(l) { return l.id !== id; });
+  if (window.electronAPI?.deleteUserTutorial) await window.electronAPI.deleteUserTutorial(id);
+  else localStorage.setItem(_TUT_USER_STORE, JSON.stringify(_tutUserLessons));
+}
+
+// ── Engine hooks used by the expanded steps ──
+function _tutPrepareEmpty(org) {
+  if (_tourPreparedLessonId === _tourLessonId) return;
+  _tourPreparedLessonId = _tourLessonId;
+  if (expertMode) {
+    setExpertMode(false);
+    if (expertModeToggle) expertModeToggle.checked = false;
+  }
+  doClearProgram();
+  if (org && program[0]?.isOrgMacro) program[0].orgAddress = org;
+  selectedBlockId = null;
+  renderProgram();
+  renderAsmOutput();
+  renderMemoryMap();
+  renderMonitorOutput();
+}
+function _tutApplyMode(mode) {
+  if (addressingSelect && mode.addressingMode && Array.from(addressingSelect.options).some(function(o) { return o.value === mode.addressingMode; })) {
+    addressingSelect.value = mode.addressingMode;
+    handleAddressingChange();
+  }
+  if (mode.base) {
+    const baseInput = Array.from(baseInputs || []).find(function(input) { return input.value === mode.base; });
+    if (baseInput && !baseInput.checked) { baseInput.checked = true; handleBaseChange(); }
+  }
+  updateOperandField();
+}
+// The block the student has just added takes every field of the lesson's
+// block (text position, macro options …) the palette cannot set.
+function _tutNormLine(text) {
+  return String(text || "").replace(/\s+/g, " ").trim();
+}
+function _tutAddedBlockMatches(snapshot) {
+  const block = program.find(function(b) { return b.id === _tutLastAddedId; });
+  if (!block) return false;
+  try { return _tutNormLine(_blockToExpertLine(block)) === _tutNormLine(_blockToExpertLine(snapshot)); } catch (_) { return false; }
+}
+function _tourAdvance() {
+  if (!_tourActive) return;
+  if (_tourCurrentStep >= _tourSteps.length - 1) { _tourEnd(); return; }
+  _tourCurrentStep += 1;
+  _tourShowStep(_tourCurrentStep);
+}
+// The "set the parameters" step: points at the added block, fills it in when
+// the lesson asks for that, and passes on as soon as the block matches.
+// Returns true when the step is skipped (only when moving forward).
+function _tutEnterAdjust(step, forward) {
+  const id = _tutLastAddedId && program.some(function(b) { return b.id === _tutLastAddedId; }) ? _tutLastAddedId : null;
+  step.target = id ? '[data-block-id="' + id + '"]' : null;
+  if (step.adjust.auto && id) _tutApplyAddedBlock(step.adjust.block);
+  if (forward && _tutAddedBlockMatches(step.adjust.block)) {
+    setTimeout(_tourAdvance, 0);
+    return true;
+  }
+  if (_tourInteractiveMode) {
+    _tutAdjustTimer = setInterval(function() {
+      if (!_tourActive || !_tutAddedBlockMatches(step.adjust.block)) return;
+      clearInterval(_tutAdjustTimer);
+      _tutAdjustTimer = 0;
+      _tourAdvance();
+    }, 400);
+  }
+  return false;
+}
+function _tutApplyAddedBlock(snapshot) {
+  const block = program.find(function(b) { return b.id === _tutLastAddedId; });
+  if (!block || block.mnemonic !== snapshot.mnemonic) return;
+  Object.assign(block, JSON.parse(JSON.stringify(snapshot)), { id: block.id, collapsed: block.collapsed });
+  markTabDirty();
+  renderProgram();
+  renderAsmOutput();
+  renderMemoryMap();
+}
+
+// ── Tutorial Editor dialog ──
+function _teNewLesson() {
+  const data = { format: _TUT_FORMAT, version: 1, id: "user-" + crypto.randomUUID().slice(0, 8), category: "custom", difficulty: 1, clearProgram: true, items: [] };
+  data["title" + _tutLangSuffix()] = t("tutEdUntitled");
+  return data;
+}
+function _teMarkDirty() {
+  _teDirty = true;
+  _teRenderMeta();
+}
+function _teRenderMeta() {
+  const meta = document.getElementById("te-meta");
+  if (meta) meta.textContent = tf("tutEdLangNote", { lang: currentLanguage.toUpperCase() }) + (_teDirty ? " · " + t("tutEdUnsaved") : "");
+}
+function _teRenderLessonSelect() {
+  const select = document.getElementById("te-lesson");
+  if (!select) return;
+  select.textContent = "";
+  const lessons = _tutUserLessons.slice();
+  if (_teData && !lessons.some(function(l) { return l.id === _teData.id; })) lessons.push(_teData);
+  lessons.forEach(function(lesson) {
+    const option = document.createElement("option");
+    option.value = lesson.id;
+    option.textContent = _tutText(lesson, "title", currentLanguage) || lesson.id;
+    select.appendChild(option);
+  });
+  if (_teData) select.value = _teData.id;
+}
+function _teItemLabel(item, h) {
+  if (item.kind === "instr") return _tutText(item, "title", currentLanguage) || h.line(item.block || {});
+  return _tutText(item, "title", currentLanguage) || t("tutEdKindText");
+}
+function _teRender() {
+  if (!_teData) return;
+  const h = _tutHelpers();
+  const sfx = _tutLangSuffix();
+  const name = document.getElementById("te-name");
+  if (name && document.activeElement !== name) name.value = _teData["title" + sfx] || "";
+  if (name) name.placeholder = _tutText(_teData, "title", currentLanguage);
+  const desc = document.getElementById("te-desc");
+  if (desc && document.activeElement !== desc) desc.value = _teData["desc" + sfx] || "";
+  if (desc) desc.placeholder = _tutText(_teData, "desc", currentLanguage);
+  const diff = document.getElementById("te-diff");
+  if (diff) diff.value = String(_teData.difficulty || 1);
+  const clear = document.getElementById("te-clear");
+  if (clear) clear.checked = _teData.clearProgram !== false;
+  const autoBox = document.getElementById("te-auto");
+  if (autoBox) autoBox.checked = !!_teData.autoParams;
+  const cat = document.getElementById("te-cat");
+  if (cat) {
+    cat.textContent = "";
+    const cats = TUTORIAL_DATA.categories.filter(function(c) { return c.id !== "custom"; }).concat([{ id: "custom", labelAuto: t("tutCustomCategory") }]);
+    cats.forEach(function(c) {
+      const option = document.createElement("option");
+      option.value = c.id;
+      option.textContent = c.id === "custom" ? t("tutCustomCategory") : _tutText(c, "label", currentLanguage);
+      cat.appendChild(option);
+    });
+    cat.value = cats.some(function(c) { return c.id === _teData.category; }) ? _teData.category : "custom";
+  }
+  const list = document.getElementById("te-steps");
+  if (list) {
+    list.textContent = "";
+    _teData.items.forEach(function(item, index) {
+      const li = document.createElement("li");
+      li.className = "te-step" + (index === _teSel ? " te-step--sel" : "") + (item.kind === "instr" ? " te-step--instr" : "");
+      li.dataset.index = String(index);
+      li.textContent = _teItemLabel(item, h);
+      list.appendChild(li);
+    });
+  }
+  const item = _teData.items[_teSel];
+  document.getElementById("te-step-empty").hidden = !!item;
+  document.getElementById("te-step-empty").textContent = t("tutEdNoStep");
+  document.getElementById("te-step-fields").hidden = !item;
+  ["te-up", "te-down", "te-remove"].forEach(function(id) {
+    const btn = document.getElementById(id);
+    if (btn) btn.disabled = !item;
+  });
+  if (document.getElementById("te-up")) document.getElementById("te-up").disabled = !item || _teSel === 0;
+  if (document.getElementById("te-down")) document.getElementById("te-down").disabled = !item || _teSel === _teData.items.length - 1;
+  document.getElementById("te-try").disabled = !_teData.items.length;
+  _teRenderMeta();
+  // a newly selected step always fills the fields, even the focused one
+  const fresh = _teShownSel !== _teSel;
+  _teShownSel = _teSel;
+  if (!item) return;
+  const auto = _tutExpandItems({ items: [item], clearProgram: false }, h);
+  const autoText = function(field) { return auto[0] ? _tutText(auto[0], field, currentLanguage).replace(/^\d+\/\d+ — /, "") : ""; };
+  document.getElementById("te-step-kind").textContent = item.kind === "instr" ? tf("tutEdKindInstr", { line: h.line(item.block || {}) }) : t("tutEdKindText");
+  const title = document.getElementById("te-step-title");
+  if (fresh || document.activeElement !== title) title.value = item["title" + sfx] || "";
+  title.placeholder = autoText("title");
+  const stepDesc = document.getElementById("te-step-desc");
+  if (fresh || document.activeElement !== stepDesc) stepDesc.value = item["desc" + sfx] || "";
+  stepDesc.placeholder = autoText("desc");
+  const targetWrap = document.getElementById("te-target-wrap");
+  targetWrap.hidden = item.kind === "instr";
+  const target = document.getElementById("te-step-target");
+  target.textContent = "";
+  _TE_TARGETS.forEach(function(entry) {
+    const option = document.createElement("option");
+    option.value = entry[0];
+    option.textContent = t(entry[1]);
+    target.appendChild(option);
+  });
+  target.value = item.target || "";
+  document.getElementById("te-step-auto").textContent = item.kind === "instr" ? tf("tutEdAutoNote", { count: auto.length }) : "";
+}
+async function _teConfirmDiscard() {
+  return !_teDirty || await _showConfirm(t("tutEdDiscardConfirm"));
+}
+function _teOpenLesson(data) {
+  _teData = JSON.parse(JSON.stringify(data));
+  if (!Array.isArray(_teData.items)) _teData.items = [];
+  _teSel = _teData.items.length ? 0 : -1;
+  _teShownSel = -2;
+  _teDirty = false;
+  _teRenderLessonSelect();
+  _teRender();
+}
+async function openTutorialEditor(lessonId) {
+  const dlg = document.getElementById("tut-editor-dialog");
+  if (!dlg) return;
+  await _tutLoadUserLessons();
+  const data = _tutUserLessons.find(function(l) { return l.id === lessonId; }) || _tutUserLessons[0] || _teNewLesson();
+  _teOpenLesson(data);
+  document.getElementById("tutorial-dialog")?.close();
+  if (!dlg.open) dlg.showModal();
+}
+async function _teSave() {
+  if (!_teData) return false;
+  // the online list offers an update when a published lesson has a higher rev
+  _teData.rev = (Number(_teData.rev) || 0) + 1;
+  try {
+    await _tutStoreUserLesson(JSON.parse(JSON.stringify(_teData)));
+  } catch (e) {
+    showViceToast(String(e?.message || e), true);
+    return false;
+  }
+  _teDirty = false;
+  _teRenderLessonSelect();
+  _teRender();
+  showViceToast(tf("tutEdSaved", { name: _tutText(_teData, "title", currentLanguage) }));
+  return true;
+}
+async function _teFromProgram() {
+  const blocks = expertMode ? _expertBuildProgram() : program;
+  const { items, org } = _tutItemsFromBlocks(blocks);
+  if (!items.length) { showViceToast(t("tutEdFromProgramEmpty"), true); return; }
+  if (_teData.items.length && !(await _showConfirm(t("tutEdFromProgramConfirm")))) return;
+  // the text steps stay in front of the new instruction steps
+  _teData.items = _teData.items.filter(function(item) { return item.kind !== "instr"; }).concat(items);
+  _teData.org = org;
+  _teSel = 0;
+  _teMarkDirty();
+  _teRender();
+}
+function _teAddText() {
+  const item = { kind: "text" };
+  item["title" + _tutLangSuffix()] = "";
+  _teData.items.splice(_teSel + 1, 0, item);
+  _teSel = _teSel + 1;
+  _teMarkDirty();
+  _teRender();
+  document.getElementById("te-step-title")?.focus();
+}
+function _teMove(delta) {
+  const to = _teSel + delta;
+  if (_teSel < 0 || to < 0 || to >= _teData.items.length) return;
+  const [item] = _teData.items.splice(_teSel, 1);
+  _teData.items.splice(to, 0, item);
+  _teSel = to;
+  _teMarkDirty();
+  _teRender();
+}
+function _teRemove() {
+  if (_teSel < 0) return;
+  _teData.items.splice(_teSel, 1);
+  _teSel = Math.min(_teSel, _teData.items.length - 1);
+  _teMarkDirty();
+  _teRender();
+}
+async function _teTry() {
+  if (!_teData?.items.length) return;
+  if (_teData.clearProgram !== false && !isProgramEmpty() && !(await _showConfirm(t("tutEdTryConfirm")))) return;
+  const lesson = _tutLessonFromData(_teData, _tutHelpers());
+  document.getElementById("tut-editor-dialog")?.close();
+  _tourStart(lesson.steps, lesson.id, true);
+}
+async function _teExport() {
+  if (!_teData) return;
+  const text = JSON.stringify(_teData, null, 1);
+  const slug = (_tutText(_teData, "title", currentLanguage) || _teData.id).replace(/[^A-Za-z0-9_-]+/g, "_").slice(0, 40) || "lesson";
+  const fileName = slug + ".vatut";
+  if (window.electronAPI?.saveBin) {
+    const res = await window.electronAPI.saveBin({ bytes: Array.from(new TextEncoder().encode(text)), fileName });
+    if (res && !res.ok && !res.canceled) showViceToast(res.error || "Export failed", true);
+    return;
+  }
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([text], { type: "application/json" }));
+  a.download = fileName;
+  a.click();
+  setTimeout(function() { URL.revokeObjectURL(a.href); }, 1000);
+}
+async function _teImport(file) {
+  let data = null;
+  try { data = JSON.parse(await file.text()); } catch (_) {}
+  if (!data || data.format !== _TUT_FORMAT || !Array.isArray(data.items)) {
+    showViceToast(tf("tutEdImportFailed", { name: file.name }), true);
+    return;
+  }
+  if (!/^[A-Za-z0-9_-]{1,64}$/.test(String(data.id)) || _tutUserLessons.some(function(l) { return l.id === data.id; })) {
+    data.id = "user-" + crypto.randomUUID().slice(0, 8);
+  }
+  await _tutStoreUserLesson(data);
+  _teOpenLesson(data);
+}
+async function _teDelete() {
+  if (!_teData) return;
+  if (!(await _showConfirm(tf("tutEdDeleteConfirm", { name: _tutText(_teData, "title", currentLanguage) })))) return;
+  await _tutRemoveUserLesson(_teData.id);
+  _teOpenLesson(_tutUserLessons[0] || _teNewLesson());
+}
+// ── Upload to www.c64va.pro (register/lesson.php → reviewed on the dashboard) ──
+const _TE_UPLOAD_ERRORS = { name: "tutUpNeedName", invalid_email: "tutUpBadEmail", empty: "tutUpEmpty", too_large: "tutUpTooLarge", rate: "tutUpRate", network: "bugNetwork" };
+function _teUploadStatus(text, error) {
+  const status = document.getElementById("te-up-status");
+  if (!status) return;
+  status.textContent = text || "";
+  status.classList.toggle("form-status--error", !!error);
+}
+function _teUploadOpen() {
+  if (!_teData?.items.length) { showViceToast(t("tutUpEmpty"), true); return; }
+  if (!window.electronAPI?.uploadTutorial) { showViceToast(t("tutUpDesktopOnly"), true); return; }
+  const dlg = document.getElementById("te-upload-dialog");
+  if (!dlg) return;
+  document.getElementById("te-up-intro").textContent = tf("tutUpIntro", { name: _tutText(_teData, "title", currentLanguage) || _teData.id });
+  try {
+    document.getElementById("te-up-name").value = localStorage.getItem(_SUPPORT_NAME_KEY) || "";
+    document.getElementById("te-up-email").value = localStorage.getItem(_SUPPORT_EMAIL_KEY) || "";
+  } catch (_) {}
+  document.getElementById("te-up-note").value = "";
+  document.getElementById("te-up-send").disabled = false;
+  _teUploadStatus("");
+  dlg.showModal();
+  document.getElementById(document.getElementById("te-up-name").value ? "te-up-note" : "te-up-name")?.focus();
+}
+async function _teUploadSend() {
+  const name = document.getElementById("te-up-name").value.trim();
+  const email = document.getElementById("te-up-email").value.trim();
+  if (!name) { _teUploadStatus(t("tutUpNeedName"), true); return; }
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { _teUploadStatus(t("tutUpBadEmail"), true); return; }
+  // the uploaded copy is the saved one, with its new rev
+  if (_teDirty && !(await _teSave())) return;
+  try {
+    localStorage.setItem(_SUPPORT_NAME_KEY, name);
+    if (email) localStorage.setItem(_SUPPORT_EMAIL_KEY, email);
+  } catch (_) {}
+  const send = document.getElementById("te-up-send");
+  send.disabled = true;
+  _teUploadStatus(t("tutUpSending"));
+  let res = null;
+  try {
+    res = await window.electronAPI.uploadTutorial(currentLanguage, { name, email, note: document.getElementById("te-up-note").value.trim(), lesson: _teData });
+  } catch (e) {
+    res = { ok: false, error: String(e?.message || e) };
+  }
+  send.disabled = false;
+  if (res?.ok) {
+    document.getElementById("te-upload-dialog")?.close();
+    showViceToast(tf("tutUpSent", { name: _tutText(_teData, "title", currentLanguage) || _teData.id }));
+    return;
+  }
+  const key = _TE_UPLOAD_ERRORS[res?.error];
+  _teUploadStatus(key ? t(key) : tf("tutUpFailed", { error: res?.error || "?" }), true);
+}
+
+// ── Online lessons (www.c64va.pro/lessons/) ──
+let _tutOnline = null;
+let _tutOnlineError = "";
+let _tutOnlineBusy = "";
+function _tutOnlineAvailable() {
+  return !!window.electronAPI?.listOnlineTutorials;
+}
+async function openOnlineLessons() {
+  const dlg = document.getElementById("tut-online-dialog");
+  if (!dlg) return;
+  if (!dlg.open) dlg.showModal();
+  await _tutLoadUserLessons();
+  _tutOnlineLoad();
+}
+async function _tutOnlineLoad() {
+  _tutOnlineError = "";
+  if (!_tutOnlineAvailable()) { _tutOnlineRender(); return; }
+  _tutOnlineBusy = t("tutOnlineLoading");
+  _tutOnlineRender();
+  try {
+    _tutOnline = (await window.electronAPI.listOnlineTutorials())?.lessons || [];
+  } catch (e) {
+    _tutOnlineError = String(e?.message || e);
+  }
+  _tutOnlineBusy = "";
+  _tutOnlineRender();
+}
+function _tutOnlineCategoryLabel(id) {
+  if (id === "custom") return t("tutCustomCategory");
+  const cat = TUTORIAL_DATA.categories.find(function(c) { return c.id === id; });
+  return cat ? _tutText(cat, "label", currentLanguage) : t("tutCustomCategory");
+}
+function _tutOnlineRender() {
+  const status = document.getElementById("to-status");
+  const list = document.getElementById("to-list");
+  const hint = document.getElementById("to-hint");
+  if (hint) hint.textContent = t("tutOnlineHint");
+  const refresh = document.getElementById("to-refresh");
+  if (refresh) refresh.disabled = !_tutOnlineAvailable() || !!_tutOnlineBusy;
+  if (!status || !list) return;
+  status.textContent = !_tutOnlineAvailable() ? t("tutOnlineDesktopOnly")
+    : _tutOnlineBusy || (_tutOnlineError ? tf("tutOnlineFailed", { error: _tutOnlineError })
+    : (_tutOnline && !_tutOnline.length ? t("tutOnlineEmpty") : ""));
+  status.hidden = !status.textContent;
+  list.textContent = "";
+  (_tutOnline || []).forEach(function(entry) {
+    const state = _tutOnlineState(entry, _tutUserLessons);
+    const li = document.createElement("li");
+    li.className = "to-item";
+    const title = document.createElement("span");
+    title.className = "to-item-title";
+    title.textContent = _tutText(entry, "title", currentLanguage) || entry.file;
+    const meta = document.createElement("span");
+    meta.className = "to-item-meta";
+    const diff = [1, 2, 3].includes(entry.difficulty) ? t("tutEdDiff" + entry.difficulty) : "";
+    meta.textContent = [entry.author ? tf("tutOnlineBy", { name: entry.author }) : "", _tutOnlineCategoryLabel(entry.category), diff,
+      tf("tutOnlineSteps", { count: entry.steps || 0 }), entry.updated].filter(Boolean).join(" · ");
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = (state === "installed" ? "secondary" : "primary") + " to-item-btn";
+    btn.dataset.file = entry.file;
+    btn.disabled = state === "installed" || !!_tutOnlineBusy;
+    btn.textContent = state === "new" ? t("tutOnlineDownload") : state === "update" ? t("tutOnlineUpdate") : "✓ " + t("tutOnlineInstalled");
+    li.append(title, btn, meta);
+    const descText = _tutText(entry, "desc", currentLanguage);
+    if (descText) {
+      const desc = document.createElement("p");
+      desc.className = "to-item-desc";
+      desc.textContent = descText;
+      li.appendChild(desc);
+    }
+    list.appendChild(li);
+  });
+}
+async function _tutOnlineInstall(file) {
+  const entry = (_tutOnline || []).find(function(e) { return e.file === file; });
+  if (!entry || _tutOnlineBusy) return;
+  _tutOnlineBusy = t("tutOnlineLoading");
+  _tutOnlineRender();
+  try {
+    const data = await window.electronAPI.downloadOnlineTutorial(file);
+    await _tutStoreUserLesson(data);
+    showViceToast(tf("tutOnlineDownloaded", { name: _tutText(data, "title", currentLanguage) || file }));
+  } catch (e) {
+    showViceToast(tf("tutOnlineFailed", { error: String(e?.message || e) }), true);
+  }
+  _tutOnlineBusy = "";
+  _tutOnlineRender();
+  if (document.getElementById("tutorial-dialog")?.open) _tutRenderDialog();
+}
+
+function setupTutorialEditor() {
+  const dlg = document.getElementById("tut-editor-dialog");
+  if (!dlg) return;
+  const on = function(id, ev, fn) { document.getElementById(id)?.addEventListener(ev, fn); };
+  const sfx = _tutLangSuffix;
+  const setLessonText = function(field, value) {
+    if (value) _teData[field + sfx()] = value; else delete _teData[field + sfx()];
+    _teMarkDirty();
+  };
+  const setItemText = function(field, value) {
+    const item = _teData?.items[_teSel];
+    if (!item) return;
+    if (value) item[field + sfx()] = value; else delete item[field + sfx()];
+    _teMarkDirty();
+    const li = document.querySelector('#te-steps .te-step[data-index="' + _teSel + '"]');
+    if (li) li.textContent = _teItemLabel(item, _tutHelpers());
+  };
+  on("te-name", "input", function(e) { setLessonText("title", e.target.value.trim()); _teRenderLessonSelect(); });
+  on("te-desc", "input", function(e) { setLessonText("desc", e.target.value); });
+  on("te-diff", "change", function(e) { _teData.difficulty = Number(e.target.value) || 1; _teMarkDirty(); });
+  on("te-clear", "change", function(e) { _teData.clearProgram = e.target.checked; _teMarkDirty(); });
+  on("te-auto", "change", function(e) { _teData.autoParams = e.target.checked; _teMarkDirty(); });
+  on("te-cat", "change", function(e) { _teData.category = e.target.value; _teMarkDirty(); });
+  on("te-step-title", "input", function(e) { setItemText("title", e.target.value.trim()); });
+  on("te-step-desc", "input", function(e) { setItemText("desc", e.target.value); });
+  on("te-step-target", "change", function(e) {
+    const item = _teData?.items[_teSel];
+    if (!item) return;
+    if (e.target.value) item.target = e.target.value; else delete item.target;
+    _teMarkDirty();
+  });
+  on("te-steps", "click", function(e) {
+    const li = e.target.closest(".te-step");
+    if (!li) return;
+    _teSel = Number(li.dataset.index);
+    _teRender();
+  });
+  on("te-lesson", "change", async function(e) {
+    const next = _tutUserLessons.find(function(l) { return l.id === e.target.value; });
+    if (!next || next.id === _teData?.id) return;
+    if (!(await _teConfirmDiscard())) { e.target.value = _teData.id; return; }
+    _teOpenLesson(next);
+  });
+  on("te-new", "click", async function() { if (await _teConfirmDiscard()) { _teOpenLesson(_teNewLesson()); _teDirty = true; _teRenderMeta(); } });
+  on("tutorial-editor-btn", "click", function() { openTutorialEditor(); });
+  on("tutorial-online-btn", "click", openOnlineLessons);
+  on("to-close", "click", function() { document.getElementById("tut-online-dialog")?.close(); });
+  on("to-refresh", "click", _tutOnlineLoad);
+  on("to-list", "click", function(e) {
+    const btn = e.target.closest(".to-item-btn");
+    if (btn && !btn.disabled) _tutOnlineInstall(btn.dataset.file);
+  });
+  on("te-from-program", "click", _teFromProgram);
+  on("te-add-text", "click", _teAddText);
+  on("te-up", "click", function() { _teMove(-1); });
+  on("te-down", "click", function() { _teMove(1); });
+  on("te-remove", "click", _teRemove);
+  on("te-save", "click", _teSave);
+  on("te-try", "click", _teTry);
+  on("te-export", "click", _teExport);
+  on("te-upload", "click", _teUploadOpen);
+  on("te-up-send", "click", _teUploadSend);
+  on("te-up-cancel", "click", function() { document.getElementById("te-upload-dialog")?.close(); });
+  on("te-delete", "click", _teDelete);
+  on("te-folder", "click", function() { window.electronAPI?.openTutorialsFolder?.(); });
+  const importInput = document.getElementById("te-import-file");
+  on("te-import", "click", function() { importInput?.click(); });
+  importInput?.addEventListener("change", async function() {
+    const file = importInput.files?.[0];
+    importInput.value = "";
+    if (file && await _teConfirmDiscard()) await _teImport(file);
+  });
+  const close = async function() { if (await _teConfirmDiscard()) dlg.close(); };
+  on("te-close", "click", close);
+  dlg.addEventListener("cancel", function(e) { e.preventDefault(); close(); });
+  dlg.addEventListener("keydown", function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") { e.preventDefault(); _teSave(); }
+  });
+  _tutLoadUserLessons();
+}
+function _teApplyTranslations() {
+  const setText = function(id, key) { const el = document.getElementById(id); if (el) el.textContent = t(key); };
+  const setLabel = function(id, key) { document.getElementById(id)?.setAttribute("aria-label", t(key)); };
+  setText("te-title", "tutEdTitle");
+  setText("te-new", "tutEdNew");
+  setText("te-import", "tutEdImport");
+  setText("te-export", "tutEdExport");
+  setText("te-delete", "tutEdDelete");
+  setText("te-folder", "tutEdFolder");
+  setText("te-upload", "tutEdUpload");
+  setText("te-up-title", "tutUpTitle");
+  setText("te-up-name-l", "tutUpName");
+  setText("te-up-email-l", "tutUpEmail");
+  setText("te-up-note-l", "tutUpNote");
+  setText("te-up-send", "tutUpSend");
+  setText("te-up-cancel", "tutUpCancel");
+  setText("te-l-name", "tutEdLessonTitle");
+  setText("te-l-desc", "tutEdLessonDesc");
+  setText("te-l-diff", "tutEdDifficulty");
+  setText("te-l-clear", "tutEdClear");
+  setText("te-l-auto", "tutEdAutoParams");
+  setText("te-l-cat", "tutEdCategory");
+  setText("te-l-steps", "tutEdSteps");
+  setText("te-l-stitle", "tutEdStepTitle");
+  setText("te-l-sdesc", "tutEdStepDesc");
+  setText("te-l-target", "tutEdTarget");
+  setText("tutorial-editor-btn", "tutEdOpen");
+  setText("tutorial-online-btn", "tutOnlineOpen");
+  setText("to-title", "tutOnlineTitle");
+  setLabel("to-refresh", "tutOnlineRefresh");
+  setLabel("te-from-program", "tutEdFromProgram");
+  setLabel("te-add-text", "tutEdAddText");
+  setLabel("te-up", "tutEdUp");
+  setLabel("te-down", "tutEdDown");
+  setLabel("te-remove", "tutEdRemove");
+  setLabel("te-try", "tutEdTry");
+  setLabel("te-save", "tutEdSave");
+  const diff = document.getElementById("te-diff");
+  if (diff) ["tutEdDiff1", "tutEdDiff2", "tutEdDiff3"].forEach(function(key, i) { if (diff.options[i]) diff.options[i].textContent = (i + 1) + " — " + t(key); });
+  if (document.getElementById("tut-editor-dialog")?.open) _teRender();
+}
+
 function _tourClearTargetAdvance() {
   if (_tourTargetAdvanceCleanup) {
     _tourTargetAdvanceCleanup();
@@ -34233,7 +35128,10 @@ function _tourBindTargetAdvance(step) {
   };
 
   if (step.advanceOnTargetClick) {
-    const onClick = () => advance();
+    const onClick = () => {
+      if (step.trackAdded) _tutLastAddedId = selectedBlockId;
+      advance();
+    };
     targetEl.addEventListener("click", onClick);
     cleanups.push(() => targetEl.removeEventListener("click", onClick));
   }
@@ -34296,15 +35194,16 @@ function _tutRenderDialog() {
   const hintEl = document.getElementById("tutorial-select-hint");
   if (hintEl) hintEl.textContent = t("tutorialSelectHint");
   if (!listEl || !contentEl) return;
+  _tutSyncUserLessons();
 
   listEl.innerHTML = TUTORIAL_DATA.categories.map((cat) => {
     const catLessons = TUTORIAL_DATA.lessons.filter(l => l.category === cat.id);
     if (catLessons.length === 0) return "";
     return `<div class="tutorial-category">
-      <div class="tutorial-category-label">${lang === "hu" ? cat.labelHu : (lang === "es" && cat.labelEs ? cat.labelEs : (lang === "de" && cat.labelDe ? cat.labelDe : (lang === "nl" && cat.labelNl ? cat.labelNl : cat.labelEn)))}</div>
+      <div class="tutorial-category-label">${escapeHtmlAttribute(_tutText(cat, "label", lang))}</div>
       ${catLessons.map(lesson => {
         const done = _tutorialProgress[lesson.id]?.completed;
-        const title = lang === "hu" ? lesson.titleHu : (lang === "es" && lesson.titleEs ? lesson.titleEs : (lang === "de" && lesson.titleDe ? lesson.titleDe : (lang === "nl" && lesson.titleNl ? lesson.titleNl : lesson.titleEn)));
+        const title = escapeHtmlAttribute(_tutText(lesson, "title", lang));
         const stars = lesson.difficulty > 0
           ? `${lesson.difficulty}/3`
           : "TOUR";
@@ -34335,8 +35234,8 @@ function _tutShowLesson(lessonId) {
   if (!lesson || !contentEl) return;
   const canStartTour = lesson.type === "tour" || lesson.interactive === true;
 
-  const title = lang === "hu" ? lesson.titleHu : (lang === "es" && lesson.titleEs ? lesson.titleEs : (lang === "de" && lesson.titleDe ? lesson.titleDe : (lang === "nl" && lesson.titleNl ? lesson.titleNl : lesson.titleEn)));
-  const desc = lang === "hu" ? lesson.descHu : (lang === "es" && lesson.descEs ? lesson.descEs : (lang === "de" && lesson.descDe ? lesson.descDe : (lang === "nl" && lesson.descNl ? lesson.descNl : lesson.descEn)));
+  const title = _tutText(lesson, "title", lang);
+  const desc = _tutText(lesson, "desc", lang);
   const diffStars = lesson.difficulty > 0
     ? `(${lesson.difficulty}/3)`
     : null;
@@ -34369,6 +35268,7 @@ function _tutShowLesson(lessonId) {
     </div>
     ${canStartTour ? `<div class="tutorial-tour-start">
       <button class="primary tutorial-start-tour-btn" type="button">${t("tutorialStartTour")}</button>
+      ${lesson.user ? `<button class="secondary tutorial-edit-lesson-btn" type="button">${t("tutEdEdit")}</button>` : ""}
     </div>` : ""}
     <div class="tutorial-steps">${stepsHtml}</div>
     <div class="tutorial-content-footer">
@@ -34380,8 +35280,8 @@ function _tutShowLesson(lessonId) {
   lesson.steps.forEach((step, i) => {
     const stepEl = contentEl.querySelectorAll(".tutorial-step")[i];
     if (!stepEl) return;
-    stepEl.querySelector(".tutorial-step-title").textContent = lang === "hu" ? step.titleHu : (lang === "es" && step.titleEs ? step.titleEs : (lang === "de" && step.titleDe ? step.titleDe : (lang === "nl" && step.titleNl ? step.titleNl : step.titleEn)));
-    stepEl.querySelector(".tutorial-step-desc").textContent = lang === "hu" ? step.descHu : (lang === "es" && step.descEs ? step.descEs : (lang === "de" && step.descDe ? step.descDe : (lang === "nl" && step.descNl ? step.descNl : step.descEn)));
+    stepEl.querySelector(".tutorial-step-title").textContent = _tutText(step, "title", lang);
+    stepEl.querySelector(".tutorial-step-desc").textContent = _tutText(step, "desc", lang);
     const actionBtn = stepEl.querySelector(".tutorial-step-action-btn");
     if (actionBtn) actionBtn.textContent = lang === "hu" ? step.actionLabelHu : (lang === "es" && step.actionLabelEs ? step.actionLabelEs : (lang === "de" && step.actionLabelDe ? step.actionLabelDe : (lang === "nl" && step.actionLabelNl ? step.actionLabelNl : step.actionLabelEn)));
   });
@@ -34398,6 +35298,8 @@ function _tutShowLesson(lessonId) {
       _runTutorialAction(btn.dataset.actionId);
     });
   });
+
+  contentEl.querySelector(".tutorial-edit-lesson-btn")?.addEventListener("click", () => openTutorialEditor(lessonId));
 
   const startTourBtn = contentEl.querySelector(".tutorial-start-tour-btn");
   if (startTourBtn) {
@@ -34434,6 +35336,8 @@ function _tourStart(steps, lessonId, interactive = false) {
   _tourAllowOverlayClose = true;
   _tourInteractiveMode = interactive;
   _tourPreparedLessonId = null;
+  _tourLastShown = -1;
+  _tutLastAddedId = null;
   const overlay = document.getElementById("tour-overlay");
   const spotlight = document.getElementById("tour-spotlight");
   const card = document.getElementById("tour-card");
@@ -34478,6 +35382,14 @@ function _tourShowStep(index) {
   if (step.onEnterActionId) {
     _runTutorialStepAction(step.onEnterActionId);
   }
+  clearInterval(_tutAdjustTimer);
+  _tutAdjustTimer = 0;
+  const forward = index > _tourLastShown;
+  _tourLastShown = index;
+  if (step.prepEmpty) _tutPrepareEmpty(step.prepEmpty.org);
+  if (step.prepPalette) _tutorialSetPaletteSelection(step.prepPalette);
+  if (step.prepMode) _tutApplyMode(step.prepMode);
+  if (step.adjust && _tutEnterAdjust(step, forward)) return;
 
   const stepLabel = document.getElementById("tour-step-label");
   const cardTitle = document.getElementById("tour-card-title");
@@ -34487,8 +35399,8 @@ function _tourShowStep(index) {
   const skipBtn = document.getElementById("tour-skip");
 
   if (stepLabel) stepLabel.textContent = `${index + 1} / ${_tourSteps.length}`;
-  if (cardTitle) cardTitle.textContent = lang === "hu" ? step.titleHu : (lang === "es" && step.titleEs ? step.titleEs : (lang === "de" && step.titleDe ? step.titleDe : (lang === "nl" && step.titleNl ? step.titleNl : step.titleEn)));
-  if (cardDesc) cardDesc.textContent = lang === "hu" ? step.descHu : (lang === "es" && step.descEs ? step.descEs : (lang === "de" && step.descDe ? step.descDe : (lang === "nl" && step.descNl ? step.descNl : step.descEn)));
+  if (cardTitle) cardTitle.textContent = _tutText(step, "title", lang);
+  if (cardDesc) cardDesc.textContent = _tutText(step, "desc", lang);
   if (prevBtn) prevBtn.disabled = index === 0;
   if (nextBtn) nextBtn.textContent = index === _tourSteps.length - 1
     ? t("tourFinish") : t("tourNext");
@@ -34655,6 +35567,8 @@ function _tourCenterCard(card) {
 
 function _tourEnd() {
   _tourActive = false;
+  clearInterval(_tutAdjustTimer);
+  _tutAdjustTimer = 0;
   _tourAllowOverlayClose = true;
   _tourInteractiveMode = false;
   _tourPreparedLessonId = null;
@@ -34740,6 +35654,7 @@ function _initTutorialEvents() {
 
 _tutLoadProgress();
 _initTutorialEvents();
+setupTutorialEditor();
 
 // Initialize tab system
 if (tabs.length === 0) {
@@ -40155,6 +41070,33 @@ function setupSidPlayer() {
     fileInput.value = "";
   });
   on("websid-play-clear", "click", _sidPlayerClear);
+  on("websid-play-hvsc", "click", function() { _hvscSetOpen(!_hvscOpen()); });
+  on("websid-hvsc-random", "click", _hvscShowRandom);
+  on("websid-hvsc-add-all", "click", _hvscAddAll);
+  on("websid-hvsc-refresh", "click", function() { _hvscLoad(true); });
+  on("websid-hvsc-folder", "click", _hvscToggleFolder);
+  on("websid-hvsc-download", "click", _hvscDownloadAll);
+  window.electronAPI?.onHvscProgress?.(function(p) {
+    if (!_hvscDownload || !p) return;
+    _hvscDownload = { phase: p.phase, done: Number(p.done) || 0, total: Number(p.total) || 0 };
+    _hvscRender();
+  });
+  on("websid-hvsc-link", "click", function() { window.electronAPI?.openExternal("https://www.hvsc.c64.org/"); });
+  let hvscSearchTimer = null;
+  on("websid-hvsc-search", "input", function() {
+    clearTimeout(hvscSearchTimer);
+    hvscSearchTimer = setTimeout(_hvscRunSearch, 150);
+  });
+  on("websid-hvsc-search", "keydown", function(e) {
+    if (e.key === "Enter" && _hvscResults.length) { e.preventDefault(); _hvscAddEntry(_hvscResults[0], true); }
+  });
+  document.getElementById("websid-hvsc-list")?.addEventListener("click", function(e) {
+    const li = e.target.closest(".websid-hvsc-item");
+    const entry = li && _hvscResults[Number(li.dataset.index)];
+    if (!entry) return;
+    if (e.target.closest(".websid-hvsc-item-save")) _hvscSaveEntry(entry);
+    else _hvscAddEntry(entry, !e.target.closest(".websid-hvsc-item-add"));
+  });
   _sidKnobBind(document.getElementById("websid-play-vol"),
     function() { return Math.round(_sidMasterVol * 100); },
     function(pct) { _sidSetMasterVolume(pct); });
@@ -40214,11 +41156,17 @@ function setupSidPlayer() {
     if (_sidExtStatus !== "stopped") _sidExtStop();
     _sidPlayerSyncButton();
     _sidPlayerPersist();
+    // the spectrum window belongs to the player: it closes with it and comes
+    // back with it (on top, so the player does not cover its header)
+    const viz = document.getElementById("sid-viz-dialog");
+    if (viz?.open) { _sidVizWithPlayer = true; viz.close(); }
   });
   // runs before the _sidPlaylist state is declared (TDZ), so restore after the script has loaded
   setTimeout(function() {
     _sidLoadMasterVolume();
     _sidPlayerRestore();
+    _hvscRestore();
+    setupSidVisualizer();
   }, 0);
 }
 
@@ -45535,12 +46483,18 @@ function _sidPsidInfo(bytes) {
   const startSong = Math.min(songs, Math.max(1, (bytes[0x10] << 8) | bytes[0x11]));
   return { title: str(0x16), author: str(0x36), released: str(0x56), songs, startSong };
 }
+// lengths: the subtune lengths in ms (from HVSC), hvsc: the tune's HVSC path
+function _sidPlayerItem(entry, info) {
+  const lengths = Array.isArray(entry.lengths) && entry.lengths.every(function(ms) { return Number.isFinite(ms) && ms >= 0; }) ? entry.lengths : null;
+  return { id: crypto.randomUUID(), name: entry.name, bytes: entry.bytes, info, song: _sidValidSong(entry.song, info), fav: !!entry.fav,
+    lengths, hvsc: typeof entry.hvsc === "string" ? entry.hvsc : null };
+}
 function _sidPlayerAdd(entries, playFirst, startIndex = 0) {
   const added = [];
   entries.forEach(function(entry) {
     const info = _sidPsidInfo(entry.bytes);
     if (!info) { showViceToast(tf("sidPlayerNotSid", { name: entry.name }), true); return; }
-    const item = { id: crypto.randomUUID(), name: entry.name, bytes: entry.bytes, info, song: _sidValidSong(entry.song, info), fav: !!entry.fav };
+    const item = _sidPlayerItem(entry, info);
     _sidPlaylist.push(item);
     added.push(item);
   });
@@ -45646,14 +46600,22 @@ function _sidPlayerClear() {
   _sidPlayerRenderList();
   _sidPlayerPersist();
 }
+// The current subtune's length when HVSC knows it, otherwise 0.
+function _sidPlayerTuneMs() {
+  const item = _sidPlaylist[_sidPlaylistIndex];
+  const ms = item?.lengths?.[item.song - 1];
+  return ms > 0 ? ms : 0;
+}
 function _sidPlayerLengthMs() {
+  const known = _sidPlayerTuneMs();
+  if (known) return Math.max(known, Math.ceil(_sidExtElapsedMs() / 1000) * 1000);
   return Math.max(_SID_TUNE_LENGTH_MS, Math.ceil((_sidExtElapsedMs() + 1) / 60000) * 60000);
 }
 // Only the playback timer moves on. Doing this from the UI refresh re-entered
 // itself (Next renders the list while the status is still "playing") and
 // started every remaining tune of the playlist at once.
 function _sidPlayerAutoAdvance() {
-  if (_sidExtStatus === "playing" && !_sidExtStarting && _sidExtElapsedMs() >= _SID_TUNE_LENGTH_MS
+  if (_sidExtStatus === "playing" && !_sidExtStarting && _sidExtElapsedMs() >= (_sidPlayerTuneMs() || _SID_TUNE_LENGTH_MS)
       && (_sidShuffle ? _sidPlaylist.length > 1 : _sidPlaylistIndex < _sidPlaylist.length - 1)) {
     _sidPlayerNext();
   }
@@ -45775,6 +46737,7 @@ function _sidPlayerShow() {
   _sidPlayerSyncButton();
   _sidPlayerRenderList();
   _sidPlayerPersist();
+  if (_sidVizState().open) setTimeout(_sidVizShow, 0);
 }
 function _sidPlayerToggle() {
   const dlg = document.getElementById("websid-play-dialog");
@@ -45804,7 +46767,9 @@ function _sidPlaylistToJson() {
     format: _SID_PLAYLIST_FORMAT,
     version: 1,
     current: Math.max(0, _sidPlaylistIndex),
-    items: _sidPlaylist.map(function(item) { return { name: item.name, song: item.song, fav: item.fav || undefined, data: _sidBytesToBase64(item.bytes) }; })
+    items: _sidPlaylist.map(function(item) {
+      return { name: item.name, song: item.song, fav: item.fav || undefined, hvsc: item.hvsc || undefined, lengths: item.lengths || undefined, data: _sidBytesToBase64(item.bytes) };
+    })
   };
 }
 // Returns the decoded entries, or null when the text is not a playlist.
@@ -45813,7 +46778,9 @@ function _sidPlaylistFromJson(json) {
   const entries = [];
   json.items.forEach(function(item) {
     if (!item || typeof item.name !== "string" || typeof item.data !== "string") return;
-    try { entries.push({ name: item.name, song: Number(item.song) || 0, fav: item.fav === true, bytes: _sidBase64ToBytes(item.data) }); } catch (_) {}
+    try {
+      entries.push({ name: item.name, song: Number(item.song) || 0, fav: item.fav === true, hvsc: item.hvsc, lengths: item.lengths, bytes: _sidBase64ToBytes(item.data) });
+    } catch (_) {}
   });
   return { entries, current: Number.isInteger(json.current) ? json.current : 0 };
 }
@@ -45860,13 +46827,537 @@ function _sidPlayerRestore() {
   if (list && list.entries.length) {
     list.entries.forEach(function(entry) {
       const info = _sidPsidInfo(entry.bytes);
-      if (info) _sidPlaylist.push({ id: crypto.randomUUID(), name: entry.name, bytes: entry.bytes, info, song: _sidValidSong(entry.song, info), fav: !!entry.fav });
+      if (info) _sidPlaylist.push(_sidPlayerItem(entry, info));
     });
     _sidPlaylistIndex = _sidPlaylist.length ? Math.max(0, Math.min(list.current, _sidPlaylist.length - 1)) : -1;
   }
   if (saved.shuffle) _sidPlayerSetShuffle(true);
   if (saved.open) _sidPlayerShow();
   else _sidPlayerRenderList();
+}
+
+/* ── HVSC (High Voltage SID Collection) in the SID Player ───────────────
+ * The catalog is HVSC's DOCUMENTS/Songlengths.md5: every tune's path and its
+ * subtune lengths. The backend (hvsc.rs) reads it and the tunes from a local
+ * HVSC folder, its cache, or a mirror; searching runs here. */
+const _HVSC_RESULT_LIMIT = 300;
+const _HVSC_ADD_ALL_MAX = 100;
+const _HVSC_STORE = "c64va-sid-hvsc";
+const _HVSC_SECTIONS = { MUSICIANS: "Musicians", GAMES: "Games", DEMOS: "Demos" };
+
+// "4:33.108" → 273108 ms; markers after the time, like "(G)", are ignored
+function _hvscParseLength(text) {
+  const m = /^(\d+):(\d{1,2})(?:\.(\d{1,3}))?/.exec(String(text).trim());
+  if (!m) return 0;
+  return (Number(m[1]) * 60 + Number(m[2])) * 1000 + (m[3] ? Number(m[3].padEnd(3, "0")) : 0);
+}
+function _hvscParseCatalog(text) {
+  const entries = [];
+  let path = null;
+  String(text || "").split(/\r?\n/).forEach(function(line) {
+    if (line.startsWith("; /")) { path = line.slice(2).trim(); return; }
+    const eq = line.indexOf("=");
+    if (!path || eq < 0 || line.startsWith(";") || line.startsWith("[")) return;
+    // "/MUSICIANS/H/Hubbard_Rob/Commando.sid": the composer folder is the 4th part
+    const parts = path.split("/");
+    const title = parts[parts.length - 1].replace(/\.sid$/i, "").replace(/_/g, " ");
+    const author = parts[1] === "MUSICIANS" && parts.length > 4 ? parts[3].replace(/_/g, " ") : "";
+    const lengths = line.slice(eq + 1).trim().split(/\s+/).map(_hvscParseLength);
+    entries.push({ p: path, t: title, a: author, s: parts[1], l: lengths, k: path.toLowerCase().replace(/_/g, " ") });
+    path = null;
+  });
+  return entries;
+}
+// Every word must occur in the path (title, composer, folders); titles that
+// match the query come first.
+function _hvscSearch(entries, query, limit = _HVSC_RESULT_LIMIT) {
+  const words = String(query || "").toLowerCase().replace(/_/g, " ").split(/\s+/).filter(Boolean);
+  const phrase = words.join(" ");
+  if (phrase.length < 2) return { total: 0, items: [] };
+  const hits = (entries || []).filter(function(e) { return words.every(function(w) { return e.k.includes(w); }); });
+  const rank = function(e) {
+    const title = e.t.toLowerCase();
+    return title === phrase ? 0 : title.startsWith(phrase) ? 1 : title.includes(phrase) ? 2 : e.a.toLowerCase().includes(phrase) ? 3 : 4;
+  };
+  hits.sort(function(a, b) { return rank(a) - rank(b) || a.t.localeCompare(b.t); });
+  return { total: hits.length, items: hits.slice(0, limit) };
+}
+function _hvscRandom(entries, count) {
+  const out = [];
+  const used = new Set();
+  const n = Math.min(count, (entries || []).length);
+  while (out.length < n) {
+    const i = Math.floor(Math.random() * entries.length);
+    if (!used.has(i)) { used.add(i); out.push(entries[i]); }
+  }
+  return out;
+}
+
+let _hvscEntries = null;
+let _hvscVersion = null;
+let _hvscSource = "";
+let _hvscLoading = null;
+let _hvscError = "";
+let _hvscResults = [];
+let _hvscTotal = 0;
+let _hvscBusy = "";
+let _hvscLocalPath = "";
+let _hvscDownload = null;   // { phase: "download" | "extract", done, total } while the whole collection is fetched
+
+function _hvscAvailable() {
+  return !!window.electronAPI?.hvscCatalog;
+}
+function _hvscOpen() {
+  return !document.getElementById("websid-hvsc")?.hidden;
+}
+function _hvscPersist() {
+  try {
+    localStorage.setItem(_HVSC_STORE, JSON.stringify({ open: _hvscOpen(), query: document.getElementById("websid-hvsc-search")?.value || "" }));
+  } catch (_) {}
+}
+async function _hvscLoad(refresh) {
+  if (!_hvscAvailable()) { _hvscRender(); return; }
+  if (_hvscLoading) return _hvscLoading;
+  if (_hvscEntries && !refresh) return;
+  _hvscError = "";
+  _hvscLoading = (async function() {
+    try {
+      const status = await window.electronAPI.hvscStatus();
+      _hvscLocalPath = status?.localOk ? status.localPath : "";
+      const res = await window.electronAPI.hvscCatalog(!!refresh);
+      _hvscEntries = _hvscParseCatalog(res.text);
+      _hvscVersion = res.version || null;
+      _hvscSource = res.source;
+    } catch (e) {
+      _hvscError = String(e?.message || e);
+    }
+  })();
+  _hvscRender();
+  try { await _hvscLoading; } finally { _hvscLoading = null; }
+  _hvscRunSearch();
+}
+function _hvscRunSearch() {
+  const query = document.getElementById("websid-hvsc-search")?.value || "";
+  const res = _hvscSearch(_hvscEntries, query);
+  _hvscResults = res.items;
+  _hvscTotal = res.total;
+  _hvscRender();
+  _hvscPersist();
+}
+function _hvscShowRandom() {
+  if (!_hvscEntries) return;
+  const search = document.getElementById("websid-hvsc-search");
+  if (search) search.value = "";
+  _hvscResults = _hvscRandom(_hvscEntries, 25);
+  _hvscTotal = _hvscResults.length;
+  _hvscRender();
+  _hvscPersist();
+}
+function _hvscStatusText() {
+  if (!_hvscAvailable()) return t("sidHvscDesktopOnly");
+  if (_hvscLoading) return t("sidHvscLoading");
+  if (_hvscDownload) {
+    const { phase, done, total } = _hvscDownload;
+    if (phase === "extract") return tf("sidHvscUnpacking", { done: done.toLocaleString(), total: total.toLocaleString() });
+    const mb = function(bytes) { return (bytes / 1048576).toFixed(1); };
+    return tf("sidHvscDownloading", { done: mb(done), total: total ? mb(total) : "?" });
+  }
+  if (_hvscError) return tf("sidHvscLoadFailed", { error: _hvscError });
+  if (!_hvscEntries) return "";
+  if (_hvscBusy) return _hvscBusy;
+  const count = _hvscEntries.length.toLocaleString();
+  let text = _hvscVersion ? tf("sidHvscCountVersion", { version: _hvscVersion, count }) : tf("sidHvscCount", { count });
+  text += " · " + (_hvscSource === "local" ? t("sidHvscSourceLocal") : t("sidHvscSourceOnline"));
+  const query = document.getElementById("websid-hvsc-search")?.value.trim();
+  if (query) text += " · " + (_hvscTotal ? tf("sidHvscResults", { shown: _hvscResults.length, total: _hvscTotal }) : t("sidHvscNoResults"));
+  else if (!_hvscResults.length) text += " · " + t("sidHvscHint");
+  return text;
+}
+function _hvscRender() {
+  const panel = document.getElementById("websid-hvsc");
+  const btn = document.getElementById("websid-play-hvsc");
+  if (btn) {
+    btn.classList.toggle("websid-play-tool--active", _hvscOpen());
+    btn.setAttribute("aria-pressed", String(_hvscOpen()));
+  }
+  if (!panel || panel.hidden) return;
+  const status = document.getElementById("websid-hvsc-status");
+  if (status) {
+    status.textContent = _hvscStatusText();
+    status.classList.toggle("websid-hvsc-status--error", !!_hvscError);
+  }
+  const ready = !!_hvscEntries && !_hvscLoading;
+  const random = document.getElementById("websid-hvsc-random");
+  if (random) random.disabled = !ready;
+  const refresh = document.getElementById("websid-hvsc-refresh");
+  if (refresh) refresh.disabled = !_hvscAvailable() || !!_hvscLoading || _hvscSource === "local";
+  const addAll = document.getElementById("websid-hvsc-add-all");
+  if (addAll) addAll.disabled = !ready || !_hvscResults.length || !!_hvscBusy;
+  const download = document.getElementById("websid-hvsc-download");
+  if (download) {
+    download.disabled = !_hvscAvailable() || !!_hvscLoading;
+    download.classList.toggle("websid-play-tool--active", !!_hvscDownload);
+    download.setAttribute("aria-label", _hvscDownload ? t("sidHvscDownloadCancel") : t("sidHvscDownloadAll"));
+  }
+  const folder = document.getElementById("websid-hvsc-folder");
+  if (folder) {
+    folder.disabled = !_hvscAvailable() || !!_hvscLoading || !!_hvscDownload;
+    folder.classList.toggle("websid-play-tool--active", !!_hvscLocalPath);
+    folder.setAttribute("aria-label", _hvscLocalPath ? tf("sidHvscFolderClear", { path: _hvscLocalPath }) : t("sidHvscFolder"));
+  }
+  const search = document.getElementById("websid-hvsc-search");
+  if (search) search.disabled = !ready;
+  const list = document.getElementById("websid-hvsc-list");
+  if (!list) return;
+  list.textContent = "";
+  const inList = new Set(_sidPlaylist.map(function(item) { return item.hvsc; }).filter(Boolean));
+  _hvscResults.forEach(function(entry, index) {
+    const li = document.createElement("li");
+    li.className = "websid-play-item websid-hvsc-item" + (inList.has(entry.p) ? " websid-hvsc-item--added" : "");
+    li.dataset.index = String(index);
+    li.dataset.path = entry.p;
+    const name = document.createElement("span");
+    name.className = "websid-play-item-name";
+    name.textContent = entry.t;
+    const who = document.createElement("span");
+    who.className = "websid-hvsc-item-who";
+    who.textContent = entry.a || _HVSC_SECTIONS[entry.s] || entry.s;
+    const len = document.createElement("span");
+    len.className = "websid-hvsc-item-len";
+    len.textContent = _sidExtFormatTime(entry.l[0] || 0) + (entry.l.length > 1 ? " +" + (entry.l.length - 1) : "");
+    const add = document.createElement("button");
+    add.type = "button";
+    add.className = "websid-hvsc-item-btn websid-hvsc-item-add";
+    add.textContent = "+";
+    add.setAttribute("aria-label", t("sidHvscAdd"));
+    const save = document.createElement("button");
+    save.type = "button";
+    save.className = "websid-hvsc-item-btn websid-hvsc-item-save";
+    save.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.5v8M4.5 7 8 10.5 11.5 7M3 13.5h10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    save.setAttribute("aria-label", t("sidHvscSave"));
+    li.append(name, who, len, add, save);
+    list.appendChild(li);
+  });
+}
+function _hvscFileName(entry) {
+  return entry.p.slice(entry.p.lastIndexOf("/") + 1);
+}
+async function _hvscFetchBytes(entry) {
+  try {
+    return new Uint8Array(await window.electronAPI.hvscFetch(entry.p));
+  } catch (e) {
+    showViceToast(tf("sidHvscFetchFailed", { name: _hvscFileName(entry), error: String(e?.message || e) }), true);
+    return null;
+  }
+}
+// Adds a tune and plays it if asked; a tune already in the playlist is only played.
+async function _hvscAddEntry(entry, play) {
+  const existing = _sidPlaylist.findIndex(function(item) { return item.hvsc === entry.p; });
+  if (existing >= 0) {
+    if (play) _sidPlayerPlayIndex(existing);
+    return true;
+  }
+  const bytes = await _hvscFetchBytes(entry);
+  if (!bytes) return false;
+  _sidPlayerAdd([{ name: _hvscFileName(entry), bytes, lengths: entry.l, hvsc: entry.p }], play);
+  _hvscRender();
+  return true;
+}
+async function _hvscAddAll() {
+  const batch = _hvscResults.slice(0, _HVSC_ADD_ALL_MAX);
+  if (!batch.length || _hvscBusy) return;
+  const known = new Set(_sidPlaylist.map(function(item) { return item.hvsc; }));
+  const entries = [];
+  try {
+    for (let i = 0; i < batch.length; i++) {
+      _hvscBusy = tf("sidHvscAdding", { done: i + 1, total: batch.length });
+      _hvscRender();
+      if (known.has(batch[i].p)) continue;
+      const bytes = await _hvscFetchBytes(batch[i]);
+      if (bytes) entries.push({ name: _hvscFileName(batch[i]), bytes, lengths: batch[i].l, hvsc: batch[i].p });
+    }
+  } finally {
+    _hvscBusy = "";
+  }
+  if (entries.length) _sidPlayerAdd(entries, false);
+  _hvscRender();
+}
+async function _hvscSaveEntry(entry) {
+  const bytes = await _hvscFetchBytes(entry);
+  if (!bytes || !window.electronAPI?.saveBin) return;
+  const fileName = _hvscFileName(entry);
+  const res = await window.electronAPI.saveBin({ bytes: Array.from(bytes), fileName });
+  if (res?.ok) showViceToast(tf("sidHvscSaved", { name: fileName }));
+  else if (res && !res.canceled) showViceToast(res.error || t("sidPlayerSaveFailed"), true);
+}
+async function _hvscToggleFolder() {
+  if (!_hvscAvailable()) return;
+  if (_hvscLocalPath) {
+    await window.electronAPI.hvscClearFolder();
+    _hvscLocalPath = "";
+  } else {
+    const res = await window.electronAPI.hvscChooseFolder();
+    if (!res || res.canceled) return;
+    if (!res.ok) { showViceToast(t("sidHvscNotHvsc"), true); return; }
+    _hvscLocalPath = res.path;
+  }
+  _hvscEntries = null;
+  await _hvscLoad(false);
+}
+// Fetches the official .7z into a folder the user picks and switches to it;
+// pressed again while running, it cancels.
+async function _hvscDownloadAll() {
+  if (!window.electronAPI?.hvscDownloadAll) return;
+  if (_hvscDownload) { window.electronAPI.hvscCancelDownload(); return; }
+  if (!(await _showConfirm(t("sidHvscDownloadConfirm")))) return;
+  _hvscDownload = { phase: "download", done: 0, total: 0 };
+  _hvscRender();
+  let res = null;
+  try {
+    res = await window.electronAPI.hvscDownloadAll();
+  } catch (e) {
+    showViceToast(tf("sidHvscDownloadFailed", { error: String(e?.message || e) }), true);
+  } finally {
+    _hvscDownload = null;
+  }
+  if (res?.ok) {
+    _hvscLocalPath = res.path;
+    _hvscEntries = null;
+    showViceToast(tf("sidHvscDownloaded", { path: res.path }));
+    await _hvscLoad(false);
+  } else {
+    _hvscRender();
+  }
+}
+function _hvscSetOpen(open) {
+  const panel = document.getElementById("websid-hvsc");
+  if (!panel) return;
+  panel.hidden = !open;
+  _hvscRender();
+  _hvscPersist();
+  if (open) {
+    _hvscLoad(false);
+    setTimeout(function() { document.getElementById("websid-hvsc-search")?.focus(); }, 0);
+  }
+}
+function _hvscRestore() {
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(_HVSC_STORE) || "null"); } catch (_) {}
+  const search = document.getElementById("websid-hvsc-search");
+  if (search && typeof saved?.query === "string") search.value = saved.query;
+  if (saved?.open) _hvscSetOpen(true);
+}
+
+/* ── SID Player spectrum analyzer (#sid-viz-dialog) ─────────────────────
+ * LED-style bars: one AnalyserNode per engine (VA SID Core: after the shared
+ * master gain; WebSID: on ScriptNodePlayer's own gain node), log-spaced bands,
+ * cells that fade out slowly, and a mirrored floor in perspective. Drawn only
+ * while the window is open. State: localStorage c64va-sid-viz {open, bands, w, h}. */
+const _SID_VIZ_STORE = "c64va-sid-viz";
+const _SID_VIZ_ROWS = 10;
+const _SID_VIZ_FLOOR_ROWS = 5;
+let _sidVizBands = 16;
+let _sidVizRaf = 0;
+let _sidVizGlow = null;
+let _sidVizLevels = null;
+let _sidVizVa = null;
+let _sidVizWs = null;
+let _sidVizWsGain = null;
+let _sidVizData = null;
+let _sidVizWithPlayer = false;
+
+// Band edges in Hz, log-spaced between 30 Hz and 14 kHz (or Nyquist).
+function _sidVizBandEdges(bands, sampleRate) {
+  const lo = 30, hi = Math.min(14000, sampleRate / 2);
+  const edges = [];
+  for (let i = 0; i <= bands; i++) edges.push(lo * Math.pow(hi / lo, i / bands));
+  return edges;
+}
+// Band levels 0..1 from byte frequency data (the loudest bin of each band).
+function _sidVizBandLevels(data, sampleRate, fftSize, bands) {
+  const edges = _sidVizBandEdges(bands, sampleRate);
+  const hz = sampleRate / fftSize;
+  const out = new Array(bands).fill(0);
+  for (let b = 0; b < bands; b++) {
+    const from = Math.max(1, Math.floor(edges[b] / hz));
+    const to = Math.max(from, Math.min(data.length - 1, Math.ceil(edges[b + 1] / hz) - 1));
+    let peak = 0;
+    for (let i = from; i <= to; i++) peak = Math.max(peak, data[i]);
+    out[b] = peak / 255;
+  }
+  return out;
+}
+// Row color: green at the bottom through yellow to orange at the top.
+function _sidVizRowHue(row, rows) {
+  return 125 - (row / Math.max(1, rows - 1)) * 100;
+}
+
+function _sidVizAnalysers() {
+  const list = [];
+  if (_sidAudio && _sidMasterGain) {
+    if (!_sidVizVa) {
+      _sidVizVa = _sidAudio.createAnalyser();
+      _sidVizVa.fftSize = 2048;
+      _sidVizVa.minDecibels = -90;
+      _sidVizVa.maxDecibels = -25;
+      _sidVizVa.smoothingTimeConstant = 0.55;
+      _sidMasterGain.connect(_sidVizVa);
+    }
+    list.push(_sidVizVa);
+  }
+  try {
+    const player = typeof ScriptNodePlayer !== "undefined" ? ScriptNodePlayer.getInstance() : null;
+    const gain = player?._gainNode;
+    if (gain && gain !== _sidVizWsGain) {
+      // the WebSID player made a new output chain: follow it
+      _sidVizWs = gain.context.createAnalyser();
+      _sidVizWs.fftSize = 2048;
+      _sidVizWs.minDecibels = -90;
+      _sidVizWs.maxDecibels = -25;
+      _sidVizWs.smoothingTimeConstant = 0.55;
+      gain.connect(_sidVizWs);
+      _sidVizWsGain = gain;
+    }
+    if (_sidVizWs && _webSidActive) list.push(_sidVizWs);
+  } catch (_) {}
+  return list;
+}
+function _sidVizReadLevels() {
+  const levels = new Array(_sidVizBands).fill(0);
+  _sidVizAnalysers().forEach(function(an) {
+    if (!_sidVizData || _sidVizData.length !== an.frequencyBinCount) _sidVizData = new Uint8Array(an.frequencyBinCount);
+    an.getByteFrequencyData(_sidVizData);
+    _sidVizBandLevels(_sidVizData, an.context.sampleRate, an.fftSize, _sidVizBands).forEach(function(v, i) { levels[i] = Math.max(levels[i], v); });
+  });
+  return levels;
+}
+
+function _sidVizDraw() {
+  const canvas = document.getElementById("sid-viz-canvas");
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const w = Math.max(1, Math.round(canvas.clientWidth * dpr));
+  const h = Math.max(1, Math.round(canvas.clientHeight * dpr));
+  if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+  const ctx = canvas.getContext("2d");
+  const bands = _sidVizBands, rows = _SID_VIZ_ROWS;
+  if (!_sidVizGlow || _sidVizGlow.length !== bands * rows) {
+    _sidVizGlow = new Float32Array(bands * rows);
+    _sidVizLevels = new Float32Array(bands);
+  }
+  // bars rise at once and fall smoothly; a cell left behind keeps a fading glow
+  const raw = _sidVizReadLevels();
+  for (let b = 0; b < bands; b++) _sidVizLevels[b] = Math.max(raw[b], _sidVizLevels[b] - 0.035);
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, w, h);
+  const padX = w * 0.06, top = h * 0.08;
+  const floorH = h * 0.2;
+  const base = h - floorH;
+  const colW = (w - padX * 2) / bands;
+  const rowH = (base - top) / rows;
+  const gapX = colW * 0.22, gapY = rowH * 0.18;
+  const cx = w / 2;
+  for (let b = 0; b < bands; b++) {
+    const lit = _sidVizLevels[b] * rows;
+    const x = padX + b * colW + gapX / 2;
+    for (let r = 0; r < rows; r++) {
+      const k = b * rows + r;
+      const on = Math.max(0, Math.min(1, lit - r));
+      _sidVizGlow[k] = Math.max(on, _sidVizGlow[k] * 0.9);
+      const alpha = Math.max(0.05, _sidVizGlow[k]);
+      ctx.fillStyle = "hsla(" + _sidVizRowHue(r, rows) + ", 82%, 52%, " + alpha.toFixed(3) + ")";
+      ctx.fillRect(x, base - (r + 1) * rowH + gapY / 2, colW - gapX, rowH - gapY);
+    }
+    // mirrored floor: the lowest rows again, flattened and spread in perspective
+    let y = base + gapY / 2;
+    for (let f = 0; f < _SID_VIZ_FLOOR_ROWS; f++) {
+      const fh = (floorH / (_SID_VIZ_FLOOR_ROWS + 1.5)) * (1 - f * 0.12);
+      const s0 = 1 + f * 0.07, s1 = 1 + (f + 1) * 0.07;
+      const x0 = x, x1 = x + colW - gapX;
+      const glow = Math.max(0.05, _sidVizGlow[b * rows + f]);
+      ctx.fillStyle = "hsla(" + _sidVizRowHue(f, rows) + ", 82%, 45%, " + (glow * 0.4 * (1 - f / _SID_VIZ_FLOOR_ROWS)).toFixed(3) + ")";
+      ctx.beginPath();
+      ctx.moveTo(cx + (x0 - cx) * s0, y);
+      ctx.lineTo(cx + (x1 - cx) * s0, y);
+      ctx.lineTo(cx + (x1 - cx) * s1, y + fh * 0.78);
+      ctx.lineTo(cx + (x0 - cx) * s1, y + fh * 0.78);
+      ctx.closePath();
+      ctx.fill();
+      y += fh;
+    }
+  }
+}
+function _sidVizLoop() {
+  _sidVizRaf = 0;
+  if (!document.getElementById("sid-viz-dialog")?.open) return;
+  _sidVizDraw();
+  _sidVizRaf = requestAnimationFrame(_sidVizLoop);
+}
+function _sidVizState() {
+  try { return JSON.parse(localStorage.getItem(_SID_VIZ_STORE) || "{}") || {}; } catch (_) { return {}; }
+}
+function _sidVizSave(patch) {
+  try { localStorage.setItem(_SID_VIZ_STORE, JSON.stringify(Object.assign(_sidVizState(), patch))); } catch (_) {}
+}
+function _sidVizSyncButton() {
+  const open = !!document.getElementById("sid-viz-dialog")?.open;
+  const btn = document.getElementById("websid-play-viz");
+  if (btn) {
+    btn.classList.toggle("websid-play-tool--active", open);
+    btn.setAttribute("aria-pressed", String(open));
+  }
+}
+function _sidVizShow() {
+  const dlg = document.getElementById("sid-viz-dialog");
+  if (!dlg || dlg.open) return;
+  const card = dlg.querySelector(".sid-viz-card");
+  const saved = _sidVizState();
+  if (card && saved.w > 0) card.style.width = saved.w + "px";
+  if (card && saved.h > 0) card.style.height = saved.h + "px";
+  // like the SID Player: above an open modal editor it has to be modal itself
+  let overModal = false;
+  try { overModal = !!document.querySelector("dialog[open]:modal"); } catch (_) {}
+  dlg._applyPosition?.();
+  try { if (overModal) dlg.showModal(); else dlg.show(); } catch (_) { try { dlg.show(); } catch (__) {} }
+  _sidVizSyncButton();
+  _sidVizSave({ open: true });
+  if (!_sidVizRaf) _sidVizRaf = requestAnimationFrame(_sidVizLoop);
+}
+function _sidVizToggle() {
+  const dlg = document.getElementById("sid-viz-dialog");
+  if (dlg?.open) dlg.close();
+  else _sidVizShow();
+}
+function _sidVizSetBands(n) {
+  _sidVizBands = [8, 16, 24, 32].includes(n) ? n : 16;
+  const select = document.getElementById("sid-viz-bands");
+  if (select) select.value = String(_sidVizBands);
+  _sidVizSave({ bands: _sidVizBands });
+}
+function setupSidVisualizer() {
+  const dlg = document.getElementById("sid-viz-dialog");
+  if (!dlg) return;
+  document.getElementById("websid-play-viz")?.addEventListener("click", _sidVizToggle);
+  document.getElementById("sid-viz-close")?.addEventListener("click", function() { dlg.close(); });
+  document.getElementById("sid-viz-bands")?.addEventListener("change", function(e) { _sidVizSetBands(Number(e.target.value)); });
+  dlg.addEventListener("keydown", function(e) { if (e.key === "Escape") { e.preventDefault(); dlg.close(); } });
+  dlg.addEventListener("close", function() {
+    if (dlg.open) return;
+    if (_sidVizRaf) { cancelAnimationFrame(_sidVizRaf); _sidVizRaf = 0; }
+    _sidVizSyncButton();
+    // closed together with the player: it reopens with the player
+    if (!_sidVizWithPlayer) _sidVizSave({ open: false });
+    _sidVizWithPlayer = false;
+  });
+  const card = dlg.querySelector(".sid-viz-card");
+  if (card && typeof ResizeObserver !== "undefined") {
+    new ResizeObserver(function() {
+      if (dlg.open) _sidVizSave({ w: Math.round(card.offsetWidth), h: Math.round(card.offsetHeight) });
+    }).observe(card);
+  }
+  const saved = _sidVizState();
+  _sidVizSetBands(Number(saved.bands) || 16);
+  if (saved.open && document.getElementById("websid-play-dialog")?.open) setTimeout(_sidVizShow, 0);
 }
 
 async function _webSidPlayFileBytes(bytes, filename, song = 0) {
@@ -49830,17 +51321,33 @@ function _dlgRaise(dlg) {
   _dlgStack = _dlgStack.filter((d) => d !== dlg && d.open && !_dlgIsModal(d));
   _dlgStack.push(dlg);
   _dlgStack.forEach((d, i) => { d.style.zIndex = String(9960 + i); });
+  _dlgMarkActive(dlg);
+}
+
+// Az aktív (legutóbb használt) nem modális ablak kiemelt keretet és fejlécet kap (.dlg-active).
+function _dlgMarkActive(active) {
+  document.querySelectorAll("dialog.dlg-active").forEach((d) => { if (d !== active) d.classList.remove("dlg-active"); });
+  active?.classList.add("dlg-active");
 }
 
 function setupDialogStacking() {
   document.addEventListener("pointerdown", (e) => {
     const dlg = e.target?.closest?.("dialog[open]");
     if (dlg && !_dlgIsModal(dlg)) _dlgRaise(dlg);
+    // a főablakba kattintva egyik lebegő ablak sem aktív
+    else if (!dlg) _dlgMarkActive(null);
   }, true);
   // a toggle nem buborékol, de a document capture-fázisban megkapja
   document.addEventListener("toggle", (e) => {
     const dlg = e.target;
-    if (dlg instanceof HTMLDialogElement && dlg.open && !_dlgIsModal(dlg)) _dlgRaise(dlg);
+    if (!(dlg instanceof HTMLDialogElement)) return;
+    if (dlg.open && !_dlgIsModal(dlg)) _dlgRaise(dlg);
+    else if (!dlg.open && dlg.classList.contains("dlg-active")) {
+      // bezáráskor az alatta lévő nyitott ablak lesz az aktív
+      dlg.classList.remove("dlg-active");
+      _dlgStack = _dlgStack.filter((d) => d !== dlg && d.open && !_dlgIsModal(d));
+      _dlgMarkActive(_dlgStack[_dlgStack.length - 1] || null);
+    }
   }, true);
 }
 

@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.3 — Nyelvi kézikönyv
+# Ultimate Basic v1.6.5 — Nyelvi kézikönyv
 
 Teljes nyelvi és parancssori felület (CLI) referencia az Ultimate Basichez, egy
 BASIC-szerű nyelvhez, amely közvetlenül 6502-es gépi kóddá fordul Commodore
@@ -36,16 +36,17 @@ const BORDER_ADDR = $D020 # fordítási idejű állandó (beágyazott, nincs ZP 
 A kulcsszavak és azonosítók **nem megkülönböztetik a kis- és nagybetűket**: a
 `PRINT`, `Print` és `print` mind érvényes.
 
-| Típus                 | Szélesség     | Megjegyzések                                                  |
-| --------------------- | ------------- | ------------------------------------------------------------- |
-| `int`                 | 8 bites       | alapértelmezett numerikus literálok esetén                    |
-| `szó`                 | 16 bites      | két ZP bájt; címként használható `poke`/`peek`-ban            |
-| `lebeg`               | 16 bites Q8.8 | hi byte = egész rész (0–255), lo byte = tört rész             |
-| `karakterlánc`        | mutató        | ZP pár → null-terminált PETSCII a kódszegmensben              |
-| `tömb(N)`             | N bájt        | bájt elemek; a `$C000+` címen található, nem a ZP-ben         |
-| `array_word(N)`       | N×2 bájt      | szóelemek (16 bitesek); `$C000+` címen találhatók, nem ZP-ben |
-| `tömb(R, C, …)`       | ∏dims bájtok  | többdimenziós (sor-szak); index `arr[r, c]`                   |
-| `array_word(R, C, …)` | ∏dims×2 bájt  | többdimenziós szótömb (sor-fő)                                |
+| Típus                 | Szélesség     | Megjegyzések                                                                            |
+| --------------------- | ------------- | --------------------------------------------------------------------------------------- |
+| `int`                 | 8 bites       | alapértelmezett numerikus literálok esetén                                              |
+| `szó`                 | 16 bites      | két ZP bájt; címként használható `poke`/`peek`-ban                                      |
+| `lebeg`               | 16 bites Q8.8 | hi byte = egész rész (0–255), lo byte = tört rész                                       |
+| `egyszeres` / `dupla` | 5 bájt RAM    | lebegőpontos (C64 BASIC formátum, ~9 számjegy) — `dim x as double`; lásd *Lebegőpontos* |
+| `karakterlánc`        | mutató        | ZP pár → null-terminált PETSCII a kódszegmensben                                        |
+| `tömb(N)`             | N bájt        | bájt elemek; a `$C000+` címen található, nem a ZP-ben                                   |
+| `array_word(N)`       | N×2 bájt      | szóelemek (16 bitesek); `$C000+` címen találhatók, nem ZP-ben                           |
+| `tömb(R, C, …)`       | ∏dims bájtok  | többdimenziós (sor-szak); index `arr[r, c]`                                             |
+| `array_word(R, C, …)` | ∏dims×2 bájt  | többdimenziós szótömb (sor-fő)                                                          |
 
 #### BASIC stílusú deklarációk: `dim … as …`
 
@@ -55,18 +56,19 @@ tároló, ugyanaz a kód:
 ```basic
 DIM kor AS INTEGER # előjeles 16 bites, 0-tól kezdődik
 DIM nev AS STRING # karakterlánc, ""-ként kezdődik
-DIM fizetes AS DOUBLE # Q8.8 fixpont, 0.00-tól kezdődik
+DIM fizetes AS DOUBLE # lebegőpontos, 0-tól kezdődik
 DIM x, y AS BYTE # több név, mindegyik típust kap
 DIM pont AS INTEGER = 1000, cim AS STRING = "C64" # inicializálók, vegyes típusok
 ```
 
-| `mint …`                             | Ultimate Basic típus                                 |
-| ------------------------------------ | ---------------------------------------------------- |
-| `bájt`, `int`                        | `int` (8 bites, 0–255)                               |
-| `egész szám`                         | előjeles 16 bites (−32768 … 32767) — QBasic INTEGER  |
-| `szó`                                | `szó` (előjel nélküli 16 bites, 0–65535)             |
-| `egyszeres`, `dupla`, `lebegőpontos` | `float` (Q8.8 — 0–255.99, **not** IEEE lebegőpontos) |
-| `karakterlánc`                       | `karakterlánc`                                       |
+| `mint …`             | Ultimate Basic típus                                                                    |
+| -------------------- | --------------------------------------------------------------------------------------- |
+| `bájt`, `int`        | `int` (8 bites, 0–255)                                                                  |
+| `egész szám`         | előjeles 16 bites (−32768 … 32767) — QBasic INTEGER                                     |
+| `szó`                | `szó` (előjel nélküli 16 bites, 0–65535)                                                |
+| `egyszeres`, `dupla` | lebegőpontos, 5 bájt RAM-ban (±2,9·10⁻³⁹ … 1,7·10³⁸, ~9 számjegy) — lásd *Lebegőpontos* |
+| `lebeg`              | `float` (Q8.8 fixpont — 0–255.99, gyors)                                                |
+| `karakterlánc`       | `karakterlánc`                                                                          |
 
 - `= value` nélkül a számok 0-val, a karakterláncok pedig `""`-nél kezdődnek.
 - Az `dim a, b as integer` függvény a **both** típusneveket adja vissza (VB.NET
@@ -86,7 +88,7 @@ DIM pont AS INTEGER = 1000, cim AS STRING = "C64" # inicializálók, vegyes típ
 ```basic
 DIM tabla(2, 3) AS INTEGER ' 3 × 4 elem: tabla(0..2, 0..3)
 DIM kocka(1, 2, 3) AS BYTE ' tetszőleges számú dimenzió
-DIM ar(9) AS DOUBLE ' 10 Q8.8 érték
+DIM ar(9) AS DOUBLE ' 10 lebegőpontos érték (egyenként 5 bájt)
 DIM nevek(4) AS STRING ' 5 karakterlánc, mindegyik ""-vel kezdődik
 DIM v(9) ' nincs AS → bájt tömb
 
@@ -100,9 +102,12 @@ PRINT tabla(2, 3); " "; nevek(0); " "; ar(1)
   elemet tartalmaz. (Az `var t = array(3, 4)` elemszámot vesz fel — ugyanaz a
   tömb.)
 - Elemtípusok: `byte`/`int` → 1 byte, `integer` (előjeles) / `word` → 2 byte,
-  `single`/`double`/`float` → 2 byte Q8.8, `string` → 2 byte pointer. A
-  határoknak fordítási idejű állandóknak kell lenniük; a tömbök az `$C000-$CFFF`
-  (4096 byte, ellenőrizve) mappában találhatók.
+  `float` → 2 byte Q8.8, `single`/`double` → 5 byte lebegőpontos, `string` → 2
+  byte-os pointer. A határoknak fordítási idejű állandóknak kell lenniük. A
+  tömbök a `$C000-$CFFF` (4 KB) mappában találhatók; Amikor többre van
+  szükségük, a teljes tömbterület a `$A000-$CFFF` mappába kerül (12 KB, a BASIC
+  ROM alatt — lásd *Tömbmemória*). 12288 bájtnál nagyobb méret fordítási idejű
+  hibát jelent.
 - A karakterlánc-tömb elemei így kezdődnek: `""`; `nevek(i) = "TEXT"` / `= s` /
   `= a + b`, `n = nevek(i)`, nyomtatás, `+`, átadva egy `string` paraméternek és
   `input nevek(i)` mind működnek (a nem literál értékek elemenként egy 31
@@ -1563,11 +1568,25 @@ var v = peek(addr_var) # LDA (addr_var),Y — ha az addr_var szótípus
 
 var w: word = peek16($C000) # 16 bites little-endian olvasása: lo=$C000, hi=$C001
 poke16 $0314, $EA81 # 16 bites little-endian írása: lo→$0314, hi→$0315
-poke16 ptr, w # word var címként; word var értékként
+poke16 ptr, w # a word var címként van megadva; szó változó értékként
+
+var k = 2
+var p = peek($07F8 + k) # LDA $07F8,Y — konstans + bájtváltozó
+poke $07F8 + k, p # STA $07F8,Y
+poke ptr + k, 1 # szó + bájt: teljes 16 bites cím
 ```
 
 A `peek16(addr)` két egymást követő bájtot (lo, hi) `word`-ként olvas be. A
 `poke16` először a "lo", majd a "hi" karaktereket írja.
+
+Egy cím mindig egy 16 bites érték. Az 1.6.5-ös verzió óta egy olyan
+címkifejezés, mint az `$07F8 + k`, megtartja a konstans felső bájtját és az
+átvitelt (korábban 8 bitben számították ki, és a `peek($07F8 + k)` a
+következőképpen olvasta be: `$00F8 + k`). Ez igaz a `peek`, `poke`, `peek16`,
+`poke16`, `fill`, `memcopy`, `drawmem`, `save` és `reu` sorokra; a `fill` /
+`memcopy` hosszúságok, mint például a `40 * rows` szintén 16 bitesek. A
+bájtváltozóval rendelkező `peek(k)` parancs beolvassa az `$00kk` címet (az 1.6.5
+előtti verziók előtt maga az `k` cím értékét adta vissza).
 
 ### Lemez I/O
 
@@ -1663,8 +1682,10 @@ vonalbemenetet biztosít DEL támogatással.
   bites értékké konvertál.
 - **Karakterlánc-változó**: maximum 30 karaktert fogad el; nullával lezárt
   karakterláncként tárolódik; a ZP pár frissül.
-- **DOUBLE var** (1.6.3): számjegyek és `.`, pl. `12,5` → 12,50 (két
+- **FLOAT változó** (1.6.3): számjegyek és `.`, pl. `12,5` → 12,50 (két
   tizedesjegy).
+- **EGYSZERES / KETTŐS változó** (1.6.4): tetszőleges szám, `-12,5`, `.5`,
+  `3,25E2`.
 - **Tömbelem** (1.6.3): `input t(i)` / `input nevek(i)`; `input "prompt"; x` is
   működik.
 - **Karakterlánc var**: maximum 30 karaktert fogad el; nullával lezárt
@@ -1705,6 +1726,86 @@ ezekben az esetekben a `int()` + egész aritmetikai műveletet kell használni.
 eredményt. Az 1.5.7 előtt a nyers 16 bites értéket egész számként nyomtatta ki
 (`25` a `0.09` helyett). A tört csonkolva van, nem kerekítve: az 1/10 = 25/256
 `0.09` formátumban nyomtatja ki.
+
+### Lebegőpontos: `EGYSZERES` / `DUPLA` (1.6.4)
+
+Az `dim x as single` és az `dim x as double` valós lebegőpontos számok – a C64
+BASIC 5 bájtos formátuma: körülbelül 9 értékes számjegy, tartomány ±2,9·10⁻³⁹ …
+±1,7·10³⁸. (Az `single` és az `double` ugyanazon típus.) A gyors 2 bájtos Q8.8
+típus továbbra is elérhető `float` néven.
+
+```basic
+DIM r AS DOUBLE, t AS DOUBLE
+DIM k(9) AS SINGLE ' tömbök: 5 bájt elemenként
+r = 2,5
+t = ATN(1) * 4 * r ^ 2 ' 19,6349541
+PRINT t; " "; SQR(2); " "; 1E10; " "; 1 / 3
+FOR r = 0 TO 1 STEP 0,25 : PRINT r : NEXT
+FUNCTION Atfogo(a AS DOUBLE, b AS DOUBLE) AS DOUBLE
+Atfogo = SQR(a * a + b * b)
+END FUNCTION
+```
+
+|                       |                                                                                                                                                                                |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Operátorok            | `+ - * /` és `^` (hatvány; jobb asszociatív, szorosabb kötés, mint az egykomponensű mínusz: `-2^2` = -4)                                                                       |
+| Funkciók              | `SQR`, `SIN`, `COS`, `TAN`, `ATN` (radián), `EXP`, `LOG` (természetes), `INT` (padló), `FIX` (csonkítás), `CINT` (kerek), `ABS`, `SGN`, `CSNG` / `CDBL` (nincs művelet), `VAL` |
+| Literálok             | `1,5`, `.5`, `1E6`, `2,5e-3`, `70000`                                                                                                                                          |
+| Összehasonlítások     | `= &lt;&gt; &lt; &gt; &lt;= &gt;=` a `HA` / `MIközben` / `Amíg` / `SELECT CASE` és értékekként                                                                                 |
+| Nyomtatás             | C64 BASIC stílus: `.5`, `-3.25`, `3.33333333`, `1E+10`, `1.5E-07` (nincs kezdő szóköz)                                                                                         |
+| Húrok                 | `s = "X=" + x`, `STR$(x)`, `VAL(s)` beolvassa a `-1.25E3` értéket                                                                                                              |
+| `FOR`                 | lebegőpontos számláló, határérték és lépésköz (`STEP 0.1`, negatív vagy változó)                                                                                               |
+| `BEVITEL` / `OLVASÁS` | `INPUT x` beolvas bármilyen számot; `READ x` beolvassa a következő `adat` bájtot                                                                                               |
+| Al-/funkció           | `p AS DOUBLE` paraméterek és `AS DOUBLE` eredmények                                                                                                                            |
+
+**Egész számokkal való keverés.** Egy kifejezés lebegőpontos konstansként kerül
+kiszámításra, ha EGYSZERES / KETTŐS értéket, `^` értéket, a fenti függvények
+egyikét, vagy egy olyan literált tartalmaz, amelyet csak lebegőpontos érték
+tarthat meg (`1E6`, `300.5`, `70000`). Ha egy program lebegőpontos számot
+használ, minden decimális literál (`0.1`) szintén lebegőpontos konstans. Egy
+lebegőpontos érték `bájtba`, `egész számba` vagy `szóba` **kerekítve** jelenik
+meg (nullától félig: 2,5 → 3, -2,5 → -3); egy `float` szóba Q8,8 lesz. Egy
+DOUBLE-hoz rendelt egész szám pontosan konvertálódik. Az egész szám kifejezések
+megtartják az egész számra vonatkozó szabályaikat (az `var c = a + b` továbbra
+is egy bájt).
+
+**Jegyzetek**
+- Egy 32768-tól 65535-ig terjedő egészszám literált 16 bites mintaként olvasunk
+  be, és lebegőpontos kontextusban negatívvá válik: írjuk be a `40000.0` vagy az
+  `4E4` értéket.
+- Az `7 / 2` értéke 3,5, ha DUPLA típusúhoz rendeljük; egész kontextusban, mint
+  korábban, 3.
+- Az `x MOD y` és az `ÉS` / `VAGY` / `XVAGY` függvények egész számra kerekítik
+  az operandusaikat.
+- Egy bájtérték `SIN` / `COS` értékei megőrzik a régi 0–255 táblázat jelentését
+  (teljes kör = 256); EGYSZERES / KETTŐS argumentummal radiánban működnek.
+- A lebegőpontos kód nem futtatható IRQ / NMI kezelőkben (a futtatókörnyezet fix
+  RAM-ban tartja az állapotát).
+- Költség: a lebegőpontos futási környezetet (kb. 4,4 KB, a fordító állítja
+  össze) a program után fűzzük hozzá, amikor a SINGLE / DOUBLE paramétert
+  először használjuk. A változók 5 bájtot foglalnak el a tömbterületen, plusz
+  egy 2 bájtos nulla oldalas mutatót a futási környezethez. Egy szorzás
+  nagyjából 1-2 ms-ot vesz igénybe egy 1 MHz-es C64-en.
+
+### Változók RAM-ban, tömbmemóriában (1.6.4)
+
+- **Nulla oldal megtelt:** amikor a program változói nem férnek el az állandó
+  nulla oldalra (`$02-$4F`), a fordító újrafordítja azt, és a gyorskódban
+  legkevésbé használt változókat a normál RAM-ba (a tömbök után) helyezi át. Egy
+  ilyen változót használó utasítás azt egy nulla oldalas helyre és vissza
+  másolja, így a programok ugyanúgy viselkednek, csak ezek a változók egy kicsit
+  lassabbak. A ciklusszámlálók, paraméterek és bármi, amit egy IRQ kezelő
+  megérinthet, a nulla oldalon marad. A memóriatérkép `RAM:$xxxx` formában
+  mutatja őket. A nulla oldal kimerülése már nem hiba, kivéve szélsőséges
+  eseteket (az `nulla oldal kimerülése` megmarad ezekre).
+- **Tömbmemória: Az ** tömbök (és a kiömlött / lebegőpontos változók) az
+  `$C000-$CFFF` tartományt használják. Amikor 4096 bájtnál több helyre van
+  szükségük, a terület `$A000` tartományban kezdődik, ami 12 KB-ot eredményez
+  (`$A000-$CFFF`): a BASIC ROM a program indításakor kikapcsol (`$01` 0. bit),
+  és minden BASIC-be való kilépéskor újra bekapcsol (`end`, `bye`, end of
+  program, `chain`), így a program továbbra is egy működő BASIC-be tér vissza. A
+  BASIC ROM rutinokat maguk hívó programok (`sys $Axxx`) nem használhatnak 4
+  KB-nál több tömböt.
 
 ### Matematikai függvények
 
@@ -2077,26 +2178,29 @@ párban tárolja a rendszer, amelyet fordítási időben foglalnak le.
 
 ## Példák
 
-| Fájl                                  | Leírás                                                                                     |
-| ------------------------------------- | ------------------------------------------------------------------------------------------ |
-| `példák/jellemzők.ub`                 | konstans, címke/goto, piszkálás/bukás, rnd, matematikai függvények                         |
-| `példák/új_szolgáltatások.ub`         | alparaméterek, tömbök, szóváltozók, karakterláncváltozók                                   |
-| `példák/bitmap_demo.ub`               | 320×200 bitkép, plot, grafika be/ki                                                        |
-| `példák/blokk_demo.ub`                | 80×50 blokkgrafika, plot4, circle4, grafika blokkon                                        |
-| `példák/joystick_demo.ub`             | joystick olvasás, sprite mozgás                                                            |
-| `példák/mux_demo.ub`                  | raszteres sprite multiplexer (3 ablak × 8 sprite = 24)                                     |
-| `példák/orbit_demo.ub`                | 24 sprite pálya pulzáló sugárral és véletlenszerű színekkel                                |
-| `példák/plasma_demo.ub`               | plazmahatású bitkép raszteres sávszegély animációval                                       |
-| `példák/sprite_adatok.ub`             | sprdef alakzatadatok (más demókban is megtalálhatók)                                       |
-| `példák/sprite_mux_orbit.ub`          | 24 sprite-os pálya demó sprdef-fel + előre kiszámított pozíciókkal                         |
-| `példák/sprite_orbit_demo.ub`         | 8 hardveres sprite körpályán sin/cos táblázat segítségével                                 |
-| `példák/reu_bitmap_demo.ub`           | REU stash/fetch bitmap grafikával                                                          |
-| `példák/sid_music_demo.ub`            | SID zenelejátszó raszteres IRQ-val és billentyűzetkilépéssel                               |
-| `példák/tenprint.ub`                  | 5 TENPRINT labirintus implementáció menüvel; demók `lowercase` karakterkészlet módban      |
-| `példák/visszaszámláló_demo.ub`       | Visszaszámlálás `for..next` negatív lépésekkel, beleértve a `for i = 20 to 0 step -2`-t is |
-| `példák/visszaszámláló_hibák_demo.ub` | Fordítási idejű hiba az alapértelmezett lépéshez `from > to`                               |
-| `példák/explicit_demo.ub`             | `--explicit` CLI-flag bemutató teljesen begépelt `var`, `sub`, `fn` szövegekkel            |
-| `examples/explicit_errors_demo.ub`    | Laza kód, ami `--explicit` nélkül épül fel, hibákat okoz                                   |
+| Fájl                                  | Leírás                                                                                                |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `példák/jellemzők.ub`                 | konstans, címke/goto, piszkálás/bukás, rnd, matematikai függvények                                    |
+| `példák/új_szolgáltatások.ub`         | alparaméterek, tömbök, szóváltozók, karakterláncváltozók                                              |
+| `példák/bitmap_demo.ub`               | 320×200 bitkép, plot, grafika be/ki                                                                   |
+| `példák/blokk_demo.ub`                | 80×50 blokkgrafika, plot4, circle4, grafika blokkon                                                   |
+| `példák/joystick_demo.ub`             | joystick olvasás, sprite mozgás                                                                       |
+| `példák/mux_demo.ub`                  | raszteres sprite multiplexer (3 ablak × 8 sprite = 24)                                                |
+| `példák/orbit_demo.ub`                | 24 sprite pálya pulzáló sugárral és véletlenszerű színekkel                                           |
+| `példák/plasma_demo.ub`               | plazmahatású bitkép raszteres sávszegély animációval                                                  |
+| `példák/sprite_adatok.ub`             | sprdef alakzatadatok (más demókban is megtalálhatók)                                                  |
+| `példák/sprite_mux_orbit.ub`          | 24 sprite-os pálya demó sprdef-fel + előre kiszámított pozíciókkal                                    |
+| `példák/sprite_orbit_demo.ub`         | 8 hardveres sprite körpályán sin/cos táblázat segítségével                                            |
+| `példák/reu_bitmap_demo.ub`           | REU stash/fetch bitmap grafikával                                                                     |
+| `példák/sid_music_demo.ub`            | SID zenelejátszó raszteres IRQ-val és billentyűzetkilépéssel                                          |
+| `példák/tenprint.ub`                  | 5 TENPRINT labirintus implementáció menüvel; demók `lowercase` karakterkészlet módban                 |
+| `példák/visszaszámláló_demo.ub`       | Visszaszámlálás `for..next` negatív lépésekkel, beleértve a `for i = 20 to 0 step -2`-t is            |
+| `példák/visszaszámláló_hibák_demo.ub` | Fordítási idejű hiba az alapértelmezett lépéshez `from > to`                                          |
+| `példák/explicit_demo.ub`             | `--explicit` CLI-flag bemutató teljesen begépelt `var`, `sub`, `fn` szövegekkel                       |
+| `examples/explicit_errors_demo.ub`    | Laza kód, ami `--explicit` nélkül épül fel, hibákat okoz                                              |
+| `példák/dim_demo.ub`                  | `DIM … AS …` minden típusú skalár és tömb                                                             |
+| `examples/qbasic_demo.ub`             | QBasic stílusú FUNCTION / SUB / ELSEIF / DO-LOOP / SELECT CASE / karakterláncok                       |
+| `példák/float_demo.ub`                | EGYSZERES / KETTŐS lebegőpontos: `^`, SQR, SIN, ATN, EXP, LOG, `FOR … STEP 0.5`, `AS DOUBLE` függvény |
 
 ## CLI-referencia
 
@@ -2313,25 +2417,26 @@ Használd az `--asm` kapcsolót a saját programodhoz generált kód megtekinté
 
 ## Ismert korlátozások
 
-| Jellemző                              | Korlátozás                                                                                                                                                                                                                                                                                                                                                                                                        |
-| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Egész számtani                        | 8 bites előjel nélküli (0–255); a `word` változók 16 bites értékeket tárolnak                                                                                                                                                                                                                                                                                                                                     |
-| Nulla oldalas költségvetés            | Az állandó nulla oldal az `$02–$4F` (78 bájt): minden változó és sub/fn paraméter 2 bájtot foglal el, minden futó `for` ciklus további 2 bájtot (amit a ciklus végén ad vissza, ha a törzsében nem deklaráltak változókat). A kifutás fordítási idejű hibát okoz (`out of zero page`, újdonság az 1.5.7-es verzióban); korábban csendben felülírta a munkaterületet. Változók újrafelhasználása nagy programokban |
-| Bináris literálok                     | Csak az `$hex` és a decimális; az `%` bináris literálok nem támogatottak.                                                                                                                                                                                                                                                                                                                                         |
-| Alprogramok                           | Nincs rekurzió — A ZP paraméterhelyek statikusan vannak lefoglalva                                                                                                                                                                                                                                                                                                                                                |
-| Karakterlánc-változók                 | Read-only after init; assignment replaces the pointer, not the data                                                                                                                                                                                                                                                                                                                                               |
-| Karakterlánc-összefűzés futásideje    | `s1 + s2` szekvenciálisan nyomtat — nincs halomfoglalás vagy hosszkövetés                                                                                                                                                                                                                                                                                                                                         |
-| `ford()` / `ford(n)`                  | Egyszerű LCG, nem kriptográfiai; periódus = 256                                                                                                                                                                                                                                                                                                                                                                   |
-| `abs()` / `sgn()` / `min()` / `max()` | csak 8 bites értékek; `abs`/`sgn` az értékeket előjelesként kezeli (7. bit = negatív → `abs` kettes komplementer, `sgn` `$FF` értéket ad vissza); `min`/`max` előjel nélküliek (0–255)                                                                                                                                                                                                                            |
-| `diagram`                             | A tartományon kívüli pixeleket hangtalanul levágja a rendszer (Y ≥ 200 vagy X ≥ 320 → nincs művelet)                                                                                                                                                                                                                                                                                                              |
-| `mplot`                               | Nincs határérték-ellenőrzés — x-nek 0–159, y-nak 0–199 között kell lennie                                                                                                                                                                                                                                                                                                                                         |
-| `mline` / `mrect`                     | Többszínű; x: 0–159, y: 0–199. Képernyőn kívüli pixelek tördelése (nincs vágás) – a koordináták a tartományon belül maradnak                                                                                                                                                                                                                                                                                      |
-| `mkör`                                | Többszínű; képernyőn kívüli pontokat vág (x ≥ 160 vagy y ≥ 200 kihagyva)                                                                                                                                                                                                                                                                                                                                          |
-| `színes toll`                         | Csak felvételek; beállítja az érintett cellák előtérbeli részét (a háttér megmarad). Blokk módban nincs hatása (`plot4`/`circle4`)                                                                                                                                                                                                                                                                                |
-| `egyenes`                             | Nincs határérték-ellenőrzés — x: 0–319, y: 0–199; x1≤x2 és y1≤y2 nincsenek kikényszerítve (a degenerált/invertált egyenesek nem definiált kimenetet eredményeznek)                                                                                                                                                                                                                                                |
-| `plot4`                               | Nincs határérték-ellenőrzés — x értékének 0–79, y értékének 0–49 között kell lennie (blokk mód)                                                                                                                                                                                                                                                                                                                   |
-| `kör4`                                | Kivágja a képernyőn kívüli blokkképpontokat; a hasznos sugár nagyjából 0–49 80×50-es blokk módban.                                                                                                                                                                                                                                                                                                                |
-| `karakter`                            | Nincs PETSCII↔ASCII leképezés — az n értékét változatlanul adja át a CHROUT-nak                                                                                                                                                                                                                                                                                                                                   |
-| `zenelejátszás`                       | `load sid` vagy `tune` blokkot igényel; csak egy CIA1 wrapper kerül kibocsátásra (az utolsó `musicplay` nyer)                                                                                                                                                                                                                                                                                                     |
-| `grafika dupla `-en                   | Csak bérelt példányok; `$4000–$7FFF` karaktereket használ a hátsó pufferhez, így a programkódnak `$4400` alatt kell maradnia; nem kombinálható sprite-okkal vagy többszínűvel                                                                                                                                                                                                                                     |
-| Hibajelentés                          | Csak fordítási időben; a `onerr goto` futási időben kezeli a KERNAL I/O hibákat                                                                                                                                                                                                                                                                                                                                   |
+| Jellemző                              | Korlátozás                                                                                                                                                                                                                                                                                                                                 |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Egész számtani                        | 8 bites előjel nélküli (0–255); a `word` változók 16 bites értékeket tárolnak                                                                                                                                                                                                                                                              |
+| Nulla oldalas költségvetés            | Az állandó nulla oldal az `$02–$4F` (78 bájt): minden változó és sub/fn paraméter 2 bájtot foglal el, minden futó `for` ciklus további 2 bájtot. Az 1.6.4 verzió óta a nem illeszkedő változók automatikusan a RAM-ba kerülnek (lásd *Változók a RAM-ban*); csak szélsőséges esetekben jelenik meg továbbra is a `kiesés a nulla oldalról` |
+| Bináris literálok                     | `%01010101` (1.6.4 óta), `$hex` és decimális                                                                                                                                                                                                                                                                                               |
+| Alprogramok                           | Nincs rekurzió — A ZP paraméterhelyek statikusan vannak lefoglalva                                                                                                                                                                                                                                                                         |
+| Karakterlánc-változók                 | Az `single` / `double` értékek 5 bájtos lebegőpontosak az 1.6.4-es verzió óta (IRQ kezelőkben nem használhatók; a ~4,4 KB-os futási környezet hozzáadódott a programhoz); az `float` Q8.8 marad (0–255,99)                                                                                                                                 |
+| Unáris mínusz                         | Az 1.6.4 óta a vezető `-` az operandusához kapcsolódik: `-5 - 3` értéke -8 (korábban -(5 - 3) = -2)                                                                                                                                                                                                                                        |
+| Karakterlánc-összefűzés futásideje    | `s1 + s2` szekvenciálisan nyomtat — nincs halomfoglalás vagy hosszkövetés                                                                                                                                                                                                                                                                  |
+| `ford()` / `ford(n)`                  | Egyszerű LCG, nem kriptográfiai; periódus = 256                                                                                                                                                                                                                                                                                            |
+| `abs()` / `sgn()` / `min()` / `max()` | csak 8 bites értékek; `abs`/`sgn` az értékeket előjelesként kezeli (7. bit = negatív → `abs` kettes komplementer, `sgn` `$FF` értéket ad vissza); `min`/`max` előjel nélküliek (0–255)                                                                                                                                                     |
+| `diagram`                             | A tartományon kívüli pixeleket hangtalanul levágja a rendszer (Y ≥ 200 vagy X ≥ 320 → nincs művelet)                                                                                                                                                                                                                                       |
+| `mplot`                               | Nincs határérték-ellenőrzés — x-nek 0–159, y-nak 0–199 között kell lennie                                                                                                                                                                                                                                                                  |
+| `mline` / `mrect`                     | Többszínű; x: 0–159, y: 0–199. Képernyőn kívüli pixelek tördelése (nincs vágás) – a koordináták a tartományon belül maradnak                                                                                                                                                                                                               |
+| `mkör`                                | Többszínű; képernyőn kívüli pontokat vág (x ≥ 160 vagy y ≥ 200 kihagyva)                                                                                                                                                                                                                                                                   |
+| `színes toll`                         | Csak felvételek; beállítja az érintett cellák előtérbeli részét (a háttér megmarad). Blokk módban nincs hatása (`plot4`/`circle4`)                                                                                                                                                                                                         |
+| `egyenes`                             | Nincs határérték-ellenőrzés — x: 0–319, y: 0–199; x1≤x2 és y1≤y2 nincsenek kikényszerítve (a degenerált/invertált egyenesek nem definiált kimenetet eredményeznek)                                                                                                                                                                         |
+| `plot4`                               | Nincs határérték-ellenőrzés — x értékének 0–79, y értékének 0–49 között kell lennie (blokk mód)                                                                                                                                                                                                                                            |
+| `kör4`                                | Kivágja a képernyőn kívüli blokkképpontokat; a hasznos sugár nagyjából 0–49 80×50-es blokk módban.                                                                                                                                                                                                                                         |
+| `karakter`                            | Nincs PETSCII↔ASCII leképezés — az n értékét változatlanul adja át a CHROUT-nak                                                                                                                                                                                                                                                            |
+| `zenelejátszás`                       | `load sid` vagy `tune` blokkot igényel; csak egy CIA1 wrapper kerül kibocsátásra (az utolsó `musicplay` nyer)                                                                                                                                                                                                                              |
+| `grafika dupla `-en                   | Csak bérelt példányok; `$4000–$7FFF` karaktereket használ a hátsó pufferhez, így a programkódnak `$4400` alatt kell maradnia; nem kombinálható sprite-okkal vagy többszínűvel                                                                                                                                                              |
+| Hibajelentés                          | Csak fordítási időben; a `onerr goto` futási időben kezeli a KERNAL I/O hibákat                                                                                                                                                                                                                                                            |

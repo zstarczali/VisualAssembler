@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.6.1**
+**Version 2.6.2**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -9,6 +9,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
+    - [Version 2.6.2 Highlights](#version-262-highlights)
     - [Version 2.6.1 Highlights](#version-261-highlights)
     - [Version 2.6.0 Highlights](#version-260-highlights)
     - [Version 2.5.9 Highlights](#version-259-highlights)
@@ -191,6 +192,17 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [Curve Editor](#curve-editor)
     - [Table Generator](#table-generator)
     - [Number Converter](#number-converter)
+
+---
+
+## Version 2.6.2 Highlights
+
+- **HVSC in the SID Player** — search the High Voltage SID Collection (about 61,000 tunes) by title, composer or folder, play, add to the playlist or save any tune; download the whole collection in one go for offline use, or point the player at an unpacked HVSC folder. Tunes from HVSC get their real length on the seek bar, and the playlist moves on when a subtune ends. See [HVSC (High Voltage SID Collection)](#hvsc-high-voltage-sid-collection).
+- **Spectrum analyzer** — a floating LED-bar visualizer for the SID Player with 8 to 32 bands, fading cells and a mirrored floor. See [Spectrum analyzer](#spectrum-analyzer).
+- **Lesson Editor** — turn your own program into a step-by-step guided lesson like the built-in "Build: Your First Text Program": add explanations, pick the folder, try it, save it, export / import `.vatut` files. See [Tutorials and the Lesson Editor](#tutorials-and-the-lesson-editor).
+- **Online lessons** — download lessons published on www.c64va.pro straight into the Tutorials list, with updates, and upload your own from the Lesson Editor for review. See [Online lessons](#online-lessons).
+- **Every macro takes its parameters in the operand field** — `SET_BG $06`, `REGION Main`, `ORG $C000`, `SPRITE_POS 1, 200, 50` …: the text is read as the macro's Expert line, and the field shows the expected form. See [Parameters in the operand field](#parameters-in-the-operand-field).
+- **Smaller improvements** — the active floating window is highlighted, the Support window looks like a chat, the mouse wheel scrolls the tab bar sideways, and the Ultimate Basic code size column no longer covers the line numbers.
 
 ---
 
@@ -452,6 +464,20 @@ The palette on the left lists all available blocks grouped by category:
 
 Use the **search box** at the top of the palette to filter by name. Click the **Add selected block** button or drag a block into the program area.
 
+### Parameters in the operand field
+
+Every block with parameters takes them in the **operand field** before **Add**. For an instruction it is the operand (`06` for `LDA #$06`); for TEXT, BYTE, LABEL, REGION and the other text or list macros it is their text or value; for every other macro it is what follows its keyword in Expert mode:
+
+| Block | Operand field | Becomes |
+|-------|---------------|---------|
+| SET_BG | `$06` | `.set_bg $06` |
+| REGION | `Main` | `.region Main` |
+| ORG | `$C000` | `* = $C000` |
+| SPRITE_POS | `1, 200, 50` | `.sprite_pos 1, 200, 50` |
+| LOOP | `Y, $05, myloop` | `.loop Y, $05, myloop` |
+
+The field shows the macro's default parameters as a hint. Blocks without parameters (ENDREGION, ELSE …) and the file macros (INCBIN, KOALA, LEVEL, SID, INCLUDE — they pick their file in the block) keep the field disabled.
+
 ---
 
 ## 3. Program Area
@@ -709,6 +735,21 @@ The project is created in its own folder: `<location>/<name>/<name>.proj` plus `
 ```
 
 `@name`, `@category` and `@desc` may have per-language variants (`@name.hu`, `@desc.de`, …); `@order` sorts the list. Everything after the header becomes the new main file, and `{{PROJECT}}` is replaced with the project name (use it in a comment so the template itself still compiles).
+
+### Tutorials and the Lesson Editor
+
+The **Tutorials** window lists tours and lessons by folder. The **Lesson editor…** button at the bottom of the list (and **Edit lesson** on your own lessons) opens the **Lesson Editor**, which makes a step-by-step lesson like "Build: Your First Text Program" from your own code:
+
+1. Write the program in the Block or Expert editor.
+2. In the Lesson Editor press **Steps from the current program**. Every line becomes the student's steps: pick the mnemonic (a wrong one is preselected), type the operand, press **Add**. Where the palette cannot set everything (a TEXT position, for example), a **Set the parameters** step points at the new block and moves on when it matches.
+3. Give the lesson a title, description, difficulty and **folder** (any Tutorials category). Add **text steps** for explanations, optionally pointing at a part of the window (palette, program panel, ASM view, Run button, memory map). Leave a step's title or explanation empty for the generated text.
+4. **Try the lesson** (it clears the current program), then **Save lesson** (Ctrl+S).
+
+Texts are saved in the current UI language; a student using another language sees them, or the generated text where you wrote none. **Fill in macro parameters automatically** skips the parameter steps for the student. **Files ▾** creates, deletes, exports and imports lessons as `.vatut` files, and opens the lessons folder.
+
+#### Online lessons
+
+**Online lessons…** in the Tutorials window lists the lessons published on www.c64va.pro with their folder, difficulty and number of steps. **Download** puts a lesson into its folder in the Tutorials list; **Update** appears when the site has a newer version (the Lesson Editor raises a lesson's revision on every save). To share your own lesson, use **Files ▾ → Upload to c64va.pro…** in the Lesson Editor: give your name (shown as the author) and optionally an email and a note. The lesson is reviewed first; once approved it appears in everyone's Online lessons list. Your email is never published.
 
 ### Build project
 
@@ -4270,6 +4311,20 @@ The **SID Player** toolbar button opens a floating window that plays `.sid` musi
 - **Engine:** the window shows which engine is playing (WebSID, or VA SID Core with its version and SID chip); choose it in **Settings → SID preview**. VA SID Core runs the tune on a native Rust C64 core with a cycle-exact 6510, precise interrupt timing, CIA 6526A, VIC-II timing with bad lines, sprite DMA and raster interrupts, and the 6510 I/O port — so raster-IRQ, CIA-timed and digi tunes play with the timing of a real machine.
 - **Shuffle:** the shuffle button next to **Next** plays the playlist in random order — no tune repeats until every tune has played, and **Previous** steps back along the random order. The setting is remembered.
 - **Favourites:** the ☆ / ★ in each row marks a tune; it is kept in the saved state and in `.sidpl` playlists.
+
+#### HVSC (High Voltage SID Collection)
+
+The **HVSC** button in the SID Player toolbar opens a search panel for the [High Voltage SID Collection](https://www.hvsc.c64.org/), about 61,000 C64 tunes.
+
+- **Search:** type a title, composer or folder (`hubbard commando`, `games/s-z`); every word has to match. **Random tunes** lists 25 random ones.
+- **Play / add / save:** click a tune to play it, **+** adds it to the playlist, the download button saves the `.sid` file. **Add all results** adds up to 100 found tunes.
+- **Tune lengths:** HVSC knows the length of every subtune, so the seek bar shows it and the playlist moves on when the subtune ends.
+- **Where tunes come from:** the catalog and single tunes are downloaded from an HVSC mirror on first use and kept in the app's cache, so a tune played once also plays offline. **Update catalog** fetches the newest list.
+- **Whole collection:** **Download the whole collection…** downloads the official HVSC archive (about 85 MB) into a folder you pick and unpacks it there (about 380 MB); from then on the player uses that copy and works offline. **Use a local HVSC folder…** points it at a collection you already have.
+
+#### Spectrum analyzer
+
+The bar button in the SID Player toolbar opens the **Spectrum** window: LED-style bars from green through yellow to orange, cells that fade out slowly and a mirrored floor in perspective. It shows whatever the SID Player or the SID Editor plays, with either engine. **Bands** sets 8, 16, 24 or 32 bands. The window can be moved and resized, it closes and reopens together with the SID Player, and it draws only while it is open.
 
 ---
 

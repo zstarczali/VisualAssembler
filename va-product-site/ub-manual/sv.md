@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.3 — Språkmanual
+# Ultimate Basic v1.6.5 — Språkmanual
 
 Komplett språk- och CLI-referens för Ultimate Basic, ett BASIC-liknande språk
 som kompilerar direkt till 6502-maskinkod för Commodore 64. Utdata: `.prg` filer
@@ -35,16 +35,17 @@ const BORDER_ADDR = $D020 # kompileringstidskonstant (substituerad inline, ingen
 Nyckelord och identifierare är **skiftlägesokänsliga**: `PRINT`, `Print` och
 `print` är alla giltiga.
 
-| Typ                   | Bredd          | Anteckningar                                         |
-| --------------------- | -------------- | ---------------------------------------------------- |
-| `int`                 | 8-bitars       | standard för numeriska literaler                     |
-| `ord`                 | 16-bitars      | två ZP-byte; kan användas som adress i `poke`/`peek` |
-| `flyta`               | 16-bitars Q8.8 | hi byte = heltalsdel (0–255), lo byte = bråkdel      |
-| `sträng`              | pekare         | ZP-par → nollterminerad PETSCII i kodsegment         |
-| `matris(N)`           | N byte         | byte-element; finns på `$C000+`, inte i ZP           |
-| `array_ord(N)`        | N×2 byte       | ordelement (16-bitars); finns på `$C000+`, inte i ZP |
-| `array(R, C, …)`      | ∏dims byte     | flerdimensionell (rad-stor); index `arr[r, c]`       |
-| `array_word(R, C, …)` | ∏dims×2 byte   | flerdimensionell ordmatris (rad-stor)                |
+| Typ                   | Bredd          | Anteckningar                                                               |
+| --------------------- | -------------- | -------------------------------------------------------------------------- |
+| `int`                 | 8-bitars       | standard för numeriska literaler                                           |
+| `ord`                 | 16-bitars      | två ZP-byte; kan användas som adress i `poke`/`peek`                       |
+| `flyta`               | 16-bitars Q8.8 | hi byte = heltalsdel (0–255), lo byte = bråkdel                            |
+| `enkel` / `dubbel`    | 5 byte, RAM    | flyttal (C64 BASIC-format, ~9 siffror) — `dim x som dubbelt`; se *Flyttal* |
+| `sträng`              | pekare         | ZP-par → nollterminerad PETSCII i kodsegment                               |
+| `matris(N)`           | N byte         | byte-element; finns på `$C000+`, inte i ZP                                 |
+| `array_ord(N)`        | N×2 byte       | ordelement (16-bitars); finns på `$C000+`, inte i ZP                       |
+| `array(R, C, …)`      | ∏dims byte     | flerdimensionell (rad-stor); index `arr[r, c]`                             |
+| `array_word(R, C, …)` | ∏dims×2 byte   | flerdimensionell ordmatris (rad-stor)                                      |
 
 #### BASIC-deklarationer: `dim … som …`
 
@@ -54,18 +55,19 @@ lagring, samma kod:
 ```basic
 DIM kor AS INTEGER # signerad 16-bitars, börjar vid 0
 DIM nev AS STRING # sträng, börjar som ""
-DIM files AS DOUBLE # Q8.8 fixed point, börjar vid 0.00
+DIM files AS DOUBLE # flyttal, börjar vid 0
 DIM x, y AS BYTE # flera namn, alla får typen
 DIM punkt AS INTEGER = 1000, cim AS STRING = "C64" # initialiseringar, blandade typer
 ```
 
-| `som …`                       | Ultimat grundläggande typ                           |
-| ----------------------------- | --------------------------------------------------- |
-| `byte`, `helhet`              | `int` (8-bitars, 0–255)                             |
-| `heltal`                      | signerad 16-bitars (−32768 … 32767) — QBasic HELTAL |
-| `ord`                         | `ord` (osignerad 16-bitars, 0–65535)                |
-| `enkel`, `dubbel`, `flytande` | `flyttal` (Q8.8 — 0–255.99, **inte** IEEE-flyttal)  |
-| `sträng`                      | `sträng`                                            |
+| `som …`           | Ultimat grundläggande typ                                                |
+| ----------------- | ------------------------------------------------------------------------ |
+| `byte`, `helhet`  | `int` (8-bitars, 0–255)                                                  |
+| `heltal`          | signerad 16-bitars (−32768 … 32767) — QBasic HELTAL                      |
+| `ord`             | `ord` (osignerad 16-bitars, 0–65535)                                     |
+| `enkel`, `dubbel` | flyttal, 5 byte i RAM (±2,9·10⁻³⁹ … 1,7·10³⁸, ~9 siffror) — se *Flyttal* |
+| `flyta`           | `flytande` (Q8.8 fast punkt — 0–255.99, snabbt)                          |
+| `sträng`          | `sträng`                                                                 |
 
 - Utan `= värde` börjar tal på 0 och strängar på `""`.
 - `dim a, b som heltal` ger **båda** namnen av typen (VB.NET-stil, inte QBasic).
@@ -85,11 +87,11 @@ DIM punkt AS INTEGER = 1000, cim AS STRING = "C64" # initialiseringar, blandade 
 ```basic
 DIM tabla(2, 3) AS INTEGER ' 3 × 4 element: tabla(0..2, 0..3)
 DIM kocka(1, 2, 3) AS BYTE ' valfritt antal dimensioner
-DIM ar(9) AS DOUBLE ' 10 Q8.8-värden
+DIM ar(9) AS DOUBLE ' 10 flyttal (5 byte vardera)
 DIM nevek(4) AS STRING ' 5 strängar, alla börjar som ""
-DIM v(9) ' nej AS → byte-array
+DIM v(9) ' nej AS → byte array
 
-tabla(2, 3) = 999 ' QBasic-stilindex med ( )
+tabla(2, 3) = 999 ' QBasic-stil index med ( )
 tabla[2, 3] = 999 ' … eller den vanliga [ ]
 nevek(0) = "ZSOLT"
 PRINT tabla(2, 3); " "; nevek(0); " "; ar(1)
@@ -98,9 +100,11 @@ PRINT tabla(2, 3); " "; nevek(0); " "; ar(1)
 - Varje gräns är det **högsta indexet** (GRUNDLÄGGANDE regel): `dim t(2, 3)` har
   3 × 4 element. (`var t = array(3, 4)` tar elementantal — samma array.)
 - Elementtyper: `byte`/`int` → 1 byte, `heltal` (med signatur) / `ord` → 2 byte,
-  `enkel`/`dubbel`/`flyttal` → 2-byte Q8.8, `sträng` → 2-bytepekare. Gränser
-  måste vara kompileringstidskonstanter; arrayer finns i `$C000-$CFFF` (4096
-  byte, kontrollerade).
+  `flyttal` → 2-byte Q8.8, `enkel`/`dubbel` → 5-byte flyttal, `sträng` → 2-byte
+  pekare. Gränser måste vara kompileringstidskonstanter. Arrayer finns i
+  `$C000-$CFFF` (4 KB); När de behöver mer flyttas hela arrayområdet till
+  `$A000-$CFFF` (12 KB, under BASIC ROM — se *Arrayminne*). Mer än 12288 byte är
+  ett kompileringsfel.
 - String-array-element börjar som `""`; `nevek(i) = "TEXT"` / `= s` / `= a + b`,
   `n = nevek(i)`, utskrift, `+`, överföring till en `string`-parameter och
   `inmatning av nevek(i)` fungerar alla (icke-litterala värden kopieras till en
@@ -1483,11 +1487,24 @@ var v = peek(addr_var) # LDA (addr_var),Y — om addr_var är ordtypen
 
 var w: word = peek16($C000) # läs 16-bitars little-endian: lo=$C000, hi=$C001
 poke16 $0314, $EA81 # skriv 16-bitars little-endian: lo→$0314, hi→$0315
-poke16 ptr, w # word var som adress; word var som värde
+poke16 ptr, w # word var som adress; ordvariabel som värde
+
+var k = 2
+var p = peek($07F8 + k) # LDA $07F8,Y — konstant + bytevariabel
+poke $07F8 + k, p # STA $07F8,Y
+poke ptr + k, 1 # ord + byte: fullständig 16-bitarsadress
 ```
 
 `peek16(addr)` läser två på varandra följande byte (lo, hi) som en `word`.
 `poke16` skriver lo och sedan hi.
+
+En adress är alltid ett 16-bitarsvärde. Sedan 1.6.5 behåller ett adressuttryck
+som `$07F8 + k` konstantens höga byte och överföringshastigheten (tidigare
+beräknades den i 8 bitar och `peek($07F8 + k)` läste `$00F8 + k`). Detta gäller
+för `peek`, `poke`, `peek16`, `poke16`, `fill`, `memcopy`, `drawmem`, `save` och
+`reu`; `fill` / `memcopy` längder som `40 * rader` är också 16-bitars. `peek(k)`
+med en bytevariabel läser adressen `$00kk` (den returnerade värdet av `k` själv
+före 1.6.5).
 
 ### Disk-I/O
 
@@ -1580,7 +1597,9 @@ med DEL-stöd.
   8-bitarsvärde vid CR.
 - **Strängvariabel**: accepterar upp till 30 tecken; lagrar som null-avslutad
   sträng; ZP-par uppdaterat.
-- **DUBBEL var** (1.6.3): siffror och `.`, t.ex. `12,5` → 12,50 (två decimaler).
+- **FLYTTTAL var** (1.6.3): siffror och `.`, t.ex. `12,5` → 12,50 (två
+  decimaler).
+- **ENKEL / DUBBEL var** (1.6.4): valfritt tal, `-12.5`, `.5`, `3.25E2`.
 - **Array-element** (1.6.3): `input t(i)` / `input nevek(i)`; `input "prompt";
   x` fungerar också.
 - **Strängvariabel**: accepterar upp till 30 tecken; lagrar som null-avslutad
@@ -1620,6 +1639,80 @@ uttryck som involverar ett `float` (till exempel `print a / 10` med `a: float =
 1`) skriver nu ut Q8.8-resultatet som `N.DD`. Före 1.5.7 skrevs det råa
 16-bitarsvärdet ut som ett heltal (`25` istället för `0.09`). Bråktalet är
 avkortat, inte avrundat: 1/10 = 25/256 skrivs ut som `0.09`.
+
+### Flyttalspunkt: `ENKEL` / `DUBBEL` (1.6.4)
+
+`dim x som single` och `dim x som double` är riktiga flyttal — 5-byteformatet
+för C64 BASIC: cirka 9 signifikanta siffror, intervall ±2,9·10⁻³⁹ … ±1,7·10³⁸.
+(`single` och `double` är av samma typ.) Den snabba 2-byte Q8.8-typen är
+fortfarande tillgänglig som `flyttal`.
+
+```basic
+DIM r SOM DUBBEL, t SOM DUBBEL
+DIM k(9) SOM ENKEL ' arrayer: 5 byte per element
+r = 2,5
+t = ATN(1) * 4 * r ^ 2 ' 19,6349541
+SKRIV UT t; " "; SQR(2); " "; 1E10; " "; 1 / 3
+FÖR r = 0 TILL 1 STEG 0,25 : SKRIV UT r : NÄSTA
+FUNKTION Atfogo (a SOM DUBBEL, b SOM DUBBEL) SOM DUBBEL
+Atfogo = SQR(a * a + b * b)
+SLUT FUNKTION
+```
+
+|                  |                                                                                                                                                                      |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Operatörer       | `+ - * /` och `^` (potens; högerassociativ, binder hårdare än unär minus: `-2^2` = -4)                                                                               |
+| Funktioner       | `SQR`, `SIN`, `COS`, `TAN`, `ATN` (radianer), `EXP`, `LOG` (naturlig), `INT` (golv), `FIX` (avkorta), `CINT` (rund), `ABS`, `SGN`, `CSNG` / `CDBL` (ingen op), `VAL` |
+| Literaler        | `1,5`, `.5`, `1E6`, `2,5e-3`, `70000`                                                                                                                                |
+| Jämförelser      | `= &lt;&gt; &lt; &gt; &lt;= &gt;=` i `OM` / `MEDA` / `TILL` / `VÄLJ FALL` och som värden                                                                             |
+| Utskrift         | C64 BASIC-stil: `.5`, `-3.25`, `3.33333333`, `1E+10`, `1.5E-07` (inget inledande mellanslag)                                                                         |
+| Strängar         | `s = "X=" + x`, `STR$(x)`, `VAL(s)` läser `-1.25E3`                                                                                                                  |
+| `FÖR`            | flyttalsräknare, gränsvärde och steg (`STEP 0.1`, negativt eller en variabel)                                                                                        |
+| `INGÅNG` / `LÄS` | `INPUT x` läser valfritt tal; `READ x` läser nästa `data` byte                                                                                                       |
+| Underfunktion    | `p AS DOUBLE`-parametrar och `AS DOUBLE`-resultat                                                                                                                    |
+
+**Blandning med heltal.** Ett uttryck beräknas i flyttal när det innehåller ett
+ENKELT / DUBBELT värde, `^`, en av funktionerna ovan, eller en literal som
+endast flyttal kan innehålla (`1E6`, `300.5`, `70000`). När ett program använder
+flyttal är varje decimalliteral (`0.1`) också en flyttalskonstant. Att lagra ett
+flyttal i ett `byte`, `heltal` eller `ord` **avrundar** det (halvvägs från noll:
+2,5 → 3, -2,5 → -3); till ett `flyttal` blir det Q8.8. Ett heltalsvärde som
+tilldelats en DOUBLE konverteras exakt. Heltalsuttryck behåller sina
+heltalsregler (`var c = a + b` är fortfarande en byte).
+
+**Anteckningar**
+- En heltalsliteral från 32768 till 65535 läses som ett 16-bitarsmönster och
+  blir negativt i flyttal: skriv `40000.0` eller `4E4`.
+- `7 / 2` är 3,5 när det tilldelas en DUBBEL; i heltalskontext är det 3 som
+  tidigare.
+- `x MOD y` och `AND` / `OR` / `XOR` avrundar sina operander till heltal.
+- `SIN` / `COS` för ett bytevärde behåller den gamla tabellbetydelsen 0–255
+  (cirkelform = 256); med ett ENKELT / DUBBELT argument arbetar de i radianer.
+- Flyttalskod får inte köras i IRQ/NMI-hanterare (körtiden behåller sitt
+  tillstånd i fast RAM-minne).
+- Kostnad: flyttalsomkörningen (cirka 4,4 KB, sammansatt av kompilatorn) läggs
+  till efter programmet första gången SINGLE / DOUBLE används. Variabler tar 5
+  byte i arrayområdet, plus en 2-byte noll-sidspekare för körtiden. En
+  multiplikation tar ungefär 1–2 ms på en 1 MHz C64.
+
+### Variabler i RAM, arrayminne (1.6.4)
+
+- **Noll sida full:** när programmets variabler inte får plats på den permanenta
+  nollsidan (`$02-$4F`), bygger kompilatorn om den och flyttar de variabler som
+  används minst i aktiv kod till normalt RAM-minne (efter arrayerna). En sats
+  som använder en sådan variabel kopierar den till en noll-sida-plats och
+  tillbaka, så programmen beter sig på samma sätt, bara att dessa variabler är
+  lite långsammare. Loopräknare, parametrar och allt som en IRQ-hanterare kan
+  komma att röra vid stannar kvar på nollsidan. Minneskartan visar dem som
+  `RAM:$xxxx`. Att få slut på nollsidan är inte längre ett fel förutom i extrema
+  fall (`slut på nollsidan` finns kvar för dessa).
+- **Arrayminne:**-arrayer (och spillda/flyttalsvariabler) använder
+  `$C000-$CFFF`. När de behöver mer än 4096 byte börjar området istället vid
+  `$A000`, vilket ger 12 KB (`$A000-$CFFF`): BASIC-ROM:et stängs av vid
+  programstart (`$01` bit 0) och slås på igen vid varje utgång till BASIC
+  (`slut`, `bye`, programslut, `kedja`), så programmet återgår fortfarande till
+  en fungerande BASIC. Program som själva anropar BASIC ROM-rutiner (`sys
+  $Axxx`) får inte använda mer än 4 KB arrayer.
 
 ### Matematiska funktioner
 
@@ -1985,26 +2078,29 @@ permanent ZP-par som allokeras vid kompileringstillfället.
 
 ## Exempel
 
-| Fil                                 | Beskrivning                                                                            |
-| ----------------------------------- | -------------------------------------------------------------------------------------- |
-| `exempel/funktioner.ub`             | const, label/goto, poke/peek, rnd, matematiska funktioner                              |
-| `exemples/new_functions.ub`         | underparametrar, arrayer, ordvariabler, strängvariabler                                |
-| `exemples/bitmap_demo.ub`           | 320×200 bitmapp, plott, grafik på/av                                                   |
-| `examples/block_demo.ub`            | 80×50 blockgrafik, plot4, cirkel4, grafik på block                                     |
-| `exemples/joystick_demo.ub`         | joystickläsning, sprite-rörelse                                                        |
-| `examples/mux_demo.ub`              | raster sprite multiplexer (3 fönster × 8 sprites = 24)                                 |
-| `examples/orbit_demo.ub`            | 24-sprite-bana med pulserande radie och slumpmässiga färger                            |
-| `examples/plasma_demo.ub`           | plasmaeffektbitmapp med rasterkantanimering                                            |
-| `examples/sprite_data.ub`           | sprdef-formdata (inkluderad av andra demos)                                            |
-| `examples/sprite_mux_orbit.ub`      | Demo av en 24-sprite-bana med sprdef + förberäknade positioner                         |
-| `examples/sprite_orbit_demo.ub`     | 8 hårdvaruspriter i cirkulär bana via sin/cos-tabellen                                 |
-| `examples/reu_bitmap_demo.ub`       | REU-lagring/hämtning med bitmappsgrafik                                                |
-| `examples/sid_music_demo.ub`        | SID-musikspelare med raster-IRQ och tangentbordsutgång                                 |
-| `examples/tenprint.ub`              | 5 TENPRINT-labyrintimplementeringar med meny; demos `lowercase` teckenuppsättningsläge |
-| `examples/countdown_demo.ub`        | Nedräkning `for..next` med negativa steg, inkl. `for i = 20 to 0 step -2`              |
-| `examples/countdown_errors_demo.ub` | Kompileringsfel för standardsteget `from > to`                                         |
-| `exemples/explicit_demo.ub`         | `--explicit` CLI-flag-demo med fullständigt typade `var`, `sub`, `fn`                  |
-| `examples/explicit_errors_demo.ub`  | Lös kod som bygger utan `--explicit`, fel med den                                      |
+| Fil                                 | Beskrivning                                                                                  |
+| ----------------------------------- | -------------------------------------------------------------------------------------------- |
+| `exempel/funktioner.ub`             | const, label/goto, poke/peek, rnd, matematiska funktioner                                    |
+| `exemples/new_functions.ub`         | underparametrar, arrayer, ordvariabler, strängvariabler                                      |
+| `exemples/bitmap_demo.ub`           | 320×200 bitmapp, plott, grafik på/av                                                         |
+| `examples/block_demo.ub`            | 80×50 blockgrafik, plot4, cirkel4, grafik på block                                           |
+| `exemples/joystick_demo.ub`         | joystickläsning, sprite-rörelse                                                              |
+| `examples/mux_demo.ub`              | raster sprite multiplexer (3 fönster × 8 sprites = 24)                                       |
+| `examples/orbit_demo.ub`            | 24-sprite-bana med pulserande radie och slumpmässiga färger                                  |
+| `examples/plasma_demo.ub`           | plasmaeffektbitmapp med rasterkantanimering                                                  |
+| `examples/sprite_data.ub`           | sprdef-formdata (inkluderad av andra demos)                                                  |
+| `examples/sprite_mux_orbit.ub`      | Demo av en 24-sprite-bana med sprdef + förberäknade positioner                               |
+| `examples/sprite_orbit_demo.ub`     | 8 hårdvaruspriter i cirkulär bana via sin/cos-tabellen                                       |
+| `examples/reu_bitmap_demo.ub`       | REU-lagring/hämtning med bitmappsgrafik                                                      |
+| `examples/sid_music_demo.ub`        | SID-musikspelare med raster-IRQ och tangentbordsutgång                                       |
+| `examples/tenprint.ub`              | 5 TENPRINT-labyrintimplementeringar med meny; demos `lowercase` teckenuppsättningsläge       |
+| `examples/countdown_demo.ub`        | Nedräkning `for..next` med negativa steg, inkl. `for i = 20 to 0 step -2`                    |
+| `examples/countdown_errors_demo.ub` | Kompileringsfel för standardsteget `from > to`                                               |
+| `exemples/explicit_demo.ub`         | `--explicit` CLI-flag-demo med fullständigt typade `var`, `sub`, `fn`                        |
+| `examples/explicit_errors_demo.ub`  | Lös kod som bygger utan `--explicit`, fel med den                                            |
+| `examples/dim_demo.ub`              | `DIM … AS …` skalärer och arrayer av alla typer                                              |
+| `examples/qbasic_demo.ub`           | QBasic-stil FUNCTION / SUB / ELSEIF / DO-LOOP / SELECT CASE / strängar                       |
+| `exemples/float_demo.ub`            | ENKEL / DUBBEL flyttal: `^`, SQR, SIN, ATN, EXP, LOG, `FÖR … STEP 0.5`, `AS DUBBEL`-funktion |
 
 ## CLI-referens
 
@@ -2208,25 +2304,26 @@ Använd `--asm` för att se den genererade koden för ditt eget program.
 
 ## Kända begränsningar
 
-| Särdrag                               | Begränsning                                                                                                                                                                                                                                                                                                                                                                     |
-| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Heltalsaritmetik                      | 8-bitars osignerad (0–255); `word`-variabler innehåller 16-bitarsvärden                                                                                                                                                                                                                                                                                                         |
-| Noll sidbudget                        | Permanent nollsida är `$02–$4F` (78 byte): varje variabel och sub/fn-parameter tar 2 byte, varje körande `for`-loop tar 2 till (givs tillbaka när loopen slutar, om dess brödtext inte deklarerade några variabler). Att köras ut är ett kompileringsfel (`out of zero page`, nytt i 1.5.7); tidigare skrev den tyst över scratch-området. Återanvänd variabler i stora program |
-| Binära literaler                      | Endast binära literaler `$hex` och decimala `%` stöds inte                                                                                                                                                                                                                                                                                                                      |
-| Subrutiner                            | Ingen rekursion — ZP-parameterplatser allokeras statiskt                                                                                                                                                                                                                                                                                                                        |
-| Strängvariabler                       | Read-only after init; assignment replaces the pointer, not the data                                                                                                                                                                                                                                                                                                             |
-| String concat-körning                 | `s1 + s2` skrivs ut sekventiellt — ingen heapallokering eller längdspårning                                                                                                                                                                                                                                                                                                     |
-| `rnd()` / `rnd(n)`                    | Enkel LCG, inte kryptografisk; punkt = 256                                                                                                                                                                                                                                                                                                                                      |
-| `abs()` / `sgn()` / `min()` / `max()` | Endast 8-bitarsvärden; `abs`/`sgn` behandlar värden som signerade (bit 7 = negativ → `abs` tvåkomplement, `sgn` returnerar `$FF`); `min`/`max` är osignerade (0–255)                                                                                                                                                                                                            |
-| `diagram`                             | Pixlar utanför räckvidden klipps tyst bort (Y ≥ 200 eller X ≥ 320 → no-op)                                                                                                                                                                                                                                                                                                      |
-| `mplot`                               | Ingen gränskontroll — x måste vara 0–159, y måste vara 0–199                                                                                                                                                                                                                                                                                                                    |
-| `mline` / `mrect`                     | Flerfärgad; x: 0–159, y: 0–199. Pixlar utanför skärmen radbryts (ingen klippning) — håll koordinaterna inom intervallet                                                                                                                                                                                                                                                         |
-| `mcirkel`                             | Flerfärgad; klipp av punkter utanför skärmen (x ≥ 160 eller y ≥ 200 hoppas över)                                                                                                                                                                                                                                                                                                |
-| `färgpenna`                           | Anställer endast; ställer in förgrundsbiten för berörda celler (bakgrunden bevaras). Har ingen effekt i blockläge (`plot4`/`circle4`)                                                                                                                                                                                                                                           |
-| `rect`                                | Ingen gränskontroll — x: 0–319, y: 0–199; x1≤x2 och y1≤y2 tillämpas inte (degenererade/inverterade rektangulära element producerar odefinierad utdata)                                                                                                                                                                                                                          |
-| `diagram4`                            | Ingen gränskontroll — x måste vara 0–79, y måste vara 0–49 (blockläge)                                                                                                                                                                                                                                                                                                          |
-| `cirkel4`                             | Klipp ut blockpixlar utanför skärmen; användbar radie är ungefär 0–49 i 80×50 blockläge                                                                                                                                                                                                                                                                                         |
-| `chr$`                                | Ingen PETSCII↔ASCII-mappning — n skickas som det är till CHROUT                                                                                                                                                                                                                                                                                                                 |
-| `musikuppspelning`                    | Kräver `load sid` eller ett `tune`-block; endast en CIA1-omslagsfil genereras (den sista `musikuppspelningen` vinner)                                                                                                                                                                                                                                                           |
-| `grafik på dubbel`                    | Anställer endast; använder `$4000–$7FFF` för backbufferten, så programkoden måste hålla sig under `$4400`; kan inte kombineras med sprites eller multicolor                                                                                                                                                                                                                     |
-| Felrapportering                       | Endast vid kompilering; `onerr goto` hanterar KERNAL I/O-fel vid körning                                                                                                                                                                                                                                                                                                        |
+| Särdrag                               | Begränsning                                                                                                                                                                                                                                                                         |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Heltalsaritmetik                      | 8-bitars osignerad (0–255); `word`-variabler innehåller 16-bitarsvärden                                                                                                                                                                                                             |
+| Noll sidbudget                        | Permanent nollsida är `$02–$4F` (78 byte): varje variabel och sub/fn-parameter tar 2 byte, varje körande `för` loop 2 till. Eftersom 1.6.4 flyttas variabler som inte passar till RAM automatiskt (se *Variabler i RAM*); endast extrema fall rapporterar fortfarande `av nollsida` |
+| Binära literaler                      | `%01010101` (sedan 1.6.4), `$hex` och decimal                                                                                                                                                                                                                                       |
+| Subrutiner                            | Ingen rekursion — ZP-parameterplatser allokeras statiskt                                                                                                                                                                                                                            |
+| Strängvariabler                       | `single` / `double` är 5-byte flyttal sedan 1.6.4 (ej användbara i IRQ-hanterare; runtime på ~4,4 KB har lagts till i programmet); `float` förblir Q8.8 (0–255,99)                                                                                                                  |
+| Unär minus                            | Eftersom 1.6.4 binder en inledande `-` till sin operand: `-5 - 3` är -8 (den var -(5 - 3) = -2)                                                                                                                                                                                     |
+| String concat-körning                 | `s1 + s2` skrivs ut sekventiellt — ingen heapallokering eller längdspårning                                                                                                                                                                                                         |
+| `rnd()` / `rnd(n)`                    | Enkel LCG, inte kryptografisk; punkt = 256                                                                                                                                                                                                                                          |
+| `abs()` / `sgn()` / `min()` / `max()` | Endast 8-bitarsvärden; `abs`/`sgn` behandlar värden som signerade (bit 7 = negativ → `abs` tvåkomplement, `sgn` returnerar `$FF`); `min`/`max` är osignerade (0–255)                                                                                                                |
+| `diagram`                             | Pixlar utanför räckvidden klipps tyst bort (Y ≥ 200 eller X ≥ 320 → no-op)                                                                                                                                                                                                          |
+| `mplot`                               | Ingen gränskontroll — x måste vara 0–159, y måste vara 0–199                                                                                                                                                                                                                        |
+| `mline` / `mrect`                     | Flerfärgad; x: 0–159, y: 0–199. Pixlar utanför skärmen radbryts (ingen klippning) — håll koordinaterna inom intervallet                                                                                                                                                             |
+| `mcirkel`                             | Flerfärgad; klipp av punkter utanför skärmen (x ≥ 160 eller y ≥ 200 hoppas över)                                                                                                                                                                                                    |
+| `färgpenna`                           | Anställer endast; ställer in förgrundsbiten för berörda celler (bakgrunden bevaras). Har ingen effekt i blockläge (`plot4`/`circle4`)                                                                                                                                               |
+| `rect`                                | Ingen gränskontroll — x: 0–319, y: 0–199; x1≤x2 och y1≤y2 tillämpas inte (degenererade/inverterade rektangulära element producerar odefinierad utdata)                                                                                                                              |
+| `diagram4`                            | Ingen gränskontroll — x måste vara 0–79, y måste vara 0–49 (blockläge)                                                                                                                                                                                                              |
+| `cirkel4`                             | Klipp ut blockpixlar utanför skärmen; användbar radie är ungefär 0–49 i 80×50 blockläge                                                                                                                                                                                             |
+| `chr$`                                | Ingen PETSCII↔ASCII-mappning — n skickas som det är till CHROUT                                                                                                                                                                                                                     |
+| `musikuppspelning`                    | Kräver `load sid` eller ett `tune`-block; endast en CIA1-omslagsfil genereras (den sista `musikuppspelningen` vinner)                                                                                                                                                               |
+| `grafik på dubbel`                    | Anställer endast; använder `$4000–$7FFF` för backbufferten, så programkoden måste hålla sig under `$4400`; kan inte kombineras med sprites eller multicolor                                                                                                                         |
+| Felrapportering                       | Endast vid kompilering; `onerr goto` hanterar KERNAL I/O-fel vid körning                                                                                                                                                                                                            |

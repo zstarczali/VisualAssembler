@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.6.1">
+  <link rel="stylesheet" href="style.css?v=2.6.2">
 </head>
 
 <body>
@@ -1353,7 +1353,7 @@ PRINTABLE CHARACTERS
           <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
         </div>
         <h2 class="about-title">C64 Visual Assembler</h2>
-        <p class="about-version" id="about-version">v2.6.1</p>
+        <p class="about-version" id="about-version">v2.6.2</p>
         <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
       </div>
       <div class="about-columns">
@@ -1379,34 +1379,52 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.6.1</p>
+      <p class="whats-new-version">v2.6.2</p>
       <ul class="whats-new-list">
         <li>
-          <strong>VICE Monitor:</strong> a new floating window for the running VICE (Run (VICE) now opens its binary monitor on port 6502) — <em>hot reload</em> the assembled program with or without a restart (optionally after every edit), a <em>live watch</em> list of labels and addresses, and a PC-sampling <em>profiler</em> per routine and per line, with the raster lines each routine ran on.
+          <strong>HVSC in the SID Player:</strong> the new <em>HVSC</em> button searches the High Voltage SID Collection — about 61,000 tunes — by title, composer or folder. Click a tune to play it, add it to the playlist or save the <code>.sid</code>; <em>Random tunes</em> lists 25 at a time. Tunes come from an HVSC mirror and are cached, or <em>Download the whole collection</em> (about 85 MB, unpacked to about 380 MB in a folder you pick) for offline use; an unpacked HVSC folder can be used too. HVSC tunes get their real length on the seek bar, and the playlist moves on when a subtune ends.
         </li>
         <li>
-          <strong>Table Generator:</strong> screen and bitmap row addresses, pixel masks, multiply / divide / remainder by a constant, quarter squares for fast multiplication, reciprocal, log / exp, bit reverse, custom expressions and unrolled fill / copy speedcode — as lo / hi pairs or <code>.word</code>, page-aligned on request, inserted into the program, saved as <code>.bin</code> or exported to Ultimate Basic.
+          <strong>Spectrum analyzer:</strong> a floating window from the SID Player toolbar with LED-style bars from green to orange, cells that fade out slowly and a mirrored floor — 8, 16, 24 or 32 bands, with VA SID Core and WebSID alike.
         </li>
         <li>
-          <strong>Cycle counts in Expert mode:</strong> a gutter with the cycles of every instruction (<code>4+</code> page-cross, <code>2/3</code> branches, a red <code>2/4</code> when a taken branch crosses a page) and the cycle and raster-line total of the selection.
+          <strong>Lesson Editor:</strong> <em>Tutorials → Lesson editor…</em> turns your own program into a step-by-step guided lesson like "Build: Your First Text Program": the student picks each mnemonic, types the operand and presses Add, and sets the parameters the palette cannot. Add explanations, choose the folder, try the lesson, and export or import it as a <code>.vatut</code> file.
         </li>
         <li>
-          <strong>Optimisation hints:</strong> the Expert editor marks lines that can be shorter or faster — <code>JSR</code> + <code>RTS</code>, redundant <code>CMP #0</code>, reloads, the <code>INC</code> / <code>DEC</code> idiom, jumps to the next instruction, <code>PHA</code> + <code>PLA</code>.
+          <strong>Online lessons:</strong> <em>Tutorials → Online lessons…</em> lists the lessons published on www.c64va.pro; download one into its folder with a click, and get its updates. Share your own with <em>Lesson Editor → Files → Upload to c64va.pro…</em>: after a review it appears for everyone, with your name as the author.
         </li>
         <li>
-          <strong>Zero page usage:</strong> a 16 × 16 map in the memory panel (CPU port / free / BASIC / KERNAL areas, read / write / pointer) with the lines behind every address and SID player conflicts.
+          <strong>Every macro takes its parameters in the operand field:</strong> type them before <em>Add</em> as they follow the macro in Expert mode — <code>$06</code> for <code>SET_BG</code>, <code>Main</code> for <code>REGION</code>, <code>$C000</code> for <code>ORG</code>, <code>1, 200, 50</code> for <code>SPRITE_POS</code>. The field shows the expected form.
         </li>
         <li>
-          <strong>Detachable memory window:</strong> the Full C64 memory panel can float in its own window; several floating windows can be open and the one you click comes to the front.
+          <strong>Smaller improvements:</strong> the active floating window is highlighted, the Support window looks like a chat, the mouse wheel scrolls the tab bar sideways, the memory bars stand apart from their titles, and the Ultimate Basic code size column no longer covers the line numbers.
         </li>
         <li>
-          <strong>Ultimate Basic:</strong> code size per line after a build, hints (<code>sys $EA31</code> from an IRQ, <code>wait key</code>, unused variables, <code>asm</code> zero page clashes) and Sprite Editor → Ultimate Basic export with animation.
+          <strong>From 2.6.1: VICE Monitor:</strong> a new floating window for the running VICE (Run (VICE) now opens its binary monitor on port 6502) — <em>hot reload</em> the assembled program with or without a restart (optionally after every edit), a <em>live watch</em> list of labels and addresses, and a PC-sampling <em>profiler</em> per routine and per line, with the raster lines each routine ran on.
         </li>
         <li>
-          <strong>SID Editor → .sid:</strong> save the tune with its player as a standard PSID file.
+          <strong>From 2.6.1: Table Generator:</strong> screen and bitmap row addresses, pixel masks, multiply / divide / remainder by a constant, quarter squares for fast multiplication, reciprocal, log / exp, bit reverse, custom expressions and unrolled fill / copy speedcode — as lo / hi pairs or <code>.word</code>, page-aligned on request, inserted into the program, saved as <code>.bin</code> or exported to Ultimate Basic.
         </li>
         <li>
-          <strong>Sprite multiplexer template:</strong> 16 sprites sorted by Y every frame and shown by a raster IRQ chain.
+          <strong>From 2.6.1: Cycle counts in Expert mode:</strong> a gutter with the cycles of every instruction (<code>4+</code> page-cross, <code>2/3</code> branches, a red <code>2/4</code> when a taken branch crosses a page) and the cycle and raster-line total of the selection.
+        </li>
+        <li>
+          <strong>From 2.6.1: Optimisation hints:</strong> the Expert editor marks lines that can be shorter or faster — <code>JSR</code> + <code>RTS</code>, redundant <code>CMP #0</code>, reloads, the <code>INC</code> / <code>DEC</code> idiom, jumps to the next instruction, <code>PHA</code> + <code>PLA</code>.
+        </li>
+        <li>
+          <strong>From 2.6.1: Zero page usage:</strong> a 16 × 16 map in the memory panel (CPU port / free / BASIC / KERNAL areas, read / write / pointer) with the lines behind every address and SID player conflicts.
+        </li>
+        <li>
+          <strong>From 2.6.1: Detachable memory window:</strong> the Full C64 memory panel can float in its own window; several floating windows can be open and the one you click comes to the front.
+        </li>
+        <li>
+          <strong>From 2.6.1: Ultimate Basic:</strong> code size per line after a build, hints (<code>sys $EA31</code> from an IRQ, <code>wait key</code>, unused variables, <code>asm</code> zero page clashes) and Sprite Editor → Ultimate Basic export with animation.
+        </li>
+        <li>
+          <strong>From 2.6.1: SID Editor → .sid:</strong> save the tune with its player as a standard PSID file.
+        </li>
+        <li>
+          <strong>From 2.6.1: Sprite multiplexer template:</strong> 16 sprites sorted by Y every frame and shown by a raster IRQ chain.
         </li>
         <li>
           <strong>From 2.6.0: Visual Assembler is now completely free:</strong> the Freemium / Professional licensing has been removed. Every editor, build and hardware run option, all 7 languages and every theme work for everyone, without registration or a serial. The reason is simple: under Hungarian tax rules, selling the program would leave too little after taxes and paperwork to be worth it. Serials you already have are simply no longer needed.
@@ -2840,6 +2858,8 @@ PRINTABLE CHARACTERS
           <button id="websid-play-fwd" class="websid-play-tool" type="button" aria-label="Forward 10 s"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 4l5.5 4L8 12zM2 4l5.5 4L2 12z" fill="currentColor"/></svg></button>
         </div>
         <div class="websid-play-tools">
+          <button id="websid-play-viz" class="websid-play-tool" type="button" aria-label="Spectrum analyzer" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 14V9M5 14V5M8 14V7M11 14V3M14 14V8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"/></svg></button>
+          <button id="websid-play-hvsc" class="websid-play-tool" type="button" aria-label="HVSC" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><ellipse cx="8" cy="3.8" rx="5.5" ry="2" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M2.5 3.8v8.4c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2V3.8M2.5 8c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2" fill="none" stroke="currentColor" stroke-width="1.2"/></svg></button>
           <button id="websid-play-add" class="websid-play-tool" type="button" aria-label="Add .sid files…"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
           <button id="websid-play-open-list" class="websid-play-tool" type="button" aria-label="Open playlist…"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 4.5v8h11l2-5.5H4.5l-2 5.5M1.5 4.5V3h4l1 1.5h6V7" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></button>
           <button id="websid-play-save-list" class="websid-play-tool" type="button" aria-label="Save playlist…"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 2.5h9l2 2v9h-11zM5 2.5v3.5h5.5V2.5M4.5 13.5V9h7v4.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></button>
@@ -2873,6 +2893,20 @@ PRINTABLE CHARACTERS
           <input id="websid-play-seek" class="websid-play-seek" type="range" min="0" max="180" step="1" value="0" aria-label="Position">
           <span id="websid-play-length" class="websid-play-length">03:00</span>
         </div>
+        <section id="websid-hvsc" class="websid-hvsc" hidden>
+          <div class="websid-hvsc-bar">
+            <input id="websid-hvsc-search" class="websid-hvsc-search" type="search" spellcheck="false" autocomplete="off" placeholder="Search HVSC…">
+            <div class="websid-play-tools">
+              <button id="websid-hvsc-random" class="websid-play-tool" type="button" aria-label="Random tunes"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="5.3" cy="5.3" r="1.1" fill="currentColor"/><circle cx="8" cy="8" r="1.1" fill="currentColor"/><circle cx="10.7" cy="10.7" r="1.1" fill="currentColor"/></svg></button>
+              <button id="websid-hvsc-add-all" class="websid-play-tool" type="button" aria-label="Add all results to the playlist"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h7M2 7.5h7M2 11h4.5M12 8.5v6M9 11.5h6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button>
+              <button id="websid-hvsc-refresh" class="websid-play-tool" type="button" aria-label="Update catalog"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8a5 5 0 1 1-1.5-3.6M13 2.5v3h-3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+              <button id="websid-hvsc-download" class="websid-play-tool" type="button" aria-label="Download the whole collection…"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5v7M5 5.5 8 8.5 11 5.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 9.5v3.5h12V9.5M4.5 11h7" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></button>
+              <button id="websid-hvsc-folder" class="websid-play-tool" type="button" aria-label="Use a local HVSC folder…"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 4.5v8h13v-6.5H7.5l-1.5-1.5z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></button>
+            </div>
+          </div>
+          <div class="websid-hvsc-status"><span id="websid-hvsc-status"></span><button id="websid-hvsc-link" class="websid-hvsc-link" type="button">hvsc.c64.org</button></div>
+          <ol id="websid-hvsc-list" class="websid-play-list websid-hvsc-list"></ol>
+        </section>
         <ol id="websid-play-list" class="websid-play-list"></ol>
         <div id="websid-play-drop-hint" class="websid-play-drop-hint">Drop .sid files here</div>
         <div class="websid-play-note" id="websid-play-note" hidden>
@@ -2881,6 +2915,19 @@ PRINTABLE CHARACTERS
       </div>
       <input id="websid-play-files" type="file" accept=".sid" multiple hidden>
       <input id="websid-play-list-file" type="file" accept=".sidpl" hidden>
+    </div>
+  </dialog>
+
+  <!-- SID Player: spektrum-analizátor -->
+  <dialog id="sid-viz-dialog" class="websid-play-dialog sid-viz-dialog" aria-labelledby="sid-viz-title">
+    <div class="websid-play-card sid-viz-card">
+      <div class="websid-play-header sid-viz-hdr">
+        <span id="sid-viz-title" class="websid-play-title">Spectrum</span>
+        <label class="sid-viz-bands"><span id="sid-viz-bands-lbl">Bands</span>
+          <select id="sid-viz-bands"><option value="8">8</option><option value="16">16</option><option value="24">24</option><option value="32">32</option></select></label>
+        <button id="sid-viz-close" class="websid-play-xbtn" type="button" aria-label="Close">×</button>
+      </div>
+      <canvas id="sid-viz-canvas" class="sid-viz-canvas"></canvas>
     </div>
   </dialog>
 
@@ -3315,12 +3362,118 @@ PRINTABLE CHARACTERS
           <h2 id="tutorial-dialog-title" class="tutorial-sidebar-title">Tutorials</h2>
         </div>
         <div id="tutorial-lesson-list" class="tutorial-lesson-list"></div>
+        <button id="tutorial-online-btn" class="secondary tutorial-editor-btn" type="button">Online lessons…</button>
+        <button id="tutorial-editor-btn" class="secondary tutorial-editor-btn" type="button">Lesson editor…</button>
       </div>
       <div id="tutorial-lesson-content" class="tutorial-lesson-content">
         <div class="tutorial-content-empty">
           <p id="tutorial-select-hint">Select a lesson from the list</p>
         </div>
       </div>
+    </div>
+  </dialog>
+
+  <!-- Lecke feltöltése a c64va.pro-ra (jóváhagyás után kerül az Online leckék közé) -->
+  <dialog id="te-upload-dialog" class="app-confirm-dialog update-dialog te-upload-dialog">
+    <div class="app-confirm-card">
+      <h2 class="compile-error-title" id="te-up-title">Upload lesson</h2>
+      <p id="te-up-intro" class="app-confirm-msg"></p>
+      <label class="form-field"><span id="te-up-name-l">Name</span>
+        <input id="te-up-name" type="text" maxlength="100" autocomplete="name" spellcheck="false"></label>
+      <label class="form-field"><span id="te-up-email-l">Email (optional)</span>
+        <input id="te-up-email" type="email" autocomplete="email" spellcheck="false"></label>
+      <label class="form-field"><span id="te-up-note-l">Note for the reviewer (optional)</span>
+        <textarea id="te-up-note" rows="3" maxlength="2000" spellcheck="true"></textarea></label>
+      <p id="te-up-status" class="form-status" role="status"></p>
+      <div class="app-confirm-buttons">
+        <button id="te-up-cancel" class="secondary" type="button">Cancel</button>
+        <button id="te-up-send" class="primary" type="button">Upload</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Online leckék: a www.c64va.pro/lessons/ mappában közzétett .vatut leckék -->
+  <dialog id="tut-online-dialog" class="te-dialog" aria-labelledby="to-title">
+    <div class="te-card to-card">
+      <div class="te-hdr">
+        <span id="to-title" class="te-title">Online lessons</span>
+        <span id="to-meta" class="te-meta"></span>
+        <button id="to-close" class="te-xbtn" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="te-toolbar">
+        <div class="websid-play-tools">
+          <button id="to-refresh" class="websid-play-tool" type="button" aria-label="Refresh"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8a5 5 0 1 1-1.5-3.6M13 2.5v3h-3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        </div>
+        <span id="to-hint" class="te-hint to-hint"></span>
+      </div>
+      <div class="to-body">
+        <p id="to-status" class="te-hint"></p>
+        <ul id="to-list" class="to-list"></ul>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Tutorial Editor: saját, lépésről lépésre vezetett leckék -->
+  <dialog id="tut-editor-dialog" class="te-dialog" aria-labelledby="te-title">
+    <div class="te-card">
+      <div class="te-hdr">
+        <div class="ed-file">
+          <button class="ed-file-btn" type="button">Files ▾</button>
+          <div class="ed-file-menu" hidden>
+            <button id="te-new" type="button">New lesson</button>
+            <button id="te-import" type="button">Import lesson…</button>
+            <button id="te-export" type="button">Export lesson…</button>
+            <button id="te-upload" type="button">Upload to c64va.pro…</button>
+            <button id="te-delete" type="button">Delete lesson</button>
+            <button id="te-folder" type="button">Open lessons folder</button>
+          </div>
+        </div>
+        <span id="te-title" class="te-title">Tutorial Editor</span>
+        <select id="te-lesson" class="te-lesson-select" aria-label="Lesson"></select>
+        <span id="te-meta" class="te-meta"></span>
+        <button id="te-close" class="te-xbtn" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="te-toolbar">
+        <div class="websid-play-tools">
+          <button id="te-from-program" class="websid-play-tool" type="button" aria-label="Steps from the current program"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="2" width="6" height="12" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M3.5 5h2M3.5 8h2M3.5 11h2M9 8h5.5M12 5.5 14.5 8 12 10.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <button id="te-add-text" class="websid-play-tool" type="button" aria-label="Add a text step"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3.5h8M2 6.5h8M2 9.5h5M12.5 9v6M9.5 12h6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button>
+        </div>
+        <div class="websid-play-tools">
+          <button id="te-up" class="websid-play-tool" type="button" aria-label="Move step up"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V3M4 7l4-4 4 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <button id="te-down" class="websid-play-tool" type="button" aria-label="Move step down"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M4 9l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <button id="te-remove" class="websid-play-tool" type="button" aria-label="Delete step"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 4.5h9M6.5 4.5V3h3v1.5M5 4.5l.6 8.5h4.8l.6-8.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></button>
+        </div>
+        <div class="websid-play-tools">
+          <button id="te-try" class="websid-play-tool" type="button" aria-label="Try the lesson"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.5l8 4.5-8 4.5z" fill="currentColor"/></svg></button>
+          <button id="te-save" class="websid-play-tool" type="button" aria-label="Save lesson"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 2.5h9l2 2v9h-11zM5 2.5v3.5h5.5V2.5M4.5 13.5V9h7v4.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></button>
+        </div>
+      </div>
+      <div class="te-body">
+        <div class="te-left">
+          <label class="form-field"><span id="te-l-name">Title</span><input id="te-name" type="text" maxlength="120" spellcheck="true"></label>
+          <label class="form-field"><span id="te-l-desc">Description</span><textarea id="te-desc" rows="3" maxlength="2000" spellcheck="true"></textarea></label>
+          <div class="te-row">
+            <label class="form-field"><span id="te-l-diff">Difficulty</span>
+              <select id="te-diff"><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></label>
+            <label class="form-field"><span id="te-l-cat">Folder</span><select id="te-cat"></select></label>
+          </div>
+          <label class="te-check"><input id="te-clear" type="checkbox" checked><span id="te-l-clear">Start with an empty program</span></label>
+          <label class="te-check"><input id="te-auto" type="checkbox"><span id="te-l-auto">Fill in macro parameters automatically</span></label>
+          <div id="te-l-steps" class="te-steps-label">Steps</div>
+          <ol id="te-steps" class="te-steps"></ol>
+        </div>
+        <div class="te-right">
+          <p id="te-step-empty" class="te-hint"></p>
+          <div id="te-step-fields" class="te-step-fields" hidden>
+            <div id="te-step-kind" class="te-step-kind"></div>
+            <label class="form-field"><span id="te-l-stitle">Step title</span><input id="te-step-title" type="text" maxlength="160" spellcheck="true"></label>
+            <label class="form-field"><span id="te-l-sdesc">Explanation</span><textarea id="te-step-desc" rows="9" maxlength="4000" spellcheck="true"></textarea></label>
+            <label id="te-target-wrap" class="form-field"><span id="te-l-target">Point at</span><select id="te-step-target"></select></label>
+            <p id="te-step-auto" class="te-hint"></p>
+          </div>
+        </div>
+      </div>
+      <input id="te-import-file" type="file" accept=".vatut,.json" hidden>
     </div>
   </dialog>
 
@@ -3523,13 +3676,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.6.1"></script>
-  <script src="i18n.js?v=2.6.1"></script>
-  <script src="tutorial-data.js?v=2.6.1"></script>
+  <script src="tauri-bridge.js?v=2.6.2"></script>
+  <script src="i18n.js?v=2.6.2"></script>
+  <script src="tutorial-data.js?v=2.6.2"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.6.1"></script>
+  <script src="app.js?v=2.6.2"></script>
 
 </body>
 

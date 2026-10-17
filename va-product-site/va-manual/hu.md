@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**2.6.0 verzió**
+**2.6.1-es verzió**
 
 Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat
 létre húzással és elengedéssel (fogd és vidd) utasításblokkokkal, és valós
@@ -12,6 +12,7 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
 
 - [C64 Visual Assembler — Felhasználói
   kézikönyv](#c64-visual-assembler--user-manual)
+    - [2.6.1-es verzió – kiemelt funkciók](#version-261-highlights)
     - [2.6.0 verzió – kiemelt funkciók](#version-260-highlights)
     - [2.5.9-es verzió – kiemelt funkciók](#version-259-highlights)
     - [2.5.8-as verzió kiemelt funkciói](#version-258-highlights)
@@ -49,6 +50,7 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
     - [Verziókövetés](#version-control)
     - [Ingyenes és nyílt forráskódú](#free-and-open-source)
     - [Hiba jelentése](#reporting-a-bug)
+    - [Memóriaablak és nulla oldalhasználat](#memory-window-and-zero-page-usage)
     - [Projektsablonok](#project-templates)
     - [Projekt építése](#build-project)
     - [Példaprogramok](#example-programs)
@@ -60,6 +62,7 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
     - [Szerkesztőeszközök](#editor-tools)
     - [Projektek, lapok és indítófájlok](#projects-tabs-and-startup-files)
     - [Épületépítés és diagnosztika](#building-and-diagnostics)
+    - [Kódméret soronként és tippek](#code-size-per-line-and-hints)
     - [Futás, D64 és Exomizer](#running-d64-and-exomizer)
     - [Hibakereső szimbólumok és
       szétszerelés](#debugger-symbols-and-disassembly)
@@ -68,6 +71,8 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
     - [Módok váltása](#switching-modes)
     - [Szerkesztői elrendezés](#editor-layout)
     - [Eszköztár gombjai](#toolbar-buttons)
+    - [Ciklusszám](#cycle-counts)
+    - [Optimalizálási tippek](#optimisation-hints)
     - [Kiemelési hiba](#error-highlighting)
     - [Szintaxis kiemelés](#syntax-highlight)
     - [Forrásformázó](#source-formatter)
@@ -169,6 +174,8 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
     - [RetroDebugger](#retrodebugger)
     - [Töréspont blokkok](#breakpoint-blocks)
     - [Hibakereső jelzők (Beállítások lap)](#debugger-flags-options-tab)
+    - [VICE Monitor (gyors újratöltés, élő megfigyelés,
+      profilkészítő)](#vice-monitor-hot-reload-live-watch-profiler)
   - [11. Tudásbázis linkek](#11-knowledge-base-links)
   - [12. D64 Exportálás \&amp; Futtatás](#12-d64-export--run)
     - [Felosztás gomb](#split-run-button)
@@ -195,7 +202,34 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
     - [SID-szerkesztő (3 hangos követő)](#sid-editor-3-voice-tracker)
     - [SID-lejátszó](#sid-player)
     - [Görbeszerkesztő](#curve-editor)
+    - [Táblázatgenerátor](#table-generator)
     - [Számátváltó](#number-converter)
+
+---
+
+## A 2.6.1-es verzió legfontosabb elemei
+
+- **Ciklusszámlálók Szakértő módban** — egy ereszcsatorna mutatja az egyes
+  utasítások ciklusait, a kijelölések teljes számát és a szükséges
+  rasztervonalak számát. Lásd: [Ciklusszámlálók](#cycle-counts).
+- **Optimalizálási tippek** — a Szakértői szerkesztő megjelöli a rövidebb vagy
+  gyorsabb sorokat (farokhívás, redundáns `CMP #0`, újratöltések, `INC` / `DEC`
+  idiómák…). Lásd: [Optimalizálási tippek](#optimisation-hints).
+- **Táblázatgenerátor** — képernyő/bittérkép sorcímek, pixelmaszkok,
+  szorzó/osztás táblázatok, negyednégyzetek, log/exp, bitfordítás, egyéni
+  kifejezések és kibontás nélküli kitöltés/másolás sebességkód. Lásd:
+  [Táblázatgenerátor](#table-generator).
+- **VICE Monitor** – gyors újratöltés a futó VICE-ba, címkék és címek élő
+  figyelése, valamint PC-s mintavételezésű profilkészítő. Lásd: [VICE
+  Monitor](#vice-monitor-hot-reload-live-watch-profiler).
+- **Nulla oldalhasználati térkép** és egy **leválasztható memóriaablak**. Lásd:
+  [Memóriaablak és nulla oldalhasználat](#memory-window-and-zero-page-usage).
+- **Ultimate Basic** — soronkénti kódméret, tippek és Sprite szerkesztő →
+  Ultimate Basic export animációval.
+- **SID szerkesztő → .sid (PSID) export** és egy **sprite multiplexer** projekt
+  sablon (16 sprite).
+- Több lebegő ablak is megnyitható egyszerre; amelyikre rákattint, az kerül
+  előtérbe.
 
 ---
 
@@ -1116,8 +1150,9 @@ működik. A forráskód a GNU General Public License v3.0 alatt érhető el (l�
 **Menü → Névjegy**). A 2.5.9-es verzióig az alkalmazás Freemium / Professional
 felosztással rendelkezett; a 2.6.0 óta egyszerűen nincs szükség sorozatszámra.
 
-Ha tetszik a program, támogathatod a fejlesztését egy adománnyal a c64va.pro
-oldalon.
+Ha tetszik a program, adománnyal támogathatod a fejlesztését: **Menü → Adomány**
+(a Nézet alatt) megnyitja a c64va.pro adományozási oldalát, ahol PayPal-on
+keresztül tetszőleges összeget adományozhatsz.
 
 **Használati statisztikák.** Naponta legfeljebb egyszer, indításkor az
 alkalmazás névtelen ping üzenetet küld a c64va.pro oldalra, amely tartalmazza az
@@ -1159,16 +1194,20 @@ gombot. Legfeljebb 3 fájlt csatolhatsz (összesen 4 MB): képeket, forrásfájl
 egy `.zip` fájlt — a **Fájl csatolása…** paranccsal, beillesztéssel (**Ctrl+V**)
 vagy az ablakra húzással. A válasz ugyanabban az ablakban jelenik meg, szintén a
 fájlokkal együtt: a képek előnézetként jelennek meg, egy kattintással menthető a
-fájl. Az ablak nem modális: a fejlécénél fogva húzd át, a jobb alsó sarkából
-méretezd át, és nyitva is folytasd a munkát. Az alkalmazás indításkor és
-percenként ellenőrzi a válaszokat; egy új válasz rövid sípoló hangot ad (a
-hangszóró gomb az ablak fejlécében elnémítja), felvillantja a tálca ikont,
-amikor az alkalmazás a háttérben van, egy piros pont jelenik meg a **Menu**
-gombon, és egyszer megnyitja az ablakot. Miután beszélgetést folytattál, a
-**Menu** gomb melletti boríték ikon megnyitja azt; pirosra vált, és villog az
-olvasatlan válaszok számával. Az e-mail cím megadása opcionális: ha megadsz
+fájl. Az ablak nem modális: a fejlécénél fogva húzd át, méretezd át a jobb alsó
+sarkából, és folytasd a munkát, amíg meg van nyitva. Az alkalmazás indításkor és
+percenként ellenőrzi a válaszokat; egy új válasz rövid sípoló hangot ad (az
+ablak fejlécében található hangszóró gomb elnémítja), felvillantja a tálca
+ikont, amikor az alkalmazás a háttérben van, egy piros pontot jelenít meg a
+**Menu** gombon, és egyszer megnyitja az ablakot. Miután beszélgetést
+folytattál, a **Menu** gomb melletti boríték ikon megnyitja azt; pirosra vált,
+és villog az olvasatlan válaszok számával. Az üzenet melletti **×** ikon törli
+az adott üzenetet, az ablak fejlécében található kuka gomb pedig a teljes
+beszélgetést törli a mellékleteivel együtt (szintén a fejlesztő számára;
+mindkettő kérdezzen rá először). Az e-mail cím megadása opcionális: ha megadsz
 egyet, a válasz is e-mailben érkezik meg. A beszélgetés az alkalmazás
-véletlenszerű telepítési azonosítójához van kötve, így nincs fiók és jelszó.
+véletlenszerű telepítési azonosítójához van kötve, így nincs fiók és nincs
+jelszó.
 
 ### Projektek, lapok és indítófájlok
 
@@ -1200,6 +1239,27 @@ megnyitását, mentését és bezárását, vagy egy másik forrásfájl hozzáa
   indítófájl és az `.proj` mentési célhely a munkaterülettel együtt visszakerül.
   A régebbi verziók által mentett munkaterületek ezek nélkül nyílnak meg.
 
+### Memóriaablak és nulla oldalhasználat
+
+A **Full C64 memory** panel lebeghet: a fejlécében található **undlock** gomb
+egy különálló, nem modális ablakba helyezi át, amelyet húzással átméretezhet a
+szerkesztés közben (az átfedés jelvénye is vele jár). A **Dock** (vagy × / Esc)
+visszahelyezi. Az ablak megjegyzi, hogy le volt-e választva, és a méretét.
+
+Amikor a program eléri a nulladik oldalt, a memóriatérkép tetején megjelenik egy
+**Zero page usage** szakasz: egy 16 × 16-os rács `$00–$FF`, területenként
+színezve — CPU port (`$00–$01`), szabad (`$02`, `$FB–$FE`), BASIC (`$03–$8F`,
+`$FF`) és KERNAL (`$90–$FA`). A használt cellák feltöltődnek; Egy keret jelöli
+az **írás** parancsot, egy sraffozás pedig az **mutatót** (`(zp),Y` / `(zp,X)`)
+parancsot. Kattintson egy használt cellára, hogy lássa, mely sorok érik el
+(kattintson egy sorra az odaugráshoz), és egy figyelmeztetést, amikor a BASIC
+vagy KERNAL területre ír.
+
+Ha a program tartalmazza a SID Editor exportált lejátszóját (`sid_` címkék),
+akkor a lejátszó nulla oldala (`$02–$1C`, `$2F`, `$FB–$FD`) is megjelölésre
+kerül, és minden olyan cím, amelyet a saját kódod is használ, **ütközésként**
+jelenik meg (piros keret, figyelmeztetés a fejlécben).
+
 ### Épület és diagnosztika
 
 Az **Build** gomb ugyanazt a középre igazított folyamatélményt nyitja meg,
@@ -1214,10 +1274,10 @@ belső nulla oldalas allokációknak és a generált kódadatoknak a megjelenít
 4. A forrássort tartalmazó hibák esetén válassza ki az adott sort az aktív UB
    szerkesztőben.
 
-| Szakasz              | Beépített sablonok                                                                                                                                                                                   |
-| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Assembler**        | Üres program, Üres játék (cím / lejátszás / játék vége állapotok, joystick, játékos sprite), Hires bitkép, Többszínű bitkép                                                                          |
-| **Végső Alapszintű** | Üres program, Üres játék (ugyanaz az állapotgép az UB-ben), Bitmap felbérelése (`line` / `rect` / `circle` `color pen`-szel), Raszter IRQ (a `sub` minden képkockát meghív a raszter megszakításból) |
+| Szakasz              | Beépített sablonok                                                                                                                                                                                                               |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Assembler**        | Üres program, Üres játék (cím / lejátszás / játék vége állapotok, joystick, játékos sprite), Hires bitkép, Többszínű bitkép, Sprite multiplexer (16 sprite Y betűvel rendezve képkockánként, raszteres IRQ lánccal megjelenítve) |
+| **Végső Alapszintű** | Üres program, Üres játék (ugyanaz az állapotgép az UB-ben), Bitmap felbérelése (`line` / `rect` / `circle` `color pen`-szel), Raszter IRQ (a `sub` minden képkockát meghív a raszter megszakításból)                             |
 
 Amikor a fordítás sikertelen:
 
@@ -1467,6 +1527,27 @@ A Build Info jelentéseket tartalmaz a betöltési/befejezési címekről, a kó
 PRG-méretekről, az Exomizer állapotáról, a változókról, a tömbökről, a
 függvényekről/alprogramokról és a címkékről.
 
+### Kódméret soronként és tippek
+
+Az **kódméret** eszköztár gombja (láng ikon) egy fordítás után mutatja, hogy az
+egyes forráskód sorok hány bájtra lettek lefordítva – a szám a sorszámok közé
+kerül, egy narancssárga sáv pedig a legdrágább sorhoz viszonyított súlyát
+mutatja. Az állapotsor összeadja a kurzor alatti sor bájtjait és becsült
+ciklusszámát (egyenes, ciklusok nélkül).
+
+Gépelés közben egy **hints** gomb jelenik meg az állapotsorban, ha valami
+hibásnak tűnik; kattintson rá a lista megjelenítéséhez, és egy tippre kattintva
+ugorhat a következő sorra:
+
+- `sys $EA31` / `sys $EA81` — A `sys` lefordul `JSR` fájllá, így a KERNAL `RTI`
+  parancsa a szemétbe tér vissza; IRQ esetén használd az `irq_exit` vagy az `asm
+  { JMP $EA31 }` parancsot;
+- `wait key` — nem dokumentált forma, használd a `waitkey` formátumot;
+- egy soha nem használt `var` / `dim` / `const` változó;
+- egy build után: egy `asm` blokk utasítás egy nulla oldalas címen, amely egy
+  Ultimate Basic változót vagy a futási környezet saját nulla oldalát
+  tartalmazza.
+
 ### Hiba a kiemelés során
 
 A sikertelenül lefordított sorokat valós időben **piros** (színezett háttér +
@@ -1604,6 +1685,44 @@ Az `érték` az `<utasításcím> + 1` (az első operandus bájt) címre mutat, 
 címzési mód esetén. Ez felváltja a régebbi `STA utasítás+1` / `utasítás: LDA
 #$00` mintát. Blokk ⇄ Szakértő módban körbejár (az operandus mező megtartja az
 `címke:` előtagot).
+
+### Ciklusszámlálás
+
+Az **ciklusszámláló** eszköztárgomb (óra ikon) egy ereszcsatornát ad hozzá,
+amely minden utasítássor 6510 ciklusát mutatja:
+
+| Megjelenik    | Jelentés                                                                                                                                               |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `4`           | állandó költség                                                                                                                                        |
+| `4+`          | indexelt olvasás (`abs,X`, `abs,Y`, `(zp),Y`): +1, amikor az index áthalad egy oldalon; egy oldalhoz igazított alap (`$xx00`) mutatja a pontos értéket |
+| `2/3`         | ág: nem foglalt / foglalt                                                                                                                              |
+| `2/4` (piros) | oldalt keresztező elágazás – érdemes tudni az időzített kódban                                                                                         |
+
+Válasszon ki több sort, és az állapotsor mutatja az összeget: utasítások száma,
+min-max ciklusok és a PAL raszter sorok száma (63 ciklus). A makrókat és az
+adatsorokat nem számolja a rendszer. A beállítást a rendszer megjegyzi.
+
+### Optimalizálási tippek
+
+A Szakértő szerkesztő ellenőrzi az összeállított kódot a gyakori
+kukucskálóminták után. A tippet tartalmazó sorok borostyánsárga csíkot kapnak,
+és egy **N tippek** gomb jelenik meg az állapotsorban; kattintson rá a lista
+megjelenítéséhez, és kattintson egy tippre az adott sorra ugráshoz. A tippek
+soha nem változtatják meg a kódot:
+
+- `JSR x`, majd `RTS` → `JMP x` (1 bájttal rövidebb, 9 ciklussal gyorsabb);
+- `CMP #0` / `CPX #0` / `CPY #0` közvetlenül egy olyan utasítás után, amely már
+  beállította az N/Z regisztert az adott regiszterhez (megjegyzés: az
+  összehasonlítás a C regisztert is beállítja);
+- ugyanaz a betöltés kétszer, vagy az imént tárolt értékű betöltés (`STA x` /
+  `LDA x`);
+- `LDA m` / `CLC` / `ADC #1` / `STA m` → `INC m`, és az `SEC` / `SBC #1` űrlap →
+  `DEC m`;
+- egy `JMP` vagy elágazás a legkövetkező utasításra, és az `PHA`, amelyet
+  közvetlenül az `PLA` követ.
+
+Két utasítás közötti címke (egy lehetséges ugrási célpont) elnyomja azokat a
+tippeket, amelyek egyesítésükre szolgálnának.
 
 ### Hiba a kiemelés során
 
@@ -4733,6 +4852,38 @@ kiemelve. Címük minden hibakereső indításakor beíródik a töréspont fáj
 > az `-wait 1000` kapcsolót, ha a programod olyan IRQ-kat vagy SID zenét állít
 > be, amelynek időre van szüksége az inicializáláshoz az első raszter előtt.
 
+### VICE Monitor (forró újratöltés, élő megfigyelés, profilkészítő)
+
+Az **VICE Monitor** eszköztár gomb egy nem modális ablakot nyit meg, amely a
+futó VICE-szal kommunikál a bináris monitorán keresztül. A **Futtatás (VICE)**
+elindítja a VICE-t a 6502-es porton lévő monitorral (**Beállítások → VICE távoli
+monitor**, alapértelmezés szerint bekapcsolva). Zárja be és indítsa újra a más
+módon elindított VICE-t. A fejléc a kapcsolat állapotát mutatja; a *Csak az
+asztali alkalmazásban érhető el* megjelenik a böngésző előnézetében.
+
+| Gomb                                        | Mit csinál                                                                                                                                                             |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Forró újratöltés**                        | Az összeállított programot a futó VICE RAM-jába írja (csak a foglalt tartományokat – a hézagokat hagyja). Adatokhoz használja: sprite-okhoz, táblázatokhoz, szöveghez. |
+| **Forró újraindítás + újraindítás**         | Ugyanez, majd újraindul a SYS címen (verem alaphelyzetbe állítás; a végső `RTS` visszatér `READY.` értékre).                                                           |
+| **Automatikus újratöltés szerkesztés után** | Minden szerkesztés után körülbelül egy másodperccel újratölti és újraindul, ha a program összeállt.                                                                    |
+| **Élő közvetítés**                          | 0,4 másodpercenként frissíti a figyelési listát; a módosított érték villog.                                                                                            |
+| **Profil**                                  | Körülbelül 5 másodpercig méri a programszámlálót (kattintson ismét a korai leállításhoz).                                                                              |
+
+**Figyelési lista:** írjon be egy címkét vagy címet — `pontszám`, `$D020`,
+`53280`, vagy bájtszámlálóval `tábla, 8` — és nyomja meg az **+**
+billentyűkombinációt vagy az Enter billentyűt. Minden sor a címet, a bájtokat
+hexadecimális formában, és 1 vagy 2 bájt esetén a decimális értéket mutatja. Az
+Ultimate Basic módban a nevek az utolsó UB buildből származnak (változók,
+címkék, alcsoportok, tömbök).
+
+**Profilozó eredménye:** két táblázat. A *Routine* a mintákat a legközelebbi
+címke szerint csoportosítja (az Ultimate Basicben: `sub` szerint), a %-os
+részesedéssel és a futtatott rasztervonalakkal – a KERNAL vagy BASIC ROM-ban
+eltöltött idő külön van felsorolva. A *Line* felsorolja a legdrágább
+forrássorokat; kattintson az egyikre az ugráshoz. Minden minta rövid időre
+szünetelteti az emulátort, így a profil egy statisztikai kép, nem pedig egy
+pontos ciklusszám.
+
 ---
 
 ## 12. D64 Exportálás és futtatás
@@ -4995,10 +5146,11 @@ az `INCBIN` paraméterrel, vagy közvetlenül hozzáadhatók egy D64 lemezhez a
 
 ### Nagy felbontású / többszínű szerkesztő
 
-| Beállítás   | Leírás                                                                                                                    |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------- |
-| Módváltás   | A **Többszínű** jelölőnégyzet a nagy felbontású (cellánként fekete-fehér) és a többszínű (cellánként 4 szín) között vált. |
-| **Állapot** | Megjeleníti, hogy a végrehajtható fájl elérési útja érvényes és elérhető-e                                                |
+| Beállítás               | Leírás                                                                                                                                             |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Módváltás               | A **Többszínű** jelölőnégyzet a nagy felbontású (cellánként fekete-fehér) és a többszínű (cellánként 4 szín) között vált.                          |
+| **Állapot**             | Megjeleníti, hogy a végrehajtható fájl elérési útja érvényes és elérhető-e                                                                         |
+| **VICE távoli monitor** | Elindítja a VICE-t a bináris monitorral a 6502-es porton, amelyre a [VICE Monitor](#vice-monitor-hot-reload-live-watch-profiler)-nek szüksége van. |
 
 Pixel szintű bitképszerkesztő 320×200 nagy felbontású és 160×200 többszínű
 móddal. Megnyitás a Toolkit → Nagy felbontású szerkesztő menüpontban.
@@ -5200,6 +5352,12 @@ móddal. Megnyitás a Toolkit → Nagy felbontású szerkesztő menüpontban.
 | Sprite lap importálása    | Fájlok → **Sprite lap importálása…**: a cella szélessége / magassága, az eltolás, a rés és a képkockaszám a képet az aktuális méretű képkockákra vágja (a többszínű cellák sprite-onként 12 pixelre vannak méretezve). A színek a képből származnak, vagy a sprite sajátjai maradnak; OKLab illesztés színárnyalatok nélkül, rendezett (Bayer) vagy Floyd-Steinberg színárnyalatok. Lecseréli a képkockákat, vagy hozzájuk fűzi a képeket.                                      |
 | Találatmező               | A **Hitbox** eszköz képkockánként egy téglalapot húz (szaggatott ciánkék); a **Fit**, **Fit every frame**, **Copy to every frame** és **Remove** menüpontok az oldalsó panelen találhatók. A Fájlok → **Copy hitbox table** visszaadja a `sprite_hit_x / _y / _w / _h` értéket (képkockánként egy bájt, a képernyő pixelei a bal felső sarokból); a hitbox nélküli képkocka a saját pixelhatárait használja.                                                                    |
 | X / Y ×2                  | Az `$D01D` / `$D017` sprite bővítményhez hasonló előnézetet mutat.                                                                                                                                                                                                                                                                                                                                                                                                              |
+
+Az **Exportálás UltimateBasicbe** (Fájlok menü) minden képkockát (maximum 8-at)
+`sprdef` formátumban ír ki, beállítja a 0. sprite-ot (színes, többszínű,
+kibontás), és animáció esetén hozzáad egy raszteres szinkronizálású ciklust,
+amely a szerkesztő FPS-ével lépteti a képkockákat. Ultimate Basic módban a
+kurzornál kerül beszúrásra, egyébként a vágólapra másolja.
 
 ### C64 karakter ROM böngésző ("Karaktertérkép")
 
@@ -5526,6 +5684,10 @@ sorrendlista pozíció). A hang, a moduláció és a szűrőállapot az adatok u
 
 ---
 
+Az **Export .sid (PSID)…** (Fájlok menü) opcióval a lejátszható `$C000`
+lejátszóval mentheti el a dallamot szabványos PSID fájlként – ez lejátszható az
+SID lejátszóban, a VICE `vsid` lejátszójában és bármely más SID lejátszóban.
+
 ### SID-lejátszó
 
 Az **SID Player** eszköztárgomb egy lebegő ablakot nyit meg, amely `.sid`
@@ -5631,6 +5793,37 @@ azonosak. Lásd a `samples/curve-new-demo.asm` fájlt egy működő 16 bites spr
 példáért.
 
 ---
+
+### Táblázatgenerátor
+
+Az **Táblázatgenerátor** eszköztárgomb (rács ikon, a görbeszerkesztő mellett)
+keresőtáblákat és gyorskódokat hozhat létre. Válasszon ki egy táblázattípust,
+állítsa be a paramétereit, és tekintse meg az előnézetet; a meta sor a
+bejegyzések számát, méretét és értéktartományát mutatja (kód esetén: bájtok és
+becsült ciklusok / rasztervonalak).
+
+| Típus                                                  | Értékek                                                                                                                               |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Képernyő sorok címei                                   | alap + 40 · sor (bármilyen alap és sorhossz)                                                                                          |
+| Bitmap sorcímek                                        | Y pixel → bájtcím a 0. oszlopban (8 × 8 cellaelrendezés)                                                                              |
+| Bitkép oszlop eltolások                                | pixel X → bájt eltolás a soron belül (bővített vagy többszínű)                                                                        |
+| Pixel bitmaszk                                         | X → bitmaszk (bérelhető / többszínű, opcionálisan invertált `ÉS` esetén)                                                              |
+| Szorozzon / ossza / maradékot adjon meg egy állandóval | x · k, ⌊x / k⌋, x mod k                                                                                                               |
+| Negyed négyzetek                                       | ⌊(x − eltolás)² / 4⌋, 512 bejegyzés — a · b = sqr(a + b) − sqr(a − b)                                                                 |
+| Kölcsönös                                              | ⌊N / x⌋                                                                                                                               |
+| Logaritmus / exponenciális                             | kerek(log2 x s), kerek(2^(x / s))                                                                                                     |
+| Bit fordított                                          | egy bájtot (vagy bitpárokat többszínűben) tükröz sprite-ok és karakterekké                                                            |
+| Egyéni kifejezés                                       | `i` bármely képlete (`k` = 0-alapú index, `n` = darabszám); `sin`, `cos`, `abs`, `min`, `max`, `round`, `floor`, `PI`, `$hex`, `%bin` |
+| Sebességkód: memória kitöltése / másolása              | egy alprogram; * iterációnként tárol * 0 = teljesen kigörgetve, N = egy X ciklus N tárolással menetenként                             |
+
+A 255 feletti értékek egy **lo / hi táblapárt** (`label_lo`, `label_hi`) vagy
+egy `.word` táblát eredményeznek; a negatív értékek kettes komplemensűek.
+Opciók: címke, hex / decimális, értékek soronként, **Align to page** (`.align
+256`, elkerüli az oldal-keresztezési ciklust). A **Copy** a vágólapra helyezi az
+összeállítást; az **Insert** hozzáadja a programhoz (ugyanazon címke újbóli
+beszúrása felülírja az előző másolatot) — Ultimate Basic módban egy `array`
+tömböt szúr be `data` sorokkal. A Fájlok menü a táblázatot `.bin` néven menti
+(alacsony, majd magas bájtok), és exportálja az Ultimate Basicbe.
 
 ### Számátalakító
 

@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Gebruikershandleiding
 
-**Versie 2.6.0**
+**Versie 2.6.1**
 
 Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw
 programma's door instructieblokken te slepen en neer te zetten, en bekijk de
@@ -12,6 +12,7 @@ gegenereerde assembly- en machinecode in realtime.
 
 - [C64 Visual Assembler —
   Gebruikershandleiding](#c64-visual-assembler--user-manual)
+    - [Hoogtepunten van versie 2.6.1](#version-261-highlights)
     - [Hoogtepunten van versie 2.6.0](#version-260-highlights)
     - [Hoogtepunten van versie 2.5.9](#version-259-highlights)
     - [Hoogtepunten van versie 2.5.8](#version-258-highlights)
@@ -49,6 +50,7 @@ gegenereerde assembly- en machinecode in realtime.
     - [Versiebeheer](#version-control)
     - [Gratis en open source](#free-and-open-source)
     - [Een bug melden](#reporting-a-bug)
+    - [Geheugenvenster en nul paginagebruik](#memory-window-and-zero-page-usage)
     - [Projecttemplates](#project-templates)
     - [Project bouwen](#build-project)
     - [Voorbeeldprogramma's](#example-programs)
@@ -61,6 +63,7 @@ gegenereerde assembly- en machinecode in realtime.
     - [Projecten, tabbladen en
       opstartbestanden](#projects-tabs-and-startup-files)
     - [Bouw en diagnostiek](#building-and-diagnostics)
+    - [Codegrootte per regel en hints](#code-size-per-line-and-hints)
     - [Running, D64, and Exomizer](#running-d64-and-exomizer)
     - [Debuggersymbolen en demontage](#debugger-symbols-and-disassembly)
     - [Ultieme basishandleiding en broncode](#ultimate-basic-manual-and-source)
@@ -68,6 +71,8 @@ gegenereerde assembly- en machinecode in realtime.
     - [Modi wisselen](#switching-modes)
     - [Editorindeling](#editor-layout)
     - [Werkbalkknoppen](#toolbar-buttons)
+    - [Cycle counts](#cycle-counts)
+    - [Optimalisatietips](#optimisation-hints)
     - [Fout bij het markeren](#error-highlighting)
     - [Syntaxmarkering](#syntax-highlight)
     - [Bronformatter](#source-formatter)
@@ -170,6 +175,8 @@ gegenereerde assembly- en machinecode in realtime.
     - [RetroDebugger](#retrodebugger)
     - [Breakpoint Blocks](#breakpoint-blocks)
     - [Flags voor de debugger (tabblad Opties)](#debugger-flags-options-tab)
+    - [VICE Monitor (hot reload, live watch,
+      profiler)](#vice-monitor-hot-reload-live-watch-profiler)
   - [11. Links naar de kennisbank](#11-knowledge-base-links)
   - [12. D64 Exporteren & Uitvoeren](#12-d64-export--run)
     - [Knop Split Run](#split-run-button)
@@ -195,7 +202,34 @@ gegenereerde assembly- en machinecode in realtime.
     - [SID-editor (3-stemmen tracker)](#sid-editor-3-voice-tracker)
     - [SID Speler](#sid-player)
     - [Curve-editor](#curve-editor)
+    - [Tabelgenerator](#table-generator)
     - [Nummeromzetter](#number-converter)
+
+---
+
+## Hoogtepunten van versie 2.6.1
+
+- **Cyclustellingen in Expert-modus** — een marge toont de cycli van elke
+  instructie, het totaal van de selectie en hoeveel rasterlijnen deze in beslag
+  neemt. Zie [Cyclustellingen](#cycle-counts).
+- **Optimalisatietips** — de Expert-editor markeert regels die korter of sneller
+  kunnen (tail call, redundante `CMP #0`, herlaadinstructies, `INC` / `DEC`
+  idiomen…). Zie [Optimalisatietips](#optimisation-hints).
+- **Tabelgenerator** — scherm-/bitmaprijadressen, pixelmaskers,
+  vermenigvuldigings-/deeltabellen, kwartkwadraat, logaritme/exponentieel,
+  bitomkering, aangepaste expressies en uitgerolde vul-/kopieersnelheidscode.
+  Zie [Tabelgenerator](#table-generator).
+- **VICE Monitor** — hot reload naar de draaiende VICE, live monitoring van
+  labels en adressen, en een PC-sampling profiler. Zie [VICE
+  Monitor](#vice-monitor-hot-reload-live-watch-profiler).
+- **Kaart met nul paginagebruik** en een **afneembaar geheugenvenster**. Zie
+  [Geheugenvenster en nul paginagebruik](#memory-window-and-zero-page-usage).
+- **Ultimate Basic** — codegrootte per regel, hints en Sprite Editor → Ultimate
+  Basic-export met animatie.
+- **SID Editor → .sid (PSID) export** en een **sprite multiplexer**
+  projectsjabloon (16 sprites).
+- Er kunnen meerdere zwevende vensters tegelijk open zijn; het venster waarop u
+  klikt, komt op de voorgrond.
 
 ---
 
@@ -1131,7 +1165,8 @@ een Freemium/Professional-indeling; sinds versie 2.6.0 is een serienummer
 invoeren niet meer nodig.
 
 Als je het programma leuk vindt, kun je de ontwikkeling ervan steunen met een
-donatie op c64va.pro.
+donatie: **Menu → Donatie** (onder Weergave) opent de donatiepagina op
+c64va.pro, waar je elk gewenst bedrag via PayPal kunt doneren.
 
 **Gebruiksstatistieken.** Maximaal één keer per dag, bij het opstarten, stuurt
 de app een anonieme ping naar c64va.pro met de app-versie, het
@@ -1176,13 +1211,16 @@ met bestanden: afbeeldingen worden als voorbeeld weergegeven, een klik slaat een
 bestand op. Het venster is niet modaal: sleep het aan de koptekst, pas de
 grootte aan via de rechteronderhoek en blijf doorwerken terwijl het open is. De
 app controleert bij het opstarten en elke minuut op antwoorden; bij een nieuw
-antwoord klinkt een kort piepje (de luidsprekerknop in de koptekst van het
+antwoord klinkt een korte piep (de luidsprekerknop in de koptekst van het
 venster dempt het geluid), knippert het pictogram in de taakbalk wanneer de app
 op de achtergrond draait, verschijnt er een rode stip op de **Menu**-knop en
 wordt het venster eenmaal geopend. Zodra je een gesprek hebt, opent een
 enveloppictogram naast de **Menu**-knop het gesprek; het wordt rood en knippert
-met het aantal ongelezen antwoorden. Een e-mailadres is optioneel: als je er een
-opgeeft, ontvang je het antwoord ook per e-mail. Het gesprek is gekoppeld aan de
+met het aantal ongelezen antwoorden. Met **×** naast een bericht verwijder je
+dat bericht, de prullenbakknop in de koptekst van het venster verwijdert het
+hele gesprek inclusief bijlagen (ook voor de ontwikkelaar; beiden moeten eerst
+toestemming vragen). Een e-mailadres is optioneel: als je er een opgeeft,
+ontvang je het antwoord ook per e-mail. Het gesprek is gekoppeld aan de
 willekeurige installatie-ID van de app, dus er is geen account en geen
 wachtwoord.
 
@@ -1217,6 +1255,29 @@ UltimateBasic-sjabloon — zie [Projectsjablonen]{1}.
   hersteld. Werkruimtes die door oudere versies zijn opgeslagen, worden zonder
   deze bestanden geopend.
 
+### Geheugenvenster en nul paginagebruik
+
+Het **Volledig C64-geheugen**-paneel kan zwevend worden weergegeven: de
+**ontkoppelen**-knop in de koptekst verplaatst het naar een apart, niet-modaal
+venster dat u kunt verslepen en waarvan u de grootte kunt aanpassen terwijl u
+blijft bewerken (het overlappingspictogram verschijnt ook). **Dokken** (of × /
+Esc) plaatst het terug. Het venster onthoudt of het was losgekoppeld en de
+grootte ervan.
+
+Wanneer het programma de nulpagina bereikt, verschijnt er bovenaan de
+geheugenkaart een sectie **Gebruik van nulpagina**: een raster van 16 × 16
+`$00–$FF`, gekleurd per gebied — CPU-poort (`$00–$01`), vrij (`$02`, `$FB–$FE`),
+BASIC (`$03–$8F`, `$FF`) en KERNAL (`$90–$FA`). Gebruikte cellen worden gevuld;
+Een kader markeert een **write**, een arcering een **pointer** (`(zp),Y` /
+`(zp,X)`). Klik op een gebruikte cel om te zien welke regels deze benaderen
+(klik op een regel om ernaartoe te springen) en er verschijnt een waarschuwing
+wanneer u naar het BASIC- of KERNAL-gebied schrijft.
+
+Als het programma de geëxporteerde speler van de SID Editor bevat (`sid_`
+labels), wordt de nulpagina van de speler (`$02–$1C`, `$2F`, `$FB–$FD`) ook
+gemarkeerd, en elk adres dat uw eigen code ook gebruikt, wordt gerapporteerd als
+een **conflict** (rood kader, waarschuwing in de header).
+
 ### Bouw en diagnose
 
 De knop **Build** opent dezelfde gecentreerde voortgangsweergave als de andere
@@ -1231,10 +1292,10 @@ codegegevens weer te geven.
 4. Fouten die een bronregel bevatten, selecteren die regel in de actieve
    UB-editor.
 
-| Sectie           | Ingebouwde sjablonen                                                                                                                                                                                        |
-| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Assembler**    | Leeg programma, leeg spel (titel-/speel-/game over-status, joystick, speler-sprite), bitmap met hoge resolutie, meerkleurige bitmap                                                                         |
-| **UltiemeBasis** | Leeg programma, leeg spel (zelfde toestandsmachine in UB), hoge bitmap (`lijn` / `rechthoek` / `cirkel` met `kleurpen`), raster-IRQ (een `sub` die elke frame wordt aangeroepen vanuit de raster-interrupt) |
+| Sectie           | Ingebouwde sjablonen                                                                                                                                                                                                                     |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Assembler**    | Leeg programma, leeg spel (titel-/speel-/game over-status, joystick, speler-sprite), bitmap met hoge resolutie, meerkleurige bitmap, sprite-multiplexer (16 sprites gesorteerd op Y-as per frame, weergegeven door een raster-IRQ-keten) |
+| **UltiemeBasis** | Leeg programma, leeg spel (zelfde toestandsmachine in UB), hoge bitmap (`lijn` / `rechthoek` / `cirkel` met `kleurpen`), raster-IRQ (een `sub` die elke frame wordt aangeroepen vanuit de raster-interrupt)                              |
 
 Als de compilatie mislukt:
 
@@ -1483,6 +1544,26 @@ wordt opgeslagen in de UI-instellingen (`expertMinimap`-toets).
 Build Info rapporteert laad-/eindadressen, code- en PRG-groottes,
 Exomizer-status, variabelen, arrays, functies/subroutines en labels.
 
+### Codegrootte per regel en hints
+
+De **code size**-knop in de werkbalk (vlamicoon) toont na een compilatie hoeveel
+bytes elke bronregel heeft gecompileerd. Het getal staat in de regelnummermarge
+en een oranje balk geeft de verhouding weer ten opzichte van de duurste regel.
+De statusbalk telt de bytes en een geschatte cyclustelling (rechte lijn, lussen
+niet meegerekend) van de regel onder de cursor bij elkaar op.
+
+Tijdens het typen verschijnt er een **hints**-knop in de statusbalk als er iets
+mis lijkt te zijn; klik erop voor de lijst en klik op een hint om naar de
+betreffende regel te springen:
+
+- `sys $EA31` / `sys $EA81` — `sys` compileert naar `JSR`, dus de `RTI` van de
+  KERNAL geeft onzin terug; gebruik vanuit een IRQ `irq_exit` of `asm { JMP
+  $EA31 }`;
+- `wait key` — geen gedocumenteerde vorm, gebruik `waitkey`;
+- een `var` / `dim` / `const` die nooit gebruikt wordt;
+- na een build: een `asm` blokinstructie op een nulpagina-adres dat een Ultimate
+  Basic-variabele of de eigen nulpagina van de runtime bevat.
+
 ### Foutmarkering
 
 Regels die niet compileren, worden in realtime gemarkeerd in **rood** (getinte
@@ -1621,6 +1702,43 @@ komt.
 adresseermodus. Dit vervangt het oudere `STA instruction+1` / `instruction: LDA
 #$00` patroon. Het doorloopt de Block ⇄ Expert-modus (het operandveld behoudt
 het `label:`-voorvoegsel).
+
+### Cyclustellingen
+
+De **cyclus tellingen** knop in de werkbalk (klokpictogram) voegt een
+tussenruimte toe die de 6510 cycli van elke instructieregel weergeeft:
+
+| Weergegeven  | Betekenis                                                                                                                                                           |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `4`          | vaste kosten                                                                                                                                                        |
+| `4+`         | geïndexeerde leesbewerking (`abs,X`, `abs,Y`, `(zp),Y`): +1 wanneer de index een pagina overschrijdt; een pagina-uitgelijnde basis (`$xx00`) toont de exacte waarde |
+| `2/3`        | tak: niet genomen / genomen                                                                                                                                         |
+| `2/4` (rood) | Een tak die een pagina overschrijdt — handig om te weten bij getimede code.                                                                                         |
+
+Selecteer meerdere regels en de statusbalk toont de som: het aantal instructies,
+het minimum-maximum aantal cycli en het aantal PAL-rasterregels (63 cycli).
+Macro's en dataregels worden niet meegeteld. De instelling wordt onthouden.
+
+### Optimalisatietips
+
+De Expert-editor controleert de samengestelde code op veelvoorkomende
+'peephole'-patronen. Regels met een hint krijgen een amberkleurige streep en er
+verschijnt een knop **N hints** in de statusbalk; klik hierop voor de lijst en
+klik op een hint om naar de betreffende regel te springen. Hints wijzigen uw
+code nooit:
+
+- `JSR x` gevolgd door `RTS` → `JMP x` (1 byte korter, 9 cycli sneller);
+- `CMP #0` / `CPX #0` / `CPY #0` direct na een instructie die N/Z al heeft
+  ingesteld voor dat register (let op: de vergelijking stelt ook C in);
+- dezelfde lading tweemaal, of een lading van de zojuist opgeslagen waarde (`STA
+  x` / `LDA x`);
+- `LDA m` / `CLC` / `ADC #1` / `STA m` → `INC m`, en de `SEC` / `SBC #1` vorm →
+  `DEC m`;
+- een `JMP` of sprong naar de eerstvolgende instructie, en `PHA` onmiddellijk
+  gevolgd door `PLA`.
+
+Een label tussen twee instructies (een mogelijk sprongdoel) onderdrukt de hints
+die ze zouden samenvoegen.
 
 ### Foutmarkering
 
@@ -5148,6 +5266,37 @@ geschreven.
 > programma IRQ's of SID-muziek instelt die tijd nodig heeft om te initialiseren
 > vóór de eerste rastering.
 
+### VICE Monitor (hot reload, live watch, profiler)
+
+De **VICE Monitor**-knop in de werkbalk opent een niet-modaal venster dat
+communiceert met de draaiende VICE via de binaire monitor. **Uitvoeren (VICE)**
+start VICE met de monitor op poort 6502 (**Instellingen → VICE-monitor op
+afstand**, standaard ingeschakeld). Sluit en herstart een VICE die op een andere
+manier is gestart. De header toont de verbindingsstatus; *Alleen beschikbaar in
+de desktop-app* verschijnt in de browserpreview.
+
+| Knop                                         | Wat het doet                                                                                                                                                                                                |
+| -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Hot reload**                               | Schrijft het samengestelde programma naar het RAM-geheugen van de draaiende VICE (alleen de bezette geheugenbereiken — de lege ruimtes blijven ongemoeid). Gebruik het voor data: sprites, tabellen, tekst. |
+| **Hot reload + restart**                     | Hetzelfde geldt voor de herstart op het SYS-adres (stack reset; de laatste `RTS` keert terug naar `READY.`).                                                                                                |
+| **Automatisch opnieuw laden na bewerkingen** | Het programma wordt ongeveer een seconde na elke bewerking opnieuw geladen en gestart, als het compileert.                                                                                                  |
+| **Live kijken**                              | De volglijst wordt elke 0,4 seconde vernieuwd; een gewijzigde waarde knippert.                                                                                                                              |
+| **Profiel**                                  | De programmateller wordt gedurende ongeveer 5 seconden uitgelezen (klik nogmaals om eerder te stoppen).                                                                                                     |
+
+**Watchlijst:** typ een label of een adres — `score`, `$D020`, `53280`, of met
+een byte-telling `table, 8` — en druk op **+** of Enter. Elke rij toont het
+adres, de bytes in hexadecimaal en, voor 1 of 2 bytes, de decimale waarde. In
+Ultimate Basic-modus zijn de namen afkomstig van de laatste UB-build
+(variabelen, labels, subroutines, arrays).
+
+**Profilerresultaat:** twee tabellen. *Routine* groepeert de samples op basis
+van het dichtstbijzijnde label (in Ultimate Basic: op basis van `sub`), met het
+aandeel in % en de rasterlijnen waarop het is uitgevoerd — de tijd besteed in de
+KERNAL of BASIC ROM wordt apart vermeld. *Line* geeft een lijst van de meest
+kostbare bronregels; klik op een regel om ernaartoe te springen. Elke sample
+pauzeert de emulator kort, dus het profiel is een statistisch beeld, geen exacte
+cyclustelling.
+
 ---
 
 ## 12. D64 Exporteren en uitvoeren
@@ -5410,10 +5559,11 @@ naar D64**-optie.
 
 ### Editor voor hoge resolutie / meerkleurig
 
-| Instelling      | Beschrijving                                                                                                   |
-| --------------- | -------------------------------------------------------------------------------------------------------------- |
-| Modusschakelaar | **Multicolor** selectievakje schakelt tussen hoge resolutie (mono per cel) en meerkleurig (4 kleuren per cel). |
-| **Status**      | Geeft aan of het uitvoerbare pad geldig en toegankelijk is.                                                    |
+| Instelling                  | Beschrijving                                                                                                                |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Modusschakelaar             | **Multicolor** selectievakje schakelt tussen hoge resolutie (mono per cel) en meerkleurig (4 kleuren per cel).              |
+| **Status**                  | Geeft aan of het uitvoerbare pad geldig en toegankelijk is.                                                                 |
+| **VICE-monitor op afstand** | Start VICE met de binaire monitor op poort 6502, nodig voor de [VICE Monitor](#vice-monitor-hot-reload-live-watch-profiler) |
 
 Bitmap-editor op pixelniveau met zowel een hoge resolutie van 320×200 als een
 meerkleurige modus van 160×200. Openen via Toolkit → Hi-Res Editor.
@@ -5616,6 +5766,12 @@ Toolkit → Sprite-editor.
 | Sprite-sheet importeren            | Bestanden → **Spritesheet importeren…**: celbreedte/hoogte, offset, tussenruimte en frameaantal verdelen de afbeelding in frames van de huidige grootte (meerkleurige cellen worden geschaald naar 12 pixels per sprite). Kleuren komen uit de afbeelding of blijven de eigen kleuren van de sprite; OKLab-matching zonder dithering, geordende (Bayer) of Floyd-Steinberg-dithering. Vervangt de frames of voegt eraan toe.                                                 |
 | Hitbox                             | De **Hitbox**-tool sleept een rechthoek per frame (gestippeld cyaan); **Fit**, **Fit every frame**, **Copy to every frame** en **Remove** in het zijpaneel. Bestanden → **Copy hitbox table** geeft `sprite_hit_x / _y / _w / _h` (één byte per frame, schermpixels vanaf linksboven); een frame zonder hitbox gebruikt zijn pixelgrenzen.                                                                                                                                   |
 | X / Y ×2                           | Toont de preview zoals met `$D01D` / `$D017` sprite-uitbreiding.                                                                                                                                                                                                                                                                                                                                                                                                             |
+
+**Exporteren naar UltimateBasic** (menu Bestanden) schrijft elk frame (tot 8)
+als een `sprdef`, stelt sprite 0 in (kleur, meerkleurig, uitbreiden) en voegt,
+voor een animatie, een raster-gesynchroniseerde lus toe die de frames met de FPS
+van de editor versnelt. In de Ultimate Basic-modus wordt deze op de
+cursorpositie ingevoegd, anders wordt deze naar het klembord gekopieerd.
 
 ### C64 Character ROM Browser ("Char map")
 
@@ -5941,6 +6097,10 @@ verplaats ze indien nodig via de Expert-modus.
 
 ---
 
+**Exporteer .sid (PSID)…** (menu Bestanden) slaat de melodie op met de
+afspeelbare `$C000` speler als een standaard PSID-bestand — het wordt afgespeeld
+in de SID Player, in VICE's `vsid` en in elke andere SID-speler.
+
 ### SID-speler
 
 De **SID Player**-werkbalkknop opent een zwevend venster dat
@@ -6044,6 +6204,38 @@ gedeeltelijke weergave zal anders bewegen, ook al zijn de byte-waarden identiek.
 Zie `samples/curve-new-demo.asm` voor een werkend 16-bits sprite-X-voorbeeld.
 
 ---
+
+### Tabelgenerator
+
+De **Tabelgenerator**-knop in de werkbalk (rasterpictogram, naast de Curve
+Editor) genereert opzoektabellen en speedcode. Kies een tabeltype, stel de
+parameters in en bekijk de preview; de meta-regel toont het aantal vermeldingen,
+de grootte en het waardebereik (voor code: bytes en geschatte cycli /
+rasterlijnen).
+
+| Type                                               | Waarden                                                                                                                                   |
+| -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Schermrijadressen                                  | basis + 40 · rij (elke basis- en rijlengte)                                                                                               |
+| Bitmap-rijadressen                                 | pixel Y → byte-adres in kolom 0 (8 × 8 celindeling)                                                                                       |
+| Bitmap kolomverschuivingen                         | pixel X → byte-offset binnen de lijn (hoogwaardig of meerkleurig)                                                                         |
+| Pixel bitmasker                                    | X → bitmasker (hoge resolutie / meerkleurig, optioneel geïnverteerd voor `AND`)                                                           |
+| Vermenigvuldigen / delen / rest door een constante | x · k, ⌊x / k⌋, x mod k                                                                                                                   |
+| Kwart vierkanten                                   | ⌊(x − offset)² / 4⌋, 512 entries — a · b = sqr(a + b) − sqr(a − b)                                                                        |
+| Wederkerig                                         | ⌊N / x⌋                                                                                                                                   |
+| Logaritme / exponentieel                           | round(log2 x · s), round(2^(x / s))                                                                                                       |
+| Bit-omkering                                       | draait een byte (of bitparen in meerkleurige weergave) om sprites en tekens te spiegelen.                                                 |
+| Aangepaste expressie                               | elke formule van `i` (`k` = 0-gebaseerde index, `n` = telling); `sin`, `cos`, `abs`, `min`, `max`, `round`, `floor`, `PI`, `$hex`, `%bin` |
+| Speedcode: geheugen vullen/kopiëren                | een subroutine; * opslagen per iteratie * 0 = volledig uitgerold, N = een X-lus met N opslagen per doorgang                               |
+
+Waarden boven 255 worden een **lo/hi tabelpaar** (`label_lo`, `label_hi`) of een
+`.word` tabel; negatieve waarden worden weergegeven als two's complement.
+Opties: label, hexadecimaal/decimaal, waarden per regel, **Uitlijnen op pagina**
+(`.align 256`, voorkomt de pagina-overgangscyclus). **Kopiëren** plaatst de
+assembly op het klembord; **Insert** voegt het toe aan het programma (het
+opnieuw invoegen van hetzelfde label vervangt de vorige kopie) — in de Ultimate
+Basic-modus voegt het een `array` in met `data`-regels. Het menu Bestanden slaat
+de tabel ook op als `.bin` (lage bytes, vervolgens hoge bytes) en exporteert
+deze naar Ultimate Basic.
 
 ### Getallenomzetter
 
