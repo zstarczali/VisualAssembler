@@ -237,6 +237,44 @@ function vaSetting(PDO $db, string $key, ?string $value = null): string
     return (string) ($st->fetchColumn() ?: '');
 }
 
+// Frissítés-kiadás: az app frissítője (downloads/VA/index.php listája) csak a dashboardon (release.php)
+// kiadott verzióig kínál telepítőt; a feltöltött újabb telepítők addig várakoznak.
+const VA_UPDATE_SETTING = 'update_approved_version';
+const VA_UPDATE_DEFAULT = '2.6.1'; // kiadva a jóváhagyás bevezetése előtt
+const VA_INSTALLER_PATTERNS = [
+    'WIN X64' => 'C64 Visual Assembler_*_x64-setup.exe',
+    'WIN ARM64' => 'C64 Visual Assembler_*_arm64-setup.exe',
+    'MAC X64' => 'C64 Visual Assembler_*_x64.dmg',
+    'MAC ARM' => 'C64 Visual Assembler_*_aarch64.dmg',
+    'APPIMAGE' => 'C64 Visual Assembler_*_amd64.AppImage',
+    'DEB' => 'C64 Visual Assembler_*_amd64.deb',
+    'RPM' => 'C64 Visual Assembler-*-1.x86_64.rpm',
+];
+
+function vaUpdateApproved(PDO $db): string
+{
+    $v = vaSetting($db, VA_UPDATE_SETTING);
+    return $v !== '' ? $v : VA_UPDATE_DEFAULT;
+}
+
+/** A telepítő fájlnevéből a verzió ("2.6.2"), vagy null. */
+function vaInstallerVersion(string $name): ?string
+{
+    return preg_match('/(?:_|-)(\d+\.\d+\.\d+)(?:_|-)/', $name, $m) ? $m[1] : null;
+}
+
+/** A downloads/VA mappa telepítői: [fájlnév => platform]. */
+function vaInstallers(string $dir): array
+{
+    $out = [];
+    foreach (VA_INSTALLER_PATTERNS as $platform => $pattern) {
+        foreach (glob($dir . DIRECTORY_SEPARATOR . $pattern) ?: [] as $file) {
+            $out[basename($file)] = $platform;
+        }
+    }
+    return $out;
+}
+
 /** Országkód → angol név (intl nélkül a kód marad). */
 function vaCountryName(string $cc): string
 {

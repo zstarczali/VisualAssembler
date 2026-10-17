@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "tools-261",
+  id: "lessons-262",
   url: "https://www.c64va.pro/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.6.1-ben",
+    eyebrow: "Újdonság a 2.6.2-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<ul><li><strong>VICE Monitor</strong>: hot reload a futó VICE-ba, élő változók és profiler.</li><li><strong>Táblagenerátor</strong>: sorcímek, maszkok, szorzó- / osztótáblák, log / exp, saját képlet és speedcode.</li><li><strong>Ciklusszámok és optimalizálási tippek</strong> az Expert szerkesztőben.</li><li><strong>Zero page foglaltság</strong> és leválasztható memóriaablak.</li><li><strong>Ultimate Basic</strong>: kódméret soronként, tippek, sprite export animációval.</li><li><strong>.sid export</strong> a SID szerkesztőből és <strong>sprite multiplexer</strong> sablon.</li></ul><p>Kérdés, ötlet vagy hiba: <strong>Menu → Támogatás</strong>.</p>`,
+    body: `<ul><li><strong>HVSC a SID Playerben</strong>: keresés kb. 61 000 C64 dalban, lejátszás, mentés, a teljes gyűjtemény letöltése offline használatra.</li><li><strong>Spektrum-analizátor</strong> a SID Playerhez.</li><li><strong>Lecke-szerkesztő</strong>: a saját programodból lépésről lépésre vezetett lecke.</li><li><strong>Online leckék</strong> a www.c64va.pro-ról, egy kattintással.</li><li><strong>Minden makró az operandus mezőben</strong> kapja a paramétereit (<code>SET_BG $06</code>, <code>REGION Main</code> …).</li></ul><p>Kérdés, ötlet vagy hiba: <strong>Menu → Támogatás</strong>.</p>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.6.1",
+    eyebrow: "New in 2.6.2",
     title: "Welcome to Visual Assembler",
-    body: `<ul><li><strong>VICE Monitor</strong>: hot reload into the running VICE, live watch and a profiler.</li><li><strong>Table Generator</strong>: row addresses, masks, multiply / divide tables, log / exp, custom formulas and speedcode.</li><li><strong>Cycle counts and optimisation hints</strong> in the Expert editor.</li><li><strong>Zero page usage</strong> and a detachable memory window.</li><li><strong>Ultimate Basic</strong>: code size per line, hints, sprite export with animation.</li><li><strong>.sid export</strong> from the SID Editor and a <strong>sprite multiplexer</strong> template.</li></ul><p>Questions, ideas or bugs: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>HVSC in the SID Player</strong>: search about 61,000 C64 tunes, play, save, download the whole collection for offline use.</li><li><strong>Spectrum analyzer</strong> for the SID Player.</li><li><strong>Lesson Editor</strong>: a step-by-step guided lesson from your own program.</li><li><strong>Online lessons</strong> from www.c64va.pro, with one click.</li><li><strong>Every macro takes its parameters</strong> in the operand field (<code>SET_BG $06</code>, <code>REGION Main</code> …).</li></ul><p>Questions, ideas or bugs: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.6.1",
+    eyebrow: "Novedad en la 2.6.2",
     title: "Bienvenido a Visual Assembler",
-    body: `<ul><li><strong>Monitor de VICE</strong>: recarga en caliente en el VICE en marcha, vigilancia en vivo y perfilador.</li><li><strong>Generador de tablas</strong>: direcciones de fila, máscaras, tablas de multiplicar / dividir, log / exp, fórmulas propias y speedcode.</li><li><strong>Ciclos y sugerencias de optimización</strong> en el editor Expert.</li><li><strong>Uso de la página cero</strong> y ventana de memoria separable.</li><li><strong>Ultimate Basic</strong>: tamaño de código por línea, sugerencias, exportación de sprites con animación.</li><li><strong>Exportación .sid</strong> desde el editor SID y plantilla de <strong>multiplexor de sprites</strong>.</li></ul><p>Preguntas, ideas o errores: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>HVSC en el SID Player</strong>: busca entre unos 61.000 temas de C64, reproduce, guarda y descarga la colección completa para usarla sin conexión.</li><li><strong>Analizador de espectro</strong> para el SID Player.</li><li><strong>Editor de lecciones</strong>: una lección guiada paso a paso a partir de tu propio programa.</li><li><strong>Lecciones en línea</strong> de www.c64va.pro, con un clic.</li><li><strong>Todas las macros reciben sus parámetros</strong> en el campo de operando (<code>SET_BG $06</code>, <code>REGION Main</code> …).</li></ul><p>Preguntas, ideas o errores: <strong>Menu → Support</strong>.</p>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.6.1",
+    eyebrow: "Neu in 2.6.2",
     title: "Willkommen bei Visual Assembler",
-    body: `<ul><li><strong>VICE-Monitor</strong>: Hot Reload in den laufenden VICE, Live-Watch und Profiler.</li><li><strong>Tabellengenerator</strong>: Zeilenadressen, Masken, Multiplikations- / Divisionstabellen, Log / Exp, eigene Formeln und Speedcode.</li><li><strong>Taktzyklen und Optimierungshinweise</strong> im Expert-Editor.</li><li><strong>Zero-Page-Belegung</strong> und abdockbares Speicherfenster.</li><li><strong>Ultimate Basic</strong>: Codegröße pro Zeile, Hinweise, Sprite-Export mit Animation.</li><li><strong>.sid-Export</strong> aus dem SID-Editor und eine <strong>Sprite-Multiplexer</strong>-Vorlage.</li></ul><p>Fragen, Ideen oder Fehler: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>HVSC im SID Player</strong>: rund 61.000 C64-Stücke durchsuchen, abspielen, speichern und die ganze Sammlung für die Offline-Nutzung laden.</li><li><strong>Spektrumanalysator</strong> für den SID Player.</li><li><strong>Lektionseditor</strong>: eine geführte Schritt-für-Schritt-Lektion aus deinem eigenen Programm.</li><li><strong>Online-Lektionen</strong> von www.c64va.pro, mit einem Klick.</li><li><strong>Jedes Makro erhält seine Parameter</strong> im Operandenfeld (<code>SET_BG $06</code>, <code>REGION Main</code> …).</li></ul><p>Fragen, Ideen oder Fehler: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.6.1",
+    eyebrow: "Nieuw in 2.6.2",
     title: "Welkom bij Visual Assembler",
-    body: `<ul><li><strong>VICE-monitor</strong>: hot reload in de draaiende VICE, live watch en een profiler.</li><li><strong>Tabelgenerator</strong>: rijadressen, maskers, vermenigvuldig- / deeltabellen, log / exp, eigen formules en speedcode.</li><li><strong>Cycli en optimalisatietips</strong> in de Expert-editor.</li><li><strong>Zero page-gebruik</strong> en een losmaakbaar geheugenvenster.</li><li><strong>Ultimate Basic</strong>: codegrootte per regel, tips, sprite-export met animatie.</li><li><strong>.sid-export</strong> vanuit de SID-editor en een <strong>sprite-multiplexer</strong>-sjabloon.</li></ul><p>Vragen, ideeën of bugs: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>HVSC in de SID Player</strong>: zoek in zo'n 61.000 C64-nummers, speel af, sla op en download de hele collectie voor offline gebruik.</li><li><strong>Spectrumanalyser</strong> voor de SID Player.</li><li><strong>Lesseneditor</strong>: een stap-voor-stap begeleide les uit je eigen programma.</li><li><strong>Online lessen</strong> van www.c64va.pro, met één klik.</li><li><strong>Elke macro krijgt zijn parameters</strong> in het operandveld (<code>SET_BG $06</code>, <code>REGION Main</code> …).</li></ul><p>Vragen, ideeën of bugs: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.6.1",
+    eyebrow: "Nowość w 2.6.2",
     title: "Witamy w Visual Assembler",
-    body: `<ul><li><strong>Monitor VICE</strong>: hot reload do działającego VICE, podgląd na żywo i profiler.</li><li><strong>Generator tablic</strong>: adresy wierszy, maski, tablice mnożenia / dzielenia, log / exp, własne wzory i speedcode.</li><li><strong>Liczba cykli i wskazówki optymalizacji</strong> w edytorze Expert.</li><li><strong>Użycie strony zerowej</strong> i odłączane okno pamięci.</li><li><strong>Ultimate Basic</strong>: rozmiar kodu na linię, wskazówki, eksport sprite'ów z animacją.</li><li><strong>Eksport .sid</strong> z edytora SID i szablon <strong>multipleksera sprite'ów</strong>.</li></ul><p>Pytania, pomysły lub błędy: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>HVSC w SID Playerze</strong>: wyszukiwanie wśród ok. 61 000 utworów C64, odtwarzanie, zapis i pobranie całej kolekcji do pracy offline.</li><li><strong>Analizator widma</strong> dla SID Playera.</li><li><strong>Edytor lekcji</strong>: lekcja prowadzona krok po kroku z twojego własnego programu.</li><li><strong>Lekcje online</strong> z www.c64va.pro, jednym kliknięciem.</li><li><strong>Każde makro przyjmuje parametry</strong> w polu operandu (<code>SET_BG $06</code>, <code>REGION Main</code> …).</li></ul><p>Pytania, pomysły lub błędy: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.6.1",
+    eyebrow: "Novità nella 2.6.2",
     title: "Benvenuto in Visual Assembler",
-    body: `<ul><li><strong>Monitor VICE</strong>: hot reload nel VICE in esecuzione, watch dal vivo e profiler.</li><li><strong>Generatore di tabelle</strong>: indirizzi di riga, maschere, tabelle di moltiplicazione / divisione, log / exp, formule proprie e speedcode.</li><li><strong>Cicli e suggerimenti di ottimizzazione</strong> nell'editor Expert.</li><li><strong>Uso della pagina zero</strong> e finestra della memoria sganciabile.</li><li><strong>Ultimate Basic</strong>: dimensione del codice per riga, suggerimenti, esportazione sprite con animazione.</li><li><strong>Esportazione .sid</strong> dall'editor SID e modello di <strong>multiplexer di sprite</strong>.</li></ul><p>Domande, idee o bug: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>HVSC nel SID Player</strong>: cerca tra circa 61.000 brani C64, riproduci, salva e scarica l'intera collezione per l'uso offline.</li><li><strong>Analizzatore di spettro</strong> per il SID Player.</li><li><strong>Editor delle lezioni</strong>: una lezione guidata passo passo dal tuo programma.</li><li><strong>Lezioni online</strong> da www.c64va.pro, con un clic.</li><li><strong>Ogni macro riceve i parametri</strong> nel campo operando (<code>SET_BG $06</code>, <code>REGION Main</code> …).</li></ul><p>Domande, idee o bug: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -2431,7 +2431,8 @@ function setupDraggableEditorDialogs() {
     ["d64-block-editor-dialog", ".dbe-hdr"],
     ["project-snapshot-dialog", ".project-snapshot-hdr"],
     ["support-dialog", ".support-hdr"],
-    ["tut-editor-dialog", ".te-hdr"]
+    ["tut-editor-dialog", ".te-hdr"],
+    ["sid-viz-dialog", ".sid-viz-hdr"]
   ];
   dialogs.forEach(function(entry) {
     const dialogId = entry[0];
@@ -4086,6 +4087,9 @@ function _applyEditorTranslations() {
   setAttr("#websid-play-clear", t("sidPlayerClear"));
   _teApplyTranslations();
   setAttr("#websid-play-hvsc", t("sidHvsc"));
+  setAttr("#websid-play-viz", t("sidVizOpen"));
+  setText("#sid-viz-title", t("sidVizTitle"));
+  setText("#sid-viz-bands-lbl", t("sidVizBands"));
   setAttr("#websid-hvsc-random", t("sidHvscRandom"));
   setAttr("#websid-hvsc-add-all", t("sidHvscAddAll"));
   setAttr("#websid-hvsc-refresh", t("sidHvscRefresh"));
@@ -41087,12 +41091,17 @@ function setupSidPlayer() {
     if (_sidExtStatus !== "stopped") _sidExtStop();
     _sidPlayerSyncButton();
     _sidPlayerPersist();
+    // the spectrum window belongs to the player: it closes with it and comes
+    // back with it (on top, so the player does not cover its header)
+    const viz = document.getElementById("sid-viz-dialog");
+    if (viz?.open) { _sidVizWithPlayer = true; viz.close(); }
   });
   // runs before the _sidPlaylist state is declared (TDZ), so restore after the script has loaded
   setTimeout(function() {
     _sidLoadMasterVolume();
     _sidPlayerRestore();
     _hvscRestore();
+    setupSidVisualizer();
   }, 0);
 }
 
@@ -46663,6 +46672,7 @@ function _sidPlayerShow() {
   _sidPlayerSyncButton();
   _sidPlayerRenderList();
   _sidPlayerPersist();
+  if (_sidVizState().open) setTimeout(_sidVizShow, 0);
 }
 function _sidPlayerToggle() {
   const dlg = document.getElementById("websid-play-dialog");
@@ -47071,6 +47081,218 @@ function _hvscRestore() {
   const search = document.getElementById("websid-hvsc-search");
   if (search && typeof saved?.query === "string") search.value = saved.query;
   if (saved?.open) _hvscSetOpen(true);
+}
+
+/* ── SID Player spectrum analyzer (#sid-viz-dialog) ─────────────────────
+ * LED-style bars: one AnalyserNode per engine (VA SID Core: after the shared
+ * master gain; WebSID: on ScriptNodePlayer's own gain node), log-spaced bands,
+ * cells that fade out slowly, and a mirrored floor in perspective. Drawn only
+ * while the window is open. State: localStorage c64va-sid-viz {open, bands, w, h}. */
+const _SID_VIZ_STORE = "c64va-sid-viz";
+const _SID_VIZ_ROWS = 10;
+const _SID_VIZ_FLOOR_ROWS = 5;
+let _sidVizBands = 16;
+let _sidVizRaf = 0;
+let _sidVizGlow = null;
+let _sidVizLevels = null;
+let _sidVizVa = null;
+let _sidVizWs = null;
+let _sidVizWsGain = null;
+let _sidVizData = null;
+let _sidVizWithPlayer = false;
+
+// Band edges in Hz, log-spaced between 30 Hz and 14 kHz (or Nyquist).
+function _sidVizBandEdges(bands, sampleRate) {
+  const lo = 30, hi = Math.min(14000, sampleRate / 2);
+  const edges = [];
+  for (let i = 0; i <= bands; i++) edges.push(lo * Math.pow(hi / lo, i / bands));
+  return edges;
+}
+// Band levels 0..1 from byte frequency data (the loudest bin of each band).
+function _sidVizBandLevels(data, sampleRate, fftSize, bands) {
+  const edges = _sidVizBandEdges(bands, sampleRate);
+  const hz = sampleRate / fftSize;
+  const out = new Array(bands).fill(0);
+  for (let b = 0; b < bands; b++) {
+    const from = Math.max(1, Math.floor(edges[b] / hz));
+    const to = Math.max(from, Math.min(data.length - 1, Math.ceil(edges[b + 1] / hz) - 1));
+    let peak = 0;
+    for (let i = from; i <= to; i++) peak = Math.max(peak, data[i]);
+    out[b] = peak / 255;
+  }
+  return out;
+}
+// Row color: green at the bottom through yellow to orange at the top.
+function _sidVizRowHue(row, rows) {
+  return 125 - (row / Math.max(1, rows - 1)) * 100;
+}
+
+function _sidVizAnalysers() {
+  const list = [];
+  if (_sidAudio && _sidMasterGain) {
+    if (!_sidVizVa) {
+      _sidVizVa = _sidAudio.createAnalyser();
+      _sidVizVa.fftSize = 2048;
+      _sidVizVa.minDecibels = -90;
+      _sidVizVa.maxDecibels = -25;
+      _sidVizVa.smoothingTimeConstant = 0.55;
+      _sidMasterGain.connect(_sidVizVa);
+    }
+    list.push(_sidVizVa);
+  }
+  try {
+    const player = typeof ScriptNodePlayer !== "undefined" ? ScriptNodePlayer.getInstance() : null;
+    const gain = player?._gainNode;
+    if (gain && gain !== _sidVizWsGain) {
+      // the WebSID player made a new output chain: follow it
+      _sidVizWs = gain.context.createAnalyser();
+      _sidVizWs.fftSize = 2048;
+      _sidVizWs.minDecibels = -90;
+      _sidVizWs.maxDecibels = -25;
+      _sidVizWs.smoothingTimeConstant = 0.55;
+      gain.connect(_sidVizWs);
+      _sidVizWsGain = gain;
+    }
+    if (_sidVizWs && _webSidActive) list.push(_sidVizWs);
+  } catch (_) {}
+  return list;
+}
+function _sidVizReadLevels() {
+  const levels = new Array(_sidVizBands).fill(0);
+  _sidVizAnalysers().forEach(function(an) {
+    if (!_sidVizData || _sidVizData.length !== an.frequencyBinCount) _sidVizData = new Uint8Array(an.frequencyBinCount);
+    an.getByteFrequencyData(_sidVizData);
+    _sidVizBandLevels(_sidVizData, an.context.sampleRate, an.fftSize, _sidVizBands).forEach(function(v, i) { levels[i] = Math.max(levels[i], v); });
+  });
+  return levels;
+}
+
+function _sidVizDraw() {
+  const canvas = document.getElementById("sid-viz-canvas");
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const w = Math.max(1, Math.round(canvas.clientWidth * dpr));
+  const h = Math.max(1, Math.round(canvas.clientHeight * dpr));
+  if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+  const ctx = canvas.getContext("2d");
+  const bands = _sidVizBands, rows = _SID_VIZ_ROWS;
+  if (!_sidVizGlow || _sidVizGlow.length !== bands * rows) {
+    _sidVizGlow = new Float32Array(bands * rows);
+    _sidVizLevels = new Float32Array(bands);
+  }
+  // bars rise at once and fall smoothly; a cell left behind keeps a fading glow
+  const raw = _sidVizReadLevels();
+  for (let b = 0; b < bands; b++) _sidVizLevels[b] = Math.max(raw[b], _sidVizLevels[b] - 0.035);
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, w, h);
+  const padX = w * 0.06, top = h * 0.08;
+  const floorH = h * 0.2;
+  const base = h - floorH;
+  const colW = (w - padX * 2) / bands;
+  const rowH = (base - top) / rows;
+  const gapX = colW * 0.22, gapY = rowH * 0.18;
+  const cx = w / 2;
+  for (let b = 0; b < bands; b++) {
+    const lit = _sidVizLevels[b] * rows;
+    const x = padX + b * colW + gapX / 2;
+    for (let r = 0; r < rows; r++) {
+      const k = b * rows + r;
+      const on = Math.max(0, Math.min(1, lit - r));
+      _sidVizGlow[k] = Math.max(on, _sidVizGlow[k] * 0.9);
+      const alpha = Math.max(0.05, _sidVizGlow[k]);
+      ctx.fillStyle = "hsla(" + _sidVizRowHue(r, rows) + ", 82%, 52%, " + alpha.toFixed(3) + ")";
+      ctx.fillRect(x, base - (r + 1) * rowH + gapY / 2, colW - gapX, rowH - gapY);
+    }
+    // mirrored floor: the lowest rows again, flattened and spread in perspective
+    let y = base + gapY / 2;
+    for (let f = 0; f < _SID_VIZ_FLOOR_ROWS; f++) {
+      const fh = (floorH / (_SID_VIZ_FLOOR_ROWS + 1.5)) * (1 - f * 0.12);
+      const s0 = 1 + f * 0.07, s1 = 1 + (f + 1) * 0.07;
+      const x0 = x, x1 = x + colW - gapX;
+      const glow = Math.max(0.05, _sidVizGlow[b * rows + f]);
+      ctx.fillStyle = "hsla(" + _sidVizRowHue(f, rows) + ", 82%, 45%, " + (glow * 0.4 * (1 - f / _SID_VIZ_FLOOR_ROWS)).toFixed(3) + ")";
+      ctx.beginPath();
+      ctx.moveTo(cx + (x0 - cx) * s0, y);
+      ctx.lineTo(cx + (x1 - cx) * s0, y);
+      ctx.lineTo(cx + (x1 - cx) * s1, y + fh * 0.78);
+      ctx.lineTo(cx + (x0 - cx) * s1, y + fh * 0.78);
+      ctx.closePath();
+      ctx.fill();
+      y += fh;
+    }
+  }
+}
+function _sidVizLoop() {
+  _sidVizRaf = 0;
+  if (!document.getElementById("sid-viz-dialog")?.open) return;
+  _sidVizDraw();
+  _sidVizRaf = requestAnimationFrame(_sidVizLoop);
+}
+function _sidVizState() {
+  try { return JSON.parse(localStorage.getItem(_SID_VIZ_STORE) || "{}") || {}; } catch (_) { return {}; }
+}
+function _sidVizSave(patch) {
+  try { localStorage.setItem(_SID_VIZ_STORE, JSON.stringify(Object.assign(_sidVizState(), patch))); } catch (_) {}
+}
+function _sidVizSyncButton() {
+  const open = !!document.getElementById("sid-viz-dialog")?.open;
+  const btn = document.getElementById("websid-play-viz");
+  if (btn) {
+    btn.classList.toggle("websid-play-tool--active", open);
+    btn.setAttribute("aria-pressed", String(open));
+  }
+}
+function _sidVizShow() {
+  const dlg = document.getElementById("sid-viz-dialog");
+  if (!dlg || dlg.open) return;
+  const card = dlg.querySelector(".sid-viz-card");
+  const saved = _sidVizState();
+  if (card && saved.w > 0) card.style.width = saved.w + "px";
+  if (card && saved.h > 0) card.style.height = saved.h + "px";
+  // like the SID Player: above an open modal editor it has to be modal itself
+  let overModal = false;
+  try { overModal = !!document.querySelector("dialog[open]:modal"); } catch (_) {}
+  dlg._applyPosition?.();
+  try { if (overModal) dlg.showModal(); else dlg.show(); } catch (_) { try { dlg.show(); } catch (__) {} }
+  _sidVizSyncButton();
+  _sidVizSave({ open: true });
+  if (!_sidVizRaf) _sidVizRaf = requestAnimationFrame(_sidVizLoop);
+}
+function _sidVizToggle() {
+  const dlg = document.getElementById("sid-viz-dialog");
+  if (dlg?.open) dlg.close();
+  else _sidVizShow();
+}
+function _sidVizSetBands(n) {
+  _sidVizBands = [8, 16, 24, 32].includes(n) ? n : 16;
+  const select = document.getElementById("sid-viz-bands");
+  if (select) select.value = String(_sidVizBands);
+  _sidVizSave({ bands: _sidVizBands });
+}
+function setupSidVisualizer() {
+  const dlg = document.getElementById("sid-viz-dialog");
+  if (!dlg) return;
+  document.getElementById("websid-play-viz")?.addEventListener("click", _sidVizToggle);
+  document.getElementById("sid-viz-close")?.addEventListener("click", function() { dlg.close(); });
+  document.getElementById("sid-viz-bands")?.addEventListener("change", function(e) { _sidVizSetBands(Number(e.target.value)); });
+  dlg.addEventListener("keydown", function(e) { if (e.key === "Escape") { e.preventDefault(); dlg.close(); } });
+  dlg.addEventListener("close", function() {
+    if (dlg.open) return;
+    if (_sidVizRaf) { cancelAnimationFrame(_sidVizRaf); _sidVizRaf = 0; }
+    _sidVizSyncButton();
+    // closed together with the player: it reopens with the player
+    if (!_sidVizWithPlayer) _sidVizSave({ open: false });
+    _sidVizWithPlayer = false;
+  });
+  const card = dlg.querySelector(".sid-viz-card");
+  if (card && typeof ResizeObserver !== "undefined") {
+    new ResizeObserver(function() {
+      if (dlg.open) _sidVizSave({ w: Math.round(card.offsetWidth), h: Math.round(card.offsetHeight) });
+    }).observe(card);
+  }
+  const saved = _sidVizState();
+  _sidVizSetBands(Number(saved.bands) || 16);
+  if (saved.open && document.getElementById("websid-play-dialog")?.open) setTimeout(_sidVizShow, 0);
 }
 
 async function _webSidPlayFileBytes(bytes, filename, song = 0) {

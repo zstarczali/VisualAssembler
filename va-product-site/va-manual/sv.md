@@ -1,6 +1,6 @@
 # C64 Visuell Assembler — Användarmanual
 
-**Version 2.6.0**
+**Version 2.6.1**
 
 En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom att
 dra och släppa instruktionsblock och se den genererade assemblern och
@@ -11,6 +11,7 @@ maskinkoden i realtid.
 ## Innehållsförteckning
 
 - [C64 Visual Assembler — Användarmanual](#c64-visual-assembler--user-manual)
+    - [Höjdpunkter i version 2.6.1](#version-261-highlights)
     - [Höjdpunkter i version 2.6.0](#version-260-highlights)
     - [Höjdpunkter i version 2.5.9](#version-259-highlights)
     - [Höjdpunkter i version 2.5.8](#version-258-highlights)
@@ -48,6 +49,7 @@ maskinkoden i realtid.
     - [Versionskontroll](#version-control)
     - [Gratis och öppen källkod](#free-and-open-source)
     - [Rapportera ett fel](#reporting-a-bug)
+    - [Minnesfönster och noll sidanvändning](#memory-window-and-zero-page-usage)
     - [Projektmallar](#project-templates)
     - [Byggprojekt](#build-project)
     - [Exempelprogram](#example-programs)
@@ -59,6 +61,7 @@ maskinkoden i realtid.
     - [Redigeringsverktyg](#editor-tools)
     - [Projekt, flikar och startfiler](#projects-tabs-and-startup-files)
     - [Byggnad och diagnostik](#building-and-diagnostics)
+    - [Kodstorlek per rad och tips](#code-size-per-line-and-hints)
     - [Löpning, D64 och Exomizer](#running-d64-and-exomizer)
     - [Felsökningssymboler och demontering](#debugger-symbols-and-disassembly)
     - [Ultimate Basic-manual och källa](#ultimate-basic-manual-and-source)
@@ -66,6 +69,8 @@ maskinkoden i realtid.
     - [Växla lägen](#switching-modes)
     - [Redigerarens layout](#editor-layout)
     - [Verktygsfältsknappar](#toolbar-buttons)
+    - [Cykelräkningar](#cycle-counts)
+    - [Optimeringstips](#optimisation-hints)
     - [Fel vid markering](#error-highlighting)
     - [Syntaxmarkering](#syntax-highlight)
     - [Källformatering](#source-formatter)
@@ -167,6 +172,8 @@ maskinkoden i realtid.
     - [RetroDebugger](#retrodebugger)
     - [Brytpunktsblock](#breakpoint-blocks)
     - [Felsökningsflaggor (fliken Alternativ)](#debugger-flags-options-tab)
+    - [VICE Monitor (hot reload, live-bevakning,
+      profilerare)](#vice-monitor-hot-reload-live-watch-profiler)
   - [11. Länkar till kunskapsbasen](#11-knowledge-base-links)
   - [12. D64 Exportera \&amp; Kör](#12-d64-export--run)
     - [Knapp för delad körning](#split-run-button)
@@ -193,7 +200,34 @@ maskinkoden i realtid.
     - [SID-redigerare (3-röstsspårare)](#sid-editor-3-voice-tracker)
     - [SID-spelare](#sid-player)
     - [Kurvredigerare](#curve-editor)
+    - [Tabellgenerator](#table-generator)
     - [Nummeromvandlare](#number-converter)
+
+---
+
+## Höjdpunkter i version 2.6.1
+
+- **Cykelantal i expertläge** — en marginal visar cyklerna för varje
+  instruktion, det totala antalet urval och hur många rasterlinjer det tar. Se
+  [Cykelantal](#cycle-counts).
+- **Optimeringstips** — Expertredigeraren markerar rader som kan vara kortare
+  eller snabbare (tail call, redundant `CMP #0`, omladdningar, `INC` / `DEC`
+  idiom…). Se [Optimeringstips](#optimisation-hints).
+- **Tabellgenerator** — skärm-/bitmappsradadresser, pixelmasker,
+  multiplikations-/divisionstabeller, kvartskvadrater, logaritmisk/exp-analys,
+  bitomvändning, anpassade uttryck och utrullad
+  fyllnings-/kopieringshastighetskod. Se [Tabellgenerator](#table-generator).
+- **VICE Monitor** — snabb omladdning till den VICE som körs, liveövervakning av
+  etiketter och adresser och en PC-samplingsprofilerare. Se [VICE
+  Monitor](#vice-monitor-hot-reload-live-watch-profiler).
+- ** Karta över noll sidanvändning ** och ett ** löstagbart minnesfönster **. Se
+  [Minnesfönster och noll sidanvändning](#memory-window-and-zero-page-usage).
+- **Ultimate Basic** — kodstorlek per rad, tips och Sprite Editor → Ultimate
+  Basic-export med animering.
+- **SID-redigerare → .sid (PSID) export** och en
+  **sprite-multiplexer**-projektmall (16 sprites).
+- Flera flytande fönster kan vara öppna samtidigt; det du klickar på kommer
+  fram.
 
 ---
 
@@ -1075,8 +1109,9 @@ General Public License v3.0 (se **Meny → Om**). Fram till version 2.5.9 hade
 appen en Freemium/Professional-uppdelning; sedan 2.6.0 behövs helt enkelt inte
 längre en serienummer som anges där.
 
-Om du gillar programmet kan du stödja dess utveckling med en donation på
-c64va.pro.
+Om du gillar programmet kan du stödja dess utveckling med en donation: **Meny →
+Donation** (under Visa) öppnar donationssidan på c64va.pro, där du kan ge
+valfritt belopp via PayPal.
 
 **Användarstatistik.** Högst en gång om dagen, vid uppstart, skickar appen ett
 anonymt ping till c64va.pro med appversion, operativsystem, UI-språk, antal
@@ -1121,10 +1156,13 @@ det är öppet. Appen söker efter svar vid start och varje minut; ett nytt svar
 spelar upp en kort ljudsignal (högtalarknappen i fönstrets rubrik stänger av
 ljudet), blinkar aktivitetsfältsikonen när appen är i bakgrunden, visar en röd
 prick på **Meny**-knappen och öppnar fönstret en gång. När du har en
-konversation öppnas fönstret av en kuvertikon bredvid **Meny**-knappen; den blir
-röd och blinkar med antalet olästa svar. En e-postadress är valfri: om du anger
-en kommer svaret också via e-post. Konversationen är kopplad till appens
-slumpmässiga installations-ID, så det finns inget konto och inget lösenord.
+konversation öppnas den av en kuvertikon bredvid **Meny**-knappen; den blir röd
+och blinkar med antalet olästa svar. **×** bredvid ett meddelande raderar
+meddelandet, papperskorgknappen i fönstrets rubrik raderar hela konversationen
+med dess bilagor (även för utvecklaren; båda frågar först). En e-postadress är
+valfri: om du anger en kommer svaret också via e-post. Konversationen är kopplad
+till appens slumpmässiga installations-ID, så det finns inget konto och inget
+lösenord.
 
 ### Projekt, flikar och startfiler
 
@@ -1154,6 +1192,27 @@ Ett nytt projekt kan också starta från en UltimateBasic-mall — se
   `.proj `-sparmålet återställs med arbetsytan. Arbetsytor som sparats av äldre
   versioner öppnas utan dem.
 
+### Minnesfönster och noll sidanvändning
+
+Panelen **Fullständigt C64-minne** kan flyta: knappen **undocka** i dess rubrik
+flyttar den till ett separat, icke-modalt fönster som du kan dra och ändra
+storlek på medan du fortsätter att redigera (överlappningsmärket följer med).
+**Docka** (eller × / Esc) placerar tillbaka den. Fönstret kommer ihåg om den
+kopplades bort och dess storlek.
+
+När programmet nuddar sidan noll visas ett avsnitt **Noll sidanvändning** högst
+upp på minneskartan: ett 16 × 16 rutnät med `$00–$FF`, färgat efter område —
+CPU-port (`$00–$01`), ledig (`$02`, `$FB–$FE`), BASIC (`$03–$8F`, `$FF`) och
+KERNAL (`$90–$FA`). Använda celler fylls i; En ram markerar en **skrivning**, en
+skuggning en **pekare** (`(zp),Y` / `(zp,X)`). Klicka på en använd cell för att
+se vilka rader som öppnar den (klicka på en rad för att hoppa dit) och en
+varning när du skriver i BASIC- eller KERNAL-området.
+
+Om programmet innehåller SID-redigerarens exporterade spelare
+(`sid_`-etiketter), markeras spelarens nollasida (`$02–$1C`, `$2F`, `$FB–$FD`)
+också, och varje adress som din egen kod också använder rapporteras som en
+**konflikt** (röd ram, varning i rubriken).
+
 ### Byggnad och diagnostik
 
 Knappen **Bygg** öppnar samma centrerade förloppsupplevelse som används av de
@@ -1167,10 +1226,10 @@ genererade koddata.
 3. den centrerade kompileringsdialogrutan visar felet;
 4. fel som innehåller en källrad, välj den raden i den aktiva UB-redigeraren.
 
-| Avsnitt           | Inbyggda mallar                                                                                                                                                                           |
-| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Assembler**     | Tomt program, Tomt spel (titel / spela / game over-tillstånd, joystick, spelarsprite), Anställer bitmapp, Flerfärgad bitmapp                                                              |
-| **UltimateBasic** | Tomt program, Tomt spel (samma tillståndsmaskin i UB), Anlitar bitmapp (`linje` / `raktär` / `cirkel` med `färgpenna`), Raster-IRQ (en `sub` anropar varje bildruta från rasteravbrottet) |
+| Avsnitt           | Inbyggda mallar                                                                                                                                                                                                                |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Assembler**     | Tomt program, Tomt spel (titel / spela / spel över-tillstånd, joystick, spelarsprite), Anlitar bitmapp, Flerfärgad bitmapp, Sprite-multiplexerare (16 sprites sorterade efter Y varje bildruta, visade av en raster-IRQ-kedja) |
+| **UltimateBasic** | Tomt program, Tomt spel (samma tillståndsmaskin i UB), Anlitar bitmapp (`linje` / `raktär` / `cirkel` med `färgpenna`), Raster-IRQ (en `sub` anropar varje bildruta från rasteravbrottet)                                      |
 
 När kompileringen misslyckas:
 
@@ -1406,6 +1465,26 @@ i användargränssnittsinställningarna (`expertMinimap`-tangent).
 Bygginfo rapporterar inläsnings-/slutadresser, kod- och PRG-storlekar,
 Exomizer-status, variabler, arrayer, funktioner/subrutiner och etiketter.
 
+### Kodstorlek per rad och tips
+
+Verktygsfältsknappen **kodstorlek** (flamikon) visar, efter en build, hur många
+byte varje källrad kompilerades till — numret placeras i radnummerrännan och en
+orange stapel visar dess vikt mot den dyraste raden. Statusfältet lägger ihop
+byten och ett uppskattat cykelantal (linjärt, loopar räknas inte) för raden
+under markören.
+
+Medan du skriver visas en **ledtrådar**-knapp i statusfältet när något ser fel
+ut; klicka på den för att se listan och klicka på en ledtråd för att hoppa till
+raden:
+
+- `sys $EA31` / `sys $EA81` — `sys` kompileras till `JSR`, så KERNAL:s `RTI`
+  återgår till skräpfilen; från en IRQ använd `irq_exit` eller `asm { JMP $EA31
+  }`;
+- `väntanyckel` — inte en dokumenterad form, använd `väntanyckel`;
+- en `var` / `dim` / `const` som aldrig används;
+- efter en build: en `asm`-blockinstruktion på en nollsidaadress som innehåller
+  en Ultimate Basic-variabel eller körtidens egen nollsida.
+
 ### Fel vid markering
 
 Rader som misslyckas med att kompilera markeras med **rött** (tonad bakgrund +
@@ -1541,6 +1620,42 @@ från det som följer efter kolon.
 adresseringsläge. Detta ersätter det äldre `STA-instruktionsmönstret + 1` / `:
 LDA #$00`-mönstret. Det går igenom Block ⇄ Expertläge (operandfältet behåller
 prefixet `etikett:`).
+
+### Cykelräkningar
+
+Verktygsfältsknappen **cykelantal** (klockikon) lägger till en mellanränna som
+visar de 6510 cyklerna för varje instruktionsrad:
+
+| Visad       | Menande                                                                                                                             |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `4`         | fast kostnad                                                                                                                        |
+| `4+`        | Indexerad läsning (`abs,X`, `abs,Y`, `(zp),Y`): +1 när indexet korsar en sida; en sidjusterad bas (`$xx00`) visar det exakta värdet |
+| `2/3`       | gren: inte tagen / tagen                                                                                                            |
+| `2/4` (röd) | tagen gren som korsar en sida — värt att veta i tidskod                                                                             |
+
+Markera flera rader så visar statusfältet summan: antal instruktioner,
+min-max-cykler och hur många PAL-rasterlinjer (63 cykler) det är. Makron och
+datalinjer räknas inte. Inställningen sparas.
+
+### Optimeringstips
+
+Expertredigeraren kontrollerar den sammansatta koden för vanliga
+titthålsmönster. Linjer med en ledtråd får en gul rand och en **N
+ledtrådar**-knapp visas i statusfältet; klicka på den för listan och klicka på
+en ledtråd för att hoppa till raden. Ledtrådar ändrar aldrig din kod:
+
+- `JSR x` följt av `RTS` → `JMP x` (1 byte kortare, 9 cykler snabbare);
+- `CMP #0` / `CPX #0` / `CPY #0` direkt efter en instruktion som redan har satt
+  N/Z för det registret (obs: jämförelsen ställer även in C);
+- samma last två gånger, eller en last med det värde som just lagrats (`STA x` /
+  `LDA x`);
+- `LDA m` / `CLC` / `ADC #1` / `STA m` → `INC m`, och `SEC` / `SBC #1` formen →
+  `DEC m`;
+- en `JMP` eller förgrening till nästa instruktion, och `PHA` omedelbart följt
+  av `PLA`.
+
+En etikett mellan två instruktioner (ett möjligt hoppmål) undertrycker tipsen
+som skulle sammanfoga dem.
 
 ### Fel vid markering
 
@@ -4525,6 +4640,36 @@ skrivs till brytpunktsfilen varje gång felsökaren startas.
 > konfigurerar IRQ:er eller SID-musik som behöver tid att initieras innan den
 > första rastret.
 
+### VICE Monitor (hot reload, live-bevakning, profilerare)
+
+Verktygsfältsknappen **VICE Monitor** öppnar ett icke-modalt fönster som
+kommunicerar med den körande VICE via dess binära bildskärm. **Kör (VICE)**
+startar VICE med bildskärmen på port 6502 (**Inställningar →
+VICE-fjärrbildskärm**, aktiverad som standard). Stäng och starta om en VICE som
+startades på annat sätt. Rubriken visar anslutningsstatus; *Endast tillgänglig i
+skrivbordsappen* visas i webbläsarens förhandsgranskning.
+
+| Knapp                                              | Vad den gör                                                                                                                                                            |
+| -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Varm omladdning**                                | Skriver det assemblerade programmet till det körande VICE-minnet (endast de upptagna områdena — luckorna lämnas orörda). Använd det för data: sprites, tabeller, text. |
+| **Omladdning + omstart **                          | Samma sak, startar sedan om vid SYS-adressen (stacken återställs; den slutliga `RTS` återgår till `READY`).                                                            |
+| **Automatisk snabb omladdning efter redigeringar** | Laddar om och startar om ungefär en sekund efter varje redigering, om programmet monteras.                                                                             |
+| **Live-visning**                                   | Uppdaterar bevakningslistan var 0,4:e sekund; ett ändrat värde blinkar.                                                                                                |
+| **Profil**                                         | Samplar programräknaren i cirka 5 sekunder (klicka igen för att stoppa i förtid).                                                                                      |
+
+**Övervakningslista:** skriv en etikett eller en adress — `poäng`, `$D020`,
+`53280`, eller med en byte-antalstabell `, 8` — och tryck på **+** eller Enter.
+Varje rad visar adressen, byten i hexadecimalt tal och, för 1 eller 2 byte,
+decimalvärdet. I Ultimate Basic-läget kommer namnen från den senaste
+UB-byggningen (variabler, etiketter, undergrupper, arrayer).
+
+**Profilerresultat:** två tabeller. *Rutin* grupperar samplen efter närmaste
+etikett (i Ultimate Basic: efter `sub`), med andelen i % och rasterlinjerna den
+kördes på — tiden som spenderades i KERNAL- eller BASIC-ROM listas separat.
+*Linje* listar de dyraste källlinjerna; klicka på en för att hoppa till den.
+Varje sampling pausar emulatorn kort, så profilen är en statistisk bild, inte
+ett exakt cykelantal.
+
 ---
 
 ## 12. D64 Exportera och kör
@@ -4772,10 +4917,11 @@ till en D64-disk via posten **Spara till D64**.
 
 ### Högupplöst/flerfärgsredigerare
 
-| Miljö        | Beskrivning                                                                                              |
-| ------------ | -------------------------------------------------------------------------------------------------------- |
-| Lägesväxlare | **Multicolor** Kryssrutan växlar mellan hög upplösning (mono per cell) och flerfärg (4 färger per cell). |
-| **Status**   | Visar om den körbara sökvägen är giltig och tillgänglig                                                  |
+| Miljö                 | Beskrivning                                                                                                                   |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Lägesväxlare          | **Multicolor** Kryssrutan växlar mellan hög upplösning (mono per cell) och flerfärg (4 färger per cell).                      |
+| **Status**            | Visar om den körbara sökvägen är giltig och tillgänglig                                                                       |
+| **VICE fjärrmonitor** | Startar VICE med den binära monitorn på port 6502, som behövs av [VICE Monitor](#vice-monitor-hot-reload-live-watch-profiler) |
 
 Pixelnivå-bitmappsredigerare med både 320×200 högupplösta och 160×200
 flerfärgslägen. Öppna via Verktygskit → Högupplöst redigerare.
@@ -4969,6 +5115,12 @@ Editor.
 | Import av Sprite-ark         | Filer → **Importera sprite-ark…**: cellbredd/höjd, offset, mellanrum och bildruteantal klipper bilden i bildrutor med aktuell storlek (flerfärgade celler skalas till 12 pixlar per sprite). Färgerna kommer från bilden eller förblir spritens egna; OKLab-matchning utan dithering, ordnad (Bayer) eller Floyd-Steinberg-dithering. Ersätter bildrutorna eller lägger till dem.                             |
 | Hitbox                       | Verktyget **Hitbox** drar en rektangel per bildruta (streckad cyan); **Anpassa**, **Anpassa varje bildruta**, **Kopiera till varje bildruta** och **Ta bort** i sidopanelen. Filer → **Kopiera träffrute-tabellen** ger `sprite_hit_x / _y / _w / _h` (en byte per bildruta, skärmpixlar från övre vänstra hörnet); en bildruta utan en träffruta använder dess pixelgränser.                                 |
 | X/Y ×2                       | Visar förhandsgranskningen som med sprite-expansionen `$D01D` / `$D017`.                                                                                                                                                                                                                                                                                                                                      |
+
+**Exportera till UltimateBasic** (Arkiv-menyn) skriver varje bildruta (upp till
+8) som en `sprdef`, ställer in sprite 0 (färg, flerfärgad, expandera) och
+lägger, för en animering, till en rastersynkroniserad loop som stegar
+bildrutorna vid redigerarens FPS. I Ultimate Basic-läge infogas den vid
+markören, annars kopieras den till urklipp.
 
 ### C64 Tecken-ROM-läsare ("Teckenkarta")
 
@@ -5281,6 +5433,10 @@ flytta via expertläge om det behövs.
 
 ---
 
+**Exportera .sid (PSID)…** (Fil-menyn) sparar låten med den spelbara
+`$C000`-spelaren som en standard PSID-fil — den spelas upp i SID-spelaren, i
+VICE:s `vsid` och i vilken annan SID-spelare som helst.
+
 ### SID-spelare
 
 Verktygsfältsknappen **SID Player** öppnar ett flytande fönster som spelar upp
@@ -5382,6 +5538,36 @@ olika även om bytevärdena är identiska. Se `samples/curve-new-demo.asm` för 
 fungerande 16-bitars sprite-X-exempel.
 
 ---
+
+### Tabellgenerator
+
+Verktygsfältsknappen **Tabellgenerator** (rutnätsikon, bredvid kurvredigeraren)
+bygger uppslagstabeller och hastighetskod. Välj en tabelltyp, ställ in dess
+parametrar och titta på förhandsgranskningen; metalinjen visar antalet poster,
+storlek och värdeintervall (för kod: byte och uppskattade cykler/rasterlinjer).
+
+| Typ                                              | Värden                                                                                                                              |
+| ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Skärmradadresser                                 | bas + 40 · rad (valfri bas och radlängd)                                                                                            |
+| Bitmappsradadresser                              | pixel Y → byteadress i kolumn 0 (8 × 8 celllayout)                                                                                  |
+| Bitmappskolumnförskjutningar                     | pixel X → byteförskjutning inom linjen (hyres eller flerfärgad)                                                                     |
+| Pixelbitmask                                     | X → bitmask (anställer / flerfärgad, valfritt inverterad för `OCH`)                                                                 |
+| Multiplicera / dividera / resten med en konstant | x · k, ⌊x / k⌋, x mod k                                                                                                             |
+| Kvartkvadrater                                   | ⌊(x − offset)² / 4⌋, 512 poster — a · b = sqr(a + b) − sqr(a − b)                                                                   |
+| Ömsesidig                                        | ⌊N / x⌋                                                                                                                             |
+| Logaritm / exponential                           | rund(log2 x · s), rund(2^(x / s))                                                                                                   |
+| Bit bakåt                                        | vänder en byte (eller bitpar i flerfärg) för att spegla sprites och tecken                                                          |
+| Anpassat uttryck                                 | valfri formel för `i` (`k` = 0-baserat index, `n` = antal); `sin`, `cos`, `abs`, `min`, `max`, `rund`, `golv`, `PI`, `$hex`, `%bin` |
+| Hastighetskod: fyll i / kopiera minne            | en subrutin; *lagrar per iteration* 0 = helt utrullad, N = en X loop med N lager per pass                                           |
+
+Värden över 255 blir ett **lo / hi-tabellpar** (`label_lo`, `label_hi`) eller en
+`.word`-tabell; negativa värden är tvåkomplement. Alternativ: label, hex /
+decimal, värden per rad, **Align to page** (`.align 256`, undviker
+sidöverlappningscykeln). **Copy** placerar sammansättningen på urklipp;
+**Insert** lägger till den i programmet (om samma etikett infogas igen ersätts
+den föregående kopian) — i Ultimate Basic-läge infogas en `array` med
+`data`-rader. Filmenyn sparar också tabellen som `.bin` (lå byte, sedan höga
+byte) och exporterar den till Ultimate Basic.
 
 ### Nummerkonverterare
 

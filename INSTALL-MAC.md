@@ -1,5 +1,7 @@
 # macOS Installation Guide
-Version 2.6.1
+Version 2.6.2
+
+2.6.2: High Voltage SID Collection in the SID Player (search about 61,000 tunes, play, save, download the whole collection for offline use, real tune lengths), spectrum analyzer window for the SID Player, Lesson Editor for step-by-step guided lessons made from your own program, online lessons from www.c64va.pro, every macro takes its parameters in the palette's operand field, the active floating window is highlighted, Support window in chat style.
 
 2.6.1: VICE Monitor (hot reload, live watch, profiler), Table Generator with speedcode, cycle counts and optimisation hints in Expert mode, zero page usage map, detachable memory window, Ultimate Basic code size per line and hints, Sprite Editor to Ultimate Basic export, .sid (PSID) export, sprite multiplexer template.
 
@@ -97,7 +99,7 @@ Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in 
 
 ---
 
-**Version:** 2.6.1 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.6.2 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
 
 ## Building from source: macOS app icon
 

@@ -12182,3 +12182,16 @@ dialog.dlg-active[open]:not(:modal) > :first-child > :first-child {
 .to-item-meta { grid-column: 1; font-size: 0.72rem; color: var(--secondary); }
 .to-item-btn { grid-column: 2; grid-row: 1 / span 2; min-height: 0; padding: 6px 14px; font-size: 0.8rem; white-space: nowrap; }
 .to-item-desc { grid-column: 1 / -1; margin: 4px 0 0; font-size: 0.8rem; line-height: 1.45; color: var(--secondary); white-space: pre-wrap; }
+
+/* ── SID Player spektrum-analizátor ───────────────────────────────── */
+.sid-viz-card {
+  width: 560px; height: 360px; min-width: 260px; min-height: 180px;
+  max-width: calc(100vw - 16px); max-height: calc(100vh - 16px);
+  resize: both; overflow: hidden; box-sizing: border-box;
+}
+/* fit-content: "auto" plus the dialog's right: 0 stretched it to the window edge, so it could not be dragged sideways */
+.sid-viz-dialog { width: fit-content; right: auto; }
+.sid-viz-bands { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; font-size: 0.72rem; color: var(--secondary); }
+.sid-viz-bands select { width: 62px; min-width: 62px; height: 24px; min-height: 0; padding: 1px 26px 1px 8px; font-size: 0.75rem; flex: none; }
+.sid-viz-hdr .websid-play-xbtn { margin-left: 0; }
+.sid-viz-canvas { display: block; flex: 1; min-height: 0; width: 100%; background: #000; }

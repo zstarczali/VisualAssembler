@@ -18,23 +18,37 @@ if (!isset($downloads[$key])) {
 }
 
 [$pattern, $downloadName] = $downloads[$key];
-$files = glob(__DIR__ . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $pattern));
-if ($files === false || $files === []) {
+define('VA_REGISTER', true);
+require __DIR__ . '/register/lib.php';
+
+// only up to the version released on the dashboard (register/release.php); without the
+// database the last version released before the approval existed
+try {
+    $approved = vaUpdateApproved(vaDb());
+} catch (Throwable $e) {
+    $approved = VA_UPDATE_DEFAULT;
+}
+$files = array_values(array_filter(
+    glob(__DIR__ . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $pattern)) ?: [],
+    static function (string $file) use ($approved): bool {
+        $version = vaInstallerVersion(basename($file));
+        return $version !== null && version_compare($version, $approved, '<=');
+    }
+));
+if ($files === []) {
     http_response_code(404);
     exit('Download is not available yet.');
 }
 
 // letöltésszámlálás (register/stats.php); hiba esetén a letöltés akkor is megy
 try {
-    define('VA_REGISTER', true);
-    require __DIR__ . '/register/lib.php';
     vaDb()->prepare('INSERT INTO va_download_counts (day, file_key, count) VALUES (CURDATE(), ?, 1) ON DUPLICATE KEY UPDATE count = count + 1')
         ->execute([$key]);
 } catch (Throwable $e) {
     error_log('VA download count: ' . $e->getMessage());
 }
 
-usort($files, static fn(string $a, string $b): int => filemtime($b) <=> filemtime($a));
+usort($files, static fn(string $a, string $b): int => version_compare((string) vaInstallerVersion(basename($b)), (string) vaInstallerVersion(basename($a))));
 $file = $files[0];
 
 header('Content-Type: application/octet-stream');
