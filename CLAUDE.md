@@ -226,9 +226,9 @@ patterneket csinál: hangjegy = gate-él (≤2 frame-en belüli újragate össze
 ≥ 5 frame-ig); sorok = a hangkezdetekre illesztett L / L+1 frame-es sorok (funktempo, swing), a sorhossz-váltás `F` effekt
 egy sorral előbb (elsőbbsége van a `C` előtt); hangmagasság = a fő hullámforma leggyakoribb félhangja; hangszer = ADSR +
 fő hullámforma + PW/PWM + szűrő + wave tábla a teljes hangból (a következő hangig, a néma hard-restart frame előtt vágva;
-dob-attack > 12 félhangra abszolút; legrövidebb előtag + ismétlődő periódus, max 32 lépés); gate: későbbi sorban `C`,
-a következő hang előtt < sorhossz frame-mel gate timer (+ hr, ha az ADSR nullázva), egyébként S = 0, D = R. Max 64 hangszer,
-a 255 lépéses tábla-keretet használat szerint osztja. Csak asztali appban (VA SID Core). Teszt: `tests/sid-dump-import.test.js`
+lépésenként abszolút vagy relatív hangmagasság az azonos formájú hangok szavazata alapján, teszt-bites / néma frame = `$08` lépés hangmagasság nélkül; legrövidebb előtag + ismétlődő periódus, max 32 lépés; félhangnál kisebb szabályos kitérés → hangszer-vibrato `vibDelay/Speed/Depth`); gate: későbbi sorban `C`,
+a következő hang előtt < sorhossz frame-mel gate timer (+ hr, ha az ADSR nullázva), egyébként S = 0, D = R. Max 128 hangszer,
+a 255 lépéses tábla-keretet használat szerint osztja (azonos táblát a `_sidTuneData` egyszer tárol). Csak asztali appban (VA SID Core). Teszt: `tests/sid-dump-import.test.js`
 (a szerkesztő motorjával is visszajátssza), Rust `register_dump_flags_gate_edges_*`, valódi dalra `SID_DUMP_IN/OUT` +
 `dump_registers_to_file` (#[ignore]).
 

@@ -246,3 +246,55 @@ test("a silent hard-restart frame does not end up in the wave table", () => {
   const r = imp(d, {});
   r.insts.forEach((ins) => assert.ok(ins.table.every((s) => s.w !== 0), JSON.stringify(ins.table)));
 });
+
+test("a regular sub-semitone wobble becomes instrument vibrato, not wave table steps", () => {
+  const { imp, freq } = load();
+  const d = dump(80, [{ v: 0, frame: 0, note: 48, len: 80 }]);
+  // after 10 frames: triangle ±0.4 semitone, 12 frames from peak to trough
+  for (let f = 10; f < 80; f++) {
+    const t = (f - 10) % 24, tri = t < 6 ? t / 6 : t < 18 ? 1 - (t - 6) / 6 : -1 + (t - 18) / 6;
+    const fr = Math.round(freq(48) * Math.pow(2, 0.4 * tri / 12));
+    d[f * FB] = fr & 0xFF; d[f * FB + 1] = fr >> 8;
+  }
+  const r = imp(d, {});
+  const ins = r.insts[r.patterns[r.song[0]][0][0].inst];
+  assert.equal(ins.vibSpeed, 12);
+  assert.equal(ins.vibDepth, 2);
+  assert.equal(ins.vibDelay, 10);
+  assert.deepEqual(ins.table, []);
+});
+
+test("a fixed-pitch attack on different notes votes for absolute steps and shares one instrument", () => {
+  const { imp, freq } = load();
+  // pulse at +16 / +4 above notes 40, 41, 43... i.e. the same absolute pitches 56 and 44 (a fixed drop)
+  const notes = [40, 41, 43, 45].map((note, k) => ({ v: 0, frame: k * 8, note, len: 8,
+    attack: [{ wave: 0x40, note: 56 }, { wave: 0x40, note: 44 }] }));
+  const r = imp(dump(40, notes), {});
+  const p = r.patterns[r.song[0]][0];
+  const used = new Set(p.filter((c) => c.note != null).map((c) => c.inst));
+  assert.equal(used.size, 1);
+  const t = r.insts[[...used][0]].table;
+  assert.deepEqual(t.slice(0, 2).map((s) => [s.n, s.abs]), [[56, true], [44, true]]);
+});
+
+test("a test-bit first frame is a silent step: no pitch, so notes share the instrument", () => {
+  const { imp } = load();
+  const notes = [40, 47, 52].map((note, k) => ({ v: 0, frame: k * 6, note, len: 6, attack: [{ wave: 0x08, note: 20 + k * 9 }] }));
+  const r = imp(dump(24, notes), {});
+  const p = r.patterns[r.song[0]][0];
+  const ins = r.insts[p[0].inst];
+  assert.equal(new Set(p.filter((c) => c.note != null).map((c) => c.inst)).size, 1);
+  assert.deepEqual([ins.table[0].w, ins.table[0].n, ins.table[0].abs], [0x08, 0, false]);
+});
+
+test("instruments with the same wave table store it once in the player data", () => {
+  const ctx = {};
+  vm.createContext(ctx);
+  vm.runInContext(`const _SID_ROWS = 32; function t(k) { return k; }
+    ${["_sidNewInst", "_sidInstNorm", "_sidInstCtrl", "_sidTuneData"].map(extractFunctionSource).join("\n")}
+    this.td = _sidTuneData;`, ctx);
+  const table = [{ w: 0x81, n: 70, abs: true }, { w: 0x41, n: 0 }];
+  const td = ctx.td({ insts: [{ table }, { a: 9, table }, { table: [table[1]] }], patterns: [], song: [0], speed: 6 });
+  assert.deepEqual(Array.from(td.a.itst), [0, 0, 1]);
+  assert.equal(td.a.tw.length, 2);
+});

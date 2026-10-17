@@ -9860,6 +9860,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-hdr .ed-file-menu { z-index: 40; left: 0; right: auto; }
 .sid-title { font-family: inherit; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text); }
 .sid-hdr .sid-xbtn { margin-left: auto; }
+.sid-engine-name { font-size: 0.72rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sid-xbtn { background: none; border: none; color: var(--secondary); font-size: 1.3rem; cursor: pointer; padding: 0; line-height: 1; min-height: 0; height: 28px; width: 28px; }
 .sid-xbtn:hover { color: var(--text); }
 .sid-body { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 8px 12px; display: flex; flex-direction: column; gap: 6px; box-sizing: border-box; }
@@ -11433,6 +11434,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-import-sid-tune:empty, .sid-import-sid-status:empty { display: none; }
 .sid-import-sid-fields { display: grid; grid-template-columns: 1fr 90px; gap: 8px 12px; align-items: center; font-size: 0.82rem; }
 .sid-import-sid-num { box-sizing: border-box; width: 100%; height: 28px; min-height: 0; padding: 3px 6px; }
+.sid-import-sid-dialog button:disabled, .sid-import-sid-num:disabled { opacity: 0.5; cursor: default; pointer-events: none; }
 .sid-import-sid-status { margin: 0; font-size: 0.75rem; color: var(--muted); overflow-wrap: anywhere; }
 /* Server message dialog (register/message.php) */
 .server-message-dialog .app-confirm-card { width: min(520px, calc(100vw - 32px)); }

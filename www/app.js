@@ -22150,12 +22150,14 @@ function setupHardwareSettingsDialog() {
     try { localStorage.setItem("c64va-sid-preview-engine", _sidPreviewEngine); } catch (_) {}
     if (_sidInited) _sidStop();
     _sidPlayerRenderList();
+    _sidEditorEngineSync();
   });
   document.getElementById("sid-preview-model")?.addEventListener("change", function(e) {
     _sidPreviewModel = e.target.value === "6581" ? "6581" : "8580";
     try { localStorage.setItem("c64va-sid-preview-model", _sidPreviewModel); } catch (_) {}
     if (_sidInited) _sidStop();
     _sidPlayerRenderList();
+    _sidEditorEngineSync();
   });
 }
 
@@ -44042,6 +44044,7 @@ function _sidLoadPreviewSettings() {
   if (engineEl) engineEl.value = _sidPreviewEngine;
   const modelEl = document.getElementById("sid-preview-model");
   if (modelEl) { modelEl.value = _sidPreviewModel; modelEl.disabled = _sidPreviewEngine !== "va-core"; }
+  _sidEditorEngineSync();
 }
 let _sidMasterGain = null;    // shared GainNode injected between _sidPlayInst output and destination
 let _sidSel = { voice: 0, row: 0 };
@@ -46459,6 +46462,11 @@ async function _sidExtSeek(ms) {
 function _sidVaCoreLabel() {
   return "VA SID Core v" + _VA_SID_CORE_VERSION + " (MOS " + _sidPreviewModel + ")";
 }
+// The SID Editor header names the emulation its previews and playback use.
+function _sidEditorEngineSync() {
+  const el = document.getElementById("sid-engine-name");
+  if (el) el.textContent = "· " + (_sidUsesVaCore() ? _sidVaCoreLabel() : "WebSID");
+}
 // The engine that plays the current tune; when stopped, the one Play would use.
 let _sidPlayerEngineName = "";
 function _sidPlayerEngineLabel() {
@@ -47760,11 +47768,17 @@ function _sidTuneData(opts) {
     const pmin = Math.min(o.pwmMin, o.pwmMax), pmax = Math.max(o.pwmMin, o.pwmMax);
     a.ipms.push(o.pwmSpeed); a.ipmnl.push(pmin & 0xFF); a.ipmnh.push(pmin >> 8); a.ipmxl.push(pmax & 0xFF); a.ipmxh.push(pmax >> 8);
     a.igt.push(o.gateTimer); a.ihr.push(o.hr ? 1 : 0); a.iffw.push(o.firstWave);
-    const steps = o.table.slice(0, Math.max(0, 255 - a.tw.length));
-    a.itst.push(a.tw.length); a.itln.push(steps.length);
+    // identical step runs are stored once: the 255-step table space goes further
+    const bytes = o.table.map(function(s){ return [s.w & 0xFF, s.n & 0xFF, s.abs ? 1 : 0]; });
+    let at = -1;
+    for (let k = 0; bytes.length && k + bytes.length <= a.tw.length && at < 0; k++) {
+      if (bytes.every(function(x, i){ return a.tw[k + i] === x[0] && a.tn[k + i] === x[1] && a.ta[k + i] === x[2]; })) at = k;
+    }
+    const steps = at >= 0 ? bytes : bytes.slice(0, Math.max(0, 255 - a.tw.length));
+    a.itst.push(at >= 0 ? at : a.tw.length); a.itln.push(steps.length);
     a.itlp.push(o.tableLoop >= 0 && o.tableLoop < steps.length ? o.tableLoop : 0xFF);
     a.itsp.push(o.tableSpeed);
-    steps.forEach(function(s){ a.tw.push(s.w & 0xFF); a.tn.push(s.n & 0xFF); a.ta.push(s.abs ? 1 : 0); });
+    if (at < 0) steps.forEach(function(x){ a.tw.push(x[0]); a.tn.push(x[1]); a.ta.push(x[2]); });
   });
   return { speed: speed, insts: insts, patterns: patterns, song: song.length ? song : [0], a: a };
 }
@@ -48539,7 +48553,7 @@ function _sidApplyGoatImport(bytes) {
    carry the changes); pitch = the most common semitone of the main waveform.
    Instruments come from ADSR, the waveform / pitch steps of the whole note
    (→ wave table), pulse and filter movement and the gate timing. */
-const _SID_DUMP_MAX_INSTS = 64;
+const _SID_DUMP_MAX_INSTS = 128;
 const _SID_DUMP_TABLE_STEPS = 32;
 const _SID_DUMP_WINDOW = 128;
 
@@ -48660,7 +48674,7 @@ function _sidDumpImport(regs, meta) {
   const cols = [0, 1, 2].map(function(){ return Array.from({ length: totalRows }, empty); });
 
   // ── notes → cells, instruments by signature ──
-  const insts = [], instKeys = {};
+  const insts = [], instKeys = {}, recs = [];
   const mode = function(arr) {
     const cnt = {}, first = {};
     arr.forEach(function(x, i){ if (x == null) return; cnt[x] = (cnt[x] || 0) + 1; if (first[x] === undefined) first[x] = i; });
@@ -48701,40 +48715,56 @@ function _sidDumpImport(regs, meta) {
       ins.tri = !!(w & 0x10); ins.saw = !!(w & 0x20); ins.pul = !!(w & 0x40); ins.noi = !!(w & 0x80);
       ins.ring = !!(w & 0x04); ins.sync = !!(w & 0x02);
 
-      // waveform / pitch per frame → wave table; other waveforms far from the note
-      // (fixed-pitch drum attacks) keep their absolute pitch
-      const steps = [];
+      // waveform / pitch per frame (absolute notes); the wave table is built after all notes
+      // are known. A test-bit / waveform-less frame (hard restart) is silent: no pitch, and
+      // as a table step it becomes the test bit (0 would keep the previous waveform).
+      const raw = [];
       for (let i = 0; i < len; i++) {
-        const sw = R(f + i, b + 4) & 0xFE, n = noteOf(freqAt(f + i));
-        const rel = n == null ? 0 : n - base;
-        const abs = (sw & 0xF0) !== (w & 0xF0) && Math.abs(rel) > 12;
-        steps.push({ w: sw, n: abs ? (n == null ? 0 : n) : rel, abs: abs });
+        const sw = R(f + i, b + 4) & 0xFE;
+        const silent = (sw & 0x08) || !(sw & 0xF0);
+        raw.push({ w: silent ? (sw & 0xF0) | 0x08 : sw, n: silent ? null : noteOf(freqAt(f + i)) });
       }
-      const isPlain = function(s) { return s.w === w && s.n === 0 && !s.abs; };
-      if (!steps.every(isPlain)) {
-        // shortest table: a prefix plus a period that repeats to the end of the note
-        let tStart = -1, tPer = 0;
-        for (let p = 1; p <= _SID_DUMP_TABLE_STEPS && tStart < 0; p++) {
-          let s = len - p;
-          while (s > 0 && same(steps[s - 1], steps[s - 1 + p])) s--;
-          if (len - s >= 2 * p && s + p <= _SID_DUMP_TABLE_STEPS) { tStart = s; tPer = p; }
+      // vibrato: a regular wobble of the main-wave pitch around the note → instrument
+      // vibrato (the player's triangle LFO: half period = speed frames, depth*speed/64
+      // semitones), and those frames stay on the note in the wave table
+      let vibFrom = -1;
+      {
+        const dev = [];
+        for (let i = 0; i < len; i++) {
+          const fr = freqAt(f + i), sw = raw[i].w;
+          dev.push(fr && (sw & 0xF0) === (w & 0xF0) && !(sw & 0x08) ? 12 * Math.log2(fr * clockScale / ft.f[0]) - base : null);
         }
-        let table, loop;
-        if (tStart >= 0) {
-          table = steps.slice(0, tStart + tPer);
-          // a single repeated step needs no loop: the table holds its last step
-          loop = tPer === 1 ? -1 : tStart;
-        } else {
-          table = steps.slice(0, _SID_DUMP_TABLE_STEPS);
-          loop = -1;
-          skip("long wave tables (cut)");
+        let start = 0;
+        while (start < len && dev[start] == null) start++;
+        let d0 = start;
+        while (d0 + 1 < len && dev[d0 + 1] != null && Math.abs(dev[d0 + 1] - dev[start]) < 0.03) d0++;
+        const ext = [];
+        let dir = 0;
+        for (let i = d0 + 1; i < len && dev[i] != null && dev[i - 1] != null; i++) {
+          const dd = dev[i] - dev[i - 1];
+          if (Math.abs(dd) < 1e-6) continue;
+          const nd = dd > 0 ? 1 : -1;
+          if (dir && nd !== dir) ext.push({ i: i - 1, x: dev[i - 1] });
+          dir = nd;
         }
-        if (loop < 0) {
-          while (table.length > 1 && isPlain(table[table.length - 1]) && isPlain(table[table.length - 2])) table.pop();
+        const wob = dev.slice(d0 + 1).filter(function(x){ return x != null; });
+        if (ext.length >= 4 && wob.length && wob.every(function(x){ return Math.abs(x) < 0.6; })) {
+          const gaps = [];
+          for (let k = 1; k < ext.length; k++) gaps.push(ext[k].i - ext[k - 1].i);
+          const half = gaps.reduce(function(x, y){ return x + y; }, 0) / gaps.length;
+          const spread = Math.sqrt(gaps.reduce(function(x, y){ return x + (y - half) * (y - half); }, 0) / gaps.length);
+          const hi = ext.filter(function(e, k){ return k === 0 || e.x > ext[k - 1].x; });
+          const lo = ext.filter(function(e, k){ return k > 0 && e.x < ext[k - 1].x; });
+          const avg = function(arr) { return arr.reduce(function(x, e){ return x + e.x; }, 0) / Math.max(1, arr.length); };
+          const amp = (avg(hi) - avg(lo)) / 2;
+          if (lo.length && spread <= half * 0.35 && amp >= 0.05) {
+            const speedV = Math.max(1, Math.min(15, Math.round(half)));
+            const depth = Math.max(1, Math.min(15, Math.round(amp * 64 / speedV)));
+            ins.vibSpeed = speedV; ins.vibDepth = depth; ins.vibDelay = Math.min(255, d0);
+            vibFrom = d0 + 1;
+          }
         }
-        if (!table.every(isPlain)) { ins.table = table; ins.tableLoop = loop; ins.tableSpeed = 1; }
       }
-
       // gate: released on a later row → note cut there; a few frames before the
       // next note → gate timer (hard restart if ADSR is zeroed); within the first
       // frames of a note → the envelope decays at the release rate instead
@@ -48779,17 +48809,78 @@ function _sidDumpImport(regs, meta) {
         }
         if (cn && ins.cutEnd !== ins.cut) { ins.cutSpeed = Math.min(127, Math.max(1, Math.round(cs / cn))); ins.cutPing = up && down; }
       }
-      const norm = _sidInstNorm(ins);
-      // coarse signature: pulse width only matters for the pulse wave, filter sweeps are global
-      const key = JSON.stringify(Object.assign({}, norm, {
-        name: "", pw: norm.pul ? norm.pw >> 8 : 0, pwmMin: 0, pwmMax: 0,
-        pwmSpeed: norm.pul && norm.pwmSpeed ? Math.round(Math.log2(norm.pwmSpeed)) : 0,
-        cut: norm.cut >> 7, cutEnd: 0, cutSpeed: 0, cutPing: false
-      }));
-      let idx = instKeys[key];
-      if (idx === undefined) { idx = insts.length; instKeys[key] = idx; insts.push(norm); }
-      cols[v][row] = { note: base, inst: idx, fx: null, fxval: 0 };
+      cols[v][row] = { note: base, inst: 0, fx: null, fxval: 0 };
+      recs.push({ v: v, row: row, base: base, w: w, ins: ins, raw: raw, vibFrom: vibFrom });
     });
+  });
+
+  // ── wave tables: per step, absolute or relative pitch — whichever stays the same
+  // across the notes of one instrument shape (fixed-pitch drums vs arpeggios) ──
+  const shapeOf = function(r) {
+    return [r.ins.a, r.ins.d, r.ins.s, r.ins.r, r.w, r.ins.gateTimer].concat(r.raw.slice(0, 4).map(function(x){ return x.w; })).join(",");
+  };
+  const shapes = {};
+  recs.forEach(function(r){ (shapes[shapeOf(r)] = shapes[shapeOf(r)] || []).push(r); });
+  Object.keys(shapes).forEach(function(key) {
+    const group = shapes[key];
+    const steps = Math.max.apply(null, group.map(function(r){ return r.raw.length; }));
+    const absAt = [];
+    for (let k = 0; k < steps; k++) {
+      const absVotes = {}, relVotes = {};
+      let absBest = 0, relBest = 0, far = false;
+      group.forEach(function(r) {
+        const x = r.raw[k];
+        if (!x || x.n == null) return;
+        absVotes[x.n] = (absVotes[x.n] || 0) + 1; absBest = Math.max(absBest, absVotes[x.n]);
+        const rel = x.n - r.base;
+        relVotes[rel] = (relVotes[rel] || 0) + 1; relBest = Math.max(relBest, relVotes[rel]);
+        if ((x.w & 0xF0) !== (r.w & 0xF0) && Math.abs(rel) > 12) far = true;
+      });
+      absAt.push(absBest > relBest || (absBest === relBest && far));
+    }
+    group.forEach(function(r){ r.absAt = absAt; });
+  });
+  recs.forEach(function(r) {
+    const w = r.w, ins = r.ins, len = r.raw.length;
+    const steps = r.raw.map(function(x, k) {
+      if (x.n == null || (r.vibFrom >= 0 && k >= r.vibFrom && x.w === w)) return { w: x.w, n: 0, abs: false };
+      return r.absAt[k] ? { w: x.w, n: x.n, abs: true } : { w: x.w, n: x.n - r.base, abs: false };
+    });
+    const isPlain = function(st) { return st.w === w && st.n === 0 && !st.abs; };
+    if (!steps.every(isPlain)) {
+      // shortest table: a prefix plus a period that repeats to the end of the note
+      let tStart = -1, tPer = 0;
+      for (let p = 1; p <= _SID_DUMP_TABLE_STEPS && tStart < 0; p++) {
+        let st = len - p;
+        while (st > 0 && same(steps[st - 1], steps[st - 1 + p])) st--;
+        if (len - st >= 2 * p && st + p <= _SID_DUMP_TABLE_STEPS) { tStart = st; tPer = p; }
+      }
+      let table, loop;
+      if (tStart >= 0) {
+        table = steps.slice(0, tStart + tPer);
+        // a single repeated step needs no loop: the table holds its last step
+        loop = tPer === 1 ? -1 : tStart;
+      } else {
+        table = steps.slice(0, _SID_DUMP_TABLE_STEPS);
+        loop = -1;
+        skip("long wave tables (cut)");
+      }
+      if (loop < 0) {
+        while (table.length > 1 && isPlain(table[table.length - 1]) && isPlain(table[table.length - 2])) table.pop();
+      }
+      if (!table.every(isPlain)) { ins.table = table; ins.tableLoop = loop; ins.tableSpeed = 1; }
+    }
+    const norm = _sidInstNorm(ins);
+    // coarse signature: pulse width only matters for the pulse wave (and not under
+    // a running sweep, where the start is arbitrary); filter sweeps are global
+    const key = JSON.stringify(Object.assign({}, norm, {
+      name: "", pw: norm.pul && !norm.pwmSpeed ? norm.pw >> 8 : 0, pwmMin: 0, pwmMax: 0,
+      pwmSpeed: norm.pul && norm.pwmSpeed ? Math.round(Math.log2(norm.pwmSpeed)) : 0,
+      cut: norm.cut >> 7, cutEnd: 0, cutSpeed: 0, cutPing: false
+    }));
+    let idx = instKeys[key];
+    if (idx === undefined) { idx = insts.length; instKeys[key] = idx; insts.push(norm); }
+    cols[r.v][r.row].inst = idx;
   });
   if (!insts.length) return null;
 
@@ -48801,9 +48892,21 @@ function _sidDumpImport(regs, meta) {
     const keep = insts.map(function(_, i){ return i; })
       .sort(function(a, c){ return use[c] - use[a] || a - c; })
       .slice(0, _SID_DUMP_MAX_INSTS).sort(function(a, c){ return a - c; });
+    // the waveform and pitch steps of the first frames weigh most: a drum table on a bass note is far worse than another ADSR
+    const tableDist = function(a, c) {
+      let sum = 0;
+      for (let k = 0; k < 8; k++) {
+        const x = a.table[Math.min(k, a.table.length - 1)] || { w: _sidInstCtrl(a), n: 0, abs: false };
+        const y = c.table[Math.min(k, c.table.length - 1)] || { w: _sidInstCtrl(c), n: 0, abs: false };
+        if ((x.w & 0xF0) !== (y.w & 0xF0)) sum += 30;
+        if (x.abs !== y.abs) sum += 20; else sum += Math.min(12, Math.abs(x.n - y.n)) * 2;
+      }
+      return sum;
+    };
     const dist = function(a, c) {
-      return (_sidInstCtrl(a) !== _sidInstCtrl(c) ? 100 : 0) + Math.abs(a.a - c.a) + Math.abs(a.d - c.d) + Math.abs(a.s - c.s) +
-        Math.abs(a.r - c.r) + (a.filt !== c.filt ? 20 : 0) + (a.table.length !== c.table.length ? 10 : 0) + Math.abs(a.pw - c.pw) / 512;
+      return (_sidInstCtrl(a) !== _sidInstCtrl(c) ? 100 : 0) + tableDist(a, c) + Math.abs(a.a - c.a) + Math.abs(a.d - c.d) +
+        Math.abs(a.s - c.s) + Math.abs(a.r - c.r) + (a.filt !== c.filt ? 20 : 0) + (a.gateTimer !== c.gateTimer ? 4 : 0) +
+        Math.abs(a.pw - c.pw) / 512;
     };
     remap = insts.map(function(ins, i) {
       const k = keep.indexOf(i);
@@ -48820,14 +48923,19 @@ function _sidDumpImport(regs, meta) {
   // keep theirs whole, the rest keep what fits (the attack comes first)
   const used = finalInsts.map(function(){ return 0; });
   cols.forEach(function(col){ col.forEach(function(c){ if (c.note != null) used[c.inst]++; }); });
+  // (identical tables are stored once, see _sidTuneData)
   let tableLeft = 255;
+  const stored = {};
   finalInsts.map(function(_, i){ return i; }).sort(function(a, c){ return used[c] - used[a] || a - c; }).forEach(function(i) {
     const ins = finalInsts[i];
+    const tkey = JSON.stringify(ins.table);
+    if (!ins.table.length || stored[tkey]) return;
     if (ins.table.length > tableLeft) {
       ins.table = ins.table.slice(0, tableLeft);
       if (ins.tableLoop >= ins.table.length) ins.tableLoop = -1;
       skip("wave tables shortened");
     }
+    stored[JSON.stringify(ins.table)] = true;
     tableLeft -= ins.table.length;
   });
   finalInsts.forEach(function(ins, i){ ins.name = "SID " + String(i + 1).padStart(2, "0"); });
@@ -48911,7 +49019,13 @@ async function _sidRunSidImport() {
   if (!_sidSidImportBytes || go.disabled) return;
   const song = Math.max(1, parseInt(document.getElementById("sid-import-sid-song").value, 10) || 1);
   const seconds = Math.max(1, Math.min(900, parseInt(document.getElementById("sid-import-sid-seconds").value, 10) || 120));
-  go.disabled = true;
+  const busy = function(on) {
+    go.disabled = on;
+    go.textContent = t(on ? "sidImportSidGoBusy" : "sidImportSidGo");
+    document.getElementById("sid-import-sid-song").disabled = on || document.getElementById("sid-import-sid-song").max === "1";
+    document.getElementById("sid-import-sid-seconds").disabled = on;
+  };
+  busy(true);
   status.textContent = t("sidImportSidWorking");
   try {
     const dump = await window.electronAPI.sidRegisterDump({ fileBytes: Array.from(_sidSidImportBytes), song: song, seconds: seconds });
@@ -48919,7 +49033,8 @@ async function _sidRunSidImport() {
     const regs = new Uint8Array(bin.length);
     for (let i = 0; i < bin.length; i++) regs[i] = bin.charCodeAt(i);
     const res = _sidDumpImport(regs, dump);
-    if (!res) { status.textContent = t("sidImportSidNoNotes"); go.disabled = false; return; }
+    if (!res) { status.textContent = t("sidImportSidNoNotes"); busy(false); return; }
+    busy(false);
     dlg.close();
     _sidSidImportBytes = null;
     _sidApplyImportedTune(res);
@@ -48928,7 +49043,7 @@ async function _sidRunSidImport() {
       (skipped.length ? " " + tf("sidGoatSkipped", { list: skipped.join(", ") }) : ""), false);
   } catch (err) {
     status.textContent = String((err && err.message) || err);
-    go.disabled = false;
+    busy(false);
   }
 }
 
@@ -50018,7 +50133,7 @@ function setupSidEditor() {
   onId("sid-editor-btn", "click", function() {
     const cm = document.querySelector(".control-menu"); if (cm) cm.removeAttribute("open");
     dialog._applyPosition?.();
-    _sidInit(); dialog.showModal();
+    _sidInit(); _sidEditorEngineSync(); dialog.showModal();
     // place the detached tracker before the first paint (no jump from the default spot)
     _sidRestoreTrackerFloat();
     _sidRollRestore();
