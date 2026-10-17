@@ -607,6 +607,44 @@
       content: 'C64VA  ●  PROGRAM BLOCKS + ASM VIEW'
     }
 
+    .release-261-shots {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 36px
+    }
+
+    .release-261-shots a {
+      display: block;
+      border: 2px solid var(--brd, #4040a0);
+      background: var(--scr-darker);
+      text-decoration: none;
+      transition: transform .15s, border-color .15s
+    }
+
+    .release-261-shots a:hover {
+      transform: translateY(-3px);
+      border-color: var(--ylw)
+    }
+
+    .release-261-shots img {
+      display: block;
+      width: 100%;
+      height: auto
+    }
+
+    .release-261-shots span {
+      display: block;
+      padding: 8px 10px;
+      font-size: 11px;
+      letter-spacing: .08em;
+      color: var(--ylw)
+    }
+
+    @media (max-width: 760px) {
+      .release-261-shots { grid-template-columns: 1fr }
+    }
+
     .release-sid-shot .screen-wrap {
       overflow: hidden
     }
@@ -2164,6 +2202,11 @@
           <div><b>Ultimate Basic:</b> <span>code size per line, hints, Sprite Editor export with animation, plus .sid export and a sprite multiplexer template.</span></div>
         </div>
       </div>
+      <div class="release-261-shots">
+        <a href="#editors" onclick="showTab('cycles')"><img src="uploads/cycle-count.webp" alt="Cycle counts and zero page map" width="2000" height="1340" loading="lazy"><span>CYCLE COUNTS</span></a>
+        <a href="#editors" onclick="showTab('profiler')"><img src="uploads/vice-profiler.webp" alt="VICE Monitor profiler" width="2000" height="1340" loading="lazy"><span>VICE PROFILER</span></a>
+        <a href="#editors" onclick="showTab('sidplayer')"><img src="uploads/sid-player-ub.webp" alt="SID Player and Ultimate Basic code size" width="2000" height="1340" loading="lazy"><span>SID PLAYER + UB</span></a>
+      </div>
     </div>
   </div>
 
@@ -3211,6 +3254,9 @@
         <div class="tab" data-tab="ub" onclick="showTab('ub')">ULTIMATE BASIC</div>
         <div class="tab" data-tab="d64" onclick="showTab('d64')">D64 + BLOCK EDITOR</div>
         <div class="tab" data-tab="sid" onclick="showTab('sid')">SID MUSIC</div>
+        <div class="tab" data-tab="sidplayer" onclick="showTab('sidplayer')">SID PLAYER</div>
+        <div class="tab" data-tab="cycles" onclick="showTab('cycles')">CYCLE COUNTS</div>
+        <div class="tab" data-tab="profiler" onclick="showTab('profiler')">PROFILER</div>
         <div class="tab" data-tab="sprite" onclick="showTab('sprite')">SPRITES</div>
         <div class="tab" data-tab="map" onclick="showTab('map')">TILEMAP</div>
         <div class="tab" data-tab="level" onclick="showTab('level')">LEVEL EDITOR</div>
@@ -3244,6 +3290,21 @@
         <img src="uploads/sided.png" alt="SID music editor">
         <div class="tab-cap"><span class="tab-cap-t">SID EDITOR — 3-VOICE TRACKER</span><span
             class="tab-cap-d">WAVEFORM, ADSR ENVELOPE, FILTER, WEBSID WASM PREVIEW, IRQ EXPORT</span></div>
+      </div>
+      <div class="tab-panel" id="tab-sidplayer">
+        <img src="uploads/sid-player-ub.webp" alt="SID Player, Ultimate Basic code size per line and the floating memory map" width="2000" height="1340" loading="lazy">
+        <div class="tab-cap"><span class="tab-cap-t">SID PLAYER + ULTIMATE BASIC CODE SIZE</span><span
+            class="tab-cap-d">PLAYLISTS ON THE VA SID CORE, BYTES PER UB LINE, FLOATING MEMORY MAP</span></div>
+      </div>
+      <div class="tab-panel" id="tab-cycles">
+        <img src="uploads/cycle-count.webp" alt="Cycle counts in the Expert ASM editor and the zero page usage map" width="2000" height="1340" loading="lazy">
+        <div class="tab-cap"><span class="tab-cap-t">CYCLE COUNTS + ZERO PAGE MAP</span><span
+            class="tab-cap-d">CYCLES PER INSTRUCTION, BRANCH AND PAGE-CROSS COSTS, WHO USES WHICH ZP ADDRESS</span></div>
+      </div>
+      <div class="tab-panel" id="tab-profiler">
+        <img src="uploads/vice-profiler.webp" alt="VICE Monitor with live watch and profiler next to the ASM editor" width="2000" height="1340" loading="lazy">
+        <div class="tab-cap"><span class="tab-cap-t">VICE MONITOR — WATCH + PROFILER</span><span
+            class="tab-cap-d">HOT RELOAD INTO THE RUNNING VICE, LIVE VARIABLES, TIME PER ROUTINE AND LINE</span></div>
       </div>
       <div class="tab-panel" id="tab-sprite">
         <img src="uploads/spriteed.png" alt="Sprite editor">

@@ -3634,7 +3634,11 @@ body[data-memory-overlays="0"] .memory-strip {
 .memory-content {
   display: grid;
   gap: 8px;
-  padding: 0 12px 12px;
+  padding: 10px 12px 12px;
+}
+
+.memory-segment[open] > summary {
+  border-bottom: 1px solid var(--panel-border);
 }
 
 .memory-segment p {
@@ -3646,7 +3650,9 @@ body[data-memory-overlays="0"] .memory-strip {
   height: 12px;
   overflow: hidden;
   border-radius: 2px;
-  background: color-mix(in srgb, var(--text) 8%, transparent);
+  box-sizing: border-box;
+  border: 1px solid var(--panel-border);
+  background: color-mix(in srgb, var(--bg) 45%, transparent);
 }
 
 .memory-bar-fill {
