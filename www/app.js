@@ -77,58 +77,59 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "free-260",
+  id: "tools-261",
   url: "https://www.c64va.pro/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.6.0-ban",
+    eyebrow: "Újdonság a 2.6.1-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<p><strong>A Visual Assembler ingyenes lett.</strong></p><p>A Freemium / Professional licencelés megszűnt: minden szerkesztő, build és hardveres futtatás, mind a 7 nyelv és minden téma mindenkinek elérhető, regisztráció és sorozatszám nélkül.</p><p>Az ok egyszerű: a magyar adószabályok mellett az eladásból az adók és az adminisztráció után túl kevés maradna ahhoz, hogy megérje pénzért adni. A már meglévő sorozatszámra nincs többé szükség.</p><p><strong>Írj nekem közvetlenül:</strong> a <strong>Menu → Támogatás</strong> ablakban kérdést, ötletet vagy hibát küldhetsz, akár csatolt képpel vagy fájllal (asm, prg, d64 …). A válaszom ugyanott jelenik meg, és az alkalmazás jelzi, ha megérkezett.</p>`,
+    body: `<ul><li><strong>VICE Monitor</strong>: hot reload a futó VICE-ba, élő változók és profiler.</li><li><strong>Táblagenerátor</strong>: sorcímek, maszkok, szorzó- / osztótáblák, log / exp, saját képlet és speedcode.</li><li><strong>Ciklusszámok és optimalizálási tippek</strong> az Expert szerkesztőben.</li><li><strong>Zero page foglaltság</strong> és leválasztható memóriaablak.</li><li><strong>Ultimate Basic</strong>: kódméret soronként, tippek, sprite export animációval.</li><li><strong>.sid export</strong> a SID szerkesztőből és <strong>sprite multiplexer</strong> sablon.</li></ul><p>Kérdés, ötlet vagy hiba: <strong>Menu → Támogatás</strong>.</p>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.6.0",
+    eyebrow: "New in 2.6.1",
     title: "Welcome to Visual Assembler",
-    body: `<p><strong>Visual Assembler is now free.</strong></p><p>The Freemium / Professional licensing has been removed: every editor, build and hardware run option, all 7 languages and every theme are available to everyone, without registration or a serial.</p><p>The reason is simple: under Hungarian tax rules, selling the program would leave too little after taxes and paperwork to be worth it. Serials you already have are simply no longer needed.</p><p><strong>Write to me directly:</strong> in <strong>Menu → Support</strong> you can send a question, an idea or a bug, even with an attached image or file (asm, prg, d64 …). My reply appears in the same window, and the app lets you know when it arrives.</p>`,
+    body: `<ul><li><strong>VICE Monitor</strong>: hot reload into the running VICE, live watch and a profiler.</li><li><strong>Table Generator</strong>: row addresses, masks, multiply / divide tables, log / exp, custom formulas and speedcode.</li><li><strong>Cycle counts and optimisation hints</strong> in the Expert editor.</li><li><strong>Zero page usage</strong> and a detachable memory window.</li><li><strong>Ultimate Basic</strong>: code size per line, hints, sprite export with animation.</li><li><strong>.sid export</strong> from the SID Editor and a <strong>sprite multiplexer</strong> template.</li></ul><p>Questions, ideas or bugs: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.6.0",
+    eyebrow: "Novedad en la 2.6.1",
     title: "Bienvenido a Visual Assembler",
-    body: `<p><strong>Visual Assembler ahora es gratis.</strong></p><p>Se ha eliminado la licencia Freemium / Professional: todos los editores, las compilaciones y la ejecución en hardware, los 7 idiomas y todos los temas están disponibles para todos, sin registro ni número de serie.</p><p>El motivo es sencillo: con la normativa fiscal húngara, venderlo dejaría demasiado poco después de impuestos y trámites como para que valga la pena. Si ya tienes un número de serie, simplemente ya no lo necesitas.</p><p><strong>Escríbeme directamente:</strong> en <strong>Menú → Soporte</strong> puedes enviar una pregunta, una idea o un error, incluso con una imagen o un archivo adjunto (asm, prg, d64 …). Mi respuesta aparece en la misma ventana y la aplicación te avisa cuando llega.</p>`,
+    body: `<ul><li><strong>Monitor de VICE</strong>: recarga en caliente en el VICE en marcha, vigilancia en vivo y perfilador.</li><li><strong>Generador de tablas</strong>: direcciones de fila, máscaras, tablas de multiplicar / dividir, log / exp, fórmulas propias y speedcode.</li><li><strong>Ciclos y sugerencias de optimización</strong> en el editor Expert.</li><li><strong>Uso de la página cero</strong> y ventana de memoria separable.</li><li><strong>Ultimate Basic</strong>: tamaño de código por línea, sugerencias, exportación de sprites con animación.</li><li><strong>Exportación .sid</strong> desde el editor SID y plantilla de <strong>multiplexor de sprites</strong>.</li></ul><p>Preguntas, ideas o errores: <strong>Menu → Support</strong>.</p>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.6.0",
+    eyebrow: "Neu in 2.6.1",
     title: "Willkommen bei Visual Assembler",
-    body: `<p><strong>Visual Assembler ist jetzt kostenlos.</strong></p><p>Die Freemium-/Professional-Lizenzierung entfällt: alle Editoren, Builds und Hardware-Ausführungen, alle 7 Sprachen und alle Themes stehen allen zur Verfügung, ohne Registrierung oder Seriennummer.</p><p>Der Grund ist einfach: Nach ungarischem Steuerrecht bliebe vom Verkauf nach Steuern und Verwaltungsaufwand zu wenig übrig, als dass es sich lohnen würde. Vorhandene Seriennummern werden einfach nicht mehr benötigt.</p><p><strong>Schreib mir direkt:</strong> unter <strong>Menü → Support</strong> kannst du eine Frage, eine Idee oder einen Fehler senden, auch mit angehängtem Bild oder einer Datei (asm, prg, d64 …). Meine Antwort erscheint im selben Fenster, und die App meldet, wenn sie da ist.</p>`,
+    body: `<ul><li><strong>VICE-Monitor</strong>: Hot Reload in den laufenden VICE, Live-Watch und Profiler.</li><li><strong>Tabellengenerator</strong>: Zeilenadressen, Masken, Multiplikations- / Divisionstabellen, Log / Exp, eigene Formeln und Speedcode.</li><li><strong>Taktzyklen und Optimierungshinweise</strong> im Expert-Editor.</li><li><strong>Zero-Page-Belegung</strong> und abdockbares Speicherfenster.</li><li><strong>Ultimate Basic</strong>: Codegröße pro Zeile, Hinweise, Sprite-Export mit Animation.</li><li><strong>.sid-Export</strong> aus dem SID-Editor und eine <strong>Sprite-Multiplexer</strong>-Vorlage.</li></ul><p>Fragen, Ideen oder Fehler: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.6.0",
+    eyebrow: "Nieuw in 2.6.1",
     title: "Welkom bij Visual Assembler",
-    body: `<p><strong>Visual Assembler is nu gratis.</strong></p><p>De Freemium/Professional-licentie is verdwenen: alle editors, builds en uitvoering op hardware, alle 7 talen en alle thema's zijn voor iedereen beschikbaar, zonder registratie of serienummer.</p><p>De reden is eenvoudig: onder de Hongaarse belastingregels zou er na belastingen en administratie te weinig van de verkoop overblijven om het de moeite waard te maken. Een serienummer dat je al hebt, is gewoon niet meer nodig.</p><p><strong>Schrijf me direct:</strong> via <strong>Menu → Ondersteuning</strong> kun je een vraag, een idee of een fout sturen, ook met een bijgevoegde afbeelding of een bestand (asm, prg, d64 …). Mijn antwoord verschijnt in hetzelfde venster en de app laat weten wanneer het binnen is.</p>`,
+    body: `<ul><li><strong>VICE-monitor</strong>: hot reload in de draaiende VICE, live watch en een profiler.</li><li><strong>Tabelgenerator</strong>: rijadressen, maskers, vermenigvuldig- / deeltabellen, log / exp, eigen formules en speedcode.</li><li><strong>Cycli en optimalisatietips</strong> in de Expert-editor.</li><li><strong>Zero page-gebruik</strong> en een losmaakbaar geheugenvenster.</li><li><strong>Ultimate Basic</strong>: codegrootte per regel, tips, sprite-export met animatie.</li><li><strong>.sid-export</strong> vanuit de SID-editor en een <strong>sprite-multiplexer</strong>-sjabloon.</li></ul><p>Vragen, ideeën of bugs: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.6.0",
+    eyebrow: "Nowość w 2.6.1",
     title: "Witamy w Visual Assembler",
-    body: `<p><strong>Visual Assembler jest teraz darmowy.</strong></p><p>Licencjonowanie Freemium / Professional zostało usunięte: wszystkie edytory, kompilacje i uruchamianie na sprzęcie, wszystkie 7 języków i wszystkie motywy są dostępne dla każdego, bez rejestracji i numeru seryjnego.</p><p>Powód jest prosty: przy węgierskich przepisach podatkowych ze sprzedaży po podatkach i formalnościach zostałoby zbyt mało, żeby to się opłacało. Posiadany numer seryjny po prostu nie jest już potrzebny.</p><p><strong>Napisz do mnie bezpośrednio:</strong> w <strong>Menu → Wsparcie</strong> możesz wysłać pytanie, pomysł lub błąd, także z załączonym obrazem lub plikiem (asm, prg, d64 …). Moja odpowiedź pojawi się w tym samym oknie, a aplikacja da znać, gdy nadejdzie.</p>`,
+    body: `<ul><li><strong>Monitor VICE</strong>: hot reload do działającego VICE, podgląd na żywo i profiler.</li><li><strong>Generator tablic</strong>: adresy wierszy, maski, tablice mnożenia / dzielenia, log / exp, własne wzory i speedcode.</li><li><strong>Liczba cykli i wskazówki optymalizacji</strong> w edytorze Expert.</li><li><strong>Użycie strony zerowej</strong> i odłączane okno pamięci.</li><li><strong>Ultimate Basic</strong>: rozmiar kodu na linię, wskazówki, eksport sprite'ów z animacją.</li><li><strong>Eksport .sid</strong> z edytora SID i szablon <strong>multipleksera sprite'ów</strong>.</li></ul><p>Pytania, pomysły lub błędy: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.6.0",
+    eyebrow: "Novità nella 2.6.1",
     title: "Benvenuto in Visual Assembler",
-    body: `<p><strong>Visual Assembler ora è gratuito.</strong></p><p>La licenza Freemium / Professional è stata eliminata: tutti gli editor, le build e l'esecuzione su hardware, tutte le 7 lingue e tutti i temi sono disponibili per tutti, senza registrazione né numero di serie.</p><p>Il motivo è semplice: con le norme fiscali ungheresi, dalla vendita resterebbe troppo poco dopo tasse e burocrazia perché ne valga la pena. Il numero di serie che hai già semplicemente non serve più.</p><p><strong>Scrivimi direttamente:</strong> in <strong>Menu → Supporto</strong> puoi inviare una domanda, un'idea o un bug, anche con un'immagine o un file allegato (asm, prg, d64 …). La mia risposta appare nella stessa finestra e l'app ti avvisa quando arriva.</p>`,
+    body: `<ul><li><strong>Monitor VICE</strong>: hot reload nel VICE in esecuzione, watch dal vivo e profiler.</li><li><strong>Generatore di tabelle</strong>: indirizzi di riga, maschere, tabelle di moltiplicazione / divisione, log / exp, formule proprie e speedcode.</li><li><strong>Cicli e suggerimenti di ottimizzazione</strong> nell'editor Expert.</li><li><strong>Uso della pagina zero</strong> e finestra della memoria sganciabile.</li><li><strong>Ultimate Basic</strong>: dimensione del codice per riga, suggerimenti, esportazione sprite con animazione.</li><li><strong>Esportazione .sid</strong> dall'editor SID e modello di <strong>multiplexer di sprite</strong>.</li></ul><p>Domande, idee o bug: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
 };
+
 
 const mnemonicLibrary = {
   Adatmozgas: [
@@ -583,6 +584,8 @@ let _expertProjectVisible = false;
 let _expertProjectSymbolsHeight = 160;
 let _expertFontSize = 13.44; // px (= 0.84rem at 16px base)
 let _expertLineNumbersEnabled = false;
+let _expertCyclesEnabled = false;
+let _expertCycleMap = new Map();
 let _expertBreakpointLines = [];
 let _expertMinimapEnabled = false;
 let _expertMinimapRaf = 0;
@@ -651,6 +654,7 @@ function saveUiSettings() {
     writeDebugSidecars: writeDebugSidecarsToggle ? writeDebugSidecarsToggle.checked : false,
     ubAsmSidecar: ubAsmSidecarToggle ? ubAsmSidecarToggle.checked : false,
     exomizerBorderFlash: exomizerBorderFlashToggle ? exomizerBorderFlashToggle.checked : true,
+    viceRemoteMonitor: document.getElementById("vice-remote-monitor") ? document.getElementById("vice-remote-monitor").checked : savedUiSettings.viceRemoteMonitor !== false,
     expertMode: expertMode,
     ultimateBasicMode: ultimateBasicMode,
     expertHlEnabled: _expertHlEnabled,
@@ -687,6 +691,7 @@ function saveUiSettings() {
     debuggerUnpause,
     expertFontSize: _expertFontSize,
     expertLineNumbers: _expertLineNumbersEnabled,
+    expertCycles: _expertCyclesEnabled,
     expertMinimap: _expertMinimapEnabled,
     blockMinimap: _blockMinimapEnabled,
     autoSnapshotEnabled: autoSnapshotToggle ? autoSnapshotToggle.checked : true,
@@ -1321,6 +1326,11 @@ function initPalette() {
   });
   reportBugButton?.addEventListener("click", () => _bugOpenDialog());
   document.getElementById("support-btn")?.addEventListener("click", () => _supportOpen());
+  // adomány: a weboldal PayPal-oldala (register/donate.php) a böngészőben, az app nyelvén
+  document.getElementById("donate-btn")?.addEventListener("click", () => {
+    document.querySelector(".control-menu")?.removeAttribute("open");
+    window.electronAPI?.openExternal?.("https://www.c64va.pro/register/donate.php?lang=" + (currentLanguage === "hu" ? "hu" : "en"));
+  });
   document.getElementById("support-notify")?.addEventListener("click", () => _supportOpen());
   basicSysToggle?.addEventListener("change", () => {
     saveUiSettings();
@@ -1342,6 +1352,7 @@ function initPalette() {
     _ubRenderMonitor(_ubLastResult);
   });
   exomizerBorderFlashToggle?.addEventListener("change", saveUiSettings);
+  document.getElementById("vice-remote-monitor")?.addEventListener("change", saveUiSettings);
   writeDebugSidecarsToggle?.addEventListener("change", saveUiSettings);
   ubAsmSidecarToggle?.addEventListener("change", saveUiSettings);
 
@@ -1481,6 +1492,8 @@ function initPalette() {
   document.getElementById("ub-command-search")?.addEventListener("input", _ubRenderCommandReference);
   document.getElementById("ub-hl-btn")?.addEventListener("click", _ubToggleHighlight);
   document.getElementById("ub-lines-btn")?.addEventListener("click", _ubToggleLines);
+  document.getElementById("ub-heat-btn")?.addEventListener("click", _ubToggleHeat);
+  try { if (localStorage.getItem("c64va-ub-heat") === "1") setTimeout(_ubToggleHeat, 0); } catch (_) {}
   document.getElementById("ub-minimap-btn")?.addEventListener("click", _ubToggleMinimap);
   document.getElementById("ub-find-btn")?.addEventListener("click", _ubOpenFind);
   document.getElementById("ub-find-close")?.addEventListener("click", _ubCloseFind);
@@ -1495,7 +1508,7 @@ function initPalette() {
   document.getElementById("ub-zoom-in-btn")?.addEventListener("click", () => _ubZoom(1));
   document.getElementById("ub-zoom-out-btn")?.addEventListener("click", () => _ubZoom(-1));
   _bindCtrlWheelZoom(document.querySelector(".ub-editor-wrap"), _ubZoom);
-  ubEditor?.addEventListener("input", () => { _ubDirty = true; markTabDirty(); _bmTrackEdit("ub"); _ubRefreshEditor(); _ubAcUpdate(); });
+  ubEditor?.addEventListener("input", () => { _ubDirty = true; markTabDirty(); _bmTrackEdit("ub"); _ubRefreshEditor(); _ubAcUpdate(); _ubScheduleLint(); });
   ubEditor?.addEventListener("keyup", _ubUpdateCursor);
   ubEditor?.addEventListener("click", _ubUpdateCursor);
   ubEditor?.addEventListener("select", _ubUpdateCursor);
@@ -1694,6 +1707,12 @@ function initPalette() {
     _expertApplyLineNumbers();
     saveUiSettings();
   });
+  document.getElementById("expert-cycles-btn")?.addEventListener("click", () => {
+    _expertCyclesEnabled = !_expertCyclesEnabled;
+    _expertApplyCycles();
+    saveUiSettings();
+    if (_expertCyclesEnabled) _expertValidate();
+  });
   document.getElementById("expert-minimap-btn")?.addEventListener("click", () => {
     _expertMinimapEnabled = !_expertMinimapEnabled;
     _expertApplyMinimap();
@@ -1865,6 +1884,10 @@ function initPalette() {
     if (foldInner) foldInner.style.transform = `translateY(${-visibleScrollTop}px)`;
     if (_expertLineNumbersEnabled) {
       const inner = document.querySelector(".expert-line-numbers-inner");
+      if (inner) inner.style.transform = `translateY(${-visibleScrollTop}px)`;
+    }
+    if (_expertCyclesEnabled) {
+      const inner = document.querySelector(".expert-cycles-inner");
       if (inner) inner.style.transform = `translateY(${-visibleScrollTop}px)`;
     }
     _expertAcHide();
@@ -2401,6 +2424,9 @@ function setupDraggableEditorDialogs() {
     ["sprite-editor-dialog", ".se-hdr"],
     ["sid-editor-dialog", ".sid-hdr"],
     ["curve-gen-dialog", ".cg-hdr"],
+    ["table-gen-dialog", ".tg-hdr"],
+    ["vice-mon-dialog", ".vm-hdr"],
+    ["memory-float-dialog", ".mem-float-hdr"],
     ["d64-editor-dialog", ".de-hdr"],
     ["d64-block-editor-dialog", ".dbe-hdr"],
     ["project-snapshot-dialog", ".project-snapshot-hdr"],
@@ -2973,6 +2999,8 @@ function _applyUiSettingsToDOM() {
     ubAsmSidecarToggle.checked = !!savedUiSettings.ubAsmSidecar;
   }
 
+  const viceMonToggle = document.getElementById("vice-remote-monitor");
+  if (viceMonToggle) viceMonToggle.checked = savedUiSettings.viceRemoteMonitor !== false;
   if (exomizerBorderFlashToggle) {
     exomizerBorderFlashToggle.checked = savedUiSettings.exomizerBorderFlash !== false;
   }
@@ -3038,6 +3066,10 @@ function _applyUiSettingsToDOM() {
   if (savedUiSettings.expertLineNumbers) {
     _expertLineNumbersEnabled = true;
     _expertApplyLineNumbers();
+  }
+  if (savedUiSettings.expertCycles) {
+    _expertCyclesEnabled = true;
+    _expertApplyCycles();
   }
 
   if (savedUiSettings.expertMinimap) {
@@ -3243,6 +3275,8 @@ function applyTranslations() {
   if (reportBugButton) reportBugButton.textContent = t("reportBug");
   const supportBtnEl = document.getElementById("support-btn");
   if (supportBtnEl) supportBtnEl.textContent = t("support");
+  const donateLabelEl = document.getElementById("donate-btn-label");
+  if (donateLabelEl) donateLabelEl.textContent = t("donate");
   if (whatsNewButton) whatsNewButton.textContent = t("whatsNew");
   const tutorialBtnEl = document.getElementById("tutorial-btn");
   const tutorialBtnLabelEl = document.getElementById("tutorial-toolbar-label");
@@ -3265,6 +3299,7 @@ function applyTranslations() {
   if (ubAsmSidecarLabelEl) ubAsmSidecarLabelEl.textContent = t("ubAsmSidecarLabel");
   const exomizerFlashLabelEl = document.getElementById("exomizer-border-flash-label");
   if (exomizerFlashLabelEl) exomizerFlashLabelEl.textContent = t("exomizerBorderFlashLabel");
+  setText("#vice-remote-monitor-label", t("vmSetting"));
   const blockPaletteSyncLabelEl = document.getElementById("block-desc-sync-label");
   if (blockPaletteSyncLabelEl) blockPaletteSyncLabelEl.textContent = t("blockDescSyncLabel");
   const autoSnapshotLabelEl = document.getElementById("auto-snapshot-toggle-label");
@@ -3311,6 +3346,7 @@ function applyTranslations() {
   expertDisasmBtn?.setAttribute("aria-label", t("expertDisasm"));
   expertMonitorBtn?.setAttribute("title", t("expertMonitor"));
   expertMonitorBtn?.setAttribute("aria-label", t("expertMonitor"));
+  document.getElementById("expert-cycles-btn")?.setAttribute("aria-label", t("expertCycles"));
   expertFormatBtn?.setAttribute("title", t("expertFormat"));
   expertFormatBtn?.setAttribute("aria-label", t("expertFormat"));
   expertLoadAsmBtn?.setAttribute("title", t("vasmLoadBtn"));
@@ -3330,7 +3366,7 @@ function applyTranslations() {
     "ub-project-btn": "expertProjectPanel", "ub-help-btn": "ubCommandHelpToggle", "ub-manual-btn": "ubManual", "ub-project-open-btn": "projOpenProjectBtn",
     "ub-project-new-btn": "projNewProjectBtn", "ub-project-save-btn": "projSaveProjectBtn",
     "ub-project-add-btn": "projAddFileBtn", "ub-hl-btn": "ubSyntaxHighlight",
-    "ub-lines-btn": "ubLineNumbers", "ub-minimap-btn": "ubMinimap",
+    "ub-lines-btn": "ubLineNumbers", "ub-minimap-btn": "ubMinimap", "ub-heat-btn": "ubHeat",
     "ub-find-btn": "ubFind", "ub-zoom-out-btn": "zoomOut", "ub-zoom-in-btn": "zoomIn",
     "ub-goto-btn": "gotoLineBtn", "ub-bm-toggle-btn": "bmToggle", "ub-bm-prev-btn": "bmPrev",
     "ub-bm-next-btn": "bmNext", "ub-bm-clear-btn": "bmClear",
@@ -4060,6 +4096,8 @@ function _applyEditorTranslations() {
   setText("#sid-export-player", t("sidExportPlayer"));
   setText("#sid-export-asm", t("sidExportAsm"));
   setText("#sid-export-ub", t("sidExportUb"));
+  setText("#sid-export-psid", t("sidExportPsid"));
+  setText("#se-export-ub", t("sidExportUb"));
   setText("#cg-export-demo", t("cgExportDemo"));
   setText("#cg-export-ub", t("sidExportUb"));
   setText("#cg-export-ub-demo", t("cgExportUbDemo"));
@@ -4068,6 +4106,37 @@ function _applyEditorTranslations() {
   setText("#cg-save-bin", t("cgSaveBin"));
   setText("#cg-load-bin", t("cgLoadBin"));
   setAttr("#cg-copy", t("cgCopy"));
+  setAttr("#memory-undock-btn", t("memoryUndock"));
+  setAttr("#memory-dock-btn", t("memoryDock"));
+  setAttr("#memory-float-close", t("memoryDock"));
+  setText("#mem-float-title", t("memoryTitle"));
+  setAttr("#vice-mon-btn", t("vmTitle"));
+  setText("#vm-title", t("vmTitle").toUpperCase());
+  setAttr("#vm-inject", t("vmInject"));
+  setAttr("#vm-restart", t("vmRestart"));
+  setAttr("#vm-live", t("vmLive"));
+  setAttr("#vm-profile", t("vmProfile"));
+  setAttr("#vm-watch-add", t("vmWatchAdd"));
+  setText("#vm-auto-lbl", t("vmAuto"));
+  setText("#vm-watch-lbl", t("vmWatch"));
+  setText("#vm-prof-lbl", t("vmProfiler"));
+  setAttr("#table-gen-btn", t("tgTitle"));
+  setText("#tg-title", t("tgTitle").toUpperCase());
+  setAttr("#tg-copy", t("cgCopy"));
+  setAttr("#tg-insert", t("tgInsert"));
+  setText("#tg-save-bin", t("tgSaveBin"));
+  setText("#tg-export-ub", t("sidExportUb"));
+  setText("#tg-type-lbl", t("tgType"));
+  setText("#tg-label-lbl", t("cgLabel"));
+  setText("#tg-base-lbl", t("cgBase"));
+  setText("#tg-perline-lbl", t("cgPerLine"));
+  setText("#tg-word-lbl", t("tgWord"));
+  setText('#tg-word option[value="split"]', t("tgWordSplit"));
+  setText('#tg-word option[value="word"]', t("tgWordWord"));
+  setText('#tg-base option[value="hex"]', t("cgBaseHex"));
+  setText('#tg-base option[value="dec"]', t("cgBaseDec"));
+  setText("#tg-align-lbl", t("tgAlign"));
+  if (document.getElementById("table-gen-dialog")?.open) { _tgFillTypeSelect(); _tgRenderParams(); _tgRefresh(); }
   setAttr("#cg-insert", t("cgInsert"));
   setAttr("#cg-close", t("close"));
   setText("#cg-curve-lbl", t("cgCurveLabel"));
@@ -6483,6 +6552,7 @@ function isProgramEmpty() {
 let expertMode = false;
 let lastAssemblerEditorMode = localStorage.getItem("lastAssemblerEditorMode") || "block";
 let _expertParseTimer = null;
+let _expertLintHints = [];
 let _expertErrorLineNos = new Set();  // source line indices (0-based) with compile errors
 let _expertAsmFilePath = "";          // current .asm file path (empty = unsaved)
 let _expertIncludeReloadTimer = null;
@@ -6551,6 +6621,8 @@ let _ubFilePath = "";
 let _ubDirty = false;
 let _ubHighlightEnabled = true;
 let _ubLinesEnabled = true;
+let _ubHeatEnabled = false;
+let _ubLineCostMap = null;
 let _ubMinimapEnabled = true;
 let _ubProjectVisible = true;
 let _ubCommandsVisible = false;
@@ -7963,7 +8035,10 @@ function _ubRefreshEditor() {
   if (code) code.innerHTML = _ubHighlightEnabled ? _ubHighlightSource(ubEditor.value) : _ubEsc(ubEditor.value) + "\n";
   const lineCount = ubEditor.value.split("\n").length;
   const lineDigits = Math.max(2, String(lineCount).length);
-  const gutterWidth = Math.max(48, Math.ceil(lineDigits * _ubFontSize * 0.62 + 28));
+  const gutterWidth = Math.max(48, Math.ceil(lineDigits * _ubFontSize * 0.62 + 28)) + (_ubHeatEnabled ? Math.ceil(_ubFontSize * 0.62 * 4 + 6) : 0);
+  const costs = _ubHeatEnabled ? (_ubLineCostMap || (_ubLineCostMap = _ubLineCost(_ubLastResult))) : null;
+  let maxCost = 1;
+  costs?.forEach((c) => { if (c.bytes > maxCost) maxCost = c.bytes; });
   ubPanel?.style.setProperty("--ub-line-number-width", `${gutterWidth}px`);
   const gutter = document.getElementById("ub-line-numbers-content");
   if (gutter) {
@@ -7976,6 +8051,12 @@ function _ubRefreshEditor() {
       marker.textContent = String(line + 1);
       marker.setAttribute("aria-label", `${t("breakpointToggle")} ${line + 1}`);
       marker.addEventListener("click", (e) => (e.ctrlKey || e.metaKey) ? _bmToggle("ub", line) : _setBreakpointLine("ub", line));
+      const cost = costs?.get(line);
+      if (cost) {
+        marker.dataset.cost = String(cost.bytes);
+        const heat = Math.sqrt(cost.bytes / maxCost);
+        marker.style.background = `linear-gradient(90deg, rgba(249, 115, 22, ${(0.1 + heat * 0.45).toFixed(2)}) ${Math.round(heat * 100)}%, transparent ${Math.round(heat * 100)}%)`;
+      }
       gutter.appendChild(marker);
     });
   }
@@ -7983,6 +8064,7 @@ function _ubRefreshEditor() {
   _ubSyncScroll();
   _ubDrawMinimap();
   _ubRenderProjectSymbols();
+  _ubScheduleLint();
 }
 
 function _ubGotoLine(lineIndex) {
@@ -8211,6 +8293,137 @@ function _ubSyncScroll() {
 
 function _ubSetToggle(id, on) { const btn = document.getElementById(id); btn?.classList.toggle("expert-hl-toggle--on", on); btn?.setAttribute("aria-pressed", String(on)); }
 function _ubToggleHighlight() { _ubHighlightEnabled = !_ubHighlightEnabled; _ubSetToggle("ub-hl-btn", _ubHighlightEnabled); _ubRefreshEditor(); }
+// UB build → soronkénti kódköltség a dbg listing-spanokból: Map(0-alapú sor → {bytes, cycles}).
+// A ciklus a span utasításainak alapciklus-összege (egyenes futás, ciklusok / elágazások nélkül);
+// beágyazott adat (dataRegions) csak bájtként számít.
+function _ubLineCost(result) {
+  const map = new Map();
+  const load = result?.map?.loadAddress;
+  const code = result?.map?.codeBytes;
+  if (!Number.isFinite(load) || !Array.isArray(code)) return map;
+  const data = (result.map.dataRegions || []).map((r) => [r.start, r.end]);
+  String(result?.debug?.dbg || "").split("\n").forEach((row) => {
+    const m = /^\s*([0-9a-f]{1,4}),([0-9a-f]{1,4}),\d+,(\d+),/i.exec(row);
+    if (!m) return;
+    const start = parseInt(m[1], 16) - load;
+    const end = parseInt(m[2], 16) - load;
+    if (start < 0 || end < start || end >= code.length) return;
+    const line = Number(m[3]) - 1;
+    let cycles = 0;
+    if (!data.some(([a, b]) => start < b && end >= a)) {
+      for (let p = start; p <= end;) {
+        const info = _REV_OP[code[p]];
+        if (!info || info.mode === "unknown") { p++; continue; }
+        cycles += _OP_CYCLES[code[p]];
+        p += info.size;
+      }
+    }
+    const prev = map.get(line) || { bytes: 0, cycles: 0 };
+    map.set(line, { bytes: prev.bytes + end - start + 1, cycles: prev.cycles + cycles });
+  });
+  return map;
+}
+
+// ── UB lint ──
+// {srcLine, key, values}: sys a KERNAL IRQ-kilépésre (a sys JSR → az RTI szemétre tér vissza), nem
+// dokumentált `wait key`, nem használt var/dim/const, és build után asm-blokkbeli ZP-cím, amelyet egy
+// UB-változó (vagy a futtatókörnyezet belső ZP-je) is használ.
+const _UB_LINT_IRQ_EXITS = new Set([0xEA31, 0xEA81, 0xEA7E, 0xFEBC]);
+
+function _ubLintStrip(line) {
+  let out = "", quote = false;
+  for (const ch of line) {
+    if (ch === "\"") quote = !quote;
+    if (!quote && (ch === "#" || ch === "'")) break;
+    out += quote ? " " : ch;
+  }
+  return out;
+}
+
+function _ubLint(text, result) {
+  const hints = [];
+  const lines = String(text || "").split("\n");
+  const decls = [];
+  const words = new Map();
+  let inAsm = false;
+  const asmLines = [];
+  lines.forEach((raw, i) => {
+    if (inAsm) {
+      const body = raw.replace(/;.*$/, "");
+      if (/^\s*}/.test(body)) inAsm = false;
+      else asmLines.push([i, body]);
+      return;
+    }
+    const code = _ubLintStrip(raw);
+    const asmOpen = /^\s*asm\s*\{(.*)$/i.exec(code);
+    if (asmOpen) {
+      const rest = asmOpen[1].replace(/;.*$/, "");
+      if (rest.includes("}")) asmLines.push([i, rest.slice(0, rest.indexOf("}"))]);
+      else { inAsm = true; if (rest.trim()) asmLines.push([i, rest]); }
+      return;
+    }
+    const sys = /\bsys\s+(\$[0-9a-f]+|\d+)/i.exec(code);
+    if (sys) {
+      const addr = sys[1][0] === "$" ? parseInt(sys[1].slice(1), 16) : parseInt(sys[1], 10);
+      if (_UB_LINT_IRQ_EXITS.has(addr)) hints.push({ srcLine: i, key: "ubLintSysIrqExit", values: { addr: "$" + addr.toString(16).toUpperCase() } });
+    }
+    if (/\bwait\s+key\b/i.test(code)) hints.push({ srcLine: i, key: "ubLintWaitKey", values: {} });
+    const decl = /^\s*(?:var|dim|const)\s+([A-Za-z_][\w]*)/i.exec(code);
+    if (decl) decls.push([i, decl[1]]);
+    for (const w of code.match(/[A-Za-z_][\w]*\$?/g) || []) {
+      const k = w.replace(/\$$/, "").toLowerCase();
+      words.set(k, (words.get(k) || 0) + 1);
+    }
+  });
+  asmLines.forEach(([, body]) => {
+    for (const w of body.match(/[A-Za-z_][\w]*/g) || []) words.set(w.toLowerCase(), (words.get(w.toLowerCase()) || 0) + 1);
+  });
+  decls.forEach(([i, name]) => {
+    if ((words.get(name.toLowerCase()) || 0) <= 1) hints.push({ srcLine: i, key: "ubLintUnused", values: { name } });
+  });
+  const zpOwners = new Map();
+  (result?.map?.variables || []).forEach((v) => {
+    if (Number.isInteger(v.address) && v.address < 0x100) {
+      zpOwners.set(v.address, v.name);
+      if (/word|int|single|double|string|\$/i.test(String(v.type || "")) && v.address < 0xFF) zpOwners.set(v.address + 1, v.name);
+    }
+  });
+  Object.entries(result?.map?.internal || {}).forEach(([key, addr]) => {
+    if (Number.isInteger(addr) && addr < 0xFF && /Zp$/.test(key)) { zpOwners.set(addr, "UB " + key); zpOwners.set(addr + 1, "UB " + key); }
+  });
+  if (zpOwners.size) {
+    asmLines.forEach(([i, body]) => {
+      const m = /^\s*(?:[A-Za-z_]\w*:)?\s*[A-Za-z]{3}\s+\(?\$([0-9a-f]{1,2})\b(?!\w)/i.exec(body);
+      if (!m) return;
+      const addr = parseInt(m[1], 16);
+      if (zpOwners.has(addr)) hints.push({ srcLine: i, key: "ubLintZpConflict", values: { addr: "$" + m[1].toUpperCase().padStart(2, "0"), name: zpOwners.get(addr) } });
+    });
+  }
+  return hints;
+}
+
+let _ubLintHints = [];
+let _ubLintTimer = 0;
+
+function _ubRunLint() {
+  if (!ubEditor) return;
+  _ubLintHints = _ubLint(ubEditor.value, _ubLastResult);
+  _lintRenderButton("ub-lint-btn", _ubLintHints, true);
+}
+
+function _ubScheduleLint() {
+  clearTimeout(_ubLintTimer);
+  _ubLintTimer = setTimeout(_ubRunLint, 500);
+}
+
+function _ubToggleHeat() {
+  _ubHeatEnabled = !_ubHeatEnabled;
+  try { localStorage.setItem("c64va-ub-heat", _ubHeatEnabled ? "1" : "0"); } catch (_) {}
+  _ubSetToggle("ub-heat-btn", _ubHeatEnabled);
+  ubPanel?.classList.toggle("ub-show-heat", _ubHeatEnabled);
+  _ubRefreshEditor();
+}
+
 function _ubToggleLines() { _ubLinesEnabled = !_ubLinesEnabled; ubPanel.classList.toggle("ub-show-lines", _ubLinesEnabled); _ubSetToggle("ub-lines-btn", _ubLinesEnabled); }
 function _ubToggleMinimap() { _ubMinimapEnabled = !_ubMinimapEnabled; ubPanel.classList.toggle("ub-show-minimap", _ubMinimapEnabled); _ubSetToggle("ub-minimap-btn", _ubMinimapEnabled); _ubDrawMinimap(); }
 function _ubToggleProject() { _ubProjectVisible = !_ubProjectVisible; _ubApplyLeftViews(); }
@@ -8368,7 +8581,8 @@ function _ubUpdateCursor() {
   if (!ubEditor) return;
   const lines = ubEditor.value.slice(0, ubEditor.selectionStart).split("\n");
   const el = document.getElementById("ub-cursor-pos");
-  if (el) el.textContent = `Ln ${lines.length}, Col ${lines[lines.length - 1].length + 1}`;
+  const cost = _ubHeatEnabled ? _ubLineCostMap?.get(lines.length - 1) : null;
+  if (el) el.textContent = `Ln ${lines.length}, Col ${lines[lines.length - 1].length + 1}` + (cost ? "  ·  " + tf("ubHeatLine", cost) : "");
   _ubUpdateCaret();
 }
 
@@ -9023,6 +9237,9 @@ async function _ubCompile(showProgress = false, options = {}) {
     return null;
   }
   _ubLastResult = result;
+  _ubLineCostMap = null;
+  if (_ubHeatEnabled) _ubRefreshEditor();
+  _ubScheduleLint();
   const buildTab = _getActiveTab();
   if (buildTab) buildTab._ubBuildResult = result;
   _ubRenderDisassembly(result);
@@ -9116,6 +9333,9 @@ async function _ubCompileSource(source, sourcePath, label = "startup file", opti
   _ubSetStatus(`Building ${label}…`);
   const result = await window.electronAPI?.compileUltimateBasic?.(source, _ubCompileSourcePath(sourcePath), _ubExplicit);
   _ubLastResult = result;
+  _ubLineCostMap = null;
+  if (_ubHeatEnabled) _ubRefreshEditor();
+  _ubScheduleLint();
   const sourceTab = sourcePath ? _findTabByPath(sourcePath) : null;
   if (sourceTab) sourceTab._ubBuildResult = result;
   _ubRenderDisassembly(result);
@@ -10627,6 +10847,7 @@ function _expertApplyHighlight() {
       .join("\n");
     _expertUpdateRegionFolds();
     if (_expertLineNumbersEnabled) _expertUpdateLineNumbers();
+    if (_expertCyclesEnabled) _expertUpdateCycles();
     _expertUpdateCaret();
     return;
   }
@@ -10640,6 +10861,7 @@ function _expertApplyHighlight() {
   const errorLines = _expertProjectionActive
     ? new Set([..._expertErrorLineNos].map(_expertSourceLineToVisibleLine).filter(n => n >= 0))
     : _expertErrorLineNos;
+  const hintLines = new Set(_expertLintHints.map((h) => _expertProjectionActive ? _expertSourceLineToVisibleLine(h.srcLine) : h.srcLine));
 
   const html = [];
   for (let i = 0; i < allLines.length; i++) {
@@ -10669,7 +10891,8 @@ function _expertApplyHighlight() {
         lineHtml = `<span class="hl-region-bracket">${hl}</span>`;
       // body lines: background covered by #expert-region-bg div (no per-line span needed)
     }
-    const lineClasses = errorLines.has(i) ? "expert-hl-line expert-err-line" : "expert-hl-line";
+    const lineClasses = errorLines.has(i) ? "expert-hl-line expert-err-line"
+      : hintLines.has(i) ? "expert-hl-line expert-hint-line" : "expert-hl-line";
     const lineBody = lineHtml || "&#8203;";
     const lineBreak = i < allLines.length - 1 ? "\n" : "";
     html.push(`<span class="${lineClasses}">${lineBody}${lineBreak}</span>`);
@@ -10678,6 +10901,7 @@ function _expertApplyHighlight() {
   _updateExpertRegionBg();
   _expertUpdateRegionFolds();
   if (_expertLineNumbersEnabled) _expertUpdateLineNumbers();
+  if (_expertCyclesEnabled) _expertUpdateCycles();
   _expertUpdateCaret();
   _expertScheduleMinimapRedraw();
 }
@@ -10828,6 +11052,8 @@ function _applyExpertFontSize() {
   if (hl) hl.style.fontSize = _expertFontSize + "px";
   const gutter = document.getElementById("expert-line-numbers");
   if (gutter) gutter.style.fontSize = _expertFontSize + "px";
+  const cycles = document.getElementById("expert-cycles");
+  if (cycles) cycles.style.fontSize = _expertFontSize + "px";
   _expertUpdateRegionFolds();
 }
 
@@ -10835,6 +11061,7 @@ function _expertZoom(delta) {
   _expertFontSize = Math.max(8, Math.min(28, _expertFontSize + delta));
   _applyExpertFontSize();
   if (_expertLineNumbersEnabled) _expertUpdateLineNumbers();
+  if (_expertCyclesEnabled) _expertUpdateCycles();
   saveUiSettings();
 }
 
@@ -11263,6 +11490,136 @@ function _expertUpdateLineNumbers() {
 
   // Sync vertical scroll
   inner.style.transform = `translateY(${-_expertGetVisibleScrollTop()}px)`;
+}
+
+function _expertApplyCycles() {
+  const wrap = document.querySelector(".expert-editor-wrap");
+  const btn = document.getElementById("expert-cycles-btn");
+  if (!wrap) return;
+  wrap.classList.toggle("expert-show-cy", _expertCyclesEnabled);
+  btn?.setAttribute("aria-pressed", String(_expertCyclesEnabled));
+  btn?.classList.toggle("expert-hl-toggle--on", _expertCyclesEnabled);
+  if (!_expertCyclesEnabled) {
+    wrap.style.removeProperty("--expert-cy-w");
+    _expertUpdateCursor();
+    return;
+  }
+  _expertUpdateCycles();
+}
+
+function _expertUpdateCycles() {
+  if (!_expertCyclesEnabled || !expertEditor) return;
+  const gutter = document.getElementById("expert-cycles");
+  const wrap = document.querySelector(".expert-editor-wrap");
+  if (!gutter || !wrap) return;
+  wrap.style.setProperty("--expert-cy-w", Math.round(_expertFontSize * 0.62 * 5 + 14) + "px");
+  let inner = gutter.querySelector(".expert-cycles-inner");
+  if (!inner) {
+    inner = document.createElement("div");
+    inner.className = "expert-cycles-inner";
+    gutter.appendChild(inner);
+  }
+  const view = _expertGetFoldViewState();
+  const html = [];
+  for (let i = 0; i < view.lines.length; i++) {
+    const src = _expertProjectionActive ? (_expertDisplayToSourceLines[i] ?? i) : i;
+    const c = _expertCycleMap.get(src);
+    html.push(c ? `<span class="expert-cy${c.warn ? " expert-cy--warn" : ""}">${c.min === c.max || c.text.includes("/") || c.text.endsWith("+") ? c.text : c.min + "-" + c.max}</span>` : "<span class=\"expert-cy\"></span>");
+  }
+  inner.innerHTML = html.join("");
+  inner.style.transform = `translateY(${-_expertGetVisibleScrollTop()}px)`;
+}
+
+let _lintPopOwner = "";
+
+function _expertRenderLintButton() {
+  _lintRenderButton("expert-lint-btn", _expertLintHints, expertMode);
+}
+
+function _lintRenderButton(id, hints, visible) {
+  const btn = document.getElementById(id);
+  if (!btn) return;
+  const n = hints.length;
+  btn.hidden = !n || !visible;
+  btn.textContent = tf("lintCount", { n });
+  btn.setAttribute("aria-label", t("lintTitle"));
+  const pop = document.getElementById("expert-lint-pop");
+  if (pop && !pop.hidden && _lintPopOwner === id) n ? _lintRenderPop(id) : (pop.hidden = true);
+}
+
+function _lintPopSource(id) {
+  return id === "ub-lint-btn"
+    ? { hints: _ubLintHints, go: (line) => _ubGotoLine(line) }
+    : { hints: _expertLintHints, go: (line) => _expertGotoSourceLine(line) };
+}
+
+function _expertRenderLintPop() {
+  _lintRenderPop("expert-lint-btn");
+}
+
+function _lintRenderPop(id) {
+  const pop = document.getElementById("expert-lint-pop");
+  const btn = document.getElementById(id);
+  if (!pop || !btn) return;
+  _lintPopOwner = id;
+  const { hints, go } = _lintPopSource(id);
+  pop.innerHTML = "";
+  const head = document.createElement("div");
+  head.className = "expert-lint-head";
+  head.textContent = t("lintTitle");
+  pop.appendChild(head);
+  [...hints].sort((a, b) => a.srcLine - b.srcLine).forEach((h) => {
+    const row = document.createElement("button");
+    row.type = "button";
+    row.className = "expert-lint-row";
+    const ln = document.createElement("span");
+    ln.className = "expert-lint-ln";
+    ln.textContent = String(h.srcLine + 1);
+    const msg = document.createElement("span");
+    msg.textContent = tf(h.key, h.values);
+    row.append(ln, msg);
+    row.addEventListener("click", () => {
+      pop.hidden = true;
+      go(h.srcLine);
+    });
+    pop.appendChild(row);
+  });
+  const r = btn.getBoundingClientRect();
+  pop.style.left = Math.max(8, Math.min(r.left, window.innerWidth - 440)) + "px";
+  pop.style.bottom = (window.innerHeight - r.top + 6) + "px";
+}
+
+function setupExpertLint() {
+  const pop = document.getElementById("expert-lint-pop");
+  const buttons = ["expert-lint-btn", "ub-lint-btn"].map((id) => document.getElementById(id));
+  buttons.forEach((btn) => btn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (!pop) return;
+    const reopen = pop.hidden || _lintPopOwner !== btn.id;
+    pop.hidden = !reopen;
+    if (reopen) _lintRenderPop(btn.id);
+  }));
+  document.addEventListener("pointerdown", (e) => {
+    if (pop && !pop.hidden && !pop.contains(e.target) && !buttons.includes(e.target)) pop.hidden = true;
+  });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && pop && !pop.hidden) pop.hidden = true; });
+}
+
+// Kijelölt sorok ciklus-összege a státuszsorba (üres, ha nincs több soros kijelölés).
+function _expertCycleSelectionText() {
+  if (!_expertCyclesEnabled || !expertEditor) return "";
+  const { selectionStart: a, selectionEnd: b } = expertEditor;
+  if (a === b) return "";
+  const src = _expertSourceText || expertEditor.value;
+  const from = src.slice(0, _expertDisplayPosToSourcePos(a)).split("\n").length - 1;
+  const to = src.slice(0, _expertDisplayPosToSourcePos(b)).split("\n").length - 1;
+  const sum = _cycleSum(_expertCycleMap, from, to);
+  if (!sum.count) return "";
+  return tf("expertCycleSum", {
+    count: sum.count,
+    cycles: sum.min === sum.max ? sum.min : `${sum.min}–${sum.max}`,
+    lines: sum.rasterLines.toFixed(2),
+  });
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -12497,9 +12854,10 @@ function _expertUpdateCursor() {
   const effectiveRegionInfo = _expertRegionSelectionEnabled ? regionInfo : null;
 
   if (expertCursorPos) {
-    expertCursorPos.textContent = effectiveRegionInfo?.name
+    const cycleText = _expertCycleSelectionText();
+    expertCursorPos.textContent = (effectiveRegionInfo?.name
       ? `Ln ${ln}, Col ${col}  ·  ${effectiveRegionInfo.name}`
-      : `Ln ${ln}, Col ${col}`;
+      : `Ln ${ln}, Col ${col}`) + (cycleText ? `  ·  ${cycleText}` : "");
   }
 
   // Sync palette to current line
@@ -12626,13 +12984,41 @@ function _expertValidate() {
         labels._anonAddrs = _collectAnonLabels(layout);
         appendDelayHelperLabel(labels, layout);
         // Run compileLineBytes to detect unknown mnemonics / bad operands
+        const cycleMap = new Map();
+        const lintSeq = [];
+        let lintLabelled = false;
         for (const line of layout.lines) {
           if (line.conditionallySkipped) continue;
+          if (line.block.isLabel) lintLabelled = true;
           if (line.block.isLabel || line.block.isComment || line.block.isIncludeMacro || line.block.isBlankLine) continue;
-          if (line.block._isSavedAddress || line.block._isRestoreAddress || line.block.isOrgMacro) continue;
+          if (line.block._isSavedAddress || line.block._isRestoreAddress || line.block.isOrgMacro) {
+            lintSeq.push({ barrier: true });
+            continue;
+          }
           const result = compileLineBytes(line, labels);
-          if (!result.ok) errors.push({ msg: result.error, srcLine: line.block._srcLine });
+          if (!result.ok) {
+            errors.push({ msg: result.error, srcLine: line.block._srcLine });
+            lintSeq.push({ barrier: true });
+            continue;
+          }
+          if (_expertCyclesEnabled) _cycleCollect(cycleMap, line, result.bytes);
+          const mnem = String(line.block.mnemonic || "").toUpperCase();
+          const info = _REV_OP[result.bytes[0]];
+          if (opcodeMap[mnem] && info?.mnem === mnem && result.bytes.length === info.size) {
+            lintSeq.push({ mnem, mode: info.mode, bytes: result.bytes, address: line.address, srcLine: line.block._srcLine, labelled: lintLabelled });
+            lintLabelled = false;
+          } else if (result.bytes?.length || line.block.smcLabel) {
+            lintSeq.push({ barrier: true });
+          }
         }
+        _expertCycleMap = cycleMap;
+        const prevHintKey = _expertLintHints.map((h) => h.srcLine + h.key).join();
+        _expertLintHints = _lintAsm(lintSeq).filter((h) => h.srcLine !== undefined);
+        if (_expertLintHints.map((h) => h.srcLine + h.key).join() !== prevHintKey) {
+          _expertApplyHighlight();
+          _expertRenderLintButton();
+        }
+        if (_expertCyclesEnabled) _expertUpdateCycles();
         // Update overlap badge and panel
         renderMemoryMap(getMemoryUsage(layout));
         // Fall back to block-level validationError if compile found nothing
@@ -12697,6 +13083,189 @@ const _REV_OP = (() => {
   }
   return rev;
 })();
+
+// ── Ciklusszámlálás (NMOS 6510) ─────────────────────────────────────────────
+const _OP_CYCLES = [
+  7, 6, 2, 8, 3, 3, 5, 5, 3, 2, 2, 2, 4, 4, 6, 6,
+  2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 7, 7,
+  6, 6, 2, 8, 3, 3, 5, 5, 4, 2, 2, 2, 4, 4, 6, 6,
+  2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 7, 7,
+  6, 6, 2, 8, 3, 3, 5, 5, 3, 2, 2, 2, 3, 4, 6, 6,
+  2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 7, 7,
+  6, 6, 2, 8, 3, 3, 5, 5, 4, 2, 2, 2, 5, 4, 6, 6,
+  2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 7, 7,
+  2, 6, 2, 6, 3, 3, 3, 3, 2, 2, 2, 2, 4, 4, 4, 4,
+  2, 6, 2, 6, 4, 4, 4, 4, 2, 5, 2, 5, 5, 5, 5, 5,
+  2, 6, 2, 6, 3, 3, 3, 3, 2, 2, 2, 2, 4, 4, 4, 4,
+  2, 5, 2, 5, 4, 4, 4, 4, 2, 4, 2, 4, 4, 4, 4, 4,
+  2, 6, 2, 8, 3, 3, 5, 5, 2, 2, 2, 2, 4, 4, 6, 6,
+  2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 7, 7,
+  2, 6, 2, 8, 3, 3, 5, 5, 2, 2, 2, 2, 4, 4, 6, 6,
+  2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 7, 7,
+];
+// olvasó abs,X / abs,Y / (zp),Y: +1 ciklus, ha az indexelés laphatárt lép át
+const _OP_PAGE_PENALTY = new Set([
+  0x11, 0x19, 0x1D, 0x31, 0x39, 0x3D, 0x51, 0x59, 0x5D, 0x71, 0x79, 0x7D,
+  0xB1, 0xB3, 0xB9, 0xBB, 0xBC, 0xBD, 0xBE, 0xBF, 0xD1, 0xD9, 0xDD, 0xF1, 0xF9, 0xFD,
+  0x1C, 0x3C, 0x5C, 0x7C, 0xDC, 0xFC,
+]);
+const _PAL_CYCLES_PER_LINE = 63;
+
+// Egy utasítás ciklusai: {min, max, text, warn}. Branch: nem ugrik / ugrik (laphatáron +1, warn).
+// Indexelt olvasásnál $xx00 bázis mellett nincs átlépés, egyébként "+" jelzi a lehetséges +1-et.
+function _cycleInfo(bytes, address) {
+  const op = bytes?.[0];
+  const info = _REV_OP[op];
+  if (!info || info.mode === "unknown" || bytes.length !== info.size) return null;
+  const base = _OP_CYCLES[op];
+  if (info.mode === "relative") {
+    const off = bytes[1] < 128 ? bytes[1] : bytes[1] - 256;
+    const next = (address + 2) & 0xFFFF;
+    const cross = (next & 0xFF00) !== ((next + off) & 0xFF00);
+    const taken = base + (cross ? 2 : 1);
+    return { min: base, max: taken, text: `${base}/${taken}`, warn: cross };
+  }
+  if (_OP_PAGE_PENALTY.has(op) && !(info.size === 3 && bytes[1] === 0)) {
+    return { min: base, max: base + 1, text: base + "+", warn: false };
+  }
+  return { min: base, max: base, text: String(base), warn: false };
+}
+
+// Csak valódi utasítás-sor számít (makró / adat nem): a lefordított bájtok egyetlen, azonos nevű opkódot adnak.
+function _cycleCollect(map, line, bytes) {
+  const block = line.block;
+  const src = block?._srcLine;
+  if (src === undefined || !bytes?.length) return;
+  const mnem = String(block.mnemonic || "").toUpperCase();
+  if (!opcodeMap[mnem] || _REV_OP[bytes[0]]?.mnem !== mnem) return;
+  const c = _cycleInfo(bytes, line.address);
+  if (!c) return;
+  const prev = map.get(src);
+  map.set(src, prev
+    ? { min: prev.min + c.min, max: prev.max + c.max, text: prev.text + "," + c.text, warn: prev.warn || c.warn }
+    : c);
+}
+
+function _cycleSum(map, fromLine, toLine) {
+  let min = 0, max = 0, count = 0;
+  for (let i = fromLine; i <= toLine; i++) {
+    const c = map.get(i);
+    if (!c) continue;
+    min += c.min; max += c.max; count++;
+  }
+  return { min, max, count, rasterLines: max / _PAL_CYCLES_PER_LINE };
+}
+
+// ── Zero page foglaltság ────────────────────────────────────────────────────
+const _ZP_WRITE_MNEMS = new Set(["STA", "STX", "STY", "SAX", "INC", "DEC", "ASL", "LSR", "ROL", "ROR", "DCP", "ISC", "SLO", "RLA", "SRE", "RRA"]);
+// a SID szerkesztő exportált lejátszójának ZP-je (_sidExportAsmPlayable)
+const _ZP_SID_PLAYER = new Set([..._zpRange(0x02, 0x1C), 0x2F, 0xFB, 0xFC, 0xFD]);
+
+function _zpRange(from, to) {
+  return Array.from({ length: to - from + 1 }, (_, i) => from + i);
+}
+
+function _zpArea(addr) {
+  if (addr <= 0x01) return "cpu";
+  if (addr === 0x02 || (addr >= 0xFB && addr <= 0xFE)) return "free";
+  if (addr <= 0x8F || addr === 0xFF) return "basic";
+  return "kernal";
+}
+
+// Egy utasítás ZP-hozzáférései: [{addr, write, ptr}]; a (zp,X) / (zp),Y pointer mindkét bájtját jelöli.
+function _zpAccesses(bytes) {
+  const info = _REV_OP[bytes?.[0]];
+  if (!info || bytes.length !== info.size || info.size < 2) return [];
+  const write = _ZP_WRITE_MNEMS.has(info.mnem);
+  const b1 = bytes[1];
+  switch (info.mode) {
+    case "zeroPage": case "zeroPageX": case "zeroPageY":
+      return [{ addr: b1, write, ptr: false }];
+    case "indirectX": case "indirectY":
+      return [{ addr: b1, write: false, ptr: true }, { addr: (b1 + 1) & 0xFF, write: false, ptr: true }];
+    case "absolute": case "absoluteX": case "absoluteY":
+      return info.mnem !== "JMP" && info.mnem !== "JSR" && bytes[2] === 0 ? [{ addr: b1, write, ptr: false }] : [];
+    default:
+      return [];
+  }
+}
+
+// entries: [{bytes, srcLine, blockId, owner}] → {map: Map(addr → {read, write, ptr, refs, owners}), conflicts}
+function _zpAnalyze(entries) {
+  const map = new Map();
+  for (const e of entries) {
+    for (const acc of _zpAccesses(e.bytes)) {
+      let rec = map.get(acc.addr);
+      if (!rec) map.set(acc.addr, rec = { read: false, write: false, ptr: false, refs: [], owners: new Set() });
+      if (acc.ptr) rec.ptr = true;
+      else if (acc.write) rec.write = true;
+      else rec.read = true;
+      rec.owners.add(e.owner || "");
+      if (!rec.refs.some((r) => r.blockId === e.blockId)) rec.refs.push({ srcLine: e.srcLine, blockId: e.blockId, index: e.index });
+    }
+  }
+  const hasSid = entries.some((e) => e.owner === "sid");
+  const conflicts = [];
+  map.forEach((rec, addr) => {
+    if (hasSid && _ZP_SID_PLAYER.has(addr) && [...rec.owners].some((o) => o !== "sid")) conflicts.push(addr);
+  });
+  return { map, conflicts: conflicts.sort((a, b) => a - b), hasSid };
+}
+
+// ── Peephole-tippek ─────────────────────────────────────────────────────────
+// seq: utasítás-bejegyzések sorrendben {mnem, mode, bytes, address, srcLine, labelled} vagy {barrier: true}
+// (adat / makró). labelled = címke áll előtte → lehet ugrási cél, ezért a párt nem vonjuk össze.
+const _LINT_SETS_A = new Set(["LDA", "AND", "ORA", "EOR", "ADC", "SBC", "PLA", "TXA", "TYA", "LAX"]);
+const _LINT_SETS_X = new Set(["LDX", "INX", "DEX", "TAX", "TSX", "LAX"]);
+const _LINT_SETS_Y = new Set(["LDY", "INY", "DEY", "TAY"]);
+const _LINT_MEM_MODES = new Set(["zeroPage", "zeroPageX", "absolute", "absoluteX"]);
+
+function _lintOperandText(e) {
+  const v = e.bytes.length === 3 ? e.bytes[1] | (e.bytes[2] << 8) : e.bytes[1];
+  const hex = "$" + v.toString(16).toUpperCase().padStart(e.bytes.length === 3 ? 4 : 2, "0");
+  return e.mode === "immediate" ? "#" + hex : hex + (e.mode.endsWith("X") ? ",X" : e.mode.endsWith("Y") ? ",Y" : "");
+}
+
+function _lintSameOperand(a, b) {
+  return a.mode === b.mode && a.bytes.length === b.bytes.length && a.bytes.slice(1).every((v, i) => v === b.bytes[i + 1]);
+}
+
+function _lintAsm(seq) {
+  const hints = [];
+  const at = (i) => (seq[i] && !seq[i].barrier ? seq[i] : null);
+  const follows = (i, n) => {
+    for (let k = 1; k <= n; k++) if (!at(i + k) || at(i + k).labelled) return false;
+    return true;
+  };
+  for (let i = 0; i < seq.length; i++) {
+    const a = at(i);
+    if (!a) continue;
+    const b = follows(i, 1) ? at(i + 1) : null;
+    const push = (key, values = {}) => hints.push({ srcLine: a.srcLine, key, values });
+    if (a.mnem === "JMP" && a.mode === "absolute" && (a.bytes[1] | (a.bytes[2] << 8)) === a.address + 3) push("lintJmpNext");
+    if (a.mode === "relative" && a.bytes[1] === 0) push("lintBranchNext");
+    if (!b) continue;
+    if (a.mnem === "JSR" && b.mnem === "RTS") push("lintTailCall", { op: _lintOperandText(a) });
+    const zeroCmp = b.mode === "immediate" && b.bytes[1] === 0;
+    if (zeroCmp && ((b.mnem === "CMP" && _LINT_SETS_A.has(a.mnem)) || (b.mnem === "CPX" && _LINT_SETS_X.has(a.mnem)) || (b.mnem === "CPY" && _LINT_SETS_Y.has(a.mnem)))) {
+      hints.push({ srcLine: b.srcLine, key: "lintZeroCompare", values: { op: b.mnem } });
+    }
+    const reg = { LDA: "A", LDX: "X", LDY: "Y" }[b.mnem];
+    if (reg && _lintSameOperand(a, b) && (a.mnem === b.mnem || a.mnem === "ST" + reg)) {
+      hints.push({ srcLine: b.srcLine, key: a.mnem === b.mnem ? "lintDuplicateLoad" : "lintReload", values: { reg } });
+    }
+    if (a.mnem === "PHA" && b.mnem === "PLA") push("lintPushPull");
+    if (a.mnem === "LDA" && _LINT_MEM_MODES.has(a.mode) && follows(i, 3)) {
+      const c = at(i + 2), d = at(i + 3);
+      const one = c.mode === "immediate" && c.bytes[1] === 1;
+      if (one && d.mnem === "STA" && _lintSameOperand(a, d)) {
+        if (b.mnem === "CLC" && c.mnem === "ADC") push("lintIncIdiom", { op: "INC " + _lintOperandText(a) });
+        if (b.mnem === "SEC" && c.mnem === "SBC") push("lintIncIdiom", { op: "DEC " + _lintOperandText(a) });
+      }
+    }
+  }
+  return hints;
+}
 
 function _disasmBytes(bytes, baseAddr) {
   const result = [];
@@ -18477,6 +19046,7 @@ async function _migrateProjectSnapshotHistory(tab, oldSnapshotPath) {
 function markTabDirty() {
   const tab = tabs?.find(t => t.id === activeTabId);
   if (!tab) return;
+  _vmScheduleAutoReload();
   _historyScheduleObserve();
   _scheduleProjectSnapshot(tab.id);
   if (tab.dirty) return;
@@ -19222,6 +19792,12 @@ function _updateTabScrollButtons() {
   btnLeft.addEventListener("click",  () => { tabBar.scrollBy({ left: -120, behavior: "smooth" }); setTimeout(_updateTabScrollButtons, 150); });
   btnRight.addEventListener("click", () => { tabBar.scrollBy({ left:  120, behavior: "smooth" }); setTimeout(_updateTabScrollButtons, 150); });
 
+  tabBar.addEventListener("wheel", (e) => {
+    if (e.ctrlKey) return;
+    e.preventDefault();
+    const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+    tabBar.scrollLeft += e.deltaMode === 1 ? d * 40 : d;
+  }, { passive: false });
   tabBar.addEventListener("scroll", _updateTabScrollButtons, { passive: true });
   new ResizeObserver(_updateTabScrollButtons).observe(tabBar);
 }());
@@ -28190,6 +28766,131 @@ function renderMemoryStrip(precomputedUsage) {
   memoryStrip.innerHTML = markup;
 }
 
+let _zpPanelOpen = false;
+let _zpSelected = -1;
+
+function _zpCollect(layout) {
+  const labels = new Map();
+  layout.lines.forEach((line) => addLayoutLabels(labels, line));
+  labels._anonAddrs = _collectAnonLabels(layout);
+  const entries = [];
+  let owner = "";
+  layout.lines.forEach((line, index) => {
+    const block = line.block || {};
+    if (line.conditionallySkipped) return;
+    if (block.isLabel && block.labelName && !block.labelName.startsWith(".")) owner = /^sid_/i.test(block.labelName) ? "sid" : block.labelName;
+    const mnem = String(block.mnemonic || "").toUpperCase();
+    if (!opcodeMap[mnem]) return;
+    const result = compileLineBytes(line, labels);
+    if (!result.ok || !result.bytes?.length) return;
+    entries.push({ bytes: result.bytes, srcLine: block._srcLine, blockId: block.id, index, owner });
+  });
+  return _zpAnalyze(entries);
+}
+
+function _zpGotoRef(ref) {
+  if (expertMode && ref.srcLine !== undefined) _expertGotoSourceLine(ref.srcLine);
+  else if (ref.blockId) selectBlockInAsm(ref.blockId);
+}
+
+function _zpRenderDetail(box, zp) {
+  box.innerHTML = "";
+  const hex2 = (a) => "$" + a.toString(16).toUpperCase().padStart(2, "0");
+  if (_zpSelected < 0 || !zp.map.has(_zpSelected)) {
+    if (zp.conflicts.length) {
+      const p = document.createElement("p");
+      p.className = "error-text";
+      p.textContent = t("zpConflictSid") + ": " + zp.conflicts.map(hex2).join(", ");
+      box.appendChild(p);
+    }
+    const hint = document.createElement("small");
+    hint.textContent = t("zpHint");
+    box.appendChild(hint);
+    return;
+  }
+  const rec = zp.map.get(_zpSelected);
+  const area = _zpArea(_zpSelected);
+  const kinds = [rec.read && t("zpRead"), rec.write && t("zpWrite"), rec.ptr && t("zpPointer")].filter(Boolean).join(", ");
+  const head = document.createElement("p");
+  head.innerHTML = `<strong>${hex2(_zpSelected)}</strong> · ${escapeHtmlAttribute(t("zpArea_" + area))} · ${escapeHtmlAttribute(kinds)}`;
+  box.appendChild(head);
+  const notes = [];
+  if (zp.conflicts.includes(_zpSelected)) notes.push(["error-text", t("zpConflictSid")]);
+  if (rec.write && area === "kernal") notes.push(["zp-caution", t("zpCautionKernal")]);
+  if (rec.write && area === "basic") notes.push(["zp-caution", t("zpCautionBasic")]);
+  notes.forEach(([cls, text]) => {
+    const n = document.createElement("small");
+    n.className = cls;
+    n.textContent = text;
+    box.appendChild(n);
+  });
+  const refs = document.createElement("div");
+  refs.className = "zp-refs";
+  rec.refs.forEach((ref) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "zp-ref";
+    b.textContent = ref.srcLine !== undefined && expertMode ? tf("zpLine", { n: ref.srcLine + 1 }) : "#" + (ref.index + 1);
+    b.addEventListener("click", () => _zpGotoRef(ref));
+    refs.appendChild(b);
+  });
+  box.appendChild(refs);
+}
+
+function _zpRenderPanel(layout) {
+  if (ultimateBasicMode || !layout?.lines?.length) return null;
+  const zp = _zpCollect(layout);
+  if (!zp.map.size) return null;
+  const node = document.createElement("details");
+  node.className = "memory-segment zp-panel";
+  node.open = _zpPanelOpen || zp.conflicts.length > 0;
+  node.addEventListener("toggle", () => { _zpPanelOpen = node.open; });
+  node.innerHTML = `
+    <summary class="memory-meta is-ram${zp.conflicts.length ? " is-overlap" : ""}">
+      <span class="memory-title-group">
+        <strong>${t("zpTitle")}</strong>
+        <small>$00 - $FF</small>
+      </span>
+      <span class="memory-summary-side">
+        ${zp.conflicts.length ? `<small class="error-text">${tf("zpConflictCount", { n: zp.conflicts.length })}</small>` : ""}
+        <small>${tf("zpUsedCount", { n: zp.map.size })}</small>
+        <span class="memory-toggle-icon" aria-hidden="true"></span>
+      </span>
+    </summary>
+    <div class="memory-content">
+      <div class="zp-grid"></div>
+      <div class="zp-legend"></div>
+      <div class="zp-detail"></div>
+    </div>`;
+  const grid = node.querySelector(".zp-grid");
+  const detail = node.querySelector(".zp-detail");
+  for (let addr = 0; addr < 256; addr++) {
+    const rec = zp.map.get(addr);
+    const cell = document.createElement("button");
+    cell.type = "button";
+    cell.className = `zp-cell zp-area-${_zpArea(addr)}`
+      + (zp.hasSid && _ZP_SID_PLAYER.has(addr) ? " zp-sid" : "")
+      + (rec ? " zp-used" + (rec.write ? " zp-w" : "") + (rec.ptr ? " zp-p" : "") : "")
+      + (zp.conflicts.includes(addr) ? " zp-conflict" : "")
+      + (addr === _zpSelected ? " zp-selected" : "");
+    cell.textContent = addr.toString(16).toUpperCase().padStart(2, "0");
+    cell.setAttribute("aria-label", "$" + cell.textContent);
+    cell.addEventListener("click", () => {
+      _zpSelected = rec && _zpSelected !== addr ? addr : -1;
+      grid.querySelectorAll(".zp-selected").forEach((c) => c.classList.remove("zp-selected"));
+      if (_zpSelected >= 0) cell.classList.add("zp-selected");
+      _zpRenderDetail(detail, zp);
+    });
+    grid.appendChild(cell);
+  }
+  node.querySelector(".zp-legend").innerHTML = ["cpu", "free", "basic", "kernal"]
+    .map((a) => `<span class="zp-key zp-area-${a}">${escapeHtmlAttribute(t("zpArea_" + a))}</span>`).join("")
+    + `<span class="zp-key zp-used">${escapeHtmlAttribute(t("zpRead"))}</span><span class="zp-key zp-used zp-w">${escapeHtmlAttribute(t("zpWrite"))}</span><span class="zp-key zp-used zp-p">${escapeHtmlAttribute(t("zpPointer"))}</span>`
+    + (zp.hasSid ? `<span class="zp-key zp-sid">${escapeHtmlAttribute(t("zpSidPlayer"))}</span>` : "");
+  _zpRenderDetail(detail, zp);
+  return node;
+}
+
 function renderMemoryMap(precomputedUsage) {
   const usage = precomputedUsage || getMemoryUsage();
   const layout = usage.layout;
@@ -28234,6 +28935,11 @@ function renderMemoryMap(precomputedUsage) {
       </div>`;
     memoryMap.appendChild(overlapNode);
   }
+
+  try {
+    const zpNode = _zpRenderPanel(layout);
+    if (zpNode) memoryMap.appendChild(zpNode);
+  } catch (_) {}
 
   memorySegments.forEach((segment) => {
     const segmentNode = document.createElement("details");
@@ -41393,6 +42099,50 @@ function _spExportText() {
   });
   return out.replace(/\s+$/, "");
 }
+/* UltimateBasic export: minden frame egy `sprdef k` (a UB a sprdef-et 64 bájtra igazítja és a $07F8+k
+ * pointert állítja); induláskor a pointereket az anim[] tömb menti, utána csak a 0. sprite látszik, és a
+ * főciklus raszterhez szinkronizálva lépteti a frame-eket (a sprite szerkesztő FPS-ével). Max. 8 frame
+ * (ennyi sprdef id van); metasprite / hires réteg esetén a bal felső sprite alapja kerül ki. */
+function _spExportUb(frames = _spFrames, opts = {}) {
+  const multi = opts.multi ?? _spMulti;
+  const col = opts.col ?? _spCol;
+  const fps = opts.fps ?? _spFps;
+  const expX = opts.expX ?? _spExpX, expY = opts.expY ?? _spExpY;
+  const bytesOf = opts.bytesOf ?? ((fr) => _spFrameBytes(fr, 0, 0, multi));
+  const list = (frames || []).slice(0, 8);
+  if (!list.length) return "";
+  const n = list.length;
+  const lines = [
+    "# Sprite Editor - " + n + " frame" + (n > 1 ? "s" : "") + (multi ? ", multicolor" : "") + " (sprite 0)",
+  ];
+  if ((frames || []).length > 8) lines.push("# only the first 8 frames: sprdef ids are 0..7");
+  if (opts.partial) lines.push("# metasprite / hires layer: the base of the top-left sprite is exported");
+  list.forEach((fr, k) => {
+    const b = bytesOf(fr);
+    lines.push("", "sprdef " + k);
+    for (let r = 0; r < 21; r++) lines.push("  " + b[r * 3] + "," + b[r * 3 + 1] + "," + b[r * 3 + 2]);
+    lines.push("end");
+  });
+  lines.push("");
+  if (n > 1) {
+    lines.push("const ANIM_SPEED = " + Math.max(1, Math.round(50 / Math.max(1, fps))) + "    # raster frames per animation step");
+    // kiírva, nem ciklusban: a UB a peek(konstans + byte változó) összeget 8 biten számolja
+    lines.push("var anim = array(" + n + ")");
+    for (let k = 0; k < n; k++) lines.push("anim[" + k + "] = peek($" + (0x07F8 + k).toString(16).toUpperCase().padStart(4, "0") + ")");
+    lines.push("var frame = 0", "var tick = 0");
+  }
+  lines.push("sprite 0, 172, 140", "sprite color 0, " + col.sprite);
+  if (multi) lines.push("poke $D01C, 1", "poke $D025, " + col.mc1, "poke $D026, " + col.mc2);
+  if (expX) lines.push("poke $D01D, 1");
+  if (expY) lines.push("poke $D017, 1");
+  lines.push("sprite on 0");
+  if (n > 1) {
+    lines.push("", "loop", "  wait raster 255", "  tick = tick + 1", "  if tick >= ANIM_SPEED then", "    tick = 0",
+      "    frame = frame + 1", "    if frame >= " + n + " then frame = 0 end", "    poke $07F8, anim[frame]", "  end", "end");
+  }
+  return lines.join("\n");
+}
+
 /* Current frame as comma-separated hex bytes ($xx, $xx, …) — 63 sprite bytes. */
 function _spHexCSV() {
   const hex = function(bytes) {
@@ -41998,6 +42748,9 @@ function setupSpriteEditor() {
   onInput("se-zoom", function(e){ _spZoom = parseInt(e.target.value,10); _spRender(); });
 
   onClick("se-copy-data", function() { navigator.clipboard.writeText(_spHexCSV()).catch(function(){}); });
+  onClick("se-export-ub", function() {
+    _ubInsertOrCopy(_spExportUb(_spFrames, { partial: _spCols > 1 || _spRows > 1 || _spOverlay }));
+  });
   onClick("se-copy-hitbox", function() { navigator.clipboard.writeText(_spHitboxAsm()).catch(function(){}); });
   onClick("se-rotr", function(){ _spPushUndo(); _spRotate(true); _spRender(); });
   onClick("se-rotl", function(){ _spPushUndo(); _spRotate(false); _spRender(); });
@@ -44296,7 +45049,7 @@ function _webSidInit() {
   return _webSidInitPromise;
 }
 
-function _buildPsidBytes(prgBytes, initAddr, playAddr, name) {
+function _buildPsidBytes(prgBytes, initAddr, playAddr, name, released = "2026") {
   const HEADER_LEN = 0x7C;
   const out = new Uint8Array(HEADER_LEN + prgBytes.length);
   const wStr = (off, str, maxLen) => {
@@ -44320,7 +45073,7 @@ function _buildPsidBytes(prgBytes, initAddr, playAddr, name) {
   out[18]=0x00; out[19]=0x00; out[20]=0x00; out[21]=0x00;
   wStr(0x16, name || "Visual Assembler preview", 32);
   wStr(0x36, "Visual Assembler", 32);
-  wStr(0x56, "2026", 32);
+  wStr(0x56, released, 32);
   // Flags: bit2..3 = PAL (01), bit4..5 = 6581 (01) → 0x14
   out[0x76]=0x00; out[0x77]=0x14;
   // startPage, pageLength, secondSIDAddress = 0
@@ -47543,6 +48296,15 @@ function setupSidEditor() {
     if (exportAsmToBlocks(_sidExportAsmPlayable()) > 0) { _sidStop(); dialog.close(); }
   });
   onId("sid-save-bin", "click", function(){ _saveBinFile(_sidSerialize(), "sound.bin"); });
+  onId("sid-export-psid", "click", function(){
+    let prg = _buildSidPreviewPrg();
+    if (!prg || prg.length < 3) { showViceToast?.(t("sidExportPsidFailed"), true); return; }
+    // a build $0801-től tölt (BASIC stub + kitöltés); a .sid-be csak a $C000-s lejátszó kell
+    const load = prg[0] | (prg[1] << 8);
+    if (load < 0xC000 && prg.length > 2 + 0xC000 - load) prg = Uint8Array.from([0x00, 0xC0, ...prg.slice(2 + 0xC000 - load)]);
+    // a lejátszó a sid_init-ben saját IRQ-t telepít ($C000), ezért playAddress = 0
+    _saveBinFile(_buildPsidBytes(prg, 0xC000, 0x0000, "VA SID tune", String(new Date().getFullYear())), "tune.sid");
+  });
   const sidBinFile = document.getElementById("sid-bin-file");
   onId("sid-load-bin", "click", function(){ if (sidBinFile) sidBinFile.click(); });
   const sidSngFile = document.getElementById("sid-sng-file");
@@ -48636,10 +49398,939 @@ function _cgWireDialog() {
 // Toolbar button wiring — attach once after DOM ready
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("curve-gen-btn")?.addEventListener("click", _cgOpenDialog);
+  setupTableGenerator();
+  setupExpertLint();
+  setupViceMonitor();
+  setupMemoryFloat();
+  setupDialogStacking();
   setupBugReport();
   setupSupport();
   setupVersionControl();
 });
+
+/* ── Táblagenerátor ─────────────────────────────────────────────────────────
+ * Gyakori 6502 keresőtáblák (#table-gen-dialog, toolbar #table-gen-btn): képernyő- és bitmap-sorcímek,
+ * pixelmaszk, szorzás/osztás konstanssal, negyed-négyzet (gyors szorzás), reciprok, log2/exp, bittükrözés,
+ * saját kifejezés. A generálás DOM-mentes (_tgGenerate / _tgFormatAsm / _tgFormatUb / _tgToBin,
+ * tests/table-generator.test.js); 255 fölötti érték → lo/hi táblapár vagy .word. */
+const _TG_PARAMS = {
+  base:      { key: "tgParamBase", hex: true, min: 0, max: 0xFFFF },
+  count:     { key: "tgParamCount", min: 1, max: 4096 },
+  stride:    { key: "tgParamStride", min: 1, max: 1024 },
+  factor:    { key: "tgParamFactor", min: 0, max: 65535 },
+  offset:    { key: "tgParamOffset", min: -65535, max: 65535 },
+  numerator: { key: "tgParamNumerator", min: 1, max: 16777215 },
+  divisor:   { key: "tgParamDivisor", min: 1, max: 65535 },
+  scale:     { key: "tgParamScale", min: 1, max: 4096 },
+  start:     { key: "tgParamStart", min: -65535, max: 65535 },
+  value:     { key: "tgParamValue", min: 0, max: 255 },
+  src:       { key: "tgParamSrc", hex: true, min: 0, max: 0xFFFF },
+  dst:       { key: "tgParamDst", hex: true, min: 0, max: 0xFFFF },
+  perIter:   { key: "tgParamPerIter", min: 0, max: 64 },
+  mc:        { key: "tgParamMc", bool: true },
+  invert:    { key: "tgParamInvert", bool: true },
+};
+
+const _tgRange = (n, fn) => Array.from({ length: Math.max(0, n | 0) }, (_, i) => fn(i));
+
+const _TG_TYPES = {
+  screenRows: {
+    label: "screen_row", params: { base: 0x0400, count: 25, stride: 40 },
+    gen: (p) => _tgRange(p.count, (i) => p.base + i * p.stride),
+  },
+  bitmapRows: {
+    label: "bitmap_row", params: { base: 0x2000, count: 200 },
+    gen: (p) => _tgRange(p.count, (y) => p.base + (y >> 3) * 320 + (y & 7)),
+  },
+  bitmapCols: {
+    label: "bitmap_col", params: { count: 320, mc: 0 },
+    gen: (p) => _tgRange(p.count, (x) => (p.mc ? x >> 2 : x >> 3) * 8),
+  },
+  pixelMask: {
+    label: "pixel_mask", params: { count: 8, mc: 0, invert: 0 },
+    gen: (p) => _tgRange(p.count, (x) => {
+      const m = p.mc ? 0xC0 >> ((x & 3) * 2) : 0x80 >> (x & 7);
+      return p.invert ? ~m & 0xFF : m;
+    }),
+  },
+  mulConst: {
+    label: "mul40", params: { factor: 40, count: 256 },
+    gen: (p) => _tgRange(p.count, (x) => x * p.factor),
+  },
+  quarterSquare: {
+    label: "sqr", params: { count: 512, offset: 0 },
+    gen: (p) => _tgRange(p.count, (x) => Math.floor((x - p.offset) * (x - p.offset) / 4)),
+  },
+  reciprocal: {
+    label: "recip", params: { numerator: 65536, count: 256 },
+    gen: (p) => _tgRange(p.count, (x) => x ? Math.floor(p.numerator / x) : 0xFFFF),
+  },
+  divConst: {
+    label: "div3", params: { divisor: 3, count: 256 },
+    gen: (p) => _tgRange(p.count, (x) => Math.floor(x / p.divisor)),
+  },
+  modConst: {
+    label: "mod3", params: { divisor: 3, count: 256 },
+    gen: (p) => _tgRange(p.count, (x) => x % p.divisor),
+  },
+  log2: {
+    label: "log2tab", params: { scale: 32, count: 256 },
+    gen: (p) => _tgRange(p.count, (x) => x ? Math.round(Math.log2(x) * p.scale) : 0),
+  },
+  exp2: {
+    label: "exp2tab", params: { scale: 32, count: 256 },
+    gen: (p) => _tgRange(p.count, (x) => Math.round(2 ** (x / p.scale))),
+  },
+  bitReverse: {
+    label: "flip", params: { count: 256, mc: 0 },
+    gen: (p) => _tgRange(p.count, (v) => {
+      let r = 0;
+      if (p.mc) for (let b = 0; b < 4; b++) r |= ((v >> (b * 2)) & 3) << ((3 - b) * 2);
+      else for (let b = 0; b < 8; b++) r |= ((v >> b) & 1) << (7 - b);
+      return r;
+    }),
+  },
+  custom: {
+    label: "table", params: { start: 0, count: 256 }, expr: true,
+    gen: (p, expr) => _tgRange(p.count, (k) => _tgEvalExpr(expr, p.start + k, k, p.count)),
+  },
+  fillCode: {
+    label: "fill_screen", params: { base: 0x0400, count: 1000, value: 32, perIter: 4 }, code: "fill",
+  },
+  copyCode: {
+    label: "copy_block", params: { src: 0x0400, dst: 0x0428, count: 960, perIter: 4 }, code: "copy",
+  },
+};
+
+// Speedcode: kitöltés / másolás szubrutinként. perIter = 0 → teljes unroll (abs címzés), különben
+// X-ciklus: a terület perIter darab ≤256 bájtos szeletre bomlik, iterációnként szeletenként egy tárolás.
+// Az utolsó szelet visszacsúszik (átfed), ha a darabszám nem osztható — kitöltésnél / másolásnál ártalmatlan.
+function _tgSpeedcode(kind, p, label) {
+  const hex2 = (v) => "$" + (v & 0xFF).toString(16).toUpperCase().padStart(2, "0");
+  const hex4 = (v) => "$" + (v & 0xFFFF).toString(16).toUpperCase().padStart(4, "0");
+  const n = Math.max(1, p.count | 0);
+  const lines = [label + ":"];
+  let size = 1, cycles = 6;
+  if (kind === "fill") { lines.push("    LDA #" + hex2(p.value)); size += 2; cycles += 2; }
+  if (!p.perIter) {
+    for (let i = 0; i < n; i++) {
+      if (kind === "fill") { lines.push("    STA " + hex4(p.base + i)); size += 3; cycles += 4; }
+      else { lines.push("    LDA " + hex4(p.src + i), "    STA " + hex4(p.dst + i)); size += 6; cycles += 8; }
+    }
+  } else {
+    const k = Math.max(p.perIter | 0, Math.ceil(n / 256));
+    const chunk = Math.ceil(n / k);
+    const offs = _tgRange(k, (j) => Math.min(j * chunk, n - chunk));
+    const loop = label + "_loop";
+    lines.push("    LDX #$00", loop + ":");
+    size += 2; cycles += 2;
+    let perIter = 2 + 3;
+    offs.forEach((o) => {
+      if (kind === "fill") { lines.push("    STA " + hex4(p.base + o) + ",X"); size += 3; perIter += 5; }
+      else { lines.push("    LDA " + hex4(p.src + o) + ",X", "    STA " + hex4(p.dst + o) + ",X"); size += 6; perIter += 9; }
+    });
+    lines.push("    INX");
+    if (chunk < 256) { lines.push("    CPX #" + hex2(chunk)); size += 2; perIter += 2; }
+    lines.push("    BNE " + loop);
+    size += 3;
+    cycles += chunk * perIter - 1;
+  }
+  lines.push("    RTS");
+  return { lines, size, cycles };
+}
+
+// Saját kifejezés: i = index (start-tól), k = 0-tól, n = darabszám; $hex, %bin, sin/cos/… a biztonságos kiértékelőn át.
+function _tgEvalExpr(expr, i, k, n) {
+  const src = String(expr || "0")
+    .replace(/\$([0-9A-Fa-f]+)/g, "0x$1")
+    .replace(/%([01]+)/g, "0b$1")
+    .replace(/\bPI\b/gi, String(Math.PI))
+    .replace(/\b(sin|cos|abs|min|max|round|floor|ceil)\s*\(/gi, (_, f) => "Math." + f.toLowerCase() + "(")
+    .replace(/\b([ikn])\b/g, (_, v) => "(" + (v === "i" ? i : v === "k" ? k : n) + ")");
+  const v = Number(_evalJsExprSafe(src));
+  if (!Number.isFinite(v)) throw new Error("NaN");
+  return Math.trunc(v);
+}
+
+// {values, word, min, max, error}: negatív érték kettes komplemens; -128..255 → bájt, különben 16 bit.
+function _tgGenerate(state) {
+  const type = _TG_TYPES[state.type] || _TG_TYPES.screenRows;
+  const p = { ...type.params, ...(state.params || {}) };
+  if (type.code) {
+    const code = _tgSpeedcode(type.code, p, _tgLabel(state));
+    return { values: [], word: false, min: 0, max: 0, error: false, code };
+  }
+  let raw;
+  try {
+    raw = type.gen(p, state.expr);
+  } catch (_) {
+    return { values: [], word: false, min: 0, max: 0, error: true };
+  }
+  let min = Infinity, max = -Infinity;
+  raw.forEach((v) => { if (v < min) min = v; if (v > max) max = v; });
+  const word = raw.length > 0 && (max > 255 || min < -128);
+  const mask = word ? 0xFFFF : 0xFF;
+  const values = raw.map((v) => Math.max(-65536, Math.min(65535, v)) & mask);
+  return { values, word, min: raw.length ? min : 0, max: raw.length ? max : 0, error: false };
+}
+
+function _tgLabel(state) {
+  return String(state.label || _TG_TYPES[state.type]?.label || "table").replace(/[^A-Za-z0-9_]/g, "_").replace(/^(\d)/, "_$1");
+}
+
+function _tgCell(v, word, hex) {
+  return hex ? "$" + v.toString(16).toUpperCase().padStart(word ? 4 : 2, "0") : String(v);
+}
+
+function _tgFormatAsm(state, gen) {
+  if (gen.code) {
+    return ["; Table Generator - " + state.type + "  (" + gen.code.size + " bytes, ~" + gen.code.cycles + " cycles)",
+      ...(state.align ? [".align 256"] : []), ...gen.code.lines].join("\n");
+  }
+  if (!gen.values.length) return "";
+  const label = _tgLabel(state);
+  const per = Math.max(1, state.perLine | 0);
+  const hex = state.base !== "dec";
+  const split = gen.word && state.wordMode !== "word";
+  const n = gen.values.length;
+  const lines = [
+    "; Table Generator - " + state.type + "  (" + n + " entries, " + (gen.word ? n * 2 : n) + " bytes, " + gen.min + ".." + gen.max + ")",
+  ];
+  if (split) lines.push("; " + label + "_lo[X] / " + label + "_hi[X] = low / high byte of entry X");
+  const emit = (name, arr, directive, word) => {
+    if (state.align) lines.push(".align 256");
+    lines.push(name + ":");
+    for (let i = 0; i < arr.length; i += per) {
+      lines.push("    " + directive + " " + arr.slice(i, i + per).map((v) => _tgCell(v, word, hex)).join(", "));
+    }
+  };
+  if (split) {
+    emit(label + "_lo", gen.values.map((v) => v & 0xFF), ".byte", false);
+    emit(label + "_hi", gen.values.map((v) => v >> 8), ".byte", false);
+  } else {
+    emit(label, gen.values, gen.word ? ".word" : ".byte", gen.word);
+  }
+  return lines.join("\n");
+}
+
+function _tgFormatUb(state, gen) {
+  if (!gen.values?.length) return "";
+  const name = _tgLabel(state).toLowerCase();
+  const per = Math.max(1, state.perLine | 0);
+  const hex = state.base !== "dec";
+  const n = gen.values.length;
+  const lines = [
+    "# Table Generator - " + state.type + "   Usage: " + name + "[i], i = 0.." + (n - 1),
+    "var " + name + " = " + (gen.word ? "array_word(" : "array(") + n + ")",
+  ];
+  for (let i = 0; i < n; i += per) {
+    lines.push("data " + name + ": " + gen.values.slice(i, i + per).map((v) => _tgCell(v, gen.word, hex)).join(", "));
+  }
+  return lines.join("\n");
+}
+
+// .bin: bájttábla, vagy 16 bitnél az összes lo bájt, utána az összes hi (mint a lo/hi táblapár).
+function _tgToBin(gen) {
+  const n = gen.values.length;
+  if (!gen.word) return Uint8Array.from(gen.values);
+  const out = new Uint8Array(n * 2);
+  gen.values.forEach((v, i) => { out[i] = v & 0xFF; out[n + i] = v >> 8; });
+  return out;
+}
+
+const _TG_STATE = { type: "screenRows", params: {}, expr: "128 + 127 * sin(i * 2 * PI / n)", label: "", base: "hex", perLine: 16, wordMode: "split", align: false };
+const _TG_INSERT_KEY = "table-generator";
+
+function _tgCurrent() {
+  return _tgGenerate(_TG_STATE);
+}
+
+function _tgRenderParams() {
+  const host = document.getElementById("tg-params");
+  const type = _TG_TYPES[_TG_STATE.type];
+  if (!host || !type) return;
+  host.innerHTML = "";
+  const p = { ...type.params, ..._TG_STATE.params };
+  Object.keys(type.params).forEach((name) => {
+    const meta = _TG_PARAMS[name];
+    const field = document.createElement("label");
+    if (meta.bool) {
+      field.className = "menu-checkbox-label cg-combine-label";
+      const box = document.createElement("input");
+      box.type = "checkbox";
+      box.checked = !!p[name];
+      box.addEventListener("change", () => { _TG_STATE.params[name] = box.checked ? 1 : 0; _tgRefresh(); });
+      const span = document.createElement("span");
+      span.textContent = t(meta.key);
+      field.append(box, span);
+    } else {
+      field.className = "cg-field";
+      const span = document.createElement("span");
+      span.className = "cg-lbl";
+      span.textContent = t(meta.key);
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "cg-text-in";
+      input.spellcheck = false;
+      input.value = meta.hex ? "$" + p[name].toString(16).toUpperCase().padStart(4, "0") : String(p[name]);
+      input.addEventListener("input", () => {
+        const text = input.value.trim();
+        const v = /^\$[0-9a-f]+$/i.test(text) ? parseInt(text.slice(1), 16) : /^-?\d+$/.test(text) ? parseInt(text, 10) : NaN;
+        const ok = Number.isFinite(v) && v >= meta.min && v <= meta.max;
+        input.classList.toggle("tg-invalid", !ok);
+        if (ok) { _TG_STATE.params[name] = v; _tgRefresh(); }
+      });
+      field.append(span, input);
+    }
+    host.appendChild(field);
+  });
+  if (type.expr) {
+    const field = document.createElement("label");
+    field.className = "cg-field";
+    const span = document.createElement("span");
+    span.className = "cg-lbl";
+    span.textContent = t("tgParamExpr");
+    const input = document.createElement("input");
+    input.type = "text";
+    input.className = "cg-text-in";
+    input.spellcheck = false;
+    input.value = _TG_STATE.expr;
+    input.addEventListener("input", () => { _TG_STATE.expr = input.value; _tgRefresh(); });
+    field.append(span, input);
+    host.appendChild(field);
+  }
+}
+
+function _tgRefresh() {
+  const gen = _tgCurrent();
+  const asm = _tgFormatAsm(_TG_STATE, gen);
+  const preview = document.getElementById("tg-preview");
+  if (preview) {
+    const lines = asm.split("\n");
+    if (gen.error) preview.textContent = t("tgExprError");
+    else preview.innerHTML = lines.slice(0, 40).map(_expertHighlightLine).join("\n") + (lines.length > 40 ? "\n…" : "");
+    preview.classList.toggle("tg-preview--error", gen.error);
+  }
+  const meta = document.getElementById("tg-meta");
+  if (meta) {
+    meta.textContent = gen.error ? "" : gen.code ? tf("tgMetaCode", {
+      bytes: gen.code.size,
+      cycles: gen.code.cycles,
+      lines: (gen.code.cycles / _PAL_CYCLES_PER_LINE).toFixed(1),
+    }) : tf("tgMeta", {
+      n: gen.values.length,
+      bytes: gen.word ? gen.values.length * 2 : gen.values.length,
+      min: gen.min,
+      max: gen.max,
+    });
+  }
+  const desc = document.getElementById("tg-desc");
+  if (desc) desc.textContent = t("tgDesc_" + _TG_STATE.type);
+  const wordField = document.getElementById("tg-word-field");
+  if (wordField) wordField.hidden = !gen.word;
+  ["tg-base", "tg-perline"].forEach((id) => {
+    const field = document.getElementById(id)?.closest(".cg-field");
+    if (field) field.hidden = !!gen.code;
+  });
+}
+
+function _tgSelectType(type) {
+  _TG_STATE.type = type;
+  _TG_STATE.params = {};
+  _TG_STATE.label = _TG_TYPES[type].label;
+  const label = document.getElementById("tg-label");
+  if (label) label.value = _TG_STATE.label;
+  _tgRenderParams();
+  _tgRefresh();
+}
+
+function _tgFillTypeSelect() {
+  const sel = document.getElementById("tg-type");
+  if (!sel) return;
+  sel.innerHTML = "";
+  Object.keys(_TG_TYPES).forEach((type) => {
+    const opt = document.createElement("option");
+    opt.value = type;
+    opt.textContent = t("tgType_" + type);
+    sel.appendChild(opt);
+  });
+  sel.value = _TG_STATE.type;
+}
+
+function _tgOpenDialog() {
+  const dlg = document.getElementById("table-gen-dialog");
+  if (!dlg) return;
+  _tgFillTypeSelect();
+  if (!_TG_STATE.label) _tgSelectType(_TG_STATE.type);
+  else { _tgRenderParams(); _tgRefresh(); }
+  dlg._applyPosition?.();
+  try { dlg.showModal(); } catch (_) { dlg.show(); }
+}
+
+function _tgCloseDialog() {
+  const dlg = document.getElementById("table-gen-dialog");
+  if (dlg?.open) dlg.close();
+}
+
+function setupTableGenerator() {
+  document.getElementById("table-gen-btn")?.addEventListener("click", _tgOpenDialog);
+  document.getElementById("tg-close")?.addEventListener("click", _tgCloseDialog);
+  document.getElementById("tg-type")?.addEventListener("change", (e) => _tgSelectType(e.target.value));
+  document.getElementById("tg-label")?.addEventListener("input", (e) => { _TG_STATE.label = e.target.value; _tgRefresh(); });
+  document.getElementById("tg-base")?.addEventListener("change", (e) => { _TG_STATE.base = e.target.value; _tgRefresh(); });
+  document.getElementById("tg-perline")?.addEventListener("change", (e) => { _TG_STATE.perLine = parseInt(e.target.value, 10) || 16; _tgRefresh(); });
+  document.getElementById("tg-word")?.addEventListener("change", (e) => { _TG_STATE.wordMode = e.target.value; _tgRefresh(); });
+  document.getElementById("tg-align")?.addEventListener("change", (e) => { _TG_STATE.align = e.target.checked; _tgRefresh(); });
+  document.getElementById("tg-copy")?.addEventListener("click", () => {
+    const txt = _tgFormatAsm(_TG_STATE, _tgCurrent());
+    if (!txt) { showViceToast?.(t("cgNothingToInsert"), true); return; }
+    navigator.clipboard.writeText(txt).then(() => showViceToast?.(t("copied"))).catch(() => showViceToast?.(t("copyFailed"), true));
+  });
+  document.getElementById("tg-insert")?.addEventListener("click", () => {
+    if (_isUltimateBasicEditorActive()) {
+      const gen = _tgCurrent();
+      if (gen.code) { showViceToast?.(t("tgUbTablesOnly"), true); return; }
+      if (_ubInsertOrCopy(_tgFormatUb(_TG_STATE, gen))) _tgCloseDialog();
+      return;
+    }
+    const txt = _tgFormatAsm(_TG_STATE, _tgCurrent());
+    if (!txt) { showViceToast?.(t("cgNothingToInsert"), true); return; }
+    // ugyanazzal a címkével újra beszúrva a korábbi példányt cseréli
+    const key = _TG_INSERT_KEY + ":" + _tgLabel(_TG_STATE);
+    for (let i = program.length - 1; i >= 0; i--) {
+      if (program[i]?._cgSource === key) program.splice(i, 1);
+    }
+    const count = exportAsmToBlocks(txt, key);
+    if (count > 0) { showViceToast?.(tf("cgInserted", { n: count })); _tgCloseDialog(); }
+    else showViceToast?.(t("cgInsertFailed"), true);
+  });
+  document.getElementById("tg-export-ub")?.addEventListener("click", () => {
+    const gen = _tgCurrent();
+    if (gen.code) { showViceToast?.(t("tgUbTablesOnly"), true); return; }
+    if (_ubInsertOrCopy(_tgFormatUb(_TG_STATE, gen))) _tgCloseDialog();
+  });
+  document.getElementById("tg-save-bin")?.addEventListener("click", () => {
+    const gen = _tgCurrent();
+    if (gen.code) { showViceToast?.(t("tgUbTablesOnly"), true); return; }
+    if (!gen.values.length) { showViceToast?.(t("cgNothingToSave"), true); return; }
+    _saveBinFile(_tgToBin(gen), _tgLabel(_TG_STATE) + ".bin");
+  });
+}
+
+/* ── Nem modális ablakok sorrendje ──────────────────────────────────────────
+ * A legutóbb kattintott / megnyitott nem modális <dialog> kerül felülre (z-index 9960 + sorszám), így a
+ * menük és tooltipek (9990+) továbbra is felettük maradnak; a modális ablakok úgyis a top layerben vannak. */
+let _dlgStack = [];
+
+function _dlgIsModal(dlg) {
+  try { return dlg.matches(":modal"); } catch (_) { return false; }
+}
+
+function _dlgRaise(dlg) {
+  _dlgStack = _dlgStack.filter((d) => d !== dlg && d.open && !_dlgIsModal(d));
+  _dlgStack.push(dlg);
+  _dlgStack.forEach((d, i) => { d.style.zIndex = String(9960 + i); });
+}
+
+function setupDialogStacking() {
+  document.addEventListener("pointerdown", (e) => {
+    const dlg = e.target?.closest?.("dialog[open]");
+    if (dlg && !_dlgIsModal(dlg)) _dlgRaise(dlg);
+  }, true);
+  // a toggle nem buborékol, de a document capture-fázisban megkapja
+  document.addEventListener("toggle", (e) => {
+    const dlg = e.target;
+    if (dlg instanceof HTMLDialogElement && dlg.open && !_dlgIsModal(dlg)) _dlgRaise(dlg);
+  }, true);
+}
+
+/* ── Memóriapanel leválasztása ───────────────────────────────────────────────
+ * A .global-memory-content (memóriatérkép + ZP-panel) a SID Player mintájára nem modális, mozgatható,
+ * átméretezhető ablakba (#memory-float-dialog) költözik és vissza; az ütközés-jelvény vele megy.
+ * Állapot és méret: localStorage c64va-memory-float {detached, w, h}. A × / Esc visszadokkol. */
+const _MEM_FLOAT_KEY = "c64va-memory-float";
+let _memDetached = false;
+
+function _memFloatState() {
+  try { return JSON.parse(localStorage.getItem(_MEM_FLOAT_KEY) || "{}") || {}; } catch (_) { return {}; }
+}
+
+function _memFloatSave(patch) {
+  try { localStorage.setItem(_MEM_FLOAT_KEY, JSON.stringify({ ..._memFloatState(), ...patch })); } catch (_) {}
+}
+
+function _memSetDetached(on) {
+  const content = document.querySelector(".global-memory-content");
+  const dlg = document.getElementById("memory-float-dialog");
+  const body = document.getElementById("memory-float-body");
+  const badge = document.getElementById("memory-overlap-badge");
+  if (!content || !dlg || !body || !globalMemoryPanel || on === _memDetached) return;
+  _memDetached = on;
+  if (on) {
+    body.appendChild(content);
+    if (badge) dlg.querySelector(".mem-float-badge-slot")?.appendChild(badge);
+    globalMemoryPanel.classList.add("is-detached");
+    const card = dlg.querySelector(".mem-float-card");
+    const size = _memFloatState();
+    if (card && size.w > 0) card.style.width = size.w + "px";
+    if (card && size.h > 0) card.style.height = size.h + "px";
+    if (!dlg.open) {
+      // modális szerkesztő fölött a nem modális ablak inert lenne (mint a SID Playernél)
+      let overModal = false;
+      try { overModal = !!document.querySelector("dialog[open]:modal"); } catch (_) {}
+      dlg._applyPosition?.();
+      try { if (overModal) dlg.showModal(); else dlg.show(); } catch (_) { try { dlg.show(); } catch (__) {} }
+    }
+  } else {
+    globalMemoryPanel.appendChild(content);
+    if (badge) globalMemoryPanel.querySelector(".global-memory-title-group")?.appendChild(badge);
+    globalMemoryPanel.classList.remove("is-detached");
+    globalMemoryPanel.open = true;
+    if (dlg.open) dlg.close();
+  }
+  _memFloatSave({ detached: on });
+  try { renderMemoryMap(); } catch (_) {}
+}
+
+function setupMemoryFloat() {
+  const dlg = document.getElementById("memory-float-dialog");
+  document.getElementById("memory-undock-btn")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    _memSetDetached(true);
+  });
+  document.getElementById("memory-dock-btn")?.addEventListener("click", () => _memSetDetached(false));
+  document.getElementById("memory-float-close")?.addEventListener("click", () => _memSetDetached(false));
+  dlg?.addEventListener("close", () => { if (_memDetached) _memSetDetached(false); });
+  const card = dlg?.querySelector(".mem-float-card");
+  const grip = dlg?.querySelector(".mem-float-grip");
+  grip?.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // középre transformált ablaknál a sarok mindkét irányba nőne: előbb rögzítjük a bal felső sarkát
+    const r = dlg.getBoundingClientRect();
+    dlg.style.transform = "none";
+    dlg.style.left = r.left + "px";
+    dlg.style.top = r.top + "px";
+    const start = { x: e.clientX, y: e.clientY, w: card.offsetWidth, h: card.offsetHeight, left: r.left, top: r.top };
+    try { grip.setPointerCapture(e.pointerId); } catch (_) {}
+    const move = (ev) => {
+      card.style.width = Math.max(360, Math.min(start.w + ev.clientX - start.x, window.innerWidth - start.left - 8)) + "px";
+      card.style.height = Math.max(180, Math.min(start.h + ev.clientY - start.y, window.innerHeight - start.top - 8)) + "px";
+    };
+    const up = () => {
+      grip.removeEventListener("pointermove", move);
+      grip.removeEventListener("pointerup", up);
+      grip.removeEventListener("pointercancel", up);
+    };
+    grip.addEventListener("pointermove", move);
+    grip.addEventListener("pointerup", up);
+    grip.addEventListener("pointercancel", up);
+  });
+  if (card && typeof ResizeObserver === "function") {
+    let timer = 0;
+    new ResizeObserver(() => {
+      if (!_memDetached) return;
+      clearTimeout(timer);
+      timer = setTimeout(() => _memFloatSave({ w: Math.round(card.offsetWidth), h: Math.round(card.offsetHeight) }), 300);
+    }).observe(card);
+  }
+  // a renderelő függvények let-állapota csak a betöltés végén él (TDZ), ezért késleltetve
+  if (_memFloatState().detached) setTimeout(() => _memSetDetached(true), 0);
+}
+
+/* ── VICE Monitor ───────────────────────────────────────────────────────────
+ * Nem modális ablak (#vice-mon-dialog, toolbar #vice-mon-btn) a futó VICE binary monitorához
+ * (Rust vice_monitor.rs; a launch_vice -binarymonitor-ral indít, Beállítások → #vice-remote-monitor):
+ * hot reload (a lefordított program foglalt tartományai a RAM-ba, opcionálisan PC = SYS cím),
+ * élő watch-lista (címke / $cím [, bájtszám]) és PC-mintavételes profiler rutinonként / soronként.
+ * A címke- és címtérkép a programból a buildhez hasonló programcserével készül (_vmWithProgram). */
+const _VM_WATCH_KEY = "c64va-vice-watch";
+const _VM_POLL_MS = 400;
+let _vmWatch = [];
+let _vmLive = false;
+let _vmPollTimer = 0;
+let _vmPollBusy = false;
+let _vmAuto = false;
+let _vmAutoTimer = 0;
+let _vmProfiling = false;
+let _vmLastValues = new Map();
+
+function _vmApi() {
+  return window.electronAPI?.viceMonRead ? window.electronAPI : null;
+}
+
+// fn(layout) a build által futtatott programmal (Expert módban a szerkesztő szövegéből).
+function _vmWithProgram(fn) {
+  const saved = program;
+  const savedMacros = userMacros;
+  try {
+    if (expertMode) program = _expertGetStartupProgram() || _expertBuildProgram();
+    parseUserMacros();
+    return fn(getProgramLayout());
+  } finally {
+    program = saved;
+    userMacros = savedMacros;
+    try { parseUserMacros(); } catch (_) {}
+  }
+}
+
+function _vmLabelMap(layout) {
+  const labels = new Map();
+  layout.lines.forEach((line) => addLayoutLabels(labels, line));
+  return labels;
+}
+
+// Szimbólumtábla a watch-listához: UB módban az utolsó UB build változói / címkéi / sub-jai / tömbjei,
+// különben a program címkéi. Sosem dob — feloldhatatlan név esetén a sor „ismeretlen” lesz.
+function _vmSymbols() {
+  if (ultimateBasicMode) {
+    const map = new Map();
+    const m = _ubLastResult?.map || {};
+    [...(m.variables || []), ...(m.labels || []), ...(m.subroutines || []), ...(m.arrays || [])].forEach((e) => {
+      if (e?.name && Number.isInteger(e.address)) map.set(e.name, e.address);
+    });
+    return map;
+  }
+  try {
+    return _vmWithProgram(_vmLabelMap);
+  } catch (e) {
+    console.warn("VICE monitor: symbols", e);
+    return new Map();
+  }
+}
+
+// "label", "$D020", "53280", opcionális ", N" bájtszám (1–16); {name, addr, size} vagy null.
+function _vmParseWatch(text, labels) {
+  const m = /^\s*([A-Za-z_.][\w.]*|\$[0-9A-Fa-f]{1,4}|\d{1,5})\s*(?:,\s*(\d{1,2}))?\s*$/.exec(String(text || ""));
+  if (!m) return null;
+  const size = Math.max(1, Math.min(16, parseInt(m[2] || "1", 10)));
+  let addr;
+  if (m[1][0] === "$") addr = parseInt(m[1].slice(1), 16);
+  else if (/^\d/.test(m[1])) addr = parseInt(m[1], 10);
+  else addr = labels.get(m[1]) ?? labels.get(m[1].toLowerCase()) ?? labels.get(m[1].toUpperCase());
+  if (!Number.isInteger(addr) || addr < 0 || addr > 0xFFFF) return null;
+  return { name: m[1], addr, size: Math.min(size, 0x10000 - addr) };
+}
+
+// Profiler-minták összesítése: rutin (legközelebbi globális címke) és forrássor szerint.
+// map: cím → {routine, srcLine, blockId, index}; samples: [[pc, rasterLine], …]
+function _vmAggregate(samples, map) {
+  const routines = new Map();
+  const lines = new Map();
+  const bump = (m, key, extra, line) => {
+    let r = m.get(key);
+    if (!r) m.set(key, r = { key, count: 0, minLine: Infinity, maxLine: -Infinity, ...extra });
+    r.count++;
+    if (line !== 0xFFFF) { r.minLine = Math.min(r.minLine, line); r.maxLine = Math.max(r.maxLine, line); }
+  };
+  for (const [pc, line] of samples) {
+    const hit = map.get(pc);
+    if (hit) {
+      bump(routines, hit.routine, { kind: "routine" }, line);
+      bump(lines, hit.index, { kind: "line", srcLine: hit.srcLine, blockId: hit.blockId, index: hit.index, routine: hit.routine }, line);
+    } else {
+      const area = pc >= 0xE000 ? "kernal" : pc >= 0xA000 && pc < 0xC000 ? "basic" : "outside";
+      bump(routines, "@" + area, { kind: area }, line);
+    }
+  }
+  const sort = (m) => [...m.values()].sort((a, b) => b.count - a.count);
+  return { routines: sort(routines), lines: sort(lines), total: samples.length };
+}
+
+function _vmAddressMap(layout) {
+  const map = new Map();
+  let routine = "";
+  layout.lines.forEach((line, index) => {
+    const block = line.block || {};
+    if (line.conditionallySkipped) return;
+    if (block.isLabel && block.labelName && !block.labelName.startsWith(".")) routine = block.labelName;
+    const size = line.size || 0;
+    for (let a = line.address; a < line.address + size && a <= 0xFFFF; a++) {
+      map.set(a, { routine: routine || "(start)", srcLine: block._srcLine, blockId: block.id, index });
+    }
+  });
+  return map;
+}
+
+// UB build → cím → {routine (legközelebbi sub), srcLine, index} a dbg listing-spanokból.
+function _vmUbAddressMap(result) {
+  const map = new Map();
+  const subs = (result?.map?.subroutines || []).filter((s) => Number.isInteger(s.address)).sort((a, b) => a.address - b.address);
+  String(result?.debug?.dbg || "").split("\n").forEach((row) => {
+    const m = /^\s*([0-9a-f]{1,4}),([0-9a-f]{1,4}),\d+,(\d+),/i.exec(row);
+    if (!m) return;
+    const start = parseInt(m[1], 16), end = parseInt(m[2], 16), line = Number(m[3]) - 1;
+    let routine = "main";
+    for (const s of subs) { if (s.address <= start) routine = s.name; else break; }
+    for (let a = start; a <= end && a <= 0xFFFF; a++) map.set(a, { routine, srcLine: line, index: line });
+  });
+  return map;
+}
+
+function _vmSetStatus(text, kind = "") {
+  const el = document.getElementById("vm-status");
+  if (!el) return;
+  el.textContent = text;
+  el.className = "vm-status" + (kind ? " vm-status--" + kind : "");
+}
+
+function _vmSaveWatch() {
+  try { localStorage.setItem(_VM_WATCH_KEY, JSON.stringify(_vmWatch)); } catch (_) {}
+}
+
+function _vmLoadWatch() {
+  try {
+    const list = JSON.parse(localStorage.getItem(_VM_WATCH_KEY) || "[]");
+    _vmWatch = Array.isArray(list) ? list.filter((w) => typeof w === "string").slice(0, 32) : [];
+  } catch (_) { _vmWatch = []; }
+}
+
+function _vmRenderWatch(values = null) {
+  const host = document.getElementById("vm-watch-list");
+  if (!host) return;
+  host.innerHTML = "";
+  if (!_vmWatch.length) {
+    const hint = document.createElement("div");
+    hint.className = "vm-hint";
+    hint.textContent = t("vmWatchHint");
+    host.appendChild(hint);
+    return;
+  }
+  const labels = _vmSymbols();
+  const resolved = _vmWatch.map((text) => _vmParseWatch(text, labels));
+  _vmWatch.forEach((text, i) => {
+    const w = resolved[i];
+    const row = document.createElement("div");
+    row.className = "vm-watch-row" + (w ? "" : " vm-watch-row--bad");
+    const name = document.createElement("span");
+    name.className = "vm-watch-name";
+    name.textContent = text;
+    const addr = document.createElement("span");
+    addr.className = "vm-watch-addr";
+    addr.textContent = w ? "$" + w.addr.toString(16).toUpperCase().padStart(4, "0") : t("vmUnknownSymbol");
+    const val = document.createElement("span");
+    val.className = "vm-watch-val";
+    const bytes = values?.[i];
+    if (w && bytes) {
+      const hex = bytes.map((b) => b.toString(16).toUpperCase().padStart(2, "0")).join(" ");
+      const dec = bytes.length === 1 ? String(bytes[0]) : bytes.length === 2 ? String(bytes[0] | (bytes[1] << 8)) : "";
+      val.textContent = "$" + hex + (dec ? "  (" + dec + ")" : "");
+      const prev = _vmLastValues.get(text);
+      if (prev !== undefined && prev !== hex) val.classList.add("vm-watch-val--changed");
+      _vmLastValues.set(text, hex);
+    } else {
+      val.textContent = "—";
+    }
+    const del = document.createElement("button");
+    del.type = "button";
+    del.className = "vm-watch-del";
+    del.textContent = "×";
+    del.setAttribute("aria-label", t("vmRemove"));
+    del.addEventListener("click", () => {
+      _vmWatch.splice(i, 1);
+      _vmSaveWatch();
+      _vmRenderWatch();
+    });
+    row.append(name, addr, val, del);
+    host.appendChild(row);
+  });
+  return resolved;
+}
+
+async function _vmPoll() {
+  if (_vmPollBusy) return;
+  const api = _vmApi();
+  if (!api || !_vmWatch.length) return;
+  _vmPollBusy = true;
+  try {
+    const labels = _vmSymbols();
+    const resolved = _vmWatch.map((text) => _vmParseWatch(text, labels));
+    const valid = resolved.map((w, i) => [w, i]).filter(([w]) => w);
+    if (!valid.length) { _vmRenderWatch(); return; }
+    const res = await api.viceMonRead(valid.map(([w]) => ({ start: w.addr, end: w.addr + w.size - 1 })));
+    if (!res?.ok) {
+      _vmSetStatus(t("vmStatusOff"), "off");
+      return;
+    }
+    _vmSetStatus(t("vmStatusOk"), "ok");
+    const values = [];
+    valid.forEach(([, i], k) => { values[i] = res.data[k]; });
+    _vmRenderWatch(values);
+  } catch (e) {
+    _vmSetStatus(String(e?.message || e), "off");
+  } finally {
+    _vmPollBusy = false;
+  }
+}
+
+function _vmSetLive(on) {
+  _vmLive = on;
+  const btn = document.getElementById("vm-live");
+  btn?.setAttribute("aria-pressed", String(on));
+  btn?.classList.toggle("cg-tool--on", on);
+  clearInterval(_vmPollTimer);
+  _vmPollTimer = 0;
+  if (on) {
+    _vmPoll();
+    _vmPollTimer = setInterval(() => {
+      if (!document.getElementById("vice-mon-dialog")?.open) { _vmSetLive(false); return; }
+      _vmPoll();
+    }, _VM_POLL_MS);
+  }
+}
+
+// A lefordított PRG foglalt tartományai (a BASIC stub és a hézagok nélkül) → szegmensek.
+// UB módban friss UB build: a teljes PRG egy szegmens, újraindítás a kód elején (map.loadAddress).
+async function _vmBuildSegments() {
+  if (ultimateBasicMode) {
+    const r = await _ubCompile(false, { skipExomizer: true });
+    if (!r?.ok || !r.prg || r.prg.length < 3) return null;
+    const load = r.prg[0] | (r.prg[1] << 8);
+    return { segments: [{ address: load, bytes: Array.from(r.prg.slice(2)) }], sys: r.map?.loadAddress ?? load };
+  }
+  const prg = buildAutostartPrgForEmulator();
+  if (!prg?.ok || !prg.bytes || prg.bytes.length < 3) return null;
+  const load = prg.bytes[0] | (prg.bytes[1] << 8);
+  const data = prg.bytes.slice(2);
+  const ranges = _vmWithProgram((layout) => getMemoryUsage(layout).mergedOccupied);
+  const segments = [];
+  for (const r of ranges) {
+    const start = Math.max(r.start, load);
+    const end = Math.min(r.end, load + data.length - 1);
+    if (end >= start) segments.push({ address: start, bytes: Array.from(data.slice(start - load, end - load + 1)) });
+  }
+  return { segments, sys: prg.sysAddress ?? load };
+}
+
+async function _vmHotReload(restart, quiet = false) {
+  const api = _vmApi();
+  if (!api) { if (!quiet) showViceToast?.(t("vmNotDesktop"), true); return; }
+  let built;
+  try { built = await _vmBuildSegments(); } catch (e) { console.warn("VICE monitor: build", e); built = null; }
+  if (!built || !built.segments.length) {
+    if (!quiet) showViceToast?.(t("vmBuildFailed"), true);
+    return;
+  }
+  const res = await api.viceMonWrite({ segments: built.segments, restartAt: restart ? built.sys : null });
+  if (!res?.ok) {
+    _vmSetStatus(t("vmStatusOff"), "off");
+    if (!quiet) showViceToast?.(t("vmStatusOff"), true);
+    return;
+  }
+  _vmSetStatus(tf(restart ? "vmRestarted" : "vmInjected", { bytes: res.bytes }), "ok");
+}
+
+function _vmScheduleAutoReload() {
+  if (!_vmAuto || !document.getElementById("vice-mon-dialog")?.open) return;
+  clearTimeout(_vmAutoTimer);
+  _vmAutoTimer = setTimeout(() => _vmHotReload(true, true), 900);
+}
+
+async function _vmProfile() {
+  const api = _vmApi();
+  if (!api) { showViceToast?.(t("vmNotDesktop"), true); return; }
+  const btn = document.getElementById("vm-profile");
+  if (_vmProfiling) {
+    // második kattintás: leállítás, az addig gyűjtött minták megmaradnak
+    api.viceMonCancel?.();
+    return;
+  }
+  _vmProfiling = true;
+  btn?.classList.add("cg-tool--on");
+  btn?.setAttribute("aria-label", t("vmProfileStop"));
+  _vmSetStatus(t("vmProfiling"), "busy");
+  try {
+    const res = await api.viceMonSample(5000, 1);
+    if (!res?.ok) { _vmSetStatus(t("vmStatusOff"), "off"); return; }
+    const agg = ultimateBasicMode
+      ? _vmAggregate(res.samples, _vmUbAddressMap(_ubLastResult))
+      : _vmWithProgram((layout) => _vmAggregate(res.samples, _vmAddressMap(layout)));
+    _vmRenderProfile(agg);
+    _vmSetStatus(tf("vmSamples", { n: agg.total }), "ok");
+  } catch (e) {
+    _vmSetStatus(String(e?.message || e), "off");
+  } finally {
+    _vmProfiling = false;
+    btn?.classList.remove("cg-tool--on");
+    btn?.setAttribute("aria-label", t("vmProfile"));
+  }
+}
+
+function _vmRenderProfile(agg) {
+  const out = document.getElementById("vm-prof-out");
+  if (!out) return;
+  out.innerHTML = "";
+  if (!agg.total) {
+    out.textContent = t("vmProfileEmpty");
+    return;
+  }
+  const table = (title, rows, label, onClick) => {
+    const head = document.createElement("div");
+    head.className = "vm-prof-head";
+    head.textContent = title;
+    out.appendChild(head);
+    rows.slice(0, 12).forEach((r) => {
+      const pct = (r.count * 100) / agg.total;
+      const row = document.createElement(onClick ? "button" : "div");
+      if (onClick) { row.type = "button"; row.addEventListener("click", () => onClick(r)); }
+      row.className = "vm-prof-row";
+      row.innerHTML = `<span class="vm-prof-bar" style="width:${pct.toFixed(1)}%"></span>`
+        + `<span class="vm-prof-name"></span><span class="vm-prof-raster"></span><span class="vm-prof-pct">${pct.toFixed(1)}%</span>`;
+      row.querySelector(".vm-prof-name").textContent = label(r);
+      row.querySelector(".vm-prof-raster").textContent = Number.isFinite(r.minLine) ? tf("vmRasterLines", { min: r.minLine, max: r.maxLine }) : "";
+      out.appendChild(row);
+    });
+  };
+  table(t("vmRoutine"), agg.routines, (r) => r.kind === "routine" ? r.key : t("vmArea_" + r.kind));
+  table(t("vmLine"), agg.lines,
+    (r) => (r.srcLine !== undefined && (expertMode || ultimateBasicMode) ? tf("zpLine", { n: r.srcLine + 1 }) : "#" + (r.index + 1)) + " · " + r.routine,
+    (r) => (ultimateBasicMode ? _ubGotoLine(r.srcLine) : _zpGotoRef(r)));
+}
+
+function _vmOpen() {
+  const dlg = document.getElementById("vice-mon-dialog");
+  if (!dlg) return;
+  if (dlg.open) { dlg.close(); return; }
+  dlg._applyPosition?.();
+  dlg.show();
+  document.getElementById("vice-mon-btn")?.classList.add("main-tb-btn--active");
+  _vmSetStatus(_vmApi() ? "" : t("vmNotDesktop"), _vmApi() ? "" : "off");
+  _vmRenderWatch();
+}
+
+function setupViceMonitor() {
+  _vmLoadWatch();
+  try { _vmAuto = localStorage.getItem("c64va-vice-auto") === "1"; } catch (_) {}
+  const auto = document.getElementById("vm-auto");
+  if (auto) auto.checked = _vmAuto;
+  auto?.addEventListener("change", () => {
+    _vmAuto = auto.checked;
+    try { localStorage.setItem("c64va-vice-auto", _vmAuto ? "1" : "0"); } catch (_) {}
+  });
+  document.getElementById("vice-mon-btn")?.addEventListener("click", _vmOpen);
+  document.getElementById("vm-close")?.addEventListener("click", () => document.getElementById("vice-mon-dialog")?.close());
+  document.getElementById("vice-mon-dialog")?.addEventListener("close", () => {
+    _vmSetLive(false);
+    if (_vmProfiling) _vmApi()?.viceMonCancel?.();
+    document.getElementById("vice-mon-btn")?.classList.remove("main-tb-btn--active");
+  });
+  document.getElementById("vm-inject")?.addEventListener("click", () => _vmHotReload(false));
+  document.getElementById("vm-restart")?.addEventListener("click", () => _vmHotReload(true));
+  document.getElementById("vm-live")?.addEventListener("click", () => _vmSetLive(!_vmLive));
+  document.getElementById("vm-profile")?.addEventListener("click", _vmProfile);
+  document.getElementById("vm-watch-form")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const input = document.getElementById("vm-watch-input");
+    const text = String(input?.value || "").trim();
+    if (!text || _vmWatch.includes(text)) return;
+    _vmWatch.push(text);
+    _vmSaveWatch();
+    input.value = "";
+    _vmRenderWatch();
+    if (_vmLive) _vmPoll();
+  });
+}
 
 /* ── Hibabejelentés ────────────────────────────────────────────────────────
  * Dialógus (#bug-dialog): összefoglaló, leírás, opcionális e-mail, max 4 kép (fájl / Ctrl+V / húzás,
@@ -49027,8 +50718,16 @@ function _supportRender(messages, newSince = Infinity) {
     const meta = document.createElement("div");
     meta.className = "support-msg-meta";
     const at = new Date(m.at);
-    meta.textContent = (m.from === "admin" ? t("supportDeveloper") : t("supportYou")) + " · " +
+    const who = document.createElement("span");
+    who.textContent = (m.from === "admin" ? t("supportDeveloper") : t("supportYou")) + " · " +
       (isNaN(at) ? "" : at.toLocaleString(currentLanguage, { dateStyle: "short", timeStyle: "short" }));
+    const del = document.createElement("button");
+    del.type = "button";
+    del.className = "support-msg-del";
+    del.textContent = "×";
+    del.setAttribute("aria-label", t("supportDeleteMsg"));
+    del.addEventListener("click", () => _supportDeleteMessage(m.id));
+    meta.append(who, del);
     item.appendChild(meta);
     if (m.text) {
       const body = document.createElement("div");
@@ -49042,12 +50741,40 @@ function _supportRender(messages, newSince = Infinity) {
   if (atEnd || !box.dataset.rendered) box.scrollTop = box.scrollHeight;
   box.dataset.rendered = "1";
 }
+// törlés: egy üzenet (bármelyik félé) vagy az egész beszélgetés; a szerveren végleges, ezért megerősítést kér
+async function _supportDeleteMessage(id) {
+  if (!(await _showConfirm(t("supportDeleteMsgConfirm")))) return;
+  const res = await _supportApi({ action: "delete", message_id: id });
+  if (!res?.ok) { _supportSetStatus(res?.error === "network" ? t("bugNetwork") : t("supportDeleteFailed"), "error"); return; }
+  _supportFileCache.clear();
+  await _supportLoad();
+}
+async function _supportDeleteAll() {
+  if (!(await _showConfirm(t("supportDeleteAllConfirm")))) return;
+  const res = await _supportApi({ action: "delete_all" });
+  if (!res?.ok) { _supportSetStatus(res?.error === "network" ? t("bugNetwork") : t("supportDeleteFailed"), "error"); return; }
+  try {
+    localStorage.removeItem(_SUPPORT_ACTIVE_KEY);
+    localStorage.removeItem(_SUPPORT_LAST_ADMIN_KEY);
+  } catch (_) {}
+  _supportFileCache.clear();
+  _supportRender([]);
+  _supportNotified = 0;
+  _supportSetUnread(0);
+  _supportSyncDeleteAll(false);
+  _supportSetStatus(t("supportDeletedAll"), "ok");
+}
+function _supportSyncDeleteAll(hasMessages) {
+  const b = document.getElementById("support-delete-all");
+  if (b) b.hidden = !hasMessages;
+}
 async function _supportLoad() {
   const res = await _supportApi({ action: "thread", read: true });
   if (!res?.ok) return;
   const seen = _supportLastAdminSeen();
   const fresh = (res.messages || []).some((m) => m.from === "admin" && Number(m.id) > seen);
   _supportRender(res.messages, seen);
+  _supportSyncDeleteAll((res.messages || []).length > 0);
   _supportMarkAdminSeen(res.messages);
   if (fresh) { _supportBeep(); _supportAttention(); }
   _supportNotified = 0;
@@ -49059,6 +50786,7 @@ function _supportOpen() {
   document.querySelector(".control-menu")?.removeAttribute("open");
   document.getElementById("support-title").textContent = t("supportTitle");
   document.getElementById("support-intro").textContent = t("supportIntro");
+  document.getElementById("support-thread").dataset.empty = t("supportIntro");
   document.getElementById("support-text-label").textContent = t("supportMessage");
   document.getElementById("support-name-label").textContent = t("supportName");
   document.getElementById("support-email-label").textContent = t("supportEmail");
@@ -49067,6 +50795,7 @@ function _supportOpen() {
   document.getElementById("support-send").textContent = t("supportSend");
   document.getElementById("support-attach").textContent = t("supportAttach");
   _supportSyncSoundButton();
+  document.getElementById("support-delete-all")?.setAttribute("aria-label", t("supportDeleteAll"));
   _supportRenderFiles();
   const email = document.getElementById("support-email");
   if (email && !email.value) { try { email.value = localStorage.getItem(_SUPPORT_EMAIL_KEY) || ""; } catch (_) {} }
@@ -49114,6 +50843,7 @@ async function _supportSend() {
     localStorage.setItem(_SUPPORT_NAME_KEY, name);
   } catch (_) {}
   _supportSetStatus(t("supportSent"), "ok");
+  _supportSyncDeleteAll(true);
   _supportSetUnread(0);
   _supportRender(res.messages);
 }
@@ -49149,6 +50879,7 @@ function setupSupport() {
   document.getElementById("support-send")?.addEventListener("click", _supportSend);
   document.getElementById("support-close")?.addEventListener("click", () => dlg.close());
   document.getElementById("support-x")?.addEventListener("click", () => dlg.close());
+  document.getElementById("support-delete-all")?.addEventListener("click", _supportDeleteAll);
   document.getElementById("support-sound")?.addEventListener("click", () => {
     try { localStorage.setItem(_SUPPORT_SOUND_KEY, _supportSoundOn() ? "0" : "1"); } catch (_) {}
     _supportSyncSoundButton();

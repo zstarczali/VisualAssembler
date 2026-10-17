@@ -20,6 +20,7 @@ mod c64;
 mod mos6510;
 mod sid_core;
 mod sid_file;
+mod vice_monitor;
 
 // ── Resource path resolution ─────────────────────────────────────────────────
 // In dev builds (cargo tauri dev) resource_dir() points to target/debug/ where
@@ -262,12 +263,13 @@ fn windows_spawn_detached(program: &str, args: &[String]) -> std::io::Result<()>
         .map(|_| ())
 }
 
-fn spawn_vice_with_file(vice_path: &str, file_path: &std::path::Path) -> Result<(), String> {
+fn spawn_vice_with_file(vice_path: &str, file_path: &std::path::Path, extra_args: &[String]) -> Result<(), String> {
     let binary = resolve_vice_launch_path(vice_path)?;
 
     let result = if cfg!(target_os = "macos") {
         Command::new("bash")
             .arg(&binary)
+            .args(extra_args)
             .arg(file_path.to_str().unwrap())
             .stdin(std::process::Stdio::null())
             .stdout(std::process::Stdio::null())
@@ -289,7 +291,9 @@ fn spawn_vice_with_file(vice_path: &str, file_path: &std::path::Path) -> Result<
             // process is outside Tauri's Job Object entirely, so VICE is never assigned
             // to it and survives hot-reload independently. This is only an issue in
             // `tauri dev` mode; production builds do not use a KILL_ON_JOB_CLOSE job.
-            windows_spawn_detached(&binary, &[file_path.to_string_lossy().to_string()])
+            let mut args = extra_args.to_vec();
+            args.push(file_path.to_string_lossy().to_string());
+            windows_spawn_detached(&binary, &args)
         }
         #[cfg(not(target_os = "windows"))]
         {
@@ -308,7 +312,8 @@ fn spawn_vice_with_file(vice_path: &str, file_path: &std::path::Path) -> Result<
                 }
             }
             // apt-installed VICE lacks drive ROMs; mode 1 injects PRG directly.
-            cmd.arg("-autostartprgmode")
+            cmd.args(extra_args)
+                .arg("-autostartprgmode")
                 .arg("1")
                 .arg(file_path.to_str().unwrap())
                 .stdin(std::process::Stdio::null())
@@ -320,6 +325,142 @@ fn spawn_vice_with_file(vice_path: &str, file_path: &std::path::Path) -> Result<
     };
 
     result.map(|_| ()).map_err(|e| e.to_string())
+}
+
+// ── VICE remote monitor (hot reload, élő változók, profiler) ───────────────
+
+fn vice_monitor_port(cfg: &serde_json::Value) -> u16 {
+    cfg["uiSettings"]["viceMonitorPort"]
+        .as_u64()
+        .filter(|p| (1024..=65535).contains(p))
+        .map(|p| p as u16)
+        .unwrap_or(vice_monitor::DEFAULT_PORT)
+}
+
+fn vice_monitor_launch_args(cfg: &serde_json::Value) -> Vec<String> {
+    if cfg["uiSettings"]["viceRemoteMonitor"].as_bool().unwrap_or(true) {
+        vice_monitor::launch_args(vice_monitor_port(cfg))
+    } else {
+        Vec::new()
+    }
+}
+
+#[derive(Deserialize)]
+struct ViceMonSegment {
+    address: u16,
+    bytes: Vec<u8>,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct ViceMonWritePayload {
+    segments: Vec<ViceMonSegment>,
+    /// Ha meg van adva, a PC ide áll (újraindítás); a verem tetején a BASIC warm start ($A474)
+    /// visszatérési címe, így a program végi RTS a READY.-hez tér vissza, mint SYS után.
+    restart_at: Option<u16>,
+}
+
+#[derive(Deserialize)]
+struct ViceMonRange {
+    start: u16,
+    end: u16,
+}
+
+async fn vice_monitor_blocking<T: Send + 'static>(
+    app: &AppHandle,
+    job: impl FnOnce(&mut vice_monitor::Monitor) -> Result<T, String> + Send + 'static,
+) -> Result<T, String> {
+    let port = vice_monitor_port(&read_config(app));
+    tauri::async_runtime::spawn_blocking(move || {
+        let mut mon = vice_monitor::Monitor::connect(port)?;
+        let out = job(&mut mon)?;
+        mon.resume()?;
+        Ok(out)
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+
+/// Hot reload: a szegmensek a RAM-ba íródnak (a ROM / I/O alá is), opcionálisan PC + SP újraindítás.
+#[tauri::command]
+async fn vice_mon_write(app: AppHandle, payload: ViceMonWritePayload) -> serde_json::Value {
+    let result = vice_monitor_blocking(&app, move |mon| {
+        let ram = mon.bank_id("ram")?;
+        let mut total = 0usize;
+        for seg in &payload.segments {
+            mon.write_memory(seg.address, &seg.bytes, ram)?;
+            total += seg.bytes.len();
+        }
+        if let Some(pc) = payload.restart_at {
+            mon.write_memory(0x01FE, &[0x73, 0xA4], ram)?;
+            let sp = mon.register_id("SP")?;
+            mon.set_register(sp, 0xFD)?;
+            let pc_id = mon.register_id("PC")?;
+            mon.set_register(pc_id, pc)?;
+        }
+        Ok(total)
+    })
+    .await;
+    match result {
+        Ok(bytes) => serde_json::json!({ "ok": true, "bytes": bytes }),
+        Err(e) => serde_json::json!({ "ok": false, "error": e }),
+    }
+}
+
+/// Élő változók: tartományok olvasása a CPU nézetéből (ahogy a program látja).
+#[tauri::command]
+async fn vice_mon_read(app: AppHandle, ranges: Vec<ViceMonRange>) -> serde_json::Value {
+    let result = vice_monitor_blocking(&app, move |mon| {
+        let cpu = mon.bank_id("cpu")?;
+        ranges
+            .iter()
+            .map(|r| mon.read_memory(r.start, r.end.max(r.start), cpu))
+            .collect::<Result<Vec<_>, _>>()
+    })
+    .await;
+    match result {
+        Ok(data) => serde_json::json!({ "ok": true, "data": data }),
+        Err(e) => serde_json::json!({ "ok": false, "error": e }),
+    }
+}
+
+static VICE_MON_CANCEL: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
+/// Profiler: PC-minták `duration_ms` ideig (a mintánkénti megállítás VICE-onként eltérő ideig tart,
+/// ezért idő- és nem darabszám-korlát), `interval_ms` szünetekkel; mintánként [PC, raszter sor].
+/// A `vice_mon_cancel` leállítja; az addig gyűjtött minták visszajönnek.
+#[tauri::command]
+async fn vice_mon_sample(app: AppHandle, duration_ms: u64, interval_ms: u64) -> serde_json::Value {
+    use std::sync::atomic::Ordering;
+    VICE_MON_CANCEL.store(false, Ordering::SeqCst);
+    let duration = Duration::from_millis(duration_ms.clamp(100, 60_000));
+    let interval = Duration::from_millis(interval_ms.clamp(1, 1000));
+    let result = vice_monitor_blocking(&app, move |mon| {
+        let pc_id = mon.register_id("PC")?;
+        let line_id = mon.register_id("LIN").ok();
+        let mut samples = Vec::new();
+        let started = Instant::now();
+        while started.elapsed() < duration && !VICE_MON_CANCEL.load(Ordering::SeqCst) && samples.len() < 20_000 {
+            let regs = mon.registers()?;
+            mon.resume()?;
+            let get = |id: u8| regs.iter().find(|(r, _)| *r == id).map(|(_, v)| *v);
+            if let Some(pc) = get(pc_id) {
+                samples.push([pc, line_id.and_then(get).unwrap_or(0xFFFF)]);
+            }
+            std::thread::sleep(interval);
+        }
+        Ok(samples)
+    })
+    .await;
+    match result {
+        Ok(samples) => serde_json::json!({ "ok": true, "samples": samples }),
+        Err(e) => serde_json::json!({ "ok": false, "error": e }),
+    }
+}
+
+#[tauri::command]
+fn vice_mon_cancel() {
+    VICE_MON_CANCEL.store(true, std::sync::atomic::Ordering::SeqCst);
 }
 
 fn get_exomizer_path(cfg: &serde_json::Value) -> String {
@@ -1441,7 +1582,7 @@ async fn launch_vice(app: AppHandle, payload: LaunchVicePayload) -> serde_json::
         }
     }
 
-    let result = spawn_vice_with_file(&vice_path, &file_path);
+    let result = spawn_vice_with_file(&vice_path, &file_path, &vice_monitor_launch_args(&cfg));
 
     match result {
         Ok(_) => {
@@ -1508,7 +1649,7 @@ async fn launch_exomizer(app: AppHandle, payload: LaunchVicePayload) -> serde_js
         }
     }
 
-    if let Err(e) = spawn_vice_with_file(&vice_path, &output_path) {
+    if let Err(e) = spawn_vice_with_file(&vice_path, &output_path, &vice_monitor_launch_args(&cfg)) {
         return serde_json::json!({ "ok": false, "error": e });
     }
 
@@ -5124,6 +5265,10 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             get_app_version,
+            vice_mon_write,
+            vice_mon_read,
+            vice_mon_sample,
+            vice_mon_cancel,
             get_ultimate_basic_version,
             render_sid_preview,
             release_sid_preview,

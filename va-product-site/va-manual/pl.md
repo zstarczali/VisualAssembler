@@ -1156,6 +1156,26 @@ programisty.
 - **Wyślij raport** potwierdza numerem raportu. **Wyślij e-mailem** zamiast tego
   otwiera program pocztowy.
 
+### Wsparcie
+
+**Menu → Pomoc** otwiera czat z programistą: napisz pytanie, pomysł lub problem
+i naciśnij **Wyślij** (lub **Ctrl+Enter**). Możesz dołączyć maksymalnie 3 pliki
+(łącznie 4 MB): obrazy, pliki źródłowe (`.asm`, `.ub`, `.txt` …), pliki C64
+(`.prg`, `.d64`, `.sid`, `.crt` …) lub `.zip` — za pomocą **Załącz plik…**,
+wklejając je (**Ctrl+V**) lub przeciągając je do okna. Odpowiedź pojawi się w
+tym samym oknie, również z plikami: obrazy są wyświetlane jako podglądy,
+kliknięcie zapisuje plik. Okno nie jest modalne: przeciągnij je za nagłówek,
+zmień jego rozmiar, zaczynając od prawego dolnego rogu, i kontynuuj pracę,
+dopóki jest otwarte. Aplikacja sprawdza odpowiedzi podczas uruchamiania i co
+minutę; nowa odpowiedź odtwarza krótki sygnał dźwiękowy (przycisk głośnika w
+nagłówku okna wycisza go), miga ikona na pasku zadań, gdy aplikacja działa w
+tle, wyświetla czerwoną kropkę na przycisku **Menu** i otwiera okno
+jednokrotnie. Po rozpoczęciu rozmowy ikona koperty obok przycisku **Menu**
+otwiera ją; zmienia kolor na czerwony i miga, pokazując liczbę nieprzeczytanych
+odpowiedzi. Adres e-mail jest opcjonalny: jeśli go podasz, odpowiedź również
+zostanie wysłana e-mailem. Rozmowa jest powiązana z losowym identyfikatorem
+instalacji aplikacji, więc nie ma konta ani hasła.
+
 ### Projekty, zakładki i pliki startowe
 
 Projekty Ultimate Basic korzystają z plików `.proj` i mogą zawierać wiele plików

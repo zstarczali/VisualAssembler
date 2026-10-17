@@ -1,5 +1,7 @@
 # macOS Installation Guide
-Version 2.6.0
+Version 2.6.1
+
+2.6.1: VICE Monitor (hot reload, live watch, profiler), Table Generator with speedcode, cycle counts and optimisation hints in Expert mode, zero page usage map, detachable memory window, Ultimate Basic code size per line and hints, Sprite Editor to Ultimate Basic export, .sid (PSID) export, sprite multiplexer template.
 
 2.6.0: Visual Assembler is now completely free: the Freemium / Professional licensing has been removed, so every editor, build and hardware run option, all 7 languages and every theme work without registration or a serial. Under Hungarian tax rules, selling it would leave too little after taxes and paperwork to be worth it. Serials you already have are simply no longer needed.
 
@@ -47,7 +49,7 @@ Version 2.6.0
 
 ## Quick Install
 
-1. **Download** the 2.6.0 DMG for your architecture from the releases page
+1. **Download** the 2.6.1 DMG for your architecture from the releases page
 2. **Mount** the DMG and drag the app to `/Applications`
 3. **First launch**: Right-click the app → **"Open"** (macOS will block double-click)
 4. Click **"Open"** in the security dialog
@@ -95,4 +97,19 @@ Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in 
 
 ---
 
-**Version:** 2.6.0 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.6.1 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+
+## Building from source: macOS app icon
+
+Release builds require **Xcode 26 or newer**, including `actool`; the standalone
+Command Line Tools are not sufficient. Select the full Xcode installation with
+`xcode-select` or set `DEVELOPER_DIR` to its `Contents/Developer` directory.
+
+`npm run build` automatically compiles `src-tauri/icons/AppIcon.icon` via
+`scripts/build-macos-icon.cjs`. The macOS-specific Tauri configuration bundles the
+result as `Contents/Resources/Assets.car`, and `Info.plist` selects `AppIcon`.
+The source artwork fills the entire square with blue; macOS applies its own mask.
+The existing `icon.icns` remains the fallback for older macOS versions.
+Generated files in `src-tauri/icons/generated/` are not committed. Windows and
+Linux builds do not run the icon compiler. CI verifies the bundled catalog and
+icon reference before uploading the macOS installer.

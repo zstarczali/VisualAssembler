@@ -1,9 +1,7 @@
 name: macOS 26 app icon (Assets.car)
 
-# Az Icon Composer .icon csomagból (src-tauri/icons/AppIcon.icon) Assets.car-t fordít az Apple actool-jával,
-# hogy macOS 26 (Tahoe) alatt ne kerüljön szürke squircle-lapra az ikon. Az eredmény artefakt:
-# Assets.car + AppIcon.icns (fallback) + assetutil-lista + PNG előnézetek; ezt kell a repóba tenni
-# (src-tauri/icons/Assets.car), a Tauri bundle innen másolja a Contents/Resources-ba.
+# Ugyanazt a fordítót futtatja, mint a macOS Tauri build.
+# Az artefakt külön letölthető ellenőrzéshez; a release build maga állítja elő az ikont.
 
 on:
   workflow_dispatch:
@@ -11,6 +9,7 @@ on:
     paths:
       - "src-tauri/icons/AppIcon.icon/**"
       - ".github/workflows/macos-icon.yml"
+      - "scripts/build-macos-icon.cjs"
 
 permissions:
   contents: read
@@ -27,21 +26,16 @@ jobs:
           xcodebuild -version
           xcrun --find actool
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
       - name: Compile Assets.car
         run: |
+          node scripts/build-macos-icon.cjs
           mkdir -p out
-          xcrun actool "$PWD/src-tauri/icons/AppIcon.icon" \
-            --compile "$PWD/out" \
-            --app-icon AppIcon \
-            --enable-on-demand-resources NO \
-            --development-region en \
-            --target-device mac \
-            --platform macosx \
-            --include-all-app-icons \
-            --minimum-deployment-target 11.0 \
-            --output-partial-info-plist "$PWD/out/partial.plist" \
-            --output-format human-readable-text --notices --warnings --errors
-          ls -la out
+          cp src-tauri/icons/generated/* out/
 
       - name: Inspect Assets.car
         run: xcrun --sdk macosx assetutil --info out/Assets.car | tee out/assetutil.json

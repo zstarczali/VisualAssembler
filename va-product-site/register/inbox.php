@@ -51,6 +51,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     vaAdminCheckCsrf($back);
     $action = (string) ($_POST['action'] ?? '');
     try {
+        // az összes beszélgetés törlése (listaoldal)
+        if ($action === 'delete_all') {
+            $n = 0;
+            foreach ($db->query('SELECT id FROM va_support_threads')->fetchAll() as $t) {
+                vaSupportDeleteThread($db, (int) $t['id']);
+                $n++;
+            }
+            $_SESSION['flash'] = ['ok', "$n CONVERSATION" . ($n === 1 ? '' : 'S') . ' DELETED.'];
+            header('Location: inbox.php');
+            exit;
+        }
         if (!$thread) {
             throw new InvalidArgumentException('NO SUCH CONVERSATION.');
         }
@@ -90,10 +101,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['flash'] = ['ok', 'REPLY SENT.'];
         } elseif ($action === 'close' || $action === 'reopen') {
             $db->prepare('UPDATE va_support_threads SET status = ? WHERE id = ?')->execute([$action === 'close' ? 'closed' : 'open', $id]);
+        } elseif ($action === 'delete_msg') {
+            if (!vaSupportDeleteMessage($db, $id, (int) ($_POST['message_id'] ?? 0))) {
+                throw new InvalidArgumentException('NO SUCH MESSAGE.');
+            }
+            $_SESSION['flash'] = ['ok', 'MESSAGE DELETED.'];
         } elseif ($action === 'delete') {
-            $db->prepare('DELETE f FROM va_support_files f JOIN va_support_messages m ON m.id = f.message_id WHERE m.thread_id = ?')->execute([$id]);
-            $db->prepare('DELETE FROM va_support_messages WHERE thread_id = ?')->execute([$id]);
-            $db->prepare('DELETE FROM va_support_threads WHERE id = ?')->execute([$id]);
+            vaSupportDeleteThread($db, $id);
             $_SESSION['flash'] = ['ok', "CONVERSATION #$id DELETED."];
             $back = 'inbox.php';
         }
@@ -110,6 +124,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $who = static fn(array $t): string => $t['email'] !== '' ? ($t['name'] !== '' ? $t['name'] . ' <' . $t['email'] . '>' : $t['email'])
     : ($t['name'] !== '' ? $t['name'] : 'ANONYMOUS ' . substr($t['install_id'], 0, 8));
 $when = static fn(string $s): string => substr($s, 0, 16);
+// üzenet törlése: kis × a meta-sorban (a JS-ből hozzáadott üzeneteknél ugyanez a form épül)
+$delBtn = static fn(int $mid): string => '<form class="inline msg-del" method="post" onsubmit="return confirm(\'Delete this message?\')">'
+    . '<input type="hidden" name="csrf" value="' . vaH($csrf) . '"><input type="hidden" name="action" value="delete_msg">'
+    . '<input type="hidden" name="message_id" value="' . $mid . '"><button class="msg-x" type="submit" aria-label="Delete message">x</button></form>';
 $size = static fn(int $n): string => $n >= 1048576 ? round($n / 1048576, 1) . ' MB' : max(1, (int) round($n / 1024)) . ' KB';
 $filesHtml = static function (array $files) use ($size): string {
     $out = '';
@@ -161,7 +179,7 @@ ob_start(); ?>
             <tr><td>STARTED</td><td><?= $h($when($thread['created_at'])) ?></td></tr>
         </table>
         <div class="chat" id="chat">
-            <?php foreach ($messages as $m): ?><div class="msg msg-<?= $m['from'] ?>" data-id="<?= $m['id'] ?>"><div class="msg-meta"><?= $m['from'] === 'admin' ? 'YOU' : 'USER' ?> / <?= $h(date('Y-m-d H:i', strtotime($m['at']))) ?></div><?php if ($m['text'] !== ''): ?><div class="msg-text"><?= $h($m['text']) ?></div><?php endif; ?><?= $filesHtml($m['files']) ?></div><?php endforeach; ?>
+            <?php foreach ($messages as $m): ?><div class="msg msg-<?= $m['from'] ?>" data-id="<?= $m['id'] ?>"><div class="msg-meta"><?= $m['from'] === 'admin' ? 'YOU' : 'USER' ?> / <?= $h(date('Y-m-d H:i', strtotime($m['at']))) ?><?= $delBtn((int) $m['id']) ?></div><?php if ($m['text'] !== ''): ?><div class="msg-text"><?= $h($m['text']) ?></div><?php endif; ?><?= $filesHtml($m['files']) ?></div><?php endforeach; ?>
         </div>
         <form method="post" class="msg-form" id="reply" style="margin-top:16px" enctype="multipart/form-data">
             <input type="hidden" name="csrf" value="<?= $h($csrf) ?>"><input type="hidden" name="action" value="reply">
@@ -189,6 +207,13 @@ ob_start(); ?>
               div.className = 'msg msg-' + m.from + ' msg-new';
               div.setAttribute('data-id', m.id);
               var meta = document.createElement('div'); meta.className = 'msg-meta'; meta.textContent = (m.from === 'admin' ? 'YOU' : 'USER') + ' / ' + fmt(m.at);
+              var del = document.createElement('form'); del.className = 'inline msg-del'; del.method = 'post';
+              del.onsubmit = function () { return confirm('Delete this message?'); };
+              [['csrf', <?= json_encode($csrf) ?>], ['action', 'delete_msg'], ['message_id', m.id]].forEach(function (kv) {
+                var i = document.createElement('input'); i.type = 'hidden'; i.name = kv[0]; i.value = kv[1]; del.appendChild(i);
+              });
+              var x = document.createElement('button'); x.className = 'msg-x'; x.type = 'submit'; x.textContent = 'x'; x.setAttribute('aria-label', 'Delete message');
+              del.appendChild(x); meta.appendChild(del);
               div.appendChild(meta);
               if (m.text) { var text = document.createElement('div'); text.className = 'msg-text'; text.textContent = m.text; div.appendChild(text); }
               if (m.files && m.files.length) {
@@ -217,12 +242,15 @@ ob_start(); ?>
             (SELECT sender FROM va_support_messages m WHERE m.thread_id = t.id ORDER BY m.id DESC LIMIT 1) AS last_from,
             (SELECT COUNT(*) FROM va_support_messages m WHERE m.thread_id = t.id) AS msgs
         FROM va_support_threads t WHERE $where ORDER BY t.unread_admin > 0 DESC, t.updated_at DESC LIMIT 200")->fetchAll(); ?>
-    <div class="tabs">
-        <?php foreach (['open' => 'OPEN', 'closed' => 'CLOSED', 'all' => 'ALL'] as $k => $v): ?><a class="<?= $tab === $k ? 'on' : '' ?>" href="inbox.php?tab=<?= $k ?>"><?= $v ?></a><?php endforeach; ?>
+    <div class="row" style="justify-content:space-between;margin-bottom:14px">
+        <div class="tabs" style="margin:0">
+            <?php foreach (['open' => 'OPEN', 'closed' => 'CLOSED', 'all' => 'ALL'] as $k => $v): ?><a class="<?= $tab === $k ? 'on' : '' ?>" href="inbox.php?tab=<?= $k ?>"><?= $v ?></a><?php endforeach; ?>
+        </div>
+        <?= $btn('delete_all', 'DELETE ALL CONVERSATIONS', 'dng', 'Delete ALL support conversations with every message and attachment? This cannot be undone.') ?>
     </div>
     <div class="box">
         <?php if ($threads): ?><table class="wide">
-            <tr><th>#</th><th>FROM</th><th>LAST MESSAGE</th><th>MSGS</th><th>UPDATED</th><th>COUNTRY</th><th>APP</th></tr>
+            <tr><th>#</th><th>FROM</th><th>LAST MESSAGE</th><th>MSGS</th><th>UPDATED</th><th>COUNTRY</th><th>APP</th><th></th></tr>
             <?php foreach ($threads as $t): ?><tr<?= $t['unread_admin'] > 0 ? ' class="unread"' : '' ?>>
                 <td class="n"><a href="inbox.php?id=<?= (int) $t['id'] ?>"><?= (int) $t['id'] ?></a></td>
                 <td class="e"><a href="inbox.php?id=<?= (int) $t['id'] ?>"><?= $h($who($t)) ?></a><?= $t['unread_admin'] > 0 ? ' <span class="warn">NEW ' . (int) $t['unread_admin'] . '</span>' : '' ?></td>
@@ -231,6 +259,9 @@ ob_start(); ?>
                 <td><?= $h($when($t['updated_at'])) ?></td>
                 <td><?= $h($t['country'] ?: '--') ?></td>
                 <td><?= $h(trim($t['version'] . ' / ' . $t['os'], ' /')) ?></td>
+                <td><form class="inline" method="post" action="inbox.php?id=<?= (int) $t['id'] ?>" onsubmit="return confirm(<?= $h(json_encode('Delete conversation #' . $t['id'] . ' with all messages and attachments?')) ?>)">
+                    <input type="hidden" name="csrf" value="<?= $h($csrf) ?>"><input type="hidden" name="action" value="delete">
+                    <button class="btn sm dng" type="submit">DELETE</button></form></td>
             </tr><?php endforeach; ?>
         </table><?php else: ?><p class="no">NO CONVERSATIONS.</p><?php endif; ?>
         <p class="hint">USERS WRITE FROM THE APP (MENU -> SUPPORT). THIS LIST REFRESHES BY ITSELF WHEN A NEW MESSAGE ARRIVES.</p>

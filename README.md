@@ -2,11 +2,21 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.6.0**
+**Current version: v2.6.1**
 
 Visual Assembler is free and open source (GPLv3): every feature — editors, builds, hardware runs, languages and themes — works without a registration or serial. At most once a day the app sends an anonymous startup ping (version, OS, UI language, launch count, a random install ID) for the usage statistics; no email, project or source code is sent.
 
-## What's New in v2.6.0
+## What's New in v2.6.1
+
+- **VICE Monitor** — a floating window for the running VICE (Run (VICE) now opens its binary monitor on port 6502): hot reload the assembled program with or without a restart (optionally after every edit), a live watch list of labels and addresses, and a PC-sampling profiler per routine and per line with the raster lines each routine ran on.
+- **Table Generator** — screen / bitmap row addresses, bitmap column offsets, pixel masks, multiply / divide / remainder by a constant, quarter squares, reciprocal, log / exp, bit reverse, custom expressions and unrolled fill / copy speedcode; lo / hi pairs or `.word`, `.align 256`, insert, `.bin` or Ultimate Basic export.
+- **Cycle counts in Expert mode** — cycles per instruction (`4+` page cross, `2/3` branches, red `2/4` for a page-crossing taken branch) and the cycle / raster-line total of the selection.
+- **Optimisation hints** — tail call, redundant `CMP #0`, reloads, `INC` / `DEC` idioms, jumps to the next instruction, `PHA` + `PLA`.
+- **Zero page usage map** in the memory panel, with SID player conflicts; the **memory panel can be detached** into its own window, and the clicked floating window comes to the front.
+- **Ultimate Basic** — code size per line, hints (`sys $EA31`, `wait key`, unused variables, `asm` zero page clashes) and Sprite Editor → Ultimate Basic export with animation.
+- **SID Editor → .sid (PSID) export** and a **sprite multiplexer** project template (16 sprites).
+
+## Earlier: v2.6.0
 
 - **Visual Assembler is now completely free** — the Freemium / Professional licensing has been removed. Every editor, build and hardware run option, all 7 UI languages and every theme work for everyone, without registration or a serial. The reason is simple: under Hungarian tax rules, selling the program would leave too little after taxes and paperwork to be worth it. Serials you already have are simply no longer needed.
 

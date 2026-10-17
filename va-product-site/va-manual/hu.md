@@ -1150,6 +1150,26 @@ küldi el a jelentést.
 - A **Jelentés küldése** a jelentésszámmal erősíti meg a műveletet. A
   **E-mailben küldés** ehelyett a levelezőprogramot nyitja meg.
 
+### Támogatás
+
+A **Menü → Támogatás** menüpontban cseveghet a fejlesztővel: írjon egy kérdést,
+ötletet vagy problémát, és nyomja meg a **Küldés** (vagy a **Ctrl+Enter**)
+gombot. Legfeljebb 3 fájlt csatolhatsz (összesen 4 MB): képeket, forrásfájlokat
+(`.asm`, `.ub`, `.txt` …), C64 fájlokat (`.prg`, `.d64`, `.sid`, `.crt` …) vagy
+egy `.zip` fájlt — a **Fájl csatolása…** paranccsal, beillesztéssel (**Ctrl+V**)
+vagy az ablakra húzással. A válasz ugyanabban az ablakban jelenik meg, szintén a
+fájlokkal együtt: a képek előnézetként jelennek meg, egy kattintással menthető a
+fájl. Az ablak nem modális: a fejlécénél fogva húzd át, a jobb alsó sarkából
+méretezd át, és nyitva is folytasd a munkát. Az alkalmazás indításkor és
+percenként ellenőrzi a válaszokat; egy új válasz rövid sípoló hangot ad (a
+hangszóró gomb az ablak fejlécében elnémítja), felvillantja a tálca ikont,
+amikor az alkalmazás a háttérben van, egy piros pont jelenik meg a **Menu**
+gombon, és egyszer megnyitja az ablakot. Miután beszélgetést folytattál, a
+**Menu** gomb melletti boríték ikon megnyitja azt; pirosra vált, és villog az
+olvasatlan válaszok számával. Az e-mail cím megadása opcionális: ha megadsz
+egyet, a válasz is e-mailben érkezik meg. A beszélgetés az alkalmazás
+véletlenszerű telepítési azonosítójához van kötve, így nincs fiók és jelszó.
+
 ### Projektek, lapok és indítófájlok
 
 Az Ultimate Basic projektek `.proj` fájlokat használnak, és több `.ub` forrást
