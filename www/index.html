@@ -2644,13 +2644,12 @@ PRINTABLE CHARACTERS
           <button id="sid-speed-up" class="sid-mini-btn" type="button" aria-label="Speed up">+</button>
           <span class="sid-mini-lbl" id="sid-bpm-lbl">BPM:</span>
           <span id="sid-bpm" class="sid-num" title="Beats per minute (4 rows per beat)">125</span>
-          <button id="sid-metronome" class="ce-tool-btn sid-metronome-btn" type="button" aria-label="Metronome" aria-pressed="false">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 14h6M6 14l1.5-11h1L10 14M8 3v0M8 8l3-1.5"/></svg>
-          </button>
-          <span id="sid-beat" class="sid-vkbd-beat" aria-hidden="true"></span>
-          <button id="sid-record" class="ce-tool-btn sid-record-btn" type="button" aria-label="Record" aria-pressed="false">
-            <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="4.3" fill="currentColor"/></svg>
-          </button>
+          <div id="sid-lcd" class="sid-lcd" role="status" aria-live="off">
+            <span class="sid-lcd-cell"><i id="sid-lcd-pos-lbl">POS</i><b id="sid-lcd-pos">00</b></span>
+            <span class="sid-lcd-cell"><i id="sid-lcd-pat-lbl">PAT</i><b id="sid-lcd-pat">00</b></span>
+            <span class="sid-lcd-cell"><i id="sid-lcd-row-lbl">ROW</i><b id="sid-lcd-row">00</b></span>
+            <span class="sid-lcd-cell"><i id="sid-lcd-time-lbl">TIME</i><b id="sid-lcd-time">0:00.0</b></span>
+          </div>
           <span class="sid-mini-lbl">Oct:</span>
           <button id="sid-oct-down" class="sid-mini-btn" type="button" aria-label="Octave down">−</button>
           <span id="sid-oct-val" class="sid-num">4</span>
@@ -2664,6 +2663,13 @@ PRINTABLE CHARACTERS
           <button id="sid-stop" class="ce-tool-btn" type="button" aria-label="Stop">
             <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="4" width="8" height="8" fill="currentColor"/></svg>
           </button>
+          <button id="sid-record" class="ce-tool-btn sid-record-btn" type="button" aria-label="Record" aria-pressed="false">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="4.3" fill="currentColor"/></svg>
+          </button>
+          <button id="sid-metronome" class="ce-tool-btn sid-metronome-btn" type="button" aria-label="Metronome" aria-pressed="false">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 14h6M6 14l1.5-11h1L10 14M8 3v0M8 8l3-1.5"/></svg>
+          </button>
+          <span id="sid-beat" class="sid-vkbd-beat" aria-hidden="true"></span>
           <button id="sid-voice-copy" class="ce-tool-btn" type="button" aria-label="Copy voice">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="8" height="10" rx="1"/><path d="M3 5H2a1 1 0 00-1 1v7a1 1 0 001 1h8a1 1 0 001-1v-1"/></svg>
           </button>

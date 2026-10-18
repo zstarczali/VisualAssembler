@@ -9910,6 +9910,19 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-midi-led { width: 10px; height: 10px; flex: 0 0 10px; border-radius: 50%; background: #5a2222; border: 1px solid rgba(255,255,255,0.28); box-shadow: inset 0 1px 2px rgba(0,0,0,0.8); transition: background 0.15s ease-out, box-shadow 0.15s ease-out; }
 .sid-midi-led.sid-midi-led--on { background: #ff4545; box-shadow: 0 0 8px #ff4545; transition: none; }
 .sid-master-vol-wrap ~ .sid-xbtn { margin-left: 0; }  /* was: margin-left: auto — wrap owns the auto now */
+/* SID Editor playback counter: a backlit digital LCD (position, pattern, row, time) */
+.sid-lcd {
+  display: inline-flex; align-items: stretch; gap: 10px;
+  height: 30px; padding: 2px 10px; box-sizing: border-box; border-radius: 3px;
+  background: linear-gradient(180deg, #0f1d0d 0%, #071206 100%);
+  box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.8), 0 0 0 2px #262626, 0 0 0 3px rgba(255, 255, 255, 0.12);
+  color: #8dff6e; font-family: "C64ProMono", monospace; text-transform: uppercase;
+  user-select: none;
+}
+.sid-lcd-cell { display: inline-flex; flex-direction: column; justify-content: center; align-items: flex-start; line-height: 1.1; }
+.sid-lcd-cell i { font-style: normal; font-size: 7px; letter-spacing: 0.08em; color: #4f9c40; }
+.sid-lcd-cell b { font-weight: normal; font-size: 12px; letter-spacing: 0.04em; text-shadow: 0 0 4px rgba(141, 255, 110, 0.75); font-variant-numeric: tabular-nums; }
+.sid-lcd--playing .sid-lcd-cell b { color: #b8ff9e; }
 /* VA-VK instrument knob + LCD (the knob steps through the instruments) */
 .sid-vkbd-inst-wrap { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; }
 .sid-vkbd-inst-wrap + .sid-master-vol-wrap { margin-left: 0; }

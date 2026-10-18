@@ -4056,6 +4056,10 @@ function _applyEditorTranslations() {
   setText("#sid-import-sid", t("sidImportSid"));
   setText("#sid-master-vol-lbl", t("sidMasterVolume"));
   setText("#sid-vkbd-inst-lbl", t("sidVkbdInstrumentLabel"));
+  setText("#sid-lcd-pos-lbl", t("sidLcdPos"));
+  setText("#sid-lcd-pat-lbl", t("sidLcdPat"));
+  setText("#sid-lcd-row-lbl", t("sidLcdRow"));
+  setText("#sid-lcd-time-lbl", t("sidLcdTime"));
   document.getElementById("sid-vkbd-inst-knob")?.setAttribute("aria-label", t("sidVkbdInstrumentLabel"));
   // _sidInsts is still in its TDZ during the first translation pass
   try { if (_sidInsts) _sidVkbdInstSync(); } catch (_) {}
@@ -47733,15 +47737,32 @@ function _sidWaSchedule() {
     }
     for (let k = from; k < e.rows.length; k++) {
       const r = e.rows[k];
-      w.events.push({ time: w.next + (r.frame - first) / 50, row: r.row, opos: r.opos, pat: r.pat });
+      w.events.push({ time: w.next + (r.frame - first) / 50, row: r.row, opos: r.opos, pat: r.pat, frame: r.frame });
     }
     e.rows.length = 0;
     w.next += chunk / 50;
   }
   while (w.events.length && w.events[0].time <= now) _sidWaShowRow(w.events.shift());
 }
+/* Playback counter LCD: song position, pattern, row and play time while playing;
+   stopped, it shows the edit position (selected song step, pattern and row). */
+function _sidLcdShow(pos, pat, row, frames, playing) {
+  const two = function(v) { return String(Math.max(0, v | 0)).padStart(2, "0"); };
+  const set = function(id, text) { const el = document.getElementById(id); if (el && el.textContent !== text) el.textContent = text; };
+  set("sid-lcd-pos", two(pos));
+  set("sid-lcd-pat", two(pat));
+  set("sid-lcd-row", two(row));
+  const tenths = Math.floor(Math.max(0, frames) / 5);
+  const sec = Math.floor(tenths / 10);
+  set("sid-lcd-time", Math.floor(sec / 60) + ":" + String(sec % 60).padStart(2, "0") + "." + (tenths % 10));
+  document.getElementById("sid-lcd")?.classList.toggle("sid-lcd--playing", !!playing);
+}
+function _sidLcdIdle() {
+  _sidLcdShow(_sidSongPos, _sidPat, _sidSel ? _sidSel.row : 0, 0, false);
+}
 function _sidWaShowRow(ev) {
   _sidRow = ev.row;
+  _sidLcdShow(_sidPlayMode === "all" ? ev.opos : _sidSongPos, ev.pat, ev.row, ev.frame || 0, true);
   if (_sidPlayMode === "all") {
     _sidSongPlayPos = ev.opos;
     _sidPlayPat = ev.pat;
@@ -47789,6 +47810,7 @@ function _sidStop(preloadStream = true, stopExternal = false) {
   if (t) t.querySelectorAll("tr.sid-playing").forEach(function(r){ r.classList.remove("sid-playing"); });
   _sidUpdatePauseButton();
   _sidBuildSongList();
+  if (typeof _sidLcdIdle === "function") _sidLcdIdle();
 }
 async function _sidPlay(resetPosition = true) {
   if (_sidTimer) { clearInterval(_sidTimer); _sidTimer = null; }
@@ -50278,7 +50300,7 @@ function setupSidEditor() {
   onId("sid-editor-btn", "click", function() {
     const cm = document.querySelector(".control-menu"); if (cm) cm.removeAttribute("open");
     dialog._applyPosition?.();
-    _sidInit(); _sidEditorEngineSync(); dialog.showModal();
+    _sidInit(); _sidEditorEngineSync(); _sidLcdIdle(); dialog.showModal();
     // place the detached tracker before the first paint (no jump from the default spot)
     _sidRestoreTrackerFloat();
     _sidRollRestore();
