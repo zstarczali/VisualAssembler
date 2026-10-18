@@ -9923,6 +9923,11 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-lcd-cell i { font-style: normal; font-size: 7px; letter-spacing: 0.08em; color: #4f9c40; }
 .sid-lcd-cell b { font-weight: normal; font-size: 12px; letter-spacing: 0.04em; text-shadow: 0 0 4px rgba(141, 255, 110, 0.75); font-variant-numeric: tabular-nums; }
 .sid-lcd--playing .sid-lcd-cell b { color: #b8ff9e; }
+/* red LED variant (Settings → SID preview → LCD colour) */
+.sid-lcd.sid-lcd--red { background: linear-gradient(180deg, #1d0606 0%, #110303 100%); color: #ff5a4a; }
+.sid-lcd--red .sid-lcd-cell i { color: #9a2a22; }
+.sid-lcd--red .sid-lcd-cell b { text-shadow: 0 0 5px rgba(255, 60, 45, 0.85); }
+.sid-lcd--red.sid-lcd--playing .sid-lcd-cell b { color: #ff7a6c; }
 /* VA-VK instrument knob + LCD (the knob steps through the instruments) */
 .sid-vkbd-inst-wrap { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; }
 .sid-vkbd-inst-wrap + .sid-master-vol-wrap { margin-left: 0; }

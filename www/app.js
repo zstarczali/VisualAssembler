@@ -4073,6 +4073,12 @@ function _applyEditorTranslations() {
   setAttr("#sid-vkbd-record", t("sidRecord"));
   setText("#sid-preview-engine-lbl", t("sidPreviewEngine"));
   setText("#sid-preview-model-lbl", t("sidPreviewModel"));
+  setText("#sid-lcd-color-lbl", t("sidLcdColor"));
+  const sidLcdColor = document.getElementById("sid-lcd-color");
+  if (sidLcdColor) {
+    if (sidLcdColor.options[0]) sidLcdColor.options[0].textContent = t("sidLcdColorGreen");
+    if (sidLcdColor.options[1]) sidLcdColor.options[1].textContent = t("sidLcdColorRed");
+  }
   const sidPreviewEngine = document.getElementById("sid-preview-engine");
   if (sidPreviewEngine) {
     if (sidPreviewEngine.options[0]) sidPreviewEngine.options[0].textContent = t("sidPreviewEngineWebSid");
@@ -22206,6 +22212,10 @@ function setupHardwareSettingsDialog() {
     if (_sidInited) _sidStop();
     _sidPlayerRenderList();
     _sidEditorEngineSync();
+  });
+  document.getElementById("sid-lcd-color")?.addEventListener("change", function(e) {
+    try { localStorage.setItem("c64va-sid-lcd-color", e.target.value === "red" ? "red" : "green"); } catch (_) {}
+    _sidLcdApplyColor();
   });
   document.getElementById("sid-preview-model")?.addEventListener("change", function(e) {
     _sidPreviewModel = e.target.value === "6581" ? "6581" : "8580";
@@ -44100,6 +44110,7 @@ function _sidLoadPreviewSettings() {
   const modelEl = document.getElementById("sid-preview-model");
   if (modelEl) { modelEl.value = _sidPreviewModel; modelEl.disabled = _sidPreviewEngine !== "va-core"; }
   _sidEditorEngineSync();
+  _sidLcdApplyColor();
 }
 let _sidMasterGain = null;    // shared GainNode injected between _sidPlayInst output and destination
 let _sidSel = { voice: 0, row: 0 };
@@ -47756,6 +47767,14 @@ function _sidLcdShow(pos, pat, row, frames, playing) {
   const sec = Math.floor(tenths / 10);
   set("sid-lcd-time", Math.floor(sec / 60) + ":" + String(sec % 60).padStart(2, "0") + "." + (tenths % 10));
   document.getElementById("sid-lcd")?.classList.toggle("sid-lcd--playing", !!playing);
+}
+// runs from setupHardwareSettingsDialog at startup too: no module-level const here (TDZ)
+function _sidLcdApplyColor() {
+  let color = "green";
+  try { if (localStorage.getItem("c64va-sid-lcd-color") === "red") color = "red"; } catch (_) {}
+  document.getElementById("sid-lcd")?.classList.toggle("sid-lcd--red", color === "red");
+  const sel = document.getElementById("sid-lcd-color");
+  if (sel) sel.value = color;
 }
 function _sidLcdIdle() {
   _sidLcdShow(_sidSongPos, _sidPat, _sidSel ? _sidSel.row : 0, 0, false);
