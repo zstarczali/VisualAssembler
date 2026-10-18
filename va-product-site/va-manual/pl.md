@@ -228,6 +228,9 @@ w czasie rzeczywistym.
 - **Edytor SID** — nagłówek pokazuje aktywną emulację SID (WebSID lub VA SID
   Core z modelem układu scalonego); pole Prędkość ma przyciski − / + i przyjmuje
   wartości od 1 do 255; utwór może wykorzystywać maksymalnie 256 wzorców.
+- **Ustawienia serwera aktualizacji** — **Ustawienia → Aktualizacje** ustawia
+  serwer, z którego aktualizacje w aplikacji odczytują wydania (domyślnie
+  `https://www.c64va.pro/`). Zobacz [Aktualizacje w aplikacji](#in-app-updates).
 - **Ultimate Basic 1.6.6** — `DRUKUJ PRZY UŻYCIU "format"; wartości`,
   porównywanie ciągów znaków w kolejności PETSCII, zmiennoprzecinkowe `rnd` i
   `mod`, zmiennoprzecinkowe w obsłudze IRQ/NMI, `opcja podstawowego drukowania`
@@ -1224,6 +1227,12 @@ kompilatorem: na przykład polecenie `identyfikator_klatki_sprite'a, adres_danyc
 Lista poleceń ma celowo ograniczoną wysokość, aby karta szczegółów polecenia
 mogła wypełnić pozostałą wysokość panelu. Obszar szczegółów przewija się
 niezależnie, umożliwiając dostęp do dłuższych opisów składni.
+
+**Serwer aktualizacji:** **Ustawienia → Aktualizacje → Serwer aktualizacji**
+ustawia, gdzie wyszukiwane są wydania (domyślnie `https://www.c64va.pro/`);
+instalatory są odczytywane z `<serwer>downloads/VA/`. Adres musi używać
+`https://` (zwykłego `http://` tylko dla `localhost`, do testów); **Domyślnie**
+wraca do c64va.pro.
 
 ### Wolne i otwarte oprogramowanie
 

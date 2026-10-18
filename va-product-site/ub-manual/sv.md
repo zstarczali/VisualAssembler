@@ -229,10 +229,11 @@ definieras: `x / 0 = 255`, `x mod 0 = x` (före 1.6.0 hängde den sig).
 `mod` med en `ord`- eller `heltal`-operand (eller en negativ konstant) är en
 16-bitars rest med dividendens tecken, som i QBasic: `-7 mod 3` = -1, `7 mod -3`
 = 1, `(w + 5) mod 7` behåller 16 bitar. Med en ENKEL / DUBBEL operand fungerar
-den med flyttal (se *Flyttal*). `shr` av ett `heltal` är en aritmetisk
-förskjutning (tecknet bibehålls: `-8 shr 1` = -4); `ord` och bytevärden
-förskjuts logiskt. `x = x + 1` / `x = x - 1` (och ±2) kompileras till `INC` /
-`DEC`.
+den med flyttal (se *Flyttal*). `/` med ett `ord` / `heltal` eller negativ
+divisor är en 16-bitars division, avkortad mot noll (`-700 / 300` = -2, `-700 /
+-7` = 100). `shr` av ett `heltal` är en aritmetisk förskjutning (tecknet
+bibehålls: `-8 shr 1` = -4); `ord` och bytevärden förskjuts logiskt. `x = x + 1`
+/ `x = x - 1` (och ±2) kompilerar till `INC` / `DEC`.
 
 ### Ökning / Minskning
 
@@ -282,8 +283,9 @@ posterna (`print 1, 2` ger `12`). För C64 BASIC-avstånd, bygg med
 nummer skrivs sedan ut med ett inledande mellanslag (eller dess `-`) och ett
 avslutande mellanslag (`print 5` → ` 5 `), en `,` flyttas till nästa 10-kolumns
 utskriftszon, och en avslutande `,` håller markören på raden som en avslutande
-`;`. Strängar, `spc`, `tab`, `hex`, `bin`, `dec`, `chr$` och `str$` skrivs ut
-som tidigare.
+`;`. `STR$` ger sedan även C64-texten (`STR$(7)` = `" 7"`, `STR$(-42)` =
+`"-42"`). Strängar, `spc`, `tab`, `hex`, `bin`, `dec` och `chr$` skrivs ut som
+tidigare.
 
 #### `SKRIV UT MED `
 
@@ -527,6 +529,12 @@ RING Koszont("Zsolt")
 - `END SUB`, `END FUNCTION`, `END IF`, `END SELECT` accepteras (det andra ordet
   är valfritt); `EXIT SUB` / `EXIT FUNCTION` returnerar (vanlig `exit` är
   fortfarande `bye`).
+- I en SUB / FUNCTION som avslutas av `END SUB` / `END FUNCTION`, avslutar en
+  `END` ensam på sin rad programmet, som i QBasic — även inuti en `IF … END IF`
+  där. Stäng blocken i en sådan rutin i QBasic-stil (`END IF`, `END SELECT`,
+  `WEND`, `LOOP`, `NEXT`); en rutin som avslutas av en vanlig `end` behåller de
+  gamla blockreglerna. `END` och `bye` inuti en rutin lämnar programmet
+  (tidigare återvände de till rutinens anropare).
 - En sub/fn kan anropas utan parentes: `Koszont "Zsolt"`, `Rajzol x, y`.
 - `PRINT a; b; c` — `;` kopplar ihop objekt utan mellanslag; ett avslutande `;`
   undertrycker nyradstecken. Ett `;` följt av en sats (`print x; y = 1`)
@@ -601,10 +609,17 @@ IF s = "ABC" ELLER t &lt;&gt; "" THEN PRINT "jämför med = / &lt;&gt;"
 - **Strängmatriser:** element som får ett icke-litteralt värde (eller `input`)
   får sin egen 32-byte-plats (31 tecken), så `input nevek(i)` i en loop behåller
   alla namn.
-- **`STR$` / `VAL`:** `STR$` för ett 16-bitars eller teckenförtecknat värde har
-  inga inledande nollor (`"-42"`). För kompatibilitet behåller `STR$` för en
-  byte den 3-siffriga formen (`"007"`). `VAL` läser 16-bitars teckenförtecknade
-  tal (`VAL("1234") + 1` = 1235).
+- **Längre strängar:** en rad `alternativsträngar 255` låter varje beräknad
+  strängvariabel innehålla upp till 255 tecken (C64 BASICs gräns);
+  `alternativsträngar 200, 63` ger också strängmatriselement 63 tecken (platsen
+  avrundas uppåt till 32, 64, 128 eller 256 byte). Varje variabel har sin egen
+  buffert, så längre gränser kostar RAM: n + 1 byte per strängvariabel och
+  platsstorlek × element per strängmatris.
+- **`STR$` / `VAL`:** `STR$` för ett 16-bitars eller teckenfört värde har inga
+  inledande nollor (`"-42"`). För kompatibilitet behåller `STR$` för en byte
+  3-siffrig form (`"007"`) om inte C64 BASIC-avstånd är aktiverat
+  (`--basic-print`: `" 7"`). `VAL` läser 16-bitars signerade tal (`VAL("1234") +
+  1` = 1235).
 - **Jämförelse:** `=` / `&lt;&gt;` (och `==` / `!=`), och `&lt;` `&gt;` `&lt;=`
   `&gt;=` i PETSCII-ordning som C64 BASIC; en sträng kommer före varje längre
   sträng den börjar (`"AB" &lt; "ABC"`, `"" &lt; "A"`).
@@ -716,24 +731,60 @@ var f: float = balls[0].vel # läser flyttalsfältet till flyttalsvariabeln
 print balls[0].vel # skriver ut "1.50"
 ```
 
+**Standardvärden, strängar, kapslade typer, parametrar** (efter 1.6.6):
+
+```basic
+TYPE TPoint ' QBasform: TYPE … END TYPE, "namn AS typ"
+x AS BYTE = 3 ' standardvärde
+y AS WORD = 1000
+END TYPE
+
+type TEntity
+var pos: TPoint # kapslad struktur: fält pos.x, pos.y
+var hp: word = 100
+var name: string * 6 = "NOBODY" # sträng med fast längd inuti elementet (7 byte)
+endtype
+
+var e: TEntity = array(100) # varje element börjar med standardvärdena
+e[5].pos.x = 7
+e[5].name = "ZS" + "OLT" # beräknad text kopieras in, klipps till 6 tecken
+print e[5].name; " "; e[5].hp
+
+sub heal(p AS TEntity, amount AS WORD) # eller p: TEntity
+p.hp = p.hp + amount # elementet som skickas ändras
+p.pos.x = p.pos.x + 1
+end sub
+heal(e[5], 25) # skicka ett element
+```
+
 Regler och begränsningar:
 
-- Fälttyper: `int` (1 byte), `word` (2 byte LE), `float` (2 byte Q8.8). `string`
-  och kapslade `type`-fält stöds ännu inte.
+- Fälttyper: `int` / `byte` (1 byte), `word` / `integer` (2 byte LE, osignerad),
+  `float` (2 byte Q8.8), `string * n` (en sträng med fast längd på upp till n
+  tecken, 1–254, n + 1 byte i elementet; `string` ensamt är `string * 15`), och
+  en annan strukturtyp (kapslad: `arr[i].pos.x`). Fält skrivs `var name: type`
+  eller, i QBasic-stil, `name AS type`; `END TYPE` stänger blocket på samma sätt
+  som `endtype`.
+- **Standardvärden:** `= konstant` efter ett fält (ett tal, ett decimaltal för
+  `flyttal`, en strängliteral för `sträng`). De är arrayens innehåll vid
+  programstart (som `datanamn: …`); ett kapslat fält tar standardvärdena för sin
+  typ. Elementantalet måste då vara en konstant.
+- **Strängfält** fungerar som strängvärden: tilldelar literaler eller beräknade
+  strängar (klipps till fältlängden), skriver ut dem, använder dem i `+`, `=` /
+  `&lt;&gt;` / `&lt;` och strängfunktioner.
+- **Struktparametrar:** `sub f(p AS TName)` / `p: TName` tar emot adressen för
+  det element som skickas (`f(enemies[i])`), så `p.field` läser och skriver det
+  elementet; en struct-parameter kan skickas vidare till en annan rutin
+  (`g(p)`). En funktion kan också ta emot dem. `arr[i]` för en struct-array utan
+  ett fält är den adressen.
 - Elementstorlek = summan av fältbredderna (deklarationsordning, ingen
   utfyllnad).
 - Lagring finns på `$C000+` tillsammans med vanliga arrayer och visas i
   minneskartan som en vanlig array med den totala bytestorleken.
 - Konstant index → `LDA/STA absolute` vid kompileringstid.
-- Variabelindex → shift-and-adder-multiplikation för `idx * elem_size`, sedan
-  indexerad `(ptr),Y`-åtkomst. Elementstorlekar som är potenser av två (1, 2, 4,
-  8, 16) använder bara `ASL A`-kedjor; andra storlekar avger en kort
-  shift-adder-sekvens via två nollsidiga byte.
-- Sub-/fn-parametrar av en struct-typ stöds ännu inte — skicka istället arrayen
-  och ett index, t.ex. `sub move(idx: int) ... enemies[idx].x = ...`.
-- Standardfältvärden (`var fire: int = 2` inuti typen) analyseras för
-  kompatibilitet med förslaget men har ännu inte initierats vid
-  allokeringstillfället.
+- Variabelindex → 16-bitars `idx * elem_size` (tidigare beräknades det i 8 bitar
+  och element efter offset 255 var felaktiga), sedan indexerad `(ptr),Y`
+  åtkomst.
 - Endast ett nedsänkt tecken är tillåtet på en struct-typad array;
   flerdimensionella struct-arrayer stöds inte (använd ett beräknat platt index).
 
@@ -2186,6 +2237,18 @@ kan upprepas för flera filer
 -h, --help Visa hjälp
 ```
 
+### Varningar
+
+Kompilatorn skriver ut varningar (de stoppar inte bygget) för en bytevariabel
+som får ett värde den inte kan hålla:
+
+```
+rad 5: varning: 'b' är en byte (0-255) och 1000 får inte plats — den radbryts; deklarera den 'som heltal' / 'som ord' om det inte är avsett
+```
+
+Ett resultat maskerat med `och`, `mod`, `/` eller `shr` rapporteras inte, och
+inte heller byte + byte.
+
 ### CRT-export
 
 Ultimate Basic kan också skriva en Magic Desk typ-19-patronavbildning när
@@ -2372,13 +2435,15 @@ Använd `--asm` för att se den genererade koden för ditt eget program.
 
 | Särdrag                               | Begränsning                                                                                                                                                                                                                                                                         |
 | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Heltalsaritmetik                      | 8-bitars osignerad (0–255); `word`-variabler innehåller 16-bitarsvärden                                                                                                                                                                                                             |
+| Heltalsaritmetik                      | `var`/`byte`-värden är 8-bitars osignerade (0–255) och omsluter (`200 + 100` → 44 i en byte); en konstant som inte får plats (`b = 300`, `b = a + 1000`) ger en varning vid kompilering; `heltal` är signerat 16-bitars, `ord` osignerat 16-bitars                                  |
 | Noll sidbudget                        | Permanent nollsida är `$02–$4F` (78 byte): varje variabel och sub/fn-parameter tar 2 byte, varje körande `för` loop 2 till. Eftersom 1.6.4 flyttas variabler som inte passar till RAM automatiskt (se *Variabler i RAM*); endast extrema fall rapporterar fortfarande `av nollsida` |
 | Binära literaler                      | `%01010101` (sedan 1.6.4), `$hex` och decimal                                                                                                                                                                                                                                       |
 | Subrutiner                            | Ingen rekursion — ZP-parameterplatser allokeras statiskt                                                                                                                                                                                                                            |
+| `END` i QBasic-rutiner                | I en SUB / FUNCTION som avslutas med `END SUB` / `END FUNCTION`, avslutar enbart en `END` på sin rad programmet; block i en sådan rutin måste avslutas i QBasic-stil (`END IF`, `WEND`, …), en UB-stil `if … ⏎ end` läses där som programslut                                       |
+| Strukturtyper                         | En nedsänkt siffra per struct-array (ingen `array(8, 8)` i en struct); ett element är högst 256 byte; `word` / `heltal`-fält är osignerade 16-bitars; strängfält har fast längd (upp till 254 tecken); en struct-parameter skickar elementet via referens                           |
 | Strängvariabler                       | `single` / `double` är 5-byte flyttal sedan 1.6.4 (rutinerna som ett program använder, ~2–5 KB, läggs till); `float` förblir Q8.8 (0–255.99)                                                                                                                                        |
 | Unär minus                            | Eftersom 1.6.4 binder en inledande `-` till sin operand: `-5 - 3` är -8 (den var -(5 - 3) = -2)                                                                                                                                                                                     |
-| String concat-körning                 | Beräknade värden finns i en buffert på 80 tecken per variabel (längre resultat klipps ut); sträng-array-elementvärden i 31-teckens platser; ordningen `&lt;` / `&gt;` är PETSCII-byteordning                                                                                        |
+| String concat-körning                 | Beräknade värden finns i en buffert på 80 tecken per variabel (längre resultat klipps ut), sträng-array-elementvärden i 31-teckensplatser — `alternativsträngar n, m` höjer båda (upp till 255); ingen delad heap; `&lt;` / `&gt;`-ordningen är PETSCII-byteordning                 |
 | `rnd()` / `rnd(n)`                    | Enkel LCG, inte kryptografisk; period = 256 (flyttalsvärdet `rnd` är en 32-bitars xorshift)                                                                                                                                                                                         |
 | `abs()` / `sgn()` / `min()` / `max()` | Endast 8-bitarsvärden; `abs`/`sgn` behandlar värden som signerade (bit 7 = negativ → `abs` tvåkomplement, `sgn` returnerar `$FF`); `min`/`max` är osignerade (0–255)                                                                                                                |
 | `diagram`                             | Pixlar utanför räckvidden klipps tyst bort (Y ≥ 200 eller X ≥ 320 → no-op)                                                                                                                                                                                                          |

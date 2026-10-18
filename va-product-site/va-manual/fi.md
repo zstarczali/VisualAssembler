@@ -227,6 +227,10 @@ reaaliajassa.
 - **SID-editori** — otsikko näyttää aktiivisen SID-emuloinnin (WebSID tai VA SID
   Core sirumallin kanssa); Nopeus-kentässä on − / + -painikkeet ja se ottaa
   arvoja 1–255; kappaleessa voi käyttää jopa 256 patternia.
+- **Päivityspalvelimen asetukset** — **Asetukset → Päivitykset** asettaa
+  palvelimen, jolta sovelluksen sisäiset päivitykset lukevat julkaisut
+  (oletusarvo `https://www.c64va.pro/`). Katso [Sovelluksen sisäiset
+  päivitykset]{1].
 - **Ultimate Basic 1.6.6** — `TULOSTA KÄYTTÄEN "muotoa"; arvoja`, merkkijonojen
   vertailu PETSCII-järjestyksessä, liukuluku `rnd` ja `mod`, liukuluku IRQ /
   NMI-käsittelijöissä, `optio basic print` C64 BASIC PRINT -välistystä varten,
@@ -1208,6 +1212,12 @@ peräkkäisistä 64-tavuisista sprite-kehyksistä.
 Komentoluettelon korkeus on tarkoituksella rajoitettu, jotta komentotietokortti
 voi täyttää paneelin jäljellä olevan korkeuden. Tietoalue vierii itsenäisesti
 pidempiä syntaksikuvauksia varten.
+
+**Päivityspalvelin:** **Asetukset → Päivitykset → Päivityspalvelin** määrittää,
+mistä julkaisuja haetaan (oletusarvo `https://www.c64va.pro/`); asennusohjelmat
+luetaan osoitteesta `<palvelin>lataukset/VA/`. Osoitteen on oltava `https://`
+(tavallinen `http://` vain osoitteelle `localhost` testausta varten); **Oletus**
+palaa osoitteeseen c64va.pro.
 
 ### Ilmainen ja avoimen lähdekoodin
 

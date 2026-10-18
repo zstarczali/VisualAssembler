@@ -223,6 +223,9 @@ maskinkoden i realtid.
 - **SID-redigerare** — rubriken visar den aktiva SID-emuleringen (WebSID eller
   VA SID Core med chipmodellen); fältet Speed har − / + knappar och tar 1–255;
   låten kan använda upp till 256 mönster.
+- **Inställning för uppdateringsserver** — **Inställningar → Uppdateringar**
+  ställer in servern som uppdateringar i appen läser utgåvor från (standard
+  `https://www.c64va.pro/`). Se [Uppdateringar i appen](#in-app-updates).
 - **Ultimate Basic 1.6.6** — `UTSKRIFT MED "format"; värden`, strängjämförelse i
   PETSCII-ordning, flyttal `rnd` och `mod`, flyttal i IRQ/NMI-hanterare,
   `alternativet grundläggande utskrift` för C64 BASIC PRINT-avstånd, mindre
@@ -1174,6 +1177,12 @@ på varandra följande 64-byte sprite-frames.
 Kommandolistan är avsiktligt höjdbegränsad så att kommandodetaljkortet kan fylla
 den återstående panelhöjden. Detaljområdet rullar oberoende för längre
 syntaxbeskrivningar.
+
+**Uppdateringsserver:** **Inställningar → Uppdateringar → Uppdateringsserver**
+anger var utgåvor söks upp (standard `https://www.c64va.pro/`);
+installationsprogrammen läses från `<server>downloads/VA/`. Adressen måste
+använda `https://` (vanlig `http://` endast för `localhost`, för testning);
+**Standard** går tillbaka till c64va.pro.
 
 ### Gratis och öppen källkod
 

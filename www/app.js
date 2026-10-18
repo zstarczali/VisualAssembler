@@ -4055,6 +4055,10 @@ function _applyEditorTranslations() {
   setText("#sid-import-goat", t("sidImportGoat"));
   setText("#sid-import-sid", t("sidImportSid"));
   setText("#sid-master-vol-lbl", t("sidMasterVolume"));
+  setText("#sid-vkbd-inst-lbl", t("sidVkbdInstrumentLabel"));
+  document.getElementById("sid-vkbd-inst-knob")?.setAttribute("aria-label", t("sidVkbdInstrumentLabel"));
+  // _sidInsts is still in its TDZ during the first translation pass
+  try { if (_sidInsts) _sidVkbdInstSync(); } catch (_) {}
   setText("#websid-play-vol-lbl", t("sidMasterVolume"));
   setText("#sid-ed-master-vol-lbl", t("sidMasterVolume"));
   setAttr("#sid-ed-master-vol", t("sidMasterVolume"));
@@ -44748,6 +44752,7 @@ function _sidLoadInstUI() {
   const inst = _sidCurInst();
   Object.assign(inst, _sidInstNorm(inst));
   document.getElementById("sid-inst-name").value = inst.name;
+  if (typeof _sidVkbdInstSync === "function") _sidVkbdInstSync();
   _sidInstFields().forEach(function(f) {
     const el = document.getElementById(f[0]); if (!el) return;
     if (f[2] === "check") el.checked = !!inst[f[1]]; else el.value = inst[f[1]];
@@ -44926,6 +44931,69 @@ function _sidBuildInstSel() {
     sel.appendChild(o);
   });
   sel.value = _sidInst;
+  if (typeof _sidVkbdInstSync === "function") _sidVkbdInstSync();
+}
+
+/* VA-VK instrument knob + LCD: the knob steps through the instruments (drag, wheel,
+   arrow keys), the LCD shows the number and name; both follow #sid-inst-sel. */
+function _sidVkbdInstSync() {
+  const n = (_sidInsts && _sidInsts.length) || 0;
+  const i = Math.max(0, Math.min(n - 1, _sidInst | 0));
+  const knob = document.getElementById("sid-vkbd-inst-knob");
+  if (knob) {
+    _sidKnobRender(knob, n > 1 ? i * 100 / (n - 1) : 0);
+    knob.setAttribute("aria-valuemin", "1");
+    knob.setAttribute("aria-valuemax", String(Math.max(1, n)));
+    knob.setAttribute("aria-valuenow", String(i + 1));
+    knob.setAttribute("aria-valuetext", n ? (_sidInsts[i].name || "") : "");
+  }
+  const hex = function(v) { return v.toString(16).toUpperCase().padStart(2, "0"); };
+  const num = document.getElementById("sid-vkbd-lcd-num");
+  if (num) num.textContent = n ? t("sidVkbdInstrument") + " " + hex(i) + "/" + hex(n - 1) : "";
+  const name = document.getElementById("sid-vkbd-lcd-name");
+  if (name) name.textContent = n ? (_sidInsts[i].name || "—") : "—";
+}
+function _sidVkbdSelectInst(i) {
+  const n = (_sidInsts && _sidInsts.length) || 0;
+  if (!n) return;
+  i = Math.max(0, Math.min(n - 1, i | 0));
+  if (i === _sidInst) return;
+  const sel = document.getElementById("sid-inst-sel");
+  if (sel) { sel.value = String(i); sel.dispatchEvent(new Event("change", { bubbles: true })); }
+  else { _sidInst = i; _sidLoadInstUI(); }
+}
+function _sidVkbdInstKnobBind() {
+  const knob = document.getElementById("sid-vkbd-inst-knob");
+  if (!knob || knob._bound) return;
+  knob._bound = true;
+  let drag = null;
+  knob.addEventListener("pointerdown", function(e) {
+    drag = { x: e.clientX, y: e.clientY, index: _sidInst | 0 };
+    try { knob.setPointerCapture(e.pointerId); } catch (_) {}
+    knob.focus();
+    e.preventDefault();
+  });
+  knob.addEventListener("pointermove", function(e) {
+    if (!drag) return;
+    // one instrument per 16 px up / right
+    _sidVkbdSelectInst(drag.index + Math.round(((drag.y - e.clientY) + (e.clientX - drag.x)) / 16));
+  });
+  const end = function(e) { drag = null; try { knob.releasePointerCapture(e.pointerId); } catch (_) {} };
+  knob.addEventListener("pointerup", end);
+  knob.addEventListener("pointercancel", end);
+  knob.addEventListener("wheel", function(e) {
+    e.preventDefault();
+    _sidVkbdSelectInst((_sidInst | 0) + (e.deltaY < 0 ? 1 : -1));
+  }, { passive: false });
+  knob.addEventListener("keydown", function(e) {
+    const n = (_sidInsts && _sidInsts.length) || 0;
+    const delta = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1, PageUp: 4, PageDown: -4 }[e.key];
+    if (delta !== undefined) _sidVkbdSelectInst((_sidInst | 0) + delta);
+    else if (e.key === "Home") _sidVkbdSelectInst(0);
+    else if (e.key === "End") _sidVkbdSelectInst(n - 1);
+    else return;
+    e.preventDefault();
+  });
 }
 
 /* ── ADSR graph ── */
@@ -46513,6 +46581,9 @@ function _sidVaCoreLabel() {
 function _sidEditorEngineSync() {
   const el = document.getElementById("sid-engine-name");
   if (el) el.textContent = "· " + (_sidUsesVaCore() ? _sidVaCoreLabel() : "WebSID");
+  // the VA-VK badge names the running emulation too
+  const chip = document.getElementById("sid-vkbd-brand-chip");
+  if (chip) chip.textContent = _sidUsesVaCore() ? "VA SID Core · " + _sidPreviewModel : "WebSID";
 }
 // The engine that plays the current tune; when stopped, the one Play would use.
 let _sidPlayerEngineName = "";
@@ -49052,6 +49123,8 @@ function _sidOpenSidImport(bytes) {
   songEl.value = String(Math.max(1, Math.min(info.songs, info.start || 1)));
   songEl.disabled = info.songs < 2;
   document.getElementById("sid-import-sid-status").textContent = "";
+  const progressWrap = document.getElementById("sid-import-sid-progress");
+  if (progressWrap) progressWrap.hidden = true;
   const go = document.getElementById("sid-import-sid-go");
   go.textContent = t("sidImportSidGo");
   go.disabled = false;
@@ -49072,15 +49145,38 @@ async function _sidRunSidImport() {
     document.getElementById("sid-import-sid-song").disabled = on || document.getElementById("sid-import-sid-song").max === "1";
     document.getElementById("sid-import-sid-seconds").disabled = on;
   };
+  const wrap = document.getElementById("sid-import-sid-progress");
+  const bar = document.getElementById("sid-import-sid-bar");
+  // state: null = hidden, -1 = indeterminate, 0..100 = percent
+  const progress = function(state, label) {
+    if (wrap) wrap.hidden = state === null;
+    if (bar) {
+      bar.classList.toggle("update-progress-bar--indeterminate", state === -1);
+      bar.style.width = state >= 0 ? state + "%" : "";
+    }
+    if (label !== undefined) status.textContent = label;
+  };
   busy(true);
-  status.textContent = t("sidImportSidWorking");
+  progress(0, t("sidImportSidWorking"));
+  let unlisten = null;
+  try {
+    unlisten = await window.electronAPI.onSidDumpProgress?.(function(p) {
+      if (!p || !p.total) return;
+      const pct = Math.min(100, Math.round(p.done * 100 / p.total));
+      progress(pct, t("sidImportSidWorking") + " " + pct + "%");
+    });
+  } catch (_) { unlisten = null; }
   try {
     const dump = await window.electronAPI.sidRegisterDump({ fileBytes: Array.from(_sidSidImportBytes), song: song, seconds: seconds });
+    progress(-1, t("sidImportSidConverting"));
+    // let the dialog paint before the (synchronous) conversion
+    await new Promise(function(r){ setTimeout(r, 30); });
     const bin = atob(dump.regs || "");
     const regs = new Uint8Array(bin.length);
     for (let i = 0; i < bin.length; i++) regs[i] = bin.charCodeAt(i);
     const res = _sidDumpImport(regs, dump);
-    if (!res) { status.textContent = t("sidImportSidNoNotes"); busy(false); return; }
+    if (!res) { progress(null, t("sidImportSidNoNotes")); busy(false); return; }
+    progress(null, "");
     busy(false);
     dlg.close();
     _sidSidImportBytes = null;
@@ -49089,8 +49185,10 @@ async function _sidRunSidImport() {
     showViceToast(tf("sidImportSidDone", { insts: res.insts.length, pats: res.patterns.length, song: res.song.length, speed: res.speed }) +
       (skipped.length ? " " + tf("sidGoatSkipped", { list: skipped.join(", ") }) : ""), false);
   } catch (err) {
-    status.textContent = String((err && err.message) || err);
+    progress(null, String((err && err.message) || err));
     busy(false);
+  } finally {
+    if (typeof unlisten === "function") unlisten();
   }
 }
 
@@ -50224,6 +50322,7 @@ function setupSidEditor() {
   });
   onId("sid-inst-name", "input", function(e){ _sidCurInst().name = e.target.value; _sidBuildInstSel(); });
   onId("sid-inst-sel", "change", function(e){ _sidInst = parseInt(e.target.value,10); _sidLoadInstUI(); });
+  _sidVkbdInstKnobBind();
   onId("sid-inst-add", "click", function(){ _sidInsts.push(_sidNewInst(t("sidNewInstrumentName") + " " + (_sidInsts.length+1))); _sidInst = _sidInsts.length-1; _sidBuildInstSel(); _sidLoadInstUI(); });
   onId("sid-preview", "click", function(){ _sidEnsureAudio(); _sidPlayInst(_sidCurInst(), _sidNoteFreq(57), _sidAudio.currentTime+0.02, 0.5); });
 

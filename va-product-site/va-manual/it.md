@@ -227,6 +227,10 @@ tempo reale il codice assembly e il codice macchina generati.
 - **Editor SID** — l'intestazione mostra l'emulazione SID attiva (WebSID o VA
   SID Core con il modello del chip); il campo Velocità ha i pulsanti − / + e
   accetta valori da 1 a 255; la canzone può utilizzare fino a 256 pattern.
+- **Impostazioni del server di aggiornamento** — **Impostazioni →
+  Aggiornamenti** imposta il server da cui l'aggiornamento in-app legge le
+  release (predefinito `https://www.c64va.pro/`). Vedi [Aggiornamenti
+  in-app](#in-app-updates).
 - **Ultimate Basic 1.6.6** — `PRINT USING "format"; valori`, confronto di
   stringhe in ordine PETSCII, virgola mobile `rnd` e `mod`, virgola mobile nei
   gestori IRQ / NMI, `option basic print` per la spaziatura PRINT del C64 BASIC,
@@ -1252,6 +1256,12 @@ L'elenco dei comandi è intenzionalmente limitato in altezza in modo che la
 scheda dei dettagli del comando possa riempire l'altezza rimanente del pannello.
 L'area dei dettagli scorre indipendentemente per consentire descrizioni di
 sintassi più lunghe.
+
+**Server di aggiornamento:** **Impostazioni → Aggiornamenti → Server di
+aggiornamento** imposta dove vengono cercate le release (predefinito
+`https://www.c64va.pro/`); i programmi di installazione vengono letti da
+`<server>downloads/VA/`. L'indirizzo deve utilizzare `https://` (solo `http://`
+per `localhost`, per i test); **Predefinito** torna a c64va.pro.
 
 ### Libero e open source
 

@@ -227,6 +227,9 @@ gegenereerde assembly- en machinecode in realtime.
 - **SID Editor** — de header toont de actieve SID-emulatie (WebSID of VA SID
   Core met het chipmodel); het veld Snelheid heeft − / + knoppen en accepteert
   waarden van 1–255; het nummer kan maximaal 256 patronen gebruiken.
+- **Serverinstellingen bijwerken** — **Instellingen → Updates** stelt de server
+  in waarvan de in-app-update releases leest (standaard
+  `https://www.c64va.pro/`). Zie [In-app-updates](#in-app-updates).
 - **Ultimate Basic 1.6.6** — `PRINT USING "format"; waarden`,
   tekenreeksvergelijking in PETSCII-volgorde, drijvende-komma `rnd` en `mod`,
   drijvende-komma in IRQ/NMI-handlers, `option basic print` voor C64 BASIC
@@ -1232,6 +1235,12 @@ spriteframes van 64 bytes.
 De lijst met opdrachten is opzettelijk in hoogte beperkt, zodat de detailkaart
 van de opdracht de resterende paneelhoogte kan vullen. Het detailgebied scrollt
 onafhankelijk voor langere syntaxbeschrijvingen.
+
+**Updateserver:** **Instellingen → Updates → Updateserver** bepaalt waar
+releases worden opgezocht (standaard `https://www.c64va.pro/`); de
+installatiebestanden worden gelezen van `<server>downloads/VA/`. Het adres moet
+`https://` gebruiken (plain `http://` alleen voor `localhost`, voor
+testdoeleinden); **Standaard** gaat terug naar c64va.pro.
 
 ### Gratis en open source
 

@@ -234,10 +234,12 @@ x` (prima della versione 1.6.0 si bloccava).
 `mod` con un operando `word` o `integer` (o una costante negativa) è un resto a
 16 bit con il segno del dividendo, come in QBasic: `-7 mod 3` = -1, `7 mod -3` =
 1, `(w + 5) mod 7` mantiene 16 bit. Con un operando SINGOLO / DOPPIO funziona in
-virgola mobile (vedi *Virgola mobile*). `shr` di un `intero` è uno spostamento
-aritmetico (il segno viene mantenuto: `-8 shr 1` = -4); i valori di `word` e
-byte vengono spostati logicamente. `x = x + 1` / `x = x - 1` (e ±2) vengono
-compilati in `INC` / `DEC`.
+virgola mobile (vedi *Virgola mobile*). `/` con una `parola` / `intero` o
+divisore negativo è una divisione a 16 bit, troncata verso lo zero (`-700 / 300`
+= -2, `-700 / -7` = 100). `shr` di un `intero` è uno spostamento aritmetico (il
+segno viene mantenuto: `-8 shr 1` = -4); i valori di `parola` e byte vengono
+spostati logicamente. `x = x + 1` / `x = x - 1` (e ±2) compilano in `INC` /
+`DEC`.
 
 ### Incremento / Decremento
 
@@ -286,9 +288,11 @@ Per impostazione predefinita i numeri vengono stampati senza spazi aggiuntivi e
 spaziatura BASIC del C64, compilare con `--basic-print`, oppure inserire una
 riga `option basic print` nel programma: un numero viene quindi stampato con uno
 spazio iniziale (o il suo `-`) e uno spazio finale (`print 5` → ` 5 `), un `,`
-sposta alla successiva zona di stampa a 10 colonne e uno spazio finale `,`
-mantiene il cursore sulla riga come uno spazio finale `;`. Le stringhe, `spc`,
-`tab`, `hex`, `bin`, `dec`, `chr$` e `str$` vengono stampate come prima.
+sposta il cursore alla successiva zona di stampa a 10 colonne e uno spazio
+finale `,` mantiene il cursore sulla riga come uno spazio finale `;`. `STR$`
+quindi restituisce anche il testo C64 (`STR$(7)` = `" 7"`, `STR$(-42)` =
+`"-42"`). Le stringhe, `spc`, `tab`, `hex`, `bin`, `dec` e `chr$` vengono
+stampate come prima.
 
 #### `STAMPA USANDO`
 
@@ -568,6 +572,13 @@ CHIAMA Koszont("Zsolt")
 - `END SUB`, `END FUNCTION`, `END IF`, `END SELECT` sono accettati (la seconda
   parola è opzionale); `EXIT SUB` / `EXIT FUNCTION` restituisce (il semplice
   `exit` è ancora `bye`).
+- In una SUB / FUNCTION chiusa da `END SUB` / `END FUNCTION`, un `END` da solo
+  sulla sua riga termina il programma, come in QBasic — anche all'interno di un
+  `IF … END IF`. Chiudere i blocchi di una tale routine in stile QBasic (`END
+  IF`, `END SELECT`, `WEND`, `LOOP`, `NEXT`); una routine chiusa da un semplice
+  `end` mantiene le vecchie regole dei blocchi. `END` e `bye` all'interno di
+  qualsiasi routine escono dal programma (prima, tornavano al chiamante della
+  routine).
 - Un sub/fn può essere chiamato senza parentesi: `Koszont "Zsolt"`, `Rajzol x,
   y`.
 - `PRINT a; b; c` — `;` unisce gli elementi senza spazi; un `;` finale sopprime
@@ -658,10 +669,18 @@ IF s = "ABC" OR t &lt;&gt; "" THEN PRINT "confronta con = / &lt;&gt;"
 - **Array di stringhe:** gli elementi che ottengono un valore non letterale (o
   `input`) ottengono il proprio slot da 32 byte (31 caratteri), quindi `input
   nevek(i)` in un ciclo mantiene ogni nome.
+- **Stringhe più lunghe:** una riga `stringhe opzionali 255` consente a ogni
+  variabile stringa calcolata di contenere fino a 255 caratteri (limite del
+  BASIC C64); `stringhe opzionali 200, 63` assegnano anche 63 caratteri agli
+  elementi dell'array di stringhe (lo slot viene arrotondato per eccesso a 32,
+  64, 128 o 256 byte). Ogni variabile mantiene il proprio buffer, quindi limiti
+  più lunghi costano RAM: n + 1 byte per variabile stringa e dimensione dello
+  slot × elementi per array di stringhe.
 - **`STR$` / `VAL`:** `STR$` di un valore a 16 bit o con segno non ha zeri
   iniziali (`"-42"`). Per compatibilità, `STR$` di un byte mantiene la forma a 3
-  cifre (`"007"`). `VAL` legge numeri con segno a 16 bit (`VAL("1234") + 1` =
-  1235).
+  cifre (`"007"`) a meno che non sia attiva la spaziatura C64 BASIC
+  (`--basic-print`: `" 7"`). `VAL` legge numeri con segno a 16 bit (`VAL("1234")
+  + 1` = 1235).
 - **Confronto:** `=` / `&lt;&gt;` (e `==` / `!=`), e `&lt;` `&gt;` `&lt;=`
   `&gt;=` in ordine PETSCII come C64 BASIC; una stringa viene prima di ogni
   stringa più lunga che inizia (`"AB" &lt; "ABC"`, `"" &lt; "A"`).
@@ -779,26 +798,68 @@ var f: float = balls[0].vel # legge il campo float nella variabile float
 print balls[0].vel # stampa "1.50"
 ```
 
+**Valori predefiniti, stringhe, tipi annidati, parametri** (dopo la versione
+1.6.6):
+
+```basic
+TIPO TPoint ' Forma QBasic: TIPO … FINE TIPO, "nome COME tipo"
+
+x COME BYTE = 3 ' valore predefinito
+
+y COME PAROLA = 1000
+FINE TIPO
+
+tipo TEntity
+
+var pos: TPoint # struttura annidata: campi pos.x, pos.y
+
+var hp: parola = 100
+
+var name: stringa * 6 = "NOBODY" # stringa a lunghezza fissa all'interno dell'elemento (7 byte)
+fine tipo
+
+var e: TEntity = array(100) # ogni elemento inizia con i valori predefiniti
+e[5].pos.x = 7
+e[5].name = "ZS" + "OLT" # il testo calcolato viene copiato e troncato a 6 caratteri
+print e[5].name; " "; e[5].hp
+
+sub heal(p AS TEntity, amount AS WORD) # oppure p: TEntity
+p.hp = p.hp + amount # l'elemento passato viene modificato
+p.pos.x = p.pos.x + 1
+end sub
+heal(e[5], 25) # passa un elemento
+```
+
 Regole e vincoli:
 
-- Tipi di campo: `int` (1 byte), `word` (2 byte LE), `float` (2 byte Q8.8). I
-  campi `string` e `type` annidati non sono ancora supportati.
+- Tipi di campo: `int` / `byte` (1 byte), `word` / `integer` (2 byte LE, senza
+  segno), `float` (2 byte Q8.8), `string * n` (una stringa a lunghezza fissa
+  fino a n caratteri, 1–254, n + 1 byte nell'elemento; `string` da solo è
+  `string * 15`), e un altro tipo di struttura (annidato: `arr[i].pos.x`). I
+  campi sono scritti `var name: type` oppure, in stile QBasic, `name AS type`;
+  `END TYPE` chiude il blocco come `endtype`.
+- **Valori predefiniti:** `= costante` dopo un campo (un numero, un decimale per
+  `float`, una stringa letterale per `string`). Sono il contenuto dell'array
+  all'avvio del programma (come `nome dati: …`); un campo nidificato assume i
+  valori predefiniti del suo tipo. Il conteggio degli elementi deve quindi
+  essere una costante.
+- **I campi stringa** funzionano come valori stringa: assegna valori letterali o
+  stringhe calcolate (tagliate alla lunghezza del campo), stampali, usali in
+  `+`, `=` / `&lt;&gt;` / `&lt;` e funzioni stringa.
+- **Parametri della struttura:** `sub f(p AS TName)` / `p: TName` riceve
+  l'indirizzo dell'elemento passato (`f(enemies[i])`), quindi `p.field` legge e
+  scrive quell'elemento; un parametro di struttura può essere passato a un'altra
+  routine (`g(p)`). Anche una funzione può accettarli. `arr[i]` di un array di
+  strutture senza un campo è quell'indirizzo.
 - La dimensione dell'elemento è pari alla somma delle larghezze dei campi
   (ordine di dichiarazione, senza spaziatura).
 - Lo spazio di archiviazione si trova all'indirizzo `$C000+` insieme agli array
   regolari e appare nella mappa di memoria come un normale array della
   dimensione totale in byte.
 - Indice costante → `LDA/STA absolute` in fase di compilazione.
-- Indice variabile → moltiplicazione shift-and-add per `idx * elem_size`, quindi
-  accesso indicizzato `(ptr),Y`. Le dimensioni degli elementi che sono potenze
-  di due (1, 2, 4, 8, 16) utilizzano catene `ASL A` semplici; le altre
-  dimensioni emettono una breve sequenza shift-add tramite due byte di pagina
-  zero temporanei.
-- I parametri sub/fn di un tipo struct non sono ancora supportati: passa invece
-  l'array e un indice, ad esempio `sub move(idx: int) ... enemies[idx].x = ...`.
-- I valori predefiniti dei campi (`var fire: int = 2` all'interno del tipo)
-  vengono analizzati per verificarne la compatibilità con la proposta, ma non
-  sono ancora inizializzati al momento dell'allocazione.
+- Indice variabile → idx a 16 bit ` * elem_size` (prima veniva calcolato a 8 bit
+  e gli elementi oltre l'offset 255 erano errati), quindi accesso indicizzato
+  `(ptr),Y`.
 - Su un array di tipo struct è consentito un solo indice; gli array di struct
   multidimensionali non sono supportati (utilizzare un indice piatto calcolato).
 
@@ -2361,6 +2422,19 @@ Può essere ripetuto per più file
 -h, --help Mostra la guida
 ```
 
+### Avvertenze
+
+Il compilatore stampa degli avvisi (che non interrompono la compilazione) per
+una variabile di tipo byte a cui viene assegnato un valore che non può
+contenere:
+
+```
+riga 5: avviso: 'b' è un byte (0-255) e 1000 non ci sta — va a capo; dichiaralo 'come intero' / 'come parola' se non è questo l'intenzione
+```
+
+Un risultato mascherato con `and`, `mod`, `/` o `shr` non viene riportato, così
+come non lo è byte + byte.
+
 ### Esportazione CRT
 
 Ultimate Basic è in grado di scrivere un'immagine di cartuccia Magic Desk di
@@ -2563,13 +2637,15 @@ Utilizza `--asm` per visualizzare il codice generato per il tuo programma.
 
 | Caratteristica                        | Limitazione                                                                                                                                                                                                                                                                                                                                    |
 | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Aritmetica intera                     | 8 bit senza segno (0–255); le variabili `word` contengono valori a 16 bit                                                                                                                                                                                                                                                                      |
+| Aritmetica intera                     | I valori `var`/`byte` sono a 8 bit senza segno (0–255) e a capo (`200 + 100` → 44 in un byte); una costante che non può essere inserita (`b = 300`, `b = a + 1000`) genera un avviso in fase di compilazione; `integer` è a 16 bit con segno, `word` è a 16 bit senza segno.                                                                   |
 | Budget di pagina zero                 | La pagina zero permanente è `$02–$4F` (78 byte): ogni variabile e parametro sub/fn occupa 2 byte, ogni ciclo `for` in esecuzione ne occupa altri 2. Dalla versione 1.6.4 le variabili che non rientrano vengono spostate automaticamente nella RAM (vedere *Variabili nella RAM*); solo i casi estremi segnalano ancora `pagina zero esaurita` |
 | Letterali binari                      | `%01010101` (dalla versione 1.6.4), `$hex` e decimale                                                                                                                                                                                                                                                                                          |
 | Sottoprogrammi                        | Nessuna ricorsione: gli slot dei parametri ZP vengono allocati staticamente.                                                                                                                                                                                                                                                                   |
+| `FINE` nelle routine QBasic           | In una SUB / FUNCTION chiusa da `END SUB` / `END FUNCTION`, un `END` da solo sulla sua riga termina il programma; i blocchi in una routine di questo tipo devono essere chiusi in stile QBasic (`END IF`, `WEND`, …), un `if … ⏎ end` in stile UB si legge come fine programma                                                                 |
+| Tipi di struttura                     | Un indice per array di struct (nessun array(8, 8) di una struct); un elemento è al massimo di 256 byte; i campi word` / integer` sono a 16 bit senza segno; i campi stringa hanno lunghezza fissa (fino a 254 caratteri); un parametro struct passa l'elemento per riferimento                                                                 |
 | Variabili stringa                     | `single` / `double` sono numeri in virgola mobile a 5 byte dalla versione 1.6.4 (le routine utilizzate da un programma, ~2–5 KB, vengono aggiunte ad essi); `float` rimane Q8.8 (0–255.99)                                                                                                                                                     |
 | Unario meno                           | Dal 1.6.4 un `-` iniziale si lega al suo operando: `-5 - 3` è -8 (era -(5 - 3) = -2)                                                                                                                                                                                                                                                           |
-| Runtime di concatenazione di stringhe | I valori calcolati risiedono in un buffer di 80 caratteri per variabile (i risultati più lunghi vengono troncati); i valori degli elementi dell'array di stringhe sono in slot da 31 caratteri; l'ordine `&lt;` / `&gt;` è l'ordine dei byte PETSCII.                                                                                          |
+| Runtime di concatenazione di stringhe | I valori calcolati risiedono in un buffer di 80 caratteri per variabile (i risultati più lunghi vengono troncati), i valori degli elementi dell'array di stringhe in slot di 31 caratteri — `stringhe di opzione n, m` generano entrambi (fino a 255); nessun heap condiviso; `&lt;` / `&gt;` l'ordine è l'ordine dei byte PETSCII             |
 | `rnd()` / `rnd(n)`                    | LCG semplice, non crittografico; periodo = 256 (il valore in virgola mobile `rnd` è un'operazione xorshift a 32 bit)                                                                                                                                                                                                                           |
 | `abs()` / `sgn()` / `min()` / `max()` | Solo valori a 8 bit; `abs`/`sgn` trattano i valori come con segno (bit 7 = negativo → `abs` complemento a due, `sgn` restituisce `$FF`); `min`/`max` sono senza segno (0–255)                                                                                                                                                                  |
 | `grafico`                             | I pixel fuori intervallo vengono eliminati silenziosamente (Y ≥ 200 o X ≥ 320 → nessuna operazione)                                                                                                                                                                                                                                            |

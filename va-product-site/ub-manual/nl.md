@@ -233,9 +233,11 @@ mod 0 = x` (vóór versie 1.6.0 liep het vast).
 `mod` met een `word` of `integer` operand (of een negatieve constante) is een
 16-bits rest met het teken van het deeltal, zoals in QBasic: `-7 mod 3` = -1, `7
 mod -3` = 1, `(w + 5) mod 7` behoudt 16 bits. Met een SINGLE/DOUBLE operand
-werkt het in drijvende-komma (zie *Drijvende-komma*). `shr` van een `integer` is
-een rekenkundige verschuiving (het teken blijft behouden: `-8 shr 1` = -4);
-`word` en byte-waarden verschuiven logisch. `x = x + 1` / `x = x - 1` (en ±2)
+werkt het in drijvende-komma (zie *Drijvende-komma*). `/` met een `woord` /
+`geheel getal` of negatieve deler is een 16-bits deling, afgekapt naar nul
+(`-700 / 300` = -2, `-700 / -7` = 100). `shr` van een `geheel getal` is een
+rekenkundige verschuiving (het teken blijft behouden: `-8 shr 1` = -4); `woord`
+en byte-waarden verschuiven logisch. `x = x + 1` / `x = x - 1` (en ±2)
 compileren naar `INC` / `DEC`.
 
 ### Verhogen / Verlagen
@@ -286,8 +288,9 @@ gebruiken, of een regel `option basic print` in het programma plaatsen: een
 getal wordt dan afgedrukt met een spatie ervoor (of de spaties erna `-`) en een
 spatie erna (`print 5` → ` 5 `), een `,` verplaatst de cursor naar de volgende
 afdrukzone van 10 kolommen, en een afsluitende `,` houdt de cursor op de regel,
-net als een afsluitende `;`. De strings `spc`, `tab`, `hex`, `bin`, `dec`,
-`chr$` en `str$` worden zoals voorheen afgedrukt.
+net als een afsluitende `;`. `STR$` geeft dan ook de C64-tekst weer (`STR$(7)` =
+`" 7"`, `STR$(-42)` = `"-42"`). Strings, `spc`, `tab`, `hex`, `bin`, `dec` en
+`chr$` worden afgedrukt zoals voorheen.
 
 #### `PRINT MET`
 
@@ -583,6 +586,13 @@ BEL Koszont("Zsolt")
 - `END SUB`, `END FUNCTION`, `END IF`, `END SELECT` worden geaccepteerd (het
   tweede woord is optioneel); `EXIT SUB` / `EXIT FUNCTION` retourneert (plain
   `exit` is nog steeds `bye`).
+- In een SUB/FUNCTION die wordt afgesloten met `END SUB` / `END FUNCTION`,
+  beëindigt een `END` op zichzelf het programma, net als in QBasic — ook binnen
+  een `IF … END IF`. Sluit de blokken van zo'n routine op QBasic-wijze af (`END
+  IF`, `END SELECT`, `WEND`, `LOOP`, `NEXT`); een routine die wordt afgesloten
+  met een eenvoudige `end` behoudt de oude blokregels. `END` en `bye` binnen een
+  routine verlaten het programma (voorheen keerden ze terug naar de aanroeper
+  van de routine).
 - Een sub/fn kan zonder haakjes worden aangeroepen: `Koszont "Zsolt"`, `Rajzol
   x, y`.
 - `PRINT a; b; c` — `;` voegt items samen zonder spaties; een afsluitende `;`
@@ -678,9 +688,16 @@ IF s = "ABC" OR t &lt;&gt; "" THEN PRINT "vergelijk met = / &lt;&gt;"
 - **String arrays:** elementen die een niet-letterlijke waarde krijgen (of
   `input`) krijgen hun eigen 32-byte slot (31 tekens), dus `input nevek(i)` in
   een lus bewaart elke naam.
+- **Langere tekenreeksen: ** een regel `optietekenreeksen 255 ` laat elke
+  berekende tekenreeksvariabele maximaal 255 tekens bevatten (de limiet van C64
+  BASIC); `optietekenreeksen 200, 63 ` geeft tekenreeksarray-elementen ook 63
+  tekens (de sleuf wordt naar boven afgerond naar 32, 64, 128 of 256 bytes).
+  Elke variabele heeft zijn eigen buffer, dus langere limieten kosten RAM: n + 1
+  bytes per tekenreeksvariabele en sleufgrootte × elementen per tekenreeksarray.
 - **`STR$` / `VAL`:** `STR$` van een 16-bits of getekende waarde heeft geen
   voorloopnullen (`"-42"`). Voor compatibiliteit behoudt `STR$` van een byte de
-  3-cijferige vorm (`"007"`). `VAL` leest 16-bits getekende getallen
+  3-cijferige vorm (`"007"`), tenzij C64 BASIC-spatie is ingeschakeld
+  (`--basic-print`: `" 7"`). `VAL` leest 16-bits getekende getallen
   (`VAL("1234") + 1` = 1235).
 - **Vergelijking:** `=` / `&lt;&gt;` (en `==` / `!=`), en `&lt;` `&gt;` `&lt;=`
   `&gt;=` in PETSCII-volgorde zoals in C64 BASIC; een tekenreeks komt vóór elke
@@ -802,25 +819,67 @@ var f: float = balls[0].vel # lees float-veld in float-variabele
 print balls[0].vel # print "1.50"
 ```
 
+**Standaardwaarden, tekenreeksen, geneste typen, parameters** (na 1.6.6):
+
+```basic
+TYPE TPoint ' QBasic-vorm: TYPE … END TYPE, "naam AS type"
+
+x AS BYTE = 3 ' standaardwaarde
+
+y AS WORD = 1000
+END TYPE
+
+type TEntity
+
+var pos: TPoint # geneste structuur: velden pos.x, pos.y
+
+var hp: word = 100
+
+var name: string * 6 = "NOBODY" # tekenreeks met vaste lengte binnen het element (7 bytes)
+endtype
+
+var e: TEntity = array(100) # elk element begint met de standaardwaarden
+e[5].pos.x = 7
+e[5].name = "ZS" + "OLT" # berekende tekst wordt gekopieerd en ingekort tot 6 tekens
+print e[5].name; " "; e[5].hp
+
+sub heal(p AS TEntity, amount AS WORD) # of p: TEntity
+
+p.hp = p.hp + amount # het doorgegeven element wordt gewijzigd
+p.pos.x = p.pos.x + 1
+end sub
+heal(e[5], 25) # geef een element door
+```
+
 Regels en beperkingen:
 
-- Veldtypen: `int` (1 byte), `word` (2 bytes LE), `float` (2 bytes Q8.8).
-  `string` en geneste `type` velden worden nog niet ondersteund.
+- Veldtypen: `int` / `byte` (1 byte), `word` / `integer` (2 bytes LE, unsigned),
+  `float` (2 bytes Q8.8), `string * n` (een tekenreeks met vaste lengte van
+  maximaal n tekens, 1–254, n + 1 bytes in het element; `string` alleen is
+  `string * 15`), en een ander structuurtype (genest: `arr[i].pos.x`). Velden
+  worden geschreven als `var name: type` of, in QBasic-stijl, `name AS type`;
+  `END TYPE` sluit het blok af zoals `endtype`.
+- **Standaardwaarden: ** `= constant ` na een veld (een getal, een decimaal voor
+  `float `, een tekenreeksconstante voor `string `). Dit zijn de inhoud van de
+  array bij de start van het programma (zoals `datanaam: … `); een genest veld
+  neemt de standaardwaarden van zijn type over. Het aantal elementen moet dan
+  een constante zijn.
+- **Stringvelden** werken als stringwaarden: wijs letterlijke waarden of
+  berekende strings toe (afgekapt tot de lengte van het veld), print ze, gebruik
+  ze in `+`, `=` / `&lt;&gt;` / `&lt;` en stringfuncties.
+- **Structparameters:** `sub f(p AS TName)` / `p: TName` ontvangt het adres van
+  het doorgegeven element (`f(enemies[i])`), dus `p.field` leest en schrijft dat
+  element; een structparameter kan worden doorgegeven aan een andere routine
+  (`g(p)`). Een functie kan ze ook accepteren. `arr[i]` van een structarray
+  zonder veld is dat adres.
 - Elementgrootte = som van de veldbreedtes (volgorde van declaratie, geen
   opvulling).
 - Opslag bevindt zich op `$C000+` naast reguliere arrays en verschijnt in de
   geheugenkaart als een gewone array van de totale bytegrootte.
 - Constante index → `LDA/STA absolute` tijdens compilatie.
-- Variabele index → shift-and-add vermenigvuldiging voor `idx * elem_size`,
-  vervolgens geïndexeerde `(ptr),Y` toegang. Elementgroottes die machten van
-  twee zijn (1, 2, 4, 8, 16) gebruiken kale `ASL A` ketens; andere groottes
-  genereren een korte shift-add sequentie via twee tijdelijke nul-pagina bytes.
-- Sub-/fn-parameters van een struct-type worden nog niet ondersteund — geef in
-  plaats daarvan de array en een index door, bijvoorbeeld `sub move(idx: int)
-  ... enemies[idx].x = ...`.
-- Standaard veldwaarden (`var fire: int = 2` binnen het type) worden geparseerd
-  voor compatibiliteit met het voorstel, maar zijn nog niet geïnitialiseerd op
-  het moment van toewijzing.
+- Variabele index → 16-bit `idx * elem_size` (voorheen werd dit berekend in 8
+  bits en waren elementen na offset 255 onjuist), vervolgens geïndexeerde
+  `(ptr),Y` toegang.
 - Bij een array van het type struct is slechts één index toegestaan;
   multidimensionale struct-arrays worden niet ondersteund (gebruik een berekende
   platte index).
@@ -2404,6 +2463,18 @@ Kan worden herhaald voor meerdere bestanden
 -h, --help Toon help
 ```
 
+### Waarschuwingen
+
+De compiler geeft waarschuwingen weer (deze stoppen het bouwproces niet) voor
+een bytevariabele die een waarde krijgt die deze niet kan bevatten:
+
+```
+regel 5: waarschuwing: 'b' is een byte (0-255) en 1000 past er niet in — het loopt over; declareer het als 'integer' / 'als woord' als dat niet de bedoeling is
+```
+
+Een resultaat gemaskeerd met `and`, `mod`, `/` of `shr` wordt niet
+gerapporteerd, en byte + byte evenmin.
+
 ### CRT-export
 
 Ultimate Basic kan ook een Magic Desk type-19 cartridge-image schrijven als de
@@ -2614,13 +2685,15 @@ Gebruik `--asm` om de gegenereerde code voor je eigen programma te bekijken.
 
 | Functie                               | Beperking                                                                                                                                                                                                                                                                                                                                |
 | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Rekenen met gehele getallen           | 8-bits niet-ondertekend (0–255); `word` variabelen bevatten 16-bits waarden                                                                                                                                                                                                                                                              |
+| Rekenen met gehele getallen           | `var`/`byte`-waarden zijn 8-bits niet-ondertekend (0–255) en lopen over (`200 + 100` → 44 in een byte); een constante die niet past (`b = 300`, `b = a + 1000`) geeft een compileerwaarschuwing; `integer` is ondertekend 16-bits, `word` is niet-ondertekend 16-bits                                                                    |
 | Nul pagina budget                     | De permanente nulpagina is `$02–$4F` (78 bytes): elke variabele en sub/fn-parameter neemt 2 bytes in beslag, elke lopende `for`-lus nog eens 2 bytes. Sinds 1.6.4 worden variabelen die niet passen automatisch naar RAM verplaatst (zie *Variabelen in RAM*); alleen in extreme gevallen wordt nog steeds `buiten de nulpagina` gemeld. |
 | Binaire literals                      | `%01010101` (sinds 1.6.4), `$hex` en decimaal                                                                                                                                                                                                                                                                                            |
 | Subroutines                           | Geen recursie — ZP-parameterposities worden statisch toegewezen                                                                                                                                                                                                                                                                          |
+| `END` in QBasic-routines              | In een SUB/FUNCTION die wordt afgesloten door `END SUB` / `END FUNCTION`, beëindigt een `END` op zichzelf op die regel het programma; blokken in zo'n routine moeten worden afgesloten in QBasic-stijl (`END IF`, `WEND`, …), een UB-stijl `if … ⏎ end` wordt daar gelezen als programma-einde                                           |
+| Structuurtypen                        | Eén index per struct-array (geen `array(8, 8)` van een struct); een element is maximaal 256 bytes; `word` / `integer` velden zijn unsigned 16-bit; stringvelden hebben een vaste lengte (maximaal 254 tekens); een struct-parameter geeft het element door middel van referentie door.                                                   |
 | Stringvariabelen                      | `single` / `double` zijn 5-byte floating point sinds 1.6.4 (de routines die een programma gebruikt, ~2–5 KB, worden hierbij opgeteld); `float` blijft Q8.8 (0–255.99)                                                                                                                                                                    |
 | Unaire min                            | Sinds 1.6.4 bindt een leidende `-` zich aan zijn operand: `-5 - 3` is -8 (het was -(5 - 3) = -2)                                                                                                                                                                                                                                         |
-| String concat runtime                 | Berekende waarden worden per variabele opgeslagen in een buffer van 80 tekens (langere resultaten worden afgekapt); waarden van tekenreeksarray-elementen in sleuven van 31 tekens; de volgorde `&lt;` / `&gt;` is de PETSCII-bytevolgorde.                                                                                              |
+| String concat runtime                 | Berekende waarden bevinden zich in een buffer van 80 tekens per variabele (langere resultaten worden afgekapt), waarden van tekenreeksarray-elementen in slots van 31 tekens — `optietekenreeksen n, m` verhoogt beide (tot 255); geen gedeelde heap; `&lt;` / `&gt;` volgorde is PETSCII bytevolgorde                                   |
 | `rnd()` / `rnd(n)`                    | Eenvoudige LCG, niet cryptografisch; periode = 256 (de drijvende-kommawaarde `rnd` is een 32-bits xorshift)                                                                                                                                                                                                                              |
 | `abs()` / `sgn()` / `min()` / `max()` | Alleen 8-bits waarden; `abs`/`sgn` behandelen waarden als getekend (bit 7 = negatief → `abs` tweecomplement, `sgn` retourneert `$FF`); `min`/`max` zijn ongetekend (0–255)                                                                                                                                                               |
 | `plot`                                | Pixels buiten het bereik worden stilzwijgend afgesneden (Y ≥ 200 of X ≥ 320 → geen actie)                                                                                                                                                                                                                                                |

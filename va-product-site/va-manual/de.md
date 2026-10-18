@@ -229,6 +229,9 @@ generierten Assembler- und Maschinencode in Echtzeit.
   VA SID Core je nach Chipmodell); das Geschwindigkeitsfeld verfügt über − / +
   Tasten und nimmt Werte von 1–255 an; das Lied kann bis zu 256 Muster
   verwenden.
+- **Update-Server-Einstellung** — **Einstellungen → Updates** Hiermit wird der
+  Server festgelegt, von dem die In-App-Updates die Releases beziehen (Standard:
+  `https://www.c64va.pro/`). Siehe [In-App-Updates](#in-app-updates).
 - **Ultimate Basic 1.6.6** — `PRINT USING "format"; values`, Stringvergleich in
   PETSCII-Reihenfolge, Gleitkomma-`rnd` und `mod`, Gleitkomma-Operationen in
   IRQ-/NMI-Handlern, `option basic print` für C64 BASIC PRINT-Abstände, kleinere
@@ -1270,6 +1273,12 @@ aufeinanderfolgenden 64-Byte-Sprite-Frames aus.
 Die Befehlsliste ist absichtlich in ihrer Höhe begrenzt, damit die
 Befehlsdetailkarte die verbleibende Höhe des Bedienfelds ausfüllen kann. Der
 Detailbereich lässt sich für längere Syntaxbeschreibungen unabhängig scrollen.
+
+**Update-Server:** **Einstellungen → Updates → Update-Server** legt fest, wo
+nach Releases gesucht wird (Standard `https://www.c64va.pro/`); die
+Installationsdateien werden von `<Server>downloads/VA/` gelesen. Die Adresse
+muss `https://` lauten (nur für `localhost`, zu Testzwecken, die einfache
+Adresse `http://`); **Standard** verweist auf c64va.pro.
 
 ### Kostenlos und Open Source
 

@@ -445,7 +445,8 @@ impl SidFilePlayer {
     /// Runs `frames` video frames silently and returns, per frame, the SID
     /// registers $D400-$D418 as last written (25 bytes) plus one byte whose
     /// bits 0-2 flag the voices whose gate went on during that frame.
-    pub fn dump_registers(&mut self, frames: usize) -> Vec<u8> {
+    /// `progress` gets the number of frames done after every frame.
+    pub fn dump_registers(&mut self, frames: usize, mut progress: impl FnMut(usize)) -> Vec<u8> {
         let frame_cycles = u64::from(self.machine.vic.lines()) * u64::from(self.machine.vic.cycles_per_line());
         let mut out = Vec::with_capacity(frames * DUMP_FRAME_BYTES);
         self.machine.output.clear();
@@ -458,6 +459,7 @@ impl SidFilePlayer {
             out.extend_from_slice(&self.machine.sid_regs[..25]);
             out.push(self.machine.gate_on);
             self.machine.gate_on = 0;
+            progress(out.len() / DUMP_FRAME_BYTES);
         }
         self.machine.discard = 0;
         self.machine.sid.set_output_enabled(true);
@@ -530,7 +532,7 @@ mod tests {
         let mut image = code.to_vec();
         image.resize(0x21, 0);
         let mut player = SidFilePlayer::new(&psid(0x1000, 0x1000, 0x1001, 0, &image), 44_100, SidModel::Mos8580).unwrap();
-        let dump = player.dump_registers(6);
+        let dump = player.dump_registers(6, |_| {});
         assert_eq!(dump.len(), 6 * DUMP_FRAME_BYTES);
         let frames: Vec<&[u8]> = dump.chunks(DUMP_FRAME_BYTES).collect();
         let gated: Vec<bool> = frames.iter().map(|f| f[4] & 1 != 0).collect();
@@ -797,6 +799,6 @@ mod smoke {
         let bytes = std::fs::read(input).unwrap();
         let mut player = SidFilePlayer::new(&bytes, 44_100, SidModel::Mos8580).unwrap();
         let frames = (seconds * player.frame_rate) as usize;
-        std::fs::write(output, player.dump_registers(frames)).unwrap();
+        std::fs::write(output, player.dump_registers(frames, |_| {})).unwrap();
     }
 }

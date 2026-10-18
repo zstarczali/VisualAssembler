@@ -233,10 +233,12 @@ zawieszało).
 `mod` z operandem `słowem` lub `liczbą całkowitą` (lub ujemną stałą) to
 16-bitowa reszta ze znakiem dzielnej, jak w QBasic: `-7 mod 3` = -1, `7 mod -3`
 = 1, `(w + 5) mod 7` zachowuje 16 bitów. Z operandem POJEDYNCZYM/PODWÓJNYM
-działa w liczbach zmiennoprzecinkowych (patrz *Liczba zmiennoprzecinkowa*).
-`shr` liczby `całkowitej` jest przesunięciem arytmetycznym (zachowuje się znak:
-`-8 shr 1` = -4); wartości `słowa` i bajtów przesuwają się logicznie. `x = x +
-1` / `x = x - 1` (i ±2) kompilują się do `INC` / `DEC`.
+działa w liczbach zmiennoprzecinkowych (patrz *Liczba zmiennoprzecinkowa*). `/`
+ze słowem `` / `liczbą całkowitą` lub dzielnikiem ujemnym jest dzieleniem
+16-bitowym, obciętym w kierunku zera (`-700 / 300` = -2, `-700 / -7` = 100).
+`shr` liczby `całkowitej` jest przesunięciem arytmetycznym (znak jest zachowany:
+`-8 shr 1` = -4); `słowo` i wartości bajtów przesuwają się logicznie. `x = x +
+1` / `x = x - 1` (i ±2) kompiluje się do `INC` / `DEC`.
 
 ### Zwiększanie/zmniejszanie
 
@@ -286,8 +288,9 @@ zbuduj polecenie `--basic-print` lub umieść w programie opcję wiersza `option
 basic print`: liczba jest drukowana z wiodącą spacją (lub jej `-`) i końcową
 spacją (`print 5` → ` 5 `), polecenie `,` przenosi do następnej strefy
 drukowania składającej się z 10 kolumn, a końcowe polecenie `,` utrzymuje kursor
-w wierszu, tak jak końcowe polecenie `;`. Ciągi znaków, `spc`, `tab`, `hex`,
-`bin`, `dec`, `chr$` i `str$` są drukowane jak poprzednio.
+w wierszu, tak jak końcowe polecenie `;`. `STR$` następnie zwraca również tekst
+C64 (`STR$(7)` = `" 7"`, `STR$(-42)` = `"-42"`). Ciągi znaków, `spc`, `tab`,
+`hex`, `bin`, `dec` i `chr$` wyświetlą się jak poprzednio.
 
 #### `DRUKUJ UŻYWAJĄC`
 
@@ -551,6 +554,12 @@ ZADZWOŃ do Koszonta("Zsolt")
 - `END SUB`, `END FUNCTION`, `END IF`, `END SELECT` są akceptowane (drugie słowo
   jest opcjonalne); `EXIT SUB` / `EXIT FUNCTION` zwraca (zwykłe `exit` to nadal
   `bye`).
+- W SUB/FUNCTION zamkniętym przez `END SUB` / `END FUNCTION`, samo `END` w swoim
+  wierszu kończy program, jak w QBasic — również wewnątrz `IF … END IF`. Zamknij
+  bloki takiej procedury w stylu QBasic (`END IF`, `END SELECT`, `WEND`, `LOOP`,
+  `NEXT`); procedura zamknięta przez proste `end` zachowuje stare reguły bloków.
+  `END` i `bye` wewnątrz dowolnej procedury opuszczają program (wcześniej
+  wracały do wywołującego procedurę).
 - Sub/fn można wywołać bez nawiasów: `Koszont "Zsolt"`, `Rajzol x, y`.
 - `PRINT a; b; c` — `;` łączy elementy bez spacji; końcowe `;` pomija nową
   linię. `;` po którym następuje polecenie (`print x; y = 1`) nadal oddziela
@@ -632,10 +641,16 @@ IF s = "ABC" OR t &lt;&gt; "" THEN PRINT "porównaj z = / &lt;&gt;"
 - **Tablice ciągów:** elementy, które otrzymują wartość nieliterałową (lub `dane
   wejściowe`) otrzymują własny 32-bajtowy slot (31 znaków), więc `dane wejściowe
   nevek(i)` w pętli zachowuje wszystkie nazwy.
+- **Dłuższe ciągi znaków: ** linia `ciągi opcji 255` pozwala każdej obliczonej
+  zmiennej ciągu znaków przechowywać do 255 znaków (limit języka C64 BASIC);
+  `ciągi opcji 200, 63` również dają elementom tablicy ciągów 63 znaki (slot
+  jest zaokrąglany do 32, 64, 128 lub 256 bajtów). Każda zmienna ma własny
+  bufor, więc dłuższe limity kosztują pamięć RAM: n + 1 bajt na zmienną ciągu i
+  rozmiar slotu × elementy na tablicę ciągów.
 - **`STR$` / `VAL`:** `STR$` wartości 16-bitowej lub ze znakiem nie ma zer
   wiodących (`"-42"`). Dla zachowania zgodności, `STR$` bajtu zachowuje formę
-  3-cyfrową (`"007"`). `VAL` odczytuje 16-bitowe liczby ze znakiem (`VAL("1234")
-  + 1` = 1235).
+  3-cyfrową (`"007"`), chyba że włączono odstępy C64 BASIC (`--basic-print`: `"
+  7"`). `VAL` odczytuje 16-bitowe liczby ze znakiem (`VAL("1234") + 1` = 1235).
 - **Porównanie:** `=` / `&lt;&gt;` (i `==` / `!=`) oraz `&lt;` `&gt;` `&lt;=`
   `&gt;=` w kolejności PETSCII, tak jak w języku C64 BASIC; ciąg znaków
   występuje przed każdym dłuższym ciągiem znaków, od którego się zaczyna (`"AB"
@@ -752,27 +767,61 @@ var f: float = balls[0].vel # odczytuje pole float do zmiennej float
 print balls[0].vel # drukuje "1.50"
 ```
 
+**Domyślne, ciągi znaków, typy zagnieżdżone, parametry** (po wersji 1.6.6):
+
+```basic
+TYPE TPoint ' Forma podstawowa: TYPE … END TYPE, "nazwa JAK typ"
+x JAK BYTE = 3 ' wartość domyślna
+y JAK SŁOWO = 1000
+END TYPE
+
+type TEntity
+var pos: TPoint # zagnieżdżona struktura: pola pos.x, pos.y
+var hp: word = 100
+var name: string * 6 = "NOBODY" # ciąg znaków o stałej długości wewnątrz elementu (7 bajtów)
+endtype
+
+var e: TEntity = array(100) # każdy element zaczyna się od wartości domyślnych
+e[5].pos.x = 7
+e[5].name = "ZS" + "OLT" # obliczony tekst jest kopiowany, skracany do 6 znaków
+print e[5].name; " "; e[5].hp
+
+sub heal(p AS TEntity, amount AS WORD) # lub p: TEntity
+p.hp = p.hp + amount # przekazany element jest zmieniany
+p.pos.x = p.pos.x + 1
+end sub
+heal(e[5], 25) # przekaż element
+```
+
 Zasady i ograniczenia:
 
-- Typy pól: `int` (1 bajt), `word` (2 bajty LE), `float` (2 bajty Q8.8). Pola
-  `string` i zagnieżdżone `type` nie są jeszcze obsługiwane.
+- Typy pól: `int` / `byte` (1 bajt), `word` / `integer` (2 bajty LE, bez znaku),
+  `float` (2 bajty Q8.8), `string * n` (ciąg o stałej długości do n znaków,
+  1–254, n + 1 bajtów w elemencie; sam `string` to `string * 15`) i inny typ
+  struktury (zagnieżdżony: `arr[i].pos.x`). Pola są zapisywane w następujący
+  sposób: `var name: type` lub, w stylu QBasic, `name AS type`; `END TYPE`
+  zamyka blok w taki sam sposób jak `endtype`.
+- **Wartości domyślne: ** ` = stała ` po polu (liczba, ułamek dziesiętny dla
+  `float `, literał ciągu dla `string `). Są to zawartość tablicy na początku
+  programu (np. `nazwa danych: …`); pole zagnieżdżone przyjmuje wartości
+  domyślne swojego typu. Liczba elementów musi być wtedy stała.
+- Pola **Stringi** działają jak wartości stringów: przypisują literały lub
+  obliczone stringi (przycięte do długości pola), drukują je, używają w
+  funkcjach `+`, `=` / `&lt;&gt;` / `&lt;` i stringach.
+- **Parametry struktury:** `sub f(p AS TName)` / `p: TName` otrzymuje adres
+  przekazanego elementu (`f(enemies[i])`), więc `p.field` odczytuje i zapisuje
+  ten element; parametr struktury może zostać przekazany do innej procedury
+  (`g(p)`). Funkcja również może je przyjmować. Adresem `arr[i]` tablicy
+  struktury bez pola jest ten adres.
 - Rozmiar elementu = suma szerokości pól (kolejność deklaracji, bez
   wypełnienia).
 - Pamięć masowa znajduje się pod adresem `$C000+` obok zwykłych tablic i jest
   wyświetlana na mapie pamięci jako zwykła tablica o całkowitym rozmiarze w
   bajtach.
 - Stały indeks → `LDA/STA absolute` w czasie kompilacji.
-- Indeks zmiennej → mnożenie metodą przesunięcia i dodania dla `idx *
-  elem_size`, a następnie dostęp indeksowany `(ptr),Y`. Rozmiary elementów
-  będące potęgami dwójki (1, 2, 4, 8, 16) używają pustych łańcuchów `ASL A`;
-  inne rozmiary emitują krótką sekwencję przesunięcia i dodania za pomocą dwóch
-  zerowych bajtów strony.
-- Parametry sub/fn typu struktury nie są jeszcze obsługiwane — zamiast tego
-  należy przekazać tablicę i indeks, np. `sub move(idx: int) ... enemies[idx].x
-  = ...`.
-- Domyślne wartości pól (`var fire: int = 2` wewnątrz typu) są analizowane pod
-  kątem zgodności z propozycją, ale nie są jeszcze inicjowane w momencie
-  alokacji.
+- Indeks zmiennej → 16-bitowy `idx * elem_size` (wcześniej obliczano go na 8
+  bitach, a elementy po przesunięciu 255 były błędne), następnie indeksowany
+  dostęp `(ptr),Y`.
 - W przypadku tablicy typu strukturalnego dozwolony jest tylko jeden indeks
   dolny. Tablice struktur wielowymiarowych nie są obsługiwane (należy użyć
   obliczonego indeksu płaskiego).
@@ -2283,6 +2332,18 @@ może być powtarzane dla wielu plików
 -h, --help Wyświetl pomoc
 ```
 
+### Ostrzeżenia
+
+Kompilator wyświetla ostrzeżenia (nie zatrzymuje kompilacji) w przypadku, gdy
+zmienna bajtowa przyjmuje wartość, której nie może przechowywać:
+
+```
+linia 5: ostrzeżenie: „b” to bajt (0–255), a 1000 nie pasuje — powoduje zawinięcie; zadeklaruj je „jako liczbę całkowitą” / „jako słowo”, jeśli nie jest to zamierzone
+```
+
+Wynik zamaskowany za pomocą `i`, `mod`, `/` lub `shr` nie jest raportowany,
+podobnie jak bajt + bajt.
+
 ### Eksport CRT
 
 Ultimate Basic potrafi również zapisać obraz kartridża Magic Desk typu 19, gdy
@@ -2477,13 +2538,15 @@ Użyj `--asm`, aby zobaczyć wygenerowany kod własnego programu.
 
 | Funkcja                               | Ograniczenie                                                                                                                                                                                                                                                                                                                             |
 | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Arytmetyka liczb całkowitych          | 8-bitowe bez znaku (0–255); `word` zmienne przechowują wartości 16-bitowe                                                                                                                                                                                                                                                                |
+| Arytmetyka liczb całkowitych          | Wartości `var`/`byte` są 8-bitowe bez znaku (0–255) i obejmują (`200 + 100` → 44 w bajcie); stała, która nie mieści się (`b = 300`, `b = a + 1000`) powoduje ostrzeżenie w czasie kompilacji; `integer` jest 16-bitowa ze znakiem, `word` 16-bitowa bez znaku                                                                            |
 | Budżet zerowy                         | Stała strona zerowa to `$02–$4F` (78 bajtów): każda zmienna i parametr sub/fn zajmuje 2 bajty, a każda pętla `for` zajmuje kolejne 2 bajty. Od wersji 1.6.4 zmienne, które się nie mieszczą, są automatycznie przenoszone do pamięci RAM (patrz *Zmienne w pamięci RAM*); tylko skrajne przypadki nadal zgłaszają `brak strony zerowej`. |
 | Literały binarne                      | `%01010101` (od wersji 1.6.4), `$hex` i dziesiętny                                                                                                                                                                                                                                                                                       |
 | Podprogramy                           | Brak rekurencji — sloty parametrów ZP są przydzielane statycznie                                                                                                                                                                                                                                                                         |
+| `END` w procedurach QBasic            | W PODFUNKCJI zamkniętej przez `END SUB` / `END FUNCTION`, samo `END` w swoim wierszu kończy program; bloki w takiej rutynie muszą być zamknięte w stylu QBasic (`END IF`, `WEND`, …), w stylu UB `if … ⏎ end` tam odczytuje się jako koniec programu                                                                                     |
+| Typy struktur                         | Jeden indeks dolny na tablicę struktury (brak `tablicy(8, 8)` struktury); element ma maksymalnie 256 bajtów; pola `słowo` / `liczba całkowita` są polami 16-bitowymi bez znaku; pola ciągu mają stałą długość (do 254 znaków); parametr struktury przekazuje element przez odniesienie                                                   |
 | Zmienne łańcuchowe                    | `single` / `double` to 5-bajtowe liczby zmiennoprzecinkowe od wersji 1.6.4 (dodawane są do nich procedury używane przez program, ok. 2–5 KB); `float` pozostaje na poziomie Q8.8 (0–255,99)                                                                                                                                              |
 | Jednoargumentowy minus                | Od wersji 1.6.4 wiodący `-` wiąże się ze swoim operandem: `-5 - 3` wynosi -8 (było -(5 - 3) = -2)                                                                                                                                                                                                                                        |
-| Czas wykonania łączenia ciągów        | Obliczone wartości znajdują się w buforze 80 znaków na zmienną (dłuższe wyniki są wycinane); wartości elementów tablicy ciągów znajdują się w slotach po 31 znaków; kolejność `&lt;` / `&gt;` jest kolejnością bajtów PETSCII                                                                                                            |
+| Czas wykonania łączenia ciągów        | Obliczone wartości znajdują się w buforze 80 znaków na zmienną (dłuższe wyniki są wycinane), wartości elementów tablicy ciągów w slotach 31 znaków — `ciągi opcji n, m` podnoszą oba (do 255); brak współdzielonego stosu; kolejność `&lt;` / `&gt;` jest kolejnością bajtów PETSCII                                                     |
 | `rnd()` / `rnd(n)`                    | Prosty LCG, niekryptograficzny; okres = 256 (zmiennoprzecinkowy `rnd` to 32-bitowe przesunięcie xorshift)                                                                                                                                                                                                                                |
 | `abs()` / `sgn()` / `min()` / `max()` | Tylko wartości 8-bitowe; `abs`/`sgn` traktuj wartości jako wartości ze znakiem (bit 7 = ujemny → `abs` uzupełnienia do dwóch, `sgn` zwraca `$FF`); `min`/`max` są wartościami bez znaku (0–255)                                                                                                                                          |
 | `wykres`                              | Piksele poza zakresem są bezgłośnie przycinane (Y ≥ 200 lub X ≥ 320 → brak operacji)                                                                                                                                                                                                                                                     |

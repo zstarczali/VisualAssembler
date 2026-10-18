@@ -9910,6 +9910,21 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-midi-led { width: 10px; height: 10px; flex: 0 0 10px; border-radius: 50%; background: #5a2222; border: 1px solid rgba(255,255,255,0.28); box-shadow: inset 0 1px 2px rgba(0,0,0,0.8); transition: background 0.15s ease-out, box-shadow 0.15s ease-out; }
 .sid-midi-led.sid-midi-led--on { background: #ff4545; box-shadow: 0 0 8px #ff4545; transition: none; }
 .sid-master-vol-wrap ~ .sid-xbtn { margin-left: 0; }  /* was: margin-left: auto — wrap owns the auto now */
+/* VA-VK instrument knob + LCD (the knob steps through the instruments) */
+.sid-vkbd-inst-wrap { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; }
+.sid-vkbd-inst-wrap + .sid-master-vol-wrap { margin-left: 0; }
+.sid-vkbd-lcd {
+  display: inline-flex; flex-direction: column; justify-content: center;
+  width: 150px; height: 34px; padding: 2px 8px; box-sizing: border-box;
+  border-radius: 3px; overflow: hidden;
+  background: linear-gradient(180deg, #b4cf72 0%, #93b453 100%);
+  color: #1d2b0f; font-family: "C64ProMono", monospace; font-size: 8px; line-height: 1.5;
+  letter-spacing: 0.02em; text-transform: uppercase;
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.55), 0 0 0 2px #262626, 0 0 0 3px rgba(255, 255, 255, 0.12);
+  text-shadow: 1px 1px 0 rgba(29, 43, 15, 0.18);
+}
+.sid-vkbd-lcd-num { opacity: 0.7; }
+.sid-vkbd-lcd-name { white-space: nowrap; overflow: hidden; font-size: 10px; }
 .sid-master-vol-lbl {
   font-family: inherit;
   font-size: 0.7rem;
@@ -10461,7 +10476,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-vkbd-brand { display: flex; align-items: center; gap: 14px; padding: 8px 14px; background: linear-gradient(180deg, #2c2a26, #24221f); border-bottom: 1px solid #14130f; }
 .sid-vkbd-brand-name { font-family: "C64Pro", monospace; font-size: 0.78rem; letter-spacing: 0.06em; color: #d8d2c4; }
 .sid-vkbd-brand-name b { color: #fff; font-weight: 400; }
-.sid-vkbd-brand-chip { font-family: "IBM Plex Mono", monospace; font-size: 0.66rem; letter-spacing: 0.12em; color: #a59f92; border: 1px solid #5a554c; border-radius: 2px; padding: 1px 6px; }
+.sid-vkbd-brand-chip { font-family: "IBM Plex Mono", monospace; font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase; white-space: nowrap; color: #a59f92; border: 1px solid #5a554c; border-radius: 2px; padding: 1px 6px; }
 .sid-vkbd-stripes { margin-left: auto; display: flex; gap: 3px; transform: skewX(-28deg); margin-right: 6px; }
 .sid-vkbd-stripes i { display: block; width: 14px; height: 18px; }
 .sid-vkbd-stripes i:nth-child(1) { background: #cc2200; }

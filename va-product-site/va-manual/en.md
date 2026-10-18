@@ -202,6 +202,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 - **Long tunes play correctly** — when the tune data does not fit next to the player at `$C000`, it moves to its own segment below `$A000` instead of running into I/O; the `.sid` export follows.
 - **VA SID Core preview retriggers notes** — a note restarted under a held gate gets a new attack, as on the real player.
 - **SID Editor** — the header shows the active SID emulation (WebSID or VA SID Core with the chip model); the Speed field has − / + buttons and takes 1–255; the song can use up to 256 patterns.
+- **Update server setting** — **Settings → Updates** sets the server the in-app update reads releases from (default `https://www.c64va.pro/`). See [In-app updates](#in-app-updates).
 - **Ultimate Basic 1.6.6** — `PRINT USING "format"; values`, string comparison in PETSCII order, floating-point `rnd` and `mod`, floating point in IRQ / NMI handlers, `option basic print` for C64 BASIC PRINT spacing, smaller programs (only the floating-point routines in use) and 16-bit address expressions (1.6.5). The Ultimate Basic editor highlights `print using` and `option basic print`.
 
 ---
@@ -678,6 +679,8 @@ After the download the app installs the update and restarts:
 | **Linux** | An AppImage is swapped for the new one. A `.deb` / `.rpm` installation is updated with `pkexec` (you are asked for your password); without `pkexec` the package is opened in your software installer. |
 
 If there are unsaved tabs, the app asks before closing. The same check runs quietly a few seconds after every start: nothing is shown unless a newer version exists. The result also appears in the Ultimate Basic status bar — **Up to date (vX)**, or a highlighted **Update available: vY** that opens the update dialog.
+
+**Update server:** **Settings → Updates → Update server** sets where releases are looked up (default `https://www.c64va.pro/`); the installers are read from `<server>downloads/VA/`. The address must use `https://` (plain `http://` only for `localhost`, for testing); **Default** goes back to c64va.pro.
 
 ### Free and open source
 

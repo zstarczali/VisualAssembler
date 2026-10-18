@@ -232,6 +232,10 @@ visualisez en temps réel le code assembleur et le code machine générés.
 - **Éditeur SID** — l'en-tête affiche l'émulation SID active (WebSID ou VA SID
   Core avec le modèle de puce) ; le champ Vitesse a des boutons − / + et prend
   1–255 ; la chanson peut utiliser jusqu'à 256 motifs.
+- **Paramètre du serveur de mise à jour** — **Paramètres → Mises à jour**
+  définit le serveur à partir duquel les mises à jour intégrées à l'application
+  lisent les versions (par défaut `https://www.c64va.pro/`). Voir [Mises à jour
+  intégrées à l'application](#in-app-updates).
 - **Ultimate Basic 1.6.6** — `PRINT USING "format"; values`, comparaison de
   chaînes en ordre PETSCII, virgule flottante `rnd` et `mod`, virgule flottante
   dans les gestionnaires IRQ/NMI, `option basic print` pour l'espacement
@@ -1286,6 +1290,12 @@ La hauteur de la liste des commandes est volontairement limitée afin que la
 fiche de détail de la commande puisse occuper toute la hauteur restante du
 panneau. La zone de détail défile indépendamment pour les descriptions de
 syntaxe plus longues.
+
+Serveur de mise à jour : Paramètres → Mises à jour → Serveur de mise à jour. Ce
+serveur définit l’emplacement de recherche des versions (par défaut :
+https://www.c64va.pro/). Les installateurs sont lus depuis
+<serveur>downloads/VA/. L’adresse doit utiliser https:// (http://localhost
+uniquement pour les tests). Par défaut, c64va.pro est utilisé.
 
 ### Source libre et ouverte
 

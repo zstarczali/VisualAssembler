@@ -258,9 +258,12 @@ Le modulo ` avec un opérande de type mot ` ou entier ` (ou une constante
 négative) est un reste de 16 bits avec le signe du dividende, comme en QBasic :
 -7 mod 3 ` = -1, 7 mod -3 ` = 1, (w + 5) mod 7 ` conserve 16 bits. Avec un
 opérande simple ou double, il fonctionne en virgule flottante (voir la section «
-Virgule flottante » *). Le shr d'un entier est un décalage arithmétique (le
-signe est conservé : -8 shr 1 = -4) ; les valeurs de mot et d'octet sont
-décalées logiquement. x = x + 1 / x = x - 1 (et ±2) sont compilés en INC / DEC.
+Virgule flottante » *). La division `/` avec un mot `, un entier ` ou un
+diviseur négatif est une division 16 bits, tronquée vers zéro (`-700 / 300` =
+-2, `-700 / -7` = 100). Le décalage ` ` d'un entier ` ` est un décalage
+arithmétique (le signe est conservé : `-8 shr 1` = -4) ; les valeurs de mot ` et
+d'octet sont décalées logiquement. `x = x + 1` / `x = x - 1` (et ±2) se
+compilent en `INC` / `DEC`.
 
 ### Incrémenter / Décrémenter
 
@@ -314,8 +317,9 @@ construit avec `--basic-print`, ou mettez une ligne `option basic print` dans le
 programme : un nombre s'imprime alors avec un espace de début (ou son `-`) et un
 espace de fin (`print 5` → ` 5 `), un `,` passe à la zone d'impression suivante
 de 10 colonnes, et un `,` de fin maintient le curseur sur la ligne comme un `;`
-de fin. Les chaînes de caractères, `spc`, `tab`, `hex`, `bin`, `dec`, `chr$` et
-`str$` s'impriment comme avant.
+de fin. `STR$` renvoie alors également le texte C64 (`STR$(7)` = `" 7"`,
+`STR$(-42)` = `"-42"`). Les chaînes de caractères `spc`, `tab`, `hex`, `bin`,
+`dec` et `chr$` s'affichent comme précédemment.
 
 #### `IMPRIMER EN UTILISANT`
 
@@ -619,6 +623,14 @@ APPELER Koszont("Zsolt")
 - `END SUB`, `END FUNCTION`, `END IF`, `END SELECT` sont acceptés (le deuxième
   mot est facultatif) ; `EXIT SUB` / `EXIT FUNCTION` retourne (un simple `exit`
   est toujours `bye`).
+- Dans une instruction SUB/FUNCTION fermée par `END SUB` / `END FUNCTION`, un
+  `END` seul sur sa ligne termine le programme, comme en QBasic — même à
+  l'intérieur d'une instruction `IF … END IF`. Fermez les blocs d'une telle
+  routine à la manière de QBasic (`END IF`, `END SELECT`, `WEND`, `LOOP`,
+  `NEXT`) ; une routine fermée par un simple `end` conserve les anciennes règles
+  de fermeture des blocs. `END` et `bye` à l'intérieur de n'importe quelle
+  routine quittent le programme (auparavant, ils retournaient à l'appelant de la
+  routine).
 - Un sub/fn peut être appelé sans parenthèses : `Koszont "Zsolt"`, `Rajzol x,
   y`.
 - `PRINT a; b; c` — `;` concatène les éléments sans espaces ; un `;` final
@@ -727,10 +739,18 @@ IF s = "ABC" OR t &lt;&gt; "" THEN PRINT "comparer avec = / &lt;&gt;"
 - **Tableaux de chaînes :** éléments qui reçoivent une valeur non littérale (ou
   `entrée`) obtiennent leur propre emplacement de 32 octets (31 caractères),
   donc `entrée nevek(i)` dans une boucle conserve chaque nom.
+- ** Chaînes plus longues : ** une ligne ` options de chaînes 255 ` permet à
+  chaque variable de chaîne calculée de contenir jusqu'à 255 caractères (limite
+  du BASIC C64) ; ` options de chaînes 200, 63 ` autorise également les éléments
+  de tableau de chaînes à contenir 63 caractères (l'emplacement est arrondi à
+  32, 64, 128 ou 256 octets). Chaque variable dispose de son propre tampon ; des
+  limites plus élevées consomment donc de la RAM : n + 1 octets par variable de
+  chaîne et taille d'emplacement × nombre d'éléments par tableau de chaînes.
 - **`STR$` / `VAL`:** `STR$` d'une valeur 16 bits ou signée ne comporte pas de
   zéros non significatifs (`"-42"`). Par souci de compatibilité, `STR$` d'un
-  octet conserve sa forme à 3 chiffres (`"007"`). `VAL` lit les nombres signés
-  16 bits (`VAL("1234") + 1` = 1235).
+  octet conserve sa forme à 3 chiffres (`"007"`) sauf si l'espacement BASIC C64
+  est activé (`--basic-print`: `" 7"`). `VAL` lit les nombres signés 16 bits
+  (`VAL("1234") + 1` = 1235).
 - **Comparaison : ** `=` / `&lt;&gt;` (et `==` / `!=`), et `&lt;` `&gt;` `&lt;=`
   `&gt;=` dans l'ordre PETSCII comme C64 BASIC ; une chaîne vient avant chaque
   chaîne plus longue qu'elle commence (`"AB" &lt; "ABC"`, `"" &lt; "A"`).
@@ -863,28 +883,73 @@ var f : float = balls[0].vel # lit le champ float dans une variable float
 print balls[0].vel # affiche « 1.50 »
 ```
 
+**Valeurs par défaut, chaînes de caractères, types imbriqués, paramètres**
+(après la version 1.6.6) :
+
+```basic
+TYPE TPoint ' Formulaire QBasic : TYPE … END TYPE, "name AS type"
+
+x AS BYTE = 3 ' valeur par défaut
+
+y AS WORD = 1000
+END TYPE
+
+type TEntity
+
+var pos: TPoint # structure imbriquée : champs pos.x, pos.y
+
+var hp: word = 100
+
+var name: string * 6 = "NOBODY" # chaîne de longueur fixe dans l'élément (7 octets)
+endtype
+
+var e: TEntity = array(100) # chaque élément commence par les valeurs par défaut
+e[5].pos.x = 7
+
+e[5].name = "ZS" + "OLT" # le texte calculé est copié, tronqué à 6 caractères
+print e[5].name; " "; e[5].hp
+
+sub heal(p AS TEntity, amount AS WORD) # ou p : TEntity
+
+p.hp = p.hp + amount # l'élément passé est modifié
+
+p.pos.x = p.pos.x + 1
+
+end sub
+heal(e[5], 25) # passer un élément
+```
+
 Règles et contraintes :
 
-- Types de champs : `int` (1 octet), `word` (2 octets LE), `float` (2 octets
-  Q8.8). Les champs `string` et les champs imbriqués `type` ne sont pas encore
-  pris en charge.
+- Types de champs : `int` / `byte` (1 octet), `word` / `integer` (2 octets LE,
+  non signé), `float` (2 octets Q8.8), `string * n` (une chaîne de longueur fixe
+  jusqu’à n caractères, 1–254, n + 1 octets dans l’élément ; `string` seul est
+  `string * 15`), et un autre type de structure (imbriqué : `arr[i].pos.x`). Les
+  champs sont écrits `var nom: type` ou, style QBasic, `nom AS type`; `END TYPE`
+  ferme le bloc comme `endtype`.
+- Valeurs par défaut : ** ** = constante ` après un champ (un nombre, un décimal
+  pour `float `, une chaîne littérale pour `string `). Il s'agit du contenu du
+  tableau au démarrage du programme (comme `nom des données : … `) ; un champ
+  imbriqué prend les valeurs par défaut de son type. Le nombre d'éléments doit
+  alors être constant.
+- Les champs de chaînes **** fonctionnent comme des valeurs de chaîne : assignez
+  des littéraux ou des chaînes calculées (coupées à la longueur du champ),
+  imprimez-les, utilisez-les dans `+`, `=` / `&lt;&gt;` / `&lt;` et les
+  fonctions de chaînes.
+- Paramètres de structure : `sub f(p AS TName)` / `p: TName` reçoit l'adresse de
+  l'élément passé (`f(enemies[i])`), puis `p.field` lit et écrit cet élément. Un
+  paramètre de structure peut être passé à une autre routine (`g(p)`). Une
+  fonction peut également les accepter. `arr[i]` d'un tableau de structures sans
+  champ correspond à cette adresse.
 - Taille de l'élément = somme des largeurs des champs (ordre de déclaration,
   sans remplissage).
 - Le stockage se trouve à `$C000+` aux côtés des tableaux réguliers et apparaît
   dans la carte mémoire comme un tableau ordinaire de la taille totale en
   octets.
 - Index constant → `LDA/STA absolute` au moment de la compilation.
-- Index variable → multiplication par décalage et addition pour `idx *
-  elem_size`, puis accès indexé `(ptr),Y`. Les tailles d'éléments qui sont des
-  puissances de deux (1, 2, 4, 8, 16) utilisent des chaînes `ASL A` nues ; les
-  autres tailles émettent une courte séquence de décalage et d'addition via deux
-  octets de page zéro temporaires.
-- Les paramètres sub / fn d'un type struct ne sont pas encore pris en charge —
-  transmettez plutôt le tableau et un index, par exemple `sub move(idx: int) ...
-  enemies[idx].x = ...`.
-- Les valeurs de champ par défaut (`var fire: int = 2` à l'intérieur du type)
-  sont analysées pour la compatibilité avec la proposition mais ne sont pas
-  encore initialisées au moment de l'allocation.
+- Index variable → 16 bits `idx * elem_size` (avant, il était calculé en 8 bits
+  et les éléments au-delà du décalage 255 étaient erronés), puis accès indexé
+  `(ptr),Y`.
 - Un seul indice est autorisé sur un tableau de type structure ; les tableaux de
   structures multidimensionnels ne sont pas pris en charge (utilisez un index
   plat calculé).
@@ -2609,6 +2674,19 @@ Peut être répété pour plusieurs fichiers.
 -h, --help : Affiche l'aide.
 ```
 
+### Avertissements
+
+Le compilateur affiche des avertissements (qui n'interrompent pas la
+compilation) lorsqu'une variable de type byte reçoit une valeur qu'elle ne peut
+pas contenir :
+
+```
+Ligne 5 : avertissement : « b » est un octet (0-255) et 1000 ne tient pas ; il y a un dépassement de capacité ; déclarez-le « comme entier » ou « comme mot » si ce n’est pas ce que vous souhaitez.
+```
+
+Un résultat masqué avec `et`, `mod`, `/` ou `shr` n'est pas signalé, ni octet +
+octet.
+
 ### Exportation CRT
 
 Ultimate Basic peut également écrire une image de cartouche Magic Desk type-19
@@ -2824,13 +2902,15 @@ Utilisez `--asm` pour voir le code généré pour votre propre programme.
 
 | Fonctionnalité                           | Limitation                                                                                                                                                                                                                                                                                                                                                                                                                |
 | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Arithmétique des entiers                 | 8 bits non signés (0–255) ; les variables `word` contiennent des valeurs de 16 bits                                                                                                                                                                                                                                                                                                                                       |
+| Arithmétique des entiers                 | Les valeurs `var`/`byte` sont des entiers non signés 8 bits (0–255) et sont incrémentées (`200 + 100` → 44 dans un octet) ; une constante trop petite (`b = 300`, `b = a + 1000`) génère un avertissement à la compilation ; `integer` est un entier signé 16 bits, `word` un entier non signé 16 bits                                                                                                                    |
 | Budget de page zéro                      | La page d'octets nuls permanente est `$02–$4F` (78 octets) : chaque variable et paramètre de sous-fonction occupe 2 octets, et chaque boucle `for` en cours d'exécution 2 octets supplémentaires. Depuis la version 1.6.4, les variables qui ne tiennent pas dans la page sont automatiquement déplacées vers la RAM (voir *Variables en RAM*) ; seuls des cas extrêmes signalent encore `hors de la page d'octets nuls`. |
 | Littéraux binaires                       | `%01010101` (depuis la version 1.6.4), `$hex` et décimal                                                                                                                                                                                                                                                                                                                                                                  |
 | Sous-programmes                          | Pas de récursion — les emplacements des paramètres ZP sont alloués statiquement                                                                                                                                                                                                                                                                                                                                           |
+| `END` dans les routines QBasic           | Dans une sous-routine ou une fonction fermée par `END SUB` / `END FUNCTION`, un `END` seul sur sa ligne termine le programme ; les blocs dans une telle routine doivent être fermés à la manière QBasic (`END IF`, `WEND`, …), une instruction `if … ⏎ end` à la manière UB est interprétée comme la fin du programme.                                                                                                    |
+| Types de structures                      | Un seul indice par tableau de structures (pas de tableau ``array(8, 8)`` d'une structure) ; un élément fait au maximum 256 octets ; les champs ``word`` / ``integer`` sont non signés sur 16 bits ; les champs de type chaîne de caractères ont une longueur fixe (jusqu'à 254 caractères) ; un paramètre de structure passe l'élément par référence                                                                      |
 | Variables de type chaîne                 | `single` / `double` sont des nombres à virgule flottante de 5 octets depuis la version 1.6.4 (les routines utilisées par un programme, d'environ 2 à 5 Ko, y sont ajoutées) ; `float` reste Q8.8 (0–255,99)                                                                                                                                                                                                               |
 | Unaire moins                             | Depuis la version 1.6.4, un `-` initial se lie à son opérande : `-5 - 3` vaut -8 (auparavant, c'était -(5 - 3) = -2).                                                                                                                                                                                                                                                                                                     |
-| Exécution de la concaténation de chaînes | Les valeurs calculées sont stockées dans un tampon de 80 caractères par variable (les résultats plus longs sont tronqués) ; les valeurs des éléments du tableau de chaînes sont stockées dans des emplacements de 31 caractères ; l’ordre `&lt;` / `&gt;` correspond à l’ordre des octets PETSCII.                                                                                                                        |
+| Exécution de la concaténation de chaînes | Les valeurs calculées sont stockées dans un tampon de 80 caractères par variable (les résultats plus longs sont tronqués), les valeurs des éléments du tableau de chaînes dans des emplacements de 31 caractères — les chaînes d'options n et m (X138X) augmentent les deux (jusqu'à 255) ; pas de tas partagé ; l'ordre `&lt;` / `&gt;` correspond à l'ordre des octets PETSCII                                          |
 | `rnd()` / `rnd(n)`                       | LCG simple, non cryptographique ; période = 256 (le nombre à virgule flottante `rnd` est un décalage XOR de 32 bits)                                                                                                                                                                                                                                                                                                      |
 | `abs()` / `sgn()` / `min()` / `max()`    | Valeurs 8 bits uniquement ; `abs`/`sgn` traitent les valeurs comme signées (bit 7 = négatif → `abs` complément à deux, `sgn` renvoie `$FF`) ; `min`/`max` sont non signées (0–255).                                                                                                                                                                                                                                       |
 | `plan`                                   | Les pixels hors plage sont écrêtés silencieusement (Y ≥ 200 ou X ≥ 320 → aucune opération).                                                                                                                                                                                                                                                                                                                               |

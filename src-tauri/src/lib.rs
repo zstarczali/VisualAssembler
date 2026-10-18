@@ -781,20 +781,27 @@ struct SidDumpPayload {
 /// Runs a .sid tune silently and returns its SID register writes frame by
 /// frame (the SID Editor's .sid import converts them into patterns).
 #[tauri::command]
-async fn sid_register_dump(payload: SidDumpPayload) -> Result<serde_json::Value, String> {
-    tauri::async_runtime::spawn_blocking(move || sid_register_dump_blocking(payload))
+async fn sid_register_dump(app: AppHandle, payload: SidDumpPayload) -> Result<serde_json::Value, String> {
+    tauri::async_runtime::spawn_blocking(move || sid_register_dump_blocking(&app, payload))
         .await
         .map_err(|e| format!("SID register dump failed: {e}"))?
 }
 
-fn sid_register_dump_blocking(payload: SidDumpPayload) -> Result<serde_json::Value, String> {
+fn sid_register_dump_blocking(app: &AppHandle, payload: SidDumpPayload) -> Result<serde_json::Value, String> {
+    use tauri::Emitter;
     if payload.file_bytes.len() > 1_048_576 {
         return Err("SID file is too large.".into());
     }
     let mut player =
         sid_file::SidFilePlayer::with_song(&payload.file_bytes, 44_100, sid_core::SidModel::Mos8580, payload.song)?;
     let frames = (f64::from(payload.seconds.clamp(1, 900)) * player.frame_rate()).round() as usize;
-    let regs = player.dump_registers(frames);
+    // about one progress event per percent
+    let step = (frames / 100).max(1);
+    let regs = player.dump_registers(frames, |done| {
+        if done % step == 0 || done == frames {
+            let _ = app.emit("sid-dump-progress", serde_json::json!({ "done": done, "total": frames }));
+        }
+    });
     let (name, author) = sid_file::header_strings(&payload.file_bytes);
     Ok(serde_json::json!({
         "songs": player.songs(),

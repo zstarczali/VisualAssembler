@@ -226,6 +226,10 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
 - **SID szerkesztő** — a fejléc az aktív SID emulációt mutatja (WebSID vagy VA
   SID Core a chip modellel); a Sebesség mező − / + gombokkal rendelkezik, és
   1–255 értéket vehet fel; a dal akár 256 mintát is használhat.
+- **Frissítési szerver beállításai** — **Beállítások → Frissítések** beállítja
+  azt a szervert, amelyről az alkalmazáson belüli frissítések beolvassák a
+  kiadásokat (alapértelmezett: `https://www.c64va.pro/`). Lásd: [Alkalmazáson
+  belüli frissítések](#in-app-updates).
 - **Ultimate Basic 1.6.6** — `NYOMTATÁS "formátum" használatával; értékek`,
   karakterlánc-összehasonlítás PETSCII sorrendben, lebegőpontos `rnd` és `mod`,
   lebegőpontos az IRQ / NMI kezelőkben, `opció basic print` a C64 BASIC PRINT
@@ -1218,6 +1222,13 @@ egy animációs képet választ ki egymást követő 64 bájtos sprite képkock�
 A parancslista magassága szándékosan korlátozott, így a parancsrészletező kártya
 kitöltheti a panel fennmaradó magasságát. A részletes terület külön görgethető a
 hosszabb szintaxisleírásokért.
+
+**Frissítési szerver:** **Beállítások → Frissítések → Frissítési szerver**
+beállítja, hogy hol keressenek a kiadásokat (alapértelmezett:
+`https://www.c64va.pro/`); a telepítők a `<szerver>letöltések/VA/` címről
+olvashatók be. A címnek `https://` címet kell használnia (tesztelés céljából
+csak sima `http://` címet a `localhost` címhez); az **Alapértelmezett** címre
+áll vissza, amely a c64va.pro címre vonatkozik.
 
 ### Ingyenes és nyílt forráskódú
 
