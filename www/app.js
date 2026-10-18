@@ -3317,6 +3317,9 @@ function applyTranslations() {
   setText("#vc-git-refresh", t("vcGitRefresh"));
   setText("#vc-stage-all-label", t("vcGitStageAll"));
   setText("#git-exe-label", t("gitExeLabel"));
+  setText("#update-settings-label", t("updateSettings"));
+  setText("#update-server-label", t("updateServerLabel"));
+  setText("#update-server-default", t("updateServerDefault"));
   setText("#choose-git", t("chooseGit"));
   setText("#detect-git", t("detectGit"));
   setText("#git-preferred-label", t("gitPreferred"));
@@ -19106,6 +19109,34 @@ function setupVersionControl() {
   });
   document.getElementById("git-preferred")?.addEventListener("change", saveUiSettings);
   loadGitConfig();
+  const updateServerInput = document.getElementById("update-server");
+  updateServerInput?.addEventListener("change", () => _saveUpdateServer(updateServerInput.value));
+  updateServerInput?.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); updateServerInput.blur(); } });
+  document.getElementById("update-server-default")?.addEventListener("click", () => _saveUpdateServer(""));
+  loadUpdateServer();
+}
+
+// Self-update server (Settings → Updates): the installers are read from <server>downloads/VA/.
+async function loadUpdateServer(message) {
+  const input = document.getElementById("update-server");
+  const status = document.getElementById("update-server-status");
+  if (!input) return;
+  if (!window.electronAPI?.getUpdateServer) { input.disabled = true; return; }
+  let cfg = null;
+  try { cfg = await window.electronAPI.getUpdateServer(); } catch { cfg = null; }
+  input.placeholder = cfg?.default || "https://www.c64va.pro/";
+  input.value = cfg?.updateServer || input.placeholder;
+  if (status) status.textContent = message || tf("updateServerNote", { server: cfg?.effective || input.placeholder });
+}
+
+async function _saveUpdateServer(url) {
+  const status = document.getElementById("update-server-status");
+  try {
+    await window.electronAPI?.setUpdateServer?.(url);
+    await loadUpdateServer();
+  } catch (err) {
+    if (status) status.textContent = String(err?.message || err);
+  }
 }
 
 async function loadGitConfig() {

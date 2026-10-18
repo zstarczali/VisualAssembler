@@ -12,6 +12,7 @@ Visual Assembler is free and open source (GPLv3): every feature — editors, bui
 - **Long tunes play correctly** — tune data that does not fit next to the player at `$C000` moves to its own segment below `$A000` instead of running into I/O; the `.sid` (PSID) export follows.
 - **VA SID Core preview retriggers notes** — preview frames carry the restarted voices, so a note restarted under a held gate gets a new attack.
 - **Ultimate Basic 1.6.6** — `PRINT USING "format"; values`, string comparison (`<` `>` `<=` `>=` in PETSCII order), floating-point `rnd` and `mod`, floating point in IRQ / NMI handlers, `option basic print` (C64 BASIC PRINT spacing), smaller programs (only the floating-point routines in use), 16-bit `mod` and arithmetic `shr` for INTEGER; 1.6.5: 16-bit address expressions in `peek` / `poke` / `fill` / `memcopy`. The UB editor highlights `print using` and `option basic print`.
+- **Update server setting** — Settings → Updates sets the server the in-app update reads releases from (default `https://www.c64va.pro/`, installers under `downloads/VA/`; `https://` required).
 - **SID Editor** — the header shows the active SID emulation (WebSID / VA SID Core and chip model); the Speed field has − / + buttons and takes 1–255; up to 256 patterns; the BPM label is fixed.
 
 ## Earlier: v2.6.2

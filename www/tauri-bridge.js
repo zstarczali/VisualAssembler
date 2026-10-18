@@ -20,6 +20,8 @@
     sidRegisterDump: (payload) => invoke("sid_register_dump", { payload }),
     checkForUpdate: () => invoke("check_for_update"),
     downloadAndInstallUpdate: (version) => invoke("download_and_install_update", { version }),
+    getUpdateServer: () => invoke("get_update_server"),
+    setUpdateServer: (url) => invoke("set_update_server", { url }),
     onUpdateProgress: (cb) => window.__TAURI__.event.listen("update-download-progress", e => cb(e.payload)),
     onHvscProgress: (cb) => window.__TAURI__.event.listen("hvsc-download-progress", e => cb(e.payload)),
     setWindowTitle: (title) => invoke("set_title", { title }),

@@ -7084,6 +7084,15 @@ html[data-theme="commodore77"] .splash-image {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
+  align-items: start;
+}
+
+/* Three columns of cards, each as tall as its own content (no stretched rows). */
+.hw-settings-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
 }
 
 @media (max-width: 1000px) {
@@ -7093,6 +7102,11 @@ html[data-theme="commodore77"] .splash-image {
 
   .hw-settings-body {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+  }
+
+  .hw-settings-col {
+    display: contents;
   }
 }
 

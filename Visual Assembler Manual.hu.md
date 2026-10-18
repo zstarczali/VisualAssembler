@@ -35,6 +35,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - **A hosszú dalok helyesen szólnak** — ha a dal adata nem fér el a `$C000`-s lejátszó mellett, külön szegmensbe kerül `$A000` alá, és nem lóg bele az I/O-ba; a `.sid` export is ezt követi.
 - **A VA SID Core előnézet újraindítja a hangokat** — a tartott gate mellett újraindított hang új attackot kap, mint a valódi lejátszóban.
 - **SID szerkesztő** — a fejléc mutatja a használt SID-emulációt (WebSID vagy VA SID Core a chip-modellel); a Speed mezőn − / + gomb van, értéke 1–255; a song legfeljebb 256 patternt használhat.
+- **Frissítési szerver beállítása** — a **Beállítások → Frissítés** adja meg, melyik szerverről olvassa a kiadásokat az alkalmazáson belüli frissítés (alapértelmezés `https://www.c64va.pro/`). Lásd: [Frissítés az alkalmazásból](#frissítés-az-alkalmazásból).
 - **Ultimate Basic 1.6.6** — `PRINT USING "formátum"; értékek`, sztring-összehasonlítás PETSCII sorrendben, lebegőpontos `rnd` és `mod`, lebegőpont IRQ / NMI kezelőkben, `option basic print` a C64 BASIC PRINT-térközhöz, kisebb programok (csak a használt lebegőpontos rutinok kerülnek bele) és 16 bites címkifejezések (1.6.5). Az Ultimate Basic szerkesztő kiemeli a `print using` és az `option basic print` szavakat.
 
 ## A 2.6.2 verzió újdonságai
@@ -509,6 +510,8 @@ A letöltés után az app telepíti a frissítést és újraindul:
 | **Linux** | Az AppImage lecserélődik az újra. A `.deb` / `.rpm` telepítés `pkexec`-kel frissül (jelszót kér); `pkexec` nélkül a csomag a rendszer szoftvertelepítőjében nyílik meg. |
 
 Ha vannak mentetlen fülek, az app bezárás előtt rákérdez. Ugyanez az ellenőrzés minden induláskor néhány másodperc után csendben is lefut: csak akkor jelenik meg bármi, ha van újabb verzió. Az eredmény az Ultimate Basic statusbarban is látszik — **Naprakész (vX)**, vagy kiemelt **Frissítés elérhető: vY**, ami megnyitja a frissítés dialógust.
+
+**Frissítési szerver:** a **Beállítások → Frissítés → Frissítési szerver** adja meg, honnan keresi a kiadásokat (alapértelmezés `https://www.c64va.pro/`); a telepítőket a `<szerver>downloads/VA/` alól olvassa. A cím `https://` legyen (sima `http://` csak `localhost`-ra, teszteléshez); az **Alapértelmezett** visszaáll a c64va.pro-ra.
 
 ### Ingyenes és nyílt forrású
 

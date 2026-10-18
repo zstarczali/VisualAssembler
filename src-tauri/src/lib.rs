@@ -4916,11 +4916,64 @@ mod tests {
 // olvassuk ki — nincs külön manifest. Ha a főoldalon nem található platformhoz
 // illő link, a downloads/VA/ könyvtárlistázást is megpróbáljuk.
 
-const UPDATE_PAGE_URLS: [&str; 2] = [
-    "https://www.c64va.pro/",
-    "https://www.c64va.pro/downloads/VA/",
-];
-const UPDATE_DOWNLOAD_BASE: &str = "https://www.c64va.pro/downloads/VA/";
+// A szerver a Beállításokban megadható (config `updateServer`); a telepítők a
+// `<szerver>downloads/VA/` alatt vannak.
+const UPDATE_SERVER_DEFAULT: &str = "https://www.c64va.pro/";
+
+/// Az update szerver címe ellenőrizve, `/`-re végződve: https, vagy http csak
+/// localhostra (helyi teszt); felhasználónév, query és fragment nélkül.
+fn normalize_update_server(raw: &str) -> Result<String, String> {
+    let raw = raw.trim();
+    if raw.is_empty() {
+        return Ok(UPDATE_SERVER_DEFAULT.to_string());
+    }
+    let url = reqwest::Url::parse(raw).map_err(|_| format!("Invalid update server address: {raw}"))?;
+    let host = url.host_str().unwrap_or("");
+    let local = matches!(host, "localhost" | "127.0.0.1" | "[::1]");
+    let scheme_ok = url.scheme() == "https" || (url.scheme() == "http" && local);
+    if !scheme_ok || host.is_empty() || !url.username().is_empty() || url.password().is_some()
+        || url.query().is_some() || url.fragment().is_some()
+    {
+        return Err(format!("Invalid update server address (https:// required): {raw}"));
+    }
+    let mut s = url.to_string();
+    if !s.ends_with('/') {
+        s.push('/');
+    }
+    Ok(s)
+}
+
+fn update_server(app: &AppHandle) -> String {
+    let cfg = read_config(app);
+    normalize_update_server(cfg["updateServer"].as_str().unwrap_or(""))
+        .unwrap_or_else(|_| UPDATE_SERVER_DEFAULT.to_string())
+}
+
+#[tauri::command]
+fn get_update_server(app: AppHandle) -> serde_json::Value {
+    let cfg = read_config(&app);
+    serde_json::json!({
+        "updateServer": cfg["updateServer"].as_str().unwrap_or(""),
+        "effective": update_server(&app),
+        "default": UPDATE_SERVER_DEFAULT,
+    })
+}
+
+/// Üres cím = alapértelmezett szerver.
+#[tauri::command]
+fn set_update_server(app: AppHandle, url: String) -> Result<serde_json::Value, String> {
+    let normalized = normalize_update_server(&url)?;
+    let mut cfg = read_config(&app);
+    if normalized == UPDATE_SERVER_DEFAULT {
+        if let Some(map) = cfg.as_object_mut() {
+            map.remove("updateServer");
+        }
+    } else {
+        cfg["updateServer"] = serde_json::json!(normalized);
+    }
+    write_config(&app, &cfg);
+    Ok(get_update_server(app))
+}
 
 fn parse_version_triplet(s: &str) -> Option<(u32, u32, u32)> {
     let mut parts = s.trim().trim_start_matches('v').split('.');
@@ -5004,10 +5057,15 @@ async fn check_for_update(app: AppHandle) -> Result<serde_json::Value, String> {
         return Ok(serde_json::json!({ "supported": false, "currentVersion": current }));
     };
     let client = update_http_client(&app, 15)?;
+    let server = update_server(&app);
+    let download_base = format!("{server}downloads/VA/");
+    // supporters may be offered a version released to them first (register/release.php)
+    let query = if is_supporter(&read_config(&app)) { "?sup=1" } else { "" };
+    let pages = [format!("{server}{query}"), format!("{download_base}{query}")];
 
     let mut latest: Option<(u32, u32, u32)> = None;
     let mut last_err = String::new();
-    for url in UPDATE_PAGE_URLS {
+    for url in &pages {
         match client
             .get(url)
             .send()
@@ -5041,7 +5099,8 @@ async fn check_for_update(app: AppHandle) -> Result<serde_json::Value, String> {
         "latestVersion": latest_str,
         "updateAvailable": (ma, mi, pa) > current_v,
         "fileName": file_name,
-        "url": format!("{}{}", UPDATE_DOWNLOAD_BASE, urlencoding::encode(&file_name)),
+        "url": format!("{}{}", download_base, urlencoding::encode(&file_name)),
+        "server": server,
     }))
 }
 
@@ -5200,8 +5259,8 @@ async fn download_and_install_update(
     let file_name =
         update_asset_name(&version).ok_or("Self-update is not supported on this platform.")?;
     let url = format!(
-        "{}{}",
-        UPDATE_DOWNLOAD_BASE,
+        "{}downloads/VA/{}",
+        update_server(&app),
         urlencoding::encode(&file_name)
     );
 
@@ -5362,6 +5421,8 @@ pub fn run() {
             render_sid_file,
             sid_file_info,
             sid_register_dump,
+            get_update_server,
+            set_update_server,
             release_sid_file,
             check_for_update,
             download_and_install_update,
@@ -5557,3 +5618,18 @@ mod sid_preview_tests {
     }
 }
 
+#[cfg(test)]
+mod update_server_tests {
+    use super::*;
+
+    #[test]
+    fn update_server_is_normalized_and_checked() {
+        assert_eq!(normalize_update_server("").unwrap(), UPDATE_SERVER_DEFAULT);
+        assert_eq!(normalize_update_server("  https://www.c64va.pro  ").unwrap(), "https://www.c64va.pro/");
+        assert_eq!(normalize_update_server("https://mirror.example.org/va").unwrap(), "https://mirror.example.org/va/");
+        assert_eq!(normalize_update_server("http://localhost:8080/").unwrap(), "http://localhost:8080/");
+        for bad in ["http://www.c64va.pro/", "ftp://x.org/", "www.c64va.pro", "https://u:p@x.org/", "https://x.org/?a=1", "file:///c:/x"] {
+            assert!(normalize_update_server(bad).is_err(), "{bad}");
+        }
+    }
+}

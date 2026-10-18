@@ -1412,6 +1412,9 @@ PRINTABLE CHARACTERS
           <strong>Ultimate Basic 1.6.6:</strong> <code>PRINT USING "format"; values</code> (numeric fields with <code>#</code> <code>.</code> <code>,</code> <code>+</code> <code>-</code>, string fields <code>&amp;</code> <code>!</code> <code>\ \</code>), strings compared with <code>&lt; &gt; &lt;= &gt;=</code> in PETSCII order, <code>rnd</code> and <code>mod</code> in floating point, floating point in IRQ / NMI handlers, <code>option basic print</code> for C64 BASIC PRINT spacing, smaller programs (only the floating-point routines in use are linked), a real 16-bit <code>mod</code> and an arithmetic <code>shr</code> for INTEGER; 1.6.5 makes address expressions 16-bit in <code>peek</code>, <code>poke</code>, <code>fill</code>, <code>memcopy</code> and friends.
         </li>
         <li>
+          <strong>Update server setting:</strong> <em>Settings → Updates</em> sets the server the in-app update reads releases from (default <code>https://www.c64va.pro/</code>, installers under <code>downloads/VA/</code>).
+        </li>
+        <li>
           <strong>SID Editor:</strong> the header shows which SID emulation plays (WebSID or VA SID Core with the chip model); the Speed field is narrower, has − / + buttons and takes 1–255; the song can use up to 256 patterns. The BPM label shows BPM again (it read "Oct:").
         </li>
         <li>
@@ -3478,169 +3481,175 @@ PRINTABLE CHARACTERS
       <h2 class="compile-error-title" id="hardware-settings-title">Hardver beállítások</h2>
 
       <div class="hw-settings-body">
-        <section class="hw-settings-section">
-          <h3 class="hw-settings-section-label" id="hw-vice-section-label">VICE Emulator</h3>
-          <button id="choose-vice" class="secondary" type="button">VICE kivalasztasa</button>
-          <label class="field compact-field hw-field">
-            <span id="vice-exe-label">VICE exe</span>
-            <input id="vice-path" type="text" readonly placeholder="Nincs beallitva">
-          </label>
-          <label class="menu-checkbox-label">
-            <input type="checkbox" id="vice-remote-monitor" checked>
-            <span id="vice-remote-monitor-label">VICE remote monitor (hot reload, live watch, profiler)</span>
-          </label>
-          <p id="emulator-status" class="menu-note">A VICE kapcsolat ellenorzese folyamatban.</p>
-          <p id="emulator-run-hint" class="menu-note menu-note-strong"></p>
-        </section>
-
-        <section class="hw-settings-section">
-          <h3 class="hw-settings-section-label" id="hw-exomizer-section-label">Exomizer</h3>
-          <button id="choose-exomizer" class="secondary" type="button">Exomizer kivalasztasa</button>
-          <label class="field compact-field hw-field">
-            <span id="exomizer-exe-label">Exomizer exe</span>
-            <input id="exomizer-path" type="text" readonly placeholder="Nincs beallitva">
-          </label>
-          <label class="menu-checkbox-label">
-            <input type="checkbox" id="exomizer-border-flash" checked>
-            <span id="exomizer-border-flash-label">Border villogás dekompressziókor</span>
-          </label>
-          <p id="exomizer-status" class="menu-note">Válaszd ki az Exomizer executable-t.</p>
-        </section>
-
-        <section class="hw-settings-section">
-          <h3 class="hw-settings-section-label" id="hw-debugger-section-label">Retro Debugger</h3>
-          <button id="choose-debugger" class="secondary" type="button"></button>
-          <label class="field compact-field hw-field">
-            <span id="debugger-exe-label"></span>
-            <input id="debugger-path" type="text" readonly placeholder="">
-          </label>
-          <p id="debugger-status" class="menu-note"></p>
-        </section>
-
-        <section class="hw-settings-section">
-          <h3 class="hw-settings-section-label" id="debugger-params-label">C64 Debugger params</h3>
-          <label class="menu-checkbox-label">
-            <input type="checkbox" id="dbg-jmp" checked>
-            <span id="dbg-jmp-label"></span>
-          </label>
-          <label class="menu-checkbox-label">
-            <input type="checkbox" id="dbg-unpause">
-            <span id="dbg-unpause-label"></span>
-          </label>
-          <label class="menu-checkbox-label">
-            <input type="checkbox" id="dbg-wait">
-            <span id="dbg-wait-label"></span>
-          </label>
-        </section>
-
-        <section class="hw-settings-section">
-          <h3 class="hw-settings-section-label" id="program-settings-label">Program</h3>
-          <label class="menu-checkbox-label">
-            <input type="checkbox" id="basic-sys-toggle" checked>
-            <span id="basic-sys-label">BASIC SYS stub generálása</span>
-          </label>
-          <label class="menu-checkbox-label">
-            <input type="checkbox" id="show-basic-stub-toggle">
-            <span id="show-basic-stub-label">BASIC stub megjelenítése a Disassembler és Monitor nézetben</span>
-          </label>
-          <label class="menu-checkbox-label">
-            <input type="checkbox" id="block-desc-sync-toggle" checked>
-            <span id="block-desc-sync-label">Leírás szinkron blokk módban</span>
-          </label>
-          <label class="menu-checkbox-label">
-            <input type="checkbox" id="run-exomizer-toggle">
-            <span id="run-exomizer-toggle-label">Run with Exomizer</span>
-          </label>
-          <label class="menu-checkbox-label">
-            <input type="checkbox" id="write-debug-sidecars-toggle">
-            <span id="write-debug-sidecars-label">Debug fájlok generálása (.dbg, .sym, .vs)</span>
-          </label>
-          <label class="menu-checkbox-label">
-            <input type="checkbox" id="ub-asm-sidecar-toggle">
-            <span id="ub-asm-sidecar-label">UltimateBasic ASM source generálása (.asm)</span>
-          </label>
-
-        </section>
-
-        <section class="hw-settings-section">
-          <h3 class="hw-settings-section-label" id="sid-preview-settings-label">SID preview</h3>
-          <label class="field compact-field hw-field">
-            <span id="sid-preview-engine-lbl">SID engine</span>
-            <select id="sid-preview-engine" class="sid-select">
-              <option value="websid">WebSID</option>
-              <option value="va-core">VA SID Core (Rust) v1.2</option>
-            </select>
-          </label>
-          <label class="field compact-field hw-field">
-            <span id="sid-preview-model-lbl">SID chip</span>
-            <select id="sid-preview-model" class="sid-select" disabled>
-              <option value="8580">MOS 8580</option>
-              <option value="6581">MOS 6581</option>
-            </select>
-          </label>
-        </section>
-
-        <section class="hw-settings-section">
-          <h3 class="hw-settings-section-label" id="snapshot-settings-label">Snapshot</h3>
-          <label class="menu-checkbox-label">
-            <input type="checkbox" id="auto-snapshot-toggle" checked>
-            <span id="auto-snapshot-toggle-label">Automatikus snapshot</span>
-          </label>
-          <button id="choose-git" class="secondary" type="button">Choose git.exe…</button>
-          <button id="detect-git" class="secondary" type="button">Auto-detect</button>
-          <label class="field compact-field hw-field">
-            <span id="git-exe-label">git executable</span>
-            <input id="git-path" type="text" readonly>
-          </label>
-          <label class="menu-checkbox-label">
-            <input type="checkbox" id="git-preferred" checked>
-            <span id="git-preferred-label">Use Git when the project is in a repository</span>
-          </label>
-          <p id="git-status" class="menu-note"></p>
-        </section>
-
-        <section class="hw-settings-section">
-          <h3 class="hw-settings-section-label" id="asm-output-settings-label">ASM output</h3>
-          <label class="menu-checkbox-label">
-            <input type="checkbox" id="macro-source-toggle">
-            <span id="macro-source-toggle-text">Macro source</span>
-          </label>
-          <label class="menu-checkbox-label">
-            <input type="checkbox" id="region-comments-toggle" checked>
-            <span id="region-comments-label">Show region comments</span>
-          </label>
-          <label class="menu-checkbox-label">
-            <input type="checkbox" id="memory-overlays-toggle" checked>
-            <span id="memory-overlays-label">Show memory overlays</span>
-          </label>
-          <label class="menu-checkbox-label">
-            <input type="checkbox" id="global-memory-panel-toggle" checked>
-            <span id="global-memory-panel-toggle-label">Show memory panel</span>
-          </label>
-        </section>
-
-        <section class="hw-settings-section">
-          <h3 class="hw-settings-section-label" id="ultimate-section-label">C64 Ultimate</h3>
-          <label class="field compact-field hw-field">
-            <span id="ultimate-host-label">Host (IP)</span>
-            <input id="ultimate-host" type="text" placeholder="192.168.1.100" autocomplete="off" spellcheck="false">
-          </label>
-          <label class="field compact-field hw-field">
-            <span id="ultimate-password-label">Jelszó</span>
-            <input id="ultimate-password" type="password" placeholder="(optional)" autocomplete="off">
-          </label>
-          <button id="ultimate-connect-test" class="secondary" type="button">Kapcsolat tesztelése</button>
-          <p id="ultimate-status" class="menu-note"></p>
-          <div class="hw-settings-subsection hw-settings-subsection--inline">
-            <h3 class="hw-settings-section-label" id="kff2-section-label">Kung Fu Flash 2</h3>
+        <div class="hw-settings-col">
+          <section class="hw-settings-section">
+            <h3 class="hw-settings-section-label" id="hw-vice-section-label">VICE Emulator</h3>
+            <button id="choose-vice" class="secondary" type="button">VICE kivalasztasa</button>
             <label class="field compact-field hw-field">
-              <span id="kff2-port-label">Soros port</span>
-              <input id="kff2-port" type="text" placeholder="/dev/cu.usbmodem… / COM4 / /dev/ttyACM0" autocomplete="off" spellcheck="false">
+              <span id="vice-exe-label">VICE exe</span>
+              <input id="vice-path" type="text" readonly placeholder="Nincs beallitva">
             </label>
-            <button id="kff2-detect-btn" class="secondary" type="button">USB felismerése</button>
-            <p id="kff2-status" class="menu-note"></p>
-          </div>
-        </section>
+            <label class="menu-checkbox-label">
+              <input type="checkbox" id="vice-remote-monitor" checked>
+              <span id="vice-remote-monitor-label">VICE remote monitor (hot reload, live watch, profiler)</span>
+            </label>
+            <p id="emulator-status" class="menu-note">A VICE kapcsolat ellenorzese folyamatban.</p>
+            <p id="emulator-run-hint" class="menu-note menu-note-strong"></p>
+          </section>
+          <section class="hw-settings-section">
+            <h3 class="hw-settings-section-label" id="debugger-params-label">C64 Debugger params</h3>
+            <label class="menu-checkbox-label">
+              <input type="checkbox" id="dbg-jmp" checked>
+              <span id="dbg-jmp-label"></span>
+            </label>
+            <label class="menu-checkbox-label">
+              <input type="checkbox" id="dbg-unpause">
+              <span id="dbg-unpause-label"></span>
+            </label>
+            <label class="menu-checkbox-label">
+              <input type="checkbox" id="dbg-wait">
+              <span id="dbg-wait-label"></span>
+            </label>
+          </section>
+          <section class="hw-settings-section">
+            <h3 class="hw-settings-section-label" id="snapshot-settings-label">Snapshot</h3>
+            <label class="menu-checkbox-label">
+              <input type="checkbox" id="auto-snapshot-toggle" checked>
+              <span id="auto-snapshot-toggle-label">Automatikus snapshot</span>
+            </label>
+            <button id="choose-git" class="secondary" type="button">Choose git.exe…</button>
+            <button id="detect-git" class="secondary" type="button">Auto-detect</button>
+            <label class="field compact-field hw-field">
+              <span id="git-exe-label">git executable</span>
+              <input id="git-path" type="text" readonly>
+            </label>
+            <label class="menu-checkbox-label">
+              <input type="checkbox" id="git-preferred" checked>
+              <span id="git-preferred-label">Use Git when the project is in a repository</span>
+            </label>
+            <p id="git-status" class="menu-note"></p>
+          </section>
+        </div>
+        <div class="hw-settings-col">
+          <section class="hw-settings-section">
+            <h3 class="hw-settings-section-label" id="hw-exomizer-section-label">Exomizer</h3>
+            <button id="choose-exomizer" class="secondary" type="button">Exomizer kivalasztasa</button>
+            <label class="field compact-field hw-field">
+              <span id="exomizer-exe-label">Exomizer exe</span>
+              <input id="exomizer-path" type="text" readonly placeholder="Nincs beallitva">
+            </label>
+            <label class="menu-checkbox-label">
+              <input type="checkbox" id="exomizer-border-flash" checked>
+              <span id="exomizer-border-flash-label">Border villogás dekompressziókor</span>
+            </label>
+            <p id="exomizer-status" class="menu-note">Válaszd ki az Exomizer executable-t.</p>
+          </section>
+          <section class="hw-settings-section">
+            <h3 class="hw-settings-section-label" id="program-settings-label">Program</h3>
+            <label class="menu-checkbox-label">
+              <input type="checkbox" id="basic-sys-toggle" checked>
+              <span id="basic-sys-label">BASIC SYS stub generálása</span>
+            </label>
+            <label class="menu-checkbox-label">
+              <input type="checkbox" id="show-basic-stub-toggle">
+              <span id="show-basic-stub-label">BASIC stub megjelenítése a Disassembler és Monitor nézetben</span>
+            </label>
+            <label class="menu-checkbox-label">
+              <input type="checkbox" id="block-desc-sync-toggle" checked>
+              <span id="block-desc-sync-label">Leírás szinkron blokk módban</span>
+            </label>
+            <label class="menu-checkbox-label">
+              <input type="checkbox" id="run-exomizer-toggle">
+              <span id="run-exomizer-toggle-label">Run with Exomizer</span>
+            </label>
+            <label class="menu-checkbox-label">
+              <input type="checkbox" id="write-debug-sidecars-toggle">
+              <span id="write-debug-sidecars-label">Debug fájlok generálása (.dbg, .sym, .vs)</span>
+            </label>
+            <label class="menu-checkbox-label">
+              <input type="checkbox" id="ub-asm-sidecar-toggle">
+              <span id="ub-asm-sidecar-label">UltimateBasic ASM source generálása (.asm)</span>
+            </label>
+            <div class="hw-settings-subsection hw-settings-subsection--inline">
+              <h3 class="hw-settings-section-label" id="update-settings-label">Updates</h3>
+              <label class="field compact-field hw-field">
+                <span id="update-server-label">Update server</span>
+                <input id="update-server" type="text" spellcheck="false" autocomplete="off" placeholder="https://www.c64va.pro/" value="https://www.c64va.pro/">
+              </label>
+              <button id="update-server-default" class="secondary" type="button">Default</button>
+              <p id="update-server-status" class="menu-note"></p>
+            </div>
+          </section>
+          <section class="hw-settings-section">
+            <h3 class="hw-settings-section-label" id="asm-output-settings-label">ASM output</h3>
+            <label class="menu-checkbox-label">
+              <input type="checkbox" id="macro-source-toggle">
+              <span id="macro-source-toggle-text">Macro source</span>
+            </label>
+            <label class="menu-checkbox-label">
+              <input type="checkbox" id="region-comments-toggle" checked>
+              <span id="region-comments-label">Show region comments</span>
+            </label>
+            <label class="menu-checkbox-label">
+              <input type="checkbox" id="memory-overlays-toggle" checked>
+              <span id="memory-overlays-label">Show memory overlays</span>
+            </label>
+            <label class="menu-checkbox-label">
+              <input type="checkbox" id="global-memory-panel-toggle" checked>
+              <span id="global-memory-panel-toggle-label">Show memory panel</span>
+            </label>
+          </section>
+        </div>
+        <div class="hw-settings-col">
+          <section class="hw-settings-section">
+            <h3 class="hw-settings-section-label" id="hw-debugger-section-label">Retro Debugger</h3>
+            <button id="choose-debugger" class="secondary" type="button"></button>
+            <label class="field compact-field hw-field">
+              <span id="debugger-exe-label"></span>
+              <input id="debugger-path" type="text" readonly placeholder="">
+            </label>
+            <p id="debugger-status" class="menu-note"></p>
+          </section>
+          <section class="hw-settings-section">
+            <h3 class="hw-settings-section-label" id="sid-preview-settings-label">SID preview</h3>
+            <label class="field compact-field hw-field">
+              <span id="sid-preview-engine-lbl">SID engine</span>
+              <select id="sid-preview-engine" class="sid-select">
+                <option value="websid">WebSID</option>
+                <option value="va-core">VA SID Core (Rust) v1.2</option>
+              </select>
+            </label>
+            <label class="field compact-field hw-field">
+              <span id="sid-preview-model-lbl">SID chip</span>
+              <select id="sid-preview-model" class="sid-select" disabled>
+                <option value="8580">MOS 8580</option>
+                <option value="6581">MOS 6581</option>
+              </select>
+            </label>
+          </section>
+          <section class="hw-settings-section">
+            <h3 class="hw-settings-section-label" id="ultimate-section-label">C64 Ultimate</h3>
+            <label class="field compact-field hw-field">
+              <span id="ultimate-host-label">Host (IP)</span>
+              <input id="ultimate-host" type="text" placeholder="192.168.1.100" autocomplete="off" spellcheck="false">
+            </label>
+            <label class="field compact-field hw-field">
+              <span id="ultimate-password-label">Jelszó</span>
+              <input id="ultimate-password" type="password" placeholder="(optional)" autocomplete="off">
+            </label>
+            <button id="ultimate-connect-test" class="secondary" type="button">Kapcsolat tesztelése</button>
+            <p id="ultimate-status" class="menu-note"></p>
+            <div class="hw-settings-subsection hw-settings-subsection--inline">
+              <h3 class="hw-settings-section-label" id="kff2-section-label">Kung Fu Flash 2</h3>
+              <label class="field compact-field hw-field">
+                <span id="kff2-port-label">Soros port</span>
+                <input id="kff2-port" type="text" placeholder="/dev/cu.usbmodem… / COM4 / /dev/ttyACM0" autocomplete="off" spellcheck="false">
+              </label>
+              <button id="kff2-detect-btn" class="secondary" type="button">USB felismerése</button>
+              <p id="kff2-status" class="menu-note"></p>
+            </div>
+          </section>
+        </div>
 
       </div>
 

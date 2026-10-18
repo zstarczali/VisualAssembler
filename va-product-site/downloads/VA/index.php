@@ -6,12 +6,13 @@ declare(strict_types=1);
 // (C64 Visual Assembler_<ver>_x64-setup.exe, …). Built from the files actually
 // uploaded here, but only up to the version released on the admin dashboard
 // (register/release.php): newer uploads wait there until they are released.
+// ?sup=1 (sent by apps of supporters) lists up to the version released to supporters.
 define('VA_REGISTER', true);
 require dirname(__DIR__, 2) . '/register/lib.php';
 
 $approved = null;
 try {
-    $approved = vaUpdateApproved(vaDb());
+    $approved = vaUpdateApproved(vaDb(), ($_GET['sup'] ?? '') === '1');
 } catch (Throwable $e) {
     // without the database the release is unknown: offer no update rather than an unreleased one
     error_log('VA update list: ' . $e->getMessage());
