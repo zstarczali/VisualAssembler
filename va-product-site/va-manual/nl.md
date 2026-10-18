@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Gebruikershandleiding
 
-**Versie 2.6.1**
+**Versie 2.6.3**
 
 Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw
 programma's door instructieblokken te slepen en neer te zetten, en bekijk de
@@ -12,6 +12,8 @@ gegenereerde assembly- en machinecode in realtime.
 
 - [C64 Visual Assembler —
   Gebruikershandleiding](#c64-visual-assembler--user-manual)
+    - [Hoogtepunten van versie 2.6.3](#version-263-highlights)
+    - [Hoogtepunten van versie 2.6.2](#version-262-highlights)
     - [Hoogtepunten van versie 2.6.1](#version-261-highlights)
     - [Hoogtepunten van versie 2.6.0](#version-260-highlights)
     - [Hoogtepunten van versie 2.5.9](#version-259-highlights)
@@ -204,6 +206,67 @@ gegenereerde assembly- en machinecode in realtime.
     - [Curve-editor](#curve-editor)
     - [Tabelgenerator](#table-generator)
     - [Nummeromzetter](#number-converter)
+
+---
+
+## Hoogtepunten van versie 2.6.3
+
+- **.sid importeren in de SID Editor** — **Bestanden → Importeer .sid…** zet
+  elke PSID/RSID-melodie om in instrumenten, patronen en een nummer dat je kunt
+  bewerken: noten en legato-noten, rijen die precies op de noten geplaatst zijn
+  (funktempo en swing via `F` snelheidsveranderingen), golf-/arpeggio-tabellen
+  met drumaanslagen met vaste toonhoogte, puls- en filterbeweging, gate-timing
+  en vibrato. Zie [SID Editor](#sid-editor-3-voice-tracker).
+- **Lange melodieën worden correct afgespeeld** — wanneer de melodiegegevens
+  niet naast de speler passen op `$C000`, worden ze verplaatst naar een eigen
+  segment onder `$A000` in plaats van dat ze in de I/O terechtkomen; de `.sid`
+  export volgt.
+- **VA SID Core preview activeert notities opnieuw ** — een notitie die opnieuw
+  is gestart onder een vastgehouden poort krijgt een nieuwe aanval, net als bij
+  de echte speler.
+- **SID Editor** — de header toont de actieve SID-emulatie (WebSID of VA SID
+  Core met het chipmodel); het veld Snelheid heeft − / + knoppen en accepteert
+  waarden van 1–255; het nummer kan maximaal 256 patronen gebruiken.
+- **Serverinstellingen bijwerken** — **Instellingen → Updates** stelt de server
+  in waarvan de in-app-update releases leest (standaard
+  `https://www.c64va.pro/`). Zie [In-app-updates](#in-app-updates).
+- **Ultimate Basic 1.6.6** — `PRINT USING "format"; waarden`,
+  tekenreeksvergelijking in PETSCII-volgorde, drijvende-komma `rnd` en `mod`,
+  drijvende-komma in IRQ/NMI-handlers, `option basic print` voor C64 BASIC
+  PRINT-afstand, kleinere programma's (alleen de drijvende-komma-routines in
+  gebruik) en 16-bits adresuitdrukkingen (1.6.5). De Ultimate Basic-editor
+  markeert `print using` en `option basic print`.
+
+---
+
+## Hoogtepunten van versie 2.6.2
+
+- **HVSC in de SID-speler** — zoek in de High Voltage SID-collectie (ongeveer
+  61.000 nummers) op titel, componist of map, speel een nummer af, voeg het toe
+  aan de afspeellijst of sla het op; download de hele collectie in één keer voor
+  offline gebruik, of wijs de speler naar een uitgepakte HVSC-map. Nummers uit
+  HVSC krijgen hun werkelijke lengte op de zoekbalk en de afspeellijst gaat
+  verder wanneer een subnummer eindigt. Zie [HVSC (High Voltage
+  SID-collectie)](#hvsc-high-voltage-sid-collection).
+- **Spectrum-analysator** — een zwevende LED-balkvisualizer voor de SID Player
+  met 8 tot 32 banden, vervagende cellen en een spiegelende vloer. Zie
+  [Spectrum-analysator](#spectrum-analyzer).
+- **Leseditor** — maak van je eigen programma een stapsgewijze begeleide les,
+  zoals de ingebouwde "Bouwen: Je eerste tekstprogramma": voeg uitleg toe, kies
+  de map, probeer het uit, sla het op, exporteer/importeer `.vatut` bestanden.
+  Zie [Handleidingen en de leseditor](#tutorials-and-the-lesson-editor).
+- **Online lessen** — download lessen die gepubliceerd zijn op www.c64va.pro
+  rechtstreeks naar de lijst met tutorials, inclusief updates, en upload je
+  eigen lessen vanuit de leseditor ter beoordeling. Zie [Online
+  lessen](#online-lessons).
+- **Elke macro neemt zijn parameters in het operandveld** — `SET_BG $06`,
+  `REGION Main`, `ORG $C000`, `SPRITE_POS 1, 200, 50` …: de tekst wordt gelezen
+  als de Expert-regel van de macro en het veld toont de verwachte vorm. Zie
+  [Parameters in het operandveld](#parameters-in-the-operand-field).
+- **Kleinere verbeteringen** — het actieve zwevende venster wordt gemarkeerd,
+  het ondersteuningsvenster ziet eruit als een chat, het muiswiel scrollt de
+  tabbalk zijwaarts en de kolom 'Ultimate Basic code size' bedekt de
+  regelnummers niet langer.
 
 ---
 
@@ -841,6 +904,26 @@ categorie:
 Gebruik het zoekvak **** bovenaan het palet om te filteren op naam. Klik op de
 knop **Geselecteerd blok toevoegen** of sleep een blok naar het programmagebied.
 
+### Parameters in het operandveld
+
+Elk blok met parameters neemt deze in het **operandveld** vóór **Add**. Voor een
+instructie is dit de operand (`06` voor `LDA #$06`); voor TEXT, BYTE, LABEL,
+REGION en de andere tekst- of lijstmacro's is dit hun tekst of waarde; voor elke
+andere macro is dit wat volgt op het trefwoord in de Expert-modus:
+
+| Blok       | Operande veld    | Wordt                    |
+| ---------- | ---------------- | ------------------------ |
+| SET_BG     | `$06`            | `.set_bg $06`            |
+| REGIO      | `Hoofd`          | `.region Main`           |
+| ORG        | `$C000`          | `* = $C000`              |
+| SPRITE_POS | `1, 200, 50`     | `.sprite_pos 1, 200, 50` |
+| LUS        | `Y, $05, myloop` | `.loop Y, $05, myloop`   |
+
+Het veld toont de standaardparameters van de macro als een hint. Blokken zonder
+parameters (ENDREGION, ELSE …) en de bestandsmacro's (INCBIN, KOALA, LEVEL, SID,
+INCLUDE — deze selecteren hun bestand in het blok) houden het veld
+uitgeschakeld.
+
 ---
 
 ## 4. ASM-weergave
@@ -1153,6 +1236,12 @@ De lijst met opdrachten is opzettelijk in hoogte beperkt, zodat de detailkaart
 van de opdracht de resterende paneelhoogte kan vullen. Het detailgebied scrollt
 onafhankelijk voor langere syntaxbeschrijvingen.
 
+**Updateserver:** **Instellingen → Updates → Updateserver** bepaalt waar
+releases worden opgezocht (standaard `https://www.c64va.pro/`); de
+installatiebestanden worden gelezen van `<server>downloads/VA/`. Het adres moet
+`https://` gebruiken (plain `http://` alleen voor `localhost`, voor
+testdoeleinden); **Standaard** gaat terug naar c64va.pro.
+
 ### Gratis en open source
 
 Visual Assembler is gratis: alle functies — de visuele editors (SID, Sprite,
@@ -1316,6 +1405,46 @@ Exomizer-status, variabelen, arrays, functies/subroutines en labels.
 wordt het nieuwe hoofdbestand en `{{PROJECT}}` wordt vervangen door de
 projectnaam (gebruik deze in een commentaar zodat de template zelf nog steeds
 compileert).
+
+### Handleidingen en de leseditor
+
+Het venster **Tutorials** toont rondleidingen en lessen per map. De knop
+**Leseditor…** onderaan de lijst (en **Les bewerken** bij je eigen lessen) opent
+de **Leseditor**, waarmee je een stapsgewijze les zoals "Bouw: Je eerste
+tekstprogramma" kunt maken van je eigen code.
+
+1. Schrijf het programma in de blok- of expert-editor.
+2. Druk in de leseditor op **Stappen van het huidige programma**. Elke regel
+   wordt de stap van de leerling: kies de mnemonic (er is een verkeerde vooraf
+   geselecteerd), typ de operand en druk op **Toevoegen**. Waar het palet niet
+   alles kan instellen (bijvoorbeeld een TEXT-positie), wijst een **Parameters
+   instellen**-stap naar het nieuwe blok en gaat verder wanneer deze
+   overeenkomt.
+3. Geef de les een titel, beschrijving, moeilijkheidsgraad en **map** (elke
+   categorie van Tutorials). Voeg **tekststappen** toe voor uitleg, eventueel
+   met een verwijzing naar een deel van het venster (palet, programmapaneel,
+   ASM-weergave, knop Uitvoeren, geheugenkaart). Laat de titel of uitleg van een
+   stap leeg voor de gegenereerde tekst.
+4. **Probeer de les** (dit wist het huidige programma), en sla de les vervolgens
+   op**** (Ctrl+S).
+
+Teksten worden opgeslagen in de huidige UI-taal; een student die een andere taal
+gebruikt, ziet ze, of de gegenereerde tekst waar u niets hebt geschreven.
+**Macroparameters automatisch invullen** slaat de parameterstappen voor de
+student over. **Bestanden ▾** maakt, verwijdert, exporteert en importeert lessen
+als `.vatut` bestanden en opent de lesmap.
+
+#### Online lessen
+
+**Online lessen…** in het venster Tutorials toont de lessen die op www.c64va.pro
+zijn gepubliceerd, inclusief map, moeilijkheidsgraad en aantal stappen.
+**Downloaden** plaatst een les in de bijbehorende map in de lijst Tutorials;
+**Bijwerken** verschijnt wanneer de site een nieuwere versie heeft (de Leseditor
+verhoogt de revisie van een les bij elke keer opslaan). Om je eigen les te
+delen, gebruik je **Bestanden ▾ → Uploaden naar c64va.pro…** in de Leseditor:
+geef je naam op (weergegeven als auteur) en eventueel een e-mailadres en een
+notitie. De les wordt eerst beoordeeld; zodra deze is goedgekeurd, verschijnt
+deze in ieders lijst met online lessen. Je e-mailadres wordt nooit gepubliceerd.
 
 ### Hardlopen, D64 en Exomizer
 
@@ -5913,8 +6042,9 @@ SID-synthesizer.
 
 **Voorbeeldweergave-engine:** **Instellingen → SID-voorbeeld** selecteert
 **WebSID** of **VA SID Core (Rust)**, de eigen SID-emulatie van de app; met VA
-SID Core kiest u ook de chip (MOS 6581 / 8580). De instrumentparameters worden
-ingesteld met draaiknoppen.
+SID Core kiest u ook de chip (MOS 6581 / 8580). De header van de editor toont de
+gebruikte engine (bijv. *· VA SID Core v1.2 (MOS 8580)*). De
+instrumentparameters worden ingesteld met draaiknoppen.
 
 ** Bedieningselementen per instrument: **
 - Golfvormselectievakjes (TRI / SAW / PUL / NOI) — meerdere golfvormen worden
@@ -5950,8 +6080,8 @@ ingesteld met draaiknoppen.
   pickup, explosie).
 
 **Tracker raster:**
-- 3 stemmen × tot 7 patronen × 32 rijen = 7 × 32 = maximaal 224 rijen (beperking
-  door een 8-bits rijteller).
+- 3 stemmen × tot 256 patronen × 32 rijen; de lied-/volgordelijst bevat maximaal
+  255 stappen.
 - Per rij: noot + instrumentindex, plus een optioneel effect (zie
   **Effectkolom** hieronder). Lege rijen bevatten de vorige noot: net als in
   andere trackers (GoatTracker, SID-Wizard) houdt een noot zijn gate aan
@@ -5982,8 +6112,8 @@ ingesteld met draaiknoppen.
 - Het plakken binnen een celbereik begint nu bij de geselecteerde begincel van
   het bereik en stopt netjes bij de grenzen van stemmen en rijen, in plaats van
   door te lopen naar de volgende kolom of rij.
-- Met de snelheidsregelaar wordt de IRQ-tickdeler ingesteld (het aantal frames
-  tussen rijen).
+- **Speed** (frames tussen rijen, 1–255) wordt ingevoerd of aangepast met de − /
+  + knoppen ernaast; het `F`-effect wijzigt dit tijdens het afspelen.
 
 ** Nummer / volgordelijst: **
 - De patronen worden geordend via een lijst met nummers/volgordes die bovenop de
@@ -6058,6 +6188,7 @@ in het versiebeheerde `.bin`-formaat.
 | `Blokken exporteren + miniplayer`      | Voegt de volledige speler (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) plus PAL-frequentietabellen toe. Plaats na het exporteren een `JSR sid_init` in uw hoofdcode waar de muziek moet beginnen; gebruik in plaats daarvan uw eigen IRQ-aanroep `JSR sid_frame` eenmaal per frame.                                                                                                                           |
 | `Exporteer asm (klembord)`             | Kopieert de volledige broncode van de assembly naar het klembord.                                                                                                                                                                                                                                                                                                                                                                |
 | `Importeer GoatTracker .sng…`          | Laadt een GoatTracker 2-nummer in plaats van het huidige — zie **GoatTracker import** hieronder.                                                                                                                                                                                                                                                                                                                                 |
+| `Importeer .sid…`                      | Converteert een PSID/RSID-tune naar een bewerkbaar nummer ter vervanging van het huidige nummer — zie **.sid import** hieronder.                                                                                                                                                                                                                                                                                                 |
 | `Exporteren naar UltimateBasic`        | Schrijft een `tune ... end` blok (instrumenten, volgordelijst, patroonrijen als tekst) plus `music play` en voegt dit in op de cursorpositie van de Ultimate Basic-editor; buiten de UB-modus kopieert het de tekst naar het klembord. De UltimateBasic-compiler bouwt de speler, dus `music play` / `music stop` besturen deze. Instrumentmodulatie komt in `imod` / `ifilt` / `igate` / `itab` regels (Ultimate Basic 1.6.2+). |
 
 **GoatTracker importeren:** **Bestanden → GoatTracker .sng importeren…** laadt
@@ -6074,19 +6205,47 @@ conversie is bij benadering, omdat de twee trackers anders werken:
   per regel), tempo → `F`; toneporta wordt een gewone noot. Andere commando's
   worden weggelaten en een bericht geeft aan wat is benaderd of overgeslagen.
 - Een gate die door de wavetable wordt vrijgegeven, wordt een noot-off op de
-  volgende vrije rij. Alleen de eerste subtune wordt geïmporteerd en de
-  exportlimiet van 7 patronen blijft van kracht.
+  volgende vrije rij. Alleen de eerste subtune wordt geïmporteerd.
+
+**.sid importeren:** **Bestanden → Importeer .sid…** opent een PSID/RSID-bestand
+(alleen desktop-app, gebruikt VA SID Core). Kies de subtune en de lengte in
+seconden en druk op **Importeren**: de melodie wordt stil afgespeeld, de
+SID-registers worden frame voor frame opgenomen en omgezet in een nummer ter
+vervanging van het huidige nummer.
+- **Opmerkingen:** een noot op is een gate-rand (een hertrigger binnen 2 frames
+  telt als één noot); een toonhoogteverandering onder een vastgehouden gate die
+  minstens 5 frames aanhoudt, wordt een nieuwe, hertriggerde (legato) noot. De
+  toonhoogte is de meest voorkomende halve toon van de hoofdgolfvorm van de
+  noot; NTSC-tunes worden opnieuw afgestemd op de PAL-notentabel.
+- **Rijen:** rijen beginnen precies op de noten. De basislengte is de langste
+  die bijna alle rijen omvat; rijen van die lengte of één frame langer
+  (funktempo, swing, tempowisselingen) worden ingesteld met `F` effecten één rij
+  vooruit.
+- **Instrumenten: ** AD/SR, de hoofdgolfvorm, pulsbreedte en PWM, het filter
+  (routing, modus, resonantie, cutoff sweep) en de golfvorm en toonhoogte van
+  elk frame van de noot, tot aan het volgende frame: de golf-/arpeggiotabel (een
+  prefix plus een herhalende lus, tot 32 stappen). Een drumaanslag met vaste
+  toonhoogte houdt absolute noten vast en een arpeggio relatieve noten, bepaald
+  over alle noten van hetzelfde geluid; een regelmatige sub-halve toon wobble
+  wordt het vibrato van het instrument. De gate wordt een nootcut, een gatetimer
+  (met harde herstart wanneer ADSR op nul staat) of een decay met de release
+  rate. Identieke instrumenten worden gedeeld, tot 128.
+- Een bericht geeft aan wat er is benaderd, bijvoorbeeld slides die halve
+  toonstappen worden of tabellen langer dan 32 stappen. Multi-SID-tunes en
+  RSID-tunes die als BASIC-programma starten, worden niet ondersteund.
 
 **Gebruik van de speler-ZP: ** `$02`–`$1C` (patroonpointers, patroonoffset,
 temp) en `$2F` (huidige snelheid), plus `$FB`–`$FD` (tickteller, rij-index,
-positie in de orderlijst). De stem-, modulatie- en filterstatus bevinden zich in
-`sid_state` na de data. De ZP-bytes conflicteren als uw hoofdcode ze gebruikt —
-verplaats ze indien nodig via de Expert-modus.
+positie in de orderlijst). De stem-, modulatie- en filterstatus bevindt zich in
+`sid_state` na de spelercode. De ZP-bytes conflicteren als uw hoofdcode ze
+gebruikt — verplaats ze indien nodig via de Expert-modus.
 
 **Bekende limieten: **
-- Een 8-bits rijteller beperkt elk patroon tot 7 patronen × 32 rijen in de ruwe
-  databank (de lijst met nummers/volgordes kan nog steeds willekeurig lang zijn
-  door herhalende patronen).
+- De speler en zijn status bevinden zich op `$C000`. Wanneer de
+  afstemmingsgegevens niet onder `$D000` ernaast passen, worden de gegevens
+  verplaatst naar een eigen segment dat eindigt onder `$A000` (de geëxporteerde
+  assembler bevat een tweede regel `* =`); zorg ervoor dat deze niet in uw eigen
+  programma terechtkomt.
 - C64 `$D418` Het globale volume wordt gedeeld over alle stemmen — de
   volumeregelaar per instrument is informatief; het sustainniveau (`S` van ADSR)
   is het effectieve volume per stem.
@@ -6133,6 +6292,41 @@ HVSC-collectie.
   instelling wordt onthouden.
 - **Favorieten:** De ☆ / ★ in elke rij markeert een melodie; deze wordt bewaard
   in de opgeslagen status en in `.sidpl` afspeellijsten.
+
+#### HVSC (High Voltage SID Collection)
+
+De knop **HVSC** in de werkbalk van de SID Player opent een zoekpaneel voor de
+[High Voltage SID Collection](https://www.hvsc.c64.org/), ongeveer 61.000
+C64-melodieën.
+
+- **Zoeken:** typ een titel, componist of map (`hubbard commando`, `games/s-z`);
+  elk woord moet overeenkomen. **Willekeurige melodieën** geeft een lijst van 25
+  willekeurige melodieën.
+- **Afspelen / toevoegen / opslaan: ** Klik op een nummer om het af te spelen,
+  **+** voegt het toe aan de afspeellijst, de downloadknop slaat het `.sid`
+  bestand op. **Alle resultaten toevoegen** voegt maximaal 100 gevonden nummers
+  toe.
+- **Tunelengtes:** HVSC kent de lengte van elke subtune, dus de voortgangsbalk
+  geeft deze weer en de afspeellijst gaat verder wanneer de subtune eindigt.
+- **Waar de nummers vandaan komen:** De catalogus en de afzonderlijke nummers
+  worden bij het eerste gebruik gedownload van een HVSC-spiegelserver en in de
+  cache van de app bewaard, zodat een nummer dat eenmaal is afgespeeld ook
+  offline kan worden afgespeeld. **Catalogus bijwerken** Haalt de nieuwste lijst
+  op.
+- **Volledige collectie:** **Download de volledige collectie…** downloadt het
+  officiële HVSC-archief (ongeveer 85 MB) naar een map naar keuze en pakt het
+  daar uit (ongeveer 380 MB); vanaf dat moment gebruikt de speler die kopie en
+  werkt offline. **Gebruik een lokale HVSC-map…** verwijst naar een collectie
+  die je al hebt.
+
+#### Spectrumanalysator
+
+De knop in de SID Player-werkbalk opent het **Spectrum**-venster: LED-achtige
+balken van groen via geel naar oranje, cellen die langzaam vervagen en een
+gespiegelde vloer in perspectief. Het toont alles wat de SID Player of de SID
+Editor afspeelt, ongeacht de engine. **Bands** stelt 8, 16, 24 of 32 banden in.
+Het venster kan worden verplaatst en van formaat worden veranderd, het sluit en
+heropent samen met de SID Player en het tekent alleen wanneer het open is.
 
 ---
 

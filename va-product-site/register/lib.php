@@ -238,8 +238,10 @@ function vaSetting(PDO $db, string $key, ?string $value = null): string
 }
 
 // Frissítés-kiadás: az app frissítője (downloads/VA/index.php listája) csak a dashboardon (release.php)
-// kiadott verzióig kínál telepítőt; a feltöltött újabb telepítők addig várakoznak.
+// kiadott verzióig kínál telepítőt; a feltöltött újabb telepítők addig várakoznak. Egy verzió kiadható
+// csak a támogatóknak (az app `sup=1`-et küld, ha a configjában régi támogatói serial van) vagy mindenkinek.
 const VA_UPDATE_SETTING = 'update_approved_version';
+const VA_UPDATE_SUPPORTER_SETTING = 'update_supporter_version';
 const VA_UPDATE_DEFAULT = '2.6.1'; // kiadva a jóváhagyás bevezetése előtt
 const VA_INSTALLER_PATTERNS = [
     'WIN X64' => 'C64 Visual Assembler_*_x64-setup.exe',
@@ -251,10 +253,16 @@ const VA_INSTALLER_PATTERNS = [
     'RPM' => 'C64 Visual Assembler-*-1.x86_64.rpm',
 ];
 
-function vaUpdateApproved(PDO $db): string
+/** A kiadott verzió: mindenkinek, vagy (supporter = true) a támogatóknak — ez sosem régebbi a mindenkiénél. */
+function vaUpdateApproved(PDO $db, bool $supporter = false): string
 {
     $v = vaSetting($db, VA_UPDATE_SETTING);
-    return $v !== '' ? $v : VA_UPDATE_DEFAULT;
+    $everyone = $v !== '' ? $v : VA_UPDATE_DEFAULT;
+    if (!$supporter) {
+        return $everyone;
+    }
+    $s = vaSetting($db, VA_UPDATE_SUPPORTER_SETTING);
+    return $s !== '' && version_compare($s, $everyone, '>') ? $s : $everyone;
 }
 
 /** A telepítő fájlnevéből a verzió ("2.6.2"), vagy null. */

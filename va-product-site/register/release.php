@@ -2,7 +2,8 @@
 declare(strict_types=1);
 
 // App update release: the in-app updater (downloads/VA/index.php) and the website's download
-// buttons (download.php) offer installers only up to the version released here. Upload a new
+// buttons (download.php) offer installers only up to the version released here — to supporters
+// first if you like (TO SUPPORTERS), then TO EVERYONE; the website always serves the everyone release. Upload a new
 // version's installers to downloads/VA/ first, check them, then RELEASE it; ROLL BACK sets an
 // older uploaded version again.
 define('VA_REGISTER', true);
@@ -29,22 +30,33 @@ uksort($versions, static fn(string $a, string $b): int => version_compare($b, $a
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     vaAdminCheckCsrf('release.php');
     $v = (string) ($_POST['version'] ?? '');
-    if (($_POST['action'] ?? '') === 'release' && isset($versions[$v])) {
-        vaSetting($db, VA_UPDATE_SETTING, $v);
-        $_SESSION['flash'] = ['ok', "VERSION $v IS RELEASED: THE APP NOW OFFERS IT AS AN UPDATE."];
-    } else {
+    $action = (string) ($_POST['action'] ?? '');
+    if (!isset($versions[$v])) {
         $_SESSION['flash'] = ['err', 'THIS VERSION IS NOT UPLOADED TO DOWNLOADS/VA/.'];
+    } elseif ($action === 'supporters') {
+        vaSetting($db, VA_UPDATE_SUPPORTER_SETTING, $v);
+        $_SESSION['flash'] = ['ok', "VERSION $v IS RELEASED TO SUPPORTERS: ONLY THEIR APPS OFFER IT AS AN UPDATE."];
+    } elseif ($action === 'release' || $action === 'rollback') {
+        // everyone gets $v; the supporters' release never stays behind it
+        vaSetting($db, VA_UPDATE_SETTING, $v);
+        if ($action === 'rollback' || version_compare(vaUpdateApproved($db, true), $v, '<')) {
+            vaSetting($db, VA_UPDATE_SUPPORTER_SETTING, $v);
+        }
+        $_SESSION['flash'] = ['ok', $action === 'rollback'
+            ? "ROLLED BACK TO $v FOR EVERYONE."
+            : "VERSION $v IS RELEASED: EVERY APP NOW OFFERS IT AS AN UPDATE."];
     }
     header('Location: release.php');
     exit;
 }
 
 $approved = vaUpdateApproved($db);
+$supporters = vaUpdateApproved($db, true);
 $platforms = array_keys(VA_INSTALLER_PATTERNS);
-$btn = static fn(string $v, string $label, string $cls, string $confirm) => '<form class="inline" method="post"'
+$btn = static fn(string $v, string $action, string $label, string $cls, string $confirm) => '<form class="inline" method="post"'
     . ' onsubmit="return confirm(' . vaH(json_encode($confirm)) . ')">'
     . '<input type="hidden" name="csrf" value="' . vaH($csrf) . '"><input type="hidden" name="version" value="' . vaH($v) . '">'
-    . '<button class="btn sm ' . $cls . '" name="action" value="release" type="submit">' . $label . '</button></form>';
+    . '<button class="btn sm ' . $cls . '" name="action" value="' . vaH($action) . '" type="submit">' . $label . '</button></form>';
 
 ob_start(); ?>
     <div class="sec-s">// ADMIN</div>
@@ -52,18 +64,25 @@ ob_start(); ?>
     <?php if ($flash): ?><div class="flash <?= $h($flash[0]) ?>"><?= $h($flash[1]) ?></div><?php endif; ?>
 
     <div class="box" style="margin-bottom:18px">
-        <div class="box-t">RELEASED TO THE APPS: <span class="yes"><?= $h($approved) ?></span></div>
+        <div class="box-t">RELEASED TO EVERYONE: <span class="yes"><?= $h($approved) ?></span>
+            &nbsp; TO SUPPORTERS: <span class="<?= $supporters === $approved ? 'yes' : 'warn' ?>"><?= $h($supporters) ?></span></div>
         <?php if ($versions): ?><table class="wide">
             <tr><th>VERSION</th><th>STATE</th><?php foreach ($platforms as $p): ?><th><?= $h($p) ?></th><?php endforeach; ?><th></th></tr>
-            <?php foreach ($versions as $v => $have): $cmp = version_compare($v, $approved); ?><tr>
+            <?php foreach ($versions as $v => $have):
+                $cmp = version_compare($v, $approved);
+                $sup = $cmp > 0 && version_compare($v, $supporters, '<=');
+                [$cls, $state] = $cmp === 0 ? ['yes', 'RELEASED'] : ($sup ? ['warn', version_compare($v, $supporters) === 0 ? 'SUPPORTERS' : 'SUPPORTERS (OLDER)'] : ($cmp > 0 ? ['warn', 'WAITING'] : ['no', 'OLDER'])); ?><tr>
                 <td class="n"><?= $h($v) ?></td>
-                <td class="<?= $cmp === 0 ? 'yes' : ($cmp > 0 ? 'warn' : 'no') ?>"><?= $cmp === 0 ? 'RELEASED' : ($cmp > 0 ? 'WAITING' : 'OLDER') ?></td>
+                <td class="<?= $cls ?>"><?= $state ?></td>
                 <?php foreach ($platforms as $p): ?><td><?= in_array($p, $have, true) ? '<span class="yes">✓</span>' : '<span class="no">-</span>' ?></td><?php endforeach; ?>
-                <td><?php if ($cmp > 0): ?><?= $btn($v, 'RELEASE', 'pri', "Release $v? Every app will be offered this update.") ?>
-                    <?php elseif ($cmp < 0): ?><?= $btn($v, 'ROLL BACK', '', "Roll back to $v? Apps will not be offered anything newer.") ?><?php endif; ?></td>
+                <td><?php if ($cmp > 0): ?>
+                    <?php if (version_compare($v, $supporters) !== 0): ?><?= $btn($v, 'supporters', 'TO SUPPORTERS', '', "Release $v to supporters only? Their apps will be offered this update.") ?><?php endif; ?>
+                    <?= $btn($v, 'release', 'TO EVERYONE', 'pri', "Release $v to everyone? Every app will be offered this update.") ?>
+                    <?php elseif ($cmp < 0): ?><?= $btn($v, 'rollback', 'ROLL BACK', '', "Roll back to $v for everyone (supporters too)? Apps will not be offered anything newer.") ?><?php endif; ?></td>
             </tr><?php endforeach; ?>
         </table><?php else: ?><p class="no">NO INSTALLERS IN DOWNLOADS/VA/.</p><?php endif; ?>
-        <p class="hint">UPLOAD A NEW VERSION'S INSTALLERS TO DOWNLOADS/VA/: IT STAYS WAITING, THE IN-APP UPDATE DOES NOT OFFER IT. CHECK THE FILES, THEN RELEASE IT.<br>
+        <p class="hint">UPLOAD A NEW VERSION'S INSTALLERS TO DOWNLOADS/VA/: IT STAYS WAITING, THE IN-APP UPDATE DOES NOT OFFER IT. CHECK THE FILES, THEN RELEASE IT TO SUPPORTERS OR TO EVERYONE.<br>
+            SUPPORTERS = APPS THAT STILL HAVE A 2.5.6–2.5.9 SUPPORTER SERIAL IN THEIR CONFIG (THEY ASK DOWNLOADS/VA/?SUP=1). THIS IS A FLAG FROM THE APP, NOT A LOCK.<br>
             THE APP READS THE NEWEST VERSION FROM DOWNLOADS/VA/ (ONLY RELEASED VERSIONS ARE LISTED THERE); A MISSING PLATFORM GETS NO UPDATE UNTIL ITS INSTALLER IS UPLOADED.<br>
             THE WEBSITE'S DOWNLOAD BUTTONS (DOWNLOAD.PHP) ALSO SERVE THE RELEASED VERSION. A WAITING FILE IS OFFERED NOWHERE, BUT ITS DIRECT URL STILL WORKS FOR WHOEVER KNOWS IT.</p>
     </div>

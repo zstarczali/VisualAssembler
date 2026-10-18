@@ -1,5 +1,7 @@
 # macOS Installation Guide
-Version 2.6.2
+Version 2.6.3
+
+2.6.3: .sid import in the SID Editor (any PSID / RSID tune becomes editable instruments, patterns and a song), long tunes no longer run into I/O in the exported player, VA SID Core preview retriggers restarted notes, the SID Editor header shows the active SID emulation, Speed field with - / + buttons; Ultimate Basic 1.6.6 (PRINT USING, string comparison, floating-point RND and MOD, option basic print, smaller programs).
 
 2.6.2: High Voltage SID Collection in the SID Player (search about 61,000 tunes, play, save, download the whole collection for offline use, real tune lengths), spectrum analyzer window for the SID Player, Lesson Editor for step-by-step guided lessons made from your own program, online lessons from www.c64va.pro, every macro takes its parameters in the palette's operand field, the active floating window is highlighted, Support window in chat style.
 
@@ -99,7 +101,7 @@ Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in 
 
 ---
 
-**Version:** 2.6.2 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.6.3 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
 
 ## Building from source: macOS app icon
 

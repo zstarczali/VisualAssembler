@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.5 — Podręcznik językowy
+# Ultimate Basic v1.6.6 — Podręcznik językowy
 
 Kompletny podręcznik języka i interfejsu wiersza poleceń dla Ultimate Basic,
 języka podobnego do BASIC-a, który kompiluje się bezpośrednio do kodu
@@ -215,9 +215,9 @@ z = x i 15 # bitowe AND
 w = a lub b # bitowe LUB
 v = a xor b # bitowe XOR
 m = x shl 3 # przesunięcie w lewo
-n = x shr 2 # przesunięcie w prawo
-r = x mod 40 # 8-bitowy modulo (reszta); x mod 0 = x, x / 0 = 255
-b = bwęzeł x # bitowe NOT: x XOR 255 (uzupełnienie wszystkich 8 bitów)
+n = x shr 2 # przesunięcie w prawo (arytmetyka dla liczby całkowitej: -8 shr 1 = -4)
+r = x mod 40 # reszta; x mod 0 = x, x / 0 = 255
+b = bnot x # bitowe NOT: x XOR 255 (uzupełnienie wszystkich 8 bitów)
 ```
 
 Porównania: `==` `!=` `<` `>` `<=` `>=` (zwróć 1/0)
@@ -227,9 +227,18 @@ z przesunięciem (`x * 8` → 3× `ASL`), w przeciwnym razie do pętli dodawania
 przesunięciem o maksymalnie 8 rundach. `/` i `mod` przez potęgę dwóch to `LSR` /
 `AND #(n-1)`, w przeciwnym razie do 8-rundowej pętli przesunięcia z
 odejmowaniem, której czas wykonania nie zależy już od ilorazu. Dzielenie przez
-zero jest zdefiniowane: `x / 0 = 255`, `x mod 0 = x` (przed wersją 1.6.0
-zawieszało się). `x = x + 1` / `x = x - 1` (i ±2) kompiluje się do `INC` /
-`DEC`.
+zero jest zdefiniowane: `x / 0 = 255`, `x mod 0 = x` (przed wersją 1.6.0 się
+zawieszało).
+
+`mod` z operandem `słowem` lub `liczbą całkowitą` (lub ujemną stałą) to
+16-bitowa reszta ze znakiem dzielnej, jak w QBasic: `-7 mod 3` = -1, `7 mod -3`
+= 1, `(w + 5) mod 7` zachowuje 16 bitów. Z operandem POJEDYNCZYM/PODWÓJNYM
+działa w liczbach zmiennoprzecinkowych (patrz *Liczba zmiennoprzecinkowa*). `/`
+ze słowem `` / `liczbą całkowitą` lub dzielnikiem ujemnym jest dzieleniem
+16-bitowym, obciętym w kierunku zera (`-700 / 300` = -2, `-700 / -7` = 100).
+`shr` liczby `całkowitej` jest przesunięciem arytmetycznym (znak jest zachowany:
+`-8 shr 1` = -4); `słowo` i wartości bajtów przesuwają się logicznie. `x = x +
+1` / `x = x - 1` (i ±2) kompiluje się do `INC` / `DEC`.
 
 ### Zwiększanie/zmniejszanie
 
@@ -272,6 +281,49 @@ drukuj s1 + s2 # dwie zmienne łańcuchowe → sekwencyjny wydruk
 drukuj "Witaj " + "Świecie" # dwa literały → składanie w czasie kompilacji
 drukuj chr$(13) # drukuj za pomocą kodu PETSCII
 ```
+
+Domyślnie numery są drukowane bez dodatkowych spacji, a `,` po prostu oddziela
+elementy (`drukuj 1, 2` daje `12`). W przypadku odstępów w języku C64 BASIC
+zbuduj polecenie `--basic-print` lub umieść w programie opcję wiersza `option
+basic print`: liczba jest drukowana z wiodącą spacją (lub jej `-`) i końcową
+spacją (`print 5` → ` 5 `), polecenie `,` przenosi do następnej strefy
+drukowania składającej się z 10 kolumn, a końcowe polecenie `,` utrzymuje kursor
+w wierszu, tak jak końcowe polecenie `;`. `STR$` następnie zwraca również tekst
+C64 (`STR$(7)` = `" 7"`, `STR$(-42)` = `"-42"`). Ciągi znaków, `spc`, `tab`,
+`hex`, `bin`, `dec` i `chr$` wyświetlą się jak poprzednio.
+
+#### `DRUKUJ UŻYWAJĄC`
+
+```basic
+DIM ar AS DOUBLE = 1234,5
+DIM s AS STRING = "ALMA"
+DRUKUJ UŻYWAJĄC "###.##"; 3,14159 ' 3,14
+DRUKUJ UŻYWAJĄC "Ar: #,###.## Ft"; ar ' Ar: 1,234,50 Ft
+DRUKUJ UŻYWAJĄC "+##"; 7 ' +7
+DRUKUJ UŻYWAJĄC "##.##-"; -2,25 ' 2,25-
+DRUKUJ UŻYWAJĄC "##"; 123 ' %123
+DRUKUJ UŻYWAJĄC "[&amp;] [!] [\ \]"; s; s; s ' [ALMA] [A] [ALMA]
+DRUKUJ UŻYWAJĄC "## "; 1, 2, 3 ' 1 2 3
+```
+
+| Pole                  | Oznaczający                                                                                                  |
+| --------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `#`                   | pozycja cyfry; liczby są wyrównane do prawej strony i zaokrąglone do części dziesiętnych                     |
+| `.`                   | kropka dziesiętna; znaki `#` po niej to cyfry dziesiętne (maksymalnie 9)                                     |
+| `,`                   | przed kropką: separatory tysięcy (każdy `,` to jedna pozycja)                                                |
+| `+` na początku       | zawsze drukuj znak (`+` / `-`)                                                                               |
+| `-` na końcu          | wydrukuj znak minus po liczbie (spację, jeśli jest dodatnia)                                                 |
+| `&amp;` / `!` / `\ \` | ciąg: cały ciąg / jego pierwszy znak / dokładnie tyle znaków, ile wynosi szerokość pola (`\` + spacje + `\`) |
+| `_`                   | wydrukuj następny znak tak jak jest (`_#`)                                                                   |
+
+Liczba, która się nie mieści, jest drukowana z `%` na początku (`%123`);
+najpierw pomijane jest samotne 0 na początku (`#.##` z -0,5 → `-.50`). Pozostałe
+znaki są drukowane bez zmian. Wartości przechodzą cyklicznie przez pola (format
+rozpoczyna się od nowa po jego wyczerpaniu); po ostatniej wartości drukowany
+jest tekst do następnego pola. Końcowe `;` lub `,` utrzymuje kursor w wierszu.
+Format musi być literałem ciągu; pola `**`, `$$` i `^^^^` nie są obsługiwane.
+Program z poleceniem `PRINT USING` zawiera środowisko wykonawcze obliczeń
+zmiennoprzecinkowych (tylko te części, których potrzebuje).
 
 ### chr$
 
@@ -502,6 +554,12 @@ ZADZWOŃ do Koszonta("Zsolt")
 - `END SUB`, `END FUNCTION`, `END IF`, `END SELECT` są akceptowane (drugie słowo
   jest opcjonalne); `EXIT SUB` / `EXIT FUNCTION` zwraca (zwykłe `exit` to nadal
   `bye`).
+- W SUB/FUNCTION zamkniętym przez `END SUB` / `END FUNCTION`, samo `END` w swoim
+  wierszu kończy program, jak w QBasic — również wewnątrz `IF … END IF`. Zamknij
+  bloki takiej procedury w stylu QBasic (`END IF`, `END SELECT`, `WEND`, `LOOP`,
+  `NEXT`); procedura zamknięta przez proste `end` zachowuje stare reguły bloków.
+  `END` i `bye` wewnątrz dowolnej procedury opuszczają program (wcześniej
+  wracały do wywołującego procedurę).
 - Sub/fn można wywołać bez nawiasów: `Koszont "Zsolt"`, `Rajzol x, y`.
 - `PRINT a; b; c` — `;` łączy elementy bez spacji; końcowe `;` pomija nową
   linię. `;` po którym następuje polecenie (`print x; y = 1`) nadal oddziela
@@ -583,12 +641,20 @@ IF s = "ABC" OR t &lt;&gt; "" THEN PRINT "porównaj z = / &lt;&gt;"
 - **Tablice ciągów:** elementy, które otrzymują wartość nieliterałową (lub `dane
   wejściowe`) otrzymują własny 32-bajtowy slot (31 znaków), więc `dane wejściowe
   nevek(i)` w pętli zachowuje wszystkie nazwy.
+- **Dłuższe ciągi znaków: ** linia `ciągi opcji 255` pozwala każdej obliczonej
+  zmiennej ciągu znaków przechowywać do 255 znaków (limit języka C64 BASIC);
+  `ciągi opcji 200, 63` również dają elementom tablicy ciągów 63 znaki (slot
+  jest zaokrąglany do 32, 64, 128 lub 256 bajtów). Każda zmienna ma własny
+  bufor, więc dłuższe limity kosztują pamięć RAM: n + 1 bajt na zmienną ciągu i
+  rozmiar slotu × elementy na tablicę ciągów.
 - **`STR$` / `VAL`:** `STR$` wartości 16-bitowej lub ze znakiem nie ma zer
   wiodących (`"-42"`). Dla zachowania zgodności, `STR$` bajtu zachowuje formę
-  3-cyfrową (`"007"`). `VAL` odczytuje 16-bitowe liczby ze znakiem (`VAL("1234")
-  + 1` = 1235).
-- **Porównanie: ** tylko `=` / `&lt;&gt;` (i `==` / `!=`); nie ma `&lt;` /
-  `&gt;` kolejności ciągów znaków.
+  3-cyfrową (`"007"`), chyba że włączono odstępy C64 BASIC (`--basic-print`: `"
+  7"`). `VAL` odczytuje 16-bitowe liczby ze znakiem (`VAL("1234") + 1` = 1235).
+- **Porównanie:** `=` / `&lt;&gt;` (i `==` / `!=`) oraz `&lt;` `&gt;` `&lt;=`
+  `&gt;=` w kolejności PETSCII, tak jak w języku C64 BASIC; ciąg znaków
+  występuje przed każdym dłuższym ciągiem znaków, od którego się zaczyna (`"AB"
+  &lt; "ABC"`, `"" &lt; "A"`).
 
 #### LICZBA CAŁKOWITA ze znakiem, WEJŚCIOWA, PODWÓJNA (1.6.3)
 
@@ -701,27 +767,61 @@ var f: float = balls[0].vel # odczytuje pole float do zmiennej float
 print balls[0].vel # drukuje "1.50"
 ```
 
+**Domyślne, ciągi znaków, typy zagnieżdżone, parametry** (po wersji 1.6.6):
+
+```basic
+TYPE TPoint ' Forma podstawowa: TYPE … END TYPE, "nazwa JAK typ"
+x JAK BYTE = 3 ' wartość domyślna
+y JAK SŁOWO = 1000
+END TYPE
+
+type TEntity
+var pos: TPoint # zagnieżdżona struktura: pola pos.x, pos.y
+var hp: word = 100
+var name: string * 6 = "NOBODY" # ciąg znaków o stałej długości wewnątrz elementu (7 bajtów)
+endtype
+
+var e: TEntity = array(100) # każdy element zaczyna się od wartości domyślnych
+e[5].pos.x = 7
+e[5].name = "ZS" + "OLT" # obliczony tekst jest kopiowany, skracany do 6 znaków
+print e[5].name; " "; e[5].hp
+
+sub heal(p AS TEntity, amount AS WORD) # lub p: TEntity
+p.hp = p.hp + amount # przekazany element jest zmieniany
+p.pos.x = p.pos.x + 1
+end sub
+heal(e[5], 25) # przekaż element
+```
+
 Zasady i ograniczenia:
 
-- Typy pól: `int` (1 bajt), `word` (2 bajty LE), `float` (2 bajty Q8.8). Pola
-  `string` i zagnieżdżone `type` nie są jeszcze obsługiwane.
+- Typy pól: `int` / `byte` (1 bajt), `word` / `integer` (2 bajty LE, bez znaku),
+  `float` (2 bajty Q8.8), `string * n` (ciąg o stałej długości do n znaków,
+  1–254, n + 1 bajtów w elemencie; sam `string` to `string * 15`) i inny typ
+  struktury (zagnieżdżony: `arr[i].pos.x`). Pola są zapisywane w następujący
+  sposób: `var name: type` lub, w stylu QBasic, `name AS type`; `END TYPE`
+  zamyka blok w taki sam sposób jak `endtype`.
+- **Wartości domyślne: ** ` = stała ` po polu (liczba, ułamek dziesiętny dla
+  `float `, literał ciągu dla `string `). Są to zawartość tablicy na początku
+  programu (np. `nazwa danych: …`); pole zagnieżdżone przyjmuje wartości
+  domyślne swojego typu. Liczba elementów musi być wtedy stała.
+- Pola **Stringi** działają jak wartości stringów: przypisują literały lub
+  obliczone stringi (przycięte do długości pola), drukują je, używają w
+  funkcjach `+`, `=` / `&lt;&gt;` / `&lt;` i stringach.
+- **Parametry struktury:** `sub f(p AS TName)` / `p: TName` otrzymuje adres
+  przekazanego elementu (`f(enemies[i])`), więc `p.field` odczytuje i zapisuje
+  ten element; parametr struktury może zostać przekazany do innej procedury
+  (`g(p)`). Funkcja również może je przyjmować. Adresem `arr[i]` tablicy
+  struktury bez pola jest ten adres.
 - Rozmiar elementu = suma szerokości pól (kolejność deklaracji, bez
   wypełnienia).
 - Pamięć masowa znajduje się pod adresem `$C000+` obok zwykłych tablic i jest
   wyświetlana na mapie pamięci jako zwykła tablica o całkowitym rozmiarze w
   bajtach.
 - Stały indeks → `LDA/STA absolute` w czasie kompilacji.
-- Indeks zmiennej → mnożenie metodą przesunięcia i dodania dla `idx *
-  elem_size`, a następnie dostęp indeksowany `(ptr),Y`. Rozmiary elementów
-  będące potęgami dwójki (1, 2, 4, 8, 16) używają pustych łańcuchów `ASL A`;
-  inne rozmiary emitują krótką sekwencję przesunięcia i dodania za pomocą dwóch
-  zerowych bajtów strony.
-- Parametry sub/fn typu struktury nie są jeszcze obsługiwane — zamiast tego
-  należy przekazać tablicę i indeks, np. `sub move(idx: int) ... enemies[idx].x
-  = ...`.
-- Domyślne wartości pól (`var fire: int = 2` wewnątrz typu) są analizowane pod
-  kątem zgodności z propozycją, ale nie są jeszcze inicjowane w momencie
-  alokacji.
+- Indeks zmiennej → 16-bitowy `idx * elem_size` (wcześniej obliczano go na 8
+  bitach, a elementy po przesunięciu 255 były błędne), następnie indeksowany
+  dostęp `(ptr),Y`.
 - W przypadku tablicy typu strukturalnego dozwolony jest tylko jeden indeks
   dolny. Tablice struktur wielowymiarowych nie są obsługiwane (należy użyć
   obliczonego indeksu płaskiego).
@@ -1738,17 +1838,19 @@ Atfogo = SQR(a * a + b * b)
 KONIEC FUNKCJI
 ```
 
-|                      |                                                                                                                                                                                      |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Operatorzy           | `+ - * /` i `^` (potęga; prawostronna łączna, wiąże mocniej niż unarny minus: `-2^2` = -4)                                                                                           |
-| Funkcje              | `SQR`, `SIN`, `COS`, `TAN`, `ATN` (radiany), `EXP`, `LOG` (naturalny), `INT` (podłogowy), `FIX` (obcięty), `CINT` (okrągły), `ABS`, `SGN`, `CSNG` / `CDBL` (bez operacji), `WARTOŚĆ` |
-| Literały             | `1,5`, `.5`, `1E6`, `2,5e-3`, `70000`                                                                                                                                                |
-| Porównania           | `= &lt;&gt; &lt; &gt; &lt;= &gt;=` w `JEŻELI` / `PRZYCZAS` / `DOPÓKI` / `WYBIERZ PRZYPADEK` i jako wartości                                                                          |
-| Druk                 | Styl C64 BASIC: `.5`, `-3,25`, `3,33333333`, `1E+10`, `1,5E-07` (bez początkowej spacji)                                                                                             |
-| Smyczki              | `s = "X=" + x`, `STR$(x)`, `VAL(s)` odczytuje `-1,25E3`                                                                                                                              |
-| `DLA`                | licznik zmiennoprzecinkowy, limit i krok (`KROK 0,1`, ujemny lub zmienna)                                                                                                            |
-| `WEJŚCIE` / `ODCZYT` | `INPUT x` odczytuje dowolną liczbę; `READ x` odczytuje następny `bajt danych`                                                                                                        |
-| Podfunkcja           | Parametry `p AS DOUBLE` i wyniki `AS DOUBLE`                                                                                                                                         |
+|                      |                                                                                                                                                                                         |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Operatorzy           | `+ - * /` i `^` (potęga; prawostronna łączna, wiąże mocniej niż unarny minus: `-2^2` = -4)                                                                                              |
+| Funkcje              | `SQR`, `SIN`, `COS`, `TAN`, `ATN` (radiany), `EXP`, `LOG` (naturalny), `INT` (podłogowy), `FIX` (obcięty), `CINT` (okrągły), `ABS`, `SGN`, `CSNG` / `CDBL` (bez operacji), `WYŁ`, `RND` |
+| `MOD`                | `a MOD b` = `a - b * FIX(a / b)` (znak `a`, jak VB / C `fmod`): `7,5 MOD 2` = 1,5; `x MOD 0` = x                                                                                        |
+| `RND`                | w instrukcji zmiennoprzecinkowej `RND` / `RND()` jest liczbą losową 0 ≤ x < 1 (`d = RND`, `x = RND * 6`); `rnd(n)` pozostaje liczbą całkowitą 0 … n-1                                   |
+| Literały             | `1,5`, `.5`, `1E6`, `2,5e-3`, `70000`                                                                                                                                                   |
+| Porównania           | `= &lt;&gt; &lt; &gt; &lt;= &gt;=` w `JEŻELI` / `PRZYCZAS` / `DOPÓKI` / `WYBIERZ PRZYPADEK` i jako wartości                                                                             |
+| Druk                 | Styl C64 BASIC: `.5`, `-3,25`, `3,33333333`, `1E+10`, `1,5E-07` (bez początkowej spacji, chyba że `--basic-print`); stałe miejsca dziesiętne za pomocą `PRINT USING`                    |
+| Smyczki              | `s = "X=" + x`, `STR$(x)`, `VAL(s)` odczytuje `-1,25E3`                                                                                                                                 |
+| `DLA`                | licznik zmiennoprzecinkowy, limit i krok (`KROK 0,1`, ujemny lub zmienna)                                                                                                               |
+| `WEJŚCIE` / `ODCZYT` | `INPUT x` odczytuje dowolną liczbę; `READ x` odczytuje następny `bajt danych`                                                                                                           |
+| Podfunkcja           | Parametry `p AS DOUBLE` i wyniki `AS DOUBLE`                                                                                                                                            |
 
 **Mieszanie z liczbami całkowitymi.** Wyrażenie jest obliczane w liczbach
 zmiennoprzecinkowych, gdy zawiera wartość POJEDYNCZĄ / PODWÓJNĄ, `^`, jedną z
@@ -1763,22 +1865,32 @@ dokładnie. Wyrażenia całkowite zachowują swoje reguły dotyczące liczb
 całkowitych (`var c = a + b` to nadal bajt).
 
 **Notatki**
-- Całkowitoliczbowy literał od 32768 do 65535 jest odczytywany jako 16-bitowy
-  wzorzec i staje się ujemny w kontekście zmiennoprzecinkowym: zapisz `40000.0`
-  lub `4E4`.
+- Literał liczbowy od 32768 do 65535 zachowuje swoją wartość w poleceniu
+  obliczającym liczby zmiennoprzecinkowe (`d = 40000`, `d + 50000`). Polecenie
+  jest uznawane za zmiennoprzecinkowe, gdy podaje nazwę zmiennej, tablicy,
+  parametru lub funkcji typu SINGLE/DOUBLE albo używa `^`, literału typu float
+  lub jednej z powyższych funkcji; w innych miejscach taki literał jest wzorcem
+  16-bitowym, jak poprzednio (`wpisz 53280, 1`, `w = 40000` do słowa WORD).
+  Zmienna, która stała się zmiennoprzecinkowa dopiero poprzez `var x = 2.5` nie
+  jest liczona — wpisz tam `40000.0`.
 - `7 / 2` wynosi 3,5, gdy jest przypisane do typu DOUBLE; w kontekście liczb
   całkowitych wynosi 3, jak poprzednio.
-- `x MOD y` i `AND` / `OR` / `XOR` zaokrąglają swoje operandy do liczb
-  całkowitych.
+- `AND` / `OR` / `XOR` zaokrąglają swoje operandy do liczb całkowitych.
 - `SIN` / `COS` wartości bajtu zachowują stare znaczenie tablicy 0–255 (pełne
   koło = 256); z argumentem POJEDYNCZYM / PODWÓJNYM działają w radianach.
-- Kod zmiennoprzecinkowy nie może być uruchamiany w obsłudze IRQ / NMI
-  (środowisko wykonawcze przechowuje swój stan w stałej pamięci RAM).
-- Koszt: środowisko wykonawcze dla operacji zmiennoprzecinkowych (około 4,4 KB,
-  asemblowane przez kompilator) jest dołączane po programie przy pierwszym
-  użyciu funkcji SINGLE/DOUBLE. Zmienne zajmują 5 bajtów w obszarze tablicy plus
-  jeden 2-bajtowy wskaźnik strony zerowej na środowisko wykonawcze. Mnożenie
-  trwa około 1–2 ms na procesorze C64 1 MHz.
+- Obsługujące IRQ/NMI mogą używać zmiennoprzecinkowych: podrzędne o nazwie w
+  `irq`, `nmi` lub `cia_timer`, które (bezpośrednio lub za pośrednictwem
+  wywoływanych podrzędnych) używają SINGLE/DOUBLE, zapisują stan wykonania na
+  początku i przywracają go przed `irq_exit` / `nmi_exit` (około 4–5 tysięcy
+  cykli na przerwanie). Obsługujące bez zmiennoprzecinkowych nie są spowalniane.
+  Nieobjęte: obserwacja ustawiona przez adres lub zmienną słowną lub taka, która
+  kończy się prostym `RTS` / `RTI`.
+- Koszt: środowisko wykonawcze dla liczb zmiennoprzecinkowych jest asemblowane
+  przez kompilator i dołączane po programie; uwzględniane są tylko procedury
+  używane przez program (około 2 KB dla `+ - * /` i `PRINT` do około 5 KB ze
+  wszystkimi funkcjami oraz `PRINT USING`). Zmienne zajmują 5 bajtów w obszarze
+  tablicy plus jeden 2-bajtowy wskaźnik strony zerowej dla środowiska
+  wykonawczego. Mnożenie trwa około 1–2 ms na procesorze C64 1 MHz.
 
 ### Zmienne w pamięci RAM, pamięci tablicowej (1.6.4)
 
@@ -1808,7 +1920,8 @@ var b = min(x, 39) # minimum 8-bitowe
 var c = max(x, 0) # maksimum 8-bitowe
 var s = sgn(score) # 0 = zero, 1 = dodatnie (1–127), $FF = ujemne (128–255)
 var r = rnd() # pseudolosowy LCG 0–255; ziarno z linii rastrowej
-var r = rnd(10) # pseudolosowy LCG 0-9 (rnd() mod n; wynik 0..n-1)
+# (0 &lt;= x &lt; 1 w instrukcji SINGLE / DOUBLE: d = rnd)
+var r = rnd(10) # Pseudolosowe LCG 0-9 (rnd() mod n; wynik 0..n-1)
 var s = sin(kąt) # sinus: kąt 0-255 (pełne koło), zwraca 0-255 (środek = 128)
 var c = cos(kąt) # cosinus = sin(kąt+64)
 var v = clamp(x, 0, 39) # 8-bitowy zacisk bez znaku: wynik = max(lo, min(hi, val))
@@ -1925,6 +2038,10 @@ koniec
 
 Obsługiwane są odwołania do przodu (`irq my_handler` przed zdefiniowaniem
 podelementu).
+
+Podprogram obsługi może używać wartości zmiennoprzecinkowych POJEDYNCZYCH /
+PODWÓJNYCH: zapisuje i przywraca stan czasu wykonania wokół swojego ciała (patrz
+*Liczba zmiennoprzecinkowa*).
 
 ### Obsługa NMI
 
@@ -2201,18 +2318,31 @@ trwałej parze ZP przydzielanej w momencie kompilacji.
 ```
 ub build <input.ub> [OPCJE]
 
--o, --output <plik> Wyjście pliku .prg lub .crt (domyślnie: <input>.prg)
--v, --verbose Wyświetlanie układu zerowej strony i zrzutu kodu w formacie szesnastkowym
---no-stub Pomijanie szczątkowego kodu BASIC SYS (kod ładowany w $0801)
---debug Wygenerowanie również plików debugera .sym, .dbg i .vs
---asm Wygenerowanie również czytelnego pliku .asm codegen 6502
---d64 [plik] Wygenerowanie również obrazu dysku .d64;
+-o, --output <plik> Wyświetla plik .prg lub .crt (domyślnie: <input>.prg)
+-v, --verbose Wyświetla układ zerowej strony i zrzut szesnastkowy kodu
+--no-stub Pomija szczątkowy kod BASIC SYS (kod ładuje się w $0801)
+--debug Tworzy również pliki debugera .sym, .dbg i .vs
+--asm Tworzy również czytelny listing 6502 codegen .asm
+--d64 [plik] Tworzy również obraz dysku .d64;
 bez nazwy pliku domyślnie <output>.d64
---add <plik> Dodanie dodatkowego pliku do obrazu dysku .d64;
-można powtórzyć dla wielu plików
---explicit Wymaganie :type dla każdej zmiennej / podparametru / parametru funkcji
--h, --help Wyświetlanie pomocy
+--add <plik> Dodaje dodatkowy plik do obrazu dysku .d64;
+może być powtarzane dla wielu plików
+--explicit Wymagane: wpisz dla każdej zmiennej / podparametru / parametru funkcji
+--basic-print C64 Podstawowe odstępy w drukowaniu: spacje wokół liczb, ',' = strefy 10-kolumnowe
+-h, --help Wyświetl pomoc
 ```
+
+### Ostrzeżenia
+
+Kompilator wyświetla ostrzeżenia (nie zatrzymuje kompilacji) w przypadku, gdy
+zmienna bajtowa przyjmuje wartość, której nie może przechowywać:
+
+```
+linia 5: ostrzeżenie: „b” to bajt (0–255), a 1000 nie pasuje — powoduje zawinięcie; zadeklaruj je „jako liczbę całkowitą” / „jako słowo”, jeśli nie jest to zamierzone
+```
+
+Wynik zamaskowany za pomocą `i`, `mod`, `/` lub `shr` nie jest raportowany,
+podobnie jak bajt + bajt.
 
 ### Eksport CRT
 
@@ -2408,14 +2538,16 @@ Użyj `--asm`, aby zobaczyć wygenerowany kod własnego programu.
 
 | Funkcja                               | Ograniczenie                                                                                                                                                                                                                                                                                                                             |
 | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Arytmetyka liczb całkowitych          | 8-bitowe bez znaku (0–255); `word` zmienne przechowują wartości 16-bitowe                                                                                                                                                                                                                                                                |
+| Arytmetyka liczb całkowitych          | Wartości `var`/`byte` są 8-bitowe bez znaku (0–255) i obejmują (`200 + 100` → 44 w bajcie); stała, która nie mieści się (`b = 300`, `b = a + 1000`) powoduje ostrzeżenie w czasie kompilacji; `integer` jest 16-bitowa ze znakiem, `word` 16-bitowa bez znaku                                                                            |
 | Budżet zerowy                         | Stała strona zerowa to `$02–$4F` (78 bajtów): każda zmienna i parametr sub/fn zajmuje 2 bajty, a każda pętla `for` zajmuje kolejne 2 bajty. Od wersji 1.6.4 zmienne, które się nie mieszczą, są automatycznie przenoszone do pamięci RAM (patrz *Zmienne w pamięci RAM*); tylko skrajne przypadki nadal zgłaszają `brak strony zerowej`. |
 | Literały binarne                      | `%01010101` (od wersji 1.6.4), `$hex` i dziesiętny                                                                                                                                                                                                                                                                                       |
 | Podprogramy                           | Brak rekurencji — sloty parametrów ZP są przydzielane statycznie                                                                                                                                                                                                                                                                         |
-| Zmienne łańcuchowe                    | `single` / `double` to 5-bajtowe liczby zmiennoprzecinkowe od wersji 1.6.4 (nie można ich używać w obsłudze IRQ; do programu dodano środowisko wykonawcze ~4,4 KB); `float` zachowuje Q8.8 (0–255,99)                                                                                                                                    |
+| `END` w procedurach QBasic            | W PODFUNKCJI zamkniętej przez `END SUB` / `END FUNCTION`, samo `END` w swoim wierszu kończy program; bloki w takiej rutynie muszą być zamknięte w stylu QBasic (`END IF`, `WEND`, …), w stylu UB `if … ⏎ end` tam odczytuje się jako koniec programu                                                                                     |
+| Typy struktur                         | Jeden indeks dolny na tablicę struktury (brak `tablicy(8, 8)` struktury); element ma maksymalnie 256 bajtów; pola `słowo` / `liczba całkowita` są polami 16-bitowymi bez znaku; pola ciągu mają stałą długość (do 254 znaków); parametr struktury przekazuje element przez odniesienie                                                   |
+| Zmienne łańcuchowe                    | `single` / `double` to 5-bajtowe liczby zmiennoprzecinkowe od wersji 1.6.4 (dodawane są do nich procedury używane przez program, ok. 2–5 KB); `float` pozostaje na poziomie Q8.8 (0–255,99)                                                                                                                                              |
 | Jednoargumentowy minus                | Od wersji 1.6.4 wiodący `-` wiąże się ze swoim operandem: `-5 - 3` wynosi -8 (było -(5 - 3) = -2)                                                                                                                                                                                                                                        |
-| Czas wykonania łączenia ciągów        | `s1 + s2` drukuje sekwencyjnie — bez przydzielania pamięci na stercie ani śledzenia długości                                                                                                                                                                                                                                             |
-| `rnd()` / `rnd(n)`                    | Prosty LCG, niekryptograficzny; okres = 256                                                                                                                                                                                                                                                                                              |
+| Czas wykonania łączenia ciągów        | Obliczone wartości znajdują się w buforze 80 znaków na zmienną (dłuższe wyniki są wycinane), wartości elementów tablicy ciągów w slotach 31 znaków — `ciągi opcji n, m` podnoszą oba (do 255); brak współdzielonego stosu; kolejność `&lt;` / `&gt;` jest kolejnością bajtów PETSCII                                                     |
+| `rnd()` / `rnd(n)`                    | Prosty LCG, niekryptograficzny; okres = 256 (zmiennoprzecinkowy `rnd` to 32-bitowe przesunięcie xorshift)                                                                                                                                                                                                                                |
 | `abs()` / `sgn()` / `min()` / `max()` | Tylko wartości 8-bitowe; `abs`/`sgn` traktuj wartości jako wartości ze znakiem (bit 7 = ujemny → `abs` uzupełnienia do dwóch, `sgn` zwraca `$FF`); `min`/`max` są wartościami bez znaku (0–255)                                                                                                                                          |
 | `wykres`                              | Piksele poza zakresem są bezgłośnie przycinane (Y ≥ 200 lub X ≥ 320 → brak operacji)                                                                                                                                                                                                                                                     |
 | `plot`                                | Brak sprawdzania granic — x musi mieścić się w przedziale 0–159, y musi mieścić się w przedziale 0–199                                                                                                                                                                                                                                   |

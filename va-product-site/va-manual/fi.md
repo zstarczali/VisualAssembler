@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Käyttöopas
 
-**Versio 2.6.1**
+**Versio 2.6.3**
 
 Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
 vetämällä ja pudottamalla käskylohkoja ja nähdä luodun assemblerin ja konekoodin
@@ -11,6 +11,8 @@ reaaliajassa.
 ## Sisällysluettelo
 
 - [C64 Visual Assembler — Käyttöopas](#c64-visual-assembler--user-manual)
+    - [Version 2.6.3 kohokohdat](#version-263-highlights)
+    - [Version 2.6.2 kohokohdat](#version-262-highlights)
     - [Version 2.6.1 kohokohdat](#version-261-highlights)
     - [Version 2.6.0 kohokohdat](#version-260-highlights)
     - [Version 2.5.9 kohokohdat](#version-259-highlights)
@@ -205,6 +207,66 @@ reaaliajassa.
     - [Käyräeditori](#curve-editor)
     - [Taulukkogeneraattori](#table-generator)
     - [Numeronmuunnin](#number-converter)
+
+---
+
+## Version 2.6.3 kohokohdat
+
+- **.sid-tiedoston tuonti SID-editorissa** — **Tiedostot → Tuo .sid…** muuntaa
+  minkä tahansa PSID/RSID-sävelmän instrumenteiksi, patterneiksi ja kappaleeksi,
+  jota voit muokata: nuotti-oneja ja legato-nuotien, tarkasti nuoteille
+  sijoitettujen rivien (funktempo ja swing `F` nopeusmuutosten kautta),
+  aalto-/arpeggio-taulukoiden kiinteän sävelkorkeuden rumpuiskujen, pulssi- ja
+  suodatinliikkeen, portin ajoituksen ja vibraton. Katso [SID-editori]{1].
+- **Pitkät sävelmät toistetaan oikein** — kun sävelmän data ei mahdu soittimen
+  viereen kohtaan `$C000`, se siirtyy omaan segmenttiinsa `$A000` alapuolelle
+  sen sijaan, että se suoritettaisiin I/O:ssa; `.sid` -vienti seuraa perässä.
+- **VA SID Core -esikatselu käynnistää nuotit uudelleen** — pidätetyn portin
+  alta uudelleenkäynnistetty nuotti saa uuden hyökkäyksen, kuten oikealla
+  pelaajalla.
+- **SID-editori** — otsikko näyttää aktiivisen SID-emuloinnin (WebSID tai VA SID
+  Core sirumallin kanssa); Nopeus-kentässä on − / + -painikkeet ja se ottaa
+  arvoja 1–255; kappaleessa voi käyttää jopa 256 patternia.
+- **Päivityspalvelimen asetukset** — **Asetukset → Päivitykset** asettaa
+  palvelimen, jolta sovelluksen sisäiset päivitykset lukevat julkaisut
+  (oletusarvo `https://www.c64va.pro/`). Katso [Sovelluksen sisäiset
+  päivitykset]{1].
+- **Ultimate Basic 1.6.6** — `TULOSTA KÄYTTÄEN "muotoa"; arvoja`, merkkijonojen
+  vertailu PETSCII-järjestyksessä, liukuluku `rnd` ja `mod`, liukuluku IRQ /
+  NMI-käsittelijöissä, `optio basic print` C64 BASIC PRINT -välistystä varten,
+  pienemmät ohjelmat (käytössä vain liukulukurutiinit) ja 16-bittiset
+  osoitelausekkeet (1.6.5). Ultimate Basic -editori korostaa `tulostusta
+  käyttäen` ja `optiota basic print`.
+
+---
+
+## Version 2.6.2 kohokohdat
+
+- **HVSC SID-soittimessa** – hae High Voltage SID -kokoelmasta (noin 61 000
+  kappaletta) nimen, säveltäjän tai kansion mukaan, toista, lisää soittolistalle
+  tai tallenna mikä tahansa kappale; lataa koko kokoelma kerralla
+  offline-käyttöä varten tai ohjaa soittimeen purkamatonta HVSC-kansiota. HVSC:n
+  kappaleiden todellinen pituus näkyy hakupalkissa, ja soittolista siirtyy
+  eteenpäin, kun alikappale päättyy. Katso [HVSC (High Voltage SID
+  -kokoelma)]{1].
+- **Spektrianalysaattori** — kelluva LED-palkki-visualisaattori SID-soittimelle,
+  jossa on 8–32 kaistaa, häipyvät solut ja peilattu lattia. Katso
+  [Spektrianalysaattori](#spectrum-analyzer).
+- **Oppituntieditori** — muunna oma ohjelmasi vaiheittaiseksi ohjatuksi
+  oppitunniksi, kuten sisäänrakennettu "Build: Your First Text Program"
+  -toiminto: lisää selityksiä, valitse kansio, kokeile sitä, tallenna se,
+  vie/tuo `.vatut`-tiedostoja. Katso [Oppitunnit ja oppituntieditori]{1].
+- **Verkko-oppitunnit** — lataa www.c64va.pro-sivustolla julkaistut oppitunnit
+  suoraan tutoriaaliluetteloon päivitettyine oppitunteineen ja lähetä omasi
+  tarkistettavaksi oppituntien muokkausohjelmasta. Katso [Verkko-oppitunnit]{1].
+- **Jokainen makro saa parametrinsa operandikentästä** — `SET_BG $06`, `REGION
+  Main`, `ORG $C000`, `SPRITE_POS 1, 200, 50` …: teksti luetaan makron
+  Expert-riviksi ja kenttä näyttää odotetun muodon. Katso [Operandikentän
+  parametrit](#parameters-in-the-operand-field).
+- **Pienempiä parannuksia** — aktiivinen kelluva ikkuna on korostettuna,
+  tuki-ikkuna näyttää chatilta, hiiren rulla vierittää välilehtipalkkia
+  sivusuunnassa ja Ultimate Basic -koodin koko -sarake ei enää peitä
+  rivinumeroita.
 
 ---
 
@@ -825,6 +887,26 @@ luokittain ryhmiteltyinä:
 Käytä paletin yläosassa olevaa **hakukenttää** suodattaaksesi nimen mukaan.
 Napsauta **Lisää valittu lohko** -painiketta tai vedä lohko ohjelma-alueelle.
 
+### Operandikentän parametrit
+
+Jokainen parametrilohko ottaa ne **operandikenttään** ennen **Add**-komentoa.
+Käskyn tapauksessa se on operandi (`06`, jos kyseessä on `LDA #$06`); TEXT-,
+BYTE-, LABEL-, REGION- ja muiden teksti- tai listamakrojen tapauksessa se on
+niiden teksti tai arvo; kaikkien muiden makrojen tapauksessa se on se, mikä
+seuraa niiden avainsanaa Expert-tilassa:
+
+| Lohko      | Operandikenttä   | Tulee                    |
+| ---------- | ---------------- | ------------------------ |
+| SET_BG     | `06 dollaria`    | `.set_bg $06`            |
+| ALUE       | `Pääasiallinen`  | `.alue Pää`              |
+| ORG        | `$C000`          | `* = $C000`              |
+| SPRITE_POS | `1, 200, 50`     | `.sprite_pos 1, 200, 50` |
+| SILMUKKA   | `Y, $05, myloop` | `.loop Y, $05, myloop`   |
+
+Kenttä näyttää makron oletusparametrit vihjeenä. Lohkot, joilla ei ole
+parametreja (ENDREGION, ELSE …), ja tiedostomakrot (INCBIN, KOALA, LEVEL, SID,
+INCLUDE – ne valitsevat tiedostonsa lohkosta) pitävät kentän pois käytöstä.
+
 ---
 
 ## 4. ASM-näkymä
@@ -1131,6 +1213,12 @@ Komentoluettelon korkeus on tarkoituksella rajoitettu, jotta komentotietokortti
 voi täyttää paneelin jäljellä olevan korkeuden. Tietoalue vierii itsenäisesti
 pidempiä syntaksikuvauksia varten.
 
+**Päivityspalvelin:** **Asetukset → Päivitykset → Päivityspalvelin** määrittää,
+mistä julkaisuja haetaan (oletusarvo `https://www.c64va.pro/`); asennusohjelmat
+luetaan osoitteesta `<palvelin>lataukset/VA/`. Osoitteen on oltava `https://`
+(tavallinen `http://` vain osoitteelle `localhost` testausta varten); **Oletus**
+palaa osoitteeseen c64va.pro.
+
 ### Ilmainen ja avoimen lähdekoodin
 
 Visual Assembler on ilmainen: jokainen ominaisuus – visuaaliset editorit (SID,
@@ -1285,6 +1373,46 @@ muuttujat, taulukot, funktiot/aliohjelmat ja otsikot.
 (`@name.hu`, `@desc.de`, …); `@order` lajittelee listan. Kaikesta otsikon
 jälkeen tulee uusi päätiedosto, ja `{{PROJECT}}` korvataan projektin nimellä
 (käytä sitä kommentissa, jotta itse malline kääntyy edelleen).
+
+### Opastusohjelmat ja oppituntien muokkausohjelma
+
+**Tutorials** -ikkuna listaa kierrokset ja oppitunnit kansioissa. Luettelon
+alareunassa oleva **Lesson Editor…** -painike (ja omien oppituntiesi **Muokkaa
+oppituntia**) avaa **Lesson Editor** -toiminnon, jolla voit luoda vaiheittaisen
+oppitunnin, kuten "Build: Your First Text Program" omasta koodistasi:
+
+1. Kirjoita ohjelma lohko- tai asiantuntijaeditorissa.
+2. Paina oppituntieditorissa **Askeleet nykyisestä ohjelmasta**. Jokaisesta
+   rivistä tulee oppilaan askeleet: valitse muistisääntö (väärä on esivalittu),
+   kirjoita operandi ja paina **Lisää**. Jos paletti ei voi asettaa kaikkea
+   (esimerkiksi TEKSTIN sijainti), **Aseta parametrit** -askel osoittaa uuteen
+   lohkoon ja siirtyy eteenpäin, kun se täsmää.
+3. Anna oppitunnille otsikko, kuvaus, vaikeusaste ja **kansio** (mikä tahansa
+   Opastus-kategoria). Lisää selityksiä varten **tekstivaiheet**, jotka
+   halutessasi osoittavat ikkunan osaan (paletti, ohjelmapaneeli, ASM-näkymä,
+   Suorita-painike, muistikartta). Jätä vaiheen otsikko tai selitys tyhjäksi
+   luotua tekstiä varten.
+4. **Kokeile oppituntia** (se tyhjentää nykyisen ohjelman) ja sitten **Tallenna
+   oppitunti** (Ctrl+S).
+
+Tekstit tallennetaan käyttöliittymän nykyisellä kielellä; toista kieltä käyttävä
+opiskelija näkee ne tai luodun tekstin, johon et kirjoittanut mitään. **Täytä
+makroparametrit automaattisesti** ohittaa parametrivaiheet opiskelijan kohdalla.
+**Tiedostot ▾** luo, poistaa, vie ja tuo oppitunteja `.vatut`-tiedostoina ja
+avaa oppituntikansion.
+
+#### Verkko-oppitunnit
+
+Tutoriaalit-ikkunan **Verkko-oppitunnit…** listaa www.c64va.pro-sivustolla
+julkaistut oppitunnit kansioineen, vaikeusasteineen ja vaiheiden lukumäärän
+mukaan. **Lataa** lisää oppitunnin omaan kansioonsa Tutoriaalit-luettelossa;
+**Päivitä** tulee näkyviin, kun sivustolla on uudempi versio (tuntieditori
+nostaa oppitunnin muokkausta jokaisen tallennuksen yhteydessä). Voit jakaa oman
+oppitunnin käyttämällä oppituntieditorissa **Tiedostot ▾ → Lataa
+c64va.pro-sivustolle…**: anna nimesi (näkyy kirjoittajana) ja halutessasi
+sähköpostiosoite ja viesti. Oppitunti tarkistetaan ensin; hyväksynnän jälkeen se
+näkyy kaikkien verkko-oppituntiluettelossa. Sähköpostiosoitettasi ei koskaan
+julkaista.
 
 ### Juoksu, D64 ja Exomizer
 
@@ -5448,9 +5576,10 @@ pysäytysnäppäimen jälkeen, joten nuotit soivat kerralla; ilman WebSidiä pie
 SID-syntetisaattori soittaa sen sijaan.
 
 **Esikatselumoottori:** **Asetukset → SID-esikatselu** valitsee **WebSID:n** tai
-**VA SID Coren (Rust)**, sovelluksen oman SID-emuloinnin; VA SID Coressa
-valitaan myös siru (MOS 6581 / 8580). Instrumenttiparametrit asetetaan
-säätimillä.
+**VA SID Coren (Rust)**, sovelluksen oman SID-emuloinnin; VA SID Coren avulla
+voit valita myös sirun (MOS 6581 / 8580). Editorin otsikko näyttää käytössä
+olevan moottorin (esim. *· VA SID Core v1.2 (MOS 8580)*). Instrumenttiparametrit
+asetetaan säätimillä.
 
 **Laitekohtaiset säätimet:**
 - Aaltomuodon valintaruudut (TRI / SAW / PUL / NOI) — useat aaltomuodot
@@ -5487,8 +5616,8 @@ säätimillä.
   äänitehosteet (laser, mikrofoni, explosion).
 
 **Seurantaruudukko:**
-- 3 ääntä × jopa 7 kuviota × 32 riviä = 7 × 32 = enintään 224 riviä (8-bittinen
-  rivilaskuri rajoittaa sitä).
+- 3 ääntä × jopa 256 patternia × 32 riviä; kappale-/järjestysluettelossa on jopa
+  255 askelta.
 - Rivikohtainen: nuotti + instrumenttiindeksi sekä valinnainen efekti (katso
   **Efektisarake** alla). Tyhjät rivit sisältävät edellisen nuotin: kuten
   muissakin seurantalaitteissa (GoatTracker, SID-Wizard), nuotti pitää porttinsa
@@ -5520,7 +5649,9 @@ säätimillä.
 - Solualueen liittäminen alkaa nyt valitusta alueen aloitussolusta ja pysähtyy
   siististi ääni- ja rivirajoihin sen sijaan, että rivitys jatkuisi seuraavaan
   sarakkeeseen tai riviin.
-- Nopeus-liukusäädin asettaa IRQ-jakajan (rivien väliset kehykset).
+- **Nopeus** (rivien väliset ruudut, 1–255) kirjoitetaan tai sitä porrastetaan
+  sen vieressä olevilla − / + -painikkeilla; `F` -tehoste muuttaa sitä toiston
+  aikana.
 
 **Kappale-/tilauslista:**
 - Patternit on järjestetty kappale-/järjestysluettelon avulla, joka on
@@ -5593,6 +5724,7 @@ ajoitusta), toimivat identtisesti Web Audio -esikatselussa ja käännetyssä
 | `Vie lohkot + minipelaaja`       | Lisää koko soittimen (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) sekä PAL-taajuustaulukot. Viennin jälkeen sijoita `JSR sid_init` pääkoodiisi kohtaan, josta musiikin tulisi alkaa; käytä omaa IRQ-kutsua `JSR sid_frame` kerran kehystä kohden.                                                                                                                                                 |
 | `Vie asm (leikepöytä)`           | Kopioi koko kokoonpanon lähdekoodin leikepöydälle.                                                                                                                                                                                                                                                                                                                                                                   |
 | `Tuo GoatTracker .sng-tiedosto…` | Lataa GoatTracker 2 -kappaleen nykyisen kappaleen tilalle — katso **GoatTracker-tuonti** alla.                                                                                                                                                                                                                                                                                                                       |
+| `Tuo .sid…`                      | Muuntaa PSID/RSID-sävelmän muokattavaks kappaleeksi nykyisen kappaleen tilalle — katso **.sid import** alla.                                                                                                                                                                                                                                                                                                         |
 | `Vie UltimateBasiciin`           | Kirjoittaa `tune ... end` -lohkon (instrumentit, järjestysluettelo, pattern-rivit tekstinä) sekä `music play` ja lisää sen Ultimate Basic -editorin kursoriin; UB-tilan ulkopuolella se kopioi tekstin leikepöydälle. UltimateBasic-kääntäjä rakentaa soittimen, joten `music play` / `music stop` ohjaa sitä. Instrumenttien modulointi menee `imod` / `ifilt` / `igate` / `itab` -riville (Ultimate Basic 1.6.2+). |
 
 **GoatTracker-tuonti:** **Tiedostot → Tuo GoatTracker .sng…** lataa GoatTracker
@@ -5610,19 +5742,48 @@ likimääräinen, koska nämä kaksi seurantaa toimivat eri tavalla:
   255 riviä kohden), tempo → `F`; toneportasta tulee tavallinen nuotti. Muut
   komennot jätetään pois ja viestissä luetellaan, mikä on arvioitu tai ohitettu.
 - Aaltotaulukon vapauttamasta portista tulee nuotinvaihto seuraavalla vapaalla
-  rivillä. Vain ensimmäinen aliviritys tuodaan, ja 7 kuvion vientirajoitus on
-  edelleen voimassa.
+  rivillä. Vain ensimmäinen aliviritys tuodaan.
+
+**.sid import:** **Tiedostot → Tuo .sid…** avaa PSID / RSID-tiedoston (vain
+työpöytäsovelluksessa, se käyttää VA SID Corea). Valitse alimelodia ja sen
+pituus sekunteina ja paina **Tuo**: melodia soi äänettömästi, sen SID-rekisterit
+tallennetaan kehys kehykseltä ja muutetaan kappaleeksi nykyisen tilalle.
+- **Huomautuksia:** nuotti on portin reuna (uudelleenviritys kahden kehyksen
+  sisällä lasketaan yhdeksi nuotiksi); sävelkorkeuden muutos pidossa olevan
+  portin alla, joka pysyy vähintään 5 kehystä, muuttuu uudeksi,
+  uudelleenviritetyksi (legato) nuotiksi. Sävelkorkeus on nuotin pääaaltomuodon
+  yleisin puolisävelaskel; NTSC-sävelmät viritetään uudelleen PAL-nuottitaulukon
+  mukaisesti.
+- **Rivit:** riviä alkaa täsmälleen nuottien kohdalta. Peruspituus on pisin,
+  joka sopii lähes kaikille; kyseisen pituiset tai yhden kehyksen pidemmät rivit
+  (funktempo, swing, tempon muutokset) asetetaan `F`-efekteillä yhden rivin
+  eteenpäin.
+- **Instrumentit:** AD / SR, pääaaltomuoto, pulssinleveys ja PWM, suodin
+  (reititys, moodi, resonanssi, katkaisupyyhkäisy) ja nuotin jokaisen kehyksen
+  aaltomuoto ja sävelkorkeus seuraavaan kehykseen asti: aalto-/arpeggio-taulukko
+  (etuliite ja toistuva silmukka, jopa 32 askelta). Kiinteäsävelkorkeuksinen
+  rumpuatakti pitää absoluuttiset nuotit ja arpeggio suhteelliset nuotit, jotka
+  on määrätty saman äänen kaikkien nuottien perusteella; tavallisesta alle
+  puolisävelaskeleen huojunnasta tulee instrumentin vibrato. Gatesta tulee
+  nuotin leikkaus, gate-ajastin (kova uudelleenkäynnistys, kun ADSR nollataan)
+  tai decay vapautusnopeudella. Identtiset instrumentit jaetaan, jopa 128
+  kappaleeseen asti.
+- Viestissä luetellaan, mitä on arvioitu, esimerkiksi diat, joista tulee
+  puolisävelaskeleita, tai taulukot, jotka ovat pidempiä kuin 32 askelta. Usean
+  SID:n sävelmiä ja RSID-sävelmiä, jotka alkavat BASIC-ohjelmana, ei tueta.
 
 **Soittimen ZP-käyttö:** `$02`–`$1C` (kuvio-osoittimet, kuvion offset,
 lämpötila) ja `$2F` (nykyinen nopeus), sekä `$FB`–`$FD` (tick-laskuri,
 rivi-indeksi, järjestyslistan sijainti). Ääni, modulaatio ja suodattimen tila
-sijaitsevat `sid_state` -tiedostossa datan jälkeen. ZP-tavut ovat ristiriidassa,
-jos pääkoodisi käyttää niitä – siirrä tarvittaessa Expert-tilassa.
+sijaitsevat `sid_state` -tiedostossa pelaajakoodin jälkeen. ZP-tavut ovat
+ristiriidassa, jos pääkoodisi käyttää niitä – siirrä tarvittaessa Expert-tilan
+kautta.
 
 **Tunnetut rajat:**
-- 8-bittinen rivilaskuri rajoittaa jokaisen kuvion 7 kuvioon × 32 riviin
-  raakapankissa (kappale-/järjestysluettelo voi silti olla mielivaltaisen pitkä
-  toistamalla kuvioita).
+- Soitin ja sen tila sijaitsevat kohdassa `$C000`. Kun sävelmädata ei mahdu
+  niiden viereen olevan `$D000` alapuolelle, data siirtyy omaan segmenttiinsä,
+  joka päättyy `$A000` alapuolelle (viedyssä asm-tiedostossa on toinen rivi `*
+  =`); pidä se erillään omasta ohjelmastasi.
 - C64 `$D418` globaali äänenvoimakkuus jaetaan eri äänien kesken —
   instrumenttikohtainen äänenvoimakkuuden liukusäädin on informatiivinen;
   sustain-taso (ADSR:n `S`) on efektiivinen äänenvoimakkuus äänittäin.
@@ -5670,6 +5831,39 @@ SID-soittimessa.
   satunnaisessa järjestyksessä. Asetus muistetaan.
 - **Suosikit:** Jokaisella rivillä oleva ☆ / ★ merkitsee kappaletta; se
   säilytetään tallennettuna ja `.sidpl`-soittolistoissa.
+
+#### HVSC (korkeajännitteinen SID-keräys)
+
+SID Playerin työkalupalkin **HVSC**-painike avaa hakupaneelin [High Voltage SID
+Collectionille](https://www.hvsc.c64.org/), joka sisältää noin 61 000
+C64-sävelmää.
+
+- **Haku:** kirjoita otsikko, säveltäjä tai kansio (`hubbard commando`,
+  `games/s-z`); jokaisen sanan on täsmäävä. **Satunnaiset sävelmät** listaa 25
+  satunnaista kappaletta.
+- **Toista / lisää / tallenna:** toistaaksesi kappaleen napsauttamalla sitä,
+  **+** lisää sen soittolistaan, latauspainike tallentaa `.sid`-tiedoston.
+  **Lisää kaikki tulokset** lisää jopa 100 löydettyä kappaletta.
+- **Sävelmien pituudet:** HVSC tietää jokaisen alisävelmän pituuden, joten
+  hakupalkki näyttää sen ja soittolista siirtyy eteenpäin, kun alisävelmä
+  päättyy.
+- **Mistä kappaleet tulevat:** Luettelo ja yksittäiset kappaleet ladataan
+  HVSC-peilistä ensimmäisellä käyttökerralla ja säilytetään sovelluksen
+  välimuistissa, joten kerran soitettu kappale toistetaan myös offline-tilassa.
+  **Päivitä luettelo** hakee uusimman listan.
+- **Koko kokoelma:** **Lataa koko kokoelma…** lataa virallisen HVSC-arkiston
+  (noin 85 Mt) valitsemaasi kansioon ja purkaa sen siellä (noin 380 Mt); tästä
+  eteenpäin pelaaja käyttää kyseistä kopiota ja toimii offline-tilassa. **Käytä
+  paikallista HVSC-kansiota…** osoittaa jo olemassa olevaan kokoelmaan.
+
+#### Spektrianalysaattori
+
+SID Player -työkalurivin palkkipainike avaa **Spectrum**-ikkunan: LED-tyyliset
+palkit vihreästä keltaiseen ja oranssiin, hitaasti häipyvät solut ja peilattu
+lattia perspektiivissä. Se näyttää kaiken, mitä SID Player tai SID Editor
+toistaa, kummallakin moottorilla. **Bands** asettaa 8, 16, 24 tai 32 kaistaa.
+Ikkunaa voi siirtää ja sen kokoa voi muuttaa, se sulkeutuu ja avautuu uudelleen
+yhdessä SID Playerin kanssa, ja se piirtää vain ollessaan auki.
 
 ---
 

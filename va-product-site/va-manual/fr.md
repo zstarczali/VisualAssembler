@@ -1,6 +1,6 @@
 # Manuel d'utilisation de l'assembleur visuel C64
 
-**Version 2.6.1**
+**Version 2.6.3**
 
 Un assembleur 6502 visuel et basé sur des blocs pour le Commodore 64. Créez des
 programmes en faisant glisser et en déposant des blocs d'instructions, et
@@ -12,6 +12,8 @@ visualisez en temps réel le code assembleur et le code machine générés.
 
 - [C64 Visual Assembler — Manuel de
   l'utilisateur](#c64-visual-assembler--user-manual)
+    - [Points saillants de la version 2.6.3](#version-263-highlights)
+    - [Points saillants de la version 2.6.2](#version-262-highlights)
     - [Points saillants de la version 2.6.1](#version-261-highlights)
     - [Points saillants de la version 2.6.0](#version-260-highlights)
     - [Points saillants de la version 2.5.9](#version-259-highlights)
@@ -209,6 +211,70 @@ visualisez en temps réel le code assembleur et le code machine générés.
     - [Éditeur de courbes](#curve-editor)
     - [Générateur de tableau](#table-generator)
     - [Convertisseur de nombres](#number-converter)
+
+---
+
+## Points saillants de la version 2.6.3
+
+- L'importation de fichiers **.sid dans l'éditeur SID ** — **Fichiers → Importer
+  .sid… ** transforme n'importe quel morceau PSID/RSID en instruments, motifs et
+  une chanson que vous pouvez éditer : notes on et legato, rangées placées
+  précisément sur les notes (funktempo et swing grâce aux `F` changements de
+  vitesse), tables d'ondes/arpèges avec attaques de batterie à hauteur fixe,
+  mouvements de pulsation et de filtre, tempo de gate et vibrato. Voir [Éditeur
+  SID](#sid-editor-3-voice-tracker).
+- **Les longs morceaux jouent correctement** — lorsque les données du morceau ne
+  tiennent pas à côté du lecteur à `$C000`, elles se déplacent vers leur propre
+  segment en dessous de `$A000` au lieu de tomber dans les E/S ; l'exportation
+  `.sid` suit.
+- **VA SID Core preview retriggers notes** — une note redémarrée sous une porte
+  maintenue obtient une nouvelle attaque, comme sur le vrai joueur.
+- **Éditeur SID** — l'en-tête affiche l'émulation SID active (WebSID ou VA SID
+  Core avec le modèle de puce) ; le champ Vitesse a des boutons − / + et prend
+  1–255 ; la chanson peut utiliser jusqu'à 256 motifs.
+- **Paramètre du serveur de mise à jour** — **Paramètres → Mises à jour**
+  définit le serveur à partir duquel les mises à jour intégrées à l'application
+  lisent les versions (par défaut `https://www.c64va.pro/`). Voir [Mises à jour
+  intégrées à l'application](#in-app-updates).
+- **Ultimate Basic 1.6.6** — `PRINT USING "format"; values`, comparaison de
+  chaînes en ordre PETSCII, virgule flottante `rnd` et `mod`, virgule flottante
+  dans les gestionnaires IRQ/NMI, `option basic print` pour l'espacement
+  d'impression BASIC C64, programmes plus petits (seules les routines à virgule
+  flottante sont utilisées) et expressions d'adresse 16 bits (1.6.5). L'éditeur
+  Ultimate Basic met en évidence `print using` et `option basic print`.
+
+---
+
+## Points forts de la version 2.6.2
+
+- **HVSC dans le lecteur SID** — recherchez dans la collection High Voltage SID
+  (environ 61 000 morceaux) par titre, compositeur ou dossier, écoutez, ajoutez
+  à la liste de lecture ou enregistrez n’importe quel morceau ; téléchargez la
+  collection complète en une seule fois pour une utilisation hors ligne, ou
+  indiquez au lecteur l’emplacement d’un dossier HVSC décompressé. La durée
+  réelle des morceaux de HVSC est affichée dans la barre de progression, et la
+  liste de lecture passe au morceau suivant lorsqu’un sous-morceau se termine.
+  Voir [HVSC (High Voltage SID Collection)](#hvsc-high-voltage-sid-collection).
+- **Analyseur de spectre** — un visualiseur à barres LED flottantes pour le
+  lecteur SID, comportant de 8 à 32 bandes, des cellules à fondu et un fond
+  réfléchissant. Voir [Analyseur de spectre](#spectrum-analyzer).
+- Éditeur de leçons ** — transformez votre propre programme en une leçon guidée
+  étape par étape, comme la fonction intégrée « Créer : Votre premier programme
+  texte » : ajoutez des explications, choisissez le dossier, testez-le,
+  enregistrez-le, exportez/importez des fichiers `.vatut`. Voir [Tutoriels et
+  éditeur de leçons](#tutorials-and-the-lesson-editor).
+- **Cours en ligne** — Téléchargez les cours publiés sur www.c64va.pro
+  directement dans la liste des tutoriels, avec les mises à jour, et téléchargez
+  les vôtres depuis l'éditeur de cours pour relecture. Voir [Cours en
+  ligne](#online-lessons).
+- Chaque macro prend ses paramètres dans le champ opérande : SET_BG $06, REGION
+  Main, ORG $C000, SPRITE_POS 1, 200, 50… : le texte est interprété comme la
+  ligne Expert de la macro et le champ affiche le format attendu. Voir
+  [Paramètres dans le champ opérande](#parameters-in-the-operand-field).
+- **Améliorations mineures** — la fenêtre flottante active est mise en
+  surbrillance, la fenêtre de support ressemble à une conversation, la molette
+  de la souris fait défiler la barre d'onglets latéralement et la colonne de
+  taille du code Ultimate Basic ne couvre plus les numéros de ligne.
 
 ---
 
@@ -880,6 +946,27 @@ Utilisez le champ de recherche en haut de la palette pour filtrer par nom.
 Cliquez sur le bouton Ajouter le bloc sélectionné ou faites glisser un bloc dans
 la zone de programme.
 
+### Paramètres du champ des opérandes
+
+Chaque bloc avec paramètres les place dans le champ opérande avant l'addition.
+Pour une instruction, il s'agit de l'opérande (par exemple, 06 pour LDA #$06) ;
+pour les macros TEXT, BYTE, LABEL, REGION et les autres macros de texte ou de
+liste, il s'agit de leur texte ou de leur valeur ; pour toute autre macro, il
+s'agit de ce qui suit son mot-clé en mode Expert.
+
+| Bloc       | champ opérande     | Devient                    |
+| ---------- | ------------------ | -------------------------- |
+| DÉFINIR_BG | `$06`              | `.set_bg $06`              |
+| RÉGION     | `Principal`        | `.région Principale`       |
+| ORG        | `$C000`            | `* = $C000`                |
+| SPRITE_POS | `1, 200, 50`       | `.sprite_pos 1, 200, 50`   |
+| BOUCLE     | `Y, $05, maboucle` | `.boucle Y, $05, maboucle` |
+
+Ce champ affiche les paramètres par défaut de la macro à titre indicatif. Les
+blocs sans paramètres (ENDREGION, ELSE…) et les macros de fichier (INCBIN,
+KOALA, LEVEL, SID, INCLUDE — elles sélectionnent leur fichier dans le bloc)
+désactivent ce champ.
+
 ---
 
 ## 4. Vue ASM
@@ -1204,6 +1291,12 @@ fiche de détail de la commande puisse occuper toute la hauteur restante du
 panneau. La zone de détail défile indépendamment pour les descriptions de
 syntaxe plus longues.
 
+Serveur de mise à jour : Paramètres → Mises à jour → Serveur de mise à jour. Ce
+serveur définit l’emplacement de recherche des versions (par défaut :
+https://www.c64va.pro/). Les installateurs sont lus depuis
+<serveur>downloads/VA/. L’adresse doit utiliser https:// (http://localhost
+uniquement pour les tests). Par défaut, c64va.pro est utilisé.
+
 ### Source libre et ouverte
 
 Visual Assembler est gratuit : toutes ses fonctionnalités — les éditeurs visuels
@@ -1381,6 +1474,50 @@ langue (`@name.hu`, `@desc.de`, …). Le bloc `@order` trie la liste. Tout ce qu
 suit l'en-tête devient le nouveau fichier principal, et `{{PROJECT}}` est
 remplacé par le nom du projet (utilisez-le dans un commentaire pour que le
 modèle puisse toujours être compilé).
+
+### Tutoriels et éditeur de leçons
+
+La fenêtre **Tutoriels** répertorie les visites guidées et les leçons par
+dossier. Le bouton **Éditeur de leçons…** en bas de la liste (et **Modifier la
+leçon** sur vos propres leçons) ouvre l'**Éditeur de leçons**, qui permet de
+créer une leçon pas à pas comme « Créer : Votre premier programme texte » à
+partir de votre propre code :
+
+1. Rédigez le programme dans l'éditeur Bloc ou Expert.
+2. Dans l'éditeur de leçons, appuyez sur **Étapes du programme actuel**. Chaque
+   ligne devient les étapes de l'élève : choisissez le mnémonique (un mnémonique
+   incorrect est présélectionné), saisissez l'opérande, puis appuyez sur
+   **Ajouter**. Lorsque la palette ne permet pas de tout configurer (par
+   exemple, la position d'un texte), une étape **Définir les paramètres** permet
+   de pointer vers le nouveau bloc et de passer au suivant lorsqu'il correspond.
+3. Donnez à la leçon un titre, une description, un niveau de difficulté et un
+   dossier (dans n'importe quelle catégorie de tutoriels). Ajoutez des étapes
+   textuelles pour les explications, en indiquant éventuellement une partie de
+   la fenêtre (palette, panneau du programme, vue ASM, bouton Exécuter, carte
+   mémoire). Laissez le titre ou l'explication d'une étape vide pour le texte
+   généré.
+4. **Essayez la leçon** (cela efface le programme actuel), puis **Enregistrez la
+   leçon** (Ctrl+S).
+
+Les textes sont enregistrés dans la langue de l'interface utilisateur actuelle ;
+un étudiant utilisant une autre langue les verra, ou le texte généré si vous
+n'avez rien saisi. **Renseigner automatiquement les paramètres des macros**
+permet à l'étudiant de ne pas saisir les paramètres. **Fichiers ▾** permet de
+créer, supprimer, exporter et importer des leçons au format `.vatut` et d'ouvrir
+le dossier des leçons.
+
+#### Cours en ligne
+
+**Leçons en ligne…** La fenêtre Tutoriels affiche la liste des leçons publiées
+sur www.c64va.pro, avec leur dossier, leur niveau de difficulté et le nombre
+d'étapes. **Télécharger** place une leçon dans son dossier de la liste Tutoriels
+; **Mettre à jour** apparaît lorsqu'une nouvelle version du site est disponible
+(l'éditeur de leçons incrémente la révision d'une leçon à chaque sauvegarde).
+Pour partager votre propre leçon, utilisez **Fichiers ▾ → Téléverser sur
+c64va.pro…** dans l'éditeur de leçons : indiquez votre nom (qui apparaîtra comme
+auteur) et, si vous le souhaitez, une adresse e-mail et une note. La leçon est
+d'abord examinée ; une fois approuvée, elle apparaît dans la liste des leçons en
+ligne de tous les utilisateurs. Votre adresse e-mail ne sera jamais publiée.
 
 ### En cours d'exécution, D64 et Exomizer
 
@@ -6152,8 +6289,9 @@ utilisé.
 **Moteur de prévisualisation : ** **Paramètres → Prévisualisation SID ** permet
 de sélectionner **WebSID ** ou **VA SID Core (Rust) **, l’émulation SID intégrée
 à l’application ; avec VA SID Core, vous pouvez également choisir la puce (MOS
-6581 / 8580). Les paramètres de l’instrument sont réglés à l’aide de
-potentiomètres.
+6581 / 8580). L’en-tête de l’éditeur affiche le moteur utilisé (par exemple : *·
+VA SID Core v1.2 (MOS 8580) *). Les paramètres de l’instrument sont réglés à
+l’aide de potentiomètres.
 
 **Commandes par instrument :**
 - Cases à cocher de forme d'onde (TRI / SAW / PUL / NOI) — plusieurs formes
@@ -6192,8 +6330,8 @@ potentiomètres.
   explosion).
 
 **Grille de suivi : **
-- 3 voix × jusqu'à 7 motifs × 32 lignes = 7 × 32 = 224 lignes max (le compteur
-  de lignes 8 bits le limite).
+- 3 voix × jusqu'à 256 motifs × 32 rangées ; la liste des chansons/ordres peut
+  contenir jusqu'à 255 étapes.
 - Par ligne : note + index de l’instrument, plus un effet optionnel (voir la
   colonne Effet ci-dessous). Les lignes vides contiennent la note précédente :
   comme dans d’autres trackers (GoatTracker, SID-Wizard), une note conserve son
@@ -6227,8 +6365,9 @@ potentiomètres.
 - Le collage par plage de cellules commence désormais à la cellule de début de
   la plage sélectionnée et s'arrête proprement aux limites de la ligne et de la
   colonne au lieu de passer à la ligne ou à la colonne suivante.
-- Le curseur de vitesse définit le diviseur de tick IRQ (images entre les
-  lignes).
+- **Speed** (images entre les rangées, 1–255) est saisi ou ajusté par étapes
+  avec les boutons − / + situés à côté ; l'effet `F` le modifie pendant la
+  lecture.
 
 **Liste des chansons / ordre : **
 - Les motifs sont organisés via une liste de chansons/ordres superposée à la
@@ -6304,6 +6443,7 @@ versionné `.bin`.
 | `Exporter les blocs + mini-joueur`        | Ajoute le lecteur complet (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) ainsi que les tables de fréquences PAL. Après l'exportation, insérez une instruction `JSR sid_init` dans votre code principal, à l'endroit où la musique doit démarrer, en remplaçant l'appel d'interruption `JSR sid_frame` par votre propre appel d'interruption `JSR sid_frame`.                                                                                                                    |
 | `Exporter asm (presse-papiers)`           | Copie l'intégralité du code source de l'assembly dans le presse-papiers.                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | `Importer GoatTracker .sng…`              | Charge une chanson GoatTracker 2 à la place de la chanson actuelle — voir **GoatTracker import** ci-dessous.                                                                                                                                                                                                                                                                                                                                                                                     |
+| `Importer .sid…`                          | Convertit un morceau PSID / RSID en une chanson modifiable à la place de la chanson actuelle — voir **.sid import** ci-dessous.                                                                                                                                                                                                                                                                                                                                                                  |
 | `Exporter vers UltimateBasic`             | Écrit un bloc `tune ... end` (instruments, liste d'ordre, lignes de motif sous forme de texte) plus `music play` et l'insère au niveau du curseur de l'éditeur Ultimate Basic ; hors du mode UB, il copie le texte dans le presse-papiers. Le compilateur Ultimate Basic génère le lecteur, que les commandes `music play` / `music stop` contrôlent. La modulation des instruments est gérée par les lignes `imod` / `ifilt` / `igate` / `itab` (Ultimate Basic 1.6.2 et versions ultérieures). |
 
 **Importation GoatTracker : ** **Fichiers → Importer GoatTracker .sng… ** charge
@@ -6321,21 +6461,52 @@ conversion est approximative, car les deux trackers fonctionnent différemment :
   (255 maximum par ligne), tempo → `F` ; toneporta devient une simple note. Les
   autres commandes sont ignorées et un message indique ce qui a été approximé ou
   ignoré.
-- Une porte déclenchée par la table d'ondes devient une coupure sur la prochaine
-  rangée libre. Seule la première sous-mélodie est importée, et la limite
-  d'exportation de 7 motifs reste applicable.
+- Une porte déclenchée par la table d'ondes devient une coupure de note sur la
+  prochaine rangée libre. Seule la première sous-mélodie est importée.
+
+**.sid import:** **Fichiers → Importer .sid…** ouvre un fichier PSID / RSID
+(application de bureau uniquement, utilise VA SID Core). Choisissez le
+sous-morceau et sa durée en secondes, puis appuyez sur **Importer** : le morceau
+est lu en silence, ses registres SID sont enregistrés image par image et
+transformés en un nouveau morceau remplaçant le morceau en cours.
+- **Remarques : ** Une note est déclenchée par le front d'une porte (un
+  redéclenchement dans les 2 images compte pour une seule note) ; un changement
+  de hauteur sous une porte maintenue pendant au moins 5 images devient une
+  nouvelle note, redéclenchée (legato). La hauteur est le demi-ton le plus
+  fréquent de la forme d'onde principale de la note ; les mélodies NTSC sont
+  réaccordées selon la table de notes PAL.
+- **Rangées : ** Les rangs commencent exactement sur les notes. La longueur de
+  base est la plus longue qui convienne à la quasi-totalité d’entre eux ; les
+  rangs de cette longueur ou d’une trame plus longue (funktempo, swing,
+  changements de tempo) sont définis avec `F` effets un rang plus loin.
+- Instruments : AD/SR (conversion analogique/numérique), forme d’onde
+  principale, largeur d’impulsion et PWM, filtre (routage, mode, résonance,
+  fréquence de coupure) et forme d’onde et hauteur de chaque trame de la note,
+  jusqu’à la suivante : table d’ondes/arpèges (un préfixe et une boucle
+  répétitive, jusqu’à 32 pas). Une attaque de batterie à hauteur fixe conserve
+  les notes absolues et un arpège les notes relatives, déterminées sur toutes
+  les notes du même son ; un léger tremblement sous-demi-ton devient le vibrato
+  de l’instrument. Le gate peut servir à couper une note, à créer un
+  temporisateur (avec redémarrage forcé lorsque l’ADSR est remis à zéro) ou à
+  ajuster la décroissance au taux de relâchement. Jusqu’à 128 instruments
+  identiques sont partagés.
+- Un message indique les approximations effectuées, par exemple les glissandos
+  convertis en demi-tons ou les tables de plus de 32 pas. Les mélodies multi-SID
+  et les mélodies RSID lancées en BASIC ne sont pas prises en charge.
 
 Utilisation du ZP du lecteur : ** `$02`–`$1C` (pointeurs de motif, décalage de
 motif, temp) et `$2F` (vitesse actuelle), plus `$FB`–`$FD` (compteur de ticks,
 index de ligne, position dans la liste de commandes). L’état de la voix, de la
-modulation et du filtre se trouve dans `sid_state` après les données. Les octets
-ZP peuvent entrer en conflit si votre code principal les utilise ; déplacez-les
-via le mode Expert si nécessaire.
+modulation et du filtre se trouve dans `sid_state` après le code du lecteur. Les
+octets ZP peuvent entrer en conflit si votre code principal les utilise ;
+déplacez-les via le mode Expert si nécessaire.
 
 **Limites connues : **
-- Le compteur de lignes 8 bits limite chaque motif à 7 motifs × 32 lignes dans
-  la banque brute (la liste des chansons/ordres peut toujours être
-  arbitrairement longue en répétant les motifs).
+- Le lecteur et son état se trouvent à l'adresse `$C000`. Si les données de
+  réglage ne tiennent pas sous l'adresse `$D000` adjacente, elles sont déplacées
+  vers un segment distinct se terminant sous `$A000` (le fichier assembleur
+  exporté comporte une seconde ligne `* =`) ; veillez à ce qu'elle ne figure pas
+  dans votre programme.
 - Le volume global C64 `$D418` est partagé entre les voix — le curseur de volume
   par instrument est informatif ; le niveau de sustain (`S` d'ADSR) est le
   volume effectif par voix.
@@ -6383,6 +6554,43 @@ collection HVSC.
   en arrière dans l’ordre aléatoire. Le réglage est mémorisé.
 - **Favoris : ** les ☆ / ★ dans chaque ligne marquent un morceau ; il est
   conservé dans l’état enregistré et dans les listes de lecture `.sidpl`.
+
+#### HVSC (Collecte SID haute tension)
+
+Le bouton **HVSC** dans la barre d'outils du lecteur SID ouvre un panneau de
+recherche pour la [High Voltage SID Collection](https://www.hvsc.c64.org/),
+environ 61 000 morceaux C64.
+
+- **Recherche : ** saisissez un titre, un compositeur ou un dossier (`hubbard
+  commando`, `games/s-z`) ; chaque mot doit correspondre. **Musiques
+  aléatoires** : affiche 25 morceaux aléatoires.
+- **Écouter / ajouter / enregistrer : ** cliquez sur un morceau pour l’écouter,
+  **+** l’ajoute à la playlist, le bouton de téléchargement enregistre le
+  fichier `.sid`. **Ajouter tous les résultats** ajoute jusqu’à 100 morceaux
+  trouvés.
+- **Longueurs des morceaux : ** HVSC connaît la longueur de chaque sous-morceau,
+  la barre de recherche l'affiche et la liste de lecture passe à la suite
+  lorsque le sous-morceau se termine.
+- ** D'où viennent les morceaux : ** Le catalogue et les morceaux individuels
+  sont téléchargés depuis un serveur miroir HVSC lors de la première utilisation
+  et conservés dans le cache de l'application. Ainsi, un morceau déjà écouté
+  peut également être lu hors ligne. ** Mettre à jour le catalogue : ** récupère
+  la liste la plus récente.
+- **Collection complète : ** **Télécharger la collection complète… ** télécharge
+  l’archive officielle HVSC (environ 85 Mo) dans un dossier de votre choix et la
+  décompresse (environ 380 Mo) ; le lecteur utilise ensuite cette copie et
+  fonctionne hors ligne. **Utiliser un dossier HVSC local… ** indique
+  l’emplacement d’une collection que vous possédez déjà.
+
+#### Analyseur de spectre
+
+Le bouton de la barre d'outils du lecteur SID ouvre la fenêtre **Spectrum** :
+des barres de style LED allant du vert au jaune puis à l'orange, des cellules
+qui s'estompent progressivement et un sol en miroir en perspective. Elle affiche
+le signal lu par le lecteur SID ou l'éditeur SID, quel que soit le moteur
+utilisé. **Bands** permet de définir 8, 16, 24 ou 32 bandes. La fenêtre est
+déplaçable et redimensionnable ; elle se ferme et se rouvre en même temps que le
+lecteur SID et son affichage n'est actif que lorsqu'elle est ouverte.
 
 ---
 

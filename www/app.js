@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "lessons-262",
+  id: "sid-import-263",
   url: "https://www.c64va.pro/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.6.2-ben",
+    eyebrow: "Újdonság a 2.6.3-ban",
     title: "Üdvözöl a Visual Assembler",
-    body: `<ul><li><strong>HVSC a SID Playerben</strong>: keresés kb. 61 000 C64 dalban, lejátszás, mentés, a teljes gyűjtemény letöltése offline használatra.</li><li><strong>Spektrum-analizátor</strong> a SID Playerhez.</li><li><strong>Lecke-szerkesztő</strong>: a saját programodból lépésről lépésre vezetett lecke.</li><li><strong>Online leckék</strong> a www.c64va.pro-ról, egy kattintással.</li><li><strong>Minden makró az operandus mezőben</strong> kapja a paramétereit (<code>SET_BG $06</code>, <code>REGION Main</code> …).</li></ul><p>Kérdés, ötlet vagy hiba: <strong>Menu → Támogatás</strong>.</p>`,
+    body: `<ul><li><strong>.sid import a SID szerkesztőben</strong>: bármely PSID / RSID dal hangszerekké, patternekké és song-gá alakul, szerkesztheted és exportálhatod (Files → Import .sid…).</li><li><strong>Hosszú dalok</strong>: a lejátszó adata már nem lóg bele az I/O-ba, nem vesznek el hangok.</li><li><strong>VA SID Core előnézet</strong>: az újraindított hangok újra megszólalnak.</li><li><strong>SID szerkesztő</strong>: a fejléc mutatja a SID-emulációt, a Speed mezőn − / + gomb.</li><li><strong>Ultimate Basic 1.6.6</strong>: <code>PRINT USING</code>, sztring-összehasonlítás, lebegőpontos <code>rnd</code> / <code>mod</code>, <code>option basic print</code>, kisebb programok.</li></ul><p>Kérdés, ötlet vagy hiba: <strong>Menu → Támogatás</strong>.</p>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.6.2",
+    eyebrow: "New in 2.6.3",
     title: "Welcome to Visual Assembler",
-    body: `<ul><li><strong>HVSC in the SID Player</strong>: search about 61,000 C64 tunes, play, save, download the whole collection for offline use.</li><li><strong>Spectrum analyzer</strong> for the SID Player.</li><li><strong>Lesson Editor</strong>: a step-by-step guided lesson from your own program.</li><li><strong>Online lessons</strong> from www.c64va.pro, with one click.</li><li><strong>Every macro takes its parameters</strong> in the operand field (<code>SET_BG $06</code>, <code>REGION Main</code> …).</li></ul><p>Questions, ideas or bugs: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>.sid import in the SID Editor</strong>: any PSID / RSID tune becomes instruments, patterns and a song you can edit and export (Files → Import .sid…).</li><li><strong>Long tunes</strong>: the player data no longer runs into I/O, so no notes get lost.</li><li><strong>VA SID Core preview</strong>: restarted notes sound again.</li><li><strong>SID Editor</strong>: the header shows the SID emulation, the Speed field has − / + buttons.</li><li><strong>Ultimate Basic 1.6.6</strong>: <code>PRINT USING</code>, string comparison, floating-point <code>rnd</code> / <code>mod</code>, <code>option basic print</code>, smaller programs.</li></ul><p>Questions, ideas or bugs: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.6.2",
+    eyebrow: "Novedad en la 2.6.3",
     title: "Bienvenido a Visual Assembler",
-    body: `<ul><li><strong>HVSC en el SID Player</strong>: busca entre unos 61.000 temas de C64, reproduce, guarda y descarga la colección completa para usarla sin conexión.</li><li><strong>Analizador de espectro</strong> para el SID Player.</li><li><strong>Editor de lecciones</strong>: una lección guiada paso a paso a partir de tu propio programa.</li><li><strong>Lecciones en línea</strong> de www.c64va.pro, con un clic.</li><li><strong>Todas las macros reciben sus parámetros</strong> en el campo de operando (<code>SET_BG $06</code>, <code>REGION Main</code> …).</li></ul><p>Preguntas, ideas o errores: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Importación .sid en el editor SID</strong>: cualquier tema PSID / RSID se convierte en instrumentos, patrones y una canción que puedes editar y exportar (Files → Import .sid…).</li><li><strong>Temas largos</strong>: los datos del reproductor ya no invaden la E/S y no se pierden notas.</li><li><strong>Vista previa con VA SID Core</strong>: las notas reiniciadas vuelven a sonar.</li><li><strong>Editor SID</strong>: la cabecera muestra la emulación SID y el campo Speed tiene botones − / +.</li><li><strong>Ultimate Basic 1.6.6</strong>: <code>PRINT USING</code>, comparación de cadenas, <code>rnd</code> / <code>mod</code> en coma flotante, <code>option basic print</code>, programas más pequeños.</li></ul><p>Preguntas, ideas o errores: <strong>Menu → Support</strong>.</p>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.6.2",
+    eyebrow: "Neu in 2.6.3",
     title: "Willkommen bei Visual Assembler",
-    body: `<ul><li><strong>HVSC im SID Player</strong>: rund 61.000 C64-Stücke durchsuchen, abspielen, speichern und die ganze Sammlung für die Offline-Nutzung laden.</li><li><strong>Spektrumanalysator</strong> für den SID Player.</li><li><strong>Lektionseditor</strong>: eine geführte Schritt-für-Schritt-Lektion aus deinem eigenen Programm.</li><li><strong>Online-Lektionen</strong> von www.c64va.pro, mit einem Klick.</li><li><strong>Jedes Makro erhält seine Parameter</strong> im Operandenfeld (<code>SET_BG $06</code>, <code>REGION Main</code> …).</li></ul><p>Fragen, Ideen oder Fehler: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>.sid-Import im SID-Editor</strong>: jedes PSID- / RSID-Stück wird zu Instrumenten, Patterns und einem Song, den du bearbeiten und exportieren kannst (Files → Import .sid…).</li><li><strong>Lange Stücke</strong>: die Player-Daten reichen nicht mehr in den I/O-Bereich, es gehen keine Noten verloren.</li><li><strong>VA-SID-Core-Vorschau</strong>: neu angeschlagene Noten erklingen wieder.</li><li><strong>SID-Editor</strong>: der Kopf zeigt die SID-Emulation, das Speed-Feld hat − / +-Knöpfe.</li><li><strong>Ultimate Basic 1.6.6</strong>: <code>PRINT USING</code>, String-Vergleiche, <code>rnd</code> / <code>mod</code> als Gleitkomma, <code>option basic print</code>, kleinere Programme.</li></ul><p>Fragen, Ideen oder Fehler: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.6.2",
+    eyebrow: "Nieuw in 2.6.3",
     title: "Welkom bij Visual Assembler",
-    body: `<ul><li><strong>HVSC in de SID Player</strong>: zoek in zo'n 61.000 C64-nummers, speel af, sla op en download de hele collectie voor offline gebruik.</li><li><strong>Spectrumanalyser</strong> voor de SID Player.</li><li><strong>Lesseneditor</strong>: een stap-voor-stap begeleide les uit je eigen programma.</li><li><strong>Online lessen</strong> van www.c64va.pro, met één klik.</li><li><strong>Elke macro krijgt zijn parameters</strong> in het operandveld (<code>SET_BG $06</code>, <code>REGION Main</code> …).</li></ul><p>Vragen, ideeën of bugs: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>.sid-import in de SID-editor</strong>: elk PSID- / RSID-nummer wordt instrumenten, patronen en een song die je kunt bewerken en exporteren (Files → Import .sid…).</li><li><strong>Lange nummers</strong>: de playerdata lopen niet meer in het I/O-gebied, er gaan geen noten verloren.</li><li><strong>VA SID Core-voorbeeld</strong>: opnieuw aangeslagen noten klinken weer.</li><li><strong>SID-editor</strong>: de kop toont de SID-emulatie, het Speed-veld heeft − / +-knoppen.</li><li><strong>Ultimate Basic 1.6.6</strong>: <code>PRINT USING</code>, strings vergelijken, <code>rnd</code> / <code>mod</code> met drijvende komma, <code>option basic print</code>, kleinere programma's.</li></ul><p>Vragen, ideeën of bugs: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.6.2",
+    eyebrow: "Nowość w 2.6.3",
     title: "Witamy w Visual Assembler",
-    body: `<ul><li><strong>HVSC w SID Playerze</strong>: wyszukiwanie wśród ok. 61 000 utworów C64, odtwarzanie, zapis i pobranie całej kolekcji do pracy offline.</li><li><strong>Analizator widma</strong> dla SID Playera.</li><li><strong>Edytor lekcji</strong>: lekcja prowadzona krok po kroku z twojego własnego programu.</li><li><strong>Lekcje online</strong> z www.c64va.pro, jednym kliknięciem.</li><li><strong>Każde makro przyjmuje parametry</strong> w polu operandu (<code>SET_BG $06</code>, <code>REGION Main</code> …).</li></ul><p>Pytania, pomysły lub błędy: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Import .sid w edytorze SID</strong>: każdy utwór PSID / RSID staje się instrumentami, wzorcami i utworem, który możesz edytować i eksportować (Files → Import .sid…).</li><li><strong>Długie utwory</strong>: dane odtwarzacza nie wchodzą już w obszar I/O, nuty nie giną.</li><li><strong>Podgląd VA SID Core</strong>: ponownie uderzane nuty znów brzmią.</li><li><strong>Edytor SID</strong>: nagłówek pokazuje emulację SID, pole Speed ma przyciski − / +.</li><li><strong>Ultimate Basic 1.6.6</strong>: <code>PRINT USING</code>, porównywanie napisów, zmiennoprzecinkowe <code>rnd</code> / <code>mod</code>, <code>option basic print</code>, mniejsze programy.</li></ul><p>Pytania, pomysły lub błędy: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.6.2",
+    eyebrow: "Novità nella 2.6.3",
     title: "Benvenuto in Visual Assembler",
-    body: `<ul><li><strong>HVSC nel SID Player</strong>: cerca tra circa 61.000 brani C64, riproduci, salva e scarica l'intera collezione per l'uso offline.</li><li><strong>Analizzatore di spettro</strong> per il SID Player.</li><li><strong>Editor delle lezioni</strong>: una lezione guidata passo passo dal tuo programma.</li><li><strong>Lezioni online</strong> da www.c64va.pro, con un clic.</li><li><strong>Ogni macro riceve i parametri</strong> nel campo operando (<code>SET_BG $06</code>, <code>REGION Main</code> …).</li></ul><p>Domande, idee o bug: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Importazione .sid nell'editor SID</strong>: qualsiasi brano PSID / RSID diventa strumenti, pattern e un brano da modificare ed esportare (Files → Import .sid…).</li><li><strong>Brani lunghi</strong>: i dati del player non invadono più l'area I/O, nessuna nota va persa.</li><li><strong>Anteprima VA SID Core</strong>: le note riattaccate tornano a suonare.</li><li><strong>Editor SID</strong>: l'intestazione mostra l'emulazione SID, il campo Speed ha i pulsanti − / +.</li><li><strong>Ultimate Basic 1.6.6</strong>: <code>PRINT USING</code>, confronto tra stringhe, <code>rnd</code> / <code>mod</code> in virgola mobile, <code>option basic print</code>, programmi più piccoli.</li></ul><p>Domande, idee o bug: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -3317,6 +3317,9 @@ function applyTranslations() {
   setText("#vc-git-refresh", t("vcGitRefresh"));
   setText("#vc-stage-all-label", t("vcGitStageAll"));
   setText("#git-exe-label", t("gitExeLabel"));
+  setText("#update-settings-label", t("updateSettings"));
+  setText("#update-server-label", t("updateServerLabel"));
+  setText("#update-server-default", t("updateServerDefault"));
   setText("#choose-git", t("chooseGit"));
   setText("#detect-git", t("detectGit"));
   setText("#git-preferred-label", t("gitPreferred"));
@@ -4050,7 +4053,16 @@ function _applyEditorTranslations() {
   setText("#sid-load-bin", t("sidLoadBin"));
   setText("#sid-save-bin", t("sidSaveBin"));
   setText("#sid-import-goat", t("sidImportGoat"));
+  setText("#sid-import-sid", t("sidImportSid"));
   setText("#sid-master-vol-lbl", t("sidMasterVolume"));
+  setText("#sid-vkbd-inst-lbl", t("sidVkbdInstrumentLabel"));
+  setText("#sid-lcd-pos-lbl", t("sidLcdPos"));
+  setText("#sid-lcd-pat-lbl", t("sidLcdPat"));
+  setText("#sid-lcd-row-lbl", t("sidLcdRow"));
+  setText("#sid-lcd-time-lbl", t("sidLcdTime"));
+  document.getElementById("sid-vkbd-inst-knob")?.setAttribute("aria-label", t("sidVkbdInstrumentLabel"));
+  // _sidInsts is still in its TDZ during the first translation pass
+  try { if (_sidInsts) _sidVkbdInstSync(); } catch (_) {}
   setText("#websid-play-vol-lbl", t("sidMasterVolume"));
   setText("#sid-ed-master-vol-lbl", t("sidMasterVolume"));
   setAttr("#sid-ed-master-vol", t("sidMasterVolume"));
@@ -4061,6 +4073,12 @@ function _applyEditorTranslations() {
   setAttr("#sid-vkbd-record", t("sidRecord"));
   setText("#sid-preview-engine-lbl", t("sidPreviewEngine"));
   setText("#sid-preview-model-lbl", t("sidPreviewModel"));
+  setText("#sid-lcd-color-lbl", t("sidLcdColor"));
+  const sidLcdColor = document.getElementById("sid-lcd-color");
+  if (sidLcdColor) {
+    if (sidLcdColor.options[0]) sidLcdColor.options[0].textContent = t("sidLcdColorGreen");
+    if (sidLcdColor.options[1]) sidLcdColor.options[1].textContent = t("sidLcdColorRed");
+  }
   const sidPreviewEngine = document.getElementById("sid-preview-engine");
   if (sidPreviewEngine) {
     if (sidPreviewEngine.options[0]) sidPreviewEngine.options[0].textContent = t("sidPreviewEngineWebSid");
@@ -4222,7 +4240,8 @@ function _applyEditorTranslations() {
   const sidTrackerMiniLbls = document.querySelectorAll(".sid-tracker-row .sid-mini-lbl");
   if (sidTrackerMiniLbls[0]) sidTrackerMiniLbls[0].textContent = t("sidPlayMode");
   if (sidTrackerMiniLbls[1]) sidTrackerMiniLbls[1].textContent = t("sidSpeed");
-  if (sidTrackerMiniLbls[2]) sidTrackerMiniLbls[2].textContent = t("sidOctave");
+  const sidOctLbl = [...sidTrackerMiniLbls].find(function(el){ return el.nextElementSibling?.id === "sid-oct-down"; });
+  if (sidOctLbl) sidOctLbl.textContent = t("sidOctave");
   const sidPlayModeSel = document.getElementById("sid-play-mode");
   if (sidPlayModeSel) {
     if (sidPlayModeSel.options[0]) sidPlayModeSel.options[0].textContent = t("sidPlayModeCurrent");
@@ -4230,6 +4249,8 @@ function _applyEditorTranslations() {
     sidPlayModeSel.value = _sidPlayMode;
   }
   setAttr("#sid-oct-down", t("sidOctaveDown"));
+  setAttr("#sid-speed-down", t("sidSpeedDown"));
+  setAttr("#sid-speed-up", t("sidSpeedUp"));
   setAttr("#sid-oct-up", t("sidOctaveUp"));
   setAttr("#sid-row-preview", t("sidPreviewRow"));
   setAttr("#sid-virtual-keyboard", t("sidVirtualKeyboard"));
@@ -6749,6 +6770,8 @@ const ubCommandDescriptionsEn = {
   "const": "Declares a compile-time constant.",
   "print": "Prints values and formatting helpers through the C64 KERNAL output routine.",
   "print at": "Moves the cursor, then prints optional values.",
+  "print using": "Formatted output (QBasic subset): numeric fields with #, decimal point, thousands separators and sign; string fields &, ! and \\ \\. Values cycle through the fields (UB 1.6.6+).",
+  "option basic print": "Switches PRINT to C64 BASIC spacing: numbers get a leading space or minus and a trailing space, a comma jumps to the next 10-column zone (UB 1.6.6+).",
   "input": "Reads a value from the keyboard into a variable.",
   "if": "Conditional execution with an optional else branch.",
   "elseif": "Tests a further condition when the preceding IF / ELSEIF conditions were false (UB 1.6.3+). Any number of ELSEIF branches may follow an IF, before the optional ELSE; the block still ends with END or END IF. In IF / ELSEIF / WHILE / UNTIL conditions a single = compares and <> means not equal.",
@@ -6885,6 +6908,8 @@ const ubCommandDescriptionsHu = {
   "const": "Fordítási idejű konstans deklarálása.",
   "print": "Értékeket és formázó segédfüggvényeket ír ki a C64 KERNAL kimeneti rutinján keresztül.",
   "print at": "A kurzort adott pozícióra mozgatja, majd opcionális értékeket ír ki.",
+  "print using": "Formázott kiírás (QBasic részhalmaz): számmezők #, tizedespont, ezres elválasztó és előjel; szövegmezők &, ! és \\ \\. Az értékek sorban töltik ki a mezőket (UB 1.6.6+).",
+  "option basic print": "C64 BASIC szerinti PRINT-térköz: a számok előtt szóköz vagy mínusz, utánuk szóköz, a vessző a következő 10 oszlopos zónára ugrik (UB 1.6.6+).",
   "input": "Értéket olvas be a billentyűzetről egy változóba.",
   "if": "Feltételes végrehajtás opcionális else ággal.",
   "elseif": "További feltételt vizsgál, ha az előző IF / ELSEIF feltételek hamisak voltak (UB 1.6.3+). Egy IF után tetszőleges számú ELSEIF ág állhat az opcionális ELSE előtt; a blokkot továbbra is END vagy END IF zárja. Az IF / ELSEIF / WHILE / UNTIL feltételekben az egyszeres = összehasonlít, a <> jelentése nem egyenlő.",
@@ -7021,6 +7046,8 @@ const ubCommandDescriptionsEs = {
   "const": "Declara una constante de tiempo de compilación.",
   "print": "Imprime valores y formateadores mediante la rutina de salida del KERNAL de C64.",
   "print at": "Mueve el cursor y luego imprime valores opcionales.",
+  "print using": "Salida con formato (subconjunto de QBasic): campos numéricos con #, punto decimal, separador de miles y signo; campos de texto &, ! y \\ \\. Los valores recorren los campos (UB 1.6.6+).",
+  "option basic print": "PRINT con el espaciado de C64 BASIC: los números llevan un espacio o signo menos delante y un espacio detrás, la coma salta a la siguiente zona de 10 columnas (UB 1.6.6+).",
   "input": "Lee un valor del teclado en una variable.",
   "if": "Ejecución condicional con una rama else opcional.",
   "elseif": "Comprueba otra condición cuando las condiciones IF / ELSEIF anteriores eran falsas (UB 1.6.3+). Tras un IF pueden ir varias ramas ELSEIF antes del ELSE opcional; el bloque sigue terminando con END o END IF. En las condiciones de IF / ELSEIF / WHILE / UNTIL un solo = compara y <> significa distinto.",
@@ -7157,6 +7184,8 @@ const ubCommandDescriptionsDe = {
   "const": "Deklariert eine Konstante zur Kompilierzeit.",
   "print": "Gibt Werte und Formatierungshelfer über die C64-KERNAL-Ausgaberoutine aus.",
   "print at": "Bewegt den Cursor und gibt optionale Werte aus.",
+  "print using": "Formatierte Ausgabe (QBasic-Teilmenge): Zahlenfelder mit #, Dezimalpunkt, Tausendertrennzeichen und Vorzeichen; Textfelder &, ! und \\ \\. Die Werte durchlaufen die Felder (UB 1.6.6+).",
+  "option basic print": "PRINT mit C64-BASIC-Abständen: Zahlen bekommen ein Leerzeichen oder Minus davor und ein Leerzeichen danach, ein Komma springt zur nächsten 10-Spalten-Zone (UB 1.6.6+).",
   "input": "Liest einen Wert von der Tastatur in eine Variable ein.",
   "if": "Bedingte Ausführung mit optionalem else-Zweig.",
   "elseif": "Prüft eine weitere Bedingung, wenn die vorherigen IF- / ELSEIF-Bedingungen falsch waren (UB 1.6.3+). Auf ein IF können beliebig viele ELSEIF-Zweige vor dem optionalen ELSE folgen; der Block endet weiterhin mit END oder END IF. In IF- / ELSEIF- / WHILE- / UNTIL-Bedingungen vergleicht ein einfaches =, und <> bedeutet ungleich.",
@@ -7293,6 +7322,8 @@ const ubCommandDescriptionsNl = {
   "const": "Declareert een constante tijdens compileertijd.",
   "print": "Drukt waarden en opmaakhulpmiddelen af via de C64 KERNAL-uitvoerroutine.",
   "print at": "Verplaatst de cursor en drukt optionele waarden af.",
+  "print using": "Opgemaakte uitvoer (QBasic-subset): getalvelden met #, decimaalpunt, duizendtalscheiding en teken; tekstvelden &, ! en \\ \\. De waarden lopen de velden door (UB 1.6.6+).",
+  "option basic print": "PRINT met C64 BASIC-spatiëring: getallen krijgen een spatie of min ervoor en een spatie erna, een komma springt naar de volgende zone van 10 kolommen (UB 1.6.6+).",
   "input": "Leest een waarde van het toetsenbord in een variabele.",
   "if": "Voorwaardelijke uitvoering met een optionele else-tak.",
   "elseif": "Test een volgende voorwaarde als de voorgaande IF- / ELSEIF-voorwaarden onwaar waren (UB 1.6.3+). Na een IF mogen meerdere ELSEIF-takken volgen, vóór de optionele ELSE; het blok eindigt nog steeds met END of END IF. In IF- / ELSEIF- / WHILE- / UNTIL-voorwaarden vergelijkt een enkele = en betekent <> ongelijk.",
@@ -7429,6 +7460,8 @@ const ubCommandDescriptionsPl = {
   "const": "Deklaruje stałą znaną w czasie kompilacji.",
   "print": "Wypisuje wartości i pomocnicze formatowanie przez procedurę wyjścia KERNAL C64.",
   "print at": "Przenosi kursor, następnie wypisuje opcjonalne wartości.",
+  "print using": "Formatowane wyjście (podzbiór QBasic): pola liczbowe z #, kropką dziesiętną, separatorem tysięcy i znakiem; pola tekstowe &, ! i \\ \\. Wartości przechodzą przez kolejne pola (UB 1.6.6+).",
+  "option basic print": "PRINT z odstępami jak w C64 BASIC: liczby dostają spację lub minus przed i spację po, przecinek przeskakuje do następnej strefy 10 kolumn (UB 1.6.6+).",
   "input": "Odczytuje wartość z klawiatury do zmiennej.",
   "if": "Wykonanie warunkowe z opcjonalną gałęzią else.",
   "elseif": "Sprawdza kolejny warunek, gdy poprzednie warunki IF / ELSEIF były fałszywe (UB 1.6.3+). Po IF może wystąpić dowolna liczba gałęzi ELSEIF przed opcjonalnym ELSE; blok nadal kończy END lub END IF. W warunkach IF / ELSEIF / WHILE / UNTIL pojedynczy znak = porównuje, a <> oznacza nierówność.",
@@ -7565,6 +7598,8 @@ const ubCommandDescriptionsIt = {
   "const": "Dichiara una costante nota in fase di compilazione.",
   "print": "Stampa valori e helper di formattazione tramite la routine di output KERNAL del C64.",
   "print at": "Sposta il cursore, poi stampa valori opzionali.",
+  "print using": "Output formattato (sottoinsieme QBasic): campi numerici con #, punto decimale, separatore delle migliaia e segno; campi stringa &, ! e \\ \\. I valori scorrono i campi (UB 1.6.6+).",
+  "option basic print": "PRINT con la spaziatura del C64 BASIC: i numeri hanno uno spazio o il meno davanti e uno spazio dopo, la virgola salta alla zona successiva di 10 colonne (UB 1.6.6+).",
   "input": "Legge un valore dalla tastiera in una variabile.",
   "if": "Esecuzione condizionale con un ramo else opzionale.",
   "elseif": "Verifica un'ulteriore condizione quando le condizioni IF / ELSEIF precedenti erano false (UB 1.6.3+). Dopo un IF possono seguire più rami ELSEIF prima dell'ELSE opzionale; il blocco termina sempre con END o END IF. Nelle condizioni di IF / ELSEIF / WHILE / UNTIL un singolo = confronta e <> significa diverso.",
@@ -7711,6 +7746,8 @@ const _UB_COMMAND_REFERENCE = [
   ["const", "const NAME = expression", "Declares a compile-time constant."],
   ["print", "print [expression [, expression ...]]\nprint spc(count)\nprint tab(column)\nprint chr$(code)\nprint a; b; c               # ';' joins items without spaces (UB 1.6.3+)\nprint \"SCORE: \";            # trailing ';' = no newline", "Prints values and formatting helpers through the C64 KERNAL output routine."],
   ["print at", "print at column, row [, expression ...]", "Moves the cursor, then prints optional values."],
+  ["print using", "print using \"format\"; value [; value ...] [;]\nprint using \"###.##\"; price            # digits, decimal point\nprint using \"+#,###\"; total            # leading + = always a sign, , = thousands\nprint using \"##.#-\"; d                 # trailing - = sign after the number\nprint using \"& HAS ## LIVES\"; n$; lives   # & whole string, ! first char, \\  \\ field\nprint using \"_###\"; v                  # _ prints the next character as it is\n# too wide numbers print with % in front; the format must be a string literal (UB 1.6.6+)", "Formatted output (QBasic subset): numeric fields with #, decimal point, thousands separators and sign; string fields &, ! and \\ \\. Values cycle through the fields (UB 1.6.6+)."],
+  ["option basic print", "option basic print\nprint 5                  # \" 5 \" - leading space (or minus sign) and trailing space\nprint a, b               # , moves to the next 10-column zone; a trailing , keeps the line\n# the CLI switch is --basic-print; without it PRINT output is unchanged (UB 1.6.6+)", "Switches PRINT to C64 BASIC spacing: numbers get a leading space or minus and a trailing space, a comma jumps to the next 10-column zone (UB 1.6.6+)."],
   ["input", "input [\"prompt\",] variable\ninput \"AGE\"; age            # ';' works too (UB 1.6.3+)\ninput names(i)              # array element; INTEGER / WORD and DOUBLE (12.5) values too", "Reads a value from the keyboard into a variable."],
   ["if", "if condition then\n  statements\n[elseif condition then\n  statements]\n[else\n  statements]\nend                 # END IF is accepted too\nif x = 3 then print \"THREE\" else print \"OTHER\"   # single-line IF (UB 1.6.3+)", "Conditional execution with an optional else branch."],
   ["elseif", "if n < 0 then\n  print \"NEGATIVE\"\nelseif n = 0 then\n  print \"ZERO\"\nelse\n  print \"POSITIVE\"\nend if", "Further condition of an IF block (UB 1.6.3+)."],
@@ -7832,7 +7869,7 @@ const _UB_COMMAND_REFERENCE = [
   ["types", "int | word | float | string | array | array_word\nas byte | integer | single | double | string   # BASIC names after AS (dim, function, sub); integer is signed 16-bit", "UltimateBasic variable and array types."],
   ["string conversion", "chr$(code)\nstr$(number)              # 16-bit / signed values: no leading zeros (UB 1.6.3+)\nstr_to_int(string)\nval(string)               # 16-bit signed (UB 1.6.3+)", "Converts between strings, characters, and numbers."],
   ["numstr", "numstr value, destination_address", "Writes a zero-padded three-digit string to an absolute address."],
-  ["string functions", "len(string)\nasc(string)\nspc(count)\ntab(column)\nleft$(string, count)\nright$(string, count)\nmid$(string, start [, length])\ns = a + b + n               # runtime strings (UB 1.6.3+): numbers become text\nif s = \"ABC\" or t <> \"\" then print \"MATCH\"", "String and PRINT formatting helpers."],
+  ["string functions", "len(string)\nasc(string)\nspc(count)\ntab(column)\nleft$(string, count)\nright$(string, count)\nmid$(string, start [, length])\ns = a + b + n               # runtime strings (UB 1.6.3+): numbers become text\nif s = \"ABC\" or t <> \"\" then print \"MATCH\"\nif a$ < b$ then print a$     # < > <= >= in PETSCII order, \"AB\" < \"ABC\" (UB 1.6.6+)", "String and PRINT formatting helpers."],
   ["left$", "left$(string, count)\nprint left$(\"HELLO WORLD\", 5)       # HELLO", "First characters of a string (UB 1.6.3+)."],
   ["right$", "right$(string, count)\nprint right$(\"HELLO WORLD\", 5)      # WORLD", "Last characters of a string (UB 1.6.3+)."],
   ["mid$", "mid$(string, start [, length])\nprint mid$(\"HELLO WORLD\", 7, 3)     # WOR\nprint mid$(\"HELLO WORLD\", 7)        # WORLD", "Part of a string from a 1-based position (UB 1.6.3+)."],
@@ -7840,7 +7877,7 @@ const _UB_COMMAND_REFERENCE = [
   ["random", "rnd()\nrnd(limit)", "Returns a pseudo-random byte or a value below the limit."],
   ["trigonometry", "sin(angle)\ncos(angle)", "Returns a fixed-point trigonometric value."],
   ["number formatting", "hex(value)\nbin(value)\ndec(value, width)", "Formats a number as hexadecimal, binary, or padded decimal text."],
-  ["operators", "and or xor not bnot mod shl shr\n= <>     # in IF / ELSEIF / WHILE / UNTIL conditions = compares, <> is not equal (UB 1.6.3+)", "Logical, bitwise, modulo, and shift operators."],
+  ["operators", "and or xor not bnot mod shl shr\n= <>     # in IF / ELSEIF / WHILE / UNTIL conditions = compares, <> is not equal (UB 1.6.3+)\n7.5 mod 2 = 1.5          # SINGLE / DOUBLE mod in floating point; INTEGER / WORD mod is 16-bit, sign of the dividend (UB 1.6.6+)\n-8 shr 1 = -4            # INTEGER shr is arithmetic; WORD / byte shr stay logical (UB 1.6.6+)", "Logical, bitwise, modulo, and shift operators."],
   ["inc/dec", "inc variable\ndec variable", "Increments or decrements a variable."],
   ["type", "type TypeName\n  var field1: type\n  var field2: type\nendtype", "Defines a structured record type with named, typed fields. Supported field types: int (1 byte), word (2 bytes), float (2 bytes, Q8.8 fixed-point). Declare instances with var name: TypeName, then access fields as name.field. The compiler lays out fields contiguously in zero-page memory."],
 ];
@@ -7915,14 +7952,14 @@ function _ubApplyLeftViews(persist = true) {
   if (persist) saveUiSettings();
 }
 
-const _UB_KEYWORDS = new Set(("var const print print# input if then else end for to step next while repeat until loop break continue times sub fn call return goto gosub label graphics on off multi block display gcls cls fast plot plot4 mplot line circle circle4 rect fill paint flip sprite sprite_frame sprdef chardef charset expand priority sound sfx org tune music play stop pause resume sid volume irq irq_exit nmi nmi_exit cia_timer onerr data read asm include incbin load open close save chain memcopy drawmem map koala show hide set draw poke poke16 sys bye exit wait delay raster getch joy reu stash fetch speed badlines color border bg text screen cursor at lowercase uppercase select case and or xor not bnot mod shl shr inc dec erase scroll type endtype pen mline mrect mcircle dim function do wend elseif").split(" "));
+const _UB_KEYWORDS = new Set(("var const print print# input if then else end for to step next while repeat until loop break continue times sub fn call return goto gosub label graphics on off multi block display gcls cls fast plot plot4 mplot line circle circle4 rect fill paint flip sprite sprite_frame sprdef chardef charset expand priority sound sfx org tune music play stop pause resume sid volume irq irq_exit nmi nmi_exit cia_timer onerr data read asm include incbin load open close save chain memcopy drawmem map koala show hide set draw poke poke16 sys bye exit wait delay raster getch joy reu stash fetch speed badlines color border bg text screen cursor at lowercase uppercase select case and or xor not bnot mod shl shr inc dec erase scroll type endtype pen mline mrect mcircle dim function do wend elseif option").split(" "));
 const _UB_TYPES = new Set(["int", "word", "float", "string", "array", "array_word"]);
 // BASIC type names used after `as` (dim / function / sub). The compiler treats them and
 // `as` as context words, not reserved ones, so they are only coloured in a type position.
 const _UB_BASIC_TYPES = new Set(["byte", "integer", "single", "double"]);
 // Words the compiler reads as keywords only right after the given keyword (case is, map view,
 // wait key, scroll row|x|y) or anywhere in a scroll statement.
-const _UB_CONTEXT_KEYWORDS = new Map([["case", new Set(["is"])], ["map", new Set(["view"])], ["wait", new Set(["key"])], ["scroll", new Set(["row", "x", "y"])]]);
+const _UB_CONTEXT_KEYWORDS = new Map([["case", new Set(["is"])], ["map", new Set(["view"])], ["wait", new Set(["key"])], ["scroll", new Set(["row", "x", "y"])], ["print", new Set(["using"])], ["option", new Set(["basic"])]]);
 const _UB_SCROLL_WORDS = new Set(["left", "right", "narrow", "wide"]);
 const _UB_FUNCTIONS = new Set(("str_to_int numstr chr$ str$ inkey waitkey len asc val reudet reu_present turbo clamp peek peek16 rnd abs min max sgn spc tab joy mouse_x mouse_x_hi mouse_y mouse_btn sprhit sprbghit sprite_hit sprite_bg_hit sprite_x sprite_y map_tile map_color box_hit sin cos hex bin getch left$ right$ mid$").split(" "));
 const _UB_ASM_MNEMONICS = new Set(("adc and asl bcc bcs beq bit bmi bne bpl brk bvc bvs clc cld cli clv cmp cpx cpy dec dex dey eor inc inx iny jmp jsr lda ldx ldy lsr nop ora pha php pla plp rol ror rti rts sbc sec sed sei sta stx sty tax tay tsx txa txs tya").split(" "));
@@ -19086,6 +19123,34 @@ function setupVersionControl() {
   });
   document.getElementById("git-preferred")?.addEventListener("change", saveUiSettings);
   loadGitConfig();
+  const updateServerInput = document.getElementById("update-server");
+  updateServerInput?.addEventListener("change", () => _saveUpdateServer(updateServerInput.value));
+  updateServerInput?.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); updateServerInput.blur(); } });
+  document.getElementById("update-server-default")?.addEventListener("click", () => _saveUpdateServer(""));
+  loadUpdateServer();
+}
+
+// Self-update server (Settings → Updates): the installers are read from <server>downloads/VA/.
+async function loadUpdateServer(message) {
+  const input = document.getElementById("update-server");
+  const status = document.getElementById("update-server-status");
+  if (!input) return;
+  if (!window.electronAPI?.getUpdateServer) { input.disabled = true; return; }
+  let cfg = null;
+  try { cfg = await window.electronAPI.getUpdateServer(); } catch { cfg = null; }
+  input.placeholder = cfg?.default || "https://www.c64va.pro/";
+  input.value = cfg?.updateServer || input.placeholder;
+  if (status) status.textContent = message || tf("updateServerNote", { server: cfg?.effective || input.placeholder });
+}
+
+async function _saveUpdateServer(url) {
+  const status = document.getElementById("update-server-status");
+  try {
+    await window.electronAPI?.setUpdateServer?.(url);
+    await loadUpdateServer();
+  } catch (err) {
+    if (status) status.textContent = String(err?.message || err);
+  }
 }
 
 async function loadGitConfig() {
@@ -22146,12 +22211,18 @@ function setupHardwareSettingsDialog() {
     try { localStorage.setItem("c64va-sid-preview-engine", _sidPreviewEngine); } catch (_) {}
     if (_sidInited) _sidStop();
     _sidPlayerRenderList();
+    _sidEditorEngineSync();
+  });
+  document.getElementById("sid-lcd-color")?.addEventListener("change", function(e) {
+    try { localStorage.setItem("c64va-sid-lcd-color", e.target.value === "red" ? "red" : "green"); } catch (_) {}
+    _sidLcdApplyColor();
   });
   document.getElementById("sid-preview-model")?.addEventListener("change", function(e) {
     _sidPreviewModel = e.target.value === "6581" ? "6581" : "8580";
     try { localStorage.setItem("c64va-sid-preview-model", _sidPreviewModel); } catch (_) {}
     if (_sidInited) _sidStop();
     _sidPlayerRenderList();
+    _sidEditorEngineSync();
   });
 }
 
@@ -44038,6 +44109,8 @@ function _sidLoadPreviewSettings() {
   if (engineEl) engineEl.value = _sidPreviewEngine;
   const modelEl = document.getElementById("sid-preview-model");
   if (modelEl) { modelEl.value = _sidPreviewModel; modelEl.disabled = _sidPreviewEngine !== "va-core"; }
+  _sidEditorEngineSync();
+  _sidLcdApplyColor();
 }
 let _sidMasterGain = null;    // shared GainNode injected between _sidPlayInst output and destination
 let _sidSel = { voice: 0, row: 0 };
@@ -44694,6 +44767,7 @@ function _sidLoadInstUI() {
   const inst = _sidCurInst();
   Object.assign(inst, _sidInstNorm(inst));
   document.getElementById("sid-inst-name").value = inst.name;
+  if (typeof _sidVkbdInstSync === "function") _sidVkbdInstSync();
   _sidInstFields().forEach(function(f) {
     const el = document.getElementById(f[0]); if (!el) return;
     if (f[2] === "check") el.checked = !!inst[f[1]]; else el.value = inst[f[1]];
@@ -44872,6 +44946,69 @@ function _sidBuildInstSel() {
     sel.appendChild(o);
   });
   sel.value = _sidInst;
+  if (typeof _sidVkbdInstSync === "function") _sidVkbdInstSync();
+}
+
+/* VA-VK instrument knob + LCD: the knob steps through the instruments (drag, wheel,
+   arrow keys), the LCD shows the number and name; both follow #sid-inst-sel. */
+function _sidVkbdInstSync() {
+  const n = (_sidInsts && _sidInsts.length) || 0;
+  const i = Math.max(0, Math.min(n - 1, _sidInst | 0));
+  const knob = document.getElementById("sid-vkbd-inst-knob");
+  if (knob) {
+    _sidKnobRender(knob, n > 1 ? i * 100 / (n - 1) : 0);
+    knob.setAttribute("aria-valuemin", "1");
+    knob.setAttribute("aria-valuemax", String(Math.max(1, n)));
+    knob.setAttribute("aria-valuenow", String(i + 1));
+    knob.setAttribute("aria-valuetext", n ? (_sidInsts[i].name || "") : "");
+  }
+  const hex = function(v) { return v.toString(16).toUpperCase().padStart(2, "0"); };
+  const num = document.getElementById("sid-vkbd-lcd-num");
+  if (num) num.textContent = n ? t("sidVkbdInstrument") + " " + hex(i) + "/" + hex(n - 1) : "";
+  const name = document.getElementById("sid-vkbd-lcd-name");
+  if (name) name.textContent = n ? (_sidInsts[i].name || "—") : "—";
+}
+function _sidVkbdSelectInst(i) {
+  const n = (_sidInsts && _sidInsts.length) || 0;
+  if (!n) return;
+  i = Math.max(0, Math.min(n - 1, i | 0));
+  if (i === _sidInst) return;
+  const sel = document.getElementById("sid-inst-sel");
+  if (sel) { sel.value = String(i); sel.dispatchEvent(new Event("change", { bubbles: true })); }
+  else { _sidInst = i; _sidLoadInstUI(); }
+}
+function _sidVkbdInstKnobBind() {
+  const knob = document.getElementById("sid-vkbd-inst-knob");
+  if (!knob || knob._bound) return;
+  knob._bound = true;
+  let drag = null;
+  knob.addEventListener("pointerdown", function(e) {
+    drag = { x: e.clientX, y: e.clientY, index: _sidInst | 0 };
+    try { knob.setPointerCapture(e.pointerId); } catch (_) {}
+    knob.focus();
+    e.preventDefault();
+  });
+  knob.addEventListener("pointermove", function(e) {
+    if (!drag) return;
+    // one instrument per 16 px up / right
+    _sidVkbdSelectInst(drag.index + Math.round(((drag.y - e.clientY) + (e.clientX - drag.x)) / 16));
+  });
+  const end = function(e) { drag = null; try { knob.releasePointerCapture(e.pointerId); } catch (_) {} };
+  knob.addEventListener("pointerup", end);
+  knob.addEventListener("pointercancel", end);
+  knob.addEventListener("wheel", function(e) {
+    e.preventDefault();
+    _sidVkbdSelectInst((_sidInst | 0) + (e.deltaY < 0 ? 1 : -1));
+  }, { passive: false });
+  knob.addEventListener("keydown", function(e) {
+    const n = (_sidInsts && _sidInsts.length) || 0;
+    const delta = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1, PageUp: 4, PageDown: -4 }[e.key];
+    if (delta !== undefined) _sidVkbdSelectInst((_sidInst | 0) + delta);
+    else if (e.key === "Home") _sidVkbdSelectInst(0);
+    else if (e.key === "End") _sidVkbdSelectInst(n - 1);
+    else return;
+    e.preventDefault();
+  });
 }
 
 /* ── ADSR graph ── */
@@ -46288,12 +46425,34 @@ function _sidPauseBtnMarkup(isPlaying) {
 }
 function _sidUpdatePauseButton() {
   const isPlaying = !!(_sidTimer || _sidPlaybackUsingWebSid) && !_sidPaused;
-  ["sid-play", "sid-vkbd-play", "sid-roll-play"].forEach(function(id) {
+  ["sid-vkbd-play", "sid-roll-play"].forEach(function(id) {
     const btn = document.getElementById(id);
     if (!btn) return;
     btn.innerHTML = _sidPauseBtnMarkup(isPlaying);
     btn.setAttribute("aria-label", _sidPaused ? t("sidResume") : isPlaying ? t("sidPause") : t("sidPlay"));
   });
+  // the tracker toolbar has separate Play and Pause buttons
+  const play = document.getElementById("sid-play");
+  if (play) {
+    play.setAttribute("aria-label", _sidPaused ? t("sidResume") : t("sidPlay"));
+    play.classList.toggle("sid-transport-on", isPlaying);
+  }
+  const pause = document.getElementById("sid-pause");
+  if (pause) {
+    pause.setAttribute("aria-label", _sidPaused ? t("sidResume") : t("sidPause"));
+    pause.setAttribute("aria-pressed", _sidPaused ? "true" : "false");
+    pause.classList.toggle("sid-pause-on", _sidPaused);
+  }
+}
+// Tracker Play: start, or continue after a pause; does nothing while playing.
+function _sidPlayOnly() {
+  if (_sidPaused) { _sidPlay(false); return; }
+  if (_sidTimer || _sidPlaybackUsingWebSid) return;
+  _sidPlay(true);
+}
+// Tracker Pause: pause while playing, continue when paused; stopped, nothing.
+function _sidPauseOnly() {
+  if (_sidPaused || _sidTimer || _sidPlaybackUsingWebSid) _sidPauseToggle();
 }
 
 function _webSidShowExternalDialog(filename, engine) {
@@ -46454,6 +46613,14 @@ async function _sidExtSeek(ms) {
  * seek bar; after that the playlist moves on (the last tune keeps playing). */
 function _sidVaCoreLabel() {
   return "VA SID Core v" + _VA_SID_CORE_VERSION + " (MOS " + _sidPreviewModel + ")";
+}
+// The SID Editor header names the emulation its previews and playback use.
+function _sidEditorEngineSync() {
+  const el = document.getElementById("sid-engine-name");
+  if (el) el.textContent = "· " + (_sidUsesVaCore() ? _sidVaCoreLabel() : "WebSID");
+  // the VA-VK badge names the running emulation too
+  const chip = document.getElementById("sid-vkbd-brand-chip");
+  if (chip) chip.textContent = _sidUsesVaCore() ? "VA SID Core · " + _sidPreviewModel : "WebSID";
 }
 // The engine that plays the current tune; when stopped, the one Play would use.
 let _sidPlayerEngineName = "";
@@ -47586,7 +47753,7 @@ function _sidWaSchedule() {
         const frames = [];
         for (let k = 0; k < chunk; k++) {
           _sidEngFrame(e);
-          frames.push(Array.from(e.regs));
+          frames.push(_sidVaCoreFrame(e));
         }
         const playAt = w.next;
         w.coreQueue = w.coreQueue.then(function() {
@@ -47603,15 +47770,40 @@ function _sidWaSchedule() {
     }
     for (let k = from; k < e.rows.length; k++) {
       const r = e.rows[k];
-      w.events.push({ time: w.next + (r.frame - first) / 50, row: r.row, opos: r.opos, pat: r.pat });
+      w.events.push({ time: w.next + (r.frame - first) / 50, row: r.row, opos: r.opos, pat: r.pat, frame: r.frame });
     }
     e.rows.length = 0;
     w.next += chunk / 50;
   }
   while (w.events.length && w.events[0].time <= now) _sidWaShowRow(w.events.shift());
 }
+/* Playback counter LCD: song position, pattern, row and play time while playing;
+   stopped, it shows the edit position (selected song step, pattern and row). */
+function _sidLcdShow(pos, pat, row, frames, playing) {
+  const two = function(v) { return String(Math.max(0, v | 0)).padStart(2, "0"); };
+  const set = function(id, text) { const el = document.getElementById(id); if (el && el.textContent !== text) el.textContent = text; };
+  set("sid-lcd-pos", two(pos));
+  set("sid-lcd-pat", two(pat));
+  set("sid-lcd-row", two(row));
+  const tenths = Math.floor(Math.max(0, frames) / 5);
+  const sec = Math.floor(tenths / 10);
+  set("sid-lcd-time", Math.floor(sec / 60) + ":" + String(sec % 60).padStart(2, "0") + "." + (tenths % 10));
+  document.getElementById("sid-lcd")?.classList.toggle("sid-lcd--playing", !!playing);
+}
+// runs from setupHardwareSettingsDialog at startup too: no module-level const here (TDZ)
+function _sidLcdApplyColor() {
+  let color = "green";
+  try { if (localStorage.getItem("c64va-sid-lcd-color") === "red") color = "red"; } catch (_) {}
+  document.getElementById("sid-lcd")?.classList.toggle("sid-lcd--red", color === "red");
+  const sel = document.getElementById("sid-lcd-color");
+  if (sel) sel.value = color;
+}
+function _sidLcdIdle() {
+  _sidLcdShow(_sidSongPos, _sidPat, _sidSel ? _sidSel.row : 0, 0, false);
+}
 function _sidWaShowRow(ev) {
   _sidRow = ev.row;
+  _sidLcdShow(_sidPlayMode === "all" ? ev.opos : _sidSongPos, ev.pat, ev.row, ev.frame || 0, true);
   if (_sidPlayMode === "all") {
     _sidSongPlayPos = ev.opos;
     _sidPlayPat = ev.pat;
@@ -47659,6 +47851,7 @@ function _sidStop(preloadStream = true, stopExternal = false) {
   if (t) t.querySelectorAll("tr.sid-playing").forEach(function(r){ r.classList.remove("sid-playing"); });
   _sidUpdatePauseButton();
   _sidBuildSongList();
+  if (typeof _sidLcdIdle === "function") _sidLcdIdle();
 }
 async function _sidPlay(resetPosition = true) {
   if (_sidTimer) { clearInterval(_sidTimer); _sidTimer = null; }
@@ -47756,11 +47949,17 @@ function _sidTuneData(opts) {
     const pmin = Math.min(o.pwmMin, o.pwmMax), pmax = Math.max(o.pwmMin, o.pwmMax);
     a.ipms.push(o.pwmSpeed); a.ipmnl.push(pmin & 0xFF); a.ipmnh.push(pmin >> 8); a.ipmxl.push(pmax & 0xFF); a.ipmxh.push(pmax >> 8);
     a.igt.push(o.gateTimer); a.ihr.push(o.hr ? 1 : 0); a.iffw.push(o.firstWave);
-    const steps = o.table.slice(0, Math.max(0, 255 - a.tw.length));
-    a.itst.push(a.tw.length); a.itln.push(steps.length);
+    // identical step runs are stored once: the 255-step table space goes further
+    const bytes = o.table.map(function(s){ return [s.w & 0xFF, s.n & 0xFF, s.abs ? 1 : 0]; });
+    let at = -1;
+    for (let k = 0; bytes.length && k + bytes.length <= a.tw.length && at < 0; k++) {
+      if (bytes.every(function(x, i){ return a.tw[k + i] === x[0] && a.tn[k + i] === x[1] && a.ta[k + i] === x[2]; })) at = k;
+    }
+    const steps = at >= 0 ? bytes : bytes.slice(0, Math.max(0, 255 - a.tw.length));
+    a.itst.push(at >= 0 ? at : a.tw.length); a.itln.push(steps.length);
     a.itlp.push(o.tableLoop >= 0 && o.tableLoop < steps.length ? o.tableLoop : 0xFF);
     a.itsp.push(o.tableSpeed);
-    steps.forEach(function(s){ a.tw.push(s.w & 0xFF); a.tn.push(s.n & 0xFF); a.ta.push(s.abs ? 1 : 0); });
+    if (at < 0) steps.forEach(function(x){ a.tw.push(x[0]); a.tn.push(x[1]); a.ta.push(x[2]); });
   });
   return { speed: speed, insts: insts, patterns: patterns, song: song.length ? song : [0], a: a };
 }
@@ -48089,12 +48288,20 @@ function _sidRenderVaCoreFrames(frames, sampleRate, sessionId) {
   return window.electronAPI.renderSidPreview(payload).then(_sidDecodePcm16);
 }
 
+/* One VA SID Core frame: the 25 registers + the voices whose note restarted
+   (the player clears and sets the gate within the frame; the core needs the edge). */
+function _sidVaCoreFrame(engine) {
+  const out = Array.from(engine.regs);
+  out.push((engine.trig[0] ? 1 : 0) | (engine.trig[1] ? 2 : 0) | (engine.trig[2] ? 4 : 0));
+  return out;
+}
+
 function _sidRenderVaCore(engine, frameCount, sampleRate, hook) {
   const frames = [];
   for (let frame = 0; frame < frameCount; frame++) {
     if (hook) hook(engine, frame);
     _sidEngFrame(engine);
-    frames.push(Array.from(engine.regs));
+    frames.push(_sidVaCoreFrame(engine));
   }
   return _sidRenderVaCoreFrames(frames, sampleRate);
 }
@@ -48514,6 +48721,431 @@ function _sidGoatImport(bytes) {
 function _sidApplyGoatImport(bytes) {
   const res = _sidGoatImport(bytes);
   if (!res) { showViceToast(t("sidGoatInvalid"), true); return false; }
+  _sidApplyImportedTune(res);
+  const skipped = Object.keys(res.skipped).map(function(k){ return k + " ×" + res.skipped[k]; });
+  showViceToast(tf("sidGoatImported", { insts: res.insts.length, pats: res.patterns.length, song: res.song.length }) +
+    (skipped.length ? " " + tf("sidGoatSkipped", { list: skipped.join(", ") }) : ""), false);
+  return true;
+}
+
+/* .sid import: the tune runs in VA SID Core (Rust sid_register_dump), the
+   per-frame SID register dump is turned back into rows. Note on = gate edge or
+   a legato pitch change; rows of L / L+1 frames start on the note ons (F effects
+   carry the changes); pitch = the most common semitone of the main waveform.
+   Instruments come from ADSR, the waveform / pitch steps of the whole note
+   (→ wave table), pulse and filter movement and the gate timing. */
+const _SID_DUMP_MAX_INSTS = 128;
+const _SID_DUMP_TABLE_STEPS = 32;
+const _SID_DUMP_WINDOW = 128;
+
+function _sidDumpImport(regs, meta) {
+  meta = meta || {};
+  const FB = meta.frameBytes || 26;
+  const frames = Math.floor((regs ? regs.length : 0) / FB);
+  if (frames < 2) return null;
+  const R = function(f, i) { return regs[f * FB + i]; };
+  const ft = _sidFreqTables();
+  // the editor's note table is PAL; NTSC tunes run on a faster clock
+  const clockScale = (meta.frameRate || 50) > 55 ? 1022727 / 985248 : 1;
+  const noteOf = function(freq) {
+    if (!freq) return null;
+    const n = Math.round(12 * Math.log2(freq * clockScale / ft.f[0]));
+    return n < 0 ? 0 : n > 95 ? 95 : n;
+  };
+  const skipped = {};
+  const skip = function(key) { skipped[key] = (skipped[key] || 0) + 1; };
+
+  // ── note ons per voice ──
+  const voices = [0, 1, 2].map(function(v) {
+    const ons = [];
+    for (let f = 0; f < frames; f++) {
+      if ((R(f, 25) >> v) & 1) ons.push(f);
+    }
+    return { b: v * 7, ons: ons };
+  });
+  // a gate edge within 2 frames of the previous one on the same voice retriggers the same note
+  voices.forEach(function(vc) {
+    let last = -Infinity;
+    vc.ons = vc.ons.filter(function(f) {
+      if (f - last <= 2) { skip("retriggers merged"); return false; }
+      last = f;
+      return true;
+    });
+  });
+  // legato: under a held gate the pitch moves to a new semitone and stays there
+  const LEGATO_HOLD = 5;
+  voices.forEach(function(vc) {
+    const b = vc.b, extra = [];
+    const pitchAt = function(g) {
+      const c = R(g, b + 4);
+      return c & 1 ? noteOf(R(g, b) | (R(g, b + 1) << 8)) * 256 + (c & 0xF0) : null;
+    };
+    vc.ons.forEach(function(f, k) {
+      const next = k + 1 < vc.ons.length ? vc.ons[k + 1] : frames;
+      let held = null;
+      for (let g = f; g + LEGATO_HOLD <= next; g++) {
+        const p = pitchAt(g);
+        if (p == null) break;
+        let stable = true;
+        for (let i = 1; i < LEGATO_HOLD && stable; i++) stable = pitchAt(g + i) === p;
+        if (!stable) continue;
+        if (held !== null && p !== held && (p & 0xF0) === (held & 0xF0) && g - f > 2) {
+          // skip back to where this pitch started
+          let s0 = g;
+          while (s0 - 1 > f && pitchAt(s0 - 1) === p) s0--;
+          if (!extra.length || s0 - extra[extra.length - 1] > 2) extra.push(s0);
+        }
+        held = p;
+        g += LEGATO_HOLD - 1;
+      }
+    });
+    if (extra.length) {
+      skip("legato notes (retriggered)");
+      vc.ons = vc.ons.concat(extra).sort(function(a, c){ return a - c; });
+    }
+  });
+  const allOns = [].concat.apply([], voices.map(function(vc){ return vc.ons; })).sort(function(a, b){ return a - b; });
+  if (!allOns.length) return null;
+  // note ons a frame apart on different voices share a row
+  const times = allOns.filter(function(f, i){ return !i || f - allOns[i - 1] > 1; });
+
+  // ── row timing: rows of L or L+1 frames start exactly on the note ons (funktempo,
+  // swing and tempo changes included); L = the longest that fits ≥ 97 % of the gaps ──
+  const gaps = [];
+  for (let i = 1; i < times.length; i++) gaps.push(times[i] - times[i - 1]);
+  const splits = function(g, L) { return Math.ceil(g / (L + 1)) <= Math.floor(g / L); };
+  const pickL = function(minRatio) {
+    for (let L = 64; L >= 2; L--) {
+      let ok = 0;
+      gaps.forEach(function(g){ if (splits(g, L)) ok++; });
+      if (ok >= minRatio * gaps.length) return L;
+    }
+    return 0;
+  };
+  const speed = gaps.length ? (pickL(0.97) || pickL(0.9) || pickL(0.75) || 1) : 6;
+  const rowStart = [times[0]];
+  const pushRows = function(g, k) {
+    const at = rowStart[rowStart.length - 1];
+    for (let i = 1; i <= k; i++) rowStart.push(at + Math.round(i * g / k));
+  };
+  // a note on too close to the previous row joins it; the next gap counts from that row
+  let carry = 0;
+  gaps.forEach(function(g0) {
+    const g = g0 + carry;
+    carry = 0;
+    const lo = Math.ceil(g / (speed + 1)), hi = Math.floor(g / speed);
+    if (lo <= hi) pushRows(g, Math.max(lo, Math.min(hi, Math.round(g / (speed + 0.5)))));
+    else if (g <= speed / 3) { skip("timing (rounded)"); carry = g; }
+    else pushRows(g, Math.max(1, Math.round(g / speed)));
+  });
+  const rowLen = function(r) { return r + 1 < rowStart.length ? rowStart[r + 1] - rowStart[r] : speed; };
+  const rowOf = function(f) {
+    const n = rowStart.length;
+    if (f >= rowStart[n - 1]) return n - 1 + Math.round((f - rowStart[n - 1]) / speed);
+    let lo = 0, hi = n - 1;
+    while (lo < hi) { const mid = (lo + hi + 1) >> 1; if (rowStart[mid] <= f) lo = mid; else hi = mid - 1; }
+    return lo + 1 < n && rowStart[lo + 1] - f < f - rowStart[lo] ? lo + 1 : lo;
+  };
+
+  const MAX_ROWS = 255 * _SID_ROWS;
+  let totalRows = rowOf(allOns[allOns.length - 1]) + 2;
+  if (totalRows > MAX_ROWS) { totalRows = MAX_ROWS; skip("length (cut)"); }
+  totalRows = Math.ceil(totalRows / _SID_ROWS) * _SID_ROWS;
+  const empty = function() { return { note: null, inst: 0, fx: null, fxval: 0 }; };
+  const cols = [0, 1, 2].map(function(){ return Array.from({ length: totalRows }, empty); });
+
+  // ── notes → cells, instruments by signature ──
+  const insts = [], instKeys = {}, recs = [];
+  const mode = function(arr) {
+    const cnt = {}, first = {};
+    arr.forEach(function(x, i){ if (x == null) return; cnt[x] = (cnt[x] || 0) + 1; if (first[x] === undefined) first[x] = i; });
+    let best = null;
+    Object.keys(cnt).forEach(function(k){ if (best === null || cnt[k] > cnt[best] || (cnt[k] === cnt[best] && first[k] < first[best])) best = k; });
+    return best === null ? null : +best;
+  };
+  const same = function(a, c) { return a.w === c.w && a.n === c.n && a.abs === c.abs; };
+  voices.forEach(function(vc, v) {
+    const b = vc.b;
+    const freqAt = function(g) { return R(g, b) | (R(g, b + 1) << 8); };
+    const pwAt = function(g) { return R(g, b + 2) | ((R(g, b + 3) & 15) << 8); };
+    const cutAt = function(g) { return (R(g, 0x15) & 7) | (R(g, 0x16) << 3); };
+    vc.ons.forEach(function(f, k) {
+      const next = k + 1 < vc.ons.length ? vc.ons[k + 1] : frames;
+      // the whole note up to the next one: after the gate off the release still sounds
+      let len = Math.max(1, Math.min(next - f, _SID_DUMP_WINDOW));
+      // a frame without waveform is the hard restart before the next note
+      for (let i = 1; i < len; i++) { if (!(R(f + i, b + 4) & 0xF0)) { len = i; break; } }
+      let off = -1;
+      for (let g = f + 1; g < next; g++) { if (!(R(g, b + 4) & 1)) { off = g; break; } }
+      const row = rowOf(f);
+      if (row >= totalRows) return;
+      if (cols[v][row].note != null) { skip("notes on the same row"); return; }
+
+      // main waveform: the most common one, the note: its most common semitone
+      const waves = [];
+      for (let i = 0; i < len; i++) { const w = R(f + i, b + 4) & 0xFE; if (!(w & 0x08) && (w & 0xF0)) waves.push(w); }
+      const w = mode(waves) || (R(f, b + 4) & 0xF6);
+      const pitches = [];
+      for (let i = 0; i < len; i++) { if ((R(f + i, b + 4) & 0xF0) === (w & 0xF0)) pitches.push(noteOf(freqAt(f + i))); }
+      const base = mode(pitches.length ? pitches : [noteOf(freqAt(f))]);
+      if (base == null) return;
+
+      const ins = _sidNewInst("SID");
+      const ad = R(f, b + 5), sr = R(f, b + 6);
+      ins.a = ad >> 4; ins.d = ad & 15; ins.s = sr >> 4; ins.r = sr & 15;
+      ins.tri = !!(w & 0x10); ins.saw = !!(w & 0x20); ins.pul = !!(w & 0x40); ins.noi = !!(w & 0x80);
+      ins.ring = !!(w & 0x04); ins.sync = !!(w & 0x02);
+
+      // waveform / pitch per frame (absolute notes); the wave table is built after all notes
+      // are known. A test-bit / waveform-less frame (hard restart) is silent: no pitch, and
+      // as a table step it becomes the test bit (0 would keep the previous waveform).
+      const raw = [];
+      for (let i = 0; i < len; i++) {
+        const sw = R(f + i, b + 4) & 0xFE;
+        const silent = (sw & 0x08) || !(sw & 0xF0);
+        raw.push({ w: silent ? (sw & 0xF0) | 0x08 : sw, n: silent ? null : noteOf(freqAt(f + i)) });
+      }
+      // vibrato: a regular wobble of the main-wave pitch around the note → instrument
+      // vibrato (the player's triangle LFO: half period = speed frames, depth*speed/64
+      // semitones), and those frames stay on the note in the wave table
+      let vibFrom = -1;
+      {
+        const dev = [];
+        for (let i = 0; i < len; i++) {
+          const fr = freqAt(f + i), sw = raw[i].w;
+          dev.push(fr && (sw & 0xF0) === (w & 0xF0) && !(sw & 0x08) ? 12 * Math.log2(fr * clockScale / ft.f[0]) - base : null);
+        }
+        let start = 0;
+        while (start < len && dev[start] == null) start++;
+        let d0 = start;
+        while (d0 + 1 < len && dev[d0 + 1] != null && Math.abs(dev[d0 + 1] - dev[start]) < 0.03) d0++;
+        const ext = [];
+        let dir = 0;
+        for (let i = d0 + 1; i < len && dev[i] != null && dev[i - 1] != null; i++) {
+          const dd = dev[i] - dev[i - 1];
+          if (Math.abs(dd) < 1e-6) continue;
+          const nd = dd > 0 ? 1 : -1;
+          if (dir && nd !== dir) ext.push({ i: i - 1, x: dev[i - 1] });
+          dir = nd;
+        }
+        const wob = dev.slice(d0 + 1).filter(function(x){ return x != null; });
+        if (ext.length >= 4 && wob.length && wob.every(function(x){ return Math.abs(x) < 0.6; })) {
+          const gaps = [];
+          for (let k = 1; k < ext.length; k++) gaps.push(ext[k].i - ext[k - 1].i);
+          const half = gaps.reduce(function(x, y){ return x + y; }, 0) / gaps.length;
+          const spread = Math.sqrt(gaps.reduce(function(x, y){ return x + (y - half) * (y - half); }, 0) / gaps.length);
+          const hi = ext.filter(function(e, k){ return k === 0 || e.x > ext[k - 1].x; });
+          const lo = ext.filter(function(e, k){ return k > 0 && e.x < ext[k - 1].x; });
+          const avg = function(arr) { return arr.reduce(function(x, e){ return x + e.x; }, 0) / Math.max(1, arr.length); };
+          const amp = (avg(hi) - avg(lo)) / 2;
+          if (lo.length && spread <= half * 0.35 && amp >= 0.05) {
+            const speedV = Math.max(1, Math.min(15, Math.round(half)));
+            const depth = Math.max(1, Math.min(15, Math.round(amp * 64 / speedV)));
+            ins.vibSpeed = speedV; ins.vibDepth = depth; ins.vibDelay = Math.min(255, d0);
+            vibFrom = d0 + 1;
+          }
+        }
+      }
+      // gate: released on a later row → note cut there; a few frames before the
+      // next note → gate timer (hard restart if ADSR is zeroed); within the first
+      // frames of a note → the envelope decays at the release rate instead
+      if (off >= 0) {
+        const cr = rowOf(off), gap = next - off;
+        if (cr > row && (next >= frames || cr < rowOf(next))) {
+          if (cr < totalRows && cols[v][cr].note == null && !cols[v][cr].fx) cols[v][cr] = { note: null, inst: 0, fx: "C", fxval: 0 };
+        } else if (next < frames && gap < speed && gap <= 15) {
+          ins.gateTimer = gap;
+          ins.hr = R(next - 1, b + 5) === 0 && R(next - 1, b + 6) === 0;
+        } else {
+          ins.s = 0; ins.d = ins.r;
+        }
+      }
+
+      // pulse width from the first frame on the pulse wave (drum attacks often precede it)
+      const end = f + len;
+      let pf = f;
+      while (pf < end - 1 && !(R(pf, b + 4) & 0x40)) pf++;
+      ins.pw = pwAt(pf);
+      let lo = ins.pw, hi = ins.pw, dsum = 0, dn = 0;
+      for (let g = pf + 1; g < end; g++) {
+        const p = pwAt(g), d = Math.abs(p - pwAt(g - 1));
+        lo = Math.min(lo, p); hi = Math.max(hi, p);
+        if (d) { dsum += d; dn++; }
+      }
+      if (dn && hi > lo) { ins.pwmSpeed = Math.min(255, Math.max(1, Math.round(dsum / dn))); ins.pwmMin = lo; ins.pwmMax = hi; }
+      // filter: global registers, routed per voice
+      const mv = R(f, 0x18);
+      ins.vol = mv & 15;
+      ins.off3 = !!(mv & 0x80);
+      ins.filt = !!((R(f, 0x17) >> v) & 1);
+      if (ins.filt) {
+        ins.lp = !!(mv & 0x10); ins.bp = !!(mv & 0x20); ins.hp = !!(mv & 0x40);
+        ins.res = R(f, 0x17) >> 4;
+        ins.cut = cutAt(f);
+        ins.cutEnd = cutAt(end - 1);
+        let cs = 0, cn = 0, up = false, down = false;
+        for (let g = f + 1; g < end; g++) {
+          const d = cutAt(g) - cutAt(g - 1);
+          if (d) { cs += Math.abs(d); cn++; if (d > 0) up = true; else down = true; }
+        }
+        if (cn && ins.cutEnd !== ins.cut) { ins.cutSpeed = Math.min(127, Math.max(1, Math.round(cs / cn))); ins.cutPing = up && down; }
+      }
+      cols[v][row] = { note: base, inst: 0, fx: null, fxval: 0 };
+      recs.push({ v: v, row: row, base: base, w: w, ins: ins, raw: raw, vibFrom: vibFrom });
+    });
+  });
+
+  // ── wave tables: per step, absolute or relative pitch — whichever stays the same
+  // across the notes of one instrument shape (fixed-pitch drums vs arpeggios) ──
+  const shapeOf = function(r) {
+    return [r.ins.a, r.ins.d, r.ins.s, r.ins.r, r.w, r.ins.gateTimer].concat(r.raw.slice(0, 4).map(function(x){ return x.w; })).join(",");
+  };
+  const shapes = {};
+  recs.forEach(function(r){ (shapes[shapeOf(r)] = shapes[shapeOf(r)] || []).push(r); });
+  Object.keys(shapes).forEach(function(key) {
+    const group = shapes[key];
+    const steps = Math.max.apply(null, group.map(function(r){ return r.raw.length; }));
+    const absAt = [];
+    for (let k = 0; k < steps; k++) {
+      const absVotes = {}, relVotes = {};
+      let absBest = 0, relBest = 0, far = false;
+      group.forEach(function(r) {
+        const x = r.raw[k];
+        if (!x || x.n == null) return;
+        absVotes[x.n] = (absVotes[x.n] || 0) + 1; absBest = Math.max(absBest, absVotes[x.n]);
+        const rel = x.n - r.base;
+        relVotes[rel] = (relVotes[rel] || 0) + 1; relBest = Math.max(relBest, relVotes[rel]);
+        if ((x.w & 0xF0) !== (r.w & 0xF0) && Math.abs(rel) > 12) far = true;
+      });
+      absAt.push(absBest > relBest || (absBest === relBest && far));
+    }
+    group.forEach(function(r){ r.absAt = absAt; });
+  });
+  recs.forEach(function(r) {
+    const w = r.w, ins = r.ins, len = r.raw.length;
+    const steps = r.raw.map(function(x, k) {
+      if (x.n == null || (r.vibFrom >= 0 && k >= r.vibFrom && x.w === w)) return { w: x.w, n: 0, abs: false };
+      return r.absAt[k] ? { w: x.w, n: x.n, abs: true } : { w: x.w, n: x.n - r.base, abs: false };
+    });
+    const isPlain = function(st) { return st.w === w && st.n === 0 && !st.abs; };
+    if (!steps.every(isPlain)) {
+      // shortest table: a prefix plus a period that repeats to the end of the note
+      let tStart = -1, tPer = 0;
+      for (let p = 1; p <= _SID_DUMP_TABLE_STEPS && tStart < 0; p++) {
+        let st = len - p;
+        while (st > 0 && same(steps[st - 1], steps[st - 1 + p])) st--;
+        if (len - st >= 2 * p && st + p <= _SID_DUMP_TABLE_STEPS) { tStart = st; tPer = p; }
+      }
+      let table, loop;
+      if (tStart >= 0) {
+        table = steps.slice(0, tStart + tPer);
+        // a single repeated step needs no loop: the table holds its last step
+        loop = tPer === 1 ? -1 : tStart;
+      } else {
+        table = steps.slice(0, _SID_DUMP_TABLE_STEPS);
+        loop = -1;
+        skip("long wave tables (cut)");
+      }
+      if (loop < 0) {
+        while (table.length > 1 && isPlain(table[table.length - 1]) && isPlain(table[table.length - 2])) table.pop();
+      }
+      if (!table.every(isPlain)) { ins.table = table; ins.tableLoop = loop; ins.tableSpeed = 1; }
+    }
+    const norm = _sidInstNorm(ins);
+    // coarse signature: pulse width only matters for the pulse wave (and not under
+    // a running sweep, where the start is arbitrary); filter sweeps are global
+    const key = JSON.stringify(Object.assign({}, norm, {
+      name: "", pw: norm.pul && !norm.pwmSpeed ? norm.pw >> 8 : 0, pwmMin: 0, pwmMax: 0,
+      pwmSpeed: norm.pul && norm.pwmSpeed ? Math.round(Math.log2(norm.pwmSpeed)) : 0,
+      cut: norm.cut >> 7, cutEnd: 0, cutSpeed: 0, cutPing: false
+    }));
+    let idx = instKeys[key];
+    if (idx === undefined) { idx = insts.length; instKeys[key] = idx; insts.push(norm); }
+    cols[r.v][r.row].inst = idx;
+  });
+  if (!insts.length) return null;
+
+  // ── too many instruments: the rarest ones map to the closest kept one ──
+  let finalInsts = insts, remap = insts.map(function(_, i){ return i; });
+  if (insts.length > _SID_DUMP_MAX_INSTS) {
+    const use = insts.map(function(){ return 0; });
+    cols.forEach(function(col){ col.forEach(function(c){ if (c.note != null) use[c.inst]++; }); });
+    const keep = insts.map(function(_, i){ return i; })
+      .sort(function(a, c){ return use[c] - use[a] || a - c; })
+      .slice(0, _SID_DUMP_MAX_INSTS).sort(function(a, c){ return a - c; });
+    // the waveform and pitch steps of the first frames weigh most: a drum table on a bass note is far worse than another ADSR
+    const tableDist = function(a, c) {
+      let sum = 0;
+      for (let k = 0; k < 8; k++) {
+        const x = a.table[Math.min(k, a.table.length - 1)] || { w: _sidInstCtrl(a), n: 0, abs: false };
+        const y = c.table[Math.min(k, c.table.length - 1)] || { w: _sidInstCtrl(c), n: 0, abs: false };
+        if ((x.w & 0xF0) !== (y.w & 0xF0)) sum += 30;
+        if (x.abs !== y.abs) sum += 20; else sum += Math.min(12, Math.abs(x.n - y.n)) * 2;
+      }
+      return sum;
+    };
+    const dist = function(a, c) {
+      return (_sidInstCtrl(a) !== _sidInstCtrl(c) ? 100 : 0) + tableDist(a, c) + Math.abs(a.a - c.a) + Math.abs(a.d - c.d) +
+        Math.abs(a.s - c.s) + Math.abs(a.r - c.r) + (a.filt !== c.filt ? 20 : 0) + (a.gateTimer !== c.gateTimer ? 4 : 0) +
+        Math.abs(a.pw - c.pw) / 512;
+    };
+    remap = insts.map(function(ins, i) {
+      const k = keep.indexOf(i);
+      if (k >= 0) return k;
+      let best = 0;
+      keep.forEach(function(j, n){ if (dist(ins, insts[j]) < dist(ins, insts[keep[best]])) best = n; });
+      return best;
+    });
+    finalInsts = keep.map(function(i){ return insts[i]; });
+    skip("instruments merged " + (insts.length - keep.length));
+  }
+  cols.forEach(function(col){ col.forEach(function(c){ if (c.note != null) c.inst = remap[c.inst]; }); });
+  // the player holds at most 255 table steps in all: the most used instruments
+  // keep theirs whole, the rest keep what fits (the attack comes first)
+  const used = finalInsts.map(function(){ return 0; });
+  cols.forEach(function(col){ col.forEach(function(c){ if (c.note != null) used[c.inst]++; }); });
+  // (identical tables are stored once, see _sidTuneData)
+  let tableLeft = 255;
+  const stored = {};
+  finalInsts.map(function(_, i){ return i; }).sort(function(a, c){ return used[c] - used[a] || a - c; }).forEach(function(i) {
+    const ins = finalInsts[i];
+    const tkey = JSON.stringify(ins.table);
+    if (!ins.table.length || stored[tkey]) return;
+    if (ins.table.length > tableLeft) {
+      ins.table = ins.table.slice(0, tableLeft);
+      if (ins.tableLoop >= ins.table.length) ins.tableLoop = -1;
+      skip("wave tables shortened");
+    }
+    stored[JSON.stringify(ins.table)] = true;
+    tableLeft -= ins.table.length;
+  });
+  finalInsts.forEach(function(ins, i){ ins.name = "SID " + String(i + 1).padStart(2, "0"); });
+
+  // ── row lengths: an F effect one row ahead sets the length of the next row ──
+  for (let r = 0; r + 1 < totalRows; r++) {
+    const val = Math.min(255, rowLen(r + 1));
+    if (val === Math.min(255, rowLen(r))) continue;
+    // timing wins over a note cut: a missed speed change would shift the rest of the song
+    let v = [0, 1, 2].find(function(k){ return !cols[k][r].fx; });
+    if (v === undefined) v = [0, 1, 2].find(function(k){ return cols[k][r].fx === "C"; });
+    if (v === undefined) { skip("speed changes"); continue; }
+    if (cols[v][r].fx === "C") skip("note cuts dropped");
+    cols[v][r].fx = "F"; cols[v][r].fxval = val;
+  }
+
+  // ── 32-row patterns, identical ones shared ──
+  const patterns = [], song = [], keys = {};
+  for (let r = 0; r < totalRows && song.length < 255; r += _SID_ROWS) {
+    const pat = cols.map(function(col){ return col.slice(r, r + _SID_ROWS); });
+    const key = JSON.stringify(pat);
+    if (keys[key] === undefined) { keys[key] = patterns.length; patterns.push(pat); }
+    song.push(keys[key]);
+  }
+  return { name: meta.name || "", author: meta.author || "", insts: finalInsts, patterns: patterns, song: song,
+    speed: Math.max(1, Math.min(255, rowLen(0))), skipped: skipped };
+}
+
+function _sidApplyImportedTune(res) {
   _sidStop();
   _sidInsts = res.insts;
   _sidPatterns = res.patterns;
@@ -48526,10 +49158,101 @@ function _sidApplyGoatImport(bytes) {
   _sidInst = 0; _sidPat = 0; _sidPlayPat = 0;
   _sidSyncPlayModeSel();
   _sidBuildInstSel(); _sidLoadInstUI(); _sidBuildPatSel(); _sidBuildSongList(); _sidBuildTracker();
-  const skipped = Object.keys(res.skipped).map(function(k){ return k + " ×" + res.skipped[k]; });
-  showViceToast(tf("sidGoatImported", { insts: res.insts.length, pats: res.patterns.length, song: res.song.length }) +
-    (skipped.length ? " " + tf("sidGoatSkipped", { list: skipped.join(", ") }) : ""), false);
-  return true;
+}
+
+let _sidSidImportBytes = null;
+
+function _sidHeaderInfo(bytes) {
+  const b = bytes || [];
+  const id = String.fromCharCode(b[0], b[1], b[2], b[3]);
+  if ((id !== "PSID" && id !== "RSID") || b.length < 0x76) return null;
+  const str = function(o) { let s = ""; for (let k = 0; k < 32 && b[o + k]; k++) s += String.fromCharCode(b[o + k]); return s.trim(); };
+  return { songs: (b[0x0e] << 8) | b[0x0f], start: (b[0x10] << 8) | b[0x11], name: str(0x16), author: str(0x36) };
+}
+
+function _sidOpenSidImport(bytes) {
+  const info = _sidHeaderInfo(bytes);
+  if (!info || !info.songs) { showViceToast(t("sidImportSidInvalid"), true); return; }
+  if (!window.electronAPI?.sidRegisterDump) { showViceToast(t("sidImportSidDesktopOnly"), true); return; }
+  const dlg = document.getElementById("sid-import-sid-dialog");
+  if (!dlg) return;
+  _sidSidImportBytes = bytes;
+  document.getElementById("sid-import-sid-title").textContent = t("sidImportSidTitle");
+  document.getElementById("sid-import-sid-tune").textContent = [info.name, info.author].filter(Boolean).join(" — ");
+  document.getElementById("sid-import-sid-song-label").textContent = tf("sidImportSidSong", { songs: info.songs });
+  document.getElementById("sid-import-sid-seconds-label").textContent = t("sidImportSidSeconds");
+  const songEl = document.getElementById("sid-import-sid-song");
+  songEl.max = String(info.songs);
+  songEl.value = String(Math.max(1, Math.min(info.songs, info.start || 1)));
+  songEl.disabled = info.songs < 2;
+  document.getElementById("sid-import-sid-status").textContent = "";
+  const progressWrap = document.getElementById("sid-import-sid-progress");
+  if (progressWrap) progressWrap.hidden = true;
+  const go = document.getElementById("sid-import-sid-go");
+  go.textContent = t("sidImportSidGo");
+  go.disabled = false;
+  document.getElementById("sid-import-sid-cancel").textContent = t("sidImportSidCancel");
+  dlg.showModal();
+}
+
+async function _sidRunSidImport() {
+  const dlg = document.getElementById("sid-import-sid-dialog");
+  const go = document.getElementById("sid-import-sid-go");
+  const status = document.getElementById("sid-import-sid-status");
+  if (!_sidSidImportBytes || go.disabled) return;
+  const song = Math.max(1, parseInt(document.getElementById("sid-import-sid-song").value, 10) || 1);
+  const seconds = Math.max(1, Math.min(900, parseInt(document.getElementById("sid-import-sid-seconds").value, 10) || 120));
+  const busy = function(on) {
+    go.disabled = on;
+    go.textContent = t(on ? "sidImportSidGoBusy" : "sidImportSidGo");
+    document.getElementById("sid-import-sid-song").disabled = on || document.getElementById("sid-import-sid-song").max === "1";
+    document.getElementById("sid-import-sid-seconds").disabled = on;
+  };
+  const wrap = document.getElementById("sid-import-sid-progress");
+  const bar = document.getElementById("sid-import-sid-bar");
+  // state: null = hidden, -1 = indeterminate, 0..100 = percent
+  const progress = function(state, label) {
+    if (wrap) wrap.hidden = state === null;
+    if (bar) {
+      bar.classList.toggle("update-progress-bar--indeterminate", state === -1);
+      bar.style.width = state >= 0 ? state + "%" : "";
+    }
+    if (label !== undefined) status.textContent = label;
+  };
+  busy(true);
+  progress(0, t("sidImportSidWorking"));
+  let unlisten = null;
+  try {
+    unlisten = await window.electronAPI.onSidDumpProgress?.(function(p) {
+      if (!p || !p.total) return;
+      const pct = Math.min(100, Math.round(p.done * 100 / p.total));
+      progress(pct, t("sidImportSidWorking") + " " + pct + "%");
+    });
+  } catch (_) { unlisten = null; }
+  try {
+    const dump = await window.electronAPI.sidRegisterDump({ fileBytes: Array.from(_sidSidImportBytes), song: song, seconds: seconds });
+    progress(-1, t("sidImportSidConverting"));
+    // let the dialog paint before the (synchronous) conversion
+    await new Promise(function(r){ setTimeout(r, 30); });
+    const bin = atob(dump.regs || "");
+    const regs = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) regs[i] = bin.charCodeAt(i);
+    const res = _sidDumpImport(regs, dump);
+    if (!res) { progress(null, t("sidImportSidNoNotes")); busy(false); return; }
+    progress(null, "");
+    busy(false);
+    dlg.close();
+    _sidSidImportBytes = null;
+    _sidApplyImportedTune(res);
+    const skipped = Object.keys(res.skipped).map(function(k){ return k + " ×" + res.skipped[k]; });
+    showViceToast(tf("sidImportSidDone", { insts: res.insts.length, pats: res.patterns.length, song: res.song.length, speed: res.speed }) +
+      (skipped.length ? " " + tf("sidGoatSkipped", { list: skipped.join(", ") }) : ""), false);
+  } catch (err) {
+    progress(null, String((err && err.message) || err));
+    busy(false);
+  } finally {
+    if (typeof unlisten === "function") unlisten();
+  }
 }
 
 function _sidExport(kind) {
@@ -48622,6 +49345,8 @@ function _sidExportDataOnly() {
 
   return lines.join("\n");
 }
+
+const _SID_PLAYER_CODE_MAX = 0x900;
 
 function _sidExportAsmPlayable() {
   const lines = [];
@@ -49408,6 +50133,7 @@ function _sidExportAsmPlayable() {
     "");
 
   // ---- data ----------------------------------------------------------------
+  const dataStart = lines.length;
   chunk("sid_vbase", [0, 7, 14]);
   chunk("sid_vbit", [1, 2, 4]);
   L("; Song/order list: which pattern plays at each step; a pattern may",
@@ -49456,9 +50182,25 @@ function _sidExportAsmPlayable() {
   chunk("sid_freq_hi", ft.f.map(function(x){ return x >> 8; }));
   chunk("sid_semi_lo", ft.semi.map(function(x){ return x & 0xFF; }));
   chunk("sid_semi_hi", ft.semi.map(function(x){ return x >> 8; }));
+  // The player code fits in _SID_PLAYER_CODE_MAX bytes. When code + data + state
+  // would reach $D000 (I/O), the data moves to its own segment ending below
+  // $A000 (BASIC ROM), so a long tune never lands in I/O or under ROM.
+  const dataLines = lines.slice(dataStart);
+  const dataBytes = dataLines.reduce(function(n, l) {
+    const m = /^\s*\.byte\s+(.*)$/.exec(l);
+    return m ? n + m[1].split(",").length : n;
+  }, 0);
+  const split = 0xC000 + _SID_PLAYER_CODE_MAX + dataBytes + stateSize > 0xD000;
+  _sidExportAsmPlayable.dataOrg = split ? (0xA000 - dataBytes) & 0xFF00 : 0xC000;
+  if (split) lines.length = dataStart;
   L("", "; Player state (cleared by sid_init)", "sid_state:");
   STATE_V.forEach(function(n){ L("sid_" + n + ":", ".byte $00, $00, $00"); });
   STATE_G.forEach(function(n){ L("sid_" + n + ":", ".byte $00"); });
+  if (split) {
+    L("", "; Tune data (" + dataBytes + " bytes): too long for $C000-$CFFF next to the player",
+      "* = $" + _sidExportAsmPlayable.dataOrg.toString(16).toUpperCase(), "");
+    dataLines.forEach(function(l){ lines.push(l); });
+  }
 
   return lines.join("\n");
 }
@@ -49599,7 +50341,7 @@ function setupSidEditor() {
   onId("sid-editor-btn", "click", function() {
     const cm = document.querySelector(".control-menu"); if (cm) cm.removeAttribute("open");
     dialog._applyPosition?.();
-    _sidInit(); dialog.showModal();
+    _sidInit(); _sidEditorEngineSync(); _sidLcdIdle(); dialog.showModal();
     // place the detached tracker before the first paint (no jump from the default spot)
     _sidRestoreTrackerFloat();
     _sidRollRestore();
@@ -49643,6 +50385,7 @@ function setupSidEditor() {
   });
   onId("sid-inst-name", "input", function(e){ _sidCurInst().name = e.target.value; _sidBuildInstSel(); });
   onId("sid-inst-sel", "change", function(e){ _sidInst = parseInt(e.target.value,10); _sidLoadInstUI(); });
+  _sidVkbdInstKnobBind();
   onId("sid-inst-add", "click", function(){ _sidInsts.push(_sidNewInst(t("sidNewInstrumentName") + " " + (_sidInsts.length+1))); _sidInst = _sidInsts.length-1; _sidBuildInstSel(); _sidLoadInstUI(); });
   onId("sid-preview", "click", function(){ _sidEnsureAudio(); _sidPlayInst(_sidCurInst(), _sidNoteFreq(57), _sidAudio.currentTime+0.02, 0.5); });
 
@@ -49691,10 +50434,19 @@ function setupSidEditor() {
   onId("sid-song-down", "click", function(){ _sidSongMove(1); });
   onId("sid-play-mode", "change", function(e){ _sidPlayMode = e.target.value === "current" ? "current" : "all"; if(_sidTimer){ _sidPlay(); } });
   onId("sid-speed", "input", function(e){
-    _sidSpeed = Math.max(1, parseInt(e.target.value,10)||6);
+    _sidSpeed = Math.max(1, Math.min(255, parseInt(e.target.value,10)||6));
     _sidUpdateBpmDisplay();
     if (_sidTimer) { _sidPlay(); }
   });
+  const sidSpeedStep = function(d) {
+    const el = document.getElementById("sid-speed");
+    _sidSpeed = Math.max(1, Math.min(255, _sidSpeed + d));
+    if (el) el.value = String(_sidSpeed);
+    _sidUpdateBpmDisplay();
+    if (_sidTimer) { _sidPlay(); }
+  };
+  onId("sid-speed-down", "click", function(){ sidSpeedStep(-1); });
+  onId("sid-speed-up", "click", function(){ sidSpeedStep(1); });
   onId("sid-metronome", "click", _sidToggleMetronome);
   // Tördelő toolbar: a tooltip a dialógus belseje felé nyílik
   ["sid-clear", "sid-voice-copy"].forEach(function(id) {
@@ -49716,7 +50468,8 @@ function setupSidEditor() {
       function() { return Math.round(_sidMasterVol * 100); },
       function(pct) { _sidSetMasterVolume(pct); });
   });
-  onId("sid-play", "click", _sidPauseToggle);
+  onId("sid-play", "click", _sidPlayOnly);
+  onId("sid-pause", "click", _sidPauseOnly);
   onId("sid-stop", "click", _sidStop);
   onId("sid-vkbd-play", "click", _sidPauseToggle);
   onId("sid-vkbd-stop", "click", _sidStop);
@@ -49790,9 +50543,11 @@ function setupSidEditor() {
   onId("sid-export-psid", "click", function(){
     let prg = _buildSidPreviewPrg();
     if (!prg || prg.length < 3) { showViceToast?.(t("sidExportPsidFailed"), true); return; }
-    // a build $0801-től tölt (BASIC stub + kitöltés); a .sid-be csak a $C000-s lejátszó kell
+    // a build $0801-től tölt (BASIC stub + kitöltés); a .sid-be csak a lejátszó kell ($C000-tól,
+    // hosszú dalnál az adatszegmens kezdetétől, ami $C000 alatt van)
     const load = prg[0] | (prg[1] << 8);
-    if (load < 0xC000 && prg.length > 2 + 0xC000 - load) prg = Uint8Array.from([0x00, 0xC0, ...prg.slice(2 + 0xC000 - load)]);
+    const from = Math.min(0xC000, _sidExportAsmPlayable.dataOrg || 0xC000);
+    if (load < from && prg.length > 2 + from - load) prg = Uint8Array.from([from & 0xFF, from >> 8, ...prg.slice(2 + from - load)]);
     // a lejátszó a sid_init-ben saját IRQ-t telepít ($C000), ezért playAddress = 0
     _saveBinFile(_buildPsidBytes(prg, 0xC000, 0x0000, "VA SID tune", String(new Date().getFullYear())), "tune.sid");
   });
@@ -49806,6 +50561,16 @@ function setupSidEditor() {
     reader.onload = function(){ _sidApplyGoatImport(new Uint8Array(reader.result)); };
     reader.readAsArrayBuffer(file); e.target.value = "";
   });
+  const sidSidFile = document.getElementById("sid-sid-file");
+  onId("sid-import-sid", "click", function(){ if (sidSidFile) sidSidFile.click(); });
+  if (sidSidFile) sidSidFile.addEventListener("change", function(e){
+    const file = e.target.files && e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(){ _sidOpenSidImport(new Uint8Array(reader.result)); };
+    reader.readAsArrayBuffer(file); e.target.value = "";
+  });
+  onId("sid-import-sid-go", "click", function(){ _sidRunSidImport(); });
+  onId("sid-import-sid-cancel", "click", function(){ document.getElementById("sid-import-sid-dialog")?.close(); });
   if (sidBinFile) sidBinFile.addEventListener("change", function(e){
     const file = e.target.files && e.target.files[0]; if (!file) return;
     const reader = new FileReader();

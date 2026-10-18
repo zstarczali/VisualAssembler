@@ -123,7 +123,7 @@ function loadSerdeSandbox() {
       _sidPaused: false,
       _sidPlaybackUsingWebSid: false,
     },
-    `${extractConstLine("_SID_ROWS")}\n${extractConstLine("_SID_FX_CODES")}\n${extractConstLine("_SID_FX_NAMES")}`
+    `${extractConstLine("_SID_ROWS")}\n${extractConstLine("_SID_PLAYER_CODE_MAX")}\n${extractConstLine("_SID_FX_CODES")}\n${extractConstLine("_SID_FX_NAMES")}`
   );
 }
 
@@ -176,7 +176,7 @@ function loadExportSandbox() {
   return loadFunctions(
     ["_sidNewInst", "_sidInstNorm", "_sidInstCtrl", "_sidFreqTables", "_sidTuneData", "_sidCellBytes", "_sidExportAsmPlayable", "_sidWaveByte"],
     { Math, String, Array, t: (k) => k },
-    `${extractConstLine("_SID_ROWS")}\n${extractConstLine("_SID_FX_CODES")}\n${extractConstLine("_SID_FX_NAMES")}`
+    `${extractConstLine("_SID_ROWS")}\n${extractConstLine("_SID_PLAYER_CODE_MAX")}\n${extractConstLine("_SID_FX_CODES")}\n${extractConstLine("_SID_FX_NAMES")}`
   );
 }
 

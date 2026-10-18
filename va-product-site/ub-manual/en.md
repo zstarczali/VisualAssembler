@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.5 — Language Manual
+# Ultimate Basic v1.6.6 — Language Manual
 
 Complete language and CLI reference for Ultimate Basic, a BASIC-like language that
 compiles directly to 6502 machine code for the Commodore 64. Output: `.prg` files
@@ -213,8 +213,8 @@ z = x and 15             # bitwise AND
 w = a or b               # bitwise OR
 v = a xor b              # bitwise XOR
 m = x shl 3              # shift left
-n = x shr 2              # shift right
-r = x mod 40             # 8-bit modulo (remainder); x mod 0 = x, x / 0 = 255
+n = x shr 2              # shift right (arithmetic for an INTEGER: -8 shr 1 = -4)
+r = x mod 40             # remainder; x mod 0 = x, x / 0 = 255
 b = bnot x               # bitwise NOT: x XOR 255 (complement all 8 bits)
 ```
 
@@ -224,6 +224,14 @@ Arithmetic code (1.6.0): `*` by a constant compiles to shifts / shift-add (`x * 
 otherwise to a shift-add loop of at most 8 rounds. `/` and `mod` by a power of two are `LSR` /
 `AND #(n-1)`, otherwise an 8-round shift-subtract loop whose run time no longer depends on the
 quotient. Division by zero is defined: `x / 0 = 255`, `x mod 0 = x` (before 1.6.0 it hung).
+
+`mod` with a `word` or `integer` operand (or a negative constant) is a 16-bit remainder with
+the sign of the dividend, as in QBasic: `-7 mod 3` = -1, `7 mod -3` = 1, `(w + 5) mod 7` keeps
+16 bits. With a SINGLE / DOUBLE operand it works in floating point (see *Floating point*).
+`/` with a `word` / `integer` or negative divisor is a 16-bit division, truncated toward zero
+(`-700 / 300` = -2, `-700 / -7` = 100).
+`shr` of an `integer` is an arithmetic shift (the sign is kept: `-8 shr 1` = -4); `word` and
+byte values shift logically.
 `x = x + 1` / `x = x - 1` (and ±2) compile to `INC` / `DEC`.
 
 ### Increment / Decrement
@@ -266,6 +274,45 @@ print s1 + s2            # two string vars → sequential print
 print "Hello " + "World" # two literals → compile-time fold
 print chr$(13)           # print by PETSCII code
 ```
+
+By default numbers are printed without extra spaces and `,` just separates the items
+(`print 1, 2` gives `12`). For C64 BASIC spacing build with `--basic-print`, or put a line
+`option basic print` in the program: a number then prints with a leading space (or its `-`)
+and a trailing space (`print 5` → ` 5 `), a `,` moves to the next 10-column print zone, and a
+trailing `,` keeps the cursor on the line like a trailing `;`. `STR$` then gives the C64 text
+too (`STR$(7)` = `" 7"`, `STR$(-42)` = `"-42"`). Strings, `spc`, `tab`, `hex`, `bin`, `dec` and
+`chr$` print as before.
+
+#### `PRINT USING`
+
+```basic
+DIM ar AS DOUBLE = 1234.5
+DIM s AS STRING = "ALMA"
+PRINT USING "###.##"; 3.14159            '   3.14
+PRINT USING "Ar: #,###.## Ft"; ar        ' Ar: 1,234.50 Ft
+PRINT USING "+##"; 7                     ' +7
+PRINT USING "##.##-"; -2.25              ' 2.25-
+PRINT USING "##"; 123                    ' %123
+PRINT USING "[&] [!] [\  \]"; s; s; s     ' [ALMA] [A] [ALMA]
+PRINT USING "## "; 1, 2, 3               '  1  2  3
+```
+
+| Field | Meaning |
+|---|---|
+| `#` | a digit position; numbers are right-aligned and rounded to the decimals |
+| `.` | decimal point; the `#`s after it are the decimals (at most 9) |
+| `,` | before the point: thousands separators (each `,` is one position) |
+| `+` at the start | always print the sign (`+` / `-`) |
+| `-` at the end | print the minus sign after the number (a space when positive) |
+| `&` / `!` / `\  \` | string: the whole string / its first character / exactly as many characters as the field is wide (`\` + spaces + `\`) |
+| `_` | print the next character as it is (`_#`) |
+
+A number that does not fit is printed with `%` in front (`%123`); a lone leading 0 is dropped
+first (`#.##` with -0.5 → `-.50`). Other characters are printed as they are. The values cycle
+through the fields (the format starts again when it runs out); after the last value the text
+up to the next field is printed. A trailing `;` or `,` keeps the cursor on the line. The format
+must be a string literal; `**`, `$$` and `^^^^` fields are not supported. A program with
+`PRINT USING` includes the floating-point runtime (only the parts it needs).
 
 ### chr$
 
@@ -481,6 +528,11 @@ CALL Koszont("Zsolt")
   returned at `END FUNCTION` / `EXIT FUNCTION`; `return expr` still works too.
 - `END SUB`, `END FUNCTION`, `END IF`, `END SELECT` are accepted (the second word is
   optional); `EXIT SUB` / `EXIT FUNCTION` return (plain `exit` is still `bye`).
+- In a SUB / FUNCTION closed by `END SUB` / `END FUNCTION`, an `END` alone on its line ends
+  the program, as in QBasic — also inside an `IF … END IF` there. Close the blocks of such a
+  routine QBasic-style (`END IF`, `END SELECT`, `WEND`, `LOOP`, `NEXT`); a routine closed by a
+  plain `end` keeps the old block rules. `END` and `bye` inside any routine leave the program
+  (before, they returned to the routine's caller).
 - A sub/fn can be called without parentheses: `Koszont "Zsolt"`, `Rajzol x, y`.
 - `PRINT a; b; c` — `;` joins items without spaces; a trailing `;` suppresses the newline.
   A `;` followed by a statement (`print x; y = 1`) still separates statements.
@@ -556,11 +608,17 @@ IF s = "ABC" OR t <> "" THEN PRINT "compare with = / <>"
   Assigning a literal still just points at it.
 - **String arrays:** elements that get a non-literal value (or `input`) get their own
   32-byte slot (31 characters), so `input nevek(i)` in a loop keeps every name.
+- **Longer strings:** a line `option strings 255` lets every computed string variable hold
+  up to 255 characters (C64 BASIC's limit); `option strings 200, 63` also gives string-array
+  elements 63 characters (the slot is rounded up to 32, 64, 128 or 256 bytes). Every variable
+  keeps its own buffer, so longer limits cost RAM: n + 1 bytes per string variable and slot
+  size × elements per string array.
 - **`STR$` / `VAL`:** `STR$` of a 16-bit or signed value has no leading zeros (`"-42"`). For
-  compatibility, `STR$` of a byte keeps the 3-digit form (`"007"`). `VAL` reads 16-bit
+  compatibility, `STR$` of a byte keeps the 3-digit form (`"007"`) unless C64 BASIC spacing
+  is on (`--basic-print`: `" 7"`). `VAL` reads 16-bit
   signed numbers (`VAL("1234") + 1` = 1235).
-- **Comparison:** only `=` / `<>` (and `==` / `!=`); there is no `<` / `>` ordering of
-  strings.
+- **Comparison:** `=` / `<>` (and `==` / `!=`), and `<` `>` `<=` `>=` in PETSCII order like C64
+  BASIC; a string comes before every longer string it starts (`"AB" < "ABC"`, `"" < "A"`).
 
 #### Signed INTEGER, INPUT, DOUBLE (1.6.3)
 
@@ -666,22 +724,55 @@ var f: float = balls[0].vel       # read float field into float variable
 print balls[0].vel                # prints "1.50"
 ```
 
+**Defaults, strings, nested types, parameters** (after 1.6.6):
+
+```basic
+TYPE TPoint                        ' QBasic form: TYPE … END TYPE, "name AS type"
+    x AS BYTE = 3                  ' default value
+    y AS WORD = 1000
+END TYPE
+
+type TEntity
+  var pos: TPoint                  # nested struct: fields pos.x, pos.y
+  var hp: word = 100
+  var name: string * 6 = "NOBODY"  # fixed-length string inside the element (7 bytes)
+endtype
+
+var e: TEntity = array(100)        # every element starts with the defaults
+e[5].pos.x = 7
+e[5].name = "ZS" + "OLT"           # computed text is copied in, cut to 6 characters
+print e[5].name; " "; e[5].hp
+
+sub heal(p AS TEntity, amount AS WORD)   # or  p: TEntity
+  p.hp = p.hp + amount             # the element passed is changed
+  p.pos.x = p.pos.x + 1
+end sub
+heal(e[5], 25)                     # pass an element
+```
+
 Rules and constraints:
 
-- Field types: `int` (1 byte), `word` (2 bytes LE), `float` (2 bytes Q8.8).
-  `string` and nested `type` fields are not yet supported.
+- Field types: `int` / `byte` (1 byte), `word` / `integer` (2 bytes LE, unsigned),
+  `float` (2 bytes Q8.8), `string * n` (a fixed-length string of up to n characters,
+  1–254, n + 1 bytes in the element; `string` alone is `string * 15`), and another
+  struct type (nested: `arr[i].pos.x`). Fields are written `var name: type` or, QBasic
+  style, `name AS type`; `END TYPE` closes the block like `endtype`.
+- **Defaults:** `= constant` after a field (a number, a decimal for `float`, a string
+  literal for `string`). They are the array's contents at program start (like
+  `data name: …`); a nested field takes the defaults of its type. The element count must
+  be a constant then.
+- **String fields** work like string values: assign literals or computed strings (cut to
+  the field length), print them, use them in `+`, `=` / `<>` / `<` and string functions.
+- **Struct parameters:** `sub f(p AS TName)` / `p: TName` receives the address of the
+  element passed (`f(enemies[i])`), so `p.field` reads and writes that element; a struct
+  parameter can be passed on to another routine (`g(p)`). A function may take them too.
+  `arr[i]` of a struct array without a field is that address.
 - Element size = sum of field widths (declaration order, no padding).
 - Storage lives at `$C000+` alongside regular arrays, and shows up in the memory
   map as an ordinary array of the total byte size.
 - Constant index → `LDA/STA absolute` at compile time.
-- Variable index → shift-and-add multiply for `idx * elem_size`, then indexed
-  `(ptr),Y` access. Element sizes that are powers of two (1, 2, 4, 8, 16) use
-  bare `ASL A` chains; other sizes emit a short shift-add sequence via two
-  scratch zero-page bytes.
-- Sub / fn parameters of a struct type are not yet supported — pass the array
-  and an index instead, e.g. `sub move(idx: int) ... enemies[idx].x = ...`.
-- Default field values (`var fire: int = 2` inside the type) are parsed for
-  compatibility with the proposal but not yet initialized at allocation time.
+- Variable index → 16-bit `idx * elem_size` (before, it was computed in 8 bits and
+  elements past offset 255 were wrong), then indexed `(ptr),Y` access.
 - Only one subscript is allowed on a struct-typed array; multi-dimensional
   struct arrays are not supported (use a computed flat index).
 
@@ -1595,10 +1686,12 @@ END FUNCTION
 | | |
 |---|---|
 | Operators | `+ - * /` and `^` (power; right associative, binds tighter than unary minus: `-2^2` = -4) |
-| Functions | `SQR`, `SIN`, `COS`, `TAN`, `ATN` (radians), `EXP`, `LOG` (natural), `INT` (floor), `FIX` (truncate), `CINT` (round), `ABS`, `SGN`, `CSNG` / `CDBL` (no-op), `VAL` |
+| Functions | `SQR`, `SIN`, `COS`, `TAN`, `ATN` (radians), `EXP`, `LOG` (natural), `INT` (floor), `FIX` (truncate), `CINT` (round), `ABS`, `SGN`, `CSNG` / `CDBL` (no-op), `VAL`, `RND` |
+| `MOD` | `a MOD b` = `a - b * FIX(a / b)` (sign of `a`, like VB / C `fmod`): `7.5 MOD 2` = 1.5; `x MOD 0` = x |
+| `RND` | in a floating-point statement `RND` / `RND()` is a random number 0 ≤ x < 1 (`d = RND`, `x = RND * 6`); `rnd(n)` stays the integer 0 … n-1 |
 | Literals | `1.5`, `.5`, `1E6`, `2.5e-3`, `70000` |
 | Comparisons | `= <> < > <= >=` in `IF` / `WHILE` / `UNTIL` / `SELECT CASE` and as values |
-| Printing | C64 BASIC style: `.5`, `-3.25`, `3.33333333`, `1E+10`, `1.5E-07` (no leading space) |
+| Printing | C64 BASIC style: `.5`, `-3.25`, `3.33333333`, `1E+10`, `1.5E-07` (no leading space unless `--basic-print`); fixed decimals with `PRINT USING` |
 | Strings | `s = "X=" + x`, `STR$(x)`, `VAL(s)` reads `-1.25E3` |
 | `FOR` | floating-point counter, limit and step (`STEP 0.1`, negative, or a variable) |
 | `INPUT` / `READ` | `INPUT x` reads any number; `READ x` reads the next `data` byte |
@@ -1613,16 +1706,24 @@ it becomes Q8.8. An integer value assigned to a DOUBLE is converted exactly. Int
 expressions keep their integer rules (`var c = a + b` is still a byte).
 
 **Notes**
-- A whole-number literal from 32768 to 65535 is read as a 16-bit pattern and becomes
-  negative in floating-point context: write `40000.0` or `4E4`.
+- A whole-number literal from 32768 to 65535 keeps its value in a statement that computes in
+  floating point (`d = 40000`, `d + 50000`). A statement counts as floating point when it
+  names a SINGLE / DOUBLE variable, array, parameter or function, or uses `^`, a float-only
+  literal or one of the functions above; elsewhere such a literal is a 16-bit pattern as
+  before (`poke 53280, 1`, `w = 40000` into a WORD). A variable that only became floating point
+  through `var x = 2.5` does not count — write `40000.0` there.
 - `7 / 2` is 3.5 when assigned to a DOUBLE; in integer context it is 3 as before.
-- `x MOD y` and `AND` / `OR` / `XOR` round their operands to integers.
+- `AND` / `OR` / `XOR` round their operands to integers.
 - `SIN` / `COS` of a byte value keep the old 0–255 table meaning (full circle = 256); with a
   SINGLE / DOUBLE argument they work in radians.
-- Floating-point code must not run in IRQ / NMI handlers (the runtime keeps its state in
-  fixed RAM).
-- Cost: the floating-point runtime (about 4.4 KB, assembled by the compiler) is appended after
-  the program the first time SINGLE / DOUBLE is used. Variables take 5 bytes in the array area,
+- IRQ / NMI handlers may use floating point: a sub named in `irq`, `nmi` or `cia_timer`
+  that (directly or through the subs it calls) uses SINGLE / DOUBLE saves the runtime state at
+  its start and restores it before `irq_exit` / `nmi_exit` (about 4–5 thousand cycles per
+  interrupt). Handlers without floating point are not slowed down. Not covered: a handler set
+  by address or word variable, or one that leaves with a plain `RTS` / `RTI`.
+- Cost: the floating-point runtime is assembled by the compiler and appended after the
+  program; only the routines the program uses are included (about 2 KB for `+ - * /`
+  and `PRINT` up to about 5 KB with all functions and `PRINT USING`). Variables take 5 bytes in the array area,
   plus one 2-byte zero-page pointer for the runtime. A multiplication takes roughly 1–2 ms on a
   1 MHz C64.
 
@@ -1650,6 +1751,7 @@ var b = min(x, 39)       # 8-bit minimum
 var c = max(x, 0)        # 8-bit maximum
 var s = sgn(score)       # 0 = zero, 1 = positive (1–127), $FF = negative (128–255)
 var r = rnd()            # LCG pseudo-random 0-255; seed from raster line
+                         # (0 <= x < 1 in a SINGLE / DOUBLE statement: d = rnd)
 var r = rnd(10)          # LCG pseudo-random 0-9 (rnd() mod n; result 0..n-1)
 var s = sin(angle)       # sine: angle 0-255 (full circle), returns 0-255 (center=128)
 var c = cos(angle)       # cosine = sin(angle+64)
@@ -1757,6 +1859,9 @@ end
 ```
 
 Forward references are supported (`irq my_handler` before the sub is defined).
+
+A handler sub may use SINGLE / DOUBLE floating point: it saves and restores the runtime state
+around its body (see *Floating point*).
 
 ### NMI handler
 
@@ -2018,8 +2123,20 @@ ub build <input.ub> [OPTIONS]
   --add <file>          Add an extra file to the .d64 disk image;
                           may be repeated for multiple files
   --explicit            Require :type on every var / sub-param / fn-param
+  --basic-print         C64 BASIC PRINT spacing: spaces around numbers, ',' = 10-column zones
   -h, --help            Show help
 ```
+
+### Warnings
+
+The compiler prints warnings (they do not stop the build) for a byte variable that gets a
+value it cannot hold:
+
+```
+line 5: warning: 'b' is a byte (0-255) and 1000 does not fit — it wraps; declare it 'as integer' / 'as word' if that is not intended
+```
+
+A result masked with `and`, `mod`, `/` or `shr` is not reported, and neither is byte + byte.
 
 ### CRT export
 
@@ -2197,14 +2314,16 @@ Use `--asm` to see the generated code for your own program.
 
 | Feature | Limitation |
 |---|---|
-| Integer arithmetic | `var`/`byte` values are 8-bit unsigned (0–255) and wrap silently (`200 + 100` → 44 in a byte); `integer` is signed 16-bit, `word` unsigned 16-bit |
+| Integer arithmetic | `var`/`byte` values are 8-bit unsigned (0–255) and wrap (`200 + 100` → 44 in a byte); a constant that cannot fit (`b = 300`, `b = a + 1000`) gives a compile-time warning; `integer` is signed 16-bit, `word` unsigned 16-bit |
 | Zero page budget | Permanent zero page is `$02–$4F` (78 bytes): every variable and sub/fn parameter takes 2 bytes, every running `for` loop 2 more. Since 1.6.4 variables that do not fit move to RAM automatically (see *Variables in RAM*); only extreme cases still report `out of zero page` |
 | Binary literals | `%01010101` (since 1.6.4), `$hex` and decimal |
 | Subroutines | No recursion — ZP parameter slots are statically allocated (a recursive call is a compile error) |
-| Floating point | `single` / `double` are 5-byte floating point since 1.6.4 (not usable in IRQ handlers; the ~4.4 KB runtime is added to the program); `float` stays Q8.8 (0–255.99) |
+| `END` in QBasic routines | In a SUB / FUNCTION closed by `END SUB` / `END FUNCTION`, an `END` alone on its line ends the program; blocks in such a routine must be closed QBasic-style (`END IF`, `WEND`, …), a UB-style `if … ⏎ end` there reads as program end |
+| Struct types | One subscript per struct array (no `array(8, 8)` of a struct); an element is at most 256 bytes; `word` / `integer` fields are unsigned 16-bit; string fields are fixed-length (up to 254 characters); a struct parameter passes the element by reference |
+| Floating point | `single` / `double` are 5-byte floating point since 1.6.4 (the routines a program uses, ~2–5 KB, are added to it); `float` stays Q8.8 (0–255.99) |
 | Unary minus | Since 1.6.4 a leading `-` binds to its operand: `-5 - 3` is -8 (it was -(5 - 3) = -2) |
-| String vars | Computed values live in an 80-character buffer per variable (longer results are cut); string-array element values in 31-character slots; no `<` / `>` string ordering |
-| `rnd()` / `rnd(n)` | Simple LCG, not cryptographic; period = 256 |
+| String vars | Computed values live in an 80-character buffer per variable (longer results are cut), string-array element values in 31-character slots — `option strings n, m` raises both (up to 255); no shared heap; `<` / `>` order is PETSCII byte order |
+| `rnd()` / `rnd(n)` | Simple LCG, not cryptographic; period = 256 (the floating-point `rnd` is a 32-bit xorshift) |
 | `abs()` / `sgn()` / `min()` / `max()` | 8-bit values only; `abs`/`sgn` treat values as signed (bit 7 = negative → `abs` two's-complements, `sgn` returns `$FF`); `min`/`max` are unsigned (0–255) |
 | `plot` | Out-of-range pixels are silently clipped (Y ≥ 200 or X ≥ 320 → no-op) |
 | `mplot` | No bounds checking — x must be 0–159, y must be 0–199 |

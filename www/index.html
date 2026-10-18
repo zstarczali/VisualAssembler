@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.6.2">
+  <link rel="stylesheet" href="style.css?v=2.6.3">
 </head>
 
 <body>
@@ -1013,6 +1013,27 @@ PRINTABLE CHARACTERS
     </div>
   </dialog>
 
+  <dialog id="sid-import-sid-dialog" class="app-confirm-dialog sid-import-sid-dialog">
+    <div class="app-confirm-card">
+      <p id="sid-import-sid-title" class="app-confirm-msg sid-import-sid-title">Import .sid</p>
+      <p id="sid-import-sid-tune" class="sid-import-sid-tune"></p>
+      <div class="sid-import-sid-fields">
+        <label id="sid-import-sid-song-label" for="sid-import-sid-song">Subtune</label>
+        <input id="sid-import-sid-song" class="sid-import-sid-num" type="number" min="1" value="1">
+        <label id="sid-import-sid-seconds-label" for="sid-import-sid-seconds">Length (s)</label>
+        <input id="sid-import-sid-seconds" class="sid-import-sid-num" type="number" min="1" max="900" value="120">
+      </div>
+      <div id="sid-import-sid-progress" class="update-progress-wrap" hidden>
+        <div class="update-progress-track"><div id="sid-import-sid-bar" class="update-progress-bar"></div></div>
+      </div>
+      <p id="sid-import-sid-status" class="sid-import-sid-status"></p>
+      <div class="app-confirm-buttons">
+        <button id="sid-import-sid-go" class="primary" type="button">Import</button>
+        <button id="sid-import-sid-cancel" class="secondary" type="button">Cancel</button>
+      </div>
+    </div>
+  </dialog>
+
   <dialog id="app-confirm-dialog" class="app-confirm-dialog">
     <div class="app-confirm-card">
       <p id="app-confirm-msg" class="app-confirm-msg"></p>
@@ -1353,7 +1374,7 @@ PRINTABLE CHARACTERS
           <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
         </div>
         <h2 class="about-title">C64 Visual Assembler</h2>
-        <p class="about-version" id="about-version">v2.6.2</p>
+        <p class="about-version" id="about-version">v2.6.3</p>
         <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
       </div>
       <div class="about-columns">
@@ -1379,67 +1400,43 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.6.2</p>
+      <p class="whats-new-version">v2.6.3</p>
       <ul class="whats-new-list">
         <li>
-          <strong>HVSC in the SID Player:</strong> the new <em>HVSC</em> button searches the High Voltage SID Collection — about 61,000 tunes — by title, composer or folder. Click a tune to play it, add it to the playlist or save the <code>.sid</code>; <em>Random tunes</em> lists 25 at a time. Tunes come from an HVSC mirror and are cached, or <em>Download the whole collection</em> (about 85 MB, unpacked to about 380 MB in a folder you pick) for offline use; an unpacked HVSC folder can be used too. HVSC tunes get their real length on the seek bar, and the playlist moves on when a subtune ends.
+          <strong>.sid import in the SID Editor:</strong> <em>Files → Import .sid…</em> opens any PSID / RSID tune, plays the chosen subtune silently in VA SID Core for the length you set, and turns its SID register stream into instruments, patterns and a song you can edit and export. It finds note ons and legato notes, places rows exactly on the notes (funktempo and swing through <code>F</code> speed changes), and rebuilds wave / arpeggio tables with fixed-pitch drum attacks, pulse and filter movement, gate timing with hard restart, and vibrato. A message lists what was approximated.
         </li>
         <li>
-          <strong>Spectrum analyzer:</strong> a floating window from the SID Player toolbar with LED-style bars from green to orange, cells that fade out slowly and a mirrored floor — 8, 16, 24 or 32 bands, with VA SID Core and WebSID alike.
+          <strong>Long tunes play correctly:</strong> when the tune data does not fit next to the player at <code>$C000</code>, it moves to its own segment below <code>$A000</code> instead of running into I/O — long songs no longer lose notes in Play: All, the exported asm or the <code>.sid</code> export.
         </li>
         <li>
-          <strong>Lesson Editor:</strong> <em>Tutorials → Lesson editor…</em> turns your own program into a step-by-step guided lesson like "Build: Your First Text Program": the student picks each mnemonic, types the operand and presses Add, and sets the parameters the palette cannot. Add explanations, choose the folder, try the lesson, and export or import it as a <code>.vatut</code> file.
+          <strong>VA SID Core preview retriggers notes:</strong> a note restarted under a held gate gets a new attack, as on the real player — no more silent voices.
         </li>
         <li>
-          <strong>Online lessons:</strong> <em>Tutorials → Online lessons…</em> lists the lessons published on www.c64va.pro; download one into its folder with a click, and get its updates. Share your own with <em>Lesson Editor → Files → Upload to c64va.pro…</em>: after a review it appears for everyone, with your name as the author.
+          <strong>Ultimate Basic 1.6.6:</strong> <code>PRINT USING "format"; values</code> (numeric fields with <code>#</code> <code>.</code> <code>,</code> <code>+</code> <code>-</code>, string fields <code>&amp;</code> <code>!</code> <code>\ \</code>), strings compared with <code>&lt; &gt; &lt;= &gt;=</code> in PETSCII order, <code>rnd</code> and <code>mod</code> in floating point, floating point in IRQ / NMI handlers, <code>option basic print</code> for C64 BASIC PRINT spacing, smaller programs (only the floating-point routines in use are linked), a real 16-bit <code>mod</code> and an arithmetic <code>shr</code> for INTEGER; 1.6.5 makes address expressions 16-bit in <code>peek</code>, <code>poke</code>, <code>fill</code>, <code>memcopy</code> and friends.
         </li>
         <li>
-          <strong>Every macro takes its parameters in the operand field:</strong> type them before <em>Add</em> as they follow the macro in Expert mode — <code>$06</code> for <code>SET_BG</code>, <code>Main</code> for <code>REGION</code>, <code>$C000</code> for <code>ORG</code>, <code>1, 200, 50</code> for <code>SPRITE_POS</code>. The field shows the expected form.
+          <strong>Update server setting:</strong> <em>Settings → Updates</em> sets the server the in-app update reads releases from (default <code>https://www.c64va.pro/</code>, installers under <code>downloads/VA/</code>).
         </li>
         <li>
-          <strong>Smaller improvements:</strong> the active floating window is highlighted, the Support window looks like a chat, the mouse wheel scrolls the tab bar sideways, the memory bars stand apart from their titles, and the Ultimate Basic code size column no longer covers the line numbers.
+          <strong>SID Editor:</strong> the header shows which SID emulation plays (WebSID or VA SID Core with the chip model); the Speed field is narrower, has − / + buttons and takes 1–255; the song can use up to 256 patterns. The BPM label shows BPM again (it read "Oct:").
         </li>
         <li>
-          <strong>From 2.6.1: VICE Monitor:</strong> a new floating window for the running VICE (Run (VICE) now opens its binary monitor on port 6502) — <em>hot reload</em> the assembled program with or without a restart (optionally after every edit), a <em>live watch</em> list of labels and addresses, and a PC-sampling <em>profiler</em> per routine and per line, with the raster lines each routine ran on.
+          <strong>From 2.6.2: HVSC in the SID Player:</strong> the new <em>HVSC</em> button searches the High Voltage SID Collection — about 61,000 tunes — by title, composer or folder. Click a tune to play it, add it to the playlist or save the <code>.sid</code>; <em>Random tunes</em> lists 25 at a time. Tunes come from an HVSC mirror and are cached, or <em>Download the whole collection</em> (about 85 MB, unpacked to about 380 MB in a folder you pick) for offline use; an unpacked HVSC folder can be used too. HVSC tunes get their real length on the seek bar, and the playlist moves on when a subtune ends.
         </li>
         <li>
-          <strong>From 2.6.1: Table Generator:</strong> screen and bitmap row addresses, pixel masks, multiply / divide / remainder by a constant, quarter squares for fast multiplication, reciprocal, log / exp, bit reverse, custom expressions and unrolled fill / copy speedcode — as lo / hi pairs or <code>.word</code>, page-aligned on request, inserted into the program, saved as <code>.bin</code> or exported to Ultimate Basic.
+          <strong>From 2.6.2: Spectrum analyzer:</strong> a floating window from the SID Player toolbar with LED-style bars from green to orange, cells that fade out slowly and a mirrored floor — 8, 16, 24 or 32 bands, with VA SID Core and WebSID alike.
         </li>
         <li>
-          <strong>From 2.6.1: Cycle counts in Expert mode:</strong> a gutter with the cycles of every instruction (<code>4+</code> page-cross, <code>2/3</code> branches, a red <code>2/4</code> when a taken branch crosses a page) and the cycle and raster-line total of the selection.
+          <strong>From 2.6.2: Lesson Editor:</strong> <em>Tutorials → Lesson editor…</em> turns your own program into a step-by-step guided lesson like "Build: Your First Text Program": the student picks each mnemonic, types the operand and presses Add, and sets the parameters the palette cannot. Add explanations, choose the folder, try the lesson, and export or import it as a <code>.vatut</code> file.
         </li>
         <li>
-          <strong>From 2.6.1: Optimisation hints:</strong> the Expert editor marks lines that can be shorter or faster — <code>JSR</code> + <code>RTS</code>, redundant <code>CMP #0</code>, reloads, the <code>INC</code> / <code>DEC</code> idiom, jumps to the next instruction, <code>PHA</code> + <code>PLA</code>.
+          <strong>From 2.6.2: Online lessons:</strong> <em>Tutorials → Online lessons…</em> lists the lessons published on www.c64va.pro; download one into its folder with a click, and get its updates. Share your own with <em>Lesson Editor → Files → Upload to c64va.pro…</em>: after a review it appears for everyone, with your name as the author.
         </li>
         <li>
-          <strong>From 2.6.1: Zero page usage:</strong> a 16 × 16 map in the memory panel (CPU port / free / BASIC / KERNAL areas, read / write / pointer) with the lines behind every address and SID player conflicts.
+          <strong>From 2.6.2: Every macro takes its parameters in the operand field:</strong> type them before <em>Add</em> as they follow the macro in Expert mode — <code>$06</code> for <code>SET_BG</code>, <code>Main</code> for <code>REGION</code>, <code>$C000</code> for <code>ORG</code>, <code>1, 200, 50</code> for <code>SPRITE_POS</code>. The field shows the expected form.
         </li>
         <li>
-          <strong>From 2.6.1: Detachable memory window:</strong> the Full C64 memory panel can float in its own window; several floating windows can be open and the one you click comes to the front.
-        </li>
-        <li>
-          <strong>From 2.6.1: Ultimate Basic:</strong> code size per line after a build, hints (<code>sys $EA31</code> from an IRQ, <code>wait key</code>, unused variables, <code>asm</code> zero page clashes) and Sprite Editor → Ultimate Basic export with animation.
-        </li>
-        <li>
-          <strong>From 2.6.1: SID Editor → .sid:</strong> save the tune with its player as a standard PSID file.
-        </li>
-        <li>
-          <strong>From 2.6.1: Sprite multiplexer template:</strong> 16 sprites sorted by Y every frame and shown by a raster IRQ chain.
-        </li>
-        <li>
-          <strong>From 2.6.0: Visual Assembler is now completely free:</strong> the Freemium / Professional licensing has been removed. Every editor, build and hardware run option, all 7 languages and every theme work for everyone, without registration or a serial. The reason is simple: under Hungarian tax rules, selling the program would leave too little after taxes and paperwork to be worth it. Serials you already have are simply no longer needed.
-        </li>
-        <li>
-          <strong>From 2.5.9: New theme: Commodore 64:</strong> the C64 power-on screen — a light blue border around blue panels, light blue text, reverse-video buttons, syntax colours from the C64 palette and the C64 font in the monitor view.
-        </li>
-        <li>
-          <strong>From 2.5.9: New theme: Commodore Beige:</strong> the classic breadbin — a beige case, mustard function-key buttons, the rainbow badge stripes and a C64 blue screen for the monitor view.
-        </li>
-        <li>
-          <strong>From 2.5.9: New theme: Commodore Starlight:</strong> a light theme after the translucent C64 breadbin — frosted clear glass with the rainbow RGB glow shining through, a magenta accent, rainbow syntax colours and a smoky dark monitor.
-        </li>
-        <li>
-          <strong>From 2.5.9: Version control dialog:</strong> drag it by its header — it reopens where you left it and stays on screen when the log or a diff makes it taller. A click outside no longer closes it (Esc does).
+          <strong>From 2.6.2: Smaller improvements:</strong> the active floating window is highlighted, the Support window looks like a chat, the mouse wheel scrolls the tab bar sideways, the memory bars stand apart from their titles, and the Ultimate Basic code size column no longer covers the line numbers.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -2479,6 +2476,7 @@ PRINTABLE CHARACTERS
             <button id="sid-load-bin" type="button">Load .bin…</button>
             <button id="sid-save-bin" type="button">Save .bin…</button>
             <button id="sid-import-goat" type="button">Import GoatTracker .sng…</button>
+            <button id="sid-import-sid" type="button">Import .sid…</button>
             <div class="ed-file-sep"></div>
             <button id="sid-export-data" type="button">Export blocks (data only)</button>
             <button id="sid-export-player" type="button">Export blocks + miniplayer</button>
@@ -2488,8 +2486,10 @@ PRINTABLE CHARACTERS
           </div>
           <input type="file" id="sid-bin-file" accept=".bin,application/octet-stream" hidden>
           <input type="file" id="sid-sng-file" accept=".sng" hidden>
+          <input type="file" id="sid-sid-file" accept=".sid" hidden>
         </div>
         <span class="sid-title">SID EDITOR</span>
+        <span id="sid-engine-name" class="sid-engine-name"></span>
         <button id="sid-close" class="sid-xbtn" type="button" aria-label="Close">×</button>
       </div>
       <div class="sid-body">
@@ -2639,28 +2639,17 @@ PRINTABLE CHARACTERS
             <option value="all">All</option>
           </select>
           <span class="sid-mini-lbl">Speed:</span>
-          <input id="sid-speed" class="sid-input sid-speed" type="number" min="1" max="20" value="6">
-          <span class="sid-mini-lbl" id="sid-bpm-lbl">BPM:</span>
-          <span id="sid-bpm" class="sid-num" title="Beats per minute (4 rows per beat)">125</span>
-          <button id="sid-metronome" class="ce-tool-btn sid-metronome-btn" type="button" aria-label="Metronome" aria-pressed="false">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 14h6M6 14l1.5-11h1L10 14M8 3v0M8 8l3-1.5"/></svg>
-          </button>
-          <span id="sid-beat" class="sid-vkbd-beat" aria-hidden="true"></span>
-          <button id="sid-record" class="ce-tool-btn sid-record-btn" type="button" aria-label="Record" aria-pressed="false">
-            <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="4.3" fill="currentColor"/></svg>
-          </button>
+          <button id="sid-speed-down" class="sid-mini-btn" type="button" aria-label="Speed down">−</button>
+          <input id="sid-speed" class="sid-input sid-speed" type="number" min="1" max="255" value="6">
+          <button id="sid-speed-up" class="sid-mini-btn" type="button" aria-label="Speed up">+</button>
+          <span class="sid-bpm-wrap"><span class="sid-mini-lbl" id="sid-bpm-lbl">BPM:</span>
+          <span id="sid-bpm" class="sid-num" title="Beats per minute (4 rows per beat)">125</span></span>
           <span class="sid-mini-lbl">Oct:</span>
           <button id="sid-oct-down" class="sid-mini-btn" type="button" aria-label="Octave down">−</button>
           <span id="sid-oct-val" class="sid-num">4</span>
           <button id="sid-oct-up" class="sid-mini-btn" type="button" aria-label="Octave up">+</button>
           <button id="sid-row-preview" class="ce-tool-btn" type="button" aria-label="Preview row">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6v4h3l4 3V3L6 6H3z"/><path d="M12 6a3 3 0 010 4"/></svg>
-          </button>
-          <button id="sid-play" class="ce-tool-btn" type="button" aria-label="Play">
-            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.5l8 4.5-8 4.5z" fill="currentColor"/></svg>
-          </button>
-          <button id="sid-stop" class="ce-tool-btn" type="button" aria-label="Stop">
-            <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="4" width="8" height="8" fill="currentColor"/></svg>
           </button>
           <button id="sid-voice-copy" class="ce-tool-btn" type="button" aria-label="Copy voice">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="8" height="10" rx="1"/><path d="M3 5H2a1 1 0 00-1 1v7a1 1 0 001 1h8a1 1 0 001-1v-1"/></svg>
@@ -2677,6 +2666,30 @@ PRINTABLE CHARACTERS
           <button id="sid-tracker-detach" class="ce-tool-btn" type="button" aria-label="Detach tracker">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3H3.5a1 1 0 00-1 1v8.5a1 1 0 001 1H12a1 1 0 001-1V9"/><path d="M9.5 2.5h4v4M13.5 2.5L8 8"/></svg>
           </button>
+          <span class="sid-tb-sep" aria-hidden="true"></span>
+          <div id="sid-lcd" class="sid-lcd" role="status" aria-live="off">
+            <span class="sid-lcd-cell"><i id="sid-lcd-pos-lbl">POS</i><b id="sid-lcd-pos">00</b></span>
+            <span class="sid-lcd-cell"><i id="sid-lcd-pat-lbl">PAT</i><b id="sid-lcd-pat">00</b></span>
+            <span class="sid-lcd-cell"><i id="sid-lcd-row-lbl">ROW</i><b id="sid-lcd-row">00</b></span>
+            <span class="sid-lcd-cell"><i id="sid-lcd-time-lbl">TIME</i><b id="sid-lcd-time">0:00.0</b></span>
+          </div>
+          <span class="sid-tb-sep" aria-hidden="true"></span>
+          <button id="sid-record" class="ce-tool-btn sid-record-btn" type="button" aria-label="Record" aria-pressed="false">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="4.3" fill="currentColor"/></svg>
+          </button>
+          <button id="sid-play" class="ce-tool-btn" type="button" aria-label="Play">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.5l8 4.5-8 4.5z" fill="currentColor"/></svg>
+          </button>
+          <button id="sid-stop" class="ce-tool-btn" type="button" aria-label="Stop">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="4" width="8" height="8" fill="currentColor"/></svg>
+          </button>
+          <button id="sid-pause" class="ce-tool-btn sid-pause-btn" type="button" aria-label="Pause" aria-pressed="false">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="3.5" width="2.5" height="9" fill="currentColor"/><rect x="9.5" y="3.5" width="2.5" height="9" fill="currentColor"/></svg>
+          </button>
+          <button id="sid-metronome" class="ce-tool-btn sid-metronome-btn" type="button" aria-label="Metronome" aria-pressed="false">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 14h6M6 14l1.5-11h1L10 14M8 3v0M8 8l3-1.5"/></svg>
+          </button>
+          <span id="sid-beat" class="sid-vkbd-beat" aria-hidden="true"></span>
         </div>
         <div class="sid-row sid-harmony-row">
           <span class="sid-lbl" id="sid-harmony-label">HARMONY</span>
@@ -2786,7 +2799,7 @@ PRINTABLE CHARACTERS
         </div>
         <div class="sid-vkbd-brand" aria-hidden="true">
           <span class="sid-vkbd-brand-name">Commodore <b>64</b></span>
-          <span class="sid-vkbd-brand-chip">SID 6581</span>
+          <span id="sid-vkbd-brand-chip" class="sid-vkbd-brand-chip">WEBSID</span>
           <span class="sid-vkbd-stripes"><i></i><i></i><i></i><i></i><i></i></span>
         </div>
         <div class="sid-vkbd-meta">
@@ -2813,6 +2826,21 @@ PRINTABLE CHARACTERS
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 14h6M6 14l1.5-11h1L10 14M8 3v0M8 8l3-1.5"/></svg>
           </button>
           <span id="sid-vkbd-beat" class="sid-vkbd-beat" aria-hidden="true"></span>
+          <div class="sid-vkbd-inst-wrap">
+            <span class="sid-master-vol-lbl" id="sid-vkbd-inst-lbl">Instrument</span>
+            <div id="sid-vkbd-inst-knob" class="websid-play-knob" role="slider" tabindex="0" aria-label="Instrument" aria-valuemin="1" aria-valuemax="1" aria-valuenow="1">
+              <svg viewBox="0 0 40 40" aria-hidden="true">
+                <path class="websid-play-knob-track" d=""/>
+                <path class="websid-play-knob-value" d=""/>
+                <circle class="websid-play-knob-body" cx="20" cy="20" r="11.5"/>
+                <line class="websid-play-knob-pointer" x1="20" y1="20" x2="20" y2="11"/>
+              </svg>
+            </div>
+            <div id="sid-vkbd-lcd" class="sid-vkbd-lcd" aria-live="polite">
+              <span id="sid-vkbd-lcd-num" class="sid-vkbd-lcd-num">INST 00/01</span>
+              <span id="sid-vkbd-lcd-name" class="sid-vkbd-lcd-name"></span>
+            </div>
+          </div>
           <div class="sid-master-vol-wrap">
             <span class="sid-master-vol-lbl" id="sid-master-vol-lbl">Master volume</span>
             <div id="sid-master-vol" class="websid-play-knob" role="slider" tabindex="0" aria-label="Master volume" aria-valuemin="0" aria-valuemax="100" aria-valuenow="60">
@@ -3482,169 +3510,182 @@ PRINTABLE CHARACTERS
       <h2 class="compile-error-title" id="hardware-settings-title">Hardver beállítások</h2>
 
       <div class="hw-settings-body">
-        <section class="hw-settings-section">
-          <h3 class="hw-settings-section-label" id="hw-vice-section-label">VICE Emulator</h3>
-          <button id="choose-vice" class="secondary" type="button">VICE kivalasztasa</button>
-          <label class="field compact-field hw-field">
-            <span id="vice-exe-label">VICE exe</span>
-            <input id="vice-path" type="text" readonly placeholder="Nincs beallitva">
-          </label>
-          <label class="menu-checkbox-label">
-            <input type="checkbox" id="vice-remote-monitor" checked>
-            <span id="vice-remote-monitor-label">VICE remote monitor (hot reload, live watch, profiler)</span>
-          </label>
-          <p id="emulator-status" class="menu-note">A VICE kapcsolat ellenorzese folyamatban.</p>
-          <p id="emulator-run-hint" class="menu-note menu-note-strong"></p>
-        </section>
-
-        <section class="hw-settings-section">
-          <h3 class="hw-settings-section-label" id="hw-exomizer-section-label">Exomizer</h3>
-          <button id="choose-exomizer" class="secondary" type="button">Exomizer kivalasztasa</button>
-          <label class="field compact-field hw-field">
-            <span id="exomizer-exe-label">Exomizer exe</span>
-            <input id="exomizer-path" type="text" readonly placeholder="Nincs beallitva">
-          </label>
-          <label class="menu-checkbox-label">
-            <input type="checkbox" id="exomizer-border-flash" checked>
-            <span id="exomizer-border-flash-label">Border villogás dekompressziókor</span>
-          </label>
-          <p id="exomizer-status" class="menu-note">Válaszd ki az Exomizer executable-t.</p>
-        </section>
-
-        <section class="hw-settings-section">
-          <h3 class="hw-settings-section-label" id="hw-debugger-section-label">Retro Debugger</h3>
-          <button id="choose-debugger" class="secondary" type="button"></button>
-          <label class="field compact-field hw-field">
-            <span id="debugger-exe-label"></span>
-            <input id="debugger-path" type="text" readonly placeholder="">
-          </label>
-          <p id="debugger-status" class="menu-note"></p>
-        </section>
-
-        <section class="hw-settings-section">
-          <h3 class="hw-settings-section-label" id="debugger-params-label">C64 Debugger params</h3>
-          <label class="menu-checkbox-label">
-            <input type="checkbox" id="dbg-jmp" checked>
-            <span id="dbg-jmp-label"></span>
-          </label>
-          <label class="menu-checkbox-label">
-            <input type="checkbox" id="dbg-unpause">
-            <span id="dbg-unpause-label"></span>
-          </label>
-          <label class="menu-checkbox-label">
-            <input type="checkbox" id="dbg-wait">
-            <span id="dbg-wait-label"></span>
-          </label>
-        </section>
-
-        <section class="hw-settings-section">
-          <h3 class="hw-settings-section-label" id="program-settings-label">Program</h3>
-          <label class="menu-checkbox-label">
-            <input type="checkbox" id="basic-sys-toggle" checked>
-            <span id="basic-sys-label">BASIC SYS stub generálása</span>
-          </label>
-          <label class="menu-checkbox-label">
-            <input type="checkbox" id="show-basic-stub-toggle">
-            <span id="show-basic-stub-label">BASIC stub megjelenítése a Disassembler és Monitor nézetben</span>
-          </label>
-          <label class="menu-checkbox-label">
-            <input type="checkbox" id="block-desc-sync-toggle" checked>
-            <span id="block-desc-sync-label">Leírás szinkron blokk módban</span>
-          </label>
-          <label class="menu-checkbox-label">
-            <input type="checkbox" id="run-exomizer-toggle">
-            <span id="run-exomizer-toggle-label">Run with Exomizer</span>
-          </label>
-          <label class="menu-checkbox-label">
-            <input type="checkbox" id="write-debug-sidecars-toggle">
-            <span id="write-debug-sidecars-label">Debug fájlok generálása (.dbg, .sym, .vs)</span>
-          </label>
-          <label class="menu-checkbox-label">
-            <input type="checkbox" id="ub-asm-sidecar-toggle">
-            <span id="ub-asm-sidecar-label">UltimateBasic ASM source generálása (.asm)</span>
-          </label>
-
-        </section>
-
-        <section class="hw-settings-section">
-          <h3 class="hw-settings-section-label" id="sid-preview-settings-label">SID preview</h3>
-          <label class="field compact-field hw-field">
-            <span id="sid-preview-engine-lbl">SID engine</span>
-            <select id="sid-preview-engine" class="sid-select">
-              <option value="websid">WebSID</option>
-              <option value="va-core">VA SID Core (Rust) v1.2</option>
-            </select>
-          </label>
-          <label class="field compact-field hw-field">
-            <span id="sid-preview-model-lbl">SID chip</span>
-            <select id="sid-preview-model" class="sid-select" disabled>
-              <option value="8580">MOS 8580</option>
-              <option value="6581">MOS 6581</option>
-            </select>
-          </label>
-        </section>
-
-        <section class="hw-settings-section">
-          <h3 class="hw-settings-section-label" id="snapshot-settings-label">Snapshot</h3>
-          <label class="menu-checkbox-label">
-            <input type="checkbox" id="auto-snapshot-toggle" checked>
-            <span id="auto-snapshot-toggle-label">Automatikus snapshot</span>
-          </label>
-          <button id="choose-git" class="secondary" type="button">Choose git.exe…</button>
-          <button id="detect-git" class="secondary" type="button">Auto-detect</button>
-          <label class="field compact-field hw-field">
-            <span id="git-exe-label">git executable</span>
-            <input id="git-path" type="text" readonly>
-          </label>
-          <label class="menu-checkbox-label">
-            <input type="checkbox" id="git-preferred" checked>
-            <span id="git-preferred-label">Use Git when the project is in a repository</span>
-          </label>
-          <p id="git-status" class="menu-note"></p>
-        </section>
-
-        <section class="hw-settings-section">
-          <h3 class="hw-settings-section-label" id="asm-output-settings-label">ASM output</h3>
-          <label class="menu-checkbox-label">
-            <input type="checkbox" id="macro-source-toggle">
-            <span id="macro-source-toggle-text">Macro source</span>
-          </label>
-          <label class="menu-checkbox-label">
-            <input type="checkbox" id="region-comments-toggle" checked>
-            <span id="region-comments-label">Show region comments</span>
-          </label>
-          <label class="menu-checkbox-label">
-            <input type="checkbox" id="memory-overlays-toggle" checked>
-            <span id="memory-overlays-label">Show memory overlays</span>
-          </label>
-          <label class="menu-checkbox-label">
-            <input type="checkbox" id="global-memory-panel-toggle" checked>
-            <span id="global-memory-panel-toggle-label">Show memory panel</span>
-          </label>
-        </section>
-
-        <section class="hw-settings-section">
-          <h3 class="hw-settings-section-label" id="ultimate-section-label">C64 Ultimate</h3>
-          <label class="field compact-field hw-field">
-            <span id="ultimate-host-label">Host (IP)</span>
-            <input id="ultimate-host" type="text" placeholder="192.168.1.100" autocomplete="off" spellcheck="false">
-          </label>
-          <label class="field compact-field hw-field">
-            <span id="ultimate-password-label">Jelszó</span>
-            <input id="ultimate-password" type="password" placeholder="(optional)" autocomplete="off">
-          </label>
-          <button id="ultimate-connect-test" class="secondary" type="button">Kapcsolat tesztelése</button>
-          <p id="ultimate-status" class="menu-note"></p>
-          <div class="hw-settings-subsection hw-settings-subsection--inline">
-            <h3 class="hw-settings-section-label" id="kff2-section-label">Kung Fu Flash 2</h3>
+        <div class="hw-settings-col">
+          <section class="hw-settings-section">
+            <h3 class="hw-settings-section-label" id="hw-vice-section-label">VICE Emulator</h3>
+            <button id="choose-vice" class="secondary" type="button">VICE kivalasztasa</button>
             <label class="field compact-field hw-field">
-              <span id="kff2-port-label">Soros port</span>
-              <input id="kff2-port" type="text" placeholder="/dev/cu.usbmodem… / COM4 / /dev/ttyACM0" autocomplete="off" spellcheck="false">
+              <span id="vice-exe-label">VICE exe</span>
+              <input id="vice-path" type="text" readonly placeholder="Nincs beallitva">
             </label>
-            <button id="kff2-detect-btn" class="secondary" type="button">USB felismerése</button>
-            <p id="kff2-status" class="menu-note"></p>
-          </div>
-        </section>
+            <label class="menu-checkbox-label">
+              <input type="checkbox" id="vice-remote-monitor" checked>
+              <span id="vice-remote-monitor-label">VICE remote monitor (hot reload, live watch, profiler)</span>
+            </label>
+            <p id="emulator-status" class="menu-note">A VICE kapcsolat ellenorzese folyamatban.</p>
+            <p id="emulator-run-hint" class="menu-note menu-note-strong"></p>
+          </section>
+          <section class="hw-settings-section">
+            <h3 class="hw-settings-section-label" id="debugger-params-label">C64 Debugger params</h3>
+            <label class="menu-checkbox-label">
+              <input type="checkbox" id="dbg-jmp" checked>
+              <span id="dbg-jmp-label"></span>
+            </label>
+            <label class="menu-checkbox-label">
+              <input type="checkbox" id="dbg-unpause">
+              <span id="dbg-unpause-label"></span>
+            </label>
+            <label class="menu-checkbox-label">
+              <input type="checkbox" id="dbg-wait">
+              <span id="dbg-wait-label"></span>
+            </label>
+          </section>
+          <section class="hw-settings-section">
+            <h3 class="hw-settings-section-label" id="snapshot-settings-label">Snapshot</h3>
+            <label class="menu-checkbox-label">
+              <input type="checkbox" id="auto-snapshot-toggle" checked>
+              <span id="auto-snapshot-toggle-label">Automatikus snapshot</span>
+            </label>
+            <button id="choose-git" class="secondary" type="button">Choose git.exe…</button>
+            <button id="detect-git" class="secondary" type="button">Auto-detect</button>
+            <label class="field compact-field hw-field">
+              <span id="git-exe-label">git executable</span>
+              <input id="git-path" type="text" readonly>
+            </label>
+            <label class="menu-checkbox-label">
+              <input type="checkbox" id="git-preferred" checked>
+              <span id="git-preferred-label">Use Git when the project is in a repository</span>
+            </label>
+            <p id="git-status" class="menu-note"></p>
+          </section>
+        </div>
+        <div class="hw-settings-col">
+          <section class="hw-settings-section">
+            <h3 class="hw-settings-section-label" id="hw-exomizer-section-label">Exomizer</h3>
+            <button id="choose-exomizer" class="secondary" type="button">Exomizer kivalasztasa</button>
+            <label class="field compact-field hw-field">
+              <span id="exomizer-exe-label">Exomizer exe</span>
+              <input id="exomizer-path" type="text" readonly placeholder="Nincs beallitva">
+            </label>
+            <label class="menu-checkbox-label">
+              <input type="checkbox" id="exomizer-border-flash" checked>
+              <span id="exomizer-border-flash-label">Border villogás dekompressziókor</span>
+            </label>
+            <p id="exomizer-status" class="menu-note">Válaszd ki az Exomizer executable-t.</p>
+          </section>
+          <section class="hw-settings-section">
+            <h3 class="hw-settings-section-label" id="program-settings-label">Program</h3>
+            <label class="menu-checkbox-label">
+              <input type="checkbox" id="basic-sys-toggle" checked>
+              <span id="basic-sys-label">BASIC SYS stub generálása</span>
+            </label>
+            <label class="menu-checkbox-label">
+              <input type="checkbox" id="show-basic-stub-toggle">
+              <span id="show-basic-stub-label">BASIC stub megjelenítése a Disassembler és Monitor nézetben</span>
+            </label>
+            <label class="menu-checkbox-label">
+              <input type="checkbox" id="block-desc-sync-toggle" checked>
+              <span id="block-desc-sync-label">Leírás szinkron blokk módban</span>
+            </label>
+            <label class="menu-checkbox-label">
+              <input type="checkbox" id="run-exomizer-toggle">
+              <span id="run-exomizer-toggle-label">Run with Exomizer</span>
+            </label>
+            <label class="menu-checkbox-label">
+              <input type="checkbox" id="write-debug-sidecars-toggle">
+              <span id="write-debug-sidecars-label">Debug fájlok generálása (.dbg, .sym, .vs)</span>
+            </label>
+            <label class="menu-checkbox-label">
+              <input type="checkbox" id="ub-asm-sidecar-toggle">
+              <span id="ub-asm-sidecar-label">UltimateBasic ASM source generálása (.asm)</span>
+            </label>
+            <div class="hw-settings-subsection hw-settings-subsection--inline">
+              <h3 class="hw-settings-section-label" id="update-settings-label">Updates</h3>
+              <label class="field compact-field hw-field">
+                <span id="update-server-label">Update server</span>
+                <input id="update-server" type="text" spellcheck="false" autocomplete="off" placeholder="https://www.c64va.pro/" value="https://www.c64va.pro/">
+              </label>
+              <button id="update-server-default" class="secondary" type="button">Default</button>
+              <p id="update-server-status" class="menu-note"></p>
+            </div>
+          </section>
+          <section class="hw-settings-section">
+            <h3 class="hw-settings-section-label" id="asm-output-settings-label">ASM output</h3>
+            <label class="menu-checkbox-label">
+              <input type="checkbox" id="macro-source-toggle">
+              <span id="macro-source-toggle-text">Macro source</span>
+            </label>
+            <label class="menu-checkbox-label">
+              <input type="checkbox" id="region-comments-toggle" checked>
+              <span id="region-comments-label">Show region comments</span>
+            </label>
+            <label class="menu-checkbox-label">
+              <input type="checkbox" id="memory-overlays-toggle" checked>
+              <span id="memory-overlays-label">Show memory overlays</span>
+            </label>
+            <label class="menu-checkbox-label">
+              <input type="checkbox" id="global-memory-panel-toggle" checked>
+              <span id="global-memory-panel-toggle-label">Show memory panel</span>
+            </label>
+          </section>
+        </div>
+        <div class="hw-settings-col">
+          <section class="hw-settings-section">
+            <h3 class="hw-settings-section-label" id="hw-debugger-section-label">Retro Debugger</h3>
+            <button id="choose-debugger" class="secondary" type="button"></button>
+            <label class="field compact-field hw-field">
+              <span id="debugger-exe-label"></span>
+              <input id="debugger-path" type="text" readonly placeholder="">
+            </label>
+            <p id="debugger-status" class="menu-note"></p>
+          </section>
+          <section class="hw-settings-section">
+            <h3 class="hw-settings-section-label" id="sid-preview-settings-label">SID preview</h3>
+            <label class="field compact-field hw-field">
+              <span id="sid-preview-engine-lbl">SID engine</span>
+              <select id="sid-preview-engine" class="sid-select">
+                <option value="websid">WebSID</option>
+                <option value="va-core">VA SID Core (Rust) v1.2</option>
+              </select>
+            </label>
+            <label class="field compact-field hw-field">
+              <span id="sid-preview-model-lbl">SID chip</span>
+              <select id="sid-preview-model" class="sid-select" disabled>
+                <option value="8580">MOS 8580</option>
+                <option value="6581">MOS 6581</option>
+              </select>
+            </label>
+            <label class="field compact-field hw-field">
+              <span id="sid-lcd-color-lbl">LCD colour</span>
+              <select id="sid-lcd-color" class="sid-select">
+                <option value="green">Green</option>
+                <option value="red">Red</option>
+              </select>
+            </label>
+          </section>
+          <section class="hw-settings-section">
+            <h3 class="hw-settings-section-label" id="ultimate-section-label">C64 Ultimate</h3>
+            <label class="field compact-field hw-field">
+              <span id="ultimate-host-label">Host (IP)</span>
+              <input id="ultimate-host" type="text" placeholder="192.168.1.100" autocomplete="off" spellcheck="false">
+            </label>
+            <label class="field compact-field hw-field">
+              <span id="ultimate-password-label">Jelszó</span>
+              <input id="ultimate-password" type="password" placeholder="(optional)" autocomplete="off">
+            </label>
+            <button id="ultimate-connect-test" class="secondary" type="button">Kapcsolat tesztelése</button>
+            <p id="ultimate-status" class="menu-note"></p>
+            <div class="hw-settings-subsection hw-settings-subsection--inline">
+              <h3 class="hw-settings-section-label" id="kff2-section-label">Kung Fu Flash 2</h3>
+              <label class="field compact-field hw-field">
+                <span id="kff2-port-label">Soros port</span>
+                <input id="kff2-port" type="text" placeholder="/dev/cu.usbmodem… / COM4 / /dev/ttyACM0" autocomplete="off" spellcheck="false">
+              </label>
+              <button id="kff2-detect-btn" class="secondary" type="button">USB felismerése</button>
+              <p id="kff2-status" class="menu-note"></p>
+            </div>
+          </section>
+        </div>
 
       </div>
 
@@ -3676,13 +3717,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.6.2"></script>
-  <script src="i18n.js?v=2.6.2"></script>
-  <script src="tutorial-data.js?v=2.6.2"></script>
+  <script src="tauri-bridge.js?v=2.6.3"></script>
+  <script src="i18n.js?v=2.6.3"></script>
+  <script src="tutorial-data.js?v=2.6.3"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.6.2"></script>
+  <script src="app.js?v=2.6.3"></script>
 
 </body>
 

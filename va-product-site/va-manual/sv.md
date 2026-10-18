@@ -1,6 +1,6 @@
 # C64 Visuell Assembler — Användarmanual
 
-**Version 2.6.1**
+**Version 2.6.3**
 
 En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom att
 dra och släppa instruktionsblock och se den genererade assemblern och
@@ -11,6 +11,8 @@ maskinkoden i realtid.
 ## Innehållsförteckning
 
 - [C64 Visual Assembler — Användarmanual](#c64-visual-assembler--user-manual)
+    - [Höjdpunkter i version 2.6.3](#version-263-highlights)
+    - [Höjdpunkter i version 2.6.2](#version-262-highlights)
     - [Höjdpunkter i version 2.6.1](#version-261-highlights)
     - [Höjdpunkter i version 2.6.0](#version-260-highlights)
     - [Höjdpunkter i version 2.5.9](#version-259-highlights)
@@ -202,6 +204,65 @@ maskinkoden i realtid.
     - [Kurvredigerare](#curve-editor)
     - [Tabellgenerator](#table-generator)
     - [Nummeromvandlare](#number-converter)
+
+---
+
+## Höjdpunkter i version 2.6.3
+
+- **.sid import i SID Editor** — **Filer → Importera .sid…** omvandlar vilken
+  PSID/RSID-låt som helst till instrument, mönster och en låt som du kan
+  redigera: toner och legato-toner, rader placerade exakt på noterna (funktempo
+  och swing genom `F` hastighetsändringar), wave-/arpeggio-tabeller med
+  trumattacker med fast tonhöjd, puls- och filterrörelser, gate-timing och
+  vibrato. Se [SID Editor](#sid-editor-3-voice-tracker).
+- **Långa melodier spelas korrekt** — när melodidatan inte får plats bredvid
+  spelaren vid `$C000`, flyttas den till ett eget segment under `$A000` istället
+  för att köras in i I/O; `.sid`-exporten följer.
+- **VA SID Core-förhandsvisning omaktiverar toner** — en ton som startas om
+  under en hållen grind får en ny attack, precis som på den riktiga spelaren.
+- **SID-redigerare** — rubriken visar den aktiva SID-emuleringen (WebSID eller
+  VA SID Core med chipmodellen); fältet Speed har − / + knappar och tar 1–255;
+  låten kan använda upp till 256 mönster.
+- **Inställning för uppdateringsserver** — **Inställningar → Uppdateringar**
+  ställer in servern som uppdateringar i appen läser utgåvor från (standard
+  `https://www.c64va.pro/`). Se [Uppdateringar i appen](#in-app-updates).
+- **Ultimate Basic 1.6.6** — `UTSKRIFT MED "format"; värden`, strängjämförelse i
+  PETSCII-ordning, flyttal `rnd` och `mod`, flyttal i IRQ/NMI-hanterare,
+  `alternativet grundläggande utskrift` för C64 BASIC PRINT-avstånd, mindre
+  program (endast flyttalrutinerna används) och 16-bitars adressuttryck (1.6.5).
+  Ultimate Basic-redigeraren markerar `utskrift med` och `alternativet
+  grundläggande utskrift`.
+
+---
+
+## Höjdpunkter i version 2.6.2
+
+- **HVSC i SID-spelaren** — sök i High Voltage SID-samlingen (cirka 61 000
+  låtar) efter titel, kompositör eller mapp, spela upp, lägg till i spellistan
+  eller spara valfri låt; ladda ner hela samlingen på en gång för
+  offline-användning, eller peka spelaren mot en uppackad HVSC-mapp. Låtar från
+  HVSC får sin verkliga längd i sökfältet och spellistan går vidare när en
+  underlåt slutar. Se [HVSC (High Voltage SID
+  Collection)](#hvsc-high-voltage-sid-collection).
+- **Spektranalysator** — en flytande LED-barvisualiseringsverktyg för SID Player
+  med 8 till 32 band, blekande celler och ett speglat golv. Se
+  [Spektranalysator](#spectrum-analyzer).
+- **Lektionsredigerare** — förvandla ditt eget program till en
+  steg-för-steg-guidad lektion som den inbyggda "Bygg: Ditt första textprogram":
+  lägg till förklaringar, välj mappen, prova det, spara det, exportera/importera
+  `.vatut`-filer. Se [Handledningar och
+  lektionsredigeraren](#tutorials-and-the-lesson-editor).
+- **Onlinelektioner** — ladda ner lektioner publicerade på www.c64va.pro direkt
+  till listan över handledningar, med uppdateringar, och ladda upp dina egna
+  från lektionsredigeraren för granskning. Se
+  [Onlinelektioner](#online-lessons).
+- **Varje makro tar sina parametrar i operandfältet** — `SET_BG $06`, `REGION
+  Main`, `ORG $C000`, `SPRITE_POS 1, 200, 50` …: texten läses som makrots
+  expertrad, och fältet visar den förväntade formen. Se [Parametrar i
+  operandfältet](#parameters-in-the-operand-field).
+- **Mindre förbättringar** — det aktiva flytande fönstret är markerat,
+  supportfönstret ser ut som en chatt, mushjulet rullar flikfältet i sidled och
+  kolumnen Ultimate Basic-kodstorlek täcker inte längre radnumren.
 
 ---
 
@@ -803,6 +864,25 @@ Paletten till vänster listar alla tillgängliga block grupperade efter kategori
 Använd sökrutan **** högst upp i paletten för att filtrera efter namn. Klicka på
 knappen **Lägg till valt block** eller dra ett block till programområdet.
 
+### Parametrar i operandfältet
+
+Varje block med parametrar tar dem i **operandfältet** före **Add**. För en
+instruktion är det operanden (`06` för `LDA #$06`); för TEXT, BYTE, LABEL,
+REGION och de andra text- eller listmakrona är det deras text eller värde; för
+varje annat makro är det det som följer dess nyckelord i expertläge:
+
+| Blockera   | Operandfält      | Blir                     |
+| ---------- | ---------------- | ------------------------ |
+| SET_BG     | `$06`            | `.set_bg $06`            |
+| OMRÅDE     | `Huvud`          | `.region Huvud`          |
+| ORG        | `$C000`          | `* = $C000`              |
+| SPRITE_POS | `1, 200, 50 `    | `.sprite_pos 1, 200, 50` |
+| SLINGA     | `Y, $05, myloop` | `.loop Y, $05, myloop`   |
+
+Fältet visar makrots standardparametrar som en ledtråd. Block utan parametrar
+(ENDREGION, ELSE…) och filmakron (INCBIN, KOALA, LEVEL, SID, INCLUDE — de väljer
+sin fil i blocket) håller fältet inaktiverat.
+
 ---
 
 ## 4. ASM-vy
@@ -1098,6 +1178,12 @@ Kommandolistan är avsiktligt höjdbegränsad så att kommandodetaljkortet kan f
 den återstående panelhöjden. Detaljområdet rullar oberoende för längre
 syntaxbeskrivningar.
 
+**Uppdateringsserver:** **Inställningar → Uppdateringar → Uppdateringsserver**
+anger var utgåvor söks upp (standard `https://www.c64va.pro/`);
+installationsprogrammen läses från `<server>downloads/VA/`. Adressen måste
+använda `https://` (vanlig `http://` endast för `localhost`, för testning);
+**Standard** går tillbaka till c64va.pro.
+
 ### Gratis och öppen källkod
 
 Visual Assembler är gratis: alla funktioner — de visuella redigerarna (SID,
@@ -1248,6 +1334,45 @@ Exomizer-status, variabler, arrayer, funktioner/subrutiner och etiketter.
 `@desc.de`, …); `@order` sorterar listan. Allt efter rubriken blir den nya
 huvudfilen, och `{{PROJECT}}` ersätts med projektnamnet (använd det i en
 kommentar så att själva mallen fortfarande kompileras).
+
+### Handledningar och lektionsredigeraren
+
+Fönstret **Handledningar** listar rundturer och lektioner efter mapp. Knappen
+**Lektionsredigerare…** längst ner i listan (och **Redigera lektion** på dina
+egna lektioner) öppnar **Lektionsredigeraren**, som skapar en
+steg-för-steg-lektion som "Bygg: Ditt första textprogram" från din egen kod:
+
+1. Skriv programmet i Block- eller Experteditorn.
+2. I lektionsredigeraren trycker du på **Steg från det aktuella programmet**.
+   Varje rad blir elevens steg: välj mnemoniken (fel rad är förvald), skriv
+   operanden, tryck på **Lägg till**. Där paletten inte kan ställa in allt (till
+   exempel en TEXT-position) pekar ett **Ange parametrarna**-steg på det nya
+   blocket och går vidare när det matchar.
+3. Ge lektionen en titel, beskrivning, svårighetsgrad och **mapp** (valfri
+   kategori för handledningar). Lägg till **textsteg** för förklaringar,
+   eventuellt pekande på en del av fönstret (palett, programpanel, ASM-vy,
+   Kör-knapp, minneskarta). Lämna ett stegs titel eller förklaring tom för den
+   genererade texten.
+4. **Försök med lektionen** (det rensar det aktuella programmet), och **Spara
+   sedan lektionen** (Ctrl+S).
+
+Texter sparas i det aktuella gränssnittsspråket; en elev som använder ett annat
+språk ser dem, eller den genererade texten där du inte skrev några. **Fyll i
+makroparametrar automatiskt** hoppar över parameterstegen för eleven. **Filer
+▾** skapar, tar bort, exporterar och importerar lektioner som `.vatut`-filer och
+öppnar lektionsmappen.
+
+#### Onlinelektioner
+
+**Onlinelektioner…** i handledningsfönstret listar lektionerna som publicerats
+på www.c64va.pro med deras mapp, svårighetsgrad och antal steg. **Ladda ner**
+placerar en lektion i sin mapp i handledningslistan; **Uppdatera** visas när
+webbplatsen har en nyare version (lektionredigeraren uppdaterar en lektions
+version varje gång du sparar). För att dela din egen lektion, använd **Filer ▾ →
+Ladda upp till c64va.pro…** i lektionsredigeraren: ange ditt namn (visas som
+författare) och eventuellt en e-postadress och en anteckning. Lektionen granskas
+först; när den är godkänd visas den i allas lista över onlinelektioner. Din
+e-postadress publiceras aldrig.
 
 ### Löpning, D64 och Exomizer
 
@@ -5260,8 +5385,9 @@ spelas en liten SID-synthesizer istället.
 
 **Förhandsgranskningsmotor:** **Inställningar → SID-förhandsgranskning** väljer
 **WebSID** eller **VA SID Core (Rust)**, appens egen SID-emulering; med VA SID
-Core väljer du även chipet (MOS 6581/8580). Instrumentparametrarna ställs in med
-rattar.
+Core väljer du även chipet (MOS 6581 / 8580). Redigerarens rubrik visar vilken
+motor som används (t.ex. *· VA SID Core v1.2 (MOS 8580)*).
+Instrumentparametrarna ställs in med rattar.
 
 **Kontroller per instrument: **
 - Kryssrutor för vågformer (TRI / SAW / PUL / NOI) — flera vågformer
@@ -5296,8 +5422,8 @@ rattar.
   ljudeffekter (laser, pickup, explosion).
 
 **Spårningsrutnät:**
-- 3 röster × upp till 7 mönster × 32 rader = 7 × 32 = max 224 rader (8-bitars
-  radräknare begränsar det).
+- 3 röster × upp till 256 mönster × 32 rader; sång-/ordningslistan rymmer upp
+  till 255 steg.
 - Per rad: not + instrumentindex, plus en valfri effekt (se **Effektkolumnen**
   nedan). Tomma rader innehåller föregående not: precis som i andra trackers
   (GoatTracker, SID-Wizard) behåller en not sin gate på (sustainnivå) tills
@@ -5325,7 +5451,8 @@ rattar.
 - Inklistring av cellintervall börjar nu vid den valda intervallets startcell
   och stoppar tydligt vid röst- och radgränser istället för att radbrytas till
   nästa kolumn eller rad.
-- Hastighetsreglaget anger IRQ-tick-divisorn (bildrutor mellan rader).
+- **Speed** (bildrutor mellan rader, 1–255) matas in eller stegas med − / +
+  knapparna bredvid; `F` effekten ändrar den under uppspelning.
 
 **Låt / beställningslista:**
 - Mönster är ordnade genom en låt-/ordningslista som placeras ovanpå den råa
@@ -5395,6 +5522,7 @@ och sparas/läses förlustfritt i det versionerade `.bin`-formatet.
 | `Exportera block + minispelare` | Lägger till hela spelaren (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) plus PAL-frekvenstabeller. Efter export, placera en `JSR sid_init` i din huvudkod där musiken ska börja; med ditt eget IRQ-anrop `JSR sid_frame` en gång per bildruta istället.                                                                                                                                      |
 | `Exportera asm (urklipp)`       | Kopierar hela assembly-källkoden till urklipp.                                                                                                                                                                                                                                                                                                                                                                 |
 | `Importera GoatTracker .sng…`   | Laddar en GoatTracker 2-låt istället för den nuvarande — se **GoatTracker-import** nedan.                                                                                                                                                                                                                                                                                                                      |
+| `Importera .sid…`               | Konverterar en PSID/RSID-låt till en redigerbar låt istället för den aktuella — se **.sid import** nedan.                                                                                                                                                                                                                                                                                                      |
 | `Exportera till UltimateBasic`  | Skriver ett `melodi ... slut`-block (instrument, ordningslista, mönsterrader som text) plus `musikuppspelning` och infogar det vid markören i Ultimate Basic-editorn; utanför UB-läge kopieras texten till urklipp. UltimateBasic-kompilatorn bygger spelaren, så `musikuppspelning` / `musikstopp` styr den. Instrumentmodulering går in i `imod` / `ifilt` / `igate` / `itab`-rader (Ultimate Basic 1.6.2+). |
 
 **GoatTracker import:** **Filer → Importera GoatTracker .sng…** laddar en
@@ -5410,20 +5538,45 @@ GoatTracker 2-låt (`.sng`, GTS3–GTS5) istället för den nuvarande. Konverter
 - Mönsterkommandon: key off → note-off, portamento → `U` / `D` (högst 255 per
   rad), tempo → `F`; toneporta blir en vanlig ton. Andra kommandon tas bort och
   ett meddelande listar vad som approximerades eller hoppades över.
-- En grind som släpps av wavetablen blir en utgångssignal på nästa fria rad.
-  Endast den första submelodin importeras, och exportgränsen på 7 mönster gäller
-  fortfarande.
+- En grind som släpps av wavetablen blir en tonstart på nästa fria rad. Endast
+  den första submelodin importeras.
+
+**.sid import:** **Filer → Importera .sid…** öppnar en PSID/RSID-fil (endast
+skrivbordsapp, den använder VA SID Core). Välj undermelodi och längd i sekunder
+och tryck på **Importera**: melodin spelas ljudlöst, dess SID-register spelas in
+bildruta för bildruta och omvandlas till en låt istället för den aktuella.
+- **Anmärkningar:** en ton på är en grindkant (en retrigger inom 2 bildrutor
+  räknas som en ton); en tonhöjdsförändring under en hållen grind som stannar i
+  minst 5 bildrutor blir en ny, retriggerad (legato) ton. Tonhöjden är den
+  vanligaste halvtonen i tonens huvudvågform; NTSC-melodier stämms om till
+  PAL-tontabellen.
+- **Rader:** Raderna börjar exakt på noterna. Baslängden är den längsta som
+  passar nästan alla; rader av den längden eller en bildruta längre (funktempo,
+  swing, tempoväxlingar) sätts med `F`-effekterna en rad framåt.
+- **Instrument:** AD / SR, huvudvågformen, pulsbredd och PWM, filtret (routing,
+  mode, resonans, cutoff-svep) och vågformen och tonhöjden för varje bildruta i
+  noten, upp till nästa: våg-/arpeggio-tabellen (ett prefix plus en upprepande
+  loop, upp till 32 steg). En trumattack med fast tonhöjd behåller absoluta
+  toner och en arpeggio relativa, bestämda över alla toner av samma ljud; en
+  regelbunden wobble på en halvton blir instrumentets vibrato. Gaten blir ett
+  notavbrott, en gate-timer (med hård omstart när ADSR nollställs) eller en
+  avklingning vid utlösningshastigheten. Identiska instrument delas, upp till
+  128.
+- Ett meddelande listar vad som approximerades, till exempel bilder som blir
+  halvtonssteg eller tabeller längre än 32 steg. Multi-SID-låtar och RSID-låtar
+  som börjar som ett BASIC-program stöds inte.
 
 **Användning av spelarens ZP:** `$02`–`$1C` (mönsterpekare, mönsterförskjutning,
 temp) och `$2F` (nuvarande hastighet), plus `$FB`–`$FD` (tickräknare, radindex,
 position i orderlistan). Röst, modulering och filtertillstånd finns i
-`sid_state` efter data. ZP-bytena kolliderar om din huvudkod använder dem —
-flytta via expertläge om det behövs.
+`sid_state` efter spelarkoden. ZP-bytena kolliderar om din huvudkod använder dem
+— flytta via expertläge om det behövs.
 
 **Kända gränser:**
-- 8-bitars radräknare begränsar varje mönster till 7 mönster × 32 rader i
-  råbanken (låt-/ordningslistan kan fortfarande bli godtyckligt lång genom att
-  mönstren upprepas).
+- Spelaren och dess tillstånd sitter vid `$C000`. När melodidata inte får plats
+  nedanför `$D000` bredvid dem, flyttas data till ett eget segment som slutar
+  nedanför `$A000` (den exporterade asm har en andra `* =`-rad); håll den borta
+  från ditt eget program.
 - C64 `$D418` global volym delas mellan röster — volymreglaget per instrument är
   informativt; sustainnivån (`S` för ADSR) är den effektiva volymen per röst.
 - Medan **Play: All** har den riktiga melodin laddad (även när den är pausad),
@@ -5467,6 +5620,37 @@ Verktygsfältsknappen **SID Player** öppnar ett flytande fönster som spelar up
   Inställningen sparas.
 - **Favoriter:** ☆ / ★ i varje rad markerar en låt; den sparas i sparat
   tillstånd och i `.sidpl` spellistor.
+
+#### HVSC (Högspännings-SID-samling)
+
+Knappen **HVSC** i SID Player-verktygsfältet öppnar en sökpanel för [High
+Voltage SID Collection](https://www.hvsc.c64.org/), cirka 61 000 C64-låtar.
+
+- **Sök:** skriv en titel, kompositör eller mapp (`hubbard commando`,
+  `games/s-z`); varje ord måste matcha. **Slumpmässiga låtar** listar 25
+  slumpmässiga låtar.
+- **Spela / lägg till / spara:** klicka på en låt för att spela den, **+**
+  lägger till den i spellistan, nedladdningsknappen sparar `.sid`-filen. **Lägg
+  till alla resultat** lägger till upp till 100 funna låtar.
+- **Låtlängder:** HVSC känner till längden på varje undermelodi, så sökfältet
+  visar den och spellistan går vidare när undermelodin slutar.
+- **Varifrån låtarna kommer:** Katalogen och enskilda låtar laddas ner från en
+  HVSC-spegel vid första användningen och sparas i appens cache, så en låt som
+  spelas en gång spelas också offline. **Uppdatera katalogen** hämtar den
+  senaste listan.
+- **Hela samlingen:** **Ladda ner hela samlingen…** laddar ner det officiella
+  HVSC-arkivet (cirka 85 MB) till en mapp du väljer och packar upp det där
+  (cirka 380 MB); från och med då använder spelaren den kopian och fungerar
+  offline. **Använd en lokal HVSC-mapp…** pekar den mot en samling du redan har.
+
+#### Spektrumanalysator
+
+Knappen med stapeln i SID Player-verktygsfältet öppnar fönstret **Spectrum**:
+LED-liknande staplar från grönt via gult till orange, celler som tonas ut
+långsamt och ett speglat golv i perspektiv. Det visar vad SID Player eller SID
+Editor spelar, med endera motorn. **Bands** ställer in 8, 16, 24 eller 32 band.
+Fönstret kan flyttas och ändras i storlek, det stängs och öppnas igen
+tillsammans med SID Player, och det ritar bara när det är öppet.
 
 ---
 

@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.6.2**
+**Verzió: 2.6.3**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -28,6 +28,15 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - [14. Vizuális szerkesztők (Toolkit)](#14-vizuális-szerkesztők-toolkit)
 
 ---
+
+## A 2.6.3 verzió újdonságai
+
+- **.sid import a SID szerkesztőben** — a **Files → Import .sid…** bármely PSID / RSID dalból szerkeszthető hangszereket, patterneket és songot csinál: hangkezdetek és legato hangok, a hangokra pontosan illesztett sorok (funktempo és swing `F` sebességváltással), wave / arpeggio táblák fix magasságú dob-attackkal, pulzus- és szűrőmozgás, gate-időzítés és vibrato. Lásd: [SID Editor](#sid-editor-3-voice-tracker).
+- **A hosszú dalok helyesen szólnak** — ha a dal adata nem fér el a `$C000`-s lejátszó mellett, külön szegmensbe kerül `$A000` alá, és nem lóg bele az I/O-ba; a `.sid` export is ezt követi.
+- **A VA SID Core előnézet újraindítja a hangokat** — a tartott gate mellett újraindított hang új attackot kap, mint a valódi lejátszóban.
+- **SID szerkesztő** — a fejléc mutatja a használt SID-emulációt (WebSID vagy VA SID Core a chip-modellel); a Speed mezőn − / + gomb van, értéke 1–255; a song legfeljebb 256 patternt használhat.
+- **Frissítési szerver beállítása** — a **Beállítások → Frissítés** adja meg, melyik szerverről olvassa a kiadásokat az alkalmazáson belüli frissítés (alapértelmezés `https://www.c64va.pro/`). Lásd: [Frissítés az alkalmazásból](#frissítés-az-alkalmazásból).
+- **Ultimate Basic 1.6.6** — `PRINT USING "formátum"; értékek`, sztring-összehasonlítás PETSCII sorrendben, lebegőpontos `rnd` és `mod`, lebegőpont IRQ / NMI kezelőkben, `option basic print` a C64 BASIC PRINT-térközhöz, kisebb programok (csak a használt lebegőpontos rutinok kerülnek bele) és 16 bites címkifejezések (1.6.5). Az Ultimate Basic szerkesztő kiemeli a `print using` és az `option basic print` szavakat.
 
 ## A 2.6.2 verzió újdonságai
 
@@ -501,6 +510,8 @@ A letöltés után az app telepíti a frissítést és újraindul:
 | **Linux** | Az AppImage lecserélődik az újra. A `.deb` / `.rpm` telepítés `pkexec`-kel frissül (jelszót kér); `pkexec` nélkül a csomag a rendszer szoftvertelepítőjében nyílik meg. |
 
 Ha vannak mentetlen fülek, az app bezárás előtt rákérdez. Ugyanez az ellenőrzés minden induláskor néhány másodperc után csendben is lefut: csak akkor jelenik meg bármi, ha van újabb verzió. Az eredmény az Ultimate Basic statusbarban is látszik — **Naprakész (vX)**, vagy kiemelt **Frissítés elérhető: vY**, ami megnyitja a frissítés dialógust.
+
+**Frissítési szerver:** a **Beállítások → Frissítés → Frissítési szerver** adja meg, honnan keresi a kiadásokat (alapértelmezés `https://www.c64va.pro/`); a telepítőket a `<szerver>downloads/VA/` alól olvassa. A cím `https://` legyen (sima `http://` csak `localhost`-ra, teszteléshez); az **Alapértelmezett** visszaáll a c64va.pro-ra.
 
 ### Ingyenes és nyílt forrású
 
@@ -4050,7 +4061,7 @@ Réteges tilemap szerkesztő statikus díszlethez, sprite spawn map-ekhez, ütk�
 
 Több-hangszeres 3-voice tracker. Toolkit → SID Editor menüvel nyílik. A **Play: All** az exportált 6502 lejátszót futtatja a WebSid emulátorban; minden más előnézet (hangszer-előnézet, virtuális billentyűzet, hangbeírás, akkord / arpeggio, sor- és egy patternes lejátszás) is az emulált SID-en szól: ugyanannak a lejátszónak a frame-pontos JS modellje frame-enként a WebSid-be küldi a SID-regisztereit, és legfeljebb három előnézeti hang osztozik a három voice-on. A stream-lejátszó a szerkesztő megnyitásakor és Stop után betöltődik, így a hang azonnal szól; WebSid nélkül egy kis SID-szintetizátor szól helyette.
 
-**Előnézeti motor:** a **Beállítások → SID előnézet** alatt a **WebSID** vagy a **VA SID Core (Rust)** — az alkalmazás saját SID-emulációja — választható; VA SID Core esetén a chip is (MOS 6581 / 8580). A hangszer-paraméterek tekerőgombokkal állíthatók.
+**Előnézeti motor:** a **Beállítások → SID előnézet** alatt a **WebSID** vagy a **VA SID Core (Rust)** — az alkalmazás saját SID-emulációja — választható; VA SID Core esetén a chip is (MOS 6581 / 8580). A szerkesztő fejléce mutatja a használt motort (pl. *· VA SID Core v1.2 (MOS 8580)*). A hangszer-paraméterek tekerőgombokkal állíthatók.
 
 **Hangszerenkénti vezérlők:**
 - Hullámforma jelölőnégyzetek (TRI / SAW / PUL / NOI) — több hullámforma a SID-hez hasonlóan ÉS-elődik —, plusz **RING** (a háromszög gyűrűmodulációja az előző hanggal: 1 ← 3, 2 ← 1, 3 ← 2) és **SYNC** (hard sync az előző hanghoz).
@@ -4063,7 +4074,7 @@ Több-hangszeres 3-voice tracker. Toolkit → SID Editor menüvel nyílik. A **P
 - **Wave / arpeggio tábla:** legfeljebb 32 lépés hullámformával (— = marad) és hanggal (eltolás félhangban, vagy **abs** = abszolút hang), lépésenként **Sebesség** frame, **Ismétlés** egy lépésre vissza, vagy megáll az utolsón. **Előbeállítások** (25, csoportosítva; a lista mutatja a választottat, amíg a táblát kézzel nem szerkeszted): arpeggiók (dúr, moll, szeptimakkordok, sus4, szűkített, bővített, power akkord, oktáv, trilla), dobok (lábdob, pergő, tam, taps, zárt / nyitott lábcin), lead- és basszus-indítások, hangeffektek (lézer, felvétel, robbanás).
 
 **Tracker rács:**
-- 3 voice × akár 7 pattern × 32 sor = 7 × 32 = max 224 sor (a 8 bites sor-számláló korlátozza).
+- 3 voice × akár 256 pattern × 32 sor; a song / sorrend lista legfeljebb 255 lépés.
 - Soronként: note + hangszer-index, plusz egy opcionális effekt (lásd lentebb az **Effekt-oszlop**-ot). Az üres sorok az előző note-ot tartják: más trackerekhez hasonlóan (GoatTracker, SID-Wizard) a hang gate-je nyitva marad (sustain szint) a voice következő hangjáig vagy egy **note-off**-ig.
 - Az **Enter** (vagy dupla kattintás) szövegként szerkeszti a kijelölt cellát (`C-4 01 V24`); az **Enter** ment és a következő sorra lép, az **Esc** elvet.
 - **Note-off** (`===`): **1** billentyű (vagy `` ` `` / `=`), vagy `===` / `OFF` a cellába írva. Elengedi a gate-et, így lefut a hangszer release-e — ugyanaz, mint a hang nélküli `C` effekt (`C00`-ként mentődik és exportálódik).
@@ -4073,7 +4084,7 @@ Több-hangszeres 3-voice tracker. Toolkit → SID Editor menüvel nyílik. A **P
 - Arpeggio segéd: hallgasd meg vagy szúrd be a kiválasztott akkordból 4-, 8- vagy 16 lépéses note-futamokat fel, le vagy fel/le irányban.
 - A **Preview row** meghallgatja a kiválasztott sort mind a három voice-on a pattern-lejátszás indítása nélkül.
 - A cella-tartomány beillesztés mostantól a kijelölt tartomány kezdőcellájánál kezdődik, és tisztán megáll a voice- és sor-határoknál, ahelyett hogy a következő oszlopba vagy sorba fordulna.
-- A Speed csúszka beállítja az IRQ tick osztót (frame-ek a sorok közt).
+- A **Speed** (frame-ek a sorok közt, 1–255) beírható vagy a mellette lévő − / + gombbal léptethető; az `F` effekt lejátszás közben változtatja.
 
 **Song / sorrend lista:**
 - A patternek elrendezése egy song/sorrend listán keresztül történik a nyers pattern-bank fölött — ugyanaz a pattern ismétlődhet, és a dal hosszabb is lehet, mint a tárolt patternek száma.
@@ -4114,18 +4125,25 @@ Az effektek soronként egyszer frissülnek (megegyezően az exportált lejátsz�
 | `Export blocks + miniplayer` | Hozzáadja a teljes lejátszót (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) plusz a PAL frekvencia-táblákat. Export után tegyél egy `JSR sid_init`-et a fő kódodba, ahol a zenének indulnia kell; saját IRQ-ból ehelyett frame-enként egyszer `JSR sid_frame`. |
 | `Export asm (clipboard)` | A teljes assembly forrást vágólapra másolja. |
 | `Import GoatTracker .sng…` | Egy GoatTracker 2 dalt tölt be az aktuális helyére — lásd lentebb a **GoatTracker import** részt. |
+| `Import .sid…` | Egy PSID / RSID dalt alakít szerkeszthető songgá az aktuális helyére — lásd lentebb a **.sid import** részt. |
 | `Export to UltimateBasic` | Egy `tune ... end` blokkot (hangszerek, sorrend lista, pattern sorok szövegként) és `music play`-t ír ki, és az Ultimate Basic szerkesztő kurzorához szúrja be; UB módon kívül a vágólapra másolja. A lejátszót az UltimateBasic fordító építi, így a `music play` / `music stop` vezérli. A hangszer-modulációk `imod` / `ifilt` / `igate` / `itab` sorokba kerülnek (Ultimate Basic 1.6.2+). |
 
 **GoatTracker import:** a **Files → Import GoatTracker .sng…** egy GoatTracker 2 dalt (`.sng`, GTS3–GTS5) tölt be az aktuális helyére. Az átalakítás közelítő, mert a két tracker másképp működik:
 - A voice-onkénti sorrend listák (transpose-zal és repeat-tel) egyetlen 3 voice-os dallá lapulnak, 32 soros patternekre vágva; az azonos patternek közösek.
 - Hangszerek: az AD / SR, a first wave, a gate timer és a hard restart átkerül; a wavetable-ből wave / arpeggio tábla, a pulse táblából PWM, a filter táblából szűrőmód, rezonancia és cutoff-söprés, a speed tábla bejegyzéséből hangszer-vibrato lesz.
 - Pattern parancsok: key off → note-off, portamento → `U` / `D` (soronként legfeljebb 255), tempó → `F`; a toneporta sima hang lesz. A többi parancs kimarad, és egy üzenet felsorolja, mi lett közelítve vagy kihagyva.
-- A wavetable által elengedett gate a következő szabad sorban note-off lesz. Csak az első subtune töltődik be, és az export 7 patternes korlátja itt is érvényes.
+- A wavetable által elengedett gate a következő szabad sorban note-off lesz. Csak az első subtune töltődik be.
 
-**Lejátszó ZP használat:** `$02`–`$1C` (pattern-mutatók, pattern offset, temp) és `$2F` (aktuális sebesség), valamint `$FB`–`$FD` (tick számláló, sor-index, sorrend-pozíció). A hang-, modulációs és szűrő-állapot az adatok utáni `sid_state` területen van. A ZP bájtok ütköznek, ha a fő kódod használja őket — szükség esetén relokálj Expert módon.
+**.sid import:** a **Files → Import .sid…** egy PSID / RSID fájlt nyit meg (csak az asztali alkalmazásban, mert a VA SID Core-t használja). Válaszd ki a subtune-t és a hosszt másodpercben, majd **Import**: a dal némán lefut, a SID-regiszterek frame-ről frame-re rögzülnek, és ebből lesz a song az aktuális helyére.
+- **Hangok:** a hangkezdet egy gate-él (2 frame-en belüli újragate egy hangnak számít); ha tartott gate mellett a hangmagasság új félhangra vált és legalább 5 frame-ig ott marad, az új, újraindított (legato) hang lesz. A hangmagasság a hang fő hullámformájának leggyakoribb félhangja; az NTSC dalok a PAL hangtáblára hangolódnak át.
+- **Sorok:** a sorok pontosan a hangkezdeteken indulnak. Az alapsorhossz a leghosszabb, amelyre szinte mind illeszkedik; az ennyi vagy egy frame-mel hosszabb sorokat (funktempo, swing, tempóváltás) egy sorral előbb álló `F` effekt állítja.
+- **Hangszerek:** AD / SR, a fő hullámforma, pulzusszélesség és PWM, a szűrő (routing, mód, rezonancia, cutoff-söprés), valamint a hang minden frame-jének hullámformája és hangmagassága a következő hangig: ez a wave / arpeggio tábla (előtag és ismétlődő loop, legfeljebb 32 lépés). A fix magasságú dob-attack abszolút, az arpeggio relatív hangokat kap, az azonos hangzású hangok közös döntése alapján; a szabályos, félhangnál kisebb kitérés a hangszer vibratója lesz. A gate-ből note cut, gate időzítő (hard restarttal, ha az ADSR nullázva van) vagy release-sebességű lecsengés lesz. Az azonos hangszerek közösek, legfeljebb 128.
+- Egy üzenet felsorolja, mi lett közelítve, például a félhanglépésekké váló glide-ok vagy a 32 lépésnél hosszabb táblák. A több SID-es dalok és a BASIC programként induló RSID dalok nem támogatottak.
+
+**Lejátszó ZP használat:** `$02`–`$1C` (pattern-mutatók, pattern offset, temp) és `$2F` (aktuális sebesség), valamint `$FB`–`$FD` (tick számláló, sor-index, sorrend-pozíció). A hang-, modulációs és szűrő-állapot a lejátszó kódja utáni `sid_state` területen van. A ZP bájtok ütköznek, ha a fő kódod használja őket — szükség esetén relokálj Expert módon.
 
 **Ismert korlátok:**
-- A 8 bites sor-számláló a nyers bankban 7 pattern × 32 sorra korlátoz (a song/sorrend lista patternek ismétlésével még mindig tetszőlegesen hosszú lehet).
+- A lejátszó és állapota `$C000`-n van. Ha a dal adata nem fér el mellettük `$D000` alatt, az adat külön szegmensbe kerül, amely `$A000` alatt végződik (az exportált asm-ben egy második `* =` sor); ne ütközzön a saját programoddal.
 - A C64 `$D418` globális hangerő megosztott a voice-ok közt — a hangszerenkénti hangerő-csúszka informatív; a sustain szint (az ADSR `S`-e) a tényleges per-voice hangerő.
 - Amíg a **Play: All** valódi dala be van töltve (szüneteltetve is), a hang-előnézet a kis szintetizátoron szól, ami csak közelíti a SID chipet. Az előnézet kb. 0,1 mp-cel a hang előtt jut a WebSid-be.
 

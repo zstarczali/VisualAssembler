@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**2.6.1-es verzió**
+**2.6.3-as verzió**
 
 Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat
 létre húzással és elengedéssel (fogd és vidd) utasításblokkokkal, és valós
@@ -12,6 +12,8 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
 
 - [C64 Visual Assembler — Felhasználói
   kézikönyv](#c64-visual-assembler--user-manual)
+    - [2.6.3-as verzió kiemelt funkciói](#version-263-highlights)
+    - [2.6.2-es verzió – kiemelt funkciók](#version-262-highlights)
     - [2.6.1-es verzió – kiemelt funkciók](#version-261-highlights)
     - [2.6.0 verzió – kiemelt funkciók](#version-260-highlights)
     - [2.5.9-es verzió – kiemelt funkciók](#version-259-highlights)
@@ -204,6 +206,68 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
     - [Görbeszerkesztő](#curve-editor)
     - [Táblázatgenerátor](#table-generator)
     - [Számátváltó](#number-converter)
+
+---
+
+## A 2.6.3-as verzió legfontosabb elemei
+
+- **.sid importálás az SID szerkesztőben** — **Fájlok → .sid importálása…**
+  bármely PSID / RSID dallamot hangszerré, pattern-né és szerkeszthető dallá
+  alakít: hangjegyek és legato hangjegyek, pontosan a hangjegyekre helyezett
+  sorok (funktempo és swing a `F` sebességváltozásokon keresztül), wave /
+  arpeggio táblázatok fix hangmagasságú dobtámadásokkal, pulzus- és
+  szűrőmozgással, kapuidőzítéssel és vibratoval. Lásd: [SID
+  szerkesztő](#sid-editor-3-voice-tracker).
+- **A hosszú dallamok helyesen játszódnak le** — amikor a dallamadat nem fér el
+  a lejátszó mellett a `$C000` pozícióban, akkor a `$A000` alatti saját
+  szegmensbe ugrik ahelyett, hogy I/O-ba futna; a `.sid` export következik.
+- **A VA SID Core előnézete újraindítja a hangokat** — egy visszatartott kapu
+  alatt újraindított hang új támadást kap, mint az igazi játékosnál.
+- **SID szerkesztő** — a fejléc az aktív SID emulációt mutatja (WebSID vagy VA
+  SID Core a chip modellel); a Sebesség mező − / + gombokkal rendelkezik, és
+  1–255 értéket vehet fel; a dal akár 256 mintát is használhat.
+- **Frissítési szerver beállításai** — **Beállítások → Frissítések** beállítja
+  azt a szervert, amelyről az alkalmazáson belüli frissítések beolvassák a
+  kiadásokat (alapértelmezett: `https://www.c64va.pro/`). Lásd: [Alkalmazáson
+  belüli frissítések](#in-app-updates).
+- **Ultimate Basic 1.6.6** — `NYOMTATÁS "formátum" használatával; értékek`,
+  karakterlánc-összehasonlítás PETSCII sorrendben, lebegőpontos `rnd` és `mod`,
+  lebegőpontos az IRQ / NMI kezelőkben, `opció basic print` a C64 BASIC PRINT
+  térközhöz, kisebb programok (csak a lebegőpontos rutinok használatban vannak)
+  és 16 bites címkifejezések (1.6.5). Az Ultimate Basic szerkesztő kiemeli a
+  `print` és az `opció basic print` opciókat.
+
+---
+
+## A 2.6.2-es verzió legfontosabb elemei
+
+- **HVSC az SID lejátszóban** – kereshet a High Voltage SID gyűjteményben (kb.
+  61 000 dallam) cím, zeneszerző vagy mappa alapján, lejátszhat, hozzáadhat a
+  lejátszási listához vagy menthet bármely dallamot; letöltheti a teljes
+  gyűjteményt egy menetben offline használatra, vagy a lejátszóval megnyithat
+  egy kicsomagolt HVSC mappát. A HVSC dallamai a keresősávon jelennek meg, és a
+  lejátszási lista továbblép, amikor egy aldallam véget ér. Lásd: [HVSC (High
+  Voltage SID gyűjtemény)](#hvsc-high-voltage-sid-collection).
+- **Spektrumanalizátor** — egy lebegő LED-sávos megjelenítő az SID lejátszóhoz
+  8-32 sávval, elhalványuló cellákkal és tükrözött padlóval. Lásd:
+  [Spektrumanalizátor](#spectrum-analyzer).
+- **Leckeszerkesztő** — alakítsd át saját programodat lépésről lépésre vezetett
+  leckévé, hasonlóan a beépített "Build: Az első szöveges programod" funkcióhoz:
+  adj hozzá magyarázatokat, válaszd ki a mappát, próbáld ki, mentsd el,
+  exportáld/importáld az `.vatut` fájlokat. Lásd: [Oktatóanyagok és a
+  leckeszerkesztő]{1].
+- **Online leckék** — töltsd le a www.c64va.pro oldalon közzétett leckéket
+  közvetlenül a Tutoriálok listájába a frissítésekkel együtt, és töltsd fel a
+  sajátjaidat a Leckeszerkesztőből áttekintésre. Lásd: [Online
+  leckék](#online-lessons).
+- **Minden makró az operandusmezőben veszi fel a paramétereit** — `SET_BG $06`,
+  `REGION Main`, `ORG $C000`, `SPRITE_POS 1, 200, 50` …: a szöveg a makró Expert
+  soraként olvasható, a mező pedig a várt formát mutatja. Lásd: [Paraméterek az
+  operandusmezőben](#parameters-in-the-operand-field).
+- **Kisebb fejlesztések** — az aktív lebegő ablak kiemelve jelenik meg, a
+  Támogatás ablak úgy néz ki, mint egy csevegés, az egérgörgő oldalra görgeti a
+  fülsávot, és az Ultimate Basic kódméret oszlopa már nem takarja el a
+  sorszámokat.
 
 ---
 
@@ -828,6 +892,26 @@ A paletta tetején található **keresőmezővel** név szerinti szűréshez kat
 a **Kijelölt blokk hozzáadása** gombra, vagy húzzon egy blokkot a
 programterületre.
 
+### Paraméterek az operandusmezőben
+
+Minden paraméterekkel rendelkező blokk az **operandus mezőben** veszi fel őket
+az **Add** előtt. Utasítások esetén ez az operandus (`06` az `LDA #$06` esetén);
+TEXT, BYTE, LABEL, REGION és a többi szöveg- vagy listamakró esetén ez a
+szövegük vagy értékük; minden más makró esetében pedig az, ami a kulcsszó után
+áll Szakértő módban:
+
+| Tömb       | Operandusmező    | Vál                      |
+| ---------- | ---------------- | ------------------------ |
+| SET_BG     | `$06`            | `.set_bg $06`            |
+| RÉGIÓ      | `Fő`             | `.region Főoldal`        |
+| ORG        | `$C000`          | `* = $C000`              |
+| SPRITE_POS | `1, 200, 50`     | `.sprite_pos 1, 200, 50` |
+| HUROK      | `Y, $05, myloop` | `.loop Y, $05, myloop`   |
+
+A mező a makró alapértelmezett paramétereit mutatja segítségül. A paraméter
+nélküli blokkok (ENDREGION, ELSE …) és a fájlmakrók (INCBIN, KOALA, LEVEL, SID,
+INCLUDE – ezek a blokkban választják ki a fájljukat) letiltva tartják a mezőt.
+
 ---
 
 ## 4. ASM nézet
@@ -1139,6 +1223,13 @@ A parancslista magassága szándékosan korlátozott, így a parancsrészletező
 kitöltheti a panel fennmaradó magasságát. A részletes terület külön görgethető a
 hosszabb szintaxisleírásokért.
 
+**Frissítési szerver:** **Beállítások → Frissítések → Frissítési szerver**
+beállítja, hogy hol keressenek a kiadásokat (alapértelmezett:
+`https://www.c64va.pro/`); a telepítők a `<szerver>letöltések/VA/` címről
+olvashatók be. A címnek `https://` címet kell használnia (tesztelés céljából
+csak sima `http://` címet a `localhost` címhez); az **Alapértelmezett** címre
+áll vissza, amely a c64va.pro címre vonatkozik.
+
 ### Ingyenes és nyílt forráskódú
 
 A Visual Assembler ingyenes: minden funkció – a vizuális szerkesztők (SID,
@@ -1297,6 +1388,48 @@ Az `@name`, `@category` és `@desc` fájloknak lehetnek nyelvenként eltérő
 változatai (`@name.hu`, `@desc.de`, …); az `@order` rendezi a listát. A fejléc
 utáni összes elem lesz az új fő fájl, és az `{{PROJECT}}` helyére a projekt neve
 kerül (használd megjegyzésben, hogy maga a sablon továbbra is leforduljon).
+
+### Oktatóanyagok és a leckeszerkesztő
+
+Az **Oktatóanyagok** ablak mappák szerint listázza a bemutatókat és a leckéket.
+A lista alján található **Leckeszerkesztő…** gomb (és a saját leckéknél a
+**Lecke szerkesztése**) megnyitja a **Leckeszerkesztőt**, amely lépésről lépésre
+haladó leckéket készít, például a "Build: Az első szöveges programod" című részt
+a saját kódodból:
+
+1. Írd meg a programot a Blokk vagy az Expert szerkesztőben.
+2. A Leckeszerkesztőben nyomd meg a **Lépések az aktuális programból** gombot.
+   Minden sor a tanuló lépéseit adja meg: válaszd ki a mnemonikus elemet (egy
+   rossz előre ki van választva), írd be az operandust, nyomd meg az
+   **Hozzáadás** gombot. Ahol a paletta nem tud mindent beállítani (például egy
+   SZÖVEG pozíciót), a **Paraméterek beállítása** lépés az új blokkra mutat, és
+   akkor ugrik tovább, ha egyezik.
+3. Adj címet, leírást, nehézségi szintet és **mappát** (bármely Oktatóanyagok
+   kategória). Add hozzá a **szöveges lépéseket** magyarázatokhoz, opcionálisan
+   az ablak egy részére mutatva (paletta, programpanel, ASM nézet, Futtatás
+   gomb, memóriatérkép). Hagyd üresen a lépés címét vagy magyarázatát a
+   létrehozott szöveghez.
+4. **Próbáld ki a leckét** (törli az aktuális programot), majd **Mentsd el a
+   leckét** (Ctrl+S).
+
+A szövegek az aktuális felhasználói felület nyelvén lesznek mentve; egy másik
+nyelvet használó diák ezeket látja, vagy a létrehozott szöveget, ahová Ön nem
+írt semmit. A **Makróparaméterek automatikus kitöltése** kihagyja a
+paraméterlépéseket a diák számára. A **Fájlok ▾** leckéket hoz létre, töröl,
+exportál és importál `.vatut` fájlokként, és megnyitja a leckék mappáját.
+
+#### Online órák
+
+Az **Online leckék…** az Oktatóanyagok ablakban felsorolja a www.c64va.pro
+oldalon közzétett leckéket a mappájukkal, nehézségükkel és lépésszámukkal
+együtt. A **Letöltés** beilleszti a leckét a saját mappájába az Oktatóanyagok
+listában; az **Frissítés** akkor jelenik meg, ha a webhelynek újabb verziója van
+(a Leckeszerkesztő minden mentéskor frissíti a lecke módosításait). Saját leckéd
+megosztásához használd a **Fájlok ▾ → Feltöltés a c64va.pro…** menüpontot a
+Leckeszerkesztőben: add meg a neved (szerzőként jelenik meg), és opcionálisan
+egy e-mail címet és egy megjegyzést. A leckét először átnézzük; jóváhagyás után
+mindenki online leckéinek listájában megjelenik. Az e-mail címed soha nem kerül
+nyilvánosságra.
 
 ### Futás, D64 és Exomizer
 
@@ -5501,7 +5634,8 @@ egyszerre szólalnak meg; WebSid nélkül egy kis SID szintetizátor játszik le
 **Előnézeti motor:** **Beállítások → SID előnézet** kiválasztja a **WebSID**
 vagy a **VA SID Core (Rust)** lehetőséget, az alkalmazás saját SID emulációját;
 a VA SID Core esetében a chipet is ki kell választani (MOS 6581 / 8580). A
-műszer paramétereit gombokkal lehet beállítani.
+szerkesztő fejléce mutatja a használatban lévő motort (pl. *· VA SID Core v1.2
+(MOS 8580)*). A műszerparamétereket gombokkal lehet beállítani.
 
 **Eszközönkénti vezérlők:**
 - Hullámforma jelölőnégyzetek (TRI / SAW / PUL / NOI) – több hullámforma ÉS
@@ -5538,8 +5672,8 @@ műszer paramétereit gombokkal lehet beállítani.
   valamint hangeffektek (lézer, hangszedő, explosion).
 
 **Követőrács:**
-- 3 hang × maximum 7 minta × 32 sor = 7 × 32 = max. 224 sor (a 8 bites
-  sorszámláló korlátozza).
+- 3 hang × akár 256 pattern × 32 sor; a dal/sorrend lista akár 255 lépést is
+  tartalmazhat.
 - Soronként: hangjegy + hangszerindex, plusz egy opcionális effekt (lásd az
   **Effekt oszlopot** alább). Az üres sorok az előző hangjegyet tartalmazzák:
   más követőkhöz (GoatTracker, SID-Wizard) hasonlóan egy hangjegy a következő
@@ -5570,7 +5704,9 @@ műszer paramétereit gombokkal lehet beállítani.
 - A cellatartomány-beillesztés mostantól a kiválasztott tartomány
   kezdőcellájánál kezdődik, és tisztán megáll a hang- és sorhatároknál,
   ahelyett, hogy a következő oszlopba vagy sorba folyatódna.
-- A Sebesség csúszka beállítja az IRQ osztót (a sorok közötti képkockák számát).
+- A **Speed** (sorok közötti képkockák, 1–255) paramétert a mellette lévő − / +
+  gombokkal lehet beírni vagy léptetni; az `F` effektus lejátszás közben
+  megváltoztatja ezt a sebességet.
 
 **Dal / rendelési lista:**
 - A mintákat egy dal/sorrend lista szerint rendezik el, amely a nyers pattern
@@ -5645,6 +5781,7 @@ formátumban.
 | `Blokkok exportálása + minilejátszó` | Hozzáadja a teljes lejátszót (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) plusz PAL frekvenciatáblázatokat. Exportálás után helyezz el egy `JSR sid_init` függvényt a fő kódodban, ahol a zenének kezdődnie kell; ehelyett képkockánként egyszer használd a saját `JSR sid_frame` IRQ hívásodat.                                                                                                            |
 | ` ASM exportálása (vágólap)`         | A teljes assembly forráskódot a vágólapra másolja.                                                                                                                                                                                                                                                                                                                                                                             |
 | `GoatTracker .sng importálása…`      | Betölt egy GoatTracker 2 dalt az aktuális helyett — lásd a **GoatTracker import** részt alább.                                                                                                                                                                                                                                                                                                                                 |
+| ` .sid importálása…`                 | PSID / RSID dallamot szerkeszthető dallá konvertál az aktuális helyett — lásd az **.sid import** fájlt alább.                                                                                                                                                                                                                                                                                                                  |
 | `Exportálás UltimateBasic-be`        | Kiír egy `tune ... end` blokkot (hangszerek, sorrendlista, pattern sorok szövegként) plusz a `music play` parancsot, és beszúrja azt az Ultimate Basic szerkesztő kurzorához; UB módon kívül a vágólapra másolja a szöveget. Az UltimateBasic fordítója építi fel a lejátszót, így a `music play` / `music stop` vezérli azt. A hangszermoduláció a `imod` / `ifilt` / `igate` / `itab` sorokba kerül (Ultimate Basic 1.6.2+). |
 
 **GoatTracker importálás:** **Fájlok → GoatTracker .sng importálása…** betölt
@@ -5660,20 +5797,49 @@ hozzávetőleges, mivel a két nyomkövető eltérően működik:
 - Mintaparancsok: hangnem le → hangnem le, portamento → `U` / `D` (soronként
   legfeljebb 255), tempo → `F`; a toneporta sima hanggá válik. A többi parancs
   elvész, és egy üzenet felsorolja, hogy mi lett megközelítőleg vagy kihagyva.
-- A hullámtábla által kiadott kapu hangjelzéssé válik a következő szabad sorban.
-  Csak az első aldallam importálódik, és a 7 minta exportálási korlátja továbbra
-  is érvényes.
+- A hullámtábla által kiadott kapu hangjelzésként jelenik meg a következő szabad
+  sorban. Csak az első aldallam kerül importálásra.
 
-**Player ZP használat:** `$02`–`$1C` (mintamutatók, minta eltolás, hőmérséklet)
-és `$2F` (aktuális sebesség), plusz `$FB`–`$FD` (tick számláló, sorindex,
-sorrendlista pozíció). A hang, a moduláció és a szűrőállapot az adatok után, az
-`sid_state` részben található. A ZP bájtok ütköznek, ha a fő kódod használja
-őket – szükség esetén Szakértő módban helyezheted át őket.
+**.sid import:** **Fájlok → .sid import…** megnyit egy PSID / RSID fájlt (csak
+asztali alkalmazásban, VA SID Core-t használ). Válaszd ki az aldallamot és a
+hosszát másodpercben, majd nyomd meg az **Import** gombot: a dallam csendben
+fut, a SID regiszterei képkockánként rögzítésre kerülnek, és az aktuális
+regiszter helyett egy dallá alakulnak.
+- **Megjegyzések:** egy hang a kapu élére kerül (a 2 képkockán belüli
+  újraindítás egy hangnak számít); a legalább 5 képkockán át tartott kapu alatti
+  hangmagasság-változás egy új, újraindító (legato) hanggá válik. A hangmagasság
+  a hang fő hullámformájának leggyakoribb félhangja; az NTSC dallamok a PAL
+  hangtáblázatra vannak áthangolva.
+- **Sorok:** sor pontosan a hangjegyeknél kezdődik. Az alaphossz a leghosszabb,
+  amely szinte mindegyikhez illik; az ilyen hosszúságú vagy egy képkockával
+  hosszabb sorok (funktempo, swing, tempóváltások) egy sorral előrébb `F`
+  effektekkel vannak beállítva.
+- **Hangszerek:** AD / SR, a fő hullámforma, impulzusszélesség és PWM, a szűrő
+  (útválasztás, módus, rezonancia, vágási sweep) és a hang minden egyes
+  keretének hullámformája és hangmagassága, egészen a következőig: a hullámforma
+  / arpeggio táblázat (egy előtag plusz egy ismétlődő loop, akár 32 lépés). A
+  fix hangmagasságú dob attack abszolút hangjegyeket és egy arpeggio relatív
+  hangjegyeket tart meg, ugyanazon hang összes hangja felett eldöntve; egy
+  szabályos félhang alatti wobble lesz a hangszer vibrato-ja. A kapu
+  hangjegyvágássá, kapu időzítővé (kemény újraindítással, amikor az ADSR
+  nullázódik) vagy egy lecsengéssé válik a kioldási ütemben. Az azonos
+  hangszerek megosztásra kerülnek, akár 128-ig.
+- Egy üzenet felsorolja a közelítő értékeket, például a félhangú lépésekké váló
+  diákat vagy a 32 lépésnél hosszabb táblázatokat. A több SID-vel rendelkező
+  dallamok és a BASIC programként induló RSID dallamok nem támogatottak.
+
+**Lejátszó ZP használata:** `$02`–`$1C` (mintamutatók, minta eltolás,
+hőmérséklet) és `$2F` (aktuális sebesség), plusz `$FB`–`$FD` (tick számláló,
+sorindex, sorrendlista pozíció). A hang, a moduláció és a szűrőállapot a
+`sid_state` helyen található a játékoskód után. A ZP bájtok ütköznek, ha a fő
+kódod használja őket – szükség esetén áthelyezheted őket Szakértő módban.
 
 **Ismert korlátok:**
-- A 8 bites sorszámláló minden mintát 7 mintára × 32 sorra korlátoz a nyers
-  bankban (a dal/sorrend lista továbbra is tetszőlegesen hosszú lehet a minták
-  ismétlésével).
+- A lejátszó és az állapota az `$C000` karikánál található. Amikor a
+  dallamadatok nem férnek el a mellettük lévő `$D000` karika alatt, az adatok a
+  saját szegmensükbe kerülnek, amelyek az `$A000` karika alatt végződnek (az
+  exportált asm-nek van egy második `* =` sora); ezt tartsd távol a saját
+  programodtól.
 - A C64 `$D418` globális hangerő több hangszerhang között megoszlik – a
   hangszerenkénti hangerőcsúszka tájékoztató jellegű; a kitartási szint (az ADSR
   `S` értéke) a hangszerhangonkénti effektív hangerő.
@@ -5720,6 +5886,38 @@ dalokat.
   visszalép a véletlenszerű sorrendben. A beállítás megjegyzendő.
 - **Kedvencek:** az egyes sorban található ☆ / ★ egy dallamot jelöl; ez a
   mentett állapotban és a `.sidpl` lejátszási listákban is megtalálható.
+
+#### HVSC (Nagyfeszültségű SID-gyűjtés)
+
+Az SID Player eszköztárán található **HVSC** gomb megnyit egy keresőpanelt a
+[High Voltage SID Collection](https://www.hvsc.c64.org/) gyűjteményhez, amely
+körülbelül 61 000 C64 dallamot tartalmaz.
+
+- **Keresés:** írj be egy címet, zeneszerzőt vagy mappát (`hubbard commando`,
+  `games/s-z`); minden szónak egyeznie kell. A **Véletlenszerű dallamok** 25
+  véletlenszerű dallamot sorol fel.
+- **Lejátszás / hozzáadás / mentés:** kattintson egy dallamra a lejátszáshoz, az
+  **+** gomb hozzáadja a lejátszási listához, a letöltés gomb elmenti az `.sid`
+  fájlt. Az **Összes találat hozzáadása** legfeljebb 100 találatot ad össze.
+- **Dallamhosszak:** A HVSC ismeri minden aldallam hosszát, így a keresősáv
+  mutatja azt, és a lejátszási lista továbblép, amikor az aldallam véget ér.
+- **A dallamok forrása:** A katalógus és az egyes dallamok az első használatkor
+  egy HVSC tükörről töltődnek le, és az alkalmazás gyorsítótárában tárolódnak,
+  így az egyszer lejátszott dallam offline is lejátszható. **A katalógus
+  frissítése** lekéri a legújabb listát.
+- **Teljes gyűjtemény:** **A teljes gyűjtemény letöltése…** letölti a hivatalos
+  HVSC archívumot (kb. 85 MB) egy kiválasztott mappába, majd ott kicsomagolja
+  (kb. 380 MB); ettől kezdve a lejátszó ezt a másolatot használja, és offline
+  működik. **Helyi HVSC mappa használata…** egy már meglévő gyűjteményre mutat.
+
+#### Spektrumanalizátor
+
+A SID Player eszköztárán található sávgomb megnyitja a **Spectrum** ablakot:
+LED-stílusú sávok zöldtől sárgán át narancssárgáig, lassan elhalványuló cellák
+és tükrözött padló perspektívában. Megjeleníti azt, amit a SID Player vagy a SID
+Editor lejátszik, bármelyik motorral. A **Bands** 8, 16, 24 vagy 32 sávot állít
+be. Az ablak mozgatható és átméretezhető, a SID Playerrel együtt záródik és
+nyílik meg újra, és csak akkor rajzol, amikor meg van nyitva.
 
 ---
 

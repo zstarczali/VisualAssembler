@@ -2,11 +2,20 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.6.2**
+**Current version: v2.6.3**
 
 Visual Assembler is free and open source (GPLv3): every feature — editors, builds, hardware runs, languages and themes — works without a registration or serial. At most once a day the app sends an anonymous startup ping (version, OS, UI language, launch count, a random install ID) for the usage statistics; no email, project or source code is sent.
 
-## What's New in v2.6.2
+## What's New in v2.6.3
+
+- **.sid import in the SID Editor** — *Files → Import .sid…* plays a PSID / RSID subtune silently in VA SID Core and converts its SID register stream into instruments, patterns and a song: note ons and legato notes, rows placed exactly on the notes (funktempo / swing via `F` effects), wave / arpeggio tables with fixed-pitch drum attacks, pulse and filter movement, gate timing with hard restart, and vibrato. Up to 128 instruments; identical wave tables are stored once in the player data.
+- **Long tunes play correctly** — tune data that does not fit next to the player at `$C000` moves to its own segment below `$A000` instead of running into I/O; the `.sid` (PSID) export follows.
+- **VA SID Core preview retriggers notes** — preview frames carry the restarted voices, so a note restarted under a held gate gets a new attack.
+- **Ultimate Basic 1.6.6** — `PRINT USING "format"; values`, string comparison (`<` `>` `<=` `>=` in PETSCII order), floating-point `rnd` and `mod`, floating point in IRQ / NMI handlers, `option basic print` (C64 BASIC PRINT spacing), smaller programs (only the floating-point routines in use), 16-bit `mod` and arithmetic `shr` for INTEGER; 1.6.5: 16-bit address expressions in `peek` / `poke` / `fill` / `memcopy`. The UB editor highlights `print using` and `option basic print`.
+- **Update server setting** — Settings → Updates sets the server the in-app update reads releases from (default `https://www.c64va.pro/`, installers under `downloads/VA/`; `https://` required).
+- **SID Editor** — the header shows the active SID emulation (WebSID / VA SID Core and chip model); the Speed field has − / + buttons and takes 1–255; up to 256 patterns; the BPM label is fixed.
+
+## Earlier: v2.6.2
 
 - **HVSC in the SID Player** — search the High Voltage SID Collection (about 61,000 tunes) by title, composer or folder; play, add to the playlist or save a tune; download the whole collection (the official 7z, unpacked in the app) for offline use or use an unpacked HVSC folder. HVSC tunes get their real subtune length on the seek bar and for auto-advance.
 - **Spectrum analyzer** — a floating LED-bar window for the SID Player: 8 / 16 / 24 / 32 log-spaced bands, fading cells, a mirrored floor; works with VA SID Core and WebSID.

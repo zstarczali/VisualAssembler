@@ -1,4 +1,4 @@
-# Ultimate Basic v1.6.5 — Nyelvi kézikönyv
+# Ultimate Basic v1.6.6 — Nyelvi kézikönyv
 
 Teljes nyelvi és parancssori felület (CLI) referencia az Ultimate Basichez, egy
 BASIC-szerű nyelvhez, amely közvetlenül 6502-es gépi kóddá fordul Commodore
@@ -218,19 +218,29 @@ z = x és 15 # bitenkénti ÉS
 w = a vagy b # bitenkénti VAGY
 v = a xor b # bitenkénti XOR
 m = x shl 3 # eltolás balra
-n = x shr 2 # eltolás jobbra
-r = x mod 40 # 8 bites modulo (maradék); x mod 0 = x, x / 0 = 255
-b = bnot x # bitenkénti NEM: x XOR 255 (mind a 8 bit komplementuma)
+n = x shr 2 # eltolás jobbra (INTEGER esetén: -8 shr 1 = -4)
+r = x mod 40 # maradék; x mod 0 = x, x / 0 = 255
+b = bnot x # bitenkénti NEM: x XOR 255 (mind a 8 bit komplementere)
 ```
 
 Összehasonlítások: `==` `!=` `<` `>` `<=` `>=` (visszaadás 1/0)
 
 Számtani kód (1.6.0): Az `*` egy konstans hatására shifts / shift-add (`x * 8` →
-3× `ASL`) lesz, egyébként egy legfeljebb 8 körös shift-add ciklus. Az `/` és a
-`mod` kettő hatványán `LSR` / `ÉS #(n-1)`, egyébként egy 8 körös shift-subtract
-ciklus, amelynek futási ideje már nem függ a hányadostól. A nullával való osztás
-definíciója: `x / 0 = 255`, `x mod 0 = x` (1.6.0 előtt lefagyott). Az `x = x +
-1` / `x = x - 1` (és ±2) függvények `INC` / `DEC` formátumúra fordíthatók.
+3× `ASL`) formátumba fordul, egyébként egy legfeljebb 8 körös shift-add
+ciklusba. Az `/` és a `mod` kettő hatványán `LSR` / `ÉS #(n-1)`, egyébként egy 8
+körös shift-subtract ciklusba, amelynek futási ideje már nem függ a hányadostól.
+A nullával való osztás definíciója: `x / 0 = 255`, `x mod 0 = x` (az 1.6.0 előtt
+lefagyott).
+
+Az `mod` egy `word` vagy `integer` operandussal (vagy negatív konstanssal) egy
+16 bites maradék az osztandó előjelével, mint a QBasic-ben: `-7 mod 3` = -1, `7
+mod -3` = 1, `(w + 5) mod 7` 16 bitet tart meg. EGYSZERES / KETTŐS operandussal
+lebegőpontos számként működik (lásd *Lebegőpontos*). Az `/` egy `szóval` /
+`egész számmal` vagy negatív osztóval egy 16 bites osztás, nulla felé csonkolva
+(`-700 / 300` = -2, `-700 / -7` = 100). Az `egész szám` `shr` egy aritmetikai
+eltolás (az előjel megmarad: `-8 shr 1` = -4); az `szó` és a bájtértékek
+logikailag eltolódnak. Az `x = x + 1` / `x = x - 1` (és ±2) függvény `INC` /
+`DEC` formátumúra fordítandó.
 
 ### Növelés / Csökkentés
 
@@ -273,6 +283,50 @@ print s1 + s2 # két karakterlánc változó → szekvenciális kiírás
 print "Hello " + "World" # két literál → fordítási idejű hajtogatás
 print chr$(13) # kiírás PETSCII kóddal
 ```
+
+Alapértelmezés szerint a számok szóközök nélkül kerülnek kinyomtatásra, és az
+`,` csak elválasztja az elemeket (az `print 1, 2` eredményül `12`) kerül
+kinyomtatásra. A C64 BASIC térközökhöz használd az `--basic-print` kapcsolót,
+vagy írj be egy `opciót a basic print` sorba: egy szám ezután egy kezdő
+szóközzel (vagy a `-`) és egy záró szóközzel (`print 5` → ` 5 `) nyomtat ki, egy
+`,` karakter a következő 10 oszlopos nyomtatási zónára ugrik, és egy záró `,`
+karakter a kurzort a sorban tartja, mint egy záró `;`. Az `STR$` ezután a C64
+szöveget is kiírja (`STR$(7)` = `" 7"`, `STR$(-42)` = `"-42"`). A
+karakterláncok, `spc`, `tab`, `hex`, `bin`, `dec` és `chr$` a korábbiakhoz
+hasonlóan jelennek meg.
+
+#### `NYOMTATÁS ` HASZNÁLATÁVAL
+
+```basic
+DIM ar AS DOUBLE = 1234,5
+DIM s AS STRING = "ALMA"
+NYOMTATÁS "###.##"; 3,14159 ' 3,14
+NYOMTATÁS "Ar: #,###.## Ft"; ar ' Ar: 1 234,50 Ft
+NYOMTATÁS "+##"; 7 ' +7
+NYOMTATÁS "##.##-"; -2,25 ' 2,25-
+NYOMTATÁS "##"; 123 ' %123
+NYOMTATÁS "[&amp;] [!] [\ \]"; s; s; s ' [ALMA] [A] [ALMA]
+NYOMTATÁS "## "; 1, 2, 3 ' 1 2 3
+```
+
+| Mező                  | Jelentés                                                                                                                            |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `#`                   | egy számjegy pozíciója; a számok jobbra igazítottak és tizedesjegyekre vannak kerekítve                                             |
+| `.`                   | tizedesvessző; az utána következő `#` számjegyek a tizedesjegyek (legfeljebb 9)                                                     |
+| `,`                   | pont előtt: ezreselválasztók (mindegyik `,` egy-egy karaktert jelöl)                                                                |
+| `+` az elején         | mindig írja ki a jelet (`+` / `-`)                                                                                                  |
+| `-` a végén           | írd ki a mínuszjelet a szám után (pozitív esetben szóközt)                                                                          |
+| `&amp;` / `!` / `\ \` | karakterlánc: a teljes karakterlánc / az első karaktere / pontosan annyi karakter, amennyi a mező szélessége (`\` + szóközök + `\`) |
+| `_`                   | írja ki a következő karaktert úgy, ahogy van (`_#`)                                                                                 |
+
+Egy nem férő szám elé `%` karakterlánc kerül kiírásra (`%123`); először egy
+kezdő 0 kerül kiírásra (`#.##` -0.5 → `-.50`). A többi karakter változatlanul
+kerül kiírásra. Az értékek végighaladnak a mezőkön (a formátum újraindul, amikor
+elfogy); az utolsó érték után a következő mezőig tartó szöveg kerül kiírásra. A
+`;` vagy `,` karakterlánc a sorban tartja a kurzort. A formátumnak karakterlánc
+literálnak kell lennie; az `**`, `$$` és `^^^^` mezők nem támogatottak. Egy
+`PRINT USING` függvénnyel rendelkező program tartalmazza a lebegőpontos futási
+környezetet (csak a szükséges részeket).
 
 ### chr$
 
@@ -504,6 +558,13 @@ CALL Koszont("Zsolt")
 - Az `END SUB`, `END FUNCTION`, `END IF`, `END SELECT` szavak elfogadottak (a
   második szó opcionális); az `EXIT SUB` / `EXIT FUNCTION` szavak visszatérési
   értéke (a sima `exit` továbbra is `bye`).
+- Egy `END SUB` / `END FUNCTION` által lezárt SUB / FUNCTION esetén egy
+  önmagában a saját sorában lévő `END` fejezi be a programot, akárcsak a
+  QBasic-ben – szintén egy `IF … END IF` belül. Egy ilyen rutin blokkjait QBasic
+  stílusban kell lezárni (`END IF`, `END SELECT`, `WEND`, `LOOP`, `NEXT`); egy
+  sima `end` által lezárt rutin megtartja a régi blokkszabályokat. A rutinon
+  belüli `END` és `bye` utasítások kilépnek a programból (korábban visszatértek
+  a rutin hívójához).
 - Egy sub/fn zárójel nélkül hívható: `Koszont "Zsolt"`, `Rajzol x, y`.
 - Az `PRINT a; b; c` — `;` utasítás szóközök nélkül köti össze az elemeket; egy
   `;` utasítás utáni `;` utasítás, amelyet egy utasítás követ (`print x; y =
@@ -584,12 +645,22 @@ HA s = "ABC" VAGY t &lt;&gt; "" AKKOR PRINT "összehasonlítás = / &lt;&gt;-val
 - **Sztringtömbök: Az ** elemek, amelyek nem literál értéket kapnak (vagy
   `input`), saját 32 bájtos helyet kapnak (31 karakter), így az `input nevek(i)`
   egy ciklusban minden nevet megtart.
-- **`STR$` / `VAL`:** Egy 16 bites vagy előjeles érték `STR$` eleme nem
+- **Hosszabb karakterláncok:** egy `option strings 255` sor lehetővé teszi, hogy
+  minden számított karakterláncváltozó legfeljebb 255 karaktert tartalmazzon (a
+  C64 BASIC korlátja); az `option strings 200, 63` szintén 63 karaktert ad a
+  karakterlánc-tömb elemeinek (a slot 32, 64, 128 vagy 256 bájtra kerekítve).
+  Minden változó saját pufferrel rendelkezik, így a hosszabb korlátozza a RAM
+  költségét: n + 1 bájt karakterláncváltozónként és slotméret × elem
+  karakterlánctömbönként.
+- Egy 16 bites vagy előjeles érték **`STR$` / `VAL`:** `STR$` eleme nem
   tartalmaz vezető nullákat (`"-42"`). A kompatibilitás érdekében egy bájt
-  `STR$` eleme megőrzi a 3 jegyű alakját (`"007"`). Az `VAL` 16 bites előjeles
-  számokat olvas be (`VAL("1234") + 1` = 1235).
-- **Összehasonlítás:** csak `=` / `&lt;&gt;` (és `==` / `!=`); nincs `&lt;` /
-  `&gt;` karakterlánc-sorrend.
+  `STR$` eleme megtartja a 3 számjegyű formátumot (`"007"`), kivéve, ha a C64
+  BASIC térköz be van kapcsolva (`--basic-print`: `" 7"`). Az `VAL` függvény 16
+  bites előjeles számokat olvas be (`VAL("1234") + 1` = 1235).
+- **Összehasonlítás:** `=` / `&lt;&gt;` (és `==` / `!=`), és `&lt;` `&gt;`
+  `&lt;=` `&gt;=` PETSCII sorrendben, mint a C64 BASIC; minden hosszabb
+  karakterlánc előtt egy karakterlánc áll, amelyik kezdődik (`"AB" &lt; "ABC"`,
+  `"" &lt; "A"`).
 
 #### Előjeles INTEGER, INPUT, DOUBLE (1.6.3)
 
@@ -700,25 +771,63 @@ var f: float = balls[0].vel # float mező beolvasása a float változóba
 print balls[0].vel # kiírja "1.50"-et
 ```
 
+**Alapértelmezett értékek, karakterláncok, beágyazott típusok, paraméterek**
+(1.6.6 után):
+
+```basic
+TYPE TPoint ' QBasic űrlap: TYPE … END TYPE, "név AS típus"
+x AS BYTE = 3 ' alapértelmezett érték
+y AS WORD = 1000
+END TYPE
+
+type TENtity
+var pos: TPoint # beágyazott struktúra: mezők pos.x, pos.y
+var hp: word = 100
+var name: string * 6 = "NOBODY" # fix hosszúságú karakterlánc az elemen belül (7 bájt)
+endtype
+
+var e: TEntity = array(100) # minden elem az alapértelmezett értékekkel kezdődik
+e[5].pos.x = 7
+e[5].name = "ZS" + "OLT" # a kiszámított szöveg bemásolódik, 6 karakterre vágva
+print e[5].name; " "; e[5].hp
+
+sub heal(p AS TEntity, amount AS WORD) # vagy p: TEntity
+p.hp = p.hp + amount # az átadott elem megváltozik
+p.pos.x = p.pos.x + 1
+end sub
+heal(e[5], 25) # elem átadása
+```
+
 Szabályok és korlátozások:
 
-- Mezőtípusok: `int` (1 bájt), `word` (2 bájt LE), `float` (2 bájt Q8.8). A
-  `string` és a beágyazott `type` mezők még nem támogatottak.
+- Mezőtípusok: `int` / `byte` (1 bájt), `word` / `integer` (2 bájt LE, előjel
+  nélküli), `float` (2 bájt Q8.8), `string * n` (legfeljebb n karakter hosszú,
+  fix hosszúságú karakterlánc, 1–254, n + 1 bájt az elemben; a `string`
+  önmagában `string * 15`), és egy másik struktúratípus (beágyazott:
+  `arr[i].pos.x`). A mezők kiírása `var name: type` vagy, QBasic stílusban,
+  `name AS type`; az `END TYPE` paranccsal zárható le a blokk, hasonlóan az
+  `endtype` paranccsal.
+- **Alapértelmezett értékek:** ` = konstans` egy mező után (egy szám, egy
+  decimális szám az `float` helyett, egy karakterlánc literál az `string`
+  helyett). Ezek a tömb tartalma a program indításakor (például `adatnév: …`);
+  egy beágyazott mező a típusának alapértelmezett értékeit veszi fel. Az elemek
+  számának ekkor konstansnak kell lennie.
+- Az **karakterlánc-mezők** karakterláncértékekhez hasonlóan működnek:
+  literálokat vagy számított karakterláncokat rendelnek hozzá (a mező hosszára
+  vágva), kinyomtatják őket, használják az `+`, `=` / `&lt;&gt;` / `&lt;` és
+  karakterláncfüggvényekben.
+- **Struktúra paraméterek:** `sub f(p AS TName)` / `p: A TName` megkapja az
+  átadott elem címét (`f(enemies[i])`), így a `p.field` olvassa és írja ezt az
+  elemet; egy struktúra paraméter átadható egy másik rutinnak (`g(p)`). Egy
+  függvény is átveheti ezeket. Egy mező nélküli struktúra tömb `arr[i]`
+  paramétere az a cím.
 - Elemméret = a mezőszélességek összege (deklarációs sorrend, kitöltés nélkül).
 - A tárhely a `$C000+` címen található a hagyományos tömbök mellett, és a
   memóriatérképen a teljes bájtméretű hagyományos tömbként jelenik meg.
 - Konstans index → `LDA/STA absolute` fordítási időben.
-- Változó index → eltolással és összeadással szorzás a `idx * elem_size`
-  értékhez, majd indexelve a `(ptr),Y` hozzáféréssel. A kettő hatványai (1, 2,
-  4, 8, 16) elemméretek csupasz `ASL A` láncokat használnak; más méretek egy
-  rövid eltolással és összeadással végrehajtott szekvenciát bocsátanak ki két
-  üres nulla oldalas bájton keresztül.
-- A struktúratípusok sub / fn paraméterei még nem támogatottak — ehelyett a
-  tömböt és egy indexet kell átadni, pl. `sub move(idx: int) ... enemies[idx].x
-  = ...`.
-- Az alapértelmezett mezőértékeket (`var fire: int = 2` a típuson belül) a
-  rendszer elemzi a javaslattal való kompatibilitás érdekében, de az elosztáskor
-  még nem inicializálja.
+- Változó index → 16 bites `idx * elem_size` (korábban 8 biten számították ki,
+  és a 255-ös eltolás utáni elemek hibásak voltak), majd indexelt `(ptr),Y`
+  hozzáférés.
 - Csak egy alsó index engedélyezett egy struktúra típusú tömbön; a többdimenziós
   struktúra tömbök nem támogatottak (használjon számított lapos indexet).
 
@@ -1746,17 +1855,19 @@ Atfogo = SQR(a * a + b * b)
 END FUNCTION
 ```
 
-|                       |                                                                                                                                                                                |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Operátorok            | `+ - * /` és `^` (hatvány; jobb asszociatív, szorosabb kötés, mint az egykomponensű mínusz: `-2^2` = -4)                                                                       |
-| Funkciók              | `SQR`, `SIN`, `COS`, `TAN`, `ATN` (radián), `EXP`, `LOG` (természetes), `INT` (padló), `FIX` (csonkítás), `CINT` (kerek), `ABS`, `SGN`, `CSNG` / `CDBL` (nincs művelet), `VAL` |
-| Literálok             | `1,5`, `.5`, `1E6`, `2,5e-3`, `70000`                                                                                                                                          |
-| Összehasonlítások     | `= &lt;&gt; &lt; &gt; &lt;= &gt;=` a `HA` / `MIközben` / `Amíg` / `SELECT CASE` és értékekként                                                                                 |
-| Nyomtatás             | C64 BASIC stílus: `.5`, `-3.25`, `3.33333333`, `1E+10`, `1.5E-07` (nincs kezdő szóköz)                                                                                         |
-| Húrok                 | `s = "X=" + x`, `STR$(x)`, `VAL(s)` beolvassa a `-1.25E3` értéket                                                                                                              |
-| `FOR`                 | lebegőpontos számláló, határérték és lépésköz (`STEP 0.1`, negatív vagy változó)                                                                                               |
-| `BEVITEL` / `OLVASÁS` | `INPUT x` beolvas bármilyen számot; `READ x` beolvassa a következő `adat` bájtot                                                                                               |
-| Al-/funkció           | `p AS DOUBLE` paraméterek és `AS DOUBLE` eredmények                                                                                                                            |
+|                       |                                                                                                                                                                                         |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Operátorok            | `+ - * /` és `^` (hatvány; jobb asszociatív, szorosabb kötés, mint az egykomponensű mínusz: `-2^2` = -4)                                                                                |
+| Funkciók              | `SQR`, `SIN`, `COS`, `TAN`, `ATN` (radián), `EXP`, `LOG` (természetes), `INT` (padló), `FIX` (csonkítás), `CINT` (kerek), `ABS`, `SGN`, `CSNG` / `CDBL` (nincs művelet), `ÉRTÉK`, `RND` |
+| `MOD`                 | `a MOD b` = `a - b * FIX(a / b)` (`a` előjele, mint VB / C `fmod`): `7.5 MOD 2` = 1.5; `x MOD 0` = x                                                                                    |
+| `RND`                 | Egy lebegőpontos utasításban az `RND` / `RND()` egy véletlenszám 0 ≤ x < 1 (`d = RND`, `x = RND * 6`); az `rnd(n)` értéke 0 … n-1 egész szám marad                                      |
+| Literálok             | `1,5`, `.5`, `1E6`, `2,5e-3`, `70000`                                                                                                                                                   |
+| Összehasonlítások     | `= &lt;&gt; &lt; &gt; &lt;= &gt;=` a `HA` / `MIközben` / `Amíg` / `SELECT CASE` és értékekként                                                                                          |
+| Nyomtatás             | C64 BASIC stílus: `.5`, `-3.25`, `3.33333333`, `1E+10`, `1.5E-07` (nincs kezdő szóköz, kivéve, ha `--basic-print`); rögzített tizedesjegyek a `PRINT USING` paranccsal                  |
+| Húrok                 | `s = "X=" + x`, `STR$(x)`, `VAL(s)` beolvassa a `-1.25E3` értéket                                                                                                                       |
+| `FOR`                 | lebegőpontos számláló, határérték és lépésköz (`STEP 0.1`, negatív vagy változó)                                                                                                        |
+| `BEVITEL` / `OLVASÁS` | `INPUT x` beolvas bármilyen számot; `READ x` beolvassa a következő `adat` bájtot                                                                                                        |
+| Al-/funkció           | `p AS DOUBLE` paraméterek és `AS DOUBLE` eredmények                                                                                                                                     |
 
 **Egész számokkal való keverés.** Egy kifejezés lebegőpontos konstansként kerül
 kiszámításra, ha EGYSZERES / KETTŐS értéket, `^` értéket, a fenti függvények
@@ -1770,22 +1881,36 @@ megtartják az egész számra vonatkozó szabályaikat (az `var c = a + b` tová
 is egy bájt).
 
 **Jegyzetek**
-- Egy 32768-tól 65535-ig terjedő egészszám literált 16 bites mintaként olvasunk
-  be, és lebegőpontos kontextusban negatívvá válik: írjuk be a `40000.0` vagy az
-  `4E4` értéket.
+- Egy 32768-tól 65535-ig terjedő egész számú literál megtartja az értékét egy
+  olyan utasításban, amely lebegőpontos formában számol (`d = 40000`, `d +
+  50000`). Egy utasítás lebegőpontosnak számít, ha EGYSZERES / KETTŐS változót,
+  tömböt, paramétert vagy függvényt nevez meg, vagy ha az `^` kifejezést, egy
+  csak lebegőpontos literált vagy a fenti függvények egyikét használja; máshol
+  egy ilyen literál egy 16 bites minta, mint korábban (`beszúrja az 53280, 1`,
+  `w = 40000` karaktereket egy SZÓBA). Egy olyan változó, ami csak a `var x =
+  2.5` paraméteren keresztül lett lebegőpontos, nem számít – írd ide a `40000.0`
+  értéket.
 - Az `7 / 2` értéke 3,5, ha DUPLA típusúhoz rendeljük; egész kontextusban, mint
   korábban, 3.
-- Az `x MOD y` és az `ÉS` / `VAGY` / `XVAGY` függvények egész számra kerekítik
-  az operandusaikat.
+- Az `ÉS` / `VAGY` / `XVAGY` függvények egész számokra kerekítik az
+  operandusaikat.
 - Egy bájtérték `SIN` / `COS` értékei megőrzik a régi 0–255 táblázat jelentését
   (teljes kör = 256); EGYSZERES / KETTŐS argumentummal radiánban működnek.
-- A lebegőpontos kód nem futtatható IRQ / NMI kezelőkben (a futtatókörnyezet fix
-  RAM-ban tartja az állapotát).
-- Költség: a lebegőpontos futási környezetet (kb. 4,4 KB, a fordító állítja
-  össze) a program után fűzzük hozzá, amikor a SINGLE / DOUBLE paramétert
-  először használjuk. A változók 5 bájtot foglalnak el a tömbterületen, plusz
-  egy 2 bájtos nulla oldalas mutatót a futási környezethez. Egy szorzás
-  nagyjából 1-2 ms-ot vesz igénybe egy 1 MHz-es C64-en.
+- Az IRQ / NMI kezelők használhatnak lebegőpontos értéket: egy `irq`, `nmi` vagy
+  `cia_timer` tárolóban megnevezett részhalmaz, amely (közvetlenül vagy a
+  meghívott részhalmazokon keresztül) SINGLE / DOUBLE értéket használ, elmenti a
+  futásidejű állapotot a kezdetén, és visszaállítja azt az `irq_exit` /
+  `nmi_exit` előtt (megszakításonként körülbelül 4-5 ezer ciklus). A
+  lebegőpontos érték nélküli kezelőket nem lassítja le a rendszer. Nem tartozik
+  ide: a cím vagy szóváltozó által beállított kezelő, vagy az, amely sima `RTS`
+  / `RTI` értékkel távozik.
+- Költség: a lebegőpontos futási környezetet a fordító állítja össze és fűzi
+  hozzá a program után; csak a program által használt rutinok szerepelnek benne
+  (kb. 2 KB az `+ - * /` és az `PRINT` függvények esetén, legfeljebb körülbelül
+  5 KB az összes függvénnyel és az `PRINT USING` függvényekkel). A változók 5
+  bájtot foglalnak el a tömbterületen, plusz egy 2 bájtos nulla oldalas mutatót
+  a futási környezethez. Egy szorzás nagyjából 1-2 ms-ot vesz igénybe egy 1
+  MHz-es C64-en.
 
 ### Változók RAM-ban, tömbmemóriában (1.6.4)
 
@@ -1814,14 +1939,15 @@ var a = abs(x - 20) # kettes komplementer abszolút érték
 var b = min(x, 39) # 8 bites minimum
 var c = max(x, 0) # 8 bites maximum
 var s = sgn(pontszám) # 0 = nulla, 1 = pozitív (1–127), $FF = negatív (128–255)
-var r = rnd() # LCG pszeudo-véletlenszerű 0-255; seed from raszteres vonal
-var r = rnd(10) # LCG pszeudo-véletlenszerű 0-9 (rnd() mod n; eredmény 0..n-1)
+var r = rnd() # LCG pszeudo-véletlenszerű 0-255; seed from raszteres sor
+# (0 &lt;= x &lt; 1 EGYSZERES / KETTŐS utasításban: d = rnd)
+var r = rnd(10) # LCG pszeudo-véletlen 0-9 (rnd() mod n; eredmény 0..n-1)
 var s = sin(szög) # szinusz: szög 0-255 (teljes kör), visszaadja a 0-255 értéket (középpont=128)
 var c = cos(szög) # koszinusz = sin(szög+64)
 var v = clamp(x, 0, 39) # 8 bites előjel nélküli clamp: eredmény = max(lo, min(hi, val))
 
-print hex(n) # nyomtatás 2 számjegyű nagybetűs hexként
-print bin(n) # nyomtatás 8 bites bináris karakterláncként
+print hex(n) # kiírás 2 számjegyű nagybetűs hexként
+print bin(n) # kiírás 8 bites bináris karakterláncként
 ```
 
 ### Sztringfüggvények
@@ -1931,6 +2057,10 @@ end
 ```
 
 Az előrehivatkozások támogatottak (`irq my_handler` az aldefiniálás előtt).
+
+Egy kezelő alrendszer EGYSZERES / KETTŐS lebegőpontos műveletet használhat: ez a
+művelet a törzse körüli futásidejű állapotot menti és állítja vissza (lásd:
+*Lebegőpontos művelet*).
 
 ### NMI-kezelő
 
@@ -2211,15 +2341,28 @@ ub build <input.ub> [OPCIÓK]
 
 -v, --verbose Nulla oldalas elrendezés és kód hex dump megjelenítése
 --no-stub A BASIC SYS stub kihagyása (a kód $0801-kor töltődik be)
---debug .sym, .dbg és .vs debugger fájlok létrehozása is
+--debug .sym, .dbg és .vs hibakereső fájlok létrehozása is
 --asm Olvasható 6502 kódgeneráló .asm lista létrehozása is
 --d64 [fájl] .d64 lemezkép létrehozása is;
 fájlnév nélkül alapértelmezetten <output>.d64
 --add <fájl> Egy extra fájl hozzáadása a .d64 lemezképhez;
-több fájl esetén is ismétlődhet
---explicit :type parancs szükséges minden változó / alparaméter / fn-paraméter esetén
+több fájlnál is megismételhető
+--explicit :type megadása kötelező minden változó / alparaméter / fn-paraméter esetén
+--basic-print C64 ALAPVETÍTÉS térköz: számok körüli szóközök, ',' = 10 oszlopos zónák
 -h, --help Súgó megjelenítése
 ```
+
+### Figyelmeztetések
+
+A fordító figyelmeztetéseket ír ki (nem állítja le a fordítást) egy olyan
+bájtváltozó esetén, amely olyan értéket kap, amelyet nem tud megtartani:
+
+```
+5. sor: figyelmeztetés: a 'b' egy bájt (0-255), és az 1000 nem fér bele — tördel; deklaráld 'egész számként' / 'szóként', ha nem erre van szánva
+```
+
+Az `és`, `mod`, `/` vagy `shr` maszkokkal ellátott eredmény nem kerül
+jelentésre, ahogyan a byte + byte sem.
 
 ### CRT export
 
@@ -2419,14 +2562,16 @@ Használd az `--asm` kapcsolót a saját programodhoz generált kód megtekinté
 
 | Jellemző                              | Korlátozás                                                                                                                                                                                                                                                                                                                                 |
 | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Egész számtani                        | 8 bites előjel nélküli (0–255); a `word` változók 16 bites értékeket tárolnak                                                                                                                                                                                                                                                              |
+| Egész számtani                        | Az `var`/`byte` értékek 8 bites előjel nélküliek (0–255) és tördelve vannak (`200 + 100` → 44 egy bájtban); egy olyan konstans, amely nem fér el (`b = 300`, `b = a + 1000`), fordítási idejű figyelmeztetést ad; az `integer` 16 bites előjelű, az `word` 16 bites előjel nélküli.                                                        |
 | Nulla oldalas költségvetés            | Az állandó nulla oldal az `$02–$4F` (78 bájt): minden változó és sub/fn paraméter 2 bájtot foglal el, minden futó `for` ciklus további 2 bájtot. Az 1.6.4 verzió óta a nem illeszkedő változók automatikusan a RAM-ba kerülnek (lásd *Változók a RAM-ban*); csak szélsőséges esetekben jelenik meg továbbra is a `kiesés a nulla oldalról` |
 | Bináris literálok                     | `%01010101` (1.6.4 óta), `$hex` és decimális                                                                                                                                                                                                                                                                                               |
 | Alprogramok                           | Nincs rekurzió — A ZP paraméterhelyek statikusan vannak lefoglalva                                                                                                                                                                                                                                                                         |
-| Karakterlánc-változók                 | Az `single` / `double` értékek 5 bájtos lebegőpontosak az 1.6.4-es verzió óta (IRQ kezelőkben nem használhatók; a ~4,4 KB-os futási környezet hozzáadódott a programhoz); az `float` Q8.8 marad (0–255,99)                                                                                                                                 |
+| `END` a QBasic rutinokban             | Egy `END SUB` / `END FUNCTION` által lezárt SUB / FUNCTION esetén egy `END` önmagában a saját sorában fejezi be a programot; az ilyen rutinokban lévő blokkokat QBasic stílusú (`END IF`, `WEND`, …), UB stílusú `if … ⏎ end` zárással kell lezárni, ahol program végeként olvasható.                                                      |
+| Struktúra típusok                     | Egy alsó index struktúratömbönként (nincs `array(8, 8)` struktúra); egy elem legfeljebb 256 bájt; az `word` / `integer` mezők előjel nélküli 16 bitesek; a karakterláncmezők fix hosszúságúak (legfeljebb 254 karakter); egy struktúraparaméter hivatkozással adja át az elemet.                                                           |
+| Karakterlánc-változók                 | Az `single` / `double` értékek 5 bájtos lebegőpontosak az 1.6.4-es verzió óta (a program által használt rutinok, ~2–5 KB, hozzáadódnak hozzá); az `float` továbbra is Q8.8 (0–255,99)                                                                                                                                                      |
 | Unáris mínusz                         | Az 1.6.4 óta a vezető `-` az operandusához kapcsolódik: `-5 - 3` értéke -8 (korábban -(5 - 3) = -2)                                                                                                                                                                                                                                        |
-| Karakterlánc-összefűzés futásideje    | `s1 + s2` szekvenciálisan nyomtat — nincs halomfoglalás vagy hosszkövetés                                                                                                                                                                                                                                                                  |
-| `ford()` / `ford(n)`                  | Egyszerű LCG, nem kriptográfiai; periódus = 256                                                                                                                                                                                                                                                                                            |
+| Karakterlánc-összefűzés futásideje    | A számított értékek változónként egy 80 karakteres pufferben tárolódnak (a hosszabb eredményeket kivágja a rendszer), a karakterlánc-tömb elemértékek 31 karakteres helyeken vannak — `opció karakterláncok n, m` mindkettőt felveszi (maximum 255); nincs megosztott heap; az `&lt;` / `&gt;` sorrend PETSCII bájtsorrend                 |
+| `ford()` / `ford(n)`                  | Egyszerű LCG, nem kriptográfiai; periódus = 256 (a lebegőpontos `rnd` egy 32 bites xorshift)                                                                                                                                                                                                                                               |
 | `abs()` / `sgn()` / `min()` / `max()` | csak 8 bites értékek; `abs`/`sgn` az értékeket előjelesként kezeli (7. bit = negatív → `abs` kettes komplementer, `sgn` `$FF` értéket ad vissza); `min`/`max` előjel nélküliek (0–255)                                                                                                                                                     |
 | `diagram`                             | A tartományon kívüli pixeleket hangtalanul levágja a rendszer (Y ≥ 200 vagy X ≥ 320 → nincs művelet)                                                                                                                                                                                                                                       |
 | `mplot`                               | Nincs határérték-ellenőrzés — x-nek 0–159, y-nak 0–199 között kell lennie                                                                                                                                                                                                                                                                  |

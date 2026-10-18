@@ -1,6 +1,6 @@
 # C64 Visual Assembler – Benutzerhandbuch
 
-**Version 2.6.1**
+**Version 2.6.3**
 
 Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Sie
 Programme durch Ziehen und Ablegen von Befehlsblöcken und sehen Sie den
@@ -11,6 +11,8 @@ generierten Assembler- und Maschinencode in Echtzeit.
 ## Inhaltsverzeichnis
 
 - [C64 Visual Assembler — Benutzerhandbuch](#c64-visual-assembler--user-manual)
+    - [Version 2.6.3 Highlights](#version-263-highlights)
+    - [Version 2.6.2 Highlights](#version-262-highlights)
     - [Version 2.6.1 Highlights](#version-261-highlights)
     - [Version 2.6.0 Highlights](#version-260-highlights)
     - [Version 2.5.9 Highlights](#version-259-highlights)
@@ -205,6 +207,71 @@ generierten Assembler- und Maschinencode in Echtzeit.
     - [Kurveneditor](#curve-editor)
     - [Tabellengenerator](#table-generator)
     - [Zahlenkonverter](#number-converter)
+
+---
+
+## Highlights der Version 2.6.3
+
+- Der Import von **.sid-Dateien im SID-Editor** – **Dateien → .sid
+  importieren…** wandelt jede PSID-/RSID-Melodie in Instrumente, Patterns und
+  einen bearbeitbaren Song um: Note-Ons und Legato-Noten, Zeilen, die exakt auf
+  den Noten platziert werden (Funktempo und
+  Swing-Through-Geschwindigkeitsänderungen `F`), Wave-/Arpeggio-Tabellen mit
+  Drum-Attacks in fester Tonhöhe, Puls- und Filterbewegungen, Gate-Timing und
+  Vibrato. Siehe [SID-Editor](#sid-editor-3-voice-tracker).
+- **Lange Melodien werden korrekt abgespielt** — wenn die Melodiedaten nicht
+  neben den Player bei `$C000` passen, werden sie in ein eigenes Segment
+  unterhalb von `$A000` verschoben, anstatt auf E/A zu stoßen; der Export `.sid`
+  folgt.
+- **VA SID Core Vorschau löst Noten erneut aus** — eine unter einem gehaltenen
+  Tor neu gestartete Note erhält einen neuen Angriff, wie beim echten Spieler.
+- **SID Editor** — die Kopfzeile zeigt die aktive SID-Emulation an (WebSID oder
+  VA SID Core je nach Chipmodell); das Geschwindigkeitsfeld verfügt über − / +
+  Tasten und nimmt Werte von 1–255 an; das Lied kann bis zu 256 Muster
+  verwenden.
+- **Update-Server-Einstellung** — **Einstellungen → Updates** Hiermit wird der
+  Server festgelegt, von dem die In-App-Updates die Releases beziehen (Standard:
+  `https://www.c64va.pro/`). Siehe [In-App-Updates](#in-app-updates).
+- **Ultimate Basic 1.6.6** — `PRINT USING "format"; values`, Stringvergleich in
+  PETSCII-Reihenfolge, Gleitkomma-`rnd` und `mod`, Gleitkomma-Operationen in
+  IRQ-/NMI-Handlern, `option basic print` für C64 BASIC PRINT-Abstände, kleinere
+  Programme (nur die verwendeten Gleitkomma-Routinen) und 16-Bit-Adressausdrücke
+  (1.6.5). Der Ultimate Basic-Editor hebt `print using` und `option basic print`
+  hervor.
+
+---
+
+## Highlights der Version 2.6.2
+
+- **HVSC im SID Player** – Durchsuchen Sie die High Voltage SID Collection (ca.
+  61.000 Titel) nach Titel, Komponist oder Ordner, spielen Sie Titel ab, fügen
+  Sie sie der Playlist hinzu oder speichern Sie sie. Laden Sie die gesamte
+  Sammlung für die Offline-Nutzung herunter oder wählen Sie im Player einen
+  entpackten HVSC-Ordner aus. Die Titel der HVSC-Sammlung werden in der
+  Suchleiste mit ihrer tatsächlichen Länge angezeigt, und die Playlist springt
+  nach jedem Subsong zum nächsten. Siehe [HVSC (High Voltage SID
+  Collection)](#hvsc-high-voltage-sid-collection).
+- **Spektrumanalysator** – ein schwebender LED-Balken-Visualisierer für den SID
+  Player mit 8 bis 32 Bändern, überblendenden Zellen und einem verspiegelten
+  Boden. Siehe [Spektrumanalysator](#spectrum-analyzer).
+- **Lektionseditor** – Verwandeln Sie Ihr eigenes Programm in eine
+  Schritt-für-Schritt-Anleitung wie die integrierte Lektion „Erstellen: Ihr
+  erstes Textprogramm“: Fügen Sie Erklärungen hinzu, wählen Sie den Ordner aus,
+  testen Sie es, speichern Sie es und exportieren/importieren Sie
+  `.vatut`-Dateien. Siehe [Tutorials und der
+  Lektionseditor](#tutorials-and-the-lesson-editor).
+- **Online-Lektionen** – Laden Sie auf www.c64va.pro veröffentlichte Lektionen
+  direkt in die Tutorial-Liste herunter (inkl. Aktualisierungen) und laden Sie
+  Ihre eigenen Lektionen über den Lektionseditor zur Überprüfung hoch. Siehe
+  [Online-Lektionen](#online-lessons).
+- **Jedes Makro verwendet seine Parameter im Operandenfeld** — `SET_BG $06`,
+  `REGION Main`, `ORG $C000`, `SPRITE_POS 1, 200, 50` …: Der Text wird als
+  Expert-Zeile des Makros interpretiert, und das Feld zeigt die erwartete Form
+  an. Siehe [Parameter im Operandenfeld](#parameters-in-the-operand-field).
+- **Kleinere Verbesserungen** — das aktive schwebende Fenster wird
+  hervorgehoben, das Support-Fenster sieht aus wie ein Chat, mit dem Mausrad
+  wird die Tab-Leiste seitlich gescrollt und die Spalte für die Codegröße in
+  Ultimate Basic verdeckt nicht mehr die Zeilennummern.
 
 ---
 
@@ -868,6 +935,26 @@ Verwenden Sie das Suchfeld ** oben in der Palette, um nach Namen zu filtern.
 Klicken Sie auf die Schaltfläche **Ausgewählten Block hinzufügen** oder ziehen
 Sie einen Block in den Programmbereich.
 
+### Parameter im Operandenfeld
+
+Jeder Block mit Parametern benötigt diese im Operandenfeld ** vor **Add**. Bei
+einer Anweisung ist es der Operand (`06` für `LDA #$06`); bei TEXT, BYTE, LABEL,
+REGION und den anderen Text- oder Listenmakros ist es deren Text oder Wert; bei
+allen anderen Makros ist es das, was im Expertenmodus auf das Schlüsselwort
+folgt.
+
+| Block      | Operationsfeld   | Wird                     |
+| ---------- | ---------------- | ------------------------ |
+| SET_BG     | `$06`            | `.set_bg $06`            |
+| REGION     | `Main`           | `.region Main`           |
+| ORG        | `$C000`          | `* = $C000`              |
+| SPRITE_POS | `1, 200, 50`     | `.sprite_pos 1, 200, 50` |
+| SCHLEIFE   | `Y, $05, myloop` | `.loop Y, $05, myloop`   |
+
+Das Feld zeigt die Standardparameter des Makros als Hinweis an. Blöcke ohne
+Parameter (ENDREGION, ELSE …) und die Dateimakros (INCBIN, KOALA, LEVEL, SID,
+INCLUDE – sie wählen ihre Datei im Block aus) halten das Feld deaktiviert.
+
 ---
 
 ## 4. ASM-Ansicht
@@ -1187,6 +1274,12 @@ Die Befehlsliste ist absichtlich in ihrer Höhe begrenzt, damit die
 Befehlsdetailkarte die verbleibende Höhe des Bedienfelds ausfüllen kann. Der
 Detailbereich lässt sich für längere Syntaxbeschreibungen unabhängig scrollen.
 
+**Update-Server:** **Einstellungen → Updates → Update-Server** legt fest, wo
+nach Releases gesucht wird (Standard `https://www.c64va.pro/`); die
+Installationsdateien werden von `<Server>downloads/VA/` gelesen. Die Adresse
+muss `https://` lauten (nur für `localhost`, zu Testzwecken, die einfache
+Adresse `http://`); **Standard** verweist auf c64va.pro.
+
 ### Kostenlos und Open Source
 
 Visual Assembler ist kostenlos: Alle Funktionen – die visuellen Editoren (SID,
@@ -1358,6 +1451,51 @@ Variablen, Arrays, Funktionen/Unterprogramme und Labels.
 wird zur neuen Hauptdatei, und `{{PROJECT}}` wird durch den Projektnamen ersetzt
 (verwenden Sie ihn in einem Kommentar, damit die Vorlage selbst weiterhin
 kompiliert wird).
+
+### Tutorials und der Lektionseditor
+
+Das Fenster **Tutorials** listet Touren und Lektionen nach Ordnern auf. Die
+Schaltfläche **Lektionseditor…** am unteren Rand der Liste (und **Lektion
+bearbeiten** bei Ihren eigenen Lektionen) öffnet den **Lektionseditor**, mit dem
+Sie aus Ihrem eigenen Code eine Schritt-für-Schritt-Lektion wie „Erstellen: Ihr
+erstes Textprogramm“ erstellen können.
+
+1. Schreiben Sie das Programm im Block- oder Experteneditor.
+2. Drücken Sie im Lektionseditor **Schritte aus dem aktuellen Programm**. Jede
+   Zeile wird zu den Schritten des Schülers: Wählen Sie die Eselsbrücke (eine
+   falsche ist vorausgewählt), geben Sie den Operanden ein und drücken Sie
+   **Hinzufügen**. Wenn die Palette nicht alles festlegen kann (z. B. eine
+   Textposition), zeigt der Schritt **Parameter festlegen** auf den neuen Block
+   und fährt fort, sobald eine Übereinstimmung gefunden wird.
+3. Geben Sie der Lektion einen Titel, eine Beschreibung, einen
+   Schwierigkeitsgrad und einen Ordner (beliebige Tutorial-Kategorie). Fügen Sie
+   Textschritte für Erklärungen hinzu und verweisen Sie optional auf einen
+   Bereich des Fensters (Palette, Programmfenster, ASM-Ansicht,
+   Ausführen-Schaltfläche, Speicherbelegung). Lassen Sie Titel und Erklärung
+   eines Schritts für den generierten Text leer.
+4. **Lektion ausprobieren** (dadurch wird das aktuelle Programm gelöscht), dann
+   **Lektion speichern** (Strg+S).
+
+Texte werden in der aktuellen Benutzeroberflächensprache gespeichert; ein
+Schüler, der eine andere Sprache verwendet, sieht diese oder den generierten
+Text, falls Sie „Keine“ angegeben haben. **Makroparameter automatisch
+ausfüllen** überspringt die Parameterschritte für den Schüler. **Dateien ▾**
+erstellt, löscht, exportiert und importiert Lektionen als `.vatut`-Dateien und
+öffnet den Lektionsordner.
+
+#### Online-Unterricht
+
+**Online-Lektionen…** Im Tutorial-Fenster werden die auf www.c64va.pro
+veröffentlichten Lektionen mit Ordner, Schwierigkeitsgrad und Schrittanzahl
+aufgelistet. **Herunterladen** fügt eine Lektion dem entsprechenden Ordner in
+der Tutorial-Liste hinzu; **Aktualisieren** erscheint, wenn eine neuere Version
+der Website verfügbar ist (der Lektionseditor aktualisiert die Lektionsversion
+bei jedem Speichern). Um Ihre eigene Lektion zu teilen, verwenden Sie **Dateien
+▾ → Auf c64va.pro hochladen…** im Lektionseditor: Geben Sie Ihren Namen (als
+Autor angezeigt) und optional Ihre E-Mail-Adresse und eine kurze Notiz an. Die
+Lektion wird zunächst geprüft; nach der Genehmigung erscheint sie in der
+Online-Lektionsliste für alle Benutzer. Ihre E-Mail-Adresse wird niemals
+veröffentlicht.
 
 ### Laufen, D64 und Exomizer
 
@@ -5887,8 +6025,9 @@ erklingen; ohne WebSID wird stattdessen ein kleiner SID-Synthesizer verwendet.
 
 **Vorschau-Engine:** **Einstellungen → SID-Vorschau** wählt **WebSID** oder **VA
 SID Core (Rust)**, die eigene SID-Emulation der App; bei VA SID Core wählen Sie
-auch den Chip (MOS 6581 / 8580). Die Instrumentenparameter werden über
-Drehregler eingestellt.
+auch den Chip (MOS 6581 / 8580). Die Kopfzeile des Editors zeigt die verwendete
+Engine an (z. B. *· VA SID Core v1.2 (MOS 8580)*). Die Instrumentenparameter
+werden über Drehregler eingestellt.
 
 **Instrumentenspezifische Steuerung:**
 - Wellenform-Kontrollkästchen (TRI / SAW / PUL / NOI) — mehrere Wellenformen
@@ -5926,8 +6065,8 @@ Drehregler eingestellt.
   Pickup, Explosion).
 
 **Tracker-Gitter:**
-- 3 Stimmen × bis zu 7 Muster × 32 Zeilen = 7 × 32 = maximal 224 Zeilen
-  (begrenzt durch einen 8-Bit-Zeilenzähler).
+- 3 Stimmen × bis zu 256 Muster × 32 Zeilen; die Lied-/Reihenfolgeliste enthält
+  bis zu 255 Schritte.
 - Pro Zeile: Note + Instrumentenindex, plus ein optionaler Effekt (siehe
   **Effektspalte** unten). Leere Zeilen enthalten die vorherige Note: Wie bei
   anderen Trackern (GoatTracker, SID-Wizard) behält eine Note ihren Haltepegel
@@ -5960,8 +6099,9 @@ Drehregler eingestellt.
 - Beim Einfügen von Zellbereichen beginnt die Einfügung nun an der Startzelle
   des ausgewählten Bereichs und endet sauber an den Zeilen- und Bereichsgrenzen,
   anstatt in die nächste Spalte oder Zeile umzubrechen.
-- Mit dem Geschwindigkeitsregler wird der IRQ-Tick-Teiler (Frames zwischen den
-  Zeilen) festgelegt.
+- Die Geschwindigkeit **Speed** (Frames zwischen den Zeilen, 1–255) wird
+  eingegeben oder mit den daneben stehenden Tasten − / + schrittweise
+  eingestellt; der Effekt `F` ändert sie während der Wiedergabe.
 
 **Song / Reihenfolge:**
 - Die Muster werden über eine Song-/Reihenfolgeliste angeordnet, die über der
@@ -6038,6 +6178,7 @@ gespeichert/geladen.
 | `Exportblöcke + Minispieler`             | Fügt den vollständigen Player (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) sowie PAL-Frequenztabellen hinzu. Nach dem Export fügen Sie in Ihrem Hauptcode an der Stelle, an der die Musik starten soll, einen `JSR sid_init`-Aufruf ein; verwenden Sie stattdessen Ihren eigenen IRQ-Aufruf `JSR sid_frame` einmal pro Frame.                                                                                                                   |
 | `Assembler exportieren (Zwischenablage)` | Kopiert den vollständigen Assembler-Quelltext in die Zwischenablage.                                                                                                                                                                                                                                                                                                                                                                                               |
 | `GoatTracker .sng importieren…`          | Lädt einen GoatTracker 2-Song anstelle des aktuellen – siehe **GoatTracker import** unten.                                                                                                                                                                                                                                                                                                                                                                         |
+| `Import .sid…`                           | Konvertiert eine PSID / RSID-Melodie in ein bearbeitbares Lied anstelle des aktuellen Liedes — siehe **.sid import** unten.                                                                                                                                                                                                                                                                                                                                        |
 | `Export nach UltimateBasic`              | Schreibt einen `tune ... end`-Block (Instrumente, Reihenfolgeliste, Patternzeilen als Text) plus `music play` und fügt ihn an der Cursorposition des Ultimate Basic-Editors ein; außerhalb des UB-Modus wird der Text in die Zwischenablage kopiert. Der Ultimate Basic-Compiler erstellt den Player, daher steuern `music play` / `music stop` ihn. Die Instrumentenmodulation erfolgt in den Zeilen `imod` / `ifilt` / `igate` / `itab` (Ultimate Basic 1.6.2+). |
 
 **GoatTracker-Import:** **Dateien → GoatTracker .sng importieren…** lädt einen
@@ -6055,20 +6196,51 @@ ist nur annähernd genau, da die beiden Tracker unterschiedlich funktionieren.
   werden verworfen, und eine Meldung listet auf, was approximiert oder
   übersprungen wurde.
 - Ein vom Wavetable freigegebenes Gate wird in der nächsten freien Zeile zu
-  einem Note-Off. Nur die erste Subtune wird importiert, und die
-  Exportbeschränkung von 7 Patterns gilt weiterhin.
+  einem Note-Off. Nur die erste Subtune wird importiert.
 
-**ZP-Nutzung des Spielers: ** `$02`–`$1C` (Pattern-Zeiger, Pattern-Offset, temp)
+**.sid importieren:** **Dateien → .sid importieren…** öffnet eine
+PSID-/RSID-Datei (nur Desktop-Anwendung, verwendet VA SID Core). Wählen Sie die
+Submelodie und die Länge in Sekunden und drücken Sie **Importieren**: Die
+Melodie läuft stumm, ihre SID-Register werden Bild für Bild aufgezeichnet und
+anstelle der aktuellen Melodie in ein neues Lied umgewandelt.
+- **Hinweise:** Eine Note wird durch eine Gate-Flanke ausgelöst (ein Retrigger
+  innerhalb von 2 Frames zählt als eine Note); eine Tonhöhenänderung unter einem
+  gehaltenen Gate, das mindestens 5 Frames andauert, wird zu einer neuen,
+  retriggerten (Legato-)Note. Die Tonhöhe ist der häufigste Halbton der
+  Hauptwellenform der Note; NTSC-Melodien werden auf die PAL-Notentabelle
+  umgestimmt.
+- **Zeilen:** Zeilen beginnen exakt mit den Notenanschlägen. Die Basislänge ist
+  die längste, die für fast alle Noten passt; Zeilen dieser Länge oder eines
+  Frames länger (Funktempo, Swing, Tempowechsel) werden mit `F`-Effekten eine
+  Zeile voraus eingestellt.
+- **Instrumente: ** AD/SR, die Hauptwellenform, Pulsbreite und PWM, der Filter
+  (Routing, Modus, Resonanz, Cutoff-Sweep) sowie die Wellenform und Tonhöhe
+  jedes einzelnen Notenframes bis zum nächsten: die Wellen-/Arpeggiotabelle (ein
+  Präfix plus eine sich wiederholende Schleife, bis zu 32 Schritte). Ein
+  Drum-Attack mit fester Tonhöhe erzeugt absolute Noten, ein Arpeggio relative,
+  die über alle Noten desselben Klangs festgelegt werden; ein regelmäßiges
+  Sub-Halbton-Wobble wird zum Instrumenten-Vibrato. Das Gate kann als
+  Notenabbruch, Gate-Timer (mit hartem Neustart, wenn ADSR auf Null gesetzt
+  wird) oder Decay mit der Release-Rate fungieren. Bis zu 128 identische
+  Instrumente werden gemeinsam genutzt.
+- Eine Meldung listet auf, was angenähert wurde, beispielsweise Slides, die zu
+  Halbtonschritten werden, oder Tabellen mit mehr als 32 Schritten.
+  Multi-SID-Melodien und RSID-Melodien, die als BASIC-Programm beginnen, werden
+  nicht unterstützt.
+
+**ZP-Nutzung des Players: ** `$02`–`$1C` (Pattern-Zeiger, Pattern-Offset, temp)
 und `$2F` (aktuelle Geschwindigkeit) sowie `$FB`–`$FD` (Tick-Zähler,
-Zeilenindex, Position in der Orderliste). Stimme, Modulations- und Filterstatus
-befinden sich nach den Daten in `sid_state`. Die ZP-Bytes können in Konflikt
-geraten, wenn Ihr Hauptcode sie verwendet – verschieben Sie sie gegebenenfalls
-im Expertenmodus.
+Zeilenindex, Position in der Orderliste). Der Status von Stimme, Modulation und
+Filter befindet sich nach dem Player-Code in `sid_state`. Die ZP-Bytes können in
+Konflikt geraten, wenn Ihr Hauptcode sie verwendet – verschieben Sie sie
+gegebenenfalls im Expertenmodus.
 
 **Bekannte Grenzwerte:**
-- Ein 8-Bit-Zeilenzähler begrenzt jedes Muster auf 7 Muster × 32 Zeilen im
-  Rohdatenspeicher (die Song-/Reihenfolgeliste kann durch Wiederholung von
-  Mustern beliebig lang sein).
+- Der Spieler und sein Status befinden sich an `$C000`. Wenn die Melodiedaten
+  nicht unter `$D000` daneben passen, werden sie in ein eigenes Segment
+  verschoben, das unter `$A000` endet (der exportierte Assembler-Code enthält
+  eine zweite Zeile `* =`); achten Sie darauf, dass diese Zeile nicht mit Ihrem
+  eigenen Programm in Konflikt gerät.
 - C64 `$D418` Die globale Lautstärke wird über alle Stimmen hinweg geteilt – der
   Lautstärkeregler pro Instrument dient nur der Information; der Sustain-Pegel
   (`S` von ADSR) ist die effektive Lautstärke pro Stimme.
@@ -6116,6 +6288,43 @@ aus der HVSC-Sammlung.
   Reihenfolge zurück. Die Einstellung wird gespeichert.
 - **Favoriten:** Die ☆ / ★ in jeder Zeile markieren einen Titel; er wird im
   gespeicherten Zustand und in `.sidpl` Wiedergabelisten beibehalten.
+
+#### HVSC (Hochspannungs-SID-Sammlung)
+
+Über die Schaltfläche **HVSC** in der SID Player-Symbolleiste wird ein Suchfeld
+für die [High Voltage SID Collection](https://www.hvsc.c64.org/) geöffnet, die
+etwa 61.000 C64-Musikstücke umfasst.
+
+- **Suche:** Geben Sie einen Titel, Komponisten oder Ordner ein (`hubbard
+  commando`, `games/s-z`); jedes Wort muss übereinstimmen. **Zufällige
+  Melodien** listet 25 zufällige Melodien auf.
+- **Abspielen / Hinzufügen / Speichern: ** Klicken Sie auf einen Titel, um ihn
+  abzuspielen. **+** Fügt ihn zur Wiedergabeliste hinzu. Mit dem Download-Button
+  wird die Datei `.sid` gespeichert. **Alle Ergebnisse hinzufügen** Fügt bis zu
+  100 gefundene Titel hinzu.
+- **Tune-Längen:** HVSC kennt die Länge jedes Subtunes, daher wird sie in der
+  Suchleiste angezeigt und die Wiedergabeliste springt zum nächsten Subtune,
+  wenn dieser endet.
+- **Woher die Titel stammen:** Katalog und einzelne Titel werden bei der ersten
+  Nutzung von einem HVSC-Mirror heruntergeladen und im Cache der App
+  gespeichert, sodass ein einmal abgespielter Titel auch offline abgespielt
+  werden kann. **Katalog aktualisieren** ruft die neueste Liste ab.
+- **Gesamte Sammlung:** **Lade die gesamte Sammlung herunter…** Lädt das
+  offizielle HVSC-Archiv (ca. 85 MB) in einen Ordner Ihrer Wahl herunter und
+  entpackt es dort (ca. 380 MB). Der Player verwendet anschließend diese Kopie
+  und funktioniert offline. **Lokalen HVSC-Ordner verwenden…** Gibt einen
+  bereits vorhandenen Sammlungsordner an.
+
+#### Spektrumanalysator
+
+Die Schaltfläche „Balken“ in der SID-Player-Symbolleiste öffnet das
+Spektrumfenster: LED-ähnliche Balken von Grün über Gelb bis Orange, langsam
+ausblendende Zellen und ein gespiegelter Boden in perspektivischer Darstellung.
+Es zeigt das vom SID Player oder SID Editor wiedergegebene Audiomaterial an,
+unabhängig von der verwendeten Engine. Über „Bänder“ lassen sich 8, 16, 24 oder
+32 Bänder einstellen. Das Fenster kann verschoben und in der Größe angepasst
+werden, es schließt und öffnet sich zusammen mit dem SID Player und wird nur
+angezeigt, solange es geöffnet ist.
 
 ---
 

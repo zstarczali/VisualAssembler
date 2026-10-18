@@ -560,7 +560,27 @@ struct SidPreviewPayload {
     frames: Vec<Vec<u8>>,
 }
 
-static SID_PREVIEW_SESSIONS: OnceLock<Mutex<HashMap<String, (sid_core::SidCore, Instant)>>> = OnceLock::new();
+static SID_PREVIEW_SESSIONS: OnceLock<Mutex<HashMap<String, (sid_core::SidCore, [u8; 3], Instant)>>> = OnceLock::new();
+
+/// Writes one SID Editor register frame in the player's order: per voice
+/// AD / SR, frequency and pulse width before the control register (a restarted
+/// note first gets its gate cleared), then the filter and volume.
+fn write_preview_frame(sid: &mut sid_core::SidCore, registers: &[u8], last_ctl: &mut [u8; 3]) {
+    let restart = registers.get(0x19).copied().unwrap_or(0);
+    for voice in 0..3 {
+        let base = voice * 7;
+        if restart & (1 << voice) != 0 {
+            sid.write((base + 4) as u8, last_ctl[voice] & 0xfe);
+        }
+        for offset in [5, 6, 0, 1, 2, 3, 4] {
+            sid.write((base + offset) as u8, registers[base + offset]);
+        }
+        last_ctl[voice] = registers[base + 4];
+    }
+    for address in 0x15..0x19 {
+        sid.write(address as u8, registers[address]);
+    }
+}
 
 /// Offline renderer for the SID Editor's original Rust core.  Audio is
 /// rendered in short frame batches on the backend, then scheduled by Web Audio
@@ -578,10 +598,11 @@ fn render_sid_preview_blocking(payload: SidPreviewPayload) -> Result<String, Str
     if payload.frames.is_empty() || payload.frames.len() > MAX_FRAMES {
         return Err("Invalid SID preview length.".to_string());
     }
-    // The SID Editor sends the 25 implemented registers ($D400-$D418).
-    // The core keeps a 32-byte address space internally, but the unused
-    // register tail is not part of a SID register frame.
-    if payload.frames.iter().any(|frame| frame.len() != 0x19) {
+    // The SID Editor sends the 25 implemented registers ($D400-$D418), and
+    // optionally a 26th byte: bits 0-2 = voices whose note restarted in this
+    // frame (the player clears the gate and sets it again within the frame,
+    // which the final register values alone do not show).
+    if payload.frames.iter().any(|frame| frame.len() != 0x19 && frame.len() != 0x1a) {
         return Err("Invalid SID register frame: expected 25 registers ($D400-$D418).".to_string());
     }
 
@@ -591,13 +612,11 @@ fn render_sid_preview_blocking(payload: SidPreviewPayload) -> Result<String, Str
     } else {
         sid_core::SidModel::Mos8580
     };
-    let render_frames = |sid: &mut sid_core::SidCore| {
+    let render_frames = |sid: &mut sid_core::SidCore, last_ctl: &mut [u8; 3]| {
         let mut pcm = Vec::<i16>::with_capacity((payload.frames.len() * sample_rate as usize) / 50 + 2);
         let mut rendered = 0usize;
         for (frame_index, registers) in payload.frames.iter().enumerate() {
-            for (address, value) in registers.iter().enumerate() {
-                sid.write(address as u8, *value);
-            }
+            write_preview_frame(sid, registers, last_ctl);
             let target = ((frame_index + 1) * sample_rate as usize) / 50;
             let mut chunk = vec![0i16; target.saturating_sub(rendered)];
             sid.render(&mut chunk);
@@ -612,17 +631,17 @@ fn render_sid_preview_blocking(payload: SidPreviewPayload) -> Result<String, Str
         }
         let sessions = SID_PREVIEW_SESSIONS.get_or_init(|| Mutex::new(HashMap::new()));
         let mut sessions = sessions.lock().map_err(|_| "SID preview state is unavailable.")?;
-        sessions.retain(|_, (_, last_used)| last_used.elapsed() < Duration::from_secs(180));
+        sessions.retain(|_, (_, _, last_used)| last_used.elapsed() < Duration::from_secs(180));
         if !sessions.contains_key(session_id) && sessions.len() >= 16 {
             return Err("Too many active SID previews.".to_string());
         }
-        let (sid, last_used) = sessions.entry(session_id.to_string()).or_insert_with(|| {
-            (sid_core::SidCore::new(sample_rate, model), Instant::now())
+        let (sid, last_ctl, last_used) = sessions.entry(session_id.to_string()).or_insert_with(|| {
+            (sid_core::SidCore::new(sample_rate, model), [0; 3], Instant::now())
         });
         *last_used = Instant::now();
-        render_frames(sid)
+        render_frames(sid, last_ctl)
     } else {
-        render_frames(&mut sid_core::SidCore::new(sample_rate, model))
+        render_frames(&mut sid_core::SidCore::new(sample_rate, model), &mut [0; 3])
     };
 
     let bytes: Vec<u8> = pcm.iter().flat_map(|sample| sample.to_le_bytes()).collect();
@@ -747,6 +766,52 @@ fn sid_file_info(session_id: String) -> Result<serde_json::Value, String> {
         .try_lock()
         .map_err(|_| "SID file playback session is busy.".to_string())?;
     Ok(serde_json::json!({ "songs": player.songs(), "song": player.song() }))
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct SidDumpPayload {
+    file_bytes: Vec<u8>,
+    /// 1-based subtune; 0 = the header's start song.
+    #[serde(default)]
+    song: u16,
+    seconds: u32,
+}
+
+/// Runs a .sid tune silently and returns its SID register writes frame by
+/// frame (the SID Editor's .sid import converts them into patterns).
+#[tauri::command]
+async fn sid_register_dump(app: AppHandle, payload: SidDumpPayload) -> Result<serde_json::Value, String> {
+    tauri::async_runtime::spawn_blocking(move || sid_register_dump_blocking(&app, payload))
+        .await
+        .map_err(|e| format!("SID register dump failed: {e}"))?
+}
+
+fn sid_register_dump_blocking(app: &AppHandle, payload: SidDumpPayload) -> Result<serde_json::Value, String> {
+    use tauri::Emitter;
+    if payload.file_bytes.len() > 1_048_576 {
+        return Err("SID file is too large.".into());
+    }
+    let mut player =
+        sid_file::SidFilePlayer::with_song(&payload.file_bytes, 44_100, sid_core::SidModel::Mos8580, payload.song)?;
+    let frames = (f64::from(payload.seconds.clamp(1, 900)) * player.frame_rate()).round() as usize;
+    // about one progress event per percent
+    let step = (frames / 100).max(1);
+    let regs = player.dump_registers(frames, |done| {
+        if done % step == 0 || done == frames {
+            let _ = app.emit("sid-dump-progress", serde_json::json!({ "done": done, "total": frames }));
+        }
+    });
+    let (name, author) = sid_file::header_strings(&payload.file_bytes);
+    Ok(serde_json::json!({
+        "songs": player.songs(),
+        "song": player.song(),
+        "frameRate": player.frame_rate(),
+        "frameBytes": sid_file::DUMP_FRAME_BYTES,
+        "name": name,
+        "author": author,
+        "regs": base64::engine::general_purpose::STANDARD.encode(regs),
+    }))
 }
 
 #[tauri::command]
@@ -4371,7 +4436,7 @@ fn compile_ultimate_basic(
         .spawn(move || {
             use ultimate_basic::compiler::{compile_with_path, debug_output, CompileOptions};
             let path = source_path.as_deref().filter(|p| !p.is_empty()).map(Path::new);
-            let result = compile_with_path(&source, &CompileOptions { basic_stub: true, explicit: explicit.unwrap_or(false) }, path);
+            let result = compile_with_path(&source, &CompileOptions { basic_stub: true, explicit: explicit.unwrap_or(false), basic_print: false }, path);
             let map = &result.map;
             let debug_source_path = path.unwrap_or_else(|| Path::new("program.ub"));
             serde_json::json!({
@@ -4858,11 +4923,64 @@ mod tests {
 // olvassuk ki — nincs külön manifest. Ha a főoldalon nem található platformhoz
 // illő link, a downloads/VA/ könyvtárlistázást is megpróbáljuk.
 
-const UPDATE_PAGE_URLS: [&str; 2] = [
-    "https://www.c64va.pro/",
-    "https://www.c64va.pro/downloads/VA/",
-];
-const UPDATE_DOWNLOAD_BASE: &str = "https://www.c64va.pro/downloads/VA/";
+// A szerver a Beállításokban megadható (config `updateServer`); a telepítők a
+// `<szerver>downloads/VA/` alatt vannak.
+const UPDATE_SERVER_DEFAULT: &str = "https://www.c64va.pro/";
+
+/// Az update szerver címe ellenőrizve, `/`-re végződve: https, vagy http csak
+/// localhostra (helyi teszt); felhasználónév, query és fragment nélkül.
+fn normalize_update_server(raw: &str) -> Result<String, String> {
+    let raw = raw.trim();
+    if raw.is_empty() {
+        return Ok(UPDATE_SERVER_DEFAULT.to_string());
+    }
+    let url = reqwest::Url::parse(raw).map_err(|_| format!("Invalid update server address: {raw}"))?;
+    let host = url.host_str().unwrap_or("");
+    let local = matches!(host, "localhost" | "127.0.0.1" | "[::1]");
+    let scheme_ok = url.scheme() == "https" || (url.scheme() == "http" && local);
+    if !scheme_ok || host.is_empty() || !url.username().is_empty() || url.password().is_some()
+        || url.query().is_some() || url.fragment().is_some()
+    {
+        return Err(format!("Invalid update server address (https:// required): {raw}"));
+    }
+    let mut s = url.to_string();
+    if !s.ends_with('/') {
+        s.push('/');
+    }
+    Ok(s)
+}
+
+fn update_server(app: &AppHandle) -> String {
+    let cfg = read_config(app);
+    normalize_update_server(cfg["updateServer"].as_str().unwrap_or(""))
+        .unwrap_or_else(|_| UPDATE_SERVER_DEFAULT.to_string())
+}
+
+#[tauri::command]
+fn get_update_server(app: AppHandle) -> serde_json::Value {
+    let cfg = read_config(&app);
+    serde_json::json!({
+        "updateServer": cfg["updateServer"].as_str().unwrap_or(""),
+        "effective": update_server(&app),
+        "default": UPDATE_SERVER_DEFAULT,
+    })
+}
+
+/// Üres cím = alapértelmezett szerver.
+#[tauri::command]
+fn set_update_server(app: AppHandle, url: String) -> Result<serde_json::Value, String> {
+    let normalized = normalize_update_server(&url)?;
+    let mut cfg = read_config(&app);
+    if normalized == UPDATE_SERVER_DEFAULT {
+        if let Some(map) = cfg.as_object_mut() {
+            map.remove("updateServer");
+        }
+    } else {
+        cfg["updateServer"] = serde_json::json!(normalized);
+    }
+    write_config(&app, &cfg);
+    Ok(get_update_server(app))
+}
 
 fn parse_version_triplet(s: &str) -> Option<(u32, u32, u32)> {
     let mut parts = s.trim().trim_start_matches('v').split('.');
@@ -4946,10 +5064,15 @@ async fn check_for_update(app: AppHandle) -> Result<serde_json::Value, String> {
         return Ok(serde_json::json!({ "supported": false, "currentVersion": current }));
     };
     let client = update_http_client(&app, 15)?;
+    let server = update_server(&app);
+    let download_base = format!("{server}downloads/VA/");
+    // supporters may be offered a version released to them first (register/release.php)
+    let query = if is_supporter(&read_config(&app)) { "?sup=1" } else { "" };
+    let pages = [format!("{server}{query}"), format!("{download_base}{query}")];
 
     let mut latest: Option<(u32, u32, u32)> = None;
     let mut last_err = String::new();
-    for url in UPDATE_PAGE_URLS {
+    for url in &pages {
         match client
             .get(url)
             .send()
@@ -4983,7 +5106,8 @@ async fn check_for_update(app: AppHandle) -> Result<serde_json::Value, String> {
         "latestVersion": latest_str,
         "updateAvailable": (ma, mi, pa) > current_v,
         "fileName": file_name,
-        "url": format!("{}{}", UPDATE_DOWNLOAD_BASE, urlencoding::encode(&file_name)),
+        "url": format!("{}{}", download_base, urlencoding::encode(&file_name)),
+        "server": server,
     }))
 }
 
@@ -5142,8 +5266,8 @@ async fn download_and_install_update(
     let file_name =
         update_asset_name(&version).ok_or("Self-update is not supported on this platform.")?;
     let url = format!(
-        "{}{}",
-        UPDATE_DOWNLOAD_BASE,
+        "{}downloads/VA/{}",
+        update_server(&app),
         urlencoding::encode(&file_name)
     );
 
@@ -5303,6 +5427,9 @@ pub fn run() {
             release_sid_preview,
             render_sid_file,
             sid_file_info,
+            sid_register_dump,
+            get_update_server,
+            set_update_server,
             release_sid_file,
             check_for_update,
             download_and_install_update,
@@ -5460,5 +5587,56 @@ mod sid_file_session_tests {
         assert!(sessions.len() <= 8);
         assert!(sessions.contains_key("switch-11"));
         assert!(!sessions.contains_key("switch-0"));
+    }
+}
+
+#[cfg(test)]
+mod sid_preview_tests {
+    use super::*;
+
+    /// Voice 3 envelope after a few frames where the note is restarted under a
+    /// held gate (the SID Editor engine's note on), with and without the flag.
+    fn env_after_restart(flag: bool) -> u8 {
+        let mut sid = sid_core::SidCore::new(44_100, sid_core::SidModel::Mos8580);
+        let mut last = [0u8; 3];
+        let mut frame = vec![0u8; 0x1a];
+        frame[14] = 0x00;
+        frame[15] = 0x10; // frequency
+        frame[18] = 0x21; // saw + gate
+        frame[19] = 0x00; // attack 0, decay 0
+        frame[20] = 0x00; // sustain 0
+        frame[0x18] = 0x0f;
+        let mut pcm = vec![0i16; 882];
+        for k in 0..10 {
+            frame[0x19] = if k == 6 && flag { 4 } else { 0 };
+            write_preview_frame(&mut sid, &frame, &mut last);
+            sid.render(&mut pcm[..if k == 6 { 20 } else { 882 }]);
+            if k == 6 {
+                return sid.read(0x1c);
+            }
+        }
+        unreachable!()
+    }
+
+    #[test]
+    fn restart_flag_retriggers_the_envelope_under_a_held_gate() {
+        assert_eq!(env_after_restart(false), 0, "sustain 0: the envelope has died out");
+        assert!(env_after_restart(true) > 0, "the restart gives a new attack");
+    }
+}
+
+#[cfg(test)]
+mod update_server_tests {
+    use super::*;
+
+    #[test]
+    fn update_server_is_normalized_and_checked() {
+        assert_eq!(normalize_update_server("").unwrap(), UPDATE_SERVER_DEFAULT);
+        assert_eq!(normalize_update_server("  https://www.c64va.pro  ").unwrap(), "https://www.c64va.pro/");
+        assert_eq!(normalize_update_server("https://mirror.example.org/va").unwrap(), "https://mirror.example.org/va/");
+        assert_eq!(normalize_update_server("http://localhost:8080/").unwrap(), "http://localhost:8080/");
+        for bad in ["http://www.c64va.pro/", "ftp://x.org/", "www.c64va.pro", "https://u:p@x.org/", "https://x.org/?a=1", "file:///c:/x"] {
+            assert!(normalize_update_server(bad).is_err(), "{bad}");
+        }
     }
 }

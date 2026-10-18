@@ -7084,6 +7084,15 @@ html[data-theme="commodore77"] .splash-image {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
+  align-items: start;
+}
+
+/* Three columns of cards, each as tall as its own content (no stretched rows). */
+.hw-settings-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
 }
 
 @media (max-width: 1000px) {
@@ -7093,6 +7102,11 @@ html[data-theme="commodore77"] .splash-image {
 
   .hw-settings-body {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+  }
+
+  .hw-settings-col {
+    display: contents;
   }
 }
 
@@ -9860,6 +9874,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-hdr .ed-file-menu { z-index: 40; left: 0; right: auto; }
 .sid-title { font-family: inherit; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text); }
 .sid-hdr .sid-xbtn { margin-left: auto; }
+.sid-engine-name { font-size: 0.72rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sid-xbtn { background: none; border: none; color: var(--secondary); font-size: 1.3rem; cursor: pointer; padding: 0; line-height: 1; min-height: 0; height: 28px; width: 28px; }
 .sid-xbtn:hover { color: var(--text); }
 .sid-body { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 8px 12px; display: flex; flex-direction: column; gap: 6px; box-sizing: border-box; }
@@ -9873,7 +9888,8 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 #sid-play-mode { width: 92px; flex: 0 0 92px; }
 #sid-inst-name { width: 180px; flex: 0 0 auto; }
 .sid-wave-row .sid-mini-lbl { margin-left: 20px; }
-.sid-speed { width: 56px; text-align: center; }
+.sid-input.sid-speed { width: 40px; padding: 0 4px; text-align: center; -moz-appearance: textfield; appearance: textfield; }
+.sid-input.sid-speed::-webkit-inner-spin-button, .sid-input.sid-speed::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 .sid-metronome-btn.sid-metronome-on {
   color: var(--accent, #4ade80);
   background: color-mix(in srgb, var(--accent, #4ade80) 18%, transparent);
@@ -9894,6 +9910,44 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-midi-led { width: 10px; height: 10px; flex: 0 0 10px; border-radius: 50%; background: #5a2222; border: 1px solid rgba(255,255,255,0.28); box-shadow: inset 0 1px 2px rgba(0,0,0,0.8); transition: background 0.15s ease-out, box-shadow 0.15s ease-out; }
 .sid-midi-led.sid-midi-led--on { background: #ff4545; box-shadow: 0 0 8px #ff4545; transition: none; }
 .sid-master-vol-wrap ~ .sid-xbtn { margin-left: 0; }  /* was: margin-left: auto — wrap owns the auto now */
+/* label + number on one text baseline (Inter vs IBM Plex Mono) */
+.sid-bpm-wrap { display: inline-flex; align-items: baseline; gap: 4px; }
+.sid-tb-sep { width: 1px; height: 22px; background: var(--panel-border); margin: 0 4px; flex: 0 0 1px; }
+.ce-tool-btn.sid-transport-on { color: #4ade80; }
+.ce-tool-btn.sid-pause-btn.sid-pause-on { color: #f5b942; background: rgba(245, 185, 66, 0.16); }
+/* SID Editor playback counter: a backlit digital LCD (position, pattern, row, time) */
+.sid-lcd {
+  display: inline-flex; align-items: stretch; gap: 10px;
+  height: 30px; padding: 2px 10px; box-sizing: border-box; border-radius: 3px;
+  background: linear-gradient(180deg, #0f1d0d 0%, #071206 100%);
+  box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.8), 0 0 0 2px #262626, 0 0 0 3px rgba(255, 255, 255, 0.12);
+  color: #8dff6e; font-family: "C64ProMono", monospace; text-transform: uppercase;
+  user-select: none;
+}
+.sid-lcd-cell { display: inline-flex; flex-direction: column; justify-content: center; align-items: flex-start; line-height: 1.1; }
+.sid-lcd-cell i { font-style: normal; font-size: 7px; letter-spacing: 0.08em; color: #4f9c40; }
+.sid-lcd-cell b { font-weight: normal; font-size: 12px; letter-spacing: 0.04em; text-shadow: 0 0 4px rgba(141, 255, 110, 0.75); font-variant-numeric: tabular-nums; }
+.sid-lcd--playing .sid-lcd-cell b { color: #b8ff9e; }
+/* red LED variant (Settings → SID preview → LCD colour) */
+.sid-lcd.sid-lcd--red { background: linear-gradient(180deg, #1d0606 0%, #110303 100%); color: #ff5a4a; }
+.sid-lcd--red .sid-lcd-cell i { color: #9a2a22; }
+.sid-lcd--red .sid-lcd-cell b { text-shadow: 0 0 5px rgba(255, 60, 45, 0.85); }
+.sid-lcd--red.sid-lcd--playing .sid-lcd-cell b { color: #ff7a6c; }
+/* VA-VK instrument knob + LCD (the knob steps through the instruments) */
+.sid-vkbd-inst-wrap { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; }
+.sid-vkbd-inst-wrap + .sid-master-vol-wrap { margin-left: 0; }
+.sid-vkbd-lcd {
+  display: inline-flex; flex-direction: column; justify-content: center;
+  width: 150px; height: 34px; padding: 2px 8px; box-sizing: border-box;
+  border-radius: 3px; overflow: hidden;
+  background: linear-gradient(180deg, #b4cf72 0%, #93b453 100%);
+  color: #1d2b0f; font-family: "C64ProMono", monospace; font-size: 8px; line-height: 1.5;
+  letter-spacing: 0.02em; text-transform: uppercase;
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.55), 0 0 0 2px #262626, 0 0 0 3px rgba(255, 255, 255, 0.12);
+  text-shadow: 1px 1px 0 rgba(29, 43, 15, 0.18);
+}
+.sid-vkbd-lcd-num { opacity: 0.7; }
+.sid-vkbd-lcd-name { white-space: nowrap; overflow: hidden; font-size: 10px; }
 .sid-master-vol-lbl {
   font-family: inherit;
   font-size: 0.7rem;
@@ -10445,7 +10499,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-vkbd-brand { display: flex; align-items: center; gap: 14px; padding: 8px 14px; background: linear-gradient(180deg, #2c2a26, #24221f); border-bottom: 1px solid #14130f; }
 .sid-vkbd-brand-name { font-family: "C64Pro", monospace; font-size: 0.78rem; letter-spacing: 0.06em; color: #d8d2c4; }
 .sid-vkbd-brand-name b { color: #fff; font-weight: 400; }
-.sid-vkbd-brand-chip { font-family: "IBM Plex Mono", monospace; font-size: 0.66rem; letter-spacing: 0.12em; color: #a59f92; border: 1px solid #5a554c; border-radius: 2px; padding: 1px 6px; }
+.sid-vkbd-brand-chip { font-family: "IBM Plex Mono", monospace; font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase; white-space: nowrap; color: #a59f92; border: 1px solid #5a554c; border-radius: 2px; padding: 1px 6px; }
 .sid-vkbd-stripes { margin-left: auto; display: flex; gap: 3px; transform: skewX(-28deg); margin-right: 6px; }
 .sid-vkbd-stripes i { display: block; width: 14px; height: 18px; }
 .sid-vkbd-stripes i:nth-child(1) { background: #cc2200; }
@@ -11425,6 +11479,15 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
   color: var(--muted);
 }
 
+/* SID Editor .sid import */
+.sid-import-sid-dialog .app-confirm-card { gap: 14px; }
+.sid-import-sid-title { font-weight: 700; }
+.sid-import-sid-tune { margin: -8px 0 0; font-size: 0.8rem; color: var(--muted); }
+.sid-import-sid-tune:empty, .sid-import-sid-status:empty { display: none; }
+.sid-import-sid-fields { display: grid; grid-template-columns: 1fr 90px; gap: 8px 12px; align-items: center; font-size: 0.82rem; }
+.sid-import-sid-num { box-sizing: border-box; width: 100%; height: 28px; min-height: 0; padding: 3px 6px; }
+.sid-import-sid-dialog button:disabled, .sid-import-sid-num:disabled { opacity: 0.5; cursor: default; pointer-events: none; }
+.sid-import-sid-status { margin: 0; font-size: 0.75rem; color: var(--muted); overflow-wrap: anywhere; }
 /* Server message dialog (register/message.php) */
 .server-message-dialog .app-confirm-card { width: min(520px, calc(100vw - 32px)); }
 .server-message-body { overflow-wrap: anywhere; max-height: 50vh; overflow-y: auto; }
