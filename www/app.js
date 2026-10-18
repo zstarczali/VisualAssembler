@@ -46425,12 +46425,34 @@ function _sidPauseBtnMarkup(isPlaying) {
 }
 function _sidUpdatePauseButton() {
   const isPlaying = !!(_sidTimer || _sidPlaybackUsingWebSid) && !_sidPaused;
-  ["sid-play", "sid-vkbd-play", "sid-roll-play"].forEach(function(id) {
+  ["sid-vkbd-play", "sid-roll-play"].forEach(function(id) {
     const btn = document.getElementById(id);
     if (!btn) return;
     btn.innerHTML = _sidPauseBtnMarkup(isPlaying);
     btn.setAttribute("aria-label", _sidPaused ? t("sidResume") : isPlaying ? t("sidPause") : t("sidPlay"));
   });
+  // the tracker toolbar has separate Play and Pause buttons
+  const play = document.getElementById("sid-play");
+  if (play) {
+    play.setAttribute("aria-label", _sidPaused ? t("sidResume") : t("sidPlay"));
+    play.classList.toggle("sid-transport-on", isPlaying);
+  }
+  const pause = document.getElementById("sid-pause");
+  if (pause) {
+    pause.setAttribute("aria-label", _sidPaused ? t("sidResume") : t("sidPause"));
+    pause.setAttribute("aria-pressed", _sidPaused ? "true" : "false");
+    pause.classList.toggle("sid-pause-on", _sidPaused);
+  }
+}
+// Tracker Play: start, or continue after a pause; does nothing while playing.
+function _sidPlayOnly() {
+  if (_sidPaused) { _sidPlay(false); return; }
+  if (_sidTimer || _sidPlaybackUsingWebSid) return;
+  _sidPlay(true);
+}
+// Tracker Pause: pause while playing, continue when paused; stopped, nothing.
+function _sidPauseOnly() {
+  if (_sidPaused || _sidTimer || _sidPlaybackUsingWebSid) _sidPauseToggle();
 }
 
 function _webSidShowExternalDialog(filename, engine) {
@@ -50446,7 +50468,8 @@ function setupSidEditor() {
       function() { return Math.round(_sidMasterVol * 100); },
       function(pct) { _sidSetMasterVolume(pct); });
   });
-  onId("sid-play", "click", _sidPauseToggle);
+  onId("sid-play", "click", _sidPlayOnly);
+  onId("sid-pause", "click", _sidPauseOnly);
   onId("sid-stop", "click", _sidStop);
   onId("sid-vkbd-play", "click", _sidPauseToggle);
   onId("sid-vkbd-stop", "click", _sidStop);

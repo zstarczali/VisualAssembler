@@ -9910,6 +9910,9 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-midi-led { width: 10px; height: 10px; flex: 0 0 10px; border-radius: 50%; background: #5a2222; border: 1px solid rgba(255,255,255,0.28); box-shadow: inset 0 1px 2px rgba(0,0,0,0.8); transition: background 0.15s ease-out, box-shadow 0.15s ease-out; }
 .sid-midi-led.sid-midi-led--on { background: #ff4545; box-shadow: 0 0 8px #ff4545; transition: none; }
 .sid-master-vol-wrap ~ .sid-xbtn { margin-left: 0; }  /* was: margin-left: auto — wrap owns the auto now */
+.sid-tb-sep { width: 1px; height: 22px; background: var(--panel-border); margin: 0 4px; flex: 0 0 1px; }
+.ce-tool-btn.sid-transport-on { color: #4ade80; }
+.ce-tool-btn.sid-pause-btn.sid-pause-on { color: #f5b942; background: rgba(245, 185, 66, 0.16); }
 /* SID Editor playback counter: a backlit digital LCD (position, pattern, row, time) */
 .sid-lcd {
   display: inline-flex; align-items: stretch; gap: 10px;
