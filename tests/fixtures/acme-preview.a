@@ -1,0 +1,9 @@
+!cpu 6502
+* = $c000
+start:
+    lda #$06
+    sta $d020
+    rts
+table:
+    !word start, $1234
+    !byte $ea, $ff

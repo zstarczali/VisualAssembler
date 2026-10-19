@@ -1391,6 +1391,18 @@ async fn choose_exomizer_executable(app: AppHandle) -> serde_json::Value {
     }
 }
 
+#[tauri::command]
+async fn choose_acme_executable(app: AppHandle) -> serde_json::Value {
+    let dialog = app.dialog().clone();
+    let file_dialog = dialog.file();
+    #[cfg(target_os = "windows")]
+    let file_dialog = file_dialog.add_filter("Executable", &["exe"]);
+    match file_dialog.blocking_pick_file() {
+        Some(path) => { let p = path.to_string(); let mut cfg = read_config(&app); cfg["acmePath"] = serde_json::json!(p); write_config(&app, &cfg); serde_json::json!({"canceled":false,"acmePath":p}) }
+        None => serde_json::json!({"canceled":true}),
+    }
+}
+
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct LaunchVicePayload {
@@ -1398,6 +1410,14 @@ struct LaunchVicePayload {
     file_name: Option<String>,
     #[serde(default)]
     sidecars: Option<DebuggerSidecars>,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct BuildAcmePayload {
+    source: String,
+    file_name: Option<String>,
+    source_path: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -1444,6 +1464,28 @@ fn write_debugger_sidecars(base_path: &Path, sidecars: &DebuggerSidecars) -> Res
     Ok(())
 }
 
+/// End address (after the $0000 link) of a BASIC program at the start of a
+/// PRG loaded at $0801, or None when the PRG holds no BASIC program.
+fn basic_program_end(prg: &[u8]) -> Option<u16> {
+    if prg.len() < 4 || prg[0] != 0x01 || prg[1] != 0x08 {
+        return None;
+    }
+    let byte_at = |address: usize| prg.get(address - 0x0801 + 2).copied();
+    let mut line = 0x0801usize;
+    for _ in 0..64 {
+        let link = byte_at(line)? as usize | (byte_at(line + 1)? as usize) << 8;
+        if link == 0 {
+            return if line > 0x0801 { Some((line + 2) as u16) } else { None };
+        }
+        // The line must hold its number and at least one token before the next.
+        if link <= line + 4 || link >= 0xA000 {
+            return None;
+        }
+        line = link;
+    }
+    None
+}
+
 fn crunch_with_exomizer(
     exomizer_path: &str,
     input_bytes: &[u8],
@@ -1485,6 +1527,7 @@ fn crunch_with_exomizer(
     }
     let load_str;
     let infile_with_target;
+    let sfx_target;
     let args: Vec<&str> = if raw_mode {
         // exomizer mem (backward, default): -l <load> sets the PRG load address;
         // appending ",<target>" to the input filename tells exomizer the original
@@ -1508,12 +1551,27 @@ fn crunch_with_exomizer(
             infile_with_target.as_str(),
         ]
     } else {
-        // sfx sys: self-extracting PRG. -x1 = fast accumulator-based border-flash
+        // Self-extracting PRG. -x1 = fast accumulator-based border-flash
         // decrunch effect; -n disables any effect. Controlled by UI setting.
+        // A PRG with a BASIC SYS stub uses "sfx basic": after decrunching it
+        // RUNs the original BASIC line, so the RTS of the user code returns to
+        // that line. With "sfx sys" the BASIC text pointer still points into the
+        // SFX's own (overwritten) SYS line and the RTS ends in ?SYNTAX ERROR.
         let effect_flag = if border_flash { "-x1" } else { "-n" };
+        // Like a plain LOAD, "basic" leaves the BASIC end at the end of the data.
+        // A PRG without a BASIC line (SYS stub off) starts at its load address.
+        let load = input_bytes.first().copied().unwrap_or(0) as u16
+            | (input_bytes.get(1).copied().unwrap_or(0) as u16) << 8;
+        sfx_target = if basic_program_end(input_bytes).is_some() {
+            "basic".to_string()
+        } else if load != 0x0801 {
+            format!("${:04X}", load)
+        } else {
+            "sys".to_string()
+        };
         vec![
             "sfx",
-            "sys",
+            sfx_target.as_str(),
             effect_flag,
             "-o",
             output_path.to_str().unwrap(),
@@ -1543,6 +1601,68 @@ fn crunch_with_exomizer(
 
     let bytes = fs::read(&output_path).map_err(|e| format!("read {:?}: {}", output_path, e))?;
     Ok((output_path, bytes))
+}
+
+#[tauri::command]
+async fn build_acme_prg(app: AppHandle, payload: BuildAcmePayload) -> serde_json::Value {
+    let cfg = read_config(&app);
+    let acme_path = cfg["acmePath"].as_str().unwrap_or("").trim().to_string();
+    if acme_path.is_empty() {
+        return serde_json::json!({ "ok": false, "error": "ACME nincs beállítva. A Beállításokban válaszd ki az acme.exe fájlt." });
+    }
+    if !Path::new(&acme_path).is_file() {
+        return serde_json::json!({ "ok": false, "error": format!("ACME executable not found: {}", acme_path) });
+    }
+    let temp_dir = std::env::temp_dir().join("c64-visual-assembler");
+    if let Err(error) = fs::create_dir_all(&temp_dir) {
+        return serde_json::json!({ "ok": false, "error": error.to_string() });
+    }
+    let stamp = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis();
+    let stem = payload.file_name.as_deref().unwrap_or("program").trim_end_matches(".asm").trim_end_matches(".a");
+    let source_path = temp_dir.join(format!("{}-{}.a", stem, stamp));
+    let output_path = temp_dir.join(format!("{}-{}.prg", stem, stamp));
+    let labels_path = temp_dir.join(format!("{}-{}.labels", stem, stamp));
+    let report_path = temp_dir.join(format!("{}-{}.report", stem, stamp));
+    if let Err(error) = fs::write(&source_path, payload.source) {
+        return serde_json::json!({ "ok": false, "error": error.to_string() });
+    }
+    let mut command = Command::new(&acme_path);
+    #[cfg(target_os = "windows")]
+    command.creation_flags(0x08000000);
+    if let Some(parent) = payload.source_path.as_deref().and_then(|path| Path::new(path).parent()) {
+        if parent.is_dir() {
+            command.current_dir(parent);
+        }
+    }
+    let mut help_command = Command::new(&acme_path);
+    #[cfg(target_os = "windows")]
+    help_command.creation_flags(0x08000000);
+    let report_supported = help_command.arg("--help").output()
+        .map(|help| String::from_utf8_lossy(&help.stdout).contains("--report"))
+        .unwrap_or(false);
+    command.args(["-f", "cbm", "-o", output_path.to_str().unwrap(), "-l", labels_path.to_str().unwrap()]);
+    if report_supported {
+        command.args(["-r", report_path.to_str().unwrap()]);
+    }
+    let output = match command.arg(source_path.to_str().unwrap()).output() {
+        Ok(output) => output,
+        Err(error) => return serde_json::json!({ "ok": false, "error": format!("ACME indítása sikertelen: {}", error) }),
+    };
+    if !output.status.success() {
+        let error = String::from_utf8_lossy(&output.stderr).trim().to_string();
+        let fallback = String::from_utf8_lossy(&output.stdout).trim().to_string();
+        return serde_json::json!({ "ok": false, "error": if error.is_empty() { fallback } else { error } });
+    }
+    match fs::read(&output_path) {
+        Ok(bytes) => serde_json::json!({
+            "ok": true,
+            "bytes": bytes,
+            "filePath": output_path,
+            "labels": fs::read_to_string(&labels_path).unwrap_or_default(),
+            "report": fs::read_to_string(&report_path).unwrap_or_default()
+        }),
+        Err(error) => serde_json::json!({ "ok": false, "error": error.to_string() }),
+    }
 }
 
 #[tauri::command]
@@ -2560,6 +2680,9 @@ fn write_bin_file(
 ) -> serde_json::Value {
     if path.is_empty() {
         return serde_json::json!({ "ok": false, "error": "Empty path" });
+    }
+    if let Some(parent) = Path::new(&path).parent() {
+        let _ = fs::create_dir_all(parent);
     }
     if let Err(e) = fs::write(&path, &bytes) {
         return serde_json::json!({ "ok": false, "error": e.to_string() });
@@ -4806,6 +4929,17 @@ async fn load_sample(app: AppHandle, sample_name: String) -> serde_json::Value {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn basic_program_end_finds_the_sys_stub() {
+        // 10 SYS49152 at $0801, code far above it.
+        let mut prg = vec![0x01, 0x08, 0x0C, 0x08, 0x0A, 0x00, 0x9E, b'4', b'9', b'1', b'5', b'2', 0x00, 0x00, 0x00];
+        assert_eq!(super::basic_program_end(&prg), Some(0x080E));
+        prg[0] = 0x00;
+        prg[1] = 0xC0;
+        assert_eq!(super::basic_program_end(&prg), None);
+        assert_eq!(super::basic_program_end(&[0x01, 0x08, 0xA9, 0x06, 0x8D, 0x20, 0xD0]), None);
+    }
+
     use super::*;
     use std::fs;
     use std::path::PathBuf;
@@ -5463,6 +5597,7 @@ pub fn run() {
             get_working_folder,
             choose_vice_executable,
             choose_exomizer_executable,
+            choose_acme_executable,
             get_git_config,
             set_git_path,
             choose_git_executable,
@@ -5470,6 +5605,7 @@ pub fn run() {
             choose_working_folder,
             choose_ub_working_folder,
             build_exomizer_prg,
+            build_acme_prg,
             build_exomizer_raw,
             launch_vice,
             launch_exomizer,

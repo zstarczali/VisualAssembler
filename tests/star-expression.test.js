@@ -57,6 +57,7 @@ function makeContext(extra = {}) {
       userMacros: {},
       opcodeMap: {
         LDA: { immediate: 0xA9, zeroPage: 0xA5, absolute: 0xAD, absoluteX: 0xBD },
+        STA: { zeroPageX: 0x95 },
         JMP: { absolute: 0x4C },
         BNE: { relative: 0xD0 },
         BEQ: { relative: 0xF0 }
@@ -67,6 +68,7 @@ function makeContext(extra = {}) {
         zeroPage: { needsOperand: true },
         absolute: { needsOperand: true },
         absoluteX: { needsOperand: true },
+        zeroPageX: { needsOperand: true },
         relative: { needsOperand: true }
       },
       ...extra
@@ -108,6 +110,14 @@ test("JMP *+20 produces an absolute address relative to the current PC", () => {
   assert.deepEqual(
     compile(ctx, { mnemonic: "JMP", addressingMode: "absolute", rawOperand: "*+20", base: "hex" }, 0xC000),
     [0x4C, 0x14, 0xC0]
+  );
+});
+
+test("STA $95,X stays a 2-byte zero page,X instruction", () => {
+  const ctx = makeContext();
+  assert.deepEqual(
+    compile(ctx, { mnemonic: "STA", addressingMode: "zeroPageX", rawOperand: "95", base: "hex" }, 0x0B90),
+    [0x95, 0x95]
   );
 });
 

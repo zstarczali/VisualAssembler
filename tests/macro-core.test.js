@@ -71,6 +71,7 @@ function createMacroContext(extraContext = {}) {
       "_expertCopyRegionFoldState",
       "_expertGetHiddenRegionLines",
       "_expertFindCurrentRegionBounds",
+      "_expertDirRe",
       "_expertVisibleLineToSourceLine",
       "_expertEditLineComments",
       "_layoutLineSortAddress",
@@ -864,7 +865,8 @@ test("parseExpertText imports core Kick Assembler syntax used by macro-heavy sou
       t: (key) => key,
       tf: (key) => key,
       _importMnemonicCategory: () => "Teszt",
-      _importMnemonicDescription: () => ""
+      _importMnemonicDescription: () => "",
+      _EXPERT_MNEM_SET: new Set(["JMP"])
     }
   );
 
@@ -877,7 +879,9 @@ test("parseExpertText imports core Kick Assembler syntax used by macro-heavy sou
     "}",
     "start:",
     "    DrawCircle(110, 70, 35, $02)",
-    "    .byte $01,$02 // payload"
+    "    .byte $01,$02 // payload",
+    "    jmp ($0408)",
+    "    lsr a"
   ].join("\n"));
 
   assert.equal(blocks[0].isOrgMacro, true);
@@ -907,6 +911,12 @@ test("parseExpertText imports core Kick Assembler syntax used by macro-heavy sou
   assert.equal(blocks[7].invokeArgs, "110, 70, 35, $02");
   assert.equal(blocks[8].isByteMacro, true);
   assert.equal(blocks[8].inlineComment, "payload");
+  // Same shape as a bare macro call, but JMP is an instruction.
+  assert.equal(blocks[9].mnemonic, "JMP");
+  assert.equal(blocks[9].addressingMode, "indirect");
+  // The accumulator form, not address $0A.
+  assert.equal(blocks[10].mnemonic, "LSR");
+  assert.equal(blocks[10].addressingMode, "implied");
 });
 
 test("parseExpertText keeps decimal indexed operands as decimal absolute modes", () => {
@@ -1981,4 +1991,27 @@ test("LBxx rejects an unresolved target with a branch-operand error", () => {
     new Map()
   );
   assert.equal(r.ok, false);
+});
+
+test("ACME mode reads !region and coordinate !text as the VA macros", () => {
+  const ctx = loadFunctions(["_splitAsmLineComment", "_importMakeRegion", "_importMakeComment", "parseExpertText"], {
+    assemblerSyntax: "acme",
+    crypto: { randomUUID: () => "test-id" },
+    parseAsmText: line => line.trim().toUpperCase() === "RTS" ? [{ mnemonic: "RTS" }] : []
+  });
+  const blocks = ctx.parseExpertText('* = $0801\n!region init\n; TEXT auto: lowercase input\n!text 14, 8, "hello c64!", lower\n!text 10, 12, "Visual Assembler", lower\n!text 10, 18, "HELLO WORLD", lower\n    RTS');
+  assert.ok(blocks.some(block => block.isRegionMacro));
+  const textBlocks = blocks.filter(block => block.isTextMacro);
+  assert.equal(textBlocks.length, 3);
+  assert.equal(textBlocks[0].textCharset, "lower");
+  assert.equal(textBlocks[0].textX, "14");
+  assert.equal(textBlocks[0].textY, "8");
+  assert.ok(blocks.some(block => block.mnemonic === "RTS"));
+
+  // VMA (VA) mode never takes the ! forms.
+  ctx.assemblerSyntax = "kick";
+  ctx.tf = (key, values) => `${key} ${values.directive}`;
+  const vaBlocks = ctx.parseExpertText('!region init\n!text 14, 8, "hi"\n    RTS');
+  assert.ok(!vaBlocks.some(block => block.isRegionMacro || block.isTextMacro));
+  assert.deepEqual(Array.from(vaBlocks.filter(block => block.validationError), block => block.validationError), ["vmaAcmeDirective !region", "vmaAcmeDirective !text"]);
 });

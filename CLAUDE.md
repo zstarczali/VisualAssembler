@@ -431,7 +431,10 @@ Az `exomizerBorderFlash` settinget (lib.rs: `cfg["uiSettings"]["exomizerBorderFl
 kapcsold ki (`-n` flag → nincs border flash). Ha ezután eltűnik a hiba, az `-x1` extra
 kódja okozza a stack-imbalance-t.
 
-**Jelenlegi állapot:** nem javított, csak dokumentált.
+**Jelenlegi állapot:** javítva (VICE-ban ellenőrizve). Valódi ok: `sfx sys` után a user kód RTS-e
+a BASIC-be tér vissza, de a szövegmutató az SFX saját (felülírt) SYS sorára mutat → `?SYNTAX ERROR`.
+A `crunch_with_exomizer` (lib.rs) BASIC sorral kezdődő PRG-nél `sfx basic`-et használ (kicsomagolás
+után RUN-nal a valódi `10 SYS…` sor fut, `basic_program_end`), stub nélküli PRG-nél `sfx $<betöltési cím>`-et.
 
 **Lehetséges megoldási irányok (nem implementálva):**
 1. Fallback: ha az SFX PRG ≥ az eredeti PRG mérete → ne tömörítsen, használja az eredetit
