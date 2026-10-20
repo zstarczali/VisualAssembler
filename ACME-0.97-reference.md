@@ -1,21 +1,21 @@
-# ACME 0.97 – használati és nyelvi referencia
+# ACME 0.97 – User and Language Reference
 
 *ACME Crossassembler for Multiple Environments*
 
-A helyi Windows-csomag `docs/` könyvtárának egyesített Markdown-változata.
-A magyar gyorsindító szerkesztői kiegészítés; az alatta következő angol részek az eredeti dokumentációból származnak. A leírás ehhez a csomaghoz tartozik, nem a mindenkori legújabb ACME-hez.
+This is the combined Markdown edition of the `docs/` directory from the local Windows package.
+The editor's quick-start section and the original English documentation are presented together. This reference applies to the bundled ACME version and may not describe the latest upstream release.
 
-## C64-es gyorsindító
+## C64 Quick Start
 
-Az alábbi parancsokat az `acme.exe` könyvtárában, PowerShellből futtasd. A `main.a` helyére a saját forrásfájlod neve kerül.
+Run the following commands from the `acme.exe` directory in PowerShell. Replace `main.a` with the name of your source file.
 
 ```powershell
 .\acme.exe -f cbm -o main.prg main.a
 ```
 
-A `cbm` formátum kétbájtos betöltési címmel ellátott PRG-t készít. A fordító nem indítja el automatikusan a programot.
+The `cbm` format creates a PRG with a two-byte load address. The assembler does not start the program automatically.
 
-Minimális C64-es példa, `$C000` kezdőcímmel:
+Minimal C64 example with a `$C000` start address:
 
 ```asm
 !cpu 6502
@@ -26,51 +26,51 @@ Minimális C64-es példa, `$C000` kezdőcímmel:
     rts
 ```
 
-A PRG betöltése után `SYS 49152` indítja a kódot. A `$0801` kezdőcím beállítása önmagában nem hoz létre BASIC SYS stubot.
+After loading the PRG, `SYS 49152` starts the code. Setting the `$0801` start address alone does not create a BASIC SYS stub.
 
-### Gyakori műveletek
+### Common Operations
 
 | Feladat | ACME-szintaxis |
 | --- | --- |
-| Kezdőcím | `* = $c000` |
-| Bájtok | `!byte $01, $02, $ff` |
-| 16 bites értékek | `!word $0400, $2000` |
-| Nyers szöveges adatok | `!text "HELLO", 0` |
+| Start address | `* = $c000` |
+| Bytes | `!byte $01, $02, $ff` |
+| 16-bit values | `!word $0400, $2000` |
+| Raw text data | `!text "HELLO", 0` |
 | PETSCII-adatok | `!pet "HELLO", 13, 0` |
-| Képernyőkódos adatok | `!scr "HELLO"` |
-| Kitöltés | `!fill 64, 0` |
-| Lapkezdetre igazítás | `!align 255, 0` |
-| Forrás beillesztése | `!source "routines.a"` |
-| Bináris beillesztése | `!binary "sprite.bin"` |
-| Konstans | `SCREEN = $0400` |
-| Lokális névtér | `!zone name { ... }` |
-| Makró definíciója / hívása | `!macro name .arg { ... }` / `+name $06` |
-| 6510 nem dokumentált utasítások | `!cpu 6510` – lásd a nem dokumentált opcode-ok fejezetét |
+| Screen-code data | `!scr "HELLO"` |
+| Fill | `!fill 64, 0` |
+| Align to a page boundary | `!align 255, 0` |
+| Include source | `!source "routines.a"` |
+| Include binary data | `!binary "sprite.bin"` |
+| Constant | `SCREEN = $0400` |
+| Local namespace | `!zone name { ... }` |
+| Define / call a macro | `!macro name .arg { ... }` / `+name $06` |
+| 6510 undocumented instructions | `!cpu 6510` – see the undocumented opcodes section |
 
-Az `!align` első argumentuma bitmaszk, a második a kívánt maszkolt érték; nem egyszerű bájthatár-paraméter. A részletes feltételeket és aliasokat a direktívareferencia tartalmazza.
+The first argument of `!align` is a bit mask and the second is the desired masked value; it is not a simple byte-boundary parameter. See the directive reference for details and aliases.
 
-### ACME és Visual Assembler
+### ACME and Visual Assembler
 
-Az ACME `!text` direktívája adatot tárol; nem ír ki szöveget képernyő-koordinátákra.
-A VA `!text x, y, "szöveg", lower`, `.clear_screen`, `!charset lower` és `!region` / `!endregion` alakjai VA-kiterjesztések; nem tekinthetők automatikusan önálló ACME-forrásnak. Külső ACME-fordításhoz ezeket előbb a VA-nak kell kibontania.
+ACME's `!text` directive stores data; it does not print text at screen coordinates.
+The VA forms `!text x, y, "text", lower`, `.clear_screen`, `!charset lower`, and `!region` / `!endregion` are VA extensions and must not be treated as standalone ACME source automatically. VA must expand them before an external ACME build.
 
-A `;` utáni rész megjegyzés. A `.` kezdetű szimbólum ACME-ben lokális címke is lehet; nem minden ponttal kezdődő név direktíva.
+Text after `;` is a comment. A symbol beginning with `.` can be a local label in ACME; not every dot-prefixed name is a directive.
 
-## Tartalomjegyzék
+## Table of Contents
 
-- [Gyors referencia](#source-quickref-txt) — `QuickRef.txt`
-- [Direktívák teljes referenciája](#source-allpos-txt) — `AllPOs.txt`
-- [Címzési módok és méretkényszerítés](#source-addrmodes-txt) — `AddrModes.txt`
-- [Hibaüzenetek és megoldások](#source-errors-txt) — `Errors.txt`
-- [Nem dokumentált opcode-ok](#source-illegals-txt) — `Illegals.txt`
-- [Lebegőpontos kifejezések](#source-floats-txt) — `Floats.txt`
-- [65816-specifikus működés](#source-65816-txt) — `65816.txt`
-- [Általános leírás és platformok](#source-help-txt) — `Help.txt`
-- [Makrókönyvtár](#source-lib-txt) — `Lib.txt`
-- [A csomag példáinak fordítása](#source-example-txt) — `Example.txt`
-- [Az ACME fordítása forrásból](#source-source-txt) — `Source.txt`
-- [Kompatibilitás és verzióváltás](#source-upgrade-txt) — `Upgrade.txt`
-- [Változásnapló](#source-changes-txt) — `Changes.txt`
+- [Quick Reference](#source-quickref-txt) — `QuickRef.txt`
+- [Complete Directive Reference](#source-allpos-txt) — `AllPOs.txt`
+- [Addressing Modes and Size Forcing](#source-addrmodes-txt) — `AddrModes.txt`
+- [Errors and Solutions](#source-errors-txt) — `Errors.txt`
+- [Undocumented Opcodes](#source-illegals-txt) — `Illegals.txt`
+- [Floating-Point Expressions](#source-floats-txt) — `Floats.txt`
+- [65816-Specific Behavior](#source-65816-txt) — `65816.txt`
+- [General Description and Platforms](#source-help-txt) — `Help.txt`
+- [Macro Library](#source-lib-txt) — `Lib.txt`
+- [Building the Package Examples](#source-example-txt) — `Example.txt`
+- [Building ACME from Source](#source-source-txt) — `Source.txt`
+- [Compatibility and Version Changes](#source-upgrade-txt) — `Upgrade.txt`
+- [Change Log](#source-changes-txt) — `Changes.txt`
 - [CPU: all](#source-cputypes-all-txt) — `cputypes/all.txt`
 - [CPU: 4502](#source-cputypes-cpu-4502-txt) — `cputypes/cpu 4502.txt`
 - [CPU: 6502](#source-cputypes-cpu-6502-txt) — `cputypes/cpu 6502.txt`
@@ -81,11 +81,11 @@ A `;` utáni rész megjegyzés. A `.` kezdetű szimbólum ACME-ben lokális cím
 - [CPU: nmos6502](#source-cputypes-cpu-nmos6502-txt) — `cputypes/cpu nmos6502.txt`
 - [CPU: r65c02](#source-cputypes-cpu-r65c02-txt) — `cputypes/cpu r65c02.txt`
 - [CPU: w65c02](#source-cputypes-cpu-w65c02-txt) — `cputypes/cpu w65c02.txt`
-- [Licenc – GNU GPL v2](#source-copying) — `COPYING`
+- [License – GNU GPL v2](#source-copying) — `COPYING`
 
-## Direktívamutató
+## Directive Index
 
-A hívási alakokat a részletes fejezet eredeti sorrendben tárgyalja; az aliasok az adott bejegyzésben találhatók.
+The call forms are listed in the original order used by the detailed reference; aliases are shown in the corresponding entry.
 
 - [`!8 EXPRESSION [, EXPRESSION]*`](#directive-001)
 - [`!16 EXPRESSION [, EXPRESSION]*`](#directive-002)
@@ -142,9 +142,9 @@ A hívási alakokat a részletes fejezet eredeti sorrendben tárgyalja; az alias
 
 <a id="source-quickref-txt"></a>
 
-## Gyors referencia
+## Quick Reference
 
-Forrás: [QuickRef.txt](QuickRef.txt).
+Source: [QuickRef.txt](QuickRef.txt).
 
 This file should give you a basic overview. More specialized stuff like forcing a specific addressing mode is discussed in extra files ("AddrModes.txt" in this case).
 
@@ -656,9 +656,9 @@ Symbol names are case sensitive, so "label" and "Label" are two different things
 
 <a id="source-allpos-txt"></a>
 
-## Direktívák teljes referenciája
+## Complete Directive Reference
 
-Forrás: [AllPOs.txt](AllPOs.txt).
+Source: [AllPOs.txt](AllPOs.txt).
 
 This is a list of all the pseudo opcodes currently implemented. Stuff in square brackets is optional, stuff followed by "*" may be given more than once. This list is not sorted alphabetically, the pseudo opcodes are grouped together according to their usage.
 
@@ -2150,13 +2150,19 @@ VALUE: Can be either a string given in double quotes
 }
 ```
 
-### Macro usage
+## 🧩 Macro Reference
+
+> **Macro quick reference**
+>
+> ACME macros are defined with `!macro` and invoked with `+NAME`. Each invocation gets its own scope for local symbols. The two entries below are the core macro features; the complete macro library is documented later in this file.
+
+### `!macro` — Define a Macro
 
 
 
 <a id="directive-037"></a>
 
-#### `!macro`
+#### Syntax
 
 **Syntax**
 
@@ -2838,9 +2844,9 @@ Now use:	!pseudopc $0400 {
 
 <a id="source-addrmodes-txt"></a>
 
-## Címzési módok és méretkényszerítés
+## Addressing Modes and Size Forcing
 
-Forrás: [AddrModes.txt](AddrModes.txt).
+Source: [AddrModes.txt](AddrModes.txt).
 
 If an instruction can be used with different addressing modes, ACME has to decide which one to use. Several instructions of the 6502 CPU can be used with either "absolute" addressing or "zeropage-absolute" addressing. The former one means there's a 16-bit argument, the latter one means there's an 8-bit argument. And the 65816 CPU even has some instructions with 24-bit addressing...
 
@@ -2950,9 +2956,9 @@ If you want to take a closer look at the algorithm, examine the "calc_arg_size" 
 
 <a id="source-errors-txt"></a>
 
-## Hibaüzenetek és megoldások
+## Errors and Solutions
 
-Forrás: [Errors.txt](Errors.txt).
+Source: [Errors.txt](Errors.txt).
 
 Here's a sorted list of all error messages ACME can give, possible reasons and what you can do to sort it out.
 
@@ -3743,9 +3749,9 @@ StrangeOperator
 
 <a id="source-illegals-txt"></a>
 
-## Nem dokumentált opcode-ok
+## Undocumented Opcodes
 
-Forrás: [Illegals.txt](Illegals.txt).
+Source: [Illegals.txt](Illegals.txt).
 
 In release 0.87, support for some of the undocumented opcodes of the NMOS 6502 processor was added. In release 0.89, some more were added. In release 0.94.8, another one was added (lxa). In release 0.95.3, C64DTV2 support was added, which includes these opcodes as well. In release 0.95.4, the remaining seven were added. In release 0.95.6, "ANC" was removed from C64DTV2 mode.
 
@@ -3867,9 +3873,9 @@ Download it from    https://csdb.dk/release/?id=185341 or ask google for the lat
 
 <a id="source-floats-txt"></a>
 
-## Lebegőpontos kifejezések
+## Floating-Point Expressions
 
-Forrás: [Floats.txt](Floats.txt).
+Source: [Floats.txt](Floats.txt).
 
 In release 0.92, ACME gained some experimental support for floating- point maths, so you can finally build sin/cos tables directly in ACME. But the expression parser still uses integer calculations per default. Here are the rules:
 
@@ -3910,9 +3916,9 @@ Have a look at the example source code "trigono.a", it builds some sin/cos table
 
 <a id="source-65816-txt"></a>
 
-## 65816-specifikus működés
+## 65816-Specific Behavior
 
-Forrás: [65816.txt](65816.txt).
+Source: [65816.txt](65816.txt).
 
 This text contains information about the 65816-specific features of ACME.
 
@@ -3968,9 +3974,9 @@ Note that ACME cannot produce more than 64 KBytes of code. Also note that though
 
 <a id="source-help-txt"></a>
 
-## Általános leírás és platformok
+## General Description and Platforms
 
-Forrás: [Help.txt](Help.txt).
+Source: [Help.txt](Help.txt).
 
 (C) 1998-2020 Marco Baye
 
@@ -4078,9 +4084,13 @@ If you want to report a bug or make a suggestion, then simply send me an email: 
 
 <a id="source-lib-txt"></a>
 
-## Makrókönyvtár
+## 🧩 Macro Library
 
-Forrás: [Lib.txt](Lib.txt).
+> **Macro section**
+>
+> The entries in this section describe reusable ACME routines and helpers. Macro names, parameters, side effects, and required setup are highlighted so they can be scanned quickly.
+
+Source: [Lib.txt](Lib.txt).
 
 The files in the "ACME_Lib" directory tree can be accessed from within ACME sources when using the pseudo opcodes "!source" or "!binary":
 
@@ -4091,9 +4101,9 @@ All files in the ACME_Lib directory tree are in the public domain. They are *NOT
 
 <a id="source-example-txt"></a>
 
-## A csomag példáinak fordítása
+## Building the Package Examples
 
-Forrás: [Example.txt](Example.txt).
+Source: [Example.txt](Example.txt).
 
 To assemble the given example source code files, change to the "examples" directory and type
 
@@ -4129,9 +4139,9 @@ Just in case you wonder:
 
 <a id="source-source-txt"></a>
 
-## Az ACME fordítása forrásból
+## Building ACME from Source
 
-Forrás: [Source.txt](Source.txt).
+Source: [Source.txt](Source.txt).
 
 This program is free software, released under the terms of the GNU General Public License. Therefore, the sources must be made publicly accessible. If this archive does not contain the source file tree, you can download it from the ACME web page at
 
@@ -4142,9 +4152,9 @@ To build ACME, you need a recent C compiler and a "make" utility. On most system
 
 <a id="source-upgrade-txt"></a>
 
-## Kompatibilitás és verzióváltás
+## Compatibility and Version Changes
 
-Forrás: [Upgrade.txt](Upgrade.txt).
+Source: [Upgrade.txt](Upgrade.txt).
 
 If you haven't used ACME before, you don't need to read this text.
 
@@ -4324,9 +4334,9 @@ It is no longer possible to have more than one label in a single line. Forcing t
 
 <a id="source-changes-txt"></a>
 
-## Változásnapló
+## Change Log
 
-Forrás: [Changes.txt](Changes.txt).
+Source: [Changes.txt](Changes.txt).
 
 ```text
 This text only contains descriptions of changes independent of the
@@ -4993,7 +5003,7 @@ Er, I don't know anymore. It was a bad ugly hack and it only ran on
 
 ## CPU: all
 
-Forrás: [cputypes/all.txt](cputypes/all.txt).
+Source: [cputypes/all.txt](cputypes/all.txt).
 
 ```text
 ACME supports the following cpu types (shown here as a sort of family
@@ -5213,7 +5223,7 @@ CAUTION: The !align pseudo opcode still inserts NOPs.
 
 ## CPU: 4502
 
-Forrás: [cputypes/cpu 4502.txt](cputypes/cpu%204502.txt).
+Source: [cputypes/cpu 4502.txt](cputypes/cpu%204502.txt).
 
 ```text
   4502 opcode table
@@ -5320,7 +5330,7 @@ opcode ea, the 6502-standard NOP.
 
 ## CPU: 6502
 
-Forrás: [cputypes/cpu 6502.txt](cputypes/cpu%206502.txt).
+Source: [cputypes/cpu 6502.txt](cputypes/cpu%206502.txt).
 
 ```text
   6502 opcode table
@@ -5413,7 +5423,7 @@ rel8:   8-bit relative address offset
 
 ## CPU: 65816
 
-Forrás: [cputypes/cpu 65816.txt](cputypes/cpu%2065816.txt).
+Source: [cputypes/cpu 65816.txt](cputypes/cpu%2065816.txt).
 
 ```text
   65816 opcode table
@@ -5586,7 +5596,7 @@ New addressing modes for existing mnemonics
 
 ## CPU: 65c02
 
-Forrás: [cputypes/cpu 65c02.txt](cputypes/cpu%2065c02.txt).
+Source: [cputypes/cpu 65c02.txt](cputypes/cpu%2065c02.txt).
 
 ```text
   65c02 opcode table
@@ -5725,7 +5735,7 @@ New addressing modes for existing mnemonics
 
 ## CPU: 65ce02
 
-Forrás: [cputypes/cpu 65ce02.txt](cputypes/cpu%2065ce02.txt).
+Source: [cputypes/cpu 65ce02.txt](cputypes/cpu%2065ce02.txt).
 
 ```text
   65ce02 opcode table
@@ -5896,7 +5906,7 @@ new instructions
 
 ## CPU: m65
 
-Forrás: [cputypes/cpu m65.txt](cputypes/cpu%20m65.txt).
+Source: [cputypes/cpu m65.txt](cputypes/cpu%20m65.txt).
 
 ```text
   m65 opcode table(s)
@@ -6023,7 +6033,7 @@ some of the unsupported combinations just for comparison (these result in
 
 ## CPU: nmos6502
 
-Forrás: [cputypes/cpu nmos6502.txt](cputypes/cpu%20nmos6502.txt).
+Source: [cputypes/cpu nmos6502.txt](cputypes/cpu%20nmos6502.txt).
 
 ```text
   nmos6502 opcode table
@@ -6118,7 +6128,7 @@ rel8:   8-bit relative address offset
 
 ## CPU: r65c02
 
-Forrás: [cputypes/cpu r65c02.txt](cputypes/cpu%20r65c02.txt).
+Source: [cputypes/cpu r65c02.txt](cputypes/cpu%20r65c02.txt).
 
 ```text
   r65c02 opcode table
@@ -6221,7 +6231,7 @@ the 0..7 range.
 
 ## CPU: w65c02
 
-Forrás: [cputypes/cpu w65c02.txt](cputypes/cpu%20w65c02.txt).
+Source: [cputypes/cpu w65c02.txt](cputypes/cpu%20w65c02.txt).
 
 ```text
   w65c02 opcode table
@@ -6320,7 +6330,7 @@ The w65c02 is a superset of the r65c02. It only adds two instructions:
 
 ## Licenc – GNU GPL v2
 
-Forrás: [COPYING](COPYING).
+Source: [COPYING](COPYING).
 
 ```text
 		    GNU GENERAL PUBLIC LICENSE
@@ -6666,9 +6676,9 @@ Public License instead of this License.
 ```
 
 
-## Forrásjegyzék és ellenőrzőösszegek
+## Source Files and Checksums
 
-Az eredeti fájlok változatlanok. SHA-256 az eredeti fájlok bájtjaira számítva.
+The original files are unchanged. SHA-256 values are calculated from the original file bytes.
 
 | Dokumentum | SHA-256 |
 | --- | --- |

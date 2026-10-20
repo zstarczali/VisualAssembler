@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Gebruikershandleiding
 
-**Versie 2.6.3**
+**Versie 2.6.4**
 
 Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw
 programma's door instructieblokken te slepen en neer te zetten, en bekijk de
@@ -12,6 +12,7 @@ gegenereerde assembly- en machinecode in realtime.
 
 - [C64 Visual Assembler —
   Gebruikershandleiding](#c64-visual-assembler--user-manual)
+    - [Hoogtepunten van versie 2.6.4](#version-264-highlights)
     - [Hoogtepunten van versie 2.6.3](#version-263-highlights)
     - [Hoogtepunten van versie 2.6.2](#version-262-highlights)
     - [Hoogtepunten van versie 2.6.1](#version-261-highlights)
@@ -80,6 +81,7 @@ gegenereerde assembly- en machinecode in realtime.
     - [Bronformatter](#source-formatter)
     - [Projectpaneel & tabbladen](#project-panel--tabs)
     - [Tabbalk](#tab-bar)
+    - [ACME-modus](#acme-mode)
   - [7. Adresseringsmodi](#7-addressing-modes)
     - [Label expressies als operanden](#label-expressions-as-operands)
     - [De `*` programmateller in
@@ -206,6 +208,45 @@ gegenereerde assembly- en machinecode in realtime.
     - [Curve-editor](#curve-editor)
     - [Tabelgenerator](#table-generator)
     - [Nummeromzetter](#number-converter)
+
+---
+
+## Hoogtepunten van versie 2.6.4
+
+- **ACME-assemblermodus** — **Instellingen → Algemeen → Assemblermodus**
+  schakelt tussen *VMA-modus* (de ingebouwde Visual Assembler-assembler) en
+  *ACME-modus*: de Expert-broncode wordt gecompileerd door ACME 0.97, en
+  Uitvoeren, Bouwen, de panelen Demontage/Monitor, de debugsymbolen,
+  cyclustellingen, optimalisatietips en de VICE Monitor gebruiken allemaal de
+  echte ACME-uitvoer. Zie [ACME-modus](#acme-mode).
+- **Betere Kick Assembler import** — de menuoptie Programma is nu **Kick
+  import**. Gewone `.text "…"` regels volgen `.encoding`, `.label NAME = * + N`
+  plaatst een label binnen een instructie, en de mnemonische achtervoegsels
+  `.abs` / `.zp` dwingen de adresseermodus af. Restore64-disassemblies bouwen
+  byte voor byte op zoals KickAssembler. Zie [Kick import (Kick
+  Assembler)](#kick-import-kick-assembler).
+- **Run start programma's onder de BASIC-lijn** — een programma dat onder of
+  over de BASIC SYS-lijn laadt, krijgt een kleine startlader; een lagere ORG
+  later in de broncode wordt niet langer naar het startadres verplaatst. Zie de
+  **BASIC SYS-stub**-regel in [Instellingen en werkbalk](#5-settings--toolbar).
+- **Exomizer** — een gecomprimeerd programma geeft niet langer `?SYNTAXFOUT` bij
+  de tweede RUN: een PRG met een BASIC-regel wordt gecomprimeerd met `sfx
+  basic`, elke andere met `sfx $<laadadres>`.
+- **SID-editor** — een afspeel-lcd in de tracker-werkbalk (nummerpositie,
+  patroon, rij, tijd; groen of rood in **Instellingen → SID-voorbeeld →
+  LCD-kleur**), een instrumentknop met een lcd op VA-VK, een voortgangsbalk voor
+  **Import .sid…**. Zie [SID-editor](#sid-editor-3-voice-tracker).
+- **Instellingen in drie tabbladen** — **Algemeen**, **Bestanden en paden** en
+  **Integraties**. Zie [Paragraaf 13](#13-hardware-settings).
+- **Kleinere verbeteringen** — **Ctrl+N** opent een nieuw tabblad; dialoogtekst
+  kan niet langer per ongeluk worden geselecteerd (tekstvelden en kopieerbare
+  uitvoer, zoals compilatie-errors, kunnen dat nog steeds); grote
+  Expert-broncode wordt sneller bewerkt; `LSR A` en `JMP ($nnnn)` worden correct
+  geïmporteerd; de Knowledge Base linkt naar Restore64 (restore64.dev), waarmee
+  een C64 PRG wordt omgezet in KickAssembler/ACME-broncode voor **Kick-import**
+  of ACME-modus. Een ACME-broncode met een segment onder `$0801` (een
+  geheugendump) wordt niet langer achter de BASIC SYS-regel verschoven: deze
+  compileert op zijn eigen adressen en krijgt de startlader.
 
 ---
 
@@ -1071,7 +1112,7 @@ Het modale venster sluit automatisch wanneer de actie is voltooid of mislukt.
 | **Thema**                                                                                       | Licht / Donker / OLED / Commodore 77 / Commodore Starlight / Commodore Beige / Commodore 64 — selecteer een thema in het instellingenmenu. OLED gebruikt een puur zwarte achtergrond voor AMOLED-schermen. Commodore 77 is een neongeel-op-zwart thema; wanneer dit het actieve thema is, gebruikt het opstartscherm de paneelkleur van het thema (overeenkomend met de berichtkaart), toont het een kleiner, speciaal Commodore 77-logo en een gele voortgangsbalk. Commodore Starlight is een licht thema, geïnspireerd op de doorschijnende C64-broodbak: matglazen panelen met een regenboogkleurige RGB-gloed die erdoorheen schijnt, een magenta accent, regenboogkleuren voor de syntax en een rokerig donker scherm. Commodore Beige is de klassieke broodbak: een beige behuizing, mosterdkleurige functietoetsen, de regenboogstrepen van het logo en een C64-blauw scherm voor de monitorweergave. Het gekozen thema wordt toegepast vóór de eerste keer dat het programma wordt opgestart. |
 | **CRT retro-modus**                                                                             | Schakelt een CRT-filter voor het volledige scherm in of uit: scanlijnen, fosforvignettering, flikkering en tonvormige vertekening. De instelling wordt tussen sessies bewaard.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | **Geheugenpaneel weergeven**                                                                    | Globale schakelaar waarmee het volledige C64-geheugenpaneel kan worden weergegeven of verborgen.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| **BASIC SYS stub**                                                                              | Voegt een BASIC-regel die SYS aanroept toe aan het begin van uw programma.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| **BASIC SYS stub**                                                                              | Voegt een BASIC-regel toe die SYS aanroept naar de oorsprong van uw programma (de eerste ORG). Een segment dat lager dan de eerste ORG is geplaatst, blijft op zijn eigen adres. Wanneer het programma onder of over de BASIC-regel laadt (`$0801`–`$080C`, bijvoorbeeld een geïmporteerde dump van `$071C`), voegt Run and Build in plaats daarvan een kleine startlader toe: `SYS 2061` kopieert een mover naar de tapebuffer (`$033C`), die het programma op zijn plaats zet en naar de eerste ORG springt.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | **Voorbeelden…**                                                                                | Open de voorbeeldbrowser en laad een ingebouwd voorbeeldprogramma — zie [Voorbeeldprogramma's](#example-programs)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | **In-/uitzoomen**                                                                               | Schaal de gebruikersinterface van het blok (dit heeft invloed op alle elementen van het blok)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | **Project opslaan**                                                                             | Sla het huidige programma op als een `.json` projectbestand                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
@@ -1091,9 +1132,9 @@ Het modale venster sluit automatisch wanneer de actie is voltooid of mislukt.
 | **Project bouwen** (`Menu → Bouwen`)                                                            | Compileer elk compileerbaar bestand van het project (of van de geopende tabbladen) naar een `.prg` naast de broncode — zie [Project bouwen](#build-project)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | **Uitvoeren (splitknop)**                                                                       | De hoofdknop **▶ Run** start de huidige modus; klik op de pijl **▾** om te schakelen tussen: **Uitvoeren als PRG** (VICE direct compileren en starten), **Uitvoeren via D64** (verpakken in een .d64-schijfimage en VICE starten), **Uitvoeren op hardware** (PRG naar een C64 Ultimate / 1541 Ultimate-apparaat sturen), of **Kung Fu Flash 2** (de PRG via USB uploaden naar een echte C64/C128 met een Kung Fu Flash 2-cartridge). Zie [Sectie 12](#12-d64-export--run) en [Sectie 13](#13-hardware-settings).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | **Debug (RetroDebugger)**                                                                       | Compileer en start in RetroDebugger met breakpoints, symbolen en autostart-vlaggen (zie [Sectie 9](#9-debugger-integration))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| **Uitvoeren met Exomizer**                                                                      | Selectievakje in het menu Instellingen — wanneer ingeschakeld, verwerken alle Run- en Build-bewerkingen de PRG via `exomizer sfx sys` voordat ze worden gestart of opgeslagen. Werkt met Run as PRG, Run via D64, Run on Hardware, Build PRG en Build D64. Configureer eerst het Exomizer-uitvoerbare bestand in **Hardware Settings**.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| **Uitvoeren met Exomizer**                                                                      | Selectievakje in het menu Instellingen — wanneer ingeschakeld, verwerken alle Run- en Build-bewerkingen de PRG via `exomizer sfx` voordat ze worden gestart of opgeslagen (`sfx basic` voor een PRG die begint met een BASIC-regel, zodat RUN weer werkt nadat het programma is teruggekeerd; `sfx $<laadadres>` anders). Werkt met Run as PRG, Run via D64, Run on Hardware, Build PRG en Build D64. Configureer eerst het Exomizer-uitvoerbare bestand in **Hardware-instellingen**.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | **Automatische opslag van items**                                                               | Selectievakje in **Hardware-instellingen → Versiebeheer**. Wanneer dit is ingeschakeld, voegt de app ongeveer 2,5 seconden nadat u stopt met het bewerken van een tabblad een automatisch opgeslagen item toe aan de versiegeschiedenis (voor een tabblad van een project ook aan de projectgeschiedenis). Schakel dit uit als u alleen uw eigen commits wilt bewaren. Zie [Versiebeheer](#version-control).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| **Hardware-instellingen**                                                                       | Open het dialoogvenster voor hardwareconfiguratie — configureer VICE, Exomizer, RetroDebugger, C64 Ultimate (host, wachtwoord, verbindingstest) en de seriële poort van de Kung Fu Flash 2. Zie [Sectie 13](#13-hardware-settings).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| **Instellingen** (voorheen Hardware-instellingen)                                               | Open het instellingendialoogvenster met drie tabbladen: **Algemeen** (assemblermodus, BASIC SYS-stub, Exomizer, updates, ASM-uitvoer, SID-voorbeeld, debuggerparameters, versiebeheer), **Bestanden en paden** (VICE, RetroDebugger, ACME, Exomizer, git) en **Integraties** (C64 Ultimate, Kung Fu Flash 2). Zie [Paragraaf 13](#13-hardware-settings).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | **Nieuw programma…**                                                                            | Opent een bevestigingsdialoogvenster en verwijdert vervolgens alle blokkeringen uit het programmagebied.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | **Alles inklappen**                                                                             | Vouw alle blokken samen                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | **Over**                                                                                        | Versie-informatie                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
@@ -1501,9 +1542,9 @@ afhankelijkheid.
 - Als uw programma begint met gegevens (`.byte`) vóór de uitvoerbare code, voeg
   dan bovenaan een expliciete startsprong toe (bijvoorbeeld `JMP Start`).
 
-### ASM-import (Kick Assembler)
+### Kick import (Kick Assembler)
 
-De knop **ASM import** in het menu Programma laadt onbewerkte Kick
+De **Kick import**-knop in het menu Programma laadt onbewerkte Kick
 Assembler-broncode in een nieuw tabblad in blokmodus. Deze is gescheiden van de
 Expert-modus `Load .asm file` hierboven — de aangepaste tooltip geeft aan dat
 **alleen Kick Assembler-code wordt ondersteund** (andere assemblers kunnen de
@@ -1522,10 +1563,31 @@ Ondersteunde patronen:
 - Operand `label + N` / `label - N` (bijv. `STA mod1+2`, `LDA xp+1`)
 - Regelcommentaren `// ...` en `;` — beide geaccepteerd, `/* ... */` blokken
   worden behandeld als één enkele commentaarregel
+- `.text "…"` zonder schermcoördinaten → BYTE-blok met de gecodeerde bytes (de
+  originele regel blijft behouden als commentaar van het blok). Verschillende
+  items zijn toegestaan: `"…"`, `@"…"` met de escapes `\n` `\r` `\t` `\$NN`, en
+  `$NN` / decimale bytes, samengevoegd met `,` of `+`
+- `.encoding "name"` stelt de codering in van de volgende `.text` regels:
+  `screencode_mixed` (de Kick-standaard), `screencode_upper`, `petscii_mixed`,
+  `petscii_upper`, `ascii`. Een teken waarvoor de codering geen code heeft,
+  wordt gerapporteerd op het blok.
+- `.label NAME = *`, `.label NAME = * + N`, `.label NAME = * - N` → een label op
+  de programmateller, verschoven met N (bijvoorbeeld een sprong naar de operand
+  van een `BIT`: `.label loc_c474 = * + 1`)
+- Mnemonische achtervoegsels `.abs` / `.a` en `.zp` / `.z` (`sta.abs $00fc,x`,
+  `ldx.zp ptr,y`) dwingen absolute of zero-page adressering af.
+- `*=$XXXX "name"` en `.pc = $XXXX "name"` segmenten in willekeurige volgorde:
+  een segment lager dan het eerste blijft op zijn adres
 - BASIC autostart passthrough: wanneer het programma start op `$0801` met de
   standaard `SYS 2061` byte stub (`.byte
   $0B,$08,$0A,$00,$9E,$32,$30,$36,$31,$00,$00,$00`), genereert de compiler de
   PRG letterlijk in plaats van er een tweede BASIC SYS omheen te wikkelen.
+
+Gedisassembleerde bestanden gemaakt door Restore64 (KickAssembler-syntaxis)
+importeren en bouwen byte voor byte zoals KickAssembler. Het ingangspunt dat in
+de header wordt genoemd, is de eerste `.pc`. Een programma voor de Plus/4 / C16
+(BASIC op `$1001`, TED-registers op `$FFxx`) wordt op dezelfde manier gebouwd,
+maar het werkt alleen in een Plus/4-emulator zoals VICE `xplus4`, niet met Run.
 
 Bekende beperking:
 
@@ -1970,11 +2032,81 @@ geopend is.
 | **Scrollpijlen**        | De scrollknoppen naar links/rechts verschijnen wanneer er meer tabbladen zijn dan er in de balk passen.                                                                                                                                                                                                                                                                                                                       |
 | **Sluiten (×)**         | Sluit het tabblad; vraagt om op te slaan als het tabblad gewijzigd is.                                                                                                                                                                                                                                                                                                                                                        |
 | **Bestandsextensie**    | De volledige bestandsnaam inclusief extensie (`.c64va`, `.json`) wordt weergegeven.                                                                                                                                                                                                                                                                                                                                           |
+| **Ctrl+N**              | Opent een nieuw, leeg tabblad (niet wanneer er een modaal dialoogvenster geopend is).                                                                                                                                                                                                                                                                                                                                         |
 | **Rechtermuisklikmenu** | Klik met de rechtermuisknop op een tabblad (of een lege ruimte in de tabbladbalk) voor: **Nieuw tabblad**, **Tabblad sluiten**, **Andere tabbladen sluiten**, **Tabbladen rechts sluiten**, **Alle tabbladen sluiten**. Bij het sluiten van meerdere tabbladen tegelijk wordt er per gewijzigd tabblad een prompt weergegeven en wordt de actie gestopt als u annuleert. **Alles sluiten** laat altijd één leeg tabblad open. |
 
 > **Tip:** Paletsynchronisatie (`#expert-palette-sync-btn`) zorgt ervoor dat de
 > paletselectie synchroon blijft met de sneltoets bij de cursor. Schakel deze
 > functie uit als u niet wilt dat het palet verspringt tijdens het bewerken.
+
+### ACME-modus
+
+**Instellingen → Algemeen → Assemblermodus** selecteert de assembler van de
+Expert-editor:
+
+- **VMA-modus** (standaard) — de ingebouwde Visual Assembler-assembler met zijn
+  blokken, macro's en `.`-richtlijnen.
+- **ACME-modus** — de bron is ACME 0.97-tekst en wordt gebouwd door het
+  ACME-uitvoerbare bestand dat is ingesteld in **Instellingen → Bestanden en
+  paden → ACME** (**Kies ACME**). `ACME-0.97-reference.pdf` beschrijft de taal.
+
+De modus wordt opgeslagen met een `.proj`-project, dus elk project wordt geopend
+met zijn eigen assembler. De ACME-modus is alleen voor tekstbewerking: de
+schakelaar Blok/Expert is vergrendeld en de knop **Tutorials** is verborgen (de
+lessen bouwen VMA-programma's op uit blokken).
+
+Wat volgt na de ACME-build:
+
+- **Build** (de hamerknop in de Expert-werkbalk, *Build ACME-broncode*), **Run**
+  (PRG, D64, C64 Ultimate, Kung Fu Flash 2), **Save PRG**, **Build D64**,
+  **Build CRT**, **Build project** en **Debug (RetroDebugger)** compileren via
+  ACME; ACME-fouten en -waarschuwingen worden geopend in het normale
+  dialoogvenster voor compileerfouten, met de broncoderegel.
+- Met het paneel **Disassembly** of **Monitor** ingeschakeld, of met de
+  cyclusgoot aan, wordt de broncode na een typpauze opnieuw opgebouwd, zodat de
+  panelen de echte ACME-bytes weergeven; de panelen gebruiken de ACME-labels.
+- **Debugbestanden** (*Debugbestanden genereren* in Instellingen → Algemeen)
+  worden gemaakt van de ACME-labeldump: `.sym` (KickAssembler-stijl) en `.vs`
+  (VICE-labels) naast de PRG; er is geen `.dbg`-bronkaart in ACME-modus. **Debug
+  (RetroDebugger)** krijgt dezelfde labels en de Expert-breakpoints worden
+  geplaatst door het ACME-rapport (een breakpoint op een regel zonder code stopt
+  bij de volgende coderegel).
+- **Cyclusaantallen** en **optimalisatietips** komen uit het ACME-rapport (`-r`)
+  van de laatste build.
+- De **VICE Monitor** hot reload schrijft alleen de adresbereiken die ACME
+  daadwerkelijk heeft opgebouwd; de live watch en de profiler gebruiken de
+  ACME-labels en bronregels.
+- **Exporteren naar blokken** van de SID-, Hi-Res-, Level-, Curve- en
+  Table-editors voegt ACME-broncode toe aan het einde van het bestand (`!byte`,
+  `!word`, `!fill`, `NAME = value`; VA-macro's worden als instructies
+  geschreven).
+
+Markeren en automatisch aanvullen herkennen de ACME-syntaxis: `!`
+pseudo-opcodes, `+name` macro-aanroepen, labels zonder dubbele punt, anonieme
+`-` / `+` labels en `;` commentaren. Een VMA-richtlijn (`.byte`, `.macro` …) in
+ACME-broncode en een ACME `!`-richtlijn in VMA-broncode worden als fouten
+gerapporteerd.
+
+```asm
+* = $c000
+start ldx #0
+- lda text,x
+
+beq +
+
+sta $0400,x
+
+inx
+
+bne -
++ rts
+text !scr "hallo acme", 0
+```
+
+`samples/acme-crt-demo.asm` is een klein ACME-testprogramma voor Run, Build
+PRG/D64 en Build CRT: een bericht in het midden van het scherm en
+rasterkleurbanden in de rand, zonder KERNAL-aanroepen, zodat het ook vanaf de
+cartridge kan worden uitgevoerd.
 
 ---
 
@@ -5434,18 +5566,19 @@ Versie 1.5.1 voegt de mogelijkheid toe om uw programma (en aanvullende
 gegevensbestanden) te verpakken in een C64 D64-schijfkopie en deze in VICE te
 starten, of de schijfkopie te exporteren voor gebruik elders.
 
-| Bron                         | URL                                                            |
-| ---------------------------- | -------------------------------------------------------------- |
-| 6502 Opcodes Referentie      | http://www.6502.org/tutorials/6502opcodes.html                 |
-| C64 kernelfuncties           | https://sta.c64.org/cbm64krnfunc.html                          |
-| C64-geheugenkaart            | https://sta.c64.org/cbm64mem.html                              |
-| C64-kleurcodes               | https://sta.c64.org/cbm64col.html                              |
-| VIC-II Artikel               | https://www.cebix.net/VIC-Article.txt                          |
-| C64-codebasis                | https://codebase.c64.org/                                      |
-| De Turbo Assembler           | https://turbo.style64.org/                                     |
-| RetroDebugger                | https://github.com/slajerek/RetroDebugger/                     |
-| C64 OS-ontwikkelomgeving     | https://www.c64os.com/c64os/programmersguide/?s=devenvironment |
-| png2c64 Afbeeldingsconverter | https://png2c64.app/                                           |
+| Bron                                                             | URL                                                            |
+| ---------------------------------------------------------------- | -------------------------------------------------------------- |
+| 6502 Opcodes Referentie                                          | http://www.6502.org/tutorials/6502opcodes.html                 |
+| C64 kernelfuncties                                               | https://sta.c64.org/cbm64krnfunc.html                          |
+| C64-geheugenkaart                                                | https://sta.c64.org/cbm64mem.html                              |
+| C64-kleurcodes                                                   | https://sta.c64.org/cbm64col.html                              |
+| VIC-II Artikel                                                   | https://www.cebix.net/VIC-Article.txt                          |
+| C64-codebasis                                                    | https://codebase.c64.org/                                      |
+| De Turbo Assembler                                               | https://turbo.style64.org/                                     |
+| RetroDebugger                                                    | https://github.com/slajerek/RetroDebugger/                     |
+| C64 OS-ontwikkelomgeving                                         | https://www.c64os.com/c64os/programmersguide/?s=devenvironment |
+| png2c64 Afbeeldingsconverter                                     | https://png2c64.app/                                           |
+| Restore64 Disassembler (C64 PRG → KickAssembler / ACME-broncode) | https://restore64.dev/                                         |
 
 ---
 
@@ -5679,12 +5812,12 @@ Zie [Sectie 9]{1} voor de volledige debuggerdocumentatie.
 
 ## 14. Visuele editors (toolkit)
 
-Het menu **Toolkit** in de werkbalk groepeert de visuele data-editors die
-allemaal een gemeenschappelijk menu Bestanden (`Bestanden ▾`) delen voor BIN
-laden / BIN opslaan / Exporteren naar blokken / Opslaan naar D64. Elke editor
-produceert ruwe `.bin`-gegevens die in een programma kunnen worden geplaatst met
-`INCBIN`, of direct aan een D64-schijf kunnen worden toegevoegd via de **Opslaan
-naar D64**-optie.
+Openen via **Menu → Instellingen…** (voorheen *Hardware-instellingen*). Het
+dialoogvenster heeft drie tabbladen: **Algemeen** (assemblermodus, BASIC
+SYS-stub, Uitvoeren met Exomizer, updates, ASM-uitvoer, SID-voorbeeld, C64
+Debugger-parameters, snapshots / versiebeheer), **Bestanden en paden** (VICE,
+RetroDebugger, ACME, Exomizer, git) en **Integraties** (C64 Ultimate, Kung Fu
+Flash 2). De onderstaande secties beschrijven de externe tools en apparaten.
 
 ### Editor voor hoge resolutie / meerkleurig
 
@@ -5716,18 +5849,20 @@ meerkleurige modus van 160×200. Openen via Toolkit → Hi-Res Editor.
 3. Schakel het selectievakje **Uitvoeren met Exomizer** in het menu
    **Instellingen** in.
 4. Alle **Run**-acties (PRG, D64, hardware) en **Build**-acties (Build PRG,
-   Build D64) zullen het geassembleerde programma nu door `exomizer sfx sys`
-   laten verwerken voordat het wordt gestart of opgeslagen.
+   Build D64) zullen het geassembleerde programma nu door `exomizer sfx` halen
+   voordat het wordt gestart of opgeslagen: `sfx basic` wanneer de PRG begint
+   met een BASIC-regel (na het decomprimeren start RUN de originele `SYS`-regel,
+   dus een tweede RUN werkt ook), `sfx $<laadadres>` anders.
 
 Exomizer werkt op dezelfde manier op Windows en macOS: de CLI wordt aangeroepen
 vanuit de Tauri-backend; niets aan de integratie is platformspecifiek.
 
 **Intern worden twee compressiemodi gebruikt:**
 
-| Modus                | Gebruikt door                                            | Bellen conventie                                                                                                                                                                                    |
-| -------------------- | -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sfx sys`            | Bouwen/uitvoeren met Exomizer-schakelaar (hoofd-PRG-pad) | Zelfuitpakkende PRG met ingebouwde decruncher; de instelling voor randflits regelt `-x1` versus `-n`                                                                                                |
-| `mem` (achterwaarts) | Uitvoeren via D64 → per bestand **EXO** selectievakje    | Comprimeert elk extra bestand tot een `mem`-mode stream; het programma decomprimeert het tijdens runtime via de **EXODECRUNCH** macro en een vooraf gebouwde depacker (`samples/exo-decrunch.bin`). |
+| Modus                       | Gebruikt door                                            | Bellen conventie                                                                                                                                                                                    |
+| --------------------------- | -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sfx basic` / `sfx $<addr>` | Bouwen/uitvoeren met Exomizer-schakelaar (hoofd-PRG-pad) | Zelfuitpakkende PRG met ingebouwde decruncher; de instelling voor randflits regelt `-x1` versus `-n`                                                                                                |
+| `mem` (achterwaarts)        | Uitvoeren via D64 → per bestand **EXO** selectievakje    | Comprimeert elk extra bestand tot een `mem`-mode stream; het programma decomprimeert het tijdens runtime via de **EXODECRUNCH** macro en een vooraf gebouwde depacker (`samples/exo-decrunch.bin`). |
 
 > **Tip:** Als het Exomizer-pad niet is geconfigureerd, maar het selectievakje
 > is ingeschakeld, wordt er een duidelijke foutmelding weergegeven in plaats van
@@ -6148,11 +6283,20 @@ in het versiebeheerde `.bin`-formaat.
 - De knop 'Afspelen' in de werkbalk verandert in 'Pauze' tijdens het afspelen en
   in 'Hervatten' wanneer het afspelen gepauzeerd is; 'Stop' beëindigt het
   afspelen en zet de status terug naar de beginstand.
+- Het **LCD** aan het einde van de tracker-werkbalk toont de songpositie (POS),
+  het patroon (PAT), de rij (ROW) en de afspeeltijd (TIME) tijdens het afspelen,
+  en de bewerkingspositie wanneer het afspelen is gestopt. **Instellingen →
+  SID-voorbeeld → LCD-kleur** maakt het groen of rood.
 - De knop in de toetsenbordwerkbalk opent **VA-VK**, een niet-modaal piano (2, 3
   of 4 octaven; positie, open status, octaaf en *Invoegen in tracker* worden
   onthouden) met eigen **Afspelen/Stoppen**-knoppen die bruikbaar blijft terwijl
   de SID-editor actief is. Sleep de koptekst om deze overal boven de
   hoofdapplicatie te plaatsen.
+- Met de **Instrument**-knop op VA-VK (slepen, muiswiel of pijltjestoetsen)
+  selecteert u het instrument, dat met zijn nummer en naam op het LCD-scherm
+  ernaast wordt weergegeven; het volgt de instrumentenlijst van de editor. Het
+  label naast de titel VA-VK geeft de gebruikte SID-emulatie aan (WebSID of VA
+  SID Core, afhankelijk van het chipmodel).
 - Schakel **Invoegen in tracker** in om elke gespeelde noot op de huidige
   trackercursor te schrijven en naar de volgende regel te gaan. Schakel deze
   functie uit om noten te beluisteren zonder ze te bewerken.
@@ -6207,11 +6351,12 @@ conversie is bij benadering, omdat de twee trackers anders werken:
 - Een gate die door de wavetable wordt vrijgegeven, wordt een noot-off op de
   volgende vrije rij. Alleen de eerste subtune wordt geïmporteerd.
 
-**.sid importeren:** **Bestanden → Importeer .sid…** opent een PSID/RSID-bestand
+**.sid import:** **Bestanden → Importeer .sid…** opent een PSID/RSID-bestand
 (alleen desktop-app, gebruikt VA SID Core). Kies de subtune en de lengte in
 seconden en druk op **Importeren**: de melodie wordt stil afgespeeld, de
 SID-registers worden frame voor frame opgenomen en omgezet in een nummer ter
-vervanging van het huidige nummer.
+vervanging van het huidige nummer. Een voortgangsbalk volgt de opname, daarna
+*Converteren…* de conversie.
 - **Opmerkingen:** een noot op is een gate-rand (een hertrigger binnen 2 frames
   telt als één noot); een toonhoogteverandering onder een vastgehouden gate die
   minstens 5 frames aanhoudt, wordt een nieuwe, hertriggerde (legato) noot. De

@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Käyttöopas
 
-**Versio 2.6.3**
+**Versio 2.6.4**
 
 Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
 vetämällä ja pudottamalla käskylohkoja ja nähdä luodun assemblerin ja konekoodin
@@ -11,6 +11,7 @@ reaaliajassa.
 ## Sisällysluettelo
 
 - [C64 Visual Assembler — Käyttöopas](#c64-visual-assembler--user-manual)
+    - [Version 2.6.4 kohokohdat](#version-264-highlights)
     - [Version 2.6.3 kohokohdat](#version-263-highlights)
     - [Version 2.6.2 kohokohdat](#version-262-highlights)
     - [Version 2.6.1 kohokohdat](#version-261-highlights)
@@ -81,6 +82,7 @@ reaaliajassa.
     - [Lähdekoodin muotoilija](#source-formatter)
     - [Projektipaneeli \&amp; välilehdet](#project-panel--tabs)
     - [Välilehtipalkki](#tab-bar)
+    - [ACME-tila](#acme-mode)
   - [7. Osoitetilat](#7-addressing-modes)
     - [Merkitse lausekkeet operandeiksi](#label-expressions-as-operands)
     - [`*`-ohjelmalaskuri lausekkeissa](#the--program-counter-in-expressions)
@@ -207,6 +209,45 @@ reaaliajassa.
     - [Käyräeditori](#curve-editor)
     - [Taulukkogeneraattori](#table-generator)
     - [Numeronmuunnin](#number-converter)
+
+---
+
+## Version 2.6.4 kohokohdat
+
+- **ACME-assembler-tila** — **Asetukset → Yleiset → Assembler-tila** vaihtaa
+  *VMA-tilan* (sisäänrakennettu Visual Assembler -assembler) ja *ACME-tilan*
+  välillä: Expert-lähdekoodi on rakennettu ACME 0.97:llä, ja Suorita, Rakenna,
+  Purkaminen/Näytön paneelit, virheenkorjaussymbolit, syklien määrät,
+  optimointivihjeet ja VICE-Näytön paneelit käyttävät kaikki todellista
+  ACME-tulostetta. Katso [ACME-tila](#acme-mode).
+- **Better Kick Assembler import** — Program-valikon kohta on nyt **Kick
+  import**. Tavalliset `.text "…"`-rivit seuraavat `.encoding`-kohtaa, `.label
+  NAME = * + N` sijoittaa nimiön käskyn sisään ja `.abs` / `.zp` -mnemoniset
+  loppuliitteet pakottavat osoitustilan käyttöön. Restore64-purkaukset
+  rakentavat tavu tavulta kuten KickAssembler. Katso [Kick import (Kick
+  Assembler)](#kick-import-kick-assembler).
+- **Run käynnistää ohjelmat BASIC-rivin alapuolella** — ohjelma, joka latautuu
+  BASIC SYS -rivin alapuolella tai yli, saa pienen käynnistyslataajan;
+  lähdekoodin myöhemmin alempaa ORG-osoitetta ei enää siirretä
+  aloitusosoitteeseen ylöspäin. Katso **BASIC SYS -tynkä** -rivi kohdassa
+  [Asetukset ja työkalupalkki]{1].
+- **Exomizer** — sotkuinen ohjelma ei enää anna virhettä `?SYNTAX ERROR`
+  toisella suorituskerralla: PRG, jossa on BASIC-rivi, pakataan `sfx basic`
+  -rivillä, mikä tahansa muu `sfx $<latausosoite>` -rivillä.
+- **SID-editori** — toisto-LCD-näyttö seurantapalkissa (kappaleen sijainti,
+  kuvio, rivi, aika; vihreä tai punainen kohdassa **Asetukset → SID-esikatselu →
+  LCD-väri**), instrumenttinuppi LCD-näytöllä VA-VK:ssa, edistymispalkki **Tuo
+  .sid…-tiedostolle**. Katso [SID-editori]{1].
+- **Asetukset kolmella välilehdellä** — **Yleiset**, **Tiedosto- ja polut** ja
+  **Integraatiot**. Katso [Osa 13](#13-hardware-settings).
+- **Pienempiä parannuksia** — **Ctrl+N** avaa uuden välilehden; valintaikkunan
+  tekstiä ei voi enää valita vahingossa (tekstikenttiä ja kopioitavaa
+  tulostetta, kuten käännösvirheitä, voi edelleen); suuret Expert-lähteet
+  muokkaavat nopeammin; `LSR A` ja `JMP ($nnnn)` tuodaan oikein; tietokanta
+  linkittää Restore64:ään (restore64.dev), joka muuttaa C64 PRG:n KickAssembler
+  / ACME -lähteeksi **Kick-tuontia** tai ACME-tilaa varten. ACME-lähdekoodia,
+  jonka segmentti on `$0801` alapuolella (muistivedos), ei enää siirretä BASIC
+  SYS -rivin taakse: se rakentuu omiin osoitteisiinsa ja saa aloituslataajan.
 
 ---
 
@@ -1053,7 +1094,7 @@ epäonnistuu.
 | **Teema**                                                                                                | Vaalea / Tumma / OLED / Commodore 77 / Commodore Starlight / Commodore Beige / Commodore 64 – valitse teeman valitsimesta Asetukset-valikossa. OLED käyttää puhtaan mustaa taustaa AMOLED-näytöissä. Commodore 77 on neonkeltainen mustalla pohjalla -teema; kun se on aktiivinen teema, käynnistyspaneeli käyttää teeman paneelin väriä (vastaa viestikorttia), näyttää pienemmän Commodore 77 -logon ja keltaisen edistymispalkin. Commodore Starlight on vaalea teema, joka on saanut inspiraationsa läpikuultavasta C64-leipälaatikosta: himmeät kirkkaat lasipaneelit, joista paistaa sateenkaaren RGB-hehku, magentanvärinen korostus, sateenkaaren syntaksin värit ja savunharmaa näyttönäkymä. Commodore Beige on klassinen leipälaatikko: beigenvärinen kuori, sinapinkeltaiset toimintonäppäimet, sateenkaarenväriset rintaraidat ja C64:n sininen näyttö näyttönäkymässä. Valittu teema otetaan käyttöön ennen ensimmäistä maalausta seuraavalla käynnistyskerralla. |
 | **CRT-retrotila**                                                                                        | Ottaa käyttöön koko näytön CRT-suodattimen: skannausviivat, fosforivinjetointi, välkkyminen ja tynnyrivääristymä. Tila tallennetaan istuntojen välillä.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | **Näytä muistipaneeli**                                                                                  | Globaali kytkin, joka näyttää tai piilottaa koko C64-muistipaneelin                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| **PERUSJÄRJESTELMÄN tynkä**                                                                              | Lisää ohjelman alkuun BASIC-rivin, joka kutsuu SYS-komentoa.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| **PERUSJÄRJESTELMÄN tynkä**                                                                              | Lisää BASIC-rivin, joka kutsuu SYS-metodia ohjelman alkuperän (ensimmäisen ORG:n) alkuun. Ensimmäistä ORG:ia alempana oleva segmentti pysyy omassa osoitteessaan. Kun ohjelma latautuu BASIC-rivin (`$0801`–`$080C`) ala- tai poikki, esimerkiksi tuotu vedos hakemistosta `$071C`), Run and Build lisää pienen käynnistyslataajan: `SYS 2061` kopioi moverin nauhapuskuriin (`$033C`), mikä asettaa ohjelman paikoilleen ja hyppää ensimmäiseen ORG:iin.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | **Esimerkkejä…**                                                                                         | Avaa esimerkkiselain ja lataa sisäänrakennettu esimerkkiohjelma — katso [Esimerkkiohjelmat](#example-programs)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | **Lähennä/loitonna**                                                                                     | Skaalaa lohkon käyttöliittymää (vaikuttaa kaikkiin lohkoelementteihin)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | **Tallenna projekti**                                                                                    | Tallenna nykyinen ohjelma `.json`-projektitiedostona                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
@@ -1073,9 +1114,9 @@ epäonnistuu.
 | **Rakenna projekti** (`Valikko → Rakenna`)                                                               | Käännä jokainen projektin (tai avointen välilehtien) rakennettava tiedosto `.prg`-tiedostoksi lähdekoodin viereen — katso [Build project](#build-project)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | **Suorita (jakopainike)**                                                                                | Pääpainike **▶ Suorita** suorittaa nykyisen tilan; napsauta nuolta **▾** vaihtaaksesi seuraavien välillä: **Suorita PRG:nä** (käännä ja käynnistä VICE suoraan), **Suorita D64:n kautta** (pakkaa .d64-levykuvaan ja käynnistä VICE), **Suorita laitteistolla** (lähetä PRG C64 Ultimate / 1541 Ultimate -laitteeseen) tai **Kung Fu Flash 2** (lataa PRG USB:n kautta oikeaan C64/C128:aan, jossa on Kung Fu Flash 2 -kasetti). Katso [Osa 12](#12-d64-export--run) ja [Osa 13]{2].                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | **Virheenkorjaus (RetroDebugger)**                                                                       | Käännä ja käynnistä RetroDebuggerissa käyttämällä keskeytyskohtia, symboleja ja automaattisen käynnistyksen lippuja (katso [Osio 9](#9-debugger-integration))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| **Suorita Exomizerilla**                                                                                 | Valintaruutu Asetukset-valikossa — kun tämä on käytössä, kaikki Suorita- ja Kokoonpanotoiminnot käsittelevät PRG:n `exomizer sfx sys` -komennon kautta ennen käynnistämistä tai tallentamista. Toimii seuraavien kanssa: Suorita PRG:nä, Suorita D64:n kautta, Suorita laitteistolla, Koonna PRG ja Koonna D64. Määritä Exomizer-suoritettava tiedosto ensin **Laitteistoasetukset** -komennossa.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| **Suorita Exomizerilla**                                                                                 | Valintaruutu Asetukset-valikossa — kun tämä on käytössä, kaikki Suorita- ja Kokoonpano-toiminnot käsittelevät PRG:n `exomizer sfx` -komennon kautta ennen käynnistämistä tai tallentamista (`sfx basic` PRG:lle, joka alkaa BASIC-rivillä, joten RUN toimii uudelleen ohjelman paluun jälkeen; muussa tapauksessa `sfx $<latausosoite>`). Toimii seuraavien kanssa: Suorita PRG:nä, Suorita D64:n kautta, Suorita laitteistolla, Koonna PRG ja Koonna D64. Määritä Exomizer-suoritettava tiedosto ensin **Laitteistoasetukset** -asetuksissa.                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | **Automaattiset automaattiset tallennusmerkinnät**                                                       | Valintaruutu kohdassa **Laiteasetukset → Versiohallinta**. Kun tämä on käytössä, sovellus lisää automaattisen tallennuksen versiohistoriaan noin 2,5 sekuntia sen jälkeen, kun lopetat välilehden muokkaamisen (projektin välilehden osalta myös projektin historiaan). Poista se käytöstä, jos haluat vain omat commit-tiedostosi. Katso [Versiohallinta]{1].                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| **Laitteistoasetukset**                                                                                  | Avaa laitteistokokoonpanon valintaikkuna — määritä VICE, Exomizer, RetroDebugger, C64 Ultimate (isäntä, salasana, yhteystesti) ja Kung Fu Flash 2 -sarjaportti. Katso [Osa 13](#13-hardware-settings).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| **Asetukset** (aiemmin Laitteistoasetukset)                                                              | Avaa asetusvalintaikkuna, jossa on kolme välilehteä: **Yleiset** (assembler-tila, BASIC SYS -tynkä, Exomizer, päivitykset, ASM-tuloste, SID-esikatselu, virheenkorjausparametrit, versionhallinta), **Tiedosto- ja polut** (VICE, RetroDebugger, ACME, Exomizer, git) ja **Integraatiot** (C64 Ultimate, Kung Fu Flash 2). Katso [Osio 13](#13-hardware-settings).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | **Uusi ohjelma…**                                                                                        | Avaa vahvistusikkunan ja tyhjentää sitten kaikki lohkot ohjelma-alueelta.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | **Pitkännä kaikki**                                                                                      | Kutista kaikki lohkot                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | **Tietoja**                                                                                              | Versiotiedot                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
@@ -1469,11 +1510,11 @@ näyttävät riippuvuuden todellisen version.
 - Jos ohjelmasi alkaa datamerkillä (`.byte`) ennen suoritettavaa koodia, lisää
   alkuun eksplisiittinen hyppymerkki (esimerkiksi `JMP Start`).
 
-### ASM-tuonti (Kick Assembler)
+### Kick-tuonti (Kick Assembler)
 
-Ohjelmavalikon **ASM-tuonti** -painike tuo raakana olevan Kick Assembler
+Ohjelmavalikon **Kick import** -painike tuo raakana olevan Kick Assembler
 -lähdekoodin uudelle lohkotilavälilehdelle. Se on erillinen yllä olevasta
-Expert-tilan `Lataa .asm-tiedosto` -painikkeesta — sen mukautettu työkaluvihje
+Expert-tilan `Load .asm file` -painikkeesta — sen mukautettu työkaluvihje
 ilmoittaa, että **vain Kick Assembler -koodia tuetaan** (muut assemblerit
 saattavat jäsentää osittain, mutta edestakaista käsittelyä ei taata).
 
@@ -1491,11 +1532,32 @@ Tuetut kuviot:
 - Operandi `merkintä + N` / `merkintä - N` (esim. `STA mod1+2`, `LDA xp+1`)
 - Rivikommentit `// ...` ja `;` — molemmat hyväksytään, `/* ... */` lohkoja
   käsitellään yhtenä kommenttirivinä
+- `.teksti "…"` ilman näyttökoordinaatteja → BYTE-lohko koodatuilla tavuilla
+  (alkuperäinen rivi säilytetään lohkon kommenttina). Useita kohteita on
+  sallittu: `"…"`, `@"…"` koodinvaihtomerkeillä `\n` `\r` `\t` `\$NN` ja `$NN` /
+  desimaalitavut, yhdistettynä `, ` tai `+`
+- `.encoding "nimi"` asettaa seuraavien `.text` rivien koodauksen:
+  `screencode_mixed` (Kick-oletus), `screencode_upper`, `petscii_mixed`,
+  `petscii_upper`, `ascii`. Merkki, jolle koodauksella ei ole koodia,
+  raportoidaan lohkossa.
+- `.label NIMI = *`, `.label NIMI = * + N`, `.label NIMI = * - N` →
+  ohjelmalaskurin merkintä, siirrettynä N:llä (esimerkiksi hyppy `BIT`:n
+  operandiin: `.label loc_c474 = * + 1`)
+- Muistisuuttimien `.abs` / `.a` ja `.zp` / `.z` (`sta.abs $00fc,x`, `ldx.zp
+  ptr,y`) käyttö pakottaa absoluuttisen tai nollasivuisen osoituksen.
+- `*=$XXXX "nimi"` ja `.pc = $XXXX "nimi"` segmenttiä missä tahansa
+  järjestyksessä: ensimmäistä alempi segmentti pysyy osoitteessaan
 - BASIC-automaattisen käynnistyksen läpikulku: kun ohjelma käynnistyy kohdasta
   `$0801` standardilla `SYS 2061` tavutynkällä (`.byte
   $0B,$08,$0A,$00,$9E,$32,$30,$36,$31,$00,$00,$00`), kääntäjä lähettää PRG:n
   sanatarkasti sen sijaan, että käärittäisi sen ympärille toisen BASIC SYS
   -järjestelmän.
+
+Restore64:n (KickAssembler-syntaksi) tekemät purut tuovat ja rakentavat tavu
+tavulta kuten KickAssembler. Niiden otsikossa nimetty aloituskohta on
+ensimmäinen `.pc`. Plus/4 / C16:lle tarkoitettu ohjelma (BASIC kohdassa `$1001`,
+TED-rekisterit kohdassa `$FFxx`) rakentuu samalla tavalla, mutta se toimii vain
+Plus/4-emulaattorissa, kuten VICE `xplus4`, ei Run-komennolla.
 
 Tunnettu rajoitus:
 
@@ -1928,11 +1990,73 @@ välilehti.
 | **Vieroitusnäppäimet**       | Vasen/oikea vierityspainikkeet tulevat näkyviin, kun välilehtiä on enemmän kuin palkkiin mahtuu                                                                                                                                                                                                                                                                                     |
 | **Sulje (×)**                | Sulkee välilehden; kehottaa tallentamaan, jos välilehti on likainen                                                                                                                                                                                                                                                                                                                 |
 | **Tiedostopääte**            | Tiedoston koko nimi tiedostopäätteineen (`.c64va`, `.json`) näytetään.                                                                                                                                                                                                                                                                                                              |
+| **Ctrl+N**                   | Avaa uuden, tyhjän välilehden (ei modaalisen valintaikkunan ollessa auki)                                                                                                                                                                                                                                                                                                           |
 | **Kakkospainikkeen valikko** | Napsauta välilehteä (tai tyhjää välilehtipalkin tilaa) hiiren kakkospainikkeella seuraaville: **Uusi välilehti**, **Sulje välilehti**, **Sulje muut välilehdet**, **Sulje oikeanpuoleiset välilehdet**, **Sulje kaikki välilehdet**. Eräsulkemistoiminnot kehottavat jokaista likaista välilehteä ja pysähtyvät, jos peruutat. **Sulje kaikki** pitää aina yhden tyhjän välilehden. |
 
 > **Vinkki:** Paletin synkronointi (`#expert-palette-sync-btn`) pitää
 > palettivalinnan synkronoituna kohdistimen kohdalla olevan muistimerkin kanssa.
 > Poista se käytöstä, jos et halua paletin hyppivän muokkaamisen aikana.
+
+### ACME-tila
+
+**Asetukset → Yleiset → Assembler-tila** valitsee Expert-editorin assemblerin:
+
+- **VMA-tila** (oletus) — sisäänrakennettu Visual Assembler -assembler
+  lohkoineen, makroineen ja `.`-direktiiveineen.
+- **ACME-tila** — lähdekoodi on ACME 0.97 -tekstiä, ja sen on rakentanut
+  ACME-suoritettava tiedosto, joka on asetettu kohdassa **Asetukset → Tiedostot
+  ja polut → ACME** (**Valitse ACME**). `ACME-0.97-reference.pdf` kuvaa kielen.
+
+Tila tallennetaan `.proj`-projektilla, joten jokainen projekti avautuu omalla
+assemblerillaan. ACME-tila on vain tekstinmuokkaustila: Lohko /
+Asiantuntija-kytkin on lukittu ja **Ohjeet**-painike on piilotettu (oppitunnit
+rakentavat VMA-ohjelmia lohkoista).
+
+Mitä seuraa ACME-koontiversiosta:
+
+- **Build** (vasarapainike asiantuntijatyökalurivillä, *Build ACME
+  -lähdekoodi*), **Run** (PRG, D64, C64 Ultimate, Kung Fu Flash 2), **Save
+  PRG**, **Build D64**, **Build CRT**, **Build-projekti** ja **Debug
+  (RetroDebugger)** käännetään ACME:n kautta; ACME-virheet ja -varoitukset
+  avautuvat normaalissa käännösvirhe-valintaikkunassa lähdekoodirivillä.
+- Kun **Disassembly**- tai **Monitor**-paneeli on käytössä tai sykliväli on
+  käytössä, lähdekoodi luodaan uudelleen kirjoitustauon jälkeen, joten paneelit
+  näyttävät todelliset ACME-tavut; paneelit käyttävät ACME-tunnisteita.
+- **Virheenkorjaustiedostot** (*Luo virheenkorjaustiedostot* Asetukset →
+  Yleiset) luodaan ACME-otsikkotiedostosta: `.sym` (KickAssembler-tyyliin) ja
+  `.vs` (VICE-otsikot) PRG:n vieressä; ACME-tilassa ei ole `.dbg`
+  lähdekoodikarttaa. **Debug (RetroDebugger)** saa samat otsikot, ja
+  ACME-raportti sijoittaa Expert-keskeytyspisteet (koodittomalla rivillä oleva
+  keskeytyspiste pysähtyy seuraavalle koodiriville).
+- **Syklien määrät** ja **optimointivihjeet** tulevat viimeisimmän koontiversion
+  ACME-raportista (`-r`).
+- **VICE Monitor** -latausohjelma kirjoittaa vain ACME:n todellisuudessa luomat
+  osoitealueet; reaaliaikainen watch ja profiler käyttävät ACME:n tunnisteita ja
+  lähdeviivoja.
+- **Vie SID-, Hi-Res-, Level-, Curve- ja Table-editorien lohkoihin** lisää
+  ACME-lähdekoodin tiedoston loppuun (`!byte`, `!word`, `!fill`, `NAME = value`;
+  VA-makrot kirjoitetaan ohjeina).
+
+Korostus ja automaattinen täydennys osaavat ACME-syntaksin: `!` pseudo-opkoodit,
+`+nimi` makrokutsut, otsikot ilman kaksoispistettä, anonyymit `-` / `+` otsikot
+ja `;` kommentit. VMA-direktiivi (`.byte`, `.macro` …) ACME-lähdekoodissa ja
+ACME `!` direktiivi VMA-lähdekoodissa raportoidaan virheinä.
+
+```asm
+* = $c000
+aloitus ldx #0
+- lda teksti,x
+beq +
+sta $0400,x
+inx
+bne -
++ rts
+teksti !scr "hello acme", 0
+```
+
+`samples/acme-crt-demo.asm` on pieni ACME-testausohjelma Run-, Build PRG / D64-
+ja Build CRT -komennoille: viesti näytön keskellä ja rasteriväripalkit reunassa,
+ilman KERNAL-kutsuja, joten se toimii myös kasetilta.
 
 ---
 
@@ -4976,18 +5100,19 @@ Versio 1.5.1 lisää mahdollisuuden pakata ohjelmasi (ja muut datatiedostot) C64
 D64 -levykuvaan ja käynnistää sen VICE:ssä — tai viedä levykuva muualle
 käytettäväksi.
 
-| Resurssi                                | URL-osoite                                                     |
-| --------------------------------------- | -------------------------------------------------------------- |
-| 6502 Opcodes Reference                  | http://www.6502.org/tutorials/6502opcodes.html                 |
-| C64 KERNAL-funktiot                     | https://sta.c64.org/cbm64krnfunc.html                          |
-| C64-muistikartta                        | https://sta.c64.org/cbm64mem.html                              |
-| C64-värikoodit                          | https://sta.c64.org/cbm64col.html                              |
-| VIC-II-artikkeli                        | https://www.cebix.net/VIC-Article.txt                          |
-| C64-koodikanta                          | https://codebase.c64.org/                                      |
-| Turbo-kokoonpanija                      | https://turbo.style64.org/                                     |
-| RetroDebugger                           | https://github.com/slajerek/RetroDebugger/                     |
-| C64-käyttöjärjestelmän kehitysympäristö | https://www.c64os.com/c64os/programmersguide/?s=devenvironment |
-| png2c64-kuvamuunnin                     | https://png2c64.app/                                           |
+| Resurssi                                                      | URL-osoite                                                     |
+| ------------------------------------------------------------- | -------------------------------------------------------------- |
+| 6502 Opcodes Reference                                        | http://www.6502.org/tutorials/6502opcodes.html                 |
+| C64 KERNAL-funktiot                                           | https://sta.c64.org/cbm64krnfunc.html                          |
+| C64-muistikartta                                              | https://sta.c64.org/cbm64mem.html                              |
+| C64-värikoodit                                                | https://sta.c64.org/cbm64col.html                              |
+| VIC-II-artikkeli                                              | https://www.cebix.net/VIC-Article.txt                          |
+| C64-koodikanta                                                | https://codebase.c64.org/                                      |
+| Turbo-kokoonpanija                                            | https://turbo.style64.org/                                     |
+| RetroDebugger                                                 | https://github.com/slajerek/RetroDebugger/                     |
+| C64-käyttöjärjestelmän kehitysympäristö                       | https://www.c64os.com/c64os/programmersguide/?s=devenvironment |
+| png2c64-kuvamuunnin                                           | https://png2c64.app/                                           |
+| Restore64-purkaja (C64 PRG → KickAssembler / ACME-lähdekoodi) | https://restore64.dev/                                         |
 
 ---
 
@@ -5223,11 +5348,12 @@ Katso täydellinen debuggerin dokumentaatio kohdasta [Osio 9]{1}.
 
 ## 14. Visuaaliset editorit (työkalupakki)
 
-Työkalurivin **Toolkit** -valikko ryhmittelee visuaalisten tietojen editorit,
-joilla kaikilla on yhteinen Tiedostot-valikko (`Tiedostot ▾`) Lataa BIN /
-Tallenna BIN / Vie lohkoihin / Tallenna D64:ään. Jokainen editori tuottaa
-raakadataa `.bin`, joka voidaan sijoittaa ohjelmaan `INCBIN`-komennolla tai
-lisätä suoraan D64-levylle **Tallenna D64:ään** -merkinnän kautta.
+Avaa valitsemalla **Valikko → Asetukset…** (aiemmin *Laitteistoasetukset*).
+Valintaikkunassa on kolme välilehteä: **Yleiset** (assembler-tila, BASIC SYS
+-tynkä, Suorita Exomizerilla, päivitykset, ASM-tuloste, SID-esikatselu, C64
+Debugger -parametrit, tilannevedokset / versionhallinta), **Tiedosto- ja polut**
+(VICE, RetroDebugger, ACME, Exomizer, git) ja **Integraatiot** (C64 Ultimate,
+Kung Fu Flash 2). Alla olevat osiot kuvaavat ulkoisia työkaluja ja laitteita.
 
 ### Korkean resoluution / monivärinen editori
 
@@ -5257,9 +5383,11 @@ Pikselitason bittikarttaeditori, jossa on sekä 320×200 korkearesoluutio- että
      3.1.2-koontiversion).
 2. Määritä polku kohdassa **Laitteistoasetukset → Exomizer-osio**.
 3. Ota käyttöön **Suorita Exomizerilla** -valintaruutu **-asetuksissa**.
-4. Kaikki **Run** -toiminnot (PRG, D64, hardware) ja **Build** -toiminnot (Build
-   PRG, Build D64) käsittelevät nyt kootun ohjelman `exomizer sfx sys` -komennon
-   avulla ennen käynnistämistä tai tallentamista.
+4. Kaikki **Run**-toiminnot (PRG, D64, hardware) ja **Build**-toiminnot (Build
+   PRG, Build D64) käsittelevät nyt kootun ohjelman `exomizer sfx` -komennon
+   avulla ennen käynnistämistä tai tallentamista: `sfx basic`, kun PRG alkaa
+   BASIC-rivillä (purun jälkeen RUN käynnistää alkuperäisen `SYS`-rivin, joten
+   toinenkin RUN toimii), muussa tapauksessa `sfx $<latausosoite>`.
 
 Exomizer toimii samalla tavalla Windowsissa ja macOS:ssä — komentorivi (CLI)
 kutsutaan Tauri-taustajärjestelmästä; mikään integraatiossa ei ole
@@ -5267,10 +5395,10 @@ alustakohtaista.
 
 ** Sisäisesti käytetään kahta pakkaustilaa:**
 
-| Tila               | Käyttämä                                                       | Soittokäytäntö                                                                                                                                                                                                     |
-| ------------------ | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `sfx-järjestelmä`  | Rakenna/Suorita Exomizerilla -vaihtokytkin (PRG:n pääpolku)    | Itsepurkautuva PRG sisäänrakennetulla purkajalla; Border-flash-asetus ohjaa `-x1` vs. `-n`                                                                                                                         |
-| `mem` (taaksepäin) | Suorita D64:n kautta → tiedostokohtainen **EXO** -valintaruutu | Pakkaa jokaisen ylimääräisen tiedoston `mem`-muotoiseen virraan; ohjelma purkaa sen suorituksen aikana **EXODECRUNCH**-makron ja valmiiksi rakennetun pakkauksenpurkuohjelman (`samples/exo-decrunch.bin`) avulla. |
+| Tila                          | Käyttämä                                                       | Soittokäytäntö                                                                                                                                                                                                     |
+| ----------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `sfx perus` / `sfx $<osoite>` | Rakenna/Suorita Exomizerilla -vaihtokytkin (PRG:n pääpolku)    | Itsepurkautuva PRG sisäänrakennetulla purkajalla; Border-flash-asetus ohjaa `-x1` vs. `-n`                                                                                                                         |
+| `mem` (taaksepäin)            | Suorita D64:n kautta → tiedostokohtainen **EXO** -valintaruutu | Pakkaa jokaisen ylimääräisen tiedoston `mem`-muotoiseen virraan; ohjelma purkaa sen suorituksen aikana **EXODECRUNCH**-makron ja valmiiksi rakennetun pakkauksenpurkuohjelman (`samples/exo-decrunch.bin`) avulla. |
 
 > **Vinkki:** Jos Exomizer-polkua ei ole määritetty, mutta valintaruutu on
 > käytössä, käynnistyksen sijaan näytetään selkeä virheilmoitus. Poista
@@ -5684,11 +5812,20 @@ ajoitusta), toimivat identtisesti Web Audio -esikatselussa ja käännetyssä
 - Toista-työkalurivin painike muuttuu Tauko-painikkeeksi toiston aikana ja
   Jatka-painikkeeksi tauon aikana; Pysäytä-painike lopettaa toiston ja palauttaa
   tilan.
+- Seurantapalkin päässä oleva **LCD-näyttö** näyttää kappaleen sijainnin (POS),
+  kuvion (PAT), rivin (ROW) ja toistoajan (TIME) toiston aikana sekä
+  muokkauskohdan pysäytystilassa. **Asetukset → SID-esikatselu → LCD-väri**
+  tekee siitä vihreän tai punaisen.
 - Näppäimistön työkalupalkin painike avaa **VA-VK**, ei-modaalisen pianon (2, 3
   tai 4 oktaavia; asento, avoin tila, oktaavi ja *Lisää seurantaan* muistetaan)
   omilla **Toista / Pysäytä** -painikkeillaan, jotka pysyvät käytettävissä
   SID-editorin ollessa aktiivinen. Vedä sen otsikkoa sijoittaaksesi sen mihin
   tahansa pääsovelluksen päälle.
+- VA-VK:n **Instrument** -nuppi (vetämällä, hiiren rullalla tai
+  nuolinäppäimillä) valitsee instrumentin, jonka numero ja nimi näkyvät sen
+  vieressä olevassa LCD-näytössä. Se seuraa editorin instrumenttiluetteloa.
+  VA-VK:n otsikon vieressä oleva merkki näyttää käytössä olevan SID-emuloinnin
+  (WebSID tai VA SID Core sirumallin kanssa).
 - Ota käyttöön **Lisää seurantaan** kirjoittaaksesi jokaisen soitetun nuotin
   nykyiseen seurantakursoriin ja siirtyäksesi seuraavalle riville. Poista se
   käytöstä kuunnellaksesi nuotteja ilman muokkausta.
@@ -5747,7 +5884,8 @@ likimääräinen, koska nämä kaksi seurantaa toimivat eri tavalla:
 **.sid import:** **Tiedostot → Tuo .sid…** avaa PSID / RSID-tiedoston (vain
 työpöytäsovelluksessa, se käyttää VA SID Corea). Valitse alimelodia ja sen
 pituus sekunteina ja paina **Tuo**: melodia soi äänettömästi, sen SID-rekisterit
-tallennetaan kehys kehykseltä ja muutetaan kappaleeksi nykyisen tilalle.
+tallennetaan kehys kehykseltä ja muutetaan kappaleeksi nykyisen kappaleen
+tilalle. Edistymispalkki seuraa tallennusta ja sitten *Muunnetaan…* muunnosta.
 - **Huomautuksia:** nuotti on portin reuna (uudelleenviritys kahden kehyksen
   sisällä lasketaan yhdeksi nuotiksi); sävelkorkeuden muutos pidossa olevan
   portin alla, joka pysyy vähintään 5 kehystä, muuttuu uudeksi,
