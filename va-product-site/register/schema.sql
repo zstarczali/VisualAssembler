@@ -154,6 +154,12 @@ CREATE TABLE IF NOT EXISTS va_support_threads (
   UNIQUE KEY uq_install (install_id),
   KEY ix_updated (updated_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS va_bug_support (
+  report_id INT UNSIGNED NOT NULL PRIMARY KEY,
+  install_id CHAR(32) NOT NULL,
+  KEY ix_install (install_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS va_support_messages (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   thread_id INT UNSIGNED NOT NULL,

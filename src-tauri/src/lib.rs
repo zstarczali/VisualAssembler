@@ -841,6 +841,10 @@ const BUG_REPORT_URL: &str = "https://www.c64va.pro/register/bug.php";
 /// Bug report with screenshots (base64) to va-product-site/register/bug.php; shown on register/bugs.php.
 #[tauri::command]
 async fn bug_report(app: AppHandle, payload: serde_json::Value) -> serde_json::Value {
+    let mut cfg = read_config(&app);
+    let id = install_id(&app, &mut cfg);
+    let mut payload = if payload.is_object() { payload } else { serde_json::json!({}) };
+    payload["install_id"] = serde_json::json!(id);
     let client = match update_http_client(&app, 60) {
         Ok(c) => c,
         Err(_) => return serde_json::json!({ "ok": false, "error": "network" }),

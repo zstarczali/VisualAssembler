@@ -1963,6 +1963,7 @@ function initPalette() {
   });
 
   document.querySelector(".program-panel .panel-scroll")?.addEventListener("scroll", () => {
+    _blockVirtualSchedule();
     _blockScheduleMinimapRedraw();
   });
 
@@ -2615,6 +2616,13 @@ function setupDraggableEditorDialogs() {
 }
 
 function _updateEditorModeIndicator() {
+  if (ubModeTbBtn) {
+    const blocked = !ultimateBasicMode && !_canUseUltimateBasicMode();
+    ubModeTbBtn.disabled = blocked;
+    ubModeTbBtn.setAttribute("aria-disabled", String(blocked));
+    if (blocked) ubModeTbBtn.setAttribute("title", t("ubAsmFileBlocked"));
+    else ubModeTbBtn.removeAttribute("title");
+  }
   const el = document.getElementById("editor-mode-indicator");
   if (!el) return;
   const key = ultimateBasicMode ? "editorModeUltimateBasic" : (expertMode ? "editorModeExpert" : "editorModeBlock");
@@ -4547,6 +4555,7 @@ function setOutputMode(mode) {
     tab.setAttribute("aria-selected", String(isActive));
   });
   outputStack.dataset.mode = mode;
+  if (mode !== "toolkit" && !expertMode && !ultimateBasicMode) renderAsmOutput();
   if (mode === "toolkit") { try { _buildToolkitPalette(); } catch (_) {} }
   saveUiSettings();
 }
@@ -6501,7 +6510,7 @@ function addSelectedBlock() {
     _syncPaletteToBlock(newBlock.id, true);
     requestAnimationFrame(() => {
       document.querySelectorAll(".asm-block--selected").forEach(el => el.classList.remove("asm-block--selected"));
-      const blockNode = programList.querySelector(`[data-block-id="${newBlock.id}"]`);
+      const blockNode = _blockFindNode(`[data-block-id="${newBlock.id}"]`);
       if (blockNode) {
         blockNode.classList.add("asm-block--selected");
         blockNode.scrollIntoView({ block: "nearest", behavior: "smooth" });
@@ -6867,7 +6876,19 @@ let _expertIncludeReloadSeq = 0;
 
 // keepText: the caller restores the editor text itself (tab switch), so the
 // source is not regenerated from program[] first.
-function setExpertMode(on, { keepText = false } = {}) {
+function _blockModeLimitExceeded(blocks = program) {
+  let count = 0;
+  for (const block of blocks) {
+    if (!block.isBlankLine && ++count > 1000) return true;
+  }
+  return false;
+}
+
+function setExpertMode(on, { keepText = false, switchingToUb = false } = {}) {
+  if (on && _isBoundUbTab()) {
+    showViceToast?.(t("asmUbFileBlocked"), true);
+    return;
+  }
   if (on && ultimateBasicMode) setUltimateBasicMode(false);
   let cursorSourceLine = -1;
   if (!on && expertMode) {
@@ -6882,6 +6903,12 @@ function setExpertMode(on, { keepText = false } = {}) {
     _expertSyncSourceTextFromEditor();
     // Convert expert text → program blocks before switching off
     const blocks = _expertBuildProgram();
+    if (!switchingToUb && _blockModeLimitExceeded(blocks || [])) {
+      if (expertModeToggle) expertModeToggle.checked = true;
+      _expertSetStatus(t("blockModeLimit"), "error");
+      showViceToast?.(t("blockModeLimit"), true);
+      return;
+    }
     if (blocks && blocks.length > 0) {
       _applyExpertBreakpointsToBlocks(blocks);
       program = blocks.map(b => ({ ...b, collapsed: false }));
@@ -6890,6 +6917,11 @@ function setExpertMode(on, { keepText = false } = {}) {
   if (!on) {
     _expertAcHide();
     if (expertCaret) expertCaret.hidden = true;
+  }
+  if (!on && !switchingToUb && _blockModeLimitExceeded()) {
+    setExpertMode(true);
+    _expertSetStatus(t("blockModeLimit"), "error");
+    return;
   }
   expertMode = on;
   if (!ultimateBasicMode) {
@@ -6918,7 +6950,7 @@ function setExpertMode(on, { keepText = false } = {}) {
     if (tab) tab.expertBreakpointLines = [...lines];
     _expertSyncFromProgram(); renderExpertOriginInfo(); _expertUpdateCaret();
   }
-  else {
+  else if (!switchingToUb) {
     renderProgram();
     if (cursorSourceLine >= 0) _selectBlockBySourceLine(cursorSourceLine);
   }
@@ -6929,6 +6961,7 @@ function setExpertMode(on, { keepText = false } = {}) {
 
 // ── UltimateBasic Mode ─────────────────────────────────────────────────────
 let ultimateBasicMode = false;
+let _ubEditorTabId = null;
 let _ubFilePath = "";
 let _ubDirty = false;
 let _ubHighlightEnabled = true;
@@ -8082,16 +8115,35 @@ const _UB_COMMAND_REFERENCE = [
   ["type", "type TypeName\n  var field1: type\n  var field2: type\nendtype", "Defines a structured record type with named, typed fields. Supported field types: int (1 byte), word (2 bytes), float (2 bytes, Q8.8 fixed-point). Declare instances with var name: TypeName, then access fields as name.field. The compiler lays out fields contiguously in zero-page memory."],
 ];
 
+function _canUseUltimateBasicMode(tab = _getActiveTab()) {
+  const file = tab?.filePath || "";
+  return !file || /\.ub$/i.test(file);
+}
+
+function _isBoundUbTab(tab = _getActiveTab()) {
+  return /\.ub$/i.test(tab?.filePath || "");
+}
+
 function setUltimateBasicMode(on) {
+  if (!on && ultimateBasicMode && _isBoundUbTab()) {
+    showViceToast?.(t("asmUbFileBlocked"), true);
+    return;
+  }
+  if (on && !_canUseUltimateBasicMode()) {
+    showViceToast?.(t("ubAsmFileBlocked"), true);
+    _updateEditorModeIndicator();
+    return;
+  }
   const previousAssemblerEditorMode = expertMode ? "expert" : "block";
   if (!on && ultimateBasicMode) {
     const current = _getActiveTab();
-    if (current?.editorMode === "ub" && ubEditor) {
+    if (current?.id === _ubEditorTabId && current.editorMode === "ub" && ubEditor) {
       current.ubText = ubEditor.value;
       current.ubFilePath = _ubFilePath;
+      current.ubBreakpointLines = [..._ubBreakpointLines];
     }
   }
-  if (on && expertMode) setExpertMode(false);
+  if (on && expertMode) setExpertMode(false, { switchingToUb: true });
   if (on) {
     lastAssemblerEditorMode = previousAssemblerEditorMode;
     localStorage.setItem("lastAssemblerEditorMode", lastAssemblerEditorMode);
@@ -8103,10 +8155,17 @@ function setUltimateBasicMode(on) {
   ubModeTbBtn?.setAttribute("aria-pressed", String(ultimateBasicMode));
   _updateWorkingFolderButtonTooltip();
   _updateEditorModeIndicator();
+  _acmeBuildButtonSync();
   if (ultimateBasicMode) {
     const current = _getActiveTab();
+    if (current && _ubEditorTabId !== current.id) {
+      ubEditor.value = current.ubText || "";
+      _ubFilePath = current.ubFilePath || current.filePath || "";
+      _ubBreakpointLines = [...(current.ubBreakpointLines || [])];
+      _ubDirty = !!current.dirty;
+      _ubEditorTabId = current.id;
+    }
     if (current) current.editorMode = "ub";
-    if (!ubEditor.value) ubEditor.value = 'color bg 0\ncolor border 0\n\nprint "HELLO FROM ULTIMATE BASIC"';
     ubEditor.focus();
     _ubUpdateCursor();
     ubPanel.classList.toggle("ub-show-lines", _ubLinesEnabled);
@@ -8967,6 +9026,8 @@ function _ubSetFile(path = "") {
     renderTabBar();
     _ubRenderProjectFiles();
   }
+  _acmeBuildButtonSync();
+  _updateEditorModeIndicator();
 }
 
 function _ubRenderProjectFiles() {
@@ -9780,7 +9841,7 @@ function _selectBlockBySourceLine(sourceLine) {
   // Wait one frame so renderProgram() has attached DOM nodes.
   requestAnimationFrame(() => {
     selectBlockInAsm(target.id);
-    const node = programList?.querySelector(`[data-block-id="${target.id}"]`);
+    const node = _blockFindNode(`[data-block-id="${target.id}"]`);
     if (node) _scrollIntoContainer(node);
   });
 }
@@ -13663,6 +13724,7 @@ function _expertValidate() {
       const transientTypingLine = _expertGetTransientTypingSourceLine(sourceText);
       const blocks = _expertBuildProgram();
       const saved = program;
+      _acmeBuildButtonSync(blocks);
       const savedUserMacros = userMacros;
       program = blocks;
       parseUserMacros();
@@ -14866,7 +14928,7 @@ function _expertRenderSymbols() {
         gotoEditorPattern(new RegExp(`^\\s*\\.region\\s+${escaped}\\s*(?:;.*)?$`, "i"));
       } else {
         selectBlockInAsm(item.id);
-        programList?.querySelector(`[data-block-id="${item.id}"]`)
+        _blockFindNode(`[data-block-id="${item.id}"]`)
           ?.scrollIntoView({ block: "nearest", behavior: "smooth" });
       }
     }
@@ -14881,7 +14943,7 @@ function _expertRenderSymbols() {
         gotoEditorPattern(new RegExp(`^\\s*\\.macro\\s+${escaped}\\b`, "i"));
       } else {
         selectBlockInAsm(item.id);
-        programList?.querySelector(`[data-block-id="${item.id}"]`)
+        _blockFindNode(`[data-block-id="${item.id}"]`)
           ?.scrollIntoView({ block: "nearest", behavior: "smooth" });
       }
     }
@@ -14896,7 +14958,7 @@ function _expertRenderSymbols() {
         gotoEditorPattern(new RegExp(`^\\s*${escaped}\\s*:\\s*(?:;.*)?$`));
       } else {
         selectBlockInAsm(item.id);
-        programList?.querySelector(`[data-block-id="${item.id}"]`)
+        _blockFindNode(`[data-block-id="${item.id}"]`)
           ?.scrollIntoView({ block: "nearest", behavior: "smooth" });
       }
     }
@@ -17105,7 +17167,9 @@ function getDropIndex(pointerY) {
   });
 
   if (!target) {
-    return program.length;
+    return _blockVirtualState && blocks.length
+      ? Number(blocks[blocks.length - 1].dataset.index) + 1
+      : program.length;
   }
 
   return Number(target.dataset.index);
@@ -20210,10 +20274,11 @@ function markTabClean() {
 }
 
 function _tabSaveCurrent() {
+  if (programList.contains(document.activeElement)) document.activeElement.blur();
   const tab = tabs.find(t => t.id === activeTabId);
   if (!tab) return;
   tab.editorMode = ultimateBasicMode ? "ub" : expertMode ? "expert" : "block";
-  if (ultimateBasicMode && ubEditor) {
+  if (ultimateBasicMode && ubEditor && _ubEditorTabId === tab.id) {
     tab.ubText = ubEditor.value;
     tab.ubFilePath = _ubFilePath;
     tab.ubBreakpointLines = [..._ubBreakpointLines];
@@ -20246,7 +20311,6 @@ function _tabActivate(tabId) {
   selectionAnchorIndex = Number.isInteger(tab.selectionAnchorIndex) ? tab.selectionAnchorIndex : -1;
 
   if (tab.editorMode === "ub") {
-    if (expertMode) setExpertMode(false);
     setUltimateBasicMode(true);
     ubEditor.value = tab.ubText || "";
     _ubSetFile(tab.ubFilePath || tab.filePath || "");
@@ -20313,6 +20377,7 @@ function _tabNew() {
   if (ultimateBasicMode) {
     tab.editorMode = "ub";
     tab.ubText = "";
+    _ubEditorTabId = tab.id;
     _ubBreakpointLines = [];
     _ubSetFile("");
     ubEditor.value = "";
@@ -23341,17 +23406,24 @@ function _setAssemblerSyntax(syntax) {
 }
 
 // The Expert Build button builds with the active assembler: ACME or VA (VMA).
-function _acmeBuildButtonSync() {
+function _acmeBuildButtonSync(blocks = program) {
   const button = document.getElementById("expert-acme-build-btn");
   if (!button) return;
   button.hidden = false;
   button.setAttribute("aria-label", t(assemblerSyntax === "acme" ? "acmeBuild" : "vaBuild"));
   // ACME has no block mode: the block/Expert switch is locked while it is on.
   const acme = assemblerSyntax === "acme";
-  expertModeTbBtn?.classList.toggle("main-tb-btn--locked", acme);
-  if (acme) expertModeTbBtn?.setAttribute("aria-disabled", "true");
+  const large = _blockModeLimitExceeded(blocks);
+  const ubFile = _isBoundUbTab();
+  const locked = acme || large || ubFile;
+  expertModeTbBtn?.classList.toggle("main-tb-btn--locked", locked);
+  if (locked) expertModeTbBtn?.setAttribute("aria-disabled", "true");
   else expertModeTbBtn?.removeAttribute("aria-disabled");
-  if (expertModeToggle) expertModeToggle.disabled = acme;
+  if (ubFile) expertModeTbBtn?.setAttribute("title", t("asmUbFileBlocked"));
+  else if (large) expertModeTbBtn?.setAttribute("title", t("blockModeLimit"));
+  else expertModeTbBtn?.removeAttribute("title");
+  if (expertModeToggle) expertModeToggle.disabled = locked;
+  if (expertModeTbBtn) expertModeTbBtn.disabled = large || ubFile;
   // The tutorials build VMA (VA) programs with blocks: hidden in ACME mode, with its separator.
   const tutorialBtn = document.getElementById("tutorial-btn");
   if (tutorialBtn) {
@@ -31515,20 +31587,89 @@ function getCollapsedOperandText(block) {
 // Block cards are hidden in Expert / UB mode; building ten thousand of them
 // took seconds on every tab switch. They are built when Block mode returns.
 let _programCardsStale = false;
+let _blockVirtualState = null;
+let _blockVirtualRaf = 0;
+const _blockVirtualHeights = new WeakMap();
+let _blockVirtualTarget = -1;
 
-function renderProgram() {
+function _blockFindNode(selector) {
+  let node = programList.querySelector(selector);
+  if (node || !_blockVirtualState) return node;
+  const id = selector.match(/data-block-id="([^"]+)"/);
+  const index = selector.match(/data-index="(\d+)"/);
+  const target = index ? Number(index[1]) : id ? program.findIndex(block => block.id === id[1]) : -1;
+  if (target < 0) return null;
+  _blockVirtualTarget = target;
+  renderProgram(true);
+  _blockVirtualTarget = -1;
+  node = programList.querySelector(selector);
+  return node;
+}
+
+function _blockVirtualSchedule() {
+  if (!_blockVirtualState || expertMode || ultimateBasicMode || _blockVirtualRaf) return;
+  const scheduledState = _blockVirtualState;
+  _blockVirtualRaf = requestAnimationFrame(() => {
+    _blockVirtualRaf = 0;
+    const state = _blockVirtualState;
+    if (!state || state !== scheduledState || state.tabId !== activeTabId || state.program !== program || _dndActive) return;
+    const top = state.scroll.scrollTop;
+    if (top < state.safeTop || top + state.scroll.clientHeight > state.safeBottom) renderProgram(true);
+  });
+}
+
+function renderProgram(virtualScroll = false) {
+  virtualScroll = virtualScroll === true;
+  if (!ultimateBasicMode && !expertMode && _blockModeLimitExceeded()) {
+    setExpertMode(true);
+    _expertSetStatus(t("blockModeLimit"), "error");
+    const tab = _getActiveTab();
+    if (tab) tab.editorMode = "expert";
+    return;
+  }
+  _acmeBuildButtonSync();
+  cancelAnimationFrame(_blockVirtualRaf);
+  _blockVirtualRaf = 0;
+  if (_blockVirtualState && (_blockVirtualState.tabId !== activeTabId || _blockVirtualState.program !== program)) {
+    virtualScroll = false;
+    _blockVirtualState = null;
+    _blockVirtualTarget = -1;
+    programList.replaceChildren();
+    const panelScroll = document.querySelector(".program-panel .panel-scroll");
+    if (panelScroll) panelScroll.scrollTop = 0;
+  }
   renderOriginPreview();
   if ((expertMode || ultimateBasicMode) && program.length) {
     // The ASM output panel is hidden too; the full render below redoes it.
     _programCardsStale = true;
+    _blockVirtualState = null;
+    programList.replaceChildren();
     renderMemoryMap();
     _expertRenderSymbols();
     return;
   }
   _programCardsStale = false;
+  // A teljes forrás kimenete nem függhet a virtuális kártyaablak felépítésétől.
+  if (!virtualScroll) renderAsmOutput();
+  const scroll = document.querySelector(".program-panel .panel-scroll");
+  const virtual = program.length > 500 && !!scroll;
+  const scrollTop = scroll?.scrollTop || 0;
+  // A lista kiürítése lenullázhatja a scrollTop-ot: a koordinátát előtte kell mérni.
+  const listTop = virtual ? programList.getBoundingClientRect().top - scroll.getBoundingClientRect().top + scrollTop : 0;
+  const anchor = virtual ? [...programList.querySelectorAll(".asm-block[data-index]")]
+    .find(node => node.getBoundingClientRect().bottom > scroll.getBoundingClientRect().top) : null;
+  const anchorId = anchor?.dataset.blockId;
+  const anchorTop = anchor?.getBoundingClientRect().top;
+  const oldState = _blockVirtualState;
+  if (oldState) {
+    programList.querySelectorAll(".asm-block[data-index]").forEach(node => {
+      const block = oldState.blocks.get(node.dataset.blockId);
+      if (block) _blockVirtualHeights.set(block, node.getBoundingClientRect().height);
+    });
+  }
+  _blockVirtualState = null;
   if (!program.length) {
     programList.innerHTML = `<div class="empty-state">${t("emptyState")}</div>`;
-    renderAsmOutput();
     renderMemoryMap();
     return;
   }
@@ -31553,6 +31694,26 @@ function renderProgram() {
   }
 
   const wrapperStack = []; // stack of region-wrapper divs (null = collapsed/hidden region)
+  const gap = 8;
+  let viewTop = scrollTop - listTop;
+  const margin = Math.max(1200, (scroll?.clientHeight || 600) * 2);
+  let virtualY = 0;
+  let pendingSpace = 0;
+  let firstVisibleY = Infinity;
+  let lastVisibleY = 0;
+  if (virtual && _blockVirtualTarget >= 0) {
+    viewTop = program.slice(0, _blockVirtualTarget).reduce((sum, block, index) =>
+      sum + (hiddenByGroup.has(index) || block.isBlankLine ? 0 :
+        (_blockVirtualHeights.get(block) || (block.collapsed ? 64 : 220) * blockScale) + gap), 0);
+  }
+  const flushSpace = () => {
+    if (!pendingSpace) return;
+    const spacer = document.createElement("div");
+    spacer.className = "block-virtual-spacer";
+    spacer.style.height = Math.max(0, pendingSpace - gap) + "px";
+    programList.appendChild(spacer);
+    pendingSpace = 0;
+  };
   const activeWrapper = () => {
     for (let i = wrapperStack.length - 1; i >= 0; i--) {
       if (wrapperStack[i]) return wrapperStack[i];
@@ -31566,7 +31727,7 @@ function renderProgram() {
       // Maintain wrapperStack for REGION/ENDREGION even when hidden
       // For REGION: create wrapper now but append it AFTER the REGION node (late phase)
       let pendingWrapper = null;
-      if (block.isRegionMacro) {
+      if (!virtual && block.isRegionMacro) {
         if (!isHidden && !block.regionCollapsed) {
           pendingWrapper = document.createElement("div");
           pendingWrapper.className = "region-wrapper";
@@ -31574,7 +31735,7 @@ function renderProgram() {
         } else {
           wrapperStack.push(null);
         }
-      } else if (block.isEndRegionMacro) {
+      } else if (!virtual && block.isEndRegionMacro) {
         wrapperStack.pop();
       }
 
@@ -31583,6 +31744,19 @@ function renderProgram() {
 
       // Blank line blocks are invisible in block mode — they only exist for expert mode round-trip
       if (block.isBlankLine) return;
+
+      if (virtual) {
+        const height = _blockVirtualHeights.get(block) || (block.collapsed ? 64 : 220) * blockScale;
+        const start = virtualY;
+        virtualY += height + gap;
+        if (virtualY < viewTop - margin || start > viewTop + scroll.clientHeight + margin) {
+          pendingSpace += height + gap;
+          return;
+        }
+        flushSpace();
+        firstVisibleY = Math.min(firstVisibleY, start);
+        lastVisibleY = virtualY;
+      }
 
       const node = blockTemplate.content.firstElementChild.cloneNode(true);
       node.dataset.index = index;
@@ -33541,7 +33715,7 @@ function renderProgram() {
         renderProgram();
         // Scroll the newly pasted REGION block into view
         requestAnimationFrame(() => {
-          const pastedNode = programList.querySelector(`[data-index="${insertAt}"]`);
+          const pastedNode = _blockFindNode(`[data-index="${insertAt}"]`);
           if (pastedNode) pastedNode.scrollIntoView({ behavior: "smooth", block: "nearest" });
         });
       });
@@ -34261,7 +34435,9 @@ function renderProgram() {
       }
     });
 
-    if (block.isRegionMacro) {
+    if (virtual) {
+      programList.appendChild(node);
+    } else if (block.isRegionMacro) {
       // REGION node + wrapper both go into the PARENT wrapper
       // wrapperStack already has the new wrapper pushed; parent is one level up
       const parentEl = wrapperStack.length >= 2
@@ -34277,13 +34453,40 @@ function renderProgram() {
     }
   });
 
-  renderAsmOutput();
-  renderMemoryMap();
+  if (virtual) {
+    flushSpace();
+    _blockVirtualState = {
+      scroll,
+      tabId: activeTabId,
+      program,
+      safeTop: listTop + firstVisibleY + margin / 2,
+      safeBottom: listTop + lastVisibleY - margin / 2,
+    };
+    _blockVirtualState.blocks = new Map();
+    let correction = 0;
+    programList.querySelectorAll(".asm-block[data-index]").forEach(node => {
+      const block = program[Number(node.dataset.index)];
+      _blockVirtualState.blocks.set(block.id, block);
+      const estimated = _blockVirtualHeights.get(block) || (block.collapsed ? 64 : 220) * blockScale;
+      const measured = node.getBoundingClientRect().height;
+      if (node.getBoundingClientRect().bottom < scroll.getBoundingClientRect().top) correction += measured - estimated;
+      _blockVirtualHeights.set(block, measured);
+    });
+    scroll.scrollTop = _blockVirtualTarget >= 0 ? listTop + viewTop : scrollTop + correction;
+    if (anchorId && _blockVirtualTarget < 0) {
+      const restored = programList.querySelector(`[data-block-id="${anchorId}"]`);
+      if (restored) scroll.scrollTop += restored.getBoundingClientRect().top - anchorTop;
+    }
+  }
+
+  if (!virtualScroll) {
+    renderMemoryMap();
+  }
 
   // Restore block selection highlight after re-render
   _renderBlockSelection();
 
-  _expertRenderSymbols();
+  if (!virtualScroll) _expertRenderSymbols();
   // Double-rAF: wait for layout to settle after DOM changes before drawing minimap
   requestAnimationFrame(() => _blockScheduleMinimapRedraw());
 }
@@ -34452,7 +34655,7 @@ function selectBlockInAsm(blockId, event = null, preserveSelection = false) {
 
   // Highlight the block card
   _renderBlockSelection();
-  const blockNode = programList.querySelector(`[data-block-id="${blockId}"]`);
+  const blockNode = _blockFindNode(`[data-block-id="${blockId}"]`);
   if (blockNode && selectedBlockIds.has(blockId)) blockNode.classList.add("asm-block--selected");
 
   applyAsmHighlight(preserveSelection ? selectedBlockIds : [blockId], blockId);
@@ -54463,6 +54666,9 @@ async function _bugSend() {
   if (btn) btn.disabled = false;
   if (res?.ok) {
     _bugSetStatus(tf("bugSent", { id: res.id }), "ok");
+    if (res.support) {
+      try { localStorage.setItem(_SUPPORT_ACTIVE_KEY, "1"); } catch (_) {}
+    }
     document.getElementById("bug-summary").value = "";
     document.getElementById("bug-description").value = "";
     _bugImages = [];
