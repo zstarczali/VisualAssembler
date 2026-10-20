@@ -21,7 +21,7 @@ const http = require('node:http');
     await page.goto(`http://127.0.0.1:${server.address().port}/`);
     const source = fs.readFileSync(path.resolve(__dirname, '../samples/Kick/Krakout (1987)(Gremlin Graphics)-part1.asm'), 'utf8');
     if (process.argv.includes('--modes')) {
-      const modes = await page.evaluate(source => {
+      const modes = await page.evaluate(async source => {
         program = parseExpertText(source);
         parseUserMacros();
         const tab = _getActiveTab();
@@ -48,7 +48,13 @@ const http = require('node:http');
         const savedAfter = ubEditor.value;
         _tabActivate(blank.id);
         const blankAfter = ubEditor.value;
-        return { blocked, exclusive, savedText, blankText, blankPath, savedAfter, blankAfter };
+        setUltimateBasicMode(false);
+        await _importAsmFromPath('imported.asm', '* = $c000\nlda #1\nrts', 'imported.asm');
+        setExpertMode(true);
+        const importedLocked = ubModeTbBtn.disabled;
+        setUltimateBasicMode(true);
+        const importedStaysAsm = expertMode && !ultimateBasicMode;
+        return { blocked, exclusive, savedText, blankText, blankPath, savedAfter, blankAfter, importedLocked, importedStaysAsm };
       }, source);
       assert.ok(modes.blocked, 'ASM tab must reject UB mode');
       assert.ok(modes.exclusive, 'UB and Expert editors must never remain visible together');
@@ -56,6 +62,7 @@ const http = require('node:http');
       assert.equal(modes.blankPath, '', 'Untitled must not inherit the saved file path');
       assert.equal(modes.savedAfter, modes.savedText, 'Saved UB source must remain unchanged');
       assert.equal(modes.blankAfter, 'print "UNTITLED ONLY"', 'Untitled must preserve its own edits');
+      assert.ok(modes.importedLocked && modes.importedStaysAsm, 'Imported ASM without a save path must reject UB');
       console.log(modes);
       return;
     }

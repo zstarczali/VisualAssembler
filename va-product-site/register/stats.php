@@ -303,7 +303,7 @@ ob_start(); ?>
             <?php if (!$useLang): ?><tr><td class="no">NO DATA YET.</td></tr><?php endif; ?>
         </table></div>
     </div>
-    <div class="box" style="margin-bottom:18px"><div class="box-t">MOST ACTIVE INSTALLS / 30 DAYS</div>
+    <details class="box" id="top-installs" data-keep="top-installs" style="margin-bottom:18px" open><summary class="box-t">MOST ACTIVE INSTALLS / 30 DAYS</summary>
         <?php if ($topInstalls): ?><table class="wide">
             <tr><th>INSTALL</th><th>USE 30D</th><th>DAYS 30D</th><th>LAUNCHES 30D</th><th>USE ALL</th><th>DAYS ALL</th><th>LAUNCHES ALL</th><th>FIRST SEEN</th><th>LAST SEEN</th><th>COUNTRY</th><th>VERSION / OS / LANG</th></tr>
             <?php foreach ($topInstalls as $r): ?><tr><td class="id" title="<?= $h($r['id']) ?>"><?= $h(substr($r['id'], 0, 8)) ?><?= $r['supporter'] ? ' <span class="yes">SUP</span>' : '' ?></td>
@@ -311,7 +311,7 @@ ob_start(); ?>
                 <td><?= $h(substr($r['first_at'], 0, 10)) ?></td><td><?= $h(substr($r['last_at'], 0, 16)) ?></td><td><?= $h($r['country'] ?: '--') ?></td>
                 <td><?= $h(trim($r['version'] . ' / ' . $r['os'] . ' / ' . strtoupper($r['lang']), ' /')) ?></td></tr><?php endforeach; ?>
         </table><?php else: ?><p class="no">NO DATA YET.</p><?php endif; ?>
-    </div>
+    </details>
 
     <details class="box" id="donations" data-keep="donations" style="margin-bottom:18px" open>
         <summary class="box-t">DONATIONS</summary>

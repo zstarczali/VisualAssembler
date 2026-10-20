@@ -20,17 +20,19 @@ try {
     vaMessagesMigrate($db);
     // kép: csak aktív üzenethez
     if (isset($_GET['image'])) {
-        $st = $db->prepare('SELECT image, image_mime FROM va_messages WHERE id = ? AND active = 1 AND image IS NOT NULL');
+        $st = $db->prepare('SELECT image, image_mime, image_width FROM va_messages WHERE id = ? AND active = 1 AND image IS NOT NULL');
         $st->execute([(int) $_GET['image']]);
         $img = $st->fetch();
         if (!$img || !in_array($img['image_mime'], ['image/png', 'image/jpeg', 'image/gif', 'image/webp'], true)) {
             http_response_code(404);
             exit;
         }
-        header('Content-Type: ' . $img['image_mime']);
-        header('Cache-Control: public, max-age=86400');
+        // az app a kép természetes méretét mutatja (max. a dialógus szélessége / 260 px magasság), ezért itt kicsinyít
+        [$bytes, $mime] = vaMessageImageScaled((string) $img['image'], $img['image_mime'], (int) $img['image_width']);
+        header('Content-Type: ' . $mime);
+        header('Cache-Control: no-store');
         header('X-Content-Type-Options: nosniff');
-        echo $img['image'];
+        echo $bytes;
         exit;
     }
     // az app minden indításkor kérdez: a LAST SEEN így indításonként frissül (a napi ping csak naponta egyszer jön);
@@ -76,6 +78,7 @@ try {
         'body' => vaCleanMessageHtml($useHu ? $msg['body_hu'] : $msg['body_en']),
         'url' => $msg['url'],
         'level' => $msg['level'],
+        // az app (fetch_app_message_image) csak a pontos ?image=<szám> címet fogadja el, más paramétert nem
         'image' => $msg['has_image'] ? 'https://www.c64va.pro/register/message.php?image=' . $msg['id'] : '',
     ]], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 } catch (Throwable $e) {

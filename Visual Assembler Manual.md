@@ -618,7 +618,7 @@ The modal closes automatically when the action completes or fails.
 | **Save Workspace As** | Save the current workspace using a new file dialog every time |
 | **Open Workspace** | Close all open tabs and reopen the set of files stored in a `.vaws` workspace file |
 | **Set working folder** | Choose the default folder used by file pickers and save dialogs. The path is stored in the app config, and menu previews keep the end of the path visible. |
-| **New project from template…** (`Menu → File`, or the toolbar button next to **Menu**) | Create a new `.proj` project from an Assembler or UltimateBasic template in its own folder — see [Project templates](#project-templates) |
+| **New project from template…** (`Menu → New project`, or the toolbar button next to **Menu**) | Create a new `.proj` project from a Visual Assembler, ACME or UltimateBasic template in its own folder — see [Project templates](#project-templates) |
 | **Open Project** (`Menu → File`) | Open a multi-file `.proj` project and open all source files as tabs |
 | **Save Project** (`Menu → File`) | Save the current `.proj` project (project panel must be open) |
 | **Close Project** (`Menu → File`) | Close the currently open project and all its file tabs. Prompts to save unsaved changes. The project panel resets to its empty state. |
@@ -738,21 +738,22 @@ If the program contains the SID Editor's exported player (`sid_` labels), the pl
 
 ### Project templates
 
-**Menu → File → New project from template…** — or the toolbar button between **Menu** and **Tutorials** — opens the template dialog:
+**Menu → New project → New project from template…** — or the toolbar button between **Menu** and **Tutorials** — opens the template dialog:
 
-1. Pick a section at the top: **Assembler** or **UltimateBasic** (the dialog opens on the section that matches the current editor mode).
+1. Pick a section at the top: **Visual Assembler**, **ACME** or **UltimateBasic** (the dialog opens on the section that matches the current editor mode). The **ACME** section appears only when a working ACME is set in **Settings → Files and paths → ACME**.
 2. Choose a template from the list; the right side shows its description and a syntax-highlighted preview with your project name filled in.
 3. Enter the **project name** and the **location** (**Browse…**). The line below the form shows the exact `.proj` path that will be created.
 4. Click **Create project**.
 
 | Section | Built-in templates |
 |---|---|
-| **Assembler** | Empty program, Empty game (title / play / game over states, joystick, player sprite), Hires bitmap, Multicolor bitmap, Sprite multiplexer (16 sprites sorted by Y every frame, shown by a raster IRQ chain) |
+| **Visual Assembler** | Empty program, Empty game (title / play / game over states, joystick, player sprite), Hires bitmap, Multicolor bitmap, Sprite multiplexer (16 sprites sorted by Y every frame, shown by a raster IRQ chain) |
+| **ACME** | Empty ACME project, Raster IRQ, Sprite multiplexer (16 sprites) |
 | **UltimateBasic** | Empty program, Empty game (same state machine in UB), Hires bitmap (`line` / `rect` / `circle` with `color pen`), Raster IRQ (a `sub` called every frame from the raster interrupt) |
 
-The project is created in its own folder: `<location>/<name>/<name>.proj` plus `main.asm` (Assembler) or `main.ub` (UltimateBasic, the `.proj` is marked as an Ultimate Basic project). An existing project is never overwritten — the dialog reports it instead. Open tabs are closed first (you are asked about unsaved changes), then the new project opens in Expert mode or Ultimate Basic mode with the project panel visible and the main file set as the startup file.
+The project is created in its own folder: `<location>/<name>/<name>.proj` plus `main.asm` (Visual Assembler or ACME) or `main.ub` (UltimateBasic, the `.proj` is marked as an Ultimate Basic project). An ACME project's `.proj` records the ACME assembler, and creating it switches **Settings → General → Assembler mode** to ACME mode (a Visual Assembler project switches it back to VMA mode). An existing project is never overwritten — the dialog reports it instead. Open tabs are closed first (you are asked about unsaved changes), then the new project opens in Expert mode or Ultimate Basic mode with the project panel visible and the main file set as the startup file.
 
-**Your own templates:** **My templates folder** (bottom left of the dialog) opens the user templates folder in the app config directory. Every `.asm` or `.ub` file dropped there appears in the matching section (under *My templates* unless it names a category). A template is an ordinary source file with an optional header of comment lines at the top — `;` in assembler, `#` in Ultimate Basic:
+**Your own templates:** **My templates folder** (bottom left of the dialog) opens the user templates folder in the app config directory. Every `.asm` or `.ub` file dropped there appears in the matching section (an `.asm` with a `; @assembler acme` header line goes to **ACME**) (under *My templates* unless it names a category). A template is an ordinary source file with an optional header of comment lines at the top — `;` in assembler, `#` in Ultimate Basic:
 
 ```asm
 ; @name Raster bars

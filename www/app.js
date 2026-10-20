@@ -1403,6 +1403,7 @@ function initPalette() {
       const input = document.getElementById("acme-path");
       if (input) input.value = acmePath;
       saveUiSettings();
+      _acmeAvailabilitySync();
     }
   });
 
@@ -2619,6 +2620,7 @@ function _updateEditorModeIndicator() {
   if (ubModeTbBtn) {
     const blocked = !ultimateBasicMode && !_canUseUltimateBasicMode();
     ubModeTbBtn.disabled = blocked;
+    ubModeTbBtn.classList.toggle("main-tb-btn--locked", blocked);
     ubModeTbBtn.setAttribute("aria-disabled", String(blocked));
     if (blocked) ubModeTbBtn.setAttribute("title", t("ubAsmFileBlocked"));
     else ubModeTbBtn.removeAttribute("title");
@@ -3043,7 +3045,8 @@ function _applyUiSettingsToDOM() {
   _acmeBuildButtonSync();
   const acmePathInput = document.getElementById("acme-path");
   if (acmePathInput) acmePathInput.value = acmePath;
-  _editorDialogPositions = (savedUiSettings.editorDialogPositions && typeof savedUiSettings.editorDialogPositions === "object")
+  _acmeAvailabilitySync();
+  _editorDialogPositions =(savedUiSettings.editorDialogPositions && typeof savedUiSettings.editorDialogPositions === "object")
     ? savedUiSettings.editorDialogPositions
     : {};
 
@@ -3566,6 +3569,7 @@ function applyTranslations() {
     setText("#template-dialog-title", t("templateDialogTitle"));
     setText("#template-kind-asm", t("templateKindAsm"));
     setText("#template-kind-ub", t("templateKindUb"));
+    setText("#template-kind-acme", t("templateKindAcme"));
     setText("#template-name-label", t("templateProjectName"));
     setText("#template-location-label", t("templateLocation"));
     setText("#template-browse", t("templateBrowse"));
@@ -3606,6 +3610,7 @@ function applyTranslations() {
     setText("#set-working-folder", t("setWorkingFolder"));
     setText("#build-section-label", t("buildSection"));
     setText("#versioning-section-label", t("versioningSection"));
+    setText("#new-project-section-label", t("newProjectSection"));
     setText("#save-d64", t("saveD64"));
     setText("#save-crt", t("saveCrt"));
     setText("#build-project", t("buildProject"));
@@ -8116,7 +8121,8 @@ const _UB_COMMAND_REFERENCE = [
 ];
 
 function _canUseUltimateBasicMode(tab = _getActiveTab()) {
-  const file = tab?.filePath || "";
+  // Az import és a beépített minta útvonal nélkül is assembler-forrás marad.
+  const file = tab?.filePath || (/\.(asm|s|a|a65|inc|acme|json|c64va|proj)$/i.test(tab?.name || "") ? tab.name : "");
   return !file || /\.ub$/i.test(file);
 }
 
@@ -15501,7 +15507,7 @@ function _parseTemplateSource(fileName, content, source) {
     id: `${source}:${fileName}`,
     fileName,
     source,
-    kind: /\.ub$/i.test(fileName) ? "ub" : "asm",
+    kind: /\.ub$/i.test(fileName) ? "ub" : meta.assembler?.[""]?.toLowerCase() === "acme" ? "acme" : "asm",
     meta,
     order: Number.parseInt(meta.order?.[""] ?? "", 10) || 1000,
     body: lines.slice(i).join("\n").replace(/\s*$/, "\n")
@@ -15585,7 +15591,7 @@ function _templateRenderPreview() {
     return;
   }
   previewEl.innerHTML = source.split("\n").map(line => {
-    try { return _expertHighlightLine(line); } catch { return _escHtml(line); }
+    try { return tpl?.kind === "acme" ? _expertHighlightAcmeLine(line) : _expertHighlightLine(line); } catch { return _escHtml(line); }
   }).join("\n");
 }
 
@@ -15620,7 +15626,7 @@ function _templateRenderList() {
   if (!visible.length) {
     const empty = document.createElement("p");
     empty.className = "template-empty";
-    empty.textContent = t(_templateKind === "ub" ? "templateNoTemplatesUb" : "templateNoTemplates");
+    empty.textContent = t(_templateKind === "ub" ? "templateNoTemplatesUb" : _templateKind === "acme" ? "templateNoTemplatesAcme" : "templateNoTemplates");
     listEl.appendChild(empty);
   }
   const groups = new Map();
@@ -15654,13 +15660,18 @@ function _templateRenderList() {
   _templateRenderDetail();
 }
 
-async function _openTemplateDialog() {
+function _templateNormalizeKind(kind) {
+  return kind === "ub" || kind === "acme" ? kind : "asm";
+}
+
+async function _openTemplateDialog(kind = "") {
   const dialog = document.getElementById("template-dialog");
   if (!dialog) return;
   const nameInput = document.getElementById("template-project-name");
   const locationInput = document.getElementById("template-location");
   await _templateLoadList();
-  _templateKind = ultimateBasicMode ? "ub" : "asm";
+  _templateKind = _templateNormalizeKind(kind || (ultimateBasicMode ? "ub" : assemblerSyntax === "acme" ? "acme" : "asm"));
+  if (_templateKind === "acme" && !await (_acmeAvailabilityCheck || _acmeAvailabilitySync())) _templateKind = "asm";
   if (nameInput) nameInput.value = "NewProject";
   if (locationInput && !locationInput.value.trim()) {
     let location = localStorage.getItem("templateProjectLocation") || "";
@@ -15689,9 +15700,10 @@ async function _templateCreateProject() {
   if (!await _confirmCloseAllTabs()) return;
 
   const isUb = tpl.kind === "ub";
+  const syntax = tpl.kind === "acme" ? "acme" : "kick";
   const mainName = isUb ? "main.ub" : "main.asm";
   const fileEntry = { type: "file", name: mainName, path: mainName };
-  const payload = JSON.stringify({ ...(isUb ? { app: "ultimate-basic" } : {}), name: paths.name, files: [fileEntry], startupFile: fileEntry.path, ...(isUb ? {} : _projAssemblerFields("kick")) }, null, 2);
+  const payload = JSON.stringify({ ...(isUb ? { app: "ultimate-basic" } : {}), name: paths.name, files: [fileEntry], startupFile: fileEntry.path, ...(isUb ? {} : _projAssemblerFields(syntax)) }, null, 2);
   // Both files are written in one backend call that rolls back on failure.
   const res = await api.createTemplateProject(paths.projPath, payload, paths.mainPath, tpl.body.replaceAll("{{PROJECT}}", paths.name));
   if (!res?.ok) {
@@ -15747,9 +15759,11 @@ async function _templateCreateProject() {
     files: [{ ...fileEntry }],
     _projPath: paths.projPath,
     startupFile: fileEntry.path,
-    assemblerSyntax: "kick"
+    assemblerSyntax: syntax
   };
-  if (!isUb) _setAssemblerSyntax("kick");
+  _setAssemblerSyntax(syntax);
+  // The created project's assembler becomes the Settings default too.
+  saveUiSettings();
   _expertProjectDirty = false;
   await _expertProjectOpenFile(_expertProjectData.files[0]);
 
@@ -15905,7 +15919,7 @@ document.getElementById("template-create")?.addEventListener("click", _templateC
 document.querySelectorAll("#template-kinds .template-kind").forEach(btn => {
   btn.addEventListener("click", () => {
     if (btn.dataset.templateKind === _templateKind) return;
-    _templateKind = btn.dataset.templateKind === "ub" ? "ub" : "asm";
+    _templateKind = _templateNormalizeKind(btn.dataset.templateKind);
     _templateRenderList();
   });
 });
@@ -20918,6 +20932,7 @@ async function _workspaceOpenViaDialog() {
 }
 
 function renderTabBar() {
+  _updateEditorModeIndicator();
   const tabBar = document.getElementById("tab-bar");
   if (!tabBar) return;
   tabBar.innerHTML = "";
@@ -23203,13 +23218,17 @@ async function _buildAcmePrg(useCurrentEditor = false, options = null) {
   }
   const savedProgram = program;
   const savedMacros = userMacros;
-  const startupBlocks = useCurrentEditor ? null : _expertGetStartupProgram();
-  const useExpertSource = expertMode && !startupBlocks;
+  // ACME builds source text: a project's startup file too (its blocks would read
+  // "NAME = value" / !if as VA CONST / IF macros).
+  const startup = useCurrentEditor ? null : _expertGetStartupSource();
+  const startupBlocks = useCurrentEditor || startup ? null : _expertGetStartupProgram();
+  const useExpertSource = !!startup || (expertMode && !startupBlocks);
+  const sourceText = startup ? startup.text : useExpertSource ? _expertGetSourceText() : "";
   if (useExpertSource) {
-    const dialectErrors = _acmeVaSyntaxErrors(_expertGetSourceText());
+    const dialectErrors = _acmeVaSyntaxErrors(sourceText);
     if (dialectErrors.length) return { ok: false, error: tf("acmeVaSource", { count: dialectErrors.length }), errors: dialectErrors };
   }
-  program = startupBlocks || (expertMode ? _expertBuildProgram() : program);
+  program = startup ? parseExpertText(startup.text) : startupBlocks || (expertMode ? _expertBuildProgram() : program);
   let source;
   let sysAddress = null;
   let sourceLineOffset = 0;
@@ -23217,7 +23236,7 @@ async function _buildAcmePrg(useCurrentEditor = false, options = null) {
   try {
     parseUserMacros();
     const embeddedSysAddress = _getEmbeddedBasicSysAddress(program);
-    const expertSource = useExpertSource ? _expertGetSourceText() : "";
+    const expertSource = sourceText;
     const origin = _acmeFirstOrigin(expertSource) ?? parseOriginValue().value;
     // A segment below $0801 (an imported memory dump): no stub and no "$0801 → $080D"
     // shift, the image builds at its own addresses and Run puts a start loader in front.
@@ -23256,7 +23275,7 @@ async function _buildAcmePrg(useCurrentEditor = false, options = null) {
     program = savedProgram;
     userMacros = savedMacros;
   }
-  const sourcePath = useExpertSource
+  const sourcePath = startup ? startup.path : useExpertSource
     ? ((typeof tabs !== "undefined" ? tabs.find(tab => tab.id === activeTabId)?.filePath : "")
         || (typeof _expertAsmFilePath === "string" ? _expertAsmFilePath : ""))
     : "";
@@ -23395,6 +23414,27 @@ async function _acmeCheckConfigured() {
   } catch {
     return false;
   }
+}
+
+// The ACME template kind is only offered once a working ACME is found.
+let _acmeAvailable = false;
+let _acmeAvailabilityCheck = null;
+
+function _acmeApplyAvailability() {
+  const el = document.getElementById("template-kind-acme");
+  if (el) el.style.display = _acmeAvailable ? "" : "none";
+}
+
+function _acmeAvailabilitySync() {
+  _acmeApplyAvailability();
+  const check = _acmeCheckConfigured().then(ok => {
+    if (_acmeAvailabilityCheck !== check) return _acmeAvailable;
+    _acmeAvailable = ok;
+    _acmeApplyAvailability();
+    return ok;
+  });
+  _acmeAvailabilityCheck = check;
+  return check;
 }
 
 function _setAssemblerSyntax(syntax) {
@@ -26376,6 +26416,22 @@ function _expertGetStartupProgram() {
   }
 
   return null;  // fallback → current editor
+}
+
+// The startup file's source text ({ text, path }) for text-only builds (ACME);
+// null when the active tab is not part of the project or the text is unknown.
+function _expertGetStartupSource() {
+  if (!_expertProjectData?.startupFile) return null;
+  const sf = _expertProjectData.files.find(f => f.path === _expertProjectData.startupFile);
+  if (!sf) return null;
+  const absPath = _projResolveAbsPath(sf.path);
+  const normAbs = _normFilePath(absPath);
+  const activeTab = tabs.find(t => t.id === activeTabId);
+  const activeTabNorm = activeTab?.filePath ? _normFilePath(activeTab.filePath) : "";
+  if (activeTab && !_expertProjectData.files.some(f => _normFilePath(_projResolveAbsPath(f.path)) === activeTabNorm)) return null;
+  if (activeTabNorm === normAbs && expertMode) return { text: _expertGetSourceText(), path: absPath };
+  const tab = tabs.find(t => _normFilePath(t.filePath) === normAbs);
+  return tab?.expertText ? { text: tab.expertText, path: absPath } : null;
 }
 
 function _buildAutostartPrgCore() {

@@ -15,6 +15,7 @@ $flash = vaAdminFlash();
 
 const VA_MSG_IMAGE_MAX = 1048576;
 const VA_MSG_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
+const VA_MSG_IMAGE_MAX_WIDTH = 1600;
 
 $dt = static function (string $s): ?string {
     $t = trim($s) === '' ? false : strtotime($s);
@@ -74,16 +75,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $dt((string) ($_POST['starts_at'] ?? '')), $dt((string) ($_POST['ends_at'] ?? '')),
                 empty($_POST['active']) ? 0 : 1,
                 in_array($_POST['audience'] ?? '', ['supporters', 'others'], true) ? (string) $_POST['audience'] : '',
+                max(0, min(VA_MSG_IMAGE_MAX_WIDTH, (int) ($_POST['image_width'] ?? 0))),
             ];
             if ($id > 0) {
                 $db->prepare('UPDATE va_messages SET caption_en = ?, caption_hu = ?, title_en = ?, body_en = ?, title_hu = ?, body_hu = ?,
-                    url = ?, level = ?, min_version = ?, max_version = ?, os = ?, starts_at = ?, ends_at = ?, active = ?, audience = ? WHERE id = ?')
+                    url = ?, level = ?, min_version = ?, max_version = ?, os = ?, starts_at = ?, ends_at = ?, active = ?, audience = ?,
+                    image_width = ? WHERE id = ?')
                     ->execute([...$vals, $id]);
                 $_SESSION['flash'] = ['ok', "MESSAGE #$id SAVED."];
             } else {
                 $db->prepare('INSERT INTO va_messages (caption_en, caption_hu, title_en, body_en, title_hu, body_hu, url, level,
-                    min_version, max_version, os, starts_at, ends_at, active, audience, created_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())')->execute($vals);
+                    min_version, max_version, os, starts_at, ends_at, active, audience, image_width, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())')->execute($vals);
                 $id = (int) $db->lastInsertId();
                 $_SESSION['flash'] = ['ok', "MESSAGE #$id CREATED."];
             }
@@ -125,12 +128,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $db = vaDb();
 vaMessagesMigrate($db);
 $list = $db->query('SELECT m.id, m.active, m.rev, m.audience, m.level, m.caption_en, m.caption_hu, m.title_en, m.body_en, m.title_hu, m.body_hu, m.url,
-        m.image_mime, LENGTH(m.image) AS image_size, m.min_version, m.max_version, m.os, m.starts_at, m.ends_at, m.created_at,
+        m.image_mime, m.image_width, LENGTH(m.image) AS image_size, m.min_version, m.max_version, m.os, m.starts_at, m.ends_at, m.created_at,
         (SELECT COUNT(*) FROM va_message_views v WHERE v.message_id = m.id) AS views
     FROM va_messages m ORDER BY m.id DESC')->fetchAll();
 $active30 = (int) $db->query('SELECT COUNT(*) FROM va_installs WHERE last_at > NOW() - INTERVAL 30 DAY')->fetchColumn();
 $edit = ['id' => 0, 'active' => 1, 'audience' => '', 'level' => 'info', 'caption_en' => '', 'caption_hu' => '', 'title_en' => '', 'body_en' => '',
-    'title_hu' => '', 'body_hu' => '', 'url' => '', 'image_size' => 0, 'min_version' => '', 'max_version' => '', 'os' => '',
+    'title_hu' => '', 'body_hu' => '', 'url' => '', 'image_size' => 0, 'image_width' => 0, 'min_version' => '', 'max_version' => '', 'os' => '',
     'starts_at' => null, 'ends_at' => null];
 foreach ($list as $m) {
     if ((int) ($_GET['edit'] ?? 0) === (int) $m['id']) {
@@ -212,6 +215,12 @@ ob_start(); ?>
                 <span class="img-note" id="img-note"></span></label>
             <?php if ($imgUrl !== ''): ?><div class="row msg-img-row"><img class="msg-thumb" src="<?= $h($imgUrl) ?>" alt="">
                 <label class="chk"><input type="checkbox" name="remove_image" value="1"> REMOVE IMAGE</label></div><?php endif; ?>
+            <label>IMAGE WIDTH IN THE APP (PX, EMPTY = ORIGINAL SIZE; SHRINKS ONLY, NOT FOR GIF)<span class="dt">
+                <input type="number" name="image_width" min="0" max="<?= VA_MSG_IMAGE_MAX_WIDTH ?>" step="1" placeholder="ORIGINAL"
+                    value="<?= (int) $edit['image_width'] > 0 ? (int) $edit['image_width'] : '' ?>">
+                <?php foreach ([160, 240, 320, 400] as $w): ?><button class="btn sm" type="button" data-iw="<?= $w ?>"><?= $w ?></button><?php endforeach; ?>
+                <button class="btn sm" type="button" data-iw="">ORIGINAL</button></span>
+                <span class="img-note" id="img-size-note"></span></label>
             <label>LINK BUTTON (OPTIONAL, HTTPS)<input type="text" name="url" maxlength="500" placeholder="https://www.c64va.pro/" value="<?= $h($edit['url']) ?>"></label>
             <div class="row">
                 <label>LEVEL<select name="level"><option value="info">INFO</option><option value="warn"<?= $edit['level'] === 'warn' ? ' selected' : '' ?>>WARN</option></select></label>
@@ -295,11 +304,35 @@ ob_start(); ?>
         var warn = form.elements.level.value === 'warn';
         frame.srcdoc = '<!doctype html><meta charset="utf-8"><style>body{margin:0;padding:18px;background:#1d1d3a;color:#c9c9e2;font:14px/1.55 system-ui,sans-serif}' +
           '.cap{color:#8f8fd0;font:600 11px/1.3 monospace;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}' +
-          'h2{margin:0 0 10px;font-size:18px;color:' + (warn ? '#e05555' : '#e2e2ff') + '}img{display:block;max-width:100%;max-height:220px;margin:0 auto 12px;border-radius:6px}' +
+          'h2{margin:0 0 10px;font-size:18px;color:' + (warn ? '#e05555' : '#e2e2ff') + '}img{display:block;max-width:100%;max-height:260px;margin:0 auto 12px;border-radius:6px;object-fit:contain}' +
           'a{color:#dce78f}pre,code{font-family:monospace}</style>' +
           (v('caption') ? '<div class="cap">' + esc(v('caption')) + '</div>' : '') + '<h2>' + esc(v('title')) + '</h2>' +
-          (img ? '<img src="' + esc(img) + '" alt="">' : '') + '<div>' + clean(v('body')) + '</div>';
+          (img ? '<img src="' + esc(img) + '" alt=""' + (imgWidth() ? ' style="width:' + imgWidth() + 'px"' : '') + '>' : '') + '<div>' + clean(v('body')) + '</div>';
+        sizeNote(img);
       }
+      // a szerver csak kicsinyít: az előnézet is legfeljebb a kép saját szélességéig megy
+      var natural = {};
+      function imgWidth() {
+        var w = parseInt(form.elements.image_width.value, 10) || 0, img = fileUrl || imgUrl, n = natural[img];
+        return w > 0 && n && w < n.w ? w : 0;
+      }
+      function sizeNote(img) {
+        var el = document.getElementById('img-size-note');
+        if (!img) { el.textContent = ''; return; }
+        var n = natural[img];
+        if (!n) {
+          var probe = new Image();
+          probe.onload = function () { natural[img] = { w: probe.naturalWidth, h: probe.naturalHeight }; render(); };
+          probe.src = img;
+          return;
+        }
+        var w = imgWidth() || n.w, h = Math.round(n.h * w / n.w);
+        el.textContent = 'In the app: ' + w + ' x ' + h + ' px' + (h > 260 ? ' (shown at most 260 px high)' : '')
+          + (/^data:image\/gif/.test(img) && imgWidth() ? ' - GIF is not resized' : '');
+      }
+      document.querySelectorAll('[data-iw]').forEach(function (b) {
+        b.addEventListener('click', function () { form.elements.image_width.value = b.getAttribute('data-iw'); render(); });
+      });
       document.querySelectorAll('[data-pv]').forEach(function (b) { b.addEventListener('click', function () { lang = b.getAttribute('data-pv'); render(); }); });
       // 1 MB / 1600 px fölött a böngésző kicsinyíti (canvas → WebP vagy JPEG), és a kisebb fájl kerül az inputba
       var MAX_BYTES = 1048576, MAX_SIDE = 1600, note = document.getElementById('img-note'), fileInput = form.elements.image;

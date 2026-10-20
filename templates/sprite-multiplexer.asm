@@ -36,7 +36,10 @@ init:
     STA $D017
     STA $D01D
     STA $D01C
+    LDA #$01
+    STA $0286
     JSR $E544
+.text 9, 12, "VA SPRITE MULTIPLEXER"
     LDA #$FF
     STA $D015
     LDX #NUM-1
