@@ -85,6 +85,24 @@ try {
         $ins->bindValue(7, $raw, PDO::PARAM_LOB);
         $ins->execute();
     }
+    // Régi kliensek azonosító nélkül továbbra is küldhetnek hibajegyet.
+    $install = strtolower((string) ($in['install_id'] ?? ''));
+    if (preg_match('/^[0-9a-f]{32}$/', $install)) {
+        $db->prepare("INSERT INTO va_support_threads
+            (install_id, email, name, status, version, os, lang, unread_admin, created_at, updated_at)
+            VALUES (?, ?, '', 'open', ?, ?, ?, 1, NOW(), NOW())
+            ON DUPLICATE KEY UPDATE status = 'open', unread_admin = unread_admin + 1, updated_at = NOW(),
+            email = IF(VALUES(email) = '', email, VALUES(email))")
+            ->execute([$install, $email, $text($in['version'] ?? '', 20), $text($in['os'] ?? '', 20), $text($in['lang'] ?? '', 8)]);
+        $st = $db->prepare('SELECT id FROM va_support_threads WHERE install_id = ?');
+        $st->execute([$install]);
+        $threadId = (int) $st->fetchColumn();
+        $db->prepare('INSERT INTO va_bug_support (report_id, install_id) VALUES (?, ?)')->execute([$id, $install]);
+        $db->prepare("INSERT INTO va_support_messages (thread_id, sender, body, created_at) VALUES (?, 'user', ?, NOW())")
+            ->execute([$threadId, "[VA bug #$id] $summary\n\n$description"]);
+        vaSupportStoreFiles($db, (int) $db->lastInsertId(), array_map(
+            static fn($f) => [$f[0], $f[1], $f[4]], $files));
+    }
     $db->commit();
 } catch (Throwable $e) {
     if (isset($db) && $db->inTransaction()) {
@@ -108,4 +126,4 @@ if ($notify !== '') {
         error_log('VA bug notify error: ' . $e->getMessage());
     }
 }
-echo json_encode(['ok' => true, 'id' => $id]);
+echo json_encode(['ok' => true, 'id' => $id, 'support' => isset($threadId)]);

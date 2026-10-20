@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**2.6.3-as verzió**
+**2.6.4-es verzió**
 
 Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat
 létre húzással és elengedéssel (fogd és vidd) utasításblokkokkal, és valós
@@ -12,6 +12,7 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
 
 - [C64 Visual Assembler — Felhasználói
   kézikönyv](#c64-visual-assembler--user-manual)
+    - [2.6.4-es verzió – kiemelt funkciók](#version-264-highlights)
     - [2.6.3-as verzió kiemelt funkciói](#version-263-highlights)
     - [2.6.2-es verzió – kiemelt funkciók](#version-262-highlights)
     - [2.6.1-es verzió – kiemelt funkciók](#version-261-highlights)
@@ -80,6 +81,7 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
     - [Forrásformázó](#source-formatter)
     - [Projekt panel \&amp; fülek](#project-panel--tabs)
     - [Tabulátorsáv](#tab-bar)
+    - [ACME mód](#acme-mode)
   - [7. Címzési módok](#7-addressing-modes)
     - [Kifejezések operandusként való címkézése](#label-expressions-as-operands)
     - [Az `*` programszámláló
@@ -206,6 +208,47 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
     - [Görbeszerkesztő](#curve-editor)
     - [Táblázatgenerátor](#table-generator)
     - [Számátváltó](#number-converter)
+
+---
+
+## A 2.6.4-es verzió legfontosabb elemei
+
+- **ACME assembler mód** — **Beállítások → Általános → Assembler mód** vált a
+  *VMA mód* (a beépített Visual Assembler assembler) és az *ACME mód* között: az
+  Expert forráskódot az ACME 0.97 építi, és a Futtatás, Build, a Szétszerelés /
+  Monitor panelek, a hibakereső szimbólumok, a ciklusszámlálók, az
+  optimalizálási tippek és a VICE Monitor mind a valódi ACME kimenetet
+  használják. Lásd: [ACME mód](#acme-mode).
+- **Better Kick Assembler import** — a Program menüpont mostantól **Kick
+  import**. Az `.encoding` után sima `.text "…"` sorok következnek, az `.label
+  NAME = * + N` címkét helyez el egy utasításon belül, és az `.abs` / `.zp`
+  emlékeztető utótagok kényszerítik ki a címzési módot. A Restore64
+  disassemblereket bájtról bájtra építi fel, mint a KickAssembler. Lásd: [Kick
+  import (Kick Assembler)](#kick-import-kick-assembler).
+- A(z) **Run parancs a BASIC sor alatti programokat indítja el** — a BASIC SYS
+  sor alatt vagy azon túl betöltődő programok kis indítóbetöltőt kapnak; a
+  forráskód későbbi részében található alacsonyabb ORG már nem kerül feljebb a
+  kezdőcímre. Lásd a(z) **BASIC SYS csonkot** sort a [Beállítások és
+  eszköztár](#5-settings--toolbar) menüpontban.
+- **Exomizer** — egy összerakott program már nem adja a `?SZINTAXIS ERROR` hibát
+  a második FUTTATÁSKOR: egy BASIC sorral rendelkező PRG `sfx basic` sorral van
+  becsomagolva, bármely más `sfx $<betöltési cím>` sorral.
+- **SID szerkesztő** — lejátszási LCD a követő eszköztáron (dal pozíciója,
+  pattern, sor, idő; zöld vagy piros a **Beállítások → SID előnézet → LCD
+  színe** menüpontban), egy hangszergomb LCD-vel a VA-VK-n, egy folyamatjelző
+  sáv az **.sid importálás…** folyamathoz. Lásd: [SID
+  szerkesztő](#sid-editor-3-voice-tracker).
+- **Beállítások három lapon** — **Általános**, **Fájlok és elérési utak** és
+  **Integrációk**. Lásd: [13. szakasz](#13-hardware-settings).
+- **Kisebb fejlesztések** — A **Ctrl+N** új lapot nyit; a párbeszédablak szövege
+  már nem jelölhető ki véletlenül (a szövegmezők és a másolható kimenet, például
+  a fordítási hibák továbbra is lehetségesek); a nagyméretű Expert forráskódok
+  gyorsabban szerkeszthetők; az `LSR A` és az `JMP ($nnnn)` helyesen
+  importálhatók; a Tudásbázis hivatkozik a Restore64-re (restore64.dev), amely
+  egy C64 PRG-t KickAssembler / ACME forrássá alakít **Kick import** vagy ACME
+  módhoz. Az olyan ACME forráskód, amelynek szegmense a `$0801` alatt van
+  (memóriakiírás), már nem kerül a BASIC SYS sor mögé eltolásra: a saját címein
+  épül fel, és a start betöltőt kapja.
 
 ---
 
@@ -1060,7 +1103,7 @@ A modális ablak automatikusan bezárul, ha a művelet befejeződik vagy sikerte
 | **Téma**                                                                               | Világos / Sötét / OLED / Commodore 77 / Commodore Starlight / Commodore Beige / Commodore 64 — válasszon a Beállítások menü témaválasztójából. Az OLED tiszta fekete hátteret használ az AMOLED kijelzőkön. A Commodore 77 egy neonsárga-fekete téma; amikor ez az aktív téma, az indítópanel a téma panelszínét használja (megfelel az üzenetkártyának), egy kisebb, dedikált Commodore 77 logót és egy sárga folyamatjelző sávot jelenít meg. A Commodore Starlight egy világos téma, amely az áttetsző C64 kenyértartót idézi: matt üvegpanelek, amelyeken szivárványos RGB fény világít, bíborvörös díszítéssel, szivárványos szintaxisszínekkel és füstös sötét monitorképpel. A Commodore Beige a klasszikus kenyértartó: bézs színű ház, mustársárga funkcióbillentyűk, szivárványos jelvénycsíkok és C64 kék képernyő a monitor nézetéhez. A kiválasztott témát a következő indításkor az első festés előtt alkalmazzák. |
 | **CRT retró mód**                                                                      | Teljes képernyős CRT szűrő ki-/bekapcsolása: pásztázási vonalak, foszforvignettálás, villogás és hordótorzítás. Az állapot a munkamenetek között mentésre kerül.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | **Memória panel megjelenítése**                                                        | Globális kapcsoló, amely megjeleníti vagy elrejti a teljes C64 memóriapanelt                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| **ALAP RENDSZER csonk**                                                                | Egy SYS-t meghívó BASIC sort illeszt a program eredete elé.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| **ALAP RENDSZER csonk**                                                                | Egy BASIC sor elé illeszti a program eredetét (az első ORG-ot), amely a SYS-t hívja meg. Az első ORG-nál lejjebb elhelyezett szegmens a saját címén marad. Amikor a program a BASIC sor alatt vagy azon túl töltődik be (`$0801`–`$080C`, például egy importált memóriakép a `$071C` címről), a Run and Build parancs egy kis indító betöltőt ad hozzá: `SYS 2061` egy mozgatófájlt másol a szalagos pufferbe (`$033C`), ami a helyére teszi a programot, és az első ORG-ra ugrik.                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | **Példák…**                                                                            | Nyisd meg a példa böngészőt, és tölts be egy beépített példa programot — lásd: [Példa programok](#example-programs)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | **Nagyítás / Kicsinyítés**                                                             | A blokk felhasználói felületének skálázása (az összes blokkelemet érinti)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | **Projekt mentése**                                                                    | Mentse el az aktuális programot `.json` projektfájlként                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
@@ -1080,9 +1123,9 @@ A modális ablak automatikusan bezárul, ha a művelet befejeződik vagy sikerte
 | **Projekt létrehozása** (`Menü → Építés`)                                              | Fordítsd le a projekt (vagy a megnyitott lapok) összes összeállítható fájlját egy `.prg` fájlba a forráskódja mellett — lásd: [Projekt összeállítása](#build-project)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | **Futtatás (felosztó gomb)**                                                           | A fő **▶ Futtatás** gomb futtatja az aktuális módot; kattintson az **▾** nyílra a következők közötti váltáshoz: **Futtatás PRG-ként** (a VICE közvetlen fordítása és indítása), **Futtatás D64-en keresztül** (.d64 lemezképbe csomagolni és elindítani a VICE-t), **Futtatás hardveren** (PRG küldése C64 Ultimate / 1541 Ultimate eszközre), vagy **Kung Fu Flash 2** (PRG feltöltése USB-n keresztül egy valódi C64/C128-ra egy Kung Fu Flash 2 kazettával). Lásd a [12. szakasz](#12-d64-export--run) és a [13. szakasz](#13-hardware-settings) részeket.                                                                                                                                                                                                                                                                                                                                                                    |
 | **Hibakeresés (RetroDebugger)**                                                        | Fordítás és indítás a RetroDebuggerben töréspontokkal, szimbólumokkal és automatikus indítási jelzőkkel (lásd: [9. szakasz](#9-debugger-integration))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| **Futtatás az Exomizerrel**                                                            | Jelölőnégyzet a Beállítások menüben – ha engedélyezve van, az összes Futtatás és Összeállítás művelet a PRG-t az `exomizer sfx sys` fájlon keresztül futtatja indítás vagy mentés előtt. Működik a Futtatás PRG-ként, Futtatás D64-en keresztül, Futtatás hardveren, PRG összeállítása és D64 összeállítása beállításokkal. Először konfigurálja az Exomizer futtatható fájlját a **Hardverbeállítások** menüpontban.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| **Futtatás az Exomizerrel**                                                            | Jelölőnégyzet a Beállítások menüben – ha engedélyezve van, az összes Futtatás és Összeállítás művelet a PRG-t az `exomizer sfx` paraméteren keresztül futtatja indítás vagy mentés előtt (`sfx basic` egy BASIC sorral kezdődő PRG esetén, így a RUN a program visszatérése után újra működik; `sfx $<betöltési cím>` egyébként). Működik a Futtatás PRG-ként, Futtatás D64-en keresztül, Futtatás hardveren, PRG összeállítása és D64 összeállítása beállításokkal. Először konfigurálja az Exomizer futtatható fájlját a **Hardverbeállítások** menüpontban.                                                                                                                                                                                                                                                                                                                                                                   |
 | **Automatikus automatikus mentési bejegyzések**                                        | Jelölőnégyzet a **Hardverbeállítások → Verziókövetés** menüpontban. Ha engedélyezve van, az alkalmazás körülbelül 2,5 másodperccel a fül szerkesztésének befejezése után automatikusan mentésre kerül a verzióelőzményekbe (egy projekt füle esetén a projektelőzményekbe is). Kapcsold ki, ha csak a saját commitjaidat szeretnéd. Lásd: [Verziókövetés]{1].                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| **Hardverbeállítások**                                                                 | Nyissa meg a hardverkonfigurációs párbeszédpanelt — konfigurálja a VICE-t, az Exomizer-t, a RetroDebugger-t, a C64 Ultimate-et (gazdagép, jelszó, kapcsolatteszt) és a Kung Fu Flash 2 soros portot. Lásd: [13. szakasz](#13-hardware-settings).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| **Beállítások** (korábban Hardverbeállítások)                                          | Nyisd meg a beállítások párbeszédpanelt három füllel: **Általános** (assembler mód, BASIC SYS csonk, Exomizer, frissítések, ASM kimenet, SID előnézet, hibakereső paraméterek, verziókövetés), **Fájlok és elérési utak** (VICE, RetroDebugger, ACME, Exomizer, git) és **Integrációk** (C64 Ultimate, Kung Fu Flash 2). Lásd: [13. szakasz](#13-hardware-settings).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | **Új program…**                                                                        | Megnyit egy megerősítő párbeszédpanelt, majd törli az összes blokkot a programterületről.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | **Összes összecsukása**                                                                | Összes blokk összecsukása                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | **Rólunk**                                                                             | Verzióinformáció                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
@@ -1485,9 +1528,9 @@ jeleníti meg.
 - Ha a programod az adat (`.byte`) karakterlánccal kezdődik a végrehajtható kód
   előtt, akkor adj hozzá egy explicit ugrást (például `JMP Start`) a tetejéhez.
 
-### ASM import (Kick Assembler)
+### Kick import (Kick Assembler)
 
-A Program menü **ASM import** gombja a nyers Kick Assembler forráskódot egy új
+A Program menü **Kick import** gombja a nyers Kick Assembler forráskódot egy új
 blokk módú lapra tölti be. Ez elkülönül a fenti `.asm fájl betöltése` Expert
 módú ` gombtól — az egyéni tooltipje jelzi, hogy **csak a Kick Assembler kód
 támogatott** (más assembler kódok részlegesen értelmezhetnek, de nem garantált
@@ -1506,10 +1549,31 @@ Támogatott minták:
 - Operandus `címke + N` / `címke - N` (pl. `STA mod1+2`, `LDA xp+1`)
 - Sormegjegyzések `// ...` és `;` — mindkettő elfogadott, az `/* ... */`
   blokkokat egyetlen megjegyzéssorként kezeli a rendszer
+- `.szöveg "…"` képernyőkoordináták nélkül → BYTE blokk a kódolt bájtokkal (az
+  eredeti sor a blokk kommentjeként marad). Több elem is megengedett: `"…"`,
+  `@"…"` escape karakterekkel `\n` `\r` `\t` `\$NN`, és `$NN` / decimális
+  bájtok, `, ` vagy `+` karakterekkel összekapcsolva
+- Az `.encoding "name"` paraméter a következő `.text` sorok kódolását állítja
+  be: `screencode_mixed` (a Kick alapértelmezett értéke), `screencode_upper`,
+  `petscii_mixed`, `petscii_upper`, `ascii`. A blokkon egy olyan karakter
+  jelenik meg, amelynek a kódolásához nincs kód.
+- `.label NÉV = *`, `.label NÉV = * + N`, `.label NÉV = * - N` → egy címke a
+  programszámlálónál, N-nel eltolva (például egy ugrás egy `BIT` operandusába:
+  `.label loc_c474 = * + 1`)
+- Az `.abs` / `.a` és `.zp` / `.z` (`sta.abs $00fc,x`, `ldx.zp ptr,y`)
+  mnemonikus utótagok abszolút vagy nulla oldalas címzést kényszerítenek ki.
+- `*=$XXXX "név"` és `.pc = $XXXX "név"` szegmens tetszőleges sorrendben: az
+  elsőnél alacsonyabb szegmens a saját címén marad
 - BASIC autostart áteresztés: amikor a program a `$0801` címen indul a standard
   `SYS 2061` bájtos csonkkal (`.bájt
   $0B,$08,$0A,$00,$9E,$32,$30,$36,$31,$00,$00,$00`), a fordító szó szerint
   kiadja a PRG-t ahelyett, hogy egy második BASIC SYS-t csomagolna köré.
+
+A Restore64 által készített szétszerelések (KickAssembler szintaxis) bájtról
+bájtra importálják és építik fel, hasonlóan a KickAssemblerhez. A fejlécükben
+megnevezett belépési pont az első `.pc`. Egy Plus/4 / C16-ra készült program
+(BASIC a `$1001` címen, TED regiszterei a `$FFxx` címen) ugyanígy fordul fel, de
+csak egy Plus/4 emulátorban fut, például a VICE `xplus4` paranccsal, nem.
 
 Ismert korlátozás:
 
@@ -1953,11 +2017,76 @@ A fülsáv a szerkesztő felett jelenik meg, ha egynél több fül van megnyitva
 | **Görgetőnyilak**                | Bal/jobb görgetőgombok jelennek meg, ha több fül van, mint amennyi elfér a sávon                                                                                                                                                                                                                                            |
 | **Bezárás (×)**                  | Bezárja a fület; mentésre kér, ha a fül piszkos                                                                                                                                                                                                                                                                             |
 | **Fájlkiterjesztés**             | A teljes fájlnév, beleértve a kiterjesztést is (`.c64va`, `.json`), látható.                                                                                                                                                                                                                                                |
+| **Ctrl+N**                       | Megnyit egy új, üres lapot (nem akkor, ha egy modális párbeszédablak van megnyitva)                                                                                                                                                                                                                                         |
 | **Jobb gombbal előhívható menü** | Jobb klikk egy fülre (vagy üres fülsávra) a következőkhöz: **Új fül**, **Fül bezárása**, **További fülek bezárása**, **Jobb oldali fülek bezárása**, **Összes fül bezárása**. Kötegelt bezárási műveletek kérése minden piszkos fülön, és leállítás, ha megszakítja. Az **Összes bezárása** mindig egy üres fület hagy meg. |
 
 > **Tipp:** A Paletta szinkronizálása (`#expert-palette-sync-btn`) szinkronban
 > tartja a paletta kiválasztását a kurzornál lévő emlékeztetővel. Kapcsold ki,
 > ha nem szeretnéd, hogy a paletta ugráljon szerkesztés közben.
+
+### ACME mód
+
+**Beállítások → Általános → Assembler mód** kiválasztja a Szakértői szerkesztő
+assemblerjét:
+
+- **VMA mód** (alapértelmezett) — a beépített Visual Assembler assembler a
+  blokkjaival, makróival és `.` direktíváival.
+- **ACME mód** — a forrás az ACME 0.97 szöveg, amelyet az ACME futtatható fájlja
+  állít össze, amely a **Beállítások → Fájlok és elérési utak → ACME** (**ACME
+  kiválasztása**) menüpontban van beállítva. Az `ACME-0.97-reference.pdf` leírja
+  a nyelvet.
+
+A mód egy `.proj` projekttel kerül mentésre, így minden projekt a saját
+assemblerjével nyílik meg. Az ACME mód csak szövegszerkesztésre alkalmas: a
+Blokk / Szakértő kapcsoló zárolva van, és az **Oktatóanyagok** gomb rejtett (a
+leckék blokkokból építik fel a VMA programokat).
+
+Ami az ACME build után következik:
+
+- A **Build** (a kalapács gomb a Szakértői eszköztáron, *Build ACME forráskód*),
+  **Futtatás** (PRG, D64, C64 Ultimate, Kung Fu Flash 2), **PRG mentése**,
+  **Build D64**, **Build CRT**, **Build projekt** és **Debug (RetroDebugger)**
+  az ACME-n keresztül fordulnak; az ACME hibák és figyelmeztetések a normál
+  fordítási hiba párbeszédablakban nyílnak meg, a forráskód sorral együtt.
+- A **Disassembly** vagy az **Monitor** panel vagy a cikluskihagyás bekapcsolt
+  állapotában a forráskód egy gépelési szünet után újraépül, így a panelek a
+  valódi ACME bájtokat mutatják; a panelek az ACME címkéket használják.
+- A **Hibakeresési fájlok** (*Hibakeresési fájlok generálása* a Beállítások →
+  Általános menüpontban) az ACME címkekiírásból készülnek: `.sym` (KickAssembler
+  stílus) és `.vs` (VICE címkék) a PRG mellett; ACME módban nincs `.dbg`
+  forráskód-leképezés. A **Debug (RetroDebugger)** ugyanazokat a címkéket kapja,
+  és az Expert töréspontokat az ACME jelentés helyezi el (a kód nélküli sorban
+  lévő töréspont a következő kódsorban megáll).
+- A **ciklusszámok** és az **optimalizálási tippek** az utolsó build ACME
+  jelentéséből (`-r`) származnak.
+- Az **VICE Monitor** hot reload csak az ACME által ténylegesen létrehozott
+  címtartományokat írja ki; az élő figyelés és a profiler az ACME címkéit és
+  forrássorait használja.
+- A SID, Hi-Res, Level, Curve és Table szerkesztők ** blokkjaiba exportálás **
+  esetén az ACME forráskód a fájl végére kerül beszúrásra (`!byte`, `!word`,
+  `!fill`, `NAME = value`; a VA makrók utasításként vannak kiírva).
+
+A kiemelés és az automatikus kiegészítés ismeri az ACME szintaxist: `!` pszeudo
+opkódok, `+név` makróhívások, kettőspont nélküli címkék, névtelen `-` / `+`
+címkék és `;` megjegyzések. Az ACME forrásban található VMA direktíva (`.byte`,
+`.macro` …) és a VMA forrásban található ACME `!` direktíva hibaként jelenik
+meg.
+
+```asm
+* = $c000
+start ldx #0
+- lda szöveg,x
+beq +
+sta $0400,x
+inx
+bne -
++ rts
+szöveg !scr "hello acme", 0
+```
+
+A `samples/acme-crt-demo.asm` egy kis ACME tesztprogram a Run, Build PRG / D64
+és Build CRT futtatásához: egy üzenet a képernyő közepén és raszteres színes
+sávok a szegélyen, KERNAL hívások nélkül, tehát a kazettáról is fut.
 
 ---
 
@@ -5025,18 +5154,19 @@ Az 1.5.1-es verzió lehetővé teszi a program (és a további adatfájlok) C64 
 lemezképbe csomagolását és a VICE-ban való elindítását – vagy a lemezkép
 exportálását máshol történő felhasználásra.
 
-| Forrás                                      | URL-cím                                                        |
-| ------------------------------------------- | -------------------------------------------------------------- |
-| 6502 Opkódok referencia                     | http://www.6502.org/tutorials/6502opcodes.html                 |
-| C64 KERNAL függvények                       | https://sta.c64.org/cbm64krnfunc.html                          |
-| C64 memóriatérkép                           | https://sta.c64.org/cbm64mem.html                              |
-| C64 színkódok                               | https://sta.c64.org/cbm64col.html                              |
-| VIC-II cikk                                 | https://www.cebix.net/VIC-Article.txt                          |
-| C64 kódbázis                                | https://codebase.c64.org/                                      |
-| A turbóösszeszerelő                         | https://turbo.style64.org/                                     |
-| RetroDebugger                               | https://github.com/slajerek/RetroDebugger/                     |
-| C64 operációs rendszer fejlesztői környezet | https://www.c64os.com/c64os/programmersguide/?s=devenvironment |
-| png2c64 képkonverter                        | https://png2c64.app/                                           |
+| Forrás                                                         | URL-cím                                                        |
+| -------------------------------------------------------------- | -------------------------------------------------------------- |
+| 6502 Opkódok referencia                                        | http://www.6502.org/tutorials/6502opcodes.html                 |
+| C64 KERNAL függvények                                          | https://sta.c64.org/cbm64krnfunc.html                          |
+| C64 memóriatérkép                                              | https://sta.c64.org/cbm64mem.html                              |
+| C64 színkódok                                                  | https://sta.c64.org/cbm64col.html                              |
+| VIC-II cikk                                                    | https://www.cebix.net/VIC-Article.txt                          |
+| C64 kódbázis                                                   | https://codebase.c64.org/                                      |
+| A turbóösszeszerelő                                            | https://turbo.style64.org/                                     |
+| RetroDebugger                                                  | https://github.com/slajerek/RetroDebugger/                     |
+| C64 operációs rendszer fejlesztői környezet                    | https://www.c64os.com/c64os/programmersguide/?s=devenvironment |
+| png2c64 képkonverter                                           | https://png2c64.app/                                           |
+| Restore64 Disassembler (C64 PRG → KickAssembler / ACME forrás) | https://restore64.dev/                                         |
 
 ---
 
@@ -5270,12 +5400,13 @@ A teljes hibakereső dokumentációt lásd a [9. szakasz]{1} alatt.
 
 ## 14. Vizuális szerkesztők (eszközkészlet)
 
-Az eszköztár **Toolkit** menüje csoportosítja a vizuális adatszerkesztőket,
-amelyek mindegyike egy közös Fájlok menüt (`Fájlok ▾`) használ a BIN betöltése /
-BIN mentése / Exportálás blokkokba / Mentés D64-be menüpontokban. Minden
-szerkesztő nyers `.bin` adatokat hoz létre, amelyek elhelyezhetők egy programban
-az `INCBIN` paraméterrel, vagy közvetlenül hozzáadhatók egy D64 lemezhez a
-**Mentés D64-be** bejegyzéssel.
+Nyissa meg a **Menü → Beállítások…** (korábban *Hardverbeállítások*)
+menüpontban. A párbeszédpanel három füllel rendelkezik: **Általános** (assembler
+mód, BASIC SYS stub, Futtatás Exomizerrel, frissítések, ASM kimenet, SID
+előnézet, C64 Debugger paraméterek, pillanatképek / verziókövetés), **Fájlok és
+elérési utak** (VICE, RetroDebugger, ACME, Exomizer, git) és **Integrációk**
+(C64 Ultimate, Kung Fu Flash 2). Az alábbi szakaszok a külső eszközöket és
+eszközöket ismertetik.
 
 ### Nagy felbontású / többszínű szerkesztő
 
@@ -5306,9 +5437,11 @@ móddal. Megnyitás a Toolkit → Nagy felbontású szerkesztő menüpontban.
 2. Konfigurálja az elérési utat az **Hardverbeállítások → Exomizer részben **.
 3. Engedélyezd a **Futtatás Exomizerrel** jelölőnégyzetet a **Beállítások
    menüben**.
-4. Az összes **Run** művelet (PRG, D64, hardver) és az **Build** műveletek
-   (Build PRG, Build D64) mostantól az összeállított programot az `exomizer sfx
-   sys` paraméteren keresztül futtatják indítás vagy mentés előtt.
+4. Az összes **Run** művelet (PRG, D64, hardver) és **Build** művelet (Build
+   PRG, Build D64) mostantól az `exomizer sfx` soron keresztül futtatja az
+   összeállított programot indítás vagy mentés előtt: `sfx basic`, amikor a PRG
+   egy BASIC sorral indul (a szétválasztás után a RUN az eredeti `SYS` sort
+   indítja, így egy második RUN is működik), `sfx $<betöltési cím>` egyébként.
 
 Az Exomizer ugyanúgy működik Windows és macOS rendszereken – a parancssori
 felületet a Tauri háttérrendszer hívja meg; az integrációban semmi sem
@@ -5316,10 +5449,10 @@ platformspecifikus.
 
 ** Két belső tömörítési módot használnak:**
 
-| Mód                | Használta                                                    | Hívási konvenció                                                                                                                                                                                    |
-| ------------------ | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sfx rendszer`     | Építés/Futtatás Exomizerrel kapcsolóval (fő PRG útvonal)     | Önkicsomagoló PRG beépített decruncherrel; a Border-flash beállítás a `-x1` és a `-n` közötti tartományokat szabályozza.                                                                            |
-| `mem` (visszafelé) | D64-en keresztül futtatva → fájlonként **EXO** jelölőnégyzet | Minden extra fájlt `mem` módú adatfolyamba tömörít; a program futásidőben kicsomagolja azt az **EXODECRUNCH** makró és egy előre elkészített kicsomagoló (`samples/exo-decrunch.bin`) segítségével. |
+| Mód                       | Használta                                                    | Hívási konvenció                                                                                                                                                                                    |
+| ------------------------- | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sfx alap` / `sfx $<cím>` | Építés/Futtatás Exomizerrel kapcsolóval (fő PRG útvonal)     | Önkicsomagoló PRG beépített decruncherrel; a Border-flash beállítás a `-x1` és a `-n` közötti tartományokat szabályozza.                                                                            |
+| `mem` (visszafelé)        | D64-en keresztül futtatva → fájlonként **EXO** jelölőnégyzet | Minden extra fájlt `mem` módú adatfolyamba tömörít; a program futásidőben kicsomagolja azt az **EXODECRUNCH** makró és egy előre elkészített kicsomagoló (`samples/exo-decrunch.bin`) segítségével. |
 
 > **Tipp:** Ha az Exomizer elérési útja nincs konfigurálva, de a jelölőnégyzet
 > be van jelölve, akkor egy hibaüzenet jelenik meg az indítás helyett. Kapcsolja
@@ -5740,11 +5873,19 @@ formátumban.
 - A Lejátszás eszköztár gombja lejátszás közben Szünetre, szüneteltetés közben
   pedig Folytatásra vált; a Leállítás gomb leállítja a lejátszást és
   visszaállítja az eredeti állapotot.
+- A követő eszköztár végén található **LCD** lejátszás közben mutatja a dal
+  pozícióját (POS), a pattern-t (PAT), a sort (ROW) és a játékidőt (TIME),
+  leállított állapotban pedig a szerkesztési pozíciót. **Beállítások → SID
+  előnézet → LCD színe** zöldre vagy pirosra állítja.
 - A billentyűzet eszköztár gombja megnyitja a **VA-VK** nevű, nem modális
   zongorát (2, 3 vagy 4 oktáv; pozíció, nyitott állapot, oktáv és *Beszúrás a
   követőbe* megjegyződik) saját **Lejátszás / Leállítás** gombokkal, amelyek a
   SID-szerkesztő aktív állapotában is használhatók. A fejlécét húzással a fő
   alkalmazás bármely pontjára helyezheti.
+- A VA-VK **Instrument** gombja (húzás, egérgörgő vagy nyílbillentyűk) választja
+  ki a kívánt műszert, amelynek száma és neve mellette látható az LCD-n; a
+  szerkesztő műszerlistáját követi. A VA-VK címe melletti jelvény mutatja az
+  alkalmazott SID emulációt (WebSID vagy VA SID Core a chip modellel).
 - Engedélyezd az **Beszúrás a követőbe** funkciót, hogy minden lejátszott hangot
   az aktuális követőkurzornál írj, és a következő sorra lépj. Kapcsold ki, ha
   szerkesztés nélkül szeretnél meghallgatni hangokat.
@@ -5800,11 +5941,12 @@ hozzávetőleges, mivel a két nyomkövető eltérően működik:
 - A hullámtábla által kiadott kapu hangjelzésként jelenik meg a következő szabad
   sorban. Csak az első aldallam kerül importálásra.
 
-**.sid import:** **Fájlok → .sid import…** megnyit egy PSID / RSID fájlt (csak
-asztali alkalmazásban, VA SID Core-t használ). Válaszd ki az aldallamot és a
-hosszát másodpercben, majd nyomd meg az **Import** gombot: a dallam csendben
-fut, a SID regiszterei képkockánként rögzítésre kerülnek, és az aktuális
-regiszter helyett egy dallá alakulnak.
+**.sid import:** **Fájlok → .sid importálása…** megnyit egy PSID / RSID fájlt
+(csak asztali alkalmazásban, VA SID Core-t használ). Válaszd ki az aldallamot és
+a hosszát másodpercben, majd nyomd meg az **Importálás** gombot: a dallam
+csendben fut, SID regiszterei képkockánként rögzítésre kerülnek, és az aktuális
+regiszter helyett egy dallá alakulnak. Egy folyamatjelző sáv követi a felvételt,
+majd a *Konvertálás…* a konverziót.
 - **Megjegyzések:** egy hang a kapu élére kerül (a 2 képkockán belüli
   újraindítás egy hangnak számít); a legalább 5 képkockán át tartott kapu alatti
   hangmagasság-változás egy új, újraindító (legato) hanggá válik. A hangmagasság

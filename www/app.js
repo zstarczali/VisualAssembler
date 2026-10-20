@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "sid-import-263",
+  id: "acme-264",
   url: "https://www.c64va.pro/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.6.3-ban",
+    eyebrow: "Újdonság a 2.6.4-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<ul><li><strong>.sid import a SID szerkesztőben</strong>: bármely PSID / RSID dal hangszerekké, patternekké és song-gá alakul, szerkesztheted és exportálhatod (Files → Import .sid…).</li><li><strong>Hosszú dalok</strong>: a lejátszó adata már nem lóg bele az I/O-ba, nem vesznek el hangok.</li><li><strong>VA SID Core előnézet</strong>: az újraindított hangok újra megszólalnak.</li><li><strong>SID szerkesztő</strong>: a fejléc mutatja a SID-emulációt, a Speed mezőn − / + gomb.</li><li><strong>Ultimate Basic 1.6.6</strong>: <code>PRINT USING</code>, sztring-összehasonlítás, lebegőpontos <code>rnd</code> / <code>mod</code>, <code>option basic print</code>, kisebb programok.</li></ul><p>Kérdés, ötlet vagy hiba: <strong>Menu → Támogatás</strong>.</p>`,
+    body: `<ul><li><strong>ACME mód</strong>: az Expert forrást ACME 0.97 fordítja (Beállítások → Általános → Assembler mód); a Disassembly / Monitor, a ciklusszámok, a tippek és a VICE Monitor az ACME kimenetét követik.</li><li><strong>Jobb Kick import</strong>: <code>.text</code> + <code>.encoding</code>, <code>.label x = * + 1</code>, <code>.abs</code> / <code>.zp</code>; a Restore64 forrásai bájtra úgy fordulnak, mint KickAssemblerrel.</li><li><strong>Futtatás</strong>: a BASIC sor alá töltődő programok is elindulnak.</li><li><strong>SID szerkesztő</strong>: LCD kijelző (pozíció, pattern, sor, idő), hangszer-gomb a VA-VK-n.</li><li><strong>Ctrl+N</strong>: új fül; a Beállítások három fülön.</li></ul><p>Kérdés, ötlet vagy hiba: <strong>Menu → Támogatás</strong>.</p>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.6.3",
+    eyebrow: "New in 2.6.4",
     title: "Welcome to Visual Assembler",
-    body: `<ul><li><strong>.sid import in the SID Editor</strong>: any PSID / RSID tune becomes instruments, patterns and a song you can edit and export (Files → Import .sid…).</li><li><strong>Long tunes</strong>: the player data no longer runs into I/O, so no notes get lost.</li><li><strong>VA SID Core preview</strong>: restarted notes sound again.</li><li><strong>SID Editor</strong>: the header shows the SID emulation, the Speed field has − / + buttons.</li><li><strong>Ultimate Basic 1.6.6</strong>: <code>PRINT USING</code>, string comparison, floating-point <code>rnd</code> / <code>mod</code>, <code>option basic print</code>, smaller programs.</li></ul><p>Questions, ideas or bugs: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>ACME mode</strong>: ACME 0.97 builds the Expert source (Settings → General → Assembler mode); Disassembly / Monitor, cycle counts, hints and the VICE Monitor follow the ACME output.</li><li><strong>Better Kick import</strong>: <code>.text</code> + <code>.encoding</code>, <code>.label x = * + 1</code>, <code>.abs</code> / <code>.zp</code>; Restore64 sources build byte for byte like KickAssembler.</li><li><strong>Run</strong>: programs that load below the BASIC line start too.</li><li><strong>SID Editor</strong>: an LCD (position, pattern, row, time), an instrument knob on VA-VK.</li><li><strong>Ctrl+N</strong>: new tab; Settings in three tabs.</li></ul><p>Questions, ideas or bugs: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.6.3",
+    eyebrow: "Novedad en la 2.6.4",
     title: "Bienvenido a Visual Assembler",
-    body: `<ul><li><strong>Importación .sid en el editor SID</strong>: cualquier tema PSID / RSID se convierte en instrumentos, patrones y una canción que puedes editar y exportar (Files → Import .sid…).</li><li><strong>Temas largos</strong>: los datos del reproductor ya no invaden la E/S y no se pierden notas.</li><li><strong>Vista previa con VA SID Core</strong>: las notas reiniciadas vuelven a sonar.</li><li><strong>Editor SID</strong>: la cabecera muestra la emulación SID y el campo Speed tiene botones − / +.</li><li><strong>Ultimate Basic 1.6.6</strong>: <code>PRINT USING</code>, comparación de cadenas, <code>rnd</code> / <code>mod</code> en coma flotante, <code>option basic print</code>, programas más pequeños.</li></ul><p>Preguntas, ideas o errores: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Modo ACME</strong>: ACME 0.97 compila el código Experto (Settings → General → Assembler mode); Disassembly / Monitor, ciclos, sugerencias y el VICE Monitor siguen la salida de ACME.</li><li><strong>Mejor importación Kick</strong>: <code>.text</code> + <code>.encoding</code>, <code>.label x = * + 1</code>, <code>.abs</code> / <code>.zp</code>; las fuentes de Restore64 se compilan byte a byte como con KickAssembler.</li><li><strong>Ejecutar</strong>: también arrancan los programas que se cargan bajo la línea BASIC.</li><li><strong>Editor SID</strong>: una pantalla LCD (posición, patrón, fila, tiempo) y un mando de instrumento en VA-VK.</li><li><strong>Ctrl+N</strong>: pestaña nueva; los ajustes en tres pestañas.</li></ul><p>Preguntas, ideas o errores: <strong>Menu → Support</strong>.</p>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.6.3",
+    eyebrow: "Neu in 2.6.4",
     title: "Willkommen bei Visual Assembler",
-    body: `<ul><li><strong>.sid-Import im SID-Editor</strong>: jedes PSID- / RSID-Stück wird zu Instrumenten, Patterns und einem Song, den du bearbeiten und exportieren kannst (Files → Import .sid…).</li><li><strong>Lange Stücke</strong>: die Player-Daten reichen nicht mehr in den I/O-Bereich, es gehen keine Noten verloren.</li><li><strong>VA-SID-Core-Vorschau</strong>: neu angeschlagene Noten erklingen wieder.</li><li><strong>SID-Editor</strong>: der Kopf zeigt die SID-Emulation, das Speed-Feld hat − / +-Knöpfe.</li><li><strong>Ultimate Basic 1.6.6</strong>: <code>PRINT USING</code>, String-Vergleiche, <code>rnd</code> / <code>mod</code> als Gleitkomma, <code>option basic print</code>, kleinere Programme.</li></ul><p>Fragen, Ideen oder Fehler: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>ACME-Modus</strong>: ACME 0.97 übersetzt den Experten-Quelltext (Settings → General → Assembler mode); Disassembly / Monitor, Zyklen, Hinweise und der VICE Monitor folgen der ACME-Ausgabe.</li><li><strong>Besserer Kick-Import</strong>: <code>.text</code> + <code>.encoding</code>, <code>.label x = * + 1</code>, <code>.abs</code> / <code>.zp</code>; Restore64-Quellen werden Byte für Byte wie mit KickAssembler übersetzt.</li><li><strong>Ausführen</strong>: auch Programme, die unter die BASIC-Zeile laden, starten.</li><li><strong>SID-Editor</strong>: ein LCD (Position, Pattern, Zeile, Zeit), ein Instrumentenregler auf VA-VK.</li><li><strong>Strg+N</strong>: neuer Tab; die Einstellungen in drei Tabs.</li></ul><p>Fragen, Ideen oder Fehler: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.6.3",
+    eyebrow: "Nieuw in 2.6.4",
     title: "Welkom bij Visual Assembler",
-    body: `<ul><li><strong>.sid-import in de SID-editor</strong>: elk PSID- / RSID-nummer wordt instrumenten, patronen en een song die je kunt bewerken en exporteren (Files → Import .sid…).</li><li><strong>Lange nummers</strong>: de playerdata lopen niet meer in het I/O-gebied, er gaan geen noten verloren.</li><li><strong>VA SID Core-voorbeeld</strong>: opnieuw aangeslagen noten klinken weer.</li><li><strong>SID-editor</strong>: de kop toont de SID-emulatie, het Speed-veld heeft − / +-knoppen.</li><li><strong>Ultimate Basic 1.6.6</strong>: <code>PRINT USING</code>, strings vergelijken, <code>rnd</code> / <code>mod</code> met drijvende komma, <code>option basic print</code>, kleinere programma's.</li></ul><p>Vragen, ideeën of bugs: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>ACME-modus</strong>: ACME 0.97 bouwt de Expert-broncode (Settings → General → Assembler mode); Disassembly / Monitor, cycli, tips en de VICE Monitor volgen de ACME-uitvoer.</li><li><strong>Betere Kick-import</strong>: <code>.text</code> + <code>.encoding</code>, <code>.label x = * + 1</code>, <code>.abs</code> / <code>.zp</code>; Restore64-bronnen bouwen byte voor byte zoals met KickAssembler.</li><li><strong>Uitvoeren</strong>: ook programma's die onder de BASIC-regel laden, starten.</li><li><strong>SID-editor</strong>: een LCD (positie, patroon, rij, tijd), een instrumentknop op VA-VK.</li><li><strong>Ctrl+N</strong>: nieuw tabblad; de instellingen in drie tabbladen.</li></ul><p>Vragen, ideeën of bugs: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.6.3",
+    eyebrow: "Nowość w 2.6.4",
     title: "Witamy w Visual Assembler",
-    body: `<ul><li><strong>Import .sid w edytorze SID</strong>: każdy utwór PSID / RSID staje się instrumentami, wzorcami i utworem, który możesz edytować i eksportować (Files → Import .sid…).</li><li><strong>Długie utwory</strong>: dane odtwarzacza nie wchodzą już w obszar I/O, nuty nie giną.</li><li><strong>Podgląd VA SID Core</strong>: ponownie uderzane nuty znów brzmią.</li><li><strong>Edytor SID</strong>: nagłówek pokazuje emulację SID, pole Speed ma przyciski − / +.</li><li><strong>Ultimate Basic 1.6.6</strong>: <code>PRINT USING</code>, porównywanie napisów, zmiennoprzecinkowe <code>rnd</code> / <code>mod</code>, <code>option basic print</code>, mniejsze programy.</li></ul><p>Pytania, pomysły lub błędy: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Tryb ACME</strong>: kod w trybie Eksperta kompiluje ACME 0.97 (Settings → General → Assembler mode); Disassembly / Monitor, cykle, wskazówki i VICE Monitor korzystają z wyniku ACME.</li><li><strong>Lepszy import Kick</strong>: <code>.text</code> + <code>.encoding</code>, <code>.label x = * + 1</code>, <code>.abs</code> / <code>.zp</code>; źródła z Restore64 kompilują się bajt w bajt jak w KickAssemblerze.</li><li><strong>Uruchamianie</strong>: startują też programy ładowane poniżej linii BASIC.</li><li><strong>Edytor SID</strong>: wyświetlacz LCD (pozycja, wzorzec, wiersz, czas), pokrętło instrumentu w VA-VK.</li><li><strong>Ctrl+N</strong>: nowa karta; ustawienia na trzech kartach.</li></ul><p>Pytania, pomysły lub błędy: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.6.3",
+    eyebrow: "Novità nella 2.6.4",
     title: "Benvenuto in Visual Assembler",
-    body: `<ul><li><strong>Importazione .sid nell'editor SID</strong>: qualsiasi brano PSID / RSID diventa strumenti, pattern e un brano da modificare ed esportare (Files → Import .sid…).</li><li><strong>Brani lunghi</strong>: i dati del player non invadono più l'area I/O, nessuna nota va persa.</li><li><strong>Anteprima VA SID Core</strong>: le note riattaccate tornano a suonare.</li><li><strong>Editor SID</strong>: l'intestazione mostra l'emulazione SID, il campo Speed ha i pulsanti − / +.</li><li><strong>Ultimate Basic 1.6.6</strong>: <code>PRINT USING</code>, confronto tra stringhe, <code>rnd</code> / <code>mod</code> in virgola mobile, <code>option basic print</code>, programmi più piccoli.</li></ul><p>Domande, idee o bug: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Modalità ACME</strong>: ACME 0.97 compila il sorgente Esperto (Settings → General → Assembler mode); Disassembly / Monitor, cicli, suggerimenti e VICE Monitor seguono l'output di ACME.</li><li><strong>Importazione Kick migliore</strong>: <code>.text</code> + <code>.encoding</code>, <code>.label x = * + 1</code>, <code>.abs</code> / <code>.zp</code>; i sorgenti di Restore64 si compilano byte per byte come con KickAssembler.</li><li><strong>Esecuzione</strong>: partono anche i programmi caricati sotto la riga BASIC.</li><li><strong>Editor SID</strong>: un display LCD (posizione, pattern, riga, tempo), una manopola dello strumento su VA-VK.</li><li><strong>Ctrl+N</strong>: nuova scheda; le impostazioni in tre schede.</li></ul><p>Domande, idee o bug: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -555,6 +555,10 @@ let debuggerWait = false;
 let debuggerWaitMs = 3000;
 let debuggerUnpause = false;
 let savedUiSettings = {};
+let assemblerSyntax = "kick";
+// VA-only palette categories: ACME source has no VA macros, structure directives or long branches.
+const _ACME_HIDDEN_CATEGORIES = new Set(["Makrok", "Szerkezet", "HosszuUgrasok"]);
+let acmePath = "";
 let _editorDialogPositions = {};
 let userMacros = {};  // Stores user-defined macros: { macroName: [blocks...] }
 
@@ -580,6 +584,9 @@ let _expertPaletteVisible = false;
 let _expertDisasmVisible = false;
 let _expertDisasmWidth   = 340;
 let _expertMonitorVisible = false;
+let _acmePreview = null;
+let _acmePreviewError = null;   // { tabId, sourceText, text } of the last failed automatic build
+let _acmeBuildRunning = false;
 let _expertProjectVisible = false;
 let _expertProjectSymbolsHeight = 160;
 let _expertFontSize = 13.44; // px (= 0.84rem at 16px base)
@@ -697,7 +704,9 @@ function saveUiSettings() {
     autoSnapshotEnabled: autoSnapshotToggle ? autoSnapshotToggle.checked : true,
     gitPreferred: document.getElementById("git-preferred") ? document.getElementById("git-preferred").checked : savedUiSettings.gitPreferred !== false,
     editorDialogPositions: _editorDialogPositions,
-    lastWorkspacePath: _currentWorkspacePath
+    lastWorkspacePath: _currentWorkspacePath,
+    assemblerSyntax,
+    acmePath
   };
 
   localStorage.setItem("c64-ui-settings", JSON.stringify(settings));
@@ -1206,8 +1215,12 @@ const memorySegments = [
   { start: 0xE000, end: 0xFFFF, labelKey: "kernalRomLabel", noteKey: "kernalRomNote", kind: "rom" }
 ];
 
+function _paletteCategories() {
+  return Object.keys(mnemonicLibrary).filter(category => assemblerSyntax !== "acme" || !_ACME_HIDDEN_CATEGORIES.has(category));
+}
+
 function initPalette() {
-  const categories = Object.keys(mnemonicLibrary);
+  const categories = _paletteCategories();
   categorySelect.innerHTML = categories
       .map((category) => `<option value="${category}">${getCategoryLabel(category)}</option>`)
       .join("");
@@ -1334,6 +1347,7 @@ function initPalette() {
   document.getElementById("support-notify")?.addEventListener("click", () => _supportOpen());
   basicSysToggle?.addEventListener("change", () => {
     saveUiSettings();
+    _acmeInvalidatePreview();
     renderEmulatorRunHint();
     renderOriginPreview();
     renderExpertOriginInfo();
@@ -1355,11 +1369,57 @@ function initPalette() {
   document.getElementById("vice-remote-monitor")?.addEventListener("change", saveUiSettings);
   writeDebugSidecarsToggle?.addEventListener("change", saveUiSettings);
   ubAsmSidecarToggle?.addEventListener("change", saveUiSettings);
+  document.getElementById("assembler-syntax")?.addEventListener("change", async (event) => {
+    const select = event.target;
+    const syntax = select.value === "acme" ? "acme" : "kick";
+    select.value = assemblerSyntax;
+    if (syntax === "acme") {
+      select.disabled = true;
+      let available;
+      try {
+        available = await _acmeCheckConfigured();
+      } finally {
+        select.disabled = false;
+      }
+      if (!available) {
+        showViceToast(t("acmeConfigureBeforeSwitch"), true);
+        return;
+      }
+    }
+    assemblerSyntax = syntax;
+    select.value = assemblerSyntax;
+    saveUiSettings();
+    if (_expertProjectData?._projPath && _expertProjectData.assemblerSyntax !== assemblerSyntax) _expertSaveProject();
+    _acmeBuildButtonSync();
+    // The source text stays as it is (no VA <-> ACME translation); ACME is
+    // edited as text only, so block mode switches to Expert mode.
+    if (assemblerSyntax === "acme" && !expertMode && !ultimateBasicMode) setExpertMode(true);
+    else if (expertMode) _expertValidate();
+  });
+  document.getElementById("choose-acme")?.addEventListener("click", async () => {
+    const result = await window.electronAPI?.chooseAcmeExecutable?.();
+    if (!result?.canceled && result?.acmePath) {
+      acmePath = result.acmePath;
+      const input = document.getElementById("acme-path");
+      if (input) input.value = acmePath;
+      saveUiSettings();
+    }
+  });
 
+  // ACME source is text only: block mode is the VA (VMA) model.
+  const acmeBlocksBlocked = wantsBlocks => {
+    if (!wantsBlocks || assemblerSyntax !== "acme") return false;
+    if (expertModeToggle) expertModeToggle.checked = true;
+    _expertSetStatus(t("acmeNoBlockMode"), "error");
+    showViceToast?.(t("acmeNoBlockMode"), true);
+    return true;
+  };
   expertModeToggle?.addEventListener("change", () => {
+    if (acmeBlocksBlocked(!expertModeToggle.checked)) return;
     setExpertMode(expertModeToggle.checked);
   });
   expertModeTbBtn?.addEventListener("click", () => {
+    if (acmeBlocksBlocked(expertMode)) return;
     setExpertMode(!expertMode);
   });
   ubModeTbBtn?.addEventListener("click", () => setUltimateBasicMode(!ultimateBasicMode));
@@ -1632,6 +1692,7 @@ function initPalette() {
       expertDisasmResizer?.removeAttribute("hidden");
       expertDisasmPanel.style.width = `${_expertDisasmWidth}px`;
       _expertRenderDisasm();
+      _acmeScheduleAutoBuild();
     } else {
       expertDisasmPanel?.setAttribute("hidden", "");
       expertDisasmResizer?.setAttribute("hidden", "");
@@ -1670,6 +1731,7 @@ function initPalette() {
     if (_expertMonitorVisible) {
       expertMonitorPanel?.removeAttribute("hidden");
       _expertRenderMonitor();
+      _acmeScheduleAutoBuild();
     } else {
       expertMonitorPanel?.setAttribute("hidden", "");
     }
@@ -1681,6 +1743,10 @@ function initPalette() {
   expertSaveAsmBtn?.addEventListener("click", () => _expertSaveAsm(false));
   expertSaveAsmAsBtn?.addEventListener("click", () => _expertSaveAsm(true));
   expertBuildInfoBtn?.addEventListener("click", showBuildInfoDialog);
+  document.getElementById("expert-acme-build-btn")?.addEventListener("click", () => {
+    if (assemblerSyntax === "acme") _acmeBuildPreview();
+    else _vaBuildExpert();
+  });
   buildInfoBtn?.addEventListener("click", showBuildInfoDialog);
 
   // Find
@@ -1890,12 +1956,14 @@ function initPalette() {
       const inner = document.querySelector(".expert-cycles-inner");
       if (inner) inner.style.transform = `translateY(${-visibleScrollTop}px)`;
     }
+    _expertHlCheckWindow();
     _expertAcHide();
     _expertUpdateCaret();
     _expertScheduleMinimapRedraw();
   });
 
   document.querySelector(".program-panel .panel-scroll")?.addEventListener("scroll", () => {
+    _blockVirtualSchedule();
     _blockScheduleMinimapRedraw();
   });
 
@@ -2116,6 +2184,12 @@ function initPalette() {
 
   // Global Ctrl+S / Cmd+S — works in both block mode and expert mode
   document.addEventListener("keydown", (e) => {
+    // Ctrl+N / Cmd+N — new tab (not over a modal dialog)
+    if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === "n") {
+      e.preventDefault();
+      if (!document.querySelector("dialog[open]:modal")) _tabNew();
+      return;
+    }
     if ((e.ctrlKey || e.metaKey) && e.key === "s") {
       e.preventDefault();
       if (ultimateBasicMode) { _ubSave(); return; }
@@ -2542,6 +2616,13 @@ function setupDraggableEditorDialogs() {
 }
 
 function _updateEditorModeIndicator() {
+  if (ubModeTbBtn) {
+    const blocked = !ultimateBasicMode && !_canUseUltimateBasicMode();
+    ubModeTbBtn.disabled = blocked;
+    ubModeTbBtn.setAttribute("aria-disabled", String(blocked));
+    if (blocked) ubModeTbBtn.setAttribute("title", t("ubAsmFileBlocked"));
+    else ubModeTbBtn.removeAttribute("title");
+  }
   const el = document.getElementById("editor-mode-indicator");
   if (!el) return;
   const key = ultimateBasicMode ? "editorModeUltimateBasic" : (expertMode ? "editorModeExpert" : "editorModeBlock");
@@ -2955,6 +3036,13 @@ function showCustomerMessageIfNeeded() {
 }
 
 function _applyUiSettingsToDOM() {
+  assemblerSyntax = savedUiSettings.assemblerSyntax === "acme" ? "acme" : "kick";
+  acmePath = savedUiSettings.acmePath || "";
+  const assemblerSyntaxSelect = document.getElementById("assembler-syntax");
+  if (assemblerSyntaxSelect) assemblerSyntaxSelect.value = assemblerSyntax;
+  _acmeBuildButtonSync();
+  const acmePathInput = document.getElementById("acme-path");
+  if (acmePathInput) acmePathInput.value = acmePath;
   _editorDialogPositions = (savedUiSettings.editorDialogPositions && typeof savedUiSettings.editorDialogPositions === "object")
     ? savedUiSettings.editorDialogPositions
     : {};
@@ -3124,8 +3212,8 @@ function _applyUiSettingsToDOM() {
 
   if (savedUiSettings.ultimateBasicMode) {
     setUltimateBasicMode(true);
-  } else if (savedUiSettings.expertMode) {
-    // Capture toolbar states BEFORE setExpertMode(true) — it calls saveUiSettings()
+  } else if (savedUiSettings.expertMode || assemblerSyntax === "acme") {
+    // ACME has no block mode. Capture toolbar states BEFORE setExpertMode(true) — it calls saveUiSettings()
     // which overwrites savedUiSettings with current (default) variable values.
     const _savedHlEnabled          = savedUiSettings.expertHlEnabled;
     const _savedPaletteSyncEnabled = savedUiSettings.expertPaletteSyncEnabled;
@@ -3421,6 +3509,10 @@ function applyTranslations() {
     setText(".global-memory-title", t("memoryTitle"));
     setText("#hardware-settings-btn", t("hardwareSettings"));
     setText("#hardware-settings-title", t("hardwareSettingsTitle"));
+    setText("#hw-settings-tab-general", t("hardwareSettingsGeneralTab"));
+    setText("#hw-settings-tab-files", t("hardwareSettingsFilesTab"));
+    setText("#hw-settings-tab-integrations", t("hardwareSettingsIntegrationsTab"));
+    _acmeBuildButtonSync();
     setText("#sid-preview-settings-label", t("sidPreviewSettings"));
     setText("#hardware-settings-close", t("hardwareSettingsClose"));
     setText("#hw-vice-section-label", t("hwViceSectionLabel"));
@@ -3430,6 +3522,10 @@ function applyTranslations() {
     setText("#choose-vice", t("openEmulator"));
     setText("#choose-exomizer", t("chooseExomizer"));
     setText("#exomizer-exe-label", t("exomizerExecutable"));
+    setText("#choose-acme", t("chooseAcme"));
+    setText("#acme-path-label", t("acmeExecutable"));
+    const acmePathField = document.getElementById("acme-path");
+    if (acmePathField) acmePathField.placeholder = t("acmeNotConfigured");
     setText("#choose-debugger", t("chooseDebugger"));
     setText("#debugger-exe-label", t("debuggerExecutable"));
     setText("#debugger-params-label", t("debuggerParamsLabel"));
@@ -3558,6 +3654,9 @@ function applyTranslations() {
     setText("#de-empty", t("d64EditorEmpty"));
     if (!_d64EdState.path) setText("#de-disk-label", t("d64EditorNoDisk"));
     setText("#program-settings-label", t("programSettings"));
+  setText("#assembler-syntax-label", t("assemblerSyntax"));
+    setText('#assembler-syntax option[value="kick"]', t("assemblerModeVma"));
+    setText('#assembler-syntax option[value="acme"]', t("assemblerModeAcme"));
     setText("#asm-output-settings-label", t("asmOutputSettings"));
     setText("#snapshot-settings-label", t("snapshotSettings"));
     if (macroSourceToggleText) macroSourceToggleText.textContent = t("macroSourceToggle");
@@ -3790,7 +3889,7 @@ function _applyEditorTranslations() {
   document.querySelectorAll(".ed-file-btn").forEach(el => { el.textContent = t("edFilesBtn"); });
   // Character Editor — color labels, mode and shift tooltips
   setText("#ce-multicolor-label", t("ceMulticolorMode"));
-  setAttr(".ce-mode-check", "title", t("ceMulticolorMode"));
+  setAttr(".ce-mode-check", t("meMulticolor"));
   setText('[data-ce-ink="3"]', t("ceFg"));
   setText('[data-ce-ink="0"]', t("ceBg"));
   setText('[data-ce-ink="1"]', t("ceMc1"));
@@ -3803,7 +3902,7 @@ function _applyEditorTranslations() {
   setText("#cc-title", t("ccTitle"));
   setText("#cc-multicolor-label", t("ceMulticolorMode"));
   setText("#cc-grid-label", t("meGrid"));
-  setAttr("#cc-zoom", t("seZoom") + " (Ctrl+wheel)");
+  setAttr("#cc-zoom", t("zoomCtrlWheel"));
   setText("#cc-load-bin", t("ccLoadCharset"));
   setText("#cc-save-charset", t("ccSaveCharset"));
   setText("#cc-save-map", t("ccSaveMapColor"));
@@ -4331,17 +4430,118 @@ function _applyEditorTranslations() {
   document.querySelectorAll("#sid-chord-type option").forEach(function(option, i) {
     if (chordTypeLabels[i]) option.textContent = t(chordTypeLabels[i]);
   });
+  // Main window, Expert / UB editors, info dialogs
+  document.querySelectorAll("#memory-strip-top, #memory-strip").forEach(el => el.setAttribute("aria-label", t("memoryStripAria")));
+  setAttr(".base-toggle", t("baseToggleAria"));
+  setAttr("#palette-list", t("paletteListAria"));
+  setAttr(".view-mode-tabs", t("codeViewAria"));
+  setAttr("#palette-search", t("paletteSearchLabel"));
+  setText('.theme-option[data-theme-opt="light"] span:not(.theme-option-dot)', t("themeLight"));
+  setText('.theme-option[data-theme-opt="dark"] span:not(.theme-option-dot)', t("themeDark"));
+  setAttr("#hires-editor-btn", t("hiresEditorBtn"));
+  setAttr("#sprite-editor-btn", t("spriteEditorBtn"));
+  setAttr("#sid-editor-btn", t("sidEditorBtn"));
+  setAttr("#curve-gen-btn", t("curveEditorBtn"));
+  setText("#build-info-btn", t("buildInfoTitle"));
+  setAttr("#expert-build-info-btn", t("buildInfoTitle"));
+  setAttr("#tab-scroll-left", t("tabScrollLeft"));
+  setAttr("#tab-scroll-right", t("tabScrollRight"));
+  setAttr("#ws-resizer-output", t("wsResizerAria"));
+  setText("#toolkit-output .toolkit-subhdr", t("toolkitPaletteTitle"));
+  _translateToolkitPalette();
+  setAttr("#expert-line-numbers-btn", t("ubLineNumbers"));
+  setAttr("#expert-find-btn", t("ubFind"));
+  setAttr("#expert-zoom-in-btn", t("editorZoomIn"));
+  setAttr("#expert-zoom-out-btn", t("editorZoomOut"));
+  setAttr("#expert-project-add-folder-btn", t("projAddFolder"));
+  setAttr("#ub-project-add-folder-btn", t("projAddFolder"));
+  ["expert", "ub"].forEach((p) => {
+    const input = document.getElementById(p + "-find-input");
+    if (input) input.placeholder = t("findPlaceholder");
+    setAttr("#" + p + "-find-prev", t("findPrev"));
+    setAttr("#" + p + "-find-next", t("findNext"));
+    setAttr("#" + p + "-find-close", t("findClose"));
+  });
+  setAttr("#compile-error-copy", t("compileErrorCopy"));
+  setAttr("#project-snapshot-dialog .vc-mode:not(.vc-scope)", t("vcModeAria"));
+  setAttr("#te-lesson", t("teLessonAria"));
+  setText("#knowledge-base-dialog .knowledge-base-subtitle", t("kbSubtitle"));
+  const kbTitles = {
+    "6502 Opcodes Reference": "kbOpcodes", "C64 KERNAL Functions": "kbKernal", "C64 Memory Map": "kbMemoryMap",
+    "C64 Color Codes": "kbColorCodes", "VIC-II Article": "kbVicArticle", "Spritemate — C64 Sprite Editor": "kbSpritemate",
+    "C64 OS Programmer's Guide: Development Environment": "kbC64os", "png2c64 Image Converter": "kbPng2c64", "Restore64 Disassembler": "kbRestore64",
+    "VICE Emulator": "hwViceSectionLabel"
+  };
+  document.querySelectorAll("#knowledge-base-dialog .knowledge-base-link-title").forEach((el) => {
+    el.dataset.i18nKey ||= kbTitles[el.textContent.trim()] || "-";
+    if (el.dataset.i18nKey !== "-") el.textContent = t(el.dataset.i18nKey);
+  });
+  const aboutDesc = document.querySelector("#about-dialog .about-desc");
+  if (aboutDesc) {
+    aboutDesc.replaceChildren();
+    t("aboutDescText").split("\n").forEach((line, i) => {
+      if (i) aboutDesc.appendChild(document.createElement("br"));
+      aboutDesc.appendChild(document.createTextNode(line));
+    });
+  }
+  const aboutRepoLabels = document.querySelectorAll("#about-dialog .about-repo > span");
+  if (aboutRepoLabels[0]) aboutRepoLabels[0].textContent = t("aboutLicenseLabel");
+  if (aboutRepoLabels[1]) aboutRepoLabels[1].textContent = t("aboutWebsiteLabel");
+  ["about-close", "knowledge-base-close", "server-message-close", "support-close", "update-close", "customer-message-close"]
+    .forEach(id => setText("#" + id, t("close")));
+  ["new-program-cancel", "sample-cancel", "sid-import-sid-cancel"].forEach(id => setText("#" + id, t("cancel")));
+  ["vc-diff-close", "sample-dialog-close", "support-x", "de-close", "dbe-close", "c64-chrrom-close", "ce-close", "cc-close",
+    "me-close", "nc-close", "lv-close", "hg-close", "se-close", "se-sheet-close", "sid-close", "sid-roll-close", "sid-vkbd-close",
+    "sid-viz-close", "hg-png-close", "vm-close", "tg-close", "tutorial-dialog-close", "to-close", "te-close"]
+    .forEach(id => setAttr("#" + id, t("close")));
+  setText("#tutorial-dialog-title", t("tutorialDialogTitle"));
+  setText("#tutorial-select-hint", t("tutorialSelectHint"));
+  // Editors
+  setAttr("#me-charset-rom", t("meCharsetFromRom"));
+  setAttr("#me-charset-load", t("meCharsetFromFile"));
+  setAttr("#me-charset-editor", t("meCharsetFromEditor"));
+  setAttr("#charset-canvas-dialog .cc-check", t("meMulticolor"));
+  setAttr("#charset-canvas-dialog .cc-grid-check", t("ccGridTip"));
+  const hgChecks = document.querySelectorAll("#hires-editor-dialog .hg-check");
+  if (hgChecks[0]) { hgChecks[0].setAttribute("aria-label", t("hgMulticolorTip")); hgChecks[0].removeAttribute("title"); }
+  if (hgChecks[1]) { hgChecks[1].setAttribute("aria-label", t("hgGridTip")); hgChecks[1].removeAttribute("title"); }
+  setAttr("#hg-paper", t("hgPaperTip"));
+  setAttr("#sid-midi-input", t("sidMidiInputAria"));
+  setAttr("#sid-bpm", t("sidBpmTip"));
+  ["#sid-metronome", "#sid-roll-metronome", "#sid-vkbd-metronome"].forEach(sel => setAttr(sel, t("sidMetronome")));
+  setAttr("#sid-roll .sid-roll-voices", t("sidRollVoice"));
+  ["#cg-curve", "#cg-curve2"].forEach((sel) => {
+    document.querySelectorAll(sel + " option").forEach((opt) => {
+      opt.dataset.label ||= opt.textContent;
+      opt.textContent = _cgCurveLabel(opt.value, opt.dataset.label);
+    });
+  });
+  setText("#cg-reader-lbl", t("cgReaderLabel"));
+  setAttr("#cg-anim-play", t("cgAnimPlay"));
   syncEditorDialogTooltips();
+}
+
+// Called from applyTranslations before _CG_CURVE_LABELS exists (TDZ), so the fallback is passed in.
+function _cgCurveLabel(id, fallback) {
+  return translations.en["cgCurve_" + id] ? t("cgCurve_" + id) : (fallback || id);
+}
+
+function _translateToolkitPalette() {
+  document.querySelectorAll("#toolkit-palette .c64-palette-item").forEach((item, i) => {
+    const name = i + ": " + t("c64Color" + i);
+    item.querySelector(".c64-palette-swatch")?.setAttribute("aria-label", name);
+    const label = item.querySelector(".c64-palette-label");
+    if (label) label.textContent = name;
+  });
 }
 
 function refreshCategoryOptions() {
   const selected = categorySelect.value;
-  categorySelect.innerHTML = Object.keys(mnemonicLibrary)
+  const categories = _paletteCategories();
+  categorySelect.innerHTML = categories
     .map((category) => `<option value="${category}">${getCategoryLabel(category)}</option>`)
     .join("");
-  if (selected) {
-    categorySelect.value = selected;
-  }
+  categorySelect.value = categories.includes(selected) ? selected : categories[0] || "";
 }
 
 function getSelectedOutputMode() {
@@ -4355,6 +4555,7 @@ function setOutputMode(mode) {
     tab.setAttribute("aria-selected", String(isActive));
   });
   outputStack.dataset.mode = mode;
+  if (mode !== "toolkit" && !expertMode && !ultimateBasicMode) renderAsmOutput();
   if (mode === "toolkit") { try { _buildToolkitPalette(); } catch (_) {} }
   saveUiSettings();
 }
@@ -4736,7 +4937,7 @@ function _syncPaletteToBlock(blockId, force = false) {
   const block = program.find(b => b.id === blockId);
   if (!block) return;
   const paletteCategory = _importMnemonicCategory(block.mnemonic);
-  if (!paletteCategory || !mnemonicLibrary[paletteCategory]) return;
+  if (!paletteCategory || !_paletteCategories().includes(paletteCategory)) return;
   if (categorySelect.value !== paletteCategory) {
     categorySelect.value = paletteCategory;
     syncMnemonicMenu(); // re-renders palette + calls _highlightActivePaletteItem at end
@@ -4785,8 +4986,8 @@ function renderSearchResults(query) {
 
   // Score each item: 3=exact mnemonic, 2=mnemonic prefix, 1=mnemonic contains, 0=description/category only
   const scored = [];
-  for (const [category, items] of Object.entries(mnemonicLibrary)) {
-    for (const item of items) {
+  for (const category of _paletteCategories()) {
+    for (const item of mnemonicLibrary[category]) {
       const mn = item.mnemonic.toLowerCase();
       let score = -1;
       if (mn === q) score = 3;
@@ -4807,7 +5008,7 @@ function renderSearchResults(query) {
   const results = filtered;
 
   const invokeItem = Object.values(mnemonicLibrary).flat().find(i => i.isMacroInvoke);
-  for (const macroName of Object.keys(userMacros)) {
+  for (const macroName of assemblerSyntax === "acme" ? [] : Object.keys(userMacros)) {
     if (macroName.toLowerCase().includes(q)) {
       if (invokeItem) {
         results.push({ item: invokeItem, category: "Makrok", userMacroName: macroName });
@@ -6294,7 +6495,7 @@ function addSelectedBlock() {
   const selected = getSelectedMnemonic();
   if (expertMode && expertEditor) {
     const block = createBlockFromMnemonic(selected);
-    const line = _blockToExpertLine(block);
+    const line = _blockToExpertSourceLine(block);
     _expertInsertLine(line);
   } else {
     let insertIndex = program.length;
@@ -6309,7 +6510,7 @@ function addSelectedBlock() {
     _syncPaletteToBlock(newBlock.id, true);
     requestAnimationFrame(() => {
       document.querySelectorAll(".asm-block--selected").forEach(el => el.classList.remove("asm-block--selected"));
-      const blockNode = programList.querySelector(`[data-block-id="${newBlock.id}"]`);
+      const blockNode = _blockFindNode(`[data-block-id="${newBlock.id}"]`);
       if (blockNode) {
         blockNode.classList.add("asm-block--selected");
         blockNode.scrollIntoView({ block: "nearest", behavior: "smooth" });
@@ -6338,6 +6539,9 @@ function _blockToExpertLine(block) {
     return "$" + value.replace(/^#?\$/, "").toUpperCase();
   };
   if (block.isOrgMacro)       return `* = $${(block.orgAddress || "0801").toUpperCase()}`;
+  if (block.isLabel && block.kickScope) return `${block.labelName}: {`;
+  if (block.isComment && block.kickScopeEnd) return "}";
+  if (block.isLabel && block.labelOffset) return `.label ${block.labelName} = * ${block.labelOffset < 0 ? "-" : "+"} ${Math.abs(block.labelOffset)}`;
   if (block.isLabel)          return `${block.labelName || "start"}:`;
   if (block.isAnonymousLabel) return "-";
   if (block.isComment)        return `; ${block.rawOperand || ""}`;
@@ -6550,8 +6754,8 @@ if (block.isSpritePosMacro) return `.sprite_pos ${block.spriteNum || 0}, ${block
       : `.assert ${expr}`;
   }
 
-  // Plain instruction
-  const mnem = block.mnemonic || "NOP";
+  // Plain instruction (".zp" keeps a forced zero page symbol operand)
+  const mnem = (block.mnemonic || "NOP") + (block.forceZeroPage && /^zeroPage/.test(block.addressingMode || "") ? ".zp" : "");
   const opText = getAsmDisplayOperand(block);
   const smc = block.smcLabel ? `${block.smcLabel}:` : "";
   const op = opText ? `    ${mnem} ${smc}${opText}` : `    ${mnem}`;
@@ -6670,7 +6874,21 @@ let _expertAsmFilePath = "";          // current .asm file path (empty = unsaved
 let _expertIncludeReloadTimer = null;
 let _expertIncludeReloadSeq = 0;
 
-function setExpertMode(on) {
+// keepText: the caller restores the editor text itself (tab switch), so the
+// source is not regenerated from program[] first.
+function _blockModeLimitExceeded(blocks = program) {
+  let count = 0;
+  for (const block of blocks) {
+    if (!block.isBlankLine && ++count > 1000) return true;
+  }
+  return false;
+}
+
+function setExpertMode(on, { keepText = false, switchingToUb = false } = {}) {
+  if (on && _isBoundUbTab()) {
+    showViceToast?.(t("asmUbFileBlocked"), true);
+    return;
+  }
   if (on && ultimateBasicMode) setUltimateBasicMode(false);
   let cursorSourceLine = -1;
   if (!on && expertMode) {
@@ -6685,6 +6903,12 @@ function setExpertMode(on) {
     _expertSyncSourceTextFromEditor();
     // Convert expert text → program blocks before switching off
     const blocks = _expertBuildProgram();
+    if (!switchingToUb && _blockModeLimitExceeded(blocks || [])) {
+      if (expertModeToggle) expertModeToggle.checked = true;
+      _expertSetStatus(t("blockModeLimit"), "error");
+      showViceToast?.(t("blockModeLimit"), true);
+      return;
+    }
     if (blocks && blocks.length > 0) {
       _applyExpertBreakpointsToBlocks(blocks);
       program = blocks.map(b => ({ ...b, collapsed: false }));
@@ -6693,6 +6917,11 @@ function setExpertMode(on) {
   if (!on) {
     _expertAcHide();
     if (expertCaret) expertCaret.hidden = true;
+  }
+  if (!on && !switchingToUb && _blockModeLimitExceeded()) {
+    setExpertMode(true);
+    _expertSetStatus(t("blockModeLimit"), "error");
+    return;
   }
   expertMode = on;
   if (!ultimateBasicMode) {
@@ -6705,20 +6934,23 @@ function setExpertMode(on) {
   expertRegionSelectionBtn?.classList.toggle("expert-hl-toggle--on", _expertRegionSelectionEnabled);
   expertRegionSelectionBtn?.setAttribute("aria-pressed", String(_expertRegionSelectionEnabled));
   if (expertPanel) expertPanel.hidden = !on;
+  _acmeBuildButtonSync();
   if (expertModeToggle) expertModeToggle.checked = on;
   if (expertModeTbBtn) {
     expertModeTbBtn.setAttribute("aria-pressed", String(on));
     expertModeTbBtn.classList.toggle("main-tb-btn--active", on);
   }
   _updateEditorModeIndicator();
-  if (on) {
+  if (on && keepText) {
+    renderExpertOriginInfo(); _expertUpdateCaret();
+  } else if (on) {
     const lines = _breakpointLinesFromBlocks(program);
     _expertBreakpointLines = lines;
     const tab = _getActiveTab();
     if (tab) tab.expertBreakpointLines = [...lines];
     _expertSyncFromProgram(); renderExpertOriginInfo(); _expertUpdateCaret();
   }
-  else {
+  else if (!switchingToUb) {
     renderProgram();
     if (cursorSourceLine >= 0) _selectBlockBySourceLine(cursorSourceLine);
   }
@@ -6729,6 +6961,7 @@ function setExpertMode(on) {
 
 // ── UltimateBasic Mode ─────────────────────────────────────────────────────
 let ultimateBasicMode = false;
+let _ubEditorTabId = null;
 let _ubFilePath = "";
 let _ubDirty = false;
 let _ubHighlightEnabled = true;
@@ -7882,16 +8115,35 @@ const _UB_COMMAND_REFERENCE = [
   ["type", "type TypeName\n  var field1: type\n  var field2: type\nendtype", "Defines a structured record type with named, typed fields. Supported field types: int (1 byte), word (2 bytes), float (2 bytes, Q8.8 fixed-point). Declare instances with var name: TypeName, then access fields as name.field. The compiler lays out fields contiguously in zero-page memory."],
 ];
 
+function _canUseUltimateBasicMode(tab = _getActiveTab()) {
+  const file = tab?.filePath || "";
+  return !file || /\.ub$/i.test(file);
+}
+
+function _isBoundUbTab(tab = _getActiveTab()) {
+  return /\.ub$/i.test(tab?.filePath || "");
+}
+
 function setUltimateBasicMode(on) {
+  if (!on && ultimateBasicMode && _isBoundUbTab()) {
+    showViceToast?.(t("asmUbFileBlocked"), true);
+    return;
+  }
+  if (on && !_canUseUltimateBasicMode()) {
+    showViceToast?.(t("ubAsmFileBlocked"), true);
+    _updateEditorModeIndicator();
+    return;
+  }
   const previousAssemblerEditorMode = expertMode ? "expert" : "block";
   if (!on && ultimateBasicMode) {
     const current = _getActiveTab();
-    if (current?.editorMode === "ub" && ubEditor) {
+    if (current?.id === _ubEditorTabId && current.editorMode === "ub" && ubEditor) {
       current.ubText = ubEditor.value;
       current.ubFilePath = _ubFilePath;
+      current.ubBreakpointLines = [..._ubBreakpointLines];
     }
   }
-  if (on && expertMode) setExpertMode(false);
+  if (on && expertMode) setExpertMode(false, { switchingToUb: true });
   if (on) {
     lastAssemblerEditorMode = previousAssemblerEditorMode;
     localStorage.setItem("lastAssemblerEditorMode", lastAssemblerEditorMode);
@@ -7903,10 +8155,17 @@ function setUltimateBasicMode(on) {
   ubModeTbBtn?.setAttribute("aria-pressed", String(ultimateBasicMode));
   _updateWorkingFolderButtonTooltip();
   _updateEditorModeIndicator();
+  _acmeBuildButtonSync();
   if (ultimateBasicMode) {
     const current = _getActiveTab();
+    if (current && _ubEditorTabId !== current.id) {
+      ubEditor.value = current.ubText || "";
+      _ubFilePath = current.ubFilePath || current.filePath || "";
+      _ubBreakpointLines = [...(current.ubBreakpointLines || [])];
+      _ubDirty = !!current.dirty;
+      _ubEditorTabId = current.id;
+    }
     if (current) current.editorMode = "ub";
-    if (!ubEditor.value) ubEditor.value = 'color bg 0\ncolor border 0\n\nprint "HELLO FROM ULTIMATE BASIC"';
     ubEditor.focus();
     _ubUpdateCursor();
     ubPanel.classList.toggle("ub-show-lines", _ubLinesEnabled);
@@ -7920,6 +8179,7 @@ function setUltimateBasicMode(on) {
     _ubRenderProjectFiles();
     _ubRenderCommandReference();
   }
+  if (!ultimateBasicMode && !expertMode && _programCardsStale) renderProgram();
   renderMemoryMap();
   _historySyncCurrent();
   saveUiSettings();
@@ -8766,6 +9026,8 @@ function _ubSetFile(path = "") {
     renderTabBar();
     _ubRenderProjectFiles();
   }
+  _acmeBuildButtonSync();
+  _updateEditorModeIndicator();
 }
 
 function _ubRenderProjectFiles() {
@@ -9339,7 +9601,7 @@ async function _ubApplyExomizer(result, label = "ultimate-basic") {
     packed = { ok: false, error: error?.message || String(error) };
   }
   if (!packed?.ok) {
-    const message = packed?.error || "Exomizer compression failed";
+    const message = _exomizerErrorMessage(packed?.error, result.prg);
     _ubSetBuildOutput(message, true);
     _ubSetStatus(message, true);
     _ubShowCompileErrors([message]);
@@ -9579,7 +9841,7 @@ function _selectBlockBySourceLine(sourceLine) {
   // Wait one frame so renderProgram() has attached DOM nodes.
   requestAnimationFrame(() => {
     selectBlockInAsm(target.id);
-    const node = programList?.querySelector(`[data-block-id="${target.id}"]`);
+    const node = _blockFindNode(`[data-block-id="${target.id}"]`);
     if (node) _scrollIntoContainer(node);
   });
 }
@@ -9687,6 +9949,35 @@ function _getExpertMnemCatMap() {
 // ── Expert autocomplete ────────────────────────────────────────────────────────────────────────
 const _AC_DIRECTIVES = Object.keys(_DIRECTIVE_TO_MNEM).map(k => "."+k);
 
+// ACME 0.97 pseudo opcodes (ACME mode autocomplete).
+const _AC_ACME_DIRECTIVES = {
+  "!byte": "8-bit values", "!8": "8-bit values", "!08": "8-bit values",
+  "!word": "16-bit values (little endian)", "!16": "16-bit values", "!le16": "16-bit little endian", "!be16": "16-bit big endian",
+  "!24": "24-bit values", "!le24": "24-bit little endian", "!be24": "24-bit big endian",
+  "!32": "32-bit values", "!le32": "32-bit little endian", "!be32": "32-bit big endian",
+  "!hex": "hex digit pairs", "!fill": "amount [, value]", "!skip": "skip bytes", "!align": "and, equal [, fill]",
+  "!convtab": "conversion table", "!text": "string (convtab)", "!pet": "PETSCII string", "!raw": "raw string",
+  "!scr": "screen codes", "!scrxor": "screen codes XOR", "!to": "output file, format",
+  "!source": "include source", "!src": "include source", "!binary": "include binary", "!bin": "include binary",
+  "!zone": "local label zone", "!zn": "local label zone", "!subzone": "nested zone", "!sz": "nested zone",
+  "!symbollist": "symbol list file", "!sl": "symbol list file",
+  "!if": "condition { }", "!ifdef": "symbol defined { }", "!ifndef": "symbol undefined { }",
+  "!for": "symbol, start, end { }", "!set": "symbol = value", "!do": "loop { }", "!while": "condition { }",
+  "!endoffile": "stop reading the file", "!eof": "stop reading the file",
+  "!warn": "warning", "!error": "error", "!serious": "serious error",
+  "!macro": "title [args] { }", "!initmem": "fill value of unset memory", "!xor": "xor output",
+  "!pseudopc": "address { }", "!realpc": "end pseudopc", "!cpu": "6502 / 6510 / 65c02 …",
+  "!al": "long accumulator", "!as": "short accumulator", "!rl": "long index", "!rs": "short index",
+  "!address": "mark as address", "!addr": "mark as address", "!cbm": "PETSCII convtab (old)"
+};
+
+// Directive prefix of the active syntax: VA (VMA) uses ".", ACME "!".
+// The two never mix — a VA directive is plain text in ACME mode and back.
+function _expertDirRe(pattern, flags = "i") {
+  const mark = typeof assemblerSyntax !== "undefined" && assemblerSyntax === "acme" ? "!" : "\\.";
+  return new RegExp(pattern.split("{D}").join(mark), flags);
+}
+
 const _AC_DIRECTIVE_DESC = {
   ".org":"set origin", ".byte":"raw byte(s)", ".word":"16-bit value",
   ".fill":"repeat bytes", ".align":"align boundary", ".text":"screen text macro",
@@ -9779,6 +10070,11 @@ function _expertAcInsert(value, kind) {
     if (!m) return;
     replaceFrom = m[1].length;
     replaceWith = value + (kind === "label" ? "" : " ");
+  } else if (kind === "acme-directive" || kind === "acme-macro") {
+    const markIdx = before.lastIndexOf(kind === "acme-macro" ? "+" : "!");
+    if (markIdx === -1) return;
+    replaceFrom = markIdx;
+    replaceWith = value + " ";
   } else {
     // Directive: replace from the last dot
     const dotIdx = before.lastIndexOf(".");
@@ -9807,7 +10103,27 @@ function _expertAcUpdate() {
   const lineText = ta.value.slice(lineStart, pos);
 
   // Directive completion: line is optional whitespace + dot + optional word chars
+  // ACME mode offers ACME pseudo opcodes (!) and !macro calls (+), never VA directives.
+  if (assemblerSyntax === "acme") {
+    const mAcme = lineText.match(/^(?:\s*|\s*[A-Za-z_]\w*\s+)(!\w*)$/);
+    if (mAcme) {
+      const typed = mAcme[1].toLowerCase();
+      const matches = Object.keys(_AC_ACME_DIRECTIVES).filter(d => d.startsWith(typed));
+      if (!matches.length) { _expertAcHide(); return; }
+      _expertAcShowList(matches.map(d => ({ value: d, label: d, desc: _AC_ACME_DIRECTIVES[d], kind: "acme-directive" })), ta, pos);
+      return;
+    }
+    const mCall = lineText.match(/^\s*\+(\w*)$/);
+    if (mCall) {
+      const names = [...new Set([...ta.value.matchAll(/^\s*!macro\s+([A-Za-z_]\w*)/gim)].map(m => m[1]))]
+        .filter(name => name.toLowerCase().startsWith(mCall[1].toLowerCase()));
+      if (!names.length) { _expertAcHide(); return; }
+      _expertAcShowList(names.map(name => ({ value: `+${name}`, label: `+${name}`, desc: "macro", kind: "acme-macro" })), ta, pos);
+      return;
+    }
+  }
   const mDir = lineText.match(/^\s*(\.\w*)$/);
+  if (mDir && assemblerSyntax === "acme") { _expertAcHide(); return; }
   if (mDir) {
     const typed = mDir[1].toLowerCase();
     const matches = typed === "." ? _AC_DIRECTIVES
@@ -9958,7 +10274,7 @@ function _expertFormatSource() {
       }
 
       // .directive or !directive lines — normalize to col 0 (like _blockToExpertLine generates)
-      if (/^[.!]/.test(code)) {
+      if (_expertDirRe("^{D}").test(code)) {
         return code.trim() + comment;
       }
 
@@ -10299,11 +10615,70 @@ function showBuildInfoDialog() {
   buildInfoDialog.showModal();
 }
 
+// ACME syntax: !directives, +macro calls, labels without a colon in column 0,
+// zone-local .labels and cheap @labels, anonymous -/+ labels, %binary.
+function _expertHighlightAcmeLine(raw) {
+  const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  let quote = "";
+  let commentIdx = -1;
+  for (let i = 0; i < raw.length; i++) {
+    if (quote) { if (raw[i] === "\\") i++; else if (raw[i] === quote) quote = ""; }
+    else if (raw[i] === '"' || raw[i] === "'") quote = raw[i];
+    else if (raw[i] === ";") { commentIdx = i; break; }
+  }
+  const commentHtml = commentIdx >= 0 ? `<span class="hl-comment">${esc(raw.slice(commentIdx))}</span>` : "";
+  const code = commentIdx >= 0 ? raw.slice(0, commentIdx) : raw;
+  if (!code.trim()) return esc(code) + commentHtml;
+
+  const TOKEN_RE = /("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)')|(\*\s*=)|(![A-Za-z_][A-Za-z0-9_]*)|((?<![\w)\]])\+[A-Za-z_][A-Za-z0-9_]*)|(#?[<>]?(?:\$[0-9A-Fa-f]+|%[01.#]+|0x[0-9A-Fa-f]+|\d+)\b)|([.@][A-Za-z_][A-Za-z0-9_]*)|([A-Za-z_][A-Za-z0-9_]*)|(^\s*(?:-+|\+(?![A-Za-z_]))+(?=\s|$))/g;
+  const isMacroHeader = /^\s*!macro\b/i.test(code);
+  const braceIdx = code.indexOf("{");
+  let result = "";
+  let lastIdx = 0;
+  let first = true;
+  let expectMacroName = false;
+  let m;
+  while ((m = TOKEN_RE.exec(code)) !== null) {
+    result += esc(code.slice(lastIdx, m.index));
+    lastIdx = m.index + m[0].length;
+    const [full, strLit, orgEq, directive, macroCall, number, localLabel, ident, anonLabel] = m;
+    const atLineStart = first && m.index === 0;
+    first = false;
+    let cls = "";
+    if (expectMacroName && ident) {
+      expectMacroName = false;
+      cls = "hl-macro";
+    } else if (isMacroHeader && (ident || localLabel) && (braceIdx < 0 || m.index < braceIdx)) {
+      cls = "hl-macro-param";
+    } else if (strLit) {
+      cls = "hl-string";
+    } else if (orgEq || directive) {
+      expectMacroName = /^!macro$/i.test(full);
+      cls = "hl-directive";
+    } else if (macroCall) {
+      cls = "hl-macro";
+    } else if (number) {
+      cls = "hl-number";
+    } else if (localLabel || anonLabel) {
+      cls = "hl-label";
+    } else if (ident) {
+      const isMnemonic = _EXPERT_MNEM_SET.has(full.toUpperCase());
+      if (atLineStart && !isMnemonic) cls = "hl-label";
+      else if (code[TOKEN_RE.lastIndex] === ":") cls = "hl-label";
+      else if (isMnemonic) cls = "hl-mnem";
+    }
+    result += cls ? `<span class="${cls}">${esc(full)}</span>` : esc(full);
+  }
+  result += esc(code.slice(lastIdx));
+  return result + commentHtml;
+}
+
 function _expertHighlightLine(raw) {
   function esc(s) {
     return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
   if (raw === "") return "";
+  if (typeof assemblerSyntax !== "undefined" && assemblerSyntax === "acme") return _expertHighlightAcmeLine(raw);
 
   // Split off comment (ignore ';' and '//' inside strings)
   let inStr = false;
@@ -10442,8 +10817,8 @@ function _expertFindCurrentRegionBounds(lines, sourceLine) {
 
   for (let i = 0; i <= curLine; i++) {
     const raw = allLines[i] || "";
-    const regionMatch = raw.match(/^\s*\.region\s+(.+)$/i);
-    const endMatch = /^\s*\.endregion\b/i.test(raw);
+    const regionMatch = raw.match(_expertDirRe("^\\s*{D}region\\s+(.+)$"));
+    const endMatch = _expertDirRe("^\\s*{D}endregion\\b").test(raw);
 
     if (regionMatch) {
       stack.push({ start: i, name: regionMatch[1].trim() });
@@ -10475,9 +10850,9 @@ function _expertFindCurrentRegionBounds(lines, sourceLine) {
   let depth = 0;
   for (let i = current.start; i < allLines.length; i++) {
     const raw = allLines[i] || "";
-    if (/^\s*\.region\b/i.test(raw)) {
+    if (_expertDirRe("^\\s*{D}region\\b").test(raw)) {
       if (i !== current.start) depth++;
-    } else if (/^\s*\.endregion\b/i.test(raw)) {
+    } else if (_expertDirRe("^\\s*{D}endregion\\b").test(raw)) {
       if (depth === 0) {
         return { ...current, end: i };
       }
@@ -10487,8 +10862,18 @@ function _expertFindCurrentRegionBounds(lines, sourceLine) {
   return null;
 }
 
+// Lines of a text, split once per distinct text. Scroll, minimap and
+// highlight all need them; a 10k-line source takes milliseconds to split.
+// The returned array is shared: callers must not modify it.
+let _expertLinesCache = { text: null, lines: [] };
+
+function _expertLinesOf(text) {
+  if (_expertLinesCache.text !== text) _expertLinesCache = { text, lines: String(text).split("\n") };
+  return _expertLinesCache.lines;
+}
+
 function _expertGetFoldViewState() {
-  const lines = expertEditor ? expertEditor.value.split("\n") : [];
+  const lines = expertEditor ? _expertLinesOf(expertEditor.value) : [];
   return { lines, hiddenLines: new Set(), hiddenBefore: null, visibleLines: lines.length };
 }
 
@@ -10659,9 +11044,13 @@ function _expertRefreshProjection(sourceSelStart = null, sourceSelEnd = sourceSe
   const sourceText = _expertSourceText || "";
   const prevProjectionActive = _expertProjectionActive;
   const prevDisplayToSource = Array.isArray(_expertDisplayToSourceLines) ? _expertDisplayToSourceLines.slice() : [];
-  const blocks = _expertBuildProgramFromText(sourceText, program);
+  // Folded lines come from collapsed regions, whose state is carried over from
+  // program[]. Without any, skip the full parse here (it runs again,
+  // debounced, in _expertValidate) so typing in a large source stays fast.
+  const needsBlocks = _expertHlEnabled && expertMode && (_expertProjectionActive || _expertHasCollapsedRegions(program));
+  const blocks = needsBlocks ? _expertBuildProgramFromText(sourceText, program) : null;
   const sourceLines = sourceText.split("\n");
-  const hiddenLines = (_expertHlEnabled && expertMode && _expertHasCollapsedRegions(blocks))
+  const hiddenLines = (blocks && _expertHasCollapsedRegions(blocks))
     ? _expertGetHiddenRegionLines(blocks)
     : new Set();
   const displayLines = [];
@@ -10799,7 +11188,7 @@ function _expertUpdateCaret() {
 
 function _expertScanRegionLines(sourceText, stateSource = program) {
   const entries = [];
-  const lines = String(sourceText || "").split("\n");
+  const lines = _expertLinesOf(String(sourceText || ""));
   const stack = [];
   const rootCounts = new Map();
 
@@ -10817,7 +11206,8 @@ function _expertScanRegionLines(sourceText, stateSource = program) {
     const rawLine = lines[lineIdx];
     const scIdx = rawLine.indexOf(";");
     const codePart = (scIdx >= 0 ? rawLine.slice(0, scIdx) : rawLine).trim();
-    const regionMatch = codePart.match(/^\.region\s+(.+)$/i);
+    // ACME mode writes the same directive as !region.
+    const regionMatch = codePart.match(_expertDirRe("^{D}region\\s+(.+)$"));
     if (regionMatch) {
       const parent = stack[stack.length - 1] || null;
       const counts = parent ? parent.childCounts : rootCounts;
@@ -10836,7 +11226,7 @@ function _expertScanRegionLines(sourceText, stateSource = program) {
       stack.push({ sig, childCounts: new Map() });
       continue;
     }
-    if (/^\.endregion(?:\s+.+)?$/i.test(codePart)) {
+    if (_expertDirRe("^{D}endregion(?:\\s+.+)?$").test(codePart)) {
       if (stack.length) stack.pop();
     }
   }
@@ -10956,6 +11346,26 @@ function _expertUpdateRegionFolds() {
   inner.style.transform = `translateY(${-scrollTop}px)`;
 }
 
+// Highlighted HTML per line text: unchanged lines skip the tokenizer.
+let _expertHlCache = { syntax: "", map: new Map() };
+const _EXPERT_HL_VIRTUAL_MIN = 2000;
+let _expertHlWindow = null; // { first, last, lh, rows, total } while only part of the source is rendered
+let _expertHlScrollFrame = 0;
+
+// Re-render the virtual highlight window once scrolling leaves its margin.
+function _expertHlCheckWindow() {
+  const win = _expertHlWindow;
+  if (!win || _expertHlScrollFrame) return;
+  const top = Math.floor(_expertGetVisibleScrollTop() / win.lh);
+  const atStart = win.first === 0;
+  const atEnd = win.last >= win.total;
+  if ((atStart || top >= win.first + win.rows) && (atEnd || top + win.rows * 2 <= win.last)) return;
+  _expertHlScrollFrame = setTimeout(() => {
+    _expertHlScrollFrame = 0;
+    _expertApplyHighlight();
+  }, 16);
+}
+
 function _expertApplyHighlight() {
   if (!expertHlCode || !expertEditor) return;
   const view = _expertGetFoldViewState();
@@ -10991,10 +11401,33 @@ function _expertApplyHighlight() {
     : _expertErrorLineNos;
   const hintLines = new Set(_expertLintHints.map((h) => _expertProjectionActive ? _expertSourceLineToVisibleLine(h.srcLine) : h.srcLine));
 
+  const syntax = typeof assemblerSyntax !== "undefined" ? assemblerSyntax : "";
+  if (_expertHlCache.syntax !== syntax || _expertHlCache.map.size > 50000) {
+    _expertHlCache = { syntax, map: new Map() };
+  }
+  // A large source only renders the lines around the viewport; rebuilding
+  // ten thousand line spans per keystroke costs ~200 ms.
+  let first = 0;
+  let last = allLines.length;
+  _expertHlWindow = null;
+  if (allLines.length > _EXPERT_HL_VIRTUAL_MIN) {
+    const style = getComputedStyle(expertEditor);
+    const lh = parseFloat(style.lineHeight) || 21;
+    const rows = Math.max(40, Math.ceil(expertEditor.clientHeight / lh));
+    const top = Math.max(0, Math.floor(_expertGetVisibleScrollTop() / lh));
+    first = Math.max(0, top - rows * 2);
+    last = Math.min(allLines.length, top + rows * 3);
+    _expertHlWindow = { first, last, lh, rows, total: allLines.length };
+  }
   const html = [];
-  for (let i = 0; i < allLines.length; i++) {
+  if (first > 0) html.push(`<span class="expert-hl-spacer" style="height:${first * _expertHlWindow.lh}px"></span>`);
+  for (let i = first; i < last; i++) {
     const raw = allLines[i];
-    let hl = _expertHighlightLine(raw);
+    let hl = _expertHlCache.map.get(raw);
+    if (hl === undefined) {
+      hl = _expertHighlightLine(raw);
+      _expertHlCache.map.set(raw, hl);
+    }
 
     // Inject find match highlights
     if (_expertFindVisible && _expertFindTerm && _expertFindMatches.length) {
@@ -11185,12 +11618,18 @@ function _applyExpertFontSize() {
   _expertUpdateRegionFolds();
 }
 
+let _expertZoomTimer = 0;
+
 function _expertZoom(delta) {
   _expertFontSize = Math.max(8, Math.min(28, _expertFontSize + delta));
   _applyExpertFontSize();
-  if (_expertLineNumbersEnabled) _expertUpdateLineNumbers();
-  if (_expertCyclesEnabled) _expertUpdateCycles();
-  saveUiSettings();
+  // One wheel notch can fire several steps; the overlay, gutters and folds all
+  // depend on the line height, so they are rebuilt once afterwards.
+  clearTimeout(_expertZoomTimer);
+  _expertZoomTimer = setTimeout(() => {
+    _expertApplyHighlight();
+    saveUiSettings();
+  }, 30);
 }
 
 // Ctrl(/Cmd)+görgő → zoomFn(±1). Touchpad pinch sok apró deltát küld, ezért
@@ -11256,7 +11695,7 @@ function _expertDrawMinimap() {
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, W, H);
 
-  const lines = expertEditor.value.split("\n");
+  const lines = _expertLinesOf(expertEditor.value);
   const total = lines.length || 1;
   const LINE_PX = 2; // fixed minimap scale: 2px per line
 
@@ -11294,7 +11733,7 @@ function _expertDrawMinimap() {
       color = cComment;
     } else if (/^[A-Za-z_][A-Za-z0-9_]*:/.test(trimmed)) {
       color = cLabel;
-    } else if (/^\.(const|if|else|endif|macro|endm|invoke|region|endregion|define|org|byte|word|fill|text|string|data|rawbytes|rawtext|align|table|push|pull|for|endf|loop|next|blank|incbin|koala|level|sid|include|loadfile|sprite|wait|joystick|mouse|reu|turbo|supercpu)\b/i.test(trimmed)) {
+    } else if (_expertDirRe("^{D}(const|if|else|endif|macro|endm|invoke|region|endregion|define|org|byte|word|fill|text|string|data|rawbytes|rawtext|align|table|push|pull|for|endf|loop|next|blank|incbin|koala|level|sid|include|loadfile|sprite|wait|joystick|mouse|reu|turbo|supercpu)\\b").test(trimmed)) {
       color = cDirective;
     } else if (/^\d|#\$|^\$[0-9A-Fa-f]/.test(trimmed)) {
       color = cNumber;
@@ -11332,8 +11771,26 @@ function _expertDrawMinimap() {
     e.preventDefault();
     _mmPointerDown = true;
     _mmScrollToY(e.clientY);
-    const onMove = (ev) => { if (_mmPointerDown) _mmScrollToY(ev.clientY); };
-    const onUp   = () => { _mmPointerDown = false; window.removeEventListener("pointermove", onMove); window.removeEventListener("pointerup", onUp); };
+    // Pointer events can arrive several times per frame; scroll once per frame.
+    let pendingY = null;
+    let frame = 0;
+    const onMove = (ev) => {
+      if (!_mmPointerDown) return;
+      pendingY = ev.clientY;
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        if (pendingY !== null) _mmScrollToY(pendingY);
+        pendingY = null;
+      });
+    };
+    const onUp   = () => {
+      _mmPointerDown = false;
+      if (frame) cancelAnimationFrame(frame);
+      if (pendingY !== null) _mmScrollToY(pendingY);
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+    };
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup",   onUp);
   });
@@ -11359,7 +11816,7 @@ function _mmScrollToY(clientY) {
   const rect   = canvas.getBoundingClientRect();
   const H      = rect.height;
   const LINE_PX = 2;
-  const total  = expertEditor.value.split("\n").length || 1;
+  const total  = _expertLinesOf(expertEditor.value).length || 1;
   const totalH = expertEditor.scrollHeight;
   const viewH  = expertEditor.clientHeight;
   const contentH = total * LINE_PX;
@@ -11596,25 +12053,33 @@ function _expertUpdateLineNumbers() {
     inner.className = "expert-line-numbers-inner";
     gutter.appendChild(inner);
   }
-  const lines = [];
-  for (let i = 0; i < view.lines.length; i++) {
-    const sourceLine = _expertProjectionActive
-      ? (_expertDisplayToSourceLines[i] ?? i)
-      : i;
-    lines.push(String(sourceLine + 1));
+  // A large source renders only the highlight overlay's window of lines
+  // (thousands of buttons made zooming and typing crawl).
+  if (!inner.dataset.clickBound) {
+    inner.dataset.clickBound = "1";
+    inner.addEventListener("click", (e) => {
+      const marker = e.target.closest(".source-line-number");
+      if (!marker) return;
+      const sourceLine = Number(marker.dataset.line);
+      if (e.ctrlKey || e.metaKey) _bmToggle("expert", sourceLine);
+      else _setBreakpointLine("expert", sourceLine);
+    });
   }
-  inner.innerHTML = "";
+  const win = _expertHlWindow;
+  const first = win ? win.first : 0;
+  const last = win ? Math.min(win.last, view.lines.length) : view.lines.length;
   const bookmarks = new Set(_bmLines("expert"));
-  lines.forEach((number, displayLine) => {
+  const breakpoints = new Set(_getTabBreakpointLines("expert"));
+  const label = t("breakpointToggle");
+  const html = [];
+  if (first > 0) html.push(`<span class="expert-hl-spacer" style="height:${first * win.lh}px"></span>`);
+  for (let displayLine = first; displayLine < last; displayLine++) {
     const sourceLine = _expertProjectionActive ? (_expertDisplayToSourceLines[displayLine] ?? displayLine) : displayLine;
-    const marker = document.createElement("button");
-    marker.type = "button";
-    marker.className = "source-line-number bp-toggle" + (_getTabBreakpointLines("expert").includes(sourceLine) ? " bp-active" : "") + (bookmarks.has(sourceLine) ? " bm-active" : "");
-    marker.textContent = number;
-    marker.setAttribute("aria-label", `${t("breakpointToggle")} ${number}`);
-    marker.addEventListener("click", (e) => (e.ctrlKey || e.metaKey) ? _bmToggle("expert", sourceLine) : _setBreakpointLine("expert", sourceLine));
-    inner.appendChild(marker);
-  });
+    const number = sourceLine + 1;
+    const cls = "source-line-number bp-toggle" + (breakpoints.has(sourceLine) ? " bp-active" : "") + (bookmarks.has(sourceLine) ? " bm-active" : "");
+    html.push(`<button type="button" class="${cls}" data-line="${sourceLine}" aria-label="${label} ${number}">${number}</button>`);
+  }
+  inner.innerHTML = html.join("");
 
   // Sync vertical scroll
   inner.style.transform = `translateY(${-_expertGetVisibleScrollTop()}px)`;
@@ -11827,10 +12292,17 @@ function parseExpertText(text) {
   const runtimeIfStack = [];  // entries: { elseLabel, endLabel, hasElse }
   const whileStack = [];      // entries: { startLabel, endLabel }
   const repeatStack = [];     // entries: { startLabel }
+  const acmeSyntax = typeof assemblerSyntax !== "undefined" && assemblerSyntax === "acme";
+  let kickEncoding = "screencode_mixed";
+  const sourceLines = String(text).split("\n");
+  const kickBraceStack = [];
 
-  for (let rawLine of text.split("\n")) {
+  for (let rawLine of acmeSyntax ? sourceLines : _kickScopeRewrite(sourceLines)) {
     const { code, commentText } = _splitAsmLineComment(rawLine);
     let line = code;
+    // ACME uses !byte/!word/!macro/... where the internal parser uses dots.
+    // Only in ACME mode: VMA (VA) source never takes the ! forms.
+    if (acmeSyntax) line = line.replace(/^(\s*)!(?=(?:byte|word|fill|align|if|else|endif|macro|endm|region|endregion|define|const|var|include|incbin|text|string|rawtext|rawbytes|data|petscii|charset|table|loadfile|invoke|call|print|wait|delay)\b)/i, "$1.");
     line = line.trim();
 
     if (!line) {
@@ -11866,6 +12338,51 @@ function parseExpertText(text) {
     if (textM) {
       const _textIsLower = (textM[4] || "").toLowerCase() === "lower";
       blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "TEXT", operand: textM[3], rawOperand: textM[3], description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isTextMacro: true, textX: textM[1], textY: textM[2], textCharset: _textIsLower ? "lower" : "upper", charOffset: (!_textIsLower && textM[4]) ? textM[4].toUpperCase().padStart(2,"0") : "00" });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // Kick Assembler label scope: "name: {" opens it (a label), "}" closes it.
+    const kickScopeM = !acmeSyntax && line.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*:\s*\x7b$/);
+    if (kickScopeM) {
+      const label = _importMakeLabel(kickScopeM[1]);
+      label.kickScope = true;
+      kickBraceStack.push("scope");
+      blocks.push(label);
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+    if (!acmeSyntax && line === "\u007d" && kickBraceStack.at(-1) === "scope") {
+      kickBraceStack.pop();
+      const end = _importMakeComment("\u007d");
+      end.kickScopeEnd = true;
+      blocks.push(end);
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // Kick Assembler: .encoding "name" — sets the encoding of the following .text lines.
+    const encodingM = line.match(/^\.encoding\s+"([A-Za-z_]+)"\s*$/i);
+    if (encodingM) {
+      kickEncoding = encodingM[1].toLowerCase();
+      blocks.push(_importMakeComment(line));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // Kick Assembler: .text "string" [, "more" | + @"\$0d" | , $NN] (no screen
+    // coordinates) — the string bytes in place, encoded with the current .encoding.
+    const kickTextM = line.match(/^\.text\s+((?:@"(?:[^"\\]|\\.)*"|"[^"]*"|\$[0-9A-Fa-f]{1,2}|\d{1,3})(?:\s*[,+]\s*(?:@"(?:[^"\\]|\\.)*"|"[^"]*"|\$[0-9A-Fa-f]{1,2}|\d{1,3}))*)\s*$/i);
+    if (kickTextM) {
+      const bytes = _kickTextBytes(kickTextM[1], kickEncoding);
+      const block = _importMakeByte(bytes.map(b => "$" + (b & 0xFF).toString(16).toUpperCase().padStart(2, "0")).join(","));
+      block.inlineComment = line;
+      if (bytes.some(b => b === null)) {
+        block.rawOperand = "";
+        block.operand = "";
+        block.validationError = tf("kickTextBadChar", { encoding: kickEncoding });
+      }
+      blocks.push(block);
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -12248,6 +12765,18 @@ function parseExpertText(text) {
       continue;
     }
 
+    // Kick Assembler: .label NAME = * [+|- N] — a label at the program counter, optionally
+    // shifted (a jump into the middle of an instruction: ".label loc = * + 1" before "bit $8a").
+    const pcLabelM = line.match(/^\.label\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*\*\s*(?:([+-])\s*(\$[0-9A-Fa-f]{1,4}|\d{1,5}))?\s*$/i);
+    if (pcLabelM) {
+      const label = _importMakeLabel(pcLabelM[1]);
+      const n = pcLabelM[3] ? (pcLabelM[3].startsWith("$") ? parseInt(pcLabelM[3].slice(1), 16) : parseInt(pcLabelM[3], 10)) : 0;
+      if (n) label.labelOffset = pcLabelM[2] === "-" ? -n : n;
+      blocks.push(label);
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
     // .const/.label NAME = value
     const constM = line.match(/^\.(?:const|label)\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)\s*$/i);
     if (constM) { blocks.push(_importMakeConst(constM[1], constM[2].trim())); if (commentText) blocks.push(_importMakeComment(commentText)); continue; }
@@ -12545,10 +13074,14 @@ function parseExpertText(text) {
     // .macro name(param1, param2) or .macro name param1, param2
     const macroM = macroLine.match(/^\.macro\s+([A-Za-z_][A-Za-z0-9_]*)(?:\(([^)]*)\)|\s*(.*?))?\s*$/i);
     if (macroM) {
+      if (!acmeSyntax && macroLine !== line) kickBraceStack.push("macro");
       const macroParams = (macroM[2] !== undefined ? macroM[2] : (macroM[3] || "")).trim();
       blocks.push(_importMakeMacroDefStart(macroM[1], macroParams)); if (commentText) blocks.push(_importMakeComment(commentText)); continue;
     }
-    if (/^(?:\.endm|\x7d)\s*$/i.test(line)) { blocks.push(_importMakeMacroDefEnd()); if (commentText) blocks.push(_importMakeComment(commentText)); continue; }
+    if (/^(?:\.endm|\x7d)\s*$/i.test(line)) {
+      if (kickBraceStack.at(-1) === "macro") kickBraceStack.pop();
+      blocks.push(_importMakeMacroDefEnd()); if (commentText) blocks.push(_importMakeComment(commentText)); continue;
+    }
     if (/^\.end\s*$/i.test(line)) { blocks.push(_importMakeEndMacro()); if (commentText) blocks.push(_importMakeComment(commentText)); continue; }
 
     // .invoke/.call macroname(arg1, arg2, ...), Kick-style ":macroname(...)" or "macroname(...)"
@@ -12556,7 +13089,9 @@ function parseExpertText(text) {
     // exporter emitted `.: NAME(args)` — older saves in the wild still contain it.
     const kickInvokeM = line.match(/^\.?:\s*([A-Za-z_][A-Za-z0-9_]*)(?:\(([^)]*)\)|\s+(.*?))?\s*$/i);
     const dotInvokeM = line.match(/^\.(invoke|call)\s+([A-Za-z_][A-Za-z0-9_]*)(?:\(([^)]*)\)|\s+(.*?))?\s*$/i);
-    const bareInvokeM = line.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*\(([^)]*)\)\s*$/i);
+    // `JMP ($0408)` has the same shape as a bare macro call.
+    const bareInvokeCandidate = line.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*\(([^)]*)\)\s*$/i);
+    const bareInvokeM = bareInvokeCandidate && !_EXPERT_MNEM_SET.has(bareInvokeCandidate[1].toUpperCase()) ? bareInvokeCandidate : null;
     const invokeM = kickInvokeM || dotInvokeM || bareInvokeM;
     if (invokeM) {
       const invokeMacroName = kickInvokeM ? kickInvokeM[1] : (dotInvokeM ? dotInvokeM[2] : bareInvokeM[1]);
@@ -12568,6 +13103,15 @@ function parseExpertText(text) {
       const invokeSyntax = kickInvokeM ? ":" : (dotInvokeM ? dotInvokeM[1].toLowerCase() : ":");
       blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "INVOKE", operand: invokeMacroName, rawOperand: invokeMacroName, description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isMacroInvoke: true, invokeMacroName, invokeArgs, invokeSyntax });
       if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // An ACME pseudo opcode (!byte, !region) is an error in VMA (VA) mode.
+    const acmeDirM = !acmeSyntax && line.match(/^!([A-Za-z_][A-Za-z0-9_]*)/);
+    if (acmeDirM) {
+      const commentBlock = _importMakeComment(line + (commentText ? " ; " + commentText : ""));
+      commentBlock.validationError = tf("vmaAcmeDirective", { directive: `!${acmeDirM[1]}` });
+      blocks.push(commentBlock);
       continue;
     }
 
@@ -12601,7 +13145,7 @@ function parseExpertText(text) {
     if (code.trim()) {
       const codeBlock = blocks[inlineBlockIdx++];
       if (commentText && blocks[inlineBlockIdx]?.isComment) {
-        codeBlock.inlineComment = commentText;
+        codeBlock.inlineComment = codeBlock.inlineComment ? `${codeBlock.inlineComment} ; ${commentText}` : commentText;
         blocks.splice(inlineBlockIdx, 1);
       }
     } else {
@@ -12658,8 +13202,51 @@ function _addSrcLineToBlocks(text, blocks) {
 // because a rebuild can change the block count (BYTE blocks render as chunks
 // of 8 per line, so one parsed block can become two after a sync round-trip).
 // Returns the number of blocks inserted.
+// The editors export VA asm. ACME takes the same instructions, labels and "* =";
+// the data and equate directives are rewritten, any other VA directive stays and
+// is reported by _acmeVaSyntaxErrors.
+function _acmeFromVaAsm(text) {
+  return String(text || "").split("\n").map((line) => {
+    const { code } = _splitAsmLineComment(line);
+    const comment = line.slice(code.length);
+    let out = code.replace(/^(\s*)\.(byte|word|fill)\b/i, (_, indent, name) => `${indent}!${name.toLowerCase()}`);
+    out = out.replace(/^(\s*)\.(?:const|var)\s+([A-Za-z_]\w*)\s*=\s*/i, "$1$2 = ");
+    out = out.replace(/^(\s*)\.align\s+(\$[0-9A-Fa-f]+|\d+)\s*$/i, (match, indent, value) => {
+      const size = value.startsWith("$") ? Number.parseInt(value.slice(1), 16) : Number.parseInt(value, 10);
+      return size > 0 && (size & (size - 1)) === 0 ? `${indent}!align ${size - 1}, 0` : match;
+    });
+    return (out + comment).replace(/\s+$/, "");
+  }).join("\n");
+}
+
+// ACME mode: the export goes to the end of the source as ACME text. With a tag it sits
+// between "; >>> tag" and "; <<< tag", and the next export with that tag replaces it.
+function _acmeInsertExport(asmText, insertTag) {
+  const acmeText = _acmeFromVaAsm(asmText).replace(/^\n+|\n+$/g, "");
+  if (!acmeText.trim()) return 0;
+  const errors = _acmeVaSyntaxErrors(acmeText);
+  if (errors.length) {
+    showViceToast?.(tf("acmeVaSource", { count: errors.length }), true);
+    return 0;
+  }
+  let source = _expertGetSourceText();
+  if (insertTag) {
+    const esc = insertTag.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    source = source.replace(new RegExp(`\\n*^; >>> ${esc}$[\\s\\S]*?^; <<< ${esc}$\\n?`, "m"), "\n");
+  }
+  const body = insertTag ? `; >>> ${insertTag}\n${acmeText}\n; <<< ${insertTag}` : acmeText;
+  const head = source.replace(/\s+$/, "");
+  const start = head ? head.length + 2 : 0;
+  _expertSourceText = (head ? head + "\n\n" : "") + body + "\n";
+  _expertRefreshProjection(start, start);
+  expertEditor.dispatchEvent(new Event("input"));
+  markTabDirty();
+  return acmeText.split("\n").filter(line => line.trim()).length;
+}
+
 function exportAsmToBlocks(asmText, insertTag) {
   if (!asmText) return 0;
+  if (assemblerSyntax === "acme" && expertMode && expertEditor && !ultimateBasicMode) return _acmeInsertExport(asmText, insertTag);
   const newBlocks = parseExpertText(asmText);
   if (!newBlocks.length) return 0;
   if (insertTag) newBlocks.forEach(b => { b._cgSource = insertTag; });
@@ -12672,8 +13259,21 @@ function exportAsmToBlocks(asmText, insertTag) {
   return newBlocks.length;
 }
 
+// One keystroke rebuilds the program several times (projection, validation,
+// snapshot) from the same text; a 10k-line source takes ~90 ms to parse.
+let _expertParseCache = null;
+
+function _expertParseCached(text) {
+  const syntax = typeof assemblerSyntax !== "undefined" ? assemblerSyntax : "";
+  if (!_expertParseCache || _expertParseCache.text !== text || _expertParseCache.syntax !== syntax) {
+    _expertParseCache = { text, syntax, blocks: parseExpertText(text) };
+  }
+  // Callers attach state (fold flags, binary data) to the blocks they get.
+  return structuredClone(_expertParseCache.blocks);
+}
+
 function _expertBuildProgramFromText(text, stateSource = program) {
-  const blocks = parseExpertText(text);
+  const blocks = _expertParseCached(text);
   _addSrcLineToBlocks(text, blocks);
   _expertCopyRegionFoldState(stateSource, blocks);
 
@@ -12709,9 +13309,13 @@ function _expertBuildProgramFromText(text, stateSource = program) {
   // Match by filename so loaded bytes survive mode-switches and compile calls.
   blocks.forEach(newBlock => {
     if (newBlock.isIncBinMacro && newBlock.incBinFileName) {
+      // A reload stores only the base name in incBinFileName; a source path
+      // with a folder ("data/x.bin") still matches the resolved incBinFile.
+      const wanted = newBlock.incBinFileName.replace(/\\/g, "/");
       const existing = stateSource.find(b =>
-        b.isIncBinMacro && b.incBinFileName === newBlock.incBinFileName &&
-        (b.incBinBytes || []).length > 0
+        b.isIncBinMacro && (b.incBinBytes || []).length > 0 &&
+        (b.incBinFileName === newBlock.incBinFileName ||
+          String(b.incBinFile || "").replace(/\\/g, "/").endsWith(`/${wanted}`))
       );
       if (existing) {
         newBlock.incBinBytes = existing.incBinBytes;
@@ -13006,7 +13610,7 @@ function _expertUpdateCursor() {
   }
   if (targetMnem) {
     const cat = _getExpertMnemCatMap().get(targetMnem);
-    if (cat) {
+    if (cat && _paletteCategories().includes(cat)) {
       if (categorySelect.value !== cat) {
         categorySelect.value = cat;
         syncMnemonicMenu();
@@ -13094,12 +13698,33 @@ function _expertValidate() {
   if (!expertMode || !expertEditor) return;
   _expertApplyHighlight();
   clearTimeout(_expertParseTimer);
+  if (assemblerSyntax === "acme") {
+    const vaErrors = _acmeVaSyntaxErrors(_expertGetSourceText());
+    _expertErrorLineNos = new Set(vaErrors.map(error => error.sourceLine));
+    if (_expertProjectVisible) _expertRenderSymbols();
+    _acmeUpdateAnalysis();
+    if (vaErrors.length) {
+      _expertSetStatus(tf("acmeVaSource", { count: vaErrors.length }), "error");
+      if (_expertDisasmVisible) _expertRenderDisasm();
+      if (_expertMonitorVisible) _expertRenderMonitor();
+      return;
+    }
+    const preview = _acmePreviewCurrent();
+    _expertSetStatus(preview
+      ? tf("acmeBuildSuccess", { bytes: _acmePreviewByteCount(preview) })
+      : _acmePreviewMessage(), preview ? "ok" : _acmePreviewErrorCurrent() ? "error" : "");
+    if (_expertDisasmVisible) _expertRenderDisasm();
+    if (_expertMonitorVisible) _expertRenderMonitor();
+    _acmeScheduleAutoBuild();
+    return;
+  }
   _expertParseTimer = setTimeout(() => {
     try {
       const sourceText = _expertGetSourceText();
       const transientTypingLine = _expertGetTransientTypingSourceLine(sourceText);
       const blocks = _expertBuildProgram();
       const saved = program;
+      _acmeBuildButtonSync(blocks);
       const savedUserMacros = userMacros;
       program = blocks;
       parseUserMacros();
@@ -13772,8 +14397,376 @@ function renderDisasmOutput() {
   el.innerHTML = _buildDisasmHTML(_getDisassemblyCodeOrigin(), _getGeneratedBasicStubSection());
 }
 
+function _acmePreviewMessage() {
+  if (_acmePreviewErrorCurrent()) return _acmePreviewError.text;
+  return _acmePreview?.tabId === activeTabId ? t("acmeBuildChanged") : t("acmeBuildFirst");
+}
+
+// A setting that changes the ACME output (BASIC SYS stub) drops the preview;
+// with the Disassembly or Monitor panel open it rebuilds.
+function _acmeInvalidatePreview() {
+  _acmePreview = null;
+  _acmePreviewError = null;
+  if (assemblerSyntax === "acme" && expertMode) _expertValidate();
+}
+
+function _acmePreviewErrorCurrent() {
+  return !!(_acmePreviewError && _acmePreviewError.tabId === activeTabId
+    && _acmePreviewError.sourceText === _expertGetSourceText());
+}
+
+// Cycle gutter and peephole hints of the current ACME build (cleared while it is stale).
+function _acmeUpdateAnalysis() {
+  const preview = _acmePreviewCurrent();
+  const rows = preview ? _acmeReportRows(preview.report, preview.sourceLineOffset ?? null) : [];
+  _expertCycleMap = _acmeCycleMap(rows);
+  const prevHintKey = _expertLintHints.map((h) => h.srcLine + h.key).join();
+  _expertLintHints = _lintAsm(_acmeLintSeq(rows)).filter((h) => h.srcLine !== undefined && h.srcLine !== null);
+  if (_expertLintHints.map((h) => h.srcLine + h.key).join() !== prevHintKey) {
+    _expertApplyHighlight();
+    _expertRenderLintButton();
+  }
+  if (_expertCyclesEnabled) _expertUpdateCycles();
+}
+
+// With the Disassembly or Monitor panel or the cycle gutter on, ACME mode rebuilds
+// after a typing pause like VA mode does, so they follow the source.
+function _acmeScheduleAutoBuild() {
+  clearTimeout(_expertParseTimer);
+  if (assemblerSyntax !== "acme" || !expertMode || !(_expertDisasmVisible || _expertMonitorVisible || _expertCyclesEnabled)) return;
+  if (!window.electronAPI?.buildAcmePrg || _acmePreviewCurrent() || _acmePreviewErrorCurrent()) return;
+  _expertParseTimer = setTimeout(() => _acmeBuildPreview({ quiet: true }), 600);
+}
+
+function _acmeReportKinds(report, memory) {
+  const kinds = new Map();
+  String(report || "").split(/\r?\n/).forEach((line) => {
+    const match = line.match(/^\s*\d+\s+([0-9A-Fa-f]{4})\s+([0-9A-Fa-f]{2,})\s+(.+)$/);
+    if (!match || match[2].length % 2) return;
+    const address = Number.parseInt(match[1], 16);
+    const source = match[3].trim();
+    const tokens = source.split(/\s+/);
+    const firstByte = Number.parseInt(match[2].slice(0, 2), 16);
+    const mnemonic = _REV_OP[firstByte]?.mnem;
+    const kind = mnemonic && (tokens[0]?.toUpperCase() === mnemonic || tokens[1]?.toUpperCase() === mnemonic)
+      ? "code" : "data";
+    for (let offset = 0; offset < match[2].length / 2; offset++) {
+      const actual = memory.payload[address - memory.origin + offset];
+      const reported = Number.parseInt(match[2].slice(offset * 2, offset * 2 + 2), 16);
+      if (actual === reported) kinds.set(address + offset, kind);
+    }
+  });
+  return kinds;
+}
+
+// ACME report (-r) rows: "; ******** Source: <file>" headers, then fixed columns:
+// line number (6), address (4) at col 8, up to 8 bytes at col 13 ("..." when cut),
+// source text from col 32. srcLine is the editor line for rows of the built source.
+function _acmeReportRows(report, sourceLineOffset = 0) {
+  const rows = [];
+  let file = "";
+  let own = false;
+  String(report || "").split(/\r?\n/).forEach((raw) => {
+    const header = raw.match(/^;\s*\*+\s*Source:\s*(.+?)\s*$/);
+    if (header) {
+      file = header[1];
+      own = /(?:^|[\\/])c64-visual-assembler-[^\\/]+\.a$/i.test(file);
+      return;
+    }
+    const number = raw.match(/^ *(\d+)  /);
+    if (!number) return;
+    const line = Number.parseInt(number[1], 10);
+    const addressText = raw.slice(8, 12);
+    const address = /^[0-9A-Fa-f]{4}$/.test(addressText) ? Number.parseInt(addressText, 16) : null;
+    const byteText = raw.slice(13, 32).trim();
+    const truncated = byteText.endsWith("...");
+    const hex = byteText.replace(/\.+$/, "");
+    const bytes = address !== null && /^(?:[0-9A-Fa-f]{2})+$/.test(hex)
+      ? hex.match(/../g).map(pair => Number.parseInt(pair, 16)) : [];
+    const editorLine = line - (sourceLineOffset ?? 0) - 1;
+    rows.push({ file, own, line, srcLine: own && sourceLineOffset !== null && editorLine >= 0 ? editorLine : null, address, bytes, truncated, source: raw.slice(32) });
+  });
+  return rows;
+}
+
+// One source line's statements: instructions (with an optional leading label), bare
+// labels, or anything else (data, directive, macro call), which makes it no code line.
+function _acmeLineStatements(source) {
+  let code = "";
+  let quote = "";
+  for (const ch of String(source || "")) {
+    if (quote) { if (ch === quote) quote = ""; }
+    else if (ch === '"' || ch === "'") quote = ch;
+    else if (ch === ";") break;
+    code += ch;
+  }
+  const parts = [];
+  let part = "";
+  quote = "";
+  for (const ch of code) {
+    if (quote) { if (ch === quote) quote = ""; }
+    else if (ch === '"' || ch === "'") quote = ch;
+    else if (ch === ":") { parts.push(part); part = ""; continue; }
+    part += ch;
+  }
+  parts.push(part);
+  const isLabel = (token) => /^(?:[.@]?[A-Za-z_][\w.]*|[-+]+)$/.test(token);
+  const isMnem = (token) => !!token && Object.prototype.hasOwnProperty.call(opcodeMap, token.toUpperCase());
+  return parts.map(p => p.trim()).filter(Boolean).map((p) => {
+    const tokens = p.split(/\s+/);
+    if (isMnem(tokens[0])) return { mnem: tokens[0].toUpperCase(), label: false };
+    if (isLabel(tokens[0]) && isMnem(tokens[1])) return { mnem: tokens[1].toUpperCase(), label: true };
+    if (tokens.length === 1 && isLabel(tokens[0])) return { labelOnly: true };
+    return { other: true };
+  });
+}
+
+// The instructions of a report row, decoded from its bytes; null unless the bytes are
+// exactly the line's instructions (data, macro calls and cut rows are no code).
+function _acmeRowInstructions(row) {
+  if (!row.bytes.length || row.truncated || row.address === null) return null;
+  const statements = _acmeLineStatements(row.source);
+  if (statements.some(s => s.other)) return null;
+  const expected = statements.filter(s => s.mnem);
+  if (!expected.length) return null;
+  const out = [];
+  let offset = 0;
+  for (const statement of expected) {
+    const info = _REV_OP[row.bytes[offset]];
+    if (!info || info.mode === "unknown" || info.mnem !== statement.mnem || offset + info.size > row.bytes.length) return null;
+    out.push({ mnem: info.mnem, mode: info.mode, bytes: row.bytes.slice(offset, offset + info.size), address: (row.address + offset) & 0xFFFF });
+    offset += info.size;
+  }
+  return offset === row.bytes.length ? out : null;
+}
+
+// Cycle gutter of the editor lines from the report (first listing of a line wins).
+function _acmeCycleMap(rows) {
+  const map = new Map();
+  for (const row of rows) {
+    if (row.srcLine === null || map.has(row.srcLine)) continue;
+    const instructions = _acmeRowInstructions(row);
+    if (!instructions) continue;
+    let total = null;
+    for (const ins of instructions) {
+      const c = _cycleInfo(ins.bytes, ins.address);
+      if (!c) { total = null; break; }
+      total = total
+        ? { min: total.min + c.min, max: total.max + c.max, text: total.text + "," + c.text, warn: total.warn || c.warn }
+        : c;
+    }
+    if (total) map.set(row.srcLine, total);
+  }
+  return map;
+}
+
+// Peephole input in assembly order: instructions of the editor's lines; anything
+// else that emits bytes, an origin change or an included file breaks the run.
+function _acmeLintSeq(rows) {
+  const seq = [];
+  let labelled = false;
+  for (const row of rows) {
+    if (!row.own) {
+      if (row.bytes.length) seq.push({ barrier: true });
+      continue;
+    }
+    const statements = _acmeLineStatements(row.source);
+    if (/^\s*\*\s*=/.test(row.source) || /^\s*!(?:pseudopc|realpc)\b/i.test(row.source)) {
+      seq.push({ barrier: true });
+      continue;
+    }
+    if (!row.bytes.length) {
+      if (row.address === null && statements.length && statements.every(s => s.labelOnly)) labelled = true;
+      continue;
+    }
+    const instructions = row.srcLine === null ? null : _acmeRowInstructions(row);
+    if (!instructions) {
+      seq.push({ barrier: true });
+      labelled = false;
+      continue;
+    }
+    const lineLabelled = labelled || statements.some(s => s.label || s.labelOnly);
+    instructions.forEach((ins, i) => seq.push({ ...ins, srcLine: row.srcLine, labelled: i === 0 && lineLabelled }));
+    labelled = false;
+  }
+  return seq;
+}
+
+// Byte count of a report row cut to 8 bytes, from its data directive; null if unknown.
+function _acmeTruncatedRowLength(source) {
+  const code = _acmeLineStatements(source).length === 1 ? String(source).replace(/;.*$/, "").trim() : "";
+  const match = code.match(/^(?:[.@]?[A-Za-z_][\w.]*:?\s+)?!(byte|by|08|8|word|wo|16|fill|fi|text|tx)\s+(.+)$/i);
+  if (!match) return null;
+  const kind = match[1].toLowerCase();
+  const args = match[2].split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(a => a.trim());
+  if (kind === "fill" || kind === "fi") {
+    const n = args[0].match(/^(?:\$([0-9A-Fa-f]+)|%([01]+)|(\d+))$/);
+    return n ? Number.parseInt(n[1] ?? n[2] ?? n[3], n[1] ? 16 : n[2] ? 2 : 10) : null;
+  }
+  if (kind === "text" || kind === "tx") {
+    return args.every(a => /^"[^"]*"$/.test(a)) ? args.reduce((sum, a) => sum + a.length - 2, 0) : null;
+  }
+  return args.length * (kind === "word" || kind === "wo" || kind === "16" ? 2 : 1);
+}
+
+// Address ranges a build really writes (gaps between "* =" segments stay untouched).
+function _acmeOccupiedRanges(rows, memory) {
+  if (!memory) return [];
+  const end = memory.origin + memory.payload.length;
+  const starts = rows.filter(r => r.address !== null && r.bytes.length).map(r => r.address).sort((a, b) => a - b);
+  const ranges = [];
+  for (const row of rows) {
+    if (row.address === null || !row.bytes.length || row.address < memory.origin || row.address >= end) continue;
+    let stop = row.address + row.bytes.length;
+    if (row.truncated) {
+      const length = _acmeTruncatedRowLength(row.source);
+      stop = length ? row.address + length : Math.min(end, starts.find(a => a > row.address) ?? end);
+    }
+    ranges.push({ start: row.address, end: Math.min(stop, end) - 1 });
+  }
+  ranges.sort((a, b) => a.start - b.start);
+  const merged = [];
+  for (const r of ranges) {
+    const last = merged[merged.length - 1];
+    if (last && r.start <= last.end + 1) last.end = Math.max(last.end, r.end);
+    else merged.push({ ...r });
+  }
+  return merged;
+}
+
+// Profiler map: address → routine (nearest global label below) and report line.
+function _acmeAddressMap(rows, labelsText) {
+  const globals = [];
+  for (const [address, names] of _acmeParseLabels(labelsText)) {
+    const name = names.find(n => !/^[.@]/.test(n));
+    if (name) globals.push({ address, name });
+  }
+  globals.sort((a, b) => a.address - b.address);
+  const routineAt = (address) => {
+    let name = "(start)";
+    for (const g of globals) { if (g.address <= address) name = g.name; else break; }
+    return name;
+  };
+  const map = new Map();
+  rows.forEach((row, index) => {
+    if (row.address === null || !row.bytes.length || row.truncated) return;
+    const routine = routineAt(row.address);
+    const fileLine = row.own ? undefined : `${String(row.file).split(/[\\/]/).pop()}:${row.line}`;
+    for (let a = row.address; a < row.address + row.bytes.length && a <= 0xFFFF; a++) {
+      if (!map.has(a)) map.set(a, { routine, srcLine: row.srcLine ?? undefined, index, fileLine });
+    }
+  });
+  return map;
+}
+
+// The SYS stub VA adds at $0801 and code far above it form one PRG; the zeros
+// between them only fill the gap. Like VA mode, the preview skips them and
+// shows the generated stub only with "Show BASIC stub" on.
+// showStub: undefined follows the "Show BASIC stub" option.
+function _acmePreviewSegments(preview, showStub) {
+  const memory = _acmePrgMemory(preview?.bytes);
+  if (!memory) return null;
+  const stubShown = showStub ?? (typeof showBasicStubToggle !== "undefined" && !!showBasicStubToggle?.checked);
+  const stub = _extractBasicStubSection(preview.bytes);
+  const stubEnd = stub ? stub.address + stub.bytes.length : -1;
+  const code = Number(preview.sysAddress);
+  const codeIndex = code - memory.origin;
+  // Nothing but the generated stub (empty or comment-only source): no program, so the
+  // panels stay empty even with "show BASIC stub" on.
+  if (preview.stubGenerated && stub && code === stubEnd && codeIndex >= memory.payload.length) {
+    return { segments: [], filler: 0, empty: true };
+  }
+  if (!preview.stubGenerated || !stub || !Number.isFinite(code) || code < stubEnd || codeIndex >= memory.payload.length
+    || memory.payload.slice(stubEnd - memory.origin, codeIndex).some(byte => byte !== 0)) {
+    return { segments: [memory], filler: 0 };
+  }
+  const segments = [];
+  if (stubShown) {
+    segments.push({ origin: memory.origin, payload: memory.payload.slice(0, stubEnd - memory.origin) });
+  }
+  segments.push({ origin: code, payload: memory.payload.slice(codeIndex) });
+  return { segments, filler: code - stubEnd };
+}
+
+function _acmePreviewByteCount(preview) {
+  const total = Math.max(0, (preview?.bytes?.length || 0) - 2);
+  if (_acmePreviewSegments(preview)?.empty) return 0;
+  return total - (_acmePreviewSegments(preview)?.filler || 0);
+}
+
+function _acmeDisasmHTML(preview) {
+  const memory = _acmePrgMemory(preview.bytes);
+  const view = _acmePreviewSegments(preview);
+  if (!memory || !view) return `<span class="asm-tok-comment">; ${_escHtml(t("acmeBuildFirst"))}</span>`;
+  const labels = _acmeParseLabels(preview.labels);
+  const kinds = _acmeReportKinds(preview.report, memory);
+  const addrToLabel = new Map([...labels].map(([address, names]) => [address, names[0]]));
+  const lines = [`<span class="asm-tok-comment">; ${_escHtml(t("acmeDisasmNotice"))}</span>`];
+  const stub = _extractBasicStubSection(preview.bytes);
+  const stubEnd = stub ? stub.address + stub.bytes.length : -1;
+  for (const [segmentIndex, segment] of view.segments.entries()) {
+    if (segmentIndex > 0) lines.push("");
+    const memory = segment;
+    let index = 0;
+    while (index < memory.payload.length) {
+      const address = memory.origin + index;
+      const hexAddress = address.toString(16).toUpperCase().padStart(4, "0");
+      for (const name of labels.get(address) || []) {
+        lines.push(`<span class="asm-tok-label">${_escHtml(name)}:</span>`);
+      }
+      if (address < stubEnd || kinds.get(address) === "data") {
+        let end = Math.min(index + 8, memory.payload.length);
+        if (address < stubEnd) end = Math.min(end, stubEnd - memory.origin);
+        else {
+          for (let next = index + 1; next < end; next++) {
+            if (kinds.get(memory.origin + next) !== "data" || labels.has(memory.origin + next)) {
+              end = next;
+              break;
+            }
+          }
+        }
+        const chunk = memory.payload.slice(index, end);
+        const dump = chunk.map(byte => byte.toString(16).toUpperCase().padStart(2, "0")).join(" ");
+        lines.push(`<span class="dsm-addr">$${hexAddress}</span>  <span class="dsm-bytes">${dump.padEnd(8)}</span>  <span class="asm-tok-mnemonic">.BYTE</span>  <span class="asm-tok-operand">${chunk.map(byte => `$${byte.toString(16).toUpperCase().padStart(2, "0")}`).join(", ")}</span>`);
+        index += chunk.length;
+        continue;
+      }
+      const opcode = memory.payload[index];
+      const info = _REV_OP[opcode];
+      const available = memory.payload.length - index;
+      const crossesLabel = info && Array.from({ length: Math.max(0, info.size - 1) }, (_, offset) => address + offset + 1)
+        .some(labelAddr => labels.has(labelAddr) || kinds.get(labelAddr) === "data");
+      const size = info && info.mode !== "unknown" && info.size <= available && !crossesLabel ? info.size : 1;
+      const decoded = size === 1 && (!info || info.size !== 1 || info.mode === "unknown")
+        ? { mnemonic: ".BYTE", operand: `$${opcode.toString(16).toUpperCase().padStart(2, "0")}` }
+        : _disasmBytes(memory.payload.slice(index, index + size), address)[0];
+      const bytes = memory.payload.slice(index, index + size);
+      const dump = bytes.map(byte => byte.toString(16).toUpperCase().padStart(2, "0")).join(" ");
+      const operand = _replaceAddressesWithLabels(decoded.operand, addrToLabel);
+      lines.push(`<span class="dsm-addr">$${hexAddress}</span>  <span class="dsm-bytes">${dump.padEnd(8)}</span>  <span class="asm-tok-mnemonic">${_escHtml(decoded.mnemonic)}</span>${operand ? `  <span class="asm-tok-operand">${_escHtml(operand)}</span>` : ""}`);
+      index += size;
+    }
+  }
+  return lines.join("\n");
+}
+
+function _acmeMonitorText(preview) {
+  const view = _acmePreviewSegments(preview);
+  if (!view) return t("acmeBuildFirst");
+  const bytes = new Map(view.segments.flatMap(segment => segment.payload.map((byte, index) => [segment.origin + index, byte])));
+  if (!bytes.size) return "";
+  return _formatMonitorMemory(bytes, view.segments[0]?.origin || 0);
+}
+
 function _expertRenderDisasm() {
   if (!expertDisasmOutput) return;
+  if (assemblerSyntax === "acme") {
+    const preview = _acmePreviewCurrent();
+    expertDisasmOutput.innerHTML = preview
+      ? _acmeDisasmHTML(preview)
+      : `<span class="asm-tok-comment">; ${_escHtml(_acmePreviewMessage())}</span>`;
+    return;
+  }
   try {
     const blocks = _expertBuildProgram();
     const saved = program;
@@ -13793,6 +14786,11 @@ function _expertRenderDisasm() {
 
 function _expertRenderMonitor() {
   if (!expertMonitorOutput) return;
+  if (assemblerSyntax === "acme") {
+    const preview = _acmePreviewCurrent();
+    expertMonitorOutput.textContent = preview ? _acmeMonitorText(preview) : `; ${_acmePreviewMessage()}`;
+    return;
+  }
   try {
     const blocks = _expertBuildProgram();
     const saved = program;
@@ -13821,12 +14819,24 @@ function _expertRenderSymbols() {
   let macros  = [];
   let labels  = [];
 
-  if (expertMode && expertEditor) {
+  if (expertMode && expertEditor && assemblerSyntax === "acme") {
+    // ACME: !zone as region, !macro, labels with or without a colon
+    // (a colonless label starts in column 0 and is no mnemonic).
+    _expertGetSourceText().split("\n").forEach((line, idx) => {
+      const code = line.replace(/;.*$/, "");
+      const zone = code.match(/^\s*!(?:zone|zn)\s+([A-Za-z_][\w.]*)/i);
+      if (zone) { regions.push({ _textName: zone[1], _lineIdx: idx }); return; }
+      const macro = code.match(/^\s*!macro\s+([A-Za-z_]\w*)/i);
+      if (macro) { macros.push({ _textName: macro[1], _lineIdx: idx }); return; }
+      const label = code.match(/^\s*([A-Za-z_]\w*):/) || code.match(/^([A-Za-z_]\w*)(?=\s|$)(?!\s*=)/);
+      if (label && !_EXPERT_MNEM_SET.has(label[1].toUpperCase())) labels.push({ _textName: label[1], _lineIdx: idx });
+    });
+  } else if (expertMode && expertEditor) {
     const lines = _expertGetSourceText().split("\n");
     lines.forEach((line, idx) => {
-      const rm = line.match(/^\s*\.region\s+(.+?)(?:\s*;.*)?$/i);
+      const rm = line.match(_expertDirRe("^\\s*{D}region\\s+(.+?)(?:\\s*;.*)?$"));
       if (rm) { regions.push({ _textName: rm[1].trim(), _lineIdx: idx }); return; }
-      const mm = line.match(/^\s*\.macro\s+([A-Za-z_][A-Za-z0-9_]*)(?:\s|\(|$)/i);
+      const mm = line.match(_expertDirRe("^\\s*{D}macro\\s+([A-Za-z_][A-Za-z0-9_]*)(?:\\s|\\(|\\{|$)"));
       if (mm) { macros.push({ _textName: mm[1].trim(), _lineIdx: idx }); return; }
       const lm = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*:\s*(?:;.*)?$/);
       if (lm) { labels.push({ _textName: lm[1].trim(), _lineIdx: idx }); return; }
@@ -13918,7 +14928,7 @@ function _expertRenderSymbols() {
         gotoEditorPattern(new RegExp(`^\\s*\\.region\\s+${escaped}\\s*(?:;.*)?$`, "i"));
       } else {
         selectBlockInAsm(item.id);
-        programList?.querySelector(`[data-block-id="${item.id}"]`)
+        _blockFindNode(`[data-block-id="${item.id}"]`)
           ?.scrollIntoView({ block: "nearest", behavior: "smooth" });
       }
     }
@@ -13933,7 +14943,7 @@ function _expertRenderSymbols() {
         gotoEditorPattern(new RegExp(`^\\s*\\.macro\\s+${escaped}\\b`, "i"));
       } else {
         selectBlockInAsm(item.id);
-        programList?.querySelector(`[data-block-id="${item.id}"]`)
+        _blockFindNode(`[data-block-id="${item.id}"]`)
           ?.scrollIntoView({ block: "nearest", behavior: "smooth" });
       }
     }
@@ -13948,7 +14958,7 @@ function _expertRenderSymbols() {
         gotoEditorPattern(new RegExp(`^\\s*${escaped}\\s*:\\s*(?:;.*)?$`));
       } else {
         selectBlockInAsm(item.id);
-        programList?.querySelector(`[data-block-id="${item.id}"]`)
+        _blockFindNode(`[data-block-id="${item.id}"]`)
           ?.scrollIntoView({ block: "nearest", behavior: "smooth" });
       }
     }
@@ -14341,8 +15351,10 @@ async function _openProjectFromMenu() {
     name:        proj.name || "Névtelen projekt",
     files:       migrateNodes(proj.files),
     _projPath:   res.filePath,
-    startupFile: proj.startupFile || null
+    startupFile: proj.startupFile || null,
+    assemblerSyntax: _projAssemblerSyntax(proj)
   };
+  _setAssemblerSyntax(_expertProjectData.assemblerSyntax);
   _expertProjectDirty = false;
 
   if (expertMode) {
@@ -14433,7 +15445,7 @@ async function _expertOpenProject() {
 }
 
 async function _expertNewProject() {
-  _expertProjectData = { name: "Új projekt", files: [], _projPath: null };
+  _expertProjectData = { name: "Új projekt", files: [], _projPath: null, assemblerSyntax };
   _expertRenderProjectTree();
   // Open save dialog right away so user can set name/path
   await _expertSaveProject();
@@ -14448,7 +15460,8 @@ async function _expertSaveProject() {
       ? { type: "folder", name: n.name, path: n.path, children: cleanNodes(n.children) }
       : { type: "file", name: n.name, path: n.path });
   const cleaned = cleanNodes(_expertProjectData.files);
-  const payload = JSON.stringify({ name: _expertProjectData.name, files: cleaned, startupFile: _expertProjectData.startupFile || null }, null, 2);
+  _expertProjectData.assemblerSyntax = assemblerSyntax;
+  const payload = JSON.stringify({ name: _expertProjectData.name, files: cleaned, startupFile: _expertProjectData.startupFile || null, ..._projAssemblerFields(assemblerSyntax) }, null, 2);
   const path = _expertProjectData._projPath || "";
   const res = await window.electronAPI?.saveProjFile?.(path, payload);
   if (!res || res.canceled) return;
@@ -14678,7 +15691,7 @@ async function _templateCreateProject() {
   const isUb = tpl.kind === "ub";
   const mainName = isUb ? "main.ub" : "main.asm";
   const fileEntry = { type: "file", name: mainName, path: mainName };
-  const payload = JSON.stringify({ ...(isUb ? { app: "ultimate-basic" } : {}), name: paths.name, files: [fileEntry], startupFile: fileEntry.path }, null, 2);
+  const payload = JSON.stringify({ ...(isUb ? { app: "ultimate-basic" } : {}), name: paths.name, files: [fileEntry], startupFile: fileEntry.path, ...(isUb ? {} : _projAssemblerFields("kick")) }, null, 2);
   // Both files are written in one backend call that rolls back on failure.
   const res = await api.createTemplateProject(paths.projPath, payload, paths.mainPath, tpl.body.replaceAll("{{PROJECT}}", paths.name));
   if (!res?.ok) {
@@ -14733,8 +15746,10 @@ async function _templateCreateProject() {
     name: paths.name,
     files: [{ ...fileEntry }],
     _projPath: paths.projPath,
-    startupFile: fileEntry.path
+    startupFile: fileEntry.path,
+    assemblerSyntax: "kick"
   };
+  if (!isUb) _setAssemblerSyntax("kick");
   _expertProjectDirty = false;
   await _expertProjectOpenFile(_expertProjectData.files[0]);
 
@@ -14904,6 +15919,8 @@ document.getElementById("template-project-name")?.addEventListener("keydown", (e
   e.preventDefault();
   _templateCreateProject();
 });
+
+
 document.getElementById("template-browse")?.addEventListener("click", async () => {
   const res = await window.electronAPI?.chooseProjFolder?.();
   if (!res || res.canceled || !res.folderPath) return;
@@ -16150,7 +17167,9 @@ function getDropIndex(pointerY) {
   });
 
   if (!target) {
-    return program.length;
+    return _blockVirtualState && blocks.length
+      ? Number(blocks[blocks.length - 1].dataset.index) + 1
+      : program.length;
   }
 
   return Number(target.dataset.index);
@@ -17446,7 +18465,7 @@ function _collectDebuggerSymbols(layout) {
 
   layout.lines.forEach((line) => {
     const block = line.block || {};
-    if (block.isLabel && block.labelName) pushSymbol(block.labelName, line.address);
+    if (block.isLabel && block.labelName) pushSymbol(block.labelName, (line.address + (block.labelOffset || 0)) & 0xFFFF);
     if (block.isLoopMacro && block.loopLabel) pushSymbol(block.loopLabel, line.address + 2);
     if (block.isForMacro && block.loopLabel) pushSymbol(block.loopLabel, line.address + 2);
     if (block._autoBufferLabel) pushSymbol(block._autoBufferLabel, line.address);
@@ -17556,6 +18575,33 @@ function _buildDebuggerSidecarTexts(layout, originOverride, sourcePathOverride =
   return { dbg: dbgText, sym: symText, vs: vsText };
 }
 
+function _acmeDebuggerSidecars(labelText) {
+  const symbols = [..._acmeParseLabels(labelText)]
+    .flatMap(([address, names]) => names.map(name => [name, address]))
+    .sort((left, right) => left[1] - right[1] || left[0].localeCompare(right[0]));
+  if (!symbols.length) return null;
+  return {
+    dbg: null,
+    sym: symbols.map(([name, address]) => `.label ${name}=${_formatDebuggerSymbolAddress(address)}`).join("\n"),
+    vs: symbols.map(([name, address]) => `al C:${_formatDebuggerSymbolAddress(address).slice(1)} .${name}`).join("\n")
+  };
+}
+
+// RetroDebugger targets of an ACME build: symbols from the label dump, Expert breakpoint
+// lines through the report (the line itself or the next line that emits bytes).
+function _acmeDebuggerTargets(prg, sourceLines) {
+  const symbols = [..._acmeParseLabels(prg?.labels)]
+    .flatMap(([address, names]) => names.map(name => ({ name, address })))
+    .sort((left, right) => (left.address - right.address) || left.name.localeCompare(right.name));
+  const rows = _acmeReportRows(prg?.report, prg?.sourceLineOffset ?? 0)
+    .filter(row => row.srcLine !== null && row.address !== null && row.bytes.length);
+  const breakpoints = (sourceLines || [])
+    .map(line => (rows.find(row => row.srcLine === line) || rows.find(row => row.srcLine > line))?.address)
+    .filter(Number.isFinite)
+    .map(address => address & 0xFFFF);
+  return { symbols, breakpoints };
+}
+
 function _buildDebuggerSidecarPayload(prg, { force = false, layout = null, sourcePath = "" } = {}) {
   // Skip generation unless the user explicitly opted in via the settings toggle.
   // `force` bypasses the setting (used by launch_debugger where RetroDebugger
@@ -17563,6 +18609,8 @@ function _buildDebuggerSidecarPayload(prg, { force = false, layout = null, sourc
   if (!force && !(writeDebugSidecarsToggle && writeDebugSidecarsToggle.checked)) {
     return null;
   }
+  // ACME source has no VA layout: the symbols come from ACME's label dump.
+  if (assemblerSyntax === "acme" && !ultimateBasicMode) return _acmeDebuggerSidecars(prg?.labels);
   try {
     const originOverride = _getDebuggerCodeOrigin(prg);
     const debuggerLayout = layout || getProgramLayout(originOverride);
@@ -17597,7 +18645,9 @@ async function runInDebugger() {
   try {
     setWorkProgress(20);
 
-    const prg = buildAutostartPrgForEmulator();
+    // ACME mode: the real ACME build, its label dump and its report lines.
+    const acme = assemblerSyntax === "acme";
+    const prg = acme ? await _buildAcmePrg() : buildAutostartPrgForEmulator();
     if (!prg.ok) {
       if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
       if (emulatorStatus) emulatorStatus.textContent = prg.error;
@@ -17615,7 +18665,11 @@ async function runInDebugger() {
     let breakpoints;
     let expertBreakpoints;
     let debuggerSidecars;
-    try {
+    if (acme) {
+      ({ symbols, breakpoints } = _acmeDebuggerTargets(prg, _getTabBreakpointLines("expert")));
+      expertBreakpoints = breakpoints;
+      debuggerSidecars = _buildDebuggerSidecarPayload(prg, { force: true });
+    } else try {
       if (debuggerProgram?.length) program = debuggerProgram;
       parseUserMacros();
       const layout = getProgramLayout(debugCodeOrigin);
@@ -17714,7 +18768,8 @@ function getProjectPayload() {
       zoom: blockScale,
       language: currentLanguage,
       theme: document.documentElement.dataset.theme || "light",
-      runMode: runMode
+      runMode: runMode,
+      assemblerSyntax
     },
     d64: {
       diskName: d64ExportState.diskName,
@@ -19219,10 +20274,11 @@ function markTabClean() {
 }
 
 function _tabSaveCurrent() {
+  if (programList.contains(document.activeElement)) document.activeElement.blur();
   const tab = tabs.find(t => t.id === activeTabId);
   if (!tab) return;
   tab.editorMode = ultimateBasicMode ? "ub" : expertMode ? "expert" : "block";
-  if (ultimateBasicMode && ubEditor) {
+  if (ultimateBasicMode && ubEditor && _ubEditorTabId === tab.id) {
     tab.ubText = ubEditor.value;
     tab.ubFilePath = _ubFilePath;
     tab.ubBreakpointLines = [..._ubBreakpointLines];
@@ -19255,7 +20311,6 @@ function _tabActivate(tabId) {
   selectionAnchorIndex = Number.isInteger(tab.selectionAnchorIndex) ? tab.selectionAnchorIndex : -1;
 
   if (tab.editorMode === "ub") {
-    if (expertMode) setExpertMode(false);
     setUltimateBasicMode(true);
     ubEditor.value = tab.ubText || "";
     _ubSetFile(tab.ubFilePath || tab.filePath || "");
@@ -19265,7 +20320,7 @@ function _tabActivate(tabId) {
   } else {
     _expertBreakpointLines = Array.isArray(tab.expertBreakpointLines) ? [...tab.expertBreakpointLines] : [];
     if (ultimateBasicMode) setUltimateBasicMode(false);
-    if (tab.editorMode === "expert" && !expertMode) setExpertMode(true);
+    if (tab.editorMode === "expert" && !expertMode) setExpertMode(true, { keepText: !!tab.expertText });
     else if (tab.editorMode !== "expert" && expertMode) setExpertMode(false);
   }
 
@@ -19298,8 +20353,8 @@ function _tabActivate(tabId) {
   }
 
   renderTabBar();
+  // renderProgram() also renders the ASM output.
   renderProgram();
-  renderAsmOutput();
   if (ultimateBasicMode) renderMemoryMap();
   _historySyncCurrent();
   if (_expertProjectVisible && _expertProjectData) _expertRenderProjectTree();
@@ -19322,6 +20377,7 @@ function _tabNew() {
   if (ultimateBasicMode) {
     tab.editorMode = "ub";
     tab.ubText = "";
+    _ubEditorTabId = tab.id;
     _ubBreakpointLines = [];
     _ubSetFile("");
     ubEditor.value = "";
@@ -20030,11 +21086,11 @@ function showCompileErrorDialog(errors) {
     const sepIdx = errText.indexOf(" \u2014 ");
     let html;
     if (sepIdx !== -1) {
-      const prefix = errText.slice(0, sepIdx).replace(/</g, "&lt;");
-      const msg = errText.slice(sepIdx + 3).replace(/</g, "&lt;");
+      const prefix = _escHtml(errText.slice(0, sepIdx));
+      const msg = _escHtml(errText.slice(sepIdx + 3));
       html = `${prefix} <span class="compile-error-msg">\u2014 ${msg}</span>`;
     } else {
-      html = `<span class="compile-error-msg">${errText.replace(/</g, "&lt;")}</span>`;
+      html = `<span class="compile-error-msg">${_escHtml(errText)}</span>`;
     }
     const navigable = (Number.isFinite(asmLine) || Number.isFinite(sourceLine)) ? "true" : "false";
     return `<li data-index="${idx}" data-asm-line="${asmLine ?? ""}" data-source-line="${sourceLine ?? ""}" data-navigable="${navigable}" tabindex="${navigable === "true" ? "0" : "-1"}">${html}</li>`;
@@ -20252,11 +21308,16 @@ async function _buildProjectAsmTarget(target) {
   if (!tab) return { ok: false, error: `${t("projError")}: ${target.path}` };
   if (tab.id !== activeTabId) _tabActivate(tab.id);
 
-  const savedProgram = program;
-  const savedUserMacros = userMacros;
   let prg;
   let sidecars = null;
-  try {
+  if (assemblerSyntax === "acme") {
+    // The target tab is active now: ACME builds its editor source.
+    prg = await _buildAcmePrg(true);
+    if (prg.ok) sidecars = _buildDebuggerSidecarPayload(prg);
+  }
+  const savedProgram = program;
+  const savedUserMacros = userMacros;
+  if (!prg) try {
     if (expertMode) program = _expertBuildProgram();
     parseUserMacros();
     prg = _buildAutostartPrgCore();
@@ -20550,10 +21611,11 @@ async function saveCrtToFile() {
   }
 
   // UB mode uses its own compile pipeline (no exomizer applied there);
-  // non-UB uses the raw autostart PRG so the loader copies plain bytes into RAM.
+  // non-UB uses the raw autostart PRG (ACME output in ACME mode) so the loader
+  // copies plain bytes into RAM.
   const prg = ultimateBasicMode
     ? await buildRunPrgForCurrentMode()
-    : buildAutostartPrgForEmulator();
+    : assemblerSyntax === "acme" ? await _buildAcmePrg() : buildAutostartPrgForEmulator();
   if (!prg.ok) {
     if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
     if (prg.error) { showViceToast(prg.error, true); return; }
@@ -22081,7 +23143,7 @@ async function runViaExomizer() {
     });
 
     if (!result?.ok) {
-      showViceToast(result?.error || t("exomizerLaunchFailed"), true);
+      showViceToast(_exomizerErrorMessage(result?.error, prg.bytes), true);
       return;
     }
 
@@ -22123,9 +23185,360 @@ async function buildRunPrgForCurrentMode() {
     };
   }
 
+  if (assemblerSyntax === "acme") {
+    const prg = await _buildAcmePrg();
+    if (prg.ok) _vmAcmeBuild = prg.imageBytes ? { ...prg, bytes: prg.imageBytes } : prg;
+    return prg.ok ? _applyExomizerToPrg(prg) : prg;
+  }
   const prg = buildAutostartPrgForEmulator();
   if (!prg.ok) return prg;
   return _applyExomizerToPrg(prg);
+}
+
+// `preview`: the plain build (panels, VICE hot reload), never wrapped in a start loader.
+async function _buildAcmePrg(useCurrentEditor = false, options = null) {
+  const preview = !!options?.preview;
+  if (!window.electronAPI?.buildAcmePrg) {
+    return { ok: false, error: "Az ACME fordítás csak a desktop alkalmazásban érhető el." };
+  }
+  const savedProgram = program;
+  const savedMacros = userMacros;
+  const startupBlocks = useCurrentEditor ? null : _expertGetStartupProgram();
+  const useExpertSource = expertMode && !startupBlocks;
+  if (useExpertSource) {
+    const dialectErrors = _acmeVaSyntaxErrors(_expertGetSourceText());
+    if (dialectErrors.length) return { ok: false, error: tf("acmeVaSource", { count: dialectErrors.length }), errors: dialectErrors };
+  }
+  program = startupBlocks || (expertMode ? _expertBuildProgram() : program);
+  let source;
+  let sysAddress = null;
+  let sourceLineOffset = 0;
+  let dumpEntry = null;
+  try {
+    parseUserMacros();
+    const embeddedSysAddress = _getEmbeddedBasicSysAddress(program);
+    const expertSource = useExpertSource ? _expertGetSourceText() : "";
+    const origin = _acmeFirstOrigin(expertSource) ?? parseOriginValue().value;
+    // A segment below $0801 (an imported memory dump): no stub and no "$0801 → $080D"
+    // shift, the image builds at its own addresses and Run puts a start loader in front.
+    dumpEntry = useExpertSource && embeddedSysAddress === null && basicSysToggle?.checked !== false
+      && (_acmeLowestOrigin(expertSource) ?? 0xFFFF) < 0x0801 ? (_acmeEntryHint(expertSource) ?? origin) : null;
+    if (embeddedSysAddress !== null) {
+      sysAddress = embeddedSysAddress;
+    } else if (dumpEntry !== null) {
+      sysAddress = null;
+    } else if (basicSysToggle?.checked !== false) {
+      const rawOrigin = origin === 0x0801 ? 0x080D : origin;
+      const stubSize = buildBasicSysStub(rawOrigin).length - 2;
+      sysAddress = Math.max(rawOrigin, 0x0801 + stubSize);
+    }
+    const codeOrigin = sysAddress !== null && embeddedSysAddress === null
+      ? sysAddress : origin === 0x0801 && basicSysToggle?.checked === false ? 0xC000 : origin;
+    if (useExpertSource) {
+      source = expertSource;
+      if (origin === 0x0801 && sysAddress !== null && embeddedSysAddress === null) {
+        source = source.replace(/^(\s*\*\s*=\s*)(?:\$0*801|0x0*801|2049)\b/im,
+          (_, prefix) => `${prefix}$${sysAddress.toString(16).toUpperCase().padStart(4, "0")}`);
+      }
+    } else {
+      // ACME mode never expands VA macros into ACME source.
+      const macroErrors = _acmeVaMacroBlockErrors(program);
+      if (macroErrors.length) return { ok: false, error: tf("acmeVaSource", { count: macroErrors.length }), errors: macroErrors };
+      source = _buildUniversalAsmExportText(codeOrigin)
+        .replace(/^(\s*)\.(byte|word|fill|align)\b/gim, "$1!$2");
+    }
+    if (sysAddress !== null && embeddedSysAddress === null) {
+      const stub = Array.from(buildBasicSysStub(sysAddress).slice(2));
+      source = `* = $0801\n    !byte ${stub.map(byte => toHex(byte, 2)).join(", ")}\n${source}`;
+      sourceLineOffset = 2;
+    }
+  } finally {
+    program = savedProgram;
+    userMacros = savedMacros;
+  }
+  const sourcePath = useExpertSource
+    ? ((typeof tabs !== "undefined" ? tabs.find(tab => tab.id === activeTabId)?.filePath : "")
+        || (typeof _expertAsmFilePath === "string" ? _expertAsmFilePath : ""))
+    : "";
+  const result = await window.electronAPI.buildAcmePrg(source, `c64-visual-assembler-${Date.now()}.asm`, sourcePath);
+  if (!result?.ok) {
+    const error = result?.error || "ACME fordítás sikertelen.";
+    return { ok: false, error, errors: _acmeParseErrors(error, useExpertSource ? sourceLineOffset : null) };
+  }
+  const built = { ok: true, bytes: Uint8Array.from(result.bytes || []), labels: result.labels || "", report: result.report || "", sysAddress, stubGenerated: sourceLineOffset > 0, sourceLineOffset: useExpertSource ? sourceLineOffset : null };
+  if (dumpEntry === null || built.bytes.length < 3) return built;
+  if (preview) return { ...built, sysAddress: dumpEntry };
+  const loadAddr = built.bytes[0] | (built.bytes[1] << 8);
+  const loader = _buildRelocatingLoader(built.bytes.subarray(2), loadAddr, dumpEntry);
+  if (!loader) return { ok: false, error: tf("autostartImageOverlapsStub", { address: formatAddress(loadAddr) }) };
+  return { ...built, bytes: loader, sysAddress: 0x080D, imageBytes: built.bytes };
+}
+
+// Lowest "* = address" of an ACME source (null without one).
+function _acmeLowestOrigin(source) {
+  let lowest = null;
+  for (const line of String(source || "").split(/\r?\n/)) {
+    const match = line.split(";")[0].match(/^\s*\*\s*=\s*(\$[0-9A-Fa-f]{1,4}|0x[0-9A-Fa-f]{1,4}|\d{1,5})\b/i);
+    if (!match) continue;
+    const address = match[1].startsWith("$") ? Number.parseInt(match[1].slice(1), 16)
+      : /^0x/i.test(match[1]) ? Number.parseInt(match[1].slice(2), 16)
+        : Number.parseInt(match[1], 10);
+    if (address >= 0 && address <= 0xFFFF && (lowest === null || address < lowest)) lowest = address;
+  }
+  return lowest;
+}
+
+// VA (VMA) and ACME sources never mix: VA code is not converted, ACME mode
+// reports it. A VA directive is .name with arguments (an ACME local label is
+// followed by a mnemonic or "=") or a VA directive name on its own (.end,
+// .endregion) unless the source uses that .name as a label operand.
+const _ACME_VA_CLOSERS = new Set(["endregion", "endif", "else", "endm", "endmacro", "endf", "next", "end"]);
+
+function _acmeVaDirective(code, localLabels = null) {
+  const match = code.match(/^\.([A-Za-z_]\w*)(?:\s+(\S.*))?$/);
+  if (!match) return null;
+  if (!match[2]) {
+    const name = match[1].toLowerCase();
+    const vaName = _ACME_VA_CLOSERS.has(name)
+      || (typeof _DIRECTIVE_TO_MNEM !== "undefined" && Object.prototype.hasOwnProperty.call(_DIRECTIVE_TO_MNEM, name));
+    return vaName && !localLabels?.has(match[1]) ? `.${match[1]}` : null;
+  }
+  const first = match[2].split(/\s+/)[0];
+  if (first.startsWith("=") || (typeof opcodeMap !== "undefined" && opcodeMap[first.toUpperCase()])) return null;
+  return `.${match[1]}`;
+}
+
+// Blocks ACME can take: plain instructions and the data directives the
+// export writes as !byte / !word / !fill / !align. Every other macro is VA only.
+const _ACME_BLOCK_FLAGS = new Set(["isOrgMacro", "isByteMacro", "isWordMacro", "isFillMacro", "isAlignMacro"]);
+
+function _acmeVaMacroBlockErrors(blocks) {
+  const errors = [];
+  (blocks || []).forEach(block => {
+    const flag = Object.keys(block || {}).find(key => /^is\w+Macro$/.test(key) && block[key] === true && !_ACME_BLOCK_FLAGS.has(key));
+    if (!flag) return;
+    errors.push({ text: tf("acmeVmaDirective", { directive: block.mnemonic || flag }), sourceLine: typeof block._srcLine === "number" ? block._srcLine : null });
+  });
+  return errors;
+}
+
+function _acmeVaSyntaxErrors(source) {
+  const errors = [];
+  const lines = String(source || "").split(/\r?\n/);
+  // .name used in an operand (bne .loop) is an ACME local label.
+  const localLabels = new Set();
+  for (const line of lines) {
+    const code = line.split(";")[0].trim();
+    for (const match of code.slice(1).matchAll(/(?<![\w.])\.([A-Za-z_]\w*)/g)) localLabels.add(match[1]);
+  }
+  lines.forEach((line, sourceLine) => {
+    const code = line.split(";")[0].trim();
+    const vaDirective = _acmeVaDirective(code, localLabels);
+    if (vaDirective) {
+      errors.push({ text: tf("acmeVmaDirective", { directive: vaDirective }), sourceLine });
+      return;
+    }
+    const directive = code.match(/^!(region|endregion|set_border|set_bg|clear_screen|charset)\b/i)
+      || code.match(/^(!text)\s+\d+\s*,\s*\d+\s*,/i);
+    if (!directive) return;
+    const name = directive[1].startsWith("!") ? directive[1] : `!${directive[1]}`;
+    errors.push({ text: tf("acmeVmaDirective", { directive: name }), sourceLine });
+  });
+  return errors;
+}
+
+function _acmeParseErrors(output, sourceLineOffset = null) {
+  return String(output || "").split(/\r?\n/).filter(Boolean).map((text) => {
+    const location = text.match(/\bFile\s+(.+?),\s*line\s+(\d+)\b/i);
+    const file = location?.[1] || "";
+    const line = location ? Number.parseInt(location[2], 10) : 0;
+    const ownSource = /(?:^|[\\/])c64-visual-assembler-[^\\/]+\.a$/i.test(file);
+    const generatedLine = line - (sourceLineOffset || 0) - 1;
+    const sourceLine = ownSource && sourceLineOffset !== null && generatedLine >= 0
+      ? generatedLine : null;
+    return { text, sourceLine };
+  });
+}
+
+function _acmeFirstOrigin(source) {
+  for (const line of String(source || "").split(/\r?\n/)) {
+    const match = line.split(";")[0].match(/^\s*\*\s*=\s*(\$[0-9A-Fa-f]{1,4}|0x[0-9A-Fa-f]{1,4}|\d{1,5})\b/i);
+    if (!match) continue;
+    const address = match[1].startsWith("$") ? Number.parseInt(match[1].slice(1), 16)
+      : /^0x/i.test(match[1]) ? Number.parseInt(match[1].slice(2), 16)
+        : Number.parseInt(match[1], 10);
+    if (address >= 0 && address <= 0xFFFF) return address;
+  }
+  return null;
+}
+
+// The .proj file names its assembler: "assembler": "vma" | "acme". The older
+// "assemblerSyntax" ("kick" | "acme") is written too and still read.
+function _projAssemblerFields(syntax) {
+  const acme = syntax === "acme";
+  return { assembler: acme ? "acme" : "vma", assemblerSyntax: acme ? "acme" : "kick" };
+}
+
+function _projAssemblerSyntax(proj) {
+  const assembler = String(proj?.assembler || "").toLowerCase();
+  if (assembler === "acme" || assembler === "vma") return assembler === "acme" ? "acme" : "kick";
+  return proj?.assemblerSyntax === "acme" ? "acme" : "kick";
+}
+
+async function _acmeCheckConfigured() {
+  if (!window.electronAPI?.buildAcmePrg) return false;
+  try {
+    const result = await window.electronAPI.buildAcmePrg("* = $c000\n!byte $a5, $5a", "acme-check.asm");
+    const bytes = result?.bytes;
+    return !!(result?.ok && bytes?.length === 4
+      && bytes[0] === 0 && bytes[1] === 0xC0 && bytes[2] === 0xA5 && bytes[3] === 0x5A);
+  } catch {
+    return false;
+  }
+}
+
+function _setAssemblerSyntax(syntax) {
+  assemblerSyntax = syntax === "acme" ? "acme" : "kick";
+  const syntaxSelect = document.getElementById("assembler-syntax");
+  if (syntaxSelect) syntaxSelect.value = assemblerSyntax;
+  _acmeBuildButtonSync();
+  if (assemblerSyntax === "acme" && !expertMode && !ultimateBasicMode) setExpertMode(true);
+}
+
+// The Expert Build button builds with the active assembler: ACME or VA (VMA).
+function _acmeBuildButtonSync(blocks = program) {
+  const button = document.getElementById("expert-acme-build-btn");
+  if (!button) return;
+  button.hidden = false;
+  button.setAttribute("aria-label", t(assemblerSyntax === "acme" ? "acmeBuild" : "vaBuild"));
+  // ACME has no block mode: the block/Expert switch is locked while it is on.
+  const acme = assemblerSyntax === "acme";
+  const large = _blockModeLimitExceeded(blocks);
+  const ubFile = _isBoundUbTab();
+  const locked = acme || large || ubFile;
+  expertModeTbBtn?.classList.toggle("main-tb-btn--locked", locked);
+  if (locked) expertModeTbBtn?.setAttribute("aria-disabled", "true");
+  else expertModeTbBtn?.removeAttribute("aria-disabled");
+  if (ubFile) expertModeTbBtn?.setAttribute("title", t("asmUbFileBlocked"));
+  else if (large) expertModeTbBtn?.setAttribute("title", t("blockModeLimit"));
+  else expertModeTbBtn?.removeAttribute("title");
+  if (expertModeToggle) expertModeToggle.disabled = locked;
+  if (expertModeTbBtn) expertModeTbBtn.disabled = large || ubFile;
+  // The tutorials build VMA (VA) programs with blocks: hidden in ACME mode, with its separator.
+  const tutorialBtn = document.getElementById("tutorial-btn");
+  if (tutorialBtn) {
+    tutorialBtn.hidden = acme;
+    const sep = tutorialBtn.nextElementSibling;
+    if (sep?.classList.contains("main-tb-sep")) sep.hidden = acme;
+  }
+  if (categorySelect.options.length) {
+    const category = categorySelect.value;
+    refreshCategoryOptions();
+    if (categorySelect.value !== category) syncMnemonicMenu();
+  }
+}
+
+// VA (VMA) build of the Expert source, the same PRG Run makes: the size in the
+// status line, errors in the compiler-error dialog.
+function _vaBuildExpert() {
+  let result;
+  try {
+    result = buildAutostartPrgForEmulator();
+  } catch (error) {
+    result = { ok: false, error: String(error) };
+  }
+  if (!result?.ok) {
+    const error = result?.error || t("vaBuild");
+    _expertSetStatus(error, "error");
+    showCompileErrorDialog(result?.errors?.length ? result.errors : [{ text: error }]);
+    return;
+  }
+  const bytes = _acmePreviewByteCount({ bytes: result.bytes, sysAddress: result.sysAddress, stubGenerated: true });
+  _expertSetStatus(tf("vaBuildSuccess", { bytes }), "ok");
+  if (_expertDisasmVisible) _expertRenderDisasm();
+  if (_expertMonitorVisible) _expertRenderMonitor();
+}
+
+function _acmePreviewCurrent() {
+  return _acmePreview && assemblerSyntax === "acme" && expertMode
+    && _acmePreview.tabId === activeTabId
+    && _acmePreview.sourceText === _expertGetSourceText()
+    ? _acmePreview : null;
+}
+
+function _acmeParseLabels(text) {
+  const labels = new Map();
+  String(text || "").split(/\r?\n/).forEach((line) => {
+    const match = line.match(/^\s*(?:!addr\s+)?([.@A-Za-z_][\w.@]*)\s*=\s*\$([0-9A-Fa-f]{1,4})\b/i);
+    if (!match) return;
+    const address = Number.parseInt(match[2], 16);
+    if (!labels.has(address)) labels.set(address, []);
+    labels.get(address).push(match[1]);
+  });
+  return labels;
+}
+
+function _acmePrgMemory(bytes) {
+  const data = Array.from(bytes || []);
+  if (data.length < 2) return null;
+  const origin = data[0] | (data[1] << 8);
+  const payload = data.slice(2);
+  if (origin + payload.length > 0x10000) return null;
+  return { origin, payload };
+}
+
+async function _acmeBuildPreview(options) {
+  const quiet = !!options?.quiet;
+  const button = document.getElementById("expert-acme-build-btn");
+  if (_acmeBuildRunning) return;
+  if (quiet && (_acmePreviewCurrent() || _acmePreviewErrorCurrent())) return;
+  const sourceText = _expertGetSourceText();
+  const tabId = activeTabId;
+  _acmeBuildRunning = true;
+  if (button) button.disabled = true;
+  _expertSetStatus(t("acmeBuild") + "…", "ok");
+  try {
+    const result = await _buildAcmePrg(true, { preview: true });
+    if (tabId !== activeTabId || sourceText !== _expertGetSourceText()) return;
+    if (!result.ok) {
+      _acmePreview = null;
+      _acmePreviewError = { tabId, sourceText, text: result.error || t("acmeBuildFirst") };
+      _expertSetStatus(result.error || t("acmeBuildFirst"), "error");
+      // An automatic build only reports in the status line and the panels.
+      if (!quiet) showCompileErrorDialog(result.errors?.length ? result.errors : [{ text: result.error || t("acmeBuildFirst") }]);
+    } else {
+      _acmePreviewError = null;
+      _acmePreview = { ...result, tabId, sourceText };
+      _expertSetStatus(tf("acmeBuildSuccess", { bytes: _acmePreviewByteCount(result) }), "ok");
+    }
+    _acmeUpdateAnalysis();
+    if (_expertDisasmVisible) _expertRenderDisasm();
+    if (_expertMonitorVisible) _expertRenderMonitor();
+  } catch (error) {
+    if (tabId === activeTabId) {
+      _acmePreview = null;
+      _acmePreviewError = { tabId, sourceText, text: String(error) };
+      _expertSetStatus(String(error), "error");
+      if (!quiet) showCompileErrorDialog([{ text: String(error) }]);
+      if (_expertDisasmVisible) _expertRenderDisasm();
+      if (_expertMonitorVisible) _expertRenderMonitor();
+    }
+  } finally {
+    _acmeBuildRunning = false;
+    if (button) button.disabled = false;
+    // The source may have changed while ACME was running.
+    _acmeScheduleAutoBuild();
+  }
+}
+
+function _exomizerErrorMessage(error, bytes) {
+  const message = String(error || t("exomizerLaunchFailed"));
+  const load = bytes?.length >= 2 ? bytes[0] | (bytes[1] << 8) : null;
+  if (load !== null && load + bytes.length - 2 === 0x10000
+      && /value\s+256\s+out of range for op\s+\$A9\b/i.test(message)) {
+    return t("exomizerFullMemoryError");
+  }
+  return message;
 }
 
 async function _applyExomizerToPrg(prg) {
@@ -22159,7 +23572,7 @@ async function _applyExomizerToPrg(prg) {
     });
 
     if (!result?.ok) {
-      return { ok: false, error: result?.error || t("exomizerLaunchFailed") };
+      return { ok: false, error: _exomizerErrorMessage(result?.error, prg.bytes) };
     }
 
     return {
@@ -22167,7 +23580,8 @@ async function _applyExomizerToPrg(prg) {
       bytes: Uint8Array.from(result.bytes || []),
       exomizerPath: result.exomizerPath,
       filePath: result.filePath,
-      sysAddress: prg.sysAddress
+      sysAddress: prg.sysAddress,
+      labels: prg.labels
     };
   } finally {
     // Hide progress only if we opened it (don't close an outer dialog)
@@ -22198,11 +23612,59 @@ function setupD64ExportDialog() {
 function setupHardwareSettingsDialog() {
   const dialog = document.getElementById("hardware-settings-dialog");
   if (!dialog) return;
+  const tabs = Array.from(dialog.querySelectorAll('.hw-settings-tab'));
+  const panels = Array.from(dialog.querySelectorAll('.hw-settings-body'));
+  const syncPanelHeight = () => {
+    if (!dialog.open) return;
+    panels.forEach((panel) => { panel.style.height = ""; });
+    const activePanel = panels.find((panel) => !panel.hidden);
+    const card = dialog.querySelector(".hardware-settings-card");
+    if (!activePanel || !card) return;
+    const chromeHeight = card.getBoundingClientRect().height - activePanel.getBoundingClientRect().height;
+    let tallest = 0;
+    panels.forEach((panel) => {
+      const wasHidden = panel.hidden;
+      panel.hidden = false;
+      panel.style.visibility = "hidden";
+      tallest = Math.max(tallest, panel.scrollHeight);
+      panel.hidden = wasHidden;
+      panel.style.visibility = "";
+    });
+    const available = Math.max(0, window.innerHeight - 32 - chromeHeight);
+    const height = Math.min(tallest, available);
+    panels.forEach((panel) => { panel.style.height = `${height}px`; });
+  };
+  const selectTab = (tab) => {
+    tabs.forEach((item) => {
+      const active = item === tab;
+      item.setAttribute("aria-selected", String(active));
+      item.tabIndex = active ? 0 : -1;
+      document.getElementById(item.getAttribute("aria-controls")).hidden = !active;
+    });
+    syncPanelHeight();
+  };
+  tabs.forEach((tab, index) => {
+    tab.addEventListener("click", () => selectTab(tab));
+    tab.addEventListener("keydown", (event) => {
+      let next;
+      if (event.key === "ArrowRight") next = tabs[(index + 1) % tabs.length];
+      if (event.key === "ArrowLeft") next = tabs[(index + tabs.length - 1) % tabs.length];
+      if (event.key === "Home") next = tabs[0];
+      if (event.key === "End") next = tabs[tabs.length - 1];
+      if (!next) return;
+      event.preventDefault();
+      selectTab(next);
+      next.focus();
+    });
+  });
   _sidLoadPreviewSettings();
   document.getElementById("hardware-settings-btn")?.addEventListener("click", () => {
     _sidLoadPreviewSettings();
     dialog.showModal();
+    requestAnimationFrame(syncPanelHeight);
   });
+  dialog.addEventListener("toggle", () => requestAnimationFrame(syncPanelHeight));
+  window.addEventListener("resize", syncPanelHeight);
   document.getElementById("hardware-settings-close")?.addEventListener("click", () => dialog.close());
   document.getElementById("sid-preview-engine")?.addEventListener("change", function(e) {
     _sidPreviewEngine = e.target.value === "va-core" ? "va-core" : "websid";
@@ -22567,6 +24029,83 @@ function _importMakeByte(rawByteStr) {
     addressingMode: "implied", base,
     validationError: "", collapsed: true, isByteMacro: true
   };
+}
+
+// Kick Assembler label scopes ("name: {" … "}"): the labels defined inside belong to the
+// scope, so they become VA dotted local labels (".loop", canonical "name.loop") together with
+// the references inside the scope. Outside, "name.loop" already is the canonical name.
+// Same line count; quoted strings and comments stay as they are.
+function _kickScopeRewrite(lines) {
+  const out = lines.slice();
+  const open = [];
+  const scopes = [];
+  lines.forEach((raw, i) => {
+    const { code } = _splitAsmLineComment(raw);
+    if (/^\s*[A-Za-z_][A-Za-z0-9_]*\s*:\s*\{\s*$/.test(code)) open.push(i);
+    else if (/^\s*\}\s*$/.test(code) && open.length) scopes.push({ start: open.pop(), end: i });
+  });
+  for (const { start, end } of scopes) {
+    const locals = new Set();
+    for (let i = start + 1; i < end; i++) {
+      const m = _splitAsmLineComment(lines[i]).code.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*:(?!\s*\{)/);
+      if (m) locals.add(m[1]);
+    }
+    if (!locals.size) continue;
+    const re = new RegExp(`(?<![\\w.$])(${[...locals].join("|")})(?![\\w])`, "g");
+    for (let i = start + 1; i < end; i++) {
+      const { code } = _splitAsmLineComment(out[i]);
+      const rest = out[i].slice(code.length);
+      out[i] = code.split(/("[^"]*")/).map((part, k) => k % 2 ? part : part.replace(re, ".$1")).join("") + rest;
+    }
+  }
+  return out;
+}
+
+// Kick Assembler .text operand → bytes. Items: "plain", @"escaped" (\n \r \t \\ \" \$NN),
+// $NN / decimal byte; joined with "," or "+". A character the encoding has no code for
+// → null in its place.
+function _kickTextBytes(operand, encoding) {
+  const enc = String(encoding || "screencode_mixed").toLowerCase();
+  const encodeChar = (ch) => {
+    if (!ch) return null;
+    let c = ({ "£": 0x5C, "↑": 0x5E, "←": 0x5F })[ch] ?? ch.codePointAt(0);
+    if (c > 0x7F) return null;
+    const lower = c >= 0x61 && c <= 0x7A;
+    const upper = c >= 0x41 && c <= 0x5A;
+    switch (enc) {
+      case "ascii": return c;
+      case "petscii_upper": return lower ? c - 0x20 : c;
+      case "petscii_mixed": return lower ? c - 0x20 : upper ? c + 0x80 : c;
+      case "screencode_upper":
+        if (c >= 0x20 && c < 0x40) return c;
+        if (c >= 0x40 && c < 0x60) return c - 0x40;
+        return lower ? c - 0x60 : null;
+      case "screencode_mixed":
+        if (c >= 0x20 && c < 0x40) return c;
+        if (upper) return c;
+        if (c >= 0x40 && c < 0x60) return c - 0x40;
+        return lower ? c - 0x60 : null;
+      default: return null;
+    }
+  };
+  const out = [];
+  const itemRe = /@"((?:[^"\\]|\\.)*)"|"([^"]*)"|\$([0-9A-Fa-f]{1,2})|(\d{1,3})/g;
+  for (const m of String(operand || "").matchAll(itemRe)) {
+    if (m[3] !== undefined) { out.push(parseInt(m[3], 16)); continue; }
+    if (m[4] !== undefined) { const v = parseInt(m[4], 10); out.push(v <= 255 ? v : null); continue; }
+    if (m[2] !== undefined) { for (const ch of m[2]) out.push(encodeChar(ch)); continue; }
+    const s = m[1];
+    for (let i = 0; i < s.length; i++) {
+      if (s[i] !== "\\") { out.push(encodeChar(s[i])); continue; }
+      const e = s[++i];
+      if (e === "$" && /^[0-9A-Fa-f]{2}$/.test(s.slice(i + 1, i + 3))) { out.push(parseInt(s.slice(i + 1, i + 3), 16)); i += 2; }
+      else if (e === "n") out.push(0x0A);
+      else if (e === "r") out.push(0x0D);
+      else if (e === "t") out.push(0x09);
+      else out.push(encodeChar(e ?? ""));
+    }
+  }
+  return out;
 }
 
 // Detect a comma-separated value list base. Returns { base, normalized } where
@@ -23120,6 +24659,8 @@ function _importNormalizeOperand(op) {
 function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
   const category = _importMnemonicCategory(mnemonic);
   const description = _importMnemonicDescription(mnemonic);
+  // "LSR A" is the accumulator form, not address $0A.
+  if (/^(ASL|LSR|ROL|ROR)$/i.test(mnemonic) && /^A$/i.test(String(operandRaw ?? "").trim())) operandRaw = "";
 
   // Long-branch pseudo-ops: LBNE / LBEQ / LBCC / LBCS / LBMI / LBPL / LBVC / LBVS
   const lbM = /^LB(NE|EQ|CC|CS|MI|PL|VC|VS)$/.exec(mnemonic);
@@ -23133,6 +24674,15 @@ function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
       validationError: "", collapsed: true,
       isLongBranchMacro: true, longBranchCond: lbM[1]
     };
+  }
+
+  // Kick Assembler forces the addressing mode with a mnemonic suffix:
+  // lda.abs $0040,x (.a) and stx.zp label,y (.z). The line parser leaves the
+  // suffix at the start of the operand.
+  let forcedMode = "";
+  {
+    const forceM = String(operandRaw || "").match(/^\.(abs|a|zp|z)\s+(\S.*)$/i);
+    if (forceM) { forcedMode = /^a/i.test(forceM[1]) ? "abs" : "zp"; operandRaw = forceM[2].trim(); }
   }
 
   // Self-modifying-code label on the operand: `LDA value:#$00` → label `value`
@@ -23187,6 +24737,11 @@ function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
       const m = op.match(/^\((\$[0-9A-Fa-f]+)\),Y$/i);
       addressingMode = "indirectY"; base = "hex";
       rawOperand = m[1].slice(1).toUpperCase(); displayOperand = "($" + rawOperand + "),Y";
+    } else if (/^\(\$[0-9A-Fa-f]+\)$/i.test(op)) {
+      // JMP ($nnnn)
+      const m = op.match(/^\((\$[0-9A-Fa-f]+)\)$/i);
+      addressingMode = "indirect"; base = "hex";
+      rawOperand = m[1].slice(1).toUpperCase(); displayOperand = "($" + rawOperand + ")";
     } else if (/^\$[0-9A-Fa-f]+,X$/i.test(op)) {
       const m = op.match(/^(\$[0-9A-Fa-f]+),X$/i);
       rawOperand = m[1].slice(1).toUpperCase(); base = "hex";
@@ -23258,16 +24813,44 @@ function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
     }
   }
 
+  let forceZeroPage = false;
+  const indexSuffix = /X$/.test(addressingMode) ? ",X" : /Y$/.test(addressingMode) ? ",Y" : "";
+  if (forcedMode === "abs") {
+    const wide = { zeroPage: "absolute", zeroPageX: "absoluteX", zeroPageY: "absoluteY" }[addressingMode];
+    if (wide) {
+      addressingMode = wide;
+      if (base === "dec") { rawOperand = Number(rawOperand).toString(16).toUpperCase(); base = "hex"; }
+      // Four hex digits keep the absolute mode when the line is read back.
+      rawOperand = rawOperand.padStart(4, "0");
+      displayOperand = "$" + rawOperand + indexSuffix;
+    }
+  } else if (forcedMode === "zp") {
+    const narrow = { absolute: "zeroPage", absoluteX: "zeroPageX", absoluteY: "zeroPageY" }[addressingMode];
+    if (narrow) {
+      addressingMode = narrow;
+      if (base === "hex" && /^0*[0-9A-F]{1,2}$/i.test(rawOperand)) {
+        rawOperand = rawOperand.slice(-2).toUpperCase();
+        displayOperand = "$" + rawOperand + indexSuffix;
+      } else {
+        // A symbol has no width of its own: the Expert line keeps ".zp".
+        forceZeroPage = true;
+      }
+    }
+  }
+
   return {
     id: crypto.randomUUID(),
     category, mnemonic, description,
     operand: displayOperand, rawOperand, addressingMode, base,
     validationError: "", collapsed: true,
-    ...(smcLabel ? { smcLabel } : {})
+    ...(smcLabel ? { smcLabel } : {}),
+    ...(forceZeroPage ? { forceZeroPage } : {})
   };
 }
 
 function parseAsmText(text) {
+  // The ACME forms (!byte, !word, !fill, !align, !bin) only count in ACME mode.
+  const acmeSyntax = typeof assemblerSyntax !== "undefined" && assemblerSyntax === "acme";
   const BRANCH_MNEMS = new Set(["BEQ","BNE","BCC","BCS","BMI","BPL","BVC","BVS","BRA"]);
   const blocks = [];
 
@@ -23275,6 +24858,7 @@ function parseAsmText(text) {
     const { code, commentText } = _splitAsmLineComment(rawLine);
     let line = code;
     line = line.trim();
+    const bangOk = acmeSyntax || !line.startsWith("!");
 
     if (!line) {
       // Detect app-specific structural markers in comment-only lines.
@@ -23350,7 +24934,7 @@ function parseAsmText(text) {
     }
 
     // Standalone .word val,... (also accepts ACME-style !word)
-    const standaloneWordM = line.match(/^(?:\.word|!word)\s+(.+)$/i);
+    const standaloneWordM = bangOk && line.match(/^(?:\.word|!word)\s+(.+)$/i);
     if (standaloneWordM) {
       blocks.push(_importMakeWord(standaloneWordM[1].trim()));
       if (commentText) blocks.push(_importMakeComment(commentText));
@@ -23358,7 +24942,7 @@ function parseAsmText(text) {
     }
 
     // .fill count,value  (also !fill)
-    const fillM = line.match(/^(?:\.fill|!fill)\s+(.+)$/i);
+    const fillM = bangOk && line.match(/^(?:\.fill|!fill)\s+(.+)$/i);
     if (fillM) {
       blocks.push(_importMakeFill(fillM[1].trim()));
       if (commentText) blocks.push(_importMakeComment(commentText));
@@ -23366,7 +24950,7 @@ function parseAsmText(text) {
     }
 
     // .align N  (also !align)
-    const alignM = line.match(/^(?:\.align|!align)\s+(.+)$/i);
+    const alignM = bangOk && line.match(/^(?:\.align|!align)\s+(.+)$/i);
     if (alignM) {
       blocks.push(_importMakeAlign(alignM[1].trim()));
       if (commentText) blocks.push(_importMakeComment(commentText));
@@ -23386,7 +24970,7 @@ function parseAsmText(text) {
     }
 
     // .incbin "filename"  (also !bin / !binary)
-    const incbinM = line.match(/^(?:\.incbin|!bin(?:ary)?)\s+"([^"]+)"\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*$/i);
+    const incbinM = bangOk && line.match(/^(?:\.incbin|!bin(?:ary)?)\s+"([^"]+)"\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*$/i);
     if (incbinM) {
       const addr = incbinM[2] ? incbinM[2].toUpperCase().padStart(4, "0") : "";
       blocks.push(_importMakeIncBin(incbinM[1], addr));
@@ -23448,7 +25032,7 @@ function parseAsmText(text) {
     }
 
     // Standalone .byte value,... (also ACME-style !byte)
-    const standaloneByteM = line.match(/^(?:\.byte|!byte)\s+(.+)$/i);
+    const standaloneByteM = bangOk && line.match(/^(?:\.byte|!byte)\s+(.+)$/i);
     if (standaloneByteM) {
       blocks.push(_importMakeByte(standaloneByteM[1].trim()));
       if (commentText) blocks.push(_importMakeComment(commentText));
@@ -23677,7 +25261,7 @@ function addLayoutLabels(labelMap, line) {
       return null;
     }
   };
-  if (block.isLabel && block.labelName) labelMap.set(block.labelName, line.address);
+  if (block.isLabel && block.labelName) labelMap.set(block.labelName, (line.address + (block.labelOffset || 0)) & 0xFFFF);
   if (block.isIncBinMacro && block.incBinLevel) {
     const info = _levelInfo(block);
     if (info.ok) for (const [name, value] of Object.entries(info.labels)) labelMap.set(name, value);
@@ -23759,7 +25343,9 @@ function addLayoutLabels(labelMap, line) {
 
 // ── End ASM Import parser ─────────────────────────────────────────
 
-async function _applyProjectPayload(projectData, { sourceFilePath = "", keepFilePath = false } = {}) {
+// importedName: an imported foreign project opens unsaved under this name,
+// so Save never overwrites the original file.
+async function _applyProjectPayload(projectData, { sourceFilePath = "", keepFilePath = false, importedName = "" } = {}) {
   if (!projectData || projectData.app !== "c64-visual-assembler" || !Array.isArray(projectData.program)) {
     return false;
   }
@@ -23835,8 +25421,8 @@ async function _applyProjectPayload(projectData, { sourceFilePath = "", keepFile
   tab.selectedBlockId = null;
   tab.expertText = typeof projectData.expertText === "string" ? projectData.expertText : "";
   tab.filePath = loadedFilePath || null;
-  tab.name = sourceName || tab.name || tab._untitledName || "Untitled";
-  tab.dirty = false;
+  tab.name = importedName || sourceName || tab.name || tab._untitledName || "Untitled";
+  tab.dirty = !!importedName;
 
   program = JSON.parse(JSON.stringify(loadedProgram));
   userMacros = {};
@@ -23887,6 +25473,10 @@ async function _applyProjectPayload(projectData, { sourceFilePath = "", keepFile
   if (projectData.ui?.runMode && validRunModes.includes(projectData.ui.runMode)) {
     setRunMode(projectData.ui.runMode);
   }
+  // Older saves recorded the global setting; only ACME source text keeps ACME.
+  if (projectData.ui?.assemblerSyntax === "acme" || projectData.ui?.assemblerSyntax === "kick") {
+    _setAssemblerSyntax(projectData.ui.assemblerSyntax);
+  }
 
   renderOriginPreview();
   renderEmulatorRunHint();
@@ -23905,7 +25495,8 @@ async function _applyProjectPayload(projectData, { sourceFilePath = "", keepFile
     }
   }
   saveUiSettings();
-  markTabClean();
+  if (importedName) renderTabBar();
+  else markTabClean();
   _historyResetCurrent();
   _clearProjectSnapshotTimer(tab.id);
 
@@ -23989,8 +25580,8 @@ async function copyDisasmSourceToClipboard(forExpert = false, outputElement = nu
   }
 }
 
-function _buildUniversalAsmExportText() {
-  const layout = getProgramLayout();
+function _buildUniversalAsmExportText(originOverride) {
+  const layout = getProgramLayout(originOverride);
   const headerLines = [
     `; Generated by C64 Visual Assembler ${appVersionText || "v?"}`,
     `; https://zstarczali.itch.io/visual-assembler-commodore-64`
@@ -24685,7 +26276,7 @@ async function runInEmulator() {
     const prg = await buildRunPrgForCurrentMode();
     if (!prg.ok) {
       if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
-      if (emulatorStatus) emulatorStatus.textContent = prg.error;
+      showViceToast(prg.error || t("launchingViceFailed"), true);
       return;
     }
 
@@ -24806,28 +26397,128 @@ function _buildAutostartPrgCore() {
   // Stub occupies $0801..$080C (for 4-digit decimal addresses), code starts at $080D.
   // Classic C64 SYS stub format: SYS2061 (no space), exactly 12 bytes, gap = 0.
   const origin = parseOriginValue();
-  const rawOrigin = (origin.value === 0x0801) ? 0x080D : origin.value;
+  // An ORG below $0801 (an imported memory dump) keeps "* = $0801" at $0801: the start
+  // loader below takes the whole image instead of shifting that segment behind the stub.
+  const hasLowerOrg = program.some(block => block?.isOrgMacro && (parseAddressValue(block.orgAddress) ?? 0xFFFF) < 0x0801);
+  const rawOrigin = (origin.value === 0x0801 && !hasLowerOrg) ? 0x080D : origin.value;
   const stubDigits = String(rawOrigin).length;
   const stubDataSize = 2 + 2 + 1 + stubDigits + 1 + 2; // nextptr+lineno+SYS+digits+EOL+BASIC_END (no space)
   const stubEndAddr = 0x0801 + stubDataSize;
-  const sysAddress = Math.max(rawOrigin, stubEndAddr);
+  const codeOrigin = Math.max(rawOrigin, stubEndAddr);
+  // The SYS target is the first ORG, or the "Entry point: $XXXX" of the source's header
+  // comment (Restore64 disassemblies, where the first segment is often data).
+  const sysAddress = _sourceEntryHint(program) ?? codeOrigin;
 
-  const codePrg = assembleProgramToPrg(sysAddress);
+  const codePrg = assembleProgramToPrg(codeOrigin);
   if (!codePrg.ok) return codePrg;
 
+  const codeData = codePrg.bytes.slice(2);
+  // The image starts at its lowest segment, which is not always the first ORG
+  // (an imported Kick source can start with ".pc = $0c40" and also fill $071c-).
+  const loadAddr = codePrg.bytes[0] | (codePrg.bytes[1] << 8);
   const basicStub = buildBasicSysStub(sysAddress);
   // basicStub[0,1] = PRG load addr header ($0801)
   // basicStub[2..] = BASIC program data loaded at $0801
   const stubData = basicStub.slice(2);
-  const codeData = codePrg.bytes.slice(2);
+  if (loadAddr < 0x0801 + stubData.length) {
+    // The image covers the stub: a loader moves it into place, then jumps to the entry.
+    const loader = _buildRelocatingLoader(codeData, loadAddr, sysAddress);
+    return loader ? { ok: true, bytes: loader, sysAddress: 0x080D } : { ok: false, error: tf("autostartImageOverlapsStub", { address: formatAddress(loadAddr) }) };
+  }
+
   // Fill gap between stub end and code start with zeros
-  const gapSize = sysAddress - 0x0801 - stubData.length;
+  const gapSize = loadAddr - 0x0801 - stubData.length;
   const bytes = new Uint8Array(2 + stubData.length + gapSize + codeData.length);
   bytes[0] = 0x01; bytes[1] = 0x08; // load at $0801
   bytes.set(stubData, 2);
   bytes.set(codeData, 2 + stubData.length + gapSize);
 
   return { ok: true, bytes, sysAddress };
+}
+
+// Autostart PRG for an image that overlaps the BASIC SYS stub ($0801 SYS 2061). A 14-byte
+// starter copies the mover to the tape buffer ($033C) or low stack ($0120) and jumps there.
+// Small image: stored after the mover, copied down to `loadAddr`. Larger image (it would reach
+// $D000 shifted): the PRG loads it at its own addresses, the bytes under stub + starter + mover
+// ride in a zero run of the image; the mover copies them home and clears the run. Then JMP
+// `entry`. Writes land as a KERNAL LOAD puts them ($01 unchanged). Null when nothing fits.
+function _buildRelocatingLoader(image, loadAddr, entry) {
+  const size = image.length;
+  const end = loadAddr + size;
+  const lo = v => v & 0xFF, hi = v => (v >> 8) & 0xFF;
+  // (src),Y → (dst),Y for n bytes; X = page count.
+  const copy = (src, dst, n) => {
+    const code = [0xA9, lo(src), 0x85, 0xFB, 0xA9, hi(src), 0x85, 0xFC,
+      0xA9, lo(dst), 0x85, 0xFD, 0xA9, hi(dst), 0x85, 0xFE, 0xA0, 0x00];
+    if (n >> 8) code.push(0xA2, n >> 8, 0xB1, 0xFB, 0x91, 0xFD, 0xC8, 0xD0, 0xF9,
+      0xE6, 0xFC, 0xE6, 0xFE, 0xCA, 0xD0, 0xF2);
+    if (n & 0xFF) code.push(0xB1, 0xFB, 0x91, 0xFD, 0xC8, 0xC0, n & 0xFF, 0xD0, 0xF7);
+    return code;
+  };
+  const clear = (dst, n) => {
+    const code = [0xA9, lo(dst), 0x85, 0xFB, 0xA9, hi(dst), 0x85, 0xFC, 0xA9, 0x00, 0xA8];
+    if (n >> 8) code.push(0xA2, n >> 8, 0x91, 0xFB, 0xC8, 0xD0, 0xFB, 0xE6, 0xFC, 0xCA, 0xD0, 0xF6);
+    if (n & 0xFF) code.push(0x91, 0xFB, 0xC8, 0xC0, n & 0xFF, 0xD0, 0xF9);
+    return code;
+  };
+  const build = (moverBody, tail) => {
+    const mover = [0x78, ...moverBody, 0x58, 0x4C, lo(entry), hi(entry)];
+    const moverAddr = [0x033C, 0x0120].find(a => end <= a || loadAddr >= a + mover.length);
+    if (moverAddr === undefined) return null;
+    const starter = [0xA2, mover.length - 1, 0xBD, lo(0x080D + 14), hi(0x080D + 14),
+      0x9D, lo(moverAddr), hi(moverAddr), 0xCA, 0x10, 0xF7, 0x4C, lo(moverAddr), hi(moverAddr)];
+    const head = [...buildBasicSysStub(0x080D), ...starter, ...mover];
+    const out = new Uint8Array(head.length + tail.length);
+    out.set(head, 0);
+    out.set(tail, head.length);
+    return out;
+  };
+  if (!size) return null;
+  // Mover length is fixed by the byte counts, not the addresses: measure with dummy values.
+  const shiftLen = 5 + copy(0, 0, size).length;
+  const shiftSrc = 0x080D + 14 + shiftLen;
+  if (shiftSrc + size <= 0xD000) return build(copy(shiftSrc, loadAddr, size), image);
+
+  const inPlaceLen = 5 + copy(0, 0, 0x101).length + clear(0, 0x101).length;
+  const firstInPlace = 0x080D + 14 + inPlaceLen;
+  const moved = firstInPlace - loadAddr;
+  if (moved >= size) return null;
+  let run = -1;
+  for (let i = moved, n = 0; i < size; i++) {
+    const addr = loadAddr + i;
+    if (image[i] !== 0 || (addr >= 0xD000 && addr < 0xE000)) { n = 0; continue; }
+    if (++n === moved) { run = i - moved + 1; break; }
+  }
+  if (run < 0) return null;
+  const tail = image.slice(moved);
+  tail.set(image.subarray(0, moved), run - moved);
+  const runAddr = loadAddr + run;
+  const body = [...copy(runAddr, loadAddr, moved), ...clear(runAddr, moved)];
+  while (body.length < inPlaceLen - 5) body.push(0xEA);
+  return build(body, tail);
+}
+
+// "Entry point: $XXXX" in the comment lines before the first code line (Restore64 headers).
+function _sourceEntryHint(blocks) {
+  for (const block of blocks || []) {
+    if (block?.isBlankLine) continue;
+    if (!block?.isComment) return null;
+    const match = String(block.commentText ?? block.rawOperand ?? "").match(/\bEntry point:\s*\$([0-9A-Fa-f]{4})\b/i);
+    if (match) return Number.parseInt(match[1], 16);
+  }
+  return null;
+}
+
+// The same for ACME source text (";" or "//" comment lines).
+function _acmeEntryHint(source) {
+  for (const line of String(source || "").split(/\r?\n/)) {
+    const text = line.trim();
+    if (!text) continue;
+    if (!/^(;|\/\/)/.test(text)) return null;
+    const match = text.match(/\bEntry point:\s*\$([0-9A-Fa-f]{4})\b/i);
+    if (match) return Number.parseInt(match[1], 16);
+  }
+  return null;
 }
 
 function _programHasEmbeddedBasicAutostart(blocks) {
@@ -26677,7 +28368,7 @@ function compileLineBytes(line, labels) {
     return operandValue;
   }
 
-  if (block.addressingMode === "immediate" || block.addressingMode === "zeroPage" || block.addressingMode === "indirectX" || block.addressingMode === "indirectY" || block.addressingMode === "zeroPageY") {
+  if (block.addressingMode === "immediate" || block.addressingMode === "zeroPage" || block.addressingMode === "zeroPageX" || block.addressingMode === "indirectX" || block.addressingMode === "indirectY" || block.addressingMode === "zeroPageY") {
     bytes.push(operandValue.value & 0xFF);
   } else {
     bytes.push(operandValue.value & 0xFF, (operandValue.value >> 8) & 0xFF);
@@ -28062,6 +29753,43 @@ function getInstructionSize(block) {
   return 3;
 }
 
+function _scopeLocalLabels(expandedProgram) {
+  let lastGlobal = "";
+  const kickScopes = [];
+  const localRe = /(^|[^A-Za-z0-9_.])(\.[A-Za-z_][A-Za-z0-9_]*)/g;
+  for (let i = 0; i < expandedProgram.length; i++) {
+    const b = expandedProgram[i];
+    if (!b || typeof b !== "object") continue;
+    if (b.kickScopeEnd) {
+      if (kickScopes.length) lastGlobal = kickScopes.pop().previous;
+      continue;
+    }
+    if (b.isLabel && b.labelName && !b.isAnonymousLabel) {
+      if (!b.labelName.startsWith(".")) {
+        if (b.kickScope) {
+          kickScopes.push({ previous: lastGlobal });
+          lastGlobal = b.labelName;
+        } else if (!kickScopes.length) lastGlobal = b.labelName;
+        continue;
+      }
+      if (lastGlobal) {
+        expandedProgram[i] = { ...b, labelName: lastGlobal + b.labelName, _localOf: lastGlobal };
+      }
+      continue;
+    }
+    if (!lastGlobal) continue;
+    const rewrite = (s) =>
+      (typeof s === "string" && s.indexOf(".") !== -1)
+        ? s.replace(localRe, (m, pre, dot) => pre + lastGlobal + dot)
+        : s;
+    const newOperand = rewrite(b.rawOperand);
+    const newAssert = rewrite(b.assertExpr);
+    if (newOperand !== b.rawOperand || newAssert !== b.assertExpr) {
+      expandedProgram[i] = { ...b, rawOperand: newOperand, assertExpr: newAssert };
+    }
+  }
+}
+
 function getProgramLayout(originOverride) {
   const parsedOrigin = parseOriginValue();
   const origin = originOverride === undefined
@@ -28316,37 +30044,7 @@ function getProgramLayout(originOverride) {
     }
   }
 
-  // ── Local (dotted) label scoping ────────────────────────────────────────────
-  // A `.name` label belongs to the scope of the nearest preceding non-dotted
-  // label; internally it becomes `<global>.name` so two `.loop` labels under
-  // different parents don't collide. References to `.name` within that scope are
-  // rewritten the same way. Only the affected blocks are cloned, so `program[]`
-  // stays untouched.
-  {
-    let lastGlobal = "";
-    const localRe = /(^|[^A-Za-z0-9_.])(\.[A-Za-z_][A-Za-z0-9_]*)/g;
-    for (let i = 0; i < expandedProgram.length; i++) {
-      const b = expandedProgram[i];
-      if (!b || typeof b !== "object") continue;
-      if (b.isLabel && b.labelName && !b.isAnonymousLabel) {
-        if (!b.labelName.startsWith(".")) { lastGlobal = b.labelName; continue; }
-        if (lastGlobal) {
-          expandedProgram[i] = { ...b, labelName: lastGlobal + b.labelName, _localOf: lastGlobal };
-        }
-        continue;
-      }
-      if (!lastGlobal) continue;
-      const rewrite = (s) =>
-        (typeof s === "string" && s.indexOf(".") !== -1)
-          ? s.replace(localRe, (m, pre, dot) => pre + lastGlobal + dot)
-          : s;
-      const newOperand = rewrite(b.rawOperand);
-      const newAssert = rewrite(b.assertExpr);
-      if (newOperand !== b.rawOperand || newAssert !== b.assertExpr) {
-        expandedProgram[i] = { ...b, rawOperand: newOperand, assertExpr: newAssert };
-      }
-    }
-  }
+  _scopeLocalLabels(expandedProgram);
 
   // Assign auto ZP addresses to VAR blocks. Walk the fully-expanded program
   // (so VARs coming from INCLUDE files are picked up) and give each one a
@@ -28427,11 +30125,14 @@ function getProgramLayout(originOverride) {
     // Handle ORG macro: set address cursor to new origin.
     // When originOverride is set (e.g. BASIC SYS mode), don't let ORG move
     // the cursor backwards below originOverride — that would place code at the
-    // wrong physical address in the output.
+    // wrong physical address in the output. Only an ORG inside the SYS stub
+    // ($0800-$0810, e.g. "* = $0801") is lifted: any other lower ORG is a real
+    // segment (an imported Kick dump fills $071c- after ".pc = $0c40").
     if (block.isOrgMacro && block.orgAddress) {
       const orgAddr = parseAddressValue(block.orgAddress);
       if (typeof orgAddr === "number" && !isNaN(orgAddr)) {
-        cursor = (originOverride !== undefined && orgAddr < originOverride) ? originOverride : orgAddr;
+        const inStub = originOverride !== undefined && orgAddr < originOverride && orgAddr >= 0x0800 && originOverride <= 0x0811;
+        cursor = inStub ? originOverride : orgAddr;
       }
     }
 
@@ -29883,11 +31584,92 @@ function getCollapsedOperandText(block) {
   return block.operand || block.rawOperand || "";
 }
 
-function renderProgram() {
+// Block cards are hidden in Expert / UB mode; building ten thousand of them
+// took seconds on every tab switch. They are built when Block mode returns.
+let _programCardsStale = false;
+let _blockVirtualState = null;
+let _blockVirtualRaf = 0;
+const _blockVirtualHeights = new WeakMap();
+let _blockVirtualTarget = -1;
+
+function _blockFindNode(selector) {
+  let node = programList.querySelector(selector);
+  if (node || !_blockVirtualState) return node;
+  const id = selector.match(/data-block-id="([^"]+)"/);
+  const index = selector.match(/data-index="(\d+)"/);
+  const target = index ? Number(index[1]) : id ? program.findIndex(block => block.id === id[1]) : -1;
+  if (target < 0) return null;
+  _blockVirtualTarget = target;
+  renderProgram(true);
+  _blockVirtualTarget = -1;
+  node = programList.querySelector(selector);
+  return node;
+}
+
+function _blockVirtualSchedule() {
+  if (!_blockVirtualState || expertMode || ultimateBasicMode || _blockVirtualRaf) return;
+  const scheduledState = _blockVirtualState;
+  _blockVirtualRaf = requestAnimationFrame(() => {
+    _blockVirtualRaf = 0;
+    const state = _blockVirtualState;
+    if (!state || state !== scheduledState || state.tabId !== activeTabId || state.program !== program || _dndActive) return;
+    const top = state.scroll.scrollTop;
+    if (top < state.safeTop || top + state.scroll.clientHeight > state.safeBottom) renderProgram(true);
+  });
+}
+
+function renderProgram(virtualScroll = false) {
+  virtualScroll = virtualScroll === true;
+  if (!ultimateBasicMode && !expertMode && _blockModeLimitExceeded()) {
+    setExpertMode(true);
+    _expertSetStatus(t("blockModeLimit"), "error");
+    const tab = _getActiveTab();
+    if (tab) tab.editorMode = "expert";
+    return;
+  }
+  _acmeBuildButtonSync();
+  cancelAnimationFrame(_blockVirtualRaf);
+  _blockVirtualRaf = 0;
+  if (_blockVirtualState && (_blockVirtualState.tabId !== activeTabId || _blockVirtualState.program !== program)) {
+    virtualScroll = false;
+    _blockVirtualState = null;
+    _blockVirtualTarget = -1;
+    programList.replaceChildren();
+    const panelScroll = document.querySelector(".program-panel .panel-scroll");
+    if (panelScroll) panelScroll.scrollTop = 0;
+  }
   renderOriginPreview();
+  if ((expertMode || ultimateBasicMode) && program.length) {
+    // The ASM output panel is hidden too; the full render below redoes it.
+    _programCardsStale = true;
+    _blockVirtualState = null;
+    programList.replaceChildren();
+    renderMemoryMap();
+    _expertRenderSymbols();
+    return;
+  }
+  _programCardsStale = false;
+  // A teljes forrás kimenete nem függhet a virtuális kártyaablak felépítésétől.
+  if (!virtualScroll) renderAsmOutput();
+  const scroll = document.querySelector(".program-panel .panel-scroll");
+  const virtual = program.length > 500 && !!scroll;
+  const scrollTop = scroll?.scrollTop || 0;
+  // A lista kiürítése lenullázhatja a scrollTop-ot: a koordinátát előtte kell mérni.
+  const listTop = virtual ? programList.getBoundingClientRect().top - scroll.getBoundingClientRect().top + scrollTop : 0;
+  const anchor = virtual ? [...programList.querySelectorAll(".asm-block[data-index]")]
+    .find(node => node.getBoundingClientRect().bottom > scroll.getBoundingClientRect().top) : null;
+  const anchorId = anchor?.dataset.blockId;
+  const anchorTop = anchor?.getBoundingClientRect().top;
+  const oldState = _blockVirtualState;
+  if (oldState) {
+    programList.querySelectorAll(".asm-block[data-index]").forEach(node => {
+      const block = oldState.blocks.get(node.dataset.blockId);
+      if (block) _blockVirtualHeights.set(block, node.getBoundingClientRect().height);
+    });
+  }
+  _blockVirtualState = null;
   if (!program.length) {
     programList.innerHTML = `<div class="empty-state">${t("emptyState")}</div>`;
-    renderAsmOutput();
     renderMemoryMap();
     return;
   }
@@ -29912,6 +31694,26 @@ function renderProgram() {
   }
 
   const wrapperStack = []; // stack of region-wrapper divs (null = collapsed/hidden region)
+  const gap = 8;
+  let viewTop = scrollTop - listTop;
+  const margin = Math.max(1200, (scroll?.clientHeight || 600) * 2);
+  let virtualY = 0;
+  let pendingSpace = 0;
+  let firstVisibleY = Infinity;
+  let lastVisibleY = 0;
+  if (virtual && _blockVirtualTarget >= 0) {
+    viewTop = program.slice(0, _blockVirtualTarget).reduce((sum, block, index) =>
+      sum + (hiddenByGroup.has(index) || block.isBlankLine ? 0 :
+        (_blockVirtualHeights.get(block) || (block.collapsed ? 64 : 220) * blockScale) + gap), 0);
+  }
+  const flushSpace = () => {
+    if (!pendingSpace) return;
+    const spacer = document.createElement("div");
+    spacer.className = "block-virtual-spacer";
+    spacer.style.height = Math.max(0, pendingSpace - gap) + "px";
+    programList.appendChild(spacer);
+    pendingSpace = 0;
+  };
   const activeWrapper = () => {
     for (let i = wrapperStack.length - 1; i >= 0; i--) {
       if (wrapperStack[i]) return wrapperStack[i];
@@ -29925,7 +31727,7 @@ function renderProgram() {
       // Maintain wrapperStack for REGION/ENDREGION even when hidden
       // For REGION: create wrapper now but append it AFTER the REGION node (late phase)
       let pendingWrapper = null;
-      if (block.isRegionMacro) {
+      if (!virtual && block.isRegionMacro) {
         if (!isHidden && !block.regionCollapsed) {
           pendingWrapper = document.createElement("div");
           pendingWrapper.className = "region-wrapper";
@@ -29933,7 +31735,7 @@ function renderProgram() {
         } else {
           wrapperStack.push(null);
         }
-      } else if (block.isEndRegionMacro) {
+      } else if (!virtual && block.isEndRegionMacro) {
         wrapperStack.pop();
       }
 
@@ -29942,6 +31744,19 @@ function renderProgram() {
 
       // Blank line blocks are invisible in block mode — they only exist for expert mode round-trip
       if (block.isBlankLine) return;
+
+      if (virtual) {
+        const height = _blockVirtualHeights.get(block) || (block.collapsed ? 64 : 220) * blockScale;
+        const start = virtualY;
+        virtualY += height + gap;
+        if (virtualY < viewTop - margin || start > viewTop + scroll.clientHeight + margin) {
+          pendingSpace += height + gap;
+          return;
+        }
+        flushSpace();
+        firstVisibleY = Math.min(firstVisibleY, start);
+        lastVisibleY = virtualY;
+      }
 
       const node = blockTemplate.content.firstElementChild.cloneNode(true);
       node.dataset.index = index;
@@ -31900,7 +33715,7 @@ function renderProgram() {
         renderProgram();
         // Scroll the newly pasted REGION block into view
         requestAnimationFrame(() => {
-          const pastedNode = programList.querySelector(`[data-index="${insertAt}"]`);
+          const pastedNode = _blockFindNode(`[data-index="${insertAt}"]`);
           if (pastedNode) pastedNode.scrollIntoView({ behavior: "smooth", block: "nearest" });
         });
       });
@@ -32620,7 +34435,9 @@ function renderProgram() {
       }
     });
 
-    if (block.isRegionMacro) {
+    if (virtual) {
+      programList.appendChild(node);
+    } else if (block.isRegionMacro) {
       // REGION node + wrapper both go into the PARENT wrapper
       // wrapperStack already has the new wrapper pushed; parent is one level up
       const parentEl = wrapperStack.length >= 2
@@ -32636,13 +34453,40 @@ function renderProgram() {
     }
   });
 
-  renderAsmOutput();
-  renderMemoryMap();
+  if (virtual) {
+    flushSpace();
+    _blockVirtualState = {
+      scroll,
+      tabId: activeTabId,
+      program,
+      safeTop: listTop + firstVisibleY + margin / 2,
+      safeBottom: listTop + lastVisibleY - margin / 2,
+    };
+    _blockVirtualState.blocks = new Map();
+    let correction = 0;
+    programList.querySelectorAll(".asm-block[data-index]").forEach(node => {
+      const block = program[Number(node.dataset.index)];
+      _blockVirtualState.blocks.set(block.id, block);
+      const estimated = _blockVirtualHeights.get(block) || (block.collapsed ? 64 : 220) * blockScale;
+      const measured = node.getBoundingClientRect().height;
+      if (node.getBoundingClientRect().bottom < scroll.getBoundingClientRect().top) correction += measured - estimated;
+      _blockVirtualHeights.set(block, measured);
+    });
+    scroll.scrollTop = _blockVirtualTarget >= 0 ? listTop + viewTop : scrollTop + correction;
+    if (anchorId && _blockVirtualTarget < 0) {
+      const restored = programList.querySelector(`[data-block-id="${anchorId}"]`);
+      if (restored) scroll.scrollTop += restored.getBoundingClientRect().top - anchorTop;
+    }
+  }
+
+  if (!virtualScroll) {
+    renderMemoryMap();
+  }
 
   // Restore block selection highlight after re-render
   _renderBlockSelection();
 
-  _expertRenderSymbols();
+  if (!virtualScroll) _expertRenderSymbols();
   // Double-rAF: wait for layout to settle after DOM changes before drawing minimap
   requestAnimationFrame(() => _blockScheduleMinimapRedraw());
 }
@@ -32811,7 +34655,7 @@ function selectBlockInAsm(blockId, event = null, preserveSelection = false) {
 
   // Highlight the block card
   _renderBlockSelection();
-  const blockNode = programList.querySelector(`[data-block-id="${blockId}"]`);
+  const blockNode = _blockFindNode(`[data-block-id="${blockId}"]`);
   if (blockNode && selectedBlockIds.has(blockId)) blockNode.classList.add("asm-block--selected");
 
   applyAsmHighlight(preserveSelection ? selectedBlockIds : [blockId], blockId);
@@ -32885,6 +34729,7 @@ function renderAsmOutput() {
     }
 
     if (line.block.isLabel) {
+      if (line.block.labelOffset) return `.label ${line.block.labelName} = * ${line.block.labelOffset < 0 ? "-" : "+"} ${Math.abs(line.block.labelOffset)}  ; ${formatAddress((line.address + line.block.labelOffset) & 0xFFFF)}`;
       return `${line.block.labelName}:  ; ${formatAddress(line.address)}`;
     }
 
@@ -34332,6 +36177,7 @@ function _runTutorialStepAction(actionId) {
       break;
     case "open-settings-dialog": {
       const dlg = document.getElementById("hardware-settings-dialog");
+      document.getElementById("hw-settings-tab-files")?.click();
       if (dlg) {
         // Force NON-MODAL show — even if the user clicked the settings button
         // earlier and the dialog is currently modal. Non-modal dialogs don't
@@ -35247,6 +37093,10 @@ function _tourTargetValueMatches(step, actualValue) {
 }
 
 function openTutorialDialog() {
+  if (assemblerSyntax === "acme") {
+    showViceToast?.(t("acmeNoTutorial"), true);
+    return;
+  }
   const dlg = document.getElementById("tutorial-dialog");
   _tutRenderDialog();
   document.querySelector(".control-menu")?.removeAttribute("open");
@@ -35778,6 +37628,7 @@ function _buildToolkitPalette() {
     item.appendChild(label);
     grid.appendChild(item);
   });
+  _translateToolkitPalette();
 }
 
 // Wire up static new-tab button (only used before renderTabBar replaces it)
@@ -42335,9 +44186,21 @@ function _hgExportBlocks() {
   const hx = n => "$" + (n & 0xFF).toString(16).toUpperCase().padStart(2, "0");
   const hx4 = n => n.toString(16).toUpperCase().padStart(4, "0");
 
+  // ACME has no VA macros: the loops and the KERNAL load are written out.
+  const acme = typeof assemblerSyntax !== "undefined" && assemblerSyntax === "acme";
   // 4 passes of 250 bytes using .for/.endf VA macros
   function pushCopy(srcBase, dstBase, pfx) {
     for (let i = 0; i < 4; i++) {
+      if (acme) {
+        lines.push("LDX #$00");
+        lines.push(pfx + i + ":");
+        lines.push("LDA $" + hx4(srcBase + i * 250) + ",X");
+        lines.push("STA $" + hx4(dstBase + i * 250) + ",X");
+        lines.push("INX");
+        lines.push("CPX #$FA");
+        lines.push("BNE " + pfx + i);
+        continue;
+      }
       lines.push(".for X, $FA, " + pfx + i);
       lines.push("LDA $" + hx4(srcBase + i * 250) + ",X");
       lines.push("STA $" + hx4(dstBase + i * 250) + ",X");
@@ -42357,7 +44220,23 @@ function _hgExportBlocks() {
   lines.push("");
   lines.push("* = $080D");
   lines.push("");
-  lines.push(".loadfile \"HIRES\", 8, $2000");
+  if (acme) {
+    // SETNAM, SETLFS 1,8,0, LOAD to $2000
+    lines.push("LDA #hires_name_end-hires_name");
+    lines.push("LDX #<hires_name");
+    lines.push("LDY #>hires_name");
+    lines.push("JSR $FFBD");
+    lines.push("LDA #$01");
+    lines.push("LDX #$08");
+    lines.push("LDY #$00");
+    lines.push("JSR $FFBA");
+    lines.push("LDA #$00");
+    lines.push("LDX #$00");
+    lines.push("LDY #$20");
+    lines.push("JSR $FFD5");
+  } else {
+    lines.push(".loadfile \"HIRES\", 8, $2000");
+  }
   lines.push("");
   lines.push("; Screen RAM $3F40 → $0400");
   pushCopy(0x3F40, 0x0400, "scr");
@@ -42379,6 +44258,11 @@ function _hgExportBlocks() {
   lines.push("");
   lines.push("hires_loop:");
   lines.push("JMP hires_loop");
+  if (acme) {
+    lines.push("hires_name:");
+    lines.push("!text \"HIRES\"");
+    lines.push("hires_name_end:");
+  }
   return lines.join("\n");
 }
 
@@ -50965,8 +52849,27 @@ function _cgExportDemoAsm() {
   lines.push("    sta $d020            ; border black");
   lines.push("    sta $d021            ; background black");
   lines.push("");
-  lines.push("    .sprite_init 0, 7, $80   ; sprite 0, yellow, data page $80 ($2000)");
-  lines.push("    .sprite_pos 0, 24, 120");
+  const acme = typeof assemblerSyntax !== "undefined" && assemblerSyntax === "acme";
+  if (acme) {
+    // ACME has no VA sprite macros: the same register writes, spelled out.
+    lines.push("    lda #$80             ; sprite 0, yellow, data page $80 ($2000)");
+    lines.push("    sta $07f8");
+    lines.push("    lda #$07");
+    lines.push("    sta $d027");
+    lines.push("    lda $d015");
+    lines.push("    ora #$01");
+    lines.push("    sta $d015");
+    lines.push("    lda #24");
+    lines.push("    sta $d000");
+    lines.push("    lda #120");
+    lines.push("    sta $d001");
+    lines.push("    lda $d010");
+    lines.push("    and #$fe");
+    lines.push("    sta $d010");
+  } else {
+    lines.push("    .sprite_init 0, 7, $80   ; sprite 0, yellow, data page $80 ($2000)");
+    lines.push("    .sprite_pos 0, 24, 120");
+  }
   lines.push("");
   lines.push("    lda #$00");
   lines.push("    sta idx");
@@ -50975,7 +52878,14 @@ function _cgExportDemoAsm() {
   lines.push("    sta xfrac            ; fractional accumulator (8.8 fixed point)");
   lines.push("");
   lines.push("main:");
-  lines.push("    .wait_raster $f8");
+  if (acme) {
+    lines.push(label + "_wait:");
+    lines.push("    lda $d012");
+    lines.push("    cmp #$f8");
+    lines.push("    bne " + label + "_wait");
+  } else {
+    lines.push("    .wait_raster $f8");
+  }
   lines.push("");
   lines.push("    ldx idx");
   lines.push(is16
@@ -51185,8 +53095,8 @@ function _cgUpdateOutput() {
   if (rangeEl) rangeEl.textContent = tf("cgMetaRange", { min: minV, max: maxV });
   const curveEl = document.getElementById("cg-meta-curve");
   if (curveEl) {
-    const c1 = _CG_CURVE_LABELS[s.curve] || s.curve;
-    const c2 = _CG_CURVE_LABELS[s.curve2] || s.curve2;
+    const c1 = _cgCurveLabel(s.curve, _CG_CURVE_LABELS[s.curve]);
+    const c2 = _cgCurveLabel(s.curve2, _CG_CURVE_LABELS[s.curve2]);
     curveEl.textContent = s.combine ? (c1 + " + " + c2) : c1;
   }
   const hintEl = document.getElementById("cg-output-hint");
@@ -52224,6 +54134,7 @@ let _vmLive = false;
 let _vmPollTimer = 0;
 let _vmPollBusy = false;
 let _vmAuto = false;
+let _vmAcmeBuild = null;   // last ACME build sent to VICE (profiler / watch symbols)
 let _vmAutoTimer = 0;
 let _vmProfiling = false;
 let _vmLastValues = new Map();
@@ -52264,6 +54175,12 @@ function _vmSymbols() {
     });
     return map;
   }
+  if (assemblerSyntax === "acme") {
+    const map = new Map();
+    const build = _vmAcmeBuild || _acmePreview;
+    for (const [address, names] of _acmeParseLabels(build?.labels)) names.forEach(name => map.set(name, address));
+    return map;
+  }
   try {
     return _vmWithProgram(_vmLabelMap);
   } catch (e) {
@@ -52300,7 +54217,7 @@ function _vmAggregate(samples, map) {
     const hit = map.get(pc);
     if (hit) {
       bump(routines, hit.routine, { kind: "routine" }, line);
-      bump(lines, hit.index, { kind: "line", srcLine: hit.srcLine, blockId: hit.blockId, index: hit.index, routine: hit.routine }, line);
+      bump(lines, hit.index, { kind: "line", srcLine: hit.srcLine, blockId: hit.blockId, index: hit.index, routine: hit.routine, fileLine: hit.fileLine }, line);
     } else {
       const area = pc >= 0xE000 ? "kernal" : pc >= 0xA000 && pc < 0xC000 ? "basic" : "outside";
       bump(routines, "@" + area, { kind: area }, line);
@@ -52461,6 +54378,21 @@ async function _vmBuildSegments() {
     const load = r.prg[0] | (r.prg[1] << 8);
     return { segments: [{ address: load, bytes: Array.from(r.prg.slice(2)) }], sys: r.map?.loadAddress ?? load };
   }
+  if (assemblerSyntax === "acme") {
+    const prg = await _buildAcmePrg(false, { preview: true });
+    if (!prg?.ok) throw new Error(prg?.error || t("acmeBuildFirst"));
+    _vmAcmeBuild = prg;
+    const memory = _acmePrgMemory(prg.bytes);
+    if (!memory) return null;
+    const rows = _acmeReportRows(prg.report, prg.sourceLineOffset ?? null);
+    // Without a report (older ACME) the generated stub and the code are written,
+    // not the zero filler between them.
+    const ranges = rows.length
+      ? _acmeOccupiedRanges(rows, memory)
+      : _acmePreviewSegments(prg, true).segments.map(s => ({ start: s.origin, end: s.origin + s.payload.length - 1 }));
+    const segments = ranges.map(r => ({ address: r.start, bytes: Array.from(memory.payload.slice(r.start - memory.origin, r.end - memory.origin + 1)) }));
+    return { segments, sys: prg.sysAddress ?? memory.origin };
+  }
   const prg = buildAutostartPrgForEmulator();
   if (!prg?.ok || !prg.bytes || prg.bytes.length < 3) return null;
   const load = prg.bytes[0] | (prg.bytes[1] << 8);
@@ -52515,9 +54447,16 @@ async function _vmProfile() {
   try {
     const res = await api.viceMonSample(5000, 1);
     if (!res?.ok) { _vmSetStatus(t("vmStatusOff"), "off"); return; }
+    let acmeBuild = null;
+    if (!ultimateBasicMode && assemblerSyntax === "acme") {
+      acmeBuild = _vmAcmeBuild || await _buildAcmePrg(false, { preview: true });
+      if (!acmeBuild?.ok) throw new Error(acmeBuild?.error || t("acmeBuildFirst"));
+    }
     const agg = ultimateBasicMode
       ? _vmAggregate(res.samples, _vmUbAddressMap(_ubLastResult))
-      : _vmWithProgram((layout) => _vmAggregate(res.samples, _vmAddressMap(layout)));
+      : acmeBuild
+        ? _vmAggregate(res.samples, _acmeAddressMap(_acmeReportRows(acmeBuild.report, acmeBuild.sourceLineOffset ?? null), acmeBuild.labels))
+        : _vmWithProgram((layout) => _vmAggregate(res.samples, _vmAddressMap(layout)));
     _vmRenderProfile(agg);
     _vmSetStatus(tf("vmSamples", { n: agg.total }), "ok");
   } catch (e) {
@@ -52556,7 +54495,7 @@ function _vmRenderProfile(agg) {
   };
   table(t("vmRoutine"), agg.routines, (r) => r.kind === "routine" ? r.key : t("vmArea_" + r.kind));
   table(t("vmLine"), agg.lines,
-    (r) => (r.srcLine !== undefined && (expertMode || ultimateBasicMode) ? tf("zpLine", { n: r.srcLine + 1 }) : "#" + (r.index + 1)) + " · " + r.routine,
+    (r) => (r.srcLine !== undefined && (expertMode || ultimateBasicMode) ? tf("zpLine", { n: r.srcLine + 1 }) : r.fileLine || "#" + (r.index + 1)) + " · " + r.routine,
     (r) => (ultimateBasicMode ? _ubGotoLine(r.srcLine) : _zpGotoRef(r)));
 }
 
@@ -52727,6 +54666,9 @@ async function _bugSend() {
   if (btn) btn.disabled = false;
   if (res?.ok) {
     _bugSetStatus(tf("bugSent", { id: res.id }), "ok");
+    if (res.support) {
+      try { localStorage.setItem(_SUPPORT_ACTIVE_KEY, "1"); } catch (_) {}
+    }
     document.getElementById("bug-summary").value = "";
     document.getElementById("bug-description").value = "";
     _bugImages = [];

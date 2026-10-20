@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Manuale utente
 
-**Versione 2.6.3**
+**Versione 2.6.4**
 
 Un assembler visuale a blocchi per il Commodore 64, basato sul processore 6502.
 Crea programmi trascinando e rilasciando blocchi di istruzioni e visualizza in
@@ -11,6 +11,7 @@ tempo reale il codice assembly e il codice macchina generati.
 ## Sommario
 
 - [C64 Visual Assembler — Manuale utente](#c64-visual-assembler--user-manual)
+    - [Punti salienti della versione 2.6.4](#version-264-highlights)
     - [Punti salienti della versione 2.6.3](#version-263-highlights)
     - [Punti salienti della versione 2.6.2](#version-262-highlights)
     - [Punti salienti della versione 2.6.1](#version-261-highlights)
@@ -80,6 +81,7 @@ tempo reale il codice assembly e il codice macchina generati.
     - [Formattatore sorgente](#source-formatter)
     - [Pannello e schede del progetto](#project-panel--tabs)
     - [Barra delle schede](#tab-bar)
+    - [Modalità ACME](#acme-mode)
   - [7. Modalità di indirizzamento](#7-addressing-modes)
     - [Etichetta le espressioni come operandi](#label-expressions-as-operands)
     - [Il contatore di programma `*` nelle
@@ -206,6 +208,49 @@ tempo reale il codice assembly e il codice macchina generati.
     - [Editor di curve](#curve-editor)
     - [Generatore di tabelle](#table-generator)
     - [Convertitore di numeri](#number-converter)
+
+---
+
+## Novità principali della versione 2.6.4
+
+- **Modalità assembler ACME** — **Impostazioni → Generale → Modalità assembler**
+  commuta tra *modalità VMA* (l'assembler Visual Assembler integrato) e
+  *modalità ACME*: il codice sorgente Expert viene compilato da ACME 0.97 e Run,
+  Build, i pannelli Disassembly / Monitor, i simboli del debugger, i conteggi
+  dei cicli, i suggerimenti di ottimizzazione e VICE Monitor utilizzano tutti
+  l'output ACME reale. Vedi [Modalità ACME](#acme-mode).
+- **Importazione Kick Assembler migliorata** — la voce del menu Programma ora è
+  **Importazione Kick**. Seguono le righe di testo `.text "…"` semplici
+  `.encoding`, `.label NAME = * + N` inserisce un'etichetta all'interno di
+  un'istruzione e i suffissi mnemonici `.abs` / `.zp` forzano la modalità di
+  indirizzamento. Restore64 disassembla costruisce byte per byte come
+  KickAssembler. Vedi [Importazione Kick (Kick
+  Assembler)](#kick-import-kick-assembler).
+- **Esegui i programmi che iniziano al di sotto della riga BASIC** — un
+  programma che viene caricato al di sotto o attraverso la riga BASIC SYS
+  ottiene un piccolo caricatore di avvio; un ORG inferiore più avanti nel codice
+  sorgente non viene più spostato all'indirizzo di avvio. Vedi la riga **Stub
+  BASIC SYS** in [Impostazioni e barra degli strumenti](#5-settings--toolbar).
+- **Exomizer** — un programma compresso non dà più `?ERRORE DI SINTASSI` alla
+  seconda ESECUZIONE: un PRG con una riga BASIC è impacchettato con `sfx basic`,
+  qualsiasi altro con `sfx $<indirizzo di caricamento>`.
+- **Editor SID** — un display LCD di riproduzione nella barra degli strumenti
+  del tracker (posizione del brano, schema, riga, tempo; verde o rosso in
+  **Impostazioni → Anteprima SID → Colore LCD**), una manopola dello strumento
+  con un display LCD su VA-VK, una barra di avanzamento per **Importa .sid…**.
+  Vedi [Editor SID](#sid-editor-3-voice-tracker).
+- **Impostazioni in tre schede** — **Generale**, **File e percorsi** e
+  **Integrazioni**. Vedi [Sezione 13](#13-hardware-settings).
+- **Miglioramenti minori** — **Ctrl+N** apre una nuova scheda; il testo delle
+  finestre di dialogo non può più essere selezionato accidentalmente (i campi di
+  testo e l'output copiabile, come gli errori di compilazione, possono ancora
+  esserlo); le sorgenti Expert di grandi dimensioni vengono modificate più
+  velocemente; `LSR A` e `JMP ($nnnn)` vengono importati correttamente; la
+  Knowledge Base collega Restore64 (restore64.dev), che trasforma un PRG C64 in
+  sorgente KickAssembler / ACME per l'importazione Kick** o la modalità ACME.
+  Una sorgente ACME con un segmento sotto `$0801` (un dump di memoria) non viene
+  più spostata dietro la riga BASIC SYS: viene compilata ai propri indirizzi e
+  ottiene il caricatore di avvio.
 
 ---
 
@@ -1091,7 +1136,7 @@ errore.
 | **Tema**                                                                                                         | Chiaro / Scuro / OLED / Commodore 77 / Commodore Starlight / Commodore Beige / Commodore 64 — seleziona dal selettore temi nel menu Impostazioni. OLED utilizza uno sfondo nero puro per i display AMOLED. Commodore 77 è un tema giallo neon su nero; quando è il tema attivo, il pannello di avvio utilizza il colore del pannello del tema (che corrisponde alla schermata dei messaggi), mostra un logo Commodore 77 dedicato più piccolo e una barra di avanzamento gialla. Commodore Starlight è un tema chiaro ispirato al classico Commodore 64: pannelli in vetro trasparente satinato con bagliore RGB arcobaleno, un accento magenta, colori della sintassi arcobaleno e una visualizzazione del monitor scura e fumé. Commodore Beige è il classico Commodore 64: una scocca beige, tasti funzione color senape, le strisce del badge arcobaleno e una schermata blu C64 per la visualizzazione del monitor. Il tema scelto viene applicato prima della prima visualizzazione al successivo avvio. |
 | **Modalità retrò CRT**                                                                                           | Attiva/disattiva un filtro CRT a schermo intero: linee di scansione, vignettatura del fosforo, sfarfallio e distorsione a barilotto. Lo stato viene salvato tra una sessione e l'altra.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | **Mostra pannello memoria**                                                                                      | Interruttore globale che mostra o nasconde il pannello completo della memoria del C64.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| **Stub BASIC SYS**                                                                                               | Aggiunge una riga BASIC che richiama SYS all'origine del programma.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| **Stub BASIC SYS**                                                                                               | Aggiunge una riga BASIC che chiama SYS all'origine del programma (il primo ORG). Un segmento posizionato al di sotto del primo ORG rimane al proprio indirizzo. Quando il programma viene caricato al di sotto o a cavallo della riga BASIC (`$0801`–`$080C`, ad esempio un dump importato da `$071C`), Run and Build aggiunge invece un piccolo caricatore di avvio: `SYS 2061` copia un mover nel buffer del nastro (`$033C`), che posiziona il programma e salta al primo ORG.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | **Esempi…**                                                                                                      | Apri il browser di esempio e carica un programma di esempio integrato — vedi [Programmi di esempio](#example-programs)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | **Zoom avanti/indietro**                                                                                         | Ridimensiona l'interfaccia utente del blocco (influisce su tutti gli elementi del blocco)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | **Salva progetto**                                                                                               | Salva il programma corrente come file di progetto `.json`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
@@ -1111,9 +1156,9 @@ errore.
 | **Compila il progetto** (`Menu → Compila`)                                                                       | Compila ogni file compilabile del progetto (o delle schede aperte) in un `.prg` accanto al suo codice sorgente — vedi [Compila il progetto](#build-project)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | **Esegui (pulsante diviso)**                                                                                     | Il pulsante principale **▶ Esegui** avvia la modalità corrente; fai clic sulla freccia **▾** per passare tra: **Esegui come PRG** (compila e avvia VICE direttamente), **Esegui tramite D64** (impacchetta in un'immagine disco .d64 e avvia VICE), **Esegui su hardware** (invia il PRG a un dispositivo C64 Ultimate / 1541 Ultimate) o **Kung Fu Flash 2** (carica il PRG tramite USB su un vero C64/C128 con una cartuccia Kung Fu Flash 2). Vedi [Sezione 12](#12-d64-export--run) e [Sezione 13](#13-hardware-settings).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | **Debug (RetroDebugger)**                                                                                        | Compilare ed eseguire in RetroDebugger con breakpoint, simboli e flag di avvio automatico (vedere [Sezione 9](#9-debugger-integration))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| **Esegui con Exoizer**                                                                                           | Casella di controllo nel menu Impostazioni: quando abilitata, tutte le operazioni di esecuzione e compilazione elaborano il file PRG tramite `exomizer sfx sys` prima di avviarlo o salvarlo. Funziona con Esegui come PRG, Esegui tramite D64, Esegui su hardware, Compila PRG e Compila D64. Configura prima l'eseguibile di Exomizer in **Impostazioni hardware**.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| **Esegui con Exoizer**                                                                                           | Casella di controllo nel menu Impostazioni: quando abilitata, tutte le operazioni di esecuzione e compilazione elaborano il PRG tramite `exomizer sfx` prima di avviarlo o salvarlo (`sfx basic` per un PRG che inizia con una riga BASIC, in modo che RUN funzioni di nuovo dopo il ritorno del programma; `sfx $<indirizzo di caricamento>` altrimenti). Funziona con Esegui come PRG, Esegui tramite D64, Esegui su hardware, Compila PRG e Compila D64. Configura prima l'eseguibile Exomizer in **Impostazioni hardware**.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | **Salvataggio automatico delle voci**                                                                            | Casella di controllo in **Impostazioni hardware → Controllo versione**. Quando è abilitata, l'app aggiunge una voce di salvataggio automatico alla cronologia delle versioni circa 2,5 secondi dopo aver smesso di modificare una scheda (per una scheda di un progetto anche alla cronologia del progetto). Disattivala se desideri salvare solo i tuoi commit. Vedi [Controllo versione](#version-control).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| **Impostazioni hardware**                                                                                        | Aprire la finestra di dialogo di configurazione hardware: configurare VICE, Exomizer, RetroDebugger, C64 Ultimate (host, password, test di connessione) e la porta seriale di Kung Fu Flash 2. Vedere [Sezione 13](#13-hardware-settings).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| **Impostazioni** (precedentemente Impostazioni hardware)                                                         | Aprire la finestra di dialogo delle impostazioni con tre schede: **Generale** (modalità assembler, stub BASIC SYS, Exomizer, aggiornamenti, output ASM, anteprima SID, parametri del debugger, controllo della versione), **File e percorsi** (VICE, RetroDebugger, ACME, Exomizer, git) e **Integrazioni** (C64 Ultimate, Kung Fu Flash 2). Vedere [Sezione 13](#13-hardware-settings).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | **Nuovo programma…**                                                                                             | Apre una finestra di dialogo di conferma, quindi cancella tutti i blocchi dall'area del programma.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | **Comprimi tutto**                                                                                               | Comprimi tutti i blocchi                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | **Informazioni**                                                                                                 | Informazioni sulla variante                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
@@ -1526,14 +1571,14 @@ schermata iniziale mostrano la versione effettiva della dipendenza.
 - Se il tuo programma inizia con dati (`.byte`) prima del codice eseguibile,
   aggiungi un salto di ingresso esplicito (ad esempio `JMP Start`) all'inizio.
 
-### Importazione ASM (Kick Assembler)
+### Importazione Kick (Kick Assembler)
 
-Il pulsante **Importazione ASM** nel menu Programma importa il codice sorgente
-grezzo di Kick Assembler in una nuova scheda in modalità blocco. È separato dal
-pulsante `Carica file .asm` della modalità Esperto sopra menzionato: il suo
-tooltip personalizzato segnala che **è supportato solo il codice Kick
-Assembler** (altri assembler potrebbero essere analizzati parzialmente ma non è
-garantito un ciclo completo).
+Il pulsante **Kick import** nel menu Programma importa il codice sorgente grezzo
+di Kick Assembler in una nuova scheda in modalità blocco. È separato dal
+pulsante `Carica file .asm` in modalità esperto sopra: il suo tooltip
+personalizzato segnala che **è supportato solo il codice Kick Assembler** (altri
+assembler potrebbero essere analizzati parzialmente ma non è garantito un ciclo
+completo).
 
 Modelli supportati:
 
@@ -1550,10 +1595,31 @@ Modelli supportati:
   xp+1`)
 - I commenti di riga `// ...` e `;` — entrambi accettati, i blocchi `/* ... */`
   vengono trattati come un'unica riga di commento
+- `.testo "…"` senza coordinate dello schermo → blocco BYTE con i byte
+  codificati (la riga originale viene mantenuta come commento del blocco). Sono
+  consentiti diversi elementi: `"…"`, `@"…"` con le sequenze di escape `\n` `\r`
+  `\t` `\$NN` e `$NN` / byte decimali, uniti con `,` o `+`
+- `.encoding "name"` imposta la codifica delle seguenti righe `.text`:
+  `screencode_mixed` (l'impostazione predefinita di Kick), `screencode_upper`,
+  `petscii_mixed`, `petscii_upper`, `ascii`. Un carattere per cui la codifica
+  non ha un codice viene segnalato nel blocco
+- `.label NOME = *`, `.label NOME = * + N`, `.label NOME = * - N` → un'etichetta
+  al contatore di programma, spostata di N (ad esempio un salto nell'operando di
+  un `BIT`: `.label loc_c474 = * + 1`)
+- I suffissi mnemonici `.abs` / `.a` e `.zp` / `.z` (`sta.abs $00fc,x`, `ldx.zp
+  ptr,y`) forzano l'indirizzamento assoluto o a pagina zero
+- `*=$XXXX "nome"` e `.pc = $XXXX "nome"` segmenti in qualsiasi ordine: un
+  segmento inferiore al primo rimane al suo indirizzo
 - Passaggio automatico BASIC: quando il programma inizia a `$0801` con lo stub
   di byte standard `SYS 2061` (`.byte
   $0B,$08,$0A,$00,$9E,$32,$30,$36,$31,$00,$00,$00`), il compilatore emette il
   PRG verbatim invece di racchiuderlo in un secondo BASIC SYS.
+
+I disassemblaggi realizzati da Restore64 (sintassi KickAssembler) importano e
+compilano byte per byte come KickAssembler. Il punto di ingresso indicato nel
+loro header è il primo `.pc`. Un programma per Plus/4 / C16 (BASIC a `$1001`,
+registri TED a `$FFxx`) viene compilato allo stesso modo, ma funziona solo in un
+emulatore Plus/4 come VICE `xplus4`, non con Run.
 
 Limitazioni note:
 
@@ -2011,12 +2077,79 @@ La barra delle schede appare sopra l'editor quando sono aperte più schede.
 | **Scorri le frecce** | I pulsanti di scorrimento a sinistra/destra compaiono quando ci sono più schede di quelle che possono essere contenute nella barra.                                                                                                                                                                                                                                                                              |
 | **Chiudi (×)**       | Chiude la scheda; chiede di salvare se la scheda è stata modificata.                                                                                                                                                                                                                                                                                                                                             |
 | **Estensione file**  | Viene mostrato il nome completo del file, inclusa l'estensione (`.c64va`, `.json`).                                                                                                                                                                                                                                                                                                                              |
+| **Ctrl+N**           | Apre una nuova scheda vuota (non mentre è aperta una finestra di dialogo modale).                                                                                                                                                                                                                                                                                                                                |
 | **Menu clic destro** | Fai clic con il pulsante destro del mouse su una scheda (o su uno spazio vuoto della barra delle schede) per: **Nuova scheda**, **Chiudi scheda**, **Chiudi altre schede**, **Chiudi le schede a destra**, **Chiudi tutte le schede**. Le operazioni di chiusura in batch richiedono un messaggio per ogni scheda modificata e si interrompono se si annulla. **Chiudi tutto** mantiene sempre una scheda vuota. |
 
 > **Suggerimento:** La sincronizzazione della tavolozza
 > (`#expert-palette-sync-btn`) mantiene la selezione della tavolozza
 > sincronizzata con il tasto mnemonico sul cursore. Disabilitala quando
 > preferisci che la tavolozza non si sposti durante la modifica.
+
+### Modalità ACME
+
+**Impostazioni → Generale → Modalità Assembler** seleziona l'assembler
+dell'editor Expert:
+
+- **Modalità VMA** (predefinita) — l'assembler Visual Assembler integrato con i
+  suoi blocchi, macro e direttive `.`.
+- **Modalità ACME** — il codice sorgente è in formato testo ACME 0.97 ed è
+  compilato dall'eseguibile ACME impostato in **Impostazioni → File e percorsi →
+  ACME** (**Scegli ACME**). `ACME-0.97-reference.pdf` descrive il linguaggio.
+
+La modalità viene salvata con un progetto `.proj`, quindi ogni progetto si apre
+con il proprio assembler. La modalità ACME è solo per la modifica del testo:
+l'interruttore Blocco/Esperto è bloccato e il pulsante **Tutorial** è nascosto
+(le lezioni creano programmi VMA a partire da blocchi).
+
+Ecco cosa succede dopo la costruzione ACME:
+
+- **Compila** (il pulsante martello nella barra degli strumenti Esperto,
+  *Compila il codice sorgente ACME*), **Esegui** (PRG, D64, C64 Ultimate, Kung
+  Fu Flash 2), **Salva PRG**, **Compila D64**, **Compila CRT**, **Compila il
+  progetto** e **Debug (RetroDebugger)** compilano tramite ACME; gli errori e
+  gli avvisi di ACME si aprono nella normale finestra di dialogo degli errori di
+  compilazione, con la riga del codice sorgente.
+- Con il pannello **Disassemblaggio** o **Monitor** o il margine di ciclo
+  attivo, il codice sorgente viene ricostruito dopo una pausa di digitazione,
+  quindi i pannelli mostrano i byte ACME reali; i pannelli utilizzano le
+  etichette ACME.
+- **I file di debug** (*Genera file di debug* in Impostazioni → Generale)
+  vengono creati dal dump delle etichette ACME: `.sym` (stile KickAssembler) e
+  `.vs` (etichette VICE) accanto al PRG; non esiste una mappa sorgente `.dbg` in
+  modalità ACME. **Il debug (RetroDebugger)** ottiene le stesse etichette e i
+  breakpoint Expert vengono posizionati dal report ACME (un breakpoint su una
+  riga senza codice si ferma alla riga di codice successiva).
+- **I conteggi dei cicli** e i suggerimenti di ottimizzazione** provengono dal
+  report ACME (`-r`) dell'ultima build.
+- Il ricaricamento a caldo del **VICE Monitor** scrive solo gli intervalli di
+  indirizzi effettivamente creati da ACME; il live watch e il profiler
+  utilizzano le etichette e le linee sorgente di ACME.
+- **L'esportazione in blocchi** degli editor SID, Hi-Res, Livello, Curva e
+  Tabella inserisce il codice sorgente ACME alla fine del file (`!byte`,
+  `!word`, `!fill`, `NOME = valore`; le macro VA vengono scritte come
+  istruzioni).
+
+L'evidenziazione e il completamento automatico riconoscono la sintassi ACME:
+pseudo opcode `!`, chiamate di macro `+name`, etichette senza due punti,
+etichette anonime `-` / `+` e commenti `;`. Una direttiva VMA (`.byte`, `.macro`
+…) nel codice sorgente ACME e una direttiva ACME `!` nel codice sorgente VMA
+vengono segnalate come errori.
+
+```asm
+* = $c000
+start ldx #0
+- lda text,x
+beq +
+sta $0400,x
+inx
+bne -
++ rts
+text !scr "hello acme", 0
+```
+
+`samples/acme-crt-demo.asm` è un piccolo programma di test ACME per Run, Build
+PRG / D64 e Build CRT: un messaggio al centro dello schermo e bande di colore
+raster sul bordo, senza chiamate KERNAL, quindi funziona anche dalla cartuccia.
 
 ---
 
@@ -5377,18 +5510,19 @@ La versione 1.5.1 aggiunge la possibilità di impacchettare il programma (e file
 di dati aggiuntivi) in un'immagine disco C64 D64 e di avviarla in VICE, oppure
 di esportare l'immagine disco per utilizzarla altrove.
 
-| Risorsa                                        | URL                                                            |
-| ---------------------------------------------- | -------------------------------------------------------------- |
-| Riferimento ai codici operativi 6502           | http://www.6502.org/tutorials/6502opcodes.html                 |
-| Funzioni del kernel C64                        | https://sta.c64.org/cbm64krnfunc.html                          |
-| Mappa della memoria del C64                    | https://sta.c64.org/cbm64mem.html                              |
-| Codici colore C64                              | https://sta.c64.org/cbm64col.html                              |
-| Articolo VIC-II                                | https://www.cebix.net/VIC-Article.txt                          |
-| Codice sorgente C64                            | https://codebase.c64.org/                                      |
-| Il Turbo Assembler                             | https://turbo.style64.org/                                     |
-| RetroDebugger                                  | https://github.com/slajerek/RetroDebugger/                     |
-| Ambiente di sviluppo del sistema operativo C64 | https://www.c64os.com/c64os/programmersguide/?s=devenvironment |
-| Convertitore di immagini png2c64               | https://png2c64.app/                                           |
+| Risorsa                                                                 | URL                                                            |
+| ----------------------------------------------------------------------- | -------------------------------------------------------------- |
+| Riferimento ai codici operativi 6502                                    | http://www.6502.org/tutorials/6502opcodes.html                 |
+| Funzioni del kernel C64                                                 | https://sta.c64.org/cbm64krnfunc.html                          |
+| Mappa della memoria del C64                                             | https://sta.c64.org/cbm64mem.html                              |
+| Codici colore C64                                                       | https://sta.c64.org/cbm64col.html                              |
+| Articolo VIC-II                                                         | https://www.cebix.net/VIC-Article.txt                          |
+| Codice sorgente C64                                                     | https://codebase.c64.org/                                      |
+| Il Turbo Assembler                                                      | https://turbo.style64.org/                                     |
+| RetroDebugger                                                           | https://github.com/slajerek/RetroDebugger/                     |
+| Ambiente di sviluppo del sistema operativo C64                          | https://www.c64os.com/c64os/programmersguide/?s=devenvironment |
+| Convertitore di immagini png2c64                                        | https://png2c64.app/                                           |
+| Restore64 Disassembler (C64 PRG → KickAssembler / codice sorgente ACME) | https://restore64.dev/                                         |
 
 ---
 
@@ -5626,11 +5760,13 @@ Vedere [Sezione 9]{1} per la documentazione completa del debugger.
 
 ## 14. Editor visivi (Toolkit)
 
-Il menu **Toolkit** della barra degli strumenti raggruppa gli editor di dati
-visivi che condividono tutti un menu File (`File ▾`) comune per Carica BIN /
-Salva BIN / Esporta in blocchi / Salva su D64. Ogni editor produce dati grezzi
-`.bin` che possono essere inseriti in un programma con `INCBIN` o aggiunti
-direttamente a un disco D64 tramite la voce **Salva su D64**.
+Aprire tramite **Menu → Impostazioni…** (precedentemente *Impostazioni
+hardware*). La finestra di dialogo ha tre schede: **Generale** (modalità
+assembler, stub BASIC SYS, Esegui con Exomizer, aggiornamenti, output ASM,
+anteprima SID, parametri C64 Debugger, snapshot/controllo versione), **File e
+percorsi** (VICE, RetroDebugger, ACME, Exomizer, git) e **Integrazioni** (C64
+Ultimate, Kung Fu Flash 2). Le sezioni seguenti descrivono gli strumenti e i
+dispositivi esterni.
 
 ### Editor ad alta risoluzione/multicolore
 
@@ -5663,8 +5799,10 @@ risoluzione.
 3. Abilita la casella di controllo **Esegui con Exomizer** nel menu
    **Impostazioni**.
 4. Tutte le azioni **Run** (PRG, D64, hardware) e **Build** (Build PRG, Build
-   D64) ora comprimeranno il programma assemblato tramite `exomizer sfx sys`
-   prima di avviarlo o salvarlo.
+   D64) ora comprimeranno il programma assemblato tramite `exomizer sfx` prima
+   di avviarlo o salvarlo: `sfx basic` quando il PRG inizia con una riga BASIC
+   (dopo la decompressione, RUN avvia la riga `SYS` originale, quindi anche un
+   secondo RUN funziona), `sfx $<indirizzo di caricamento>` altrimenti.
 
 Exomizer funziona allo stesso modo su Windows e macOS: la CLI viene richiamata
 dal backend di Tauri; l'integrazione non presenta alcuna caratteristica
@@ -5672,10 +5810,10 @@ specifica per una singola piattaforma.
 
 **Internamente vengono utilizzate due modalità di compressione:**
 
-| Modalità             | Utilizzato da                                                                                | Convenzione di chiamata                                                                                                                                                                                      |
-| -------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `sfx sys`            | Compila/Esegui con l'opzione Exomizer attivabile/disattivabile (percorso principale del PRG) | PRG autoestraente con decruncher incorporato; l'impostazione Border-flash controlla `-x1` vs `-n`                                                                                                            |
-| `mem` (all'indietro) | Esegui tramite D64 → casella di controllo per file **EXO**                                   | Comprime ogni file aggiuntivo in un flusso in modalità `mem`; il programma lo decomprime in fase di esecuzione tramite la macro **EXODECRUNCH** e un decompressore precompilato (`samples/exo-decrunch.bin`) |
+| Modalità                                                     | Utilizzato da                                                                                | Convenzione di chiamata                                                                                                                                                                                      |
+| ------------------------------------------------------------ | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `effetti speciali di base` / `effetti speciali $<indirizzo>` | Compila/Esegui con l'opzione Exomizer attivabile/disattivabile (percorso principale del PRG) | PRG autoestraente con decruncher incorporato; l'impostazione Border-flash controlla `-x1` vs `-n`                                                                                                            |
+| `mem` (all'indietro)                                         | Esegui tramite D64 → casella di controllo per file **EXO**                                   | Comprime ogni file aggiuntivo in un flusso in modalità `mem`; il programma lo decomprime in fase di esecuzione tramite la macro **EXODECRUNCH** e un decompressore precompilato (`samples/exo-decrunch.bin`) |
 
 > **Suggerimento:** Se il percorso di Exomizer non è configurato ma la casella
 > di controllo è abilitata, viene visualizzato un messaggio di errore chiaro
@@ -6099,12 +6237,22 @@ dati nel formato versionato `.bin`.
 - Il pulsante Riproduci nella barra degli strumenti cambia in Pausa durante la
   riproduzione e in Riprendi quando è in pausa; Interrompi termina la
   riproduzione e ripristina lo stato.
+- Il **LCD** alla fine della barra degli strumenti del tracker mostra la
+  posizione del brano (POS), il pattern (PAT), la riga (ROW) e il tempo di
+  riproduzione (TIME) durante la riproduzione e la posizione di modifica quando
+  è fermato. **Impostazioni → Anteprima SID → Colore LCD** lo rende verde o
+  rosso.
 - Il pulsante della barra degli strumenti della tastiera apre **VA-VK**, un
   pianoforte non modale (2, 3 o 4 ottave; posizione, stato di apertura, ottava e
   *Inserisci nel tracker* vengono memorizzati) con i propri pulsanti **Riproduci
   / Interrompi** che rimangono utilizzabili mentre l'editor SID è attivo.
   Trascina la sua intestazione per posizionarlo ovunque sopra l'applicazione
   principale.
+- La manopola **Instrument** su VA-VK (trascinamento, rotellina del mouse o
+  tasti freccia) seleziona lo strumento, visualizzato con il suo numero e nome
+  sul display LCD accanto; segue l'elenco degli strumenti dell'editor. Il badge
+  accanto al titolo VA-VK mostra l'emulazione SID in uso (WebSID o VA SID Core
+  con il modello del chip).
 - Abilita **Inserisci nel tracker** per scrivere ogni nota suonata nella
   posizione corrente del cursore del tracker e passare alla riga successiva.
   Disabilitalo per ascoltare le note senza modificarle.
@@ -6164,7 +6312,8 @@ conversione è approssimativa, perché i due tracker funzionano in modo diverso:
 desktop, utilizza VA SID Core). Scegli la subtune e la durata in secondi e premi
 **Importa**: la melodia viene riprodotta silenziosamente, i suoi registri SID
 vengono registrati fotogramma per fotogramma e trasformati in una canzone al
-posto di quella corrente.
+posto di quella corrente. Una barra di avanzamento segue la registrazione,
+quindi *Conversione…* la conversione.
 - **Note:** una nota attiva è un bordo del gate (un retrigger entro 2 frame
   conta come una nota); un cambio di tono sotto un gate tenuto che rimane almeno
   5 frame diventa una nuova nota retriggerata (legato). Il tono è il semitono

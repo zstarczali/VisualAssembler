@@ -6,29 +6,8 @@ const vm = require("node:vm");
 
 const appJs = fs.readFileSync(path.join(__dirname, "..", "www", "app.js"), "utf8");
 
-function extractFunctionSource(name) {
-  const marker = `function ${name}(`;
-  const start = appJs.indexOf(marker);
-  assert.notStrictEqual(start, -1, `Missing function ${name}`);
-  let depth = 0;
-  let end = -1;
-  let seenBrace = false;
-  for (let i = start; i < appJs.length; i++) {
-    const ch = appJs[i];
-    if (ch === "{") {
-      depth += 1;
-      seenBrace = true;
-    } else if (ch === "}") {
-      depth -= 1;
-      if (seenBrace && depth === 0) {
-        end = i + 1;
-        break;
-      }
-    }
-  }
-  assert.notStrictEqual(end, -1, `Could not parse function ${name}`);
-  return appJs.slice(start, end);
-}
+const extractFunction = require("./helpers/extract-function");
+const extractFunctionSource = name => extractFunction(appJs, name);
 
 function loadFunctions(names, extraContext = {}) {
   const context = { ...extraContext };
@@ -71,6 +50,7 @@ function createMacroContext(extraContext = {}) {
       "_expertCopyRegionFoldState",
       "_expertGetHiddenRegionLines",
       "_expertFindCurrentRegionBounds",
+      "_expertDirRe",
       "_expertVisibleLineToSourceLine",
       "_expertEditLineComments",
       "_layoutLineSortAddress",
@@ -79,7 +59,7 @@ function createMacroContext(extraContext = {}) {
       "_compareDisasmLayoutLineRefs",
       "_buildDisasmHTML",
       "_splitAsmLineComment",
-      "parseExpertText",
+      "_kickScopeRewrite", "parseExpertText",
       "_blockToExpertLine",
       "_blockToExpertSourceLine",
       "validateSpriteInitMacro",
@@ -87,7 +67,7 @@ function createMacroContext(extraContext = {}) {
       "compileAbsoluteStore",
       "compilePrintHexA",
       "getDeferredMacroAddressField",
-      "getProgramLayout",
+      "_scopeLocalLabels", "getProgramLayout",
       "_substituteStarPc",
       "_hasStarPcRef",
       "_evalJsExprSafe",
@@ -184,7 +164,7 @@ test("_blockToExpertLine emits Kick `:NAME(args)` for INVOKE with `:` syntax (no
 
 test("parseExpertText round-trips `:NAME(args)` and legacy `.: NAME(args)` back to INVOKE", () => {
   const ctx = loadFunctions(
-    ["_splitAsmLineComment", "parseExpertText", "_importMakeComment"],
+    ["_splitAsmLineComment", "_kickScopeRewrite", "parseExpertText", "_importMakeComment"],
     {
       crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" },
       t: (k) => k, tf: (k) => k,
@@ -828,7 +808,7 @@ test("_buildAutostartPrgCore routes default origin to $C000 when BASIC SYS is of
 
 test("parseExpertText recognizes .region, .endregion, and .end", () => {
   const ctx = loadFunctions(
-    ["_splitAsmLineComment", "_importMakeRegion", "_importMakeEndRegion", "_importMakeEndMacro", "parseExpertText"],
+    ["_splitAsmLineComment", "_importMakeRegion", "_importMakeEndRegion", "_importMakeEndMacro", "_kickScopeRewrite", "parseExpertText"],
     {
       crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" }
     }
@@ -857,14 +837,15 @@ test("parseExpertText imports core Kick Assembler syntax used by macro-heavy sou
       "_importMakeLabel",
       "_importMakeByte",
       "parseAsmText",
-      "parseExpertText"
+      "_kickScopeRewrite", "parseExpertText"
     ],
     {
       crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" },
       t: (key) => key,
       tf: (key) => key,
       _importMnemonicCategory: () => "Teszt",
-      _importMnemonicDescription: () => ""
+      _importMnemonicDescription: () => "",
+      _EXPERT_MNEM_SET: new Set(["JMP"])
     }
   );
 
@@ -877,7 +858,9 @@ test("parseExpertText imports core Kick Assembler syntax used by macro-heavy sou
     "}",
     "start:",
     "    DrawCircle(110, 70, 35, $02)",
-    "    .byte $01,$02 // payload"
+    "    .byte $01,$02 // payload",
+    "    jmp ($0408)",
+    "    lsr a"
   ].join("\n"));
 
   assert.equal(blocks[0].isOrgMacro, true);
@@ -907,6 +890,12 @@ test("parseExpertText imports core Kick Assembler syntax used by macro-heavy sou
   assert.equal(blocks[7].invokeArgs, "110, 70, 35, $02");
   assert.equal(blocks[8].isByteMacro, true);
   assert.equal(blocks[8].inlineComment, "payload");
+  // Same shape as a bare macro call, but JMP is an instruction.
+  assert.equal(blocks[9].mnemonic, "JMP");
+  assert.equal(blocks[9].addressingMode, "indirect");
+  // The accumulator form, not address $0A.
+  assert.equal(blocks[10].mnemonic, "LSR");
+  assert.equal(blocks[10].addressingMode, "implied");
 });
 
 test("parseExpertText keeps decimal indexed operands as decimal absolute modes", () => {
@@ -924,7 +913,7 @@ test("parseExpertText keeps decimal indexed operands as decimal absolute modes",
       "_importMakeLabel",
       "_importMakeByte",
       "parseAsmText",
-      "parseExpertText"
+      "_kickScopeRewrite", "parseExpertText"
     ],
     {
       crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" },
@@ -1645,7 +1634,7 @@ test("disassembler sorts deferred data by rendered address, not source order", (
 
 test("ORG, TABLE, SID, INCBIN, and INCLUDE round-trip in expert text", () => {
   const ctx = loadFunctions(
-    ["_splitAsmLineComment", "_importMakeIncBin", "parseExpertText", "_blockToExpertLine"],
+    ["_splitAsmLineComment", "_importMakeIncBin", "_kickScopeRewrite", "parseExpertText", "_blockToExpertLine"],
     {
       crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" },
       formatAddress: (value) => `$${value.toString(16).toUpperCase().padStart(4, "0")}`,
@@ -1678,7 +1667,7 @@ test("ORG, TABLE, SID, INCBIN, and INCLUDE round-trip in expert text", () => {
 
 test("INCLUDE / INCBIN / SID with empty filename flag validationError", () => {
   const ctx = loadFunctions(
-    ["_splitAsmLineComment", "_importMakeIncBin", "parseExpertText"],
+    ["_splitAsmLineComment", "_importMakeIncBin", "_kickScopeRewrite", "parseExpertText"],
     {
       crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" },
       t: (key) => key
@@ -1701,7 +1690,7 @@ test("INCLUDE / INCBIN / SID with empty filename flag validationError", () => {
 
 test("bare .include / .incbin / .sid without a quoted filename produce error blocks", () => {
   const ctx = loadFunctions(
-    ["_splitAsmLineComment", "_importMakeIncBin", "parseExpertText"],
+    ["_splitAsmLineComment", "_importMakeIncBin", "_kickScopeRewrite", "parseExpertText"],
     {
       crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" },
       t: (key) => key,
@@ -1729,7 +1718,7 @@ test("unknown directive tokens surface as errors instead of silent comments", ()
   // guard must only tag the comment path with an unknownDirective error.
   const knownDirectives = new Set([".word", ".byte", ".fill", ".align"]);
   const ctx = loadFunctions(
-    ["_splitAsmLineComment", "_importMakeIncBin", "_importMakeComment", "parseExpertText"],
+    ["_splitAsmLineComment", "_importMakeIncBin", "_importMakeComment", "_kickScopeRewrite", "parseExpertText"],
     {
       crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" },
       t: (key) => key,
@@ -1981,4 +1970,27 @@ test("LBxx rejects an unresolved target with a branch-operand error", () => {
     new Map()
   );
   assert.equal(r.ok, false);
+});
+
+test("ACME mode reads !region and coordinate !text as the VA macros", () => {
+  const ctx = loadFunctions(["_splitAsmLineComment", "_importMakeRegion", "_importMakeComment", "_kickScopeRewrite", "parseExpertText"], {
+    assemblerSyntax: "acme",
+    crypto: { randomUUID: () => "test-id" },
+    parseAsmText: line => line.trim().toUpperCase() === "RTS" ? [{ mnemonic: "RTS" }] : []
+  });
+  const blocks = ctx.parseExpertText('* = $0801\n!region init\n; TEXT auto: lowercase input\n!text 14, 8, "hello c64!", lower\n!text 10, 12, "Visual Assembler", lower\n!text 10, 18, "HELLO WORLD", lower\n    RTS');
+  assert.ok(blocks.some(block => block.isRegionMacro));
+  const textBlocks = blocks.filter(block => block.isTextMacro);
+  assert.equal(textBlocks.length, 3);
+  assert.equal(textBlocks[0].textCharset, "lower");
+  assert.equal(textBlocks[0].textX, "14");
+  assert.equal(textBlocks[0].textY, "8");
+  assert.ok(blocks.some(block => block.mnemonic === "RTS"));
+
+  // VMA (VA) mode never takes the ! forms.
+  ctx.assemblerSyntax = "kick";
+  ctx.tf = (key, values) => `${key} ${values.directive}`;
+  const vaBlocks = ctx.parseExpertText('!region init\n!text 14, 8, "hi"\n    RTS');
+  assert.ok(!vaBlocks.some(block => block.isRegionMacro || block.isTextMacro));
+  assert.deepEqual(Array.from(vaBlocks.filter(block => block.validationError), block => block.validationError), ["vmaAcmeDirective !region", "vmaAcmeDirective !text"]);
 });

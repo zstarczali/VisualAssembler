@@ -84,8 +84,10 @@ test("_expertBuildProgramFromText carries _cgSource tags across expert rebuilds"
     { rendered: "    RTS" }
   ];
   const parsed = [{}, {}, {}];   // one block per text line (the BYTE block split)
-  const ctx = loadFunctions(["_expertBuildProgramFromText"], {
+  const ctx = loadFunctions(["_expertParseCached", "_expertBuildProgramFromText"], {
     program: [],
+    _expertParseCache: null,
+    structuredClone,
     parseExpertText: () => parsed,
     _addSrcLineToBlocks: (text, blocks) => blocks.forEach((b, i) => { b._srcLine = i; }),
     _expertCopyRegionFoldState: () => {},
@@ -104,8 +106,10 @@ test("_expertBuildProgramFromText does not carry tags when the text was hand-edi
     { rendered: ".byte $01", _cgSource: "curve-editor" }
   ];
   const parsed = [{}];
-  const ctx = loadFunctions(["_expertBuildProgramFromText"], {
+  const ctx = loadFunctions(["_expertParseCached", "_expertBuildProgramFromText"], {
     program: [],
+    _expertParseCache: null,
+    structuredClone,
     parseExpertText: () => parsed,
     _addSrcLineToBlocks: (text, blocks) => blocks.forEach((b, i) => { b._srcLine = i; }),
     _expertCopyRegionFoldState: () => {},

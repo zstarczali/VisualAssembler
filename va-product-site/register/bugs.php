@@ -40,6 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ->execute([mb_substr((string) ($_POST['note'] ?? ''), 0, 20000), $id]);
             $_SESSION['flash'] = ['ok', 'NOTE SAVED.'];
         } elseif ($action === 'delete') {
+            $db->prepare('DELETE FROM va_bug_support WHERE report_id = ?')->execute([$id]);
             $db->prepare('DELETE FROM va_bug_attachments WHERE report_id = ?')->execute([$id]);
             $db->prepare('DELETE FROM va_bug_reports WHERE id = ?')->execute([$id]);
             $_SESSION['flash'] = ['ok', "BUG #$id DELETED."];
@@ -70,8 +71,18 @@ if ($id) {
     if (!$bug): ?>
         <div class="flash err">BUG #<?= $id ?> NOT FOUND.</div><a class="btn" href="bugs.php">← BACK</a>
     <?php else: ?>
+        <?php
+        $st = $db->prepare('SELECT t.id FROM va_bug_support b JOIN va_support_threads t ON t.install_id = b.install_id WHERE b.report_id = ?');
+        $st->execute([$id]);
+        $supportId = (int) $st->fetchColumn();
+        ?>
         <div class="sec-s"><a href="bugs.php">// BUGS</a> / #<?= $id ?></div>
         <h1 class="sec-t" style="text-transform:none"><?= vaH($bug['summary']) ?></h1>
+        <?php if ($supportId): ?>
+            <p><a class="btn pri" href="inbox.php?id=<?= $supportId ?>#reply">OPEN SUPPORT CONVERSATION / REPLY</a></p>
+        <?php else: ?>
+            <p class="hint">No linked support conversation. Reports from older app versions do not include a support identifier.</p>
+        <?php endif; ?>
         <?php if ($flash): ?><div class="flash <?= vaH($flash[0]) ?>"><?= vaH($flash[1]) ?></div><?php endif; ?>
         <div class="grid">
             <div class="box"><div class="box-t">DETAILS</div><table class="kv">

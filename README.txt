@@ -1,7 +1,9 @@
 C64 Visual Assembler - Installation Guide
-Version 2.6.3
+Version 2.6.4
 Support: https://zstarczali.itch.io/visual-assembler-commodore-64
 ==========================================================================
+
+2.6.4: ACME assembler mode (ACME 0.97 builds the Expert source; Disassembly, Monitor, cycle counts, hints and the VICE Monitor follow the ACME build), better Kick Assembler import (.text with .encoding, .label x = * + 1, .abs / .zp; Restore64 sources build byte for byte like KickAssembler), Run starts programs that load below the BASIC line, Exomizer second-RUN ?SYNTAX ERROR fixed, SID Editor playback LCD and VA-VK instrument knob, Settings in three tabs, Ctrl+N opens a new tab.
 
 2.6.3: .sid import in the SID Editor (any PSID / RSID tune becomes editable instruments, patterns and a song), long tunes no longer run into I/O in the exported player, VA SID Core preview retriggers restarted notes, the SID Editor header shows the active SID emulation, Speed field with - / + buttons; Ultimate Basic 1.6.6 (PRINT USING, string comparison, floating-point RND and MOD, option basic print, smaller programs).
 
@@ -67,7 +69,7 @@ Tested on Ubuntu 22.04 and 24.04.
 -----------------------
 Download the .deb package from the releases page and install:
 
-  sudo dpkg -i "c64-visual-assembler_2.6.3_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.6.4_amd64.deb"
   sudo apt-get install -f   # fix any missing dependencies
 
 Launch from the Applications menu or:
@@ -160,7 +162,7 @@ Requirements: macOS 11.0+, Apple Silicon (M1/M2/M3)
 
 1. C64 Visual Assembler
 -----------------------
-1. Download the 2.6.3 DMG for your architecture from the releases page
+1. Download the 2.6.4 DMG for your architecture from the releases page
 2. Mount the DMG and drag the app to /Applications
 3. First launch: Right-click the app -> "Open" (macOS will block double-click)
 4. Click "Open" in the security dialog

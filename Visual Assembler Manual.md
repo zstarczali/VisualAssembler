@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.6.3**
+**Version 2.6.4**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -9,6 +9,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
+    - [Version 2.6.4 Highlights](#version-264-highlights)
     - [Version 2.6.3 Highlights](#version-263-highlights)
     - [Version 2.6.2 Highlights](#version-262-highlights)
     - [Version 2.6.1 Highlights](#version-261-highlights)
@@ -75,6 +76,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [Source formatter](#source-formatter)
     - [Project panel \& tabs](#project-panel--tabs)
     - [Tab bar](#tab-bar)
+    - [ACME mode](#acme-mode)
   - [7. Addressing Modes](#7-addressing-modes)
     - [Label expressions as operands](#label-expressions-as-operands)
     - [The `*` program counter in expressions](#the--program-counter-in-expressions)
@@ -193,6 +195,18 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [Curve Editor](#curve-editor)
     - [Table Generator](#table-generator)
     - [Number Converter](#number-converter)
+
+---
+
+## Version 2.6.4 Highlights
+
+- **ACME assembler mode** — **Settings → General → Assembler mode** switches between *VMA mode* (the built-in Visual Assembler assembler) and *ACME mode*: the Expert source is built by ACME 0.97, and Run, Build, the Disassembly / Monitor panels, the debugger symbols, cycle counts, optimisation hints and the VICE Monitor all use the real ACME output. See [ACME mode](#acme-mode).
+- **Better Kick Assembler import** — the Program menu entry is now **Kick import**. Plain `.text "…"` lines follow `.encoding`, `.label NAME = * + N` places a label inside an instruction, and the `.abs` / `.zp` mnemonic suffixes force the addressing mode. Restore64 disassemblies build byte for byte like KickAssembler. See [Kick import (Kick Assembler)](#kick-import-kick-assembler).
+- **Run starts programs below the BASIC line** — a program that loads below or across the BASIC SYS line gets a small start loader; a lower ORG later in the source is no longer moved up to the start address. See the **BASIC SYS stub** row in [Settings & Toolbar](#5-settings--toolbar).
+- **Exomizer** — a crunched program no longer gives `?SYNTAX ERROR` on the second RUN: a PRG with a BASIC line is packed with `sfx basic`, any other with `sfx $<load address>`.
+- **SID Editor** — a playback LCD in the tracker toolbar (song position, pattern, row, time; green or red in **Settings → SID preview → LCD colour**), an instrument knob with an LCD on VA-VK, a progress bar for **Import .sid…**. See [SID Editor](#sid-editor-3-voice-tracker).
+- **Settings in three tabs** — **General**, **Files and paths** and **Integrations**. See [Section 13](#13-hardware-settings).
+- **Smaller improvements** — **Ctrl+N** opens a new tab; dialog text can no longer be selected by accident (text fields and copyable output, such as compile errors, still can); large Expert sources edit faster; `LSR A` and `JMP ($nnnn)` import correctly; the Knowledge Base links Restore64 (restore64.dev), which turns a C64 PRG into KickAssembler / ACME source for **Kick import** or ACME mode. An ACME source with a segment below `$0801` (a memory dump) is no longer shifted behind the BASIC SYS line: it builds at its own addresses and gets the start loader.
 
 ---
 
@@ -594,7 +608,7 @@ The modal closes automatically when the action completes or fails.
 | **Theme** | Light / Dark / OLED / Commodore 77 / Commodore Starlight / Commodore Beige / Commodore 64 — select from the theme picker in the Settings menu. OLED uses a pure-black background for AMOLED displays. Commodore 77 is a neon-yellow-on-black theme; when it is the active theme the startup splash panel uses the theme's panel colour (matching the message card), shows a smaller dedicated Commodore 77 logo, and a yellow progress bar. Commodore Starlight is a light theme after the translucent C64 breadbin: frosted clear glass panels with the rainbow RGB glow shining through, a magenta accent, rainbow syntax colours and a smoky dark monitor view. Commodore Beige is the classic breadbin: a beige case, mustard function-key buttons, the rainbow badge stripes and a C64 blue screen for the monitor view. The chosen theme is applied before the first paint on the next launch. |
 | **CRT retro mode** | Toggles a full-screen CRT filter: scanlines, phosphor vignette, flicker, and barrel distortion. State is saved between sessions. |
 | **Show memory panel** | Global toggle that shows or hides the full C64 memory panel |
-| **BASIC SYS stub** | Prepends a BASIC line that calls SYS to your program's origin |
+| **BASIC SYS stub** | Prepends a BASIC line that calls SYS to your program's origin (the first ORG). A segment placed lower than the first ORG stays at its own address. When the program loads below or across the BASIC line (`$0801`–`$080C`, for example an imported dump from `$071C`), Run and Build add a small start loader instead: `SYS 2061` copies a mover to the tape buffer (`$033C`), which puts the program in place and jumps to the first ORG. |
 | **Examples…** | Open the example browser and load a built-in example program — see [Example programs](#example-programs) |
 | **Zoom in / out** | Scale the block UI (affects all block elements) |
 | **Save Project** | Save the current program as a `.json` project file |
@@ -614,9 +628,9 @@ The modal closes automatically when the action completes or fails.
 | **Build project** (`Menu → Build`) | Compile every buildable file of the project (or of the open tabs) to a `.prg` next to its source — see [Build project](#build-project) |
 | **Run (split button)** | The main **▶ Run** button runs the current mode; click the **▾** arrow to switch between: **Run as PRG** (compile and launch VICE directly), **Run via D64** (package into a .d64 disk image and launch VICE), **Run on hardware** (send PRG to a C64 Ultimate / 1541 Ultimate device), or **Kung Fu Flash 2** (upload the PRG over USB to a real C64/C128 with a Kung Fu Flash 2 cartridge). See [Section 12](#12-d64-export--run) and [Section 13](#13-hardware-settings). |
 | **Debug (RetroDebugger)** | Compile and launch in RetroDebugger with breakpoints, symbols, and autostart flags (see [Section 9](#9-debugger-integration)) |
-| **Run with Exomizer** | Checkbox in the Settings menu — when enabled, all Run and Build operations crunch the PRG through `exomizer sfx sys` before launching or saving. Works with Run as PRG, Run via D64, Run on Hardware, Build PRG, and Build D64. Configure the Exomizer executable in **Hardware Settings** first. |
+| **Run with Exomizer** | Checkbox in the Settings menu — when enabled, all Run and Build operations crunch the PRG through `exomizer sfx` before launching or saving (`sfx basic` for a PRG that starts with a BASIC line, so RUN works again after the program returns; `sfx $<load address>` otherwise). Works with Run as PRG, Run via D64, Run on Hardware, Build PRG, and Build D64. Configure the Exomizer executable in **Hardware Settings** first. |
 | **Automatic autosave entries** | Checkbox in **Hardware Settings → Version control**. When enabled, the app adds an autosave entry to the version history about 2.5 seconds after you stop editing a tab (for a tab of a project also to the project history). Turn it off if you only want your own commits. See [Version control](#version-control). |
-| **Hardware Settings** | Open the hardware configuration dialog — configure VICE, Exomizer, RetroDebugger, C64 Ultimate (host, password, connection test) and the Kung Fu Flash 2 serial port. See [Section 13](#13-hardware-settings). |
+| **Settings** (formerly Hardware Settings) | Open the settings dialog with three tabs: **General** (assembler mode, BASIC SYS stub, Exomizer, updates, ASM output, SID preview, debugger parameters, version control), **Files and paths** (VICE, RetroDebugger, ACME, Exomizer, git) and **Integrations** (C64 Ultimate, Kung Fu Flash 2). See [Section 13](#13-hardware-settings). |
 | **New program…** | Opens a confirmation dialog, then clears all blocks from the program area |
 | **Collapse All** | Collapse all blocks |
 | **About** | Version info |
@@ -800,9 +814,9 @@ The Expert-mode `.asm` loader accepts common 6502 source patterns and converts t
 - Avoid ambiguous short labels that look like hex (`cc1`, `dead`, `beef`) in branch contexts; prefer names like `loop_cc1`.
 - If your program starts with data (`.byte`) before executable code, add an explicit entry jump (for example `JMP Start`) at the top.
 
-### ASM import (Kick Assembler)
+### Kick import (Kick Assembler)
 
-The **ASM import** button on the Program menu ingests raw Kick Assembler source into a new block-mode tab. It is separate from the Expert-mode `Load .asm file` above — its custom tooltip flags that **only Kick Assembler code is supported** (other assemblers may parse partially but are not guaranteed to round-trip).
+The **Kick import** button on the Program menu ingests raw Kick Assembler source into a new block-mode tab. It is separate from the Expert-mode `Load .asm file` above — its custom tooltip flags that **only Kick Assembler code is supported** (other assemblers may parse partially but are not guaranteed to round-trip).
 
 Supported patterns:
 
@@ -813,7 +827,14 @@ Supported patterns:
 - `@local` labels (`@loop:`, `BEQ @loop`) preserve the `@` prefix as-is
 - Operand `label + N` / `label - N` (e.g. `STA mod1+2`, `LDA xp+1`)
 - Line comments `// ...` and `;` — both accepted, `/* ... */` blocks are treated as a single comment line
+- `.text "…"` without screen coordinates → BYTE block with the encoded bytes (the original line is kept as the block's comment). Several items are allowed: `"…"`, `@"…"` with the escapes `\n` `\r` `\t` `\$NN`, and `$NN` / decimal bytes, joined with `,` or `+`
+- `.encoding "name"` sets the encoding of the following `.text` lines: `screencode_mixed` (the Kick default), `screencode_upper`, `petscii_mixed`, `petscii_upper`, `ascii`. A character the encoding has no code for is reported on the block
+- `.label NAME = *`, `.label NAME = * + N`, `.label NAME = * - N` → a label at the program counter, shifted by N (for example a jump into the operand of a `BIT`: `.label loc_c474 = * + 1`)
+- Mnemonic suffixes `.abs` / `.a` and `.zp` / `.z` (`sta.abs $00fc,x`, `ldx.zp ptr,y`) force absolute or zero-page addressing
+- `*=$XXXX "name"` and `.pc = $XXXX "name"` segments in any order: a segment lower than the first one stays at its address
 - BASIC autostart passthrough: when the program starts at `$0801` with the standard `SYS 2061` byte stub (`.byte $0B,$08,$0A,$00,$9E,$32,$30,$36,$31,$00,$00,$00`), the compiler emits the PRG verbatim instead of wrapping a second BASIC SYS around it
+
+Disassemblies made by Restore64 (KickAssembler syntax) import and build byte for byte like KickAssembler. The entry point named in their header is the first `.pc`. A program for the Plus/4 / C16 (BASIC at `$1001`, TED registers at `$FFxx`) builds the same way, but it runs only in a Plus/4 emulator such as VICE `xplus4`, not with Run.
 
 Known limitation:
 
@@ -1078,9 +1099,44 @@ The tab bar appears above the editor when there is more than one tab open.
 | **Scroll arrows** | Left/right scroll buttons appear when there are more tabs than fit the bar |
 | **Close (×)** | Closes the tab; prompts to save if the tab is dirty |
 | **File extension** | The full filename including extension (`.c64va`, `.json`) is shown |
+| **Ctrl+N** | Opens a new, empty tab (not while a modal dialog is open) |
 | **Right-click menu** | Right-click a tab (or empty tab-bar space) for: **New tab**, **Close tab**, **Close other tabs**, **Close tabs to the right**, **Close all tabs**. Batch-close operations prompt per dirty tab and stop if you cancel. **Close all** always keeps one empty tab. |
 
 > **Tip:** Palette sync (`#expert-palette-sync-btn`) keeps the palette selection in sync with the mnemonic at the cursor. Disable it when you prefer not to have the palette jump around as you edit.
+
+### ACME mode
+
+**Settings → General → Assembler mode** selects the assembler of the Expert editor:
+
+- **VMA mode** (default) — the built-in Visual Assembler assembler with its blocks, macros and `.` directives.
+- **ACME mode** — the source is ACME 0.97 text and is built by the ACME executable set in **Settings → Files and paths → ACME** (**Choose ACME**). `ACME-0.97-reference.pdf` describes the language.
+
+The mode is saved with a `.proj` project, so every project opens with its own assembler. ACME mode is text editing only: the Block / Expert switch is locked, and the **Tutorials** button is hidden (the lessons build VMA programs from blocks).
+
+What follows the ACME build:
+
+- **Build** (the hammer button in the Expert toolbar, *Build ACME source*), **Run** (PRG, D64, C64 Ultimate, Kung Fu Flash 2), **Save PRG**, **Build D64**, **Build CRT**, **Build project** and **Debug (RetroDebugger)** compile through ACME; ACME errors and warnings open in the normal compile-error dialog, with the source line.
+- With the **Disassembly** or **Monitor** panel or the cycle gutter on, the source is rebuilt after a typing pause, so the panels show the real ACME bytes; the panels use the ACME labels.
+- **Debug files** (*Generate debug files* in Settings → General) are made from the ACME label dump: `.sym` (KickAssembler style) and `.vs` (VICE labels) next to the PRG; there is no `.dbg` source map in ACME mode. **Debug (RetroDebugger)** gets the same labels, and the Expert breakpoints are placed by the ACME report (a breakpoint on a line without code stops at the next code line).
+- **Cycle counts** and **optimisation hints** come from the ACME report (`-r`) of the last build.
+- The **VICE Monitor** hot reload writes only the address ranges ACME really built; the live watch and the profiler use the ACME labels and source lines.
+- **Export to blocks** of the SID, Hi-Res, Level, Curve and Table editors inserts ACME source at the end of the file (`!byte`, `!word`, `!fill`, `NAME = value`; VA macros are written out as instructions).
+
+Highlighting and autocomplete know the ACME syntax: `!` pseudo opcodes, `+name` macro calls, labels without a colon, anonymous `-` / `+` labels and `;` comments. A VMA directive (`.byte`, `.macro` …) in ACME source and an ACME `!` directive in VMA source are reported as errors.
+
+```asm
+        * = $c000
+start   ldx #0
+-       lda text,x
+        beq +
+        sta $0400,x
+        inx
+        bne -
++       rts
+text    !scr "hello acme", 0
+```
+
+`samples/acme-crt-demo.asm` is a small ACME test program for Run, Build PRG / D64 and Build CRT: a message in the middle of the screen and raster colour bands in the border, without KERNAL calls, so it also runs from the cartridge.
 
 ---
 
@@ -3825,6 +3881,7 @@ Quick reference links available in the app under **Knowledge Base**:
 | RetroDebugger | https://github.com/slajerek/RetroDebugger/ |
 | C64 OS Development Environment | https://www.c64os.com/c64os/programmersguide/?s=devenvironment |
 | png2c64 Image Converter | https://png2c64.app/ |
+| Restore64 Disassembler (C64 PRG → KickAssembler / ACME source) | https://restore64.dev/ |
 
 ---
 
@@ -3967,7 +4024,7 @@ Because the payload is stored linearly and `assembleProgramToPrg()` returns a fl
 
 ## 13. Hardware Settings
 
-Open via **Settings → Hardware Settings…** in the toolbar menu. All external hardware paths and network configuration live here.
+Open via **Menu → Settings…** (formerly *Hardware Settings*). The dialog has three tabs: **General** (assembler mode, BASIC SYS stub, Run with Exomizer, updates, ASM output, SID preview, C64 Debugger parameters, snapshots / version control), **Files and paths** (VICE, RetroDebugger, ACME, Exomizer, git) and **Integrations** (C64 Ultimate, Kung Fu Flash 2). The sections below describe the external tools and devices.
 
 ### VICE Emulator
 
@@ -3993,7 +4050,7 @@ VICE is required for **Run as PRG**, **Run via D64**, and **Export to D64**.
    - **macOS:** `brew install exomizer` (installs Magnus Lind's official 3.1.2 build).
 2. Configure the path in **Hardware Settings → Exomizer section**.
 3. Enable the **Run with Exomizer** checkbox in the **Settings menu**.
-4. All **Run** actions (PRG, D64, hardware) and **Build** actions (Build PRG, Build D64) will now crunch the assembled program through `exomizer sfx sys` before launching or saving.
+4. All **Run** actions (PRG, D64, hardware) and **Build** actions (Build PRG, Build D64) will now crunch the assembled program through `exomizer sfx` before launching or saving: `sfx basic` when the PRG starts with a BASIC line (after decrunching, RUN starts the original `SYS` line, so a second RUN works too), `sfx $<load address>` otherwise.
 
 Exomizer works the same way on Windows and macOS — the CLI is invoked from the Tauri backend; nothing about the integration is platform-specific.
 
@@ -4001,7 +4058,7 @@ Exomizer works the same way on Windows and macOS — the CLI is invoked from the
 
 | Mode | Used by | Calling convention |
 |------|---------|--------------------|
-| `sfx sys` | Build/Run with Exomizer toggle (main PRG path) | Self-extracting PRG with a built-in decruncher; the Border-flash setting controls `-x1` vs `-n` |
+| `sfx basic` / `sfx $<addr>` | Build/Run with Exomizer toggle (main PRG path) | Self-extracting PRG with a built-in decruncher; the Border-flash setting controls `-x1` vs `-n` |
 | `mem` (backward) | Run via D64 → per-file **EXO** checkbox | Compresses each extra file to a `mem`-mode stream; the program decompresses it at runtime via the **EXODECRUNCH** macro and a pre-built depacker (`samples/exo-decrunch.bin`) |
 
 > **Tip:** If the Exomizer path is not configured but the checkbox is enabled, a clear error toast is shown instead of launching. Disable the checkbox to run without compression.
@@ -4276,7 +4333,9 @@ Effects update once per row (matching the exported player's timing), run identic
 
 **Playback and virtual keyboard:**
 - The Play toolbar button changes to Pause during playback and to Resume while paused; Stop ends playback and resets the state.
+- The **LCD** at the end of the tracker toolbar shows the song position (POS), pattern (PAT), row (ROW) and play time (TIME) during playback, and the edit position when stopped. **Settings → SID preview → LCD colour** makes it green or red.
 - The keyboard toolbar button opens **VA-VK**, a non-modal piano (2, 3 or 4 octaves; position, open state, octave and *Insert into tracker* are remembered) with its own **Play / Stop** buttons that remains usable while the SID editor is active. Drag its header to place it anywhere over the main application.
+- The **Instrument** knob on VA-VK (drag, mouse wheel or arrow keys) selects the instrument, shown with its number and name on the LCD next to it; it follows the instrument list of the editor. The badge next to the VA-VK title shows the SID emulation in use (WebSID, or VA SID Core with the chip model).
 - Enable **Insert into tracker** to write each played note at the current tracker cursor and advance to the next row. Disable it to audition notes without editing.
 - Chord and arpeggio previews illuminate the corresponding piano keys when the keyboard is open.
 
@@ -4304,7 +4363,7 @@ Effects update once per row (matching the exported player's timing), run identic
 - Pattern commands: key off → note-off, portamento → `U` / `D` (at most 255 per row), tempo → `F`; toneporta becomes a plain note. Other commands are dropped, and a message lists what was approximated or skipped.
 - A gate released by the wavetable becomes a note-off on the next free row. Only the first subtune is imported.
 
-**.sid import:** **Files → Import .sid…** opens a PSID / RSID file (desktop app only, it uses VA SID Core). Choose the subtune and the length in seconds and press **Import**: the tune runs silently, its SID registers are recorded frame by frame and turned into a song in place of the current one.
+**.sid import:** **Files → Import .sid…** opens a PSID / RSID file (desktop app only, it uses VA SID Core). Choose the subtune and the length in seconds and press **Import**: the tune runs silently, its SID registers are recorded frame by frame and turned into a song in place of the current one. A progress bar follows the recording, then *Converting…* the conversion.
 - **Notes:** a note on is a gate edge (a retrigger within 2 frames counts as one note); a pitch change under a held gate that stays at least 5 frames becomes a new, retriggered (legato) note. The pitch is the most common semitone of the note's main waveform; NTSC tunes are retuned to the PAL note table.
 - **Rows:** rows start exactly on the note ons. The base length is the longest that fits almost all of them; rows of that length or one frame longer (funktempo, swing, tempo changes) are set with `F` effects one row ahead.
 - **Instruments:** AD / SR, the main waveform, pulse width and PWM, the filter (routing, mode, resonance, cutoff sweep) and the waveform and pitch of every frame of the note, up to the next one: the wave / arpeggio table (a prefix plus a repeating loop, up to 32 steps). A fixed-pitch drum attack keeps absolute notes and an arpeggio relative ones, decided over all notes of the same sound; a regular sub-semitone wobble becomes the instrument vibrato. The gate becomes a note cut, a gate timer (with hard restart when ADSR is zeroed) or a decay at the release rate. Identical instruments are shared, up to 128.
