@@ -58,6 +58,7 @@ test("ACME Run sends an autostart source through the configured compiler", async
     expertMode: false,
     basicSysToggle: { checked: true },
     _expertGetStartupProgram: () => null,
+    _expertGetStartupSource: () => null,
     parseUserMacros: () => {},
     _getEmbeddedBasicSysAddress: () => null,
     parseOriginValue: () => ({ value: 0x0801 }),
@@ -100,6 +101,34 @@ test("ACME Run sends an autostart source through the configured compiler", async
   }
 });
 
+test("ACME project Run builds the startup file's source, not its blocks", async () => {
+  let submitted;
+  const original = "* = $c000\nNUM = 16\n!if NUM > 8 {\n    lda #NUM\n}\n    rts";
+  const ctx = loadFunctions(["_buildAcmePrg", "_acmeVaSyntaxErrors", "_acmeVaDirective", "buildBasicSysStub", "_acmeFirstOrigin", "_acmeParseErrors", "_acmeLowestOrigin", "_acmeEntryHint"], {
+    program: [], userMacros: {}, expertMode: true,
+    _ACME_VA_CLOSERS: new Set(["endregion", "endif", "else", "endm", "endmacro", "endf", "next", "end"]),
+    _DIRECTIVE_TO_MNEM: { loop: "LOOP", end: "END", region: "REGION" },
+    basicSysToggle: { checked: true },
+    _expertGetStartupSource: () => ({ text: original, path: "F:\\proj\\main.asm" }),
+    _expertGetStartupProgram: () => { throw Error("startup blocks must not be used"); },
+    _expertGetSourceText: () => { throw Error("the startup file is built, not the editor"); },
+    parseExpertText: () => [{ isConstMacro: true, mnemonic: "CONST" }, { isIfMacro: true, mnemonic: "IF" }],
+    parseUserMacros: () => {},
+    _getEmbeddedBasicSysAddress: () => null,
+    parseOriginValue: () => ({ value: 0x0801 }),
+    _buildUniversalAsmExportText: () => { throw Error("startup source must not be regenerated"); },
+    toHex: (value, width) => `$${value.toString(16).toUpperCase().padStart(width, "0")}`,
+    window: { electronAPI: { buildAcmePrg: async (source, _name, sourcePath) => {
+      submitted = { source, sourcePath };
+      return { ok: true, bytes: [0, 0xC0] };
+    } } }
+  });
+  const result = await ctx._buildAcmePrg();
+  assert.equal(result.ok, true);
+  assert.ok(submitted.source.endsWith(original));
+  assert.equal(submitted.sourcePath, "F:\\proj\\main.asm");
+});
+
 test("ACME bridge sends the payload shape required by the Tauri command", async () => {
   const bridge = fs.readFileSync(path.join(__dirname, "..", "www", "tauri-bridge.js"), "utf8");
   let call;
@@ -121,6 +150,7 @@ test("ACME Expert Run preserves assembler expressions and directives", async () 
     _DIRECTIVE_TO_MNEM: { loop: "LOOP", end: "END", region: "REGION" },
     basicSysToggle: { checked: true },
     _expertGetStartupProgram: () => null,
+    _expertGetStartupSource: () => null,
     _expertBuildProgram: () => [],
     _expertGetSourceText: () => original,
     parseUserMacros: () => {},
@@ -148,6 +178,7 @@ test("ACME Build rejects VMA macros without translating native ACME syntax", asy
     _DIRECTIVE_TO_MNEM: { loop: "LOOP", end: "END", region: "REGION" },
     opcodeMap: { LDA: {}, RTS: {} },
     _expertGetStartupProgram: () => null,
+    _expertGetStartupSource: () => null,
     _expertGetSourceText: () => '* = $0801\n!region init\n!text 14, 8, "hello c64!", lower\n!endregion',
     tf: (_key, values) => `${values.directive} is VMA-only`,
     window: { electronAPI: { buildAcmePrg: async () => { compiled = true; } } }
@@ -879,6 +910,7 @@ test("ACME memory dump below $0801: no stub shift, start loader around the plain
     _DIRECTIVE_TO_MNEM: { loop: "LOOP", end: "END", region: "REGION" },
     basicSysToggle: { checked: true },
     _expertGetStartupProgram: () => null,
+    _expertGetStartupSource: () => null,
     _expertBuildProgram: () => [],
     _expertGetSourceText: () => original,
     parseUserMacros: () => {},
