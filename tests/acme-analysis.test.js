@@ -132,6 +132,30 @@ test("ACME hot reload writes the built ranges, not the gaps between segments", (
   assert.deepEqual(JSON.parse(JSON.stringify(ranges.map(r => [r.start, r.end]))), [[0x0801, 0x080C], [0xC000, 0xC029]]);
 });
 
+test("ACME memory panel: built ranges and two source lines writing the same bytes", () => {
+  const MEMORY = ["_acmeMemoryUsage", "_acmeRowSpan", "_acmeRowLabel", "_acmePrgMemory", "_acmePreviewSegments", "mergeMemoryRanges", "countRangeBytes"];
+  const ctx = load([...TABLES, ...ANALYSIS, ...MEMORY], {
+    t: key => key,
+    formatAddress: a => `$${a.toString(16).toUpperCase().padStart(4, "0")}`,
+    memorySegments: [{ start: 0x0000, end: 0x9FFF, kind: "ram" }, { start: 0xA000, end: 0xBFFF, kind: "rom" }, { start: 0xC000, end: 0xCFFF, kind: "ram" }],
+    _acmePreview: null, activeTabId: 1
+  });
+  const bytes = [0x01, 0x08, ...new Array(0xC02A - 0x0801).fill(0)];
+  const usage = ctx._acmeMemoryUsage({ bytes, report: REPORT, sourceLineOffset: 2 });
+  assert.deepEqual(JSON.parse(JSON.stringify(usage.mergedOccupied.map(r => [r.start, r.end]))), [[0x0801, 0x080C], [0xC000, 0xC029]]);
+  assert.equal(usage.occupiedRamBytes, 12 + 0x2A);
+  assert.equal(usage.overlaps.length, 0);
+  // A second segment at $C010 overwrites rts + the start of the table.
+  const clash = REPORT + "\r\n    17                          * = $c010\r\n    18  c010 eaeaea                     nop : nop : nop";
+  const over = ctx._acmeMemoryUsage({ bytes, report: clash, sourceLineOffset: 2 }).overlaps;
+  assert.deepEqual(JSON.parse(JSON.stringify(over.map(o => [o.overlapStart, o.overlapEnd, o.bytes]))), [[0xC010, 0xC010, 1], [0xC011, 0xC012, 2]]);
+  assert.equal(over[0].regionA.label, "inc.a:2: rts");
+  assert.equal(over[1].regionA.label, "9: table   !byte 1,2,3");
+  assert.equal(over[1].regionB.label, "16: nop : nop : nop");
+  // No build for the tab: nothing is occupied.
+  assert.equal(ctx._acmeMemoryUsage().mergedOccupied.length, 0);
+});
+
 test("ACME profiler map: nearest global label and include file lines", () => {
   const ctx = load([...TABLES, ...ANALYSIS]);
   const rows = ctx._acmeReportRows(REPORT, 2);

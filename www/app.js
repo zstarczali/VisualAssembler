@@ -13721,6 +13721,7 @@ function _expertValidate() {
       : _acmePreviewMessage(), preview ? "ok" : _acmePreviewErrorCurrent() ? "error" : "");
     if (_expertDisasmVisible) _expertRenderDisasm();
     if (_expertMonitorVisible) _expertRenderMonitor();
+    renderMemoryMap();
     _acmeScheduleAutoBuild();
     return;
   }
@@ -14408,8 +14409,8 @@ function _acmePreviewMessage() {
   return _acmePreview?.tabId === activeTabId ? t("acmeBuildChanged") : t("acmeBuildFirst");
 }
 
-// A setting that changes the ACME output (BASIC SYS stub) drops the preview;
-// with the Disassembly or Monitor panel open it rebuilds.
+// A setting that changes the ACME output (BASIC SYS stub) drops the preview
+// and rebuilds it.
 function _acmeInvalidatePreview() {
   _acmePreview = null;
   _acmePreviewError = null;
@@ -14435,11 +14436,11 @@ function _acmeUpdateAnalysis() {
   if (_expertCyclesEnabled) _expertUpdateCycles();
 }
 
-// With the Disassembly or Monitor panel or the cycle gutter on, ACME mode rebuilds
-// after a typing pause like VA mode does, so they follow the source.
+// ACME mode rebuilds after a typing pause like VA mode does, so the memory strip /
+// panel (always shown) and the Disassembly / Monitor panels follow the source.
 function _acmeScheduleAutoBuild() {
   clearTimeout(_expertParseTimer);
-  if (assemblerSyntax !== "acme" || !expertMode || !(_expertDisasmVisible || _expertMonitorVisible || _expertCyclesEnabled)) return;
+  if (assemblerSyntax !== "acme" || !expertMode) return;
   if (!window.electronAPI?.buildAcmePrg || _acmePreviewCurrent() || _acmePreviewErrorCurrent()) return;
   _expertParseTimer = setTimeout(() => _acmeBuildPreview({ quiet: true }), 600);
 }
@@ -23554,6 +23555,7 @@ async function _acmeBuildPreview(options) {
     _acmeUpdateAnalysis();
     if (_expertDisasmVisible) _expertRenderDisasm();
     if (_expertMonitorVisible) _expertRenderMonitor();
+    renderMemoryMap();
   } catch (error) {
     if (tabId === activeTabId) {
       _acmePreview = null;
@@ -30514,8 +30516,81 @@ function _ubMemoryUsage(result = _getActiveTab()?._ubBuildResult || null) {
   };
 }
 
+// ACME mode: the memory panel / strip come from the last ACME build of the tab
+// (report rows), since the VA layout cannot read ACME source.
+function _acmeRowSpan(row, starts, memory) {
+  const end = memory.origin + memory.payload.length;
+  if (row.address === null || !row.bytes.length || row.address < memory.origin || row.address >= end) return null;
+  let stop = row.address + row.bytes.length;
+  if (row.truncated) {
+    const length = _acmeTruncatedRowLength(row.source);
+    stop = length ? row.address + length : Math.min(end, starts.find(a => a > row.address) ?? end);
+  }
+  return { start: row.address, end: Math.min(stop, end) - 1 };
+}
+
+function _acmeRowLabel(row) {
+  const file = row.own ? "" : `${String(row.file).split(/[\\/]/).pop()}:`;
+  const line = row.srcLine !== null ? row.srcLine + 1 : row.line;
+  return `${file}${line}: ${String(row.source || "").split(";")[0].trim()}`.slice(0, 80);
+}
+
+function _acmeMemoryUsage(preview = _acmePreview?.tabId === activeTabId ? _acmePreview : null) {
+  const memory = preview ? _acmePrgMemory(preview.bytes) : null;
+  const rows = memory ? _acmeReportRows(preview.report, preview.sourceLineOffset ?? null) : [];
+  const ranges = !memory ? []
+    : rows.length ? _acmeOccupiedRanges(rows, memory)
+      : (_acmePreviewSegments(preview, true)?.segments || []).map(s => ({ start: s.origin, end: s.origin + s.payload.length - 1 }));
+  const occupiedRanges = ranges.map(r => ({
+    start: r.start, end: r.end, type: "code",
+    label: `${t("memoryOverlapCode")} ${formatAddress(r.start)}–${formatAddress(r.end)}`
+  }));
+
+  // Overlap: an address written by two different source lines (the later one wins in the PRG).
+  const starts = rows.filter(r => r.address !== null && r.bytes.length).map(r => r.address).sort((a, b) => a - b);
+  const owner = new Map();
+  const hits = [];
+  for (const row of rows) {
+    const span = memory ? _acmeRowSpan(row, starts, memory) : null;
+    if (!span) continue;
+    const key = `${row.file}\u0000${row.line}`;
+    for (let addr = span.start; addr <= span.end; addr++) {
+      const prev = owner.get(addr);
+      if (prev && prev.key !== key) hits.push({ addr, a: prev.row, b: row });
+      owner.set(addr, { key, row });
+    }
+  }
+  const overlaps = [];
+  for (const hit of hits) {
+    const last = overlaps[overlaps.length - 1];
+    if (last && last._a === hit.a && last._b === hit.b && hit.addr === last.overlapEnd + 1) {
+      last.overlapEnd = hit.addr;
+      last.bytes++;
+      continue;
+    }
+    overlaps.push({ _a: hit.a, _b: hit.b, regionA: { label: _acmeRowLabel(hit.a) }, regionB: { label: _acmeRowLabel(hit.b) },
+      overlapStart: hit.addr, overlapEnd: hit.addr, bytes: 1 });
+  }
+
+  const mergedOccupied = mergeMemoryRanges(occupiedRanges);
+  const ramSegments = memorySegments.filter((segment) => segment.kind === "ram");
+  const totalRamBytes = ramSegments.reduce((sum, segment) => sum + (segment.end - segment.start + 1), 0);
+  const occupiedRamBytes = ramSegments.reduce((sum, segment) => sum + countRangeBytes(mergedOccupied, segment.start, segment.end), 0);
+  return {
+    layout: { lines: [] },
+    deferredSections: [],
+    occupiedRanges,
+    mergedOccupied,
+    totalRamBytes,
+    occupiedRamBytes,
+    freeRamBytes: Math.max(0, totalRamBytes - occupiedRamBytes),
+    overlaps
+  };
+}
+
 function getMemoryUsage(layout) {
   if (ultimateBasicMode) return _ubMemoryUsage();
+  if (assemblerSyntax === "acme" && expertMode) return _acmeMemoryUsage();
   layout = layout || getProgramLayout();
   const occupiedRanges = [];
 

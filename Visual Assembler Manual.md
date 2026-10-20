@@ -1117,7 +1117,7 @@ The mode is saved with a `.proj` project, so every project opens with its own as
 What follows the ACME build:
 
 - **Build** (the hammer button in the Expert toolbar, *Build ACME source*), **Run** (PRG, D64, C64 Ultimate, Kung Fu Flash 2), **Save PRG**, **Build D64**, **Build CRT**, **Build project** and **Debug (RetroDebugger)** compile through ACME; ACME errors and warnings open in the normal compile-error dialog, with the source line.
-- With the **Disassembly** or **Monitor** panel or the cycle gutter on, the source is rebuilt after a typing pause, so the panels show the real ACME bytes; the panels use the ACME labels.
+- After a typing pause the source is rebuilt, so the **memory map** (memory strip, segment panel, overlap warning), the **Disassembly** and **Monitor** panels and the cycle gutter show the real ACME output; the panels use the ACME labels. An overlap is an address that two source lines write (the later one wins in the PRG).
 - **Debug files** (*Generate debug files* in Settings → General) are made from the ACME label dump: `.sym` (KickAssembler style) and `.vs` (VICE labels) next to the PRG; there is no `.dbg` source map in ACME mode. **Debug (RetroDebugger)** gets the same labels, and the Expert breakpoints are placed by the ACME report (a breakpoint on a line without code stops at the next code line).
 - **Cycle counts** and **optimisation hints** come from the ACME report (`-r`) of the last build.
 - The **VICE Monitor** hot reload writes only the address ranges ACME really built; the live watch and the profiler use the ACME labels and source lines.
