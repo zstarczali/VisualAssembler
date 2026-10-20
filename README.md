@@ -2,11 +2,20 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.6.3**
+**Current version: v2.6.4**
 
 Visual Assembler is free and open source (GPLv3): every feature — editors, builds, hardware runs, languages and themes — works without a registration or serial. At most once a day the app sends an anonymous startup ping (version, OS, UI language, launch count, a random install ID) for the usage statistics; no email, project or source code is sent.
 
-## What's New in v2.6.3
+## What's New in v2.6.4
+
+- **ACME assembler mode** — Settings → General → Assembler mode: *VMA mode* (the built-in assembler) or *ACME mode*, which builds the Expert source with ACME 0.97 (path in Settings → Files and paths → ACME). Build, Run, Build PRG / D64 use the real ACME output; Disassembly / Monitor, debugger symbols, cycle counts, optimisation hints and the VICE Monitor (hot reload, watch, profiler) follow the ACME build. ACME highlighting and autocomplete, VMA macros in ACME source and ACME `!` directives in VMA source are reported, editor exports are inserted as ACME source, and `.proj` remembers the assembler. Text only: block mode and the tutorials are off in ACME mode.
+- **Better Kick Assembler import** — the menu entry is now *Kick import*; plain `.text "…"` with `.encoding` (`screencode_mixed` default, `screencode_upper`, `petscii_mixed`, `petscii_upper`, `ascii`, `@"…"` escapes), PC labels `.label loc = * + 1`, `.abs` / `.zp` mnemonic suffixes. Restore64 disassemblies import and build byte for byte like KickAssembler.
+- **Run starts programs below the BASIC line** — a program that loads below or across the BASIC SYS line (e.g. from `$071C`) gets a small loader that moves it into place and jumps to the first ORG; a lower ORG later in the source is no longer moved up.
+- **Exomizer** — no more `?SYNTAX ERROR` on the second RUN of a crunched program (`sfx basic` for PRGs with a BASIC line).
+- **SID Editor** — playback LCD (position, pattern, row, time; Settings → SID preview → LCD colour green / red), VA-VK instrument knob with an LCD, progress bar for *Import .sid…*.
+- **Settings** in three tabs (General, Files and paths, Integrations); **Ctrl+N** opens a new tab; dialog text is no longer selectable by accident; faster editing of large Expert sources; `LSR A` and `JMP ($nnnn)` import fixes.
+
+## Earlier: v2.6.3
 
 - **.sid import in the SID Editor** — *Files → Import .sid…* plays a PSID / RSID subtune silently in VA SID Core and converts its SID register stream into instruments, patterns and a song: note ons and legato notes, rows placed exactly on the notes (funktempo / swing via `F` effects), wave / arpeggio tables with fixed-pitch drum attacks, pulse and filter movement, gate timing with hard restart, and vibrato. Up to 128 instruments; identical wave tables are stored once in the player data.
 - **Long tunes play correctly** — tune data that does not fit next to the player at `$C000` moves to its own segment below `$A000` instead of running into I/O; the `.sid` (PSID) export follows.

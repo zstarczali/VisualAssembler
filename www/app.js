@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "sid-import-263",
+  id: "acme-264",
   url: "https://www.c64va.pro/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.6.3-ban",
+    eyebrow: "Újdonság a 2.6.4-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<ul><li><strong>.sid import a SID szerkesztőben</strong>: bármely PSID / RSID dal hangszerekké, patternekké és song-gá alakul, szerkesztheted és exportálhatod (Files → Import .sid…).</li><li><strong>Hosszú dalok</strong>: a lejátszó adata már nem lóg bele az I/O-ba, nem vesznek el hangok.</li><li><strong>VA SID Core előnézet</strong>: az újraindított hangok újra megszólalnak.</li><li><strong>SID szerkesztő</strong>: a fejléc mutatja a SID-emulációt, a Speed mezőn − / + gomb.</li><li><strong>Ultimate Basic 1.6.6</strong>: <code>PRINT USING</code>, sztring-összehasonlítás, lebegőpontos <code>rnd</code> / <code>mod</code>, <code>option basic print</code>, kisebb programok.</li></ul><p>Kérdés, ötlet vagy hiba: <strong>Menu → Támogatás</strong>.</p>`,
+    body: `<ul><li><strong>ACME mód</strong>: az Expert forrást ACME 0.97 fordítja (Beállítások → Általános → Assembler mód); a Disassembly / Monitor, a ciklusszámok, a tippek és a VICE Monitor az ACME kimenetét követik.</li><li><strong>Jobb Kick import</strong>: <code>.text</code> + <code>.encoding</code>, <code>.label x = * + 1</code>, <code>.abs</code> / <code>.zp</code>; a Restore64 forrásai bájtra úgy fordulnak, mint KickAssemblerrel.</li><li><strong>Futtatás</strong>: a BASIC sor alá töltődő programok is elindulnak.</li><li><strong>SID szerkesztő</strong>: LCD kijelző (pozíció, pattern, sor, idő), hangszer-gomb a VA-VK-n.</li><li><strong>Ctrl+N</strong>: új fül; a Beállítások három fülön.</li></ul><p>Kérdés, ötlet vagy hiba: <strong>Menu → Támogatás</strong>.</p>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.6.3",
+    eyebrow: "New in 2.6.4",
     title: "Welcome to Visual Assembler",
-    body: `<ul><li><strong>.sid import in the SID Editor</strong>: any PSID / RSID tune becomes instruments, patterns and a song you can edit and export (Files → Import .sid…).</li><li><strong>Long tunes</strong>: the player data no longer runs into I/O, so no notes get lost.</li><li><strong>VA SID Core preview</strong>: restarted notes sound again.</li><li><strong>SID Editor</strong>: the header shows the SID emulation, the Speed field has − / + buttons.</li><li><strong>Ultimate Basic 1.6.6</strong>: <code>PRINT USING</code>, string comparison, floating-point <code>rnd</code> / <code>mod</code>, <code>option basic print</code>, smaller programs.</li></ul><p>Questions, ideas or bugs: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>ACME mode</strong>: ACME 0.97 builds the Expert source (Settings → General → Assembler mode); Disassembly / Monitor, cycle counts, hints and the VICE Monitor follow the ACME output.</li><li><strong>Better Kick import</strong>: <code>.text</code> + <code>.encoding</code>, <code>.label x = * + 1</code>, <code>.abs</code> / <code>.zp</code>; Restore64 sources build byte for byte like KickAssembler.</li><li><strong>Run</strong>: programs that load below the BASIC line start too.</li><li><strong>SID Editor</strong>: an LCD (position, pattern, row, time), an instrument knob on VA-VK.</li><li><strong>Ctrl+N</strong>: new tab; Settings in three tabs.</li></ul><p>Questions, ideas or bugs: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.6.3",
+    eyebrow: "Novedad en la 2.6.4",
     title: "Bienvenido a Visual Assembler",
-    body: `<ul><li><strong>Importación .sid en el editor SID</strong>: cualquier tema PSID / RSID se convierte en instrumentos, patrones y una canción que puedes editar y exportar (Files → Import .sid…).</li><li><strong>Temas largos</strong>: los datos del reproductor ya no invaden la E/S y no se pierden notas.</li><li><strong>Vista previa con VA SID Core</strong>: las notas reiniciadas vuelven a sonar.</li><li><strong>Editor SID</strong>: la cabecera muestra la emulación SID y el campo Speed tiene botones − / +.</li><li><strong>Ultimate Basic 1.6.6</strong>: <code>PRINT USING</code>, comparación de cadenas, <code>rnd</code> / <code>mod</code> en coma flotante, <code>option basic print</code>, programas más pequeños.</li></ul><p>Preguntas, ideas o errores: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Modo ACME</strong>: ACME 0.97 compila el código Experto (Settings → General → Assembler mode); Disassembly / Monitor, ciclos, sugerencias y el VICE Monitor siguen la salida de ACME.</li><li><strong>Mejor importación Kick</strong>: <code>.text</code> + <code>.encoding</code>, <code>.label x = * + 1</code>, <code>.abs</code> / <code>.zp</code>; las fuentes de Restore64 se compilan byte a byte como con KickAssembler.</li><li><strong>Ejecutar</strong>: también arrancan los programas que se cargan bajo la línea BASIC.</li><li><strong>Editor SID</strong>: una pantalla LCD (posición, patrón, fila, tiempo) y un mando de instrumento en VA-VK.</li><li><strong>Ctrl+N</strong>: pestaña nueva; los ajustes en tres pestañas.</li></ul><p>Preguntas, ideas o errores: <strong>Menu → Support</strong>.</p>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.6.3",
+    eyebrow: "Neu in 2.6.4",
     title: "Willkommen bei Visual Assembler",
-    body: `<ul><li><strong>.sid-Import im SID-Editor</strong>: jedes PSID- / RSID-Stück wird zu Instrumenten, Patterns und einem Song, den du bearbeiten und exportieren kannst (Files → Import .sid…).</li><li><strong>Lange Stücke</strong>: die Player-Daten reichen nicht mehr in den I/O-Bereich, es gehen keine Noten verloren.</li><li><strong>VA-SID-Core-Vorschau</strong>: neu angeschlagene Noten erklingen wieder.</li><li><strong>SID-Editor</strong>: der Kopf zeigt die SID-Emulation, das Speed-Feld hat − / +-Knöpfe.</li><li><strong>Ultimate Basic 1.6.6</strong>: <code>PRINT USING</code>, String-Vergleiche, <code>rnd</code> / <code>mod</code> als Gleitkomma, <code>option basic print</code>, kleinere Programme.</li></ul><p>Fragen, Ideen oder Fehler: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>ACME-Modus</strong>: ACME 0.97 übersetzt den Experten-Quelltext (Settings → General → Assembler mode); Disassembly / Monitor, Zyklen, Hinweise und der VICE Monitor folgen der ACME-Ausgabe.</li><li><strong>Besserer Kick-Import</strong>: <code>.text</code> + <code>.encoding</code>, <code>.label x = * + 1</code>, <code>.abs</code> / <code>.zp</code>; Restore64-Quellen werden Byte für Byte wie mit KickAssembler übersetzt.</li><li><strong>Ausführen</strong>: auch Programme, die unter die BASIC-Zeile laden, starten.</li><li><strong>SID-Editor</strong>: ein LCD (Position, Pattern, Zeile, Zeit), ein Instrumentenregler auf VA-VK.</li><li><strong>Strg+N</strong>: neuer Tab; die Einstellungen in drei Tabs.</li></ul><p>Fragen, Ideen oder Fehler: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.6.3",
+    eyebrow: "Nieuw in 2.6.4",
     title: "Welkom bij Visual Assembler",
-    body: `<ul><li><strong>.sid-import in de SID-editor</strong>: elk PSID- / RSID-nummer wordt instrumenten, patronen en een song die je kunt bewerken en exporteren (Files → Import .sid…).</li><li><strong>Lange nummers</strong>: de playerdata lopen niet meer in het I/O-gebied, er gaan geen noten verloren.</li><li><strong>VA SID Core-voorbeeld</strong>: opnieuw aangeslagen noten klinken weer.</li><li><strong>SID-editor</strong>: de kop toont de SID-emulatie, het Speed-veld heeft − / +-knoppen.</li><li><strong>Ultimate Basic 1.6.6</strong>: <code>PRINT USING</code>, strings vergelijken, <code>rnd</code> / <code>mod</code> met drijvende komma, <code>option basic print</code>, kleinere programma's.</li></ul><p>Vragen, ideeën of bugs: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>ACME-modus</strong>: ACME 0.97 bouwt de Expert-broncode (Settings → General → Assembler mode); Disassembly / Monitor, cycli, tips en de VICE Monitor volgen de ACME-uitvoer.</li><li><strong>Betere Kick-import</strong>: <code>.text</code> + <code>.encoding</code>, <code>.label x = * + 1</code>, <code>.abs</code> / <code>.zp</code>; Restore64-bronnen bouwen byte voor byte zoals met KickAssembler.</li><li><strong>Uitvoeren</strong>: ook programma's die onder de BASIC-regel laden, starten.</li><li><strong>SID-editor</strong>: een LCD (positie, patroon, rij, tijd), een instrumentknop op VA-VK.</li><li><strong>Ctrl+N</strong>: nieuw tabblad; de instellingen in drie tabbladen.</li></ul><p>Vragen, ideeën of bugs: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.6.3",
+    eyebrow: "Nowość w 2.6.4",
     title: "Witamy w Visual Assembler",
-    body: `<ul><li><strong>Import .sid w edytorze SID</strong>: każdy utwór PSID / RSID staje się instrumentami, wzorcami i utworem, który możesz edytować i eksportować (Files → Import .sid…).</li><li><strong>Długie utwory</strong>: dane odtwarzacza nie wchodzą już w obszar I/O, nuty nie giną.</li><li><strong>Podgląd VA SID Core</strong>: ponownie uderzane nuty znów brzmią.</li><li><strong>Edytor SID</strong>: nagłówek pokazuje emulację SID, pole Speed ma przyciski − / +.</li><li><strong>Ultimate Basic 1.6.6</strong>: <code>PRINT USING</code>, porównywanie napisów, zmiennoprzecinkowe <code>rnd</code> / <code>mod</code>, <code>option basic print</code>, mniejsze programy.</li></ul><p>Pytania, pomysły lub błędy: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Tryb ACME</strong>: kod w trybie Eksperta kompiluje ACME 0.97 (Settings → General → Assembler mode); Disassembly / Monitor, cykle, wskazówki i VICE Monitor korzystają z wyniku ACME.</li><li><strong>Lepszy import Kick</strong>: <code>.text</code> + <code>.encoding</code>, <code>.label x = * + 1</code>, <code>.abs</code> / <code>.zp</code>; źródła z Restore64 kompilują się bajt w bajt jak w KickAssemblerze.</li><li><strong>Uruchamianie</strong>: startują też programy ładowane poniżej linii BASIC.</li><li><strong>Edytor SID</strong>: wyświetlacz LCD (pozycja, wzorzec, wiersz, czas), pokrętło instrumentu w VA-VK.</li><li><strong>Ctrl+N</strong>: nowa karta; ustawienia na trzech kartach.</li></ul><p>Pytania, pomysły lub błędy: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.6.3",
+    eyebrow: "Novità nella 2.6.4",
     title: "Benvenuto in Visual Assembler",
-    body: `<ul><li><strong>Importazione .sid nell'editor SID</strong>: qualsiasi brano PSID / RSID diventa strumenti, pattern e un brano da modificare ed esportare (Files → Import .sid…).</li><li><strong>Brani lunghi</strong>: i dati del player non invadono più l'area I/O, nessuna nota va persa.</li><li><strong>Anteprima VA SID Core</strong>: le note riattaccate tornano a suonare.</li><li><strong>Editor SID</strong>: l'intestazione mostra l'emulazione SID, il campo Speed ha i pulsanti − / +.</li><li><strong>Ultimate Basic 1.6.6</strong>: <code>PRINT USING</code>, confronto tra stringhe, <code>rnd</code> / <code>mod</code> in virgola mobile, <code>option basic print</code>, programmi più piccoli.</li></ul><p>Domande, idee o bug: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Modalità ACME</strong>: ACME 0.97 compila il sorgente Esperto (Settings → General → Assembler mode); Disassembly / Monitor, cicli, suggerimenti e VICE Monitor seguono l'output di ACME.</li><li><strong>Importazione Kick migliore</strong>: <code>.text</code> + <code>.encoding</code>, <code>.label x = * + 1</code>, <code>.abs</code> / <code>.zp</code>; i sorgenti di Restore64 si compilano byte per byte come con KickAssembler.</li><li><strong>Esecuzione</strong>: partono anche i programmi caricati sotto la riga BASIC.</li><li><strong>Editor SID</strong>: un display LCD (posizione, pattern, riga, tempo), una manopola dello strumento su VA-VK.</li><li><strong>Ctrl+N</strong>: nuova scheda; le impostazioni in tre schede.</li></ul><p>Domande, idee o bug: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -2166,6 +2166,12 @@ function initPalette() {
 
   // Global Ctrl+S / Cmd+S — works in both block mode and expert mode
   document.addEventListener("keydown", (e) => {
+    // Ctrl+N / Cmd+N — new tab (not over a modal dialog)
+    if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === "n") {
+      e.preventDefault();
+      if (!document.querySelector("dialog[open]:modal")) _tabNew();
+      return;
+    }
     if ((e.ctrlKey || e.metaKey) && e.key === "s") {
       e.preventDefault();
       if (ultimateBasicMode) { _ubSave(); return; }
@@ -6507,6 +6513,7 @@ function _blockToExpertLine(block) {
     return "$" + value.replace(/^#?\$/, "").toUpperCase();
   };
   if (block.isOrgMacro)       return `* = $${(block.orgAddress || "0801").toUpperCase()}`;
+  if (block.isLabel && block.labelOffset) return `.label ${block.labelName} = * ${block.labelOffset < 0 ? "-" : "+"} ${Math.abs(block.labelOffset)}`;
   if (block.isLabel)          return `${block.labelName || "start"}:`;
   if (block.isAnonymousLabel) return "-";
   if (block.isComment)        return `; ${block.rawOperand || ""}`;
@@ -6719,8 +6726,8 @@ if (block.isSpritePosMacro) return `.sprite_pos ${block.spriteNum || 0}, ${block
       : `.assert ${expr}`;
   }
 
-  // Plain instruction
-  const mnem = block.mnemonic || "NOP";
+  // Plain instruction (".zp" keeps a forced zero page symbol operand)
+  const mnem = (block.mnemonic || "NOP") + (block.forceZeroPage && /^zeroPage/.test(block.addressingMode || "") ? ".zp" : "");
   const opText = getAsmDisplayOperand(block);
   const smc = block.smcLabel ? `${block.smcLabel}:` : "";
   const op = opText ? `    ${mnem} ${smc}${opText}` : `    ${mnem}`;
@@ -12206,6 +12213,7 @@ function parseExpertText(text) {
   const whileStack = [];      // entries: { startLabel, endLabel }
   const repeatStack = [];     // entries: { startLabel }
   const acmeSyntax = typeof assemblerSyntax !== "undefined" && assemblerSyntax === "acme";
+  let kickEncoding = "screencode_mixed";
 
   for (let rawLine of text.split("\n")) {
     const { code, commentText } = _splitAsmLineComment(rawLine);
@@ -12248,6 +12256,32 @@ function parseExpertText(text) {
     if (textM) {
       const _textIsLower = (textM[4] || "").toLowerCase() === "lower";
       blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "TEXT", operand: textM[3], rawOperand: textM[3], description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isTextMacro: true, textX: textM[1], textY: textM[2], textCharset: _textIsLower ? "lower" : "upper", charOffset: (!_textIsLower && textM[4]) ? textM[4].toUpperCase().padStart(2,"0") : "00" });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // Kick Assembler: .encoding "name" — sets the encoding of the following .text lines.
+    const encodingM = line.match(/^\.encoding\s+"([A-Za-z_]+)"\s*$/i);
+    if (encodingM) {
+      kickEncoding = encodingM[1].toLowerCase();
+      blocks.push(_importMakeComment(line));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // Kick Assembler: .text "string" [, "more" | + @"\$0d" | , $NN] (no screen
+    // coordinates) — the string bytes in place, encoded with the current .encoding.
+    const kickTextM = line.match(/^\.text\s+((?:@"(?:[^"\\]|\\.)*"|"[^"]*"|\$[0-9A-Fa-f]{1,2}|\d{1,3})(?:\s*[,+]\s*(?:@"(?:[^"\\]|\\.)*"|"[^"]*"|\$[0-9A-Fa-f]{1,2}|\d{1,3}))*)\s*$/i);
+    if (kickTextM) {
+      const bytes = _kickTextBytes(kickTextM[1], kickEncoding);
+      const block = _importMakeByte(bytes.map(b => "$" + (b & 0xFF).toString(16).toUpperCase().padStart(2, "0")).join(","));
+      block.inlineComment = line;
+      if (bytes.some(b => b === null)) {
+        block.rawOperand = "";
+        block.operand = "";
+        block.validationError = tf("kickTextBadChar", { encoding: kickEncoding });
+      }
+      blocks.push(block);
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -12630,6 +12664,18 @@ function parseExpertText(text) {
       continue;
     }
 
+    // Kick Assembler: .label NAME = * [+|- N] — a label at the program counter, optionally
+    // shifted (a jump into the middle of an instruction: ".label loc = * + 1" before "bit $8a").
+    const pcLabelM = line.match(/^\.label\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*\*\s*(?:([+-])\s*(\$[0-9A-Fa-f]{1,4}|\d{1,5}))?\s*$/i);
+    if (pcLabelM) {
+      const label = _importMakeLabel(pcLabelM[1]);
+      const n = pcLabelM[3] ? (pcLabelM[3].startsWith("$") ? parseInt(pcLabelM[3].slice(1), 16) : parseInt(pcLabelM[3], 10)) : 0;
+      if (n) label.labelOffset = pcLabelM[2] === "-" ? -n : n;
+      blocks.push(label);
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
     // .const/.label NAME = value
     const constM = line.match(/^\.(?:const|label)\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)\s*$/i);
     if (constM) { blocks.push(_importMakeConst(constM[1], constM[2].trim())); if (commentText) blocks.push(_importMakeComment(commentText)); continue; }
@@ -12994,7 +13040,7 @@ function parseExpertText(text) {
     if (code.trim()) {
       const codeBlock = blocks[inlineBlockIdx++];
       if (commentText && blocks[inlineBlockIdx]?.isComment) {
-        codeBlock.inlineComment = commentText;
+        codeBlock.inlineComment = codeBlock.inlineComment ? `${codeBlock.inlineComment} ; ${commentText}` : commentText;
         blocks.splice(inlineBlockIdx, 1);
       }
     } else {
@@ -13051,8 +13097,51 @@ function _addSrcLineToBlocks(text, blocks) {
 // because a rebuild can change the block count (BYTE blocks render as chunks
 // of 8 per line, so one parsed block can become two after a sync round-trip).
 // Returns the number of blocks inserted.
+// The editors export VA asm. ACME takes the same instructions, labels and "* =";
+// the data and equate directives are rewritten, any other VA directive stays and
+// is reported by _acmeVaSyntaxErrors.
+function _acmeFromVaAsm(text) {
+  return String(text || "").split("\n").map((line) => {
+    const { code } = _splitAsmLineComment(line);
+    const comment = line.slice(code.length);
+    let out = code.replace(/^(\s*)\.(byte|word|fill)\b/i, (_, indent, name) => `${indent}!${name.toLowerCase()}`);
+    out = out.replace(/^(\s*)\.(?:const|var)\s+([A-Za-z_]\w*)\s*=\s*/i, "$1$2 = ");
+    out = out.replace(/^(\s*)\.align\s+(\$[0-9A-Fa-f]+|\d+)\s*$/i, (match, indent, value) => {
+      const size = value.startsWith("$") ? Number.parseInt(value.slice(1), 16) : Number.parseInt(value, 10);
+      return size > 0 && (size & (size - 1)) === 0 ? `${indent}!align ${size - 1}, 0` : match;
+    });
+    return (out + comment).replace(/\s+$/, "");
+  }).join("\n");
+}
+
+// ACME mode: the export goes to the end of the source as ACME text. With a tag it sits
+// between "; >>> tag" and "; <<< tag", and the next export with that tag replaces it.
+function _acmeInsertExport(asmText, insertTag) {
+  const acmeText = _acmeFromVaAsm(asmText).replace(/^\n+|\n+$/g, "");
+  if (!acmeText.trim()) return 0;
+  const errors = _acmeVaSyntaxErrors(acmeText);
+  if (errors.length) {
+    showViceToast?.(tf("acmeVaSource", { count: errors.length }), true);
+    return 0;
+  }
+  let source = _expertGetSourceText();
+  if (insertTag) {
+    const esc = insertTag.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    source = source.replace(new RegExp(`\\n*^; >>> ${esc}$[\\s\\S]*?^; <<< ${esc}$\\n?`, "m"), "\n");
+  }
+  const body = insertTag ? `; >>> ${insertTag}\n${acmeText}\n; <<< ${insertTag}` : acmeText;
+  const head = source.replace(/\s+$/, "");
+  const start = head ? head.length + 2 : 0;
+  _expertSourceText = (head ? head + "\n\n" : "") + body + "\n";
+  _expertRefreshProjection(start, start);
+  expertEditor.dispatchEvent(new Event("input"));
+  markTabDirty();
+  return acmeText.split("\n").filter(line => line.trim()).length;
+}
+
 function exportAsmToBlocks(asmText, insertTag) {
   if (!asmText) return 0;
+  if (assemblerSyntax === "acme" && expertMode && expertEditor && !ultimateBasicMode) return _acmeInsertExport(asmText, insertTag);
   const newBlocks = parseExpertText(asmText);
   if (!newBlocks.length) return 0;
   if (insertTag) newBlocks.forEach(b => { b._cgSource = insertTag; });
@@ -13508,6 +13597,7 @@ function _expertValidate() {
     const vaErrors = _acmeVaSyntaxErrors(_expertGetSourceText());
     _expertErrorLineNos = new Set(vaErrors.map(error => error.sourceLine));
     if (_expertProjectVisible) _expertRenderSymbols();
+    _acmeUpdateAnalysis();
     if (vaErrors.length) {
       _expertSetStatus(tf("acmeVaSource", { count: vaErrors.length }), "error");
       if (_expertDisasmVisible) _expertRenderDisasm();
@@ -14219,11 +14309,25 @@ function _acmePreviewErrorCurrent() {
     && _acmePreviewError.sourceText === _expertGetSourceText());
 }
 
-// With the Disassembly or Monitor panel open, ACME mode rebuilds after a typing
-// pause like VA mode does, so the panels follow the source.
+// Cycle gutter and peephole hints of the current ACME build (cleared while it is stale).
+function _acmeUpdateAnalysis() {
+  const preview = _acmePreviewCurrent();
+  const rows = preview ? _acmeReportRows(preview.report, preview.sourceLineOffset ?? null) : [];
+  _expertCycleMap = _acmeCycleMap(rows);
+  const prevHintKey = _expertLintHints.map((h) => h.srcLine + h.key).join();
+  _expertLintHints = _lintAsm(_acmeLintSeq(rows)).filter((h) => h.srcLine !== undefined && h.srcLine !== null);
+  if (_expertLintHints.map((h) => h.srcLine + h.key).join() !== prevHintKey) {
+    _expertApplyHighlight();
+    _expertRenderLintButton();
+  }
+  if (_expertCyclesEnabled) _expertUpdateCycles();
+}
+
+// With the Disassembly or Monitor panel or the cycle gutter on, ACME mode rebuilds
+// after a typing pause like VA mode does, so they follow the source.
 function _acmeScheduleAutoBuild() {
   clearTimeout(_expertParseTimer);
-  if (assemblerSyntax !== "acme" || !expertMode || !(_expertDisasmVisible || _expertMonitorVisible)) return;
+  if (assemblerSyntax !== "acme" || !expertMode || !(_expertDisasmVisible || _expertMonitorVisible || _expertCyclesEnabled)) return;
   if (!window.electronAPI?.buildAcmePrg || _acmePreviewCurrent() || _acmePreviewErrorCurrent()) return;
   _expertParseTimer = setTimeout(() => _acmeBuildPreview({ quiet: true }), 600);
 }
@@ -14249,21 +14353,222 @@ function _acmeReportKinds(report, memory) {
   return kinds;
 }
 
+// ACME report (-r) rows: "; ******** Source: <file>" headers, then fixed columns:
+// line number (6), address (4) at col 8, up to 8 bytes at col 13 ("..." when cut),
+// source text from col 32. srcLine is the editor line for rows of the built source.
+function _acmeReportRows(report, sourceLineOffset = 0) {
+  const rows = [];
+  let file = "";
+  let own = false;
+  String(report || "").split(/\r?\n/).forEach((raw) => {
+    const header = raw.match(/^;\s*\*+\s*Source:\s*(.+?)\s*$/);
+    if (header) {
+      file = header[1];
+      own = /(?:^|[\\/])c64-visual-assembler-[^\\/]+\.a$/i.test(file);
+      return;
+    }
+    const number = raw.match(/^ *(\d+)  /);
+    if (!number) return;
+    const line = Number.parseInt(number[1], 10);
+    const addressText = raw.slice(8, 12);
+    const address = /^[0-9A-Fa-f]{4}$/.test(addressText) ? Number.parseInt(addressText, 16) : null;
+    const byteText = raw.slice(13, 32).trim();
+    const truncated = byteText.endsWith("...");
+    const hex = byteText.replace(/\.+$/, "");
+    const bytes = address !== null && /^(?:[0-9A-Fa-f]{2})+$/.test(hex)
+      ? hex.match(/../g).map(pair => Number.parseInt(pair, 16)) : [];
+    const editorLine = line - (sourceLineOffset ?? 0) - 1;
+    rows.push({ file, own, line, srcLine: own && sourceLineOffset !== null && editorLine >= 0 ? editorLine : null, address, bytes, truncated, source: raw.slice(32) });
+  });
+  return rows;
+}
+
+// One source line's statements: instructions (with an optional leading label), bare
+// labels, or anything else (data, directive, macro call), which makes it no code line.
+function _acmeLineStatements(source) {
+  let code = "";
+  let quote = "";
+  for (const ch of String(source || "")) {
+    if (quote) { if (ch === quote) quote = ""; }
+    else if (ch === '"' || ch === "'") quote = ch;
+    else if (ch === ";") break;
+    code += ch;
+  }
+  const parts = [];
+  let part = "";
+  quote = "";
+  for (const ch of code) {
+    if (quote) { if (ch === quote) quote = ""; }
+    else if (ch === '"' || ch === "'") quote = ch;
+    else if (ch === ":") { parts.push(part); part = ""; continue; }
+    part += ch;
+  }
+  parts.push(part);
+  const isLabel = (token) => /^(?:[.@]?[A-Za-z_][\w.]*|[-+]+)$/.test(token);
+  const isMnem = (token) => !!token && Object.prototype.hasOwnProperty.call(opcodeMap, token.toUpperCase());
+  return parts.map(p => p.trim()).filter(Boolean).map((p) => {
+    const tokens = p.split(/\s+/);
+    if (isMnem(tokens[0])) return { mnem: tokens[0].toUpperCase(), label: false };
+    if (isLabel(tokens[0]) && isMnem(tokens[1])) return { mnem: tokens[1].toUpperCase(), label: true };
+    if (tokens.length === 1 && isLabel(tokens[0])) return { labelOnly: true };
+    return { other: true };
+  });
+}
+
+// The instructions of a report row, decoded from its bytes; null unless the bytes are
+// exactly the line's instructions (data, macro calls and cut rows are no code).
+function _acmeRowInstructions(row) {
+  if (!row.bytes.length || row.truncated || row.address === null) return null;
+  const statements = _acmeLineStatements(row.source);
+  if (statements.some(s => s.other)) return null;
+  const expected = statements.filter(s => s.mnem);
+  if (!expected.length) return null;
+  const out = [];
+  let offset = 0;
+  for (const statement of expected) {
+    const info = _REV_OP[row.bytes[offset]];
+    if (!info || info.mode === "unknown" || info.mnem !== statement.mnem || offset + info.size > row.bytes.length) return null;
+    out.push({ mnem: info.mnem, mode: info.mode, bytes: row.bytes.slice(offset, offset + info.size), address: (row.address + offset) & 0xFFFF });
+    offset += info.size;
+  }
+  return offset === row.bytes.length ? out : null;
+}
+
+// Cycle gutter of the editor lines from the report (first listing of a line wins).
+function _acmeCycleMap(rows) {
+  const map = new Map();
+  for (const row of rows) {
+    if (row.srcLine === null || map.has(row.srcLine)) continue;
+    const instructions = _acmeRowInstructions(row);
+    if (!instructions) continue;
+    let total = null;
+    for (const ins of instructions) {
+      const c = _cycleInfo(ins.bytes, ins.address);
+      if (!c) { total = null; break; }
+      total = total
+        ? { min: total.min + c.min, max: total.max + c.max, text: total.text + "," + c.text, warn: total.warn || c.warn }
+        : c;
+    }
+    if (total) map.set(row.srcLine, total);
+  }
+  return map;
+}
+
+// Peephole input in assembly order: instructions of the editor's lines; anything
+// else that emits bytes, an origin change or an included file breaks the run.
+function _acmeLintSeq(rows) {
+  const seq = [];
+  let labelled = false;
+  for (const row of rows) {
+    if (!row.own) {
+      if (row.bytes.length) seq.push({ barrier: true });
+      continue;
+    }
+    const statements = _acmeLineStatements(row.source);
+    if (/^\s*\*\s*=/.test(row.source) || /^\s*!(?:pseudopc|realpc)\b/i.test(row.source)) {
+      seq.push({ barrier: true });
+      continue;
+    }
+    if (!row.bytes.length) {
+      if (row.address === null && statements.length && statements.every(s => s.labelOnly)) labelled = true;
+      continue;
+    }
+    const instructions = row.srcLine === null ? null : _acmeRowInstructions(row);
+    if (!instructions) {
+      seq.push({ barrier: true });
+      labelled = false;
+      continue;
+    }
+    const lineLabelled = labelled || statements.some(s => s.label || s.labelOnly);
+    instructions.forEach((ins, i) => seq.push({ ...ins, srcLine: row.srcLine, labelled: i === 0 && lineLabelled }));
+    labelled = false;
+  }
+  return seq;
+}
+
+// Byte count of a report row cut to 8 bytes, from its data directive; null if unknown.
+function _acmeTruncatedRowLength(source) {
+  const code = _acmeLineStatements(source).length === 1 ? String(source).replace(/;.*$/, "").trim() : "";
+  const match = code.match(/^(?:[.@]?[A-Za-z_][\w.]*:?\s+)?!(byte|by|08|8|word|wo|16|fill|fi|text|tx)\s+(.+)$/i);
+  if (!match) return null;
+  const kind = match[1].toLowerCase();
+  const args = match[2].split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(a => a.trim());
+  if (kind === "fill" || kind === "fi") {
+    const n = args[0].match(/^(?:\$([0-9A-Fa-f]+)|%([01]+)|(\d+))$/);
+    return n ? Number.parseInt(n[1] ?? n[2] ?? n[3], n[1] ? 16 : n[2] ? 2 : 10) : null;
+  }
+  if (kind === "text" || kind === "tx") {
+    return args.every(a => /^"[^"]*"$/.test(a)) ? args.reduce((sum, a) => sum + a.length - 2, 0) : null;
+  }
+  return args.length * (kind === "word" || kind === "wo" || kind === "16" ? 2 : 1);
+}
+
+// Address ranges a build really writes (gaps between "* =" segments stay untouched).
+function _acmeOccupiedRanges(rows, memory) {
+  if (!memory) return [];
+  const end = memory.origin + memory.payload.length;
+  const starts = rows.filter(r => r.address !== null && r.bytes.length).map(r => r.address).sort((a, b) => a - b);
+  const ranges = [];
+  for (const row of rows) {
+    if (row.address === null || !row.bytes.length || row.address < memory.origin || row.address >= end) continue;
+    let stop = row.address + row.bytes.length;
+    if (row.truncated) {
+      const length = _acmeTruncatedRowLength(row.source);
+      stop = length ? row.address + length : Math.min(end, starts.find(a => a > row.address) ?? end);
+    }
+    ranges.push({ start: row.address, end: Math.min(stop, end) - 1 });
+  }
+  ranges.sort((a, b) => a.start - b.start);
+  const merged = [];
+  for (const r of ranges) {
+    const last = merged[merged.length - 1];
+    if (last && r.start <= last.end + 1) last.end = Math.max(last.end, r.end);
+    else merged.push({ ...r });
+  }
+  return merged;
+}
+
+// Profiler map: address → routine (nearest global label below) and report line.
+function _acmeAddressMap(rows, labelsText) {
+  const globals = [];
+  for (const [address, names] of _acmeParseLabels(labelsText)) {
+    const name = names.find(n => !/^[.@]/.test(n));
+    if (name) globals.push({ address, name });
+  }
+  globals.sort((a, b) => a.address - b.address);
+  const routineAt = (address) => {
+    let name = "(start)";
+    for (const g of globals) { if (g.address <= address) name = g.name; else break; }
+    return name;
+  };
+  const map = new Map();
+  rows.forEach((row, index) => {
+    if (row.address === null || !row.bytes.length || row.truncated) return;
+    const routine = routineAt(row.address);
+    const fileLine = row.own ? undefined : `${String(row.file).split(/[\\/]/).pop()}:${row.line}`;
+    for (let a = row.address; a < row.address + row.bytes.length && a <= 0xFFFF; a++) {
+      if (!map.has(a)) map.set(a, { routine, srcLine: row.srcLine ?? undefined, index, fileLine });
+    }
+  });
+  return map;
+}
+
 // The SYS stub VA adds at $0801 and code far above it form one PRG; the zeros
 // between them only fill the gap. Like VA mode, the preview skips them and
 // shows the generated stub only with "Show BASIC stub" on.
-function _acmePreviewSegments(preview) {
+// showStub: undefined follows the "Show BASIC stub" option.
+function _acmePreviewSegments(preview, showStub) {
   const memory = _acmePrgMemory(preview?.bytes);
   if (!memory) return null;
+  const stubShown = showStub ?? (typeof showBasicStubToggle !== "undefined" && !!showBasicStubToggle?.checked);
   const stub = _extractBasicStubSection(preview.bytes);
   const stubEnd = stub ? stub.address + stub.bytes.length : -1;
   const code = Number(preview.sysAddress);
   const codeIndex = code - memory.origin;
   // Nothing but the generated stub (empty or comment-only source): no code to show.
   if (preview.stubGenerated && stub && code === stubEnd && codeIndex >= memory.payload.length) {
-    const showStub = typeof showBasicStubToggle !== "undefined" && showBasicStubToggle?.checked;
     return {
-      segments: showStub ? [{ origin: memory.origin, payload: memory.payload.slice(0, stubEnd - memory.origin) }] : [],
+      segments: stubShown ? [{ origin: memory.origin, payload: memory.payload.slice(0, stubEnd - memory.origin) }] : [],
       filler: 0,
       empty: true
     };
@@ -14273,7 +14578,7 @@ function _acmePreviewSegments(preview) {
     return { segments: [memory], filler: 0 };
   }
   const segments = [];
-  if (typeof showBasicStubToggle !== "undefined" && showBasicStubToggle?.checked) {
+  if (stubShown) {
     segments.push({ origin: memory.origin, payload: memory.payload.slice(0, stubEnd - memory.origin) });
   }
   segments.push({ origin: code, payload: memory.payload.slice(codeIndex) });
@@ -18055,7 +18360,7 @@ function _collectDebuggerSymbols(layout) {
 
   layout.lines.forEach((line) => {
     const block = line.block || {};
-    if (block.isLabel && block.labelName) pushSymbol(block.labelName, line.address);
+    if (block.isLabel && block.labelName) pushSymbol(block.labelName, (line.address + (block.labelOffset || 0)) & 0xFFFF);
     if (block.isLoopMacro && block.loopLabel) pushSymbol(block.loopLabel, line.address + 2);
     if (block.isForMacro && block.loopLabel) pushSymbol(block.loopLabel, line.address + 2);
     if (block._autoBufferLabel) pushSymbol(block._autoBufferLabel, line.address);
@@ -22750,6 +23055,7 @@ async function buildRunPrgForCurrentMode() {
 
   if (assemblerSyntax === "acme") {
     const prg = await _buildAcmePrg();
+    if (prg.ok) _vmAcmeBuild = prg;
     return prg.ok ? _applyExomizerToPrg(prg) : prg;
   }
   const prg = buildAutostartPrgForEmulator();
@@ -22818,7 +23124,7 @@ async function _buildAcmePrg(useCurrentEditor = false) {
     const error = result?.error || "ACME fordítás sikertelen.";
     return { ok: false, error, errors: _acmeParseErrors(error, useExpertSource ? sourceLineOffset : null) };
   }
-  return { ok: true, bytes: Uint8Array.from(result.bytes || []), labels: result.labels || "", report: result.report || "", sysAddress, stubGenerated: sourceLineOffset > 0 };
+  return { ok: true, bytes: Uint8Array.from(result.bytes || []), labels: result.labels || "", report: result.report || "", sysAddress, stubGenerated: sourceLineOffset > 0, sourceLineOffset: useExpertSource ? sourceLineOffset : null };
 }
 
 // VA (VMA) and ACME sources never mix: VA code is not converted, ACME mode
@@ -22938,6 +23244,11 @@ function _acmeBuildButtonSync() {
   if (acme) expertModeTbBtn?.setAttribute("aria-disabled", "true");
   else expertModeTbBtn?.removeAttribute("aria-disabled");
   if (expertModeToggle) expertModeToggle.disabled = acme;
+  // The tutorials build VMA (VA) programs with blocks: off in ACME mode.
+  const tutorialBtn = document.getElementById("tutorial-btn");
+  tutorialBtn?.classList.toggle("main-tb-btn--locked", acme);
+  if (acme) tutorialBtn?.setAttribute("aria-disabled", "true");
+  else tutorialBtn?.removeAttribute("aria-disabled");
   if (categorySelect.options.length) {
     const category = categorySelect.value;
     refreshCategoryOptions();
@@ -23018,6 +23329,7 @@ async function _acmeBuildPreview(options) {
       _acmePreview = { ...result, tabId, sourceText };
       _expertSetStatus(tf("acmeBuildSuccess", { bytes: _acmePreviewByteCount(result) }), "ok");
     }
+    _acmeUpdateAnalysis();
     if (_expertDisasmVisible) _expertRenderDisasm();
     if (_expertMonitorVisible) _expertRenderMonitor();
   } catch (error) {
@@ -23525,6 +23837,53 @@ function _importMakeByte(rawByteStr) {
     addressingMode: "implied", base,
     validationError: "", collapsed: true, isByteMacro: true
   };
+}
+
+// Kick Assembler .text operand → bytes. Items: "plain", @"escaped" (\n \r \t \\ \" \$NN),
+// $NN / decimal byte; joined with "," or "+". A character the encoding has no code for
+// → null in its place.
+function _kickTextBytes(operand, encoding) {
+  const enc = String(encoding || "screencode_mixed").toLowerCase();
+  const encodeChar = (ch) => {
+    if (!ch) return null;
+    let c = ({ "£": 0x5C, "↑": 0x5E, "←": 0x5F })[ch] ?? ch.codePointAt(0);
+    if (c > 0x7F) return null;
+    const lower = c >= 0x61 && c <= 0x7A;
+    const upper = c >= 0x41 && c <= 0x5A;
+    switch (enc) {
+      case "ascii": return c;
+      case "petscii_upper": return lower ? c - 0x20 : c;
+      case "petscii_mixed": return lower ? c - 0x20 : upper ? c + 0x80 : c;
+      case "screencode_upper":
+        if (c >= 0x20 && c < 0x40) return c;
+        if (c >= 0x40 && c < 0x60) return c - 0x40;
+        return lower ? c - 0x60 : null;
+      case "screencode_mixed":
+        if (c >= 0x20 && c < 0x40) return c;
+        if (upper) return c;
+        if (c >= 0x40 && c < 0x60) return c - 0x40;
+        return lower ? c - 0x60 : null;
+      default: return null;
+    }
+  };
+  const out = [];
+  const itemRe = /@"((?:[^"\\]|\\.)*)"|"([^"]*)"|\$([0-9A-Fa-f]{1,2})|(\d{1,3})/g;
+  for (const m of String(operand || "").matchAll(itemRe)) {
+    if (m[3] !== undefined) { out.push(parseInt(m[3], 16)); continue; }
+    if (m[4] !== undefined) { const v = parseInt(m[4], 10); out.push(v <= 255 ? v : null); continue; }
+    if (m[2] !== undefined) { for (const ch of m[2]) out.push(encodeChar(ch)); continue; }
+    const s = m[1];
+    for (let i = 0; i < s.length; i++) {
+      if (s[i] !== "\\") { out.push(encodeChar(s[i])); continue; }
+      const e = s[++i];
+      if (e === "$" && /^[0-9A-Fa-f]{2}$/.test(s.slice(i + 1, i + 3))) { out.push(parseInt(s.slice(i + 1, i + 3), 16)); i += 2; }
+      else if (e === "n") out.push(0x0A);
+      else if (e === "r") out.push(0x0D);
+      else if (e === "t") out.push(0x09);
+      else out.push(encodeChar(e ?? ""));
+    }
+  }
+  return out;
 }
 
 // Detect a comma-separated value list base. Returns { base, normalized } where
@@ -24095,6 +24454,15 @@ function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
     };
   }
 
+  // Kick Assembler forces the addressing mode with a mnemonic suffix:
+  // lda.abs $0040,x (.a) and stx.zp label,y (.z). The line parser leaves the
+  // suffix at the start of the operand.
+  let forcedMode = "";
+  {
+    const forceM = String(operandRaw || "").match(/^\.(abs|a|zp|z)\s+(\S.*)$/i);
+    if (forceM) { forcedMode = /^a/i.test(forceM[1]) ? "abs" : "zp"; operandRaw = forceM[2].trim(); }
+  }
+
   // Self-modifying-code label on the operand: `LDA value:#$00` → label `value`
   // points at the operand byte, the instruction assembles from what follows `:`.
   let smcLabel = "";
@@ -24223,12 +24591,38 @@ function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
     }
   }
 
+  let forceZeroPage = false;
+  const indexSuffix = /X$/.test(addressingMode) ? ",X" : /Y$/.test(addressingMode) ? ",Y" : "";
+  if (forcedMode === "abs") {
+    const wide = { zeroPage: "absolute", zeroPageX: "absoluteX", zeroPageY: "absoluteY" }[addressingMode];
+    if (wide) {
+      addressingMode = wide;
+      if (base === "dec") { rawOperand = Number(rawOperand).toString(16).toUpperCase(); base = "hex"; }
+      // Four hex digits keep the absolute mode when the line is read back.
+      rawOperand = rawOperand.padStart(4, "0");
+      displayOperand = "$" + rawOperand + indexSuffix;
+    }
+  } else if (forcedMode === "zp") {
+    const narrow = { absolute: "zeroPage", absoluteX: "zeroPageX", absoluteY: "zeroPageY" }[addressingMode];
+    if (narrow) {
+      addressingMode = narrow;
+      if (base === "hex" && /^0*[0-9A-F]{1,2}$/i.test(rawOperand)) {
+        rawOperand = rawOperand.slice(-2).toUpperCase();
+        displayOperand = "$" + rawOperand + indexSuffix;
+      } else {
+        // A symbol has no width of its own: the Expert line keeps ".zp".
+        forceZeroPage = true;
+      }
+    }
+  }
+
   return {
     id: crypto.randomUUID(),
     category, mnemonic, description,
     operand: displayOperand, rawOperand, addressingMode, base,
     validationError: "", collapsed: true,
-    ...(smcLabel ? { smcLabel } : {})
+    ...(smcLabel ? { smcLabel } : {}),
+    ...(forceZeroPage ? { forceZeroPage } : {})
   };
 }
 
@@ -24645,7 +25039,7 @@ function addLayoutLabels(labelMap, line) {
       return null;
     }
   };
-  if (block.isLabel && block.labelName) labelMap.set(block.labelName, line.address);
+  if (block.isLabel && block.labelName) labelMap.set(block.labelName, (line.address + (block.labelOffset || 0)) & 0xFFFF);
   if (block.isIncBinMacro && block.incBinLevel) {
     const info = _levelInfo(block);
     if (info.ok) for (const [name, value] of Object.entries(info.labels)) labelMap.set(name, value);
@@ -25790,19 +26184,90 @@ function _buildAutostartPrgCore() {
   const codePrg = assembleProgramToPrg(sysAddress);
   if (!codePrg.ok) return codePrg;
 
+  const codeData = codePrg.bytes.slice(2);
+  // The image starts at its lowest segment, which is not always the first ORG
+  // (an imported Kick source can start with ".pc = $0c40" and also fill $071c-).
+  const loadAddr = codePrg.bytes[0] | (codePrg.bytes[1] << 8);
+  if (loadAddr < stubEndAddr) {
+    // The image covers the stub: a loader moves it into place, then jumps to the first ORG.
+    const loader = _buildRelocatingLoader(codeData, loadAddr, sysAddress);
+    return loader ? { ok: true, bytes: loader, sysAddress: 0x080D } : { ok: false, error: tf("autostartImageOverlapsStub", { address: formatAddress(loadAddr) }) };
+  }
+
   const basicStub = buildBasicSysStub(sysAddress);
   // basicStub[0,1] = PRG load addr header ($0801)
   // basicStub[2..] = BASIC program data loaded at $0801
   const stubData = basicStub.slice(2);
-  const codeData = codePrg.bytes.slice(2);
   // Fill gap between stub end and code start with zeros
-  const gapSize = sysAddress - 0x0801 - stubData.length;
+  const gapSize = loadAddr - 0x0801 - stubData.length;
   const bytes = new Uint8Array(2 + stubData.length + gapSize + codeData.length);
   bytes[0] = 0x01; bytes[1] = 0x08; // load at $0801
   bytes.set(stubData, 2);
   bytes.set(codeData, 2 + stubData.length + gapSize);
 
   return { ok: true, bytes, sysAddress };
+}
+
+// Autostart PRG for an image that overlaps the BASIC SYS stub ($0801 SYS 2061). A 14-byte
+// starter copies the mover to the tape buffer ($033C) or low stack ($0120) and jumps there.
+// Small image: stored after the mover, copied down to `loadAddr`. Larger image (it would reach
+// $D000 shifted): the PRG loads it at its own addresses, the bytes under stub + starter + mover
+// ride in a zero run of the image; the mover copies them home and clears the run. Then JMP
+// `entry`. Writes land as a KERNAL LOAD puts them ($01 unchanged). Null when nothing fits.
+function _buildRelocatingLoader(image, loadAddr, entry) {
+  const size = image.length;
+  const end = loadAddr + size;
+  const lo = v => v & 0xFF, hi = v => (v >> 8) & 0xFF;
+  // (src),Y → (dst),Y for n bytes; X = page count.
+  const copy = (src, dst, n) => {
+    const code = [0xA9, lo(src), 0x85, 0xFB, 0xA9, hi(src), 0x85, 0xFC,
+      0xA9, lo(dst), 0x85, 0xFD, 0xA9, hi(dst), 0x85, 0xFE, 0xA0, 0x00];
+    if (n >> 8) code.push(0xA2, n >> 8, 0xB1, 0xFB, 0x91, 0xFD, 0xC8, 0xD0, 0xF9,
+      0xE6, 0xFC, 0xE6, 0xFE, 0xCA, 0xD0, 0xF2);
+    if (n & 0xFF) code.push(0xB1, 0xFB, 0x91, 0xFD, 0xC8, 0xC0, n & 0xFF, 0xD0, 0xF7);
+    return code;
+  };
+  const clear = (dst, n) => {
+    const code = [0xA9, lo(dst), 0x85, 0xFB, 0xA9, hi(dst), 0x85, 0xFC, 0xA9, 0x00, 0xA8];
+    if (n >> 8) code.push(0xA2, n >> 8, 0x91, 0xFB, 0xC8, 0xD0, 0xFB, 0xE6, 0xFC, 0xCA, 0xD0, 0xF6);
+    if (n & 0xFF) code.push(0x91, 0xFB, 0xC8, 0xC0, n & 0xFF, 0xD0, 0xF9);
+    return code;
+  };
+  const build = (moverBody, tail) => {
+    const mover = [0x78, ...moverBody, 0x58, 0x4C, lo(entry), hi(entry)];
+    const moverAddr = [0x033C, 0x0120].find(a => end <= a || loadAddr >= a + mover.length);
+    if (moverAddr === undefined) return null;
+    const starter = [0xA2, mover.length - 1, 0xBD, lo(0x080D + 14), hi(0x080D + 14),
+      0x9D, lo(moverAddr), hi(moverAddr), 0xCA, 0x10, 0xF7, 0x4C, lo(moverAddr), hi(moverAddr)];
+    const head = [...buildBasicSysStub(0x080D), ...starter, ...mover];
+    const out = new Uint8Array(head.length + tail.length);
+    out.set(head, 0);
+    out.set(tail, head.length);
+    return out;
+  };
+  if (!size) return null;
+  // Mover length is fixed by the byte counts, not the addresses: measure with dummy values.
+  const shiftLen = 5 + copy(0, 0, size).length;
+  const shiftSrc = 0x080D + 14 + shiftLen;
+  if (shiftSrc + size <= 0xD000) return build(copy(shiftSrc, loadAddr, size), image);
+
+  const inPlaceLen = 5 + copy(0, 0, 0x101).length + clear(0, 0x101).length;
+  const firstInPlace = 0x080D + 14 + inPlaceLen;
+  const moved = firstInPlace - loadAddr;
+  if (moved >= size) return null;
+  let run = -1;
+  for (let i = moved, n = 0; i < size; i++) {
+    const addr = loadAddr + i;
+    if (image[i] !== 0 || (addr >= 0xD000 && addr < 0xE000)) { n = 0; continue; }
+    if (++n === moved) { run = i - moved + 1; break; }
+  }
+  if (run < 0) return null;
+  const tail = image.slice(moved);
+  tail.set(image.subarray(0, moved), run - moved);
+  const runAddr = loadAddr + run;
+  const body = [...copy(runAddr, loadAddr, moved), ...clear(runAddr, moved)];
+  while (body.length < inPlaceLen - 5) body.push(0xEA);
+  return build(body, tail);
 }
 
 function _programHasEmbeddedBasicAutostart(blocks) {
@@ -29402,11 +29867,14 @@ function getProgramLayout(originOverride) {
     // Handle ORG macro: set address cursor to new origin.
     // When originOverride is set (e.g. BASIC SYS mode), don't let ORG move
     // the cursor backwards below originOverride — that would place code at the
-    // wrong physical address in the output.
+    // wrong physical address in the output. Only an ORG inside the SYS stub
+    // ($0800-$0810, e.g. "* = $0801") is lifted: any other lower ORG is a real
+    // segment (an imported Kick dump fills $071c- after ".pc = $0c40").
     if (block.isOrgMacro && block.orgAddress) {
       const orgAddr = parseAddressValue(block.orgAddress);
       if (typeof orgAddr === "number" && !isNaN(orgAddr)) {
-        cursor = (originOverride !== undefined && orgAddr < originOverride) ? originOverride : orgAddr;
+        const inStub = originOverride !== undefined && orgAddr < originOverride && orgAddr >= 0x0800 && originOverride <= 0x0811;
+        cursor = inStub ? originOverride : orgAddr;
       }
     }
 
@@ -33872,6 +34340,7 @@ function renderAsmOutput() {
     }
 
     if (line.block.isLabel) {
+      if (line.block.labelOffset) return `.label ${line.block.labelName} = * ${line.block.labelOffset < 0 ? "-" : "+"} ${Math.abs(line.block.labelOffset)}  ; ${formatAddress((line.address + line.block.labelOffset) & 0xFFFF)}`;
       return `${line.block.labelName}:  ; ${formatAddress(line.address)}`;
     }
 
@@ -36235,6 +36704,10 @@ function _tourTargetValueMatches(step, actualValue) {
 }
 
 function openTutorialDialog() {
+  if (assemblerSyntax === "acme") {
+    showViceToast?.(t("acmeNoTutorial"), true);
+    return;
+  }
   const dlg = document.getElementById("tutorial-dialog");
   _tutRenderDialog();
   document.querySelector(".control-menu")?.removeAttribute("open");
@@ -43324,9 +43797,21 @@ function _hgExportBlocks() {
   const hx = n => "$" + (n & 0xFF).toString(16).toUpperCase().padStart(2, "0");
   const hx4 = n => n.toString(16).toUpperCase().padStart(4, "0");
 
+  // ACME has no VA macros: the loops and the KERNAL load are written out.
+  const acme = typeof assemblerSyntax !== "undefined" && assemblerSyntax === "acme";
   // 4 passes of 250 bytes using .for/.endf VA macros
   function pushCopy(srcBase, dstBase, pfx) {
     for (let i = 0; i < 4; i++) {
+      if (acme) {
+        lines.push("LDX #$00");
+        lines.push(pfx + i + ":");
+        lines.push("LDA $" + hx4(srcBase + i * 250) + ",X");
+        lines.push("STA $" + hx4(dstBase + i * 250) + ",X");
+        lines.push("INX");
+        lines.push("CPX #$FA");
+        lines.push("BNE " + pfx + i);
+        continue;
+      }
       lines.push(".for X, $FA, " + pfx + i);
       lines.push("LDA $" + hx4(srcBase + i * 250) + ",X");
       lines.push("STA $" + hx4(dstBase + i * 250) + ",X");
@@ -43346,7 +43831,23 @@ function _hgExportBlocks() {
   lines.push("");
   lines.push("* = $080D");
   lines.push("");
-  lines.push(".loadfile \"HIRES\", 8, $2000");
+  if (acme) {
+    // SETNAM, SETLFS 1,8,0, LOAD to $2000
+    lines.push("LDA #hires_name_end-hires_name");
+    lines.push("LDX #<hires_name");
+    lines.push("LDY #>hires_name");
+    lines.push("JSR $FFBD");
+    lines.push("LDA #$01");
+    lines.push("LDX #$08");
+    lines.push("LDY #$00");
+    lines.push("JSR $FFBA");
+    lines.push("LDA #$00");
+    lines.push("LDX #$00");
+    lines.push("LDY #$20");
+    lines.push("JSR $FFD5");
+  } else {
+    lines.push(".loadfile \"HIRES\", 8, $2000");
+  }
   lines.push("");
   lines.push("; Screen RAM $3F40 → $0400");
   pushCopy(0x3F40, 0x0400, "scr");
@@ -43368,6 +43869,11 @@ function _hgExportBlocks() {
   lines.push("");
   lines.push("hires_loop:");
   lines.push("JMP hires_loop");
+  if (acme) {
+    lines.push("hires_name:");
+    lines.push("!text \"HIRES\"");
+    lines.push("hires_name_end:");
+  }
   return lines.join("\n");
 }
 
@@ -51954,8 +52460,27 @@ function _cgExportDemoAsm() {
   lines.push("    sta $d020            ; border black");
   lines.push("    sta $d021            ; background black");
   lines.push("");
-  lines.push("    .sprite_init 0, 7, $80   ; sprite 0, yellow, data page $80 ($2000)");
-  lines.push("    .sprite_pos 0, 24, 120");
+  const acme = typeof assemblerSyntax !== "undefined" && assemblerSyntax === "acme";
+  if (acme) {
+    // ACME has no VA sprite macros: the same register writes, spelled out.
+    lines.push("    lda #$80             ; sprite 0, yellow, data page $80 ($2000)");
+    lines.push("    sta $07f8");
+    lines.push("    lda #$07");
+    lines.push("    sta $d027");
+    lines.push("    lda $d015");
+    lines.push("    ora #$01");
+    lines.push("    sta $d015");
+    lines.push("    lda #24");
+    lines.push("    sta $d000");
+    lines.push("    lda #120");
+    lines.push("    sta $d001");
+    lines.push("    lda $d010");
+    lines.push("    and #$fe");
+    lines.push("    sta $d010");
+  } else {
+    lines.push("    .sprite_init 0, 7, $80   ; sprite 0, yellow, data page $80 ($2000)");
+    lines.push("    .sprite_pos 0, 24, 120");
+  }
   lines.push("");
   lines.push("    lda #$00");
   lines.push("    sta idx");
@@ -51964,7 +52489,14 @@ function _cgExportDemoAsm() {
   lines.push("    sta xfrac            ; fractional accumulator (8.8 fixed point)");
   lines.push("");
   lines.push("main:");
-  lines.push("    .wait_raster $f8");
+  if (acme) {
+    lines.push(label + "_wait:");
+    lines.push("    lda $d012");
+    lines.push("    cmp #$f8");
+    lines.push("    bne " + label + "_wait");
+  } else {
+    lines.push("    .wait_raster $f8");
+  }
   lines.push("");
   lines.push("    ldx idx");
   lines.push(is16
@@ -53213,6 +53745,7 @@ let _vmLive = false;
 let _vmPollTimer = 0;
 let _vmPollBusy = false;
 let _vmAuto = false;
+let _vmAcmeBuild = null;   // last ACME build sent to VICE (profiler / watch symbols)
 let _vmAutoTimer = 0;
 let _vmProfiling = false;
 let _vmLastValues = new Map();
@@ -53253,6 +53786,12 @@ function _vmSymbols() {
     });
     return map;
   }
+  if (assemblerSyntax === "acme") {
+    const map = new Map();
+    const build = _vmAcmeBuild || _acmePreview;
+    for (const [address, names] of _acmeParseLabels(build?.labels)) names.forEach(name => map.set(name, address));
+    return map;
+  }
   try {
     return _vmWithProgram(_vmLabelMap);
   } catch (e) {
@@ -53289,7 +53828,7 @@ function _vmAggregate(samples, map) {
     const hit = map.get(pc);
     if (hit) {
       bump(routines, hit.routine, { kind: "routine" }, line);
-      bump(lines, hit.index, { kind: "line", srcLine: hit.srcLine, blockId: hit.blockId, index: hit.index, routine: hit.routine }, line);
+      bump(lines, hit.index, { kind: "line", srcLine: hit.srcLine, blockId: hit.blockId, index: hit.index, routine: hit.routine, fileLine: hit.fileLine }, line);
     } else {
       const area = pc >= 0xE000 ? "kernal" : pc >= 0xA000 && pc < 0xC000 ? "basic" : "outside";
       bump(routines, "@" + area, { kind: area }, line);
@@ -53450,6 +53989,21 @@ async function _vmBuildSegments() {
     const load = r.prg[0] | (r.prg[1] << 8);
     return { segments: [{ address: load, bytes: Array.from(r.prg.slice(2)) }], sys: r.map?.loadAddress ?? load };
   }
+  if (assemblerSyntax === "acme") {
+    const prg = await _buildAcmePrg();
+    if (!prg?.ok) throw new Error(prg?.error || t("acmeBuildFirst"));
+    _vmAcmeBuild = prg;
+    const memory = _acmePrgMemory(prg.bytes);
+    if (!memory) return null;
+    const rows = _acmeReportRows(prg.report, prg.sourceLineOffset ?? null);
+    // Without a report (older ACME) the generated stub and the code are written,
+    // not the zero filler between them.
+    const ranges = rows.length
+      ? _acmeOccupiedRanges(rows, memory)
+      : _acmePreviewSegments(prg, true).segments.map(s => ({ start: s.origin, end: s.origin + s.payload.length - 1 }));
+    const segments = ranges.map(r => ({ address: r.start, bytes: Array.from(memory.payload.slice(r.start - memory.origin, r.end - memory.origin + 1)) }));
+    return { segments, sys: prg.sysAddress ?? memory.origin };
+  }
   const prg = buildAutostartPrgForEmulator();
   if (!prg?.ok || !prg.bytes || prg.bytes.length < 3) return null;
   const load = prg.bytes[0] | (prg.bytes[1] << 8);
@@ -53504,9 +54058,16 @@ async function _vmProfile() {
   try {
     const res = await api.viceMonSample(5000, 1);
     if (!res?.ok) { _vmSetStatus(t("vmStatusOff"), "off"); return; }
+    let acmeBuild = null;
+    if (!ultimateBasicMode && assemblerSyntax === "acme") {
+      acmeBuild = _vmAcmeBuild || await _buildAcmePrg();
+      if (!acmeBuild?.ok) throw new Error(acmeBuild?.error || t("acmeBuildFirst"));
+    }
     const agg = ultimateBasicMode
       ? _vmAggregate(res.samples, _vmUbAddressMap(_ubLastResult))
-      : _vmWithProgram((layout) => _vmAggregate(res.samples, _vmAddressMap(layout)));
+      : acmeBuild
+        ? _vmAggregate(res.samples, _acmeAddressMap(_acmeReportRows(acmeBuild.report, acmeBuild.sourceLineOffset ?? null), acmeBuild.labels))
+        : _vmWithProgram((layout) => _vmAggregate(res.samples, _vmAddressMap(layout)));
     _vmRenderProfile(agg);
     _vmSetStatus(tf("vmSamples", { n: agg.total }), "ok");
   } catch (e) {
@@ -53545,7 +54106,7 @@ function _vmRenderProfile(agg) {
   };
   table(t("vmRoutine"), agg.routines, (r) => r.kind === "routine" ? r.key : t("vmArea_" + r.kind));
   table(t("vmLine"), agg.lines,
-    (r) => (r.srcLine !== undefined && (expertMode || ultimateBasicMode) ? tf("zpLine", { n: r.srcLine + 1 }) : "#" + (r.index + 1)) + " · " + r.routine,
+    (r) => (r.srcLine !== undefined && (expertMode || ultimateBasicMode) ? tf("zpLine", { n: r.srcLine + 1 }) : r.fileLine || "#" + (r.index + 1)) + " · " + r.routine,
     (r) => (ultimateBasicMode ? _ubGotoLine(r.srcLine) : _zpGotoRef(r)));
 }
 

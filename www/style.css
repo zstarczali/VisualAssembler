@@ -11649,12 +11649,13 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .form-status--error { color: #e05555; }
 .form-status--ok { color: #3fbf6a; }
 
-/* About, customer message, server message, update, settings: no text selection, no dragging of images / links (text fields excepted) */
-.about-dialog, .customer-message-card, #server-message-dialog, #support-dialog, #update-dialog, #hardware-settings-dialog, .whats-new-dialog { -webkit-user-select: none; user-select: none; }
-.about-dialog img, .about-dialog a, .customer-message-card img, .customer-message-card a,
-#update-dialog img, #update-dialog a, #hardware-settings-dialog img, #hardware-settings-dialog a,
-.whats-new-dialog img, .whats-new-dialog a, #server-message-dialog img, #server-message-dialog a, #support-dialog a { -webkit-user-drag: none; user-drag: none; }
-:is(#update-dialog, #hardware-settings-dialog, .about-dialog, .customer-message-card, #server-message-dialog, #support-dialog, .whats-new-dialog) :is(input, textarea, select, [contenteditable]) { -webkit-user-select: text; user-select: text; }
+/* Every dialog (editors, SID Player, VA-VK, horizontal tracker included): no text selection,
+   no dragging of images / links. Text fields and the outputs meant for copying stay selectable. */
+dialog, .customer-message-card { -webkit-user-select: none; user-select: none; }
+dialog img, dialog a, .customer-message-card img, .customer-message-card a { -webkit-user-drag: none; user-drag: none; }
+:is(dialog, .customer-message-card) :is(input, textarea, select, [contenteditable]),
+dialog :is(.compile-error-list, #build-info-content, .vc-output, .vc-diff-body, .template-preview,
+  #bug-sysinfo-preview, .support-msg-text, .tg-preview, .ce-asm-out, .vm-prof-out) { -webkit-user-select: text; user-select: text; }
 
 
 /* SID Editor horizontal tracker (piano roll), floating inside the editor dialog */

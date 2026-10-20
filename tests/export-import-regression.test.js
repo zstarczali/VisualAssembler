@@ -240,7 +240,7 @@ test("ACME Build opens the normal compiler-error dialog with all diagnostics", a
     _expertSetStatus: () => {},
     showCompileErrorDialog: errors => { shown = errors; },
     _expertDisasmVisible: false, _expertMonitorVisible: false,
-    _acmeScheduleAutoBuild: () => {}, _acmeBuildRunning: false, _acmePreviewError: null,
+    _acmeScheduleAutoBuild: () => {}, _acmeUpdateAnalysis: () => {}, _acmeBuildRunning: false, _acmePreviewError: null,
     t: key => key
   });
   await ctx._acmeBuildPreview();
@@ -692,10 +692,10 @@ test("parseAsmText builds long-branch and SMC-label blocks from instruction line
   assert.equal(smc[0].addressingMode, "immediate");
 });
 
-test("ACME mode rebuilds automatically only while the Disassembly or Monitor panel is open", () => {
+test("ACME mode rebuilds automatically only while the Disassembly / Monitor panel or the cycle gutter is on", () => {
   let scheduled = 0;
   const base = {
-    assemblerSyntax: "acme", expertMode: true, _expertDisasmVisible: false, _expertMonitorVisible: false,
+    assemblerSyntax: "acme", expertMode: true, _expertDisasmVisible: false, _expertMonitorVisible: false, _expertCyclesEnabled: false,
     _expertParseTimer: null, activeTabId: "t1", _acmePreview: null, _acmePreviewError: null,
     _expertGetSourceText: () => "lda #1",
     _acmePreviewCurrent: () => null,
@@ -707,6 +707,11 @@ test("ACME mode rebuilds automatically only while the Disassembly or Monitor pan
   const ctx = loadFunctions(["_acmeScheduleAutoBuild", "_acmePreviewErrorCurrent"], base);
   ctx._acmeScheduleAutoBuild();
   assert.equal(scheduled, 0);
+  ctx._expertCyclesEnabled = true;
+  ctx._acmeScheduleAutoBuild();
+  assert.equal(scheduled, 1);
+  ctx._expertCyclesEnabled = false;
+  scheduled = 0;
   ctx._expertDisasmVisible = true;
   ctx._acmeScheduleAutoBuild();
   assert.equal(scheduled, 1);
@@ -728,4 +733,104 @@ test(".proj names its assembler and old files still open with the right one", ()
   assert.equal(ctx._projAssemblerSyntax({ assembler: "vma", assemblerSyntax: "acme" }), "kick");
   assert.equal(ctx._projAssemblerSyntax({ assemblerSyntax: "acme" }), "acme");
   assert.equal(ctx._projAssemblerSyntax({}), "kick");
+});
+
+test("_importMakeInstruction honours Kick Assembler .abs / .zp mnemonic suffixes", () => {
+  const ctx = loadFunctions(
+    ["_importMakeInstruction"],
+    {
+      crypto: { randomUUID: () => "test-id" },
+      _importMnemonicCategory: () => "Memoria",
+      _importMnemonicDescription: () => ""
+    }
+  );
+  const branchMnems = new Set(["BEQ", "BNE"]);
+  const make = (mnemonic, operand) => ctx._importMakeInstruction(mnemonic, operand, branchMnems);
+
+  // sta.abs $fc,x / lda.a 48,x: absolute even for a zero page value.
+  const absX = make("STA", ".abs $fc,x");
+  assert.equal(absX.addressingMode, "absoluteX");
+  assert.equal(absX.rawOperand, "00FC");
+  assert.equal(absX.operand, "$00FC,X");
+  const absDec = make("LDA", ".a 48,x");
+  assert.equal(absDec.addressingMode, "absoluteX");
+  assert.equal(absDec.rawOperand, "0030");
+  assert.equal(make("STA", ".abs $00fc,x").addressingMode, "absoluteX");
+
+  // stx.zp label,y / lda.z $0040: zero page; a symbol keeps the flag for the Expert line.
+  const zpLabel = make("STX", ".zp zpLabel,y");
+  assert.equal(zpLabel.addressingMode, "zeroPageY");
+  assert.equal(zpLabel.forceZeroPage, true);
+  const zpHex = make("LDA", ".z $0040");
+  assert.equal(zpHex.addressingMode, "zeroPage");
+  assert.equal(zpHex.rawOperand, "40");
+  assert.equal(zpHex.forceZeroPage, undefined);
+
+  // A dotted local label is not a suffix.
+  assert.equal(make("LDA", ".a").rawOperand, ".a");
+});
+
+test("_kickTextBytes encodes Kick Assembler .text with the active .encoding", () => {
+  const ctx = loadFunctions(["_kickTextBytes"]);
+  const enc = (op, e) => Array.from(ctx._kickTextBytes(op, e));
+  // screencode_mixed (Kick default): lower → $01-$1A, upper stays, "@[]" → $00/$1B/$1D.
+  assert.deepEqual(enc('"aZ@[]1 "', "screencode_mixed"), [0x01, 0x5A, 0x00, 0x1B, 0x1D, 0x31, 0x20]);
+  assert.deepEqual(enc('"aZ@"', "screencode_upper"), [0x01, 0x1A, 0x00]);
+  assert.deepEqual(enc('"aZ$"', "petscii_upper"), [0x41, 0x5A, 0x24]);
+  assert.deepEqual(enc('"aZ"', "petscii_mixed"), [0x41, 0xDA]);
+  // Several items, escapes only in @"..." strings, number items.
+  assert.deepEqual(enc('"A\\n", $0d, 7 + @"B\\$ff\\n"', "petscii_upper"), [0x41, 0x5C, 0x4E, 0x0D, 0x07, 0x42, 0xFF, 0x0A]);
+  // No code in the encoding → null.
+  assert.deepEqual(enc('"{"', "screencode_mixed"), [null]);
+  assert.deepEqual(enc('"x"', "nonsense"), [null]);
+});
+
+test("_buildRelocatingLoader starts an image that overlaps the BASIC SYS stub", () => {
+  const { cpu } = require("./mini6502");
+  const ctx = loadFunctions(["buildBasicSysStub", "_buildRelocatingLoader"]);
+  const runLoader = (image, loadAddr, entry) => {
+    const prg = ctx._buildRelocatingLoader(image, loadAddr, entry);
+    assert.ok(prg, "loader built");
+    assert.equal(prg[0] | (prg[1] << 8), 0x0801);
+    const mem = new Uint8Array(65536).fill(0xAA);
+    mem.set(prg.subarray(2), 0x0801);
+    // BASIC line "SYS2061"
+    assert.equal(mem[0x0805], 0x9E);
+    assert.equal(String.fromCharCode(...mem.subarray(0x0806, 0x080A)), "2061");
+    const c = cpu(mem);
+    c.pc = 0x080D;
+    for (let k = 0; k < 2000000 && c.pc !== entry; k++) c.step();
+    assert.equal(c.pc, entry);
+    assert.equal(c.i, 0);
+    for (let i = 0; i < image.length; i++) {
+      if (mem[loadAddr + i] !== image[i]) assert.fail(`byte $${(loadAddr + i).toString(16)}`);
+    }
+    return prg;
+  };
+  // Small image below $0801 → stored after the mover and copied down.
+  const small = Uint8Array.from({ length: 700 }, (_, i) => (i * 7 + 1) & 0xFF);
+  runLoader(small, 0x0700, 0x0710);
+  // $071c-$d020 like an imported Restore64 dump: shifted it would reach $D000, so it loads
+  // in place and the displaced head rides in a zero run.
+  const big = Uint8Array.from({ length: 0xD021 - 0x071C }, (_, i) => (i * 13 + 5) & 0xFF);
+  big.fill(0, 0x7000, 0x8000);
+  const prg = runLoader(big, 0x071C, 0x0C40);
+  assert.ok(0x0801 + prg.length - 2 <= 0xD021 + 1, "in-place PRG ends with the image");
+  // No room: no zero run.
+  assert.equal(ctx._buildRelocatingLoader(big.map(v => v || 1), 0x071C, 0x0C40), null);
+});
+
+test("Kick .label NAME = * + N places a label inside an instruction", () => {
+  const ctx = loadFunctions(["addLayoutLabels", "_blockToExpertLine"], {});
+  const labels = new Map();
+  ctx.addLayoutLabels(labels, { address: 0xC473, block: { isLabel: true, labelName: "loc_c474", labelOffset: 1 } });
+  ctx.addLayoutLabels(labels, { address: 0xC480, block: { isLabel: true, labelName: "back", labelOffset: -2 } });
+  ctx.addLayoutLabels(labels, { address: 0xC490, block: { isLabel: true, labelName: "plain" } });
+  assert.equal(labels.get("loc_c474"), 0xC474);
+  assert.equal(labels.get("back"), 0xC47E);
+  assert.equal(labels.get("plain"), 0xC490);
+  assert.equal(ctx._blockToExpertLine({ isLabel: true, labelName: "loc_c474", labelOffset: 1 }), ".label loc_c474 = * + 1");
+  assert.equal(ctx._blockToExpertLine({ isLabel: true, labelName: "plain" }), "plain:");
+  // The Expert parser takes the same line back (see parseExpertText's pcLabelM).
+  assert.ok(appJs.includes("const pcLabelM = line.match(/^\\.label\\s+"));
 });

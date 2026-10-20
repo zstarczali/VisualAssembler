@@ -1,5 +1,7 @@
 # macOS Installation Guide
-Version 2.6.3
+Version 2.6.4
+
+2.6.4: ACME assembler mode (ACME 0.97 builds the Expert source; Disassembly, Monitor, cycle counts, hints and the VICE Monitor follow the ACME build), better Kick Assembler import (.text with .encoding, .label x = * + 1, .abs / .zp; Restore64 sources build byte for byte like KickAssembler), Run starts programs that load below the BASIC line, Exomizer second-RUN ?SYNTAX ERROR fixed, SID Editor playback LCD and VA-VK instrument knob, Settings in three tabs, Ctrl+N opens a new tab.
 
 2.6.3: .sid import in the SID Editor (any PSID / RSID tune becomes editable instruments, patterns and a song), long tunes no longer run into I/O in the exported player, VA SID Core preview retriggers restarted notes, the SID Editor header shows the active SID emulation, Speed field with - / + buttons; Ultimate Basic 1.6.6 (PRINT USING, string comparison, floating-point RND and MOD, option basic print, smaller programs).
 
@@ -101,7 +103,7 @@ Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in 
 
 ---
 
-**Version:** 2.6.3 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.6.4 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
 
 ## Building from source: macOS app icon
 

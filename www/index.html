@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.6.3">
+  <link rel="stylesheet" href="style.css?v=2.6.4">
 </head>
 
 <body>
@@ -37,7 +37,7 @@
       <div class="splash-ready" aria-live="polite"><span id="splash-ready-text"></span><span class="splash-cursor">&#x2588;</span></div>
       <p class="splash-version" id="splash-version"></p>
       <div class="splash-powered">
-        <span>Powered by Ultimate Macro Assembler &amp; Ultimate Basic</span>
+        <span>Powered by Visual Macro Assembler &amp; Ultimate Basic</span>
       </div>
     </div>
   </div>
@@ -193,7 +193,7 @@
               </section>
               <section class="control-menu-group">
                 <h3 class="control-menu-label control-menu-label--section" id="menu-program-label">Program</h3>
-                <button id="import-asm" class="secondary" type="button">ASM import</button>
+                <button id="import-asm" class="secondary" type="button">Kick import</button>
                 <button id="copy-asm" class="secondary" type="button">ASM export</button>
                 <button id="clear-program" class="secondary" type="button">Program torlese</button>
                 <h3 class="control-menu-label control-menu-label--section" id="menu-info-label">Info</h3>
@@ -1375,7 +1375,7 @@ PRINTABLE CHARACTERS
           <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
         </div>
         <h2 class="about-title">C64 Visual Assembler</h2>
-        <p class="about-version" id="about-version">v2.6.3</p>
+        <p class="about-version" id="about-version">v2.6.4</p>
         <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
       </div>
       <div class="about-columns">
@@ -1401,25 +1401,46 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.6.3</p>
+      <p class="whats-new-version">v2.6.4</p>
       <ul class="whats-new-list">
         <li>
-          <strong>.sid import in the SID Editor:</strong> <em>Files → Import .sid…</em> opens any PSID / RSID tune, plays the chosen subtune silently in VA SID Core for the length you set, and turns its SID register stream into instruments, patterns and a song you can edit and export. It finds note ons and legato notes, places rows exactly on the notes (funktempo and swing through <code>F</code> speed changes), and rebuilds wave / arpeggio tables with fixed-pitch drum attacks, pulse and filter movement, gate timing with hard restart, and vibrato. A message lists what was approximated.
+          <strong>ACME assembler mode:</strong> <em>Settings → General → Assembler mode</em> switches between <em>VMA mode</em> (the Visual Assembler assembler) and <em>ACME mode</em>, which builds the Expert source with ACME 0.97 (set its path in <em>Settings → Files and paths → ACME</em>). The <em>Build</em> button in the Expert toolbar, Run, Build PRG and D64 use the real ACME output; the Disassembly and Monitor panels, the debugger symbols, the cycle counts, the optimisation hints and the VICE Monitor (hot reload, watch, profiler) follow the ACME build. ACME syntax highlighting and autocomplete (<code>!</code> pseudo opcodes, <code>+</code> macro calls), VMA macros in ACME source and ACME directives in VMA source are reported as errors, the editor exports (SID, sprite, char, Hi-Res, curve…) are inserted as ACME source, and each <code>.proj</code> remembers its assembler. ACME mode is text only: block mode and the tutorials are off.
         </li>
         <li>
-          <strong>Long tunes play correctly:</strong> when the tune data does not fit next to the player at <code>$C000</code>, it moves to its own segment below <code>$A000</code> instead of running into I/O — long songs no longer lose notes in Play: All, the exported asm or the <code>.sid</code> export.
+          <strong>Better Kick Assembler import:</strong> the menu entry is now <em>Kick import</em>. Plain <code>.text "…"</code> lines with <code>.encoding</code> (<code>screencode_mixed</code>, <code>screencode_upper</code>, <code>petscii_mixed</code>, <code>petscii_upper</code>, <code>ascii</code>), PC labels such as <code>.label loc = * + 1</code> (a jump into the middle of an instruction) and the <code>.abs</code> / <code>.zp</code> mnemonic suffixes are understood. Restore64 disassemblies now import and build byte for byte like KickAssembler.
         </li>
         <li>
-          <strong>VA SID Core preview retriggers notes:</strong> a note restarted under a held gate gets a new attack, as on the real player — no more silent voices.
+          <strong>Run starts programs below the BASIC line:</strong> when a program loads below or across the BASIC SYS line (for example a dump from <code>$071C</code>), Run adds a small loader that moves it into place and jumps to the first ORG. A lower ORG later in the source is no longer moved up to the start address.
         </li>
         <li>
-          <strong>Ultimate Basic 1.6.6:</strong> <code>PRINT USING "format"; values</code> (numeric fields with <code>#</code> <code>.</code> <code>,</code> <code>+</code> <code>-</code>, string fields <code>&amp;</code> <code>!</code> <code>\ \</code>), strings compared with <code>&lt; &gt; &lt;= &gt;=</code> in PETSCII order, <code>rnd</code> and <code>mod</code> in floating point, floating point in IRQ / NMI handlers, <code>option basic print</code> for C64 BASIC PRINT spacing, smaller programs (only the floating-point routines in use are linked), a real 16-bit <code>mod</code> and an arithmetic <code>shr</code> for INTEGER; 1.6.5 makes address expressions 16-bit in <code>peek</code>, <code>poke</code>, <code>fill</code>, <code>memcopy</code> and friends.
+          <strong>Exomizer:</strong> a crunched program no longer gives <code>?SYNTAX ERROR</code> on the second RUN (a PRG with a BASIC line is packed with <code>sfx basic</code>).
         </li>
         <li>
-          <strong>Update server setting:</strong> <em>Settings → Updates</em> sets the server the in-app update reads releases from (default <code>https://www.c64va.pro/</code>, installers under <code>downloads/VA/</code>).
+          <strong>SID Editor:</strong> an LCD in the tracker toolbar shows the song position, pattern, row and play time (<em>Settings → SID preview → LCD colour</em>: green or red); VA-VK has an instrument knob with an LCD of the instrument number and name; <em>Import .sid…</em> shows its progress.
         </li>
         <li>
-          <strong>SID Editor:</strong> the header shows which SID emulation plays (WebSID or VA SID Core with the chip model); the Speed field is narrower, has − / + buttons and takes 1–255; the song can use up to 256 patterns. The BPM label shows BPM again (it read "Oct:").
+          <strong>Settings in three tabs:</strong> <em>General</em>, <em>Files and paths</em> and <em>Integrations</em>.
+        </li>
+        <li>
+          <strong>Smaller improvements:</strong> <kbd>Ctrl+N</kbd> opens a new tab; dialog text can no longer be selected by accident (text fields and copyable output still can); large Expert sources edit faster; <code>LSR A</code> and <code>JMP ($nnnn)</code> import correctly.
+        </li>
+        <li>
+          <strong>From 2.6.3: .sid import in the SID Editor:</strong> <em>Files → Import .sid…</em> opens any PSID / RSID tune, plays the chosen subtune silently in VA SID Core for the length you set, and turns its SID register stream into instruments, patterns and a song you can edit and export. It finds note ons and legato notes, places rows exactly on the notes (funktempo and swing through <code>F</code> speed changes), and rebuilds wave / arpeggio tables with fixed-pitch drum attacks, pulse and filter movement, gate timing with hard restart, and vibrato. A message lists what was approximated.
+        </li>
+        <li>
+          <strong>From 2.6.3: Long tunes play correctly:</strong> when the tune data does not fit next to the player at <code>$C000</code>, it moves to its own segment below <code>$A000</code> instead of running into I/O — long songs no longer lose notes in Play: All, the exported asm or the <code>.sid</code> export.
+        </li>
+        <li>
+          <strong>From 2.6.3: VA SID Core preview retriggers notes:</strong> a note restarted under a held gate gets a new attack, as on the real player — no more silent voices.
+        </li>
+        <li>
+          <strong>From 2.6.3: Ultimate Basic 1.6.6:</strong> <code>PRINT USING "format"; values</code> (numeric fields with <code>#</code> <code>.</code> <code>,</code> <code>+</code> <code>-</code>, string fields <code>&amp;</code> <code>!</code> <code>\ \</code>), strings compared with <code>&lt; &gt; &lt;= &gt;=</code> in PETSCII order, <code>rnd</code> and <code>mod</code> in floating point, floating point in IRQ / NMI handlers, <code>option basic print</code> for C64 BASIC PRINT spacing, smaller programs (only the floating-point routines in use are linked), a real 16-bit <code>mod</code> and an arithmetic <code>shr</code> for INTEGER; 1.6.5 makes address expressions 16-bit in <code>peek</code>, <code>poke</code>, <code>fill</code>, <code>memcopy</code> and friends.
+        </li>
+        <li>
+          <strong>From 2.6.3: Update server setting:</strong> <em>Settings → Updates</em> sets the server the in-app update reads releases from (default <code>https://www.c64va.pro/</code>, installers under <code>downloads/VA/</code>).
+        </li>
+        <li>
+          <strong>From 2.6.3: SID Editor:</strong> the header shows which SID emulation plays (WebSID or VA SID Core with the chip model); the Speed field is narrower, has − / + buttons and takes 1–255; the song can use up to 256 patterns. The BPM label shows BPM again (it read "Oct:").
         </li>
         <li>
           <strong>From 2.6.2: HVSC in the SID Player:</strong> the new <em>HVSC</em> button searches the High Voltage SID Collection — about 61,000 tunes — by title, composer or folder. Click a tune to play it, add it to the playlist or save the <code>.sid</code>; <em>Random tunes</em> lists 25 at a time. Tunes come from an HVSC mirror and are cached, or <em>Download the whole collection</em> (about 85 MB, unpacked to about 380 MB in a folder you pick) for offline use; an unpacked HVSC folder can be used too. HVSC tunes get their real length on the seek bar, and the playlist moves on when a subtune ends.
@@ -3745,13 +3766,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.6.3"></script>
-  <script src="i18n.js?v=2.6.3"></script>
-  <script src="tutorial-data.js?v=2.6.3"></script>
+  <script src="tauri-bridge.js?v=2.6.4"></script>
+  <script src="i18n.js?v=2.6.4"></script>
+  <script src="tutorial-data.js?v=2.6.4"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.6.3"></script>
+  <script src="app.js?v=2.6.4"></script>
 
 </body>
 
