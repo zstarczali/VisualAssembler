@@ -6,24 +6,8 @@ const vm = require("node:vm");
 
 const appJs = fs.readFileSync(path.join(__dirname, "..", "www", "app.js"), "utf8");
 
-function extractFunctionSource(name) {
-  const marker = `function ${name}(`;
-  const start = appJs.indexOf(marker);
-  assert.notStrictEqual(start, -1, `Missing function ${name}`);
-  let depth = 0;
-  let end = -1;
-  let seenBrace = false;
-  for (let i = start; i < appJs.length; i++) {
-    const ch = appJs[i];
-    if (ch === "{") { depth += 1; seenBrace = true; }
-    else if (ch === "}") {
-      depth -= 1;
-      if (seenBrace && depth === 0) { end = i + 1; break; }
-    }
-  }
-  assert.notStrictEqual(end, -1, `Could not parse function ${name}`);
-  return appJs.slice(start, end);
-}
+const extractFunction = require("./helpers/extract-function");
+const extractFunctionSource = name => extractFunction(appJs, name);
 
 function loadFunctions(names, extraContext = {}) {
   const context = { ...extraContext };
@@ -92,7 +76,7 @@ function createFillCtx(extraContext = {}) {
       "_compareDisasmLayoutLineRefs",
       "_buildDisasmHTML",
       "_splitAsmLineComment",
-      "parseExpertText",
+      "_kickScopeRewrite", "parseExpertText",
       "_blockToExpertLine",
       "validateSpriteInitMacro",
       "validateSpritePosMacro",

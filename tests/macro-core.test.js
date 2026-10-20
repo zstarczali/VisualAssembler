@@ -6,29 +6,8 @@ const vm = require("node:vm");
 
 const appJs = fs.readFileSync(path.join(__dirname, "..", "www", "app.js"), "utf8");
 
-function extractFunctionSource(name) {
-  const marker = `function ${name}(`;
-  const start = appJs.indexOf(marker);
-  assert.notStrictEqual(start, -1, `Missing function ${name}`);
-  let depth = 0;
-  let end = -1;
-  let seenBrace = false;
-  for (let i = start; i < appJs.length; i++) {
-    const ch = appJs[i];
-    if (ch === "{") {
-      depth += 1;
-      seenBrace = true;
-    } else if (ch === "}") {
-      depth -= 1;
-      if (seenBrace && depth === 0) {
-        end = i + 1;
-        break;
-      }
-    }
-  }
-  assert.notStrictEqual(end, -1, `Could not parse function ${name}`);
-  return appJs.slice(start, end);
-}
+const extractFunction = require("./helpers/extract-function");
+const extractFunctionSource = name => extractFunction(appJs, name);
 
 function loadFunctions(names, extraContext = {}) {
   const context = { ...extraContext };
@@ -80,7 +59,7 @@ function createMacroContext(extraContext = {}) {
       "_compareDisasmLayoutLineRefs",
       "_buildDisasmHTML",
       "_splitAsmLineComment",
-      "parseExpertText",
+      "_kickScopeRewrite", "parseExpertText",
       "_blockToExpertLine",
       "_blockToExpertSourceLine",
       "validateSpriteInitMacro",
@@ -185,7 +164,7 @@ test("_blockToExpertLine emits Kick `:NAME(args)` for INVOKE with `:` syntax (no
 
 test("parseExpertText round-trips `:NAME(args)` and legacy `.: NAME(args)` back to INVOKE", () => {
   const ctx = loadFunctions(
-    ["_splitAsmLineComment", "parseExpertText", "_importMakeComment"],
+    ["_splitAsmLineComment", "_kickScopeRewrite", "parseExpertText", "_importMakeComment"],
     {
       crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" },
       t: (k) => k, tf: (k) => k,
@@ -829,7 +808,7 @@ test("_buildAutostartPrgCore routes default origin to $C000 when BASIC SYS is of
 
 test("parseExpertText recognizes .region, .endregion, and .end", () => {
   const ctx = loadFunctions(
-    ["_splitAsmLineComment", "_importMakeRegion", "_importMakeEndRegion", "_importMakeEndMacro", "parseExpertText"],
+    ["_splitAsmLineComment", "_importMakeRegion", "_importMakeEndRegion", "_importMakeEndMacro", "_kickScopeRewrite", "parseExpertText"],
     {
       crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" }
     }
@@ -858,7 +837,7 @@ test("parseExpertText imports core Kick Assembler syntax used by macro-heavy sou
       "_importMakeLabel",
       "_importMakeByte",
       "parseAsmText",
-      "parseExpertText"
+      "_kickScopeRewrite", "parseExpertText"
     ],
     {
       crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" },
@@ -934,7 +913,7 @@ test("parseExpertText keeps decimal indexed operands as decimal absolute modes",
       "_importMakeLabel",
       "_importMakeByte",
       "parseAsmText",
-      "parseExpertText"
+      "_kickScopeRewrite", "parseExpertText"
     ],
     {
       crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" },
@@ -1655,7 +1634,7 @@ test("disassembler sorts deferred data by rendered address, not source order", (
 
 test("ORG, TABLE, SID, INCBIN, and INCLUDE round-trip in expert text", () => {
   const ctx = loadFunctions(
-    ["_splitAsmLineComment", "_importMakeIncBin", "parseExpertText", "_blockToExpertLine"],
+    ["_splitAsmLineComment", "_importMakeIncBin", "_kickScopeRewrite", "parseExpertText", "_blockToExpertLine"],
     {
       crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" },
       formatAddress: (value) => `$${value.toString(16).toUpperCase().padStart(4, "0")}`,
@@ -1688,7 +1667,7 @@ test("ORG, TABLE, SID, INCBIN, and INCLUDE round-trip in expert text", () => {
 
 test("INCLUDE / INCBIN / SID with empty filename flag validationError", () => {
   const ctx = loadFunctions(
-    ["_splitAsmLineComment", "_importMakeIncBin", "parseExpertText"],
+    ["_splitAsmLineComment", "_importMakeIncBin", "_kickScopeRewrite", "parseExpertText"],
     {
       crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" },
       t: (key) => key
@@ -1711,7 +1690,7 @@ test("INCLUDE / INCBIN / SID with empty filename flag validationError", () => {
 
 test("bare .include / .incbin / .sid without a quoted filename produce error blocks", () => {
   const ctx = loadFunctions(
-    ["_splitAsmLineComment", "_importMakeIncBin", "parseExpertText"],
+    ["_splitAsmLineComment", "_importMakeIncBin", "_kickScopeRewrite", "parseExpertText"],
     {
       crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" },
       t: (key) => key,
@@ -1739,7 +1718,7 @@ test("unknown directive tokens surface as errors instead of silent comments", ()
   // guard must only tag the comment path with an unknownDirective error.
   const knownDirectives = new Set([".word", ".byte", ".fill", ".align"]);
   const ctx = loadFunctions(
-    ["_splitAsmLineComment", "_importMakeIncBin", "_importMakeComment", "parseExpertText"],
+    ["_splitAsmLineComment", "_importMakeIncBin", "_importMakeComment", "_kickScopeRewrite", "parseExpertText"],
     {
       crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" },
       t: (key) => key,
@@ -1994,7 +1973,7 @@ test("LBxx rejects an unresolved target with a branch-operand error", () => {
 });
 
 test("ACME mode reads !region and coordinate !text as the VA macros", () => {
-  const ctx = loadFunctions(["_splitAsmLineComment", "_importMakeRegion", "_importMakeComment", "parseExpertText"], {
+  const ctx = loadFunctions(["_splitAsmLineComment", "_importMakeRegion", "_importMakeComment", "_kickScopeRewrite", "parseExpertText"], {
     assemblerSyntax: "acme",
     crypto: { randomUUID: () => "test-id" },
     parseAsmText: line => line.trim().toUpperCase() === "RTS" ? [{ mnemonic: "RTS" }] : []

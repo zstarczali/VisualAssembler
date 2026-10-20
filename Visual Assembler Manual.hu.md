@@ -37,7 +37,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - **Exomizer** — a tömörített program második RUN-ja már nem ad `?SYNTAX ERROR`-t: a BASIC sorral kezdődő PRG `sfx basic`-kel, minden más `sfx $<betöltési cím>`-mel tömörül.
 - **SID szerkesztő** — lejátszási LCD a tracker eszköztárán (song-pozíció, pattern, sor, idő; zöld vagy piros a **Beállítások → SID előnézet → LCD színe** alatt), hangszer-tekerőgomb LCD-vel a VA-VK-n, folyamatjelző az **Import .sid…**-hez. Lásd: [SID Editor](#sid-editor-3-voice-tracker).
 - **A Beállítások három fülön** — **Általános**, **Fájlok és útvonalak**, **Integrációk**. Lásd a [13. szakaszt](#13-hardver-beállítások).
-- **Apróságok** — a **Ctrl+N** új fület nyit; a dialógusok szövege véletlenül sem jelölhető ki (a szövegmezők és a másolható kimenetek, pl. a fordítási hibák, továbbra is); a nagy Expert források szerkesztése gyorsabb; az `LSR A` és a `JMP ($nnnn)` importja helyes.
+- **Apróságok** — a **Ctrl+N** új fület nyit; a dialógusok szövege véletlenül sem jelölhető ki (a szövegmezők és a másolható kimenetek, pl. a fordítási hibák, továbbra is); a nagy Expert források szerkesztése gyorsabb; az `LSR A` és a `JMP ($nnnn)` importja helyes; a Tudásbázisban ott a Restore64 (restore64.dev), amely C64 PRG-ből KickAssembler / ACME forrást készít a **Kick import**hoz vagy az ACME módhoz. A `$0801` alatti szegmenst tartalmazó ACME forrás (memória-dump) már nem tolódik a BASIC SYS sor mögé: a saját címein fordul, és indító töltőt kap.
 
 ## A 2.6.3 verzió újdonságai
 
@@ -3707,6 +3707,7 @@ Gyorsreferencia linkek az appban a **Knowledge Base** alatt:
 | RetroDebugger | https://github.com/slajerek/RetroDebugger/ |
 | C64 OS Development Environment | https://www.c64os.com/c64os/programmersguide/?s=devenvironment |
 | png2c64 Image Converter | https://png2c64.app/ |
+| Restore64 visszafejtő (C64 PRG → KickAssembler / ACME forrás) | https://restore64.dev/ |
 
 ---
 

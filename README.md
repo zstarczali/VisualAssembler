@@ -13,7 +13,7 @@ Visual Assembler is free and open source (GPLv3): every feature — editors, bui
 - **Run starts programs below the BASIC line** — a program that loads below or across the BASIC SYS line (e.g. from `$071C`) gets a small loader that moves it into place and jumps to the first ORG; a lower ORG later in the source is no longer moved up.
 - **Exomizer** — no more `?SYNTAX ERROR` on the second RUN of a crunched program (`sfx basic` for PRGs with a BASIC line).
 - **SID Editor** — playback LCD (position, pattern, row, time; Settings → SID preview → LCD colour green / red), VA-VK instrument knob with an LCD, progress bar for *Import .sid…*.
-- **Settings** in three tabs (General, Files and paths, Integrations); **Ctrl+N** opens a new tab; dialog text is no longer selectable by accident; faster editing of large Expert sources; `LSR A` and `JMP ($nnnn)` import fixes.
+- **Settings** in three tabs (General, Files and paths, Integrations); **Ctrl+N** opens a new tab; dialog text is no longer selectable by accident; faster editing of large Expert sources; `LSR A` and `JMP ($nnnn)` import fixes; Knowledge Base link to Restore64 (restore64.dev); ACME memory dumps with a segment below `$0801` build at their own addresses with the start loader.
 
 ## Earlier: v2.6.3
 

@@ -8,29 +8,8 @@ const vm = require("node:vm");
 
 const appJs = fs.readFileSync(path.join(__dirname, "..", "www", "app.js"), "utf8");
 
-function extractFunctionSource(name) {
-  const marker = `function ${name}(`;
-  const start = appJs.indexOf(marker);
-  assert.notStrictEqual(start, -1, `Missing function ${name}`);
-  let depth = 0;
-  let end = -1;
-  let seenBrace = false;
-  for (let i = start; i < appJs.length; i++) {
-    const ch = appJs[i];
-    if (ch === "{") {
-      depth += 1;
-      seenBrace = true;
-    } else if (ch === "}") {
-      depth -= 1;
-      if (seenBrace && depth === 0) {
-        end = i + 1;
-        break;
-      }
-    }
-  }
-  assert.notStrictEqual(end, -1, `Could not parse function ${name}`);
-  return appJs.slice(appJs.slice(Math.max(0, start - 6), start) === "async " ? start - 6 : start, end);
-}
+const extractFunction = require("./helpers/extract-function");
+const extractFunctionSource = name => extractFunction(appJs, name);
 
 function loadFunctions(names, extraContext = {}) {
   const context = { ...extraContext };
@@ -107,7 +86,7 @@ test("ACME bridge sends the payload shape required by the Tauri command", async 
 test("ACME Expert Run preserves assembler expressions and directives", async () => {
   let submitted;
   const original = "!cpu 6502\n* = $c000\n    lda #$06\n    sta $d020\n    rts\n!16 65535, symbol, -32768\n!wo 14, $4f35\n!word 3000 - 4, a1 AND a2, 2 ^ tz, (3+4)*70, l1 & .j2";
-  const ctx = loadFunctions(["_buildAcmePrg", "_acmeVaSyntaxErrors", "_acmeVaDirective", "buildBasicSysStub", "_acmeFirstOrigin", "_acmeParseErrors"], {
+  const ctx = loadFunctions(["_buildAcmePrg", "_acmeVaSyntaxErrors", "_acmeVaDirective", "buildBasicSysStub", "_acmeFirstOrigin", "_acmeParseErrors", "_acmeLowestOrigin", "_acmeEntryHint"], {
     program: [], userMacros: {}, expertMode: true,
     _ACME_VA_CLOSERS: new Set(["endregion", "endif", "else", "endm", "endmacro", "endf", "next", "end"]),
     _DIRECTIVE_TO_MNEM: { loop: "LOOP", end: "END", region: "REGION" },
@@ -324,7 +303,7 @@ test("universal ASM export round-trips explicit absolute operands through expert
   ]);
 
   const ctx = loadFunctions(
-    ["_splitAsmLineComment", "_buildUniversalAsmExportText", "parseExpertText", "_importMakeInstruction"],
+    ["_splitAsmLineComment", "_buildUniversalAsmExportText", "_kickScopeRewrite", "parseExpertText", "_importMakeInstruction"],
     {
       Map,
       Set,
@@ -835,4 +814,43 @@ test("Kick .label NAME = * + N places a label inside an instruction", () => {
   assert.equal(ctx._blockToExpertLine({ isLabel: true, labelName: "plain" }), "plain:");
   // The Expert parser takes the same line back (see parseExpertText's pcLabelM).
   assert.ok(appJs.includes("const pcLabelM = line.match(/^\\.label\\s+"));
+});
+
+test("ACME memory dump below $0801: no stub shift, start loader around the plain image", async () => {
+  let submitted;
+  const original = "* = $0801\nstart lda $08e5\n !ct screencode\n !text \"hi\"\n !ct pet\n* = $071c\n !byte 1, 2";
+  // Plain image $071c-$0806 (ACME output is not run here: fake bytes of the right size).
+  const image = new Uint8Array(2 + 0x0807 - 0x071C);
+  image[0] = 0x1C; image[1] = 0x07;
+  const base = {
+    program: [], userMacros: {}, expertMode: true,
+    _ACME_VA_CLOSERS: new Set(["endregion", "endif", "else", "endm", "endmacro", "endf", "next", "end"]),
+    _DIRECTIVE_TO_MNEM: { loop: "LOOP", end: "END", region: "REGION" },
+    basicSysToggle: { checked: true },
+    _expertGetStartupProgram: () => null,
+    _expertBuildProgram: () => [],
+    _expertGetSourceText: () => original,
+    parseUserMacros: () => {},
+    _getEmbeddedBasicSysAddress: () => null,
+    parseOriginValue: () => ({ value: 0x0801 }),
+    formatAddress: a => "$" + a.toString(16),
+    tf: k => k,
+    toHex: (value, width) => `$${value.toString(16).toUpperCase().padStart(width, "0")}`,
+    window: { electronAPI: { buildAcmePrg: async source => { submitted = source; return { ok: true, bytes: Array.from(image) }; } } }
+  };
+  const ctx = loadFunctions(["_buildAcmePrg", "_acmeVaSyntaxErrors", "_acmeVaDirective", "buildBasicSysStub", "_acmeFirstOrigin",
+    "_acmeParseErrors", "_acmeLowestOrigin", "_acmeEntryHint", "_buildRelocatingLoader"], base);
+  const run = await ctx._buildAcmePrg();
+  assert.equal(run.ok, true);
+  // The source goes to ACME unchanged: no stub, "* = $0801" stays (a source error such as
+  // "!ct screencode" is ACME's to report).
+  assert.equal(submitted, original);
+  assert.equal(run.sysAddress, 0x080D);
+  assert.equal(run.bytes[0] | (run.bytes[1] << 8), 0x0801);
+  assert.equal(run.imageBytes.length, image.length);
+  // Panels / VICE hot reload: the plain image, entry = first "* =".
+  const preview = await ctx._buildAcmePrg(true, { preview: true });
+  assert.equal(preview.bytes.length, image.length);
+  assert.equal(preview.sysAddress, 0x0801);
+  assert.equal(preview.stubGenerated, false);
 });

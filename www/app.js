@@ -4444,7 +4444,7 @@ function _applyEditorTranslations() {
   const kbTitles = {
     "6502 Opcodes Reference": "kbOpcodes", "C64 KERNAL Functions": "kbKernal", "C64 Memory Map": "kbMemoryMap",
     "C64 Color Codes": "kbColorCodes", "VIC-II Article": "kbVicArticle", "Spritemate — C64 Sprite Editor": "kbSpritemate",
-    "C64 OS Programmer's Guide: Development Environment": "kbC64os", "png2c64 Image Converter": "kbPng2c64",
+    "C64 OS Programmer's Guide: Development Environment": "kbC64os", "png2c64 Image Converter": "kbPng2c64", "Restore64 Disassembler": "kbRestore64",
     "VICE Emulator": "hwViceSectionLabel"
   };
   document.querySelectorAll("#knowledge-base-dialog .knowledge-base-link-title").forEach((el) => {
@@ -6513,6 +6513,8 @@ function _blockToExpertLine(block) {
     return "$" + value.replace(/^#?\$/, "").toUpperCase();
   };
   if (block.isOrgMacro)       return `* = $${(block.orgAddress || "0801").toUpperCase()}`;
+  if (block.isLabel && block.kickScope) return `${block.labelName}: {`;
+  if (block.isComment && block.kickScopeEnd) return "}";
   if (block.isLabel && block.labelOffset) return `.label ${block.labelName} = * ${block.labelOffset < 0 ? "-" : "+"} ${Math.abs(block.labelOffset)}`;
   if (block.isLabel)          return `${block.labelName || "start"}:`;
   if (block.isAnonymousLabel) return "-";
@@ -12214,8 +12216,10 @@ function parseExpertText(text) {
   const repeatStack = [];     // entries: { startLabel }
   const acmeSyntax = typeof assemblerSyntax !== "undefined" && assemblerSyntax === "acme";
   let kickEncoding = "screencode_mixed";
+  const sourceLines = String(text).split("\n");
+  const kickBraceStack = [];
 
-  for (let rawLine of text.split("\n")) {
+  for (let rawLine of acmeSyntax ? sourceLines : _kickScopeRewrite(sourceLines)) {
     const { code, commentText } = _splitAsmLineComment(rawLine);
     let line = code;
     // ACME uses !byte/!word/!macro/... where the internal parser uses dots.
@@ -12256,6 +12260,25 @@ function parseExpertText(text) {
     if (textM) {
       const _textIsLower = (textM[4] || "").toLowerCase() === "lower";
       blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "TEXT", operand: textM[3], rawOperand: textM[3], description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isTextMacro: true, textX: textM[1], textY: textM[2], textCharset: _textIsLower ? "lower" : "upper", charOffset: (!_textIsLower && textM[4]) ? textM[4].toUpperCase().padStart(2,"0") : "00" });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // Kick Assembler label scope: "name: {" opens it (a label), "}" closes it.
+    const kickScopeM = !acmeSyntax && line.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*:\s*\x7b$/);
+    if (kickScopeM) {
+      const label = _importMakeLabel(kickScopeM[1]);
+      label.kickScope = true;
+      kickBraceStack.push("scope");
+      blocks.push(label);
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+    if (!acmeSyntax && line === "\u007d" && kickBraceStack.at(-1) === "scope") {
+      kickBraceStack.pop();
+      const end = _importMakeComment("\u007d");
+      end.kickScopeEnd = true;
+      blocks.push(end);
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -12973,10 +12996,14 @@ function parseExpertText(text) {
     // .macro name(param1, param2) or .macro name param1, param2
     const macroM = macroLine.match(/^\.macro\s+([A-Za-z_][A-Za-z0-9_]*)(?:\(([^)]*)\)|\s*(.*?))?\s*$/i);
     if (macroM) {
+      if (!acmeSyntax && macroLine !== line) kickBraceStack.push("macro");
       const macroParams = (macroM[2] !== undefined ? macroM[2] : (macroM[3] || "")).trim();
       blocks.push(_importMakeMacroDefStart(macroM[1], macroParams)); if (commentText) blocks.push(_importMakeComment(commentText)); continue;
     }
-    if (/^(?:\.endm|\x7d)\s*$/i.test(line)) { blocks.push(_importMakeMacroDefEnd()); if (commentText) blocks.push(_importMakeComment(commentText)); continue; }
+    if (/^(?:\.endm|\x7d)\s*$/i.test(line)) {
+      if (kickBraceStack.at(-1) === "macro") kickBraceStack.pop();
+      blocks.push(_importMakeMacroDefEnd()); if (commentText) blocks.push(_importMakeComment(commentText)); continue;
+    }
     if (/^\.end\s*$/i.test(line)) { blocks.push(_importMakeEndMacro()); if (commentText) blocks.push(_importMakeComment(commentText)); continue; }
 
     // .invoke/.call macroname(arg1, arg2, ...), Kick-style ":macroname(...)" or "macroname(...)"
@@ -23078,7 +23105,7 @@ async function buildRunPrgForCurrentMode() {
 
   if (assemblerSyntax === "acme") {
     const prg = await _buildAcmePrg();
-    if (prg.ok) _vmAcmeBuild = prg;
+    if (prg.ok) _vmAcmeBuild = prg.imageBytes ? { ...prg, bytes: prg.imageBytes } : prg;
     return prg.ok ? _applyExomizerToPrg(prg) : prg;
   }
   const prg = buildAutostartPrgForEmulator();
@@ -23086,7 +23113,9 @@ async function buildRunPrgForCurrentMode() {
   return _applyExomizerToPrg(prg);
 }
 
-async function _buildAcmePrg(useCurrentEditor = false) {
+// `preview`: the plain build (panels, VICE hot reload), never wrapped in a start loader.
+async function _buildAcmePrg(useCurrentEditor = false, options = null) {
+  const preview = !!options?.preview;
   if (!window.electronAPI?.buildAcmePrg) {
     return { ok: false, error: "Az ACME fordítás csak a desktop alkalmazásban érhető el." };
   }
@@ -23102,13 +23131,20 @@ async function _buildAcmePrg(useCurrentEditor = false) {
   let source;
   let sysAddress = null;
   let sourceLineOffset = 0;
+  let dumpEntry = null;
   try {
     parseUserMacros();
     const embeddedSysAddress = _getEmbeddedBasicSysAddress(program);
     const expertSource = useExpertSource ? _expertGetSourceText() : "";
     const origin = _acmeFirstOrigin(expertSource) ?? parseOriginValue().value;
+    // A segment below $0801 (an imported memory dump): no stub and no "$0801 → $080D"
+    // shift, the image builds at its own addresses and Run puts a start loader in front.
+    dumpEntry = useExpertSource && embeddedSysAddress === null && basicSysToggle?.checked !== false
+      && (_acmeLowestOrigin(expertSource) ?? 0xFFFF) < 0x0801 ? (_acmeEntryHint(expertSource) ?? origin) : null;
     if (embeddedSysAddress !== null) {
       sysAddress = embeddedSysAddress;
+    } else if (dumpEntry !== null) {
+      sysAddress = null;
     } else if (basicSysToggle?.checked !== false) {
       const rawOrigin = origin === 0x0801 ? 0x080D : origin;
       const stubSize = buildBasicSysStub(rawOrigin).length - 2;
@@ -23147,7 +23183,27 @@ async function _buildAcmePrg(useCurrentEditor = false) {
     const error = result?.error || "ACME fordítás sikertelen.";
     return { ok: false, error, errors: _acmeParseErrors(error, useExpertSource ? sourceLineOffset : null) };
   }
-  return { ok: true, bytes: Uint8Array.from(result.bytes || []), labels: result.labels || "", report: result.report || "", sysAddress, stubGenerated: sourceLineOffset > 0, sourceLineOffset: useExpertSource ? sourceLineOffset : null };
+  const built = { ok: true, bytes: Uint8Array.from(result.bytes || []), labels: result.labels || "", report: result.report || "", sysAddress, stubGenerated: sourceLineOffset > 0, sourceLineOffset: useExpertSource ? sourceLineOffset : null };
+  if (dumpEntry === null || built.bytes.length < 3) return built;
+  if (preview) return { ...built, sysAddress: dumpEntry };
+  const loadAddr = built.bytes[0] | (built.bytes[1] << 8);
+  const loader = _buildRelocatingLoader(built.bytes.subarray(2), loadAddr, dumpEntry);
+  if (!loader) return { ok: false, error: tf("autostartImageOverlapsStub", { address: formatAddress(loadAddr) }) };
+  return { ...built, bytes: loader, sysAddress: 0x080D, imageBytes: built.bytes };
+}
+
+// Lowest "* = address" of an ACME source (null without one).
+function _acmeLowestOrigin(source) {
+  let lowest = null;
+  for (const line of String(source || "").split(/\r?\n/)) {
+    const match = line.split(";")[0].match(/^\s*\*\s*=\s*(\$[0-9A-Fa-f]{1,4}|0x[0-9A-Fa-f]{1,4}|\d{1,5})\b/i);
+    if (!match) continue;
+    const address = match[1].startsWith("$") ? Number.parseInt(match[1].slice(1), 16)
+      : /^0x/i.test(match[1]) ? Number.parseInt(match[1].slice(2), 16)
+        : Number.parseInt(match[1], 10);
+    if (address >= 0 && address <= 0xFFFF && (lowest === null || address < lowest)) lowest = address;
+  }
+  return lowest;
 }
 
 // VA (VMA) and ACME sources never mix: VA code is not converted, ACME mode
@@ -23341,7 +23397,7 @@ async function _acmeBuildPreview(options) {
   if (button) button.disabled = true;
   _expertSetStatus(t("acmeBuild") + "…", "ok");
   try {
-    const result = await _buildAcmePrg(true);
+    const result = await _buildAcmePrg(true, { preview: true });
     if (tabId !== activeTabId || sourceText !== _expertGetSourceText()) return;
     if (!result.ok) {
       _acmePreview = null;
@@ -23862,6 +23918,36 @@ function _importMakeByte(rawByteStr) {
     addressingMode: "implied", base,
     validationError: "", collapsed: true, isByteMacro: true
   };
+}
+
+// Kick Assembler label scopes ("name: {" … "}"): the labels defined inside belong to the
+// scope, so they become VA dotted local labels (".loop", canonical "name.loop") together with
+// the references inside the scope. Outside, "name.loop" already is the canonical name.
+// Same line count; quoted strings and comments stay as they are.
+function _kickScopeRewrite(lines) {
+  const out = lines.slice();
+  const open = [];
+  const scopes = [];
+  lines.forEach((raw, i) => {
+    const { code } = _splitAsmLineComment(raw);
+    if (/^\s*[A-Za-z_][A-Za-z0-9_]*\s*:\s*\{\s*$/.test(code)) open.push(i);
+    else if (/^\s*\}\s*$/.test(code) && open.length) scopes.push({ start: open.pop(), end: i });
+  });
+  for (const { start, end } of scopes) {
+    const locals = new Set();
+    for (let i = start + 1; i < end; i++) {
+      const m = _splitAsmLineComment(lines[i]).code.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*:(?!\s*\{)/);
+      if (m) locals.add(m[1]);
+    }
+    if (!locals.size) continue;
+    const re = new RegExp(`(?<![\\w.$])(${[...locals].join("|")})(?![\\w])`, "g");
+    for (let i = start + 1; i < end; i++) {
+      const { code } = _splitAsmLineComment(out[i]);
+      const rest = out[i].slice(code.length);
+      out[i] = code.split(/("[^"]*")/).map((part, k) => k % 2 ? part : part.replace(re, ".$1")).join("") + rest;
+    }
+  }
+  return out;
 }
 
 // Kick Assembler .text operand → bytes. Items: "plain", @"escaped" (\n \r \t \\ \" \$NN),
@@ -26200,29 +26286,35 @@ function _buildAutostartPrgCore() {
   // Stub occupies $0801..$080C (for 4-digit decimal addresses), code starts at $080D.
   // Classic C64 SYS stub format: SYS2061 (no space), exactly 12 bytes, gap = 0.
   const origin = parseOriginValue();
-  const rawOrigin = (origin.value === 0x0801) ? 0x080D : origin.value;
+  // An ORG below $0801 (an imported memory dump) keeps "* = $0801" at $0801: the start
+  // loader below takes the whole image instead of shifting that segment behind the stub.
+  const hasLowerOrg = program.some(block => block?.isOrgMacro && (parseAddressValue(block.orgAddress) ?? 0xFFFF) < 0x0801);
+  const rawOrigin = (origin.value === 0x0801 && !hasLowerOrg) ? 0x080D : origin.value;
   const stubDigits = String(rawOrigin).length;
   const stubDataSize = 2 + 2 + 1 + stubDigits + 1 + 2; // nextptr+lineno+SYS+digits+EOL+BASIC_END (no space)
   const stubEndAddr = 0x0801 + stubDataSize;
-  const sysAddress = Math.max(rawOrigin, stubEndAddr);
+  const codeOrigin = Math.max(rawOrigin, stubEndAddr);
+  // The SYS target is the first ORG, or the "Entry point: $XXXX" of the source's header
+  // comment (Restore64 disassemblies, where the first segment is often data).
+  const sysAddress = _sourceEntryHint(program) ?? codeOrigin;
 
-  const codePrg = assembleProgramToPrg(sysAddress);
+  const codePrg = assembleProgramToPrg(codeOrigin);
   if (!codePrg.ok) return codePrg;
 
   const codeData = codePrg.bytes.slice(2);
   // The image starts at its lowest segment, which is not always the first ORG
   // (an imported Kick source can start with ".pc = $0c40" and also fill $071c-).
   const loadAddr = codePrg.bytes[0] | (codePrg.bytes[1] << 8);
-  if (loadAddr < stubEndAddr) {
-    // The image covers the stub: a loader moves it into place, then jumps to the first ORG.
-    const loader = _buildRelocatingLoader(codeData, loadAddr, sysAddress);
-    return loader ? { ok: true, bytes: loader, sysAddress: 0x080D } : { ok: false, error: tf("autostartImageOverlapsStub", { address: formatAddress(loadAddr) }) };
-  }
-
   const basicStub = buildBasicSysStub(sysAddress);
   // basicStub[0,1] = PRG load addr header ($0801)
   // basicStub[2..] = BASIC program data loaded at $0801
   const stubData = basicStub.slice(2);
+  if (loadAddr < 0x0801 + stubData.length) {
+    // The image covers the stub: a loader moves it into place, then jumps to the entry.
+    const loader = _buildRelocatingLoader(codeData, loadAddr, sysAddress);
+    return loader ? { ok: true, bytes: loader, sysAddress: 0x080D } : { ok: false, error: tf("autostartImageOverlapsStub", { address: formatAddress(loadAddr) }) };
+  }
+
   // Fill gap between stub end and code start with zeros
   const gapSize = loadAddr - 0x0801 - stubData.length;
   const bytes = new Uint8Array(2 + stubData.length + gapSize + codeData.length);
@@ -26293,6 +26385,29 @@ function _buildRelocatingLoader(image, loadAddr, entry) {
   const body = [...copy(runAddr, loadAddr, moved), ...clear(runAddr, moved)];
   while (body.length < inPlaceLen - 5) body.push(0xEA);
   return build(body, tail);
+}
+
+// "Entry point: $XXXX" in the comment lines before the first code line (Restore64 headers).
+function _sourceEntryHint(blocks) {
+  for (const block of blocks || []) {
+    if (block?.isBlankLine) continue;
+    if (!block?.isComment) return null;
+    const match = String(block.commentText ?? block.rawOperand ?? "").match(/\bEntry point:\s*\$([0-9A-Fa-f]{4})\b/i);
+    if (match) return Number.parseInt(match[1], 16);
+  }
+  return null;
+}
+
+// The same for ACME source text (";" or "//" comment lines).
+function _acmeEntryHint(source) {
+  for (const line of String(source || "").split(/\r?\n/)) {
+    const text = line.trim();
+    if (!text) continue;
+    if (!/^(;|\/\/)/.test(text)) return null;
+    const match = text.match(/\bEntry point:\s*\$([0-9A-Fa-f]{4})\b/i);
+    if (match) return Number.parseInt(match[1], 16);
+  }
+  return null;
 }
 
 function _programHasEmbeddedBasicAutostart(blocks) {
@@ -54015,7 +54130,7 @@ async function _vmBuildSegments() {
     return { segments: [{ address: load, bytes: Array.from(r.prg.slice(2)) }], sys: r.map?.loadAddress ?? load };
   }
   if (assemblerSyntax === "acme") {
-    const prg = await _buildAcmePrg();
+    const prg = await _buildAcmePrg(false, { preview: true });
     if (!prg?.ok) throw new Error(prg?.error || t("acmeBuildFirst"));
     _vmAcmeBuild = prg;
     const memory = _acmePrgMemory(prg.bytes);
@@ -54085,7 +54200,7 @@ async function _vmProfile() {
     if (!res?.ok) { _vmSetStatus(t("vmStatusOff"), "off"); return; }
     let acmeBuild = null;
     if (!ultimateBasicMode && assemblerSyntax === "acme") {
-      acmeBuild = _vmAcmeBuild || await _buildAcmePrg();
+      acmeBuild = _vmAcmeBuild || await _buildAcmePrg(false, { preview: true });
       if (!acmeBuild?.ok) throw new Error(acmeBuild?.error || t("acmeBuildFirst"));
     }
     const agg = ultimateBasicMode

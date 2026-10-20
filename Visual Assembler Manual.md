@@ -206,7 +206,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 - **Exomizer** — a crunched program no longer gives `?SYNTAX ERROR` on the second RUN: a PRG with a BASIC line is packed with `sfx basic`, any other with `sfx $<load address>`.
 - **SID Editor** — a playback LCD in the tracker toolbar (song position, pattern, row, time; green or red in **Settings → SID preview → LCD colour**), an instrument knob with an LCD on VA-VK, a progress bar for **Import .sid…**. See [SID Editor](#sid-editor-3-voice-tracker).
 - **Settings in three tabs** — **General**, **Files and paths** and **Integrations**. See [Section 13](#13-hardware-settings).
-- **Smaller improvements** — **Ctrl+N** opens a new tab; dialog text can no longer be selected by accident (text fields and copyable output, such as compile errors, still can); large Expert sources edit faster; `LSR A` and `JMP ($nnnn)` import correctly.
+- **Smaller improvements** — **Ctrl+N** opens a new tab; dialog text can no longer be selected by accident (text fields and copyable output, such as compile errors, still can); large Expert sources edit faster; `LSR A` and `JMP ($nnnn)` import correctly; the Knowledge Base links Restore64 (restore64.dev), which turns a C64 PRG into KickAssembler / ACME source for **Kick import** or ACME mode. An ACME source with a segment below `$0801` (a memory dump) is no longer shifted behind the BASIC SYS line: it builds at its own addresses and gets the start loader.
 
 ---
 
@@ -3881,6 +3881,7 @@ Quick reference links available in the app under **Knowledge Base**:
 | RetroDebugger | https://github.com/slajerek/RetroDebugger/ |
 | C64 OS Development Environment | https://www.c64os.com/c64os/programmersguide/?s=devenvironment |
 | png2c64 Image Converter | https://png2c64.app/ |
+| Restore64 Disassembler (C64 PRG → KickAssembler / ACME source) | https://restore64.dev/ |
 
 ---
 
