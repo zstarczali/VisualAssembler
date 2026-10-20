@@ -83,7 +83,7 @@ function createFillCtx(extraContext = {}) {
       "compileAbsoluteStore",
       "compilePrintHexA",
       "getDeferredMacroAddressField",
-      "getProgramLayout",
+      "_scopeLocalLabels", "getProgramLayout",
       "compileLineBytes",
       "resolveNumericOperand",
       "resolveRelativeOperand",

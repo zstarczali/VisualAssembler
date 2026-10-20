@@ -67,7 +67,7 @@ function createMacroContext(extraContext = {}) {
       "compileAbsoluteStore",
       "compilePrintHexA",
       "getDeferredMacroAddressField",
-      "getProgramLayout",
+      "_scopeLocalLabels", "getProgramLayout",
       "_substituteStarPc",
       "_hasStarPcRef",
       "_evalJsExprSafe",

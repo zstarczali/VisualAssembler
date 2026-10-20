@@ -1369,8 +1369,25 @@ function initPalette() {
   document.getElementById("vice-remote-monitor")?.addEventListener("change", saveUiSettings);
   writeDebugSidecarsToggle?.addEventListener("change", saveUiSettings);
   ubAsmSidecarToggle?.addEventListener("change", saveUiSettings);
-  document.getElementById("assembler-syntax")?.addEventListener("change", (event) => {
-    assemblerSyntax = event.target.value === "acme" ? "acme" : "kick";
+  document.getElementById("assembler-syntax")?.addEventListener("change", async (event) => {
+    const select = event.target;
+    const syntax = select.value === "acme" ? "acme" : "kick";
+    select.value = assemblerSyntax;
+    if (syntax === "acme") {
+      select.disabled = true;
+      let available;
+      try {
+        available = await _acmeCheckConfigured();
+      } finally {
+        select.disabled = false;
+      }
+      if (!available) {
+        showViceToast(t("acmeConfigureBeforeSwitch"), true);
+        return;
+      }
+    }
+    assemblerSyntax = syntax;
+    select.value = assemblerSyntax;
     saveUiSettings();
     if (_expertProjectData?._projPath && _expertProjectData.assemblerSyntax !== assemblerSyntax) _expertSaveProject();
     _acmeBuildButtonSync();
@@ -9523,7 +9540,7 @@ async function _ubApplyExomizer(result, label = "ultimate-basic") {
     packed = { ok: false, error: error?.message || String(error) };
   }
   if (!packed?.ok) {
-    const message = packed?.error || "Exomizer compression failed";
+    const message = _exomizerErrorMessage(packed?.error, result.prg);
     _ubSetBuildOutput(message, true);
     _ubSetStatus(message, true);
     _ubShowCompileErrors([message]);
@@ -23061,7 +23078,7 @@ async function runViaExomizer() {
     });
 
     if (!result?.ok) {
-      showViceToast(result?.error || t("exomizerLaunchFailed"), true);
+      showViceToast(_exomizerErrorMessage(result?.error, prg.bytes), true);
       return;
     }
 
@@ -23303,6 +23320,18 @@ function _projAssemblerSyntax(proj) {
   return proj?.assemblerSyntax === "acme" ? "acme" : "kick";
 }
 
+async function _acmeCheckConfigured() {
+  if (!window.electronAPI?.buildAcmePrg) return false;
+  try {
+    const result = await window.electronAPI.buildAcmePrg("* = $c000\n!byte $a5, $5a", "acme-check.asm");
+    const bytes = result?.bytes;
+    return !!(result?.ok && bytes?.length === 4
+      && bytes[0] === 0 && bytes[1] === 0xC0 && bytes[2] === 0xA5 && bytes[3] === 0x5A);
+  } catch {
+    return false;
+  }
+}
+
 function _setAssemblerSyntax(syntax) {
   assemblerSyntax = syntax === "acme" ? "acme" : "kick";
   const syntaxSelect = document.getElementById("assembler-syntax");
@@ -23430,6 +23459,16 @@ async function _acmeBuildPreview(options) {
   }
 }
 
+function _exomizerErrorMessage(error, bytes) {
+  const message = String(error || t("exomizerLaunchFailed"));
+  const load = bytes?.length >= 2 ? bytes[0] | (bytes[1] << 8) : null;
+  if (load !== null && load + bytes.length - 2 === 0x10000
+      && /value\s+256\s+out of range for op\s+\$A9\b/i.test(message)) {
+    return t("exomizerFullMemoryError");
+  }
+  return message;
+}
+
 async function _applyExomizerToPrg(prg) {
   if (!exomizerEnabled) return { ...prg, sysAddress: prg.sysAddress };
 
@@ -23461,7 +23500,7 @@ async function _applyExomizerToPrg(prg) {
     });
 
     if (!result?.ok) {
-      return { ok: false, error: result?.error || t("exomizerLaunchFailed") };
+      return { ok: false, error: _exomizerErrorMessage(result?.error, prg.bytes) };
     }
 
     return {
@@ -29642,6 +29681,43 @@ function getInstructionSize(block) {
   return 3;
 }
 
+function _scopeLocalLabels(expandedProgram) {
+  let lastGlobal = "";
+  const kickScopes = [];
+  const localRe = /(^|[^A-Za-z0-9_.])(\.[A-Za-z_][A-Za-z0-9_]*)/g;
+  for (let i = 0; i < expandedProgram.length; i++) {
+    const b = expandedProgram[i];
+    if (!b || typeof b !== "object") continue;
+    if (b.kickScopeEnd) {
+      if (kickScopes.length) lastGlobal = kickScopes.pop().previous;
+      continue;
+    }
+    if (b.isLabel && b.labelName && !b.isAnonymousLabel) {
+      if (!b.labelName.startsWith(".")) {
+        if (b.kickScope) {
+          kickScopes.push({ previous: lastGlobal });
+          lastGlobal = b.labelName;
+        } else if (!kickScopes.length) lastGlobal = b.labelName;
+        continue;
+      }
+      if (lastGlobal) {
+        expandedProgram[i] = { ...b, labelName: lastGlobal + b.labelName, _localOf: lastGlobal };
+      }
+      continue;
+    }
+    if (!lastGlobal) continue;
+    const rewrite = (s) =>
+      (typeof s === "string" && s.indexOf(".") !== -1)
+        ? s.replace(localRe, (m, pre, dot) => pre + lastGlobal + dot)
+        : s;
+    const newOperand = rewrite(b.rawOperand);
+    const newAssert = rewrite(b.assertExpr);
+    if (newOperand !== b.rawOperand || newAssert !== b.assertExpr) {
+      expandedProgram[i] = { ...b, rawOperand: newOperand, assertExpr: newAssert };
+    }
+  }
+}
+
 function getProgramLayout(originOverride) {
   const parsedOrigin = parseOriginValue();
   const origin = originOverride === undefined
@@ -29896,37 +29972,7 @@ function getProgramLayout(originOverride) {
     }
   }
 
-  // ── Local (dotted) label scoping ────────────────────────────────────────────
-  // A `.name` label belongs to the scope of the nearest preceding non-dotted
-  // label; internally it becomes `<global>.name` so two `.loop` labels under
-  // different parents don't collide. References to `.name` within that scope are
-  // rewritten the same way. Only the affected blocks are cloned, so `program[]`
-  // stays untouched.
-  {
-    let lastGlobal = "";
-    const localRe = /(^|[^A-Za-z0-9_.])(\.[A-Za-z_][A-Za-z0-9_]*)/g;
-    for (let i = 0; i < expandedProgram.length; i++) {
-      const b = expandedProgram[i];
-      if (!b || typeof b !== "object") continue;
-      if (b.isLabel && b.labelName && !b.isAnonymousLabel) {
-        if (!b.labelName.startsWith(".")) { lastGlobal = b.labelName; continue; }
-        if (lastGlobal) {
-          expandedProgram[i] = { ...b, labelName: lastGlobal + b.labelName, _localOf: lastGlobal };
-        }
-        continue;
-      }
-      if (!lastGlobal) continue;
-      const rewrite = (s) =>
-        (typeof s === "string" && s.indexOf(".") !== -1)
-          ? s.replace(localRe, (m, pre, dot) => pre + lastGlobal + dot)
-          : s;
-      const newOperand = rewrite(b.rawOperand);
-      const newAssert = rewrite(b.assertExpr);
-      if (newOperand !== b.rawOperand || newAssert !== b.assertExpr) {
-        expandedProgram[i] = { ...b, rawOperand: newOperand, assertExpr: newAssert };
-      }
-    }
-  }
+  _scopeLocalLabels(expandedProgram);
 
   // Assign auto ZP addresses to VAR blocks. Walk the fully-expanded program
   // (so VARs coming from INCLUDE files are picked up) and give each one a

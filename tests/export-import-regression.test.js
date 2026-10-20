@@ -20,6 +20,35 @@ function loadFunctions(names, extraContext = {}) {
   return context;
 }
 
+test("Exomizer full-memory failure suggests disabling compression and preserves other errors", () => {
+  const ctx = loadFunctions(["_exomizerErrorMessage"], { t: key => key });
+  const full = new Uint8Array(2 + 0x10000 - 0x0801);
+  full.set([0x01, 0x08]);
+  const error = "value 256 out of range for op $A9 @05761a40";
+  assert.equal(ctx._exomizerErrorMessage(error, full), "exomizerFullMemoryError");
+  assert.equal(ctx._exomizerErrorMessage(error, full.subarray(0, full.length - 1)), error);
+  assert.equal(ctx._exomizerErrorMessage("Exomizer executable not found", full), "Exomizer executable not found");
+  assert.equal(ctx._exomizerErrorMessage(error, null), error);
+  assert.equal(ctx._exomizerErrorMessage(null, full), "exomizerLaunchFailed");
+});
+
+test("ACME mode requires a compiler that produces the expected ACME probe bytes", async () => {
+  const ctx = loadFunctions(["_acmeCheckConfigured"], { window: {} });
+  assert.equal(await ctx._acmeCheckConfigured(), false);
+  ctx.window.electronAPI = { buildAcmePrg: async () => ({ ok: false, error: "not configured" }) };
+  assert.equal(await ctx._acmeCheckConfigured(), false);
+  ctx.window.electronAPI.buildAcmePrg = async () => { throw new Error("not found"); };
+  assert.equal(await ctx._acmeCheckConfigured(), false);
+  ctx.window.electronAPI.buildAcmePrg = async () => ({ ok: true, bytes: [] });
+  assert.equal(await ctx._acmeCheckConfigured(), false);
+  ctx.window.electronAPI.buildAcmePrg = async (source, filename) => {
+    assert.equal(source, "* = $c000\n!byte $a5, $5a");
+    assert.equal(filename, "acme-check.asm");
+    return { ok: true, bytes: [0, 0xC0, 0xA5, 0x5A] };
+  };
+  assert.equal(await ctx._acmeCheckConfigured(), true);
+});
+
 test("ACME Run sends an autostart source through the configured compiler", async () => {
   let submitted;
   const ctx = loadFunctions(["_buildAcmePrg", "_acmeVaSyntaxErrors", "_acmeVaMacroBlockErrors", "buildBasicSysStub", "_acmeFirstOrigin", "_acmeParseErrors"], {
@@ -814,6 +843,28 @@ test("Kick .label NAME = * + N places a label inside an instruction", () => {
   assert.equal(ctx._blockToExpertLine({ isLabel: true, labelName: "plain" }), "plain:");
   // The Expert parser takes the same line back (see parseExpertText's pcLabelM).
   assert.ok(appJs.includes("const pcLabelM = line.match(/^\\.label\\s+"));
+});
+
+test("Kick scope keeps branch targets across an embedded .label (Krakout sub_c3b9)", () => {
+  const ctx = loadFunctions(["_scopeLocalLabels", "resolveRelativeOperand", "_branchOffsetFromTarget"], {});
+  const blocks = [
+    { isLabel: true, labelName: "before" },
+    { isLabel: true, labelName: "sub_c3b9", kickScope: true },
+    { mnemonic: "BEQ", rawOperand: ".done2" },
+    { isLabel: true, labelName: "loc_c3c2", labelOffset: 1 },
+    { isLabel: true, labelName: ".done2" },
+    { isComment: true, kickScopeEnd: true },
+    { isLabel: true, labelName: ".after" }
+  ];
+  ctx._scopeLocalLabels(blocks);
+  assert.equal(blocks[2].rawOperand, "sub_c3b9.done2");
+  assert.equal(blocks[3].labelName, "loc_c3c2");
+  assert.equal(blocks[4].labelName, "sub_c3b9.done2");
+  assert.equal(blocks[6].labelName, "before.after");
+  ctx._hasStarPcRef = () => false;
+  const result = ctx.resolveRelativeOperand(blocks[2], 0xC3BF, new Map([[blocks[4].labelName, 0xC3EC]]));
+  assert.equal(result.ok, true);
+  assert.equal(result.value, 0x2B);
 });
 
 test("ACME memory dump below $0801: no stub shift, start loader around the plain image", async () => {
