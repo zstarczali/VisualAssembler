@@ -204,8 +204,10 @@ test("ACME preview uses compiled PRG bytes and ACME labels", () => {
   assert.equal(ctx._acmePreviewByteCount(empty), 0);
   assert.doesNotMatch(ctx._acmeDisasmHTML(empty), /\$0801|\.BYTE/);
   assert.equal(ctx._acmeMonitorText(empty), "");
+  // No program at all: the stub alone is not shown, even with "show BASIC stub" on.
   ctx.showBasicStubToggle = { checked: true };
-  assert.match(ctx._acmeMonitorText(empty), />\$0800/);
+  assert.equal(ctx._acmeMonitorText(empty), "");
+  assert.doesNotMatch(ctx._acmeDisasmHTML(empty), /\$0801|\.BYTE/);
 });
 
 test("ACME preview rejects a changed source instead of showing stale bytes", () => {

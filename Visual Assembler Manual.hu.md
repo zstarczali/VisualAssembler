@@ -938,12 +938,13 @@ A **Beállítások → Általános → Assembler mód** választja ki az Expert 
 - **VMA mód** (alapértelmezett) — a Visual Assembler beépített assemblere a blokkjaival, makróival és `.` direktíváival.
 - **ACME mód** — a forrás ACME 0.97 szöveg, és a **Beállítások → Fájlok és útvonalak → ACME** alatt beállított ACME futtatható fordítja (**ACME kiválasztása**). A nyelvet az `ACME-0.97-reference.pdf` írja le.
 
-A mód a `.proj` projekttel együtt mentődik, így minden projekt a saját assemblerével nyílik meg. ACME módban csak szöveges szerkesztés van: a Blokk / Expert kapcsoló zárolt, és a **Tutorialok** nem érhetők el (VMA programot építenek blokkokból).
+A mód a `.proj` projekttel együtt mentődik, így minden projekt a saját assemblerével nyílik meg. ACME módban csak szöveges szerkesztés van: a Blokk / Expert kapcsoló zárolt, és a **Tutorialok** gombja nem jelenik meg (a leckék VMA programot építenek blokkokból).
 
 Ami az ACME fordítását követi:
 
-- A **Build** (kalapács gomb az Expert eszköztáron, *ACME fordítás*), a **Futtatás** (PRG, D64, C64 Ultimate, Kung Fu Flash 2), a **Save PRG** és a **Build D64** ACME-vel fordít; az ACME hibái és figyelmeztetései a szokásos fordítási hiba ablakban jelennek meg, a forrássorral.
-- Bekapcsolt **Disassembly** vagy **Monitor** panel vagy ciklus-gutter mellett a gépelési szünet után a forrás újrafordul, így a panelek a valódi ACME bájtokat mutatják; a panelek és a debugger szimbólumfájlok (`.sym`, `.vs`, `.dbg`) az ACME címkéit használják.
+- A **Build** (kalapács gomb az Expert eszköztáron, *ACME fordítás*), a **Futtatás** (PRG, D64, C64 Ultimate, Kung Fu Flash 2), a **Save PRG**, a **Build D64**, a **Build CRT**, a **Build project** és a **Debug (RetroDebugger)** ACME-vel fordít; az ACME hibái és figyelmeztetései a szokásos fordítási hiba ablakban jelennek meg, a forrássorral.
+- Bekapcsolt **Disassembly** vagy **Monitor** panel vagy ciklus-gutter mellett a gépelési szünet után a forrás újrafordul, így a panelek a valódi ACME bájtokat mutatják; a panelek az ACME címkéit használják.
+- A **debug fájlok** (*Debug fájlok generálása* a Beállítások → Általános alatt) az ACME címkelistájából készülnek: `.sym` (KickAssembler stílus) és `.vs` (VICE címkék) a PRG mellé; `.dbg` forrás-térkép ACME módban nincs. A **Debug (RetroDebugger)** ugyanezeket a címkéket kapja, az Expert breakpointokat pedig az ACME lista alapján helyezi el (kód nélküli sorra tett breakpoint a következő kódsoron áll meg).
 - A **ciklusszámok** és az **optimalizálási tippek** az utolsó fordítás ACME listájából (`-r`) jönnek.
 - A **VICE Monitor** hot reloadja csak azokat a címtartományokat írja, amelyeket az ACME ténylegesen lefordított; az élő figyelés és a profiler az ACME címkéit és forrássorait használja.
 - A SID, Hi-Res, Level, Curve és Table szerkesztő **Export to blocks** funkciója ACME forrást fűz a fájl végére (`!byte`, `!word`, `!fill`, `NÉV = érték`; a VA makrók utasításokként íródnak ki).
@@ -961,6 +962,8 @@ start   ldx #0
 +       rts
 text    !scr "hello acme", 0
 ```
+
+A `samples/acme-crt-demo.asm` kis ACME tesztprogram a Futtatáshoz, a Build PRG / D64-hez és a Build CRT-hez: üzenet a képernyő közepén és raszter-színsávok a keretben, KERNAL-hívás nélkül, így cartridge-ről is fut.
 
 ---
 

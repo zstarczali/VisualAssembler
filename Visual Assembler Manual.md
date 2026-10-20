@@ -1111,12 +1111,13 @@ The tab bar appears above the editor when there is more than one tab open.
 - **VMA mode** (default) — the built-in Visual Assembler assembler with its blocks, macros and `.` directives.
 - **ACME mode** — the source is ACME 0.97 text and is built by the ACME executable set in **Settings → Files and paths → ACME** (**Choose ACME**). `ACME-0.97-reference.pdf` describes the language.
 
-The mode is saved with a `.proj` project, so every project opens with its own assembler. ACME mode is text editing only: the Block / Expert switch is locked, and **Tutorials** are off (they build VMA programs from blocks).
+The mode is saved with a `.proj` project, so every project opens with its own assembler. ACME mode is text editing only: the Block / Expert switch is locked, and the **Tutorials** button is hidden (the lessons build VMA programs from blocks).
 
 What follows the ACME build:
 
-- **Build** (the hammer button in the Expert toolbar, *Build ACME source*), **Run** (PRG, D64, C64 Ultimate, Kung Fu Flash 2), **Save PRG** and **Build D64** compile through ACME; ACME errors and warnings open in the normal compile-error dialog, with the source line.
-- With the **Disassembly** or **Monitor** panel or the cycle gutter on, the source is rebuilt after a typing pause, so the panels show the real ACME bytes; the panels and the debugger symbol files (`.sym`, `.vs`, `.dbg`) use the ACME labels.
+- **Build** (the hammer button in the Expert toolbar, *Build ACME source*), **Run** (PRG, D64, C64 Ultimate, Kung Fu Flash 2), **Save PRG**, **Build D64**, **Build CRT**, **Build project** and **Debug (RetroDebugger)** compile through ACME; ACME errors and warnings open in the normal compile-error dialog, with the source line.
+- With the **Disassembly** or **Monitor** panel or the cycle gutter on, the source is rebuilt after a typing pause, so the panels show the real ACME bytes; the panels use the ACME labels.
+- **Debug files** (*Generate debug files* in Settings → General) are made from the ACME label dump: `.sym` (KickAssembler style) and `.vs` (VICE labels) next to the PRG; there is no `.dbg` source map in ACME mode. **Debug (RetroDebugger)** gets the same labels, and the Expert breakpoints are placed by the ACME report (a breakpoint on a line without code stops at the next code line).
 - **Cycle counts** and **optimisation hints** come from the ACME report (`-r`) of the last build.
 - The **VICE Monitor** hot reload writes only the address ranges ACME really built; the live watch and the profiler use the ACME labels and source lines.
 - **Export to blocks** of the SID, Hi-Res, Level, Curve and Table editors inserts ACME source at the end of the file (`!byte`, `!word`, `!fill`, `NAME = value`; VA macros are written out as instructions).
@@ -1134,6 +1135,8 @@ start   ldx #0
 +       rts
 text    !scr "hello acme", 0
 ```
+
+`samples/acme-crt-demo.asm` is a small ACME test program for Run, Build PRG / D64 and Build CRT: a message in the middle of the screen and raster colour bands in the border, without KERNAL calls, so it also runs from the cartridge.
 
 ---
 

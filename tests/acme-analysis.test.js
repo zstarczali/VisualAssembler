@@ -166,3 +166,13 @@ test("editor exports turn into ACME source", () => {
     "    lda #<table"
   ].join("\n"));
 });
+
+test("ACME RetroDebugger targets: labels and breakpoint lines from the build", () => {
+  const ctx = load(["_acmeReportRows", "_acmeParseLabels", "_acmeDebuggerTargets"]);
+  const prg = { report: REPORT, sourceLineOffset: 2, labels: "start\t= $c000\nloop\t= $c008\nsub2\t= $c00e\n" };
+  // Editor line 0 is "* = $c000" (no bytes) → the next code line; 1 = start, 4 = loop.
+  const { symbols, breakpoints } = ctx._acmeDebuggerTargets(prg, [0, 1, 4]);
+  assert.deepEqual(Array.from(breakpoints), [0xC000, 0xC000, 0xC008]);
+  assert.deepEqual(Array.from(symbols, s => `${s.name}=${s.address.toString(16)}`), ["start=c000", "loop=c008", "sub2=c00e"]);
+  assert.deepEqual(Array.from(ctx._acmeDebuggerTargets({}, [3]).breakpoints), []);
+});

@@ -14565,13 +14565,10 @@ function _acmePreviewSegments(preview, showStub) {
   const stubEnd = stub ? stub.address + stub.bytes.length : -1;
   const code = Number(preview.sysAddress);
   const codeIndex = code - memory.origin;
-  // Nothing but the generated stub (empty or comment-only source): no code to show.
+  // Nothing but the generated stub (empty or comment-only source): no program, so the
+  // panels stay empty even with "show BASIC stub" on.
   if (preview.stubGenerated && stub && code === stubEnd && codeIndex >= memory.payload.length) {
-    return {
-      segments: stubShown ? [{ origin: memory.origin, payload: memory.payload.slice(0, stubEnd - memory.origin) }] : [],
-      filler: 0,
-      empty: true
-    };
+    return { segments: [], filler: 0, empty: true };
   }
   if (!preview.stubGenerated || !stub || !Number.isFinite(code) || code < stubEnd || codeIndex >= memory.payload.length
     || memory.payload.slice(stubEnd - memory.origin, codeIndex).some(byte => byte !== 0)) {
@@ -18482,6 +18479,21 @@ function _acmeDebuggerSidecars(labelText) {
   };
 }
 
+// RetroDebugger targets of an ACME build: symbols from the label dump, Expert breakpoint
+// lines through the report (the line itself or the next line that emits bytes).
+function _acmeDebuggerTargets(prg, sourceLines) {
+  const symbols = [..._acmeParseLabels(prg?.labels)]
+    .flatMap(([address, names]) => names.map(name => ({ name, address })))
+    .sort((left, right) => (left.address - right.address) || left.name.localeCompare(right.name));
+  const rows = _acmeReportRows(prg?.report, prg?.sourceLineOffset ?? 0)
+    .filter(row => row.srcLine !== null && row.address !== null && row.bytes.length);
+  const breakpoints = (sourceLines || [])
+    .map(line => (rows.find(row => row.srcLine === line) || rows.find(row => row.srcLine > line))?.address)
+    .filter(Number.isFinite)
+    .map(address => address & 0xFFFF);
+  return { symbols, breakpoints };
+}
+
 function _buildDebuggerSidecarPayload(prg, { force = false, layout = null, sourcePath = "" } = {}) {
   // Skip generation unless the user explicitly opted in via the settings toggle.
   // `force` bypasses the setting (used by launch_debugger where RetroDebugger
@@ -18525,7 +18537,9 @@ async function runInDebugger() {
   try {
     setWorkProgress(20);
 
-    const prg = buildAutostartPrgForEmulator();
+    // ACME mode: the real ACME build, its label dump and its report lines.
+    const acme = assemblerSyntax === "acme";
+    const prg = acme ? await _buildAcmePrg() : buildAutostartPrgForEmulator();
     if (!prg.ok) {
       if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
       if (emulatorStatus) emulatorStatus.textContent = prg.error;
@@ -18543,7 +18557,11 @@ async function runInDebugger() {
     let breakpoints;
     let expertBreakpoints;
     let debuggerSidecars;
-    try {
+    if (acme) {
+      ({ symbols, breakpoints } = _acmeDebuggerTargets(prg, _getTabBreakpointLines("expert")));
+      expertBreakpoints = breakpoints;
+      debuggerSidecars = _buildDebuggerSidecarPayload(prg, { force: true });
+    } else try {
       if (debuggerProgram?.length) program = debuggerProgram;
       parseUserMacros();
       const layout = getProgramLayout(debugCodeOrigin);
@@ -21181,11 +21199,16 @@ async function _buildProjectAsmTarget(target) {
   if (!tab) return { ok: false, error: `${t("projError")}: ${target.path}` };
   if (tab.id !== activeTabId) _tabActivate(tab.id);
 
-  const savedProgram = program;
-  const savedUserMacros = userMacros;
   let prg;
   let sidecars = null;
-  try {
+  if (assemblerSyntax === "acme") {
+    // The target tab is active now: ACME builds its editor source.
+    prg = await _buildAcmePrg(true);
+    if (prg.ok) sidecars = _buildDebuggerSidecarPayload(prg);
+  }
+  const savedProgram = program;
+  const savedUserMacros = userMacros;
+  if (!prg) try {
     if (expertMode) program = _expertBuildProgram();
     parseUserMacros();
     prg = _buildAutostartPrgCore();
@@ -23244,11 +23267,13 @@ function _acmeBuildButtonSync() {
   if (acme) expertModeTbBtn?.setAttribute("aria-disabled", "true");
   else expertModeTbBtn?.removeAttribute("aria-disabled");
   if (expertModeToggle) expertModeToggle.disabled = acme;
-  // The tutorials build VMA (VA) programs with blocks: off in ACME mode.
+  // The tutorials build VMA (VA) programs with blocks: hidden in ACME mode, with its separator.
   const tutorialBtn = document.getElementById("tutorial-btn");
-  tutorialBtn?.classList.toggle("main-tb-btn--locked", acme);
-  if (acme) tutorialBtn?.setAttribute("aria-disabled", "true");
-  else tutorialBtn?.removeAttribute("aria-disabled");
+  if (tutorialBtn) {
+    tutorialBtn.hidden = acme;
+    const sep = tutorialBtn.nextElementSibling;
+    if (sep?.classList.contains("main-tb-sep")) sep.hidden = acme;
+  }
   if (categorySelect.options.length) {
     const category = categorySelect.value;
     refreshCategoryOptions();

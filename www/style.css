@@ -538,6 +538,7 @@ a {
 }
 
 .main-tb-btn.main-tb-btn--locked { opacity: 0.45; cursor: not-allowed; }
+.main-tb-btn[hidden], .main-tb-sep[hidden] { display: none; }
 .main-tb-btn {
   display: inline-flex;
   align-items: center;
