@@ -278,7 +278,9 @@ Teljes lista: [copilot-instructions.md#meglévő-mintaprogramok](.github/copilot
 **Menu → File → Új projekt sablonból…** (`#menu-new-from-template` → `_openTemplateDialog`, `#template-dialog`).
 A toolbaron is: `#new-project-btn` (Menu és Tutorial között).
 Egy sablon = egy `.asm` (Assembler) vagy `.ub` (UltimateBasic) fájl; nincs manifest, a mappába bedobott fájl magától megjelenik.
-A dialógus tetején `#template-kinds` kapcsoló (Assembler / UltimateBasic, `_templateKind`, induláskor UB módban UB);
+A dialógus tetején `#template-kinds` kapcsoló (Visual Assembler / ACME / UltimateBasic, `_templateKind` = `asm` | `acme` | `ub`, induláskor az aktuális mód szerint);
+közvetlen menüpontok a Versioning blokk alatt („New project” fejléc, `#new-project-section-label`): `#menu-new-ub-project` / `#menu-new-va-project` / `#menu-new-acme-project` → `_openTemplateDialog(kind)`.
+ACME sablon = `.asm` `; @assembler acme` fejléccel (`templates/acme-*.asm`); a projekt `.proj`-ja `_projAssemblerFields("acme")`-t kap és ACME módra vált;
 a `.ub` sablon fejléce `# @kulcs érték`, a projekt `main.ub` + `.proj` `"app": "ultimate-basic"`-kal, UB projektként nyílik meg.
 
 - **Fejléc:** a fájl elején `; @kulcs érték` kommentsorok (`@name`, `@category`, `@desc`, `@order`),

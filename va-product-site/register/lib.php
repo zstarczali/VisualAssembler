@@ -96,6 +96,7 @@ function vaMessagesMigrate(PDO $db): void
         'caption_hu' => "VARCHAR(200) NOT NULL DEFAULT '' AFTER caption_en",
         'image' => 'MEDIUMBLOB NULL AFTER url',
         'image_mime' => "VARCHAR(40) NOT NULL DEFAULT '' AFTER image",
+        'image_width' => 'SMALLINT UNSIGNED NOT NULL DEFAULT 0 AFTER image_mime',
     ]);
 }
 
@@ -107,6 +108,44 @@ function vaInstallsMigrate(PDO $db): void
         'country' => "CHAR(2) NOT NULL DEFAULT '' AFTER supporter",
     ]);
     vaAddColumns($db, 'va_install_days', ['minutes' => 'INT UNSIGNED NOT NULL DEFAULT 0 AFTER launches']);
+}
+
+/**
+ * Az üzenet képe $width px szélesre kicsinyítve (arányosan): [bájtok, mime]. Nagyítani nem nagyít; GD nélkül, GIF-nél
+ * (animáció) vagy hibánál az eredetit adja. A kép az eredeti méretében marad a táblában, így a szélesség bármikor állítható.
+ * @return array{0: string, 1: string}
+ */
+function vaMessageImageScaled(string $bytes, string $mime, int $width): array
+{
+    if ($width <= 0 || $mime === 'image/gif' || !function_exists('imagecreatefromstring')) {
+        return [$bytes, $mime];
+    }
+    $src = @imagecreatefromstring($bytes);
+    if ($src === false) {
+        return [$bytes, $mime];
+    }
+    $w = imagesx($src);
+    $h = imagesy($src);
+    if ($width >= $w) {
+        return [$bytes, $mime];
+    }
+    $nh = max(1, (int) round($h * $width / $w));
+    $dst = imagecreatetruecolor($width, $nh);
+    imagealphablending($dst, false);
+    imagesavealpha($dst, true);
+    imagefill($dst, 0, 0, imagecolorallocatealpha($dst, 0, 0, 0, 127));
+    imagecopyresampled($dst, $src, 0, 0, 0, 0, $width, $nh, $w, $h);
+    ob_start();
+    if ($mime === 'image/jpeg') {
+        $ok = imagejpeg($dst, null, 90);
+    } elseif ($mime === 'image/webp' && function_exists('imagewebp')) {
+        $ok = imagewebp($dst, null, 90);
+    } else {
+        $ok = imagepng($dst, null, 6);
+        $mime = 'image/png';
+    }
+    $out = (string) ob_get_clean();
+    return $ok && $out !== '' ? [$out, $mime] : [$bytes, $mime];
 }
 
 /** @param array<string, string> $add oszlop => definíció; csak a hiányzókat adja hozzá */
@@ -124,7 +163,7 @@ function vaAddColumns(PDO $db, string $table, array $add): void
  * Az in-app üzenet HTML-je: csak az app által is engedett tagek (_serverMessageSanitize az app.js-ben), attribútum nélkül;
  * az A csak http(s) / mailto href-et tarthat. Minden más tag eltűnik (a szövege marad), a script / style / iframe tartalmával együtt.
  */
-function vaCleanMessageHtml(string $html, bool &$removed = false): string
+function vaCleanMessageHtml(string $html, ?bool &$removed = null): string
 {
     $removed = false;
     if (!preg_match('/<[a-z!\/?]/i', $html)) {

@@ -445,7 +445,7 @@ A modal automatikusan bezárul, amikor a művelet befejeződik vagy meghiúsul.
 | **Save Workspace As** | Az aktuális munkaterület mentése, minden alkalommal új fájl-dialógussal |
 | **Open Workspace** | Minden nyitott fül bezárása és a `.vaws` munkaterület-fájlban tárolt fájlkészlet újranyitása |
 | **Set working folder** | A fájlválasztók és mentés-dialógusok alapértelmezett mappájának kiválasztása. Az útvonal az app konfigjában tárolódik, és a menü-előnézetek az útvonal végét tartják láthatóan. |
-| **Új projekt sablonból…** (`Menu → File`, vagy a **Menu** melletti toolbar gomb) | Új `.proj` projekt létrehozása Assembler vagy UltimateBasic sablonból, saját mappában — lásd: [Projekt sablonok](#projekt-sablonok) |
+| **Új projekt sablonból…** (`Menu → Új projekt`, vagy a **Menu** melletti toolbar gomb) | Új `.proj` projekt létrehozása Visual Assembler, ACME vagy UltimateBasic sablonból, saját mappában — lásd: [Projekt sablonok](#projekt-sablonok) |
 | **Open Project** (`Menu → File`) | Több-fájlos `.proj` projekt megnyitása, minden forrásfájl fülként megnyitva |
 | **Save Project** (`Menu → File`) | Az aktuális `.proj` projekt mentése (a projekt panelnek nyitva kell lennie) |
 | **Close Project** (`Menu → File`) | A jelenleg nyitott projekt és minden fájlfülének bezárása. Rákérdez a nem mentett változtatások mentésére. A projekt panel visszaáll üres állapotba. |
@@ -565,21 +565,22 @@ Ha a programban benne van a SID Editor exportált lejátszója (`sid_` címkék)
 
 ### Projekt sablonok
 
-A **Menu → File → Új projekt sablonból…** — vagy a **Menu** és a **Tutorials** közötti toolbar gomb — megnyitja a sablon dialógust:
+A **Menu → Új projekt → Új projekt sablonból…** — vagy a **Menu** és a **Tutorials** közötti toolbar gomb — megnyitja a sablon dialógust:
 
-1. Fent válassz szekciót: **Assembler** vagy **UltimateBasic** (a dialógus az aktuális szerkesztőmódnak megfelelő szekción nyílik).
+1. Fent válassz szekciót: **Visual Assembler**, **ACME** vagy **UltimateBasic** (a dialógus az aktuális szerkesztőmódnak megfelelő szekción nyílik). Az **ACME** szekció csak akkor látszik, ha a **Beállítások → Fájlok és útvonalak → ACME** alatt működő ACME van beállítva.
 2. Válassz sablont a listából; jobb oldalon a leírása és a szintaxiskiemelt előnézete látszik, a projekt nevével kitöltve.
 3. Add meg a **projekt nevét** és a **helyet** (**Tallózás…**). Az űrlap alatti sor mutatja a pontos `.proj` útvonalat, ami létrejön.
 4. Kattints a **Projekt létrehozása** gombra.
 
 | Szekció | Beépített sablonok |
 |---|---|
-| **Assembler** | Üres program, Üres játék (cím / játék / vége állapotok, joystick, játékos sprite), Hires bitmap, Multicolor bitmap, Sprite multiplexer (16 sprite, képkockánként Y szerint rendezve, raszter IRQ-lánccal megjelenítve) |
+| **Visual Assembler** | Üres program, Üres játék (cím / játék / vége állapotok, joystick, játékos sprite), Hires bitmap, Multicolor bitmap, Sprite multiplexer (16 sprite, képkockánként Y szerint rendezve, raszter IRQ-lánccal megjelenítve) |
+| **ACME** | Üres ACME projekt, Raszter IRQ, Sprite multiplexer (16 sprite) |
 | **UltimateBasic** | Üres program, Üres játék (ugyanaz az állapotgép UB-ben), Hires bitmap (`line` / `rect` / `circle` `color pen`-nel), Raszter IRQ (egy `sub`, amit a raszter megszakítás minden képkockában meghív) |
 
-A projekt saját mappában jön létre: `<hely>/<név>/<név>.proj`, mellette `main.asm` (Assembler) vagy `main.ub` (UltimateBasic; a `.proj` Ultimate Basic projektként van jelölve). Meglévő projektet sosem ír felül — ilyenkor a dialógus jelez. A nyitott fülek előbb bezáródnak (mentetlen változásnál rákérdez), majd az új projekt Expert vagy Ultimate Basic módban nyílik meg, látható projekt panellel, a fő fájl startup fájlként beállítva.
+A projekt saját mappában jön létre: `<hely>/<név>/<név>.proj`, mellette `main.asm` (Visual Assembler vagy ACME) vagy `main.ub` (UltimateBasic; a `.proj` Ultimate Basic projektként van jelölve). Az ACME projekt `.proj`-ja az ACME assemblert rögzíti, és a létrehozása a **Beállítások → Általános → Assembler mód**-ot ACME módra állítja (Visual Assembler projekt visszaállítja VMA módra). Meglévő projektet sosem ír felül — ilyenkor a dialógus jelez. A nyitott fülek előbb bezáródnak (mentetlen változásnál rákérdez), majd az új projekt Expert vagy Ultimate Basic módban nyílik meg, látható projekt panellel, a fő fájl startup fájlként beállítva.
 
-**Saját sablonok:** a **Saját sablonok mappája** (a dialógus bal alsó sarkában) megnyitja a felhasználói sablonok mappáját az app config könyvtárában. Minden oda bedobott `.asm` vagy `.ub` fájl megjelenik a megfelelő szekcióban (a *Saját sablonok* alatt, hacsak nem ad meg kategóriát). A sablon egy közönséges forrásfájl, a tetején opcionális, kommentsorokból álló fejléccel — assemblerben `;`, Ultimate Basicben `#`:
+**Saját sablonok:** a **Saját sablonok mappája** (a dialógus bal alsó sarkában) megnyitja a felhasználói sablonok mappáját az app config könyvtárában. Minden oda bedobott `.asm` vagy `.ub` fájl megjelenik a megfelelő szekcióban (a `; @assembler acme` fejlécsoros `.asm` az **ACME** alatt) (a *Saját sablonok* alatt, hacsak nem ad meg kategóriát). A sablon egy közönséges forrásfájl, a tetején opcionális, kommentsorokból álló fejléccel — assemblerben `;`, Ultimate Basicben `#`:
 
 ```asm
 ; @name Raster bars

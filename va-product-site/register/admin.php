@@ -343,7 +343,7 @@ form.inline { display: inline }
 .btn.pri { border-color: var(--ylw); color: var(--ylw) }
 .btn.dng:hover { border-color: var(--red); color: var(--red); background: rgba(255, 119, 119, .08) }
 .btn.sm { padding: 3px 8px; min-height: 0; font-size: 9px }
-input[type=email], input[type=text], input[type=password], input[type=search], input[type=datetime-local], select {
+input[type=email], input[type=text], input[type=password], input[type=search], input[type=datetime-local], input[type=number], select {
   font-family: 'C64Mono', monospace; font-size: 12px; background: var(--scr-darker); color: var(--txt-hi);
   border: 1px solid var(--brd); padding: 7px 10px; min-height: 34px; text-transform: none }
 input:focus, select:focus { outline: 1px solid var(--ylw); border-color: var(--ylw) }
@@ -422,6 +422,9 @@ tr.unread td { background: rgba(255, 119, 119, .06) }
 .msg-form .row label { margin-bottom: 0 }
 .msg-form label.chk { flex-direction: row; align-items: center; gap: 6px; color: var(--txt) }
 .msg-form .dt { display: flex; flex-wrap: wrap; gap: 4px; align-items: center }
+.msg-form .dt input[type=number] { width: 90px; color-scheme: dark; appearance: textfield; -moz-appearance: textfield; text-align: right }
+.msg-form .dt input[type=number]::-webkit-inner-spin-button, .msg-form .dt input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0 }
+.msg-form .dt input[type=number]::placeholder { color: var(--txt-dim); text-transform: uppercase; font-size: 10px }
 .msg-edit { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start }
 @media (max-width: 900px) { .msg-edit { grid-template-columns: 1fr } }
 .msg-preview { position: sticky; top: 16px }

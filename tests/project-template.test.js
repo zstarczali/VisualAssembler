@@ -91,6 +91,18 @@ test("UltimateBasic templates use # headers and create main.ub", () => {
   assert.equal(out.asm, "asm");
 });
 
+test("an @assembler acme header makes an ACME template", () => {
+  const out = run(`
+    const acme = _parseTemplateSource("acme-x.asm", "; @name X\\n; @assembler acme\\n\\n* = $0801\\n    rts\\n", "builtin");
+    this.out = { kind: acme.kind, body: acme.body, paths: _templateTargetPaths("demo", "D:/Work", acme.kind) };
+  `);
+  assert.equal(out.kind, "acme");
+  assert.equal(out.body, "* = $0801\n    rts\n");
+  assert.equal(out.paths.mainPath, "D:/Work/demo/main.asm");
+  const files = fs.readdirSync(templatesDir).filter(f => /\.asm$/i.test(f));
+  assert.ok(files.some(f => /^\s*;\s*@assembler\s+acme\s*$/im.test(fs.readFileSync(path.join(templatesDir, f), "utf8"))), "Expected a built-in ACME template");
+});
+
 test("every built-in template has a name, category and description in EN and HU", () => {
   const all = fs.readdirSync(templatesDir);
   const files = all.filter(f => /\.(asm|ub)$/i.test(f));
@@ -105,7 +117,7 @@ test("every built-in template has a name, category and description in EN and HU"
     assert.ok(out.tpl.meta.name.hu && out.tpl.meta.desc.hu && out.tpl.meta.category.hu, `${file}: missing Hungarian header`);
     assert.ok(out.tpl.order < 1000, `${file}: missing @order`);
     assert.ok(!/^\s*[;#]\s*@/m.test(out.tpl.body), `${file}: header line left in the body`);
-    if (out.tpl.kind === "asm") assert.ok(out.tpl.body.includes("* = $0801"), `${file}: no origin`);
+    if (out.tpl.kind !== "ub") assert.ok(out.tpl.body.includes("* = $0801"), `${file}: no origin`);
   }
 });
 
@@ -114,7 +126,7 @@ test("template menu item, dialog and backend commands are wired up", () => {
   const bridge = fs.readFileSync(path.join(root, "www", "tauri-bridge.js"), "utf8");
   const rust = fs.readFileSync(path.join(root, "src-tauri", "src", "lib.rs"), "utf8");
   const conf = JSON.parse(fs.readFileSync(path.join(root, "src-tauri", "tauri.conf.json"), "utf8"));
-  for (const id of ["menu-new-from-template", "template-dialog", "template-list", "template-preview", "template-project-name", "template-location", "template-create", "template-kinds", "template-kind-asm", "template-kind-ub", "new-project-btn"]) {
+  for (const id of ["menu-new-from-template", "template-dialog", "template-list", "template-preview", "template-project-name", "template-location", "template-create", "template-kinds", "template-kind-asm", "template-kind-ub", "template-kind-acme", "new-project-btn"]) {
     assert.ok(html.includes(`id="${id}"`), `index.html is missing #${id}`);
   }
   assert.ok(appJs.includes('getElementById("menu-new-from-template")?.addEventListener'));
