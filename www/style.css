@@ -9434,7 +9434,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
   user-select: none;
   white-space: nowrap;
 }
-.hg-color-lbl, .hg-zoom-lbl, .hg-zoom-val {
+.hg-color-lbl, .hg-zoom-lbl {
   font-family: inherit;
   font-size: 0.72rem;
   font-weight: 600;

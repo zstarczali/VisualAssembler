@@ -4145,7 +4145,8 @@ Pixel-level bitmap editor with both 320×200 hi-res and 160×200 multicolor mode
 | Feature | Description |
 |---|---|
 | Mode toggle | **Multicolor** checkbox switches between hi-res (mono per cell) and multicolor (4 colors per cell). |
-| Tools | Pencil, eraser, line, rectangle, filled rectangle, oval, filled oval, flood fill, cell paper, select. |
+| Tools | Pencil, eraser, line, rectangle, filled rectangle, oval, filled oval, flood fill, colour picker, cell paper, select. |
+| Colour picker | Click a pixel to make its visible colour the ink (in hi-res the cell's ink or paper, whichever the pixel shows); the editor then returns to the previous tool. **Alt+click** picks the colour with any tool. |
 | Cell paper (hi-res) | Hi-res allows two colours in every 8×8 cell: the ink (set pixels, high nibble of the cell's screen RAM byte) and the paper (clear pixels, low nibble). The **Cell paper** tool sets the paper of each cell you click or drag over to the selected colour; **PAPER** still sets every cell at once. The eraser clears pixels, so the cell's own paper shows. Disabled in multicolor, where the background ($D021) is shared. |
 | Spray tool | Airbrush-style painter that scatters pixels around the cursor while drawing. |
 | Spray intensity | Dropdown next to the spray tool controls how dense each spray stroke is. |
@@ -4155,7 +4156,7 @@ Pixel-level bitmap editor with both 320×200 hi-res and 160×200 multicolor mode
 | Copy / Paste | **Copy** (`Ctrl/Cmd+C`) copies the selected region. **Paste** (`Ctrl/Cmd+V`) shows a preview that follows the cursor: click on the canvas to place it, **Esc** cancels. The copy is kept, so pressing `Ctrl/Cmd+V` and clicking again places it as many times as needed. In hi-res mode pasted pixels still follow the two-colours-per-cell limit, so line the region up with the cell grid to keep its colours. Copy, Paste and Transparent paste are also in the right-click menu of the canvas; a paste started there previews at the clicked spot. |
 | Transparent paste | `Ctrl/Cmd+Shift+V` (or its toolbar button) skips the paper-coloured pixels of the copy, so the picture underneath shows through. |
 | Grid + Raster | **Grid** shows the character-cell grid: 8×8 pixels in hi-res, 4×8 double-wide pixels in multicolor. From 4× zoom it also draws a fainter line around every single pixel, so each pixel can be placed exactly. **Raster** adds a raster row overlay. |
-| Zoom | Slider from 1× to 16×. |
+| Zoom | Slider from 1× to 16×, or Ctrl+wheel over the canvas (the point under the cursor stays in place). |
 | Import image | PNG/JPEG/GIF dropped into the canvas auto-quantizes to the 16-color C64 palette. |
 | Export blocks | Appends BYTE/RAWBYTES blocks to the program with the encoded bitmap, screen, and color data. |
 | Export `.bin` | Saves the native multicolor format (10000 bytes: 8000 bitmap + 1000 screen + 1000 color) ready for LOADFILE to $2000. |
@@ -4168,7 +4169,9 @@ Pixel-level bitmap editor with both 320×200 hi-res and 160×200 multicolor mode
 |---|---|
 | Frames | Add / remove / reorder frames; frame strip shown at the bottom. **Copy** / **Paste** in the frame row copy the whole current frame; the same two entries are in the right-click menu of the canvas and of the frame strip. |
 | Mode | Mono / multicolor toggle. |
-| Tools | Pencil, fill, line, rectangle, circle — plus flip horizontal, flip vertical, shift left/right/up/down (with optional wrap). Shape tools show a live preview while dragging; release to commit. |
+| Tools | Pencil, fill, colour picker, line, rectangle, circle — plus flip horizontal, flip vertical, shift left/right/up/down (with optional wrap). Shape tools show a live preview while dragging; release to commit. |
+| Colour picker | Click a pixel to select its colour slot (sprite colour, MC1, MC2, background or overlay colour, on the edited layer); the editor then returns to the previous tool. **Alt+click** picks with any tool. |
+| Zoom | Slider from 3× to 40×, or Ctrl+wheel over the canvas. |
 | Undo / redo | Full undo/redo stack per frame. Ctrl/Cmd+Z / Ctrl/Cmd+Y or the toolbar buttons. |
 | Image import | Import a PNG or JPEG via Files → Import image. The importer maps each pixel to the nearest C64 palette colour and writes it into the current frame. |
 | Animation preview | Play / Stop with configurable speed. |
@@ -4204,7 +4207,7 @@ Read-only viewer of the C64 character ROM (the built-in PETSCII font). Open via 
 | Load `.bin` | Imports an external 2048-byte charset binary. |
 | Per-char preview | 16-wide grid of all 256 glyphs with the current cell highlighted. |
 | Pixel editor | Edits the selected character, or a **tile** of 2×1, 1×2 or 2×2 neighbouring characters as one picture (Tile selector). |
-| Drawing tools | Pencil, line, rectangle, filled rectangle and flood fill. A click on a pixel that already has the ink erases it. |
+| Drawing tools | Pencil, line, rectangle, filled rectangle, flood fill and colour picker. A click on a pixel that already has the ink erases it. The colour picker (multicolor only; **Alt+click** with any tool) makes the clicked pixel's colour — FG, BG, MC1 or MC2 — the ink. |
 | Transforms | Clear, invert, flip horizontal / vertical, shift with wrap-around, rotate 90° clockwise / counter-clockwise (square tiles only) — on the whole tile. |
 | Undo / Redo | Toolbar buttons, Ctrl+Z and Ctrl+Y (Ctrl+Shift+Z). |
 | Copy / Paste | Toolbar buttons, Ctrl+C / Ctrl+V, or right-click on the map; copies the whole tile with its colours. |
@@ -4229,6 +4232,7 @@ The canvas is 16×16 characters, 128×128 pixels. In multicolor character mode e
 | ECM | The **ECM** checkbox (extended colour mode, not together with multicolor): every character is hi-res with its own colour (0–15) and one of four backgrounds BG0–BG3 (`$D021`–`$D024`; BG1 / BG2 are the MC1 / MC2 registers). Pick a BG colour in the palette (tagged B0–B3), then click or drag over characters with the **Character background** tool. Only 64 different characters fit: the status line counts them, and saving merges equal characters — the charset is 64 characters (512 bytes) and the screen codes are `glyph | background << 6`. Turn ECM on with `$D011` bit 6. |
 | C64 color model | Background uses `$D021`; shared multicolor 1 uses `$D022`; shared multicolor 2 uses `$D023`; each character's own color comes from Color RAM bits 0–2. |
 | Drawing tools | Pencil, eraser, line, rectangle, oval, and flood fill work across character boundaries. |
+| Colour picker | Click a pixel to select its visible colour (in a multicolor character also its BG / MC1 / MC2 / own-colour ink); the editor then returns to the previous tool. **Alt+click** picks with any tool. |
 | Spray tool | Airbrush-style drawing that scatters pixels across neighboring cells/characters. |
 | Spray intensity | Dropdown next to the spray tool sets the stroke density. |
 | Grid toggle | The Grid checkbox shows or hides the 16×16 character grid. |
@@ -4247,6 +4251,7 @@ Layered tilemap editor for static scenery, sprite spawn maps, collision data, an
 |---|---|
 | Layers | Multiple named layers, each with its own tileset and opacity. |
 | Brushes | Single-tile, fill, line, rectangle, and circle modes. Shape tools show a live preview while dragging; release to commit. |
+| Zoom | Slider, or Ctrl+wheel over the map. |
 | Undo / redo | Full undo/redo stack per layer. Ctrl/Cmd+Z / Ctrl/Cmd+Y or the toolbar buttons. |
 | Clear menu | Per-layer or whole-map clear with confirmation. |
 | Image import | Drop a PNG of a tilemap; the editor auto-slices into tiles. |
@@ -4267,6 +4272,7 @@ Arranges **Map Editor screens** into one level — a vertical shooter, a car gam
 | Screens | **New empty screen**, **Add from Map Editor** (the map currently open) or **Load map(s) (.bin)…** (several Map Editor exports at once). Drag a screen from the list onto a slot; drag slots onto each other to swap them. |
 | Editing | **Edit in Map Editor** opens the selected screen in the Map Editor and brings the changes back; duplicate, move up/left or down/right, remove; undo / redo. |
 | Preview | Drag the preview or use the arrow keys to scroll pixel by pixel; **Play** scrolls automatically (direction, speed 1–8, loop), Space = play / stop. *Borders* marks the screen boundaries. |
+| Zoom | The overview zoom slider (25–400 %), or Ctrl+wheel over the overview. |
 | Checks | Charset info, and a warning when screens use a different charset or colors (the level uses the first screen's settings). |
 | Character attributes | The **Character attributes** button switches the overview to attribute painting: pick **Solid**, **Ladder**, **Hazard** or **Collectible**, click a character and every cell with that screen code gets (or loses) it; drag for more codes. The attributes show as a coloured layer and become the 256-byte `LEVEL_ATTR` table (`LEVEL_ATTR_SOLID` = 1, `_LADDER` = 2, `_HAZARD` = 4, `_COLLECT` = 8). |
 | Edge check | Marks in red where neighbouring screens do not continue: one side of the border empty (space) and the other not, or solid on one side only. The side panel counts the edges and cells. |

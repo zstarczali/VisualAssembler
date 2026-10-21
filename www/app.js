@@ -3876,6 +3876,7 @@ function _applyEditorTranslations() {
   setAttr('.ce-tool-btn[data-ce-tool="rect"]', t("hgToolRect"));
   setAttr('.ce-tool-btn[data-ce-tool="fillrect"]', t("hgToolFillRect"));
   setAttr('.ce-tool-btn[data-ce-tool="fill"]', t("hgToolFill"));
+  setAttr('.ce-tool-btn[data-ce-tool="picker"]', t("hgToolPicker"));
   setAttr("#ce-rotr", t("seRotateCW"));
   setAttr("#ce-rotl", t("seRotateCCW"));
   setText("#ce-tile-label", t("ceTile"));
@@ -3920,6 +3921,7 @@ function _applyEditorTranslations() {
   setAttr('#charset-canvas-dialog [data-cc-tool="fill"]', t("meFill"));
   setAttr('#charset-canvas-dialog [data-cc-tool="cellmode"]', t("ccCellMode"));
   setAttr('#charset-canvas-dialog [data-cc-tool="cellbg"]', t("ccCellBg"));
+  setAttr('#charset-canvas-dialog [data-cc-tool="picker"]', t("hgToolPicker"));
   setText("#cc-status", t("ccStatus"));
   setAttr("#cc-undo", t("hgUndo"));
   setAttr("#cc-redo", t("hgRedo"));
@@ -4060,6 +4062,7 @@ function _applyEditorTranslations() {
   setAttr('.hg-tool[data-tool="filloval"]', t("hgToolFillOval"));
   setAttr('.hg-tool[data-tool="fill"]', t("hgToolFill"));
   setAttr('.hg-tool[data-tool="cellpaper"]', t("hgToolCellPaper"));
+  setAttr('.hg-tool[data-tool="picker"]', t("hgToolPicker"));
   setAttr('.hg-tool[data-tool="select"]', t("hgToolSelect"));
   setAttr("#hg-undo", t("hgUndo"));
   setAttr("#hg-redo", t("hgRedo"));
@@ -4086,6 +4089,7 @@ function _applyEditorTranslations() {
   setAttr('.se-tool[data-tool="fill"]', t("seToolFill"));
   setAttr('.se-tool[data-tool="select"]', t("seToolSelect"));
   setAttr('.se-tool[data-tool="hitbox"]', t("seToolHitbox"));
+  setAttr('.se-tool[data-tool="picker"]', t("hgToolPicker"));
   setAttr("#se-rotr", t("seRotateCW"));
   setAttr("#se-rotl", t("seRotateCCW"));
   const seOvSpan = document.querySelector("#se-overlay + span");
@@ -11636,6 +11640,27 @@ function _expertZoom(delta) {
     _expertApplyHighlight();
     saveUiSettings();
   }, 30);
+}
+
+// Szerkesztő-vászon zoom csúszkával: Ctrl(/Cmd)+görgő a csúszkát lépteti (az "input"
+// eseményét kiváltva), és a kurzor alatti pont a helyén marad a görgethető wrap-ben.
+function _bindCtrlWheelRange(wrap, range) {
+  if (!wrap || !range) return;
+  _bindCtrlWheelZoom(wrap, (dir) => {
+    const step = Number(range.step) || 1;
+    const old = Number(range.value);
+    const next = Math.max(Number(range.min), Math.min(Number(range.max), old + dir * step));
+    if (next === old) return;
+    const e = _bindCtrlWheelRange.last;
+    const r = wrap.getBoundingClientRect();
+    const cx = e ? e.clientX - r.left : wrap.clientWidth / 2, cy = e ? e.clientY - r.top : wrap.clientHeight / 2;
+    const fx = (wrap.scrollLeft + cx) / Math.max(1, wrap.scrollWidth), fy = (wrap.scrollTop + cy) / Math.max(1, wrap.scrollHeight);
+    range.value = String(next);
+    range.dispatchEvent(new Event("input", { bubbles: true }));
+    wrap.scrollLeft = fx * wrap.scrollWidth - cx;
+    wrap.scrollTop = fy * wrap.scrollHeight - cy;
+  });
+  wrap.addEventListener("wheel", (e) => { _bindCtrlWheelRange.last = e; }, { capture: true, passive: true });
 }
 
 // Ctrl(/Cmd)+görgő → zoomFn(±1). Touchpad pinch sok apró deltát küld, ezért
@@ -38094,6 +38119,7 @@ function _ceSetPixel(charIdx, row, col, val) {
 // (the selected one at the top left) as one picture.
 let _ceTileW = 1, _ceTileH = 1;
 let _ceTool = "pencil";
+let _cePrevTool = "pencil";  // the picker returns to this tool
 let _ceShapeStart = null;
 let _ceUndo = [], _ceRedo = [];
 let _ceClip = null;          // { w, h, data: Uint8Array(w*h*8), colors: Uint8Array(w*h) }
@@ -38580,6 +38606,8 @@ function _ceApplySerializedState(settings) {
 function _ceSyncTools() {
   document.querySelectorAll("#char-editor-dialog .ce-tool-btn[data-ce-tool]").forEach(function(b) {
     b.classList.toggle("ce-tool-btn--active", b.dataset.ceTool === _ceTool);
+    // hi-res has a single ink: nothing to pick
+    if (b.dataset.ceTool === "picker") b.disabled = !_ceMulticolor;
   });
   const square = _ceTileW === _ceTileH;
   ["ce-rotr", "ce-rotl"].forEach(function(id) { const b = document.getElementById(id); if (b) b.disabled = !square; });
@@ -38625,6 +38653,16 @@ function setupCharEditor() {
       if (!_ceData || e.button !== 0) return;
       const p = cellAt(e.clientX, e.clientY);
       if (!p) return;
+      // Colour picker (or Alt+click, multicolor only): the pixel's value becomes the ink.
+      if (_ceMulticolor && (_ceTool === "picker" || e.altKey)) {
+        _ceInk = _ceGetT(p.x, p.y);
+        if (_ceTool === "picker") _ceTool = _cePrevTool;
+        _ceBuildColorRows();
+        _ceSyncTools();
+        e.preventDefault();
+        return;
+      }
+      if (_ceTool === "picker") return;
       _cePushUndo();
       _cePaintVal = paintValue(p);
       if (_ceTool === "fill") {
@@ -38722,7 +38760,11 @@ function setupCharEditor() {
   }
 
   dialog.querySelectorAll(".ce-tool-btn[data-ce-tool]").forEach(function(btn) {
-    btn.addEventListener("click", function() { _ceTool = btn.dataset.ceTool; _ceSyncTools(); });
+    btn.addEventListener("click", function() {
+      if (btn.dataset.ceTool === "picker" && _ceTool !== "picker") _cePrevTool = _ceTool;
+      _ceTool = btn.dataset.ceTool;
+      _ceSyncTools();
+    });
   });
   document.getElementById("ce-undo")?.addEventListener("click", _ceUndoOp);
   document.getElementById("ce-redo")?.addEventListener("click", _ceRedoOp);
@@ -38752,6 +38794,8 @@ function setupCharEditor() {
     _ceMulticolor = !!e.target.checked;
     if (_ceMulticolor) _ceFg &= 7;
     _ceInk = _ceMulticolor ? 3 : 1;
+    if (!_ceMulticolor && _ceTool === "picker") _ceTool = _cePrevTool;
+    _ceSyncTools();
     _ceBuildGrid();
     _ceBuildColorRows();
     _ceRefresh();
@@ -38852,6 +38896,7 @@ let _ccData = null;
 let _ccColorRam = null;
 let _ccMulticolor = false;
 let _ccTool = "pencil";
+let _ccPrevTool = "pencil";  // the picker returns to this tool
 let _ccColor = 14;
 let _ccBg = 6;
 let _ccMc1 = 5;
@@ -39423,6 +39468,7 @@ function setupCharsetCanvasEditor() {
   document.getElementById("cc-close")?.addEventListener("click", function() { dialog.close(); });
   dialog.querySelectorAll("[data-cc-tool]").forEach(function(btn) {
     btn.addEventListener("click", function() {
+      if (btn.dataset.ccTool === "picker" && _ccTool !== "picker") _ccPrevTool = _ccTool;
       _ccTool = btn.dataset.ccTool;
       dialog.querySelectorAll("[data-cc-tool]").forEach(function(b) { b.classList.toggle("cc-tool--active", b === btn); });
     });
@@ -39614,6 +39660,20 @@ function setupCharsetCanvasEditor() {
       ccLast = null;
       const point = _ccPointFromEvent(e);
       if (!point) return;
+      // Colour picker (or Alt+click): the visible colour of the pixel; in a multicolor
+      // character its pixel value is the ink.
+      if (_ccTool === "picker" || e.altKey) {
+        const value = _ccGetPixel(point.x, point.y);
+        const charIdx = _ccCellFromPixel(point.x, point.y).charIdx;
+        _ccPickColor(_ccPixelColor(value, charIdx));
+        if (_ccMulticolor && _ccCharMc(charIdx)) { _ccInk = value; _ccSyncPaletteSelection(); }
+        if (_ccTool === "picker") {
+          _ccTool = _ccPrevTool;
+          dialog.querySelectorAll("[data-cc-tool]").forEach(function(b) { b.classList.toggle("cc-tool--active", b.dataset.ccTool === _ccTool); });
+        }
+        e.preventDefault();
+        return;
+      }
       _ccPushUndo();
       _ccPainting = true;
       try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
@@ -40696,6 +40756,7 @@ function setupMapEditor() {
   document.getElementById("me-zoom")?.addEventListener("input", function(e) {
     _meZoom = parseInt(e.target.value, 10); _meRenderAll();
   });
+  _bindCtrlWheelRange(document.getElementById("me-canvas-wrap"), document.getElementById("me-zoom"));
 
   // Bank tile selection
   ["me-bank0", "me-bank1"].forEach(function(id, bank) {
@@ -42715,6 +42776,7 @@ function setupLevelEditor() {
     _lvScale = (parseInt(e.target.value, 10) || 50) / 100;
     _lvRenderOverview();
   });
+  _bindCtrlWheelRange(document.getElementById("lv-canvas-wrap"), document.getElementById("lv-zoom"));
 
   // Object layer controls
   document.getElementById("lv-obj-mode")?.addEventListener("click", function() {
@@ -43240,6 +43302,7 @@ let _hgPixMC  = null;        // Uint8Array(160*200) multicolor: free per-pixel c
 let _hgColor = 1;            // selected color index (ink)
 let _hgPaper = 0;            // paper / background colour index (bit-0 in hi-res)
 let _hgTool  = "pencil";
+let _hgPrevTool = "pencil";  // the picker returns to this tool
 let _hgZoom  = 3;
 let _hgGrid  = false;
 let _hgRaster = false;
@@ -43653,14 +43716,16 @@ function _hgBuildPalette() {
     sw.className = "hg-swatch" + (i === _hgColor ? " hg-swatch--sel" : "");
     sw.style.background = hex;
     sw.title = "Color " + i + " — left-click: ink, right-click: paper";
-    sw.addEventListener("click", function() {
-      _hgColor = i;
-      wrap.querySelectorAll(".hg-swatch").forEach(function(s, j) { s.classList.toggle("hg-swatch--sel", j === i); });
-    });
+    sw.addEventListener("click", function() { _hgSelectColor(i); });
     sw.addEventListener("contextmenu", function(e) { e.preventDefault(); _hgSetPaper(i); });
     wrap.appendChild(sw);
   });
   _hgUpdatePaperSwatch();
+}
+
+function _hgSelectColor(col) {
+  _hgColor = col;
+  document.querySelectorAll("#hg-palette .hg-swatch").forEach(function(s, j) { s.classList.toggle("hg-swatch--sel", j === col); });
 }
 
 function _hgUpdatePaperSwatch() {
@@ -44495,6 +44560,7 @@ function setupHiresEditor() {
         _hgPasteGhost = null;
         _hgBlit();
       }
+      if (newTool === "picker" && _hgTool !== "picker") _hgPrevTool = _hgTool;
       _hgTool = newTool;
       dialog.querySelectorAll(".hg-tool[data-tool]").forEach(function(b) { b.classList.toggle("hg-tool--active", b === btn); });
     });
@@ -44606,10 +44672,9 @@ function setupHiresEditor() {
   document.getElementById("hg-paper")?.addEventListener("click", function() { _hgSetPaper(_hgColor); });
   document.getElementById("hg-zoom")?.addEventListener("input", function(e) {
     _hgZoom = parseInt(e.target.value, 10);
-    const lbl = document.getElementById("hg-zoom-val");
-    if (lbl) lbl.textContent = _hgZoom + "×";
     _hgRenderAll();
   });
+  _bindCtrlWheelRange(document.getElementById("hg-canvas-wrap"), document.getElementById("hg-zoom"));
   dialog.addEventListener("click", function(e) {
     if (!e.target.closest(".tool-dropdown--hg")) {
       _toolDropdownSetOpen("hg-spray-tool", "hg-spray-menu", false);
@@ -44738,6 +44803,17 @@ function setupHiresEditor() {
       e.preventDefault();
       return;
     }
+    // Colour picker (or Alt+click with any tool): the visible colour of the pixel
+    // becomes the ink; the picker tool then returns to the previous tool.
+    if (_hgTool === "picker" || e.altKey) {
+      _hgSelectColor(_hgGet(p.x, p.y));
+      if (_hgTool === "picker") {
+        _hgTool = _hgPrevTool;
+        dialog.querySelectorAll(".hg-tool[data-tool]").forEach(function(b) { b.classList.toggle("hg-tool--active", b.dataset.tool === _hgTool); });
+      }
+      e.preventDefault();
+      return;
+    }
     try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
     if (_hgTool === "select") {
       _hgPainting = true;
@@ -44861,6 +44937,7 @@ let _spSlot = "sprite";
 let _spCol = { sprite: 1, bg: 6, mc1: 0, mc2: 11, ov: 0 };
 let _spWrap = false;
 let _spTool = "pencil";
+let _spPrevTool = "pencil";  // the picker returns to this tool
 let _spPainting = false, _spPaintVal = 0;
 let _spShapeStart = null;
 let _spCanvas = null, _spCtx = null;
@@ -45655,7 +45732,9 @@ function setupSpriteEditor() {
   };
   dialog.querySelectorAll(".se-tool[data-tool]").forEach(function(btn) {
     btn.addEventListener("click", function() {
-      _spTool = btn.dataset.tool || "pencil";
+      const tool = btn.dataset.tool || "pencil";
+      if (tool === "picker" && _spTool !== "picker") _spPrevTool = _spTool;
+      _spTool = tool;
       if (_spTool !== "select" && _spSel) { _spSel = null; _spRender(); }
       dialog.querySelectorAll(".se-tool[data-tool]").forEach(function(b) { b.classList.toggle("se-tool--active", b === btn); });
     });
@@ -45666,6 +45745,14 @@ function setupSpriteEditor() {
     _spInit();
     const p = cellFromEvent(e);
     if (p.x<0||p.y<0||p.x>=_SP_W||p.y>=_SP_H) return;
+    // Colour picker (or Alt+click): the colour slot of the pixel on the edited layer.
+    if (_spTool === "picker" || e.altKey) {
+      const v = _spGet(p.x, p.y);
+      _spSlot = v === 0 ? "bg" : _spOnOv() ? "ov" : !_spMulti ? "sprite" : v === 1 ? "mc1" : v === 3 ? "mc2" : "sprite";
+      _spBuildColors();
+      if (_spTool === "picker") dialog.querySelector('.se-tool[data-tool="' + _spPrevTool + '"]')?.click();
+      e.preventDefault(); return;
+    }
     try { canvas.setPointerCapture(e.pointerId); } catch(_){}
     if (_spTool === "fill") {
       _spPushUndo(); _spFloodFill(p.x, p.y, _spSlotVal(_spSlot)); _spRender();
@@ -45780,6 +45867,7 @@ function setupSpriteEditor() {
   });
   onChange("se-grid", function(e){ _spGrid = e.target.checked; _spRender(); });
   onInput("se-zoom", function(e){ _spZoom = parseInt(e.target.value,10); _spRender(); });
+  _bindCtrlWheelRange(document.getElementById("se-canvas-wrap"), document.getElementById("se-zoom"));
 
   onClick("se-copy-data", function() { navigator.clipboard.writeText(_spHexCSV()).catch(function(){}); });
   onClick("se-export-ub", function() {

@@ -3971,7 +3971,8 @@ Pixel-szintű bitmap szerkesztő 320×200 hi-res és 160×200 multicolor módokk
 | Funkció | Leírás |
 |---|---|
 | Mode toggle | A **Multicolor** jelölőnégyzet vált hi-res (celláként mono) és multicolor (celláként 4 szín) közt. |
-| Eszközök | Ceruza, radír, vonal, téglalap, kitöltött téglalap, ovális, kitöltött ovális, flood fill, cella háttérszín, kijelölés. |
+| Eszközök | Ceruza, radír, vonal, téglalap, kitöltött téglalap, ovális, kitöltött ovális, flood fill, színválasztó, cella háttérszín, kijelölés. |
+| Színválasztó | A kattintott pixel látható színe lesz az ink (hi-resben a cella inkje vagy papírja, amelyiket a pixel mutatja); utána a szerkesztő visszavált az előző eszközre. **Alt+kattintás** bármelyik eszközzel színt vesz fel. |
 | Cella háttérszín (hi-res) | Hi-resben minden 8×8-as cellának két színe lehet: az ink (beállított pixelek, a cella screen RAM bájtjának felső nibble-je) és a papír (törölt pixelek, alsó nibble). A **Cella háttérszín** eszköz a kattintott vagy áthúzott cellák papírját állítja a kiválasztott színre; a **PAPER** továbbra is az összes cellát egyszerre. A radír pixelt töröl, így a cella saját papírja látszik. Multicolorban le van tiltva, ott a háttér ($D021) közös. |
 | Spray eszköz | Airbrush-stílusú festő, amely pixeleket szór a kurzor köré rajzolás közben. |
 | Spray intenzitás | A spray eszköz melletti legördülő vezérli, mennyire sűrű minden spray húzás. |
@@ -3981,7 +3982,7 @@ Pixel-szintű bitmap szerkesztő 320×200 hi-res és 160×200 multicolor módokk
 | Másolás / beillesztés | A **Copy** (`Ctrl/Cmd+C`) a kijelölt területet másolja. A **Paste** (`Ctrl/Cmd+V`) után a másolat előnézete követi a kurzort: kattintás a vászonra elhelyezi, az **Esc** megszakítja. A másolat megmarad, így újabb `Ctrl/Cmd+V` és kattintás akárhányszor beilleszti. Hi-res módban a beillesztett pixelekre is érvényes a cellánkénti két szín, ezért a színek megtartásához igazítsd a területet a cellarácshoz. A Copy, a Paste és az áttetsző beillesztés a vászon jobb klikkes menüjében is megvan; az onnan indított beillesztés előnézete a kattintás helyén jelenik meg. |
 | Áttetsző beillesztés | A `Ctrl/Cmd+Shift+V` (vagy az eszköztár gombja) kihagyja a másolat papír színű pixeleit, így az alatta lévő kép megmarad. |
 | Grid + Raster | A **Grid** a karaktercellák rácsát mutatja: hi-resben 8×8 pixel, multicolorban 4×8 dupla széles pixel. 4×-es nagyítástól halványabb vonallal minden egyes pixelt is körberajzol, így a pixelek pontosan elhelyezhetők. A **Raster** raszter-sor overlay-t ad. |
-| Zoom | Csúszka 1×-től 16×-ig. |
+| Zoom | Csúszka 1×-től 16×-ig, vagy Ctrl+görgő a vásznon (a kurzor alatti pont a helyén marad). |
 | Kép importja | A canvas-ra dobott PNG/JPEG/GIF automatikusan a 16 színes C64 palettára kvantálódik. |
 | Export blokkok | BYTE/RAWBYTES blokkokat fűz a programhoz a kódolt bitmap, screen és color adattal. |
 | Export `.bin` | A natív multicolor formátumot menti (10000 byte: 8000 bitmap + 1000 screen + 1000 color), készen a $2000-re való LOADFILE-hoz. |
@@ -3994,7 +3995,9 @@ Pixel-szintű bitmap szerkesztő 320×200 hi-res és 160×200 multicolor módokk
 |---|---|
 | Frame-ek | Frame-ek hozzáadása / eltávolítása / átrendezése; a frame-csík alul látszik. A frame-sor **Copy** / **Paste** gombja a teljes aktuális frame-et másolja; ugyanez a két pont a vászon és a frame-csík jobb klikkes menüjében is megvan. |
 | Mode | Mono / multicolor kapcsoló. |
-| Eszközök | Ceruza, kitöltés, vonal, téglalap, kör — plusz vízszintes tükrözés, függőleges tükrözés, balra/jobbra/fel/le tolás (opcionális körbefordulással). A shape eszközök élő előnézetet mutatnak húzás közben; elengedésre véglegesít. |
+| Eszközök | Ceruza, kitöltés, színválasztó, vonal, téglalap, kör — plusz vízszintes tükrözés, függőleges tükrözés, balra/jobbra/fel/le tolás (opcionális körbefordulással). A shape eszközök élő előnézetet mutatnak húzás közben; elengedésre véglegesít. |
+| Színválasztó | A kattintott pixel színhelyét választja ki (sprite szín, MC1, MC2, háttér vagy overlay szín, a szerkesztett rétegen); utána a szerkesztő visszavált az előző eszközre. **Alt+kattintás** bármelyik eszközzel. |
+| Zoom | Csúszka 3×-tól 40×-ig, vagy Ctrl+görgő a vásznon. |
 | Undo / redo | Teljes undo/redo verem frame-enként. Ctrl/Cmd+Z / Ctrl/Cmd+Y vagy az eszköztár gombjai. |
 | Kép importja | PNG vagy JPEG importja a Files → Import image menüvel. Az importáló minden pixelt a legközelebbi C64 palettaszínre képez, és az aktuális frame-be írja. |
 | Animáció előnézet | Play / Stop konfigurálható sebességgel. |
@@ -4030,7 +4033,7 @@ A C64 karakter-ROM (a beépített PETSCII font) csak olvasható nézője. A Tool
 | Load `.bin` | Külső 2048 byte-os charset binárist importál. |
 | Karakter-előnézet | 16 széles rács mind a 256 glif-fel, az aktuális cella kiemelve. |
 | Pixel szerkesztő | A kijelölt karaktert, vagy 2×1, 1×2, 2×2 szomszédos karakterből álló **csempét** szerkeszt egy képként (Csempe választó). |
-| Rajzeszközök | Ceruza, vonal, téglalap, kitöltött téglalap és kitöltés. Ha a pixel már a kiválasztott színű, a kattintás törli. |
+| Rajzeszközök | Ceruza, vonal, téglalap, kitöltött téglalap, kitöltés és színválasztó. Ha a pixel már a kiválasztott színű, a kattintás törli. A színválasztó (csak multicolorban; **Alt+kattintás** bármelyik eszközzel) a kattintott pixel színét — FG, BG, MC1 vagy MC2 — teszi a tollá. |
 | Átalakítások | Törlés, invertálás, vízszintes / függőleges tükrözés, körbeforduló eltolás, 90°-os forgatás jobbra / balra (csak négyzetes csempénél) — az egész csempén. |
 | Visszavonás / újra | Toolbar gombok, Ctrl+Z és Ctrl+Y (Ctrl+Shift+Z). |
 | Másolás / beillesztés | Toolbar gombok, Ctrl+C / Ctrl+V, vagy jobb klikk a térképen; a teljes csempét másolja a színeivel. |
@@ -4055,6 +4058,7 @@ A canvas 16×16 karakter, 128×128 pixel. Multicolor karakter módban minden kar
 | ECM | Az **ECM** jelölőnégyzet (kiterjesztett színmód, multicolorral együtt nem megy): minden karakter hires, saját színnel (0–15) és a négy háttér egyikével, BG0–BG3 (`$D021`–`$D024`; a BG1 / BG2 az MC1 / MC2 regiszter). Válassz BG színt a palettán (B0–B3 jelölés), majd a **Karakter háttere** eszközzel kattints vagy húzd a karaktereken. Csak 64 különböző karakter fér el: az állapotsor számolja, mentéskor az azonos karakterek összevonódnak — a charset 64 karakteres (512 bájt), a képernyőkód `karakter | háttér << 6`. Bekapcsolás a C64-en: `$D011` 6. bit. |
 | C64 színmodell | A háttér a `$D021`-et használja; a megosztott multicolor 1 a `$D022`-t; a megosztott multicolor 2 a `$D023`-at; minden karakter saját színe a Color RAM 0–2. bitjéből jön. |
 | Rajzeszközök | Ceruza, radír, vonal, téglalap, ovális és flood fill karakterhatárokon át működik. |
+| Színválasztó | A kattintott pixel látható színét választja ki (multicolor karakterben a BG / MC1 / MC2 / saját szín tollat is); utána a szerkesztő visszavált az előző eszközre. **Alt+kattintás** bármelyik eszközzel. |
 | Spray eszköz | Airbrush-stílusú rajzolás, amely pixeleket szór a szomszédos cellák/karakterek közt. |
 | Spray intenzitás | A spray eszköz melletti legördülő beállítja a húzás sűrűségét. |
 | Grid kapcsoló | A Grid jelölőnégyzet megjeleníti vagy elrejti a 16×16 karakter-rácsot. |
@@ -4073,6 +4077,7 @@ Réteges tilemap szerkesztő statikus díszlethez, sprite spawn map-ekhez, ütk�
 |---|---|
 | Rétegek | Több nevesített réteg, mindegyik saját tileset-tel és átlátszatlansággal. |
 | Ecsetek | Egy-tile, kitöltés, vonal, téglalap és kör módok. A shape eszközök élő előnézetet mutatnak húzás közben; elengedésre véglegesít. |
+| Zoom | Csúszka, vagy Ctrl+görgő a térképen. |
 | Undo / redo | Teljes undo/redo verem rétegenként. Ctrl/Cmd+Z / Ctrl/Cmd+Y vagy az eszköztár gombjai. |
 | Clear menü | Rétegenkénti vagy teljes-map törlés megerősítéssel. |
 | Kép importja | Dobj be egy tilemap PNG-t; a szerkesztő automatikusan tile-okra szeleteli. |
@@ -4093,6 +4098,7 @@ Réteges tilemap szerkesztő statikus díszlethez, sprite spawn map-ekhez, ütk�
 | Képernyők | **Új üres képernyő**, **Hozzáadás a Map Editorból** (az éppen nyitott map) vagy **Map(ok) betöltése (.bin)…** (több Map Editor export egyszerre). Húzz egy képernyőt a listából egy helyre; a helyeket egymásra húzva felcserélheted. |
 | Szerkesztés | A **Szerkesztés a Map Editorban** megnyitja a kijelölt képernyőt a Map Editorban, és visszahozza a változásokat; duplikálás, mozgatás fel/balra vagy le/jobbra, eltávolítás; visszavonás / újra. |
 | Előnézet | Az előnézetet húzva vagy a nyilakkal pixelenként görgethetsz; a **Lejátszás** automatikusan görget (irány, sebesség 1–8, ismétlés), Szóköz = lejátszás / leállítás. A *Határok* jelöli a képernyőhatárokat. |
+| Zoom | Az áttekintő nagyítás-csúszkája (25–400 %), vagy Ctrl+görgő az áttekintőn. |
 | Ellenőrzések | Karakterkészlet-infó, és figyelmeztetés, ha a képernyők eltérő karakterkészletet vagy színeket használnak (a pálya az első képernyő beállításait használja). |
 | Karakter-attribútumok | A **Karakter-attribútumok** gomb az áttekintőt attribútum-festésre váltja: válaszd ki a **Szilárd**, **Létra**, **Veszélyes** vagy **Gyűjthető** jelzőt, kattints egy karakterre, és az adott screen code minden cellája megkapja (vagy elveszíti); húzással több kódra is. Színes rétegként látszanak, és a 256 bájtos `LEVEL_ATTR` táblába kerülnek (`LEVEL_ATTR_SOLID` = 1, `_LADDER` = 2, `_HAZARD` = 4, `_COLLECT` = 8). |
 | Él-ellenőrzés | Pirossal jelöli, ahol a szomszédos képernyők nem folytatódnak: a határ egyik oldala üres (szóköz), a másik nem, vagy csak az egyik oldal szilárd. Az oldalsáv megszámolja az éleket és cellákat. |

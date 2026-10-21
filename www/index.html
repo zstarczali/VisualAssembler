@@ -1637,6 +1637,9 @@ PRINTABLE CHARACTERS
           <button class="ce-tool-btn" data-ce-tool="fill" type="button" aria-label="Flood Fill">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l5-5 5 5-5 5z"/><path d="M3 7l5 5 5-5" fill="currentColor" stroke="none" opacity="0.45"/></svg>
           </button>
+          <button class="ce-tool-btn" data-ce-tool="picker" type="button" aria-label="Colour picker (Alt+click with any tool)">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 2.5l3 3-1.4 1.4-1.1-1.1-5.2 5.2L3 12l-.5 1.5L4 13l1-1.5 5.2-5.2-1.1-1.1z"/></svg>
+          </button>
         </div>
         <div class="ce-tool-group">
           <button class="ce-tool-btn" id="ce-clear" type="button" aria-label="Clear">
@@ -1783,6 +1786,9 @@ PRINTABLE CHARACTERS
           </button>
           <button class="cc-tool" data-cc-tool="fill" type="button" aria-label="Fill">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l5-5 5 5-5 5z"/><path d="M3 7l5 5 5-5" fill="currentColor" stroke="none" opacity="0.45"/></svg>
+          </button>
+          <button class="cc-tool" data-cc-tool="picker" type="button" aria-label="Colour picker (Alt+click with any tool)">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 2.5l3 3-1.4 1.4-1.1-1.1-5.2 5.2L3 12l-.5 1.5L4 13l1-1.5 5.2-5.2-1.1-1.1z"/></svg>
           </button>
           <button class="cc-tool" data-cc-tool="cellmode" type="button" aria-label="Character: multicolor / hi-res" disabled>
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11"/><path d="M2.5 8h11M8 2.5v11"/><path d="M3 3h4.5v4.5H3z" fill="currentColor" stroke="none" opacity="0.55"/><path d="M10.25 8.5v4.5M11.75 8.5v4.5" stroke-width="0.9"/></svg>
@@ -2229,6 +2235,9 @@ PRINTABLE CHARACTERS
           <button class="hg-tool" data-tool="fill" type="button" aria-label="Flood Fill">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l5-5 5 5-5 5z"/><path d="M3 7l5 5 5-5" fill="currentColor" stroke="none" opacity="0.45"/></svg>
           </button>
+          <button class="hg-tool" data-tool="picker" type="button" aria-label="Colour picker (Alt+click with any tool)">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 2.5l3 3-1.4 1.4-1.1-1.1-5.2 5.2L3 12l-.5 1.5L4 13l1-1.5 5.2-5.2-1.1-1.1z"/></svg>
+          </button>
           <button class="hg-tool" data-tool="cellpaper" type="button" aria-label="Cell paper colour (per 8×8 cell, hi-res)">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11"/><rect x="2.5" y="2.5" width="5.5" height="5.5" fill="currentColor" stroke="none" opacity="0.55"/><path d="M8 2.5v11M2.5 8h11" opacity="0.6"/></svg>
           </button>
@@ -2261,6 +2270,7 @@ PRINTABLE CHARACTERS
         </div>
         <label class="hg-check" aria-label="Multi-Color mode (160×200)"><input type="checkbox" id="hg-multicolor"> <span id="hg-multicolor-label">Multi-Color</span></label>
         <label class="hg-check" aria-label="Show the character-cell grid (plus the pixel grid from 4× zoom)"><input type="checkbox" id="hg-grid"> <span id="hg-grid-label">Grid</span></label>
+        <label class="hg-check"><input type="checkbox" id="hg-raster"> <span id="hg-raster-label">Raster</span></label>
         <input type="file" id="hg-koala-file" accept=".koa,.kla,.prg,application/octet-stream" hidden>
         <input type="file" id="hg-image-file" accept="image/png,image/jpeg,image/webp,image/bmp,image/gif,.png,.jpg,.jpeg,.webp,.bmp,.gif" hidden>
         <input type="file" id="hg-import-file" accept="image/png,image/jpeg,image/jpg,image/webp,image/bmp,.png,.jpg,.jpeg,.webp,.bmp,.bin,.koa,.kla,application/octet-stream" hidden>
@@ -2272,8 +2282,6 @@ PRINTABLE CHARACTERS
         <button id="hg-paper" class="hg-swatch hg-paper" type="button" aria-label="Paper colour — click to set from selected colour, or right-click a palette colour"></button>
         <span class="hg-zoom-lbl" id="hg-zoom-lbl">Zoom:</span>
         <input type="range" id="hg-zoom" min="1" max="16" step="1" value="3" class="hg-zoom">
-        <span class="hg-zoom-val" id="hg-zoom-val">3×</span>
-        <label class="hg-check"><input type="checkbox" id="hg-raster"> <span id="hg-raster-label">Raster</span></label>
       </div>
       <div class="hg-canvas-wrap" id="hg-canvas-wrap">
         <div id="hg-canvas-sizer" class="hg-canvas-sizer"><canvas id="hg-canvas" class="hg-canvas"></canvas></div>
@@ -2321,6 +2329,9 @@ PRINTABLE CHARACTERS
           </button>
           <button class="se-tool" data-tool="fill" type="button" aria-label="Flood fill">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l5-5 5 5-5 5z"/><path d="M3 7l5 5 5-5" fill="currentColor" stroke="none" opacity="0.45"/></svg>
+          </button>
+          <button class="se-tool" data-tool="picker" type="button" aria-label="Colour picker (Alt+click with any tool)">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 2.5l3 3-1.4 1.4-1.1-1.1-5.2 5.2L3 12l-.5 1.5L4 13l1-1.5 5.2-5.2-1.1-1.1z"/></svg>
           </button>
           <button class="se-tool" data-tool="select" type="button" aria-label="Select / move">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11" stroke-dasharray="2 1.5"/><path d="M8 5.5v5M5.5 8h5"/></svg>
