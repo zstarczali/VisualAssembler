@@ -236,7 +236,7 @@ test("KickAssembler examples build byte for byte like KickAssembler (needs KICKA
     fs.cpSync(examples, work, { recursive: true });
     app.__readText = (p) => { try { return fs.readFileSync(p, "latin1"); } catch { return null; } };
     app.__readBin = readBin;
-    for (const main of ["01.MusicIrq/MusicIrq.asm", "05.Scoping/Scroll.asm", "06.PseudoCommands/2xSpeedPlayer.asm", "06.PseudoCommands/8xSpeedPlayer.asm", "07.Preprocessor/Preprocessor.asm", "08.Namespace and libraries/SimpleSplits.asm", "03.Functions Multilabels Fill Virtual/SineAndGraphics.asm", "09.PSID Import/SID_Player.asm", "10.Koala Import/KoalaShower.asm"]) {
+    for (const main of ["01.MusicIrq/MusicIrq.asm", "05.Scoping/Scroll.asm", "06.PseudoCommands/2xSpeedPlayer.asm", "06.PseudoCommands/8xSpeedPlayer.asm", "07.Preprocessor/Preprocessor.asm", "08.Namespace and libraries/SimpleSplits.asm", "03.Functions Multilabels Fill Virtual/SineAndGraphics.asm", "09.PSID Import/SID_Player.asm", "10.Koala Import/KoalaShower.asm", "04.Converting Graphics/Message.asm"]) {
       const file = path.join(work, main);
       execFileSync("java", ["-jar", process.env.KICKASS_JAR, path.basename(file), "-o", "ref.prg"], { cwd: path.dirname(file), stdio: "pipe" });
       const pre = app.run(`_kickPreprocess(${JSON.stringify(file.split(path.sep).join("/"))}, __readText, __readBin)`);
@@ -391,4 +391,180 @@ test("Kick cycle gutter: cycles on the lines of the open file, unrolled lines as
   assert.equal(mod.get(1).min, 12);
   assert.equal(mod.get(3).text, "2/3");
   assert.deepEqual(JSON.parse(JSON.stringify(out.main.map(([line, c]) => [line, c.text]))), [[1, "2"]]);
+});
+
+test("Kick debugger files: .dbg lines on the original file:line, readable symbols, breakpoints of every project file", () => {
+  const pre = preprocess({ "main.asm": '* = $1000\nstart: nop\n#import "mod.asm"\n', "mod.asm": "sub: {\nloop: dex\n bne loop\n!: rts\n}\n" });
+  assert.deepEqual(Array.from(pre.errors), []);
+  app.__kick = { origins: pre.origins };
+  app.__src = pre.text;
+  const out = app.run(`(() => {
+    const saved = program;
+    const savedTabs = tabs;
+    try {
+      program = parseExpertText(__src);
+      _addSrcLineToBlocks(__src, program);
+      parseUserMacros();
+      const layout = getProgramLayout();
+      const texts = _buildDebuggerSidecarTexts(layout, null, "/mem/main.asm", __kick);
+      tabs = [{ id: "t-mod", filePath: "/mem/mod.asm", expertBreakpointLines: [0, 2] }];
+      return { texts, bps: _kickBreakpointAddresses(layout, __kick) };
+    } finally { program = saved; tabs = savedTabs; }
+  })()`);
+  const dbg = JSON.stringify(out.texts);
+  assert.match(dbg, /mod\.asm/);
+  assert.match(dbg, /sub\.loop/);
+  assert.doesNotMatch(dbg, /__ml_|__sub__/);
+  // mod.asm line 1 ("sub: {") → next code line "dex" ($1001); line 3 → bne ($1002)
+  assert.deepEqual(Array.from(out.bps), [0x1001, 0x1002]);
+});
+
+test("Kick peephole hints land on the lines of the open file, once per unrolled line", () => {
+  const pre = preprocess({ "main.asm": '* = $1000\n jsr sub\n#import "mod.asm"\n', "mod.asm": "sub: {\n.for (var i = 0; i < 2; i++) {\n cmp #0\n beq !+\n!:\n}\n jsr $ffd2\n rts\n}\n" });
+  assert.deepEqual(Array.from(pre.errors), []);
+  app.__kick = { origins: pre.origins };
+  app.__src = pre.text;
+  const out = app.run(`(() => {
+    const saved = program;
+    try {
+      program = parseExpertText(__src);
+      _addSrcLineToBlocks(__src, program);
+      parseUserMacros();
+      return { mod: _kickLintHints(__kick, "/mem/mod.asm"), main: _kickLintHints(__kick, "/mem/main.asm") };
+    } finally { program = saved; }
+  })()`);
+  const mod = JSON.parse(JSON.stringify(out.mod)).map(h => [h.srcLine, h.key]).sort();
+  assert.deepEqual(mod, [[3, "lintBranchNext"], [6, "lintTailCall"]].sort());
+  assert.deepEqual(Array.from(out.main), []);
+});
+
+test("Kick LoadPicture: GIF with the default and a given colour table builds like KickAssembler", () => {
+  const dir = path.join(__dirname, "fixtures", "kick-features").split(path.sep).join("/");
+  app.__readText = readText;
+  app.__readBin = readBin;
+  const pre = app.run(`_kickPreprocess(${JSON.stringify(dir + "/picture.asm")}, __readText, __readBin)`);
+  assert.deepEqual(Array.from(pre.errors), []);
+  const prg = build(pre.text);
+  assert.equal(prg.ok, true, prg.error);
+  // KickAssembler 5.25: java -jar KickAss.jar picture.asm -o picture.kickass.prg (from $1000)
+  const ref = fs.readFileSync(path.join(dir, "picture.kickass.prg"));
+  const load = prg.bytes[0] | (prg.bytes[1] << 8);
+  assert.ok(Buffer.from(prg.bytes.slice(2 + 0x1000 - load)).equals(ref.subarray(2)));
+  // a colour that is not in the table names the pixel
+  app.__text = (p) => (p.endsWith("bad.asm") ? '* = $1000\n.var q = LoadPicture("2x2char.gif", List().add($ffffff))\n.byte q.getSinglecolorByte(0, 0)\n' : readText(p));
+  const bad = app.run(`_kickPreprocess(${JSON.stringify(dir + "/bad.asm")}, __text, __readBin)`);
+  assert.match(bad.errors[0]?.text || "", /not in the colour table/);
+});
+
+test("Kick segments: .file / outPrg / outBin / .segmentout / .disk outputs build like KickAssembler", () => {
+  const dir = path.join(__dirname, "fixtures", "kick-features").split(path.sep).join("/");
+  app.__readText = readText;
+  app.__readBin = readBin;
+  // KickAssembler 5.25: java -jar KickAss.jar seg-x.asm -o seg-x.kickass.prg writes the outputs beside
+  const outputs = (file) => {
+    const pre = app.run(`_kickPreprocess(${JSON.stringify(dir + "/" + file)}, __readText, __readBin)`);
+    assert.deepEqual(Array.from(pre.errors), [], file);
+    app.__pre = pre;
+    const built = app.run(`__pre.outputs.map(o => o.type === "d64"
+      ? { name: o.name, files: o.files.map(f => ({ name: f.name, bytes: Array.from(_kickBuildOutput({ ...f, type: "prg" }).bytes || []) })) }
+      : { name: o.name, bytes: Array.from(_kickBuildOutput(o).bytes || []) })`);
+    return { pre, built: JSON.parse(JSON.stringify(built)) };
+  };
+  const same = (bytes, ref) => assert.ok(Buffer.from(bytes).equals(fs.readFileSync(path.join(dir, ref))), ref);
+
+  // startAfter + align, a virtual segment, the BasicUpstart modifier; the Default segment is empty
+  const a = outputs("seg-a.asm");
+  assert.equal(a.pre.mainOutput, "seg-a.file.prg");
+  same(a.built.find(o => o.name === "seg-a.file.prg").bytes, "seg-a.file.prg");
+  same(a.built.find(o => o.name === "seg-a.other.prg").bytes, "seg-a.other.prg");
+
+  // banks through .segmentout with min / max / fill; zero page code through .segmentout
+  const b = outputs("seg-b.asm");
+  same(b.built.find(o => o.name === "seg-b.cart.bin").bytes, "seg-b.cart.bin");
+  const main = build(b.pre.text);
+  assert.ok(Buffer.from(main.bytes).equals(fs.readFileSync(path.join(dir, "seg-b.kickass.prg"))));
+
+  // prgFiles + allowOverlap (a patch), sidFiles, a .disk with the same files
+  const c = outputs("seg-c.asm");
+  same(c.built.find(o => o.name === "seg-c.patched.prg").bytes, "seg-c.patched.prg");
+  same(c.built.find(o => o.name === "seg-c.music.prg").bytes, "seg-c.music.prg");
+  const disk = c.built.find(o => o.name === "seg-c.d64");
+  assert.deepEqual(disk.files.map(f => f.name), ["PATCHED", "MUSIC"]);
+  same(disk.files[0].bytes, "seg-c.patched.prg");
+  same(disk.files[1].bytes, "seg-c.music.prg");
+});
+
+test("Kick segments: a block outside min / max names the segment", () => {
+  const pre = preprocess({ "main.asm": ".segment Data [start=$c000, min=$c000, max=$c0ff, outBin=\"d.bin\"]\n.fill $180, 0\n" });
+  assert.match(pre.errors[0]?.text || "", /Segment Data: \$C180 is outside \$C000-\$C0FF/);
+});
+
+test("Kick .cpu (illegal, 65c02, DTV), .fillword / .lohifill, suffixes, .break / .watch build like KickAssembler", () => {
+  const dir = path.join(__dirname, "fixtures", "kick-features").split(path.sep).join("/");
+  app.__readText = readText;
+  app.__readBin = readBin;
+  const pre = app.run(`_kickPreprocess(${JSON.stringify(dir + "/cpu.asm")}, __readText, __readBin)`);
+  assert.deepEqual(Array.from(pre.errors), []);
+  const prg = build(pre.text);
+  assert.equal(prg.ok, true, prg.error);
+  // KickAssembler 5.25: java -jar KickAss.jar cpu.asm -o cpu.kickass.prg -vicesymbols (from $1000)
+  const ref = fs.readFileSync(path.join(dir, "cpu.kickass.prg"));
+  const load = prg.bytes[0] | (prg.bytes[1] << 8);
+  assert.ok(Buffer.from(prg.bytes.slice(2 + 0x1000 - load)).equals(ref.subarray(2)));
+  // the VICE symbol file gets KickAssembler's break / watch lines
+  app.__kick = { origins: pre.origins, breaks: pre.breaks, watches: pre.watches };
+  app.__src = pre.text;
+  const vs = app.run(`(() => {
+    const saved = program;
+    try {
+      program = parseExpertText(__src);
+      _addSrcLineToBlocks(__src, program);
+      parseUserMacros();
+      return _buildDebuggerSidecarTexts(getProgramLayout(), null, "/mem/cpu.asm", __kick).vs;
+    } finally { program = saved; }
+  })()`);
+  assert.deepEqual(vs.split("\n").filter(l => /^(break|watch)/.test(l)),
+    ["break 10bb", "break 10be if y<5", "watch d018", "watch 10b5", "watch d000 d00f", "watch store 10b4 10be"]);
+  // an illegal opcode outside .cpu _6502
+  const bad = preprocess({ "main.asm": ".cpu _6502NoIllegals\n* = $1000\n lax $12\n" });
+  assert.match(bad.errors[0]?.text || "", /illegal opcode/);
+});
+
+test("VA assembles every NMOS illegal opcode mode and its other names", () => {
+  const out = build("* = $1000\n DCP ($12,X)\n SLO ($12),Y\n LAX $12,Y\n SHA $1234,Y\n SHX $1234,Y\n SHY $1234,X\n TAS $1234,Y\n LAS $1234,Y\n XAA #$12\n AHX ($12),Y\n ISB $1234,Y\n SBX #1\n");
+  assert.equal(out.ok, true, out.error);
+  assert.equal(Buffer.from(out.bytes).toString("hex").slice(-50), "c3121312b7129f34129e34129c34129b3412bb34128b129312fb3412cb01".slice(-50));
+});
+
+test("Kick Vector / Matrix: the rotating cube of the manual builds like KickAssembler", () => {
+  const dir = path.join(__dirname, "fixtures", "kick-features").split(path.sep).join("/");
+  app.__readText = readText;
+  app.__readBin = readBin;
+  const pre = app.run(`_kickPreprocess(${JSON.stringify(dir + "/vector.asm")}, __readText, __readBin)`);
+  assert.deepEqual(Array.from(pre.errors), []);
+  const prg = build(pre.text);
+  // KickAssembler 5.25: java -jar KickAss.jar vector.asm -o vector.kickass.prg (from $1000)
+  const ref = fs.readFileSync(path.join(dir, "vector.kickass.prg"));
+  const load = prg.bytes[0] | (prg.bytes[1] << 8);
+  assert.ok(Buffer.from(prg.bytes.slice(2 + 0x1000 - load)).equals(ref.subarray(2)));
+  assert.deepEqual(Array.from(pre.messages), ["V (1.0,2.0,3.0) dot 20 x (0.0,0.0,-1.0) M [[1.0,0.0,0.0,0.0],[0.0,1.0,0.0,0.0],[0.0,0.0,1.0,0.0],[0.0,0.0,0.0,1.0]]"]);
+});
+
+test("Kick project highlighting: preprocessor, directives, functions, ; in .for, multi-labels, suffixes", () => {
+  const out = app.run(`(() => {
+    const saved = _expertProjectData;
+    try {
+      _expertProjectData = { kick: true, startupFile: "m.asm", files: [] };
+      _kickHlCache = { tab: null, proj: null, at: 0, value: false };
+      return ['#import "lib.asm"', ".for (var i=0; i<8; i++) {", "!loop: dex", "lda.z $12 // zp", ".pseudocommand mov src : dst {", ".fill 4, round(127.5*sin(i))", "lda #1 ; comment"].map(_expertHighlightLine);
+    } finally { _expertProjectData = saved; _kickHlCache = { tab: null, proj: null, at: 0, value: false }; }
+  })()`);
+  const tags = (html) => [...html.matchAll(/<span class="([^"]+)">([^<]*)<\/span>/g)].map(m => `${m[1]}:${m[2]}`);
+  assert.deepEqual(tags(out[0]), ["hl-directive:#import", 'hl-string:"lib.asm"']);
+  assert.ok(!out[1].includes("hl-comment"), "the ; of .for is no comment");
+  assert.deepEqual(tags(out[2]), ["hl-label:!loop", "hl-mnem:dex"]);
+  assert.deepEqual(tags(out[3]), ["hl-mnem:lda", "hl-mnem:.z", "hl-number:$12", "hl-comment:// zp"]);
+  assert.deepEqual(tags(out[4]), ["hl-directive:.pseudocommand", "hl-macro:mov", "hl-macro-param:src", "hl-macro-param:dst"]);
+  assert.ok(tags(out[5]).includes("hl-macro:round") && tags(out[5]).includes("hl-number:127.5"));
+  assert.ok(tags(out[6]).includes("hl-comment:; comment"));
 });

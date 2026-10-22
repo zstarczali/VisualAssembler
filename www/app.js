@@ -297,18 +297,24 @@ const mnemonicLibrary = {
     { mnemonic: "ORG", description: "Cimzestarto atvaltasa (*= direktiva). A kovetkező blokkokat az itt megadott cimtol forditja.", modes: ["implied"], isOrgMacro: true }
   ],
   Illegalis: [
-    { mnemonic: "LAX", description: "A es X regiszter egyideju betoltese (illegalis: LDA+LDX kombinacio).", modes: ["immediate", "zeroPage", "absolute"] },
-    { mnemonic: "SAX", description: "A es X regiszter AND ertekenek kiirasa memoriacimre (illegalis).", modes: ["zeroPage", "absolute"] },
-    { mnemonic: "DCP", description: "Memoria dekrementum majd osszehasonlitas az akkumulatorral (illegalis: DEC+CMP).", modes: ["zeroPage", "absolute", "absoluteX"] },
-    { mnemonic: "ISC", description: "Memoria inkrementum majd kivonas az akkumulatorbol (illegalis: INC+SBC).", modes: ["zeroPage", "absolute", "absoluteX"] },
-    { mnemonic: "SLO", description: "Memoria balra tolas majd logikai VAGY az akkumulatorral (illegalis: ASL+ORA).", modes: ["zeroPage", "absolute", "absoluteX"] },
-    { mnemonic: "RLA", description: "Memoria balra forgatas majd logikai ES az akkumulatorral (illegalis: ROL+AND).", modes: ["zeroPage", "absolute", "absoluteX"] },
-    { mnemonic: "SRE", description: "Memoria jobbra tolas majd kizaro VAGY az akkumulatorral (illegalis: LSR+EOR).", modes: ["zeroPage", "absolute", "absoluteX"] },
-    { mnemonic: "RRA", description: "Memoria jobbra forgatas majd osszeadas carry-vel (illegalis: ROR+ADC).", modes: ["zeroPage", "absolute", "absoluteX"] },
+    { mnemonic: "LAX", description: "A es X regiszter egyideju betoltese (illegalis: LDA+LDX kombinacio).", modes: ["immediate", "zeroPage", "zeroPageY", "indirectX", "indirectY", "absolute", "absoluteY"] },
+    { mnemonic: "SAX", description: "A es X regiszter AND ertekenek kiirasa memoriacimre (illegalis).", modes: ["zeroPage", "zeroPageY", "indirectX", "absolute"] },
+    { mnemonic: "DCP", description: "Memoria dekrementum majd osszehasonlitas az akkumulatorral (illegalis: DEC+CMP).", modes: ["zeroPage", "zeroPageX", "indirectX", "indirectY", "absolute", "absoluteX", "absoluteY"] },
+    { mnemonic: "ISC", description: "Memoria inkrementum majd kivonas az akkumulatorbol (illegalis: INC+SBC).", modes: ["zeroPage", "zeroPageX", "indirectX", "indirectY", "absolute", "absoluteX", "absoluteY"] },
+    { mnemonic: "SLO", description: "Memoria balra tolas majd logikai VAGY az akkumulatorral (illegalis: ASL+ORA).", modes: ["zeroPage", "zeroPageX", "indirectX", "indirectY", "absolute", "absoluteX", "absoluteY"] },
+    { mnemonic: "RLA", description: "Memoria balra forgatas majd logikai ES az akkumulatorral (illegalis: ROL+AND).", modes: ["zeroPage", "zeroPageX", "indirectX", "indirectY", "absolute", "absoluteX", "absoluteY"] },
+    { mnemonic: "SRE", description: "Memoria jobbra tolas majd kizaro VAGY az akkumulatorral (illegalis: LSR+EOR).", modes: ["zeroPage", "zeroPageX", "indirectX", "indirectY", "absolute", "absoluteX", "absoluteY"] },
+    { mnemonic: "RRA", description: "Memoria jobbra forgatas majd osszeadas carry-vel (illegalis: ROR+ADC).", modes: ["zeroPage", "zeroPageX", "indirectX", "indirectY", "absolute", "absoluteX", "absoluteY"] },
     { mnemonic: "ANC", description: "AND azonnali ertekkel, carry beallitasa a 7. bitbol (illegalis).", modes: ["immediate"] },
     { mnemonic: "ALR", description: "AND majd jobbra tolas egy lepesben (illegalis: AND+LSR).", modes: ["immediate"] },
     { mnemonic: "ARR", description: "AND majd jobbra forgatas egy lepesben (illegalis: AND+ROR).", modes: ["immediate"] },
-    { mnemonic: "AXS", description: "A es X AND ertekebol azonnali kivonas, eredmeny X-be (illegalis: SBX).", modes: ["immediate"] }
+    { mnemonic: "AXS", description: "A es X AND ertekebol azonnali kivonas, eredmeny X-be (illegalis: SBX).", modes: ["immediate"] },
+    { mnemonic: "SHA", description: "A AND X AND (cim felso bajtja + 1) kiirasa (illegalis, instabil; mas neve AHX).", modes: ["indirectY", "absoluteY"] },
+    { mnemonic: "SHX", description: "X AND (cim felso bajtja + 1) kiirasa (illegalis, instabil).", modes: ["absoluteY"] },
+    { mnemonic: "SHY", description: "Y AND (cim felso bajtja + 1) kiirasa (illegalis, instabil).", modes: ["absoluteX"] },
+    { mnemonic: "TAS", description: "SP = A AND X, majd SP AND (cim felso bajtja + 1) kiirasa (illegalis, instabil; mas neve SHS).", modes: ["absoluteY"] },
+    { mnemonic: "LAS", description: "Memoria AND SP az A-ba, X-be es SP-be (illegalis; mas neve LAE).", modes: ["absoluteY"] },
+    { mnemonic: "XAA", description: "A = (A OR konstans) AND X AND azonnali ertek (illegalis, instabil; mas neve ANE).", modes: ["immediate"] }
   ],
   Szerkezet: [
     { mnemonic: "LABEL", description: "Nevvel ellatott cimke a kodban, ugrasi celhoz.", modes: ["implied"], isLabel: true },
@@ -1011,6 +1017,12 @@ const mnemonicExpertHints = {
   ALR: mnemonicSyntax("alr", "#$80"),
   ARR: mnemonicSyntax("arr", "#$80"),
   AXS: mnemonicSyntax("axs", "#$10"),
+  SHA: mnemonicSyntax("sha", "$C000,Y"),
+  SHX: mnemonicSyntax("shx", "$C000,Y"),
+  SHY: mnemonicSyntax("shy", "$C000,X"),
+  TAS: mnemonicSyntax("tas", "$C000,Y"),
+  LAS: mnemonicSyntax("las", "$C000,Y"),
+  XAA: mnemonicSyntax("xaa", "#$00"),
   LABEL: `my_label:`,
   COMMENT: `; note`,
   REGION: `.region Print`,
@@ -1163,19 +1175,33 @@ const opcodeMap = {
   SEI: { implied: 0x78 },
   NOP: { implied: 0xEA, immediate: 0x80, zeroPage: 0x04, zeroPageX: 0x14, absolute: 0x0C, absoluteX: 0x1C },
   BRK: { implied: 0x00 },
-  LAX: { immediate: 0xAB, zeroPage: 0xA7, absolute: 0xAF },
-  SAX: { zeroPage: 0x87, absolute: 0x8F },
-  DCP: { zeroPage: 0xC7, absolute: 0xCF, absoluteX: 0xDF },
-  ISC: { zeroPage: 0xE7, absolute: 0xEF, absoluteX: 0xFF },
-  SLO: { zeroPage: 0x07, absolute: 0x0F, absoluteX: 0x1F },
-  RLA: { zeroPage: 0x27, absolute: 0x2F, absoluteX: 0x3F },
-  SRE: { zeroPage: 0x47, absolute: 0x4F, absoluteX: 0x5F },
-  RRA: { zeroPage: 0x67, absolute: 0x6F, absoluteX: 0x7F },
+  LAX: { immediate: 0xAB, zeroPage: 0xA7, zeroPageY: 0xB7, indirectX: 0xA3, indirectY: 0xB3, absolute: 0xAF, absoluteY: 0xBF },
+  SAX: { zeroPage: 0x87, zeroPageY: 0x97, indirectX: 0x83, absolute: 0x8F },
+  DCP: { zeroPage: 0xC7, zeroPageX: 0xD7, indirectX: 0xC3, indirectY: 0xD3, absolute: 0xCF, absoluteX: 0xDF, absoluteY: 0xDB },
+  ISC: { zeroPage: 0xE7, zeroPageX: 0xF7, indirectX: 0xE3, indirectY: 0xF3, absolute: 0xEF, absoluteX: 0xFF, absoluteY: 0xFB },
+  SLO: { zeroPage: 0x07, zeroPageX: 0x17, indirectX: 0x03, indirectY: 0x13, absolute: 0x0F, absoluteX: 0x1F, absoluteY: 0x1B },
+  RLA: { zeroPage: 0x27, zeroPageX: 0x37, indirectX: 0x23, indirectY: 0x33, absolute: 0x2F, absoluteX: 0x3F, absoluteY: 0x3B },
+  SRE: { zeroPage: 0x47, zeroPageX: 0x57, indirectX: 0x43, indirectY: 0x53, absolute: 0x4F, absoluteX: 0x5F, absoluteY: 0x5B },
+  RRA: { zeroPage: 0x67, zeroPageX: 0x77, indirectX: 0x63, indirectY: 0x73, absolute: 0x6F, absoluteX: 0x7F, absoluteY: 0x7B },
   ANC: { immediate: 0x0B },
   ALR: { immediate: 0x4B },
   ARR: { immediate: 0x6B },
-  AXS: { immediate: 0xCB }
+  AXS: { immediate: 0xCB },
+  SHA: { indirectY: 0x93, absoluteY: 0x9F },
+  SHX: { absoluteY: 0x9E },
+  SHY: { absoluteX: 0x9C },
+  TAS: { absoluteY: 0x9B },
+  LAS: { absoluteY: 0xBB },
+  XAA: { immediate: 0x8B }
 };
+
+// Other names of the illegal opcodes (KickAssembler, VICE, 64tass); the disassembler
+// shows the first name.
+const _OPCODE_ALIASES = {
+  AHX: "SHA", SHS: "TAS", LAE: "LAS", LDS: "LAS", ASR: "ALR", SBX: "AXS",
+  DCM: "DCP", INS: "ISC", ISB: "ISC", ANE: "XAA", LXA: "LAX"
+};
+for (const [alias, name] of Object.entries(_OPCODE_ALIASES)) opcodeMap[alias] = opcodeMap[name];
 
 const kernalRoutines = [
   { addr: "$FFD2", name: "CHROUT",  hu: "Karakter kiirasa kepernyore/eszkozre (A=kar)",        en: "Print character to screen/device (A=char)",         es: "Imprime carácter en pantalla o dispositivo (A=carácter)",  de: "Zeichen auf Bildschirm/Gerät ausgeben (A=Zeichen)",    nl: "Karakter afdrukken naar scherm/apparaat (A=karakter)" },
@@ -10162,6 +10188,27 @@ function _expertAcUpdate() {
       return;
     }
   }
+  // Kick project: Kick directives / preprocessor commands, script functions
+  if (_kickHighlightActive()) {
+    const mKick = lineText.match(/^(?:.*[;{]\s*|\s*(?:!?[A-Za-z_]\w*:\s*)?)([.#][A-Za-z]*)$/);
+    if (mKick) {
+      const table = mKick[1][0] === "#" ? _KICK_PREPROCESSOR : _KICK_DIRECTIVES;
+      const typed = mKick[1].toLowerCase();
+      const matches = Object.keys(table).filter(d => d.startsWith(typed));
+      if (!matches.length) { _expertAcHide(); return; }
+      _expertAcShowList(matches.map(d => ({ value: d, label: d, desc: table[d], kind: "directive" })), ta, pos);
+      return;
+    }
+    const mFn = lineText.match(/(?:[=(,+\-*\/<>!&|]\s*|^\s*)([A-Za-z]{2,})$/);
+    if (mFn && !/^\s*[A-Za-z]+$/.test(lineText)) {
+      const typed = mFn[1].toLowerCase();
+      const matches = _kickFunctionNames().filter(f => f.toLowerCase().startsWith(typed) && f.toLowerCase() !== typed).sort();
+      if (matches.length) {
+        _expertAcShowList(matches.map(f => ({ value: f, label: f + "()", desc: "KickAssembler", kind: "directive" })), ta, pos);
+        return;
+      }
+    }
+  }
   const mDir = lineText.match(/^\s*(\.\w*)$/);
   if (mDir && assemblerSyntax === "acme") { _expertAcHide(); return; }
   if (mDir) {
@@ -10754,12 +10801,119 @@ function _expertHighlightAcmeLine(raw) {
   return result + commentHtml;
 }
 
+// Is the editor showing a KickAssembler-compatible project? (asked per line: cached briefly)
+let _kickHlCache = { tab: null, proj: null, at: 0, value: false };
+function _kickHighlightActive() {
+  if (typeof assemblerSyntax !== "undefined" && assemblerSyntax === "acme") return false;
+  if (typeof _expertProjectData === "undefined" || !_expertProjectData?.kick) return false;
+  const now = Date.now();
+  const c = _kickHlCache;
+  if (c.tab === activeTabId && c.proj === _expertProjectData && now - c.at < 1000) return c.value;
+  _kickHlCache = { tab: activeTabId, proj: _expertProjectData, at: now, value: _kickProjectActive() };
+  return _kickHlCache.value;
+}
+
+// The KickAssembler directives, preprocessor commands and script functions (completion, highlighting).
+const _KICK_DIRECTIVES = {
+  ".align": "align the program counter", ".assert": "\"name\", value, expected", ".asserterror": "\"name\", expression that fails",
+  ".break": "breakpoint [\"condition\"]", ".by": "bytes", ".byte": "bytes", ".const": "constant", ".cpu": "_6502NoIllegals | _6502 | dtv | _65c02",
+  ".define": "names { … }", ".disk": "[filename=…] { [name=…, segments=…] }", ".dw": "32-bit values", ".dword": "32-bit values",
+  ".encoding": "\"screencode_mixed\" | \"petscii_upper\" …", ".enum": "{ A, B = 5 }", ".error": "stop with a message", ".errorif": "condition, message",
+  ".eval": "evaluate a script statement", ".file": "[name=…, segments=…]", ".filemodify": "plugin modifier", ".filenamespace": "namespace of the file",
+  ".fill": "count, value(i)", ".fillword": "count, word(i)", ".for": "(var i=0; i<n; i++) { … }", ".function": "name(params) { .return … }",
+  ".if": "(condition) { … } else { … }", ".import": "binary | c64 | text \"file\"", ".importonce": "import the file only once",
+  ".label": "label = value", ".lohifill": "count, value(i) — name.lo / name.hi", ".macro": "Name(params) { … }", ".memblock": "\"name\"",
+  ".modify": "plugin modifier { … }", ".namespace": "name { … }", ".pc": "= address", ".print": "message at assembling", ".printnow": "message at once",
+  ".pseudocommand": "name a : b { … }", ".pseudopc": "address { … }", ".return": "value of a .function", ".segment": "Name [parameters] \"block\"",
+  ".segmentdef": "Name [start, min, max, fill, outPrg …]", ".segmentout": "[segments=…]", ".struct": "Name { a, b }", ".te": "text", ".text": "\"text\"",
+  ".var": "variable", ".watch": "address[, end][, \"store\"]", ".while": "(condition) { … }", ".wo": "16-bit values", ".word": "16-bit values"
+};
+const _KICK_PREPROCESSOR = {
+  "#import": "\"file\"", "#importonce": "this file once", "#importif": "SYMBOL \"file\"", "#define": "SYMBOL", "#undef": "SYMBOL",
+  "#if": "SYMBOL && !OTHER", "#elif": "condition", "#else": "", "#endif": ""
+};
+// script functions and constructors (the builtins are defined further down: read lazily)
+const _kickFunctionNames = () => [...new Set([...Object.keys(_KICK_BUILTINS),
+  "LoadBinary", "LoadSid", "LoadPicture", "List", "Hashtable", "Vector", "Matrix", "getNamespace", "BasicUpstart", "BasicUpstart2", "CmdArgument", "toIntString"])];
+
+function _expertHighlightKickLine(raw) {
+  const esc = (t) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  // the comment: // or /* … */, or a ; that does not separate statements
+  let quote = "";
+  let commentIdx = -1;
+  let depth = 0;
+  for (let i = 0; i < raw.length; i++) {
+    const ch = raw[i];
+    if (ch === "(" && !quote) depth++;
+    else if (ch === ")" && !quote && depth > 0) depth--;
+    if (quote) { if (ch === "\\") i++; else if (ch === quote) quote = ""; continue; }
+    if (ch === '"' || ch === "'") { quote = ch; continue; }
+    if (ch === "/" && (raw[i + 1] === "/" || raw[i + 1] === "*")) { commentIdx = i; break; }
+    if (ch === ";" && depth === 0 && !_kickSemicolonSeparates(raw.slice(0, i), raw.slice(i + 1))) { commentIdx = i; break; }
+  }
+  const commentHtml = commentIdx >= 0 ? `<span class="hl-comment">${esc(raw.slice(commentIdx))}</span>` : "";
+  const code = commentIdx >= 0 ? raw.slice(0, commentIdx) : raw;
+  if (!code.trim()) return esc(code) + commentHtml;
+
+  const functions = new Set(_kickFunctionNames());
+  const isMnem = (word) => {
+    const up = word.toUpperCase();
+    return !!(opcodeMap[up] || Object.values(_KICK_CPU_OPS).some(t => t[up]));
+  };
+  const header = code.match(/^\s*\.(macro|function|pseudocommand)\s+@?([A-Za-z_]\w*)/i);
+  const braceIdx = code.indexOf("{");
+  const TOKEN_RE = /("(?:[^"\\]|\\.)*"?|'(?:[^'\\]|\\.)*'?)|(#[A-Za-z]+)|(![A-Za-z_]\w*[+-]*|![+-]+|!(?=:))|(\$[0-9A-Fa-f]+|%[01]+|\d+(?:\.\d+)?)|(\.[A-Za-z_]\w*)|(@?[A-Za-z_]\w*)|([;{}])/g;
+  let out = "";
+  let last = 0;
+  let stmtStart = true;   // a mnemonic or a directive can come here
+  let m;
+  while ((m = TOKEN_RE.exec(code)) !== null) {
+    out += esc(code.slice(last, m.index));
+    last = m.index + m[0].length;
+    const [full, str, pre, multi, num, dot, ident, sep] = m;
+    const next = code.slice(last).match(/^\s*(.)/)?.[1] || "";
+    let cls = "";
+    if (str) cls = "hl-string";
+    else if (pre) cls = Object.prototype.hasOwnProperty.call(_KICK_PREPROCESSOR, full.toLowerCase()) ? "hl-directive" : "";
+    else if (multi) cls = "hl-label";
+    else if (num) cls = "hl-number";
+    else if (dot) {
+      // .z / .abs after a mnemonic, a.b label paths and methods stay plain
+      if (stmtStart && Object.prototype.hasOwnProperty.call(_KICK_DIRECTIVES, full.toLowerCase())) cls = "hl-directive";
+      else if (/^\.(?:z|zp|a|abs|im|i)$/i.test(full) && !stmtStart) cls = "hl-mnem";
+    } else if (ident) {
+      const word = ident.replace(/^@/, "");
+      if (header && word === header[2]) cls = "hl-macro";
+      else if (header && (braceIdx < 0 || m.index < braceIdx) && m.index > header.index + header[0].length) cls = "hl-macro-param";
+      else if (next === ":" && code[last] !== ":" && stmtStart) cls = "hl-label";
+      else if (stmtStart && isMnem(word)) cls = "hl-mnem";
+      else if (next === "(" && (functions.has(word) || /^[A-Z]/.test(word))) cls = "hl-macro";
+      else if (Object.prototype.hasOwnProperty.call(_KICK_CONSTS, word) && typeof _KICK_CONSTS[word] === "number") cls = "hl-number";
+    }
+    // where the next statement starts
+    if (sep) stmtStart = sep === ";" || sep === "{" || sep === "}";
+    else if (cls === "hl-label" && next === ":") stmtStart = true;
+    else stmtStart = false;
+    if (cls === "hl-label" && next === ":") {
+      out += `<span class="${cls}">${esc(full)}</span>`;
+      const colon = code.slice(last).match(/^\s*:/)[0];
+      out += esc(colon);
+      last += colon.length;
+      continue;
+    }
+    out += cls ? `<span class="${cls}">${esc(full)}</span>` : esc(full);
+  }
+  out += esc(code.slice(last));
+  return out + commentHtml;
+}
+
 function _expertHighlightLine(raw) {
   function esc(s) {
     return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
   if (raw === "") return "";
   if (typeof assemblerSyntax !== "undefined" && assemblerSyntax === "acme") return _expertHighlightAcmeLine(raw);
+  if (typeof _kickHighlightActive === "function" && _kickHighlightActive()) return _expertHighlightKickLine(raw);
 
   // Split off comment (ignore ';' and '//' inside strings)
   let inStr = false;
@@ -13193,7 +13347,7 @@ function parseExpertText(text) {
     const dotInvokeM = line.match(/^\.(invoke|call)\s+([A-Za-z_][A-Za-z0-9_]*)(?:\(([^)]*)\)|\s+(.*?))?\s*$/i);
     // `JMP ($0408)` has the same shape as a bare macro call.
     const bareInvokeCandidate = line.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*\(([^)]*)\)\s*$/i);
-    const bareInvokeM = bareInvokeCandidate && !_EXPERT_MNEM_SET.has(bareInvokeCandidate[1].toUpperCase()) ? bareInvokeCandidate : null;
+    const bareInvokeM = bareInvokeCandidate && !_EXPERT_MNEM_SET.has(bareInvokeCandidate[1].toUpperCase()) && !(typeof opcodeMap !== "undefined" && opcodeMap[bareInvokeCandidate[1].toUpperCase()]) ? bareInvokeCandidate : null;
     const invokeM = kickInvokeM || dotInvokeM || bareInvokeM;
     if (invokeM) {
       const invokeMacroName = kickInvokeM ? kickInvokeM[1] : (dotInvokeM ? dotInvokeM[2] : bareInvokeM[1]);
@@ -13935,6 +14089,7 @@ const _REV_OP = (() => {
     indirectX:2, indirectY:2, relative:2, indirect:3
   };
   for (const [mnem, modes] of Object.entries(opcodeMap)) {
+    if (typeof _OPCODE_ALIASES !== "undefined" && _OPCODE_ALIASES[mnem]) continue;
     for (const [mode, oc] of Object.entries(modes)) {
       rev[oc] = { mnem, mode, size: modeSize[mode] || 1 };
     }
@@ -14113,7 +14268,9 @@ function _lintAsm(seq) {
       hints.push({ srcLine: b.srcLine, key: "lintZeroCompare", values: { op: b.mnem } });
     }
     const reg = { LDA: "A", LDX: "X", LDY: "Y" }[b.mnem];
-    if (reg && _lintSameOperand(a, b) && (a.mnem === b.mnem || a.mnem === "ST" + reg)) {
+    // a VIC / SID / CIA register reads back something else than was written ($D012, $DC0D…)
+    const io = b.bytes.length === 3 && b.mode !== "immediate" && b.bytes[2] >= 0xD0 && b.bytes[2] <= 0xDF;
+    if (reg && !io && _lintSameOperand(a, b) && (a.mnem === b.mnem || a.mnem === "ST" + reg)) {
       hints.push({ srcLine: b.srcLine, key: a.mnem === b.mnem ? "lintDuplicateLoad" : "lintReload", values: { reg } });
     }
     if (a.mnem === "PHA" && b.mnem === "PLA") push("lintPushPull");
@@ -14876,8 +15033,13 @@ function _expertRenderDisasm() {
       : `<span class="asm-tok-comment">; ${_escHtml(_acmePreviewMessage())}</span>`;
     return;
   }
+  const kickProject = !ultimateBasicMode && _kickProjectActive();
+  if (kickProject && !_kickLast?.ok) {
+    expertDisasmOutput.innerHTML = `<span class="asm-tok-comment">; ${_escHtml(t("kickBuildFirst"))}</span>`;
+    return;
+  }
   try {
-    const blocks = _expertBuildProgram();
+    const blocks = kickProject ? _kickLast.program : _expertBuildProgram();
     const saved = program;
     const savedUserMacros = userMacros;
     program = blocks;
@@ -14900,15 +15062,23 @@ function _expertRenderMonitor() {
     expertMonitorOutput.textContent = preview ? _acmeMonitorText(preview) : `; ${_acmePreviewMessage()}`;
     return;
   }
+  const kickProject = !ultimateBasicMode && _kickProjectActive();
+  if (kickProject && !_kickLast?.ok) {
+    expertMonitorOutput.textContent = `; ${t("kickBuildFirst")}`;
+    return;
+  }
   try {
-    const blocks = _expertBuildProgram();
+    const blocks = kickProject ? _kickLast.program : _expertBuildProgram();
     const saved = program;
+    const savedUserMacros = userMacros;
     program = blocks;
+    parseUserMacros();
     try {
       const origin = _getDisassemblyCodeOrigin();
       expertMonitorOutput.textContent = _buildMonitorText(getProgramLayout(origin), _getGeneratedBasicStubSection());
     } finally {
       program = saved;
+      userMacros = savedUserMacros;
     }
   } catch (e) {
     expertMonitorOutput.textContent = String(e);
@@ -17386,11 +17556,11 @@ function buildOperandPreview(modeKey, rawValue, base) {
     return { operand: value, text: value, error: "" };
   }
 
-  const numericValue = parseNumberByBase(value, base);
+  const numericValue = parseNumberByBase(_charLiteralToHex(value), base);
   if (numericValue === null) {
     // Kick-style immediate expressions like #(SCREEN_CENTER_Y+1) are valid
     // even when they cannot be reduced to a plain number at edit time.
-    if (modeKey === "immediate" && /^[A-Za-z0-9_.$%<>()+\-*/&|^\s]+$/.test(value)) {
+    if (modeKey === "immediate" && /^[A-Za-z0-9_.$%<>()+\-*/&|^~\s]+$/.test(_charLiteralToHex(value))) {
       const operand = `#${value}`;
       return { operand, text: operand, error: "" };
     }
@@ -17512,6 +17682,7 @@ function parseByteMacro(raw, base = "dec", labels = null) {
     .map((part) => part.trim())
     .filter(Boolean)
     .map((part) => {
+      part = _charLiteralToHex(part);
       const loM = part.match(/^<([A-Za-z_.][A-Za-z0-9_.]*)$/);
       if (loM) return labels ? ((( typeof labels.get === 'function' ? labels.get(loM[1]) : labels[loM[1]]) ?? 0) & 0xFF) : 0;
       const hiM = part.match(/^>([A-Za-z_.][A-Za-z0-9_.]*)$/);
@@ -17917,13 +18088,23 @@ function validateIfMacro(condition) {
   if (!condition || !condition.trim()) {
     return t("ifMacroNeedsAConditionEGDebug");
   }
-
-  // Simple validation - just check it's a valid identifier
-  if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(condition.trim())) {
-    return t("ifConditionMustBeAValidIdentifier");
+  if (_ifConditionActive(condition, new Set()) === null) {
+    return tf("ifConditionNotResolvable", { condition: condition.trim() });
   }
-
   return "";
+}
+
+// .if NAME: NAME is .define-d or a non-zero .const. .if <expr>: the expression (constants)
+// is non-zero. null when the expression cannot be evaluated.
+function _ifConditionActive(condition, activeDefines) {
+  const cond = String(condition ?? "").trim();
+  if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(cond)) {
+    if (activeDefines.has(cond)) return true;
+    const value = lookupProgramConstValue(cond);
+    return value !== null && value !== 0;
+  }
+  const value = _evalAsmExpr(cond);
+  return value === null ? null : value !== 0;
 }
 
 function parseAddressValue(raw, labelMap) {
@@ -18633,7 +18814,7 @@ function _collectDebuggerSymbols(layout) {
   return { symbols, breakpoints };
 }
 
-function _buildDebuggerSidecarTexts(layout, originOverride, sourcePathOverride = "") {
+function _buildDebuggerSidecarTexts(layout, originOverride, sourcePathOverride = "", kick = null) {
   const primarySourcePath = sourcePathOverride || _getDebuggerPrimarySourcePath();
   const includeBlocksById = new Map(
     program.filter((block) => block && block.isIncludeMacro && block.id).map((block) => [block.id, block])
@@ -18648,8 +18829,12 @@ function _buildDebuggerSidecarTexts(layout, originOverride, sourcePathOverride =
     }
     return sourceIndexByPath.get(safePath);
   };
+  // a Kick project: the file of the statement
+  const kickOrigin = (line) => (kick && typeof line.block?._srcLine === "number" ? kick.origins[line.block._srcLine] : null);
   const getLineSourcePath = (line) => {
     const block = line.block || {};
+    const origin = kickOrigin(line);
+    if (origin) return origin.file;
     if (block._fromInclude) {
       const includeBlock = includeBlocksById.get(block._fromInclude);
       const includePath = _normalizeIncludeBlockSource(includeBlock) || includeBlock?.includeFileName || "";
@@ -18671,7 +18856,8 @@ function _buildDebuggerSidecarTexts(layout, originOverride, sourcePathOverride =
     if (line.conditionallySkipped || line.size <= 0) return;
     const sourcePath = getLineSourcePath(line);
     const sourceIndex = getSourceIndex(sourcePath);
-    const sourceLine = typeof line.block?._srcLine === "number" ? (line.block._srcLine + 1) : (sourceIndex + 1);
+    const origin = kickOrigin(line);
+    const sourceLine = origin ? origin.line : typeof line.block?._srcLine === "number" ? (line.block._srcLine + 1) : (sourceIndex + 1);
     const blockName = getBlockName(line, sourcePath);
     const entry = `${_formatDebuggerAddress(line.address)},${_formatDebuggerAddress(line.end)},${sourceIndex},${sourceLine},1,${sourceLine},1`;
     if (!dbgBlocks.has(blockName)) dbgBlocks.set(blockName, []);
@@ -18682,9 +18868,11 @@ function _buildDebuggerSidecarTexts(layout, originOverride, sourcePathOverride =
   const { symbols } = _collectDebuggerSymbols(layout);
   symbols.forEach((symbol) => {
     if (!symbol || !symbol.name) return;
-    if (!uniqueSymbols.has(symbol.name)) uniqueSymbols.set(symbol.name, symbol.address & 0xFFFF);
+    const name = kick ? _kickDisplayLabel(symbol.name) : symbol.name;
+    if (name && !uniqueSymbols.has(name)) uniqueSymbols.set(name, symbol.address & 0xFFFF);
   });
   const sortedSymbols = [...uniqueSymbols.entries()].sort((left, right) => (left[1] - right[1]) || left[0].localeCompare(right[0]));
+  const { breaks, watches } = kick ? _kickDebugMarks(kick, symbols) : { breaks: [], watches: [] };
 
   const dbgText = [
     `<C64debugger version="1.0">`,
@@ -18704,13 +18892,21 @@ function _buildDebuggerSidecarTexts(layout, originOverride, sourcePathOverride =
     ...sortedSymbols.map(([name, address]) => `      Default,${_formatDebuggerAddress(address)},${_escapeXmlText(name)}`),
     `   </Labels>`,
     `   <Breakpoints values="SEGMENT,ADDRESS,ARGUMENT">`,
+    ...breaks.map(b => `      Default,${_formatDebuggerAddress(b.address)},${_escapeXmlText(b.cond)}`),
     `   </Breakpoints>`,
     `   <Watchpoints values="SEGMENT,ADDRESS,SIZE,FORMAT">`,
+    ...watches.map(w => `      Default,${_formatDebuggerAddress(w.start)},${w.end === null ? 1 : w.end - w.start + 1},${_escapeXmlText(w.arg)}`),
     `   </Watchpoints>`,
     `</C64debugger>`
   ].join("\n");
   const symText = sortedSymbols.map(([name, address]) => `.label ${name}=${_formatDebuggerSymbolAddress(address)}`).join("\n");
-  const vsText = sortedSymbols.map(([name, address]) => `al C:${_formatDebuggerSymbolAddress(address).slice(1)} .${name}`).join("\n");
+  const vsHex = (address) => (address & 0xFFFF).toString(16);
+  const vsText = [
+    ...sortedSymbols.map(([name, address]) => `al C:${_formatDebuggerSymbolAddress(address).slice(1)} .${name}`),
+    // KickAssembler's VICE lines: break <addr> [cond], watch [arg] <start> [end]
+    ...breaks.map(b => `break ${vsHex(b.address)}${b.cond ? " " + b.cond : ""}`),
+    ...watches.map(w => `watch ${w.arg ? w.arg + " " : ""}${vsHex(w.start)}${w.end === null ? "" : " " + vsHex(w.end)}`)
+  ].join("\n");
 
   return { dbg: dbgText, sym: symText, vs: vsText };
 }
@@ -18751,13 +18947,20 @@ function _buildDebuggerSidecarPayload(prg, { force = false, layout = null, sourc
   }
   // ACME source has no VA layout: the symbols come from ACME's label dump.
   if (assemblerSyntax === "acme" && !ultimateBasicMode) return _acmeDebuggerSidecars(prg?.labels);
+  const kick = _kickBuiltProject();
+  const savedProgram = program;
+  const savedUserMacros = userMacros;
   try {
     const originOverride = _getDebuggerCodeOrigin(prg);
+    if (kick && !layout) { program = kick.program; parseUserMacros(); }
     const debuggerLayout = layout || getProgramLayout(originOverride);
-    return _buildDebuggerSidecarTexts(debuggerLayout, originOverride, sourcePath);
+    return _buildDebuggerSidecarTexts(debuggerLayout, originOverride, sourcePath, kick);
   } catch (e) {
     console.error("Debugger sidecar generation failed:", e);
     return null;
+  } finally {
+    program = savedProgram;
+    userMacros = savedUserMacros;
   }
 }
 
@@ -18827,9 +19030,15 @@ async function runInDebugger() {
           }
         }
       }
-      expertBreakpoints = expertMode
-        ? _breakpointAddressForSourceLines(layout, expertBreakpointLines)
-        : breakpoints;
+      const kick = _kickBuiltProject();
+      if (kick) {
+        symbols = symbols.map(sym => ({ ...sym, name: _kickDisplayLabel(sym.name) })).filter(sym => sym.name);
+        expertBreakpoints = _kickBreakpointAddresses(layout, kick);
+      } else {
+        expertBreakpoints = expertMode
+          ? _breakpointAddressForSourceLines(layout, expertBreakpointLines)
+          : breakpoints;
+      }
       debuggerSidecars = _buildDebuggerSidecarPayload(prg, {
         force: true,
         layout,
@@ -21548,6 +21757,10 @@ async function buildProjectToFiles() {
       const write = await window.electronAPI?.writeBinFile?.(outPath, Array.from(prg.bytes), prg.sidecars || null);
       if (!write?.ok) { results.push({ name: fileName, error: write?.error || t("savePrgFailed") }); continue; }
       results.push({ name: fileName, outPath, size: prg.bytes.length });
+    }
+    // Kick project: .file / outPrg / outBin / .disk next to the startup file
+    if (_kickProjectActive() && _kickLast?.ok && _kickLast.outputs?.length) {
+      results.push(...await _kickWriteOutputs(_kickLast, _projResolveAbsPath(_expertProjectData.startupFile)));
     }
   } finally {
     if (originalTabId && activeTabId !== originalTabId && tabs.some(tb => tb.id === originalTabId)) {
@@ -24529,11 +24742,21 @@ function _kickParseTree(items, errors) {
   };
   const parseStmtText = (text, item) => {
     const node = { file: item.file, line: item.line };
+    const am = text.match(/^\.(assert|asserterror)\s+(.+?)\s*,\s*$/i);
+    if (am && items[pos]?.type === "{") {
+      pos++;
+      const a = parseBlock();
+      let b = null;
+      if (items[pos]?.type === "stmt" && items[pos].text.trim() === "," && items[pos + 1]?.type === "{") { pos += 2; b = parseBlock(); }
+      return [{ kind: "assertcode", error: am[1].toLowerCase() === "asserterror", desc: am[2], a, b, ...node }];
+    }
     // label prefix: name: / !name: / !:
     const lm = text.match(/^(@?[A-Za-z_]\w*|![A-Za-z_]\w*|!)\s*:(?!=)\s*(.*)$/);
     if (lm) {
       const out = [{ kind: "stmt", text: lm[1] + ":", ...node }];
       if (lm[2]) out.push(...parseStmtText(lm[2], item));
+      // name: .lohifill … gives name.lo / name.hi
+      if (out[1] && /^\.lohifill\b/i.test(lm[2]) && /^[A-Za-z_]\w*$/.test(lm[1])) out[1].lohiLabel = lm[1];
       return out;
     }
     let m;
@@ -24589,6 +24812,10 @@ function _kickParseTree(items, errors) {
     }
     if ((m = text.match(/^\.pseudopc\s+(.+)$/i))) {
       return [{ kind: "pseudopc", expr: m[1].trim(), body: parseBody("", item), ...node }];
+    }
+    if ((m = text.match(/^\.disk\b\s*(.*)$/i))) {
+      const body = parseBody("", item);
+      return [{ kind: "disk", params: m[1].trim(), files: body.filter(b => b.kind === "stmt").map(b => b.text).join(","), ...node }];
     }
     return [{ kind: "stmt", text, ...node }];
   };
@@ -24662,6 +24889,8 @@ function _kickIsSym(v) { return v !== null && typeof v === "object" && !Array.is
 function _kickSymText(v) {
   if (!_kickIsSym(v)) return _kickNumText(v);
   if (v.text !== undefined) return v.text;
+  // a known address kept 16-bit (a label defined later in the source)
+  if (v.label.startsWith("$")) return "$" + ((parseInt(v.label.slice(1), 16) + (v.off || 0)) & 0xFFFF).toString(16).toUpperCase().padStart(4, "0");
   if (!v.off) return v.label;
   return v.off > 0 ? `${v.label}+${v.off}` : `${v.label}-${-v.off}`;
 }
@@ -24717,10 +24946,36 @@ function _kickEval(src, scope) {
       if (["==", "!=", "<", ">", "<=", ">=", "&&", "||"].includes(op)) throw new Error(`The value is not known yet: ${src}`);
       return sym(a, op, b);
     }
+    const vec = (v) => v && v.kickVector, mat = (v) => v && v.kickMatrix;
+    if (vec(a) || vec(b) || mat(a) || mat(b)) {
+      if (typeof a === "string" || typeof b === "string") {
+        if (op === "+") return _kickValueText(a) + _kickValueText(b);
+      } else if (vec(a) && vec(b)) {
+        const [x, y] = [a.kickVector, b.kickVector];
+        if (op === "+") return _kickVector(x[0] + y[0], x[1] + y[1], x[2] + y[2]);
+        if (op === "-") return _kickVector(x[0] - y[0], x[1] - y[1], x[2] - y[2]);
+        if (op === "*") return x[0] * y[0] + x[1] * y[1] + x[2] * y[2];
+        if (op === "==") return x.every((v, k) => v === y[k]);
+        if (op === "!=") return !x.every((v, k) => v === y[k]);
+      } else if (vec(a) && typeof b === "number") {
+        if (op === "*") return _kickVector(...a.kickVector.map(v => v * b));
+        if (op === "/") return _kickVector(...a.kickVector.map(v => v / b));
+      } else if (typeof a === "number" && vec(b) && op === "*") {
+        return _kickVector(...b.kickVector.map(v => v * a));
+      } else if (mat(a) && vec(b) && op === "*") {
+        return _kickMatVec(a, b);
+      } else if (mat(a) && mat(b) && op === "*") {
+        return _kickMatMul(a, b);
+      }
+      throw new Error(`Operator ${op} is not defined for these values: ${src}`);
+    }
     if (typeof a === "string" || typeof b === "string") {
       if (op === "+") return String(a) + String(b);
       if (op === "==") return a === b;
       if (op === "!=") return a !== b;
+    }
+    if ((typeof a === "boolean" || typeof b === "boolean") && !["||", "&&", "==", "!="].includes(op)) {
+      throw new Error("Can't get a double representation from a value of type boolean");
     }
     switch (op) {
       case "||": return num(a, op) || num(b, op) ? true : false;
@@ -24913,6 +25168,110 @@ function _kickLoadBinary(data, template) {
   return { kickBinary: true, bytes, blocks };
 }
 
+// The first image of a GIF: { width, height, pixels } (pixels = 0xRRGGBB, row by row).
+function _kickDecodeGif(data) {
+  const d = data;
+  if (String.fromCharCode(d[0], d[1], d[2]) !== "GIF") return null;
+  const width = d[6] | (d[7] << 8);
+  const height = d[8] | (d[9] << 8);
+  const readTable = (pos, flags) => {
+    const n = 2 << (flags & 7);
+    const table = [];
+    for (let k = 0; k < n; k++) table.push((d[pos + k * 3] << 16) | (d[pos + k * 3 + 1] << 8) | d[pos + k * 3 + 2]);
+    return { table, end: pos + n * 3 };
+  };
+  let pos = 13;
+  let global = [];
+  if (d[10] & 0x80) ({ table: global, end: pos } = readTable(pos, d[10]));
+  const pixels = new Array(width * height).fill(global[d[11]] ?? 0);
+  while (pos < d.length) {
+    const kind = d[pos++];
+    if (kind === 0x21) {              // extension: skip its sub-blocks
+      pos++;
+      while (d[pos]) pos += d[pos] + 1;
+      pos++;
+      continue;
+    }
+    if (kind !== 0x2C) break;
+    const left = d[pos] | (d[pos + 1] << 8), top = d[pos + 2] | (d[pos + 3] << 8);
+    const w = d[pos + 4] | (d[pos + 5] << 8), h = d[pos + 6] | (d[pos + 7] << 8);
+    const flags = d[pos + 8];
+    pos += 9;
+    let table = global;
+    if (flags & 0x80) ({ table, end: pos } = readTable(pos, flags));
+    const minCode = d[pos++];
+    const stream = [];
+    while (d[pos]) { for (let k = 1; k <= d[pos]; k++) stream.push(d[pos + k]); pos += d[pos] + 1; }
+    // LZW
+    const clear = 1 << minCode, end = clear + 1;
+    let size = minCode + 1, next = end + 1, prev = null, bit = 0;
+    const prefix = new Int32Array(4096), suffix = new Uint8Array(4096), first = new Uint8Array(4096);
+    for (let k = 0; k < clear; k++) { suffix[k] = k; first[k] = k; }
+    const out = [];
+    const emit = (code) => { const tmp = []; for (let c = code; ; c = prefix[c]) { tmp.push(suffix[c]); if (c < clear) break; } for (let k = tmp.length - 1; k >= 0; k--) out.push(tmp[k]); };
+    while (out.length < w * h) {
+      if (bit + size > stream.length * 8) break;
+      let code = 0;
+      for (let k = 0; k < size; k++, bit++) code |= ((stream[bit >> 3] >> (bit & 7)) & 1) << k;
+      if (code === clear) { size = minCode + 1; next = end + 1; prev = null; continue; }
+      if (code === end) break;
+      if (prev === null) { emit(code); prev = code; continue; }
+      if (code < next) {
+        emit(code);
+        if (next < 4096) { prefix[next] = prev; suffix[next] = first[code]; first[next] = first[prev]; next++; }
+      } else {
+        if (next < 4096) { prefix[next] = prev; suffix[next] = first[prev]; first[next] = first[prev]; next++; }
+        emit(code);
+      }
+      prev = code;
+      if (next === 1 << size && size < 12) size++;
+    }
+    const rows = [];
+    if (flags & 0x40) for (const [start, step] of [[0, 8], [4, 8], [2, 4], [1, 2]]) for (let y = start; y < h; y += step) rows.push(y);
+    else for (let y = 0; y < h; y++) rows.push(y);
+    rows.forEach((y, r) => {
+      for (let x = 0; x < w; x++) {
+        const px = left + x, py = top + y;
+        if (px < width && py < height && r * w + x < out.length) pixels[py * width + px] = table[out[r * w + x]] ?? 0;
+      }
+    });
+    break;
+  }
+  return { width, height, pixels };
+}
+
+// Decodes a picture file of a Kick project: GIF here, PNG / JPG / BMP by the WebView.
+async function _kickDecodePicture(data) {
+  const gif = _kickDecodeGif(data);
+  if (gif) return gif;
+  if (typeof createImageBitmap !== "function" || typeof document === "undefined") return null;
+  try {
+    const bitmap = await createImageBitmap(new Blob([data]), { colorSpaceConversion: "none", premultiplyAlpha: "none" });
+    const canvas = document.createElement("canvas");
+    canvas.width = bitmap.width;
+    canvas.height = bitmap.height;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    ctx.drawImage(bitmap, 0, 0);
+    const rgba = ctx.getImageData(0, 0, bitmap.width, bitmap.height).data;
+    const pixels = new Array(bitmap.width * bitmap.height);
+    for (let k = 0; k < pixels.length; k++) pixels[k] = (rgba[k * 4] << 16) | (rgba[k * 4 + 1] << 8) | rgba[k * 4 + 2];
+    return { width: bitmap.width, height: bitmap.height, pixels };
+  } catch {
+    return null;
+  }
+}
+
+// LoadPicture(file[, colourTable]) value (manual 12.4); without a table the colours of
+// the picture in the order they first appear.
+function _kickLoadPicture(picture, table) {
+  let colours = Array.isArray(table) ? table.map(Number) : null;
+  if (!colours) {
+    colours = [];
+    for (const p of picture.pixels) if (!colours.includes(p) && colours.push(p) >= 4) break;
+  }
+  return { kickPicture: true, width: picture.width, height: picture.height, pixels: picture.pixels, colours };
+}
+
 // LoadSid(file): the PSID / RSID header fields and the data from the load address.
 function _kickLoadSid(data) {
   const d = Array.from(data);
@@ -24935,6 +25294,44 @@ function _kickLoadSid(data) {
 
 // Methods of the script values; call = written with ( ).
 function _kickMethod(v, name, a, src, call = true) {
+  if (v && v.kickVector) {
+    if (name === "get") return v.kickVector[a[0]];
+    if (name === "getX") return v.kickVector[0];
+    if (name === "getY") return v.kickVector[1];
+    if (name === "getZ") return v.kickVector[2];
+    if (name === "X") {
+      const [x, y] = [v.kickVector, a[0].kickVector];
+      return _kickVector(x[1] * y[2] - x[2] * y[1], x[2] * y[0] - x[0] * y[2], x[0] * y[1] - x[1] * y[0]);
+    }
+  }
+  if (v && v.kickMatrix) {
+    if (name === "get") return v.kickMatrix[a[0]][a[1]];
+    if (name === "set") { v.kickMatrix[a[0]][a[1]] = a[2]; return null; }
+  }
+  if (v && v.kickPicture) {
+    if (!call && (name === "width" || name === "height")) return v[name];
+    const pixel = (x, y) => {
+      if (x < 0 || y < 0 || x >= v.width || y >= v.height) throw new Error(`${name}: ${x},${y} is outside the ${v.width}×${v.height} picture`);
+      return v.pixels[y * v.width + x];
+    };
+    const index = (x, y) => {
+      const colour = pixel(x, y);
+      const k = v.colours.indexOf(colour);
+      if (k < 0) throw new Error(`${name}: the colour $${colour.toString(16).padStart(6, "0")} at ${x},${y} is not in the colour table`);
+      return k;
+    };
+    if (name === "getPixel") return pixel(a[0], a[1]);
+    if (name === "getSinglecolorByte") {
+      let byte = 0;
+      for (let k = 0; k < 8; k++) byte = (byte << 1) | (index(a[0] * 8 + k, a[1]) & 1);
+      return byte;
+    }
+    if (name === "getMulticolorByte") {
+      let byte = 0;
+      for (let k = 0; k < 4; k++) byte = (byte << 2) | (index(a[0] * 8 + k * 2, a[1]) & 3);
+      return byte;
+    }
+  }
   if (v && v.kickSid) {
     if (name === "getData") return v.data[a[0]];
     if (!call && name in v && name !== "data") return v[name];
@@ -25014,7 +25411,40 @@ function _kickMethod(v, name, a, src, call = true) {
   throw new Error(`Unknown method .${name}() in: ${src}`);
 }
 
+// Vector(x, y, z) and 4×4 matrix values; a matrix times a vector divides by w.
+const _kickVector = (x, y, z) => ({ kickVector: [x, y, z] });
+const _kickMatrix = (rows) => ({ kickMatrix: rows || [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]] });
+function _kickMatMul(a, b) {
+  return _kickMatrix(a.kickMatrix.map(row => [0, 1, 2, 3].map(j => row.reduce((sum, v, k) => sum + v * b.kickMatrix[k][j], 0))));
+}
+function _kickMatVec(m, v) {
+  const p = [...v.kickVector, 1];
+  const [x, y, z, w] = m.kickMatrix.map(row => row.reduce((sum, c, k) => sum + c * p[k], 0));
+  return w === 1 ? _kickVector(x, y, z) : _kickVector(x / w, y / w, z / w);
+}
+function _kickRotation(ax, ay, az) {
+  const axis = (t, i, j) => {
+    const m = _kickMatrix();
+    const c = Math.cos(t), sn = Math.sin(t);
+    m.kickMatrix[i][i] = c; m.kickMatrix[i][j] = -sn; m.kickMatrix[j][i] = sn; m.kickMatrix[j][j] = c;
+    return m;
+  };
+  // around x first, then y, then z
+  return _kickMatMul(axis(az, 0, 1), _kickMatMul(axis(ay, 2, 0), axis(ax, 1, 2)));
+}
+// A value as KickAssembler prints it: doubles of vectors / matrices with ".0".
+function _kickValueText(v) {
+  const real = (n) => (Number.isInteger(n) ? n.toFixed(1) : String(n));
+  if (v && v.kickVector) return `(${v.kickVector.map(real).join(",")})`;
+  if (v && v.kickMatrix) return `[${v.kickMatrix.map(row => `[${row.map(real).join(",")}]`).join(",")}]`;
+  return String(v);
+}
+
 const _KICK_BUILTINS = {
+  Vector: (x, y, z) => _kickVector(x, y, z), Matrix: () => _kickMatrix(), RotationMatrix: (ax, ay, az) => _kickRotation(ax, ay, az),
+  ScaleMatrix: (x, y, z) => _kickMatrix([[x, 0, 0, 0], [0, y, 0, 0], [0, 0, z, 0], [0, 0, 0, 1]]),
+  MoveMatrix: (x, y, z) => _kickMatrix([[1, 0, 0, x], [0, 1, 0, y], [0, 0, 1, z], [0, 0, 0, 1]]),
+  PerspectiveMatrix: (z) => _kickMatrix([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 0], [0, 0, 1 / z, 0]]),
   floor: Math.floor, ceil: Math.ceil, round: Math.round, abs: Math.abs, sqrt: Math.sqrt, cbrt: Math.cbrt,
   sin: Math.sin, cos: Math.cos, tan: Math.tan, asin: Math.asin, acos: Math.acos, atan: Math.atan, atan2: Math.atan2,
   sinh: Math.sinh, cosh: Math.cosh, tanh: Math.tanh, min: Math.min, max: Math.max, pow: Math.pow, hypot: Math.hypot,
@@ -25060,6 +25490,32 @@ function _kickOpcodeSize(op) {
 // files: readText(path) → string | null, readBinary(path) → Uint8Array | null.
 // Returns { ok, text, origins: [{file, line}] (one per output line), errors }.
 // options: { defines: ["NAME", …] (#define), vars: { name: "value" } (cmdLineVars) }
+// Opcodes of the KickAssembler instruction sets beyond the VA assembler (manual A.3):
+// modes noarg imm zp zpx zpy izx izy abs abx aby ind rel izp zprel indx.
+const _KICK_CPU_OPS = (() => {
+  const illegal = { ANC2: { imm: 0x2B }, SBC2: { imm: 0xEB } };
+  const dtv = { ...illegal, BRA: { rel: 0x12 }, SAC: { imm: 0x32 }, SIR: { imm: 0x42 } };
+  const c02 = {
+    ADC: { izp: 0x72 }, AND: { izp: 0x32 }, CMP: { izp: 0xD2 }, EOR: { izp: 0x52 }, LDA: { izp: 0xB2 }, ORA: { izp: 0x12 }, SBC: { izp: 0xF2 }, STA: { izp: 0x92 },
+    BIT: { imm: 0x89, zpx: 0x34, abx: 0x3C }, BRA: { rel: 0x80 }, DEC: { noarg: 0x3A }, INC: { noarg: 0x1A }, JMP: { indx: 0x7C },
+    PHX: { noarg: 0xDA }, PHY: { noarg: 0x5A }, PLX: { noarg: 0xFA }, PLY: { noarg: 0x7A }, STP: { noarg: 0xDB }, WAI: { noarg: 0xCB },
+    STZ: { zp: 0x64, zpx: 0x74, abs: 0x9C, abx: 0x9E }, TRB: { zp: 0x14, abs: 0x1C }, TSB: { zp: 0x04, abs: 0x0C }
+  };
+  for (let n = 0; n < 8; n++) {
+    c02["RMB" + n] = { zp: 0x07 + n * 16 };
+    c02["SMB" + n] = { zp: 0x87 + n * 16 };
+    c02["BBR" + n] = { zprel: 0x0F + n * 16 };
+    c02["BBS" + n] = { zprel: 0x8F + n * 16 };
+  }
+  return { _6502: illegal, dtv, _65c02: c02 };
+})();
+// The illegal opcodes: not in _6502NoIllegals and _65c02.
+const _KICK_ILLEGAL = new Set(["LAX", "SAX", "DCP", "ISC", "SLO", "RLA", "SRE", "RRA", "ANC", "ALR", "ARR", "AXS", "SHA", "SHX", "SHY", "TAS", "LAS", "XAA",
+  "AHX", "SHS", "LAE", "LDS", "ASR", "SBX", "DCM", "INS", "ISB", "ANE", "LXA", "ANC2", "SBC2"]);
+
+// * as the program counter inside an expression (not a multiplication)
+const _KICK_PC_IN_EXPR = /(^|[(+\-*/,&|^~<>=!?:]\s*)\*(?![*=])/g;
+
 function _kickPreprocess(entry, readText, readBinary, options = {}) {
   const errors = [];
   const lines = _kickFlatten(entry, readText, errors, new Set(options.defines || []));
@@ -25085,7 +25541,14 @@ function _kickPreprocess(entry, readText, readBinary, options = {}) {
       if (n.kind === "stmt") {
         const m = n.text.match(/^\.(const|label)\s+(@?)([A-Za-z_]\w*)\s*=\s*(.+?)\s*$/i);
         if (m && /^\*\s*(?:[+-]\s*[$%]?[0-9A-Fa-f]+)?$/.test(m[4].trim())) n.pcLabel = true;
-        else if (m && (rootLevel || m[2])) { n.rootConst = true; consts.set(m[3], { expr: m[4], node: n, kind: m[1].toLowerCase() }); }
+        else if (m && new RegExp(_KICK_PC_IN_EXPR.source).test(m[4])) {
+          // * in an expression (*-start): a hidden label at the line stands for it
+          n.pcName = `__pc_${pcNames.length + 1}`;
+          pcNames.push(n.pcName);
+          m[4] = m[4].replace(_KICK_PC_IN_EXPR, (all, before) => before + n.pcName);
+          n.text = `.${m[1]} ${m[2]}${m[3]} = ${m[4]}`;
+        }
+        if (m && !n.pcLabel && (rootLevel || m[2])) { n.rootConst = true; consts.set(m[3], { expr: m[4], node: n, kind: m[1].toLowerCase() }); }
       }
       if (n.kind === "if") n.branches.forEach(b => collect(b.body, false, ns));
       if (n.kind === "if" && n.elseBody) collect(n.elseBody, false, ns);
@@ -25094,8 +25557,10 @@ function _kickPreprocess(entry, readText, readBinary, options = {}) {
       if (n.kind === "namespace") collect(n.body, false, n.name);
     }
   };
+  const pcNames = [];
   collect(tree, true, null);
   const rootLs = _kickNewLabelScope(null, "");
+  for (const name of pcNames) rootLs.labels.set(name, name);
   let lsSerial = 0;
   // A child scope; named ones are registered in "into" (default: the parent) by name,
   // loops as an array (index = turn).
@@ -25115,12 +25580,18 @@ function _kickPreprocess(entry, readText, readBinary, options = {}) {
     let ns = parent.children.get(name);
     if (!ns || Array.isArray(ns)) {
       ns = _kickNewLabelScope(parent, `${parent.prefix || "__"}${name}__`);
+      ns.nsName = parent.nsName ? `${parent.nsName}.${name}` : name;
       parent.children.set(name, ns);
     }
     return ns;
   };
 
   const err = (node, text) => errors.push({ file: node?.file, line: node?.line, text });
+  const constOf = (name) => {
+    if (constValues.has(name)) return constValues.get(name);
+    if (consts.has(name)) return root.get(name);
+    return undefined;
+  };
 
   // Scope chain: vars of .for / macro / function bodies, the constants of the label
   // scopes, then the root constants.
@@ -25152,12 +25623,27 @@ function _kickPreprocess(entry, readText, readBinary, options = {}) {
         return undefined;
       },
       call(name, args) {
+        if (name === "getNamespace") {
+          for (let l = currentLs; l; l = l.parent) if (l.nsName) return l.nsName;
+          return "<RootNS>";
+        }
         if (functions.has(name)) return callFunction(functions.get(name), args);
         if (structs.has(name)) {
           const fields = structs.get(name);
           return { kickStruct: name, fields, values: fields.map((f, k) => (args.length ? args[k] : null)) };
         }
         if (name === "CmdArgument") return _kickCmd(args[0], args[1]);
+        if (name === "LoadPicture") {
+          const path = _kickResolvePath(currentFile || entry, String(args[0]));
+          let picture = options.readPicture?.(path);
+          if (!picture) {
+            const data = readBinary(path);
+            if (!data) throw new Error(`File not found: ${path}`);
+            picture = _kickDecodeGif(data);
+          }
+          if (!picture) throw new Error(`LoadPicture: cannot decode ${path}`);
+          return _kickLoadPicture(picture, args[1]);
+        }
         if (name === "LoadBinary" || name === "LoadSid") {
           const path = _kickResolvePath(currentFile || entry, String(args[0]));
           const data = readBinary(path);
@@ -25281,6 +25767,26 @@ function _kickPreprocess(entry, readText, readBinary, options = {}) {
   let currentLs = rootLs;
   let currentFile = entry;   // the file of the statement being expanded (LoadBinary paths)
   const emit = (node, text) => out.push({ text, file: node.file, line: node.line, ls: currentLs });
+  // [start=$1000, fill, segments="A, B", prgFiles="a.prg"] → values; prgFiles / sidFiles → _blocks
+  const segParams = (bracket, scope, file) => {
+    const params = {};
+    for (const part of _kickSplitTop(bracket.trim().replace(/^\[|\]$/g, "")).map(p => p.trim()).filter(Boolean)) {
+      const pm = part.match(/^([A-Za-z_]\w*)\s*(?:=\s*([\s\S]+))?$/);
+      if (!pm) throw new Error(`Segment parameter: ${part}`);
+      params[pm[1]] = pm[2] === undefined ? true : _kickEval(substitute(pm[2], scope), scope);
+    }
+    params._blocks = [];
+    for (const [key, sid] of [["prgFiles", false], ["sidFiles", true]]) {
+      for (const name of String(params[key] || "").split(",").map(x => x.trim()).filter(Boolean)) {
+        const path = _kickResolvePath(file, name);
+        const data = readBinary(path);
+        if (!data) throw new Error(`File not found: ${path}`);
+        if (sid) { const tune = _kickLoadSid(data); params._blocks.push({ org: tune.location, bytes: tune.data }); }
+        else params._blocks.push({ org: data[0] | (data[1] << 8), bytes: Array.from(data).slice(2) });
+      }
+    }
+    return params;
+  };
   // Inside a VA macro (.macro … .endm) the lines go to the VA assembler unchanged.
   let vaMacroBody = false;
 
@@ -25391,6 +25897,33 @@ function _kickPreprocess(entry, readText, readBinary, options = {}) {
         }
         return;
       }
+      case "disk": {
+        const params = n.params ? segParams(n.params, scope, n.file) : {};
+        const files = _kickSplitTop(n.files).map(f => f.trim()).filter(Boolean).map(f => segParams(f, scope, n.file));
+        out.push({ disk: params, files, file: n.file, line: n.line });
+        return;
+      }
+      case "assertcode": {
+        // the VA lines of a block (its own errors collected)
+        const lines = (body) => {
+          const at = out.length;
+          const errs = [];
+          try { expand(body, makeScope(scope)); } catch (e) { errs.push({ text: e.message }); }
+          const items = out.splice(at);
+          const emitted = errs.length ? null : _kickEmit(items, root, constValues, consts, errs, constOf, rootLs);
+          return { lines: emitted ? emitted.text.split("\n").filter(Boolean) : [], error: errs[0]?.text || null };
+        };
+        const desc = String(_kickEval(n.desc, scope));
+        const a = lines(n.a);
+        if (n.error) {
+          messages.push(a.error ? `${desc} -- OK. | ${a.error}` : `${desc} -- ERROR IN ASSERTION!`);
+          return;
+        }
+        const b = n.b ? lines(n.b) : { lines: [], error: null };
+        const same = !a.error && !b.error && a.lines.join("\n") === b.lines.join("\n");
+        messages.push(same ? `${desc} -- OK. | ${a.lines.join("; ")}` : `${desc} -- FAILED! | ${a.error || a.lines.join("; ")} -- ${b.error || b.lines.join("; ")}`);
+        return;
+      }
       case "pseudopc": {
         out.push({ pseudo: substitute(n.expr, scope), file: n.file, line: n.line });
         expand(n.body, makeScope(scope));
@@ -25424,6 +25957,7 @@ function _kickPreprocess(entry, readText, readBinary, options = {}) {
       return;
     }
     if ((lm = text.match(/^\.(?:const|label)\s+(@?)([A-Za-z_]\w*)\s*=\s*(.+?)\s*$/i))) {
+      if (n.pcName) emit(n, n.pcName + ":");
       if (n.rootConst) return;
       const value = _kickEval(substitute(lm[3], scope), scope);
       if (lm[1]) constValues.set(lm[2], value);
@@ -25443,8 +25977,66 @@ function _kickPreprocess(entry, readText, readBinary, options = {}) {
       try { messages.push(String(_kickEval(m[1], scope))); } catch (_) { /* labels are not known here */ }
       return;
     }
-    if (/^\.asserterror\b/i.test(text)) return;
-    if (/^\.(print|printnow|cpu|disk|file|plugin|segment\w*|filenamespace|watch|break)\b/i.test(text)) return;
+    // .asserterror "name", expr: OK when the expression fails
+    if ((m = text.match(/^\.asserterror\s+(.+)$/i))) {
+      const [desc, expr] = _kickSplitTop(m[1]);
+      let failure = null;
+      try {
+        const v = _kickEval(substitute(expr, scope), scope);
+        if (typeof v === "number" && !Number.isFinite(v)) failure = "Division by zero";
+      } catch (e) { failure = e.message; }
+      const name = String(_kickEval(desc, scope));
+      messages.push(failure === null ? `${name} -- ERROR IN ASSERTION!` : `${name} -- OK. | ${failure}`);
+      return;
+    }
+    // segments: markers, the emitter lays them out (manual 10)
+    if ((m = text.match(/^\.(segmentdef|segment)\s+([A-Za-z_]\w*)\s*(\[.*\])?\s*(?:"[^"]*")?\s*$/i))) {
+      const params = m[3] ? segParams(m[3], scope, n.file) : null;
+      if (m[1].toLowerCase() === "segmentdef") out.push({ segdef: m[2], params: params || { _blocks: [] }, file: n.file, line: n.line });
+      else out.push({ segment: m[2], params, file: n.file, line: n.line });
+      return;
+    }
+    if ((m = text.match(/^\.(segmentout|file)\s*(\[.*\])\s*$/i))) {
+      out.push({ [m[1].toLowerCase() === "file" ? "fileOut" : "segout"]: segParams(m[2], scope, n.file), file: n.file, line: n.line });
+      return;
+    }
+    if (/^\.memblock\b/i.test(text)) return;
+    if ((m = text.match(/^\.cpu\s+(_6502NoIllegals|_6502|dtv|_65c02)\s*$/i))) { out.push({ cpu: m[1], file: n.file, line: n.line }); return; }
+    if ((m = text.match(/^\.break\b\s*(.*)$/i))) { out.push({ brk: m[1].trim() ? String(_kickEval(substitute(m[1], scope), scope)) : "", file: n.file, line: n.line }); return; }
+    if ((m = text.match(/^\.watch\s+(.+)$/i))) { out.push({ watch: _kickSplitTop(m[1]).map(a => a.trim()), ls: currentLs, file: n.file, line: n.line }); return; }
+    // .modify / .filemodify run a KickAssembler (Java) plugin: the block stays as it is
+    if ((m = text.match(/^\.(?:file)?modify\s+([A-Za-z_]\w*)/i))) {
+      messages.push(`${n.file.split("/").pop()}:${n.line}: .modify ${m[1]}: plugin modifiers need KickAssembler; the bytes are not modified`);
+      return;
+    }
+    // .fillword n, expr(i) / [a, b] — .lohifill n, expr(i): a lo table, then a hi table
+    if ((m = text.match(/^\.(fillword|lohifill)\s+(.+)$/i))) {
+      const [countText, valueText] = _kickSplitTop(m[2]);
+      const count = _kickEval(substitute(countText, scope), scope);
+      if (typeof count !== "number") throw new Error(`.${m[1]}: the count is not known (${countText})`);
+      const words = [];
+      const turn = makeScope(scope, new Map([["i", 0]]));
+      for (let k = 0; k < count; k++) {
+        turn.vars.set("i", k);
+        const v = _kickEval(substitute(valueText, turn), turn);
+        for (const w of Array.isArray(v) ? v : [v]) {
+          if (typeof w !== "number") throw new Error(`.${m[1]}: the value is not known (${valueText})`);
+          words.push(Math.trunc(w) & 0xFFFF);
+        }
+      }
+      if (m[1].toLowerCase() === "fillword") { out.push({ bytes: words.flatMap(w => [w & 0xFF, w >> 8]), file: n.file, line: n.line }); return; }
+      if (n.lohiLabel) {
+        const ls = childLs(scope.ls, n.lohiLabel);
+        ls.labels.set("lo", ls.prefix + "lo");
+        ls.labels.set("hi", ls.prefix + "hi");
+        emit(n, ls.prefix + "lo:");
+        out.push({ bytes: words.map(w => w & 0xFF), file: n.file, line: n.line });
+        emit(n, ls.prefix + "hi:");
+      } else out.push({ bytes: words.map(w => w & 0xFF), file: n.file, line: n.line });
+      out.push({ bytes: words.map(w => w >> 8), file: n.file, line: n.line });
+      return;
+    }
+    if (/^\.(print|printnow|plugin|segmentdef|filenamespace)\b/i.test(text)) return;
     // .import binary / c64 / text "file"[, offset[, length]]
     if ((m = text.match(/^\.import\s+(binary|c64|text)\s+"([^"]+)"\s*(?:,(.*))?$/i))) {
       const path = _kickResolvePath(n.file, m[2]);
@@ -25504,11 +26096,7 @@ function _kickPreprocess(entry, readText, readBinary, options = {}) {
   };
   expand(tree, root);
 
-  const emitted = _kickEmit(out, root, constValues, consts, errors, (name) => {
-    if (constValues.has(name)) return constValues.get(name);
-    if (consts.has(name)) return root.get(name);
-    return undefined;
-  }, rootLs);
+  const emitted = _kickEmit(out, root, constValues, consts, errors, constOf, rootLs);
   const constants = [];
   for (const name of consts.keys()) {
     const value = constValues.has(name) ? constValues.get(name) : evalConst(name);
@@ -25547,8 +26135,115 @@ function _kickEmit(items, root, constValues, consts, errors, constOf, rootLs = _
     it.text = it.text.replace(/("(?:\\.|[^"\\])*")|![A-Za-z_]\w*[+-]+|![+-]+/g, (ref, str) => (str ? str : multiRef(ref, index, it)));
   });
 
+  // Segments (manual 10): the statements of each segment; every output (the Default
+  // segment, .file, outPrg / outBin, .disk) is laid out with its segments as real blocks,
+  // the other segments as virtual ones (labels only).
+  items.forEach((it, k) => { it.order = k; });
+  const segs = new Map();
+  const segOrder = [];
+  const defineSeg = (name, params, it) => {
+    if (segs.get(name)?.defined) { errors.push({ file: it.file, line: it.line, text: `Segment ${name} is already defined` }); return; }
+    const seg = { name, params, items: [], defined: true, file: it.file, line: it.line };
+    segs.set(name, seg);
+    segOrder.push(seg);
+  };
+  defineSeg("Default", { _blocks: [] }, {});
+  const fileOuts = [];
+  let usesSegments = false;
+  {
+    let cur = segs.get("Default");
+    for (const it of items) {
+      if (it.segdef !== undefined) { usesSegments = true; defineSeg(it.segdef, it.params, it); continue; }
+      if (it.segment !== undefined) {
+        usesSegments = true;
+        if (it.params) defineSeg(it.segment, it.params, it);
+        if (!segs.has(it.segment)) { errors.push({ file: it.file, line: it.line, text: `Unknown segment: ${it.segment}` }); continue; }
+        cur = segs.get(it.segment);
+        continue;
+      }
+      if (it.fileOut || it.disk) { usesSegments = true; fileOuts.push(it); continue; }
+      if (it.segout) usesSegments = true;
+      cur.items.push(it);
+    }
+  }
+  const segList = (text) => String(text || "").split(",").map(x => x.trim()).filter(Boolean);
+  const members = (names, into = new Set()) => {
+    for (const name of names) {
+      if (into.has(name)) continue;
+      if (!segs.has(name)) { errors.push({ text: `Unknown segment: ${name}` }); continue; }
+      into.add(name);
+      members(segList(segs.get(name).params.segments), into);
+    }
+    return into;
+  };
+  // The statements of an output: its own blocks (BasicUpstart modifier, prg / sid files),
+  // then every segment (the one a startAfter names first).
+  const seqFor = (real, inter, at) => {
+    const seq = [];
+    if (inter) {
+      if (inter.modify === "BasicUpstart") seq.push({ orgSyn: 0x0801, file: at.file, line: at.line }, { basic: "BasicUpstart", arg: inter._start, file: at.file, line: at.line });
+      for (const b of inter._blocks || []) seq.push({ orgSyn: b.org, file: at.file, line: at.line }, { bytes: b.bytes, file: at.file, line: at.line });
+    }
+    const done = new Set();
+    const visit = (seg) => {
+      if (done.has(seg.name)) return;
+      done.add(seg.name);
+      if (seg.params.startAfter && segs.has(seg.params.startAfter)) visit(segs.get(seg.params.startAfter));
+      seq.push({ segStart: seg, virtual: !real.has(seg.name), file: seg.file, line: seg.line });
+      for (const b of seg.params._blocks || []) seq.push({ orgSyn: b.org, file: seg.file, line: seg.line }, { bytes: b.bytes, file: seg.file, line: seg.line });
+      seq.push(...seg.items);
+      seq.push({ segEnd: seg, file: seg.file, line: seg.line });
+    };
+    segOrder.forEach(visit);
+    return seq;
+  };
+  // .segmentout: the blocks of its segments, one after the other
+  const segoutSeq = (params, at) => {
+    const real = members(segList(params.segments));
+    const seq = [];
+    for (const b of params._blocks || []) seq.push({ orgSyn: b.org, file: at.file, line: at.line }, { bytes: b.bytes, file: at.file, line: at.line });
+    for (const seg of segOrder) {
+      if (!real.has(seg.name)) continue;
+      seq.push({ segStart: seg, virtual: false, file: seg.file, line: seg.line });
+      for (const b of seg.params._blocks || []) seq.push({ orgSyn: b.org, file: seg.file, line: seg.line }, { bytes: b.bytes, file: seg.file, line: seg.line });
+      seq.push(...seg.items.filter(it => !it.segout));
+      seq.push({ segEnd: seg, file: seg.file, line: seg.line });
+    }
+    return seq;
+  };
+  const plans = [];
+  if (!usesSegments) plans.push({ main: true, seq: items });
+  else {
+    plans.push({ main: true, seq: seqFor(new Set(["Default"]), null, {}) });
+    const fileOf = (name, type, params, segNames, at) => ({ name: String(name || ""), type, params, at, seq: seqFor(members(segNames), params, at) });
+    for (const seg of segOrder) {
+      if (seg.params.outPrg) plans.push(fileOf(seg.params.outPrg, "prg", { _blocks: [] }, [seg.name], seg));
+      if (seg.params.outBin) plans.push(fileOf(seg.params.outBin, "bin", { _blocks: [] }, [seg.name], seg));
+    }
+    for (const it of fileOuts) {
+      if (it.fileOut) {
+        const name = String(it.fileOut.name || "");
+        const type = String(it.fileOut.type || (/\.bin$/i.test(name) ? "bin" : "prg")).toLowerCase();
+        plans.push(fileOf(name, type, it.fileOut, segList(it.fileOut.segments), it));
+        continue;
+      }
+      plans.push({
+        name: String(it.disk.filename || "disk.d64"), type: "d64", diskName: String(it.disk.name ?? "") , diskId: String(it.disk.id ?? ""), at: it,
+        files: it.files.map(f => fileOf(f.name, String(f.type || "prg").toLowerCase(), f, segList(f.segments), it))
+      });
+    }
+  }
+
   // Label values inside .pseudopc blocks: they are numbers (the logical address).
   const pseudoLabels = new Map();
+  // Where each of them is defined (source order): one defined later is a 16-bit address
+  // for KickAssembler (unknown in its first pass), so no zero page form.
+  const pseudoOrder = new Map();
+  let currentOrder = Infinity;
+  const pseudoValue = (label) => {
+    const v = pseudoLabels.get(label);
+    return (pseudoOrder.get(label) ?? -1) > currentOrder ? { sym: true, label: hex(v, 4), off: 0 } : v;
+  };
   // Physical addresses of labels after a "* =" whose sizes are all known (BasicUpstart).
   const physLabels = new Map();
   let currentPc = null;   // logical address inside .pseudopc (for *)
@@ -25556,7 +26251,7 @@ function _kickEmit(items, root, constValues, consts, errors, constOf, rootLs = _
   const scope = {
     label(path) {
       const r = _kickResolveLabel(path, currentLs, rootLs);
-      if (r?.label !== undefined && pseudoLabels.has(r.label)) return { value: pseudoLabels.get(r.label) };
+      if (r?.label !== undefined && pseudoLabels.has(r.label)) return { value: pseudoValue(r.label) };
       return r;
     },
     get(name) {
@@ -25564,7 +26259,7 @@ function _kickEmit(items, root, constValues, consts, errors, constOf, rootLs = _
       if (name === "cmdLineVars") return root.get(name);
       if (name.startsWith("@")) return constOf(name.slice(1));
       for (let l = currentLs; l; l = l.parent) if (l.consts.has(name)) return l.consts.get(name);
-      if (pseudoLabels.has(name)) return pseudoLabels.get(name);
+      if (pseudoLabels.has(name)) return pseudoValue(name);
       const v = constOf(name);
       if (v !== undefined) return v;
       if (Object.prototype.hasOwnProperty.call(_KICK_CONSTS, name)) return _KICK_CONSTS[name];
@@ -25576,6 +26271,10 @@ function _kickEmit(items, root, constValues, consts, errors, constOf, rootLs = _
 
   const hex = (v, width) => "$" + (v >>> 0).toString(16).toUpperCase().padStart(width, "0");
   let encoding = "screencode_mixed";   // .encoding, for chars in .byte and .text
+  let cpu = "_6502";                   // .cpu
+  let relSerial = 0;
+  const breaks = [];                   // .break: { label, cond }
+  const watches = [];                  // .watch: { start, end, arg } (numbers or VA expressions)
   const valueText = (v, width) => {
     if (_kickIsSym(v)) return _kickSymText(v);
     if (typeof v === "boolean") return v ? "1" : "0";
@@ -25653,8 +26352,19 @@ function _kickEmit(items, root, constValues, consts, errors, constOf, rootLs = _
       const off = m[3] ? ev(m[3]) : 0;
       return { lines: [`.label ${m[1]} = *${m[3] ? ` ${m[2]} ${Math.trunc(off)}` : ""}`], size: 0 };
     }
-    if ((m = text.match(/^([A-Za-z]{3})(?:\.(abs|a|zp|z|im|i))?(?:\s+(.*))?$/)) && opcodeMap[m[1].toUpperCase()]) {
-      return instruction(m[1].toUpperCase(), (m[2] || "").toLowerCase(), (m[3] || "").trim(), pc);
+    if ((m = text.match(/^([A-Za-z]{3}\d?)(?:\.(abs|a|zp|z|im|i))?(?:\s+(.*))?$/)) && (opcodeMap[m[1].toUpperCase()] || _KICK_CPU_OPS[cpu]?.[m[1].toUpperCase()])) {
+      const mnem = m[1].toUpperCase();
+      if ((cpu === "_6502NoIllegals" || cpu === "_65c02") && _KICK_ILLEGAL.has(mnem)) throw new Error(`${m[1]} is an illegal opcode (.cpu ${cpu}); .cpu _6502 allows it`);
+      let operand = (m[3] || "").trim();
+      const force = (m[2] || "").toLowerCase();
+      if ((force === "im" || force === "i") && !operand.startsWith("#")) operand = "#" + operand;
+      const extra = _KICK_CPU_OPS[cpu]?.[mnem];
+      if (extra) {
+        const r = cpuInstruction(mnem, extra, force, operand, pc);
+        if (r) return r;
+        if (!opcodeMap[mnem]) throw new Error(`${m[1]}: this addressing mode is not supported (.cpu ${cpu})`);
+      }
+      return instruction(mnem, force, operand, pc);
     }
     // Anything else (VA macros and directives) goes to the VA assembler as it is,
     // with the Kick constants as numbers.
@@ -25674,6 +26384,56 @@ function _kickEmit(items, root, constValues, consts, errors, constOf, rootLs = _
     return valueText(v, 4);
   });
 
+  // An instruction of the .cpu table as .byte lines; null when the operand is not one of its modes.
+  const cpuInstruction = (mnem, modes, force, operand, pc) => {
+    const known = (v) => !_kickIsSym(v);
+    const byteText = (v) => (known(v) ? hex(Math.trunc(v) & 0xFF, 2) : `<(${_kickSymText(v)})`);
+    const out = (op, size, parts) => ({ lines: [`.byte ${hex(op, 2)}${parts.length ? ", " + parts.join(", ") : ""}`], size });
+    const word = (op, v) => (known(v)
+      ? out(op, 3, [hex(Math.trunc(v) & 0xFF, 2), hex((Math.trunc(v) >> 8) & 0xFF, 2)])
+      : { lines: [`.byte ${hex(op, 2)}`, `.word ${_kickSymText(v)}`], size: 3 });
+    // a branch: the offset now, or from a hidden label at the opcode
+    const relative = (op, v, before, size) => {
+      if (known(v) && pc !== null) {
+        const rel = Math.trunc(v) - (pc + size);
+        if (rel < -128 || rel > 127) throw new Error(`${mnem}: the branch is out of range (${rel})`);
+        return out(op, size, [...before, hex(rel & 0xFF, 2)]);
+      }
+      const label = `__rel_${++relSerial}`;
+      return { lines: [`${label}:`, `.byte ${hex(op, 2)}, ${[...before, `<((${_kickSymText(v)})-${label}-${size})`].join(", ")}`], size };
+    };
+    const small = (v) => known(v) && Math.trunc(v) >= 0 && Math.trunc(v) <= 0xFF && force !== "abs" && force !== "a";
+    let m;
+    if (!operand || /^a$/i.test(operand)) return modes.noarg !== undefined ? out(modes.noarg, 1, []) : null;
+    if (operand.startsWith("#")) return modes.imm !== undefined ? out(modes.imm, 2, [byteText(ev(operand.slice(1)))]) : null;
+    if (modes.zprel !== undefined) {
+      const [zp, target] = _kickSplitTop(operand);
+      if (target === undefined) return null;
+      return relative(modes.zprel, ev(target), [byteText(ev(zp))], 3);
+    }
+    if (modes.rel !== undefined) return relative(modes.rel, ev(operand), [], 2);
+    if ((m = operand.match(/^\((.+)\)\s*,\s*y$/i))) return modes.izy !== undefined ? out(modes.izy, 2, [byteText(ev(m[1]))]) : null;
+    if ((m = operand.match(/^\((.+)\s*,\s*x\)$/i))) {
+      if (modes.indx !== undefined) return word(modes.indx, ev(m[1]));
+      return modes.izx !== undefined ? out(modes.izx, 2, [byteText(ev(m[1]))]) : null;
+    }
+    if ((m = operand.match(/^\((.+)\)$/))) {
+      if (modes.izp !== undefined) return out(modes.izp, 2, [byteText(ev(m[1]))]);
+      return modes.ind !== undefined ? word(modes.ind, ev(m[1])) : null;
+    }
+    if ((m = operand.match(/^(.+?)\s*,\s*([xy])$/i))) {
+      const v = ev(m[1]);
+      const x = m[2].toLowerCase() === "x";
+      const zp = x ? modes.zpx : modes.zpy;
+      const abs = x ? modes.abx : modes.aby;
+      if (zp !== undefined && (small(v) || force === "zp" || force === "z" || abs === undefined)) return out(zp, 2, [byteText(v)]);
+      return abs !== undefined ? word(abs, v) : null;
+    }
+    const v = ev(operand);
+    if (modes.zp !== undefined && (small(v) || force === "zp" || force === "z" || modes.abs === undefined)) return out(modes.zp, 2, [byteText(v)]);
+    return modes.abs !== undefined ? word(modes.abs, v) : null;
+  };
+
   const instruction = (mnem, force, operand, pc) => {
     const modes = opcodeMap[mnem];
     const width = (v, zp, abs) => {
@@ -25687,6 +26447,7 @@ function _kickEmit(items, root, constValues, consts, errors, constOf, rootLs = _
     if (!operand || /^a$/i.test(operand)) return { lines: [mnem], size: 1 };
     if (operand.startsWith("#")) {
       const v = ev(operand.slice(1));
+      if (typeof v === "string" && (v.length !== 1 || /^#\s*"/.test(operand))) throw new Error("The value of a Command Argument Value must be an integer. This expression returns a value of type 'String'");
       return { lines: [`${mnem} #${_kickIsSym(v) ? _kickSymText(v) : hex(Math.trunc(v) & 0xFF, 2)}`], size: 2 };
     }
     if ((m = operand.match(/^\((.+)\)\s*,\s*y$/i))) {
@@ -25719,7 +26480,8 @@ function _kickEmit(items, root, constValues, consts, errors, constOf, rootLs = _
   };
 
   // Two passes: the first one gives the labels inside .pseudopc their addresses.
-  const run = (final) => {
+  const run = (final, seq, runErrors) => {
+    cpu = "_6502";
     const lines = [];
     const origins = [];
     let pseudo = null;
@@ -25727,15 +26489,108 @@ function _kickEmit(items, root, constValues, consts, errors, constOf, rootLs = _
     let unknown = false;
     let phys = null;
     let virtualBlock = false;
+    let segVirtual = false;     // the segment being emitted is not in this output
+    let seg = null;             // that segment
+    let segSavedPhys = null;
+    let segout = null;          // inside .segmentout: { fill } (blocks follow each other)
+    const segEnds = new Map();
     const push = (text, it) => { lines.push(text); origins.push({ file: it.file, line: it.line }); };
-    for (const it of items) {
-      try {
+    const pc = () => (pseudo !== null ? (unknown ? null : pseudoPc) : phys);
+    const pad = (count, value, it) => {
+      _kickByteLines(new Array(count).fill(value & 0xFF)).forEach(l => push(l, it));
+      if (pseudoPc !== null) pseudoPc += count;
+      if (phys !== null) phys += count;
+    };
+    const bounds = (at, it) => {
+      const p = seg?.params;
+      if (!p || at === null) return;
+      if ((p.min !== undefined && at < p.min) || (p.max !== undefined && at > p.max + 1)) {
+        throw new Error(`Segment ${seg.name}: ${hex(at, 4)} is outside ${hex(p.min ?? 0, 4)}-${hex(p.max ?? 0xFFFF, 4)}`);
+      }
+    };
+    // a new memory block at addr (a * = line or a segment / file start)
+    const startBlock = (addr, it, line) => {
+      if (segVirtual) {
+        virtualBlock = true; pseudo = addr; pseudoPc = addr; unknown = addr === null;
+        return;
+      }
+      if (segout) {
+        if (segout.first) { segout.first = false; pseudo = addr; pseudoPc = addr; unknown = false; return; }
+        if (unknown || pseudoPc === null) throw new Error(".segmentout: the block sizes are not known");
+        if (addr < pseudoPc) throw new Error(`.segmentout: the block at ${hex(addr, 4)} overlaps the previous one`);
+        pad(addr - pseudoPc, seg?.params.fillByte ?? 0, it);
+        return;
+      }
+      const p = seg?.params;
+      if (p?.fill && phys !== null && addr >= phys && p.min !== undefined) { pad(addr - phys, p.fillByte ?? 0, it); return; }
+      push(line ?? `* = ${hex(addr, 4)}`, it);
+      phys = addr;
+    };
+    const segmentStart = (it) => {
+      seg = it.segStart;
+      segVirtual = it.virtual;
+      segSavedPhys = phys;
+      const p = seg.params;
+      let start = p.start;
+      if (start === undefined && p.startAfter !== undefined) {
+        const end = segEnds.get(p.startAfter);
+        if (end === undefined || end === null) throw new Error(`Segment ${seg.name}: the end of ${p.startAfter} is not known`);
+        const align = p.align || 1;
+        start = Math.ceil(end / align) * align;
+      }
+      // KickAssembler: a segment without start / startAfter begins at $2000
+      if (start === undefined && seg.name !== "Default") start = 0x2000;
+      if (start !== undefined) startBlock(start, it);
+      else if (segVirtual) { virtualBlock = true; pseudo = null; pseudoPc = null; unknown = true; }
+    };
+    const segmentEnd = (it) => {
+      const p = seg.params;
+      if (!segVirtual && p.fill && p.max !== undefined && pc() !== null && pc() <= p.max) pad(p.max + 1 - pc(), p.fillByte ?? 0, it);
+      bounds(pc(), it);
+      segEnds.set(seg.name, pc());
+      if (segVirtual) phys = segSavedPhys;
+      if (!segout) { pseudo = null; pseudoPc = null; unknown = false; }
+      virtualBlock = false; segVirtual = false; seg = null;
+    };
+    const emitItem = (it) => {
+        if (it.cpu) { cpu = it.cpu; return; }
+        if (it.brk !== undefined) {
+          if (virtualBlock) return;
+          const label = `__brk_${breaks.length + 1}`;
+          if (final) breaks.push({ label, cond: it.brk });
+          push(`${label}:`, it);
+          return;
+        }
+        if (it.watch) {
+          if (!final) return;
+          currentLs = it.ls || rootLs;
+          const [start, end, arg] = it.watch;
+          const value = (t) => (t ? valueText(ev(t), 4) : "");
+          watches.push({ start: value(start), end: value(end), arg: arg ? String(ev(arg)) : "" });
+          return;
+        }
+        if (it.segStart) { segmentStart(it); return; }
+        if (it.segEnd) { segmentEnd(it); return; }
+        if (it.orgSyn !== undefined) { bounds(pc(), it); startBlock(it.orgSyn, it); return; }
+        if (it.segout) {
+          if (segVirtual) return;
+          const saved = { pseudo, pseudoPc, unknown, seg };
+          segout = { first: true };
+          try {
+            for (const sub of segoutSeq(it.segout, it)) emitItem(sub);
+          } finally {
+            segout = null;
+            ({ pseudo, pseudoPc, unknown, seg } = saved);
+          }
+          return;
+        }
         if (it.pseudo !== undefined) {
-          if (it.pseudo === null) { pseudo = null; pseudoPc = null; continue; }
+          if (virtualBlock) return;
+          if (it.pseudo === null) { pseudo = null; pseudoPc = null; return; }
           const v = _kickEval(it.pseudo, scope);
           if (_kickIsSym(v)) throw new Error(`.pseudopc: the address is not known (${it.pseudo})`);
           pseudo = v; pseudoPc = v; unknown = false;
-          continue;
+          return;
         }
         if (it.basic) {
           const v = it.arg;
@@ -25746,23 +26601,37 @@ function _kickEmit(items, root, constValues, consts, errors, constOf, rootLs = _
           const digits = String(address);
           const link = 0x0801 + 2 + 2 + 1 + digits.length + 1;
           const bytes = [link & 0xFF, link >> 8, 10, 0, 0x9E, ...Array.from(digits, c => c.charCodeAt(0)), 0, 0, 0];
+          if (virtualBlock) {
+            if (it.basic === "BasicUpstart2") { pseudo = 0x080E; pseudoPc = 0x080E; unknown = false; }
+            else if (pseudoPc !== null) pseudoPc += bytes.length;
+            return;
+          }
           if (it.basic === "BasicUpstart2") push(`* = $0801 "Basic"`, it);
           _kickByteLines(bytes).forEach(l => push(l, it));
           if (it.basic === "BasicUpstart2") push(`* = $080E "Basic End"`, it);
           if (target === null) push(`.assert ${_kickSymText(v)} == ${address}, "BasicUpstart2: the start label must follow it"`, it);
           phys = it.basic === "BasicUpstart2" ? 0x080E : phys === null ? null : phys + bytes.length;
-          continue;
+          return;
         }
         if (it.bytes) {
           if (!virtualBlock) _kickByteLines(it.bytes).forEach(l => push(l, it));
           if (pseudoPc !== null) pseudoPc += it.bytes.length;
-          if (phys !== null) phys += it.bytes.length;
-          continue;
+          if (phys !== null && !virtualBlock) phys += it.bytes.length;
+          return;
         }
-        if (it.raw) { push(it.text, it); if (pseudoPc !== null) unknown = true; phys = null; continue; }
-        currentPc = pseudoPc;
+        if (it.raw) { if (!virtualBlock) push(it.text, it); if (pseudoPc !== null) unknown = true; if (!virtualBlock) phys = null; return; }
+        currentPc = pseudo !== null && !unknown ? pseudoPc : null;
+        currentOrder = it.order ?? Infinity;
         currentLs = it.ls || rootLs;
-        const r = lineOf(it, pseudoPc, phys);
+        const r = lineOf(it, currentPc, phys);
+        // * = inside a segment or .segmentout: a new block of it
+        if (r.org !== undefined && !r.virtual && (seg || segout)) {
+          bounds(pc(), it);
+          if (virtualBlock && !segVirtual) { virtualBlock = false; pseudo = null; pseudoPc = null; }
+          startBlock(r.org, it, r.lines[0]);
+          bounds(r.org, it);
+          return;
+        }
         // a virtual block works like .pseudopc whose lines are not written
         if (r.org !== undefined && (r.virtual || virtualBlock)) {
           virtualBlock = !!r.virtual;
@@ -25771,14 +26640,14 @@ function _kickEmit(items, root, constValues, consts, errors, constOf, rootLs = _
           unknown = false;
         }
         if (virtualBlock && !r.label) {
-          if (r.size === null) unknown = true; else pseudoPc += r.size;
-          continue;
+          if (r.size === null || pseudoPc === null) unknown = true; else pseudoPc += r.size;
+          return;
         }
         if (r.org !== undefined) phys = r.org;
         if (r.label && pseudo === null && phys !== null) physLabels.set(r.label, phys);
-        if (r.label && pseudo !== null) {
-          if (!unknown) pseudoLabels.set(r.label, pseudoPc);
-          continue;
+        if (r.label && (pseudo !== null || virtualBlock)) {
+          if (!unknown && pseudoPc !== null) { pseudoLabels.set(r.label, pseudoPc); pseudoOrder.set(r.label, it.order ?? -1); }
+          return;
         }
         r.lines.forEach(l => push(l, it));
         if (pseudoPc !== null) {
@@ -25786,15 +26655,50 @@ function _kickEmit(items, root, constValues, consts, errors, constOf, rootLs = _
           else pseudoPc += r.size;
         }
         if (phys !== null && r.org === undefined) phys = r.size === null ? null : phys + r.size;
+    };
+    for (const it of seq) {
+      try {
+        emitItem(it);
       } catch (e) {
-        if (final) errors.push({ file: it.file, line: it.line, text: e.message });
+        if (final) runErrors.push({ file: it.file, line: it.line, text: e.message });
       }
     }
     return { lines, origins };
   };
-  run(false);
-  const { lines, origins } = run(true);
-  return { ok: errors.length === 0, text: lines.join("\n"), origins, errors };
+  const runPlan = (plan) => {
+    const runErrors = [];
+    run(false, plan.seq, runErrors);
+    const { lines, origins } = run(true, plan.seq, runErrors);
+    for (const e of runErrors) if (!errors.some(x => x.file === e.file && x.line === e.line && x.text === e.text)) errors.push(e);
+    return { text: lines.join("\n"), origins };
+  };
+  const outputs = [];
+  let main = null;
+  // each output keeps its own .break / .watch list
+  const runMarked = (plan) => {
+    breaks.length = 0;
+    watches.length = 0;
+    const done = runPlan(plan);
+    return { ...done, breaks: breaks.splice(0), watches: watches.splice(0) };
+  };
+  for (const plan of plans) {
+    if (plan.type === "d64") {
+      outputs.push({ name: plan.name, type: "d64", diskName: plan.diskName, diskId: plan.diskId, file: plan.at.file, line: plan.at.line,
+        files: plan.files.map(f => ({ name: f.name, type: f.type, params: f.params, ...runMarked(f) })) });
+      continue;
+    }
+    const done = runMarked(plan);
+    if (plan.main) main = done;
+    else outputs.push({ name: plan.name, type: plan.type, params: plan.params, file: plan.at.file, line: plan.at.line, ...done });
+  }
+  // the Default segment without bytes: the first PRG output is what Run starts
+  const hasBytes = (text) => text.split("\n").some(l => !/^\s*(?:\* =|[A-Za-z_]\w*:|\.label\b|\.encoding\b|\.assert\b|;|$)/i.test(l));
+  let mainOutput = null;
+  if (usesSegments && !hasBytes(main.text)) {
+    const first = outputs.find(o => o.type === "prg" && o.text.startsWith("* = $0801")) || outputs.find(o => o.type === "prg");
+    if (first) { main = first; mainOutput = first.name; }
+  }
+  return { ok: errors.length === 0, text: main.text, origins: main.origins, errors, outputs, mainOutput, breaks: main.breaks, watches: main.watches };
 }
 
 function _kickByteLines(bytes) {
@@ -25837,6 +26741,7 @@ async function _kickReadTree(entry) {
   const api = window.electronAPI;
   const texts = new Map();
   const bins = new Map();
+  const pictures = new Map();
   const queue = [_kickNormPath(entry)];
   while (queue.length) {
     const path = queue.shift();
@@ -25856,28 +26761,65 @@ async function _kickReadTree(entry) {
         bins.set(target, res?.ok ? Uint8Array.from(res.bytes || []) : null);
       }
     }
-    for (const m of String(text).matchAll(/\b(?:LoadBinary|LoadSid|LoadPicture)\s*\(\s*"([^"]+)"/g)) {
-      const target = _kickResolvePath(path, m[1]);
+    for (const m of String(text).matchAll(/\b(?:prgFiles|sidFiles)\s*=\s*"([^"]+)"/gi)) {
+      for (const name of m[1].split(",").map(x => x.trim()).filter(Boolean)) {
+        const target = _kickResolvePath(path, name);
+        if (bins.has(target)) continue;
+        const res = await api?.readBinFile?.(target);
+        bins.set(target, res?.ok ? Uint8Array.from(res.bytes || []) : null);
+      }
+    }
+    for (const m of String(text).matchAll(/\b(?:LoadBinary|LoadSid|LoadPicture)\s*\(\s*"([^"]+)"|"([^"\r\n]+\.(?:gif|png|jpe?g|bmp))"/gi)) {
+      const target = _kickResolvePath(path, m[1] || m[2]);
       if (bins.has(target)) continue;
       const res = await api?.readBinFile?.(target);
       bins.set(target, res?.ok ? Uint8Array.from(res.bytes || []) : null);
+      if (/\.(?:gif|png|jpe?g|bmp)$/i.test(target) && bins.get(target)) pictures.set(target, await _kickDecodePicture(bins.get(target)));
     }
   }
-  return { texts, bins };
+  return { texts, bins, pictures };
+}
+
+// The preprocessor's (English) messages in the UI language; anything else stays as it is.
+const _KICK_MESSAGE_KEYS = [
+  [/^File not found: (.+)$/, "kickMsgFileNotFound", ["path"]],
+  [/^Recursive #import: (.+)$/, "kickMsgRecursiveImport", ["path"]],
+  [/^(.+?): the (?:value|count|address|condition) is not known(?: yet)? \((.+)\)$/, "kickMsgNotKnown", ["what", "expr"]],
+  [/^The (?:value|condition) is not known yet: (.+)$/, "kickMsgNotKnownExpr", ["expr"]],
+  [/^Unknown function (.+)\(\)$/, "kickMsgUnknownFunction", ["name"]],
+  [/^Unknown method \.(.+)\(\) in: (.+)$/, "kickMsgUnknownMethod", ["name", "expr"]],
+  [/^Unknown variable (.+)$/, "kickMsgUnknownVariable", ["name"]],
+  [/^(?:Incomplete expression|Cannot read the expression): (.+)$/, "kickMsgSyntax", ["expr"]],
+  [/^(?:Unexpected|Expected) .+ in: (.+)$/, "kickMsgSyntax", ["expr"]],
+  [/^Multi-label not found: (.+)$/, "kickMsgMultiLabel", ["name"]],
+  [/^Unknown segment: (.+)$/, "kickMsgUnknownSegment", ["name"]],
+  [/^Segment (\w+) is already defined$/, "kickMsgSegmentTwice", ["name"]],
+  [/^Segment (\w+): (\S+) is outside (\S+)$/, "kickMsgSegmentBounds", ["name", "address", "range"]],
+  [/^(\w+) is an illegal opcode \(\.cpu (\w+)\)/, "kickMsgIllegal", ["name", "cpu"]],
+  [/^(\w+): the branch is out of range \((-?\d+)\)$/, "kickMsgBranchRange", ["name", "offset"]],
+  [/^(Missing \}|Unexpected \}|Missing block)$/, "kickMsgBraces", ["text"]]
+];
+function _kickMessageText(message) {
+  for (const [re, key, names] of _KICK_MESSAGE_KEYS) {
+    const m = String(message).match(re);
+    if (m) return tf(key, Object.fromEntries(names.map((name, k) => [name, m[k + 1]])));
+  }
+  return message;
 }
 
 function _kickErrorEntry(file, line, message) {
   const name = String(file || "").split("/").pop();
-  return { text: name ? `${name}:${line}: ${message}` : message, file, fileLine: line };
+  const text = _kickMessageText(message);
+  return { text: name ? `${name}:${line}: ${text}` : text, file, fileLine: line };
 }
 
 // Preprocesses the startup file of the Kick project; null when no Kick project is active.
 async function _kickPrepare() {
   if (!_kickProjectActive()) return null;
   const entry = _kickNormPath(_projResolveAbsPath(_expertProjectData.startupFile));
-  const { texts, bins } = await _kickReadTree(entry);
+  const { texts, bins, pictures } = await _kickReadTree(entry);
   const pre = _kickPreprocess(entry, p => texts.get(p) ?? null, p => bins.get(p) ?? null,
-    { defines: _expertProjectData.kickDefines || [], vars: _expertProjectData.kickVars || {} });
+    { defines: _expertProjectData.kickDefines || [], vars: _expertProjectData.kickVars || {}, readPicture: p => pictures.get(p) ?? null });
   const result = {
     ok: pre.ok,
     text: pre.text,
@@ -25885,6 +26827,10 @@ async function _kickPrepare() {
     errors: pre.errors.map(e => _kickErrorEntry(e.file, e.line, e.text)),
     messages: pre.messages || [],
     constants: pre.constants || [],
+    outputs: pre.outputs || [],
+    breaks: pre.breaks || [],
+    watches: pre.watches || [],
+    mainOutput: pre.mainOutput || null,
     program: null
   };
   if (pre.ok) {
@@ -25918,6 +26864,65 @@ function _kickMapResult(result, kick = _kickLast) {
   };
   const errors = (result.errors?.length ? result.errors : [{ text: result.error || "" }]).map(map);
   return { ...result, error: errors[0]?.text || result.error, errors };
+}
+
+// An extra output of a Kick project (.file, outPrg / outBin, a file of .disk): the bytes as
+// KickAssembler writes them — a PRG with its load address, a BIN from the lowest address.
+function _kickBuildOutput(output) {
+  const saved = program;
+  const savedMacros = userMacros;
+  try {
+    program = parseExpertText(output.text);
+    _addSrcLineToBlocks(output.text, program);
+    parseUserMacros();
+    const res = _kickMapResult(assembleProgramToPrg(), { origins: output.origins });
+    if (!res.ok) return res;
+    let bytes = Array.from(res.bytes);
+    const p = output.params || {};
+    let load = bytes[0] | (bytes[1] << 8);
+    let body = bytes.slice(2);
+    if (body.length === 0) load = p.min ?? load;
+    if (p.fill && p.min !== undefined && p.max !== undefined) {
+      const before = Math.max(0, load - p.min);
+      const after = Math.max(0, p.max + 1 - (load + body.length));
+      body = [...new Array(before).fill(p.fillByte ?? 0), ...body, ...new Array(after).fill(p.fillByte ?? 0)];
+      load = Math.min(load, p.min);
+    }
+    bytes = output.type === "bin" ? body : [load & 0xFF, load >> 8, ...body];
+    return { ok: true, bytes: Uint8Array.from(bytes) };
+  } finally {
+    program = saved;
+    userMacros = savedMacros;
+  }
+}
+
+// Writes the extra outputs of a Kick project beside its startup file; Build project report rows.
+async function _kickWriteOutputs(kick, startupPath) {
+  const api = window.electronAPI;
+  const dir = _kickNormPath(startupPath).replace(/\/[^/]*$/, "");
+  const results = [];
+  const where = (output) => _kickErrorEntry(output.file, output.line, "").text.replace(/:\s*$/, "");
+  for (const output of kick.outputs) {
+    const outPath = _kickResolvePath(dir + "/x", output.name);
+    if (output.type === "d64") {
+      const formatted = await api?.d64Format?.(outPath, output.diskName || output.name.replace(/\.d64$/i, ""));
+      if (!formatted?.ok) { results.push({ name: output.name, error: formatted?.error || where(output) }); continue; }
+      let failed = null;
+      for (const file of output.files) {
+        const res = _kickBuildOutput({ ...file, type: "prg" });
+        if (!res.ok) { failed = res.error; break; }
+        const added = await api?.d64AddFile?.(outPath, Array.from(res.bytes), file.name, null, file.type === "bin" ? "prg" : file.type);
+        if (!added?.ok) { failed = added?.error || file.name; break; }
+      }
+      results.push(failed ? { name: output.name, error: failed } : { name: output.name, outPath, size: output.files.length });
+      continue;
+    }
+    const res = _kickBuildOutput(output);
+    if (!res.ok) { results.push({ name: output.name, error: res.error }); continue; }
+    const write = await api?.writeBinFile?.(outPath, Array.from(res.bytes), null);
+    results.push(write?.ok ? { name: output.name, outPath, size: res.bytes.length } : { name: output.name, error: write?.error || t("savePrgFailed") });
+  }
+  return results;
 }
 
 // PRG of the Kick project through the VA assembler (the same as Run); null without one.
@@ -25967,9 +26972,15 @@ function _kickScheduleCheck() {
         if (res.ok) bytes = Math.max(0, (res.bytes?.length || 2) - 2);
         else errors = res.errors;
         renderMemoryMap(getMemoryUsage());
+        const activePath = tabs.find(t => t.id === activeTabId)?.filePath || "";
         if (_expertCyclesEnabled && res.ok) {
-          _expertCycleMap = _kickCycleMap(kick, tabs.find(t => t.id === activeTabId)?.filePath || "");
+          _expertCycleMap = _kickCycleMap(kick, activePath);
           _expertUpdateCycles();
+        }
+        if (res.ok) {
+          const prevHintKey = _expertLintHints.map((h) => h.srcLine + h.key).join();
+          _expertLintHints = _kickLintHints(kick, activePath);
+          if (_expertLintHints.map((h) => h.srcLine + h.key).join() !== prevHintKey) _expertRenderLintButton();
         }
       } catch (e) {
         errors = [{ text: String(e) }];
@@ -25983,8 +26994,100 @@ function _kickScheduleCheck() {
     _expertErrorLineNos = new Set(errors.filter(e => e.file && _normFilePath(e.file) === norm).map(e => e.fileLine - 1));
     _expertApplyHighlight();
     if (errors.length) _expertSetStatus(tf("kickBuildErrors", { count: errors.length, first: errors[0].text }), "error");
+    else if (kick.messages?.length) _expertSetStatus(tf("kickBuildOkPrint", { bytes, count: kick.messages.length, first: kick.messages[0] }), "ok");
     else _expertSetStatus(tf("kickBuildOk", { bytes }), "ok");
+    if (_expertDisasmVisible) _expertRenderDisasm();
+    if (_expertMonitorVisible) _expertRenderMonitor();
   }, 600);
+}
+
+// The Kick project being built (Run / Debug / Build just ran _kickPrepare), or null.
+function _kickBuiltProject() {
+  return !ultimateBasicMode && assemblerSyntax !== "acme" && _kickProjectActive() && _kickLast?.ok ? _kickLast : null;
+}
+
+// A VA label of a Kick project as the source names it: inner scopes "scope.label";
+// null for the generated multi-labels (!:, !loop:).
+function _kickDisplayLabel(name) {
+  const text = String(name || "");
+  if (/^__(?:ml|pc|brk|rel)_/.test(text)) return null;
+  return text.startsWith("__") ? text.replace(/^__/, "").replace(/__/g, ".").replace(/\.$/, "") : text;
+}
+
+// .break / .watch of a Kick project with their addresses (symbols: the VA labels of the build).
+function _kickDebugMarks(kick, symbols) {
+  if (!kick) return { breaks: [], watches: [] };
+  const labels = new Map((symbols || []).map(sym => [sym.name, sym.address & 0xFFFF]));
+  const value = (text) => (text ? _evalAsmExpr(text, labels) : null);
+  const breaks = (kick.breaks || []).filter(b => labels.has(b.label)).map(b => ({ address: labels.get(b.label), cond: b.cond }));
+  const watches = (kick.watches || []).map(w => ({ start: value(w.start), end: value(w.end), arg: w.arg }))
+    .filter(w => typeof w.start === "number" && (w.end === null || typeof w.end === "number"));
+  return { breaks, watches };
+}
+
+// Breakpoint addresses of every open project file: its line, or the next line of that
+// file that emits bytes.
+function _kickBreakpointAddresses(layout, kick) {
+  const executable = (layout?.lines || []).filter(line => line.size > 0 && !line.conditionallySkipped && typeof line.block?._srcLine === "number");
+  const addresses = [];
+  for (const tab of tabs) {
+    const lines = tab.id === activeTabId ? _getTabBreakpointLines("expert") : tab.expertBreakpointLines;
+    if (!tab.filePath || !Array.isArray(lines) || !lines.length) continue;
+    const norm = _normFilePath(tab.filePath);
+    const inFile = executable
+      .map(line => ({ line, origin: kick.origins[line.block._srcLine] }))
+      .filter(x => x.origin && _normFilePath(x.origin.file) === norm);
+    for (const editorLine of lines) {
+      const exact = inFile.find(x => x.origin.line - 1 === editorLine);
+      const next = inFile.filter(x => x.origin.line - 1 > editorLine).sort((a, b) => a.origin.line - b.origin.line)[0];
+      const hit = exact || next;
+      if (hit) addresses.push(hit.line.address & 0xFFFF);
+    }
+  }
+  const labels = new Map();
+  (layout?.lines || []).forEach(line => addLayoutLabels(labels, line));
+  for (const b of kick.breaks || []) if (labels.has(b.label)) addresses.push(Number(labels.get(b.label)) & 0xFFFF);
+  return [...new Set(addresses)];
+}
+
+// Peephole hints of a Kick project on the lines of the open file (the built program is
+// `program`); a line unrolled several times gives each hint once.
+function _kickLintHints(kick, filePath) {
+  const norm = _normFilePath(filePath);
+  if (!norm) return [];
+  const layout = getProgramLayout();
+  const labels = new Map();
+  layout.lines.forEach((line) => addLayoutLabels(labels, line));
+  labels._anonAddrs = _collectAnonLabels(layout);
+  appendDelayHelperLabel(labels, layout);
+  const seq = [];
+  let labelled = false;
+  for (const line of layout.lines) {
+    const block = line.block;
+    if (line.conditionallySkipped) continue;
+    if (block.isLabel) labelled = true;
+    if (block.isLabel || block.isComment || block.isIncludeMacro || block.isBlankLine) continue;
+    if (block._isSavedAddress || block._isRestoreAddress || block.isOrgMacro) { seq.push({ barrier: true }); continue; }
+    const result = compileLineBytes(line, labels);
+    const mnem = String(block.mnemonic || "").toUpperCase();
+    const info = result.ok ? _REV_OP[result.bytes[0]] : null;
+    const origin = typeof block._srcLine === "number" ? kick.origins[block._srcLine] : null;
+    if (info && opcodeMap[mnem] && info.mnem === mnem && result.bytes.length === info.size) {
+      const own = origin && _normFilePath(origin.file) === norm;
+      seq.push({ mnem, mode: info.mode, bytes: result.bytes, address: line.address, srcLine: own ? origin.line - 1 : undefined, labelled });
+      labelled = false;
+    } else if (!result.ok || result.bytes?.length || block.smcLabel) {
+      seq.push({ barrier: true });
+    }
+  }
+  const seen = new Set();
+  return _lintAsm(seq).filter((h) => {
+    if (h.srcLine === undefined) return false;
+    const key = h.srcLine + h.key;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 // Cycle gutter of a Kick project: the built program's instructions on the lines of the
@@ -26240,7 +27343,7 @@ async function importKickProject() {
 // Detect a comma-separated value list base. Returns { base, normalized } where
 // normalized is the cleaned string (without $/% prefixes) that matches `base`.
 function _importDetectListBase(rawList) {
-  const parts = rawList.split(",").map(p => p.trim()).filter(Boolean);
+  const parts = rawList.split(",").map(p => _charLiteralToHex(p.trim())).filter(Boolean);
   if (!parts.length) return { base: "hex", normalized: rawList.trim() };
   // Lo/hi byte label refs: <label or >label — preserve as-is
   if (parts.some(p => /^[<>][A-Za-z_.][A-Za-z0-9_.]*$/.test(p))) {
@@ -26258,8 +27361,12 @@ function _importDetectListBase(rawList) {
   if (allBin) return { base: "bin", normalized: stripped.join(",") };
   if (allDec) return { base: "dec", normalized: stripped.join(",") };
   if (allHex) return { base: "hex", normalized: stripped.join(",").toUpperCase() };
-  // Mixed → keep hex semantics, strip prefixes where present
-  return { base: "hex", normalized: stripped.join(",").toUpperCase() };
+  // Mixed → hex list: every element keeps its own value ($xx / 0x hex, %bin, bare decimal)
+  const hexOf = (p) => {
+    const n = /^%/.test(p) ? parseInt(p.slice(1), 2) : /^(\$|0x)/i.test(p) ? parseInt(p.replace(/^(\$|0x)/i, ""), 16) : parseInt(p, 10);
+    return n.toString(16).toUpperCase().padStart(2, "0");
+  };
+  return { base: "hex", normalized: parts.map(hexOf).join(",") };
 }
 
 function _importParseScalar(raw) {
@@ -28959,6 +30066,8 @@ function compileLineBytes(line, labels) {
     return { ok: true, bytes: [] };
   }
 
+  if (block.isIfMacro && block._ifError) return { ok: false, error: block._ifError };
+
   const blockError = getLiveValidationError(block);
   if (blockError) {
     // If the rawOperand still has an unresolved {param} placeholder, give a clearer message
@@ -30531,7 +31640,7 @@ function compileLineBytes(line, labels) {
 
 function resolveNumericOperand(block, labels) {
   const evalAsmExpression = (expr, localLabels = null) => {
-    let text = String(expr ?? "").trim();
+    let text = _charLiteralToHex(String(expr ?? "").trim());
     if (!text) return null;
     text = text.replace(/^#/, "");
     text = text.replace(/\$([A-Za-z_][A-Za-z0-9_]*)/g, (match, name) => {
@@ -30768,7 +31877,7 @@ function _evalJsExprSafe(src) {
 // inline evalAsmExpression copies used elsewhere; kept module-level so the
 // long-branch / .assert / relative-branch paths can reuse it.
 function _evalAsmExpr(expr, labels = null) {
-  let text = String(expr ?? "").trim();
+  let text = _charLiteralToHex(String(expr ?? "").trim());
   if (!text) return null;
   text = text.replace(/^#/, "");
   text = text.replace(/\$([A-Za-z_][A-Za-z0-9_.]*)/g, (match, name) => (/^[0-9A-Fa-f]+$/.test(name) ? match : name));
@@ -30933,6 +32042,11 @@ function shouldShowBinForBlock(block, mode) {
     return block.addressingMode === "immediate";
   }
   return false;
+}
+
+// 'A' → $41: a character literal is its ASCII / PETSCII code, the bytes .text writes.
+function _charLiteralToHex(text) {
+  return String(text ?? "").replace(/'([^'])'/g, (m, c) => "$" + c.charCodeAt(0).toString(16).toUpperCase().padStart(2, "0"));
 }
 
 function parseNumberByBase(value, base) {
@@ -32237,7 +33351,9 @@ function getProgramLayout(originOverride) {
   const skippedBlocks = new WeakSet();
   for (const block of expandedProgram) {
     if (block.isIfMacro) {
-      condStack.push({ active: activeDefines.has((block.ifCondition || "").trim()), inElse: false });
+      const active = _ifConditionActive(block.ifCondition, activeDefines);
+      block._ifError = active === null ? tf("ifConditionNotResolvable", { condition: (block.ifCondition || "").trim() }) : "";
+      condStack.push({ active: active === true, inElse: false });
     } else if (block.isElseMacro) {
       if (condStack.length > 0) condStack[condStack.length - 1].inElse = true;
     } else if (block.isEndIfMacro) {

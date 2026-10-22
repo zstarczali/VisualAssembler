@@ -6283,7 +6283,7 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
 
 /* ── About Dialog ────────────────────────────────────────────────── */
 .customer-message-dialog {
-  border: 0;
+  border: 1px solid color-mix(in srgb, var(--text) 22%, var(--panel));
   border-radius: 4px;
   padding: 0;
   width: min(560px, 92vw);
@@ -6328,7 +6328,13 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
 
 [data-theme="light"] .about-dialog,
 [data-theme="starlight"] .about-dialog,
-[data-theme="beige"] .about-dialog {
+[data-theme="beige"] .about-dialog,
+[data-theme="light"] .customer-message-dialog,
+[data-theme="starlight"] .customer-message-dialog,
+[data-theme="beige"] .customer-message-dialog,
+[data-theme="light"] .splash-panel,
+[data-theme="starlight"] .splash-panel,
+[data-theme="beige"] .splash-panel {
   border-color: color-mix(in srgb, var(--text) 45%, var(--panel));
 }
 
@@ -6881,7 +6887,7 @@ body.crt-mode #crt-overlay::after {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid color-mix(in srgb, var(--text) 22%, var(--panel));
   box-shadow: 0 22px 80px rgba(0, 0, 0, 0.62), 0 8px 24px rgba(0, 0, 0, 0.36);
   border-radius: 4px;
   opacity: 0;
@@ -6897,7 +6903,6 @@ body.crt-mode #crt-overlay::after {
 html[data-theme="commodore77"] .splash-panel {
   background: var(--panel);
   color: var(--text);
-  border-color: var(--panel-border);
   justify-content: flex-start;
   padding-top: 54px;
 }

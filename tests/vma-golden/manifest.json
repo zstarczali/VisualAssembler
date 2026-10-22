@@ -1831,8 +1831,8 @@
   "baseDir": "",
   "basicStub": true,
   "ok": true,
-  "size": 2450,
-  "sha256": "794af8f4cf2e90023d36b899c3768008294db0e0809a9d1ed8456e8d6c05db54",
+  "size": 2623,
+  "sha256": "cb39bb9271aa9ee8ca9659a6004e2257a58323f54922b009c275d023d3cf17a0",
   "error": null
  },
  {
@@ -1843,8 +1843,8 @@
   "baseDir": "",
   "basicStub": false,
   "ok": true,
-  "size": 403,
-  "sha256": "e2b4114a69f6838ecd309a03577b90f6e1fd03bde894b88f21bc56073be8847a",
+  "size": 576,
+  "sha256": "44f3d4ef232899a5db30d6fa49bec548291b68c46f03dc85d551f1b642dae901",
   "error": null
  },
  {
@@ -3943,8 +3943,8 @@
   "baseDir": "",
   "basicStub": true,
   "ok": true,
-  "size": 2063,
-  "sha256": "af2b5a55f962ae4fde8c3ff9dec4d2db49b98e3f2b130d2098856ef10ea9ec6d",
+  "size": 2069,
+  "sha256": "a8cf43bad71af888b98b0e35f3a8922997228f173027c15d023949fcc1058383",
   "error": null
  },
  {
@@ -3955,8 +3955,8 @@
   "baseDir": "",
   "basicStub": false,
   "ok": true,
-  "size": 16,
-  "sha256": "aa6eaa083154cc754bd8133a5ef75bfdf34ec6d2814dcf0b816cef53d91577b6",
+  "size": 22,
+  "sha256": "f1503844c48ce5fdf4bead09cf37fa00ee473afbd058d69191670ffee004de66",
   "error": null
  },
  {
@@ -4040,7 +4040,7 @@
   "basicStub": true,
   "ok": true,
   "size": 6211,
-  "sha256": "baa193466ab73f405ba1688fa88416e786fc5537e1f0b0802fc0575418c002db",
+  "sha256": "b03dbeca95a0e42cf1621f38c0e4b4e9392af916ce93a3914402dda5a3a2eb4b",
   "error": null
  },
  {
@@ -4052,7 +4052,31 @@
   "basicStub": false,
   "ok": true,
   "size": 68,
-  "sha256": "52cb076d2a21aee841d8c7d1b0c5e17a7043691add0949443252647ba7d0e994",
+  "sha256": "ca1fe3d88e1c1281c07b5432b4b9d413d5ff3c21f919e428d6d9bc9b23a56804",
+  "error": null
+ },
+ {
+  "id": "snip-conditional-expr",
+  "caseId": "snip-conditional-expr",
+  "kind": "text",
+  "file": null,
+  "baseDir": "",
+  "basicStub": true,
+  "ok": true,
+  "size": 2054,
+  "sha256": "d48a6421072b7079a29a7dbb726e44d51f1ccd5723672c74288718ea73fa186a",
+  "error": null
+ },
+ {
+  "id": "snip-conditional-expr@nostub",
+  "caseId": "snip-conditional-expr",
+  "kind": "text",
+  "file": null,
+  "baseDir": "",
+  "basicStub": false,
+  "ok": true,
+  "size": 7,
+  "sha256": "5b8f0176dd4b015ee4ebabc917845e523b942121a5e233580713cf917257b431",
   "error": null
  },
  {

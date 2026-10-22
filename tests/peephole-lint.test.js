@@ -54,6 +54,7 @@ test("reloads", () => {
   const c = load();
   assert.deepEqual(keys(c.lint(seq(c, [[0x85, 0xFB], [0xA5, 0xFB]]))), ["lintReload@1"]);      // STA $FB / LDA $FB
   assert.deepEqual(keys(c.lint(seq(c, [[0xA9, 0x05], [0xA9, 0x05]]))), ["lintDuplicateLoad@1"]);
+  assert.deepEqual(keys(c.lint(seq(c, [[0x8D, 0x12, 0xD0], [0xAD, 0x12, 0xD0]]))), []);     // STA $D012 / LDA $D012: I/O
   assert.deepEqual(keys(c.lint(seq(c, [[0x85, 0xFB], [0xA5, 0xFC]]))), []);
   assert.deepEqual(keys(c.lint(seq(c, [[0x85, 0xFB], [0xA6, 0xFB]]))), []);                   // STA / LDX
 });

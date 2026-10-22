@@ -41,6 +41,9 @@ start:
     lda #B & 3 | 8
     lda #B << 2
     lda #A >> 8
+    lda #~B & $FF
+    ldx #'A'
+    ldy #' '+1
 `,
   "labels-local-anon": `* = $1000
 first:
@@ -76,15 +79,34 @@ patch:
     rts
 `,
   "data-directives": `* = $2000
-    .byte $01, 2, 3
+    .byte $01, 2, %00000011, 'A'
+    .byte 3, %11, 16
+    .byte %101, $FF
     .word $1234, label, label+1
+    .word $1234, 16, %1
     .text "HELLO"
     .fill 8, $AA
     .align 64
 label:
     .byte <label, >label
 `,
-  // VMA .if is a .define test (ifdef), not an expression.
+  // .if NAME: .define-d or non-zero .const; otherwise a constant expression.
+  "conditional-expr": `.const LEVEL = 3
+.const OFF = 0
+* = $1000
+.if LEVEL >= 2 && LEVEL < 5
+    inc $D020
+.endif
+.if LEVEL == 1
+    inc $D021
+.endif
+.if OFF
+    nop
+.else
+    dex
+.endif
+    rts
+`,
   "conditional-asm": `.define DEBUG
 * = $1000
 .if DEBUG
