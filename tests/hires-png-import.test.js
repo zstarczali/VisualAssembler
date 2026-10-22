@@ -6,11 +6,12 @@ const path = require("node:path");
 const appJs = fs.readFileSync(path.join(__dirname, "..", "www", "app.js"), "utf8").replace(/\r\n/g, "\n");
 
 function load() {
-  const start = appJs.indexOf("const _HG_PNG_PALETTES = {");
+  const palettes = appJs.match(/const _C64_PALETTES = \{[^}]+\};/)[0];
+  const start = appJs.indexOf("/* ── Hi-Res editor: image import (converter)");
   const end = appJs.indexOf("/* ── Hi-Res editor: image import dialog");
   assert.ok(start > 0 && end > start, "converter source");
   // in this realm: in a vm context the typed-array loops run many times slower
-  return new Function(appJs.slice(start, end) + "\nreturn { convert: _hgPngConvert, dithers: _HG_PNG_DITHERS, lab: _hgOklab };")();
+  return new Function(palettes + '\nlet _editorPalette = "pepto";\n' + appJs.slice(start, end) + "\nreturn { convert: _hgPngConvert, dithers: _HG_PNG_DITHERS, lab: _hgOklab };")();
 }
 
 function picture(w, h, fn) {

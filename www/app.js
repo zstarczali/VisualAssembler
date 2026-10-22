@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "acme-264",
+  id: "kick-265",
   url: "https://www.c64va.pro/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.6.4-ben",
+    eyebrow: "Újdonság a 2.6.5-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<ul><li><strong>ACME mód</strong>: az Expert forrást ACME 0.97 fordítja (Beállítások → Általános → Assembler mód); a Disassembly / Monitor, a ciklusszámok, a tippek és a VICE Monitor az ACME kimenetét követik.</li><li><strong>Jobb Kick import</strong>: <code>.text</code> + <code>.encoding</code>, <code>.label x = * + 1</code>, <code>.abs</code> / <code>.zp</code>; a Restore64 forrásai bájtra úgy fordulnak, mint KickAssemblerrel.</li><li><strong>Futtatás</strong>: a BASIC sor alá töltődő programok is elindulnak.</li><li><strong>SID szerkesztő</strong>: LCD kijelző (pozíció, pattern, sor, idő), hangszer-gomb a VA-VK-n.</li><li><strong>Ctrl+N</strong>: új fül; a Beállítások három fülön.</li></ul><p>Kérdés, ötlet vagy hiba: <strong>Menu → Támogatás</strong>.</p>`,
+    body: `<ul><li><strong>KickAssembler projektek</strong>: Menu → Program → Kick projekt importálása… — a teljes forrásfa (<code>#import</code>, <code>.import binary</code>) egy projektbe; a VA bájtra úgy fordítja, mint a KickAssembler.</li><li><strong>Kick-kompatibilis kapcsoló</strong> a projektpanelen (<code>{K}</code>): <code>.for</code>, <code>.if</code>, <code>.function</code>, <code>.pseudocommand</code>, <code>!</code> címkék, scope-ok és névterek a VA makrók mellett.</li><li><strong>Build Info</strong> több oszlopban.</li><li><strong>C64 színpaletta</strong> (Beállítások → Általános → Szerkesztők, alapból Colodore); <strong>színválasztó</strong> a Hi-Res, Sprite, Karakter és Charset Canvas szerkesztőben (Alt+kattintás); <strong>Ctrl+görgő</strong> nagyítás.</li><li><strong>ACME</strong>: a memóriatérkép az ACME fordítást követi.</li></ul><p>Kérdés, ötlet vagy hiba: <strong>Menu → Támogatás</strong>.</p>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.6.4",
+    eyebrow: "New in 2.6.5",
     title: "Welcome to Visual Assembler",
-    body: `<ul><li><strong>ACME mode</strong>: ACME 0.97 builds the Expert source (Settings → General → Assembler mode); Disassembly / Monitor, cycle counts, hints and the VICE Monitor follow the ACME output.</li><li><strong>Better Kick import</strong>: <code>.text</code> + <code>.encoding</code>, <code>.label x = * + 1</code>, <code>.abs</code> / <code>.zp</code>; Restore64 sources build byte for byte like KickAssembler.</li><li><strong>Run</strong>: programs that load below the BASIC line start too.</li><li><strong>SID Editor</strong>: an LCD (position, pattern, row, time), an instrument knob on VA-VK.</li><li><strong>Ctrl+N</strong>: new tab; Settings in three tabs.</li></ul><p>Questions, ideas or bugs: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>KickAssembler projects</strong>: Menu → Program → Import Kick project… — the whole source tree (<code>#import</code>, <code>.import binary</code>) in one project; VA builds it byte for byte like KickAssembler.</li><li><strong>Kick-compatible switch</strong> in the Project panel (<code>{K}</code>): <code>.for</code>, <code>.if</code>, <code>.function</code>, <code>.pseudocommand</code>, <code>!</code> labels, scopes and namespaces next to the VA macros.</li><li><strong>Build Info</strong> in columns.</li><li><strong>C64 colour palette</strong> (Settings → General → Editors, Colodore by default); <strong>colour picker</strong> in the Hi-Res, Sprite, Character and Charset Canvas editors (Alt+click); <strong>Ctrl+wheel</strong> zoom.</li><li><strong>ACME</strong>: the memory map follows the ACME build.</li></ul><p>Questions, ideas or bugs: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.6.4",
+    eyebrow: "Novedad en la 2.6.5",
     title: "Bienvenido a Visual Assembler",
-    body: `<ul><li><strong>Modo ACME</strong>: ACME 0.97 compila el código Experto (Settings → General → Assembler mode); Disassembly / Monitor, ciclos, sugerencias y el VICE Monitor siguen la salida de ACME.</li><li><strong>Mejor importación Kick</strong>: <code>.text</code> + <code>.encoding</code>, <code>.label x = * + 1</code>, <code>.abs</code> / <code>.zp</code>; las fuentes de Restore64 se compilan byte a byte como con KickAssembler.</li><li><strong>Ejecutar</strong>: también arrancan los programas que se cargan bajo la línea BASIC.</li><li><strong>Editor SID</strong>: una pantalla LCD (posición, patrón, fila, tiempo) y un mando de instrumento en VA-VK.</li><li><strong>Ctrl+N</strong>: pestaña nueva; los ajustes en tres pestañas.</li></ul><p>Preguntas, ideas o errores: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Proyectos KickAssembler</strong>: Menu → Program → Import Kick project… — todo el árbol de fuentes (<code>#import</code>, <code>.import binary</code>) en un proyecto; VA lo compila byte a byte como KickAssembler.</li><li><strong>Interruptor compatible con Kick</strong> en el panel de proyecto (<code>{K}</code>): <code>.for</code>, <code>.if</code>, <code>.function</code>, <code>.pseudocommand</code>, etiquetas <code>!</code>, ámbitos y espacios de nombres junto a las macros de VA.</li><li><strong>Build Info</strong> en columnas.</li><li><strong>Paleta de colores C64</strong> (Settings → General → Editors, Colodore por defecto); <strong>cuentagotas</strong> en los editores Hi-Res, Sprite, Character y Charset Canvas (Alt+clic); zoom con <strong>Ctrl+rueda</strong>.</li><li><strong>ACME</strong>: el mapa de memoria sigue la compilación de ACME.</li></ul><p>Preguntas, ideas o errores: <strong>Menu → Support</strong>.</p>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.6.4",
+    eyebrow: "Neu in 2.6.5",
     title: "Willkommen bei Visual Assembler",
-    body: `<ul><li><strong>ACME-Modus</strong>: ACME 0.97 übersetzt den Experten-Quelltext (Settings → General → Assembler mode); Disassembly / Monitor, Zyklen, Hinweise und der VICE Monitor folgen der ACME-Ausgabe.</li><li><strong>Besserer Kick-Import</strong>: <code>.text</code> + <code>.encoding</code>, <code>.label x = * + 1</code>, <code>.abs</code> / <code>.zp</code>; Restore64-Quellen werden Byte für Byte wie mit KickAssembler übersetzt.</li><li><strong>Ausführen</strong>: auch Programme, die unter die BASIC-Zeile laden, starten.</li><li><strong>SID-Editor</strong>: ein LCD (Position, Pattern, Zeile, Zeit), ein Instrumentenregler auf VA-VK.</li><li><strong>Strg+N</strong>: neuer Tab; die Einstellungen in drei Tabs.</li></ul><p>Fragen, Ideen oder Fehler: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>KickAssembler-Projekte</strong>: Menu → Program → Import Kick project… — der ganze Quellbaum (<code>#import</code>, <code>.import binary</code>) in einem Projekt; VA übersetzt ihn Byte für Byte wie KickAssembler.</li><li><strong>Kick-kompatibel-Schalter</strong> im Projektfenster (<code>{K}</code>): <code>.for</code>, <code>.if</code>, <code>.function</code>, <code>.pseudocommand</code>, <code>!</code>-Labels, Scopes und Namespaces neben den VA-Makros.</li><li><strong>Build Info</strong> in Spalten.</li><li><strong>C64-Farbpalette</strong> (Settings → General → Editors, standardmäßig Colodore); <strong>Farbpipette</strong> im Hi-Res-, Sprite-, Character- und Charset-Canvas-Editor (Alt+Klick); Zoom mit <strong>Strg+Mausrad</strong>.</li><li><strong>ACME</strong>: die Speicherkarte folgt dem ACME-Build.</li></ul><p>Fragen, Ideen oder Fehler: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.6.4",
+    eyebrow: "Nieuw in 2.6.5",
     title: "Welkom bij Visual Assembler",
-    body: `<ul><li><strong>ACME-modus</strong>: ACME 0.97 bouwt de Expert-broncode (Settings → General → Assembler mode); Disassembly / Monitor, cycli, tips en de VICE Monitor volgen de ACME-uitvoer.</li><li><strong>Betere Kick-import</strong>: <code>.text</code> + <code>.encoding</code>, <code>.label x = * + 1</code>, <code>.abs</code> / <code>.zp</code>; Restore64-bronnen bouwen byte voor byte zoals met KickAssembler.</li><li><strong>Uitvoeren</strong>: ook programma's die onder de BASIC-regel laden, starten.</li><li><strong>SID-editor</strong>: een LCD (positie, patroon, rij, tijd), een instrumentknop op VA-VK.</li><li><strong>Ctrl+N</strong>: nieuw tabblad; de instellingen in drie tabbladen.</li></ul><p>Vragen, ideeën of bugs: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>KickAssembler-projecten</strong>: Menu → Program → Import Kick project… — de hele bronboom (<code>#import</code>, <code>.import binary</code>) in één project; VA bouwt hem byte voor byte zoals KickAssembler.</li><li><strong>Kick-compatibel-schakelaar</strong> in het projectpaneel (<code>{K}</code>): <code>.for</code>, <code>.if</code>, <code>.function</code>, <code>.pseudocommand</code>, <code>!</code>-labels, scopes en namespaces naast de VA-macro's.</li><li><strong>Build Info</strong> in kolommen.</li><li><strong>C64-kleurenpalet</strong> (Settings → General → Editors, standaard Colodore); <strong>kleurkiezer</strong> in de Hi-Res-, Sprite-, Character- en Charset Canvas-editor (Alt+klik); zoom met <strong>Ctrl+scrollwiel</strong>.</li><li><strong>ACME</strong>: de geheugenkaart volgt de ACME-build.</li></ul><p>Vragen, ideeën of bugs: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.6.4",
+    eyebrow: "Nowość w 2.6.5",
     title: "Witamy w Visual Assembler",
-    body: `<ul><li><strong>Tryb ACME</strong>: kod w trybie Eksperta kompiluje ACME 0.97 (Settings → General → Assembler mode); Disassembly / Monitor, cykle, wskazówki i VICE Monitor korzystają z wyniku ACME.</li><li><strong>Lepszy import Kick</strong>: <code>.text</code> + <code>.encoding</code>, <code>.label x = * + 1</code>, <code>.abs</code> / <code>.zp</code>; źródła z Restore64 kompilują się bajt w bajt jak w KickAssemblerze.</li><li><strong>Uruchamianie</strong>: startują też programy ładowane poniżej linii BASIC.</li><li><strong>Edytor SID</strong>: wyświetlacz LCD (pozycja, wzorzec, wiersz, czas), pokrętło instrumentu w VA-VK.</li><li><strong>Ctrl+N</strong>: nowa karta; ustawienia na trzech kartach.</li></ul><p>Pytania, pomysły lub błędy: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Projekty KickAssemblera</strong>: Menu → Program → Import Kick project… — całe drzewo źródeł (<code>#import</code>, <code>.import binary</code>) w jednym projekcie; VA kompiluje je bajt w bajt jak KickAssembler.</li><li><strong>Przełącznik zgodności z Kick</strong> w panelu projektu (<code>{K}</code>): <code>.for</code>, <code>.if</code>, <code>.function</code>, <code>.pseudocommand</code>, etykiety <code>!</code>, zakresy i przestrzenie nazw obok makr VA.</li><li><strong>Build Info</strong> w kolumnach.</li><li><strong>Paleta kolorów C64</strong> (Settings → General → Editors, domyślnie Colodore); <strong>próbnik koloru</strong> w edytorach Hi-Res, Sprite, Character i Charset Canvas (Alt+klik); powiększanie <strong>Ctrl+kółko</strong>.</li><li><strong>ACME</strong>: mapa pamięci korzysta z kompilacji ACME.</li></ul><p>Pytania, pomysły lub błędy: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.6.4",
+    eyebrow: "Novità nella 2.6.5",
     title: "Benvenuto in Visual Assembler",
-    body: `<ul><li><strong>Modalità ACME</strong>: ACME 0.97 compila il sorgente Esperto (Settings → General → Assembler mode); Disassembly / Monitor, cicli, suggerimenti e VICE Monitor seguono l'output di ACME.</li><li><strong>Importazione Kick migliore</strong>: <code>.text</code> + <code>.encoding</code>, <code>.label x = * + 1</code>, <code>.abs</code> / <code>.zp</code>; i sorgenti di Restore64 si compilano byte per byte come con KickAssembler.</li><li><strong>Esecuzione</strong>: partono anche i programmi caricati sotto la riga BASIC.</li><li><strong>Editor SID</strong>: un display LCD (posizione, pattern, riga, tempo), una manopola dello strumento su VA-VK.</li><li><strong>Ctrl+N</strong>: nuova scheda; le impostazioni in tre schede.</li></ul><p>Domande, idee o bug: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Progetti KickAssembler</strong>: Menu → Program → Import Kick project… — l'intero albero dei sorgenti (<code>#import</code>, <code>.import binary</code>) in un progetto; VA lo compila byte per byte come KickAssembler.</li><li><strong>Interruttore compatibile Kick</strong> nel pannello del progetto (<code>{K}</code>): <code>.for</code>, <code>.if</code>, <code>.function</code>, <code>.pseudocommand</code>, etichette <code>!</code>, scope e namespace accanto alle macro di VA.</li><li><strong>Build Info</strong> in colonne.</li><li><strong>Tavolozza C64</strong> (Settings → General → Editors, Colodore predefinita); <strong>contagocce</strong> negli editor Hi-Res, Sprite, Character e Charset Canvas (Alt+clic); zoom con <strong>Ctrl+rotellina</strong>.</li><li><strong>ACME</strong>: la mappa di memoria segue la compilazione ACME.</li></ul><p>Domande, idee o bug: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -297,18 +297,24 @@ const mnemonicLibrary = {
     { mnemonic: "ORG", description: "Cimzestarto atvaltasa (*= direktiva). A kovetkező blokkokat az itt megadott cimtol forditja.", modes: ["implied"], isOrgMacro: true }
   ],
   Illegalis: [
-    { mnemonic: "LAX", description: "A es X regiszter egyideju betoltese (illegalis: LDA+LDX kombinacio).", modes: ["immediate", "zeroPage", "absolute"] },
-    { mnemonic: "SAX", description: "A es X regiszter AND ertekenek kiirasa memoriacimre (illegalis).", modes: ["zeroPage", "absolute"] },
-    { mnemonic: "DCP", description: "Memoria dekrementum majd osszehasonlitas az akkumulatorral (illegalis: DEC+CMP).", modes: ["zeroPage", "absolute", "absoluteX"] },
-    { mnemonic: "ISC", description: "Memoria inkrementum majd kivonas az akkumulatorbol (illegalis: INC+SBC).", modes: ["zeroPage", "absolute", "absoluteX"] },
-    { mnemonic: "SLO", description: "Memoria balra tolas majd logikai VAGY az akkumulatorral (illegalis: ASL+ORA).", modes: ["zeroPage", "absolute", "absoluteX"] },
-    { mnemonic: "RLA", description: "Memoria balra forgatas majd logikai ES az akkumulatorral (illegalis: ROL+AND).", modes: ["zeroPage", "absolute", "absoluteX"] },
-    { mnemonic: "SRE", description: "Memoria jobbra tolas majd kizaro VAGY az akkumulatorral (illegalis: LSR+EOR).", modes: ["zeroPage", "absolute", "absoluteX"] },
-    { mnemonic: "RRA", description: "Memoria jobbra forgatas majd osszeadas carry-vel (illegalis: ROR+ADC).", modes: ["zeroPage", "absolute", "absoluteX"] },
+    { mnemonic: "LAX", description: "A es X regiszter egyideju betoltese (illegalis: LDA+LDX kombinacio).", modes: ["immediate", "zeroPage", "zeroPageY", "indirectX", "indirectY", "absolute", "absoluteY"] },
+    { mnemonic: "SAX", description: "A es X regiszter AND ertekenek kiirasa memoriacimre (illegalis).", modes: ["zeroPage", "zeroPageY", "indirectX", "absolute"] },
+    { mnemonic: "DCP", description: "Memoria dekrementum majd osszehasonlitas az akkumulatorral (illegalis: DEC+CMP).", modes: ["zeroPage", "zeroPageX", "indirectX", "indirectY", "absolute", "absoluteX", "absoluteY"] },
+    { mnemonic: "ISC", description: "Memoria inkrementum majd kivonas az akkumulatorbol (illegalis: INC+SBC).", modes: ["zeroPage", "zeroPageX", "indirectX", "indirectY", "absolute", "absoluteX", "absoluteY"] },
+    { mnemonic: "SLO", description: "Memoria balra tolas majd logikai VAGY az akkumulatorral (illegalis: ASL+ORA).", modes: ["zeroPage", "zeroPageX", "indirectX", "indirectY", "absolute", "absoluteX", "absoluteY"] },
+    { mnemonic: "RLA", description: "Memoria balra forgatas majd logikai ES az akkumulatorral (illegalis: ROL+AND).", modes: ["zeroPage", "zeroPageX", "indirectX", "indirectY", "absolute", "absoluteX", "absoluteY"] },
+    { mnemonic: "SRE", description: "Memoria jobbra tolas majd kizaro VAGY az akkumulatorral (illegalis: LSR+EOR).", modes: ["zeroPage", "zeroPageX", "indirectX", "indirectY", "absolute", "absoluteX", "absoluteY"] },
+    { mnemonic: "RRA", description: "Memoria jobbra forgatas majd osszeadas carry-vel (illegalis: ROR+ADC).", modes: ["zeroPage", "zeroPageX", "indirectX", "indirectY", "absolute", "absoluteX", "absoluteY"] },
     { mnemonic: "ANC", description: "AND azonnali ertekkel, carry beallitasa a 7. bitbol (illegalis).", modes: ["immediate"] },
     { mnemonic: "ALR", description: "AND majd jobbra tolas egy lepesben (illegalis: AND+LSR).", modes: ["immediate"] },
     { mnemonic: "ARR", description: "AND majd jobbra forgatas egy lepesben (illegalis: AND+ROR).", modes: ["immediate"] },
-    { mnemonic: "AXS", description: "A es X AND ertekebol azonnali kivonas, eredmeny X-be (illegalis: SBX).", modes: ["immediate"] }
+    { mnemonic: "AXS", description: "A es X AND ertekebol azonnali kivonas, eredmeny X-be (illegalis: SBX).", modes: ["immediate"] },
+    { mnemonic: "SHA", description: "A AND X AND (cim felso bajtja + 1) kiirasa (illegalis, instabil; mas neve AHX).", modes: ["indirectY", "absoluteY"] },
+    { mnemonic: "SHX", description: "X AND (cim felso bajtja + 1) kiirasa (illegalis, instabil).", modes: ["absoluteY"] },
+    { mnemonic: "SHY", description: "Y AND (cim felso bajtja + 1) kiirasa (illegalis, instabil).", modes: ["absoluteX"] },
+    { mnemonic: "TAS", description: "SP = A AND X, majd SP AND (cim felso bajtja + 1) kiirasa (illegalis, instabil; mas neve SHS).", modes: ["absoluteY"] },
+    { mnemonic: "LAS", description: "Memoria AND SP az A-ba, X-be es SP-be (illegalis; mas neve LAE).", modes: ["absoluteY"] },
+    { mnemonic: "XAA", description: "A = (A OR konstans) AND X AND azonnali ertek (illegalis, instabil; mas neve ANE).", modes: ["immediate"] }
   ],
   Szerkezet: [
     { mnemonic: "LABEL", description: "Nevvel ellatott cimke a kodban, ugrasi celhoz.", modes: ["implied"], isLabel: true },
@@ -1011,6 +1017,12 @@ const mnemonicExpertHints = {
   ALR: mnemonicSyntax("alr", "#$80"),
   ARR: mnemonicSyntax("arr", "#$80"),
   AXS: mnemonicSyntax("axs", "#$10"),
+  SHA: mnemonicSyntax("sha", "$C000,Y"),
+  SHX: mnemonicSyntax("shx", "$C000,Y"),
+  SHY: mnemonicSyntax("shy", "$C000,X"),
+  TAS: mnemonicSyntax("tas", "$C000,Y"),
+  LAS: mnemonicSyntax("las", "$C000,Y"),
+  XAA: mnemonicSyntax("xaa", "#$00"),
   LABEL: `my_label:`,
   COMMENT: `; note`,
   REGION: `.region Print`,
@@ -1161,21 +1173,35 @@ const opcodeMap = {
   SEC: { implied: 0x38 },
   SED: { implied: 0xF8 },
   SEI: { implied: 0x78 },
-  NOP: { implied: 0xEA },
+  NOP: { implied: 0xEA, immediate: 0x80, zeroPage: 0x04, zeroPageX: 0x14, absolute: 0x0C, absoluteX: 0x1C },
   BRK: { implied: 0x00 },
-  LAX: { immediate: 0xAB, zeroPage: 0xA7, absolute: 0xAF },
-  SAX: { zeroPage: 0x87, absolute: 0x8F },
-  DCP: { zeroPage: 0xC7, absolute: 0xCF, absoluteX: 0xDF },
-  ISC: { zeroPage: 0xE7, absolute: 0xEF, absoluteX: 0xFF },
-  SLO: { zeroPage: 0x07, absolute: 0x0F, absoluteX: 0x1F },
-  RLA: { zeroPage: 0x27, absolute: 0x2F, absoluteX: 0x3F },
-  SRE: { zeroPage: 0x47, absolute: 0x4F, absoluteX: 0x5F },
-  RRA: { zeroPage: 0x67, absolute: 0x6F, absoluteX: 0x7F },
+  LAX: { immediate: 0xAB, zeroPage: 0xA7, zeroPageY: 0xB7, indirectX: 0xA3, indirectY: 0xB3, absolute: 0xAF, absoluteY: 0xBF },
+  SAX: { zeroPage: 0x87, zeroPageY: 0x97, indirectX: 0x83, absolute: 0x8F },
+  DCP: { zeroPage: 0xC7, zeroPageX: 0xD7, indirectX: 0xC3, indirectY: 0xD3, absolute: 0xCF, absoluteX: 0xDF, absoluteY: 0xDB },
+  ISC: { zeroPage: 0xE7, zeroPageX: 0xF7, indirectX: 0xE3, indirectY: 0xF3, absolute: 0xEF, absoluteX: 0xFF, absoluteY: 0xFB },
+  SLO: { zeroPage: 0x07, zeroPageX: 0x17, indirectX: 0x03, indirectY: 0x13, absolute: 0x0F, absoluteX: 0x1F, absoluteY: 0x1B },
+  RLA: { zeroPage: 0x27, zeroPageX: 0x37, indirectX: 0x23, indirectY: 0x33, absolute: 0x2F, absoluteX: 0x3F, absoluteY: 0x3B },
+  SRE: { zeroPage: 0x47, zeroPageX: 0x57, indirectX: 0x43, indirectY: 0x53, absolute: 0x4F, absoluteX: 0x5F, absoluteY: 0x5B },
+  RRA: { zeroPage: 0x67, zeroPageX: 0x77, indirectX: 0x63, indirectY: 0x73, absolute: 0x6F, absoluteX: 0x7F, absoluteY: 0x7B },
   ANC: { immediate: 0x0B },
   ALR: { immediate: 0x4B },
   ARR: { immediate: 0x6B },
-  AXS: { immediate: 0xCB }
+  AXS: { immediate: 0xCB },
+  SHA: { indirectY: 0x93, absoluteY: 0x9F },
+  SHX: { absoluteY: 0x9E },
+  SHY: { absoluteX: 0x9C },
+  TAS: { absoluteY: 0x9B },
+  LAS: { absoluteY: 0xBB },
+  XAA: { immediate: 0x8B }
 };
+
+// Other names of the illegal opcodes (KickAssembler, VICE, 64tass); the disassembler
+// shows the first name.
+const _OPCODE_ALIASES = {
+  AHX: "SHA", SHS: "TAS", LAE: "LAS", LDS: "LAS", ASR: "ALR", SBX: "AXS",
+  DCM: "DCP", INS: "ISC", ISB: "ISC", ANE: "XAA", LXA: "LAX"
+};
+for (const [alias, name] of Object.entries(_OPCODE_ALIASES)) opcodeMap[alias] = opcodeMap[name];
 
 const kernalRoutines = [
   { addr: "$FFD2", name: "CHROUT",  hu: "Karakter kiirasa kepernyore/eszkozre (A=kar)",        en: "Print character to screen/device (A=char)",         es: "Imprime carácter en pantalla o dispositivo (A=carácter)",  de: "Zeichen auf Bildschirm/Gerät ausgeben (A=Zeichen)",    nl: "Karakter afdrukken naar scherm/apparaat (A=karakter)" },
@@ -1842,6 +1868,8 @@ function initPalette() {
   document.getElementById("expert-project-save-btn")?.addEventListener("click", _expertSaveProject);
   document.getElementById("expert-project-add-btn")?.addEventListener("click",  _expertAddProjMember);
   document.getElementById("expert-project-add-folder-btn")?.addEventListener("click", _expertAddProjFolder);
+  document.getElementById("expert-project-kick-btn")?.addEventListener("click", _kickToggleProject);
+  setupProjectSettings();
 
   expertEditor?.addEventListener("beforeinput", (e) => {
     const displaySelStart = expertEditor.selectionStart ?? 0;
@@ -2295,6 +2323,10 @@ function initPalette() {
     document.querySelector(".control-menu")?.removeAttribute("open");
     importAsmFile();
   });
+  document.getElementById("import-kick-project")?.addEventListener("click", () => {
+    document.querySelector(".control-menu")?.removeAttribute("open");
+    importKickProject();
+  });
   copyAsmButton?.addEventListener("click", () => {
     document.querySelector(".control-menu")?.removeAttribute("open");
     copyAsmToClipboard();
@@ -2507,7 +2539,8 @@ function setupDraggableEditorDialogs() {
     ["project-snapshot-dialog", ".project-snapshot-hdr"],
     ["support-dialog", ".support-hdr"],
     ["tut-editor-dialog", ".te-hdr"],
-    ["sid-viz-dialog", ".sid-viz-hdr"]
+    ["sid-viz-dialog", ".sid-viz-hdr"],
+    ["project-settings-dialog", ".ps-hdr"]
   ];
   dialogs.forEach(function(entry) {
     const dialogId = entry[0];
@@ -3558,6 +3591,25 @@ function applyTranslations() {
       runModeArrow.removeAttribute("title");
     }
     setText("#import-asm", t("importAsm"));
+    setText("#import-kick-project", t("importKickProject"));
+    setText("#menu-project-settings", t("projectSettings"));
+    document.getElementById("expert-project-settings-btn")?.setAttribute("aria-label", t("projectSettings"));
+    setText("#ps-title", t("projectSettings").replace(/…$/, ""));
+    setText("#ps-section-project", t("psSectionProject"));
+    setText("#ps-section-build", t("psAssembler"));
+    setText("#ps-name-label", t("psName"));
+    setText("#ps-path-label", t("psPath"));
+    setText("#ps-startup-label", t("psStartup"));
+    setText("#ps-assembler-label", t("psAssembler"));
+    setText("#ps-kick-label", t("psKick"));
+    setText("#ps-defines-label", t("psDefines"));
+    setText("#ps-vars-label", t("psVars"));
+    setText("#ps-vars-hint", t("psVarsHint"));
+    setText("#ps-files-label", t("psFiles"));
+    setText("#ps-cancel", t("cancel"));
+    setText("#ps-save", t("psSave"));
+    _kickSyncProjectButton();
+    document.getElementById("import-kick-project")?.setAttribute("aria-label", t("importKickProjectTip"));
     setText("#copy-asm", t("copyAsm"));
     setText("#save-project", t("saveProject"));
     document.getElementById("save-project")?.setAttribute("aria-label", t("saveProjectTip"));
@@ -3876,6 +3928,7 @@ function _applyEditorTranslations() {
   setAttr('.ce-tool-btn[data-ce-tool="rect"]', t("hgToolRect"));
   setAttr('.ce-tool-btn[data-ce-tool="fillrect"]', t("hgToolFillRect"));
   setAttr('.ce-tool-btn[data-ce-tool="fill"]', t("hgToolFill"));
+  setAttr('.ce-tool-btn[data-ce-tool="picker"]', t("hgToolPicker"));
   setAttr("#ce-rotr", t("seRotateCW"));
   setAttr("#ce-rotl", t("seRotateCCW"));
   setText("#ce-tile-label", t("ceTile"));
@@ -3920,6 +3973,7 @@ function _applyEditorTranslations() {
   setAttr('#charset-canvas-dialog [data-cc-tool="fill"]', t("meFill"));
   setAttr('#charset-canvas-dialog [data-cc-tool="cellmode"]', t("ccCellMode"));
   setAttr('#charset-canvas-dialog [data-cc-tool="cellbg"]', t("ccCellBg"));
+  setAttr('#charset-canvas-dialog [data-cc-tool="picker"]', t("hgToolPicker"));
   setText("#cc-status", t("ccStatus"));
   setAttr("#cc-undo", t("hgUndo"));
   setAttr("#cc-redo", t("hgRedo"));
@@ -4060,6 +4114,7 @@ function _applyEditorTranslations() {
   setAttr('.hg-tool[data-tool="filloval"]', t("hgToolFillOval"));
   setAttr('.hg-tool[data-tool="fill"]', t("hgToolFill"));
   setAttr('.hg-tool[data-tool="cellpaper"]', t("hgToolCellPaper"));
+  setAttr('.hg-tool[data-tool="picker"]', t("hgToolPicker"));
   setAttr('.hg-tool[data-tool="select"]', t("hgToolSelect"));
   setAttr("#hg-undo", t("hgUndo"));
   setAttr("#hg-redo", t("hgRedo"));
@@ -4086,6 +4141,7 @@ function _applyEditorTranslations() {
   setAttr('.se-tool[data-tool="fill"]', t("seToolFill"));
   setAttr('.se-tool[data-tool="select"]', t("seToolSelect"));
   setAttr('.se-tool[data-tool="hitbox"]', t("seToolHitbox"));
+  setAttr('.se-tool[data-tool="picker"]', t("hgToolPicker"));
   setAttr("#se-rotr", t("seRotateCW"));
   setAttr("#se-rotl", t("seRotateCCW"));
   const seOvSpan = document.querySelector("#se-overlay + span");
@@ -4178,6 +4234,10 @@ function _applyEditorTranslations() {
   setText("#sid-preview-engine-lbl", t("sidPreviewEngine"));
   setText("#sid-preview-model-lbl", t("sidPreviewModel"));
   setText("#sid-lcd-color-lbl", t("sidLcdColor"));
+  setText("#editor-settings-label", t("editorSettings"));
+  setText("#editor-palette-label", t("editorPalette"));
+  setText("#editor-palette-note", t("editorPaletteNote"));
+  setText('#editor-palette option[value="colodore"]', t("editorPaletteColodore"));
   const sidLcdColor = document.getElementById("sid-lcd-color");
   if (sidLcdColor) {
     if (sidLcdColor.options[0]) sidLcdColor.options[0].textContent = t("sidLcdColorGreen");
@@ -10128,6 +10188,27 @@ function _expertAcUpdate() {
       return;
     }
   }
+  // Kick project: Kick directives / preprocessor commands, script functions
+  if (_kickHighlightActive()) {
+    const mKick = lineText.match(/^(?:.*[;{]\s*|\s*(?:!?[A-Za-z_]\w*:\s*)?)([.#][A-Za-z]*)$/);
+    if (mKick) {
+      const table = mKick[1][0] === "#" ? _KICK_PREPROCESSOR : _KICK_DIRECTIVES;
+      const typed = mKick[1].toLowerCase();
+      const matches = Object.keys(table).filter(d => d.startsWith(typed));
+      if (!matches.length) { _expertAcHide(); return; }
+      _expertAcShowList(matches.map(d => ({ value: d, label: d, desc: table[d], kind: "directive" })), ta, pos);
+      return;
+    }
+    const mFn = lineText.match(/(?:[=(,+\-*\/<>!&|]\s*|^\s*)([A-Za-z]{2,})$/);
+    if (mFn && !/^\s*[A-Za-z]+$/.test(lineText)) {
+      const typed = mFn[1].toLowerCase();
+      const matches = _kickFunctionNames().filter(f => f.toLowerCase().startsWith(typed) && f.toLowerCase() !== typed).sort();
+      if (matches.length) {
+        _expertAcShowList(matches.map(f => ({ value: f, label: f + "()", desc: "KickAssembler", kind: "directive" })), ta, pos);
+        return;
+      }
+    }
+  }
   const mDir = lineText.match(/^\s*(\.\w*)$/);
   if (mDir && assemblerSyntax === "acme") { _expertAcHide(); return; }
   if (mDir) {
@@ -10461,7 +10542,7 @@ async function importAsmFile() {
 
 // ── Build info dialog ────────────────────────────────────────────────────────
 
-function showBuildInfoDialog() {
+async function showBuildInfoDialog() {
   const buildInfoDialog  = document.getElementById("build-info-dialog");
   const buildInfoContent = document.getElementById("build-info-content");
   const buildInfoTitle   = document.getElementById("build-info-title");
@@ -10513,8 +10594,33 @@ function showBuildInfoDialog() {
     return;
   }
 
+  // A Kick project: the preprocessed tree (its own errors with file:line).
+  const kick = await _kickPrepare();
+  // name / value pairs in columns; a stat row for the summary
+  const makeGrid = (label, items) => {
+    if (!items.length) return "";
+    return `
+      <section class="build-info-section">
+        <div class="build-info-section-label">${label} <span class="build-info-count">${items.length}</span></div>
+        <div class="build-info-grid">${items.map(([k, v]) => `<div class="build-info-item"><span class="build-info-item-key" title="${_escHtml(k)}">${_escHtml(k)}</span><span class="build-info-item-val">${_escHtml(String(v))}</span></div>`).join("")}</div>
+      </section>`;
+  };
+  const makeStats = (stats) => `<div class="build-info-stats">${stats.map(([k, v]) => `<div class="build-info-stat"><span class="build-info-stat-key">${k}</span><span class="build-info-stat-val">${v}</span></div>`).join("")}</div>`;
+  const makeList = (label, lines, isError) => `
+      <section class="build-info-section">
+        <div class="build-info-section-label">${label} <span class="build-info-count">${lines.length}</span></div>
+        <ul class="build-info-list${isError ? " build-info-list--err" : ""}">${lines.map(l => `<li>${_escHtml(l)}</li>`).join("")}</ul>
+      </section>`;
+  if (kick && !kick.ok) {
+    buildInfoContent.innerHTML = makeList(t("buildInfoErrors"), kick.errors.map(e => e.text), true);
+    buildInfoDialog.showModal();
+    return;
+  }
+
   let blocks;
-  if (expertMode && expertEditor) {
+  if (kick) {
+    blocks = kick.program;
+  } else if (expertMode && expertEditor) {
     blocks = _expertBuildProgram();
   } else {
     blocks = program;
@@ -10523,6 +10629,8 @@ function showBuildInfoDialog() {
   const savedUserMacros = userMacros;
   program = blocks;
   parseUserMacros();
+  // Kick: the VA labels of inner scopes read as scope.label again
+  const kickName = (name) => (kick ? name.replace(/^__/, "").replace(/__/g, ".").replace(/\.$/, "") : name);
 
   let infoHtml = "";
   try {
@@ -10548,9 +10656,26 @@ function showBuildInfoDialog() {
       if (line.conditionallySkipped) continue;
       if (line.block.isLabel || line.block.isComment || line.block.isIncludeMacro) continue;
       if (line.block._isSavedAddress || line.block._isRestoreAddress || line.block.isOrgMacro) continue;
-      if (line.block.validationError) { compileErrors.push(line.block.validationError); continue; }
+      // Kick: the file:line of the statement
+      const origin = kick && typeof line.block._srcLine === "number" ? kick.origins[line.block._srcLine] : null;
+      const where = origin ? `${String(origin.file).split("/").pop()}:${origin.line}: ` : "";
+      if (line.block.validationError) { compileErrors.push(where + line.block.validationError); continue; }
       const result = compileLineBytes(line, labels);
-      if (!result.ok) compileErrors.push(result.error);
+      if (!result.ok) compileErrors.push(where + result.error);
+    }
+
+    // Segments: the contiguous byte ranges, by address
+    const ranges = [];
+    for (const line of layout.lines) {
+      if (line.conditionallySkipped || !(line.size > 0)) continue;
+      ranges.push([line.address, line.address + line.size]);
+    }
+    ranges.sort((a, b) => a[0] - b[0]);
+    const segments = [];
+    for (const [a, b] of ranges) {
+      const last = segments[segments.length - 1];
+      if (last && a <= last[1]) last[1] = Math.max(last[1], b);
+      else segments.push([a, b]);
     }
 
     const labelList = [];
@@ -10560,7 +10685,7 @@ function showBuildInfoDialog() {
     layout.lines.forEach(line => {
       if (line.conditionallySkipped) return;
       const b = line.block;
-      if (b.isLabel && b.labelName) labelList.push({ name: b.labelName, addr: fmtAddr(line.address) });
+      if (b.isLabel && b.labelName && !/^__ml_/.test(b.labelName)) labelList.push({ name: kickName(b.labelName), addr: fmtAddr(line.address) });
       if (b.isLoopMacro && b.loopLabel) labelList.push({ name: b.loopLabel, addr: fmtAddr(line.address + 2) });
       if (b.isConstMacro && b.constName) {
         const v = parseNumberByBase((b.rawOperand || "").replace(/^\$/, ""), b.base);
@@ -10586,27 +10711,24 @@ function showBuildInfoDialog() {
       });
     });
 
-    const summaryRows = [
-      makeRow(t("buildInfoOrigin"), fmtAddr(origin)),
-      makeRow(t("buildInfoEnd"),    maxAddr > origin ? fmtAddr(maxAddr - 1) : fmtAddr(origin)),
-      makeRow(t("buildInfoSize"),   totalBytes + " bytes"),
-    ];
-    infoHtml += makeSection(t("buildInfoTitle"), summaryRows);
+    if (kick) kick.constants.forEach(c => constList.push({ name: c.name, val: fmtAddr(c.value & 0xFFFF) }));
 
-    if (compileErrors.length) {
-      const errRows = compileErrors.map(e => makeMessageRow(e, true));
-      infoHtml += makeSection(t("buildInfoErrors"), errRows);
+    const first = segments.length ? segments[0][0] : origin;
+    const last = segments.length ? segments[segments.length - 1][1] - 1 : (maxAddr > origin ? maxAddr - 1 : origin);
+    infoHtml += makeStats([
+      [t("buildInfoOrigin"), fmtAddr(first)],
+      [t("buildInfoEnd"), fmtAddr(last)],
+      [t("buildInfoSize"), totalBytes + " bytes"],
+      [t("buildInfoSegments"), segments.length]
+    ]);
+    if (segments.length > 1) {
+      infoHtml += makeGrid(t("buildInfoSegments"), segments.map(([a, b]) => [`${fmtAddr(a)}–${fmtAddr(b - 1)}`, `${b - a} bytes`]));
     }
-    if (labelList.length) {
-      infoHtml += makeSection(t("buildInfoLabels"), labelList.map(l => makeRow(l.name, l.addr)));
-    }
-    if (constList.length) {
-      infoHtml += makeSection(t("buildInfoConsts"), constList.map(c => makeRow(c.name, c.val)));
-    }
-    if (macroCount.size) {
-      infoHtml += makeSection(t("buildInfoMacros"),
-        [...macroCount.entries()].map(([k, v]) => makeRow(k, v + "×")));
-    }
+    if (compileErrors.length) infoHtml += makeList(t("buildInfoErrors"), compileErrors, true);
+    if (kick?.messages.length) infoHtml += makeList(t("buildInfoPrint"), kick.messages, false);
+    infoHtml += makeGrid(t("buildInfoLabels"), labelList.map(l => [l.name, l.addr]));
+    infoHtml += makeGrid(t("buildInfoConsts"), constList.map(c => [c.name, c.val]));
+    infoHtml += makeGrid(t("buildInfoMacros"), [...macroCount.entries()].map(([k, v]) => [k, v + "×"]));
     if (!compileErrors.length && !labelList.length && !constList.length && !macroCount.size) {
       infoHtml += makeMessageRow(t("buildInfoNoErrors"));
     }
@@ -10679,12 +10801,119 @@ function _expertHighlightAcmeLine(raw) {
   return result + commentHtml;
 }
 
+// Is the editor showing a KickAssembler-compatible project? (asked per line: cached briefly)
+let _kickHlCache = { tab: null, proj: null, at: 0, value: false };
+function _kickHighlightActive() {
+  if (typeof assemblerSyntax !== "undefined" && assemblerSyntax === "acme") return false;
+  if (typeof _expertProjectData === "undefined" || !_expertProjectData?.kick) return false;
+  const now = Date.now();
+  const c = _kickHlCache;
+  if (c.tab === activeTabId && c.proj === _expertProjectData && now - c.at < 1000) return c.value;
+  _kickHlCache = { tab: activeTabId, proj: _expertProjectData, at: now, value: _kickProjectActive() };
+  return _kickHlCache.value;
+}
+
+// The KickAssembler directives, preprocessor commands and script functions (completion, highlighting).
+const _KICK_DIRECTIVES = {
+  ".align": "align the program counter", ".assert": "\"name\", value, expected", ".asserterror": "\"name\", expression that fails",
+  ".break": "breakpoint [\"condition\"]", ".by": "bytes", ".byte": "bytes", ".const": "constant", ".cpu": "_6502NoIllegals | _6502 | dtv | _65c02",
+  ".define": "names { … }", ".disk": "[filename=…] { [name=…, segments=…] }", ".dw": "32-bit values", ".dword": "32-bit values",
+  ".encoding": "\"screencode_mixed\" | \"petscii_upper\" …", ".enum": "{ A, B = 5 }", ".error": "stop with a message", ".errorif": "condition, message",
+  ".eval": "evaluate a script statement", ".file": "[name=…, segments=…]", ".filemodify": "plugin modifier", ".filenamespace": "namespace of the file",
+  ".fill": "count, value(i)", ".fillword": "count, word(i)", ".for": "(var i=0; i<n; i++) { … }", ".function": "name(params) { .return … }",
+  ".if": "(condition) { … } else { … }", ".import": "binary | c64 | text \"file\"", ".importonce": "import the file only once",
+  ".label": "label = value", ".lohifill": "count, value(i) — name.lo / name.hi", ".macro": "Name(params) { … }", ".memblock": "\"name\"",
+  ".modify": "plugin modifier { … }", ".namespace": "name { … }", ".pc": "= address", ".print": "message at assembling", ".printnow": "message at once",
+  ".pseudocommand": "name a : b { … }", ".pseudopc": "address { … }", ".return": "value of a .function", ".segment": "Name [parameters] \"block\"",
+  ".segmentdef": "Name [start, min, max, fill, outPrg …]", ".segmentout": "[segments=…]", ".struct": "Name { a, b }", ".te": "text", ".text": "\"text\"",
+  ".var": "variable", ".watch": "address[, end][, \"store\"]", ".while": "(condition) { … }", ".wo": "16-bit values", ".word": "16-bit values"
+};
+const _KICK_PREPROCESSOR = {
+  "#import": "\"file\"", "#importonce": "this file once", "#importif": "SYMBOL \"file\"", "#define": "SYMBOL", "#undef": "SYMBOL",
+  "#if": "SYMBOL && !OTHER", "#elif": "condition", "#else": "", "#endif": ""
+};
+// script functions and constructors (the builtins are defined further down: read lazily)
+const _kickFunctionNames = () => [...new Set([...Object.keys(_KICK_BUILTINS),
+  "LoadBinary", "LoadSid", "LoadPicture", "List", "Hashtable", "Vector", "Matrix", "getNamespace", "BasicUpstart", "BasicUpstart2", "CmdArgument", "toIntString"])];
+
+function _expertHighlightKickLine(raw) {
+  const esc = (t) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  // the comment: // or /* … */, or a ; that does not separate statements
+  let quote = "";
+  let commentIdx = -1;
+  let depth = 0;
+  for (let i = 0; i < raw.length; i++) {
+    const ch = raw[i];
+    if (ch === "(" && !quote) depth++;
+    else if (ch === ")" && !quote && depth > 0) depth--;
+    if (quote) { if (ch === "\\") i++; else if (ch === quote) quote = ""; continue; }
+    if (ch === '"' || ch === "'") { quote = ch; continue; }
+    if (ch === "/" && (raw[i + 1] === "/" || raw[i + 1] === "*")) { commentIdx = i; break; }
+    if (ch === ";" && depth === 0 && !_kickSemicolonSeparates(raw.slice(0, i), raw.slice(i + 1))) { commentIdx = i; break; }
+  }
+  const commentHtml = commentIdx >= 0 ? `<span class="hl-comment">${esc(raw.slice(commentIdx))}</span>` : "";
+  const code = commentIdx >= 0 ? raw.slice(0, commentIdx) : raw;
+  if (!code.trim()) return esc(code) + commentHtml;
+
+  const functions = new Set(_kickFunctionNames());
+  const isMnem = (word) => {
+    const up = word.toUpperCase();
+    return !!(opcodeMap[up] || Object.values(_KICK_CPU_OPS).some(t => t[up]));
+  };
+  const header = code.match(/^\s*\.(macro|function|pseudocommand)\s+@?([A-Za-z_]\w*)/i);
+  const braceIdx = code.indexOf("{");
+  const TOKEN_RE = /("(?:[^"\\]|\\.)*"?|'(?:[^'\\]|\\.)*'?)|(#[A-Za-z]+)|(![A-Za-z_]\w*[+-]*|![+-]+|!(?=:))|(\$[0-9A-Fa-f]+|%[01]+|\d+(?:\.\d+)?)|(\.[A-Za-z_]\w*)|(@?[A-Za-z_]\w*)|([;{}])/g;
+  let out = "";
+  let last = 0;
+  let stmtStart = true;   // a mnemonic or a directive can come here
+  let m;
+  while ((m = TOKEN_RE.exec(code)) !== null) {
+    out += esc(code.slice(last, m.index));
+    last = m.index + m[0].length;
+    const [full, str, pre, multi, num, dot, ident, sep] = m;
+    const next = code.slice(last).match(/^\s*(.)/)?.[1] || "";
+    let cls = "";
+    if (str) cls = "hl-string";
+    else if (pre) cls = Object.prototype.hasOwnProperty.call(_KICK_PREPROCESSOR, full.toLowerCase()) ? "hl-directive" : "";
+    else if (multi) cls = "hl-label";
+    else if (num) cls = "hl-number";
+    else if (dot) {
+      // .z / .abs after a mnemonic, a.b label paths and methods stay plain
+      if (stmtStart && Object.prototype.hasOwnProperty.call(_KICK_DIRECTIVES, full.toLowerCase())) cls = "hl-directive";
+      else if (/^\.(?:z|zp|a|abs|im|i)$/i.test(full) && !stmtStart) cls = "hl-mnem";
+    } else if (ident) {
+      const word = ident.replace(/^@/, "");
+      if (header && word === header[2]) cls = "hl-macro";
+      else if (header && (braceIdx < 0 || m.index < braceIdx) && m.index > header.index + header[0].length) cls = "hl-macro-param";
+      else if (next === ":" && code[last] !== ":" && stmtStart) cls = "hl-label";
+      else if (stmtStart && isMnem(word)) cls = "hl-mnem";
+      else if (next === "(" && (functions.has(word) || /^[A-Z]/.test(word))) cls = "hl-macro";
+      else if (Object.prototype.hasOwnProperty.call(_KICK_CONSTS, word) && typeof _KICK_CONSTS[word] === "number") cls = "hl-number";
+    }
+    // where the next statement starts
+    if (sep) stmtStart = sep === ";" || sep === "{" || sep === "}";
+    else if (cls === "hl-label" && next === ":") stmtStart = true;
+    else stmtStart = false;
+    if (cls === "hl-label" && next === ":") {
+      out += `<span class="${cls}">${esc(full)}</span>`;
+      const colon = code.slice(last).match(/^\s*:/)[0];
+      out += esc(colon);
+      last += colon.length;
+      continue;
+    }
+    out += cls ? `<span class="${cls}">${esc(full)}</span>` : esc(full);
+  }
+  out += esc(code.slice(last));
+  return out + commentHtml;
+}
+
 function _expertHighlightLine(raw) {
   function esc(s) {
     return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
   if (raw === "") return "";
   if (typeof assemblerSyntax !== "undefined" && assemblerSyntax === "acme") return _expertHighlightAcmeLine(raw);
+  if (typeof _kickHighlightActive === "function" && _kickHighlightActive()) return _expertHighlightKickLine(raw);
 
   // Split off comment (ignore ';' and '//' inside strings)
   let inStr = false;
@@ -11636,6 +11865,27 @@ function _expertZoom(delta) {
     _expertApplyHighlight();
     saveUiSettings();
   }, 30);
+}
+
+// Szerkesztő-vászon zoom csúszkával: Ctrl(/Cmd)+görgő a csúszkát lépteti (az "input"
+// eseményét kiváltva), és a kurzor alatti pont a helyén marad a görgethető wrap-ben.
+function _bindCtrlWheelRange(wrap, range) {
+  if (!wrap || !range) return;
+  _bindCtrlWheelZoom(wrap, (dir) => {
+    const step = Number(range.step) || 1;
+    const old = Number(range.value);
+    const next = Math.max(Number(range.min), Math.min(Number(range.max), old + dir * step));
+    if (next === old) return;
+    const e = _bindCtrlWheelRange.last;
+    const r = wrap.getBoundingClientRect();
+    const cx = e ? e.clientX - r.left : wrap.clientWidth / 2, cy = e ? e.clientY - r.top : wrap.clientHeight / 2;
+    const fx = (wrap.scrollLeft + cx) / Math.max(1, wrap.scrollWidth), fy = (wrap.scrollTop + cy) / Math.max(1, wrap.scrollHeight);
+    range.value = String(next);
+    range.dispatchEvent(new Event("input", { bubbles: true }));
+    wrap.scrollLeft = fx * wrap.scrollWidth - cx;
+    wrap.scrollTop = fy * wrap.scrollHeight - cy;
+  });
+  wrap.addEventListener("wheel", (e) => { _bindCtrlWheelRange.last = e; }, { capture: true, passive: true });
 }
 
 // Ctrl(/Cmd)+görgő → zoomFn(±1). Touchpad pinch sok apró deltát küld, ezért
@@ -13097,7 +13347,7 @@ function parseExpertText(text) {
     const dotInvokeM = line.match(/^\.(invoke|call)\s+([A-Za-z_][A-Za-z0-9_]*)(?:\(([^)]*)\)|\s+(.*?))?\s*$/i);
     // `JMP ($0408)` has the same shape as a bare macro call.
     const bareInvokeCandidate = line.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*\(([^)]*)\)\s*$/i);
-    const bareInvokeM = bareInvokeCandidate && !_EXPERT_MNEM_SET.has(bareInvokeCandidate[1].toUpperCase()) ? bareInvokeCandidate : null;
+    const bareInvokeM = bareInvokeCandidate && !_EXPERT_MNEM_SET.has(bareInvokeCandidate[1].toUpperCase()) && !(typeof opcodeMap !== "undefined" && opcodeMap[bareInvokeCandidate[1].toUpperCase()]) ? bareInvokeCandidate : null;
     const invokeM = kickInvokeM || dotInvokeM || bareInvokeM;
     if (invokeM) {
       const invokeMacroName = kickInvokeM ? kickInvokeM[1] : (dotInvokeM ? dotInvokeM[2] : bareInvokeM[1]);
@@ -13721,7 +13971,14 @@ function _expertValidate() {
       : _acmePreviewMessage(), preview ? "ok" : _acmePreviewErrorCurrent() ? "error" : "");
     if (_expertDisasmVisible) _expertRenderDisasm();
     if (_expertMonitorVisible) _expertRenderMonitor();
+    renderMemoryMap();
     _acmeScheduleAutoBuild();
+    return;
+  }
+  // KickAssembler source: the whole tree is checked, not this file alone.
+  if (_kickProjectActive()) {
+    if (_expertProjectVisible) _expertRenderSymbols();
+    _kickScheduleCheck();
     return;
   }
   _expertParseTimer = setTimeout(() => {
@@ -13832,6 +14089,7 @@ const _REV_OP = (() => {
     indirectX:2, indirectY:2, relative:2, indirect:3
   };
   for (const [mnem, modes] of Object.entries(opcodeMap)) {
+    if (typeof _OPCODE_ALIASES !== "undefined" && _OPCODE_ALIASES[mnem]) continue;
     for (const [mode, oc] of Object.entries(modes)) {
       rev[oc] = { mnem, mode, size: modeSize[mode] || 1 };
     }
@@ -14010,7 +14268,9 @@ function _lintAsm(seq) {
       hints.push({ srcLine: b.srcLine, key: "lintZeroCompare", values: { op: b.mnem } });
     }
     const reg = { LDA: "A", LDX: "X", LDY: "Y" }[b.mnem];
-    if (reg && _lintSameOperand(a, b) && (a.mnem === b.mnem || a.mnem === "ST" + reg)) {
+    // a VIC / SID / CIA register reads back something else than was written ($D012, $DC0D…)
+    const io = b.bytes.length === 3 && b.mode !== "immediate" && b.bytes[2] >= 0xD0 && b.bytes[2] <= 0xDF;
+    if (reg && !io && _lintSameOperand(a, b) && (a.mnem === b.mnem || a.mnem === "ST" + reg)) {
       hints.push({ srcLine: b.srcLine, key: a.mnem === b.mnem ? "lintDuplicateLoad" : "lintReload", values: { reg } });
     }
     if (a.mnem === "PHA" && b.mnem === "PLA") push("lintPushPull");
@@ -14408,8 +14668,8 @@ function _acmePreviewMessage() {
   return _acmePreview?.tabId === activeTabId ? t("acmeBuildChanged") : t("acmeBuildFirst");
 }
 
-// A setting that changes the ACME output (BASIC SYS stub) drops the preview;
-// with the Disassembly or Monitor panel open it rebuilds.
+// A setting that changes the ACME output (BASIC SYS stub) drops the preview
+// and rebuilds it.
 function _acmeInvalidatePreview() {
   _acmePreview = null;
   _acmePreviewError = null;
@@ -14435,11 +14695,11 @@ function _acmeUpdateAnalysis() {
   if (_expertCyclesEnabled) _expertUpdateCycles();
 }
 
-// With the Disassembly or Monitor panel or the cycle gutter on, ACME mode rebuilds
-// after a typing pause like VA mode does, so they follow the source.
+// ACME mode rebuilds after a typing pause like VA mode does, so the memory strip /
+// panel (always shown) and the Disassembly / Monitor panels follow the source.
 function _acmeScheduleAutoBuild() {
   clearTimeout(_expertParseTimer);
-  if (assemblerSyntax !== "acme" || !expertMode || !(_expertDisasmVisible || _expertMonitorVisible || _expertCyclesEnabled)) return;
+  if (assemblerSyntax !== "acme" || !expertMode) return;
   if (!window.electronAPI?.buildAcmePrg || _acmePreviewCurrent() || _acmePreviewErrorCurrent()) return;
   _expertParseTimer = setTimeout(() => _acmeBuildPreview({ quiet: true }), 600);
 }
@@ -14773,8 +15033,13 @@ function _expertRenderDisasm() {
       : `<span class="asm-tok-comment">; ${_escHtml(_acmePreviewMessage())}</span>`;
     return;
   }
+  const kickProject = !ultimateBasicMode && _kickProjectActive();
+  if (kickProject && !_kickLast?.ok) {
+    expertDisasmOutput.innerHTML = `<span class="asm-tok-comment">; ${_escHtml(t("kickBuildFirst"))}</span>`;
+    return;
+  }
   try {
-    const blocks = _expertBuildProgram();
+    const blocks = kickProject ? _kickLast.program : _expertBuildProgram();
     const saved = program;
     const savedUserMacros = userMacros;
     program = blocks;
@@ -14797,15 +15062,23 @@ function _expertRenderMonitor() {
     expertMonitorOutput.textContent = preview ? _acmeMonitorText(preview) : `; ${_acmePreviewMessage()}`;
     return;
   }
+  const kickProject = !ultimateBasicMode && _kickProjectActive();
+  if (kickProject && !_kickLast?.ok) {
+    expertMonitorOutput.textContent = `; ${t("kickBuildFirst")}`;
+    return;
+  }
   try {
-    const blocks = _expertBuildProgram();
+    const blocks = kickProject ? _kickLast.program : _expertBuildProgram();
     const saved = program;
+    const savedUserMacros = userMacros;
     program = blocks;
+    parseUserMacros();
     try {
       const origin = _getDisassemblyCodeOrigin();
       expertMonitorOutput.textContent = _buildMonitorText(getProgramLayout(origin), _getGeneratedBasicStubSection());
     } finally {
       program = saved;
+      userMacros = savedUserMacros;
     }
   } catch (e) {
     expertMonitorOutput.textContent = String(e);
@@ -14999,6 +15272,7 @@ function _expertRenderProjectTree() {
   const treeEl = document.getElementById("expert-project-tree");
   if (!nameEl || !treeEl) return;
   _projUpdateSaveBtn("expert-project-save-btn", !!_expertProjectData, _expertProjectDirty);
+  _kickSyncProjectButton();
 
   if (!_expertProjectData) {
     nameEl.textContent = t("projNoProject");
@@ -15358,7 +15632,9 @@ async function _openProjectFromMenu() {
     files:       migrateNodes(proj.files),
     _projPath:   res.filePath,
     startupFile: proj.startupFile || null,
-    assemblerSyntax: _projAssemblerSyntax(proj)
+    assemblerSyntax: _projAssemblerSyntax(proj),
+    kick: proj.kick === true,
+    ..._projKickFields(proj)
   };
   _setAssemblerSyntax(_expertProjectData.assemblerSyntax);
   _expertProjectDirty = false;
@@ -15438,7 +15714,9 @@ async function _expertOpenProject() {
     name:        proj.name  || "Névtelen projekt",
     files:       migrateNodes(proj.files),
     _projPath:   res.filePath,
-    startupFile: proj.startupFile || null
+    startupFile: proj.startupFile || null,
+    kick: proj.kick === true,
+    ..._projKickFields(proj)
   };
   _expertProjectDirty = false;
   _expertRenderProjectTree();
@@ -15467,7 +15745,7 @@ async function _expertSaveProject() {
       : { type: "file", name: n.name, path: n.path });
   const cleaned = cleanNodes(_expertProjectData.files);
   _expertProjectData.assemblerSyntax = assemblerSyntax;
-  const payload = JSON.stringify({ name: _expertProjectData.name, files: cleaned, startupFile: _expertProjectData.startupFile || null, ..._projAssemblerFields(assemblerSyntax) }, null, 2);
+  const payload = JSON.stringify({ name: _expertProjectData.name, files: cleaned, startupFile: _expertProjectData.startupFile || null, ..._projAssemblerFields(assemblerSyntax), ...(_expertProjectData.kick ? { kick: true } : {}), ..._projKickFields(_expertProjectData) }, null, 2);
   const path = _expertProjectData._projPath || "";
   const res = await window.electronAPI?.saveProjFile?.(path, payload);
   if (!res || res.canceled) return;
@@ -15997,6 +16275,10 @@ async function _expertProjectOpenFile(fileEntry) {
   const normAbs = _normFilePath(absPath);
   const lowerPath = normAbs.toLowerCase();
   const isAsmSource = /\.(asm|s|a65|inc)$/.test(lowerPath);
+  if (_KICK_ASSET_RE.test(lowerPath)) {
+    _expertSetStatus(tf("projBinaryAsset", { name: fileEntry.name || absPath.split(/[/\\]/).pop() }), "ok");
+    return;
+  }
 
   // If tab for this file already open, just activate it
   const existing = tabs.find(t => _normFilePath(t.filePath) === normAbs);
@@ -17274,11 +17556,11 @@ function buildOperandPreview(modeKey, rawValue, base) {
     return { operand: value, text: value, error: "" };
   }
 
-  const numericValue = parseNumberByBase(value, base);
+  const numericValue = parseNumberByBase(_charLiteralToHex(value), base);
   if (numericValue === null) {
     // Kick-style immediate expressions like #(SCREEN_CENTER_Y+1) are valid
     // even when they cannot be reduced to a plain number at edit time.
-    if (modeKey === "immediate" && /^[A-Za-z0-9_.$%<>()+\-*/&|^\s]+$/.test(value)) {
+    if (modeKey === "immediate" && /^[A-Za-z0-9_.$%<>()+\-*/&|^~\s]+$/.test(_charLiteralToHex(value))) {
       const operand = `#${value}`;
       return { operand, text: operand, error: "" };
     }
@@ -17400,13 +17682,22 @@ function parseByteMacro(raw, base = "dec", labels = null) {
     .map((part) => part.trim())
     .filter(Boolean)
     .map((part) => {
+      part = _charLiteralToHex(part);
       const loM = part.match(/^<([A-Za-z_.][A-Za-z0-9_.]*)$/);
       if (loM) return labels ? ((( typeof labels.get === 'function' ? labels.get(loM[1]) : labels[loM[1]]) ?? 0) & 0xFF) : 0;
       const hiM = part.match(/^>([A-Za-z_.][A-Za-z0-9_.]*)$/);
       if (hiM) return labels ? ((( typeof labels.get === 'function' ? labels.get(hiM[1]) : labels[hiM[1]]) ?? 0) >> 8) & 0xFF : 0;
+      // <(expr) / >(expr): low / high byte of an expression (labels + constants)
+      if (/^[<>]\s*\(/.test(part)) {
+        const v = labels ? _evalAsmExpr(part, labels) : null;
+        return v === null ? 0 : v & 0xFF;
+      }
       const resolved = resolveProgramNumericValue(part, labels, base);
       if (resolved !== null) return resolved;
-      return Number.parseInt(part, base === "bin" ? 2 : (base === "hex" ? 16 : 10));
+      const literal = Number.parseInt(part, base === "bin" ? 2 : (base === "hex" ? 16 : 10));
+      if (!Number.isNaN(literal) || !labels) return literal;
+      const v = _evalAsmExpr(part, labels);
+      return v === null ? literal : v & 0xFF;
     });
 }
 
@@ -17462,7 +17753,7 @@ function validateByteMacro(raw, base = "dec") {
   return "";
 }
 
-function parseWordMacro(raw, base = "dec") {
+function parseWordMacro(raw, base = "dec", labels = null) {
   return raw
     .split(",")
     .map((part) => part.trim())
@@ -17474,7 +17765,13 @@ function parseWordMacro(raw, base = "dec") {
       if (/^0x[0-9A-Fa-f]+$/i.test(part)) {
         return Number.parseInt(part.slice(2), 16);
       }
-      return Number.parseInt(part, base === "bin" ? 2 : (base === "hex" ? 16 : 10));
+      const literal = Number.parseInt(part, base === "bin" ? 2 : (base === "hex" ? 16 : 10));
+      // a label or an expression (table+2, <(x)…) once the labels are known
+      if (labels && (Number.isNaN(literal) || !/^[0-9A-Fa-f]+$/.test(part))) {
+        const v = _evalAsmExpr(part, labels);
+        if (v !== null) return v & 0xFFFF;
+      }
+      return literal;
     });
 }
 
@@ -17791,13 +18088,23 @@ function validateIfMacro(condition) {
   if (!condition || !condition.trim()) {
     return t("ifMacroNeedsAConditionEGDebug");
   }
-
-  // Simple validation - just check it's a valid identifier
-  if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(condition.trim())) {
-    return t("ifConditionMustBeAValidIdentifier");
+  if (_ifConditionActive(condition, new Set()) === null) {
+    return tf("ifConditionNotResolvable", { condition: condition.trim() });
   }
-
   return "";
+}
+
+// .if NAME: NAME is .define-d or a non-zero .const. .if <expr>: the expression (constants)
+// is non-zero. null when the expression cannot be evaluated.
+function _ifConditionActive(condition, activeDefines) {
+  const cond = String(condition ?? "").trim();
+  if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(cond)) {
+    if (activeDefines.has(cond)) return true;
+    const value = lookupProgramConstValue(cond);
+    return value !== null && value !== 0;
+  }
+  const value = _evalAsmExpr(cond);
+  return value === null ? null : value !== 0;
 }
 
 function parseAddressValue(raw, labelMap) {
@@ -18507,7 +18814,7 @@ function _collectDebuggerSymbols(layout) {
   return { symbols, breakpoints };
 }
 
-function _buildDebuggerSidecarTexts(layout, originOverride, sourcePathOverride = "") {
+function _buildDebuggerSidecarTexts(layout, originOverride, sourcePathOverride = "", kick = null) {
   const primarySourcePath = sourcePathOverride || _getDebuggerPrimarySourcePath();
   const includeBlocksById = new Map(
     program.filter((block) => block && block.isIncludeMacro && block.id).map((block) => [block.id, block])
@@ -18522,8 +18829,12 @@ function _buildDebuggerSidecarTexts(layout, originOverride, sourcePathOverride =
     }
     return sourceIndexByPath.get(safePath);
   };
+  // a Kick project: the file of the statement
+  const kickOrigin = (line) => (kick && typeof line.block?._srcLine === "number" ? kick.origins[line.block._srcLine] : null);
   const getLineSourcePath = (line) => {
     const block = line.block || {};
+    const origin = kickOrigin(line);
+    if (origin) return origin.file;
     if (block._fromInclude) {
       const includeBlock = includeBlocksById.get(block._fromInclude);
       const includePath = _normalizeIncludeBlockSource(includeBlock) || includeBlock?.includeFileName || "";
@@ -18545,7 +18856,8 @@ function _buildDebuggerSidecarTexts(layout, originOverride, sourcePathOverride =
     if (line.conditionallySkipped || line.size <= 0) return;
     const sourcePath = getLineSourcePath(line);
     const sourceIndex = getSourceIndex(sourcePath);
-    const sourceLine = typeof line.block?._srcLine === "number" ? (line.block._srcLine + 1) : (sourceIndex + 1);
+    const origin = kickOrigin(line);
+    const sourceLine = origin ? origin.line : typeof line.block?._srcLine === "number" ? (line.block._srcLine + 1) : (sourceIndex + 1);
     const blockName = getBlockName(line, sourcePath);
     const entry = `${_formatDebuggerAddress(line.address)},${_formatDebuggerAddress(line.end)},${sourceIndex},${sourceLine},1,${sourceLine},1`;
     if (!dbgBlocks.has(blockName)) dbgBlocks.set(blockName, []);
@@ -18556,9 +18868,11 @@ function _buildDebuggerSidecarTexts(layout, originOverride, sourcePathOverride =
   const { symbols } = _collectDebuggerSymbols(layout);
   symbols.forEach((symbol) => {
     if (!symbol || !symbol.name) return;
-    if (!uniqueSymbols.has(symbol.name)) uniqueSymbols.set(symbol.name, symbol.address & 0xFFFF);
+    const name = kick ? _kickDisplayLabel(symbol.name) : symbol.name;
+    if (name && !uniqueSymbols.has(name)) uniqueSymbols.set(name, symbol.address & 0xFFFF);
   });
   const sortedSymbols = [...uniqueSymbols.entries()].sort((left, right) => (left[1] - right[1]) || left[0].localeCompare(right[0]));
+  const { breaks, watches } = kick ? _kickDebugMarks(kick, symbols) : { breaks: [], watches: [] };
 
   const dbgText = [
     `<C64debugger version="1.0">`,
@@ -18578,13 +18892,21 @@ function _buildDebuggerSidecarTexts(layout, originOverride, sourcePathOverride =
     ...sortedSymbols.map(([name, address]) => `      Default,${_formatDebuggerAddress(address)},${_escapeXmlText(name)}`),
     `   </Labels>`,
     `   <Breakpoints values="SEGMENT,ADDRESS,ARGUMENT">`,
+    ...breaks.map(b => `      Default,${_formatDebuggerAddress(b.address)},${_escapeXmlText(b.cond)}`),
     `   </Breakpoints>`,
     `   <Watchpoints values="SEGMENT,ADDRESS,SIZE,FORMAT">`,
+    ...watches.map(w => `      Default,${_formatDebuggerAddress(w.start)},${w.end === null ? 1 : w.end - w.start + 1},${_escapeXmlText(w.arg)}`),
     `   </Watchpoints>`,
     `</C64debugger>`
   ].join("\n");
   const symText = sortedSymbols.map(([name, address]) => `.label ${name}=${_formatDebuggerSymbolAddress(address)}`).join("\n");
-  const vsText = sortedSymbols.map(([name, address]) => `al C:${_formatDebuggerSymbolAddress(address).slice(1)} .${name}`).join("\n");
+  const vsHex = (address) => (address & 0xFFFF).toString(16);
+  const vsText = [
+    ...sortedSymbols.map(([name, address]) => `al C:${_formatDebuggerSymbolAddress(address).slice(1)} .${name}`),
+    // KickAssembler's VICE lines: break <addr> [cond], watch [arg] <start> [end]
+    ...breaks.map(b => `break ${vsHex(b.address)}${b.cond ? " " + b.cond : ""}`),
+    ...watches.map(w => `watch ${w.arg ? w.arg + " " : ""}${vsHex(w.start)}${w.end === null ? "" : " " + vsHex(w.end)}`)
+  ].join("\n");
 
   return { dbg: dbgText, sym: symText, vs: vsText };
 }
@@ -18625,13 +18947,20 @@ function _buildDebuggerSidecarPayload(prg, { force = false, layout = null, sourc
   }
   // ACME source has no VA layout: the symbols come from ACME's label dump.
   if (assemblerSyntax === "acme" && !ultimateBasicMode) return _acmeDebuggerSidecars(prg?.labels);
+  const kick = _kickBuiltProject();
+  const savedProgram = program;
+  const savedUserMacros = userMacros;
   try {
     const originOverride = _getDebuggerCodeOrigin(prg);
+    if (kick && !layout) { program = kick.program; parseUserMacros(); }
     const debuggerLayout = layout || getProgramLayout(originOverride);
-    return _buildDebuggerSidecarTexts(debuggerLayout, originOverride, sourcePath);
+    return _buildDebuggerSidecarTexts(debuggerLayout, originOverride, sourcePath, kick);
   } catch (e) {
     console.error("Debugger sidecar generation failed:", e);
     return null;
+  } finally {
+    program = savedProgram;
+    userMacros = savedUserMacros;
   }
 }
 
@@ -18661,7 +18990,7 @@ async function runInDebugger() {
 
     // ACME mode: the real ACME build, its label dump and its report lines.
     const acme = assemblerSyntax === "acme";
-    const prg = acme ? await _buildAcmePrg() : buildAutostartPrgForEmulator();
+    const prg = acme ? await _buildAcmePrg() : await _kickOrVaPrg();
     if (!prg.ok) {
       if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
       if (emulatorStatus) emulatorStatus.textContent = prg.error;
@@ -18701,9 +19030,15 @@ async function runInDebugger() {
           }
         }
       }
-      expertBreakpoints = expertMode
-        ? _breakpointAddressForSourceLines(layout, expertBreakpointLines)
-        : breakpoints;
+      const kick = _kickBuiltProject();
+      if (kick) {
+        symbols = symbols.map(sym => ({ ...sym, name: _kickDisplayLabel(sym.name) })).filter(sym => sym.name);
+        expertBreakpoints = _kickBreakpointAddresses(layout, kick);
+      } else {
+        expertBreakpoints = expertMode
+          ? _breakpointAddressForSourceLines(layout, expertBreakpointLines)
+          : breakpoints;
+      }
       debuggerSidecars = _buildDebuggerSidecarPayload(prg, {
         force: true,
         layout,
@@ -20705,13 +21040,15 @@ function _workspaceProjectSnapshot(data, dirty) {
     files: cleanNodes(data.files),
     startupFile: data.startupFile || null,
     projPath: data._projPath || null,
+    ...(data.kick ? { kick: true } : {}),
+    ..._projKickFields(data),
     dirty: !!dirty
   };
 }
 
 function _workspaceRestoreProjects(projects) {
   const toData = (snap) => snap && typeof snap === "object"
-    ? { name: snap.name || "", files: Array.isArray(snap.files) ? snap.files : [], startupFile: snap.startupFile || null, _projPath: snap.projPath || null }
+    ? { name: snap.name || "", files: Array.isArray(snap.files) ? snap.files : [], startupFile: snap.startupFile || null, _projPath: snap.projPath || null, ...(snap.kick ? { kick: true } : {}), ..._projKickFields(snap) }
     : null;
   _expertProjectData = toData(projects?.expert);
   _expertProjectDirty = !!projects?.expert?.dirty;
@@ -21107,8 +21444,10 @@ function showCompileErrorDialog(errors) {
     } else {
       html = `<span class="compile-error-msg">${_escHtml(errText)}</span>`;
     }
-    const navigable = (Number.isFinite(asmLine) || Number.isFinite(sourceLine)) ? "true" : "false";
-    return `<li data-index="${idx}" data-asm-line="${asmLine ?? ""}" data-source-line="${sourceLine ?? ""}" data-navigable="${navigable}" tabindex="${navigable === "true" ? "0" : "-1"}">${html}</li>`;
+    // Kick project errors name a file of the project (file / fileLine)
+    const file = typeof err === "object" && err?.file && Number.isFinite(err.fileLine) ? err.file : "";
+    const navigable = (Number.isFinite(asmLine) || Number.isFinite(sourceLine) || file) ? "true" : "false";
+    return `<li data-index="${idx}" data-asm-line="${asmLine ?? ""}" data-source-line="${sourceLine ?? ""}" data-file="${_escHtml(file)}" data-file-line="${file ? err.fileLine : ""}" data-navigable="${navigable}" tabindex="${navigable === "true" ? "0" : "-1"}">${html}</li>`;
   }).join("");
 
   const setSelectedErrorItem = (activeLi) => {
@@ -21122,6 +21461,10 @@ function showCompileErrorDialog(errors) {
       const asmLine = parseInt(li.dataset.asmLine, 10);
       const sourceLine = parseInt(li.dataset.sourceLine, 10);
       setSelectedErrorItem(li);
+      if (li.dataset.file) {
+        _kickGotoError(li.dataset.file, parseInt(li.dataset.fileLine, 10));
+        return;
+      }
       if (expertMode && expertEditor && Number.isFinite(sourceLine)) {
         _expertGotoSourceLine(sourceLine, { focus: false });
         return;
@@ -21329,6 +21672,9 @@ async function _buildProjectAsmTarget(target) {
     // The target tab is active now: ACME builds its editor source.
     prg = await _buildAcmePrg(true);
     if (prg.ok) sidecars = _buildDebuggerSidecarPayload(prg);
+  } else if (_kickProjectActive()) {
+    // KickAssembler tree: the startup file with its #import modules.
+    prg = await _kickOrVaPrg();
   }
   const savedProgram = program;
   const savedUserMacros = userMacros;
@@ -21411,6 +21757,10 @@ async function buildProjectToFiles() {
       const write = await window.electronAPI?.writeBinFile?.(outPath, Array.from(prg.bytes), prg.sidecars || null);
       if (!write?.ok) { results.push({ name: fileName, error: write?.error || t("savePrgFailed") }); continue; }
       results.push({ name: fileName, outPath, size: prg.bytes.length });
+    }
+    // Kick project: .file / outPrg / outBin / .disk next to the startup file
+    if (_kickProjectActive() && _kickLast?.ok && _kickLast.outputs?.length) {
+      results.push(...await _kickWriteOutputs(_kickLast, _projResolveAbsPath(_expertProjectData.startupFile)));
     }
   } finally {
     if (originalTabId && activeTabId !== originalTabId && tabs.some(tb => tb.id === originalTabId)) {
@@ -21630,7 +21980,7 @@ async function saveCrtToFile() {
   // copies plain bytes into RAM.
   const prg = ultimateBasicMode
     ? await buildRunPrgForCurrentMode()
-    : assemblerSyntax === "acme" ? await _buildAcmePrg() : buildAutostartPrgForEmulator();
+    : assemblerSyntax === "acme" ? await _buildAcmePrg() : await _kickOrVaPrg();
   if (!prg.ok) {
     if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
     if (prg.error) { showViceToast(prg.error, true); return; }
@@ -23140,7 +23490,7 @@ async function runViaExomizer() {
     return;
   }
 
-  const prg = buildAutostartPrgForEmulator();
+  const prg = await _kickOrVaPrg();
   if (!prg.ok) {
     if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
     if (emulatorStatus) emulatorStatus.textContent = prg.error;
@@ -23205,7 +23555,7 @@ async function buildRunPrgForCurrentMode() {
     if (prg.ok) _vmAcmeBuild = prg.imageBytes ? { ...prg, bytes: prg.imageBytes } : prg;
     return prg.ok ? _applyExomizerToPrg(prg) : prg;
   }
-  const prg = buildAutostartPrgForEmulator();
+  const prg = await _kickOrVaPrg();
   if (!prg.ok) return prg;
   return _applyExomizerToPrg(prg);
 }
@@ -23442,6 +23792,7 @@ function _setAssemblerSyntax(syntax) {
   const syntaxSelect = document.getElementById("assembler-syntax");
   if (syntaxSelect) syntaxSelect.value = assemblerSyntax;
   _acmeBuildButtonSync();
+  _kickSyncProjectButton();
   if (assemblerSyntax === "acme" && !expertMode && !ultimateBasicMode) setExpertMode(true);
 }
 
@@ -23480,10 +23831,10 @@ function _acmeBuildButtonSync(blocks = program) {
 
 // VA (VMA) build of the Expert source, the same PRG Run makes: the size in the
 // status line, errors in the compiler-error dialog.
-function _vaBuildExpert() {
+async function _vaBuildExpert() {
   let result;
   try {
-    result = buildAutostartPrgForEmulator();
+    result = await _kickOrVaPrg();
   } catch (error) {
     result = { ok: false, error: String(error) };
   }
@@ -23554,6 +23905,7 @@ async function _acmeBuildPreview(options) {
     _acmeUpdateAnalysis();
     if (_expertDisasmVisible) _expertRenderDisasm();
     if (_expertMonitorVisible) _expertRenderMonitor();
+    renderMemoryMap();
   } catch (error) {
     if (tabId === activeTabId) {
       _acmePreview = null;
@@ -23715,6 +24067,15 @@ function setupHardwareSettingsDialog() {
     _sidPlayerRenderList();
     _sidEditorEngineSync();
   });
+  const editorPaletteSel = document.getElementById("editor-palette");
+  if (editorPaletteSel) {
+    // _C64_PALETTES is declared later (TDZ at startup): read the stored name directly
+    try {
+      const p = localStorage.getItem("c64va-editor-palette");
+      if (p && editorPaletteSel.querySelector('option[value="' + p + '"]')) editorPaletteSel.value = p;
+    } catch (_) {}
+    editorPaletteSel.addEventListener("change", function(e) { _setEditorPalette(e.target.value); });
+  }
   document.getElementById("sid-lcd-color")?.addEventListener("change", function(e) {
     try { localStorage.setItem("c64va-sid-lcd-color", e.target.value === "red" ? "red" : "green"); } catch (_) {}
     _sidLcdApplyColor();
@@ -24148,13 +24509,2849 @@ function _kickTextBytes(operand, encoding) {
   return out;
 }
 
+// ── Kick Assembler projects: preprocessor ────────────────────────────────────
+// A KickAssembler source tree (#import, .for / .if / .var / .eval, .function,
+// .macro { }, !multi-labels, .pseudopc, .import binary, BasicUpstart2,
+// cmdLineVars) is flattened into plain VA (VMA) source that the built-in
+// assembler builds. Constants are folded into numbers here, so the operand
+// width (zero page or absolute) follows the value like in KickAssembler.
+
+const _KICK_BRANCHES = new Set(["BCC", "BCS", "BEQ", "BMI", "BNE", "BPL", "BVC", "BVS"]);
+
+// Lines of one file without comments: [{ text, file, line }].
+function _kickSemicolonSeparates(before, after) {
+  if (!before.trim() || /\s$/.test(before)) return false;
+  const rest = after.replace(/^\s+/, "");
+  if (!rest || /^[.*#!{}]/.test(rest) || /^[A-Za-z_]\w*\s*[:(=]/.test(rest)) return true;
+  const m = rest.match(/^([A-Za-z]{3})(?:\.[A-Za-z]+)?(?:\s|;|$)/);
+  return !!(m && opcodeMap[m[1].toUpperCase()]);
+}
+
+function _kickSourceLines(text, file) {
+  const out = [];
+  let inBlock = false;
+  String(text || "").split(/\r?\n/).forEach((raw, index) => {
+    let line = "";
+    let quote = "";
+    let depth = 0;
+    for (let i = 0; i < raw.length; i++) {
+      const ch = raw[i];
+      if (inBlock) {
+        if (ch === "*" && raw[i + 1] === "/") { inBlock = false; i++; }
+        continue;
+      }
+      if (quote) {
+        line += ch;
+        if (ch === "\\") { line += raw[i + 1] ?? ""; i++; }
+        else if (ch === quote) quote = "";
+        continue;
+      }
+      if (ch === '"' || (ch === "'" && raw[i + 2] === "'")) { quote = ch; line += ch; continue; }
+      if (ch === "/" && raw[i + 1] === "/") break;
+      if (ch === "/" && raw[i + 1] === "*") { inBlock = true; i++; continue; }
+      if (ch === "(" || ch === "[") depth++;
+      if (ch === ")" || ch === "]") depth--;
+      // ; right after code (no space) followed by a statement separates statements
+      // (KickAssembler); any other ; starts a VA comment.
+      if (ch === ";" && depth <= 0 && !_kickSemicolonSeparates(line, raw.slice(i + 1))) break;
+      line += ch;
+    }
+    out.push({ text: line, file, line: index + 1 });
+  });
+  return out;
+}
+
+// #import / .import source files, depth first, each #importonce file once.
+// readText(path) → string | null; paths are resolved against the importing file.
+// #if / #elif expression: preprocessor symbols, !, &&, ||, parentheses.
+function _kickPreprocessorTrue(expr, defines) {
+  const text = String(expr).replace(/[A-Za-z_]\w*/g, (name) => (defines.has(name) ? "1" : "0"));
+  try { return !!_kickEval(text, { get: () => undefined, call: () => { throw new Error("no calls"); } }); }
+  catch (_) { return false; }
+}
+
+function _kickFlatten(entry, readText, errors, defines = new Set()) {
+  const out = [];
+  const once = new Set();
+  const stack = [];
+  // #if nesting: { active, taken } per level (lines are kept while every level is active)
+  const conds = [];
+  const active = () => conds.every(c => c.active);
+  const visit = (path, origin) => {
+    const text = readText(path);
+    if (text === null || text === undefined) {
+      errors.push({ ...origin, text: `File not found: ${path}` });
+      return;
+    }
+    if (stack.includes(path)) {
+      errors.push({ ...origin, text: `Recursive #import: ${path}` });
+      return;
+    }
+    if (once.has(path)) return;
+    stack.push(path);
+    let namespaceOpen = null;
+    for (const line of _kickSourceLines(text, path)) {
+      const t = line.text.trim();
+      let pp;
+      if ((pp = t.match(/^#(if|elif|else|endif)\b\s*(.*)$/i))) {
+        const kind = pp[1].toLowerCase();
+        if (kind === "if") {
+          const outer = active();
+          const on = outer && _kickPreprocessorTrue(pp[2], defines);
+          conds.push({ active: on, taken: on, outer });
+        } else if (!conds.length) {
+          errors.push({ file: line.file, line: line.line, text: `#${kind} without #if` });
+        } else if (kind === "endif") {
+          conds.pop();
+        } else {
+          const c = conds[conds.length - 1];
+          const on = c.outer && !c.taken && (kind === "else" || _kickPreprocessorTrue(pp[2], defines));
+          c.active = on;
+          c.taken = c.taken || on;
+        }
+        continue;
+      }
+      if (!active()) continue;
+      if ((pp = t.match(/^#(define|undef)\s+([A-Za-z_]\w*)/i))) {
+        if (pp[1].toLowerCase() === "define") defines.add(pp[2]); else defines.delete(pp[2]);
+        continue;
+      }
+      if ((pp = t.match(/^#importif\s+(.+?)\s+"([^"]+)"\s*$/i))) {
+        if (_kickPreprocessorTrue(pp[1], defines)) visit(_kickResolvePath(path, pp[2]), line);
+        continue;
+      }
+      if (/^#importonce\b/i.test(t)) { once.add(path); continue; }
+      // .filenamespace: the rest of the file is a .namespace block
+      const ns = t.match(/^\.filenamespace\s+([A-Za-z_]\w*)\s*$/i);
+      if (ns) {
+        if (namespaceOpen) out.push({ ...line, text: "}" });
+        out.push({ ...line, text: `.namespace ${ns[1]} {` });
+        namespaceOpen = line;
+        continue;
+      }
+      const m = t.match(/^(?:#import|\.import\s+source)\s+"([^"]+)"\s*$/i);
+      if (m) { visit(_kickResolvePath(path, m[1]), line); continue; }
+      out.push(line);
+    }
+    if (namespaceOpen) out.push({ ...namespaceOpen, text: "}" });
+    stack.pop();
+  };
+  visit(entry, { file: entry, line: 0 });
+  return out;
+}
+
+function _kickResolvePath(from, rel) {
+  if (/^([A-Za-z]:)?[\\/]/.test(rel)) return rel.replace(/\\/g, "/");
+  const dir = String(from).replace(/\\/g, "/").replace(/[^/]*$/, "");
+  const parts = (dir + rel.replace(/\\/g, "/")).split("/");
+  const out = [];
+  for (const p of parts) {
+    if (p === "..") { if (out.length && out[out.length - 1] !== "..") out.pop(); else out.push(p); }
+    else if (p !== "." && (p !== "" || out.length === 0)) out.push(p);
+  }
+  return out.join("/");
+}
+
+// ── Lines → items: statements and structural braces ──────────────────────────
+function _kickItems(lines) {
+  const items = [];
+  for (const line of lines) {
+    let part = "";
+    let quote = "";
+    let depth = 0;
+    const flush = () => {
+      const t = part.trim();
+      if (t) items.push({ type: "stmt", text: t, file: line.file, line: line.line });
+      part = "";
+    };
+    for (let i = 0; i < line.text.length; i++) {
+      const ch = line.text[i];
+      if (quote) { part += ch; if (ch === "\\") { part += line.text[++i] ?? ""; } else if (ch === quote) quote = ""; continue; }
+      if (ch === '"') { quote = ch; part += ch; continue; }
+      if (ch === "(" || ch === "[") depth++;
+      if (ch === ")" || ch === "]") depth--;
+      if (ch === ";" && depth <= 0) { flush(); continue; }
+      // {param}: a VA macro parameter placeholder, not a block
+      const placeholder = ch === "{" ? line.text.slice(i).match(/^\{[A-Za-z_]\w*\}/) : null;
+      if (placeholder) { part += placeholder[0]; i += placeholder[0].length - 1; continue; }
+      if ((ch === "{" || ch === "}") && depth <= 0) {
+        flush();
+        items.push({ type: ch, file: line.file, line: line.line });
+        continue;
+      }
+      part += ch;
+    }
+    flush();
+  }
+  return items;
+}
+
+// The text inside the parentheses that start at `open`, and what follows them.
+function _kickParen(text, open) {
+  let depth = 0;
+  let quote = "";
+  for (let i = open; i < text.length; i++) {
+    const ch = text[i];
+    if (quote) { if (ch === "\\") i++; else if (ch === quote) quote = ""; continue; }
+    if (ch === '"') { quote = ch; continue; }
+    if (ch === "(") depth++;
+    else if (ch === ")" && --depth === 0) return { inner: text.slice(open + 1, i), rest: text.slice(i + 1).trim(), end: i + 1 };
+  }
+  return null;
+}
+
+function _kickSplitTop(text, sep = ",") {
+  const out = [];
+  let depth = 0;
+  let quote = "";
+  let cur = "";
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (quote) { cur += ch; if (ch === "\\") { cur += text[++i] ?? ""; } else if (ch === quote) quote = ""; continue; }
+    if (ch === '"') { quote = ch; cur += ch; continue; }
+    if (ch === "(" || ch === "[" || ch === "{") depth++;
+    if (ch === ")" || ch === "]" || ch === "}") depth--;
+    if (ch === sep && depth === 0) { out.push(cur.trim()); cur = ""; continue; }
+    cur += ch;
+  }
+  if (cur.trim() || out.length) out.push(cur.trim());
+  return out;
+}
+
+// ── Items → tree ─────────────────────────────────────────────────────────────
+// Nodes: { kind: "stmt", text, label } | for | if | macro | function | pseudopc | block
+function _kickParseTree(items, errors) {
+  let pos = 0;
+  const err = (item, text) => errors.push({ file: item.file, line: item.line, text });
+
+  const parseBlock = () => {
+    // after a "{" item
+    const body = [];
+    while (pos < items.length && items[pos].type !== "}") body.push(...parseItem());
+    if (pos >= items.length) errors.push({ file: items[items.length - 1]?.file, line: items[items.length - 1]?.line, text: "Missing }" });
+    else pos++;
+    return body;
+  };
+  // Body of a header: the rest of its line, or the next { } block.
+  const parseBody = (rest, item) => {
+    if (rest) return parseStmtText(rest, item);
+    if (items[pos]?.type === "{") { pos++; return parseBlock(); }
+    if (pos < items.length && items[pos].type === "stmt") return parseItem();
+    err(item, "Missing block");
+    return [];
+  };
+  const parseStmtText = (text, item) => {
+    const node = { file: item.file, line: item.line };
+    const am = text.match(/^\.(assert|asserterror)\s+(.+?)\s*,\s*$/i);
+    if (am && items[pos]?.type === "{") {
+      pos++;
+      const a = parseBlock();
+      let b = null;
+      if (items[pos]?.type === "stmt" && items[pos].text.trim() === "," && items[pos + 1]?.type === "{") { pos += 2; b = parseBlock(); }
+      return [{ kind: "assertcode", error: am[1].toLowerCase() === "asserterror", desc: am[2], a, b, ...node }];
+    }
+    // label prefix: name: / !name: / !:
+    const lm = text.match(/^(@?[A-Za-z_]\w*|![A-Za-z_]\w*|!)\s*:(?!=)\s*(.*)$/);
+    if (lm) {
+      const out = [{ kind: "stmt", text: lm[1] + ":", ...node }];
+      if (lm[2]) out.push(...parseStmtText(lm[2], item));
+      // name: .lohifill … gives name.lo / name.hi
+      if (out[1] && /^\.lohifill\b/i.test(lm[2]) && /^[A-Za-z_]\w*$/.test(lm[1])) out[1].lohiLabel = lm[1];
+      return out;
+    }
+    let m;
+    if ((m = text.match(/^\.for\s*\(/i))) {
+      const p = _kickParen(text, text.indexOf("("));
+      const [init, cond, step] = _kickSplitTop(p.inner, ";");
+      return [{ kind: "for", init, cond, step, body: parseBody(p.rest, item), ...node }];
+    }
+    if ((m = text.match(/^\.while\s*\(/i))) {
+      const p = _kickParen(text, text.indexOf("("));
+      return [{ kind: "for", init: "", cond: p.inner, step: "", body: parseBody(p.rest, item), ...node }];
+    }
+    if ((m = text.match(/^\.if\s*\(/i))) {
+      const p = _kickParen(text, text.indexOf("("));
+      const branches = [{ cond: p.inner, body: parseBody(p.rest, item) }];
+      let elseBody = null;
+      // } else .if (...) { … } else { … }
+      while (items[pos]?.type === "stmt" && /^else\b/i.test(items[pos].text)) {
+        const it = items[pos++];
+        const rest = it.text.replace(/^else\s*/i, "");
+        if (/^\.if\s*\(/i.test(rest)) {
+          const q = _kickParen(rest, rest.indexOf("("));
+          branches.push({ cond: q.inner, body: parseBody(q.rest, it) });
+        } else {
+          elseBody = parseBody(rest, it);
+          break;
+        }
+      }
+      return [{ kind: "if", branches, elseBody, ...node }];
+    }
+    if ((m = text.match(/^\.(macro|function)\s+@?([A-Za-z_]\w*)\s*\(/i))) {
+      const p = _kickParen(text, text.indexOf("("));
+      // without a { } body it is a VA macro header (… .endm)
+      if (m[1].toLowerCase() === "macro" && !p.rest && items[pos]?.type !== "{") return [{ kind: "stmt", text, ...node }];
+      const params = p.inner.trim() ? _kickSplitTop(p.inner).map(s => s.trim()) : [];
+      return [{ kind: m[1].toLowerCase(), name: m[2], params, body: parseBody(p.rest, item), ...node }];
+    }
+    if ((m = text.match(/^\.namespace\s+([A-Za-z_]\w*)\s*$/i))) {
+      return [{ kind: "namespace", name: m[1], body: parseBody("", item), ...node }];
+    }
+    // .pseudocommand name a : b : c { … }
+    if ((m = text.match(/^\.pseudocommand\s+@?([A-Za-z_]\w*)\s*(.*)$/i))) {
+      const params = m[2].trim() ? m[2].split(":").map(p => p.trim()).filter(Boolean) : [];
+      return [{ kind: "pseudocommand", name: m[1], params, body: parseBody("", item), ...node }];
+    }
+    // .struct Name { a, b } / .enum { A, B = 5 } / .define a, b { … } (with a block)
+    if ((m = text.match(/^\.(struct)\s+@?([A-Za-z_]\w*)\s*$/i)) || (m = text.match(/^\.(enum)\s*$/i)) || ((m = text.match(/^\.(define)\s+([A-Za-z_]\w*(?:\s*,\s*[A-Za-z_]\w*)*)\s*$/i)) && items[pos]?.type === "{")) {
+      const body = parseBody("", item);
+      const list = body.filter(b => b.kind === "stmt").map(b => b.text).join(",");
+      const kind = m[1].toLowerCase();
+      if (kind === "define") return [{ kind: "scriptdefine", names: m[2].split(",").map(x => x.trim()), body, ...node }];
+      return [{ kind, name: m[2], fields: _kickSplitTop(list).map(f => f.trim()).filter(Boolean), ...node }];
+    }
+    if ((m = text.match(/^\.pseudopc\s+(.+)$/i))) {
+      return [{ kind: "pseudopc", expr: m[1].trim(), body: parseBody("", item), ...node }];
+    }
+    if ((m = text.match(/^\.disk\b\s*(.*)$/i))) {
+      const body = parseBody("", item);
+      return [{ kind: "disk", params: m[1].trim(), files: body.filter(b => b.kind === "stmt").map(b => b.text).join(","), ...node }];
+    }
+    return [{ kind: "stmt", text, ...node }];
+  };
+  const parseItem = () => {
+    const item = items[pos++];
+    if (item.type === "{") return [{ kind: "block", body: parseBlock(), file: item.file, line: item.line }];
+    if (item.type === "}") { err(item, "Unexpected }"); return []; }
+    return parseStmtText(item.text, item);
+  };
+  const tree = [];
+  while (pos < items.length) tree.push(...parseItem());
+  _kickMarkLabelScopes(tree);
+  return tree;
+}
+
+// A label right before a { } block, .for / .while, .if or macro call names that scope:
+// its inner labels are reachable as name.inner (name[i].inner for loops). The same
+// for ".label name = value { … }".
+function _kickMarkLabelScopes(nodes) {
+  nodes.forEach((n, i) => {
+    for (const body of [n.body, n.elseBody, ...(n.branches || []).map(b => b.body)]) if (body) _kickMarkLabelScopes(body);
+    const next = nodes[i + 1];
+    if (n.kind !== "stmt" || !next) return;
+    const lm = n.text.match(/^@?([A-Za-z_]\w*):$/) || (next.kind === "block" ? n.text.match(/^\.label\s+@?([A-Za-z_]\w*)\s*=/i) : null);
+    if (!lm) return;
+    const call = next.kind === "stmt" && next.text.match(/^:?@?([A-Za-z_]\w*)\s*\(/);
+    if (["block", "for", "if"].includes(next.kind) || (call && !opcodeMap[call[1].toUpperCase()])) next.scopeLabel = lm[1];
+  });
+}
+
+// Kick label scope: labels (name → VA label), scoped constants, child scopes by name
+// (an array for a named loop). Root labels keep their names.
+function _kickNewLabelScope(parent, prefix) {
+  return { parent, prefix, labels: new Map(), consts: new Map(), children: new Map() };
+}
+
+// name, a.b, lp[2].c, @name → { label } | { value } | undefined (searched outwards from ls).
+function _kickResolveLabel(path, ls, rootLs) {
+  const m = String(path).match(/^(@)?([A-Za-z_]\w*)((?:\.[A-Za-z_]\w*|\[\d+\])*)$/);
+  if (!m) return undefined;
+  const first = m[2];
+  const segments = [...m[3].matchAll(/\.([A-Za-z_]\w*)|\[(\d+)\]/g)].map(x => (x[1] !== undefined ? x[1] : Number(x[2])));
+  let found = null;
+  for (let s = m[1] ? rootLs : ls; s; s = s.parent) {
+    if (s.labels.has(first) || s.consts.has(first) || s.children.has(first)) { found = s; break; }
+  }
+  if (!found) return undefined;
+  if (!segments.length) {
+    if (found.labels.has(first)) return { label: found.labels.get(first) };
+    if (found.consts.has(first)) return { value: found.consts.get(first) };
+    return undefined;
+  }
+  let cur = found.children.get(first);
+  for (let k = 0; k < segments.length && cur; k++) {
+    const seg = segments[k];
+    if (Array.isArray(cur)) { cur = typeof seg === "number" ? cur[seg] : undefined; continue; }
+    if (typeof seg === "number") return undefined;
+    if (k === segments.length - 1) {
+      if (cur.labels.has(seg)) return { label: cur.labels.get(seg) };
+      if (cur.consts.has(seg)) return { value: cur.consts.get(seg) };
+    }
+    cur = cur.children.get(seg);
+  }
+  return undefined;
+}
+
+// ── Expressions ──────────────────────────────────────────────────────────────
+// Values: number | boolean | string | array | { sym, label, off } (label + offset)
+// | { sym, text } (any other expression of not yet known labels).
+function _kickIsSym(v) { return v !== null && typeof v === "object" && !Array.isArray(v) && v.sym === true; }
+function _kickSymText(v) {
+  if (!_kickIsSym(v)) return _kickNumText(v);
+  if (v.text !== undefined) return v.text;
+  // a known address kept 16-bit (a label defined later in the source)
+  if (v.label.startsWith("$")) return "$" + ((parseInt(v.label.slice(1), 16) + (v.off || 0)) & 0xFFFF).toString(16).toUpperCase().padStart(4, "0");
+  if (!v.off) return v.label;
+  return v.off > 0 ? `${v.label}+${v.off}` : `${v.label}-${-v.off}`;
+}
+function _kickNumText(v) {
+  if (typeof v === "boolean") return v ? "1" : "0";
+  if (typeof v === "number") return Number.isInteger(v) ? String(v) : String(v);
+  if (typeof v === "string") return JSON.stringify(v);
+  return String(v);
+}
+function _kickTextSym(text) { return { sym: true, text }; }
+
+function _kickTokens(src) {
+  const toks = [];
+  const re = /\s*(?:(\$[0-9A-Fa-f]+)|(%[01]+)|(\d+\.\d*|\.\d+|\d+)|('(?:\\.|[^'])')|("(?:\\.|[^"\\])*")|(![A-Za-z_]\w*[+-]+|![+-]+)|(@?[A-Za-z_]\w*)|(<<|>>|<=|>=|==|!=|&&|\|\||\+\+|--|[-+*/%&|^~!<>?:()[\],.=*]))/y;
+  let pos = 0;
+  while (pos < src.length) {
+    if (/^\s*$/.test(src.slice(pos))) break;
+    re.lastIndex = pos;
+    const m = re.exec(src);
+    if (!m) throw new Error(`Cannot read the expression: ${src}`);
+    pos = re.lastIndex;
+    if (m[1]) toks.push({ t: "num", v: parseInt(m[1].slice(1), 16) });
+    else if (m[2]) toks.push({ t: "num", v: parseInt(m[2].slice(1), 2) });
+    else if (m[3]) toks.push({ t: "num", v: Number(m[3]) });
+    else if (m[4]) toks.push({ t: "num", v: JSON.parse('"' + m[4].slice(1, -1).replace(/"/g, '\\"') + '"').charCodeAt(0) });
+    else if (m[5]) toks.push({ t: "str", v: JSON.parse(m[5]) });
+    else if (m[6]) toks.push({ t: "id", v: m[6] });
+    else if (m[7]) toks.push({ t: "id", v: m[7] });
+    else toks.push({ t: "op", v: m[8] });
+  }
+  return toks;
+}
+
+// Evaluates a Kick expression. scope.get(name) → value | undefined; unknown names
+// become labels. scope.call(name, args) for functions.
+function _kickEval(src, scope) {
+  const toks = _kickTokens(String(src));
+  let i = 0;
+  const peek = (v) => toks[i] && toks[i].t === "op" && toks[i].v === v;
+  const eat = (v) => { if (!peek(v)) throw new Error(`Expected ${v} in: ${src}`); i++; };
+  const num = (v, what) => {
+    if (_kickIsSym(v)) throw new Error(`${what}: the value is not known yet (${_kickSymText(v)})`);
+    if (typeof v === "boolean") return v ? 1 : 0;
+    return v;
+  };
+  const sym = (a, op, b) => _kickTextSym(`(${_kickSymText(a)}${op}${_kickSymText(b)})`);
+  const bin = (op, a, b) => {
+    if (_kickIsSym(a) || _kickIsSym(b)) {
+      if (op === "+" && _kickIsSym(a) && a.label && typeof b === "number") return { sym: true, label: a.label, off: a.off + b };
+      if (op === "+" && _kickIsSym(b) && b.label && typeof a === "number") return { sym: true, label: b.label, off: b.off + a };
+      if (op === "-" && _kickIsSym(a) && a.label && typeof b === "number") return { sym: true, label: a.label, off: a.off - b };
+      if (op === "-" && _kickIsSym(a) && _kickIsSym(b) && a.label && a.label === b.label) return a.off - b.off;
+      if (["==", "!=", "<", ">", "<=", ">=", "&&", "||"].includes(op)) throw new Error(`The value is not known yet: ${src}`);
+      return sym(a, op, b);
+    }
+    const vec = (v) => v && v.kickVector, mat = (v) => v && v.kickMatrix;
+    if (vec(a) || vec(b) || mat(a) || mat(b)) {
+      if (typeof a === "string" || typeof b === "string") {
+        if (op === "+") return _kickValueText(a) + _kickValueText(b);
+      } else if (vec(a) && vec(b)) {
+        const [x, y] = [a.kickVector, b.kickVector];
+        if (op === "+") return _kickVector(x[0] + y[0], x[1] + y[1], x[2] + y[2]);
+        if (op === "-") return _kickVector(x[0] - y[0], x[1] - y[1], x[2] - y[2]);
+        if (op === "*") return x[0] * y[0] + x[1] * y[1] + x[2] * y[2];
+        if (op === "==") return x.every((v, k) => v === y[k]);
+        if (op === "!=") return !x.every((v, k) => v === y[k]);
+      } else if (vec(a) && typeof b === "number") {
+        if (op === "*") return _kickVector(...a.kickVector.map(v => v * b));
+        if (op === "/") return _kickVector(...a.kickVector.map(v => v / b));
+      } else if (typeof a === "number" && vec(b) && op === "*") {
+        return _kickVector(...b.kickVector.map(v => v * a));
+      } else if (mat(a) && vec(b) && op === "*") {
+        return _kickMatVec(a, b);
+      } else if (mat(a) && mat(b) && op === "*") {
+        return _kickMatMul(a, b);
+      }
+      throw new Error(`Operator ${op} is not defined for these values: ${src}`);
+    }
+    if (typeof a === "string" || typeof b === "string") {
+      if (op === "+") return String(a) + String(b);
+      if (op === "==") return a === b;
+      if (op === "!=") return a !== b;
+    }
+    if ((typeof a === "boolean" || typeof b === "boolean") && !["||", "&&", "==", "!="].includes(op)) {
+      throw new Error("Can't get a double representation from a value of type boolean");
+    }
+    switch (op) {
+      case "||": return num(a, op) || num(b, op) ? true : false;
+      case "&&": return num(a, op) && num(b, op) ? true : false;
+      case "|": return num(a) | num(b);
+      case "^": return num(a) ^ num(b);
+      case "&": return num(a) & num(b);
+      case "==": return num(a) === num(b);
+      case "!=": return num(a) !== num(b);
+      case "<": return num(a) < num(b);
+      case ">": return num(a) > num(b);
+      case "<=": return num(a) <= num(b);
+      case ">=": return num(a) >= num(b);
+      case "<<": return num(a) << num(b);
+      case ">>": return num(a) >> num(b);
+      case "+": return num(a) + num(b);
+      case "-": return num(a) - num(b);
+      case "*": return num(a) * num(b);
+      case "/": return num(a) / num(b);
+      case "%": return num(a) % num(b);
+    }
+    throw new Error(`Unknown operator ${op}`);
+  };
+  const LEVELS = [["||"], ["&&"], ["|"], ["^"], ["&"], ["==", "!="], ["<", ">", "<=", ">="], ["<<", ">>"], ["+", "-"], ["*", "/", "%"]];
+  const ternary = () => {
+    const c = binary(0);
+    if (!peek("?")) return c;
+    i++;
+    if (_kickIsSym(c)) throw new Error(`The condition is not known yet: ${src}`);
+    // both branches are parsed; only the chosen one is kept
+    const a = ternary();
+    eat(":");
+    const b = ternary();
+    return c ? a : b;
+  };
+  const binary = (level) => {
+    if (level === LEVELS.length) return unary();
+    let left = binary(level + 1);
+    while (toks[i] && toks[i].t === "op" && LEVELS[level].includes(toks[i].v)) {
+      const op = toks[i++].v;
+      left = bin(op, left, binary(level + 1));
+    }
+    return left;
+  };
+  const unary = () => {
+    const tk = toks[i];
+    // ++i / --i
+    if (tk && tk.t === "op" && (tk.v === "++" || tk.v === "--") && toks[i + 1]?.t === "id" && scope.set) {
+      i++;
+      const name = toks[i++].v;
+      const value = num(scope.get(name)) + (tk.v === "++" ? 1 : -1);
+      scope.set(name, value);
+      return value;
+    }
+    if (tk && tk.t === "op" && ["-", "+", "!", "~", "<", ">"].includes(tk.v)) {
+      i++;
+      const v = unary();
+      if (_kickIsSym(v)) {
+        if (tk.v === "-") return _kickTextSym(`(-${_kickSymText(v)})`);
+        if (tk.v === "+") return v;
+        if (tk.v === "<" || tk.v === ">") return _kickTextSym(`${tk.v}(${_kickSymText(v)})`);
+        throw new Error(`The value is not known yet: ${src}`);
+      }
+      switch (tk.v) {
+        case "-": return -num(v);
+        case "+": return +num(v);
+        case "!": return !num(v);
+        case "~": return ~num(v);
+        case "<": return num(v) & 0xFF;
+        case ">": return (num(v) >> 8) & 0xFF;
+      }
+    }
+    return postfix(primary());
+  };
+  const args = () => {
+    eat("(");
+    const out = [];
+    if (!peek(")")) {
+      out.push(ternary());
+      while (peek(",")) { i++; out.push(ternary()); }
+    }
+    eat(")");
+    return out;
+  };
+  const postfix = (v) => {
+    while (peek(".") && toks[i + 1]?.t === "id") {
+      i++;
+      const name = toks[i++].v;
+      const call = !!peek("(");
+      const a = call ? args() : [];
+      v = _kickMethod(v, name, a, src, call);
+    }
+    while (peek("[")) {
+      i++;
+      const index = ternary();
+      eat("]");
+      v = v[num(index)];
+    }
+    return v;
+  };
+  const primary = () => {
+    const tk = toks[i++];
+    if (!tk) throw new Error(`Incomplete expression: ${src}`);
+    if (tk.t === "num" || tk.t === "str") return tk.v;
+    if (tk.t === "op" && tk.v === "(") { const v = ternary(); eat(")"); return v; }
+    if (tk.t === "op" && tk.v === "*") {
+      // the program counter: a number inside .pseudopc, else the VA assembler resolves *
+      const pc = scope.get("*");
+      return pc !== undefined ? pc : { sym: true, label: "*", off: 0 };
+    }
+    if (tk.t === "op" && tk.v === "[") {
+      const list = [];
+      if (!peek("]")) { list.push(ternary()); while (peek(",")) { i++; list.push(ternary()); } }
+      eat("]");
+      return list;
+    }
+    if (tk.t === "id") {
+      if (tk.v.startsWith("!")) return { sym: true, label: tk.v, off: 0 };
+      if (peek("(")) return scope.call(tk.v, args());
+      const v = scope.get(tk.v);
+      // i++ / i-- (the value before the step)
+      if (v !== undefined && (peek("++") || peek("--")) && scope.set) {
+        const step = toks[i++].v === "++" ? 1 : -1;
+        scope.set(tk.v, num(v) + step);
+        return v;
+      }
+      // a constant that also names a scope (".label base = $1000 { … }"): base.inner
+      if (v !== undefined && scope.label && peek(".") && toks[i + 1]?.t === "id" && !(toks[i + 2]?.t === "op" && toks[i + 2].v === "(")) {
+        const inner = scope.label(`${tk.v}.${toks[i + 1].v}`);
+        if (inner) {
+          i += 2;
+          return inner.value !== undefined ? inner.value : { sym: true, label: inner.label, off: 0 };
+        }
+      }
+      if (v !== undefined) return v;
+      // a label: name, scope.inner, loop[2].inner, @root
+      let path = tk.v;
+      for (;;) {
+        if (peek(".") && toks[i + 1]?.t === "id" && !(toks[i + 2]?.t === "op" && toks[i + 2].v === "(")) { path += "." + toks[i + 1].v; i += 2; continue; }
+        if (peek("[") && scope.label) { i++; const index = ternary(); eat("]"); path += `[${num(index)}]`; continue; }
+        break;
+      }
+      const resolved = scope.label ? scope.label(path) : undefined;
+      if (resolved && resolved.value !== undefined) return resolved.value;
+      return { sym: true, label: resolved?.label ?? path.replace(/^@/, ""), off: 0 };
+    }
+    throw new Error(`Unexpected ${tk.v} in: ${src}`);
+  };
+  const result = ternary();
+  if (i < toks.length) throw new Error(`Cannot read the expression: ${src}`);
+  return result;
+}
+
+const _KICK_CMDLINE = { kickCmdLine: true };
+// Pseudocommand argument types (manual 7.3)
+const _KICK_ARG_TYPES = { AT_NONE: 0, AT_IMMEDIATE: 1, AT_ABSOLUTE: 2, AT_ABSOLUTEX: 3, AT_ABSOLUTEY: 4, AT_INDIRECT: 5, AT_IZEROPAGEX: 6, AT_IZEROPAGEY: 7 };
+function _kickCmd(type, value) {
+  return { kickCmd: true, type, value };
+}
+
+// A command argument as operand text: #v, v, v,x, v,y, (v), (v,x), (v),y
+function _kickCmdText(c) {
+  const v = _kickIsSym(c.value) ? _kickSymText(c.value) : _kickNumText(c.value);
+  switch (c.type) {
+    case _KICK_ARG_TYPES.AT_NONE: return "";
+    case _KICK_ARG_TYPES.AT_IMMEDIATE: return "#" + v;
+    case _KICK_ARG_TYPES.AT_ABSOLUTEX: return v + ",x";
+    case _KICK_ARG_TYPES.AT_ABSOLUTEY: return v + ",y";
+    case _KICK_ARG_TYPES.AT_INDIRECT: return "(" + v + ")";
+    case _KICK_ARG_TYPES.AT_IZEROPAGEX: return "(" + v + ",x)";
+    case _KICK_ARG_TYPES.AT_IZEROPAGEY: return "(" + v + "),y";
+    default: return v;
+  }
+}
+
+// LoadBinary(file[, template]): the bytes and the named blocks of the template
+// ("C64FILE, Bitmap=$0000, ScreenRam=$1f40" …); a block ends where the next one starts.
+function _kickLoadBinary(data, template) {
+  let bytes = Array.from(data);
+  const blocks = [];
+  for (const part of String(template || "").split(",").map(p => p.trim()).filter(Boolean)) {
+    if (/^C64FILE$/i.test(part)) { bytes = bytes.slice(2); continue; }
+    const m = part.match(/^([A-Za-z_]\w*)\s*=\s*(\$[0-9A-Fa-f]+|%[01]+|\d+)$/);
+    if (!m) throw new Error(`LoadBinary: cannot read the template part "${part}"`);
+    const start = m[2].startsWith("$") ? parseInt(m[2].slice(1), 16) : m[2].startsWith("%") ? parseInt(m[2].slice(1), 2) : Number(m[2]);
+    blocks.push({ name: m[1], start });
+  }
+  blocks.sort((x, y) => x.start - y.start);
+  blocks.forEach((b, k) => { b.end = k + 1 < blocks.length ? blocks[k + 1].start : bytes.length; });
+  return { kickBinary: true, bytes, blocks };
+}
+
+// The first image of a GIF: { width, height, pixels } (pixels = 0xRRGGBB, row by row).
+function _kickDecodeGif(data) {
+  const d = data;
+  if (String.fromCharCode(d[0], d[1], d[2]) !== "GIF") return null;
+  const width = d[6] | (d[7] << 8);
+  const height = d[8] | (d[9] << 8);
+  const readTable = (pos, flags) => {
+    const n = 2 << (flags & 7);
+    const table = [];
+    for (let k = 0; k < n; k++) table.push((d[pos + k * 3] << 16) | (d[pos + k * 3 + 1] << 8) | d[pos + k * 3 + 2]);
+    return { table, end: pos + n * 3 };
+  };
+  let pos = 13;
+  let global = [];
+  if (d[10] & 0x80) ({ table: global, end: pos } = readTable(pos, d[10]));
+  const pixels = new Array(width * height).fill(global[d[11]] ?? 0);
+  while (pos < d.length) {
+    const kind = d[pos++];
+    if (kind === 0x21) {              // extension: skip its sub-blocks
+      pos++;
+      while (d[pos]) pos += d[pos] + 1;
+      pos++;
+      continue;
+    }
+    if (kind !== 0x2C) break;
+    const left = d[pos] | (d[pos + 1] << 8), top = d[pos + 2] | (d[pos + 3] << 8);
+    const w = d[pos + 4] | (d[pos + 5] << 8), h = d[pos + 6] | (d[pos + 7] << 8);
+    const flags = d[pos + 8];
+    pos += 9;
+    let table = global;
+    if (flags & 0x80) ({ table, end: pos } = readTable(pos, flags));
+    const minCode = d[pos++];
+    const stream = [];
+    while (d[pos]) { for (let k = 1; k <= d[pos]; k++) stream.push(d[pos + k]); pos += d[pos] + 1; }
+    // LZW
+    const clear = 1 << minCode, end = clear + 1;
+    let size = minCode + 1, next = end + 1, prev = null, bit = 0;
+    const prefix = new Int32Array(4096), suffix = new Uint8Array(4096), first = new Uint8Array(4096);
+    for (let k = 0; k < clear; k++) { suffix[k] = k; first[k] = k; }
+    const out = [];
+    const emit = (code) => { const tmp = []; for (let c = code; ; c = prefix[c]) { tmp.push(suffix[c]); if (c < clear) break; } for (let k = tmp.length - 1; k >= 0; k--) out.push(tmp[k]); };
+    while (out.length < w * h) {
+      if (bit + size > stream.length * 8) break;
+      let code = 0;
+      for (let k = 0; k < size; k++, bit++) code |= ((stream[bit >> 3] >> (bit & 7)) & 1) << k;
+      if (code === clear) { size = minCode + 1; next = end + 1; prev = null; continue; }
+      if (code === end) break;
+      if (prev === null) { emit(code); prev = code; continue; }
+      if (code < next) {
+        emit(code);
+        if (next < 4096) { prefix[next] = prev; suffix[next] = first[code]; first[next] = first[prev]; next++; }
+      } else {
+        if (next < 4096) { prefix[next] = prev; suffix[next] = first[prev]; first[next] = first[prev]; next++; }
+        emit(code);
+      }
+      prev = code;
+      if (next === 1 << size && size < 12) size++;
+    }
+    const rows = [];
+    if (flags & 0x40) for (const [start, step] of [[0, 8], [4, 8], [2, 4], [1, 2]]) for (let y = start; y < h; y += step) rows.push(y);
+    else for (let y = 0; y < h; y++) rows.push(y);
+    rows.forEach((y, r) => {
+      for (let x = 0; x < w; x++) {
+        const px = left + x, py = top + y;
+        if (px < width && py < height && r * w + x < out.length) pixels[py * width + px] = table[out[r * w + x]] ?? 0;
+      }
+    });
+    break;
+  }
+  return { width, height, pixels };
+}
+
+// Decodes a picture file of a Kick project: GIF here, PNG / JPG / BMP by the WebView.
+async function _kickDecodePicture(data) {
+  const gif = _kickDecodeGif(data);
+  if (gif) return gif;
+  if (typeof createImageBitmap !== "function" || typeof document === "undefined") return null;
+  try {
+    const bitmap = await createImageBitmap(new Blob([data]), { colorSpaceConversion: "none", premultiplyAlpha: "none" });
+    const canvas = document.createElement("canvas");
+    canvas.width = bitmap.width;
+    canvas.height = bitmap.height;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    ctx.drawImage(bitmap, 0, 0);
+    const rgba = ctx.getImageData(0, 0, bitmap.width, bitmap.height).data;
+    const pixels = new Array(bitmap.width * bitmap.height);
+    for (let k = 0; k < pixels.length; k++) pixels[k] = (rgba[k * 4] << 16) | (rgba[k * 4 + 1] << 8) | rgba[k * 4 + 2];
+    return { width: bitmap.width, height: bitmap.height, pixels };
+  } catch {
+    return null;
+  }
+}
+
+// LoadPicture(file[, colourTable]) value (manual 12.4); without a table the colours of
+// the picture in the order they first appear.
+function _kickLoadPicture(picture, table) {
+  let colours = Array.isArray(table) ? table.map(Number) : null;
+  if (!colours) {
+    colours = [];
+    for (const p of picture.pixels) if (!colours.includes(p) && colours.push(p) >= 4) break;
+  }
+  return { kickPicture: true, width: picture.width, height: picture.height, pixels: picture.pixels, colours };
+}
+
+// LoadSid(file): the PSID / RSID header fields and the data from the load address.
+function _kickLoadSid(data) {
+  const d = Array.from(data);
+  const header = String.fromCharCode(...d.slice(0, 4));
+  if (header !== "PSID" && header !== "RSID") throw new Error("LoadSid: not a PSID / RSID file");
+  const w = (o) => (d[o] << 8) | d[o + 1];
+  const text = (o) => String.fromCharCode(...d.slice(o, o + 32)).replace(/\0[\s\S]*$/, "");
+  const version = w(4);
+  let body = d.slice(w(6));
+  let location = w(8);
+  if (!location) { location = body[0] | (body[1] << 8); body = body.slice(2); }
+  return {
+    kickSid: true, header, version, location, init: w(10), play: w(12), songs: w(14), startSong: w(16),
+    speed: ((d[18] << 24) | (d[19] << 16) | (d[20] << 8) | d[21]) >>> 0,
+    name: text(0x16), author: text(0x36), copyright: text(0x56),
+    flags: version >= 2 ? w(0x76) : 0, startpage: version >= 2 ? d[0x78] : 0, pagelength: version >= 2 ? d[0x79] : 0,
+    size: body.length, data: body
+  };
+}
+
+// Methods of the script values; call = written with ( ).
+function _kickMethod(v, name, a, src, call = true) {
+  if (v && v.kickVector) {
+    if (name === "get") return v.kickVector[a[0]];
+    if (name === "getX") return v.kickVector[0];
+    if (name === "getY") return v.kickVector[1];
+    if (name === "getZ") return v.kickVector[2];
+    if (name === "X") {
+      const [x, y] = [v.kickVector, a[0].kickVector];
+      return _kickVector(x[1] * y[2] - x[2] * y[1], x[2] * y[0] - x[0] * y[2], x[0] * y[1] - x[1] * y[0]);
+    }
+  }
+  if (v && v.kickMatrix) {
+    if (name === "get") return v.kickMatrix[a[0]][a[1]];
+    if (name === "set") { v.kickMatrix[a[0]][a[1]] = a[2]; return null; }
+  }
+  if (v && v.kickPicture) {
+    if (!call && (name === "width" || name === "height")) return v[name];
+    const pixel = (x, y) => {
+      if (x < 0 || y < 0 || x >= v.width || y >= v.height) throw new Error(`${name}: ${x},${y} is outside the ${v.width}×${v.height} picture`);
+      return v.pixels[y * v.width + x];
+    };
+    const index = (x, y) => {
+      const colour = pixel(x, y);
+      const k = v.colours.indexOf(colour);
+      if (k < 0) throw new Error(`${name}: the colour $${colour.toString(16).padStart(6, "0")} at ${x},${y} is not in the colour table`);
+      return k;
+    };
+    if (name === "getPixel") return pixel(a[0], a[1]);
+    if (name === "getSinglecolorByte") {
+      let byte = 0;
+      for (let k = 0; k < 8; k++) byte = (byte << 1) | (index(a[0] * 8 + k, a[1]) & 1);
+      return byte;
+    }
+    if (name === "getMulticolorByte") {
+      let byte = 0;
+      for (let k = 0; k < 4; k++) byte = (byte << 2) | (index(a[0] * 8 + k * 2, a[1]) & 3);
+      return byte;
+    }
+  }
+  if (v && v.kickSid) {
+    if (name === "getData") return v.data[a[0]];
+    if (!call && name in v && name !== "data") return v[name];
+  }
+  if (v && v.kickBinary) {
+    const signed = (b) => (b > 127 ? b - 256 : b);
+    if (name === "getSize") return v.bytes.length;
+    if (name === "get") return signed(v.bytes[a[0] ?? 0]);
+    if (name === "uget") return v.bytes[a[0] ?? 0];
+    const m = name.match(/^(u?get)(\w+?)(Size)?$/);
+    const block = m && v.blocks.find(b => b.name.toLowerCase() === m[2].toLowerCase());
+    if (block) {
+      if (m[3]) return block.end - block.start;
+      const byte = v.bytes[block.start + (a[0] ?? 0)];
+      return m[1] === "uget" ? byte : signed(byte);
+    }
+  }
+  if (v && v.kickCmdLine) {
+    if (name === "containsKey") return !!v.vars?.has(String(a[0]));
+    if (name === "get") return v.vars?.get(String(a[0]));
+  }
+  if (v && v.kickCmd) {
+    if (name === "getType") return v.type;
+    if (name === "getValue") return v.value;
+  }
+  if (v && v.kickStruct) {
+    const index = (k) => (typeof k === "number" ? k : v.fields.indexOf(k));
+    if (!call && v.fields.includes(name)) return v.values[v.fields.indexOf(name)];
+    switch (name) {
+      case "getStructName": return v.kickStruct;
+      case "getNoOfFields": return v.fields.length;
+      case "getFieldNames": return v.fields.slice();
+      case "get": return v.values[index(a[0])];
+      case "set": v.values[index(a[0])] = a[1]; return v;
+    }
+  }
+  if (v && v.kickHash) {
+    const h = v.kickHash;
+    switch (name) {
+      case "put": for (let k = 0; k + 1 < a.length; k += 2) h.set(a[k], a[k + 1]); return v;
+      case "get": return h.get(a[0]);
+      case "containsKey": return h.has(a[0]);
+      case "remove": { const old = h.get(a[0]); h.delete(a[0]); return old; }
+      case "keys": return [...h.keys()];
+      case "values": return [...h.values()];
+      case "size": return h.size;
+      case "lock": return v;
+    }
+  }
+  if (Array.isArray(v)) {
+    switch (name) {
+      case "get": return v[a[0]];
+      case "set": v[a[0]] = a[1]; return v;
+      case "add": v.push(...a); return v;
+      case "addAll": v.push(...(a[0] || [])); return v;
+      case "size": return v.length;
+      case "remove": return v.splice(a[0], 1)[0];
+      case "reverse": v.reverse(); return v;
+      case "sort": v.sort((x, y) => x - y); return v;
+      case "shuffle": for (let k = v.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); [v[k], v[j]] = [v[j], v[k]]; } return v;
+      case "lock": return v;
+    }
+  }
+  if (typeof v === "string") {
+    switch (name) {
+      case "charAt": return v.charAt(a[0]);
+      case "substring": return v.substring(a[0], a[1]);
+      case "size": return v.length;
+      case "toLowerCase": return v.toLowerCase();
+      case "toUpperCase": return v.toUpperCase();
+      case "asBoolean": return v.trim().toLowerCase() === "true";
+      case "asNumber": return a[0] ? parseInt(v, a[0]) : Number(v);
+    }
+  }
+  if (name === "asNumber") return Number(v);
+  if (name === "string") return String(v);
+  throw new Error(`Unknown method .${name}() in: ${src}`);
+}
+
+// Vector(x, y, z) and 4×4 matrix values; a matrix times a vector divides by w.
+const _kickVector = (x, y, z) => ({ kickVector: [x, y, z] });
+const _kickMatrix = (rows) => ({ kickMatrix: rows || [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]] });
+function _kickMatMul(a, b) {
+  return _kickMatrix(a.kickMatrix.map(row => [0, 1, 2, 3].map(j => row.reduce((sum, v, k) => sum + v * b.kickMatrix[k][j], 0))));
+}
+function _kickMatVec(m, v) {
+  const p = [...v.kickVector, 1];
+  const [x, y, z, w] = m.kickMatrix.map(row => row.reduce((sum, c, k) => sum + c * p[k], 0));
+  return w === 1 ? _kickVector(x, y, z) : _kickVector(x / w, y / w, z / w);
+}
+function _kickRotation(ax, ay, az) {
+  const axis = (t, i, j) => {
+    const m = _kickMatrix();
+    const c = Math.cos(t), sn = Math.sin(t);
+    m.kickMatrix[i][i] = c; m.kickMatrix[i][j] = -sn; m.kickMatrix[j][i] = sn; m.kickMatrix[j][j] = c;
+    return m;
+  };
+  // around x first, then y, then z
+  return _kickMatMul(axis(az, 0, 1), _kickMatMul(axis(ay, 2, 0), axis(ax, 1, 2)));
+}
+// A value as KickAssembler prints it: doubles of vectors / matrices with ".0".
+function _kickValueText(v) {
+  const real = (n) => (Number.isInteger(n) ? n.toFixed(1) : String(n));
+  if (v && v.kickVector) return `(${v.kickVector.map(real).join(",")})`;
+  if (v && v.kickMatrix) return `[${v.kickMatrix.map(row => `[${row.map(real).join(",")}]`).join(",")}]`;
+  return String(v);
+}
+
+const _KICK_BUILTINS = {
+  Vector: (x, y, z) => _kickVector(x, y, z), Matrix: () => _kickMatrix(), RotationMatrix: (ax, ay, az) => _kickRotation(ax, ay, az),
+  ScaleMatrix: (x, y, z) => _kickMatrix([[x, 0, 0, 0], [0, y, 0, 0], [0, 0, z, 0], [0, 0, 0, 1]]),
+  MoveMatrix: (x, y, z) => _kickMatrix([[1, 0, 0, x], [0, 1, 0, y], [0, 0, 1, z], [0, 0, 0, 1]]),
+  PerspectiveMatrix: (z) => _kickMatrix([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 0], [0, 0, 1 / z, 0]]),
+  floor: Math.floor, ceil: Math.ceil, round: Math.round, abs: Math.abs, sqrt: Math.sqrt, cbrt: Math.cbrt,
+  sin: Math.sin, cos: Math.cos, tan: Math.tan, asin: Math.asin, acos: Math.acos, atan: Math.atan, atan2: Math.atan2,
+  sinh: Math.sinh, cosh: Math.cosh, tanh: Math.tanh, min: Math.min, max: Math.max, pow: Math.pow, hypot: Math.hypot,
+  log: Math.log, log10: Math.log10, log1p: Math.log1p, exp: Math.exp, expm1: Math.expm1, signum: Math.sign,
+  random: Math.random, toRadians: (d) => d * Math.PI / 180, toDegrees: (r) => r * 180 / Math.PI,
+  IEEEremainder: (a, b) => a - b * Math.round(a / b),
+  mod: (a, b) => a % b, toIntString: (v, size = 0) => String(Math.trunc(v)).padStart(size, " "), toHexString: (v, size = 0) => Math.trunc(v).toString(16).padStart(size, "0"),
+  toBinaryString: (v, size = 0) => Math.trunc(v).toString(2).padStart(size, "0"), toOctalString: (v, size = 0) => Math.trunc(v).toString(8).padStart(size, "0"),
+  asmCommandSize: (op) => _kickOpcodeSize(op), List: (n = 0) => new Array(n).fill(null), Hashtable: () => ({ kickHash: new Map() }), LoadBinary: null
+};
+const _KICK_CONSTS = { PI: Math.PI, E: Math.E, true: true, false: false, cmdLineVars: _KICK_CMDLINE, ..._KICK_ARG_TYPES,
+  // LoadBinary templates (manual 12.2)
+  BF_C64FILE: "C64FILE", BF_BITMAP_SINGLECOLOR: "C64FILE, Bitmap=$0000, ScreenRam=$2000",
+  BF_KOALA: "C64FILE, Bitmap=$0000, ScreenRam=$1f40, ColorRam=$2328, BackgroundColor = $2710",
+  BF_FLI: "C64FILE, ColorRam=$0000, ScreenRam=$0400, Bitmap=$2400", BF_DOODLE: "C64FILE, ColorRam=$0000,Bitmap=$0400",
+  // colour constants (KickAssembler manual 14.4)
+  BLACK: 0, WHITE: 1, RED: 2, CYAN: 3, PURPLE: 4, GREEN: 5, BLUE: 6, YELLOW: 7, ORANGE: 8, BROWN: 9, LIGHT_RED: 10,
+  DARK_GRAY: 11, DARK_GREY: 11, GRAY: 12, GREY: 12, LIGHT_GREEN: 13, LIGHT_BLUE: 14, LIGHT_GRAY: 15, LIGHT_GREY: 15 };
+
+// Opcode constants (manual 14.3): RTS, LDA_IMM, LDA_ZPX, JMP_IND, BNE_REL … from opcodeMap.
+const _KICK_MODE_SUFFIX = { implied: "", immediate: "_IMM", zeroPage: "_ZP", zeroPageX: "_ZPX", zeroPageY: "_ZPY",
+  indirectX: "_IZPX", indirectY: "_IZPY", absolute: "_ABS", absoluteX: "_ABSX", absoluteY: "_ABSY", indirect: "_IND", relative: "_REL" };
+let _kickOpcodeConsts = null;
+function _kickOpcodeConst(name) {
+  if (!_kickOpcodeConsts) {
+    _kickOpcodeConsts = new Map();
+    for (const [mnem, modes] of Object.entries(opcodeMap)) {
+      for (const [mode, op] of Object.entries(modes)) if (mode in _KICK_MODE_SUFFIX) _kickOpcodeConsts.set(mnem + _KICK_MODE_SUFFIX[mode], op);
+    }
+  }
+  return _kickOpcodeConsts.get(name);
+}
+function _kickOpcodeSize(op) {
+  for (const modes of Object.values(opcodeMap)) {
+    for (const [mode, code] of Object.entries(modes)) {
+      if (code === op) return mode === "implied" ? 1 : /^(absolute|indirect$)/.test(mode) ? 3 : 2;
+    }
+  }
+  throw new Error(`asmCommandSize(): unknown opcode ${op}`);
+}
+
+// ── Preprocessor ─────────────────────────────────────────────────────────────
+// files: readText(path) → string | null, readBinary(path) → Uint8Array | null.
+// Returns { ok, text, origins: [{file, line}] (one per output line), errors }.
+// options: { defines: ["NAME", …] (#define), vars: { name: "value" } (cmdLineVars) }
+// Opcodes of the KickAssembler instruction sets beyond the VA assembler (manual A.3):
+// modes noarg imm zp zpx zpy izx izy abs abx aby ind rel izp zprel indx.
+const _KICK_CPU_OPS = (() => {
+  const illegal = { ANC2: { imm: 0x2B }, SBC2: { imm: 0xEB } };
+  const dtv = { ...illegal, BRA: { rel: 0x12 }, SAC: { imm: 0x32 }, SIR: { imm: 0x42 } };
+  const c02 = {
+    ADC: { izp: 0x72 }, AND: { izp: 0x32 }, CMP: { izp: 0xD2 }, EOR: { izp: 0x52 }, LDA: { izp: 0xB2 }, ORA: { izp: 0x12 }, SBC: { izp: 0xF2 }, STA: { izp: 0x92 },
+    BIT: { imm: 0x89, zpx: 0x34, abx: 0x3C }, BRA: { rel: 0x80 }, DEC: { noarg: 0x3A }, INC: { noarg: 0x1A }, JMP: { indx: 0x7C },
+    PHX: { noarg: 0xDA }, PHY: { noarg: 0x5A }, PLX: { noarg: 0xFA }, PLY: { noarg: 0x7A }, STP: { noarg: 0xDB }, WAI: { noarg: 0xCB },
+    STZ: { zp: 0x64, zpx: 0x74, abs: 0x9C, abx: 0x9E }, TRB: { zp: 0x14, abs: 0x1C }, TSB: { zp: 0x04, abs: 0x0C }
+  };
+  for (let n = 0; n < 8; n++) {
+    c02["RMB" + n] = { zp: 0x07 + n * 16 };
+    c02["SMB" + n] = { zp: 0x87 + n * 16 };
+    c02["BBR" + n] = { zprel: 0x0F + n * 16 };
+    c02["BBS" + n] = { zprel: 0x8F + n * 16 };
+  }
+  return { _6502: illegal, dtv, _65c02: c02 };
+})();
+// The illegal opcodes: not in _6502NoIllegals and _65c02.
+const _KICK_ILLEGAL = new Set(["LAX", "SAX", "DCP", "ISC", "SLO", "RLA", "SRE", "RRA", "ANC", "ALR", "ARR", "AXS", "SHA", "SHX", "SHY", "TAS", "LAS", "XAA",
+  "AHX", "SHS", "LAE", "LDS", "ASR", "SBX", "DCM", "INS", "ISB", "ANE", "LXA", "ANC2", "SBC2"]);
+
+// * as the program counter inside an expression (not a multiplication)
+const _KICK_PC_IN_EXPR = /(^|[(+\-*/,&|^~<>=!?:]\s*)\*(?![*=])/g;
+
+function _kickPreprocess(entry, readText, readBinary, options = {}) {
+  const errors = [];
+  const lines = _kickFlatten(entry, readText, errors, new Set(options.defines || []));
+  const cmdLine = { kickCmdLine: true, vars: new Map(Object.entries(options.vars || {}).map(([k, v]) => [k, String(v)])) };
+  const tree = _kickParseTree(_kickItems(lines), errors);
+
+  const consts = new Map();      // name → expression text
+  const constValues = new Map(); // name → value
+  const functions = new Map();
+  const macros = new Map();
+  const pseudocommands = new Map();
+  const structs = new Map();
+  const messages = [];
+  // Root constants are collected first (they can be used before their line); the
+  // constants of a scope or namespace are defined when the expansion reaches them.
+  // Functions and macros are global (also from namespaces).
+  const collect = (nodes, rootLevel, ns) => {
+    for (const n of nodes) {
+      if (n.kind === "function") { functions.set(n.name, n); continue; }
+      if (n.kind === "macro") { n.ns = ns; macros.set(n.name, n); continue; }
+      if (n.kind === "pseudocommand") { n.ns = ns; pseudocommands.set(n.name, n); continue; }
+      if (n.kind === "struct") { structs.set(n.name, n.fields); continue; }
+      if (n.kind === "stmt") {
+        const m = n.text.match(/^\.(const|label)\s+(@?)([A-Za-z_]\w*)\s*=\s*(.+?)\s*$/i);
+        if (m && /^\*\s*(?:[+-]\s*[$%]?[0-9A-Fa-f]+)?$/.test(m[4].trim())) n.pcLabel = true;
+        else if (m && new RegExp(_KICK_PC_IN_EXPR.source).test(m[4])) {
+          // * in an expression (*-start): a hidden label at the line stands for it
+          n.pcName = `__pc_${pcNames.length + 1}`;
+          pcNames.push(n.pcName);
+          m[4] = m[4].replace(_KICK_PC_IN_EXPR, (all, before) => before + n.pcName);
+          n.text = `.${m[1]} ${m[2]}${m[3]} = ${m[4]}`;
+        }
+        if (m && !n.pcLabel && (rootLevel || m[2])) { n.rootConst = true; consts.set(m[3], { expr: m[4], node: n, kind: m[1].toLowerCase() }); }
+      }
+      if (n.kind === "if") n.branches.forEach(b => collect(b.body, false, ns));
+      if (n.kind === "if" && n.elseBody) collect(n.elseBody, false, ns);
+      if (n.kind === "for" || n.kind === "block") collect(n.body, false, ns);
+      if (n.kind === "pseudopc") collect(n.body, rootLevel, ns);
+      if (n.kind === "namespace") collect(n.body, false, n.name);
+    }
+  };
+  const pcNames = [];
+  collect(tree, true, null);
+  const rootLs = _kickNewLabelScope(null, "");
+  for (const name of pcNames) rootLs.labels.set(name, name);
+  let lsSerial = 0;
+  // A child scope; named ones are registered in "into" (default: the parent) by name,
+  // loops as an array (index = turn).
+  const childLs = (parent, name, turn = null, into = parent) => {
+    const tag = name ? (turn === null ? name : `${name}_${turn}`) : `s${++lsSerial}`;
+    const ls = _kickNewLabelScope(parent, `${parent.prefix || "__"}${tag}__`);
+    if (name) {
+      if (turn === null) into.children.set(name, ls);
+      else {
+        if (!Array.isArray(into.children.get(name))) into.children.set(name, []);
+        into.children.get(name)[turn] = ls;
+      }
+    }
+    return ls;
+  };
+  const namespaceLs = (name, parent = rootLs) => {
+    let ns = parent.children.get(name);
+    if (!ns || Array.isArray(ns)) {
+      ns = _kickNewLabelScope(parent, `${parent.prefix || "__"}${name}__`);
+      ns.nsName = parent.nsName ? `${parent.nsName}.${name}` : name;
+      parent.children.set(name, ns);
+    }
+    return ns;
+  };
+
+  const err = (node, text) => errors.push({ file: node?.file, line: node?.line, text });
+  const constOf = (name) => {
+    if (constValues.has(name)) return constValues.get(name);
+    if (consts.has(name)) return root.get(name);
+    return undefined;
+  };
+
+  // Scope chain: vars of .for / macro / function bodies, the constants of the label
+  // scopes, then the root constants.
+  const makeScope = (parent, vars = new Map(), ls = null) => {
+    const findVar = (name) => {
+      for (let sc = scope; sc; sc = sc.parent) if (sc.vars.has(name)) return sc.vars.get(name);
+      return undefined;
+    };
+    const scope = {
+      vars,
+      parent,
+      ls: ls || parent?.ls || rootLs,
+      label(path) { return _kickResolveLabel(path, scope.ls, rootLs); },
+      get(name) {
+        if (name === "cmdLineVars") return cmdLine;
+        if (name.startsWith("@")) {
+          const bare = name.slice(1);
+          if (constValues.has(bare)) return constValues.get(bare);
+          return consts.has(bare) ? evalConst(bare) : undefined;
+        }
+        const v = findVar(name);
+        if (v !== undefined) return v;
+        for (let l = scope.ls; l; l = l.parent) if (l.consts.has(name)) return l.consts.get(name);
+        if (constValues.has(name)) return constValues.get(name);
+        if (consts.has(name)) return evalConst(name);
+        if (Object.prototype.hasOwnProperty.call(_KICK_CONSTS, name)) return _KICK_CONSTS[name];
+        const opcode = _kickOpcodeConst(name);
+        if (opcode !== undefined) return opcode;
+        return undefined;
+      },
+      call(name, args) {
+        if (name === "getNamespace") {
+          for (let l = currentLs; l; l = l.parent) if (l.nsName) return l.nsName;
+          return "<RootNS>";
+        }
+        if (functions.has(name)) return callFunction(functions.get(name), args);
+        if (structs.has(name)) {
+          const fields = structs.get(name);
+          return { kickStruct: name, fields, values: fields.map((f, k) => (args.length ? args[k] : null)) };
+        }
+        if (name === "CmdArgument") return _kickCmd(args[0], args[1]);
+        if (name === "LoadPicture") {
+          const path = _kickResolvePath(currentFile || entry, String(args[0]));
+          let picture = options.readPicture?.(path);
+          if (!picture) {
+            const data = readBinary(path);
+            if (!data) throw new Error(`File not found: ${path}`);
+            picture = _kickDecodeGif(data);
+          }
+          if (!picture) throw new Error(`LoadPicture: cannot decode ${path}`);
+          return _kickLoadPicture(picture, args[1]);
+        }
+        if (name === "LoadBinary" || name === "LoadSid") {
+          const path = _kickResolvePath(currentFile || entry, String(args[0]));
+          const data = readBinary(path);
+          if (!data) throw new Error(`File not found: ${path}`);
+          return name === "LoadSid" ? _kickLoadSid(data) : _kickLoadBinary(data, args[1]);
+        }
+        const fn = _KICK_BUILTINS[name];
+        if (typeof fn === "function") return fn(...args.map(a => {
+          if (_kickIsSym(a)) throw new Error(`${name}(): the value is not known yet (${_kickSymText(a)})`);
+          return a;
+        }));
+        throw new Error(`Unknown function ${name}()`);
+      },
+      set(name, value) {
+        for (let sc = scope; sc; sc = sc.parent) if (sc.vars.has(name)) { sc.vars.set(name, value); return true; }
+        return false;
+      }
+    };
+    return scope;
+  };
+  const evaluating = new Set();
+  const evalConst = (name) => {
+    if (constValues.has(name)) return constValues.get(name);
+    if (evaluating.has(name)) return { sym: true, label: name, off: 0 };
+    evaluating.add(name);
+    let value;
+    try { value = _kickEval(consts.get(name).expr, root); }
+    catch (e) { err(consts.get(name).node, e.message); value = { sym: true, label: name, off: 0 }; }
+    evaluating.delete(name);
+    constValues.set(name, value);
+    return value;
+  };
+  const root = makeScope(null);
+
+  const callFunction = (fn, args) => {
+    const scope = makeScope(root, new Map(fn.params.map((p, k) => [p, args[k]])));
+    const result = runFunction(fn.body, scope);
+    if (result === undefined) throw new Error(`${fn.name}() has no .return`);
+    return result;
+  };
+  const runFunction = (nodes, scope) => {
+    let r2;
+    for (const n of nodes) {
+      if (n.kind === "stmt") {
+        const r = n.text.match(/^\.return\s+(.+)$/i);
+        if (r) return _kickEval(r[1], scope);
+        if (runVarStmt(n, scope)) continue;
+        if (/^\.(print|printnow|asserterror)\b/i.test(n.text)) continue;
+        if ((r2 = n.text.match(/^\.error\s+(.+)$/i))) throw new Error(String(_kickEval(r2[1], scope)));
+        throw new Error(`Not allowed in a function: ${n.text}`);
+      } else if (n.kind === "if") {
+        const body = pickIf(n, scope);
+        if (body) { const r = runFunction(body, makeScope(scope)); if (r !== undefined) return r; }
+      } else if (n.kind === "for") {
+        let r;
+        runFor(n, scope, (s) => { if (r === undefined) r = runFunction(n.body, s); return r !== undefined; });
+        if (r !== undefined) return r;
+      }
+    }
+    return undefined;
+  };
+  // .var / .eval / assignments; true when the statement was one of them.
+  const runVarStmt = (n, scope) => {
+    let m;
+    if ((m = n.text.match(/^\.var\s+([A-Za-z_]\w*)\s*=\s*(.+)$/i))) { scope.vars.set(m[1], _kickEval(m[2], scope)); return true; }
+    if ((m = n.text.match(/^\.var\s+([A-Za-z_]\w*)\s*$/i))) { scope.vars.set(m[1], 0); return true; }
+    if ((m = n.text.match(/^\.eval\s+(.+)$/i))) { assign(m[1], scope); return true; }
+    return false;
+  };
+  const assign = (text, scope) => {
+    let m;
+    if ((m = text.match(/^([A-Za-z_]\w*)\s*(\+\+|--)$/))) {
+      scope.set(m[1], _kickEval(m[1], scope) + (m[2] === "++" ? 1 : -1));
+      return;
+    }
+    if ((m = text.match(/^([A-Za-z_]\w*)\s*([-+*/|&^]|<<|>>)?=\s*(.+)$/))) {
+      const v = _kickEval(m[3], scope);
+      const value = m[2] ? _kickEval(`(${_kickSymText(_kickEval(m[1], scope))})${m[2]}(${_kickSymText(v)})`, scope) : v;
+      if (!scope.set(m[1], value)) throw new Error(`Unknown variable ${m[1]}`);
+      return;
+    }
+    if ((m = text.match(/^([A-Za-z_]\w*)\.([A-Za-z_]\w*)\s*=\s*(.+)$/))) {
+      const obj = _kickEval(m[1], scope);
+      if (obj && obj.kickStruct && obj.fields.includes(m[2])) { obj.values[obj.fields.indexOf(m[2])] = _kickEval(m[3], scope); return; }
+    }
+    // anything else: evaluated for its side effects (list.add(…), hash.put(…))
+    _kickEval(text, scope);
+  };
+  // An .if that only reports (.error / .print …) is skipped when its condition needs
+  // label addresses, which the preprocessor does not know.
+  const diagnosticOnly = (n) => [...n.branches.map(b => b.body), n.elseBody || []].every(body => body.every(x => x.kind === "stmt" && /^\.(error|errorif|print|printnow|assert|asserterror)\b/i.test(x.text)));
+  const pickIf = (n, scope) => {
+    for (const b of n.branches) {
+      let c;
+      try { c = _kickEval(b.cond, scope); } catch (e) { if (diagnosticOnly(n)) return null; throw e; }
+      if (_kickIsSym(c)) {
+        if (diagnosticOnly(n)) return null;
+        throw new Error(`.if: the condition is not known yet (${b.cond})`);
+      }
+      if (c) return b.body;
+    }
+    return n.elseBody;
+  };
+  // Calls each(loopScope) for every turn; each returns true to stop.
+  const runFor = (n, scope, each) => {
+    const loop = makeScope(scope);
+    for (const init of _kickSplitTop(n.init || "")) {
+      const m = init.match(/^(?:var\s+)?([A-Za-z_]\w*)\s*=\s*(.+)$/);
+      if (m) loop.vars.set(m[1], _kickEval(m[2], scope));
+    }
+    let guard = 0;
+    while (!n.cond || _kickEval(n.cond, loop)) {
+      if (++guard > 65536) throw new Error(".for runs more than 65536 times");
+      if (each(makeScope(loop))) return;
+      for (const step of _kickSplitTop(n.step || "")) if (step) assign(step, loop);
+    }
+  };
+
+  // Expanded output: { text, file, line } | { bytes, file, line } | { pseudo: value | null }
+  const out = [];
+  let currentLs = rootLs;
+  let currentFile = entry;   // the file of the statement being expanded (LoadBinary paths)
+  const emit = (node, text) => out.push({ text, file: node.file, line: node.line, ls: currentLs });
+  // [start=$1000, fill, segments="A, B", prgFiles="a.prg"] → values; prgFiles / sidFiles → _blocks
+  const segParams = (bracket, scope, file) => {
+    const params = {};
+    for (const part of _kickSplitTop(bracket.trim().replace(/^\[|\]$/g, "")).map(p => p.trim()).filter(Boolean)) {
+      const pm = part.match(/^([A-Za-z_]\w*)\s*(?:=\s*([\s\S]+))?$/);
+      if (!pm) throw new Error(`Segment parameter: ${part}`);
+      params[pm[1]] = pm[2] === undefined ? true : _kickEval(substitute(pm[2], scope), scope);
+    }
+    params._blocks = [];
+    for (const [key, sid] of [["prgFiles", false], ["sidFiles", true]]) {
+      for (const name of String(params[key] || "").split(",").map(x => x.trim()).filter(Boolean)) {
+        const path = _kickResolvePath(file, name);
+        const data = readBinary(path);
+        if (!data) throw new Error(`File not found: ${path}`);
+        if (sid) { const tune = _kickLoadSid(data); params._blocks.push({ org: tune.location, bytes: tune.data }); }
+        else params._blocks.push({ org: data[0] | (data[1] << 8), bytes: Array.from(data).slice(2) });
+      }
+    }
+    return params;
+  };
+  // Inside a VA macro (.macro … .endm) the lines go to the VA assembler unchanged.
+  let vaMacroBody = false;
+
+  // Variables, function calls and macro parameters into a statement's text.
+  const substitute = (text, scope) => {
+    let result = "";
+    const re = /("(?:\\.|[^"\\])*")|(\$[0-9A-Fa-f]+)|(%[01]+)|(\d+)|(![A-Za-z_]\w*[+-]+|![+-]+)|(\.[A-Za-z_]\w*)|([A-Za-z_]\w*)|([\s\S])/g;
+    let m;
+    while ((m = re.exec(text))) {
+      if (m[7]) {
+        const name = m[7];
+        const after = text.slice(re.lastIndex);
+        if (/^\s*:(?!=)/.test(after) && !result.trim()) { result += name; continue; }
+        if (/^\s*\(/.test(after) && (functions.has(name))) {
+          const p = _kickParen(text, text.indexOf("(", re.lastIndex));
+          let args;
+          try { args = p.inner.trim() ? _kickSplitTop(p.inner).map(a => _kickEval(a, scope)) : []; } catch (_) { result += name; continue; }
+          let value;
+          try { value = callFunction(functions.get(name), args); } catch (_) { result += name; continue; }
+          result += value && value.kickCmd ? _kickCmdText(value) : `(${_kickSymText(value)})`;
+          re.lastIndex = p.end;
+          continue;
+        }
+        if (scope.vars.has(name) || (scope !== root && scope.get(name) !== undefined && !constValues.has(name) && !consts.has(name) && !Object.prototype.hasOwnProperty.call(_KICK_CONSTS, name))) {
+          let v = scope.get(name);
+          // name.method(…).field …: the whole chain is evaluated (arg.getValue(), list.get(2))
+          let end = re.lastIndex;
+          for (let mm; (mm = text.slice(end).match(/^\s*\.\s*[A-Za-z_]\w*/));) {
+            end += mm[0].length;
+            const call = text.slice(end).match(/^\s*\(/);
+            if (call) { const p = _kickParen(text, end + call[0].length - 1); if (!p) break; end = p.end; }
+          }
+          if (end > re.lastIndex) {
+            v = _kickEval(text.slice(re.lastIndex - name.length, end), scope);
+            re.lastIndex = end;
+          }
+          result += v && v.kickCmd ? _kickCmdText(v) : _kickIsSym(v) ? `(${_kickSymText(v)})` : typeof v === "string" ? JSON.stringify(v) : _kickNumText(v);
+          continue;
+        }
+        result += name;
+        continue;
+      }
+      result += m[0];
+    }
+    return result;
+  };
+
+  // A pseudocommand argument: its type from the form, its value evaluated here.
+  const cmdArgument = (text, scope) => {
+    const t = String(text ?? "").trim();
+    if (!t) return _kickCmd(_KICK_ARG_TYPES.AT_NONE, 0);
+    const value = (e) => _kickEval(e, scope);
+    let am;
+    if (t.startsWith("#")) return _kickCmd(_KICK_ARG_TYPES.AT_IMMEDIATE, value(t.slice(1)));
+    if ((am = t.match(/^\((.+)\)\s*,\s*y$/i))) return _kickCmd(_KICK_ARG_TYPES.AT_IZEROPAGEY, value(am[1]));
+    if ((am = t.match(/^\((.+)\s*,\s*x\)$/i))) return _kickCmd(_KICK_ARG_TYPES.AT_IZEROPAGEX, value(am[1]));
+    if ((am = t.match(/^(.+?)\s*,\s*([xy])$/i))) return _kickCmd(am[2].toLowerCase() === "x" ? _KICK_ARG_TYPES.AT_ABSOLUTEX : _KICK_ARG_TYPES.AT_ABSOLUTEY, value(am[1]));
+    const v = value(t);
+    if (v && v.kickCmd) return v;
+    if (/^\(.+\)$/.test(t) && _kickParen(t, 0)?.end === t.length) return _kickCmd(_KICK_ARG_TYPES.AT_INDIRECT, value(t.slice(1, -1)));
+    return _kickCmd(_KICK_ARG_TYPES.AT_ABSOLUTE, v);
+  };
+
+  const expand = (nodes, scope) => {
+    for (const n of nodes) {
+      try {
+        expandNode(n, scope);
+      } catch (e) {
+        err(n, e.message);
+      }
+    }
+  };
+  const expandNode = (n, scope) => {
+    currentLs = scope.ls;
+    currentFile = n.file;
+    switch (n.kind) {
+      case "function": case "macro": return;
+      case "block": expand(n.body, makeScope(scope, undefined, childLs(scope.ls, n.scopeLabel))); return;
+      case "if": { const body = pickIf(n, scope); if (body) expand(body, makeScope(scope, undefined, childLs(scope.ls, n.scopeLabel))); return; }
+      case "for": {
+        let turn = 0;
+        runFor(n, scope, (s) => {
+          s.ls = childLs(scope.ls, n.scopeLabel, n.scopeLabel ? turn++ : null);
+          expand(n.body, s);
+          return false;
+        });
+        return;
+      }
+      case "namespace": expand(n.body, makeScope(root, undefined, namespaceLs(n.name, scope.ls === rootLs ? rootLs : scope.ls))); return;
+      case "pseudocommand": case "struct": return;
+      case "enum": {
+        let next = 0;
+        for (const f of n.fields) {
+          const em = f.match(/^([A-Za-z_]\w*)\s*(?:=\s*(.+))?$/);
+          if (!em) throw new Error(`.enum: cannot read ${f}`);
+          // like KickAssembler: an explicit value does not move the counter (E5 = 5, E6 → next)
+          const value = em[2] !== undefined ? _kickEval(em[2], scope) : next++;
+          if (scope.ls === rootLs) constValues.set(em[1], value); else scope.ls.consts.set(em[1], value);
+        }
+        return;
+      }
+      case "scriptdefine": {
+        const inner = makeScope(scope);
+        runFunction(n.body, inner);
+        for (const name of n.names) {
+          const value = inner.vars.get(name);
+          if (scope.ls === rootLs) constValues.set(name, value); else scope.ls.consts.set(name, value);
+        }
+        return;
+      }
+      case "disk": {
+        const params = n.params ? segParams(n.params, scope, n.file) : {};
+        const files = _kickSplitTop(n.files).map(f => f.trim()).filter(Boolean).map(f => segParams(f, scope, n.file));
+        out.push({ disk: params, files, file: n.file, line: n.line });
+        return;
+      }
+      case "assertcode": {
+        // the VA lines of a block (its own errors collected)
+        const lines = (body) => {
+          const at = out.length;
+          const errs = [];
+          try { expand(body, makeScope(scope)); } catch (e) { errs.push({ text: e.message }); }
+          const items = out.splice(at);
+          const emitted = errs.length ? null : _kickEmit(items, root, constValues, consts, errs, constOf, rootLs);
+          return { lines: emitted ? emitted.text.split("\n").filter(Boolean) : [], error: errs[0]?.text || null };
+        };
+        const desc = String(_kickEval(n.desc, scope));
+        const a = lines(n.a);
+        if (n.error) {
+          messages.push(a.error ? `${desc} -- OK. | ${a.error}` : `${desc} -- ERROR IN ASSERTION!`);
+          return;
+        }
+        const b = n.b ? lines(n.b) : { lines: [], error: null };
+        const same = !a.error && !b.error && a.lines.join("\n") === b.lines.join("\n");
+        messages.push(same ? `${desc} -- OK. | ${a.lines.join("; ")}` : `${desc} -- FAILED! | ${a.error || a.lines.join("; ")} -- ${b.error || b.lines.join("; ")}`);
+        return;
+      }
+      case "pseudopc": {
+        out.push({ pseudo: substitute(n.expr, scope), file: n.file, line: n.line });
+        expand(n.body, makeScope(scope));
+        out.push({ pseudo: null, file: n.file, line: n.line });
+        return;
+      }
+    }
+    const text = n.text;
+    if (vaMacroBody || /^\.macro\b/i.test(text)) {
+      out.push({ text, raw: true, file: n.file, line: n.line });
+      vaMacroBody = !/^\.(endm|endmacro)\b/i.test(text);
+      return;
+    }
+    if (runVarStmt(n, scope)) return;
+    // a label: its VA name in the current scope (@name: the root)
+    let lm = text.match(/^(@?)([A-Za-z_]\w*):$/);
+    if (lm) {
+      const target = lm[1] ? rootLs : scope.ls;
+      const name = target.prefix + lm[2];
+      target.labels.set(lm[2], name);
+      emit(n, name + ":");
+      return;
+    }
+    // .label name = * [± n]: a label at the program counter (also in macro bodies)
+    if (n.pcLabel || /^\.(?:const|label)\s+@?[A-Za-z_]\w*\s*=\s*\*\s*(?:[+-]\s*[$%]?[0-9A-Fa-f]+)?\s*$/i.test(text)) {
+      lm = text.match(/^\.(?:const|label)\s+(@?)([A-Za-z_]\w*)\s*=\s*(.+)$/i);
+      const target = lm[1] ? rootLs : scope.ls;
+      const name = target.prefix + lm[2];
+      target.labels.set(lm[2], name);
+      emit(n, `.label ${name} = ${lm[3]}`);
+      return;
+    }
+    if ((lm = text.match(/^\.(?:const|label)\s+(@?)([A-Za-z_]\w*)\s*=\s*(.+?)\s*$/i))) {
+      if (n.pcName) emit(n, n.pcName + ":");
+      if (n.rootConst) return;
+      const value = _kickEval(substitute(lm[3], scope), scope);
+      if (lm[1]) constValues.set(lm[2], value);
+      else scope.ls.consts.set(lm[2], value);
+      return;
+    }
+    if (/^\.(const|label)\s/i.test(text)) return;
+    let m;
+    // .error "message" / .errorif cond, "message"; .print output is collected
+    if ((m = text.match(/^\.error\s+(.+)$/i))) throw new Error(String(_kickEval(m[1], scope)));
+    if ((m = text.match(/^\.errorif\s+(.+)$/i))) {
+      const [cond, message] = _kickSplitTop(m[1]);
+      if (_kickEval(cond, scope)) throw new Error(String(message ? _kickEval(message, scope) : ".errorif"));
+      return;
+    }
+    if ((m = text.match(/^\.(?:print|printnow)\s+(.+)$/i))) {
+      try { messages.push(String(_kickEval(m[1], scope))); } catch (_) { /* labels are not known here */ }
+      return;
+    }
+    // .asserterror "name", expr: OK when the expression fails
+    if ((m = text.match(/^\.asserterror\s+(.+)$/i))) {
+      const [desc, expr] = _kickSplitTop(m[1]);
+      let failure = null;
+      try {
+        const v = _kickEval(substitute(expr, scope), scope);
+        if (typeof v === "number" && !Number.isFinite(v)) failure = "Division by zero";
+      } catch (e) { failure = e.message; }
+      const name = String(_kickEval(desc, scope));
+      messages.push(failure === null ? `${name} -- ERROR IN ASSERTION!` : `${name} -- OK. | ${failure}`);
+      return;
+    }
+    // segments: markers, the emitter lays them out (manual 10)
+    if ((m = text.match(/^\.(segmentdef|segment)\s+([A-Za-z_]\w*)\s*(\[.*\])?\s*(?:"[^"]*")?\s*$/i))) {
+      const params = m[3] ? segParams(m[3], scope, n.file) : null;
+      if (m[1].toLowerCase() === "segmentdef") out.push({ segdef: m[2], params: params || { _blocks: [] }, file: n.file, line: n.line });
+      else out.push({ segment: m[2], params, file: n.file, line: n.line });
+      return;
+    }
+    if ((m = text.match(/^\.(segmentout|file)\s*(\[.*\])\s*$/i))) {
+      out.push({ [m[1].toLowerCase() === "file" ? "fileOut" : "segout"]: segParams(m[2], scope, n.file), file: n.file, line: n.line });
+      return;
+    }
+    if (/^\.memblock\b/i.test(text)) return;
+    if ((m = text.match(/^\.cpu\s+(_6502NoIllegals|_6502|dtv|_65c02)\s*$/i))) { out.push({ cpu: m[1], file: n.file, line: n.line }); return; }
+    if ((m = text.match(/^\.break\b\s*(.*)$/i))) { out.push({ brk: m[1].trim() ? String(_kickEval(substitute(m[1], scope), scope)) : "", file: n.file, line: n.line }); return; }
+    if ((m = text.match(/^\.watch\s+(.+)$/i))) { out.push({ watch: _kickSplitTop(m[1]).map(a => a.trim()), ls: currentLs, file: n.file, line: n.line }); return; }
+    // .modify / .filemodify run a KickAssembler (Java) plugin: the block stays as it is
+    if ((m = text.match(/^\.(?:file)?modify\s+([A-Za-z_]\w*)/i))) {
+      messages.push(`${n.file.split("/").pop()}:${n.line}: .modify ${m[1]}: plugin modifiers need KickAssembler; the bytes are not modified`);
+      return;
+    }
+    // .fillword n, expr(i) / [a, b] — .lohifill n, expr(i): a lo table, then a hi table
+    if ((m = text.match(/^\.(fillword|lohifill)\s+(.+)$/i))) {
+      const [countText, valueText] = _kickSplitTop(m[2]);
+      const count = _kickEval(substitute(countText, scope), scope);
+      if (typeof count !== "number") throw new Error(`.${m[1]}: the count is not known (${countText})`);
+      const words = [];
+      const turn = makeScope(scope, new Map([["i", 0]]));
+      for (let k = 0; k < count; k++) {
+        turn.vars.set("i", k);
+        const v = _kickEval(substitute(valueText, turn), turn);
+        for (const w of Array.isArray(v) ? v : [v]) {
+          if (typeof w !== "number") throw new Error(`.${m[1]}: the value is not known (${valueText})`);
+          words.push(Math.trunc(w) & 0xFFFF);
+        }
+      }
+      if (m[1].toLowerCase() === "fillword") { out.push({ bytes: words.flatMap(w => [w & 0xFF, w >> 8]), file: n.file, line: n.line }); return; }
+      if (n.lohiLabel) {
+        const ls = childLs(scope.ls, n.lohiLabel);
+        ls.labels.set("lo", ls.prefix + "lo");
+        ls.labels.set("hi", ls.prefix + "hi");
+        emit(n, ls.prefix + "lo:");
+        out.push({ bytes: words.map(w => w & 0xFF), file: n.file, line: n.line });
+        emit(n, ls.prefix + "hi:");
+      } else out.push({ bytes: words.map(w => w & 0xFF), file: n.file, line: n.line });
+      out.push({ bytes: words.map(w => w >> 8), file: n.file, line: n.line });
+      return;
+    }
+    if (/^\.(print|printnow|plugin|segmentdef|filenamespace)\b/i.test(text)) return;
+    // .import binary / c64 / text "file"[, offset[, length]]
+    if ((m = text.match(/^\.import\s+(binary|c64|text)\s+"([^"]+)"\s*(?:,(.*))?$/i))) {
+      const path = _kickResolvePath(n.file, m[2]);
+      const data = readBinary(path);
+      if (!data) { err(n, `File not found: ${path}`); return; }
+      const extra = m[3] ? _kickSplitTop(m[3]).map(a => _kickEval(substitute(a, scope), scope)) : [];
+      let bytes = Array.from(data);
+      if (m[1].toLowerCase() === "c64") bytes = bytes.slice(2);
+      const offset = extra[0] ?? 0;
+      const length = extra[1] ?? (bytes.length - offset);
+      out.push({ bytes: bytes.slice(offset, offset + length), file: n.file, line: n.line });
+      return;
+    }
+    // pseudocommand: name a : b, or :name a : b (a mnemonic name needs the colon)
+    if ((m = text.match(/^(:)?@?([A-Za-z_]\w*)(?:\s+(.*))?$/)) && pseudocommands.has(m[2]) && (m[1] || !opcodeMap[m[2].toUpperCase()])) {
+      const pc = pseudocommands.get(m[2]);
+      const argTexts = m[3] && m[3].trim() ? _kickSplitTop(m[3], ":") : [];
+      const vars = new Map(pc.params.map((p, k) => [p, cmdArgument(argTexts[k], scope)]));
+      const home = pc.ns ? namespaceLs(pc.ns) : rootLs;
+      expand(pc.body, makeScope(root, vars, childLs(home, n.scopeLabel, null, scope.ls)));
+      return;
+    }
+    // .fill n, expr(i): bytes now when everything is a number (variables, loaded files)
+    if ((m = text.match(/^\.fill\s+(.+)$/i))) {
+      const [countText, valueText] = _kickSplitTop(m[1]);
+      let bytes = null;
+      try {
+        const count = _kickEval(countText, scope);
+        if (typeof count === "number" && valueText !== undefined) {
+          bytes = [];
+          const turn = makeScope(scope, new Map([["i", 0]]));
+          for (let k = 0; k < count && bytes; k++) {
+            turn.vars.set("i", k);
+            const v = _kickEval(valueText, turn);
+            if (Array.isArray(v)) bytes.push(...v.map(x => (typeof x === "number" ? x & 0xFF : NaN)));
+            else if (typeof v === "number") bytes.push(v & 0xFF);
+            else bytes = null;
+            if (bytes && bytes.some(Number.isNaN)) bytes = null;
+          }
+        }
+      } catch (_) { bytes = null; }
+      if (bytes) { out.push({ bytes, file: n.file, line: n.line }); return; }
+    }
+    // macro call: Name(args) or :Name(args)
+    if ((m = text.match(/^:?([A-Za-z_]\w*)\s*\((.*)\)\s*$/)) && (macros.has(m[1]) || m[1] === "BasicUpstart" || m[1] === "BasicUpstart2")) {
+      const args = m[2].trim() ? _kickSplitTop(m[2]).map(a => _kickEval(a, scope)) : [];
+      if (m[1] === "BasicUpstart" || m[1] === "BasicUpstart2") { out.push({ basic: m[1], arg: args[0], file: n.file, line: n.line }); return; }
+      const macro = macros.get(m[1]);
+      const vars = new Map(macro.params.map((p, k) => [p, args[k]]));
+      // the macro's scope: its labels resolve from where it was defined; "label: Macro()"
+      // makes them reachable as label.inner from the caller
+      const home = macro.ns ? namespaceLs(macro.ns) : rootLs;
+      expand(macro.body, makeScope(root, vars, childLs(home, n.scopeLabel, null, scope.ls)));
+      return;
+    }
+    emit(n, substitute(text, scope));
+  };
+  expand(tree, root);
+
+  const emitted = _kickEmit(out, root, constValues, consts, errors, constOf, rootLs);
+  const constants = [];
+  for (const name of consts.keys()) {
+    const value = constValues.has(name) ? constValues.get(name) : evalConst(name);
+    if (typeof value === "number") constants.push({ name, value });
+  }
+  return { ...emitted, messages, constants };
+}
+
+// ── Expanded statements → VA source ─────────────────────────────────────────
+function _kickEmit(items, root, constValues, consts, errors, constOf, rootLs = _kickNewLabelScope(null, "")) {
+  // Multi-labels: !name: / !: definitions get unique names, !name+ / !- … point to them.
+  const defs = new Map();
+  let serial = 0;
+  items.forEach((it, index) => {
+    if (it.text === undefined || it.raw) return;
+    const m = it.text.match(/^!([A-Za-z_]\w*)?:$/);
+    if (!m) return;
+    const name = m[1] || "";
+    const unique = `__ml${name ? "_" + name : ""}_${++serial}`;
+    if (!defs.has(name)) defs.set(name, []);
+    defs.get(name).push({ index, unique });
+    it.text = unique + ":";
+  });
+  const multiRef = (ref, index, it) => {
+    const m = ref.match(/^!([A-Za-z_]\w*)?([+-]+)$/);
+    const list = defs.get(m[1] || "") || [];
+    const count = m[2].length;
+    let pick;
+    if (m[2][0] === "+") pick = list.filter(d => d.index > index)[count - 1];
+    else pick = list.filter(d => d.index <= index).slice(-count)[0];
+    if (!pick) { errors.push({ file: it.file, line: it.line, text: `Multi-label not found: ${ref}` }); return ref; }
+    return pick.unique;
+  };
+  items.forEach((it, index) => {
+    if (it.text === undefined || it.raw) return;
+    it.text = it.text.replace(/("(?:\\.|[^"\\])*")|![A-Za-z_]\w*[+-]+|![+-]+/g, (ref, str) => (str ? str : multiRef(ref, index, it)));
+  });
+
+  // Segments (manual 10): the statements of each segment; every output (the Default
+  // segment, .file, outPrg / outBin, .disk) is laid out with its segments as real blocks,
+  // the other segments as virtual ones (labels only).
+  items.forEach((it, k) => { it.order = k; });
+  const segs = new Map();
+  const segOrder = [];
+  const defineSeg = (name, params, it) => {
+    if (segs.get(name)?.defined) { errors.push({ file: it.file, line: it.line, text: `Segment ${name} is already defined` }); return; }
+    const seg = { name, params, items: [], defined: true, file: it.file, line: it.line };
+    segs.set(name, seg);
+    segOrder.push(seg);
+  };
+  defineSeg("Default", { _blocks: [] }, {});
+  const fileOuts = [];
+  let usesSegments = false;
+  {
+    let cur = segs.get("Default");
+    for (const it of items) {
+      if (it.segdef !== undefined) { usesSegments = true; defineSeg(it.segdef, it.params, it); continue; }
+      if (it.segment !== undefined) {
+        usesSegments = true;
+        if (it.params) defineSeg(it.segment, it.params, it);
+        if (!segs.has(it.segment)) { errors.push({ file: it.file, line: it.line, text: `Unknown segment: ${it.segment}` }); continue; }
+        cur = segs.get(it.segment);
+        continue;
+      }
+      if (it.fileOut || it.disk) { usesSegments = true; fileOuts.push(it); continue; }
+      if (it.segout) usesSegments = true;
+      cur.items.push(it);
+    }
+  }
+  const segList = (text) => String(text || "").split(",").map(x => x.trim()).filter(Boolean);
+  const members = (names, into = new Set()) => {
+    for (const name of names) {
+      if (into.has(name)) continue;
+      if (!segs.has(name)) { errors.push({ text: `Unknown segment: ${name}` }); continue; }
+      into.add(name);
+      members(segList(segs.get(name).params.segments), into);
+    }
+    return into;
+  };
+  // The statements of an output: its own blocks (BasicUpstart modifier, prg / sid files),
+  // then every segment (the one a startAfter names first).
+  const seqFor = (real, inter, at) => {
+    const seq = [];
+    if (inter) {
+      if (inter.modify === "BasicUpstart") seq.push({ orgSyn: 0x0801, file: at.file, line: at.line }, { basic: "BasicUpstart", arg: inter._start, file: at.file, line: at.line });
+      for (const b of inter._blocks || []) seq.push({ orgSyn: b.org, file: at.file, line: at.line }, { bytes: b.bytes, file: at.file, line: at.line });
+    }
+    const done = new Set();
+    const visit = (seg) => {
+      if (done.has(seg.name)) return;
+      done.add(seg.name);
+      if (seg.params.startAfter && segs.has(seg.params.startAfter)) visit(segs.get(seg.params.startAfter));
+      seq.push({ segStart: seg, virtual: !real.has(seg.name), file: seg.file, line: seg.line });
+      for (const b of seg.params._blocks || []) seq.push({ orgSyn: b.org, file: seg.file, line: seg.line }, { bytes: b.bytes, file: seg.file, line: seg.line });
+      seq.push(...seg.items);
+      seq.push({ segEnd: seg, file: seg.file, line: seg.line });
+    };
+    segOrder.forEach(visit);
+    return seq;
+  };
+  // .segmentout: the blocks of its segments, one after the other
+  const segoutSeq = (params, at) => {
+    const real = members(segList(params.segments));
+    const seq = [];
+    for (const b of params._blocks || []) seq.push({ orgSyn: b.org, file: at.file, line: at.line }, { bytes: b.bytes, file: at.file, line: at.line });
+    for (const seg of segOrder) {
+      if (!real.has(seg.name)) continue;
+      seq.push({ segStart: seg, virtual: false, file: seg.file, line: seg.line });
+      for (const b of seg.params._blocks || []) seq.push({ orgSyn: b.org, file: seg.file, line: seg.line }, { bytes: b.bytes, file: seg.file, line: seg.line });
+      seq.push(...seg.items.filter(it => !it.segout));
+      seq.push({ segEnd: seg, file: seg.file, line: seg.line });
+    }
+    return seq;
+  };
+  const plans = [];
+  if (!usesSegments) plans.push({ main: true, seq: items });
+  else {
+    plans.push({ main: true, seq: seqFor(new Set(["Default"]), null, {}) });
+    const fileOf = (name, type, params, segNames, at) => ({ name: String(name || ""), type, params, at, seq: seqFor(members(segNames), params, at) });
+    for (const seg of segOrder) {
+      if (seg.params.outPrg) plans.push(fileOf(seg.params.outPrg, "prg", { _blocks: [] }, [seg.name], seg));
+      if (seg.params.outBin) plans.push(fileOf(seg.params.outBin, "bin", { _blocks: [] }, [seg.name], seg));
+    }
+    for (const it of fileOuts) {
+      if (it.fileOut) {
+        const name = String(it.fileOut.name || "");
+        const type = String(it.fileOut.type || (/\.bin$/i.test(name) ? "bin" : "prg")).toLowerCase();
+        plans.push(fileOf(name, type, it.fileOut, segList(it.fileOut.segments), it));
+        continue;
+      }
+      plans.push({
+        name: String(it.disk.filename || "disk.d64"), type: "d64", diskName: String(it.disk.name ?? "") , diskId: String(it.disk.id ?? ""), at: it,
+        files: it.files.map(f => fileOf(f.name, String(f.type || "prg").toLowerCase(), f, segList(f.segments), it))
+      });
+    }
+  }
+
+  // Label values inside .pseudopc blocks: they are numbers (the logical address).
+  const pseudoLabels = new Map();
+  // Where each of them is defined (source order): one defined later is a 16-bit address
+  // for KickAssembler (unknown in its first pass), so no zero page form.
+  const pseudoOrder = new Map();
+  let currentOrder = Infinity;
+  const pseudoValue = (label) => {
+    const v = pseudoLabels.get(label);
+    return (pseudoOrder.get(label) ?? -1) > currentOrder ? { sym: true, label: hex(v, 4), off: 0 } : v;
+  };
+  // Physical addresses of labels after a "* =" whose sizes are all known (BasicUpstart).
+  const physLabels = new Map();
+  let currentPc = null;   // logical address inside .pseudopc (for *)
+  let currentLs = rootLs; // label scope of the statement being emitted
+  const scope = {
+    label(path) {
+      const r = _kickResolveLabel(path, currentLs, rootLs);
+      if (r?.label !== undefined && pseudoLabels.has(r.label)) return { value: pseudoValue(r.label) };
+      return r;
+    },
+    get(name) {
+      if (name === "*") return currentPc === null ? undefined : currentPc;
+      if (name === "cmdLineVars") return root.get(name);
+      if (name.startsWith("@")) return constOf(name.slice(1));
+      for (let l = currentLs; l; l = l.parent) if (l.consts.has(name)) return l.consts.get(name);
+      if (pseudoLabels.has(name)) return pseudoValue(name);
+      const v = constOf(name);
+      if (v !== undefined) return v;
+      if (Object.prototype.hasOwnProperty.call(_KICK_CONSTS, name)) return _KICK_CONSTS[name];
+      return _kickOpcodeConst(name);
+    },
+    call(name, args) { return root.call(name, args); }
+  };
+  const ev = (expr) => _kickEval(expr, scope);
+
+  const hex = (v, width) => "$" + (v >>> 0).toString(16).toUpperCase().padStart(width, "0");
+  let encoding = "screencode_mixed";   // .encoding, for chars in .byte and .text
+  let cpu = "_6502";                   // .cpu
+  let relSerial = 0;
+  const breaks = [];                   // .break: { label, cond }
+  const watches = [];                  // .watch: { start, end, arg } (numbers or VA expressions)
+  const valueText = (v, width) => {
+    if (_kickIsSym(v)) return _kickSymText(v);
+    if (typeof v === "boolean") return v ? "1" : "0";
+    // a char ('a', "a", s.charAt(1)) is its code in the current encoding
+    if (typeof v === "string") return hex(_kickTextBytes(JSON.stringify(v.charAt(0)), encoding)[0] ?? 0, width);
+    return hex(Math.trunc(v) & (width <= 2 ? 0xFF : 0xFFFF), width);
+  };
+
+  // One statement → { lines: [...], size } (size null when unknown).
+  const lineOf = (it, pc, phys = null) => {
+    const text = it.text.trim();
+    let m;
+    if (!text) return { lines: [], size: 0 };
+    if ((m = text.match(/^([A-Za-z_]\w*):$/))) return { label: m[1], lines: [text], size: 0 };
+    if ((m = text.match(/^(?:\*|\.pc)\s*=\s*(.+?)(?:\s+"([^"]*)")?(\s+virtual)?\s*$/i))) {
+      const v = ev(m[1]);
+      if (_kickIsSym(v)) throw new Error(`* =: the address is not known (${m[1]})`);
+      if (m[3]) return { org: v, virtual: true, lines: [], size: 0 };
+      return { org: v, lines: [`* = ${hex(v, 4)}${m[2] !== undefined ? ` "${m[2]}"` : ""}`], size: 0 };
+    }
+    if ((m = text.match(/^\.(byte|by|b)\s+(.+)$/i))) {
+      const vals = _kickSplitTop(m[2]).map(ev);
+      return { lines: [".byte " + vals.map(v => valueText(v, 2)).join(", ")], size: vals.length };
+    }
+    if ((m = text.match(/^\.(word|wo|w)\s+(.+)$/i))) {
+      const vals = _kickSplitTop(m[2]).map(ev);
+      return { lines: [".word " + vals.map(v => valueText(v, 4)).join(", ")], size: vals.length * 2 };
+    }
+    if ((m = text.match(/^\.(dword|dw)\s+(.+)$/i))) {
+      const bytes = [];
+      _kickSplitTop(m[2]).map(ev).forEach(v => { const n = Math.trunc(v); bytes.push(n & 0xFF, (n >> 8) & 0xFF, (n >> 16) & 0xFF, (n >>> 24) & 0xFF); });
+      return { lines: [".byte " + bytes.map(b => hex(b, 2)).join(", ")], size: 4 * bytes.length / 4 };
+    }
+    if ((m = text.match(/^\.fill\s+(.+)$/i))) {
+      const [countText, valueTextSrc] = _kickSplitTop(m[1]);
+      const count = ev(countText);
+      if (_kickIsSym(count)) throw new Error(`.fill: the count is not known (${countText})`);
+      const bytes = [];
+      for (let i = 0; i < count; i++) {
+        const v = _kickEval(valueTextSrc, { get: (name) => (name === "i" ? i : scope.get(name)), call: scope.call });
+        if (Array.isArray(v)) { for (const b of v) bytes.push(b); continue; }
+        if (_kickIsSym(v)) throw new Error(`.fill: the value is not known (${valueTextSrc})`);
+        bytes.push(v);
+      }
+      return { lines: _kickByteLines(bytes), size: bytes.length };
+    }
+    if ((m = text.match(/^\.align\s+(.+)$/i))) {
+      const v = ev(m[1]);
+      const at = pc ?? phys;
+      return { lines: [`.align ${Math.trunc(v)}`], size: at === null ? null : (Math.trunc(v) - (at % Math.trunc(v))) % Math.trunc(v) };
+    }
+    if ((m = text.match(/^\.assert\s+(.+)$/i))) {
+      const parts = _kickSplitTop(m[1]);
+      if (parts.length === 3 && /^"/.test(parts[0])) {
+        const expect = parts[2].trim();
+        const cond = expect === "true" ? fold(parts[1]) : expect === "false" ? `!(${fold(parts[1])})` : `(${fold(parts[1])})==(${fold(parts[2])})`;
+        return { lines: [`.assert ${cond}, ${parts[0]}`], size: 0 };
+      }
+      return { lines: [`.assert ${fold(parts[0])}${parts[1] ? ", " + parts[1] : ""}`], size: 0 };
+    }
+    if ((m = text.match(/^\.encoding\s+"([^"]+)"/i))) { encoding = m[1]; return { lines: [text], size: 0 }; }
+    // .text: the items evaluated (strings, numbers, string expressions); .text x, y, "…" is VA
+    if ((m = text.match(/^\.text\s+(.+)$/i)) && !/^\.text\s+[^"@]*,\s*[^"@]*,\s*"/i.test(text)) {
+      const items = _kickSplitTop(m[1]).map((item) => {
+        if (/^@?"(?:[^"\\]|\\.)*"$/.test(item)) return item;
+        const v = ev(item);
+        if (typeof v === "string") return JSON.stringify(v);
+        if (typeof v === "number") return hex(Math.trunc(v) & 0xFF, 2);
+        return item;
+      });
+      return { lines: [".text " + items.join(", ")], size: _kickTextBytes(items.join(","), encoding).length };
+    }
+    if ((m = text.match(/^\.text\b/i))) return { lines: [text], size: null };
+    if ((m = text.match(/^\.label\s+([A-Za-z_]\w*)\s*=\s*\*\s*(?:([+-])\s*(.+))?$/i))) {
+      const off = m[3] ? ev(m[3]) : 0;
+      return { lines: [`.label ${m[1]} = *${m[3] ? ` ${m[2]} ${Math.trunc(off)}` : ""}`], size: 0 };
+    }
+    if ((m = text.match(/^([A-Za-z]{3}\d?)(?:\.(abs|a|zp|z|im|i))?(?:\s+(.*))?$/)) && (opcodeMap[m[1].toUpperCase()] || _KICK_CPU_OPS[cpu]?.[m[1].toUpperCase()])) {
+      const mnem = m[1].toUpperCase();
+      if ((cpu === "_6502NoIllegals" || cpu === "_65c02") && _KICK_ILLEGAL.has(mnem)) throw new Error(`${m[1]} is an illegal opcode (.cpu ${cpu}); .cpu _6502 allows it`);
+      let operand = (m[3] || "").trim();
+      const force = (m[2] || "").toLowerCase();
+      if ((force === "im" || force === "i") && !operand.startsWith("#")) operand = "#" + operand;
+      const extra = _KICK_CPU_OPS[cpu]?.[mnem];
+      if (extra) {
+        const r = cpuInstruction(mnem, extra, force, operand, pc);
+        if (r) return r;
+        if (!opcodeMap[mnem]) throw new Error(`${m[1]}: this addressing mode is not supported (.cpu ${cpu})`);
+      }
+      return instruction(mnem, force, operand, pc);
+    }
+    // Anything else (VA macros and directives) goes to the VA assembler as it is,
+    // with the Kick constants as numbers.
+    return { lines: [passFold(text)], size: null };
+  };
+  const passFold = (text) => text.replace(/("(?:\\.|[^"\\])*")|(\$[0-9A-Fa-f]+|%[01]+|\d+)|(\.[A-Za-z_]\w*)|([A-Za-z_]\w*)(?!\s*:)/g, (all, str, num, dot, name) => {
+    if (!name) return all;
+    const v = scope.get(name);
+    if (v === undefined || _kickIsSym(v) || typeof v !== "number") return all;
+    return hex(Math.trunc(v) & 0xFFFF, Math.trunc(v) >= 0 && Math.trunc(v) <= 0xFF ? 2 : 4);
+  });
+  // An expression with * kept as the program counter (for .assert): constants folded.
+  const fold = (expr) => expr.replace(/("(?:\\.|[^"\\])*")|(\$[0-9A-Fa-f]+)|([A-Za-z_]\w*)/g, (all, str, hx, name) => {
+    if (!name) return all;
+    const v = scope.get(name);
+    if (v === undefined || _kickIsSym(v)) return v === undefined ? name : `(${_kickSymText(v)})`;
+    return valueText(v, 4);
+  });
+
+  // An instruction of the .cpu table as .byte lines; null when the operand is not one of its modes.
+  const cpuInstruction = (mnem, modes, force, operand, pc) => {
+    const known = (v) => !_kickIsSym(v);
+    const byteText = (v) => (known(v) ? hex(Math.trunc(v) & 0xFF, 2) : `<(${_kickSymText(v)})`);
+    const out = (op, size, parts) => ({ lines: [`.byte ${hex(op, 2)}${parts.length ? ", " + parts.join(", ") : ""}`], size });
+    const word = (op, v) => (known(v)
+      ? out(op, 3, [hex(Math.trunc(v) & 0xFF, 2), hex((Math.trunc(v) >> 8) & 0xFF, 2)])
+      : { lines: [`.byte ${hex(op, 2)}`, `.word ${_kickSymText(v)}`], size: 3 });
+    // a branch: the offset now, or from a hidden label at the opcode
+    const relative = (op, v, before, size) => {
+      if (known(v) && pc !== null) {
+        const rel = Math.trunc(v) - (pc + size);
+        if (rel < -128 || rel > 127) throw new Error(`${mnem}: the branch is out of range (${rel})`);
+        return out(op, size, [...before, hex(rel & 0xFF, 2)]);
+      }
+      const label = `__rel_${++relSerial}`;
+      return { lines: [`${label}:`, `.byte ${hex(op, 2)}, ${[...before, `<((${_kickSymText(v)})-${label}-${size})`].join(", ")}`], size };
+    };
+    const small = (v) => known(v) && Math.trunc(v) >= 0 && Math.trunc(v) <= 0xFF && force !== "abs" && force !== "a";
+    let m;
+    if (!operand || /^a$/i.test(operand)) return modes.noarg !== undefined ? out(modes.noarg, 1, []) : null;
+    if (operand.startsWith("#")) return modes.imm !== undefined ? out(modes.imm, 2, [byteText(ev(operand.slice(1)))]) : null;
+    if (modes.zprel !== undefined) {
+      const [zp, target] = _kickSplitTop(operand);
+      if (target === undefined) return null;
+      return relative(modes.zprel, ev(target), [byteText(ev(zp))], 3);
+    }
+    if (modes.rel !== undefined) return relative(modes.rel, ev(operand), [], 2);
+    if ((m = operand.match(/^\((.+)\)\s*,\s*y$/i))) return modes.izy !== undefined ? out(modes.izy, 2, [byteText(ev(m[1]))]) : null;
+    if ((m = operand.match(/^\((.+)\s*,\s*x\)$/i))) {
+      if (modes.indx !== undefined) return word(modes.indx, ev(m[1]));
+      return modes.izx !== undefined ? out(modes.izx, 2, [byteText(ev(m[1]))]) : null;
+    }
+    if ((m = operand.match(/^\((.+)\)$/))) {
+      if (modes.izp !== undefined) return out(modes.izp, 2, [byteText(ev(m[1]))]);
+      return modes.ind !== undefined ? word(modes.ind, ev(m[1])) : null;
+    }
+    if ((m = operand.match(/^(.+?)\s*,\s*([xy])$/i))) {
+      const v = ev(m[1]);
+      const x = m[2].toLowerCase() === "x";
+      const zp = x ? modes.zpx : modes.zpy;
+      const abs = x ? modes.abx : modes.aby;
+      if (zp !== undefined && (small(v) || force === "zp" || force === "z" || abs === undefined)) return out(zp, 2, [byteText(v)]);
+      return abs !== undefined ? word(abs, v) : null;
+    }
+    const v = ev(operand);
+    if (modes.zp !== undefined && (small(v) || force === "zp" || force === "z" || modes.abs === undefined)) return out(modes.zp, 2, [byteText(v)]);
+    return modes.abs !== undefined ? word(modes.abs, v) : null;
+  };
+
+  const instruction = (mnem, force, operand, pc) => {
+    const modes = opcodeMap[mnem];
+    const width = (v, zp, abs) => {
+      if (_kickIsSym(v)) return { mode: abs, text: _kickSymText(v) };
+      const n = Math.trunc(v) & 0xFFFF;
+      const useZp = force === "zp" || force === "z" || (force !== "abs" && force !== "a" && n <= 0xFF && modes[zp] !== undefined);
+      return useZp && modes[zp] !== undefined ? { mode: zp, text: hex(n, 2) } : { mode: abs, text: hex(n, 4) };
+    };
+    const size = (mode) => (mode === "implied" ? 1 : /^(absolute|indirect$)/.test(mode) ? 3 : 2);
+    let m;
+    if (!operand || /^a$/i.test(operand)) return { lines: [mnem], size: 1 };
+    if (operand.startsWith("#")) {
+      const v = ev(operand.slice(1));
+      if (typeof v === "string" && (v.length !== 1 || /^#\s*"/.test(operand))) throw new Error("The value of a Command Argument Value must be an integer. This expression returns a value of type 'String'");
+      return { lines: [`${mnem} #${_kickIsSym(v) ? _kickSymText(v) : hex(Math.trunc(v) & 0xFF, 2)}`], size: 2 };
+    }
+    if ((m = operand.match(/^\((.+)\)\s*,\s*y$/i))) {
+      const v = ev(m[1]);
+      return { lines: [`${mnem} (${_kickIsSym(v) ? _kickSymText(v) : hex(Math.trunc(v) & 0xFF, 2)}),Y`], size: 2 };
+    }
+    if ((m = operand.match(/^\((.+)\s*,\s*x\)$/i))) {
+      const v = ev(m[1]);
+      return { lines: [`${mnem} (${_kickIsSym(v) ? _kickSymText(v) : hex(Math.trunc(v) & 0xFF, 2)},X)`], size: 2 };
+    }
+    if (mnem === "JMP" && (m = operand.match(/^\((.+)\)$/))) {
+      const v = ev(m[1]);
+      return { lines: [`JMP (${_kickIsSym(v) ? _kickSymText(v) : hex(Math.trunc(v) & 0xFFFF, 4)})`], size: 3 };
+    }
+    if ((m = operand.match(/^(.+?)\s*,\s*([xy])$/i))) {
+      const idx = m[2].toUpperCase();
+      const r = width(ev(m[1]), "zeroPage" + idx, "absolute" + idx);
+      return { lines: [`${mnem} ${r.text},${idx}`], size: size(r.mode) };
+    }
+    const v = ev(operand);
+    if (_KICK_BRANCHES.has(mnem)) {
+      if (!_kickIsSym(v) && pc !== null) {
+        const rel = Math.trunc(v) - pc;
+        return { lines: [`${mnem} *${rel >= 0 ? "+" : "-"}${Math.abs(rel)}`], size: 2 };
+      }
+      return { lines: [`${mnem} ${valueText(v, 4)}`], size: 2 };
+    }
+    const r = width(v, "zeroPage", "absolute");
+    return { lines: [`${mnem} ${r.text}`], size: size(r.mode) };
+  };
+
+  // Two passes: the first one gives the labels inside .pseudopc their addresses.
+  const run = (final, seq, runErrors) => {
+    cpu = "_6502";
+    const lines = [];
+    const origins = [];
+    let pseudo = null;
+    let pseudoPc = null;
+    let unknown = false;
+    let phys = null;
+    let virtualBlock = false;
+    let segVirtual = false;     // the segment being emitted is not in this output
+    let seg = null;             // that segment
+    let segSavedPhys = null;
+    let segout = null;          // inside .segmentout: { fill } (blocks follow each other)
+    const segEnds = new Map();
+    const push = (text, it) => { lines.push(text); origins.push({ file: it.file, line: it.line }); };
+    const pc = () => (pseudo !== null ? (unknown ? null : pseudoPc) : phys);
+    const pad = (count, value, it) => {
+      _kickByteLines(new Array(count).fill(value & 0xFF)).forEach(l => push(l, it));
+      if (pseudoPc !== null) pseudoPc += count;
+      if (phys !== null) phys += count;
+    };
+    const bounds = (at, it) => {
+      const p = seg?.params;
+      if (!p || at === null) return;
+      if ((p.min !== undefined && at < p.min) || (p.max !== undefined && at > p.max + 1)) {
+        throw new Error(`Segment ${seg.name}: ${hex(at, 4)} is outside ${hex(p.min ?? 0, 4)}-${hex(p.max ?? 0xFFFF, 4)}`);
+      }
+    };
+    // a new memory block at addr (a * = line or a segment / file start)
+    const startBlock = (addr, it, line) => {
+      if (segVirtual) {
+        virtualBlock = true; pseudo = addr; pseudoPc = addr; unknown = addr === null;
+        return;
+      }
+      if (segout) {
+        if (segout.first) { segout.first = false; pseudo = addr; pseudoPc = addr; unknown = false; return; }
+        if (unknown || pseudoPc === null) throw new Error(".segmentout: the block sizes are not known");
+        if (addr < pseudoPc) throw new Error(`.segmentout: the block at ${hex(addr, 4)} overlaps the previous one`);
+        pad(addr - pseudoPc, seg?.params.fillByte ?? 0, it);
+        return;
+      }
+      const p = seg?.params;
+      if (p?.fill && phys !== null && addr >= phys && p.min !== undefined) { pad(addr - phys, p.fillByte ?? 0, it); return; }
+      push(line ?? `* = ${hex(addr, 4)}`, it);
+      phys = addr;
+    };
+    const segmentStart = (it) => {
+      seg = it.segStart;
+      segVirtual = it.virtual;
+      segSavedPhys = phys;
+      const p = seg.params;
+      let start = p.start;
+      if (start === undefined && p.startAfter !== undefined) {
+        const end = segEnds.get(p.startAfter);
+        if (end === undefined || end === null) throw new Error(`Segment ${seg.name}: the end of ${p.startAfter} is not known`);
+        const align = p.align || 1;
+        start = Math.ceil(end / align) * align;
+      }
+      // KickAssembler: a segment without start / startAfter begins at $2000
+      if (start === undefined && seg.name !== "Default") start = 0x2000;
+      if (start !== undefined) startBlock(start, it);
+      else if (segVirtual) { virtualBlock = true; pseudo = null; pseudoPc = null; unknown = true; }
+    };
+    const segmentEnd = (it) => {
+      const p = seg.params;
+      if (!segVirtual && p.fill && p.max !== undefined && pc() !== null && pc() <= p.max) pad(p.max + 1 - pc(), p.fillByte ?? 0, it);
+      bounds(pc(), it);
+      segEnds.set(seg.name, pc());
+      if (segVirtual) phys = segSavedPhys;
+      if (!segout) { pseudo = null; pseudoPc = null; unknown = false; }
+      virtualBlock = false; segVirtual = false; seg = null;
+    };
+    const emitItem = (it) => {
+        if (it.cpu) { cpu = it.cpu; return; }
+        if (it.brk !== undefined) {
+          if (virtualBlock) return;
+          const label = `__brk_${breaks.length + 1}`;
+          if (final) breaks.push({ label, cond: it.brk });
+          push(`${label}:`, it);
+          return;
+        }
+        if (it.watch) {
+          if (!final) return;
+          currentLs = it.ls || rootLs;
+          const [start, end, arg] = it.watch;
+          const value = (t) => (t ? valueText(ev(t), 4) : "");
+          watches.push({ start: value(start), end: value(end), arg: arg ? String(ev(arg)) : "" });
+          return;
+        }
+        if (it.segStart) { segmentStart(it); return; }
+        if (it.segEnd) { segmentEnd(it); return; }
+        if (it.orgSyn !== undefined) { bounds(pc(), it); startBlock(it.orgSyn, it); return; }
+        if (it.segout) {
+          if (segVirtual) return;
+          const saved = { pseudo, pseudoPc, unknown, seg };
+          segout = { first: true };
+          try {
+            for (const sub of segoutSeq(it.segout, it)) emitItem(sub);
+          } finally {
+            segout = null;
+            ({ pseudo, pseudoPc, unknown, seg } = saved);
+          }
+          return;
+        }
+        if (it.pseudo !== undefined) {
+          if (virtualBlock) return;
+          if (it.pseudo === null) { pseudo = null; pseudoPc = null; return; }
+          const v = _kickEval(it.pseudo, scope);
+          if (_kickIsSym(v)) throw new Error(`.pseudopc: the address is not known (${it.pseudo})`);
+          pseudo = v; pseudoPc = v; unknown = false;
+          return;
+        }
+        if (it.basic) {
+          const v = it.arg;
+          const known = _kickIsSym(v) && v.label ? physLabels.get(v.label) : undefined;
+          const target = !_kickIsSym(v) ? Math.trunc(v) : known !== undefined ? known + v.off : null;
+          // A label the sizes do not reach: right after BasicUpstart2, KickAssembler resumes at $080E
+          const address = target ?? 0x080E;
+          const digits = String(address);
+          const link = 0x0801 + 2 + 2 + 1 + digits.length + 1;
+          const bytes = [link & 0xFF, link >> 8, 10, 0, 0x9E, ...Array.from(digits, c => c.charCodeAt(0)), 0, 0, 0];
+          if (virtualBlock) {
+            if (it.basic === "BasicUpstart2") { pseudo = 0x080E; pseudoPc = 0x080E; unknown = false; }
+            else if (pseudoPc !== null) pseudoPc += bytes.length;
+            return;
+          }
+          if (it.basic === "BasicUpstart2") push(`* = $0801 "Basic"`, it);
+          _kickByteLines(bytes).forEach(l => push(l, it));
+          if (it.basic === "BasicUpstart2") push(`* = $080E "Basic End"`, it);
+          if (target === null) push(`.assert ${_kickSymText(v)} == ${address}, "BasicUpstart2: the start label must follow it"`, it);
+          phys = it.basic === "BasicUpstart2" ? 0x080E : phys === null ? null : phys + bytes.length;
+          return;
+        }
+        if (it.bytes) {
+          if (!virtualBlock) _kickByteLines(it.bytes).forEach(l => push(l, it));
+          if (pseudoPc !== null) pseudoPc += it.bytes.length;
+          if (phys !== null && !virtualBlock) phys += it.bytes.length;
+          return;
+        }
+        if (it.raw) { if (!virtualBlock) push(it.text, it); if (pseudoPc !== null) unknown = true; if (!virtualBlock) phys = null; return; }
+        currentPc = pseudo !== null && !unknown ? pseudoPc : null;
+        currentOrder = it.order ?? Infinity;
+        currentLs = it.ls || rootLs;
+        const r = lineOf(it, currentPc, phys);
+        // * = inside a segment or .segmentout: a new block of it
+        if (r.org !== undefined && !r.virtual && (seg || segout)) {
+          bounds(pc(), it);
+          if (virtualBlock && !segVirtual) { virtualBlock = false; pseudo = null; pseudoPc = null; }
+          startBlock(r.org, it, r.lines[0]);
+          bounds(r.org, it);
+          return;
+        }
+        // a virtual block works like .pseudopc whose lines are not written
+        if (r.org !== undefined && (r.virtual || virtualBlock)) {
+          virtualBlock = !!r.virtual;
+          pseudo = virtualBlock ? r.org : null;
+          pseudoPc = virtualBlock ? r.org : null;
+          unknown = false;
+        }
+        if (virtualBlock && !r.label) {
+          if (r.size === null || pseudoPc === null) unknown = true; else pseudoPc += r.size;
+          return;
+        }
+        if (r.org !== undefined) phys = r.org;
+        if (r.label && pseudo === null && phys !== null) physLabels.set(r.label, phys);
+        if (r.label && (pseudo !== null || virtualBlock)) {
+          if (!unknown && pseudoPc !== null) { pseudoLabels.set(r.label, pseudoPc); pseudoOrder.set(r.label, it.order ?? -1); }
+          return;
+        }
+        r.lines.forEach(l => push(l, it));
+        if (pseudoPc !== null) {
+          if (r.size === null) unknown = true;
+          else pseudoPc += r.size;
+        }
+        if (phys !== null && r.org === undefined) phys = r.size === null ? null : phys + r.size;
+    };
+    for (const it of seq) {
+      try {
+        emitItem(it);
+      } catch (e) {
+        if (final) runErrors.push({ file: it.file, line: it.line, text: e.message });
+      }
+    }
+    return { lines, origins };
+  };
+  const runPlan = (plan) => {
+    const runErrors = [];
+    run(false, plan.seq, runErrors);
+    const { lines, origins } = run(true, plan.seq, runErrors);
+    for (const e of runErrors) if (!errors.some(x => x.file === e.file && x.line === e.line && x.text === e.text)) errors.push(e);
+    return { text: lines.join("\n"), origins };
+  };
+  const outputs = [];
+  let main = null;
+  // each output keeps its own .break / .watch list
+  const runMarked = (plan) => {
+    breaks.length = 0;
+    watches.length = 0;
+    const done = runPlan(plan);
+    return { ...done, breaks: breaks.splice(0), watches: watches.splice(0) };
+  };
+  for (const plan of plans) {
+    if (plan.type === "d64") {
+      outputs.push({ name: plan.name, type: "d64", diskName: plan.diskName, diskId: plan.diskId, file: plan.at.file, line: plan.at.line,
+        files: plan.files.map(f => ({ name: f.name, type: f.type, params: f.params, ...runMarked(f) })) });
+      continue;
+    }
+    const done = runMarked(plan);
+    if (plan.main) main = done;
+    else outputs.push({ name: plan.name, type: plan.type, params: plan.params, file: plan.at.file, line: plan.at.line, ...done });
+  }
+  // the Default segment without bytes: the first PRG output is what Run starts
+  const hasBytes = (text) => text.split("\n").some(l => !/^\s*(?:\* =|[A-Za-z_]\w*:|\.label\b|\.encoding\b|\.assert\b|;|$)/i.test(l));
+  let mainOutput = null;
+  if (usesSegments && !hasBytes(main.text)) {
+    const first = outputs.find(o => o.type === "prg" && o.text.startsWith("* = $0801")) || outputs.find(o => o.type === "prg");
+    if (first) { main = first; mainOutput = first.name; }
+  }
+  return { ok: errors.length === 0, text: main.text, origins: main.origins, errors, outputs, mainOutput, breaks: main.breaks, watches: main.watches };
+}
+
+function _kickByteLines(bytes) {
+  const lines = [];
+  for (let i = 0; i < bytes.length; i += 32) {
+    lines.push(".byte " + bytes.slice(i, i + 32).map(b => "$" + ((Math.trunc(b) & 0xFF).toString(16).toUpperCase().padStart(2, "0"))).join(", "));
+  }
+  return lines;
+}
+
+// ── Kick Assembler projects in the app ───────────────────────────────────────
+// A .proj with "kick": true holds a KickAssembler source tree. Every build runs the
+// startup file through _kickPreprocess first; open tabs build with their editor text.
+let _kickLast = null;   // last preprocessing: { ok, program, origins, errors, text }
+
+function _kickProjectActive() {
+  if (!_expertProjectData?.kick || !_expertProjectData.startupFile || ultimateBasicMode) return false;
+  const active = tabs.find(t => t.id === activeTabId);
+  if (!active?.filePath) return true;
+  const norm = _normFilePath(active.filePath);
+  const inProject = (nodes) => (nodes || []).some(n => n.type === "folder" ? inProject(n.children) : _normFilePath(_projResolveAbsPath(n.path)) === norm);
+  return inProject(_expertProjectData.files);
+}
+
+function _kickNormPath(path) {
+  return String(path || "").replace(/\\/g, "/");
+}
+
+// Editor text of an open tab (unsaved edits build too), else null.
+function _kickOpenText(path) {
+  const norm = _normFilePath(path);
+  const tab = tabs.find(t => t.filePath && _normFilePath(t.filePath) === norm);
+  if (!tab) return null;
+  if (tab.id === activeTabId && expertMode) return _expertGetSourceText();
+  return typeof tab.expertText === "string" && tab.expertText ? tab.expertText : null;
+}
+
+// Every #import / .import file of the tree (also in .if branches not taken).
+async function _kickReadTree(entry) {
+  const api = window.electronAPI;
+  const texts = new Map();
+  const bins = new Map();
+  const pictures = new Map();
+  const queue = [_kickNormPath(entry)];
+  while (queue.length) {
+    const path = queue.shift();
+    if (texts.has(path)) continue;
+    let text = _kickOpenText(path);
+    if (text === null) {
+      const res = await api?.readTextFile?.(path);
+      text = res?.ok ? res.content : null;
+    }
+    texts.set(path, text);
+    if (text === null) continue;
+    for (const m of String(text).matchAll(/^[^\S\r\n]*(?:!?[A-Za-z_]\w*:\s*)?(?:#import|\.import\s+(source|binary|c64|text))\s+"([^"]+)"/gim)) {
+      const target = _kickResolvePath(path, m[2]);
+      if (!m[1] || m[1].toLowerCase() === "source") queue.push(target);
+      else if (!bins.has(target)) {
+        const res = await api?.readBinFile?.(target);
+        bins.set(target, res?.ok ? Uint8Array.from(res.bytes || []) : null);
+      }
+    }
+    for (const m of String(text).matchAll(/\b(?:prgFiles|sidFiles)\s*=\s*"([^"]+)"/gi)) {
+      for (const name of m[1].split(",").map(x => x.trim()).filter(Boolean)) {
+        const target = _kickResolvePath(path, name);
+        if (bins.has(target)) continue;
+        const res = await api?.readBinFile?.(target);
+        bins.set(target, res?.ok ? Uint8Array.from(res.bytes || []) : null);
+      }
+    }
+    for (const m of String(text).matchAll(/\b(?:LoadBinary|LoadSid|LoadPicture)\s*\(\s*"([^"]+)"|"([^"\r\n]+\.(?:gif|png|jpe?g|bmp))"/gi)) {
+      const target = _kickResolvePath(path, m[1] || m[2]);
+      if (bins.has(target)) continue;
+      const res = await api?.readBinFile?.(target);
+      bins.set(target, res?.ok ? Uint8Array.from(res.bytes || []) : null);
+      if (/\.(?:gif|png|jpe?g|bmp)$/i.test(target) && bins.get(target)) pictures.set(target, await _kickDecodePicture(bins.get(target)));
+    }
+  }
+  return { texts, bins, pictures };
+}
+
+// The preprocessor's (English) messages in the UI language; anything else stays as it is.
+const _KICK_MESSAGE_KEYS = [
+  [/^File not found: (.+)$/, "kickMsgFileNotFound", ["path"]],
+  [/^Recursive #import: (.+)$/, "kickMsgRecursiveImport", ["path"]],
+  [/^(.+?): the (?:value|count|address|condition) is not known(?: yet)? \((.+)\)$/, "kickMsgNotKnown", ["what", "expr"]],
+  [/^The (?:value|condition) is not known yet: (.+)$/, "kickMsgNotKnownExpr", ["expr"]],
+  [/^Unknown function (.+)\(\)$/, "kickMsgUnknownFunction", ["name"]],
+  [/^Unknown method \.(.+)\(\) in: (.+)$/, "kickMsgUnknownMethod", ["name", "expr"]],
+  [/^Unknown variable (.+)$/, "kickMsgUnknownVariable", ["name"]],
+  [/^(?:Incomplete expression|Cannot read the expression): (.+)$/, "kickMsgSyntax", ["expr"]],
+  [/^(?:Unexpected|Expected) .+ in: (.+)$/, "kickMsgSyntax", ["expr"]],
+  [/^Multi-label not found: (.+)$/, "kickMsgMultiLabel", ["name"]],
+  [/^Unknown segment: (.+)$/, "kickMsgUnknownSegment", ["name"]],
+  [/^Segment (\w+) is already defined$/, "kickMsgSegmentTwice", ["name"]],
+  [/^Segment (\w+): (\S+) is outside (\S+)$/, "kickMsgSegmentBounds", ["name", "address", "range"]],
+  [/^(\w+) is an illegal opcode \(\.cpu (\w+)\)/, "kickMsgIllegal", ["name", "cpu"]],
+  [/^(\w+): the branch is out of range \((-?\d+)\)$/, "kickMsgBranchRange", ["name", "offset"]],
+  [/^(Missing \}|Unexpected \}|Missing block)$/, "kickMsgBraces", ["text"]]
+];
+function _kickMessageText(message) {
+  for (const [re, key, names] of _KICK_MESSAGE_KEYS) {
+    const m = String(message).match(re);
+    if (m) return tf(key, Object.fromEntries(names.map((name, k) => [name, m[k + 1]])));
+  }
+  return message;
+}
+
+function _kickErrorEntry(file, line, message) {
+  const name = String(file || "").split("/").pop();
+  const text = _kickMessageText(message);
+  return { text: name ? `${name}:${line}: ${text}` : text, file, fileLine: line };
+}
+
+// Preprocesses the startup file of the Kick project; null when no Kick project is active.
+async function _kickPrepare() {
+  if (!_kickProjectActive()) return null;
+  const entry = _kickNormPath(_projResolveAbsPath(_expertProjectData.startupFile));
+  const { texts, bins, pictures } = await _kickReadTree(entry);
+  const pre = _kickPreprocess(entry, p => texts.get(p) ?? null, p => bins.get(p) ?? null,
+    { defines: _expertProjectData.kickDefines || [], vars: _expertProjectData.kickVars || {}, readPicture: p => pictures.get(p) ?? null });
+  const result = {
+    ok: pre.ok,
+    text: pre.text,
+    origins: pre.origins,
+    errors: pre.errors.map(e => _kickErrorEntry(e.file, e.line, e.text)),
+    messages: pre.messages || [],
+    constants: pre.constants || [],
+    outputs: pre.outputs || [],
+    breaks: pre.breaks || [],
+    watches: pre.watches || [],
+    mainOutput: pre.mainOutput || null,
+    program: null
+  };
+  if (pre.ok) {
+    result.program = parseExpertText(pre.text);
+    _addSrcLineToBlocks(pre.text, result.program);
+    // VA assets (.include / .incbin / .koala / .level / .sid) load like in the Expert editor.
+    if (result.program.some(b => b.isIncludeMacro || b.isIncBinMacro || b.isSidMacro)) {
+      const saved = program;
+      try {
+        program = result.program;
+        await reloadIncludeBlocks(entry);
+        await reloadIncBinBlocks(entry);
+        await reloadSidBlocks(entry);
+      } finally {
+        program = saved;
+      }
+    }
+  }
+  _kickLast = result;
+  return result;
+}
+
+// VA build errors point at lines of the preprocessed source: back to file:line.
+function _kickMapResult(result, kick = _kickLast) {
+  if (!kick || !result || result.ok) return result;
+  const map = (error) => {
+    const line = typeof error === "object" && error ? error.sourceLine : null;
+    const origin = typeof line === "number" ? kick.origins[line] : null;
+    const text = typeof error === "string" ? error : error?.text || "";
+    return origin ? _kickErrorEntry(origin.file, origin.line, text) : { text };
+  };
+  const errors = (result.errors?.length ? result.errors : [{ text: result.error || "" }]).map(map);
+  return { ...result, error: errors[0]?.text || result.error, errors };
+}
+
+// An extra output of a Kick project (.file, outPrg / outBin, a file of .disk): the bytes as
+// KickAssembler writes them — a PRG with its load address, a BIN from the lowest address.
+function _kickBuildOutput(output) {
+  const saved = program;
+  const savedMacros = userMacros;
+  try {
+    program = parseExpertText(output.text);
+    _addSrcLineToBlocks(output.text, program);
+    parseUserMacros();
+    const res = _kickMapResult(assembleProgramToPrg(), { origins: output.origins });
+    if (!res.ok) return res;
+    let bytes = Array.from(res.bytes);
+    const p = output.params || {};
+    let load = bytes[0] | (bytes[1] << 8);
+    let body = bytes.slice(2);
+    if (body.length === 0) load = p.min ?? load;
+    if (p.fill && p.min !== undefined && p.max !== undefined) {
+      const before = Math.max(0, load - p.min);
+      const after = Math.max(0, p.max + 1 - (load + body.length));
+      body = [...new Array(before).fill(p.fillByte ?? 0), ...body, ...new Array(after).fill(p.fillByte ?? 0)];
+      load = Math.min(load, p.min);
+    }
+    bytes = output.type === "bin" ? body : [load & 0xFF, load >> 8, ...body];
+    return { ok: true, bytes: Uint8Array.from(bytes) };
+  } finally {
+    program = saved;
+    userMacros = savedMacros;
+  }
+}
+
+// Writes the extra outputs of a Kick project beside its startup file; Build project report rows.
+async function _kickWriteOutputs(kick, startupPath) {
+  const api = window.electronAPI;
+  const dir = _kickNormPath(startupPath).replace(/\/[^/]*$/, "");
+  const results = [];
+  const where = (output) => _kickErrorEntry(output.file, output.line, "").text.replace(/:\s*$/, "");
+  for (const output of kick.outputs) {
+    const outPath = _kickResolvePath(dir + "/x", output.name);
+    if (output.type === "d64") {
+      const formatted = await api?.d64Format?.(outPath, output.diskName || output.name.replace(/\.d64$/i, ""));
+      if (!formatted?.ok) { results.push({ name: output.name, error: formatted?.error || where(output) }); continue; }
+      let failed = null;
+      for (const file of output.files) {
+        const res = _kickBuildOutput({ ...file, type: "prg" });
+        if (!res.ok) { failed = res.error; break; }
+        const added = await api?.d64AddFile?.(outPath, Array.from(res.bytes), file.name, null, file.type === "bin" ? "prg" : file.type);
+        if (!added?.ok) { failed = added?.error || file.name; break; }
+      }
+      results.push(failed ? { name: output.name, error: failed } : { name: output.name, outPath, size: output.files.length });
+      continue;
+    }
+    const res = _kickBuildOutput(output);
+    if (!res.ok) { results.push({ name: output.name, error: res.error }); continue; }
+    const write = await api?.writeBinFile?.(outPath, Array.from(res.bytes), null);
+    results.push(write?.ok ? { name: output.name, outPath, size: res.bytes.length } : { name: output.name, error: write?.error || t("savePrgFailed") });
+  }
+  return results;
+}
+
+// PRG of the Kick project through the VA assembler (the same as Run); null without one.
+async function _kickBuildPrg(build = buildAutostartPrgForEmulator) {
+  const kick = await _kickPrepare();
+  if (!kick) return null;
+  if (!kick.ok) return { ok: false, error: kick.errors[0]?.text || "", errors: kick.errors };
+  return _kickMapResult(await build(), kick);
+}
+
+// The PRG every build path uses: the Kick project's, or the VA build of the editor.
+async function _kickOrVaPrg() {
+  return (await _kickBuildPrg()) || buildAutostartPrgForEmulator();
+}
+
+async function _kickGotoError(file, line) {
+  const norm = _normFilePath(file);
+  const find = (nodes) => {
+    for (const n of nodes || []) {
+      if (n.type === "folder") { const f = find(n.children); if (f) return f; }
+      else if (_normFilePath(_projResolveAbsPath(n.path)) === norm) return n;
+    }
+    return null;
+  };
+  const entry = find(_expertProjectData?.files) || { type: "file", name: file.split("/").pop(), path: file };
+  await _expertProjectOpenFile(entry);
+  if (Number.isFinite(line)) _expertGotoSourceLine(line - 1, { focus: false });
+}
+
+// Editor check of a Kick project after a typing pause: errors of the whole tree,
+// the lines of the open file marked, and the memory panel from the built program.
+function _kickScheduleCheck() {
+  clearTimeout(_expertParseTimer);
+  _expertParseTimer = setTimeout(async () => {
+    const tabId = activeTabId;
+    const kick = await _kickPrepare();
+    if (!kick || tabId !== activeTabId) return;
+    let errors = kick.errors;
+    let bytes = 0;
+    if (kick.ok) {
+      const saved = program;
+      const savedMacros = userMacros;
+      try {
+        program = kick.program;
+        parseUserMacros();
+        const res = _kickMapResult(_buildAutostartPrgCore(), kick);
+        if (res.ok) bytes = Math.max(0, (res.bytes?.length || 2) - 2);
+        else errors = res.errors;
+        renderMemoryMap(getMemoryUsage());
+        const activePath = tabs.find(t => t.id === activeTabId)?.filePath || "";
+        if (_expertCyclesEnabled && res.ok) {
+          _expertCycleMap = _kickCycleMap(kick, activePath);
+          _expertUpdateCycles();
+        }
+        if (res.ok) {
+          const prevHintKey = _expertLintHints.map((h) => h.srcLine + h.key).join();
+          _expertLintHints = _kickLintHints(kick, activePath);
+          if (_expertLintHints.map((h) => h.srcLine + h.key).join() !== prevHintKey) _expertRenderLintButton();
+        }
+      } catch (e) {
+        errors = [{ text: String(e) }];
+      } finally {
+        program = saved;
+        userMacros = savedMacros;
+      }
+    }
+    const active = tabs.find(t => t.id === activeTabId);
+    const norm = _normFilePath(active?.filePath || "");
+    _expertErrorLineNos = new Set(errors.filter(e => e.file && _normFilePath(e.file) === norm).map(e => e.fileLine - 1));
+    _expertApplyHighlight();
+    if (errors.length) _expertSetStatus(tf("kickBuildErrors", { count: errors.length, first: errors[0].text }), "error");
+    else if (kick.messages?.length) _expertSetStatus(tf("kickBuildOkPrint", { bytes, count: kick.messages.length, first: kick.messages[0] }), "ok");
+    else _expertSetStatus(tf("kickBuildOk", { bytes }), "ok");
+    if (_expertDisasmVisible) _expertRenderDisasm();
+    if (_expertMonitorVisible) _expertRenderMonitor();
+  }, 600);
+}
+
+// The Kick project being built (Run / Debug / Build just ran _kickPrepare), or null.
+function _kickBuiltProject() {
+  return !ultimateBasicMode && assemblerSyntax !== "acme" && _kickProjectActive() && _kickLast?.ok ? _kickLast : null;
+}
+
+// A VA label of a Kick project as the source names it: inner scopes "scope.label";
+// null for the generated multi-labels (!:, !loop:).
+function _kickDisplayLabel(name) {
+  const text = String(name || "");
+  if (/^__(?:ml|pc|brk|rel)_/.test(text)) return null;
+  return text.startsWith("__") ? text.replace(/^__/, "").replace(/__/g, ".").replace(/\.$/, "") : text;
+}
+
+// .break / .watch of a Kick project with their addresses (symbols: the VA labels of the build).
+function _kickDebugMarks(kick, symbols) {
+  if (!kick) return { breaks: [], watches: [] };
+  const labels = new Map((symbols || []).map(sym => [sym.name, sym.address & 0xFFFF]));
+  const value = (text) => (text ? _evalAsmExpr(text, labels) : null);
+  const breaks = (kick.breaks || []).filter(b => labels.has(b.label)).map(b => ({ address: labels.get(b.label), cond: b.cond }));
+  const watches = (kick.watches || []).map(w => ({ start: value(w.start), end: value(w.end), arg: w.arg }))
+    .filter(w => typeof w.start === "number" && (w.end === null || typeof w.end === "number"));
+  return { breaks, watches };
+}
+
+// Breakpoint addresses of every open project file: its line, or the next line of that
+// file that emits bytes.
+function _kickBreakpointAddresses(layout, kick) {
+  const executable = (layout?.lines || []).filter(line => line.size > 0 && !line.conditionallySkipped && typeof line.block?._srcLine === "number");
+  const addresses = [];
+  for (const tab of tabs) {
+    const lines = tab.id === activeTabId ? _getTabBreakpointLines("expert") : tab.expertBreakpointLines;
+    if (!tab.filePath || !Array.isArray(lines) || !lines.length) continue;
+    const norm = _normFilePath(tab.filePath);
+    const inFile = executable
+      .map(line => ({ line, origin: kick.origins[line.block._srcLine] }))
+      .filter(x => x.origin && _normFilePath(x.origin.file) === norm);
+    for (const editorLine of lines) {
+      const exact = inFile.find(x => x.origin.line - 1 === editorLine);
+      const next = inFile.filter(x => x.origin.line - 1 > editorLine).sort((a, b) => a.origin.line - b.origin.line)[0];
+      const hit = exact || next;
+      if (hit) addresses.push(hit.line.address & 0xFFFF);
+    }
+  }
+  const labels = new Map();
+  (layout?.lines || []).forEach(line => addLayoutLabels(labels, line));
+  for (const b of kick.breaks || []) if (labels.has(b.label)) addresses.push(Number(labels.get(b.label)) & 0xFFFF);
+  return [...new Set(addresses)];
+}
+
+// Peephole hints of a Kick project on the lines of the open file (the built program is
+// `program`); a line unrolled several times gives each hint once.
+function _kickLintHints(kick, filePath) {
+  const norm = _normFilePath(filePath);
+  if (!norm) return [];
+  const layout = getProgramLayout();
+  const labels = new Map();
+  layout.lines.forEach((line) => addLayoutLabels(labels, line));
+  labels._anonAddrs = _collectAnonLabels(layout);
+  appendDelayHelperLabel(labels, layout);
+  const seq = [];
+  let labelled = false;
+  for (const line of layout.lines) {
+    const block = line.block;
+    if (line.conditionallySkipped) continue;
+    if (block.isLabel) labelled = true;
+    if (block.isLabel || block.isComment || block.isIncludeMacro || block.isBlankLine) continue;
+    if (block._isSavedAddress || block._isRestoreAddress || block.isOrgMacro) { seq.push({ barrier: true }); continue; }
+    const result = compileLineBytes(line, labels);
+    const mnem = String(block.mnemonic || "").toUpperCase();
+    const info = result.ok ? _REV_OP[result.bytes[0]] : null;
+    const origin = typeof block._srcLine === "number" ? kick.origins[block._srcLine] : null;
+    if (info && opcodeMap[mnem] && info.mnem === mnem && result.bytes.length === info.size) {
+      const own = origin && _normFilePath(origin.file) === norm;
+      seq.push({ mnem, mode: info.mode, bytes: result.bytes, address: line.address, srcLine: own ? origin.line - 1 : undefined, labelled });
+      labelled = false;
+    } else if (!result.ok || result.bytes?.length || block.smcLabel) {
+      seq.push({ barrier: true });
+    }
+  }
+  const seen = new Set();
+  return _lintAsm(seq).filter((h) => {
+    if (h.srcLine === undefined) return false;
+    const key = h.srcLine + h.key;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+// Cycle gutter of a Kick project: the built program's instructions on the lines of the
+// open file. A line expanded several times (.for, macros) shows one turn and "×n";
+// its min / max count every turn, so a selection sums the whole unrolled code.
+function _kickCycleMap(kick, filePath) {
+  const map = new Map();
+  const norm = _normFilePath(filePath);
+  if (!norm) return map;
+  const layout = getProgramLayout();
+  const labels = new Map();
+  layout.lines.forEach((line) => addLayoutLabels(labels, line));
+  labels._anonAddrs = _collectAnonLabels(layout);
+  const perLine = new Map();   // editor line → [{ key, c }] (key: the instruction text)
+  for (const line of layout.lines) {
+    if (line.conditionallySkipped || typeof line.block._srcLine !== "number") continue;
+    const origin = kick.origins[line.block._srcLine];
+    if (!origin || _normFilePath(origin.file) !== norm) continue;
+    const mnem = String(line.block.mnemonic || "").toUpperCase();
+    if (!opcodeMap[mnem]) continue;
+    const result = compileLineBytes(line, labels);
+    if (!result.ok || _REV_OP[result.bytes[0]]?.mnem !== mnem) continue;
+    const c = _cycleInfo(result.bytes, line.address);
+    if (!c) continue;
+    const key = `${line.block._srcLine}`;
+    if (!perLine.has(origin.line - 1)) perLine.set(origin.line - 1, []);
+    perLine.get(origin.line - 1).push({ key, mnem, c });
+  }
+  for (const [lineNo, items] of perLine) {
+    // the statements of one turn: up to the first repeated mnemonic sequence
+    const turn = [];
+    for (const it of items) {
+      if (turn.length && it.mnem === turn[0].mnem && items.length % turn.length === 0 && items.slice(turn.length).every((x, k) => x.mnem === items[k % turn.length].mnem)) break;
+      turn.push(it);
+    }
+    const times = Math.max(1, Math.round(items.length / turn.length));
+    const min = items.reduce((s, x) => s + x.c.min, 0);
+    const max = items.reduce((s, x) => s + x.c.max, 0);
+    const text = turn.map(x => x.c.text).join(",") + (times > 1 ? `×${times}` : "");
+    map.set(lineNo, { min, max, text, warn: items.some(x => x.c.warn) });
+  }
+  return map;
+}
+
+// Project panel switch: the project is KickAssembler compatible (VMA mode only, saved
+// as "kick": true). On, the Kick script runs before the VA assembler; off, plain VMA.
+function _kickSyncProjectButton() {
+  const btn = document.getElementById("expert-project-kick-btn");
+  if (!btn) return;
+  btn.style.display = _expertProjectData && assemblerSyntax !== "acme" ? "" : "none";
+  const on = !!_expertProjectData?.kick;
+  btn.setAttribute("aria-pressed", String(on));
+  btn.setAttribute("aria-label", t(on ? "projKickOn" : "projKickOff"));
+}
+
+async function _kickToggleProject() {
+  if (!_expertProjectData || assemblerSyntax === "acme") return;
+  _expertProjectData.kick = !_expertProjectData.kick;
+  if (!_expertProjectData.kick) delete _expertProjectData.kick;
+  _kickLast = null;
+  _kickSyncProjectButton();
+  _expertProjectDirty = true;
+  if (_expertProjectData._projPath) await _expertSaveProject();
+  else _expertRenderProjectTree();
+  _expertValidate();
+  _expertSetStatus(t(_expertProjectData.kick ? "projKickEnabled" : "projKickDisabled"), "ok");
+}
+
+// The Kick settings of a .proj: preprocessor symbols (#define) and command-line
+// variables (cmdLineVars), only when set.
+function _projKickFields(proj) {
+  const defines = Array.isArray(proj?.kickDefines) ? proj.kickDefines.map(String).filter(d => /^[A-Za-z_]\w*$/.test(d)) : [];
+  const vars = proj?.kickVars && typeof proj.kickVars === "object" ? Object.fromEntries(Object.entries(proj.kickVars).filter(([k]) => /^[A-Za-z_]\w*$/.test(k)).map(([k, v]) => [k, String(v)])) : {};
+  return { ...(defines.length ? { kickDefines: defines } : {}), ...(Object.keys(vars).length ? { kickVars: vars } : {}) };
+}
+
+// "name=value" lines ↔ { name: value }; a line without "=" gives an empty value.
+function _projParseKickVars(text) {
+  const vars = {};
+  for (const line of String(text || "").split(/\r?\n/)) {
+    const m = line.trim().match(/^([A-Za-z_]\w*)\s*(?:=\s*(.*))?$/);
+    if (m) vars[m[1]] = (m[2] ?? "").trim();
+  }
+  return vars;
+}
+
+// ── Project settings dialog (name, startup file, assembler, Kick options, file list)
+function _projFlatFiles(nodes, out = []) {
+  for (const n of nodes || []) {
+    if (n.type === "folder") _projFlatFiles(n.children, out);
+    else if (n.path) out.push(n.path);
+  }
+  return out;
+}
+
+async function openProjectSettings() {
+  const dlg = document.getElementById("project-settings-dialog");
+  if (!dlg) return;
+  if (!_expertProjectData) { _expertSetStatus(t("projNoProject"), "error"); return; }
+  const data = _expertProjectData;
+  const files = _projFlatFiles(data.files);
+  const sources = files.filter(f => /\.(asm|s|a|inc|a65|lib)$/i.test(f));
+  const set = (id, prop, value) => { const el = document.getElementById(id); if (el) el[prop] = value; };
+  set("ps-name", "value", data.name || "");
+  set("ps-meta", "textContent", data.name || "");
+  set("ps-path", "textContent", data._projPath || t("psNotSaved"));
+  const startup = document.getElementById("ps-startup");
+  if (startup) {
+    startup.innerHTML = "";
+    const none = document.createElement("option");
+    none.value = "";
+    none.textContent = t("psNone");
+    startup.appendChild(none);
+    for (const f of sources) {
+      const o = document.createElement("option");
+      o.value = f;
+      o.textContent = f;
+      startup.appendChild(o);
+    }
+    startup.value = data.startupFile || "";
+  }
+  const asm = document.getElementById("ps-assembler");
+  if (asm) {
+    asm.value = assemblerSyntax === "acme" ? "acme" : "kick";
+    const acmeOption = asm.querySelector('option[value="acme"]');
+    if (acmeOption) acmeOption.disabled = !(await (_acmeAvailabilityCheck || _acmeAvailabilitySync())) && assemblerSyntax !== "acme";
+  }
+  set("ps-kick", "checked", !!data.kick);
+  set("ps-defines", "value", (data.kickDefines || []).join(", "));
+  set("ps-vars", "value", Object.entries(data.kickVars || {}).map(([k, v]) => `${k}=${v}`).join("\n"));
+  const assets = files.length - sources.length;
+  set("ps-files", "textContent", tf("psFileCount", { count: files.length, sources: sources.length, assets }));
+  _projSettingsSync();
+  dlg.showModal();
+}
+
+// Kick options only for a Kick-compatible VMA project.
+function _projSettingsSync() {
+  const acme = document.getElementById("ps-assembler")?.value === "acme";
+  const kickBox = document.getElementById("ps-kick");
+  if (kickBox) { kickBox.disabled = acme; if (acme) kickBox.checked = false; }
+  const on = !acme && !!kickBox?.checked;
+  document.querySelectorAll("#project-settings-dialog .ps-kick-only").forEach(el => { el.hidden = !on; });
+}
+
+async function _projSettingsSave() {
+  const data = _expertProjectData;
+  const dlg = document.getElementById("project-settings-dialog");
+  if (!data) { dlg?.close(); return; }
+  const name = document.getElementById("ps-name")?.value.trim();
+  if (name) data.name = name;
+  data.startupFile = document.getElementById("ps-startup")?.value || null;
+  const syntax = document.getElementById("ps-assembler")?.value === "acme" ? "acme" : "kick";
+  const kick = syntax === "kick" && !!document.getElementById("ps-kick")?.checked;
+  if (kick) data.kick = true; else delete data.kick;
+  const defines = String(document.getElementById("ps-defines")?.value || "").split(/[\s,]+/).filter(d => /^[A-Za-z_]\w*$/.test(d));
+  const vars = _projParseKickVars(document.getElementById("ps-vars")?.value);
+  if (defines.length) data.kickDefines = defines; else delete data.kickDefines;
+  if (Object.keys(vars).length) data.kickVars = vars; else delete data.kickVars;
+  dlg?.close();
+  if (syntax !== assemblerSyntax) {
+    _setAssemblerSyntax(syntax);
+    saveUiSettings();
+  }
+  _kickLast = null;
+  _expertProjectDirty = true;
+  if (data._projPath) await _expertSaveProject();
+  _expertRenderProjectTree();
+  _expertValidate();
+  _expertSetStatus(t("psSaved"), "ok");
+}
+
+function setupProjectSettings() {
+  document.getElementById("expert-project-settings-btn")?.addEventListener("click", openProjectSettings);
+  document.getElementById("menu-project-settings")?.addEventListener("click", () => {
+    document.querySelector(".control-menu")?.removeAttribute("open");
+    openProjectSettings();
+  });
+  document.getElementById("ps-assembler")?.addEventListener("change", _projSettingsSync);
+  document.getElementById("ps-kick")?.addEventListener("change", _projSettingsSync);
+  document.getElementById("ps-close")?.addEventListener("click", () => document.getElementById("project-settings-dialog")?.close());
+  document.getElementById("ps-cancel")?.addEventListener("click", () => document.getElementById("project-settings-dialog")?.close());
+  document.getElementById("ps-save")?.addEventListener("click", _projSettingsSave);
+}
+
+// Binary assets of a project (.import binary): listed in the tree, not opened as text.
+const _KICK_ASSET_RE = /\.(bin|prg|raw|chr|spr|map|koa|kla|sid|bmp|png|d64)$/i;
+
+// Menu → Import Kick project…: a .proj next to the chosen main file, with every
+// #import / .import file of its tree; the sources stay where they are.
+async function importKickProject() {
+  const api = window.electronAPI;
+  const res = await api?.chooseAsmFile?.();
+  if (!res || res.canceled) return;
+  if (!res.ok) { _expertSetStatus(t("vasmLoadError") + ": " + res.error, "error"); return; }
+  if (!await _closeAllTabsWithConfirm()) return;
+  const entry = _kickNormPath(res.filePath);
+  const dir = entry.replace(/\/[^/]*$/, "");
+  const { texts, bins } = await _kickReadTree(entry);
+  const missing = [...texts, ...bins].filter(([, v]) => v === null).map(([p]) => p);
+
+  const relOf = (p) => {
+    const a = dir.split("/");
+    const b = p.split("/");
+    let i = 0;
+    while (i < a.length && i < b.length && a[i].toLowerCase() === b[i].toLowerCase()) i++;
+    return [...a.slice(i).map(() => ".."), ...b.slice(i)].join("/");
+  };
+  const files = [];
+  const folderOf = (parts) => {
+    let nodes = files;
+    let path = "";
+    for (const part of parts) {
+      path = path ? `${path}/${part}` : part;
+      let folder = nodes.find(n => n.type === "folder" && n.name === part);
+      if (!folder) { folder = { type: "folder", name: part, path, children: [] }; nodes.push(folder); }
+      nodes = folder.children;
+    }
+    return nodes;
+  };
+  [...texts.keys(), ...bins.keys()].filter(p => !missing.includes(p)).forEach((p) => {
+    const rel = relOf(p);
+    const parts = rel.split("/");
+    folderOf(parts.slice(0, -1)).push({ type: "file", name: parts[parts.length - 1], path: rel });
+  });
+  const sortNodes = (nodes) => {
+    nodes.sort((a, b) => (a.type === b.type ? a.name.localeCompare(b.name) : a.type === "folder" ? 1 : -1));
+    nodes.forEach(n => n.type === "folder" && sortNodes(n.children));
+  };
+  sortNodes(files);
+
+  const dirName = dir.split("/").pop() || "kick";
+  const name = /^(src|source|sources|asm)$/i.test(dirName) ? (dir.split("/").slice(-2, -1)[0] || dirName) : dirName;
+  const projPath = `${dir}/${name}.proj`;
+  if ((await api?.readTextFile?.(projPath))?.ok && !await _showConfirm(tf("kickProjectOverwrite", { path: projPath }))) return;
+  const startupFile = relOf(entry);
+  const payload = JSON.stringify({ name, files, startupFile, ..._projAssemblerFields("kick"), kick: true }, null, 2);
+  const saved = await api?.saveTextFile?.(projPath, payload);
+  if (!saved?.ok) { _expertSetStatus(t("projSaveError") + ": " + (saved?.error || projPath), "error"); return; }
+
+  _expertProjectData = { name, files, _projPath: projPath, startupFile, assemblerSyntax: "kick", kick: true };
+  _setAssemblerSyntax("kick");
+  _expertProjectDirty = false;
+  if (!expertMode) setExpertMode(true);
+  if (!_expertProjectVisible) expertProjectBtn?.click();
+  else _expertRenderProjectTree();
+  await _expertProjectOpenFile({ type: "file", name: startupFile.split("/").pop(), path: startupFile });
+  const count = texts.size + bins.size - missing.length;
+  if (missing.length) showCompileErrorDialog(missing.map(p => ({ text: tf("kickImportMissing", { path: p }) })));
+  _expertSetStatus(tf("kickProjectImported", { name, count }), missing.length ? "error" : "ok");
+}
+
 // Detect a comma-separated value list base. Returns { base, normalized } where
 // normalized is the cleaned string (without $/% prefixes) that matches `base`.
 function _importDetectListBase(rawList) {
-  const parts = rawList.split(",").map(p => p.trim()).filter(Boolean);
+  const parts = rawList.split(",").map(p => _charLiteralToHex(p.trim())).filter(Boolean);
   if (!parts.length) return { base: "hex", normalized: rawList.trim() };
   // Lo/hi byte label refs: <label or >label — preserve as-is
   if (parts.some(p => /^[<>][A-Za-z_.][A-Za-z0-9_.]*$/.test(p))) {
+    return { base: "dec", normalized: parts.join(",") };
+  }
+  // Expressions (<(label+1), table+2, …) keep their case and $ / % prefixes:
+  // stripping or upper-casing them would break the label names.
+  if (parts.some(p => !/^(?:%[01]+|\$[0-9A-Fa-f]+|0x[0-9A-Fa-f]+|\d+)$/i.test(p) && /[A-Za-z_(]/.test(p.replace(/^0x/i, "")))) {
     return { base: "dec", normalized: parts.join(",") };
   }
   const allBin = parts.every(p => /^%[01]+$/.test(p));
@@ -24164,8 +27361,12 @@ function _importDetectListBase(rawList) {
   if (allBin) return { base: "bin", normalized: stripped.join(",") };
   if (allDec) return { base: "dec", normalized: stripped.join(",") };
   if (allHex) return { base: "hex", normalized: stripped.join(",").toUpperCase() };
-  // Mixed → keep hex semantics, strip prefixes where present
-  return { base: "hex", normalized: stripped.join(",").toUpperCase() };
+  // Mixed → hex list: every element keeps its own value ($xx / 0x hex, %bin, bare decimal)
+  const hexOf = (p) => {
+    const n = /^%/.test(p) ? parseInt(p.slice(1), 2) : /^(\$|0x)/i.test(p) ? parseInt(p.replace(/^(\$|0x)/i, ""), 16) : parseInt(p, 10);
+    return n.toString(16).toUpperCase().padStart(2, "0");
+  };
+  return { base: "hex", normalized: parts.map(hexOf).join(",") };
 }
 
 function _importParseScalar(raw) {
@@ -26387,6 +29588,8 @@ function buildAutostartPrgForEmulator() {
  */
 function _expertGetStartupProgram() {
   if (!_expertProjectData?.startupFile) return null;
+  // A Kick project builds the preprocessed tree (_kickPrepare runs before every build).
+  if (_kickLast?.program && _kickProjectActive()) return _kickLast.program;
   const sf = _expertProjectData.files.find(f => f.path === _expertProjectData.startupFile);
   if (!sf) return null;
 
@@ -26862,6 +30065,8 @@ function compileLineBytes(line, labels) {
   if (block.isLabel || block.isComment || block.isAnonymousLabel || block.isBlankLine) {
     return { ok: true, bytes: [] };
   }
+
+  if (block.isIfMacro && block._ifError) return { ok: false, error: block._ifError };
 
   const blockError = getLiveValidationError(block);
   if (blockError) {
@@ -27861,7 +31066,7 @@ function compileLineBytes(line, labels) {
   }
 
   if (block.isWordMacro) {
-    const words = parseWordMacro(block.rawOperand, block.base);
+    const words = parseWordMacro(block.rawOperand, block.base, labels);
     const bytes = [];
     words.forEach(word => {
       bytes.push(word & 0xFF, (word >> 8) & 0xFF);  // LO, HI
@@ -28435,7 +31640,7 @@ function compileLineBytes(line, labels) {
 
 function resolveNumericOperand(block, labels) {
   const evalAsmExpression = (expr, localLabels = null) => {
-    let text = String(expr ?? "").trim();
+    let text = _charLiteralToHex(String(expr ?? "").trim());
     if (!text) return null;
     text = text.replace(/^#/, "");
     text = text.replace(/\$([A-Za-z_][A-Za-z0-9_]*)/g, (match, name) => {
@@ -28672,7 +31877,7 @@ function _evalJsExprSafe(src) {
 // inline evalAsmExpression copies used elsewhere; kept module-level so the
 // long-branch / .assert / relative-branch paths can reuse it.
 function _evalAsmExpr(expr, labels = null) {
-  let text = String(expr ?? "").trim();
+  let text = _charLiteralToHex(String(expr ?? "").trim());
   if (!text) return null;
   text = text.replace(/^#/, "");
   text = text.replace(/\$([A-Za-z_][A-Za-z0-9_.]*)/g, (match, name) => (/^[0-9A-Fa-f]+$/.test(name) ? match : name));
@@ -28837,6 +32042,11 @@ function shouldShowBinForBlock(block, mode) {
     return block.addressingMode === "immediate";
   }
   return false;
+}
+
+// 'A' → $41: a character literal is its ASCII / PETSCII code, the bytes .text writes.
+function _charLiteralToHex(text) {
+  return String(text ?? "").replace(/'([^'])'/g, (m, c) => "$" + c.charCodeAt(0).toString(16).toUpperCase().padStart(2, "0"));
 }
 
 function parseNumberByBase(value, base) {
@@ -30141,7 +33351,9 @@ function getProgramLayout(originOverride) {
   const skippedBlocks = new WeakSet();
   for (const block of expandedProgram) {
     if (block.isIfMacro) {
-      condStack.push({ active: activeDefines.has((block.ifCondition || "").trim()), inElse: false });
+      const active = _ifConditionActive(block.ifCondition, activeDefines);
+      block._ifError = active === null ? tf("ifConditionNotResolvable", { condition: (block.ifCondition || "").trim() }) : "";
+      condStack.push({ active: active === true, inElse: false });
     } else if (block.isElseMacro) {
       if (condStack.length > 0) condStack[condStack.length - 1].inElse = true;
     } else if (block.isEndIfMacro) {
@@ -30514,8 +33726,81 @@ function _ubMemoryUsage(result = _getActiveTab()?._ubBuildResult || null) {
   };
 }
 
+// ACME mode: the memory panel / strip come from the last ACME build of the tab
+// (report rows), since the VA layout cannot read ACME source.
+function _acmeRowSpan(row, starts, memory) {
+  const end = memory.origin + memory.payload.length;
+  if (row.address === null || !row.bytes.length || row.address < memory.origin || row.address >= end) return null;
+  let stop = row.address + row.bytes.length;
+  if (row.truncated) {
+    const length = _acmeTruncatedRowLength(row.source);
+    stop = length ? row.address + length : Math.min(end, starts.find(a => a > row.address) ?? end);
+  }
+  return { start: row.address, end: Math.min(stop, end) - 1 };
+}
+
+function _acmeRowLabel(row) {
+  const file = row.own ? "" : `${String(row.file).split(/[\\/]/).pop()}:`;
+  const line = row.srcLine !== null ? row.srcLine + 1 : row.line;
+  return `${file}${line}: ${String(row.source || "").split(";")[0].trim()}`.slice(0, 80);
+}
+
+function _acmeMemoryUsage(preview = _acmePreview?.tabId === activeTabId ? _acmePreview : null) {
+  const memory = preview ? _acmePrgMemory(preview.bytes) : null;
+  const rows = memory ? _acmeReportRows(preview.report, preview.sourceLineOffset ?? null) : [];
+  const ranges = !memory ? []
+    : rows.length ? _acmeOccupiedRanges(rows, memory)
+      : (_acmePreviewSegments(preview, true)?.segments || []).map(s => ({ start: s.origin, end: s.origin + s.payload.length - 1 }));
+  const occupiedRanges = ranges.map(r => ({
+    start: r.start, end: r.end, type: "code",
+    label: `${t("memoryOverlapCode")} ${formatAddress(r.start)}–${formatAddress(r.end)}`
+  }));
+
+  // Overlap: an address written by two different source lines (the later one wins in the PRG).
+  const starts = rows.filter(r => r.address !== null && r.bytes.length).map(r => r.address).sort((a, b) => a - b);
+  const owner = new Map();
+  const hits = [];
+  for (const row of rows) {
+    const span = memory ? _acmeRowSpan(row, starts, memory) : null;
+    if (!span) continue;
+    const key = `${row.file}\u0000${row.line}`;
+    for (let addr = span.start; addr <= span.end; addr++) {
+      const prev = owner.get(addr);
+      if (prev && prev.key !== key) hits.push({ addr, a: prev.row, b: row });
+      owner.set(addr, { key, row });
+    }
+  }
+  const overlaps = [];
+  for (const hit of hits) {
+    const last = overlaps[overlaps.length - 1];
+    if (last && last._a === hit.a && last._b === hit.b && hit.addr === last.overlapEnd + 1) {
+      last.overlapEnd = hit.addr;
+      last.bytes++;
+      continue;
+    }
+    overlaps.push({ _a: hit.a, _b: hit.b, regionA: { label: _acmeRowLabel(hit.a) }, regionB: { label: _acmeRowLabel(hit.b) },
+      overlapStart: hit.addr, overlapEnd: hit.addr, bytes: 1 });
+  }
+
+  const mergedOccupied = mergeMemoryRanges(occupiedRanges);
+  const ramSegments = memorySegments.filter((segment) => segment.kind === "ram");
+  const totalRamBytes = ramSegments.reduce((sum, segment) => sum + (segment.end - segment.start + 1), 0);
+  const occupiedRamBytes = ramSegments.reduce((sum, segment) => sum + countRangeBytes(mergedOccupied, segment.start, segment.end), 0);
+  return {
+    layout: { lines: [] },
+    deferredSections: [],
+    occupiedRanges,
+    mergedOccupied,
+    totalRamBytes,
+    occupiedRamBytes,
+    freeRamBytes: Math.max(0, totalRamBytes - occupiedRamBytes),
+    overlaps
+  };
+}
+
 function getMemoryUsage(layout) {
   if (ultimateBasicMode) return _ubMemoryUsage();
+  if (assemblerSyntax === "acme" && expertMode) return _acmeMemoryUsage();
   layout = layout || getProgramLayout();
   const occupiedRanges = [];
 
@@ -37644,15 +40929,57 @@ if (tabs.length === 0) {
 }
 
 /* ─── C64 Color Palette ─────────────────────────────────── */
+const _C64_PALETTES = {
+  colodore: [0x000000, 0xFFFFFF, 0x813338, 0x75CEC8, 0x8E3C97, 0x56AC4D, 0x2E2C9B, 0xEDF171, 0x8E5029, 0x553800, 0xC46C71, 0x4A4A4A, 0x7B7B7B, 0xA9FF9F, 0x706DEB, 0xB2B2B2],
+  pepto:    [0x000000, 0xFFFFFF, 0x68372B, 0x70A4B2, 0x6F3D86, 0x588D43, 0x352879, 0xB8C76F, 0x6F4F25, 0x433900, 0x9A6759, 0x444444, 0x6C6C6C, 0x9AD284, 0x6C5EB5, 0x959595],
+  vice:     [0x000000, 0xFDFEFC, 0xBE1A24, 0x30E6C6, 0xB41AE2, 0x1FD21E, 0x211BAE, 0xDFF60A, 0xB84104, 0x6A3304, 0xFE4A57, 0x424540, 0x70746F, 0x59FE59, 0x5F53FE, 0xA4A7A2],
+  deekay:   [0x000000, 0xFFFFFF, 0x882000, 0x68D0A8, 0xA838A0, 0x50B818, 0x181090, 0xF0E858, 0xA04800, 0x472B1B, 0xC87870, 0x484848, 0x808080, 0x98FF98, 0x5090D0, 0xB8B8B8],
+  c64wiki:  [0x000000, 0xFFFFFF, 0x880000, 0xAAFFEE, 0xCC44CC, 0x00CC55, 0x0000AA, 0xEEEE77, 0xDD8855, 0x664400, 0xFF7777, 0x333333, 0x777777, 0xAAFF66, 0x0088FF, 0xBBBBBB]
+};
+const _C64_PALETTE_NAMES = { colodore: "Colodore", pepto: "Pepto", vice: "VICE", deekay: "Deekay", c64wiki: "C64 Wiki / Godot" };
+// Editor palette (Settings → General, `c64va-editor-palette`): every editor draws with
+// _CE_COLORS; _setEditorPalette refills it in place, so the references stay valid.
+let _editorPalette = "colodore";
+try { const p = localStorage.getItem("c64va-editor-palette"); if (_C64_PALETTES[p]) _editorPalette = p; } catch (_) {}
+const _CE_COLORS = _C64_PALETTES[_editorPalette].map(_c64HexColor);
+function _c64HexColor(v) { return "#" + v.toString(16).padStart(6, "0"); }
+function _editorPaletteApplyCss() {
+  const root = document.documentElement.style;
+  root.setProperty("--c64-blue", _CE_COLORS[6]);
+  root.setProperty("--c64-light-blue", _CE_COLORS[14]);
+}
+_editorPaletteApplyCss();
+function _setEditorPalette(name) {
+  if (!_C64_PALETTES[name]) name = "colodore";
+  _editorPalette = name;
+  try { localStorage.setItem("c64va-editor-palette", name); } catch (_) {}
+  _C64_PALETTES[name].forEach(function(v, i) { _CE_COLORS[i] = _c64HexColor(v); });
+  _editorPaletteApplyCss();
+  _lvRgbCache = null; _hgPalRGB = null; _spPalRGB = null;
+  ["toolkit-palette", "cc-palette", "me-palette", "hg-palette", "se-palette"].forEach(function(id) {
+    const wrap = document.getElementById(id);
+    if (!wrap) return;
+    Array.from(wrap.children).forEach(function(el, i) {
+      const sw = el.querySelector(".c64-palette-swatch") || el;
+      if (i < 16) sw.style.background = _CE_COLORS[i];
+    });
+  });
+  const open = function(id) { return document.getElementById(id)?.open; };
+  try {
+    if (open("char-editor-dialog")) { _ceRenderEditor(); _ceRenderMap(); _ceRenderPreview(); }
+    if (open("charset-canvas-dialog")) _ccRender();
+    if (open("map-editor-dialog")) _meRenderAll();
+    if (open("level-editor-dialog")) _lvRenderAll();
+    if (open("hires-editor-dialog")) { _hgRenderAll(); _hgUpdatePaperSwatch(); }
+    if (open("sprite-editor-dialog")) { _spBuildColors(); _spRender(); }
+  } catch (err) { console.error("editor palette redraw failed:", err); }
+}
+
 const _C64_COLORS = [
-  {n:"Black",       hex:"#000000"}, {n:"White",       hex:"#FFFFFF"},
-  {n:"Red",         hex:"#9F4E44"}, {n:"Cyan",        hex:"#6ABFC6"},
-  {n:"Purple",      hex:"#A057A3"}, {n:"Green",       hex:"#5CAB5E"},
-  {n:"Blue",        hex:"#50459B"}, {n:"Yellow",      hex:"#C9D487"},
-  {n:"Orange",      hex:"#A1683C"}, {n:"Brown",       hex:"#6D5412"},
-  {n:"Light Red",   hex:"#CB7E75"}, {n:"Dark Grey",   hex:"#626262"},
-  {n:"Med. Grey",   hex:"#898989"}, {n:"Light Green", hex:"#9AE29B"},
-  {n:"Light Blue",  hex:"#887ECB"}, {n:"Light Grey",  hex:"#ADADAD"},
+  {n:"Black"}, {n:"White"}, {n:"Red"}, {n:"Cyan"},
+  {n:"Purple"}, {n:"Green"}, {n:"Blue"}, {n:"Yellow"},
+  {n:"Orange"}, {n:"Brown"}, {n:"Light Red"}, {n:"Dark Grey"},
+  {n:"Med. Grey"}, {n:"Light Green"}, {n:"Light Blue"}, {n:"Light Grey"},
 ];
 
 // C64 colour palette now lives in the ASM view's Toolkit tab.
@@ -37664,7 +40991,7 @@ function _buildToolkitPalette() {
     item.className = "c64-palette-item";
     const swatch = document.createElement("div");
     swatch.className = "c64-palette-swatch";
-    swatch.style.background = color.hex;
+    swatch.style.background = _CE_COLORS[i];
     swatch.setAttribute("aria-label", `${i}: ${color.n}`);
     swatch.setAttribute("role", "button");
     swatch.tabIndex = 0;
@@ -37854,8 +41181,8 @@ function _c64RomSelect(sc) {
   preview.className = "c64-chrrom-char-preview";
   preview.textContent = ch;
   preview.style.fontFamily = '"C64ProMono", monospace';
-  preview.style.color = isRev ? "#352879" : "#6c5eb5";
-  preview.style.background = isRev ? "#6c5eb5" : "#352879";
+  preview.style.color = isRev ? _CE_COLORS[6] : _CE_COLORS[14];
+  preview.style.background = isRev ? _CE_COLORS[14] : _CE_COLORS[6];
   content.appendChild(preview);
 
   const nameEl = document.createElement("div");
@@ -37962,12 +41289,6 @@ function setupC64CharRom() {
 /* ═══════════════════════════════════════════════════════
    CHARACTER SET EDITOR
    ═══════════════════════════════════════════════════════ */
-const _CE_COLORS = [
-  "#000000","#ffffff","#68372b","#70a4b2",
-  "#6f3d86","#588d43","#352879","#b8c76f",
-  "#6f4f25","#433900","#9a6759","#444444",
-  "#6c6c6c","#9ad284","#6c5eb5","#959595"
-];
 
 let _ceData = null;
 let _ceCharColors = null;
@@ -38019,6 +41340,7 @@ function _ceSetPixel(charIdx, row, col, val) {
 // (the selected one at the top left) as one picture.
 let _ceTileW = 1, _ceTileH = 1;
 let _ceTool = "pencil";
+let _cePrevTool = "pencil";  // the picker returns to this tool
 let _ceShapeStart = null;
 let _ceUndo = [], _ceRedo = [];
 let _ceClip = null;          // { w, h, data: Uint8Array(w*h*8), colors: Uint8Array(w*h) }
@@ -38505,6 +41827,8 @@ function _ceApplySerializedState(settings) {
 function _ceSyncTools() {
   document.querySelectorAll("#char-editor-dialog .ce-tool-btn[data-ce-tool]").forEach(function(b) {
     b.classList.toggle("ce-tool-btn--active", b.dataset.ceTool === _ceTool);
+    // hi-res has a single ink: nothing to pick
+    if (b.dataset.ceTool === "picker") b.disabled = !_ceMulticolor;
   });
   const square = _ceTileW === _ceTileH;
   ["ce-rotr", "ce-rotl"].forEach(function(id) { const b = document.getElementById(id); if (b) b.disabled = !square; });
@@ -38550,6 +41874,16 @@ function setupCharEditor() {
       if (!_ceData || e.button !== 0) return;
       const p = cellAt(e.clientX, e.clientY);
       if (!p) return;
+      // Colour picker (or Alt+click, multicolor only): the pixel's value becomes the ink.
+      if (_ceMulticolor && (_ceTool === "picker" || e.altKey)) {
+        _ceInk = _ceGetT(p.x, p.y);
+        if (_ceTool === "picker") _ceTool = _cePrevTool;
+        _ceBuildColorRows();
+        _ceSyncTools();
+        e.preventDefault();
+        return;
+      }
+      if (_ceTool === "picker") return;
       _cePushUndo();
       _cePaintVal = paintValue(p);
       if (_ceTool === "fill") {
@@ -38647,7 +41981,11 @@ function setupCharEditor() {
   }
 
   dialog.querySelectorAll(".ce-tool-btn[data-ce-tool]").forEach(function(btn) {
-    btn.addEventListener("click", function() { _ceTool = btn.dataset.ceTool; _ceSyncTools(); });
+    btn.addEventListener("click", function() {
+      if (btn.dataset.ceTool === "picker" && _ceTool !== "picker") _cePrevTool = _ceTool;
+      _ceTool = btn.dataset.ceTool;
+      _ceSyncTools();
+    });
   });
   document.getElementById("ce-undo")?.addEventListener("click", _ceUndoOp);
   document.getElementById("ce-redo")?.addEventListener("click", _ceRedoOp);
@@ -38677,6 +42015,8 @@ function setupCharEditor() {
     _ceMulticolor = !!e.target.checked;
     if (_ceMulticolor) _ceFg &= 7;
     _ceInk = _ceMulticolor ? 3 : 1;
+    if (!_ceMulticolor && _ceTool === "picker") _ceTool = _cePrevTool;
+    _ceSyncTools();
     _ceBuildGrid();
     _ceBuildColorRows();
     _ceRefresh();
@@ -38777,6 +42117,7 @@ let _ccData = null;
 let _ccColorRam = null;
 let _ccMulticolor = false;
 let _ccTool = "pencil";
+let _ccPrevTool = "pencil";  // the picker returns to this tool
 let _ccColor = 14;
 let _ccBg = 6;
 let _ccMc1 = 5;
@@ -39348,6 +42689,7 @@ function setupCharsetCanvasEditor() {
   document.getElementById("cc-close")?.addEventListener("click", function() { dialog.close(); });
   dialog.querySelectorAll("[data-cc-tool]").forEach(function(btn) {
     btn.addEventListener("click", function() {
+      if (btn.dataset.ccTool === "picker" && _ccTool !== "picker") _ccPrevTool = _ccTool;
       _ccTool = btn.dataset.ccTool;
       dialog.querySelectorAll("[data-cc-tool]").forEach(function(b) { b.classList.toggle("cc-tool--active", b === btn); });
     });
@@ -39539,6 +42881,20 @@ function setupCharsetCanvasEditor() {
       ccLast = null;
       const point = _ccPointFromEvent(e);
       if (!point) return;
+      // Colour picker (or Alt+click): the visible colour of the pixel; in a multicolor
+      // character its pixel value is the ink.
+      if (_ccTool === "picker" || e.altKey) {
+        const value = _ccGetPixel(point.x, point.y);
+        const charIdx = _ccCellFromPixel(point.x, point.y).charIdx;
+        _ccPickColor(_ccPixelColor(value, charIdx));
+        if (_ccMulticolor && _ccCharMc(charIdx)) { _ccInk = value; _ccSyncPaletteSelection(); }
+        if (_ccTool === "picker") {
+          _ccTool = _ccPrevTool;
+          dialog.querySelectorAll("[data-cc-tool]").forEach(function(b) { b.classList.toggle("cc-tool--active", b.dataset.ccTool === _ccTool); });
+        }
+        e.preventDefault();
+        return;
+      }
       _ccPushUndo();
       _ccPainting = true;
       try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
@@ -40621,6 +43977,7 @@ function setupMapEditor() {
   document.getElementById("me-zoom")?.addEventListener("input", function(e) {
     _meZoom = parseInt(e.target.value, 10); _meRenderAll();
   });
+  _bindCtrlWheelRange(document.getElementById("me-canvas-wrap"), document.getElementById("me-zoom"));
 
   // Bank tile selection
   ["me-bank0", "me-bank1"].forEach(function(id, bank) {
@@ -42640,6 +45997,7 @@ function setupLevelEditor() {
     _lvScale = (parseInt(e.target.value, 10) || 50) / 100;
     _lvRenderOverview();
   });
+  _bindCtrlWheelRange(document.getElementById("lv-canvas-wrap"), document.getElementById("lv-zoom"));
 
   // Object layer controls
   document.getElementById("lv-obj-mode")?.addEventListener("click", function() {
@@ -43165,6 +46523,7 @@ let _hgPixMC  = null;        // Uint8Array(160*200) multicolor: free per-pixel c
 let _hgColor = 1;            // selected color index (ink)
 let _hgPaper = 0;            // paper / background colour index (bit-0 in hi-res)
 let _hgTool  = "pencil";
+let _hgPrevTool = "pencil";  // the picker returns to this tool
 let _hgZoom  = 3;
 let _hgGrid  = false;
 let _hgRaster = false;
@@ -43578,14 +46937,16 @@ function _hgBuildPalette() {
     sw.className = "hg-swatch" + (i === _hgColor ? " hg-swatch--sel" : "");
     sw.style.background = hex;
     sw.title = "Color " + i + " — left-click: ink, right-click: paper";
-    sw.addEventListener("click", function() {
-      _hgColor = i;
-      wrap.querySelectorAll(".hg-swatch").forEach(function(s, j) { s.classList.toggle("hg-swatch--sel", j === i); });
-    });
+    sw.addEventListener("click", function() { _hgSelectColor(i); });
     sw.addEventListener("contextmenu", function(e) { e.preventDefault(); _hgSetPaper(i); });
     wrap.appendChild(sw);
   });
   _hgUpdatePaperSwatch();
+}
+
+function _hgSelectColor(col) {
+  _hgColor = col;
+  document.querySelectorAll("#hg-palette .hg-swatch").forEach(function(s, j) { s.classList.toggle("hg-swatch--sel", j === col); });
 }
 
 function _hgUpdatePaperSwatch() {
@@ -43666,16 +47027,9 @@ function _hgHiresFromRGB(rgbAt) {
  * the VIC-II limits (hires: 2 per cell; multicolor: one shared background + 3
  * per cell), then each pixel is dithered within its cell's colours. The input
  * is the already scaled RGBA picture (320×200 hires, 160×200 multicolor). */
-const _HG_PNG_PALETTES = {
-  pepto:    [0x000000, 0xFFFFFF, 0x68372B, 0x70A4B2, 0x6F3D86, 0x588D43, 0x352879, 0xB8C76F, 0x6F4F25, 0x433900, 0x9A6759, 0x444444, 0x6C6C6C, 0x9AD284, 0x6C5EB5, 0x959595],
-  colodore: [0x000000, 0xFFFFFF, 0x813338, 0x75CEC8, 0x8E3C97, 0x56AC4D, 0x2E2C9B, 0xEDF171, 0x8E5029, 0x553800, 0xC46C71, 0x4A4A4A, 0x7B7B7B, 0xA9FF9F, 0x706DEB, 0xB2B2B2],
-  vice:     [0x000000, 0xFDFEFC, 0xBE1A24, 0x30E6C6, 0xB41AE2, 0x1FD21E, 0x211BAE, 0xDFF60A, 0xB84104, 0x6A3304, 0xFE4A57, 0x424540, 0x70746F, 0x59FE59, 0x5F53FE, 0xA4A7A2],
-  deekay:   [0x000000, 0xFFFFFF, 0x882000, 0x68D0A8, 0xA838A0, 0x50B818, 0x181090, 0xF0E858, 0xA04800, 0x472B1B, 0xC87870, 0x484848, 0x808080, 0x98FF98, 0x5090D0, 0xB8B8B8],
-  c64wiki:  [0x000000, 0xFFFFFF, 0x880000, 0xAAFFEE, 0xCC44CC, 0x00CC55, 0x0000AA, 0xEEEE77, 0xDD8855, 0x664400, 0xFF7777, 0x333333, 0x777777, 0xAAFF66, 0x0088FF, 0xBBBBBB]
-};
 const _HG_PNG_DITHERS = ["none", "bayer4", "bayer8", "checker", "h2x4", "line2", "fs", "fs-wide", "atkinson", "sierra", "jarvis"];
 const _HG_PNG_DEFAULTS = {
-  palette: "pepto", scale: "smooth", fit: "fit", dither: "checker", strength: 0.7, clamp: 0.1, serpentine: true,
+  palette: "editor", paletteV: 1, scale: "smooth", fit: "fit", dither: "checker", strength: 0.7, clamp: 0.1, serpentine: true,
   brightness: 0, contrast: 1, saturation: 1, hue: 0, gamma: 1, sharpen: 0, blackPoint: 0, whitePoint: 0, matchRange: false
 };
 function _hgOklab(r, g, b) {
@@ -43688,8 +47042,10 @@ function _hgOklab(r, g, b) {
           1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s,
           0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s];
 }
+// "editor" (the default) = the editor palette chosen in the Settings
+function _hgPngPalette(name) { return _C64_PALETTES[name] || _C64_PALETTES[_editorPalette]; }
 function _hgPngPaletteLab(name) {
-  return (_HG_PNG_PALETTES[name] || _HG_PNG_PALETTES.pepto).map(function(h) { return _hgOklab(h >> 16, (h >> 8) & 255, h & 255); });
+  return _hgPngPalette(name).map(function(h) { return _hgOklab(h >> 16, (h >> 8) & 255, h & 255); });
 }
 function _hgBayer(n) {
   let m = [[0]];
@@ -43883,7 +47239,7 @@ function _hgPngConvert(rgba, w, h, multi, opts) {
 var _hgPng = { img: null, name: "", opts: null, timer: 0, result: null, seq: 0, view: 1 };
 const _HG_PNG_FIELDS = [
   ["mode", "select", ["hires", "multi"]],
-  ["palette", "select", ["pepto", "colodore", "vice", "deekay", "c64wiki"]],
+  ["palette", "select", ["editor", "colodore", "pepto", "vice", "deekay", "c64wiki"]],
   ["scale", "select", ["smooth", "pixel"]],
   ["fit", "select", ["fit", "fill", "stretch"]],
   ["-"],
@@ -43911,12 +47267,14 @@ const _HG_PNG_LABELS = {
 function _hgPngOptionText(key, value) {
   const names = { hires: "hgPngHires", multi: "hgPngMulti", smooth: "hgPngSmooth", pixel: "hgPngPixel",
     stretch: "hgPngStretch", fit: "hgPngFitIn", fill: "hgPngFill" };
-  if (key === "palette") return { pepto: "Pepto", colodore: "Colodore", vice: "VICE", deekay: "Deekay", c64wiki: "C64 Wiki / Godot" }[value] || value;
+  if (key === "palette") return value === "editor" ? tf("hgPngPaletteEditor", { name: _C64_PALETTE_NAMES[_editorPalette] }) : _C64_PALETTE_NAMES[value] || value;
   return names[value] ? t(names[value]) : value;
 }
 function _hgPngLoadOpts() {
   let saved = {};
   try { saved = JSON.parse(localStorage.getItem("c64va-hg-png") || "{}") || {}; } catch (_) {}
+  // saved before the editor palette existed: the old "pepto" default follows the editor palette
+  if (!saved.paletteV) delete saved.palette;
   return Object.assign({}, _HG_PNG_DEFAULTS, saved, { mode: _hgMulti ? "multi" : "hires" });
 }
 function _hgPngSaveOpts() {
@@ -43986,7 +47344,7 @@ function _hgPngRender() {
   const r = _hgPng.result, cv = document.getElementById("hg-png-canvas");
   if (!r || !cv) return;
   const ctx = cv.getContext("2d"), out = ctx.createImageData(320, 200);
-  const pal = _HG_PNG_PALETTES[_hgPng.opts.palette] || _HG_PNG_PALETTES.pepto;
+  const pal = _hgPngPalette(_hgPng.opts.palette);
   for (let y = 0; y < 200; y++) for (let x = 0; x < 320; x++) {
     const c = pal[r.pix[y * r.w + (r.multi ? x >> 1 : x)]], i = (y * 320 + x) * 4;
     out.data[i] = c >> 16; out.data[i + 1] = (c >> 8) & 255; out.data[i + 2] = c & 255; out.data[i + 3] = 255;
@@ -44420,6 +47778,7 @@ function setupHiresEditor() {
         _hgPasteGhost = null;
         _hgBlit();
       }
+      if (newTool === "picker" && _hgTool !== "picker") _hgPrevTool = _hgTool;
       _hgTool = newTool;
       dialog.querySelectorAll(".hg-tool[data-tool]").forEach(function(b) { b.classList.toggle("hg-tool--active", b === btn); });
     });
@@ -44531,10 +47890,9 @@ function setupHiresEditor() {
   document.getElementById("hg-paper")?.addEventListener("click", function() { _hgSetPaper(_hgColor); });
   document.getElementById("hg-zoom")?.addEventListener("input", function(e) {
     _hgZoom = parseInt(e.target.value, 10);
-    const lbl = document.getElementById("hg-zoom-val");
-    if (lbl) lbl.textContent = _hgZoom + "×";
     _hgRenderAll();
   });
+  _bindCtrlWheelRange(document.getElementById("hg-canvas-wrap"), document.getElementById("hg-zoom"));
   dialog.addEventListener("click", function(e) {
     if (!e.target.closest(".tool-dropdown--hg")) {
       _toolDropdownSetOpen("hg-spray-tool", "hg-spray-menu", false);
@@ -44663,6 +48021,17 @@ function setupHiresEditor() {
       e.preventDefault();
       return;
     }
+    // Colour picker (or Alt+click with any tool): the visible colour of the pixel
+    // becomes the ink; the picker tool then returns to the previous tool.
+    if (_hgTool === "picker" || e.altKey) {
+      _hgSelectColor(_hgGet(p.x, p.y));
+      if (_hgTool === "picker") {
+        _hgTool = _hgPrevTool;
+        dialog.querySelectorAll(".hg-tool[data-tool]").forEach(function(b) { b.classList.toggle("hg-tool--active", b.dataset.tool === _hgTool); });
+      }
+      e.preventDefault();
+      return;
+    }
     try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
     if (_hgTool === "select") {
       _hgPainting = true;
@@ -44786,6 +48155,7 @@ let _spSlot = "sprite";
 let _spCol = { sprite: 1, bg: 6, mc1: 0, mc2: 11, ov: 0 };
 let _spWrap = false;
 let _spTool = "pencil";
+let _spPrevTool = "pencil";  // the picker returns to this tool
 let _spPainting = false, _spPaintVal = 0;
 let _spShapeStart = null;
 let _spCanvas = null, _spCtx = null;
@@ -45580,7 +48950,9 @@ function setupSpriteEditor() {
   };
   dialog.querySelectorAll(".se-tool[data-tool]").forEach(function(btn) {
     btn.addEventListener("click", function() {
-      _spTool = btn.dataset.tool || "pencil";
+      const tool = btn.dataset.tool || "pencil";
+      if (tool === "picker" && _spTool !== "picker") _spPrevTool = _spTool;
+      _spTool = tool;
       if (_spTool !== "select" && _spSel) { _spSel = null; _spRender(); }
       dialog.querySelectorAll(".se-tool[data-tool]").forEach(function(b) { b.classList.toggle("se-tool--active", b === btn); });
     });
@@ -45591,6 +48963,14 @@ function setupSpriteEditor() {
     _spInit();
     const p = cellFromEvent(e);
     if (p.x<0||p.y<0||p.x>=_SP_W||p.y>=_SP_H) return;
+    // Colour picker (or Alt+click): the colour slot of the pixel on the edited layer.
+    if (_spTool === "picker" || e.altKey) {
+      const v = _spGet(p.x, p.y);
+      _spSlot = v === 0 ? "bg" : _spOnOv() ? "ov" : !_spMulti ? "sprite" : v === 1 ? "mc1" : v === 3 ? "mc2" : "sprite";
+      _spBuildColors();
+      if (_spTool === "picker") dialog.querySelector('.se-tool[data-tool="' + _spPrevTool + '"]')?.click();
+      e.preventDefault(); return;
+    }
     try { canvas.setPointerCapture(e.pointerId); } catch(_){}
     if (_spTool === "fill") {
       _spPushUndo(); _spFloodFill(p.x, p.y, _spSlotVal(_spSlot)); _spRender();
@@ -45705,6 +49085,7 @@ function setupSpriteEditor() {
   });
   onChange("se-grid", function(e){ _spGrid = e.target.checked; _spRender(); });
   onInput("se-zoom", function(e){ _spZoom = parseInt(e.target.value,10); _spRender(); });
+  _bindCtrlWheelRange(document.getElementById("se-canvas-wrap"), document.getElementById("se-zoom"));
 
   onClick("se-copy-data", function() { navigator.clipboard.writeText(_spHexCSV()).catch(function(){}); });
   onClick("se-export-ub", function() {
@@ -54449,7 +57830,7 @@ async function _vmBuildSegments() {
     const segments = ranges.map(r => ({ address: r.start, bytes: Array.from(memory.payload.slice(r.start - memory.origin, r.end - memory.origin + 1)) }));
     return { segments, sys: prg.sysAddress ?? memory.origin };
   }
-  const prg = buildAutostartPrgForEmulator();
+  const prg = await _kickOrVaPrg();
   if (!prg?.ok || !prg.bytes || prg.bytes.length < 3) return null;
   const load = prg.bytes[0] | (prg.bytes[1] << 8);
   const data = prg.bytes.slice(2);

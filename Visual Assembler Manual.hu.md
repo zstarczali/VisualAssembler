@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.6.4**
+**Verzió: 2.6.5**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -28,6 +28,20 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - [14. Vizuális szerkesztők (Toolkit)](#14-vizuális-szerkesztők-toolkit)
 
 ---
+
+## A 2.6.5 verzió újdonságai
+
+- **KickAssembler projektek** — a **Menu → Program → Kick projekt importálása…** egy teljes KickAssembler forrásfát (a fő fájlt az `#import` moduljaival és `.import binary` assetjeivel) projektté tesz: mellé ír egy `.proj`-ot, a források a helyükön maradnak. A Visual Assembler a saját assemblerével fordítja, bájtra úgy, mint a KickAssembler 5.25 — a Futtatás, a Build PRG / D64 / CRT, az Exomizer, a Debug, a VICE Monitor és a Build project is működik, a hibák `fájl:sor` alakúak, és gépelés közben a teljes fa ellenőrződik. A Dark Chambers C64 port és a KickAssembler mind a tizenegy kódot tartalmazó példaprogramja azonosan fordul. Lásd: [Kick projektek (Kick projekt importálása…)](#kick-projektek-kick-projekt-importálása).
+- **Projekt beállítások** — a projektpanel fogaskereke (vagy **Menu → File → Projekt beállítások…**) megmutatja és szerkeszti a projekt nevét, indítófájlját, assemblerét, KickAssembler-kompatibilitását, `#define` szimbólumait és `cmdLineVars` változóit. Lásd: [Projekt panel és fülek](#projekt-panel-és-fülek).
+- **Kick-kompatibilis kapcsoló** — a projektpanel fejlécének `{K}` gombja bármely VMA projektet KickAssembler-kompatibilissé tesz; a VA makrók és direktívák a KickAssembler szkript mellett is működnek.
+- **KickAssembler nyelv** — `#import` / `#importonce` / `#importif`, `#define` / `#if`, `.const` / `.label` (zero page vagy abszolút az értéktől függően), `.for`, `.while`, `.if … else`, `.var` / `.eval`, `.function`, `.macro { }`, `.pseudocommand`, többszörös címkék, scope-ok és névterek, `.pseudopc`, `.import binary`, `LoadBinary` (template-ekkel, pl. `BF_KOALA`), `LoadSid`, `virtual` memóriablokk, `cmdLineVars`, `BasicUpstart2`, `List` / `Hashtable` / `.struct` / stringek, `.enum`, a matematikai könyvtár, a szín- és opkód-konstansok, a `*` mint programszámláló, `;` az utasítások között, `.error` / `.errorif`.
+- **Build Info több oszlopban** — szélesebb ablak: fent a kezdő- és végcím, a méret és a szegmensek száma, alatta a szegmensek, a hibák és a `.print` kimenet, a címkék, konstansok és makrók oszlopokban. Kick projektnél a lefordított fát mutatja, a belső címkéket `scope.címke` alakban.
+- **C64 színpaletta** — a **Beállítások → Általános → Szerkesztők → C64 színpaletta** adja meg a 16 C64 szín RGB értékét minden szerkesztőben (sprite, karakter, Charset Canvas, Hi-Res, térkép, pálya, Toolkit színminták): alapból **Colodore** (a valódi C64-hez legközelebbi), vagy Pepto, VICE, Deekay, C64 Wiki / Godot. Csak a megjelenítés változik; a Hi-Res képimport is ezt használja. Lásd: [14. Vizuális szerkesztők (Toolkit)](#14-vizuális-szerkesztők-toolkit).
+- **Színválasztó** — a Hi-Res, Sprite, Karakter (multicolor) és Charset Canvas szerkesztőben pipetta eszköz; az **Alt+kattintás** bármelyik eszközzel színt vesz fel. Lásd: [Hi-Res / Multicolor Editor](#hi-res--multicolor-editor).
+- **Ctrl + görgő nagyítás** a Hi-Res, Sprite, Map és Level szerkesztőben, a kurzor körül. A Hi-Res Raster kapcsolója a Grid mellé került.
+- **ACME mód** — a memóriatérkép és az átfedés-jelzés az ACME fordítást követi; az ACME projekt az indítófájlját fordítja; az ACME sablonok csak működő ACME mellett jelennek meg, és ACME projekt létrehozása a Beállításokat ACME módra állítja. Lásd: [ACME mód](#acme-mód).
+- **Új projekt** — az **Új projekt sablonból…** a menü **Új projekt** része alá került (a három külön menüpont megszűnt); a Visual Assembler sprite multiplexer sablon kiírja a címét.
+- **Javítások** — a `.byte` / `.word` címke-kifejezéssel (`<(címke+1)`, `.word címke` a címke előtt) már nem 0-ra fordul; az operandust olvasó illegális `NOP` alakok fordulnak (lásd: [Illegal / dokumentálatlan utasítások](#illegal--dokumentálatlan-utasítások)); az Ultimate Basic megnyitás-gombja minden nyelven **.ub fájl betöltése**.
 
 ## A 2.6.4 verzió újdonságai
 
@@ -668,6 +682,55 @@ Ismert korlát:
 
 - Azok a konstansok, amelyek zero-page címre oldódnak fel (például a `.const BYTEADDR = $FC` `STA BYTEADDR`-ként használva) jelenleg abszolút módú utasításokra fordulnak (3 byte) a zero-page (2 byte) helyett. A lefordított kód még mindig a helyes memóriacímre ír, csak kis méret- és ciklus-többlettel a Kick Assemblerrel épített ugyanazon forráshoz képest.
 
+#### Kick projektek (Kick projekt importálása…)
+
+A **Kick projekt importálása…** (Program menü, a **Kick import** alatt) egy teljes KickAssembler forrásfát — egy fő fájlt `#import` modulokkal és `.import binary` assetekkel — VA projektté tesz. Válaszd ki a fő fájlt (`main.asm`); a VA követ minden `#import` / `.import source` / `.import binary` sort (a nem teljesülő `.if` ágakban is), és mellé ír egy `.proj`-ot a mappa nevével (`src` / `source` / `asm` mappánál a szülőmappa nevével). A projekt a mappaszerkezetükben listázza a fájlokat; a források a helyükön maradnak, így egy meglévő KickAssembler build-szkript továbbra is működik. A nem található fájlokat a hiba-ablak sorolja fel.
+
+**Kick-kompatibilis kapcsoló:** bármely VA (VMA) projekt Kick-kompatibilissé tehető a projektpanel fejlécének `{K}` gombjával (VMA módban, nyitott projektnél látszik; az importált Kick projekteknél be van kapcsolva). A beállítás a `.proj`-ban mentődik (`"kick": true`); kikapcsolva a projekt sima VMA projekt, és pontosan úgy fordul, mint eddig.
+
+Kick-kompatibilis projektben a VA makrói és direktívái a KickAssembler szkript mellett is működnek: a `.text x, y, "…"`, `.set_border`, LOOP / NEXT, SPRITE_INIT, `.include`, `.incbin`, `.sid`, `.define` / `.if SZIMBÓLUM` / `.else` / `.endif`, a VA makrók (`.macro név(p)` … `.endm` `{p}`-vel) és a többi változatlanul a VA assemblerhez kerül, a Kick konstansok számként. A mindkettőben meglévő direktívákat az alakjuk különbözteti meg:
+
+| VA (VMA) | KickAssembler |
+|---|---|
+| `.for X, $0A, for1` … `.endf for1` | `.for (var i = 0; i < 10; i++) { … }` |
+| `.if DEBUG` … `.else` … `.endif` | `.if (kifejezés) { … } else { … }` |
+| `.macro név(p)` … `.endm`, hívása `.invoke` | `.macro Név(p) { … }`, hívása `Név(arg)` |
+| `.var név = érték` (futásidejű változó) | `.var név = érték` (szkript-változó) — Kick-kompatibilis projektben a `.var` mindig a KickAssembleré |
+
+A projektet a VA assemblere fordítja, nem a KickAssembler: minden build (Futtatás, Save PRG, D64, CRT, Exomizer, Debug, VICE Monitor, Build project, a Build gomb) előbb egy KickAssembler-előfeldolgozón futtatja át az indítófájlt, a nyitott fülek szerkesztőbeli szövegével, mentve vagy sem. Az eredmény ugyanaz a PRG, mint a KickAssembleré. Támogatott:
+
+- `#import`, `.import source`, `#importonce`; `.import binary` / `c64` / `text` opcionális eltolással és hosszal
+- `.const` / `.label` bármilyen sorrendben, kifejezésekkel; a zero page vagy abszolút címzés az értéktől függ, mint a KickAssemblerben (a `.abs` / `.zp` továbbra is kikényszeríti)
+- `.for (var i = 0; i < n; i++) { … }` és az egysoros forma, `.var`, `.eval` (`=`, `+=`, `++` …), `.if (…) { … } else .if (…) { … } else { … }` és az egysoros forma
+- `.function Név(paraméterek) { .return kifejezés }` és `.macro Név(paraméterek) { … }`, hívása `Név(argumentumok)` vagy `:Név(argumentumok)`
+- többszörös címkék: `!:` / `!név:`, hivatkozás `!+`, `!-`, `!++`, `!név+`, `!név-`
+- `.pseudopc cím { … }`: a benne lévő címkék a logikai címet kapják, a bájtok a helyükön maradnak
+- `BasicUpstart2(címke)` / `BasicUpstart(címke)`, `* = cím "szegmens"`, `.fill n, kifejezés` (`i`-vel) és `.fill n, [a, b]`, `.align`, `.byte`, `.word`, `.dword`, `.text`
+- `.assert "leírás", kifejezés, true`; a `cmdLineVars.containsKey(…)` / `cmdLineVars.get(…)` és a `#define` szimbólumok a **Projekt beállítások**-ból jönnek (a KickAssembler `:név=érték` és `-define NÉV` megfelelője)
+- `LoadBinary("fájl"[, template])`: `get(i)` / `uget(i)` / `getSize()`, a template (pl. `"C64FILE, Bitmap=$0000, ScreenRam=$1f40"`, vagy `BF_KOALA`, `BF_FLI`, `BF_DOODLE`, `BF_BITMAP_SINGLECOLOR`, `BF_C64FILE`) blokkonként `getBitmap(i)` / `getBitmapSize()` hívást ad; `LoadSid("fájl.sid")`: `location`, `init`, `play`, `songs`, `startSong`, `size`, `name`, `author`, `copyright`, `getData(i)` …; a szkript-értékekkel írt `.fill` azonnal kibomlik
+- `* = cím "név" virtual`: virtuális memóriablokk — a címkéi címet kapnak, de bájtot nem ír
+- `.while (…) { … }`, `i++` / `--i` a kifejezésekben, érték nélküli `.var név`
+- a `*` mint programszámláló (`jmp *`, `bne *-1`, a `.pseudopc`-ben is)
+- `;` az utasítások között (`lda #1; sta $d020`, `.var a = 1; .var b = 2`): a kód után szóköz nélkül álló `;`, amelyet utasítás követ. Minden más `;` megjegyzést kezd, mint a VA-ban, így a `lda #1 ; megjegyzés` továbbra is működik
+- a matematikai könyvtár (`sin`, `cos`, `toRadians`, `toDegrees`, `round`, `floor`, `sqrt`, `pow`, `atan2`, `log10`, `random` …), a színkonstansok (`BLACK` … `LIGHT_GREY`), az opkód-konstansok (`RTS`, `LDA_IMM`, `LDA_ZPX`, `JMP_IND`, `BNE_REL` …) és az `asmCommandSize()`
+- `BasicUpstart2(címke)`, ahol a címke bárhol lehet, ameddig egy `* =` óta a méretek ismertek (például `* = $4000` … `start:` → SYS 16384)
+- scope-ok, mint a KickAssemblerben: a `{ }` blokkoknak, az `.if` ágainak, a `.for` / `.while` köreinek és a makróhívásoknak saját címkéik és konstansaik vannak (a benne lévő `loop:` nem ütközik a külsővel; a `.pseudopc` nem scope). A scope előtti címkén át a belső címkék elérhetők: `név: { … }` → `név.belső`, `lp: .for (…)` → `lp[2].belső`, `myIf: .if (…)` → `myIf.belső`, `c1: Makró()` → `c1.belső`, `.label base = $1000 { … }` → `base.belső`
+- `.namespace név { … }` és `.filenamespace név` (a fájl végéig): a címkék `név.címke` alakban érhetők el; a `@címke:`, `.label @x = …`, `.function @f` / `.macro @m` a gyökérbe teszi a szimbólumot, a `@név` a gyökérbeli szimbólumra hivatkozik. A függvények és makrók mindenhonnan láthatók, egy névtér `@` nélküliek is
+- `.pseudocommand név a : b { … }`: mnemonikként hívható (`mov #10 : $1000`, `mov src,x : ($30),y`); az argumentumok megtartják a címzési módjukat (`getType()` = `AT_IMMEDIATE`, `AT_ABSOLUTE`, `AT_ABSOLUTEX` / `Y`, `AT_INDIRECT`, `AT_IZEROPAGEX` / `Y`, hiányzónál `AT_NONE`; `getValue()`), új argumentum: `CmdArgument(típus, érték)`. Mnemonik nevű pszeudo-utasításhoz kettőspont kell (`:adc …`); nélküle a mnemonik fordul
+- a preprocesszor: `#define`, `#undef`, `#if` / `#elif` / `#else` / `#endif` (`!`, `&&`, `||`), `#importif`
+- `List()` (`add`, `get`, `set`, `size`, `remove`, `sort`, `reverse`, `shuffle`, `addAll`), `Hashtable()` (`put`, `get`, `containsKey`, `remove`, `keys`), `.struct Név {a, b}` (`Név(1, 2)`, `p.a`, `.eval p.a = 3`, `getFieldNames()` …), stringek (`+`, `charAt`, `substring`, `size`, `toUpperCase`, `asNumber(számrendszer)` …, `toIntString` / `toHexString` / `toBinaryString` minimális hosszal), `.enum {A, B, C = 5}`, `.define név, … { … }`, `.eval lista.add(…)`, karakter a `.byte`-ban és string-kifejezés a `.text`-ben (az aktuális `.encoding` szerint)
+- `.error "üzenet"`, `.errorif feltétel, "üzenet"`; a `.print` / `.printnow` kimenete az állapotsorban (az első üzenet és a darabszám) és teljesen a **Build Info**-ban látszik. A csak jelző (`.error` …) `.if` kimarad, ha a feltételéhez címkecím kellene
+- `LoadPicture("fájl"[, List().add($rrggbb, …)])` GIF-re, PNG-re és JPG-re: `width`, `height`, `getPixel(x, y)`, `getSinglecolorByte(x, y)`, `getMulticolorByte(x, y)`; színtábla nélkül a színek a megjelenésük sorrendjében. Változóban átadott képnév (`LoadPicture(filename)`) is működik
+- szegmensek: `.segmentdef Név [start, startAfter, align, min, max, fill, fillByte, segments, prgFiles, sidFiles, virtual, outPrg, outBin, modify="BasicUpstart", _start]`, `.segment Név [paraméterek] "blokk"`, `.segmentout [segments=…]`, `.file [name=…, segments=…, allowOverlap]`, `.disk [filename=…, name=…] { [name=…, type=…, segments=…], … }`, `.memblock`. A `start` nélküli szegmens $2000-n kezdődik, mint a KickAssemblerben. A **Futtatás** a Default szegmenst indítja; ha az üres, az első PRG kimenetet (előbb a $0801-eset). A **Build projekt** minden `.file` / `outPrg` / `outBin` kimenetet az indítófájl mellé ír, a `.disk` lemezképet c1541-gyel építi
+- `.fillword n, kif`, `.lohifill n, kif` (címkével: `név.lo` / `név.hi`); mnemonik-utótagok `.im` / `.i`, `.z` / `.zp`, `.a` / `.abs`
+- `.cpu _6502NoIllegals` / `_6502` (az alapértelmezés, az illegális opkódokkal) / `dtv` (`bra`, `sac`, `sir`) / `_65c02` (`(zp)` mód, `bra`, `phx` / `phy` / `plx` / `ply`, `stz`, `trb`, `tsb`, `rmb0-7` / `smb0-7`, `bbr0-7` / `bbs0-7`, `stp`, `wai`, `inc` / `dec` A, `bit #`, `jmp (abs,x)`); minden NMOS illegális opkód az összes módjával és más nevével (`sha` / `ahx`, `shx`, `shy`, `tas` / `shs`, `las` / `lae`, `xaa` / `ane`, `lxa`, `anc2`, `sbc2` …) — ezeket a VA assembler is ismeri
+- `.break ["feltétel"]` és `.watch cím[, vég][, "store"]`: töréspontok és figyelők a VICE szimbólumfájlban (`break` / `watch` sorok, ahogy a KickAssembler írja) és a RetroDebugger `.dbg`-ben; a `.break` sorok a **Debug** töréspontjai is
+- `Vector(x, y, z)` (`+`, `-`, `*` szám / skalárszorzat, `/`, `X()` vektoriális szorzat, `get(n)`, `getX()` …) és 4×4 mátrixok: `Matrix()`, `RotationMatrix(ax, ay, az)`, `ScaleMatrix`, `MoveMatrix`, `PerspectiveMatrix(z)`, `get(n, m)`, `set(n, m, v)`, mátrix × mátrix, mátrix × vektor
+- `getNamespace()`; `.asserterror "név", kifejezés` és a kód-formák: `.assert "név", { … }, { … }` / `.asserterror "név", { … }` (az eredmény `.print` üzenet, mint a KickAssembler assert-jelentése); `* - címke` konstansban (`.label size = * - start`)
+- a `.modify` / `.filemodify` KickAssembler Java-plugint igényel: a blokk módosító nélkül fordul, üzenettel
+
+Gépelés közben a teljes fa ellenőrződik: a nyitott fájl hibás sorai jelölve vannak a szerkesztőben, az állapotsor az elsőt mutatja, a fordítási hiba ablak `fájl:sor` alakban nevezi meg őket — kattintásra megnyílik a fájl az adott sorral. A memóriatérkép a lefordított programot mutatja, a ciklus-gutter pedig a nyitott fájl ciklusait (a `.for`-ral vagy makróval kibontott sor `4×8` alakban: egy kör, nyolcszor; a kijelölés összege minden kört beszámít). A peephole-tippek a nyitott fájl soraira kerülnek; a Disassembly és Monitor panel a lefordított programot mutatja. A szerkesztő a KickAssembler szintaxisát emeli ki (`#import`, `.segment`, szkriptfüggvények, `!címkék`, `;` a `.for (…)`-ban), a kiegészítés a Kick-direktívákat (`.`), a preprocesszort (`#`) és a szkriptfüggvényeket kínálja. Az előfeldolgozó üzenetei az app nyelvén jelennek meg. A **Debug** (RetroDebugger) forrástérképet kap az eredeti fájlokkal és sorokkal, olvasható szimbólumneveket (`scope.címke`) és a projekt minden nyitott fájljának töréspontjait. A projektfa bináris fájljai nem nyílnak meg szövegként. A Dark Chambers C64 port (19 forrásfájl, 15 bináris fájl) és mind a tizenegy kódot tartalmazó KickAssembler-példa bájtra azonosan fordul a KickAssembler 5.25-tel.
+
 ## UltimateBasic mód
 
 A Visual Assembler tartalmaz egy teljes **Ultimate Basic IDE**-t. Az Ultimate Basic egy modern, fordított BASIC nyelv C64 programok, játékok és demók készítéséhez anélkül, hogy minden műveletet alacsony szintű 6502 assemblyben kellene megírni. A fordító helyben fut, és natív C64 PRG kimenetet generál.
@@ -817,7 +880,7 @@ Az Expert mód egy teljes értékű, közvetlen szöveges 6502 assembly szerkesz
 | **Format** | `#expert-format-btn` | Forrás automatikus formázása (címkék a 0. oszlopba, 4 szóköz behúzás, 1 szóköz mnemonik/operandus közt) |
 | **Load .asm** | `#expert-load-asm-btn` | `.asm` fájl megnyitása — a tartalom egy **új fülbe** töltődik, a fájlnév a fül címkéje. Minden betöltött fájl önálló füllé válik saját program-blokkokkal és szerkesztő-állapottal. |
 | **Save .asm** | `#expert-save-asm-btn` | A szerkesztő tartalmának mentése `.asm` fájlba (első mentéskor fájl-dialógus) |
-| **Build Info** | `#expert-build-info-btn` | A Build Info dialógus megnyitása (origin, méret, címkék, hibák) |
+| **Build Info** | `#expert-build-info-btn` | A Build Info dialógus megnyitása: fent kezdő- és végcím, méret, szegmensszám, alatta a szegmensek, a hibák (Kick projektben `fájl:sor`) és a `.print` kimenet, a címkék, konstansok és makrók oszlopokban |
 | **HL** | `#expert-hl-btn` | Szintaxiskiemelés kapcsolása (nagyon nagy fájloknál kikapcsolható) |
 | **Autocomplete** | `#expert-autocomplete-btn` | Az expert autocomplete javaslatok be/ki. Kikapcsolva nem jelenik meg direktíva-, mnemonik- vagy címke-popup az expert szerkesztőben. |
 | **Region selection** | `#expert-region-selection-btn` | Az automatikus régió-kiemelés kapcsolása Expert módban. A fold-állapot tárolva marad, de kikapcsolva a szerkesztő a teljes forrást láthatóan tartja, és nem választja ki automatikusan az aktuális régiót. |
@@ -907,6 +970,7 @@ Kattints a **Format** gombra (`#expert-format-btn`) az aktuális forrás automat
 Az Expert mód támogat egy **projekt panelt** (`#expert-project-panel`) több-fájlos `.proj` projektekhez:
 
 - A `.proj` fájl egy JSON manifeszt, amely felsorolja a forrásfájlokat és metaadataikat.
+- **Projekt beállítások** (fogaskerék a panel fejlécében, vagy **Menu → File → Projekt beállítások…**): megmutatja és szerkeszti a projektet: név, `.proj` útvonal, indítófájl, assembler (VMA vagy ACME), **KickAssembler-kompatibilis**, Kick projektnél a preprocesszor-szimbólumok (`#define`, mint a KickAssembler `-define`-ja) és a parancssori változók (`cmdLineVars`, soronként egy `név=érték`, mint a `:név=érték`), valamint a forrás- és egyéb fájlok száma. Minden a `.proj`-ba mentődik.
 - Nyiss meg egy projektet a **Menu → File → Open project** menüvel, vagy húzz egy `.proj` fájlt az ablakra.
 - A projekt minden fájlja külön **fülként** nyílik meg a szerkesztő tetején lévő fül-sávban.
 - A **Close Project** (`Menu → File → Close project` / `#menu-close-project`) egyszerre bezárja az aktuális projektet és minden fájlfülét. A bezárás előtt rákérdez a nem mentett változtatások mentésére. A projekt panel visszaáll üres állapotba, és a `_expertProjectData` törlődik.
@@ -944,7 +1008,7 @@ A mód a `.proj` projekttel együtt mentődik, így minden projekt a saját asse
 Ami az ACME fordítását követi:
 
 - A **Build** (kalapács gomb az Expert eszköztáron, *ACME fordítás*), a **Futtatás** (PRG, D64, C64 Ultimate, Kung Fu Flash 2), a **Save PRG**, a **Build D64**, a **Build CRT**, a **Build project** és a **Debug (RetroDebugger)** ACME-vel fordít; az ACME hibái és figyelmeztetései a szokásos fordítási hiba ablakban jelennek meg, a forrássorral.
-- Bekapcsolt **Disassembly** vagy **Monitor** panel vagy ciklus-gutter mellett a gépelési szünet után a forrás újrafordul, így a panelek a valódi ACME bájtokat mutatják; a panelek az ACME címkéit használják.
+- A gépelési szünet után a forrás újrafordul, így a **memóriatérkép** (memóriasáv, szegmens-panel, átfedés-figyelmeztetés), a **Disassembly** és a **Monitor** panel és a ciklus-gutter a valódi ACME kimenetet mutatja; a panelek az ACME címkéit használják. Átfedés az a cím, amelyet két forrássor is ír (a PRG-ben a későbbi nyer).
 - A **debug fájlok** (*Debug fájlok generálása* a Beállítások → Általános alatt) az ACME címkelistájából készülnek: `.sym` (KickAssembler stílus) és `.vs` (VICE címkék) a PRG mellé; `.dbg` forrás-térkép ACME módban nincs. A **Debug (RetroDebugger)** ugyanezeket a címkéket kapja, az Expert breakpointokat pedig az ACME lista alapján helyezi el (kód nélküli sorra tett breakpoint a következő kódsoron áll meg).
 - A **ciklusszámok** és az **optimalizálási tippek** az utolsó fordítás ACME listájából (`-r`) jönnek.
 - A **VICE Monitor** hot reloadja csak azokat a címtartományokat írja, amelyeket az ACME ténylegesen lefordított; az élő figyelés és a profiler az ACME címkéit és forrássorait használja.
@@ -1222,7 +1286,7 @@ LBEQ done      ; erre fordul:   BNE *+3   ($D0 $03)
 
 Ezek haladó használatra támogatottak. Óvatosan használd — a viselkedés chipenként eltérhet.
 
-`LAX`, `SAX`, `DCP`, `ISC`, `SLO`, `RLA`, `SRE`, `RRA`, `ANC`, `ALR`, `ARR`, `AXS`
+`LAX`, `SAX`, `DCP`, `ISC`, `SLO`, `RLA`, `SRE`, `RRA`, `ANC`, `ALR`, `ARR`, `AXS`, valamint az operandust olvasó `NOP` alakok: `NOP #$nn` ($80), `NOP $nn` ($04), `NOP $nn,X` ($14), `NOP $nnnn` ($0C), `NOP $nnnn,X` ($1C)
 
 ---
 
@@ -3962,6 +4026,8 @@ Az assembleált programokat **valódi Commodore 64-en vagy C128-on** futtathatod
 
 Az eszköztár **Toolkit** menüje csoportosítja a vizuális adat-szerkesztőket, amelyek mind egy közös Files menüt (`Files ▾`) osztanak meg: Load BIN / Save BIN / Export to blocks / Save to D64. Minden szerkesztő nyers `.bin` adatot állít elő, amely `INCBIN`-nel programba helyezhető, vagy közvetlenül D64 lemezre adható a **Save to D64** menüponttal.
 
+**Színpaletta:** a **Beállítások → Általános → Szerkesztők → C64 színpaletta** adja meg, milyen RGB értékekkel rajzolja minden szerkesztő a 16 C64 színt (sprite-, karakter-, Charset Canvas, Hi-Res, térkép- és pályaszerkesztő, Toolkit színminták). Az alapértelmezés a **Colodore**, ez áll a legközelebb egy kompozit / S-Video kijelzős valódi C64-hez; választható még a **Pepto** (a korábbi verziók sötétebb, kevésbé telített palettája), a **VICE**, a **Deekay** és a **C64 Wiki / Godot**. Csak a megjelenítés változik — az adatokban a színindexek ugyanazok maradnak. A Hi-Res képimport is a szerkesztő palettáját használja, ha ott nem választasz másikat.
+
 A vizuális szerkesztő dialógusok a fejlécüknél húzva mozgathatók a teljes Visual Assembler munkaterületen. Egy mentett pozíció nélküli dialógus középen nyílik; mozgatás után az utolsó pozíciója a UI beállításokban tárolódik, és a következő megnyitáskor visszaáll.
 
 ### Hi-Res / Multicolor Editor
@@ -3971,7 +4037,8 @@ Pixel-szintű bitmap szerkesztő 320×200 hi-res és 160×200 multicolor módokk
 | Funkció | Leírás |
 |---|---|
 | Mode toggle | A **Multicolor** jelölőnégyzet vált hi-res (celláként mono) és multicolor (celláként 4 szín) közt. |
-| Eszközök | Ceruza, radír, vonal, téglalap, kitöltött téglalap, ovális, kitöltött ovális, flood fill, cella háttérszín, kijelölés. |
+| Eszközök | Ceruza, radír, vonal, téglalap, kitöltött téglalap, ovális, kitöltött ovális, flood fill, színválasztó, cella háttérszín, kijelölés. |
+| Színválasztó | A kattintott pixel látható színe lesz az ink (hi-resben a cella inkje vagy papírja, amelyiket a pixel mutatja); utána a szerkesztő visszavált az előző eszközre. **Alt+kattintás** bármelyik eszközzel színt vesz fel. |
 | Cella háttérszín (hi-res) | Hi-resben minden 8×8-as cellának két színe lehet: az ink (beállított pixelek, a cella screen RAM bájtjának felső nibble-je) és a papír (törölt pixelek, alsó nibble). A **Cella háttérszín** eszköz a kattintott vagy áthúzott cellák papírját állítja a kiválasztott színre; a **PAPER** továbbra is az összes cellát egyszerre. A radír pixelt töröl, így a cella saját papírja látszik. Multicolorban le van tiltva, ott a háttér ($D021) közös. |
 | Spray eszköz | Airbrush-stílusú festő, amely pixeleket szór a kurzor köré rajzolás közben. |
 | Spray intenzitás | A spray eszköz melletti legördülő vezérli, mennyire sűrű minden spray húzás. |
@@ -3981,7 +4048,7 @@ Pixel-szintű bitmap szerkesztő 320×200 hi-res és 160×200 multicolor módokk
 | Másolás / beillesztés | A **Copy** (`Ctrl/Cmd+C`) a kijelölt területet másolja. A **Paste** (`Ctrl/Cmd+V`) után a másolat előnézete követi a kurzort: kattintás a vászonra elhelyezi, az **Esc** megszakítja. A másolat megmarad, így újabb `Ctrl/Cmd+V` és kattintás akárhányszor beilleszti. Hi-res módban a beillesztett pixelekre is érvényes a cellánkénti két szín, ezért a színek megtartásához igazítsd a területet a cellarácshoz. A Copy, a Paste és az áttetsző beillesztés a vászon jobb klikkes menüjében is megvan; az onnan indított beillesztés előnézete a kattintás helyén jelenik meg. |
 | Áttetsző beillesztés | A `Ctrl/Cmd+Shift+V` (vagy az eszköztár gombja) kihagyja a másolat papír színű pixeleit, így az alatta lévő kép megmarad. |
 | Grid + Raster | A **Grid** a karaktercellák rácsát mutatja: hi-resben 8×8 pixel, multicolorban 4×8 dupla széles pixel. 4×-es nagyítástól halványabb vonallal minden egyes pixelt is körberajzol, így a pixelek pontosan elhelyezhetők. A **Raster** raszter-sor overlay-t ad. |
-| Zoom | Csúszka 1×-től 16×-ig. |
+| Zoom | Csúszka 1×-től 16×-ig, vagy Ctrl+görgő a vásznon (a kurzor alatti pont a helyén marad). |
 | Kép importja | A canvas-ra dobott PNG/JPEG/GIF automatikusan a 16 színes C64 palettára kvantálódik. |
 | Export blokkok | BYTE/RAWBYTES blokkokat fűz a programhoz a kódolt bitmap, screen és color adattal. |
 | Export `.bin` | A natív multicolor formátumot menti (10000 byte: 8000 bitmap + 1000 screen + 1000 color), készen a $2000-re való LOADFILE-hoz. |
@@ -3994,7 +4061,9 @@ Pixel-szintű bitmap szerkesztő 320×200 hi-res és 160×200 multicolor módokk
 |---|---|
 | Frame-ek | Frame-ek hozzáadása / eltávolítása / átrendezése; a frame-csík alul látszik. A frame-sor **Copy** / **Paste** gombja a teljes aktuális frame-et másolja; ugyanez a két pont a vászon és a frame-csík jobb klikkes menüjében is megvan. |
 | Mode | Mono / multicolor kapcsoló. |
-| Eszközök | Ceruza, kitöltés, vonal, téglalap, kör — plusz vízszintes tükrözés, függőleges tükrözés, balra/jobbra/fel/le tolás (opcionális körbefordulással). A shape eszközök élő előnézetet mutatnak húzás közben; elengedésre véglegesít. |
+| Eszközök | Ceruza, kitöltés, színválasztó, vonal, téglalap, kör — plusz vízszintes tükrözés, függőleges tükrözés, balra/jobbra/fel/le tolás (opcionális körbefordulással). A shape eszközök élő előnézetet mutatnak húzás közben; elengedésre véglegesít. |
+| Színválasztó | A kattintott pixel színhelyét választja ki (sprite szín, MC1, MC2, háttér vagy overlay szín, a szerkesztett rétegen); utána a szerkesztő visszavált az előző eszközre. **Alt+kattintás** bármelyik eszközzel. |
+| Zoom | Csúszka 3×-tól 40×-ig, vagy Ctrl+görgő a vásznon. |
 | Undo / redo | Teljes undo/redo verem frame-enként. Ctrl/Cmd+Z / Ctrl/Cmd+Y vagy az eszköztár gombjai. |
 | Kép importja | PNG vagy JPEG importja a Files → Import image menüvel. Az importáló minden pixelt a legközelebbi C64 palettaszínre képez, és az aktuális frame-be írja. |
 | Animáció előnézet | Play / Stop konfigurálható sebességgel. |
@@ -4030,7 +4099,7 @@ A C64 karakter-ROM (a beépített PETSCII font) csak olvasható nézője. A Tool
 | Load `.bin` | Külső 2048 byte-os charset binárist importál. |
 | Karakter-előnézet | 16 széles rács mind a 256 glif-fel, az aktuális cella kiemelve. |
 | Pixel szerkesztő | A kijelölt karaktert, vagy 2×1, 1×2, 2×2 szomszédos karakterből álló **csempét** szerkeszt egy képként (Csempe választó). |
-| Rajzeszközök | Ceruza, vonal, téglalap, kitöltött téglalap és kitöltés. Ha a pixel már a kiválasztott színű, a kattintás törli. |
+| Rajzeszközök | Ceruza, vonal, téglalap, kitöltött téglalap, kitöltés és színválasztó. Ha a pixel már a kiválasztott színű, a kattintás törli. A színválasztó (csak multicolorban; **Alt+kattintás** bármelyik eszközzel) a kattintott pixel színét — FG, BG, MC1 vagy MC2 — teszi a tollá. |
 | Átalakítások | Törlés, invertálás, vízszintes / függőleges tükrözés, körbeforduló eltolás, 90°-os forgatás jobbra / balra (csak négyzetes csempénél) — az egész csempén. |
 | Visszavonás / újra | Toolbar gombok, Ctrl+Z és Ctrl+Y (Ctrl+Shift+Z). |
 | Másolás / beillesztés | Toolbar gombok, Ctrl+C / Ctrl+V, vagy jobb klikk a térképen; a teljes csempét másolja a színeivel. |
@@ -4055,6 +4124,7 @@ A canvas 16×16 karakter, 128×128 pixel. Multicolor karakter módban minden kar
 | ECM | Az **ECM** jelölőnégyzet (kiterjesztett színmód, multicolorral együtt nem megy): minden karakter hires, saját színnel (0–15) és a négy háttér egyikével, BG0–BG3 (`$D021`–`$D024`; a BG1 / BG2 az MC1 / MC2 regiszter). Válassz BG színt a palettán (B0–B3 jelölés), majd a **Karakter háttere** eszközzel kattints vagy húzd a karaktereken. Csak 64 különböző karakter fér el: az állapotsor számolja, mentéskor az azonos karakterek összevonódnak — a charset 64 karakteres (512 bájt), a képernyőkód `karakter | háttér << 6`. Bekapcsolás a C64-en: `$D011` 6. bit. |
 | C64 színmodell | A háttér a `$D021`-et használja; a megosztott multicolor 1 a `$D022`-t; a megosztott multicolor 2 a `$D023`-at; minden karakter saját színe a Color RAM 0–2. bitjéből jön. |
 | Rajzeszközök | Ceruza, radír, vonal, téglalap, ovális és flood fill karakterhatárokon át működik. |
+| Színválasztó | A kattintott pixel látható színét választja ki (multicolor karakterben a BG / MC1 / MC2 / saját szín tollat is); utána a szerkesztő visszavált az előző eszközre. **Alt+kattintás** bármelyik eszközzel. |
 | Spray eszköz | Airbrush-stílusú rajzolás, amely pixeleket szór a szomszédos cellák/karakterek közt. |
 | Spray intenzitás | A spray eszköz melletti legördülő beállítja a húzás sűrűségét. |
 | Grid kapcsoló | A Grid jelölőnégyzet megjeleníti vagy elrejti a 16×16 karakter-rácsot. |
@@ -4073,6 +4143,7 @@ Réteges tilemap szerkesztő statikus díszlethez, sprite spawn map-ekhez, ütk�
 |---|---|
 | Rétegek | Több nevesített réteg, mindegyik saját tileset-tel és átlátszatlansággal. |
 | Ecsetek | Egy-tile, kitöltés, vonal, téglalap és kör módok. A shape eszközök élő előnézetet mutatnak húzás közben; elengedésre véglegesít. |
+| Zoom | Csúszka, vagy Ctrl+görgő a térképen. |
 | Undo / redo | Teljes undo/redo verem rétegenként. Ctrl/Cmd+Z / Ctrl/Cmd+Y vagy az eszköztár gombjai. |
 | Clear menü | Rétegenkénti vagy teljes-map törlés megerősítéssel. |
 | Kép importja | Dobj be egy tilemap PNG-t; a szerkesztő automatikusan tile-okra szeleteli. |
@@ -4093,6 +4164,7 @@ Réteges tilemap szerkesztő statikus díszlethez, sprite spawn map-ekhez, ütk�
 | Képernyők | **Új üres képernyő**, **Hozzáadás a Map Editorból** (az éppen nyitott map) vagy **Map(ok) betöltése (.bin)…** (több Map Editor export egyszerre). Húzz egy képernyőt a listából egy helyre; a helyeket egymásra húzva felcserélheted. |
 | Szerkesztés | A **Szerkesztés a Map Editorban** megnyitja a kijelölt képernyőt a Map Editorban, és visszahozza a változásokat; duplikálás, mozgatás fel/balra vagy le/jobbra, eltávolítás; visszavonás / újra. |
 | Előnézet | Az előnézetet húzva vagy a nyilakkal pixelenként görgethetsz; a **Lejátszás** automatikusan görget (irány, sebesség 1–8, ismétlés), Szóköz = lejátszás / leállítás. A *Határok* jelöli a képernyőhatárokat. |
+| Zoom | Az áttekintő nagyítás-csúszkája (25–400 %), vagy Ctrl+görgő az áttekintőn. |
 | Ellenőrzések | Karakterkészlet-infó, és figyelmeztetés, ha a képernyők eltérő karakterkészletet vagy színeket használnak (a pálya az első képernyő beállításait használja). |
 | Karakter-attribútumok | A **Karakter-attribútumok** gomb az áttekintőt attribútum-festésre váltja: válaszd ki a **Szilárd**, **Létra**, **Veszélyes** vagy **Gyűjthető** jelzőt, kattints egy karakterre, és az adott screen code minden cellája megkapja (vagy elveszíti); húzással több kódra is. Színes rétegként látszanak, és a 256 bájtos `LEVEL_ATTR` táblába kerülnek (`LEVEL_ATTR_SOLID` = 1, `_LADDER` = 2, `_HAZARD` = 4, `_COLLECT` = 8). |
 | Él-ellenőrzés | Pirossal jelöli, ahol a szomszédos képernyők nem folytatódnak: a határ egyik oldala üres (szóköz), a másik nem, vagy csak az egyik oldal szilárd. Az oldalsáv megszámolja az éleket és cellákat. |

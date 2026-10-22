@@ -88,7 +88,7 @@ function createFillCtx(extraContext = {}) {
       "resolveNumericOperand",
       "resolveRelativeOperand",
       "parseWordMacro",
-      "getInstructionSize"
+      "getInstructionSize", "_charLiteralToHex", "_ifConditionActive"
     ],
     {
       crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" },

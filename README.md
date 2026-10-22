@@ -2,11 +2,23 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.6.4**
+**Current version: v2.6.5**
 
 Visual Assembler is free and open source (GPLv3): every feature — editors, builds, hardware runs, languages and themes — works without a registration or serial. At most once a day the app sends an anonymous startup ping (version, OS, UI language, launch count, a random install ID) for the usage statistics; no email, project or source code is sent.
 
-## What's New in v2.6.4
+## What's New in v2.6.5
+
+- **KickAssembler projects** — *Menu → Program → Import Kick project…* takes a whole KickAssembler source tree (main file, `#import` modules, `.import binary` assets) and writes a `.proj` next to it; the sources stay in place. VA builds it with its own assembler byte for byte like KickAssembler 5.25 (the Dark Chambers C64 port and all eleven KickAssembler examples with code build identically), including segments and output files, `LoadPicture`, `.cpu _65c02` / DTV, `Vector` / `Matrix`, `.break` / `.watch`; Debug gets a source map with the original files and lines, the editor highlights and completes KickAssembler syntax; Run, Build PRG / D64 / CRT, Exomizer, Debug, VICE Monitor and Build project work, errors are `file:line`, the tree is checked while typing.
+- **Project settings** — gear button in the Project panel / Menu → File: name, startup file, assembler, Kick compatibility, `#define` symbols and `cmdLineVars`, saved in the `.proj`.
+- **Kick-compatible switch** — `{K}` in the Project panel header makes any VMA project KickAssembler compatible (saved in the `.proj`); VA macros keep working.
+- **KickAssembler language** — `#import` / `#importonce` / `#importif`, `#define` / `#if`, `.const` / `.label` (zero page by value), `.for`, `.while`, `.if … else`, `.var` / `.eval`, `.function`, `.macro { }`, `.pseudocommand` with argument types, multi-labels, scopes and namespaces (`name.inner`, `.namespace`, `.filenamespace`, `@`), `.pseudopc`, `LoadBinary` (templates), `LoadSid`, `virtual` blocks, `cmdLineVars`, `BasicUpstart2`, `List` / `Hashtable` / `.struct` / strings, `.enum`, math library, colour and opcode constants, `*`, `;`, `.error` / `.errorif`.
+- **Build Info in columns** — stat tiles, segments, errors, `.print` output, labels / constants / macros in a grid; Kick projects show the built tree.
+- **C64 colour palette** — Settings → General → Editors: Colodore (default, closest to real hardware), Pepto, VICE, Deekay or C64 Wiki / Godot for every editor and the Hi-Res image import.
+- **Colour picker** in the Hi-Res, Sprite, Character and Charset Canvas editors (Alt+click with any tool); **Ctrl + wheel zoom** in the Hi-Res, Sprite, Map and Level editors.
+- **ACME** — memory map and overlap warning from the ACME build; ACME projects build their startup file; ACME templates only with a working ACME, and an ACME project switches Settings to ACME mode.
+- **Fixes** — `.byte` / `.word` label expressions no longer assemble to 0; illegal `NOP #$nn` / `$nn` / `$nn,X` / `$nnnn` / `$nnnn,X`; *New project from template…* under *New project*; *Load .ub file* label in every language.
+
+## Earlier: v2.6.4
 
 - **ACME assembler mode** — Settings → General → Assembler mode: *VMA mode* (the built-in assembler) or *ACME mode*, which builds the Expert source with ACME 0.97 (path in Settings → Files and paths → ACME). Build, Run, Build PRG / D64 / CRT, Build project and Debug use the real ACME output; Disassembly / Monitor, debugger symbols, cycle counts, optimisation hints and the VICE Monitor (hot reload, watch, profiler) follow the ACME build. ACME highlighting and autocomplete, VMA macros in ACME source and ACME `!` directives in VMA source are reported, editor exports are inserted as ACME source, and `.proj` remembers the assembler. Text only: block mode is off and the Tutorials button is hidden in ACME mode.
 - **Better Kick Assembler import** — the menu entry is now *Kick import*; plain `.text "…"` with `.encoding` (`screencode_mixed` default, `screencode_upper`, `petscii_mixed`, `petscii_upper`, `ascii`, `@"…"` escapes), PC labels `.label loc = * + 1`, `.abs` / `.zp` mnemonic suffixes. Restore64 disassemblies import and build byte for byte like KickAssembler.

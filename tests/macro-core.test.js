@@ -83,7 +83,7 @@ function createMacroContext(extraContext = {}) {
       "resolveNumericOperand",
       "resolveRelativeOperand",
       "parseWordMacro",
-      "getInstructionSize"
+      "getInstructionSize", "_charLiteralToHex", "_ifConditionActive"
     ],
     {
       crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" },
@@ -837,7 +837,7 @@ test("parseExpertText imports core Kick Assembler syntax used by macro-heavy sou
       "_importMakeLabel",
       "_importMakeByte",
       "parseAsmText",
-      "_kickScopeRewrite", "parseExpertText"
+      "_kickScopeRewrite", "parseExpertText", "_charLiteralToHex"
     ],
     {
       crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" },
@@ -913,7 +913,7 @@ test("parseExpertText keeps decimal indexed operands as decimal absolute modes",
       "_importMakeLabel",
       "_importMakeByte",
       "parseAsmText",
-      "_kickScopeRewrite", "parseExpertText"
+      "_kickScopeRewrite", "parseExpertText", "_charLiteralToHex"
     ],
     {
       crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" },

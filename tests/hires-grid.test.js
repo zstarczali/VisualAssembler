@@ -5,7 +5,8 @@ const path = require("node:path");
 const vm = require("node:vm");
 
 const appJs = fs.readFileSync(path.join(__dirname, "..", "www", "app.js"), "utf8");
-const PALETTE = JSON.parse("[" + appJs.match(/const _CE_COLORS = \[([^\]]+)\]/)[1] + "]");
+const PALETTES = new Function(appJs.match(/const _C64_PALETTES = \{[^}]+\};/)[0] + "\nreturn _C64_PALETTES;")();
+const PALETTE = PALETTES.colodore.map((v) => "#" + v.toString(16).padStart(6, "0"));
 
 // Runs the hires editor core (same slice as hires-koala.test.js) with canvas
 // contexts that record what the grid draws:

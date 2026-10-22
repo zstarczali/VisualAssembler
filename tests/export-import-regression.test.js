@@ -282,6 +282,7 @@ test("ACME Build opens the normal compiler-error dialog with all diagnostics", a
     showCompileErrorDialog: errors => { shown = errors; },
     _expertDisasmVisible: false, _expertMonitorVisible: false,
     _acmeScheduleAutoBuild: () => {}, _acmeUpdateAnalysis: () => {}, _acmeBuildRunning: false, _acmePreviewError: null,
+    renderMemoryMap: () => {},
     t: key => key
   });
   await ctx._acmeBuildPreview();
@@ -733,10 +734,10 @@ test("parseAsmText builds long-branch and SMC-label blocks from instruction line
   assert.equal(smc[0].addressingMode, "immediate");
 });
 
-test("ACME mode rebuilds automatically only while the Disassembly / Monitor panel or the cycle gutter is on", () => {
+test("ACME mode rebuilds automatically after a typing pause (the memory strip is always shown)", () => {
   let scheduled = 0;
   const base = {
-    assemblerSyntax: "acme", expertMode: true, _expertDisasmVisible: false, _expertMonitorVisible: false, _expertCyclesEnabled: false,
+    assemblerSyntax: "acme", expertMode: true,
     _expertParseTimer: null, activeTabId: "t1", _acmePreview: null, _acmePreviewError: null,
     _expertGetSourceText: () => "lda #1",
     _acmePreviewCurrent: () => null,
@@ -747,21 +748,21 @@ test("ACME mode rebuilds automatically only while the Disassembly / Monitor pane
   };
   const ctx = loadFunctions(["_acmeScheduleAutoBuild", "_acmePreviewErrorCurrent"], base);
   ctx._acmeScheduleAutoBuild();
-  assert.equal(scheduled, 0);
-  ctx._expertCyclesEnabled = true;
-  ctx._acmeScheduleAutoBuild();
-  assert.equal(scheduled, 1);
-  ctx._expertCyclesEnabled = false;
-  scheduled = 0;
-  ctx._expertDisasmVisible = true;
-  ctx._acmeScheduleAutoBuild();
   assert.equal(scheduled, 1);
   // A failed build of the same text is not retried until the text changes.
   ctx._acmePreviewError = { tabId: "t1", sourceText: "lda #1", text: "error" };
   ctx._acmeScheduleAutoBuild();
   assert.equal(scheduled, 1);
-  ctx.assemblerSyntax = "kick";
+  // An up-to-date build is not repeated.
   ctx._acmePreviewError = null;
+  ctx._acmePreviewCurrent = () => ({ ok: true });
+  ctx._acmeScheduleAutoBuild();
+  assert.equal(scheduled, 1);
+  ctx._acmePreviewCurrent = () => null;
+  ctx.assemblerSyntax = "kick";
+  ctx._acmeScheduleAutoBuild();
+  ctx.assemblerSyntax = "acme";
+  ctx.expertMode = false;
   ctx._acmeScheduleAutoBuild();
   assert.equal(scheduled, 1);
 });

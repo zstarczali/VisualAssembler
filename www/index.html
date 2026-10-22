@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.6.4">
+  <link rel="stylesheet" href="style.css?v=2.6.5">
 </head>
 
 <body>
@@ -63,6 +63,7 @@
                 <button id="set-working-folder" class="secondary menu-item-tooltip" type="button">Set working folder</button>
                 <button id="menu-open-project" class="secondary menu-item-tooltip" type="button">Open project</button>
                 <button id="menu-save-project" class="secondary menu-item-tooltip" type="button">Save project</button>
+                <button id="menu-project-settings" class="secondary menu-item-tooltip" type="button">Project settings…</button>
                 <button id="menu-close-project" class="secondary menu-item-tooltip" type="button">Close project</button>
                 <h3 class="control-menu-label control-menu-label--section" id="workspace-section-label">Workspace</h3>
                 <button id="menu-save-workspace" class="secondary menu-item-tooltip" type="button">Save Workspace</button>
@@ -195,6 +196,7 @@
               <section class="control-menu-group">
                 <h3 class="control-menu-label control-menu-label--section" id="menu-program-label">Program</h3>
                 <button id="import-asm" class="secondary" type="button">Kick import</button>
+                <button id="import-kick-project" class="secondary" type="button">Import Kick project…</button>
                 <button id="copy-asm" class="secondary" type="button">ASM export</button>
                 <button id="clear-program" class="secondary" type="button">Program torlese</button>
                 <h3 class="control-menu-label control-menu-label--section" id="menu-info-label">Info</h3>
@@ -637,6 +639,12 @@ PRINTABLE CHARACTERS
               <button id="expert-project-add-folder-btn" class="expert-project-icon-btn" type="button" aria-label="Add folder">
                 <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><path d="M1 4C1 3.45 1.45 3 2 3H5.5L7 5H12C12.55 5 13 5.45 13 6V11C13 11.55 12.55 12 12 12H2C1.45 12 1 11.55 1 11V4Z" stroke="currentColor" stroke-width="1.2"/><path d="M7 7.5V10.5M5.5 9H8.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
               </button>
+              <button id="expert-project-settings-btn" class="expert-project-icon-btn" type="button" aria-label="Project settings">
+                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><circle cx="8" cy="8" r="2.2" stroke="currentColor" stroke-width="1.2"/><path d="M8 1.8v1.7M8 12.5v1.7M1.8 8h1.7M12.5 8h1.7M3.6 3.6l1.2 1.2M11.2 11.2l1.2 1.2M3.6 12.4l1.2-1.2M11.2 4.8l1.2-1.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              </button>
+              <button id="expert-project-kick-btn" class="expert-project-icon-btn" type="button" aria-pressed="false" aria-label="Kick-compatible project" style="display:none">
+                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><path d="M5.5 2.5C4 2.5 4 3.5 4 5s-.5 2.5-1.5 3c1 .5 1.5 1.5 1.5 3s0 2.5 1.5 2.5M10.5 2.5c1.5 0 1.5 1 1.5 2.5s.5 2.5 1.5 3c-1 .5-1.5 1.5-1.5 3s0 2.5-1.5 2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 5.5v5M7 8l2-2.5M7.6 7.4L9 10.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
             </div>
             <div class="expert-project-tree" id="expert-project-tree">
               <div class="expert-project-empty">Click the folder button<br>to open a project</div>
@@ -987,6 +995,46 @@ PRINTABLE CHARACTERS
         <span class="template-footer-spacer"></span>
         <button id="template-cancel" class="secondary" type="button">Cancel</button>
         <button id="template-create" class="primary" type="button">Create project</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="project-settings-dialog" class="ps-dialog" aria-labelledby="ps-title">
+    <div class="ps-card">
+      <div class="ps-hdr">
+        <svg class="ps-hdr-icon" viewBox="0 0 16 16" fill="none" width="14" height="14" aria-hidden="true"><circle cx="8" cy="8" r="2.2" stroke="currentColor" stroke-width="1.2"/><path d="M8 1.8v1.7M8 12.5v1.7M1.8 8h1.7M12.5 8h1.7M3.6 3.6l1.2 1.2M11.2 11.2l1.2 1.2M3.6 12.4l1.2-1.2M11.2 4.8l1.2-1.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        <span class="ps-title" id="ps-title">Project settings</span>
+        <span class="ps-meta" id="ps-meta"></span>
+        <button id="ps-close" class="ps-xbtn" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="ps-body">
+        <section class="ps-section">
+          <h3 class="ps-section-label" id="ps-section-project">Project</h3>
+          <div class="ps-grid">
+            <label class="ps-field"><span id="ps-name-label">Name</span><input id="ps-name" class="ps-input" type="text" maxlength="64" spellcheck="false" autocomplete="off"></label>
+            <label class="ps-field"><span id="ps-startup-label">Startup file</span><select id="ps-startup" class="ps-input"></select></label>
+            <div class="ps-field ps-wide"><span id="ps-path-label">Project file</span><code id="ps-path" class="ps-path"></code></div>
+            <div class="ps-field ps-wide"><span id="ps-files-label">Files</span><span id="ps-files" class="ps-files"></span></div>
+          </div>
+        </section>
+        <section class="ps-section">
+          <h3 class="ps-section-label" id="ps-section-build">Assembler</h3>
+          <div class="ps-grid">
+            <label class="ps-field"><span id="ps-assembler-label">Assembler</span><select id="ps-assembler" class="ps-input"><option value="kick">VMA (Visual Assembler)</option><option value="acme">ACME</option></select></label>
+            <label class="ps-check"><input id="ps-kick" type="checkbox"> <span id="ps-kick-label">KickAssembler compatible</span></label>
+          </div>
+        </section>
+        <section class="ps-section ps-kick-only">
+          <h3 class="ps-section-label" id="ps-section-kick">KickAssembler</h3>
+          <div class="ps-grid">
+            <label class="ps-field ps-wide"><span id="ps-defines-label">Preprocessor symbols (#define)</span><input id="ps-defines" class="ps-input" type="text" spellcheck="false" autocomplete="off" placeholder="DEBUG, PAL"></label>
+            <label class="ps-field ps-wide"><span id="ps-vars-label">Command-line variables (cmdLineVars)</span><textarea id="ps-vars" class="ps-input ps-textarea" rows="4" spellcheck="false" placeholder="level=3&#10;autojoy=0"></textarea><small id="ps-vars-hint" class="ps-hint">One name=value per line, as KickAssembler's -name=value command-line arguments.</small></label>
+          </div>
+        </section>
+      </div>
+      <div class="ps-footer">
+        <button id="ps-cancel" class="secondary" type="button">Cancel</button>
+        <button id="ps-save" class="primary" type="button">Save</button>
       </div>
     </div>
   </dialog>
@@ -1377,7 +1425,7 @@ PRINTABLE CHARACTERS
           <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
         </div>
         <h2 class="about-title">C64 Visual Assembler</h2>
-        <p class="about-version" id="about-version">v2.6.4</p>
+        <p class="about-version" id="about-version">v2.6.5</p>
         <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
       </div>
       <div class="about-columns">
@@ -1403,46 +1451,46 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.6.4</p>
+      <p class="whats-new-version">v2.6.5</p>
       <ul class="whats-new-list">
         <li>
-          <strong>ACME assembler mode:</strong> <em>Settings → General → Assembler mode</em> switches between <em>VMA mode</em> (the Visual Assembler assembler) and <em>ACME mode</em>, which builds the Expert source with ACME 0.97 (set its path in <em>Settings → Files and paths → ACME</em>). The <em>Build</em> button in the Expert toolbar, Run, Build PRG, D64 and CRT, Build project and Debug (RetroDebugger) use the real ACME output; the Disassembly and Monitor panels, the debugger symbols, the cycle counts, the optimisation hints and the VICE Monitor (hot reload, watch, profiler) follow the ACME build. ACME syntax highlighting and autocomplete (<code>!</code> pseudo opcodes, <code>+</code> macro calls), VMA macros in ACME source and ACME directives in VMA source are reported as errors, the editor exports (SID, sprite, char, Hi-Res, curve…) are inserted as ACME source, and each <code>.proj</code> remembers its assembler. ACME mode is text only: block mode is off and the Tutorials button is hidden.
+          <strong>KickAssembler projects:</strong> <em>Menu → Program → Import Kick project…</em> takes a whole KickAssembler source tree — the main file with its <code>#import</code> modules and <code>.import binary</code> assets — and writes a <code>.proj</code> next to it (the sources stay where they are). Visual Assembler builds it with its own assembler, byte for byte like KickAssembler 5.25: Run, Build PRG / D64 / CRT, Exomizer, Debug, the VICE Monitor and Build project all work, errors name the <code>file:line</code> (a click opens the file), the whole tree is checked while you type, and the cycle gutter works in every file of the tree (unrolled lines as <code>4×8</code>). The Dark Chambers C64 port and all eleven KickAssembler example programs with code build identically.
         </li>
         <li>
-          <strong>Better Kick Assembler import:</strong> the menu entry is now <em>Kick import</em>. Plain <code>.text "…"</code> lines with <code>.encoding</code> (<code>screencode_mixed</code>, <code>screencode_upper</code>, <code>petscii_mixed</code>, <code>petscii_upper</code>, <code>ascii</code>), PC labels such as <code>.label loc = * + 1</code> (a jump into the middle of an instruction) and the <code>.abs</code> / <code>.zp</code> mnemonic suffixes are understood. Restore64 disassemblies now import and build byte for byte like KickAssembler.
+          <strong>Project settings:</strong> the gear button in the Project panel (or <em>Menu → File → Project settings…</em>) shows and edits the project: name, <code>.proj</code> path, startup file, assembler (VMA or ACME), KickAssembler compatibility, and for Kick projects the <code>#define</code> symbols and the command-line variables (<code>cmdLineVars</code>, <code>name=value</code> per line), saved in the <code>.proj</code>.
         </li>
         <li>
-          <strong>Run starts programs below the BASIC line:</strong> when a program loads below or across the BASIC SYS line (for example a dump from <code>$071C</code>), Run adds a small loader that moves it into place and jumps to the first ORG. A lower ORG later in the source is no longer moved up to the start address.
+          <strong>Kick-compatible switch:</strong> the <code>{K}</code> button in the Project panel header makes any VMA project KickAssembler compatible (saved in the <code>.proj</code>). The VA macros and directives keep working next to the KickAssembler script.
         </li>
         <li>
-          <strong>Exomizer:</strong> a crunched program no longer gives <code>?SYNTAX ERROR</code> on the second RUN (a PRG with a BASIC line is packed with <code>sfx basic</code>).
+          <strong>KickAssembler language:</strong> <code>#import</code> / <code>#importonce</code> / <code>#importif</code>, <code>#define</code> / <code>#if</code>, <code>.const</code> / <code>.label</code> (zero page or absolute by value), <code>.for</code>, <code>.while</code>, <code>.if … else</code>, <code>.var</code> / <code>.eval</code>, <code>.function</code>, <code>.macro { }</code>, <code>.pseudocommand</code> (with argument types), multi-labels (<code>!:</code>, <code>!+</code>, <code>!-</code>), scopes and namespaces (<code>name.inner</code>, <code>lp[2].inner</code>, <code>.namespace</code>, <code>.filenamespace</code>, <code>@</code>), <code>.pseudopc</code>, <code>.import binary</code>, <code>LoadBinary</code> (with templates such as <code>BF_KOALA</code>), <code>LoadSid</code>, <code>virtual</code> memory blocks, <code>cmdLineVars</code>, <code>BasicUpstart2</code>, <code>List</code> / <code>Hashtable</code> / <code>.struct</code> / strings, <code>.enum</code>, the math library, the colour and opcode constants, <code>*</code> as the program counter, <code>;</code> between statements, <code>.error</code> / <code>.errorif</code>, <code>LoadPicture</code> (GIF / PNG / JPG), segments (<code>.segmentdef</code>, <code>.segment</code>, <code>.segmentout</code>, <code>.file</code>, <code>.disk</code>, <code>outPrg</code> / <code>outBin</code>, <code>min</code> / <code>max</code> / <code>fill</code>, <code>startAfter</code>, <code>prgFiles</code> / <code>sidFiles</code>), <code>.fillword</code>, <code>.lohifill</code>, <code>.cpu</code> (<code>_65c02</code>, <code>dtv</code>, <code>_6502NoIllegals</code>), <code>.im</code> / <code>.z</code> / <code>.a</code> suffixes, <code>Vector</code> / <code>Matrix</code>, <code>getNamespace()</code>, <code>.asserterror</code> and code asserts, <code>.break</code> / <code>.watch</code>.
         </li>
         <li>
-          <strong>SID Editor:</strong> an LCD in the tracker toolbar shows the song position, pattern, row and play time (<em>Settings → SID preview → LCD colour</em>: green or red); VA-VK has an instrument knob with an LCD of the instrument number and name; <em>Import .sid…</em> shows its progress.
+          <strong>Kick projects in the tools:</strong> Debug (RetroDebugger) gets a source map with the original files and lines, readable symbols and the breakpoints of every open project file (<code>.break</code> too; <code>.break</code> / <code>.watch</code> also go to the VICE symbol file); the Disassembly and Monitor panels and the peephole hints follow the built tree; Build project writes the <code>.file</code> / <code>outPrg</code> / <code>outBin</code> outputs and the <code>.disk</code> image; the editor highlights and completes the KickAssembler syntax; preprocessor messages appear in the app's language and <code>.print</code> output in the status line.
         </li>
         <li>
-          <strong>Settings in three tabs:</strong> <em>General</em>, <em>Files and paths</em> and <em>Integrations</em>.
+          <strong>Illegal opcodes:</strong> the assembler now knows every NMOS illegal opcode with all its addressing modes (<code>LAX ($12),Y</code>, <code>DCP $1234,Y</code>, <code>SLO ($12,X)</code> …), the new <code>SHA</code>, <code>SHX</code>, <code>SHY</code>, <code>TAS</code>, <code>LAS</code>, <code>XAA</code> (also in the palette) and the other names (<code>AHX</code>, <code>SHS</code>, <code>LAE</code>, <code>ASR</code>, <code>SBX</code>, <code>ISB</code>, <code>ANE</code>, <code>LXA</code> …).
         </li>
         <li>
-          <strong>Smaller improvements:</strong> <kbd>Ctrl+N</kbd> opens a new tab; dialog text can no longer be selected by accident (text fields and copyable output still can); large Expert sources edit faster; <code>LSR A</code> and <code>JMP ($nnnn)</code> import correctly; the Knowledge Base links Restore64 (restore64.dev), which turns a C64 PRG into KickAssembler / ACME source; an ACME memory dump with a segment below <code>$0801</code> builds at its own addresses and gets the start loader.
+          <strong>Build Info in columns:</strong> a wider window with origin, end, size and segment count on top, the segments, errors and <code>.print</code> output below, and the labels, constants and macros in columns. In a Kick project it shows the built tree, with inner labels as <code>scope.label</code>.
         </li>
         <li>
-          <strong>From 2.6.3: .sid import in the SID Editor:</strong> <em>Files → Import .sid…</em> opens any PSID / RSID tune, plays the chosen subtune silently in VA SID Core for the length you set, and turns its SID register stream into instruments, patterns and a song you can edit and export. It finds note ons and legato notes, places rows exactly on the notes (funktempo and swing through <code>F</code> speed changes), and rebuilds wave / arpeggio tables with fixed-pitch drum attacks, pulse and filter movement, gate timing with hard restart, and vibrato. A message lists what was approximated.
+          <strong>C64 colour palette:</strong> <em>Settings → General → Editors → C64 colour palette</em> picks the RGB values every editor draws the 16 C64 colours with — sprite, character, Charset Canvas, Hi-Res, map and level editors and the Toolkit swatches. <strong>Colodore</strong> (the default, the closest to a real C64) replaces the darker Pepto colours; Pepto, VICE, Deekay and C64 Wiki / Godot are also available. Only the display changes, the colour indexes in your data stay the same; the Hi-Res image import uses the editor palette unless you choose another one there.
         </li>
         <li>
-          <strong>From 2.6.3: Long tunes play correctly:</strong> when the tune data does not fit next to the player at <code>$C000</code>, it moves to its own segment below <code>$A000</code> instead of running into I/O — long songs no longer lose notes in Play: All, the exported asm or the <code>.sid</code> export.
+          <strong>Colour picker in the editors:</strong> the Hi-Res, Sprite, Character (multicolor) and Charset Canvas editors have a picker tool; <kbd>Alt</kbd>+click picks the colour with any tool.
         </li>
         <li>
-          <strong>From 2.6.3: VA SID Core preview retriggers notes:</strong> a note restarted under a held gate gets a new attack, as on the real player — no more silent voices.
+          <strong>Ctrl + wheel zoom</strong> in the Hi-Res, Sprite, Map and Level editors; the point under the cursor stays in place. In the Hi-Res editor the Raster switch sits next to Grid.
         </li>
         <li>
-          <strong>From 2.6.3: Ultimate Basic 1.6.6:</strong> <code>PRINT USING "format"; values</code> (numeric fields with <code>#</code> <code>.</code> <code>,</code> <code>+</code> <code>-</code>, string fields <code>&amp;</code> <code>!</code> <code>\ \</code>), strings compared with <code>&lt; &gt; &lt;= &gt;=</code> in PETSCII order, <code>rnd</code> and <code>mod</code> in floating point, floating point in IRQ / NMI handlers, <code>option basic print</code> for C64 BASIC PRINT spacing, smaller programs (only the floating-point routines in use are linked), a real 16-bit <code>mod</code> and an arithmetic <code>shr</code> for INTEGER; 1.6.5 makes address expressions 16-bit in <code>peek</code>, <code>poke</code>, <code>fill</code>, <code>memcopy</code> and friends.
+          <strong>ACME mode:</strong> the memory map and the overlap warning follow the ACME build (an overlap is an address two source lines write); an ACME project builds its startup file; the ACME templates appear only when a working ACME is set, and creating an ACME project switches Settings to ACME mode.
         </li>
         <li>
-          <strong>From 2.6.3: Update server setting:</strong> <em>Settings → Updates</em> sets the server the in-app update reads releases from (default <code>https://www.c64va.pro/</code>, installers under <code>downloads/VA/</code>).
+          <strong>New project:</strong> <em>New project from template…</em> moved under <em>New project</em> in the menu (the three separate entries are gone). The Visual Assembler sprite multiplexer template prints its title.
         </li>
         <li>
-          <strong>From 2.6.3: SID Editor:</strong> the header shows which SID emulation plays (WebSID or VA SID Core with the chip model); the Speed field is narrower, has − / + buttons and takes 1–255; the song can use up to 256 patterns. The BPM label shows BPM again (it read "Oct:").
+          <strong>Fixes:</strong> <code>.byte</code> and <code>.word</code> with label expressions (<code>&lt;(label+1)</code>, <code>.word label</code> before the label) no longer assemble to 0; the illegal <code>NOP</code> forms that read an operand (<code>NOP #$nn</code>, <code>$nn</code>, <code>$nn,X</code>, <code>$nnnn</code>, <code>$nnnn,X</code>) assemble; the Ultimate Basic open button reads <em>Load .ub file</em> in every language.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -1637,6 +1685,9 @@ PRINTABLE CHARACTERS
           <button class="ce-tool-btn" data-ce-tool="fill" type="button" aria-label="Flood Fill">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l5-5 5 5-5 5z"/><path d="M3 7l5 5 5-5" fill="currentColor" stroke="none" opacity="0.45"/></svg>
           </button>
+          <button class="ce-tool-btn" data-ce-tool="picker" type="button" aria-label="Colour picker (Alt+click with any tool)">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 2.5l3 3-1.4 1.4-1.1-1.1-5.2 5.2L3 12l-.5 1.5L4 13l1-1.5 5.2-5.2-1.1-1.1z"/></svg>
+          </button>
         </div>
         <div class="ce-tool-group">
           <button class="ce-tool-btn" id="ce-clear" type="button" aria-label="Clear">
@@ -1783,6 +1834,9 @@ PRINTABLE CHARACTERS
           </button>
           <button class="cc-tool" data-cc-tool="fill" type="button" aria-label="Fill">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l5-5 5 5-5 5z"/><path d="M3 7l5 5 5-5" fill="currentColor" stroke="none" opacity="0.45"/></svg>
+          </button>
+          <button class="cc-tool" data-cc-tool="picker" type="button" aria-label="Colour picker (Alt+click with any tool)">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 2.5l3 3-1.4 1.4-1.1-1.1-5.2 5.2L3 12l-.5 1.5L4 13l1-1.5 5.2-5.2-1.1-1.1z"/></svg>
           </button>
           <button class="cc-tool" data-cc-tool="cellmode" type="button" aria-label="Character: multicolor / hi-res" disabled>
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11"/><path d="M2.5 8h11M8 2.5v11"/><path d="M3 3h4.5v4.5H3z" fill="currentColor" stroke="none" opacity="0.55"/><path d="M10.25 8.5v4.5M11.75 8.5v4.5" stroke-width="0.9"/></svg>
@@ -2229,6 +2283,9 @@ PRINTABLE CHARACTERS
           <button class="hg-tool" data-tool="fill" type="button" aria-label="Flood Fill">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l5-5 5 5-5 5z"/><path d="M3 7l5 5 5-5" fill="currentColor" stroke="none" opacity="0.45"/></svg>
           </button>
+          <button class="hg-tool" data-tool="picker" type="button" aria-label="Colour picker (Alt+click with any tool)">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 2.5l3 3-1.4 1.4-1.1-1.1-5.2 5.2L3 12l-.5 1.5L4 13l1-1.5 5.2-5.2-1.1-1.1z"/></svg>
+          </button>
           <button class="hg-tool" data-tool="cellpaper" type="button" aria-label="Cell paper colour (per 8×8 cell, hi-res)">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11"/><rect x="2.5" y="2.5" width="5.5" height="5.5" fill="currentColor" stroke="none" opacity="0.55"/><path d="M8 2.5v11M2.5 8h11" opacity="0.6"/></svg>
           </button>
@@ -2261,6 +2318,7 @@ PRINTABLE CHARACTERS
         </div>
         <label class="hg-check" aria-label="Multi-Color mode (160×200)"><input type="checkbox" id="hg-multicolor"> <span id="hg-multicolor-label">Multi-Color</span></label>
         <label class="hg-check" aria-label="Show the character-cell grid (plus the pixel grid from 4× zoom)"><input type="checkbox" id="hg-grid"> <span id="hg-grid-label">Grid</span></label>
+        <label class="hg-check"><input type="checkbox" id="hg-raster"> <span id="hg-raster-label">Raster</span></label>
         <input type="file" id="hg-koala-file" accept=".koa,.kla,.prg,application/octet-stream" hidden>
         <input type="file" id="hg-image-file" accept="image/png,image/jpeg,image/webp,image/bmp,image/gif,.png,.jpg,.jpeg,.webp,.bmp,.gif" hidden>
         <input type="file" id="hg-import-file" accept="image/png,image/jpeg,image/jpg,image/webp,image/bmp,.png,.jpg,.jpeg,.webp,.bmp,.bin,.koa,.kla,application/octet-stream" hidden>
@@ -2272,8 +2330,6 @@ PRINTABLE CHARACTERS
         <button id="hg-paper" class="hg-swatch hg-paper" type="button" aria-label="Paper colour — click to set from selected colour, or right-click a palette colour"></button>
         <span class="hg-zoom-lbl" id="hg-zoom-lbl">Zoom:</span>
         <input type="range" id="hg-zoom" min="1" max="16" step="1" value="3" class="hg-zoom">
-        <span class="hg-zoom-val" id="hg-zoom-val">3×</span>
-        <label class="hg-check"><input type="checkbox" id="hg-raster"> <span id="hg-raster-label">Raster</span></label>
       </div>
       <div class="hg-canvas-wrap" id="hg-canvas-wrap">
         <div id="hg-canvas-sizer" class="hg-canvas-sizer"><canvas id="hg-canvas" class="hg-canvas"></canvas></div>
@@ -2321,6 +2377,9 @@ PRINTABLE CHARACTERS
           </button>
           <button class="se-tool" data-tool="fill" type="button" aria-label="Flood fill">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l5-5 5 5-5 5z"/><path d="M3 7l5 5 5-5" fill="currentColor" stroke="none" opacity="0.45"/></svg>
+          </button>
+          <button class="se-tool" data-tool="picker" type="button" aria-label="Colour picker (Alt+click with any tool)">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 2.5l3 3-1.4 1.4-1.1-1.1-5.2 5.2L3 12l-.5 1.5L4 13l1-1.5 5.2-5.2-1.1-1.1z"/></svg>
           </button>
           <button class="se-tool" data-tool="select" type="button" aria-label="Select / move">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11" stroke-dasharray="2 1.5"/><path d="M8 5.5v5M5.5 8h5"/></svg>
@@ -3639,6 +3698,20 @@ PRINTABLE CHARACTERS
               <span id="git-preferred-label">Use Git when the project is in a repository</span>
             </label>
           </section>
+          <section class="hw-settings-section">
+            <h3 class="hw-settings-section-label" id="editor-settings-label">Editors</h3>
+            <label class="field compact-field hw-field">
+              <span id="editor-palette-label">C64 colour palette</span>
+              <select id="editor-palette" class="sid-select">
+                <option value="colodore" selected>Colodore</option>
+                <option value="pepto">Pepto</option>
+                <option value="vice">VICE</option>
+                <option value="deekay">Deekay</option>
+                <option value="c64wiki">C64 Wiki / Godot</option>
+              </select>
+            </label>
+            <p id="editor-palette-note" class="menu-note">Used by the sprite, character, Charset Canvas, Hi-Res, map and level editors. Colodore is the closest to real C64 hardware.</p>
+          </section>
         </div>
       </div>
       <div id="hw-settings-integrations" class="hw-settings-body" role="tabpanel" aria-labelledby="hw-settings-tab-integrations" hidden>
@@ -3756,13 +3829,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.6.4"></script>
-  <script src="i18n.js?v=2.6.4"></script>
-  <script src="tutorial-data.js?v=2.6.4"></script>
+  <script src="tauri-bridge.js?v=2.6.5"></script>
+  <script src="i18n.js?v=2.6.5"></script>
+  <script src="tutorial-data.js?v=2.6.5"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.6.4"></script>
+  <script src="app.js?v=2.6.5"></script>
 
 </body>
 
