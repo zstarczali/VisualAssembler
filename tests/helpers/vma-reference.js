@@ -6,15 +6,18 @@ const loadApp = require("./load-app");
 
 const repo = path.join(__dirname, "..", "..");
 
-// Mirrors the reload_* commands of lib.rs: base dir, then samples/, then the repo root. A stored
-// absolute path from another machine (/Users/…, C:\…) falls back to its bare file name.
+// Mirrors the reload_* commands of lib.rs: the path itself (absolute) or under base dir / samples/ /
+// the repo root, then its bare file name there (push_bare_name_fallbacks): a path stored on another
+// machine (/Users/…, C:\…, \\?\F:\…) must not depend on the OS the test runs on.
 function resolveFile(file, baseDir, exts = []) {
   const name = String(file || "").trim();
   if (!name) return null;
-  const isAbs = path.isAbsolute(name) || /^[A-Za-z]:[\\/]/.test(name) || name.startsWith("/");
-  const tries = isAbs ? [["", name]] : [];
-  const rel = isAbs ? name.split(/[\\/]/).pop() : name;
-  for (const base of [baseDir, path.join(repo, "samples"), repo].filter(Boolean)) tries.push([base, rel]);
+  const bases = [baseDir, path.join(repo, "samples"), repo].filter(Boolean);
+  // an absolute path outside the repo (a build folder, another machine) is not part of the corpus
+  const inRepo = path.isAbsolute(name) && !path.relative(repo, name).startsWith("..") && !path.isAbsolute(path.relative(repo, name));
+  const tries = path.isAbsolute(name) ? (inRepo ? [["", name]] : []) : bases.map(base => [base, name]);
+  const bare = name.split(/[\\/]/).pop();
+  if (bare && bare !== name) for (const base of bases) tries.push([base, bare]);
   for (const [base, n] of tries) {
     for (const ext of ["", ...exts]) {
       const p = base ? path.join(base, n + ext) : n + ext;

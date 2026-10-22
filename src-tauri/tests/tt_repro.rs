@@ -24,6 +24,7 @@ fn repro_trickytetris_compile() {
                 &CompileOptions {
                     basic_stub: true,
                     explicit: false,
+                    basic_print: false,
                 },
                 Some(path),
             );

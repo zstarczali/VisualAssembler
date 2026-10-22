@@ -1534,18 +1534,14 @@ fn crunch_with_exomizer(
     let sfx_target;
     let args: Vec<&str> = if raw_mode {
         // exomizer mem (backward, default): -l <load> sets the PRG load address;
-        // appending ",<target>" to the input filename tells exomizer the original
-        // address of the file, which gets encoded into the stream.
+        // "file@<target>" loads the raw input at the decompression address, which
+        // gets encoded into the stream. ("file,<target>" would read it as a PRG
+        // and drop its first two bytes as a load address.)
         // Decoder reads ZP $04/$05 = end-of-crunched-data, JSR decrunch.
-        //
-        // Exomizer's default safety_offset is 2 bytes — decompressed data lands
-        // 2 bytes EARLIER than the address we pass. Compensate by adding 2.
         load_str = format!("${}", raw_load.unwrap_or("C000"));
         let target_user = raw_decompress.unwrap_or("2000");
-        let target_adjusted = u32::from_str_radix(target_user.trim_start_matches('$'), 16)
-            .map(|v| v.saturating_add(2))
-            .unwrap_or(0x2002);
-        infile_with_target = format!("{},${:04X}", input_path.to_str().unwrap(), target_adjusted);
+        let target = u32::from_str_radix(target_user.trim_start_matches('$'), 16).unwrap_or(0x2000);
+        infile_with_target = format!("{}@${:04X}", input_path.to_str().unwrap(), target);
         vec![
             "mem",
             "-l",
@@ -2212,21 +2208,39 @@ fn push_bare_name_fallbacks(
     raw_path: &str,
     base_dir: Option<&str>,
 ) {
-    let Some(bare) = raw_path.rsplit(['/', '\\']).next().filter(|n| !n.is_empty()) else {
-        return;
+    let working_folder = get_working_folder_path(&read_config(app));
+    candidates.extend(bare_name_candidates(raw_path, base_dir, working_folder.as_deref()));
+    if let Some(bare) = bare_file_name(raw_path) {
+        if let Ok(p) = resolve_resource_file(app, &format!("samples/{}", bare)) {
+            candidates.push(p);
+        }
+    }
+}
+
+/// The file name of a path with directories (either separator); None for a bare name.
+fn bare_file_name(raw_path: &str) -> Option<&str> {
+    raw_path
+        .rsplit(['/', '\\'])
+        .next()
+        .filter(|n| !n.is_empty() && *n != raw_path)
+}
+
+fn bare_name_candidates(
+    raw_path: &str,
+    base_dir: Option<&str>,
+    working_folder: Option<&std::path::Path>,
+) -> Vec<PathBuf> {
+    let Some(bare) = bare_file_name(raw_path) else {
+        return Vec::new();
     };
-    if bare == raw_path {
-        return;
-    }
+    let mut out = Vec::new();
     if let Some(base) = base_dir.map(str::trim).filter(|b| !b.is_empty()) {
-        candidates.push(std::path::Path::new(base).join(bare));
+        out.push(std::path::Path::new(base).join(bare));
     }
-    if let Some(folder) = get_working_folder_path(&read_config(app)) {
-        candidates.push(folder.join(bare));
+    if let Some(folder) = working_folder {
+        out.push(folder.join(bare));
     }
-    if let Ok(p) = resolve_resource_file(app, &format!("samples/{}", bare)) {
-        candidates.push(p);
-    }
+    out
 }
 
 #[tauri::command]
@@ -5806,5 +5820,38 @@ mod update_server_tests {
         for bad in ["http://www.c64va.pro/", "ftp://x.org/", "www.c64va.pro", "https://u:p@x.org/", "https://x.org/?a=1", "file:///c:/x"] {
             assert!(normalize_update_server(bad).is_err(), "{bad}");
         }
+    }
+}
+
+#[cfg(test)]
+mod asset_path_tests {
+    use super::*;
+    use std::path::Path;
+
+    #[test]
+    fn foreign_paths_fall_back_to_the_bare_file_name() {
+        let wf = Path::new("work");
+        for raw in [
+            "/Users/someone/dev/samples/demo-colors.bin",
+            r"C:\Users\someone\samples\demo-colors.bin",
+            "sub/demo-colors.bin",
+        ] {
+            assert_eq!(
+                bare_name_candidates(raw, Some("proj"), Some(wf)),
+                vec![Path::new("proj").join("demo-colors.bin"), wf.join("demo-colors.bin")],
+                "{raw}"
+            );
+        }
+    }
+
+    #[test]
+    fn bare_names_and_empty_inputs_add_nothing() {
+        assert!(bare_name_candidates("demo-colors.bin", Some("proj"), None).is_empty());
+        assert!(bare_name_candidates("dir/", Some("proj"), None).is_empty());
+        assert_eq!(
+            bare_name_candidates("/x/a.sid", Some("  "), None),
+            Vec::<PathBuf>::new()
+        );
+        assert_eq!(bare_file_name("/x/a.sid"), Some("a.sid"));
     }
 }
