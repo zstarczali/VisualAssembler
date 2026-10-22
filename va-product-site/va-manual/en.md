@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.6.4**
+**Version 2.6.5**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -9,6 +9,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
+    - [Version 2.6.5 Highlights](#version-265-highlights)
     - [Version 2.6.4 Highlights](#version-264-highlights)
     - [Version 2.6.3 Highlights](#version-263-highlights)
     - [Version 2.6.2 Highlights](#version-262-highlights)
@@ -195,6 +196,22 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [Curve Editor](#curve-editor)
     - [Table Generator](#table-generator)
     - [Number Converter](#number-converter)
+
+---
+
+## Version 2.6.5 Highlights
+
+- **KickAssembler projects** — **Menu → Program → Import Kick project…** takes a whole KickAssembler source tree (the main file with its `#import` modules and `.import binary` assets) and writes a `.proj` next to it; the sources stay where they are. Visual Assembler builds it with its own assembler, byte for byte like KickAssembler 5.25 — Run, Build PRG / D64 / CRT, Exomizer, Debug, the VICE Monitor and Build project all work, errors name the `file:line`, and the whole tree is checked while you type. The Dark Chambers C64 port and all eleven KickAssembler example programs with code build identically. See [Kick projects (Import Kick project…)](#kick-projects-import-kick-project).
+- **Project settings** — the gear button in the Project panel (or **Menu → File → Project settings…**) shows and edits the name, startup file, assembler, KickAssembler compatibility, `#define` symbols and `cmdLineVars` of a project. See [Project panel & tabs](#project-panel--tabs).
+- **Kick-compatible switch** — the `{K}` button in the Project panel header makes any VMA project KickAssembler compatible; the VA macros and directives keep working next to the KickAssembler script.
+- **KickAssembler language** — `#import` / `#importonce` / `#importif`, `#define` / `#if`, `.const` / `.label` (zero page or absolute by value), `.for`, `.while`, `.if … else`, `.var` / `.eval`, `.function`, `.macro { }`, `.pseudocommand`, multi-labels, scopes and namespaces, `.pseudopc`, `.import binary`, `LoadBinary` (with templates such as `BF_KOALA`), `LoadSid`, `virtual` memory blocks, `cmdLineVars`, `BasicUpstart2`, `List` / `Hashtable` / `.struct` / strings, `.enum`, the math library, the colour and opcode constants, `*` as the program counter, `;` between statements, `.error` / `.errorif`.
+- **Build Info in columns** — a wider window: origin, end, size and segment count on top, then the segments, errors and `.print` output, and the labels, constants and macros in columns. In a Kick project it shows the built tree, inner labels as `scope.label`.
+- **C64 colour palette** — **Settings → General → Editors → C64 colour palette** sets the RGB values of the 16 C64 colours in every editor (sprite, character, Charset Canvas, Hi-Res, map, level, Toolkit swatches): **Colodore** by default (the closest to a real C64), or Pepto, VICE, Deekay, C64 Wiki / Godot. Only the display changes; the Hi-Res image import uses it too. See [14. Visual Editors (Toolkit)](#14-visual-editors-toolkit).
+- **Colour picker** — the Hi-Res, Sprite, Character (multicolor) and Charset Canvas editors have a picker tool; **Alt+click** picks the colour with any tool. See [Hi-Res / Multicolor Editor](#hi-res--multicolor-editor).
+- **Ctrl + wheel zoom** in the Hi-Res, Sprite, Map and Level editors, around the cursor. The Hi-Res Raster switch sits next to Grid.
+- **ACME mode** — the memory map and the overlap warning follow the ACME build; an ACME project builds its startup file; the ACME templates appear only when a working ACME is set, and creating an ACME project switches Settings to ACME mode. See [ACME mode](#acme-mode).
+- **New project** — **New project from template…** is under **New project** in the menu (the three separate entries are gone); the Visual Assembler sprite multiplexer template prints its title.
+- **Fixes** — `.byte` / `.word` with label expressions (`<(label+1)`, `.word label` before the label) no longer assemble to 0; the illegal `NOP` forms that read an operand assemble (see [Illegal / Undocumented Instructions](#illegal--undocumented-instructions)); the Ultimate Basic open button reads **Load .ub file** in every language.
 
 ---
 
@@ -618,7 +635,7 @@ The modal closes automatically when the action completes or fails.
 | **Save Workspace As** | Save the current workspace using a new file dialog every time |
 | **Open Workspace** | Close all open tabs and reopen the set of files stored in a `.vaws` workspace file |
 | **Set working folder** | Choose the default folder used by file pickers and save dialogs. The path is stored in the app config, and menu previews keep the end of the path visible. |
-| **New project from template…** (`Menu → File`, or the toolbar button next to **Menu**) | Create a new `.proj` project from an Assembler or UltimateBasic template in its own folder — see [Project templates](#project-templates) |
+| **New project from template…** (`Menu → New project`, or the toolbar button next to **Menu**) | Create a new `.proj` project from a Visual Assembler, ACME or UltimateBasic template in its own folder — see [Project templates](#project-templates) |
 | **Open Project** (`Menu → File`) | Open a multi-file `.proj` project and open all source files as tabs |
 | **Save Project** (`Menu → File`) | Save the current `.proj` project (project panel must be open) |
 | **Close Project** (`Menu → File`) | Close the currently open project and all its file tabs. Prompts to save unsaved changes. The project panel resets to its empty state. |
@@ -738,21 +755,22 @@ If the program contains the SID Editor's exported player (`sid_` labels), the pl
 
 ### Project templates
 
-**Menu → File → New project from template…** — or the toolbar button between **Menu** and **Tutorials** — opens the template dialog:
+**Menu → New project → New project from template…** — or the toolbar button between **Menu** and **Tutorials** — opens the template dialog:
 
-1. Pick a section at the top: **Assembler** or **UltimateBasic** (the dialog opens on the section that matches the current editor mode).
+1. Pick a section at the top: **Visual Assembler**, **ACME** or **UltimateBasic** (the dialog opens on the section that matches the current editor mode). The **ACME** section appears only when a working ACME is set in **Settings → Files and paths → ACME**.
 2. Choose a template from the list; the right side shows its description and a syntax-highlighted preview with your project name filled in.
 3. Enter the **project name** and the **location** (**Browse…**). The line below the form shows the exact `.proj` path that will be created.
 4. Click **Create project**.
 
 | Section | Built-in templates |
 |---|---|
-| **Assembler** | Empty program, Empty game (title / play / game over states, joystick, player sprite), Hires bitmap, Multicolor bitmap, Sprite multiplexer (16 sprites sorted by Y every frame, shown by a raster IRQ chain) |
+| **Visual Assembler** | Empty program, Empty game (title / play / game over states, joystick, player sprite), Hires bitmap, Multicolor bitmap, Sprite multiplexer (16 sprites sorted by Y every frame, shown by a raster IRQ chain) |
+| **ACME** | Empty ACME project, Raster IRQ, Sprite multiplexer (16 sprites) |
 | **UltimateBasic** | Empty program, Empty game (same state machine in UB), Hires bitmap (`line` / `rect` / `circle` with `color pen`), Raster IRQ (a `sub` called every frame from the raster interrupt) |
 
-The project is created in its own folder: `<location>/<name>/<name>.proj` plus `main.asm` (Assembler) or `main.ub` (UltimateBasic, the `.proj` is marked as an Ultimate Basic project). An existing project is never overwritten — the dialog reports it instead. Open tabs are closed first (you are asked about unsaved changes), then the new project opens in Expert mode or Ultimate Basic mode with the project panel visible and the main file set as the startup file.
+The project is created in its own folder: `<location>/<name>/<name>.proj` plus `main.asm` (Visual Assembler or ACME) or `main.ub` (UltimateBasic, the `.proj` is marked as an Ultimate Basic project). An ACME project's `.proj` records the ACME assembler, and creating it switches **Settings → General → Assembler mode** to ACME mode (a Visual Assembler project switches it back to VMA mode). An existing project is never overwritten — the dialog reports it instead. Open tabs are closed first (you are asked about unsaved changes), then the new project opens in Expert mode or Ultimate Basic mode with the project panel visible and the main file set as the startup file.
 
-**Your own templates:** **My templates folder** (bottom left of the dialog) opens the user templates folder in the app config directory. Every `.asm` or `.ub` file dropped there appears in the matching section (under *My templates* unless it names a category). A template is an ordinary source file with an optional header of comment lines at the top — `;` in assembler, `#` in Ultimate Basic:
+**Your own templates:** **My templates folder** (bottom left of the dialog) opens the user templates folder in the app config directory. Every `.asm` or `.ub` file dropped there appears in the matching section (an `.asm` with a `; @assembler acme` header line goes to **ACME**) (under *My templates* unless it names a category). A template is an ordinary source file with an optional header of comment lines at the top — `;` in assembler, `#` in Ultimate Basic:
 
 ```asm
 ; @name Raster bars
@@ -839,6 +857,55 @@ Disassemblies made by Restore64 (KickAssembler syntax) import and build byte for
 Known limitation:
 
 - Constants that resolve to a zero-page address (for example `.const BYTEADDR = $FC` used as `STA BYTEADDR`) currently compile to absolute-mode instructions (3 bytes) instead of zero-page (2 bytes). The compiled code still writes to the correct memory location, just with a small size and cycle overhead compared to the same source built by Kick Assembler.
+
+#### Kick projects (Import Kick project…)
+
+**Import Kick project…** (Program menu, under **Kick import**) takes a whole KickAssembler source tree — a main file with `#import` modules and `.import binary` assets — and makes a VA project of it. Pick the main file (`main.asm`); VA follows every `#import` / `.import source` / `.import binary` (also inside `.if` branches that are not taken) and writes a `.proj` next to it, named after the folder (`src` / `source` / `asm` folders use the parent folder's name). The project lists every file in its folder tree; the sources stay where they are, so an existing KickAssembler build script keeps working. Files that cannot be found are listed in the error dialog.
+
+**Kick-compatible switch:** any VA (VMA) project can be made Kick-compatible with the `{K}` button in the Project panel header (shown in VMA mode while a project is open; it is on for imported Kick projects). The setting is saved in the `.proj` (`"kick": true`); off, the project is a plain VMA project and builds exactly as before.
+
+In a Kick-compatible project the VA macros and directives keep working next to the KickAssembler script: `.text x, y, "…"`, `.set_border`, LOOP / NEXT, SPRITE_INIT, `.include`, `.incbin`, `.sid`, `.define` / `.if SYMBOL` / `.else` / `.endif`, VA macros (`.macro name(p)` … `.endm` with `{p}`) and the rest go to the VA assembler as they are, with the Kick constants as numbers. Directives that exist in both are told apart by their form:
+
+| VA (VMA) | KickAssembler |
+|---|---|
+| `.for X, $0A, for1` … `.endf for1` | `.for (var i = 0; i < 10; i++) { … }` |
+| `.if DEBUG` … `.else` … `.endif` | `.if (expression) { … } else { … }` |
+| `.macro name(p)` … `.endm`, called with `.invoke` | `.macro Name(p) { … }`, called as `Name(arg)` |
+| `.var name = value` (a runtime variable) | `.var name = value` (a script variable) — in a Kick-compatible project `.var` is always the KickAssembler one |
+
+The project builds with the VA assembler, not with KickAssembler: every build (Run, Save PRG, D64, CRT, Exomizer, Debug, VICE Monitor, Build project, the Build button) first runs the startup file through a KickAssembler preprocessor, with the editor text of open tabs, saved or not. The result is the same PRG as KickAssembler's. Supported:
+
+- `#import`, `.import source`, `#importonce`; `.import binary` / `c64` / `text` with optional offset and length
+- `.const` / `.label` in any order, with expressions; zero page or absolute addressing follows the value like in KickAssembler (`.abs` / `.zp` still force it)
+- `.for (var i = 0; i < n; i++) { … }` and the one-line form, `.var`, `.eval` (`=`, `+=`, `++` …), `.if (…) { … } else .if (…) { … } else { … }` and the one-line form
+- `.function Name(params) { .return expr }` and `.macro Name(params) { … }` called as `Name(args)` or `:Name(args)`
+- multi-labels `!:` / `!name:` with `!+`, `!-`, `!++`, `!name+`, `!name-`
+- `.pseudopc address { … }`: labels inside get the logical address, the bytes stay where they are
+- `BasicUpstart2(label)` / `BasicUpstart(label)`, `* = address "segment"`, `.fill n, expr` (with `i`) and `.fill n, [a, b]`, `.align`, `.byte`, `.word`, `.dword`, `.text`
+- `.assert "description", expr, true`; `cmdLineVars.containsKey(…)` / `cmdLineVars.get(…)` and `#define` symbols come from **Project settings** (KickAssembler's `:name=value` and `-define NAME`)
+- `LoadBinary("file"[, template])` with `get(i)` / `uget(i)` / `getSize()`, a template such as `"C64FILE, Bitmap=$0000, ScreenRam=$1f40"` (or `BF_KOALA`, `BF_FLI`, `BF_DOODLE`, `BF_BITMAP_SINGLECOLOR`, `BF_C64FILE`) giving `getBitmap(i)` / `getBitmapSize()` per block; `LoadSid("file.sid")` with `location`, `init`, `play`, `songs`, `startSong`, `size`, `name`, `author`, `copyright`, `getData(i)` …; `.fill` with script values is expanded right away
+- `* = address "name" virtual`: a virtual memory block — its labels get addresses, but no bytes are written
+- `.while (…) { … }`, `i++` / `--i` in expressions, `.var name` without a value
+- `*` as the program counter (`jmp *`, `bne *-1`, also inside `.pseudopc`)
+- `;` between statements (`lda #1; sta $d020`, `.var a = 1; .var b = 2`): a `;` right after code, without a space, followed by a statement. Any other `;` starts a comment, as in VA, so `lda #1 ; comment` keeps working
+- the math library (`sin`, `cos`, `toRadians`, `toDegrees`, `round`, `floor`, `sqrt`, `pow`, `atan2`, `log10`, `random` …), the colour constants (`BLACK` … `LIGHT_GREY`), the opcode constants (`RTS`, `LDA_IMM`, `LDA_ZPX`, `JMP_IND`, `BNE_REL` …) and `asmCommandSize()`
+- `BasicUpstart2(label)` with the label anywhere the sizes reach from a `* =` (for example `* = $4000` … `start:` gives SYS 16384)
+- scopes like in KickAssembler: `{ }` blocks, `.if` branches, `.for` / `.while` turns and macro calls have their own labels and constants (a `loop:` inside does not collide with an outer one; `.pseudopc` is no scope). A label before the scope makes the inner labels reachable: `name: { … }` → `name.inner`, `lp: .for (…)` → `lp[2].inner`, `myIf: .if (…)` → `myIf.inner`, `c1: Macro()` → `c1.inner`, `.label base = $1000 { … }` → `base.inner`
+- `.namespace name { … }` and `.filenamespace name` (to the end of the file): the labels are reachable as `name.label`; `@label:`, `.label @x = …`, `.function @f` / `.macro @m` put the symbol in the root, and `@name` refers to the root symbol. Functions and macros are visible everywhere, also the ones of a namespace without `@`
+- `.pseudocommand name a : b { … }`: called like a mnemonic (`mov #10 : $1000`, `mov src,x : ($30),y`); the arguments keep their addressing mode (`getType()` = `AT_IMMEDIATE`, `AT_ABSOLUTE`, `AT_ABSOLUTEX` / `Y`, `AT_INDIRECT`, `AT_IZEROPAGEX` / `Y`, `AT_NONE` for a missing one; `getValue()`), `CmdArgument(type, value)` makes a new one. A pseudocommand named like a mnemonic needs the colon (`:adc …`); without it the mnemonic is assembled
+- the preprocessor: `#define`, `#undef`, `#if` / `#elif` / `#else` / `#endif` (with `!`, `&&`, `||`), `#importif`
+- `List()` (`add`, `get`, `set`, `size`, `remove`, `sort`, `reverse`, `shuffle`, `addAll`), `Hashtable()` (`put`, `get`, `containsKey`, `remove`, `keys`), `.struct Name {a, b}` (`Name(1, 2)`, `p.a`, `.eval p.a = 3`, `getFieldNames()` …), strings (`+`, `charAt`, `substring`, `size`, `toUpperCase`, `asNumber(radix)` …, `toIntString` / `toHexString` / `toBinaryString` with a minimum size), `.enum {A, B, C = 5}`, `.define name, … { … }`, `.eval list.add(…)`, a char in `.byte` and string expressions in `.text` (in the current `.encoding`)
+- `.error "message"`, `.errorif condition, "message"`; `.print` / `.printnow` output is shown in the status line (the first message and the count) and in full in **Build Info**. An `.if` that only reports (`.error` …) is skipped when its condition needs label addresses
+- `LoadPicture("file"[, List().add($rrggbb, …)])` for GIF, PNG and JPG: `width`, `height`, `getPixel(x, y)`, `getSinglecolorByte(x, y)`, `getMulticolorByte(x, y)`; without a colour table the colours are taken in the order they appear. A picture name passed in a variable (`LoadPicture(filename)`) works too
+- segments: `.segmentdef Name [start, startAfter, align, min, max, fill, fillByte, segments, prgFiles, sidFiles, virtual, outPrg, outBin, modify="BasicUpstart", _start]`, `.segment Name [params] "block"`, `.segmentout [segments=…]`, `.file [name=…, segments=…, allowOverlap]`, `.disk [filename=…, name=…] { [name=…, type=…, segments=…], … }`, `.memblock`. A segment without `start` begins at $2000 like in KickAssembler. **Run** starts the Default segment; when that is empty, the first PRG output (the one at $0801 first). **Build project** writes every `.file` / `outPrg` / `outBin` next to the startup file and builds the `.disk` image with c1541
+- `.fillword n, expr`, `.lohifill n, expr` (with a label: `name.lo` / `name.hi`); mnemonic suffixes `.im` / `.i`, `.z` / `.zp`, `.a` / `.abs`
+- `.cpu _6502NoIllegals` / `_6502` (the default, with the illegal opcodes) / `dtv` (`bra`, `sac`, `sir`) / `_65c02` (`(zp)` mode, `bra`, `phx` / `phy` / `plx` / `ply`, `stz`, `trb`, `tsb`, `rmb0-7` / `smb0-7`, `bbr0-7` / `bbs0-7`, `stp`, `wai`, `inc` / `dec` A, `bit #`, `jmp (abs,x)`); every NMOS illegal opcode with all its modes and other names (`sha` / `ahx`, `shx`, `shy`, `tas` / `shs`, `las` / `lae`, `xaa` / `ane`, `lxa`, `anc2`, `sbc2` …) — the VA assembler knows them too
+- `.break ["condition"]` and `.watch address[, end][, "store"]`: breakpoints and watches in the VICE symbol file (`break` / `watch` lines, as KickAssembler writes them) and in the RetroDebugger `.dbg`; `.break` lines are breakpoints of **Debug** too
+- `Vector(x, y, z)` (`+`, `-`, `*` number / dot product, `/`, `X()` cross product, `get(n)`, `getX()` …) and 4×4 matrices: `Matrix()`, `RotationMatrix(ax, ay, az)`, `ScaleMatrix`, `MoveMatrix`, `PerspectiveMatrix(z)`, `get(n, m)`, `set(n, m, v)`, matrix × matrix, matrix × vector
+- `getNamespace()`; `.asserterror "name", expression` and the code forms `.assert "name", { … }, { … }` / `.asserterror "name", { … }` (the results are `.print` messages, like KickAssembler's assert report); `* - label` in a constant (`.label size = * - start`)
+- `.modify` / `.filemodify` need a KickAssembler Java plugin: the block is assembled without the modifier, with a message
+
+While you type, the whole tree is checked: errors of the open file are marked in the editor, the status line shows the first one, and the compile-error dialog names `file:line` — a click opens that file at the line. The memory map shows the built program, and the cycle gutter shows the cycles of the open file (a line unrolled by `.for` or a macro as `4×8`: one turn, eight times; a selection adds up every turn). The peephole hints mark the lines of the open file; the Disassembly and Monitor panels show the built program. The editor highlights the KickAssembler syntax (`#import`, `.segment`, script functions, `!labels`, `;` inside `.for (…)`), and completion offers the Kick directives (`.`), the preprocessor (`#`) and the script functions. Preprocessor messages appear in the language of the app. **Debug** (RetroDebugger) gets a source map with the original files and lines, readable symbol names (`scope.label`), and the breakpoints of every open project file. Binary files in the project tree are not opened as text. The Dark Chambers C64 port (19 source files, 15 binary files) and all eleven KickAssembler examples with code build byte for byte like KickAssembler 5.25.
 
 ## UltimateBasic Mode
 
@@ -989,7 +1056,7 @@ Expert Mode is a full-featured direct-text 6502 assembly editor that lives along
 | **Format** | `#expert-format-btn` | Auto-format source (labels to col 0, 4-space indent, 1-space mnemonic/operand) |
 | **Load .asm** | `#expert-load-asm-btn` | Open a `.asm` file — the content is loaded into a **new tab** with the filename as the tab label. Each loaded file becomes an independent tab with its own program blocks and editor state. |
 | **Save .asm** | `#expert-save-asm-btn` | Save editor content to a `.asm` file (file dialog on first save) |
-| **Build Info** | `#expert-build-info-btn` | Open the Build Info dialog (origin, size, labels, errors) |
+| **Build Info** | `#expert-build-info-btn` | Open the Build Info dialog: origin, end, size and segment count on top, then the segments, errors (`file:line` in a Kick project) and `.print` output, and the labels, constants and macros in columns |
 | **HL** | `#expert-hl-btn` | Toggle syntax highlighting (disable for very large files) |
 | **Autocomplete** | `#expert-autocomplete-btn` | Toggle expert autocomplete suggestions on/off. When disabled, no directive, mnemonic, or label popup appears in the expert editor. |
 | **Region selection** | `#expert-region-selection-btn` | Toggle the automatic region highlight in Expert mode. The fold state stays stored, but when this is off the editor keeps the full source visible and does not auto-select the current region. |
@@ -1084,6 +1151,7 @@ Expert mode supports a **project panel** (`#expert-project-panel`) for multi-fil
 - **Close Project** (`Menu → File → Close project` / `#menu-close-project`) closes the current project and all its file tabs at once. Prompts to save any unsaved changes before closing. The project panel resets to its empty state and `_expertProjectData` is cleared.
 - Each file can be marked as the **startup file** (★ star icon). When a startup file is set, the **Run** button (PRG, D64, Ultimate) always assembles and runs that file's code — regardless of which tab is currently active. This works in both block mode and Expert mode.
 - The toolbar's **Add** button picks one or more files at once (any type, not just `.json`/`.asm`) and references them in the project without opening them — use it for binary assets like `incbin` data. Its dialog defaults to the VA working folder. The adjacent **Add folder** button references a whole folder (e.g. an asset directory) the same way. Reference-only entries show a delete (✕) button but are not opened by clicking them.
+- **Project settings** (the gear button in the panel header, or **Menu → File → Project settings…**) shows and edits the project: name, `.proj` path, startup file, assembler (VMA or ACME), **KickAssembler compatible**, and for a Kick project the preprocessor symbols (`#define`, like KickAssembler's `-define`) and the command-line variables (`cmdLineVars`, one `name=value` per line, like `:name=value`), plus the number of source and other files. Everything is saved in the `.proj`.
 - Folders in the tree have a collapse/expand arrow, and **right-click a folder** to add one or more files nested under it (shown indented).
 - The **Save project** button disables itself and shows a "Saved" state once the project has no pending changes, and re-enables automatically the moment you add, remove, or reorganize a file or folder.
 - The **symbols** section at the bottom of the project panel can be resized vertically with the divider between the file tree and the symbols list, so long symbol lists can take more space when needed.
@@ -1116,7 +1184,7 @@ The mode is saved with a `.proj` project, so every project opens with its own as
 What follows the ACME build:
 
 - **Build** (the hammer button in the Expert toolbar, *Build ACME source*), **Run** (PRG, D64, C64 Ultimate, Kung Fu Flash 2), **Save PRG**, **Build D64**, **Build CRT**, **Build project** and **Debug (RetroDebugger)** compile through ACME; ACME errors and warnings open in the normal compile-error dialog, with the source line.
-- With the **Disassembly** or **Monitor** panel or the cycle gutter on, the source is rebuilt after a typing pause, so the panels show the real ACME bytes; the panels use the ACME labels.
+- After a typing pause the source is rebuilt, so the **memory map** (memory strip, segment panel, overlap warning), the **Disassembly** and **Monitor** panels and the cycle gutter show the real ACME output; the panels use the ACME labels. An overlap is an address that two source lines write (the later one wins in the PRG).
 - **Debug files** (*Generate debug files* in Settings → General) are made from the ACME label dump: `.sym` (KickAssembler style) and `.vs` (VICE labels) next to the PRG; there is no `.dbg` source map in ACME mode. **Debug (RetroDebugger)** gets the same labels, and the Expert breakpoints are placed by the ACME report (a breakpoint on a line without code stops at the next code line).
 - **Cycle counts** and **optimisation hints** come from the ACME report (`-r`) of the last build.
 - The **VICE Monitor** hot reload writes only the address ranges ACME really built; the live watch and the profiler use the ACME labels and source lines.
@@ -1394,7 +1462,7 @@ LBEQ done      ; assembles to:   BNE *+3   ($D0 $03)
 
 These are supported for advanced use. Use with care — behavior may differ between chips.
 
-`LAX`, `SAX`, `DCP`, `ISC`, `SLO`, `RLA`, `SRE`, `RRA`, `ANC`, `ALR`, `ARR`, `AXS`
+`LAX`, `SAX`, `DCP`, `ISC`, `SLO`, `RLA`, `SRE`, `RRA`, `ANC`, `ALR`, `ARR`, `AXS`, and the `NOP` forms that read an operand: `NOP #$nn` ($80), `NOP $nn` ($04), `NOP $nn,X` ($14), `NOP $nnnn` ($0C), `NOP $nnnn,X` ($1C)
 
 ---
 
@@ -3402,7 +3470,7 @@ In-program **Exomizer decompression**. Use this macro right after a `LOADFILE` t
 
 **Depacker binary:** the pre-built backward depacker is `samples/exo-decrunch.bin` (477 bytes, ORG $B000). It's a Kick Assembler wrap of the official `exodecrunch.asm` with `INC $D020` added to every read for a visible border-flash effect during decompression. Place it into your program with an `INCBIN` block at the depacker address.
 
-**Safety offset compensation:** Exomizer's default mem mode applies a 2-byte safety offset — data lands 2 bytes earlier than the requested target. The Run via D64 dialog **automatically adds 2 to the Dst field** before calling exomizer, so the visible behaviour matches the address you typed.
+**Raw input:** the extra is passed to Exomizer as a raw file loaded at the Dst address (`file@<Dst>`), so the depacker writes every byte, starting with the first one, exactly at the address you typed.
 
 > **See also:** the `exo-multicolor-demo` sample — full end-to-end example: LOADFILE a compressed multicolor bitmap to $C000, EXODECRUNCH unpacks it to $2000, then copy screen → $0400 and color → $D800, and switch VIC-II to multicolor bitmap mode.
 
@@ -3917,7 +3985,7 @@ Open via the **Save PRG ▾** dropdown → **Export to D64**. The dialog lets yo
 2. **Add extra files** — click **+** to pick any binary file (`.prg`, `.bin`, `.sid`, etc.). For each extra:
    - **Name** — how it appears in the D64 directory (max 16 chars, auto-uppercase).
    - **Addr** (load address, optional) — if provided, a 2-byte PRG header is prepended. Leave empty to write raw bytes with no header.
-   - **Dst** (decompression target, only with EXO) — where the depacker should land the data on the C64. When EXO is enabled, the extra is compressed with `exomizer mem -l <Addr> file,<Dst>` before being written to the D64. The +2 safety-offset compensation is applied automatically.
+   - **Dst** (decompression target, only with EXO) — where the depacker should land the data on the C64. When EXO is enabled, the extra is compressed with `exomizer mem -l <Addr> file@<Dst>` (a raw file at the Dst address) before being written to the D64.
    - **EXO** — checkbox that turns on backward `mem`-mode crunching for this entry. The on-disk size is typically 5-20% of the original.
 3. Click **Export** to generate the `.d64` file using VICE's `c1541` tool.
 
@@ -4135,6 +4203,8 @@ Works from **Block**, **Expert** and **Ultimate Basic** mode alike; Ultimate Bas
 
 The toolbar **Toolkit** menu groups the visual data editors that all share a common Files menu (`Files ▾`) for Load BIN / Save BIN / Export to blocks / Save to D64. Each editor produces raw `.bin` data that can be placed in a program with `INCBIN`, or directly added to a D64 disk via the **Save to D64** entry.
 
+**Colour palette:** **Settings → General → Editors → C64 colour palette** chooses the RGB values every editor draws the 16 C64 colours with (sprite, character, Charset Canvas, Hi-Res, map and level editor, Toolkit swatches). The default is **Colodore**, the closest to a real C64 on a composite / S-Video display; **Pepto** (the darker, less saturated palette of older versions), **VICE**, **Deekay** and **C64 Wiki / Godot** are also available. Only the display changes — the colour indexes in your data stay the same. The Hi-Res image import uses the editor palette too, unless you pick another one there.
+
 Visual-editor dialogs can be dragged by their headers across the full Visual Assembler workspace. A dialog with no saved position opens centered; after it is moved, its last position is stored in UI settings and restored the next time it opens.
 
 ### Hi-Res / Multicolor Editor
@@ -4144,7 +4214,8 @@ Pixel-level bitmap editor with both 320×200 hi-res and 160×200 multicolor mode
 | Feature | Description |
 |---|---|
 | Mode toggle | **Multicolor** checkbox switches between hi-res (mono per cell) and multicolor (4 colors per cell). |
-| Tools | Pencil, eraser, line, rectangle, filled rectangle, oval, filled oval, flood fill, cell paper, select. |
+| Tools | Pencil, eraser, line, rectangle, filled rectangle, oval, filled oval, flood fill, colour picker, cell paper, select. |
+| Colour picker | Click a pixel to make its visible colour the ink (in hi-res the cell's ink or paper, whichever the pixel shows); the editor then returns to the previous tool. **Alt+click** picks the colour with any tool. |
 | Cell paper (hi-res) | Hi-res allows two colours in every 8×8 cell: the ink (set pixels, high nibble of the cell's screen RAM byte) and the paper (clear pixels, low nibble). The **Cell paper** tool sets the paper of each cell you click or drag over to the selected colour; **PAPER** still sets every cell at once. The eraser clears pixels, so the cell's own paper shows. Disabled in multicolor, where the background ($D021) is shared. |
 | Spray tool | Airbrush-style painter that scatters pixels around the cursor while drawing. |
 | Spray intensity | Dropdown next to the spray tool controls how dense each spray stroke is. |
@@ -4154,7 +4225,7 @@ Pixel-level bitmap editor with both 320×200 hi-res and 160×200 multicolor mode
 | Copy / Paste | **Copy** (`Ctrl/Cmd+C`) copies the selected region. **Paste** (`Ctrl/Cmd+V`) shows a preview that follows the cursor: click on the canvas to place it, **Esc** cancels. The copy is kept, so pressing `Ctrl/Cmd+V` and clicking again places it as many times as needed. In hi-res mode pasted pixels still follow the two-colours-per-cell limit, so line the region up with the cell grid to keep its colours. Copy, Paste and Transparent paste are also in the right-click menu of the canvas; a paste started there previews at the clicked spot. |
 | Transparent paste | `Ctrl/Cmd+Shift+V` (or its toolbar button) skips the paper-coloured pixels of the copy, so the picture underneath shows through. |
 | Grid + Raster | **Grid** shows the character-cell grid: 8×8 pixels in hi-res, 4×8 double-wide pixels in multicolor. From 4× zoom it also draws a fainter line around every single pixel, so each pixel can be placed exactly. **Raster** adds a raster row overlay. |
-| Zoom | Slider from 1× to 16×. |
+| Zoom | Slider from 1× to 16×, or Ctrl+wheel over the canvas (the point under the cursor stays in place). |
 | Import image | PNG/JPEG/GIF dropped into the canvas auto-quantizes to the 16-color C64 palette. |
 | Export blocks | Appends BYTE/RAWBYTES blocks to the program with the encoded bitmap, screen, and color data. |
 | Export `.bin` | Saves the native multicolor format (10000 bytes: 8000 bitmap + 1000 screen + 1000 color) ready for LOADFILE to $2000. |
@@ -4167,7 +4238,9 @@ Pixel-level bitmap editor with both 320×200 hi-res and 160×200 multicolor mode
 |---|---|
 | Frames | Add / remove / reorder frames; frame strip shown at the bottom. **Copy** / **Paste** in the frame row copy the whole current frame; the same two entries are in the right-click menu of the canvas and of the frame strip. |
 | Mode | Mono / multicolor toggle. |
-| Tools | Pencil, fill, line, rectangle, circle — plus flip horizontal, flip vertical, shift left/right/up/down (with optional wrap). Shape tools show a live preview while dragging; release to commit. |
+| Tools | Pencil, fill, colour picker, line, rectangle, circle — plus flip horizontal, flip vertical, shift left/right/up/down (with optional wrap). Shape tools show a live preview while dragging; release to commit. |
+| Colour picker | Click a pixel to select its colour slot (sprite colour, MC1, MC2, background or overlay colour, on the edited layer); the editor then returns to the previous tool. **Alt+click** picks with any tool. |
+| Zoom | Slider from 3× to 40×, or Ctrl+wheel over the canvas. |
 | Undo / redo | Full undo/redo stack per frame. Ctrl/Cmd+Z / Ctrl/Cmd+Y or the toolbar buttons. |
 | Image import | Import a PNG or JPEG via Files → Import image. The importer maps each pixel to the nearest C64 palette colour and writes it into the current frame. |
 | Animation preview | Play / Stop with configurable speed. |
@@ -4203,7 +4276,7 @@ Read-only viewer of the C64 character ROM (the built-in PETSCII font). Open via 
 | Load `.bin` | Imports an external 2048-byte charset binary. |
 | Per-char preview | 16-wide grid of all 256 glyphs with the current cell highlighted. |
 | Pixel editor | Edits the selected character, or a **tile** of 2×1, 1×2 or 2×2 neighbouring characters as one picture (Tile selector). |
-| Drawing tools | Pencil, line, rectangle, filled rectangle and flood fill. A click on a pixel that already has the ink erases it. |
+| Drawing tools | Pencil, line, rectangle, filled rectangle, flood fill and colour picker. A click on a pixel that already has the ink erases it. The colour picker (multicolor only; **Alt+click** with any tool) makes the clicked pixel's colour — FG, BG, MC1 or MC2 — the ink. |
 | Transforms | Clear, invert, flip horizontal / vertical, shift with wrap-around, rotate 90° clockwise / counter-clockwise (square tiles only) — on the whole tile. |
 | Undo / Redo | Toolbar buttons, Ctrl+Z and Ctrl+Y (Ctrl+Shift+Z). |
 | Copy / Paste | Toolbar buttons, Ctrl+C / Ctrl+V, or right-click on the map; copies the whole tile with its colours. |
@@ -4228,6 +4301,7 @@ The canvas is 16×16 characters, 128×128 pixels. In multicolor character mode e
 | ECM | The **ECM** checkbox (extended colour mode, not together with multicolor): every character is hi-res with its own colour (0–15) and one of four backgrounds BG0–BG3 (`$D021`–`$D024`; BG1 / BG2 are the MC1 / MC2 registers). Pick a BG colour in the palette (tagged B0–B3), then click or drag over characters with the **Character background** tool. Only 64 different characters fit: the status line counts them, and saving merges equal characters — the charset is 64 characters (512 bytes) and the screen codes are `glyph | background << 6`. Turn ECM on with `$D011` bit 6. |
 | C64 color model | Background uses `$D021`; shared multicolor 1 uses `$D022`; shared multicolor 2 uses `$D023`; each character's own color comes from Color RAM bits 0–2. |
 | Drawing tools | Pencil, eraser, line, rectangle, oval, and flood fill work across character boundaries. |
+| Colour picker | Click a pixel to select its visible colour (in a multicolor character also its BG / MC1 / MC2 / own-colour ink); the editor then returns to the previous tool. **Alt+click** picks with any tool. |
 | Spray tool | Airbrush-style drawing that scatters pixels across neighboring cells/characters. |
 | Spray intensity | Dropdown next to the spray tool sets the stroke density. |
 | Grid toggle | The Grid checkbox shows or hides the 16×16 character grid. |
@@ -4246,6 +4320,7 @@ Layered tilemap editor for static scenery, sprite spawn maps, collision data, an
 |---|---|
 | Layers | Multiple named layers, each with its own tileset and opacity. |
 | Brushes | Single-tile, fill, line, rectangle, and circle modes. Shape tools show a live preview while dragging; release to commit. |
+| Zoom | Slider, or Ctrl+wheel over the map. |
 | Undo / redo | Full undo/redo stack per layer. Ctrl/Cmd+Z / Ctrl/Cmd+Y or the toolbar buttons. |
 | Clear menu | Per-layer or whole-map clear with confirmation. |
 | Image import | Drop a PNG of a tilemap; the editor auto-slices into tiles. |
@@ -4266,6 +4341,7 @@ Arranges **Map Editor screens** into one level — a vertical shooter, a car gam
 | Screens | **New empty screen**, **Add from Map Editor** (the map currently open) or **Load map(s) (.bin)…** (several Map Editor exports at once). Drag a screen from the list onto a slot; drag slots onto each other to swap them. |
 | Editing | **Edit in Map Editor** opens the selected screen in the Map Editor and brings the changes back; duplicate, move up/left or down/right, remove; undo / redo. |
 | Preview | Drag the preview or use the arrow keys to scroll pixel by pixel; **Play** scrolls automatically (direction, speed 1–8, loop), Space = play / stop. *Borders* marks the screen boundaries. |
+| Zoom | The overview zoom slider (25–400 %), or Ctrl+wheel over the overview. |
 | Checks | Charset info, and a warning when screens use a different charset or colors (the level uses the first screen's settings). |
 | Character attributes | The **Character attributes** button switches the overview to attribute painting: pick **Solid**, **Ladder**, **Hazard** or **Collectible**, click a character and every cell with that screen code gets (or loses) it; drag for more codes. The attributes show as a coloured layer and become the 256-byte `LEVEL_ATTR` table (`LEVEL_ATTR_SOLID` = 1, `_LADDER` = 2, `_HAZARD` = 4, `_COLLECT` = 8). |
 | Edge check | Marks in red where neighbouring screens do not continue: one side of the border empty (space) and the other not, or solid on one side only. The side panel counts the edges and cells. |

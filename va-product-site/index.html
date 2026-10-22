@@ -2110,6 +2110,28 @@
         padding: 16px
       }
     }
+    .studio-news-images {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      max-width: 680px;
+      gap: 24px;
+      margin-top: 32px;
+      align-items: start;
+    }
+    .studio-news-images figure { margin: 0; min-width: 0 }
+    .studio-news-images img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .studio-news-images figcaption {
+      margin-top: 12px;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    @media (max-width: 760px) {
+      .studio-news-images { grid-template-columns: 1fr }
+    }
   </style>
 </head>
 
@@ -2168,6 +2190,28 @@
       <span class="hero-logo"><img class="hero-box-img" src="uploads/visual_assembler_transparent.webp" alt="Visual Assembler logo" width="900" height="900"><img class="hero-logo-shine" src="uploads/visual_assembler_transparent.webp" alt="" aria-hidden="true" width="900" height="900"></span>
     </div>
   </section>
+
+  <!-- STUDIO NEWS: DARK CHAMBERS -->
+  <section id="dark-chambers" style="background:var(--scr-dark);padding:80px 0" aria-labelledby="dark-chambers-title">
+    <div class="sec" style="padding-top:0;padding-bottom:0">
+      <div class="ub-tag">STUDIO NEWS &middot; <time datetime="2026-10-22">22 OCTOBER 2026</time></div>
+      <div class="sec-s">// MADE WITH VISUAL ASSEMBLER</div>
+      <h2 class="sec-t" id="dark-chambers-title">DARK CHAMBERS<br><span style="color:var(--ylw)">IS COMING TO THE C64</span></h2>
+      <p class="sec-d" style="max-width:760px"><strong>Cool Valley Game Studio</strong> is developing a Commodore 64 port of <strong>Dark Chambers</strong> in <strong>Visual Assembler</strong>, bringing the Atari 7800 game to the C64.</p>
+      <div class="studio-news-images">
+        <figure>
+          <img src="uploads/cv-logo-transparent.png" alt="Cool Valley Game Studio pixel-art mountain and valley logo" width="1536" height="1024" loading="lazy">
+          <figcaption>COOL VALLEY GAME STUDIO &mdash; DEVELOPING THE C64 PORT</figcaption>
+        </figure>
+        <figure>
+          <img src="uploads/dark-chambers-atari-7800-transparent.png" alt="Original Atari 7800 Dark Chambers game box and cartridge" width="1254" height="1254" loading="lazy">
+          <figcaption>THE ORIGINAL ATARI 7800 GAME &mdash; BOX AND CARTRIDGE</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <hr class="div">
 
   <!-- V2.6.5: KICKASSEMBLER PROJECTS -->
   <div id="release-265" style="background:var(--scr-darker);padding:80px 0">

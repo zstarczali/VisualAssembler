@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Käyttöopas
 
-**Versio 2.6.4**
+**Versio 2.6.5**
 
 Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
 vetämällä ja pudottamalla käskylohkoja ja nähdä luodun assemblerin ja konekoodin
@@ -11,6 +11,7 @@ reaaliajassa.
 ## Sisällysluettelo
 
 - [C64 Visual Assembler — Käyttöopas](#c64-visual-assembler--user-manual)
+    - [Version 2.6.5 kohokohdat](#version-265-highlights)
     - [Version 2.6.4 kohokohdat](#version-264-highlights)
     - [Version 2.6.3 kohokohdat](#version-263-highlights)
     - [Version 2.6.2 kohokohdat](#version-262-highlights)
@@ -48,7 +49,7 @@ reaaliajassa.
     - [ASM-rivin napsauttaminen](#clicking-an-asm-line)
     - [ASM-rivinumerot](#asm-line-numbers)
     - [Käännöksen edistymismodaali](#compile-progress-modal)
-  - [5. Asetukset \&amp; Työkalupalkki](#5-settings--toolbar)
+  - [5. Asetukset \& Työkalupalkki](#5-settings--toolbar)
     - [Versiohallinta](#version-control)
     - [Ilmainen ja avoimen lähdekoodin](#free-and-open-source)
     - [Virheen ilmoittaminen](#reporting-a-bug)
@@ -80,7 +81,7 @@ reaaliajassa.
     - [Virhe korostamisessa](#error-highlighting)
     - [Syntaksin korostus](#syntax-highlight)
     - [Lähdekoodin muotoilija](#source-formatter)
-    - [Projektipaneeli \&amp; välilehdet](#project-panel--tabs)
+    - [Projektipaneeli \& välilehdet](#project-panel--tabs)
     - [Välilehtipalkki](#tab-bar)
     - [ACME-tila](#acme-mode)
   - [7. Osoitetilat](#7-addressing-modes)
@@ -93,10 +94,10 @@ reaaliajassa.
     - [Tietojen siirto](#data-movement)
     - [Aritmeettinen](#arithmetic)
     - [Logiikka](#logic)
-    - [Hyppyjä \&amp; Haarautumisia](#jumps--branches)
+    - [Hyppyjä \& Haarautumisia](#jumps--branches)
     - [LBNE / LBEQ / … (Pitkät oksat)](#lbne--lbeq---long-branches)
     - [Rekisteritoiminnot](#register-operations)
-    - [Vaihto \&amp; Kierrä](#shift--rotate)
+    - [Vaihto \& Kierrä](#shift--rotate)
     - [Pino](#stack)
     - [Järjestelmä / Liput](#system--flags)
     - [Laittomat / dokumentoimattomat
@@ -182,7 +183,7 @@ reaaliajassa.
     - [VICE Monitor (pikalataus, reaaliaikainen katselu,
       profilointi)](#vice-monitor-hot-reload-live-watch-profiler)
   - [11. Tietopankin linkit](#11-knowledge-base-links)
-  - [12. D64 Vie \&amp; Suorita](#12-d64-export--run)
+  - [12. D64 Vie \& Suorita](#12-d64-export--run)
     - [Jaa suoritus -painike](#split-run-button)
     - [Vie D64-muotoon -valintaikkuna](#export-to-d64-dialog)
     - [D64-metatiedot projekteissa](#d64-metadata-in-projects)
@@ -209,6 +210,67 @@ reaaliajassa.
     - [Käyräeditori](#curve-editor)
     - [Taulukkogeneraattori](#table-generator)
     - [Numeronmuunnin](#number-converter)
+
+---
+
+## Version 2.6.5 kohokohdat
+
+- **KickAssembler-projektit** — **Valikko → Ohjelma → Tuo Kick-projekti…** ottaa
+  kokonaisen KickAssembler-lähdekoodipuun (päätiedoston `#import` moduuleineen
+  ja `.import binary` resursseineen) ja kirjoittaa sen viereen `.proj`;
+  lähdekoodit pysyvät siellä missä ne ovat. Visual Assembler rakentaa sen omalla
+  assemblerillaan, tavu tavulta, kuten KickAssembler 5.25 — Suorita, Rakenna PRG
+  / D64 / CRT, Exomizer, Debug, VICE Monitor ja Build-projekti toimivat kaikki,
+  virheet nimeävät `file:line`, ja koko puu tarkistetaan kirjoittaessasi. Dark
+  Chambers C64 -porttaus ja kaikki yksitoista KickAssembler-esimerkkiohjelmaa
+  koodilla rakentuvat identtisesti. Katso [Kick-projektit (Tuo
+  Kick-projekti…)](#kick-projects-import-kick-project).
+- **Projektiasetukset** — Projektipaneelin hammasrataspainike (tai **Valikko →
+  Tiedosto → Projektiasetukset…**) näyttää ja muokkaa projektin nimeä,
+  käynnistystiedostoa, assembleria, KickAssembler-yhteensopivuutta, `#define`
+  symboleja ja `cmdLineVars`. Katso [Projektipaneeli ja välilehdet]{1].
+- **Kick-yhteensopiva kytkin** — `{K}` -painike Projekti-paneelin otsikossa
+  tekee mistä tahansa VMA-projektista KickAssembler-yhteensopivan; VA-makrot ja
+  -direktiivit toimivat edelleen KickAssembler-skriptin vieressä.
+- **KickAssembler-kieli** — `#import` / `#importonce` / `#importif`, `#define` /
+  `#if`, `.const` / `.label` (nolla sivu tai absoluuttinen arvo), `.for`,
+  `.while`, `.if … else`, `.var` / `.eval`, `.function`, `.macro { }`,
+  `.pseudocommand`, monitunnisteet, laajuusalueet ja nimiavaruudet, `.pseudopc`,
+  `.import binary`, `LoadBinary` (mallipohjilla, kuten `BF_KOALA`), `LoadSid`,
+  `virtual` muistilohkot, `cmdLineVars`, `BasicUpstart2`, `List` / `Hashtable` /
+  `.struct` / merkkijonot, `.enum`, matemaattinen kirjasto, väri- ja
+  operaatiokoodivakiot, `*` ohjelmalaskurina, `;` lausekkeiden välillä, `.error`
+  / `.errorif`.
+- **Rakennuksen tiedot sarakkeissa** — leveämpi ikkuna: alkupiste, loppupiste,
+  koko ja segmenttien lukumäärä ylhäällä, sitten segmentit, virheet ja
+  `.print`-tuloste sekä otsikot, vakiot ja makrot sarakkeissa. Kick-projektissa
+  se näyttää rakennetun puun ja sisäiset otsikot muodossa `scope.label`.
+- **C64-väripaletti** — **Asetukset → Yleiset → Editorit → C64-väripaletti**
+  asettaa 16 C64-värin RGB-arvot jokaisessa editorissa (sprite, merkki,
+  merkistöpohja, korkearesoluutioinen, kartta, taso, työkalupakin värimallit):
+  **Colodore** oletuksena (lähinnä aitoa C64:ää) tai Pepto, VICE, Deekay, C64
+  Wiki / Godot. Vain näyttö muuttuu; korkearesoluutioisten kuvien tuonti käyttää
+  sitä myös. Katso [14. Visuaaliset editorit
+  (työkalupakki)](#14-visual-editors-toolkit).
+- **Värinvalitsin** — Hi-Res-, Sprite-, Character (monivärinen)- ja Charset
+  Canvas -editoreissa on valitsintyökalu; **Alt+napsautus** valitsee värin millä
+  tahansa työkalulla. Katso [Hi-Res / Monivärinen editori]{1].
+- **Ctrl + zoomaus rullalla** korkearesoluutio-, sprite-, kartta- ja
+  tasoeditorissa kohdistimen ympärillä. Korkearesoluutioisen rasterin kytkin
+  sijaitsee ruudukon vieressä.
+- **ACME-tila** — muistikartta ja päällekkäisyysvaroitus seuraavat ACME-koontia;
+  ACME-projekti rakentaa käynnistystiedostonsa; ACME-mallit näkyvät vain, kun
+  toimiva ACME on asetettu, ja ACME-projektin luominen vaihtaa asetukset
+  ACME-tilaan. Katso [ACME-tila](#acme-mode).
+- **Uusi projekti** — **Uusi projekti mallista…** on valikossa kohdassa **Uusi
+  projekti** (kolme erillistä merkintää ovat poissa); Visual Assembler
+  -sprite-multiplekserimalli tulostaa otsikkonsa.
+- **Korjaukset** — `.byte` / `.word`, joissa on otsikkolausekkeet
+  (`<(otsikko+1)`, `.word otsikko` ennen otsikkoa), eivät enää muodosta
+  nollaa; laittomat `NOP`-muodot, jotka lukevat operandin, muodostavat
+  assemble-funktion (katso [Laittomat / dokumentoimattomat
+  ohjeet](#illegal--undocumented-instructions)); Ultimate Basicin avauspainike
+  lukee **Load .ub file** kaikilla kielillä.
 
 ---
 
@@ -813,7 +875,7 @@ reaaliajassa.
 
 - **`*` missä tahansa lausekkeessa** — ohjelmalaskurisymboli toimii nyt
   operandilausekkeiden sisällä, ei vain yksinään: `BNE *-5`, `JMP *+20`, `LDA
-  #&lt;*`, `LDA #&gt;(*+63)`. Arvoa seuraava `*` (`STRIDE*2`) on edelleen
+  #<*`, `LDA #>(*+63)`. Arvoa seuraava `*` (`STRIDE*2`) on edelleen
   kertolasku. Katso [Osoitetilat → Ohjelmalaskuri `*`
   lausekkeissa](#d64-editor-browse--edit-an-existing-disk-image).
 - **Paikalliset (pisteviivalla varustetut) otsikot** — otsikko, kuten `.loop`,
@@ -825,8 +887,8 @@ reaaliajassa.
   `LBPL`, `LBVC`, `LBVS` kokoavat käänteiseksi haaraksi `JMP`-haaran yli (aina 5
   tavua), joten kohde voi olla millä tahansa etäisyydellä. Uusi **Pitkät
   haarat** -palettiluokka. Katso [LBNE / LBEQ / … (Pitkät haarat)]{1}.
-- **`.assert` direktiivi** — `.assert loppu - alku &lt;= 256` tai `.assert *
-  &lt; $A000, "viesti"` arvioidaan kokoonpanovaiheessa ja kääntäminen
+- **`.assert` direktiivi** — `.assert loppu - alku <= 256` tai `.assert *
+  < $A000, "viesti"` arvioidaan kokoonpanovaiheessa ja kääntäminen
   epäonnistuu (näyttäen todellisen arvon), kun lauseke on epätosi. Katso
   [.ASSERT]{1}.
 - **Itsemuokkaavan koodin operandin nimikkeet** — `LDA-arvo:#$00` määrittää
@@ -847,7 +909,7 @@ Sovellus on jaettu kolmeen pääpaneeliin:
 
 - **`*` missä tahansa lausekkeessa** — ohjelmalaskurisymboli toimii nyt
   operandilausekkeiden sisällä, ei vain yksinään: `BNE *-5`, `JMP *+20`, `LDA
-  #&lt;*`, `LDA #&gt;(*+63)`. Arvoa seuraava `*` (`STRIDE*2`) on edelleen
+  #<*`, `LDA #>(*+63)`. Arvoa seuraava `*` (`STRIDE*2`) on edelleen
   kertolasku. Katso [Osoitetilat → Ohjelmalaskuri `*`
   lausekkeissa](#the--program-counter-in-expressions).
 - **Paikalliset (pisteviivalla varustetut) otsikot** — otsikko, kuten `.loop`,
@@ -860,8 +922,8 @@ Sovellus on jaettu kolmeen pääpaneeliin:
   tavua), joten kohde voi olla millä tahansa etäisyydellä. Uusi **Pitkät
   haarat** -palettiluokka. Katso [LBNE / LBEQ / … (Pitkät
   haarat)](#lbne--lbeq---long-branches).
-- **`.assert` direktiivi** — `.assert loppu - alku &lt;= 256` tai `.assert *
-  &lt; $A000, "viesti"` arvioidaan kokoonpanovaiheessa ja kääntäminen
+- **`.assert` direktiivi** — `.assert loppu - alku <= 256` tai `.assert *
+  < $A000, "viesti"` arvioidaan kokoonpanovaiheessa ja kääntäminen
   epäonnistuu (näyttäen todellisen arvon), kun lauseke on epätosi. Katso
   [.ASSERT](#assert).
 - **Itsemuokkaavan koodin operandin nimikkeet** — `LDA-arvo:#$00` määrittää
@@ -1087,40 +1149,40 @@ epäonnistuu.
 
 ## UltimateBasic-tila
 
-| Ohjaus                                                                                                   | Kuvaus                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Lukukanta (HEX / DEC / BIN)**                                                                          | Määrittää käyttöliittymän operandien näyttö-/syöttömuodon. BIN-tila näyttää arvot binäärimuotoisina, ja sen etuliite on `%` (esim. `%11111000`). ASM-näkymässä jokainen lohko näkyy aina omassa muodossaan.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| **Kieli**                                                                                                | Vaihda käyttöliittymän kieleksi englanti, unkari, espanja, saksa ja hollanti (Nederlands)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| **Teema**                                                                                                | Vaalea / Tumma / OLED / Commodore 77 / Commodore Starlight / Commodore Beige / Commodore 64 – valitse teeman valitsimesta Asetukset-valikossa. OLED käyttää puhtaan mustaa taustaa AMOLED-näytöissä. Commodore 77 on neonkeltainen mustalla pohjalla -teema; kun se on aktiivinen teema, käynnistyspaneeli käyttää teeman paneelin väriä (vastaa viestikorttia), näyttää pienemmän Commodore 77 -logon ja keltaisen edistymispalkin. Commodore Starlight on vaalea teema, joka on saanut inspiraationsa läpikuultavasta C64-leipälaatikosta: himmeät kirkkaat lasipaneelit, joista paistaa sateenkaaren RGB-hehku, magentanvärinen korostus, sateenkaaren syntaksin värit ja savunharmaa näyttönäkymä. Commodore Beige on klassinen leipälaatikko: beigenvärinen kuori, sinapinkeltaiset toimintonäppäimet, sateenkaarenväriset rintaraidat ja C64:n sininen näyttö näyttönäkymässä. Valittu teema otetaan käyttöön ennen ensimmäistä maalausta seuraavalla käynnistyskerralla. |
-| **CRT-retrotila**                                                                                        | Ottaa käyttöön koko näytön CRT-suodattimen: skannausviivat, fosforivinjetointi, välkkyminen ja tynnyrivääristymä. Tila tallennetaan istuntojen välillä.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| **Näytä muistipaneeli**                                                                                  | Globaali kytkin, joka näyttää tai piilottaa koko C64-muistipaneelin                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| **PERUSJÄRJESTELMÄN tynkä**                                                                              | Lisää BASIC-rivin, joka kutsuu SYS-metodia ohjelman alkuperän (ensimmäisen ORG:n) alkuun. Ensimmäistä ORG:ia alempana oleva segmentti pysyy omassa osoitteessaan. Kun ohjelma latautuu BASIC-rivin (`$0801`–`$080C`) ala- tai poikki, esimerkiksi tuotu vedos hakemistosta `$071C`), Run and Build lisää pienen käynnistyslataajan: `SYS 2061` kopioi moverin nauhapuskuriin (`$033C`), mikä asettaa ohjelman paikoilleen ja hyppää ensimmäiseen ORG:iin.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| **Esimerkkejä…**                                                                                         | Avaa esimerkkiselain ja lataa sisäänrakennettu esimerkkiohjelma — katso [Esimerkkiohjelmat](#example-programs)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| **Lähennä/loitonna**                                                                                     | Skaalaa lohkon käyttöliittymää (vaikuttaa kaikkiin lohkoelementteihin)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| **Tallenna projekti**                                                                                    | Tallenna nykyinen ohjelma `.json`-projektitiedostona                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| **Tallenna ohjelma nimellä**                                                                             | Tallenna nykyinen ohjelma `.json`-projektitiedostona käyttämällä uuden tiedoston valintaikkunaa joka kerta                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| **Lataa projekti**                                                                                       | Lataa aiemmin tallennettu projekti                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| **Tallenna työtila**                                                                                     | Tallenna tarkka joukko parhaillaan avoinna olevia, tiedostoihin tallennettuja välilehtiä — mukaan lukien aktiivinen välilehti ja kunkin välilehden editoritila (Lohko/Asiantuntija/Ultimate Basic) — `.vaws`-työtilatiedostoon.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| **Tallenna työtila nimellä**                                                                             | Tallenna nykyinen työtila aina uuden tiedoston valintaikkunaan                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| **Avoin työtila**                                                                                        | Sulje kaikki avoimet välilehdet ja avaa uudelleen `.vaws`-työtilatiedostoon tallennettu tiedostojoukko.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| **Aseta työkansio**                                                                                      | Valitse tiedostovalitsimien ja tallennusikkunoiden käyttämä oletuskansio. Polku tallennetaan sovelluksen asetuksiin, ja valikoiden esikatselut pitävät polun lopun näkyvissä.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| **Uusi projekti mallista…** (`Valikko → Tiedosto` tai työkalupalkin painike **Valikko**-kohdan vieressä) | Luo uusi `.proj` -projekti Assembler- tai UltimateBasic-mallista omaan kansioonsa — katso [Projektimallit](#project-templates)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| **Avaa projekti** (`Valikko → Tiedosto`)                                                                 | Avaa monitiedostoinen `.proj`-projekti ja avaa kaikki lähdekooditiedostot välilehdillä                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| **Tallenna projekti** (`Valikko → Tiedosto`)                                                             | Tallenna nykyinen `.proj` -projekti (projektipaneelin on oltava auki)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| **Sulje projekti** (`Valikko → Tiedosto`)                                                                | Sulje avoinna oleva projekti ja kaikki sen tiedostovälilehdet. Kehottaa tallentamaan tallentamattomat muutokset. Projektipaneeli palautuu tyhjään tilaansa.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| **Lataa .asm-tiedosto**                                                                                  | Avaa `.asm`-tiedoston asiantuntijatilassa ja tuo tekstimuotoisen 6502 ASM:n nykyiseen välilehteen.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| **Tallenna PRG**                                                                                         | Vie käännetty binääritiedosto tiedostona `.prg`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| **Rakenna CRT**                                                                                          | Vie ohjelma 64K Magic Desk (`.crt`, kasettityyppi 19) -tiedostona. Katso [Osa 12b](#12b-crt-export-magic-desk-64k-cartridge).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| **Rakenna projekti** (`Valikko → Rakenna`)                                                               | Käännä jokainen projektin (tai avointen välilehtien) rakennettava tiedosto `.prg`-tiedostoksi lähdekoodin viereen — katso [Build project](#build-project)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| **Suorita (jakopainike)**                                                                                | Pääpainike **▶ Suorita** suorittaa nykyisen tilan; napsauta nuolta **▾** vaihtaaksesi seuraavien välillä: **Suorita PRG:nä** (käännä ja käynnistä VICE suoraan), **Suorita D64:n kautta** (pakkaa .d64-levykuvaan ja käynnistä VICE), **Suorita laitteistolla** (lähetä PRG C64 Ultimate / 1541 Ultimate -laitteeseen) tai **Kung Fu Flash 2** (lataa PRG USB:n kautta oikeaan C64/C128:aan, jossa on Kung Fu Flash 2 -kasetti). Katso [Osa 12](#12-d64-export--run) ja [Osa 13]{2].                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| **Virheenkorjaus (RetroDebugger)**                                                                       | Käännä ja käynnistä RetroDebuggerissa käyttämällä keskeytyskohtia, symboleja ja automaattisen käynnistyksen lippuja (katso [Osio 9](#9-debugger-integration))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| **Suorita Exomizerilla**                                                                                 | Valintaruutu Asetukset-valikossa — kun tämä on käytössä, kaikki Suorita- ja Kokoonpano-toiminnot käsittelevät PRG:n `exomizer sfx` -komennon kautta ennen käynnistämistä tai tallentamista (`sfx basic` PRG:lle, joka alkaa BASIC-rivillä, joten RUN toimii uudelleen ohjelman paluun jälkeen; muussa tapauksessa `sfx $<latausosoite>`). Toimii seuraavien kanssa: Suorita PRG:nä, Suorita D64:n kautta, Suorita laitteistolla, Koonna PRG ja Koonna D64. Määritä Exomizer-suoritettava tiedosto ensin **Laitteistoasetukset** -asetuksissa.                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| **Automaattiset automaattiset tallennusmerkinnät**                                                       | Valintaruutu kohdassa **Laiteasetukset → Versiohallinta**. Kun tämä on käytössä, sovellus lisää automaattisen tallennuksen versiohistoriaan noin 2,5 sekuntia sen jälkeen, kun lopetat välilehden muokkaamisen (projektin välilehden osalta myös projektin historiaan). Poista se käytöstä, jos haluat vain omat commit-tiedostosi. Katso [Versiohallinta]{1].                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| **Asetukset** (aiemmin Laitteistoasetukset)                                                              | Avaa asetusvalintaikkuna, jossa on kolme välilehteä: **Yleiset** (assembler-tila, BASIC SYS -tynkä, Exomizer, päivitykset, ASM-tuloste, SID-esikatselu, virheenkorjausparametrit, versionhallinta), **Tiedosto- ja polut** (VICE, RetroDebugger, ACME, Exomizer, git) ja **Integraatiot** (C64 Ultimate, Kung Fu Flash 2). Katso [Osio 13](#13-hardware-settings).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| **Uusi ohjelma…**                                                                                        | Avaa vahvistusikkunan ja tyhjentää sitten kaikki lohkot ohjelma-alueelta.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| **Pitkännä kaikki**                                                                                      | Kutista kaikki lohkot                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| **Tietoja**                                                                                              | Versiotiedot                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| **Uutta**                                                                                                | Muutosloki                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| Ohjaus                                                                                                 | Kuvaus                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Lukukanta (HEX / DEC / BIN)**                                                                        | Määrittää käyttöliittymän operandien näyttö-/syöttömuodon. BIN-tila näyttää arvot binäärimuotoisina, ja sen etuliite on `%` (esim. `%11111000`). ASM-näkymässä jokainen lohko näkyy aina omassa muodossaan.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| **Kieli**                                                                                              | Vaihda käyttöliittymän kieleksi englanti, unkari, espanja, saksa ja hollanti (Nederlands)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| **Teema**                                                                                              | Vaalea / Tumma / OLED / Commodore 77 / Commodore Starlight / Commodore Beige / Commodore 64 – valitse teeman valitsimesta Asetukset-valikossa. OLED käyttää puhtaan mustaa taustaa AMOLED-näytöissä. Commodore 77 on neonkeltainen mustalla pohjalla -teema; kun se on aktiivinen teema, käynnistyspaneeli käyttää teeman paneelin väriä (vastaa viestikorttia), näyttää pienemmän Commodore 77 -logon ja keltaisen edistymispalkin. Commodore Starlight on vaalea teema, joka on saanut inspiraationsa läpikuultavasta C64-leipälaatikosta: himmeät kirkkaat lasipaneelit, joista paistaa sateenkaaren RGB-hehku, magentanvärinen korostus, sateenkaaren syntaksin värit ja savunharmaa näyttönäkymä. Commodore Beige on klassinen leipälaatikko: beigenvärinen kuori, sinapinkeltaiset toimintonäppäimet, sateenkaarenväriset rintaraidat ja C64:n sininen näyttö näyttönäkymässä. Valittu teema otetaan käyttöön ennen ensimmäistä maalausta seuraavalla käynnistyskerralla. |
+| **CRT-retrotila**                                                                                      | Ottaa käyttöön koko näytön CRT-suodattimen: skannausviivat, fosforivinjetointi, välkkyminen ja tynnyrivääristymä. Tila tallennetaan istuntojen välillä.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| **Näytä muistipaneeli**                                                                                | Globaali kytkin, joka näyttää tai piilottaa koko C64-muistipaneelin                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| **PERUSJÄRJESTELMÄN tynkä**                                                                            | Lisää BASIC-rivin, joka kutsuu SYS-metodia ohjelman alkuperän (ensimmäisen ORG:n) alkuun. Ensimmäistä ORG:ia alempana oleva segmentti pysyy omassa osoitteessaan. Kun ohjelma latautuu BASIC-rivin (`$0801`–`$080C`) ala- tai poikki, esimerkiksi tuotu vedos hakemistosta `$071C`), Run and Build lisää pienen käynnistyslataajan: `SYS 2061` kopioi moverin nauhapuskuriin (`$033C`), mikä asettaa ohjelman paikoilleen ja hyppää ensimmäiseen ORG:iin.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| **Esimerkkejä…**                                                                                       | Avaa esimerkkiselain ja lataa sisäänrakennettu esimerkkiohjelma — katso [Esimerkkiohjelmat](#example-programs)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| **Lähennä/loitonna**                                                                                   | Skaalaa lohkon käyttöliittymää (vaikuttaa kaikkiin lohkoelementteihin)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| **Tallenna projekti**                                                                                  | Tallenna nykyinen ohjelma `.json`-projektitiedostona                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| **Tallenna ohjelma nimellä**                                                                           | Tallenna nykyinen ohjelma `.json`-projektitiedostona käyttämällä uuden tiedoston valintaikkunaa joka kerta                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| **Lataa projekti**                                                                                     | Lataa aiemmin tallennettu projekti                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| **Tallenna työtila**                                                                                   | Tallenna tarkka joukko parhaillaan avoinna olevia, tiedostoihin tallennettuja välilehtiä — mukaan lukien aktiivinen välilehti ja kunkin välilehden editoritila (Lohko/Asiantuntija/Ultimate Basic) — `.vaws`-työtilatiedostoon.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| **Tallenna työtila nimellä**                                                                           | Tallenna nykyinen työtila aina uuden tiedoston valintaikkunaan                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| **Avoin työtila**                                                                                      | Sulje kaikki avoimet välilehdet ja avaa uudelleen `.vaws`-työtilatiedostoon tallennettu tiedostojoukko.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| **Aseta työkansio**                                                                                    | Valitse tiedostovalitsimien ja tallennusikkunoiden käyttämä oletuskansio. Polku tallennetaan sovelluksen asetuksiin, ja valikoiden esikatselut pitävät polun lopun näkyvissä.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| **Uusi projekti mallista…** (`Valikko → Uusi projekti` tai työkalupalkin painike **Valikon** vieressä) | Luo uusi `.proj`-projekti Visual Assembler-, ACME- tai UltimateBasic-mallista omaan kansioonsa — katso [Projektimallit](#project-templates)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| **Avaa projekti** (`Valikko → Tiedosto`)                                                               | Avaa monitiedostoinen `.proj`-projekti ja avaa kaikki lähdekooditiedostot välilehdillä                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| **Tallenna projekti** (`Valikko → Tiedosto`)                                                           | Tallenna nykyinen `.proj` -projekti (projektipaneelin on oltava auki)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| **Sulje projekti** (`Valikko → Tiedosto`)                                                              | Sulje avoinna oleva projekti ja kaikki sen tiedostovälilehdet. Kehottaa tallentamaan tallentamattomat muutokset. Projektipaneeli palautuu tyhjään tilaansa.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| **Lataa .asm-tiedosto**                                                                                | Avaa `.asm`-tiedoston asiantuntijatilassa ja tuo tekstimuotoisen 6502 ASM:n nykyiseen välilehteen.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| **Tallenna PRG**                                                                                       | Vie käännetty binääritiedosto tiedostona `.prg`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| **Rakenna CRT**                                                                                        | Vie ohjelma 64K Magic Desk (`.crt`, kasettityyppi 19) -tiedostona. Katso [Osa 12b](#12b-crt-export-magic-desk-64k-cartridge).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| **Rakenna projekti** (`Valikko → Rakenna`)                                                             | Käännä jokainen projektin (tai avointen välilehtien) rakennettava tiedosto `.prg`-tiedostoksi lähdekoodin viereen — katso [Build project](#build-project)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| **Suorita (jakopainike)**                                                                              | Pääpainike **▶ Suorita** suorittaa nykyisen tilan; napsauta nuolta **▾** vaihtaaksesi seuraavien välillä: **Suorita PRG:nä** (käännä ja käynnistä VICE suoraan), **Suorita D64:n kautta** (pakkaa .d64-levykuvaan ja käynnistä VICE), **Suorita laitteistolla** (lähetä PRG C64 Ultimate / 1541 Ultimate -laitteeseen) tai **Kung Fu Flash 2** (lataa PRG USB:n kautta oikeaan C64/C128:aan, jossa on Kung Fu Flash 2 -kasetti). Katso [Osa 12](#12-d64-export--run) ja [Osa 13]{2].                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| **Virheenkorjaus (RetroDebugger)**                                                                     | Käännä ja käynnistä RetroDebuggerissa käyttämällä keskeytyskohtia, symboleja ja automaattisen käynnistyksen lippuja (katso [Osio 9](#9-debugger-integration))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| **Suorita Exomizerilla**                                                                               | Valintaruutu Asetukset-valikossa — kun tämä on käytössä, kaikki Suorita- ja Kokoonpano-toiminnot käsittelevät PRG:n `exomizer sfx` -komennon kautta ennen käynnistämistä tai tallentamista (`sfx basic` PRG:lle, joka alkaa BASIC-rivillä, joten RUN toimii uudelleen ohjelman paluun jälkeen; muussa tapauksessa `sfx $<latausosoite>`). Toimii seuraavien kanssa: Suorita PRG:nä, Suorita D64:n kautta, Suorita laitteistolla, Koonna PRG ja Koonna D64. Määritä Exomizer-suoritettava tiedosto ensin **Laitteistoasetukset** -asetuksissa.                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| **Automaattiset automaattiset tallennusmerkinnät**                                                     | Valintaruutu kohdassa **Laiteasetukset → Versiohallinta**. Kun tämä on käytössä, sovellus lisää automaattisen tallennuksen versiohistoriaan noin 2,5 sekuntia sen jälkeen, kun lopetat välilehden muokkaamisen (projektin välilehden osalta myös projektin historiaan). Poista se käytöstä, jos haluat vain omat commit-tiedostosi. Katso [Versiohallinta]{1].                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| **Asetukset** (aiemmin Laitteistoasetukset)                                                            | Avaa asetusvalintaikkuna, jossa on kolme välilehteä: **Yleiset** (assembler-tila, BASIC SYS -tynkä, Exomizer, päivitykset, ASM-tuloste, SID-esikatselu, virheenkorjausparametrit, versionhallinta), **Tiedosto- ja polut** (VICE, RetroDebugger, ACME, Exomizer, git) ja **Integraatiot** (C64 Ultimate, Kung Fu Flash 2). Katso [Osio 13](#13-hardware-settings).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| **Uusi ohjelma…**                                                                                      | Avaa vahvistusikkunan ja tyhjentää sitten kaikki lohkot ohjelma-alueelta.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| **Pitkännä kaikki**                                                                                    | Kutista kaikki lohkot                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| **Tietoja**                                                                                            | Versiotiedot                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| **Uutta**                                                                                              | Muutosloki                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 
 ### Versiohallinta
 
@@ -1381,26 +1443,42 @@ kehys, varoitus otsikossa).
 
 ### Rakennus ja diagnostiikka
 
-**Build**-painike avaa saman keskitetyn edistymisnäkymän, jota käytetään muissa
-Visual Assembler -työnkuluissa. Onnistuneet koonnit päivittävät koontitulosteen,
-koontitiedot ja purkamisen. Ota **Verbose** käyttöön sisällyttääksesi kääntäjän
-muistikarttatiedot, sisäiset nollasivuvaraukset ja luodun koodin tiedot.
+**Valikko → Uusi projekti → Uusi projekti mallipohjasta…** — tai työkalupalkin
+painike **Valikko** ja **Ohjeet** välissä — avaa mallipohjavalintaikkunan:
 
-1. Tuloste tulee näkyviin automaattisesti;
+1. Valitse ylhäältä osio: **Visual Assembler**, **ACME** tai **UltimateBasic**
+   (valintaikkuna avautuu osioon, joka vastaa nykyistä editoritilaa). **ACME**
+   -osio näkyy vain, kun toimiva ACME on asetettu kohdassa **Asetukset →
+   Tiedostot ja polut → ACME**.
 2. kääntäjävirheet näkyvät punaisena;
 3. keskitetty käännösikkuna näyttää virheen;
 4. Lähderivillä varustetut virheet valitsevat kyseisen rivin aktiivisessa
    UB-editorissa.
 
-| Osa               | Sisäänrakennetut mallit                                                                                                                                                                                                                                |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Kokoonpanija**  | Tyhjä ohjelma, Tyhjä peli (otsikko / pelaaminen / pelin päättyminen -tilat, joystick, pelaajan sprite), Hires-bittikartta, Monivärinen bittikartta, Sprite-multiplekseri (16 spriteä lajiteltuna Y:n mukaan joka ruutu, näytetään rasteri-IRQ-ketjuna) |
-| **UltimateBasic** | Tyhjä ohjelma, tyhjä peli (sama tilakone UB:ssä), bittikartan palkkaaminen (`viiva` / `suora` / `ympyrä` ja `värikynä`), rasteri-IRQ (`sub` kutsutaan jokaista rasterikeskeytyksen framea varten)                                                      |
+| Osa                          | Sisäänrakennetut mallit                                                                                                                                                                                                                                |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Visuaalinen kokoonpanija** | Tyhjä ohjelma, Tyhjä peli (otsikko / pelaaminen / pelin päättyminen -tilat, joystick, pelaajan sprite), Hires-bittikartta, Monivärinen bittikartta, Sprite-multiplekseri (16 spriteä lajiteltuna Y:n mukaan joka ruutu, näytetään rasteri-IRQ-ketjuna) |
+| **ACME**                     | Tyhjä ACME-projekti, rasteri-IRQ, Sprite-multiplekseri (16 sprittiä)                                                                                                                                                                                   |
+| **UltimateBasic**            | Tyhjä ohjelma, tyhjä peli (sama tilakone UB:ssä), bittikartan palkkaaminen (`viiva` / `suora` / `ympyrä` ja `värikynä`), rasteri-IRQ (`sub` kutsutaan jokaista rasterikeskeytyksen framea varten)                                                      |
 
-Kun kääntäminen epäonnistuu:
+Projekti luodaan omaan kansioonsa: `<sijainti>/<nimi>/<nimi>.proj` sekä
+`main.asm` (Visual Assembler tai ACME) tai `main.ub` (UltimateBasic, `.proj` on
+merkitty Ultimate Basic -projektiksi). ACME-projektin `.proj` tallentaa
+ACME-assemblerin, ja sen luominen vaihtaa **Asetukset → Yleiset →
+Assembler-tila** ACME-tilaan (Visual Assembler -projekti vaihtaa sen takaisin
+VMA-tilaan). Olemassa olevaa projektia ei koskaan ylikirjoiteta – valintaikkuna
+ilmoittaa siitä. Avoimet välilehdet suljetaan ensin (sinulta kysytään
+tallentamattomista muutoksista), minkä jälkeen uusi projekti avautuu
+Expert-tilassa tai Ultimate Basic -tilassa projektipaneeli näkyvissä ja
+päätiedosto on asetettu käynnistystiedostoksi.
 
-Build Info raportoi lataus-/loppuosoitteet, koodin ja PRG-koot, Exomizer-tilan,
-muuttujat, taulukot, funktiot/aliohjelmat ja otsikot.
+**Omat mallipohjat:** **Omat mallipohjat-kansio** (valintaikkunan vasemmassa
+alakulmassa) avaa käyttäjämallipohjakansion sovelluksen määrityshakemistossa.
+Jokainen sinne pudotettu `.asm`- tai `.ub`-tiedosto näkyy vastaavassa osiossa
+(`.asm`, jossa on `; @assembler acme` -otsikkorivi, menee **ACME** -kansioon)
+(*Omat mallipohjat* -kansion alle, ellei siinä ole nimetty luokkaa). Mallipohja
+on tavallinen lähdekooditiedosto, jonka yläosassa on valinnainen kommenttirivien
+otsikko — `;` assemblerissa, `#` Ultimate Basicissa:
 
 ```asm
 ; @name Rasteripalkit
@@ -1566,6 +1644,175 @@ Tunnettu rajoitus:
   absoluuttisen tilan käskyiksi (3 tavua) nollasivun (2 tavua) sijaan. Käännetty
   koodi kirjoittaa edelleen oikeaan muistipaikkaan, vain pienemmällä koolla ja
   syklimäärällä verrattuna samaan Kick Assemblerin rakentamaan lähdekoodiin.
+
+#### Kick-projektit (Tuo Kick-projekti…)
+
+**Tuo Kick-projekti…** (Ohjelmavalikko, kohdassa **Kick import**) ottaa koko
+KickAssembler-lähdekoodipuun — päätiedoston, jossa on `#import` moduuleja ja
+`.import binary` resursseja — ja tekee siitä VA-projektin. Valitse päätiedosto
+(`main.asm`); VA seuraa jokaista `#import` / `.import source` / `.import binary`
+-haaraa (myös käyttämättömien `.if` -haarojen sisällä) ja kirjoittaa sen viereen
+`.proj` -tiedoston, joka on nimetty kansion mukaan (`src` / `source` / `asm`
+-kansiot käyttävät pääkansion nimeä). Projekti listaa kaikki tiedostot
+kansiopuussaan; lähdekoodit pysyvät paikoillaan, joten olemassa oleva
+KickAssembler-koontikomentosarja jatkaa toimintaansa. Tiedostot, joita ei löydy,
+luetellaan virheikkunassa.
+
+**Kick-yhteensopiva kytkin:** mistä tahansa VA (VMA) -projektista voidaan tehdä
+Kick-yhteensopiva projektipaneelin otsikossa olevalla `{K}`-painikkeella (näkyy
+VMA-tilassa, kun projekti on auki; se on käytössä tuoduille Kick-projekteille).
+Asetus tallennetaan tiedostoon `.proj` (`"kick": true`); pois päältä, projekti
+on tavallinen VMA-projekti ja rakentuu täsmälleen kuten ennenkin.
+
+Kick-yhteensopivassa projektissa VA-makrot ja -direktiivit toimivat edelleen
+KickAssembler-skriptin vieressä: `.text x, y, "…"`, `.set_border`, LOOP / NEXT,
+SPRITE_INIT, `.include`, `.incbin`, `.sid`, `.define` / `.if SYMBOL` / `.else` /
+`.endif`, VA-makrot (`.macro name(p)` … `.endm` with `{p}`) ja loput menevät
+VA-assembleriin sellaisenaan, Kick-vakiot numeroina. Molemmissa olevat
+direktiivit erotetaan toisistaan muodon perusteella:
+
+| VA (VMA)                                                     | KickAssembler                                                                                                 |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| `.for X, $0A, for1` … `.endf for1`                           | `.for (muut i = 0; i < 10; i++) { … }`                                                                     |
+| `.jos VIRHEENJÄRJESTELMÄ` … `.muuten` … `.endif`             | `.if (lauseke) { … } muuten { … }`                                                                            |
+| `.makron nimi(p)` … `.endm`, kutsutaan `.invoke` -funktiolla | `.makro Nimi(p) { … }`, kutsutaan nimellä `Nimi(arg)`                                                         |
+| `.muuttujan nimi = arvo` (ajonaikainen muuttuja)             | `.var nimi = arvo` (skriptimuuttuja) — Kick-yhteensopivassa projektissa `.var` on aina KickAssembler-muuttuja |
+
+Projekti kootaan VA-assemblerilla, ei KickAssemblerilla: jokainen koonti (Run,
+Save PRG, D64, CRT, Exomizer, Debug, VICE Monitor, Build-projekti,
+Build-painike) suorittaa ensin käynnistystiedoston KickAssembler-esikäsittelijän
+läpi, ja avoinna olevien välilehtien editoritekstit ovat tallennettuja tai ei.
+Tulos on sama PRG kuin KickAssemblerin. Tuettu:
+
+- `#import`, `.import source`, `#importonce`; `.import binary` / `c64` / `text`
+  valinnaisella siirtymällä ja pituudella
+- `.const` / `.label` missä tahansa järjestyksessä lausekkeilla; nollasivu tai
+  absoluuttinen osoitus seuraa arvoa kuten KickAssemblerissa (`.abs` / `.zp`
+  pakottaa sen edelleen)
+- `.for (var i = 0; i < n; i++) { … }` ja yksirivinen muoto, `.var`, `.eval`
+  (`=`, `+=`, `++` …), `.if (…) { … } else .if (…) { … } else { … }` ja
+  yksirivinen muoto
+- `.funktion nimi(params) { .return lauseke }` ja `.makro nimi(params) { … }`
+  kutsutaan funktiolla `Nimi(args)` tai `:Nimi(args)`
+- monitunnisteet `!:` / `!nimi:` ja `!+`, `!-`, `!++`, `!nimi+`, `!nimi-`
+- `.pseudopc address { … }`: sisällä olevat tunnisteet saavat loogisen
+  osoitteen, tavut pysyvät paikoillaan
+- `BasicUpstart2(tarra)` / `BasicUpstart(tarra)`, `* = osoite "segmentti"`,
+  `.fill n, lauseke` (ja `i`) ja `.fill n, [a, b]`, `.align`, `.byte`, `.word`,
+  `.dword`, `.text`
+- `.assert "kuvaus", lauseke, true`; `cmdLineVars.containsKey(…)` /
+  `cmdLineVars.get(…)` ja `#define` symbolit tulevat **Project settings**
+  -asetuksista (KickAssemblerin `:name=value` ja `-define NAME`)
+- `LoadBinary("tiedosto"[, malline])` ja `get(i)` / `uget(i)` / `getSize()`,
+  malline, kuten `"C64FILE, Bitmap=$0000, ScreenRam=$1f40"` (tai `BF_KOALA`,
+  `BF_FLI`, `BF_DOODLE`, `BF_BITMAP_SINGLECOLOR`, `BF_C64FILE`), jolloin saadaan
+  `getBitmap(i)` / `getBitmapSize()` lohkoa kohden; `LoadSid("file.sid")` ja
+  `location`, `init`, `play`, `songs`, `startSong`, `size`, `name`, `author`,
+  `copyright`, `getData(i)` …; `.fill` skriptiarvoilla laajennetaan heti
+- `* = osoite "nimi" virtual`: virtuaalimuistilohko — sen tunnisteet saavat
+  osoitteet, mutta tavuja ei kirjoiteta
+- `.while (…) { … }`, `i++` / `--i` lausekkeissa, `.var name` ilman arvoa
+- `*` ohjelmalaskurina (`jmp *`, `bne *-1`, myös `.pseudopc` sisällä)
+- `;` lausekkeiden välissä (`lda #1; sta $d020`, `.var a = 1; .var b = 2`): a
+  `;` heti koodin jälkeen ilman välilyöntiä, jota seuraa lauseke. Mikä tahansa
+  muu `;` aloittaa kommentin, kuten VA:ssa, joten `lda #1 ; comment` jatkaa
+  toimintaansa
+- matemaattinen kirjasto (`sin`, `cos`, `radiaaneiksi`, `asteiksi`, `round`,
+  `floor`, `sqrt`, `pow`, `atan2`, `log10`, `random` …), värivakiot (`BLACK` …
+  `LIGHT_GREY`), operaatiokoodivakiot (`RTS`, `LDA_IMM`, `LDA_ZPX`, `JMP_IND`,
+  `BNE_REL` …) ja `asmCommand26(X)`
+- `BasicUpstart2(label)`, jossa label on missä tahansa kohdassa, johon koot
+  ulottuvat `* =` (esimerkiksi `* = $4000` … `start:` antaa SYS 16384)
+- laajuusalueet kuten KickAssemblerissa: `{ }` lohkot, `.if` haarat, `.for` /
+  `.while` käännökset ja makrokutsuilla on omat tunnisteensa ja vakionsa
+  (`-silmukka:` sisällä ei törmää ulkoiseen silmukkaan; `.pseudopc` ei ole
+  laajuusalue). Ennen laajuusaluetta oleva otsikko tekee sisäotsikoista
+  saavutettavia: `name: { … }` → `name.inner`, `lp: .for (…)` → `lp[2].inner`,
+  `myIf: .if (…)` → `myIf.inner`, `c1: Macro()` → `c1.inner`, `.label base =
+  $1000 { … }` → `base.inner`
+- `.namespace name { … }` ja `.filenamespace name` (tiedoston loppuun): otsikot
+  ovat saatavilla muodossa `name.label`; `@label:`, `.label @x = …`, `.function
+  @f` / `.macro @m` sijoittaa symbolin juureen ja `@name` viittaa
+  juurisymboliin. Funktiot ja makrot näkyvät kaikkialla, myös nimiavaruuden,
+  jossa ei ole `@`-tunnistetta, makrot.
+- `.pseudokomennon nimi a : b { … }`: kutsutaan muistikoodin tavoin (`mov #10 :
+  $1000`, `mov src,x : ($30),y`); Argumentit säilyttävät osoitustilansa
+  (`getType()` = `AT_IMMEDIATE`, `AT_ABSOLUTE`, `AT_ABSOLUTEX` / `Y`,
+  `AT_INDIRECT`, `AT_IZEROPAGEX` / `Y`, `AT_NONE` puuttuvan osoitteen tilalle;
+  `getValue()`), `CmdArgument(tyyppi, arvo)` luo uuden osoitteen). Muistisanan
+  kaltainen pseudokomento tarvitsee kaksoispisteen (`:adc …`); ilman sitä
+  muistisääntö kootaan.
+- esikäsittelijä: `#define`, `#undef`, `#if` / `#elif` / `#else` / `#endif`
+  (joissa on `!`, `&&`, `||`), `#importif`
+- `List()` (`lisää`, `hae`, `aseta`, `koko`, `poista`, `lajittele`, `käännä`,
+  `sekoita`, `lisääKaikki`), `Hashtable()` (`laita`, `hae`, `sisältääKeyn`,
+  `poista`, `avaimet`), `.struct Name {a, b}` (`Nimi(1, 2)`, `p.a`, `.eval p.a =
+  3`, `getFieldNames()` …), strings (`+`, `charAt`, `substring`, `size`,
+  `toUpperCase`, `asNumber(radix)` …, `toIntString` / `toHexString` /
+  `toBinaryString` (vähimmäiskoolla), `.enum {A, B, C = 5}`, `.define name, … {
+  … }`, `.eval list.add(…)`, merkki tiedostossa `.byte` ja merkkijonolausekkeet
+  tiedostossa `.text` (nykyisessä `.encoding`)
+- `.error "viesti"`, `.errorif ehto, "viesti"`; `.print` / `.printnow` tuloste
+  näkyy tilarivillä (ensimmäinen viesti ja laskuri) ja kokonaisuudessaan **Build
+  Info** -kohdassa. `.if`, joka raportoi vain (`.error` …), ohitetaan, kun sen
+  ehto tarvitsee tunnisteosoitteita.
+- `LoadPicture("file"[, List().add($rrggbb, …)])` GIF-, PNG- ja JPG-kuville:
+  `width`, `height`, `getPixel(x, y)`, `getSinglecolorByte(x, y)`,
+  `getMulticolorByte(x, y)`; ilman väritaulukkoa värit otetaan siinä
+  järjestyksessä kuin ne esiintyvät. Muuttujassa annettu kuvan nimi
+  (`LoadPicture(filename)`) toimii myös
+- segments: `.segmentdef Nimi [start, startAfter, align, min, max, fill,
+  fillByte, segments, prgFiles, sidFiles, virtual, outPrg, outBin,
+  modify="BasicUpstart", _start]`, `.segment Nimi [params] "lohko"`,
+  `.segmentout [segments=…]`, `.file [nimi=…, segments=…, allowOverlap]`, `.disk
+  [tiedostonimi=…, nimi=…] { [nimi=…, tyyppi=…, segments=…], … }`, `.memblock`.
+  Segmentti, jolla ei ole `start`-memoria, alkaa hinnasta $2000 kuten
+  KickAssemblerissa. **Run** käynnistää oletusarvoisen segmentin; kun se on
+  tyhjä, ensimmäinen PRG-tuloste ($0801:ssä oleva ensin) syntyy. **Build
+  project** kirjoittaa jokaisen `.file` / `outPrg` / `outBin` -tiedoston
+  käynnistystiedoston viereen ja rakentaa `.disk` -kuvan c1541:llä.
+- `.täyttösana n, lauseke`, `.lohitäyttö n, lauseke` (tunnisteella: `nimi.lo` /
+  `nimi.hi`); muistisääntöliitteet `.im` / `.i`, `.z` / `.zp`, `.a` / `.abs`
+- `.cpu _6502NoIllegals` / `_6502` (oletusarvo, laittomilla operaatiokoodeilla)
+  / `dtv` (`bra`, `sac`, `sir`) / `_65c02` (`(zp)` tila, `bra`, `phx` / `phy` /
+  `plx` / `ply`, `stz`, `trb`, `tsb`, `rmb0-7` / `smb0-7`, `bbr0-7` / `bbs0-7`,
+  `stp`, `wai`, `inc` / `dec` A, `bit #`, `jmp (abs,x)`); jokainen laiton
+  NMOS-operaatiokoodi kaikkine tiloineen ja muine nimineen (`sha` / `ahx`,
+  `shx`, `shy`, `tas` / `shs`, `las` / `lae`, `xaa` / `ane`, `lxa`, `anc2`,
+  `sbc2` …) — VA-assembler tuntee ne myös
+- `.break ["condition"]` ja `.watch address[, end][, "store"]`: keskeytyskohdat
+  ja tarkkailut VICE-symbolitiedostossa (`break` / `watch` -rivit, kuten
+  KickAssembler ne kirjoittaa) ja RetroDebuggerissa `.dbg`; `.break` -rivit ovat
+  myös **Debug** -tiedoston keskeytyskohtia
+- `Vektori(x, y, z)` (`+`, `-`, `*` luku / pistetulo, `/`, `X()` ristitulo,
+  `get(n)`, `getX()` …) ja 4×4 matriisit: `Matriisi()`, `Pyörimismatriisi(ax,
+  ay, az)`, `Skaalausmatriisi`, `Siirtomatriisi`, `Perspektiivimatriisi(z)`,
+  `hae(n, m)`, `set(n, m, v)`, matriisi × matriisi, matriisi × vektori
+- `getNamespace()`; `.assertterror "nimi", lauseke` ja koodimuodot `.assert
+  "nimi", { … }, { … }` / `.assertterror "nimi", { … }` (tulokset ovat `.print`
+  viestejä, kuten KickAssemblerin assert-raportti); `* - label` vakiossa
+  (`.label size = * - start`)
+- `.modify` / `.filemodify` tarvitsevat KickAssembler Java -laajennuksen: lohko
+  kootaan ilman muokkaajaa, ja siinä näkyy viesti
+
+Kirjoittaessasi koko tiedostopuu tarkistetaan: avoimen tiedoston virheet
+merkitään editorissa, tilarivillä näkyy ensimmäinen virhe ja
+käännösvirhe-valintaikkunassa on nimi `file:line` – napsautus avaa tiedoston
+riviltä. Muistikartta näyttää rakennetun ohjelman ja sykliväli näyttää avoimen
+tiedoston syklit (rivi, jonka purkaa `.for` tai makro muodossa `4×8`: yksi
+kierros, kahdeksan kertaa; valinta lasketaan yhteen joka kierros).
+Kurkistusreikien vihjeet merkitsevät avoimen tiedoston rivit; Disassembly- ja
+Monitor-paneelit näyttävät rakennetun ohjelman. Editori korostaa
+KickAssembler-syntaksia (`#import`, `.segment`, skriptifunktiot, `!labels`, `;`
+tiedostossa `.for (…)`), ja suoritus tarjoaa Kick-direktiivit (`.`),
+esikäsittelijän (`#`) ja skriptifunktiot. Esikäsittelijän viestit näkyvät
+sovelluksen kielellä. **Debug** (RetroDebugger) hakee lähdekoodikartan, joka
+sisältää alkuperäiset tiedostot ja rivit, luettavat symbolien nimet
+(`scope.label`) ja jokaisen avoimen projektitiedoston keskeytyskohdat.
+Projektipuun binaaritiedostoja ei avata tekstinä. Dark Chambers C64 -porttaus
+(19 lähdekooditiedostoa, 15 binääritiedostoa) ja kaikki yksitoista
+KickAssembler-esimerkkiä koodinmuodostuksella tavu tavulta, kuten KickAssembler
+5.25:ssä.
 
 ## 6. Asiantuntijatila
 
@@ -1800,7 +2047,7 @@ jokaisessa lohkossa.
 
 ```
 ┌───────────────────────────────────────────────────────
-│ [työkalurivi] Lohko │ Asiantuntija &lt; välilehti │
+│ [työkalurivi] Lohko │ Asiantuntija < välilehti │
 ├────────────┬─────────────────────────────┬────────────┤
 │ Paletti │ ASM-tekstieditori │ Disasm │
 │ (valinnainen) │ (monospace, muokattava) │ paneeli │
@@ -1821,7 +2068,7 @@ jokaisessa lohkossa.
 | **Muoto**                             | `#asiantuntijan-muotoilu-painike`                                     | Lähteen automaattinen muotoilu (otsikot sarakkeeseen 0, 4-välilyöntinen sisennys, 1-välilyöntinen muistikoodi/operandi)                                                                                                                                      |
 | **Lataa .asm-tiedosto**               | `#expert-load-asm-btn`                                                | Avaa `.asm`-tiedosto — sisältö ladataan **uuteen välilehteen**, jonka välilehden otsikkona on tiedostonimi. Jokaisesta ladatusta tiedostosta tulee itsenäinen välilehti, jolla on omat ohjelmalohkonsa ja editoritilansa.                                    |
 | **Tallenna .asm-tiedosto**            | `#asiantuntijan-tallennus-asm-painike`                                | Tallenna editorin sisältö tiedostoon `.asm` (tiedostovalintaikkuna ensimmäisen tallennuksen yhteydessä)                                                                                                                                                      |
-| **Rakennuksen tiedot**                | `#expert-build-info-btn`                                              | Avaa Rakennetiedot-valintaikkuna (alkuperä, koko, tunnisteet, virheet)                                                                                                                                                                                       |
+| **Rakennuksen tiedot**                | `#expert-build-info-btn`                                              | Avaa Rakennetiedot-valintaikkuna: alkupiste, loppupiste, koko ja segmenttien määrä ylhäällä, sitten segmentit, virheet (`file:line` Kick-projektissa) ja `.print` -tuloste sekä otsikot, vakiot ja makrot sarakkeissa                                        |
 | **HL**                                | `#asiantuntijan-painike`                                              | Ota syntaksin korostus käyttöön (poista käytöstä erittäin suurissa tiedostoissa)                                                                                                                                                                             |
 | **Automaattinen täydennys**           | `#asiantuntijan-automaattisen-täydennyksen-painike`                   | Ota asiantuntijan automaattisen täydennyksen ehdotukset käyttöön/pois käytöstä. Kun tämä on poistettu käytöstä, asiantuntijaeditorissa ei näy ohjeita, muistisääntöjä tai otsikoita.                                                                         |
 | **Alueen valinta**                    | `#asiantuntija-alueen-valintapainike`                                 | Ota automaattinen alueen korostus käyttöön asiantuntijatilassa. Taittotila pysyy tallennettuna, mutta kun tämä on pois päältä, editori pitää koko lähdekoodin näkyvissä eikä valitse nykyistä aluetta automaattisesti.                                       |
@@ -1965,6 +2212,14 @@ monitiedostoisille `.proj`-projekteille:
   resurssihakemistoon) samalla tavalla. Vain viittauksiin tarkoitetuissa
   merkinnöissä näkyy poistopainike (✕), mutta niitä ei avata napsauttamalla
   niitä.
+- **Projektin asetukset** (rataspainike paneelin otsikossa tai **Valikko →
+  Tiedosto → Projektin asetukset…**) näyttää ja muokkaa projektia: nimi, `.proj`
+  polku, käynnistystiedosto, assembler (VMA tai ACME),
+  **KickAssembler-yhteensopiva** ja Kick-projektille esikäsittelijän symbolit
+  (`#define`, kuten KickAssemblerin `-define`) ja komentorivimuuttujat
+  (`cmdLineVars`, yksi `name=value` riviä kohden, kuten `:name=value`), sekä
+  lähdekoodin ja muiden tiedostojen lukumäärä. Kaikki tallennetaan tiedostoon
+  `.proj`.
 - Puun kansioilla on kutistus-/laajennusnuoli, ja **napsauta kansiota hiiren
   kakkospainikkeella ** lisätäksesi yhden tai useamman tiedoston sen alle (näkyy
   sisennettynä).
@@ -2019,9 +2274,11 @@ Mitä seuraa ACME-koontiversiosta:
   PRG**, **Build D64**, **Build CRT**, **Build-projekti** ja **Debug
   (RetroDebugger)** käännetään ACME:n kautta; ACME-virheet ja -varoitukset
   avautuvat normaalissa käännösvirhe-valintaikkunassa lähdekoodirivillä.
-- Kun **Disassembly**- tai **Monitor**-paneeli on käytössä tai sykliväli on
-  käytössä, lähdekoodi luodaan uudelleen kirjoitustauon jälkeen, joten paneelit
-  näyttävät todelliset ACME-tavut; paneelit käyttävät ACME-tunnisteita.
+- Kirjoitustauon jälkeen lähdekoodi rakennetaan uudelleen, joten
+  **muistikartta** (muistiliuska, segmenttipaneeli, päällekkäisyysvaroitus),
+  **Disassembly**- ja **Monitor**-paneelit sekä syklin jono näyttävät todellisen
+  ACME-lähdön; paneelit käyttävät ACME-tunnisteita. Päällekkäisyys on osoite,
+  jonka kaksi lähdekoodiriviä kirjoittaa (jälkimmäinen voittaa PRG:ssä).
 - **Virheenkorjaustiedostot** (*Luo virheenkorjaustiedostot* Asetukset →
   Yleiset) luodaan ACME-otsikkotiedostosta: `.sym` (KickAssembler-tyyliin) ja
   `.vs` (VICE-otsikot) PRG:n vieressä; ACME-tilassa ei ole `.dbg`
@@ -2125,8 +2382,8 @@ PC:hen suhteellisille datan lukukerroille ei tarvita tunnistetta.
 | `CMP`      | Vertaa A:han       | Asettaa liput; ei muokkaa A:ta                                         |
 
 **PC vs. kertolasku.** `*` käsitellään ohjelmalaskurina vain, kun se on
-*arvopaikalla* — lausekkeen alussa tai heti operaattorin `(`, `,`, `&lt;`,
-`&gt;` tai välilyönnin jälkeen. Numeron `)` tai tunnisteen perässä oleva `*` on
+*arvopaikalla* — lausekkeen alussa tai heti operaattorin `(`, `,`, `<`,
+`>` tai välilyönnin jälkeen. Numeron `)` tai tunnisteen perässä oleva `*` on
 tavallinen kertolasku, joten `LDA-taulukko*2` ja `CONST_A*4` pysyvät
 muuttumattomina.
 
@@ -2180,7 +2437,7 @@ kootaan kaksoispistettä seuraavasta kohdasta.
 
 ```
 asennus:
-LDA-arvo:#$00 ; 'arvo' -&gt; operandin #$00 tavun osoite
+LDA-arvo:#$00 ; 'arvo' -> operandin #$00 tavun osoite
 ...
 korjaus:
 LDA #new
@@ -2328,7 +2585,9 @@ LBEQ valmis; kokoaa muotoon: BNE *+3 ($D0 $03)
 Kuten **POKE-silmukka** — kirjoittaa raakatavuluettelon muistiosoitteeseen
 ajonaikana, yhden LDA/STA-parin tavua kohden.
 
-**Asiantuntijan syntaksi:**
+`LAX`, `SAX`, `DCP`, `ISC`, `SLO`, `RLA`, `SRE`, `RRA`, `ANC`, `ALR`, `ARR`,
+`AXS` ja `NOP`-lomakkeet, jotka lukevat operandin: `NOP #$nn` ($80), `NOP $nn`
+($04), `NOP $nn,X` (14 $), `NOP $nnnn` (0C $), `NOP $nnnn, X` (1 C $)
 
 ---
 
@@ -2684,11 +2943,11 @@ valmiina muistissa heti, kun PRG latautuu.
 
 **Generoitu ASM:**
 ```
-; .rawtext "HEI" -&gt; $C000
+; .rawtext "HEI" -> $C000
 ; $C000
 .byte $08, $05, $0C, $0C, $0F ; HEI (näyttökoodit isoilla kirjaimilla)
 
-; .rawtext "hei", pienet kirjaimet -&gt; $C000
+; .rawtext "hei", pienet kirjaimet -> $C000
 ; $C000
 .byte $48, $45, $4C, $4C, $4F ; HEI (näyttökoodit pienellä kirjaimella $41–$5A välillä)
 ```
@@ -2944,7 +3203,7 @@ koordinaatit):
 **Generoitu ASM (30 tavua, täysin PC-relatiivinen — ei aliohjelmia, ei
 absoluuttisia hyppyjä):**
 ```
-LDA $FD; b1 oikealle CMP $F7; b2 vasemmalle BCC ei; R1 &lt; L2 → ohi LDA $F9; b2 oikealle CMP $FB; b1 vasemmalle BCC ei LDA $FE; b1 alhaalla CMP $F8; b2 ylhäällä BCC ei LDA $FA; b2 alhaalla CMP $FC; b1 ylhäällä BCC ei LDA #$01; osuma BNE valmis; ehdoton (A ≠ 0)
+LDA $FD; b1 oikealle CMP $F7; b2 vasemmalle BCC ei; R1 < L2 → ohi LDA $F9; b2 oikealle CMP $FB; b1 vasemmalle BCC ei LDA $FE; b1 alhaalla CMP $F8; b2 ylhäällä BCC ei LDA $FA; b2 alhaalla CMP $FC; b1 ylhäällä BCC ei LDA #$01; osuma BNE valmis; ehdoton (A ≠ 0)
 ei: LDA #$00
 valmis:
 ```
@@ -3103,7 +3362,7 @@ näyttöä.
 | `TASO_ATTR`, `TASO_ATTR_KIINTEÄ` … `TASO_ATTR_KERÄYS`                         | Merkkien ominaisuustaulukko (yksi lipputavu näyttökoodia kohden; vain silloin, kun tasolla on ominaisuuksia) ja sen bitit: 1, 2, 4, 8                              |
 | `TASO_REUNUS`, `TASO_VÄRIT`, `TASO_REUNUS/REUNUS/MC1/MC2`                     | Tasoraja; paikkakohtaiset väritaulukot (rivikohtainen, kuten `LEVEL_SLOT_*`), kun näytöllä on omat värinsä (`LEVEL_SCR_COLORS` = 1)                                |
 
-Tyypillinen vartija: `.assert LEVEL_END &lt;= $9200, "tasodata törmää koodiin"`.
+Tyypillinen vartija: `.assert LEVEL_END <= $9200, "tasodata törmää koodiin"`.
 
 #### TASO_RIVI
 
@@ -3768,26 +4027,26 @@ se ei tuota mitään.
 
 | Ala     | Kuvaus                                                                                                                                            |
 | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Ilmaisu | Mikä tahansa assembler-lauseke: otsikot, `CONST`s, `*` (ohjelmalaskuri), aritmetiikka ja vertailut (`&lt;`, `&lt;=`, `&gt;`, `&gt;=`, `==`, `!=`) |
+| Ilmaisu | Mikä tahansa assembler-lauseke: otsikot, `CONST`s, `*` (ohjelmalaskuri), aritmetiikka ja vertailut (`<`, `<=`, `>`, `>=`, `==`, `!=`) |
 | Viesti  | Valinnainen teksti, joka on liitetty virheilmoitukseen                                                                                            |
 
 **Asiantuntijan syntaksi:**
 ```
-.assert spriteData &lt; $C000
-.assert * &lt; $A000
-.assert end - start &lt;= 256, "sprite-taulukko ylitti yhden sivun"
+.assert spriteData < $C000
+.assert * < $A000
+.assert end - start <= 256, "sprite-taulukko ylitti yhden sivun"
 ```
 
 **Käyttäytyminen:**
 
 - **Koko:** 0 tavua.
-- Epätosi väittämä keskeyttää kokoamisen: `` `.assert end - start &lt;= 256` on
+- Epätosi väittämä keskeyttää kokoamisen: `` `.assert end - start <= 256` on
   epätosi (arvo: 0). sprite-taulukko ylitti yhden sivun.``
 - Väite, jota ei voida evaluoida (määrittelemätön otsikko tms.), epäonnistuu
   myös merkinnällä *"ei voida evaluoida kokoonpanon aikana"*.
 - Vertailut tuottavat `1` / `0`; sijoita `.assert` mihin tahansa ohjelmavirran
   kohtaan — se tarkistetaan siinä osoitteessa, jossa se sijaitsee, joten
-  `.assert * &lt; $D000` testaa nykyisen tulosteen sijainnin.
+  `.assert * < $D000` testaa nykyisen tulosteen sijainnin.
 
 **Esimerkki — sprite-lohkon suojaaminen sivun ylitykseltä:**
 ```
@@ -3919,7 +4178,7 @@ käännösaikana. Se vertaa `A`, `X` tai `Y` välittömään arvoon ja tuottaa o
 | Ala          | Kuvaus                                       |
 | ------------ | -------------------------------------------- |
 | Rekisteröidy | `A`, `X` tai `Y`                             |
-| Operaattori  | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
+| Operaattori  | `==`, `!=`, `<`, `<=`, `>`, `>=` |
 | Arvo         | Välitön arvo heksa- tai desimaalimuodossa    |
 
 **Asiantuntijan syntaksi:**
@@ -3933,7 +4192,7 @@ LDA #$0F
 
 **Koko:** Riippuu valituista haaroista ja vertailumuodosta.
 
-Vertailu on oletusarvoisesti etumerkitön. Rekistereille `&lt;=` ja `&gt;` makro
+Vertailu on oletusarvoisesti etumerkitön. Rekistereille `<=` ja `>` makro
 laajenee valitun rekisterin lyhyimpään vastaavaan haaraketjuun.
 
 ---
@@ -3946,7 +4205,7 @@ suoritetaan niin kauan kuin ehto pysyy tosi.
 | Ala          | Kuvaus                                       |
 | ------------ | -------------------------------------------- |
 | Rekisteröidy | `A`, `X` tai `Y`                             |
-| Operaattori  | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
+| Operaattori  | `==`, `!=`, `<`, `<=`, `>`, `>=` |
 | Arvo         | Välitön arvo heksa- tai desimaalimuodossa    |
 
 **Asiantuntijan syntaksi:**
@@ -3972,7 +4231,7 @@ suoritetaan aina ainakin kerran, minkä jälkeen ehto päättää, pysähtyykö 
 | Ala          | Kuvaus                                       |
 | ------------ | -------------------------------------------- |
 | Rekisteröidy | `A`, `X` tai `Y`                             |
-| Operaattori  | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
+| Operaattori  | `==`, `!=`, `<`, `<=`, `>`, `>=` |
 | Arvo         | Välitön arvo heksa- tai desimaalimuodossa    |
 
 **Asiantuntijan syntaksi:**
@@ -4469,7 +4728,7 @@ tietoja, musiikkia tai muuta koodia levyltä ohjelman ollessa käynnissä.
 
 | Ala                           | Kuvaus                                                                                                                                                                                                                |
 | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Tiedostonimi                  | Tiedoston nimi levyllä (enintään 16 merkkiä, automaattisesti isot kirjaimet; merkit `,`, `"`, `/`, `\`, `:`, `*`, `?`, `&lt;`, `&gt;`, `|` suodatetaan)                                                               |
+| Tiedostonimi                  | Tiedoston nimi levyllä (enintään 16 merkkiä, automaattisesti isot kirjaimet; merkit `,`, `"`, `/`, `\`, `:`, `*`, `?`, `<`, `>`, `|` suodatetaan)                                                               |
 | Laite                         | Laitenumero 8–30 (oletus `8`)                                                                                                                                                                                         |
 | Ohitusosoite (valinnainen)    | Heksamuotoinen latausosoite (esim. `C000`). Jos asetettu, tiedosto ladataan tähän osoitteeseen (`sec=0`, jättäen PRG-otsikon huomiotta). Jätä tyhjäksi käyttääksesi tiedoston omaa 2-tavuista PRG-otsikkoa (`sec=1`). |
 | Virheen otsikko (valinnainen) | Jos asetettu, JSR LOAD -käskyn jälkeen luodaan `BCS`-käsky. Jos KERNAL palauttaa carry set -arvon (virhe), suoritus hyppää tähän tunnisteeseen.                                                                       |
@@ -4563,11 +4822,10 @@ STA $01
 jokaiseen lukukertaan näkyvän reunan välähdysefektin aikaansaamiseksi purkamisen
 aikana. Sijoita se ohjelmaasi `INCBIN`-lohkolla pakkaajan osoitteessa.
 
-**Turvapoikkeaman kompensointi:** Exomizerin oletusmuistitila käyttää 2-tavuista
-turvapoikkeamaa – data saapuu 2 tavua aikaisemmin kuin pyydetty kohde. Suorita
-D64:n kautta -valintaikkuna **lisää automaattisesti luvun 2 Dst-kenttään** ennen
-exomizerin kutsumista, joten näkyvä käyttäytyminen vastaa kirjoittamaasi
-osoitetta.
+**Raakalasyöte:** ylimääräinen syöte välitetään Exomizerille raakana tiedostona,
+joka ladataan Dst-osoitteeseen (`file@<Dst>`), joten pakkauksen purkaja
+kirjoittaa jokaisen tavun ensimmäisestä alkaen täsmälleen kirjoittamaasi
+osoitteeseen.
 
 > **Katso myös:** `exo-multicolor-demo` esimerkki — täydellinen esimerkki päästä
 > päähän: LATAA pakattu monivärinen bittikartta tiedostomuotoon $C000,
@@ -4604,11 +4862,11 @@ LDA DF04 dollaria
 CMP #$AA
 BNE epäonnistuu
 LDA #$00
-CMP #$FF ; Z=0 =&gt; REU läsnä
+CMP #$FF ; Z=0 => REU läsnä
 BNE tehty
 epäonnistua:
 LDA #$FF
-CMP #$FF ; Z=1 =&gt; ei REU:ta
+CMP #$FF ; Z=1 => ei REU:ta
 tehty:
 ```
 > Makro normalisoi tuloksen, joten seuraava haara pysyy yksinkertaisena: `BNE`
@@ -4696,7 +4954,7 @@ Ei vaikutusta oikeaan C64:ään tai muihin emulaattoreihin.
 | Nopeus      | Suorittimen nopeusindeksi | 0 = 1 MHz … 7 ≈ 10 MHz … 15 ≈ 48 MHz                |
 | Huono linja | Badline-emulointi         | Käytössä (C64-yhteensopiva) / Pois käytöstä (turbo) |
 
-Nopeustavu lasketaan seuraavasti: `(speedIndex &amp; 0x0F) | (badline_disabled ?
+Nopeustavu lasketaan seuraavasti: `(speedIndex & 0x0F) | (badline_disabled ?
 0x80 : 0x00)`.
 
 **Generoitu koodi (5 tavua):**
@@ -4810,7 +5068,7 @@ STA $0700,X
 INX CPX #$E8 BNE *-11
 ```
 
-**Koko:** `2 (LDX) + fullPages×9 + (rem &gt; 0 ? 11 : 0)` tavua osiota kohden.
+**Koko:** `2 (LDX) + fullPages×9 + (rem > 0 ? 11 : 0)` tavua osiota kohden.
 Yhdistetty tila kaksinkertaistaa sen (näyttöosio + identtisen värin osio).
 
 **Yhdistäminen karttaeditorin kanssa:**
@@ -4912,7 +5170,7 @@ kutsu sitä kerran pelikehystä kohden – JSR:ää ei tarvita.
 
 **Generoitu ASM (sprite 0, 4 kehystä, ZP `$FB`, lista kohdassa `$C100`):**
 ```
-INC $FB; kehyslaskurin esikatselu LDA $FB CMP #$04; kehysten määrä BCC *+6; jos laskuri &lt; määrä, ohita nollaus LDA #$00 STA $FB TAX; X = nykyisen kehyksen indeksi LDA $C100,X; lataa sprite-tietosivu tälle kehykselle STA $07F8; päivitä sprite 0 -osoitin ($07F8 + sprite#)
+INC $FB; kehyslaskurin esikatselu LDA $FB CMP #$04; kehysten määrä BCC *+6; jos laskuri < määrä, ohita nollaus LDA #$00 STA $FB TAX; X = nykyisen kehyksen indeksi LDA $C100,X; lataa sprite-tietosivu tälle kehykselle STA $07F8; päivitä sprite 0 -osoitin ($07F8 + sprite#)
 ```
 
 **Koko:** 19 tavua.
@@ -5162,11 +5420,10 @@ SYS-kohteesta:
    - **Addr** (latausosoite, valinnainen) — jos annettu, alkuun lisätään
      2-tavuinen PRG-otsikko. Jätä tyhjäksi kirjoittaaksesi raakatavuja ilman
      otsikkoa.
-   - **Dst** (purkukohde, vain EXO:n kanssa) — mihin pakkauksen purkajan tulisi
-     sijoittaa tiedot C64:lle. Kun EXO on käytössä, lisätiedot pakataan
-     komennolla `exomizer mem -l <Osoite> file,<Dst>` ennen niiden
-     kirjoittamista D64:lle. +2 turva-offset-kompensaatiota käytetään
-     automaattisesti.
+   - **Dst** (purkukohde, vain EXO:n kanssa) — mihin purkuohjelman tulisi
+     siirtää data C64:lle. Kun EXO on käytössä, lisätiedosto pakataan komennolla
+     `exomizer mem -l <Osoite> file@<Dst>` (raakatiedosto Dst-osoitteessa) ennen
+     sen kirjoittamista D64:lle.
    - **EXO** — valintaruutu, joka ottaa käyttöön taaksepäin tapahtuvan
      `mem`-tilan murskaamisen tälle merkinnälle. Levyllä olevan tiedon koko on
      tyypillisesti 5–20 % alkuperäisestä.
@@ -5510,6 +5767,16 @@ Tallenna BIN / Vie lohkoihin / Tallenna D64:ään. Jokainen editori tuottaa
 raakadataa `.bin`, joka voidaan sijoittaa ohjelmaan `INCBIN`-komennolla tai
 lisätä suoraan D64-levylle **Tallenna D64:ään** -merkinnän kautta.
 
+**Väripaletti:** **Asetukset → Yleiset → Editorit → C64-väripaletti** valitsee
+RGB-arvot, joilla jokainen editori piirtää 16 C64-väriä (sprite, hahmo,
+merkistöpohja, korkearesoluutio, kartta- ja tasoeditori, työkalupakin
+värimallit). Oletusarvo on **Colodore**, joka on lähimpänä todellista C64-väriä
+komposiitti-/S-videonäytössä; **Pepto** (vanhempien versioiden tummempi,
+vähemmän kylläinen paletti), **VICE**, **Deekay** ja **C64 Wiki / Godot** ovat
+myös käytettävissä. Vain näyttö muuttuu — datasi väri-indeksit pysyvät samoina.
+Korkean resoluution kuvien tuonti käyttää myös editoripalettia, ellet valitse
+sieltä toista.
+
 Visuaalisen editorin valintaikkunoita voidaan vetää otsikoistaan koko Visual
 Assembler -työtilan poikki. Valintaikkuna, jolle ei ole tallennettua sijaintia,
 avautuu keskitetysti; siirtämisen jälkeen sen viimeisin sijainti tallennetaan
@@ -5523,7 +5790,8 @@ Pikselitason bittikarttaeditori, jossa on sekä 320×200 korkearesoluutio- että
 | Ominaisuus                    | Kuvaus                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Tilan vaihto                  | **Monivärinen** -valintaruutu vaihtaa korkearesoluutioisen (yksivärinen solua kohden) ja monivärisen (4 väriä solua kohden) välillä.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| Työkalut                      | Lyijykynä, pyyhekumi, viiva, suorakulmio, täytetty suorakulmio, soikio, täytetty soikio, täyttöviiva, solupaperi, valinta.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| Työkalut                      | Lyijykynä, pyyhekumi, viiva, suorakulmio, täytetty suorakulmio, soikio, täytetty soikio, täyttö, värivalitsin, solupaperi, valinta.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Värivalitsin                  | Napsauta pikseliä, jos haluat sen näkyvän värin olevan muste (korkealla resoluutiolla solun muste tai paperi, kumpi tahansa pikseli näkyy); editori palaa sitten edelliseen työkaluun. **Alt+napsautus** valitsee värin millä tahansa työkalulla.                                                                                                                                                                                                                                                                                                                                                                                                           |
 | Solupaperi (korkearesoluutio) | Korkearesoluutioinen kuva sallii kaksi väriä jokaisessa 8×8-solussa: musteen (asetetut pikselit, solun näytön RAM-tavun suuri näpyttely) ja paperin (tyhjennä pikselit, pieni näpyttely). **Solun paperi** -työkalu asettaa jokaisen napsauttamalla tai vetämällä hiirellä valitun värisen solun paperin; **PAPERI** asettaa silti jokaisen solun kerralla. Pyyhekumi tyhjentää pikselit, joten solun oma paperi näkyy. Pois käytöstä monivärisessä tilassa, jossa tausta ($D021) on jaettu.                                                                                                                                                                |
 | Ruiskutustyökalu              | Airbrush-tyylinen piirtäjä, joka sirottelee pikseleitä kohdistimen ympärille piirtäessään.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | Suihkutusintensiteetti        | Ruiskutustyökalun vieressä olevasta alasvetovalikosta säädetään kunkin ruiskutusjäljen tiheyttä.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
@@ -5533,7 +5801,7 @@ Pikselitason bittikarttaeditori, jossa on sekä 320×200 korkearesoluutio- että
 | Kopioi / Liitä                | **Kopioi** (`Ctrl/Cmd+C`) kopioi valitun alueen. **Liitä** (`Ctrl/Cmd+V`) näyttää esikatselun, joka seuraa kohdistinta: napsauta piirtoaluetta sijoittaaksesi sen, **Esc** peruuttaa. Kopio säilytetään, joten `Ctrl/Cmd+V` painaminen ja uudelleen napsauttaminen sijoittaa sen niin monta kertaa kuin on tarpeen. Korkean resoluution tilassa liitetyt pikselit noudattavat edelleen kahden värin solukohtaista rajoitusta, joten kohdista alue soluruudukkoon säilyttääksesi sen värit. Kopioi, Liitä ja Läpinäkyvä liitä ovat myös piirtoalueen hiiren kakkospainikkeen valikossa; liittäminen aloitettiin siellä esikatselussa napsautetusta kohdasta. |
 | Läpinäkyvä tahna              | `Ctrl/Cmd+Shift+V` (tai sen työkalupalkin painike) ohittaa kopion paperinväriset pikselit, joten alla oleva kuva näkyy läpi.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | Ruudukko + Rasteri            | **Grid** näyttää merkkisoluruudukon: 8×8 pikseliä korkearesoluutioisena, 4×8 kaksinkertaisen leveyden pikseliä monivärisenä. 4× zoomista alkaen se piirtää myös himmeämmän viivan jokaisen pikselin ympärille, jotta jokainen pikseli voidaan sijoittaa tarkasti. **Raster** lisää rasteririvin päällekkäiskerroksen.                                                                                                                                                                                                                                                                                                                                       |
-| Zoomaus                       | Liukusäädin 1× - 16×.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Zoomaus                       | Liukusäädintä suurennetaan 1× - 16× tai Ctrl+rullaa kankaan päällä (kohdistimen alla oleva piste pysyy paikallaan).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | Tuo kuva                      | Kankaalle pudotetut PNG/JPEG/GIF-kuvat kvantisoituvat automaattisesti 16-väriseen C64-palettiin.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | Vie lohkot                    | Lisää ohjelmaan BYTE/RAWBYTES-lohkoja, jotka sisältävät koodatun bittikartta-, näyttö- ja väridatan.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | Vie `.bin`                    | Tallentaa natiivin moniväritiedostomuodon (10000 tavua: 8000 bittikarttaa + 1000 näyttöä + 1000 väriä) valmiiksi LOADFILE-tiedostoon $2000.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
@@ -5547,7 +5815,9 @@ Sprite-editori -kohdassa.
 | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Kehykset                       | Lisää/poista/järjestä uudelleen kehyksiä; kehysnauha näkyy alhaalla. **Kopioi** / **Liitä** kehysrivillä kopioi koko nykyisen kehyksen; samat kaksi merkintää ovat sekä kankaan että kehysnauhan hiiren kakkospainikkeen valikoissa.                                                                                                                                                                                                                                 |
 | Tila                           | Yksivärinen/monivärinen vaihto.                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| Työkalut                       | Kynä, täyttö, viiva, suorakulmio, ympyrä – sekä vaakasuora ja pystysuora kääntö, siirto vasemmalle/oikealle/ylös/alas (valinnainen rivitys). Muototyökalut näyttävät reaaliaikaisen esikatselun vetämisen aikana; vapauta painike vahvistaaksesi.                                                                                                                                                                                                                    |
+| Työkalut                       | Kynä, täyttö, värivalitsin, viiva, suorakulmio, ympyrä – sekä vaakasuora ja pystysuora käännös, siirto vasemmalle/oikealle/ylös/alas (valinnainen rivitys). Muototyökalut näyttävät reaaliaikaisen esikatselun vetämisen aikana; vapauta painike vahvistaaksesi.                                                                                                                                                                                                     |
+| Värivalitsin                   | Napsauta pikseliä valitaksesi sen väripaikan (sprite-väri, MC1, MC2, taustan tai peittokuvan väri muokatulla tasolla); editori palaa sitten edelliseen työkaluun. **Alt+napsautus** valitsee millä tahansa työkalulla.                                                                                                                                                                                                                                               |
+| Zoomaus                        | Liukusäädintä 3× - 40× tai Ctrl+rullaa kankaan päällä.                                                                                                                                                                                                                                                                                                                                                                                                               |
 | Kumoa / tee uudelleen          | Täysi kumoa/tee uudelleen -pino kehystä kohden. Ctrl/Cmd+Z / Ctrl/Cmd+Y tai työkalupalkin painikkeet.                                                                                                                                                                                                                                                                                                                                                                |
 | Kuvan tuonti                   | Tuo PNG- tai JPEG-kuva valitsemalla Tiedostot → Tuo kuva. Tuoja yhdistää jokaisen pikselin lähimpään C64-palettiväriin ja kirjoittaa sen nykyiseen kehykseen.                                                                                                                                                                                                                                                                                                        |
 | Animaation esikatselu          | Toista / pysäytä konfiguroitavalla nopeudella.                                                                                                                                                                                                                                                                                                                                                                                                                       |
@@ -5584,22 +5854,22 @@ komennoilla `RAWBYTES` tai `TEXT`.
 
 256-merkkinen 8×8 merkistöeditori. Avaa Toolkit → Merkkieditori -kohdassa.
 
-| Ominaisuus                   | Kuvaus                                                                                                                                                                                                                                                                              |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Lataa ROM                    | Lataa C64-merkki-ROMin — tarkat 901225-01-symbolit, ei tiedostovalitsinta. Ensimmäinen painike (ja **Tiedostot → ROM: isot kirjaimet / grafiikka**) lataa sarjan 1, toinen painike (tai Shift+napsautus tai **Tiedostot → ROM: pienet kirjaimet / isot kirjaimet**) lataa sarjan 2. |
-| Lataa `.bin`                 | Tuo ulkoisen 2048-tavuisen merkistöbinääritiedoston.                                                                                                                                                                                                                                |
-| Merkkikohtainen esikatselu   | 16-levyinen ruudukko, jossa on kaikki 256 symbolia ja nykyinen solu korostettuna.                                                                                                                                                                                                   |
-| Pikselieditori               | Muokkaa valittua merkkiä tai **laattaa**, jossa on 2×1, 1×2 tai 2×2 vierekkäistä merkkiä yhdeksi kuvana (laatanvalitsin).                                                                                                                                                           |
-| Piirustustyökalut            | Lyijykynä, viiva, suorakulmio, täytetty suorakulmio ja täyttöalue. Musteella jo varustetun pikselin napsauttaminen poistaa sen.                                                                                                                                                     |
-| Muunnokset                   | Tyhjennä, käännä, käännä vaaka-/pystysuunnassa, siirrä kiertämällä, käännä 90° myötäpäivään / vastapäivään (vain neliönmuotoiset laatat) — koko laatassa.                                                                                                                           |
-| Kumoa / Tee uudelleen        | Työkalupalkin painikkeet, Ctrl+Z ja Ctrl+Y (Ctrl+Shift+Z).                                                                                                                                                                                                                          |
-| Kopioi / Liitä               | Työkalurivin painikkeet, Ctrl+C / Ctrl+V tai hiiren kakkospainikkeella napsauttaminen kartalla; kopioi koko laatan väreineen.                                                                                                                                                       |
-| Kartan vetäminen             | Vedä hahmo toisen hahmon päälle kartalla vaihtaaksesi niitä; pidä Shift-näppäintä painettuna ja vedä kopioita.                                                                                                                                                                      |
-| Tekstin esikatselu           | Kirjoita teksti nähdäksesi sen nykyisessä merkistössä. Valitse isojen tai pienten kirjainten yhdistäminen; `{65}` tai `{$41}` lisää näyttökoodin.                                                                                                                                   |
-| Alueen vienti                | Aseta Lähettäjä- ja Vastaanottaja-merkit ja sitten **Tiedostot → Tallenna alue (.bin)** (raa'at tavut) tai **Kopioi alue ASM** (`.tavut` riviä).                                                                                                                                    |
-| Merkkikohtainen väri         | Tallentaa kullekin glyyfille oletusarvoisen Color RAM -arvon. Monivärisessä merkkitilassa tämä säilyttää myös solukohtaisen monivärisävytyksen käyttöönottobitin ja merkin oman alemman 3-bittisen värin.                                                                           |
-| Metadatan edestakainen kulku | Kun lataat yhteensopivia tietoja Charset Canvas-/Kartta-työnkuluista, merkkikohtaiset värimetatiedot säilyvät, joten muokkauksia voidaan jatkaa menettämättä väritarkoitusta.                                                                                                       |
-| Vie lohkot                   | Liittää RAWBYTES-arvon kohtaan $0800 (lohko 2) tai $3800 (lohko 7) koodatulla merkistöllä.                                                                                                                                                                                          |
+| Ominaisuus                   | Kuvaus                                                                                                                                                                                                                                                                                    |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Lataa ROM                    | Lataa C64-merkki-ROMin — tarkat 901225-01-symbolit, ei tiedostovalitsinta. Ensimmäinen painike (ja **Tiedostot → ROM: isot kirjaimet / grafiikka**) lataa sarjan 1, toinen painike (tai Shift+napsautus tai **Tiedostot → ROM: pienet kirjaimet / isot kirjaimet**) lataa sarjan 2.       |
+| Lataa `.bin`                 | Tuo ulkoisen 2048-tavuisen merkistöbinääritiedoston.                                                                                                                                                                                                                                      |
+| Merkkikohtainen esikatselu   | 16-levyinen ruudukko, jossa on kaikki 256 symbolia ja nykyinen solu korostettuna.                                                                                                                                                                                                         |
+| Pikselieditori               | Muokkaa valittua merkkiä tai **laattaa**, jossa on 2×1, 1×2 tai 2×2 vierekkäistä merkkiä yhdeksi kuvana (laatanvalitsin).                                                                                                                                                                 |
+| Piirustustyökalut            | Lyijykynä, viiva, suorakulmio, täytetty suorakulmio, täyttö ja värinvalitsin. Pikselin napsauttaminen, jossa on jo muste, poistaa sen. Värinvalitsin (vain monivärisissä; **Alt+napsautus** millä tahansa työkalulla) tekee napsautetun pikselin väristä – FG, BG, MC1 tai MC2 – musteen. |
+| Muunnokset                   | Tyhjennä, käännä, käännä vaaka-/pystysuunnassa, siirrä kiertämällä, käännä 90° myötäpäivään / vastapäivään (vain neliönmuotoiset laatat) — koko laatassa.                                                                                                                                 |
+| Kumoa / Tee uudelleen        | Työkalupalkin painikkeet, Ctrl+Z ja Ctrl+Y (Ctrl+Shift+Z).                                                                                                                                                                                                                                |
+| Kopioi / Liitä               | Työkalurivin painikkeet, Ctrl+C / Ctrl+V tai hiiren kakkospainikkeella napsauttaminen kartalla; kopioi koko laatan väreineen.                                                                                                                                                             |
+| Kartan vetäminen             | Vedä hahmo toisen hahmon päälle kartalla vaihtaaksesi niitä; pidä Shift-näppäintä painettuna ja vedä kopioita.                                                                                                                                                                            |
+| Tekstin esikatselu           | Kirjoita teksti nähdäksesi sen nykyisessä merkistössä. Valitse isojen tai pienten kirjainten yhdistäminen; `{65}` tai `{$41}` lisää näyttökoodin.                                                                                                                                         |
+| Alueen vienti                | Aseta Lähettäjä- ja Vastaanottaja-merkit ja sitten **Tiedostot → Tallenna alue (.bin)** (raa'at tavut) tai **Kopioi alue ASM** (`.tavut` riviä).                                                                                                                                          |
+| Merkkikohtainen väri         | Tallentaa kullekin glyyfille oletusarvoisen Color RAM -arvon. Monivärisessä merkkitilassa tämä säilyttää myös solukohtaisen monivärisävytyksen käyttöönottobitin ja merkin oman alemman 3-bittisen värin.                                                                                 |
+| Metadatan edestakainen kulku | Kun lataat yhteensopivia tietoja Charset Canvas-/Kartta-työnkuluista, merkkikohtaiset värimetatiedot säilyvät, joten muokkauksia voidaan jatkaa menettämättä väritarkoitusta.                                                                                                             |
+| Vie lohkot                   | Liittää RAWBYTES-arvon kohtaan $0800 (lohko 2) tai $3800 (lohko 7) koodatulla merkistöllä.                                                                                                                                                                                                |
 
 ### Merkistöpohjan editori
 
@@ -5618,6 +5888,7 @@ korkearesoluutioinen (8 kapeaa pikseliä, 2 väriä), aivan kuten C64:ssä.
 | ECM-koodi                               | **ECM**-valintaruutu (laajennettu väritila, ei yhdessä monivärisen kanssa): jokainen merkki on korkearesoluutioinen omalla värillään (0–15) ja yhdellä neljästä taustasta BG0–BG3 (`$D021`–`$D024`; BG1 / BG2 ovat MC1 / MC2 -rekisterit). Valitse paletista taustaväri (merkitty B0–B3) ja napsauta tai vedä sitten merkkien yli **Character background** -työkalulla. Vain 64 eri merkkiä mahtuu: tilarivi laskee ne, ja tallennettaessa yhtä suuret merkit yhdistetään – merkistö on 64 merkkiä (512 tavua) ja näyttökoodit ovat `glyph`. | tausta << 6`. Käynnistä ECM käyttämällä `$D011` bittiä 6. |
 | C64-värimalli                           | Tausta käyttää `$D021`; jaettu monivärinen 1 käyttää `$D022`; jaettu monivärinen 2 käyttää `$D023`; jokaisen hahmon oma väri tulee Color RAM -biteistä 0–2.                                                                                                                                                                                                                                                                                                                                                                                  |                                                           |
 | Piirustustyökalut                       | Lyijykynä, pyyhekumi, viiva, suorakulmio, soikio ja täyttö toimivat merkkien rajojen yli.                                                                                                                                                                                                                                                                                                                                                                                                                                                    |                                                           |
+| Värivalitsin                            | Napsauta pikseliä valitaksesi sen näkyvän värin (monivärisessä merkissä myös sen BG / MC1 / MC2 / omavärisen musteen); editori palaa sitten edelliseen työkaluun. **Alt+napsautus** valitsee millä tahansa työkalulla.                                                                                                                                                                                                                                                                                                                       |                                                           |
 | Ruiskutustyökalu                        | Airbrush-tyylinen piirustus, joka sirottelee pikseleitä viereisten solujen/merkkien päälle.                                                                                                                                                                                                                                                                                                                                                                                                                                                  |                                                           |
 | Suihkutusintensiteetti                  | Ruiskutustyökalun vieressä oleva alasvetovalikko asettaa viivan tiheyden.                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |                                                           |
 | Ruudukon vaihto/vaihto                  | Ruudukko-valintaruutu näyttää tai piilottaa 16×16 merkkiruudukon.                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |                                                           |
@@ -5647,6 +5918,7 @@ törmäysdatalle ja vastaaville. Avaa Toolkit → Karttaeditori -kohdassa.
 | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Kerrokset                                                  | Useita nimettyjä kerroksia, joilla jokaisella on oma laattasarjansa ja läpinäkyvyytensä.                                                                                                                                                                                           |
 | Siveltimet                                                 | Yksittäislaatta-, täyttö-, viiva-, suorakulmio- ja ympyrätilat. Muototyökalut näyttävät reaaliaikaisen esikatselun vetämisen aikana; vapauta painike vahvistaaksesi.                                                                                                               |
+| Zoomaus                                                    | Liukusäädin tai Ctrl+rulla kartan päällä.                                                                                                                                                                                                                                          |
 | Kumoa / tee uudelleen                                      | Täysi kumoa/tee uudelleen -pino tasoa kohden. Ctrl/Cmd+Z / Ctrl/Cmd+Y tai työkalupalkin painikkeet.                                                                                                                                                                                |
 | Tyhjennä valikko                                           | Tasokohtainen tai koko kartan selkeä vahvistuksella.                                                                                                                                                                                                                               |
 | Kuvan tuonti                                               | Pudota laattakartan PNG-kuva; editori leikkaa sen automaattisesti laatoiksi.                                                                                                                                                                                                       |
@@ -5670,6 +5942,7 @@ olevalla **Kenttäeditori**-työkalurivin painikkeella.
 | Näytöt              | **Uusi tyhjä näyttö**, **Lisää karttaeditorista** (auki oleva kartta) tai **Lataa kartta(t) (.bin)…** (useita karttaeditorin vientitiedostoja kerralla). Vedä näyttö luettelosta paikkaan; vedä paikat päällekkäin vaihtaaksesi niitä.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | Muokkaus            | **Muokkaa karttaeditorissa** avaa valitun näytön karttaeditorissa ja palauttaa muutokset; kopioi, siirrä ylös/vasemmalle tai alas/oikealle, poista; kumoa/tee uudelleen.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | Esikatselu          | Vedä esikatselua tai käytä nuolinäppäimiä vierittääksesi pikseli pikseliltä; **Toista** vierittää automaattisesti (suunta, nopeus 1–8, silmukka), Välilyönti = toisto/pysäytys. *Reunat* merkitsevät näytön rajat.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| Zoomaus             | Yleiskuvan zoomausliukusäädin (25–400 %) tai Ctrl+rulla yleiskuvan päällä.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | Tarkastukset        | Merkistötiedot ja varoitus, kun näytöt käyttävät eri merkistöä tai värejä (taso käyttää ensimmäisen näytön asetuksia).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | Hahmon ominaisuudet | **Hahmon ominaisuudet** -painike vaihtaa yleiskatsauksen ominaisuuksien piirtämiseen: valitse **Solid**, **Ladder**, **Hazard** tai **Collectible**, napsauta merkkiä ja jokainen solu, jossa on kyseinen näyttökoodi, saa (tai menettää) sen; vedä saadaksesi lisää koodeja. Määritteet näkyvät värillisenä kerroksena ja niistä tulee 256-tavuinen `LEVEL_ATTR`-taulukko (`LEVEL_ATTR_SOLID` = 1, `_LADDER` = 2, `_HAZARD` = 4, `_COLLECT` = 8).                                                                                                                                                                                                                                                                                                                          |
 | Reunan tarkistus    | Punaiset merkit paikoista, joissa vierekkäiset näytöt eivät jatku: reunuksen toinen puoli on tyhjä (välilyönti) ja toinen ei, tai vain toinen puoli on yhtenäinen. Sivupaneeli laskee reunat ja solut.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
