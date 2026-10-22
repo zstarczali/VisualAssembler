@@ -2204,6 +2204,31 @@ async fn load_incbin_sample(app: AppHandle, file_name: String) -> serde_json::Va
     }
 }
 
+/// A path stored on another machine (`/Users/…/demo.bin` opened on Windows, `C:\…` on macOS)
+/// is looked up by its bare file name: base dir, working folder, bundled samples.
+fn push_bare_name_fallbacks(
+    app: &AppHandle,
+    candidates: &mut Vec<PathBuf>,
+    raw_path: &str,
+    base_dir: Option<&str>,
+) {
+    let Some(bare) = raw_path.rsplit(['/', '\\']).next().filter(|n| !n.is_empty()) else {
+        return;
+    };
+    if bare == raw_path {
+        return;
+    }
+    if let Some(base) = base_dir.map(str::trim).filter(|b| !b.is_empty()) {
+        candidates.push(std::path::Path::new(base).join(bare));
+    }
+    if let Some(folder) = get_working_folder_path(&read_config(app)) {
+        candidates.push(folder.join(bare));
+    }
+    if let Ok(p) = resolve_resource_file(app, &format!("samples/{}", bare)) {
+        candidates.push(p);
+    }
+}
+
 #[tauri::command]
 async fn reload_incbin_file(
     app: AppHandle,
@@ -2247,6 +2272,7 @@ async fn reload_incbin_file(
         }
     }
 
+    push_bare_name_fallbacks(&app, &mut candidates, raw_path, base_dir.as_deref());
     let resolved = candidates.into_iter().find(|p| p.exists());
     let Some(resolved) = resolved else {
         return serde_json::json!({ "error": format!("The system cannot find the file specified. (os error 2): {}", file_path) });
@@ -2374,6 +2400,7 @@ async fn reload_sid_file(
         }
     }
 
+    push_bare_name_fallbacks(&app, &mut candidates, raw_path, base_dir.as_deref());
     let resolved = candidates.into_iter().find(|p| p.exists());
     let Some(resolved) = resolved else {
         return serde_json::json!({ "error": format!("The system cannot find the file specified. (os error 2): {}", file_path) });
@@ -2591,6 +2618,7 @@ async fn reload_include_file(
         }
     }
 
+    push_bare_name_fallbacks(&app, &mut candidates, raw_path, base_dir.as_deref());
     let resolved = candidates.into_iter().find(|p| p.exists());
     let Some(resolved) = resolved else {
         return serde_json::json!({ "error": format!("The system cannot find the file specified. (os error 2): {}", file_path) });

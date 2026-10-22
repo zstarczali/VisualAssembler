@@ -78,18 +78,16 @@ VMA_BIN=src-tauri/target/release/vma.exe node --test tests/vma-golden.test.js
 
 ---
 
-## 3. A korpusz által talált eltérések — döntés kell a port előtt
+## 3. A korpusz által talált eltérések — F1-ben rendezve
 
-Ezeket **nem** pineltem a golden-be (a snippetekből kivettem), előbb el kell dönteni, mi a helyes:
-
-| # | Jelenség | Javaslat |
-|---|----------|----------|
-| 1 | `.byte` vegyes listában a `%` bináris rossz: `.byte 3, %11` → `03 11`, `.byte %101, $FF` → `01 FF` (egyedül állva jó) | **Hiba** — JS-ben javítani (`_importDetectListBase` / `parseByteMacro`), majd `--update` |
-| 2 | Karakter-literál: `lda #'A'` hiba, `.byte …, 'A'` → `00` | Hiba vagy hiányzó funkció — Rustban egyszerű; előbb JS-ben |
-| 3 | `~` (bitenkénti NOT) nincs az operandus-kifejezésekben | Bővítés, ha kell |
-| 4 | `.if` = `ifdef` (csak `.define` szimbólumot néz); `.if DEBUG == 1` mindig hamis, csendben | Szemantika marad, de **hibát/figyelmeztetést** adjon kifejezésre |
-| 5 | `.const zp = $FB` → `LDA zp` abszolút (`AD FB 00`), míg a Kick előfeldolgozó érték szerint ZP-t választ | Szándékos? Ha nem, javítás + `--update` |
-| 6 | `reload_incbin_file` / `reload_sid_file` idegen abszolút útnál nem esik vissza fájlnévre (az include igen) | A Rust fordító közös resolvert kap |
+| # | Jelenség | Döntés / állapot |
+|---|----------|------------------|
+| 1 | `.byte` / `.word` vegyes listában a `%` bináris és a decimális hexként ment: `.byte 3, %11` → `03 11`, `.byte %101, $FF` → `01 FF` | **Javítva** (`_importDetectListBase`): vegyes listában minden elem a saját értékét adja |
+| 2 | Karakter-literál: `lda #'A'` hiba, `.byte …, 'A'` → `00` | **Javítva**: `'A'` = ASCII / PETSCII kód (`$41`, mint a `.text`), `_charLiteralToHex` a kifejezés-kiértékelőkben, `.byte`-ban és az operandus-ellenőrzésben |
+| 3 | `~` (bitenkénti NOT) az immediate operandusban | **Javítva**: a kiértékelő tudta, csak a `buildOperandPreview` karakterosztálya tiltotta |
+| 4 | `.if DEBUG == 1` csendben mindig hamis volt (csak `.define`-t nézett) | **Javítva** (`_ifConditionActive`): `.if NÉV` = `.define`-olt vagy nem nulla `.const`; más = konstans-kifejezés; kiértékelhetetlen → hiba (`ifConditionNotResolvable`, 7 nyelv) |
+| 5 | `.const zp = $FB` → `LDA zp` abszolút (`AD FB 00`) | **Marad szándékosan**: a címzési módot a forrás / paletta adja, a meglévő projektek címei nem tolódhatnak el, és a Block → szöveg körút bájtazonossága is ezen múlik. ZP konstansra: `lda.zp zp` |
+| 6 | `reload_incbin_file` / `reload_sid_file` (és Windows-on a `/Users/…` include) idegen gép útjánál nem esett vissza fájlnévre | **Javítva** (`push_bare_name_fallbacks`, `lib.rs`): alapmappa → working folder → `samples/`. A Rust fordító ugyanezt a resolvert kapja |
 | 7 | `samples/region-demo.json` régi `GROUP` blokk, `samples/exo-decrunch-src.asm` önmagában nem fordul (include-modul) | Elvárt hibaként maradnak a korpuszban |
 
 Szabály a port alatt: a Rust a JS-t követi bájtra; viselkedésváltozás **csak** úgy, hogy előbb a JS-ben
@@ -160,7 +158,7 @@ Minden fázis kilépési feltétele a golden teszt adott részhalmaza a Rust CLI
 | Fázis | Tartalom | Kész, ha |
 |-------|----------|----------|
 | **F0** ✔ | Golden korpusz, referencia-harness, CLI-szerződés | `tests/vma-golden.test.js` zöld |
-| **F1** | 3. szakasz döntései JS-ben; korpusz bővítése: a `tests/*.test.js` makró-tesztjeinek forrásai is legyenek golden esetek; Kick fixture (`tests/fixtures/kick-project`) előfeldolgozott szövege | manifest frissítve, nincs ismert hiba benne |
+| **F1** (félig ✔) | ✔ 3. szakasz döntései JS-ben (manifest frissítve, 0 minta változott); hátra: korpusz bővítése: a `tests/*.test.js` makró-tesztjeinek forrásai is legyenek golden esetek; Kick fixture (`tests/fixtures/kick-project`) előfeldolgozott szövege | manifest frissítve, nincs ismert hiba benne |
 | **F2** | Crate váz, CLI, lexer / parser, kifejezések, címkék, opkódok, ORG / több szegmens, `.byte/.word/.text/.fill/.align`, PRG + BASIC stub | `gen-opcode-matrix`, `snip-*`, egyszerű minták |
 | **F3** | Szerkezeti makrók: `.const/.var/.define/.if/.else`, `.macro/.endm` + `:invoke`, LOOP/NEXT, FOR/ENDF, REGION, `LBxx`, `.assert`, SMC címke, lokális `.loop` és anonim címkék | `macro-*` szerkezeti esetek + a JSON minták többsége |
 | **F4** | Kódgeneráló makrók 1:1 (PRINT*, SPRITE_*, JOYSTICK, MOUSE, REU_*, TURBO, DELAY, MEMCPY/MEMSET, IRQ_SETUP, futásidejű IF/WHILE/REPEAT …) | összes `macro-*` |
