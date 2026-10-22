@@ -11255,22 +11255,136 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
   overflow: hidden;
 }
 
-.project-settings-dialog {
-  width: min(640px, 94vw);
+/* ── Project settings dialog (editor-dialog layout: header bar, body, footer bar) ── */
+.ps-dialog {
+  border: none;
+  border-radius: 3px;
+  padding: 0;
+  background: var(--panel);
+  color: var(--text);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+  width: min(620px, 94vw);
+  max-height: 92vh;
+  overflow: hidden;
+}
+.ps-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.48);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+.ps-card {
+  display: flex;
+  flex-direction: column;
+  max-height: 92vh;
+}
+.ps-hdr {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--panel-border);
+  background: var(--panel-strong);
+}
+.ps-hdr-icon {
+  flex: 0 0 auto;
+  color: var(--secondary);
+}
+.ps-title {
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.ps-meta {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+.ps-xbtn {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  min-height: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--secondary);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.ps-xbtn:hover {
+  color: var(--text);
+}
+.ps-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 14px 16px;
+  overflow-y: auto;
+}
+.ps-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ps-section[hidden] {
+  display: none;
+}
+.ps-section-label {
+  margin: 0;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--panel-border);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 .ps-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px 16px;
+  gap: 10px 14px;
+  align-items: end;
 }
-.ps-grid .ps-field {
-  flex: none;
+.ps-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  font-size: 0.78rem;
 }
-.ps-grid .ps-wide {
+.ps-field > span:first-child {
+  font-weight: 600;
+}
+.ps-wide {
   grid-column: 1 / -1;
 }
-.ps-grid [hidden] {
-  display: none;
+.ps-input {
+  box-sizing: border-box;
+  min-height: 0;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--panel-border);
+  border-radius: 2px;
+  background: var(--input-bg);
+  color: var(--text);
+  font: inherit;
+  box-shadow: none;
+}
+.ps-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+.ps-textarea {
+  height: auto;
+  padding: 6px 8px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.76rem;
+  resize: vertical;
 }
 .ps-path {
   font-family: "IBM Plex Mono", monospace;
@@ -11279,41 +11393,41 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
   overflow-wrap: anywhere;
   user-select: text;
 }
-.ps-select,
-.ps-textarea {
-  box-sizing: border-box;
-  min-height: unset;
-  border: 1px solid var(--panel-border);
-  border-radius: 2px;
-  background: var(--input-bg);
-  color: var(--text);
-  font: inherit;
-}
-.ps-select {
-  height: 34px;
-  padding: 0 8px;
-}
-.ps-textarea {
-  padding: 6px 10px;
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 0.78rem;
-  resize: vertical;
-}
 .ps-check {
-  grid-column: 1 / -1;
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.8rem;
+  height: 30px;
+  font-size: 0.78rem;
   font-weight: 600;
 }
 .ps-check input {
-  min-height: unset;
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  box-shadow: none;
 }
 .ps-hint,
 .ps-files {
-  font-size: 0.74rem;
+  font-size: 0.72rem;
   color: var(--muted);
+}
+.ps-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--panel-border);
+  background: var(--panel-strong);
+}
+.ps-footer button {
+  min-height: 0;
+  height: 30px;
+  padding: 0 16px;
 }
 
 .template-dialog::backdrop {

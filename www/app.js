@@ -82,49 +82,49 @@ const CUSTOMER_MESSAGE = {
   hu: {
     eyebrow: "Újdonság a 2.6.5-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<ul><li><strong>KickAssembler projektek</strong>: Menu → Program → Kick projekt importálása… — a teljes forrásfa (<code>#import</code>, <code>.import binary</code>) egy projektbe; a VA bájtra úgy fordítja, mint a KickAssembler.</li><li><strong>Kick-kompatibilis kapcsoló</strong> a projektpanelen (<code>{K}</code>): <code>.for</code>, <code>.if</code>, <code>.function</code>, <code>.pseudocommand</code>, <code>!</code> címkék, scope-ok és névterek a VA makrók mellett.</li><li><strong>Build Info</strong> több oszlopban.</li><li><strong>Színválasztó</strong> a Hi-Res, Sprite, Karakter és Charset Canvas szerkesztőben (Alt+kattintás); <strong>Ctrl+görgő</strong> nagyítás.</li><li><strong>ACME</strong>: a memóriatérkép az ACME fordítást követi.</li></ul><p>Kérdés, ötlet vagy hiba: <strong>Menu → Támogatás</strong>.</p>`,
+    body: `<ul><li><strong>KickAssembler projektek</strong>: Menu → Program → Kick projekt importálása… — a teljes forrásfa (<code>#import</code>, <code>.import binary</code>) egy projektbe; a VA bájtra úgy fordítja, mint a KickAssembler.</li><li><strong>Kick-kompatibilis kapcsoló</strong> a projektpanelen (<code>{K}</code>): <code>.for</code>, <code>.if</code>, <code>.function</code>, <code>.pseudocommand</code>, <code>!</code> címkék, scope-ok és névterek a VA makrók mellett.</li><li><strong>Build Info</strong> több oszlopban.</li><li><strong>C64 színpaletta</strong> (Beállítások → Általános → Szerkesztők, alapból Colodore); <strong>színválasztó</strong> a Hi-Res, Sprite, Karakter és Charset Canvas szerkesztőben (Alt+kattintás); <strong>Ctrl+görgő</strong> nagyítás.</li><li><strong>ACME</strong>: a memóriatérkép az ACME fordítást követi.</li></ul><p>Kérdés, ötlet vagy hiba: <strong>Menu → Támogatás</strong>.</p>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
     eyebrow: "New in 2.6.5",
     title: "Welcome to Visual Assembler",
-    body: `<ul><li><strong>KickAssembler projects</strong>: Menu → Program → Import Kick project… — the whole source tree (<code>#import</code>, <code>.import binary</code>) in one project; VA builds it byte for byte like KickAssembler.</li><li><strong>Kick-compatible switch</strong> in the Project panel (<code>{K}</code>): <code>.for</code>, <code>.if</code>, <code>.function</code>, <code>.pseudocommand</code>, <code>!</code> labels, scopes and namespaces next to the VA macros.</li><li><strong>Build Info</strong> in columns.</li><li><strong>Colour picker</strong> in the Hi-Res, Sprite, Character and Charset Canvas editors (Alt+click); <strong>Ctrl+wheel</strong> zoom.</li><li><strong>ACME</strong>: the memory map follows the ACME build.</li></ul><p>Questions, ideas or bugs: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>KickAssembler projects</strong>: Menu → Program → Import Kick project… — the whole source tree (<code>#import</code>, <code>.import binary</code>) in one project; VA builds it byte for byte like KickAssembler.</li><li><strong>Kick-compatible switch</strong> in the Project panel (<code>{K}</code>): <code>.for</code>, <code>.if</code>, <code>.function</code>, <code>.pseudocommand</code>, <code>!</code> labels, scopes and namespaces next to the VA macros.</li><li><strong>Build Info</strong> in columns.</li><li><strong>C64 colour palette</strong> (Settings → General → Editors, Colodore by default); <strong>colour picker</strong> in the Hi-Res, Sprite, Character and Charset Canvas editors (Alt+click); <strong>Ctrl+wheel</strong> zoom.</li><li><strong>ACME</strong>: the memory map follows the ACME build.</li></ul><p>Questions, ideas or bugs: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
     eyebrow: "Novedad en la 2.6.5",
     title: "Bienvenido a Visual Assembler",
-    body: `<ul><li><strong>Proyectos KickAssembler</strong>: Menu → Program → Import Kick project… — todo el árbol de fuentes (<code>#import</code>, <code>.import binary</code>) en un proyecto; VA lo compila byte a byte como KickAssembler.</li><li><strong>Interruptor compatible con Kick</strong> en el panel de proyecto (<code>{K}</code>): <code>.for</code>, <code>.if</code>, <code>.function</code>, <code>.pseudocommand</code>, etiquetas <code>!</code>, ámbitos y espacios de nombres junto a las macros de VA.</li><li><strong>Build Info</strong> en columnas.</li><li><strong>Cuentagotas</strong> en los editores Hi-Res, Sprite, Character y Charset Canvas (Alt+clic); zoom con <strong>Ctrl+rueda</strong>.</li><li><strong>ACME</strong>: el mapa de memoria sigue la compilación de ACME.</li></ul><p>Preguntas, ideas o errores: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Proyectos KickAssembler</strong>: Menu → Program → Import Kick project… — todo el árbol de fuentes (<code>#import</code>, <code>.import binary</code>) en un proyecto; VA lo compila byte a byte como KickAssembler.</li><li><strong>Interruptor compatible con Kick</strong> en el panel de proyecto (<code>{K}</code>): <code>.for</code>, <code>.if</code>, <code>.function</code>, <code>.pseudocommand</code>, etiquetas <code>!</code>, ámbitos y espacios de nombres junto a las macros de VA.</li><li><strong>Build Info</strong> en columnas.</li><li><strong>Paleta de colores C64</strong> (Settings → General → Editors, Colodore por defecto); <strong>cuentagotas</strong> en los editores Hi-Res, Sprite, Character y Charset Canvas (Alt+clic); zoom con <strong>Ctrl+rueda</strong>.</li><li><strong>ACME</strong>: el mapa de memoria sigue la compilación de ACME.</li></ul><p>Preguntas, ideas o errores: <strong>Menu → Support</strong>.</p>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
     eyebrow: "Neu in 2.6.5",
     title: "Willkommen bei Visual Assembler",
-    body: `<ul><li><strong>KickAssembler-Projekte</strong>: Menu → Program → Import Kick project… — der ganze Quellbaum (<code>#import</code>, <code>.import binary</code>) in einem Projekt; VA übersetzt ihn Byte für Byte wie KickAssembler.</li><li><strong>Kick-kompatibel-Schalter</strong> im Projektfenster (<code>{K}</code>): <code>.for</code>, <code>.if</code>, <code>.function</code>, <code>.pseudocommand</code>, <code>!</code>-Labels, Scopes und Namespaces neben den VA-Makros.</li><li><strong>Build Info</strong> in Spalten.</li><li><strong>Farbpipette</strong> im Hi-Res-, Sprite-, Character- und Charset-Canvas-Editor (Alt+Klick); Zoom mit <strong>Strg+Mausrad</strong>.</li><li><strong>ACME</strong>: die Speicherkarte folgt dem ACME-Build.</li></ul><p>Fragen, Ideen oder Fehler: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>KickAssembler-Projekte</strong>: Menu → Program → Import Kick project… — der ganze Quellbaum (<code>#import</code>, <code>.import binary</code>) in einem Projekt; VA übersetzt ihn Byte für Byte wie KickAssembler.</li><li><strong>Kick-kompatibel-Schalter</strong> im Projektfenster (<code>{K}</code>): <code>.for</code>, <code>.if</code>, <code>.function</code>, <code>.pseudocommand</code>, <code>!</code>-Labels, Scopes und Namespaces neben den VA-Makros.</li><li><strong>Build Info</strong> in Spalten.</li><li><strong>C64-Farbpalette</strong> (Settings → General → Editors, standardmäßig Colodore); <strong>Farbpipette</strong> im Hi-Res-, Sprite-, Character- und Charset-Canvas-Editor (Alt+Klick); Zoom mit <strong>Strg+Mausrad</strong>.</li><li><strong>ACME</strong>: die Speicherkarte folgt dem ACME-Build.</li></ul><p>Fragen, Ideen oder Fehler: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
     eyebrow: "Nieuw in 2.6.5",
     title: "Welkom bij Visual Assembler",
-    body: `<ul><li><strong>KickAssembler-projecten</strong>: Menu → Program → Import Kick project… — de hele bronboom (<code>#import</code>, <code>.import binary</code>) in één project; VA bouwt hem byte voor byte zoals KickAssembler.</li><li><strong>Kick-compatibel-schakelaar</strong> in het projectpaneel (<code>{K}</code>): <code>.for</code>, <code>.if</code>, <code>.function</code>, <code>.pseudocommand</code>, <code>!</code>-labels, scopes en namespaces naast de VA-macro's.</li><li><strong>Build Info</strong> in kolommen.</li><li><strong>Kleurkiezer</strong> in de Hi-Res-, Sprite-, Character- en Charset Canvas-editor (Alt+klik); zoom met <strong>Ctrl+scrollwiel</strong>.</li><li><strong>ACME</strong>: de geheugenkaart volgt de ACME-build.</li></ul><p>Vragen, ideeën of bugs: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>KickAssembler-projecten</strong>: Menu → Program → Import Kick project… — de hele bronboom (<code>#import</code>, <code>.import binary</code>) in één project; VA bouwt hem byte voor byte zoals KickAssembler.</li><li><strong>Kick-compatibel-schakelaar</strong> in het projectpaneel (<code>{K}</code>): <code>.for</code>, <code>.if</code>, <code>.function</code>, <code>.pseudocommand</code>, <code>!</code>-labels, scopes en namespaces naast de VA-macro's.</li><li><strong>Build Info</strong> in kolommen.</li><li><strong>C64-kleurenpalet</strong> (Settings → General → Editors, standaard Colodore); <strong>kleurkiezer</strong> in de Hi-Res-, Sprite-, Character- en Charset Canvas-editor (Alt+klik); zoom met <strong>Ctrl+scrollwiel</strong>.</li><li><strong>ACME</strong>: de geheugenkaart volgt de ACME-build.</li></ul><p>Vragen, ideeën of bugs: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
     eyebrow: "Nowość w 2.6.5",
     title: "Witamy w Visual Assembler",
-    body: `<ul><li><strong>Projekty KickAssemblera</strong>: Menu → Program → Import Kick project… — całe drzewo źródeł (<code>#import</code>, <code>.import binary</code>) w jednym projekcie; VA kompiluje je bajt w bajt jak KickAssembler.</li><li><strong>Przełącznik zgodności z Kick</strong> w panelu projektu (<code>{K}</code>): <code>.for</code>, <code>.if</code>, <code>.function</code>, <code>.pseudocommand</code>, etykiety <code>!</code>, zakresy i przestrzenie nazw obok makr VA.</li><li><strong>Build Info</strong> w kolumnach.</li><li><strong>Próbnik koloru</strong> w edytorach Hi-Res, Sprite, Character i Charset Canvas (Alt+klik); powiększanie <strong>Ctrl+kółko</strong>.</li><li><strong>ACME</strong>: mapa pamięci korzysta z kompilacji ACME.</li></ul><p>Pytania, pomysły lub błędy: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Projekty KickAssemblera</strong>: Menu → Program → Import Kick project… — całe drzewo źródeł (<code>#import</code>, <code>.import binary</code>) w jednym projekcie; VA kompiluje je bajt w bajt jak KickAssembler.</li><li><strong>Przełącznik zgodności z Kick</strong> w panelu projektu (<code>{K}</code>): <code>.for</code>, <code>.if</code>, <code>.function</code>, <code>.pseudocommand</code>, etykiety <code>!</code>, zakresy i przestrzenie nazw obok makr VA.</li><li><strong>Build Info</strong> w kolumnach.</li><li><strong>Paleta kolorów C64</strong> (Settings → General → Editors, domyślnie Colodore); <strong>próbnik koloru</strong> w edytorach Hi-Res, Sprite, Character i Charset Canvas (Alt+klik); powiększanie <strong>Ctrl+kółko</strong>.</li><li><strong>ACME</strong>: mapa pamięci korzysta z kompilacji ACME.</li></ul><p>Pytania, pomysły lub błędy: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
     eyebrow: "Novità nella 2.6.5",
     title: "Benvenuto in Visual Assembler",
-    body: `<ul><li><strong>Progetti KickAssembler</strong>: Menu → Program → Import Kick project… — l'intero albero dei sorgenti (<code>#import</code>, <code>.import binary</code>) in un progetto; VA lo compila byte per byte come KickAssembler.</li><li><strong>Interruttore compatibile Kick</strong> nel pannello del progetto (<code>{K}</code>): <code>.for</code>, <code>.if</code>, <code>.function</code>, <code>.pseudocommand</code>, etichette <code>!</code>, scope e namespace accanto alle macro di VA.</li><li><strong>Build Info</strong> in colonne.</li><li><strong>Contagocce</strong> negli editor Hi-Res, Sprite, Character e Charset Canvas (Alt+clic); zoom con <strong>Ctrl+rotellina</strong>.</li><li><strong>ACME</strong>: la mappa di memoria segue la compilazione ACME.</li></ul><p>Domande, idee o bug: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Progetti KickAssembler</strong>: Menu → Program → Import Kick project… — l'intero albero dei sorgenti (<code>#import</code>, <code>.import binary</code>) in un progetto; VA lo compila byte per byte come KickAssembler.</li><li><strong>Interruttore compatibile Kick</strong> nel pannello del progetto (<code>{K}</code>): <code>.for</code>, <code>.if</code>, <code>.function</code>, <code>.pseudocommand</code>, etichette <code>!</code>, scope e namespace accanto alle macro di VA.</li><li><strong>Build Info</strong> in colonne.</li><li><strong>Tavolozza C64</strong> (Settings → General → Editors, Colodore predefinita); <strong>contagocce</strong> negli editor Hi-Res, Sprite, Character e Charset Canvas (Alt+clic); zoom con <strong>Ctrl+rotellina</strong>.</li><li><strong>ACME</strong>: la mappa di memoria segue la compilazione ACME.</li></ul><p>Domande, idee o bug: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -2513,7 +2513,8 @@ function setupDraggableEditorDialogs() {
     ["project-snapshot-dialog", ".project-snapshot-hdr"],
     ["support-dialog", ".support-hdr"],
     ["tut-editor-dialog", ".te-hdr"],
-    ["sid-viz-dialog", ".sid-viz-hdr"]
+    ["sid-viz-dialog", ".sid-viz-hdr"],
+    ["project-settings-dialog", ".ps-hdr"]
   ];
   dialogs.forEach(function(entry) {
     const dialogId = entry[0];
@@ -3567,7 +3568,9 @@ function applyTranslations() {
     setText("#import-kick-project", t("importKickProject"));
     setText("#menu-project-settings", t("projectSettings"));
     document.getElementById("expert-project-settings-btn")?.setAttribute("aria-label", t("projectSettings"));
-    setText("#ps-title", t("projectSettings"));
+    setText("#ps-title", t("projectSettings").replace(/…$/, ""));
+    setText("#ps-section-project", t("psSectionProject"));
+    setText("#ps-section-build", t("psAssembler"));
     setText("#ps-name-label", t("psName"));
     setText("#ps-path-label", t("psPath"));
     setText("#ps-startup-label", t("psStartup"));
@@ -25964,6 +25967,10 @@ function _kickScheduleCheck() {
         if (res.ok) bytes = Math.max(0, (res.bytes?.length || 2) - 2);
         else errors = res.errors;
         renderMemoryMap(getMemoryUsage());
+        if (_expertCyclesEnabled && res.ok) {
+          _expertCycleMap = _kickCycleMap(kick, tabs.find(t => t.id === activeTabId)?.filePath || "");
+          _expertUpdateCycles();
+        }
       } catch (e) {
         errors = [{ text: String(e) }];
       } finally {
@@ -25978,6 +25985,48 @@ function _kickScheduleCheck() {
     if (errors.length) _expertSetStatus(tf("kickBuildErrors", { count: errors.length, first: errors[0].text }), "error");
     else _expertSetStatus(tf("kickBuildOk", { bytes }), "ok");
   }, 600);
+}
+
+// Cycle gutter of a Kick project: the built program's instructions on the lines of the
+// open file. A line expanded several times (.for, macros) shows one turn and "×n";
+// its min / max count every turn, so a selection sums the whole unrolled code.
+function _kickCycleMap(kick, filePath) {
+  const map = new Map();
+  const norm = _normFilePath(filePath);
+  if (!norm) return map;
+  const layout = getProgramLayout();
+  const labels = new Map();
+  layout.lines.forEach((line) => addLayoutLabels(labels, line));
+  labels._anonAddrs = _collectAnonLabels(layout);
+  const perLine = new Map();   // editor line → [{ key, c }] (key: the instruction text)
+  for (const line of layout.lines) {
+    if (line.conditionallySkipped || typeof line.block._srcLine !== "number") continue;
+    const origin = kick.origins[line.block._srcLine];
+    if (!origin || _normFilePath(origin.file) !== norm) continue;
+    const mnem = String(line.block.mnemonic || "").toUpperCase();
+    if (!opcodeMap[mnem]) continue;
+    const result = compileLineBytes(line, labels);
+    if (!result.ok || _REV_OP[result.bytes[0]]?.mnem !== mnem) continue;
+    const c = _cycleInfo(result.bytes, line.address);
+    if (!c) continue;
+    const key = `${line.block._srcLine}`;
+    if (!perLine.has(origin.line - 1)) perLine.set(origin.line - 1, []);
+    perLine.get(origin.line - 1).push({ key, mnem, c });
+  }
+  for (const [lineNo, items] of perLine) {
+    // the statements of one turn: up to the first repeated mnemonic sequence
+    const turn = [];
+    for (const it of items) {
+      if (turn.length && it.mnem === turn[0].mnem && items.length % turn.length === 0 && items.slice(turn.length).every((x, k) => x.mnem === items[k % turn.length].mnem)) break;
+      turn.push(it);
+    }
+    const times = Math.max(1, Math.round(items.length / turn.length));
+    const min = items.reduce((s, x) => s + x.c.min, 0);
+    const max = items.reduce((s, x) => s + x.c.max, 0);
+    const text = turn.map(x => x.c.text).join(",") + (times > 1 ? `×${times}` : "");
+    map.set(lineNo, { min, max, text, warn: items.some(x => x.c.warn) });
+  }
+  return map;
 }
 
 // Project panel switch: the project is KickAssembler compatible (VMA mode only, saved
@@ -26040,6 +26089,7 @@ async function openProjectSettings() {
   const sources = files.filter(f => /\.(asm|s|a|inc|a65|lib)$/i.test(f));
   const set = (id, prop, value) => { const el = document.getElementById(id); if (el) el[prop] = value; };
   set("ps-name", "value", data.name || "");
+  set("ps-meta", "textContent", data.name || "");
   set("ps-path", "textContent", data._projPath || t("psNotSaved"));
   const startup = document.getElementById("ps-startup");
   if (startup) {

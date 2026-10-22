@@ -236,7 +236,7 @@ test("KickAssembler examples build byte for byte like KickAssembler (needs KICKA
     fs.cpSync(examples, work, { recursive: true });
     app.__readText = (p) => { try { return fs.readFileSync(p, "latin1"); } catch { return null; } };
     app.__readBin = readBin;
-    for (const main of ["01.MusicIrq/MusicIrq.asm", "05.Scoping/Scroll.asm", "06.PseudoCommands/2xSpeedPlayer.asm", "06.PseudoCommands/8xSpeedPlayer.asm", "07.Preprocessor/Preprocessor.asm", "08.Namespace and libraries/SimpleSplits.asm"]) {
+    for (const main of ["01.MusicIrq/MusicIrq.asm", "05.Scoping/Scroll.asm", "06.PseudoCommands/2xSpeedPlayer.asm", "06.PseudoCommands/8xSpeedPlayer.asm", "07.Preprocessor/Preprocessor.asm", "08.Namespace and libraries/SimpleSplits.asm", "03.Functions Multilabels Fill Virtual/SineAndGraphics.asm", "09.PSID Import/SID_Player.asm", "10.Koala Import/KoalaShower.asm"]) {
       const file = path.join(work, main);
       execFileSync("java", ["-jar", process.env.KICKASS_JAR, path.basename(file), "-o", "ref.prg"], { cwd: path.dirname(file), stdio: "pipe" });
       const pre = app.run(`_kickPreprocess(${JSON.stringify(file.split(path.sep).join("/"))}, __readText, __readBin)`);
@@ -354,4 +354,41 @@ test("Project settings: name, startup file, Kick switch, symbols and variables a
   assert.deepEqual(proj.kickDefines, ["DEBUG", "PAL"]);
   assert.deepEqual({ ...proj.kickVars }, { level: "3", autojoy: "2", flag: "" });
   assert.equal(el("ps-files").textContent.includes("2"), true);
+});
+
+test("Kick LoadSid, LoadBinary with a template and virtual blocks build like KickAssembler", () => {
+  const dir = path.join(__dirname, "fixtures", "kick-features").split(path.sep).join("/");
+  app.__readText = readText;
+  app.__readBin = readBin;
+  const pre = app.run(`_kickPreprocess(${JSON.stringify(dir + "/load.asm")}, __readText, __readBin)`);
+  assert.deepEqual(Array.from(pre.errors), []);
+  const prg = build(pre.text);
+  assert.equal(prg.ok, true, prg.error);
+  // KickAssembler 5.25: java -jar KickAss.jar load.asm -o load.kickass.prg (code from $0C00, no BASIC line)
+  const ref = fs.readFileSync(path.join(dir, "load.kickass.prg"));
+  const load = prg.bytes[0] | (prg.bytes[1] << 8);
+  assert.ok(Buffer.from(prg.bytes.slice(2 + 0x0C00 - load)).equals(ref.subarray(2)));
+  // the virtual block ($2000) gives its labels, but no bytes
+  assert.ok(prg.bytes.length - 2 + load < 0x2000, "the virtual block at $2000 writes no bytes");
+});
+
+test("Kick cycle gutter: cycles on the lines of the open file, unrolled lines as ×n", () => {
+  const pre = preprocess({ "main.asm": '* = $1000\n nop\n#import "mod.asm"\n', "mod.asm": ".for (var i = 0; i < 3; i++) {\n lda $2000+i*256,x\n}\n bne *\n" });
+  assert.deepEqual(Array.from(pre.errors), []);
+  app.__kick = { origins: pre.origins };
+  app.__src = pre.text;
+  const out = app.run(`(() => {
+    const saved = program;
+    try {
+      program = parseExpertText(__src);
+      _addSrcLineToBlocks(__src, program);
+      parseUserMacros();
+      return { mod: [..._kickCycleMap(__kick, "/mem/mod.asm").entries()], main: [..._kickCycleMap(__kick, "/mem/main.asm").entries()] };
+    } finally { program = saved; }
+  })()`);
+  const mod = new Map(out.mod);
+  assert.equal(mod.get(1).text, "4×3");
+  assert.equal(mod.get(1).min, 12);
+  assert.equal(mod.get(3).text, "2/3");
+  assert.deepEqual(JSON.parse(JSON.stringify(out.main.map(([line, c]) => [line, c.text]))), [[1, "2"]]);
 });

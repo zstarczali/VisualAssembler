@@ -30,6 +30,7 @@ function run(code) {
     let renders = 0;
     const _expertRenderProjectTree = () => { renders++; };
     const _ubRenderProjectFiles = () => { renders++; };
+    ${extractFunctionSource("_projKickFields")}
     ${extractFunctionSource("_workspaceProjectSnapshot")}
     ${extractFunctionSource("_workspaceRestoreProjects")}
     ${code}
@@ -70,4 +71,16 @@ test("workspace restore brings back both projects and rebinds the UB startup tab
   assert.equal(out.ubDirty, true);
   assert.equal(out.startup, 7);
   assert.equal(out.renders, 2);
+});
+
+test("workspace keeps the Kick settings of the project", () => {
+  const out = run(`
+    const snap = _workspaceProjectSnapshot({ name: "k", files: [], startupFile: "main.asm", _projPath: "C:/k/k.proj", kick: true, kickDefines: ["DEBUG"], kickVars: { level: "3" } }, false);
+    _workspaceRestoreProjects({ expert: snap, ub: null });
+    this.out = { snap, expert: _expertProjectData };
+  `);
+  assert.equal(out.snap.kick, true);
+  assert.deepEqual(Array.from(out.snap.kickDefines), ["DEBUG"]);
+  assert.equal(out.expert.kick, true);
+  assert.equal(out.expert.kickVars.level, "3");
 });

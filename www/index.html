@@ -999,24 +999,40 @@ PRINTABLE CHARACTERS
     </div>
   </dialog>
 
-  <dialog id="project-settings-dialog" class="template-dialog project-settings-dialog" aria-labelledby="ps-title">
-    <div class="template-card">
-      <div class="template-hdr">
-        <h2 class="template-title" id="ps-title">Project settings</h2>
-        <button id="ps-close" class="project-snapshot-xbtn" type="button" aria-label="Close">×</button>
+  <dialog id="project-settings-dialog" class="ps-dialog" aria-labelledby="ps-title">
+    <div class="ps-card">
+      <div class="ps-hdr">
+        <svg class="ps-hdr-icon" viewBox="0 0 16 16" fill="none" width="14" height="14" aria-hidden="true"><circle cx="8" cy="8" r="2.2" stroke="currentColor" stroke-width="1.2"/><path d="M8 1.8v1.7M8 12.5v1.7M1.8 8h1.7M12.5 8h1.7M3.6 3.6l1.2 1.2M11.2 11.2l1.2 1.2M3.6 12.4l1.2-1.2M11.2 4.8l1.2-1.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        <span class="ps-title" id="ps-title">Project settings</span>
+        <span class="ps-meta" id="ps-meta"></span>
+        <button id="ps-close" class="ps-xbtn" type="button" aria-label="Close">×</button>
       </div>
-      <div class="ps-grid">
-        <label class="template-field ps-field"><span id="ps-name-label">Name</span><input id="ps-name" type="text" maxlength="64" spellcheck="false" autocomplete="off"></label>
-        <div class="template-field ps-field"><span id="ps-path-label">Project file</span><code id="ps-path" class="ps-path"></code></div>
-        <label class="template-field ps-field"><span id="ps-startup-label">Startup file</span><select id="ps-startup" class="ps-select"></select></label>
-        <label class="template-field ps-field"><span id="ps-assembler-label">Assembler</span><select id="ps-assembler" class="ps-select"><option value="kick">VMA (Visual Assembler)</option><option value="acme">ACME</option></select></label>
-        <label class="ps-check"><input id="ps-kick" type="checkbox"> <span id="ps-kick-label">KickAssembler compatible</span></label>
-        <label class="template-field ps-field ps-kick-only"><span id="ps-defines-label">Preprocessor symbols (#define)</span><input id="ps-defines" type="text" spellcheck="false" autocomplete="off" placeholder="DEBUG, PAL"></label>
-        <label class="template-field ps-field ps-wide ps-kick-only"><span id="ps-vars-label">Command-line variables (cmdLineVars)</span><textarea id="ps-vars" class="ps-textarea" rows="4" spellcheck="false" placeholder="level=3&#10;autojoy=0"></textarea><small id="ps-vars-hint" class="ps-hint">One name=value per line, as KickAssembler's -name=value command-line arguments.</small></label>
-        <div class="template-field ps-field ps-wide"><span id="ps-files-label">Files</span><span id="ps-files" class="ps-files"></span></div>
+      <div class="ps-body">
+        <section class="ps-section">
+          <h3 class="ps-section-label" id="ps-section-project">Project</h3>
+          <div class="ps-grid">
+            <label class="ps-field"><span id="ps-name-label">Name</span><input id="ps-name" class="ps-input" type="text" maxlength="64" spellcheck="false" autocomplete="off"></label>
+            <label class="ps-field"><span id="ps-startup-label">Startup file</span><select id="ps-startup" class="ps-input"></select></label>
+            <div class="ps-field ps-wide"><span id="ps-path-label">Project file</span><code id="ps-path" class="ps-path"></code></div>
+            <div class="ps-field ps-wide"><span id="ps-files-label">Files</span><span id="ps-files" class="ps-files"></span></div>
+          </div>
+        </section>
+        <section class="ps-section">
+          <h3 class="ps-section-label" id="ps-section-build">Assembler</h3>
+          <div class="ps-grid">
+            <label class="ps-field"><span id="ps-assembler-label">Assembler</span><select id="ps-assembler" class="ps-input"><option value="kick">VMA (Visual Assembler)</option><option value="acme">ACME</option></select></label>
+            <label class="ps-check"><input id="ps-kick" type="checkbox"> <span id="ps-kick-label">KickAssembler compatible</span></label>
+          </div>
+        </section>
+        <section class="ps-section ps-kick-only">
+          <h3 class="ps-section-label" id="ps-section-kick">KickAssembler</h3>
+          <div class="ps-grid">
+            <label class="ps-field ps-wide"><span id="ps-defines-label">Preprocessor symbols (#define)</span><input id="ps-defines" class="ps-input" type="text" spellcheck="false" autocomplete="off" placeholder="DEBUG, PAL"></label>
+            <label class="ps-field ps-wide"><span id="ps-vars-label">Command-line variables (cmdLineVars)</span><textarea id="ps-vars" class="ps-input ps-textarea" rows="4" spellcheck="false" placeholder="level=3&#10;autojoy=0"></textarea><small id="ps-vars-hint" class="ps-hint">One name=value per line, as KickAssembler's -name=value command-line arguments.</small></label>
+          </div>
+        </section>
       </div>
-      <div class="template-footer">
-        <span class="template-footer-spacer"></span>
+      <div class="ps-footer">
         <button id="ps-cancel" class="secondary" type="button">Cancel</button>
         <button id="ps-save" class="primary" type="button">Save</button>
       </div>
@@ -1438,16 +1454,22 @@ PRINTABLE CHARACTERS
       <p class="whats-new-version">v2.6.5</p>
       <ul class="whats-new-list">
         <li>
-          <strong>KickAssembler projects:</strong> <em>Menu → Program → Import Kick project…</em> takes a whole KickAssembler source tree — the main file with its <code>#import</code> modules and <code>.import binary</code> assets — and writes a <code>.proj</code> next to it (the sources stay where they are). Visual Assembler builds it with its own assembler, byte for byte like KickAssembler 5.25: Run, Build PRG / D64 / CRT, Exomizer, Debug, the VICE Monitor and Build project all work, errors name the <code>file:line</code> (a click opens the file), and the whole tree is checked while you type. The Dark Chambers C64 port and six of the KickAssembler example programs build identically.
+          <strong>KickAssembler projects:</strong> <em>Menu → Program → Import Kick project…</em> takes a whole KickAssembler source tree — the main file with its <code>#import</code> modules and <code>.import binary</code> assets — and writes a <code>.proj</code> next to it (the sources stay where they are). Visual Assembler builds it with its own assembler, byte for byte like KickAssembler 5.25: Run, Build PRG / D64 / CRT, Exomizer, Debug, the VICE Monitor and Build project all work, errors name the <code>file:line</code> (a click opens the file), the whole tree is checked while you type, and the cycle gutter works in every file of the tree (unrolled lines as <code>4×8</code>). The Dark Chambers C64 port and ten of the twelve KickAssembler example programs build identically.
+        </li>
+        <li>
+          <strong>Project settings:</strong> the gear button in the Project panel (or <em>Menu → File → Project settings…</em>) shows and edits the project: name, <code>.proj</code> path, startup file, assembler (VMA or ACME), KickAssembler compatibility, and for Kick projects the <code>#define</code> symbols and the command-line variables (<code>cmdLineVars</code>, <code>name=value</code> per line), saved in the <code>.proj</code>.
         </li>
         <li>
           <strong>Kick-compatible switch:</strong> the <code>{K}</code> button in the Project panel header makes any VMA project KickAssembler compatible (saved in the <code>.proj</code>). The VA macros and directives keep working next to the KickAssembler script.
         </li>
         <li>
-          <strong>KickAssembler language:</strong> <code>#import</code> / <code>#importonce</code> / <code>#importif</code>, <code>#define</code> / <code>#if</code>, <code>.const</code> / <code>.label</code> (zero page or absolute by value), <code>.for</code>, <code>.while</code>, <code>.if … else</code>, <code>.var</code> / <code>.eval</code>, <code>.function</code>, <code>.macro { }</code>, <code>.pseudocommand</code> (with argument types), multi-labels (<code>!:</code>, <code>!+</code>, <code>!-</code>), scopes and namespaces (<code>name.inner</code>, <code>lp[2].inner</code>, <code>.namespace</code>, <code>.filenamespace</code>, <code>@</code>), <code>.pseudopc</code>, <code>.import binary</code>, <code>BasicUpstart2</code>, <code>List</code> / <code>Hashtable</code> / <code>.struct</code> / strings, <code>.enum</code>, the math library, the colour and opcode constants, <code>*</code> as the program counter, <code>;</code> between statements, <code>.error</code> / <code>.errorif</code>.
+          <strong>KickAssembler language:</strong> <code>#import</code> / <code>#importonce</code> / <code>#importif</code>, <code>#define</code> / <code>#if</code>, <code>.const</code> / <code>.label</code> (zero page or absolute by value), <code>.for</code>, <code>.while</code>, <code>.if … else</code>, <code>.var</code> / <code>.eval</code>, <code>.function</code>, <code>.macro { }</code>, <code>.pseudocommand</code> (with argument types), multi-labels (<code>!:</code>, <code>!+</code>, <code>!-</code>), scopes and namespaces (<code>name.inner</code>, <code>lp[2].inner</code>, <code>.namespace</code>, <code>.filenamespace</code>, <code>@</code>), <code>.pseudopc</code>, <code>.import binary</code>, <code>LoadBinary</code> (with templates such as <code>BF_KOALA</code>), <code>LoadSid</code>, <code>virtual</code> memory blocks, <code>cmdLineVars</code>, <code>BasicUpstart2</code>, <code>List</code> / <code>Hashtable</code> / <code>.struct</code> / strings, <code>.enum</code>, the math library, the colour and opcode constants, <code>*</code> as the program counter, <code>;</code> between statements, <code>.error</code> / <code>.errorif</code>.
         </li>
         <li>
           <strong>Build Info in columns:</strong> a wider window with origin, end, size and segment count on top, the segments, errors and <code>.print</code> output below, and the labels, constants and macros in columns. In a Kick project it shows the built tree, with inner labels as <code>scope.label</code>.
+        </li>
+        <li>
+          <strong>C64 colour palette:</strong> <em>Settings → General → Editors → C64 colour palette</em> picks the RGB values every editor draws the 16 C64 colours with — sprite, character, Charset Canvas, Hi-Res, map and level editors and the Toolkit swatches. <strong>Colodore</strong> (the default, the closest to a real C64) replaces the darker Pepto colours; Pepto, VICE, Deekay and C64 Wiki / Godot are also available. Only the display changes, the colour indexes in your data stay the same; the Hi-Res image import uses the editor palette unless you choose another one there.
         </li>
         <li>
           <strong>Colour picker in the editors:</strong> the Hi-Res, Sprite, Character (multicolor) and Charset Canvas editors have a picker tool; <kbd>Alt</kbd>+click picks the colour with any tool.

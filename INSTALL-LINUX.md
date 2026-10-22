@@ -1,7 +1,7 @@
 # Linux Installation Guide (Ubuntu / Debian)
 Version 2.6.5
 
-2.6.5: KickAssembler projects (Import Kick project… builds a whole KickAssembler source tree with #import, .for, .if, .function, .macro, .pseudocommand, scopes and namespaces byte for byte like KickAssembler 5.25), Kick-compatible switch for VMA projects, Build Info in columns, colour picker and Ctrl + wheel zoom in the editors, ACME memory map from the ACME build, .byte / .word label expression fix.
+2.6.5: KickAssembler projects (Import Kick project… builds a whole KickAssembler source tree with #import, .for, .if, .function, .macro, .pseudocommand, scopes and namespaces byte for byte like KickAssembler 5.25), LoadBinary / LoadSid / virtual blocks, Project settings with cmdLineVars and #define, Kick-compatible switch for VMA projects, Build Info in columns, C64 colour palette setting (Colodore by default), colour picker and Ctrl + wheel zoom in the editors, ACME memory map from the ACME build, .byte / .word label expression fix.
 
 2.6.4: ACME assembler mode (ACME 0.97 builds the Expert source; Disassembly, Monitor, cycle counts, hints and the VICE Monitor follow the ACME build), better Kick Assembler import (.text with .encoding, .label x = * + 1, .abs / .zp; Restore64 sources build byte for byte like KickAssembler), Run starts programs that load below the BASIC line, Exomizer second-RUN ?SYNTAX ERROR fixed, SID Editor playback LCD and VA-VK instrument knob, Settings in three tabs, Ctrl+N opens a new tab.
 
