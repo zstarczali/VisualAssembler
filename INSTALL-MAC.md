@@ -1,5 +1,7 @@
 # macOS Installation Guide
-Version 2.6.4
+Version 2.6.5
+
+2.6.5: KickAssembler projects (Import Kick project… builds a whole KickAssembler source tree with #import, .for, .if, .function, .macro, .pseudocommand, scopes and namespaces byte for byte like KickAssembler 5.25), Kick-compatible switch for VMA projects, Build Info in columns, colour picker and Ctrl + wheel zoom in the editors, ACME memory map from the ACME build, .byte / .word label expression fix.
 
 2.6.4: ACME assembler mode (ACME 0.97 builds the Expert source; Disassembly, Monitor, cycle counts, hints and the VICE Monitor follow the ACME build), better Kick Assembler import (.text with .encoding, .label x = * + 1, .abs / .zp; Restore64 sources build byte for byte like KickAssembler), Run starts programs that load below the BASIC line, Exomizer second-RUN ?SYNTAX ERROR fixed, SID Editor playback LCD and VA-VK instrument knob, Settings in three tabs, Ctrl+N opens a new tab.
 
@@ -103,7 +105,7 @@ Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in 
 
 ---
 
-**Version:** 2.6.4 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.6.5 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
 
 ## Building from source: macOS app icon
 

@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.6.4**
+**Verzió: 2.6.5**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -28,6 +28,18 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - [14. Vizuális szerkesztők (Toolkit)](#14-vizuális-szerkesztők-toolkit)
 
 ---
+
+## A 2.6.5 verzió újdonságai
+
+- **KickAssembler projektek** — a **Menu → Program → Kick projekt importálása…** egy teljes KickAssembler forrásfát (a fő fájlt az `#import` moduljaival és `.import binary` assetjeivel) projektté tesz: mellé ír egy `.proj`-ot, a források a helyükön maradnak. A Visual Assembler a saját assemblerével fordítja, bájtra úgy, mint a KickAssembler 5.25 — a Futtatás, a Build PRG / D64 / CRT, az Exomizer, a Debug, a VICE Monitor és a Build project is működik, a hibák `fájl:sor` alakúak, és gépelés közben a teljes fa ellenőrződik. A Dark Chambers C64 port és a KickAssembler hat példaprogramja azonosan fordul. Lásd: [Kick projektek (Kick projekt importálása…)](#kick-projektek-kick-projekt-importálása).
+- **Kick-kompatibilis kapcsoló** — a projektpanel fejlécének `{K}` gombja bármely VMA projektet KickAssembler-kompatibilissé tesz; a VA makrók és direktívák a KickAssembler szkript mellett is működnek.
+- **KickAssembler nyelv** — `#import` / `#importonce` / `#importif`, `#define` / `#if`, `.const` / `.label` (zero page vagy abszolút az értéktől függően), `.for`, `.while`, `.if … else`, `.var` / `.eval`, `.function`, `.macro { }`, `.pseudocommand`, többszörös címkék, scope-ok és névterek, `.pseudopc`, `.import binary`, `BasicUpstart2`, `List` / `Hashtable` / `.struct` / stringek, `.enum`, a matematikai könyvtár, a szín- és opkód-konstansok, a `*` mint programszámláló, `;` az utasítások között, `.error` / `.errorif`.
+- **Build Info több oszlopban** — szélesebb ablak: fent a kezdő- és végcím, a méret és a szegmensek száma, alatta a szegmensek, a hibák és a `.print` kimenet, a címkék, konstansok és makrók oszlopokban. Kick projektnél a lefordított fát mutatja, a belső címkéket `scope.címke` alakban.
+- **Színválasztó** — a Hi-Res, Sprite, Karakter (multicolor) és Charset Canvas szerkesztőben pipetta eszköz; az **Alt+kattintás** bármelyik eszközzel színt vesz fel. Lásd: [Hi-Res / Multicolor Editor](#hi-res--multicolor-editor).
+- **Ctrl + görgő nagyítás** a Hi-Res, Sprite, Map és Level szerkesztőben, a kurzor körül. A Hi-Res Raster kapcsolója a Grid mellé került.
+- **ACME mód** — a memóriatérkép és az átfedés-jelzés az ACME fordítást követi; az ACME projekt az indítófájlját fordítja; az ACME sablonok csak működő ACME mellett jelennek meg, és ACME projekt létrehozása a Beállításokat ACME módra állítja. Lásd: [ACME mód](#acme-mód).
+- **Új projekt** — az **Új projekt sablonból…** a menü **Új projekt** része alá került (a három külön menüpont megszűnt); a Visual Assembler sprite multiplexer sablon kiírja a címét.
+- **Javítások** — a `.byte` / `.word` címke-kifejezéssel (`<(címke+1)`, `.word címke` a címke előtt) már nem 0-ra fordul; az operandust olvasó illegális `NOP` alakok fordulnak (lásd: [Illegal / dokumentálatlan utasítások](#illegal--dokumentálatlan-utasítások)); az Ultimate Basic megnyitás-gombja minden nyelven **.ub fájl betöltése**.
 
 ## A 2.6.4 verzió újdonságai
 
@@ -668,6 +680,45 @@ Ismert korlát:
 
 - Azok a konstansok, amelyek zero-page címre oldódnak fel (például a `.const BYTEADDR = $FC` `STA BYTEADDR`-ként használva) jelenleg abszolút módú utasításokra fordulnak (3 byte) a zero-page (2 byte) helyett. A lefordított kód még mindig a helyes memóriacímre ír, csak kis méret- és ciklus-többlettel a Kick Assemblerrel épített ugyanazon forráshoz képest.
 
+#### Kick projektek (Kick projekt importálása…)
+
+A **Kick projekt importálása…** (Program menü, a **Kick import** alatt) egy teljes KickAssembler forrásfát — egy fő fájlt `#import` modulokkal és `.import binary` assetekkel — VA projektté tesz. Válaszd ki a fő fájlt (`main.asm`); a VA követ minden `#import` / `.import source` / `.import binary` sort (a nem teljesülő `.if` ágakban is), és mellé ír egy `.proj`-ot a mappa nevével (`src` / `source` / `asm` mappánál a szülőmappa nevével). A projekt a mappaszerkezetükben listázza a fájlokat; a források a helyükön maradnak, így egy meglévő KickAssembler build-szkript továbbra is működik. A nem található fájlokat a hiba-ablak sorolja fel.
+
+**Kick-kompatibilis kapcsoló:** bármely VA (VMA) projekt Kick-kompatibilissé tehető a projektpanel fejlécének `{K}` gombjával (VMA módban, nyitott projektnél látszik; az importált Kick projekteknél be van kapcsolva). A beállítás a `.proj`-ban mentődik (`"kick": true`); kikapcsolva a projekt sima VMA projekt, és pontosan úgy fordul, mint eddig.
+
+Kick-kompatibilis projektben a VA makrói és direktívái a KickAssembler szkript mellett is működnek: a `.text x, y, "…"`, `.set_border`, LOOP / NEXT, SPRITE_INIT, `.include`, `.incbin`, `.sid`, `.define` / `.if SZIMBÓLUM` / `.else` / `.endif`, a VA makrók (`.macro név(p)` … `.endm` `{p}`-vel) és a többi változatlanul a VA assemblerhez kerül, a Kick konstansok számként. A mindkettőben meglévő direktívákat az alakjuk különbözteti meg:
+
+| VA (VMA) | KickAssembler |
+|---|---|
+| `.for X, $0A, for1` … `.endf for1` | `.for (var i = 0; i < 10; i++) { … }` |
+| `.if DEBUG` … `.else` … `.endif` | `.if (kifejezés) { … } else { … }` |
+| `.macro név(p)` … `.endm`, hívása `.invoke` | `.macro Név(p) { … }`, hívása `Név(arg)` |
+| `.var név = érték` (futásidejű változó) | `.var név = érték` (szkript-változó) — Kick-kompatibilis projektben a `.var` mindig a KickAssembleré |
+
+A projektet a VA assemblere fordítja, nem a KickAssembler: minden build (Futtatás, Save PRG, D64, CRT, Exomizer, Debug, VICE Monitor, Build project, a Build gomb) előbb egy KickAssembler-előfeldolgozón futtatja át az indítófájlt, a nyitott fülek szerkesztőbeli szövegével, mentve vagy sem. Az eredmény ugyanaz a PRG, mint a KickAssembleré. Támogatott:
+
+- `#import`, `.import source`, `#importonce`; `.import binary` / `c64` / `text` opcionális eltolással és hosszal
+- `.const` / `.label` bármilyen sorrendben, kifejezésekkel; a zero page vagy abszolút címzés az értéktől függ, mint a KickAssemblerben (a `.abs` / `.zp` továbbra is kikényszeríti)
+- `.for (var i = 0; i < n; i++) { … }` és az egysoros forma, `.var`, `.eval` (`=`, `+=`, `++` …), `.if (…) { … } else .if (…) { … } else { … }` és az egysoros forma
+- `.function Név(paraméterek) { .return kifejezés }` és `.macro Név(paraméterek) { … }`, hívása `Név(argumentumok)` vagy `:Név(argumentumok)`
+- többszörös címkék: `!:` / `!név:`, hivatkozás `!+`, `!-`, `!++`, `!név+`, `!név-`
+- `.pseudopc cím { … }`: a benne lévő címkék a logikai címet kapják, a bájtok a helyükön maradnak
+- `BasicUpstart2(címke)` / `BasicUpstart(címke)`, `* = cím "szegmens"`, `.fill n, kifejezés` (`i`-vel) és `.fill n, [a, b]`, `.align`, `.byte`, `.word`, `.dword`, `.text`
+- `.assert "leírás", kifejezés, true`, `cmdLineVars.containsKey(…)` (parancssori változó nincs: mindig hamis)
+- `.while (…) { … }`, `i++` / `--i` a kifejezésekben, érték nélküli `.var név`
+- a `*` mint programszámláló (`jmp *`, `bne *-1`, a `.pseudopc`-ben is)
+- `;` az utasítások között (`lda #1; sta $d020`, `.var a = 1; .var b = 2`): a kód után szóköz nélkül álló `;`, amelyet utasítás követ. Minden más `;` megjegyzést kezd, mint a VA-ban, így a `lda #1 ; megjegyzés` továbbra is működik
+- a matematikai könyvtár (`sin`, `cos`, `toRadians`, `toDegrees`, `round`, `floor`, `sqrt`, `pow`, `atan2`, `log10`, `random` …), a színkonstansok (`BLACK` … `LIGHT_GREY`), az opkód-konstansok (`RTS`, `LDA_IMM`, `LDA_ZPX`, `JMP_IND`, `BNE_REL` …) és az `asmCommandSize()`
+- `BasicUpstart2(címke)`, ahol a címke bárhol lehet, ameddig egy `* =` óta a méretek ismertek (például `* = $4000` … `start:` → SYS 16384)
+- scope-ok, mint a KickAssemblerben: a `{ }` blokkoknak, az `.if` ágainak, a `.for` / `.while` köreinek és a makróhívásoknak saját címkéik és konstansaik vannak (a benne lévő `loop:` nem ütközik a külsővel; a `.pseudopc` nem scope). A scope előtti címkén át a belső címkék elérhetők: `név: { … }` → `név.belső`, `lp: .for (…)` → `lp[2].belső`, `myIf: .if (…)` → `myIf.belső`, `c1: Makró()` → `c1.belső`, `.label base = $1000 { … }` → `base.belső`
+- `.namespace név { … }` és `.filenamespace név` (a fájl végéig): a címkék `név.címke` alakban érhetők el; a `@címke:`, `.label @x = …`, `.function @f` / `.macro @m` a gyökérbe teszi a szimbólumot, a `@név` a gyökérbeli szimbólumra hivatkozik. A függvények és makrók mindenhonnan láthatók, egy névtér `@` nélküliek is
+- `.pseudocommand név a : b { … }`: mnemonikként hívható (`mov #10 : $1000`, `mov src,x : ($30),y`); az argumentumok megtartják a címzési módjukat (`getType()` = `AT_IMMEDIATE`, `AT_ABSOLUTE`, `AT_ABSOLUTEX` / `Y`, `AT_INDIRECT`, `AT_IZEROPAGEX` / `Y`, hiányzónál `AT_NONE`; `getValue()`), új argumentum: `CmdArgument(típus, érték)`. Mnemonik nevű pszeudo-utasításhoz kettőspont kell (`:adc …`); nélküle a mnemonik fordul
+- a preprocesszor: `#define`, `#undef`, `#if` / `#elif` / `#else` / `#endif` (`!`, `&&`, `||`), `#importif`
+- `List()` (`add`, `get`, `set`, `size`, `remove`, `sort`, `reverse`, `shuffle`, `addAll`), `Hashtable()` (`put`, `get`, `containsKey`, `remove`, `keys`), `.struct Név {a, b}` (`Név(1, 2)`, `p.a`, `.eval p.a = 3`, `getFieldNames()` …), stringek (`+`, `charAt`, `substring`, `size`, `toUpperCase`, `asNumber(számrendszer)` …, `toIntString` / `toHexString` / `toBinaryString` minimális hosszal), `.enum {A, B, C = 5}`, `.define név, … { … }`, `.eval lista.add(…)`, karakter a `.byte`-ban és string-kifejezés a `.text`-ben (az aktuális `.encoding` szerint)
+- `.error "üzenet"`, `.errorif feltétel, "üzenet"`; a `.print` / `.printnow` kimenete gyűjtve, nem jelenik meg. A csak jelző (`.error` …) `.if` kimarad, ha a feltételéhez címkecím kellene
+
+Gépelés közben a teljes fa ellenőrződik: a nyitott fájl hibás sorai jelölve vannak a szerkesztőben, az állapotsor az elsőt mutatja, a fordítási hiba ablak `fájl:sor` alakban nevezi meg őket — kattintásra megnyílik a fájl az adott sorral. A memóriatérkép a lefordított programot mutatja. A projektfa bináris fájljai nem nyílnak meg szövegként. A Dark Chambers C64 port (19 forrásfájl, 15 bináris fájl) bájtra azonosan fordul a KickAssembler 5.25-tel.
+
 ## UltimateBasic mód
 
 A Visual Assembler tartalmaz egy teljes **Ultimate Basic IDE**-t. Az Ultimate Basic egy modern, fordított BASIC nyelv C64 programok, játékok és demók készítéséhez anélkül, hogy minden műveletet alacsony szintű 6502 assemblyben kellene megírni. A fordító helyben fut, és natív C64 PRG kimenetet generál.
@@ -817,7 +868,7 @@ Az Expert mód egy teljes értékű, közvetlen szöveges 6502 assembly szerkesz
 | **Format** | `#expert-format-btn` | Forrás automatikus formázása (címkék a 0. oszlopba, 4 szóköz behúzás, 1 szóköz mnemonik/operandus közt) |
 | **Load .asm** | `#expert-load-asm-btn` | `.asm` fájl megnyitása — a tartalom egy **új fülbe** töltődik, a fájlnév a fül címkéje. Minden betöltött fájl önálló füllé válik saját program-blokkokkal és szerkesztő-állapottal. |
 | **Save .asm** | `#expert-save-asm-btn` | A szerkesztő tartalmának mentése `.asm` fájlba (első mentéskor fájl-dialógus) |
-| **Build Info** | `#expert-build-info-btn` | A Build Info dialógus megnyitása (origin, méret, címkék, hibák) |
+| **Build Info** | `#expert-build-info-btn` | A Build Info dialógus megnyitása: fent kezdő- és végcím, méret, szegmensszám, alatta a szegmensek, a hibák (Kick projektben `fájl:sor`) és a `.print` kimenet, a címkék, konstansok és makrók oszlopokban |
 | **HL** | `#expert-hl-btn` | Szintaxiskiemelés kapcsolása (nagyon nagy fájloknál kikapcsolható) |
 | **Autocomplete** | `#expert-autocomplete-btn` | Az expert autocomplete javaslatok be/ki. Kikapcsolva nem jelenik meg direktíva-, mnemonik- vagy címke-popup az expert szerkesztőben. |
 | **Region selection** | `#expert-region-selection-btn` | Az automatikus régió-kiemelés kapcsolása Expert módban. A fold-állapot tárolva marad, de kikapcsolva a szerkesztő a teljes forrást láthatóan tartja, és nem választja ki automatikusan az aktuális régiót. |
@@ -1222,7 +1273,7 @@ LBEQ done      ; erre fordul:   BNE *+3   ($D0 $03)
 
 Ezek haladó használatra támogatottak. Óvatosan használd — a viselkedés chipenként eltérhet.
 
-`LAX`, `SAX`, `DCP`, `ISC`, `SLO`, `RLA`, `SRE`, `RRA`, `ANC`, `ALR`, `ARR`, `AXS`
+`LAX`, `SAX`, `DCP`, `ISC`, `SLO`, `RLA`, `SRE`, `RRA`, `ANC`, `ALR`, `ARR`, `AXS`, valamint az operandust olvasó `NOP` alakok: `NOP #$nn` ($80), `NOP $nn` ($04), `NOP $nn,X` ($14), `NOP $nnnn` ($0C), `NOP $nnnn,X` ($1C)
 
 ---
 
@@ -3961,6 +4012,8 @@ Az assembleált programokat **valódi Commodore 64-en vagy C128-on** futtathatod
 ## 14. Vizuális szerkesztők (Toolkit)
 
 Az eszköztár **Toolkit** menüje csoportosítja a vizuális adat-szerkesztőket, amelyek mind egy közös Files menüt (`Files ▾`) osztanak meg: Load BIN / Save BIN / Export to blocks / Save to D64. Minden szerkesztő nyers `.bin` adatot állít elő, amely `INCBIN`-nel programba helyezhető, vagy közvetlenül D64 lemezre adható a **Save to D64** menüponttal.
+
+**Színpaletta:** a **Beállítások → Általános → Szerkesztők → C64 színpaletta** adja meg, milyen RGB értékekkel rajzolja minden szerkesztő a 16 C64 színt (sprite-, karakter-, Charset Canvas, Hi-Res, térkép- és pályaszerkesztő, Toolkit színminták). Az alapértelmezés a **Colodore**, ez áll a legközelebb egy kompozit / S-Video kijelzős valódi C64-hez; választható még a **Pepto** (a korábbi verziók sötétebb, kevésbé telített palettája), a **VICE**, a **Deekay** és a **C64 Wiki / Godot**. Csak a megjelenítés változik — az adatokban a színindexek ugyanazok maradnak. A Hi-Res képimport is a szerkesztő palettáját használja, ha ott nem választasz másikat.
 
 A vizuális szerkesztő dialógusok a fejlécüknél húzva mozgathatók a teljes Visual Assembler munkaterületen. Egy mentett pozíció nélküli dialógus középen nyílik; mozgatás után az utolsó pozíciója a UI beállításokban tárolódik, és a következő megnyitáskor visszaáll.
 

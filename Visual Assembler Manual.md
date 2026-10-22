@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.6.4**
+**Version 2.6.5**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -9,6 +9,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
+    - [Version 2.6.5 Highlights](#version-265-highlights)
     - [Version 2.6.4 Highlights](#version-264-highlights)
     - [Version 2.6.3 Highlights](#version-263-highlights)
     - [Version 2.6.2 Highlights](#version-262-highlights)
@@ -195,6 +196,20 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [Curve Editor](#curve-editor)
     - [Table Generator](#table-generator)
     - [Number Converter](#number-converter)
+
+---
+
+## Version 2.6.5 Highlights
+
+- **KickAssembler projects** — **Menu → Program → Import Kick project…** takes a whole KickAssembler source tree (the main file with its `#import` modules and `.import binary` assets) and writes a `.proj` next to it; the sources stay where they are. Visual Assembler builds it with its own assembler, byte for byte like KickAssembler 5.25 — Run, Build PRG / D64 / CRT, Exomizer, Debug, the VICE Monitor and Build project all work, errors name the `file:line`, and the whole tree is checked while you type. The Dark Chambers C64 port and six of the KickAssembler example programs build identically. See [Kick projects (Import Kick project…)](#kick-projects-import-kick-project).
+- **Kick-compatible switch** — the `{K}` button in the Project panel header makes any VMA project KickAssembler compatible; the VA macros and directives keep working next to the KickAssembler script.
+- **KickAssembler language** — `#import` / `#importonce` / `#importif`, `#define` / `#if`, `.const` / `.label` (zero page or absolute by value), `.for`, `.while`, `.if … else`, `.var` / `.eval`, `.function`, `.macro { }`, `.pseudocommand`, multi-labels, scopes and namespaces, `.pseudopc`, `.import binary`, `BasicUpstart2`, `List` / `Hashtable` / `.struct` / strings, `.enum`, the math library, the colour and opcode constants, `*` as the program counter, `;` between statements, `.error` / `.errorif`.
+- **Build Info in columns** — a wider window: origin, end, size and segment count on top, then the segments, errors and `.print` output, and the labels, constants and macros in columns. In a Kick project it shows the built tree, inner labels as `scope.label`.
+- **Colour picker** — the Hi-Res, Sprite, Character (multicolor) and Charset Canvas editors have a picker tool; **Alt+click** picks the colour with any tool. See [Hi-Res / Multicolor Editor](#hi-res--multicolor-editor).
+- **Ctrl + wheel zoom** in the Hi-Res, Sprite, Map and Level editors, around the cursor. The Hi-Res Raster switch sits next to Grid.
+- **ACME mode** — the memory map and the overlap warning follow the ACME build; an ACME project builds its startup file; the ACME templates appear only when a working ACME is set, and creating an ACME project switches Settings to ACME mode. See [ACME mode](#acme-mode).
+- **New project** — **New project from template…** is under **New project** in the menu (the three separate entries are gone); the Visual Assembler sprite multiplexer template prints its title.
+- **Fixes** — `.byte` / `.word` with label expressions (`<(label+1)`, `.word label` before the label) no longer assemble to 0; the illegal `NOP` forms that read an operand assemble (see [Illegal / Undocumented Instructions](#illegal--undocumented-instructions)); the Ultimate Basic open button reads **Load .ub file** in every language.
 
 ---
 
@@ -841,6 +856,45 @@ Known limitation:
 
 - Constants that resolve to a zero-page address (for example `.const BYTEADDR = $FC` used as `STA BYTEADDR`) currently compile to absolute-mode instructions (3 bytes) instead of zero-page (2 bytes). The compiled code still writes to the correct memory location, just with a small size and cycle overhead compared to the same source built by Kick Assembler.
 
+#### Kick projects (Import Kick project…)
+
+**Import Kick project…** (Program menu, under **Kick import**) takes a whole KickAssembler source tree — a main file with `#import` modules and `.import binary` assets — and makes a VA project of it. Pick the main file (`main.asm`); VA follows every `#import` / `.import source` / `.import binary` (also inside `.if` branches that are not taken) and writes a `.proj` next to it, named after the folder (`src` / `source` / `asm` folders use the parent folder's name). The project lists every file in its folder tree; the sources stay where they are, so an existing KickAssembler build script keeps working. Files that cannot be found are listed in the error dialog.
+
+**Kick-compatible switch:** any VA (VMA) project can be made Kick-compatible with the `{K}` button in the Project panel header (shown in VMA mode while a project is open; it is on for imported Kick projects). The setting is saved in the `.proj` (`"kick": true`); off, the project is a plain VMA project and builds exactly as before.
+
+In a Kick-compatible project the VA macros and directives keep working next to the KickAssembler script: `.text x, y, "…"`, `.set_border`, LOOP / NEXT, SPRITE_INIT, `.include`, `.incbin`, `.sid`, `.define` / `.if SYMBOL` / `.else` / `.endif`, VA macros (`.macro name(p)` … `.endm` with `{p}`) and the rest go to the VA assembler as they are, with the Kick constants as numbers. Directives that exist in both are told apart by their form:
+
+| VA (VMA) | KickAssembler |
+|---|---|
+| `.for X, $0A, for1` … `.endf for1` | `.for (var i = 0; i < 10; i++) { … }` |
+| `.if DEBUG` … `.else` … `.endif` | `.if (expression) { … } else { … }` |
+| `.macro name(p)` … `.endm`, called with `.invoke` | `.macro Name(p) { … }`, called as `Name(arg)` |
+| `.var name = value` (a runtime variable) | `.var name = value` (a script variable) — in a Kick-compatible project `.var` is always the KickAssembler one |
+
+The project builds with the VA assembler, not with KickAssembler: every build (Run, Save PRG, D64, CRT, Exomizer, Debug, VICE Monitor, Build project, the Build button) first runs the startup file through a KickAssembler preprocessor, with the editor text of open tabs, saved or not. The result is the same PRG as KickAssembler's. Supported:
+
+- `#import`, `.import source`, `#importonce`; `.import binary` / `c64` / `text` with optional offset and length
+- `.const` / `.label` in any order, with expressions; zero page or absolute addressing follows the value like in KickAssembler (`.abs` / `.zp` still force it)
+- `.for (var i = 0; i < n; i++) { … }` and the one-line form, `.var`, `.eval` (`=`, `+=`, `++` …), `.if (…) { … } else .if (…) { … } else { … }` and the one-line form
+- `.function Name(params) { .return expr }` and `.macro Name(params) { … }` called as `Name(args)` or `:Name(args)`
+- multi-labels `!:` / `!name:` with `!+`, `!-`, `!++`, `!name+`, `!name-`
+- `.pseudopc address { … }`: labels inside get the logical address, the bytes stay where they are
+- `BasicUpstart2(label)` / `BasicUpstart(label)`, `* = address "segment"`, `.fill n, expr` (with `i`) and `.fill n, [a, b]`, `.align`, `.byte`, `.word`, `.dword`, `.text`
+- `.assert "description", expr, true`, `cmdLineVars.containsKey(…)` (no command-line variables: always false)
+- `.while (…) { … }`, `i++` / `--i` in expressions, `.var name` without a value
+- `*` as the program counter (`jmp *`, `bne *-1`, also inside `.pseudopc`)
+- `;` between statements (`lda #1; sta $d020`, `.var a = 1; .var b = 2`): a `;` right after code, without a space, followed by a statement. Any other `;` starts a comment, as in VA, so `lda #1 ; comment` keeps working
+- the math library (`sin`, `cos`, `toRadians`, `toDegrees`, `round`, `floor`, `sqrt`, `pow`, `atan2`, `log10`, `random` …), the colour constants (`BLACK` … `LIGHT_GREY`), the opcode constants (`RTS`, `LDA_IMM`, `LDA_ZPX`, `JMP_IND`, `BNE_REL` …) and `asmCommandSize()`
+- `BasicUpstart2(label)` with the label anywhere the sizes reach from a `* =` (for example `* = $4000` … `start:` gives SYS 16384)
+- scopes like in KickAssembler: `{ }` blocks, `.if` branches, `.for` / `.while` turns and macro calls have their own labels and constants (a `loop:` inside does not collide with an outer one; `.pseudopc` is no scope). A label before the scope makes the inner labels reachable: `name: { … }` → `name.inner`, `lp: .for (…)` → `lp[2].inner`, `myIf: .if (…)` → `myIf.inner`, `c1: Macro()` → `c1.inner`, `.label base = $1000 { … }` → `base.inner`
+- `.namespace name { … }` and `.filenamespace name` (to the end of the file): the labels are reachable as `name.label`; `@label:`, `.label @x = …`, `.function @f` / `.macro @m` put the symbol in the root, and `@name` refers to the root symbol. Functions and macros are visible everywhere, also the ones of a namespace without `@`
+- `.pseudocommand name a : b { … }`: called like a mnemonic (`mov #10 : $1000`, `mov src,x : ($30),y`); the arguments keep their addressing mode (`getType()` = `AT_IMMEDIATE`, `AT_ABSOLUTE`, `AT_ABSOLUTEX` / `Y`, `AT_INDIRECT`, `AT_IZEROPAGEX` / `Y`, `AT_NONE` for a missing one; `getValue()`), `CmdArgument(type, value)` makes a new one. A pseudocommand named like a mnemonic needs the colon (`:adc …`); without it the mnemonic is assembled
+- the preprocessor: `#define`, `#undef`, `#if` / `#elif` / `#else` / `#endif` (with `!`, `&&`, `||`), `#importif`
+- `List()` (`add`, `get`, `set`, `size`, `remove`, `sort`, `reverse`, `shuffle`, `addAll`), `Hashtable()` (`put`, `get`, `containsKey`, `remove`, `keys`), `.struct Name {a, b}` (`Name(1, 2)`, `p.a`, `.eval p.a = 3`, `getFieldNames()` …), strings (`+`, `charAt`, `substring`, `size`, `toUpperCase`, `asNumber(radix)` …, `toIntString` / `toHexString` / `toBinaryString` with a minimum size), `.enum {A, B, C = 5}`, `.define name, … { … }`, `.eval list.add(…)`, a char in `.byte` and string expressions in `.text` (in the current `.encoding`)
+- `.error "message"`, `.errorif condition, "message"`; `.print` / `.printnow` are collected, not shown. An `.if` that only reports (`.error` …) is skipped when its condition needs label addresses
+
+While you type, the whole tree is checked: errors of the open file are marked in the editor, the status line shows the first one, and the compile-error dialog names `file:line` — a click opens that file at the line. The memory map shows the built program. Binary files in the project tree are not opened as text. The Dark Chambers C64 port (19 source files, 15 binary files) builds byte for byte like KickAssembler 5.25.
+
 ## UltimateBasic Mode
 
 Visual Assembler includes a complete **Ultimate Basic IDE**. Ultimate Basic is a modern compiled BASIC language for creating C64 programs, games, and demos without writing every operation in low-level 6502 assembly. The compiler runs locally and generates native C64 PRG output.
@@ -990,7 +1044,7 @@ Expert Mode is a full-featured direct-text 6502 assembly editor that lives along
 | **Format** | `#expert-format-btn` | Auto-format source (labels to col 0, 4-space indent, 1-space mnemonic/operand) |
 | **Load .asm** | `#expert-load-asm-btn` | Open a `.asm` file — the content is loaded into a **new tab** with the filename as the tab label. Each loaded file becomes an independent tab with its own program blocks and editor state. |
 | **Save .asm** | `#expert-save-asm-btn` | Save editor content to a `.asm` file (file dialog on first save) |
-| **Build Info** | `#expert-build-info-btn` | Open the Build Info dialog (origin, size, labels, errors) |
+| **Build Info** | `#expert-build-info-btn` | Open the Build Info dialog: origin, end, size and segment count on top, then the segments, errors (`file:line` in a Kick project) and `.print` output, and the labels, constants and macros in columns |
 | **HL** | `#expert-hl-btn` | Toggle syntax highlighting (disable for very large files) |
 | **Autocomplete** | `#expert-autocomplete-btn` | Toggle expert autocomplete suggestions on/off. When disabled, no directive, mnemonic, or label popup appears in the expert editor. |
 | **Region selection** | `#expert-region-selection-btn` | Toggle the automatic region highlight in Expert mode. The fold state stays stored, but when this is off the editor keeps the full source visible and does not auto-select the current region. |
@@ -1395,7 +1449,7 @@ LBEQ done      ; assembles to:   BNE *+3   ($D0 $03)
 
 These are supported for advanced use. Use with care — behavior may differ between chips.
 
-`LAX`, `SAX`, `DCP`, `ISC`, `SLO`, `RLA`, `SRE`, `RRA`, `ANC`, `ALR`, `ARR`, `AXS`
+`LAX`, `SAX`, `DCP`, `ISC`, `SLO`, `RLA`, `SRE`, `RRA`, `ANC`, `ALR`, `ARR`, `AXS`, and the `NOP` forms that read an operand: `NOP #$nn` ($80), `NOP $nn` ($04), `NOP $nn,X` ($14), `NOP $nnnn` ($0C), `NOP $nnnn,X` ($1C)
 
 ---
 
@@ -4135,6 +4189,8 @@ Works from **Block**, **Expert** and **Ultimate Basic** mode alike; Ultimate Bas
 ## 14. Visual Editors (Toolkit)
 
 The toolbar **Toolkit** menu groups the visual data editors that all share a common Files menu (`Files ▾`) for Load BIN / Save BIN / Export to blocks / Save to D64. Each editor produces raw `.bin` data that can be placed in a program with `INCBIN`, or directly added to a D64 disk via the **Save to D64** entry.
+
+**Colour palette:** **Settings → General → Editors → C64 colour palette** chooses the RGB values every editor draws the 16 C64 colours with (sprite, character, Charset Canvas, Hi-Res, map and level editor, Toolkit swatches). The default is **Colodore**, the closest to a real C64 on a composite / S-Video display; **Pepto** (the darker, less saturated palette of older versions), **VICE**, **Deekay** and **C64 Wiki / Godot** are also available. Only the display changes — the colour indexes in your data stay the same. The Hi-Res image import uses the editor palette too, unless you pick another one there.
 
 Visual-editor dialogs can be dragged by their headers across the full Visual Assembler workspace. A dialog with no saved position opens centered; after it is moved, its last position is stored in UI settings and restored the next time it opens.
 

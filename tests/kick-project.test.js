@@ -1,0 +1,357 @@
+const test = require("node:test");
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+const loadApp = require("./helpers/load-app");
+
+const app = loadApp();
+const fixture = path.join(__dirname, "fixtures", "kick-project").split(path.sep).join("/");
+const readText = (p) => { try { return fs.readFileSync(p, "utf8"); } catch { return null; } };
+const readBin = (p) => { try { return new Uint8Array(fs.readFileSync(p)); } catch { return null; } };
+
+// In-memory Kick tree: { "main.asm": "…", … } under /mem.
+function preprocess(files, entry = "main.asm") {
+  app.__files = Object.fromEntries(Object.entries(files).map(([k, v]) => ["/mem/" + k, v]));
+  return app.run(`_kickPreprocess("/mem/${entry}", p => __files[p] ?? null, () => null)`);
+}
+
+function build(text) {
+  app.__src = text;
+  return app.run(`(() => {
+    const saved = program;
+    try {
+      program = parseExpertText(__src);
+      _addSrcLineToBlocks(__src, program);
+      parseUserMacros();
+      const r = _buildAutostartPrgCore();
+      return { ok: r.ok, error: r.error, errors: r.errors, bytes: r.bytes ? Array.from(r.bytes) : null };
+    } finally { program = saved; }
+  })()`);
+}
+
+// Bytes of the fixture built by KickAssembler 5.25 (java -jar KickAss.jar main.asm).
+const KICK_HEAD = "01080b080a009e3230363200000000a9068d20d0a200bd004095fbbd004195fce8d0f3a903a038b94808b1fb6c1403cad0fd200004f001ea60010000020104000600030609aa55aa55aa55aa553808393808000403040506";
+const KICK_TAIL = "a203cad0fdad09046007";
+
+test("a KickAssembler project builds byte for byte like KickAssembler", () => {
+  app.__readText = readText;
+  app.__readBin = readBin;
+  const pre = app.run(`_kickPreprocess(${JSON.stringify(fixture + "/main.asm")}, __readText, __readBin)`);
+  assert.deepEqual(Array.from(pre.errors), []);
+  const prg = build(pre.text);
+  assert.equal(prg.ok, true, prg.error);
+  const bytes = Buffer.from(prg.bytes);
+  assert.equal(bytes.length, 2 + 0xC00A - 0x0801);
+  assert.equal(bytes.subarray(0, KICK_HEAD.length / 2).toString("hex"), KICK_HEAD);
+  assert.equal(bytes.subarray(bytes.length - KICK_TAIL.length / 2).toString("hex"), KICK_TAIL);
+});
+
+test("Kick constants pick zero page or absolute by value, like KickAssembler", () => {
+  const { text, errors } = preprocess({
+    "main.asm": ".const zp = $fb\n.const abs = $9a00\n* = $1000\n lda zp\n lda abs\n sta zp,x\n sta zp,y\n ldx zp,y\n lda #<abs\n lda.abs zp\n lda (zp),y\n"
+  });
+  assert.deepEqual(Array.from(errors), []);
+  assert.deepEqual(text.split("\n").slice(1), ["LDA $FB", "LDA $9A00", "STA $FB,X", "STA $00FB,Y", "LDX $FB,Y", "LDA #$00", "LDA $00FB", "LDA ($FB),Y"]);
+});
+
+test("Kick multi-labels: !:, !name: and !+ / !- / !++ / !name- references", () => {
+  const { text, errors } = preprocess({
+    "main.asm": "* = $1000\n!: nop\n bne !-\n beq !+\n bcc !++\n!: nop\n!: nop\n!lp: dex\n bne !lp-\n jmp !lp+\n!lp: rts\n"
+  });
+  assert.deepEqual(Array.from(errors), []);
+  assert.deepEqual(text.split("\n"), [
+    "* = $1000", "__ml_1:", "NOP", "BNE __ml_1", "BEQ __ml_2", "BCC __ml_3", "__ml_2:", "NOP", "__ml_3:", "NOP",
+    "__ml_lp_4:", "DEX", "BNE __ml_lp_4", "JMP __ml_lp_5", "__ml_lp_5:", "RTS"
+  ]);
+});
+
+test("Kick script: .for, .var / .eval, .if / else .if, macros, functions, cmdLineVars", () => {
+  const { text, errors } = preprocess({
+    "main.asm": [
+      '.const MODE = cmdLineVars.containsKey("mode") ? cmdLineVars.get("mode").asNumber() : 2',
+      ".function Twice(x) { .return x * 2 }",
+      ".macro Put(v, dst) {",
+      "  lda #v",
+      "  sta dst",
+      "}",
+      "* = $1000",
+      ".for (var i = 0; i < 3; i++) {",
+      "  .var d = i",
+      "  .if (i == 1) .eval d = d + 10",
+      "  .byte d, Twice(i)",
+      "}",
+      ".if (MODE == 1) { nop } else .if (MODE == 2) { Put(7, $d020) } else { brk }",
+      ".for (var k = 0; k < 2; k++) asl"
+    ].join("\n")
+  });
+  assert.deepEqual(Array.from(errors), []);
+  assert.deepEqual(text.split("\n").slice(1), [".byte $00, $00", ".byte $0B, $02", ".byte $02, $04", "LDA #$07", "STA $D020", "ASL", "ASL"]);
+});
+
+test("Kick .pseudopc labels take the logical address, the bytes stay in place", () => {
+  const { text, errors } = preprocess({
+    "main.asm": "* = $4000\n.pseudopc $0400 {\nTab: .byte 1, 2\nCode: ldx #2\n!: dex\n bne !-\n jmp Code\n}\n lda Tab\n"
+  });
+  assert.deepEqual(Array.from(errors), []);
+  assert.deepEqual(text.split("\n"), ["* = $4000", ".byte $01, $02", "LDX #$02", "DEX", "BNE *-1", "JMP $0402", "LDA $0400"]);
+});
+
+test("Kick errors name the file and line of the imported source", () => {
+  const { errors } = preprocess({
+    "main.asm": '* = $1000\n#import "lib/mod.asm"\n',
+    "lib/mod.asm": "nop\n.if (UNKNOWN > 1) { nop }\n"
+  });
+  assert.equal(errors.length, 1);
+  assert.equal(errors[0].file, "/mem/lib/mod.asm");
+  assert.equal(errors[0].line, 2);
+  const missing = preprocess({ "main.asm": '#import "nope.asm"\n' }).errors;
+  assert.match(missing[0].text, /File not found: \/mem\/nope\.asm/);
+});
+
+test("VA build errors of a Kick project map back to file:line", () => {
+  const pre = preprocess({ "main.asm": '* = $1000\n#import "mod.asm"\n', "mod.asm": "nop\n lda NoSuchLabel\n" });
+  const prg = build(pre.text);
+  assert.equal(prg.ok, false);
+  app.__prg = prg;
+  app.__kick = { origins: pre.origins };
+  const mapped = app.run("_kickMapResult(__prg, __kick)");
+  assert.equal(mapped.errors[0].file, "/mem/mod.asm");
+  assert.equal(mapped.errors[0].fileLine, 2);
+  assert.match(mapped.errors[0].text, /^mod\.asm:2: /);
+});
+
+test("Import Kick project writes a .proj with every imported file", async () => {
+  let saved = null;
+  app.window.electronAPI = {
+    chooseAsmFile: async () => ({ ok: true, filePath: path.join(fixture, "main.asm") }),
+    readTextFile: async (p) => { const c = readText(p); return c === null ? { ok: false, error: "missing" } : { ok: true, content: c }; },
+    readBinFile: async (p) => { const b = readBin(p); return b ? { ok: true, bytes: Array.from(b) } : { ok: false }; },
+    saveTextFile: async (p, c) => { if (/\.proj$/.test(p)) saved = { p, c }; return { ok: true, path: p }; }
+  };
+  await app.run(`(async () => {
+    _closeAllTabsWithConfirm = async () => true;
+    _expertProjectOpenFile = async () => {};
+    await importKickProject();
+  })()`);
+  assert.ok(saved, "no .proj written");
+  assert.equal(saved.p, fixture + "/kick-project.proj");
+  const proj = JSON.parse(saved.c);
+  assert.equal(proj.kick, true);
+  assert.equal(proj.startupFile, "main.asm");
+  assert.deepEqual(proj.files.map(f => f.name), ["main.asm", "lib"]);
+  assert.deepEqual(proj.files[1].children.map(f => f.path).sort(), ["lib/consts.asm", "lib/data.bin"]);
+  assert.equal(app.run("_expertProjectData.kick"), true);
+});
+
+test("a Kick-compatible project keeps the VA macros and directives working", () => {
+  const va = [
+    ".const COL = 6",
+    ".define DEBUG",
+    "* = $c000",
+    ".macro setColor(color)",
+    "    LDA {color}",
+    "    STA $D020",
+    ".endm",
+    "start:",
+    ".invoke setColor(#COL)",
+    ".if DEBUG",
+    "    LDA #1",
+    ".else",
+    "    LDA #2",
+    ".endif",
+    ".loop X, $03, loop1",
+    "    NOP",
+    ".next loop1",
+    ".for Y, $02, for1",
+    "    INY",
+    ".endf for1",
+    '.text 10, 5, "HI"'
+  ];
+  const pre = preprocess({ "main.asm": va.concat([".for (var i = 0; i < 2; i++) { lda #i }", "!: dex", " bne !-", " rts"]).join("\n") });
+  assert.deepEqual(Array.from(pre.errors), []);
+  const mixed = build(pre.text);
+  const pure = build(va.concat(["    LDA #0", "    LDA #1", "lp: DEX", "    BNE lp", "    RTS"]).join("\n"));
+  assert.equal(mixed.ok, true, mixed.error);
+  assert.equal(pure.ok, true, pure.error);
+  assert.deepEqual(mixed.bytes, pure.bytes);
+});
+
+test("the project panel switch turns Kick compatibility on and off", async () => {
+  const saved = [];
+  app.window.electronAPI = { saveProjFile: async (p, c) => { saved.push(JSON.parse(c)); return { ok: true, filePath: p }; } };
+  app.run(`_expertProjectData = { name: "p", files: [{ type: "file", name: "main.asm", path: "main.asm" }], _projPath: "/mem/p.proj", startupFile: "main.asm" };`);
+  await app.run("_kickToggleProject()");
+  assert.equal(app.run("_expertProjectData.kick"), true);
+  assert.equal(saved.at(-1).kick, true);
+  assert.equal(saved.at(-1).assembler, "vma");
+  await app.run("_kickToggleProject()");
+  assert.equal(app.run("_expertProjectData.kick"), undefined);
+  assert.equal(saved.at(-1).kick, undefined);
+});
+
+test("Kick: * as the program counter, ; between statements, VA ; comments", () => {
+  const { text, errors } = preprocess({
+    "main.asm": "* = $1000\nloop: jmp *\n bne *-1\n lda #1; sta $d020 ; VA comment\n.var a = 2; .var b = a * 3; .byte b\n.pseudopc $0400 {\n jmp *\n}\n"
+  });
+  assert.deepEqual(Array.from(errors), []);
+  assert.deepEqual(text.split("\n"), ["* = $1000", "loop:", "JMP *", "BNE *-1", "LDA #$01", "STA $D020", ".byte $06", "JMP $0400"]);
+});
+
+test("Kick: .while with i++, .var without a value, math library, colour and opcode constants", () => {
+  const { text, errors } = preprocess({
+    "main.asm": [
+      "* = $1000",
+      ".var i = 0",
+      ".var n",
+      ".while (i++ < 3) { .eval n = n + i }",
+      ".byte n, round(10 * sin(toRadians(90))), toDegrees(PI) / 10",
+      ".byte RED, LIGHT_GREY, RTS, LDA_IMM, JMP_IND, BNE_REL, LDX_ZPY",
+      ".byte asmCommandSize(RTS), asmCommandSize(LDA_IMM), asmCommandSize(JMP_IND)",
+      " lda #WHITE"
+    ].join("\n")
+  });
+  assert.deepEqual(Array.from(errors), []);
+  assert.deepEqual(text.split("\n").slice(1), [
+    ".byte $06, $0A, $12",
+    ".byte $02, $0F, $60, $A9, $6C, $D0, $B6",
+    ".byte $01, $02, $03",
+    "LDA #$01"
+  ]);
+});
+
+test("Kick: BasicUpstart2 SYS address from a label after * = (sizes known)", () => {
+  const { text, errors } = preprocess({ "main.asm": "BasicUpstart2(start)\n* = $4000\n nop\nstart: rts\n" });
+  assert.deepEqual(Array.from(errors), []);
+  // SYS 16385: 5 digits, the link to the end marker at $080C
+  assert.equal(text.split("\n")[1], ".byte $0C, $08, $0A, $00, $9E, $31, $36, $33, $38, $35, $00, $00, $00");
+});
+
+// Optional: the KickAssembler examples next to KickAss.jar, built by KickAssembler and by VA.
+test("KickAssembler examples build byte for byte like KickAssembler (needs KICKASS_JAR)", { skip: !process.env.KICKASS_JAR }, () => {
+  const { execFileSync } = require("node:child_process");
+  const os = require("node:os");
+  const examples = path.join(path.dirname(process.env.KICKASS_JAR), "Examples");
+  const work = fs.mkdtempSync(path.join(os.tmpdir(), "va-kick-examples-"));
+  try {
+    fs.cpSync(examples, work, { recursive: true });
+    app.__readText = (p) => { try { return fs.readFileSync(p, "latin1"); } catch { return null; } };
+    app.__readBin = readBin;
+    for (const main of ["01.MusicIrq/MusicIrq.asm", "05.Scoping/Scroll.asm", "06.PseudoCommands/2xSpeedPlayer.asm", "06.PseudoCommands/8xSpeedPlayer.asm", "07.Preprocessor/Preprocessor.asm", "08.Namespace and libraries/SimpleSplits.asm"]) {
+      const file = path.join(work, main);
+      execFileSync("java", ["-jar", process.env.KICKASS_JAR, path.basename(file), "-o", "ref.prg"], { cwd: path.dirname(file), stdio: "pipe" });
+      const pre = app.run(`_kickPreprocess(${JSON.stringify(file.split(path.sep).join("/"))}, __readText, __readBin)`);
+      assert.deepEqual(Array.from(pre.errors), [], main);
+      const prg = build(pre.text);
+      assert.equal(prg.ok, true, `${main}: ${prg.error}`);
+      assert.ok(Buffer.from(prg.bytes).equals(fs.readFileSync(path.join(path.dirname(file), "ref.prg"))), `${main} differs`);
+    }
+  } finally {
+    fs.rmSync(work, { recursive: true, force: true });
+  }
+});
+
+// Scopes and namespaces: the expected bytes come from KickAssembler 5.25 (code at $1000).
+function buildKick(files) {
+  const pre = preprocess(files);
+  assert.deepEqual(Array.from(pre.errors), []);
+  const prg = build(pre.text);
+  // the code from $1000 (the VA build puts a BASIC SYS stub in front)
+  const load = prg.bytes ? prg.bytes[0] | (prg.bytes[1] << 8) : 0;
+  return { ...prg, hex: prg.bytes ? Buffer.from(prg.bytes.slice(2 + 0x1000 - load)).toString("hex") : "" };
+}
+
+test("Kick scopes: { } blocks, label scopes, loop / if / macro labels, consts", () => {
+  const cases = [
+    ["lp: .for (var i=0;i<2;i++) {\ninner: nop\n}\n jmp lp[1].inner", "eaea4c0110"],
+    [" jmp myIf.inner\nmyIf: .if (true) {\n nop\ninner: rts\n}", "4c0410ea60"],
+    [" inc c1.color\nc1: setColor()\n.macro setColor() {\n .label color = *+1\n lda #0\n}", "ee0410a900"],
+    [" jsr outside\n{\n@outside: rts\n}", "20031060"],
+    ["start: nop\n{\n jmp start\n}", "ea4c0010"],
+    [".const X = 1\n{\n.const X = 2\n lda #X\n}\n lda #X", "a902a901"],
+    [".label base = $1000 {\n.label sub = $1234\n}\n lda base.sub", "ad3412"],
+    [".if (true) {\na: nop\n}\n.if (true) {\na: nop\n}", "eaea"],
+    ["loop: nop\n{\nloop: dex\n bne loop\n}\n jmp loop", "eaca d0fd4c0010".replace(" ", "")],
+    [" jsr part.init\n.namespace part {\ninit: rts\n}", "20031060"]
+  ];
+  for (const [source, hex] of cases) {
+    const prg = buildKick({ "main.asm": "* = $1000\n" + source });
+    assert.equal(prg.ok, true, `${source}\n${prg.error}`);
+    assert.equal(prg.hex, hex, source);
+  }
+});
+
+test("Kick .filenamespace: labels as namespace.name, @ puts a label in the root", () => {
+  const prg = buildKick({
+    "main.asm": '* = $1000\n#import "lib.asm"\n jsr part.init\n jsr shared\n lda #part.VALUE\n',
+    "lib.asm": ".filenamespace part\n.label VALUE = 7\ninit: lda #VALUE\n rts\n@shared: rts\n"
+  });
+  assert.equal(prg.ok, true, prg.error);
+  assert.equal(prg.hex, "a9076060200010200310a907");
+});
+
+test("Kick scopes: inner labels are not visible outside their scope", () => {
+  for (const source of [".if (true) {\ninner: nop\n}\n jmp inner", "{\ninner: nop\n}\n jmp inner", ".for (var i=0;i<2;i++) {\ninner: nop\n}\n jmp inner"]) {
+    const prg = buildKick({ "main.asm": "* = $1000\n" + source });
+    assert.equal(prg.ok, false, source);
+  }
+});
+
+// Pseudocommands, #define / #if, List / Hashtable / struct / strings / .enum / .define:
+// the fixtures and the bytes KickAssembler 5.25 made of them (code at $1000).
+test("Kick pseudocommands, preprocessor and data structures build like KickAssembler", () => {
+  const dir = path.join(__dirname, "fixtures", "kick-features");
+  const expected = {
+    "pseudocommands.asm": "a90a8d0010b520993000a9149130a93485fba91285fc18a53069808530a5316900853118a53069008532a53169108533a1408541",
+    "preprocessor.asm": "a901a905",
+    "data-structures.asm": "01030308000905020505ff48454c4c4f34320001050214"
+  };
+  for (const [file, hex] of Object.entries(expected)) {
+    const prg = buildKick({ "main.asm": fs.readFileSync(path.join(dir, file), "utf8") });
+    assert.equal(prg.ok, true, `${file}: ${prg.error}`);
+    assert.equal(prg.hex, hex, file);
+  }
+});
+
+test("Kick .error / .errorif stop the build, .print is collected", () => {
+  const bad = preprocess({ "main.asm": '* = $1000\n.errorif 1 > 0, "too big"\n' });
+  assert.equal(bad.errors[0].text, "too big");
+  const printed = preprocess({ "main.asm": '* = $1000\n.var x = 3\n.print "x=" + x\n nop\n' });
+  assert.deepEqual(Array.from(printed.errors), []);
+  assert.deepEqual(Array.from(printed.messages), ["x=3"]);
+});
+
+test("Kick command-line variables and -define symbols come from the project settings", () => {
+  // KickAssembler: java -jar KickAss.jar cl.asm -define DEBUG :level=7 :name=AB
+  const source = '* = $1000\n.const L = cmdLineVars.containsKey("level") ? cmdLineVars.get("level").asNumber() : 1\n lda #L\n#if DEBUG\n lda #$dd\n#endif\n.if (cmdLineVars.containsKey("name")) { .text cmdLineVars.get("name") }\n';
+  app.__files = { "/mem/main.asm": source };
+  const pre = app.run(`_kickPreprocess("/mem/main.asm", p => __files[p] ?? null, () => null, { defines: ["DEBUG"], vars: { level: "7", name: "AB" } })`);
+  assert.deepEqual(Array.from(pre.errors), []);
+  const prg = build(pre.text);
+  const load = prg.bytes[0] | (prg.bytes[1] << 8);
+  assert.equal(Buffer.from(prg.bytes.slice(2 + 0x1000 - load)).toString("hex"), "a907a9dd4142");
+  // without them: the defaults
+  const plain = buildKick({ "main.asm": source });
+  assert.equal(plain.hex, "a901");
+});
+
+test("Project settings: name, startup file, Kick switch, symbols and variables are saved in the .proj", async () => {
+  const saved = [];
+  app.window.electronAPI = { saveProjFile: async (p, c) => { saved.push(JSON.parse(c)); return { ok: true, filePath: p }; } };
+  app.run(`_expertProjectData = { name: "p", files: [{ type: "file", name: "main.asm", path: "main.asm" }, { type: "folder", name: "lib", path: "lib", children: [{ type: "file", name: "x.asm", path: "lib/x.asm" }] }], _projPath: "/mem/p.proj", startupFile: "main.asm" };`);
+  await app.run("openProjectSettings()");
+  const el = (id) => app.document.getElementById(id);
+  el("ps-name").value = "Renamed";
+  el("ps-startup").value = "lib/x.asm";
+  el("ps-assembler").value = "kick";
+  el("ps-kick").checked = true;
+  el("ps-defines").value = "DEBUG, PAL bad-name";
+  el("ps-vars").value = "level=3\nautojoy = 2\n# skip\nflag";
+  await app.run("_projSettingsSave()");
+  const proj = saved.at(-1);
+  assert.equal(proj.name, "Renamed");
+  assert.equal(proj.startupFile, "lib/x.asm");
+  assert.equal(proj.kick, true);
+  assert.deepEqual(proj.kickDefines, ["DEBUG", "PAL"]);
+  assert.deepEqual({ ...proj.kickVars }, { level: "3", autojoy: "2", flag: "" });
+  assert.equal(el("ps-files").textContent.includes("2"), true);
+});
