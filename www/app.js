@@ -3602,6 +3602,7 @@ function applyTranslations() {
     setText("#ps-startup-label", t("psStartup"));
     setText("#ps-assembler-label", t("psAssembler"));
     setText("#ps-kick-label", t("psKick"));
+    setText("#ps-no-blocks-label", t("psNoBlockMode"));
     setText("#ps-defines-label", t("psDefines"));
     setText("#ps-vars-label", t("psVars"));
     setText("#ps-vars-hint", t("psVarsHint"));
@@ -6949,6 +6950,12 @@ function _blockModeLimitExceeded(blocks = program) {
   return false;
 }
 
+// Why block mode is closed for the current source: i18n key, or "" when it is open.
+function _blockModeBlocked(blocks = program) {
+  if (_projBlockModeOff()) return "projBlockModeOff";
+  return _blockModeLimitExceeded(blocks) ? "blockModeLimit" : "";
+}
+
 function setExpertMode(on, { keepText = false, switchingToUb = false } = {}) {
   if (on && _isBoundUbTab()) {
     showViceToast?.(t("asmUbFileBlocked"), true);
@@ -6968,10 +6975,11 @@ function setExpertMode(on, { keepText = false, switchingToUb = false } = {}) {
     _expertSyncSourceTextFromEditor();
     // Convert expert text → program blocks before switching off
     const blocks = _expertBuildProgram();
-    if (!switchingToUb && _blockModeLimitExceeded(blocks || [])) {
+    const blocked = switchingToUb ? "" : _blockModeBlocked(blocks || []);
+    if (blocked) {
       if (expertModeToggle) expertModeToggle.checked = true;
-      _expertSetStatus(t("blockModeLimit"), "error");
-      showViceToast?.(t("blockModeLimit"), true);
+      _expertSetStatus(t(blocked), "error");
+      showViceToast?.(t(blocked), true);
       return;
     }
     if (blocks && blocks.length > 0) {
@@ -6983,9 +6991,10 @@ function setExpertMode(on, { keepText = false, switchingToUb = false } = {}) {
     _expertAcHide();
     if (expertCaret) expertCaret.hidden = true;
   }
-  if (!on && !switchingToUb && _blockModeLimitExceeded()) {
+  const blocked = !on && !switchingToUb ? _blockModeBlocked() : "";
+  if (blocked) {
     setExpertMode(true);
-    _expertSetStatus(t("blockModeLimit"), "error");
+    _expertSetStatus(t(blocked), "error");
     return;
   }
   expertMode = on;
@@ -13978,6 +13987,7 @@ function _expertValidate() {
   // KickAssembler source: the whole tree is checked, not this file alone.
   if (_kickProjectActive()) {
     if (_expertProjectVisible) _expertRenderSymbols();
+    _acmeBuildButtonSync();
     _kickScheduleCheck();
     return;
   }
@@ -23804,17 +23814,17 @@ function _acmeBuildButtonSync(blocks = program) {
   button.setAttribute("aria-label", t(assemblerSyntax === "acme" ? "acmeBuild" : "vaBuild"));
   // ACME has no block mode: the block/Expert switch is locked while it is on.
   const acme = assemblerSyntax === "acme";
-  const large = _blockModeLimitExceeded(blocks);
+  const blocked = _blockModeBlocked(blocks);
   const ubFile = _isBoundUbTab();
-  const locked = acme || large || ubFile;
+  const locked = acme || !!blocked || ubFile;
   expertModeTbBtn?.classList.toggle("main-tb-btn--locked", locked);
   if (locked) expertModeTbBtn?.setAttribute("aria-disabled", "true");
   else expertModeTbBtn?.removeAttribute("aria-disabled");
   if (ubFile) expertModeTbBtn?.setAttribute("title", t("asmUbFileBlocked"));
-  else if (large) expertModeTbBtn?.setAttribute("title", t("blockModeLimit"));
+  else if (blocked) expertModeTbBtn?.setAttribute("title", t(blocked));
   else expertModeTbBtn?.removeAttribute("title");
   if (expertModeToggle) expertModeToggle.disabled = locked;
-  if (expertModeTbBtn) expertModeTbBtn.disabled = large || ubFile;
+  if (expertModeTbBtn) expertModeTbBtn.disabled = !!blocked || ubFile;
   // The tutorials build VMA (VA) programs with blocks: hidden in ACME mode, with its separator.
   const tutorialBtn = document.getElementById("tutorial-btn");
   if (tutorialBtn) {
@@ -26717,10 +26727,20 @@ let _kickLast = null;   // last preprocessing: { ok, program, origins, errors, t
 function _kickProjectActive() {
   if (!_expertProjectData?.kick || !_expertProjectData.startupFile || ultimateBasicMode) return false;
   const active = tabs.find(t => t.id === activeTabId);
-  if (!active?.filePath) return true;
-  const norm = _normFilePath(active.filePath);
+  return !active?.filePath || _projHasFile(active.filePath);
+}
+
+function _projHasFile(path) {
+  const norm = _normFilePath(path);
   const inProject = (nodes) => (nodes || []).some(n => n.type === "folder" ? inProject(n.children) : _normFilePath(_projResolveAbsPath(n.path)) === norm);
-  return inProject(_expertProjectData.files);
+  return inProject(_expertProjectData?.files);
+}
+
+// Project settings → "Expert mode only": no block mode for the project's files, whatever their size.
+function _projBlockModeOff() {
+  if (!_expertProjectData?.noBlockMode) return false;
+  const active = tabs.find(t => t.id === activeTabId);
+  return !!active?.filePath && _projHasFile(active.filePath);
 }
 
 function _kickNormPath(path) {
@@ -27156,12 +27176,12 @@ async function _kickToggleProject() {
   _expertSetStatus(t(_expertProjectData.kick ? "projKickEnabled" : "projKickDisabled"), "ok");
 }
 
-// The Kick settings of a .proj: preprocessor symbols (#define) and command-line
-// variables (cmdLineVars), only when set.
+// The optional settings of a .proj: Kick preprocessor symbols (#define), command-line
+// variables (cmdLineVars) and "Expert mode only" (noBlockMode), only when set.
 function _projKickFields(proj) {
   const defines = Array.isArray(proj?.kickDefines) ? proj.kickDefines.map(String).filter(d => /^[A-Za-z_]\w*$/.test(d)) : [];
   const vars = proj?.kickVars && typeof proj.kickVars === "object" ? Object.fromEntries(Object.entries(proj.kickVars).filter(([k]) => /^[A-Za-z_]\w*$/.test(k)).map(([k, v]) => [k, String(v)])) : {};
-  return { ...(defines.length ? { kickDefines: defines } : {}), ...(Object.keys(vars).length ? { kickVars: vars } : {}) };
+  return { ...(defines.length ? { kickDefines: defines } : {}), ...(Object.keys(vars).length ? { kickVars: vars } : {}), ...(proj?.noBlockMode === true ? { noBlockMode: true } : {}) };
 }
 
 // "name=value" lines ↔ { name: value }; a line without "=" gives an empty value.
@@ -27216,6 +27236,7 @@ async function openProjectSettings() {
     if (acmeOption) acmeOption.disabled = !(await (_acmeAvailabilityCheck || _acmeAvailabilitySync())) && assemblerSyntax !== "acme";
   }
   set("ps-kick", "checked", !!data.kick);
+  set("ps-no-blocks", "checked", !!data.noBlockMode);
   set("ps-defines", "value", (data.kickDefines || []).join(", "));
   set("ps-vars", "value", Object.entries(data.kickVars || {}).map(([k, v]) => `${k}=${v}`).join("\n"));
   const assets = files.length - sources.length;
@@ -27247,6 +27268,7 @@ async function _projSettingsSave() {
   const vars = _projParseKickVars(document.getElementById("ps-vars")?.value);
   if (defines.length) data.kickDefines = defines; else delete data.kickDefines;
   if (Object.keys(vars).length) data.kickVars = vars; else delete data.kickVars;
+  if (document.getElementById("ps-no-blocks")?.checked) data.noBlockMode = true; else delete data.noBlockMode;
   dlg?.close();
   if (syntax !== assemblerSyntax) {
     _setAssemblerSyntax(syntax);
@@ -27256,6 +27278,8 @@ async function _projSettingsSave() {
   _expertProjectDirty = true;
   if (data._projPath) await _expertSaveProject();
   _expertRenderProjectTree();
+  if (!expertMode && !ultimateBasicMode && _projBlockModeOff()) setExpertMode(true);
+  _acmeBuildButtonSync();
   _expertValidate();
   _expertSetStatus(t("psSaved"), "ok");
 }
@@ -34965,9 +34989,10 @@ function _blockVirtualSchedule() {
 
 function renderProgram(virtualScroll = false) {
   virtualScroll = virtualScroll === true;
-  if (!ultimateBasicMode && !expertMode && _blockModeLimitExceeded()) {
+  const blocked = !ultimateBasicMode && !expertMode ? _blockModeBlocked() : "";
+  if (blocked) {
     setExpertMode(true);
-    _expertSetStatus(t("blockModeLimit"), "error");
+    _expertSetStatus(t(blocked), "error");
     const tab = _getActiveTab();
     if (tab) tab.editorMode = "expert";
     return;
