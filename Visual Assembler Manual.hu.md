@@ -3293,7 +3293,7 @@ Programon belüli **Exomizer kitömörítés**. Ezt a makrót közvetlenül egy 
 
 **Depacker bináris:** az előre elkészített visszafelé-depacker a `samples/exo-decrunch.bin` (477 byte, ORG $B000). Ez a hivatalos `exodecrunch.asm` Kick Assembler-es burkolása, minden olvasáshoz hozzáadott `INC $D020`-szal, hogy a kitömörítés alatt látható keret-villantás legyen. Tedd a programodba egy `INCBIN` blokkal a depacker címén.
 
-**Safety offset kompenzáció:** az Exomizer alapértelmezett mem módja 2 byte-os safety offszetet alkalmaz — az adat 2 byte-tal korábbra kerül a kért célnál. A Run via D64 dialógus **automatikusan hozzáad 2-t a Dst mezőhöz** az exomizer hívása előtt, így a látható viselkedés a beírt címhez igazodik.
+**Nyers bemenet:** az extra nyers fájlként, a Dst címre töltve megy az Exomizerhez (`file@<Dst>`), így a depacker minden bájtot, az elsőtől kezdve, pontosan a beírt címre ír.
 
 > **Lásd még:** `exo-multicolor-demo` minta — teljes végponttól végpontig példa: LOADFILE-lal egy tömörített multicolor bitmap a $C000-re, EXODECRUNCH kicsomagolja a $2000-re, majd screen → $0400 és color → $D800 másolás, és a VIC-II multicolor bitmap módra váltás.
 
@@ -3808,7 +3808,7 @@ A **Save PRG ▾** legördülőn → **Export to D64** menüponttal nyílik. A d
 2. **Extra fájlok hozzáadása** — kattints a **+**-ra bármely binárisfájl (`.prg`, `.bin`, `.sid`, stb.) kiválasztásához. Minden extrához:
    - **Name** — hogyan jelenik meg a D64 könyvtárban (max 16 karakter, automatikus nagybetű).
    - **Addr** (betöltési cím, opcionális) — ha megadott, egy 2 byte-os PRG fejléc kerül elé. Hagyd üresen, hogy nyers byte-okat írjon fejléc nélkül.
-   - **Dst** (kitömörítési cél, csak EXO-val) — hova rakja a depacker az adatot a C64-en. Ha az EXO engedélyezett, az extra `exomizer mem -l <Addr> file,<Dst>`-vel tömörödik a D64-be írás előtt. A +2 safety-offset kompenzáció automatikusan alkalmazódik.
+   - **Dst** (kitömörítési cél, csak EXO-val) — hova rakja a depacker az adatot a C64-en. Ha az EXO engedélyezett, az extra `exomizer mem -l <Addr> file@<Dst>`-vel (nyers fájl a Dst címen) tömörödik a D64-be írás előtt.
    - **EXO** — jelölőnégyzet, amely bekapcsolja a visszafelé `mem`-módú tömörítést ehhez a bejegyzéshez. A lemezen lévő méret jellemzően az eredeti 5–20%-a.
 3. Kattints az **Export**-ra a `.d64` fájl generálásához a VICE `c1541` eszközével.
 

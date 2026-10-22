@@ -181,6 +181,42 @@ function macroCases(app) {
   });
 }
 
+// Parameter variants of the macros (the forms the macro tests and the manual use).
+const VARIANTS = {
+  "joystick-var": ".const vx = $FB\n.const vy = $FC\n.const fire = $FD\n* = $1000\n    .joystick 2, vx, vy, fire\n    rts\n",
+  "joystick-var-nofire": "* = $1000\n    .joystick 1, $FB, $FC\n    rts\n",
+  "joystick-both-ports": "* = $1000\n    .joystick 3, $FB, $FC, $FD\n    rts\n",
+  "joystick-sprite": "* = $1000\n    .joystick 2, 0\n    .joystick 1, 3\n    rts\n",
+  "koala-6000": '* = $1000\n    .koala "picture.koa", $6000\n    rts\n',
+  "level-2000": '* = $1000\n    .level "level.bin", $2000\n    rts\n',
+  "level-row-color": '.const dst_ptr = $FB\n.const view_col = $FD\n* = $1000\n    .level "level.bin", $2000\n    .level_row dst_ptr, view_col, color\n    rts\n',
+  "fill-expr": "* = $1000\n    .fill 8, i*2\n    .fill 4, round(127.5*sin(i))\n    rts\n",
+  "sprite-init-mc": ".const SPRITE_NUM = 2\n.const SPRITE_COLOR = 5\n* = $1000\n    .sprite_init SPRITE_NUM, SPRITE_COLOR, $40, multicolor\n    .sprite_pos SPRITE_NUM, 200, 120\n    rts\n",
+  "loop-for-y": "* = $1000\n    .loop Y, $03, loop1\n    nop\n    .next loop1\n    .for Y, $02, for1\n    nop\n    .endf for1\n    rts\n",
+  "push-pull-all": "* = $1000\n    .push A, X, Y\n    .pull AXY\n    rts\n",
+  "delay-frames": "* = $1000\n    .delay 1\n    .delay 50\n    rts\n",
+  "table-align": "* = $1000\n    .align 256\nmul40:\n    .word 0, 320, 640, 960\n    rts\n",
+  "print-multi": "* = $1000\n    .print \"HELLO\"\n    .print_hex A\n    .print_char 'A'\n    rts\n",
+  "runtime-control": "* = $1000\n    .if A == #$00\n    inc $D020\n    .else\n    inc $D021\n    .endif\n    .while X != #$05\n    inx\n    .endw\n    .repeat\n    dey\n    .until Y == #$00\n    rts\n",
+  "irq-wait-raster": "* = $1000\n    .irq_setup handler=irq, raster=$30\n    rts\nirq:\n    .wait_raster $80\n    jmp $EA31\n",
+  "incbin-addr": '* = $1000\n    .incbin "demo-colors.bin", $3000\n    rts\n',
+  "macro-nested-error": ".macro border(c)\n    lda #{c}\n    sta $D020\n.endm\n.macro both(c)\n    :border({c})\n.endm\n* = $1000\n    :both(3)\n    rts\n"
+};
+
+// Kick sources reach the VMA through _kickPreprocess: its output is a VMA case of its own.
+function kickCases(app) {
+  const dir = path.join(repo, "tests", "fixtures");
+  const files = ["kick-project/main.asm", ...fs.readdirSync(path.join(dir, "kick-features")).filter(f => f.endsWith(".asm")).sort().map(f => "kick-features/" + f)];
+  app.__readText = (p) => { try { return fs.readFileSync(p, "utf8"); } catch { return null; } };
+  app.__readBin = (p) => { try { return new Uint8Array(fs.readFileSync(p)); } catch { return null; } };
+  return files.map(f => {
+    const full = path.join(dir, f).split(path.sep).join("/");
+    const pre = app.run(`_kickPreprocess(${JSON.stringify(full)}, __readText, __readBin)`);
+    if (pre.errors.length) throw new Error(`${f}: ${JSON.stringify(pre.errors)}`);
+    return { id: "kick-" + f.replace(/\.asm$/, "").replace(/[^A-Za-z0-9_.-]+/g, "_"), kind: "text", file: "tests/fixtures/" + f, text: pre.text, baseDir: path.dirname(full) };
+  });
+}
+
 function fileCases() {
   const out = [];
   const add = (dir, filter) => {
@@ -206,7 +242,9 @@ function allCases(app) {
     ...fileCases(),
     { id: "gen-opcode-matrix", kind: "text", text: opcodeMatrix(app), baseDir: repo },
     ...macroCases(app),
-    ...Object.entries(SNIPPETS).map(([id, text]) => ({ id: "snip-" + id, kind: "text", text, baseDir: repo }))
+    ...Object.entries(SNIPPETS).map(([id, text]) => ({ id: "snip-" + id, kind: "text", text, baseDir: repo })),
+    ...Object.entries(VARIANTS).map(([id, text]) => ({ id: "var-" + id, kind: "text", text, baseDir: path.join(__dirname, "files") })),
+    ...kickCases(app)
   ];
 }
 

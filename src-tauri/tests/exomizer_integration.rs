@@ -69,9 +69,9 @@ fn exomizer_path() -> Option<PathBuf> {
 }
 
 /// Compresses with exomizer mem mode. `user_target_hex` is the FINAL destination
-/// (where the user wants the decompressed bytes). We add +2 internally to
-/// compensate for exomizer's default safety_offset of 2 — same logic as the
-/// Rust crunch_with_exomizer in lib.rs.
+/// (where the user wants the decompressed bytes). The input is a raw file, so it
+/// is given as `file@addr` — `file,addr` would read it as a PRG and drop its first
+/// two bytes as a load address. Same logic as crunch_with_exomizer in lib.rs.
 fn compress_with_exomizer(
     input: &PathBuf,
     load_hex: &str,
@@ -83,8 +83,7 @@ fn compress_with_exomizer(
     let out_path = tmp_dir.join("out.exo");
     let user_target = u32::from_str_radix(user_target_hex.trim_start_matches('$'), 16)
         .map_err(|e| format!("bad target hex: {}", e))?;
-    let adjusted_target = user_target.saturating_add(2);
-    let infile = format!("{},${:04X}", input.to_str().unwrap(), adjusted_target);
+    let infile = format!("{}@${:04X}", input.to_str().unwrap(), user_target);
     let load_arg = format!("${}", load_hex);
 
     let status = Command::new(&exo)
@@ -209,7 +208,7 @@ fn multi_color_compress_and_decrunch_roundtrip() {
         "depacker size sanity"
     );
 
-    // Pass the user-facing target ($2000). The helper adds +2 for safety_offset.
+    // Pass the user-facing target ($2000).
     let compressed = match compress_with_exomizer(&mc_path, "C000", "2000") {
         Ok(b) => b,
         Err(e) if e.contains("not configured") => {

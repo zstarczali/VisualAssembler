@@ -13008,15 +13008,15 @@ function parseExpertText(text) {
     }
 
     // .push / .pull regs
-    const pushM = line.match(/^\.push\s+([AXYaxy]+)\s*$/i);
+    const pushM = line.match(/^\.push\s+([AXYaxy](?:\s*,?\s*[AXYaxy])*)\s*$/i);
     if (pushM) {
-      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "PUSH", operand: pushM[1].toUpperCase(), rawOperand: pushM[1].toUpperCase(), description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isPushMacro: true, pushRegs: pushM[1].toUpperCase() });
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "PUSH", operand: pushM[1].replace(/[\s,]/g, "").toUpperCase(), rawOperand: pushM[1].replace(/[\s,]/g, "").toUpperCase(), description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isPushMacro: true, pushRegs: pushM[1].replace(/[\s,]/g, "").toUpperCase() });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
-    const pullM = line.match(/^\.pull\s+([AXYaxy]+)\s*$/i);
+    const pullM = line.match(/^\.pull\s+([AXYaxy](?:\s*,?\s*[AXYaxy])*)\s*$/i);
     if (pullM) {
-      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "PULL", operand: pullM[1].toUpperCase(), rawOperand: pullM[1].toUpperCase(), description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isPullMacro: true, pullRegs: pullM[1].toUpperCase() });
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "PULL", operand: pullM[1].replace(/[\s,]/g, "").toUpperCase(), rawOperand: pullM[1].replace(/[\s,]/g, "").toUpperCase(), description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isPullMacro: true, pullRegs: pullM[1].replace(/[\s,]/g, "").toUpperCase() });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -18292,7 +18292,7 @@ function encodePetsciiMacro(text, charset = "upper") {
 }
 
 function parsePetsciiCharValue(raw, labels = null) {
-  const text = String(raw ?? "").trim().replace(/^#/, "");
+  const text = _charLiteralToHex(String(raw ?? "").trim().replace(/^#/, ""));
   if (!text) return null;
   if (/^%[01]+$/.test(text)) return Number.parseInt(text.slice(1), 2);
   if (/^\$[0-9A-Fa-f]+$/.test(text)) return Number.parseInt(text.slice(1), 16);
@@ -30054,6 +30054,10 @@ function compileLineBytes(line, labels) {
   // macro is not defined. Emit a clear error instead of falling through to the
   // generic "invalid operand" message.
   if (block.isMacroInvoke) {
+    // A macro body is expanded one level deep: an INVOKE inside it stays unexpanded.
+    if (block._fromMacro && userMacros[block.invokeMacroName]) {
+      return { ok: false, error: tf("compileNestedMacro", { name: block.invokeMacroName, outer: block._fromMacro }) };
+    }
     return { ok: false, error: tf("compileUnknownMacro", { name: block.invokeMacroName || "?" }) };
   }
 

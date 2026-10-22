@@ -3470,7 +3470,7 @@ In-program **Exomizer decompression**. Use this macro right after a `LOADFILE` t
 
 **Depacker binary:** the pre-built backward depacker is `samples/exo-decrunch.bin` (477 bytes, ORG $B000). It's a Kick Assembler wrap of the official `exodecrunch.asm` with `INC $D020` added to every read for a visible border-flash effect during decompression. Place it into your program with an `INCBIN` block at the depacker address.
 
-**Safety offset compensation:** Exomizer's default mem mode applies a 2-byte safety offset — data lands 2 bytes earlier than the requested target. The Run via D64 dialog **automatically adds 2 to the Dst field** before calling exomizer, so the visible behaviour matches the address you typed.
+**Raw input:** the extra is passed to Exomizer as a raw file loaded at the Dst address (`file@<Dst>`), so the depacker writes every byte, starting with the first one, exactly at the address you typed.
 
 > **See also:** the `exo-multicolor-demo` sample — full end-to-end example: LOADFILE a compressed multicolor bitmap to $C000, EXODECRUNCH unpacks it to $2000, then copy screen → $0400 and color → $D800, and switch VIC-II to multicolor bitmap mode.
 
@@ -3985,7 +3985,7 @@ Open via the **Save PRG ▾** dropdown → **Export to D64**. The dialog lets yo
 2. **Add extra files** — click **+** to pick any binary file (`.prg`, `.bin`, `.sid`, etc.). For each extra:
    - **Name** — how it appears in the D64 directory (max 16 chars, auto-uppercase).
    - **Addr** (load address, optional) — if provided, a 2-byte PRG header is prepended. Leave empty to write raw bytes with no header.
-   - **Dst** (decompression target, only with EXO) — where the depacker should land the data on the C64. When EXO is enabled, the extra is compressed with `exomizer mem -l <Addr> file,<Dst>` before being written to the D64. The +2 safety-offset compensation is applied automatically.
+   - **Dst** (decompression target, only with EXO) — where the depacker should land the data on the C64. When EXO is enabled, the extra is compressed with `exomizer mem -l <Addr> file@<Dst>` (a raw file at the Dst address) before being written to the D64.
    - **EXO** — checkbox that turns on backward `mem`-mode crunching for this entry. The on-disk size is typically 5-20% of the original.
 3. Click **Export** to generate the `.d64` file using VICE's `c1541` tool.
 
