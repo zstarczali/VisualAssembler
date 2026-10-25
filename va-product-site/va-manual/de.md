@@ -1,6 +1,6 @@
 # C64 Visual Assembler – Benutzerhandbuch
 
-**Version 2.6.5**
+**Version 2.6.6**
 
 Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Sie
 Programme durch Ziehen und Ablegen von Befehlsblöcken und sehen Sie den
@@ -11,6 +11,7 @@ generierten Assembler- und Maschinencode in Echtzeit.
 ## Inhaltsverzeichnis
 
 - [C64 Visual Assembler — Benutzerhandbuch](#c64-visual-assembler--user-manual)
+    - [Version 2.6.6 Highlights](#version-266-highlights)
     - [Version 2.6.5 Highlights](#version-265-highlights)
     - [Version 2.6.4 Highlights](#version-264-highlights)
     - [Version 2.6.3 Highlights](#version-263-highlights)
@@ -124,6 +125,7 @@ generierten Assembler- und Maschinencode in Echtzeit.
       - [LEVEL](#level)
       - [LEVEL\_ROW](#level_row)
     - [SID](#sid)
+    - [SID_PLAYER](#sid_player)
     - [INCLUDE](#include)
     - [TABELLE](#table)
     - [ORG](#org)
@@ -210,6 +212,46 @@ generierten Assembler- und Maschinencode in Echtzeit.
     - [Kurveneditor](#curve-editor)
     - [Tabellengenerator](#table-generator)
     - [Zahlenkonverter](#number-converter)
+
+---
+
+## Highlights der Version 2.6.6
+
+- **SID-Player-Makro** — `.sid_player [Subtune][, Raster]` (**SID_PLAYER** in
+  der Palette) spielt die Melodie des Makros `.sid`: Es ruft die
+  Initialisierungsroutine mit dem Subtune auf, deaktiviert den CIA1-Timer-IRQ,
+  bindet einen Raster-IRQ ein und ruft die Wiedergaberoutine in jedem Frame über
+  ihren integrierten Handler auf. Ein Programm mit Musik ist nun `.sid
+  "music.sid"` + `.sid_player`. Siehe [SID_PLAYER](#sid_player).
+- **SID-Labels** – das Makro `.sid` definiert `SID_LOAD`, `SID_INIT` und
+  `SID_PLAY`, die zusammen mit einer benutzerdefinierten Ladeadresse verschoben
+  wurden, sodass Ihr eigener IRQ-Handler `JSR SID_PLAY` schreiben kann. Siehe
+  [SID](#sid).
+- **Nur Expertenmodus** — **Projekteinstellungen** verfügen über eine Option,
+  die den Blockmodus für die Projektdateien unabhängig von ihrer Größe
+  deaktiviert (gespeichert in der Datei `.proj`). Siehe [Projektfenster &
+  Registerkarten](#project-panel--tabs).
+- **SID-Player-Puffer** — **Einstellungen → Allgemein → SID-Vorschau →
+  SID-Player-Puffer** legt 2048–16384 Samples fest; ein größerer Puffer
+  verhindert das Knistern, während die Anwendung ausgelastet ist. WebSID
+  verwendet ihn nach einem Neustart, VA SID Core rendert 10/15/20/30 Sekunden im
+  Voraus. Siehe [SID-Player](#sid-player).
+- **Benutzerdefinierte C64-Palette** — **Einstellungen → Allgemein → Editoren →
+  Benutzerdefinierte Palette bearbeiten…** Hiermit können Sie für jede der 16
+  Farben einen eigenen RGB-Wert festlegen, ausgehend von einer beliebigen
+  integrierten Palette. Importieren Sie eine Photoshop-`.act`-, VICE-`.vpl`-
+  oder GIMP-`.gpl`-Palette oder eine Liste von Hex-Farben. Exportieren Sie
+  `.act` / `.vpl`. Siehe [14. Visuelle Editoren
+  (Toolkit)](#14-visual-editors-toolkit).
+- **Look** — das C64-Speicherpanel ist wieder zusammengeklappt; die Fenster
+  "What's New", "Update", "Einstellungen" und "Wissensdatenbank" haben den
+  gleichen Rahmen wie das Info-Fenster; die Kontrollkästchen für die
+  Projekteinstellungen sind VA-Schalter.
+- **Fixes** — Der Fehlerbericht akzeptiert PNG- und JPG-Screenshots in der
+  Release-Version; der blinkende Cursor nach `READY.` auf dem Startbildschirm
+  ist eine durchgehende C64-Zelle ohne die von macOS gezeichneten Linien; die
+  Inline-Texterkennung von macOS ist in den Editoren Expert und Ultimate Basic
+  deaktiviert.
 
 ---
 
@@ -920,9 +962,9 @@ generierten Assembler- und Maschinencode in Echtzeit.
 
 - **`*` in beliebigen Ausdrücken** – das Programmzählersymbol funktioniert nun
   innerhalb von Operandenausdrücken, nicht nur allein: `BNE *-5`, `JMP *+20`,
-  `LDA #<*`, `LDA #>(*+63)`. Ein `*`, das auf einen Wert folgt
-  (`STRIDE*2`), entspricht weiterhin einer Multiplikation. Siehe
-  [Adressierungsmodi → Der `*`-Programmzähler in
+  `LDA #<*`, `LDA #>(*+63)`. Ein `*`, das auf einen Wert folgt (`STRIDE*2`),
+  entspricht weiterhin einer Multiplikation. Siehe [Adressierungsmodi → Der
+  `*`-Programmzähler in
   Ausdrücken](#d64-editor-browse--edit-an-existing-disk-image).
 - **Lokale (gepunktete) Labels** – Ein Label wie `.loop` gehört zum
   Gültigkeitsbereich des nächstgelegenen vorhergehenden *globalen* (nicht
@@ -934,10 +976,10 @@ generierten Assembler- und Maschinencode in Echtzeit.
   einem `JMP` (immer 5 Bytes) assembliert, sodass das Ziel beliebig weit
   entfernt sein kann. Neue Palettenkategorie **Lange Verzweigungen**. Siehe
   [LBNE / LBEQ / … (Lange Verzweigungen)]{1}.
-- Die Direktive **`.assert`** — `.assert end - start <= 256` oder `.assert *
-  < $A000, "message"` wird zur Assemblierungszeit ausgewertet und führt zu
-  einem Build-Fehler (mit Anzeige des tatsächlichen Werts), wenn der Ausdruck
-  falsch ist. Siehe [.ASSERT]{1}.
+- Die Direktive **`.assert`** — `.assert end - start <= 256` oder `.assert * <
+  $A000, "message"` wird zur Assemblierungszeit ausgewertet und führt zu einem
+  Build-Fehler (mit Anzeige des tatsächlichen Werts), wenn der Ausdruck falsch
+  ist. Siehe [.ASSERT]{1}.
 - **Selbstmodifizierende Code-Operandenbezeichnungen** — `LDA Wert:#$00`
   definiert die Bezeichnung `Wert`, die auf das Operandenbyte der Anweisung
   zeigt, sodass `STA Wert` diese direkt überschreibt. Siehe
@@ -958,10 +1000,9 @@ Die App ist in drei Hauptbereiche unterteilt:
 
 - **`*` in beliebigen Ausdrücken** – das Programmzählersymbol funktioniert nun
   innerhalb von Operandenausdrücken, nicht nur allein: `BNE *-5`, `JMP *+20`,
-  `LDA #<*`, `LDA #>(*+63)`. Ein `*`, das auf einen Wert folgt
-  (`STRIDE*2`), entspricht weiterhin einer Multiplikation. Siehe
-  [Adressierungsmodi → Der `*`-Programmzähler in
-  Ausdrücken](#the--program-counter-in-expressions).
+  `LDA #<*`, `LDA #>(*+63)`. Ein `*`, das auf einen Wert folgt (`STRIDE*2`),
+  entspricht weiterhin einer Multiplikation. Siehe [Adressierungsmodi → Der
+  `*`-Programmzähler in Ausdrücken](#the--program-counter-in-expressions).
 - **Lokale (gepunktete) Labels** – Ein Label wie `.loop` gehört zum
   Gültigkeitsbereich des nächstgelegenen vorhergehenden *globalen* (nicht
   gepunkteten) Labels, sodass `DrawSprite` und `ClearScreen` jeweils ihr eigenes
@@ -972,10 +1013,10 @@ Die App ist in drei Hauptbereiche unterteilt:
   einem `JMP` (immer 5 Bytes) assembliert, sodass das Ziel beliebig weit
   entfernt sein kann. Neue Palettenkategorie **Lange Verzweigungen**. Siehe
   [LBNE / LBEQ / … (Lange Verzweigungen)](#lbne--lbeq---long-branches).
-- Die Direktive **`.assert`** — `.assert end - start <= 256` oder `.assert *
-  < $A000, "message"` wird zur Assemblierungszeit ausgewertet und führt zu
-  einem Build-Fehler (mit Anzeige des tatsächlichen Werts), wenn der Ausdruck
-  falsch ist. Siehe [.ASSERT](#assert).
+- Die Direktive **`.assert`** — `.assert end - start <= 256` oder `.assert * <
+  $A000, "message"` wird zur Assemblierungszeit ausgewertet und führt zu einem
+  Build-Fehler (mit Anzeige des tatsächlichen Werts), wenn der Ausdruck falsch
+  ist. Siehe [.ASSERT](#assert).
 - **Selbstmodifizierende Code-Operandenbezeichnungen** — `LDA Wert:#$00`
   definiert die Bezeichnung `Wert`, die auf das Operandenbyte der Anweisung
   zeigt, sodass `STA Wert` diese direkt überschreibt. Siehe
@@ -1771,7 +1812,7 @@ werden durch ihre Form unterschieden:
 
 | VA (VMA)                                             | KickAssembler                                                                                                              |
 | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `.for X, $0A, for1` … `.endf for1`                   | `.for (var i = 0; i < 10; i++) { … }`                                                                                   |
+| `.for X, $0A, for1` … `.endf for1`                   | `.for (var i = 0; i < 10; i++) { … }`                                                                                      |
 | `.if DEBUG` … `.else` … `.endif`                     | `.if (Ausdruck) { … } else { … }`                                                                                          |
 | `.macro name(p)` … `.endm`, aufgerufen mit `.invoke` | `.macro Name(p) { … }`, aufgerufen als `Name(arg)`                                                                         |
 | `.var name = value` (eine Laufzeitvariable)          | `.var name = value` (eine Skriptvariable) — in einem Kick-kompatiblen Projekt ist `.var` immer die KickAssembler-Variable. |
@@ -1788,9 +1829,9 @@ Ergebnis ist dieselbe PRG-Datei wie bei KickAssembler. Unterstützt:
 - `.const` / `.label` in beliebiger Reihenfolge, mit Ausdrücken; Nullseiten-
   oder absolute Adressierung folgt dem Wert wie in KickAssembler (`.abs` / `.zp`
   erzwingen dies weiterhin)
-- `.for (var i = 0; i < n; i++) { … }` und die einzeilige Form, `.var`,
-  `.eval` (`=`, `+=`, `++` …), `.if (…) { … } else .if (…) { … } else { … }` und
-  die einzeilige Form
+- `.for (var i = 0; i < n; i++) { … }` und die einzeilige Form, `.var`, `.eval`
+  (`=`, `+=`, `++` …), `.if (…) { … } else .if (…) { … } else { … }` und die
+  einzeilige Form
 - `.function Name(params) { .return expr }` und `.macro Name(params) { … }`
   werden als `Name(args)` oder `:Name(args)` aufgerufen.
 - Mehrfachbeschriftungen `!:` / `!name:` mit `!+`, `!-`, `!++`, `!name+`,
@@ -2335,14 +2376,15 @@ Der Expertenmodus unterstützt ein **Projektpanel** (`#expert-project-panel`) f�
   ganzen Ordner (z. B. ein Asset-Verzeichnis). Einträge, die nur referenziert
   werden, zeigen eine Löschschaltfläche (✕) an, werden aber durch Anklicken
   nicht geöffnet.
-- **Projekteinstellungen** (das Zahnradsymbol in der Bedienfeldüberschrift oder
-  **Menü → Datei → Projekteinstellungen…**) zeigt und bearbeitet das Projekt:
-  Name, `.proj` Pfad, Startdatei, Assembler (VMA oder ACME),
-  **KickAssembler-kompatibel** und für ein Kick-Projekt die Präprozessorsymbole
-  (`#define`, wie KickAssemblers `-define`) und die Befehlszeilenvariablen
-  (`cmdLineVars`, eine `name=value` pro Zeile, wie `:name=value`), sowie die
-  Anzahl der Quell- und anderer Dateien. Alles ist in der Datei `.proj`
-  gespeichert.
+- **Projekteinstellungen** (das Zahnradsymbol in der Bedienfeldleiste oder
+  **Menü → Datei → Projekteinstellungen…**) zeigen und bearbeiten das Projekt:
+  Name, `.proj-Pfad`, Startdatei, Assembler (VMA oder ACME),
+  **KickAssembler-Kompatibilität** und für ein Kick-Projekt die
+  Präprozessorsymbole (`#define`, wie KickAssemblers `-define`) und die
+  Befehlszeilenvariablen (`cmdLineVars`, eine `name=value` pro Zeile, wie
+  `:name=value`), sowie die Anzahl der Quell- und anderer Dateien. **Nur im
+  Expertenmodus**: Der Blockmodus ist für die Projektdateien unabhängig von
+  ihrer Größe deaktiviert. Alles wird in der `.proj-Datei gespeichert`.
 - Die Ordner in der Baumstruktur verfügen über einen Ein-/Ausklapppfeil. Durch
   einen Rechtsklick auf einen Ordner können Sie eine oder mehrere darin
   verschachtelte Dateien hinzufügen (eingerückt dargestellt).
@@ -2521,9 +2563,9 @@ relative Sprünge oder PC-relative Datenlesevorgänge keine Marke benötigt wird
 
 **PC vs. Multiplikation.** `*` wird nur dann als Programmzähler behandelt, wenn
 es sich an der *Wertposition* befindet – am Anfang des Ausdrucks oder direkt
-nach einem Operator, `(`, `,`, `<`, `>` oder einem Leerzeichen. Ein `*`,
-das auf eine Zahl, `)` oder einen Bezeichner folgt, ist eine gewöhnliche
-Multiplikation, daher bleiben `LDA table*2` und `CONST_A*4` unverändert.
+nach einem Operator, `(`, `,`, `<`, `>` oder einem Leerzeichen. Ein `*`, das auf
+eine Zahl, `)` oder einen Bezeichner folgt, ist eine gewöhnliche Multiplikation,
+daher bleiben `LDA table*2` und `CONST_A*4` unverändert.
 
 **Wo es funktioniert.** Jeder Operand, der bereits einen Ausdruck akzeptiert:
 Sprungziele, `JMP` / `JSR`, `LDA`/`STA`/… absolute und indizierte, unmittelbare
@@ -3654,7 +3696,49 @@ an der angegebenen Adresse im PRG abgelegt.
 
 > **Typische Verwendung:** Platzieren Sie einen ORG-Block vor dem SID-Block, um
 > dessen Adresse festzulegen. Rufen Sie Init einmal beim Start auf und
-> anschließend Play für jedes Frame über einen Raster-IRQ-Handler.
+> anschließend Play für jedes Frame über einen Raster-IRQ-Handler – oder lassen
+> Sie [SID_PLAYER](#sid_player) beides erledigen.
+
+**Labels:** Der SID-Block definiert `SID_LOAD` (wo die Daten abgelegt werden),
+`SID_INIT` und `SID_PLAY` (die Initialisierungs- und Wiedergabeadressen, die
+zusammen mit einer benutzerdefinierten Adresse verschoben werden). `SID_PLAY`
+fehlt, wenn der Titel keine Wiedergabeadresse hat (eine RSID, die ihren eigenen
+IRQ installiert). Verwenden Sie diese in Ihrem eigenen Code, z. B. `JSR
+SID_PLAY` in einem IRQ-Handler.
+
+---
+
+### SID_PLAYER
+
+Spielt die Melodie des **SID**-Makros mit einem Block ab: Er initialisiert die
+Melodie und ruft seine Wiedergaberoutine über einen Raster-Interrupt immer
+wieder auf, sodass Ihr Programm mit seiner eigenen Arbeit fortfahren kann.
+
+| Feld   | Beschreibung                                                                              |
+| ------ | ----------------------------------------------------------------------------------------- |
+| Lied   | Subtune-Nummer, die an die Initialisierungsroutine in A übergeben wird (Standardwert `0`) |
+| Raster | Rasterzeile des Interrupts, `$00`–`$FF` (Standard `$FA`)                                  |
+
+Was es tut: `SEI`, `LDA #song` / `JSR SID_INIT`, schaltet den CIA1-Timer-IRQ aus
+(`$DC0D`), setzt den IRQ-Vektor (`$0314/$0315`) auf seinen eingebauten Handler,
+die Rasterzeile (`$D012`, Bit 8 von `$D011` gelöscht) und den Raster-IRQ
+(`$D01A`), `CLI`, und springt dann über den Handler. Der Handler bestätigt die
+Unterbrechung (`ASL $D019`), ruft `JSR SID_PLAY` auf und geht dann zum KERNAL
+über (`JMP $EA31`, der auch die Tastatur scannt).
+
+**Expertensyntax:**
+```
+.sid "Ikari_Warriors.sid"
+.sid_player
+.sid_player 1, $80
+```
+
+**Größe im Code:** 58 Bytes.
+
+> Hinweis: Das Programm benötigt einen SID-Block (SID_INIT und SID_PLAY);
+> andernfalls bricht der Build mit einem Fehler ab. Bei deaktiviertem
+> CIA1-Timer-IRQ wird der Kernel einmal pro Frame vom Raster-IRQ ausgeführt –
+> Tastatur und GETIN funktionieren weiterhin.
 
 ---
 
@@ -4290,10 +4374,10 @@ wird der Build mit einer eindeutigen Fehlermeldung, die den tatsächlichen Wert
 enthält, abgebrochen. Ist das Ergebnis wahr (ungleich null), wird keine Ausgabe
 erzeugt.
 
-| Feld      | Beschreibung                                                                                                                                    |
-| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Feld      | Beschreibung                                                                                                                        |
+| --------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | Ausdruck  | Beliebige Assembler-Ausdrücke: Labels, `CONST`s, `*` (Programmzähler), Arithmetik und Vergleiche (`<`, `<=`, `>`, `>=`, `==`, `!=`) |
-| Nachricht | Optionaler Text, der an die Fehlermeldung angehängt wird                                                                                        |
+| Nachricht | Optionaler Text, der an die Fehlermeldung angehängt wird                                                                            |
 
 **Expertensyntax:**
 ```
@@ -4470,9 +4554,9 @@ LDA #$0F
 
 **Größe:** Abhängig von den gewählten Zweigen und dem Vergleichsformular.
 
-Der Vergleich erfolgt standardmäßig vorzeichenlos. Für `<=` und `>` wird
-das Makro zur kürzesten äquivalenten Verzweigungskette für das ausgewählte
-Register erweitert.
+Der Vergleich erfolgt standardmäßig vorzeichenlos. Für `<=` und `>` wird das
+Makro zur kürzesten äquivalenten Verzweigungskette für das ausgewählte Register
+erweitert.
 
 ---
 
@@ -5106,7 +5190,7 @@ oder zusätzlichen Code von der Diskette zu laden, während Ihr Programm läuft.
 
 | Feld                             | Beschreibung                                                                                                                                                                                                                                   |
 | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Dateiname                        | Dateiname auf der Festplatte (max. 16 Zeichen, automatische Großschreibung; die Zeichen `,`, `"`, `/`, `\`, `:`, `*`, `?`, `<`, `>`, `|` werden herausgefiltert)                                                                         |
+| Dateiname                        | Dateiname auf der Festplatte (max. 16 Zeichen, automatische Großschreibung; die Zeichen `,`, `"`, `/`, `\`, `:`, `*`, `?`, `<`, `>`, `|` werden herausgefiltert)                                                                               |
 | Gerät                            | Gerätenummer 8–30 (Standard `8`)                                                                                                                                                                                                               |
 | Überschreiben-Adresse (optional) | Hexadezimale Ladeadresse (z. B. `C000`). Ist diese Adresse angegeben, wird die Datei unter dieser Adresse geladen (`sec=0`, PRG-Header wird ignoriert). Wird das Feld leer gelassen, wird der 2-Byte-PRG-Header der Datei verwendet (`sec=1`). |
 | Fehlerbezeichnung (optional)     | Falls gesetzt, wird nach JSR LOAD eine `BCS`-Anweisung generiert. Falls KERNAL mit gesetztem Übertrag (Fehler) zurückkehrt, springt die Ausführung zu dieser Marke.                                                                            |
@@ -5483,9 +5567,9 @@ CPX #$E8
 BNE *-11
 ```
 
-**Größe:** `2 (LDX) + volleSeiten×9 + (rem > 0 ? 11 : 0)` Bytes pro
-Abschnitt. Im kombinierten Modus verdoppelt sich die Größe (Bildschirmabschnitt
-+ identischer Farbabschnitt).
+**Größe:** `2 (LDX) + volleSeiten×9 + (rem > 0 ? 11 : 0)` Bytes pro Abschnitt.
+Im kombinierten Modus verdoppelt sich die Größe (Bildschirmabschnitt +
+identischer Farbabschnitt).
 
 **Kopplung mit dem Karteneditor:**
 
@@ -6247,6 +6331,18 @@ Verfügung. Nur die Darstellung ändert sich – die Farbindizes in Ihren Daten
 bleiben unverändert. Der Import von hochauflösenden Bildern verwendet ebenfalls
 die Editorpalette, es sei denn, Sie wählen dort eine andere aus.
 
+**Benutzerdefinierte Palette:** Falls keine der Standardfarben mit Ihrem Monitor
+oder Ihrem C64 übereinstimmt, wählen Sie **Benutzerdefiniert** und klicken Sie
+auf **Benutzerdefinierte Palette bearbeiten…**. Jede der 16 Farben erhält eine
+Farbauswahl und ein Hexadezimalfeld (`#RRGGBB`). **Starten von** + **Kopieren**
+füllt alle 16 Farben aus einer integrierten Palette. **Import…** liest eine
+Photoshop-Datei `.act`, eine VICE-Datei `.vpl`, eine GIMP-Datei `.gpl` oder
+beliebigen Text mit 16 `#RRGGBB` / `$RRGGBB`-Werten (die ersten 16 Farben werden
+verwendet); **Export .act** und **Export .vpl** schreiben die Palette für
+Photoshop bzw. für VICE (*Einstellungen → Video → Palette* in VICE), sodass Sie
+dieselben Farben im Emulator vergleichen können. **Save** speichert die
+Einstellung und wechselt zu **Custom**.
+
 Die Dialogfelder des visuellen Editors lassen sich über ihre Kopfzeilen im
 gesamten Arbeitsbereich des Visual Assemblers verschieben. Ein Dialogfeld ohne
 gespeicherte Position wird zentriert geöffnet; nach dem Verschieben wird seine
@@ -6716,6 +6812,11 @@ aus der HVSC-Sammlung.
   diese Steuerelemente deaktiviert.
 - **Lautstärke:** Der Regler wird mit der Master-Lautstärke des SID-Editors
   geteilt.
+- **Puffer:** **Einstellungen → Allgemein → SID-Vorschau → SID-Player-Puffer**
+  (2048, 4096, 8192 oder 16384 Samples). Ein größerer Puffer verhindert das
+  Knistern, während die Anwendung ausgelastet ist. WebSID verwendet nach einem
+  Neustart die neue Puffergröße; VA SID Core rendert 10/15/20/30 Sekunden im
+  Voraus ab dem nächsten Titel.
 - **Engine:** Das Fenster zeigt die aktuell abspielende Engine an (WebSID oder
   VA SID Core mit Versionsnummer und SID-Chip). Die Auswahl erfolgt unter
   **Einstellungen → SID-Vorschau**. VA SID Core spielt die Melodie auf einem

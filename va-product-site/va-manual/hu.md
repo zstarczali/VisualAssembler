@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**2.6.5-ös verzió**
+**2.6.6-os verzió**
 
 Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat
 létre húzással és elengedéssel (fogd és vidd) utasításblokkokkal, és valós
@@ -12,6 +12,7 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
 
 - [C64 Visual Assembler — Felhasználói
   kézikönyv](#c64-visual-assembler--user-manual)
+    - [2.6.6-os verzió – kiemelt funkciók](#version-266-highlights)
     - [2.6.5-ös verzió – kiemelt funkciók](#version-265-highlights)
     - [2.6.4-es verzió – kiemelt funkciók](#version-264-highlights)
     - [2.6.3-as verzió kiemelt funkciói](#version-263-highlights)
@@ -123,6 +124,7 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
       - [SZINT](#level)
       - [SZINT\SOR](#level_row)
     - [SID](#sid)
+    - [SID_PLAYER](#sid_player)
     - [BELEÉRTVE](#include)
     - [TÁBLÁZAT](#table)
     - [SZERV](#org)
@@ -209,6 +211,41 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
     - [Görbeszerkesztő](#curve-editor)
     - [Táblázatgenerátor](#table-generator)
     - [Számátváltó](#number-converter)
+
+---
+
+## A 2.6.6-os verzió legfontosabb elemei
+
+- **SID lejátszó makró** — `.sid_player [subtune][, raster]` (**SID_PLAYER** a
+  palettán) lejátssza az `.sid` makró dallamát: meghívja az init rutint a
+  részhanggal, kikapcsolja a CIA1 időzítő IRQ-ját, rákapcsol egy raszter IRQ-t,
+  és minden képkockán meghívja a lejátszás rutint a beépített kezelőjéből. Egy
+  zenét tartalmazó program most `.sid "music.sid"` + `.sid_player`. Lásd:
+  [SID_PLAYER]{1].
+- **SID címkék** — az `.sid` makró definiálja az `SID_LOAD`, `SID_INIT` és
+  `SID_PLAY` értékeket, melyeket egyéni betöltési címmel együtt mozgattunk, így
+  a saját IRQ kezelőd írhat `JSR SID_PLAY` címre. Lásd: [SID](#sid).
+- **Csak szakértői módban** — **Projektbeállítások** tartalmaz egy kapcsolót,
+  amely bezárja a blokk módot a projekt fájljainál, méretüktől függetlenül (a
+  `.proj` fájlba mentve). Lásd: [Projekt panel és fülek](#project-panel--tabs).
+- **SID Player puffer** — **Beállítások → Általános → SID előnézet → SID Player
+  puffer** 2048–16384 mintát állít be; egy nagyobb puffer megállítja a
+  sercegést, amíg az alkalmazás foglalt. A WebSID újraindítás után használja, a
+  VA SID Core 10 / 15 / 20 / 30 másodperccel előre renderel. Lásd: [SID
+  Player](#sid-player).
+- **Egyéni C64 paletta** — **Beállítások → Általános → Szerkesztők → Egyéni
+  paletta szerkesztése…** beállítja a saját RGB-értéket mind a 16 színhez,
+  bármelyik beépített palettáról kiindulva; importáljon egy Photoshop `.act`,
+  VICE `.vpl`, GIMP `.gpl` palettát vagy egy hexadecimális színek listáját,
+  exportálja az `.act` / `.vpl` fájlt. Lásd: [14. Vizuális szerkesztők
+  (Toolkit)](#14-visual-editors-toolkit).
+- **Nézd** — a C64 memóriapanel összecsukva visszaáll a dokkolásra; az
+  Újdonságok, frissítés, beállítások és tudásbázis ablakok kerete megegyezik a
+  Névjegy mezőével; a Projektbeállítások jelölőnégyzetek VA kapcsolók.
+- **Javítások** — a hibajelentés PNG és JPG képernyőképeket fogad el a
+  kiadásban; a kezdőképernyőn a `READY.` után villogó kurzor egy tömör C64
+  cella, a macOS által rajzolt vonalak nélkül; a macOS beágyazott prediktív
+  szövege ki van kapcsolva az Expert és az Ultimate Basic szerkesztőkben.
 
 ---
 
@@ -885,8 +922,8 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
 
 - **`*` bármilyen kifejezésben** — a programszámláló szimbólum mostantól
   operandus kifejezéseken belül is működik, nem csak önmagában: `BNE *-5`, `JMP
-  *+20`, `LDA #<*`, `LDA #>(*+63)`. Az értéket követő `*` (`STRIDE*2`)
-  továbbra is szorzás. Lásd: [Címzési módok → Az `*` programszámláló
+  *+20`, `LDA #<*`, `LDA #>(*+63)`. Az értéket követő `*` (`STRIDE*2`) továbbra
+  is szorzás. Lásd: [Címzési módok → Az `*` programszámláló
   kifejezésekben](#d64-editor-browse--edit-an-existing-disk-image).
 - **Helyi (pontozott) címkék** — egy olyan címke, mint az `.loop`, a
   legközelebbi megelőző *global* (nem pontozott) címke hatókörébe tartozik, így
@@ -918,8 +955,8 @@ Az alkalmazás három fő panelre oszlik:
 
 - **`*` bármilyen kifejezésben** — a programszámláló szimbólum mostantól
   operandus kifejezéseken belül is működik, nem csak önmagában: `BNE *-5`, `JMP
-  *+20`, `LDA #<*`, `LDA #>(*+63)`. Az értéket követő `*` (`STRIDE*2`)
-  továbbra is szorzás. Lásd: [Címzési módok → Az `*` programszámláló
+  *+20`, `LDA #<*`, `LDA #>(*+63)`. Az értéket követő `*` (`STRIDE*2`) továbbra
+  is szorzás. Lásd: [Címzési módok → Az `*` programszámláló
   kifejezésekben](#the--program-counter-in-expressions).
 - **Helyi (pontozott) címkék** — egy olyan címke, mint az `.loop`, a
   legközelebbi megelőző *global* (nem pontozott) címke hatókörébe tartozik, így
@@ -1693,7 +1730,7 @@ mindkettőben létező direktívákat a formájuk különbözteti meg:
 
 | VA (VMA)                                                   | KickAssembler                                                                                                         |
 | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `.X esetén, $0A, 1-hez` … `.endf 1-hez`                    | `.for (i változó = 0; i < 10; i++) { … }`                                                                          |
+| `.X esetén, $0A, 1-hez` … `.endf 1-hez`                    | `.for (i változó = 0; i < 10; i++) { … }`                                                                             |
 | `.ha HIBAKERESÉS` … `.else` … `.endif`                     | `.if (kifejezés) { … } else { … }`                                                                                    |
 | `.makrónév(p)` … `.endm`, meghívva az `.invoke` paranccsal | `.makró Name(p) { … }`, meghívva: `Name(arg)`                                                                         |
 | `.var név = érték` (futásidejű változó)                    | `.var név = érték` (egy szkriptváltozó) — egy Kick-kompatibilis projektben az `.var` mindig a KickAssembler változója |
@@ -2248,12 +2285,14 @@ többfájlos `.proj` projektekhez:
   szolgáló bejegyzéseknél egy törlés (✕) gomb látható, de rájuk kattintva nem
   nyílnak meg.
 - A **Projektbeállítások** (a fogaskerék gomb a panel fejlécében, vagy a **Menü
-  → Fájl → Projektbeállítások…**) menüpontban megjeleníthetők és szerkeszthetők
-  a projekt: név, `.proj` elérési út, indítófájl, assembler (VMA vagy ACME),
-  **KickAssembler kompatibilis**, és egy Kick projekt esetében az előfeldolgozó
-  szimbólumok (`#define`, mint a KickAssembler `-define`-je) és a parancssori
-  változók (`cmdLineVars`, soronként egy `name=value`, mint a `:name=value`),
-  valamint a forrás- és egyéb fájlok száma. Minden a `.proj` fájlba van mentve.
+  → Fájl → Projektbeállítások…**) megjeleníti és szerkeszti a projektet: név,
+  `.proj` elérési út, indítófájl, assembler (VMA vagy ACME), **KickAssembler
+  kompatibilis**, és egy Kick projekt esetében az előfeldolgozó szimbólumok
+  (`#define`, mint a KickAssembler `-define`-je) és a parancssori változók
+  (`cmdLineVars`, soronként egy `name=value`, mint a `:name=value`), valamint a
+  forrás- és egyéb fájlok száma, és **Csak szakértői módban**: a blokk mód a
+  projekt fájljaira nem vonatkozik, méretüktől függetlenül. Minden a `.proj`
+  fájlba kerül mentésre.
 - A fában lévő mappák egy összecsukó/kibontó nyíllal rendelkeznek, és a **jobb
   gombbal kattintson egy mappára** egy vagy több beágyazott fájl hozzáadásához
   (behúzva látható).
@@ -2420,8 +2459,8 @@ viszonyított adatolvasásokhoz.
 
 **PC vs. szorzás.** Az `*` csak akkor kezeli a programszámlálót, ha az
 *értékpozícióban* található — a kifejezés elején, vagy közvetlenül egy operátor,
-`(`, `,`, `<`, `>` vagy szóköz után. Egy `*`, amely egy számot, `)` vagy
-egy azonosítót követ, közönséges szorzásnak minősül, tehát az `LDA table*2` és a
+`(`, `,`, `<`, `>` vagy szóköz után. Egy `*`, amely egy számot, `)` vagy egy
+azonosítót követ, közönséges szorzásnak minősül, tehát az `LDA table*2` és a
 `CONST_A*4` változatlanok maradnak.
 
 **Hol működik.** Bármely operandus, amely már elfogad egy kifejezést: elágazási
@@ -3469,8 +3508,49 @@ késleltetett chunkként kerül a PRG-be.
 > belső hivatkozásokat megszakítja.
 
 > **Tipikus használat:** Helyezzen el egy ORG blokkot a SID blokk elé a címének
-> beállításához. Indításkor hívja meg az Init blokkot, majd hívja meg a Play
-> minden képkockát egy raszteres IRQ kezelőből.
+> beállításához. Indításkor hívja meg az Init függvényt, majd hívja meg a Play
+> függvényt minden képkockánál egy raszteres IRQ kezelőből — vagy hagyja, hogy a
+> [SID_PLAYER](#sid_player) mindkettőt megtegye.
+
+**Címkék:** a SID blokk definiálja az `SID_LOAD` (ahová az adatok kerülnek), az
+`SID_INIT` és az `SID_PLAY` címeket (az init és play címek, egy egyéni címmel
+együtt mozgatva). Az `SID_PLAY` hiányzik, ha a dallamnak nincs play címe (egy
+RSID, amely saját IRQ-t telepít). Használd őket a saját kódodban, pl. `JSR
+SID_PLAY` egy IRQ kezelőben.
+
+---
+
+### SID_PLAYER
+
+Egyetlen blokkal játssza le az **SID** makró dallamát: inicializálja a dallamot,
+és raszteres megszakításból folyamatosan meghívja a lejátszási rutinját, így a
+program folytathatja a saját munkáját.
+
+| Mező    | Leírás                                                                      |
+| ------- | --------------------------------------------------------------------------- |
+| Dal     | Az A-ban lévő init rutinnak átadott alhangolási szám (alapértelmezett: `0`) |
+| Raszter | A megszakítás raszteres vonala, `$00`–`$FF` (alapértelmezett: `$FA`)        |
+
+Mit csinál: `SEI`, `LDA #dal` / `JSR SID_INIT`, kikapcsolja a CIA1 időzítő
+IRQ-ját (`$DC0D`), beállítja az IRQ vektort (`$0314/$0315`) a beépített
+kezelőjére, a raszter vonalat (`$D012`, a `$D011` 8. bitje törölve) és a raszter
+IRQ-t (`$D01A`), `CLI`, majd átugrik a kezelőn. A kezelő nyugtázza a
+megszakítást (`ASL $D019`), meghívja a `JSR SID_PLAY` függvényt, majd továbblép
+a KERNAL-hoz (`JMP $EA31`), amely szintén beolvassa a billentyűzetet.
+
+**Szakértői szintaxis:**
+```
+.sid "Ikari_Warriors.sid"
+.sid_player
+.sid_player 1, 80 dollár
+```
+
+**Méret a kódban:** 58 bájt.
+
+> **Megjegyzés:** Szükség van egy SID blokkra a programban (`SID_INIT` és
+> `SID_PLAY`); különben a build hibával leáll. Ha a CIA1 időzítő IRQ kikapcsolva
+> van, a KERNAL a raszteres IRQ-ból származó képkockánként egyszer fut le – a
+> billentyűzet és a `GETIN` továbbra is működik.
 
 ---
 
@@ -4069,10 +4149,10 @@ blokkok is kimaradnak.
 fordítás egy tiszta hibával leáll, amely tartalmazza a tényleges értéket. Ha
 igaz (nem nulla), akkor semmit nem bocsát ki.
 
-| Mező      | Leírás                                                                                                                                                          |
-| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Mező      | Leírás                                                                                                                                              |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Kifejezés | Bármely assembler kifejezés: címkék, `CONST`s, `*` (programszámláló), aritmetikai műveletek és összehasonlítások (`<`, `<=`, `>`, `>=`, `==`, `!=`) |
-| Üzenet    | A hibaüzenethez hozzáfűzött opcionális szöveg                                                                                                                   |
+| Üzenet    | A hibaüzenethez hozzáfűzött opcionális szöveg                                                                                                       |
 
 **Szakértői szintaxis:**
 ```
@@ -4238,8 +4318,8 @@ LDA #$0F
 
 **Méret:** A kiválasztott ágaktól és az összehasonlítási űrlaptól függ.
 
-Az összehasonlítás alapértelmezés szerint előjel nélküli. Az `<=` és az
-`>` esetén a makró a kiválasztott regiszterhez tartozó legrövidebb ekvivalens
+Az összehasonlítás alapértelmezés szerint előjel nélküli. Az `<=` és az `>`
+esetén a makró a kiválasztott regiszterhez tartozó legrövidebb ekvivalens
 elágazási láncra bővül.
 
 ---
@@ -4787,7 +4867,7 @@ kódot tölthet be lemezről a program futása közben.
 
 | Mező                        | Leírás                                                                                                                                                                                                                  |
 | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Fájlnév                     | Fájlnév a lemezen (maximum 16 karakter, automatikus nagybetűs írásmód; a következő karakterek szűrve: `,`, `"`, `/`, `\`, `:`, `*`, `?`, `<`, `>`, `|`)                                                           |
+| Fájlnév                     | Fájlnév a lemezen (maximum 16 karakter, automatikus nagybetűs írásmód; a következő karakterek szűrve: `,`, `"`, `/`, `\`, `:`, `*`, `?`, `<`, `>`, `|`)                                                                 |
 | Eszköz                      | Eszközszám 8–30 (alapértelmezett: `8`)                                                                                                                                                                                  |
 | Cím felülírása (opcionális) | Hex betöltési cím (pl. `C000`). Ha be van állítva, a fájl erre a címre töltődik be (`sec=0`, figyelmen kívül hagyva a PRG fejlécet). Hagyja üresen, ha a fájl saját 2 bájtos PRG fejlécét szeretné használni (`sec=1`). |
 | Hibacímke (opcionális)      | Ha be van állítva, a JSR LOAD után egy `BCS` utasítás generálódik. Ha a KERNAL carry set (hiba) értékkel tér vissza, a végrehajtás erre a címkére ugrik.                                                                |
@@ -5014,8 +5094,8 @@ keresztül. Nincs hatással egy valódi C64-re vagy más emulátorokra.
 | Sebesség    | CPU sebességindex    | 0 = 1 MHz … 7 ≈ 10 MHz … 15 ≈ 48 MHz                 |
 | Rossz vonal | Rossz vonal emuláció | Engedélyezett (C64 kompatibilis) / Letiltott (turbó) |
 
-A sebességbájt kiszámítása a következőképpen történik: `(speedIndex & 0x0F)
-| (badline_disabled ? 0x80 : 0x00)`.
+A sebességbájt kiszámítása a következőképpen történik: `(speedIndex & 0x0F) |
+(badline_disabled ? 0x80 : 0x00)`.
 
 **Generált kód (5 bájt):**
 ```
@@ -5127,9 +5207,8 @@ STA $0700,X
 INX CPX #$E8 BNE *-11
 ```
 
-**Méret:** `2 (LDX) + teljesOldalak×9 + (rem > 0 ? 11 : 0)` bájt
-szakaszonként. Kombinált módban ez megduplázódik (képernyőszakasz + azonos színű
-szakasz).
+**Méret:** `2 (LDX) + teljesOldalak×9 + (rem > 0 ? 11 : 0)` bájt szakaszonként.
+Kombinált módban ez megduplázódik (képernyőszakasz + azonos színű szakasz).
 
 **Párosítás a Térképszerkesztővel:**
 
@@ -5843,6 +5922,18 @@ adatokban lévő színindexek változatlanok maradnak. A nagy felbontású
 képimportálás is a szerkesztőpalettát használja, kivéve, ha ott választ ki egy
 másikat.
 
+**Egyéni paletta:** ha egyik sem felel meg a monitorodnak vagy a valódi
+C64-ednek, válaszd az **Egyéni** lehetőséget, majd kattints az **Egyéni paletta
+szerkesztése…** gombra. Mind a 16 színhez tartozik egy színválasztó és egy
+hexadecimális mező (`#RRGGBB`); A **Kezdés innen:** + **Másolás** mind a 16
+színt kitölti egy beépített palettáról. Az **Import…** parancs beolvassa a
+Photoshop `.act`, VICE `.vpl`, GIMP `.gpl` vagy bármilyen 16 `#RRGGBB` /
+`$RRGGBB` értékű szöveget (az első 16 színt használja); az **Export .act** és az
+**Export .vpl** parancs kiírja a palettát Photoshophoz vagy VICE-hoz
+(*Beállítások → Videó → Paletta* a VICE-ban), így összehasonlíthatja ugyanazokat
+a színeket az emulátorban. A **Mentés** elmenti, és átvált az **Egyéni**
+beállításra.
+
 A vizuális szerkesztő párbeszédablakok a fejlécüknél fogva húzhatók a teljes
 Visual Assembler munkaterületen. A mentett pozícióval nem rendelkező
 párbeszédablakok középre igazítva jelennek meg; áthelyezés után az utolsó
@@ -6296,6 +6387,11 @@ dalokat.
   SID Core motorral. A WebSID nem tud keresni, így ezek a vezérlők le vannak
   tiltva nála.
 - **Hangerő:** a gomb meg van osztva a SID Editor fő hangerőszabályzójával.
+- **Puffer:** **Beállítások → Általános → SID előnézet → SID lejátszó puffer**
+  (2048, 4096, 8192 vagy 16384 minta). A nagyobb puffer megállítja a sercegést,
+  miközben az alkalmazás működik. A WebSID az új méretet használja újraindítás
+  után; a VA SID Core 10 / 15 / 20 / 30 másodperccel a következő dallamtól
+  kezdve renderel.
 - **Engine:** az ablak mutatja, hogy melyik motor játszik le (WebSID, vagy VA
   SID Core a verziójával és SID chipjével); válaszd ki a **Beállítások → SID
   előnézet** menüpontban. A VA SID Core egy natív Rust C64 magon futtatja a

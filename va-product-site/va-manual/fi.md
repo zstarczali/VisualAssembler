@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Käyttöopas
 
-**Versio 2.6.5**
+**Versio 2.6.6**
 
 Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
 vetämällä ja pudottamalla käskylohkoja ja nähdä luodun assemblerin ja konekoodin
@@ -11,6 +11,7 @@ reaaliajassa.
 ## Sisällysluettelo
 
 - [C64 Visual Assembler — Käyttöopas](#c64-visual-assembler--user-manual)
+    - [Version 2.6.6 kohokohdat](#version-266-highlights)
     - [Version 2.6.5 kohokohdat](#version-265-highlights)
     - [Version 2.6.4 kohokohdat](#version-264-highlights)
     - [Version 2.6.3 kohokohdat](#version-263-highlights)
@@ -124,6 +125,7 @@ reaaliajassa.
       - [TASO](#level)
       - [TASO\RIVI](#level_row)
     - [SID](#sid)
+    - [SID_PLAYER](#sid_player)
     - [SISÄLLYTÄ](#include)
     - [TAULUKKO](#table)
     - [ORGAN](#org)
@@ -213,6 +215,42 @@ reaaliajassa.
 
 ---
 
+## Version 2.6.6 kohokohdat
+
+- **SID-soitinmakro** — `.sid_player [subtune][, raster]` (**SID_PLAYER**
+  paletissa) toistaa `.sid`-makron sävelmän: se kutsuu init-rutiinia
+  alivirityksellä, kytkee CIA1-ajastimen IRQ:n pois päältä, kytkee rasteri-IRQ:n
+  ja kutsuu toistorutiinia joka kehys sen sisäänrakennetusta käsittelijästä.
+  Musiikkia sisältävä ohjelma on nyt `.sid "musiikki.sid"` + `.sid_player`.
+  Katso [SID_PLAYER]{1].
+- **SID-tunnisteet** — `.sid`-makro määrittää `SID_LOAD`, `SID_INIT` ja
+  `SID_PLAY`, jotka on siirretty yhdessä mukautetun latausosoitteen kanssa,
+  jotta oma IRQ-käsittelijäsi voi kirjoittaa `JSR SID_PLAY`. Katso [SID]{1].
+- **Vain asiantuntijatila** — **Projektiasetukset** sisältää kytkimen, joka
+  sulkee lohkotilan projektin tiedostoille koosta riippumatta (tallennettuna
+  `.proj`-tiedostoon). Katso [Projektipaneeli ja
+  välilehdet](#project-panel--tabs).
+- **SID Player -puskuri** — **Asetukset → Yleiset → SID-esikatselu → SID Player
+  -puskuri** asettaa 2048–16384 näytettä; suurempi puskuri pysäyttää rätinän
+  sovelluksen ollessa käynnissä. WebSID käyttää sitä uudelleenkäynnistyksen
+  jälkeen, VA SID Core renderöi 10 / 15 / 20 / 30 sekuntia eteenpäin. Katso [SID
+  Player]{1].
+- **Mukautettu C64-paletti** — **Asetukset → Yleiset → Editorit → Muokkaa
+  mukautettua palettia…** asettaa oman RGB-arvon jokaiselle 16 värille alkaen
+  mistä tahansa sisäänrakennetusta paletista; tuo Photoshop `.act`, VICE `.vpl`,
+  GIMP `.gpl` -paletti tai heksadesimaalivärien luettelo, vie `.act` / `.vpl`.
+  Katso [14. Visuaaliset editorit (työkalupakki)](#14-visual-editors-toolkit).
+- **Katso** — C64-muistipaneeli telakoituu takaisin kutistettuna; Uutta-,
+  Päivitys-, Asetukset- ja Tietokanta-ikkunoissa on sama kehys kuin
+  Tietoja-ruudussa; Projektiasetukset-valintaruudut ovat VA-kytkimiä.
+- **Korjaukset** — virheraportti hyväksyy PNG- ja JPG-näyttökuvat
+  julkaisuversiossa; vilkkuva kursori `READY.` -tekstin jälkeen aloitusnäytössä
+  on yhtenäinen C64-solu ilman macOS:n siihen piirtämiä viivoja; macOS:n
+  inline-ennustava tekstinsyöttö on pois päältä Expert- ja Ultimate Basic
+  -editorissa.
+
+---
+
 ## Version 2.6.5 kohokohdat
 
 - **KickAssembler-projektit** — **Valikko → Ohjelma → Tuo Kick-projekti…** ottaa
@@ -266,9 +304,9 @@ reaaliajassa.
   projekti** (kolme erillistä merkintää ovat poissa); Visual Assembler
   -sprite-multiplekserimalli tulostaa otsikkonsa.
 - **Korjaukset** — `.byte` / `.word`, joissa on otsikkolausekkeet
-  (`<(otsikko+1)`, `.word otsikko` ennen otsikkoa), eivät enää muodosta
-  nollaa; laittomat `NOP`-muodot, jotka lukevat operandin, muodostavat
-  assemble-funktion (katso [Laittomat / dokumentoimattomat
+  (`<(otsikko+1)`, `.word otsikko` ennen otsikkoa), eivät enää muodosta nollaa;
+  laittomat `NOP`-muodot, jotka lukevat operandin, muodostavat assemble-funktion
+  (katso [Laittomat / dokumentoimattomat
   ohjeet](#illegal--undocumented-instructions)); Ultimate Basicin avauspainike
   lukee **Load .ub file** kaikilla kielillä.
 
@@ -875,8 +913,8 @@ reaaliajassa.
 
 - **`*` missä tahansa lausekkeessa** — ohjelmalaskurisymboli toimii nyt
   operandilausekkeiden sisällä, ei vain yksinään: `BNE *-5`, `JMP *+20`, `LDA
-  #<*`, `LDA #>(*+63)`. Arvoa seuraava `*` (`STRIDE*2`) on edelleen
-  kertolasku. Katso [Osoitetilat → Ohjelmalaskuri `*`
+  #<*`, `LDA #>(*+63)`. Arvoa seuraava `*` (`STRIDE*2`) on edelleen kertolasku.
+  Katso [Osoitetilat → Ohjelmalaskuri `*`
   lausekkeissa](#d64-editor-browse--edit-an-existing-disk-image).
 - **Paikalliset (pisteviivalla varustetut) otsikot** — otsikko, kuten `.loop`,
   kuuluu lähimpänä olevan edeltävän *global* (ei-pisteviivalla varustetun)
@@ -887,10 +925,9 @@ reaaliajassa.
   `LBPL`, `LBVC`, `LBVS` kokoavat käänteiseksi haaraksi `JMP`-haaran yli (aina 5
   tavua), joten kohde voi olla millä tahansa etäisyydellä. Uusi **Pitkät
   haarat** -palettiluokka. Katso [LBNE / LBEQ / … (Pitkät haarat)]{1}.
-- **`.assert` direktiivi** — `.assert loppu - alku <= 256` tai `.assert *
-  < $A000, "viesti"` arvioidaan kokoonpanovaiheessa ja kääntäminen
-  epäonnistuu (näyttäen todellisen arvon), kun lauseke on epätosi. Katso
-  [.ASSERT]{1}.
+- **`.assert` direktiivi** — `.assert loppu - alku <= 256` tai `.assert * <
+  $A000, "viesti"` arvioidaan kokoonpanovaiheessa ja kääntäminen epäonnistuu
+  (näyttäen todellisen arvon), kun lauseke on epätosi. Katso [.ASSERT]{1}.
 - **Itsemuokkaavan koodin operandin nimikkeet** — `LDA-arvo:#$00` määrittää
   nimikkeen `arvo`, joka osoittaa käskyn operanditavuun, joten `STA-arvo` korjaa
   sen suoraan. Katso [Itsemuokkaavan koodin operandin nimikkeet]{1}.
@@ -909,8 +946,8 @@ Sovellus on jaettu kolmeen pääpaneeliin:
 
 - **`*` missä tahansa lausekkeessa** — ohjelmalaskurisymboli toimii nyt
   operandilausekkeiden sisällä, ei vain yksinään: `BNE *-5`, `JMP *+20`, `LDA
-  #<*`, `LDA #>(*+63)`. Arvoa seuraava `*` (`STRIDE*2`) on edelleen
-  kertolasku. Katso [Osoitetilat → Ohjelmalaskuri `*`
+  #<*`, `LDA #>(*+63)`. Arvoa seuraava `*` (`STRIDE*2`) on edelleen kertolasku.
+  Katso [Osoitetilat → Ohjelmalaskuri `*`
   lausekkeissa](#the--program-counter-in-expressions).
 - **Paikalliset (pisteviivalla varustetut) otsikot** — otsikko, kuten `.loop`,
   kuuluu lähimpänä olevan edeltävän *global* (ei-pisteviivalla varustetun)
@@ -922,10 +959,9 @@ Sovellus on jaettu kolmeen pääpaneeliin:
   tavua), joten kohde voi olla millä tahansa etäisyydellä. Uusi **Pitkät
   haarat** -palettiluokka. Katso [LBNE / LBEQ / … (Pitkät
   haarat)](#lbne--lbeq---long-branches).
-- **`.assert` direktiivi** — `.assert loppu - alku <= 256` tai `.assert *
-  < $A000, "viesti"` arvioidaan kokoonpanovaiheessa ja kääntäminen
-  epäonnistuu (näyttäen todellisen arvon), kun lauseke on epätosi. Katso
-  [.ASSERT](#assert).
+- **`.assert` direktiivi** — `.assert loppu - alku <= 256` tai `.assert * <
+  $A000, "viesti"` arvioidaan kokoonpanovaiheessa ja kääntäminen epäonnistuu
+  (näyttäen todellisen arvon), kun lauseke on epätosi. Katso [.ASSERT](#assert).
 - **Itsemuokkaavan koodin operandin nimikkeet** — `LDA-arvo:#$00` määrittää
   nimikkeen `arvo`, joka osoittaa käskyn operanditavuun, joten `STA-arvo` korjaa
   sen suoraan. Katso [Itsemuokkaavan koodin operandin
@@ -1673,7 +1709,7 @@ direktiivit erotetaan toisistaan muodon perusteella:
 
 | VA (VMA)                                                     | KickAssembler                                                                                                 |
 | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
-| `.for X, $0A, for1` … `.endf for1`                           | `.for (muut i = 0; i < 10; i++) { … }`                                                                     |
+| `.for X, $0A, for1` … `.endf for1`                           | `.for (muut i = 0; i < 10; i++) { … }`                                                                        |
 | `.jos VIRHEENJÄRJESTELMÄ` … `.muuten` … `.endif`             | `.if (lauseke) { … } muuten { … }`                                                                            |
 | `.makron nimi(p)` … `.endm`, kutsutaan `.invoke` -funktiolla | `.makro Nimi(p) { … }`, kutsutaan nimellä `Nimi(arg)`                                                         |
 | `.muuttujan nimi = arvo` (ajonaikainen muuttuja)             | `.var nimi = arvo` (skriptimuuttuja) — Kick-yhteensopivassa projektissa `.var` on aina KickAssembler-muuttuja |
@@ -2218,8 +2254,9 @@ monitiedostoisille `.proj`-projekteille:
   **KickAssembler-yhteensopiva** ja Kick-projektille esikäsittelijän symbolit
   (`#define`, kuten KickAssemblerin `-define`) ja komentorivimuuttujat
   (`cmdLineVars`, yksi `name=value` riviä kohden, kuten `:name=value`), sekä
-  lähdekoodin ja muiden tiedostojen lukumäärä. Kaikki tallennetaan tiedostoon
-  `.proj`.
+  lähdekoodin ja muiden tiedostojen lukumäärän, ja **Vain asiantuntijatilassa**:
+  lohkotila on suljettu projektin tiedostoille koosta riippumatta. Kaikki
+  tallennetaan tiedostoon `.proj`.
 - Puun kansioilla on kutistus-/laajennusnuoli, ja **napsauta kansiota hiiren
   kakkospainikkeella ** lisätäksesi yhden tai useamman tiedoston sen alle (näkyy
   sisennettynä).
@@ -2382,10 +2419,9 @@ PC:hen suhteellisille datan lukukerroille ei tarvita tunnistetta.
 | `CMP`      | Vertaa A:han       | Asettaa liput; ei muokkaa A:ta                                         |
 
 **PC vs. kertolasku.** `*` käsitellään ohjelmalaskurina vain, kun se on
-*arvopaikalla* — lausekkeen alussa tai heti operaattorin `(`, `,`, `<`,
-`>` tai välilyönnin jälkeen. Numeron `)` tai tunnisteen perässä oleva `*` on
-tavallinen kertolasku, joten `LDA-taulukko*2` ja `CONST_A*4` pysyvät
-muuttumattomina.
+*arvopaikalla* — lausekkeen alussa tai heti operaattorin `(`, `,`, `<`, `>` tai
+välilyönnin jälkeen. Numeron `)` tai tunnisteen perässä oleva `*` on tavallinen
+kertolasku, joten `LDA-taulukko*2` ja `CONST_A*4` pysyvät muuttumattomina.
 
 **Missä se toimii.** Mikä tahansa operandi, joka jo hyväksyy lausekkeen:
 haarautumiskohteet, `JMP` / `JSR`, `LDA`/`STA`/… absoluuttiset ja indeksoidut,
@@ -3430,7 +3466,48 @@ määritettyyn osoitteeseen lykättynä osana.
 
 > **Tyypillinen käyttö:** Aseta ORG-lohko SID-lohkon eteen sen osoitteen
 > asettamiseksi. Kutsu Init-lohkoa kerran käynnistyksen yhteydessä ja sitten
-> Play-lohkoa joka kehys rasteri-IRQ-käsittelijältä.
+> Play-lohkoa jokaista rasteri-IRQ-käsittelijän kuvaa varten — tai anna
+> [SID_PLAYER](#sid_player):n tehdä molemmat.
+
+**Tunnisteet:** SID-lohko määrittelee `SID_LOAD` (mihin data sijoitetaan),
+`SID_INIT` ja `SID_PLAY` (init- ja toisto-osoitteet, siirretty yhdessä
+mukautetun osoitteen kanssa). `SID_PLAY` puuttuu, kun kappaleella ei ole
+toisto-osoitetta (RSID, joka asentaa oman IRQ:n). Käytä niitä omassa koodissasi,
+esim. `JSR SID_PLAY` IRQ-käsittelijässä.
+
+---
+
+### SID_PLAYER
+
+Toistaa **SID**-makron sävelmän yhdellä lohkolla: se alustaa sävelmän ja kutsuu
+toistorutiiniaan jatkuvasti rasterikeskeytyksestä, jotta ohjelmasi voi jatkaa
+omaa työtään.
+
+| Ala     | Kuvaus                                                                |
+| ------- | --------------------------------------------------------------------- |
+| Laulu   | A-muistin init-rutiinille välitetty aliviritysnumero (oletusarvo `0`) |
+| Rasteri | Keskeytyksen rasteririvi, `$00`–`$FF` (oletusarvo `$FA`)              |
+
+Mitä se tekee: `SEI`, `LDA #song` / `JSR SID_INIT`, kytkee CIA1-ajastimen IRQ:n
+pois päältä (`$DC0D`), asettaa IRQ-vektorin (`$0314/$0315`) sisäänrakennetulle
+käsittelijälleen, rasteririville (`$D012`, bitti 8 kohdassa `$D011` tyhjennetty)
+ja rasteri-IRQ:lle (`$D01A`), `CLI`, sitten hyppää käsittelijän yli. Käsittelijä
+kuittaa keskeytyksen (`ASL $D019`), kutsuu `JSR SID_PLAY` ja siirtyy
+KERNAL-käsittelijään (`JMP $EA31`), joka myös skannaa näppäimistön.
+
+**Asiantuntijan syntaksi:**
+```
+.sid "Ikari_Warriors.sid"
+.sid_player
+.sid_player 1, 80 dollaria
+```
+
+**Koko koodissa:** 58 tavua.
+
+> **Huom:** ohjelmassa on oltava SID-lohko (`SID_INIT` ja `SID_PLAY`); muuten
+> koonti pysähtyy virheeseen. Kun CIA1-ajastimen IRQ on pois päältä, KERNAL
+> suoritetaan kerran rasteri-IRQ:n kehyksessä — näppäimistö ja `GETIN` jatkavat
+> toimintaansa.
 
 ---
 
@@ -4025,10 +4102,10 @@ arvioi lausekkeen kokoamisen aikana; jos se on epätosi (`0`), koonti pysähtyy
 selkeään virheeseen, joka sisältää todellisen arvon. Jos se on tosi (ei nolla),
 se ei tuota mitään.
 
-| Ala     | Kuvaus                                                                                                                                            |
-| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Ala     | Kuvaus                                                                                                                                |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------- |
 | Ilmaisu | Mikä tahansa assembler-lauseke: otsikot, `CONST`s, `*` (ohjelmalaskuri), aritmetiikka ja vertailut (`<`, `<=`, `>`, `>=`, `==`, `!=`) |
-| Viesti  | Valinnainen teksti, joka on liitetty virheilmoitukseen                                                                                            |
+| Viesti  | Valinnainen teksti, joka on liitetty virheilmoitukseen                                                                                |
 
 **Asiantuntijan syntaksi:**
 ```
@@ -4728,7 +4805,7 @@ tietoja, musiikkia tai muuta koodia levyltä ohjelman ollessa käynnissä.
 
 | Ala                           | Kuvaus                                                                                                                                                                                                                |
 | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Tiedostonimi                  | Tiedoston nimi levyllä (enintään 16 merkkiä, automaattisesti isot kirjaimet; merkit `,`, `"`, `/`, `\`, `:`, `*`, `?`, `<`, `>`, `|` suodatetaan)                                                               |
+| Tiedostonimi                  | Tiedoston nimi levyllä (enintään 16 merkkiä, automaattisesti isot kirjaimet; merkit `,`, `"`, `/`, `\`, `:`, `*`, `?`, `<`, `>`, `|` suodatetaan)                                                                     |
 | Laite                         | Laitenumero 8–30 (oletus `8`)                                                                                                                                                                                         |
 | Ohitusosoite (valinnainen)    | Heksamuotoinen latausosoite (esim. `C000`). Jos asetettu, tiedosto ladataan tähän osoitteeseen (`sec=0`, jättäen PRG-otsikon huomiotta). Jätä tyhjäksi käyttääksesi tiedoston omaa 2-tavuista PRG-otsikkoa (`sec=1`). |
 | Virheen otsikko (valinnainen) | Jos asetettu, JSR LOAD -käskyn jälkeen luodaan `BCS`-käsky. Jos KERNAL palauttaa carry set -arvon (virhe), suoritus hyppää tähän tunnisteeseen.                                                                       |
@@ -5777,6 +5854,17 @@ myös käytettävissä. Vain näyttö muuttuu — datasi väri-indeksit pysyvät
 Korkean resoluution kuvien tuonti käyttää myös editoripalettia, ellet valitse
 sieltä toista.
 
+**Mukautettu paletti:** Jos mikään niistä ei vastaa näyttöäsi tai oikeaa
+C64-näyttöäsi, valitse **Mukautettu** ja napsauta **Muokkaa mukautettua
+palettia…**. Jokaisella 16 värillä on värivalitsin ja heksadesimaalikenttä
+(`#RRGGBB`); **Aloita kohdasta** + **Kopioi** täyttää kaikki 16
+sisäänrakennetusta paletista. **Tuo…** lukee Photoshop `.act`-, VICE `.vpl`-,
+GIMP `.gpl`-tiedoston tai minkä tahansa tekstin, jossa on 16 `#RRGGBB` /
+`$RRGGBB` arvoa (käytetään 16 ensimmäistä väriä); **Vie .act** ja **Vie .vpl**
+kirjoittavat paletin Photoshopille tai VICElle (*Asetukset → Video → Paletti*
+VICEssä), jotta voit verrata samoja värejä emulaattorissa. **Tallenna**
+tallentaa sen ja vaihtaa tilaan **Mukautettu**.
+
 Visuaalisen editorin valintaikkunoita voidaan vetää otsikoistaan koko Visual
 Assembler -työtilan poikki. Valintaikkuna, jolle ei ole tallennettua sijaintia,
 avautuu keskitetysti; siirtämisen jälkeen sen viimeisin sijainti tallennetaan
@@ -6229,6 +6317,11 @@ SID-soittimessa.
   käytöstä.
 - **Äänenvoimakkuus:** tätä nuppia käytetään yhdessä SID Editorin
   äänenvoimakkuuden pääsäätimen kanssa.
+- **Puskuri:** **Asetukset → Yleiset → SID-esikatselu → SID Player -puskuri**
+  (2048, 4096, 8192 tai 16384 näytettä). Suurempi puskuri pysäyttää rätinän
+  sovelluksen ollessa käynnissä. WebSID käyttää uutta kokoa
+  uudelleenkäynnistyksen jälkeen; VA SID Core renderöi 10 / 15 / 20 / 30
+  sekuntia eteenpäin seuraavasta sävelmästä.
 - **Prosessori:** ikkunassa näkyy, mitä prosessoria käytetään (WebSID tai VA SID
   Core versioineen ja SID-siruineen); valitse se kohdasta **Asetukset →
   SID-esikatselu**. VA SID Core suorittaa virityksen natiivilla Rust C64
