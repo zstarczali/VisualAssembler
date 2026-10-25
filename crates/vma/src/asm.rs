@@ -64,14 +64,37 @@ pub struct Line {
     pub address: i64,
     pub size: i64,
     pub skipped: bool,
-    /// the top-level const this line is (not a scoped copy): its value is updated in place
+    meta: Meta,
+}
+
+/// What getProgramLayout adds to a block while it expands the program.
+#[derive(Clone, Default)]
+struct Meta {
+    /// the top-level const this block is (not a copy): its value is updated in place
     const_index: Option<usize>,
-    if_error: Option<String>,
+    /// `_fromMacro`: expanded from this macro
+    from_macro: Option<String>,
+    /// `_fromMacroDef`: the body of a parameter-less macro at its definition
+    from_macro_def: bool,
+    /// `_isMacroInvokeHeader`
+    header: bool,
+    /// `_ifError` / the validation error of a `.var`
+    error: Option<String>,
+    /// `_varAddress`
+    var_address: Option<i64>,
+}
+
+/// A user macro of `parseUserMacros`.
+#[derive(Clone)]
+struct Macro {
+    params: Vec<String>,
+    body: Vec<Block>,
 }
 
 pub struct Assembler {
     consts: Vec<ConstEntry>,
     defines: Vec<String>,
+    macros: HashMap<String, Macro>,
     pub labels: Labels,
     anon: Vec<i64>,
 }
@@ -104,7 +127,7 @@ impl Assembler {
             })
             .flatten()
             .collect();
-        Assembler { consts, defines, labels: Labels::default(), anon: Vec::new() }
+        Assembler { consts, defines, macros: user_macros(program), labels: Labels::default(), anon: Vec::new() }
     }
 
     /// `resolveProgramConstValue`
@@ -332,6 +355,18 @@ impl Assembler {
                 Some(_) => i64::MIN,
                 None => 0,
             },
+            Kind::Loop { .. } | Kind::For { .. } => 2,
+            Kind::Next { .. } => 3,
+            Kind::Endf { .. } => 5,
+            Kind::Push { regs } | Kind::Pull { regs } => regs.chars().map(|r| match r {
+                'A' => 1,
+                'X' | 'Y' => 2,
+                _ => 0,
+            }).sum(),
+            Kind::EndMacro => 1,
+            // an INVOKE (or a bare macro name) left unexpanded: the size of the body
+            Kind::Invoke { name, .. } => self.macros.get(name).map(|m| m.body.iter().map(|b| self.size(b)).sum()).unwrap_or(0),
+            Kind::Instr { mnem, .. } if self.macros.contains_key(mnem) => self.macros[mnem].body.iter().map(|b| self.size(b)).sum(),
             Kind::Instr { mode, .. } => mode.size(),
             _ => 0,
         }
@@ -349,10 +384,12 @@ impl Assembler {
         self.eval_asm_expr(cond, None).map(|v| v != 0.0)
     }
 
-    /// `getProgramLayout` (origin = the first ORG, or the override of the autostart build).
-    pub fn layout(&self, program: &[Block], origin: i64, override_origin: bool) -> Result<Vec<Line>, CompileError> {
-        let mut expanded: Vec<(Block, Option<usize>)> = Vec::new();
+    /// The user-macro part of `getProgramLayout`: definitions out, INVOKEs expanded in place.
+    fn expand(&self, program: &[Block]) -> Vec<(Block, Meta)> {
+        let mut out: Vec<(Block, Meta)> = Vec::new();
         let mut const_index = 0usize;
+        let mut inside: Option<(String, bool)> = None;
+        let mut invocations = 0usize;
         for b in program {
             let ci = if matches!(b.kind, Kind::Const { .. }) {
                 const_index += 1;
@@ -360,19 +397,161 @@ impl Assembler {
             } else {
                 None
             };
-            expanded.push((b.clone(), ci));
+            match &b.kind {
+                Kind::MacroDefStart { name, params } => {
+                    let has_params = !params.trim().is_empty();
+                    // a parameter-less macro is also a subroutine at its definition (JSR name)
+                    if !name.is_empty() && !has_params {
+                        out.push((Block { kind: Kind::Label { name: name.clone(), offset: 0, kick_scope: false }, line: b.line }, Meta::default()));
+                    }
+                    inside = Some((name.clone(), has_params));
+                    continue;
+                }
+                Kind::MacroDefEnd => {
+                    inside = None;
+                    continue;
+                }
+                _ => {}
+            }
+            if let Some((_, has_params)) = &inside {
+                if !has_params {
+                    out.push((b.clone(), Meta { from_macro_def: true, ..Meta::default() }));
+                }
+                continue;
+            }
+            let (name, args) = match &b.kind {
+                Kind::Invoke { name, args } => (name.clone(), args.clone()),
+                Kind::Instr { mnem, .. } if self.macros.contains_key(mnem) => (mnem.clone(), String::new()),
+                _ => {
+                    out.push((b.clone(), Meta { const_index: ci, ..Meta::default() }));
+                    continue;
+                }
+            };
+            let Some(mac) = self.macros.get(&name) else {
+                out.push((b.clone(), Meta { const_index: ci, ..Meta::default() }));
+                continue;
+            };
+            invocations += 1;
+            let suffix = format!("__m{:08x}", invocations);
+            let mut locals: Vec<String> = Vec::new();
+            for mb in &mac.body {
+                if let Kind::Label { name, .. } = &mb.kind {
+                    if !locals.contains(name) {
+                        locals.push(name.clone());
+                    }
+                }
+            }
+            for mb in &mac.body {
+                if let Kind::Loop { label, .. } = &mb.kind {
+                    if !locals.contains(label) {
+                        locals.push(label.clone());
+                    }
+                }
+            }
+            let arg_list: Vec<String> = split_macro_invoke_args(&args).iter().map(|a| normalize_macro_invoke_arg(a)).collect();
+            let mut subst: Vec<(String, String)> = Vec::new();
+            for (i, p) in mac.params.iter().enumerate() {
+                let v = arg_list.get(i).cloned().unwrap_or_default();
+                match subst.iter_mut().find(|(k, _)| k == p) {
+                    Some(entry) => entry.1 = v,
+                    None => subst.push((p.clone(), v)),
+                }
+            }
+            let apply = |raw: &str| -> String {
+                if mac.params.is_empty() {
+                    return raw.to_string();
+                }
+                let mut r = raw.to_string();
+                for (p, v) in &subst {
+                    r = js_replace_literal(&r, &format!("{{{p}}}"), v);
+                    r = replace_word(&r, p, |_| v.clone(), false);
+                }
+                r
+            };
+            let rewrite = |raw: &str| -> String {
+                let mut r = apply(raw);
+                for l in &locals {
+                    r = replace_word(&r, l, |_| format!("{l}{suffix}"), true);
+                }
+                r
+            };
+            out.push((b.clone(), Meta { header: true, ..Meta::default() }));
+            for mb in &mac.body {
+                let mut e = mb.clone();
+                match &mut e.kind {
+                    Kind::Label { name, .. } if locals.contains(name) => *name = format!("{name}{suffix}"),
+                    Kind::Instr { mnem, mode, raw, base, display, .. } => {
+                        if !raw.is_empty() {
+                            let new_raw = rewrite(raw);
+                            let new_display = rewrite(display);
+                            if new_raw != *raw && OPCODES.iter().any(|(m, _, _)| m == mnem) {
+                                let text = if *mode == Mode::Immediate {
+                                    format!("#{new_raw}")
+                                } else {
+                                    rewrite(if display.is_empty() { raw } else { display })
+                                };
+                                if let Kind::Instr { mode: m2, raw: r2, base: b2, display: d2, .. } = crate::parse::make_instruction(mnem, &text) {
+                                    *mode = m2;
+                                    *raw = r2;
+                                    *base = b2;
+                                    *display = d2;
+                                }
+                            } else {
+                                *raw = new_raw;
+                                *display = new_display;
+                            }
+                        }
+                    }
+                    Kind::LongBranch { raw, .. } | Kind::Byte { raw, .. } | Kind::Word { raw, .. } | Kind::Fill { raw, .. } | Kind::Align { raw, .. } | Kind::Const { raw, .. } => {
+                        if !raw.is_empty() {
+                            *raw = rewrite(raw);
+                        }
+                    }
+                    Kind::Loop { label, .. } if locals.contains(label) => *label = format!("{label}{suffix}"),
+                    Kind::Next { label, .. } if locals.contains(label) => *label = format!("{label}{suffix}"),
+                    _ => {}
+                }
+                out.push((e, Meta { from_macro: Some(name.clone()), ..Meta::default() }));
+            }
         }
+        out
+    }
+
+    /// `getProgramLayout` (origin = the first ORG, or the override of the autostart build).
+    pub fn layout(&self, program: &[Block], origin: i64, override_origin: bool) -> Result<Vec<Line>, CompileError> {
+        let mut expanded = self.expand(program);
         scope_local_labels(&mut expanded);
+
+        // `.var`: zero page from $02, in the order of the expanded program
+        let mut zp = 0x02i64;
+        for (b, meta) in expanded.iter_mut() {
+            if let Kind::Var { name, size } = &b.kind {
+                if name.is_empty() {
+                    continue;
+                }
+                match self.value_with_const(if size.is_empty() { "1" } else { size }, Base::Dec) {
+                    Some(n) if (1.0..=255.0).contains(&n) => {
+                        let n = n as i64;
+                        if zp + n > 0xFF {
+                            meta.error = Some("VAR: the zero page is full".into());
+                        } else {
+                            meta.var_address = Some(zp);
+                            zp += n;
+                        }
+                    }
+                    _ => meta.error = Some("VAR: the size must be 1–255".into()),
+                }
+            }
+        }
 
         let mut cond: Vec<(bool, bool)> = Vec::new();
         let mut skipped = vec![false; expanded.len()];
-        let mut if_errors: Vec<Option<String>> = vec![None; expanded.len()];
-        for (i, (b, _)) in expanded.iter().enumerate() {
+        for (i, (b, meta)) in expanded.iter_mut().enumerate() {
             match &b.kind {
                 Kind::If { condition } => {
                     let active = self.if_active(condition);
                     if active.is_none() {
-                        if_errors[i] = Some(format!("IF condition cannot be evaluated: {}", condition.trim()));
+                        meta.error = Some(format!("IF condition cannot be evaluated: {}", condition.trim()));
                     }
                     cond.push((active == Some(true), false));
                 }
@@ -394,14 +573,13 @@ impl Assembler {
 
         let mut cursor = origin;
         let mut lines = Vec::new();
-        for (i, (block, ci)) in expanded.into_iter().enumerate() {
-            let mut size = self.size(&block);
+        for (i, (block, meta)) in expanded.into_iter().enumerate() {
+            let mut size = if meta.header { 0 } else { self.size(&block) };
             if size == i64::MIN {
                 return Err(CompileError { line: block.line, message: "FILL: the count cannot be resolved while laying out".into() });
             }
-            let if_error = if_errors[i].take();
             if skipped[i] {
-                lines.push(Line { block, address: cursor, size: 0, skipped: true, const_index: ci, if_error });
+                lines.push(Line { block, address: cursor, size: 0, skipped: true, meta });
                 continue;
             }
             if let Kind::Org { address } = &block.kind {
@@ -421,7 +599,7 @@ impl Assembler {
             }
             let address = cursor;
             cursor += size;
-            lines.push(Line { block, address, size, skipped: false, const_index: ci, if_error });
+            lines.push(Line { block, address, size, skipped: false, meta });
         }
         Ok(lines)
     }
@@ -438,6 +616,14 @@ impl Assembler {
             Kind::Instr { smc: Some(name), .. } => {
                 self.labels.set(name, ((line.address + 1) & 0xFFFF) as f64);
             }
+            Kind::Loop { label, .. } | Kind::For { label, .. } => {
+                self.labels.set(label, (line.address + 2) as f64);
+            }
+            Kind::Var { name, .. } if !name.is_empty() => {
+                if let Some(a) = line.meta.var_address {
+                    self.labels.set(name, a as f64);
+                }
+            }
             Kind::Const { name, raw, base, .. } => {
                 let raw = raw.trim();
                 let value = if let Some(c) = regex!(r"^\*\s*([+-])\s*(\d+)$").captures(raw) {
@@ -450,7 +636,7 @@ impl Assembler {
                     self.eval_folded(raw, Some(&self.labels.clone()), &[("i", addr), ("I", addr)]).map(|v| js_and(v, 0xFFFF) as f64)
                 };
                 if let Some(v) = value {
-                    if let Some(ci) = line.const_index {
+                    if let Some(ci) = line.meta.const_index {
                         self.consts[ci].value = Some(v);
                     }
                     self.labels.set(name, v);
@@ -606,12 +792,89 @@ impl Assembler {
             return Ok(Vec::new());
         }
         let address = line.address;
+        if line.meta.header {
+            return Ok(Vec::new());
+        }
+        if let Kind::Invoke { name, .. } = &line.block.kind {
+            return Err(match &line.meta.from_macro {
+                Some(outer) if self.macros.contains_key(name) => format!("calling macro {name} inside macro {outer} is not supported: macros expand one level deep"),
+                _ => format!("unknown macro: {name}"),
+            });
+        }
+        if line.meta.from_macro_def && regex!(r"\{[A-Za-z_][A-Za-z0-9_]*\}").is_match(raw_operand(&line.block.kind)) {
+            return Ok(Vec::new());
+        }
         let push_all = |vals: Vec<f64>| vals.into_iter().map(to_uint8).collect::<Vec<u8>>();
+        let reg_x = |r: char, x: u8, y: u8| if r == 'Y' { y } else { x };
         match &line.block.kind {
             Kind::Blank | Kind::Comment { error: None, .. } | Kind::Label { .. } | Kind::AnonLabel | Kind::KickScopeEnd => Ok(Vec::new()),
             Kind::Comment { error: Some(e), .. } => Err(e.clone()),
             Kind::Unsupported { what } => Err(format!("{what} is not supported by the Rust VMA compiler yet")),
-            Kind::If { .. } if line.if_error.is_some() => Err(line.if_error.clone().unwrap()),
+            Kind::If { .. } | Kind::Var { .. } if line.meta.error.is_some() => Err(line.meta.error.clone().unwrap()),
+            Kind::Loop { reg, count, .. } => match parse_number_by_base(count.trim(), Base::Hex) {
+                Some(n) if (0.0..=255.0).contains(&n) => Ok(vec![reg_x(*reg, 0xA2, 0xA0), n as u8]),
+                _ => Err("LOOP: invalid count".into()),
+            },
+            Kind::For { reg, count, .. } => {
+                let n = js_parse_int(count.trim(), 16);
+                if n.is_nan() || !(0.0..=255.0).contains(&n) {
+                    return Err("FOR: invalid count".into());
+                }
+                Ok(vec![reg_x(*reg, 0xA2, 0xA0), 0x00])
+            }
+            Kind::Next { label, reg } => {
+                if label.is_empty() {
+                    return Err("NEXT: no matching LOOP".into());
+                }
+                let target = self.labels.get(label).ok_or_else(|| format!("NEXT: unknown label {label}"))?;
+                let offset = target - (address + 3) as f64;
+                if !(-128.0..=127.0).contains(&offset) {
+                    return Err(format!("NEXT: the loop is too long for BNE (offset {offset})"));
+                }
+                Ok(vec![reg_x(*reg, 0xCA, 0x88), 0xD0, js_and(offset, 0xFF) as u8])
+            }
+            Kind::Endf { label, reg, count } => {
+                if label.is_empty() {
+                    return Err("ENDF: no matching FOR".into());
+                }
+                let n = js_parse_int(count.trim(), 16);
+                if n.is_nan() || !(0.0..=255.0).contains(&n) {
+                    return Err("ENDF: invalid limit".into());
+                }
+                let target = self.labels.get(label).ok_or_else(|| format!("ENDF: unknown label {label}"))?;
+                let offset = target - (address + 5) as f64;
+                if !(-128.0..=127.0).contains(&offset) {
+                    return Err(format!("ENDF: the loop is too long for BNE (offset {offset})"));
+                }
+                Ok(vec![reg_x(*reg, 0xE8, 0xC8), reg_x(*reg, 0xE0, 0xC0), n as u8, 0xD0, js_and(offset, 0xFF) as u8])
+            }
+            Kind::Push { regs } => {
+                let mut out = Vec::new();
+                for r in regs.chars() {
+                    match r {
+                        'A' => out.push(0x48),
+                        'X' => out.extend([0x8A, 0x48]),
+                        'Y' => out.extend([0x98, 0x48]),
+                        _ => return Err(format!("PUSH: invalid register {r}")),
+                    }
+                }
+                Ok(out)
+            }
+            Kind::Pull { regs } => {
+                let mut out = Vec::new();
+                for r in regs.chars().rev() {
+                    match r {
+                        'A' => out.push(0x68),
+                        'X' => out.extend([0x68, 0xAA]),
+                        'Y' => out.extend([0x68, 0xA8]),
+                        _ => return Err(format!("PULL: invalid register {r}")),
+                    }
+                }
+                Ok(out)
+            }
+            Kind::EndMacro => Ok(vec![0x60]),
+            // a bare macro name left unexpanded inside a macro body: no bytes (as in JS)
+            Kind::Instr { mnem, .. } if self.macros.contains_key(mnem) && !OPCODES.iter().any(|(m, _, _)| m == mnem) => Ok(Vec::new()),
             Kind::Byte { error: Some(e), .. } => Err(e.clone()),
             Kind::Byte { raw, base, .. } => Ok(push_all(self.byte_values(raw, *base, Some(&self.labels)))),
             Kind::Word { raw, base } => {
@@ -784,7 +1047,7 @@ impl Assembler {
 }
 
 /// `_scopeLocalLabels`: `.loop` belongs to the last global label above it.
-fn scope_local_labels(program: &mut [(Block, Option<usize>)]) {
+fn scope_local_labels(program: &mut [(Block, Meta)]) {
     let mut last_global = String::new();
     let mut kick_scopes: Vec<String> = Vec::new();
     let rewrite = |s: &str, global: &str| -> String {
@@ -793,7 +1056,7 @@ fn scope_local_labels(program: &mut [(Block, Option<usize>)]) {
         }
         regex!(r"(^|[^A-Za-z0-9_.])(\.[A-Za-z_][A-Za-z0-9_]*)").replace_all(s, |c: &regex::Captures| format!("{}{}{}", &c[1], global, &c[2])).into_owned()
     };
-    for (b, const_index) in program.iter_mut() {
+    for (b, meta) in program.iter_mut() {
         if let Kind::KickScopeEnd = b.kind {
             if let Some(prev) = kick_scopes.pop() {
                 last_global = prev;
@@ -835,7 +1098,173 @@ fn scope_local_labels(program: &mut [(Block, Option<usize>)]) {
         }
         // a rewritten block is a copy in JS: the top-level const keeps its own value
         if changed {
-            *const_index = None;
+            meta.const_index = None;
         }
+    }
+}
+
+/// `parseUserMacros`: name → parameters + the blocks between `.macro` and `.endm`.
+fn user_macros(program: &[Block]) -> HashMap<String, Macro> {
+    let mut macros = HashMap::new();
+    let mut start: Option<(usize, String, String)> = None;
+    for (i, b) in program.iter().enumerate() {
+        match &b.kind {
+            Kind::MacroDefStart { name, params } => start = Some((i, name.clone(), params.clone())),
+            Kind::MacroDefEnd => {
+                if let Some((s, name, params)) = start.take() {
+                    if !name.is_empty() {
+                        let params = params.split(',').map(|p| p.trim().to_string()).filter(|p| !p.is_empty()).collect();
+                        macros.insert(name, Macro { params, body: program[s + 1..i].to_vec() });
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+    macros
+}
+
+/// `splitMacroInvokeArgs`: commas outside quotes, empty parts dropped.
+fn split_macro_invoke_args(text: &str) -> Vec<String> {
+    let mut out = Vec::new();
+    let mut current = String::new();
+    let mut quote: Option<char> = None;
+    let mut escaped = false;
+    for ch in text.chars() {
+        if escaped {
+            current.push(ch);
+            escaped = false;
+            continue;
+        }
+        if ch == '\\' {
+            current.push(ch);
+            escaped = true;
+            continue;
+        }
+        if let Some(q) = quote {
+            current.push(ch);
+            if ch == q {
+                quote = None;
+            }
+            continue;
+        }
+        if ch == '"' || ch == '\'' {
+            quote = Some(ch);
+            current.push(ch);
+            continue;
+        }
+        if ch == ',' {
+            out.push(current.trim().to_string());
+            current.clear();
+            continue;
+        }
+        current.push(ch);
+    }
+    if !current.trim().is_empty() || !out.is_empty() {
+        out.push(current.trim().to_string());
+    }
+    out.into_iter().filter(|p| !p.is_empty()).collect()
+}
+
+/// `normalizeMacroInvokeArg`: one pair of surrounding quotes off.
+fn normalize_macro_invoke_arg(arg: &str) -> String {
+    let t = arg.trim();
+    if t.len() >= 2 && ((t.starts_with('"') && t.ends_with('"')) || (t.starts_with('\'') && t.ends_with('\''))) {
+        return t[1..t.len() - 1].to_string();
+    }
+    t.to_string()
+}
+
+/// The replacement string of JS `String.replace` (GetSubstitution without capture groups).
+fn js_substitution(replacement: &str, matched: &str, before: &str, after: &str) -> String {
+    let mut out = String::new();
+    let mut chars = replacement.chars().peekable();
+    while let Some(c) = chars.next() {
+        if c != '$' {
+            out.push(c);
+            continue;
+        }
+        match chars.peek() {
+            Some('$') => {
+                chars.next();
+                out.push('$');
+            }
+            Some('&') => {
+                chars.next();
+                out.push_str(matched);
+            }
+            Some('`') => {
+                chars.next();
+                out.push_str(before);
+            }
+            Some('\'') => {
+                chars.next();
+                out.push_str(after);
+            }
+            _ => out.push('$'),
+        }
+    }
+    out
+}
+
+/// `s.replace(/<needle>/g, replacement)` for a needle without regex characters.
+fn js_replace_literal(s: &str, needle: &str, replacement: &str) -> String {
+    if needle.is_empty() || !s.contains(needle) {
+        return s.to_string();
+    }
+    let mut out = String::new();
+    let mut last = 0;
+    for (i, _) in s.match_indices(needle) {
+        out.push_str(&s[last..i]);
+        out.push_str(&js_substitution(replacement, needle, &s[..i], &s[i + needle.len()..]));
+        last = i + needle.len();
+    }
+    out.push_str(&s[last..]);
+    out
+}
+
+/// `s.replace(/(?<![A-Za-z0-9_])<pattern>(?![A-Za-z0-9_])/g, replacement)`. A label pattern is
+/// used as JS uses it, unescaped (its `.` matches any character); `f` gives the replacement text
+/// for the matched text, which then goes through the JS `$` rules.
+fn replace_word(s: &str, pattern: &str, f: impl Fn(&str) -> String, regex_pattern: bool) -> String {
+    if pattern.is_empty() {
+        return s.to_string();
+    }
+    let word = |c: u8| c.is_ascii_alphanumeric() || c == b'_';
+    let re = if regex_pattern { Regex::new(&format!("^(?:{pattern})")).ok() } else { None };
+    let b = s.as_bytes();
+    let mut out = String::new();
+    let mut last = 0;
+    let mut i = 0;
+    while i < b.len() {
+        if !s.is_char_boundary(i) || (i > 0 && word(b[i - 1])) {
+            i += 1;
+            continue;
+        }
+        let len = match &re {
+            Some(re) => re.find(&s[i..]).map(|m| m.end()),
+            None => s[i..].starts_with(pattern).then_some(pattern.len()),
+        };
+        match len {
+            Some(len) if len > 0 && (i + len >= b.len() || !word(b[i + len])) => {
+                let matched = &s[i..i + len];
+                out.push_str(&s[last..i]);
+                out.push_str(&js_substitution(&f(matched), matched, &s[..i], &s[i + len..]));
+                i += len;
+                last = i;
+            }
+            _ => i += 1,
+        }
+    }
+    out.push_str(&s[last..]);
+    out
+}
+
+/// The `rawOperand` of a block (what a macro expansion and `_fromMacroDef` checks look at).
+fn raw_operand(kind: &Kind) -> &str {
+    match kind {
+        Kind::Instr { raw, .. } | Kind::LongBranch { raw, .. } | Kind::Byte { raw, .. } | Kind::Word { raw, .. } | Kind::Fill { raw, .. } | Kind::Align { raw, .. } | Kind::Const { raw, .. } => raw,
+        Kind::Assert { expr, .. } => expr,
+        _ => "",
     }
 }

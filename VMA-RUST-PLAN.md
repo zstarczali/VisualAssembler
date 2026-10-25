@@ -109,7 +109,7 @@ javul, a manifest frissül, és utána a Rust követi.
 path-függőségként húzza be. Nem workspace, hogy a `src-tauri/target` útvonalak (CI, bundle) ne változzanak.
 
 ```
-crates/vma/src/            (F2 állapot)
+crates/vma/src/            (F3 állapot)
   lib.rs        build(source, &BuildOptions) -> Result<PRG, CompileError>
   parse.rs      parseExpertText + parseAsmText sorrendje: sor → Block { kind, line }; Mode, Base;
                 _importMakeInstruction címzési szabályai, _importDetectListBase, _kickTextBytes,
@@ -117,7 +117,8 @@ crates/vma/src/            (F2 állapot)
   expr.rs       a JS szöveg-átírási lánc ($hex → 0x, <címke → lo(), nevek → értékek, Word / Dotted
                 azonosító-szabály) + _evalJsExprSafe JS-számszemantikával (f64, ToInt32)
   num.rs        parseInt, parseNumberByBase, parseAddressValue, _importParseScalar, ToUint8
-  asm.rs        getProgramLayout, _scopeLocalLabels, .define / .if, addLayoutLabels, a const-tábla
+  asm.rs        getProgramLayout (makrókibontás: parseUserMacros, paraméterek, lokális címkék),
+                _scopeLocalLabels, .var ZP-kiosztás, .define / .if, addLayoutLabels, a const-tábla
                 (resolveProgramConstValue, a JS-ben helyben frissülő constValue-val), compileLineBytes,
                 resolveNumericOperand / resolveRelativeOperand, buildOperandPreview hibaszabályai
   opcodes.rs    generált: scripts/vma-gen-opcodes.js az élő opcodeMap-ből (256 bejegyzés)
@@ -172,7 +173,7 @@ Minden fázis kilépési feltétele a golden teszt adott részhalmaza a Rust CLI
 | **F0** ✔ | Golden korpusz, referencia-harness, CLI-szerződés | `tests/vma-golden.test.js` zöld |
 | **F1** ✔ | 3. szakasz javításai JS-ben és Rustban; korpusz bővítve: 18 makró-paraméterváltozat (`var-*`) és a 11 Kick fixture előfeldolgozott szövege (`kick-*`); 203 eset × 2 = 406 bejegyzés, 400 PRG | `npm test` (558) + `cargo test` zöld, manifestben nincs ismert hiba |
 | **F2** ✔ | Crate váz, CLI, parser, kifejezések, címkék (lokális, anonim, SMC), opkódok, ORG / több szegmens, `.byte/.word/.text "…"/.fill/.align/.const/.define/.if/.assert`, `LBxx`, PRG + BASIC stub + relocating loader | 408-ból 136 eset bájtra egyezik (opkód-mátrix, a snippetek, egyszerű minták, mind a 11 Kick fixture), 272 egy még nem portolt direktívánál áll meg, **0 eltérés** |
-| **F3** | Szerkezeti makrók: `.const/.var/.define/.if/.else`, `.macro/.endm` + `:invoke`, LOOP/NEXT, FOR/ENDF, REGION, `LBxx`, `.assert`, SMC címke, lokális `.loop` és anonim címkék | `macro-*` szerkezeti esetek + a JSON minták többsége |
+| **F3** ✔ | Szerkezeti makrók: `.macro/.endm` (Kick `{ }` is), `:név()` / `.invoke` / `.call` / csupasz `név()` és nagybetűs „utasítás” makró, paraméter-helyettesítés (`{p}` és csupasz név, JS `$&`-szabályokkal), újraelemzés a display operandusból (címzési mód váltás), lokális címkék hívásonként egyedi utótaggal, definíció-helyi szubrutin (paraméter nélküli makró), egyszintű kibontás + `compileNestedMacro`, LOOP/NEXT, FOR/ENDF, `.var` ZP-kiosztás, PUSH/PULL, `.end` | 420-ból 188 eset egyezik (+6 célzott makró-snippet), 232 még nem portolt direktívánál áll, **0 eltérés**. Hátra (F4/F5): az include-olt fájlok makrói, a deferred-címes makrók „buffer” paraméterei |
 | **F4** | Kódgeneráló makrók 1:1 (PRINT*, SPRITE_*, JOYSTICK, MOUSE, REU_*, TURBO, DELAY, MEMCPY/MEMSET, IRQ_SETUP, futásidejű IF/WHILE/REPEAT …) | összes `macro-*` |
 | **F5** | Fájl-makrók és közös resolver: INCBIN, KOALA, SID, LEVEL, LEVEL_ROW, INCLUDE (`.json` és `.asm`), LOADFILE, EXODECRUNCH | összes minta, mind a 346 eset |
 | **F6** | Tauri `vma_build` + `BuildResult` → JS adapter (`getProgramLayout`-kompatibilis objektum), `vmaEngine` kapcsoló, shadow mód | a VA Rusttal fordít; shadow módban 0 eltérés a mintákon és a felhasználói projekteken |

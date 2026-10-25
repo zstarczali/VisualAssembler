@@ -128,6 +128,80 @@ label:
     :setColor(6)
     rts
 `,
+  // the expansion re-parses an instruction from its operand: a zero page argument narrows it
+  "macro-reparse-modes": `.macro store(addr, v)
+    lda #{v}
+    sta {addr}
+    sta addr,x
+    lda #v+1
+.endm
+* = $1000
+    :store($d020, 2)
+    :store($fb, $10)
+    .invoke store(1024, %11)
+    .call store $c000, $41
+    rts
+`,
+  "macro-locals": `.macro wait(n)
+    ldx #{n}
+loop:
+    dex
+    bne loop
+    .loop Y, $03, inner
+    nop
+    .next inner
+.endm
+* = $1000
+start:
+    :wait(5)
+    :wait($20)
+.local:
+    bne .local
+    rts
+`,
+  "macro-subroutine-and-bare": `.macro blink
+    inc $d020
+    rts
+.endm
+.macro DLY
+    nop
+    nop
+.endm
+* = $1000
+    jsr blink
+    :blink()
+    DLY
+    rts
+`,
+  "macro-kick-braces": `.macro border(c) {
+    lda #{c}
+    sta $d020
+}
+* = $1000
+    :border(6)
+    rts
+`,
+  "var-allocation": `.const BIG = 3
+.var a
+.var b, 2
+.var c, BIG
+.var d, $04
+* = $1000
+    lda a
+    sta b+1
+    lda.zp c
+    stx d
+    rts
+`,
+  "push-pull-orders": `* = $1000
+    .push A
+    .push XY
+    .push Y, A, X
+    .pull Y, A, X
+    .pull XY
+    .pull A
+    rts
+`,
   "multi-org-segments": `* = $1000
     jsr sub
     rts

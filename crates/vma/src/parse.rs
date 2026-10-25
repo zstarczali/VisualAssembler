@@ -52,7 +52,8 @@ pub enum Kind {
     Label { name: String, offset: i64, kick_scope: bool },
     AnonLabel,
     KickScopeEnd,
-    Instr { mnem: String, mode: Mode, raw: String, base: Base, smc: Option<String> },
+    /// `display` = the block's `operand` (a macro expansion re-parses the instruction from it)
+    Instr { mnem: String, mode: Mode, raw: String, base: Base, display: String, smc: Option<String> },
     LongBranch { mnem: String, cond: String, raw: String },
     Byte { raw: String, base: Base, error: Option<String> },
     Word { raw: String, base: Base },
@@ -66,6 +67,18 @@ pub enum Kind {
     EndIf,
     Region,
     EndRegion,
+    MacroDefStart { name: String, params: String },
+    MacroDefEnd,
+    /// `.end` → RTS
+    EndMacro,
+    Invoke { name: String, args: String },
+    Push { regs: String },
+    Pull { regs: String },
+    Loop { reg: char, count: String, label: String },
+    Next { label: String, reg: char },
+    For { reg: char, count: String, label: String },
+    Endf { label: String, reg: char, count: String },
+    Var { name: String, size: String },
     /// A JS directive the Rust compiler does not assemble yet (its mnemonic).
     Unsupported { what: String },
 }
@@ -417,6 +430,7 @@ pub fn make_instruction(mnemonic: &str, operand_raw: &str) -> Kind {
     let mut mode = Mode::Implied;
     let mut raw = String::new();
     let mut base = Base::Hex;
+    let mut display = String::new();
     if !operand.is_empty() {
         let mut op = operand.clone();
         op = regex!(r"\(\s+").replace_all(&op, "(").into_owned();
@@ -433,62 +447,81 @@ pub fn make_instruction(mnemonic: &str, operand_raw: &str) -> Kind {
             if let Some(b) = val.strip_prefix('%') {
                 base = Base::Bin;
                 raw = b.to_string();
+                display = format!("#{val}");
             } else if let Some(h) = val.strip_prefix('$') {
                 raw = h.to_uppercase();
+                display = format!("#${raw}");
             } else if is_dec(val) {
                 base = Base::Dec;
                 raw = val.to_string();
+                display = format!("#{val}");
             } else {
                 raw = val.to_string();
+                display = format!("#{val}");
             }
         } else if let Some(c) = regex!(r"(?i)^\(\$([0-9A-Fa-f]+),X\)$").captures(&op) {
             mode = Mode::IndirectX;
             raw = c[1].to_uppercase();
+            display = format!("(${raw},X)");
         } else if let Some(c) = regex!(r"(?i)^\(\$([0-9A-Fa-f]+)\),Y$").captures(&op) {
             mode = Mode::IndirectY;
             raw = c[1].to_uppercase();
+            display = format!("(${raw}),Y");
         } else if let Some(c) = regex!(r"(?i)^\(\$([0-9A-Fa-f]+)\)$").captures(&op) {
             mode = Mode::Indirect;
             raw = c[1].to_uppercase();
+            display = format!("(${raw})");
         } else if let Some(c) = regex!(r"(?i)^\$([0-9A-Fa-f]+),X$").captures(&op) {
             raw = c[1].to_uppercase();
             mode = wide_or(&raw, Mode::AbsoluteX, Mode::ZeroPageX);
+            display = format!("${raw},X");
         } else if let Some(c) = regex!(r"(?i)^(\d+),X$").captures(&op) {
             raw = c[1].to_string();
             base = Base::Dec;
             mode = if js_parse_int(&raw, 10) > 255.0 { Mode::AbsoluteX } else { Mode::ZeroPageX };
+            display = format!("{raw},X");
         } else if let Some(c) = regex!(r"(?i)^\$([0-9A-Fa-f]+),Y$").captures(&op) {
             raw = c[1].to_uppercase();
             mode = wide_or(&raw, Mode::AbsoluteY, Mode::ZeroPageY);
+            display = format!("${raw},Y");
         } else if let Some(c) = regex!(r"(?i)^(\d+),Y$").captures(&op) {
             raw = c[1].to_string();
             base = Base::Dec;
             mode = if js_parse_int(&raw, 10) > 255.0 { Mode::AbsoluteY } else { Mode::ZeroPageY };
+            display = format!("{raw},Y");
         } else if let Some(c) = regex!(r"^\$([0-9A-Fa-f]+)$").captures(&op) {
             raw = c[1].to_uppercase();
             mode = if branch { Mode::Relative } else { wide_or(&raw, Mode::Absolute, Mode::ZeroPage) };
+            display = format!("${raw}");
         } else if let Some(c) = regex!(&format!(r"(?i)^\(({LABEL_NAME}),X\)$")).captures(&op) {
             raw = c[1].trim().to_string();
             mode = Mode::IndirectX;
+            display = format!("({raw},X)");
         } else if let Some(c) = regex!(&format!(r"(?i)^\(({LABEL_NAME})\),Y$")).captures(&op) {
             raw = c[1].trim().to_string();
             mode = Mode::IndirectY;
+            display = format!("({raw}),Y");
         } else if regex!(&format!(r"(?i)^{LABEL_NAME}(?:\s*[+-]\s*(?:\$[0-9A-Fa-f]+|\d+))?,X$")).is_match(&op) {
             raw = op[..op.rfind(',').unwrap()].trim().to_string();
             mode = Mode::AbsoluteX;
+            display = format!("{raw},X");
         } else if regex!(&format!(r"(?i)^{LABEL_NAME}(?:\s*[+-]\s*(?:\$[0-9A-Fa-f]+|\d+))?,Y$")).is_match(&op) {
             raw = op[..op.rfind(',').unwrap()].trim().to_string();
             mode = Mode::AbsoluteY;
+            display = format!("{raw},Y");
         } else if regex!(r"^\.[A-Za-z][A-Za-z0-9_]*$").is_match(&op) || regex!(r"^@?[A-Za-z_][A-Za-z0-9_]*$").is_match(&op) || op == "-" || op == "+" {
             raw = op.clone();
             mode = if branch { Mode::Relative } else { Mode::Absolute };
+            display = op.clone();
         } else if is_dec(&op) {
             raw = op.clone();
             base = Base::Dec;
             mode = if branch { Mode::Relative } else if js_parse_int(&op, 10) > 255.0 { Mode::Absolute } else { Mode::ZeroPage };
+            display = op.clone();
         } else {
             raw = op.clone();
             mode = if branch { Mode::Relative } else { Mode::Absolute };
+            display = op.clone();
         }
     }
 
@@ -506,6 +539,7 @@ pub fn make_instruction(mnemonic: &str, operand_raw: &str) -> Kind {
                 base = Base::Hex;
             }
             raw = format!("{:0>4}", raw);
+            display = format!("${raw}{}", index_suffix(mode));
         }
     } else if forced == "zp" {
         let narrow = match mode {
@@ -518,10 +552,19 @@ pub fn make_instruction(mnemonic: &str, operand_raw: &str) -> Kind {
             mode = n;
             if base == Base::Hex && regex!(r"(?i)^0*[0-9A-F]{1,2}$").is_match(&raw) {
                 raw = raw[raw.len().saturating_sub(2)..].to_uppercase();
+                display = format!("${raw}{}", index_suffix(mode));
             }
         }
     }
-    Kind::Instr { mnem, mode, raw, base, smc }
+    Kind::Instr { mnem, mode, raw, base, display, smc }
+}
+
+fn index_suffix(mode: Mode) -> &'static str {
+    match mode {
+        Mode::AbsoluteX | Mode::ZeroPageX | Mode::IndirectX => ",X",
+        Mode::AbsoluteY | Mode::ZeroPageY | Mode::IndirectY => ",Y",
+        _ => "",
+    }
 }
 
 /// The macro directives of the JS compiler that are not ported yet (by their JS regex start).
@@ -539,8 +582,6 @@ const UNPORTED: &[(&str, &str)] = &[
     (r"(?i)^\.exodecrunch\b", "EXODECRUNCH"),
     (r"(?i)^\.(include|incbin|koala|level|sid)\b", "FILE"),
     (r"(?i)^\.level_row\b", "LEVEL_ROW"),
-    (r"(?i)^\.(loop|for)\s+[XY]\s*,", "LOOP"),
-    (r"(?i)^\.(next|endf)\s+[A-Za-z_]", "NEXT"),
     (r"(?i)^\.sprite_(init|pos|col|anim)\s", "SPRITE"),
     (r"(?i)^\.?(delay|wait)\s+", "DELAY"),
     (r"(?i)^\.wait_raster\s", "WAIT_RASTER"),
@@ -551,8 +592,6 @@ const UNPORTED: &[(&str, &str)] = &[
     (r"(?i)^\.map_copy(16x16)?\s", "MAP_COPY"),
     (r"(?i)^\.score_bcd\s", "SCORE_BCD"),
     (r"(?i)^\.reu_(check|stash|fetch|swap)\b", "REU"),
-    (r"(?i)^\.(push|pull)\s+[AXYaxy](?:\s*,?\s*[AXYaxy])*\s*$", "PUSH"),
-    (r"(?i)^\.var\s+[A-Za-z_]", "VAR"),
     (r"(?i)^\.mem(cpy|set)\s", "MEMCPY"),
     (r"(?i)^\.print(_char|_hex)?\s", "PRINT"),
     (r"(?i)^\.(clear_screen|wait_key)\s*$", "SCREEN"),
@@ -562,11 +601,6 @@ const UNPORTED: &[(&str, &str)] = &[
     (r"(?i)^\.rand\b", "RAND"),
     (r"(?i)^\.(while|until|if)(?:_[axy]|\s+[AXY])\s+(==|=|!=|<=|>=|<|>)\s+", "RUNTIME_IF"),
     (r"(?i)^\.(endw|repeat)\s*$", "RUNTIME_LOOP"),
-    (r"(?i)^\.macro\s+[A-Za-z_]", "MACRO"),
-    (r"(?i)^(?:\.endm|\})\s*$", "MACRO"),
-    (r"(?i)^\.end\s*$", "END"),
-    (r"(?i)^\.?:\s*[A-Za-z_]", "INVOKE"),
-    (r"(?i)^\.(invoke|call)\s+[A-Za-z_]", "INVOKE"),
 ];
 
 fn unported(line: &str) -> Option<&'static str> {
@@ -593,7 +627,8 @@ pub fn parse_expert_text(text: &str) -> Vec<Block> {
     let lines = kick_scope_rewrite(&source);
     let mut blocks = Vec::new();
     let mut encoding = "screencode_mixed".to_string();
-    let mut scope_open = 0usize;
+    // what an open `{` belongs to: a Kick label scope or a `.macro name(…) {`
+    let mut braces: Vec<&str> = Vec::new();
     for (n, raw_line) in lines.iter().enumerate() {
         let push = |blocks: &mut Vec<Block>, kind: Kind| blocks.push(Block { kind, line: n });
         let (code, comment) = split_comment(raw_line);
@@ -615,12 +650,12 @@ pub fn parse_expert_text(text: &str) -> Vec<Block> {
             continue;
         }
         if let Some(c) = regex!(r"^([A-Za-z_][A-Za-z0-9_]*)\s*:\s*\{$").captures(line) {
-            scope_open += 1;
+            braces.push("scope");
             push(&mut blocks, Kind::Label { name: c[1].to_string(), offset: 0, kick_scope: true });
             continue;
         }
-        if line == "}" && scope_open > 0 {
-            scope_open -= 1;
+        if line == "}" && braces.last() == Some(&"scope") {
+            braces.pop();
             push(&mut blocks, Kind::KickScopeEnd);
             continue;
         }
@@ -637,6 +672,41 @@ pub fn parse_expert_text(text: &str) -> Vec<Block> {
                 kind = Kind::Byte { raw: String::new(), base: Base::Hex, error: Some(format!("character not in encoding {encoding}")) };
             }
             push(&mut blocks, kind);
+            continue;
+        }
+        if let Some(c) = regex!(r"(?i)^\.(loop|for)\s+([XY])\s*,\s*(\$?[0-9A-Fa-f]+|\d+)\s*,\s*([A-Za-z_][A-Za-z0-9_]*)\s*$").captures(line) {
+            let reg = c[2].to_uppercase().chars().next().unwrap();
+            let raw = &c[3];
+            let count = match raw.strip_prefix('$') {
+                Some(h) => format!("{:0>2}", h.to_uppercase()),
+                None => format!("{:0>2}", js_hex_upper(js_parse_int(raw, 10))),
+            };
+            let label = c[4].to_string();
+            push(&mut blocks, if c[1].eq_ignore_ascii_case("loop") { Kind::Loop { reg, count, label } } else { Kind::For { reg, count, label } });
+            continue;
+        }
+        if let Some(c) = regex!(r"(?i)^\.next\s+([A-Za-z_][A-Za-z0-9_]*)\s*$").captures(line) {
+            let label = c[1].to_string();
+            let reg = blocks.iter().rev().find_map(|b| match &b.kind {
+                Kind::Loop { reg, label: l, .. } if *l == label => Some(*reg),
+                _ => None,
+            });
+            push(&mut blocks, Kind::Next { label, reg: reg.unwrap_or('X') });
+            continue;
+        }
+        if let Some(c) = regex!(r"(?i)^\.endf\s+([A-Za-z_][A-Za-z0-9_]*)\s*$").captures(line) {
+            let label = c[1].to_string();
+            let found = blocks.iter().rev().find_map(|b| match &b.kind {
+                Kind::For { reg, count, label: l } if *l == label => Some((*reg, count.clone())),
+                _ => None,
+            });
+            let (reg, count) = found.unwrap_or(('X', "0A".to_string()));
+            push(&mut blocks, Kind::Endf { label, reg, count });
+            continue;
+        }
+        if let Some(c) = regex!(r"(?i)^\.(push|pull)\s+([AXYaxy](?:\s*,?\s*[AXYaxy])*)\s*$").captures(line) {
+            let regs: String = c[2].chars().filter(|ch| !ch.is_whitespace() && *ch != ',').collect::<String>().to_uppercase();
+            push(&mut blocks, if c[1].eq_ignore_ascii_case("push") { Kind::Push { regs } } else { Kind::Pull { regs } });
             continue;
         }
         if let Some(what) = unported(line) {
@@ -658,6 +728,11 @@ pub fn parse_expert_text(text: &str) -> Vec<Block> {
         }
         if let Some(c) = regex!(r"(?i)^\.(?:const|label)\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)\s*$").captures(line) {
             push(&mut blocks, make_const(&c[1], c[2].trim()));
+            continue;
+        }
+        if let Some(c) = regex!(r"(?i)^\.var\s+([A-Za-z_][A-Za-z0-9_]*)(?:\s*,\s*([A-Za-z_][A-Za-z0-9_]*|\d+|\$[0-9A-Fa-f]+))?\s*$").captures(line) {
+            let size = c.get(2).map(|m| m.as_str().trim().to_string()).unwrap_or_else(|| "1".into());
+            push(&mut blocks, Kind::Var { name: c[1].to_string(), size });
             continue;
         }
         if let Some(c) = regex!(r"(?i)^\.define\s+(.+)$").captures(line) {
@@ -684,12 +759,36 @@ pub fn parse_expert_text(text: &str) -> Vec<Block> {
             push(&mut blocks, Kind::EndRegion);
             continue;
         }
-        // a bare macro call "name(args)" (not "JMP ($0408)")
-        if let Some(c) = regex!(r"^([A-Za-z_][A-Za-z0-9_]*)\s*\(([^)]*)\)\s*$").captures(line) {
-            if !is_mnemonic(&c[1]) {
-                push(&mut blocks, Kind::Unsupported { what: "INVOKE".into() });
-                continue;
+        // `.macro name(p1, p2)`, `.macro name p1, p2` or Kick `.macro name(p) {`
+        let trimmed_end = line.trim_end();
+        let macro_line = if trimmed_end.ends_with('{') { trimmed_end[..trimmed_end.len() - 1].trim_end() } else { line };
+        if let Some(c) = regex!(r"(?i)^\.macro\s+([A-Za-z_][A-Za-z0-9_]*)(?:\(([^)]*)\)|\s*(.*?))?\s*$").captures(macro_line) {
+            if macro_line != line {
+                braces.push("macro");
             }
+            let params = c.get(2).or(c.get(3)).map(|m| m.as_str().trim().to_string()).unwrap_or_default();
+            push(&mut blocks, Kind::MacroDefStart { name: c[1].to_string(), params });
+            continue;
+        }
+        if regex!(r"(?i)^(?:\.endm|\})\s*$").is_match(line) {
+            if braces.last() == Some(&"macro") {
+                braces.pop();
+            }
+            push(&mut blocks, Kind::MacroDefEnd);
+            continue;
+        }
+        if regex!(r"(?i)^\.end\s*$").is_match(line) {
+            push(&mut blocks, Kind::EndMacro);
+            continue;
+        }
+        // `:name(args)`, `.invoke name(args)` / `.call`, or a bare `name(args)` (not `JMP ($0408)`)
+        let kick = regex!(r"(?i)^\.?:\s*([A-Za-z_][A-Za-z0-9_]*)(?:\(([^)]*)\)|\s+(.*?))?\s*$").captures(line);
+        let dot = regex!(r"(?i)^\.(?:invoke|call)\s+([A-Za-z_][A-Za-z0-9_]*)(?:\(([^)]*)\)|\s+(.*?))?\s*$").captures(line);
+        let bare = regex!(r"^([A-Za-z_][A-Za-z0-9_]*)\s*\(([^)]*)\)\s*$").captures(line).filter(|c| !is_mnemonic(&c[1]));
+        if let Some(c) = kick.or(dot).or(bare) {
+            let args = c.get(2).or(c.get(3)).map(|m| m.as_str().trim().to_string()).unwrap_or_default();
+            push(&mut blocks, Kind::Invoke { name: c[1].to_string(), args });
+            continue;
         }
         if let Some(c) = regex!(r"^!([A-Za-z_][A-Za-z0-9_]*)").captures(line) {
             push(&mut blocks, Kind::Comment { text: line.to_string(), error: Some(format!("!{} is an ACME directive", &c[1])) });
