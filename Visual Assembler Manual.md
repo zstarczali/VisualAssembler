@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.6.5**
+**Version 2.6.6**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -9,6 +9,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
+    - [Version 2.6.6 Highlights](#version-266-highlights)
     - [Version 2.6.5 Highlights](#version-265-highlights)
     - [Version 2.6.4 Highlights](#version-264-highlights)
     - [Version 2.6.3 Highlights](#version-263-highlights)
@@ -116,6 +117,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
       - [LEVEL](#level)
       - [LEVEL\_ROW](#level_row)
     - [SID](#sid)
+    - [SID_PLAYER](#sid_player)
     - [INCLUDE](#include)
     - [TABLE](#table)
     - [ORG](#org)
@@ -196,6 +198,18 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [Curve Editor](#curve-editor)
     - [Table Generator](#table-generator)
     - [Number Converter](#number-converter)
+
+---
+
+## Version 2.6.6 Highlights
+
+- **SID player macro** — `.sid_player [subtune][, raster]` (**SID_PLAYER** in the palette) plays the tune of the `.sid` macro: it calls the init routine with the subtune, switches the CIA1 timer IRQ off, hooks a raster IRQ and calls the play routine every frame from its built-in handler. A program with music is now `.sid "music.sid"` + `.sid_player`. See [SID_PLAYER](#sid_player).
+- **SID labels** — the `.sid` macro defines `SID_LOAD`, `SID_INIT` and `SID_PLAY`, moved together with a custom load address, so your own IRQ handler can write `JSR SID_PLAY`. See [SID](#sid).
+- **Expert mode only** — **Project settings** has a switch that closes block mode for the project's files, whatever their size (saved in the `.proj`). See [Project panel & tabs](#project-panel--tabs).
+- **SID Player buffer** — **Settings → General → SID preview → SID Player buffer** sets 2048–16384 samples; a larger buffer stops the crackle while the app is busy. WebSID uses it after a restart, VA SID Core renders 10 / 15 / 20 / 30 s ahead. See [SID Player](#sid-player).
+- **Custom C64 palette** — **Settings → General → Editors → Edit custom palette…** sets your own RGB value for each of the 16 colours, starting from any built-in palette; import a Photoshop `.act`, VICE `.vpl`, GIMP `.gpl` palette or a list of hex colours, export `.act` / `.vpl`. See [14. Visual Editors (Toolkit)](#14-visual-editors-toolkit).
+- **Look** — the C64 memory panel docks back collapsed; the What's New, update, Settings and Knowledge Base windows have the same frame as the About box; the Project settings checkboxes are VA switches.
+- **Fixes** — the bug report accepts PNG and JPG screenshots in the release build; the blinking cursor after `READY.` on the splash screen is a solid C64 cell, without the lines macOS drew on it; macOS inline predictive text is off in the Expert and Ultimate Basic editors.
 
 ---
 
@@ -1151,7 +1165,7 @@ Expert mode supports a **project panel** (`#expert-project-panel`) for multi-fil
 - **Close Project** (`Menu → File → Close project` / `#menu-close-project`) closes the current project and all its file tabs at once. Prompts to save any unsaved changes before closing. The project panel resets to its empty state and `_expertProjectData` is cleared.
 - Each file can be marked as the **startup file** (★ star icon). When a startup file is set, the **Run** button (PRG, D64, Ultimate) always assembles and runs that file's code — regardless of which tab is currently active. This works in both block mode and Expert mode.
 - The toolbar's **Add** button picks one or more files at once (any type, not just `.json`/`.asm`) and references them in the project without opening them — use it for binary assets like `incbin` data. Its dialog defaults to the VA working folder. The adjacent **Add folder** button references a whole folder (e.g. an asset directory) the same way. Reference-only entries show a delete (✕) button but are not opened by clicking them.
-- **Project settings** (the gear button in the panel header, or **Menu → File → Project settings…**) shows and edits the project: name, `.proj` path, startup file, assembler (VMA or ACME), **KickAssembler compatible**, and for a Kick project the preprocessor symbols (`#define`, like KickAssembler's `-define`) and the command-line variables (`cmdLineVars`, one `name=value` per line, like `:name=value`), plus the number of source and other files. Everything is saved in the `.proj`.
+- **Project settings** (the gear button in the panel header, or **Menu → File → Project settings…**) shows and edits the project: name, `.proj` path, startup file, assembler (VMA or ACME), **KickAssembler compatible**, and for a Kick project the preprocessor symbols (`#define`, like KickAssembler's `-define`) and the command-line variables (`cmdLineVars`, one `name=value` per line, like `:name=value`), plus the number of source and other files, and **Expert mode only**: block mode is closed for the files of the project, whatever their size. Everything is saved in the `.proj`.
 - Folders in the tree have a collapse/expand arrow, and **right-click a folder** to add one or more files nested under it (shown indented).
 - The **Save project** button disables itself and shows a "Saved" state once the project has no pending changes, and re-enables automatically the moment you add, remove, or reorganize a file or folder.
 - The **symbols** section at the bottom of the project panel can be resized vertically with the divider between the file tree and the symbols list, so long symbol lists can take more space when needed.
@@ -2189,7 +2203,33 @@ The block displays:
 
 > **Important:** Most SID files contain hardcoded internal absolute addresses. They can only be relocated if the entire binary is shifted by the same offset. If a SID has internal jumps to `$10xx`, it must remain at `$1000` — moving it to a different address will break those internal references.
 
-> **Typical usage:** Place an ORG block before the SID block to set its address. Call Init once at startup, then call Play every frame from a raster IRQ handler.
+> **Typical usage:** Place an ORG block before the SID block to set its address. Call Init once at startup, then call Play every frame from a raster IRQ handler — or let [SID_PLAYER](#sid_player) do both.
+
+**Labels:** the SID block defines `SID_LOAD` (where the data is placed), `SID_INIT` and `SID_PLAY` (the init and play addresses, moved together with a custom address). `SID_PLAY` is missing when the tune has no play address (an RSID that installs its own IRQ). Use them in your own code, e.g. `JSR SID_PLAY` in an IRQ handler.
+
+---
+
+### SID_PLAYER
+
+Plays the tune of the **SID** macro with one block: it initialises the tune and keeps calling its play routine from a raster interrupt, so your program can go on with its own work.
+
+| Field | Description |
+|---|---|
+| Song | Subtune number passed to the init routine in A (default `0`) |
+| Raster | Raster line of the interrupt, `$00`–`$FF` (default `$FA`) |
+
+What it does: `SEI`, `LDA #song` / `JSR SID_INIT`, switches the CIA1 timer IRQ off (`$DC0D`), sets the IRQ vector (`$0314/$0315`) to its built-in handler, the raster line (`$D012`, bit 8 of `$D011` cleared) and the raster IRQ (`$D01A`), `CLI`, then jumps over the handler. The handler acknowledges the interrupt (`ASL $D019`), calls `JSR SID_PLAY` and goes on to the KERNAL (`JMP $EA31`, which also scans the keyboard).
+
+**Expert syntax:**
+```
+.sid "Ikari_Warriors.sid"
+.sid_player
+.sid_player 1, $80
+```
+
+**Size in code:** 58 bytes.
+
+> **Note:** it needs a SID block in the program (`SID_INIT` and `SID_PLAY`); otherwise the build stops with an error. With the CIA1 timer IRQ off, the KERNAL runs once a frame from the raster IRQ — keyboard and `GETIN` keep working.
 
 ---
 
@@ -3470,7 +3510,7 @@ In-program **Exomizer decompression**. Use this macro right after a `LOADFILE` t
 
 **Depacker binary:** the pre-built backward depacker is `samples/exo-decrunch.bin` (477 bytes, ORG $B000). It's a Kick Assembler wrap of the official `exodecrunch.asm` with `INC $D020` added to every read for a visible border-flash effect during decompression. Place it into your program with an `INCBIN` block at the depacker address.
 
-**Safety offset compensation:** Exomizer's default mem mode applies a 2-byte safety offset — data lands 2 bytes earlier than the requested target. The Run via D64 dialog **automatically adds 2 to the Dst field** before calling exomizer, so the visible behaviour matches the address you typed.
+**Raw input:** the extra is passed to Exomizer as a raw file loaded at the Dst address (`file@<Dst>`), so the depacker writes every byte, starting with the first one, exactly at the address you typed.
 
 > **See also:** the `exo-multicolor-demo` sample — full end-to-end example: LOADFILE a compressed multicolor bitmap to $C000, EXODECRUNCH unpacks it to $2000, then copy screen → $0400 and color → $D800, and switch VIC-II to multicolor bitmap mode.
 
@@ -3985,7 +4025,7 @@ Open via the **Save PRG ▾** dropdown → **Export to D64**. The dialog lets yo
 2. **Add extra files** — click **+** to pick any binary file (`.prg`, `.bin`, `.sid`, etc.). For each extra:
    - **Name** — how it appears in the D64 directory (max 16 chars, auto-uppercase).
    - **Addr** (load address, optional) — if provided, a 2-byte PRG header is prepended. Leave empty to write raw bytes with no header.
-   - **Dst** (decompression target, only with EXO) — where the depacker should land the data on the C64. When EXO is enabled, the extra is compressed with `exomizer mem -l <Addr> file,<Dst>` before being written to the D64. The +2 safety-offset compensation is applied automatically.
+   - **Dst** (decompression target, only with EXO) — where the depacker should land the data on the C64. When EXO is enabled, the extra is compressed with `exomizer mem -l <Addr> file@<Dst>` (a raw file at the Dst address) before being written to the D64.
    - **EXO** — checkbox that turns on backward `mem`-mode crunching for this entry. The on-disk size is typically 5-20% of the original.
 3. Click **Export** to generate the `.d64` file using VICE's `c1541` tool.
 
@@ -4204,6 +4244,8 @@ Works from **Block**, **Expert** and **Ultimate Basic** mode alike; Ultimate Bas
 The toolbar **Toolkit** menu groups the visual data editors that all share a common Files menu (`Files ▾`) for Load BIN / Save BIN / Export to blocks / Save to D64. Each editor produces raw `.bin` data that can be placed in a program with `INCBIN`, or directly added to a D64 disk via the **Save to D64** entry.
 
 **Colour palette:** **Settings → General → Editors → C64 colour palette** chooses the RGB values every editor draws the 16 C64 colours with (sprite, character, Charset Canvas, Hi-Res, map and level editor, Toolkit swatches). The default is **Colodore**, the closest to a real C64 on a composite / S-Video display; **Pepto** (the darker, less saturated palette of older versions), **VICE**, **Deekay** and **C64 Wiki / Godot** are also available. Only the display changes — the colour indexes in your data stay the same. The Hi-Res image import uses the editor palette too, unless you pick another one there.
+
+**Custom palette:** if none of them matches your monitor or your real C64, choose **Custom** and click **Edit custom palette…**. Each of the 16 colours gets a colour picker and a hex field (`#RRGGBB`); **Start from** + **Copy** fills all 16 from a built-in palette. **Import…** reads a Photoshop `.act`, a VICE `.vpl`, a GIMP `.gpl` or any text with 16 `#RRGGBB` / `$RRGGBB` values (the first 16 colours are used); **Export .act** and **Export .vpl** write the palette for Photoshop or for VICE (*Settings → Video → Palette* in VICE), so you can compare the same colours in the emulator. **Save** stores it and switches to **Custom**.
 
 Visual-editor dialogs can be dragged by their headers across the full Visual Assembler workspace. A dialog with no saved position opens centered; after it is moved, its last position is stored in UI settings and restored the next time it opens.
 
@@ -4464,6 +4506,7 @@ The **SID Player** toolbar button opens a floating window that plays `.sid` musi
 - **Transport:** Play, Pause, Stop, **Previous** / **Next** tune, **Previous / Next subtune** for files with several songs, and a time counter.
 - **Seek:** the position bar and **Back / Forward 10 s** work with the VA SID Core engine. WebSID cannot seek, so these controls are disabled with it.
 - **Volume:** the knob is shared with the SID Editor's master volume.
+- **Buffer:** **Settings → General → SID preview → SID Player buffer** (2048, 4096, 8192 or 16384 samples). A larger buffer stops the crackle while the app is busy. WebSID uses the new size after a restart; VA SID Core renders 10 / 15 / 20 / 30 s ahead from the next tune on.
 - **Engine:** the window shows which engine is playing (WebSID, or VA SID Core with its version and SID chip); choose it in **Settings → SID preview**. VA SID Core runs the tune on a native Rust C64 core with a cycle-exact 6510, precise interrupt timing, CIA 6526A, VIC-II timing with bad lines, sprite DMA and raster interrupts, and the 6510 I/O port — so raster-IRQ, CIA-timed and digi tunes play with the timing of a real machine.
 - **Shuffle:** the shuffle button next to **Next** plays the playlist in random order — no tune repeats until every tune has played, and **Previous** steps back along the random order. The setting is remembered.
 - **Favourites:** the ☆ / ★ in each row marks a tune; it is kept in the saved state and in `.sidpl` playlists.

@@ -2110,6 +2110,28 @@
         padding: 16px
       }
     }
+    .studio-news-images {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      max-width: 680px;
+      gap: 24px;
+      margin-top: 32px;
+      align-items: start;
+    }
+    .studio-news-images figure { margin: 0; min-width: 0 }
+    .studio-news-images img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .studio-news-images figcaption {
+      margin-top: 12px;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    @media (max-width: 760px) {
+      .studio-news-images { grid-template-columns: 1fr }
+    }
   </style>
 </head>
 
@@ -2154,7 +2176,7 @@
       </div>
     </div>
     <div class="hero-left">
-      <div class="badge">V2.6.5 — LATEST RELEASE</div>
+      <div class="badge">V2.6.6 — LATEST RELEASE</div>
       <h1 class="hero-title">WRITE C64 PROGRAMS<br><span>BLOCKS, MACRO-ASM OR ULTIMATE BASIC.</span></h1>
       <p class="hero-tagline">&ldquo;The best all-in-one, multiplatform Commodore 64 IDE.&rdquo;</p>
       <p class="hero-sub">A modern Commodore 64 IDE: drag-and-drop 6502 assembly blocks or switch to a full text editor
@@ -2169,10 +2191,70 @@
     </div>
   </section>
 
+  <!-- STUDIO NEWS: DARK CHAMBERS -->
+  <section id="dark-chambers" style="background:var(--scr-dark);padding:80px 0" aria-labelledby="dark-chambers-title">
+    <div class="sec" style="padding-top:0;padding-bottom:0">
+      <div class="ub-tag">STUDIO NEWS &middot; <time datetime="2026-10-22">22 OCTOBER 2026</time></div>
+      <div class="sec-s">// MADE WITH VISUAL ASSEMBLER</div>
+      <h2 class="sec-t" id="dark-chambers-title">DARK CHAMBERS<br><span style="color:var(--ylw)">IS COMING TO THE C64</span></h2>
+      <p class="sec-d" style="max-width:760px"><strong>Cool Valley Game Studio</strong> is developing a Commodore 64 port of <strong>Dark Chambers</strong> in <strong>Visual Assembler</strong>, bringing the Atari 7800 game to the C64.</p>
+      <div class="studio-news-images">
+        <figure>
+          <img src="uploads/cv-logo-transparent.png" alt="Cool Valley Game Studio pixel-art mountain and valley logo" width="1536" height="1024" loading="lazy">
+          <figcaption>COOL VALLEY GAME STUDIO &mdash; DEVELOPING THE C64 PORT</figcaption>
+        </figure>
+        <figure>
+          <img src="uploads/dark-chambers-atari-7800-transparent.png" alt="Original Atari 7800 Dark Chambers game box and cartridge" width="1254" height="1254" loading="lazy">
+          <figcaption>THE ORIGINAL ATARI 7800 GAME &mdash; BOX AND CARTRIDGE</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <hr class="div">
+
+  <!-- V2.6.6: SID PLAYER MACRO, CUSTOM PALETTE -->
+  <div id="release-266" style="background:var(--scr-darker);padding:80px 0">
+    <div class="sec" style="padding-top:0;padding-bottom:0">
+      <div class="ub-tag">NEW IN V2.6.6</div>
+      <div class="sec-s">// MUSIC IN ONE LINE, COLOURS YOUR WAY</div>
+      <h2 class="sec-t">SID PLAYER MACRO<br><span style="color:var(--ylw)">AND YOUR OWN C64 PALETTE</span></h2>
+      <p class="sec-d" style="max-width:680px">Version 2.6.6 plays a SID tune with two lines of code and lets you set the 16 C64 colours yourself — so the editors look like your monitor and your real C64, PAL or NTSC.</p>
+      <div class="feature-list fl-2col">
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>SID player macro:</b> <span><code>.sid "music.sid"</code> + <code>.sid_player</code> inits the tune and plays it every frame from a raster interrupt — no IRQ code to write.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>SID labels:</b> <span>the <code>.sid</code> macro defines <code>SID_INIT</code>, <code>SID_PLAY</code> and <code>SID_LOAD</code> for your own player code.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Custom C64 palette:</b> <span>set each of the 16 colours yourself, import a Photoshop <code>.act</code>, VICE <code>.vpl</code> or GIMP <code>.gpl</code> palette, export <code>.act</code> / <code>.vpl</code> to compare in Photoshop or VICE.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Expert mode only:</b> <span>a project setting that keeps every file of the project in the text editor.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>SID Player buffer:</b> <span>a larger buffer for crackle-free playback while the app is busy.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Fixes:</b> <span>bug report screenshots, a clean <code>READY.</code> cursor and no predictive text in the code editors on macOS.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div">
+
   <!-- V2.6.5: KICKASSEMBLER PROJECTS -->
   <div id="release-265" style="background:var(--scr-darker);padding:80px 0">
     <div class="sec" style="padding-top:0;padding-bottom:0">
-      <div class="ub-tag">NEW IN V2.6.5</div>
+      <div class="ub-tag">V2.6.5</div>
       <div class="sec-s">// BRING YOUR KICKASSEMBLER PROJECT</div>
       <h2 class="sec-t">KICKASSEMBLER PROJECTS<br><span style="color:var(--ylw)">BUILT BYTE FOR BYTE</span></h2>
       <p class="sec-d" style="max-width:680px">Version 2.6.5 imports a whole KickAssembler source tree — modules, binary assets, scripts, macros and pseudocommands — and builds it exactly like KickAssembler. The Dark Chambers C64 port and all eleven KickAssembler examples with code come out identical — segments and output files, LoadPicture, 65c02 / DTV, vectors and matrices included.</p>

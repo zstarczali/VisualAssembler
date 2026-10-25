@@ -48,8 +48,8 @@ Makrók: 70 könyvtári `is*Macro` típus (+ `IF_A/WHILE_X/…` futásidejű vez
 | Fájl | Szerep |
 |------|--------|
 | `tests/helpers/vma-reference.js` | A JS fordító mint referencia: szöveg vagy blokk-JSON → PRG, fájl-reload emulációval (a `lib.rs` feloldási sorrendje + más gépről mentett abszolút útvonalnál fájlnév-fallback) |
-| `tests/vma-golden/cases.js` | Korpusz: 76 minta / sablon (`samples/*.asm|json`, ebből 56 blokk-program; `templates/*.asm`), opkód-mátrix (az `opcodeMap` minden mnemonik × címzési mód párja), 10 nyelvi snippet, 86 makró-eset (minden palettamakró alapsora, kontextussal) |
-| `tests/vma-golden/manifest.json` | 173 eset × (BASIC stubbal / anélkül) = 346 bejegyzés: méret + sha256 vagy elvárt hiba |
+| `tests/vma-golden/cases.js` | Korpusz: 76 minta / sablon (`samples/*.asm|json`, ebből 56 blokk-program; `templates/*.asm`), opkód-mátrix (az `opcodeMap` minden mnemonik × címzési mód párja), 11 nyelvi snippet, 86 makró-eset (minden palettamakró alapsora, kontextussal), 18 makró-paraméterváltozat, 11 Kick fixture a `_kickPreprocess` kimenetével |
+| `tests/vma-golden/manifest.json` | 203 eset × (BASIC stubbal / anélkül) = 406 bejegyzés: méret + sha256 vagy elvárt hiba |
 | `tests/vma-golden/files/picture.koa` | Szintetikus Koala kép a `.koala` esethez |
 | `scripts/vma-golden.js` | Manifest ellenőrzés / `--update` / `--inputs DIR` (a Rust bemenetek kiírása) |
 | `scripts/vma-cli.js` | A CLI-szerződés JS-en: `vma build <in> -o <out.prg> [--base-dir D] [--search D]… [--no-basic-stub]` |
@@ -89,6 +89,12 @@ VMA_BIN=src-tauri/target/release/vma.exe node --test tests/vma-golden.test.js
 | 5 | `.const zp = $FB` → `LDA zp` abszolút (`AD FB 00`) | **Marad szándékosan**: a címzési módot a forrás / paletta adja, a meglévő projektek címei nem tolódhatnak el, és a Block → szöveg körút bájtazonossága is ezen múlik. ZP konstansra: `lda.zp zp` |
 | 6 | `reload_incbin_file` / `reload_sid_file` (és Windows-on a `/Users/…` include) idegen gép útjánál nem esett vissza fájlnévre | **Javítva** (`push_bare_name_fallbacks`, `lib.rs`): alapmappa → working folder → `samples/`. A Rust fordító ugyanezt a resolvert kapja |
 | 7 | `samples/region-demo.json` régi `GROUP` blokk, `samples/exo-decrunch-src.asm` önmagában nem fordul (include-modul) | Elvárt hibaként maradnak a korpuszban |
+| 8 | `.push A, X, Y` / `.pull A, X, Y` „Unknown directive” (csak `AXY` alakot ismert) | **Javítva**: vessző / szóköz elválasztó is jó |
+| 9 | `.print_char 'A'` nem oldotta fel a karakter-literált | **Javítva** (`parsePetsciiCharValue`) |
+| 10 | Makró törzsében makróhívás: „Unknown macro”, pedig definiált | **Funkcióhiány**: a kibontás egyszintű. Most pontos hibát ad (`compileNestedMacro`, 7 nyelv), elvárt hibaként a korpuszban (`var-macro-nested-error`). Többszintű kibontás: a Rust portban (F3) érdemes, utána a JS-ben is |
+
+Egységtesztek: `tests/vma-language.test.js` (a hibaágak és a Block-mód `.if` ellenőrzése), Rust `asset_path_tests`
+(`bare_name_candidates`).
 
 Szabály a port alatt: a Rust a JS-t követi bájtra; viselkedésváltozás **csak** úgy, hogy előbb a JS-ben
 javul, a manifest frissül, és utána a Rust követi.
@@ -158,7 +164,7 @@ Minden fázis kilépési feltétele a golden teszt adott részhalmaza a Rust CLI
 | Fázis | Tartalom | Kész, ha |
 |-------|----------|----------|
 | **F0** ✔ | Golden korpusz, referencia-harness, CLI-szerződés | `tests/vma-golden.test.js` zöld |
-| **F1** (félig ✔) | ✔ 3. szakasz döntései JS-ben (manifest frissítve, 0 minta változott); hátra: korpusz bővítése: a `tests/*.test.js` makró-tesztjeinek forrásai is legyenek golden esetek; Kick fixture (`tests/fixtures/kick-project`) előfeldolgozott szövege | manifest frissítve, nincs ismert hiba benne |
+| **F1** ✔ | 3. szakasz javításai JS-ben és Rustban; korpusz bővítve: 18 makró-paraméterváltozat (`var-*`) és a 11 Kick fixture előfeldolgozott szövege (`kick-*`); 203 eset × 2 = 406 bejegyzés, 400 PRG | `npm test` (558) + `cargo test` zöld, manifestben nincs ismert hiba |
 | **F2** | Crate váz, CLI, lexer / parser, kifejezések, címkék, opkódok, ORG / több szegmens, `.byte/.word/.text/.fill/.align`, PRG + BASIC stub | `gen-opcode-matrix`, `snip-*`, egyszerű minták |
 | **F3** | Szerkezeti makrók: `.const/.var/.define/.if/.else`, `.macro/.endm` + `:invoke`, LOOP/NEXT, FOR/ENDF, REGION, `LBxx`, `.assert`, SMC címke, lokális `.loop` és anonim címkék | `macro-*` szerkezeti esetek + a JSON minták többsége |
 | **F4** | Kódgeneráló makrók 1:1 (PRINT*, SPRITE_*, JOYSTICK, MOUSE, REU_*, TURBO, DELAY, MEMCPY/MEMSET, IRQ_SETUP, futásidejű IF/WHILE/REPEAT …) | összes `macro-*` |

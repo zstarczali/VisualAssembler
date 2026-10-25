@@ -1,0 +1,17 @@
+[package]
+name = "vma"
+version = "0.1.0"
+edition = "2021"
+description = "Visual Macro Assembler (VMA) compiler of C64 Visual Assembler"
+license = "GPL-3.0-or-later"
+
+[lib]
+name = "vma"
+path = "src/lib.rs"
+
+[[bin]]
+name = "vma"
+path = "src/bin/vma.rs"
+
+[dependencies]
+regex = "1"
