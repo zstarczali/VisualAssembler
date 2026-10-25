@@ -2412,6 +2412,13 @@ function initPalette() {
     const textEl = document.getElementById('splash-ready-text');
     const cursorEl = textEl && textEl.nextElementSibling;
     if (!textEl || !cursorEl) return;
+    // One C64 font pixel is 1/8 em. Round the size so that it is a whole number of device
+    // pixels: at 125 % scaling 1.1rem gives 2.75, and the letters' rows then round
+    // differently from the cursor box, which ended up a pixel higher or lower.
+    const readyEl = textEl.parentElement;
+    const dpr = window.devicePixelRatio || 1;
+    const fontPx = Math.max(1, Math.round(parseFloat(getComputedStyle(readyEl).fontSize) * dpr / 8));
+    readyEl.style.fontSize = `${fontPx * 8 / dpr}px`;
     const msg = 'READY.';
     let i = 0;
     const type = () => {
@@ -18479,12 +18486,15 @@ function applySavedTheme() {
 }
 
 function toggleTheme() {
-  const next = { light: "dark", dark: "oled", oled: "commodore77", commodore77: "starlight", starlight: "beige", beige: "c64", c64: "light" };
+  const next = { light: "dark", dark: "oled", oled: "black", black: "commodore77", commodore77: "starlight", starlight: "beige", beige: "c64", c64: "light" };
   setTheme(next[document.documentElement.dataset.theme] || "dark");
 }
 
 function setTheme(theme) {
   document.documentElement.dataset.theme = theme;
+  // The head script paints the start-up theme's background inline (no flash on load); drop it so
+  // the html[data-theme] background of the new theme shows where the page is wider than the body.
+  document.documentElement.style.background = "";
   localStorage.setItem("c64-block-theme", theme);
   updateThemeToggleLabel();
   saveUiSettings();

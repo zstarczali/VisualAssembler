@@ -167,6 +167,55 @@ html[data-theme="oled"] {
   --cg-canvas-bg: #20263a;
 }
 
+html[data-theme="black"] {
+  color-scheme: dark;
+  /* expert syntax highlight — black theme (pure #000, neutral greys) */
+  --hl-comment:   #6a9955;
+  --hl-directive: #569cd6;
+  --hl-mnem:      #dcdcaa;
+  --hl-number:    #b5cea8;
+  --hl-string:    #ce9178;
+  --hl-label:     #9cdcfe;
+  --hl-macro:     #c586c0;
+  --hl-macro-param: #4ec9b0;
+  --expert-editor-bg: #000000;
+  --ub-editor-bg: #000000;
+  --ub-chrome-bg: rgba(14, 14, 14, 0.99);
+  --ub-side-bg: rgba(8, 8, 8, 0.99);
+  --ub-selection-bg: rgba(96, 165, 250, 0.30);
+  --cg-canvas-bg: #20263a;
+  --bg: #000000;
+  --bg-accent: #000000;
+  --panel: rgba(8, 8, 8, 0.99);
+  --panel-strong: rgba(16, 16, 16, 0.99);
+  --panel-border: rgba(255, 255, 255, 0.10);
+  --text: #e5e5e5;
+  --muted: #8a8a8a;
+  --primary: #60a5fa;
+  --primary-deep: #3b82f6;
+  --secondary: #8a8a8a;
+  --secondary-soft: rgba(138, 138, 138, 0.10);
+  --surface-soft: rgba(138, 138, 138, 0.05);
+  --control-bg: rgba(0, 0, 0, 0.99);
+  --active-bg: #3b82f6;
+  --active-fg: #ffffff;
+  --shadow: 0 2px 12px rgba(0, 0, 0, 0.80);
+  --input-bg: rgba(0, 0, 0, 0.99);
+  --output-bg: #000000;
+  --output-text: #8a8a8a;
+  --monitor-text: #4dff91;
+  --error: #f87171;
+  --accent: #f8fafc;
+  --asm-mnemonic: #38bdf8;
+  --asm-directive: #a78bfa;
+  --asm-macro: #93c5fd;
+  --asm-comment: #6b6b6b;
+  --asm-label: #fbbf24;
+  --asm-number: #fb923c;
+  --asm-region: #80b880;
+  --asm-operand: #facc15;
+}
+
 /* "Commodore 77" — Cyberpunk 2077 x Commodore 64 breadbin edition (neon yellow
    on black). Only the two brand colors and their shades/tints are used — no
    blue/red/green accents like the other themes. */
@@ -347,6 +396,9 @@ html[data-theme="light"] {
 }
 html[data-theme="oled"] {
   background-color: #0d0d12;
+}
+html[data-theme="black"] {
+  background-color: #000000;
 }
 html[data-theme="commodore77"] {
   background-color: #0a0a08;
@@ -1286,6 +1338,11 @@ h1 {
   border-color: #475569;
 }
 
+.theme-option-dot[data-theme-opt="black"] {
+  background: #000000;
+  border-color: #737373;
+}
+
 .theme-option-dot[data-theme-opt="commodore77"] {
   background: #0a0a08;
   border-color: #fcee0a;
@@ -1340,7 +1397,8 @@ html[data-theme="dark"] .theme-toggle-glyph::after {
   background: var(--panel);
 }
 
-html[data-theme="oled"] .theme-toggle-glyph::after {
+html[data-theme="oled"] .theme-toggle-glyph::after,
+html[data-theme="black"] .theme-toggle-glyph::after {
   content: "";
   position: absolute;
   top: -1px;
@@ -1373,7 +1431,8 @@ button:hover,
 }
 
 html[data-theme="dark"] .primary,
-html[data-theme="oled"] .primary {
+html[data-theme="oled"] .primary,
+html[data-theme="black"] .primary {
   color: #10245f;
   font-weight: 700;
 }
@@ -1869,6 +1928,7 @@ body.ub-mode .ws-resizer {
 
 html[data-theme="dark"] #add-selected,
 html[data-theme="oled"] #add-selected,
+html[data-theme="black"] #add-selected,
 html[data-theme="commodore77"] #add-selected {
   background: var(--primary);
   color: var(--active-fg);
@@ -1877,6 +1937,7 @@ html[data-theme="commodore77"] #add-selected {
 
 html[data-theme="dark"] #add-selected:hover,
 html[data-theme="oled"] #add-selected:hover,
+html[data-theme="black"] #add-selected:hover,
 html[data-theme="commodore77"] #add-selected:hover {
   background: var(--primary-deep);
 }
@@ -2923,6 +2984,7 @@ body.dnd-active {
 
 html[data-theme="dark"] .asm-block:has(.bp-toggle.bp-active),
 html[data-theme="oled"] .asm-block:has(.bp-toggle.bp-active),
+html[data-theme="black"] .asm-block:has(.bp-toggle.bp-active),
 html[data-theme="commodore77"] .asm-block:has(.bp-toggle.bp-active) {
   background: rgba(255, 68, 68, 0.18) !important;
   border-color: rgba(255, 68, 68, 0.5) !important;
@@ -3235,13 +3297,18 @@ html[data-theme="commodore77"] .asm-block:has(.bp-toggle.bp-active) {
 }
 
 html[data-theme="dark"] .monitor-output,
-html[data-theme="oled"] .monitor-output {
+html[data-theme="oled"] .monitor-output,
+html[data-theme="black"] .monitor-output {
   background: #0a0e1a !important;
   border-color: #1a2a1a !important;
   text-shadow: 0 0 8px rgba(77, 255, 145, 0.45);
   box-shadow:
     inset 0 0 40px rgba(0,0,0,0.6),
     0 0 0 1px #0d1a0d;
+}
+
+html[data-theme="black"] .monitor-output {
+  background: #000000 !important;
 }
 
 html[data-theme="commodore77"] .monitor-output {
@@ -3737,7 +3804,9 @@ body[data-memory-overlays="0"] .memory-strip {
 html[data-theme="dark"] .emulator-actions .primary,
 html[data-theme="dark"] .emulator-actions .link-button.primary,
 html[data-theme="oled"] .emulator-actions .primary,
-html[data-theme="oled"] .emulator-actions .link-button.primary {
+html[data-theme="black"] .emulator-actions .primary,
+html[data-theme="oled"] .emulator-actions .link-button.primary,
+html[data-theme="black"] .emulator-actions .link-button.primary {
   color: #10245f;
 }
 
@@ -4468,6 +4537,7 @@ body.expert-mode .expert-panel {
 }
 html[data-theme="dark"] .expert-err-line,
 html[data-theme="oled"] .expert-err-line,
+html[data-theme="black"] .expert-err-line,
 html[data-theme="commodore77"] .expert-err-line {
   background: color-mix(in srgb, #ff4444 18%, transparent);
 }
@@ -4589,12 +4659,14 @@ html[data-theme="commodore77"] .expert-err-line {
 
 html[data-theme="dark"] .expert-hl mark.hl-find-match,
 html[data-theme="oled"] .expert-hl mark.hl-find-match,
+html[data-theme="black"] .expert-hl mark.hl-find-match,
 html[data-theme="commodore77"] .expert-hl mark.hl-find-match {
   background: color-mix(in srgb, #d4880c 40%, transparent);
 }
 
 html[data-theme="dark"] .expert-hl mark.hl-find-current,
 html[data-theme="oled"] .expert-hl mark.hl-find-current,
+html[data-theme="black"] .expert-hl mark.hl-find-current,
 html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
   background: color-mix(in srgb, #d4880c 80%, transparent);
   outline-color: #d4880c;
@@ -6820,6 +6892,7 @@ body.crt-mode #crt-overlay::before {
 
 body.crt-mode[data-theme="dark"] #crt-overlay::before,
 body.crt-mode[data-theme="oled"] #crt-overlay::before,
+body.crt-mode[data-theme="black"] #crt-overlay::before,
 body.crt-mode[data-theme="commodore77"] #crt-overlay::before {
   background: repeating-linear-gradient(
     to bottom,
@@ -7031,13 +7104,13 @@ html[data-theme="commodore77"] .splash-image {
 }
 
 /* a box, not the font block glyph: its anti-aliased edges show as lines on WebKit at fractional
-   sizes. A full 8-row C64 cell like the real cursor: the 7 rows of the letters (0.875em above the
-   baseline) plus the empty row under them, so rounding can never leave it shorter than the text */
+   sizes. Exactly the 7 rows of the letters (0.875em above the baseline); the splash script rounds
+   the font size to whole device pixels per C64 pixel, so the box and the glyphs round the same */
 .splash-cursor {
   display: inline-block;
   width: 0.875em;
-  height: 1em;
-  vertical-align: -0.125em;
+  height: 0.875em;
+  vertical-align: baseline;
   background: currentColor;
   animation: splash-cursor-blink 0.6s step-end infinite;
   opacity: 0;
