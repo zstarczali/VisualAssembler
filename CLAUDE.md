@@ -809,6 +809,11 @@ Példa curve-gen bekötésre:
 - **Nem-blokkoló** overlay (tour, tooltip): `popover="manual"` + `showPopover()`
 - **Non-modal dialog show()** és sima z-index nem elég — a top-layer ::backdrop
   eszi a clicket, még nagy z-index mellett is
+- **Mozgatható dialógus megnyitása:** ha a dialógus a `setupDraggableEditorDialogs` listájában van,
+  a megnyitó függvény a `showModal()` / `show()` **előtt** hívja a `dlg._applyPosition?.()`-t.
+  Enélkül újraindítás után először középen jelenik meg, és csak a `toggle` utáni két
+  `requestAnimationFrame` után ugrik a mentett helyére (`_editorDialogPositions`).
+  (Így javítva: `openProjectSettings`, `openTutorialEditor`.)
 
 ### 15.5 Slider és input override
 

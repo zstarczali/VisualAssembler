@@ -27420,6 +27420,7 @@ async function openProjectSettings() {
   const assets = files.length - sources.length;
   set("ps-files", "textContent", tf("psFileCount", { count: files.length, sources: sources.length, assets }));
   _projSettingsSync();
+  dlg._applyPosition?.();
   dlg.showModal();
 }
 
@@ -40270,7 +40271,7 @@ async function openTutorialEditor(lessonId) {
   const data = _tutUserLessons.find(function(l) { return l.id === lessonId; }) || _tutUserLessons[0] || _teNewLesson();
   _teOpenLesson(data);
   document.getElementById("tutorial-dialog")?.close();
-  if (!dlg.open) dlg.showModal();
+  if (!dlg.open) { dlg._applyPosition?.(); dlg.showModal(); }
 }
 async function _teSave() {
   if (!_teData) return false;
