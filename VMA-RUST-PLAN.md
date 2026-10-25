@@ -6,6 +6,63 @@ azonos marad a mai JS fordítóéval — ezt a golden korpusz (`tests/vma-golden
 
 ---
 
+## 0. Hol tartunk (2026-10-25)
+
+| Fázis | Állapot | Commit |
+|-------|---------|--------|
+| F0 golden korpusz, referencia-harness, CLI-szerződés | ✔ kész | `1a4f86e` |
+| F1 JS-hibák javítása, korpusz bővítése | ✔ kész | `8291481`, `c029369` |
+| F2 Rust mag + CLI (`crates/vma`) | ✔ kész | `c0cc68d` |
+| F3 makrók, LOOP/FOR, `.var`, PUSH/PULL | ✔ kész | `536986e` |
+| **F4 kódgeneráló makrók** | **folyamatban** — a JS-oldal fel van dolgozva (7. szakasz), Rust-kód még nincs | — |
+| F5 fájl-makrók | hátra | — |
+| F6 bekötés a VA-ba (Tauri `vma_build`, shadow mód) | hátra | — |
+| F7 WASM, a szinkron UI-elemzések | hátra | — |
+| F8 Kick előfeldolgozó (opcionális), JS mag törlése, dokumentáció | hátra | — |
+
+Golden állás (`node scripts/vma-rust-report.js`): **420 esetből 188 bájtra egyezik, 232 egy még nem portolt
+direktívánál áll meg, 0 eltérés.** A legtöbb esetet blokkoló direktívák: FILE 40 (F5), TEXT 22, SPRITE 18,
+RUNTIME_IF 16, PETSCII 12, SCREEN 10, SET_COLOR 10, REU 10, JOYSTICK 10, MAP_COPY 8, CHARSET 8,
+RUNTIME_LOOP 8, PRINT 8, RAWBYTES 6, majd 2–4 esettel a többi.
+
+Ellenőrzés bármikor: `npm test` (a golden Rust-ága a `crates/vma/target/{debug,release}/vma.exe`-t használja,
+ha le van fordítva), `cargo test --offline` a `crates/vma`-ban, és az esetenkénti riport fent.
+
+### Teendők sorrendben
+
+1. **F4** — a 7. szakasz listája szerint, kisebb adagokban, minden adag után `cargo build` + riport:
+   1. egyszerű, fix kódú makrók: SET_BORDER / SET_BG, CLEAR_SCREEN, WAIT_KEY, RAND, TURBO_SET / TURBO_ENABLE,
+      SUPERCPU_DETECT, WAIT_RASTER, CHARSET, REU_CHECK, EXODECRUNCH, PRINT_CHAR, PRINT_HEX;
+   2. szöveg / adat: TEXT, STRING, DATA, PRINT, PETSCII, RAWBYTES, RAWTEXT (+ deferred darabok a PRG-ben),
+      CHARDEF, TABLE, a `macroLabel` címkék;
+   3. sprite / input: SPRITE_INIT, SPRITE_POS, SPRITE_COL, SPRITE_ANIM, JOYSTICK (mindkét mód), MOUSE,
+      BOX_HIT, SCORE_BCD;
+   4. vezérlés / memória: futásidejű IF / ELSE / ENDIF, WHILE / ENDW, REPEAT / UNTIL, MEMCPY, MEMSET,
+      MAP_COPY, MAP_COPY16X16, REU_STASH / FETCH / SWAP, IRQ_SETUP, LOADFILE, DELAY (+ a közös helper);
+   5. SID_PLAYER kódja (a `_sidPlayerBytes` port), a `SID_INIT` / `SID_PLAY` címke az F5-tel jön;
+   6. a makrók „buffer” paraméterei (`getDeferredMacroAddressField`, `_autoBufferLabel`, a layout végi
+      `autoBufferCursor`) — a deferred-címes makrók után.
+   Minden adaghoz célzott golden snippet / változat a `tests/vma-golden/cases.js`-be (a JS adja az elvárt
+   bájtot), utána `node scripts/vma-golden.js --update` — csak új bejegyzés változhat.
+2. **F5** — `FileProvider` + közös resolver (a `lib.rs` `bare_name_candidates` / `push_bare_name_fallbacks`
+   logikája, `--base-dir` / `--search` a CLI-ben): INCBIN, KOALA (`_koalaData`, `_koalaShowBytes`), SID
+   (PSID-fejléc, `SID_LOAD` / `SID_INIT` / `SID_PLAY` címkék), LEVEL / LEVEL_ROW (`_levelInfo`,
+   `_levelBuild`, `_levelRowBytes`), INCLUDE (`.json` blokk-program és `.asm`, a benne definiált makrók is),
+   LOADFILE. Kilépés: mind a 420 eset.
+3. **F6–F8** — az 5. szakasz táblázata szerint.
+
+Közben észrevett JS-furcsaságok, amelyeket a Rust szándékosan hűen hoz (ha javítani kell, előbb a JS-ben,
+utána golden-frissítés):
+- makró-argumentumról az idézőjel lekerül, így `'A'` → `A` (karakter-literál nem adható át makrónak);
+- `lda.zp c` → `LDA $0C`: hexa-jegyekből álló szimbólumnevet a `.zp` ág számnak vesz;
+- `JMP (címke)` fordítási hiba (az indirekt mód csak `($hhhh)` alakot ismer);
+- `lda $1234+1` fordítási hiba (`$`-ral kezdődő kifejezés nem megy át az operandus-ellenőrzésen);
+- a paraméter nélküli makró törzse a definíció helyén is lefordul — az első `* =` előtti definíció a
+  program elejére kerül, és a következő ORG felülírja;
+- a futásidejű IF / WHILE címkéi (`_if_else_…`) makrón belül nem lesznek hívásonként egyediek.
+
+---
+
 ## 1. Felmérés — mi van meg
 
 ### A JS VMA fordító (a portolandó rész)
@@ -199,3 +256,64 @@ is fut CI-ben); később differenciális fuzz: véletlen utasítás / kifejezés
 - **Szinkron hívások**: a natív command async; a gépelés közbeni elemzések a WASM-ig (F7) a JS-en maradnak,
   ezért az F6–F7 között két fordító él — a shadow mód és a golden teszt tartja szinkronban.
 - **Méret**: `compileLineBytes` (1 600 sor) a legnagyobb falat; makrónként portolva, makrónként tesztelve.
+
+---
+
+## 7. F4 munkajegyzet — a JS-oldal, ahogy portolni kell
+
+A `www/app.js`-ben: elemzés `parseExpertText` (a regexek és a mezők), méret `getInstructionSize`, bájtok
+`compileLineBytes`, címkék `addLayoutLabels`, deferred darabok `assembleProgramToPrg` +
+`getDeferredMemorySections`. A Rust-oldalon: új `Kind` változatok a `parse.rs`-ben (a `UNPORTED` listából
+a sorát törölni), méret az `asm.rs` `size()`-ában, bájtok a `compile_line()`-ban (vagy új `macros.rs`).
+
+### Általános csapdák
+
+- **`null` mint 0.** A `resolveProgramNumericValue` / `parseMacroNumber` feloldhatatlan értékre `null`-t ad;
+  az `isNaN(null)` hamis, a `null < 0` / `null > 7` hamis, az aritmetikában és bitműveletben 0. Ezért sok makró
+  feloldatlan paraméterrel **0-val fordul, nem hibával** (pl. SPRITE_COL, MOUSE sprite-száma, WAIT_RASTER,
+  CHARDEF bájtjai). Kivétel a szigorú összevetés: `port !== 1 && port !== 2` → `null` hibát ad (JOYSTICK,
+  MOUSE portja), és ahol a kód kifejezetten `=== null`-t néz (SPRITE_POS, SET_*, MEMSET értéke, PRINT_CHAR,
+  IRQ_SETUP / SID_PLAYER raszter, DELAY).
+- A bájtok `& 0xFF`-fel vagy a `Uint8Array` ToUint8-jával kerülnek a pufferbe (NaN → 0).
+- Az `encodeTextMacro(text || "HELLO C64")` és az `encodePetsciiMacro(text || "HELLO")` üres szövegre
+  alapértelmezett szöveget kódol — a méret és a bájt is ezzel számol.
+- A `parseAddressValue(cím, labels)` címkét csak pontos névvel keres; 1–4 hexa jegy hexa.
+- A `_evalAsmExpression` (MEMCPY / MEMSET `parseMacroCountOrSize`) a „Folded” kiértékelő (a Rustban
+  `eval_folded`).
+
+### Makrónként
+
+| Makró | Elemzés (`parseExpertText`) | Méret | Bájtok / megjegyzés |
+|-------|------------------------------|-------|---------------------|
+| TEXT | `.text X, Y, "s"[, lower\|hex]` → textX/textY (azonosító vagy szám), charset | `len(encodeTextMacro(raw))*5` | `LDA #c / STA $0400+Y*40+X+i`; X/Y `resolveProgramNumericValue(…, "dec")` |
+| STRING | `.string $addr\|címke, "s"[, hex][, lower][:címke]` | `len*5` | `LDA #(c+offset) / STA addr+i`; offset `resolveProgramNumericValue(charOffset, labels, "hex")` |
+| DATA | `.data $addr\|címke, bájtok[:címke]`, base hex | `parseByteMacro(raw).len*5` | `LDA #b / STA addr+i` (bájtok címkék nélkül) |
+| RAWBYTES / RAWTEXT / PETSCII | mint fent; PETSCII címe `$` nélkül, `, lower`, `, null` | 0 | deferred darab a címén (RAWBYTES: `parseByteMacro(raw, base)` címkék nélkül; RAWTEXT + offset; PETSCII `encodePetsciiMacro` + opcionális 0) |
+| macroLabel | `:címke` a fenti négyen | — | `addLayoutLabels`: a cím `parseAddressValue(mező)` ?? $C000 |
+| CHARSET | `.charset lower\|upper` | 8 | `LDA $D018 / ORA #$02` vagy `AND #$FD` `/ STA $D018` |
+| CHARDEF | `.chardef $base, index, 8 bájt` | 40 | 8× `LDA #b / STA base+index*8+i`; bájt `parseMacroNumber(…, "hex")` |
+| BOX_HIT | `.box_hit $zp1, $zp2` | 30 | fix 30 bájt, `off(pos, target)` |
+| TABLE | `.table NÉV [$addr]` | 0 | **a layoutban `cursor = cím`**, ha van cím; címke: a cím vagy a sor címe |
+| LOADFILE | `.loadfile "NÉV", dev[, $addr][, hibacímke]` | `3+max(len,1)+9+9+(addr?4:0)+5+2` | JMP át a néven, SETNAM / SETLFS / LOAD, `BCS hibacímke` vagy `BCS *` |
+| EXODECRUNCH | `.exodecrunch [depacker=$B000]` | 19 | $AE/$AF → $04/$05, $01=$36, JSR, $01=$37 |
+| SPRITE_INIT | `.sprite_init n, color, page[, mc]`, page nagybetűsítve | 26 | `parseMacroNumber` (n, color dec; page hex) |
+| SPRITE_POS | `.sprite_pos n, x, y` | 18 | `=== null` hiba; $D010 ORA/AND x>255 szerint |
+| SPRITE_COL | `.sprite_col n, sprite\|background` | 5 | `LDA $D01E/$D01F / AND #1<<n` |
+| SPRITE_ANIM | `.sprite_anim n, $lista, db, $zp` | 19 | INC zp … `STA $07F8+n` |
+| SCORE_BCD | `.score_bcd $addr, 2\|4\|6, pont, $képernyő` | `3+b*8+b*21` (b = digits/2) | SED/CLC, ADC BCD, CLD, kiírás |
+| JOYSTICK | `.joystick port, sprite` vagy `.joystick port, vx, vy[, fire]` | `_joystickSize` | `_joyReadBytes` (port 3: `LDA $DC00 / AND $DC01`), `_joyVarBytes`; a változós mód `_evalAsmExpr` + `_substituteStarPc` |
+| MOUSE | `.mouse port, n, zpX, zpY` | 142 | belső címkés kód (xStart / xNeg / xDone / yNeg / yDone), abszolút ugrás `line.address`-hez |
+| WAIT_RASTER | `.wait_raster sor` (hexa, 2 jegyre töltve) | 7 | `LDA $D012 / CMP #sor / BNE -7` |
+| TURBO_SET / TURBO_ENABLE / SUPERCPU_DETECT | regexek a JS-ben | 5 / 5 / 5 | fix kód |
+| REU_CHECK / REU_STASH / FETCH / SWAP | `.reu_x $c64, $reu, bank, $len` | 34 / 40 | fix próba; 8× `LDA # / STA $DF0x`, parancs $90 / $91 / $92 |
+| MAP_COPY / MAP_COPY16X16 | regexek a JS-ben | lásd `getInstructionSize` | `genSection`; 16×19 bájt |
+| MEMCPY / MEMSET | `src=… , dst=… , size=…` (`_importNormalizeAddressToken` / `SizeToken`) | lapok × 11 (+13) / 2 + lapok × 8 (+10); a méret címkék nélkül | `parseMacroCountOrSize`, `parseMacroAddress` |
+| PRINT / PRINT_CHAR / PRINT_HEX | `.print "s"[, lower]`, `.print_char x`, `.print_hex A\|X\|Y` | 17+len / 5 / 30 (X, Y: 31) | JMP a szöveg fölött + CHROUT ciklus; `parsePetsciiCharValue`; `compilePrintHexA` |
+| CLEAR_SCREEN / WAIT_KEY | — | 5 / 7 | fix |
+| SET_BORDER / SET_BG | `.set_border x` (azonosító vagy hexa) | 5 | `parseMacroNumber(…, "hex")`, 0–15 |
+| IRQ_SETUP | `.irq_setup handler=címke, raster=$xx` | 46 | fix kód a handler címével |
+| RAND | `.rand [$zp\|címke]` | 15 | `parseMacroAddress` |
+| DELAY | `.delay n` / `.wait n` (két helyen ugyanaz a regex) | 5 | `LDX #n / JSR helper`; a helper (`buildDelayHelperBytes`, 34 bájt) deferred darab a `max(layout.end, deferred szakaszok vége) + 1` címen (`appendDelayHelperLabel`, `getDeferredMemorySections` — a TEXT képernyőcíme is beleszámít) |
+| futásidejű IF / ELSE / ENDIF | `.if A == #$10` / `.if_x …`; a parser `runtimeIfStack`-je dönti el, hogy az `.else` / `.endif` futásidejű-e | `(imm?2:3) + (<= vagy > ? 4 : 2)` / 3 / 0 | CMP/CPX/CPY + ugrás az else-címkére; címkék: ELSE → else = cím+3, ENDIF → end = cím (else nélkül else = end is) |
+| WHILE / ENDW, REPEAT / UNTIL | `whileStack`, `repeatStack` a parserben | mint IF / 3 / 0 / mint IF | `_compileCmpBranch`; címkék: WHILE start = cím, ENDW end = cím+3, REPEAT start = cím |
+| SID_PLAYER | `.sid_player [song][, raster]` | 58 | `_sidPlayerBytes`; `SID_INIT` / `SID_PLAY` nélkül hiba (F5 adja a címkéket) |
