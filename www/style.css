@@ -6336,7 +6336,7 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
 [data-theme="light"] .splash-panel,
 [data-theme="starlight"] .splash-panel,
 [data-theme="beige"] .splash-panel,
-:is([data-theme="light"], [data-theme="starlight"], [data-theme="beige"]) :is(.whats-new-dialog, .update-dialog, .knowledge-base-dialog, .hardware-settings-dialog) {
+:is([data-theme="light"], [data-theme="starlight"], [data-theme="beige"]) :is(.whats-new-dialog, .update-dialog, .knowledge-base-dialog, .hardware-settings-dialog, .pal-ed-dialog) {
   border-color: color-mix(in srgb, var(--text) 45%, var(--panel));
 }
 
@@ -11281,7 +11281,10 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
   max-height: 92vh;
   overflow: hidden;
 }
-.pal-ed-dialog { width: min(680px, 94vw); }
+.pal-ed-dialog {
+  width: min(680px, 94vw);
+  border: 1px solid color-mix(in srgb, var(--text) 22%, var(--panel));
+}
 .pal-ed-hdr-icon {
   width: 14px; height: 14px; border-radius: 2px;
   background: conic-gradient(#813338, #edf171, #56ac4d, #75cec8, #2e2c9b, #8e3c97, #813338);
