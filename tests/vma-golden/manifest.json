@@ -1560,6 +1560,30 @@
   "error": null
  },
  {
+  "id": "samples-simple-music",
+  "caseId": "samples-simple-music",
+  "kind": "text",
+  "file": "samples/simple-music.asm",
+  "baseDir": "samples",
+  "basicStub": true,
+  "ok": true,
+  "size": 62529,
+  "sha256": "cf30eeef3d1af45a92bc4d22193ca391fc3bdb1b9767909dce2b11e8333471fc",
+  "error": null
+ },
+ {
+  "id": "samples-simple-music@nostub",
+  "caseId": "samples-simple-music",
+  "kind": "text",
+  "file": "samples/simple-music.asm",
+  "baseDir": "samples",
+  "basicStub": false,
+  "ok": true,
+  "size": 60482,
+  "sha256": "ca040113ba6789d08f2aa15adb6becfb59ea7a39ed15534ec09d18e83cf1117e",
+  "error": null
+ },
+ {
   "id": "samples-sprite-demo-blocks",
   "caseId": "samples-sprite-demo-blocks",
   "kind": "blocks",
