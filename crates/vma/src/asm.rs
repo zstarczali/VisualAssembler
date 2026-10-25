@@ -4,7 +4,7 @@
 use crate::expr::{char_literal_to_hex, eval_asm, has_star_pc_ref, js_and, substitute_star_pc, IdentRule};
 use crate::num::{is_hex, is_ident, js_parse_int, parse_address_value, parse_number_by_base, to_uint8};
 use crate::opcodes::OPCODES;
-use crate::parse::{Base, Block, Kind, Mode};
+use crate::parse::{Base, Block, Kind, MemOp, Mode};
 use regex::Regex;
 use std::collections::HashMap;
 use std::sync::OnceLock;
@@ -416,6 +416,11 @@ impl Assembler {
             Kind::ExoDecrunch { .. } => 19,
             Kind::PrintHex { reg } => if *reg == 'A' { 30 } else { 31 },
             Kind::Rand { .. } => 15,
+            Kind::Text { raw, .. } => encode_text(raw, false).len() as i64 * 5,
+            Kind::Mem { op: MemOp::String, raw, .. } => encode_text(raw, false).len() as i64 * 5,
+            Kind::Mem { op: MemOp::Data, raw, .. } => self.byte_values(raw, Base::Hex, None).len() as i64 * 5,
+            Kind::Print { raw, lower } => 17 + encode_petscii(raw, *lower).len() as i64,
+            Kind::CharDef { .. } => 40,
             // an INVOKE (or a bare macro name) left unexpanded: the size of the body
             Kind::Invoke { name, .. } => self.macros.get(name).map(|m| m.body.iter().map(|b| self.size(b)).sum()).unwrap_or(0),
             Kind::Instr { mnem, .. } if self.macros.contains_key(mnem) => self.macros[mnem].body.iter().map(|b| self.size(b)).sum(),
@@ -530,6 +535,7 @@ impl Assembler {
             out.push((b.clone(), Meta { header: true, ..Meta::default() }));
             for mb in &mac.body {
                 let mut e = mb.clone();
+                let mut buffer = false;
                 match &mut e.kind {
                     Kind::Label { name, .. } if locals.contains(name) => *name = format!("{name}{suffix}"),
                     Kind::Instr { mnem, mode, raw, base, display, .. } => {
@@ -554,9 +560,20 @@ impl Assembler {
                             }
                         }
                     }
-                    Kind::PrintChar { raw } | Kind::SetColor { raw, .. } => {
+                    Kind::PrintChar { raw } | Kind::SetColor { raw, .. } | Kind::Text { raw, .. } | Kind::Print { raw, .. } | Kind::CharDef { raw, .. } => {
                         if !raw.is_empty() {
                             *raw = rewrite(raw);
+                        }
+                    }
+                    Kind::Mem { raw, addr, .. } => {
+                        if !raw.is_empty() {
+                            *raw = rewrite(raw);
+                        }
+                        // a bare parameter as the address is an auto buffer (`_autoBufferLabel`), not ported yet
+                        if is_ident(addr.trim()) && mac.params.iter().any(|p| p == addr.trim()) {
+                            buffer = true;
+                        } else if !addr.is_empty() {
+                            *addr = apply(addr);
                         }
                     }
                     Kind::LongBranch { raw, .. } | Kind::Byte { raw, .. } | Kind::Word { raw, .. } | Kind::Fill { raw, .. } | Kind::Align { raw, .. } | Kind::Const { raw, .. } => {
@@ -567,6 +584,9 @@ impl Assembler {
                     Kind::Loop { label, .. } if locals.contains(label) => *label = format!("{label}{suffix}"),
                     Kind::Next { label, .. } if locals.contains(label) => *label = format!("{label}{suffix}"),
                     _ => {}
+                }
+                if buffer {
+                    e.kind = Kind::Unsupported { what: "MACRO_BUFFER".into() };
                 }
                 out.push((e, Meta { from_macro: Some(name.clone()), ..Meta::default() }));
             }
@@ -639,6 +659,11 @@ impl Assembler {
                 lines.push(Line { block, address: cursor, size: 0, skipped: true, meta });
                 continue;
             }
+            if let Kind::Table { addr, .. } = &block.kind {
+                if let Some(a) = (!addr.is_empty()).then(|| parse_address_value(addr)).flatten() {
+                    cursor = a as i64;
+                }
+            }
             if let Kind::Org { address } = &block.kind {
                 if let Some(org) = parse_address_value(address) {
                     let org = org as i64;
@@ -675,6 +700,13 @@ impl Assembler {
             }
             Kind::Loop { label, .. } | Kind::For { label, .. } => {
                 self.labels.set(label, (line.address + 2) as f64);
+            }
+            Kind::Table { name, addr } => {
+                let a = if addr.is_empty() { None } else { parse_address_value(addr) };
+                self.labels.set(name, a.unwrap_or(line.address as f64));
+            }
+            Kind::Mem { addr, label, .. } if !label.trim().is_empty() => {
+                self.labels.set(label.trim(), parse_address_value(addr).unwrap_or(0xC000 as f64));
             }
             Kind::Var { name, .. } if !name.is_empty() => {
                 if let Some(a) = line.meta.var_address {
@@ -931,6 +963,61 @@ impl Assembler {
             }
             Kind::EndMacro => Ok(vec![0x60]),
             Kind::Fixed { bytes } => Ok(bytes.clone()),
+            Kind::Text { x, y, raw, lower } => {
+                let coord = |v: &str| self.numeric_value(v, Some(&self.labels), Base::Dec).filter(|v| !v.is_nan()).unwrap_or(0.0);
+                let start = 0x0400 as f64 + coord(y) * 40.0 + coord(x);
+                Ok(stores(start, &encode_text(raw, *lower)))
+            }
+            Kind::Mem { op: MemOp::String, addr, raw, offset, lower, .. } => {
+                let off = self.numeric_value(if offset.is_empty() { "0" } else { offset }, Some(&self.labels), Base::Hex).filter(|v| !v.is_nan()).unwrap_or(0.0);
+                let start = Self::address_value(addr, Some(&self.labels)).unwrap_or(0xC000 as f64);
+                let chars: Vec<f64> = encode_text(raw, *lower).into_iter().map(|c| c + off).collect();
+                Ok(stores(start, &chars))
+            }
+            Kind::Mem { op: MemOp::Data, addr, raw, .. } => {
+                let start = Self::address_value(addr, Some(&self.labels)).unwrap_or(0xC000 as f64);
+                Ok(stores(start, &self.byte_values(raw, Base::Hex, None)))
+            }
+            // deferred chunks: placed by `assemble`
+            Kind::Mem { .. } | Kind::Table { .. } => Ok(Vec::new()),
+            Kind::Print { raw, lower } => {
+                let data = encode_petscii(raw, *lower);
+                if data.len() > 255 {
+                    return Err(format!("PRINT: text too long ({}, max 255)", data.len()));
+                }
+                let data_addr = address + 3;
+                let code = data_addr + data.len() as i64 + 1;
+                let mut out = vec![0x4C, code as u8, (code >> 8) as u8];
+                out.extend(data.iter().map(|b| to_uint8(*b)));
+                out.extend([0x00, 0xA2, 0x00, 0xBD, data_addr as u8, (data_addr >> 8) as u8, 0xF0, 0x06, 0x20, 0xD2, 0xFF, 0xE8, 0xD0, 0xF5]);
+                Ok(out)
+            }
+            Kind::CharDef { base, index, raw } => {
+                let b = parse_address_value(base).unwrap_or(0x3800 as f64);
+                let idx = js_parse_int(if index.is_empty() { "0" } else { index }, 10);
+                if idx.is_nan() || !(0.0..=255.0).contains(&idx) {
+                    return Err("CHARDEF index must be 0-255".into());
+                }
+                let target = b + idx * 8.0;
+                if !(0.0..=(0xFFFF - 7) as f64).contains(&target) {
+                    return Err(format!("CHARDEF target address out of range: ${:x}", target as i64));
+                }
+                let parts: Vec<&str> = raw.split(',').map(|p| p.trim()).filter(|p| !p.is_empty()).collect();
+                if parts.len() != 8 {
+                    return Err(format!("CHARDEF needs exactly 8 bytes, got {}", parts.len()));
+                }
+                let mut out = Vec::new();
+                for (i, part) in parts.iter().enumerate() {
+                    // null (unresolved) passes as 0, NaN fails
+                    let v = self.macro_number(part, &self.labels, Base::Hex).unwrap_or(0.0);
+                    if v.is_nan() || !(0.0..=255.0).contains(&v) {
+                        return Err(format!("CHARDEF byte {} invalid: {}", i + 1, part));
+                    }
+                    let a = target as i64 + i as i64;
+                    out.extend([0xA9, js_and(v, 0xFF) as u8, 0x8D, a as u8, (a >> 8) as u8]);
+                }
+                Ok(out)
+            }
             Kind::SetColor { border, value, .. } => {
                 let mnem = if *border { "SET_BORDER" } else { "SET_BG" };
                 let v = self.macro_number(if value.is_empty() { "0" } else { value }, &self.labels, Base::Hex);
@@ -1142,7 +1229,30 @@ impl Assembler {
             let bytes = self.compile_line(line).map_err(|message| CompileError { line: line.block.line, message })?;
             sections.last_mut().unwrap().1.extend(bytes);
         }
-        let chunks: Vec<&(i64, Vec<u8>)> = sections.iter().filter(|s| !s.1.is_empty()).collect();
+        let mut deferred: Vec<(i64, Vec<u8>)> = Vec::new();
+        for line in &lines {
+            let Kind::Mem { op, addr, raw, offset, lower, null_term, .. } = &line.block.kind else { continue };
+            let bytes: Vec<f64> = match op {
+                MemOp::RawBytes => self.byte_values(raw, Base::Hex, None),
+                MemOp::RawText => {
+                    let off = self.numeric_value(if offset.is_empty() { "0" } else { offset }, Some(&self.labels), Base::Hex).filter(|v| !v.is_nan()).unwrap_or(0.0);
+                    encode_text(raw, *lower).into_iter().map(|b| js_and(b + off, 0xFF) as f64).collect()
+                }
+                MemOp::Petscii => {
+                    let mut b = encode_petscii(raw, *lower);
+                    if *null_term {
+                        b.push(0.0);
+                    }
+                    b
+                }
+                MemOp::String | MemOp::Data => continue,
+            };
+            let at = Self::address_value(addr, Some(&self.labels)).unwrap_or(0xC000 as f64) as i64;
+            if !bytes.is_empty() {
+                deferred.push((at, bytes.into_iter().map(to_uint8).collect()));
+            }
+        }
+        let chunks: Vec<&(i64, Vec<u8>)> = sections.iter().filter(|s| !s.1.is_empty()).chain(deferred.iter()).collect();
         if chunks.is_empty() {
             return Ok(Image { load: origin, bytes: Vec::new() });
         }
@@ -1378,7 +1488,53 @@ fn raw_operand(kind: &Kind) -> &str {
     match kind {
         Kind::Instr { raw, .. } | Kind::LongBranch { raw, .. } | Kind::Byte { raw, .. } | Kind::Word { raw, .. } | Kind::Fill { raw, .. } | Kind::Align { raw, .. } | Kind::Const { raw, .. } => raw,
         Kind::Assert { expr, .. } => expr,
-        Kind::PrintChar { raw } | Kind::SetColor { raw, .. } => raw,
+        Kind::PrintChar { raw } | Kind::SetColor { raw, .. } | Kind::Text { raw, .. } | Kind::Mem { raw, .. } | Kind::Print { raw, .. } | Kind::CharDef { raw, .. } => raw,
         _ => "",
     }
+}
+
+/// LDA #c / STA start+i for every byte
+fn stores(start: f64, bytes: &[f64]) -> Vec<u8> {
+    let mut out = Vec::with_capacity(bytes.len() * 5);
+    for (i, b) in bytes.iter().enumerate() {
+        let a = js_and(start + i as f64, -1);
+        out.extend([0xA9, js_and(*b, 0xFF) as u8, 0x8D, a as u8, (a >> 8) as u8]);
+    }
+    out
+}
+
+/// The UTF-16 code units the JS encoders see through `[...text]` and `charCodeAt(0)`.
+fn js_chars(text: &str) -> impl Iterator<Item = u32> + '_ {
+    text.chars().map(|c| {
+        let mut buf = [0u16; 2];
+        c.encode_utf16(&mut buf)[0] as u32
+    })
+}
+
+/// `encodeTextMacro` (screen codes); an empty text is "HELLO C64"
+fn encode_text(text: &str, lower: bool) -> Vec<f64> {
+    let text = if text.is_empty() { "HELLO C64" } else { text };
+    js_chars(text)
+        .map(|c| match c {
+            10 => 13,
+            65..=90 => if lower { c } else { c - 64 },
+            97..=122 => c - 96,
+            32.. => c,
+            _ => 32,
+        } as f64)
+        .collect()
+}
+
+/// `encodePetsciiMacro`; an empty text is "HELLO"
+fn encode_petscii(text: &str, lower: bool) -> Vec<f64> {
+    let text = if text.is_empty() { "HELLO" } else { text };
+    js_chars(text)
+        .map(|c| match c {
+            10 => 13,
+            65..=90 => if lower { c + 32 } else { c },
+            97..=122 => if lower { c - 32 } else { c },
+            32..=126 => c,
+            _ => 32,
+        } as f64)
+        .collect()
 }

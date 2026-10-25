@@ -89,8 +89,24 @@ pub enum Kind {
     PrintChar { raw: String },
     PrintHex { reg: char },
     Rand { seed: String },
+    /// `.text X, Y, "s"` — screen RAM stores (`raw` = the text)
+    Text { x: String, y: String, raw: String, lower: bool },
+    /// STRING / DATA (stores) and RAWTEXT / RAWBYTES / PETSCII (deferred chunks) at `addr`
+    Mem { op: MemOp, addr: String, raw: String, offset: String, lower: bool, null_term: bool, label: String },
+    Print { raw: String, lower: bool },
+    CharDef { base: String, index: String, raw: String },
+    Table { name: String, addr: String },
     /// A JS directive the Rust compiler does not assemble yet (its mnemonic).
     Unsupported { what: String },
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum MemOp {
+    String,
+    RawText,
+    Data,
+    RawBytes,
+    Petscii,
 }
 
 #[derive(Clone, Debug)]
@@ -579,14 +595,7 @@ fn index_suffix(mode: Mode) -> &'static str {
 
 /// The macro directives of the JS compiler that are not ported yet (by their JS regex start).
 const UNPORTED: &[(&str, &str)] = &[
-    (r"(?i)^\.string\s", "STRING"),
-    (r"(?i)^\.rawtext\s", "RAWTEXT"),
-    (r"(?i)^\.data\s", "DATA"),
-    (r"(?i)^\.rawbytes\s", "RAWBYTES"),
-    (r"(?i)^\.petscii\s", "PETSCII"),
-    (r"(?i)^\.chardef\s", "CHARDEF"),
     (r"(?i)^\.box_hit\s", "BOX_HIT"),
-    (r"(?i)^\.table\s", "TABLE"),
     (r"(?i)^\.loadfile\s", "LOADFILE"),
     (r"(?i)^\.(include|incbin|koala|level|sid)\b", "FILE"),
     (r"(?i)^\.level_row\b", "LEVEL_ROW"),
@@ -598,12 +607,60 @@ const UNPORTED: &[(&str, &str)] = &[
     (r"(?i)^\.score_bcd\s", "SCORE_BCD"),
     (r"(?i)^\.reu_(stash|fetch|swap)\b", "REU"),
     (r"(?i)^\.mem(cpy|set)\s", "MEMCPY"),
-    (r"(?i)^\.print\s", "PRINT"),
     (r"(?i)^\.sid_player\b", "SID_PLAYER"),
     (r"(?i)^\.irq_setup\s", "IRQ_SETUP"),
     (r"(?i)^\.(while|until|if)(?:_[axy]|\s+[AXY])\s+(==|=|!=|<=|>=|<|>)\s+", "RUNTIME_IF"),
     (r"(?i)^\.(endw|repeat)\s*$", "RUNTIME_LOOP"),
 ];
+
+/// `$hhhh` (4 digits) or a label: the address field of STRING / RAWTEXT / DATA / RAWBYTES.
+fn mem_address(hex: Option<regex::Match>, name: Option<regex::Match>) -> String {
+    match hex {
+        Some(h) => format!("${:0>4}", h.as_str().to_uppercase()),
+        None => name.map(|m| m.as_str().to_string()).unwrap_or_default(),
+    }
+}
+
+/// The text / data macros of `parseExpertText` after the Kick `.text` (in the JS order).
+fn data_macro(line: &str) -> Option<Kind> {
+    let mem = |op, addr: String, raw: &str, offset: Option<regex::Match>, lower: bool, null_term: bool, label: Option<regex::Match>| Kind::Mem {
+        op,
+        addr,
+        raw: raw.to_string(),
+        offset: offset.map(|m| format!("{:0>2}", m.as_str().to_uppercase())).unwrap_or_else(|| "00".into()),
+        lower,
+        null_term,
+        label: label.map(|m| m.as_str().to_string()).unwrap_or_default(),
+    };
+    let text_re = |kw: &str| format!(r#"(?i)^\.{kw}\s+(?:\$([0-9A-Fa-f]{{1,4}})|([A-Za-z_][A-Za-z0-9_]*))\s*,\s*"([^"]*)"(?:\s*,\s*([0-9A-Fa-f]{{1,2}}))?(?:\s*,\s*(lower))?\s*(?::([A-Za-z_][A-Za-z0-9_]*))?\s*$"#);
+    if let Some(c) = regex!(&text_re("string")).captures(line) {
+        return Some(mem(MemOp::String, mem_address(c.get(1), c.get(2)), &c[3], c.get(4), c.get(5).is_some(), false, c.get(6)));
+    }
+    if let Some(c) = regex!(&text_re("rawtext")).captures(line) {
+        return Some(mem(MemOp::RawText, mem_address(c.get(1), c.get(2)), &c[3], c.get(4), c.get(5).is_some(), false, c.get(6)));
+    }
+    if let Some(c) = regex!(r"(?i)^\.data\s+(?:\$([0-9A-Fa-f]{1,4})|([A-Za-z_][A-Za-z0-9_]*))\s*,\s*(.+?)\s*(?::([A-Za-z_][A-Za-z0-9_]*))?\s*$").captures(line) {
+        return Some(mem(MemOp::Data, mem_address(c.get(1), c.get(2)), c[3].trim(), None, false, false, c.get(4)));
+    }
+    if let Some(c) = regex!(r"(?i)^\.rawbytes\s+(?:\$([0-9A-Fa-f]{1,4})|([A-Za-z_][A-Za-z0-9_]*))\s*,\s*(.+?)\s*(?::([A-Za-z_][A-Za-z0-9_]*))?\s*$").captures(line) {
+        return Some(mem(MemOp::RawBytes, mem_address(c.get(1), c.get(2)), c[3].trim(), None, false, false, c.get(4)));
+    }
+    if let Some(c) = regex!(r#"(?i)^\.petscii\s+(?:\$([0-9A-Fa-f]{1,4})|([A-Za-z_][A-Za-z0-9_]*))\s*,\s*"([^"]*)"(?:\s*,\s*(lower))?(?:\s*,\s*(null))?\s*(?::([A-Za-z_][A-Za-z0-9_]*))?\s*$"#).captures(line) {
+        // the PETSCII address has no `$`
+        let addr = match c.get(1) {
+            Some(h) => format!("{:0>4}", h.as_str().to_uppercase()),
+            None => c[2].to_string(),
+        };
+        return Some(mem(MemOp::Petscii, addr, &c[3], None, c.get(4).is_some(), c.get(5).is_some(), c.get(6)));
+    }
+    if let Some(c) = regex!(r"(?i)^\.chardef\s+\$?([0-9A-Fa-f]{1,4})\s*,\s*(\d{1,3})\s*,\s*(.+)$").captures(line) {
+        return Some(Kind::CharDef { base: format!("${:0>4}", c[1].to_uppercase()), index: c[2].to_string(), raw: c[3].trim().to_string() });
+    }
+    if let Some(c) = regex!(r"(?i)^\.table\s+([A-Za-z_][A-Za-z0-9_]*)\s*(?:\$([0-9A-Fa-f]{1,4}))?\s*$").captures(line) {
+        return Some(Kind::Table { name: c[1].to_string(), addr: c.get(2).map(|m| format!("{:0>4}", m.as_str().to_uppercase())).unwrap_or_default() });
+    }
+    None
+}
 
 /// The fixed-code macros of `parseExpertText` (their regexes, in the JS order).
 fn simple_macro(line: &str) -> Option<Kind> {
@@ -635,6 +692,9 @@ fn simple_macro(line: &str) -> Option<Kind> {
                 0xA9, 0x00, 0xC9, 0xFF, 0xD0, 0x04, 0xA9, 0xFF, 0xC9, 0xFF,
             ],
         });
+    }
+    if let Some(c) = regex!(r#"(?i)^\.print\s+"([^"]*)"(?:\s*,\s*(lower))?\s*$"#).captures(line) {
+        return Some(Kind::Print { raw: c[1].to_string(), lower: c.get(2).is_some() });
     }
     if let Some(c) = regex!(r"(?i)^\.print_char\s+(.+)$").captures(line) {
         return Some(Kind::PrintChar { raw: c[1].trim().to_string() });
@@ -701,8 +761,9 @@ pub fn parse_expert_text(text: &str) -> Vec<Block> {
             push(&mut blocks, Kind::Org { address: org_address(c.get(1).map(|m| m.as_str()), c.get(2).map(|m| m.as_str())) });
             continue;
         }
-        if regex!(r#"(?i)^\.text\s+([A-Za-z_][A-Za-z0-9_]*|\d+)\s*,\s*([A-Za-z_][A-Za-z0-9_]*|\d+)\s*,\s*"([^"]*)"(?:\s*,\s*(lower|[0-9A-Fa-f]{1,2}))?\s*$"#).is_match(line) {
-            push(&mut blocks, Kind::Unsupported { what: "TEXT".into() });
+        if let Some(c) = regex!(r#"(?i)^\.text\s+([A-Za-z_][A-Za-z0-9_]*|\d+)\s*,\s*([A-Za-z_][A-Za-z0-9_]*|\d+)\s*,\s*"([^"]*)"(?:\s*,\s*(lower|[0-9A-Fa-f]{1,2}))?\s*$"#).captures(line) {
+            let lower = c.get(4).is_some_and(|m| m.as_str().eq_ignore_ascii_case("lower"));
+            push(&mut blocks, Kind::Text { x: c[1].to_string(), y: c[2].to_string(), raw: c[3].to_string(), lower });
             continue;
         }
         if let Some(c) = regex!(r"^([A-Za-z_][A-Za-z0-9_]*)\s*:\s*\{$").captures(line) {
@@ -765,7 +826,7 @@ pub fn parse_expert_text(text: &str) -> Vec<Block> {
             push(&mut blocks, if c[1].eq_ignore_ascii_case("push") { Kind::Push { regs } } else { Kind::Pull { regs } });
             continue;
         }
-        if let Some(kind) = simple_macro(line) {
+        if let Some(kind) = data_macro(line).or_else(|| simple_macro(line)) {
             push(&mut blocks, kind);
             continue;
         }

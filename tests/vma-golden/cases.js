@@ -281,6 +281,11 @@ const VARIANTS = {
   "set-color-range-error": "* = $1000\n    .set_bg $10\n    rts\n",
   "print-char-unknown-error": "* = $1000\n    .print_char nothing\n    rts\n",
   "wait-raster-unknown": "* = $1000\n    .wait_raster nothing\n    .turbo_set nothing, x\n    rts\n",
+  "text-data-macros": ".const COL = 5\n.const SHIFT = $80\n* = $1000\n    .text COL, 2, \"Hello World\"\n    .text 0, 24, \"lower Case\", lower\n    .text 1, 1, \"\"\n    .string $C100, \"ABC\", 80\n    .string buf, \"xyz\", lower :strlbl\n    .data $C200, $01, 2, %11 :datlbl\n    .data buf, 1, 2, 3\n    .rawbytes $C300, $AA, $BB, 255 :rawlbl\n    .rawtext $C310, \"Raw Text\", 40, lower\n    .petscii $C320, \"Hi there\", lower, null :petlbl\n    .petscii C330, \"UP\"\n    .print \"HELLO, WORLD!\"\n    .print \"mixed Case\", lower\n    .chardef $3800, 1, $FF, $81, 81, %10000001, COL, $81, $81, $FF\n    lda #<strlbl\n    lda #>petlbl\n    ldx datlbl\n    ldy rawlbl\n    rts\nbuf:\n    .fill 8, 0\n",
+  "table-macro": "* = $1000\n    lda tab1\n    lda tab2\n    rts\n    .table tab1 $2000\n    .byte 1, 2, 3\n    .table tab2\n    .byte 4, 5\n",
+  "text-in-macro": ".macro say(x, msg)\n    .text x, 0, \"{msg}\"\n    .rawbytes $C400, {x}, $FF\n.endm\n* = $1000\n    :say(3, HI)\n    rts\n",
+  "chardef-count-error": "* = $1000\n    .chardef $3800, 0, 1, 2, 3\n    rts\n",
+  "print-too-long-error": "* = $1000\n    .print \"" + "A".repeat(256) + "\"\n    rts\n",
   "macro-nested-error":".macro border(c)\n    lda #{c}\n    sta $D020\n.endm\n.macro both(c)\n    :border({c})\n.endm\n* = $1000\n    :both(3)\n    rts\n"
 };
 

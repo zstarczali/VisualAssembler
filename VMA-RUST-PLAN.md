@@ -14,16 +14,16 @@ azonos marad a mai JS fordítóéval — ezt a golden korpusz (`tests/vma-golden
 | F1 JS-hibák javítása, korpusz bővítése | ✔ kész | `8291481`, `c029369` |
 | F2 Rust mag + CLI (`crates/vma`) | ✔ kész | `c0cc68d` |
 | F3 makrók, LOOP/FOR, `.var`, PUSH/PULL | ✔ kész | `536986e` |
-| **F4 kódgeneráló makrók** | **folyamatban** — 1. adag (fix kódú makrók) kész, a 2. adag jön | — |
+| **F4 kódgeneráló makrók** | **folyamatban** — 1. adag (fix kódú makrók) és 2. adag (szöveg / adat) kész, a 3. adag jön | — |
 | F5 fájl-makrók | hátra | — |
 | F6 bekötés a VA-ba (Tauri `vma_build`, shadow mód) | hátra | — |
 | F7 WASM, a szinkron UI-elemzések | hátra | — |
 | F8 Kick előfeldolgozó (opcionális), JS mag törlése, dokumentáció | hátra | — |
 
-Golden állás (`node scripts/vma-rust-report.js`): **432 esetből 218 bájtra egyezik, 12 elvárt hiba, 202 egy még
-nem portolt direktívánál áll meg, 0 eltérés.** A legtöbb esetet blokkoló direktívák: FILE 40 (F5), TEXT 28,
-SPRITE 18, RUNTIME_IF 16, PETSCII 12, PRINT 12, MAP_COPY 10, JOYSTICK 10, REU 8, RUNTIME_LOOP 8, RAWBYTES 6,
-majd 2–4 esettel a többi.
+Golden állás (`node scripts/vma-rust-report.js`): **442 esetből 270 bájtra egyezik, 16 elvárt hiba, 156 egy még
+nem portolt direktívánál áll meg, 0 eltérés.** A legtöbb esetet blokkoló direktívák: FILE 44 (F5), SPRITE 26,
+RUNTIME_IF 18, MAP_COPY 10, JOYSTICK 10, DELAY 8, MEMCPY 8, REU 8, RUNTIME_LOOP 8, majd 2–4 esettel a többi
+(MACRO_BUFFER 2 = a 6. adag).
 
 Ellenőrzés bármikor: `npm test` (a golden Rust-ága a `crates/vma/target/{debug,release}/vma.exe`-t használja,
 ha le van fordítva), `cargo test --offline` a `crates/vma`-ban, és az esetenkénti riport fent.
@@ -36,8 +36,12 @@ ha le van fordítva), `cargo test --offline` a `crates/vma`-ban, és az esetenk�
       `simple_macro`, `Kind::Fixed` / `SetColor` / `WaitRaster` / `TurboSet` / `ExoDecrunch` / `PrintChar` /
       `PrintHex` / `Rand`; golden: `var-fixed-code-*`, `var-set-color-*`, `var-print-char-unknown-error`,
       `var-wait-raster-unknown`);
-   2. szöveg / adat: TEXT, STRING, DATA, PRINT, PETSCII, RAWBYTES, RAWTEXT (+ deferred darabok a PRG-ben),
-      CHARDEF, TABLE, a `macroLabel` címkék;
+   2. ✔ szöveg / adat: TEXT, STRING, DATA, PRINT, PETSCII, RAWBYTES, RAWTEXT (+ deferred darabok a PRG-ben),
+      CHARDEF, TABLE, a `macroLabel` címkék (`parse.rs` `data_macro`, `Kind::Text` / `Mem` (`MemOp`) / `Print` /
+      `CharDef` / `Table`; `asm.rs` `encode_text` / `encode_petscii` / `stores`, a deferred darabok az `assemble`
+      második menetében; golden: `var-text-data-macros`, `var-table-macro`, `var-text-in-macro`,
+      `var-chardef-count-error`, `var-print-too-long-error`). Makrótörzsben a csupasz paraméter mint cím
+      (auto buffer) egyelőre `MACRO_BUFFER` „nem támogatott” hiba — a 6. adag;
    3. sprite / input: SPRITE_INIT, SPRITE_POS, SPRITE_COL, SPRITE_ANIM, JOYSTICK (mindkét mód), MOUSE,
       BOX_HIT, SCORE_BCD;
    4. vezérlés / memória: futásidejű IF / ELSE / ENDIF, WHILE / ENDW, REPEAT / UNTIL, MEMCPY, MEMSET,
@@ -65,7 +69,12 @@ utána golden-frissítés):
 - a futásidejű IF / WHILE címkéi (`_if_else_…`) makrón belül nem lesznek hívásonként egyediek;
 - `.set_border` / `.set_bg` makrótörzsben paraméterrel hibát ad: a kibontás a `rawOperand`-ot helyettesíti,
   a fordító a `colorValue`-t olvassa (`var-set-color-in-macro-error`);
-- feloldatlan TURBO_SET sebesség 0-val fordul (`null` mint 0).
+- feloldatlan TURBO_SET sebesség 0-val fordul (`null` mint 0);
+- a TEXT a `charOffset`-et (`.text X, Y, "s", 80`) elemzi, de nem használja; a méret mindig a nagybetűs
+  kódolással számol (a hossz ugyanaz);
+- a DATA / RAWBYTES bájtjai címkék nélkül értékelődnek ki (`parseByteMacro(raw, base)`), a CHARDEF bájtjai hexák
+  (`129` = $129 → hiba);
+- a `macroLabel` címe `parseAddressValue` címkék nélkül: címkés célcímnél $C000.
 
 F4 közben javított JS-hiba: feloldatlan címkéjű `.wait_raster` TypeError-ral szállt el a `compileLineBytes`-ban
 (`rl.toString` `null`-on) — most `compileWaitRasterByte` hibát ad.
