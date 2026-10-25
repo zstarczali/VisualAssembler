@@ -15,6 +15,7 @@ pub mod prg;
 
 pub use asm::CompileError;
 pub use files::{DirFiles, FileProvider, NoFiles};
+pub use prg::Built;
 
 #[derive(Clone, Debug)]
 pub struct BuildOptions {
@@ -35,7 +36,12 @@ pub fn build(source: &str, options: &BuildOptions) -> Result<Vec<u8>, CompileErr
 
 /// VMA source → PRG, the files of `.incbin` / `.koala` … read through `files`.
 pub fn build_with_files(source: &str, options: &BuildOptions, files: &dyn FileProvider) -> Result<Vec<u8>, CompileError> {
+    build_full(source, options, files).map(|b| b.prg)
+}
+
+/// VMA source → PRG and its start address (what the app's Run / Build use).
+pub fn build_full(source: &str, options: &BuildOptions, files: &dyn FileProvider) -> Result<Built, CompileError> {
     let mut program = parse::parse_expert_text(source);
     files::load_assets(&mut program, files);
-    prg::build_prg(&program, options.basic_stub)
+    prg::build_prg_full(&program, options.basic_stub)
 }

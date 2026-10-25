@@ -184,16 +184,28 @@ fn relocating_loader(image: &[u8], load: i64, entry: i64) -> Option<Vec<u8>> {
     build(body, &tail)
 }
 
+/// A built program: the PRG and the address the app starts it at (`sysAddress`; None without a
+/// BASIC SYS line).
+pub struct Built {
+    pub prg: Vec<u8>,
+    pub sys_address: Option<i64>,
+}
+
 /// `_buildAutostartPrgCore` (`basic_stub` = the BASIC SYS toggle of the app).
 pub fn build_prg(program: &[Block], basic_stub: bool) -> Result<Vec<u8>, CompileError> {
+    build_prg_full(program, basic_stub).map(|b| b.prg)
+}
+
+/// `_buildAutostartPrgCore` with its `sysAddress`.
+pub fn build_prg_full(program: &[Block], basic_stub: bool) -> Result<Built, CompileError> {
     let origin = origin_of(program);
     let prg = |origin: i64, overridden: bool| -> Result<Image, CompileError> { Assembler::new(program).assemble(program, origin, overridden) };
-    if embedded_sys_address(program).is_some() {
-        return prg(origin, true).map(|i| prg_of(&i));
+    if let Some(sys) = embedded_sys_address(program) {
+        return prg(origin, true).map(|i| Built { prg: prg_of(&i), sys_address: Some(sys) });
     }
     if !basic_stub {
         let target = if origin == 0x0801 { 0xC000 } else { origin };
-        return prg(target, true).map(|i| prg_of(&i));
+        return prg(target, true).map(|i| Built { prg: prg_of(&i), sys_address: None });
     }
     let has_lower_org = program.iter().any(|b| matches!(&b.kind, Kind::Org { address } if parse_address_value(address).unwrap_or(65535.0) < 2049.0));
     let raw_origin = if origin == 0x0801 && !has_lower_org { 0x080D } else { origin };
@@ -205,7 +217,7 @@ pub fn build_prg(program: &[Block], basic_stub: bool) -> Result<Vec<u8>, Compile
     let stub = basic_sys_stub(sys);
     let stub_data = &stub[2..];
     if load < 0x0801 + stub_data.len() as i64 {
-        return relocating_loader(&image.bytes, load, sys).ok_or(CompileError {
+        return relocating_loader(&image.bytes, load, sys).map(|prg| Built { prg, sys_address: Some(0x080D) }).ok_or(CompileError {
             line: 0,
             message: format!("the image at ${:04X} overlaps the BASIC SYS line", load),
         });
@@ -215,5 +227,5 @@ pub fn build_prg(program: &[Block], basic_stub: bool) -> Result<Vec<u8>, Compile
     out.extend(stub_data);
     out.extend(std::iter::repeat(0).take(gap));
     out.extend(&image.bytes);
-    Ok(out)
+    Ok(Built { prg: out, sys_address: Some(sys) })
 }

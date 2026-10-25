@@ -1397,6 +1397,9 @@ function initPalette() {
   document.getElementById("vice-remote-monitor")?.addEventListener("change", saveUiSettings);
   writeDebugSidecarsToggle?.addEventListener("change", saveUiSettings);
   ubAsmSidecarToggle?.addEventListener("change", saveUiSettings);
+  document.getElementById("vma-engine")?.addEventListener("change", (event) => {
+    try { localStorage.setItem("c64va-vma-engine", event.target.value); } catch (_) {}
+  });
   document.getElementById("assembler-syntax")?.addEventListener("change", async (event) => {
     const select = event.target;
     const syntax = select.value === "acme" ? "acme" : "kick";
@@ -3077,6 +3080,8 @@ function _applyUiSettingsToDOM() {
   acmePath = savedUiSettings.acmePath || "";
   const assemblerSyntaxSelect = document.getElementById("assembler-syntax");
   if (assemblerSyntaxSelect) assemblerSyntaxSelect.value = assemblerSyntax;
+  const vmaEngineSelect = document.getElementById("vma-engine");
+  if (vmaEngineSelect) vmaEngineSelect.value = _vmaEngine();
   _acmeBuildButtonSync();
   const acmePathInput = document.getElementById("acme-path");
   if (acmePathInput) acmePathInput.value = acmePath;
@@ -3717,6 +3722,10 @@ function applyTranslations() {
   setText("#assembler-syntax-label", t("assemblerSyntax"));
     setText('#assembler-syntax option[value="kick"]', t("assemblerModeVma"));
     setText('#assembler-syntax option[value="acme"]', t("assemblerModeAcme"));
+    setText("#vma-engine-label", t("vmaEngine"));
+    setText('#vma-engine option[value="js"]', t("vmaEngineJs"));
+    setText('#vma-engine option[value="rust"]', t("vmaEngineRust"));
+    setText('#vma-engine option[value="shadow"]', t("vmaEngineShadow"));
     setText("#asm-output-settings-label", t("asmOutputSettings"));
     setText("#snapshot-settings-label", t("snapshotSettings"));
     if (macroSourceToggleText) macroSourceToggleText.textContent = t("macroSourceToggle");
@@ -27011,7 +27020,82 @@ async function _kickBuildPrg(build = buildAutostartPrgForEmulator) {
 
 // The PRG every build path uses: the Kick project's, or the VA build of the editor.
 async function _kickOrVaPrg() {
-  return (await _kickBuildPrg()) || buildAutostartPrgForEmulator();
+  return (await _kickBuildPrg()) || _vaBuildPrg();
+}
+
+/* VMA compiler engine (Settings → General, `c64va-vma-engine`): "js" = the app.js compiler,
+   "rust" = crates/vma through the vma_build command (the source text in, the files read by Rust),
+   "shadow" = the JS result is used, the Rust one is built too and every difference is logged
+   (console + _vaErrorLog). Without the desktop app (no vmaBuild) always JS. */
+function _vmaEngine() {
+  let v = "js";
+  try { v = localStorage.getItem("c64va-vma-engine") || "js"; } catch (_) {}
+  return v === "rust" || v === "shadow" ? v : "js";
+}
+
+// The VMA source the JS build compiles (buildAutostartPrgForEmulator's choice), its folder and
+// whether its lines are the editor's (so an error line can be shown there).
+function _vmaBuildInput() {
+  const dirOf = (p) => {
+    const s = String(p || "");
+    const i = Math.max(s.lastIndexOf("/"), s.lastIndexOf("\\"));
+    return i >= 0 ? s.slice(0, i) : "";
+  };
+  const activeTab = tabs.find(tab => tab.id === activeTabId);
+  const fileDir = dirOf(activeTab?.filePath || _expertAsmFilePath) || workingFolder || "";
+  if (expertMode) {
+    const startup = _expertGetStartupSource();
+    if (startup) return { text: startup.text, baseDir: dirOf(startup.path) || fileDir, editorLines: false };
+    const blocks = _expertGetStartupProgram();
+    if (blocks) return { text: blocks.map(_blockToExpertSourceLine).join("\n"), baseDir: fileDir, editorLines: false };
+    return { text: _expertGetSourceText(), baseDir: fileDir, editorLines: true };
+  }
+  const blocks = _expertGetStartupProgram() || program;
+  return { text: blocks.map(_blockToExpertSourceLine).join("\n"), baseDir: fileDir, editorLines: false };
+}
+
+async function _vmaRustBuild() {
+  const input = _vmaBuildInput();
+  const r = await window.electronAPI.vmaBuild(input.text, input.baseDir, basicSysToggle ? basicSysToggle.checked : true);
+  if (!r?.ok) {
+    const text = `[R${String(r?.line || 0).padStart(3, "0")}] ${r?.error || "VMA (Rust) error"}`;
+    return { ok: false, error: text, errors: [{ text, asmLine: null, sourceLine: input.editorLines && r?.line ? r.line - 1 : null }] };
+  }
+  const result = { ok: true, bytes: Uint8Array.from(r.prg || []) };
+  if (typeof r.sysAddress === "number") result.sysAddress = r.sysAddress;
+  return result;
+}
+
+async function _vaBuildPrg() {
+  const engine = window.electronAPI?.vmaBuild ? _vmaEngine() : "js";
+  if (engine === "rust") return _vmaRustBuild();
+  const js = buildAutostartPrgForEmulator();
+  if (engine === "shadow") {
+    try {
+      const rust = await _vmaRustBuild();
+      const diff = _vmaShadowDiff(js, rust);
+      if (diff) {
+        console.warn("[vma-shadow]", diff);
+        _vaLogError("vma-shadow", diff);
+      }
+    } catch (e) {
+      _vaLogError("vma-shadow", "Rust build failed: " + (e?.message || e));
+    }
+  }
+  return js;
+}
+
+// The first difference between the JS and the Rust build ("" when they agree).
+function _vmaShadowDiff(js, rust) {
+  if (!!js.ok !== !!rust.ok) return js.ok ? `JS ok, Rust: ${rust.error}` : `Rust ok, JS: ${js.error}`;
+  if (!js.ok) return "";
+  const a = js.bytes, b = rust.bytes;
+  if ((js.sysAddress ?? null) !== (rust.sysAddress ?? null)) return `SYS ${js.sysAddress} vs ${rust.sysAddress}`;
+  const n = Math.min(a.length, b.length);
+  for (let i = 0; i < n; i++) {
+    if (a[i] !== b[i]) return `${a.length} vs ${b.length} bytes, first difference at offset ${i} ($${i.toString(16)})`;
+  }
+  return a.length === b.length ? "" : `${a.length} vs ${b.length} bytes`;
 }
 
 async function _kickGotoError(file, line) {

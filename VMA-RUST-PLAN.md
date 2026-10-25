@@ -16,7 +16,7 @@ azonos marad a mai JS fordítóéval — ezt a golden korpusz (`tests/vma-golden
 | F3 makrók, LOOP/FOR, `.var`, PUSH/PULL | ✔ kész | `536986e` |
 | F4 kódgeneráló makrók | ✔ kész (a SID_PLAYER kódja az F5-tel jön) | `516d372` … |
 | F5 fájl-makrók | ✔ kész | `8fce8d3`, `7844c6e`, … |
-| **F6 bekötés a VA-ba (Tauri `vma_build`, shadow mód)** | **következik** | — |
+| **F6 bekötés a VA-ba (Tauri `vma_build`, shadow mód)** | **folyamatban** — A fázis (PRG) kész: `vma_build`, motorválasztó, shadow-napló; hátra a `BuildResult` és a UI-elemzések | — |
 | F7 WASM, a szinkron UI-elemzések | hátra | — |
 | F8 Kick előfeldolgozó (opcionális), JS mag törlése, dokumentáció | hátra | — |
 
@@ -71,10 +71,18 @@ ha le van fordítva), `cargo test --offline` a `crates/vma`-ban, és az esetenk�
    rögzített címnél `SaveAddress` + szintetikus ORG … `RestoreAddress`, a könyvtár ORG-jai kimaradnak, a
    paraméter nélküli makró csak rögzített címnél szubrutin; az include-ok makrói a makrótáblában
    (`user_macros`); golden: `var-include-*`). ✔ Kilépés: minden eset.
-3. **F6** — a crate bekötése a `src-tauri`-ba (path-függőség), Tauri `vma_build(source, base_dir, options)` a VA
-   saját resolverével (`FileProvider` a `lib.rs` `reload_*` keresési sorrendjével, resource + working folder), a
-   `BuildResult` (szegmensek, sorok, címkék, i18n-kulcsos hibák), JS-adapter, `uiSettings.vmaEngine`
-   (`js` / `rust` / `shadow`), shadow módban eltérés-napló.
+3. **F6** — ✔ A fázis: a crate a `src-tauri` path-függősége; `vma_build(source, base_dir, basic_stub)` →
+   `{ ok, prg, sysAddress }` / `{ ok: false, error, line }` (`vma::build_full`, `prg::Built`); a fájlokat az app saját
+   keresési sorrendje adja (`AppFiles`: a `reload_*` parancsokból kiemelt `asset_candidates` /
+   `include_candidates`, viselkedés változatlan). JS: Beállítások → Általános → Program `#vma-engine`
+   (`c64va-vma-engine`: `js` (alapérték) / `rust` / `shadow`; i18n `vmaEngine*` mind a 7 nyelven); minden build-út
+   a `_kickOrVaPrg` → `_vaBuildPrg`-n megy (Run / Save PRG / D64 / CRT / Exomizer / debugger), Kick projekt marad JS;
+   `_vmaBuildInput` = a `buildAutostartPrgForEmulator` választása szövegként (Expert: az indítófájl vagy az editor,
+   Block: `_blockToExpertSourceLine`), `_vmaRustBuild` (hiba `[Rnnn]` a sorral), `shadow`: a JS eredmény megy tovább,
+   a Rust is fordít, az eltérés (`_vmaShadowDiff`) a konzolba és a `_vaErrorLog`-ba; teszt `tests/vma-engine.test.js`
+   (a valódi CLI-vel is). Hátra: shadow módú próba a felhasználói projekteken a futó appban; `BuildResult`
+   (szegmensek, sorok, címkék — a memóriasáv, ASM nézet, debugger sidecar, VICE Monitor hot reload ebből), a
+   hibák i18n-kulcsai, az alapérték átállítása `rust`-ra.
 4. **F7–F8** — az 5. szakasz táblázata szerint.
 
 Közben észrevett JS-furcsaságok, amelyeket a Rust szándékosan hűen hoz (ha javítani kell, előbb a JS-ben,
@@ -215,8 +223,8 @@ javul, a manifest frissül, és utána a Rust követi.
 
 ### Crate
 
-`crates/vma/` önálló crate (Tauri-függés nélkül, függőségei a `regex` és a `serde_json`); az F6-ban a `src-tauri`
-path-függőségként húzza be. Nem workspace, hogy a `src-tauri/target` útvonalak (CI, bundle) ne változzanak.
+`crates/vma/` önálló crate (Tauri-függés nélkül, függőségei a `regex` és a `serde_json`); a `src-tauri`
+path-függőségként húzza be (F6). Nem workspace, hogy a `src-tauri/target` útvonalak (CI, bundle) ne változzanak.
 
 ```
 crates/vma/src/            (F3 állapot)

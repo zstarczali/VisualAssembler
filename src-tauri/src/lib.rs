@@ -2243,13 +2243,8 @@ fn bare_name_candidates(
     out
 }
 
-#[tauri::command]
-async fn reload_incbin_file(
-    app: AppHandle,
-    file_path: String,
-    base_dir: Option<String>,
-) -> serde_json::Value {
-    let raw_path = file_path.trim();
+/// Where `reload_incbin_file` / `reload_sid_file` (and the VMA compiler) look for a file, in order.
+fn asset_candidates(app: &AppHandle, raw_path: &str, base_dir: Option<&str>) -> Vec<PathBuf> {
     let raw_input_path = std::path::Path::new(raw_path);
     let normalized_file_path = if !raw_input_path.is_absolute() && raw_input_path.has_root() {
         raw_path.trim_start_matches(['/', '\\']).to_string()
@@ -2262,7 +2257,7 @@ async fn reload_incbin_file(
     if input_path.is_absolute() {
         candidates.push(input_path.to_path_buf());
     } else {
-        if let Some(base) = base_dir.as_deref() {
+        if let Some(base) = base_dir {
             let base = base.trim();
             if !base.is_empty() {
                 candidates.push(std::path::Path::new(base).join(&normalized_file_path));
@@ -2275,18 +2270,150 @@ async fn reload_incbin_file(
             .unwrap_or(true);
 
         if is_bare_file_name {
-            if let Ok(p) = resolve_resource_file(&app, &format!("samples/{}", normalized_file_path))
+            if let Ok(p) = resolve_resource_file(app, &format!("samples/{}", normalized_file_path))
             {
                 candidates.push(p);
             }
         }
 
-        if let Ok(p) = resolve_resource_file(&app, &normalized_file_path) {
+        if let Ok(p) = resolve_resource_file(app, &normalized_file_path) {
             candidates.push(p);
         }
     }
 
-    push_bare_name_fallbacks(&app, &mut candidates, raw_path, base_dir.as_deref());
+    push_bare_name_fallbacks(app, &mut candidates, raw_path, base_dir);
+    candidates
+}
+
+/// Where `reload_include_file` (and the VMA compiler's `.include`) look for a file, in order.
+fn include_candidates(app: &AppHandle, raw_path: &str, base_dir: Option<&str>) -> Vec<PathBuf> {
+    let raw_input_path = std::path::Path::new(raw_path);
+    let normalized_file_path = if !raw_input_path.is_absolute() && raw_input_path.has_root() {
+        raw_path.trim_start_matches(['/', '\\']).to_string()
+    } else {
+        raw_path.to_string()
+    };
+    let input_path = std::path::Path::new(&normalized_file_path);
+    let mut candidates: Vec<PathBuf> = Vec::new();
+
+    if input_path.is_absolute() {
+        candidates.push(input_path.to_path_buf());
+        // Cross-platform fallback: if the stored absolute path is from a different OS
+        // (e.g. a Windows path opened on macOS), try resolving by filename only.
+        if let Some(file_name) = input_path.file_name() {
+            let bare = file_name.to_string_lossy();
+            let wf = {
+                let cfg = read_config(app);
+                get_working_folder_path(&cfg)
+            };
+            if let Some(folder) = wf.as_ref() {
+                candidates.push(folder.join(bare.as_ref()));
+            }
+            if let Ok(p) = resolve_resource_file(app, &format!("samples/{}", bare)) {
+                candidates.push(p);
+            }
+        }
+    } else {
+        if let Some(base) = base_dir {
+            let base = base.trim();
+            if !base.is_empty() {
+                candidates.push(std::path::Path::new(base).join(&normalized_file_path));
+            }
+        }
+
+        let working_folder = {
+            let cfg = read_config(app);
+            get_working_folder_path(&cfg)
+        };
+        if let Some(folder) = working_folder.as_ref() {
+            candidates.push(folder.join(&normalized_file_path));
+        }
+
+        let is_bare_file_name = input_path
+            .parent()
+            .map(|p| p.as_os_str().is_empty())
+            .unwrap_or(true);
+
+        if is_bare_file_name {
+            if input_path.extension().is_none() {
+                let mut guessed: Vec<PathBuf> = Vec::new();
+                if let Some(base) = base_dir {
+                    let base = base.trim();
+                    if !base.is_empty() {
+                        let base_path = std::path::Path::new(base);
+                        guessed.push(base_path.join(format!("{}.json", normalized_file_path)));
+                        guessed.push(base_path.join(format!("{}.asm", normalized_file_path)));
+                        guessed.push(base_path.join(format!("{}.inc", normalized_file_path)));
+                        guessed.push(base_path.join(format!("{}.s", normalized_file_path)));
+                    }
+                }
+                if let Some(folder) = working_folder.as_ref() {
+                    guessed.push(folder.join(format!("{}.json", normalized_file_path)));
+                    guessed.push(folder.join(format!("{}.asm", normalized_file_path)));
+                    guessed.push(folder.join(format!("{}.inc", normalized_file_path)));
+                    guessed.push(folder.join(format!("{}.s", normalized_file_path)));
+                }
+                candidates.extend(guessed);
+            }
+            if let Ok(p) = resolve_resource_file(app, &format!("samples/{}", normalized_file_path))
+            {
+                candidates.push(p);
+            }
+            if input_path.extension().is_none() {
+                if let Ok(p) =
+                    resolve_resource_file(app, &format!("samples/{}.json", normalized_file_path))
+                {
+                    candidates.push(p);
+                }
+                if let Ok(p) =
+                    resolve_resource_file(app, &format!("samples/{}.asm", normalized_file_path))
+                {
+                    candidates.push(p);
+                }
+                if let Ok(p) =
+                    resolve_resource_file(app, &format!("samples/{}.inc", normalized_file_path))
+                {
+                    candidates.push(p);
+                }
+                if let Ok(p) =
+                    resolve_resource_file(app, &format!("samples/{}.s", normalized_file_path))
+                {
+                    candidates.push(p);
+                }
+            }
+        }
+
+        if let Ok(p) = resolve_resource_file(app, &normalized_file_path) {
+            candidates.push(p);
+        }
+        if input_path.extension().is_none() {
+            if let Ok(p) = resolve_resource_file(app, &format!("{}.json", normalized_file_path)) {
+                candidates.push(p);
+            }
+            if let Ok(p) = resolve_resource_file(app, &format!("{}.asm", normalized_file_path)) {
+                candidates.push(p);
+            }
+            if let Ok(p) = resolve_resource_file(app, &format!("{}.inc", normalized_file_path)) {
+                candidates.push(p);
+            }
+            if let Ok(p) = resolve_resource_file(app, &format!("{}.s", normalized_file_path)) {
+                candidates.push(p);
+            }
+        }
+    }
+
+    push_bare_name_fallbacks(app, &mut candidates, raw_path, base_dir);
+    candidates
+}
+
+#[tauri::command]
+async fn reload_incbin_file(
+    app: AppHandle,
+    file_path: String,
+    base_dir: Option<String>,
+) -> serde_json::Value {
+    let raw_path = file_path.trim();
+    let candidates = asset_candidates(&app, raw_path, base_dir.as_deref());
     let resolved = candidates.into_iter().find(|p| p.exists());
     let Some(resolved) = resolved else {
         return serde_json::json!({ "error": format!("The system cannot find the file specified. (os error 2): {}", file_path) });
@@ -2378,43 +2505,7 @@ async fn reload_sid_file(
     base_dir: Option<String>,
 ) -> serde_json::Value {
     let raw_path = file_path.trim();
-    let raw_input_path = std::path::Path::new(raw_path);
-    let normalized_file_path = if !raw_input_path.is_absolute() && raw_input_path.has_root() {
-        raw_path.trim_start_matches(['/', '\\']).to_string()
-    } else {
-        raw_path.to_string()
-    };
-    let input_path = std::path::Path::new(&normalized_file_path);
-    let mut candidates: Vec<PathBuf> = Vec::new();
-
-    if input_path.is_absolute() {
-        candidates.push(input_path.to_path_buf());
-    } else {
-        if let Some(base) = base_dir.as_deref() {
-            let base = base.trim();
-            if !base.is_empty() {
-                candidates.push(std::path::Path::new(base).join(&normalized_file_path));
-            }
-        }
-
-        let is_bare_file_name = input_path
-            .parent()
-            .map(|p| p.as_os_str().is_empty())
-            .unwrap_or(true);
-
-        if is_bare_file_name {
-            if let Ok(p) = resolve_resource_file(&app, &format!("samples/{}", normalized_file_path))
-            {
-                candidates.push(p);
-            }
-        }
-
-        if let Ok(p) = resolve_resource_file(&app, &normalized_file_path) {
-            candidates.push(p);
-        }
-    }
-
-    push_bare_name_fallbacks(&app, &mut candidates, raw_path, base_dir.as_deref());
+    let candidates = asset_candidates(&app, raw_path, base_dir.as_deref());
     let resolved = candidates.into_iter().find(|p| p.exists());
     let Some(resolved) = resolved else {
         return serde_json::json!({ "error": format!("The system cannot find the file specified. (os error 2): {}", file_path) });
@@ -2517,122 +2608,7 @@ async fn reload_include_file(
     base_dir: Option<String>,
 ) -> serde_json::Value {
     let raw_path = file_path.trim();
-    let raw_input_path = std::path::Path::new(raw_path);
-    let normalized_file_path = if !raw_input_path.is_absolute() && raw_input_path.has_root() {
-        raw_path.trim_start_matches(['/', '\\']).to_string()
-    } else {
-        raw_path.to_string()
-    };
-    let input_path = std::path::Path::new(&normalized_file_path);
-    let mut candidates: Vec<PathBuf> = Vec::new();
-
-    if input_path.is_absolute() {
-        candidates.push(input_path.to_path_buf());
-        // Cross-platform fallback: if the stored absolute path is from a different OS
-        // (e.g. a Windows path opened on macOS), try resolving by filename only.
-        if let Some(file_name) = input_path.file_name() {
-            let bare = file_name.to_string_lossy();
-            let wf = {
-                let cfg = read_config(&app);
-                get_working_folder_path(&cfg)
-            };
-            if let Some(folder) = wf.as_ref() {
-                candidates.push(folder.join(bare.as_ref()));
-            }
-            if let Ok(p) = resolve_resource_file(&app, &format!("samples/{}", bare)) {
-                candidates.push(p);
-            }
-        }
-    } else {
-        if let Some(base) = base_dir.as_deref() {
-            let base = base.trim();
-            if !base.is_empty() {
-                candidates.push(std::path::Path::new(base).join(&normalized_file_path));
-            }
-        }
-
-        let working_folder = {
-            let cfg = read_config(&app);
-            get_working_folder_path(&cfg)
-        };
-        if let Some(folder) = working_folder.as_ref() {
-            candidates.push(folder.join(&normalized_file_path));
-        }
-
-        let is_bare_file_name = input_path
-            .parent()
-            .map(|p| p.as_os_str().is_empty())
-            .unwrap_or(true);
-
-        if is_bare_file_name {
-            if input_path.extension().is_none() {
-                let mut guessed: Vec<PathBuf> = Vec::new();
-                if let Some(base) = base_dir.as_deref() {
-                    let base = base.trim();
-                    if !base.is_empty() {
-                        let base_path = std::path::Path::new(base);
-                        guessed.push(base_path.join(format!("{}.json", normalized_file_path)));
-                        guessed.push(base_path.join(format!("{}.asm", normalized_file_path)));
-                        guessed.push(base_path.join(format!("{}.inc", normalized_file_path)));
-                        guessed.push(base_path.join(format!("{}.s", normalized_file_path)));
-                    }
-                }
-                if let Some(folder) = working_folder.as_ref() {
-                    guessed.push(folder.join(format!("{}.json", normalized_file_path)));
-                    guessed.push(folder.join(format!("{}.asm", normalized_file_path)));
-                    guessed.push(folder.join(format!("{}.inc", normalized_file_path)));
-                    guessed.push(folder.join(format!("{}.s", normalized_file_path)));
-                }
-                candidates.extend(guessed);
-            }
-            if let Ok(p) = resolve_resource_file(&app, &format!("samples/{}", normalized_file_path))
-            {
-                candidates.push(p);
-            }
-            if input_path.extension().is_none() {
-                if let Ok(p) =
-                    resolve_resource_file(&app, &format!("samples/{}.json", normalized_file_path))
-                {
-                    candidates.push(p);
-                }
-                if let Ok(p) =
-                    resolve_resource_file(&app, &format!("samples/{}.asm", normalized_file_path))
-                {
-                    candidates.push(p);
-                }
-                if let Ok(p) =
-                    resolve_resource_file(&app, &format!("samples/{}.inc", normalized_file_path))
-                {
-                    candidates.push(p);
-                }
-                if let Ok(p) =
-                    resolve_resource_file(&app, &format!("samples/{}.s", normalized_file_path))
-                {
-                    candidates.push(p);
-                }
-            }
-        }
-
-        if let Ok(p) = resolve_resource_file(&app, &normalized_file_path) {
-            candidates.push(p);
-        }
-        if input_path.extension().is_none() {
-            if let Ok(p) = resolve_resource_file(&app, &format!("{}.json", normalized_file_path)) {
-                candidates.push(p);
-            }
-            if let Ok(p) = resolve_resource_file(&app, &format!("{}.asm", normalized_file_path)) {
-                candidates.push(p);
-            }
-            if let Ok(p) = resolve_resource_file(&app, &format!("{}.inc", normalized_file_path)) {
-                candidates.push(p);
-            }
-            if let Ok(p) = resolve_resource_file(&app, &format!("{}.s", normalized_file_path)) {
-                candidates.push(p);
-            }
-        }
-    }
-
-    push_bare_name_fallbacks(&app, &mut candidates, raw_path, base_dir.as_deref());
+    let candidates = include_candidates(&app, raw_path, base_dir.as_deref());
     let resolved = candidates.into_iter().find(|p| p.exists());
     let Some(resolved) = resolved else {
         return serde_json::json!({ "error": format!("The system cannot find the file specified. (os error 2): {}", file_path) });
@@ -4587,6 +4563,36 @@ async fn save_ub_file(app: AppHandle, path: String, content: String) -> serde_js
     }
 }
 
+/// The files of the VMA compiler: the app's own lookup (`asset_candidates` / `include_candidates`).
+struct AppFiles<'a> {
+    app: &'a AppHandle,
+    base_dir: Option<String>,
+}
+
+impl vma::FileProvider for AppFiles<'_> {
+    fn load(&self, name: &str, exts: &[&str]) -> Result<(PathBuf, Vec<u8>), String> {
+        let raw_path = name.trim();
+        let candidates = if exts.is_empty() {
+            asset_candidates(self.app, raw_path, self.base_dir.as_deref())
+        } else {
+            include_candidates(self.app, raw_path, self.base_dir.as_deref())
+        };
+        let resolved = candidates.into_iter().find(|p| p.exists()).ok_or_else(|| format!("The system cannot find the file specified. (os error 2): {name}"))?;
+        fs::read(&resolved).map(|b| (resolved, b)).map_err(|e| e.to_string())
+    }
+}
+
+/// VMA source → PRG with the Rust compiler (crates/vma), the files found as the reload commands find them.
+#[tauri::command]
+fn vma_build(app: AppHandle, source: String, base_dir: Option<String>, basic_stub: Option<bool>) -> serde_json::Value {
+    let options = vma::BuildOptions { basic_stub: basic_stub.unwrap_or(true) };
+    let files = AppFiles { app: &app, base_dir };
+    match vma::build_full(&source, &options, &files) {
+        Ok(built) => serde_json::json!({ "ok": true, "prg": built.prg, "sysAddress": built.sys_address }),
+        Err(e) => serde_json::json!({ "ok": false, "error": e.message, "line": e.line + 1 }),
+    }
+}
+
 #[tauri::command]
 fn compile_ultimate_basic(
     source: String,
@@ -5699,6 +5705,7 @@ pub fn run() {
             choose_ub_file,
             save_ub_file,
             compile_ultimate_basic,
+            vma_build,
             choose_proj_member,
             choose_proj_folder,
             load_sample,
