@@ -665,6 +665,50 @@ impl Assembler {
                 }
                 continue;
             }
+            if let Kind::Include { addr, blocks, .. } = &b.kind {
+                out.push((b.clone(), Meta { header: true, ..Meta::default() }));
+                if blocks.is_empty() {
+                    continue;
+                }
+                let fixed = !addr.is_empty();
+                let mk = |kind: Kind| (Block { kind, line: b.line }, Meta::default());
+                if fixed {
+                    out.push(mk(Kind::SaveAddress));
+                    out.push(mk(Kind::Org { address: format!("{:0>4}", addr.to_uppercase()) }));
+                }
+                // the library's own ORGs mean nothing here; its parameter-less macros become
+                // subroutines only at a fixed address
+                let mut lib: Option<bool> = None;
+                for sub in blocks {
+                    match &sub.kind {
+                        Kind::Org { .. } => continue,
+                        Kind::MacroDefStart { name, params } => {
+                            let has_params = !params.trim().is_empty();
+                            if fixed && !has_params && !name.is_empty() {
+                                out.push(mk(Kind::Label { name: name.clone(), offset: 0, kick_scope: false }));
+                            }
+                            lib = Some(has_params);
+                            continue;
+                        }
+                        Kind::MacroDefEnd => {
+                            lib = None;
+                            continue;
+                        }
+                        _ => {}
+                    }
+                    if let Some(has_params) = lib {
+                        if fixed && !has_params {
+                            out.push((sub.clone(), Meta::default()));
+                        }
+                        continue;
+                    }
+                    out.push((sub.clone(), Meta::default()));
+                }
+                if fixed {
+                    out.push(mk(Kind::RestoreAddress));
+                }
+                continue;
+            }
             let (name, args) = match &b.kind {
                 Kind::Invoke { name, args } => (name.clone(), args.clone()),
                 Kind::Instr { mnem, .. } if self.macros.contains_key(mnem) => (mnem.clone(), String::new()),
@@ -848,6 +892,7 @@ impl Assembler {
         }
 
         let mut cursor = origin;
+        let mut saved: Option<i64> = None;
         let mut lines = Vec::new();
         for (i, (block, meta)) in expanded.into_iter().enumerate() {
             let mut size = if meta.header { 0 } else { self.size(&block) };
@@ -857,6 +902,15 @@ impl Assembler {
             if skipped[i] {
                 lines.push(Line { block, address: cursor, size: 0, skipped: true, meta });
                 continue;
+            }
+            match &block.kind {
+                Kind::SaveAddress => saved = Some(cursor),
+                Kind::RestoreAddress => {
+                    if let Some(s) = saved.take() {
+                        cursor = s;
+                    }
+                }
+                _ => {}
             }
             if let Kind::Table { addr, .. } = &block.kind {
                 if let Some(a) = (!addr.is_empty()).then(|| parse_address_value(addr)).flatten() {
@@ -1912,6 +1966,9 @@ impl Assembler {
         for b in program {
             match &b.kind {
                 Kind::Comment { error: Some(e), .. } => return Err(CompileError { line: b.line, message: e.clone() }),
+                Kind::Include { file, .. } if file.trim().is_empty() => {
+                    return Err(CompileError { line: b.line, message: "INCLUDE: no file given".into() });
+                }
                 Kind::Sid { file, .. } if file.trim().is_empty() => {
                     return Err(CompileError { line: b.line, message: "SID: no file given".into() });
                 }
@@ -1941,10 +1998,11 @@ impl Assembler {
         for line in &lines {
             match line.block.kind {
                 Kind::Label { .. } | Kind::Comment { error: None, .. } | Kind::Blank => continue,
-                Kind::Org { .. } => {
+                Kind::Org { .. } | Kind::RestoreAddress => {
                     sections.push((line.address, Vec::new()));
                     continue;
                 }
+                Kind::Include { .. } | Kind::SaveAddress => continue,
                 _ => {}
             }
             let bytes = self.compile_line(line).map_err(|message| CompileError { line: line.block.line, message })?;
@@ -2065,8 +2123,17 @@ fn scope_local_labels(program: &mut [(Block, Meta)]) {
     }
 }
 
-/// `parseUserMacros`: name → parameters + the blocks between `.macro` and `.endm`.
-fn user_macros(program: &[Block]) -> HashMap<String, Macro> {
+/// `parseUserMacros`: name → parameters + the blocks between `.macro` and `.endm`, over the
+/// program with every include's blocks after it.
+fn user_macros(top: &[Block]) -> HashMap<String, Macro> {
+    let mut all: Vec<Block> = Vec::new();
+    for b in top {
+        all.push(b.clone());
+        if let Kind::Include { blocks, .. } = &b.kind {
+            all.extend(blocks.iter().cloned());
+        }
+    }
+    let program = &all[..];
     let mut macros = HashMap::new();
     let mut start: Option<(usize, String, String)> = None;
     for (i, b) in program.iter().enumerate() {

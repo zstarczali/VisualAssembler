@@ -318,6 +318,11 @@ const VARIANTS = {
   "level-row-no-level-error": "* = $1000\n    .level_row $FB, $FD\n    rts\n",
   "level-row-syntax-error": '* = $1000\n    .level "level.bin"\n    .level_row $FB\n    rts\n',
   "level-labels": '* = $1000\n    .level "level.bin", $4000\n    lda #<LEVEL_END\n    ldx #LEVEL_W\n    ldy #LEVEL_OBJ_COUNT\n    .word LEVEL_SLOT_LO, LEVEL_COL_OFS, LEVEL_SIZE, LEVEL_MAX_X\n    .delay 1\n    rts\n',
+  "include-json-library": '* = $1000\n    .include "macros-new.json", $5000\n    jsr BitmapOn\n    :SetColor(1, 0)\n    :PlotPixel(10, 20)\n    jsr DisplayOn\n    rts\n',
+  "include-json-inline": '* = $1000\n    .include "macros-new"\n    :SetColor(5, 6)\n    rts\n',
+  "include-asm-data": '* = $1000\n    lda cube_edges\n    rts\n    .include "data.asm"\nend:\n    ldx frame_table\n',
+  "include-missing-ignored": '* = $1000\n    .include "no-such-library.asm"\n    rts\n',
+  "include-empty-name-error": '* = $1000\n    .include ""\n    rts\n',
   "macro-nested-error":".macro border(c)\n    lda #{c}\n    sta $D020\n.endm\n.macro both(c)\n    :border({c})\n.endm\n* = $1000\n    :both(3)\n    rts\n"
 };
 

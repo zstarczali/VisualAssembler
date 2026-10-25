@@ -126,6 +126,11 @@ pub enum Kind {
     IncBin { file: String, addr: String, koala: bool, level: bool, bytes: Vec<u8>, error: Option<String> },
     /// `.level_row dst, col[, color]`: `syntax_ok` = `_levelRowParse` of the source line
     LevelRow { raw: String, syntax_ok: bool },
+    /// `.include "f"[, $addr]`: `blocks` filled by `files::load_assets`; `addr` = hex digits or empty
+    Include { file: String, addr: String, blocks: Vec<Block> },
+    /// the address cursor saved before / restored after an include at its own address
+    SaveAddress,
+    RestoreAddress,
     /// `.sid "f.sid"[, $addr]`: the PSID header fields and data filled by `files::load_assets`
     Sid { file: String, custom: String, load: u16, init: u16, play: u16, bytes: Vec<u8>, error: Option<String> },
     SidPlayer { song: String, raster: String },
@@ -628,7 +633,6 @@ fn index_suffix(mode: Mode) -> &'static str {
 
 /// The macro directives of the JS compiler that are not ported yet (by their JS regex start).
 const UNPORTED: &[(&str, &str)] = &[
-    (r"(?i)^\.(include)\b", "FILE"),
 ];
 
 /// `$hhhh` (4 digits) or a label: the address field of STRING / RAWTEXT / DATA / RAWBYTES.
@@ -660,6 +664,11 @@ fn size_token(raw: &str) -> String {
 
 /// The memory / system macros of `parseExpertText` (in the JS order).
 fn memory_macro(line: &str) -> Option<Kind> {
+    if let Some(c) = regex!(r#"(?i)^\.include\s+"([^"]*)"\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*$"#).captures(line) {
+        let name = c[1].to_string();
+        let file = if name.is_empty() || regex!(r"(?i)\.(json|inc|asm|s)$").is_match(&name) { name } else { format!("{name}.json") };
+        return Some(Kind::Include { file, addr: c.get(2).map(|m| m.as_str().to_uppercase()).unwrap_or_default(), blocks: Vec::new() });
+    }
     if let Some(c) = regex!(r#"(?i)^\.sid\s+"([^"]*)"\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*$"#).captures(line) {
         let custom = c.get(2).map(|m| m.as_str().to_uppercase()).unwrap_or_default();
         return Some(Kind::Sid { file: c[1].to_string(), custom, load: 0, init: 0, play: 0, bytes: Vec::new(), error: None });

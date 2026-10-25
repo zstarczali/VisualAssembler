@@ -15,13 +15,13 @@ azonos marad a mai JS fordítóéval — ezt a golden korpusz (`tests/vma-golden
 | F2 Rust mag + CLI (`crates/vma`) | ✔ kész | `c0cc68d` |
 | F3 makrók, LOOP/FOR, `.var`, PUSH/PULL | ✔ kész | `536986e` |
 | F4 kódgeneráló makrók | ✔ kész (a SID_PLAYER kódja az F5-tel jön) | `516d372` … |
-| **F5 fájl-makrók** | **folyamatban** — FileProvider, INCBIN / KOALA, SID + SID_PLAYER, LEVEL / LEVEL_ROW kész; INCLUDE hátra | — |
-| F6 bekötés a VA-ba (Tauri `vma_build`, shadow mód) | hátra | — |
+| F5 fájl-makrók | ✔ kész | `8fce8d3`, `7844c6e`, … |
+| **F6 bekötés a VA-ba (Tauri `vma_build`, shadow mód)** | **következik** | — |
 | F7 WASM, a szinkron UI-elemzések | hátra | — |
 | F8 Kick előfeldolgozó (opcionális), JS mag törlése, dokumentáció | hátra | — |
 
-Golden állás (`node scripts/vma-rust-report.js`): **506 esetből 430 bájtra egyezik, 56 elvárt hiba, 20 a még
-nem portolt INCLUDE-nál áll meg, 0 eltérés.**
+Golden állás (`node scripts/vma-rust-report.js`): **mind a 516 eset rendben: 458 bájtra egyezik, 58 elvárt hiba
+(a Rust is hibát ad), 0 nem portolt, 0 eltérés.** A Rust fordító a teljes VMA nyelvet és minden makrót fordítja.
 
 Ellenőrzés bármikor: `npm test` (a golden Rust-ága a `crates/vma/target/{debug,release}/vma.exe`-t használja,
 ha le van fordítva), `cargo test --offline` a `crates/vma`-ban, és az esetenkénti riport fent.
@@ -65,8 +65,17 @@ ha le van fordítva), `cargo test --offline` a `crates/vma`-ban, és az esetenk�
    `SID_PLAY` az egyedi címmel eltolva, a deferred darab a betöltési címen) + SID_PLAYER (`sid_player_bytes`);
    ✔ LEVEL / LEVEL_ROW (`level.rs`: `read_bin_meta` = `_vaReadBinWithMeta`, `level_build` = `_levelBuild` a
    címkéivel, `level_row_bytes`; a crate második függősége a `serde_json`; golden: `var-sid-*`, `var-level-*`).
-   Hátra: INCLUDE (`.json` blokk-program és `.asm`, a benne definiált makrók is). Kilépés: minden eset.
-3. **F6–F8** — az 5. szakasz táblázata szerint.
+   ✔ INCLUDE (`Kind::Include`, `files::include_blocks`: `.asm` / `.inc` / `.s` → `parse_expert_text`, `.json` → a
+   nyers blokkmezőkből közvetlenül `Kind` (`json_block`: ORG, LABEL, BYTE, CONST, COMMENT, BLANK, MACRO / ENDM,
+   utasítás — más blokkfajta `JSON_INCLUDE_BLOCK` „nem támogatott”); a layout a `getProgramLayout` szerint bont ki:
+   rögzített címnél `SaveAddress` + szintetikus ORG … `RestoreAddress`, a könyvtár ORG-jai kimaradnak, a
+   paraméter nélküli makró csak rögzített címnél szubrutin; az include-ok makrói a makrótáblában
+   (`user_macros`); golden: `var-include-*`). ✔ Kilépés: minden eset.
+3. **F6** — a crate bekötése a `src-tauri`-ba (path-függőség), Tauri `vma_build(source, base_dir, options)` a VA
+   saját resolverével (`FileProvider` a `lib.rs` `reload_*` keresési sorrendjével, resource + working folder), a
+   `BuildResult` (szegmensek, sorok, címkék, i18n-kulcsos hibák), JS-adapter, `uiSettings.vmaEngine`
+   (`js` / `rust` / `shadow`), shadow módban eltérés-napló.
+4. **F7–F8** — az 5. szakasz táblázata szerint.
 
 Közben észrevett JS-furcsaságok, amelyeket a Rust szándékosan hűen hoz (ha javítani kell, előbb a JS-ben,
 utána golden-frissítés):
@@ -97,7 +106,9 @@ utána golden-frissítés):
   fölé kerül, kihagyott (`.if 0`) DELAY esetén is;
 - a MEMCPY / MEMSET mérete (`getInstructionSize`) címkék nélkül számol, a bájtok címkékkel;
 - a makró auto buffere DATA / RAWBYTES-nél 0 bájtot foglal (a darab mégis oda kerül, a következő buffer
-  felülírhatja), a kihagyott sorok buffere is kap címet.
+  felülírhatja), a kihagyott sorok buffere is kap címet;
+- a nem található include nem hiba (a fordítás nélküle megy tovább), az include-olt fájl saját `.incbin` /
+  `.sid` / `.include` direktíváit a VA nem tölti be (üres adat), és a benne lévő makróhívás nincs kibontva.
 
 F4 közben javított JS-hibák (mindkettő TypeError volt `null.toString`-on a `compileLineBytes`-ban): feloldatlan
 címkéjű `.wait_raster` — most `compileWaitRasterByte`; feloldatlan `.sprite_init` adatlap — most
