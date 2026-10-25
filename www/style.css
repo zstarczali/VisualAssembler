@@ -5383,18 +5383,19 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
 
 /* ── Compile Error Dialog ──────────────────────────────────────── */
 .confirm-dialog {
-  border: none;
-  border-radius: 3px;
+  /* the About box frame */
+  border: 1px solid color-mix(in srgb, var(--text) 22%, var(--panel));
+  border-radius: 4px;
   padding: 0;
   background: var(--panel);
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 24px 64px color-mix(in srgb, black 30%, transparent);
   min-width: 320px;
   max-width: 420px;
   width: 90vw;
 }
 
 .confirm-dialog::backdrop {
-  background: rgba(0, 0, 0, 0.5);
+  background: color-mix(in srgb, black 55%, transparent);
   -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
 }
@@ -5425,25 +5426,26 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
   border-radius: 4px;
   padding: 0;
   background: var(--panel);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.30);
+  box-shadow: 0 24px 64px color-mix(in srgb, black 30%, transparent);
   min-width: 300px;
   max-width: 720px;
   width: 88vw;
 }
 
 .app-confirm-dialog {
+  /* the About box frame */
   border: 1px solid color-mix(in srgb, var(--text) 22%, var(--panel));
   border-radius: 4px;
   padding: 0;
   background: var(--panel);
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 24px 64px color-mix(in srgb, black 30%, transparent);
   min-width: 300px;
   max-width: 420px;
   width: 90vw;
 }
 
 .app-confirm-dialog::backdrop {
-  background: rgba(0, 0, 0, 0.45);
+  background: color-mix(in srgb, black 55%, transparent);
   -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
 }
@@ -5533,7 +5535,7 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
 .update-progress-text { font-size: 0.8rem; color: var(--secondary); }
 
 .compile-error-dialog::backdrop {
-  background: rgba(0, 0, 0, 0.5);
+  background: color-mix(in srgb, black 55%, transparent);
   -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
 }
@@ -5609,11 +5611,12 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
 
 /* ── Build info dialog ────────────────────────────────────────────────────── */
 .build-info-dialog {
-  border: none;
+  /* the About box frame */
+  border: 1px solid color-mix(in srgb, var(--text) 22%, var(--panel));
   border-radius: 4px;
   padding: 0;
   background: var(--panel);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 24px 64px color-mix(in srgb, black 30%, transparent);
   min-width: 360px;
   max-width: 1100px;
   width: 92vw;
@@ -6054,11 +6057,12 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
 }
 
 .work-progress-dialog {
-  border: none;
-  border-radius: 3px;
+  /* the About box frame */
+  border: 1px solid color-mix(in srgb, var(--text) 22%, var(--panel));
+  border-radius: 4px;
   padding: 0;
   background: var(--panel);
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 24px 64px color-mix(in srgb, black 30%, transparent);
   min-width: 340px;
   max-width: 420px;
   width: 88vw;
@@ -6114,11 +6118,12 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
 
 /* ── D64 Export Dialog ────────────────────────────────────────────── */
 .d64-export-dialog {
-  border: none;
-  border-radius: 3px;
+  /* the About box frame */
+  border: 1px solid color-mix(in srgb, var(--text) 22%, var(--panel));
+  border-radius: 4px;
   padding: 0;
   background: var(--panel);
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 24px 64px color-mix(in srgb, black 30%, transparent);
   min-width: 480px;
   max-width: 720px;
   width: 90vw;
@@ -6409,7 +6414,7 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
 [data-theme="light"] .splash-panel,
 [data-theme="starlight"] .splash-panel,
 [data-theme="beige"] .splash-panel,
-:is([data-theme="light"], [data-theme="starlight"], [data-theme="beige"]) :is(.whats-new-dialog, .update-dialog, .knowledge-base-dialog, .hardware-settings-dialog, .pal-ed-dialog, .compile-error-dialog, .app-confirm-dialog) {
+:is([data-theme="light"], [data-theme="starlight"], [data-theme="beige"]) :is(.whats-new-dialog, .update-dialog, .knowledge-base-dialog, .hardware-settings-dialog, .pal-ed-dialog, .compile-error-dialog, .app-confirm-dialog, .confirm-dialog, .build-info-dialog, .work-progress-dialog, .d64-export-dialog) {
   border-color: color-mix(in srgb, var(--text) 45%, var(--panel));
 }
 
