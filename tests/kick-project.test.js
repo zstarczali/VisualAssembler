@@ -176,19 +176,6 @@ test("a Kick-compatible project keeps the VA macros and directives working", () 
   assert.deepEqual(mixed.bytes, pure.bytes);
 });
 
-test("the project panel switch turns Kick compatibility on and off", async () => {
-  const saved = [];
-  app.window.electronAPI = { saveProjFile: async (p, c) => { saved.push(JSON.parse(c)); return { ok: true, filePath: p }; } };
-  app.run(`_expertProjectData = { name: "p", files: [{ type: "file", name: "main.asm", path: "main.asm" }], _projPath: "/mem/p.proj", startupFile: "main.asm" };`);
-  await app.run("_kickToggleProject()");
-  assert.equal(app.run("_expertProjectData.kick"), true);
-  assert.equal(saved.at(-1).kick, true);
-  assert.equal(saved.at(-1).assembler, "vma");
-  await app.run("_kickToggleProject()");
-  assert.equal(app.run("_expertProjectData.kick"), undefined);
-  assert.equal(saved.at(-1).kick, undefined);
-});
-
 test("Kick: * as the program counter, ; between statements, VA ; comments", () => {
   const { text, errors } = preprocess({
     "main.asm": "* = $1000\nloop: jmp *\n bne *-1\n lda #1; sta $d020 ; VA comment\n.var a = 2; .var b = a * 3; .byte b\n.pseudopc $0400 {\n jmp *\n}\n"

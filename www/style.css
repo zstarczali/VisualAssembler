@@ -4834,6 +4834,11 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
   tab-size: 4;
 }
 
+/* A long disassembly in chunks (_setDisasmLines): off-screen chunks are not laid out */
+.dsm-chunk {
+  content-visibility: auto;
+}
+
 /* ── Expert Project Panel ────────────────────────────────── */
 .expert-project-panel {
   width: 220px;
@@ -4844,7 +4849,9 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
   overflow: visible;
   background: color-mix(in srgb, var(--panel-strong) 40%, transparent);
   position: relative;
-  z-index: 2;
+  /* above the editor's own layers (line numbers 2 … find bar 20): its header tooltips reach over
+     the editor and were painted under the line numbers */
+  z-index: 21;
 }
 
 .expert-project-panel[hidden] { display: none; }
@@ -4924,7 +4931,11 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
   content: attr(aria-label);
   position: absolute;
   top: calc(100% + 6px);
-  right: 0;
+  /* the project panels sit at the left edge: grown to the right (over the editor), a long text
+     was cut off at the panel's left edge */
+  left: 0;
+  width: max-content;
+  max-width: 260px;
   padding: 4px 8px;
   border-radius: 3px;
   background: var(--panel);
@@ -4932,10 +4943,10 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
   border: 1px solid var(--panel-border);
   font-size: 0.72rem;
   line-height: 1.2;
-  white-space: nowrap;
+  white-space: normal;
   pointer-events: none;
   opacity: 0;
-  transform-origin: top right;
+  transform-origin: top left;
   transition: opacity 0.12s ease 0.35s;
   z-index: 9998;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);

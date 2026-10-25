@@ -1873,7 +1873,6 @@ function initPalette() {
   document.getElementById("expert-project-save-btn")?.addEventListener("click", _expertSaveProject);
   document.getElementById("expert-project-add-btn")?.addEventListener("click",  _expertAddProjMember);
   document.getElementById("expert-project-add-folder-btn")?.addEventListener("click", _expertAddProjFolder);
-  document.getElementById("expert-project-kick-btn")?.addEventListener("click", _kickToggleProject);
   setupProjectSettings();
 
   expertEditor?.addEventListener("beforeinput", (e) => {
@@ -3625,7 +3624,6 @@ function applyTranslations() {
     setText("#ps-files-label", t("psFiles"));
     setText("#ps-cancel", t("cancel"));
     setText("#ps-save", t("psSave"));
-    _kickSyncProjectButton();
     document.getElementById("import-kick-project")?.setAttribute("aria-label", t("importKickProjectTip"));
     setText("#copy-asm", t("copyAsm"));
     setText("#save-project", t("saveProject"));
@@ -9183,6 +9181,7 @@ function _ubRenderProjectFiles() {
     list.appendChild(empty);
     return;
   }
+  const moved = () => { _ubTouchProject(); _ubRenderProjectFiles(); };
   const renderNode = (file, container, depth) => {
     const isFolder = file.type === "folder";
     const remove = _makeProjDelBtn(() => {
@@ -9219,7 +9218,7 @@ function _ubRenderProjectFiles() {
         _ubRenderProjectFiles();
       });
       item.addEventListener("contextmenu", e => {
-        _projShowFolderMenu(e, () => _ubAddFile(file.children || (file.children = [])));
+        _projShowItemMenu(e, { container, entry: file, onMoved: moved, onAddFile: () => _ubAddFile(file.children || (file.children = [])) });
       });
       list.appendChild(item);
       if (!collapsed) (file.children || []).forEach(child => renderNode(child, file.children, depth + 1));
@@ -9260,6 +9259,7 @@ function _ubRenderProjectFiles() {
       if (tab) _tabActivate(tab.id);
       else if (isUb) _ubOpenProjectFile(file);
     });
+    item.addEventListener("contextmenu", e => _projShowItemMenu(e, { container, entry: file, onMoved: moved }));
     list.appendChild(item);
   };
 
@@ -12192,7 +12192,9 @@ function _blockDrawMinimap() {
   const W = 56;
   const H = panel.offsetHeight;
   if (!W || !H) {
-    if (_blockMinimapEnabled) setTimeout(() => _blockScheduleMinimapRedraw(), 30);
+    // Not laid out yet: try again. A hidden panel (Expert / UB mode) is not polled — that forced a
+    // layout every 30 ms; the panel's ResizeObserver redraws once it is shown.
+    if (_blockMinimapEnabled && panel.getClientRects().length) setTimeout(() => _blockScheduleMinimapRedraw(), 30);
     return;
   }
 
@@ -14531,6 +14533,11 @@ function _buildBasicStubDisasmLines(section) {
 // Build syntax-highlighted disassembler HTML from current program[].
 // Caller must ensure program[] is set to the desired block list before calling.
 function _buildDisasmHTML(originOverride, basicStubSection = null) {
+  return _buildDisasmLines(originOverride, basicStubSection).join("\n");
+}
+
+// The disassembly as HTML lines (one string per line).
+function _buildDisasmLines(originOverride, basicStubSection = null) {
   const esc = _escHtml;
   const lines = _buildBasicStubDisasmLines(basicStubSection);
   try {
@@ -14735,7 +14742,25 @@ function _buildDisasmHTML(originOverride, basicStubSection = null) {
   } catch (e) {
     lines.push(`<span class="asm-tok-comment">; Error: ${esc(String(e))}</span>`);
   }
-  return lines.join("\n");
+  return lines;
+}
+
+// A long disassembly (a whole Kick project: ~40 000 spans) in one <pre> made every layout of the
+// page slow (each click in the project tree forced several): chunks the browser skips while they
+// are off screen (.dsm-chunk, content-visibility). The text (copy) stays the same.
+const _DISASM_CHUNK_LINES = 200;
+function _setDisasmLines(el, lines) {
+  if (lines.length <= _DISASM_CHUNK_LINES * 2) {
+    el.innerHTML = lines.join("\n");
+    return;
+  }
+  const parts = [];
+  for (let i = 0; i < lines.length; i += _DISASM_CHUNK_LINES) {
+    const part = lines.slice(i, i + _DISASM_CHUNK_LINES);
+    const last = i + _DISASM_CHUNK_LINES >= lines.length;
+    parts.push(`<div class="dsm-chunk" style="contain-intrinsic-size: auto calc(${part.length} * 1.6em)">${part.join("\n")}${last ? "" : "\n"}</div>`);
+  }
+  el.innerHTML = parts.join("");
 }
 
 function renderDisasmOutput() {
@@ -14745,7 +14770,7 @@ function renderDisasmOutput() {
     el.innerHTML = `<span class="asm-tok-comment">; ${t("disassemblyWillAppearHere")}</span>`;
     return;
   }
-  el.innerHTML = _buildDisasmHTML(_getDisassemblyCodeOrigin(), _getGeneratedBasicStubSection());
+  _setDisasmLines(el, _buildDisasmLines(_getDisassemblyCodeOrigin(), _getGeneratedBasicStubSection()));
 }
 
 function _acmePreviewMessage() {
@@ -15109,8 +15134,16 @@ function _acmeMonitorText(preview) {
   return _formatMonitorMemory(bytes, view.segments[0]?.origin || 0);
 }
 
+// What the Expert disassembly shows (a Kick project: the _kickLast it was built from): the same
+// build is not rendered again on every tab switch / check.
+let _expertDisasmShown = null;
+
 function _expertRenderDisasm() {
   if (!expertDisasmOutput) return;
+  const kickShown = !ultimateBasicMode && assemblerSyntax !== "acme" && _kickProjectActive() && _kickLast?.ok ? _kickLast : null;
+  const stubOn = basicSysToggle ? basicSysToggle.checked : true;
+  if (kickShown && _expertDisasmShown?.kick === kickShown && _expertDisasmShown.stubOn === stubOn) return;
+  _expertDisasmShown = null;
   if (assemblerSyntax === "acme") {
     const preview = _acmePreviewCurrent();
     expertDisasmOutput.innerHTML = preview
@@ -15130,7 +15163,8 @@ function _expertRenderDisasm() {
     program = blocks;
     parseUserMacros();
     try {
-      expertDisasmOutput.innerHTML = _buildDisasmHTML(_getDisassemblyCodeOrigin(), _getGeneratedBasicStubSection());
+      _setDisasmLines(expertDisasmOutput, _buildDisasmLines(_getDisassemblyCodeOrigin(), _getGeneratedBasicStubSection()));
+      if (kickShown) _expertDisasmShown = { kick: kickShown, stubOn };
     } finally {
       program = saved;
       userMacros = savedUserMacros;
@@ -15357,7 +15391,6 @@ function _expertRenderProjectTree() {
   const treeEl = document.getElementById("expert-project-tree");
   if (!nameEl || !treeEl) return;
   _projUpdateSaveBtn("expert-project-save-btn", !!_expertProjectData, _expertProjectDirty);
-  _kickSyncProjectButton();
 
   if (!_expertProjectData) {
     nameEl.textContent = t("projNoProject");
@@ -15399,6 +15432,7 @@ function _expertRenderProjectTree() {
   const activeTab = tabs.find(t => t.id === activeTabId);
   const activeFilePath = _normFilePath(activeTab?.filePath || "");
 
+  const moved = () => { _expertTouchProject(); _expertRenderProjectTree(); };
   const renderNode = (file, container, depth) => {
     if (!file._id) file._id = crypto.randomUUID();
     const isFolder = file.type === "folder";
@@ -15450,7 +15484,7 @@ function _expertRenderProjectTree() {
         _expertRenderProjectTree();
       });
       item.addEventListener("contextmenu", e => {
-        _projShowFolderMenu(e, () => _expertAddFileIntoFolder(file));
+        _projShowItemMenu(e, { container, entry: file, onMoved: moved, onAddFile: () => _expertAddFileIntoFolder(file) });
       });
       treeEl.appendChild(item);
       if (!collapsed) (file.children || []).forEach(child => renderNode(child, file.children, depth + 1));
@@ -15477,6 +15511,7 @@ function _expertRenderProjectTree() {
       if (e.target === delBtn || delBtn.contains(e.target) || e.target === starBtn || starBtn.contains(e.target)) return;
       _expertProjectOpenFile(file);
     });
+    item.addEventListener("contextmenu", e => _projShowItemMenu(e, { container, entry: file, onMoved: moved }));
     treeEl.appendChild(item);
   };
 
@@ -15511,9 +15546,20 @@ function _makeProjDelBtn(onDelete) {
   return btn;
 }
 
-// Small right-click menu for a project-panel folder row: "Add file" to nest a
-// file reference under that folder. Reuses the tab-bar context menu's CSS.
-function _projShowFolderMenu(e, onAddFile) {
+// One project-panel entry `delta` places up (-1) / down (+1) in its folder; false at the edge.
+function _projMoveEntry(container, entry, delta) {
+  const index = container.indexOf(entry);
+  const target = index + delta;
+  if (index < 0 || target < 0 || target >= container.length) return false;
+  container.splice(index, 1);
+  container.splice(target, 0, entry);
+  return true;
+}
+
+// Right-click menu of a project-panel row: "Add file" for a folder (a file reference nested under
+// it), and Move up / Move down within its folder (`container`, the order the .proj keeps; `onMoved`
+// marks the project dirty and redraws). Reuses the tab-bar context menu's CSS.
+function _projShowItemMenu(e, { container, entry, onMoved, onAddFile = null }) {
   e.preventDefault();
   e.stopPropagation();
   let menu = document.getElementById("proj-folder-ctx-menu");
@@ -15523,14 +15569,29 @@ function _projShowFolderMenu(e, onAddFile) {
     menu.className = "block-ctx-menu";
     document.body.appendChild(menu);
   }
-  const label = currentLanguage === "hu" ? "Fájl hozzáadása" : "Add file";
-  const iPlus = `<svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`;
-  menu.innerHTML = `<button class="block-ctx-item" data-action="add">${iPlus} ${_escHtml(label)}</button>`;
-  menu.querySelector('[data-action="add"]').addEventListener("click", (ev) => {
-    ev.stopPropagation();
-    menu.setAttribute("hidden", "");
-    onAddFile();
-  }, { once: true });
+  const index = container.indexOf(entry);
+  const move = (delta) => { if (_projMoveEntry(container, entry, delta)) onMoved(); };
+  const icon = (d) => `<svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="${d}" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const items = [
+    ...(onAddFile ? [{ label: t("projAddFileToFolder"), icon: icon("M8 3v10M3 8h10"), run: onAddFile }] : []),
+    { label: t("projMoveTop"), icon: icon("M3 3h10M8 14V6M4 10l4-4 4 4"), disabled: index <= 0, run: () => move(-index) },
+    { label: t("projMoveUp"), icon: icon("M8 13V3M4 7l4-4 4 4"), disabled: index <= 0, run: () => move(-1) },
+    { label: t("projMoveDown"), icon: icon("M8 3v10M4 9l4 4 4-4"), disabled: index < 0 || index >= container.length - 1, run: () => move(1) },
+    { label: t("projMoveBottom"), icon: icon("M3 13h10M8 2v8M4 6l4 4 4-4"), disabled: index < 0 || index >= container.length - 1, run: () => move(container.length - 1 - index) }
+  ];
+  menu.innerHTML = "";
+  for (const item of items) {
+    const btn = document.createElement("button");
+    btn.className = "block-ctx-item" + (item.disabled ? " block-ctx-item--disabled" : "");
+    btn.disabled = !!item.disabled;
+    btn.innerHTML = `${item.icon} ${_escHtml(item.label)}`;
+    btn.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      menu.setAttribute("hidden", "");
+      item.run();
+    });
+    menu.appendChild(btn);
+  }
   menu.style.visibility = "hidden";
   menu.style.left = "0px";
   menu.style.top = "0px";
@@ -15559,11 +15620,9 @@ function _projUpdateSaveBtn(btnId, hasProject, dirty) {
   const saved = hasProject && !dirty;
   btn.disabled = saved;
   btn.classList.toggle("expert-project-icon-btn--saved", saved);
-  const label = saved
-    ? (currentLanguage === "hu" ? "Elmentve" : "Saved")
-    : (currentLanguage === "hu" ? "Projekt mentése" : "Save project");
-  btn.setAttribute("aria-label", label);
-  btn.title = label;
+  // the custom aria-label tooltip only: a native title doubled it
+  btn.setAttribute("aria-label", t(saved ? "projSaved" : "projSaveProjectBtn"));
+  btn.removeAttribute("title");
 }
 
 function _ubTouchProject() {
@@ -23910,7 +23969,6 @@ function _setAssemblerSyntax(syntax) {
   const syntaxSelect = document.getElementById("assembler-syntax");
   if (syntaxSelect) syntaxSelect.value = assemblerSyntax;
   _acmeBuildButtonSync();
-  _kickSyncProjectButton();
   if (assemblerSyntax === "acme" && !expertMode && !ultimateBasicMode) setExpertMode(true);
 }
 
@@ -26950,10 +27008,32 @@ function _kickErrorEntry(file, line, message) {
 }
 
 // Preprocesses the startup file of the Kick project; null when no Kick project is active.
+// The same source tree (texts, binaries, options) → the last result: a tab switch or a click in the
+// project tree reads the tree again but changes nothing, and preprocess + parse took ~0.3 s on a big
+// project. Not for a tree with VA assets (.include / .incbin / .sid): those files are not in the tree.
+let _kickPrepareCache = null;
+function _kickSameTree(a, b) {
+  if (!a || a.size !== b.size) return false;
+  for (const [k, v] of b) {
+    if (!a.has(k)) return false;
+    const w = a.get(k);
+    if (v instanceof Uint8Array && w instanceof Uint8Array) {
+      if (v.length !== w.length || v.some((x, i) => x !== w[i])) return false;
+    } else if (v !== w) return false;
+  }
+  return true;
+}
+
 async function _kickPrepare() {
   if (!_kickProjectActive()) return null;
   const entry = _kickNormPath(_projResolveAbsPath(_expertProjectData.startupFile));
   const { texts, bins, pictures } = await _kickReadTree(entry);
+  const options = JSON.stringify([entry, _expertProjectData.kickDefines || [], _expertProjectData.kickVars || {}]);
+  const cache = _kickPrepareCache;
+  if (cache && cache.options === options && _kickSameTree(cache.texts, texts) && _kickSameTree(cache.bins, bins)) {
+    _kickLast = cache.result;
+    return cache.result;
+  }
   const pre = _kickPreprocess(entry, p => texts.get(p) ?? null, p => bins.get(p) ?? null,
     { defines: _expertProjectData.kickDefines || [], vars: _expertProjectData.kickVars || {}, readPicture: p => pictures.get(p) ?? null });
   const result = {
@@ -26986,6 +27066,8 @@ async function _kickPrepare() {
     }
   }
   _kickLast = result;
+  const vaAssets = result.program?.some(b => b.isIncludeMacro || b.isIncBinMacro || b.isSidMacro);
+  _kickPrepareCache = vaAssets ? null : { options, texts, bins, result };
   return result;
 }
 
@@ -27213,6 +27295,10 @@ async function _kickGotoError(file, line) {
 
 // Editor check of a Kick project after a typing pause: errors of the whole tree,
 // the lines of the open file marked, and the memory panel from the built program.
+// The build and memory usage of the last checked tree: the same _kickPrepare result (nothing
+// changed, e.g. only another file was opened) is not built again.
+let _kickCheckCache = null;
+
 function _kickScheduleCheck() {
   clearTimeout(_expertParseTimer);
   _expertParseTimer = setTimeout(async () => {
@@ -27227,10 +27313,13 @@ function _kickScheduleCheck() {
       try {
         program = kick.program;
         parseUserMacros();
-        const res = _kickMapResult(_buildAutostartPrgCore(), kick);
+        if (_kickCheckCache?.kick !== kick) {
+          _kickCheckCache = { kick, res: _kickMapResult(_buildAutostartPrgCore(), kick), usage: getMemoryUsage() };
+        }
+        const { res, usage } = _kickCheckCache;
         if (res.ok) bytes = Math.max(0, (res.bytes?.length || 2) - 2);
         else errors = res.errors;
-        renderMemoryMap(getMemoryUsage());
+        renderMemoryMap(usage);
         const activePath = tabs.find(t => t.id === activeTabId)?.filePath || "";
         if (_expertCyclesEnabled && res.ok) {
           _expertCycleMap = _kickCycleMap(kick, activePath);
@@ -27389,30 +27478,6 @@ function _kickCycleMap(kick, filePath) {
     map.set(lineNo, { min, max, text, warn: items.some(x => x.c.warn) });
   }
   return map;
-}
-
-// Project panel switch: the project is KickAssembler compatible (VMA mode only, saved
-// as "kick": true). On, the Kick script runs before the VA assembler; off, plain VMA.
-function _kickSyncProjectButton() {
-  const btn = document.getElementById("expert-project-kick-btn");
-  if (!btn) return;
-  btn.style.display = _expertProjectData && assemblerSyntax !== "acme" ? "" : "none";
-  const on = !!_expertProjectData?.kick;
-  btn.setAttribute("aria-pressed", String(on));
-  btn.setAttribute("aria-label", t(on ? "projKickOn" : "projKickOff"));
-}
-
-async function _kickToggleProject() {
-  if (!_expertProjectData || assemblerSyntax === "acme") return;
-  _expertProjectData.kick = !_expertProjectData.kick;
-  if (!_expertProjectData.kick) delete _expertProjectData.kick;
-  _kickLast = null;
-  _kickSyncProjectButton();
-  _expertProjectDirty = true;
-  if (_expertProjectData._projPath) await _expertSaveProject();
-  else _expertRenderProjectTree();
-  _expertValidate();
-  _expertSetStatus(t(_expertProjectData.kick ? "projKickEnabled" : "projKickDisabled"), "ok");
 }
 
 // The optional settings of a .proj: Kick preprocessor symbols (#define), command-line
