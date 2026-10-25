@@ -350,6 +350,7 @@ impl Assembler {
                     };
                     (Self::address_value(addr, Some(&self.labels)).unwrap_or(0xC000 as f64), len)
                 }
+                Kind::IncBin { addr, .. } => (parse_address_value(addr).unwrap_or(0xC000 as f64), incbin_payload(&line.block.kind).len()),
                 _ => continue,
             };
             high = high.max(start as i64 + len as i64 - 1);
@@ -585,6 +586,7 @@ impl Assembler {
                 3 + len + 9 + 9 + if addr.trim().is_empty() { 0 } else { 4 } + 5 + 2
             }
             Kind::Delay { .. } => 5,
+            Kind::IncBin { koala, .. } => if *koala { 86 } else { 0 },
             Kind::SpritePos { .. } => 18,
             Kind::SpriteCol { .. } => 5,
             Kind::SpriteAnim { .. } => 19,
@@ -1629,6 +1631,18 @@ impl Assembler {
                 }
                 Ok(out)
             }
+            Kind::IncBin { error: Some(e), .. } => Err(e.clone()),
+            Kind::IncBin { koala: false, .. } => Ok(Vec::new()),
+            Kind::IncBin { addr, bytes, .. } => {
+                let a = parse_address_value(addr).unwrap_or(0x6000 as f64) as i64;
+                if a != 0x2000 && a != 0x6000 {
+                    return Err("KOALA: the address must be $2000 or $6000".into());
+                }
+                if !bytes.is_empty() && bytes.len() != 10001 && bytes.len() != 10003 {
+                    return Err(format!("KOALA: a Koala file is 10001 or 10003 bytes, not {}", bytes.len()));
+                }
+                Ok(koala_show_bytes(a))
+            }
             Kind::Delay { frames } => {
                 let n = self.delay_frames(if frames.is_empty() { "1" } else { frames }).ok_or("DELAY: value must be 1-255 or a defined const")?;
                 let h = self.labels.get(DELAY_HELPER_LABEL).ok_or("DELAY: the helper routine has no address")? as i64;
@@ -1847,8 +1861,13 @@ impl Assembler {
             }
         }
         for b in program {
-            if let Kind::Comment { error: Some(e), .. } = &b.kind {
-                return Err(CompileError { line: b.line, message: e.clone() });
+            match &b.kind {
+                Kind::Comment { error: Some(e), .. } => return Err(CompileError { line: b.line, message: e.clone() }),
+                Kind::IncBin { file, koala, .. } if file.trim().is_empty() => {
+                    let what = if *koala { "KOALA" } else { "INCBIN" };
+                    return Err(CompileError { line: b.line, message: format!("{what}: no file given") });
+                }
+                _ => {}
             }
         }
         let lines = self.layout(program, origin, override_origin)?;
@@ -1881,6 +1900,13 @@ impl Assembler {
         }
         let mut deferred: Vec<(i64, Vec<u8>)> = Vec::new();
         for line in &lines {
+            if let Kind::IncBin { addr, .. } = &line.block.kind {
+                let payload = incbin_payload(&line.block.kind);
+                if !payload.is_empty() {
+                    deferred.push((parse_address_value(addr).unwrap_or(0xC000 as f64) as i64, payload.to_vec()));
+                }
+                continue;
+            }
             let Kind::Mem { op, addr, raw, offset, lower, null_term, .. } = &line.block.kind else { continue };
             let bytes: Vec<f64> = match op {
                 MemOp::RawBytes => self.byte_values(raw, Base::Hex, None),
@@ -2147,6 +2173,35 @@ fn raw_operand(kind: &Kind) -> &str {
 }
 
 const DELAY_HELPER_LABEL: &str = "__delay_wait_frames";
+
+/// `_incBinPayload`: what an INCBIN puts in memory (a Koala file without its load address)
+fn incbin_payload(kind: &Kind) -> &[u8] {
+    match kind {
+        Kind::IncBin { koala: true, bytes, .. } if bytes.len() == 10003 => &bytes[2..],
+        Kind::IncBin { bytes, .. } => bytes,
+        _ => &[],
+    }
+}
+
+/// `_koalaShowBytes`: copy screen and colour RAM, background, VIC bank and the multicolour bitmap mode.
+fn koala_show_bytes(addr: i64) -> Vec<u8> {
+    let screen = if addr == 0x2000 { 0x0000 } else { 0x4000 } + 0x0400;
+    let mut out = vec![0xA2, 0x00];
+    let mut copy = |src: i64, dst: i64| {
+        for k in 0..4 {
+            let (s, d) = ((src + k * 250) & 0xFFFF, (dst + k * 250) & 0xFFFF);
+            out.extend([0xBD, s as u8, (s >> 8) as u8, 0x9D, d as u8, (d >> 8) as u8]);
+        }
+    };
+    copy(addr + 8000, screen);
+    copy(addr + 9000, 0xD800);
+    let bg = (addr + 10000) & 0xFFFF;
+    out.extend([0xE8, 0xE0, 0xFA, 0xD0, 0xCB]);
+    out.extend([0xAD, bg as u8, (bg >> 8) as u8, 0x8D, 0x21, 0xD0]);
+    out.extend([0xAD, 0x00, 0xDD, 0x29, 0xFC, 0x09, if addr == 0x2000 { 0x03 } else { 0x02 }, 0x8D, 0x00, 0xDD]);
+    out.extend([0xA9, 0x3B, 0x8D, 0x11, 0xD0, 0xA9, 0x18, 0x8D, 0x16, 0xD0, 0xA9, 0x18, 0x8D, 0x18, 0xD0]);
+    out
+}
 
 /// `buildDelayHelperBytes`: wait N frames (X), registers saved; its counter byte follows the code.
 fn delay_helper_bytes(at: i64) -> Vec<u8> {

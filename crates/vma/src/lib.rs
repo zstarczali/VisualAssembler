@@ -6,12 +6,14 @@
 
 pub mod asm;
 pub mod expr;
+pub mod files;
 pub mod num;
 pub mod opcodes;
 pub mod parse;
 pub mod prg;
 
 pub use asm::CompileError;
+pub use files::{DirFiles, FileProvider, NoFiles};
 
 #[derive(Clone, Debug)]
 pub struct BuildOptions {
@@ -25,8 +27,14 @@ impl Default for BuildOptions {
     }
 }
 
-/// VMA source → PRG (load address + image).
+/// VMA source → PRG (load address + image); the directives that name a file find none.
 pub fn build(source: &str, options: &BuildOptions) -> Result<Vec<u8>, CompileError> {
-    let program = parse::parse_expert_text(source);
+    build_with_files(source, options, &NoFiles)
+}
+
+/// VMA source → PRG, the files of `.incbin` / `.koala` … read through `files`.
+pub fn build_with_files(source: &str, options: &BuildOptions, files: &dyn FileProvider) -> Result<Vec<u8>, CompileError> {
+    let mut program = parse::parse_expert_text(source);
+    files::load_assets(&mut program, files);
     prg::build_prg(&program, options.basic_stub)
 }

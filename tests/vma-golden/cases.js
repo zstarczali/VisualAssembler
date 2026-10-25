@@ -305,6 +305,11 @@ const VARIANTS = {
   "delay-range-error": "* = $1000\n    .delay 300\n    rts\n",
   "macro-buffers": ".macro show(buf, msg)\n    .petscii buf, \"{msg}\", null\n    lda #<buf\n    ldx #>buf\n.endm\n.macro fill(tmp)\n    .string tmp, \"AB\", 80\n    .rawtext tmp, \"xyz\", lower\n    .data tmp, 1, 2, 3\n    lda tmp\n.endm\n* = $1000\n    :show(name1, HELLO)\n    :show(name2, HI)\n    :fill(t1)\n    rts\n",
   "macro-buffer-delay": ".macro note(b)\n    .petscii b, \"WAIT\"\n.endm\n* = $1000\n    :note(x1)\n    .delay 2\n    rts\n",
+  "incbin-delay-overlap": '* = $1000\n    .incbin "picture.koa", $1004\n    .delay 1\n    .koala "picture.koa", $2000\n    rts\n',
+  "incbin-missing-file-error": '* = $1000\n    .incbin "no-such-file.bin"\n    rts\n',
+  "incbin-empty-name-error": '* = $1000\n    .incbin ""\n    rts\n',
+  "koala-address-error": '* = $1000\n    .koala "picture.koa", $4000\n    rts\n',
+  "koala-size-error": '* = $1000\n    .koala "level.bin"\n    rts\n',
   "macro-nested-error":".macro border(c)\n    lda #{c}\n    sta $D020\n.endm\n.macro both(c)\n    :border({c})\n.endm\n* = $1000\n    :both(3)\n    rts\n"
 };
 

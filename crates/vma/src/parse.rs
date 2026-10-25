@@ -121,6 +121,8 @@ pub enum Kind {
     IrqSetup { handler: String, raster: String },
     LoadFile { name: String, device: String, addr: String, error_label: String },
     Delay { frames: String },
+    /// INCBIN / KOALA (`incBinKoala`): `bytes` filled by `files::load_assets`, `error` = its load error
+    IncBin { file: String, addr: String, koala: bool, bytes: Vec<u8>, error: Option<String> },
     /// A JS directive the Rust compiler does not assemble yet (its mnemonic).
     Unsupported { what: String },
 }
@@ -620,7 +622,7 @@ fn index_suffix(mode: Mode) -> &'static str {
 
 /// The macro directives of the JS compiler that are not ported yet (by their JS regex start).
 const UNPORTED: &[(&str, &str)] = &[
-    (r"(?i)^\.(include|incbin|koala|level|sid)\b", "FILE"),
+    (r"(?i)^\.(include|level|sid)\b", "FILE"),
     (r"(?i)^\.level_row\b", "LEVEL_ROW"),
     (r"(?i)^\.sid_player\b", "SID_PLAYER"),
 ];
@@ -654,6 +656,12 @@ fn size_token(raw: &str) -> String {
 
 /// The memory / system macros of `parseExpertText` (in the JS order).
 fn memory_macro(line: &str) -> Option<Kind> {
+    if let Some(c) = regex!(r#"(?i)^\.(koala|incbin)\s+"([^"]*)"\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*$"#).captures(line) {
+        let koala = c[1].eq_ignore_ascii_case("koala");
+        let default = if koala { "6000" } else { "C000" };
+        let addr = format!("${}", c.get(3).map(|m| m.as_str().to_uppercase()).unwrap_or_else(|| default.into()));
+        return Some(Kind::IncBin { file: c[2].to_string(), addr, koala, bytes: Vec::new(), error: None });
+    }
     if let Some(c) = regex!(r#"(?i)^\.loadfile\s+"([^"]*)"\s*,\s*([A-Za-z_][A-Za-z0-9_]*|\d+|\$[0-9A-Fa-f]{1,4})\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*(?:,\s*([A-Za-z_][A-Za-z0-9_]*))?\s*$"#).captures(line) {
         return Some(Kind::LoadFile {
             name: c[1].to_uppercase(),
