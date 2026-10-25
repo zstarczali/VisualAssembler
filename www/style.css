@@ -5348,8 +5348,9 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
 }
 
 .compile-error-dialog {
-  border: 1px solid var(--panel-border);
-  border-radius: 3px;
+  /* the About box frame */
+  border: 1px solid color-mix(in srgb, var(--text) 22%, var(--panel));
+  border-radius: 4px;
   padding: 0;
   background: var(--panel);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.30);
@@ -5359,8 +5360,8 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
 }
 
 .app-confirm-dialog {
-  border: none;
-  border-radius: 3px;
+  border: 1px solid color-mix(in srgb, var(--text) 22%, var(--panel));
+  border-radius: 4px;
   padding: 0;
   background: var(--panel);
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
@@ -6336,7 +6337,7 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
 [data-theme="light"] .splash-panel,
 [data-theme="starlight"] .splash-panel,
 [data-theme="beige"] .splash-panel,
-:is([data-theme="light"], [data-theme="starlight"], [data-theme="beige"]) :is(.whats-new-dialog, .update-dialog, .knowledge-base-dialog, .hardware-settings-dialog, .pal-ed-dialog) {
+:is([data-theme="light"], [data-theme="starlight"], [data-theme="beige"]) :is(.whats-new-dialog, .update-dialog, .knowledge-base-dialog, .hardware-settings-dialog, .pal-ed-dialog, .compile-error-dialog, .app-confirm-dialog) {
   border-color: color-mix(in srgb, var(--text) 45%, var(--panel));
 }
 
