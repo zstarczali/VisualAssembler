@@ -2,11 +2,21 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.6.5**
+**Current version: v2.6.6**
 
 Visual Assembler is free and open source (GPLv3): every feature — editors, builds, hardware runs, languages and themes — works without a registration or serial. At most once a day the app sends an anonymous startup ping (version, OS, UI language, launch count, a random install ID) for the usage statistics; no email, project or source code is sent.
 
-## What's New in v2.6.5
+## What's New in v2.6.6
+
+- **SID player macro** — `.sid_player [subtune][, raster]` (*SID_PLAYER* in the palette) plays the tune of the `.sid` macro: it calls init with the subtune, switches the CIA1 timer IRQ off, hooks a raster IRQ and calls play every frame from its built-in handler, then continues in the KERNAL (`JMP $EA31`); 58 bytes. Music is now `.sid "music.sid"` + `.sid_player`.
+- **SID labels** — the `.sid` macro defines `SID_LOAD`, `SID_INIT` and `SID_PLAY` (moved with a custom load address), so your own IRQ handler can `JSR SID_PLAY`.
+- **Expert mode only** — a Project settings switch that closes block mode for the project's files, whatever their size (saved in the `.proj`).
+- **SID Player buffer** — Settings → General → SID preview → SID Player buffer: 2048–16384 samples; a larger buffer stops the crackle while the app is busy (WebSID after a restart; VA SID Core renders 10 / 15 / 20 / 30 s ahead).
+- **Custom C64 palette** — Settings → General → Editors → *Edit custom palette…*: your own RGB value for each of the 16 colours (colour picker or hex), starting from any built-in palette; import Photoshop `.act`, VICE `.vpl`, GIMP `.gpl` or a hex list, export `.act` / `.vpl`. *Custom* is then a palette like Colodore or Pepto, also in the Hi-Res image import.
+- **Look** — the C64 memory panel docks back collapsed; the What's New, update, Settings and Knowledge Base windows have the About box frame; VA switches in Project settings.
+- **Fixes** — the bug report accepts PNG / JPG screenshots in the release build; the splash `READY.` cursor is a solid C64 cell (no lines on macOS); macOS inline predictive text is off in the Expert and Ultimate Basic editors.
+
+## Earlier: v2.6.5
 
 - **KickAssembler projects** — *Menu → Program → Import Kick project…* takes a whole KickAssembler source tree (main file, `#import` modules, `.import binary` assets) and writes a `.proj` next to it; the sources stay in place. VA builds it with its own assembler byte for byte like KickAssembler 5.25 (the Dark Chambers C64 port and all eleven KickAssembler examples with code build identically), including segments and output files, `LoadPicture`, `.cpu _65c02` / DTV, `Vector` / `Matrix`, `.break` / `.watch`; Debug gets a source map with the original files and lines, the editor highlights and completes KickAssembler syntax; Run, Build PRG / D64 / CRT, Exomizer, Debug, VICE Monitor and Build project work, errors are `file:line`, the tree is checked while typing.
 - **Project settings** — gear button in the Project panel / Menu → File: name, startup file, assembler, Kick compatibility, `#define` symbols and `cmdLineVars`, saved in the `.proj`.

@@ -1,7 +1,9 @@
 C64 Visual Assembler - Installation Guide
-Version 2.6.5
+Version 2.6.6
 Support: https://zstarczali.itch.io/visual-assembler-commodore-64
 ==========================================================================
+
+2.6.6: SID player macro (.sid_player [subtune][, raster] inits the .sid tune and plays it from a raster IRQ; .sid defines SID_LOAD / SID_INIT / SID_PLAY), per-project Expert mode only (Project settings), SID Player buffer setting (WebSID 2048-16384 samples, VA SID Core renders 10-30 s ahead), custom C64 palette editor (16 RGB colours; Photoshop .act / VICE .vpl / GIMP .gpl import, .act / .vpl export), the memory panel docks back collapsed, framed What's New / update / Settings / Knowledge Base windows, VA switches in Project settings; fixed: bug report screenshots (PNG / JPG) in the release build, the splash READY. cursor on macOS, macOS inline predictive text in the code editors.
 
 2.6.5: KickAssembler projects (Import Kick project… builds a whole KickAssembler source tree with #import, .for, .if, .function, .macro, .pseudocommand, scopes and namespaces byte for byte like KickAssembler 5.25), LoadBinary / LoadSid / LoadPicture / virtual blocks, segments and output files (.segment, .file, .disk), .cpu _65c02 / DTV and every illegal opcode, Vector / Matrix, .break / .watch, Kick source map for Debug, Kick syntax highlighting and completion, Project settings with cmdLineVars and #define, Kick-compatible switch for VMA projects, Build Info in columns, C64 colour palette setting (Colodore by default), colour picker and Ctrl + wheel zoom in the editors, ACME memory map from the ACME build, .byte / .word label expression fix.
 
@@ -71,7 +73,7 @@ Tested on Ubuntu 22.04 and 24.04.
 -----------------------
 Download the .deb package from the releases page and install:
 
-  sudo dpkg -i "c64-visual-assembler_2.6.5_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.6.6_amd64.deb"
   sudo apt-get install -f   # fix any missing dependencies
 
 Launch from the Applications menu or:
@@ -164,7 +166,7 @@ Requirements: macOS 11.0+, Apple Silicon (M1/M2/M3)
 
 1. C64 Visual Assembler
 -----------------------
-1. Download the 2.6.5 DMG for your architecture from the releases page
+1. Download the 2.6.6 DMG for your architecture from the releases page
 2. Mount the DMG and drag the app to /Applications
 3. First launch: Right-click the app -> "Open" (macOS will block double-click)
 4. Click "Open" in the security dialog

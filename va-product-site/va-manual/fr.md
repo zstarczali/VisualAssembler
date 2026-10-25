@@ -1,6 +1,6 @@
 # Manuel d'utilisation de l'assembleur visuel C64
 
-**Version 2.6.4**
+**Version 2.6.5**
 
 Un assembleur 6502 visuel et basé sur des blocs pour le Commodore 64. Créez des
 programmes en faisant glisser et en déposant des blocs d'instructions, et
@@ -12,6 +12,7 @@ visualisez en temps réel le code assembleur et le code machine générés.
 
 - [C64 Visual Assembler — Manuel de
   l'utilisateur](#c64-visual-assembler--user-manual)
+    - [Points saillants de la version 2.6.5](#version-265-highlights)
     - [Points saillants de la version 2.6.4](#version-264-highlights)
     - [Points saillants de la version 2.6.3](#version-263-highlights)
     - [Points saillants de la version 2.6.2](#version-262-highlights)
@@ -213,6 +214,73 @@ visualisez en temps réel le code assembleur et le code machine générés.
     - [Éditeur de courbes](#curve-editor)
     - [Générateur de tableau](#table-generator)
     - [Convertisseur de nombres](#number-converter)
+
+---
+
+## Points forts de la version 2.6.5
+
+- **Projets KickAssembler** — **Menu → Programme → Importer un projet Kick…**
+  prend l'intégralité de l'arborescence source de KickAssembler (le fichier
+  principal avec ses modules `#import` et ses ressources binaires `.import`) et
+  crée un fichier `.proj` à côté ; les sources restent à leur emplacement
+  d'origine. Visual Assembler le compile avec son propre assembleur, octet par
+  octet, comme KickAssembler 5.25 — Exécuter, Compiler PRG/D64/CRT, Exomizer,
+  Déboguer, le Moniteur VICE et la Compilation de projet fonctionnent tous, les
+  erreurs sont nommées `fichier:ligne`, et l'arborescence complète est vérifiée
+  pendant la saisie. Le portage C64 de Dark Chambers et les onze exemples de
+  programmes KickAssembler avec leur code sont compilés de manière identique.
+  Voir [Projets Kick (Importer un projet
+  Kick…)](#kick-projects-import-kick-project).
+- **Paramètres du projet** — le bouton d'engrenage du panneau Projet (ou **Menu
+  → Fichier → Paramètres du projet…**) affiche et modifie le nom, le fichier de
+  démarrage, l'assembleur, la compatibilité KickAssembler, les symboles
+  `#define` et les `cmdLineVars` d'un projet. Voir [Panneau Projet et
+  onglets](#project-panel--tabs).
+- **Commutateur compatible Kick** — le bouton `{K}` dans l'en-tête du panneau
+  Projet rend tout projet VMA compatible KickAssembler ; les macros et
+  directives VA continuent de fonctionner à côté du script KickAssembler.
+- **Langage KickAssembler** — `#import` / `#importonce` / `#importif`, `#define`
+  / `#if`, `.const` / `.label` (page zéro ou valeur absolue), `.for`, `.while`,
+  `.if … else`, `.var` / `.eval`, `.function`, `.macro { }`, `.pseudocommand`,
+  étiquettes multiples, portées et espaces de noms, `.pseudopc`, `.import
+  binary`, `LoadBinary` (avec des modèles tels que `BF_KOALA`), `LoadSid`,
+  `blocs de mémoire virtuels`, `cmdLineVars`, `BasicUpstart2`, `List` /
+  `Hashtable` / `.struct` / chaînes, `.enum`, la bibliothèque mathématique, les
+  constantes de couleur et d'opcode, `*` comme compteur de programme, `;` entre
+  les instructions, `.error` / `.errorif`.
+- **Informations de construction en colonnes** — une fenêtre plus large :
+  origine, fin, taille et nombre de segments en haut, puis les segments, les
+  erreurs et la sortie `.print`, et les étiquettes, les constantes et les macros
+  en colonnes. Dans un projet Kick, il affiche l’arbre construit, les étiquettes
+  internes sous forme de `scope.label`.
+- Palette de couleurs C64 ** — **Paramètres → Général → Éditeurs → Palette de
+  couleurs C64 ** définit les valeurs RVB des 16 couleurs C64 dans chaque
+  éditeur (sprite, personnage, canevas Charset, haute résolution, carte, niveau,
+  échantillons Toolkit) : **Colodore ** par défaut (le plus proche d’un
+  véritable C64), ou Pepto, VICE, Deekay, C64 Wiki / Godot. Seul l’affichage
+  change ; l’importation d’images haute résolution l’utilise également. Voir
+  [14. Éditeurs visuels (Toolkit)](#14-visual-editors-toolkit).
+- **Sélecteur de couleurs** — Les éditeurs Canevas Haute résolution, Sprite,
+  Caractère (multicolore) et Charset disposent d'un outil de sélection ;
+  **Alt+clic** permet de sélectionner la couleur avec n'importe quel outil. Voir
+  [Éditeur Haute résolution / Multicolore](#hi-res--multicolor-editor).
+- **Ctrl + zoom molette** dans les éditeurs Haute résolution, Sprite, Carte et
+  Niveau, autour du curseur. Le commutateur Raster Haute résolution se trouve à
+  côté de Grille.
+- **Mode ACME** — La carte mémoire et l'avertissement de chevauchement suivent
+  la compilation ACME ; un projet ACME génère son fichier de démarrage ; les
+  modèles ACME n'apparaissent que lorsqu'une instance ACME fonctionnelle est
+  définie, et la création d'un projet ACME active le mode ACME dans les
+  paramètres. Voir [Mode ACME](#acme-mode).
+- **Nouveau projet** — **Nouveau projet à partir d'un modèle…** se trouve sous
+  **Nouveau projet** dans le menu (les trois entrées séparées ont disparu) ; le
+  modèle de multiplexeur de sprites Visual Assembler imprime son titre.
+- **Corrections** — `.byte` / `.word` avec des expressions d'étiquette
+  (`<(étiquette+1)`, `.word étiquette` avant l'étiquette) ne s'assemblent
+  plus à 0 ; les formes illégales `NOP` qui lisent un opérande s'assemblent
+  (voir [Instructions illégales / non
+  documentées](#illegal--undocumented-instructions)) ; le bouton d'ouverture
+  d'Ultimate Basic affiche **Charger un fichier .ub** dans toutes les langues.
 
 ---
 
@@ -870,7 +938,7 @@ visualisez en temps réel le code assembleur et le code machine générés.
 
 - **`*` dans toute expression** — le symbole de compteur de programme fonctionne
   désormais à l'intérieur des expressions d'opérandes, et non plus seulement
-  seul : `BNE *-5`, `JMP *+20`, `LDA #&lt;*`, `LDA #&gt;(*+63)`. Un `*` qui suit
+  seul : `BNE *-5`, `JMP *+20`, `LDA #<*`, `LDA #>(*+63)`. Un `*` qui suit
   une valeur (`STRIDE*2`) correspond toujours à une multiplication. Voir [Modes
   d'adressage → Le compteur de programme `*` dans les
   expressions](#d64-editor-browse--edit-an-existing-disk-image).
@@ -884,7 +952,7 @@ visualisez en temps réel le code assembleur et le code machine générés.
   `JMP` (toujours 5 octets), permettant ainsi à la cible de se situer à
   n'importe quelle distance. Nouvelle catégorie de palette **Branches longues**.
   Voir [LBNE / LBEQ / … (Branches longues)]{1}.
-- **`.assert` directive** — `.assert end - start &lt;= 256` or `.assert * &lt;
+- **`.assert` directive** — `.assert end - start <= 256` or `.assert * <
   $A000, "message"` est évalué lors de l'assemblage et provoque un échec de la
   compilation (affichant la valeur réelle) lorsque l'expression est fausse. Voir
   [.ASSERT]{1}.
@@ -907,7 +975,7 @@ L'application est divisée en trois panneaux principaux :
 
 - **`*` dans toute expression** — le symbole de compteur de programme fonctionne
   désormais à l'intérieur des expressions d'opérandes, et non plus seulement
-  seul : `BNE *-5`, `JMP *+20`, `LDA #&lt;*`, `LDA #&gt;(*+63)`. Un `*` qui suit
+  seul : `BNE *-5`, `JMP *+20`, `LDA #<*`, `LDA #>(*+63)`. Un `*` qui suit
   une valeur (`STRIDE*2`) correspond toujours à une multiplication. Voir [Modes
   d'adressage → Le compteur de programme `*` dans les
   expressions](#the--program-counter-in-expressions).
@@ -920,7 +988,7 @@ L'application est divisée en trois panneaux principaux :
   octets), permettant ainsi à la cible de se situer à n'importe quelle distance.
   Nouvelle catégorie de palette : Branches longues. Voir LBNE / LBEQ / …
   (Branches longues) (#lbne--lbeq---long-branches).
-- **`.assert` directive** — `.assert end - start &lt;= 256` or `.assert * &lt;
+- **`.assert` directive** — `.assert end - start <= 256` or `.assert * <
   $A000, "message"` est évalué lors de l'assemblage et provoque un échec de la
   compilation (affichant la valeur réelle) lorsque l'expression est fausse. Voir
   [.ASSERT](#assert).
@@ -1158,40 +1226,40 @@ La fenêtre modale se ferme automatiquement lorsque l'action est terminée ou a
 
 ## Mode UltimateBasic
 
-| Contrôle                                                                                                          | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| ----------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ** Base numérique (HEX / DEC / BIN)**                                                                             | Définit le format d'affichage/de saisie des opérandes dans l'interface utilisateur. Le mode BIN affiche les valeurs en binaire avec le préfixe `%` (par exemple, `%11111000`). La vue ASM affiche toujours chaque bloc dans son propre format.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| **Langue**                                                                                                        | Basculez l'interface utilisateur entre l'anglais, le hongrois, l'espagnol, l'allemand et le néerlandais (Nederlands).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| **Thème**                                                                                                         | Clair / Sombre / OLED / Commodore 77 / Commodore Starlight / Commodore Beige / Commodore 64 — choisissez votre thème dans le menu Paramètres. Le thème OLED utilise un fond noir pur pour les écrans AMOLED. Commodore 77 est un thème jaune fluo sur fond noir ; lorsqu'il est actif, l'écran de démarrage reprend la couleur du thème (assortie à la carte de message), affiche un logo Commodore 77 dédié plus petit et une barre de progression jaune. Commodore Starlight est un thème clair inspiré du boîtier C64 translucide : panneaux en verre dépoli laissant transparaître la lueur arc-en-ciel RVB, accent magenta, couleurs de syntaxe arc-en-ciel et un affichage sombre et fumé. Commodore Beige est le boîtier classique : boîtier beige, touches de fonction moutarde, rayures arc-en-ciel et écran bleu C64. Le thème choisi est appliqué avant le premier affichage au prochain lancement. |
-| **Mode rétro CRT**                                                                                                | Active ou désactive un filtre CRT plein écran : lignes de balayage, vignettage phosphorescent, scintillement et distorsion en barillet. L’état est conservé entre les sessions.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| **Afficher le panneau de mémoire**                                                                                | Bouton global permettant d'afficher ou de masquer le panneau de mémoire complet du C64                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| **Système de base stub**                                                                                          | Ajoute une ligne BASIC appelant SYS à l'origine de votre programme (le premier ORG). Un segment placé après le premier ORG conserve sa propre adresse. Lorsque le programme se charge en dessous ou au-delà de la ligne BASIC (par exemple, un dump importé depuis `$071C`), les fonctions Run et Build ajoutent un petit chargeur de démarrage : `SYS 2061` copie un déplacement dans le tampon de bande (`$033C`), ce qui place le programme à son emplacement et effectue un saut vers le premier ORG.                                                                                                                                                                                                                                                                                                                                                                                                      |
-| **Exemples…**                                                                                                     | Ouvrez le navigateur d'exemples et chargez un programme d'exemple intégré — voir [Exemples de programmes](#example-programs)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| **Zoom avant / arrière**                                                                                          | Redimensionner l'interface utilisateur du bloc (affecte tous les éléments du bloc)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| **Sauvegarder le projet**                                                                                         | Enregistrez le programme actuel en tant que fichier de projet `.json`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| **Enregistrer le programme sous **                                                                                | Enregistrez le programme actuel en tant que fichier de projet `.json` en utilisant une nouvelle boîte de dialogue de fichier à chaque fois.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| **Charger le projet**                                                                                             | Charger un projet précédemment enregistré                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| **Sauvegarder l'espace de travail**                                                                               | Enregistrez l'ensemble exact des onglets actuellement ouverts et associés à un fichier (y compris l'onglet actif et le mode d'édition de chaque onglet : Bloc/Expert/Basique ultime) dans un fichier d'espace de travail `.vaws`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| **Enregistrer l'espace de travail sous **                                                                         | Enregistrez l'espace de travail actuel à chaque fois en utilisant une nouvelle boîte de dialogue de fichier.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| **Ouvrir l'espace de travail**                                                                                    | Fermez tous les onglets ouverts et rouvrez l'ensemble des fichiers stockés dans un fichier d'espace de travail `.vaws`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| **Définir le dossier de travail**                                                                                 | Choisissez le dossier par défaut utilisé par les boîtes de dialogue de sélection et d'enregistrement de fichiers. Le chemin est enregistré dans la configuration de l'application et les aperçus des menus affichent la fin du chemin.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| **Nouveau projet à partir d'un modèle…** (`Menu → Fichier`, ou le bouton de la barre d'outils à côté de **Menu**) | Créez un nouveau projet `.proj` à partir d'un modèle Assembler ou UltimateBasic dans son propre dossier — voir [Modèles de projet](#project-templates)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| **Ouvrir le projet** (`Menu → Fichier`)                                                                           | Ouvrez un projet multi-fichiers `.proj` et ouvrez tous les fichiers sources sous forme d'onglets.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| **Enregistrer le projet** (`Menu → Fichier`)                                                                      | Enregistrez le projet actuel `.proj` (le panneau des projets doit être ouvert).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| **Fermer le projet** (`Menu → Fichier`)                                                                           | Ferme le projet actuellement ouvert ainsi que tous ses onglets. Un message vous invite à enregistrer les modifications non enregistrées. Le panneau du projet retrouve son état initial.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| **Charger le fichier .asm**                                                                                       | Ouvre un fichier `.asm` en mode Expert et importe le code assembleur 6502 textuel dans l'onglet actuel.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| **Sauvegarder PRG**                                                                                               | Exportez le binaire compilé sous forme de fichier `.prg`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| **Build CRT**                                                                                                     | Exportez le programme sous forme de fichier Magic Desk 64K (`.crt`, type de cartouche 19). Voir [Section 12b](#12b-crt-export-magic-desk-64k-cartridge).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| **Créer un projet** (`Menu → Créer`)                                                                              | Compilez chaque fichier compilable du projet (ou des onglets ouverts) en un fichier `.prg` à côté de sa source — voir [Compiler le projet](#build-project)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| **Exécuter (bouton fractionné)**                                                                                  | Le bouton principal **▶ Exécuter** lance le mode actuel ; cliquez sur la flèche **▾** pour basculer entre : **Exécuter en tant que PRG** (compiler et lancer VICE directement), **Exécuter via D64** (créer une image disque .d64 et lancer VICE), **Exécuter sur le matériel** (envoyer le PRG à un périphérique C64 Ultimate / 1541 Ultimate), ou **Kung Fu Flash 2** (téléverser le PRG via USB sur un véritable C64/C128 avec une cartouche Kung Fu Flash 2). Voir [Section 12](#12-d64-export--run) et [Section 13](#13-hardware-settings).                                                                                                                                                                                                                                                                                                                                                               |
-| **Débogage (RetroDebugger)**                                                                                      | Compilez et lancez dans RetroDebugger avec des points d'arrêt, des symboles et des indicateurs de démarrage automatique (voir [Section 9](#9-debugger-integration))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| **Exécuter avec Exomizer**                                                                                        | Case à cocher dans le menu Paramètres : lorsqu'elle est activée, toutes les opérations d'exécution et de compilation traitent le fichier PRG via `exomizer sfx` avant de le lancer ou de l'enregistrer (`sfx basic` pour un fichier PRG commençant par une ligne BASIC, afin que l'exécution fonctionne à nouveau après le retour du programme ; `sfx $<adresse de chargement>` sinon). Fonctionne avec Exécuter en tant que PRG, Exécuter via D64, Exécuter sur le matériel, Compiler PRG et Compiler D64. Configurez d'abord l'exécutable Exomizer dans **Paramètres matériels**.                                                                                                                                                                                                                                                                                                                            |
-| **Saisie automatique des entrées**                                                                                | Case à cocher dans **Paramètres matériels → Contrôle de version**. Lorsqu'elle est activée, l'application ajoute automatiquement une entrée à l'historique des versions environ 2,5 secondes après la fin de la modification d'un onglet (et à l'historique du projet pour un onglet donné). Désactivez cette option si vous souhaitez uniquement conserver vos propres modifications. Voir [Contrôle de version](#version-control).                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| **Paramètres** (anciennement Paramètres matériels)                                                                | Ouvrez la boîte de dialogue des paramètres avec trois onglets : **Général** (mode assembleur, stub BASIC SYS, Exomizer, mises à jour, sortie ASM, aperçu SID, paramètres du débogueur, contrôle de version), **Fichiers et chemins** (VICE, RetroDebugger, ACME, Exomizer, git) et **Intégrations** (C64 Ultimate, Kung Fu Flash 2). Voir [Section 13](#13-hardware-settings).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| **Nouveau programme…**                                                                                            | Ouvre une boîte de dialogue de confirmation, puis efface tous les blocages de la zone du programme.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| **Tout réduire**                                                                                                  | Réduire tous les blocs                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| **À propos de **                                                                                                  | Informations sur la version                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| **Nouveautés**                                                                                                    | Journal des modifications                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| Contrôle                                                                                                                 | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| ------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ** Base numérique (HEX / DEC / BIN)**                                                                                    | Définit le format d'affichage/de saisie des opérandes dans l'interface utilisateur. Le mode BIN affiche les valeurs en binaire avec le préfixe `%` (par exemple, `%11111000`). La vue ASM affiche toujours chaque bloc dans son propre format.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| **Langue**                                                                                                               | Basculez l'interface utilisateur entre l'anglais, le hongrois, l'espagnol, l'allemand et le néerlandais (Nederlands).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| **Thème**                                                                                                                | Clair / Sombre / OLED / Commodore 77 / Commodore Starlight / Commodore Beige / Commodore 64 — choisissez votre thème dans le menu Paramètres. Le thème OLED utilise un fond noir pur pour les écrans AMOLED. Commodore 77 est un thème jaune fluo sur fond noir ; lorsqu'il est actif, l'écran de démarrage reprend la couleur du thème (assortie à la carte de message), affiche un logo Commodore 77 dédié plus petit et une barre de progression jaune. Commodore Starlight est un thème clair inspiré du boîtier C64 translucide : panneaux en verre dépoli laissant transparaître la lueur arc-en-ciel RVB, accent magenta, couleurs de syntaxe arc-en-ciel et un affichage sombre et fumé. Commodore Beige est le boîtier classique : boîtier beige, touches de fonction moutarde, rayures arc-en-ciel et écran bleu C64. Le thème choisi est appliqué avant le premier affichage au prochain lancement. |
+| **Mode rétro CRT**                                                                                                       | Active ou désactive un filtre CRT plein écran : lignes de balayage, vignettage phosphorescent, scintillement et distorsion en barillet. L’état est conservé entre les sessions.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| **Afficher le panneau de mémoire**                                                                                       | Bouton global permettant d'afficher ou de masquer le panneau de mémoire complet du C64                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| **Système de base stub**                                                                                                 | Ajoute une ligne BASIC appelant SYS à l'origine de votre programme (le premier ORG). Un segment placé après le premier ORG conserve sa propre adresse. Lorsque le programme se charge en dessous ou au-delà de la ligne BASIC (par exemple, un dump importé depuis `$071C`), les fonctions Run et Build ajoutent un petit chargeur de démarrage : `SYS 2061` copie un déplacement dans le tampon de bande (`$033C`), ce qui place le programme à son emplacement et effectue un saut vers le premier ORG.                                                                                                                                                                                                                                                                                                                                                                                                      |
+| **Exemples…**                                                                                                            | Ouvrez le navigateur d'exemples et chargez un programme d'exemple intégré — voir [Exemples de programmes](#example-programs)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| **Zoom avant / arrière**                                                                                                 | Redimensionner l'interface utilisateur du bloc (affecte tous les éléments du bloc)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| **Sauvegarder le projet**                                                                                                | Enregistrez le programme actuel en tant que fichier de projet `.json`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| **Enregistrer le programme sous **                                                                                       | Enregistrez le programme actuel en tant que fichier de projet `.json` en utilisant une nouvelle boîte de dialogue de fichier à chaque fois.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| **Charger le projet**                                                                                                    | Charger un projet précédemment enregistré                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| **Sauvegarder l'espace de travail**                                                                                      | Enregistrez l'ensemble exact des onglets actuellement ouverts et associés à un fichier (y compris l'onglet actif et le mode d'édition de chaque onglet : Bloc/Expert/Basique ultime) dans un fichier d'espace de travail `.vaws`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| **Enregistrer l'espace de travail sous **                                                                                | Enregistrez l'espace de travail actuel à chaque fois en utilisant une nouvelle boîte de dialogue de fichier.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| **Ouvrir l'espace de travail**                                                                                           | Fermez tous les onglets ouverts et rouvrez l'ensemble des fichiers stockés dans un fichier d'espace de travail `.vaws`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| **Définir le dossier de travail**                                                                                        | Choisissez le dossier par défaut utilisé par les boîtes de dialogue de sélection et d'enregistrement de fichiers. Le chemin est enregistré dans la configuration de l'application et les aperçus des menus affichent la fin du chemin.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| **Nouveau projet à partir d'un modèle…** (`Menu → Nouveau projet`, ou le bouton de la barre d'outils à côté de **Menu**) | Créez un nouveau projet `.proj` à partir d'un modèle Visual Assembler, ACME ou UltimateBasic dans son propre dossier — voir [Modèles de projets](#project-templates)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| **Ouvrir le projet** (`Menu → Fichier`)                                                                                  | Ouvrez un projet multi-fichiers `.proj` et ouvrez tous les fichiers sources sous forme d'onglets.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| **Enregistrer le projet** (`Menu → Fichier`)                                                                             | Enregistrez le projet actuel `.proj` (le panneau des projets doit être ouvert).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| **Fermer le projet** (`Menu → Fichier`)                                                                                  | Ferme le projet actuellement ouvert ainsi que tous ses onglets. Un message vous invite à enregistrer les modifications non enregistrées. Le panneau du projet retrouve son état initial.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| **Charger le fichier .asm**                                                                                              | Ouvre un fichier `.asm` en mode Expert et importe le code assembleur 6502 textuel dans l'onglet actuel.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| **Sauvegarder PRG**                                                                                                      | Exportez le binaire compilé sous forme de fichier `.prg`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| **Build CRT**                                                                                                            | Exportez le programme sous forme de fichier Magic Desk 64K (`.crt`, type de cartouche 19). Voir [Section 12b](#12b-crt-export-magic-desk-64k-cartridge).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| **Créer un projet** (`Menu → Créer`)                                                                                     | Compilez chaque fichier compilable du projet (ou des onglets ouverts) en un fichier `.prg` à côté de sa source — voir [Compiler le projet](#build-project)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| **Exécuter (bouton fractionné)**                                                                                         | Le bouton principal **▶ Exécuter** lance le mode actuel ; cliquez sur la flèche **▾** pour basculer entre : **Exécuter en tant que PRG** (compiler et lancer VICE directement), **Exécuter via D64** (créer une image disque .d64 et lancer VICE), **Exécuter sur le matériel** (envoyer le PRG à un périphérique C64 Ultimate / 1541 Ultimate), ou **Kung Fu Flash 2** (téléverser le PRG via USB sur un véritable C64/C128 avec une cartouche Kung Fu Flash 2). Voir [Section 12](#12-d64-export--run) et [Section 13](#13-hardware-settings).                                                                                                                                                                                                                                                                                                                                                               |
+| **Débogage (RetroDebugger)**                                                                                             | Compilez et lancez dans RetroDebugger avec des points d'arrêt, des symboles et des indicateurs de démarrage automatique (voir [Section 9](#9-debugger-integration))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| **Exécuter avec Exomizer**                                                                                               | Case à cocher dans le menu Paramètres : lorsqu'elle est activée, toutes les opérations d'exécution et de compilation traitent le fichier PRG via `exomizer sfx` avant de le lancer ou de l'enregistrer (`sfx basic` pour un fichier PRG commençant par une ligne BASIC, afin que l'exécution fonctionne à nouveau après le retour du programme ; `sfx $<adresse de chargement>` sinon). Fonctionne avec Exécuter en tant que PRG, Exécuter via D64, Exécuter sur le matériel, Compiler PRG et Compiler D64. Configurez d'abord l'exécutable Exomizer dans **Paramètres matériels**.                                                                                                                                                                                                                                                                                                                            |
+| **Saisie automatique des entrées**                                                                                       | Case à cocher dans **Paramètres matériels → Contrôle de version**. Lorsqu'elle est activée, l'application ajoute automatiquement une entrée à l'historique des versions environ 2,5 secondes après la fin de la modification d'un onglet (et à l'historique du projet pour un onglet donné). Désactivez cette option si vous souhaitez uniquement conserver vos propres modifications. Voir [Contrôle de version](#version-control).                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| **Paramètres** (anciennement Paramètres matériels)                                                                       | Ouvrez la boîte de dialogue des paramètres avec trois onglets : **Général** (mode assembleur, stub BASIC SYS, Exomizer, mises à jour, sortie ASM, aperçu SID, paramètres du débogueur, contrôle de version), **Fichiers et chemins** (VICE, RetroDebugger, ACME, Exomizer, git) et **Intégrations** (C64 Ultimate, Kung Fu Flash 2). Voir [Section 13](#13-hardware-settings).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| **Nouveau programme…**                                                                                                   | Ouvre une boîte de dialogue de confirmation, puis efface tous les blocages de la zone du programme.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| **Tout réduire**                                                                                                         | Réduire tous les blocs                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| **À propos de **                                                                                                         | Informations sur la version                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| **Nouveautés**                                                                                                           | Journal des modifications                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 
 ### Contrôle de version
 
@@ -1479,29 +1547,45 @@ comme un **conflit** (cadre rouge, avertissement dans l'en-tête).
 
 ### Bâtiment et diagnostic
 
-Le bouton **Build** ouvre la même interface de progression centrée que celle
-utilisée par les autres flux de travail d'exécution de Visual Assembler. Les
-compilations réussies mettent à jour les sections Sortie de compilation,
-Informations de compilation et Désassemblage. Activez l'option **Verbose** pour
-inclure les détails de la carte mémoire du compilateur, les allocations internes
-de pages zéro et les données du code généré.
+**Menu → Nouveau projet → Nouveau projet à partir d'un modèle…** — ou le bouton
+de la barre d'outils entre **Menu** et **Tutoriels** — ouvre la boîte de
+dialogue du modèle :
 
-1. Le résultat de la compilation est automatiquement affiché ;
+1. Choisissez une section en haut : **Visual Assembler**, **ACME** ou
+   **UltimateBasic** (la boîte de dialogue s’ouvre sur la section correspondant
+   au mode d’édition actuel). La section **ACME** apparaît uniquement si une
+   version fonctionnelle d’ACME est configurée dans **Paramètres → Fichiers et
+   chemins → ACME**.
 2. Les erreurs du compilateur sont affichées en rouge ;
 3. La boîte de dialogue de compilation centrée affiche l'échec ;
 4. En cas d'erreur contenant une ligne source, sélectionnez cette ligne dans
    l'éditeur UB actif.
 
-| Section           | Modèles intégrés                                                                                                                                                                                                                                |
-| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Assembleur**    | Programme vide, jeu vide (titre / états de jeu / fin de partie, joystick, sprite du joueur), bitmap haute résolution, bitmap multicolore, multiplexeur de sprites (16 sprites triés par Y à chaque image, affichés par une chaîne d'IRQ raster) |
-| **UltimateBasic** | Programme vide, jeu vide (même machine à états dans UB), bitmap haute résolution (`ligne` / `rect` / `cercle` avec `stylo de couleur`), IRQ raster (une `sub` appelée à chaque image à partir de l'interruption raster)                         |
+| Section               | Modèles intégrés                                                                                                                                                                                                                                |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Assembleur visuel** | Programme vide, jeu vide (titre / états de jeu / fin de partie, joystick, sprite du joueur), bitmap haute résolution, bitmap multicolore, multiplexeur de sprites (16 sprites triés par Y à chaque image, affichés par une chaîne d'IRQ raster) |
+| **ACME**              | Projet ACME vide, IRQ raster, multiplexeur de sprites (16 sprites)                                                                                                                                                                              |
+| **UltimateBasic**     | Programme vide, jeu vide (même machine à états dans UB), bitmap haute résolution (`ligne` / `rect` / `cercle` avec `stylo de couleur`), IRQ raster (une `sub` appelée à chaque image à partir de l'interruption raster)                         |
 
-En cas d'échec de la compilation :
+Le projet est créé dans son propre dossier : `<emplacement>/<nom>/<nom>.proj`
+plus `main.asm` (Visual Assembler ou ACME) ou `main.ub` (Ultimate Basic ; le
+fichier `.proj` est marqué comme projet Ultimate Basic). Le fichier `.proj` d'un
+projet ACME enregistre l'assembleur ACME, et sa création bascule **Paramètres →
+Général → Mode assembleur** en mode ACME (un projet Visual Assembler le rétablit
+en mode VMA). Un projet existant n'est jamais écrasé ; la boîte de dialogue le
+mentionne. Les onglets ouverts sont d'abord fermés (un message vous demande si
+vous souhaitez enregistrer des modifications), puis le nouveau projet s'ouvre en
+mode Expert ou en mode Basique Ultime avec le panneau du projet visible et le
+fichier principal défini comme fichier de démarrage.
 
-Les rapports d'informations de compilation contiennent les adresses de
-chargement/de fin, les tailles de code et de PRG, l'état de l'Exomizer, les
-variables, les tableaux, les fonctions/sous-programmes et les étiquettes.
+**Vos propres modèles :** **Mon dossier de modèles** (en bas à gauche de la
+boîte de dialogue) ouvre le dossier des modèles utilisateur dans le répertoire
+de configuration de l'application. Chaque fichier `.asm` ou `.ub` déposé dans ce
+dossier apparaît dans la section correspondante (un fichier `.asm` avec une
+ligne d'en-tête `; @assembler acme` est placé dans **ACME**) (sous *Mes
+modèles*, sauf s'il spécifie une catégorie). Un modèle est un fichier source
+ordinaire avec un en-tête optionnel de lignes de commentaires en haut : `;` en
+assembleur, `#` en Ultimate Basic.
 
 ```asm
 ; @name Barres raster
@@ -1680,6 +1764,183 @@ Limitation connue :
   page zéro (2 octets). Le code compilé écrit toujours à l'emplacement mémoire
   correct, mais avec une légère surcharge de taille et de cycles par rapport au
   même code source compilé avec Kick Assembler.
+
+#### Projets Kick (Importer un projet Kick…)
+
+**Importer un projet Kick…** (menu Programme, sous **Importation Kick**) prend
+un arbre source KickAssembler complet — un fichier principal avec des modules
+`#import` et des ressources binaires `.import` — et en fait un projet VA.
+Choisissez le fichier principal (`main.asm`) ; VA suit chaque instruction
+``#import` / `.import source` / `.import binary`` (y compris dans les branches
+``.if`` non utilisées) et crée un fichier ``.proj`` à côté, nommé d'après le
+dossier (les dossiers ``src` / `source` / `asm`` utilisent le nom du dossier
+parent). Le projet liste tous les fichiers de son arborescence ; les sources
+restent à leur emplacement d'origine, ce qui permet à un script de compilation
+KickAssembler existant de continuer à fonctionner. Les fichiers introuvables
+sont affichés dans la boîte de dialogue d'erreur.
+
+**Activation de la compatibilité Kick : ** tout projet VA (VMA) peut être rendu
+compatible Kick grâce au bouton `{K}` situé dans l’en-tête du panneau Projet
+(affiché en mode VMA lorsqu’un projet est ouvert ; il est activé pour les
+projets Kick importés). Le paramètre est enregistré dans le fichier `.proj`
+(`"kick": true`) ; désactivé, le projet est un projet VMA standard et se compile
+exactement comme auparavant.
+
+Dans un projet compatible Kick, les macros et directives VA continuent de
+fonctionner en parallèle du script KickAssembler : `.text x, y, "…"`,
+`.set_border`, LOOP / NEXT, SPRITE_INIT, `.include`, `.incbin`, `.sid`,
+`.define` / `.if SYMBOL` / `.else` / `.endif`, macros VA (`.macro name(p)` …
+`.endm` avec `{p}`) et le reste sont transmis tels quels à l'assembleur VA, avec
+les constantes Kick sous forme de nombres. Les directives présentes dans les
+deux sont distinguées par leur forme :
+
+| VA (VMA)                                         | KickAssembler                                                                                                                  |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
+| `.for X, $0A, for1` … `.endf for1`               | `.pour (var je = 0; je < 10; i++) { … }`                                                                                    |
+| `.if DEBUG` … `.else` … `.endif`                 | `.if (expression) { … } sinon { … }`                                                                                           |
+| `.macro nom(p)` … `.endm`, appelé avec `.invoke` | `.macro Nom(p) { … }`, appelée comme `Nom(arg)`                                                                                |
+| `.var nom = valeur` (une variable d'exécution)   | `.var nom = valeur` (une variable de script) — dans un projet compatible Kick, `.var` est toujours la valeur de KickAssembler. |
+
+Le projet est compilé avec l'assembleur VA, et non avec KickAssembler : chaque
+compilation (Exécuter, Enregistrer le PRG, D64, CRT, Exomizer, Déboguer,
+Moniteur VICE, Compiler le projet, bouton Compiler) exécute d'abord le fichier
+de démarrage via un préprocesseur KickAssembler, avec le texte de l'éditeur des
+onglets ouverts, enregistrés ou non. Le résultat est le même PRG que celui de
+KickAssembler.
+
+- `#import`, `.import source`, `#importonce`; `.import binary` / `c64` / `text`
+  avec décalage et longueur optionnels
+- `.const` / `.label` dans n'importe quel ordre, avec des expressions ;
+  l'adressage de page zéro ou absolu suit la valeur comme dans KickAssembler
+  (`.abs` / `.zp` le forcent toujours)
+- `.for (var i = 0; i < n; i++) { … }` et la forme sur une seule ligne,
+  `.var`, `.eval` (`=`, `+=`, `++` …), `.if (…) { … } else .if (…) { … } else {
+  … }` et la forme sur une seule ligne
+- `.function Name(params) { .return expr }` et `.macro Name(params) { … }`
+  appelées comme `Name(args)` ou `:Name(args)`
+- multi-étiquettes `!:` / `!nom:` avec `!+`, `!-`, `!++`, `!nom+`, `!nom-`
+- `.pseudopc adresse { … }` : les étiquettes internes récupèrent l’adresse
+  logique, les octets restent à leur place.
+- `BasicUpstart2(label)` / `BasicUpstart(label)`, `* = adresse "segment"`,
+  `.fill n, expr` (avec `i`) et `.fill n, [a, b]`, `.align`, `.byte`, `.word`,
+  `.dword`, `.text`
+- `.assert "description", expr, true`; `cmdLineVars.containsKey(…)` /
+  `cmdLineVars.get(…)` et `#define` proviennent des **Paramètres du projet**
+  (KickAssembler's `:name=value` et `-define NAME`)
+- `LoadBinary("file"[, template])` avec `get(i)` / `uget(i)` / `getSize()`, un
+  modèle tel que `"C64FILE, Bitmap=$0000, ScreenRam=$1f40"` (ou `BF_KOALA`,
+  `BF_FLI`, `BF_DOODLE`, `BF_BITMAP_SINGLECOLOR`, `BF_C64FILE`) donnant
+  `getBitmap(i)` / `getBitmapSize()` par bloc ; `LoadSid("file.sid")` avec
+  `location`, `init`, `play`, `songs`, `startSong`, `size`, `name`, `author`,
+  `copyright`, `getData(i)` … ; `.fill` avec des valeurs de script est
+  immédiatement développé
+- `* = adresse « nom » virtuel` : un bloc de mémoire virtuelle — ses étiquettes
+  reçoivent des adresses, mais aucun octet n’est écrit.
+- `.while (…) { … }`, `i++` / `--i` dans les expressions, `.var nom` sans valeur
+- `*` comme compteur de programme (`jmp *`, `bne *-1`, également à l'intérieur
+  de `.pseudopc`)
+- `;` entre les instructions (`lda #1; sta $d020`, `.var a = 1; .var b = 2`): un
+  `;` juste après le code, sans espace, suivi d'une instruction. Tout autre `;`
+  commence un commentaire, comme dans VA, donc `lda #1 ; commentaire` continue
+  de fonctionner
+- la bibliothèque mathématique (`sin`, `cos`, `toRadians`, `toDegrees`, `round`,
+  `floor`, `sqrt`, `pow`, `atan2`, `log10`, `random` …), les constantes de
+  couleur (`BLACK` … `LIGHT_GREY`), les constantes d'opcode (`RTS`, `LDA_IMM`,
+  `LDA_ZPX`, `JMP_IND`, `BNE_REL` …) et `asmCommandSize()`
+- `BasicUpstart2(label)` avec l'étiquette n'importe où les tailles atteignent à
+  partir d'un `* =` (par exemple `* = $4000` … `start:` donne SYS 16384)
+- Les portées comme dans KickAssembler : `{ }` blocs, `.if` branches, `.for` /
+  `.while` tours et les appels de macro ont leurs propres étiquettes et
+  constantes (une `loop:` à l'intérieur n'entre pas en collision avec une boucle
+  extérieure ; `.pseudopc` n'est pas une portée). Une étiquette avant la portée
+  permet d'accéder aux étiquettes internes : `name: { … }` → `name.inner`, `lp:
+  .for (…)` → `lp[2].inner`, `myIf: .if (…)` → `myIf.inner`, `c1: Macro()` →
+  `c1.inner`, `.label base = $1000 { … }` → `base.inner`
+- `.namespace nom { … }` et `.filenamespace nom` (jusqu'à la fin du fichier) :
+  les étiquettes sont accessibles via `nom.étiquette` ; `@étiquette:`,
+  `.étiquette @x = …`, `.fonction @f` / `.macro @m` place le symbole à la
+  racine, et `@nom` fait référence au symbole racine. Les fonctions et les
+  macros sont visibles partout, même celles d'un espace de noms sans `@`.
+- `.pseudocommande nom a : b { … }`: appelé comme un mnémonique (`mov #10 :
+  $1000`, `mov src,x : ($30),y`); les arguments conservent leur mode d'adressage
+  (`getType()` = `AT_IMMEDIATE`, `AT_ABSOLUTE`, `AT_ABSOLUTEX` / `Y`,
+  `AT_INDIRECT`, `AT_IZEROPAGEX` / `Y`, `AT_NONE` pour un argument manquant ;
+  `getValue()`), `CmdArgument(type, value)` en crée un nouveau. Une
+  pseudo-commande nommée comme un mnémonique nécessite le deux-points (`:adc …`)
+  ; sans lui, le mnémonique est assemblé.
+- le préprocesseur : `#define`, `#undef`, `#if` / `#elif` / `#else` / `#endif`
+  (avec `!`, `&&`, `||`), `#importif`
+- `List()` (`add`, `get`, `set`, `size`, `remove`, `sort`, `reverse`, `shuffle`,
+  `addAll`), `Hashtable()` (`put`, `get`, `containsKey`, `remove`, `keys`),
+  `.struct Name {a, b}` (`Name(1, 2)`, `p.a`, `.eval p.a = 3`, `getFieldNames()`
+  …), strings (`+`, `charAt`, `substring`, `size`, `toUpperCase`,
+  `asNumber(radix)` …, `toIntString` / `toHexString` / `toBinaryString` avec une
+  taille minimale), `.enum {A, B, C = 5}`, `.define name, … { … }`, `.eval
+  list.add(…)`, un caractère dans `.byte` et des expressions de chaîne dans
+  `.text` (dans l'encodage ` actuel)
+- `.error "message"`, `.errorif condition, "message"`; `.print` / `.printnow` La
+  sortie est affichée dans la barre d'état (le premier message et le nombre) et
+  intégralement dans **Build Info**. Une condition `.if` qui ne signale que
+  (`.error` …) est ignorée lorsque sa condition nécessite des adresses
+  d'étiquettes
+- Pour les formats GIF, PNG et JPG : `width`, `height`, `getPixel(x, y)`,
+  `getSinglecolorByte(x, y)`, `getMulticolorByte(x, y)`. Sans table de couleurs,
+  les couleurs sont utilisées dans l'ordre d'apparition. Il est également
+  possible de passer un nom d'image dans une variable (`LoadPicture(filename)`).
+- segments : `.segmentdef Nom [start, startAfter, align, min, max, fill,
+  fillByte, segments, prgFiles, sidFiles, virtual, outPrg, outBin,
+  modify="BasicUpstart", _start]`, `.segment Nom [params] "block"`, `.segmentout
+  [segments=…]`, `.file [name=…, segments=…, allowOverlap]`, `.disk [filename=…,
+  name=…] { [name=…, type=…, segments=…], … }`, `.memblock`. Un segment sans
+  `start` commence à $2000 comme dans KickAssembler. **Run** lance le segment
+  par défaut ; lorsqu'il est vide, la première sortie PRG (celle à $0801 en
+  premier) est générée. **Build project** écrit chaque `.file` / `outPrg` /
+  `outBin` à côté du fichier de démarrage et construit l'image `.disk` avec
+  c1541
+- `.fillword n, expr`, `.lohifill n, expr` (avec une étiquette : `name.lo` /
+  `name.hi`) ; suffixes mnémoniques `.im` / `.i`, `.z` / `.zp`, `.a` / `.abs`
+- `.cpu _6502NoIllegals` / `_6502` (par défaut, avec les opcodes illégaux) /
+  `dtv` (`bra`, `sac`, `sir`) / `_65c02` (`(zp)` mode, `bra`, `phx` / `phy` /
+  `plx` / `ply`, `stz`, `trb`, `tsb`, `rmb0-7` / `smb0-7`, `bbr0-7` / `bbs0-7`,
+  `stp`, `wai`, `inc` / `dec` A, `bit #`, `jmp (abs,x)`); L'assembleur VA
+  connaît également tous les opcodes illégaux NMOS, avec tous leurs modes et
+  autres noms (sha` / ahx`, shx`, shy`, tas` / shs`, las` / lae`, xaa` / ane`,
+  lxa`, anc2`, sbc2`…).
+- `.break ["condition"]` et `.watch address[, end][, "store"]` : points d'arrêt
+  et observateurs dans le fichier de symboles VICE (lignes `break` / `watch`,
+  telles qu'écrites par KickAssembler) et dans le RetroDebugger `.dbg` ; les
+  lignes `.break` sont également des points d'arrêt de **Debug**.
+- `Vector(x, y, z)` (`+`, `-`, `*` nombre / produit scalaire, `/`, `X()` produit
+  vectoriel, `get(n)`, `getX()` …) et matrices 4×4 : `Matrix()`,
+  `RotationMatrix(ax, ay, az)`, `ScaleMatrix`, `MoveMatrix`,
+  `PerspectiveMatrix(z)`, `get(n, m)`, `set(n, m, v)`, matrice × matrice,
+  matrice × vecteur
+- `getNamespace()`; `.asserterror "name", expression` et le code forme `.assert
+  "name", { … }, { … }` / `.asserterror "name", { … }` (les résultats sont des
+  messages `.print`, comme le rapport d'assertion de KickAssembler); `* - label`
+  dans une constante (`.label size = * - start`)
+- `.modify` / `.filemodify` nécessitent un plugin Java KickAssembler : le bloc
+  est assemblé sans le modificateur, avec un message.
+
+Pendant la saisie, l'arborescence complète est vérifiée : les erreurs du fichier
+ouvert sont signalées dans l'éditeur, la barre d'état affiche la première erreur
+et la boîte de dialogue d'erreurs de compilation s'affiche sous la forme
+`fichier:ligne` — un clic ouvre le fichier à la ligne correspondante. La carte
+mémoire affiche le programme compilé et la barre de cycles indique les cycles du
+fichier ouvert (une ligne déroulée par `.for` ou une macro comme `4×8` : un
+tour, huit fois ; une sélection est ajoutée à chaque tour). Les infobulles
+marquent les lignes du fichier ouvert ; les panneaux Désassemblage et Moniteur
+affichent le programme compilé. L'éditeur met en évidence la syntaxe
+KickAssembler (`#import`, `.segment`, fonctions de script, `!labels`, `;` dans
+`.for (…)`), et la complétion propose les directives Kick (`.`), le
+préprocesseur (`#`) et les fonctions de script. Les messages du préprocesseur
+apparaissent dans le langage de l'application. **Debug** (RetroDebugger) obtient
+une carte source avec les fichiers et lignes d'origine, les noms de symboles
+lisibles (`scope.label`) et les points d'arrêt de chaque fichier de projet
+ouvert. Les fichiers binaires dans l'arborescence du projet ne sont pas ouverts
+en tant que texte. Le portage C64 de Dark Chambers (19 fichiers sources, 15
+fichiers binaires) et les onze exemples KickAssembler avec un code construit
+octet par octet comme KickAssembler 5.25.
 
 ## 6. Mode expert
 
@@ -1938,7 +2199,7 @@ sélecteur de mode figure sur chaque bloc.
 
 ```
 ┌───────────────────────────────────────────────────────────────┐
-│ [barre d'outils] Bloc │ Expert &lt; bascule d'onglet │
+│ [barre d'outils] Bloc │ Expert < bascule d'onglet │
 
 ├────────────┬────────────────────────────┬────────────┤
 
@@ -1958,23 +2219,23 @@ sélecteur de mode figure sur chaque bloc.
 
 ### Étiquettes locales (en pointillés)
 
-| Bouton                                    | IDENTIFIANT                                    | Fonction                                                                                                                                                                                                                                                              |
-| ----------------------------------------- | ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Format**                                | `#bouton-format-expert`                        | Formatage automatique du code source (étiquettes en colonne 0, retrait de 4 espaces, mnémonique/opérande de 1 espace)                                                                                                                                                 |
-| **Charger .asm**                          | `#expert-load-asm-btn`                         | Ouvrez un fichier `.asm` : son contenu est chargé dans un nouvel onglet **** dont le nom correspond à celui du fichier. Chaque fichier chargé devient un onglet indépendant, avec ses propres blocs de programme et son propre état d'éditeur.                        |
-| **Enregistrer .asm**                      | `#expert-save-asm-btn`                         | Enregistrez le contenu de l'éditeur dans un fichier `.asm` (boîte de dialogue de fichier lors du premier enregistrement).                                                                                                                                             |
-| **Informations sur la version**           | `#expert-build-info-btn`                       | Ouvrir la boîte de dialogue Informations de compilation (origine, taille, étiquettes, erreurs)                                                                                                                                                                        |
-| **HL**                                    | `#expert-hl-btn`                               | Activer/désactiver la coloration syntaxique (désactiver pour les fichiers très volumineux)                                                                                                                                                                            |
-| **Saisie automatique**                    | `#expert-autocomplete-btn`                     | Activer/désactiver les suggestions de saisie semi-automatique pour les experts. Lorsqu'elles sont désactivées, aucune directive, aucun mnémonique ni aucune étiquette ne s'affiche dans l'éditeur expert.                                                             |
-| **Sélection de région**                   | `#bouton-sélection-région-expert`              | Activez ou désactivez la mise en surbrillance automatique des régions en mode Expert. L'état de pliage est conservé, mais lorsque cette option est désactivée, l'éditeur affiche l'intégralité du code source et ne sélectionne pas automatiquement la région active. |
-| **Réduire/développer toutes les régions** | `#expert-region-fold-all-btn`                  | Dépliez ou repliez chaque bloc `.region` en un clic. Si une région est ouverte, le bouton les replie toutes ; si toutes les régions sont déjà repliées, un clic supplémentaire les déplie. Le bouton s'illumine lorsque toutes les régions sont repliées.             |
-| **Numéros de ligne**                      | `#expert-line-numbers-btn`                     | Activez ou désactivez l'affichage de la marge de numérotation des lignes à gauche de l'éditeur. Cette marge reste synchronisée avec la position de défilement et se met à jour en temps réel pendant que vous tapez.                                                  |
-| **Trouver**                               | `#expert-find-btn`                             | Ouvrez la barre de recherche flottante (Ctrl+F). Saisissez votre recherche ; les résultats s’affichent en surbrillance. Appuyez sur Entrée ou Maj+Entrée pour naviguer entre les résultats. Appuyez sur Échap pour fermer la barre.                                   |
-| **Zoom arrière / zoom avant**             | `#expert-zoom-out-btn` / `#expert-zoom-in-btn` | Augmenter/diminuer la taille de la police de l'éditeur (8 à 28 px). Ctrl + molette de la souris (Cmd + molette sur macOS, ou pincer l'écran avec le pavé tactile) sur l'éditeur produit le même résultat. Le réglage est conservé.                                    |
-| **Palette**                               | `#expert-palette-btn`                          | Afficher/masquer la palette mnémotechnique de gauche                                                                                                                                                                                                                  |
-| **Désastre**                              | `#expert-disasm-btn`                           | Afficher/masquer le panneau de démontage (6502 pur, macros étendues)                                                                                                                                                                                                  |
-| **Moniteur**                              | `#expert-monitor-btn`                          | Afficher/masquer le panneau d'affichage hexadécimal du moniteur                                                                                                                                                                                                       |
-| **Mini-carte**                            | `#expert-minimap-btn`                          | Afficher/masquer la mini-carte du code sur le côté droit de l'éditeur                                                                                                                                                                                                 |
+| Bouton                                    | IDENTIFIANT                                    | Fonction                                                                                                                                                                                                                                                                                            |
+| ----------------------------------------- | ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Format**                                | `#bouton-format-expert`                        | Formatage automatique du code source (étiquettes en colonne 0, retrait de 4 espaces, mnémonique/opérande de 1 espace)                                                                                                                                                                               |
+| **Charger .asm**                          | `#expert-load-asm-btn`                         | Ouvrez un fichier `.asm` : son contenu est chargé dans un nouvel onglet **** dont le nom correspond à celui du fichier. Chaque fichier chargé devient un onglet indépendant, avec ses propres blocs de programme et son propre état d'éditeur.                                                      |
+| **Enregistrer .asm**                      | `#expert-save-asm-btn`                         | Enregistrez le contenu de l'éditeur dans un fichier `.asm` (boîte de dialogue de fichier lors du premier enregistrement).                                                                                                                                                                           |
+| **Informations sur la version**           | `#expert-build-info-btn`                       | Ouvrez la boîte de dialogue Informations de compilation : l’origine, la fin, la taille et le nombre de segments s’affichent en haut, puis les segments, les erreurs (`fichier:ligne` dans un projet Kick) et la sortie `.print`, et enfin les étiquettes, les constantes et les macros en colonnes. |
+| **HL**                                    | `#expert-hl-btn`                               | Activer/désactiver la coloration syntaxique (désactiver pour les fichiers très volumineux)                                                                                                                                                                                                          |
+| **Saisie automatique**                    | `#expert-autocomplete-btn`                     | Activer/désactiver les suggestions de saisie semi-automatique pour les experts. Lorsqu'elles sont désactivées, aucune directive, aucun mnémonique ni aucune étiquette ne s'affiche dans l'éditeur expert.                                                                                           |
+| **Sélection de région**                   | `#bouton-sélection-région-expert`              | Activez ou désactivez la mise en surbrillance automatique des régions en mode Expert. L'état de pliage est conservé, mais lorsque cette option est désactivée, l'éditeur affiche l'intégralité du code source et ne sélectionne pas automatiquement la région active.                               |
+| **Réduire/développer toutes les régions** | `#expert-region-fold-all-btn`                  | Dépliez ou repliez chaque bloc `.region` en un clic. Si une région est ouverte, le bouton les replie toutes ; si toutes les régions sont déjà repliées, un clic supplémentaire les déplie. Le bouton s'illumine lorsque toutes les régions sont repliées.                                           |
+| **Numéros de ligne**                      | `#expert-line-numbers-btn`                     | Activez ou désactivez l'affichage de la marge de numérotation des lignes à gauche de l'éditeur. Cette marge reste synchronisée avec la position de défilement et se met à jour en temps réel pendant que vous tapez.                                                                                |
+| **Trouver**                               | `#expert-find-btn`                             | Ouvrez la barre de recherche flottante (Ctrl+F). Saisissez votre recherche ; les résultats s’affichent en surbrillance. Appuyez sur Entrée ou Maj+Entrée pour naviguer entre les résultats. Appuyez sur Échap pour fermer la barre.                                                                 |
+| **Zoom arrière / zoom avant**             | `#expert-zoom-out-btn` / `#expert-zoom-in-btn` | Augmenter/diminuer la taille de la police de l'éditeur (8 à 28 px). Ctrl + molette de la souris (Cmd + molette sur macOS, ou pincer l'écran avec le pavé tactile) sur l'éditeur produit le même résultat. Le réglage est conservé.                                                                  |
+| **Palette**                               | `#expert-palette-btn`                          | Afficher/masquer la palette mnémotechnique de gauche                                                                                                                                                                                                                                                |
+| **Désastre**                              | `#expert-disasm-btn`                           | Afficher/masquer le panneau de démontage (6502 pur, macros étendues)                                                                                                                                                                                                                                |
+| **Moniteur**                              | `#expert-monitor-btn`                          | Afficher/masquer le panneau d'affichage hexadécimal du moniteur                                                                                                                                                                                                                                     |
+| **Mini-carte**                            | `#expert-minimap-btn`                          | Afficher/masquer la mini-carte du code sur le côté droit de l'éditeur                                                                                                                                                                                                                               |
 
 *(Nouveau dans la version 2.3.9.)* Une étiquette dont le nom commence par un
 point — `.loop`, `.skip`, `.done` — est une étiquette locale.**Elle appartient à
@@ -2112,6 +2373,14 @@ Le mode expert prend en charge un panneau de projet ****
   exemple, un répertoire de ressources) de la même manière. Les entrées de type
   référence uniquement affichent un bouton Supprimer (✕) mais ne s'ouvrent pas
   lorsqu'on clique dessus.
+- **Paramètres du projet** (le bouton d'engrenage dans l'en-tête du panneau, ou
+  **Menu → Fichier → Paramètres du projet…**) affiche et modifie le projet :
+  nom, `.proj` chemin, fichier de démarrage, assembleur (VMA ou ACME),
+  **compatible KickAssembler**, et pour un projet Kick les symboles de
+  préprocesseur (`#define`, comme `-define` de KickAssembler) et les variables
+  de ligne de commande (`cmdLineVars`, une `nom=valeur` par ligne, comme
+  `:nom=valeur`), ainsi que le nombre de fichiers source et autres. Tout est
+  enregistré dans le `.proj`.
 - Les dossiers dans l'arborescence ont une flèche de réduction/développement, et
   **cliquez avec le bouton droit sur un dossier** pour ajouter un ou plusieurs
   fichiers imbriqués en dessous (affichés en retrait).
@@ -2172,10 +2441,12 @@ Ce qui suit la construction d'ACME :
   projet** et **Déboguer (RetroDebugger)** compiler via ACME ; les erreurs et
   avertissements ACME s'ouvrent dans la boîte de dialogue d'erreur de
   compilation normale, avec la ligne source.
-- Avec le panneau **Désassemblage** ou **Moniteur** ou la gouttière de cycle
-  activée, la source est reconstruite après une pause de frappe, de sorte que
-  les panneaux affichent les véritables octets ACME ; les panneaux utilisent les
-  étiquettes ACME.
+- Après une pause de saisie, le code source est reconstruit, de sorte que les
+  panneaux **carte mémoire** (bande mémoire, panneau de segment, avertissement
+  de chevauchement), **Désassemblage** et **Moniteur** ainsi que la marge de
+  cycle affichent la sortie ACME réelle ; ces panneaux utilisent les étiquettes
+  ACME. Un chevauchement correspond à une adresse écrite par deux lignes de code
+  source (la dernière ligne écrite est prioritaire dans le PRG).
 - Les fichiers de débogage (générés dans Paramètres → Général) sont créés à
   partir du dump des étiquettes ACME : `sym` (style KickAssembler) et `vs`
   (étiquettes VICE) à côté du PRG ; il n'y a pas de source map `dbg` en mode
@@ -2294,7 +2565,7 @@ de données relatives au compteur ordinal.
 
 **PC vs. multiplication.** `*` est traité comme le compteur de programme
 uniquement lorsqu'il se trouve en position de valeur ** — au début de
-l'expression, ou juste après un opérateur, `(`, `,`, `&lt;`, `&gt;` ou un
+l'expression, ou juste après un opérateur, `(`, `,`, `<`, `>` ou un
 espace. Un `*` qui suit un nombre, `)` ou un identificateur est une
 multiplication ordinaire, donc `LDA table*2` et `CONST_A*4` restent inchangés.
 
@@ -2364,7 +2635,7 @@ deux-points.
 ```
 Configuration :
 
-LDA valeur : #$00 ; « valeur » -&gt; adresse de l’octet d’opérande #$00
+LDA valeur : #$00 ; « valeur » -> adresse de l’octet d’opérande #$00
 
 … Correctif :
 
@@ -2517,7 +2788,9 @@ LBEQ terminé ; assemblage en : BNE *+3 ($D0 $03)
 Comme une boucle **POKE** — écrit une liste d'octets bruts à une adresse mémoire
 au moment de l'exécution, une paire LDA/STA par octet.
 
-**Syntaxe experte : **
+`LAX`, `SAX`, `DCP`, `ISC`, `SLO`, `RLA`, `SRE`, `RRA`, `ANC`, `ALR`, `ARR`,
+`AXS`, et les formes `NOP` qui lisent un opérande : `NOP #$nn` ($80), `NOP $nn`
+($04), `NOP $nn,X` (14 $), `NOP $nnnn` ($0C), `NOP $nnnn,X` ($1C)
 
 ---
 
@@ -2901,13 +3174,13 @@ disponible en mémoire dès le chargement du PRG.
 
 **ASM généré : **
 ```
-; .rawtext "HELLO" -&gt; $C000
+; .rawtext "HELLO" -> $C000
 
 ; $C000
 
 .byte $08, $05, $0C, $0C, $0F ; H E L L O (codes d'écran majuscules)
 
-; .rawtext "hello", lower -&gt; $C000
+; .rawtext "hello", lower -> $C000
 
 ; $C000
 
@@ -3197,7 +3470,7 @@ LDA $FD ; b1 droite
 
 CMP $F7 ; b2 gauche
 
-BCC non ; R1 &lt; L2 → raté
+BCC non ; R1 < L2 → raté
 
 LDA $F9 ; b2 droite
 
@@ -3397,7 +3670,7 @@ pointeurs suivent les écrans. Un niveau peut comporter jusqu'à 7 × 10 écrans
 | `LEVEL_ATTR`, `LEVEL_ATTR_SOLID` … `LEVEL_ATTR_COLLECT`                       | Tableau des attributs de caractère (un octet indicateur par code d'écran ; uniquement lorsque le niveau possède des attributs) et ses bits : 1, 2, 4, 8                                   |
 | `LEVEL_BORDER`, `LEVEL_SCR_COLORS`, `LEVEL_SCR_BG/BORDER/MC1/MC2`             | Bordure de niveau ; tables de couleurs par emplacement (ordre ligne comme `LEVEL_SLOT_*`) lorsqu'un écran possède ses propres couleurs (`LEVEL_SCR_COLORS` = 1)                           |
 
-garde typique : `.assert LEVEL_END &lt;= $9200, "les données de niveau entrent
+garde typique : `.assert LEVEL_END <= $9200, "les données de niveau entrent
 dans le code"`.
 
 #### LIGNE_NIVEAU
@@ -4132,28 +4405,28 @@ valeur est affichée. Si elle est vraie (non nulle), aucun message n'est émis.
 
 | Champ      | Description                                                                                                                                                 |
 | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Expression | Toute expression assembleur : étiquettes, `CONST`, `*` (compteur de programme), arithmétique et comparaisons (`&lt;`, `&lt;=`, `&gt;`, `&gt;=`, `==`, `!=`) |
+| Expression | Toute expression assembleur : étiquettes, `CONST`, `*` (compteur de programme), arithmétique et comparaisons (`<`, `<=`, `>`, `>=`, `==`, `!=`) |
 | Message    | Texte facultatif ajouté à l'erreur d'échec                                                                                                                  |
 
 **Syntaxe experte : **
 ```
-.assert spriteData &lt; $C000
+.assert spriteData < $C000
 
-.assert * &lt; $A000
+.assert * < $A000
 
-.assert end - start &lt;= 256, "Le tableau des sprites a débordé d'une page"
+.assert end - start <= 256, "Le tableau des sprites a débordé d'une page"
 ```
 
 **Comportement : **
 
 - **Taille : ** 0 octets.
-- Une assertion fausse interrompt l'assemblage : `` `.assert end - start &lt;=
+- Une assertion fausse interrompt l'assemblage : `` `.assert end - start <=
   256` est faux (valeur : 0). La table des sprites a dépassé d'une page ``.
 - Une assertion qui ne peut pas être évaluée (étiquette non définie, etc.)
   échoue également, avec *"ne peut pas être évaluée au moment de l'assemblage"*.
 - Les comparaisons donnent `1` / `0`; placez `.assert` n'importe où dans le flux
   du programme — il est vérifié à l'adresse sur laquelle il se trouve, donc
-  `.assert * &lt; $D000` teste la position de sortie actuelle.
+  `.assert * < $D000` teste la position de sortie actuelle.
 
 **Exemple — protéger un bloc sprite contre un changement de page : **
 ```
@@ -4292,7 +4565,7 @@ immédiate et génère la séquence de branchement CMP / CPX / CPY appropriée.
 | Champ     | Description                                  |
 | --------- | -------------------------------------------- |
 | Registre  | `A`, `X` ou `Y`                              |
-| Opérateur | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
+| Opérateur | `==`, `!=`, `<`, `<=`, `>`, `>=` |
 | Valeur    | Valeur immédiate au format HEX ou DEC        |
 
 **Syntaxe experte : **
@@ -4308,7 +4581,7 @@ LDA #$0F
 
 **Taille : ** Dépend des branches choisies et du formulaire de comparaison.
 
-La comparaison est non signée par défaut. Pour `&lt;=` et `&gt;`, la macro
+La comparaison est non signée par défaut. Pour `<=` et `>`, la macro
 s'étend à la chaîne de branchement équivalente la plus courte pour le registre
 sélectionné.
 
@@ -4322,7 +4595,7 @@ tant que la condition reste vraie.
 | Champ     | Description                                  |
 | --------- | -------------------------------------------- |
 | Registre  | `A`, `X` ou `Y`                              |
-| Opérateur | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
+| Opérateur | `==`, `!=`, `<`, `<=`, `>`, `>=` |
 | Valeur    | Valeur immédiate au format HEX ou DEC        |
 
 **Syntaxe experte : **
@@ -4349,7 +4622,7 @@ toujours au moins une fois, puis la condition décide s'il faut s'arrêter.
 | Champ     | Description                                  |
 | --------- | -------------------------------------------- |
 | Registre  | `A`, `X` ou `Y`                              |
-| Opérateur | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
+| Opérateur | `==`, `!=`, `<`, `<=`, `>`, `>=` |
 | Valeur    | Valeur immédiate au format HEX ou DEC        |
 
 **Syntaxe experte : **
@@ -5048,7 +5321,7 @@ depuis le disque pendant l'exécution de votre programme.
 
 | Champ                                | Description                                                                                                                                                                                                                                                    |
 | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Nom de fichier                       | Nom du fichier sur le disque (16 caractères maximum, majuscules automatiques ; les caractères `,`, `"`, `/`, `\`, `:`, `*`, `?`, `&lt;`, `&gt;`, `|` sont filtrés)                                                                                             |
+| Nom de fichier                       | Nom du fichier sur le disque (16 caractères maximum, majuscules automatiques ; les caractères `,`, `"`, `/`, `\`, `:`, `*`, `?`, `<`, `>`, `|` sont filtrés)                                                                                             |
 | Appareil                             | Numéro de périphérique 8–30 (par défaut `8`)                                                                                                                                                                                                                   |
 | Adresse de remplacement (facultatif) | Adresse de chargement hexadécimale (par exemple, `C000`). Si cette option est définie, le fichier est chargé à cette adresse (`sec=0`, l'en-tête PRG étant ignoré). Laissez ce champ vide pour utiliser l'en-tête PRG de 2 octets propre au fichier (`sec=1`). |
 | Étiquette d'erreur (facultatif)      | Si cette option est activée, une instruction `BCS` est générée après JSR LOAD. Si le KERNAL renvoie une retenue (erreur), l'exécution saute à cette étiquette.                                                                                                 |
@@ -5170,11 +5443,10 @@ ajouté à chaque lecture pour un effet de flash visible pendant la décompressi
 Placez-le dans votre programme avec un bloc `INCBIN` à l'adresse du
 décompresseur.
 
-**Compensation de sécurité : ** Le mode mémoire par défaut d'Exomizer applique
-un décalage de sécurité de 2 octets ; les données sont donc placées 2 octets
-avant la cible demandée. La boîte de dialogue « Exécuter via D64 » ** ajoute
-automatiquement 2 au champ Dst ** avant d'appeler Exomizer, afin que le
-comportement affiché corresponde à l'adresse saisie.
+**Entrée brute : ** l'extra est transmis à Exomizer en tant que fichier brut
+chargé à l'adresse Dst (`file@<Dst>`), de sorte que le dépackeur écrit chaque
+octet, en commençant par le premier, exactement à l'adresse que vous avez
+saisie.
 
 > **Voir aussi :** l’exemple `exo-multicolor-demo` — exemple complet de bout en
 > bout : LOADFILE un bitmap multicolore compressé dans $C000, EXODECRUNCH le
@@ -5211,11 +5483,11 @@ LDA $DF04
 CMP #$AA
 Échec du BNE
 MDL #00$
-CMP #$FF ; Z=0 =&gt; REU présent
+CMP #$FF ; Z=0 => REU présent
 BNE terminé
 échouer:
 MDL #$FF
-CMP #$FF ; Z=1 =&gt; pas de REU
+CMP #$FF ; Z=1 => pas de REU
 fait:
 ```
 > La macro normalise le résultat afin que la branche suivante reste simple :
@@ -5305,7 +5577,7 @@ Configure la vitesse du processeur **Ultimate-64 (U64)** via le registre
 | Vitesse | Indice de vitesse du processeur | 0 = 1 MHz … 7 ≈ 10 MHz … 15 ≈ 48 MHz        |
 | Badline | Émulation de Badline            | Activé (compatible C64) / Désactivé (turbo) |
 
-L'octet de vitesse est calculé comme suit : `(speedIndex &amp; 0x0F) |
+L'octet de vitesse est calculé comme suit : `(speedIndex & 0x0F) |
 (badline_disabled ? 0x80 : 0x00)`.
 
 **Code généré (5 octets) : **
@@ -5443,7 +5715,7 @@ CPX #$E8
 BNE *-11
 ```
 
-**Taille : ** `2 (LDX) + pages complètes×9 + (rem &gt; 0 ? 11 : 0)` octets par
+**Taille : ** `2 (LDX) + pages complètes×9 + (rem > 0 ? 11 : 0)` octets par
 section. Le mode combiné double cette valeur (section écran + section couleur
 identique).
 
@@ -5564,7 +5836,7 @@ LDA $FB
 
 CMP #$04 ; nombre d'images
 
-BCC *+6 ; si compteur &lt; nombre, ignorer la réinitialisation
+BCC *+6 ; si compteur < nombre, ignorer la réinitialisation
 
 LDA #$00
 
@@ -5864,11 +6136,10 @@ SYS :
    - **Addr** (adresse de chargement, optionnelle) : si cette adresse est
      fournie, un en-tête PRG de 2 octets est ajouté. Laissez ce champ vide pour
      écrire des octets bruts sans en-tête.
-   - **Dst** (cible de décompression, uniquement avec EXO) — emplacement où le
-     décompresseur doit déposer les données sur le C64. Lorsque EXO est activé,
-     le fichier supplémentaire est compressé avec `exomizer mem -l <Addr>
-     fichier,<Dst>` avant d'être écrit sur le D64. La compensation de sécurité
-     de +2 est appliquée automatiquement.
+   - **Dst** (cible de décompression, uniquement avec EXO) — où le décompresseur
+     doit déposer les données sur le C64. Lorsque EXO est activé, l'extra est
+     compressé avec `exomizer mem -l <Addr> file@<Dst>` (un fichier brut à
+     l'adresse Dst) avant d'être écrit sur le D64.
    - **EXO** — case à cocher qui active le traitement en mode `mem` inversé pour
      cette entrée. La taille sur disque représente généralement 5 à 20 % de la
      taille d'origine.
@@ -6234,6 +6505,17 @@ BIN / Enregistrer BIN / Exporter vers des blocs / Enregistrer sur D64. Chaque
 programme avec `INCBIN`, ou ajoutées directement à un disque D64 via l'entrée
 **Enregistrer sur D64**.
 
+Palette de couleurs : Paramètres → Général → Éditeurs → Palette de couleurs C64.
+Cette palette choisit les valeurs RVB utilisées par chaque éditeur pour afficher
+les 16 couleurs du C64 (sprites, personnages, canevas de jeu de caractères,
+haute résolution, éditeur de cartes et de niveaux, échantillons du Toolkit). La
+palette par défaut est Colonel, la plus proche d'un véritable C64 sur un écran
+composite/S-Vidéo. Pepto (la palette plus sombre et moins saturée des anciennes
+versions), VICE, Deekay et C64 Wiki/Godot sont également disponibles. Seul
+l'affichage change ; les index de couleur dans vos données restent inchangés.
+L'importation d'images haute résolution utilise également la palette de
+l'éditeur, sauf si vous en sélectionnez une autre.
+
 Les boîtes de dialogue de l'éditeur visuel peuvent être déplacées par leur
 en-tête dans tout l'espace de travail de Visual Assembler. Une boîte de dialogue
 sans position enregistrée s'ouvre centrée ; après déplacement, sa dernière
@@ -6248,7 +6530,8 @@ et multicolore 160×200. Ouvrir via Outils → Éditeur haute résolution.
 | Fonctionnalité                       | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Basculement du mode                  | **Multicolore** La case à cocher permet de basculer entre haute résolution (mono par cellule) et multicolore (4 couleurs par cellule).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| Outils                               | Crayon, gomme, ligne, rectangle, rectangle rempli, ovale, ovale rempli, remplissage, papier à cellules, sélectionner.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| Outils                               | Crayon, gomme, ligne, rectangle, rectangle rempli, ovale, ovale rempli, remplissage, pipette de couleur, papier à cellules, sélectionner.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| Sélecteur de couleurs                | Cliquez sur un pixel pour que sa couleur visible corresponde à l'encre (en haute résolution, l'encre de la cellule ou le papier, selon ce que représente le pixel) ; l'éditeur revient ensuite à l'outil précédent. **Alt+clic** permet de sélectionner la couleur avec n'importe quel outil.                                                                                                                                                                                                                                                                                                                                                                                                              |
 | Papier cellulaire (haute résolution) | En haute résolution, deux couleurs sont autorisées dans chaque cellule 8×8 : l’encre (pixels définis, octet de poids fort de la mémoire RAM de la cellule) et le papier (pixels effacés, octet de poids faible). L’outil **Papier de cellule** applique la couleur du papier à chaque cellule survolée ; **PAPER** applique la couleur à toutes les cellules simultanément. La gomme efface les pixels pour afficher le papier de la cellule. Cette fonction est désactivée en mode multicolore, lorsque l’arrière-plan ($D021) est partagé.                                                                                                                                                               |
 | Outil de pulvérisation               | Outil de peinture de type aérographe qui disperse des pixels autour du curseur pendant le dessin.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | intensité de pulvérisation           | Le menu déroulant situé à côté de l'outil de pulvérisation permet de contrôler la densité de chaque coup de pulvérisation.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
@@ -6258,7 +6541,7 @@ et multicolore 160×200. Ouvrir via Outils → Éditeur haute résolution.
 | Copier/Coller                        | Copier (Ctrl/Cmd+C) copie la zone sélectionnée. Coller (Ctrl/Cmd+V) affiche un aperçu suivant le curseur : cliquez sur la zone de travail pour placer l’élément, Échap annule. La copie est conservée ; vous pouvez donc la coller autant de fois que nécessaire en appuyant sur Ctrl/Cmd+V puis en cliquant à nouveau. En mode haute résolution, les pixels collés restent limités à deux couleurs par cellule ; alignez donc la zone avec la grille pour conserver ses couleurs. Les options Copier, Coller et Collage transparent sont également disponibles dans le menu contextuel (clic droit) de la zone de travail ; un collage effectué à partir de ce menu affiche un aperçu à l’endroit cliqué. |
 | Pâte transparente                    | `Ctrl/Cmd+Shift+V` (ou son bouton de barre d'outils) ignore les pixels de couleur papier de la copie, de sorte que l'image en dessous apparaît.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | Grille + Raster                      | **Grille** affiche la grille de cellules de caractères : 8×8 pixels en haute résolution, 4×8 pixels double largeur en multicolore. À partir d’un zoom 4×, un contour plus fin est tracé autour de chaque pixel, permettant un positionnement précis. **Raster** ajoute une superposition de lignes raster.                                                                                                                                                                                                                                                                                                                                                                                                 |
-| Zoom                                 | Curseur de 1× à 16×.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Zoom                                 | Curseur de 1× à 16×, ou Ctrl+molette sur le canevas (le point sous le curseur reste en place).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | Importer une image                   | Les fichiers PNG/JPEG/GIF déposés sur le canevas sont automatiquement convertis en une palette de 16 couleurs C64.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | Blocs d'exportation                  | Ajoute des blocs BYTE/RAWBYTES au programme avec les données bitmap, d'écran et de couleur encodées.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | Exporter `.bin`                      | Enregistre le format multicolore natif (10000 octets : 8000 bitmap + 1000 écran + 1000 couleur) prêt pour LOADFILE à $2000.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
@@ -6272,7 +6555,9 @@ et multicolore 160×200. Ouvrir via Outils → Éditeur haute résolution.
 | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Cadres                             | Ajouter / supprimer / réorganiser les cadres ; la barre de cadres est affichée en bas. **Copier** / **Coller** dans la rangée de cadres copie l'image courante entière ; ces deux mêmes options sont disponibles dans le menu contextuel (clic droit) du canevas et de la barre de cadres.                                                                                                                                                                                                                                                        |
 | Mode                               | Basculement monochrome/multicolore.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| Outils                             | Crayon, remplissage, ligne, rectangle, cercle — plus symétrie horizontale, symétrie verticale, décalage gauche/droite/haut/bas (avec option de retour à la ligne). Les outils de forme affichent un aperçu en direct pendant le déplacement ; relâchez pour valider.                                                                                                                                                                                                                                                                              |
+| Outils                             | Crayon, remplissage, pipette de couleur, ligne, rectangle, cercle — plus symétrie horizontale, symétrie verticale, décalage gauche/droite/haut/bas (avec option de retour à la ligne). Les outils de forme affichent un aperçu en direct pendant le déplacement ; relâchez pour valider.                                                                                                                                                                                                                                                          |
+| Sélecteur de couleurs              | Cliquez sur un pixel pour sélectionner son emplacement de couleur (couleur du sprite, MC1, MC2, couleur d'arrière-plan ou de superposition, sur le calque modifié) ; l'éditeur revient ensuite à l'outil précédent. **Alt+clic** permet de sélectionner avec n'importe quel outil.                                                                                                                                                                                                                                                                |
+| Zoom                               | Curseur de 3× à 40×, ou Ctrl+molette sur le canevas.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | Annuler / Rétablir                 | Historique complet des actions d'annulation/rétablissement par image. Ctrl/Cmd+Z / Ctrl/Cmd+Y ou les boutons de la barre d'outils.                                                                                                                                                                                                                                                                                                                                                                                                                |
 | Importation d'images               | Importez une image PNG ou JPEG via Fichiers → Importer une image. L'outil d'importation associe chaque pixel à la couleur de la palette C64 la plus proche et l'inscrit dans l'image courante.                                                                                                                                                                                                                                                                                                                                                    |
 | Aperçu de l'animation              | Lecture/Arrêt à vitesse configurable.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
@@ -6316,7 +6601,7 @@ caractères.
 | Charger `.bin`           | Importe un binaire externe avec un jeu de caractères de 2048 octets.                                                                                                                                                                                                                |
 | Aperçu par caractère     | Grille de 16 cases de large contenant l'ensemble des 256 glyphes, la cellule actuelle étant mise en surbrillance.                                                                                                                                                                   |
 | Éditeur de pixels        | Modifie le caractère sélectionné, ou une **tuile** de 2×1, 1×2 ou 2×2 caractères voisins comme une seule image (sélecteur de tuiles).                                                                                                                                               |
-| Outils de dessin         | Crayon, ligne, rectangle, rectangle plein et remplissage. Un clic sur un pixel déjà encré l'efface.                                                                                                                                                                                 |
+| Outils de dessin         | Crayon, ligne, rectangle, rectangle plein, remplissage et pipette. Un clic sur un pixel déjà encré l'efface. La pipette (multicolore uniquement ; **Alt+clic** avec n'importe quel outil) applique la couleur du pixel cliqué (FG, BG, MC1 ou MC2) comme couleur d'encre.           |
 | Transforme               | Effacer, inverser, retourner horizontalement/verticalement, décaler avec retour en arrière, faire pivoter de 90° dans le sens horaire/antihoraire (carreaux carrés uniquement) — sur la tuile entière.                                                                              |
 | Annuler / Rétablir       | Boutons de la barre d'outils, Ctrl+Z et Ctrl+Y (Ctrl+Maj+Z).                                                                                                                                                                                                                        |
 | Copier/Coller            | Boutons de la barre d'outils, Ctrl+C / Ctrl+V ou clic droit sur la carte ; copie la tuile entière avec ses couleurs.                                                                                                                                                                |
@@ -6345,6 +6630,7 @@ comme sur le C64.
 | ECM                                             | La case à cocher **ECM** (mode couleur étendu, non combiné avec le mode multicolore) : chaque caractère est en haute résolution avec sa propre couleur (0 à 15) et l’un des quatre arrière-plans BG0 à BG3 (`$D021` à `$D024` ; BG1 et BG2 correspondent aux registres MC1 et MC2). Choisissez une couleur d’arrière-plan dans la palette (étiquetées B0 à B3), puis cliquez ou faites glisser le curseur sur les caractères avec l’outil **Arrière-plan des caractères**. Seuls 64 caractères différents peuvent être affichés : la barre d’état les compte et la sauvegarde fusionne les caractères identiques. Le jeu de caractères est de 64 caractères (512 octets) et les codes d’écran sont des glyphes. | arrière-plan << 6`. Activez l'ECM avec le bit 6 de `$D011`. |
 | Modèle couleur C64                              | L'arrière-plan utilise `$D021` ; la couleur multicolore partagée 1 utilise `$D022` ; la couleur multicolore partagée 2 utilise `$D023` ; la couleur propre de chaque caractère provient des bits 0 à 2 de la mémoire RAM couleur.                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |                                                             |
 | Outils de dessin                                | Le crayon, la gomme, la ligne, le rectangle, l'ovale et le remplissage fonctionnent au-delà des limites des caractères.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |                                                             |
+| Sélecteur de couleurs                           | Cliquez sur un pixel pour sélectionner sa couleur visible (dans un personnage multicolore, également son BG / MC1 / MC2 / couleur propre) ; l’éditeur revient ensuite à l’outil précédent. **Alt+clic** permet de sélectionner avec n’importe quel outil.                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                             |
 | Outil de pulvérisation                          | Dessin de style aérographe qui disperse les pixels sur les cellules/caractères voisins.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |                                                             |
 | intensité de pulvérisation                      | Le menu déroulant situé à côté de l'outil de pulvérisation permet de régler la densité du trait.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |                                                             |
 | Basculer la grille                              | La case à cocher Grille affiche ou masque la grille de caractères 16×16.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |                                                             |
@@ -6376,6 +6662,7 @@ d'apparition de sprites, les données de collision, etc. Ouvrir via Outils →
 | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Couches                                                | Plusieurs calques nommés, chacun avec son propre ensemble de tuiles et son opacité.                                                                                                                                                                                                                                       |
 | pinceaux                                               | Modes d'utilisation : tuile unique, remplissage, ligne, rectangle et cercle. Les outils de forme affichent un aperçu en direct pendant le déplacement ; relâchez pour valider.                                                                                                                                            |
+| Zoom                                                   | Curseur ou Ctrl+molette sur la carte.                                                                                                                                                                                                                                                                                     |
 | Annuler / Rétablir                                     | Historique complet des actions Annuler/Rétablir par calque. Ctrl/Cmd+Z / Ctrl/Cmd+Y ou les boutons de la barre d'outils.                                                                                                                                                                                                  |
 | Effacer le menu                                        | Effacement par couche ou de la carte entière avec confirmation.                                                                                                                                                                                                                                                           |
 | Importation d'images                                   | Déposez une image PNG d'une carte de tuiles ; l'éditeur la découpe automatiquement en tuiles.                                                                                                                                                                                                                             |
@@ -6400,6 +6687,7 @@ cartes.
 | Écrans                  | **Nouvel écran vide**, **Ajouter depuis l'éditeur de cartes** (la carte actuellement ouverte) ou **Charger une ou plusieurs cartes (.bin)…** (plusieurs exportations de l'éditeur de cartes simultanément). Faites glisser un écran de la liste vers un emplacement ; faites glisser les emplacements les uns sur les autres pour les permuter.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | Édition                 | **Modifier dans l'éditeur de carte** ouvre l'écran sélectionné dans l'éditeur de carte et ramène les modifications ; dupliquer, déplacer vers le haut/la gauche ou vers le bas/la droite, supprimer ; annuler / rétablir.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | Aperçu                  | Faites glisser l'aperçu ou utilisez les touches fléchées pour faire défiler pixel par pixel ; **Lecture** défile automatiquement (direction, vitesse 1 à 8, boucle), Espace = lecture/arrêt. *Bordures* marque les limites de l'écran.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Zoom                    | Le curseur de zoom de l'aperçu (25–400 %), ou Ctrl+roue sur l'aperçu.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | Vérifications           | Informations sur l'encodage des caractères et un avertissement lorsque les écrans utilisent un encodage ou des couleurs différents (le niveau utilise les paramètres du premier écran).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | Attributs de personnage | Le bouton **Attributs de personnage** permet de basculer l'aperçu vers la peinture d'attributs : sélectionnez **Solide**, **Échelle**, **Danger** ou **Objet à collectionner**, cliquez sur un personnage et chaque cellule ayant ce code d'écran l'obtient (ou le perd) ; faites glisser pour ajouter d'autres codes. Les attributs s'affichent sous forme de calque coloré et deviennent la table `LEVEL_ATTR` de 256 octets (`LEVEL_ATTR_SOLID` = 1, `_LADDER` = 2, `_HAZARD` = 4, `_COLLECT` = 8).                                                                                                                                                                                                                                                                                                                                                                 |
 | Vérification des bords  | Les marques rouges indiquent les discontinuités entre les écrans voisins : un côté de la bordure est vide (espace) et l’autre non, ou un seul côté est plein. Le panneau latéral compte les bords et les cellules.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |

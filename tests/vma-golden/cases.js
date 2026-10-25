@@ -161,6 +161,7 @@ const MACRO_CONTEXT = {
   ENDREGION: [".region group", ""],
   ASSERT: ["start:\n    nop\nend:", ""],
   IRQ_SETUP: ["", "my_irq:\n    jmp $EA31"],
+  SID_PLAYER: ['.sid "Mad_Ikari.sid"', ""],
   LEVEL_ROW: ['.level "level.bin"\n.const dst_ptr = $FB\n.const view_col = $FD', ""]
 };
 // Palette lines that name a file the corpus does not have.

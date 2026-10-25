@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.6.5**
+**Verzió: 2.6.6**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -28,6 +28,16 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - [14. Vizuális szerkesztők (Toolkit)](#14-vizuális-szerkesztők-toolkit)
 
 ---
+
+## A 2.6.6 verzió újdonságai
+
+- **SID lejátszó makró** — a `.sid_player [subtune][, raster]` (a palettán **SID_PLAYER**) lejátssza a `.sid` makró zenéjét: meghívja az init rutint a subtune-nal, kikapcsolja a CIA1 időzítő IRQ-t, beköt egy raszter IRQ-t, és a beépített handleréből képkockánként meghívja a play rutint. Egy zenélő program most ennyi: `.sid "zene.sid"` + `.sid_player`. Lásd: [SID_PLAYER](#sid_player).
+- **SID címkék** — a `.sid` makró megadja a `SID_LOAD`, `SID_INIT` és `SID_PLAY` címkét (egyedi betöltési címnél azzal együtt eltolva), így a saját IRQ kezelőd is írhatja: `JSR SID_PLAY`. Lásd: [SID](#sid).
+- **Csak Expert mód** — a **Projekt beállítások** kapcsolója a projekt fájljain kikapcsolja a blokk módot, méretüktől függetlenül (a `.proj`-ba mentődik). Lásd: [Projekt panel és fülek](#projekt-panel-és-fülek).
+- **SID Player puffer** — a **Beállítások → Általános → SID előnézet → SID Player puffer** 2048–16384 mintára állítható; nagyobb pufferrel nem recseg a hang, ha az app épp dolgozik. A WebSID újraindítás után használja, a VA SID Core 10 / 15 / 20 / 30 mp-et renderel előre. Lásd: [SID Player](#sid-player).
+- **Egyéni C64 paletta** — a **Beállítások → Általános → Szerkesztők → Egyéni paletta szerkesztése…** alatt mind a 16 szín RGB értékét magad adhatod meg, bármelyik beépített palettából kiindulva; Photoshop `.act`, VICE `.vpl`, GIMP `.gpl` paletta vagy hex színlista importálható, `.act` / `.vpl` exportálható. Lásd: [14. Vizuális szerkesztők (Toolkit)](#14-vizuális-szerkesztők-toolkit).
+- **Megjelenés** — a C64 memóriapanel összecsukva dokkol vissza; a What's New, a frissítés, a Beállítások és a Knowledge Base ablaknak ugyanolyan kerete van, mint az About-nak; a Projekt beállítások checkboxai VA kapcsolók.
+- **Javítások** — a hibabejelentő a kiadott buildben is elfogadja a PNG és JPG képernyőképet; a nyitóképernyő `READY.` utáni villogó kurzora tömör C64 cella, a macOS által rárajzolt vonalak nélkül; macOS-en nincs prediktív szöveg az Expert és az Ultimate Basic szerkesztőben.
 
 ## A 2.6.5 verzió újdonságai
 
@@ -970,7 +980,7 @@ Kattints a **Format** gombra (`#expert-format-btn`) az aktuális forrás automat
 Az Expert mód támogat egy **projekt panelt** (`#expert-project-panel`) több-fájlos `.proj` projektekhez:
 
 - A `.proj` fájl egy JSON manifeszt, amely felsorolja a forrásfájlokat és metaadataikat.
-- **Projekt beállítások** (fogaskerék a panel fejlécében, vagy **Menu → File → Projekt beállítások…**): megmutatja és szerkeszti a projektet: név, `.proj` útvonal, indítófájl, assembler (VMA vagy ACME), **KickAssembler-kompatibilis**, Kick projektnél a preprocesszor-szimbólumok (`#define`, mint a KickAssembler `-define`-ja) és a parancssori változók (`cmdLineVars`, soronként egy `név=érték`, mint a `:név=érték`), valamint a forrás- és egyéb fájlok száma. Minden a `.proj`-ba mentődik.
+- **Projekt beállítások** (fogaskerék a panel fejlécében, vagy **Menu → File → Projekt beállítások…**): megmutatja és szerkeszti a projektet: név, `.proj` útvonal, indítófájl, assembler (VMA vagy ACME), **KickAssembler-kompatibilis**, Kick projektnél a preprocesszor-szimbólumok (`#define`, mint a KickAssembler `-define`-ja) és a parancssori változók (`cmdLineVars`, soronként egy `név=érték`, mint a `:név=érték`), valamint a forrás- és egyéb fájlok száma, és a **Csak Expert mód**: a projekt fájljain a blokk mód ki van kapcsolva, méretüktől függetlenül. Minden a `.proj`-ba mentődik.
 - Nyiss meg egy projektet a **Menu → File → Open project** menüvel, vagy húzz egy `.proj` fájlt az ablakra.
 - A projekt minden fájlja külön **fülként** nyílik meg a szerkesztő tetején lévő fül-sávban.
 - A **Close Project** (`Menu → File → Close project` / `#menu-close-project`) egyszerre bezárja az aktuális projektet és minden fájlfülét. A bezárás előtt rákérdez a nem mentett változtatások mentésére. A projekt panel visszaáll üres állapotba, és a `_expertProjectData` törlődik.
@@ -2013,7 +2023,33 @@ A blokk megjeleníti:
 
 > **Fontos:** a legtöbb SID fájl beégetett belső abszolút címeket tartalmaz. Csak akkor relokálhatók, ha az egész bináris ugyanazzal az offszettel tolódik el. Ha egy SID belső ugrásokat tartalmaz `$10xx`-re, akkor `$1000`-en kell maradnia — más címre mozgatva ezek a belső hivatkozások elromlanak.
 
-> **Tipikus használat:** tegyél egy ORG blokkot a SID blokk elé a címének beállításához. Hívd az Init-et egyszer induláskor, majd hívd a Play-t minden frame-ben egy raszter IRQ kezelőből.
+> **Tipikus használat:** tegyél egy ORG blokkot a SID blokk elé a címének beállításához. Hívd az Init-et egyszer induláskor, majd hívd a Play-t minden frame-ben egy raszter IRQ kezelőből — vagy bízd mindkettőt a [SID_PLAYER](#sid_player) makróra.
+
+**Címkék:** a SID blokk megadja a `SID_LOAD` (ahova az adat kerül), a `SID_INIT` és a `SID_PLAY` címkét (az init és a play címe, egyedi címnél azzal együtt eltolva). A `SID_PLAY` hiányzik, ha a zenének nincs play címe (saját IRQ-t telepítő RSID). A saját kódodban is használhatod őket, pl. `JSR SID_PLAY` egy IRQ kezelőben.
+
+---
+
+### SID_PLAYER
+
+Egyetlen blokkal lejátssza a **SID** makró zenéjét: inicializálja, majd egy raszter interruptból folyamatosan hívja a play rutinját, így a programod közben a saját dolgát végezheti.
+
+| Mező | Leírás |
+|---|---|
+| Song | Az init rutinnak A-ban átadott subtune száma (alapból `0`) |
+| Raster | Az interrupt rasztersora, `$00`–`$FF` (alapból `$FA`) |
+
+Mit csinál: `SEI`, `LDA #song` / `JSR SID_INIT`, kikapcsolja a CIA1 időzítő IRQ-t (`$DC0D`), az IRQ vektort (`$0314/$0315`) a beépített handlerére állítja, beállítja a rasztersort (`$D012`, a `$D011` 8. bitje törölve) és a raszter IRQ-t (`$D01A`), `CLI`, majd átugorja a handlert. A handler nyugtázza az interruptot (`ASL $D019`), meghívja a `JSR SID_PLAY`-t, és a KERNAL-ban folytatja (`JMP $EA31`, ez a billentyűzetet is olvassa).
+
+**Expert szintaxis:**
+```
+.sid "Ikari_Warriors.sid"
+.sid_player
+.sid_player 1, $80
+```
+
+**Méret a kódban:** 58 byte.
+
+> **Megjegyzés:** kell hozzá egy SID blokk a programban (`SID_INIT` és `SID_PLAY`), különben a fordítás hibával megáll. A CIA1 időzítő IRQ helyett a KERNAL képkockánként egyszer, a raszter IRQ-ból fut — a billentyűzet és a `GETIN` továbbra is működik.
 
 ---
 
@@ -4028,6 +4064,8 @@ Az eszköztár **Toolkit** menüje csoportosítja a vizuális adat-szerkesztőke
 
 **Színpaletta:** a **Beállítások → Általános → Szerkesztők → C64 színpaletta** adja meg, milyen RGB értékekkel rajzolja minden szerkesztő a 16 C64 színt (sprite-, karakter-, Charset Canvas, Hi-Res, térkép- és pályaszerkesztő, Toolkit színminták). Az alapértelmezés a **Colodore**, ez áll a legközelebb egy kompozit / S-Video kijelzős valódi C64-hez; választható még a **Pepto** (a korábbi verziók sötétebb, kevésbé telített palettája), a **VICE**, a **Deekay** és a **C64 Wiki / Godot**. Csak a megjelenítés változik — az adatokban a színindexek ugyanazok maradnak. A Hi-Res képimport is a szerkesztő palettáját használja, ha ott nem választasz másikat.
 
+**Egyéni paletta:** ha egyik sem illik a monitorodhoz vagy a valódi C64-edhez, válaszd az **Egyéni** palettát, és kattints az **Egyéni paletta szerkesztése…** gombra. Mind a 16 színhez színválasztó és hex mező (`#RRGGBB`) tartozik; a **Kiindulás** + **Átmásol** egy beépített palettával tölti ki mind a 16-ot. Az **Import…** Photoshop `.act`, VICE `.vpl`, GIMP `.gpl` fájlt vagy bármilyen szöveget olvas, amelyben 16 `#RRGGBB` / `$RRGGBB` érték van (az első 16 színt használja); az **Export .act** és az **Export .vpl** Photoshopnak vagy VICE-nak (VICE-ban *Settings → Video → Palette*) írja ki a palettát, így az emulátorban ugyanezeket a színeket vetheted össze. A **Mentés** eltárolja, és **Egyéni**-re vált.
+
 A vizuális szerkesztő dialógusok a fejlécüknél húzva mozgathatók a teljes Visual Assembler munkaterületen. Egy mentett pozíció nélküli dialógus középen nyílik; mozgatás után az utolsó pozíciója a UI beállításokban tárolódik, és a következő megnyitáskor visszaáll.
 
 ### Hi-Res / Multicolor Editor
@@ -4287,6 +4325,7 @@ A **SID Player** toolbar gomb egy lebegő ablakot nyit, amely `.sid` zenefájlok
 - **Vezérlés:** Play, Pause, Stop, **Previous** / **Next** zene, több dalt tartalmazó fájloknál **Previous / Next subtune**, valamint időszámláló.
 - **Tekerés:** a pozíciósáv és a **Back / Forward 10 s** a VA SID Core motorral működik. A WebSID nem tud tekerni, ezért vele ezek a vezérlők le vannak tiltva.
 - **Hangerő:** a tekerőgomb közös a SID szerkesztő master hangerejével.
+- **Puffer:** **Beállítások → Általános → SID előnézet → SID Player puffer** (2048, 4096, 8192 vagy 16384 minta). Nagyobb pufferrel nem recseg a hang, ha az app épp dolgozik. A WebSID újraindítás után használja az új méretet, a VA SID Core a következő számtól 10 / 15 / 20 / 30 mp-et renderel előre.
 - **Motor:** az ablak kiírja, melyik motor szól (WebSID, vagy VA SID Core a verziójával és a SID chippel); a **Beállítások → SID előnézet** alatt választható. A VA SID Core natív Rust C64 magon futtatja a zenét: ciklusra pontos 6510 precíz interrupt-időzítéssel, CIA 6526A, VIC-II időzítés badline-okkal, sprite-DMA-val és raster interruptokkal, valamint a 6510 I/O port — így a raster IRQ-s, CIA-időzített és digi zenék is valódi gép időzítésével szólnak.
 - **Véletlen lejátszás:** a **Next** melletti kapcsoló véletlen sorrendben játssza a listát — egy szám sem ismétlődik, amíg mind le nem ment, a **Previous** pedig a véletlen sorrendben lép vissza. A beállítást megjegyzi.
 - **Kedvencek:** a sorokban lévő ☆ / ★ megjelöli a számot; a mentett állapotban és a `.sidpl` lejátszási listákban is megmarad.
