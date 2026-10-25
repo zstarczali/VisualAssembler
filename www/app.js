@@ -293,7 +293,7 @@ const mnemonicLibrary = {
     { mnemonic: "SET_BORDER", description: "Keretszin beallitasa: LDA #color / STA $D020.", modes: ["implied"], isSetBorderMacro: true },
     { mnemonic: "SET_BG", description: "Hatter szin beallitasa: LDA #color / STA $D021.", modes: ["implied"], isSetBgMacro: true },
     { mnemonic: "IRQ_SETUP", description: "Raszter IRQ alapbeallitas handlerrel es rasztersorral: vektor, $D012, $D01A, CIA1 IRQ off, CLI.", modes: ["implied"], isIrqSetupMacro: true },
-    { mnemonic: "SID_PLAYER", description: "A .sid makroval betoltott zene lejatszasa: JSR SID_INIT a subtune-nal, CIA1 IRQ off, raszter IRQ, CLI; a beepitett handler kepkockankent JSR SID_PLAY, majd JMP $EA31.", modes: ["implied"], isSidPlayerMacro: true },
+    { mnemonic: "SID_PLAYER", description: "A .sid makroval betoltott zene lejatszasa: JSR SID_INIT a subtune-nal, CIA1 IRQ off, raszter IRQ, CLI; a beepitett handler kepkockankent JSR SID_PLAY, majd JMP $EA31. Mindket hivas $01 = $35 mellett fut (ROM ki), igy a BASIC vagy KERNAL ROM alatti zene is szol.", modes: ["implied"], isSidPlayerMacro: true },
     { mnemonic: "RAND", description: "8-bites Galois LFSR PRNG. Seed byte-ot frissit, az uj random ertek A-ban marad.", modes: ["implied"], isRandMacro: true },
     { mnemonic: "ORG", description: "Cimzestarto atvaltasa (*= direktiva). A kovetkező blokkokat az itt megadott cimtol forditja.", modes: ["implied"], isOrgMacro: true }
   ],
@@ -32283,12 +32283,16 @@ function parseMacroCountOrSize(raw, labels = null, preferredBase = "dec", vars =
 
 // SID_PLAYER (.sid_player [song][, raster]): init the tune of the .sid block, then a raster IRQ
 // (CIA1 IRQ off) whose handler, right after the setup, calls SID_PLAY once a frame.
-const _SID_PLAYER_SIZE = 58;
+// Both calls run with $01 = $35 (BASIC and KERNAL ROM out, I/O in), so a tune under
+// $A000-$BFFF or $E000-$FFFF works; $01 is restored before the KERNAL is needed again.
+const _SID_PLAYER_SIZE = 78;
 function _sidPlayerBytes(address, init, play, song, raster) {
-  const irq = (address + 49) & 0xFFFF, end = (address + _SID_PLAYER_SIZE) & 0xFFFF;
+  const irq = (address + 59) & 0xFFFF, end = (address + _SID_PLAYER_SIZE) & 0xFFFF;
   return [
     0x78,
+    0xA5, 0x01, 0x48, 0xA9, 0x35, 0x85, 0x01,
     0xA9, song & 0xFF, 0x20, init & 0xFF, (init >> 8) & 0xFF,
+    0x68, 0x85, 0x01,
     0xA9, 0x7F, 0x8D, 0x0D, 0xDC, 0xAD, 0x0D, 0xDC,
     0xA9, irq & 0xFF, 0x8D, 0x14, 0x03, 0xA9, irq >> 8, 0x8D, 0x15, 0x03,
     0xA9, raster & 0xFF, 0x8D, 0x12, 0xD0,
@@ -32296,7 +32300,11 @@ function _sidPlayerBytes(address, init, play, song, raster) {
     0xA9, 0x01, 0x8D, 0x1A, 0xD0, 0x8D, 0x19, 0xD0,
     0x58,
     0x4C, end & 0xFF, end >> 8,
-    0x0E, 0x19, 0xD0, 0x20, play & 0xFF, (play >> 8) & 0xFF, 0x4C, 0x31, 0xEA
+    0x0E, 0x19, 0xD0,
+    0xA5, 0x01, 0x48, 0xA9, 0x35, 0x85, 0x01,
+    0x20, play & 0xFF, (play >> 8) & 0xFF,
+    0x68, 0x85, 0x01,
+    0x4C, 0x31, 0xEA
   ];
 }
 
