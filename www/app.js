@@ -1597,7 +1597,7 @@ function initPalette() {
   document.getElementById("ub-zoom-in-btn")?.addEventListener("click", () => _ubZoom(1));
   document.getElementById("ub-zoom-out-btn")?.addEventListener("click", () => _ubZoom(-1));
   _bindCtrlWheelZoom(document.querySelector(".ub-editor-wrap"), _ubZoom);
-  ubEditor?.addEventListener("input", () => { _ubDirty = true; markTabDirty(); _bmTrackEdit("ub"); _ubRefreshEditor(); _ubAcUpdate(); _ubScheduleLint(); });
+  ubEditor?.addEventListener("input", (e) => { _ubDirty = true; markTabDirty(); _bmTrackEdit("ub"); _ubRefreshEditor(); if (_isPasteInput(e.inputType)) _ubAcHide(); else _ubAcUpdate(); _ubScheduleLint(); });
   ubEditor?.addEventListener("keyup", _ubUpdateCursor);
   ubEditor?.addEventListener("click", _ubUpdateCursor);
   ubEditor?.addEventListener("select", _ubUpdateCursor);
@@ -1912,7 +1912,9 @@ function initPalette() {
     _expertValidate();
     _expertScheduleIncludeReload();
     renderExpertOriginInfo();
-    _expertAcUpdate();
+    // Only typing opens the completion list; a paste or drop just closes it.
+    if (_isPasteInput(pendingMeta?.inputType)) _expertAcHide();
+    else _expertAcUpdate();
     _expertUpdateCaret();
   });
 
@@ -10057,6 +10059,10 @@ function _getExpertMnemCatMap() {
 }
 
 // ── Expert autocomplete ────────────────────────────────────────────────────────────────────────
+// A paste or drop inserts finished text, so the editors close the completion list instead of opening it.
+function _isPasteInput(inputType) {
+  return inputType === "insertFromPaste" || inputType === "insertFromDrop" || inputType === "insertFromPasteAsQuotation";
+}
 const _AC_DIRECTIVES = Object.keys(_DIRECTIVE_TO_MNEM).map(k => "."+k);
 
 // ACME 0.97 pseudo opcodes (ACME mode autocomplete).
