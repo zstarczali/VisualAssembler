@@ -19,7 +19,7 @@
     sidFileInfo: (sessionId) => invoke("sid_file_info", { sessionId }),
     sidRegisterDump: (payload) => invoke("sid_register_dump", { payload }),
     checkForUpdate: () => invoke("check_for_update"),
-    downloadAndInstallUpdate: (version) => invoke("download_and_install_update", { version }),
+    downloadAndInstallUpdate: (version, hotfix = 0) => invoke("download_and_install_update", { version, hotfix }),
     getUpdateServer: () => invoke("get_update_server"),
     setUpdateServer: (url) => invoke("set_update_server", { url }),
     onUpdateProgress: (cb) => window.__TAURI__.event.listen("update-download-progress", e => cb(e.payload)),

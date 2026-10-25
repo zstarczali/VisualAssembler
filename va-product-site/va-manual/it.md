@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Manuale utente
 
-**Versione 2.6.5**
+**Versione 2.6.6**
 
 Un assembler visuale a blocchi per il Commodore 64, basato sul processore 6502.
 Crea programmi trascinando e rilasciando blocchi di istruzioni e visualizza in
@@ -11,6 +11,7 @@ tempo reale il codice assembly e il codice macchina generati.
 ## Sommario
 
 - [C64 Visual Assembler — Manuale utente](#c64-visual-assembler--user-manual)
+    - [Punti salienti della versione 2.6.6](#version-266-highlights)
     - [Punti salienti della versione 2.6.5](#version-265-highlights)
     - [Punti salienti della versione 2.6.4](#version-264-highlights)
     - [Punti salienti della versione 2.6.3](#version-263-highlights)
@@ -123,6 +124,7 @@ tempo reale il codice assembly e il codice macchina generati.
       - [LIVELLO](#level)
       - [LIVELLO_RIGA](#level_row)
     - [SID](#sid)
+    - [SID_PLAYER](#sid_player)
     - [INCLUDE](#include)
     - [TABELLA](#table)
     - [ORG](#org)
@@ -212,6 +214,44 @@ tempo reale il codice assembly e il codice macchina generati.
 
 ---
 
+## Punti salienti della versione 2.6.6
+
+- **SID player macro** — `.sid_player [subtune][, raster]` (**SID_PLAYER** nella
+  tavolozza) riproduce la melodia della macro `.sid`: chiama la routine init con
+  la subtune, disattiva l'IRQ del timer CIA1, aggancia un IRQ raster e chiama la
+  routine play ad ogni frame dal suo gestore integrato. Un programma con musica
+  ora è `.sid "music.sid"` + `.sid_player`. Vedi [SID_PLAYER](#sid_player).
+- **Etichette SID** — la macro `.sid` definisce `SID_LOAD`, `SID_INIT` e
+  `SID_PLAY`, spostati insieme con un indirizzo di caricamento personalizzato,
+  in modo che il tuo gestore IRQ possa scrivere `JSR SID_PLAY`. Vedi
+  [SID](#sid).
+- **Solo modalità esperto** — **Impostazioni progetto** ha un interruttore che
+  chiude la modalità a blocchi per i file del progetto, indipendentemente dalle
+  loro dimensioni (salvati in `.proj`). Vedi [Pannello e schede
+  progetto](#project-panel--tabs).
+- **Buffet del lettore SID** — **Impostazioni → Generale → Anteprima SID →
+  Buffer del lettore SID** imposta 2048–16384 campioni; un buffer più grande
+  interrompe il crepitio mentre l'app è occupata. WebSID lo utilizza dopo un
+  riavvio, VA SID Core esegue il rendering 10 / 15 / 20 / 30 s in anticipo. Vedi
+  [SID Player](#sid-player).
+- **Tavolozza C64 personalizzata** — **Impostazioni → Generale → Editor →
+  Modifica tavolozza personalizzata…** imposta il tuo valore RGB per ciascuno
+  dei 16 colori, partendo da qualsiasi tavolozza integrata; importa una
+  tavolozza di Photoshop `.act`, VICE `.vpl`, GIMP `.gpl` o un elenco di colori
+  esadecimali, esporta `.act` / `.vpl`. Vedi [14. Editor visivi
+  (Toolkit)](#14-visual-editors-toolkit).
+- **Guarda** — il pannello della memoria C64 si aggancia di nuovo quando è
+  compresso; le finestre Novità, Aggiorna, Impostazioni e Knowledge Base hanno
+  la stessa cornice della finestra Informazioni; le caselle di controllo delle
+  impostazioni del progetto sono interruttori VA.
+- **Correzioni** — la segnalazione di bug accetta screenshot PNG e JPG nella
+  build di rilascio; il cursore lampeggiante dopo `READY.` nella schermata
+  iniziale è una cella C64 piena, senza le linee che macOS disegnava su di essa;
+  il testo predittivo in linea di macOS è disattivato negli editor Expert e
+  Ultimate Basic.
+
+---
+
 ## Novità principali della versione 2.6.5
 
 - **Progetti KickAssembler** — **Menu → Programma → Importa progetto Kick…**
@@ -270,11 +310,11 @@ tempo reale il codice assembly e il codice macchina generati.
   progetto** nel menu (le tre voci separate sono scomparse); il modello di
   multiplexer di sprite di Visual Assembler stampa il suo titolo.
 - **Corregge** — `.byte` / `.word` con espressioni di etichetta
-  (`<(etichetta+1)`, `.word etichetta` prima dell'etichetta) non si
-  assemblano più a 0; le forme illegali `NOP` che leggono un operando si
-  assemblano (vedere [Istruzioni illegali/non
-  documentate](#illegal--undocumented-instructions)); il pulsante di apertura di
-  Ultimate Basic legge **Carica file .ub** in ogni lingua.
+  (`<(etichetta+1)`, `.word etichetta` prima dell'etichetta) non si assemblano
+  più a 0; le forme illegali `NOP` che leggono un operando si assemblano (vedere
+  [Istruzioni illegali/non documentate](#illegal--undocumented-instructions));
+  il pulsante di apertura di Ultimate Basic legge **Carica file .ub** in ogni
+  lingua.
 
 ---
 
@@ -914,9 +954,9 @@ tempo reale il codice assembly e il codice macchina generati.
 
 - **`*` in qualsiasi espressione** — il simbolo del contatore di programma ora
   funziona all'interno delle espressioni operando, non solo da solo: `BNE *-5`,
-  `JMP *+20`, `LDA #<*`, `LDA #>(*+63)`. Un `*` che segue un valore
-  (`STRIDE*2`) è ancora una moltiplicazione. Vedi [Modalità di indirizzamento →
-  Il contatore di programma `*` nelle
+  `JMP *+20`, `LDA #<*`, `LDA #>(*+63)`. Un `*` che segue un valore (`STRIDE*2`)
+  è ancora una moltiplicazione. Vedi [Modalità di indirizzamento → Il contatore
+  di programma `*` nelle
   espressioni](#d64-editor-browse--edit-an-existing-disk-image).
 - **Etichette locali (tratteggiate)** — un'etichetta come `.loop` appartiene
   all'ambito dell'etichetta *globale* (non tratteggiata) più vicina precedente,
@@ -927,9 +967,9 @@ tempo reale il codice assembly e il codice macchina generati.
   (sempre 5 byte) in modo che la destinazione possa essere a qualsiasi distanza.
   Nuova categoria di tavolozza **diramazioni lunghe**. Vedi [LBNE / LBEQ / …
   (diramazioni lunghe)]{1}.
-- **`.assert` direttiva** — `.assert fine - inizio <= 256` o `.assert * <
-  $A000, "messaggio"` viene valutato in fase di assemblaggio e la compilazione
-  fallisce (mostrando il valore effettivo) quando l'espressione è falsa. Vedi
+- **`.assert` direttiva** — `.assert fine - inizio <= 256` o `.assert * < $A000,
+  "messaggio"` viene valutato in fase di assemblaggio e la compilazione fallisce
+  (mostrando il valore effettivo) quando l'espressione è falsa. Vedi
   [.ASSERT]{1}.
 - **Etichette degli operandi del codice automodificante** — `Il valore LDA:#$00`
   definisce l'etichetta `valore` che punta al byte dell'operando
@@ -950,10 +990,9 @@ L'applicazione è suddivisa in tre pannelli principali:
 
 - **`*` in qualsiasi espressione** — il simbolo del contatore di programma ora
   funziona all'interno delle espressioni operando, non solo da solo: `BNE *-5`,
-  `JMP *+20`, `LDA #<*`, `LDA #>(*+63)`. Un `*` che segue un valore
-  (`STRIDE*2`) è ancora una moltiplicazione. Vedi [Modalità di indirizzamento →
-  Il contatore di programma `*` nelle
-  espressioni](#the--program-counter-in-expressions).
+  `JMP *+20`, `LDA #<*`, `LDA #>(*+63)`. Un `*` che segue un valore (`STRIDE*2`)
+  è ancora una moltiplicazione. Vedi [Modalità di indirizzamento → Il contatore
+  di programma `*` nelle espressioni](#the--program-counter-in-expressions).
 - **Etichette locali (tratteggiate)** — un'etichetta come `.loop` appartiene
   all'ambito dell'etichetta *globale* (non tratteggiata) più vicina precedente,
   quindi `DrawSprite` e `ClearScreen` possono definire ciascuno il proprio
@@ -964,9 +1003,9 @@ L'applicazione è suddivisa in tre pannelli principali:
   (sempre 5 byte) in modo che la destinazione possa essere a qualsiasi distanza.
   Nuova categoria di tavolozza **diramazioni lunghe**. Vedi [LBNE / LBEQ / …
   (diramazioni lunghe)](#lbne--lbeq---long-branches).
-- **`.assert` direttiva** — `.assert fine - inizio <= 256` o `.assert * <
-  $A000, "messaggio"` viene valutato in fase di assemblaggio e la compilazione
-  fallisce (mostrando il valore effettivo) quando l'espressione è falsa. Vedi
+- **`.assert` direttiva** — `.assert fine - inizio <= 256` o `.assert * < $A000,
+  "messaggio"` viene valutato in fase di assemblaggio e la compilazione fallisce
+  (mostrando il valore effettivo) quando l'espressione è falsa. Vedi
   [.ASSERT](#assert).
 - **Etichette degli operandi del codice automodificante** — `Il valore LDA:#$00`
   definisce l'etichetta `valore` che punta al byte dell'operando
@@ -1743,7 +1782,7 @@ numeri. Le direttive che esistono in entrambi sono distinte dalla loro forma:
 
 | VA (VMA)                                           | KickAssemblatore                                                                                                            |
 | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `.per X, $0A, per1` … `.fine per1`                 | `.for (var i = 0; i < 10; i++) { … }`                                                                                    |
+| `.per X, $0A, per1` … `.fine per1`                 | `.for (var i = 0; i < 10; i++) { … }`                                                                                       |
 | `.if DEBUG` … `.else` … `.endif`                   | `.if (espressione) { … } else { … }`                                                                                        |
 | `.macro name(p)` … `.endm`, chiamato con `.invoke` | `.macro Nome(p) { … }`, chiamato come `Nome(arg)`                                                                           |
 | `.var name = value` (una variabile di runtime)     | `.var name = value` (una variabile di script) — in un progetto compatibile con Kick `.var` è sempre quello di KickAssembler |
@@ -1759,9 +1798,9 @@ salvate o meno. Il risultato è lo stesso PRG di KickAssembler. Supportato:
 - `.const` / `.label` in qualsiasi ordine, con espressioni; la pagina zero o
   l'indirizzamento assoluto segue il valore come in KickAssembler (`.abs` /
   `.zp` lo forzano comunque)
-- `.for (var i = 0; i < n; i++) { … }` e la forma su una riga, `.var`,
-  `.eval` (`=`, `+=`, `++` …), `.if (…) { … } else .if (…) { … } else { … }` e
-  la forma su una riga
+- `.for (var i = 0; i < n; i++) { … }` e la forma su una riga, `.var`, `.eval`
+  (`=`, `+=`, `++` …), `.if (…) { … } else .if (…) { … } else { … }` e la forma
+  su una riga
 - `.function Name(params) { .return expr }` e `.macro Name(params) { … }`
   chiamata come `Name(args)` o `:Name(args)`
 - multi-etichetta `!:` / `!nome:` con `!+`, `!-`, `!++`, `!nome+`, `!nome-`
@@ -2308,14 +2347,16 @@ La modalità esperto supporta un **pannello di progetto**
   (ad esempio una directory di risorse) allo stesso modo. Le voci di solo
   riferimento mostrano un pulsante Elimina (✕) ma non vengono aperte facendo
   clic su di esse.
-- **Le impostazioni del progetto** (il pulsante a forma di ingranaggio
+- **Impostazioni progetto** (il pulsante a forma di ingranaggio
   nell'intestazione del pannello, oppure **Menu → File → Impostazioni
-  progetto…**) mostrano e modificano il progetto: nome, `.proj` percorso, file
-  di avvio, assembler (VMA o ACME), **compatibile con KickAssembler** e, per un
-  progetto Kick, i simboli del preprocessore (`#define`, come `-define` di
+  progetto…**) mostra e modifica il progetto: nome, `.proj` percorso, file di
+  avvio, assembler (VMA o ACME), **compatibile con KickAssembler** e per un
+  progetto Kick i simboli del preprocessore (`#define`, come `-define` di
   KickAssembler) e le variabili della riga di comando (`cmdLineVars`, una
-  `nome=valore` per riga, come `:nome=valore`), oltre al numero di file sorgente
-  e altri file. Tutto viene salvato nel file `.proj`.
+  `nome=valore` per riga, come `:nome=valore`), più il numero di file sorgente e
+  altri file e **Solo modalità esperto**: la modalità a blocchi è chiusa per i
+  file del progetto, indipendentemente dalle loro dimensioni. Tutto viene
+  salvato nel `.proj`.
 - Le cartelle nell'albero hanno una freccia per comprimere/espandere e **fare
   clic con il pulsante destro del mouse su una cartella** per aggiungere uno o
   più file annidati al suo interno (mostrati rientrati).
@@ -2492,9 +2533,9 @@ al PC.
 
 **PC vs. moltiplicazione.** `*` viene trattato come contatore di programma solo
 quando si trova in *posizione valore* — all'inizio dell'espressione, o subito
-dopo un operatore, `(`, `,`, `<`, `>` o uno spazio bianco. Un `*` che
-segue un numero, `)` o un identificatore è una moltiplicazione ordinaria, quindi
-`tabella LDA*2` e `CONST_A*4` rimangono invariati.
+dopo un operatore, `(`, `,`, `<`, `>` o uno spazio bianco. Un `*` che segue un
+numero, `)` o un identificatore è una moltiplicazione ordinaria, quindi `tabella
+LDA*2` e `CONST_A*4` rimangono invariati.
 
 **Dove funziona.** Qualsiasi operando che accetti già un'espressione:
 destinazioni di salto, `JMP` / `JSR`, `LDA`/`STA`/… assoluti e indicizzati,
@@ -3532,8 +3573,8 @@ puntatori seguono le schermate. Un livello può avere fino a 7 × 10 schermate.
 | `LEVEL_ATTR`, `LEVEL_ATTR_SOLID` … `LEVEL_ATTR_COLLECT`                       | Tabella degli attributi del personaggio (un byte flag per codice schermo; solo quando il livello ha attributi) e i suoi bit: 1, 2, 4, 8                                                |
 | `LIVEL_BORDER`, `LIVEL_SCR_COLORS`, `LIVEL_SCR_BG/BORDER/MC1/MC2`             | Bordo del livello; tabelle dei colori per slot (per riga come `LEVEL_SLOT_*`) quando uno schermo ha i propri colori (`LEVEL_SCR_COLORS` = 1)                                           |
 
-Guardia tipica: `.assert LEVEL_END <= $9200, "i dati di livello vengono
-eseguiti nel codice"`.
+Guardia tipica: `.assert LEVEL_END <= $9200, "i dati di livello vengono eseguiti
+nel codice"`.
 
 #### LIVELLO_RIGA
 
@@ -3599,9 +3640,51 @@ all'indirizzo specificato come blocco differito nel PRG.
 > rimanere a `$1000`: spostarlo a un indirizzo diverso interromperà tali
 > riferimenti interni.
 
-> **Utilizzo tipico:** Posizionare un blocco ORG prima del blocco SID per
-> impostarne l'indirizzo. Chiamare Init una volta all'avvio, quindi chiamare
-> Play ad ogni frame da un gestore IRQ raster.
+> **Uso tipico:** Posizionare un blocco ORG prima del blocco SID per impostarne
+> l'indirizzo. Chiamare Init una volta all'avvio, quindi chiamare Play ogni
+> frame da un gestore IRQ raster — oppure lasciare che [SID_PLAYER](#sid_player)
+> faccia entrambe le cose.
+
+**Etichette:** il blocco SID definisce `SID_LOAD` (dove vengono posizionati i
+dati), `SID_INIT` e `SID_PLAY` (gli indirizzi di inizializzazione e
+riproduzione, spostati insieme con un indirizzo personalizzato). `SID_PLAY` è
+mancante quando la melodia non ha un indirizzo di riproduzione (un RSID che
+installa il proprio IRQ). Usali nel tuo codice, ad esempio `JSR SID_PLAY` in un
+gestore IRQ.
+
+---
+
+### SID_PLAYER
+
+Riproduce la melodia della macro **SID** con un solo blocco: inizializza la
+melodia e continua a chiamare la sua routine di riproduzione da un interrupt
+raster, in modo che il tuo programma possa proseguire con il proprio lavoro.
+
+| Campo   | Descrizione                                                                              |
+| ------- | ---------------------------------------------------------------------------------------- |
+| Canzone | Numero di sotto-tonalità passato alla routine di inizializzazione in A (predefinito `0`) |
+| Raster  | Linea raster dell'interruzione, `$00`–`$FF` (predefinito `$FA`)                          |
+
+Cosa fa: `SEI`, `LDA #song` / `JSR SID_INIT`, disattiva l'IRQ del timer CIA1
+(`$DC0D`), imposta il vettore IRQ (`$0314/$0315`) sul suo gestore integrato, la
+linea raster (`$D012`, bit 8 di `$D011` azzerato) e l'IRQ raster (`$D01A`),
+`CLI`, quindi salta il gestore. Il gestore riconosce l'interruzione (`ASL
+$D019`), chiama `JSR SID_PLAY` e passa al KERNAL (`JMP $EA31`, che esegue anche
+una scansione della tastiera).
+
+**Sintassi esperta:**
+```
+.sid "Ikari_Warriors.sid"
+.sid_player
+.sid_player 1, $80
+```
+
+**Dimensione in codice:** 58 byte.
+
+> **Nota:** è necessario un blocco SID nel programma (`SID_INIT` e `SID_PLAY`);
+> altrimenti la compilazione si interrompe con un errore. Con l'IRQ del timer
+> CIA1 disattivato, il KERNAL viene eseguito una volta per frame dall'IRQ
+> raster: la tastiera e `GETIN` continuano a funzionare.
 
 ---
 
@@ -4224,10 +4307,10 @@ compilazione**. `.assert` valuta un'espressione durante l'assemblaggio; se è
 falsa (`0`), la compilazione si interrompe con un errore chiaro che include il
 valore effettivo. Se è vera (diversa da zero), non emette nulla.
 
-| Campo       | Descrizione                                                                                                                                              |
-| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Campo       | Descrizione                                                                                                                                  |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | Espressione | Qualsiasi espressione assembler: etichette, `CONST`, `*` (contatore di programma), aritmetica e confronti (`<`, `<=`, `>`, `>=`, `==`, `!=`) |
-| Messaggio   | Testo facoltativo aggiunto all'errore di errore                                                                                                          |
+| Messaggio   | Testo facoltativo aggiunto all'errore di errore                                                                                              |
 
 **Sintassi esperta:**
 ```
@@ -4397,9 +4480,9 @@ endif
 
 **Dimensioni:** Dipende dai rami scelti e dal modulo di confronto.
 
-Il confronto è senza segno per impostazione predefinita. Per `<=` e `>` la
-macro si espande nella catena di diramazioni equivalente più breve per il
-registro selezionato.
+Il confronto è senza segno per impostazione predefinita. Per `<=` e `>` la macro
+si espande nella catena di diramazioni equivalente più breve per il registro
+selezionato.
 
 ---
 
@@ -5054,7 +5137,7 @@ codice aggiuntivo dal disco mentre il tuo programma è in esecuzione.
 
 | Campo                               | Descrizione                                                                                                                                                                                                                                     |
 | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Nome file                           | Nome del file sul disco (max 16 caratteri, maiuscolo automatico; i caratteri `,`, `"`, `/`, `\`, `:`, `*`, `?`, `<`, `>`, `|` vengono filtrati)                                                                                           |
+| Nome file                           | Nome del file sul disco (max 16 caratteri, maiuscolo automatico; i caratteri `,`, `"`, `/`, `\`, `:`, `*`, `?`, `<`, `>`, `|` vengono filtrati)                                                                                                 |
 | Dispositivo                         | Numero del dispositivo 8–30 (predefinito `8`)                                                                                                                                                                                                   |
 | Indirizzo di override (facoltativo) | Indirizzo di caricamento esadecimale (ad esempio `C000`). Se impostato, il file viene caricato a questo indirizzo (`sec=0`, ignorando l'intestazione PRG). Lasciare vuoto per utilizzare l'intestazione PRG a 2 byte del file stesso (`sec=1`). |
 | Etichetta di errore (facoltativa)   | Se impostato, dopo JSR LOAD viene generata un'istruzione `BCS`. Se il KERNAL restituisce con carry impostato (errore), l'esecuzione salta a questa etichetta.                                                                                   |
@@ -5433,9 +5516,8 @@ CPX #$E8
 BNE *-11
 ```
 
-**Dimensioni:** `2 (LDX) + fullPages×9 + (rem > 0 ? 11 : 0)` byte per
-sezione. La modalità combinata lo raddoppia (sezione schermo + sezione colore
-identica).
+**Dimensioni:** `2 (LDX) + fullPages×9 + (rem > 0 ? 11 : 0)` byte per sezione.
+La modalità combinata lo raddoppia (sezione schermo + sezione colore identica).
 
 **Associazione con l'editor di mappe:**
 
@@ -6205,6 +6287,17 @@ Wiki/Godot**. Cambia solo il display: gli indici di colore nei dati rimangono
 gli stessi. Anche l'importazione di immagini ad alta risoluzione utilizza la
 tavolozza dell'editor, a meno che non se ne selezioni un'altra.
 
+**Tavolozza personalizzata:** se nessuna di queste corrisponde al tuo monitor o
+al tuo vero C64, scegli **Personalizzata** e fai clic su **Modifica tavolozza
+personalizzata…**. Ciascuno dei 16 colori ha un selettore di colore e un campo
+esadecimale (`#RRGGBB`); **Inizia da** + **Copia** riempie tutti e 16 da una
+tavolozza integrata. **Importa…** legge un file Photoshop `.act`, un file VICE
+`.vpl`, un file GIMP `.gpl` o qualsiasi testo con 16 valori `#RRGGBB` /
+`$RRGGBB` (vengono utilizzati i primi 16 colori); **Esporta .act** ed **Esporta
+.vpl** scrivono la tavolozza per Photoshop o per VICE (*Impostazioni → Video →
+Tavolozza* in VICE), in modo da poter confrontare gli stessi colori
+nell'emulatore. **Salva** lo memorizza e passa a **Personalizzato**.
+
 Le finestre di dialogo dell'editor visuale possono essere trascinate tramite le
 intestazioni nell'intera area di lavoro di Visual Assembler. Una finestra di
 dialogo senza posizione salvata si apre centrata; dopo essere stata spostata, la
@@ -6663,6 +6756,11 @@ collezione HVSC.
   il motore VA SID Core. WebSID non può cercare, quindi questi controlli sono
   disabilitati con esso.
 - **Volume:** la manopola è condivisa con il volume principale dell'editor SID.
+- **Buffer:** **Impostazioni → Generale → Anteprima SID → Buffer del lettore
+  SID** (2048, 4096, 8192 o 16384 campioni). Un buffer più grande elimina il
+  crepitio mentre l'app è occupata. WebSID utilizza la nuova dimensione dopo un
+  riavvio; VA SID Core esegue il rendering 10 / 15 / 20 / 30 s in anticipo
+  rispetto al brano successivo.
 - **Motore:** la finestra mostra quale motore è in esecuzione (WebSID o VA SID
   Core con la sua versione e chip SID); selezionalo in **Impostazioni →
   Anteprima SID**. VA SID Core esegue la melodia su un core Rust C64 nativo con

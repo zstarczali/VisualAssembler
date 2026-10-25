@@ -1,6 +1,6 @@
 # C64 Visuell Assembler — Användarmanual
 
-**Version 2.6.5**
+**Version 2.6.6**
 
 En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom att
 dra och släppa instruktionsblock och se den genererade assemblern och
@@ -11,6 +11,7 @@ maskinkoden i realtid.
 ## Innehållsförteckning
 
 - [C64 Visual Assembler — Användarmanual](#c64-visual-assembler--user-manual)
+    - [Höjdpunkter i version 2.6.6](#version-266-highlights)
     - [Höjdpunkter i version 2.6.5](#version-265-highlights)
     - [Höjdpunkter i version 2.6.4](#version-264-highlights)
     - [Höjdpunkter i version 2.6.3](#version-263-highlights)
@@ -121,6 +122,7 @@ maskinkoden i realtid.
       - [NIVÅ](#level)
       - [NIVÅ\RAD](#level_row)
     - [SID](#sid)
+    - [SID_PLAYER](#sid_player)
     - [INKLUDERA](#include)
     - [TABELL](#table)
     - [ORG](#org)
@@ -207,6 +209,41 @@ maskinkoden i realtid.
     - [Kurvredigerare](#curve-editor)
     - [Tabellgenerator](#table-generator)
     - [Nummeromvandlare](#number-converter)
+
+---
+
+## Höjdpunkter i version 2.6.6
+
+- **SID-spelarmakro** — `.sid_player [subtune][, raster]` (**SID_PLAYER** i
+  paletten) spelar melodin från `.sid`-makrot: det anropar init-rutinen med
+  subtunen, stänger av CIA1-timerns IRQ, kopplar en raster-IRQ och anropar
+  uppspelningsrutinen varje bildruta från dess inbyggda hanterare. Ett program
+  med musik är nu `.sid "music.sid"` + `.sid_player`. Se
+  [SID_PLAYER](#sid_player).
+- **SID-etiketter** — makrot `.sid` definierar `SID_LOAD`, `SID_INIT` och
+  `SID_PLAY`, flyttade tillsammans med en anpassad laddningsadress, så att din
+  egen IRQ-hanterare kan skriva `JSR SID_PLAY`. Se [SID](#sid).
+- **Endast expertläge** — **Projektinställningar** har en brytare som stänger
+  blockläget för projektets filer, oavsett storlek (sparade i `.proj`). Se
+  [Projektpanel och flikar](#project-panel--tabs).
+- **SID Player-buffert** — **Inställningar → Allmänt → SID-förhandsvisning → SID
+  Player-buffert** ställer in 2048–16384 samplingar; en större buffert stoppar
+  krackeleringen när appen är upptagen. WebSID använder den efter en omstart, VA
+  SID Core renderar 10 / 15 / 20 / 30 sekunder före. Se [SID
+  Player](#sid-player).
+- **Anpassad C64-palett** — **Inställningar → Allmänt → Redigerare → Redigera
+  anpassad palett…** ställer in ditt eget RGB-värde för var och en av de 16
+  färgerna, med utgångspunkt från valfri inbyggd palett; importera en Photoshop
+  `.act`, VICE `.vpl`, GIMP `.gpl`-palett eller en lista med hexagonala färger,
+  exportera `.act` / `.vpl`. Se [14. Visuella redigerare
+  (verktygslåda)](#14-visual-editors-toolkit).
+- **Titta** — C64-minnespanelens dockningsstation är tillbaka hopfälld; fönstren
+  Nyheter, Uppdatera, Inställningar och Kunskapsbas har samma ram som rutan Om;
+  kryssrutorna för Projektinställningar är VA-växlar.
+- **Åtgärdar** — felrapporten accepterar PNG- och JPG-skärmdumpar i den utgivna
+  versionen; den blinkande markören efter `READY.` på välkomstskärmen är en
+  heldragen C64-cell, utan de linjer som macOS ritade på den; macOS
+  inline-prediktiv text är avstängd i Expert- och Ultimate Basic-redigerarna.
 
 ---
 
@@ -851,8 +888,8 @@ maskinkoden i realtid.
 ## Höjdpunkter i version 2.3.9
 
 - **`*` i vilket uttryck som helst** — programräknarsymbolen fungerar nu inuti
-  operanduttryck, inte bara på egen hand: `BNE *-5`, `JMP *+20`, `LDA #<*`,
-  `LDA #>(*+63)`. Ett `*` som följer ett värde (`STRIDE*2`) är fortfarande
+  operanduttryck, inte bara på egen hand: `BNE *-5`, `JMP *+20`, `LDA #<*`, `LDA
+  #>(*+63)`. Ett `*` som följer ett värde (`STRIDE*2`) är fortfarande
   multiplikation. Se [Adresseringslägen → Programräknaren `*` i
   uttryck](#d64-editor-browse--edit-an-existing-disk-image).
 - **Lokala (prickade) etiketter** — en etikett som `.loop` tillhör omfånget för
@@ -863,9 +900,9 @@ maskinkoden i realtid.
   `LBPL`, `LBVC`, `LBVS` monteras till en inverterad gren över en `JMP` (alltid
   5 byte) så att målet kan vara valfritt avstånd bort. Ny palettkategori för
   **Långa grenar**. Se [LBNE / LBEQ / … (Långa grenar)]{1}.
-- **`.assert` direktiv** — `.assert slut - start <= 256` eller `.assert *
-  < $A000, "meddelande"` utvärderas vid monteringstillfället och misslyckas
-  med byggandet (visar det faktiska värdet) när uttrycket är falskt. Se
+- **`.assert` direktiv** — `.assert slut - start <= 256` eller `.assert * <
+  $A000, "meddelande"` utvärderas vid monteringstillfället och misslyckas med
+  byggandet (visar det faktiska värdet) när uttrycket är falskt. Se
   [.ASSERT]{1}.
 - **Operandetiketter för självmodifierande kod** — `LDA-värde:#$00` definierar
   etiketten `värde` som pekar på instruktionens operandbyte, så `STA-värde`
@@ -884,8 +921,8 @@ maskinkoden i realtid.
 Appen är uppdelad i tre huvudpaneler:
 
 - **`*` i vilket uttryck som helst** — programräknarsymbolen fungerar nu inuti
-  operanduttryck, inte bara på egen hand: `BNE *-5`, `JMP *+20`, `LDA #<*`,
-  `LDA #>(*+63)`. Ett `*` som följer ett värde (`STRIDE*2`) är fortfarande
+  operanduttryck, inte bara på egen hand: `BNE *-5`, `JMP *+20`, `LDA #<*`, `LDA
+  #>(*+63)`. Ett `*` som följer ett värde (`STRIDE*2`) är fortfarande
   multiplikation. Se [Adresseringslägen → Programräknaren `*` i
   uttryck](#the--program-counter-in-expressions).
 - **Lokala (prickade) etiketter** — en etikett som `.loop` tillhör omfånget för
@@ -897,9 +934,9 @@ Appen är uppdelad i tre huvudpaneler:
   5 byte) så att målet kan vara valfritt avstånd bort. Ny palettkategori för
   **Långa grenar**. Se [LBNE / LBEQ / … (Långa
   grenar)](#lbne--lbeq---long-branches).
-- **`.assert` direktiv** — `.assert slut - start <= 256` eller `.assert *
-  < $A000, "meddelande"` utvärderas vid monteringstillfället och misslyckas
-  med byggandet (visar det faktiska värdet) när uttrycket är falskt. Se
+- **`.assert` direktiv** — `.assert slut - start <= 256` eller `.assert * <
+  $A000, "meddelande"` utvärderas vid monteringstillfället och misslyckas med
+  byggandet (visar det faktiska värdet) när uttrycket är falskt. Se
   [.ASSERT](#assert).
 - **Operandetiketter för självmodifierande kod** — `LDA-värde:#$00` definierar
   etiketten `värde` som pekar på instruktionens operandbyte, så `STA-värde`
@@ -1621,7 +1658,7 @@ båda skiljer sig åt genom sin form:
 
 | VA (VMA)                                         | KickAssembler                                                                                                     |
 | ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
-| `.för X, $0A, för1` … `.endf för1`               | `.för (var i = 0; i < 10; i++) { … `                                                                           |
+| `.för X, $0A, för1` … `.endf för1`               | `.för (var i = 0; i < 10; i++) { … `                                                                              |
 | `.if DEBUG` … `.else` … `.endif`                 | `.if (uttryck) { … } else { … }`                                                                                  |
 | `.makronamn(p)` … `.endm`, anropad med `.invoke` | `.makro Namn(p) { … }`, anropad som `Namn(arg)`                                                                   |
 | `.var namn = värde` (en runtime-variabel)        | `.var name = value` (en skriptvariabel) — i ett Kick-kompatibelt projekt är `.var` alltid KickAssembler-variabeln |
@@ -1637,9 +1674,8 @@ som KickAssemblers. Stöds:
 - `.const` / `.label` i valfri ordning, med uttryck; noll sidadressering eller
   absolut adressering följer värdet som i KickAssembler (`.abs` / `.zp` tvingar
   det fortfarande fram)
-- `.for (var i = 0; i < n; i++) { … }` och enradig form, `.var`, `.eval`
-  (`=`, `+=`, `++` …), `.if (…) { … } else .if (…) { … } else { … }` och enradig
-  form
+- `.for (var i = 0; i < n; i++) { … }` och enradig form, `.var`, `.eval` (`=`,
+  `+=`, `++` …), `.if (…) { … } else .if (…) { … } else { … }` och enradig form
 - `.function Namn(params) { .return expr }` och `.macro Namn(params) { … }`
   anropas som `Namn(args)` eller `:Namn(args)`
 - flera etiketter `!:` / `!namn:` med `!+`, `!-`, `!++`, `!namn+`, `!namn-`
@@ -2152,8 +2188,9 @@ flera filer `.proj`:
   sökväg, startfil, assembler (VMA eller ACME), **KickAssembler-kompatibel**,
   och för ett Kick-projekt preprocessorsymbolerna (`#define`, som KickAssemblers
   `-define`) och kommandoradsvariablerna (`cmdLineVars`, en `name=value` per
-  rad, som `:name=value`), plus antalet källfiler och andra filer. Allt sparas i
-  `.proj`.
+  rad, som `:name=value`), plus antalet källfiler och andra filer, och
+  **Expertläge endast **: blockläget är stängt för projektets filer, oavsett
+  storlek. Allt sparas i `.proj`.
 - Mappar i trädet har en pil för att fälla/expandera, och **högerklicka på en
   mapp ** för att lägga till en eller flera filer kapslade under den (visas
   indragna).
@@ -2308,8 +2345,8 @@ eller PC-relativa dataläsningar.
 
 **PC vs. multiplikation.** `*` behandlas som programräknaren endast när den
 sitter i *värdepositionen* — i början av uttrycket, eller direkt efter en
-operator, `(`, `,`, `<`, `>` eller blanksteg. En `*` som följer ett tal,
-`)` eller en identifierare är vanlig multiplikation, så `LDA-tabellen*2` och
+operator, `(`, `,`, `<`, `>` eller blanksteg. En `*` som följer ett tal, `)`
+eller en identifierare är vanlig multiplikation, så `LDA-tabellen*2` och
 `CONST_A*4` är oförändrade.
 
 **Där det fungerar.** Alla operander som redan accepterar ett uttryck: branch
@@ -3317,8 +3354,48 @@ adressen som en uppskjuten del i PRG.
 > flytta det till en annan adress kommer att bryta dessa interna referenser.
 
 > **Typisk användning:** Placera ett ORG-block före SID-blocket för att ange
-> dess adress. Anropa Init en gång vid start, anropa sedan Spela upp varje
-> bildruta från en raster-IRQ-hanterare.
+> dess adress. Anropa Init en gång vid start, anropa sedan Play every frame från
+> en raster IRQ-hanterare — eller låt [SID_PLAYER](#sid_player) göra båda.
+
+**Etiketter:** SID-blocket definierar `SID_LOAD` (där data placeras), `SID_INIT`
+och `SID_PLAY` (init- och play-adresserna, flyttade tillsammans med en anpassad
+adress). `SID_PLAY` saknas när låten inte har någon play-adress (ett RSID som
+installerar sin egen IRQ). Använd dem i din egen kod, t.ex. `JSR SID_PLAY` i en
+IRQ-hanterare.
+
+---
+
+### SID_PLAYER
+
+Spelar melodin från makrot **SID** med ett block: det initierar melodin och
+fortsätter att anropa sin uppspelningsrutin från ett rasteravbrott, så att ditt
+program kan fortsätta med sitt eget arbete.
+
+| Fält   | Beskrivning                                                     |
+| ------ | --------------------------------------------------------------- |
+| Låt    | Subtune-nummer som skickas till init-rutinen i A (standard `0`) |
+| Raster | Avbrottets rasterlinje, `$00`–`$FF` (standard `$FA`)            |
+
+Vad den gör: `SEI`, `LDA #song` / `JSR SID_INIT`, stänger av CIA1-timerns IRQ
+(`$DC0D`), ställer in IRQ-vektorn (`$0314/$0315`) till dess inbyggda hanterare,
+rasterlinjen (`$D012`, bit 8 av `$D011` rensad) och raster-IRQ (`$D01A`), `CLI`,
+och hoppar sedan över hanteraren. Hanteraren bekräftar avbrottet (`ASL $D019`),
+anropar `JSR SID_PLAY` och går vidare till KERNAL (`JMP $EA31`, som också
+skannar tangentbordet).
+
+**Expertsyntax:**
+```
+.sid "Ikari_Warriors.sid"
+.sid_player
+.sid_player 1, 80 dollar
+```
+
+**Storlek i kod: ** 58 byte.
+
+> **Obs:** det behöver ett SID-block i programmet (`SID_INIT` och `SID_PLAY`);
+> annars stoppas bygget med ett fel. Med CIA1-timerns IRQ avstängd körs KERNAL
+> en gång per bildruta från raster-IRQ:n — tangentbordet och `GETIN` fortsätter
+> att fungera.
 
 ---
 
@@ -3892,10 +3969,10 @@ utvärderar ett uttryck vid assemblering; om det är falskt (`0`) stoppas bygget
 med ett tydligt fel som inkluderar det faktiska värdet. Om det är sant (inte
 noll) genererar det ingenting.
 
-| Fält       | Beskrivning                                                                                                                                    |
-| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Fält       | Beskrivning                                                                                                                        |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------- |
 | Uttryck    | Valfritt assembleruttryck: etiketter, `CONST`s, `*` (programräknare), aritmetik och jämförelser (`<`, `<=`, `>`, `>=`, `==`, `!=`) |
-| Meddelande | Valfri text tillagd till felmeddelandet                                                                                                        |
+| Meddelande | Valfri text tillagd till felmeddelandet                                                                                            |
 
 **Expertsyntax:**
 ```
@@ -3907,13 +3984,13 @@ noll) genererar det ingenting.
 **Beteende:**
 
 - **Storlek:** 0 byte.
-- En falsk påstående avbryter sammansättningen: `` `.assert end - start <=
-  256` är falskt (värde: 0). sprite-tabellen översvämmades en sida``
+- En falsk påstående avbryter sammansättningen: `` `.assert end - start <= 256`
+  är falskt (värde: 0). sprite-tabellen översvämmades en sida``
 - En påstående som inte kan utvärderas (odefinierad etikett, etc.) misslyckas
   också, med * "kan inte utvärderas vid monteringstillfället"*.
 - Jämförelser ger `1` / `0`; placera `.assert` var som helst i programflödet —
-  den kontrolleras vid adressen den finns på, så `.assert * < $D000` testar
-  den aktuella utgångspositionen.
+  den kontrolleras vid adressen den finns på, så `.assert * < $D000` testar den
+  aktuella utgångspositionen.
 
 **Exempel — skydda ett spriteblock mot sidövergångar:**
 ```
@@ -4057,8 +4134,8 @@ genererar den korrekta `CMP` / `CPX` / `CPY` + grensekvensen åt dig.
 
 **Storlek:** Beror på de valda grenarna och jämförelseformuläret.
 
-Jämförelsen är som standard osignerad. För `<=` och `>` expanderas makrot
-till den kortaste ekvivalenta grenkedjan för det valda registret.
+Jämförelsen är som standard osignerad. För `<=` och `>` expanderas makrot till
+den kortaste ekvivalenta grenkedjan för det valda registret.
 
 ---
 
@@ -4558,7 +4635,7 @@ extra kod från disken medan ditt program körs.
 
 | Fält                        | Beskrivning                                                                                                                                                                                         |
 | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Filnamn                     | Filnamn på disken (max 16 tecken, automatisk versaler; tecknen `,`, `"`, `/`, `\`, `:`, `*`, `?`, `<`, `>`, `|` filtreras)                                                                    |
+| Filnamn                     | Filnamn på disken (max 16 tecken, automatisk versaler; tecknen `,`, `"`, `/`, `\`, `:`, `*`, `?`, `<`, `>`, `|` filtreras)                                                                          |
 | Anordning                   | Enhetsnummer 8–30 (standard `8`)                                                                                                                                                                    |
 | Åsidosätt adress (valfritt) | Hexadecimal laddningsadress (t.ex. `C000`). Om angiven laddas filen till denna adress (`sec=0`, utan att PRG-rubriken används). Lämna tomt för att använda filens egen 2-byte PRG-rubrik (`sec=1`). |
 | Feletikett (valfritt)       | Om den är satt genereras en `BCS`-instruktion efter JSR LOAD. Om KERNAL returnerar med carry satt (fel), hoppar exekveringen till denna etikett.                                                    |
@@ -4782,8 +4859,8 @@ effekt på en riktig C64 eller andra emulatorer.
 | Hastighet   | CPU-hastighetsindex      | 0 = 1 MHz … 7 ≈ 10 MHz … 15 ≈ 48 MHz             |
 | Dålig linje | Emulering av dålig linje | Aktiverad (C64-kompatibel) / Inaktiverad (turbo) |
 
-Hastighetsbyten beräknas som: `(speedIndex & 0x0F) | (badline_disabled ?
-0x80 : 0x00)`.
+Hastighetsbyten beräknas som: `(speedIndex & 0x0F) | (badline_disabled ? 0x80 :
+0x00)`.
 
 **Genererad kod (5 byte):**
 ```
@@ -5571,6 +5648,16 @@ tillgängliga. Endast visningen ändras — färgindexen i dina data förblir de
 Importen av högupplösta bilder använder också editorpaletten, såvida du inte
 väljer en annan där.
 
+**Anpassad palett:** om ingen av dem matchar din skärm eller din riktiga C64,
+välj **Anpassad** och klicka på **Redigera anpassad palett…**. Var och en av de
+16 färgerna får en färgväljare och ett hexagonalt fält (`#RRGGBB`); **Börja
+från** + **Kopiera** fyller alla 16 från en inbyggd palett. **Importera…** läser
+en Photoshop `.act`, en VICE `.vpl`, en GIMP `.gpl` eller valfri text med 16
+`#RRGGBB` / `$RRGGBB`-värden (de första 16 färgerna används); **Exportera .act**
+och **Exportera .vpl** skriver paletten för Photoshop eller för VICE
+(*Inställningar → Video → Palett* i VICE), så att du kan jämföra samma färger i
+emulatorn. **Spara** lagrar det och växlar till **Anpassad**.
+
 Dialogrutor i den visuella redigeraren kan dras med hjälp av rubrikerna över
 hela arbetsytan i Visual Assembler. En dialogruta utan sparad position öppnas
 centrerad; efter att den har flyttats lagras dess senaste position i
@@ -6002,6 +6089,11 @@ Verktygsfältsknappen **SID Player** öppnar ett flytande fönster som spelar up
   Core-motorn. WebSID kan inte söka, så dessa kontroller är inaktiverade med
   den.
 - **Volym:** Ratten delas med SID-redigerarens huvudvolym.
+- **Buffert:** **Inställningar → Allmänt → SID-förhandsvisning → SID
+  Player-buffert** (2048, 4096, 8192 eller 16384 samplingar). En större buffert
+  stoppar knastrandet när appen är upptagen. WebSID använder den nya storleken
+  efter en omstart; VA SID Core renderar 10 / 15 / 20 / 30 s framåt från nästa
+  låt och framåt.
 - **Motor:** Fönstret visar vilken motor som spelar (WebSID, eller VA SID Core
   med dess version och SID-chip); välj det i ** Inställningar →
   SID-förhandsgranskning**. VA SID Core kör melodin på en inbyggd Rust C64-kärna

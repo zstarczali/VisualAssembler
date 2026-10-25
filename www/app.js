@@ -293,7 +293,7 @@ const mnemonicLibrary = {
     { mnemonic: "SET_BORDER", description: "Keretszin beallitasa: LDA #color / STA $D020.", modes: ["implied"], isSetBorderMacro: true },
     { mnemonic: "SET_BG", description: "Hatter szin beallitasa: LDA #color / STA $D021.", modes: ["implied"], isSetBgMacro: true },
     { mnemonic: "IRQ_SETUP", description: "Raszter IRQ alapbeallitas handlerrel es rasztersorral: vektor, $D012, $D01A, CIA1 IRQ off, CLI.", modes: ["implied"], isIrqSetupMacro: true },
-    { mnemonic: "SID_PLAYER", description: "A .sid makroval betoltott zene lejatszasa: JSR SID_INIT a subtune-nal, CIA1 IRQ off, raszter IRQ, CLI; a beepitett handler kepkockankent JSR SID_PLAY, majd JMP $EA31.", modes: ["implied"], isSidPlayerMacro: true },
+    { mnemonic: "SID_PLAYER", description: "A .sid makroval betoltott zene lejatszasa: JSR SID_INIT a subtune-nal, CIA1 IRQ off, raszter IRQ, CLI; a beepitett handler kepkockankent JSR SID_PLAY, majd JMP $EA31. Mindket hivas $01 = $35 mellett fut (ROM ki), igy a BASIC vagy KERNAL ROM alatti zene is szol.", modes: ["implied"], isSidPlayerMacro: true },
     { mnemonic: "RAND", description: "8-bites Galois LFSR PRNG. Seed byte-ot frissit, az uj random ertek A-ban marad.", modes: ["implied"], isRandMacro: true },
     { mnemonic: "ORG", description: "Cimzestarto atvaltasa (*= direktiva). A kovetkező blokkokat az itt megadott cimtol forditja.", modes: ["implied"], isOrgMacro: true }
   ],
@@ -1597,7 +1597,7 @@ function initPalette() {
   document.getElementById("ub-zoom-in-btn")?.addEventListener("click", () => _ubZoom(1));
   document.getElementById("ub-zoom-out-btn")?.addEventListener("click", () => _ubZoom(-1));
   _bindCtrlWheelZoom(document.querySelector(".ub-editor-wrap"), _ubZoom);
-  ubEditor?.addEventListener("input", () => { _ubDirty = true; markTabDirty(); _bmTrackEdit("ub"); _ubRefreshEditor(); _ubAcUpdate(); _ubScheduleLint(); });
+  ubEditor?.addEventListener("input", (e) => { _ubDirty = true; markTabDirty(); _bmTrackEdit("ub"); _ubRefreshEditor(); if (_isPasteInput(e.inputType)) _ubAcHide(); else _ubAcUpdate(); _ubScheduleLint(); });
   ubEditor?.addEventListener("keyup", _ubUpdateCursor);
   ubEditor?.addEventListener("click", _ubUpdateCursor);
   ubEditor?.addEventListener("select", _ubUpdateCursor);
@@ -1912,7 +1912,9 @@ function initPalette() {
     _expertValidate();
     _expertScheduleIncludeReload();
     renderExpertOriginInfo();
-    _expertAcUpdate();
+    // Only typing opens the completion list; a paste or drop just closes it.
+    if (_isPasteInput(pendingMeta?.inputType)) _expertAcHide();
+    else _expertAcUpdate();
     _expertUpdateCaret();
   });
 
@@ -2410,6 +2412,13 @@ function initPalette() {
     const textEl = document.getElementById('splash-ready-text');
     const cursorEl = textEl && textEl.nextElementSibling;
     if (!textEl || !cursorEl) return;
+    // One C64 font pixel is 1/8 em. Round the size so that it is a whole number of device
+    // pixels: at 125 % scaling 1.1rem gives 2.75, and the letters' rows then round
+    // differently from the cursor box, which ended up a pixel higher or lower.
+    const readyEl = textEl.parentElement;
+    const dpr = window.devicePixelRatio || 1;
+    const fontPx = Math.max(1, Math.round(parseFloat(getComputedStyle(readyEl).fontSize) * dpr / 8));
+    readyEl.style.fontSize = `${fontPx * 8 / dpr}px`;
     const msg = 'READY.';
     let i = 0;
     const type = () => {
@@ -10057,6 +10066,10 @@ function _getExpertMnemCatMap() {
 }
 
 // ── Expert autocomplete ────────────────────────────────────────────────────────────────────────
+// A paste or drop inserts finished text, so the editors close the completion list instead of opening it.
+function _isPasteInput(inputType) {
+  return inputType === "insertFromPaste" || inputType === "insertFromDrop" || inputType === "insertFromPasteAsQuotation";
+}
 const _AC_DIRECTIVES = Object.keys(_DIRECTIVE_TO_MNEM).map(k => "."+k);
 
 // ACME 0.97 pseudo opcodes (ACME mode autocomplete).
@@ -18473,12 +18486,15 @@ function applySavedTheme() {
 }
 
 function toggleTheme() {
-  const next = { light: "dark", dark: "oled", oled: "commodore77", commodore77: "starlight", starlight: "beige", beige: "c64", c64: "light" };
+  const next = { light: "dark", dark: "oled", oled: "black", black: "commodore77", commodore77: "starlight", starlight: "beige", beige: "c64", c64: "light" };
   setTheme(next[document.documentElement.dataset.theme] || "dark");
 }
 
 function setTheme(theme) {
   document.documentElement.dataset.theme = theme;
+  // The head script paints the start-up theme's background inline (no flash on load); drop it so
+  // the html[data-theme] background of the new theme shows where the page is wider than the body.
+  document.documentElement.style.background = "";
   localStorage.setItem("c64-block-theme", theme);
   updateThemeToggleLabel();
   saveUiSettings();
@@ -20869,12 +20885,22 @@ function _updateShow({ title, msg, install = false, skip = false, closeLabel = t
 }
 
 // UB statusbar jelző: "Naprakész (vX)" vagy kattintható "Frissítés elérhető: vY".
+// "2.6.6" or, for a re-released build of the same version, "2.6.6 hotfix".
+function _updateLatestLabel(info) {
+  return info.hotfix > 0 ? `${info.latestVersion} ${t("updateHotfix")}` : info.latestVersion;
+}
+
+// What "Skip this version" remembers: a later hotfix of a skipped version is offered again.
+function _updateSkipId(info) {
+  return info.hotfix > 0 ? `${info.latestVersion}+hotfix${info.hotfix}` : info.latestVersion;
+}
+
 function _updateRenderStatusbar() {
   const info = _updateInfo;
   const show = !!(info?.supported && info.latestVersion);
   const available = show && !!info.updateAvailable;
   const text = !show ? "" : available
-    ? tf("updateStatusAvailable", { latest: info.latestVersion })
+    ? tf("updateStatusAvailable", { latest: _updateLatestLabel(info) })
     : tf("updateStatusUpToDate", { version: info.currentVersion });
   document.querySelectorAll("[data-update-status]").forEach(el => {
     el.hidden = !show;
@@ -20888,7 +20914,9 @@ function _updateShowAvailable() {
   if (!info?.updateAvailable) return;
   _updateShow({
     title: t("updateAvailableTitle"),
-    msg: tf("updateAvailableMsg", { latest: info.latestVersion, current: info.currentVersion }),
+    msg: info.hotfix > 0
+      ? tf("updateHotfixMsg", { version: info.latestVersion })
+      : tf("updateAvailableMsg", { latest: info.latestVersion, current: info.currentVersion }),
     install: true,
     skip: true,
     closeLabel: t("updateLater")
@@ -20932,7 +20960,7 @@ async function checkForAppUpdate({ silent = false } = {}) {
   }
   let skipped = "";
   try { skipped = localStorage.getItem(_UPDATE_SKIP_KEY) || ""; } catch (_) {}
-  if (silent && skipped === info.latestVersion) return;
+  if (silent && skipped === _updateSkipId(info)) return;
   _updateShowAvailable();
 }
 
@@ -20946,7 +20974,7 @@ async function _updateInstall() {
   els.install.hidden = true;
   els.skip.hidden = true;
   els.close.disabled = true;
-  els.msg.textContent = tf("updateDownloading", { version });
+  els.msg.textContent = tf("updateDownloading", { version: _updateLatestLabel(_updateInfo) });
   _updateSetProgress(-1);
 
   let unlisten = null;
@@ -20959,7 +20987,7 @@ async function _updateInstall() {
   } catch (_) { /* progress nélkül is megy */ }
 
   try {
-    const res = await window.electronAPI.downloadAndInstallUpdate(version);
+    const res = await window.electronAPI.downloadAndInstallUpdate(version, _updateInfo.hotfix || 0);
     _updateSetProgress(100, "");
     els.msg.textContent = res?.restarting ? t("updateRestarting") : t("updateInstallerOpened");
   } catch (err) {
@@ -20978,7 +21006,7 @@ async function _updateInstall() {
   els.install?.addEventListener("click", _updateInstall);
   els.close?.addEventListener("click", () => { if (!_updateBusy) els.dlg?.close(); });
   els.skip?.addEventListener("click", () => {
-    try { if (_updateInfo?.latestVersion) localStorage.setItem(_UPDATE_SKIP_KEY, _updateInfo.latestVersion); } catch (_) {}
+    try { if (_updateInfo?.latestVersion) localStorage.setItem(_UPDATE_SKIP_KEY, _updateSkipId(_updateInfo)); } catch (_) {}
     els.dlg?.close();
   });
   els.dlg?.addEventListener("cancel", e => { if (_updateBusy) e.preventDefault(); });
@@ -32283,12 +32311,16 @@ function parseMacroCountOrSize(raw, labels = null, preferredBase = "dec", vars =
 
 // SID_PLAYER (.sid_player [song][, raster]): init the tune of the .sid block, then a raster IRQ
 // (CIA1 IRQ off) whose handler, right after the setup, calls SID_PLAY once a frame.
-const _SID_PLAYER_SIZE = 58;
+// Both calls run with $01 = $35 (BASIC and KERNAL ROM out, I/O in), so a tune under
+// $A000-$BFFF or $E000-$FFFF works; $01 is restored before the KERNAL is needed again.
+const _SID_PLAYER_SIZE = 78;
 function _sidPlayerBytes(address, init, play, song, raster) {
-  const irq = (address + 49) & 0xFFFF, end = (address + _SID_PLAYER_SIZE) & 0xFFFF;
+  const irq = (address + 59) & 0xFFFF, end = (address + _SID_PLAYER_SIZE) & 0xFFFF;
   return [
     0x78,
+    0xA5, 0x01, 0x48, 0xA9, 0x35, 0x85, 0x01,
     0xA9, song & 0xFF, 0x20, init & 0xFF, (init >> 8) & 0xFF,
+    0x68, 0x85, 0x01,
     0xA9, 0x7F, 0x8D, 0x0D, 0xDC, 0xAD, 0x0D, 0xDC,
     0xA9, irq & 0xFF, 0x8D, 0x14, 0x03, 0xA9, irq >> 8, 0x8D, 0x15, 0x03,
     0xA9, raster & 0xFF, 0x8D, 0x12, 0xD0,
@@ -32296,7 +32328,11 @@ function _sidPlayerBytes(address, init, play, song, raster) {
     0xA9, 0x01, 0x8D, 0x1A, 0xD0, 0x8D, 0x19, 0xD0,
     0x58,
     0x4C, end & 0xFF, end >> 8,
-    0x0E, 0x19, 0xD0, 0x20, play & 0xFF, (play >> 8) & 0xFF, 0x4C, 0x31, 0xEA
+    0x0E, 0x19, 0xD0,
+    0xA5, 0x01, 0x48, 0xA9, 0x35, 0x85, 0x01,
+    0x20, play & 0xFF, (play >> 8) & 0xFF,
+    0x68, 0x85, 0x01,
+    0x4C, 0x31, 0xEA
   ];
 }
 

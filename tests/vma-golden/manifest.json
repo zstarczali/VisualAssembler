@@ -1560,6 +1560,30 @@
   "error": null
  },
  {
+  "id": "samples-simple-music",
+  "caseId": "samples-simple-music",
+  "kind": "text",
+  "file": "samples/simple-music.asm",
+  "baseDir": "samples",
+  "basicStub": true,
+  "ok": true,
+  "size": 62529,
+  "sha256": "cf30eeef3d1af45a92bc4d22193ca391fc3bdb1b9767909dce2b11e8333471fc",
+  "error": null
+ },
+ {
+  "id": "samples-simple-music@nostub",
+  "caseId": "samples-simple-music",
+  "kind": "text",
+  "file": "samples/simple-music.asm",
+  "baseDir": "samples",
+  "basicStub": false,
+  "ok": true,
+  "size": 60482,
+  "sha256": "ca040113ba6789d08f2aa15adb6becfb59ea7a39ed15534ec09d18e83cf1117e",
+  "error": null
+ },
+ {
   "id": "samples-sprite-demo-blocks",
   "caseId": "samples-sprite-demo-blocks",
   "kind": "blocks",
@@ -3824,7 +3848,7 @@
   "basicStub": true,
   "ok": true,
   "size": 62529,
-  "sha256": "63e4fad761f5a4f4fc1cc9b2065982ff18d3571dbdc0663a691b6623e462b397",
+  "sha256": "b820ff4d9b0e7425e8ddf4502ef43f735d27c4f20237ae33d489a927148724ee",
   "error": null
  },
  {
@@ -3836,7 +3860,7 @@
   "basicStub": false,
   "ok": true,
   "size": 60482,
-  "sha256": "3e3c483435043214f1ca0365818aa6c548dffab1a9ada6529b337c1be12fb0d9",
+  "sha256": "d1ae2c8d7f7fa3acaebf6d5faf153dc9788c272d55a82935e5adb7836b525ab5",
   "error": null
  },
  {
