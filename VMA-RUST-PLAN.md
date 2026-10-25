@@ -14,15 +14,15 @@ azonos marad a mai JS fordítóéval — ezt a golden korpusz (`tests/vma-golden
 | F1 JS-hibák javítása, korpusz bővítése | ✔ kész | `8291481`, `c029369` |
 | F2 Rust mag + CLI (`crates/vma`) | ✔ kész | `c0cc68d` |
 | F3 makrók, LOOP/FOR, `.var`, PUSH/PULL | ✔ kész | `536986e` |
-| **F4 kódgeneráló makrók** | **folyamatban** — 1–4. adag kész (minden kódgeneráló makró a SID_PLAYER-en kívül), az 5–6. adag jön | — |
-| F5 fájl-makrók | hátra | — |
+| F4 kódgeneráló makrók | ✔ kész (a SID_PLAYER kódja az F5-tel jön) | `516d372` … |
+| **F5 fájl-makrók** | **folyamatban** | — |
 | F6 bekötés a VA-ba (Tauri `vma_build`, shadow mód) | hátra | — |
 | F7 WASM, a szinkron UI-elemzések | hátra | — |
 | F8 Kick előfeldolgozó (opcionális), JS mag törlése, dokumentáció | hátra | — |
 
-Golden állás (`node scripts/vma-rust-report.js`): **476 esetből 380 bájtra egyezik, 38 elvárt hiba, 58 egy még
-nem portolt direktívánál áll meg, 0 eltérés.** A blokkoló direktívák: FILE 56 (F5), MACRO_BUFFER 2
-(MACRO_BUFFER = a 6. adag; a SID_PLAYER a FILE-esetek mögött áll, mert `.sid` nélkül nincs `SID_INIT`).
+Golden állás (`node scripts/vma-rust-report.js`): **480 esetből 386 bájtra egyezik, 38 elvárt hiba, 56 egy
+fájl-makrónál (FILE, F5) áll meg, 0 eltérés.** A SID_PLAYER kódja is a FILE-esetek mögött áll (`.sid` nélkül nincs
+`SID_INIT`).
 
 Ellenőrzés bármikor: `npm test` (a golden Rust-ága a `crates/vma/target/{debug,release}/vma.exe`-t használja,
 ha le van fordítva), `cargo test --offline` a `crates/vma`-ban, és az esetenkénti riport fent.
@@ -51,9 +51,11 @@ ha le van fordítva), `cargo test --offline` a `crates/vma`-ban, és az esetenk�
       `delay_helper_address` (`appendDelayHelperLabel` + `getDeferredMemorySections`), `delay_helper_bytes`;
       a címkék sorszámot kapnak a JS véletlen utótagja helyett — a bájtokra nincs hatásuk; golden:
       `var-runtime-*`, `var-memory-macros`, `var-delay-helper-*` és öt hibaág-eset);
-   5. SID_PLAYER kódja (a `_sidPlayerBytes` port), a `SID_INIT` / `SID_PLAY` címke az F5-tel jön;
-   6. a makrók „buffer” paraméterei (`getDeferredMacroAddressField`, `_autoBufferLabel`, a layout végi
-      `autoBufferCursor`) — a deferred-címes makrók után.
+   5. SID_PLAYER kódja (a `_sidPlayerBytes` port) — az F5 SID-részével együtt;
+   6. ✔ a makrók „buffer” paraméterei (`getDeferredMacroAddressField`, `_autoBufferLabel`, a layout végi
+      `autoBufferCursor`): `asm.rs` `expand` (a paraméter minden csupasz előfordulása a `__buf_…` címke),
+      `Meta::auto_buffer` / `auto_buffer_address`, a `layout` végén kiosztva; golden: `var-macro-buffers`,
+      `var-macro-buffer-delay`.
    Minden adaghoz célzott golden snippet / változat a `tests/vma-golden/cases.js`-be (a JS adja az elvárt
    bájtot), utána `node scripts/vma-golden.js --update` — csak új bejegyzés változhat.
 2. **F5** — `FileProvider` + közös resolver (a `lib.rs` `bare_name_candidates` / `push_bare_name_fallbacks`
@@ -90,7 +92,9 @@ utána golden-frissítés):
   `.if` ágát is lezárhatja;
 - a DELAY helper a layout utolsó sora (nem a legnagyobb cím) és a deferred szakaszok (TEXT / STRING / DATA is)
   fölé kerül, kihagyott (`.if 0`) DELAY esetén is;
-- a MEMCPY / MEMSET mérete (`getInstructionSize`) címkék nélkül számol, a bájtok címkékkel.
+- a MEMCPY / MEMSET mérete (`getInstructionSize`) címkék nélkül számol, a bájtok címkékkel;
+- a makró auto buffere DATA / RAWBYTES-nél 0 bájtot foglal (a darab mégis oda kerül, a következő buffer
+  felülírhatja), a kihagyott sorok buffere is kap címet.
 
 F4 közben javított JS-hibák (mindkettő TypeError volt `null.toString`-on a `compileLineBytes`-ban): feloldatlan
 címkéjű `.wait_raster` — most `compileWaitRasterByte`; feloldatlan `.sprite_init` adatlap — most

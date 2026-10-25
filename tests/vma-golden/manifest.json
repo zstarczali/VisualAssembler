@@ -5424,6 +5424,54 @@
   "error": "[P002] $1000 DELAY — DELAY: value must be 1-255 or a defined const"
  },
  {
+  "id": "var-macro-buffers",
+  "caseId": "var-macro-buffers",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": true,
+  "ok": true,
+  "size": 2100,
+  "sha256": "0186551ef0bdb8b1dfa7fed0266a7c27bf495383c631502e40b2c7ea12e8138e",
+  "error": null
+ },
+ {
+  "id": "var-macro-buffers@nostub",
+  "caseId": "var-macro-buffers",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": false,
+  "ok": true,
+  "size": 53,
+  "sha256": "043c09d7901f35437a23c8effa552428da56b34ea9b07b0d10a98f2154e3bf5b",
+  "error": null
+ },
+ {
+  "id": "var-macro-buffer-delay",
+  "caseId": "var-macro-buffer-delay",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": true,
+  "ok": true,
+  "size": 2093,
+  "sha256": "c45cffc17c798a52e552e9b5e3a4dbfd0c29b17be73331e269a314f1cc152afb",
+  "error": null
+ },
+ {
+  "id": "var-macro-buffer-delay@nostub",
+  "caseId": "var-macro-buffer-delay",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": false,
+  "ok": true,
+  "size": 46,
+  "sha256": "bd9b1134f4af87335bd27b2f7fce5078f2a7e97a55645da19f46cee155b619f4",
+  "error": null
+ },
+ {
   "id": "var-macro-nested-error",
   "caseId": "var-macro-nested-error",
   "kind": "text",

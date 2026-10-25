@@ -82,6 +82,10 @@ struct Meta {
     error: Option<String>,
     /// `_varAddress`
     var_address: Option<i64>,
+    /// `_autoBufferLabel`: a macro's deferred-address parameter given no address of its own
+    auto_buffer: Option<String>,
+    /// `_autoBufferAddress`: after the end of the layout
+    auto_buffer_address: Option<i64>,
 }
 
 /// A user macro of `parseUserMacros`.
@@ -695,6 +699,17 @@ impl Assembler {
                     None => subst.push((p.clone(), v)),
                 }
             }
+            // a parameter used as a STRING / RAWTEXT / DATA / RAWBYTES / PETSCII address is a buffer:
+            // every bare use of it names the buffer label
+            let mut buffers: Vec<(String, String)> = Vec::new();
+            for mb in &mac.body {
+                if let Kind::Mem { addr, .. } = &mb.kind {
+                    let token = addr.trim();
+                    if is_ident(token) && mac.params.iter().any(|p| p == token) && !buffers.iter().any(|(p, _)| p == token) {
+                        buffers.push((token.to_string(), format!("__buf_{:08x}_{token}", invocations)));
+                    }
+                }
+            }
             let apply = |raw: &str| -> String {
                 if mac.params.is_empty() {
                     return raw.to_string();
@@ -702,7 +717,8 @@ impl Assembler {
                 let mut r = raw.to_string();
                 for (p, v) in &subst {
                     r = js_replace_literal(&r, &format!("{{{p}}}"), v);
-                    r = replace_word(&r, p, |_| v.clone(), false);
+                    let bare = buffers.iter().find(|(b, _)| b == p).map(|(_, l)| l.clone()).unwrap_or_else(|| v.clone());
+                    r = replace_word(&r, p, |_| bare.clone(), false);
                 }
                 r
             };
@@ -716,7 +732,7 @@ impl Assembler {
             out.push((b.clone(), Meta { header: true, ..Meta::default() }));
             for mb in &mac.body {
                 let mut e = mb.clone();
-                let mut buffer = false;
+                let mut buffer = None;
                 match &mut e.kind {
                     Kind::Label { name, .. } if locals.contains(name) => *name = format!("{name}{suffix}"),
                     Kind::Instr { mnem, mode, raw, base, display, .. } => {
@@ -750,11 +766,12 @@ impl Assembler {
                         if !raw.is_empty() {
                             *raw = rewrite(raw);
                         }
-                        // a bare parameter as the address is an auto buffer (`_autoBufferLabel`), not ported yet
-                        if is_ident(addr.trim()) && mac.params.iter().any(|p| p == addr.trim()) {
-                            buffer = true;
-                        } else if !addr.is_empty() {
+                        if !addr.is_empty() {
+                            let token = addr.trim().to_string();
                             *addr = apply(addr);
+                            if buffers.iter().any(|(p, _)| *p == token) {
+                                buffer = Some(addr.clone());
+                            }
                         }
                     }
                     Kind::LongBranch { raw, .. } | Kind::Byte { raw, .. } | Kind::Word { raw, .. } | Kind::Fill { raw, .. } | Kind::Align { raw, .. } | Kind::Const { raw, .. } => {
@@ -766,10 +783,7 @@ impl Assembler {
                     Kind::Next { label, .. } if locals.contains(label) => *label = format!("{label}{suffix}"),
                     _ => {}
                 }
-                if buffer {
-                    e.kind = Kind::Unsupported { what: "MACRO_BUFFER".into() };
-                }
-                out.push((e, Meta { from_macro: Some(name.clone()), ..Meta::default() }));
+                out.push((e, Meta { from_macro: Some(name.clone()), auto_buffer: buffer, ..Meta::default() }));
             }
         }
         out
@@ -864,6 +878,24 @@ impl Assembler {
             cursor += size;
             lines.push(Line { block, address, size, skipped: false, meta });
         }
+        // the auto buffers follow the last line (conditionally skipped ones too)
+        let mut buffer_cursor = lines.last().map(|l| l.address + l.size).unwrap_or(origin);
+        for line in lines.iter_mut() {
+            if line.meta.auto_buffer.is_none() {
+                continue;
+            }
+            let Kind::Mem { op, addr, raw, offset, lower, null_term, .. } = &mut line.block.kind else { continue };
+            let len = match op {
+                MemOp::Petscii => encode_petscii(raw, *lower).len() + usize::from(*null_term),
+                MemOp::String => encode_text(raw, false).len(),
+                MemOp::RawText => encode_text(raw, *lower).len(),
+                MemOp::Data | MemOp::RawBytes => 0,
+            };
+            let _ = offset;
+            line.meta.auto_buffer_address = Some(buffer_cursor);
+            *addr = format!("${:04X}", buffer_cursor);
+            buffer_cursor += len as i64;
+        }
         Ok(lines)
     }
 
@@ -923,6 +955,10 @@ impl Assembler {
                 }
             }
             _ => {}
+        }
+        // the auto buffer of a macro parameter (`_autoBufferLabel`)
+        if let Some(label) = &line.meta.auto_buffer {
+            self.labels.set(label, line.meta.auto_buffer_address.unwrap_or(line.address) as f64);
         }
     }
 
