@@ -14,15 +14,15 @@ azonos marad a mai JS fordítóéval — ezt a golden korpusz (`tests/vma-golden
 | F1 JS-hibák javítása, korpusz bővítése | ✔ kész | `8291481`, `c029369` |
 | F2 Rust mag + CLI (`crates/vma`) | ✔ kész | `c0cc68d` |
 | F3 makrók, LOOP/FOR, `.var`, PUSH/PULL | ✔ kész | `536986e` |
-| **F4 kódgeneráló makrók** | **folyamatban** — 1–3. adag (fix kódú, szöveg / adat, sprite / input makrók) kész, a 4. adag jön | — |
+| **F4 kódgeneráló makrók** | **folyamatban** — 1–4. adag kész (minden kódgeneráló makró a SID_PLAYER-en kívül), az 5–6. adag jön | — |
 | F5 fájl-makrók | hátra | — |
 | F6 bekötés a VA-ba (Tauri `vma_build`, shadow mód) | hátra | — |
 | F7 WASM, a szinkron UI-elemzések | hátra | — |
 | F8 Kick előfeldolgozó (opcionális), JS mag törlése, dokumentáció | hátra | — |
 
-Golden állás (`node scripts/vma-rust-report.js`): **456 esetből 310 bájtra egyezik, 28 elvárt hiba, 118 egy még
-nem portolt direktívánál áll meg, 0 eltérés.** A blokkoló direktívák: FILE 48 (F5), RUNTIME_IF 18, MAP_COPY 10, DELAY 8, MEMCPY 8, REU 8, RUNTIME_LOOP 8, LOADFILE 4, IRQ_SETUP 4, MACRO_BUFFER 2
-(MACRO_BUFFER = a 6. adag).
+Golden állás (`node scripts/vma-rust-report.js`): **476 esetből 380 bájtra egyezik, 38 elvárt hiba, 58 egy még
+nem portolt direktívánál áll meg, 0 eltérés.** A blokkoló direktívák: FILE 56 (F5), MACRO_BUFFER 2
+(MACRO_BUFFER = a 6. adag; a SID_PLAYER a FILE-esetek mögött áll, mert `.sid` nélkül nincs `SID_INIT`).
 
 Ellenőrzés bármikor: `npm test` (a golden Rust-ága a `crates/vma/target/{debug,release}/vma.exe`-t használja,
 ha le van fordítva), `cargo test --offline` a `crates/vma`-ban, és az esetenkénti riport fent.
@@ -44,8 +44,13 @@ ha le van fordítva), `cargo test --offline` a `crates/vma`-ban, és az esetenk�
    3. ✔ sprite / input: SPRITE_INIT, SPRITE_POS, SPRITE_COL, SPRITE_ANIM, JOYSTICK (mindkét mód), MOUSE,
       BOX_HIT, SCORE_BCD (`parse.rs` `sprite_macro`, `asm.rs` `mouse_bytes` a belső címkékkel; golden:
       `var-sprite-input-macros` és hat hibaág-eset);
-   4. vezérlés / memória: futásidejű IF / ELSE / ENDIF, WHILE / ENDW, REPEAT / UNTIL, MEMCPY, MEMSET,
-      MAP_COPY, MAP_COPY16X16, REU_STASH / FETCH / SWAP, IRQ_SETUP, LOADFILE, DELAY (+ a közös helper);
+   4. ✔ vezérlés / memória: futásidejű IF / ELSE / ENDIF, WHILE / ENDW, REPEAT / UNTIL, MEMCPY, MEMSET,
+      MAP_COPY, MAP_COPY16X16, REU_STASH / FETCH / SWAP, IRQ_SETUP, LOADFILE, DELAY (+ a közös helper)
+      (`parse.rs` `memory_macro` és a futásidejű verem a fő ciklusban, `Kind::RtCmp` / `RtElse` / `RtEndIf` /
+      `RtEndw` / `RtRepeat`; `asm.rs` `count_or_size` (`parseMacroCountOrSize`), `delay_frames`,
+      `delay_helper_address` (`appendDelayHelperLabel` + `getDeferredMemorySections`), `delay_helper_bytes`;
+      a címkék sorszámot kapnak a JS véletlen utótagja helyett — a bájtokra nincs hatásuk; golden:
+      `var-runtime-*`, `var-memory-macros`, `var-delay-helper-*` és öt hibaág-eset);
    5. SID_PLAYER kódja (a `_sidPlayerBytes` port), a `SID_INIT` / `SID_PLAY` címke az F5-tel jön;
    6. a makrók „buffer” paraméterei (`getDeferredMacroAddressField`, `_autoBufferLabel`, a layout végi
       `autoBufferCursor`) — a deferred-címes makrók után.
@@ -79,7 +84,13 @@ utána golden-frissítés):
   `rawOperand`-ot: makrótörzsben paraméterrel feloldatlanok (`null` → 0 vagy hiba);
 - a JOYSTICK mérete a portot címkék nélkül oldja fel (`_joyPortValue`), a bájtok címkékkel — címkés port 3-nál
   a méret 3 bájttal kevesebb, mint a kód;
-- a SPRITE_ANIM feloldatlan képkocka-száma hiba (`null < 1`), a sprite száma és a ZP-cím 0.
+- a SPRITE_ANIM feloldatlan képkocka-száma hiba (`null < 1`), a sprite száma és a ZP-cím 0;
+- futásidejű `.if` / `.while` / `.until` nem immediate operandusa `parseAddressValue`: `%bin` hiba, a `10`
+  hexa ($0010); az `.else` / `.endif` futásidejű, amíg nyitott futásidejű `.if` van — a köztes fordítási idejű
+  `.if` ágát is lezárhatja;
+- a DELAY helper a layout utolsó sora (nem a legnagyobb cím) és a deferred szakaszok (TEXT / STRING / DATA is)
+  fölé kerül, kihagyott (`.if 0`) DELAY esetén is;
+- a MEMCPY / MEMSET mérete (`getInstructionSize`) címkék nélkül számol, a bájtok címkékkel.
 
 F4 közben javított JS-hibák (mindkettő TypeError volt `null.toString`-on a `compileLineBytes`-ban): feloldatlan
 címkéjű `.wait_raster` — most `compileWaitRasterByte`; feloldatlan `.sprite_init` adatlap — most

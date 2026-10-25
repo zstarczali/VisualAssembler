@@ -293,6 +293,16 @@ const VARIANTS = {
   "mouse-port-error": ".const P = 3\n* = $1000\n    .mouse P, 0, $FB, $FC\n    rts\n",
   "joystick-var-unresolved-error": "* = $1000\n    .joystick 2, nothing, $FC\n    rts\n",
   "box-hit-range-error": "* = $1000\n    .box_hit $FD, $10\n    rts\n",
+  "runtime-ops": "* = $1000\n    .if X <= #5\n    nop\n    .endif\n    .if_y > counter\n    nop\n    .else\n    dex\n    .endif\n    .if A != #%1010\n    nop\n    .endif\n    .if A >= 10\n    nop\n    .endif\n    .while Y < #$20\n    iny\n    .endw\n    .while A > #3\n    sec\n    sbc #1\n    .endw\n    .repeat\n    inx\n    .until X <= counter\n    .repeat\n    dey\n    .until_y = #0\n    rts\ncounter: .byte 7\n",
+  "runtime-if-compile-else": ".define DEBUG\n* = $1000\n    .if DEBUG\n    .if A == #1\n    inc $D020\n    .else\n    inc $D021\n    .endif\n    .endif\n    .endw\n    rts\n",
+  "memory-macros": ".const N = 300\nbuf = $C000\n* = $1000\n    .memcpy src=$C000, dst=$0400, size=$0100\n    .memcpy src=buf, dst=0800, size=1000\n    .memcpy src=$2000, dst=$3000, size=N+20\n    .memcpy src=2000, dst=3000, size=FF\n    .memset addr=$0400, value=#$20, size=1000\n    .memset dst=buf, value=N/2-100, size=$80\n    .map_copy $C000, $0400, 1000\n    .map_copy $C000, $0400, 1000, auto, $D800\n    .map_copy 3000, 0400, 300, $3400, D800\n    .map_copy16x16 $3000, 24, 9\n    .map_copy16x16 $3000, 0, 0, $0400, $3800, $D800\n    .reu_stash $C000, $0000, 0, $0100\n    .reu_fetch C000, 1234, 7, FFFF\n    .reu_swap $0400, $8000, 3, $03E8\n    .irq_setup handler=irq, raster=$30\n    .loadfile \"intro\", 8\n    .loadfile \"DATA\", dev, $2000, failed\n    rts\nfailed:\n    rts\nirq:\n    jmp $EA31\ndev = 9\n",
+  "delay-helper-after-data": ".const WAIT = 25\n* = $1000\n    .delay WAIT\n    wait 3\n    .wait frames=$10\n    .rawbytes $C000, 1, 2, 3\n    .text 0, 24, \"BOTTOM LINE\"\n    rts\n",
+  "delay-helper-in-skipped-if": ".if 0\n    .delay 2\n.endif\n* = $1000\n    rts\n",
+  "runtime-if-missing-endif-error": "* = $1000\n    .if A == #1\n    nop\n    rts\n",
+  "memset-value-error": "* = $1000\n    .memset addr=$0400, value=300, size=10\n    rts\n",
+  "loadfile-device-error": "* = $1000\n    .loadfile \"X\", nothing\n    rts\n",
+  "irq-handler-error": "* = $1000\n    .irq_setup handler=nothing, raster=$30\n    rts\n",
+  "delay-range-error": "* = $1000\n    .delay 300\n    rts\n",
   "macro-nested-error":".macro border(c)\n    lda #{c}\n    sta $D020\n.endm\n.macro both(c)\n    :border({c})\n.endm\n* = $1000\n    :both(3)\n    rts\n"
 };
 

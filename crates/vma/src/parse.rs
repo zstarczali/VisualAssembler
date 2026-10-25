@@ -105,6 +105,22 @@ pub enum Kind {
     Mouse { port: String, num: String, zpx: String, zpy: String },
     BoxHit { b1: String, b2: String },
     ScoreBcd { addr: String, digits: u8, points: String, screen: String },
+    /// runtime `.if` / `.while` / `.until REG op value`: CMP/CPX/CPY + a branch to `target`;
+    /// `start` = the label a WHILE anchors at its own address
+    RtCmp { reg: char, op: String, raw: String, base: Base, target: String, start: Option<String> },
+    RtElse { else_label: String, end_label: String },
+    RtEndIf { else_label: String, end_label: String, has_else: bool },
+    RtEndw { start: String, end: String },
+    RtRepeat { start: String },
+    MemCpy { src: String, dst: String, size: String },
+    MemSet { dst: String, value: String, size: String },
+    MapCopy { src: String, dst: String, size: String, combined: bool, color_src: String, color_dst: String },
+    MapCopy16 { src: String, col: String, row: String, screen: String, color_src: String, color_dst: String },
+    /// `cmd` = $90 stash / $91 fetch / $92 swap
+    Reu { cmd: u8, c64: String, reu: String, bank: String, len: String },
+    IrqSetup { handler: String, raster: String },
+    LoadFile { name: String, device: String, addr: String, error_label: String },
+    Delay { frames: String },
     /// A JS directive the Rust compiler does not assemble yet (its mnemonic).
     Unsupported { what: String },
 }
@@ -604,17 +620,9 @@ fn index_suffix(mode: Mode) -> &'static str {
 
 /// The macro directives of the JS compiler that are not ported yet (by their JS regex start).
 const UNPORTED: &[(&str, &str)] = &[
-    (r"(?i)^\.loadfile\s", "LOADFILE"),
     (r"(?i)^\.(include|incbin|koala|level|sid)\b", "FILE"),
     (r"(?i)^\.level_row\b", "LEVEL_ROW"),
-    (r"(?i)^\.?(delay|wait)\s+", "DELAY"),
-    (r"(?i)^\.map_copy(16x16)?\s", "MAP_COPY"),
-    (r"(?i)^\.reu_(stash|fetch|swap)\b", "REU"),
-    (r"(?i)^\.mem(cpy|set)\s", "MEMCPY"),
     (r"(?i)^\.sid_player\b", "SID_PLAYER"),
-    (r"(?i)^\.irq_setup\s", "IRQ_SETUP"),
-    (r"(?i)^\.(while|until|if)(?:_[axy]|\s+[AXY])\s+(==|=|!=|<=|>=|<|>)\s+", "RUNTIME_IF"),
-    (r"(?i)^\.(endw|repeat)\s*$", "RUNTIME_LOOP"),
 ];
 
 /// `$hhhh` (4 digits) or a label: the address field of STRING / RAWTEXT / DATA / RAWBYTES.
@@ -622,6 +630,90 @@ fn mem_address(hex: Option<regex::Match>, name: Option<regex::Match>) -> String 
     match hex {
         Some(h) => format!("${:0>4}", h.as_str().to_uppercase()),
         None => name.map(|m| m.as_str().to_string()).unwrap_or_default(),
+    }
+}
+
+/// `_importNormalizeAddressToken`
+fn address_token(raw: &str) -> String {
+    let t = raw.trim();
+    let t = t.strip_prefix('$').unwrap_or(t);
+    if is_hex(t) { t.to_uppercase() } else { t.to_string() }
+}
+
+/// `_importNormalizeSizeToken`
+fn size_token(raw: &str) -> String {
+    let t = raw.trim();
+    if t.starts_with('$') {
+        return t.to_uppercase();
+    }
+    if t.chars().any(|c| matches!(c, 'A'..='F' | 'a'..='f')) {
+        return format!("${t}").to_uppercase();
+    }
+    t.to_string()
+}
+
+/// The memory / system macros of `parseExpertText` (in the JS order).
+fn memory_macro(line: &str) -> Option<Kind> {
+    if let Some(c) = regex!(r#"(?i)^\.loadfile\s+"([^"]*)"\s*,\s*([A-Za-z_][A-Za-z0-9_]*|\d+|\$[0-9A-Fa-f]{1,4})\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*(?:,\s*([A-Za-z_][A-Za-z0-9_]*))?\s*$"#).captures(line) {
+        return Some(Kind::LoadFile {
+            name: c[1].to_uppercase(),
+            device: c[2].to_string(),
+            addr: c.get(3).map(|m| m.as_str().to_uppercase()).unwrap_or_default(),
+            error_label: c.get(4).map(|m| m.as_str().to_string()).unwrap_or_default(),
+        });
+    }
+    if let Some(c) = regex!(r"(?i)^\.?(?:delay|wait)\s+(?:frames\s*=\s*)?([A-Za-z_][A-Za-z0-9_]*|\$[0-9A-Fa-f]{1,4}|[0-9]+)\s*$").captures(line) {
+        return Some(Kind::Delay { frames: c[1].trim().to_string() });
+    }
+    if let Some(c) = regex!(r"(?i)^\.map_copy\s+\$?([0-9A-Fa-f]{1,4})\s*,\s*\$?([0-9A-Fa-f]{1,4})\s*,\s*(\d+)(?:\s*,\s*(auto|\$?[0-9A-Fa-f]{1,4})\s*,\s*\$?([0-9A-Fa-f]{1,4}))?\s*$").captures(line) {
+        let combined = c.get(4).is_some_and(|m| m.as_str().eq_ignore_ascii_case("auto"));
+        let color_src = match c.get(4) {
+            Some(m) if !combined => m.as_str().trim_start_matches('$').to_uppercase(),
+            _ => String::new(),
+        };
+        return Some(Kind::MapCopy {
+            src: c[1].to_uppercase(),
+            dst: c[2].to_uppercase(),
+            size: c[3].to_string(),
+            combined,
+            color_src,
+            color_dst: c.get(5).map(|m| m.as_str().to_uppercase()).unwrap_or_else(|| "D800".into()),
+        });
+    }
+    if let Some(c) = regex!(r"(?i)^\.map_copy16x16\s+\$?([0-9A-Fa-f]{1,4})\s*,\s*(\d{1,2})\s*,\s*(\d{1,2})(?:\s*,\s*\$?([0-9A-Fa-f]{1,4})(?:\s*,\s*\$?([0-9A-Fa-f]{1,4})(?:\s*,\s*\$?([0-9A-Fa-f]{1,4}))?)?)?\s*$").captures(line) {
+        let up = |i: usize, d: &str| c.get(i).map(|m| m.as_str().to_uppercase()).unwrap_or_else(|| d.to_string());
+        return Some(Kind::MapCopy16 { src: c[1].to_uppercase(), col: c[2].to_string(), row: c[3].to_string(), screen: up(4, "0400"), color_src: up(5, ""), color_dst: up(6, "D800") });
+    }
+    if let Some(c) = regex!(r"(?i)^\.(reu_stash|reu_fetch|reu_swap)\s+\$?([0-9A-Fa-f]{1,4})\s*,\s*\$?([0-9A-Fa-f]{1,4})\s*,\s*([0-7])\s*,\s*\$?([0-9A-Fa-f]{1,4})\s*$").captures(line) {
+        let cmd = match c[1].to_lowercase().as_str() {
+            "reu_stash" => 0x90,
+            "reu_fetch" => 0x91,
+            _ => 0x92,
+        };
+        let pad = |i: usize| format!("{:0>4}", c[i].to_uppercase());
+        return Some(Kind::Reu { cmd, c64: pad(2), reu: pad(3), bank: c[4].to_string(), len: pad(5) });
+    }
+    if let Some(c) = regex!(r"(?i)^\.memcpy\s+src\s*=\s*([^,]+)\s*,\s*dst\s*=\s*([^,]+)\s*,\s*size\s*=\s*([^,]+)\s*$").captures(line) {
+        return Some(Kind::MemCpy { src: address_token(&c[1]), dst: address_token(&c[2]), size: size_token(&c[3]) });
+    }
+    if let Some(c) = regex!(r"(?i)^\.memset\s+(?:addr|dst)\s*=\s*([^,]+)\s*,\s*value\s*=\s*([^,]+)\s*,\s*size\s*=\s*([^,]+)\s*$").captures(line) {
+        let v = c[2].trim();
+        return Some(Kind::MemSet { dst: address_token(&c[1]), value: size_token(v.strip_prefix('#').unwrap_or(v)), size: size_token(&c[3]) });
+    }
+    if let Some(c) = regex!(r"(?i)^\.irq_setup\s+handler\s*=\s*([A-Za-z_][A-Za-z0-9_]*)\s*,\s*raster\s*=\s*(?:#?\$)?([A-Za-z_][A-Za-z0-9_]*|[0-9A-Fa-f]{1,2})\s*$").captures(line) {
+        return Some(Kind::IrqSetup { handler: c[1].to_string(), raster: format!("{:0>2}", c[2].to_uppercase()) });
+    }
+    None
+}
+
+/// The base `parseExpertText` guesses for a runtime comparison operand.
+fn runtime_base(val: &str) -> Base {
+    if regex!(r"^#?%").is_match(val) {
+        Base::Bin
+    } else if regex!(r"^#?[0-9]+$").is_match(val) {
+        Base::Dec
+    } else {
+        Base::Hex
     }
 }
 
@@ -783,6 +875,11 @@ pub fn parse_expert_text(text: &str) -> Vec<Block> {
     let mut encoding = "screencode_mixed".to_string();
     // what an open `{` belongs to: a Kick label scope or a `.macro name(…) {`
     let mut braces: Vec<&str> = Vec::new();
+    // the runtime control stacks: (else, end, has else), (start, end), start
+    let mut rt_if: Vec<(String, String, bool)> = Vec::new();
+    let mut rt_while: Vec<(String, String)> = Vec::new();
+    let mut rt_repeat: Vec<String> = Vec::new();
+    let mut rt_count = 0usize;
     for (n, raw_line) in lines.iter().enumerate() {
         let push = |blocks: &mut Vec<Block>, kind: Kind| blocks.push(Block { kind, line: n });
         let (code, comment) = split_comment(raw_line);
@@ -864,7 +961,7 @@ pub fn parse_expert_text(text: &str) -> Vec<Block> {
             push(&mut blocks, if c[1].eq_ignore_ascii_case("push") { Kind::Push { regs } } else { Kind::Pull { regs } });
             continue;
         }
-        if let Some(kind) = data_macro(line).or_else(|| sprite_macro(line)).or_else(|| simple_macro(line)) {
+        if let Some(kind) = data_macro(line).or_else(|| sprite_macro(line)).or_else(|| memory_macro(line)).or_else(|| simple_macro(line)) {
             push(&mut blocks, kind);
             continue;
         }
@@ -898,16 +995,63 @@ pub fn parse_expert_text(text: &str) -> Vec<Block> {
             push(&mut blocks, Kind::Define { symbols: c[1].trim().to_string() });
             continue;
         }
+        if let Some(c) = regex!(r"(?i)^\.(while|until|if)(?:_([axy])|\s+([AXY]))\s+(==|=|!=|<=|>=|<|>)\s+(.+)$").captures(line) {
+            let reg = c.get(2).or(c.get(3)).unwrap().as_str().to_uppercase().chars().next().unwrap();
+            let op = if &c[4] == "=" { "==".to_string() } else { c[4].to_string() };
+            let raw = c[5].trim().to_string();
+            let base = runtime_base(&raw);
+            rt_count += 1;
+            let kind = match c[1].to_lowercase().as_str() {
+                "while" => {
+                    let (start, end) = (format!("_while_start_{rt_count}"), format!("_while_end_{rt_count}"));
+                    rt_while.push((start.clone(), end.clone()));
+                    Kind::RtCmp { reg, op, raw, base, target: end, start: Some(start) }
+                }
+                "until" => Kind::RtCmp { reg, op, raw, base, target: rt_repeat.pop().unwrap_or_default(), start: None },
+                _ => {
+                    let (else_label, end_label) = (format!("_if_else_{rt_count}"), format!("_if_end_{rt_count}"));
+                    rt_if.push((else_label.clone(), end_label, false));
+                    Kind::RtCmp { reg, op, raw, base, target: else_label, start: None }
+                }
+            };
+            push(&mut blocks, kind);
+            continue;
+        }
+        if regex!(r"(?i)^\.endw\s*$").is_match(line) {
+            // without a WHILE: no block at all
+            if let Some((start, end)) = rt_while.pop() {
+                push(&mut blocks, Kind::RtEndw { start, end });
+            }
+            continue;
+        }
+        if regex!(r"(?i)^\.repeat\s*$").is_match(line) {
+            rt_count += 1;
+            let start = format!("_repeat_start_{rt_count}");
+            rt_repeat.push(start.clone());
+            push(&mut blocks, Kind::RtRepeat { start });
+            continue;
+        }
         if let Some(c) = regex!(r"(?i)^\.if\s+(.+)$").captures(line) {
             push(&mut blocks, Kind::If { condition: c[1].trim().to_string() });
             continue;
         }
+        // inside a runtime `.if` the `.else` / `.endif` are runtime ones
         if regex!(r"(?i)^\.else\s*$").is_match(line) {
-            push(&mut blocks, Kind::Else);
+            match rt_if.last_mut() {
+                Some(top) => {
+                    top.2 = true;
+                    let kind = Kind::RtElse { else_label: top.0.clone(), end_label: top.1.clone() };
+                    push(&mut blocks, kind);
+                }
+                None => push(&mut blocks, Kind::Else),
+            }
             continue;
         }
         if regex!(r"(?i)^\.endif\s*$").is_match(line) {
-            push(&mut blocks, Kind::EndIf);
+            match rt_if.pop() {
+                Some((else_label, end_label, has_else)) => push(&mut blocks, Kind::RtEndIf { else_label, end_label, has_else }),
+                None => push(&mut blocks, Kind::EndIf),
+            }
             continue;
         }
         if regex!(r"(?i)^\.region\s+(.+)$").is_match(line) {

@@ -217,6 +217,42 @@ impl Assembler {
         self.eval_word(normalized, Some(labels), false)
     }
 
+    /// `parseMacroCountOrSize` (`labels` None = the null label map of the size pass)
+    fn count_or_size(&self, raw: &str, labels: Option<&Labels>, base: Base) -> Option<f64> {
+        let empty = Labels::default();
+        let map = labels.unwrap_or(&empty);
+        let t = raw.trim();
+        let text = t.strip_prefix('#').unwrap_or(t);
+        if text.is_empty() {
+            return None;
+        }
+        if text.starts_with('$') || (text.len() >= 2 && text[..2].eq_ignore_ascii_case("0x")) {
+            return self.macro_number(raw, map, Base::Hex);
+        }
+        if text.chars().any(|c| matches!(c, 'A'..='F' | 'a'..='f')) && is_hex(text) {
+            return self.macro_number(raw, map, Base::Hex);
+        }
+        if crate::num::is_dec(text) {
+            return Some(js_parse_int(text, if base == Base::Hex { 16 } else { 10 }));
+        }
+        if let Some(v) = self.eval_folded(text, labels, &[]) {
+            return Some(v);
+        }
+        self.macro_number(raw, map, if base == Base::Dec { Base::Dec } else { Base::Hex })
+    }
+
+    /// `parseDelayFrameCount`
+    fn delay_frames(&self, raw: &str) -> Option<f64> {
+        let text = raw.trim();
+        if let Some(v) = self.macro_number(text, &self.labels, Base::Dec) {
+            return (1.0..=255.0).contains(&v).then_some(v);
+        }
+        if is_ident(text) {
+            return self.const_value(text).filter(|v| (1.0..=255.0).contains(v));
+        }
+        None
+    }
+
     /// The MOUSE macro: 1351 delta decoding, its branches resolved inside the routine.
     fn mouse_bytes(&self, port: &str, num: &str, zpx: &str, zpy: &str, address: i64) -> Result<Vec<u8>, String> {
         let p = self.numeric_value(if port.is_empty() { "2" } else { port }, Some(&self.labels), Base::Dec);
@@ -290,6 +326,31 @@ impl Assembler {
             }
         }
         Ok(b)
+    }
+
+    /// `appendDelayHelperLabel`: after the layout end and every `getDeferredMemorySections` section.
+    fn delay_helper_address(&self, lines: &[Line], origin: i64) -> i64 {
+        let end = lines.last().map(|l| l.address + l.size - 1).unwrap_or(origin - 1);
+        let mut high = end;
+        for line in lines {
+            let (start, len) = match &line.block.kind {
+                Kind::Text { x, y, raw, .. } => {
+                    let v = |s: &str| self.value_with_const(s, Base::Dec).filter(|v| !v.is_nan() && *v != 0.0).unwrap_or(0.0);
+                    (0x0400 as f64 + v(y) * 40.0 + v(x), encode_text(raw, false).len())
+                }
+                Kind::Mem { op, addr, raw, .. } => {
+                    let len = match op {
+                        MemOp::String | MemOp::RawText => encode_text(raw, false).len(),
+                        MemOp::Petscii => encode_petscii(raw, false).len(),
+                        MemOp::Data | MemOp::RawBytes => self.byte_values(raw, Base::Hex, None).len(),
+                    };
+                    (Self::address_value(addr, Some(&self.labels)).unwrap_or(0xC000 as f64), len)
+                }
+                _ => continue,
+            };
+            high = high.max(start as i64 + len as i64 - 1);
+        }
+        high + 1
     }
 
     /// `parseAddressValue(raw, labels)`: a label only by its exact name
@@ -497,6 +558,29 @@ impl Assembler {
             Kind::Print { raw, lower } => 17 + encode_petscii(raw, *lower).len() as i64,
             Kind::CharDef { .. } => 40,
             Kind::SpriteInit { .. } => 26,
+            Kind::RtCmp { raw, op, .. } => (if raw.trim().starts_with('#') { 2 } else { 3 }) + if op == "<=" || op == ">" { 4 } else { 2 },
+            Kind::RtElse { .. } | Kind::RtEndw { .. } => 3,
+            Kind::MemCpy { size, .. } => match self.count_or_size(size, None, Base::Hex) {
+                Some(n) if n != 0.0 && !n.is_nan() => (n / 256.0).floor() as i64 * 11 + if n % 256.0 > 0.0 { 13 } else { 0 },
+                _ => 0,
+            },
+            Kind::MemSet { size, .. } => match self.count_or_size(size, None, Base::Hex) {
+                Some(n) if n != 0.0 && !n.is_nan() => 2 + (n / 256.0).floor() as i64 * 8 + if n % 256.0 > 0.0 { 10 } else { 0 },
+                _ => 0,
+            },
+            Kind::MapCopy { size, combined, color_src, .. } => {
+                let n = map_copy_size(size);
+                let sec = 2 + (n / 256) * 9 + if n % 256 > 0 { 11 } else { 0 };
+                sec * if *combined || !color_src.is_empty() { 2 } else { 1 }
+            }
+            Kind::MapCopy16 { .. } => 16 * 19,
+            Kind::Reu { .. } => 40,
+            Kind::IrqSetup { .. } => 46,
+            Kind::LoadFile { name, addr, .. } => {
+                let len = loadfile_name(name).len().max(1) as i64;
+                3 + len + 9 + 9 + if addr.trim().is_empty() { 0 } else { 4 } + 5 + 2
+            }
+            Kind::Delay { .. } => 5,
             Kind::SpritePos { .. } => 18,
             Kind::SpriteCol { .. } => 5,
             Kind::SpriteAnim { .. } => 19,
@@ -657,7 +741,7 @@ impl Assembler {
                             }
                         }
                     }
-                    Kind::PrintChar { raw } | Kind::SetColor { raw, .. } | Kind::Text { raw, .. } | Kind::Print { raw, .. } | Kind::CharDef { raw, .. } => {
+                    Kind::RtCmp { raw, .. } | Kind::PrintChar { raw } | Kind::SetColor { raw, .. } | Kind::Text { raw, .. } | Kind::Print { raw, .. } | Kind::CharDef { raw, .. } => {
                         if !raw.is_empty() {
                             *raw = rewrite(raw);
                         }
@@ -798,6 +882,16 @@ impl Assembler {
             Kind::Loop { label, .. } | Kind::For { label, .. } => {
                 self.labels.set(label, (line.address + 2) as f64);
             }
+            Kind::RtCmp { start: Some(start), .. } => self.labels.set(start, line.address as f64),
+            Kind::RtElse { else_label, .. } => self.labels.set(else_label, (line.address + 3) as f64),
+            Kind::RtEndIf { else_label, end_label, has_else } => {
+                self.labels.set(end_label, line.address as f64);
+                if !has_else {
+                    self.labels.set(else_label, line.address as f64);
+                }
+            }
+            Kind::RtEndw { end, .. } => self.labels.set(end, (line.address + 3) as f64),
+            Kind::RtRepeat { start } => self.labels.set(start, line.address as f64),
             Kind::Table { name, addr } => {
                 let a = if addr.is_empty() { None } else { parse_address_value(addr) };
                 self.labels.set(name, a.unwrap_or(line.address as f64));
@@ -1243,6 +1337,267 @@ impl Assembler {
                 Ok(out)
             }
             Kind::Mouse { port, num, zpx, zpy } => self.mouse_bytes(port, num, zpx, zpy, address),
+            Kind::RtCmp { reg, op, raw, base, target, .. } => {
+                let raw = raw.trim();
+                let imm = raw.starts_with('#');
+                let opcode = match (reg, imm) {
+                    ('X', true) => 0xE0,
+                    ('X', false) => 0xEC,
+                    ('Y', true) => 0xC0,
+                    ('Y', false) => 0xCC,
+                    (_, true) => 0xC9,
+                    (_, false) => 0xCD,
+                };
+                let v = if imm { parse_number_by_base(raw, *base) } else { Self::address_value(raw, Some(&self.labels)) };
+                let v = v.filter(|v| !v.is_nan()).ok_or_else(|| format!("runtime condition: cannot resolve {raw}"))?;
+                let mut out = vec![opcode, js_and(v, 0xFF) as u8];
+                if !imm {
+                    out.push(((js_and(v, -1) >> 8) & 0xFF) as u8);
+                }
+                let t = self.labels.get(target).ok_or("runtime condition: no matching end")?;
+                let from = address + out.len() as i64;
+                let rel = |o: f64| -> Result<u8, String> {
+                    if !(-128.0..=127.0).contains(&o) {
+                        return Err(format!("runtime condition: branch too far ({o})"));
+                    }
+                    Ok(js_and(o, 0xFF) as u8)
+                };
+                match op.as_str() {
+                    "==" | "!=" | "<" | ">=" => {
+                        let b = match op.as_str() {
+                            "==" => 0xD0,
+                            "!=" => 0xF0,
+                            "<" => 0xB0,
+                            _ => 0x90,
+                        };
+                        out.extend([b, rel(t - (from + 2) as f64)?]);
+                    }
+                    "<=" => out.extend([0xF0, 0x02, 0xB0, rel(t - (from + 4) as f64)?]),
+                    _ => {
+                        // `>`: both offsets checked before either is used
+                        let (beq, bcc) = (t - (from + 2) as f64, t - (from + 4) as f64);
+                        if !(-128.0..=127.0).contains(&beq) || !(-128.0..=127.0).contains(&bcc) {
+                            return Err("runtime condition: branch too far".into());
+                        }
+                        out.extend([0xF0, js_and(beq, 0xFF) as u8, 0x90, js_and(bcc, 0xFF) as u8]);
+                    }
+                }
+                Ok(out)
+            }
+            Kind::RtElse { end_label, .. } => {
+                let t = self.labels.get(end_label).ok_or("ELSE: no matching ENDIF")?;
+                let t = js_and(t, -1);
+                Ok(vec![0x4C, t as u8, (t >> 8) as u8])
+            }
+            Kind::RtEndw { start, .. } => {
+                let t = self.labels.get(start).ok_or("ENDW: no matching WHILE")?;
+                let t = js_and(t, -1);
+                Ok(vec![0x4C, t as u8, (t >> 8) as u8])
+            }
+            Kind::RtEndIf { .. } | Kind::RtRepeat { .. } => Ok(Vec::new()),
+            Kind::MemCpy { src, dst, size } => {
+                let n = self.count_or_size(if size.is_empty() { "0" } else { size }, Some(&self.labels), Base::Hex);
+                let s = self.macro_address(if src.is_empty() { "C000" } else { src }, &self.labels);
+                let d = self.macro_address(if dst.is_empty() { "0400" } else { dst }, &self.labels);
+                let (Some(n), Some(s), Some(d)) = (n.filter(|n| *n != 0.0 && !n.is_nan()), s, d) else {
+                    return Err("MEMCPY: invalid src/dst/size".into());
+                };
+                let (full, part) = ((n / 256.0).floor() as i64, n % 256.0);
+                let mut out = Vec::new();
+                for p in 0..=full {
+                    if p == full && part <= 0.0 {
+                        break;
+                    }
+                    let a = js_and(s + (p * 256) as f64, 0xFFFF);
+                    let b = js_and(d + (p * 256) as f64, 0xFFFF);
+                    out.extend([0xA2, 0x00, 0xBD, a as u8, (a >> 8) as u8, 0x9D, b as u8, (b >> 8) as u8, 0xE8]);
+                    if p < full {
+                        out.extend([0xD0, 0xF7]);
+                    } else {
+                        out.extend([0xE0, js_and(part, 0xFF) as u8, 0xD0, 0xF5]);
+                    }
+                }
+                Ok(out)
+            }
+            Kind::MemSet { dst, value, size } => {
+                let n = self.count_or_size(if size.is_empty() { "0" } else { size }, Some(&self.labels), Base::Hex);
+                let v = self.count_or_size(if value.is_empty() { "0" } else { value }, Some(&self.labels), Base::Hex);
+                let d = self.macro_address(if dst.is_empty() { "0400" } else { dst }, &self.labels);
+                let (Some(n), Some(d)) = (n.filter(|n| *n != 0.0 && !n.is_nan()), d) else {
+                    return Err("MEMSET: invalid dst/size".into());
+                };
+                let v = v.filter(|v| !(*v < 0.0 || *v > 255.0)).ok_or("MEMSET: invalid byte value")?;
+                let (full, part) = ((n / 256.0).floor() as i64, n % 256.0);
+                let mut out = vec![0xA9, js_and(v, 0xFF) as u8];
+                for p in 0..=full {
+                    if p == full && part <= 0.0 {
+                        break;
+                    }
+                    let a = js_and(d + (p * 256) as f64, 0xFFFF);
+                    out.extend([0xA2, 0x00, 0x9D, a as u8, (a >> 8) as u8, 0xE8]);
+                    if p < full {
+                        out.extend([0xD0, 0xFA]);
+                    } else {
+                        out.extend([0xE0, js_and(part, 0xFF) as u8, 0xD0, 0xF8]);
+                    }
+                }
+                Ok(out)
+            }
+            Kind::MapCopy { src, dst, size, combined, color_src, color_dst } => {
+                let hex = |v: &str, d: &str| js_parse_int(if v.is_empty() { d } else { v }.trim_start_matches('$'), 16);
+                let (s, d) = (hex(src, "C000"), hex(dst, "0400"));
+                if s.is_nan() || !(0.0..=65535.0).contains(&s) {
+                    return Err("MAP_COPY: invalid source address".into());
+                }
+                if d.is_nan() || !(0.0..=65535.0).contains(&d) {
+                    return Err("MAP_COPY: invalid destination address".into());
+                }
+                let n = map_copy_size(size);
+                if !(1..=0x10000).contains(&n) {
+                    return Err("MAP_COPY: the size must be 1-65536".into());
+                }
+                let section = |src: i64, dst: i64| {
+                    let mut out = vec![0xA2, 0x00];
+                    for i in 0..n / 256 {
+                        let (ps, pd) = ((src + i * 256) & 0xFFFF, (dst + i * 256) & 0xFFFF);
+                        out.extend([0xBD, ps as u8, (ps >> 8) as u8, 0x9D, pd as u8, (pd >> 8) as u8, 0xE8, 0xD0, 0xF7]);
+                    }
+                    if n % 256 > 0 {
+                        let fp = n / 256;
+                        let (ps, pd) = ((src + fp * 256) & 0xFFFF, (dst + fp * 256) & 0xFFFF);
+                        out.extend([0xBD, ps as u8, (ps >> 8) as u8, 0x9D, pd as u8, (pd >> 8) as u8, 0xE8, 0xE0, (n % 256) as u8, 0xD0, 0xF5]);
+                    }
+                    out
+                };
+                let (s, d) = (s as i64, d as i64);
+                let mut out = section(s, d);
+                if *combined {
+                    let cd = hex(color_dst, "D800");
+                    if !cd.is_nan() {
+                        out.extend(section((s + n) & 0xFFFF, cd as i64));
+                    }
+                } else if !color_src.is_empty() {
+                    let (cs, cd) = (hex(color_src, "C3E8"), hex(color_dst, "D800"));
+                    if !cs.is_nan() && !cd.is_nan() {
+                        out.extend(section(cs as i64, cd as i64));
+                    }
+                }
+                Ok(out)
+            }
+            Kind::MapCopy16 { src, col, row, screen, color_src, color_dst } => {
+                let hex = |v: &str, d: &str| js_parse_int(if v.is_empty() { d } else { v }.trim_start_matches('$'), 16);
+                let s = hex(src, "3000");
+                let scr = hex(screen, "0400");
+                // `(src + 0x100) & 0xFFFF` when no colour source is given
+                let cs = if color_src.is_empty() { js_and(s + 256.0, 0xFFFF) as f64 } else { hex(color_src, "") };
+                let cd = hex(color_dst, "D800");
+                let (c, r) = (js_parse_int(col, 10), js_parse_int(row, 10));
+                let bad = |v: f64| v.is_nan() || !(0.0..=65535.0).contains(&v);
+                if bad(s) || bad(cs) {
+                    return Err("MAP_COPY16X16: invalid source address".into());
+                }
+                if bad(scr) || bad(cd) {
+                    return Err("MAP_COPY16X16: invalid destination address".into());
+                }
+                if c.is_nan() || !(0.0..=24.0).contains(&c) || r.is_nan() || !(0.0..=9.0).contains(&r) {
+                    return Err("MAP_COPY16X16: the position is out of range".into());
+                }
+                let (s, scr, cs, cd, c, r) = (s as i64, scr as i64, cs as i64, cd as i64, c as i64, r as i64);
+                let mut out = Vec::new();
+                for i in 0..16 {
+                    let a = (s + i * 16) & 0xFFFF;
+                    let d = (scr + (r + i) * 40 + c) & 0xFFFF;
+                    let ca = (cs + i * 16) & 0xFFFF;
+                    let cda = (cd + (r + i) * 40 + c) & 0xFFFF;
+                    out.extend([0xA2, 0x00, 0xBD, a as u8, (a >> 8) as u8, 0x9D, d as u8, (d >> 8) as u8, 0xBD, ca as u8, (ca >> 8) as u8, 0x9D, cda as u8, (cda >> 8) as u8, 0xE8, 0xE0, 0x10, 0xD0, 0xEF]);
+                }
+                Ok(out)
+            }
+            Kind::Reu { cmd, c64, reu, bank, len } => {
+                let hex = |v: &str, d: &str| js_parse_int(if v.is_empty() { d } else { v }.trim_start_matches('$'), 16);
+                let (c, e, l) = (hex(c64, "C000"), hex(reu, "0000"), hex(len, "0100"));
+                let b = self.numeric_value(if bank.is_empty() { "0" } else { bank }, Some(&self.labels), Base::Dec).unwrap_or(0.0);
+                if c.is_nan() || !(0.0..=65535.0).contains(&c) {
+                    return Err("REU: invalid C64 address".into());
+                }
+                if e.is_nan() || !(0.0..=65535.0).contains(&e) {
+                    return Err("REU: invalid REU address".into());
+                }
+                if b.is_nan() || !(0.0..=7.0).contains(&b) {
+                    return Err("REU: the bank must be 0-7".into());
+                }
+                if l.is_nan() || !(1.0..=65535.0).contains(&l) {
+                    return Err("REU: the length must be 1-65535".into());
+                }
+                let (c, e, l) = (c as i64, e as i64, l as i64);
+                let mut out = Vec::new();
+                for (v, reg) in [(c & 0xFF, 2), (c >> 8, 3), (e & 0xFF, 4), (e >> 8, 5), (js_and(b, 0xFF), 6), (l & 0xFF, 7), (l >> 8, 8), (*cmd as i64, 1)] {
+                    out.extend([0xA9, v as u8, 0x8D, reg, 0xDF]);
+                }
+                Ok(out)
+            }
+            Kind::IrqSetup { handler, raster } => {
+                let h = self.labels.get(handler).ok_or_else(|| format!("IRQ_SETUP: handler not found: {handler}"))?;
+                let r = self.macro_number(if raster.is_empty() { "FA" } else { raster }, &self.labels, Base::Hex);
+                let r = r.filter(|r| !(*r < 0.0 || *r > 255.0)).ok_or("IRQ_SETUP: the raster line must be a byte")?;
+                let h = js_and(h, -1);
+                Ok(vec![
+                    0x78, 0xA9, h as u8, 0x8D, 0x14, 0x03, 0xA9, (h >> 8) as u8, 0x8D, 0x15, 0x03,
+                    0xA9, js_and(r, 0xFF) as u8, 0x8D, 0x12, 0xD0,
+                    0xAD, 0x11, 0xD0, 0x29, 0x7F, 0x8D, 0x11, 0xD0,
+                    0xA9, 0x01, 0x8D, 0x19, 0xD0,
+                    0xAD, 0x1A, 0xD0, 0x09, 0x01, 0x8D, 0x1A, 0xD0,
+                    0xA9, 0x7F, 0x8D, 0x0D, 0xDC, 0xAD, 0x0D, 0xDC, 0x58,
+                ])
+            }
+            Kind::LoadFile { name, device, addr, error_label } => {
+                let file = loadfile_name(name);
+                if file.is_empty() {
+                    return Err("LOADFILE: empty file name".into());
+                }
+                // null < 8: an unresolved device fails
+                let dev = self.numeric_value(if device.is_empty() { "8" } else { device }, Some(&self.labels), Base::Dec).unwrap_or(0.0);
+                if dev.is_nan() || !(8.0..=30.0).contains(&dev) {
+                    return Err("LOADFILE: the device must be 8-30".into());
+                }
+                let a = addr.trim().trim_start_matches('$');
+                let over = if a.is_empty() {
+                    None
+                } else {
+                    let v = js_parse_int(a, 16);
+                    if v.is_nan() || !(0.0..=65535.0).contains(&v) {
+                        return Err("LOADFILE: invalid load address".into());
+                    }
+                    Some(v as i64)
+                };
+                let name_at = address + 3;
+                let skip = name_at + file.len() as i64;
+                let mut out = vec![0x4C, skip as u8, (skip >> 8) as u8];
+                out.extend(file.bytes());
+                out.extend([0xA9, file.len() as u8, 0xA2, name_at as u8, 0xA0, (name_at >> 8) as u8, 0x20, 0xBD, 0xFF]);
+                out.extend([0xA9, 0x01, 0xA2, js_and(dev, 0xFF) as u8, 0xA0, if over.is_some() { 0x00 } else { 0x01 }, 0x20, 0xBA, 0xFF]);
+                if let Some(v) = over {
+                    out.extend([0xA2, v as u8, 0xA0, (v >> 8) as u8]);
+                }
+                out.extend([0xA9, 0x00, 0x20, 0xD5, 0xFF]);
+                let label = error_label.trim();
+                if label.is_empty() {
+                    out.extend([0xB0, 0xFE]);
+                } else {
+                    let t = self.labels.get(label).ok_or_else(|| format!("LOADFILE: unknown label {label}"))?;
+                    let off = t - (address + out.len() as i64 + 2) as f64;
+                    if !(-128.0..=127.0).contains(&off) {
+                        return Err(format!("LOADFILE: the error label is too far ({off})"));
+                    }
+                    out.extend([0xB0, js_and(off, 0xFF) as u8]);
+                }
+                Ok(out)
+            }
+            Kind::Delay { frames } => {
+                let n = self.delay_frames(if frames.is_empty() { "1" } else { frames }).ok_or("DELAY: value must be 1-255 or a defined const")?;
+                let h = self.labels.get(DELAY_HELPER_LABEL).ok_or("DELAY: the helper routine has no address")? as i64;
+                Ok(vec![0xA2, js_and(n, 0xFF) as u8, 0x20, h as u8, (h >> 8) as u8])
+            }
             Kind::CharDef { base, index, raw } => {
                 let b = parse_address_value(base).unwrap_or(0x3800 as f64);
                 let idx = js_parse_int(if index.is_empty() { "0" } else { index }, 10);
@@ -1464,6 +1819,14 @@ impl Assembler {
         for line in &lines {
             self.add_labels(line);
         }
+        let has_delay = lines.iter().any(|l| matches!(l.block.kind, Kind::Delay { .. }));
+        let helper = if has_delay {
+            let at = self.delay_helper_address(&lines, origin);
+            self.labels.set(DELAY_HELPER_LABEL, at as f64);
+            Some(at)
+        } else {
+            None
+        };
         self.anon = lines.iter().filter(|l| matches!(l.block.kind, Kind::AnonLabel) && !l.skipped).map(|l| l.address).collect();
         self.anon.sort();
 
@@ -1502,6 +1865,9 @@ impl Assembler {
             if !bytes.is_empty() {
                 deferred.push((at, bytes.into_iter().map(to_uint8).collect()));
             }
+        }
+        if let Some(at) = helper {
+            deferred.push((at, delay_helper_bytes(at)));
         }
         let chunks: Vec<&(i64, Vec<u8>)> = sections.iter().filter(|s| !s.1.is_empty()).chain(deferred.iter()).collect();
         if chunks.is_empty() {
@@ -1739,9 +2105,37 @@ fn raw_operand(kind: &Kind) -> &str {
     match kind {
         Kind::Instr { raw, .. } | Kind::LongBranch { raw, .. } | Kind::Byte { raw, .. } | Kind::Word { raw, .. } | Kind::Fill { raw, .. } | Kind::Align { raw, .. } | Kind::Const { raw, .. } => raw,
         Kind::Assert { expr, .. } => expr,
-        Kind::PrintChar { raw } | Kind::SetColor { raw, .. } | Kind::Text { raw, .. } | Kind::Mem { raw, .. } | Kind::Print { raw, .. } | Kind::CharDef { raw, .. } => raw,
+        Kind::RtCmp { raw, .. } | Kind::PrintChar { raw } | Kind::SetColor { raw, .. } | Kind::Text { raw, .. } | Kind::Mem { raw, .. } | Kind::Print { raw, .. } | Kind::CharDef { raw, .. } => raw,
         _ => "",
     }
+}
+
+const DELAY_HELPER_LABEL: &str = "__delay_wait_frames";
+
+/// `buildDelayHelperBytes`: wait N frames (X), registers saved; its counter byte follows the code.
+fn delay_helper_bytes(at: i64) -> Vec<u8> {
+    let mut b = vec![
+        0x48, 0x8A, 0x48, 0x98, 0x48, 0x8E, 0x00, 0x00, 0xAD, 0x12, 0xD0, 0xC9, 0xFF, 0xD0, 0xF9, 0xAD, 0x12, 0xD0, 0xC9, 0xFF, 0xF0, 0xF9,
+        0xCE, 0x00, 0x00, 0xD0, 0xED, 0x68, 0xA8, 0x68, 0xAA, 0x68, 0x60,
+    ];
+    let counter = (at + b.len() as i64) & 0xFFFF;
+    b[6] = counter as u8;
+    b[7] = (counter >> 8) as u8;
+    b[23] = counter as u8;
+    b[24] = (counter >> 8) as u8;
+    b.push(0x00);
+    b
+}
+
+/// The LOADFILE file name: upper case, printable ASCII, at most 16 characters.
+fn loadfile_name(name: &str) -> String {
+    name.to_uppercase().chars().filter(|c| (' '..='~').contains(c)).take(16).collect()
+}
+
+/// `parseInt(mapCopySize, 10) || 1000`
+fn map_copy_size(size: &str) -> i64 {
+    let n = js_parse_int(size, 10);
+    if n.is_nan() || n == 0.0 { 1000 } else { n as i64 }
 }
 
 /// LDA #c / STA start+i for every byte
