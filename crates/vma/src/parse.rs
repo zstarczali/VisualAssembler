@@ -3,7 +3,7 @@
 //! `Kind::Unsupported`, which fails the build instead of assembling something else.
 
 use crate::expr::char_literal_to_hex;
-use crate::num::{import_parse_scalar, is_bin, is_dec, is_hex, js_hex_upper, js_parse_int, parse_number_by_base};
+use crate::num::{import_parse_scalar, is_bin, is_ident, is_dec, is_hex, js_hex_upper, js_parse_int, parse_number_by_base};
 use regex::Regex;
 use std::sync::OnceLock;
 
@@ -79,6 +79,16 @@ pub enum Kind {
     For { reg: char, count: String, label: String },
     Endf { label: String, reg: char, count: String },
     Var { name: String, size: String },
+    /// A macro with fixed code (CLEAR_SCREEN, WAIT_KEY, CHARSET, REU_CHECK, …)
+    Fixed { bytes: Vec<u8> },
+    /// SET_BORDER / SET_BG: `value` = `colorValue` (a macro expansion substitutes `raw` only)
+    SetColor { border: bool, value: String, raw: String },
+    WaitRaster { line: String },
+    TurboSet { speed: String, badline: String },
+    ExoDecrunch { depacker: String },
+    PrintChar { raw: String },
+    PrintHex { reg: char },
+    Rand { seed: String },
     /// A JS directive the Rust compiler does not assemble yet (its mnemonic).
     Unsupported { what: String },
 }
@@ -574,34 +584,80 @@ const UNPORTED: &[(&str, &str)] = &[
     (r"(?i)^\.data\s", "DATA"),
     (r"(?i)^\.rawbytes\s", "RAWBYTES"),
     (r"(?i)^\.petscii\s", "PETSCII"),
-    (r"(?i)^\.charset\s+(lower|upper)\s*$", "CHARSET"),
     (r"(?i)^\.chardef\s", "CHARDEF"),
     (r"(?i)^\.box_hit\s", "BOX_HIT"),
     (r"(?i)^\.table\s", "TABLE"),
     (r"(?i)^\.loadfile\s", "LOADFILE"),
-    (r"(?i)^\.exodecrunch\b", "EXODECRUNCH"),
     (r"(?i)^\.(include|incbin|koala|level|sid)\b", "FILE"),
     (r"(?i)^\.level_row\b", "LEVEL_ROW"),
     (r"(?i)^\.sprite_(init|pos|col|anim)\s", "SPRITE"),
     (r"(?i)^\.?(delay|wait)\s+", "DELAY"),
-    (r"(?i)^\.wait_raster\s", "WAIT_RASTER"),
-    (r"(?i)^\.(turbo_set|turbo_enable)\s", "TURBO"),
-    (r"(?i)^\.supercpu_detect\s*$", "SUPERCPU_DETECT"),
     (r"(?i)^\.joystick\s", "JOYSTICK"),
     (r"(?i)^\.mouse\s", "MOUSE"),
     (r"(?i)^\.map_copy(16x16)?\s", "MAP_COPY"),
     (r"(?i)^\.score_bcd\s", "SCORE_BCD"),
-    (r"(?i)^\.reu_(check|stash|fetch|swap)\b", "REU"),
+    (r"(?i)^\.reu_(stash|fetch|swap)\b", "REU"),
     (r"(?i)^\.mem(cpy|set)\s", "MEMCPY"),
-    (r"(?i)^\.print(_char|_hex)?\s", "PRINT"),
-    (r"(?i)^\.(clear_screen|wait_key)\s*$", "SCREEN"),
-    (r"(?i)^\.(set_border|set_bg)\s", "SET_COLOR"),
+    (r"(?i)^\.print\s", "PRINT"),
     (r"(?i)^\.sid_player\b", "SID_PLAYER"),
     (r"(?i)^\.irq_setup\s", "IRQ_SETUP"),
-    (r"(?i)^\.rand\b", "RAND"),
     (r"(?i)^\.(while|until|if)(?:_[axy]|\s+[AXY])\s+(==|=|!=|<=|>=|<|>)\s+", "RUNTIME_IF"),
     (r"(?i)^\.(endw|repeat)\s*$", "RUNTIME_LOOP"),
 ];
+
+/// The fixed-code macros of `parseExpertText` (their regexes, in the JS order).
+fn simple_macro(line: &str) -> Option<Kind> {
+    if let Some(c) = regex!(r"(?i)^\.charset\s+(lower|upper)\s*$").captures(line) {
+        let (op, mask) = if c[1].eq_ignore_ascii_case("lower") { (0x09, 0x02) } else { (0x29, 0xFD) };
+        return Some(Kind::Fixed { bytes: vec![0xAD, 0x18, 0xD0, op, mask, 0x8D, 0x18, 0xD0] });
+    }
+    if let Some(c) = regex!(r"(?i)^\.exodecrunch(?:\s+depacker\s*=\s*\$?([0-9A-Fa-f]{1,4}))?\s*$").captures(line) {
+        return Some(Kind::ExoDecrunch { depacker: c.get(1).map(|m| m.as_str().to_uppercase()).unwrap_or_else(|| "B000".into()) });
+    }
+    if let Some(c) = regex!(r"(?i)^\.wait_raster\s+(?:#?\$)?([A-Za-z_][A-Za-z0-9_]*|[0-9A-Fa-f]{1,2})\s*$").captures(line) {
+        return Some(Kind::WaitRaster { line: format!("{:0>2}", c[1].to_uppercase()) });
+    }
+    if let Some(c) = regex!(r"(?i)^\.turbo_set\s+([A-Za-z_][A-Za-z0-9_]*|\d{1,2})\s*,\s*([A-Za-z_][A-Za-z0-9_]*|[01])\s*$").captures(line) {
+        return Some(Kind::TurboSet { speed: c[1].to_string(), badline: c[2].to_string() });
+    }
+    if regex!(r"(?i)^\.supercpu_detect\s*$").is_match(line) {
+        return Some(Kind::Fixed { bytes: vec![0xAD, 0xB8, 0xD0, 0xC9, 0xFF] });
+    }
+    if let Some(c) = regex!(r"(?i)^\.turbo_enable\s+(on|off)\s*$").captures(line) {
+        let lo = if c[1].eq_ignore_ascii_case("on") { 0x7A } else { 0x7B };
+        return Some(Kind::Fixed { bytes: vec![0xA9, 0x00, 0x8D, lo, 0xD0] });
+    }
+    if regex!(r"(?i)^\.reu_check\s*$").is_match(line) {
+        // two $DF04 probes: present → Z=0, missing / open bus → Z=1
+        return Some(Kind::Fixed {
+            bytes: vec![
+                0xA9, 0x55, 0x8D, 0x04, 0xDF, 0xAD, 0x04, 0xDF, 0xC9, 0x55, 0xD0, 0x12, 0xA9, 0xAA, 0x8D, 0x04, 0xDF, 0xAD, 0x04, 0xDF, 0xC9, 0xAA, 0xD0, 0x06,
+                0xA9, 0x00, 0xC9, 0xFF, 0xD0, 0x04, 0xA9, 0xFF, 0xC9, 0xFF,
+            ],
+        });
+    }
+    if let Some(c) = regex!(r"(?i)^\.print_char\s+(.+)$").captures(line) {
+        return Some(Kind::PrintChar { raw: c[1].trim().to_string() });
+    }
+    if let Some(c) = regex!(r"(?i)^\.print_hex\s+([AXY])\s*$").captures(line) {
+        return Some(Kind::PrintHex { reg: c[1].to_uppercase().chars().next().unwrap() });
+    }
+    if regex!(r"(?i)^\.clear_screen\s*$").is_match(line) {
+        return Some(Kind::Fixed { bytes: vec![0xA9, 0x93, 0x20, 0xD2, 0xFF] });
+    }
+    if regex!(r"(?i)^\.wait_key\s*$").is_match(line) {
+        return Some(Kind::Fixed { bytes: vec![0x20, 0xE4, 0xFF, 0xC9, 0x00, 0xF0, 0xF9] });
+    }
+    if let Some(c) = regex!(r"(?i)^\.(set_border|set_bg)\s+(?:#?\$)?([A-Za-z_][A-Za-z0-9_]*|[0-9A-Fa-f]{1,2})\s*$").captures(line) {
+        let raw = c[2].trim();
+        let value = if is_ident(raw) { raw.to_string() } else { format!("{:0>2}", raw.to_uppercase()) };
+        return Some(Kind::SetColor { border: c[1].eq_ignore_ascii_case("set_border"), raw: value.clone(), value });
+    }
+    if let Some(c) = regex!(r"(?i)^\.rand(?:\s+([A-Za-z_][A-Za-z0-9_]*|\$[0-9A-Fa-f]{1,4}|[0-9A-Fa-f]{1,4}))?\s*$").captures(line) {
+        return Some(Kind::Rand { seed: c.get(1).map(|m| m.as_str().to_string()).unwrap_or_else(|| "$FB".into()) });
+    }
+    None
+}
 
 fn unported(line: &str) -> Option<&'static str> {
     static CELL: OnceLock<Vec<(Regex, &'static str)>> = OnceLock::new();
@@ -707,6 +763,10 @@ pub fn parse_expert_text(text: &str) -> Vec<Block> {
         if let Some(c) = regex!(r"(?i)^\.(push|pull)\s+([AXYaxy](?:\s*,?\s*[AXYaxy])*)\s*$").captures(line) {
             let regs: String = c[2].chars().filter(|ch| !ch.is_whitespace() && *ch != ',').collect::<String>().to_uppercase();
             push(&mut blocks, if c[1].eq_ignore_ascii_case("push") { Kind::Push { regs } } else { Kind::Pull { regs } });
+            continue;
+        }
+        if let Some(kind) = simple_macro(line) {
+            push(&mut blocks, kind);
             continue;
         }
         if let Some(what) = unported(line) {

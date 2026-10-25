@@ -217,6 +217,51 @@ impl Assembler {
         self.eval_word(normalized, Some(labels), false)
     }
 
+    /// `parseAddressValue(raw, labels)`: a label only by its exact name
+    fn address_value(raw: &str, labels: Option<&Labels>) -> Option<f64> {
+        if let Some(v) = parse_address_value(raw) {
+            return Some(v);
+        }
+        let t = raw.trim();
+        if is_ident(t) {
+            return labels.and_then(|l| l.get(t));
+        }
+        None
+    }
+
+    /// `parseMacroAddress` (preferred base hex)
+    fn macro_address(&self, raw: &str, labels: &Labels) -> Option<f64> {
+        let text = raw.trim();
+        if text.is_empty() {
+            return None;
+        }
+        Self::address_value(text, Some(labels)).or_else(|| self.const_value(text))
+    }
+
+    /// `parsePetsciiCharValue` with the label map
+    fn petscii_char_value(&self, raw: &str) -> Option<f64> {
+        let text = char_literal_to_hex(raw.trim().strip_prefix('#').unwrap_or(raw.trim()));
+        if text.is_empty() {
+            return None;
+        }
+        if let Some(b) = text.strip_prefix('%') {
+            return crate::num::is_bin(b).then(|| js_parse_int(b, 2));
+        }
+        if let Some(h) = text.strip_prefix('$') {
+            return is_hex(h).then(|| js_parse_int(h, 16));
+        }
+        if text.len() > 2 && text[..2].eq_ignore_ascii_case("0x") && is_hex(&text[2..]) {
+            return Some(js_parse_int(&text[2..], 16));
+        }
+        if crate::num::is_dec(&text) {
+            return text.parse::<f64>().ok();
+        }
+        if is_ident(&text) {
+            return self.labels.get3(&text);
+        }
+        None
+    }
+
     /// `resolveProgramNumericValue`
     fn numeric_value(&self, raw: &str, labels: Option<&Labels>, base: Base) -> Option<f64> {
         if raw.trim().is_empty() {
@@ -364,6 +409,13 @@ impl Assembler {
                 _ => 0,
             }).sum(),
             Kind::EndMacro => 1,
+            Kind::Fixed { bytes } => bytes.len() as i64,
+            Kind::SetColor { .. } | Kind::PrintChar { .. } => 5,
+            Kind::WaitRaster { .. } => 7,
+            Kind::TurboSet { .. } => 5,
+            Kind::ExoDecrunch { .. } => 19,
+            Kind::PrintHex { reg } => if *reg == 'A' { 30 } else { 31 },
+            Kind::Rand { .. } => 15,
             // an INVOKE (or a bare macro name) left unexpanded: the size of the body
             Kind::Invoke { name, .. } => self.macros.get(name).map(|m| m.body.iter().map(|b| self.size(b)).sum()).unwrap_or(0),
             Kind::Instr { mnem, .. } if self.macros.contains_key(mnem) => self.macros[mnem].body.iter().map(|b| self.size(b)).sum(),
@@ -500,6 +552,11 @@ impl Assembler {
                                 *raw = new_raw;
                                 *display = new_display;
                             }
+                        }
+                    }
+                    Kind::PrintChar { raw } | Kind::SetColor { raw, .. } => {
+                        if !raw.is_empty() {
+                            *raw = rewrite(raw);
                         }
                     }
                     Kind::LongBranch { raw, .. } | Kind::Byte { raw, .. } | Kind::Word { raw, .. } | Kind::Fill { raw, .. } | Kind::Align { raw, .. } | Kind::Const { raw, .. } => {
@@ -873,6 +930,62 @@ impl Assembler {
                 Ok(out)
             }
             Kind::EndMacro => Ok(vec![0x60]),
+            Kind::Fixed { bytes } => Ok(bytes.clone()),
+            Kind::SetColor { border, value, .. } => {
+                let mnem = if *border { "SET_BORDER" } else { "SET_BG" };
+                let v = self.macro_number(if value.is_empty() { "0" } else { value }, &self.labels, Base::Hex);
+                match v {
+                    Some(v) if !(v < 0.0 || v > 15.0) => Ok(vec![0xA9, js_and(v, 0xFF) as u8, 0x8D, if *border { 0x20 } else { 0x21 }, 0xD0]),
+                    _ => Err(format!("{mnem}: color must be 0-15")),
+                }
+            }
+            Kind::WaitRaster { line: rl } => {
+                let v = self.macro_number(if rl.is_empty() { "FF" } else { rl }, &self.labels, Base::Hex).unwrap_or(f64::NAN);
+                if v.is_nan() || !(0.0..=255.0).contains(&v) {
+                    return Err("WAIT_RASTER: the raster line must be a byte".into());
+                }
+                Ok(vec![0xAD, 0x12, 0xD0, 0xC9, to_uint8(v), 0xD0, 0xF9])
+            }
+            Kind::TurboSet { speed, badline } => {
+                let spd = self.macro_number(if speed.is_empty() { "7" } else { speed }, &self.labels, Base::Dec).unwrap_or(0.0);
+                if spd.is_nan() || !(0.0..=15.0).contains(&spd) {
+                    return Err("TURBO_SET: the speed must be 0-15".into());
+                }
+                let bad = if self.macro_number(if badline.is_empty() { "0" } else { badline }, &self.labels, Base::Dec) == Some(1.0) { 0x80 } else { 0 };
+                Ok(vec![0xA9, (js_and(spd, 0x0F) as u8) | bad, 0x8D, 0x31, 0xD0])
+            }
+            Kind::ExoDecrunch { depacker } => {
+                let a = js_parse_int(depacker.strip_prefix('$').unwrap_or(depacker), 16);
+                if a.is_nan() || !(0.0..=65535.0).contains(&a) {
+                    return Err("EXODECRUNCH: invalid depacker address".into());
+                }
+                let a = a as u16;
+                Ok(vec![0xA5, 0xAE, 0x85, 0x04, 0xA5, 0xAF, 0x85, 0x05, 0xA9, 0x36, 0x85, 0x01, 0x20, a as u8, (a >> 8) as u8, 0xA9, 0x37, 0x85, 0x01])
+            }
+            Kind::PrintChar { raw } => match self.petscii_char_value(raw) {
+                Some(v) if (0.0..=255.0).contains(&v) => Ok(vec![0xA9, js_and(v, 0xFF) as u8, 0x20, 0xD2, 0xFF]),
+                _ => Err(format!("PRINT_CHAR: cannot resolve value \"{raw}\"")),
+            },
+            Kind::PrintHex { reg } => {
+                let mut out = match reg {
+                    'X' => vec![0x8A],
+                    'Y' => vec![0x98],
+                    _ => Vec::new(),
+                };
+                let nibble = [0xC9, 0x0A, 0x90, 0x02, 0x69, 0x06, 0x69, 0x30, 0x20, 0xD2, 0xFF];
+                out.extend([0x48, 0x4A, 0x4A, 0x4A, 0x4A]);
+                out.extend(nibble);
+                out.extend([0x68, 0x29, 0x0F]);
+                out.extend(nibble);
+                Ok(out)
+            }
+            Kind::Rand { seed } => match self.macro_address(if seed.is_empty() { "$FB" } else { seed }, &self.labels) {
+                Some(a) if (0.0..=65535.0).contains(&a) => {
+                    let (lo, hi) = (js_and(a, 0xFF) as u8, ((js_and(a, -1) >> 8) & 0xFF) as u8);
+                    Ok(vec![0xAD, lo, hi, 0xD0, 0x02, 0xA9, 0xA5, 0x0A, 0x90, 0x02, 0x49, 0x1D, 0x8D, lo, hi])
+                }
+                _ => Err("RAND: invalid seed address".into()),
+            },
             // a bare macro name left unexpanded inside a macro body: no bytes (as in JS)
             Kind::Instr { mnem, .. } if self.macros.contains_key(mnem) && !OPCODES.iter().any(|(m, _, _)| m == mnem) => Ok(Vec::new()),
             Kind::Byte { error: Some(e), .. } => Err(e.clone()),
@@ -1265,6 +1378,7 @@ fn raw_operand(kind: &Kind) -> &str {
     match kind {
         Kind::Instr { raw, .. } | Kind::LongBranch { raw, .. } | Kind::Byte { raw, .. } | Kind::Word { raw, .. } | Kind::Fill { raw, .. } | Kind::Align { raw, .. } | Kind::Const { raw, .. } => raw,
         Kind::Assert { expr, .. } => expr,
+        Kind::PrintChar { raw } | Kind::SetColor { raw, .. } => raw,
         _ => "",
     }
 }

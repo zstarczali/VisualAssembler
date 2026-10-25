@@ -275,7 +275,13 @@ const VARIANTS = {
   "runtime-control": "* = $1000\n    .if A == #$00\n    inc $D020\n    .else\n    inc $D021\n    .endif\n    .while X != #$05\n    inx\n    .endw\n    .repeat\n    dey\n    .until Y == #$00\n    rts\n",
   "irq-wait-raster": "* = $1000\n    .irq_setup handler=irq, raster=$30\n    rts\nirq:\n    .wait_raster $80\n    jmp $EA31\n",
   "incbin-addr": '* = $1000\n    .incbin "demo-colors.bin", $3000\n    rts\n',
-  "macro-nested-error": ".macro border(c)\n    lda #{c}\n    sta $D020\n.endm\n.macro both(c)\n    :border({c})\n.endm\n* = $1000\n    :both(3)\n    rts\n"
+  "fixed-code-macros": ".const BORDER = 6\n.const SEED = $02\nseed2 = $0340\n* = $1000\n    .set_border BORDER\n    .set_bg $0E\n    .set_border a\n    .charset upper\n    .charset lower\n    .turbo_set 15, 1\n    .turbo_set 3, 0\n    .turbo_enable off\n    .supercpu_detect\n    .reu_check\n    .exodecrunch\n    .exodecrunch depacker=$C800\n    .rand\n    .rand SEED\n    .rand seed2\n    .rand C000\n    .wait_raster 7F\n    .wait_raster #$FA\n    .clear_screen\n    .wait_key\n    .print_hex X\n    .print_hex Y\n    .print_char 65\n    .print_char $0D\n    .print_char %1000001\n    .print_char BORDER\n    rts\n",
+  "fixed-code-in-macro": ".macro pr(ch)\n    .print_char ch\n    .print_char {ch}\n.endm\n* = $1000\n    :pr(5)\n    rts\n",
+  "set-color-in-macro-error": ".macro col(c)\n    .set_border c\n.endm\n* = $1000\n    :col(5)\n    rts\n",
+  "set-color-range-error": "* = $1000\n    .set_bg $10\n    rts\n",
+  "print-char-unknown-error": "* = $1000\n    .print_char nothing\n    rts\n",
+  "wait-raster-unknown": "* = $1000\n    .wait_raster nothing\n    .turbo_set nothing, x\n    rts\n",
+  "macro-nested-error":".macro border(c)\n    lda #{c}\n    sta $D020\n.endm\n.macro both(c)\n    :border({c})\n.endm\n* = $1000\n    :both(3)\n    rts\n"
 };
 
 // Kick sources reach the VMA through _kickPreprocess: its output is a VMA case of its own.

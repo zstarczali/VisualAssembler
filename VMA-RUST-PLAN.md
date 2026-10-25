@@ -14,16 +14,16 @@ azonos marad a mai JS fordítóéval — ezt a golden korpusz (`tests/vma-golden
 | F1 JS-hibák javítása, korpusz bővítése | ✔ kész | `8291481`, `c029369` |
 | F2 Rust mag + CLI (`crates/vma`) | ✔ kész | `c0cc68d` |
 | F3 makrók, LOOP/FOR, `.var`, PUSH/PULL | ✔ kész | `536986e` |
-| **F4 kódgeneráló makrók** | **folyamatban** — a JS-oldal fel van dolgozva (7. szakasz), Rust-kód még nincs | — |
+| **F4 kódgeneráló makrók** | **folyamatban** — 1. adag (fix kódú makrók) kész, a 2. adag jön | — |
 | F5 fájl-makrók | hátra | — |
 | F6 bekötés a VA-ba (Tauri `vma_build`, shadow mód) | hátra | — |
 | F7 WASM, a szinkron UI-elemzések | hátra | — |
 | F8 Kick előfeldolgozó (opcionális), JS mag törlése, dokumentáció | hátra | — |
 
-Golden állás (`node scripts/vma-rust-report.js`): **420 esetből 188 bájtra egyezik, 232 egy még nem portolt
-direktívánál áll meg, 0 eltérés.** A legtöbb esetet blokkoló direktívák: FILE 40 (F5), TEXT 22, SPRITE 18,
-RUNTIME_IF 16, PETSCII 12, SCREEN 10, SET_COLOR 10, REU 10, JOYSTICK 10, MAP_COPY 8, CHARSET 8,
-RUNTIME_LOOP 8, PRINT 8, RAWBYTES 6, majd 2–4 esettel a többi.
+Golden állás (`node scripts/vma-rust-report.js`): **432 esetből 218 bájtra egyezik, 12 elvárt hiba, 202 egy még
+nem portolt direktívánál áll meg, 0 eltérés.** A legtöbb esetet blokkoló direktívák: FILE 40 (F5), TEXT 28,
+SPRITE 18, RUNTIME_IF 16, PETSCII 12, PRINT 12, MAP_COPY 10, JOYSTICK 10, REU 8, RUNTIME_LOOP 8, RAWBYTES 6,
+majd 2–4 esettel a többi.
 
 Ellenőrzés bármikor: `npm test` (a golden Rust-ága a `crates/vma/target/{debug,release}/vma.exe`-t használja,
 ha le van fordítva), `cargo test --offline` a `crates/vma`-ban, és az esetenkénti riport fent.
@@ -31,8 +31,11 @@ ha le van fordítva), `cargo test --offline` a `crates/vma`-ban, és az esetenk�
 ### Teendők sorrendben
 
 1. **F4** — a 7. szakasz listája szerint, kisebb adagokban, minden adag után `cargo build` + riport:
-   1. egyszerű, fix kódú makrók: SET_BORDER / SET_BG, CLEAR_SCREEN, WAIT_KEY, RAND, TURBO_SET / TURBO_ENABLE,
-      SUPERCPU_DETECT, WAIT_RASTER, CHARSET, REU_CHECK, EXODECRUNCH, PRINT_CHAR, PRINT_HEX;
+   1. ✔ egyszerű, fix kódú makrók: SET_BORDER / SET_BG, CLEAR_SCREEN, WAIT_KEY, RAND, TURBO_SET / TURBO_ENABLE,
+      SUPERCPU_DETECT, WAIT_RASTER, CHARSET, REU_CHECK, EXODECRUNCH, PRINT_CHAR, PRINT_HEX (`parse.rs`
+      `simple_macro`, `Kind::Fixed` / `SetColor` / `WaitRaster` / `TurboSet` / `ExoDecrunch` / `PrintChar` /
+      `PrintHex` / `Rand`; golden: `var-fixed-code-*`, `var-set-color-*`, `var-print-char-unknown-error`,
+      `var-wait-raster-unknown`);
    2. szöveg / adat: TEXT, STRING, DATA, PRINT, PETSCII, RAWBYTES, RAWTEXT (+ deferred darabok a PRG-ben),
       CHARDEF, TABLE, a `macroLabel` címkék;
    3. sprite / input: SPRITE_INIT, SPRITE_POS, SPRITE_COL, SPRITE_ANIM, JOYSTICK (mindkét mód), MOUSE,
@@ -59,7 +62,13 @@ utána golden-frissítés):
 - `lda $1234+1` fordítási hiba (`$`-ral kezdődő kifejezés nem megy át az operandus-ellenőrzésen);
 - a paraméter nélküli makró törzse a definíció helyén is lefordul — az első `* =` előtti definíció a
   program elejére kerül, és a következő ORG felülírja;
-- a futásidejű IF / WHILE címkéi (`_if_else_…`) makrón belül nem lesznek hívásonként egyediek.
+- a futásidejű IF / WHILE címkéi (`_if_else_…`) makrón belül nem lesznek hívásonként egyediek;
+- `.set_border` / `.set_bg` makrótörzsben paraméterrel hibát ad: a kibontás a `rawOperand`-ot helyettesíti,
+  a fordító a `colorValue`-t olvassa (`var-set-color-in-macro-error`);
+- feloldatlan TURBO_SET sebesség 0-val fordul (`null` mint 0).
+
+F4 közben javított JS-hiba: feloldatlan címkéjű `.wait_raster` TypeError-ral szállt el a `compileLineBytes`-ban
+(`rl.toString` `null`-on) — most `compileWaitRasterByte` hibát ad.
 
 ---
 

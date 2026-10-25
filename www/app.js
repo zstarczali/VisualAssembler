@@ -30511,7 +30511,7 @@ function compileLineBytes(line, labels) {
 
   if (block.isWaitRasterMacro) {
     const rl = parseMacroNumber(block.rasterLine || "FF", labels, "hex");
-    if (isNaN(rl) || rl < 0 || rl > 255) {
+    if (rl === null || isNaN(rl) || rl < 0 || rl > 255) {
       return { ok: false, error: t("compileWaitRasterByte") };
     }
     const rlHex = rl.toString(16).toUpperCase().padStart(2, "0");
